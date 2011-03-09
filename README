@@ -1,0 +1,149 @@
+Support
+-------
+
+  Found a bug, want a feature or tell how great Goggles Music Manager is/sucks.
+  Please mail me at s.jansen@gmail.com or file an issue at
+  http://code.google.com/p/gogglesmm
+
+
+Installation
+------------
+
+  Read the INSTALL file on how to build and install Goggles Music Manager on
+  your machine. Note that as of the 0.9.x the build system has changed, hopefully
+  even more easier to use than before.
+
+
+Upgrading
+---------
+
+  The database for 0.8.x / 0.9.x / 0.10.x users are automatically upgraded. If you're upgrading from
+  Goggles Music Manager 0.7.x or before you will have to reimport your music due to changes in the database.
+
+
+FOX 1.6 / FOX 1.7
+------------------
+
+  Any FOX-1.6.x should work. I recommend to get latest version available (1.6.37 at the time of writing).
+
+  Use FOX-1.7.x at your own risk. In general it should work with the latest release
+  and development snapshot. If it doesn't, you could try to fix it yourself or wait
+  for me to catch up with the latest FOX changes. You might want consider using the SVN
+  version of Goggles Music Manager as well since this should contain the latest updates.
+
+
+Last-FM
+-------
+
+	Join the Goggles Music Manager group:
+		http://www.last.fm/group/Goggles+Music+Manager
+
+  To start scrobble tracks:
+
+    Go to <edit><preferences> and fill in your lastfm username and password.
+    If Goggles Music Manager can successfully authenticate with the lastfm service tracks,
+    will automatically get 'scrobbled'. If no internet connection is present (or a invalid
+    user/password has been given), tracks to be submitted will be queued until a internet
+    connection can be established again.
+
+    The queue is kept in ~/.goggles/scrobbler.cache.
+
+  To stop scrobble tracks:
+
+    Uncheck last.fm or remove the lastfm username and password from preferences dialog.
+    Note that tracks won't be queued either.
+
+  Limitations / Implementation Details
+
+    * Uses audioscrobbler realtime submission protocol v1.2
+    * No proxy support.
+    * Standard 1 minute delay before submitting played tracks.
+    * 80% of track need to be played to be counted as played.
+      Only tracks longer than 30sec will be submitted to last-fm.
+
+
+Audio Configuration
+-------------------
+
+  Specific configuration settings for XINE may be set in
+
+  $(XDG_CONFIG_HOME)/gogglesmm/xineconf
+
+  Run and play a track in Goggles Music Manager once to automatically create a default configuration.
+
+
+Keyboard Shortcuts
+------------------
+
+    Ctrl-N	Reset default sorting order in current view.
+    Ctrl-R  Shuffle track list.
+    Ctrl-B	Toggles browse mode on or off.
+    Ctrl-G	Toggles Genre list in browse mode.
+    Ctrl-Q	Quit Goggles Music Manager.
+    Ctrl-O	Import files from given directory.
+    Ctrl-J	Jump to playing song in track list.
+    Ctrl-F  Find
+         /  Find
+    Ctrl-S  Show source browser
+    Ctrl-P  Start playback.
+    Ctrl-\  Stop playback.
+    Ctrl-[  Play previous track.
+    Ctrl-]  Play next track.
+    Ctrl-T  Toggle Repeat A-B.
+    Ctrl-A  Select All in lists.
+    Ctrl-W  Close Main Window
+		F11			Show Mini Player.
+    F12     Show Full Screen.
+    F2      Edit selected track, album, artist or genre.
+    Del     Delete selected track, album, artist or genre.
+
+
+DBus Interface
+--------------
+
+  name     : org.fifthplanet.gogglesmm
+  interface: org.fifthplanet.gogglesmm
+  path     : /org/fifthplanet/gogglesmm
+
+
+  Methods
+  -------
+
+  org.fifthplanet.gogglesmm.play()
+
+  org.fifthplanet.gogglesmm.playpause()
+
+  org.fifthplanet.gogglesmm.stop()
+
+  org.fifthplanet.gogglesmm.next()
+
+  org.fifthplanet.gogglesmm.prev()
+
+  org.fifthplanet.gogglesmm.raise()
+
+  org.fifthplanet.gogglesmm.exit()
+
+  org.fifthplanet.gogglesmm.toggleshown()
+
+  org.fifthplanet.gogglesmm.open(in STRING url)
+
+  org.fifthplanet.gogglesmm.getactions(out UINT32 actions)
+
+    CAN_PLAY  = 0x1,
+    CAN_PAUSE = 0x2,
+    CAN_STOP	= 0x4,
+    CAN_NEXT  = 0x8,
+    CAN_PREV	= 0x10,
+
+
+
+
+
+
+
+
+
+
+
+
+

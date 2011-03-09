@@ -1,0 +1,173 @@
+/*******************************************************************************
+*                         Goggles Music Manager                                *
+********************************************************************************
+*         Copyright (C) 2008-2010 by Sander Jansen. All Rights Reserved        *
+*                               ---                                            *
+* This program is free software: you can redistribute it and/or modify         *
+* it under the terms of the GNU General Public License as published by         *
+* the Free Software Foundation, either version 3 of the License, or            *
+* (at your option) any later version.                                          *
+*                                                                              *
+* This program is distributed in the hope that it will be useful,              *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of               *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
+* GNU General Public License for more details.                                 *
+*                                                                              *
+* You should have received a copy of the GNU General Public License            *
+* along with this program.  If not, see http://www.gnu.org/licenses.           *
+********************************************************************************/
+#ifndef GMAUDIOSCROBBLER_H
+#define GMAUDIOSCROBBLER_H
+
+
+class GMHost {
+public:
+  FXString name;
+  FXString path;
+  FXuint port;
+public:
+  GMHost() : port(0) {}
+  GMHost(const FXString & n,FXuint p) : name(n), port(p) {}
+
+  FXbool parse(const FXString & uri);
+  };
+
+struct GMAudioScrobblerTrack {
+  FXString artist;
+  FXString album;
+  FXString title;
+  FXuint   duration;
+  FXint    no;
+  FXlong   timestamp;
+  FXint    loveban;
+  GMAudioScrobblerTrack(){}
+  GMAudioScrobblerTrack(FXlong time,GMTrack & t,FXint lb) : artist(t.artist),album(t.album),title(t.title),duration(t.time),no(t.no),timestamp(time)/* LastFM */,loveban(lb)/* LastFM End */{}
+
+  void load(FXStream & store);
+  void save(FXStream & store) const;
+
+  FXuint getTimeStamp() const { return (FXuint)(timestamp/1000000000); }
+
+  void clear();
+  };
+
+typedef FXArray<GMAudioScrobblerTrack> GMAudioScrobblerTrackList;
+
+enum {
+  SERVICE_LASTFM,
+  SERVICE_LIBREFM,
+  SERVICE_CUSTOM
+  };
+
+class GMAudioScrobbler : public FXThread {
+private:
+  FXMutex           mutex_task;
+  FXMutex           mutex_data;
+  FXCondition       condition_task;
+  FXuchar           flags;
+  FXMessageChannel  feedback;
+  FXObject*         target;
+  FXSelector        message;
+  FXbool            started;
+private:
+  FXuint            mode;
+  GMHost            host_handshake;
+  GMHost            host_nowplaying;
+  GMHost            host_submit;
+  FXString          username;
+  FXString          password;
+  FXString          session;
+  FXString          token;
+protected:
+  FXlong            timeout;
+protected:
+  FXint             server;
+  FXDict            dnscache;
+private:
+  enum {
+    TASK_NONE         = 0x0,
+    TASK_LOGIN 			  = 0x1,
+    TASK_NOWPLAYING   = 0x2,
+    TASK_SUBMIT 		  = 0x4,
+    TASK_SHUTDOWN     = 0x8,
+    TASK_AUTHENTICATE = 0x10,
+    };
+private:
+  enum {
+    FLAG_NONE          = 0,
+    FLAG_LOGIN_CHANGED = 0x1,
+    FLAG_BANNED        = 0x2,
+    FLAG_BADAUTH       = 0x4,
+    FLAG_BADTIME			 = 0x8,
+    FLAG_SHUTDOWN      = 0x10,
+    FLAG_TIMEOUT       = 0x20,
+    FLAG_NETWORK       = 0x40,
+    FLAG_DISABLED      = 0x80,
+    FLAG_SERVICE       = 0x100
+    };
+protected:
+  FXint run();
+protected:
+  FXbool open_connection(const GMHost &);
+  void close_connection();
+  FXbool do_request(const GMHost & host,const FXString & msg,FXchar *& buffer,FXint & length);
+protected:
+  FXuchar getNextTask();
+  FXbool  waitForTask();
+  void    runTask();
+  void    wakeup();
+protected:
+  GMAudioScrobblerTrack     nowplayingtrack;
+  GMAudioScrobblerTrackList submitqueue;
+  FXint nsubmitted;
+  FXint nfailed;
+protected:
+  void authenticate();
+  void handshake();
+  void submit();
+  void nowplaying();
+  void loveban();
+  void create_loveban_request(GMHost &,FXString &);
+  void process_loveban_response(const FXchar *,FXint);
+  void create_token_request(FXString &);
+  void process_token_response(const FXchar *,FXint);
+  void create_handshake_request(FXString &);
+  void process_handshake_response(const FXchar *,FXint);
+  void create_nowplaying_request(GMHost &,FXString &);
+  void process_nowplaying_response(const FXchar *,FXint);
+  void create_submit_request(GMHost &,FXString &);
+  void process_submit_response(const FXchar *,FXint);
+  void set_timeout();
+  void reset_timeout();
+  void set_submit_failed();
+  void load_queue();
+  void save_queue();
+  FXbool can_submit();
+public:
+  GMAudioScrobbler(FXObject* tgt,FXSelector msg);
+  FXString getUsername();
+  FXbool hasPassword();
+  FXbool isBanned();
+  FXbool isEnabled();
+  FXuint getService();
+
+  void nowplaying(GMTrack & info);
+  void loveban(GMTrack & info, FXint loveban);
+
+  void service(FXuint s);
+  void submit(FXlong timestamp,GMTrack & info);
+  void login(const FXString & user,const FXString & pass);
+  void shutdown();
+  void nudge();
+  void disable();
+  void enable();
+
+  virtual ~GMAudioScrobbler();
+  };
+
+extern FXbool init_gcrypt();
+
+
+#endif
+
+

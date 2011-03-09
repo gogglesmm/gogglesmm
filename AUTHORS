@@ -1,0 +1,39 @@
+Goggles Music Manager
+Copyright (C) 2002-2010 by Sander Jansen. All Rights Reserved.
+
+Various code snippets from FOX-Toolkit
+Copyright (c) 1998-2010 by Jeroen van der Zijp. All Rights Reserved.
+
+Translations
+------------
+Hendrik Rittich (German)
+Víctor Pérez Masegosa (Spanish)
+Erwan Inyzant (French)
+Sándor Sipos (Hungarian)
+L Lawliet (Russian)
+
+Other Contributions
+-------------------
+
+ - Ratings patch by Julien Desgats. 
+
+ - Original "Goggles" logo designed by Gyurka Jansen.
+      (http://glas.its.tudelft.nl/~gyurka)
+
+ - Contains icons from Tango and Gnome icon themes.
+
+ - MD5 implementation see: src/md5.cpp
+
+
+Thanks for all the Fish!
+------------------------
+
+  - Thanks to Charles Warren and Jeroen van der Zijp for testing and many useful suggestions.
+  - Thanks to Oktay Cetinkaya for feedback and bugreports.
+  - Thanks to Gyurka Jansen for the Goggles Logo!.
+  - Thanks to Jason Donenfeld for the many useful suggestions and bug reports.
+  - Thanks to Oliver Duclos for the first tray icon implementation and the usefull bug reports.
+  - Thanks to Sascha Klauder for FreeBSD porting.
+  - Thanks to Chadi El Ahmad for the SliTaz package.
+  - Thanks to John Tyree for feedback and bugreports.
+  - Thanks to Julien Desgats for patches and contributions.

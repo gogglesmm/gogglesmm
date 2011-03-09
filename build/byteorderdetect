@@ -1,0 +1,55 @@
+#-----------------------------------------------------------
+# GOGGLES BUILD SYSTEM
+#-----------------------------------------------------------
+#
+# This will determine the byteorder
+#
+#-----------------------------------------------------------
+cd build
+
+makebyteorder() {
+cat > checkbyteorder.cpp <<__EOF
+int main()
+{
+  if (sizeof(long int) == 4) {
+    long int testInt = 0x12345678;
+    char * pMem;
+    pMem = (char *)&testInt;
+    if (pMem[0] == 0x78)
+      return 0;
+    else
+      return 1;
+    }
+  else if (sizeof(int) == 4) {
+    int testInt = 0x12345678;
+    char * pMem;
+    pMem = (char *) &testInt;
+    if (pMem[0] == 0x78)
+      return 0;
+    else
+      return 1;
+    }
+  return 0;
+}
+__EOF
+}
+
+
+makebyteorder
+$CXX ${OUTPUTBIN} checkbyteorder checkbyteorder.cpp
+
+BYTEORDER=${BYTEORDER:-0}
+if [ -x checkbyteorder ] ; then
+  ./checkbyteorder
+	if [ $? -eq 1 ] ; then
+		BYTEORDER=1
+	fi
+	rm -rf checkbyteorder
+fi
+rm -rf checkbyteorder.cpp
+cd ..
+echo "" >> $CFG
+echo "#ifndef FOX_BIGENDIAN" >> $CFG
+echo "#define FOX_BIGENDIAN ${BYTEORDER}" >> $CFG
+echo "#endif" >> $CFG
+echo "" >> $CFG

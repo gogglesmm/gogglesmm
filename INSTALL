@@ -1,0 +1,48 @@
+Installation Instructions
+-------------------------
+
+   1. Install all required dependencies:
+
+  	  * FOX 1.6.x (recommended)
+
+        or
+
+      * FOX 1.7.x (latest development release, see README file for details)
+
+	    * xine-lib >= 1.1.16
+  	  * sqlite >= 3.6.3
+    	* taglib >= 1.6.3
+      * dbus 1.0.x (optional)
+      * libcurl >= 7.19
+      * expat
+
+   2. Run the configure script:
+
+      > ./configure
+
+   3. Compile
+
+      > make
+
+   4. If everything compiled fine, you are ready to install Goggles Music Manager in its final location.
+   		By default this will be in /usr. Using the --prefix option on the configure command line you may
+   		change this to something else (eg. ./configure --prefix=/usr/local )
+
+			> su
+      > make install
+
+   5. Run the software
+
+			> gmm
+
+For package maintainers
+-----------------------
+
+   * All icons are installed in (prefix)/share/icons/hicolor/
+	 * gmm.desktop is installed in (prefix)/share/applications
+
+	- Support DESTDIR variable when running make install:
+
+			make DESTDIR=/some/package install
+
+		This will install gmm in /some/package/(prefix)/bin/gmm

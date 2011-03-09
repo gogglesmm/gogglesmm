@@ -1,0 +1,3065 @@
+# German translations for musicmanager package.
+# Copyright (C) 2009 Sander Jansen
+# This file is distributed under the same license as the musicmanager package.
+# Hendrik Rittich <hendrik.rittich@gmx.de>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gogglesmm 0.10.0\n"
+"Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
+"POT-Creation-Date: 2009-06-01 16:04-0500\n"
+"PO-Revision-Date: 2009-05-31 23:51+0200\n"
+"Last-Translator: Hendrik Rittich <hendrik.rittich@gmx.de>\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/GMAbout.cpp:33 src/GMAbout.cpp:38
+msgid "About"
+msgstr "Über"
+
+#: src/GMAbout.cpp:130 src/GMDatabaseSource.cpp:212
+#: src/GMDatabaseSource.cpp:2177 src/GMPreferencesDialog.cpp:516
+msgid "&Close"
+msgstr "S&chließen"
+
+#: src/GMColumnDialog.cpp:199
+msgid "Configure Columns"
+msgstr "Spalten konfigurieren"
+
+#: src/GMColumnDialog.cpp:202 ../../../fox-1.6.36/src/FXColorSelector.cpp:168
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:113
+msgid "&Accept"
+msgstr "Über&nehmen"
+
+#: src/GMColumnDialog.cpp:203 src/GMDatabaseSource.cpp:99
+#: src/GMDatabaseSource.cpp:1300 src/GMDatabaseSource.cpp:1714
+#: src/GMDatabaseSource.cpp:1814 src/GMDatabaseSource.cpp:1885
+#: src/GMDatabaseSource.cpp:2118 src/GMDatabaseSource.cpp:2144
+#: src/GMImportDialog.cpp:314 src/GMPlayListSource.cpp:275
+#: src/GMPlayListSource.cpp:414 src/GMSearch.cpp:562
+#: src/GMStreamSource.cpp:170 src/GMStreamSource.cpp:207
+#: src/GMStreamSource.cpp:272 src/GMWindow.cpp:1095
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:107
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:118
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:123
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:129
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:135
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:142
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:169
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:114
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:135
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:205
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:113
+msgid "&Cancel"
+msgstr "A&bbrechen"
+
+#: src/GMColumnDialog.cpp:207
+msgid ""
+"Choose the order of information to appear\n"
+"in the track list."
+msgstr ""
+"Bitte wählen Sie die Reihenfolge, in der die\n"
+"Informationen in der Titelliste erscheinen sollen."
+
+#: src/GMColumnDialog.cpp:213
+msgid "Move Up"
+msgstr "Nach oben verschieben"
+
+#: src/GMColumnDialog.cpp:214
+msgid "Move Down"
+msgstr "Nach unten verschieben"
+
+#: src/GMDatabaseSource.cpp:53
+msgid "Invalid Template"
+msgstr "Ungültige Vorlage"
+
+#: src/GMDatabaseSource.cpp:53
+#, c-format
+msgid ""
+"The provided template is invalid. The track title %%T needs to be "
+"specified.\n"
+"Please fix the filename template in the preference panel."
+msgstr ""
+"Die eingegebene Vorlage ist leider ungültig. Der Name des Titels %%T muss "
+"angegeben werden.\n"
+"Bitte korrigieren Sie die Vorlage für Dateinamen im Einstellungs-Dialog."
+
+#: src/GMDatabaseSource.cpp:73
+msgid "Database Error"
+msgstr "Datenbank-Fehler"
+
+#: src/GMDatabaseSource.cpp:73
+msgid "Oops. Database Error"
+msgstr "Oh je. Ein Datenbank-Fehler"
+
+#: src/GMDatabaseSource.cpp:88
+msgid "No changes"
+msgstr "Keine Änderungen"
+
+#: src/GMDatabaseSource.cpp:88
+msgid "Filenames did not require any changes"
+msgstr "Für die Dateinamen war keine Änderung nötig"
+
+#: src/GMDatabaseSource.cpp:95
+msgid "Rename Audio Files?"
+msgstr "Audio-Dateien umbenennen?"
+
+#: src/GMDatabaseSource.cpp:96
+msgid "Renaming Audio Files…"
+msgstr "Die Audio-Dateien werden umbenannt…"
+
+#: src/GMDatabaseSource.cpp:96
+msgid "The following audio files are going to be renamed"
+msgstr "Die folgenden Audio-Dateien werden umbenannt"
+
+#: src/GMDatabaseSource.cpp:98
+msgid "&Rename"
+msgstr "Um&benennen"
+
+#: src/GMDatabaseSource.cpp:105
+msgid "Old Name"
+msgstr "Alter Name"
+
+#: src/GMDatabaseSource.cpp:106
+msgid "New Name"
+msgstr "Neuer Name"
+
+#: src/GMDatabaseSource.cpp:124 src/GMDatabaseSource.cpp:128
+msgid "Unable to rename file"
+msgstr "Umbenennen der Datei nicht möglich"
+
+#: src/GMDatabaseSource.cpp:124
+#, fuzzy, c-format
+msgid ""
+"Unable to rename:\n"
+"%s\n"
+"\n"
+"to:%s\n"
+"Continue renaming files?"
+msgstr ""
+"Konnte die Datei nicht von:\n"
+"\n"
+"%s  nach:  %s  verschieben.\n"
+"\n"
+"Trotzdem fortfahren?"
+
+#: src/GMDatabaseSource.cpp:128
+#, fuzzy, c-format
+msgid ""
+"Unable to rename:\n"
+"%s\n"
+"\n"
+"to:%s"
+msgstr "Umbenennen der Datei nicht möglich"
+
+#: src/GMDatabaseSource.cpp:163 src/GMImportDialog.cpp:288
+msgid "Filename Template"
+msgstr "Vorlage für Dateinamen"
+
+#: src/GMDatabaseSource.cpp:180
+msgid ""
+"Template may contain absolute or relative path, environment variables\n"
+"and ~. Relative paths are based on the location of the original file. The\n"
+"file extension gets automatically added. The following macros\n"
+"may be used:"
+msgstr ""
+"Die Vorlage darf einen absoluten oder relativen Pfad enthalten, \n"
+"Umgebungsvariablen und ~. Relative Pfadangaben beziehen sich auf den\n"
+"ursprünglichen Ort der Datei. Die Datei-Erweiterung wird automatisch\n"
+"ergänzt. Die folgenden Macros dürfen benutzt werden:"
+
+#: src/GMDatabaseSource.cpp:181
+msgid ""
+"%T - title                   %A - album name\n"
+"%P - album artist name       %p - track artist name\n"
+"%y - year                    %d - disc number\n"
+"%N - track number (2 digits) %n - track number      \n"
+"%G - genre"
+msgstr ""
+"%T - Titelname               %A - Albumname\n"
+"%P - Künstlername des Albums %p - Künstlername des Titels\n"
+"%y - Jahr                    %d - Disc-Nummer\n"
+"%N - Titelnummer (2 stellig) %n - Titelnummer\n"
+"%G - Genre"
+
+#: src/GMDatabaseSource.cpp:189 src/GMDatabaseSource.cpp:1825
+#: src/GMImportDialog.cpp:297
+msgid "Template:"
+msgstr "Vorlage:"
+
+#: src/GMDatabaseSource.cpp:193 src/GMDatabaseSource.cpp:1829
+msgid "Encoding:"
+msgstr "Kodierung:"
+
+#: src/GMDatabaseSource.cpp:199
+msgid "Exclude:"
+msgstr "Ausnahmen:"
+
+#: src/GMDatabaseSource.cpp:203 src/GMDatabaseSource.cpp:1835
+#: src/GMPreferencesDialog.cpp:355
+msgid "Options:"
+msgstr "Optionen:"
+
+#: src/GMDatabaseSource.cpp:204 src/GMDatabaseSource.cpp:1836
+msgid "Replace spaces with underscores"
+msgstr "Ersetze Leerzeichen durch Unterstriche"
+
+#: src/GMDatabaseSource.cpp:206 src/GMDatabaseSource.cpp:1838
+msgid "Lower case"
+msgstr "Kleinschreibung"
+
+#: src/GMDatabaseSource.cpp:208 src/GMDatabaseSource.cpp:1840
+msgid "Lower case extension"
+msgstr "Klein geschriebene Datei-Erweiterung"
+
+#: src/GMDatabaseSource.cpp:371 src/GMDatabaseSource.cpp:2031
+#: src/GMDatabaseSource.cpp:2093 src/GMPlayListSource.cpp:395
+#: src/GMPlayListSource.cpp:434 src/GMStreamSource.cpp:64
+msgid "No"
+msgstr "Nein"
+
+#: src/GMDatabaseSource.cpp:372
+msgid "Queue"
+msgstr "Warteschlange"
+
+#: src/GMDatabaseSource.cpp:373 src/GMDatabaseSource.cpp:1412
+#: src/GMTrackView.cpp:243
+msgid "Title"
+msgstr "Titelname"
+
+#: src/GMDatabaseSource.cpp:374 src/GMDatabaseSource.cpp:1417
+#: src/GMTrackView.cpp:244
+msgid "Artist"
+msgstr "Künstler"
+
+#: src/GMDatabaseSource.cpp:375 src/GMDatabaseSource.cpp:1418
+msgid "Album Artist"
+msgstr "Künstlername des Albums"
+
+#: src/GMDatabaseSource.cpp:376 src/GMDatabaseSource.cpp:1426
+#: src/GMTrackView.cpp:245
+msgid "Album"
+msgstr "Album"
+
+#: src/GMDatabaseSource.cpp:377 src/GMDatabaseSource.cpp:1385
+#: src/GMDatabaseSource.cpp:1396 src/GMDatabaseSource.cpp:1402
+msgid "Disc"
+msgstr "Disc"
+
+#: src/GMDatabaseSource.cpp:378 src/GMDatabaseSource.cpp:1429
+#: src/GMStreamSource.cpp:67 src/GMStreamSource.cpp:178
+#: src/GMStreamSource.cpp:217 src/GMTrackView.cpp:246
+msgid "Genre"
+msgstr "Genre"
+
+#: src/GMDatabaseSource.cpp:379 src/GMDatabaseSource.cpp:1390
+#: src/GMDatabaseSource.cpp:1408
+msgid "Year"
+msgstr "Jahr"
+
+#: src/GMDatabaseSource.cpp:380 ../../../fox-1.6.36/src/FXFileSelector.cpp:730
+msgid "Time"
+msgstr "Zeit"
+
+#: src/GMDatabaseSource.cpp:543
+msgid "Remove…\tDel\tRemove Genre from Library."
+msgstr "Löschen…\tDel\tDas Genre aus der Bibliothek löschen."
+
+#: src/GMDatabaseSource.cpp:549 src/GMDatabaseSource.cpp:558
+#: src/GMPlayListSource.cpp:106 src/GMPlayListSource.cpp:114
+msgid "Copy\tCtrl-C\tCopy associated tracks to the clipboard."
+msgstr "Kopieren\tCtrl-C\tKopiere die zugehörigen Titel in die Zwischenablage"
+
+#: src/GMDatabaseSource.cpp:552 src/GMDatabaseSource.cpp:561
+msgid "Remove…\tDel\tRemove associated tracks from library."
+msgstr "Löschen…\tDel\tLösche die zugehörigen Titel aus der Bibliothek"
+
+#: src/GMDatabaseSource.cpp:566 src/GMPlayListSource.cpp:121
+msgid "Edit…\tF2\tEdit Track Information."
+msgstr "Bearbeiten…\tF2\tBearbeite die Titel-Informationen."
+
+#: src/GMDatabaseSource.cpp:567 src/GMPlayListSource.cpp:122
+msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
+msgstr "Kopieren\tCtrl-C\tKopiere die/den Titel in die Zwischenablage."
+
+#: src/GMDatabaseSource.cpp:573
+msgid "Remove…\tDel\tRemove track(s) from library."
+msgstr "Löschen…\tDel\tLösche die/den Titel aus der Bibliothek."
+
+#: src/GMDatabaseSource.cpp:587
+msgid "New Play List…\t\tCreate a new play list."
+msgstr "Neue Wiedergabeliste…\t\tErstelle eine neue Wiedergabeliste"
+
+#: src/GMDatabaseSource.cpp:589 src/GMPlayListSource.cpp:165
+msgid "Export…"
+msgstr "Exportieren…"
+
+#: src/GMDatabaseSource.cpp:590
+msgid "Information…\t\tLibrary Statistics"
+msgstr "Informationen…\t\tBibliotheksstatistik"
+
+#: src/GMDatabaseSource.cpp:592
+msgid "Remove All Tracks\t\tRemove all tracks from the library"
+msgstr "Alle Titel entfernen\t\tEntferne alle Titel aus der Bibliothek"
+
+#: src/GMDatabaseSource.cpp:1296
+msgid "Edit Track Information"
+msgstr "Bearbeite die Titel-Informationen"
+
+#: src/GMDatabaseSource.cpp:1299 src/GMPlayListSource.cpp:413
+#: src/GMStreamSource.cpp:206 ../../../fox-1.6.36/src/FXMessageBox.cpp:128
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:143
+msgid "&Save"
+msgstr "&Speichern"
+
+#: src/GMDatabaseSource.cpp:1340 src/GMImportDialog.cpp:278
+msgid "Tag"
+msgstr "Tag"
+
+#: src/GMDatabaseSource.cpp:1343
+msgid "Properties"
+msgstr "Einstellungen"
+
+#: src/GMDatabaseSource.cpp:1346 src/GMImportDialog.cpp:279
+msgid "Filename"
+msgstr "Dateiname"
+
+#: src/GMDatabaseSource.cpp:1350 ../../../fox-1.6.36/src/FXFileList.cpp:193
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:728
+msgid "Type"
+msgstr "Typ"
+
+#: src/GMDatabaseSource.cpp:1354 ../../../fox-1.6.36/src/FXFileList.cpp:194
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:729
+msgid "Size"
+msgstr "Größe"
+
+#: src/GMDatabaseSource.cpp:1362 src/GMStreamSource.cpp:66
+msgid "Bitrate"
+msgstr "Bitrate"
+
+#: src/GMDatabaseSource.cpp:1366
+msgid "Samplerate"
+msgstr "Sampelrate"
+
+#: src/GMDatabaseSource.cpp:1370
+msgid "Channels"
+msgstr "Kanäle"
+
+#: src/GMDatabaseSource.cpp:1379
+msgid "Track"
+msgstr "Titel"
+
+#: src/GMDatabaseSource.cpp:1424
+msgid "\tSeparate Artists"
+msgstr "\tKünstler aufteilen"
+
+#: src/GMDatabaseSource.cpp:1424
+msgid "\tShared Artists"
+msgstr "\tKünstler teilen"
+
+#: src/GMDatabaseSource.cpp:1437
+msgid "Auto track number. Offset:"
+msgstr "Automatische Titelnummer. Erste Nummer:"
+
+#: src/GMDatabaseSource.cpp:1446
+msgid "Update Tag in File"
+msgstr "Aktualisiere den Tag in der Datei"
+
+#: src/GMDatabaseSource.cpp:1451
+msgid "Update Filename"
+msgstr "Dateiname aktualisieren"
+
+#: src/GMDatabaseSource.cpp:1452
+msgid "Set export template…"
+msgstr "Wähle Export-Vorlage…"
+
+#: src/GMDatabaseSource.cpp:1655
+msgid "Update Tags?"
+msgstr "Tags aktualisieren?"
+
+#: src/GMDatabaseSource.cpp:1655
+msgid ""
+"No tracks were updated.\n"
+"Would you still like to write the tags for the selected tracks?"
+msgstr ""
+"Keine Titel wurden aktualisiert.\n"
+"Möchten Sie immernoch die Tags für die ausgewählten Titel in die Datei "
+"schreiben?"
+
+#: src/GMDatabaseSource.cpp:1710
+msgid "Remove Audio Files?"
+msgstr "Audio-Dateien entfernen?"
+
+#: src/GMDatabaseSource.cpp:1711
+msgid "Remove Audio Files..."
+msgstr "Audio-Dateien werden entfernt..."
+
+#: src/GMDatabaseSource.cpp:1711
+msgid "The following audio files are going to be removed"
+msgstr "Die folgenden Audio-Dateien werden entfernt"
+
+#: src/GMDatabaseSource.cpp:1713 src/GMDatabaseSource.cpp:1884
+#: src/GMPlayListSource.cpp:274 src/GMStreamSource.cpp:271
+msgid "&Remove"
+msgstr "&Entfernen"
+
+#: src/GMDatabaseSource.cpp:1739
+msgid "Export Main Library"
+msgstr "Exportiere die Hauptbibliothek"
+
+#: src/GMDatabaseSource.cpp:1741
+msgid "Export Play List"
+msgstr "Exportiere Wiedergabeliste"
+
+#: src/GMDatabaseSource.cpp:1754
+msgid "Overwrite File?"
+msgstr "Datei überschreiben?"
+
+#: src/GMDatabaseSource.cpp:1754
+msgid "File already exists. Would you like to overwrite it?"
+msgstr "Die Datei existiert bereits. Möchten Sie sie überschreiben?"
+
+#: src/GMDatabaseSource.cpp:1794
+msgid "Export Genre"
+msgstr "Genre exportieren"
+
+#: src/GMDatabaseSource.cpp:1795
+msgid "Export tracks with genre to destination directory."
+msgstr "Exportiere die Titel diesen Genres ins Zielverzeichnis."
+
+#: src/GMDatabaseSource.cpp:1797
+msgid "Export Artists"
+msgstr "Künstler exportieren"
+
+#: src/GMDatabaseSource.cpp:1798
+msgid "Export tracks from artist to destination directory."
+msgstr "Exportiere die Titel dieses Künstlers ins Zielverzeichnis."
+
+#: src/GMDatabaseSource.cpp:1800
+msgid "Export Albums"
+msgstr "Album exportieren"
+
+#: src/GMDatabaseSource.cpp:1801
+msgid "Export tracks from album to destination directory."
+msgstr "Exportiere die Titel dieses Albums ins Zielverzeichnis."
+
+#: src/GMDatabaseSource.cpp:1803
+msgid "Export Tracks"
+msgstr "Titel exportieren"
+
+#: src/GMDatabaseSource.cpp:1804
+msgid "Export tracks to destination directory."
+msgstr "Exportiere die Titel ins Zielverzeichnis"
+
+#: src/GMDatabaseSource.cpp:1813
+msgid "&Export"
+msgstr "&Exportieren"
+
+#: src/GMDatabaseSource.cpp:1863 src/GMPlayListSource.cpp:255
+msgid "Remove Genre?"
+msgstr "Genre entfernen?"
+
+#: src/GMDatabaseSource.cpp:1864
+msgid "Remove tracks with genre from library?"
+msgstr "Entferne die Titel dieses Genres aus der Bibliothek."
+
+#: src/GMDatabaseSource.cpp:1867 src/GMPlayListSource.cpp:258
+msgid "Remove Artist?"
+msgstr "Künstler entfernen?"
+
+#: src/GMDatabaseSource.cpp:1868
+msgid "Remove tracks from artist from library?"
+msgstr "Entferne die Titel dieses Künstlers aus der Bibliothek."
+
+#: src/GMDatabaseSource.cpp:1871 src/GMPlayListSource.cpp:261
+msgid "Remove Album?"
+msgstr "Album entfernen?"
+
+#: src/GMDatabaseSource.cpp:1872
+msgid "Remove tracks from album from library?"
+msgstr "Entferne die Titel dieses Albums aus der Bibliothek."
+
+#: src/GMDatabaseSource.cpp:1875 src/GMPlayListSource.cpp:264
+msgid "Remove Track(s)?"
+msgstr "Titel entfernen?"
+
+#: src/GMDatabaseSource.cpp:1876
+msgid "Remove track(s) from library?"
+msgstr "Die/Den Titel aus der Bibliothek entfernen?"
+
+#: src/GMDatabaseSource.cpp:1888 src/GMPlayListSource.cpp:279
+msgid "Remove tracks from disk"
+msgstr "Entferne die Titel von der Festplatte"
+
+#: src/GMDatabaseSource.cpp:1902 src/GMDatabaseSource.cpp:1906
+#: src/GMDatabaseSource.cpp:1910 src/GMDatabaseSource.cpp:1914
+#: src/GMPlayListSource.cpp:304 src/GMStreamSource.cpp:281
+msgid "Library Error"
+msgstr "Fehler in der Bibliothek"
+
+#: src/GMDatabaseSource.cpp:1902
+msgid "Unable to remove genre from the library"
+msgstr "Das Genre konnte nicht aus der Bibliothek gelöscht werden."
+
+#: src/GMDatabaseSource.cpp:1906
+msgid "Unable to remove artist from the library"
+msgstr "Der Künstler konnte nicht aus der Bibliothek gelöscht werden."
+
+#: src/GMDatabaseSource.cpp:1910
+msgid "Unable to remove album from the library"
+msgstr "Das Album konnte nicht aus der Bibliothek gelöscht werden."
+
+#: src/GMDatabaseSource.cpp:1914 src/GMPlayListSource.cpp:304
+msgid "Unable to remove track from the library."
+msgstr "Der Titel konnte nicht aus der Bibliothek gelöscht werden."
+
+#: src/GMDatabaseSource.cpp:2031 src/GMDatabaseSource.cpp:2093
+#: src/GMPlayListSource.cpp:395
+msgid "Import Files?"
+msgstr "Dateien importieren?"
+
+#: src/GMDatabaseSource.cpp:2031 src/GMDatabaseSource.cpp:2093
+#: src/GMPlayListSource.cpp:395
+msgid ""
+"Would you like import the pasted files and/or directories into the Music "
+"Library?"
+msgstr ""
+"Möchten Sie die eingefügten Dateien und/oder Verzeichnisse in die "
+"Musikbibliothek importieren?"
+
+#: src/GMDatabaseSource.cpp:2031 src/GMDatabaseSource.cpp:2093
+#: src/GMPlayListSource.cpp:395 src/GMPlayListSource.cpp:434
+msgid "Yes"
+msgstr "Ja"
+
+#: src/GMDatabaseSource.cpp:2114 src/GMDatabaseSource.cpp:2115
+msgid "Create Playlist"
+msgstr "Erstelle Wiedergabeliste"
+
+#: src/GMDatabaseSource.cpp:2115
+msgid "Specify name of the new playlist"
+msgstr "Geben Sie den Name der Wiedergabeliste ein"
+
+#: src/GMDatabaseSource.cpp:2117 src/GMStreamSource.cpp:169
+msgid "&Create"
+msgstr "&Erstellen"
+
+#: src/GMDatabaseSource.cpp:2122 src/GMPlayListSource.cpp:419
+#: ../../../fox-1.6.36/src/FXFileList.cpp:192
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:727
+msgid "Name"
+msgstr "Name"
+
+#: src/GMDatabaseSource.cpp:2124
+msgid "New Playlist"
+msgstr "Neue Wiedergabeliste"
+
+#: src/GMDatabaseSource.cpp:2140 src/GMDatabaseSource.cpp:2141
+msgid "Clear Music Library?"
+msgstr "Musikbibliothek leeren?"
+
+#: src/GMDatabaseSource.cpp:2141
+msgid "Remove all tracks from the music library?"
+msgstr "Alle Titel aus der Musikbibliothek entfernen?"
+
+#: src/GMDatabaseSource.cpp:2143
+msgid "&Remove All"
+msgstr "&Entferne Alle"
+
+#: src/GMDatabaseSource.cpp:2147
+msgid "Keep play lists"
+msgstr "Wiedergabelisten behalten"
+
+#: src/GMDatabaseSource.cpp:2174 src/GMDatabaseSource.cpp:2175
+msgid "Music Library Information"
+msgstr "Musikbibliothek-Informationen"
+
+#: src/GMDatabaseSource.cpp:2175
+msgid "You music collection consists of…"
+msgstr "Ihre Musiksammlung besteht aus…"
+
+#: src/GMDatabaseSource.cpp:2183
+msgid "Tracks:"
+msgstr "Titel:"
+
+#: src/GMDatabaseSource.cpp:2188
+msgid "Artists:"
+msgstr "Künstler:"
+
+#: src/GMDatabaseSource.cpp:2192
+msgid "Albums:"
+msgstr "Alben:"
+
+#: src/GMDatabaseSource.cpp:2196
+msgid "Total Time:"
+msgstr "Zeit insgesamt:"
+
+#: src/GMEQDialog.cpp:96
+msgid "Equalizer"
+msgstr "Equalizer"
+
+#: src/GMEQDialog.cpp:135
+msgid "Equalizer:"
+msgstr "Equalizer:"
+
+#: src/GMEQDialog.cpp:137
+msgid "\tSave"
+msgstr "\tSpeichern"
+
+#: src/GMEQDialog.cpp:138
+msgid "\tReset"
+msgstr "\tZurück setzen"
+
+#: src/GMEQDialog.cpp:139
+msgid "\tRemove"
+msgstr "\tEntfernen"
+
+#: src/GMEQDialog.cpp:172
+msgid "Pre-amp"
+msgstr "Vorverstärker"
+
+#: src/GMEQDialog.cpp:244 src/GMEQDialog.cpp:254
+msgid "Disabled"
+msgstr "Deaktiviert"
+
+#: src/GMEQDialog.cpp:247 src/GMEQDialog.cpp:299
+msgid "Manual"
+msgstr "Manuell"
+
+#: src/GMEQDialog.cpp:314
+msgid "Delete Preset"
+msgstr "Voreinstellung löschen"
+
+#: src/GMEQDialog.cpp:314
+#, fuzzy, c-format
+msgid "Are you sure you want to delete %s preset?"
+msgstr "Sind Sie sicher, dass Sie diese Wiedergabeliste löschen wollen?"
+
+#: src/GMEQDialog.cpp:334
+msgid "Preset Name"
+msgstr "Name der Voreinstellung"
+
+#: src/GMEQDialog.cpp:334
+msgid "Please enter preset name:"
+msgstr "Bitte geben Sie den Namen der Voreinstellung ein:"
+
+#: src/GMEQDialog.cpp:338
+msgid "Overwrite Preset"
+msgstr "Voreinstellung überschreiben"
+
+#: src/GMEQDialog.cpp:338
+#, fuzzy, c-format
+msgid "Preset %s already exists. Would you like to overwrite it?"
+msgstr "Die Datei existiert bereits. Möchten Sie sie überschreiben?"
+
+#: src/GMImportDialog.cpp:179
+msgid "Synchronize Folder"
+msgstr "Ordner synchronisieren"
+
+#: src/GMImportDialog.cpp:181
+msgid "Import Music"
+msgstr "Musik importieren"
+
+#: src/GMImportDialog.cpp:213
+msgid "&File(s)"
+msgstr "&Dateien"
+
+#: src/GMImportDialog.cpp:229
+msgid "&Directory"
+msgstr "&Verzeichnis"
+
+#: src/GMImportDialog.cpp:232
+msgid "Exclude Filter\tFilter out directories and/or files based on pattern"
+msgstr ""
+"Ausfiltern\tFiltere Verzeichnisse und/oder Dateien nach einem Muster aus"
+
+#: src/GMImportDialog.cpp:235
+msgid "Folders:"
+msgstr "Ordner:"
+
+#: src/GMImportDialog.cpp:237
+msgid "Files:"
+msgstr "Dateien:"
+
+#: src/GMImportDialog.cpp:254 src/GMImportDialog.cpp:311
+msgid "&Sync"
+msgstr "&Sync"
+
+#: src/GMImportDialog.cpp:258
+msgid "Sync Operation"
+msgstr "Sync Operation"
+
+#: src/GMImportDialog.cpp:259
+msgid "Import new tracks\tImports files not yet in the database."
+msgstr ""
+"Neue Titel imporieren\tTitel, die sich noch nicht in der Datenbank befinden, "
+"werden importiert."
+
+#: src/GMImportDialog.cpp:260
+msgid "Remove tracks that have been deleted from disk"
+msgstr "Entferne von der Festplatte gelösche Titel"
+
+#: src/GMImportDialog.cpp:262
+msgid "Update existing tracks:"
+msgstr "Aktualisiere die bestehenden Titel:"
+
+#: src/GMImportDialog.cpp:263
+msgid ""
+"Modified since last import\tOnly reread the tag when the file has been "
+"modified."
+msgstr "Zuletzt geänderte Dateien\tLies nur tag aus geänderten Dateien"
+
+#: src/GMImportDialog.cpp:265
+msgid "All\tAlways read the tags"
+msgstr "Alle\tLies alle Tags"
+
+#: src/GMImportDialog.cpp:266
+msgid "Remove tracks found in folder from database"
+msgstr "Entferne alle Titel in diesem Ordner aus der Datenbank"
+
+#: src/GMImportDialog.cpp:269
+msgid "&Track"
+msgstr "&Titel"
+
+#: src/GMImportDialog.cpp:272
+msgid "Parse Settings"
+msgstr "Einstellungen lesen"
+
+#: src/GMImportDialog.cpp:275
+msgid "Parse info from:"
+msgstr "Lies die Informationen aus:"
+
+#: src/GMImportDialog.cpp:280
+msgid "Both"
+msgstr "Beides"
+
+#: src/GMImportDialog.cpp:282
+msgid "Default value:"
+msgstr "Standardwert:"
+
+#: src/GMImportDialog.cpp:286
+msgid "Set track number based on scan order."
+msgstr "Wähle die Titelnummer auf Grund der Scannreihenfolge"
+
+#: src/GMImportDialog.cpp:290
+msgid ""
+"%T - title              %A - album name\n"
+"%P - album artist name  %p - track artist name \n"
+"%N - track number       %G - genre"
+msgstr ""
+"%T - Titelname                %A - Albumname\n"
+"%P - Künstlername des Albums  %p - Künstlername des Titels \n"
+"%N - Titelnummer              %G - Genre"
+
+#: src/GMImportDialog.cpp:300
+msgid "Replace underscores with spaces"
+msgstr "Ersetze Unterstriche durch Leerzeichen"
+
+#: src/GMImportDialog.cpp:313
+msgid "&Import"
+msgstr "&Importieren"
+
+#: src/GMPlayListSource.cpp:98
+msgid "Edit…\tF2\tEdit Genre."
+msgstr "Bearbeiten…\tF2\tGenre bearbeiten."
+
+#: src/GMPlayListSource.cpp:100 src/GMPlayListSource.cpp:108
+#: src/GMPlayListSource.cpp:116 src/GMPlayListSource.cpp:124
+msgid "Remove…\tDel\tRemove track(s) from play list."
+msgstr "Entfernen…\tDel\tEntferne die/den Titel aus der Wiedergabeliste."
+
+#: src/GMPlayListSource.cpp:105
+msgid "Edit…\tF2\tEdit Artist."
+msgstr "Bearbeiten…\tF2\tKünstlername bearbeiten."
+
+#: src/GMPlayListSource.cpp:113
+msgid "Edit…\tF2\tEdit Album."
+msgstr "Bearbeiten…\tF2\tAlbumname bearbeiten."
+
+#: src/GMPlayListSource.cpp:164
+msgid "Edit…"
+msgstr "Bearbeiten…"
+
+#: src/GMPlayListSource.cpp:166
+msgid "Remove Playlist"
+msgstr "Entferne Wiedergabeliste"
+
+#: src/GMPlayListSource.cpp:256
+msgid "Remove tracks with genre from play list?"
+msgstr "Entferne die Titel dieses Genres aus der Wiedergabeliste?"
+
+#: src/GMPlayListSource.cpp:259
+msgid "Remove tracks from artist from play list?"
+msgstr "Entferne die Titel dieses Künstlers aus der Wiedergabeliste?"
+
+#: src/GMPlayListSource.cpp:262
+msgid "Remove tracks from album from play list?"
+msgstr "Entferne die Titel dieses Albums aus der Wiedergabeliste?"
+
+#: src/GMPlayListSource.cpp:265
+msgid "Remove track(s) from play list?"
+msgstr "Entferne die/den Titel aus der Wiedergabeliste?"
+
+#: src/GMPlayListSource.cpp:278
+msgid "Remove tracks from music library"
+msgstr "Entferne Titel aus der Musikbibliothek"
+
+#: src/GMPlayListSource.cpp:410 src/GMPlayListSource.cpp:411
+msgid "Edit Playlist"
+msgstr "Wiedergabeliste bearbeiten"
+
+#: src/GMPlayListSource.cpp:411
+msgid "Change playlist name"
+msgstr "Wiedergabeliste umbenennen"
+
+#: src/GMPlayListSource.cpp:434
+msgid "Delete Play List?"
+msgstr "Wiedergabeliste löschen?"
+
+#: src/GMPlayListSource.cpp:434
+msgid "Are you sure you want to delete the playlist?"
+msgstr "Sind Sie sicher, dass Sie diese Wiedergabeliste löschen wollen?"
+
+#: src/GMPlayer.cpp:215
+msgid "Unable to initialize audio driver."
+msgstr "Der Audiotreiber konnte nicht geladen werden."
+
+#: src/GMPlayer.cpp:725
+msgid "Unknown host."
+msgstr "Unbekannter host."
+
+#: src/GMPlayer.cpp:726
+msgid "Unknown device"
+msgstr "Unbekanntes Gerät."
+
+#: src/GMPlayer.cpp:727
+msgid "Network not reachable."
+msgstr "Keine Verbingung zum Netzwerk."
+
+#: src/GMPlayer.cpp:728
+msgid "Audio output unavailable."
+msgstr "Die Audioausgabe ist nicht verfügbar."
+
+#: src/GMPlayer.cpp:729
+msgid "Connection Refused."
+msgstr "Verbindung abgewiesen."
+
+#: src/GMPlayer.cpp:730
+msgid "File not found."
+msgstr "Datei wurde nicht gefunden."
+
+#: src/GMPlayer.cpp:731
+msgid "Resource not accessible. Check permissions"
+msgstr "Kein Zugriff auf die Ressource. Überprüfen die die Berechtigungen."
+
+#: src/GMPlayer.cpp:732
+msgid "Read Error"
+msgstr "Lesefehler"
+
+#: src/GMPlayer.cpp:733
+msgid "Error while loading library/plugin"
+msgstr "Fehler beim Laden einer Bibliothek/Plugins"
+
+#: src/GMPlayer.cpp:734
+msgid "Warning"
+msgstr "Warnung"
+
+#: src/GMPlayer.cpp:735
+msgid "Security Warning"
+msgstr "Sicherheitswarnung"
+
+#: src/GMPlayer.cpp:736
+msgid "Unknown Error"
+msgstr "Unbekannter Fehler"
+
+#: src/GMPlayer.cpp:772
+msgid "Error"
+msgstr "Fehler"
+
+#: src/GMPlayerManager.cpp:411
+#, c-format
+msgid ""
+"<b>%s</b>\n"
+"<i>by:</i> %s\n"
+"<i>from:</i> %s"
+msgstr ""
+
+#: src/GMPlayerManager.cpp:419
+#, fuzzy
+msgid "Now Playing"
+msgstr "Neue Wiedergabeliste"
+
+#: src/GMPlayerManager.cpp:567
+#, fuzzy, c-format
+msgid "Unable to create directory %s\n"
+msgstr "Das Verzeichnis %s kann nicht erstellt werden.\n"
+
+#: src/GMPlayerManager.cpp:759
+#, c-format
+msgid ""
+"An incompatible version of SQLite (%s) is being used.\n"
+"Goggles Music Manager requires at least SQLite 3.3.8.\n"
+"Please upgrade your SQLite installation."
+msgstr ""
+
+#: src/GMPlayerManager.cpp:768
+#, c-format
+msgid ""
+"This version of SQLite (%s) is broken.\n"
+"Please upgrade your SQLite installation to at least 3.6.3."
+msgstr ""
+
+#: src/GMPlayerManager.cpp:776
+msgid ""
+"For some reason the FOX library was compiled without PNG support.\n"
+"In order to show all icons, Goggles Music Manager requires PNG\n"
+"support in the FOX library. If you've compiled FOX yourself, most\n"
+"likely the libpng header files were not installed on your system."
+msgstr ""
+"Das FOX-Toolkit wurde ohne PNG-Unterstützung übersetzt.\n"
+"Diese wird allerdings benötigt, damit Goggles Music Manager alle\n"
+"Symbole anzeigen kann. Wenn Sie das FOX-Toolkit selber übersetzt\n"
+"haben, so waren die libpng Header-Dateien wahrscheinlich nicht auf\n"
+"Ihrem System vorhanden."
+
+#: src/GMPlayerManager.cpp:787
+msgid "Session bus not available. All features requiring dbus are disabled."
+msgstr ""
+"Der Session-Bus wurde nicht gefunden. Alle funktionen, die DBus benötigen "
+"stehen nicht zur Verfügung."
+
+#: src/GMPlayerManager.cpp:797
+msgid "A DBus error occurred. All features requiring sessionbus are disabled."
+msgstr ""
+"DBus hat einen Fehler verursacht. Alle funktionen, die DBus benötigen stehen "
+"nicht zur Verfügung."
+
+#: src/GMPlayerManager.cpp:808
+msgid ""
+"Session Bus not available. All features requiring sessionbus are disabled."
+msgstr ""
+"Der Session-Bus wurde nicht gefunden. Alle funktionen, die DBus benötigen "
+"stehen nicht zur Verfügung."
+
+#: src/GMPlayerManager.cpp:880 src/GMPreferencesDialog.cpp:542
+msgid "Audio Device Error"
+msgstr "Audio-Gerät-Fehler"
+
+#: src/GMPlayerManager.cpp:1029 src/GMSearch.cpp:499
+msgid "Fatal Error"
+msgstr "Schwerwiegender Fehler"
+
+#: src/GMPlayerManager.cpp:1029
+msgid ""
+"Goggles Music Manager was unable to open the database.\n"
+"The database may have been corrupted. Please remove ~/.goggles/goggles.db to "
+"try again.\n"
+"if the error keeps occuring, please file an issue at http://code.google.com/"
+"p/gogglesmm"
+msgstr ""
+"Google Music Manager konnte die Datenbank nicht öffnen.\n"
+"Die Datenbank wurde möglicherweise beschädigt. Bitte entfernen Sie die\n"
+"Datei ~/.goggles/goggles.db und versuchen Sie es erneut.\n"
+"Sollte der Fehler weiterhin bestehen, senden Sie bitte einen\n"
+"Fehlerbericht auf http://code.google.com/p/gogglesmm ein."
+
+#: src/GMPlayerManager.cpp:1745
+msgid "Last.FM Error"
+msgstr "Last.FM-Fehler"
+
+#: src/GMPlayerManager.cpp:1752
+msgid "Playback Error"
+msgstr "Wiedergabe-Fehler"
+
+#: src/GMPreferencesDialog.cpp:251
+msgid "Preferences"
+msgstr "Einstellungen"
+
+#: src/GMPreferencesDialog.cpp:291
+msgid "&General"
+msgstr "&Allgemein"
+
+#: src/GMPreferencesDialog.cpp:294
+msgid "Sort Options"
+msgstr "Sortierungsoptionen"
+
+#: src/GMPreferencesDialog.cpp:296
+msgid "Ignore leading words"
+msgstr "Führende Worte ignorieren"
+
+#: src/GMPreferencesDialog.cpp:299
+msgid "Album Covers"
+msgstr "Albencover"
+
+#: src/GMPreferencesDialog.cpp:300
+msgid "Show album cover of playing track\tShow album cover of playing track"
+msgstr ""
+"Albumcover des abzuspielenden Titels anzeigen\tAlbumcover des abzuspielenden "
+"Titels anzeigen"
+
+#: src/GMPreferencesDialog.cpp:301
+msgid "Show album covers in album browser\tShow album covers in album browser"
+msgstr ""
+"Albumcover im Albenbrowser anzeigen\tAlbumcover im Albenbrowser anzeigen"
+
+#: src/GMPreferencesDialog.cpp:303
+msgid "System Tray"
+msgstr "Systemleiste"
+
+#: src/GMPreferencesDialog.cpp:304
+msgid "Show Tray Icon\tShow tray icon in the system tray."
+msgstr "Systemleistensymbol anzeigen\tZeige ein Symbol in der Systemleiste an."
+
+#: src/GMPreferencesDialog.cpp:307
+msgid ""
+"Show Track Change Notifications\tInform notification daemon of track changes."
+msgstr ""
+"Bei Titelwechsel benachrichtigen\tInformiere in der Systemleiste über "
+"Titelwechsel."
+
+#: src/GMPreferencesDialog.cpp:311 src/GMPreferencesDialog.cpp:333
+msgid "Last.fm"
+msgstr "Last.fm"
+
+#: src/GMPreferencesDialog.cpp:315 src/GMWindow.cpp:363
+msgid "&Sign up for last.fm…"
+msgstr "Bei last.fm &anmelden…"
+
+#: src/GMPreferencesDialog.cpp:318
+msgid ""
+"&Join GMM on last.fm…\tJoin the Goggles Music Manager group on last.fm…"
+"\tJoin the Goggles Music Manager group on last.fm…"
+msgstr ""
+"GMM auf last.fm &beitreten…\tTreten Sie der Goggles Music Manager-Gruppe auf "
+"last.fm bei…\tTreten Sie der Goggles Music Manager-Gruppe auf last.fm bei…"
+
+#: src/GMPreferencesDialog.cpp:322
+msgid ""
+"This version of Goggles Music Manager is\n"
+"not supported by Last-FM. Please upgrade\n"
+"to a newer version of GMM."
+msgstr ""
+"Diese Version von Goggles Music Manager wird\n"
+"nicht von Last-FM unterstützt. Bitte aktualisieren\n"
+"Sie GMM."
+
+#: src/GMPreferencesDialog.cpp:328
+msgid "Username:"
+msgstr "Benutzername:"
+
+#: src/GMPreferencesDialog.cpp:330
+msgid "Password:"
+msgstr "Passwort:"
+
+#: src/GMPreferencesDialog.cpp:343
+msgid "&Window"
+msgstr "&Fenster"
+
+#: src/GMPreferencesDialog.cpp:346
+msgid "Window"
+msgstr "Fenster"
+
+#: src/GMPreferencesDialog.cpp:348
+msgid "Start Up:"
+msgstr "Einschalten:"
+
+#: src/GMPreferencesDialog.cpp:350
+msgid "Show Main Window"
+msgstr "Zeige Hauptfenster"
+
+#: src/GMPreferencesDialog.cpp:351
+msgid "Show Mini Remote"
+msgstr "Zeige Fernbedienung"
+
+#: src/GMPreferencesDialog.cpp:352
+msgid "Previous View"
+msgstr "Vorherige Ansicht"
+
+#: src/GMPreferencesDialog.cpp:356
+msgid "Always Show Remote"
+msgstr "Die Fernbedienung immer anzeigen"
+
+#: src/GMPreferencesDialog.cpp:358
+msgid "Close button hides Main Window"
+msgstr "Schließen Knopf versteckt das Hauptfenster"
+
+#: src/GMPreferencesDialog.cpp:361
+msgid "Show Status Bar"
+msgstr "Zeige die Statusleiste"
+
+#: src/GMPreferencesDialog.cpp:365
+msgid "Show Icons in Track Browser"
+msgstr "Zeige Symbole im Titel-Browser"
+
+#: src/GMPreferencesDialog.cpp:369
+msgid "Display playing track in title bar"
+msgstr "Aktuellen Titel in der Titelleiste anzeigen"
+
+#: src/GMPreferencesDialog.cpp:371
+msgid "Player Controls"
+msgstr "Player-Steuerung"
+
+#: src/GMPreferencesDialog.cpp:373
+msgid "Location:"
+msgstr "Ort:"
+
+#: src/GMPreferencesDialog.cpp:375
+msgid "Top"
+msgstr "Oben"
+
+#: src/GMPreferencesDialog.cpp:376
+msgid "Bottom"
+msgstr "Unten"
+
+#: src/GMPreferencesDialog.cpp:384
+msgid "Style:"
+msgstr "Stil:"
+
+#: src/GMPreferencesDialog.cpp:385
+msgid "Show Labels"
+msgstr "Beschriftungen anzeigen"
+
+#: src/GMPreferencesDialog.cpp:388
+msgid "Large Icons"
+msgstr "Große Symbole"
+
+#: src/GMPreferencesDialog.cpp:392
+msgid "A&ppearance"
+msgstr "&Aussehen"
+
+#: src/GMPreferencesDialog.cpp:394
+msgid "Colors"
+msgstr "Farben"
+
+#: src/GMPreferencesDialog.cpp:399
+msgid "fg\tForeground Color"
+msgstr "fg\tVordergrundfarbe"
+
+#: src/GMPreferencesDialog.cpp:400
+msgid "bg\tBackground Color"
+msgstr "bg\tHintergrundfarbe"
+
+#: src/GMPreferencesDialog.cpp:401
+msgid "alt bg\tAlternative Background Color"
+msgstr "alt bg\tAlternative Hintergrundfarbe"
+
+#: src/GMPreferencesDialog.cpp:412
+msgid "Normal\tNormal Text Color"
+msgstr "Normal\tNormale Textfarbe"
+
+#: src/GMPreferencesDialog.cpp:416
+msgid "Base\tBase Color"
+msgstr "Basis\tBasisfarbe"
+
+#: src/GMPreferencesDialog.cpp:419
+msgid "Selected\tSelected Text Color"
+msgstr "Ausgewählt\tFarbe von ausgewähltem Text"
+
+#: src/GMPreferencesDialog.cpp:423
+msgid "Border\tBorder Color"
+msgstr "Rahmen\tRahmenfarbe"
+
+#: src/GMPreferencesDialog.cpp:426
+msgid "Menu\tMenu Text Color"
+msgstr "Menü\tFarbe des Menüs"
+
+#: src/GMPreferencesDialog.cpp:430
+msgid "Hilite\tHilite Color"
+msgstr "Hilite\tFarbe von Markierungen"
+
+#: src/GMPreferencesDialog.cpp:433
+msgid "Tooltip\tTooltip Color"
+msgstr "Kurzinfo\tFarbe von Kurzinfos"
+
+#: src/GMPreferencesDialog.cpp:437
+msgid "Shadow\tShadow Color"
+msgstr "Schatten\tFarbe von Schatten"
+
+#: src/GMPreferencesDialog.cpp:441
+msgid "Source\tActive Source Color"
+msgstr "Quelle\tFarbe der aktiven Quelle"
+
+#: src/GMPreferencesDialog.cpp:448
+msgid "Playing\tPlaying Track Color"
+msgstr "Spielend\tFarbe des aktuellen Titels"
+
+#: src/GMPreferencesDialog.cpp:458
+msgid "Presets:"
+msgstr "Voreinstellungen:"
+
+#: src/GMPreferencesDialog.cpp:465
+msgid "Font"
+msgstr "Schrift"
+
+#: src/GMPreferencesDialog.cpp:466
+msgid "Change…"
+msgstr "Ändern…"
+
+#: src/GMPreferencesDialog.cpp:470
+msgid "Icons"
+msgstr "Symbole"
+
+#: src/GMPreferencesDialog.cpp:472
+msgid "Theme Directory:"
+msgstr "Themenverzeichnis:"
+
+#: src/GMPreferencesDialog.cpp:477
+msgid "&Audio"
+msgstr "&Audio"
+
+#: src/GMPreferencesDialog.cpp:480
+msgid "Engine"
+msgstr "Engine"
+
+#: src/GMPreferencesDialog.cpp:482
+msgid "Audio Driver:"
+msgstr "Audio-Treiber:"
+
+#: src/GMPreferencesDialog.cpp:493
+msgid "Close audio device on pause."
+msgstr "Bei Pausen Audio-Gerät freigeben."
+
+#: src/GMPreferencesDialog.cpp:494
+msgid "Turn off playback engine on stop."
+msgstr "Beim Stoppen die Wiedergabe-Engine abschalten."
+
+#: src/GMPreferencesDialog.cpp:495
+msgid ""
+"Turn on playback engine on startup.\tFor faster startup, playback engine is "
+"normally started when first track is played.\tFor faster startup, playback "
+"engine is normally started when first track is played."
+msgstr ""
+"Starte die Wiedergabe-Engine beim Programmstart.\tUm einen schnelleren "
+"Programmstart zu ermöglichen wird die Wiedergabe-Engine erst gestartet, wenn "
+"der erste Titel wiedergegeben wird\tUm einen schnelleren Programmstart zu "
+"ermöglichen wird die Wiedergabe-Engine erst gestartet, wenn der erste Titel "
+"wiedergegeben wird"
+
+#: src/GMPreferencesDialog.cpp:498
+msgid "Playback"
+msgstr "Wiedergabe"
+
+#: src/GMPreferencesDialog.cpp:501
+msgid "Replay Gain:"
+msgstr "Verstärkung:"
+
+#: src/GMPreferencesDialog.cpp:508
+msgid "Gapless playback"
+msgstr "Lückenlose Wiedergabe"
+
+#: src/GMPreferencesDialog.cpp:509
+msgid "Volume Normalization"
+msgstr "Lautstärke angleichen"
+
+#: src/GMPreferencesDialog.cpp:542
+#, fuzzy, c-format
+msgid "Failed to open requested audio driver: %s"
+msgstr "Der Audiotreiber konnte nicht geladen werden."
+
+#: src/GMPreferencesDialog.cpp:632
+msgid "Current"
+msgstr "Aktuell"
+
+#: src/GMPreferencesDialog.cpp:650
+msgid "Custom"
+msgstr "Benutzerdefiniert"
+
+#: src/GMPreferencesDialog.cpp:662
+msgid "Select Theme Directory"
+msgstr "Themenverzeichnis wählen"
+
+#: src/GMPreferencesDialog.cpp:1064
+msgid "thin"
+msgstr "dünn"
+
+#: src/GMPreferencesDialog.cpp:1065
+msgid "extralight"
+msgstr "besonders dünn"
+
+#: src/GMPreferencesDialog.cpp:1066
+msgid "light"
+msgstr "leicht"
+
+#: src/GMPreferencesDialog.cpp:1067
+msgid "normal"
+msgstr "normal"
+
+#: src/GMPreferencesDialog.cpp:1068
+msgid "medium"
+msgstr "mittel"
+
+#: src/GMPreferencesDialog.cpp:1069
+msgid "demibold"
+msgstr "halbfett"
+
+#: src/GMPreferencesDialog.cpp:1070
+msgid "bold"
+msgstr "fett"
+
+#: src/GMPreferencesDialog.cpp:1071
+msgid "extrabold"
+msgstr "besonders fett"
+
+#: src/GMPreferencesDialog.cpp:1072
+msgid "heavy"
+msgstr "sehr fett"
+
+#: src/GMPreferencesDialog.cpp:1080
+msgid "regular"
+msgstr "regulär"
+
+#: src/GMPreferencesDialog.cpp:1081
+msgid "italic"
+msgstr "kursiv"
+
+#: src/GMPreferencesDialog.cpp:1082
+msgid "oblique"
+msgstr "schief"
+
+#: src/GMPreferencesDialog.cpp:1083
+msgid "reverse italic"
+msgstr "entgegengesetzt kursiv"
+
+#: src/GMPreferencesDialog.cpp:1084
+msgid "reverse oblique"
+msgstr "entgegengesetzt schief"
+
+#: src/GMPreferencesDialog.cpp:1091
+msgid "Select Normal Font"
+msgstr "Wähle normale Schriftart"
+
+#: src/GMRemote.cpp:298
+msgid "&Next"
+msgstr "&Nächster"
+
+#: src/GMRemote.cpp:299
+msgid "P&revious"
+msgstr "&Vorheriger"
+
+#: src/GMRemote.cpp:300
+msgid "&Play"
+msgstr "&Play"
+
+#: src/GMRemote.cpp:301
+msgid "P&ause"
+msgstr "P&ause"
+
+#: src/GMRemote.cpp:302
+msgid "&Stop"
+msgstr "&Stopp"
+
+#: src/GMRemote.cpp:304
+msgid "Show Browser"
+msgstr "Browser anzeigen"
+
+#: src/GMRemote.cpp:305 src/GMTrayIcon.cpp:337
+msgid "Quit"
+msgstr "Beenden"
+
+#: src/GMRemote.cpp:403
+msgid "\tStart Playback\tStart Playback"
+msgstr "\tWiedergabe starten\tWiedergabe starten"
+
+#: src/GMRemote.cpp:404
+msgid "\tPause\tPause Playback"
+msgstr "\tPause\tWiedergabe pausieren"
+
+#: src/GMRemote.cpp:405
+msgid "\tStop Playback\tStop Playback"
+msgstr "\tWiedergabe anhalten\tWiedergabe anhalten"
+
+#: src/GMRemote.cpp:407
+msgid "\tPlay Previous Track\tPlay previous track."
+msgstr "\tVorherigen Titel wiedergeben\tVorherigen Titel wiedergeben."
+
+#: src/GMRemote.cpp:408
+msgid "\tPlay Next Track\tPlay next track."
+msgstr "\tNächsten Titel wiedergeben\tNächsten Titel wiedergeben."
+
+#: src/GMRemote.cpp:410
+msgid "\tAdjust Volume\tAdjust Volume"
+msgstr "\tLautstärke einstellen\tLautstärke einstellen"
+
+#: src/GMSearch.cpp:126
+msgid "Unable to open the database"
+msgstr "Die Datenbank konnte leider nicht geöffnet werden"
+
+#: src/GMSearch.cpp:248
+msgid "Database Error: Unable to retrieve all filenames."
+msgstr "Datenbank-Fehler: Die Dateinamen konnten leider nicht gelesen werden."
+
+#: src/GMSearch.cpp:276
+msgid "Unable to update track"
+msgstr "Der Titel konnte nicht aktualisiert werden"
+
+#: src/GMSearch.cpp:435
+msgid "Unable to insert track into the database"
+msgstr "Der Titel konnte nicht in die Datenbank eingetragen werden"
+
+#: src/GMSearch.cpp:499
+#, c-format
+msgid ""
+"%s\n"
+"Please contact support if this error keeps occuring."
+msgstr ""
+
+#: src/GMSearch.cpp:528 src/GMSearch.cpp:574
+msgid "Updating Database..."
+msgstr "Die Datenbank wird aktualisiert..."
+
+#: src/GMSearch.cpp:531 src/GMSearch.cpp:616
+msgid "Please wait. This may take a while."
+msgstr "Bitte warten Sie einen Moment."
+
+#: src/GMSearch.cpp:545 src/GMSearch.cpp:624
+msgid "New Tracks:"
+msgstr "Neue Titel:"
+
+#: src/GMSearch.cpp:551 src/GMSearch.cpp:630
+msgid "File:"
+msgstr "Datei:"
+
+#: src/GMSearch.cpp:555 src/GMSearch.cpp:634
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:208
+msgid "Directory:"
+msgstr "Verzeichnis:"
+
+#: src/GMSearch.cpp:584 src/GMSearch.cpp:613
+msgid "Importing Files..."
+msgstr "Dateien werden importiert..."
+
+#: src/GMSearch.cpp:639
+msgid "&Stop Import"
+msgstr "Import &stoppen"
+
+#: src/GMSourceView.cpp:55
+msgid "Sources\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"Quellen\tKlicken, um die Reihenfolge zu ändern\tKlicken, um die Reihenfolge "
+"zu ändern"
+
+#: src/GMSourceView.cpp:248 src/GMWindow.cpp:299
+msgid "New Playlist…\t\tCreate a new playlist"
+msgstr "Neue &Wiedergabeliste…\t\tErstelle eine neue Wiedergabeliste"
+
+#: src/GMSourceView.cpp:249 src/GMWindow.cpp:300
+msgid "New Radio Station…\t\tCreate a new playlist"
+msgstr "Neuer &Radiosender…\t\tTrage einen neuen Radiosender ein"
+
+#: src/GMStreamSource.cpp:65
+msgid "Station"
+msgstr "Sender"
+
+#: src/GMStreamSource.cpp:113 src/GMStreamSource.cpp:119
+msgid "New Station…\t\t"
+msgstr "Neuer Radiosender\t\t"
+
+#: src/GMStreamSource.cpp:118
+msgid "Edit…\t\t"
+msgstr "Bearbeiten…\t\t"
+
+#: src/GMStreamSource.cpp:120
+msgid "Remove\t\tRemove."
+msgstr "Entfernen\t\tEntfernen"
+
+#: src/GMStreamSource.cpp:166 src/GMStreamSource.cpp:167
+msgid "New Internet Radio Station"
+msgstr "Neuer Internetradiosender"
+
+#: src/GMStreamSource.cpp:167
+msgid "Specify url and description of new station"
+msgstr "Geben Sie die URL und eine Beschreibung des Senders ein"
+
+#: src/GMStreamSource.cpp:174 src/GMStreamSource.cpp:212
+msgid "Location"
+msgstr "Ort"
+
+#: src/GMStreamSource.cpp:176 src/GMStreamSource.cpp:215
+msgid "Description"
+msgstr "Beschreibung"
+
+#: src/GMStreamSource.cpp:190
+msgid "Untitled"
+msgstr "Unbenannt"
+
+#: src/GMStreamSource.cpp:203 src/GMStreamSource.cpp:204
+msgid "Edit Internet Radio Station"
+msgstr "Bearbeite Radiosender"
+
+#: src/GMStreamSource.cpp:204
+msgid "Update url and description of station"
+msgstr "Aktualisiere die URL und Beschreibung des Senders"
+
+#: src/GMStreamSource.cpp:266
+msgid "Remove Internet Radio Station(s)?"
+msgstr "Radiosender entfernen?"
+
+#: src/GMStreamSource.cpp:267
+msgid "Remove Internet Radio Station(s) from library?"
+msgstr "Radiosender aus der Bibliothek entfernen?"
+
+#: src/GMStreamSource.cpp:281
+#, fuzzy, c-format
+msgid "Unable to remove station from the library."
+msgstr "Der Künstler konnte nicht aus der Bibliothek gelöscht werden."
+
+#: src/GMTrackView.cpp:251
+msgid "Find"
+msgstr "Suchen"
+
+#: src/GMTrackView.cpp:258
+msgid "Genres\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"Genres\tKlicken, um die Reihenfolge zu ändern\tKlicken, um die Reihenfolge "
+"zu ändern"
+
+#: src/GMTrackView.cpp:262
+msgid "Artists\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"Künstlername\tKlicken, um die Reihenfolge zu ändern\tKlicken, um die "
+"Reihenfolge zu ändern"
+
+#: src/GMTrackView.cpp:266
+msgid "Albums\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"Alben\tKlicken, um die Reihenfolge zu ändern\tKlicken, um die Reihenfolge zu "
+"ändern"
+
+#: src/GMTrackView.cpp:282
+msgid "Browse"
+msgstr "Browser anzeigen"
+
+#: src/GMTrackView.cpp:283
+msgid "Shuffle\tCtrl-R"
+msgstr "Zufällige Wiedergabe\tCtrl-R"
+
+#: src/GMTrackView.cpp:290 ../../../fox-1.6.36/src/FXDirSelector.cpp:388
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:734
+msgid "Reverse"
+msgstr "Rückwärts"
+
+#: src/GMTrackView.cpp:803
+#, fuzzy, c-format
+msgid "All %d Genres"
+msgstr "Alle Genre"
+
+#: src/GMTrackView.cpp:805
+msgid "All Genres"
+msgstr "Alle Genre"
+
+#: src/GMTrackView.cpp:831
+#, fuzzy, c-format
+msgid "All %d Artists"
+msgstr "Künstlername des Albums"
+
+#: src/GMTrackView.cpp:871
+#, fuzzy, c-format
+msgid "All %d Albums"
+msgstr "Alben:"
+
+#: src/GMTrackView.cpp:1270
+#, c-format
+msgid "By %s"
+msgstr ""
+
+#: src/GMTrackView.cpp:1615
+msgid "Sort by Album Year"
+msgstr "Sortiere nach Erscheinungsjahr"
+
+#: src/GMTrackView.cpp:1640
+msgid "&Columns\t\tChange Visible Columns."
+msgstr "&Spalten\t\tÄndere die Spalten."
+
+#: src/GMTrackView.cpp:1641
+msgid "&Sort\t\tChange Sorting."
+msgstr "&Sortierung\t\tSortierung ändern."
+
+#: src/GMTrayIcon.cpp:331 src/GMWindow.cpp:794
+msgid "Play"
+msgstr "Play"
+
+#: src/GMTrayIcon.cpp:332 src/GMWindow.cpp:795
+msgid "Pause"
+msgstr "Pause"
+
+#: src/GMTrayIcon.cpp:333 src/GMWindow.cpp:796
+msgid "Stop"
+msgstr "Stop"
+
+#: src/GMTrayIcon.cpp:334
+msgid "Previous Track"
+msgstr "Vorherigen Titel"
+
+#: src/GMTrayIcon.cpp:335
+msgid "Next Track"
+msgstr "Nächsten Titel"
+
+#: src/GMWindow.cpp:230
+msgid "Play\tStart Playback\tStart Playback"
+msgstr "Play\tStarte die Wiedergabe\tStarte die Wiedergabe"
+
+#: src/GMWindow.cpp:230
+msgid "Pause\tPause\tPause Playback"
+msgstr "Pause\tPause\tDie Wiedergabe pausieren"
+
+#: src/GMWindow.cpp:231
+msgid "Stop\tStop Playback\tStop Playback"
+msgstr "Stopp\tDie Wiedergabe anhalten\tDie Wiedergabe anhalten"
+
+#: src/GMWindow.cpp:233
+msgid "Previous\tPlay Previous Track\tPlay previous track."
+msgstr "Vorherigen\tVorherigen Titel wiedergeben\tVorherigen Titel wiedergeben"
+
+#: src/GMWindow.cpp:234
+msgid "Next\tPlay Next Track\tPlay next track."
+msgstr "Nächsten\tNächsten Titel wiedergeben\tNächsten Titel wiedergeben"
+
+#: src/GMWindow.cpp:292
+msgid "&Music"
+msgstr "&Musik"
+
+#: src/GMWindow.cpp:294
+msgid "Import Folder…\tCtrl-O\tImport Music from folder into Library"
+msgstr ""
+"Ordner &importieren…\tCtrl-O\tImportiere die Musik aus einem Ordner in die "
+"Bibliothek"
+
+#: src/GMWindow.cpp:295
+msgid "Sync Folder…\t\tSynchronize Folder with Music in Library"
+msgstr ""
+"Ordner &synchronisieren…\t\tSynchronisiere die Ordner mit der Bibliothek"
+
+#: src/GMWindow.cpp:297
+msgid "Open URL…\t\tOpen Stream or File"
+msgstr "URL ö&ffnen…\t\tInternetstream oder Datei öffnen"
+
+#: src/GMWindow.cpp:306
+msgid "&Quit\tCtrl-Q\tQuit the application."
+msgstr "B&eenden\tCtrl-Q\tBeende die Anwendung."
+
+#: src/GMWindow.cpp:311
+msgid "&Edit"
+msgstr "B&earbeiten"
+
+#: src/GMWindow.cpp:312
+msgid "&Copy\tCtrl-C\tCopy Selected Tracks"
+msgstr "&Kopieren\tCtrl-C\tDie ausgewählten Titel kopieren"
+
+#: src/GMWindow.cpp:313
+msgid "&Cut\tCtrl-X\tCut Selected Tracks"
+msgstr "Auss&chneiden\tCtrl-X\tDie ausgewählten Titel ausschneiden"
+
+#: src/GMWindow.cpp:314
+msgid "&Paste\tCtrl-V\tPaste Clipboard Selection"
+msgstr "E&infügen\tCtrl-V\tAus der Zwischenablage einfügen"
+
+#: src/GMWindow.cpp:316
+msgid "Find…\tCtrl-F\tShow search filter."
+msgstr "Suchen…\tCtrl-F\tZeige Suchfilter."
+
+#: src/GMWindow.cpp:318
+msgid "Preferences…"
+msgstr "Einstellungen…"
+
+#: src/GMWindow.cpp:322
+msgid "&View"
+msgstr "&Ansicht"
+
+#: src/GMWindow.cpp:323
+msgid "&Browse\tCtrl-B\tShow genre artist and album browser."
+msgstr "&Browser anzeigen\tCtrl-B\tZeige den Künstler- und Alben-Browser."
+
+#: src/GMWindow.cpp:324
+msgid "Show &Genres\tCtrl-G\tShow genre browser."
+msgstr "&Genre anzeigen\tCtrl-G\tZeige den Genre-Browser."
+
+#: src/GMWindow.cpp:326
+msgid "Show &Sources\tCtrl-S\tShow source browser "
+msgstr "&Quellen anzeigen\tCtrl-S\tQuellen-Browser anzeigen "
+
+#: src/GMWindow.cpp:329
+msgid "Show Full Screen\tF12\tToggle fullscreen mode."
+msgstr "Vollbild\tF12\tVollbildmodus umschalten"
+
+#: src/GMWindow.cpp:331
+msgid "Show Mini Player\tF11\tToggle Mini Player."
+msgstr "Fernbedienung anzeigen\tF11\tZeige ein kleines Wiedergabefenster an."
+
+#: src/GMWindow.cpp:334
+msgid "&Configure Columns…"
+msgstr "Spalten &konfigurieren"
+
+#: src/GMWindow.cpp:335
+msgid "&Sort"
+msgstr "&Sortierung"
+
+#: src/GMWindow.cpp:337
+msgid "&Jump to Current Track\tCtrl-J\tShow current playing track."
+msgstr "Zum aktuellen Titel &springen\tCtrl-J\tZeige den aktuellen Titel an."
+
+#: src/GMWindow.cpp:341
+msgid "&Control"
+msgstr "&Steuerung"
+
+#: src/GMWindow.cpp:342
+msgid "Play\tCtrl-P\tStart playback."
+msgstr "Play\tCtrl-P\tStarte die Wiedergabe."
+
+#: src/GMWindow.cpp:343
+msgid "Pause\t\tPause playback."
+msgstr "Pause\t\tDie Wiedergabe pausieren."
+
+#: src/GMWindow.cpp:344
+msgid "Stop\tCtrl-\\\tStop playback."
+msgstr "Stopp\tCtrl-\\\tDie Wiedergabe anhalten."
+
+#: src/GMWindow.cpp:345
+msgid "Previous Track\tCtrl-[\tPlay next track."
+msgstr "Vorherigen Titel\tCtrl-[\tGib den vorherigen Titel wieder."
+
+#: src/GMWindow.cpp:346
+msgid "Next Track\tCtrl-]\tPlay previous track."
+msgstr "Nächsten Titel\tCtrl-]\tGib den nächsten Titel wieder."
+
+#: src/GMWindow.cpp:348
+msgid "Repeat Off\tCtrl-,\tRepeat current track."
+msgstr "Wiederholung aus\tCtrl-,\tWiederhole den aktuellen Titel."
+
+#: src/GMWindow.cpp:349
+msgid "Repeat Track\tCtrl-.\tRepeat current track."
+msgstr "Wiederholung\tCtrl-.\tWiederhole den aktuellen Titel."
+
+#: src/GMWindow.cpp:350
+msgid "Repeat All Tracks\tCtrl-/\tRepeat all tracks."
+msgstr "Wiederhole alle Titel\tCtrl-/\tWiederhole alle Titel."
+
+#: src/GMWindow.cpp:351
+msgid "Repeat A-B\tCtrl-T\tRepeat section of track."
+msgstr ""
+"Wiederholung A-B\tCtrl-T\tWiederhole die Titel, die sich zwischen zwei "
+"ausgewählten Titeln befinden"
+
+#: src/GMWindow.cpp:352
+msgid "Shuffle Mode\tAlt-R\tPlay tracks in random order."
+msgstr ""
+"Zufällige Wiedergabe\tAlt-R\tGib die Titel in eine zufälligen Reihenfolge "
+"wieder"
+
+#: src/GMWindow.cpp:354
+msgid "Equalizer\t\t"
+msgstr "Equalizer\t\t"
+
+#: src/GMWindow.cpp:355
+msgid "Sleep Timer\t\tSetup sleeptimer."
+msgstr "Zeitschaltuhr\t\tDie Zeitschaltuhr einstellen."
+
+#: src/GMWindow.cpp:359
+msgid "&Help"
+msgstr "&Hilfe"
+
+#: src/GMWindow.cpp:360
+msgid "&Homepage"
+msgstr "&Homepage"
+
+#: src/GMWindow.cpp:361
+msgid "&Report Issue…"
+msgstr "Einen Fehle&r melden…"
+
+#: src/GMWindow.cpp:364
+msgid ""
+"&Join GMM on last.fm…\t\tJoin the Goggles Music Manager group on last.fm…"
+msgstr ""
+"GMM auf last.fm b&eitreten…\t\tTreten Sie der Goggles Music Manager-Gruppe "
+"auf last.fm bei…"
+
+#: src/GMWindow.cpp:366
+msgid "&About…"
+msgstr "Ü&ber"
+
+#: src/GMWindow.cpp:797
+msgid "Previous"
+msgstr "Vorheriges"
+
+#: src/GMWindow.cpp:798
+msgid "Next"
+msgstr "Nächstes"
+
+#: src/GMWindow.cpp:972 src/GMWindow.cpp:974
+msgid "Repeat A-B"
+msgstr "Wiederhole A-B"
+
+#: src/GMWindow.cpp:973
+msgid "Repeat A"
+msgstr "Wiederhole A"
+
+#: src/GMWindow.cpp:1053 src/GMWindow.cpp:1060 src/GMWindow.cpp:1067
+#: src/GMWindow.cpp:1074
+msgid "Unable to launch webbrowser"
+msgstr "Es konnte kein Webbrowser gestartet werden"
+
+#: src/GMWindow.cpp:1082
+msgid "Open MRL"
+msgstr "MRL öffnen"
+
+#: src/GMWindow.cpp:1091
+msgid "Sleep Timer"
+msgstr "Zeitschaltuhr"
+
+#: src/GMWindow.cpp:1092
+msgid "Setup sleep timer"
+msgstr "Einstellung der Zeitschaltuhr"
+
+#: src/GMWindow.cpp:1092
+msgid "Stop playback within a certain time"
+msgstr "Die Wiedergabe nach einen bestimmten Zeit anhalten"
+
+#: src/GMWindow.cpp:1094
+msgid "&Start Timer"
+msgstr "Die Uhr &starten"
+
+#: src/GMWindow.cpp:1099
+msgid "Sleep in"
+msgstr "Stoppe in"
+
+#: src/GMWindow.cpp:1101
+msgid "hours and"
+msgstr "Stunden und"
+
+#: src/GMWindow.cpp:1103
+msgid "minutes."
+msgstr "Minuten."
+
+#: include/GMDatabaseSource.h:132
+msgid "Music Library"
+msgstr "Musikbibliothek"
+
+#: include/GMStreamSource.h:57
+#, fuzzy
+msgid "Internet Radio"
+msgstr "Internetradiosender"
+
+#: include/GMGenres.h:20
+msgid "A capella"
+msgstr "A capella"
+
+#: include/GMGenres.h:21
+msgid "Acid"
+msgstr "Acid"
+
+#: include/GMGenres.h:22
+msgid "Acid Jazz"
+msgstr "Acid Jazz"
+
+#: include/GMGenres.h:23
+msgid "Acid Punk"
+msgstr "Acid Punk"
+
+#: include/GMGenres.h:24
+msgid "Acoustic"
+msgstr "Akustisch"
+
+#: include/GMGenres.h:25
+msgid "Alternative"
+msgstr "Alternative"
+
+#: include/GMGenres.h:26
+msgid "AlternRockAmbient"
+msgstr ""
+
+#: include/GMGenres.h:28
+msgid "Avantgarde"
+msgstr "Avantgarde"
+
+#: include/GMGenres.h:29
+msgid "Ballad"
+msgstr "Ballade"
+
+#: include/GMGenres.h:30
+msgid "Bass"
+msgstr "Bass"
+
+#: include/GMGenres.h:31
+msgid "Bebob"
+msgstr "Bebob"
+
+#: include/GMGenres.h:32
+msgid "Big Band"
+msgstr "Big Band"
+
+#: include/GMGenres.h:33
+msgid "Blues"
+msgstr "Blues"
+
+#: include/GMGenres.h:34
+msgid "Bluegrass"
+msgstr "Bluegrass"
+
+#: include/GMGenres.h:35
+msgid "Booty Bass"
+msgstr "Booty Bass"
+
+#: include/GMGenres.h:36
+msgid "Cabaret"
+msgstr "Kabarett"
+
+#: include/GMGenres.h:37 ../../../fox-1.6.36/src/FXFontSelector.cpp:165
+msgid "Celtic"
+msgstr ""
+
+#: include/GMGenres.h:38
+msgid "Chamber Music"
+msgstr "Kammermusik"
+
+#: include/GMGenres.h:39
+msgid "Chanson"
+msgstr "Chanson"
+
+#: include/GMGenres.h:40
+msgid "Chorus"
+msgstr "Chor"
+
+#: include/GMGenres.h:41
+msgid "Christian Rap"
+msgstr ""
+
+#: include/GMGenres.h:42
+msgid "Classical"
+msgstr "Klassik"
+
+#: include/GMGenres.h:43
+msgid "Classic Rock"
+msgstr "Classic Rock"
+
+#: include/GMGenres.h:44
+msgid "Club"
+msgstr "Club"
+
+#: include/GMGenres.h:45
+msgid "Comedy"
+msgstr "Comedy"
+
+#: include/GMGenres.h:46
+msgid "Country"
+msgstr "Country"
+
+#: include/GMGenres.h:47
+msgid "Cult"
+msgstr ""
+
+#: include/GMGenres.h:48
+msgid "Dance"
+msgstr "Dance"
+
+#: include/GMGenres.h:49
+msgid "Dance Hall"
+msgstr "Dance Hall"
+
+#: include/GMGenres.h:50
+msgid "Darkwave"
+msgstr "Darkwave"
+
+#: include/GMGenres.h:51
+msgid "Death Metal"
+msgstr "Death Metal"
+
+#: include/GMGenres.h:52
+msgid "Disco"
+msgstr "Disco"
+
+#: include/GMGenres.h:53
+msgid "Dream"
+msgstr ""
+
+#: include/GMGenres.h:54
+msgid "Drum Solo"
+msgstr "Schlagzeugsolo"
+
+#: include/GMGenres.h:55
+msgid "Duet"
+msgstr "Duet"
+
+#: include/GMGenres.h:56
+msgid "Easy Listening"
+msgstr "Easy Listening"
+
+#: include/GMGenres.h:57
+msgid "Electronic"
+msgstr "Elektronische Musik"
+
+#: include/GMGenres.h:58
+msgid "Ethnic"
+msgstr ""
+
+#: include/GMGenres.h:59
+msgid "Euro-Dance"
+msgstr ""
+
+#: include/GMGenres.h:60
+msgid "Euro-House"
+msgstr ""
+
+#: include/GMGenres.h:61
+msgid "Euro-Techno"
+msgstr ""
+
+#: include/GMGenres.h:62
+msgid "Fast Fusion"
+msgstr ""
+
+#: include/GMGenres.h:63
+msgid "Folk"
+msgstr "Folk"
+
+#: include/GMGenres.h:64
+msgid "Folk-Rock"
+msgstr "Folk-Rock"
+
+#: include/GMGenres.h:65
+msgid "Folklore"
+msgstr "Folklore"
+
+#: include/GMGenres.h:66
+msgid "Freestyle"
+msgstr ""
+
+#: include/GMGenres.h:67
+msgid "Funk"
+msgstr "Funk"
+
+#: include/GMGenres.h:68
+msgid "Fusion"
+msgstr ""
+
+#: include/GMGenres.h:69
+msgid "Game"
+msgstr ""
+
+#: include/GMGenres.h:70
+msgid "Gangsta"
+msgstr ""
+
+#: include/GMGenres.h:71
+msgid "Gospel"
+msgstr "Gospel"
+
+#: include/GMGenres.h:72
+msgid "Gothic"
+msgstr "Gothic"
+
+#: include/GMGenres.h:73
+msgid "Gothic Rock"
+msgstr "Gothic Rock"
+
+#: include/GMGenres.h:74
+msgid "Grunge"
+msgstr "Grunge"
+
+#: include/GMGenres.h:75
+msgid "Hard Rock"
+msgstr "Hard Rock"
+
+#: include/GMGenres.h:76
+msgid "Hip-Hop"
+msgstr "Hip-Hop"
+
+#: include/GMGenres.h:77
+#, fuzzy
+msgid "House"
+msgstr "Farbton:"
+
+#: include/GMGenres.h:78
+msgid "Humour"
+msgstr ""
+
+#: include/GMGenres.h:79
+msgid "Industrial"
+msgstr "Industrial"
+
+#: include/GMGenres.h:80
+msgid "Instrumental"
+msgstr "Instrumental"
+
+#: include/GMGenres.h:81
+msgid "Instrumental Pop"
+msgstr ""
+
+#: include/GMGenres.h:82
+msgid "Instrumental Rock"
+msgstr ""
+
+#: include/GMGenres.h:83
+msgid "Jazz"
+msgstr "Jazz"
+
+#: include/GMGenres.h:84
+msgid "Jazz+Funk"
+msgstr "Jazz+Funk"
+
+#: include/GMGenres.h:85
+msgid "Jungle"
+msgstr ""
+
+#: include/GMGenres.h:86
+msgid "Latin"
+msgstr ""
+
+#: include/GMGenres.h:87
+msgid "Lo-Fi"
+msgstr ""
+
+#: include/GMGenres.h:88
+msgid "Meditative"
+msgstr "Meditativ"
+
+#: include/GMGenres.h:89
+msgid "Metal"
+msgstr "Metal"
+
+#: include/GMGenres.h:90
+msgid "Musical"
+msgstr "Musical"
+
+#: include/GMGenres.h:91
+msgid "National Folk"
+msgstr ""
+
+#: include/GMGenres.h:92
+msgid "Native American"
+msgstr ""
+
+#: include/GMGenres.h:93
+msgid "New Age"
+msgstr "New Age"
+
+#: include/GMGenres.h:94
+msgid "New Wave"
+msgstr "New Wave"
+
+#: include/GMGenres.h:95
+msgid "Noise"
+msgstr "Noise"
+
+#: include/GMGenres.h:96
+msgid "Oldies"
+msgstr "Oldies"
+
+#: include/GMGenres.h:97
+msgid "Opera"
+msgstr "Oper"
+
+#: include/GMGenres.h:98
+msgid "Other"
+msgstr "Andere"
+
+#: include/GMGenres.h:99
+msgid "Polka"
+msgstr "Polka"
+
+#: include/GMGenres.h:100
+msgid "Pop"
+msgstr "Pop"
+
+#: include/GMGenres.h:101
+msgid "Pop-Folk"
+msgstr "Pop-Folk"
+
+#: include/GMGenres.h:102
+msgid "Pop/Funk"
+msgstr "Pop/Funk"
+
+#: include/GMGenres.h:103
+msgid "Porn Groove"
+msgstr ""
+
+#: include/GMGenres.h:104
+msgid "Power Ballad"
+msgstr ""
+
+#: include/GMGenres.h:105
+msgid "Pranks"
+msgstr ""
+
+#: include/GMGenres.h:106
+msgid "Primus"
+msgstr ""
+
+#: include/GMGenres.h:107
+msgid "Progressive Rock"
+msgstr "Progressive Rock"
+
+#: include/GMGenres.h:108
+msgid "Psychadelic"
+msgstr "Psychadelic"
+
+#: include/GMGenres.h:109
+msgid "Psychedelic Rock"
+msgstr "Psychedelic Rock"
+
+#: include/GMGenres.h:110
+msgid "Punk"
+msgstr "Punk"
+
+#: include/GMGenres.h:111
+msgid "Punk Rock"
+msgstr "Punk Rock"
+
+#: include/GMGenres.h:112
+msgid "R&B"
+msgstr "R&B"
+
+#: include/GMGenres.h:113
+msgid "Rap"
+msgstr "Rap"
+
+#: include/GMGenres.h:114
+msgid "Rave"
+msgstr "Rave"
+
+#: include/GMGenres.h:115
+msgid "Reggae"
+msgstr "Reggae"
+
+#: include/GMGenres.h:116
+msgid "Retro"
+msgstr "Retro"
+
+#: include/GMGenres.h:117
+msgid "Revival"
+msgstr "Revival"
+
+#: include/GMGenres.h:118
+msgid "Rhythmic Soul"
+msgstr ""
+
+#: include/GMGenres.h:119
+msgid "Rock"
+msgstr "Rock"
+
+#: include/GMGenres.h:120
+msgid "Rock & Roll"
+msgstr "Rock & Roll"
+
+#: include/GMGenres.h:121
+msgid "Samba"
+msgstr "Samba"
+
+#: include/GMGenres.h:122
+msgid "Satire"
+msgstr "Satire"
+
+#: include/GMGenres.h:123
+msgid "Showtunes"
+msgstr ""
+
+#: include/GMGenres.h:124
+msgid "Ska"
+msgstr "Ska"
+
+#: include/GMGenres.h:125
+msgid "Slow Jam"
+msgstr ""
+
+#: include/GMGenres.h:126
+msgid "Slow Rock"
+msgstr ""
+
+#: include/GMGenres.h:127
+msgid "Sonata"
+msgstr "Sonate"
+
+#: include/GMGenres.h:128
+msgid "Soul"
+msgstr "Soul"
+
+#: include/GMGenres.h:129
+msgid "Soundtrack"
+msgstr "Soundtrack"
+
+#: include/GMGenres.h:130
+msgid "Sound Clip"
+msgstr ""
+
+#: include/GMGenres.h:131
+msgid "Southern Rock"
+msgstr ""
+
+#: include/GMGenres.h:132
+msgid "Space"
+msgstr ""
+
+#: include/GMGenres.h:133
+msgid "Speech"
+msgstr "Sprache"
+
+#: include/GMGenres.h:134
+msgid "Swing"
+msgstr "Swing"
+
+#: include/GMGenres.h:135
+msgid "Symphonic Rock"
+msgstr ""
+
+#: include/GMGenres.h:136
+msgid "Symphony"
+msgstr "Symphonie"
+
+#: include/GMGenres.h:137
+msgid "Tango"
+msgstr "Tango"
+
+#: include/GMGenres.h:138
+msgid "Techno"
+msgstr "Techno"
+
+#: include/GMGenres.h:139
+msgid "Techno-Industrial"
+msgstr ""
+
+#: include/GMGenres.h:140
+msgid "Top 40"
+msgstr "Top 40"
+
+#: include/GMGenres.h:141
+msgid "Trailer"
+msgstr "Trailer"
+
+#: include/GMGenres.h:142
+msgid "Trance"
+msgstr "Trance"
+
+#: include/GMGenres.h:143
+msgid "Tribal"
+msgstr "Tribal"
+
+#: include/GMGenres.h:144
+msgid "Trip-Hop"
+msgstr "Trip-Hop"
+
+#: include/GMGenres.h:145
+msgid "Vocal"
+msgstr "Gesang"
+
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:102
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:106
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:134
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:198
+msgid "&OK"
+msgstr "&OK"
+
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:111
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:116
+msgid "&Yes"
+msgstr "&Ja"
+
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:112
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:117
+msgid "&No"
+msgstr "&Nein"
+
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:122
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:127
+msgid "&Quit"
+msgstr "B&eenden"
+
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:133
+msgid "&Skip"
+msgstr "Über&springen"
+
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:134
+msgid "Skip &All"
+msgstr "&Alle Überspringen"
+
+#: ../../../fox-1.6.36/src/FXMessageBox.cpp:140
+msgid "&Don't Save"
+msgstr "&Nicht Speichern"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:220
+msgid "\tPick color"
+msgstr "\tFarbe wählen"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:229
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:274
+msgid "\tHue, Saturation, Value"
+msgstr "\tFarbton, Sättigung, Wert"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:239
+msgid "\tRed, Green, Blue"
+msgstr "\tRot, Grün, Blau"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:245
+msgid "&Red:"
+msgstr "&Rot:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:250
+msgid "&Green:"
+msgstr "&Grün:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:255
+msgid "&Blue:"
+msgstr "&Blau:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:260
+msgid "&Alpha:"
+msgstr "&Alpha:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:280
+msgid "Hue:"
+msgstr "Farbton:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:285
+msgid "Saturation:"
+msgstr "Sättigung:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:290
+msgid "Value:"
+msgstr "Wert:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:295
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:330
+msgid "Alpha:"
+msgstr "Alpha:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:309
+msgid "\tCyan, Magenta, Yellow"
+msgstr "\tZyan, Magenta, Gelb"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:315
+msgid "Cyan:"
+msgstr "Zyan:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:320
+msgid "Magenta:"
+msgstr "Magenta:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:325
+msgid "Yellow:"
+msgstr "Gelb:"
+
+#: ../../../fox-1.6.36/src/FXColorSelector.cpp:344
+msgid "\tBy Name"
+msgstr "\tNach Name"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:120
+msgid "&Family:"
+msgstr "&Familie:"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:129
+msgid "&Weight:"
+msgstr "&Breite:"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:135
+msgid "&Style:"
+msgstr "&Stil"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:141
+msgid "Si&ze:"
+msgstr "&Größe"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:149
+msgid "Character Set:"
+msgstr "Zeichensatz:"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:152
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:184
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:200
+msgid "Any"
+msgstr "Beliebig"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:153
+msgid "West European"
+msgstr "West-Europäisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:154
+msgid "East European"
+msgstr "Ost-Europäisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:155
+msgid "South European"
+msgstr "Süd-Europäisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:156
+msgid "North European"
+msgstr "Nord-Europäisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:157
+msgid "Cyrillic"
+msgstr "Kyrillisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:158
+msgid "Arabic"
+msgstr "Arabisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:159
+msgid "Greek"
+msgstr "Griechisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:160
+msgid "Hebrew"
+msgstr "Hebräisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:161
+msgid "Turkish"
+msgstr "Türkisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:162
+msgid "Nordic"
+msgstr ""
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:163
+msgid "Thai"
+msgstr "Thai"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:164
+msgid "Baltic"
+msgstr "Baltisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:166
+msgid "Russian"
+msgstr "Russisch"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:167
+msgid "Central European (cp1250)"
+msgstr "Zentral-Europäisch (cp1250)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:168
+msgid "Russian (cp1251)"
+msgstr "Russisch (cp1251)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:169
+msgid "Latin1 (cp1252)"
+msgstr "Latin1 (cp1252)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:170
+msgid "Greek (cp1253)"
+msgstr "Griechisch (cp1253)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:171
+msgid "Turkish (cp1254)"
+msgstr "Türkisch (cp1254)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:172
+msgid "Hebrew (cp1255)"
+msgstr "Hebräisch (cp1255)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:173
+msgid "Arabic (cp1256)"
+msgstr "Arabisch (cp1256)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:174
+msgid "Baltic (cp1257)"
+msgstr "Baltisch (cp1257)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:175
+msgid "Vietnam (cp1258)"
+msgstr "Vietnamesisch (cp1258)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:176
+msgid "Thai (cp874)"
+msgstr "Thai (cp874)"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:177
+msgid "UNICODE"
+msgstr "UNICODE"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:181
+msgid "Set Width:"
+msgstr "Wähle Breite:"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:185
+msgid "Ultra condensed"
+msgstr "Wahnsinnig dünn"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:186
+msgid "Extra condensed"
+msgstr "Besonders dünn"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:187
+msgid "Condensed"
+msgstr "dünn"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:188
+msgid "Semi condensed"
+msgstr "Halbdünn"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:189
+msgid "Normal"
+msgstr "Normal"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:190
+msgid "Semi expanded"
+msgstr "Halbbreit"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:191
+msgid "Expanded"
+msgstr "Breit"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:192
+msgid "Extra expanded"
+msgstr "Besonders Breit"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:193
+msgid "Ultra expanded"
+msgstr "Wahnsinnig Breit"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:197
+msgid "Pitch:"
+msgstr "Abstand:"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:201
+msgid "Fixed"
+msgstr "Fest"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:202
+msgid "Variable"
+msgstr "Variabel"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:207
+msgid "Scalable:"
+msgstr "Skalierbar:"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:212
+msgid "All Fonts:"
+msgstr "Alle Schriftarten:"
+
+#: ../../../fox-1.6.36/src/FXFontSelector.cpp:219
+msgid "Preview:"
+msgstr "Vorschau:"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:137
+msgid "&Directory:"
+msgstr "Ver&zeichnis"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:281
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:521
+msgid "Create New Directory"
+msgstr "Neues Verzeichnis anlegen"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:284
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:524
+msgid "Already Exists"
+msgstr "Existiert bereits"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:288
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:528
+msgid "Cannot Create"
+msgstr "Kann nicht erstellt werden"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:309
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:595
+msgid "Copy File"
+msgstr "Kopiere Datei"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:315
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:601
+msgid "Error Copying File"
+msgstr "Fehler während des Kopierens"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:326
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:618
+msgid "Move File"
+msgstr "Verschiebe Datei"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:332
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:624
+msgid "Error Moving File"
+msgstr "Fehler während des Verschiebend"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:343
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:641
+msgid "Link File"
+msgstr "Verknüpfung erstellen"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:349
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:647
+msgid "Error Linking File"
+msgstr "Fehler während der Erstellung der Verknüpfung"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:359
+msgid "Deleting file"
+msgstr "Datei Löschen"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:361
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:667
+msgid "Error Deleting File"
+msgstr "Fehler während dem Löschen"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:381
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:719
+msgid "Up one level"
+msgstr "Eine Ebene nach oben"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:382
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:720
+msgid "Home directory"
+msgstr "Heimverzeichnis"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:383
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:721
+msgid "Work directory"
+msgstr "Arbeitsverzeichnis"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:387
+msgid "Sorting"
+msgstr "Sortierung"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:389
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:735
+msgid "Ignore case"
+msgstr "Groß-/Kleinschreibung ignorieren"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:390
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:746
+msgid "Hidden files"
+msgstr "Versteckte Dateien"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:393
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:754
+msgid "Bookmarks"
+msgstr "Lesezeichen"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:394
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:757
+msgid "Set bookmark"
+msgstr "Lesezeichen erstellen"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:395
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:758
+msgid "Clear bookmarks"
+msgstr "Lesezeichen leeren"
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:411
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:774
+msgid "New directory..."
+msgstr "Neues Verzeichnis..."
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:412
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:775
+msgid "Copy..."
+msgstr "Kopieren..."
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:413
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:776
+msgid "Move..."
+msgstr "Verschieben..."
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:414
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:777
+msgid "Link..."
+msgstr "Verknüpfung erstellen..."
+
+#: ../../../fox-1.6.36/src/FXDirSelector.cpp:415
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:778
+msgid "Delete..."
+msgstr "Löschen..."
+
+#: ../../../fox-1.6.36/src/FXFileList.cpp:195
+msgid "Modified Date"
+msgstr "Änderungsdatum"
+
+#: ../../../fox-1.6.36/src/FXFileList.cpp:196
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:731
+msgid "User"
+msgstr "Benutzer"
+
+#: ../../../fox-1.6.36/src/FXFileList.cpp:197
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:732
+msgid "Group"
+msgstr "Gruppe"
+
+#: ../../../fox-1.6.36/src/FXFileList.cpp:198
+msgid "Attributes"
+msgstr "Attribute"
+
+#: ../../../fox-1.6.36/src/FXFileList.cpp:200
+msgid "Link"
+msgstr "Verknüpfung"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:196
+msgid "&File Name:"
+msgstr "&Dateiname:"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:200
+msgid "File F&ilter:"
+msgstr "Dateif&ilter:"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:204
+msgid "Read Only"
+msgstr "Schreibgeschützt"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:228
+msgid "&Set bookmark\t\tBookmark current directory."
+msgstr ""
+"Le&sezeichen erstellen\t\tLege ein Lesezeichen ins aktuelle Verzeichnis."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:229
+msgid "&Clear bookmarks\t\tClear bookmarks."
+msgstr "Lesezeichen leeren\t\tEntferne alle Lesezeichen."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:244
+msgid "\tGo up one directory\tMove up to higher directory."
+msgstr "\tEine Ebene nach oben\tWechsele in ein höheres Verzeichnis."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:245
+msgid "\tGo to home directory\tBack to home directory."
+msgstr "\tZum Heimverzeichnis\tZurück ins Heimverzeichnis."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:246
+msgid "\tGo to work directory\tBack to working directory."
+msgstr "\tZum Arbeitsverzeichnis\tZurück zum Arbeitsverzeichnis."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:247
+msgid "\tBookmarks\tVisit bookmarked directories."
+msgstr "\tLesezeichen\tZu einem Lesezeichen wechseln."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:250
+msgid "\tCreate new directory\tCreate new directory."
+msgstr "\tNeues Verzeichnis erstellen\tErstelle ein neues Verzeichnis."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:251
+msgid "\tShow list\tDisplay directory with small icons."
+msgstr "\tListenansicht\tDas Verzeichnis mit kleinen Symbolen anzeigen."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:252
+msgid "\tShow icons\tDisplay directory with big icons."
+msgstr "\tSymbolansicht\tDas Verzeichnis mit großen Symbolen anzeigen."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:253
+msgid "\tShow details\tDisplay detailed directory listing."
+msgstr "\tDetailansicht\tDas Verzeichnis detailiert anzeigen."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:254
+msgid "\tShow hidden files\tShow hidden files and directories."
+msgstr ""
+"\tVersteckte Dateien anzeigen\tZeige versteckte Dateien und Verzeichnisse an."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:254
+msgid "\tHide Hidden Files\tHide hidden files and directories."
+msgstr ""
+"\tVerstecke versteckte Dateien\tZeige keine versteckten Dateien und "
+"Verzeichnisse an."
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:521
+msgid "Create new directory with name: "
+msgstr "Erstelle neues Verzeichnis mit dem Namen: "
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:524
+#, c-format
+msgid "File or directory %s already exists.\n"
+msgstr "Datei oder Verzeichnis %s existiert bereits.\n"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:528
+#, c-format
+msgid "Cannot create directory %s.\n"
+msgstr "Das Verzeichnis %s kann nicht erstellt werden.\n"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:594
+#, c-format
+msgid ""
+"Copy file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"Kopiere Datei von:\n"
+"\n"
+"%s\n"
+"\n"
+"nach: "
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:601
+#, c-format
+msgid ""
+"Unable to copy file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"Konnte die Datei nicht von:\n"
+"\n"
+"%s  nach:  %s  kopieren.\n"
+"\n"
+"Trotzdem fortfahren?"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:617
+#, c-format
+msgid ""
+"Move file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"Verschiebe Datei von:\n"
+"\n"
+"%s\n"
+"\n"
+"nach: "
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:624
+#, c-format
+msgid ""
+"Unable to move file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"Konnte die Datei nicht von:\n"
+"\n"
+"%s  nach:  %s  verschieben.\n"
+"\n"
+"Trotzdem fortfahren?"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:640
+#, c-format
+msgid ""
+"Link file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"Erstelle Verknüpfung\n"
+"\n"
+"%s\n"
+"\n"
+"mit: "
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:647
+#, c-format
+msgid ""
+"Unable to link file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"Konnte keine Verknüpfung\n"
+"\n"
+"%s  mit:  %s erstellen.\n"
+"\n"
+"Trotzdem fortfahren?"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:663
+msgid "Deleting files"
+msgstr "Dateien werden gelöscht"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:663
+#, c-format
+msgid ""
+"Are you sure you want to delete the file:\n"
+"\n"
+"%s"
+msgstr ""
+"Sind Sie sicher, dass Sie die folgende Datei löschen wollen:\n"
+"\n"
+"%s"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:667
+#, c-format
+msgid ""
+"Unable to delete file:\n"
+"\n"
+"%s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"Die Datei:\n"
+"\n"
+"%s  konnte nicht gelöscht werden.\n"
+"\n"
+"Trotzdem fortfahren?"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:722
+msgid "Select all"
+msgstr "Alles Auswählen"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:726
+msgid "Sort by"
+msgstr "Sortieren nach"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:738
+msgid "View"
+msgstr "Ansicht"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:739
+msgid "Small icons"
+msgstr "Kleine Symbole"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:740
+msgid "Big icons"
+msgstr "Große Symbole"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:741
+msgid "Details"
+msgstr "Details"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:743
+msgid "Rows"
+msgstr "Zeilen"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:744
+msgid "Columns"
+msgstr "Spalten"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:747
+msgid "Preview images"
+msgstr "Vorschaubild"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:749
+msgid "Normal images"
+msgstr "Normalgroße Bilder"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:750
+msgid "Medium images"
+msgstr "Mittelgroße Bilder"
+
+#: ../../../fox-1.6.36/src/FXFileSelector.cpp:751
+msgid "Giant images"
+msgstr "Große Bilder"
+
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:111
+msgid "&Replace"
+msgstr "E&rsetzen"
+
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:112
+msgid "Re&place All"
+msgstr "Alle Erst&zen"
+
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:121
+msgid "S&earch for:"
+msgstr "Such&en nach:"
+
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:129
+msgid "Replace &with:"
+msgstr "Ersetzen &mit:"
+
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:138
+msgid "Ex&act"
+msgstr "Extr&ahieren"
+
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:139
+msgid "&Ignore Case"
+msgstr "Groß-/Kleinschreibung ignorieren"
+
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:140
+msgid "E&xpression"
+msgstr "Ausdrücke"
+
+#: ../../../fox-1.6.36/src/FXReplaceDialog.cpp:141
+msgid "&Backward"
+msgstr "&Rückwärts"
+
+#: ../../../fox-1.6.36/src/FXSearchDialog.cpp:71
+msgid "&Search"
+msgstr "&Suchen"
+
+#: ../../../fox-1.6.36/src/FXStatusLine.cpp:82
+msgid "Ready."
+msgstr "Bereit."

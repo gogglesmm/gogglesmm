@@ -1,0 +1,424 @@
+To Do
+=====
+
+  - Convert AudioScrobbler to libcurl.
+  - Finish up lirc support.
+  - Finish up mpris support.
+  - New keyboard shortcuts to skip 10s or 1min in a track.
+  - filename template should perhaps support: alphabet index?
+  - Theming:
+    * GMButton needs to having drawing mode for BUTTON_DEFAULT"
+
+0.13.0
+
+  - Add playing queue.
+  - MPRIS v2 Interface
+
+  - Music Improvements:
+
+    - Support composer and conductor tags.
+    - Support tagging tracks instead of genre.
+
+  - General Improvements:
+
+      o Support the XDG spec (http://standards.freedesktop.org/basedir-spec/basedir-spec-0.6.html).
+          - Config files have moved to $XDG_CONFIG_HOME/gogglesmm.
+          - The database has been moved to $XDG_DATA_HOME/gogglesmm.
+          - Temporary files are saved to $XDG_CACHE_HOME/gogglesmm.
+
+  - User Interface Improvements
+
+      o New modern look and feel.
+      o Ratings Support.
+      o Hotkey for find menu.
+
+  - Updated Requirements:
+      o sqlite >= 3.6.3
+      o xinelib >= 1.1.16
+
+0.10.2
+  - Added Spanish translation.
+  - Fix translations not working with FOX 1.7 (issue 100)
+
+0.10.1
+  - Fix tray icon issues.
+  - Added German translation.
+  - Properly encode special characters in audio scrobbler now playing submitter.
+  - Fix sorting of album list by year in playlists.
+  - Do not grab "AnyKey" by checking return value of XKeysymToKeycode.
+
+0.10.0
+  - Database Improvements:
+
+      o Improved performance when modifying the database (importing & removing tracks)
+      o Added fields for per track artist (issue 72)
+
+  - Import Improvements:
+
+      o Added "Sync Folder" capability, which can also update or remove tracks in the database if needed.
+      o Added import exclusion filter for file and folders. (issue 84)
+      o Redesigned import dialog. It now contains the import options that were previously in the preferences dialog.
+      o Added a filename template input to grab track information from a filename. This replaces
+        the less flexible "title from filename","album from directory" and "artist from directory".
+      o Added option to choose where to read the track information from: filename, tag or both.
+      o Replaced "Default Title", "Default Album", "Default Artist" and "Default Genre" with a single "Default Field"
+        since most of time you would likely use the same text anyway.
+
+      o Removed the Import File(s) option. I don't think it's needed that much, and it reduces the number of choices a user has to make.
+        Importing single files can still be accomplished through drag-and-drop.
+
+      o Remove wizard. Just show import dialog first time.
+
+  - Other Improvements:
+
+      o Added Localization Capability. (issue 3)
+      o Added disc column to track view.
+      o Allow multiple genre selection in browser.
+      o Double click in artist and album list will start playing.
+      o Added button to enable or disable last.fm scrobbler.
+      o Equalizer with configurable presets.
+      o Take into account the disc number when sorting albums.
+      o Send cover art through dbus to notify daemon directly instead of saving it to disk.
+      o allow to write tags when editing even if tracks have not been modified.
+      o more flexible input to select which fields need to be searched (issue 51).
+      o allow quoted strings in search field.
+      o Support for Multimedia Keys.
+      o Optionally display playing track in title bar.
+      o The album list may now also be sorted by album year.
+
+  - Audio Improvements:
+
+      o The audio driver can now be changed. (issue 87)
+      o Replay Gain (Only Ogg Vorbis, native FLAC and mp3 with APE tags).
+
+  - Filename Renamer
+
+      o The excluded character set may now be changed for the filename renamer.
+      o Added year and disc parameters.
+
+  - Tray Icon Improvements:
+
+      o tray icon is now integrated within gmm. gmm-tray has been removed.
+      o tray icon show/hide miniplayer as well.
+      o volume may be controlled using the mousewheel.
+      o middle mouse click will toggle between playing and pausing.
+
+  - Fixes:
+
+      o crash when sorting in Internet Radio view.
+      o remember "Update Filename" setting in edit dialogs.
+      o actually try alternative urls in PLS or m3u before failing completely.
+      o correctly display playing track in playlists.
+      o do not run event loop in dbus message callback.
+
+0.9.18
+  - Fix: Add support for fox-1.7.18.
+  - Fix: more url handling fixes.
+  - Misc: code cleanups.
+
+0.9.17
+  - Fix: fix crash showing dialogbox when audio device open fails on startup.
+
+0.9.16
+	- Fix: Track-less songs should not be 0 (#62)
+  - Fix: disable default key press processing in tracklist.
+  - Fix: Update GUI when done playing.
+  - Fix: incorrect tracklist state when using search filter.
+  - Fix: workaround for older notification daemons that don't show '&'.
+  - Fix: improved url handling.
+  - New: add additional shortcut '/' for search filter.
+  - New: When pressing the search hotkeys, existing search text will be selected.
+  - New: New shortcuts for Repeat Off, Track and All. Added shortcut for Shuffle as well.
+  - New: Made repeat radio buttons instead of checkbuttons.
+  - New: Play file from the commandline.
+
+0.9.15
+	- Fix: Prevent crash by checking if session and system bus are available.
+	- Fix: don't show tray icon option if gmm-tray is not in $PATH.
+	- Fix: compile issue when building with old remote.
+
+0.9.14
+  - New: Threaded scrobbler submitter which should prevent locking the GUI during DNS lookups.
+  - New: Tray Icon. (contributed by Olivier Duclos).
+  - New: More complete dbus interface (required by the tray icon)
+  - New: NetworkManager support to wakeup scrobbler if network connection becomes available.
+  - New: Font and colors may now be updated from within GMM and require no application restart.
+  - Misc: The filename template settings has been moved from the preferences panel to the tag editing dialogs.
+  - Misc: Support for mugshot was removed.
+  - Misc: Nicer application and tray icon by Olivier Duclos.
+  - Fix: Incorrect track number was used when renaming files
+
+  - Misc: build/installation improvements:
+
+    xdg-icon-resource/xdg-desktop-menu are not used anymore.
+
+    * All icons are installed in (prefix)/share/icons/hicolor/*
+    * gmm.desktop is installed in (prefix)/share/applications
+    * `make install` will run gtk-update-icon-cache (prefix)/share/icons/hicolor
+
+    Support DESTDIR variable when running make instal:
+
+       make DESTDIR=/some/package install
+
+     This will install gmm in /some/package/(prefix)/bin/gmm
+
+0.9.13
+  - Fix: Crash in miniplayer.
+
+0.9.12
+  - Fix: Cover wasn't shown when switching to mini player.
+  - Fix: Update highlighted track if tracks are dragged around.
+
+0.9.11
+  - New: Support embedded cover art in flac files (jpg and png only).
+  - New: Support last-fm 'now playing' notification.
+  - New: Support album art in notification to notify-daemon.
+  - New: DBus enabled version now also support the ability to control a running gmm from the command line.
+  - New: Use "ALBUMARTIST" tag in Ogg / FLAC files and TPE2 for id3v2 tags for artist.
+
+0.9.10
+  - New: Experimental support for libfetch on FreeBSD (untested).
+  - New: Embedded cover art (id3v2 tags) now also supported in remote.
+  - New: Make covers in remote slightly larger.
+  - Fix: Compilation issue on FreeBSD.
+  - Fix: Scrobbler only submitted one track at a time.
+  - Fix: Scrobbler connection timeout was too large.
+
+0.9.9
+  - Fix: Track play count and display were not always properly updated (in combination with gapless playback),
+         This  affected last-fm submission as well...
+  - Fix: Crash in Edit Track dialog if mp4 file doesn't exist.
+  - Fix: Current item in tracklist need to be updated when stop is pressed to be able to continue playing from the last played track.
+  - Fix: Restore maximized/fullscreen state on start up.
+  - Fix: Using the mouse wheel in the remote now also changes the volume.
+  - Fix: Remote now also has a window icon.
+  - New: Ctrl-Q now also works in the remote.
+  - New: Experimental support for embedded cover art support in mp3 / flac with ID3v2 tags.
+
+0.9.8
+  - Fix: files with '#' couldn't be opened anymore due to change in xine-1.1.9.
+  - Fix: Improved Album Art search. Now looks for jpg,gif,png and bmp files in
+         the directory of the music file.  Gives higher priority to files found with the
+         following names: cover,album, albumart,.folder,folder.
+  - New: Added some webbrowser links to last-fm sign-up and Goggles Music Manager user group.
+
+0.9.7
+  - Fix: Really fix Compilation issue on 32 bit systems.
+
+0.9.6
+  - Fix: Compilation issue on 32 bit systems.
+
+0.9.5
+  - Fix: fix url encoding to handle more unsafe characters
+
+0.9.4
+  - New: Last-FM audio scrobbler support.
+  - Fix: include <sys/wait.h> instead of <wait.h>
+
+0.9.3
+  - Fix: Fix configure columns dialog for FOX-1.7. Draw function wasn't properly overloaded.
+  - Fix: Support new FXFontDesc api in FOX-1.7.17
+
+0.9.2
+  - New: Configure Columns dialog can now also show/hide columns. (backport)
+  - New: Turn on audio playback engine on startup is now a option.
+  - New: Added Volume Control to Mini Player.
+  - New: Show year column in track list.
+  - New: Disc Number Support.
+  - New: Improved Edit Track Dialog.
+  - New: Ctrl-W now also closes the window (either quits the application, or toggles the remote).
+  - Fix: Reflect column order in right click menu.
+  - Fix: Use new dbus-1.2 api if available. Also show DBus version if available in about panel.
+  - Fix: Remove Compiler Warnings (gcc 4.3).
+  - Fix: Improved check if files are local or not which affects updating the GUI.
+
+0.9.1
+  - Fix: Compilation issue with older xine.
+  - Fix: Compilation issue with debug build.
+  - Fix: Check for proper SQLite version during runtime.
+  - Fix: Prevent the application from disappearing when using the old remote.
+  - Fix: Added extra hint for new remote to show window title for certain window managers.
+  - Fix: Some fixes to configure.
+
+0.9.0
+  - New: Search Filter.
+  - New: Change order of columns in track list.
+  - New: Alternative Mini Player (old one still available through configure option).
+  - New: Context menu for track list header.
+  - New: Selection state in browser for each source.
+  - New: Try raising existing music manager when starting without commandline arguments.
+  - New: Support for Internet Radio Streams.
+  - New: Support for ASF files.
+  - New: Support for MP4 through TagLib. Removed old libmp4v2 support.
+  - New: now uses the c++ taglib library instead of the c-bindings.
+  - New: use bold italic font for playing track in tracklist.
+  - New: Shuffle mode: play tracks in random order.
+  - New: Repeat A-B mode: repeat section of a track.
+  - New: Editing improvements.
+  - New: When clearing the database, playlist entries may be optionally kept.
+  - New: When removing tracks from database may be optionally deleted from disk as well.
+  - New: Keyboard shortcuts for editing and deleting tracks.
+  - New: Show audio/file properties in track edit dialog.
+  - Fix: better path caching when inserting tracks (should increase speed).
+  - Fix: Do not allocate icons before they're actually used (about and remote dialogs).
+  - Fix: fix memory leak in browse sort.
+  - Fix: Support modified fox-config on Gentoo.
+  - Fix: Use [[ in build scripts instead of [.
+  - Fix: Paste from gtk applications failed if it contained line feeds.
+  - Fix: Only enable next/previous if more than 1 track is available.
+  - Misc: Changed Full Screen shortcut to F12. Ctrl-F is now used for the search filter.
+  - Misc: Build system is now more like autoconf/automake.
+  - Misc: Disable default title/album/artist if options above are selected.
+
+0.8.0
+  - New: Support creating custom playlists.
+  - New: Don't show duplicate albums names when multiple artists are selected.
+  - New: Added "All" entry to artist and album lists.
+  - New: Export database and playlists to XSPF, PLS, Extended M3U, M3U and CSV.
+  - New: Clipboard and drag-and-drop support for moving tracks to playlists and importing and exporting files.
+  - New: Configurable toolbar docked on top or bottom, showing big or small icons with optional text.
+  - New: Customizable Icon Theme. Either use buildin icons, or load from disk.
+  - New: Animated icon in scan progress dialog.
+  - New: Support year tag.
+  - New: Support volume normalization plugin.
+  - New: Database now also stores for each track: year, rating, import date, play date and play count.
+  - New: Option to close audio device when playback is stopped.
+  - New: Upgraded to more advanced build system.
+  - New: Include Desktop Application Entry and Icon in distribution
+  - New: New About Dialog.
+  - New: Report An Issue link in Help Menu.
+  - New: Changed License to GPL-3.
+  - New: Warning dialog when FOX without PNG support is used.
+  - New: Fullscreen mode (requires FOX-1.7.11).
+
+  - Fix: Ctrl-A selection now works in all lists.
+  - Fix: Do not import MP4 files that contain video.
+  - Fix: Track titles are also now sorted using the leading keyword filter.
+  - Fix: Editing Dialogs retain proper sorting order of genres,artists and albums.
+  - Fix: Allow up to 4 digits in track number input in edit dialogs.
+  - Fix: issue preventing filenames with '#' characters from playing.
+  - Fix: compilation fix for older xine libraries.
+  - Fix: status line now shows correct song in repeat mode.
+  - Fix: sleeptimer now works properly in FOX 1.6.
+  - Fix: Write xine configuration file on exit.
+  - Fix: Don't recurse into directories that are symbolic links.
+
+0.7.5
+  - Fix: Possible crash in empty track list due uninitialized variables.
+
+0.7.4
+  - New: Added Sleep Timer. Stops playback after specified amount of time.
+  - New: Implement command line options to control an already running music manager.
+  - Fix: Reset Display after end playlist.
+  - Fix: Remember import files directory as well.
+  - Fix: Even more error handling in xine.
+
+0.7.3
+  - Better playback error handling.
+  - Only use path title (filename without extension) for track title in case of files without tags.
+  - Track list now has multiple selection capability for easier tag editing.
+  - Assign track numbers automatically based on the selection order in the track list.
+  - Added Sorting Arrows on Genre,Artist and Album lists.
+  - Added Genre Column in tracklist.
+  - Better alignment for track numbers and times.
+  - Playing track has now different background color.
+  - Improved sorting.
+
+0.7.2
+  - File naming options were not taking into account.
+
+0.7.1
+  - Now supports renaming audio files during tag editing.
+  - Add Statistics Information Dialog.
+  - Speed up multiple selection in artist list.
+  - Cleanup dead and unused code.
+  - Minor Fixes.
+
+0.7.0
+  - gapless playback support.
+  - mp4 support is now optional.
+  - Tag Editing Support.
+  - Repeat Track Support.
+  - Speed improvements in SQL database.
+  - Minimize jumping of slider control when seeking.
+  - Background color for every other row.
+  - Import of single files now also possible.
+  - Columns in tracklist are also now configurable in browse mode.
+  - Fix Crash when clearing database and reimporting in List Mode.
+  - Set default value for saving tag changes to file to false.
+  - Manage own taglib string memory because taglib is leaking.
+  - Also search for .m4p files.
+
+0.6.2
+  - Ability to show directory contents in filemanager of selected song.
+  - Added "repeat all" option which determines whether to restart playing from the beginning of the play list or not
+  - FOX 1.7.x support.
+  - Fixed Relative Path display in scan/search dialog.
+  - Fixed Typos in welcome dialog.
+  - Statusbar by default off now.
+  - MP4 Tag Support [Read Only]
+
+0.6.1
+  - New Progress Dialog during file scanning, which also includes the ability to cancel the scanning at any time.
+  - Added support for flac and musepack.
+  - Now depend on taglib for reading and writing tags.
+  - Ability to hide status bar.
+  - Support playing file from the command line arguments
+  - Only allow one gmm to be started and send play request to already running gmm.
+
+0.6.0
+  - Added some more icons.
+  - Added userfriendly dialog at startup when database is empty.
+  - Use more advanced sorting routine that can interpret numbers in strings.
+  - Allow genre,artist and album list to be sorted in reverse.
+  - Fixed bug with setting current category on startup.
+  - Removed unused font which caused a crash.
+  - Tracklist was not properly sorted at startup
+  - FOX 1.5 -> FOX 1.6
+
+0.5.3
+  - Ability to remove certain artist from the database.
+  - FOX 1.4 -> FOX 1.5
+
+0.5.2
+  - Add Multiple Selection in Artist and Album List.
+  - Keep better track of last played track.
+  - Columns in songlist can be configured by the user.
+
+0.5.1
+  - More error checking in database handling.
+  - Removed fastforward/fastbackward.
+  - Fixed bug that prevented sorting on time in normal list mode when clicking header.
+  - Columns in song list now remember their size.
+  - Songlist remembers its sorting column and order.
+  - Smart Sorting for lists. Skips common words like "the","a","an". This is a configurable option...
+  - Change remote mouse click functionality: one click skips to next song, double click opens manager.
+  - Remote Volume control changes volume immediately on first wheel mouse move.
+  - Check for old database on startup and remove it if users wants it. We aks only once.
+  - Remembers which displaymode it is in.
+  - Added random "sort" mode.
+
+0.5.0
+  - New Database backend. We're now using SQLite. Database file has changed from goggles.database to goggles.db.
+  - While playing, if the volume is turned down to zero, playback will automatically pause.
+  - Add Category/Genre List to GUI.
+  - Fixed bug that prevented using Goggles Music Manager if FOX version was updated.
+  - Xine is really slow at reading in tags. I put the old ogg vorbis tag reading back. MP3 is still done by Xine.
+  - Added remote control window.
+  - Added preferences panel.
+
+0.2.6
+  - FOX 1.4 support.
+
+0.2.5
+  - Added MP3 file support.
+  - Removed editing capability of tag names for now. Hopefully we can add this back soon.
+  - We now use xine to retrieve all tags from ogg and mp3 files. It might be slower than before. We might change that in the future again.
+
+0.2.4
+  - You can now either import  files into a existing database or create a new database.
+  - While importing files, we now skip files that are already in the database.
+  - Now has four GUI modes: Full, Compact, Slim and List.
+
+0.2.3
+  - Initial Release.

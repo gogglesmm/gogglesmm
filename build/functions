@@ -1,0 +1,158 @@
+#!/bin/sh
+#-----------------------------
+
+CFG="src/gmconfig.h"
+
+add_package_path()
+{
+  if [ -n "$PKG_CONFIG_PATH" ] ; then
+    PKG_CONFIG_PATH="$1/lib/pkgconfig:$1/lib64/pkgconfig:$1/share/pkgconfig:$PKG_CONFIG_PATH"
+  else
+    PKG_CONFIG_PATH="$1/lib/pkgconfig:$1/lib64/pkgconfig:$1/share/pkgconfig"
+  fi
+  export PKG_CONFIG_PATH
+}
+
+# Check for generic config in prefix
+#-----------------------------------
+check_in_prefix()
+{
+  echo "    Search for $1 >= $4.$5.$6 in $2 ... "
+
+  if [ ! -x $2/bin/$3 ] ; then
+    return 0
+  fi
+
+  echo "        Check $1 Config => FOUND"
+
+  CONFIG_LIB=$($2/bin/$3 --libs)
+  CONFIG_INCLUDE=$($2/bin/$3 --cflags)
+  CONFIG_VERSION=$($2/bin/$3 --version)
+  CONFIG_MAJOR=$(echo "${CONFIG_VERSION}" | cut -d. -f1)
+  CONFIG_MINOR=$(echo "${CONFIG_VERSION}" | cut -d. -f2)
+  CONFIG_LEVEL=$(echo "${CONFIG_VERSION}" | cut -d. -f3)
+  CONFIG_PREFIX=$2
+  export CONFIG_PREFIX
+
+  INCFLAGS="${INCFLAGS} ${CONFIG_INCLUDE} "
+  LIBS="${LIBS} ${CONFIG_LIB} "
+
+
+  # Make sure it is a compatible version
+  #--------------------------------------------
+  if [ $CONFIG_MAJOR -lt $4 ] ; then
+      echo "        Check $1 Version => Unsupported ($CONFIG_MAJOR.$CONFIG_MINOR.$CONFIG_LEVEL)"
+      return 0
+  fi
+
+  if [ $CONFIG_MINOR -lt $5 ] ; then
+      echo "        Check $1 Version => Unsupported ($CONFIG_MAJOR.$CONFIG_MINOR.$CONFIG_LEVEL)"
+      return 0
+  fi
+
+  if [ $CONFIG_LEVEL -lt $6 ] ; then
+      echo "        Check $1 Version => Unsupported ($CONFIG_MAJOR.$CONFIG_MINOR.$CONFIG_LEVEL)"
+      return 0
+  fi
+
+  echo "        Check $1 Version => ${CONFIG_VERSION}"
+  echo ""
+  return 1
+}
+
+
+
+pkgconfig_query_package()
+{
+  echo "    Search for $1"
+  pkg-config --exists $1
+  if [ "$?" -ne "0" ] ; then
+    echo " Unable to find a compatible $2 installation. Please make"
+    echo " sure the correct version is installed including the header files."
+    echo " You can use the \"--$2-prefix\" option to search in an"
+    echo " alternative installation directory."
+    return 0
+  fi
+
+  PKG_VERSION=$(pkg-config --modversion $1 --print-errors --errors-to-stdout)
+  PKG_PREFIX=$(pkg-config --variable=prefix $1)
+  PKG_PREFIX=$(echo $PKG_PREFIX | tr -d '"')
+
+  PKG_LDFLAGS=$(pkg-config --libs-only-L $1)
+  PKG_LIBS=$(pkg-config --libs-only-l --libs-only-other $1)
+  PKG_CFLAGS=$(pkg-config --cflags-only-other $1)
+  PKG_CPPFLAGS=$(pkg-config --cflags-only-I $1)
+
+  echo "        Found $2 $PKG_VERSION in $PKG_PREFIX"
+  echo ""
+	return 1
+}
+
+add_config_string()
+{
+  echo "#define $1 \"${2}\"" >> $CFG
+}
+
+
+add_config()
+{
+  DEF=$(echo $1 | tr '[:lower:]' '[:upper:]')
+  echo "#define HAVE_${DEF}" >> $CFG
+  OPTIONS="$OPTIONS $1 "
+}
+
+
+add_required_package()
+{
+	pkgconfig_query_package "$1" "$2"
+  if [ "$?" -eq "0" ] ; then
+		exit -1
+	fi
+	PACKAGES="$PACKAGES $1 "
+	add_config "$2"
+  return 1
+}
+
+add_package()
+{
+  pkgconfig_query_package "$1" "$2"
+  if [ "$?" -eq "0" ] ; then
+    return 0
+  fi
+  PACKAGES="$PACKAGES $1 "
+  add_config "$2"
+  return 1
+}
+
+# Check for the FOX library
+#--------------------------
+check_reswrap()
+{
+  # Configure Reswrap
+  #------------------
+  RESCMD=$(${PKG_PREFIX}/bin/reswrap -v 2>&1)
+  RESVERSION=$(echo ${RESCMD} | cut -d" " -f2)
+  RESWRAP_MAJOR=$(echo ${RESVERSION} | cut -d. -f1)
+
+  if [ -d icons ] ; then
+    if [ $RESWRAP_MAJOR = "5" ] ; then
+      RESWRAP_H="${PKG_PREFIX}/bin/reswrap --keep-ext --header"
+      RESWRAP_CPP="${PKG_PREFIX}/bin/reswrap --keep-ext --source --extern"
+      RESWRAP_TEXT="${PKG_PREFIX}/bin/reswrap -t --keep-ext"
+    else
+      RESWRAP_H="${PKG_PREFIX}/bin/reswrap -i -k"
+      RESWRAP_CPP="${PKG_PREFIX}/bin/reswrap -e -k"
+      RESWRAP_TEXT="${PKG_PREFIX}/bin/reswrap -t -k"
+    fi
+  fi
+}
+
+check_foxversion()
+{
+  PKG_MAJOR=$(echo "${PKG_VERSION}" | cut -d. -f1)
+  PKG_MINOR=$(echo "${PKG_VERSION}" | cut -d. -f2)
+  PKG_LEVEL=$(echo "${PKG_VERSION}" | cut -d. -f3)
+  add_config "fox${PKG_MAJOR}${PKG_MINOR}"
+}
+
+

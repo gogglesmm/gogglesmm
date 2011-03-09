@@ -1,0 +1,21 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Goggles Music Manager
+Name[en_CA]=Goggles Music Manager
+Name[en_GB]=Goggles Music Manager
+Name[nl]=Goggles muziekspeler
+GenericName=Music Player
+GenericName[en_CA]=Music Player
+GenericName[en_GB]=Music Player
+GenericName[nl]=Muziekspeler
+Comment=Play and organize your music collection
+Comment[en_CA]=Play and organize your music collection
+Comment[en_GB]=Play and organise your music collection
+Comment[nl]=Luister and beheer uw muziekcollectie
+Exec=gogglesmm
+Terminal=false
+Hidden=false
+Type=Application
+Icon=gogglesmm
+Categories=Application;AudioVideo;Audio;
+MimeType=application/x-ogg;application/ogg;audio/x-mp3;audio/x-mp3;application/x-flac

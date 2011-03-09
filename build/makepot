@@ -1,0 +1,33 @@
+#-------------------------------------------------------------------------------
+# Make template
+#-------------------------------------------------------------------------------
+FOXDIR=../../../fox-1.6.36
+
+
+INPUT="src/*.cpp src/*.h"
+xgettext -C  --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com --package-name=gogglesmm --package-version=0.10.0 --copyright-holder="Sander Jansen" --keyword=tr:1 --keyword=fxtr:1 --keyword=notr:1 --keyword=fxtrformat:1 --flag=fxtrformat:1:c-format -o po/gogglesmm.pot $INPUT
+
+# FOX files
+INPUT="$FOXDIR/src/FXMessageBox.cpp \
+$FOXDIR/src/FXColorSelector.cpp \
+$FOXDIR/src/FXFontSelector.cpp \
+$FOXDIR/src/FXDirSelector.cpp \
+$FOXDIR/src/FXFileList.cpp \
+$FOXDIR/src/FXFileSelector.cpp \
+$FOXDIR/src/FXReplaceDialog.cpp \
+$FOXDIR/src/FXSearchDialog.cpp \
+$FOXDIR/src/FXStatusLine.cpp"
+
+xgettext -C -j --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=0.10.0 --copyright-holder="Sander Jansen" --keyword=tr:1 -o po/gogglesmm.pot $INPUT
+
+
+# Additional non tr ones
+#INPUT="$FOXDIR/src/FXColorNames.cpp"
+#xgettext -C -j -a --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=0.10.0 --copyright-holder="Sander Jansen" -o po/gogglesmm.pot $INPUT
+
+
+for i in po/*.po
+do
+  echo "Updating $i ..."
+  msgmerge -U $i po/gogglesmm.pot
+done
