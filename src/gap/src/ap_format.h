@@ -1,0 +1,157 @@
+#ifndef AUDIOFORMAT_H
+#define AUDIOFORMAT_H
+
+namespace Codec {
+
+  enum {
+    Invalid   = 0,
+    PCM       = 1,
+    FLAC      = 2,
+    Vorbis    = 3,
+    Musepack  = 4,
+    MPEG      = 5,
+    AAC       = 6
+    };
+
+  extern const FXchar * name(FXuchar codec);
+  }
+
+namespace Format {
+
+enum {
+
+  /// Mask and shift definitions
+  Type_Mask         = 7,
+  Type_Shift        = 0,
+  Order_Mask        = 1,
+  Order_Shift       = 3,
+  Bits_Mask         = 31,
+  Bits_Shift        = 8,
+  Pack_Mask         = 7,
+  Pack_Shift        = 13,
+
+  /// Data type (xxxx xxxx xxxx x111)
+  Signed            = 0,
+  Unsigned          = 1,
+  Float             = 2,
+  IEC958            = 3,
+  Format_Reserved_1 = 4,
+  Format_Reserved_2 = 5,
+  Format_Reserved_3 = 6,
+  Format_Reserved_4 = 7,
+
+  /// Byte Order (xxxx xxxx xxxx 1xxx)
+  Little            = ( 0 << Order_Shift),
+  Big               = ( 1 << Order_Shift),
+#if FOX_BIGENDIAN == 1
+  Native            = Big,
+  Other             = Little,
+#else
+  Native            = Little,
+  Other             = Big,
+#endif
+
+  /// Bits per sample  (xxx1 1111 xxxx xxxx)
+  Bits_8            = ( 7 << Bits_Shift),
+  Bits_16           = (15 << Bits_Shift),
+  Bits_24           = (23 << Bits_Shift),
+  Bits_32           = (31 << Bits_Shift),
+
+  /// Bytes per sample (111x xxxx xxxx xxxx)
+  Pack_1            = ( 0 << Pack_Shift),
+  Pack_2            = ( 1 << Pack_Shift),
+  Pack_3            = ( 2 << Pack_Shift),
+  Pack_4            = ( 3 << Pack_Shift),
+  Pack_Reserved_1   = ( 4 << Pack_Shift),
+  Pack_Reserved_2   = ( 5 << Pack_Shift),
+  Pack_Reserved_3   = ( 6 << Pack_Shift),
+  Pack_8            = ( 7 << Pack_Shift)
+  };
+
+}
+
+enum {
+  AP_FORMAT_S8          = ( Format::Signed   | Format::Native | Format::Bits_8  | Format::Pack_1 ),
+  AP_FORMAT_U8          = ( Format::Unsigned | Format::Native | Format::Bits_8  | Format::Pack_1 ),
+
+  AP_FORMAT_S16         = ( Format::Signed   | Format::Native | Format::Bits_16 | Format::Pack_2 ),
+  AP_FORMAT_S16_OTHER   = ( Format::Signed   | Format::Other  | Format::Bits_16 | Format::Pack_2 ),
+
+  AP_FORMAT_S16_LE      = ( Format::Signed   | Format::Little | Format::Bits_16 | Format::Pack_2 ),
+  AP_FORMAT_S16_BE      = ( Format::Signed   | Format::Big    | Format::Bits_16 | Format::Pack_2 ),
+
+  AP_FORMAT_FLOAT       = ( Format::Float    | Format::Native | Format::Bits_32 | Format::Pack_4 ),
+  AP_FORMAT_FLOAT_OTHER = ( Format::Float    | Format::Other  | Format::Bits_32 | Format::Pack_4 ),
+  AP_FORMAT_FLOAT_LE    = ( Format::Float    | Format::Little | Format::Bits_32 | Format::Pack_4 ),
+  AP_FORMAT_FLOAT_BE    = ( Format::Float    | Format::Big    | Format::Bits_32 | Format::Pack_4 ),
+
+  AP_FORMAT_S24         = ( Format::Signed   | Format::Native | Format::Bits_24 | Format::Pack_4 ),
+  AP_FORMAT_S24_LE      = ( Format::Signed   | Format::Little | Format::Bits_24 | Format::Pack_4 ),
+  AP_FORMAT_S24_BE      = ( Format::Signed   | Format::Big    | Format::Bits_24 | Format::Pack_4 ),
+
+  AP_FORMAT_S24_3       = ( Format::Signed   | Format::Native | Format::Bits_24 | Format::Pack_3 ),
+  AP_FORMAT_S24_3LE     = ( Format::Signed   | Format::Little | Format::Bits_24 | Format::Pack_3 ),
+  AP_FORMAT_S24_3BE     = ( Format::Signed   | Format::Big    | Format::Bits_24 | Format::Pack_3 ),
+
+  AP_FORMAT_S32         = ( Format::Signed   | Format::Native | Format::Bits_32 | Format::Pack_4 ),
+  AP_FORMAT_S32_LE      = ( Format::Signed   | Format::Little | Format::Bits_32 | Format::Pack_4 ),
+  AP_FORMAT_S32_BE      = ( Format::Signed   | Format::Big    | Format::Bits_32 | Format::Pack_4 ),
+  };
+
+
+//extern GMAPI FXushort ap_format_try_compatible(FXushort format);
+//extern GMAPI FXushort ap_format_try_swap(FXushort format);
+
+
+
+class GMAPI AudioFormat {
+public:
+  FXushort format;
+  FXushort rate;
+  FXuchar  channels;
+public:
+  AudioFormat();
+  AudioFormat(const AudioFormat &);
+
+  void set(FXushort datatype,FXushort bps,FXushort pack,FXushort rate,FXuchar channels);
+
+  void set(FXushort format,FXushort rate,FXuchar channels);
+
+
+  FXuchar byteorder() const {
+    return (format>>Format::Order_Shift)&Format::Order_Mask;
+    }
+
+  FXuchar datatype() const {
+    return format&Format::Type_Mask;
+    }
+
+  FXuchar bps() const {
+    return 1+((format>>Format::Bits_Shift)&Format::Bits_Mask);
+    }
+
+  FXuchar packing() const {
+    return 1+((format>>Format::Pack_Shift)&Format::Pack_Mask);
+    }
+
+  FXuint framesize() const {
+    return channels * packing();
+    }
+
+
+  /* Swap byte order. Return true if succesfull */
+  FXbool swap();
+  
+  /* Change to compatible format */
+  FXbool compatible();
+
+
+
+  void debug() const;
+
+  void reset();
+  };
+
+extern GMAPI FXbool operator!=(const AudioFormat& s1,const AudioFormat& s2);
+extern GMAPI FXbool operator==(const AudioFormat& s1,const AudioFormat& s2);
+#endif

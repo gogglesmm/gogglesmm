@@ -1,0 +1,71 @@
+#ifndef INPUT_H
+#define INPUT_H
+
+class AudioEngine;
+class InputPlugin;
+
+/*
+class IO {
+public:
+  FXival read(void*data,FXival ncount);
+  FXlong position(FXlong offset,FXuint from);
+  FXlong position() const;
+  FXlong size() const;
+  FXbool eof() const;
+  FXbool serial() const;
+  };
+*/
+
+
+class InputThread : public EngineThread {
+protected:
+  FXIO        * io;
+  InputPlugin * plugin;
+  FXString      url;
+  FXuint        streamid;
+  PacketPool    packetpool;
+protected:
+  FXIO * open_url(const FXString & url);
+protected:
+  enum {
+    StateIdle       = 0,
+    StateProcessing = 1
+    };
+  FXuchar state;
+  void set_state(FXuchar s,FXbool notify=false);
+public:
+  /// Constructor
+  InputThread(AudioEngine*);
+  virtual FXint run();
+  virtual FXbool init();
+  virtual void free();
+
+  Event * wait_for_event();
+  Event * wait_for_packet();
+  Packet * get_packet();
+
+//  DecoderPacket * get_decoder_packet();
+
+
+  FXival read(void*data,FXival ncount);
+  FXlong position(FXlong offset,FXuint from);
+  FXlong position() const;
+  FXlong size() const;
+  FXbool eof() const;
+  FXbool serial() const;
+
+
+  void ctrl_open_input(const FXString & url);
+  void ctrl_close_input(FXbool notify=false);
+  void ctrl_flush(FXbool close=false);
+  void ctrl_seek(FXdouble pos);
+  void ctrl_eos();
+
+
+  /// Destructor
+  virtual ~InputThread();
+  };
+
+#endif
+
+
