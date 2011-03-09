@@ -282,7 +282,7 @@ realclean :
 
 dist: clean realclean
 	@echo " Creating Tarbal .."
-	tar --create --xz --file='../$(TARNAME).tar.xz' --verbose --exclude-vcs --exclude='*.tar.xz' --transform='s/^./$(TARNAME)/' --show-transformed-names .
+	tar --create --xz --file='../../$(TARNAME).tar.xz' --verbose --exclude-vcs --exclude='*.tar.xz' --transform='s/^./$(TARNAME)/' --show-transformed-names .
 
 
 # How to make everything else
