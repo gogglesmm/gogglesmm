@@ -59,8 +59,6 @@ DBusHandlerResult dbus_status_item_filter(DBusConnection *connection,DBusMessage
           FXint level = GMPlayerManager::instance()->volume();
           level+=(delta/120);
           GMPlayerManager::instance()->volume(level);
-
- //         fxmessage("Scroll: %d %s %d\n",delta,orientation,level);
           }
         return gm_dbus_reply_if_needed(connection,msg);
         }
