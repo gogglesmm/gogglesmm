@@ -267,6 +267,7 @@ clean :
 	@rm -f $(GAP_OSS_PLUGIN)
 	@rm -f $(GAP_PULSE_PLUGIN)
 	@rm -f $(GAP_JACK_PLUGIN)
+	@rm -f $(GAP_RSOUND_PLUGIN)
 
 	@echo "  Remove Objects ..."
 	@rm -f src/plugins/*$(OBJEXT)
