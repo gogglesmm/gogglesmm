@@ -101,7 +101,11 @@ void OSSOutput::close() {
     ::close(handle);
     handle=BadHandle;
     }
-  af.reset();  
+  af.reset();
+  }
+
+FXint OSSOutput::delay() {
+  return 0;
   }
 
 
