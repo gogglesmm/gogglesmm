@@ -17,6 +17,14 @@ void ap_get_device(FXString & device) {
   }
 
 
+FXString ap_get_environment(const FXchar * key,const FXchar * def) {
+  FXString value = FXSystem::getEnvironment(key);
+  if (value.empty())
+    return def;
+  else
+    return value;
+  }
+
 
 
 #if 0
