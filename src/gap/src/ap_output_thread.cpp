@@ -32,11 +32,25 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),proces
   stream_written=0;
   stream_position=0;
   timestamp=-1;
+
+#ifdef __linux___
+  output_config = ap_get_environment("GAP_OUTPUT_PLUGIN","alsa");
+#else
+  output_config = ap_get_environment("GAP_OUTPUT_PLUGIN","oss");
+#endif  
+
   }
 
 OutputThread::~OutputThread() {
   FXASSERT(plugin==NULL);
   }
+
+
+FXString OutputThread::getOutputPlugin() const {
+  //FIXME needs mutex for protection
+  return output_config;
+  }
+
 
 FXint OutputThread::process(Event*){
   return 0;
@@ -202,12 +216,7 @@ void OutputThread::load_plugin() {
   typedef OutputPlugin*  (*ap_load_plugin_t)();
 
   FXString plugin_name = AP_PLUGIN_PATH;
-
-  /// For now use environment variable
-  FXString out = FXSystem::getEnvironment("GAP_OUTPUT_PLUGIN");
-  if (out.empty()) out="alsa";
-
-  FXString plugin_dll = "gap_plugin_" + out;
+  FXString plugin_dll = "gap_plugin_" + output_config;
 
   plugin_name += PATHSEPSTRING + FXSystem::dllName(plugin_dll);
   if (!FXStat::exists(plugin_name))
@@ -629,6 +638,24 @@ FXint OutputThread::run(){
                         unload_plugin();
                         Event::unref(event);
                         return 0;
+
+      case Ctrl_Output_Plugin:
+                        {
+                          ControlEvent * ctrl = dynamic_cast<ControlEvent*>(event);
+                          output_config = ctrl->text;
+
+                          if (processing)
+                           drain(true);
+
+                          unload_plugin();
+
+                          if (processing) {
+                            AudioFormat old=af;
+                            af.reset();
+                            configure(old);
+                            }
+                        }
+                        break;
       case Configure  : configure(((ConfigureEvent*)event)->af);
                         break;
       case Buffer     : if (processing)

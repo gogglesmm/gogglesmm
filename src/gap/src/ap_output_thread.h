@@ -9,6 +9,8 @@ class OutputThread : public EngineThread {
 protected:
   Event * wait_for_packet();
   Event * wait_for_event();
+protected:
+  FXString       output_config;
 public:
   AudioFormat    af;
   OutputPlugin * plugin;
@@ -29,7 +31,7 @@ protected:
   void configure(const AudioFormat&);
   void load_plugin();
   void unload_plugin();
-  void close_plugin(); 
+  void close_plugin();
   void process(Packet*);
 
 #ifdef HAVE_SAMPLERATE_PLUGIN
@@ -46,6 +48,8 @@ public:
   virtual FXint process(Event*);
   virtual FXint run();
   virtual ~OutputThread();
+public:
+  FXString getOutputPlugin() const;
   };
 
 #endif
