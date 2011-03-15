@@ -19,26 +19,26 @@ public:
   OSSOutput();
 
   /// Configure
-  virtual FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &);
 
   /// Write frames to playback buffer
-  virtual FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint);
 
   /// Return delay in no. of frames
-  virtual FXint delay();
+  FXint delay();
 
   /// Empty Playback Buffer Immediately
-  virtual void drop();
+  void drop();
 
   /// Wait until playback buffer is emtpy.
-  virtual void drain();
+  void drain();
 
   /// Pause Playback
-  virtual void pause(FXbool t);
-  
+  void pause(FXbool t);
+
   /// Close Output
   void close();
-  
+
   /// Destructor
   virtual ~OSSOutput();
   };
