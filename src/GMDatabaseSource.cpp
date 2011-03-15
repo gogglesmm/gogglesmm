@@ -198,7 +198,7 @@ FXbool GMDatabaseSource::hasCurrentTrack(GMSource * src) const {
   }
 
 FXbool GMDatabaseSource::findCurrent(GMTrackList * list,GMSource * src) {
-  if (src->getType()>=SOURCE_PLAYQUEUE && src->getType()<=SOURCE_DATABASE_PLAYLIST && src->getCurrentTrack()!=-1)
+  if (src && src->getType()>=SOURCE_PLAYQUEUE && src->getType()<=SOURCE_DATABASE_PLAYLIST && src->getCurrentTrack()!=-1)
     return GMSource::findCurrent(list,src);
   return false;
   }
