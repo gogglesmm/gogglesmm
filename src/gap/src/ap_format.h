@@ -106,16 +106,16 @@ enum {
 
 class GMAPI AudioFormat {
 public:
+  FXuint   rate;
   FXushort format;
-  FXushort rate;
   FXuchar  channels;
 public:
   AudioFormat();
   AudioFormat(const AudioFormat &);
 
-  void set(FXushort datatype,FXushort bps,FXushort pack,FXushort rate,FXuchar channels);
+  void set(FXushort datatype,FXushort bps,FXushort pack,FXuint rate,FXuchar channels);
 
-  void set(FXushort format,FXushort rate,FXuchar channels);
+  void set(FXushort format,FXuint rate,FXuchar channels);
 
 
   FXuchar byteorder() const {
@@ -141,11 +141,9 @@ public:
 
   /* Swap byte order. Return true if succesfull */
   FXbool swap();
-  
+
   /* Change to compatible format */
   FXbool compatible();
-
-
 
   void debug() const;
 

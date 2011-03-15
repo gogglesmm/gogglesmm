@@ -49,13 +49,13 @@ void AudioFormat::reset() {
   channels=0;
   }
 
-void AudioFormat::set(FXushort dt,FXushort bps,FXushort pack,FXushort r,FXuchar nc) {
+void AudioFormat::set(FXushort dt,FXushort bps,FXushort pack,FXuint r,FXuchar nc) {
   format=dt|((bps-1)<<Format::Bits_Shift)|((pack-1)<<Format::Pack_Shift);
   rate=r;
   channels=nc;
   }
 
-void AudioFormat::set(FXushort fmt,FXushort r,FXuchar nc) {
+void AudioFormat::set(FXushort fmt,FXuint r,FXuchar nc) {
   format=fmt;
   rate=r;
   channels=nc;
