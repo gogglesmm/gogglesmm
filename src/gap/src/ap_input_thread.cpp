@@ -21,8 +21,14 @@
 #include <errno.h>
 #endif
 
-InputThread::InputThread(AudioEngine*e) : EngineThread(e),io(NULL),plugin(NULL),streamid(0),state(StateIdle) {
+InputThread::InputThread(AudioEngine*e) : EngineThread(e),
+  io(NULL),
+  plugin(NULL),
+  streamid(0),
+  use_mmap(true),
+  state(StateIdle) {
   }
+
 
 InputThread::~InputThread() {
   }
@@ -300,15 +306,29 @@ void InputThread::ctrl_seek(FXdouble pos) {
 
 
 FXIO * InputThread::open_url(const FXString & url_in) {
-  FXFile * file = new FXFile;
-  if (!file->open(url_in)) {
-    delete file;
-    file=NULL;
+  if (use_mmap) {
+    fxmessage("[input] open using memmap\n");  
+    FXMemMap * map = new FXMemMap;
+    if (!map->openMap(url_in)) {
+      delete map;
+      map=NULL;
+      }
+    else {
+      url=url_in;
+      }
+    return map;
     }
   else {
-    url=url_in;
+    FXFile * file = new FXFile;
+    if (!file->open(url_in)) {
+      delete file;
+      file=NULL;
+      }
+    else {
+      url=url_in;
+      }
+    return file;
     }
-  return file;
   }
 
 

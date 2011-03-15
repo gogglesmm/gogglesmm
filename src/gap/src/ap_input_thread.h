@@ -24,6 +24,7 @@ protected:
   FXString      url;
   FXuint        streamid;
   PacketPool    packetpool;
+  FXbool        use_mmap;
 protected:
   FXIO * open_url(const FXString & url);
 protected:
