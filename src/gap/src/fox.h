@@ -4,6 +4,7 @@
 #include <new>
 #include <fx.h>
 #include <FXThread.h>
+#include <FXMemMap.h>
 
 #ifndef BadHandle
 #ifdef WIN32
