@@ -25,7 +25,7 @@ InputThread::InputThread(AudioEngine*e) : EngineThread(e),
   io(NULL),
   plugin(NULL),
   streamid(0),
-  use_mmap(true),
+  use_mmap(false),
   state(StateIdle) {
   }
 
@@ -307,7 +307,7 @@ void InputThread::ctrl_seek(FXdouble pos) {
 
 FXIO * InputThread::open_url(const FXString & url_in) {
   if (use_mmap) {
-    fxmessage("[input] open using memmap\n");  
+    fxmessage("[input] open using memmap\n");
     FXMemMap * map = new FXMemMap;
     if (!map->openMap(url_in)) {
       delete map;
