@@ -72,5 +72,11 @@ void AudioPlayer::close() {
   engine->input->post(new ControlEvent(Ctrl_Close),EventQueue::Front);
   }
 
+void AudioPlayer::setOutputPlugin(const FXString & plugin) {
+  FXASSERT(engine->input->running());
+  engine->output->post(new ControlEvent(Ctrl_Output_Plugin,plugin),EventQueue::Front);
+  }
 
-
+FXString AudioPlayer::getOutputPlugin() const {
+  return engine->output->getOutputPlugin();
+  }

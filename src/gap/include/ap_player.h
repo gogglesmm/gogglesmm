@@ -39,6 +39,12 @@ public:
   /// Change Volume
   void volume(FXfloat v);
 
+  /// Set the output plugin
+  void setOutputPlugin(const FXString &);
+
+  /// Get the output plugin
+  FXString getOutputPlugin() const;
+
   Event * pop();
 
   ~AudioPlayer();

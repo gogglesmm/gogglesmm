@@ -13,7 +13,7 @@ enum EventTypePrivate {
   Ctrl_Quit,
   Ctrl_Seek,
   Ctrl_EOS,
-  Ctrl_Change_Driver,
+  Ctrl_Output_Plugin,
   Ctrl_Volume,
   Packet_Configure,
   Packet_Data,
