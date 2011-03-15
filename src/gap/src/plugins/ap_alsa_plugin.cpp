@@ -37,8 +37,8 @@ static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_form
     case AP_FORMAT_S24_BE    : alsa_format=SND_PCM_FORMAT_S24_BE;   break;
     case AP_FORMAT_S24_3LE   : alsa_format=SND_PCM_FORMAT_S24_3LE;  break;
     case AP_FORMAT_S24_3BE   : alsa_format=SND_PCM_FORMAT_S24_3BE;  break;
-    case AP_FORMAT_S32_LE    : alsa_format=SND_PCM_FORMAT_U32_LE;   break;
-    case AP_FORMAT_S32_BE    : alsa_format=SND_PCM_FORMAT_U32_BE;   break;
+    case AP_FORMAT_S32_LE    : alsa_format=SND_PCM_FORMAT_S32_LE;   break;
+    case AP_FORMAT_S32_BE    : alsa_format=SND_PCM_FORMAT_S32_BE;   break;
     case AP_FORMAT_FLOAT_LE  : alsa_format=SND_PCM_FORMAT_FLOAT_LE; break;
     case AP_FORMAT_FLOAT_BE  : alsa_format=SND_PCM_FORMAT_FLOAT_BE; break;
     default                  : fxmessage("Unhandled format: %d\n", af.format); return false; break;
