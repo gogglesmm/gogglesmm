@@ -26,6 +26,7 @@
 #include "GMTrack.h"
 #include "GMApp.h"
 #include "GMPlayer.h"
+#include "GMAudioPlayer.h"
 #include "GMWindow.h"
 #include "GMAlbumList.h"
 #include "GMTrackList.h"
@@ -697,6 +698,25 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (GMPlayerManager::instance()->getPlayer()->hasVolumeNormalization() && GMPlayerManager::instance()->getPlayer()->getVolumeNormalization())
     check_audio_normalization->setCheck(true);
 
+#else
+  new GMTabItem(tabbook,tr("&Audio"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+  vframe = new GMTabFrame(tabbook);
+
+  grpbox =  new FXGroupBox(vframe,tr("Output"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+  grpbox->setFont(GMApp::instance()->getThickFont());
+
+  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
+  new FXLabel(matrix,tr("Driver:"),NULL,labelstyle);
+
+  driverlist = new GMListBox(matrix,this,ID_AUDIO_DRIVER);
+  driverlist->appendItem("alsa");
+  driverlist->appendItem("oss");  
+  driverlist->appendItem("pulse");  
+  driverlist->appendItem("rsound");  
+  driverlist->appendItem("jack");  
+  driverlist->setCurrentItem(driverlist->findItem(GMPlayerManager::instance()->getPlayer()->getOutputPlugin()));
+  driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
+  
 #endif
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
@@ -804,11 +824,9 @@ void GMPreferencesDialog::showDriverSettings(const FXString & driver) {
 
 long GMPreferencesDialog::onCmdAudioDriver(FXObject*,FXSelector,void*){
   FXString selected=driverlist->getItemText(driverlist->getCurrentItem());
-  FXString current;
-  FXString available;
 
 
-  showDriverSettings(selected);
+
 
 
 /*
@@ -846,11 +864,20 @@ Device  audio.device.oss_device_name
 */
 
 
+
+
+#ifdef HAVE_XINE_LIB
+
+  FXString current;
+  FXString available;
+
+
+  showDriverSettings(selected);
+
   /// Stop Playback
   GMPlayerManager::instance()->stop();
 
 
-#ifdef HAVE_XINE_LIB
   if (!GMPlayerManager::instance()->getPlayer()->changeDriver(selected)) {
 
       //FXMessageBox::error(this,MBOX_OK,"Audio Device Error","Failed to open requested audio driver: %s",selected.text());
@@ -870,6 +897,8 @@ Device  audio.device.oss_device_name
     driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
     showDriverSettings(current);
     }
+#else
+  GMPlayerManager::instance()->getPlayer()->setOutputPlugin(selected);    
 #endif
   return 1;
   }
