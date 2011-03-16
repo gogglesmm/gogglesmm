@@ -18,6 +18,8 @@
 ********************************************************************************/
 #include "gmdefs.h"
 #include "GMImageView.h"
+
+#define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -103,29 +105,30 @@ void GMImageView::updateTexture(FXImage * image) {
     if (texture_id==0) {
       glGenTextures(1,&texture_id);
       }
-
     glBindTexture(GL_TEXTURE_2D,texture_id);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
-
-#if defined(GL_VERSION_1_4) && !defined(DISABLE_MIPMAP)
-    glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
+#if (defined(GL_VERSION_3_0) || defined(GL_VERSION_1_4)) && !defined(DISABLE_MIPMAP)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    #ifndef GL_VERSION_3_0
+    glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
     glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP,GL_TRUE);
+    #endif
 #else
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 #endif
-
-    /// Set Texture Data
     if (texture_width==image_width && texture_height==image_height) {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,texture_width,texture_height,0,GL_RGBA,GL_UNSIGNED_BYTE,image->getData());
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGB8,texture_width,texture_height,0,GL_RGBA,GL_UNSIGNED_BYTE,image->getData());
       }
     else {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,texture_width,texture_height,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGB8,texture_width,texture_height,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
       glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_RGBA,GL_UNSIGNED_BYTE,image->getData());
       }
+#if defined(GL_VERSION_3_0) && !defined(DISABLE_MIPMAP)
+    glGenerateMipmap(GL_TEXTURE_2D);
+#endif
     }
   else {
     image_width=0;
