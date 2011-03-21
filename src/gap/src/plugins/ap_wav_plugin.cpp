@@ -16,9 +16,26 @@
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
 
-#include "ap_wav_plugin.h"
-
 namespace ap {
+
+class WavInput : public InputPlugin {
+protected:
+  FXuint datasize;    // size of the data section
+  FXlong input_start;
+protected:
+  InputStatus parse();
+public:
+  WavInput(AudioEngine*);
+  FXbool init();
+  InputStatus process(Packet*);
+
+  FXbool can_seek() const;
+  FXbool seek(FXdouble);
+  virtual ~WavInput();
+  };
+
+
+
 
 enum {
   WAV_FORMAT_PCM = 1,
@@ -236,4 +253,8 @@ InputStatus WavInput::parse() {
   return InputOk;
   }
 
+
+InputPlugin * ap_wav_input(AudioEngine * engine) {
+  return new WavInput(engine);
+  }
 }

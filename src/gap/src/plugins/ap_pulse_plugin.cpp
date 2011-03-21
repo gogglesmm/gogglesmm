@@ -26,6 +26,8 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
 
+
+
 namespace ap {
 
 

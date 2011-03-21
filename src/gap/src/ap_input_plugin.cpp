@@ -53,38 +53,40 @@ InputStatus InputPlugin::process(Packet*packet) {
 }
 
 #include "ap_config.h"
-#include "plugins/ap_wav_plugin.h"
-#include "plugins/ap_flac_plugin.h"
-#include "plugins/ap_ogg_plugin.h"
-#include "plugins/ap_musepack_plugin.h"
-#include "plugins/ap_mad_plugin.h"
-#include "plugins/ap_aac_plugin.h"
 
 namespace ap {
+
+
+extern InputPlugin * ap_flac_input(AudioEngine*);
+extern InputPlugin * ap_wav_input(AudioEngine*);
+extern InputPlugin * ap_ogg_input(AudioEngine*);
+extern InputPlugin * ap_musepack_input(AudioEngine*);
+extern InputPlugin * ap_mad_input(AudioEngine*);
+extern InputPlugin * ap_aac_input(AudioEngine*);
 
 InputPlugin* InputPlugin::open(AudioEngine * engine,const FXString & extension) {
   fxmessage("open plugin: %s\n",extension.text());
   if (comparecase(extension,"wav")==0) {
-    return new WavInput(engine);
+    return ap_wav_input(engine);
     }
 #ifdef HAVE_FLAC_PLUGIN
   if (comparecase(extension,"flac")==0) {
-    return new FlacInput(engine);
+    return ap_flac_input(engine);
     }
 #endif
 #ifdef HAVE_OGG_PLUGIN
   else if (comparecase(extension,"ogg")==0 || comparecase(extension,"oga")==0) {
-    return new OggInput(engine);
+    return ap_ogg_input(engine);
     }
 #endif
 #ifdef HAVE_MUSEPACK_PLUGIN
   else if (comparecase(extension,"mpc")==0) {
-    return new MusepackInput(engine);
+    return ap_musepack_input(engine);
     }
 #endif
 #ifdef HAVE_MAD_PLUGIN
   else if (comparecase(extension,"mp3")==0) {
-    return new MadInput(engine);
+    return ap_mad_input(engine);
     }
 #endif
 #ifdef HAVE_AAC_PLUGIN
@@ -93,7 +95,7 @@ InputPlugin* InputPlugin::open(AudioEngine * engine,const FXString & extension) 
            comparecase(extension,"m4p")==0 ||
            comparecase(extension,"m4b")==0 /*||
            comparecase(extension,"aac")==0*/) {
-    return new AacInput(engine);
+    return ap_aac_input(engine);
     }
 #endif
   return NULL;

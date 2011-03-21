@@ -16,9 +16,57 @@
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
 
-#include "ap_aac_plugin.h"
+
+#include "neaacdec.h"
+#include "mp4ff.h"
 
 namespace ap {
+
+enum {
+  AAC_FLAG_CONFIG = 0x1
+  };
+
+class AacInput : public InputPlugin {
+protected:
+  mp4ff_callback_t callback;
+  mp4ff_t*         handle;
+protected:
+  static FXuint mp4_read(void*,void*,FXuint);
+  static FXuint mp4_write(void*,void*,FXuint);
+  static FXuint mp4_seek(void*,FXulong);
+	static FXuint mp4_truncate(void*);
+protected:
+  Packet              * packet;
+  FXlong                datastart;
+  FXint                 nframes;
+  FXint                 frame;
+  FXint                 track;
+protected:
+  InputStatus parse();
+public:
+  AacInput(AudioEngine*);
+  FXbool init();
+  FXbool can_seek() const;
+  FXbool seek(FXdouble);
+  InputStatus process(Packet*);
+  ~AacInput();
+  };
+
+class AacDecoder : public DecoderPlugin {
+protected:
+  NeAACDecHandle handle;
+protected:
+  Packet * in;
+  Packet * out;
+public:
+  AacDecoder(AudioEngine*);
+  FXuchar codec() const { return Codec::AAC; }
+  FXbool flush();
+  FXbool init(ConfigureEvent*);
+  DecoderStatus process(Packet*);
+  ~AacDecoder();
+  };
+
 
 static void ap_write_unsigned(Packet * p,FXuint b) {
   memcpy(p->ptr(),(const FXchar*)&b,4);
@@ -320,6 +368,17 @@ DecoderStatus AacDecoder::process(Packet*packet){
   packet->unref();
   return DecoderOk;
   }
+
+
+
+InputPlugin * ap_aac_input(AudioEngine * engine) {
+  return new AacInput(engine);
+  }
+
+DecoderPlugin * ap_aac_decoder(AudioEngine * engine) {
+  return new AacDecoder(engine);
+  }
+
 
 }
 

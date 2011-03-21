@@ -16,9 +16,23 @@
 #include "ap_decoder_thread.h"
 #include "ap_memory_buffer.h"
 #include "ap_output_thread.h"
-#include "ap_pcm_plugin.h"
 
 namespace ap {
+
+class OutputPacket;
+
+class PCMDecoder : public DecoderPlugin {
+protected:
+  Packet * out;
+public:
+  PCMDecoder(AudioEngine*);
+  FXuchar codec() const { return Codec::PCM; }
+  FXbool flush();
+  FXbool init(ConfigureEvent*);
+  DecoderStatus process(Packet*);
+  virtual ~PCMDecoder();
+  };
+
 
 
 PCMDecoder::PCMDecoder(AudioEngine * e) : DecoderPlugin(e), out(NULL) {
@@ -66,6 +80,11 @@ DecoderStatus PCMDecoder::process(Packet*in) {
     }
   in->unref();
   return DecoderOk;
+  }
+
+
+DecoderPlugin * ap_pcm_decoder(AudioEngine * engine) {
+  return new PCMDecoder(engine);
   }
 
 }

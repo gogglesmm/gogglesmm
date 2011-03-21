@@ -16,10 +16,44 @@
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
 
-#include "ap_vorbis_plugin.h"
 
+
+#include <ogg/ogg.h>
+#include <vorbis/codec.h>
 
 namespace ap {
+
+class VorbisDecoder : public DecoderPlugin{
+protected:
+  MemoryStream buffer;
+protected:
+  FXbool get_next_packet();
+  FXbool is_vorbis_header();
+protected:
+  AudioEngine *     engine;
+  vorbis_info       info;
+  vorbis_comment    comment;
+  vorbis_dsp_state  dsp;
+  vorbis_block      block;
+  ogg_packet        op;
+  FXbool            has_info;
+  FXbool            has_dsp;
+  Packet *          out;
+  FXint             stream_position;
+public:
+  VorbisDecoder(AudioEngine*);
+
+  FXuchar codec() const { return Codec::Vorbis; }
+  FXbool init(ConfigureEvent*);
+  DecoderStatus process(Packet*);
+  FXbool flush();
+
+  virtual ~VorbisDecoder();
+  };
+
+
+
+
 
 VorbisDecoder::VorbisDecoder(AudioEngine * e) : DecoderPlugin(e),buffer(32768),engine(e),out(NULL),has_info(false),has_dsp(false) {
   }
@@ -252,5 +286,11 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
     }
   return DecoderOk;
   }
+
+
+DecoderPlugin * ap_vorbis_decoder(AudioEngine * engine) {
+  return new VorbisDecoder(engine);
+  }
+
 
 }

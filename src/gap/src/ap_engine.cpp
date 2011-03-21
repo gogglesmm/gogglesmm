@@ -25,7 +25,6 @@ AudioEngine::~AudioEngine() {
   delete input;
   delete decoder;
   delete output;
-  delete fifo;
   }
 
 FXbool AudioEngine::init() {

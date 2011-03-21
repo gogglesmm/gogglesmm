@@ -17,9 +17,39 @@
 #include "ap_decoder_thread.h"
 #include "ap_memory_buffer.h"
 #include "ap_output_thread.h"
-#include "ap_avc_plugin.h"
+
+
+extern "C" {
+// Apparently we need this in order to use ffmpeg from c++.
+// /usr/include/libavutil/common.h:168:47: error: ‘UINT64_C’ was not declared in this scope
+#include <libavcodec/avcodec.h>
+}
 
 namespace ap {
+
+
+class OutputPacket;
+
+class AVDecoder : public DecoderPlugin {
+protected:
+  AVCodecContext * ctx;
+protected:
+  MemoryStream     buffer;
+  MemoryBuffer     outbuf;
+protected:
+  Packet * out;
+public:
+  AVDecoder(AudioEngine*);
+  FXuchar codec() const { return Codec::PCM; }
+  FXbool flush();
+  FXbool init(ConfigureEvent*);
+  DecoderStatus process(Packet*);
+  virtual ~AVDecoder();
+  };
+
+
+
+
 
 AVDecoder::AVDecoder(AudioEngine * e) : DecoderPlugin(e), ctx(NULL),outbuf(AVCODEC_MAX_AUDIO_FRAME_SIZE),out(NULL) {
 
@@ -109,5 +139,15 @@ DecoderStatus AVDecoder::process(Packet*in) {
   fxmessage("success\n");
   return DecoderOk;
   }
+
+
+//InputPlugin * ap_aac_input(AudioEngine * engine) {
+//  return new AacInput(engine);
+//  }
+
+DecoderPlugin * ap_avc_decoder(AudioEngine * engine) {
+  return new AVDecoder(engine);
+  }
+
 
 }

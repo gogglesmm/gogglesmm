@@ -14,36 +14,36 @@ namespace ap {
 DecoderPlugin::DecoderPlugin(AudioEngine *e) : engine(e) {
   }
 
-}  
+}
 
 #include "ap_config.h"
-#include "plugins/ap_flac_plugin.h"
-#include "plugins/ap_vorbis_plugin.h"
-#include "plugins/ap_mad_plugin.h"
-#include "plugins/ap_pcm_plugin.h"
-#include "plugins/ap_aac_plugin.h"
-#include "plugins/ap_avc_plugin.h"
-
 
 namespace ap {
 
+extern DecoderPlugin * ap_flac_decoder(AudioEngine*);
+extern DecoderPlugin * ap_pcm_decoder(AudioEngine*);
+extern DecoderPlugin * ap_vorbis_decoder(AudioEngine*);
+extern DecoderPlugin * ap_mad_decoder(AudioEngine*);
+extern DecoderPlugin * ap_aac_decoder(AudioEngine*);
+
+
 DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
   switch(codec) {
-    case Codec::PCM     : return new PCMDecoder(engine); break;
+    case Codec::PCM     : return ap_pcm_decoder(engine); break;
 #ifdef HAVE_VORBIS_PLUGIN
-    case Codec::Vorbis  : return new VorbisDecoder(engine); break;
+    case Codec::Vorbis  : return ap_vorbis_decoder(engine); break;
 #endif
 #ifdef HAVE_FLAC_PLUGIN
-    case Codec::FLAC    : return new FlacDecoder(engine); break;
+    case Codec::FLAC    : return ap_flac_decoder(engine); break;
 #endif
 #ifdef HAVE_MAD_PLUGIN
-    case Codec::MPEG    : return new MadDecoder(engine); break;
+    case Codec::MPEG    : return ap_mad_decoder(engine); break;
 #endif
 //#ifdef HAVE_AVCODEC_PLUGIN
 //    case Codec::MPEG    : return new AVDecoder(engine); break;
 //#endif
 #ifdef HAVE_AAC_PLUGIN
-    case Codec::AAC     : return new AacDecoder(engine); break;
+    case Codec::AAC     : return ap_aac_decoder(engine); break;
 #endif
     default             : break;
     }
