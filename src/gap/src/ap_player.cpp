@@ -22,9 +22,8 @@ const FXuchar version[2]={AP_MAJOR,AP_MINOR};
 
 FXIMPLEMENT(AudioPlayer,FXObject,NULL,0);
 
-AudioPlayer::AudioPlayer(EventQueue*fifo) : engine(NULL) {
+AudioPlayer::AudioPlayer() : engine(NULL) {
   engine = new AudioEngine();
-  engine->fifo = fifo;
   }
 
 AudioPlayer::~AudioPlayer() {

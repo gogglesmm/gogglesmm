@@ -18,7 +18,7 @@ protected:
   /// Set the event queue.
   void setEventQueue(EventQueue*);
 public:
-  AudioPlayer(EventQueue*fifo=NULL);
+  AudioPlayer(ma);
 
   /// Init
   FXbool init();
