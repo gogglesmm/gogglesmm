@@ -18,12 +18,13 @@ INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=$(INSTALL) -m 644
 
-GAP_NAME=libgap.so
-GAP_SONAME=$(GAP_NAME).$(GAP_MAJOR)
-GAP_LIB=$(GAP_SONAME).$(GAP_MINOR).$(GAP_PATCH)
+GAP_NAME=libgap-$(GAP_MAJOR).so
+GAP_SONAME=$(GAP_NAME).$(GAP_ABI)
+GAP_LIB=$(GAP_SONAME).$(GAP_MINOR)
 GAP_LIBRARY=src/$(GAP_LIB)
+GAP_INTERFACE=gap-$(GAP_MAJOR)
 
-TARNAME=libgap-$(GAP_MAJOR).$(GAP_MINOR).$(GAP_PATCH)
+TARNAME=libgap-$(GAP_MAJOR).$(GAP_MINOR)
 
 ifneq (,$(findstring alsa,$(PLUGINS)))
 GAP_ALSA_NAME=libgap_plugin_alsa.so
@@ -200,35 +201,35 @@ install: $(GAP_LIBRARY) $(GAP_ALSA_PLUGIN)  $(GAP_OSS_PLUGIN) $(GAP_PULSE_PLUGIN
 # Not sure if this belongs in make install
 	@echo "  Installing Library Symbolic Links ..."
 	@ldconfig -n $(libdir)
-	@ln -sf  $(libdir)/$(GAP_SONAME) $(libdir)/$(GAP_NAME)
+	@cd $(libdir) && ln --symbolic --force $(GAP_SONAME) $(GAP_NAME)
 
 	@echo "  Installing Plugins ..."
-	@$(INSTALL) -d $(libdir)/gap
+	@$(INSTALL) -d $(libdir)/$(GAP_INTERFACE)
 ifneq (,$(findstring alsa,$(PLUGINS)))
-	@$(INSTALL) $(GAP_ALSA_PLUGIN) $(libdir)/gap/$(GAP_ALSA_NAME)
+	@$(INSTALL) $(GAP_ALSA_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_ALSA_NAME)
 endif
 ifneq (,$(findstring oss,$(PLUGINS)))
-	@$(INSTALL) $(GAP_OSS_PLUGIN) $(libdir)/gap/$(GAP_OSS_NAME)
+	@$(INSTALL) $(GAP_OSS_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_OSS_NAME)
 endif
 ifneq (,$(findstring pulse,$(PLUGINS)))
-	@$(INSTALL) $(GAP_PULSE_PLUGIN) $(libdir)/gap/$(GAP_PULSE_NAME)
+	@$(INSTALL) $(GAP_PULSE_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_PULSE_NAME)
 endif
 ifneq (,$(findstring jack,$(PLUGINS)))
-	@$(INSTALL) $(GAP_JACK_PLUGIN) $(libdir)/gap/$(GAP_JACK_NAME)
+	@$(INSTALL) $(GAP_JACK_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_JACK_NAME)
 endif
 ifneq (,$(findstring rsound,$(PLUGINS)))
-	@$(INSTALL) $(GAP_RSOUND_PLUGIN) $(libdir)/gap/$(GAP_RSOUND_NAME)
+	@$(INSTALL) $(GAP_RSOUND_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_RSOUND_NAME)
 endif
 	@echo "  Installing Headers ..."
-	@$(INSTALL) -d $(includedir)/gap
-	@$(INSTALL) -m 644 include/ap.h $(includedir)/gap/ap.h
-	@$(INSTALL) -m 644 include/ap_event.h $(includedir)/gap/ap_event.h
-	@$(INSTALL) -m 644 include/ap_event_queue.h $(includedir)/gap/ap_event_queue.h
-	@$(INSTALL) -m 644 include/ap_app_queue.h $(includedir)/gap/ap_app_queue.h
-	@$(INSTALL) -m 644 include/ap_player.h $(includedir)/gap/ap_player.h
+	@$(INSTALL) -d $(includedir)/$(GAP_INTERFACE)
+	@$(INSTALL) -m 644 include/ap.h $(includedir)/$(GAP_INTERFACE)/ap.h
+	@$(INSTALL) -m 644 include/ap_event.h $(includedir)/$(GAP_INTERFACE)/ap_event.h
+	@$(INSTALL) -m 644 include/ap_event_queue.h $(includedir)/$(GAP_INTERFACE)/ap_event_queue.h
+	@$(INSTALL) -m 644 include/ap_app_queue.h $(includedir)/$(GAP_INTERFACE)/ap_app_queue.h
+	@$(INSTALL) -m 644 include/ap_player.h $(includedir)/$(GAP_INTERFACE)/ap_player.h
 	@echo "  Installing pkg-config ..."
 	@$(INSTALL) -d $(libdir)/pkgconfig
-	@$(INSTALL) -m 644 libgap.pc $(libdir)/pkgconfig/libgap.pc
+	@$(INSTALL) -m 644 libgap-$(GAP_MAJOR).pc $(libdir)/pkgconfig/libgap-$(GAP_MAJOR).pc
 	@echo "  Done!"
 
 uninstall:
@@ -238,20 +239,20 @@ uninstall:
 	rm -f $(libdir)/$(GAP_SONAME)
 	@echo "  Removing Plugins ..."
 ifneq (,$(findstring alsa,$(PLUGINS)))
-	rm -f $(libdir)/gap/$(GAP_ALSA_NAME)
+	rm -f $(libdir)/$(GAP_INTERFACE)/$(GAP_ALSA_NAME)
 endif
 ifneq (,$(findstring oss,$(PLUGINS)))
-	rm -f $(libdir)/gap/$(GAP_OSS_NAME)
+	rm -f $(libdir)/$(GAP_INTERFACE)/$(GAP_OSS_NAME)
 endif
 ifneq (,$(findstring pulse,$(PLUGINS)))
-	rm -f $(libdir)/gap/$(GAP_PULSE_NAME)
+	rm -f $(libdir)/$(GAP_INTERFACE)/$(GAP_PULSE_NAME)
 endif
 ifneq (,$(findstring jack,$(PLUGINS)))
-	rm -f $(libdir)/gap/$(GAP_JACK_NAME)
+	rm -f $(libdir)/$(GAP_INTERFACE)/$(GAP_JACK_NAME)
 endif
 	rmdir $(libdir)/gap
 	@echo "  Removing Headers ..."
-	rm $(includedir)/gap/*.h
+	rm $(includedir)/$(GAP_INTERFACE)/*.h
 	rmdir $(includedir)/gap
 	@echo "Removing pkg-config ..."
 	rm $(libdir)/pkgconfig/libgap.pc
