@@ -3,6 +3,7 @@
 #include "ap_pipe.h"
 #include "ap_format.h"
 #include "ap_event.h"
+#include "ap_event_private.h"
 #include "ap_memory_buffer.h"
 #include "ap_packet.h"
 #include "ap_event_queue.h"
@@ -289,7 +290,7 @@ InputStatus OggInput::parse() {
 void OggInput::submit_ogg_packet() {
   FXASSERT(packet);
   FXASSERT(packet->capacity()>sizeof(ogg_packet));
-  
+
   state.has_packet=true;
 
   if (state.header_written==false) {

@@ -1,9 +1,9 @@
 #include "ap_defs.h"
 #include "ap_utils.h"
 #include "ap_pipe.h"
+#include "ap_format.h"
 #include "ap_event.h"
 #include "ap_event_private.h"
-#include "ap_format.h"
 #include "ap_memory_buffer.h"
 #include "ap_packet.h"
 
@@ -85,17 +85,4 @@ void Packet::unref() {
   clear();
   pool->push(this);
   }
-
-ConfigureEvent::ConfigureEvent(const AudioFormat & fmt,FXuchar c,FXint n) : Event(Configure),
-  af(fmt),
-  codec(c),
-  stream_length(n),
-  data(NULL),
-  stream_offset_start(0),
-  stream_offset_end(0){
-  }
-
-ConfigureEvent::~ConfigureEvent(){
-  }
-
 

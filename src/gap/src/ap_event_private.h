@@ -61,4 +61,28 @@ public:
   };
 
 
+/*
+class StreamInfo {
+  FXlong  length;       /// Length in samples
+  FXlong  position;     /// Position in samples
+  FXshort padstart;     /// Start offset in samples
+  FXshort padend;       /// End offset in samples
+  };
+*/
+
+class ConfigureEvent : public Event {
+public:
+  AudioFormat   af;
+  FXuchar       codec;
+  FXint         stream_length;
+  void*         data;
+  FXshort       stream_offset_start;
+  FXshort       stream_offset_end;
+protected:
+  virtual ~ConfigureEvent();
+public:
+  ConfigureEvent(const AudioFormat&,FXuchar codec=Codec::Invalid,FXint f=-1);
+  };
+
+
 #endif

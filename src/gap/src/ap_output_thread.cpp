@@ -3,10 +3,10 @@
 #include "ap_utils.h"
 #include "ap_pipe.h"
 #include "ap_event.h"
+#include "ap_format.h"
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
-#include "ap_format.h"
 #include "ap_memory_buffer.h"
 #include "ap_convert.h"
 #include "ap_packet.h"
@@ -37,7 +37,7 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),proces
   output_config = ap_get_environment("GAP_OUTPUT_PLUGIN","alsa");
 #else
   output_config = ap_get_environment("GAP_OUTPUT_PLUGIN","oss");
-#endif  
+#endif
 
   }
 

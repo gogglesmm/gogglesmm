@@ -230,15 +230,20 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   FXuint buffertime = 500000;
 
 
-  if (__unlikely(handle==NULL)) {
-    if (!open()) {
-      return false;
+//  bool try_reopen=(handle) ? true : false;
+  
+  
+//  do {
+  
+    if (__unlikely(handle==NULL)) {
+      if (!open()) {
+        return false;
+        }
       }
-    }
 
-  if (fmt==af) {
-    return true;
-    }
+    if (fmt==af) {
+      return true;
+      }
 
   af=fmt;
 
