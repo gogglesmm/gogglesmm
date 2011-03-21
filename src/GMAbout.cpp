@@ -22,6 +22,8 @@
 
 #ifdef HAVE_XINE_LIB
 #include <xine.h>
+#else
+#include <ap.h>
 #endif
 #ifdef HAVE_DBUS
 #include "GMDBus.h"
@@ -121,9 +123,9 @@ void GMAboutDialog::setup(){
 
 #else
 #ifdef HAVE_DBUS
-  libraries.format("Build with FOX %d.%d.%d \nSQLite %s, DBus %s, Expat %d.%d.%d\nand Taglib",fxversion[0],fxversion[1],fxversion[2],sqlite3_libversion(),GMDBus::dbusversion().text(),expatversion.major,expatversion.minor,expatversion.micro);
+  libraries.format("Build with FOX %d.%d.%d, libgap %d.%d\nSQLite %s, DBus %s, Expat %d.%d.%d\nand Taglib",fxversion[0],fxversion[1],fxversion[2],ap::version[0],ap::version[1],sqlite3_libversion(),GMDBus::dbusversion().text(),expatversion.major,expatversion.minor,expatversion.micro);
 #else
-  libraries.format("Build with FOX %d.%d.%d \nSQLite %s, Expat %d.%d.%d and Taglib",fxversion[0],fxversion[1],fxversion[2],sqlite3_libversion(),expatversion.major,expatversion.minor,expatversion.micro);
+  libraries.format("Build with FOX %d.%d.%d, libgap %d.%d\nSQLite %s, Expat %d.%d.%d and Taglib",fxversion[0],fxversion[1],fxversion[2],ap::version[0],ap::version[1],sqlite3_libversion(),expatversion.major,expatversion.minor,expatversion.micro);
 #endif
 #endif
 

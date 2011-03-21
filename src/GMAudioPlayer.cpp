@@ -11,14 +11,16 @@ FXDEFMAP(GMAudioPlayer) GMAudioPlayerMap[]={
 
 FXIMPLEMENT(GMAudioPlayer,AudioPlayer,GMAudioPlayerMap,ARRAYNUMBER(GMAudioPlayerMap));
 
-GMAudioPlayer::GMAudioPlayer(FXApp * app,FXObject * tgt,FXSelector sel) : AudioPlayer(NULL) {
-  setEventQueue(new FXAppQueue(app,this,ID_AUDIO_ENGINE));
+GMAudioPlayer::GMAudioPlayer(FXApp * app,FXObject * tgt,FXSelector sel) {
+  fifo = new FXAppQueue(app,this,ID_AUDIO_ENGINE);
+  setEventQueue(fifo);
   target=tgt;
   message=sel;
   state=PLAYER_STOPPED;
   }
 
 GMAudioPlayer::~GMAudioPlayer() {
+  delete fifo;
   }
 
 

@@ -32,6 +32,7 @@ struct PlaybackTime {
 class GMAudioPlayer : public AudioPlayer {
   FXDECLARE(GMAudioPlayer);
 private:
+  FXAppQueue   * fifo;
   FXObject     * target;
   FXSelector     message;
 protected:
