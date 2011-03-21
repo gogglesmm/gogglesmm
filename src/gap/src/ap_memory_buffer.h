@@ -1,6 +1,7 @@
 #ifndef AP_MEMORY_BUFFER_H
 #define AP_MEMORY_BUFFER_H
 
+namespace ap {
 
 class MemoryBuffer {
 protected:
@@ -102,7 +103,7 @@ public:
   ~MemoryStream();
   };
 
-
+}
 
 #endif
 

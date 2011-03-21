@@ -25,6 +25,7 @@
 #include <samplerate.h>
 #endif
 
+namespace ap {
 
 OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),processing(false) {
   stream=-1;
@@ -667,4 +668,4 @@ FXint OutputThread::run(){
   return 0;
   }
 
-
+}

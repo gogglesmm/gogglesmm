@@ -14,6 +14,12 @@
 #include "ap_engine.h"
 #include "ap_player.h"
 
+using namespace ap;
+
+namespace ap {
+
+const FXuchar version[2]={AP_MAJOR,AP_MINOR};
+
 FXIMPLEMENT(AudioPlayer,FXObject,NULL,0);
 
 AudioPlayer::AudioPlayer(EventQueue*fifo) : engine(NULL) {
@@ -80,3 +86,5 @@ void AudioPlayer::setOutputPlugin(const FXString & plugin) {
 FXString AudioPlayer::getOutputPlugin() const {
   return engine->output->getOutputPlugin();
   }
+
+}

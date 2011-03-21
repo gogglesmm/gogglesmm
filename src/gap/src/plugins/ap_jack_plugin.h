@@ -4,6 +4,8 @@
 
 #include <jack/jack.h>
 
+namespace ap {
+
 class JackOutput : public OutputPlugin {
 protected:
   jack_client_t * jack;
@@ -32,7 +34,7 @@ public:
 
   /// Change Volume
   void volume(FXfloat);
-  
+
   /// Close Output
   void close();
 
@@ -40,5 +42,6 @@ public:
   virtual ~JackOutput();
   };
 
+}
 #endif
 #endif

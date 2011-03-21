@@ -18,6 +18,7 @@
 
 #include "ap_aac_plugin.h"
 
+namespace ap {
 
 static void ap_write_unsigned(Packet * p,FXuint b) {
   memcpy(p->ptr(),(const FXchar*)&b,4);
@@ -320,6 +321,6 @@ DecoderStatus AacDecoder::process(Packet*packet){
   return DecoderOk;
   }
 
-
+}
 
 

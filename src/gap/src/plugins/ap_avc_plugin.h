@@ -21,6 +21,10 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 }
 
+namespace ap {
+
+
+
 class OutputPacket;
 
 class AVDecoder : public DecoderPlugin {
@@ -39,5 +43,7 @@ public:
   DecoderStatus process(Packet*);
   virtual ~AVDecoder();
   };
+  
+}  
 #endif
 #endif

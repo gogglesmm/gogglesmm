@@ -1,6 +1,8 @@
 #include "ap_defs.h"
 #include "ap_format.h"
 
+namespace ap {
+
 static const FXchar * const codecs[]={
   "Invalid",
   "PCM",
@@ -116,4 +118,4 @@ FXbool operator==(const AudioFormat& af1,const AudioFormat& af2){
   else
     return true;
   }
-
+}

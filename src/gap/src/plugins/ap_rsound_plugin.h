@@ -4,6 +4,8 @@
 
 #include <rsound.h>
 
+namespace ap {
+
 class RSoundOutput : public OutputPlugin {
 protected:
   rsound_t * rsd;
@@ -11,7 +13,7 @@ protected:
   FXbool open();
 public:
   RSoundOutput();
-  
+
   /// Configure
   FXbool configure(const AudioFormat &);
 
@@ -35,10 +37,11 @@ public:
 
   /// Close Output
   void close();
-  
+
   /// Destructor
   virtual ~RSoundOutput();
   };
 
+}
 #endif
 #endif

@@ -18,6 +18,9 @@
 #include "ap_output_thread.h"
 #include "ap_pcm_plugin.h"
 
+namespace ap {
+
+
 PCMDecoder::PCMDecoder(AudioEngine * e) : DecoderPlugin(e), out(NULL) {
   }
 
@@ -65,4 +68,4 @@ DecoderStatus PCMDecoder::process(Packet*in) {
   return DecoderOk;
   }
 
-
+}

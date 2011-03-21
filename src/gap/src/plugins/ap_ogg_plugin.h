@@ -5,6 +5,8 @@
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 
+namespace ap {
+
 class AudioEngine;
 
 class OggStream;
@@ -60,5 +62,7 @@ public:
   InputStatus process(Packet*);
   virtual ~OggInput();
   };
+  
+}  
 #endif
 #endif

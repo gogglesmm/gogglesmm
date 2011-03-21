@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+namespace ap {
+
 class AudioEngine;
 class InputPlugin;
 
@@ -66,7 +68,5 @@ public:
   /// Destructor
   virtual ~InputThread();
   };
-
+}
 #endif
-
-

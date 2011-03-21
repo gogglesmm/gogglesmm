@@ -1,6 +1,8 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+namespace ap {
+
 class AudioEngine;
 class OutputPlugin;
 class Packet;
@@ -52,6 +54,6 @@ public:
   FXString getOutputPlugin() const;
   };
 
+}
 #endif
-
 

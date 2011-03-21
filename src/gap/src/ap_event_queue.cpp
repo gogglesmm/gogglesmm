@@ -2,6 +2,7 @@
 #include "ap_event.h"
 #include "ap_event_queue.h"
 
+namespace ap {
 EventQueue::EventQueue() : head(NULL), tail(NULL) {
   }
 
@@ -14,3 +15,4 @@ void EventQueue::free() {
 
 EventQueue::~EventQueue() {
   }
+}

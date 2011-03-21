@@ -18,6 +18,8 @@
 #include "ap_output_thread.h"
 #include "ap_ogg_plugin.h"
 
+namespace ap {
+
 
 #ifdef HAVE_FLAC_PLUGIN
 extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
@@ -420,7 +422,7 @@ InputStatus OggInput::process(Packet * p) {
   }
 
 
-
+}
 
 
 

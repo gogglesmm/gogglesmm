@@ -19,6 +19,8 @@
 #include "ap_vorbis_plugin.h"
 
 
+namespace ap {
+
 VorbisDecoder::VorbisDecoder(AudioEngine * e) : DecoderPlugin(e),buffer(32768),engine(e),out(NULL),has_info(false),has_dsp(false) {
   }
 
@@ -250,3 +252,5 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
     }
   return DecoderOk;
   }
+
+}

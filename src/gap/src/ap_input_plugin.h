@@ -1,6 +1,8 @@
 #ifndef INPUT_PLUGIN_H
 #define INPUT_PLUGIN_H
 
+namespace ap {
+
 class Packet;
 
 enum InputStatus {
@@ -32,7 +34,5 @@ public:
 
   static InputPlugin* open(AudioEngine * engine,const FXString & extension);
   };
-
+}
 #endif
-
-

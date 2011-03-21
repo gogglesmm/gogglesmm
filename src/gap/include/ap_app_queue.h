@@ -1,6 +1,8 @@
 #ifndef APPLICATION_QUEUE_H
 #define APPLICATION_QUEUE_H
 
+namespace ap {
+
 class GMAPI FXAppQueue : public EventQueue {
 protected:
   FXMutex            mfifo;
@@ -28,5 +30,7 @@ public:
   /// Destructor
   virtual ~FXAppQueue();
   };
+  
+}  
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef THREAD_QUEUE_H
 #define THREAD_QUEUE_H
 
+namespace ap {
+
 class ThreadQueue : public EventQueue {
 protected:
   FXMutex      mfifo;
@@ -38,4 +40,5 @@ public:
   ~ThreadQueue();
   };
 
+}
 #endif

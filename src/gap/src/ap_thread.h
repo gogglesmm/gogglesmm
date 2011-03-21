@@ -1,6 +1,8 @@
 #ifndef ENGINE_THREAD_H
 #define ENGINE_THREAD_H
 
+namespace ap {
+
 class AudioEngine;
 
 class EngineThread : public FXThread {
@@ -30,7 +32,7 @@ public:
   virtual ~EngineThread();
   };
 
-
+}
 
 
 #endif

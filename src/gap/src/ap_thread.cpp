@@ -5,6 +5,7 @@
 #include "ap_thread_queue.h"
 #include "ap_thread.h"
 
+namespace ap { 
 
 EngineThread::EngineThread(AudioEngine * e) : engine(e){
   }
@@ -27,3 +28,5 @@ FXint EngineThread::process(Event*){
 void EngineThread::post(Event * event,FXint where) {
   fifo.post(event,where);
   }
+
+}

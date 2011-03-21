@@ -1,6 +1,6 @@
 #ifndef ENGINE_H
 #define ENGINE_H
-
+namespace ap {
 class InputThread;
 class DecoderThread;
 class OutputThread;
@@ -23,5 +23,5 @@ public:
 
   ~AudioEngine();
   };
-
+}
 #endif

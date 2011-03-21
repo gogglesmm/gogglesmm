@@ -2,12 +2,13 @@
 #include "ap_memory_buffer.h"
 
 /*
-  TODO:  
+  TODO:
     - Need audio dithering when converting between sample formats
 
 
 */
 
+namespace ap {
 
 void s24le3_to_s16(FXuchar * input,FXuint nsamples) {
   FXshort * output = reinterpret_cast<FXshort*>(input);
@@ -50,3 +51,5 @@ void float_to_s32(FXuchar * buffer,FXuint nsamples){
     output[i]=val;
     }
   }
+
+} 

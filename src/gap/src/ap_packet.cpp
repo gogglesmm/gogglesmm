@@ -7,6 +7,7 @@
 #include "ap_memory_buffer.h"
 #include "ap_packet.h"
 
+namespace ap {
 
 PacketPool::PacketPool() : list(NULL) {
   }
@@ -86,3 +87,4 @@ void Packet::unref() {
   pool->push(this);
   }
 
+}

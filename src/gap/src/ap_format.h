@@ -1,6 +1,7 @@
 #ifndef AUDIOFORMAT_H
 #define AUDIOFORMAT_H
 
+namespace ap {
 namespace Codec {
 
   enum {
@@ -152,4 +153,6 @@ public:
 
 extern GMAPI FXbool operator!=(const AudioFormat& s1,const AudioFormat& s2);
 extern GMAPI FXbool operator==(const AudioFormat& s1,const AudioFormat& s2);
+
+}
 #endif

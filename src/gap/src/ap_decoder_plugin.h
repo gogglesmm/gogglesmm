@@ -1,6 +1,8 @@
 #ifndef DECODER_PLUGIN_H
 #define DECODER_PLUGIN_H
 
+namespace ap {
+
 class ConfigureEvent;
 class DecoderPacket;
 
@@ -18,7 +20,7 @@ protected:
 public:
 public:
   DecoderPlugin(AudioEngine*);
-  
+
   virtual FXuchar codec() const { return Codec::Invalid; }
 
   virtual FXbool init(ConfigureEvent*)=0;
@@ -32,6 +34,6 @@ public:
   virtual ~DecoderPlugin() {}
   };
 
+}
 #endif
-
 

@@ -4,6 +4,8 @@
 #define ROUNDVAL    16
 #define ROUNDUP(n)  (((n)+ROUNDVAL-1)&-ROUNDVAL)
 
+namespace ap {
+
 MemoryBuffer::MemoryBuffer(FXival cap) : data_buffer(NULL),data_capacity(cap),data_size(0) {
   allocElms(data_buffer,data_capacity);
   }
@@ -167,3 +169,4 @@ void MemoryStream::padding(FXival sz) {
   data_size+=sz;
   }
 
+}

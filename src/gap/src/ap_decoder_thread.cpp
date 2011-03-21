@@ -16,6 +16,7 @@
 #include "ap_input_thread.h"
 #include "ap_output_thread.h"
 
+namespace ap {
 
 DecoderThread::DecoderThread(AudioEngine*e) : EngineThread(e),plugin(NULL) {
   }
@@ -184,5 +185,6 @@ Packet * DecoderThread::get_output_packet() {
   return NULL;
   }
 
+}
 
 

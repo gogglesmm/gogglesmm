@@ -1,6 +1,8 @@
 #ifndef AP_PLAYER_H
 #define AP_PLAYER_H
 
+namespace ap {
+
 class AudioEngine;
 class EventQueue;
 class Event;
@@ -50,5 +52,5 @@ public:
   ~AudioPlayer();
   };
 
-
+}
 #endif

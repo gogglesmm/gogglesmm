@@ -16,8 +16,7 @@
 #include "ap_decoder_thread.h"
 #include "ap_jack_plugin.h"
 
-
-/* TODO */
+using namespace ap;
 
 
 extern "C" OutputPlugin * ap_load_plugin() {
@@ -27,6 +26,8 @@ extern "C" OutputPlugin * ap_load_plugin() {
 extern "C" void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
+
+namespace ap {
 
 JackOutput::JackOutput() : OutputPlugin() {
   }
@@ -48,7 +49,7 @@ void JackOutput::close() {
     jack_client_close(jack);
     jack=NULL;
     }
-  af.reset();    
+  af.reset();
   }
 
 
@@ -78,5 +79,5 @@ FXbool JackOutput::configure(const AudioFormat & fmt){
 FXbool JackOutput::write(const void * b,FXuint nframes){
   return false;
   }
-
+}
 

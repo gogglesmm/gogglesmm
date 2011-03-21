@@ -4,6 +4,7 @@
 
 #include <pulse/pulseaudio.h>
 
+namespace ap {
 
 class PulseOutput : public OutputPlugin {
 protected:
@@ -35,13 +36,15 @@ public:
 
   /// Change Volume
   void volume(FXfloat);
-    
+
   /// Close Output
-  void close();  
+  void close();
 
   /// Destructor
   virtual ~PulseOutput();
   };
+  
+}  
 
 #endif
 #endif

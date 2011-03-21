@@ -1,6 +1,7 @@
 #ifndef DECODER_H
 #define DECODER_H
 
+namespace ap {
 class AudioEngine;
 class DecoderPlugin;
 class Packet;
@@ -29,6 +30,7 @@ public:
   virtual ~DecoderThread();
   };
 
+}
 #endif
 
 

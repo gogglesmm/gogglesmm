@@ -16,6 +16,8 @@
 
 #include "ap_pulse_plugin.h"
 
+using namespace ap;
+
 extern "C" GMAPI OutputPlugin * ap_load_plugin() {
   return new PulseOutput();
   }
@@ -23,6 +25,9 @@ extern "C" GMAPI OutputPlugin * ap_load_plugin() {
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
+
+namespace ap {
+
 
 
 PulseOutput::PulseOutput() : OutputPlugin(), mainloop(NULL),context(NULL),stream(NULL) {
@@ -161,7 +166,7 @@ void PulseOutput::close() {
     pa_threaded_mainloop_free(mainloop);
     mainloop=NULL;
     }
-  af.reset();    
+  af.reset();
   }
 
 
@@ -301,4 +306,4 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
   return true;
   }
 
-
+}

@@ -1,6 +1,7 @@
 #ifndef MEM_PACKET_H
 #define MEM_PACKET_H
 
+namespace ap {
 
 class Packet;
 
@@ -72,6 +73,6 @@ public:
   void trimFrames(FXint nframes) { trimEnd(nframes*af.framesize()); }
   };
 
-
+}
 
 #endif

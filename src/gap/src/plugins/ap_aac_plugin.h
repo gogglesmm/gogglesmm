@@ -5,6 +5,8 @@
 #include "neaacdec.h"
 #include "mp4ff.h"
 
+namespace ap {
+
 enum {
   AAC_FLAG_CONFIG = 0x1
   };
@@ -49,6 +51,6 @@ public:
   DecoderStatus process(Packet*);
   ~AacDecoder();
   };
-
+}
 #endif
 #endif

@@ -18,6 +18,7 @@
 #include "ap_output_thread.h"
 #include "ap_mad_plugin.h"
 
+namespace ap {
 
 
 static const FXint bitrates[]={
@@ -1018,7 +1019,7 @@ FXbool MadDecoder::flush(){
   return true;
   }
 
-
+}
 
 
 

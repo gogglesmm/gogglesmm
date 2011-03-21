@@ -16,8 +16,20 @@
 #include "ap_decoder_thread.h"
 #include "ap_rsound_plugin.h"
 
+using namespace ap;
 
-/* TODO */
+
+extern "C" OutputPlugin * ap_load_plugin() {
+  return new RSoundOutput();
+  }
+
+extern "C" void ap_free_plugin(OutputPlugin* plugin) {
+  delete plugin;
+  }
+
+namespace ap {
+
+
 
 static FXbool to_gap_format(const FXint rsd,AudioFormat & af) {
   switch(rsd){
@@ -41,22 +53,6 @@ static FXbool to_rsd_format(const AudioFormat & af,FXint & rsd){
   return true;
   }
 
-
-
-
-
-
-
-
-
-extern "C" OutputPlugin * ap_load_plugin() {
-  return new RSoundOutput();
-  }
-
-extern "C" void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
 RSoundOutput::RSoundOutput() : OutputPlugin(), rsd(NULL) {
   }
 
@@ -75,7 +71,7 @@ void RSoundOutput::close() {
     rsd_free(rsd);
     rsd=NULL;
     }
-  af.reset();  
+  af.reset();
   }
 
 
@@ -132,5 +128,5 @@ FXbool RSoundOutput::write(const void * b,FXuint nframes){
     return false;
   return true;
   }
-
+}
 

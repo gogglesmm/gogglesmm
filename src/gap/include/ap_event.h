@@ -1,6 +1,8 @@
 #ifndef AP_EVENT_H
 #define AP_EVENT_H
 
+namespace ap {
+
 enum EventType {
   AP_INVALID,
   AP_BOS,           // Event
@@ -19,7 +21,7 @@ class GMAPI Event {
 public:
   Event     * next;       /// used by pool and queue to   (8)
   FXuchar     type;       /// type of event               (1)
-  FXuint      stream;     ///                             (4)  
+  FXuint      stream;     ///                             (4)
 protected:
   Event();
 protected:
@@ -49,5 +51,5 @@ public:
   TimeUpdate(FXuint p,FXuint l);
   };
 
-
+}
 #endif

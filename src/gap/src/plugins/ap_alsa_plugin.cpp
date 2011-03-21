@@ -19,6 +19,9 @@
 
 #define ALSA_VERSION(major,minor,patch) ((major<<16)|(minor<<8)|patch)
 
+using namespace ap;
+
+
 extern "C" GMAPI OutputPlugin * ap_load_plugin() {
   return new AlsaOutput();
   }
@@ -27,6 +30,7 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
 
+namespace ap {
 
 static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_format) {
   switch(af.format){
@@ -231,10 +235,10 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
 
 
 //  bool try_reopen=(handle) ? true : false;
-  
-  
+
+
 //  do {
-  
+
     if (__unlikely(handle==NULL)) {
       if (!open()) {
         return false;
@@ -521,3 +525,5 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
     }
   return true;
   }
+
+}

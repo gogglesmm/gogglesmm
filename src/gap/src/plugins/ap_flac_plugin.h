@@ -4,6 +4,8 @@
 
 #include <stream_decoder.h>
 
+namespace ap {
+
 class FlacInput : public InputPlugin {
 protected:
   FLAC__StreamDecoder * flac;
@@ -48,7 +50,7 @@ public:
   DecoderStatus process(Packet*);
   ~FlacDecoder();
   };
-
+}
 
 #endif
 #endif

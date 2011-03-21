@@ -4,6 +4,8 @@
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 
+namespace ap {
+
 ThreadQueue::ThreadQueue() : EventQueue() {
   }
 
@@ -141,3 +143,5 @@ Event * ThreadQueue::pop_if_not(FXuchar r1,FXuchar r2){
   mfifo.unlock();
   return event;
   }
+
+}

@@ -5,6 +5,8 @@
 #include <sys/prctl.h>
 #endif
 
+namespace ap {
+
 void ap_set_thread_name(const FXchar * name) {
 #ifdef __linux__
   prctl(PR_SET_NAME,(unsigned long)name,0,0,0);
@@ -114,3 +116,5 @@ FXuint ap_wait(FXInputHandle h1,FXInputHandle h2) {
 #endif
   return 0;
   }
+
+}

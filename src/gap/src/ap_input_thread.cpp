@@ -21,6 +21,8 @@
 #include <errno.h>
 #endif
 
+namespace ap {
+
 InputThread::InputThread(AudioEngine*e) : EngineThread(e),
   io(NULL),
   plugin(NULL),
@@ -419,4 +421,4 @@ void InputThread::ctrl_flush(FXbool close){
   engine->decoder->post(new FlushEvent(close),EventQueue::Flush);
   }
 
-
+}

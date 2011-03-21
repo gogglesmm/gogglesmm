@@ -2,6 +2,10 @@
 #ifndef AP_MAD_PLUGIN_H
 #define AP_MAD_PLUGIN_H
 
+#include <mad.h>
+
+namespace ap {
+
 class XingHeader;
 class VBRIHeader;
 class LameHeader;
@@ -35,7 +39,6 @@ public:
   virtual ~MadInput();
   };
 
-#include <mad.h>
 
 class MadDecoder : public DecoderPlugin {
 protected:
@@ -64,5 +67,7 @@ public:
   FXbool flush();
   virtual ~MadDecoder();
   };
+  
+}  
 #endif
 #endif

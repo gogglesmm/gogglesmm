@@ -14,6 +14,10 @@
 #include "ap_decoder_thread.h"
 #include "ap_output_plugin.h"
 
+using namespace ap;
+
+namespace ap {
+
 InputPlugin::InputPlugin(AudioEngine *e) : engine(e), flags(0),stream_length(-1) {
   }
 
@@ -46,6 +50,7 @@ InputStatus InputPlugin::process(Packet*packet) {
     }
   return InputError;
   }
+}
 
 #include "ap_config.h"
 #include "plugins/ap_wav_plugin.h"
@@ -54,6 +59,8 @@ InputStatus InputPlugin::process(Packet*packet) {
 #include "plugins/ap_musepack_plugin.h"
 #include "plugins/ap_mad_plugin.h"
 #include "plugins/ap_aac_plugin.h"
+
+namespace ap {
 
 InputPlugin* InputPlugin::open(AudioEngine * engine,const FXString & extension) {
   fxmessage("open plugin: %s\n",extension.text());
@@ -91,4 +98,4 @@ InputPlugin* InputPlugin::open(AudioEngine * engine,const FXString & extension) 
 #endif
   return NULL;
   }
-
+}

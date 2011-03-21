@@ -1,6 +1,8 @@
 #ifndef OUTPUT_PLUGIN_H
 #define OUTPUT_PLUGIN_H
 
+namespace ap {
+
 class GMAPI OutputPlugin {
 public:
   AudioFormat af;
@@ -36,4 +38,5 @@ public:
   virtual ~OutputPlugin() {}
   };
 
+}
 #endif

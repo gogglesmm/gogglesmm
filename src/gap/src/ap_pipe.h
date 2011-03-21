@@ -1,6 +1,8 @@
 #ifndef AP_PIPE_H
 #define AP_PIPE_H
 
+namespace ap {
+
 class Event;
 
 class Pipe {
@@ -65,4 +67,5 @@ public:
   virtual ~NotifyPipe();
   };
 
+}
 #endif

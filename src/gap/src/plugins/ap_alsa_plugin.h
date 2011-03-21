@@ -4,6 +4,8 @@
 
 #include <alsa/asoundlib.h>
 
+namespace ap {
+
 class AlsaOutput : public OutputPlugin {
 protected:
   snd_pcm_t         * handle;
@@ -40,12 +42,14 @@ public:
 
   /// Change Volume
   void volume(FXfloat);
-  
+
   /// Close Output
   void close();
 
   /// Destructor
   virtual ~AlsaOutput();
   };
+  
+}  
 #endif
 #endif

@@ -3,6 +3,7 @@
 #include "ap_event_queue.h"
 #include "ap_app_queue.h"
 
+namespace ap {
 
 FXAppQueue::FXAppQueue() : channel(NULL),target(NULL),message(0) {
   }
@@ -72,3 +73,4 @@ void FXAppQueue::flush() {
     Event::unref(event);
     }
   }
+}

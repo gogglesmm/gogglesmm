@@ -38,7 +38,7 @@ enum {
   FLAG_EOS = 0x1
   };
 
-
+#include <ap_version.h>
 
 
 

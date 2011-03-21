@@ -1,6 +1,9 @@
 #ifndef PCM_PLUGIN_H
 #define PCM_PLUGIN_H
 
+namespace ap {
+
+
 class OutputPacket;
 
 class PCMDecoder : public DecoderPlugin {
@@ -14,5 +17,7 @@ public:
   DecoderStatus process(Packet*);
   virtual ~PCMDecoder();
   };
+  
+}
 
 #endif

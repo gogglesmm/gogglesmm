@@ -13,6 +13,8 @@
 #include "ap_output_thread.h"
 #include "ap_engine.h"
 
+namespace ap {
+
 AudioEngine::AudioEngine() : fifo(NULL) {
   input   = new InputThread(this);
   decoder = new DecoderThread(this);
@@ -84,3 +86,4 @@ void AudioEngine::post(Event * event){
   FXASSERT(fifo);
   if (fifo) fifo->post(event);
   }
+}

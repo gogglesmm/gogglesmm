@@ -18,6 +18,8 @@
 #endif
 
 
+namespace ap {
+
 
 #ifndef WIN32
 static FXbool ap_set_nonblocking(FXint fd) {
@@ -170,7 +172,7 @@ FXbool NotifyPipe::create() {
 
     }
 #else
-  return Pipe::create();    
+  return Pipe::create();
 #endif
   return true;
   }
@@ -200,11 +202,4 @@ void NotifyPipe::signal() {
 #endif
   }
 
-
-
-
-
-
-
-
-
+}

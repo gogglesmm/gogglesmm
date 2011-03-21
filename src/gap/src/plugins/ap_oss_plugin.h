@@ -4,6 +4,8 @@
 
 #include <soundcard.h>
 
+namespace ap {
+
 class OSSOutput : public OutputPlugin {
 protected:
   FXInputHandle handle;
@@ -43,5 +45,6 @@ public:
   virtual ~OSSOutput();
   };
 
+}
 #endif
 #endif

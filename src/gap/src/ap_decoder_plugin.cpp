@@ -9,8 +9,12 @@
 #include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
 
+namespace ap {
+
 DecoderPlugin::DecoderPlugin(AudioEngine *e) : engine(e) {
   }
+
+}  
 
 #include "ap_config.h"
 #include "plugins/ap_flac_plugin.h"
@@ -19,6 +23,9 @@ DecoderPlugin::DecoderPlugin(AudioEngine *e) : engine(e) {
 #include "plugins/ap_pcm_plugin.h"
 #include "plugins/ap_aac_plugin.h"
 #include "plugins/ap_avc_plugin.h"
+
+
+namespace ap {
 
 DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
   switch(codec) {
@@ -43,5 +50,5 @@ DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
   return NULL;
   }
 
-
+}
 

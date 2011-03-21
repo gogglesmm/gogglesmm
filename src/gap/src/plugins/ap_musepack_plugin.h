@@ -2,10 +2,10 @@
 #ifndef AP_MUSEPACK_H
 #define AP_MUSEPACK_H
 
-
-extern "C" InputPlugin * ap_input_plugin(AudioEngine*);
-
 #include <mpcdec/mpcdec.h>
+
+namespace ap {
+
 
 class AudioEngine;
 
@@ -39,6 +39,6 @@ public:
   FXbool seek(FXdouble);
   InputStatus process(Packet*);
   };
-
+}
 #endif
 #endif

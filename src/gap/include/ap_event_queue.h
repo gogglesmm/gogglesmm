@@ -1,6 +1,8 @@
 #ifndef AP_EVENT_QUEUE_H
 #define AP_EVENT_QUEUE_H
 
+namespace ap {
+
 class EventQueue {
 protected:
   Event* head;
@@ -32,4 +34,5 @@ public:
   virtual ~EventQueue();
   };
 
+}
 #endif

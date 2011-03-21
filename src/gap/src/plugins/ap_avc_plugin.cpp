@@ -19,6 +19,7 @@
 #include "ap_output_thread.h"
 #include "ap_avc_plugin.h"
 
+namespace ap {
 
 AVDecoder::AVDecoder(AudioEngine * e) : DecoderPlugin(e), ctx(NULL),outbuf(AVCODEC_MAX_AUDIO_FRAME_SIZE),out(NULL) {
 
@@ -109,4 +110,4 @@ DecoderStatus AVDecoder::process(Packet*in) {
   return DecoderOk;
   }
 
-
+}

@@ -41,6 +41,8 @@
 #error "BUG: FLAC  macros not defined for Big Endian Architecture"
 #endif
 
+namespace ap {
+
 enum {
   FLAC_BLOCK_STREAMINFO     = 0,
   };
@@ -555,3 +557,5 @@ DecoderStatus FlacDecoder::process(Packet*packet){
     }
   return DecoderError;
   }
+  
+}  

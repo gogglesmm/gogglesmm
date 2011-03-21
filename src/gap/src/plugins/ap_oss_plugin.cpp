@@ -25,6 +25,8 @@
 #include <stropts.h>
 #include <unistd.h>
 
+using namespace ap;
+
 
 extern "C" GMAPI OutputPlugin * ap_load_plugin() {
   return new OSSOutput();
@@ -33,6 +35,8 @@ extern "C" GMAPI OutputPlugin * ap_load_plugin() {
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
+
+namespace ap {
 
 
 static FXbool to_gap_format(const FXint oss,AudioFormat & af) {
@@ -196,4 +200,4 @@ FXbool OSSOutput::write(const void * buffer,FXuint nframes){
   return true;
   }
 
-
+}

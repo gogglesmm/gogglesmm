@@ -18,6 +18,8 @@
 
 #include "ap_wav_plugin.h"
 
+namespace ap {
+
 enum {
   WAV_FORMAT_PCM = 1,
   WAV_FORMAT_EXTENSIBLE = 0xFFFE
@@ -234,4 +236,4 @@ InputStatus WavInput::parse() {
   return InputOk;
   }
 
-
+}

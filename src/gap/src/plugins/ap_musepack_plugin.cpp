@@ -16,10 +16,7 @@
 #include "ap_decoder_thread.h"
 #include "ap_musepack_plugin.h"
 
-
-extern "C" InputPlugin * ap_output_plugin(AudioEngine*engine) {
-  return new MusepackInput(engine);
-  }
+namespace ap {
 
 
 mpc_int32_t MusepackInput::mpc_input_read(void *t, void *ptr, mpc_int32_t size){
@@ -152,7 +149,7 @@ InputStatus MusepackInput::process(Packet * p){
   }
 
 
-
+}
 
 
 

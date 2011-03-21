@@ -1,6 +1,7 @@
 #ifndef AP_EVENT_PRIVATE_H
 #define AP_EVENT_PRIVATE_H
 
+namespace ap {
 
 enum EventTypePrivate {
   Ctrl_Shutdown = AP_LAST,
@@ -84,5 +85,5 @@ public:
   ConfigureEvent(const AudioFormat&,FXuchar codec=Codec::Invalid,FXint f=-1);
   };
 
-
+}
 #endif

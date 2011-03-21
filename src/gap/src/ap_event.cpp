@@ -3,6 +3,7 @@
 #include "ap_format.h"
 #include "ap_event_private.h"
 
+namespace ap {
 
 Event::Event() : next(NULL), type(AP_INVALID),stream(0) {
   }
@@ -81,3 +82,4 @@ ConfigureEvent::ConfigureEvent(const AudioFormat & fmt,FXuchar c,FXint n) : Even
 ConfigureEvent::~ConfigureEvent(){
   }
 
+}

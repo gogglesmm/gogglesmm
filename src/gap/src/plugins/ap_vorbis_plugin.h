@@ -5,6 +5,8 @@
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 
+namespace ap {
+
 class VorbisDecoder : public DecoderPlugin{
 protected:
   MemoryStream buffer;
@@ -33,5 +35,6 @@ public:
   virtual ~VorbisDecoder();
   };
 
+}
 #endif
 #endif

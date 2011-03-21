@@ -1,6 +1,8 @@
 #ifndef WAV_H
 #define WAV_H
 
+namespace ap {
+
 class WavInput : public InputPlugin {
 protected:
   FXuint datasize;    // size of the data section
@@ -17,4 +19,5 @@ public:
   virtual ~WavInput();
   };
 
+}
 #endif
