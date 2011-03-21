@@ -227,6 +227,7 @@ endif
 	@$(INSTALL) -m 644 include/ap_event_queue.h $(includedir)/$(GAP_INTERFACE)/ap_event_queue.h
 	@$(INSTALL) -m 644 include/ap_app_queue.h $(includedir)/$(GAP_INTERFACE)/ap_app_queue.h
 	@$(INSTALL) -m 644 include/ap_player.h $(includedir)/$(GAP_INTERFACE)/ap_player.h
+	@$(INSTALL) -m 644 include/ap_version.h $(includedir)/$(GAP_INTERFACE)/ap_version.h
 	@echo "  Installing pkg-config ..."
 	@$(INSTALL) -d $(libdir)/pkgconfig
 	@$(INSTALL) -m 644 libgap-$(GAP_MAJOR).pc $(libdir)/pkgconfig/libgap-$(GAP_MAJOR).pc
