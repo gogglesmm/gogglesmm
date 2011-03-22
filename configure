@@ -172,7 +172,7 @@ if [ $XINE -eq 0 ] ; then
   add_required_package "fox >= 1.7" "fox"
   check_reswrap
   check_foxversion
-  add_required_package "libgap >= 0.1" "gap"
+  add_required_package "libgap-0 >= 0.1" "gap"
 else
   add_required_package "fox >= 1.6" "fox"
   check_reswrap

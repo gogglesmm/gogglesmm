@@ -698,6 +698,7 @@ void gm_print_time(FXint time,FXString & result){
 #ifdef __linux__
 #include <sys/prctl.h>
 #endif
+namespace ap {
 
 void ap_set_thread_name(const FXchar * name) {
 #ifdef __linux__
@@ -720,6 +721,6 @@ FXbool ap_set_nonblocking(FXint fd) {
   return true;
   }
 
-
+}
 #endif
 
