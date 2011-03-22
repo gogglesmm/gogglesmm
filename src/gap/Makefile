@@ -220,7 +220,7 @@ endif
 ifneq (,$(findstring rsound,$(PLUGINS)))
 	@$(INSTALL) $(GAP_RSOUND_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_RSOUND_NAME)
 endif
-	@echo "  Installing Headers ..."
+	@echo "  Installing Headers ..."	
 	@$(INSTALL) -d $(includedir)/$(GAP_INTERFACE)
 	@$(INSTALL) -m 644 include/ap.h $(includedir)/$(GAP_INTERFACE)/ap.h
 	@$(INSTALL) -m 644 include/ap_event.h $(includedir)/$(GAP_INTERFACE)/ap_event.h
@@ -230,7 +230,7 @@ endif
 	@$(INSTALL) -m 644 include/ap_version.h $(includedir)/$(GAP_INTERFACE)/ap_version.h
 	@echo "  Installing pkg-config ..."
 	@$(INSTALL) -d $(libdir)/pkgconfig
-	@$(INSTALL) -m 644 libgap-$(GAP_MAJOR).pc $(libdir)/pkgconfig/libgap-$(GAP_MAJOR).pc
+	@$(INSTALL) -m 644 src/libgap-$(GAP_MAJOR).pc $(libdir)/pkgconfig/libgap-$(GAP_MAJOR).pc
 	@echo "  Done!"
 
 uninstall:
@@ -251,18 +251,18 @@ endif
 ifneq (,$(findstring jack,$(PLUGINS)))
 	rm -f $(libdir)/$(GAP_INTERFACE)/$(GAP_JACK_NAME)
 endif
-	rmdir $(libdir)/gap
+	rmdir $(libdir)/$(GAP_INTERFACE)
 	@echo "  Removing Headers ..."
 	rm $(includedir)/$(GAP_INTERFACE)/*.h
-	rmdir $(includedir)/gap
+	rmdir $(includedir)/$(GAP_INTERFACE)
 	@echo "Removing pkg-config ..."
-	rm $(libdir)/pkgconfig/libgap.pc
+	rm $(libdir)/pkgconfig/libgap-$(GAP_MAJOR).pc
 	rmdir $(libdir)/pkgconfig
 
 
 # Clean
 #----------------------------------------------------------
-clean :
+clean:
 	@echo "  Remove Executables ..."
 	@rm -f $(GAP_LIBRARY)
 	@rm -f $(GAP_ALSA_PLUGIN)
@@ -278,9 +278,10 @@ clean :
 	@rm -f src/*.d
 #----------------------------------------------------------
 
-realclean :
+realclean:
 	@echo "  Remove Configuration ..."
 	@rm -f config.make
+	@rm -f src/libgap-$(GAP_MAJOR).pc
 
 
 dist: clean realclean
