@@ -7,6 +7,12 @@
 
 namespace ap {
 
+void ap_get_version(FXuchar & major,FXuchar & minor) {
+  major=AP_MAJOR;
+  minor=AP_MINOR;
+  }
+
+
 void ap_set_thread_name(const FXchar * name) {
 #ifdef __linux__
   prctl(PR_SET_NAME,(unsigned long)name,0,0,0);
