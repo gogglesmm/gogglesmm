@@ -24,7 +24,6 @@ protected:
     FLAG_PARSED = 0x1,
     };
 public:
-public:
   InputPlugin(AudioEngine*);
   virtual FXbool init()=0;
   virtual FXbool can_seek() const { return false; }
