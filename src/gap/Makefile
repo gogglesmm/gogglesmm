@@ -220,7 +220,7 @@ endif
 ifneq (,$(findstring rsound,$(PLUGINS)))
 	@$(INSTALL) $(GAP_RSOUND_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_RSOUND_NAME)
 endif
-	@echo "  Installing Headers ..."	
+	@echo "  Installing Headers ..."
 	@$(INSTALL) -d $(includedir)/$(GAP_INTERFACE)
 	@$(INSTALL) -m 644 include/ap.h $(includedir)/$(GAP_INTERFACE)/ap.h
 	@$(INSTALL) -m 644 include/ap_event.h $(includedir)/$(GAP_INTERFACE)/ap_event.h
@@ -281,6 +281,8 @@ clean:
 realclean:
 	@echo "  Remove Configuration ..."
 	@rm -f config.make
+	@rm -f include/ap_version.h
+	@rm -f src/ap_config.h
 	@rm -f src/libgap-$(GAP_MAJOR).pc
 
 
