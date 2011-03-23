@@ -2,6 +2,7 @@
 #include "ap_utils.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
+#include "ap_device.h"
 #include "ap_event.h"
 #include "ap_event_private.h"
 #include "ap_memory_buffer.h"

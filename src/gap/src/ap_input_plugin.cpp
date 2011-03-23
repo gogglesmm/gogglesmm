@@ -12,7 +12,6 @@
 #include "ap_input_thread.h"
 #include "ap_decoder_plugin.h"
 #include "ap_decoder_thread.h"
-#include "ap_output_plugin.h"
 
 using namespace ap;
 

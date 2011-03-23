@@ -1,6 +1,7 @@
 #include "ap_defs.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
+#include "ap_device.h"
 #include "ap_event.h"
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
@@ -77,6 +78,7 @@ void AudioPlayer::close() {
   engine->input->post(new ControlEvent(Ctrl_Close),EventQueue::Front);
   }
 
+/*
 void AudioPlayer::setOutputPlugin(const FXString & plugin) {
   FXASSERT(engine->input->running());
   engine->output->post(new ControlEvent(Ctrl_Output_Plugin,plugin),EventQueue::Front);
@@ -85,5 +87,17 @@ void AudioPlayer::setOutputPlugin(const FXString & plugin) {
 FXString AudioPlayer::getOutputPlugin() const {
   return engine->output->getOutputPlugin();
   }
+*/
+
+void AudioPlayer::getOutputConfig(OutputConfig & config) {
+  FXASSERT(engine->output->running());
+  return engine->output->getOutputConfig(config);
+  }
+
+void AudioPlayer::setOutputConfig(const OutputConfig & config) {
+  FXASSERT(engine->output->running());
+  engine->output->post(new OutputConfigEvent(config),EventQueue::Front);
+  }
+
 
 }

@@ -14,7 +14,7 @@ enum EventTypePrivate {
   Ctrl_Quit,
   Ctrl_Seek,
   Ctrl_EOS,
-  Ctrl_Output_Plugin,
+  Ctrl_Output_Config,
   Ctrl_Volume,
   Packet_Configure,
   Packet_Data,
@@ -60,6 +60,17 @@ public:
   ControlEvent(FXuchar type,const FXString & t=FXString::null);
   ControlEvent(FXuchar type,FXuint id);
   };
+
+
+class OutputConfigEvent : public Event {
+public:
+  OutputConfig config;
+protected:
+  virtual ~OutputConfigEvent() {}
+public:
+  OutputConfigEvent(const OutputConfig & cfg) : Event(Ctrl_Output_Config), config(cfg) {}
+  };
+
 
 
 /*

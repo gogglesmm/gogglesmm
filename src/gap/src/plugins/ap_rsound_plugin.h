@@ -38,6 +38,9 @@ public:
   /// Close Output
   void close();
 
+  /// Get Device Type
+  FXuchar type() const { return DeviceRSound; }
+
   /// Destructor
   virtual ~RSoundOutput();
   };

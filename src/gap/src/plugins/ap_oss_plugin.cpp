@@ -3,6 +3,7 @@
 #include "ap_utils.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
+#include "ap_device.h"
 #include "ap_event.h"
 #include "ap_memory_buffer.h"
 #include "ap_packet.h"
@@ -73,11 +74,7 @@ static FXbool to_oss_format(const AudioFormat & af,FXint & oss_format){
 
 
 
-OSSOutput::OSSOutput() : OutputPlugin(), handle(BadHandle),
-  device("/dev/dsp1"),  // "plug:front";
-//  device("front"),
-  use_hw_samplerate(false),
-  use_mmap(true) {
+OSSOutput::OSSOutput() : OutputPlugin(), handle(BadHandle) {
   }
 
 OSSOutput::~OSSOutput() {
@@ -88,11 +85,11 @@ OSSOutput::~OSSOutput() {
 FXbool OSSOutput::open() {
   if (handle==BadHandle) {
 
-    ap_get_device(device);
+//    ap_get_device(device);
 
-    handle = ::open(device.text(),O_WRONLY);
+    handle = ::open(config.device.text(),O_WRONLY);
     if (handle==BadHandle) {
-      fxmessage("Unable to open device %s.\nError:%s\n",device.text(),strerror(errno));
+      fxmessage("Unable to open device %s.\nError:%s\n",config.device.text(),strerror(errno));
       return false;
       }
     }

@@ -7,12 +7,14 @@ class AudioEngine;
 class OutputPlugin;
 class Packet;
 
+
+
 class OutputThread : public EngineThread {
 protected:
   Event * wait_for_packet();
   Event * wait_for_event();
 protected:
-  FXString       output_config;
+  OutputConfig   output_config;
 public:
   AudioFormat    af;
   OutputPlugin * plugin;
@@ -45,13 +47,15 @@ protected:
   void update_position(FXint stream,FXint position,FXint nframes,FXint length);
   void notify_position();
   void reset_position();
+
+  void reconfigure();
 public:
   OutputThread(AudioEngine*);
   virtual FXint process(Event*);
   virtual FXint run();
   virtual ~OutputThread();
 public:
-  FXString getOutputPlugin() const;
+  void getOutputConfig(OutputConfig & config);
   };
 
 }

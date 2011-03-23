@@ -4,6 +4,7 @@
 #include "ap_pipe.h"
 #include "ap_event.h"
 #include "ap_format.h"
+#include "ap_device.h"
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
@@ -27,6 +28,7 @@
 
 namespace ap {
 
+
 OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),processing(false) {
   stream=-1;
   stream_remaining=0;
@@ -34,12 +36,13 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),proces
   stream_position=0;
   timestamp=-1;
 
+/*
 #ifdef __linux___
   output_config = ap_get_environment("GAP_OUTPUT_PLUGIN","alsa");
 #else
   output_config = ap_get_environment("GAP_OUTPUT_PLUGIN","oss");
 #endif
-
+*/
   }
 
 OutputThread::~OutputThread() {
@@ -47,9 +50,9 @@ OutputThread::~OutputThread() {
   }
 
 
-FXString OutputThread::getOutputPlugin() const {
+void OutputThread::getOutputConfig(OutputConfig & config) {
   //FIXME needs mutex for protection
-  return output_config;
+  config=output_config;
   }
 
 
@@ -58,6 +61,12 @@ FXint OutputThread::process(Event*){
   }
 
 
+
+void OutputThread::reconfigure() {
+  AudioFormat old=af;
+  af.reset();
+  configure(old);
+  }
 
 
 void OutputThread::notify_position() {
@@ -216,8 +225,13 @@ Event * OutputThread::wait_for_event() {
 void OutputThread::load_plugin() {
   typedef OutputPlugin*  (*ap_load_plugin_t)();
 
+  if (output_config.device==DeviceNone) {
+    fxmessage("[output] no output plugin defined\n");
+    return;
+    }
+
   FXString plugin_name = AP_PLUGIN_PATH;
-  FXString plugin_dll = "gap_plugin_" + output_config;
+  FXString plugin_dll = "gap_plugin_" + output_config.plugin();
 
   plugin_name += PATHSEPSTRING + FXSystem::dllName(plugin_dll);
   if (!FXStat::exists(plugin_name))
@@ -228,15 +242,18 @@ void OutputThread::load_plugin() {
     }
 
   if (!dll.loaded() && !dll.load(plugin_name)) {
-    fxmessage("[output]: unable to load %s\nreason: %s\n",plugin_name.text(),dll.error().text());
+    fxmessage("[output] unable to load %s\nreason: %s\n",plugin_name.text(),dll.error().text());
     return;
     }
 
   ap_load_plugin_t ap_load_plugin = (ap_load_plugin_t) dll.address("ap_load_plugin");
   if (ap_load_plugin==NULL || (plugin=ap_load_plugin())==NULL) {
-    fxmessage("output: incompatible plugin\n");
+    fxmessage("[output] incompatible plugin\n");
     dll.unload();
     }
+
+  /// Set Device Config
+  plugin->setDeviceConfig(output_config.deviceConfig());
   }
 
 void OutputThread::unload_plugin() {
@@ -640,23 +657,77 @@ FXint OutputThread::run(){
                         Event::unref(event);
                         return 0;
 
-      case Ctrl_Output_Plugin:
+      case Ctrl_Output_Config:
                         {
-                          ControlEvent * ctrl = dynamic_cast<ControlEvent*>(event);
-                          output_config = ctrl->text;
+                          fxmessage("[output] new device config");
+                          OutputConfigEvent * out = dynamic_cast<OutputConfigEvent*>(event);
+                          output_config = out->config;
 
-                          if (processing)
-                           drain(true);
+                          //setDeviceConfig(dce->config);
 
-                          unload_plugin();
+                          if (plugin) {
+                            if (plugin->type()==output_config.device) {
+                              if (processing) {
+                                drain(true);
+                                plugin->close();
+                                plugin->setDeviceConfig(output_config.deviceConfig());
+                                reconfigure();
+                                }
+                              else {
+                                close_plugin();
+                                plugin->setDeviceConfig(output_config.deviceConfig());
+                                }
+                              }
+                            else {
+                              if (processing)
+                                drain(true);
 
-                          if (processing) {
-                            AudioFormat old=af;
-                            af.reset();
-                            configure(old);
+                              unload_plugin();
+
+                              if (processing)
+                                reconfigure();
+                              }
                             }
-                        }
-                        break;
+
+
+
+
+
+/*
+                          if (plugin) {
+                            if (plugin->deviceType()==dce->deviceType()) {
+                              if (plugin->setDeviceConfig(dce->getConfig()) {
+                                if (processing) {
+                                  drain(true);
+                                  plugin->close();
+                                  AudioFormat old=af;
+                                  af.reset();
+                                  configure(old);
+                                  }
+                                else {
+                                  close_plugin();
+                                  }
+                                }
+                              }
+                            else {
+                              if (processing)
+                                drain(true);
+
+                              close_plugin();
+                              }
+                            }
+*/
+
+
+
+
+
+
+
+
+                        } break;
+
+
       case Configure  : configure(((ConfigureEvent*)event)->af);
                         break;
       case Buffer     : if (processing)

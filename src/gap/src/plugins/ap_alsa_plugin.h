@@ -12,9 +12,7 @@ protected:
   snd_mixer_t       * mixer;
   snd_mixer_elem_t  * mixer_element;
 protected:
-  FXString device;
-  FXbool   use_hw_samplerate;
-  FXbool   use_mmap;
+  AlsaConfig config;
   FXbool   can_pause;
   FXbool   can_resume;
 protected:
@@ -46,10 +44,16 @@ public:
   /// Close Output
   void close();
 
+  /// Get Device Type
+  FXuchar type() const { return DeviceAlsa; }
+
+  /// Set Config
+  FXbool setDeviceConfig(DeviceConfig*);
+
   /// Destructor
   virtual ~AlsaOutput();
   };
-  
-}  
+
+}
 #endif
 #endif

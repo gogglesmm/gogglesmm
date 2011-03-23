@@ -11,6 +11,7 @@
 #include <ap_event.h>
 #include <ap_event_queue.h>
 #include <ap_app_queue.h>
+#include <ap_device.h>
 #include <ap_player.h>
 
 using namespace ap;

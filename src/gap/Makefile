@@ -81,6 +81,7 @@ src/ap_pipe.cpp \
 src/ap_utils.cpp \
 src/ap_convert.cpp \
 src/ap_format.cpp \
+src/ap_device.cpp \
 src/ap_decoder_plugin.cpp \
 src/ap_thread.cpp \
 src/ap_input_plugin.cpp \
@@ -228,6 +229,7 @@ endif
 	@$(INSTALL) -m 644 include/ap_app_queue.h $(includedir)/$(GAP_INTERFACE)/ap_app_queue.h
 	@$(INSTALL) -m 644 include/ap_player.h $(includedir)/$(GAP_INTERFACE)/ap_player.h
 	@$(INSTALL) -m 644 include/ap_version.h $(includedir)/$(GAP_INTERFACE)/ap_version.h
+	@$(INSTALL) -m 644 include/ap_device.h $(includedir)/$(GAP_INTERFACE)/ap_device.h
 	@echo "  Installing pkg-config ..."
 	@$(INSTALL) -d $(libdir)/pkgconfig
 	@$(INSTALL) -m 644 src/libgap-$(GAP_MAJOR).pc $(libdir)/pkgconfig/libgap-$(GAP_MAJOR).pc

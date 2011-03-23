@@ -41,11 +41,11 @@ public:
   /// Change Volume
   void volume(FXfloat v);
 
-  /// Set the output plugin
-  void setOutputPlugin(const FXString &);
+  /// Get the output configuration
+  void getOutputConfig(OutputConfig & config);
 
-  /// Get the output plugin
-  FXString getOutputPlugin() const;
+  /// Set the output configuration
+  void setOutputConfig(const OutputConfig & config);
 
   Event * pop();
 

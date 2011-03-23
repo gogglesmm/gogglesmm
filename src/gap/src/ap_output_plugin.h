@@ -3,12 +3,19 @@
 
 namespace ap {
 
+class DeviceConfig;
+
 class GMAPI OutputPlugin {
 public:
   AudioFormat af;
 public:
   /// Constructor
   OutputPlugin() {}
+
+  virtual FXuchar type() const=0;
+
+  /// Set Device Configuration
+  virtual FXbool setDeviceConfig(DeviceConfig*) { return false; }
 
   /// Configure
   virtual FXbool configure(const AudioFormat &)=0;

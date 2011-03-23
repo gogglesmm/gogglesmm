@@ -10,11 +10,11 @@
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
 #include "ap_thread.h"
+#include "ap_device.h"
 #include "ap_input_plugin.h"
 #include "ap_output_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_decoder_thread.h"
-
 #include "ap_alsa_plugin.h"
 
 #define ALSA_VERSION(major,minor,patch) ((major<<16)|(minor<<8)|patch)
@@ -68,10 +68,7 @@ static void alsa_list_devices() {
 
 
 
-AlsaOutput::AlsaOutput() : OutputPlugin(), handle(NULL),mixer(NULL),mixer_element(NULL),
-  device("default"),
-  use_hw_samplerate(false),
-  use_mmap(true) {
+AlsaOutput::AlsaOutput() : OutputPlugin(), handle(NULL),mixer(NULL),mixer_element(NULL) {
   }
 
 AlsaOutput::~AlsaOutput() {
@@ -79,16 +76,28 @@ AlsaOutput::~AlsaOutput() {
   }
 
 
+FXbool AlsaOutput::setDeviceConfig(DeviceConfig * cfg) {
+  AlsaConfig * a = dynamic_cast<AlsaConfig*>(cfg);
+  if (a) {
+ //   if ((*a)!=config) {
+      config=(*a);
+      //fxmessage("new config: %s\n",config.getDevice().text());
+            return true;
+ //     }
+    }
+  return false;
+  }
+
 FXbool AlsaOutput::open() {
   FXint result;
   if (handle==NULL) {
 
-    ap_get_device(device);
-
-    if ((result=snd_pcm_open(&handle,device.text(),SND_PCM_STREAM_PLAYBACK,0))<0) {
-      fxmessage("Unable to open device \"%s\": %s\n",device.text(),snd_strerror(result));
+    if ((result=snd_pcm_open(&handle,config.device.text(),SND_PCM_STREAM_PLAYBACK,0))<0) {
+      fxmessage("Unable to open device \"%s\": %s\n",config.device.text(),snd_strerror(result));
       return false;
       }
+
+    fxmessage("[alsa] open device %s\n",config.device.text());
 
     snd_pcm_info_t* info;
     snd_pcm_info_alloca(&info);
@@ -271,7 +280,7 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
     goto failed;
 
   /// Select whether we want to allow ALSA to resample
-  if (snd_pcm_hw_params_set_rate_resample(handle,hw,(use_hw_samplerate==true) ? 0 : 1 )<0){
+  if (snd_pcm_hw_params_set_rate_resample(handle,hw,(config.flags&AlsaConfig::DeviceNoResample) ? 0 : 1 )<0){
     fxmessage("Unable to set hardware sample rate only\n");
     goto failed;
     }
@@ -292,7 +301,6 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
 
     }
 
-
   /// Try to set format
   if ((snd_pcm_hw_params_set_format(handle,hw,format)<0) ||
       (snd_pcm_hw_params_set_channels_near(handle,hw,&num_channels)<0) ||
@@ -301,12 +309,14 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
     }
 
   /// Try mmap'ed access
-  if (use_mmap && snd_pcm_hw_params_set_access(handle,hw,SND_PCM_ACCESS_MMAP_INTERLEAVED)<0)
-    use_mmap=false;
+  if ((config.flags&AlsaConfig::DeviceMMap) && snd_pcm_hw_params_set_access(handle,hw,SND_PCM_ACCESS_MMAP_INTERLEAVED)<0) {
+    config.flags&=~AlsaConfig::DeviceMMap;
+    }
 
   /// Try regular access if not mmap'ed.
-  if (!use_mmap && snd_pcm_hw_params_set_access(handle,hw,SND_PCM_ACCESS_RW_INTERLEAVED)<0)
+  if (!(config.flags&AlsaConfig::DeviceMMap) && snd_pcm_hw_params_set_access(handle,hw,SND_PCM_ACCESS_RW_INTERLEAVED)<0){
     goto failed;
+    }
 
 
 /*
@@ -498,7 +508,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
         } /// intentionally no break
       default                         :
         {
-          if (use_mmap)
+          if ((config.flags&AlsaConfig::DeviceMMap))
             nwritten = snd_pcm_mmap_writei(handle,buf,nframes);
           else
             nwritten = snd_pcm_writei(handle,buf,nframes);
