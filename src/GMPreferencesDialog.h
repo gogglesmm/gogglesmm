@@ -47,7 +47,8 @@ protected:
 
   FXLabel     * alsa_device_label;
   FXTextField * alsa_device;
-
+  FXCheckButton* alsa_hardware_only;
+  FXFrame * alsa_hardware_only_frame;
   FXLabel     * alsa_mixer_label;
   FXTextField * alsa_mixer;
 
@@ -60,7 +61,7 @@ protected:
   FXLabel     * jack_device_label;
   FXTextField * jack_device;
 protected:
-  void showDriverSettings(const FXString & driver);
+  void showDriverSettings(FXuchar driver);
 public:
   FXTextField * lastfm_username;
   FXTextField * lastfm_password;
@@ -120,6 +121,7 @@ public:
     ID_TITLE_FORMAT,
     ID_TITLE_FORMAT_LABEL,
     ID_DISPLAY_DPI,
+    ID_APPLY_AUDIO
     };
 public:
   long onCmdLastFMScrobble(FXObject*,FXSelector,void*);
@@ -141,6 +143,7 @@ public:
   long onUpdTitleFormat(FXObject*,FXSelector,void*);
   long onCmdDisplayDPI(FXObject*,FXSelector,void*);
   long onCmdIconTheme(FXObject*,FXSelector,void*);
+  long onCmdApplyAudio(FXObject*,FXSelector,void*);
 protected:
   GMPreferencesDialog(){}
 private:

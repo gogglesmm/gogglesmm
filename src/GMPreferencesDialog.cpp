@@ -262,7 +262,8 @@ FXDEFMAP(GMPreferencesDialog) GMPreferencesDialogMap[]={
   FXMAPFUNC(SEL_UPDATE,GMPreferencesDialog::ID_TITLE_FORMAT,GMPreferencesDialog::onUpdTitleFormat),
   FXMAPFUNC(SEL_UPDATE,GMPreferencesDialog::ID_TITLE_FORMAT_LABEL,GMPreferencesDialog::onUpdTitleFormat),
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_ICON_THEME,GMPreferencesDialog::onCmdIconTheme),
-  FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_DISPLAY_DPI,GMPreferencesDialog::onCmdDisplayDPI)
+  FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_DISPLAY_DPI,GMPreferencesDialog::onCmdDisplayDPI),
+  FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_APPLY_AUDIO,GMPreferencesDialog::onCmdApplyAudio)
   };
 
 FXIMPLEMENT(GMPreferencesDialog,FXDialogBox,GMPreferencesDialogMap,ARRAYNUMBER(GMPreferencesDialogMap))
@@ -672,7 +673,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   new GMButton(matrix,tr("Apply Changes"),NULL,0);
 
   /// Show Correct Switcher Pane
-  showDriverSettings(current);
+  //showDriverSettings(current);
 
   new GMCheckButton(grpbox,tr("Close audio device on pause."),&target_pause_close_device,FXDataTarget::ID_VALUE);
   new GMCheckButton(grpbox,tr("Turn off playback engine on stop."),&target_close_audio,FXDataTarget::ID_VALUE);
@@ -709,14 +710,57 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   new FXLabel(matrix,tr("Driver:"),NULL,labelstyle);
 
   driverlist = new GMListBox(matrix,this,ID_AUDIO_DRIVER);
-  driverlist->appendItem("alsa");
-  driverlist->appendItem("oss");  
-  driverlist->appendItem("pulse");  
-  driverlist->appendItem("rsound");  
-  driverlist->appendItem("jack");  
-  driverlist->setCurrentItem(driverlist->findItem(GMPlayerManager::instance()->getPlayer()->getOutputPlugin()));
+
+  OutputConfig config;
+  GMPlayerManager::instance()->getPlayer()->getOutputConfig(config);
+
+  FXStringList drivers;
+  FXuint plugins=DeviceConfig::devices();
+
+  if (plugins&(1<<DeviceAlsa))
+    driverlist->appendItem("Advanced Linux Sound Architecture",NULL,(void*)DeviceAlsa);
+
+  if (plugins&(1<<DeviceOSS))
+    driverlist->appendItem("Open Sound System",NULL,(void*)DeviceOSS);
+
+  if (plugins&(1<<DevicePulse))
+    driverlist->appendItem("PulseAudio",NULL,(void*)DevicePulse);
+
+  if (plugins&(1<<DeviceJack))
+    driverlist->appendItem("Jack",NULL,(void*)DeviceJack);
+
+  if (plugins&(1<<DeviceRSound))
+    driverlist->appendItem("RSound",NULL,(void*)DeviceRSound);
+
+  driverlist->setCurrentItem(driverlist->findItemByData((void*)(FXival)config.device));
   driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
-  
+
+  /// Alsa
+  alsa_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
+  alsa_device = new GMTextField(matrix,20);
+  alsa_device->setText(config.alsa.device);
+
+  alsa_hardware_only_frame = new FXFrame(matrix,FRAME_NONE);
+  alsa_hardware_only = new GMCheckButton(matrix,"No resampling");
+
+  /// OSS
+  oss_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
+  oss_device = new GMTextField(matrix,20);
+  oss_device->setText(config.oss.device);
+
+  /// Pulse
+  pulse_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
+  pulse_device = new GMTextField(matrix,20);
+
+  /// Jack
+  jack_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
+  jack_device = new GMTextField(matrix,20);
+
+
+  showDriverSettings(config.device);
+
+  new FXFrame(matrix,FRAME_NONE);
+  new GMButton(matrix,tr("Apply Changes"),NULL,this,ID_APPLY_AUDIO);
 #endif
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
@@ -745,85 +789,115 @@ long GMPreferencesDialog::onCmdDisplayDPI(FXObject*,FXSelector,void*ptr){
   return 1;
   }
 
-void GMPreferencesDialog::showDriverSettings(const FXString & driver) {
-  if (comparecase(driver,"alsa")==0) {
-    alsa_device_label->show();
-    alsa_device->show();
-    alsa_mixer_label->show();
-    alsa_mixer->show();
+void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
+  switch(driver) {
+    case DeviceAlsa:
+      {
+        alsa_device_label->show();
+        alsa_device->show();
+        alsa_hardware_only->show();
+        alsa_hardware_only_frame->show();
+
+//        alsa_mixer_label->show();
+//        alsa_mixer->show();
+        oss_device->hide();
+        oss_device_label->hide();
+        pulse_device->hide();
+        pulse_device_label->hide();
+        jack_device->hide();
+        jack_device_label->hide();
+      } break;
+
+    case DeviceOSS:
+      {
+        alsa_device_label->hide();
+        alsa_device->hide();
+        alsa_hardware_only->hide();
+        alsa_hardware_only_frame->hide();        
+//        alsa_mixer_label->hide();
+//        alsa_mixer->hide();
+        oss_device->show();
+        oss_device_label->show();
+        pulse_device->hide();
+        pulse_device_label->hide();
+        jack_device->hide();
+        jack_device_label->hide();
+      } break;
+
+    case DevicePulse:
+      {
+        alsa_device_label->hide();
+        alsa_device->hide();
+        alsa_hardware_only->hide();
+        alsa_hardware_only_frame->hide();        
+//        alsa_mixer_label->hide();
+//        alsa_mixer->hide();
+        oss_device->hide();
+        oss_device_label->hide();
+        pulse_device->show();
+        pulse_device_label->show();
+        jack_device->hide();
+        jack_device_label->hide();
+      } break;
+
+    case DeviceJack:
+      {
+        alsa_device_label->hide();
+        alsa_device->hide();
+        alsa_hardware_only->hide();
+        alsa_hardware_only_frame->hide();        
+//        alsa_mixer_label->hide();
+//        alsa_mixer->hide();
+        oss_device->hide();
+        oss_device_label->hide();
+        pulse_device->hide();
+        pulse_device_label->hide();
+        jack_device->show();
+        jack_device_label->show();
+      } break;
+    default:
+      {
+        alsa_device_label->hide();
+        alsa_device->hide();
+        alsa_hardware_only->hide();
+        alsa_hardware_only_frame->hide();        
+//    alsa_mixer_label->hide();
+//    alsa_mixer->hide();
     oss_device->hide();
     oss_device_label->hide();
     pulse_device->hide();
     pulse_device_label->hide();
     jack_device->hide();
     jack_device_label->hide();
-    }
-  else if (comparecase(driver,"oss")==0) {
-    alsa_device_label->hide();
-    alsa_device->hide();
-    alsa_mixer_label->hide();
-    alsa_mixer->hide();
-    oss_device->show();
-    oss_device_label->show();
-    pulse_device->hide();
-    pulse_device_label->hide();
-    jack_device->hide();
-    jack_device_label->hide();
-    }
-  else if (comparecase(driver,"pulse")==0) {
-    alsa_device_label->hide();
-    alsa_device->hide();
-    alsa_mixer_label->hide();
-    alsa_mixer->hide();
-    oss_device->hide();
-    oss_device_label->hide();
-    pulse_device->show();
-    pulse_device_label->show();
-    jack_device->hide();
-    jack_device_label->hide();
-    }
-  else if (comparecase(driver,"jack")==0) {
-    alsa_device_label->hide();
-    alsa_device->hide();
-    alsa_mixer_label->hide();
-    alsa_mixer->hide();
-    oss_device->hide();
-    oss_device_label->hide();
-    pulse_device->hide();
-    pulse_device_label->hide();
-    jack_device->show();
-    jack_device_label->show();
-    }
-  else {
-    alsa_device_label->hide();
-    alsa_device->hide();
-    alsa_mixer_label->hide();
-    alsa_mixer->hide();
-    oss_device->hide();
-    oss_device_label->hide();
-    pulse_device->hide();
-    pulse_device_label->hide();
-    jack_device->hide();
-    jack_device_label->hide();
+      } break;
+
     }
 
+  }
 
-/*
-  if (comparecase(driver,"alsa")==0)
-    driverswitcher->setCurrent(ALSA_DRIVER);
-  else if (comparecase(driver,"oss")==0)
-    driverswitcher->setCurrent(OSS_DRIVER);
-  else if (comparecase(driver,"pulse")==0)
-    driverswitcher->setCurrent(PULSE_DRIVER);
-  else if (comparecase(driver,"jack")==0)
-    driverswitcher->setCurrent(JACK_DRIVER);
+
+long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
+  fxmessage("applying audio\n");
+
+
+  OutputConfig config;
+  GMPlayerManager::instance()->getPlayer()->getOutputConfig(config);
+
+  config.device = (FXuchar)(FXival)driverlist->getItemData(driverlist->getCurrentItem());
+
+  /// Alsa Settings
+  config.alsa.device = alsa_device->getText();
+  if (alsa_hardware_only->getCheck())
+    config.alsa.flags|=AlsaConfig::DeviceNoResample;
   else
-    driverswitcher->setCurrent(OTHER_DRIVER);
-*/
+    config.alsa.flags&=~AlsaConfig::DeviceNoResample;
+
+  GMPlayerManager::instance()->getPlayer()->setOutputConfig(config);
+  return 1;
   }
 
 long GMPreferencesDialog::onCmdAudioDriver(FXObject*,FXSelector,void*){
-  FXString selected=driverlist->getItemText(driverlist->getCurrentItem());
+
 
 
 
@@ -868,6 +942,9 @@ Device  audio.device.oss_device_name
 
 #ifdef HAVE_XINE_LIB
 
+#if 0
+
+ FXString selected=driverlist->getItemText(driverlist->getCurrentItem());
   FXString current;
   FXString available;
 
@@ -897,8 +974,13 @@ Device  audio.device.oss_device_name
     driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
     showDriverSettings(current);
     }
+#endif
 #else
-  GMPlayerManager::instance()->getPlayer()->setOutputPlugin(selected);    
+  FXuchar device=(FXuchar)(FXival)driverlist->getItemData(driverlist->getCurrentItem());
+  showDriverSettings(device);
+
+
+  //GMPlayerManager::instance()->getPlayer()->setOutputPlugin(selected);
 #endif
   return 1;
   }
