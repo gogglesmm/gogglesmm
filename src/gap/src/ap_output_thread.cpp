@@ -35,14 +35,6 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),proces
   stream_written=0;
   stream_position=0;
   timestamp=-1;
-
-/*
-#ifdef __linux___
-  output_config = ap_get_environment("GAP_OUTPUT_PLUGIN","alsa");
-#else
-  output_config = ap_get_environment("GAP_OUTPUT_PLUGIN","oss");
-#endif
-*/
   }
 
 OutputThread::~OutputThread() {

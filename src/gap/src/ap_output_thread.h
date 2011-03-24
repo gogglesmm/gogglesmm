@@ -7,8 +7,6 @@ class AudioEngine;
 class OutputPlugin;
 class Packet;
 
-
-
 class OutputThread : public EngineThread {
 protected:
   Event * wait_for_packet();

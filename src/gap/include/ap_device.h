@@ -49,7 +49,7 @@ class GMAPI OutputConfig {
 public:
   AlsaConfig  alsa;
   OSSConfig   oss;
-  FXuchar     device;
+  FXchar      device;
 public:
   OutputConfig();
   FXString plugin() const;
