@@ -3,8 +3,6 @@
 
 namespace ap {
 
-class DeviceConfig;
-
 class GMAPI OutputPlugin {
 public:
   AudioFormat af;
