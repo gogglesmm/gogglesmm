@@ -57,7 +57,7 @@ OutputConfig::OutputConfig() {
 #elif defined(HAVE_OSS_PLUGIN)
   device=DeviceOSS;
 #elif defined(HAVE_ALSA_PLUGIN)
-  device=DeviceOSS;
+  device=DeviceAlsa;
 #elif defined(HAVE_PULSE_PLUGIN)
   device=DevicePulse;
 #elif defined(HAVE_JACK_PLUGIN)
