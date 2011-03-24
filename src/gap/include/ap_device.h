@@ -15,7 +15,6 @@ enum {
 class GMAPI DeviceConfig {
 public:
   DeviceConfig();
-  virtual FXuchar type() const;
   virtual ~DeviceConfig();
 public:
   static FXuint devices();
@@ -33,7 +32,6 @@ public:
 public:
   AlsaConfig();
   AlsaConfig(const FXString & d,FXuint f=0);
-  virtual FXuchar type() const;
   virtual ~AlsaConfig();
   };
 
@@ -44,7 +42,6 @@ public:
 public:
   OSSConfig();
   OSSConfig(const FXString & d);
-  virtual FXuchar type() const;
   virtual ~OSSConfig();
   };
 
@@ -56,7 +53,6 @@ public:
 public:
   OutputConfig();
   FXString plugin() const;
-  DeviceConfig* deviceConfig();
   };
 
 

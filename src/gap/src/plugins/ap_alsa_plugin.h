@@ -45,10 +45,10 @@ public:
   void close();
 
   /// Get Device Type
-  FXuchar type() const { return DeviceAlsa; }
+  FXchar type() const { return DeviceAlsa; }
 
-  /// Set Config
-  FXbool setDeviceConfig(DeviceConfig*);
+  /// Set Device Configuration
+  FXbool setOutputConfig(const OutputConfig &);
 
   /// Destructor
   virtual ~AlsaOutput();

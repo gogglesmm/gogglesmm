@@ -76,16 +76,9 @@ AlsaOutput::~AlsaOutput() {
   }
 
 
-FXbool AlsaOutput::setDeviceConfig(DeviceConfig * cfg) {
-  AlsaConfig * a = dynamic_cast<AlsaConfig*>(cfg);
-  if (a) {
- //   if ((*a)!=config) {
-      config=(*a);
-      //fxmessage("new config: %s\n",config.getDevice().text());
-            return true;
- //     }
-    }
-  return false;
+FXbool AlsaOutput::setOutputConfig(const OutputConfig & c) {
+  config=c.alsa;
+  return true;
   }
 
 FXbool AlsaOutput::open() {

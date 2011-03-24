@@ -9,10 +9,6 @@ DeviceConfig:: DeviceConfig() {
 DeviceConfig::~DeviceConfig(){
   }
 
-FXuchar DeviceConfig::type() const {
-  return DeviceNone;
-  }
-
 FXuint DeviceConfig::devices() {
   FXuint plugins=0;
 #ifdef HAVE_ALSA_PLUGIN
@@ -44,10 +40,6 @@ AlsaConfig::AlsaConfig(const FXString & d,FXuint f) : device(d),flags(0) {
 AlsaConfig::~AlsaConfig(){
   }
 
-FXuchar AlsaConfig::type() const {
-  return DeviceAlsa;
-  }
-
 
 OSSConfig::OSSConfig() : device("/dev/dsp") {
   }
@@ -58,15 +50,13 @@ OSSConfig::OSSConfig(const FXString & d): device(d) {
 OSSConfig::~OSSConfig(){
   }
 
-FXuchar OSSConfig::type() const {
-  return DeviceOSS;
-  }
-
 
 OutputConfig::OutputConfig() {
 #if defined(__linux__) && defined(HAVE_ALSA_PLUGIN)
   device=DeviceAlsa;
 #elif defined(HAVE_OSS_PLUGIN)
+  device=DeviceOSS;
+#elif defined(HAVE_ALSA_PLUGIN)
   device=DeviceOSS;
 #elif defined(HAVE_PULSE_PLUGIN)
   device=DevicePulse;
@@ -79,17 +69,6 @@ OutputConfig::OutputConfig() {
 #endif
   }
 
-DeviceConfig* OutputConfig::deviceConfig() {
-  switch(device) {
-    case DeviceAlsa  : return &alsa;         break;
-    case DeviceOSS   : return &oss;          break;
-    case DevicePulse : return NULL;          break;
-    case DeviceJack  : return NULL;          break;
-    case DeviceRSound: return NULL;          break;
-    default          : return NULL;          break;
-    }
-  return NULL;
-  }
 
 FXString OutputConfig::plugin() const {
   switch(device) {

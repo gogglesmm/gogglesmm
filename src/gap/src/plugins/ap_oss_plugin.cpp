@@ -80,7 +80,12 @@ OSSOutput::OSSOutput() : OutputPlugin(), handle(BadHandle) {
 OSSOutput::~OSSOutput() {
   close();
   }
-
+  
+FXbool OSSOutput::setOutputConfig(const OutputConfig &c) {
+  config=c.oss;
+  return true;
+  }
+  
 
 FXbool OSSOutput::open() {
   if (handle==BadHandle) {

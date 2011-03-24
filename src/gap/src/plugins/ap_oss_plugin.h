@@ -40,7 +40,10 @@ public:
   void close();
 
   /// Get Device Type
-  FXuchar type() const { return DeviceOSS; }
+  FXchar type() const { return DeviceOSS; }
+
+  /// Set Device Configuration
+  FXbool setOutputConfig(const OutputConfig &);
 
   /// Destructor
   virtual ~OSSOutput();

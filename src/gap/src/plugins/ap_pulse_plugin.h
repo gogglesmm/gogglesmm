@@ -39,9 +39,9 @@ public:
 
   /// Close Output
   void close();
-  
+
   /// Get Device Type
-  FXuchar type() const { return DevicePulse; }
+  FXchar type() const { return DevicePulse; }
 
   /// Destructor
   virtual ~PulseOutput();

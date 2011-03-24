@@ -39,7 +39,7 @@ public:
   void close();
 
   /// Get Device Type
-  FXuchar type() const { return DeviceRSound; }
+  FXchar type() const { return DeviceRSound; }
 
   /// Destructor
   virtual ~RSoundOutput();

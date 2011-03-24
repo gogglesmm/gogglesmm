@@ -39,7 +39,7 @@ public:
   void close();
 
   /// Get Device Type
-  FXuchar type() const { return DeviceJack; }
+  FXchar type() const { return DeviceJack; }
 
   /// Destructor
   virtual ~JackOutput();

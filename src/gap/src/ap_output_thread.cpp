@@ -253,7 +253,7 @@ void OutputThread::load_plugin() {
     }
 
   /// Set Device Config
-  plugin->setDeviceConfig(output_config.deviceConfig());
+  plugin->setOutputConfig(output_config);
   }
 
 void OutputThread::unload_plugin() {
@@ -663,19 +663,17 @@ FXint OutputThread::run(){
                           OutputConfigEvent * out = dynamic_cast<OutputConfigEvent*>(event);
                           output_config = out->config;
 
-                          //setDeviceConfig(dce->config);
-
                           if (plugin) {
                             if (plugin->type()==output_config.device) {
                               if (processing) {
                                 drain(true);
                                 plugin->close();
-                                plugin->setDeviceConfig(output_config.deviceConfig());
+                                plugin->setOutputConfig(output_config);
                                 reconfigure();
                                 }
                               else {
                                 close_plugin();
-                                plugin->setDeviceConfig(output_config.deviceConfig());
+                                plugin->setOutputConfig(output_config);
                                 }
                               }
                             else {
@@ -688,43 +686,6 @@ FXint OutputThread::run(){
                                 reconfigure();
                               }
                             }
-
-
-
-
-
-/*
-                          if (plugin) {
-                            if (plugin->deviceType()==dce->deviceType()) {
-                              if (plugin->setDeviceConfig(dce->getConfig()) {
-                                if (processing) {
-                                  drain(true);
-                                  plugin->close();
-                                  AudioFormat old=af;
-                                  af.reset();
-                                  configure(old);
-                                  }
-                                else {
-                                  close_plugin();
-                                  }
-                                }
-                              }
-                            else {
-                              if (processing)
-                                drain(true);
-
-                              close_plugin();
-                              }
-                            }
-*/
-
-
-
-
-
-
-
-
                         } break;
 
 

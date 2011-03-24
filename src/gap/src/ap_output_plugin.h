@@ -12,10 +12,10 @@ public:
   /// Constructor
   OutputPlugin() {}
 
-  virtual FXuchar type() const=0;
+  virtual FXchar type() const=0;
 
   /// Set Device Configuration
-  virtual FXbool setDeviceConfig(DeviceConfig*) { return false; }
+  virtual FXbool setOutputConfig(const OutputConfig &) { return false; }
 
   /// Configure
   virtual FXbool configure(const AudioFormat &)=0;
