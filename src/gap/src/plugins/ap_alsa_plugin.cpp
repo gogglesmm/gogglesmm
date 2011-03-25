@@ -90,7 +90,7 @@ FXbool AlsaOutput::open() {
       return false;
       }
 
-    fxmessage("[alsa] open device %s\n",config.device.text());
+    fxmessage("[alsa] opened device \"%s\"\n",config.device.text());
 
     snd_pcm_info_t* info;
     snd_pcm_info_alloca(&info);
