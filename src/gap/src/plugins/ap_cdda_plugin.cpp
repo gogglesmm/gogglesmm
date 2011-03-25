@@ -62,7 +62,7 @@ namespace ap {
 
   /// Get current file position
   FXlong AudioCD::position() const {
-    return sector;
+    return sector-cdio_cddap_track_firstsector(drive,track);
     }
 
   FXlong AudioCD::position(FXlong offset,FXuint from) {
@@ -77,7 +77,7 @@ namespace ap {
     if (sector>cdio_cddap_track_lastsector(drive,track))
       return 0;
 
-    fxmessage("read sector %d %d %d\n",cdio_cddap_track_lastsector(drive,track),sector,count);
+//    fxmessage("read sector %d %d %d\n",cdio_cddap_track_lastsector(drive,track),sector,count);
 
 //    if ((sector+count)>(cdio_cddap_track_lastsector(drive,track)-1)) {
 //      count=cdio_cddap_track_lastsector(drive,track)-sector+1;
@@ -174,7 +174,7 @@ InputStatus CDDAInput::process(Packet * packet) {
     packet->stream_position=stream_position;
     packet->stream_length=(engine->input->size()*CDIO_CD_FRAMESIZE_RAW)/af.framesize();
 //    fxmessage("%ld/%ld\n",packet->stream_position,packet->stream_length);
-    stream_position+=(CDIO_CD_FRAMESIZE_RAW/af.framesize());
+    stream_position+=(nread*CDIO_CD_FRAMESIZE_RAW/af.framesize());
 
     if (engine->input->eof())
       packet->flags=FLAG_EOS;
