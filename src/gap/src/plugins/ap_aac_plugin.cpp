@@ -46,6 +46,8 @@ protected:
   InputStatus parse();
 public:
   AacInput(AudioEngine*);
+  FXuchar format() const { return Format::AAC; };
+
   FXbool init();
   FXbool can_seek() const;
   FXbool seek(FXdouble);

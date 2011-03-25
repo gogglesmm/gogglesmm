@@ -46,6 +46,7 @@ protected:
   static mpc_bool_t   mpc_input_canseek(void*);
 public:
   MusepackInput(AudioEngine*);
+  FXuchar format() const { return Format::Musepack; };
   FXbool init();
   FXbool can_seek() const;
   FXbool seek(FXdouble);

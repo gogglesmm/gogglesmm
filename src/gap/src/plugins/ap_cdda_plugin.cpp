@@ -120,7 +120,7 @@ public:
   CDDAInput(AudioEngine*);
   FXbool init();
   InputStatus process(Packet*);
-
+  FXuchar format() const { return Format::CDDA; };
   FXbool can_seek() const;
   FXbool seek(FXdouble);
   virtual ~CDDAInput();

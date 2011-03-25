@@ -68,6 +68,7 @@ protected:
   InputStatus parse_vorbis_stream();
 public:
   OggInput(AudioEngine *);
+  FXuchar format() const { return Format::OGG; };
   FXbool init();
   FXbool seek(FXdouble);
   FXbool can_seek() const;

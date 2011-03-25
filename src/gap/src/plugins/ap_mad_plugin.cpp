@@ -49,6 +49,9 @@ protected:
   FXbool parse_ape();
 public:
   MadInput(AudioEngine*);
+
+  FXuchar format() const { return Format::MP3; };
+
   FXbool init();
   FXbool can_seek() const;
   FXbool seek(FXdouble);

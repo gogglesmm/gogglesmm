@@ -25,6 +25,7 @@ protected:
     };
 public:
   InputPlugin(AudioEngine*);
+  virtual FXuchar format() const=0;
   virtual FXbool init()=0;
   virtual FXbool can_seek() const { return false; }
   virtual FXbool seek(FXdouble)=0;

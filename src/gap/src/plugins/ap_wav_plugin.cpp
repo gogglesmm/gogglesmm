@@ -30,6 +30,8 @@ public:
   FXbool init();
   InputStatus process(Packet*);
 
+  FXuchar format() const { return Format::WAV; };
+
   FXbool can_seek() const;
   FXbool seek(FXdouble);
   virtual ~WavInput();

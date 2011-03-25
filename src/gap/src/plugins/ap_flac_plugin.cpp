@@ -61,6 +61,7 @@ protected:
   InputStatus parse();
 public:
   FlacInput(AudioEngine*);
+  FXuchar format() const { return Format::FLAC; };      
   FXbool init();
   FXbool seek(FXdouble);
   FXbool can_seek() const;
