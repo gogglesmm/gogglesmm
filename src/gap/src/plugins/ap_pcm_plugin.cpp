@@ -59,17 +59,22 @@ FXbool PCMDecoder::flush() {
 DecoderStatus PCMDecoder::process(Packet*in) {
   FXASSERT(in);
   FXuint    nframes = in->numFrames();
-  FXuchar * buffer  = in->ptr();
+  FXuchar * buffer  = in->data();
   while(nframes) {
+//    fxmessage("%d nframes\n",nframes);
     if (out==NULL) {
       out = engine->decoder->get_output_packet();
       if (out==NULL) return DecoderInterrupted; // FIXME
+      out->clear();
       out->af=af;
-//      out->nframes=0;
       out->stream_position=in->stream_position;
       out->stream_length=in->stream_length;
       }
-    out->appendFrames(buffer,nframes);
+
+    FXint n=FXMIN(nframes,out->availableFrames());
+    out->appendFrames(buffer,n);
+    nframes-=n;
+    buffer+=(n*af.framesize());
     if (out->full()){
       engine->output->post(out);
       out=NULL;
@@ -78,6 +83,10 @@ DecoderStatus PCMDecoder::process(Packet*in) {
   if (out && (in->flags&FLAG_EOS)) {
     engine->output->post(out);
     out=NULL;
+    }
+  if (in->flags&FLAG_EOS) {
+    engine->output->post(new ControlEvent(Ctrl_EOS,in->stream));
+    engine->post(new Event(AP_EOS));
     }
   in->unref();
   return DecoderOk;
