@@ -855,40 +855,6 @@ GMCover * GMFileTag::getFrontCover(FXint scale,FXint crop) const {
 #endif
   return NULL;
   }
-#if 0
-void GMFileTag::setCovers(const GMCoverList & covers){
-#if TAGLIB_VERSION >= MKVERSION(1,7,0)
-  TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
-  if (flacfile) {
-    for (FXint i=0;i<covers.no();i++) {
-      TagLib::FLAC::Picture * picture = new TagLib::FLAC::Picture;
-          
-      picture->setData(cover->getData(),cover->getDataSize());
-      picture->setMimeType(cover->getMimeType());
-      picture->setDescription(cover->getDescription());
-      picture->setWidth(cover->getWidth());
-      picture->setHeight(cover->getHeight());
-      picture->setColorDepth(cover->getDepth());
-      picture->setNumColors(cover->getNumColors());
-      
-      flacfile->addPicture(picture);
-      }
-    }        
-#endif
-  if (id3v2) {
-    for (FXint i=0;i<covers.no();i++) {
-      TagLib::ID3v2::AttachedPictureFrame * frame = new TagLib::ID3v2::AttachedPictureFrame;
-      frame->setPicture(cover->getData(),cover->getDataSize());
-      frame->setMimeType(cover->getMimeType());
-      frame->setDescription(cover->getDescription());
-      frame->setType(cover->getType());  
-      id3v2->addFrame(frame);
-      }
-    }
-
-  }
-  
-#endif  
 
 FXint GMFileTag::getCovers(GMCoverList & covers,FXint scale,FXint crop) const {
 #if TAGLIB_VERSION >= MKVERSION(1,7,0)

@@ -64,10 +64,6 @@ public:
     BandLogo          = 19,
     PublisherLogo     = 20
     };
-protected: // raw data
-  FXuchar * data;
-  FXuval    size;
-  FXString  mime;
 public:
   FXImage * image;
   FXString  description;

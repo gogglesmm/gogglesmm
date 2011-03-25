@@ -122,11 +122,6 @@ FXbool GMLocalSource::track_context_menu(FXMenuPane * pane){
   }
 */
 FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* albumlist*/,const FXIntList & /*genre*/){
-
-  while(!FXStat::isDirectory(path) && !path.empty()) {
-    path=FXPath::upLevel(path);  
-    }
-
   FXDir     dir(path);
   FXStat    stat;
   FXString  name;

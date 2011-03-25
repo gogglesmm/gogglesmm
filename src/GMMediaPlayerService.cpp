@@ -513,8 +513,6 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
 
 
 DBusHandlerResult GMMediaPlayerService::mpris_filter(DBusConnection * c,DBusMessage * msg,void*){
-  fxmessage("yay\n");
-  DEBUG_DBUS_MESSAGE(msg);
   GMPlayerManager * p = GMPlayerManager::instance();
   if (dbus_message_has_interface(msg,DBUS_INTROSPECTABLE)) {
     if (dbus_message_is_method_call(msg,DBUS_INTROSPECTABLE,"Introspect")){

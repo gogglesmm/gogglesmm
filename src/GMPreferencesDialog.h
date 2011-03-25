@@ -54,9 +54,6 @@ protected:
 
   FXLabel     * oss_device_label;
   FXTextField * oss_device;
-  FXCheckButton* oss_disable_resample;
-  FXFrame *      oss_disable_resample_frame;
-  
 
   FXLabel     * pulse_device_label;
   FXTextField * pulse_device;
