@@ -1,3 +1,4 @@
+#include "ap_config.h"
 #include "ap_defs.h"
 #include "ap_utils.h"
 #include "ap_pipe.h"
@@ -359,7 +360,7 @@ FXIO * InputThread::open_cdda(const FXString & uri) {
     }
   return cdda;
   }
-#endif  
+#endif
 
 
 FXIO* InputThread::open_io(const FXString & uri) {
@@ -368,11 +369,11 @@ FXIO* InputThread::open_io(const FXString & uri) {
     ctrl_close_input();
     return open_file(uri);
     }
-#ifdef HAVE_CDDA_PLUGIN    
+#ifdef HAVE_CDDA_PLUGIN
   else if (scheme=="cdda") {
     return open_cdda(uri);
     }
-#endif    
+#endif
   else {
     return NULL;
     }

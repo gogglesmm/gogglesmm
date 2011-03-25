@@ -1,3 +1,4 @@
+#include "ap_config.h"
 #include "ap_defs.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
@@ -104,7 +105,7 @@ namespace ap {
       cdio_cddap_close(drive);
     }
 
-  void AudioCD::setTrack(FXint n) {  
+  void AudioCD::setTrack(FXint n) {
     track=n;
     sector=cdio_cddap_track_firstsector(drive,track);
     }
