@@ -226,7 +226,7 @@ static GMCover * flac_load_front_cover(const FXString & mrl,FXint scale,FXint cr
 
 
 
-GMCover::GMCover() : image(NULL), type(0) {
+GMCover::GMCover() : data(NULL),size(0), image(NULL), type(0) {
   }
 
 GMCover::GMCover(FXImage * img,FXuint t,const FXString & label) : image(img),description(label),type(t) {
@@ -238,6 +238,12 @@ GMCover::~GMCover() {
     image=NULL;
     }
   }
+
+
+
+
+
+
 
 FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers,FXint scale/*=0*/,FXint crop/*=0*/) {
   GM_TICKS_START();

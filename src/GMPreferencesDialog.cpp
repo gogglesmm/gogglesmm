@@ -715,7 +715,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   GMPlayerManager::instance()->getPlayer()->getOutputConfig(config);
 
   FXStringList drivers;
-  FXuint plugins=DeviceConfig::devices();
+  FXuint plugins=OutputConfig::devices();
 
   if (plugins&(1<<DeviceAlsa))
     driverlist->appendItem("Advanced Linux Sound Architecture",NULL,(void*)DeviceAlsa);
@@ -747,6 +747,9 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   oss_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
   oss_device = new GMTextField(matrix,20);
   oss_device->setText(config.oss.device);
+
+  oss_disable_resample_frame = new FXFrame(matrix,FRAME_NONE);
+  oss_disable_resample       = new GMCheckButton(matrix,"No resampling");
 
   /// Pulse
   pulse_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
@@ -802,6 +805,9 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
 //        alsa_mixer->show();
         oss_device->hide();
         oss_device_label->hide();
+        oss_disable_resample_frame->hide();
+        oss_disable_resample->hide();
+        
         pulse_device->hide();
         pulse_device_label->hide();
         jack_device->hide();
@@ -813,11 +819,14 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device_label->hide();
         alsa_device->hide();
         alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();        
+        alsa_hardware_only_frame->hide();
 //        alsa_mixer_label->hide();
 //        alsa_mixer->hide();
         oss_device->show();
         oss_device_label->show();
+        oss_disable_resample_frame->show();
+        oss_disable_resample->show();
+        
         pulse_device->hide();
         pulse_device_label->hide();
         jack_device->hide();
@@ -829,11 +838,14 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device_label->hide();
         alsa_device->hide();
         alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();        
+        alsa_hardware_only_frame->hide();
 //        alsa_mixer_label->hide();
 //        alsa_mixer->hide();
         oss_device->hide();
         oss_device_label->hide();
+        oss_disable_resample_frame->hide();
+        oss_disable_resample->hide();
+        
         pulse_device->show();
         pulse_device_label->show();
         jack_device->hide();
@@ -845,11 +857,14 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device_label->hide();
         alsa_device->hide();
         alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();        
+        alsa_hardware_only_frame->hide();
 //        alsa_mixer_label->hide();
 //        alsa_mixer->hide();
         oss_device->hide();
         oss_device_label->hide();
+        oss_disable_resample_frame->hide();
+        oss_disable_resample->hide();
+        
         pulse_device->hide();
         pulse_device_label->hide();
         jack_device->show();
@@ -860,7 +875,10 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device_label->hide();
         alsa_device->hide();
         alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();        
+        alsa_hardware_only_frame->hide();
+        oss_disable_resample_frame->hide();
+        oss_disable_resample->hide();
+        
 //    alsa_mixer_label->hide();
 //    alsa_mixer->hide();
     oss_device->hide();
@@ -883,7 +901,7 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
   OutputConfig config;
   GMPlayerManager::instance()->getPlayer()->getOutputConfig(config);
 
-  config.device = (FXuchar)(FXival)driverlist->getItemData(driverlist->getCurrentItem());
+  config.device = (FXchar)(FXival)driverlist->getItemData(driverlist->getCurrentItem());
 
   /// Alsa Settings
   config.alsa.device = alsa_device->getText();
@@ -891,6 +909,12 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
     config.alsa.flags|=AlsaConfig::DeviceNoResample;
   else
     config.alsa.flags&=~AlsaConfig::DeviceNoResample;
+
+  config.oss.device = oss_device->getText();
+  
+  
+  
+  
 
   GMPlayerManager::instance()->getPlayer()->setOutputConfig(config);
   return 1;
