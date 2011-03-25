@@ -80,23 +80,30 @@ OSSOutput::OSSOutput() : OutputPlugin(), handle(BadHandle) {
 OSSOutput::~OSSOutput() {
   close();
   }
-  
+
 FXbool OSSOutput::setOutputConfig(const OutputConfig &c) {
   config=c.oss;
   return true;
   }
-  
+
 
 FXbool OSSOutput::open() {
   if (handle==BadHandle) {
-
-//    ap_get_device(device);
-
     handle = ::open(config.device.text(),O_WRONLY);
     if (handle==BadHandle) {
-      fxmessage("Unable to open device %s.\nError:%s\n",config.device.text(),strerror(errno));
+      fxmessage("[oss] Unable to open device %s.\nError:%s\n",config.device.text(),strerror(errno));
       return false;
       }
+
+/// OSS 3.9
+#ifdef SNDCTL_DSP_COOKEDMODE
+    /// Turn off automatic resampling.
+    FXint enabled=(config.flags&OSSConfig::DeviceNoResample) ? 0 : 1;
+    if (ioctl(fd,SNDCTL_DSP_COOKEDMODE,&enabled)==-1)
+      fxwarning("[oss] unable to set cooked mode\n");
+#endif
+
+    fxmessage("[oss] opened device \"%s\"\n",config.device.text());
     }
   return true;
   }
@@ -111,7 +118,22 @@ void OSSOutput::close() {
   }
 
 FXint OSSOutput::delay() {
-  return 0;
+  FXint delay=0;
+  if (__likely(handle!=BadHandle)) {
+
+    /// Delay in bytes
+    if (ioctl(handle,SNDCTL_DSP_GETODELAY,&delay)==-1)
+      return 0;
+
+    if (delay<0)
+      return 0;
+
+    /// Return delay in number of frames
+    return (delay / af.framesize());
+    }
+  else {
+    return 0;
+    }
   }
 
 
@@ -132,20 +154,39 @@ void OSSOutput::drain() {
   }
 
 void OSSOutput::pause(FXbool p) {
-  if (p) drain();
+  if (p) {
+#if defined(SNDCTL_DSP_SILENCE)
+    ioctl(handle,SNDCTL_DSP_SILENCE,NULL);
+#else
+  #ifndef SNDCTL_DSP_SKIP
+    ioctl(handle,SNDCTL_DSP_RESET,NULL);
+  #else
+    ioctl(handle,SNDCTL_DSP_SKIP,NULL);
+  #endif
+#endif
+    }
+  else {
+#if defined(SNDCTL_DSP_SILENCE) && defined(SNDCTL_DSP_SKIP)
+    ioctl(handle,SNDCTL_DSP_SKIP,NULL);
+#endif
+    }
   }
 
 
 
 FXbool OSSOutput::configure(const AudioFormat & fmt){
-  FXint tmp,format;
-
-  if (__unlikely(handle==BadHandle) && !open()) {
-    return false;
-    }
+  FXint format;
 
   if (handle && fmt==af)
     return true;
+
+  /// To change format, it's safer to close and reopen the device
+  if (handle) {
+    close();
+    }
+
+  if (!open())
+    return false;
 
   FXint num_channels=fmt.channels;
   FXint sample_rate=fmt.rate;
@@ -159,7 +200,7 @@ FXbool OSSOutput::configure(const AudioFormat & fmt){
   if (ioctl(handle,SNDCTL_DSP_CHANNELS,&num_channels)==-1)
     goto failed;
 
-  if (ioctl(handle, SNDCTL_DSP_SPEED, &tmp)==-1)
+  if (ioctl(handle,SNDCTL_DSP_SPEED,&sample_rate)==-1)
     goto failed;
 
   af=fmt;
@@ -170,7 +211,7 @@ FXbool OSSOutput::configure(const AudioFormat & fmt){
   af.rate=sample_rate;
   return true;
 failed:
-  fxmessage("Unsupported oss configuration:\n");
+  fxmessage("[oss] Unsupported configuration:\n");
   af.debug();
   return false;
   }
@@ -183,7 +224,7 @@ FXbool OSSOutput::write(const void * buffer,FXuint nframes){
   const FXchar * buf = (const FXchar*)buffer;
 
   if (__unlikely(handle==BadHandle)) {
-    fxmessage("device not opened\n");
+    fxmessage("[oss] device not opened\n");
     return false;
     }
 
@@ -193,7 +234,7 @@ FXbool OSSOutput::write(const void * buffer,FXuint nframes){
       if (errno==EAGAIN || errno==EINTR)
         continue;
 
-      fxmessage("oss: %s\n",strerror(errno));
+      fxmessage("[oss] %s\n",strerror(errno));
       return false;
       }
     buf+=nwritten;

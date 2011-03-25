@@ -16,8 +16,6 @@ class GMAPI DeviceConfig {
 public:
   DeviceConfig();
   virtual ~DeviceConfig();
-public:
-  static FXuint devices();
   };
 
 class GMAPI AlsaConfig : public DeviceConfig {
@@ -38,7 +36,12 @@ public:
 
 class GMAPI OSSConfig : public DeviceConfig {
 public:
+  enum {
+    DeviceNoResample = 0x2,
+    };
+public:
   FXString device;
+  FXuint   flags;
 public:
   OSSConfig();
   OSSConfig(const FXString & d);
@@ -52,7 +55,11 @@ public:
   FXchar      device;
 public:
   OutputConfig();
+
   FXString plugin() const;
+
+  /// Return bitmask of available outputs
+  static FXuint devices();
   };
 
 
