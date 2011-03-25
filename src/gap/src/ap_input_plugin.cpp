@@ -56,45 +56,74 @@ InputStatus InputPlugin::process(Packet*packet) {
 namespace ap {
 
 
-extern InputPlugin * ap_flac_input(AudioEngine*);
-extern InputPlugin * ap_wav_input(AudioEngine*);
-extern InputPlugin * ap_ogg_input(AudioEngine*);
-extern InputPlugin * ap_musepack_input(AudioEngine*);
-extern InputPlugin * ap_mad_input(AudioEngine*);
-extern InputPlugin * ap_aac_input(AudioEngine*);
 
-InputPlugin* InputPlugin::open(AudioEngine * engine,const FXString & extension) {
-  fxmessage("open plugin: %s\n",extension.text());
-  if (comparecase(extension,"wav")==0) {
-    return ap_wav_input(engine);
-    }
+extern InputPlugin * ap_wav_input(AudioEngine*);
+
 #ifdef HAVE_FLAC_PLUGIN
-  if (comparecase(extension,"flac")==0) {
-    return ap_flac_input(engine);
-    }
+extern InputPlugin * ap_flac_input(AudioEngine*);
 #endif
+
 #ifdef HAVE_OGG_PLUGIN
-  else if (comparecase(extension,"ogg")==0 || comparecase(extension,"oga")==0) {
-    return ap_ogg_input(engine);
-    }
+extern InputPlugin * ap_ogg_input(AudioEngine*);
 #endif
+
 #ifdef HAVE_MUSEPACK_PLUGIN
-  else if (comparecase(extension,"mpc")==0) {
-    return ap_musepack_input(engine);
-    }
+extern InputPlugin * ap_musepack_input(AudioEngine*);
 #endif
+
 #ifdef HAVE_MAD_PLUGIN
-  else if (comparecase(extension,"mp3")==0) {
-    return ap_mad_input(engine);
-    }
+extern InputPlugin * ap_mad_input(AudioEngine*);
 #endif
+
 #ifdef HAVE_AAC_PLUGIN
-  else if (comparecase(extension,"mp4")==0 ||
-           comparecase(extension,"m4a")==0 ||
-           comparecase(extension,"m4p")==0 ||
-           comparecase(extension,"m4b")==0 /*||
-           comparecase(extension,"aac")==0*/) {
-    return ap_aac_input(engine);
+extern InputPlugin * ap_aac_input(AudioEngine*);
+#endif
+
+#ifdef HAVE_CDDA_PLUGIN
+extern InputPlugin * ap_cdda_input(AudioEngine*);
+#endif
+
+InputPlugin* InputPlugin::open(AudioEngine * engine,const FXString & uri) {
+  FXString scheme = FXURL::scheme(uri);
+  if (scheme.empty() || scheme=="file") {
+    FXString extension=FXPath::extension(uri);
+
+    if (comparecase(extension,"wav")==0) {
+      return ap_wav_input(engine);
+      }
+  #ifdef HAVE_FLAC_PLUGIN
+    if (comparecase(extension,"flac")==0) {
+      return ap_flac_input(engine);
+      }
+  #endif
+  #ifdef HAVE_OGG_PLUGIN
+    else if (comparecase(extension,"ogg")==0 || comparecase(extension,"oga")==0) {
+      return ap_ogg_input(engine);
+      }
+  #endif
+  #ifdef HAVE_MUSEPACK_PLUGIN
+    else if (comparecase(extension,"mpc")==0) {
+      return ap_musepack_input(engine);
+      }
+  #endif
+  #ifdef HAVE_MAD_PLUGIN
+    else if (comparecase(extension,"mp3")==0) {
+      return ap_mad_input(engine);
+      }
+  #endif
+  #ifdef HAVE_AAC_PLUGIN
+    else if (comparecase(extension,"mp4")==0 ||
+             comparecase(extension,"m4a")==0 ||
+             comparecase(extension,"m4p")==0 ||
+             comparecase(extension,"m4b")==0 /*||
+             comparecase(extension,"aac")==0*/) {
+      return ap_aac_input(engine);
+      }
+  #endif
+    }
+#ifdef HAVE_CDDA_PLUGIN
+  else if (scheme=="cdda"){
+    return ap_cdda_input(engine);
     }
 #endif
   return NULL;

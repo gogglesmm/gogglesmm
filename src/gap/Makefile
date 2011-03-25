@@ -118,6 +118,11 @@ ifneq (,$(findstring aac,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_aac_plugin.cpp
 endif
 
+ifneq (,$(findstring cdda,$(PLUGINS)))
+GAP_SRCFILES+=src/plugins/ap_cdda_plugin.cpp
+endif
+
+
 ifneq (,$(findstring avcodec,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_avc_plugin.cpp
 endif

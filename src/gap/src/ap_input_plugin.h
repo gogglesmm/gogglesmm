@@ -31,7 +31,7 @@ public:
   virtual InputStatus process(Packet*);
   virtual ~InputPlugin();
 
-  static InputPlugin* open(AudioEngine * engine,const FXString & extension);
+  static InputPlugin* open(AudioEngine * engine,const FXString & uri);
   };
 }
 #endif

@@ -16,6 +16,8 @@
 #include "ap_input_plugin.h"
 #include "ap_decoder_thread.h"
 
+#include "plugins/ap_cdda_plugin.h"
+
 
 #ifndef WIN32
 #include <errno.h>
@@ -181,12 +183,12 @@ FXint InputThread::run(){
                             ctrl_close_input(true);
                             break;
       case Ctrl_Open      : fxmessage("Ctrl_Open\n");
-                            ctrl_close_input();
+                            //ctrl_close_input();
                             ctrl_open_input(((ControlEvent*)event)->text);
                             break;
       case Ctrl_Open_Flush: fxmessage("Ctrl_Open_Flush\n");
                             ctrl_flush();
-                            ctrl_close_input();
+                            //ctrl_close_input();
                             ctrl_open_input(((ControlEvent*)event)->text);
                             break;
       case Ctrl_Quit      : ctrl_close_input(true);
@@ -307,52 +309,96 @@ void InputThread::ctrl_seek(FXdouble pos) {
   }
 
 
-FXIO * InputThread::open_url(const FXString & url_in) {
+FXIO * InputThread::open_file(const FXString & uri) {
   if (use_mmap) {
     fxmessage("[input] open using memmap\n");
     FXMemMap * map = new FXMemMap;
-    if (!map->openMap(url_in)) {
+    if (!map->openMap(uri)) {
       delete map;
       map=NULL;
       }
     else {
-      url=url_in;
+      url=uri;
       }
     return map;
     }
   else {
     FXFile * file = new FXFile;
-    if (!file->open(url_in)) {
+    if (!file->open(uri)) {
       delete file;
       file=NULL;
       }
     else {
-      url=url_in;
+      url=uri;
       }
     return file;
     }
   }
 
 
-void InputThread::ctrl_open_input(const FXString & url_in) {
-  fxmessage("ctrl_open_input %s\n",url_in.text());
+#ifdef HAVE_CDDA_PLUGIN
+FXIO * InputThread::open_cdda(const FXString & uri) {
+  AudioCD * cdda = NULL;
+  if (io)
+    cdda = dynamic_cast<AudioCD*>(io);
 
-  /// close current io
-  if (io) {
-    delete io;
-    io=NULL;
-    url.clear();
+  if (cdda==NULL) {
+    if (io) ctrl_close_input();
+    cdda = new AudioCD;
+    if (!cdda->open(FXString::null)) {
+      delete cdda;
+      cdda=NULL;
+      }
     }
 
-  FXASSERT(io==NULL);
-  FXASSERT(plugin==NULL);
+  if (cdda) {
+    url=uri;
+    FXint t = FXURL::path(url).after('/').toInt();
+    fxmessage("t=%d\n",t);
+    cdda->setTrack(t);
+    }
+  return cdda;
+  }
+#endif  
 
-  if (url_in.empty())
+
+FXIO* InputThread::open_io(const FXString & uri) {
+  FXString scheme = FXURL::scheme(uri);
+  if (scheme=="file" || scheme.empty()) {
+    ctrl_close_input();
+    return open_file(uri);
+    }
+#ifdef HAVE_CDDA_PLUGIN    
+  else if (scheme=="cdda") {
+    return open_cdda(uri);
+    }
+#endif    
+  else {
+    return NULL;
+    }
+  }
+
+
+
+void InputThread::ctrl_open_input(const FXString & uri) {
+  fxmessage("ctrl_open_input %s\n",uri.text());
+
+  if (uri.empty()) {
     goto failed;
+    }
 
-  plugin = InputPlugin::open(engine,FXPath::extension(url_in));
+  /// Open IO
+  io=open_io(uri);
+  if (io==NULL) {
+    engine->post(new ErrorMessage(FXString::value("Unable to open %s",uri.text())));
+    goto failed;
+    }
+
+  /// Open plugin (FIXME won't work for internet streams).
+  plugin = InputPlugin::open(engine,uri);
+
   if (plugin==NULL) {
-    engine->post(new ErrorMessage(FXString::value("No input plugin available for %s",FXPath::extension(url_in).text())));
+    engine->post(new ErrorMessage(FXString::value("No input plugin available for %s",FXPath::extension(uri).text())));
     goto failed;
     }
 
@@ -361,27 +407,12 @@ void InputThread::ctrl_open_input(const FXString & url_in) {
     goto failed;
     }
 
-  io = open_url(url_in);
-  if (io==NULL) {
-    engine->post(new ErrorMessage(FXString::value("Unable to open %s",url_in.text())));
-    goto failed;
-    }
-
   streamid++;
 
   set_state(StateProcessing,true);
   return;
-
 failed:
-  if (io) {
-    delete io;
-    io=NULL;
-    }
-  if (plugin) {
-    delete plugin;
-    plugin=NULL;
-    }
-  url.clear();
+  ctrl_close_input();
   set_state(StateIdle,true);
   }
 

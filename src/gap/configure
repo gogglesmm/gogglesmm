@@ -37,6 +37,7 @@ OPTION_PLUGIN_PULSE=1
 OPTION_PLUGIN_JACK=1
 OPTION_PLUGIN_RSOUND=1
 OPTION_PLUGIN_AVCODEC=1
+OPTION_PLUGIN_CDDA=1
 
 
 # Default Compiler Settings
@@ -104,6 +105,9 @@ for arg in $@; do
     --without-samplerate)
       OPTION_PLUGIN_SAMPLERATE=0
       ;;
+    --without-cdda)
+      OPTION_PLUGIN_CDDA=0
+      ;;
     --without-alsa)
       OPTION_PLUGIN_ALSA=0
       ;;
@@ -155,6 +159,7 @@ for arg in $@; do
       echo "   --without-faad                  Compile without faad support"
       echo "   --without-musepack              Compile without musepack support"
       echo "   --without-samplerate            Compile without samplerate support"
+      echo "   --without-cdda                  Compile without cdda support"
       echo "   --without-alsa                  Compile without alsa support"
       echo "   --without-oss                   Compile without oss support"
       echo "   --without-pulse                 Compile without pulseaudio support"

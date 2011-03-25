@@ -28,7 +28,11 @@ protected:
   PacketPool    packetpool;
   FXbool        use_mmap;
 protected:
-  FXIO * open_url(const FXString & url);
+  FXIO * open_io(const FXString & uri);
+  FXIO * open_file(const FXString & uri);
+#ifdef HAVE_CDDA_PLUGIN  
+  FXIO * open_cdda(const FXString & uri);
+#endif  
 protected:
   enum {
     StateIdle       = 0,

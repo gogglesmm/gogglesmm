@@ -213,6 +213,10 @@ check_packages()
     add_plugin_package "libavcodec" "avcodec"
   fi
 
+  if [ $OPTION_PLUGIN_CDDA -eq 1 ] ; then
+    add_plugin_package "libcdio_cdda" "cdda"
+  fi
+
   if [ -n "$PACKAGES" ] ; then
     pkgconfig_package_flags "$PACKAGES"
     if [ -n "$PKG_LDFLAGS" ] ; then PLUGIN_LIBS="$PLUGIN_LIBS $PKG_LDFLAGS"; fi
