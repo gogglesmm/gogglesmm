@@ -79,7 +79,6 @@ includedir=$(DESTDIR)$(INCLUDEDIR)
 #----------------------------------------------------------
 GAP_SRCFILES := src/ap_event.cpp \
 src/ap_packet.cpp \
-src/ap_event_queue.cpp \
 src/ap_thread_queue.cpp \
 src/ap_app_queue.cpp \
 src/ap_pipe.cpp \

@@ -9,17 +9,16 @@ protected:
   Event* tail;
 public:
   enum {
-    Front,
-    Back,
-    Flush
+    Front, /// Add event to front of the queue
+    Back,  /// Add event to the back of the queue
+    Flush  /// Flush queue, then add event.
     };
+private:
+  EventQueue(const EventQueue&);
+  EventQueue& operator=(const EventQueue&);    
 public:
   /// Constructor
-  EventQueue();
-
-  virtual FXbool init();
-
-  virtual void free();
+  EventQueue() : head(NULL), tail(NULL) {}
 
   /// Post event.
   virtual void post(Event*,FXint where=Back)=0;
@@ -31,7 +30,7 @@ public:
   virtual void flush()=0;
 
   /// Destructor
-  virtual ~EventQueue();
+  virtual ~EventQueue() {}
   };
 
 }
