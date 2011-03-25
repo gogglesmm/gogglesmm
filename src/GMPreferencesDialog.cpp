@@ -715,7 +715,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   GMPlayerManager::instance()->getPlayer()->getOutputConfig(config);
 
   FXStringList drivers;
-  FXuint plugins=DeviceConfig::devices();
+  FXuint plugins=OutputConfig::devices();
 
   if (plugins&(1<<DeviceAlsa))
     driverlist->appendItem("Advanced Linux Sound Architecture",NULL,(void*)DeviceAlsa);
@@ -813,7 +813,7 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device_label->hide();
         alsa_device->hide();
         alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();        
+        alsa_hardware_only_frame->hide();
 //        alsa_mixer_label->hide();
 //        alsa_mixer->hide();
         oss_device->show();
@@ -829,13 +829,13 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device_label->hide();
         alsa_device->hide();
         alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();        
+        alsa_hardware_only_frame->hide();
 //        alsa_mixer_label->hide();
 //        alsa_mixer->hide();
         oss_device->hide();
         oss_device_label->hide();
-        pulse_device->show();
-        pulse_device_label->show();
+        pulse_device->hide();
+        pulse_device_label->hide();
         jack_device->hide();
         jack_device_label->hide();
       } break;
@@ -845,22 +845,22 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device_label->hide();
         alsa_device->hide();
         alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();        
+        alsa_hardware_only_frame->hide();
 //        alsa_mixer_label->hide();
 //        alsa_mixer->hide();
         oss_device->hide();
         oss_device_label->hide();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->show();
-        jack_device_label->show();
+        jack_device->hide();
+        jack_device_label->hide();
       } break;
     default:
       {
         alsa_device_label->hide();
         alsa_device->hide();
         alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();        
+        alsa_hardware_only_frame->hide();
 //    alsa_mixer_label->hide();
 //    alsa_mixer->hide();
     oss_device->hide();
@@ -891,6 +891,9 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
     config.alsa.flags|=AlsaConfig::DeviceNoResample;
   else
     config.alsa.flags&=~AlsaConfig::DeviceNoResample;
+    
+  config.oss.device = oss_device->getText();
+
 
   GMPlayerManager::instance()->getPlayer()->setOutputConfig(config);
   return 1;
