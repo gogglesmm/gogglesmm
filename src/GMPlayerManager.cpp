@@ -924,6 +924,7 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     }
 #else
   player->init();
+  player->loadSettings();
 #endif
 
   /// Receive events from fifo
@@ -984,7 +985,12 @@ void GMPlayerManager::exit() {
   /// Stop Playing
   stop();
 
+
   player->exit();
+
+#ifndef HAVE_XINE_LIB
+  player->saveSettings();
+#endif
 
   /// Save settings
   for (FXint i=0;i<sources.no();i++)

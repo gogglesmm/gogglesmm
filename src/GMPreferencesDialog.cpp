@@ -732,6 +732,9 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (plugins&(1<<DeviceRSound))
     driverlist->appendItem("RSound",NULL,(void*)DeviceRSound);
 
+  if (plugins&(1<<DeviceWav))
+    driverlist->appendItem("Wave File Output",NULL,(void*)DeviceWav);
+
   driverlist->setCurrentItem(driverlist->findItemByData((void*)(FXival)config.device));
   driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
 
@@ -891,7 +894,7 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
     config.alsa.flags|=AlsaConfig::DeviceNoResample;
   else
     config.alsa.flags&=~AlsaConfig::DeviceNoResample;
-    
+
   config.oss.device = oss_device->getText();
 
 

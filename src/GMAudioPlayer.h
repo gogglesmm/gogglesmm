@@ -57,6 +57,10 @@ public:
   FXbool playing() const { return state==PLAYER_PLAYING; }
 
   FXbool pausing() const { return state==PLAYER_PAUSING; }
+  
+  void loadSettings();
+  
+  void saveSettings();
 
   virtual ~GMAudioPlayer();
   };

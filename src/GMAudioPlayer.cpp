@@ -1,6 +1,7 @@
 #ifndef HAVE_XINE_LIB
 
 #include "gmdefs.h"
+#include "GMApp.h"
 
 #include <ap.h>
 #include "GMAudioPlayer.h"
@@ -21,6 +22,25 @@ GMAudioPlayer::GMAudioPlayer(FXApp * app,FXObject * tgt,FXSelector sel) {
 
 GMAudioPlayer::~GMAudioPlayer() {
   delete fifo;
+  }
+
+
+void GMAudioPlayer::saveSettings() {
+  OutputConfig config;
+  getOutputConfig(config);
+  FXSettings settings;
+  config.save(settings);
+  settings.unparseFile(GMApp::getConfigDirectory(true)+PATHSEPSTRING+"gap.conf");
+  }
+
+void GMAudioPlayer::loadSettings() {
+  OutputConfig config;
+  getOutputConfig(config);
+  FXSettings settings;
+  if (settings.parseFile(GMApp::getConfigDirectory()+PATHSEPSTRING+"gap.conf")){
+    config.load(settings);
+    setOutputConfig(config);
+    }
   }
 
 
