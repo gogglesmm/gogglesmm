@@ -299,4 +299,4 @@ dist: clean realclean
 
 
 # How to make everything else
--include $(DEPENDENCIES)
+-include $(GAP_DEPENDENCIES) $(ALSA_DEPENDENCIES) $(OSS_DEPENDENCIES) $(PULSE_DEPENDENCIES) $(RSOUND_DEPENDENCIES) $(JACK_DEPENDENCIES)
