@@ -387,21 +387,36 @@ XingHeader::XingHeader() : flags(0),nframes(0),nbytes(0),vbr_scale(0) {
   }
 
 void XingHeader::parse(const FXuchar * buffer,FXival nbytes) {
+  buffer+=4;
 
-  flags = INT32_BE(buffer+4);
-  if (flags&HAS_FRAMES)
-    nframes = INT32_BE(buffer+8);
-  if (flags&HAS_BYTES)
-    nbytes  = INT32_BE(buffer+12);
-  if (flags&HAS_TOC)
-    memcpy(toc,buffer+16,100);
-  if (flags&HAS_VBR_SCALE)
-    vbr_scale =  INT32_BE(buffer+16+100);
 
   fxmessage("Xing:\n");
-  fxmessage("nframes  :%d\n",nframes);
-  fxmessage("nbytes   :%ld\n",nbytes);
-  fxmessage("vbr_scale:%d\n",vbr_scale);
+
+  flags  = INT32_BE(buffer); 
+  buffer+=4;  
+  if (flags&HAS_FRAMES) {
+    nframes= INT32_BE(buffer);
+    buffer+=4;    
+    fxmessage("nframes: %d\n",nframes);
+    }
+       
+  if (flags&HAS_BYTES) {
+    nbytes = INT32_BE(buffer);
+    buffer+=4;
+    fxmessage("nbytes   :%ld\n",nbytes);    
+    }
+    
+  if (flags&HAS_TOC) {
+    memcpy(toc,buffer,100);
+    buffer+=100;
+    fxmessage("has toc\n");    
+    }
+        
+  if (flags&HAS_VBR_SCALE) {
+    vbr_scale =  INT32_BE(buffer);
+    buffer+=4;
+    fxmessage("vbr_scale:%d\n",vbr_scale);
+    }
   }
 
 FXlong XingHeader::seek(FXdouble pos,FXlong length) {
