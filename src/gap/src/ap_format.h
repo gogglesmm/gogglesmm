@@ -2,6 +2,7 @@
 #define AUDIOFORMAT_H
 
 namespace ap {
+
 namespace Codec {
 
   enum {
@@ -66,7 +67,17 @@ enum {
   Pack_Reserved_1   = ( 4 << Pack_Shift),
   Pack_Reserved_2   = ( 5 << Pack_Shift),
   Pack_Reserved_3   = ( 6 << Pack_Shift),
-  Pack_8            = ( 7 << Pack_Shift)
+  Pack_8            = ( 7 << Pack_Shift),
+
+
+  //// Input Formats
+  WAV               = 0,
+  OGG               = 1,
+  FLAC              = 2,
+  MP3               = 3,
+  AAC               = 4,
+  Musepack          = 5,
+  CDDA              = 6
   };
 
 }

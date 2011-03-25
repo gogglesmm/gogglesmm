@@ -9,7 +9,9 @@ enum {
   DeviceOSS     = 1,
   DevicePulse   = 2,
   DeviceRSound  = 3,
-  DeviceJack    = 4
+  DeviceJack    = 4,
+  DeviceWav     = 5,
+  DeviceLast,
   };
 
 class GMAPI DeviceConfig {

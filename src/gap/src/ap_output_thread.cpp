@@ -245,7 +245,8 @@ void OutputThread::load_plugin() {
     }
 
   /// Set Device Config
-  plugin->setOutputConfig(output_config);
+  if (plugin) 
+    plugin->setOutputConfig(output_config);
   }
 
 void OutputThread::unload_plugin() {

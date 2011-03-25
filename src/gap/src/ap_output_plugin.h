@@ -15,7 +15,9 @@ public:
   /// Set Device Configuration
   virtual FXbool setOutputConfig(const OutputConfig &) { return false; }
 
-  /// Configure
+  /// Configure the device for the requested format. If requested
+  /// format is not available it should return something similar. Only
+  /// return false if no format is available at all.
   virtual FXbool configure(const AudioFormat &)=0;
 
   /// Write frames to playback buffer

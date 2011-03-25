@@ -61,9 +61,14 @@ $(GAP_RSOUND_PLUGIN): CPPFLAGS+=$(RSOUND_CPPFLAGS)
 $(GAP_RSOUND_PLUGIN): CFLAGS+=$(RSOUND_CFLAGS)
 endif
 
+GAP_WAV_NAME=libgap_plugin_wav.so
+GAP_WAV_PLUGIN=src/$(GAP_WAV_NAME)
+$(GAP_WAV_PLUGIN): CPPFLAGS+=$(WAV_CPPFLAGS)
+$(GAP_WAV_PLUGIN): CFLAGS+=$(WAV_CFLAGS)
 
-all: $(GAP_LIBRARY) $(GAP_ALSA_PLUGIN) $(GAP_OSS_PLUGIN) $(GAP_PULSE_PLUGIN) $(GAP_JACK_PLUGIN) $(GAP_RSOUND_PLUGIN)
-plugins: $(GAP_ALSA_PLUGIN) $(GAP_OSS_PLUGIN) $(GAP_PULSE_PLUGIN) $(GAP_JACK_PLUGIN) $(GAP_RSOUND_PLUGIN)
+
+all: $(GAP_LIBRARY) $(GAP_ALSA_PLUGIN) $(GAP_OSS_PLUGIN) $(GAP_PULSE_PLUGIN) $(GAP_JACK_PLUGIN) $(GAP_RSOUND_PLUGIN) $(GAP_WAV_PLUGIN)
+plugins: $(GAP_ALSA_PLUGIN) $(GAP_OSS_PLUGIN) $(GAP_PULSE_PLUGIN) $(GAP_JACK_PLUGIN) $(GAP_RSOUND_PLUGIN) $(GAP_WAV_PLUGIN)
 library: $(GAP_LIBRARY)
 
 libdir=$(DESTDIR)$(LIBDIR)
@@ -154,6 +159,10 @@ RSOUND_SRCFILES=src/plugins/ap_rsound_plugin.cpp
 RSOUND_OBJECTS := $(patsubst %.cpp,%$(OBJEXT),$(RSOUND_SRCFILES))
 RSOUND_DEPENDENCIES = $(patsubst %.cpp,%.d,$(RSOUND_SRCFILES))
 
+WAV_SRCFILES=src/plugins/ap_wavout_plugin.cpp
+WAV_OBJECTS := $(patsubst %.cpp,%$(OBJEXT),$(WAV_SRCFILES))
+WAV_DEPENDENCIES = $(patsubst %.cpp,%.d,$(WAV_SRCFILES))
+
 %$(OBJEXT):	%.cpp
 #	@echo "    Compiling $< ..."
 #	@echo "$(CXX) $(CFLAGS) $(DEFS)  $(CPPFLAGS) -MM -o $*.d -MT $@ $<"
@@ -161,12 +170,10 @@ RSOUND_DEPENDENCIES = $(patsubst %.cpp,%.d,$(RSOUND_SRCFILES))
 	@echo "$(CXX) $(strip $(CFLAGS)) $(strip $(CPPFLAGS)) $(OUTPUTOBJ)$@ -c $<"
 	@$(CXX) $(strip $(CFLAGS)) $(strip $(CPPFLAGS)) $(OUTPUTOBJ)$@ -c $<
 
-
 $(GAP_LIBRARY): $(GAP_OBJECTS)
 	@echo "    Linking $@ ..."
 	@echo "$(LINK) $(LDFLAGS)  $(SONAME)$(GAP_SONAME) $(OUTPUTBIN)$(GAP_LIBRARY)  $(strip $(GAP_OBJECTS)) $(strip $(LIBS))"
 	@$(LINK) $(LDFLAGS) $(SONAME)$(GAP_SONAME) $(OUTPUTBIN)$(GAP_LIBRARY) $(strip $(GAP_OBJECTS)) $(strip $(LIBS))
-
 
 $(GAP_ALSA_PLUGIN): $(ALSA_OBJECTS)
 	@echo "    Linking $@ ..."
@@ -193,13 +200,18 @@ $(GAP_RSOUND_PLUGIN): $(RSOUND_OBJECTS)
 	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_RSOUND_PLUGIN) $(strip $(RSOUND_OBJECTS)) $(strip $(RSOUND_LIBS))"
 	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_RSOUND_PLUGIN) $(strip $(RSOUND_OBJECTS)) $(strip $(RSOUND_LIBS))
 
+$(GAP_WAV_PLUGIN): $(WAV_OBJECTS)
+	@echo "    Linking $@ ..."
+	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_WAV_PLUGIN) $(strip $(WAV_OBJECTS)) $(strip $(WAV_LIBS))"
+	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_WAV_PLUGIN) $(strip $(WAV_OBJECTS)) $(strip $(WAV_LIBS))
+
 # Force Dependency on config.make
-$(GAP_OBJECTS) $(ALSA_OBJECTS) $(OSS_OBJECTS) $(PULSE_OBJECTS) $(JACK_OBJECTS) $(RSOUND_OBJECTS): config.make
+$(GAP_OBJECTS) $(ALSA_OBJECTS) $(OSS_OBJECTS) $(PULSE_OBJECTS) $(JACK_OBJECTS) $(RSOUND_OBJECTS) $(WAV_OBJECTS): config.make
 
 
 # Install
 #----------------------------------------------------------
-install: $(GAP_LIBRARY) $(GAP_ALSA_PLUGIN)  $(GAP_OSS_PLUGIN) $(GAP_PULSE_PLUGIN) $(GAP_JACK_PLUGIN)
+install: $(GAP_LIBRARY) $(GAP_ALSA_PLUGIN)  $(GAP_OSS_PLUGIN) $(GAP_PULSE_PLUGIN) $(GAP_JACK_PLUGIN) $(GAP_RSOUND_PLUGIN) $(GAP_WAV_PLUGIN)
 	@echo "  Installing Library ..."
 	@$(INSTALL) -d $(libdir)
 	@$(INSTALL) $(GAP_LIBRARY) $(libdir)/$(GAP_LIB)
@@ -226,6 +238,7 @@ endif
 ifneq (,$(findstring rsound,$(PLUGINS)))
 	@$(INSTALL) $(GAP_RSOUND_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_RSOUND_NAME)
 endif
+	@$(INSTALL) $(GAP_WAV_PLUGIN) $(libdir)/$(GAP_INTERFACE)/$(GAP_WAV_NAME)
 	@echo "  Installing Headers ..."
 	@$(INSTALL) -d $(includedir)/$(GAP_INTERFACE)
 	@$(INSTALL) -m 644 include/ap.h $(includedir)/$(GAP_INTERFACE)/ap.h
@@ -258,6 +271,10 @@ endif
 ifneq (,$(findstring jack,$(PLUGINS)))
 	rm -f $(libdir)/$(GAP_INTERFACE)/$(GAP_JACK_NAME)
 endif
+ifneq (,$(findstring rsound,$(PLUGINS)))
+	rm -f $(libdir)/$(GAP_INTERFACE)/$(GAP_RSOUND_NAME)
+endif
+	rm -f $(libdir)/$(GAP_INTERFACE)/$(GAP_WAV_NAME)
 	rmdir $(libdir)/$(GAP_INTERFACE)
 	@echo "  Removing Headers ..."
 	rm $(includedir)/$(GAP_INTERFACE)/*.h
@@ -277,6 +294,7 @@ clean:
 	@rm -f $(GAP_PULSE_PLUGIN)
 	@rm -f $(GAP_JACK_PLUGIN)
 	@rm -f $(GAP_RSOUND_PLUGIN)
+	@rm -f $(GAP_WAV_PLUGIN)
 
 	@echo "  Remove Objects ..."
 	@rm -f src/plugins/*$(OBJEXT)
@@ -299,4 +317,4 @@ dist: clean realclean
 
 
 # How to make everything else
--include $(GAP_DEPENDENCIES) $(ALSA_DEPENDENCIES) $(OSS_DEPENDENCIES) $(PULSE_DEPENDENCIES) $(RSOUND_DEPENDENCIES) $(JACK_DEPENDENCIES)
+-include $(GAP_DEPENDENCIES) $(ALSA_DEPENDENCIES) $(OSS_DEPENDENCIES) $(PULSE_DEPENDENCIES) $(RSOUND_DEPENDENCIES) $(JACK_DEPENDENCIES) $(WAV_DEPENDENCIES)

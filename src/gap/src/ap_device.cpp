@@ -9,12 +9,13 @@ DeviceConfig:: DeviceConfig() {
 DeviceConfig::~DeviceConfig(){
   }
 
-static const FXchar * plugin_names[5]={
+static const FXchar * plugin_names[DeviceLast]={
   "alsa",
   "oss",
   "pulse",
   "rsound",
-  "jack"
+  "jack",
+  "wav"
   };
 
 static FXbool ap_has_plugin(FXuchar device) {
@@ -92,11 +93,13 @@ FXuint OutputConfig::devices() {
   if (ap_has_plugin(DeviceJack))
     plugins|=(1<<DeviceJack);
 #endif
+  if (ap_has_plugin(DeviceWav))
+    plugins|=(1<<DeviceWav);
   return plugins;
   }
 
 FXString OutputConfig::plugin() const {
-  if (device>=DeviceAlsa && device<=DeviceJack)
+  if (device>=DeviceAlsa && device<DeviceLast)
     return plugin_names[(FXuchar)device];
   else
     return FXString::null;
