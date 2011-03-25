@@ -19,7 +19,6 @@ using namespace ap;
 
 namespace ap {
 
-const FXuchar version[2]={AP_MAJOR,AP_MINOR};
 
 FXIMPLEMENT(AudioPlayer,FXObject,NULL,0);
 
@@ -79,7 +78,6 @@ void AudioPlayer::close() {
   }
 
 void AudioPlayer::getOutputConfig(OutputConfig & config) {
-  FXASSERT(engine->output->running());
   return engine->output->getOutputConfig(config);
   }
 
