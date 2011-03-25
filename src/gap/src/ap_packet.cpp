@@ -23,6 +23,7 @@ FXbool PacketPool::init(FXival sz,FXival n) {
   }
 
 void PacketPool::free() {
+  fetchEvents();
   while(list) {
     Packet * p = dynamic_cast<Packet*>(list);
     list=list->next;
@@ -32,7 +33,6 @@ void PacketPool::free() {
   }
 
 PacketPool::~PacketPool() {
-  PacketPool::free();
   }
 
 
