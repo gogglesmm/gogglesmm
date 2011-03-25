@@ -34,7 +34,7 @@ static FXbool ap_has_plugin(FXuchar device) {
 AlsaConfig::AlsaConfig() : device("default"), flags(0) {
   }
 
-AlsaConfig::AlsaConfig(const FXString & d,FXuint f) : device(d),flags(0) {
+AlsaConfig::AlsaConfig(const FXString & d,FXuint f) : device(d),flags(f) {
   }
 
 AlsaConfig::~AlsaConfig(){
@@ -47,8 +47,6 @@ void AlsaConfig::load(FXSettings & settings) {
 void AlsaConfig::save(FXSettings & settings) const {
   settings.writeStringEntry("alsa","device",device.text());
   }
-
-
 
 OSSConfig::OSSConfig() : device("/dev/dsp"), flags(0) {
   }
@@ -133,17 +131,23 @@ void OutputConfig::load(FXSettings & settings) {
       }
     }
   alsa.load(settings);
-  oss.load(settings);   
+  oss.load(settings);
   }
 
 void OutputConfig::save(FXSettings & settings) const {
+/*
+  FXuchar major,minor;
+  ap_get_version(major,minor);
+  settings.writeIntEntry("version","major",major);
+  settings.writeIntEntry("version","minor",minor);
+*/  
   if (device>=DeviceAlsa && device<DeviceLast)
     settings.writeStringEntry("engine","output",plugin_names[(FXuchar)device]);
   else
     settings.deleteEntry("engine","output");
-    
+
   alsa.save(settings);
-  oss.save(settings);   
+  oss.save(settings);
   }
 
 
