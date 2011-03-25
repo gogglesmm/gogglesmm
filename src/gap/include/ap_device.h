@@ -17,6 +17,10 @@ enum {
 class GMAPI DeviceConfig {
 public:
   DeviceConfig();
+
+  virtual void load(FXSettings &)=0;
+  virtual void save(FXSettings &) const=0;
+
   virtual ~DeviceConfig();
   };
 
@@ -32,7 +36,12 @@ public:
 public:
   AlsaConfig();
   AlsaConfig(const FXString & d,FXuint f=0);
-  virtual ~AlsaConfig();
+
+  void load(FXSettings &);
+
+  void save(FXSettings &) const;
+
+  ~AlsaConfig();
   };
 
 
@@ -47,6 +56,11 @@ public:
 public:
   OSSConfig();
   OSSConfig(const FXString & d);
+
+  void load(FXSettings &);
+
+  void save(FXSettings &) const;
+
   virtual ~OSSConfig();
   };
 
@@ -59,6 +73,10 @@ public:
   OutputConfig();
 
   FXString plugin() const;
+
+  void load(FXSettings &);
+
+  void save(FXSettings &) const;
 
   /// Return bitmask of available outputs
   static FXuint devices();

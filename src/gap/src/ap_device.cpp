@@ -40,6 +40,15 @@ AlsaConfig::AlsaConfig(const FXString & d,FXuint f) : device(d),flags(0) {
 AlsaConfig::~AlsaConfig(){
   }
 
+void AlsaConfig::load(FXSettings & settings) {
+  device=settings.readStringEntry("alsa","device",device.text());
+  }
+
+void AlsaConfig::save(FXSettings & settings) const {
+  settings.writeStringEntry("alsa","device",device.text());
+  }
+
+
 
 OSSConfig::OSSConfig() : device("/dev/dsp"), flags(0) {
   }
@@ -49,6 +58,16 @@ OSSConfig::OSSConfig(const FXString & d): device(d) {
 
 OSSConfig::~OSSConfig(){
   }
+
+void OSSConfig::load(FXSettings & settings) {
+  device=settings.readStringEntry("oss","device",device.text());
+  }
+
+void OSSConfig::save(FXSettings & settings) const {
+  settings.writeStringEntry("oss","device",device.text());
+  }
+
+
 
 
 OutputConfig::OutputConfig() {
@@ -104,5 +123,28 @@ FXString OutputConfig::plugin() const {
   else
     return FXString::null;
   }
+
+void OutputConfig::load(FXSettings & settings) {
+  FXString output=settings.readStringEntry("engine","output",plugin_names[(FXuchar)device]);
+  for (FXint i=DeviceAlsa;i<DeviceLast;i++) {
+    if (output==plugin_names[i]){
+      device=i;
+      break;
+      }
+    }
+  alsa.load(settings);
+  oss.load(settings);   
+  }
+
+void OutputConfig::save(FXSettings & settings) const {
+  if (device>=DeviceAlsa && device<DeviceLast)
+    settings.writeStringEntry("engine","output",plugin_names[(FXuchar)device]);
+  else
+    settings.deleteEntry("engine","output");
+    
+  alsa.save(settings);
+  oss.save(settings);   
+  }
+
 
 }
