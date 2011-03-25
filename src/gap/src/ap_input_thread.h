@@ -30,9 +30,10 @@ protected:
 protected:
   FXIO * open_io(const FXString & uri);
   FXIO * open_file(const FXString & uri);
-#ifdef HAVE_CDDA_PLUGIN  
+#ifdef HAVE_CDDA_PLUGIN
   FXIO * open_cdda(const FXString & uri);
-#endif  
+#endif
+  InputPlugin * open_plugin(const FXString & uri);
 protected:
   enum {
     StateIdle       = 0,

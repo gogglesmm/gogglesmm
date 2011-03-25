@@ -309,7 +309,6 @@ void InputThread::ctrl_seek(FXdouble pos) {
     }
   }
 
-
 FXIO * InputThread::open_file(const FXString & uri) {
   if (use_mmap) {
     fxmessage("[input] open using memmap\n");
@@ -324,14 +323,23 @@ FXIO * InputThread::open_file(const FXString & uri) {
     return map;
     }
   else {
-    FXFile * file = new FXFile;
+    FXFile * file = dynamic_cast<FXFile*>(io);
+    if (file) {
+      file->close();
+      }
+    else {
+      if (io) {
+        delete io;
+        io=NULL;
+        }
+      file=new FXFile;
+      }
     if (!file->open(uri)) {
       delete file;
       file=NULL;
+      return NULL;
       }
-    else {
-      url=uri;
-      }
+    url=uri;
     return file;
     }
   }
@@ -366,7 +374,6 @@ FXIO * InputThread::open_cdda(const FXString & uri) {
 FXIO* InputThread::open_io(const FXString & uri) {
   FXString scheme = FXURL::scheme(uri);
   if (scheme=="file" || scheme.empty()) {
-    ctrl_close_input();
     return open_file(uri);
     }
 #ifdef HAVE_CDDA_PLUGIN
@@ -379,6 +386,14 @@ FXIO* InputThread::open_io(const FXString & uri) {
     }
   }
 
+InputPlugin* InputThread::open_plugin(const FXString & uri) {
+  /// FIXME try to reuse existing plugin
+  if (plugin) {
+    delete plugin;
+    plugin=NULL;
+    }
+  return InputPlugin::open(engine,uri);
+  }
 
 
 void InputThread::ctrl_open_input(const FXString & uri) {
@@ -395,9 +410,8 @@ void InputThread::ctrl_open_input(const FXString & uri) {
     goto failed;
     }
 
-  /// Open plugin (FIXME won't work for internet streams).
-  plugin = InputPlugin::open(engine,uri);
-
+  /// Open Plugin. FIXME this won't work for internet streams.
+  plugin = open_plugin(uri);
   if (plugin==NULL) {
     engine->post(new ErrorMessage(FXString::value("No input plugin available for %s",FXPath::extension(uri).text())));
     goto failed;
