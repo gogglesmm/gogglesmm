@@ -20,11 +20,11 @@
 using namespace ap;
 
 
-extern "C" OutputPlugin * ap_load_plugin() {
+extern "C" GMAPI OutputPlugin * ap_load_plugin() {
   return new RSoundOutput();
   }
 
-extern "C" void ap_free_plugin(OutputPlugin* plugin) {
+extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
 
