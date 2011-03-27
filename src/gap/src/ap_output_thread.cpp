@@ -245,7 +245,7 @@ void OutputThread::load_plugin() {
     }
 
   /// Set Device Config
-  if (plugin) 
+  if (plugin)
     plugin->setOutputConfig(output_config);
   }
 
@@ -620,10 +620,9 @@ FXint OutputThread::run(){
                           fxmessage("[output] flush\n");
                           FlushEvent * flush = dynamic_cast<FlushEvent*>(event);
                           if (plugin) {
+                            plugin->drop();                              
                             if (flush->close)
-                              close_plugin();
-                            else
-                              plugin->drop();
+                              close_plugin();                              
                             }
                           pausing=false;
                           reset_position();
