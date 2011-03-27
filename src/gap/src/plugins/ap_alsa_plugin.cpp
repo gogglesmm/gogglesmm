@@ -169,13 +169,13 @@ FXint AlsaOutput::delay() {
 
 void AlsaOutput::close() {
   if (handle) {
+    snd_pcm_drop(handle);
     if (mixer) {
       snd_mixer_free(mixer);
       snd_mixer_close(mixer);
       mixer=NULL;
       mixer_element=NULL;
       }
-    snd_pcm_drop(handle);
     snd_pcm_close(handle);
     handle=NULL;
     }
