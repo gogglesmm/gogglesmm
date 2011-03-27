@@ -311,8 +311,13 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
     goto failed;
     }
 
-
 /*
+  if (snd_pcm_hw_params_get_buffer_size_max(hw,&maxbuffer)<0)
+    goto failed;
+
+  if (snd_pcm_hw_params_set_buffer_size_near(handle,hw,&maxbuffer)<0)
+    goto failed;
+
   dir=0;
   if (snd_pcm_hw_params_get_period_size_max(hw,&maxperiod,&dir)<0)
     goto failed;
@@ -320,19 +325,11 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   dir=0;
   if (snd_pcm_hw_params_set_period_size_near(handle,hw,&maxperiod,&dir)<0)
     goto failed;
-
-  if (snd_pcm_hw_params_get_buffer_size_max(hw,&maxbuffer)<0)
-    goto failed;
-
-  if (snd_pcm_hw_params_set_buffer_size_near(handle,hw,&maxbuffer)<0)
-    goto failed;
 */
 
 //  dir=0;
 //  if (snd_pcm_hw_params_set_buffer_time_near(handle,hw,&buffertime,&dir)<0)
 //    goto failed;
-
-
 
   // Configure the hardware
   if (snd_pcm_hw_params(handle,hw)<0)
@@ -344,6 +341,7 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   can_pause  = snd_pcm_hw_params_can_pause(hw);
   can_resume = snd_pcm_hw_params_can_resume(hw);
 
+
   dir=0;
   if (snd_pcm_hw_params_get_rate(hw,&sample_rate,&dir)<0)
     goto failed;
@@ -351,12 +349,14 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   if (snd_pcm_hw_params_get_channels(hw,&num_channels)<0)
     goto failed;
 
+
   dir=0;
   if (snd_pcm_hw_params_get_period_size(hw,&periodsize,&dir)<0)
     goto failed;
 
   if (snd_pcm_hw_params_get_buffer_size(hw,&buffersize)<0)
     goto failed;
+
 
   af.rate=sample_rate;
   af.channels=num_channels;
