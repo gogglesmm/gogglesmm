@@ -203,7 +203,7 @@ fi
 CPPFLAGS="-Iinclude -Isrc $CPPFLAGS"
 
 # Needed for ffmpeg
-DEFINES="-D__STDC_CONSTANT_MACROS"
+DEFINES="$DEFINES -D__STDC_CONSTANT_MACROS"
 
 ###############################################################################
 
