@@ -175,7 +175,7 @@ void AlsaOutput::close() {
       mixer=NULL;
       mixer_element=NULL;
       }
-    snd_pcm_drain(handle);
+    snd_pcm_drop(handle);
     snd_pcm_close(handle);
     handle=NULL;
     }
