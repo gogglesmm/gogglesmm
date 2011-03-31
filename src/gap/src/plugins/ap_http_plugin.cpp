@@ -17,6 +17,9 @@
 #include <netdb.h> // for getaddrinfo()
 #endif
 
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
+#endif
 
 using namespace ap;
 
@@ -51,6 +54,19 @@ static FXbool ap_set_closeonexec(FXint fd) {
   return true;
   }
 
+
+static FXbool ap_set_nosignal(FXint fd) {
+#if defined(SO_NOSIGPIPE)
+  int nosignal=1;
+  socklen_t len=sizeof(nosignal);
+  if (setsockopt(fd,SOL_SOCKET,SO_NOSIGPIPE,&nosignal,len)==0)
+    return true;
+  else
+    return false;
+#else
+  return true;
+#endif
+  }
 
 
 HttpInput::HttpInput(FXInputHandle f) : InputPlugin(f),device(BadHandle),
@@ -97,9 +113,8 @@ FXival HttpInput::fill_buffer(FXuval count) {
 
 FXival HttpInput::write_raw(void*data,FXival count){
   FXival nwritten=-1;
-  FXint flags=0;
   do{
-    nwritten=send(device,data,count,flags);
+    nwritten=send(device,data,count,MSG_NOSIGNAL);
     }
   while(nwritten<0 && errno==EINTR);
   return nwritten;
@@ -171,11 +186,41 @@ static FXint HttpInput::ap_connect(FXInputHandle & input,struct addrinfo * entry
   }
 #endif
 
+
+static FXInputHandle try_connect(FXInputHandle fifo,struct addrinfo * item) {
+  FXint  device = socket(item->ai_family,item->ai_socktype,item->ai_protocol);
+  if (device==BadHandle) {
+    fxmessage("Failed to create socket\n");
+    return BadHandle;
+    }
+    
+  if (!ap_set_nonblocking(device) || !ap_set_closeonexec(device)) {
+    ::close(device);
+    return BadHandle;
+    }
+
+  ap_set_nosignal(device);
+
+  FXint result = connect(device,item->ai_addr,item->ai_addrlen);
+  if (result==-1) {        
+    if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
+      if (ap_wait_write(fifo,device)) {   
+        /// Check error after select
+        int socket_error=0;
+        socklen_t socket_length=sizeof(socket_error);        
+        if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0)
+          return device;
+        }
+      }
+    }
+  ::close(device);    
+  return BadHandle;  
+  }
+
 FXbool HttpInput::open(const FXString & hostname,FXint port) {
   struct addrinfo   hints;
   struct addrinfo * list=NULL;
   struct addrinfo * item=NULL;
-  FXbool success=false;
 
   memset(&hints,0,sizeof(struct addrinfo));
   hints.ai_family=AF_UNSPEC;
@@ -184,55 +229,16 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
   FXint result=getaddrinfo(hostname.text(),FXString::value(port).text(),&hints,&list);
   if (result) {
     fxmessage("getaddrinfo failed\n");
-    goto failed;
+    return false;
     }
   
   for (item=list;item;item=item->ai_next){
-   
-    device = socket(item->ai_family,item->ai_socktype,item->ai_protocol);
-    if (device==BadHandle) {
-      fxmessage("Failed to create socket\n");
-      goto failed;
-      }
-    
-    if (!ap_set_nonblocking(device) || !ap_set_closeonexec(device)) {
-      goto failed;
-      }
-   
-    result = connect(device,item->ai_addr,item->ai_addrlen);
-    if (result==-1) {
-      if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-
-        if (!ap_wait_write(fifo,device)) {        
-          goto failed;
-          }
-
-        /// Check error after select
-        int socket_error=0;
-        socklen_t socket_length=sizeof(socket_error);        
-        if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==-1)
-          goto failed;  
-        
-        /// Success  
-        if (socket_error==0) {                    
-          freeaddrinfo(list);
-          return true;
-          }
-          
-        }
-      /// Close socket and try again.  
-      ::close(device);  
-      }
-    else {
-      freeaddrinfo(list);    
+    device=try_connect(fifo,item);
+    if (device!=BadHandle) {
+      freeaddrinfo(list);
       return true;
-      }        
-    }    
- 
-failed:
-  if (device!=BadHandle)
-    ::close(device);
-    
+      }
+    }       
   if (list) 
     freeaddrinfo(list);
   return false;
