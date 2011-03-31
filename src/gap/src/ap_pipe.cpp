@@ -182,7 +182,8 @@ void NotifyPipe::clear() {
   ResetEvent(h[0]);
 #elif defined(HAVE_EVENTFD)
   FXlong value;
-  read(h[0],&value,sizeof(FXlong));
+  while(read(h[0],&value,sizeof(FXlong))>0);
+//  read(h[0],&value,sizeof(FXlong));
 #else
   FXchar buf[16];
   FXint result;

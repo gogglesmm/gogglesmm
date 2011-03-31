@@ -4,17 +4,41 @@
 
 namespace ap {
 
-class AudioCD : public FXIO {
+class CDDAInput : public InputPlugin {
 private:
-  AudioCD(const AudioCD&);
-  AudioCD &operator=(const AudioCD&);
+  CDDAInput(const CDDAInput&);
+  CDDAInput &operator=(const CDDAInput&);
 protected:
   cdrom_drive_t * drive;
   lsn_t           sector;
   track_t         track;
   track_t         ntracks;
+protected:
+  FXlong read_raw(void*data,FXival ncount);
 public:
-  AudioCD();
+  CDDAInput(FXInputHandle);
+
+  FXbool open(const FXString & uri);
+
+  /// Set Position
+  FXlong position(FXlong offset,FXuint from);
+
+  /// Get Position
+  FXlong position() const;
+
+  /// Size
+  FXlong size();
+
+  /// End of Input
+  FXbool eof();
+
+  /// Serial
+  FXbool serial() const;
+
+  /// Get plugin type
+  FXuint plugin() const;
+
+/*
   FXbool open(const FXString &);
   FXbool isSerial() const;
   FXlong position() const;
@@ -22,8 +46,9 @@ public:
   FXival readBlock(void* data,FXival count);
   FXlong size();
   FXbool eof();
+*/
   void setTrack(FXint n);
-  ~AudioCD();
+  ~CDDAInput();
   };
 
 }

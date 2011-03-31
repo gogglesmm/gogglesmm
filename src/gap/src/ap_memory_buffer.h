@@ -78,18 +78,23 @@ public:
   MemoryStream(FXival cap=32768);
 
   /// Append sz bytes.
-  void append(const FXuchar * buf,FXival sz);
+  void append(const void * buf,FXival sz);
 
   /// Read sz bytes from buffer
-  void read(FXuchar * buf,FXival sz);
+  FXival read(void * buf,FXival sz);
 
   /// Read sz bytes from buffer
   void read(FXival sz);
+
+  void wrote(FXival sz);
 
   void padding(FXival sz);
 
   /// Clear Buffer
   void clear();
+
+  /// Reserve sz bytes
+  void reserve(FXival sz);
 
   /// Number of bytes in buffer
   FXival size() const { return data_size - (data_ptr-data_buffer); }
@@ -99,6 +104,10 @@ public:
 
   /// Space left in buffer
   FXival space() const { return data_capacity-data_size; }
+
+  /// Write Ptr
+  FXuchar * ptr() const { return data_buffer+data_size; }
+
 
   ~MemoryStream();
   };

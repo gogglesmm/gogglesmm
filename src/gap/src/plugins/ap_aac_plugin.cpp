@@ -10,7 +10,7 @@
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -27,7 +27,7 @@ enum {
   AAC_FLAG_CONFIG = 0x1
   };
 
-class AacInput : public InputPlugin {
+class AacInput : public ReaderPlugin {
 protected:
   mp4ff_callback_t callback;
   mp4ff_t*         handle;
@@ -43,7 +43,7 @@ protected:
   FXint                 frame;
   FXint                 track;
 protected:
-  InputStatus parse();
+  ReadStatus parse();
 public:
   AacInput(AudioEngine*);
   FXuchar format() const { return Format::AAC; };
@@ -51,7 +51,7 @@ public:
   FXbool init();
   FXbool can_seek() const;
   FXbool seek(FXdouble);
-  InputStatus process(Packet*);
+  ReadStatus process(Packet*);
   ~AacInput();
   };
 
@@ -111,7 +111,7 @@ FXuint AacInput::mp4_truncate(void*){
 
 
 
-AacInput::AacInput(AudioEngine* e) : InputPlugin(e),handle(NULL),nframes(-1),track(-1) {
+AacInput::AacInput(AudioEngine* e) : ReaderPlugin(e),handle(NULL),nframes(-1),track(-1) {
   callback.read      = mp4_read;
   callback.write     = mp4_write;
   callback.seek      = mp4_seek;
@@ -150,7 +150,7 @@ FXbool AacInput::seek(FXdouble pos){
   }
 
 
-InputStatus AacInput::process(Packet*p) {
+ReadStatus AacInput::process(Packet*p) {
   packet=p;
   packet->stream_position=-1;
   packet->stream_length=stream_length;
@@ -165,7 +165,7 @@ InputStatus AacInput::process(Packet*p) {
 
     if (size<=0) {
       packet->unref();
-      return InputError;
+      return ReadError;
       }
 
     if (packet->space()<(size+4)) {
@@ -173,7 +173,7 @@ InputStatus AacInput::process(Packet*p) {
         engine->decoder->post(packet);
         packet=NULL;
         }
-      return InputOk;
+      return ReadOk;
       }
 
     /// Write size
@@ -182,7 +182,7 @@ InputStatus AacInput::process(Packet*p) {
     FXint n = mp4ff_read_sample_v2(handle,track,frame,packet->ptr());
     if (n<=0) {
       packet->unref();
-      return InputError;
+      return ReadError;
       }
 
     packet->wrote(size);
@@ -197,14 +197,14 @@ InputStatus AacInput::process(Packet*p) {
   if (packet->size() && packet->flags&FLAG_EOS) {
     engine->decoder->post(packet);
     packet=NULL;
-    return InputDone;
+    return ReadDone;
     }
-  return InputOk;
+  return ReadOk;
   }
 
 
 
-InputStatus AacInput::parse() {
+ReadStatus AacInput::parse() {
   mp4AudioSpecificConfig cfg;
   FXuchar* buffer;
   FXuint   size;
@@ -249,7 +249,7 @@ InputStatus AacInput::parse() {
         packet=NULL;
         flags|=FLAG_PARSED;
         free(buffer);
-        return InputOk;
+        return ReadOk;
         }
       free(buffer);
       }
@@ -257,7 +257,7 @@ InputStatus AacInput::parse() {
 
 error:
   packet->unref();
-  return InputError;
+  return ReadError;
   }
 
 
@@ -374,7 +374,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
 
 
 
-InputPlugin * ap_aac_input(AudioEngine * engine) {
+ReaderPlugin * ap_aac_input(AudioEngine * engine) {
   return new AacInput(engine);
   }
 

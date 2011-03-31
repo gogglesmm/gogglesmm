@@ -199,7 +199,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
         has_dsp=true;
         }
-
       if (stream_position==-1) {
 //        fxmessage("packet: %ld %ld\n",op.packetno,op.granulepos);
         if (vorbis_synthesis(&block,&op)==0) {
@@ -209,14 +208,17 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
             vorbis_synthesis_read(&dsp,ngiven);
             }
           }
-
         if (op.granulepos>=0) {
           fxmessage("found stream position: %ld\n",op.granulepos-nsamples);
           stream_position=op.granulepos-nsamples;
-          buffer.data_ptr=data_ptr;
-          data_ptr=NULL;
-          vorbis_synthesis_restart(&dsp);
           }
+        else {
+          stream_position=0;
+          }
+          
+        buffer.data_ptr=data_ptr;
+        data_ptr=NULL;            
+        vorbis_synthesis_restart(&dsp);
         continue;
         }
 

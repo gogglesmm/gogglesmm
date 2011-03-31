@@ -10,7 +10,7 @@
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -45,7 +45,7 @@
 
 namespace ap {
 
-class FlacInput : public InputPlugin {
+class FlacReader : public ReaderPlugin {
 protected:
   FLAC__StreamDecoder * flac;
 protected:
@@ -58,15 +58,15 @@ protected:
   static void                             flac_input_meta(const FLAC__StreamDecoder*,const FLAC__StreamMetadata*,void*);
   static void                             flac_input_error(const FLAC__StreamDecoder *, FLAC__StreamDecoderErrorStatus, void *);
 protected:
-  InputStatus parse();
+  ReadStatus parse();
 public:
-  FlacInput(AudioEngine*);
-  FXuchar format() const { return Format::FLAC; };      
+  FlacReader(AudioEngine*);
+  FXuchar format() const { return Format::FLAC; };
   FXbool init();
   FXbool seek(FXdouble);
   FXbool can_seek() const;
-  InputStatus process(Packet*);
-  ~FlacInput();
+  ReadStatus process(Packet*);
+  ~FlacReader();
   };
 
 class OutputPacket;
@@ -139,10 +139,10 @@ FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & af,FXlong & nf
 
 
 
-FlacInput::FlacInput(AudioEngine* e) : InputPlugin(e), flac(NULL) {
+FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(NULL) {
   }
 
-FlacInput::~FlacInput(){
+FlacReader::~FlacReader(){
   if (flac) {
     FLAC__stream_decoder_finish(flac);
     FLAC__stream_decoder_delete(flac);
@@ -150,7 +150,7 @@ FlacInput::~FlacInput(){
     }
   }
 
-FXbool FlacInput::init() {
+FXbool FlacReader::init() {
   if (flac == NULL) {
 
     flac =  FLAC__stream_decoder_new();
@@ -175,11 +175,11 @@ FXbool FlacInput::init() {
   return true;
   }
 
-FXbool FlacInput::can_seek() const {
+FXbool FlacReader::can_seek() const {
   return stream_length>0;
   }
 
-FXbool FlacInput::seek(FXdouble pos){
+FXbool FlacReader::seek(FXdouble pos){
   FXASSERT(stream_length>0);
   FXlong offset = (FXlong)(((FXdouble)stream_length)*pos);
   fxmessage("seek to %ld\n",offset);
@@ -192,20 +192,20 @@ FXbool FlacInput::seek(FXdouble pos){
   }
 
 
-InputStatus FlacInput::process(Packet*p) {
+ReadStatus FlacReader::process(Packet*p) {
   if (!(flags&FLAG_PARSED)) {
-    InputStatus result = parse();
-    if (result!=InputOk) {
+    ReadStatus result = parse();
+    if (result!=ReadOk) {
       p->unref();
       return result;
       }
     }
-  return InputPlugin::process(p);
+  return ReaderPlugin::process(p);
   }
 
 
 
-InputStatus FlacInput::parse() {
+ReadStatus FlacReader::parse() {
   FXASSERT(flac);
   FLAC__uint64 pos;
   stream_length=0;
@@ -219,7 +219,7 @@ InputStatus FlacInput::parse() {
 
     engine->decoder->post(new ConfigureEvent(af,Codec::FLAC,stream_length));
     flags|=FLAG_PARSED;
-    return InputOk;
+    return ReadOk;
     }
 
 /*  switch(FLAC__stream_decoder_get_state(flac)){
@@ -235,12 +235,12 @@ InputStatus FlacInput::parse() {
     case FLAC__STREAM_DECODER_UNINITIALIZED: fxmessage("FLAC__STREAM_DECODER_UNINITIALIZED"); break;
     }
 */
-  return InputError;
+  return ReadError;
   }
 
 
-FLAC__StreamDecoderSeekStatus FlacInput::flac_input_seek(const FLAC__StreamDecoder */*decoder*/,FLAC__uint64 absolute_byte_offset, void *client_data){
-  FlacInput * plugin = reinterpret_cast<FlacInput*>(client_data);
+FLAC__StreamDecoderSeekStatus FlacReader::flac_input_seek(const FLAC__StreamDecoder */*decoder*/,FLAC__uint64 absolute_byte_offset, void *client_data){
+  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
 //  fxmessage("seek\n");
 // FIXME
 //  if (inputflac->input->io->isSerial())
@@ -254,8 +254,8 @@ FLAC__StreamDecoderSeekStatus FlacInput::flac_input_seek(const FLAC__StreamDecod
   }
 
 
-FLAC__StreamDecoderTellStatus FlacInput::flac_input_tell(const FLAC__StreamDecoder */*decoder*/, FLAC__uint64 *absolute_byte_offset, void *client_data){
-  FlacInput * plugin = reinterpret_cast<FlacInput*>(client_data);
+FLAC__StreamDecoderTellStatus FlacReader::flac_input_tell(const FLAC__StreamDecoder */*decoder*/, FLAC__uint64 *absolute_byte_offset, void *client_data){
+  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
 //  fxmessage("tell\n");
 // FIXME
 //  if (inputflac->input->io->isSerial())
@@ -270,8 +270,8 @@ FLAC__StreamDecoderTellStatus FlacInput::flac_input_tell(const FLAC__StreamDecod
   }
 
 
-FLAC__StreamDecoderLengthStatus FlacInput::flac_input_length(const FLAC__StreamDecoder */*decoder*/, FLAC__uint64 *stream_length, void *client_data){
-  FlacInput * plugin = reinterpret_cast<FlacInput*>(client_data);
+FLAC__StreamDecoderLengthStatus FlacReader::flac_input_length(const FLAC__StreamDecoder */*decoder*/, FLAC__uint64 *stream_length, void *client_data){
+  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
 
 ///  if (plugin->engine->input->isSerial())
  //   return FLAC__STREAM_DECODER_LENGTH_STATUS_UNSUPPORTED;
@@ -284,20 +284,20 @@ FLAC__StreamDecoderLengthStatus FlacInput::flac_input_length(const FLAC__StreamD
   return FLAC__STREAM_DECODER_LENGTH_STATUS_OK;
   }
 
-FLAC__bool FlacInput::flac_input_eof(const FLAC__StreamDecoder */*decoder*/, void *client_data){
-  FlacInput * plugin = reinterpret_cast<FlacInput*>(client_data);
+FLAC__bool FlacReader::flac_input_eof(const FLAC__StreamDecoder */*decoder*/, void *client_data){
+  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
   return plugin->engine->input->eof();
   }
 
 
-FLAC__StreamDecoderWriteStatus FlacInput::flac_input_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame */*frame*/, const FLAC__int32 *const /*buffer*/[], void */*client_data*/) {
+FLAC__StreamDecoderWriteStatus FlacReader::flac_input_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame */*frame*/, const FLAC__int32 *const /*buffer*/[], void */*client_data*/) {
 //  FXASSERT(0);
   return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;//FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
   }
 
 
-FLAC__StreamDecoderReadStatus FlacInput::flac_input_read(const FLAC__StreamDecoder */*decoder*/, FLAC__byte buffer[], size_t *bytes, void *client_data) {
-  FlacInput * plugin = reinterpret_cast<FlacInput*>(client_data);
+FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDecoder */*decoder*/, FLAC__byte buffer[], size_t *bytes, void *client_data) {
+  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
   FXASSERT(bytes);
 //  fxmessage("read\n");
 
@@ -319,8 +319,8 @@ FLAC__StreamDecoderReadStatus FlacInput::flac_input_read(const FLAC__StreamDecod
   }
 
 
-void FlacInput::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
-  FlacInput * plugin = reinterpret_cast<FlacInput*>(client_data);
+void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
+  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
   switch(metadata->type) {
     case FLAC__METADATA_TYPE_STREAMINFO :
       plugin->af.set(Format::Signed|Format::Little,metadata->data.stream_info.bits_per_sample,
@@ -334,8 +334,8 @@ void FlacInput::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FL
     }
  }
 
-void FlacInput::flac_input_error(const FLAC__StreamDecoder */*decoder*/, FLAC__StreamDecoderErrorStatus status, void */*client_data*/) {
-  //FlacInput * plugin = reinterpret_cast<FlacInput*>(client_data);
+void FlacReader::flac_input_error(const FLAC__StreamDecoder */*decoder*/, FLAC__StreamDecoderErrorStatus status, void */*client_data*/) {
+  //FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
   switch(status) {
     case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC          : fxmessage("flac_decoder_error: An error in the stream caused the decoder to lose synchronization."); break;
     case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER         : fxmessage("flac_decoder_error: The decoder encountered a corrupted frame header."); break;
@@ -617,8 +617,8 @@ DecoderStatus FlacDecoder::process(Packet*packet){
   return DecoderError;
   }
 
-InputPlugin * ap_flac_input(AudioEngine * engine) {
-  return new FlacInput(engine);
+ReaderPlugin * ap_flac_input(AudioEngine * engine) {
+  return new FlacReader(engine);
   }
 
 DecoderPlugin * ap_flac_decoder(AudioEngine * engine) {

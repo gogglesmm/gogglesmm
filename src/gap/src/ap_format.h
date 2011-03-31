@@ -71,13 +71,14 @@ enum {
 
 
   //// Input Formats
-  WAV               = 0,
-  OGG               = 1,
-  FLAC              = 2,
-  MP3               = 3,
-  AAC               = 4,
-  Musepack          = 5,
-  CDDA              = 6
+  Unknown           = 0,
+  WAV               = 1,
+  OGG               = 2,
+  FLAC              = 3,
+  MP3               = 4,
+  AAC               = 5,
+  Musepack          = 6,
+  CDDA              = 7
   };
 
 }

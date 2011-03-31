@@ -9,7 +9,7 @@
 #include "ap_memory_buffer.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -19,22 +19,22 @@
 
 namespace ap {
 
-class WavInput : public InputPlugin {
+class WavReader : public ReaderPlugin {
 protected:
   FXuint datasize;    // size of the data section
   FXlong input_start;
 protected:
-  InputStatus parse();
+  ReadStatus parse();
 public:
-  WavInput(AudioEngine*);
+  WavReader(AudioEngine*);
   FXbool init();
-  InputStatus process(Packet*);
+  ReadStatus process(Packet*);
 
   FXuchar format() const { return Format::WAV; };
 
   FXbool can_seek() const;
   FXbool seek(FXdouble);
-  virtual ~WavInput();
+  virtual ~WavReader();
   };
 
 
@@ -45,23 +45,23 @@ enum {
   WAV_FORMAT_EXTENSIBLE = 0xFFFE
   };
 
-WavInput::WavInput(AudioEngine*e) : InputPlugin(e) {
+WavReader::WavReader(AudioEngine*e) : ReaderPlugin(e) {
   }
 
-WavInput::~WavInput(){
+WavReader::~WavReader(){
   }
 
-FXbool WavInput::init() {
+FXbool WavReader::init() {
   datasize=0;
   input_start=0;
   return true;
   }
 
-FXbool WavInput::can_seek() const {
+FXbool WavReader::can_seek() const {
   return true;
   }
 
-FXbool WavInput::seek(FXdouble pos){
+FXbool WavReader::seek(FXdouble pos){
 //  if (af.codec==Codec::PCM) {
     FXlong b = (FXlong)(((FXdouble)datasize)*pos);
     FXlong offset=FXCLAMP(0,((b / af.framesize()) * af.framesize()),datasize);
@@ -73,22 +73,22 @@ FXbool WavInput::seek(FXdouble pos){
   return true;
   }
 
-InputStatus WavInput::process(Packet*packet) {
+ReadStatus WavReader::process(Packet*packet) {
 
   if (!(flags&FLAG_PARSED)) {
-    if (parse()!=InputOk)
-      return InputError;
+    if (parse()!=ReadOk)
+      return ReadError;
     }
 
   FXint nbytes = (packet->space() / af.framesize()) * af.framesize();
   FXint nread = engine->input->read(packet->data(),nbytes);
   if (nread<0) {
     packet->unref();
-    return InputError;
+    return ReadError;
     }
   else if (nread==0){
     packet->unref();
-    return InputDone;
+    return ReadDone;
     }
 
   packet->af              = af;
@@ -103,10 +103,10 @@ InputStatus WavInput::process(Packet*packet) {
   engine->decoder->post(packet);
 
 
-  return InputOk;
+  return ReadOk;
   }
 
-InputStatus WavInput::parse() {
+ReadStatus WavReader::parse() {
   FXuchar chunkid[4];
   FXuint  chunksize;
   FXushort wconfig;
@@ -124,47 +124,47 @@ InputStatus WavInput::parse() {
 
   if (engine->input->read(&chunkid,4)!=4 || chunkid[0]!='R' || chunkid[1]!='I' || chunkid[2]!='F' || chunkid[3]!='F'){
     fxmessage("no RIFF tag found\n");
-    return InputError;
+    return ReadError;
     }
 
   if (engine->input->read(&chunksize,4)!=4){
-    return InputError;
+    return ReadError;
     }
 
   if (engine->input->read(&chunkid,4)!=4 || chunkid[0]!='W' || chunkid[1]!='A' || chunkid[2]!='V' || chunkid[3]!='E'){
     fxmessage("no WAVE tag found\n");
-    return InputError;
+    return ReadError;
     }
 
   if (engine->input->read(&chunkid,4)!=4 || chunkid[0]!='f' || chunkid[1]!='m' || chunkid[2]!='t' || chunkid[3]!=' '){
     fxmessage("no fmt tag found\n");
-    return InputError;
+    return ReadError;
     }
 
   if (engine->input->read(&chunksize,4)!=4)
-    return InputError;
+    return ReadError;
 
   fxmessage("chunksize=%d\n",chunksize);
 
   if (engine->input->read(&wconfig,2)!=2 || !(wconfig==WAV_FORMAT_PCM || wconfig==WAV_FORMAT_EXTENSIBLE) ) {
     fxmessage("WAV not in PCM config: %x\n",wconfig);
-    return InputError;
+    return ReadError;
     }
 
   if (engine->input->read(&channels,2)!=2)
-    return InputError;
+    return ReadError;
 
   if (engine->input->read(&rate,4)!=4)
-    return InputError;
+    return ReadError;
 
   if (engine->input->read(&byterate,4)!=4)
-    return InputError;
+    return ReadError;
 
   if (engine->input->read(&block,2)!=2)
-    return InputError;
+    return ReadError;
 
   if (engine->input->read(&samplesize,2)!=2)
-    return InputError;
+    return ReadError;
 
 
   chunksize-=16;
@@ -202,19 +202,19 @@ InputStatus WavInput::parse() {
   if (wconfig==WAV_FORMAT_EXTENSIBLE) {
 
     if (engine->input->read(&validbitspersample,2)!=2)
-      return InputError;
+      return ReadError;
 
       fxmessage("subsize: %d\n",validbitspersample);
 
 
     if (engine->input->read(&validbitspersample,2)!=2)
-      return InputError;
+      return ReadError;
 
     if (engine->input->read(&channelmask,4)!=4)
-      return InputError;
+      return ReadError;
 
     if (engine->input->read(&subconfig,2)!=2)
-      return InputError;
+      return ReadError;
 
     chunksize-=10;
 
@@ -229,11 +229,11 @@ InputStatus WavInput::parse() {
 
   if (engine->input->read(&chunkid,4)!=4 || chunkid[0]!='d' || chunkid[1]!='a' || chunkid[2]!='t' || chunkid[3]!='a'){
     fxmessage("data tag not found: %c%c%c%c\n",chunkid[0],chunkid[1],chunkid[2],chunkid[3]);
-    return InputError;
+    return ReadError;
     }
 
   if (engine->input->read(&datasize,4)!=4)
-    return InputError;
+    return ReadError;
 
   input_start = engine->input->position();
 
@@ -253,11 +253,11 @@ InputStatus WavInput::parse() {
   flags|=FLAG_PARSED;
 
   engine->decoder->post(new ConfigureEvent(af,Codec::PCM));
-  return InputOk;
+  return ReadOk;
   }
 
 
-InputPlugin * ap_wav_input(AudioEngine * engine) {
-  return new WavInput(engine);
+ReaderPlugin * ap_wav_input(AudioEngine * engine) {
+  return new WavReader(engine);
   }
 }

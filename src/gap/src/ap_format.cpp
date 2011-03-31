@@ -36,8 +36,9 @@ const FXchar * Codec::name(FXuchar c){
 
 
 
-AudioFormat::AudioFormat() : format(0),rate(0),channels(0) {
+AudioFormat::AudioFormat() : rate(0),format(0),channels(0) {
   }
+  
 
 AudioFormat::AudioFormat(const AudioFormat & af) {
   format  =af.format;

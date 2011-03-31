@@ -6,7 +6,7 @@
 #include "ap_memory_buffer.h"
 #include "ap_engine.h"
 
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 
 namespace ap {

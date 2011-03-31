@@ -4,36 +4,27 @@
 namespace ap {
 
 class AudioEngine;
+class ReaderPlugin;
 class InputPlugin;
 
-/*
-class IO {
-public:
-  FXival read(void*data,FXival ncount);
-  FXlong position(FXlong offset,FXuint from);
-  FXlong position() const;
-  FXlong size() const;
-  FXbool eof() const;
-  FXbool serial() const;
-  };
-*/
 
 
 class InputThread : public EngineThread {
 protected:
-  FXIO        * io;
-  InputPlugin * plugin;
+  InputPlugin*  input;
+  ReaderPlugin* reader;
   FXString      url;
   FXuint        streamid;
   PacketPool    packetpool;
   FXbool        use_mmap;
 protected:
-  FXIO * open_io(const FXString & uri);
-  FXIO * open_file(const FXString & uri);
-#ifdef HAVE_CDDA_PLUGIN
-  FXIO * open_cdda(const FXString & uri);
-#endif
-  InputPlugin * open_plugin(const FXString & uri);
+//  FXIO * open_io(const FXString & uri);
+//  FXIO * open_file(const FXString & uri);
+//#ifdef HAVE_CDDA_PLUGIN
+//  FXIO * open_cdda(const FXString & uri);
+//#endif
+  InputPlugin  * open_input(const FXString & uri);
+  ReaderPlugin * open_reader();
 protected:
   enum {
     StateIdle       = 0,
@@ -53,6 +44,8 @@ public:
   Packet * get_packet();
 
 //  DecoderPacket * get_decoder_packet();
+
+
 
 
   FXival read(void*data,FXival ncount);

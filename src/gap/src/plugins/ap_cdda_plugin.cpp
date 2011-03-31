@@ -10,22 +10,23 @@
 #include "ap_memory_buffer.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
 #include "ap_memory_buffer.h"
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
+#include "ap_input_plugin.h"
 #include "ap_cdda_plugin.h"
 
 namespace ap {
 
 
-  AudioCD::AudioCD() :drive(NULL) {
+  CDDAInput::CDDAInput(FXInputHandle f) : InputPlugin(f),drive(NULL) {
     }
 
-  FXbool AudioCD::open(const FXString & cdrom) {
+  FXbool CDDAInput::open(const FXString & cdrom) {
 
     if (!cdrom.empty()) {
       drive=cdio_cddap_identify(cdrom.text(),0,NULL);
@@ -58,21 +59,23 @@ namespace ap {
     return true;
     }
 
-  FXbool AudioCD::isSerial() const { return false; }
+  FXbool CDDAInput::serial() const {
+    return false;
+    }
 
   /// Get current file position
-  FXlong AudioCD::position() const {
+  FXlong CDDAInput::position() const {
     return sector-cdio_cddap_track_firstsector(drive,track);
     }
 
-  FXlong AudioCD::position(FXlong offset,FXuint from) {
+  FXlong CDDAInput::position(FXlong offset,FXuint from) {
    // lsn_t           start=cdio_cddap_disc_firstsector(drive);
     //lsn_t             end=cdio_cddap_disc_firstsector(drive);
     sector=cdio_cddap_track_firstsector(drive,track)+offset;
     return 0;
     }
 
-  FXival AudioCD::readBlock(void* data,FXival count) {
+  FXival CDDAInput::read_raw(void* data,FXival count) {
 
     if (sector>cdio_cddap_track_lastsector(drive,track))
       return 0;
@@ -89,52 +92,56 @@ namespace ap {
     return count;
     }
 
-  FXlong AudioCD::size() {
+  FXlong CDDAInput::size() {
     return cdio_cddap_track_lastsector(drive,track)-cdio_cddap_track_firstsector(drive,track);
     }
 
-  FXbool AudioCD::eof() {
+  FXbool CDDAInput::eof() {
     if (sector>=cdio_cddap_track_lastsector(drive,track))
       return true;
     else
       return false;
     }
 
-  AudioCD::~AudioCD(){
+  CDDAInput::~CDDAInput(){
     if (drive)
       cdio_cddap_close(drive);
     }
 
-  void AudioCD::setTrack(FXint n) {
+  void CDDAInput::setTrack(FXint n) {
     track=n;
     sector=cdio_cddap_track_firstsector(drive,track);
     }
 
+FXuint CDDAInput::plugin() const {
+  return Format::CDDA;
+  }
 
-class CDDAInput : public InputPlugin {
+
+class CDDAReader : public ReaderPlugin {
 protected:
   FXuint datasize;    // size of the data section
   FXlong input_start;
   FXlong stream_position;
 public:
-  CDDAInput(AudioEngine*);
+  CDDAReader(AudioEngine*);
   FXbool init();
-  InputStatus process(Packet*);
+  ReadStatus process(Packet*);
   FXuchar format() const { return Format::CDDA; };
   FXbool can_seek() const;
   FXbool seek(FXdouble);
-  virtual ~CDDAInput();
+  virtual ~CDDAReader();
   };
 
 
 
-CDDAInput::CDDAInput(AudioEngine*e) : InputPlugin(e) {
+CDDAReader::CDDAReader(AudioEngine*e) : ReaderPlugin(e) {
   }
 
-CDDAInput::~CDDAInput(){
+CDDAReader::~CDDAReader(){
   }
 
-FXbool CDDAInput::init() {
+FXbool CDDAReader::init() {
   datasize=0;
   input_start=0;
   flags=0;
@@ -142,17 +149,17 @@ FXbool CDDAInput::init() {
   return true;
   }
 
-FXbool CDDAInput::can_seek() const {
+FXbool CDDAReader::can_seek() const {
   return true;
   }
 
-FXbool CDDAInput::seek(FXdouble pos){
+FXbool CDDAReader::seek(FXdouble pos){
   stream_position=(pos*engine->input->size()*CDIO_CD_FRAMESIZE_RAW)/af.framesize();
   engine->input->position(pos*engine->input->size(),FXIO::Begin);
   return true;
   }
 
-InputStatus CDDAInput::process(Packet * packet) {
+ReadStatus CDDAReader::process(Packet * packet) {
 
   if (!(flags&FLAG_PARSED)) {
     fxmessage("sending configure\n");
@@ -190,13 +197,13 @@ InputStatus CDDAInput::process(Packet * packet) {
     engine->decoder->post(packet);
     }
   else {
-    return InputDone;
+    return ReadDone;
     }
 
-  return InputOk;
+  return ReadOk;
   }
 
-InputPlugin * ap_cdda_input(AudioEngine * engine) {
-  return new CDDAInput(engine);
+ReaderPlugin * ap_cdda_input(AudioEngine * engine) {
+  return new CDDAReader(engine);
   }
 }

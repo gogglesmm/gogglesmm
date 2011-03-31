@@ -19,12 +19,6 @@ void ap_set_thread_name(const FXchar * name) {
 #endif
   }
 
-void ap_get_device(FXString & device) {
-  FXString env = FXSystem::getEnvironment("GAP_DEVICE");
-  if (!env.empty()) device=env;
-  }
-
-
 FXString ap_get_environment(const FXchar * key,const FXchar * def) {
   FXString value = FXSystem::getEnvironment(key);
   if (value.empty())
@@ -122,5 +116,72 @@ FXuint ap_wait(FXInputHandle h1,FXInputHandle h2) {
 #endif
   return 0;
   }
+
+
+
+FXbool ap_wait_write(FXInputHandle interrupt,FXInputHandle handle) {
+//  fxmessage("Wait for write\n");
+#ifndef WIN32
+  int maxfds=handle;//FXMAX(interrupt,handle);
+
+  fd_set rd;
+  fd_set wr;
+  fd_set er;
+
+  FD_ZERO(&rd);
+  FD_ZERO(&wr);
+  FD_ZERO(&er);
+
+  FD_SET((int)interrupt,&rd);
+  FD_SET((int)interrupt,&er);
+  FD_SET((int)handle,&wr);
+  FD_SET((int)handle,&er);
+
+  if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
+    if (FD_ISSET((int)interrupt,&rd)) {
+      fxmessage("interrupt read is set\n");
+      return false;
+      }
+    else if (FD_ISSET((int)interrupt,&er)) {
+      fxmessage("interrupt error is set\n");
+      return false;
+      }
+    else
+      return true;
+    }
+  fxmessage("pselect failed\n");
+  return false;
+#endif
+  }
+
+FXbool ap_wait_read(FXInputHandle interrupt,FXInputHandle handle){
+//  fxmessage("Wait for read\n");
+#ifndef WIN32
+  int maxfds=FXMAX(interrupt,handle);
+
+  fd_set rd;
+  fd_set wr;
+  fd_set er;
+
+  FD_ZERO(&rd);
+  FD_ZERO(&wr);
+  FD_ZERO(&er);
+
+//  FD_SET((int)interrupt,&rd);
+//  FD_SET((int)interrupt,&er);
+  FD_SET((int)handle,&rd);
+  FD_SET((int)handle,&er);
+
+  if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
+    if (FD_ISSET(interrupt,&rd) || FD_ISSET(interrupt,&er))
+      return false;
+    else
+      return true;
+    }
+  return false;
+#endif
+  }
+
+
 
 }

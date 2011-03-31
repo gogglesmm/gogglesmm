@@ -10,7 +10,7 @@
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -28,7 +28,7 @@ class VBRIHeader;
 class LameHeader;
 struct mpeg_frame;
 
-class MadInput : public InputPlugin {
+class MadReader : public ReaderPlugin {
 protected:
   FXuchar      buffer[4];
   FXbool       sync;
@@ -41,22 +41,22 @@ protected:
   XingHeader * xing;
   VBRIHeader * vbri;
   LameHeader * lame;
-  InputStatus parse(Packet*);
+  ReadStatus parse(Packet*);
 protected:
   FXbool readFrame(Packet*,const mpeg_frame&);
   void parseFrame(Packet*,const mpeg_frame&);
   FXbool parse_id3v1();
   FXbool parse_ape();
 public:
-  MadInput(AudioEngine*);
+  MadReader(AudioEngine*);
 
   FXuchar format() const { return Format::MP3; };
 
   FXbool init();
   FXbool can_seek() const;
   FXbool seek(FXdouble);
-  InputStatus process(Packet*);
-  virtual ~MadInput();
+  ReadStatus process(Packet*);
+  virtual ~MadReader();
   };
 
 
@@ -392,26 +392,26 @@ void XingHeader::parse(const FXuchar * buffer,FXival nbytes) {
 
   fxmessage("Xing:\n");
 
-  flags  = INT32_BE(buffer); 
-  buffer+=4;  
+  flags  = INT32_BE(buffer);
+  buffer+=4;
   if (flags&HAS_FRAMES) {
     nframes= INT32_BE(buffer);
-    buffer+=4;    
+    buffer+=4;
     fxmessage("nframes: %d\n",nframes);
     }
-       
+
   if (flags&HAS_BYTES) {
     nbytes = INT32_BE(buffer);
     buffer+=4;
-    fxmessage("nbytes   :%ld\n",nbytes);    
+    fxmessage("nbytes   :%ld\n",nbytes);
     }
-    
+
   if (flags&HAS_TOC) {
     memcpy(toc,buffer,100);
     buffer+=100;
-    fxmessage("has toc\n");    
+    fxmessage("has toc\n");
     }
-        
+
   if (flags&HAS_VBR_SCALE) {
     vbr_scale =  INT32_BE(buffer);
     buffer+=4;
@@ -500,20 +500,21 @@ void LameHeader::parse(const FXuchar * buffer,FXival nbytes) {
 
 
 
-MadInput::MadInput(AudioEngine*e) : InputPlugin(e),
+MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
   sync(false),
   xing(NULL),
   vbri(NULL),
   lame(NULL) {
   }
 
-MadInput::~MadInput() {
+MadReader::~MadReader() {
   delete xing;
   delete vbri;
   delete lame;
   }
 
-FXbool MadInput::init(){
+FXbool MadReader::init(){
+  fxmessage("[mad] init()\n");
   buffer[0]=buffer[1]=buffer[2]=buffer[3]=0;
   if (xing) {
     delete xing;
@@ -535,11 +536,11 @@ FXbool MadInput::init(){
   return true;
   }
 
-FXbool MadInput::can_seek() const{
+FXbool MadReader::can_seek() const{
   return true;
   }
 
-FXbool MadInput::seek(FXdouble pos) {
+FXbool MadReader::seek(FXdouble pos) {
   FXlong offset = 0;
   if (xing) {
     offset = xing->seek(pos,(input_end - input_start));
@@ -558,7 +559,7 @@ FXbool MadInput::seek(FXdouble pos) {
   }
 
 
-FXbool MadInput::readFrame(Packet * packet,const mpeg_frame & frame) {
+FXbool MadReader::readFrame(Packet * packet,const mpeg_frame & frame) {
   memcpy(packet->ptr(),buffer,4);
   FXint nread = engine->input->read(packet->ptr()+4,frame.size()-4);
   if (nread!=(frame.size()-4)) {
@@ -570,7 +571,7 @@ FXbool MadInput::readFrame(Packet * packet,const mpeg_frame & frame) {
   }
 
 
-void MadInput::parseFrame(Packet * packet,const mpeg_frame & frame) {
+void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
   if (compare((const FXchar*)(packet->data()+frame.xing_offset()),"Xing",4)==0 ||
       compare((const FXchar*)(packet->data()+frame.xing_offset()),"Info",4)==0 ) {
 
@@ -618,7 +619,7 @@ void MadInput::parseFrame(Packet * packet,const mpeg_frame & frame) {
     }
   }
 
-FXbool MadInput::parse_id3v1() {
+FXbool MadReader::parse_id3v1() {
   engine->input->position(input_end-128,FXIO::Begin);
 
   if (engine->input->read(buffer,3)!=3)
@@ -631,7 +632,7 @@ FXbool MadInput::parse_id3v1() {
   return true;
   }
 
-FXbool MadInput::parse_ape() {
+FXbool MadReader::parse_ape() {
   FXchar apebuffer[32];
   FXchar * ape = apebuffer;
 
@@ -678,7 +679,7 @@ FXbool MadInput::parse_ape() {
   }
 
 
-InputStatus MadInput::parse(Packet * packet) {
+ReadStatus MadReader::parse(Packet * packet) {
   mpeg_frame frame;
 
   stream_position=0;
@@ -692,11 +693,11 @@ InputStatus MadInput::parse(Packet * packet) {
       buffer[1]=buffer[2];
       buffer[2]=buffer[3];
       if (engine->input->read(&buffer[3],1)!=1)
-        return InputError;
+        return ReadError;
       }
     else {
       if (engine->input->read(buffer,4)!=4)
-        return InputError;
+        return ReadError;
       }
 
     /// Is this a frame header
@@ -715,7 +716,7 @@ InputStatus MadInput::parse(Packet * packet) {
       if (!engine->input->serial()) {
 
         if (!parse_id3v1() || !parse_ape())
-          return InputError;
+          return ReadError;
 
         engine->input->position(input_start,FXIO::Begin);
         }
@@ -747,7 +748,7 @@ InputStatus MadInput::parse(Packet * packet) {
       flags|=FLAG_PARSED;
       memset(buffer,0,4);
       sync=false;
-      return InputOk;
+      return ReadOk;
       }
 
     /// Check for ID3 tag
@@ -757,13 +758,13 @@ InputStatus MadInput::parse(Packet * packet) {
       FXint   tagsize=0;
       FXuchar id3buf[6];
       if (engine->input->read(id3buf,6)!=6)
-        return InputError;
+        return ReadError;
+
+      tagsize = SYNCSAFE_INT32(id3buf[2],id3buf[3],id3buf[4],id3buf[5]);
 
       /* check for footer */
       if (id3buf[1]&0x10)
         tagsize+=10;
-
-      tagsize = SYNCSAFE_INT32(id3buf[2],id3buf[3],id3buf[4],id3buf[5]);
 
       engine->input->position(tagsize,FXIO::Current);
       sync=false;
@@ -775,10 +776,10 @@ InputStatus MadInput::parse(Packet * packet) {
     else
       sync=true;
     }
-  return InputError;
+  return ReadError;
   }
 
-InputStatus MadInput::process(Packet*packet) {
+ReadStatus MadReader::process(Packet*packet) {
   packet->af              = af;
   packet->stream_position = stream_position;
   packet->stream_length   = stream_length;
@@ -789,7 +790,7 @@ InputStatus MadInput::process(Packet*packet) {
 
   mpeg_frame frame;
 
-  InputStatus status=InputOk;
+  ReadStatus status=ReadOk;
   FXint nread;
   FXbool lostsync=false;
 
@@ -808,7 +809,7 @@ InputStatus MadInput::process(Packet*packet) {
       if (nread!=(frame.size()-4)) {
         fxmessage("mad_input: truncated frame at end of input.");
         packet->flags|=FLAG_EOS;
-        status=InputDone;
+        status=ReadDone;
         goto done;
         }
       packet->wrote(frame.size());
@@ -817,7 +818,7 @@ InputStatus MadInput::process(Packet*packet) {
 
       if (engine->input->read(buffer,4)!=4){
         packet->flags|=FLAG_EOS;
-        status=InputDone;
+        status=ReadDone;
         goto done;
         }
 
@@ -833,7 +834,7 @@ InputStatus MadInput::process(Packet*packet) {
       if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0) {
         if (engine->input->read(buffer,4)!=4){
           packet->flags|=FLAG_EOS;
-          status=InputDone;
+          status=ReadDone;
           goto done;
           }
         }
@@ -843,7 +844,7 @@ InputStatus MadInput::process(Packet*packet) {
         buffer[2]=buffer[3];
         if (engine->input->read(&buffer[3],1)!=1){
           packet->flags|=FLAG_EOS;
-          status=InputDone;
+          status=ReadDone;
           goto done;
           }
         }
@@ -1119,8 +1120,8 @@ FXbool MadDecoder::flush(){
 
 
 
-InputPlugin * ap_mad_input(AudioEngine * engine) {
-  return new MadInput(engine);
+ReaderPlugin * ap_mad_input(AudioEngine * engine) {
+  return new MadReader(engine);
   }
 
 DecoderPlugin * ap_mad_decoder(AudioEngine * engine) {

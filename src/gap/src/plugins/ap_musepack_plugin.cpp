@@ -10,7 +10,7 @@
 #include "ap_memory_buffer.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -25,7 +25,7 @@ namespace ap {
 Due to the way musepack decoder is designed
 the input plugin actually decodes the data.
 */
-class MusepackInput : public InputPlugin {
+class MusepackReader : public ReaderPlugin {
 protected:
   FXfloat              buffer[MPC_DECODER_BUFFER_LENGTH];
   FXuint               nframes;
@@ -37,7 +37,7 @@ protected:
   mpc_reader_t         reader;
   mpc_decoder          decoder;
 protected:
-  InputStatus parse();
+  ReadStatus parse();
 protected:
   static mpc_int32_t  mpc_input_read(void *t, void *ptr, mpc_int32_t size);
   static mpc_bool_t   mpc_input_seek(void *t, mpc_int32_t offset);
@@ -45,22 +45,22 @@ protected:
   static mpc_int32_t  mpc_input_size(void *t);
   static mpc_bool_t   mpc_input_canseek(void*);
 public:
-  MusepackInput(AudioEngine*);
+  MusepackReader(AudioEngine*);
   FXuchar format() const { return Format::Musepack; };
   FXbool init();
   FXbool can_seek() const;
   FXbool seek(FXdouble);
-  InputStatus process(Packet*);
+  ReadStatus process(Packet*);
   };
 
 
-mpc_int32_t MusepackInput::mpc_input_read(void *t, void *ptr, mpc_int32_t size){
+mpc_int32_t MusepackReader::mpc_input_read(void *t, void *ptr, mpc_int32_t size){
   InputThread * input = reinterpret_cast<InputThread*>(t);
   FXASSERT(input);
   return input->read(ptr,size);
   }
 
-mpc_bool_t MusepackInput::mpc_input_seek(void *t, mpc_int32_t offset){
+mpc_bool_t MusepackReader::mpc_input_seek(void *t, mpc_int32_t offset){
   InputThread * input = reinterpret_cast<InputThread*>(t);
   FXASSERT(input);
   FXlong pos=input->position((FXlong)offset,FXIO::Begin);
@@ -70,25 +70,25 @@ mpc_bool_t MusepackInput::mpc_input_seek(void *t, mpc_int32_t offset){
     return true;
   }
 
-mpc_int32_t MusepackInput::mpc_input_tell(void *t){
+mpc_int32_t MusepackReader::mpc_input_tell(void *t){
   InputThread * input = reinterpret_cast<InputThread*>(t);
   FXASSERT(input);
   return (FXint) input->position();
   }
 
-mpc_int32_t  MusepackInput::mpc_input_size(void *t){
+mpc_int32_t  MusepackReader::mpc_input_size(void *t){
   InputThread * input = reinterpret_cast<InputThread*>(t);
   FXASSERT(input);
   return  input->size();
   }
 
-mpc_bool_t MusepackInput::mpc_input_canseek(void*t){
+mpc_bool_t MusepackReader::mpc_input_canseek(void*t){
   InputThread * input = reinterpret_cast<InputThread*>(t);
   FXASSERT(input);
   return !input->serial();
   }
 
-MusepackInput::MusepackInput(AudioEngine *e) : InputPlugin(e), stream_position(0) {
+MusepackReader::MusepackReader(AudioEngine *e) : ReaderPlugin(e), stream_position(0) {
   reader.read     = mpc_input_read;
   reader.seek     = mpc_input_seek;
   reader.tell     = mpc_input_tell;
@@ -97,7 +97,7 @@ MusepackInput::MusepackInput(AudioEngine *e) : InputPlugin(e), stream_position(0
   reader.data     = engine->input;
   }
 
-FXbool MusepackInput::init() {
+FXbool MusepackReader::init() {
   mpc_streaminfo_init(&si);
 //  mpc_decoder_setup(&decoder,&reader);
   nframes=0;
@@ -105,11 +105,11 @@ FXbool MusepackInput::init() {
   return true;
   }
 
-FXbool MusepackInput::can_seek() const {
+FXbool MusepackReader::can_seek() const {
   return !engine->input->serial() && stream_length>0;
   }
 
-FXbool MusepackInput::seek(FXdouble pos) {
+FXbool MusepackReader::seek(FXdouble pos) {
   if (!engine->input->serial() && stream_length>0) {
     FXlong offset = stream_length*pos;
     if (mpc_decoder_seek_sample(&decoder,offset)){
@@ -121,7 +121,7 @@ FXbool MusepackInput::seek(FXdouble pos) {
   }
 
 
-InputStatus MusepackInput::parse() {
+ReadStatus MusepackReader::parse() {
   if (mpc_streaminfo_read(&si,&reader)==ERROR_CODE_OK) {
     stream_position = 0;
     stream_length   = mpc_streaminfo_get_length_samples(&si);
@@ -130,21 +130,21 @@ InputStatus MusepackInput::parse() {
 
     mpc_decoder_setup(&decoder,&reader);
     if (!mpc_decoder_initialize(&decoder,&si))
-      return InputError;
+      return ReadError;
 
     flags|=FLAG_PARSED;
-    return InputOk;
+    return ReadOk;
     }
   else
-    return InputError;
+    return ReadError;
   }
 
-InputStatus MusepackInput::process(Packet * p){
+ReadStatus MusepackReader::process(Packet * p){
 
   if (!(flags&FLAG_PARSED)) {
     fxmessage("parsing %d\n",flags&FLAG_PARSED);
-    InputStatus status = parse();
-    if (status!=InputOk) {
+    ReadStatus status = parse();
+    if (status!=ReadOk) {
       p->unref();
       return status;
       }
@@ -161,13 +161,13 @@ InputStatus MusepackInput::process(Packet * p){
     if (nframes==0) {
       frame=0;
       nframes = mpc_decoder_decode(&decoder,buffer,0,0);
-      if (nframes==(FXuint)-1) return InputError;
+      if (nframes==(FXuint)-1) return ReadError;
       else if (nframes==0) {
         if (packet->size()) {
           engine->decoder->post(packet);
           packet=NULL;
           }
-        return InputDone;
+        return ReadDone;
         }
       }
     FXint ncopy = FXMIN(nframes,packet->space()/af.framesize());
@@ -180,13 +180,13 @@ InputStatus MusepackInput::process(Packet * p){
       packet=NULL;
       }
     }
-  return InputOk;
+  return ReadOk;
   }
 
 
 
-InputPlugin * ap_musepack_input(AudioEngine * engine) {
-  return new MusepackInput(engine);
+ReaderPlugin * ap_musepack_input(AudioEngine * engine) {
+  return new MusepackReader(engine);
   }
 
 //DecoderPlugin * ap_mad_decoder(AudioEngine * engine) {

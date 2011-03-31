@@ -5,6 +5,7 @@
 #include "ap_event.h"
 #include "ap_format.h"
 #include "ap_device.h"
+#include "ap_input_plugin.h"
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
@@ -14,9 +15,11 @@
 #include "ap_thread.h"
 #include "ap_thread_queue.h"
 #include "ap_input_thread.h"
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_thread.h"
 
+#include "plugins/ap_file_plugin.h"
+#include "plugins/ap_http_plugin.h"
 #include "plugins/ap_cdda_plugin.h"
 
 
@@ -27,8 +30,8 @@
 namespace ap {
 
 InputThread::InputThread(AudioEngine*e) : EngineThread(e),
-  io(NULL),
-  plugin(NULL),
+  input(NULL),
+  reader(NULL),
   streamid(0),
   use_mmap(false),
   state(StateIdle) {
@@ -53,6 +56,23 @@ void InputThread::free() {
   packetpool.free();
   EngineThread::free();
   }
+
+/*
+Event * InputThread::wait_for_io() {
+  Event * event=NULL;
+  do {
+    event=fifo.pop();
+    if (event) return event;
+
+    ap_wait(io.handle(),fifo.handle());
+    }
+  while(1);
+  return NULL;
+  }
+*/
+
+
+
 
 
 Event * InputThread::wait_for_event() {
@@ -82,6 +102,8 @@ Event * InputThread::wait_for_packet() {
   while(1);
   return NULL;
   }
+
+
 
 /*
    event=fifo.pop();
@@ -173,7 +195,7 @@ FXint InputThread::run(){
   ap_set_thread_name("ap_input");
 
   for (;;) {
-    if (plugin && io && state==StateProcessing)
+    if (reader && state==StateProcessing)
       event = wait_for_packet();
     else
       event = wait_for_event();
@@ -205,18 +227,18 @@ FXint InputThread::run(){
       case Buffer         :
         {
           Packet * packet = dynamic_cast<Packet*>(event);
-          FXASSERT(plugin);
+          FXASSERT(reader);
           FXASSERT(packet);
           packet->stream = streamid;
-          FXuint status = plugin->process(packet);
+          FXuint status = reader->process(packet);
           switch(status) {
-            case InputError: fxmessage("[input] error\n");
-                             ctrl_close_input();
-                             break;
-            case InputDone : fxmessage("[input] done\n");
-                             set_state(StateIdle);
-                             break;
-            default        : break;
+            case ReadError: fxmessage("[input] error\n");
+                              ctrl_close_input();
+                              break;
+            case ReadDone : fxmessage("[input] done\n");
+                              set_state(StateIdle);
+                              break;
+            default         : break;
             }
           continue; /* packet already released */
           break;
@@ -228,70 +250,36 @@ FXint InputThread::run(){
   }
 
 
-/*
-  A blocking read that processes events while waiting...
-*/
 FXival InputThread::read(void * data,FXival count) {
-#ifndef WIN32
-  FXival nread;
-  FXival ncount=count;
-  FXchar * buffer = (FXchar *)data;
-  while(ncount>0) {
-    nread=io->readBlock(buffer,ncount);
-    if (__likely(nread>0)) {
-      buffer+=nread;
-      ncount-=nread;
-      }
-    else if (nread==0) {
-      return count-ncount;
-      }
-    else {
-      if (errno==EINTR) continue;
-      else if (errno==EAGAIN || errno==EWOULDBLOCK){
-        ap_wait(io->handle(),fifo.handle());
-        }
-      else {
-        return -1;
-        }
-      }
-    }
-  return count;
-#else
-  /// FIXME, implement ASYNC io on Windows.
-  return -1;
-#endif
+  FXASSERT(input);
+  return input->read(data,count);
   }
 
-
-
-
-
-/// Postion Input
 FXlong InputThread::position(FXlong offset,FXuint from){
-  FXASSERT(io);
-  return io->position(offset,from);
+  FXASSERT(input);
+  return input->position(offset,from);
   }
 
 FXlong InputThread::position() const{
-  FXASSERT(io);
-  return io->position();
+  FXASSERT(input);
+  return input->position();
   }
 
   /// Postion Input
 FXbool InputThread::serial() const{
-  FXASSERT(io);
-  return io->isSerial();
+  FXASSERT(input);
+  return input->serial();
   }
 
   /// Postion Input
 FXbool InputThread::eof() const{
-  FXASSERT(io);
-  return io->eof();
+  FXASSERT(input);
+  return input->eof();
   }
   /// Postion Input
 FXlong InputThread::size() const {
-  FXASSERT(io);
-  return io->size();
+  FXASSERT(input);
+  return input->size();
   }
 
 
@@ -303,49 +291,14 @@ void InputThread::ctrl_eos() {
   }
 
 void InputThread::ctrl_seek(FXdouble pos) {
-  if (plugin && !serial() && plugin->can_seek()) {
+  if (reader && !serial() && reader->can_seek()) {
     ctrl_flush();
-    plugin->seek(pos);
-    }
-  }
-
-FXIO * InputThread::open_file(const FXString & uri) {
-  if (use_mmap) {
-    fxmessage("[input] open using memmap\n");
-    FXMemMap * map = new FXMemMap;
-    if (!map->openMap(uri)) {
-      delete map;
-      map=NULL;
-      }
-    else {
-      url=uri;
-      }
-    return map;
-    }
-  else {
-    FXFile * file = dynamic_cast<FXFile*>(io);
-    if (file) {
-      file->close();
-      }
-    else {
-      if (io) {
-        delete io;
-        io=NULL;
-        }
-      file=new FXFile;
-      }
-    if (!file->open(uri)) {
-      delete file;
-      file=NULL;
-      return NULL;
-      }
-    url=uri;
-    return file;
+    reader->seek(pos);
     }
   }
 
 
-#ifdef HAVE_CDDA_PLUGIN
+#if 0
 FXIO * InputThread::open_cdda(const FXString & uri) {
   AudioCD * cdda = NULL;
   if (io)
@@ -371,14 +324,41 @@ FXIO * InputThread::open_cdda(const FXString & uri) {
 #endif
 
 
-FXIO* InputThread::open_io(const FXString & uri) {
+InputPlugin* InputThread::open_input(const FXString & uri) {
   FXString scheme = FXURL::scheme(uri);
+
+  if (input) {
+    delete input;
+    input=NULL;
+    }
+
   if (scheme=="file" || scheme.empty()) {
-    return open_file(uri);
+    FileInput * file = new FileInput(fifo.handle());
+    if (!file->open(uri)){
+      delete file;
+      return NULL;
+      }
+    url=uri;
+    return file;
+    }
+  else if (scheme=="http") {
+    HttpInput * http = new HttpInput(fifo.handle());
+    if (!http->open(uri)){
+      delete http;
+      return NULL;
+      }
+    url=uri;
+    return http;
     }
 #ifdef HAVE_CDDA_PLUGIN
   else if (scheme=="cdda") {
-    return open_cdda(uri);
+    CDDAInput * cdda = new CDDAInput(fifo.handle());
+    if (cdda->open(uri)) {
+      delete cdda;
+      return NULL;
+      }
+    url=uri;
+    return cdda;
     }
 #endif
   else {
@@ -386,13 +366,13 @@ FXIO* InputThread::open_io(const FXString & uri) {
     }
   }
 
-InputPlugin* InputThread::open_plugin(const FXString & uri) {
+ReaderPlugin* InputThread::open_reader() {
   /// FIXME try to reuse existing plugin
-  if (plugin) {
-    delete plugin;
-    plugin=NULL;
+  if (reader) {
+    delete reader;
+    reader=NULL;
     }
-  return InputPlugin::open(engine,uri);
+  return ReaderPlugin::open(engine,input->plugin());
   }
 
 
@@ -403,27 +383,25 @@ void InputThread::ctrl_open_input(const FXString & uri) {
     goto failed;
     }
 
-  /// Open IO
-  io=open_io(uri);
-  if (io==NULL) {
+  /// Open Input
+  input=open_input(uri);
+  if (input==NULL) {
     engine->post(new ErrorMessage(FXString::value("Unable to open %s",uri.text())));
     goto failed;
     }
 
-  /// Open Plugin. FIXME this won't work for internet streams.
-  plugin = open_plugin(uri);
-  if (plugin==NULL) {
-    engine->post(new ErrorMessage(FXString::value("No input plugin available for %s",FXPath::extension(uri).text())));
+  reader = open_reader();
+  if (reader==NULL) {
+    engine->post(new ErrorMessage(FXString::value("No input plugin available for %s",uri.text())));
     goto failed;
     }
 
-  if (!plugin->init()) {
+  if (!reader->init()) {
     engine->post(new ErrorMessage(FXString::value("Failed to initialize plugin")));
     goto failed;
     }
 
   streamid++;
-
   set_state(StateProcessing,true);
   return;
 failed:
@@ -451,14 +429,14 @@ void InputThread::set_state(FXuchar s,FXbool notify) {
 
 void InputThread::ctrl_close_input(FXbool notify) {
   fxmessage("ctrl_close_input %d\n",notify);
-  if (io) {
-    delete io;
-    io=NULL;
+  if (input) {
+    delete input;
+    input=NULL;
     url.clear();
     }
-  if (plugin) {
-    delete plugin;
-    plugin=NULL;
+  if (reader) {
+    delete reader;
+    reader=NULL;
     }
   set_state(StateIdle,notify);
   }

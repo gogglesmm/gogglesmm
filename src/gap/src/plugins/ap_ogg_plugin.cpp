@@ -10,7 +10,7 @@
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
-#include "ap_input_plugin.h"
+#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -24,18 +24,18 @@ namespace ap {
 
 class AudioEngine;
 
-struct OggInputState {
+struct OggReaderState {
   FXbool has_stream;
   FXbool has_eos;
   FXbool has_page;
   FXbool has_packet;
   FXbool header_written;
   FXuint bytes_written;
-  OggInputState() : has_stream(false),has_eos(false),has_page(false),has_packet(false),header_written(false),bytes_written(0) {}
+  OggReaderState() : has_stream(false),has_eos(false),has_page(false),has_packet(false),header_written(false),bytes_written(0) {}
   void reset() {has_stream=false;has_eos=false;has_page=false; has_packet=false; header_written=false;bytes_written=0; }
   };
 
-class OggInput : public InputPlugin {
+class OggReader : public ReaderPlugin {
 protected:
   enum {
     FLAG_VORBIS_HEADER_INFO    = 0x2,
@@ -43,7 +43,7 @@ protected:
     FLAG_VORBIS_HEADER_BLOCK   = 0x8,
     };
 protected:
-  OggInputState    state;
+  OggReaderState    state;
   ogg_stream_state stream;
   ogg_sync_state   sync;
   ogg_page         page;
@@ -54,7 +54,7 @@ protected:
 protected:
   Packet *        packet;
   FXint           ogg_packet_written;
-  InputStatus     status;
+  ReadStatus     status;
   FXuchar         codec;
   FXlong          stream_start;
   FXlong          input_position;
@@ -64,16 +64,16 @@ protected:
   FXbool fetch_next_packet();
   void   submit_ogg_packet();
   void   check_vorbis_length(vorbis_info*);
-  InputStatus parse();
-  InputStatus parse_vorbis_stream();
+  ReadStatus parse();
+  ReadStatus parse_vorbis_stream();
 public:
-  OggInput(AudioEngine *);
+  OggReader(AudioEngine *);
   FXuchar format() const { return Format::OGG; };
   FXbool init();
   FXbool seek(FXdouble);
   FXbool can_seek() const;
-  InputStatus process(Packet*);
-  virtual ~OggInput();
+  ReadStatus process(Packet*);
+  virtual ~OggReader();
   };
 
 
@@ -93,20 +93,20 @@ public:
 extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
 #endif
 
-OggInput::OggInput(AudioEngine * e) : InputPlugin(e),packet(NULL),ogg_packet_written(-1),codec(Codec::Invalid) {
+OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e),packet(NULL),ogg_packet_written(-1),codec(Codec::Invalid) {
   ogg_sync_init(&sync);
   }
 
 
-OggInput::~OggInput() {
+OggReader::~OggReader() {
   ogg_sync_clear(&sync);
   }
 
-FXbool OggInput::can_seek() const {
+FXbool OggReader::can_seek() const {
   return stream_length>0;
   }
 
-FXbool OggInput::seek(FXdouble pos){
+FXbool OggReader::seek(FXdouble pos){
  FXASSERT(stream_length>0);
 
     if (packet) {
@@ -166,11 +166,11 @@ FXbool OggInput::seek(FXdouble pos){
   }
 
 
-FXbool OggInput::init() {
+FXbool OggReader::init() {
   ogg_sync_clear(&sync);
   ogg_sync_reset(&sync);
   flags&=~(FLAG_PARSED|FLAG_VORBIS_HEADER_INFO|FLAG_VORBIS_HEADER_COMMENT|FLAG_VORBIS_HEADER_BLOCK);
-  status=InputOk;
+  status=ReadOk;
 
   input_position=0;
 
@@ -188,7 +188,7 @@ FXbool OggInput::init() {
 
 #define BUFFERSIZE 32768
 
-FXbool OggInput::match_page() {
+FXbool OggReader::match_page() {
   if (state.has_stream) {
     if (ogg_page_serialno(&page)==stream.serialno)
       return true;
@@ -204,7 +204,7 @@ FXbool OggInput::match_page() {
   return false;
   }
 
-void OggInput::check_vorbis_length(vorbis_info * info) {
+void OggReader::check_vorbis_length(vorbis_info * info) {
   stream_length=0;
   stream_start=0;
   if (!engine->input->serial()) {
@@ -247,7 +247,7 @@ void OggInput::check_vorbis_length(vorbis_info * info) {
 
 
 
-InputStatus OggInput::parse_vorbis_stream() {
+ReadStatus OggReader::parse_vorbis_stream() {
   if (op.packet[0]==1) {
 
     vorbis_info_init(&vi);
@@ -294,28 +294,28 @@ InputStatus OggInput::parse_vorbis_stream() {
   else {
     goto error;
     }
-  return InputOk;
+  return ReadOk;
 error:
   vorbis_info_clear(&vi);
   vorbis_comment_clear(&vc);
-  return InputError;
+  return ReadError;
   }
 
 
 
 
-InputStatus OggInput::parse() {
+ReadStatus OggReader::parse() {
   input_position = engine->input->position();
 
   while(packet) {
 
     if (!fetch_next_packet())
-      return InputError;
+      return ReadError;
 
     if (compare((const FXchar*)&op.packet[1],"vorbis",6)==0){
 
-      if (parse_vorbis_stream()!=InputOk)
-        return InputError;
+      if (parse_vorbis_stream()!=ReadOk)
+        return ReadError;
       }
 
 #ifdef HAVE_FLAC_PLUGIN
@@ -323,16 +323,16 @@ InputStatus OggInput::parse() {
 
       /// Make sure we have enough bytes
       if (op.bytes<51)
-        return InputError;
+        return ReadError;
 
       /// Check Mapping Version
       if (op.packet[5]!=0x01 || op.packet[6]!=0x00)
-        return InputError;
+        return ReadError;
 
       /// Parse the stream info block.
       /// FIXME stream_length may not be set.
       if (!flac_parse_streaminfo(op.packet+13,af,stream_length))
-        return InputError;
+        return ReadError;
 
       /// Post Config, done parsing.
       codec=Codec::FLAC;
@@ -343,21 +343,21 @@ InputStatus OggInput::parse() {
       submit_ogg_packet();
 
       /// Success
-      return InputOk;
+      return ReadOk;
       }
 #endif
     else {
-      return InputError;
+      return ReadError;
       }
 
     if (flags&FLAG_PARSED)
-      return InputOk;
+      return ReadOk;
     }
-  return InputError;
+  return ReadError;
   }
 
 
-void OggInput::submit_ogg_packet() {
+void OggReader::submit_ogg_packet() {
   FXASSERT(packet);
   FXASSERT(packet->capacity()>sizeof(ogg_packet));
 
@@ -410,7 +410,7 @@ void OggInput::submit_ogg_packet() {
 
 
 
-FXbool OggInput::fetch_next_page() {
+FXbool OggReader::fetch_next_page() {
 /*
   // Available from Ogg 1.1.4
   if(ogg_sync_check(&sync))
@@ -427,8 +427,7 @@ FXbool OggInput::fetch_next_page() {
       FXchar * buffer=ogg_sync_buffer(&sync,BUFFERSIZE);
       if (buffer==NULL) return false;
       FXival nbytes = engine->input->read(buffer,BUFFERSIZE);
-      if (nbytes<=0)
-        return false;
+      if (nbytes<=0) return false;
       ogg_sync_wrote(&sync,nbytes);
       }
     else { // skipped some bytes
@@ -439,7 +438,7 @@ FXbool OggInput::fetch_next_page() {
   }
 
 
-FXbool OggInput::fetch_next_packet() {
+FXbool OggReader::fetch_next_packet() {
   FXint result;
   while(1) {
     if (state.has_page==false) {
@@ -465,7 +464,7 @@ FXbool OggInput::fetch_next_packet() {
   }
 
 
-InputStatus OggInput::process(Packet * p) {
+ReadStatus OggReader::process(Packet * p) {
   packet                  = p;
   packet->stream_position = -1;
   packet->stream_length   = stream_length;
@@ -474,8 +473,8 @@ InputStatus OggInput::process(Packet * p) {
     submit_ogg_packet();
 
   if (__unlikely(!(flags&FLAG_PARSED))) {
-    InputStatus result = parse();
-    if (result!=InputOk)
+    ReadStatus result = parse();
+    if (result!=ReadOk)
       return result;
     }
 
@@ -484,14 +483,14 @@ InputStatus OggInput::process(Packet * p) {
     }
 
   if (state.has_eos)
-    return InputDone;
+    return ReadDone;
   else
-    return InputOk;
+    return ReadOk;
   }
 
 
-InputPlugin * ap_ogg_input(AudioEngine * engine) {
-  return new OggInput(engine);
+ReaderPlugin * ap_ogg_input(AudioEngine * engine) {
+  return new OggReader(engine);
   }
 
 

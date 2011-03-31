@@ -69,7 +69,10 @@ Event * ThreadQueue::pop() {
     event=head;
     head=head->next;
     event->next=NULL;
-    if (head==NULL) tail=NULL;
+    if (head==NULL) {
+      tail=NULL;
+      pfifo.clear();
+      }
     }
   else {
     pfifo.clear();
@@ -83,6 +86,7 @@ void ThreadQueue::flush() {
   mfifo.lock();
   Event * h = head;
   head=tail=NULL;
+  pfifo.clear();  
   mfifo.unlock();
   while(h) {
     event = h;
