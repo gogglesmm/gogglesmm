@@ -58,7 +58,7 @@ protected:
 public:
   virtual void unref();
 
-  void clear();
+  void reset();
 
   FXbool full() const { return (af.framesize() > space()); }
 

@@ -75,7 +75,7 @@ Packet::Packet(PacketPool *p,FXival sz) : Event(Buffer), MemoryBuffer(sz), pool(
 Packet::~Packet() {
   }
 
-void Packet::clear() {
+void Packet::reset() {
   MemoryBuffer::clear();
   flags=0;
   stream=0;
@@ -84,7 +84,7 @@ void Packet::clear() {
   }
 
 void Packet::unref() {
-  clear();
+  reset();
   pool->push(this);
   }
 
