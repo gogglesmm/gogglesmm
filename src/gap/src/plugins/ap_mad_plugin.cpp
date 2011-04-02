@@ -91,18 +91,12 @@ public:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+static const FXchar v1_layer2_validation[]={
+1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
+1,0,0,0,1,0,1,1,1,1,1,1,1,1,1,0,
+1,0,0,0,1,0,1,1,1,1,1,1,1,1,1,0,
+1,0,0,0,1,0,1,1,1,1,1,1,1,1,1,0,
+};
 
 static const FXint bitrates[]={
   0,32000,64000,96000, 128000,160000,192000,224000, 256000,288000,320000,352000, 384000,416000,448000,-1, /// v1,l1
@@ -164,8 +158,8 @@ public:
 
   void debug() {
     fxmessage("   has_sync: %s\n",PRINT_YES_NO(sync()));
-    fxmessage("    version: %d\n",version());
-    fxmessage("      layer: %d\n",layer());
+    fxmessage("    version: %d\n",version()+1);
+    fxmessage("      layer: %d\n",layer()+1);
     fxmessage("    bitrate: %d\n",bitrate());
     fxmessage(" samplerate: %d\n",samplerate());
     fxmessage("   channels: %d\n",channel());
@@ -179,10 +173,12 @@ public:
     if ((!sync()) ||
         (version()==Invalid) ||
         (layer()==Invalid) ||
+        (bitrate()==Invalid) ||
         (samplerate()==-1)
         ) {
       return false;
       }
+    //debug();
     return true;
     }
 
@@ -191,14 +187,13 @@ public:
     }
 
   FXchar version() const {
-    const FXuchar v = ((header>>19)&0x3);
+    const FXuchar v = (header&0x180000)>>19;
     switch(v) {
-      case 0 : return V25; 		break;
-      case 2 : return V2; 			break;
-      case 3 : return V1; 			break;
+      case 0 : return V25; break;
+      case 2 : return V2;  break;
+      case 3 : return V1;  break;
       default: break;
       }
-    //fxmessage("Invalid version %u\n",v);
     return Invalid;
     }
 
@@ -228,15 +223,13 @@ public:
       else
         return bitrates[64+b];
       }
-    return 0;
+    return Invalid;
     }
 
   FXint samplerate() const {
     const FXuchar s = ((header>>10)&0x3);
-    if (version()!=Invalid) {
-      return samplerates[s+(version()<<2)];
-      }
-    return -1;
+    FXASSERT(version()!=Invalid);
+    return samplerates[s+(version()<<2)];
     }
 
   FXint padding() const {
@@ -681,9 +674,128 @@ FXbool MadReader::parse_ape() {
 
 ReadStatus MadReader::parse(Packet * packet) {
   mpeg_frame frame;
+  FXbool found=false;
 
   stream_position=0;
   stream_length=-1;
+  FXint nsamples=0;
+
+  while(1) {
+
+    if (sync) {
+      buffer[0]=buffer[1];
+      buffer[1]=buffer[2];
+      buffer[2]=buffer[3];
+      if (engine->input->read(&buffer[3],1)!=1)
+        return ReadError;
+      }
+    else {
+      if (engine->input->read(buffer,4)!=4)
+        return ReadError;
+      }
+
+    if (frame.validate(buffer)) {
+
+      /// Success if we're able to fill up the packet!
+      if (frame.size()>packet->space()) {
+        if (!found) return ReadError;
+        af.set(AP_FORMAT_S16,frame.samplerate(),(frame.channel()==mpeg_frame::Single) ? 1 : 2);
+        ConfigureEvent * cfg = new ConfigureEvent(af,Codec::MPEG);
+        if (lame) {
+          cfg->stream_offset_start=lame->padstart;
+          cfg->stream_offset_end  =lame->padend;
+          }
+        engine->decoder->post(cfg);
+        flags|=FLAG_PARSED;
+        packet->af              = af;
+        packet->stream_position = stream_position;
+        packet->stream_length   = stream_length;
+        stream_position        += nsamples;
+        engine->decoder->post(packet);
+        return ReadOk;
+        }
+
+      if (!found) {
+        /// Mark this frame as start of our file.
+        input_start = engine->input->position() - 4;
+        if (!engine->input->serial())
+          input_end = engine->input->size();
+        else
+          input_end = -1;
+        }
+
+      readFrame(packet,frame);
+
+      if (!found) {
+
+        if (!engine->input->serial()) {
+          if (!parse_id3v1() || !parse_ape())
+            return ReadError;
+          engine->input->position(input_start,FXIO::Begin);
+          }
+        parseFrame(packet,frame);
+        if (xing||vbri||lame)
+          packet->clear();
+        else
+          nsamples+=frame.nsamples();
+        found=true;
+        }
+      else {
+        nsamples+=frame.nsamples();
+        }
+      sync=false;  
+      continue;
+      }
+    else {
+      found=false;
+      nsamples=0;
+      packet->clear();
+      }
+
+
+    if (buffer[0]=='I' && buffer[1]=='D' && buffer[2]=='3') {
+      fxmessage("mad_input: found id3 tag\n");
+
+      FXint   tagsize=0;
+      FXuchar id3buf[6];
+      if (engine->input->read(id3buf,6)!=6)
+        return ReadError;
+
+      tagsize = SYNCSAFE_INT32(id3buf[2],id3buf[3],id3buf[4],id3buf[5]);
+
+      /* check for footer */
+      if (id3buf[1]&0x10)
+        tagsize+=10;
+
+      engine->input->position(tagsize,FXIO::Current);
+      sync=false;
+      continue;
+      }
+
+    if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0)
+      sync=false;
+    else
+      sync=true;
+    }
+  return ReadError;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+
 
   while(1) {
 
@@ -745,11 +857,20 @@ ReadStatus MadReader::parse(Packet * packet) {
         engine->decoder->post(packet);
         }
 
-      flags|=FLAG_PARSED;
-      memset(buffer,0,4);
-      sync=false;
-      return ReadOk;
-      }
+      if (engine->input->read(buffer,4)!=4){
+        return ReadError;
+        }
+
+
+
+  //    flags|=FLAG_PARSED;
+  //    memset(buffer,0,4);
+  //    sync=false;
+
+
+
+      continue;
+    }
 
     /// Check for ID3 tag
     if (buffer[0]=='I' && buffer[1]=='D' && buffer[2]=='3') {
@@ -778,7 +899,7 @@ ReadStatus MadReader::parse(Packet * packet) {
     }
   return ReadError;
   }
-
+#endif
 ReadStatus MadReader::process(Packet*packet) {
   packet->af              = af;
   packet->stream_position = stream_position;
@@ -795,11 +916,9 @@ ReadStatus MadReader::process(Packet*packet) {
   FXbool lostsync=false;
 
   while(1) {
-
     if (frame.validate(buffer)) {
 
       lostsync=false;
-
 
       if (frame.size()>packet->space())
         goto done;
@@ -814,23 +933,18 @@ ReadStatus MadReader::process(Packet*packet) {
         }
       packet->wrote(frame.size());
       stream_position+=frame.nsamples();
-      sync=false;
-
       if (engine->input->read(buffer,4)!=4){
         packet->flags|=FLAG_EOS;
         status=ReadDone;
         goto done;
         }
-
       continue;
       }
     else {
-
       if (lostsync==false) {
         lostsync=true;
         fxmessage("mad_input: lost frame sync\n");
         }
-
       if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0) {
         if (engine->input->read(buffer,4)!=4){
           packet->flags|=FLAG_EOS;
@@ -1008,6 +1122,12 @@ DecoderStatus MadDecoder::process(Packet*in){
       }
     if (eos) buffer.appendZero(MAD_BUFFER_GUARD);
     mad_stream_buffer(&stream,buffer.data(),buffer.size());
+    }
+
+
+  if (buffer.size()==0) {
+    fxmessage("empty buffer, nothing to decode\n");
+    return DecoderOk;
     }
 
   stream.error=MAD_ERROR_NONE;
