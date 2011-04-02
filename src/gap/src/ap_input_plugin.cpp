@@ -26,10 +26,11 @@ FXival InputPlugin::read(void*data,FXival count){
       buffer+=nread;
       ncount-=nread;
       }
-    else if (nread==0) {
-      return count-ncount;
+    else if (nread==0) { // eof!
+      return count-ncount; 
       }
-    else if (nread==-2) {
+    else if (nread==-2) { // block!
+      FXASSERT(handle()!=BadHandle);
       if (!ap_wait_read(fifo,handle()))
         return -1;
       }
