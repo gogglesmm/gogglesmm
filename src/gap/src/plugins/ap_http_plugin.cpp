@@ -69,70 +69,79 @@ static FXbool ap_set_nosignal(FXint fd) {
   }
 
 
-HttpInput::HttpInput(FXInputHandle f) : InputPlugin(f),device(BadHandle),
+HttpInput::HttpInput(FXInputHandle f) : InputPlugin(f),device(BadHandle),buffer(1024),
   content_type(Format::Unknown),
   content_length(-1),
-  content_position(0) {
+  content_position(0),
+  icy_interval(0),
+  icy_count(0){
   }
 
 HttpInput::~HttpInput() {
-  if (device!=BadHandle){
+  close();
+  }
+
+void HttpInput::close() {
+  if (device!=BadHandle) {
+    shutdown(device,SHUT_RDWR); /// don't care if this fails.
     ::close(device);
     device=BadHandle;
     }
   }
 
 
-FXival HttpInput::fill_buffer(FXuval count) {
-  buffer.reserve(count);
-  FXival nread;
-  FXival ncount=count;
-  FXuchar * buf = buffer.ptr();
-  while(ncount>0) {
-    nread=read_raw(buf,ncount);
-    if (__likely(nread>0)) {
-      buf+=nread;
-      ncount-=nread;
-      }
-    else if (nread==0) {
-      buffer.wrote(count-ncount);
-      return count-ncount;
-      }
-    else if (nread==-2){
-      if (!ap_wait_read(fifo,device))
-        return -1;
-      }
-    else {
-      return -1;
-      }
+FXival HttpInput::buffer_read(void*data,FXival count){
+  if (__unlikely(buffer.size())) {
+    FXchar * buf = (FXchar*)(data);
+    FXival nread = buffer.read(buf,count);
+    if (nread==count) return nread;
+    count-=nread;
+    buf+=nread;
+    FXival n = InputPlugin::read(buf,count);
+    if (n==-1) return -1;
+    return nread+n;
     }
-  buffer.wrote(count);
-  return count;
+  return InputPlugin::read(data,count);
   }
 
 
+FXival HttpInput::fill_buffer(FXuval count) {
+  buffer.reserve(count);
+  FXival n = InputPlugin::read(buffer.ptr(),count);
+  if (n>0) buffer.wrote(n);
+  return n;
+  }
+
 FXival HttpInput::write_raw(void*data,FXival count){
-  FXival nwritten=-1;
+  FXival nwritten;
   do{
     nwritten=send(device,data,count,MSG_NOSIGNAL);
     }
   while(nwritten<0 && errno==EINTR);
+
+  if (nwritten<0) {
+    if (errno==EAGAIN || errno==EWOULDBLOCK)
+      return -2;
+    else
+      fxmessage("[http] %s\n",strerror(errno));
+    }
   return nwritten;
   }
 
 
 FXival HttpInput::read_raw(void* data,FXival count){
   FXival nread=-1;
- // FXint flags=0;
-  errno=0;
   do{
-    nread=::read(device,data,count);
+    nread=::recv(device,data,count,MSG_NOSIGNAL);
     }
   while(nread<0 && errno==EINTR);
 
-  /// Block
-  if (nread<0 && (errno==EAGAIN || errno==EWOULDBLOCK)){
-    return -2;
+  /// Block or not
+  if (nread<0) {
+    if (errno==EAGAIN || errno==EWOULDBLOCK)
+      return -2;
+    else
+      fxmessage("[http] %s\n",strerror(errno));
     }
   return nread;
   }
@@ -150,50 +159,25 @@ FXival HttpInput::write(void*data,FXival count) {
     else if (nwritten==0) {
       return count-ncount;
       }
-    else {
-      if (errno==EAGAIN || errno==EWOULDBLOCK){
-        if (!ap_wait_write(fifo,handle()))
-          return -1;
-        }
-      else {
+    else if (nwritten==-2) {
+      if (!ap_wait_read(fifo,handle()))
         return -1;
-        }
+      }
+    else {
+      return -1;
       }
     }
   return count;
   }
 
 
-#if 0
-static FXint HttpInput::ap_connect(FXInputHandle & input,struct addrinfo * entry) {
-
-  /// Connect Socket
-  FXint result = connect(device,entry->ai_addr,entry->ai_addrlen);
-  if (result!=0) {
-    fxmessage("Failed to connect\n");
-    ::close(device);
-    return BadHandle;
-    }
-
-  if (!ap_set_nonblock(device) || !ap_set_closeonexec(device))
-    ::close(device);
-    return BadHandle;
-    }
-
-
-  /// Succes
-  return device;
-  }
-#endif
-
 
 static FXInputHandle try_connect(FXInputHandle fifo,struct addrinfo * item) {
   FXint  device = socket(item->ai_family,item->ai_socktype,item->ai_protocol);
   if (device==BadHandle) {
-    fxmessage("Failed to create socket\n");
     return BadHandle;
     }
-    
+
   if (!ap_set_nonblocking(device) || !ap_set_closeonexec(device)) {
     ::close(device);
     return BadHandle;
@@ -202,19 +186,19 @@ static FXInputHandle try_connect(FXInputHandle fifo,struct addrinfo * item) {
   ap_set_nosignal(device);
 
   FXint result = connect(device,item->ai_addr,item->ai_addrlen);
-  if (result==-1) {        
+  if (result==-1) {
     if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-      if (ap_wait_write(fifo,device)) {   
+      if (ap_wait_write(fifo,device)) {
         /// Check error after select
         int socket_error=0;
-        socklen_t socket_length=sizeof(socket_error);        
+        socklen_t socket_length=sizeof(socket_error);
         if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0)
           return device;
         }
       }
     }
-  ::close(device);    
-  return BadHandle;  
+  ::close(device);
+  return BadHandle;
   }
 
 FXbool HttpInput::open(const FXString & hostname,FXint port) {
@@ -231,20 +215,20 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
     fxmessage("getaddrinfo failed\n");
     return false;
     }
-  
+
   for (item=list;item;item=item->ai_next){
     device=try_connect(fifo,item);
     if (device!=BadHandle) {
       freeaddrinfo(list);
       return true;
       }
-    }       
-  if (list) 
+    }
+  if (list)
     freeaddrinfo(list);
   return false;
   }
 
-
+/// Maybe move to memory stream
 FXbool HttpInput::next_header(FXString & header) {
   FXchar * buf  = (FXchar*)buffer.data_ptr;
   FXint    len  = buffer.size();
@@ -291,15 +275,51 @@ FXbool HttpInput::next_header(FXString & header) {
   return found;
   }
 
-FXbool HttpInput::parse_response_headers() {
+FXbool HttpInput::parse_response() {
   FXString header;
   FXbool eoh=false;
 
-  while(!eoh) {
+  FXint http_code=0;
+  FXint http_major_version=0;
+  FXint http_minor_version=0;
+
+  /// First get response code
+  while(1) {
 
     /// Get some bytes
     if (fill_buffer(256)==-1)
       return false;
+
+//    if (buffer.size())
+//      fxmessage("remaining buf: \"%256s\"\n",buffer.data_ptr);
+
+    if (!next_header(header))
+      continue;
+
+    if (header.scan("HTTP/%d.%d %d",&http_major_version,&http_minor_version,&http_code)!=3){
+      fxmessage("[http] invalid http response: %s\n",header.text());
+      return false;
+      }
+    if (http_code>=300 && http_code<400) {
+      fxmessage("[http] unhandled redirect (%d)\n",http_code);
+      return false;
+      }
+    else if (http_code>=400 && http_code<500) {
+      if (http_code==404)
+        fxmessage("[http] 404!!\n");
+      else
+        fxmessage("[http] client error (%d)\n",http_code);
+      return false;
+      }
+    else if (http_code<200 || http_code>=300){
+      fxmessage("[http] unhandled error (%d)\n",http_code);
+      }
+    fxmessage("http: %s\n",header.text());
+    break;
+    }
+
+
+  while(!eoh) {
 
     while(next_header(header)){
       if (header.empty()) {
@@ -316,14 +336,20 @@ FXbool HttpInput::parse_response_headers() {
           }
         }
       else if (comparecase(header,"Content-Length:",15)==0) {
-        FXString length = header.after(':').trim();
-        content_length=length.toInt();
-        if (content_length<=0) content_length=-1;
+        content_length=header.after(':').trim().toInt();
         }
       else if (comparecase(header,"Content-Encoding:",17)==0) {
         }
+      else if (comparecase(header,"icy-metaint:",12)==0) {
+        icy_count = icy_interval = header.after(':').trim().toInt();
+        fxmessage("icy_interval=%d\n",icy_interval);
+        }
       fxmessage("%s\n",header.text());
       }
+
+    /// Get some bytes
+    if (fill_buffer(256)==-1)
+      return false;
     }
   return true;
   }
@@ -333,20 +359,90 @@ FXbool HttpInput::parse_response_headers() {
 
 
 
+FXival HttpInput::icy_read(void*data,FXival count){
+  FXival req=count;
+  FXchar * out = (FXchar*)data;
+  FXival nread=0,n=0;
+  if (icy_count<count) {
 
+    /// Read up to icy buffer
+    nread=buffer_read(out,icy_count);
+    if (__unlikely(nread!=icy_count)) {
+      if (nread>0) {
+        content_position+=nread;
+        icy_count-=nread;
+        }
+      return nread;
+      }
 
+    // Adjust output
+    out+=nread;
+    count-=nread;
 
+    /// Read icy buffer size
+    FXuchar b=0;
+    n=buffer_read(&b,1);
+    if (__unlikely(n!=1)) return -1;
+
+    /// Read icy buffer
+    if (b) {
+      FXushort icy_size=((FXushort)b)*16;
+      FXString icy_buffer;
+      fxmessage("icy_size=%d\n",icy_size);
+      icy_buffer.length(icy_size);
+      n=buffer_read(&icy_buffer[0],icy_size);
+      if (__unlikely(n!=icy_size)) return -1;
+      fxmessage("icy-meta: %s\n",icy_buffer.text());
+      }
+
+    /// reset icy count
+    icy_count=icy_interval;
+
+    /// Read remaining bytes
+    n=buffer_read(out,count);
+    if (__unlikely(n!=count)) return -1;
+    nread+=n;
+    icy_count-=n;
+
+    /// finally update content position
+    content_position+=nread;
+    }
+  else {
+    nread=buffer_read(out,count);
+    if (__likely(nread>0)) {
+      content_position+=nread;
+      icy_count-=nread;
+      }
+    }
+  FXASSERT(nread==req);
+  return nread;
+  }
 
 
 FXival HttpInput::read(void* data,FXival count){
-  if (count>buffer.size()) {
-    if (fill_buffer(count-buffer.size())==-1)
-      return -1;
-    }
-  FXival nread = buffer.read(data,count);
-  content_position+=nread;
-  return nread;
+  if (icy_interval)
+    return icy_read(data,count);
+  else
+    return buffer_read(data,count);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 FXbool HttpInput::open(const FXString & uri) {
@@ -365,6 +461,10 @@ FXbool HttpInput::open(const FXString & uri) {
   FXString request = FXString::value("GET %s HTTP/1.1\r\n"
                                      "Host: %s\r\n"
                                      "User-agent: libgap/%d.%d\r\n"
+
+                                     /// For ice/shout cast this will give us metadata in stream.
+                                     "Icy-MetaData: 1\r\n"
+
                                      "\r\n"
                                      ,path.text()
                                      ,host.text()
@@ -386,8 +486,8 @@ FXbool HttpInput::open(const FXString & uri) {
     return false;
     }
 
-  /// Parse headers
-  if (!parse_response_headers())
+  /// Parse response
+  if (!parse_response())
     return false;
 
   fxmessage("success\n");

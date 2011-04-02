@@ -10,17 +10,26 @@ protected:
   FXuint        content_type;
   FXlong        content_length;
   FXlong        content_position;
+protected:
+  FXint         icy_interval;
+  FXint         icy_count;
 private:
   HttpInput(const HttpInput&);
   HttpInput &operator=(const HttpInput&);
 protected:
   FXlong read_raw(void*,FXival);
   FXlong write_raw(void*,FXival);
+protected:
   FXival fill_buffer(FXuval);
+  FXival buffer_read(void*,FXival);
+  FXival icy_read(void*,FXival);
   FXival write(void*data,FXival ncount);
   FXbool open(const FXString & hostname,FXint port);
   FXbool next_header(FXString & header);
-  FXbool parse_response_headers();
+  FXbool parse_response();
+  FXInputHandle handle() const { return device; }
+
+  void close();
 public:
   /// Constructor
   HttpInput(FXInputHandle);
