@@ -126,12 +126,11 @@ void MemoryStream::clear() {
 
 void MemoryStream::append(const void *buf,FXival sz) {
   reserve(sz);
-  memcpy(&data_buffer[data_size],buf,sz);
+  memcpy(data_buffer+data_size,buf,sz);
   data_size+=sz;
   }
 
 FXival MemoryStream::read(void *buf,FXival sz) {
-  FXASSERT(sz<=size());
   FXival n=FXMIN(sz,size());
   memcpy(buf,data_ptr,n);
   data_ptr+=n;
@@ -150,23 +149,25 @@ void MemoryStream::read(FXival sz) {
 
 
 void MemoryStream::reserve(FXival sz) {
-  if (data_ptr>data_buffer) {
-    FXival nbytes = (data_ptr-data_buffer);
-    memmove(data_buffer,data_ptr,nbytes);
-    data_size-=nbytes;
-    data_ptr=data_buffer;
-    }
-  if (data_capacity < data_size+sz ) {
-    FXival nbytes=(data_ptr-data_buffer);
-    data_capacity = (data_size+sz);
-    resizeElms(data_buffer,data_capacity);
-    data_ptr=data_buffer+nbytes;
+  if ((data_size+sz)>data_capacity) {
+    if (data_ptr>data_buffer) {
+      FXival nbytes = (data_ptr-data_buffer);
+      memmove(data_buffer,data_ptr,nbytes);
+      data_size-=nbytes;
+      data_ptr=data_buffer;
+      }
+    if ((data_size+sz)>data_capacity) {
+      FXASSERT(data_ptr==data_buffer);
+      data_capacity = (data_size+sz);
+      resizeElms(data_buffer,data_capacity);
+      data_ptr=data_buffer;
+      }
     }
   }
 
 void MemoryStream::padding(FXival sz) {
   reserve(sz);
-  memset(&data_buffer[data_size],0,sz);
+  memset(data_buffer+data_size,0,sz);
   data_size+=sz;
   }
 
