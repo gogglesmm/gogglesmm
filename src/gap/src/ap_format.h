@@ -78,7 +78,8 @@ enum {
   MP3               = 4,
   AAC               = 5,
   Musepack          = 6,
-  CDDA              = 7
+  CDDA              = 7,
+  M3U               = 8
   };
 
 }

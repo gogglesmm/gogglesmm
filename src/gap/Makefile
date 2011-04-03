@@ -96,6 +96,7 @@ src/ap_engine.cpp \
 src/ap_reader_plugin.cpp \
 src/ap_player.cpp \
 src/ap_memory_buffer.cpp \
+src/plugins/ap_m3u_plugin.cpp \
 src/plugins/ap_wav_plugin.cpp \
 src/plugins/ap_pcm_plugin.cpp \
 src/plugins/ap_file_plugin.cpp \

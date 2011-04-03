@@ -143,6 +143,9 @@ FXival HttpInput::read_raw(void* data,FXival count){
     else
       fxmessage("[http] %s\n",strerror(errno));
     }
+  else if (nread==0) {
+    close();
+    }
   return nread;
   }
 
@@ -296,10 +299,13 @@ FXbool HttpInput::parse_response() {
     if (!next_header(header))
       continue;
 
-    if (header.scan("HTTP/%d.%d %d",&http_major_version,&http_minor_version,&http_code)!=3){
+    if ( header.scan("HTTP/%d.%d %d",&http_major_version,&http_minor_version,&http_code)!=3 &&
+         header.scan("ICY %d",&http_code)!=1 ){
       fxmessage("[http] invalid http response: %s\n",header.text());
       return false;
       }
+
+
     if (http_code>=300 && http_code<400) {
       fxmessage("[http] unhandled redirect (%d)\n",http_code);
       return false;
@@ -333,6 +339,12 @@ FXbool HttpInput::parse_response() {
           }
         else if (comparecase(type,"audio/ogg")==0){
           content_type=Format::OGG;
+          }
+//        else if (comparecase(type,"audio/aacp")==0){
+//          content_type=Format::AAC;
+//          }
+        else if (comparecase(type,"audio/x-mpegurl")==0){
+          content_type=Format::M3U;
           }
         }
       else if (comparecase(header,"Content-Length:",15)==0) {
@@ -495,13 +507,27 @@ FXbool HttpInput::open(const FXString & uri) {
   }
 
 FXival HttpInput::position(FXlong offset,FXuint from) {
+  fxmessage("position %ld %ld\n",offset,content_position);
   FXASSERT(from==FXIO::Current && offset>0);
   if (from==FXIO::End) {
     fxmessage("cannot seek from end\n");
     return -1;
     }
   else if (from==FXIO::Begin) {
-    fxmessage("cannot seek from begin\n");
+    if (offset>content_position) {
+      offset-=content_position;
+      FXchar b;FXival n;
+      while(offset) {
+        n=buffer_read(&b,1);
+        if (n==-1) return -1;
+        offset-=n;
+        content_position+=n;
+        }
+      return content_position;
+      }
+    else {
+      fxmessage("cannot seek backwards\n");
+      }
     return -1;
     }
   else if (offset<0) {
@@ -509,14 +535,10 @@ FXival HttpInput::position(FXlong offset,FXuint from) {
     return -1;
     }
   else {
+    FXchar b;FXival n;
     while(offset) {
-      if (buffer.size()==0) {
-        FXint r = fill_buffer(256);
-        if (r==-1) return -1;
-        else if (r==0) return content_position;
-        }
-      FXint n=FXMIN(offset,buffer.size());
-      buffer.read(n);
+      n=buffer_read(&b,1);
+      if (n==-1) return -1;
       offset-=n;
       content_position+=n;
       }

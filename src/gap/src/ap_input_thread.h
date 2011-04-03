@@ -56,6 +56,7 @@ public:
   FXbool serial() const;
 
 
+  void ctrl_open_inputs(const FXStringList & url);
   void ctrl_open_input(const FXString & url);
   void ctrl_close_input(FXbool notify=false);
   void ctrl_flush(FXbool close=false);

@@ -232,12 +232,18 @@ FXint InputThread::run(){
           packet->stream = streamid;
           FXuint status = reader->process(packet);
           switch(status) {
-            case ReadError: fxmessage("[input] error\n");
-                              ctrl_close_input();
-                              break;
-            case ReadDone : fxmessage("[input] done\n");
-                              set_state(StateIdle);
-                              break;
+            case ReadError    : fxmessage("[input] error\n");
+                                ctrl_close_input();
+                                break;
+            case ReadDone     : fxmessage("[input] done\n");
+                                set_state(StateIdle);
+                                break;
+            case ReadRedirect : {fxmessage("[input] redirect\n");
+                                FXStringList list;
+                                reader->redirect(list);
+                                ctrl_open_inputs(list);
+                                }
+                                break;
             default         : break;
             }
           continue; /* packet already released */
@@ -375,6 +381,29 @@ ReaderPlugin* InputThread::open_reader() {
   return ReaderPlugin::open(engine,input->plugin());
   }
 
+
+void InputThread::ctrl_open_inputs(const FXStringList & url){
+  for (FXint i=0;i<url.no();i++){
+    if (url[i].empty()) continue;
+
+    /// Open Input
+    input=open_input(url[i]);
+    if (input==NULL) continue;
+
+    /// Open Reader
+    reader = open_reader();
+    if (reader==NULL) continue;
+
+    if (!reader->init())
+      continue;
+
+    streamid++;
+    set_state(StateProcessing,true);
+    return;
+    }
+  ctrl_close_input();
+  set_state(StateIdle,true);
+  }
 
 void InputThread::ctrl_open_input(const FXString & uri) {
   fxmessage("ctrl_open_input %s\n",uri.text());

@@ -56,6 +56,7 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
 namespace ap {
 
 
+extern ReaderPlugin * ap_m3u_input(AudioEngine*);
 
 extern ReaderPlugin * ap_wav_input(AudioEngine*);
 
@@ -104,6 +105,7 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #ifdef HAVE_CDDA_PLUGIN
     case Format::CDDA     : return ap_cdda_input(engine); break;
 #endif
+    case Format::M3U      : return ap_m3u_input(engine); break;
     default               : return NULL; break;
     }
   return NULL;

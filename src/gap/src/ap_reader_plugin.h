@@ -9,7 +9,8 @@ enum ReadStatus {
   ReadError,
   ReadOk,
   ReadDone,
-  ReadInterrupted
+  ReadInterrupted,
+  ReadRedirect
   };
 
 class ReaderPlugin {
@@ -26,6 +27,9 @@ protected:
 public:
   ReaderPlugin(AudioEngine*);
   virtual FXuchar format() const=0;
+
+  virtual FXbool redirect(FXStringList&) { return false; }
+
   virtual FXbool init()=0;
   virtual FXbool can_seek() const { return false; }
   virtual FXbool seek(FXdouble)=0;
