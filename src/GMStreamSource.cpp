@@ -129,9 +129,9 @@ FXbool GMStreamSource::listTracks(GMTrackList * tracklist,const FXIntList &/* al
   FXint queue=1;
   try {
 
-    query = "SELECT streams.id, streams.description, streams.bitrate, genres.name "
-            "FROM streams, genres "
-            "WHERE genres.id == streams.genre;";
+    query = "SELECT streams.id, streams.description, streams.bitrate, tags.name "
+            "FROM streams, tags "
+            "WHERE tags.id == streams.genre;";
 
     q = db->compile(query);
 

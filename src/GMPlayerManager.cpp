@@ -578,10 +578,10 @@ FXbool GMPlayerManager::init_sources() {
     sources.append(queue);
     }
 
-#ifdef HAVE_XINE_LIB
+//#ifdef HAVE_XINE_LIB
   /// Internet Streams
   sources.append(new GMStreamSource(database));
-#endif
+//#endif
 
   /// File System
   sources.append(new GMLocalSource());
@@ -1392,7 +1392,9 @@ void GMPlayerManager::play() {
     trackinfoset = source->getTrack(trackinfo);
     }
 
+
   /// Check for pls or m3u, since xine cannot handle that
+#ifdef HAVE_XINE_LIB
   FXbool local = gm_is_local_file(trackinfo.mrl);
   if (!local) {
     FXString extension = FXPath::extension(GMURL::path(trackinfo.mrl));
@@ -1401,6 +1403,7 @@ void GMPlayerManager::play() {
       return;
       }
     }
+#endif
 
 //#ifdef HAVE_GAP
   play(trackinfo.mrl);
@@ -1472,6 +1475,7 @@ void GMPlayerManager::next() {
     trackinfoset = source->getTrack(trackinfo);
     }
 
+#ifdef HAVE_XINE_LIB
   /// Check for pls or m3u, since xine cannot handle that
   FXbool local = gm_is_local_file(trackinfo.mrl);
   if (!local) {
@@ -1481,6 +1485,7 @@ void GMPlayerManager::next() {
       return;
       }
     }
+#endif
 
   play(trackinfo.mrl);
   }
@@ -1522,6 +1527,7 @@ void GMPlayerManager::prev() {
     trackinfoset = source->getTrack(trackinfo);
     }
 
+#ifdef HAVE_XINE_LIB
   /// Check for pls or m3u, since xine cannot handle that
   FXbool local = gm_is_local_file(trackinfo.mrl);
   if (!local) {
@@ -1531,6 +1537,7 @@ void GMPlayerManager::prev() {
       return;
       }
     }
+#endif
 
   play(trackinfo.mrl);
   }
