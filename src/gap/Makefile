@@ -167,45 +167,45 @@ WAV_OBJECTS := $(patsubst %.cpp,%$(OBJEXT),$(WAV_SRCFILES))
 WAV_DEPENDENCIES = $(patsubst %.cpp,%.d,$(WAV_SRCFILES))
 
 %$(OBJEXT):	%.cpp
-#	@echo "    Compiling $< ..."
+	@echo "    Compiling $< ..."
 #	@echo "$(CXX) $(CFLAGS) $(DEFS)  $(CPPFLAGS) -MM -o $*.d -MT $@ $<"
 	@$(CXX) $(CFLAGS) $(CPPFLAGS) -MM -o $*.d -MT $@ $<
-	@echo "$(CXX) $(strip $(CFLAGS)) $(strip $(CPPFLAGS)) $(OUTPUTOBJ)$@ -c $<"
+#	@echo "$(CXX) $(strip $(CFLAGS)) $(strip $(CPPFLAGS)) $(OUTPUTOBJ)$@ -c $<"
 	@$(CXX) $(strip $(CFLAGS)) $(strip $(CPPFLAGS)) $(OUTPUTOBJ)$@ -c $<
 
 $(GAP_LIBRARY): $(GAP_OBJECTS)
 	@echo "    Linking $@ ..."
-	@echo "$(LINK) $(LDFLAGS)  $(SONAME)$(GAP_SONAME) $(OUTPUTBIN)$(GAP_LIBRARY)  $(strip $(GAP_OBJECTS)) $(strip $(LIBS))"
+#	@echo "$(LINK) $(LDFLAGS)  $(SONAME)$(GAP_SONAME) $(OUTPUTBIN)$(GAP_LIBRARY)  $(strip $(GAP_OBJECTS)) $(strip $(LIBS))"
 	@$(LINK) $(LDFLAGS) $(SONAME)$(GAP_SONAME) $(OUTPUTBIN)$(GAP_LIBRARY) $(strip $(GAP_OBJECTS)) $(strip $(LIBS))
 
 $(GAP_ALSA_PLUGIN): $(ALSA_OBJECTS)
 	@echo "    Linking $@ ..."
-	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_ALSA_PLUGIN) $(strip $(ALSA_OBJECTS)) $(strip $(ALSA_LIBS))"
+#	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_ALSA_PLUGIN) $(strip $(ALSA_OBJECTS)) $(strip $(ALSA_LIBS))"
 	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_ALSA_PLUGIN) $(strip $(ALSA_OBJECTS)) $(strip $(ALSA_LIBS))
 
 $(GAP_OSS_PLUGIN): $(OSS_OBJECTS)
 	@echo "    Linking $@ ..."
-	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_OSS_PLUGIN) $(strip $(OSS_OBJECTS))  $(strip $(OSS_LIBS))"
+#	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_OSS_PLUGIN) $(strip $(OSS_OBJECTS))  $(strip $(OSS_LIBS))"
 	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_OSS_PLUGIN) $(strip $(OSS_OBJECTS))  $(strip $(OSS_LIBS))
 
 $(GAP_PULSE_PLUGIN): $(PULSE_OBJECTS)
 	@echo "    Linking $@ ..."
-	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_PULSE_PLUGIN) $(strip $(PULSE_OBJECTS)) $(strip $(PULSE_LIBS))"
+#	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_PULSE_PLUGIN) $(strip $(PULSE_OBJECTS)) $(strip $(PULSE_LIBS))"
 	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_PULSE_PLUGIN) $(strip $(PULSE_OBJECTS)) $(strip $(PULSE_LIBS))
 
 $(GAP_JACK_PLUGIN): $(JACK_OBJECTS)
 	@echo "    Linking $@ ..."
-	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_JACK_PLUGIN) $(strip $(JACK_OBJECTS)) $(strip $(JACK_LIBS))"
+#	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_JACK_PLUGIN) $(strip $(JACK_OBJECTS)) $(strip $(JACK_LIBS))"
 	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_JACK_PLUGIN) $(strip $(JACK_OBJECTS)) $(strip $(JACK_LIBS))
 
 $(GAP_RSOUND_PLUGIN): $(RSOUND_OBJECTS)
 	@echo "    Linking $@ ..."
-	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_RSOUND_PLUGIN) $(strip $(RSOUND_OBJECTS)) $(strip $(RSOUND_LIBS))"
+#	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_RSOUND_PLUGIN) $(strip $(RSOUND_OBJECTS)) $(strip $(RSOUND_LIBS))"
 	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_RSOUND_PLUGIN) $(strip $(RSOUND_OBJECTS)) $(strip $(RSOUND_LIBS))
 
 $(GAP_WAV_PLUGIN): $(WAV_OBJECTS)
 	@echo "    Linking $@ ..."
-	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_WAV_PLUGIN) $(strip $(WAV_OBJECTS)) $(strip $(WAV_LIBS))"
+#	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_WAV_PLUGIN) $(strip $(WAV_OBJECTS)) $(strip $(WAV_LIBS))"
 	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(GAP_WAV_PLUGIN) $(strip $(WAV_OBJECTS)) $(strip $(WAV_LIBS))
 
 # Force Dependency on config.make
