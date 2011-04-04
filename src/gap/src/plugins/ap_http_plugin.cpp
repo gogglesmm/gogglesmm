@@ -130,6 +130,9 @@ FXival HttpInput::write_raw(void*data,FXival count){
 
 
 FXival HttpInput::read_raw(void* data,FXival count){
+  if (device==BadHandle)
+    return 0;
+
   FXival nread=-1;
   do{
     nread=::recv(device,data,count,MSG_NOSIGNAL);
@@ -191,8 +194,7 @@ static FXInputHandle try_connect(FXInputHandle fifo,struct addrinfo * item) {
   FXint result = connect(device,item->ai_addr,item->ai_addrlen);
   if (result==-1) {
     if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-      if (ap_wait_write(fifo,device)) {
-        /// Check error after select
+      if (ap_wait_write(fifo,device,30000000000)) {
         int socket_error=0;
         socklen_t socket_length=sizeof(socket_error);
         if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0)
