@@ -52,7 +52,7 @@ FXbool FileInput::serial() const {
 
 FXuint FileInput::plugin() const {
   FXString extension=FXPath::extension(filename);
-    if (comparecase(extension,"wav")==0)
+  if (comparecase(extension,"wav")==0)
     return Format::WAV;
   else if (comparecase(extension,"flac")==0)
     return Format::FLAC;
