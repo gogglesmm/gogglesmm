@@ -368,7 +368,6 @@ FXbool HttpInput::parse_response() {
         }
       else if (comparecase(header,"icy-metaint:",12)==0) {
         icy_count = icy_interval = header.after(':').trim().toInt();
-        fxmessage("icy_interval=%d\n",icy_interval);
         }
       fxmessage("%s\n",header.text());
       }
