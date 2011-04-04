@@ -169,10 +169,11 @@ FXbool ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout
 #endif
   }
 
-FXbool ap_wait_read(FXInputHandle interrupt,FXInputHandle handle){
+FXbool ap_wait_read(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout){
 //  fxmessage("Wait for read\n");
 #ifndef WIN32
   int maxfds=FXMAX(interrupt,handle);
+  struct timespec delta;
 
   fd_set rd;
   fd_set wr;
@@ -186,14 +187,34 @@ FXbool ap_wait_read(FXInputHandle interrupt,FXInputHandle handle){
   FD_SET((int)interrupt,&er);
   FD_SET((int)handle,&rd);
   FD_SET((int)handle,&er);
-
-  if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
-    if (FD_ISSET(interrupt,&rd) || FD_ISSET(interrupt,&er))
-      return false;
-    else if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er))
-      return true;
-    else
-      return false;
+    
+  if (timeout) {
+    delta.tv_nsec=timeout%1000000000;
+    delta.tv_sec=timeout/1000000000;
+    if (pselect(maxfds+1,&rd,&wr,&er,&delta,NULL)) {
+      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) ) {
+        return false;
+        }
+      else if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er)) {
+        return true;
+        }
+      else {
+        return false;
+        }
+      }
+    }
+  else {
+    if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
+      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) ) {
+        return false;
+        }
+      else if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er)) {
+        return true;
+        }
+      else {
+        return false;
+        }
+      }
     }
   return false;
 #endif

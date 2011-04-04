@@ -144,6 +144,9 @@ FXival HttpInput::write_raw(void*data,FXival count){
     else
       fxmessage("[http] %s\n",strerror(errno));
     }
+  else if (nwritten==0) {
+    close();
+    }
   return nwritten;
   }
 
@@ -186,7 +189,7 @@ FXival HttpInput::write(void*data,FXival count) {
       return count-ncount;
       }
     else if (nwritten==-2) {
-      if (!ap_wait_read(fifo,handle()))
+      if (!ap_wait_write(fifo,handle()))
         return -1;
       }
     else {
