@@ -1212,7 +1212,7 @@ void GMTrackDatabase::getTrackPath(FXint id,FXString & path) {
 FXbool GMTrackDatabase::getStream(FXint id,GMStream & stream){
   DEBUG_DB_GET();
   FXString query;
-  query.format("SELECT url,description,genres.name,bitrate FROM streams, tags WHERE tags.id == streams.genre AND streams.id == %d;",id);
+  query.format("SELECT url,description,tags.name,bitrate FROM streams, tags WHERE tags.id == streams.genre AND streams.id == %d;",id);
   GMQuery get_stream;
   try {
     get_stream = compile(query);
