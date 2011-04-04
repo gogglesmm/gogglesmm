@@ -52,23 +52,7 @@ FXbool FileInput::serial() const {
 
 FXuint FileInput::plugin() const {
   FXString extension=FXPath::extension(filename);
-  if (comparecase(extension,"wav")==0)
-    return Format::WAV;
-  else if (comparecase(extension,"flac")==0)
-    return Format::FLAC;
-  else if (comparecase(extension,"ogg")==0 || comparecase(extension,"oga")==0)
-    return Format::OGG;
-  else if (comparecase(extension,"mp3")==0)
-    return Format::MP3;
-  else if (comparecase(extension,"mpc")==0)
-    return Format::Musepack;
-  else if (comparecase(extension,"mp4")==0 ||
-           comparecase(extension,"m4a")==0 ||
-           comparecase(extension,"m4p")==0 ||
-           comparecase(extension,"m4b")==0 )
-    return Format::AAC;
-  else
-    return Format::Unknown;
+  return ap_format_from_extension(extension);
   }
 
 

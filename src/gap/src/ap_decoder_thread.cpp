@@ -159,7 +159,7 @@ Packet * DecoderThread::get_decoder_packet() {
   }
 
 Packet * DecoderThread::get_output_packet() {
-  Event * event = NULL;
+//  Event * event = NULL;
   FXuchar type;
   do {
     type = fifo.peek();

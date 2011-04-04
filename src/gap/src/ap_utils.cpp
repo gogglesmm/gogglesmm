@@ -182,16 +182,18 @@ FXbool ap_wait_read(FXInputHandle interrupt,FXInputHandle handle){
   FD_ZERO(&wr);
   FD_ZERO(&er);
 
-//  FD_SET((int)interrupt,&rd);
-//  FD_SET((int)interrupt,&er);
+  FD_SET((int)interrupt,&rd);
+  FD_SET((int)interrupt,&er);
   FD_SET((int)handle,&rd);
   FD_SET((int)handle,&er);
 
   if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
     if (FD_ISSET(interrupt,&rd) || FD_ISSET(interrupt,&er))
       return false;
-    else
+    else if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er))
       return true;
+    else
+      return false;
     }
   return false;
 #endif

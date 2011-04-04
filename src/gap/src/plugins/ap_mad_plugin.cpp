@@ -455,7 +455,7 @@ public:
 LameHeader::LameHeader() : padstart(0), padend(0), length(0) {
   }
 
-void LameHeader::parse(const FXuchar * buffer,FXival nbytes) {
+void LameHeader::parse(const FXuchar * buffer,FXival/* nbytes*/) {
    fxmessage("Lame:\n");
    FXuchar revision = (*(buffer+9))>>4;
    FXuchar vbr_methed = (*(buffer+9))&0xf;
@@ -743,7 +743,7 @@ ReadStatus MadReader::parse(Packet * packet) {
       else {
         nsamples+=frame.nsamples();
         }
-      sync=false;  
+      sync=false;
       continue;
       }
     else {

@@ -49,7 +49,7 @@ static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_form
     }
   return true;
   }
-
+#if 0
 static void alsa_list_devices() {
   FXchar ** hints=NULL;
 
@@ -64,7 +64,7 @@ static void alsa_list_devices() {
   snd_device_name_free_hint((void**)hints);
   }
 
-
+#endif
 
 
 
@@ -216,14 +216,19 @@ void AlsaOutput::pause(FXbool p) {
 FXbool AlsaOutput::configure(const AudioFormat & fmt){
   snd_pcm_uframes_t periodsize;
   snd_pcm_uframes_t buffersize;
-  snd_pcm_uframes_t minperiod,maxperiod;
-  snd_pcm_uframes_t minbuffer,maxbuffer;
-  snd_pcm_uframes_t availmin;
-  snd_pcm_uframes_t startthreshold,stopthreshold;
   snd_pcm_uframes_t boundary;
   snd_pcm_format_t  format;
   snd_pcm_hw_params_t * hw=NULL;
   snd_pcm_sw_params_t * sw=NULL;
+
+#ifdef DEBUG
+  snd_pcm_uframes_t minperiod,maxperiod;
+  snd_pcm_uframes_t minbuffer,maxbuffer;
+  snd_pcm_uframes_t availmin;
+  snd_pcm_uframes_t startthreshold,stopthreshold;
+  FXuint buffertime = 500000;
+#endif  
+  
 
 
   snd_pcm_hw_params_alloca(&hw);
@@ -233,7 +238,6 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   FXint dir=0;
   FXuint sample_rate;
 
-  FXuint buffertime = 500000;
 
 
 //  bool try_reopen=(handle) ? true : false;
@@ -420,7 +424,6 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
   int result;
   snd_pcm_sframes_t navailable;
   snd_pcm_sframes_t nwritten;
-  snd_pcm_sframes_t nwrite;
   snd_pcm_state_t state;
   const FXchar * buf = (const FXchar*)buffer;
 

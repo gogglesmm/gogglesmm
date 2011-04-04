@@ -95,7 +95,7 @@ FXbool AVDecoder::flush() {
 DecoderStatus AVDecoder::process(Packet*in) {
   AVPacket avp;
 
-  fxmessage("decode packet %d\n",in->size());
+  fxmessage("decode packet %ld\n",in->size());
 
   FXASSERT(in);
   buffer.append(in->data(),in->size());
@@ -108,7 +108,7 @@ DecoderStatus AVDecoder::process(Packet*in) {
   avp.data = buffer.data_ptr;
   avp.size = buffer.size()-(FF_INPUT_BUFFER_PADDING_SIZE+1);
 
-  fxmessage("buffer %d\n",buffer.size());
+  fxmessage("buffer %ld\n",buffer.size());
 
 
   int16_t * out_samples = reinterpret_cast<int16_t*>(outbuf.data());    /// output buffer

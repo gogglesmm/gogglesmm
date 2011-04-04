@@ -38,7 +38,7 @@ const FXchar * Codec::name(FXuchar c){
 
 AudioFormat::AudioFormat() : rate(0),format(0),channels(0) {
   }
-  
+
 
 AudioFormat::AudioFormat(const AudioFormat & af) {
   format  =af.format;
@@ -119,4 +119,57 @@ FXbool operator==(const AudioFormat& af1,const AudioFormat& af2){
   else
     return true;
   }
+
+
+extern FXuint ap_format_from_mime(const FXString & mime) {
+  if (comparecase(mime,"audio/mpeg")==0) {
+    return Format::MP3;
+    }
+  else if (comparecase(mime,"audio/ogg")==0){
+    return Format::OGG;
+    }
+  else if (comparecase(mime,"audio/aacp")==0){
+    return Format::AAC;
+    }
+  else if (comparecase(mime,"audio/x-mpegurl")==0){
+    return Format::M3U;
+    }
+  else if ((comparecase(mime,"application/pls+xml")==0) || /// wrong mimetype, but NPR actually returns this: http://www.npr.org/streams/mp3/nprlive24.pls
+           (comparecase(mime,"audio/x-scpls")==0)){
+    return Format::PLS;
+    }
+  else if (comparecase(mime,"application/xspf+xml")==0){
+    return Format::XSPF;
+    }
+  else {
+    return Format::Unknown;
+    }
+  }
+
+extern FXuint ap_format_from_extension(const FXString & extension) {
+  if (comparecase(extension,"wav")==0)
+    return Format::WAV;
+  else if (comparecase(extension,"flac")==0)
+    return Format::FLAC;
+  else if (comparecase(extension,"ogg")==0 || comparecase(extension,"oga")==0)
+    return Format::OGG;
+  else if (comparecase(extension,"mp3")==0)
+    return Format::MP3;
+  else if (comparecase(extension,"mpc")==0)
+    return Format::Musepack;
+  else if (comparecase(extension,"mp4")==0 ||
+           comparecase(extension,"m4a")==0 ||
+           comparecase(extension,"m4p")==0 ||
+           comparecase(extension,"m4b")==0 )
+    return Format::AAC;
+  else if (comparecase(extension,"m3u")==0)
+    return Format::M3U;
+  else if (comparecase(extension,"pls")==0)
+    return Format::PLS;
+  else if (comparecase(extension,"xspf")==0)
+    return Format::XSPF;
+  else
+    return Format::Unknown;
+  }
+
 }

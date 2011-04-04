@@ -97,7 +97,7 @@ void OutputThread::update_position(FXint id,FXint position,FXint nframes,FXint l
     if (stream_written>0) {
       FXint diff = delay - stream_written;
       if (diff>0) {
-        if (diff>plugin->af.rate)
+        if ((FXuint)diff>plugin->af.rate)
           stream_position += stream_remaining - diff;
         stream_remaining = diff;
         stream_written += nframes;
@@ -330,7 +330,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
 static FXbool mono_to_stereo(FXuchar * in,FXuint nsamples,FXuchar bps,MemoryBuffer & out){
   out.clear();
   out.grow(nsamples*bps*2);
-  for (FXint i=0;i<nsamples*bps;i+=bps) {
+  for (FXuint i=0;i<nsamples*bps;i+=bps) {
     out.append(&in[i],bps);
     out.append(&in[i],bps);
     }

@@ -54,20 +54,20 @@ static FXbool ap_set_closeonexec(FXint fd) {
   return true;
   }
 
-
-static FXbool ap_set_nosignal(FXint fd) {
 #if defined(SO_NOSIGPIPE)
+static FXbool ap_set_nosignal(FXint fd) {
   int nosignal=1;
   socklen_t len=sizeof(nosignal);
   if (setsockopt(fd,SOL_SOCKET,SO_NOSIGPIPE,&nosignal,len)==0)
     return true;
   else
     return false;
-#else
-  return true;
-#endif
   }
-
+#else
+static FXbool ap_set_nosignal(FXint)  {
+  return true;
+  }
+#endif
 
 HttpInput::HttpInput(FXInputHandle f) : InputPlugin(f),device(BadHandle),buffer(1024),
   content_type(Format::Unknown),
@@ -104,13 +104,32 @@ FXival HttpInput::buffer_read(void*data,FXival count){
   return InputPlugin::read(data,count);
   }
 
-
 FXival HttpInput::fill_buffer(FXuval count) {
+  FXival nread;
+  FXival ncount=count;
   buffer.reserve(count);
-  FXival n = InputPlugin::read(buffer.ptr(),count);
-  if (n>0) buffer.wrote(n);
-  return n;
+  while(ncount>0) {
+    nread=read_raw(buffer.ptr(),ncount);
+    if (__likely(nread>0)) {
+      buffer.wrote(nread);
+      ncount-=nread;
+      return (count-ncount);
+      }
+    else if (nread==0) { // eof!
+      return count-ncount;
+      }
+    else if (nread==-2) { // block!
+      if (!ap_wait_read(fifo,handle())) {
+        return -1;
+        }
+      }
+    else {
+      return -1;
+      }
+    }
+  return count;
   }
+
 
 FXival HttpInput::write_raw(void*data,FXival count){
   FXival nwritten;
@@ -141,8 +160,9 @@ FXival HttpInput::read_raw(void* data,FXival count){
 
   /// Block or not
   if (nread<0) {
-    if (errno==EAGAIN || errno==EWOULDBLOCK)
+    if (errno==EAGAIN || errno==EWOULDBLOCK) {
       return -2;
+      }
     else
       fxmessage("[http] %s\n",strerror(errno));
     }
@@ -245,7 +265,7 @@ FXbool HttpInput::next_header(FXString & header) {
   header.clear();
 
   for (i=0;i<len;i++) {
-    //fxmessage("buf[%d]=%c\n",i,buf[i]);
+//    fxmessage("buf[%d]=%c\n",i,buf[i]);
     if (buf[i]=='\n') {
 
       /// not enough data
@@ -336,18 +356,7 @@ FXbool HttpInput::parse_response() {
         }
       else if (comparecase(header,"Content-Type:",13)==0) {
         FXString type = header.after(':').trim();
-        if (comparecase(type,"audio/mpeg")==0) {
-          content_type=Format::MP3;
-          }
-        else if (comparecase(type,"audio/ogg")==0){
-          content_type=Format::OGG;
-          }
-//        else if (comparecase(type,"audio/aacp")==0){
-//          content_type=Format::AAC;
-//          }
-        else if (comparecase(type,"audio/x-mpegurl")==0){
-          content_type=Format::M3U;
-          }
+        content_type=ap_format_from_mime(type);
         }
       else if (comparecase(header,"Content-Length:",15)==0) {
         content_length=header.after(':').trim().toInt();
@@ -360,6 +369,7 @@ FXbool HttpInput::parse_response() {
         }
       fxmessage("%s\n",header.text());
       }
+    if (eoh) break;
 
     /// Get some bytes
     if (fill_buffer(256)==-1)
@@ -374,7 +384,6 @@ FXbool HttpInput::parse_response() {
 
 
 FXival HttpInput::icy_read(void*data,FXival count){
-  FXival req=count;
   FXchar * out = (FXchar*)data;
   FXival nread=0,n=0;
   if (icy_count<count) {
@@ -406,7 +415,6 @@ FXival HttpInput::icy_read(void*data,FXival count){
       icy_buffer.length(icy_size);
       n=buffer_read(&icy_buffer[0],icy_size);
       if (__unlikely(n!=icy_size)) return -1;
-      fxmessage("icy-meta: %s\n",icy_buffer.text());
       }
 
     /// reset icy count
@@ -428,7 +436,6 @@ FXival HttpInput::icy_read(void*data,FXival count){
       icy_count-=nread;
       }
     }
-  FXASSERT(nread==req);
   return nread;
   }
 
@@ -503,6 +510,12 @@ FXbool HttpInput::open(const FXString & uri) {
   /// Parse response
   if (!parse_response())
     return false;
+
+
+  if (content_type==Format::Unknown) {
+    FXString extension = FXPath::extension(path);
+    content_type=ap_format_from_extension(extension);
+    }
 
   fxmessage("success\n");
   return true;

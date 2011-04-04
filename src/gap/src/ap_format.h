@@ -79,7 +79,9 @@ enum {
   AAC               = 5,
   Musepack          = 6,
   CDDA              = 7,
-  M3U               = 8
+  M3U               = 8,
+  PLS               = 9,
+  XSPF              = 10
   };
 
 }
@@ -117,6 +119,8 @@ enum {
 //extern GMAPI FXushort ap_format_try_swap(FXushort format);
 
 
+extern FXuint ap_format_from_extension(const FXString & extension);
+extern FXuint ap_format_from_mime(const FXString & mime);
 
 class GMAPI AudioFormat {
 public:

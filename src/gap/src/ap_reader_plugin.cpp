@@ -57,6 +57,9 @@ namespace ap {
 
 
 extern ReaderPlugin * ap_m3u_input(AudioEngine*);
+extern ReaderPlugin * ap_pls_input(AudioEngine*);
+extern ReaderPlugin * ap_xspf_input(AudioEngine*);
+
 
 extern ReaderPlugin * ap_wav_input(AudioEngine*);
 
@@ -106,6 +109,8 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
     case Format::CDDA     : return ap_cdda_input(engine); break;
 #endif
     case Format::M3U      : return ap_m3u_input(engine); break;
+    case Format::PLS      : return ap_pls_input(engine); break;
+    case Format::XSPF     : return ap_xspf_input(engine); break;
     default               : return NULL; break;
     }
   return NULL;

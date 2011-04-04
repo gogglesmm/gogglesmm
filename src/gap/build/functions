@@ -78,6 +78,12 @@ check_fox()
   if [ -n "$PKG_CPPFLAGS" ] ; then CPPFLAGS="$CPPFLAGS $PKG_CPPFLAGS " ; fi
 }
 
+
+check_expat()
+{
+  LIBS="$LIBS -lexpat"
+}
+
 check_alsa()
 {
   if [ $OPTION_PLUGIN_ALSA -eq 1 ] ; then

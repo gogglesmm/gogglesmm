@@ -68,7 +68,7 @@ namespace ap {
     return sector-cdio_cddap_track_firstsector(drive,track);
     }
 
-  FXlong CDDAInput::position(FXlong offset,FXuint from) {
+  FXlong CDDAInput::position(FXlong offset,FXuint /*from*/) {
    // lsn_t           start=cdio_cddap_disc_firstsector(drive);
     //lsn_t             end=cdio_cddap_disc_firstsector(drive);
     sector=cdio_cddap_track_firstsector(drive,track)+offset;
