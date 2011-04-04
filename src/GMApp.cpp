@@ -394,8 +394,12 @@ void ewmh_set_window_icon(const FXWindow * window,FXImage * icon) {
   data[0]=icon->getWidth();
   data[1]=icon->getHeight();
   for (FXint i=0;i<(icon->getWidth()*icon->getHeight());i++){
+#if FOXVERSION < FXVERSION(1,7,26)
     const FXColor val = icon->getData()[i];
     data[i+2]=FXRGBA(FXBLUEVAL(val),FXGREENVAL(val),FXREDVAL(val),FXALPHAVAL(val));
+#else
+    data[i+2]=icon->getData()[i];
+#endif
     }
 
   /// Set Property
