@@ -505,6 +505,7 @@ void OutputThread::process(Packet * packet) {
         }
       else if (plugin->af.format==AP_FORMAT_S32) {
         switch(packet->af.format) {
+          case AP_FORMAT_FLOAT: float_to_s32(packet->data(),packet->numFrames()*packet->af.channels); break;
           case AP_FORMAT_S24_3: s24le3_to_s32(packet->data(),packet->numFrames()*packet->af.channels,converted_samples); use_buffer=true; break;
           default             : goto mismatch; break;
           }
@@ -620,9 +621,9 @@ FXint OutputThread::run(){
                           fxmessage("[output] flush\n");
                           FlushEvent * flush = dynamic_cast<FlushEvent*>(event);
                           if (plugin) {
-                            plugin->drop();                              
+                            plugin->drop();
                             if (flush->close)
-                              close_plugin();                              
+                              close_plugin();
                             }
                           pausing=false;
                           reset_position();
