@@ -203,7 +203,7 @@ ReadStatus CDDAReader::process(Packet * packet) {
   return ReadOk;
   }
 
-ReaderPlugin * ap_cdda_input(AudioEngine * engine) {
+ReaderPlugin * ap_cdda_reader(AudioEngine * engine) {
   return new CDDAReader(engine);
   }
 }

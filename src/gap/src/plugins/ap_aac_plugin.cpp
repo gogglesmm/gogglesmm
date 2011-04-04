@@ -27,7 +27,7 @@ enum {
   AAC_FLAG_CONFIG = 0x1
   };
 
-class AacInput : public ReaderPlugin {
+class AacReader : public ReaderPlugin {
 protected:
   mp4ff_callback_t callback;
   mp4ff_t*         handle;
@@ -45,14 +45,14 @@ protected:
 protected:
   ReadStatus parse();
 public:
-  AacInput(AudioEngine*);
+  AacReader(AudioEngine*);
   FXuchar format() const { return Format::AAC; };
 
   FXbool init();
   FXbool can_seek() const;
   FXbool seek(FXdouble);
   ReadStatus process(Packet*);
-  ~AacInput();
+  ~AacReader();
   };
 
 class AacDecoder : public DecoderPlugin {
@@ -87,23 +87,23 @@ static FXuint ap_read_unsigned(FXuchar * buffer,FXint pos) {
   }
 
 
-FXuint AacInput::mp4_read(void*ptr,void*data,FXuint len){
+FXuint AacReader::mp4_read(void*ptr,void*data,FXuint len){
   InputThread* input = reinterpret_cast<InputThread*>(ptr);
   return (FXuint) input->read(data,len);
   }
 
-FXuint AacInput::mp4_write(void*,void*,FXuint){
+FXuint AacReader::mp4_write(void*,void*,FXuint){
   FXASSERT(0);
 //  InputThread* input = reinterpret_cast<InputThread*>(ptr);
   return 0;
   }
 
-FXuint AacInput::mp4_seek(void*ptr,FXulong p){
+FXuint AacReader::mp4_seek(void*ptr,FXulong p){
   InputThread* input = reinterpret_cast<InputThread*>(ptr);
   return input->position(p,FXIO::Begin);
   }
 
-FXuint AacInput::mp4_truncate(void*){
+FXuint AacReader::mp4_truncate(void*){
   FXASSERT(0);
   //InputThread* input = reinterpret_cast<InputThread*>(ptr);
   return 0;
@@ -111,7 +111,7 @@ FXuint AacInput::mp4_truncate(void*){
 
 
 
-AacInput::AacInput(AudioEngine* e) : ReaderPlugin(e),handle(NULL),nframes(-1),track(-1) {
+AacReader::AacReader(AudioEngine* e) : ReaderPlugin(e),handle(NULL),nframes(-1),track(-1) {
   callback.read      = mp4_read;
   callback.write     = mp4_write;
   callback.seek      = mp4_seek;
@@ -119,11 +119,11 @@ AacInput::AacInput(AudioEngine* e) : ReaderPlugin(e),handle(NULL),nframes(-1),tr
   callback.user_data = engine->input;
   }
 
-AacInput::~AacInput(){
+AacReader::~AacReader(){
   if (handle) mp4ff_close(handle);
   }
 
-FXbool AacInput::init() {
+FXbool AacReader::init() {
 
   if (handle) {
     mp4ff_close(handle);
@@ -139,18 +139,18 @@ FXbool AacInput::init() {
   }
 
 
-FXbool AacInput::can_seek() const {
+FXbool AacReader::can_seek() const {
   return true;
   }
 
-FXbool AacInput::seek(FXdouble pos){
+FXbool AacReader::seek(FXdouble pos){
   FXint f = mp4ff_find_sample(handle,track,pos*stream_length,NULL);
   if (f>=0) frame=f;
   return true;
   }
 
 
-ReadStatus AacInput::process(Packet*p) {
+ReadStatus AacReader::process(Packet*p) {
   packet=p;
   packet->stream_position=-1;
   packet->stream_length=stream_length;
@@ -204,7 +204,7 @@ ReadStatus AacInput::process(Packet*p) {
 
 
 
-ReadStatus AacInput::parse() {
+ReadStatus AacReader::parse() {
   mp4AudioSpecificConfig cfg;
   FXuchar* buffer;
   FXuint   size;
@@ -374,8 +374,8 @@ DecoderStatus AacDecoder::process(Packet*packet){
 
 
 
-ReaderPlugin * ap_aac_input(AudioEngine * engine) {
-  return new AacInput(engine);
+ReaderPlugin * ap_aac_reader(AudioEngine * engine) {
+  return new AacReader(engine);
   }
 
 DecoderPlugin * ap_aac_decoder(AudioEngine * engine) {

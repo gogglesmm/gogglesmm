@@ -120,7 +120,7 @@ ReadStatus PLSReader::process(Packet*packet) {
     return ReadDone;
   }
 
-ReaderPlugin * ap_pls_input(AudioEngine * engine) {
+ReaderPlugin * ap_pls_reader(AudioEngine * engine) {
   return new PLSReader(engine);
   }
 }

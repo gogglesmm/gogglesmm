@@ -26,16 +26,29 @@ protected:
     };
 public:
   ReaderPlugin(AudioEngine*);
+
+  /// Init plugin
+  virtual FXbool init()=0;
+
+  /// Format type
   virtual FXuchar format() const=0;
 
+  /// Return redirect lsit
   virtual FXbool redirect(FXStringList&) { return false; }
 
-  virtual FXbool init()=0;
+  /// Return whether plugin can seek
   virtual FXbool can_seek() const { return false; }
-  virtual FXbool seek(FXdouble)=0;
-  virtual ReadStatus process(Packet*);
+
+    /// Seek
+  virtual FXbool seek(FXdouble) { return false; }
+
+  /// Process Input
+  virtual ReadStatus process(Packet*)=0;
+
+  /// Destructor
   virtual ~ReaderPlugin();
 
+  /// Open plugin for given format
   static ReaderPlugin* open(AudioEngine * engine,FXuint format);
   };
 }

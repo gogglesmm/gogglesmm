@@ -185,7 +185,7 @@ ReadStatus MusepackReader::process(Packet * p){
 
 
 
-ReaderPlugin * ap_musepack_input(AudioEngine * engine) {
+ReaderPlugin * ap_musepack_reader(AudioEngine * engine) {
   return new MusepackReader(engine);
   }
 

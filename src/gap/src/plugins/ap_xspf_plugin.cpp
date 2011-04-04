@@ -110,7 +110,7 @@ public:
     Elem_Playlist_Title,
     Elem_Playlist_TrackList,
     Elem_Playlist_TrackList_Track,
-    Elem_Playlist_TrackList_Track_Location,    
+    Elem_Playlist_TrackList_Track_Location,
     };
 public:
   XSPFParser();
@@ -119,9 +119,9 @@ public:
 
 XSPFParser::XSPFParser() : elem(Elem_None) {
   }
-  
+
 XSPFParser::~XSPFParser(){
-  }  
+  }
 
 FXint XSPFParser::begin(const FXchar * element,const FXchar ** attributes){
   switch(elem) {
@@ -149,14 +149,14 @@ FXint XSPFParser::begin(const FXchar * element,const FXchar ** attributes){
           elem=Elem_Playlist_TrackList_Track;
           return 1;
           }
-      } break;      
+      } break;
     case Elem_Playlist_TrackList_Track:
       {
         if (compare(element,"location")==0) {
           elem=Elem_Playlist_TrackList_Track_Location;
-          return 1;    
+          return 1;
           }
-      } break;      
+      } break;
     default: return 0; // skip
     }
   return 0;
@@ -177,7 +177,7 @@ void XSPFParser::end(const FXchar*) {
   switch(elem){
     case Elem_Playlist_TrackList_Track_Location: elem=Elem_Playlist_TrackList_Track; break;
     case Elem_Playlist_TrackList_Track         : elem=Elem_Playlist_TrackList; break;
-    case Elem_Playlist_TrackList               : 
+    case Elem_Playlist_TrackList               :
     case Elem_Playlist_Title                   : elem=Elem_Playlist; break;
     case Elem_Playlist                         : elem=Elem_None; break;
     }
@@ -262,7 +262,7 @@ ReadStatus XSPFReader::process(Packet*packet) {
     return ReadDone;
   }
 
-ReaderPlugin * ap_xspf_input(AudioEngine * engine) {
+ReaderPlugin * ap_xspf_reader(AudioEngine * engine) {
   return new XSPFReader(engine);
   }
 }

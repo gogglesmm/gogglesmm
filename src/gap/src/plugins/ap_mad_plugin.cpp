@@ -1240,7 +1240,7 @@ FXbool MadDecoder::flush(){
 
 
 
-ReaderPlugin * ap_mad_input(AudioEngine * engine) {
+ReaderPlugin * ap_mad_reader(AudioEngine * engine) {
   return new MadReader(engine);
   }
 

@@ -489,7 +489,7 @@ ReadStatus OggReader::process(Packet * p) {
   }
 
 
-ReaderPlugin * ap_ogg_input(AudioEngine * engine) {
+ReaderPlugin * ap_ogg_reader(AudioEngine * engine) {
   return new OggReader(engine);
   }
 

@@ -56,61 +56,61 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
 namespace ap {
 
 
-extern ReaderPlugin * ap_m3u_input(AudioEngine*);
-extern ReaderPlugin * ap_pls_input(AudioEngine*);
-extern ReaderPlugin * ap_xspf_input(AudioEngine*);
+extern ReaderPlugin * ap_m3u_reader(AudioEngine*);
+extern ReaderPlugin * ap_pls_reader(AudioEngine*);
+extern ReaderPlugin * ap_xspf_reader(AudioEngine*);
 
 
-extern ReaderPlugin * ap_wav_input(AudioEngine*);
+extern ReaderPlugin * ap_wav_reader(AudioEngine*);
 
 #ifdef HAVE_FLAC_PLUGIN
-extern ReaderPlugin * ap_flac_input(AudioEngine*);
+extern ReaderPlugin * ap_flac_reader(AudioEngine*);
 #endif
 
 #ifdef HAVE_OGG_PLUGIN
-extern ReaderPlugin * ap_ogg_input(AudioEngine*);
+extern ReaderPlugin * ap_ogg_reader(AudioEngine*);
 #endif
 
 #ifdef HAVE_MUSEPACK_PLUGIN
-extern ReaderPlugin * ap_musepack_input(AudioEngine*);
+extern ReaderPlugin * ap_musepack_reader(AudioEngine*);
 #endif
 
 #ifdef HAVE_MAD_PLUGIN
-extern ReaderPlugin * ap_mad_input(AudioEngine*);
+extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 #endif
 
 #ifdef HAVE_AAC_PLUGIN
-extern ReaderPlugin * ap_aac_input(AudioEngine*);
+extern ReaderPlugin * ap_aac_reader(AudioEngine*);
 #endif
 
 #ifdef HAVE_CDDA_PLUGIN
-extern ReaderPlugin * ap_cdda_input(AudioEngine*);
+extern ReaderPlugin * ap_cdda_reader(AudioEngine*);
 #endif
 
 ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
   switch(type){
-    case Format::WAV      : return ap_wav_input(engine); break;
+    case Format::WAV      : return ap_wav_reader(engine); break;
 #ifdef HAVE_OGG_PLUGIN
-    case Format::OGG      : return ap_ogg_input(engine); break;
+    case Format::OGG      : return ap_ogg_reader(engine); break;
 #endif
 #ifdef HAVE_FLAC_PLUGIN
-    case Format::FLAC     : return ap_flac_input(engine); break;
+    case Format::FLAC     : return ap_flac_reader(engine); break;
 #endif
 #ifdef HAVE_MAD_PLUGIN
-    case Format::MP3      : return ap_mad_input(engine); break;
+    case Format::MP3      : return ap_mad_reader(engine); break;
 #endif
 #ifdef HAVE_AAC_PLUGIN
-    case Format::AAC      : return ap_aac_input(engine); break;
+    case Format::AAC      : return ap_aac_reader(engine); break;
 #endif
 #ifdef HAVE_MUSEPACK_PLUGIN
-    case Format::Musepack : return ap_musepack_input(engine); break;
+    case Format::Musepack : return ap_musepack_reader(engine); break;
 #endif
 #ifdef HAVE_CDDA_PLUGIN
-    case Format::CDDA     : return ap_cdda_input(engine); break;
+    case Format::CDDA     : return ap_cdda_reader(engine); break;
 #endif
-    case Format::M3U      : return ap_m3u_input(engine); break;
-    case Format::PLS      : return ap_pls_input(engine); break;
-    case Format::XSPF     : return ap_xspf_input(engine); break;
+    case Format::M3U      : return ap_m3u_reader(engine); break;
+    case Format::PLS      : return ap_pls_reader(engine); break;
+    case Format::XSPF     : return ap_xspf_reader(engine); break;
     default               : return NULL; break;
     }
   return NULL;

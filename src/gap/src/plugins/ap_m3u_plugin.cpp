@@ -116,7 +116,7 @@ ReadStatus M3UReader::process(Packet*packet) {
     return ReadDone;
   }
 
-ReaderPlugin * ap_m3u_input(AudioEngine * engine) {
+ReaderPlugin * ap_m3u_reader(AudioEngine * engine) {
   return new M3UReader(engine);
   }
 }

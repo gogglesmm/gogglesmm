@@ -257,7 +257,7 @@ ReadStatus WavReader::parse() {
   }
 
 
-ReaderPlugin * ap_wav_input(AudioEngine * engine) {
+ReaderPlugin * ap_wav_reader(AudioEngine * engine) {
   return new WavReader(engine);
   }
 }

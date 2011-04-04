@@ -55,9 +55,9 @@ void ThreadQueue::post(Event*event,FXint where) {
     fxmessage("posting event\n");
     event->next=head;
     head=event;
+    pfifo.signal();    
     if (tail==NULL) {
       tail=head;
-      pfifo.signal();
       }
     }
   mfifo.unlock();

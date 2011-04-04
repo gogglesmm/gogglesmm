@@ -617,7 +617,7 @@ DecoderStatus FlacDecoder::process(Packet*packet){
   return DecoderError;
   }
 
-ReaderPlugin * ap_flac_input(AudioEngine * engine) {
+ReaderPlugin * ap_flac_reader(AudioEngine * engine) {
   return new FlacReader(engine);
   }
 
