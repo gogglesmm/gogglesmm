@@ -211,15 +211,17 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         if (op.granulepos>=0) {
           fxmessage("found stream position: %ld\n",op.granulepos-nsamples);
           stream_position=op.granulepos-nsamples;
-          }
-        else {
-          stream_position=0;
-          }
-          
+ //       else {
+//          stream_position=0;
+//          }
+
         buffer.data_ptr=data_ptr;
-        data_ptr=NULL;            
+        data_ptr=NULL;
         vorbis_synthesis_restart(&dsp);
+
+          }
         continue;
+
         }
 
       if (vorbis_synthesis(&block,&op)==0)
