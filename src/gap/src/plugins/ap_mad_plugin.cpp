@@ -47,6 +47,7 @@ protected:
   void parseFrame(Packet*,const mpeg_frame&);
   FXbool parse_id3v1();
   FXbool parse_ape();
+  void   clear_headers();
 public:
   MadReader(AudioEngine*);
 
@@ -501,14 +502,10 @@ MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
   }
 
 MadReader::~MadReader() {
-  delete xing;
-  delete vbri;
-  delete lame;
+  clear_headers();
   }
-
-FXbool MadReader::init(){
-  fxmessage("[mad] init()\n");
-  buffer[0]=buffer[1]=buffer[2]=buffer[3]=0;
+  
+void MadReader::clear_headers() {
   if (xing) {
     delete xing;
     xing=NULL;
@@ -521,9 +518,14 @@ FXbool MadReader::init(){
     delete lame;
     lame=NULL;
     }
+  }  
+
+FXbool MadReader::init(){
+  fxmessage("[mad] init()\n");
+  buffer[0]=buffer[1]=buffer[2]=buffer[3]=0;
+  clear_headers();
   flags&=~FLAG_PARSED;
   sync=false;
-
   input_start=0;
   input_end=0;
   return true;
@@ -534,20 +536,22 @@ FXbool MadReader::can_seek() const{
   }
 
 FXbool MadReader::seek(FXdouble pos) {
-  FXlong offset = 0;
-  if (xing) {
-    offset = xing->seek(pos,(input_end - input_start));
-    fxmessage("offset: %ld\n",offset);
-    if (offset==-1) return false;
-    stream_position = stream_length * pos;
+  if (!engine->input->serial()){
+    FXlong offset = 0;
+    if (xing) {
+      offset = xing->seek(pos,(input_end - input_start));
+      fxmessage("offset: %ld\n",offset);
+      if (offset==-1) return false;
+      stream_position = stream_length * pos;
+      }
+    else if (vbri) {
+      }
+    else {
+      stream_position = stream_length * pos;
+      offset = (input_end - input_start) * pos;
+      }
+    engine->input->position(input_start+offset,FXIO::Begin);
     }
-  else if (vbri) {
-    }
-  else {
-    stream_position = stream_length * pos;
-    offset = (input_end - input_start) * pos;
-    }
-  engine->input->position(input_start+offset,FXIO::Begin);
   return true;
   }
 
@@ -750,6 +754,7 @@ ReadStatus MadReader::parse(Packet * packet) {
       found=false;
       nsamples=0;
       packet->clear();
+      clear_headers();
       }
 
 
@@ -780,126 +785,6 @@ ReadStatus MadReader::parse(Packet * packet) {
   return ReadError;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-
-
-
-  while(1) {
-
-    /* update read buffer */
-    if (sync) {
-      buffer[0]=buffer[1];
-      buffer[1]=buffer[2];
-      buffer[2]=buffer[3];
-      if (engine->input->read(&buffer[3],1)!=1)
-        return ReadError;
-      }
-    else {
-      if (engine->input->read(buffer,4)!=4)
-        return ReadError;
-      }
-
-    /// Is this a frame header
-    if (frame.validate(buffer)) {
-
-      /// Mark this frame as start of our file.
-      input_start = engine->input->position() - 4;
-      if (!engine->input->serial())
-        input_end = engine->input->size();
-      else
-        input_end = -1;
-
-      readFrame(packet,frame);
-
-      /// Check for end tags
-      if (!engine->input->serial()) {
-
-        if (!parse_id3v1() || !parse_ape())
-          return ReadError;
-
-        engine->input->position(input_start,FXIO::Begin);
-        }
-
-      /// Check for frame headers
-      parseFrame(packet,frame);
-
-      /// We found a frame
-      af.set(AP_FORMAT_S16,frame.samplerate(),(frame.channel()==mpeg_frame::Single) ? 1 : 2);
-      ConfigureEvent * cfg = new ConfigureEvent(af,Codec::MPEG);
-      if (lame) {
-        cfg->stream_offset_start=lame->padstart;
-        cfg->stream_offset_end  =lame->padend;
-        }
-      engine->decoder->post(cfg);
-
-      if (xing||vbri||lame){
-        packet->unref();
-        packet=NULL;
-        }
-      else {
-        packet->af              = af;
-        packet->stream_position = stream_position;
-        packet->stream_length   = stream_length;
-        stream_position        += frame.nsamples();
-        engine->decoder->post(packet);
-        }
-
-      if (engine->input->read(buffer,4)!=4){
-        return ReadError;
-        }
-
-
-
-  //    flags|=FLAG_PARSED;
-  //    memset(buffer,0,4);
-  //    sync=false;
-
-
-
-      continue;
-    }
-
-    /// Check for ID3 tag
-    if (buffer[0]=='I' && buffer[1]=='D' && buffer[2]=='3') {
-      fxmessage("mad_input: found id3 tag\n");
-
-      FXint   tagsize=0;
-      FXuchar id3buf[6];
-      if (engine->input->read(id3buf,6)!=6)
-        return ReadError;
-
-      tagsize = SYNCSAFE_INT32(id3buf[2],id3buf[3],id3buf[4],id3buf[5]);
-
-      /* check for footer */
-      if (id3buf[1]&0x10)
-        tagsize+=10;
-
-      engine->input->position(tagsize,FXIO::Current);
-      sync=false;
-      continue;
-      }
-
-    if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0)
-      sync=false;
-    else
-      sync=true;
-    }
-  return ReadError;
-  }
-#endif
 ReadStatus MadReader::process(Packet*packet) {
   packet->af              = af;
   packet->stream_position = stream_position;
