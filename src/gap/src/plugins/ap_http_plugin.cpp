@@ -304,8 +304,9 @@ FXbool HttpInput::next_header(FXString & header) {
   }
 
 FXbool HttpInput::parse_response() {
-  FXString header;
+  FXString header,location;
   FXbool eoh=false;
+  FXbool redirect=false;
 
   FXint http_code=0;
   FXint http_major_version=0;
@@ -330,10 +331,14 @@ FXbool HttpInput::parse_response() {
       return false;
       }
 
-
     if (http_code>=300 && http_code<400) {
-      fxmessage("[http] unhandled redirect (%d)\n",http_code);
-      return false;
+      if (http_code==301 || http_code==302 || http_code==303 || http_code==307){
+        redirect=true;
+        }
+      else {
+        fxmessage("[http] unhandled redirect (%d)\n",http_code);
+        return false;      
+        }      
       }
     else if (http_code>=400 && http_code<500) {
       if (http_code==404)
@@ -369,6 +374,9 @@ FXbool HttpInput::parse_response() {
       else if (comparecase(header,"icy-metaint:",12)==0) {
         icy_count = icy_interval = header.after(':').trim().toInt();
         }
+      else if (comparecase(header,"Location:",9)==0){
+        location=header.after(':').trim();
+        }
       fxmessage("%s\n",header.text());
       }
     if (eoh) break;
@@ -377,6 +385,20 @@ FXbool HttpInput::parse_response() {
     if (fill_buffer(256)==-1)
       return false;
     }
+
+  /// Handle redirects    
+  if (redirect) {
+    if (location.empty()) 
+      return false;
+        
+    fxmessage("redirect: %s\n",location.text());    
+    close();
+    buffer.clear();  
+    return open(location);
+    }  
+    
+    
+    
   return true;
   }
 
@@ -413,7 +435,6 @@ FXival HttpInput::icy_read(void*data,FXival count){
     if (b) {
       FXushort icy_size=((FXushort)b)*16;
       FXString icy_buffer;
-      fxmessage("icy_size=%d\n",icy_size);
       icy_buffer.length(icy_size);
       n=buffer_read(&icy_buffer[0],icy_size);
       if (__unlikely(n!=icy_size)) return -1;
