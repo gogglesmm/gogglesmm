@@ -313,47 +313,41 @@ FXbool HttpInput::parse_response() {
   FXint http_minor_version=0;
 
   /// First get response code
-  while(1) {
-
+  do {
     /// Get some bytes
     if (fill_buffer(256)==-1)
       return false;
+    }
+  while(!next_header(header));
 
-//    if (buffer.size())
-//      fxmessage("remaining buf: \"%256s\"\n",buffer.data_ptr);
-
-    if (!next_header(header))
-      continue;
-
-    if ( header.scan("HTTP/%d.%d %d",&http_major_version,&http_minor_version,&http_code)!=3 &&
-         header.scan("ICY %d",&http_code)!=1 ){
-      fxmessage("[http] invalid http response: %s\n",header.text());
-      return false;
-      }
-
-    if (http_code>=300 && http_code<400) {
-      if (http_code==301 || http_code==302 || http_code==303 || http_code==307){
-        redirect=true;
-        }
-      else {
-        fxmessage("[http] unhandled redirect (%d)\n",http_code);
-        return false;      
-        }      
-      }
-    else if (http_code>=400 && http_code<500) {
-      if (http_code==404)
-        fxmessage("[http] 404!!\n");
-      else
-        fxmessage("[http] client error (%d)\n",http_code);
-      return false;
-      }
-    else if (http_code<200 || http_code>=300){
-      fxmessage("[http] unhandled error (%d)\n",http_code);
-      }
-    fxmessage("http: %s\n",header.text());
-    break;
+  fxmessage("[http] %s\n",header.text());
+  
+  if ( header.scan("HTTP/%d.%d %d",&http_major_version,&http_minor_version,&http_code)!=3 &&
+       header.scan("ICY %d",&http_code)!=1 ){
+    fxmessage("[http] invalid http response: %s\n",header.text());
+    return false;
     }
 
+  if (http_code>=300 && http_code<400) {
+    if (http_code==301 || http_code==302 || http_code==303 || http_code==307){
+      redirect=true;
+      }
+    else {
+      fxmessage("[http] unhandled redirect (%d)\n",http_code);
+      return false;
+      }
+    }
+  else if (http_code>=400 && http_code<500) {
+    if (http_code==404)
+      fxmessage("[http] 404!!\n");
+    else
+      fxmessage("[http] client error (%d)\n",http_code);
+    return false;
+    }
+  else if (http_code<200 || http_code>=300){
+    fxmessage("[http] unhandled error (%d)\n",http_code);
+    return false;  
+    }
 
   while(!eoh) {
 
@@ -386,19 +380,19 @@ FXbool HttpInput::parse_response() {
       return false;
     }
 
-  /// Handle redirects    
+  /// Handle redirects
   if (redirect) {
-    if (location.empty()) 
+    if (location.empty())
       return false;
-        
-    fxmessage("redirect: %s\n",location.text());    
+
+    fxmessage("redirect: %s\n",location.text());
     close();
-    buffer.clear();  
+    buffer.clear();
     return open(location);
-    }  
-    
-    
-    
+    }
+
+
+
   return true;
   }
 
