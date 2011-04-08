@@ -45,10 +45,10 @@ static FXbool to_pulse_format(const AudioFormat & af,pa_sample_format & pulse_fo
   switch(af.format) {
     case AP_FORMAT_S16_LE   : pulse_format=PA_SAMPLE_S16LE; break;
     case AP_FORMAT_S16_BE   : pulse_format=PA_SAMPLE_S16BE; break;
-    case AP_FORMAT_S24_LE   : pulse_format=PA_SAMPLE_S24LE;  break;
-    case AP_FORMAT_S24_BE   : pulse_format=PA_SAMPLE_S24BE;  break;
-    case AP_FORMAT_S24_3LE  : pulse_format=PA_SAMPLE_S24_32LE;  break;
-    case AP_FORMAT_S24_3BE  : pulse_format=PA_SAMPLE_S24_32BE;  break;
+    case AP_FORMAT_S24_LE   : pulse_format=PA_SAMPLE_S24_32LE;  break;
+    case AP_FORMAT_S24_BE   : pulse_format=PA_SAMPLE_S24_32BE;  break;
+    case AP_FORMAT_S24_3LE  : pulse_format=PA_SAMPLE_S24LE;  break;
+    case AP_FORMAT_S24_3BE  : pulse_format=PA_SAMPLE_S24BE;  break;
     case AP_FORMAT_FLOAT_LE : pulse_format=PA_SAMPLE_FLOAT32LE;  break;
     case AP_FORMAT_FLOAT_BE : pulse_format=PA_SAMPLE_FLOAT32BE;  break;
     default                 : return false; break;
@@ -62,10 +62,10 @@ static FXbool to_gap_format(pa_sample_format pulse_format,AudioFormat & af){
     case PA_SAMPLE_U8       : af.format = AP_FORMAT_U8;       break;
     case PA_SAMPLE_S16LE    : af.format = AP_FORMAT_S16_LE;   break;
     case PA_SAMPLE_S16BE    : af.format = AP_FORMAT_S16_BE;   break;
-    case PA_SAMPLE_S24LE    : af.format = AP_FORMAT_S24_LE;   break;
-    case PA_SAMPLE_S24BE    : af.format = AP_FORMAT_S24_BE;   break;
-    case PA_SAMPLE_S24_32LE : af.format = AP_FORMAT_S24_3LE;  break;
-    case PA_SAMPLE_S24_32BE : af.format = AP_FORMAT_S24_3BE;  break;
+    case PA_SAMPLE_S24LE    : af.format = AP_FORMAT_S24_3LE;   break;
+    case PA_SAMPLE_S24BE    : af.format = AP_FORMAT_S24_3BE;   break;
+    case PA_SAMPLE_S24_32LE : af.format = AP_FORMAT_S24_LE;  break;
+    case PA_SAMPLE_S24_32BE : af.format = AP_FORMAT_S24_BE;  break;
     case PA_SAMPLE_FLOAT32LE: af.format = AP_FORMAT_FLOAT_LE; break;
     case PA_SAMPLE_FLOAT32BE: af.format = AP_FORMAT_FLOAT_BE; break;
     default                 : return false;
@@ -116,7 +116,7 @@ FXbool PulseOutput::open() {
 
   /// Get a context
   if (context==NULL) {
-    context = pa_context_new(pa_threaded_mainloop_get_api(mainloop),"gap");
+    context = pa_context_new(pa_threaded_mainloop_get_api(mainloop),"Goggles Music Manager");
     pa_context_set_state_callback(context,context_state_callback,mainloop);
     }
 
@@ -255,7 +255,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   spec.rate     = fmt.rate;
   spec.channels = fmt.channels;
 
-  stream = pa_stream_new(context,"gap",&spec,NULL);
+  stream = pa_stream_new(context,"Goggles Music Manager",&spec,NULL);
   pa_stream_set_state_callback(stream,stream_state_callback,mainloop);
   pa_stream_set_write_callback(stream,stream_write_callback,mainloop);
 
