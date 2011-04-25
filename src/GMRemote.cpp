@@ -116,10 +116,10 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("Ctrl-["),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_PREV));
   getAccelTable()->addAccel(parseAccel("Ctrl-]"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_NEXT));
 
-  GMIconTheme::instance()->loadSmall(icon_volume_high,"audio-volume-high.png",FXApp::instance()->getBaseColor());
-  GMIconTheme::instance()->loadSmall(icon_volume_medium,"audio-volume-medium.png",FXApp::instance()->getBaseColor());
-  GMIconTheme::instance()->loadSmall(icon_volume_low,"audio-volume-low.png",FXApp::instance()->getBaseColor());
-  GMIconTheme::instance()->loadSmall(icon_volume_muted,"audio-volume-muted.png",FXApp::instance()->getBaseColor());
+  GMIconTheme::instance()->loadSmall(icon_volume_high,"audio-volume-high",FXApp::instance()->getBaseColor());
+  GMIconTheme::instance()->loadSmall(icon_volume_medium,"audio-volume-medium",FXApp::instance()->getBaseColor());
+  GMIconTheme::instance()->loadSmall(icon_volume_low,"audio-volume-low",FXApp::instance()->getBaseColor());
+  GMIconTheme::instance()->loadSmall(icon_volume_muted,"audio-volume-muted",FXApp::instance()->getBaseColor());
 
   reset();
   }
