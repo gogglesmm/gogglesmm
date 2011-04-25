@@ -632,11 +632,23 @@ void GMFileTag::setTitle(const FXString & value){
   tag->setTitle(TagLib::String(value.text(),TagLib::String::UTF8));
   }
 
-void GMFileTag::getTitle(FXString& value) const{
-  value=tag->title().toCString(true);
-  value.trim();
+void GMFileTag::getTitle(FXString& value) const {
+  if (xiph) {
+    FXStringList vals;
+    xiph_get_field("TITLE",vals);  
+    if (vals.no()) {
+      for (FXint i=0;i<vals.no();i++) {
+        vals[i].trim();
+        if (!value.empty()) value+=" - ";
+        value+=vals[i];
+        }
+      } 
+    }
+  else {
+    value=tag->title().toCString(true);
+    value.trim();
+    }
   }
-
 
 void GMFileTag::parse_tagids(FXStringList & tags)const{
   FXint id;
