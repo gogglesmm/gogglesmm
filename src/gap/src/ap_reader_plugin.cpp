@@ -126,8 +126,12 @@ extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
 extern ReaderPlugin * ap_cdda_reader(AudioEngine*);
 #endif
 
+#ifdef HAVE_AVC_PLUGIN
 extern ReaderPlugin * ap_asf_reader(AudioEngine*);
 extern ReaderPlugin * ap_avf_reader(AudioEngine*);
+extern ReaderPlugin * ap_asx_reader(AudioEngine*);
+#endif
+
 
 ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
   switch(type){
@@ -154,6 +158,8 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
     case Format::M3U      : return ap_m3u_reader(engine); break;
     case Format::PLS      : return ap_pls_reader(engine); break;
     case Format::XSPF     : return ap_xspf_reader(engine); break;
+
+#ifdef HAVE_AVC_PLUGIN
     case Format::ASX      : return ap_asx_reader(engine); break;
     case Format::ASF      : return ap_asf_reader(engine); break;
     case Format::ASFX     : {
@@ -170,20 +176,17 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
       else
         return ap_asf_reader(engine);
       }
-
-
-
-
-
-
-
-
-
-
-
-
-
+      
                             }
+      
+#endif
+
+
+
+
+
+
+
 //    case Format::MP3      : return ap_avf_reader(engine); break;
     default               : return NULL; break;
     }
