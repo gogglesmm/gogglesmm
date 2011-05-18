@@ -18,50 +18,50 @@ INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=$(INSTALL) -m 644
 
-GAP_NAME=libgap-$(GAP_MAJOR).so
+GAP_NAME=libgaplayer-$(GAP_MAJOR).so
 GAP_SONAME=$(GAP_NAME).$(GAP_ABI)
 GAP_LIB=$(GAP_SONAME).$(GAP_MINOR)
 GAP_LIBRARY=src/$(GAP_LIB)
-GAP_INTERFACE=gap-$(GAP_MAJOR)
+GAP_INTERFACE=gaplayer-$(GAP_MAJOR)
 
-TARNAME=libgap-$(GAP_MAJOR).$(GAP_MINOR)
+TARNAME=libgaplayer-$(GAP_MAJOR).$(GAP_MINOR)
 
 ifneq (,$(findstring alsa,$(PLUGINS)))
-GAP_ALSA_NAME=libgap_plugin_alsa.so
+GAP_ALSA_NAME=libgaplugin_alsa.so
 GAP_ALSA_PLUGIN=src/$(GAP_ALSA_NAME)
 $(GAP_ALSA_PLUGIN): CFLAGS+=$(ALSA_CFLAGS)
 $(GAP_ALSA_PLUGIN): CPPFLAGS+=$(ALSA_CPPFLAGS)
 endif
 
 ifneq (,$(findstring oss,$(PLUGINS)))
-GAP_OSS_NAME=libgap_plugin_oss.so
+GAP_OSS_NAME=libgaplugin_oss.so
 GAP_OSS_PLUGIN=src/$(GAP_OSS_NAME)
 $(GAP_OSS_PLUGIN): CPPFLAGS+=$(OSS_CPPFLAGS)
 $(GAP_OSS_PLUGIN): CFLAGS+=$(OSS_CFLAGS)
 endif
 
 ifneq (,$(findstring pulse,$(PLUGINS)))
-GAP_PULSE_NAME=libgap_plugin_pulse.so
+GAP_PULSE_NAME=libgaplugin_pulse.so
 GAP_PULSE_PLUGIN=src/$(GAP_PULSE_NAME)
 $(GAP_PULSE_PLUGIN): CPPFLAGS+=$(PULSE_CPPFLAGS)
 $(GAP_PULSE_PLUGIN): CFLAGS+=$(PULSE_CFLAGS)
 endif
 
 ifneq (,$(findstring jack,$(PLUGINS)))
-GAP_JACK_NAME=libgap_plugin_jack.so
+GAP_JACK_NAME=libgaplugin_jack.so
 GAP_JACK_PLUGIN=src/$(GAP_JACK_NAME)
 $(GAP_JACK_PLUGIN): CPPFLAGS+=$(JACK_CPPFLAGS)
 $(GAP_JACK_PLUGIN): CFLAGS+=$(JACK_CFLAGS)
 endif
 
 ifneq (,$(findstring rsound,$(PLUGINS)))
-GAP_RSOUND_NAME=libgap_plugin_rsound.so
+GAP_RSOUND_NAME=libgaplugin_rsound.so
 GAP_RSOUND_PLUGIN=src/$(GAP_RSOUND_NAME)
 $(GAP_RSOUND_PLUGIN): CPPFLAGS+=$(RSOUND_CPPFLAGS)
 $(GAP_RSOUND_PLUGIN): CFLAGS+=$(RSOUND_CFLAGS)
 endif
 
-GAP_WAV_NAME=libgap_plugin_wav.so
+GAP_WAV_NAME=libgaplugin_wav.so
 GAP_WAV_PLUGIN=src/$(GAP_WAV_NAME)
 $(GAP_WAV_PLUGIN): CPPFLAGS+=$(WAV_CPPFLAGS)
 $(GAP_WAV_PLUGIN): CFLAGS+=$(WAV_CFLAGS)
@@ -96,6 +96,7 @@ src/ap_engine.cpp \
 src/ap_reader_plugin.cpp \
 src/ap_player.cpp \
 src/ap_memory_buffer.cpp \
+src/ap_xml_parser.cpp \
 src/plugins/ap_m3u_plugin.cpp \
 src/plugins/ap_pls_plugin.cpp \
 src/plugins/ap_xspf_plugin.cpp \
@@ -132,9 +133,12 @@ ifneq (,$(findstring cdda,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_cdda_plugin.cpp
 endif
 
+ifneq (,$(findstring mms,$(PLUGINS)))
+GAP_SRCFILES+=src/plugins/ap_mms_plugin.cpp
+endif
 
 ifneq (,$(findstring avcodec,$(PLUGINS)))
-GAP_SRCFILES+=src/plugins/ap_avc_plugin.cpp
+GAP_SRCFILES+=src/plugins/ap_avc_plugin.cpp src/plugins/ap_asf_plugin.cpp src/plugins/ap_asx_plugin.cpp
 endif
 
 $(GAP_LIBRARY): CFLAGS+=$(PLUGIN_CFLAGS)
@@ -255,7 +259,7 @@ endif
 	@$(INSTALL) -m 644 include/ap_device.h $(includedir)/$(GAP_INTERFACE)/ap_device.h
 	@echo "  Installing pkg-config ..."
 	@$(INSTALL) -d $(libdir)/pkgconfig
-	@$(INSTALL) -m 644 src/libgap-$(GAP_MAJOR).pc $(libdir)/pkgconfig/libgap-$(GAP_MAJOR).pc
+	@$(INSTALL) -m 644 src/libgaplayer-$(GAP_MAJOR).pc $(libdir)/pkgconfig/libgaplayer-$(GAP_MAJOR).pc
 	@echo "  Done!"
 
 uninstall:
@@ -285,7 +289,7 @@ endif
 	rm $(includedir)/$(GAP_INTERFACE)/*.h
 	rmdir $(includedir)/$(GAP_INTERFACE)
 	@echo "Removing pkg-config ..."
-	rm $(libdir)/pkgconfig/libgap-$(GAP_MAJOR).pc
+	rm $(libdir)/pkgconfig/libgaplayer-$(GAP_MAJOR).pc
 	rmdir $(libdir)/pkgconfig
 
 
@@ -313,7 +317,7 @@ realclean:
 	@rm -f config.make
 	@rm -f include/ap_version.h
 	@rm -f src/ap_config.h
-	@rm -f src/libgap-$(GAP_MAJOR).pc
+	@rm -f src/libgaplayer-$(GAP_MAJOR).pc
 
 
 dist: clean realclean

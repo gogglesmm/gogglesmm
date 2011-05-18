@@ -223,7 +223,7 @@ void OutputThread::load_plugin() {
     }
 
   FXString plugin_name = AP_PLUGIN_PATH;
-  FXString plugin_dll = "gap_plugin_" + output_config.plugin();
+  FXString plugin_dll = "gaplugin_" + output_config.plugin();
 
   plugin_name += PATHSEPSTRING + FXSystem::dllName(plugin_dll);
   if (!FXStat::exists(plugin_name))

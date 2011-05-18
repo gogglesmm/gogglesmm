@@ -217,11 +217,17 @@ check_packages()
 
   if [ $OPTION_PLUGIN_AVCODEC -eq 1 ] ; then
     add_plugin_package "libavcodec" "avcodec"
+    add_plugin_package "libavformat" "avformat"
   fi
 
   if [ $OPTION_PLUGIN_CDDA -eq 1 ] ; then
     add_plugin_package "libcdio_cdda" "cdda"
   fi
+
+  if [ $OPTION_PLUGIN_MMS -eq 1 ] ; then
+    add_plugin_package "libmms" "mms"
+  fi
+
 
   if [ -n "$PACKAGES" ] ; then
     pkgconfig_package_flags "$PACKAGES"
