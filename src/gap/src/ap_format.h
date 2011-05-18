@@ -76,12 +76,16 @@ enum {
   OGG               = 2,
   FLAC              = 3,
   MP3               = 4,
-  AAC               = 5,
-  Musepack          = 6,
-  CDDA              = 7,
-  M3U               = 8,
-  PLS               = 9,
-  XSPF              = 10
+  MP4               = 5,
+  AAC               = 6,
+  Musepack          = 7,
+  CDDA              = 8,
+  M3U               = 9,
+  PLS               = 10,
+  XSPF              = 11,
+  ASF               = 12,
+  ASX               = 13,
+  ASFX              = 14 // either ASX or ASF
   };
 
 }
@@ -121,6 +125,7 @@ enum {
 
 extern FXuint ap_format_from_extension(const FXString & extension);
 extern FXuint ap_format_from_mime(const FXString & mime);
+extern FXuint ap_format_from_buffer(const FXchar * buffer,FXival size);
 
 class GMAPI AudioFormat {
 public:

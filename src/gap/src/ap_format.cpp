@@ -141,6 +141,12 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
   else if (comparecase(mime,"application/xspf+xml")==0){
     return Format::XSPF;
     }
+  else if (comparecase(mime,"video/x-ms-asf")==0) { /// Either ASF or ASX...
+    return Format::ASFX;
+    }
+  else if (comparecase(mime,"audio/x-ms-wax")==0) {
+    return Format::ASX;
+    }      
   else {
     return Format::Unknown;
     }
@@ -161,6 +167,8 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
            comparecase(extension,"m4a")==0 ||
            comparecase(extension,"m4p")==0 ||
            comparecase(extension,"m4b")==0 )
+    return Format::MP4;
+  else if (comparecase(extension,"aac")==0)
     return Format::AAC;
   else if (comparecase(extension,"m3u")==0)
     return Format::M3U;
@@ -168,8 +176,22 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::PLS;
   else if (comparecase(extension,"xspf")==0)
     return Format::XSPF;
+  else if (comparecase(extension,"asx")==0)
+    return Format::ASX;
+  else if (comparecase(extension,"asf")==0)
+    return Format::ASF;
   else
     return Format::Unknown;
   }
+
+
+extern FXuint ap_format_from_buffer(const FXchar * buffer,FXival size) {
+  if (comparecase(buffer,"<ASX",4)==0)
+    return Format::ASX;
+  else
+    return Format::Unknown;
+  }
+
+
 
 }
