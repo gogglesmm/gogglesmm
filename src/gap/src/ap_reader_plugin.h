@@ -43,7 +43,7 @@ public:
   virtual FXbool seek(FXdouble) { return false; }
 
   /// Process Input
-  virtual ReadStatus process(Packet*)=0;
+  virtual ReadStatus process(Packet*);
 
   /// Destructor
   virtual ~ReaderPlugin();
@@ -51,5 +51,27 @@ public:
   /// Open plugin for given format
   static ReaderPlugin* open(AudioEngine * engine,FXuint format);
   };
+
+
+
+
+class TextReader : public ReaderPlugin {
+protected:
+  FXString textbuffer;
+public:
+  TextReader(AudioEngine*);  
+  FXbool init();
+  ReadStatus process(Packet*);
+  virtual ~TextReader();
+  };
+
+
+
+
+
+
+
+
+
 }
 #endif

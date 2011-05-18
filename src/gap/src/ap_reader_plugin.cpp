@@ -24,7 +24,7 @@ ReaderPlugin::~ReaderPlugin() {
   }
 
 ReadStatus ReaderPlugin::process(Packet*packet) {
-  FXint nread = engine->input->read(packet->data(),packet->space());
+  FXint nread = engine->input->read(packet->ptr(),packet->space());
   if (nread<0) {
     packet->unref();
     return ReadError;
@@ -49,6 +49,44 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
     }
   return ReadError;
   }
+
+
+
+TextReader::TextReader(AudioEngine*e) : ReaderPlugin(e) {
+  }
+
+TextReader::~TextReader(){
+  }
+
+FXbool TextReader::init() {
+  textbuffer.clear();
+  return true;
+  }
+
+ReadStatus TextReader::process(Packet*packet) {
+  packet->unref();
+  fxmessage("[text] starting read\n");
+  FXint len=0,nread;
+  const FXint chunk=4096;
+  while(!engine->input->eof()) {
+    if (len>0xFFFF) {
+      fxmessage("[text] input too big %d\n",len);
+      return ReadError;
+      }
+    textbuffer.length(textbuffer.length()+chunk);
+    nread=engine->input->read(&textbuffer[len],chunk);
+    if (nread==-1)
+      return ReadInterrupted;
+    else
+      len+=nread;
+    }
+  textbuffer.trunc(len);
+  return ReadDone;
+  }
+
+
+
+
 }
 
 #include "ap_config.h"
@@ -59,7 +97,7 @@ namespace ap {
 extern ReaderPlugin * ap_m3u_reader(AudioEngine*);
 extern ReaderPlugin * ap_pls_reader(AudioEngine*);
 extern ReaderPlugin * ap_xspf_reader(AudioEngine*);
-
+extern ReaderPlugin * ap_asx_reader(AudioEngine*);
 
 extern ReaderPlugin * ap_wav_reader(AudioEngine*);
 
@@ -81,11 +119,15 @@ extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 
 #ifdef HAVE_AAC_PLUGIN
 extern ReaderPlugin * ap_aac_reader(AudioEngine*);
+extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
 #endif
 
 #ifdef HAVE_CDDA_PLUGIN
 extern ReaderPlugin * ap_cdda_reader(AudioEngine*);
 #endif
+
+extern ReaderPlugin * ap_asf_reader(AudioEngine*);
+extern ReaderPlugin * ap_avf_reader(AudioEngine*);
 
 ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
   switch(type){
@@ -101,6 +143,7 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #endif
 #ifdef HAVE_AAC_PLUGIN
     case Format::AAC      : return ap_aac_reader(engine); break;
+    case Format::MP4      : return ap_mp4_reader(engine); break;
 #endif
 #ifdef HAVE_MUSEPACK_PLUGIN
     case Format::Musepack : return ap_musepack_reader(engine); break;
@@ -111,6 +154,37 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
     case Format::M3U      : return ap_m3u_reader(engine); break;
     case Format::PLS      : return ap_pls_reader(engine); break;
     case Format::XSPF     : return ap_xspf_reader(engine); break;
+    case Format::ASX      : return ap_asx_reader(engine); break;
+    case Format::ASF      : return ap_asf_reader(engine); break;
+    case Format::ASFX     : {
+
+
+    FXchar buffer[1024];
+    FXival nbuffer=0;
+    nbuffer=engine->input->preview(buffer,1024);
+    if (nbuffer>0) {
+//      fxmessage("got preview buffer of %d\n",nbuffer);
+//      fxmessage("%s\n",buffer);
+      if (comparecase(buffer,"<ASX",4)==0)
+        return ap_asx_reader(engine);
+      else
+        return ap_asf_reader(engine);
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+//    case Format::MP3      : return ap_avf_reader(engine); break;
     default               : return NULL; break;
     }
   return NULL;
