@@ -47,73 +47,41 @@ static void gm_parse_m3u(FXString & data,FXStringList & mrl) {
 
 
 
-class M3UReader : public ReaderPlugin {
+class M3UReader : public TextReader {
 protected:
   FXStringList uri;
 public:
   M3UReader(AudioEngine*);
-  FXbool init();
   ReadStatus process(Packet*);
+  FXbool init();
   FXuchar format() const { return Format::M3U; };
-  FXbool seek(FXdouble) { return false; }
   FXbool redirect(FXStringList & u) { u=uri; return true; }
   virtual ~M3UReader();
   };
 
 
 
-M3UReader::M3UReader(AudioEngine*e) : ReaderPlugin(e) {
+M3UReader::M3UReader(AudioEngine*e) : TextReader(e) {
   }
 
 M3UReader::~M3UReader(){
   }
 
 FXbool M3UReader::init() {
+  TextReader::init();
   uri.clear();
   return true;
   }
 
 ReadStatus M3UReader::process(Packet*packet) {
-  packet->unref();
-  FXString buffer;
-  FXint n,l=0;
-
-  fxmessage("[m3u] starting read\n");
-  if (engine->input->size()>0){
-    if (engine->input->size()>0xFFFF) {
-      fxmessage("[m3u] input too big %ld\n",engine->input->size());
-      return ReadError;
-      }
-    l=engine->input->size();
-    buffer.length(l);
-    n=engine->input->read(&buffer[0],l);
-    if (n==-1) return ReadInterrupted;
-    else if (n!=l) return ReadError;
-    }
-  else {
-    while(!engine->input->eof()) {
-      if ((l+4096)>0xFFFF) {
-        fxmessage("[m3u] input too big %d\n",l);
-        return ReadError;
-        }
-      buffer.length(buffer.length()+4096);
-      n=engine->input->read(&buffer[l],4096);
-      if (n==-1) return ReadInterrupted;
-      else { l+=n; }
-      }
-    buffer.trunc(l);
-    }
-  fxmessage("[m3u] read ok, parsing\n");
-  gm_parse_m3u(buffer,uri);
-
-  for (FXint i=0;i<uri.no();i++){
-    fxmessage("url[%d]=%s\n",i,uri[i].text());
-    }
-
-  if (uri.no())
-    return ReadRedirect;
-  else
-    return ReadDone;
+  if (TextReader::process(packet)==ReadDone) {
+    gm_parse_m3u(textbuffer,uri);
+    if (uri.no())
+      return ReadRedirect;
+    else
+      return ReadDone;
+    }  
+  return ReadError;
   }
 
 ReaderPlugin * ap_m3u_reader(AudioEngine * engine) {
