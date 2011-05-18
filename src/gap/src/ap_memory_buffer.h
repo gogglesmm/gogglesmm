@@ -82,6 +82,8 @@ public:
 
   /// Read sz bytes from buffer
   FXival read(void * buf,FXival sz);
+  
+  FXival copy(void * buf,FXival sz);
 
   /// Read sz bytes from buffer
   void read(FXival sz);
