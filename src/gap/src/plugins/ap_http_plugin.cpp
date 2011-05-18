@@ -69,7 +69,7 @@ static FXbool ap_set_nosignal(FXint)  {
   }
 #endif
 
-HttpInput::HttpInput(FXInputHandle f) : InputPlugin(f),device(BadHandle),buffer(1024),
+HttpInput::HttpInput(FXInputHandle f) : InputPlugin(f,1024),device(BadHandle),
   content_type(Format::Unknown),
   content_length(-1),
   content_position(0),
@@ -87,47 +87,6 @@ void HttpInput::close() {
     ::close(device);
     device=BadHandle;
     }
-  }
-
-
-FXival HttpInput::buffer_read(void*data,FXival count){
-  if (__unlikely(buffer.size())) {
-    FXchar * buf = (FXchar*)(data);
-    FXival nread = buffer.read(buf,count);
-    if (nread==count) return nread;
-    count-=nread;
-    buf+=nread;
-    FXival n = InputPlugin::read(buf,count);
-    if (n==-1) return -1;
-    return nread+n;
-    }
-  return InputPlugin::read(data,count);
-  }
-
-FXival HttpInput::fill_buffer(FXuval count) {
-  FXival nread;
-  FXival ncount=count;
-  buffer.reserve(count);
-  while(ncount>0) {
-    nread=read_raw(buffer.ptr(),ncount);
-    if (__likely(nread>0)) {
-      buffer.wrote(nread);
-      ncount-=nread;
-      return (count-ncount);
-      }
-    else if (nread==0) { // eof!
-      return count-ncount;
-      }
-    else if (nread==-2) { // block!
-      if (!ap_wait_read(fifo,handle())) {
-        return -1;
-        }
-      }
-    else {
-      return -1;
-      }
-    }
-  return count;
   }
 
 
@@ -175,10 +134,14 @@ FXival HttpInput::read_raw(void* data,FXival count){
   return nread;
   }
 
-FXival HttpInput::write(void*data,FXival count) {
+
+
+
+
+FXbool HttpInput::write(const FXString & data) {
   FXival nwritten;
-  FXival ncount=count;
-  FXchar * buffer = (FXchar *)data;
+  FXival ncount=data.length();
+  FXchar * buffer = (FXchar*)data.text();
   while(ncount>0) {
     nwritten=write_raw(buffer,ncount);
     if (__likely(nwritten>0)) {
@@ -186,17 +149,17 @@ FXival HttpInput::write(void*data,FXival count) {
       ncount-=nwritten;
       }
     else if (nwritten==0) {
-      return count-ncount;
+      return false;
       }
     else if (nwritten==-2) {
       if (!ap_wait_write(fifo,handle()))
-        return -1;
+        return false;
       }
     else {
-      return -1;
+      return false;
       }
     }
-  return count;
+  return true;
   }
 
 
@@ -240,7 +203,7 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
 
   FXint result=getaddrinfo(hostname.text(),FXString::value(port).text(),&hints,&list);
   if (result) {
-    fxmessage("getaddrinfo failed\n");
+    fxmessage("[http] getaddrinfo: %s\n",gai_strerror(result));
     return false;
     }
 
@@ -315,13 +278,13 @@ FXbool HttpInput::parse_response() {
   /// First get response code
   do {
     /// Get some bytes
-    if (fill_buffer(256)==-1)
+    if (fillBuffer(256)==-1)
       return false;
     }
   while(!next_header(header));
 
   fxmessage("[http] %s\n",header.text());
-  
+
   if ( header.scan("HTTP/%d.%d %d",&http_major_version,&http_minor_version,&http_code)!=3 &&
        header.scan("ICY %d",&http_code)!=1 ){
     fxmessage("[http] invalid http response: %s\n",header.text());
@@ -346,7 +309,7 @@ FXbool HttpInput::parse_response() {
     }
   else if (http_code<200 || http_code>=300){
     fxmessage("[http] unhandled error (%d)\n",http_code);
-    return false;  
+    return false;
     }
 
   while(!eoh) {
@@ -376,8 +339,9 @@ FXbool HttpInput::parse_response() {
     if (eoh) break;
 
     /// Get some bytes
-    if (fill_buffer(256)==-1)
+    if (fillBuffer(256)==-1)
       return false;
+
     }
 
   /// Handle redirects
@@ -407,10 +371,9 @@ FXival HttpInput::icy_read(void*data,FXival count){
   if (icy_count<count) {
 
     /// Read up to icy buffer
-    nread=buffer_read(out,icy_count);
+    nread=InputPlugin::read(out,icy_count);
     if (__unlikely(nread!=icy_count)) {
       if (nread>0) {
-        content_position+=nread;
         icy_count-=nread;
         }
       return nread;
@@ -422,7 +385,7 @@ FXival HttpInput::icy_read(void*data,FXival count){
 
     /// Read icy buffer size
     FXuchar b=0;
-    n=buffer_read(&b,1);
+    n=InputPlugin::read(&b,1);
     if (__unlikely(n!=1)) return -1;
 
     /// Read icy buffer
@@ -430,7 +393,7 @@ FXival HttpInput::icy_read(void*data,FXival count){
       FXushort icy_size=((FXushort)b)*16;
       FXString icy_buffer;
       icy_buffer.length(icy_size);
-      n=buffer_read(&icy_buffer[0],icy_size);
+      n=InputPlugin::read(&icy_buffer[0],icy_size);
       if (__unlikely(n!=icy_size)) return -1;
       }
 
@@ -438,18 +401,14 @@ FXival HttpInput::icy_read(void*data,FXival count){
     icy_count=icy_interval;
 
     /// Read remaining bytes
-    n=buffer_read(out,count);
+    n=InputPlugin::read(out,count);
     if (__unlikely(n!=count)) return -1;
     nread+=n;
     icy_count-=n;
-
-    /// finally update content position
-    content_position+=nread;
     }
   else {
-    nread=buffer_read(out,count);
+    nread=InputPlugin::read(out,count);
     if (__likely(nread>0)) {
-      content_position+=nread;
       icy_count-=nread;
       }
     }
@@ -457,11 +416,26 @@ FXival HttpInput::icy_read(void*data,FXival count){
   }
 
 
-FXival HttpInput::read(void* data,FXival count){
+FXival HttpInput::read(void*data,FXival count){
+  FXint n;
+
+  /// Don't read past content
+  if (content_length>0) {
+    if (content_position>=content_length)
+      return 0;
+    else
+      count=FXMIN((content_length-content_position),count);
+    }
+
   if (icy_interval)
-    return icy_read(data,count);
+    n=icy_read(data,count);
   else
-    return buffer_read(data,count);
+    n=InputPlugin::read(data,count);
+
+  if (n>0)
+    content_position+=n;
+
+  return n;
   }
 
 
@@ -484,9 +458,14 @@ FXival HttpInput::read(void* data,FXival count){
 
 
 FXbool HttpInput::open(const FXString & uri) {
-  FXString host = FXURL::host(uri);
-  FXString path = FXURL::path(uri);
-  FXint    port = FXURL::port(uri);
+  FXString host  = FXURL::host(uri);
+  FXString path  = FXURL::path(uri);
+  FXString query = FXURL::query(uri);
+  FXint    port  = FXURL::port(uri);
+
+  if (!query.empty())
+    path+="?"+query;
+  
   if (port==0) port=80;
 
   if (!open(host,port)) {
@@ -498,10 +477,11 @@ FXbool HttpInput::open(const FXString & uri) {
 
   FXString request = FXString::value("GET %s HTTP/1.1\r\n"
                                      "Host: %s\r\n"
-                                     "User-agent: libgap/%d.%d\r\n"
+                                     "User-agent: libgaplayer/%d.%d\r\n"
 
                                      /// For ice/shout cast this will give us metadata in stream.
                                      "Icy-MetaData: 1\r\n"
+                                     "Accept: */*\r\n"
 
                                      "\r\n"
                                      ,path.text()
@@ -509,17 +489,10 @@ FXbool HttpInput::open(const FXString & uri) {
                                      ,0,1
                                      );
 
-
-  /// Wait for reply
-//  if (!ap_wait_write(fifo,device)){
-//    fxmessage("waiting for write failed\n");
-//    return false;
-//    }
-
   fxmessage("request: %s\n",request.text());
 
   /// Send request
-  if (write(request.text(),request.length())==-1) {
+  if (!write(request)) {
     fxmessage("failed to send request\n");
     return false;
     }
@@ -550,7 +523,7 @@ FXival HttpInput::position(FXlong offset,FXuint from) {
       offset-=content_position;
       FXchar b;FXival n;
       while(offset) {
-        n=buffer_read(&b,1);
+        n=InputPlugin::read(&b,1);
         if (n==-1) return -1;
         offset-=n;
         content_position+=n;
@@ -569,7 +542,7 @@ FXival HttpInput::position(FXlong offset,FXuint from) {
   else {
     FXchar b;FXival n;
     while(offset) {
-      n=buffer_read(&b,1);
+      n=InputPlugin::read(&b,1);
       if (n==-1) return -1;
       offset-=n;
       content_position+=n;
@@ -591,8 +564,10 @@ FXlong HttpInput::size() {
   }
 
 FXbool HttpInput::eof()  {
-  if (buffer.size()==0 && device==BadHandle)
+  if ((content_length>0 && content_position>=content_length) ||
+      (buffer.size()==0 && device==BadHandle)) {
     return true;
+    }
   else
     return false;
   }

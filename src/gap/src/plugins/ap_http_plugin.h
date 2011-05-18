@@ -6,11 +6,11 @@ namespace ap {
 class HttpInput : public InputPlugin {
 protected:
   FXInputHandle device;
-  MemoryStream  buffer;
+protected: /// Http
   FXuint        content_type;
   FXlong        content_length;
   FXlong        content_position;
-protected:
+protected: /// Icecast
   FXint         icy_interval;
   FXint         icy_count;
 private:
@@ -20,16 +20,15 @@ protected:
   FXlong read_raw(void*,FXival);
   FXlong write_raw(void*,FXival);
 protected:
-  FXival fill_buffer(FXuval);
-  FXival buffer_read(void*,FXival);
   FXival icy_read(void*,FXival);
-  FXival write(void*data,FXival ncount);
+  FXbool write(const FXString&);
   FXbool open(const FXString & hostname,FXint port);
   FXbool next_header(FXString & header);
   FXbool parse_response();
-  FXInputHandle handle() const { return device; }
 
   void close();
+protected:
+  FXInputHandle handle() const { return device; }
 public:
   /// Constructor
   HttpInput(FXInputHandle);

@@ -5,11 +5,11 @@
 #include "ap_event.h"
 #include "ap_format.h"
 #include "ap_device.h"
+#include "ap_memory_buffer.h"
 #include "ap_input_plugin.h"
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
-#include "ap_memory_buffer.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
 #include "ap_thread.h"
@@ -21,7 +21,7 @@
 #include "plugins/ap_file_plugin.h"
 #include "plugins/ap_http_plugin.h"
 #include "plugins/ap_cdda_plugin.h"
-
+#include "plugins/ap_mms_plugin.h"
 
 #ifndef WIN32
 #include <errno.h>
@@ -211,7 +211,6 @@ FXint InputThread::run(){
                             break;
       case Ctrl_Open_Flush: fxmessage("Ctrl_Open_Flush\n");
                             ctrl_flush();
-                            //ctrl_close_input();
                             ctrl_open_input(((ControlEvent*)event)->text);
                             break;
       case Ctrl_Quit      : ctrl_close_input(true);
@@ -259,6 +258,11 @@ FXint InputThread::run(){
 FXival InputThread::read(void * data,FXival count) {
   FXASSERT(input);
   return input->read(data,count);
+  }
+
+FXival InputThread::preview(void * data,FXival count) {
+  FXASSERT(input);
+  return input->preview(data,count);
   }
 
 FXlong InputThread::position(FXlong offset,FXuint from){
@@ -356,6 +360,17 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     url=uri;
     return http;
     }
+#ifdef HAVE_MMS_PLUGIN
+  else if (scheme=="mms") {
+    MMSInput * mms = new MMSInput(fifo.handle());
+    if (!mms->open(uri)){
+      delete mms;
+      return NULL;
+      }
+    url=uri;
+    return mms;
+    }
+#endif
 #ifdef HAVE_CDDA_PLUGIN
   else if (scheme=="cdda") {
     CDDAInput * cdda = new CDDAInput(fifo.handle());
@@ -443,6 +458,7 @@ failed:
 void InputThread::set_state(FXuchar s,FXbool notify) {
   if (state!=s) {
     state=s;
+    if (state==StateIdle) fxmessage("set state idle\n");
     }
 
   /// Tell front end about the state.

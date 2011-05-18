@@ -10,13 +10,25 @@ using namespace ap;
 
 namespace ap {
 
-InputPlugin::InputPlugin(FXInputHandle f) : fifo(f) {
+InputPlugin::InputPlugin(FXInputHandle f,FXival size) : fifo(f), buffer(size) {
+  }
+
+InputPlugin::InputPlugin(FXInputHandle f) : fifo(f), buffer(0) {
   }
 
 InputPlugin::~InputPlugin() {
   }
 
-FXival InputPlugin::read(void*data,FXival count){
+
+FXival InputPlugin::fillBuffer(FXival count) {
+  buffer.reserve(count);
+  FXival nread = InputPlugin::readBlock(buffer.ptr(),count,false);
+  if (nread>0)
+    buffer.wrote(nread);
+  return nread;
+  }
+
+FXival InputPlugin::readBlock(void*data,FXival count,FXbool wait){
   FXival nread;
   FXival ncount=count;
   FXchar * buffer = (FXchar *)data;
@@ -27,12 +39,18 @@ FXival InputPlugin::read(void*data,FXival count){
       ncount-=nread;
       }
     else if (nread==0) { // eof!
-      return count-ncount; 
+      return count-ncount;
       }
-    else if (nread==-2) { // block!
-      FXASSERT(handle()!=BadHandle);
-      if (!ap_wait_read(fifo,handle()))
-        return -1;
+    else if (nread==-2 ) { // block!       
+      /// wait if we have no data yet
+      /// In case we receive data from socket and we don't know how long the stream will be.
+      if (wait || (ncount==count)) {
+        if (!ap_wait_read(fifo,handle()))
+          return -1;
+        }
+      else {
+        return count-ncount;
+        }    
       }
     else {
       return -1;
@@ -41,4 +59,58 @@ FXival InputPlugin::read(void*data,FXival count){
   return count;
   }
 
+
+FXival InputPlugin::preview(void*data,FXival count) {
+  if (serial() || buffer.size()) {
+    if (buffer.size()<count)
+      fillBuffer(count-buffer.size());
+    return buffer.copy(data,count);
+    }
+  else { // no need to buffer if we have non-serial streams
+    FXlong readpos = position();
+    FXival nblock  = InputPlugin::readBlock(data,count);
+    position(readpos,FXIO::Begin);
+    return nblock;
+    }
+  }
+
+FXival InputPlugin::read(void * d,FXival count){
+  if (__unlikely(buffer.size()>0)) {
+    FXchar * data = (FXchar*)d;
+    FXival nbuffer = buffer.read(data,count);
+    if (nbuffer==count) return nbuffer;
+    FXival nblock = InputPlugin::readBlock(data+nbuffer,count-nbuffer);
+    if (nblock==-1) return -1;
+    return nbuffer+nblock;
+    }
+  else {
+    return InputPlugin::readBlock(d,count);
+    }
+  }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

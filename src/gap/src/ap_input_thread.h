@@ -46,8 +46,7 @@ public:
 //  DecoderPacket * get_decoder_packet();
 
 
-
-
+  FXival preview(void*data,FXival ncount);
   FXival read(void*data,FXival ncount);
   FXlong position(FXlong offset,FXuint from);
   FXlong position() const;
