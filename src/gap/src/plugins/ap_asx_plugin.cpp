@@ -81,7 +81,7 @@ FXint ASXParser::begin(const FXchar * element,const FXchar ** attributes){
   return 0;
   }
 
-void ASXParser::end(const FXchar* element) {
+void ASXParser::end(const FXchar*) {
   switch(elem){
     case Elem_ASX_Entry_Ref     : elem=Elem_ASX_Entry; break;
     case Elem_ASX_Entry         : elem=Elem_ASX; break;
@@ -92,11 +92,11 @@ void ASXParser::end(const FXchar* element) {
 
 static void gm_parse_asx(FXString & data,FXStringList & mrl) {
   ASXParser asx;
-  
-  
+
+
   /// FIXME replace with nifty regex
   data.substitute("&","&amp;");
-  
+
   if (asx.parse(data)) {
     mrl=asx.files;
     }
