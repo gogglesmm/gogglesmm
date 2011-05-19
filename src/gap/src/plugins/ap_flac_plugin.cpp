@@ -45,9 +45,11 @@
 
 namespace ap {
 
+
 class FlacReader : public ReaderPlugin {
 protected:
   FLAC__StreamDecoder * flac;
+  ReplayGain gain;
 protected:
   static FLAC__StreamDecoderSeekStatus    flac_input_seek(const FLAC__StreamDecoder*,FLAC__uint64,void*);
   static FLAC__StreamDecoderTellStatus    flac_input_tell(const FLAC__StreamDecoder*,FLAC__uint64*,void*);
@@ -157,6 +159,9 @@ FXbool FlacReader::init() {
     if ( flac == NULL)
       return false;
 
+
+    FLAC__stream_decoder_set_metadata_respond(flac,FLAC__METADATA_TYPE_VORBIS_COMMENT);
+
     /// Init Stream
     if (FLAC__stream_decoder_init_stream(flac,flac_input_read,
                                               flac_input_seek,
@@ -171,6 +176,7 @@ FXbool FlacReader::init() {
       return false;
       }
     }
+  gain.reset();
   flags&=~FLAG_PARSED;
   return true;
   }
@@ -217,7 +223,10 @@ ReadStatus FlacReader::parse() {
     else
       engine->input->position(0,FXIO::Begin);
 
-    engine->decoder->post(new ConfigureEvent(af,Codec::FLAC,stream_length));
+
+    ConfigureEvent * config = new ConfigureEvent(af,Codec::FLAC,stream_length);
+    config->replaygain=gain;
+    engine->decoder->post(config);
     flags|=FLAG_PARSED;
     return ReadOk;
     }
@@ -330,6 +339,41 @@ void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const F
 
       plugin->stream_length=metadata->data.stream_info.total_samples;
       plugin->af.debug();
+      break;
+    case FLAC__METADATA_TYPE_VORBIS_COMMENT:
+      for (FXint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {
+        if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_TRACK_GAIN=",22)==0){
+          FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
+          FXdouble gain=NAN;
+          tag.after('=').scan("%lg",&gain);
+          plugin->gain.track=gain;
+          fxmessage("track gain: %g db\n",plugin->gain.track);
+          }
+       else if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_TRACK_PEAK=",22)==0){
+          FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
+          FXdouble peak=NAN;
+          tag.after('=').scan("%lg",&peak);
+          plugin->gain.track_peak=peak;
+          }
+
+       else if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_ALBUM_GAIN=",22)==0){
+         FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
+         FXdouble gain=NAN;
+         tag.after('=').scan("%lg",&gain);
+         plugin->gain.album=gain;
+         fxmessage("album gain: %g db\n",plugin->gain.album);
+         }
+        else if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_ALBUM_PEAK=",22)==0){
+          FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
+          FXdouble peak=NAN;
+          tag.after('=').scan("%lg",&peak);
+          plugin->gain.album_peak=peak;
+          }
+          
+          
+ //       fxmessage("%s\n",metadata->data.vorbis_comment.comments[i].entry);
+        }
+      break;
     default: break;
     }
  }
