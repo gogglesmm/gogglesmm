@@ -721,6 +721,16 @@ void gm_dbus_variant_append_string_list(DBusMessageIter * iter,const FXStringLis
   dbus_message_iter_close_container(iter,&container);
   }
 
+void gm_dbus_append_string(DBusMessageIter *iter,const FXString & value){
+  const FXchar * v = value.text();
+  dbus_message_iter_append_basic(iter,DBUS_TYPE_STRING,&v);
+  }
+
+
+void gm_dbus_append_string_pair(DBusMessageIter *iter,const FXchar * key,const FXchar * value){
+  dbus_message_iter_append_basic(iter,DBUS_TYPE_STRING,&key);
+  dbus_message_iter_append_basic(iter,DBUS_TYPE_STRING,&value);
+  }
 
 
 void gm_dbus_dict_append_int32(DBusMessageIter * iter,const FXchar * key,const FXint value){

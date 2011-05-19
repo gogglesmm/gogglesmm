@@ -193,6 +193,9 @@ extern void gm_dbus_variant_append_long(DBusMessageIter * iter,const FXlong valu
 extern void gm_dbus_variant_append_string_list(DBusMessageIter * iter,const FXchar * data[]);
 extern void gm_dbus_variant_append_string_list(DBusMessageIter * iter,const FXStringList&);
 
+extern void gm_dbus_append_string(DBusMessageIter *iter,const FXString & value);
+extern void gm_dbus_append_string_pair(DBusMessageIter *iter,const FXchar * key,const FXchar * value);
+
 extern void gm_dbus_dict_append_int32(DBusMessageIter * dict,const FXchar * key,const FXint value);
 extern void gm_dbus_dict_append_uint32(DBusMessageIter * dict,const FXchar * key,const FXuint value);
 extern void gm_dbus_dict_append_string(DBusMessageIter * dict,const FXchar * key,const FXchar * value);
