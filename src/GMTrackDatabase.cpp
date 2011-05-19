@@ -2323,7 +2323,7 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
 
   /// Don't do "a1.id!=a2.id" since the album entry may already exists.
   GMQuery query_album_by_same_name(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id JOIN albums AS a2 ON a1.name == a2.name JOIN artists ON a2.artist == artists.id WHERE tracks.id == ? AND artists.name == ?;");
-  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,replay_gain,replay_peak)"
+  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,replay_gain,replay_peak) "
                           "SELECT name,"
                                 "(SELECT id FROM artists WHERE name == ?),"
                                 "albums.year,"
@@ -2332,7 +2332,7 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
                           "FROM albums JOIN tracks ON albums.id == tracks.album "
                           "WHERE tracks.id = ?;");
 
-  GMQuery copy_album_with_title(this,"INSERT INTO albums (name,artist,year,replay_gain,replay_peak)"
+  GMQuery copy_album_with_title(this,"INSERT INTO albums (name,artist,year,replay_gain,replay_peak) "
                           "SELECT ?,"
                                 "(SELECT id FROM artists WHERE name == ?),"
                                 "albums.year,"
