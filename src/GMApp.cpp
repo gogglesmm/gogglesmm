@@ -333,7 +333,7 @@ FXIMPLEMENT(GMPlug,FXTopWindow,GMPlugMap,ARRAYNUMBER(GMPlugMap));
 GMPlug::GMPlug(){
   }
 
-GMPlug::GMPlug(FXApp * app) : FXTopWindow(app,"test",NULL,NULL,DECOR_NONE,0,0,1,1,0,0,0,0,0,0) , socket(0) {
+GMPlug::GMPlug(FXApp * app) : FXTopWindow(app,"gogglesmm",NULL,NULL,DECOR_NONE,0,0,1,1,0,0,0,0,0,0) , socket(0) {
   }
 
 GMPlug::~GMPlug(){
@@ -366,6 +366,7 @@ void GMPlug::setFocus(){
 
 void GMPlug::create() {
   FXTopWindow::create();
+  fix_wm_properties(this);
   if (xid) {
     Atom xembedinfo = XInternAtom((Display*)getApp()->getDisplay(),"_XEMBED_INFO",0);
     if (xembedinfo!=None) {
@@ -381,6 +382,31 @@ long GMPlug::onEmbedded(FXObject*,FXSelector,void*ptr){
   return 1;
   }
 
+
+
+void fix_wm_properties(const FXWindow * window) {
+#ifndef WIN32
+  XTextProperty textprop;
+
+#if FOXVERSION < FXVERSION(1,7,0)
+  FXString host=FXURL::hostname();
+#else
+  FXString host=FXSystem::getHostName();
+#endif
+  /// set the name of the machine on which this application is running
+  textprop.value = (unsigned char *)host.text();
+  textprop.encoding = XA_STRING;
+  textprop.format = 8;
+  textprop.nitems = host.length();
+  XSetWMClientMachine((Display*)window->getApp()->getDisplay(),window->id(), &textprop);
+
+  /// Override class hints
+  XClassHint hint;
+  hint.res_name=(char*)"gogglesmm";
+  hint.res_class=(char*)"gogglesmm";
+  XSetClassHint((Display*)window->getApp()->getDisplay(),window->id(),&hint);
+#endif
+  }
 
 void ewmh_set_window_icon(const FXWindow * window,FXImage * icon) {
 #ifndef WIN32
