@@ -20,6 +20,7 @@
 #define FXEXT_H
 
 enum {
+  WINDOWTYPE_NORMAL,
   WINDOWTYPE_DIALOG,
   WINDOWTYPE_COMBO,
   WINDOWTYPE_POPUP_MENU,
@@ -30,6 +31,7 @@ enum {
 extern void ewmh_change_window_type(const FXWindow *,FXuint);
 extern void ewmh_set_window_icon(const FXWindow *,FXImage *);
 extern void ewmh_activate_window(const FXWindow*);
+extern void fix_wm_properties(const FXWindow*);
 
 
 
