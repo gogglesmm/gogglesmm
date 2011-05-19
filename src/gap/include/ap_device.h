@@ -64,11 +64,14 @@ public:
   virtual ~OSSConfig();
   };
 
+
+
 class GMAPI OutputConfig {
 public:
   AlsaConfig  alsa;
   OSSConfig   oss;
   FXchar      device;
+  FXuchar     replaygain;
 public:
   OutputConfig();
 

@@ -19,7 +19,7 @@ static const FXchar * plugin_names[DeviceLast]={
   };
 
 static FXbool ap_has_plugin(FXuchar device) {
-  FXString name = FXSystem::dllName(FXString::value("gap_plugin_%s",plugin_names[device]));
+  FXString name = FXSystem::dllName(FXString::value("gaplugin_%s",plugin_names[device]));
   FXString path = AP_PLUGIN_PATH PATHSEPSTRING + name;
 
   if (FXStat::exists(path) || FXStat::exists(name))
@@ -140,7 +140,7 @@ void OutputConfig::save(FXSettings & settings) const {
   ap_get_version(major,minor);
   settings.writeIntEntry("version","major",major);
   settings.writeIntEntry("version","minor",minor);
-*/  
+*/
   if (device>=DeviceAlsa && device<DeviceLast)
     settings.writeStringEntry("engine","output",plugin_names[(FXuchar)device]);
   else

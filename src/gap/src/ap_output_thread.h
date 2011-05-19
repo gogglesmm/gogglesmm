@@ -7,6 +7,20 @@ class AudioEngine;
 class OutputPlugin;
 class Packet;
 
+
+
+
+
+struct ReplayGainConfig {
+  ReplayGainMode  mode;
+  ReplayGain      value;
+
+  ReplayGainConfig() : mode(ReplayGainOff) {}
+
+  FXdouble gain() const { return (mode==ReplayGainAlbum) ? value.album      : value.track; }
+  FXdouble peak() const { return (mode==ReplayGainAlbum) ? value.album_peak : value.track_peak; }
+  };
+
 class OutputThread : public EngineThread {
 protected:
   Event * wait_for_packet();
@@ -20,6 +34,7 @@ public:
   MemoryBuffer   converted_samples;
   MemoryBuffer   src_input;
   MemoryBuffer   src_output;
+  ReplayGainConfig  replaygain;
 protected:
   FXbool processing;
 protected:
@@ -49,11 +64,13 @@ protected:
   void reconfigure();
 public:
   OutputThread(AudioEngine*);
-  virtual FXint process(Event*);
   virtual FXint run();
   virtual ~OutputThread();
 public:
   void getOutputConfig(OutputConfig & config);
+
+  /// Get the replay gain mode
+  ReplayGainMode getReplayGain() const { return replaygain.mode; }
   };
 
 }

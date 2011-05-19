@@ -15,6 +15,7 @@ enum EventTypePrivate {
   Ctrl_Seek,
   Ctrl_EOS,
   Ctrl_Output_Config,
+  Ctrl_Replay_Gain,
   Ctrl_Volume,
   Packet_Configure,
   Packet_Data,
@@ -23,6 +24,18 @@ enum EventTypePrivate {
   Configure,
   Flush,
   Input_Read,
+  };
+
+
+struct ReplayGain{
+  FXdouble album;
+  FXdouble album_peak;
+  FXdouble track;
+  FXdouble track_peak;
+
+  ReplayGain() : album(NAN), album_peak(NAN), track(NAN), track_peak(NAN) {}
+  
+  void reset() { album=NAN; album_peak=NAN; track=NAN; track_peak=NAN; }
   };
 
 
@@ -62,6 +75,15 @@ public:
   };
 
 
+class ReplayGainEvent : public Event {
+public:
+  ReplayGainMode mode;
+protected:
+  virtual ~ReplayGainEvent() {}
+public:
+  ReplayGainEvent(ReplayGainMode m) : Event(Ctrl_Replay_Gain), mode(m) {}
+  };
+
 class OutputConfigEvent : public Event {
 public:
   OutputConfig config;
@@ -90,6 +112,7 @@ public:
   void*         data;
   FXshort       stream_offset_start;
   FXshort       stream_offset_end;
+  ReplayGain    replaygain;
 protected:
   virtual ~ConfigureEvent();
 public:

@@ -48,10 +48,6 @@ void OutputThread::getOutputConfig(OutputConfig & config) {
   }
 
 
-FXint OutputThread::process(Event*){
-  return 0;
-  }
-
 
 
 void OutputThread::reconfigure() {
@@ -473,6 +469,19 @@ void OutputThread::reset_position() {
   }
 
 
+static void apply_scale_float(FXuchar * buffer,FXuint nsamples,FXdouble scale) {
+  FXfloat * out = reinterpret_cast<FXfloat*>(buffer);
+  for (FXuint i=0;i<nsamples;i++) {
+    out[i]*=scale;
+    }
+  }
+
+static void apply_scale_s16(FXuchar * buffer,FXuint nsamples,FXdouble scale) {
+  FXshort * out = reinterpret_cast<FXshort*>(buffer);
+  for (FXuint i=0;i<nsamples;i++) {
+    out[i]*=scale;
+    }
+  }
 
 
 void OutputThread::process(Packet * packet) {
@@ -490,6 +499,25 @@ void OutputThread::process(Packet * packet) {
     softvol_s16(packet->data,packet->nframes*packet->af.channels,softvol);
     }
 */
+
+  if (replaygain.mode!=ReplayGainOff) {
+    FXdouble gain  = replaygain.gain();
+    if(!isnan(gain)) {
+      FXdouble peak  = replaygain.peak();
+      FXdouble scale = pow(10.0,(gain / 20.0));
+
+      /// Avoid clipping
+      if (!isnan(peak) && peak!=0.0 && (scale*peak)>1.0)
+        scale = 1.0 / peak;
+
+      switch(packet->af.format) {
+        case AP_FORMAT_FLOAT: apply_scale_float(packet->data(),packet->numFrames()*packet->af.channels,scale); break;
+        case AP_FORMAT_S16  : apply_scale_s16(packet->data(),packet->numFrames()*packet->af.channels,scale);   break;
+        }
+      }
+    }
+
+
 
   if (packet->af!=plugin->af) {
 
@@ -650,12 +678,18 @@ FXint OutputThread::run(){
                         Event::unref(event);
                         return 0;
 
+      case Ctrl_Replay_Gain:
+                        {
+                          ReplayGainEvent * g = dynamic_cast<ReplayGainEvent*>(event);
+                          fxmessage("[output] set replay gain mode %d\n",g->mode);
+                          replaygain.mode = g->mode;
+                        } break;
+
       case Ctrl_Output_Config:
                         {
                           fxmessage("[output] new device config");
                           OutputConfigEvent * out = dynamic_cast<OutputConfigEvent*>(event);
                           output_config = out->config;
-
                           if (plugin) {
                             if (plugin->type()==output_config.device) {
                               if (processing) {
@@ -683,6 +717,7 @@ FXint OutputThread::run(){
 
 
       case Configure  : configure(((ConfigureEvent*)event)->af);
+                        replaygain.value = ((ConfigureEvent*)event)->replaygain;
                         break;
       case Buffer     : if (processing)
                           process(dynamic_cast<Packet*>(event));

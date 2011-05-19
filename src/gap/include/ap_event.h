@@ -15,6 +15,13 @@ enum EventType {
   AP_LAST           // Reserved
   };
 
+enum ReplayGainMode {
+  ReplayGainOff     = 0,
+  ReplayGainTrack   = 1,
+  ReplayGainAlbum   = 2,
+  };
+
+
 class Event;
 
 class GMAPI Event {
@@ -50,7 +57,13 @@ protected:
 public:
   TimeUpdate(FXuint p,FXuint l);
   };
-
+/*
+class GMAPI MetaInformation : public Event {
+  
+public:
+  MetaInformation(FXuint p,FXuint l);
+  };
+*/
 
 }
 #endif
