@@ -7,6 +7,8 @@ class AudioEngine;
 class EventQueue;
 class Event;
 
+
+
 class GMAPI AudioPlayer : public FXObject {
 FXDECLARE(AudioPlayer)
 private:
@@ -46,6 +48,12 @@ public:
 
   /// Set the output configuration
   void setOutputConfig(const OutputConfig & config);
+
+  /// Set Replay Gain Mode
+  void setReplayGain(ReplayGainMode mode);
+
+  /// Get Replay Gain Mode
+  ReplayGainMode getReplayGain() const;
 
   Event * pop();
 

@@ -87,4 +87,13 @@ void AudioPlayer::setOutputConfig(const OutputConfig & config) {
   }
 
 
+ReplayGainMode AudioPlayer::getReplayGain() const {
+  return engine->output->getReplayGain();
+  }
+
+void AudioPlayer::setReplayGain(ReplayGainMode mode) {
+  FXASSERT(engine->output->running());
+  engine->output->post(new ReplayGainEvent(FXCLAMP(ReplayGainOff,mode,ReplayGainAlbum)),EventQueue::Front);
+  }
+
 }
