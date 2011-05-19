@@ -762,8 +762,24 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   showDriverSettings(config.device);
 
+
   new FXFrame(matrix,FRAME_NONE);
   new GMButton(matrix,tr("Apply Changes"),NULL,this,ID_APPLY_AUDIO);
+
+
+  grpbox =  new FXGroupBox(vframe,tr("Playback"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+  grpbox->setFont(GMApp::instance()->getThickFont());
+
+  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
+
+  new FXLabel(matrix,tr("Replay Gain:"),NULL,labelstyle);
+
+  GMListBox * gainlist = new GMListBox(matrix,&target_replaygain,FXDataTarget::ID_VALUE);
+  gainlist->appendItem(tr("Off"));
+  gainlist->appendItem(tr("Track"));
+  gainlist->appendItem(tr("Album"));
+  gainlist->setNumVisible(3);
+
 #endif
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
@@ -898,6 +914,10 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
   config.oss.device = oss_device->getText();
 
 
+
+
+
+
   GMPlayerManager::instance()->getPlayer()->setOutputConfig(config);
   return 1;
   }
@@ -992,7 +1012,15 @@ Device  audio.device.oss_device_name
   }
 
 long GMPreferencesDialog::onCmdReplayGain(FXObject*,FXSelector,void*){
-  GMPlayerManager::instance()->update_replay_gain();
+#ifdef HAVE_XINE
+  //GMPlayerManager::instance()->update_replay_gain();
+#else
+  switch(GMPlayerManager::instance()->getPreferences().play_replaygain){
+    case 0: GMPlayerManager::instance()->getPlayer()->setReplayGain(ReplayGainOff); break;
+    case 1: GMPlayerManager::instance()->getPlayer()->setReplayGain(ReplayGainTrack); break;
+    case 2: GMPlayerManager::instance()->getPlayer()->setReplayGain(ReplayGainAlbum); break;
+    }
+#endif
   return 1;
   }
 
