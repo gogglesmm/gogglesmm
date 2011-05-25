@@ -66,6 +66,17 @@ GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) , source(NULL) {
 GMSourceView::~GMSourceView(){
   }
 
+FXbool GMSourceView::focusNext() {
+  sourcelist->setFocus();
+  return true;
+  }
+
+FXbool GMSourceView::focusPrevious() {
+  sourcelist->setFocus();
+  return true;
+  }
+
+
 void GMSourceView::updateColors() {
   sourcelist->setRowColor(GMPlayerManager::instance()->getPreferences().gui_row_color);
   }

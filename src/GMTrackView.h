@@ -297,6 +297,10 @@ public:
 
   void saveView() const;
 
+  FXbool focusNext();
+  
+  FXbool focusPrevious();
+
   virtual ~GMTrackView();
   };
 

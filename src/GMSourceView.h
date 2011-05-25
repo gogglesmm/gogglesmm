@@ -88,6 +88,10 @@ public:
 
   GMTreeList * getSourceList() const { return sourcelist; }
 
+  FXbool focusNext();
+  
+  FXbool focusPrevious();
+
   virtual ~GMSourceView();
   };
 

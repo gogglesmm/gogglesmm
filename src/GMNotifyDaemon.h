@@ -22,7 +22,10 @@
 class GMNotifyDaemon : public GMDBusProxy {
 FXDECLARE(GMNotifyDaemon)
 protected:
+  FXString appname;
+  FXString appicon;
   FXint msgid;
+  FXbool persistent;
 protected:
   GMNotifyDaemon();
 private:
@@ -30,16 +33,30 @@ private:
   GMNotifyDaemon& operator=(const GMNotifyDaemon&);
 public:
   enum {
-    ID_NOTIFY_REPLY=1
+    ID_NOTIFY_REPLY=1,
+    ID_NOTIFY_CAPABILITIES
     };
 public:
   long onSignal(FXObject*,FXSelector,void*);
   long onMethod(FXObject*,FXSelector,void*);
   long onNotifyReply(FXObject*,FXSelector,void*);
+  long onNotifyCapabilities(FXObject*,FXSelector,void*);
 public:
   GMNotifyDaemon(GMDBus*);
+  void init();
   void close();
-  void notify(const FXchar * app,const FXchar * icon,const FXchar * summary,const FXchar * body,FXint timeout,FXImage* img);
+
+  void reset();
+  void notify(const FXchar * summary,const FXchar * body,FXint timeout,FXImage* img);
+
+
+
+public:
+  void notify_track_change(const GMTrack & track,FXImage * cover);
+
+
+
+
   };
 
 #endif

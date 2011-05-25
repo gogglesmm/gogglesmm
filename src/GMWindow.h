@@ -103,6 +103,7 @@ private:
 #if FOXVERSION > FXVERSION(1,7,11)
   void setFullScreen(FXbool show);
 #endif
+  FXbool showSources() const;
 private:
   GMWindow(){}
   GMWindow(const GMWindow&);
@@ -175,6 +176,8 @@ public: /// Message Handlers
   long onUpdCoverSize(FXObject*,FXSelector,void*);
 
   long onCmdSeek(FXObject*,FXSelector,void*);
+  long onCmdNextFocus(FXObject*,FXSelector,void*);
+
 public:
   enum{
     ID_ABOUT=FXMainWindow::ID_LAST,
@@ -246,6 +249,8 @@ public:
     ID_PLAYQUEUE,
 
 
+    ID_NEXT_FOCUS,
+
     ID_LAST
     };
 public:
@@ -290,6 +295,11 @@ public:
 
 
   void setStatus(const FXString& status);
+
+
+  void focusNext();
+  void focusPrevious();
+
 
   /// Destructor
   virtual ~GMWindow();

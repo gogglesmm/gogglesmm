@@ -358,6 +358,78 @@ GMTrackView::~GMTrackView(){
   getApp()->removeTimeout(this,ID_FILTER);
   }
 
+
+FXbool GMTrackView::focusPrevious() {
+  if (browsersplit->getExpanded()==SHOWBROWSER) {
+    if (tracklist->hasFocus()){
+      albumlist->setFocus();
+      }
+    else if (albumlist->hasFocus()){
+      artistlist->setFocus();
+      }
+    else if (artistlist->hasFocus()) {
+      if (taglistframe->shown()) {
+        taglist->setFocus();
+        }
+      else {
+        tracklist->setFocus();
+        return false;
+        }
+      }
+    else {
+      tracklist->setFocus();
+      }
+    }
+  else {
+    tracklist->setFocus();
+    }
+  return true;
+  }
+
+
+
+FXbool GMTrackView::focusNext() {
+  if (browsersplit->getExpanded()==SHOWBROWSER) {
+    if (taglistframe->shown() && taglist->hasFocus()){
+      artistlist->setFocus();
+      artistlist->makeItemVisible(artistlist->getCurrentItem());      
+      }
+    else if (artistlist->hasFocus()) {
+      albumlist->setFocus();
+      albumlist->makeItemVisible(albumlist->getCurrentItem());      
+      }
+    else if (albumlist->hasFocus()){
+      tracklist->setFocus();
+      tracklist->makeItemVisible(tracklist->getCurrentItem());      
+      }
+    else {
+      FXbool gotfocus = hasFocus();
+      if (taglistframe->shown()) {
+        taglist->setFocus();
+        taglist->makeItemVisible(taglist->getCurrentItem());              
+        }
+      else {
+        artistlist->setFocus();
+        artistlist->makeItemVisible(artistlist->getCurrentItem());
+        }
+      return !gotfocus;
+      }
+    }
+  else {
+    if (!tracklist->hasFocus()) {
+      tracklist->setFocus();
+      tracklist->makeItemVisible(tracklist->getCurrentItem());      
+      return true;
+      }
+    else {
+      return false;
+      }
+    }
+  return true;
+  }
+
+
+
 void GMTrackView::init_track_context_menu(FXMenuPane * pane,FXbool selected){
   if (selected && source->track_context_menu(pane))
     new FXMenuSeparator(pane);

@@ -230,6 +230,14 @@ DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessa
       p->cmd_toggle_shown();
       return gm_dbus_reply_if_needed(connection,msg);
       }
+    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"focusprevious")){
+      p->cmd_focus_previous();
+      return gm_dbus_reply_if_needed(connection,msg);
+      }
+    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"focusnext")){
+      p->cmd_focus_next();
+      return gm_dbus_reply_if_needed(connection,msg);
+      }
     else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"getactions")){
       FXuint actions=0;
 
@@ -313,6 +321,10 @@ static FXint dbus_send_commands(DBusConnection * connection,int& argc,char** arg
       cmd="notify";
     else if (compare(argv[1],"--raise")==0)
       cmd="raise";
+    else if (compare(argv[1],"--focus-previous")==0)
+      cmd="focusprevious";
+    else if (compare(argv[1],"--focus-next")==0)
+      cmd="focusnext";
     else {
       cmd="open";
       url=argv[1];
@@ -965,6 +977,9 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     gsd->GrabMediaPlayerKeys("gogglesmm");
 
     update_mpris();
+
+
+    notifydaemon->init();
     }
 #endif
 
@@ -986,11 +1001,11 @@ void GMPlayerManager::exit() {
   stop();
 
 
-  player->exit();
-
 #ifndef HAVE_XINE_LIB
   player->saveSettings();
 #endif
+
+  player->exit();
 
   /// Save settings
   for (FXint i=0;i<sources.no();i++)
@@ -1018,13 +1033,19 @@ void GMPlayerManager::exit() {
 
 #ifdef HAVE_DBUS
   if (sessionbus) {
-    dbus_connection_unregister_object_path(sessionbus->connection(),"/org/fifthplanet/gogglesmm");
 
     gsd->ReleaseMediaPlayerKeys("gogglesmm");
     delete gsd;
     gsd=NULL;
 
-    if (notifydaemon) delete notifydaemon;
+    if (notifydaemon) {
+      notifydaemon->close();
+      delete notifydaemon;
+      notifydaemon=NULL;
+      }
+
+    dbus_connection_unregister_object_path(sessionbus->connection(),"/org/fifthplanet/gogglesmm");
+
     if (mpris) delete mpris;
     }
   if (systembus) {
@@ -1366,7 +1387,6 @@ void GMPlayerManager::play() {
     source=NULL;
     }
 
-
   if (queue) {
 
     /// Get the track
@@ -1444,8 +1464,9 @@ void GMPlayerManager::stop(FXbool force_close) {
 
 void GMPlayerManager::next() {
   FXint track=-1;
-
+#ifdef HAVE_XINE_LIB
   player->stop();
+#endif
 
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
@@ -1465,6 +1486,7 @@ void GMPlayerManager::next() {
     track = getTrackView()->getNext(true);
     if (track==-1) {
       reset_track_display();
+      player->stop();
       return;
       }
 
@@ -1495,8 +1517,12 @@ void GMPlayerManager::prev() {
   FXString filename;
   FXint track=-1;
 
-  /// Stop Current Playback
+#ifdef HAVE_XINE_LIB
   player->stop();
+#endif
+
+  /// Stop Current Playback
+
 
   /// Remove Current Timeout
   if (source) {
@@ -1515,6 +1541,7 @@ void GMPlayerManager::prev() {
   if (track==-1) {
     track = getTrackView()->getPrevious();
     if (track==-1) {
+      player->stop();
       reset_track_display();
       return;
       }
@@ -1717,7 +1744,7 @@ void GMPlayerManager::reset_track_display() {
 
 #ifdef HAVE_DBUS
   if (notifydaemon && preferences.dbus_notify_daemon)
-    notifydaemon->close();
+    notifydaemon->reset();
 #endif
 
   /// Update View in queue play.
@@ -2128,19 +2155,20 @@ void GMPlayerManager::cmd_toggle_shown(){
   getMainWindow()->toggleShown();
   }
 
+void GMPlayerManager::cmd_focus_previous(){
+  getMainWindow()->focusPrevious();
+  }
 
+void GMPlayerManager::cmd_focus_next(){
+  getMainWindow()->focusNext();
+  }
 
 
 void GMPlayerManager::display_track_notification() {
 #ifdef HAVE_DBUS
-  if (sessionbus && !trackinfo.title.empty() && !trackinfo.artist.empty() && preferences.dbus_notify_daemon) {
-    if (notifydaemon) {
-      FXString body = GMStringFormat(fxtrformat("%s\n%s (%d)"),trackinfo.artist.text(),trackinfo.album.text(),trackinfo.year);
-      /// Dirty Hack. According to the spec, we shouldn't have to do this,
-      /// but try finding a notification notifydaemon that actually implements it...
-      /// http://www.galago-project.org/specs/notification/0.9/index.html
-      body.substitute("&","&amp;");
-      notifydaemon->notify("gogglesmm","gogglesmm_status",trackinfo.title.text(),body.text(),-1,mainwindow->getSmallCover());
+  if (sessionbus) {
+    if (preferences.dbus_notify_daemon) {
+      if (notifydaemon) notifydaemon->notify_track_change(trackinfo,mainwindow->getSmallCover());
       }
     if (mpris) mpris->notify_track_change(trackinfo);
     }
@@ -2192,13 +2220,11 @@ long GMPlayerManager::onCmdLirc(FXObject*,FXSelector,void*){
       else if (comparecase(action,"mute")==0){
         volume(0);
         }
+      else if (comparecase(action,"left")==0){
+        cmd_focus_previous();
+        }
       else if (comparecase(action,"right")==0){
-        FXWindow * window = application->getFocusWindow();
-        if (window) {
-          if (dynamic_cast<GMTrackList*>(window)) {
-            getSourceView()->getSourceList()->setFocus();
-            }
-          }
+        cmd_focus_next();
         }
       else if (comparecase(action,"ok")==0){
         FXWindow * window = application->getFocusWindow();
@@ -2384,7 +2410,7 @@ long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
 long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
   FXint state = (FXint)(FXival)ptr;
   switch(state){
-    case PLAYER_STOPPED: reset_track_display(); break;
+    case PLAYER_STOPPED: fxmessage("player stopped\n"); reset_track_display(); break;
     case PLAYER_PLAYING: break;
     case PLAYER_PAUSING: break;
     }

@@ -133,6 +133,7 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_PLAYQUEUE,					GMWindow::onCmdPlayQueue),
   FXMAPFUNC(SEL_UPDATE,						  GMWindow::ID_PLAYQUEUE,					GMWindow::onUpdPlayQueue),
 
+  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_NEXT_FOCUS,		GMWindow::onCmdNextFocus),
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_CHANGE_COVERVIEW,		GMWindow::onCmdChangeCoverView),
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,	GMWindow::ID_COVERVIEW,					GMWindow::onCmdCoverView),
@@ -435,6 +436,8 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("Ctrl-'"),this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_1MIN));
   getAccelTable()->addAccel(parseAccel("Ctrl-,"),this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_10SEC));
   getAccelTable()->addAccel(parseAccel("Ctrl-."),this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_10SEC));
+
+  getAccelTable()->addAccel(parseAccel("Ctrl-L"),this,FXSEL(SEL_COMMAND,ID_NEXT_FOCUS));
   }
 
 
@@ -494,6 +497,10 @@ void GMWindow::create(){
   configureToolbar(GMPlayerManager::instance()->getPreferences().gui_toolbar_docktop,true);
 
   FXMainWindow::create();
+
+  fix_wm_properties(this);
+
+  ewmh_change_window_type(this,WINDOWTYPE_NORMAL);
 
   /// Initialize the window size & position
   if (getApp()->reg().readIntEntry("window","x",-1)!=-1) {
@@ -1667,6 +1674,43 @@ long GMWindow::onUpdShowSources(FXObject*sender,FXSelector,void*){
   }
 #endif
 
+
+FXbool GMWindow::showSources() const {
+#if FOXVERSION > FXVERSION(1,7,21)
+  FXuint exp = mainsplitter->getExpanded();
+  if (exp==SHOWSOURCES || exp==SHOWSOURCES_COVER)
+    return true;
+  else
+    return false;
+#else
+  return sourcesplitter->shown();
+#endif
+  }
+
+
+/*
+  sourcelist
+  genrelist
+  artistlist
+  albumlist
+  tracklist
+*/
+
+
+long GMWindow::onCmdNextFocus(FXObject*,FXSelector,void*){
+  focusNext();
+  return 1;
+  }
+
+void GMWindow::focusNext() {
+  if (!trackview->focusNext() && showSources())
+    sourceview->focusNext();
+  }
+
+void GMWindow::focusPrevious() {
+  if (!trackview->focusPrevious() && showSources())
+    sourceview->focusPrevious();
+  }
 
 
 
