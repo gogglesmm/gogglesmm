@@ -87,6 +87,13 @@ void HttpInput::close() {
     ::close(device);
     device=BadHandle;
     }
+  
+  /// Reset Headers  
+  content_type=Format::Unknown;
+  content_length=-1;
+  content_position=0;
+  icy_interval=0;
+  icy_count=0;        
   }
 
 
