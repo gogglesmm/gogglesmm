@@ -715,24 +715,24 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   GMPlayerManager::instance()->getPlayer()->getOutputConfig(config);
 
   FXStringList drivers;
-  FXuint plugins=OutputConfig::devices();
+  FXuint devices=OutputConfig::devices();
 
-  if (plugins&(1<<DeviceAlsa))
+  if (AP_HAS_PLUGIN(devices,DeviceAlsa))
     driverlist->appendItem("Advanced Linux Sound Architecture",NULL,(void*)DeviceAlsa);
 
-  if (plugins&(1<<DeviceOSS))
+  if (AP_HAS_PLUGIN(devices,DeviceOSS))
     driverlist->appendItem("Open Sound System",NULL,(void*)DeviceOSS);
 
-  if (plugins&(1<<DevicePulse))
+  if (AP_HAS_PLUGIN(devices,DevicePulse))
     driverlist->appendItem("PulseAudio",NULL,(void*)DevicePulse);
 
-  if (plugins&(1<<DeviceJack))
+  if (AP_HAS_PLUGIN(devices,DeviceJack))
     driverlist->appendItem("Jack",NULL,(void*)DeviceJack);
 
-  if (plugins&(1<<DeviceRSound))
+  if (AP_HAS_PLUGIN(devices,DeviceRSound))
     driverlist->appendItem("RSound",NULL,(void*)DeviceRSound);
 
-  if (plugins&(1<<DeviceWav))
+  if (AP_HAS_PLUGIN(devices,DeviceWav))
     driverlist->appendItem("Wave File Output",NULL,(void*)DeviceWav);
 
   driverlist->setCurrentItem(driverlist->findItemByData((void*)(FXival)config.device));
