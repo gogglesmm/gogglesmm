@@ -14,9 +14,9 @@ enum EventTypePrivate {
   Ctrl_Quit,
   Ctrl_Seek,
   Ctrl_EOS,
-  Ctrl_Output_Config,
+  Ctrl_Set_Output_Config,
   Ctrl_Get_Output_Config,
-  Ctrl_Replay_Gain,
+  Ctrl_Set_Replay_Gain,
   Ctrl_Get_Replay_Gain,
   Ctrl_Volume,
   Packet_Configure,
@@ -77,28 +77,28 @@ public:
   };
 
 
-class ReplayGainEvent : public Event {
+class SetReplayGain : public Event {
 public:
   ReplayGainMode mode;
 protected:
-  virtual ~ReplayGainEvent() {}
+  virtual ~SetReplayGain() {}
 public:
-  ReplayGainEvent(ReplayGainMode m) : Event(Ctrl_Replay_Gain), mode(m) {}
+  SetReplayGain(ReplayGainMode m) : Event(Ctrl_Set_Replay_Gain), mode(m) {}
   };
 
-class OutputConfigEvent : public Event {
+class SetOutputConfig : public Event {
 public:
   OutputConfig config;
 protected:
-  virtual ~OutputConfigEvent() {}
+  virtual ~SetOutputConfig() {}
 public:
-  OutputConfigEvent(const OutputConfig & cfg) : Event(Ctrl_Output_Config), config(cfg) {}
+  SetOutputConfig(const OutputConfig & cfg) : Event(Ctrl_Set_Output_Config), config(cfg) {}
   };
 
 
 /*
   SyncEvent events should be created on the stack.
-  When unref'd they signal the condition of the waiting thread. 
+  When unref'd they signal the condition of the waiting thread.
 */
 class SyncEvent : public Event {
 public:

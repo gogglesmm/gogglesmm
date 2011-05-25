@@ -670,9 +670,9 @@ FXint OutputThread::run(){
                         Event::unref(event);
                         return 0;
 
-      case Ctrl_Replay_Gain:
+      case Ctrl_Set_Replay_Gain:
                         {
-                          ReplayGainEvent * g = dynamic_cast<ReplayGainEvent*>(event);
+                          SetReplayGain * g = dynamic_cast<SetReplayGain*>(event);
                           fxmessage("[output] set replay gain mode %d\n",g->mode);
                           replaygain.mode = g->mode;
                         } break;
@@ -692,10 +692,10 @@ FXint OutputThread::run(){
                           fxmessage("[output] get output config\n");
                           break;
                         }
-      case Ctrl_Output_Config:
+      case Ctrl_Set_Output_Config:
                         {
                           fxmessage("[output] set ouput config");
-                          OutputConfigEvent * out = dynamic_cast<OutputConfigEvent*>(event);
+                          SetOutputConfig * out = dynamic_cast<SetOutputConfig*>(event);
                           output_config = out->config;
                           if (plugin) {
                             if (plugin->type()==output_config.device) {
