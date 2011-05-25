@@ -78,7 +78,12 @@ void AudioPlayer::close() {
   }
 
 void AudioPlayer::getOutputConfig(OutputConfig & config) {
-  return engine->output->getOutputConfig(config);
+  FXASSERT(engine->output->running());
+  GetOutputConfig event;
+  engine->output->post(&event,EventQueue::Front);
+  if (event.waitForReply()) {
+    config=event.config;
+    }
   }
 
 void AudioPlayer::setOutputConfig(const OutputConfig & config) {
@@ -88,7 +93,13 @@ void AudioPlayer::setOutputConfig(const OutputConfig & config) {
 
 
 ReplayGainMode AudioPlayer::getReplayGain() const {
-  return engine->output->getReplayGain();
+  FXASSERT(engine->output->running());
+  GetReplayGain event;
+  engine->output->post(&event,EventQueue::Front);
+  if (event.waitForReply()) {
+    return event.mode;
+    }
+  return ReplayGainOff;
   }
 
 void AudioPlayer::setReplayGain(ReplayGainMode mode) {

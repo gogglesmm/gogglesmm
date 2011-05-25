@@ -15,7 +15,9 @@ enum EventTypePrivate {
   Ctrl_Seek,
   Ctrl_EOS,
   Ctrl_Output_Config,
+  Ctrl_Get_Output_Config,
   Ctrl_Replay_Gain,
+  Ctrl_Get_Replay_Gain,
   Ctrl_Volume,
   Packet_Configure,
   Packet_Data,
@@ -34,7 +36,7 @@ struct ReplayGain{
   FXdouble track_peak;
 
   ReplayGain() : album(NAN), album_peak(NAN), track(NAN), track_peak(NAN) {}
-  
+
   void reset() { album=NAN; album_peak=NAN; track=NAN; track_peak=NAN; }
   };
 
@@ -93,6 +95,55 @@ public:
   OutputConfigEvent(const OutputConfig & cfg) : Event(Ctrl_Output_Config), config(cfg) {}
   };
 
+
+/*
+  SyncEvent events should be created on the stack.
+  When unref'd they signal the condition of the waiting thread. 
+*/
+class SyncEvent : public Event {
+public:
+  FXMutex     mutex;
+  FXCondition condition;
+public:
+
+  SyncEvent(FXuchar t) : Event(t) {
+    mutex.lock();
+    }
+
+  ~SyncEvent() {
+    mutex.unlock();
+    }
+
+  FXbool waitForReply() {
+    fxmessage("waiting for reply\n");
+    return condition.wait(mutex);
+    }
+
+  /// do nothing.
+  void unref() {
+    fxmessage("unref called\n");
+    FXMutexLock lock(mutex);
+    condition.signal();
+    }
+  };
+
+
+class GetOutputConfig : public SyncEvent {
+public:
+  OutputConfig config;
+public:
+  GetOutputConfig() : SyncEvent(Ctrl_Get_Output_Config) {}
+  virtual ~GetOutputConfig() {}
+  };
+
+
+class GetReplayGain : public SyncEvent {
+public:
+  ReplayGainMode mode;
+public:
+  GetReplayGain() : SyncEvent(Ctrl_Get_Replay_Gain) {}
+  virtual ~GetReplayGain() {}
+  };
 
 
 /*

@@ -42,14 +42,6 @@ OutputThread::~OutputThread() {
   }
 
 
-void OutputThread::getOutputConfig(OutputConfig & config) {
-  //FIXME needs mutex for protection
-  config=output_config;
-  }
-
-
-
-
 void OutputThread::reconfigure() {
   AudioFormat old=af;
   af.reset();
@@ -685,9 +677,24 @@ FXint OutputThread::run(){
                           replaygain.mode = g->mode;
                         } break;
 
+      case Ctrl_Get_Replay_Gain:
+                        {
+                          GetReplayGain * g = dynamic_cast<GetReplayGain*>(event);
+                          fxmessage("[output] get replay gain mode\n");
+                          g->mode = replaygain.mode;
+                        } break;
+
+      case Ctrl_Get_Output_Config:
+                        {
+                          GetOutputConfig * out = dynamic_cast<GetOutputConfig*>(event);
+                          FXASSERT(out);
+                          out->config = output_config;
+                          fxmessage("[output] get output config\n");
+                          break;
+                        }
       case Ctrl_Output_Config:
                         {
-                          fxmessage("[output] new device config");
+                          fxmessage("[output] set ouput config");
                           OutputConfigEvent * out = dynamic_cast<OutputConfigEvent*>(event);
                           output_config = out->config;
                           if (plugin) {

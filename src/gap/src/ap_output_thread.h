@@ -66,11 +66,6 @@ public:
   OutputThread(AudioEngine*);
   virtual FXint run();
   virtual ~OutputThread();
-public:
-  void getOutputConfig(OutputConfig & config);
-
-  /// Get the replay gain mode
-  ReplayGainMode getReplayGain() const { return replaygain.mode; }
   };
 
 }
