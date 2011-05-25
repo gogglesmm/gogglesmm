@@ -228,7 +228,6 @@ FXbool HttpInput::next_header(FXString & header) {
   FXint    i,h;
   FXbool   found = false;
 
-  header.clear();
 
   for (i=0;i<len;i++) {
     //fxmessage("buf[%d]=%c\n",i,buf[i]);
@@ -264,6 +263,9 @@ FXbool HttpInput::next_header(FXString & header) {
         header[h++]=buf[i];
         }
       }
+    else {
+      header.clear();    
+      }  
     if (end>0) buffer.read(end);
     }
   return found;
@@ -339,13 +341,12 @@ FXbool HttpInput::parse_response() {
         }
       fxmessage("%s\n",header.text());
       }
+      
     if (eoh) break;
 
     /// Get more bytes
-    if (fillBuffer(256)<=0) {
-      return false;
-      }
-      
+    if (fillBuffer(256)<=0)
+      return false;      
     }
 
   /// Handle redirects
