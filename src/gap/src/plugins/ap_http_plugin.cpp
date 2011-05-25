@@ -231,17 +231,20 @@ FXbool HttpInput::next_header(FXString & header) {
   header.clear();
 
   for (i=0;i<len;i++) {
-//    fxmessage("buf[%d]=%c\n",i,buf[i]);
+    //fxmessage("buf[%d]=%c\n",i,buf[i]);
     if (buf[i]=='\n') {
 
-      /// not enough data
-      if ((i+1)>=len)
-        return false;
-
-      /// header continues on line below
-      if (size>0 && (buf[i+1]==' ' || buf[i+1]=='\t'))
-        continue;
-
+      /// header may continue on the next line, so check first byte of next line
+      if (size>0) {
+      
+        /// Not enough data, so we need to fetch more.      
+        if ((i+1)>=len)
+          return false; 
+      
+        /// Header continues, keep reading
+        if (buf[i+1]==' ' || buf[i+1]=='\t')
+          continue;
+        }
       end=i+1;
       found=true;
       break;
@@ -338,10 +341,11 @@ FXbool HttpInput::parse_response() {
       }
     if (eoh) break;
 
-    /// Get some bytes
-    if (fillBuffer(256)==-1)
+    /// Get more bytes
+    if (fillBuffer(256)<=0) {
       return false;
-
+      }
+      
     }
 
   /// Handle redirects
@@ -465,7 +469,7 @@ FXbool HttpInput::open(const FXString & uri) {
 
   if (!query.empty())
     path+="?"+query;
-  
+
   if (port==0) port=80;
 
   if (!open(host,port)) {
