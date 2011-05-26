@@ -77,11 +77,11 @@ void AudioPlayer::close() {
   engine->input->post(new ControlEvent(Ctrl_Close),EventQueue::Front);
   }
 
-void AudioPlayer::getOutputConfig(OutputConfig & config) {
+void AudioPlayer::getOutputConfig(OutputConfig & config) const{
   FXASSERT(engine->output->running());
   GetOutputConfig event;
   engine->output->post(&event,EventQueue::Front);
-  if (event.waitForReply()) {
+  if (event.waitForUnref()) {
     config=event.config;
     }
   }
@@ -96,7 +96,7 @@ ReplayGainMode AudioPlayer::getReplayGain() const {
   FXASSERT(engine->output->running());
   GetReplayGain event;
   engine->output->post(&event,EventQueue::Front);
-  if (event.waitForReply()) {
+  if (event.waitForUnref()) {
     return event.mode;
     }
   return ReplayGainOff;

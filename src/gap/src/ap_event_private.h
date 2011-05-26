@@ -106,22 +106,23 @@ public:
   FXCondition condition;
 public:
 
+  //// Constructor
   SyncEvent(FXuchar t) : Event(t) {
     mutex.lock();
     }
 
+  /// Destructor
   ~SyncEvent() {
     mutex.unlock();
     }
 
-  FXbool waitForReply() {
-    fxmessage("waiting for reply\n");
+  /// Wait for unref
+  FXbool waitForUnref() {
     return condition.wait(mutex);
     }
 
-  /// do nothing.
+  /// Notify waiting thread we're done.
   void unref() {
-    fxmessage("unref called\n");
     FXMutexLock lock(mutex);
     condition.signal();
     }

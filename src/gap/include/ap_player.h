@@ -44,7 +44,7 @@ public:
   void volume(FXfloat v);
 
   /// Get the output configuration
-  void getOutputConfig(OutputConfig & config);
+  void getOutputConfig(OutputConfig & config) const;
 
   /// Set the output configuration
   void setOutputConfig(const OutputConfig & config);
