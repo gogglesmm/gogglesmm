@@ -914,10 +914,6 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
   config.oss.device = oss_device->getText();
 
 
-
-
-
-
   GMPlayerManager::instance()->getPlayer()->setOutputConfig(config);
   return 1;
   }
