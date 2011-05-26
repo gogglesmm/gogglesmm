@@ -85,6 +85,8 @@ public:
   static FXuint devices();
   };
 
+#define AP_HAS_PLUGIN(devices,plugin) (devices&(1<<plugin))
+
 
 }
 
