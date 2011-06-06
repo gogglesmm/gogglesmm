@@ -374,7 +374,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
 #ifdef HAVE_CDDA_PLUGIN
   else if (scheme=="cdda") {
     CDDAInput * cdda = new CDDAInput(fifo.handle());
-    if (cdda->open(uri)) {
+    if (!cdda->open(uri)) {
       delete cdda;
       return NULL;
       }
