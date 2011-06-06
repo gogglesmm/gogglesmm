@@ -56,6 +56,8 @@ public:
   FXchar*   s8() const { return reinterpret_cast<FXchar*>(data_buffer+data_size); }
   FXshort*  s16() const { return reinterpret_cast<FXshort*>(data_buffer+data_size); }
   FXint*    s32() const { return reinterpret_cast<FXint*>(data_buffer+data_size); }
+  FXfloat*  flt() const { return reinterpret_cast<FXfloat*>(data_buffer+data_size); }
+
 
   /// Wrote sz bytes in buffer
   void wrote(FXival sz);
@@ -82,7 +84,7 @@ public:
 
   /// Read sz bytes from buffer
   FXival read(void * buf,FXival sz);
-  
+
   FXival copy(void * buf,FXival sz);
 
   /// Read sz bytes from buffer
