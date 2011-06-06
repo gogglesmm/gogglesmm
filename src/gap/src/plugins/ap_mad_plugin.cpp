@@ -448,12 +448,14 @@ public:
   FXushort padstart;
   FXushort padend;
   FXuint   length;
+  FXfloat  track_gain;
+  FXfloat  album_gain;
 public:
   LameHeader();
   void parse(const FXuchar * buffer,FXival nbytes);
   };
 
-LameHeader::LameHeader() : padstart(0), padend(0), length(0) {
+LameHeader::LameHeader() : padstart(0), padend(0), length(0), track_gain(NAN), album_gain(NAN) {
   }
 
 void LameHeader::parse(const FXuchar * buffer,FXival/* nbytes*/) {
@@ -469,8 +471,42 @@ void LameHeader::parse(const FXuchar * buffer,FXival/* nbytes*/) {
    FXfloat gain_peak = INT32_BE(buffer+11);
    fxmessage("gain_peak: %f\n",gain_peak);
 
-   FXushort album_gain = INT16_BE(buffer+15);
-   FXushort track_gain = INT16_BE(buffer+17);
+ //  FXushort album_gain = INT16_BE(buffer+15);
+ //  FXushort track_gain = INT16_BE(buffer+17);
+/*
+
+
+  int x; // convert this from using 5 bits to a full int
+int r; // resulting sign extended number goes here
+struct {signed int x:5;} s;
+r = s.x = x;
+*/
+
+    struct {
+      signed int x:10;
+      } s10;
+
+    FXint g = (buffer[16]) | (((buffer[15])&0xC0)<<2);
+    FXint intgain = s10.x = g;
+
+    track_gain = intgain / 10.0f;
+
+
+ //   FXint gain = /*(buffer[16]) | (((buffer[15])&0x80)<<1) |*/ ((buffer[15]&0x64)<<26);
+//    FXint gain = 0x80 00 00 00;
+
+//   FXint    mygain = (album_gain&0x1ff);
+
+//   mygain |= ((int)album_gain&0x200)<<21;
+
+
+
+
+//   fxmessage("mygain %g\n",gain);
+
+
+//   fxmessage("album gain: %d\n",album_gain);
+//   fxmessage("track gain: %d\n",track_gain);
 
    FXuchar encoding_flags = (*(buffer+19))>>4;
    FXuchar lame_type = (*(buffer+19))&0xf;
@@ -504,7 +540,7 @@ MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
 MadReader::~MadReader() {
   clear_headers();
   }
-  
+
 void MadReader::clear_headers() {
   if (xing) {
     delete xing;
@@ -518,7 +554,7 @@ void MadReader::clear_headers() {
     delete lame;
     lame=NULL;
     }
-  }  
+  }
 
 FXbool MadReader::init(){
   fxmessage("[mad] init()\n");
@@ -703,11 +739,16 @@ ReadStatus MadReader::parse(Packet * packet) {
       /// Success if we're able to fill up the packet!
       if (frame.size()>packet->space()) {
         if (!found) return ReadError;
+#if MAD_FLOAT_OUTPUT
+        af.set(AP_FORMAT_FLOAT,frame.samplerate(),(frame.channel()==mpeg_frame::Single) ? 1 : 2);
+#else
         af.set(AP_FORMAT_S16,frame.samplerate(),(frame.channel()==mpeg_frame::Single) ? 1 : 2);
+#endif
         ConfigureEvent * cfg = new ConfigureEvent(af,Codec::MPEG);
         if (lame) {
           cfg->stream_offset_start=lame->padstart;
           cfg->stream_offset_end  =lame->padend;
+          cfg->replaygain.track   =lame->track_gain; 
           }
         engine->decoder->post(cfg);
         flags|=FLAG_PARSED;
@@ -935,6 +976,42 @@ FXbool MadDecoder::init(ConfigureEvent* event){
 
 #include <limits.h>
 
+#ifdef MAD_FLOAT_OUTPUT
+static FXfloat madfixed_to_float(mad_fixed_t fixed) {
+//mad_f_todouble
+static FXfloat m = exp2f(-MAD_F_FRACBITS);
+/*
+  FXfloat r1,r2,r3,r4;
+  FXlong s1,s2,s3,s4,e1,e2,e3,e4;
+
+
+  s1 = fxgetticks();
+  r1=  (float) ((fixed) / (float) (1L << MAD_F_FRACBITS));
+  e1 = fxgetticks();
+
+
+  s2 = fxgetticks();
+  r2=  (float) ((fixed) * exp2f(-MAD_F_FRACBITS));
+  e2 = fxgetticks();
+
+  s3 = fxgetticks();
+  r3=  (float) ((fixed) * powf(2,-MAD_F_FRACBITS));
+  e3 = fxgetticks();
+
+  s4 = fxgetticks();
+  r4=  (float) ((fixed) * m);
+  e4 = fxgetticks();
+
+
+  fxmessage("%ld %ld %ld %ld\n",e1-s1,e2-s2,e3-s3,e4-s4);
+*/
+  return  (float) ((fixed) * m);
+
+//((x) * (double) (1L << MAD_F_FRACBITS) + 0.5))
+//  return ((FXfloat)fixed) * (exp2(-MAD_F_FRACBITS));
+  }
+
+#else
 static FXshort madfixed_to_s16(mad_fixed_t Fixed)
 {
   /* A fixed point number is formed of the following bit pattern:
@@ -956,6 +1033,9 @@ static FXshort madfixed_to_s16(mad_fixed_t Fixed)
    * compute the 16-bit number, madplay includes much better
    * algorithms.
    */
+
+
+
 
   /* round */
   Fixed += (1L << (MAD_F_FRACBITS - 16));
@@ -981,7 +1061,7 @@ static FXshort madfixed_to_s16(mad_fixed_t Fixed)
   return((FXshort)Fixed);
 #endif
 }
-
+#endif
 
 
 
@@ -989,7 +1069,7 @@ static FXshort madfixed_to_s16(mad_fixed_t Fixed)
 DecoderStatus MadDecoder::process(Packet*in){
   FXASSERT(in);
 
-  FXint p,s;
+  FXint p,s,n;
   FXuint streamid=in->stream;
   FXlong stream_length=in->stream_length;
   FXbool eos=(in->flags&FLAG_EOS);
@@ -1019,7 +1099,7 @@ DecoderStatus MadDecoder::process(Packet*in){
 
   in->unref();
 
-  while(1) {
+  do {
 
     /// Decode a frame
     if (mad_frame_decode(&frame,&stream)) {
@@ -1050,15 +1130,13 @@ DecoderStatus MadDecoder::process(Packet*in){
 
     frame_counter++;
 
-
     if (frame.header.samplerate!=af.rate) {
       fxmessage("mad_decoder: sample rate changed: %d->%d \n",af.rate,frame.header.samplerate);
       }
 
-    FXint nframes=synth.pcm.length;
 
-    if (nframes==0)
-      continue;
+    FXint nframes=synth.pcm.length;
+    if (nframes==0)  { fxmessage("[mad_decoder] nframes == 0 ?\n"); continue; }
 
     mad_fixed_t * left  = synth.pcm.samples[0];
     mad_fixed_t * right = synth.pcm.samples[1];
@@ -1070,37 +1148,66 @@ DecoderStatus MadDecoder::process(Packet*in){
       fxmessage("mad_decoder: skipping %d frames\n",stream_offset_start);
       }
 
-    if (out) {
-      FXASSERT(stream_position);
-      if (out->availableFrames()<nframes) {
+
+    do {
+
+      // Get new buffer
+      if (out==NULL) {
+        out = engine->decoder->get_output_packet();
+        if (out==NULL) return DecoderInterrupted; // FIXME
+        out->af=af;
+        out->stream_position=stream_position;
+        out->stream_length=stream_length;
+        }
+
+      n = FXMIN(out->availableFrames(),nframes);
+
+#ifdef MAD_FLOAT_OUTPUT
+      FXfloat * flt = out->flt();
+      if (synth.pcm.channels==2) {
+        for (p=0,s=0;s<n;s++) {
+          flt[p++] = madfixed_to_float(*left++);
+          flt[p++] = madfixed_to_float(*right++);
+          }
+        }
+      else {
+        for (p=0,s=0;s<n;s++) {
+          flt[p++] = madfixed_to_float(*left++);
+          }
+        }
+#else
+      FXshort * buf16 = out->s16();
+      if (synth.pcm.channels==2) {
+        for (p=0,s=0;s<n;s++) {
+          buf16[p++] = madfixed_to_s16(*left++);
+          buf16[p++] = madfixed_to_s16(*right++);
+          }
+        }
+      else {
+        for (p=0,s=0;s<n;s++) {
+          buf16[p++] = madfixed_to_s16(*left++);
+          }
+        }
+#endif
+      nframes-=n;
+      out->wroteFrames(n);
+      stream_position+=n;
+
+      if (out->availableFrames()==0) {
         engine->output->post(out);
         out=NULL;
         }
       }
+    while(nframes);
+    }
+  while(1);
 
-    // Get new buffer
-    if (out==NULL) {
-      out = engine->decoder->get_output_packet();
-      if (out==NULL) return DecoderInterrupted; // FIXME
-      out->af=af;
-      out->stream_position=stream_position;
-      out->stream_length=stream_length;
-      }
 
-    FXshort * buf16 = reinterpret_cast<FXshort*>(out->ptr());
-    if (synth.pcm.channels==2) {
-      for (p=0,s=0;s<nframes;s++) {
-        buf16[p++] = madfixed_to_s16(*left++);
-        buf16[p++] = madfixed_to_s16(*right++);
-        }
-      }
-    else {
-      for (p=0,s=0;s<nframes;s++) {
-        buf16[p++] = madfixed_to_s16(*left++);
-        }
-      }
-    out->wroteFrames(nframes);
-    stream_position+=nframes;
+
+
+  if (eos && out) {
+    engine->output->post(out);
+    out=NULL;
     }
   return DecoderOk;
   }
