@@ -20,11 +20,7 @@
 
 namespace ap {
 
-class OutputPacket;
-
 class PCMDecoder : public DecoderPlugin {
-protected:
-  Packet * out;
 public:
   PCMDecoder(AudioEngine*);
   FXuchar codec() const { return Codec::PCM; }
@@ -34,64 +30,31 @@ public:
   virtual ~PCMDecoder();
   };
 
-
-
-PCMDecoder::PCMDecoder(AudioEngine * e) : DecoderPlugin(e), out(NULL) {
+PCMDecoder::PCMDecoder(AudioEngine * e) : DecoderPlugin(e) {
   }
 
 PCMDecoder::~PCMDecoder() {
-  flush();
   }
 
 FXbool PCMDecoder::init(ConfigureEvent*event) {
-  af=event->af;
   return true;
   }
 
 FXbool PCMDecoder::flush() {
-  if (out) {
-    out->unref();
-    out=NULL;
-    }
   return true;
   }
 
 DecoderStatus PCMDecoder::process(Packet*in) {
-  FXASSERT(in);
-  FXuint    nframes = in->numFrames();
-  FXuchar * buffer  = in->data();
-  while(nframes) {
-//    fxmessage("%d nframes\n",nframes);
-    if (out==NULL) {
-      out = engine->decoder->get_output_packet();
-      if (out==NULL) return DecoderInterrupted; // FIXME
-      out->clear();
-      out->af=af;
-      out->stream_position=in->stream_position;
-      out->stream_length=in->stream_length;
-      }
-
-    FXint n=FXMIN(nframes,out->availableFrames());
-    out->appendFrames(buffer,n);
-    nframes-=n;
-    buffer+=(n*af.framesize());
-    if (out->full()){
-      engine->output->post(out);
-      out=NULL;
-      }
-    }
-  if (out && (in->flags&FLAG_EOS)) {
-    engine->output->post(out);
-    out=NULL;
-    }
-  if (in->flags&FLAG_EOS) {
+  FXbool eos    = (in->flags&FLAG_EOS);
+  FXint  stream = in->stream;
+  /// Simply Forward to output
+  engine->output->post(in);
+  if (eos) {
     engine->output->post(new ControlEvent(Ctrl_EOS,in->stream));
     engine->post(new Event(AP_EOS));
     }
-  in->unref();
   return DecoderOk;
   }
-
 
 DecoderPlugin * ap_pcm_decoder(AudioEngine * engine) {
   return new PCMDecoder(engine);
