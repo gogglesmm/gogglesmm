@@ -27,13 +27,8 @@ public:
   FXint replace(FXint name,FXint value) { return (FXint)(FXival)FXHash::replace((void*)(FXival)name,(void*)(FXival)value); }
   FXint remove(FXint name) {  return (FXint)(FXival)FXHash::remove((void*)(FXival)name); }
   FXint find(FXint name) const { return (FXint)(FXival)FXHash::find((void*)(FXival)name); }
-#if FOXVERSION < FXVERSION(1,7,0)
-  FXint key(FXuint pos) const { return (FXint)(FXival)FXHash::key((FXint)pos); }
-  FXint value(FXuint pos) const { return (FXint)(FXival)FXHash::value((FXint)pos); }
-#else
   FXint key(FXuint pos) const { return (FXint)(FXival)table[pos].name; }
   FXint value(FXuint pos) const { return (FXint)(FXival)table[pos].data; }
-#endif
   void load(FXStream & store);
   void save(FXStream & store) const;
   };

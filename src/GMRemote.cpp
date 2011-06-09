@@ -50,12 +50,7 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
 
   GMIconTheme::instance()->loadSmall(icon_home,"go-home",FXApp::instance()->getBaseColor());
 
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getApp()->getNormalFont()->getFontDesc(fontdescription);
-#else
   FXFontDesc fontdescription = getApp()->getNormalFont()->getFontDesc();
-#endif
   fontdescription.weight = FXFont::Bold;
   fontdescription.size  += 10;
   font_title = new FXFont(getApp(),fontdescription);
@@ -151,7 +146,7 @@ void GMRemote::updateCover(FXImage * cover) {
 
 
 void GMRemote::display(const GMTrack & track){
-  FXString tip = GMStringFormat("%s\n%s\n%s (%d)",track.title.text(),track.artist.text(),track.album.text(),track.year);
+  FXString tip = FXString::value("%s\n%s\n%s (%d)",track.title.text(),track.artist.text(),track.album.text(),track.year);
 
   title_label->setText(track.title);
   title_label->setJustify(JUSTIFY_LEFT);
@@ -185,9 +180,9 @@ void GMRemote::reset(){
 void GMRemote::elapsed_time(FXint hours,FXint minutes,FXint seconds,FXint,FXbool playing){
   if (playing) {
     if (hours>0)
-      time_label->setText(GMStringFormat("%d:%.2d:%.2d",hours,minutes,seconds));
+      time_label->setText(FXString::value("%d:%.2d:%.2d",hours,minutes,seconds));
     else
-      time_label->setText(GMStringFormat("%.2d:%.2d",minutes,seconds));
+      time_label->setText(FXString::value("%.2d:%.2d",minutes,seconds));
     }
   else {
     time_label->setText("--:--");

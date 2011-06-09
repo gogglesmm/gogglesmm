@@ -520,7 +520,7 @@ void GMIconTheme::build() {
   init_themedict(basedirs,themedict);
 
   if (themedict.no()) {
-    GMSettings * index    = new GMSettings[themedict.no()];
+    FXSettings * index    = new FXSettings[themedict.no()];
     FXDict     * inherits = new FXDict[themedict.no()];
 
     /// Parse Index Files
@@ -718,14 +718,14 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
     if (rsvg) {
       path=FXPath::absolute(item,svg);
       if(FXStat::exists(path)){
-        FXString dest   = get_svg_cache() + PATHSEPSTRING + GMStringVal(size);
+        FXString dest   = get_svg_cache() + PATHSEPSTRING + FXString::value(size);
         FXString target = dest + PATHSEPSTRING + svg + ".png";
         if (!FXStat::exists(target)) {
           gm_make_path(dest);
 #ifdef DEBUG
           fxmessage("make %s\n",target.text());
 #endif
-          if (system(GMStringFormat("rsvg-convert --format=png --width=%d --height=%d -o %s %s\n",size,size,target.text(),path.text()).text())==0){
+          if (system(FXString::value("rsvg-convert --format=png --width=%d --height=%d -o %s %s\n",size,size,target.text(),path.text()).text())==0){
             name.adopt(target);
             break;
             }

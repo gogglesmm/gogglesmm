@@ -3,17 +3,11 @@ Installation Instructions
 
    1. Install all required dependencies:
 
-  	  * FOX 1.6.x (recommended)
-
-        or
-
-      * FOX 1.7.x (latest development release, see README file for details)
-
-	    * xine-lib >= 1.1.16
+      * FOX >= 1.7.26 (latest development release, see README file for details)
+	    * libgaplayer >= 0.1
   	  * sqlite >= 3.6.3
     	* taglib >= 1.6.3
       * dbus 1.0.x (optional)
-      * libcurl >= 7.19
       * expat
 
    2. Run the configure script:
@@ -33,16 +27,4 @@ Installation Instructions
 
    5. Run the software
 
-			> gmm
-
-For package maintainers
------------------------
-
-   * All icons are installed in (prefix)/share/icons/hicolor/
-	 * gmm.desktop is installed in (prefix)/share/applications
-
-	- Support DESTDIR variable when running make install:
-
-			make DESTDIR=/some/package install
-
-		This will install gmm in /some/package/(prefix)/bin/gmm
+			> gogglesmm

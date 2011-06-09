@@ -247,15 +247,11 @@ public:
   /// Perform layout
   virtual void layout();
 
-#if FOXVERSION < FXVERSION(1,7,0)
-  virtual FXint getViewportHeight();
-#else
   /// Return visible area y position
   virtual FXint getVisibleY() const;
 
   /// Return visible area height
   virtual FXint getVisibleHeight() const;
-#endif
 
   /// Compute and return content width
   virtual FXint getContentWidth();
@@ -264,11 +260,7 @@ public:
   virtual FXint getContentHeight();
 
   /// Icon list can receive focus
-#if FOXVERSION < FXVERSION(1,7,0)
-  virtual bool canFocus() const;
-#else
   virtual FXbool canFocus() const;
-#endif
 
   /// Move the focus to this window
   virtual void setFocus();

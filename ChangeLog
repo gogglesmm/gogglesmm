@@ -9,15 +9,20 @@ To Do
   - Theming:
     * GMButton needs to having drawing mode for BUTTON_DEFAULT"
 
+
+  - Remove ReplayGain from Database
+  - Tag UI (replacement for genre) in edit track dialog
+
 0.13.0
 
   - Add playing queue.
   - MPRIS v2 Interface
 
-  - Music Improvements:
+  - Music Library Improvements:
 
-    - Support composer and conductor tags.
-    - Support tagging tracks instead of genre.
+    o Support composer and conductor tags.
+    o Support tagging tracks instead of genre.
+    o Ratings Support.
 
   - General Improvements:
 
@@ -28,13 +33,13 @@ To Do
 
   - User Interface Improvements
 
-      o New modern look and feel.
-      o Ratings Support.
       o Hotkey for find menu.
 
   - Updated Requirements:
       o sqlite >= 3.6.3
-      o xinelib >= 1.1.16
+      o libgaplayer >= 0.1
+      o FOX >= 1.7.22      
+      o No Longer needed: xinelib,libcurl          
 
 0.10.2
   - Added Spanish translation.

@@ -48,8 +48,6 @@
         time        INTEGER
         no          INTEGER
         year        INTEGER
-        replay_gain REAL
-        replay_peak REAL
         bitrate     INTEGER
 
         album       INTEGER NOT NULL REFERENCES albums (id)
@@ -79,8 +77,6 @@
         name      TEXT
         artists   INTEGER NOT NULL
         year      INTEGER NOT NULL
-        replay_gain REAL
-        replay_peak REAL
 
     TABLE playlists
         id        INTEGER NOT NULL *
@@ -111,8 +107,6 @@ const FXchar create_tracks[]="CREATE TABLE tracks ( id INTEGER NOT NULL,"
                                                   " time INTEGER,"
                                                   " no INTEGER,"
                                                   " year INTEGER,"
-                                                  " replay_gain REAL,"
-                                                  " replay_peak REAL,"
                                                   " bitrate INTEGER,"
 
                                                   " album INTEGER NOT NULL REFERENCES albums (id),"
@@ -141,8 +135,6 @@ const FXchar create_albums[]="CREATE TABLE albums ( id INTEGER NOT NULL,"
                                                   " name TEXT NOT NULL,"
                                                   " artist INTEGER NOT NULL REFERENCES artists (id),"
                                                   " year INTEGER,"
-                                                  " replay_gain REAL,"
-                                                  " replay_peak REAL,"
                                                   " PRIMARY KEY (id),"
                                                   " UNIQUE(name,artist) );";
 
@@ -212,16 +204,16 @@ FXbool GMTrackDatabase::upgrade_to_2009() {
   execute("DROP TABLE albums_old;");
   execute("DROP TABLE album_artist;");
   execute("ALTER TABLE tracks ADD COLUMN artist INTEGER;");
-  execute("ALTER TABLE tracks ADD COLUMN replay_gain REAL;");
-  execute("ALTER TABLE tracks ADD COLUMN replay_peak REAL;");
+//  execute("ALTER TABLE tracks ADD COLUMN replay_gain REAL;");
+//  execute("ALTER TABLE tracks ADD COLUMN replay_peak REAL;");
   execute("UPDATE tracks SET artist = ( SELECT DISTINCT(albums.artist) FROM albums WHERE albums.id == tracks.album );");
-
+/*
   FXdouble v=NAN;
   GMQuery q(this,"UPDATE tracks SET replay_gain = ?, replay_peak = ?;");
   q.set(0,v);
   q.set(1,v);
   q.execute();
-
+*/
   execute(create_streams);
 
   setVersion(2009);
@@ -419,7 +411,7 @@ FXbool GMTrackDatabase::init_queries() {
 
   insert_genre                        = compile("INSERT OR IGNORE INTO tags VALUES ( NULL , ?  );");
   insert_artist                       = compile("INSERT OR IGNORE INTO artists VALUES ( NULL , ?  );");
-  insert_album                        = compile("INSERT OR IGNORE INTO albums SELECT NULL, ?, (SELECT id FROM artists WHERE name == ?), ?, ?, ?;");
+  insert_album                        = compile("INSERT OR IGNORE INTO albums SELECT NULL, ?, (SELECT id FROM artists WHERE name == ?), ?;");
   insert_path                         = compile("INSERT OR IGNORE INTO pathlist VALUES (NULL,?);");
 
   insert_playlist_track_by_id         = compile("INSERT INTO playlist_tracks VALUES (?,?,?);");
@@ -453,7 +445,8 @@ FXbool GMTrackDatabase::init_queries() {
                                                   "AND tracks.id == ?;");
 */
 
-  query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.replay_gain, tracks.replay_peak, albums.replay_gain, albums.replay_peak, tracks.rating "
+//  query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.replay_gain, tracks.replay_peak, albums.replay_gain, albums.replay_peak, tracks.rating "
+  query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating "
                                                 "FROM tracks LEFT JOIN artists AS composer_artist ON tracks.composer == composer_artist.id LEFT JOIN artists AS conductor_artist ON tracks.conductor == conductor_artist.id,pathlist, albums, artists AS a1, artists AS a2 "
                                                 "WHERE tracks.path == pathlist.id "
                                                   "AND albums.id == tracks.album "
@@ -861,7 +854,7 @@ FXbool GMTrackDatabase::removeQueueTracks(const FXIntList & queue){
     query.format("DELETE FROM playqueue WHERE queue IN ( %d",queue[0]);
     for (FXint i=1;i<queue.no();i++){
       query+=",";
-      query+=GMStringVal(queue[i]);
+      query+=FXString::value(queue[i]);
       }
     query+=");";
 
@@ -1248,11 +1241,11 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
       query_track.get( 7,track.time);
       query_track.get( 8,track.no);
       query_track.get( 9,track.year);
-      query_track.get(10,track.track_gain);
-      query_track.get(11,track.track_peak);
-      query_track.get(12,track.album_gain);
-      query_track.get(13,track.album_peak);
-      query_track.get(14,track.rating);
+//      query_track.get(10,track.track_gain);
+//      query_track.get(11,track.track_peak);
+//      query_track.get(12,track.album_gain);
+//      query_track.get(13,track.album_peak);
+      query_track.get(10,track.rating);
       ok=true;
       }
     query_track.reset();
@@ -1289,11 +1282,11 @@ FXbool GMTrackDatabase::getTracks(const FXIntList & tids,GMTrackArray & tracks){
         query_track.get( 7,tracks[i].time);
         query_track.get( 8,tracks[i].no);
         query_track.get( 9,tracks[i].year);
-        query_track.get(10,tracks[i].track_gain);
-        query_track.get(11,tracks[i].track_peak);
-        query_track.get(12,tracks[i].album_gain);
-        query_track.get(13,tracks[i].album_peak);
-        query_track.get(14,tracks[i].rating);
+//        query_track.get(10,tracks[i].track_gain);
+//        query_track.get(11,tracks[i].track_peak);
+//        query_track.get(12,tracks[i].album_gain);
+//        query_track.get(13,tracks[i].album_peak);
+        query_track.get(10,tracks[i].rating);
         }
       query_track.reset();
 
@@ -1644,17 +1637,17 @@ FXbool GMTrackDatabase::moveTrack(FXint playlist,FXint oldq,FXint newq){
   FXint row=0;
   if (oldq==newq) return true;
 
-  query = "SELECT ROWID FROM playlist_tracks WHERE playlist == " + GMStringVal(playlist) + " AND queue == " + GMStringVal(oldq) + ";";
+  query = "SELECT ROWID FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + " AND queue == " + FXString::value(oldq) + ";";
   execute_simple(query.text(),row);
 
   if (oldq<newq)
-    query = "UPDATE playlist_tracks SET queue = queue - 1 WHERE playlist == "+ GMStringVal(playlist) +" AND queue > " +GMStringVal(oldq) + " AND queue <= " + GMStringVal(newq) + ";";
+    query = "UPDATE playlist_tracks SET queue = queue - 1 WHERE playlist == "+ FXString::value(playlist) +" AND queue > " +FXString::value(oldq) + " AND queue <= " + FXString::value(newq) + ";";
   else
-    query = "UPDATE playlist_tracks SET queue = queue + 1 WHERE playlist == "+ GMStringVal(playlist) +" AND queue < " +GMStringVal(oldq) + " AND queue >= " + GMStringVal(newq) + ";";
+    query = "UPDATE playlist_tracks SET queue = queue + 1 WHERE playlist == "+ FXString::value(playlist) +" AND queue < " +FXString::value(oldq) + " AND queue >= " + FXString::value(newq) + ";";
 
   execute(query);
 
-  query = "UPDATE playlist_tracks SET queue = " + GMStringVal(newq) + " WHERE playlist == " + GMStringVal(playlist) + " AND ROWID == " + GMStringVal(row) + ";";
+  query = "UPDATE playlist_tracks SET queue = " + FXString::value(newq) + " WHERE playlist == " + FXString::value(playlist) + " AND ROWID == " + FXString::value(row) + ";";
   execute(query);
 
   return true;
@@ -1667,17 +1660,17 @@ FXbool GMTrackDatabase::moveQueueTrack(FXint oldq,FXint newq){
   FXString query;
   if (oldq==newq) return true;
 
-  query = "UPDATE playqueue SET queue = 0 WHERE queue == " +GMStringVal(oldq) + ";";
+  query = "UPDATE playqueue SET queue = 0 WHERE queue == " +FXString::value(oldq) + ";";
   execute(query);
 
   if (oldq<newq)
-    query = "UPDATE playqueue SET queue = queue - 1 WHERE queue > " +GMStringVal(oldq) + " AND queue <= " + GMStringVal(newq) + ";";
+    query = "UPDATE playqueue SET queue = queue - 1 WHERE queue > " +FXString::value(oldq) + " AND queue <= " + FXString::value(newq) + ";";
   else
-    query = "UPDATE playqueue SET queue = queue + 1 WHERE queue < " +GMStringVal(oldq) + " AND queue >= " + GMStringVal(newq) + ";";
+    query = "UPDATE playqueue SET queue = queue + 1 WHERE queue < " +FXString::value(oldq) + " AND queue >= " + FXString::value(newq) + ";";
 
   execute(query);
 
-  query = "UPDATE playqueue SET queue = " + GMStringVal(newq) + " WHERE queue == 0;";
+  query = "UPDATE playqueue SET queue = " + FXString::value(newq) + " WHERE queue == 0;";
   execute(query);
 
   return true;
@@ -1842,7 +1835,7 @@ FXbool GMTrackDatabase::queryGenre(FXint & result,const FXString & name,FXbool i
 FXbool GMTrackDatabase::updateAlbum(FXint & result,const GMTrack & track,FXint artist){
   DEBUG_DB_SET();
   result=0;
-  update_album = compile("UPDATE albums SET year = ?, replay_gain = ?, replay_peak = ? WHERE id == ?;");
+  update_album = compile("UPDATE albums SET year = ? WHERE id == ?;");
   try {
     query_album.set(0,track.album);
     query_album.set(1,artist);
@@ -1852,15 +1845,15 @@ FXbool GMTrackDatabase::updateAlbum(FXint & result,const GMTrack & track,FXint a
       insert_album.set(0,track.album);
       insert_album.set(1,artist);
       insert_album.set(2,track.year);
-      insert_album.set(3,track.album_gain);
-      insert_album.set(4,track.album_peak);
+//      insert_album.set(3,track.album_gain);
+//      insert_album.set(4,track.album_peak);
       insert_album.execute();
       result = rowid();
       }
     else {
       update_album.set(0,track.year);
-      update_album.set(1,track.album_gain);
-      update_album.set(2,track.album_peak);
+//      update_album.set(1,track.album_gain);
+//      update_album.set(2,track.album_peak);
       update_album.set(3,result);
       update_album.execute();
       }
@@ -1961,7 +1954,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
 
     if (playlist) {
       query+=" AND playlist_tracks.track == tracks.id";
-      query+=" AND playlist_tracks.playlist == "+GMStringVal(playlist);
+      query+=" AND playlist_tracks.playlist == "+FXString::value(playlist);
       query+=" ORDER BY playlist_tracks.queue; ";
       }
     else {
@@ -2003,7 +1996,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
 
       if (filetype==PLAYLIST_XSPF) {
         fprintf(fp,"\t\t<track>\n");
-        fprintf(fp,"\t\t\t<location>%s</location>\n",GMURL::fileToURL(gm_url_encode(file)).text());
+        fprintf(fp,"\t\t\t<location>%s</location>\n",FXURL::fileToURL(gm_url_encode(file)).text());
         fprintf(fp,"\t\t\t<creator>%s</creator>\n",c_artist);
         fprintf(fp,"\t\t\t<album>%s</album>\n",c_album);
         fprintf(fp,"\t\t\t<title>%s</title>\n",c_title);

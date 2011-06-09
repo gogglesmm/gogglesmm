@@ -63,7 +63,6 @@ private:
   GMIconTheme       * icontheme;
   GMTrackView       * trackview;
   GMSourceView      * sourceview;
-//	FXHorizontalFrame * controlframe;
   FXHorizontalFrame * statusframe;
   GMCoverFrame      * coverframe;
   GMImageView       * coverview_gl;
@@ -74,20 +73,13 @@ private:
   FXButton          * nextbutton;
   FXButton          * prevbutton;
   FXLabel           * label_nowplaying;
-#if FOXVERSION > FXVERSION(1,7,11)
   FXMenuCheck       * fullscreencheck;
-#endif
   FXSeparator       * controlseparator;
   FXDragCorner 			* controldragcorner;
   FXSeparator  			* controlstatusseparator;
   FXLabel      			* timelabel;
   GMTrackProgressBar* trackslider;
-#if FOXVERSION > FXVERSION(1,7,21)
   FX4Splitter       * mainsplitter;
-#else
-  FXSplitter				* mainsplitter;
-  FXSplitter        * sourcesplitter;
-#endif
   FXTextField       * nowplaying;
   FXHorizontalFrame * progressbar;
   FXLabel           * progressbar_label;
@@ -100,9 +92,7 @@ private:
 private:
   void configureToolbar(FXbool docktop,FXbool init=false);
   void configureStatusbar(FXbool show);
-#if FOXVERSION > FXVERSION(1,7,11)
   void setFullScreen(FXbool show);
-#endif
   FXbool showSources() const;
 private:
   GMWindow(){}
@@ -122,14 +112,9 @@ public: /// Message Handlers
 
   long onCmdImport(FXObject*,FXSelector,void*);
   long onCmdImportFiles(FXObject*,FXSelector,void*);
-#if FOXVERSION >= FXVERSION(1,7,11)
   long onCmdShowFullScreen(FXObject*,FXSelector,void*);
-#endif
-
-#if FOXVERSION > FXVERSION(1,7,21)
   long onCmdShowSources(FXObject*,FXSelector,void*);
   long onUpdShowSources(FXObject*,FXSelector,void*);
-#endif
   long onCmdShowBrowser(FXObject*,FXSelector,void*);
   long onCmdShowMiniPlayer(FXObject*,FXSelector,void*);
   long onUpdShowMiniPlayer(FXObject*,FXSelector,void*);
@@ -223,12 +208,8 @@ public:
 
     ID_PREFERENCES,
     ID_SHOW_TRACK,
-#if FOXVERSION >= FXVERSION(1,7,11)
     ID_SHOW_FULLSCREEN,
-#endif
-#if FOXVERSION > FXVERSION(1,7,21)
     ID_SHOW_SOURCES,
-#endif
     ID_SHOW_MINIPLAYER,
     ID_SHOW_BROWSER,
 

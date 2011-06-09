@@ -12,10 +12,11 @@ Comment=Play and organize your music collection
 Comment[en_CA]=Play and organize your music collection
 Comment[en_GB]=Play and organise your music collection
 Comment[nl]=Luister and beheer uw muziekcollectie
-Exec=gogglesmm
+Exec=gogglesmm %u
 Terminal=false
 Hidden=false
 Type=Application
 Icon=gogglesmm
-Categories=Application;AudioVideo;Audio;
-MimeType=application/x-ogg;application/ogg;audio/x-mp3;audio/x-mp3;application/x-flac
+Categories=Application;AudioVideo;Audio;Player;
+MimeType=audio/flac;audio/ogg;audio/x-vorbis;audio/x-vorbis+ogg;audio/mpeg;audio/mp4a-latm;audio/x-musepack;
+

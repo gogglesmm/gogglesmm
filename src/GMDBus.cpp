@@ -47,9 +47,6 @@ private:
   FXMutex mutex;
   FXHash  tm;
   FXHash  connections;
-#if FOXVERSION < FXVERSION(1,7,0)
-  FXHash  watches;
-#endif
 public:
   GMDBusGlobal() {
     dbus_threads_init_default();
@@ -61,11 +58,7 @@ public:
     }
 
   void setuphooks() {
-#if FOXVERSION < FXVERSION(1,7,0)
-    for (FXint i=0;i<connections.size();i++) {
-#else
     for (FXuint i=0;i<connections.size();i++) {
-#endif
       if (!connections.empty(i)) {
         ((GMDBus*)connections.value(i))->setup_event_loop();
         }
@@ -81,23 +74,6 @@ public:
     FXMutexLock lock(mutex);
     connections.remove(dc);
     }
-
-#if FOXVERSION < FXVERSION(1,7,0)
-  DBusWatch * find(FXint fd) {
-    FXMutexLock lock(mutex);
-    return (DBusWatch*)watches.find((void*)(FXival)fd);
-    }
-
-  void insert(FXint fd,DBusWatch * watch){
-    FXMutexLock lock(mutex);
-    watches.insert((void*)(FXival)fd,watch);
-    }
-
-  void remove(FXint fd){
-    FXMutexLock lock(mutex);
-    watches.remove((void*)(FXival)fd);
-    }
-#endif
 
   GMDBusTimeout * find(DBusTimeout*t) {
     return reinterpret_cast<GMDBusTimeout*>(tm.find(t));
@@ -248,19 +224,9 @@ static dbus_bool_t fxdbus_addwatch(DBusWatch *watch,void * data) {
       mode|=INPUT_WRITE;
 
 #if DBUSVERSION == MKDBUSVERSION(1,1,20) || DBUSVERSION >= MKDBUSVERSION(1,2,0)
-#if FOXVERSION < FXVERSION(1,7,0)
-  fxdbus.insert(dbus_watch_get_unix_fd(watch),watch);
-  return FXApp::instance()->addInput((FXInputHandle)dbus_watch_get_unix_fd(watch),mode,dc,GMDBus::ID_HANDLE);
-#else
   return FXApp::instance()->addInput(dc,GMDBus::ID_HANDLE,(FXInputHandle)dbus_watch_get_unix_fd(watch),mode,watch);
-#endif
-#else
-#if FOXVERSION < FXVERSION(1,7,0)
-  fxdbus.insert(dbus_watch_get_fd(watch),watch);
-  return FXApp::instance()->addInput((FXInputHandle)dbus_watch_get_fd(watch),mode,dc,GMDBus::ID_HANDLE);
 #else
   return FXApp::instance()->addInput(dc,GMDBus::ID_HANDLE,(FXInputHandle)dbus_watch_get_fd(watch),mode,watch);
-#endif
 #endif
 
   }
@@ -279,14 +245,8 @@ static void fxdbus_removewatch(DBusWatch *watch,void *) {
 */
   FXuint mode=INPUT_READ|INPUT_WRITE|INPUT_EXCEPT;
 #if DBUSVERSION == MKDBUSVERSION(1,1,20) || DBUSVERSION >= MKDBUSVERSION(1,2,0)
-#if FOXVERSION < FXVERSION(1,7,0)
-  fxdbus.remove(dbus_watch_get_unix_fd(watch));
-#endif
   FXApp::instance()->removeInput(dbus_watch_get_unix_fd(watch),mode);
 #else
-#if FOXVERSION < FXVERSION(1,7,0)
-  fxdbus.remove(dbus_watch_get_fd(watch));
-#endif
   FXApp::instance()->removeInput(dbus_watch_get_fd(watch),mode);
 #endif
 
@@ -379,7 +339,7 @@ FXString GMDBus::dbusversion() {
 #if (DBUSVERSION == MKDBUSVERSION(1,1,20)) || DBUSVERSION >= MKDBUSVERSION(1,2,0)
   int major,minor,micro;
   dbus_get_version(&major,&minor,&micro);
-  return GMStringFormat("%d.%d.%d",major,minor,micro);
+  return FXString::value("%d.%d.%d",major,minor,micro);
 #else
   return FXString("1.0.x");
 #endif
@@ -446,32 +406,20 @@ void GMDBus::send(DBusMessage * msg,FXuint & serial){
 /*******************************************************************************************************/
 
 long GMDBus::onHandleRead(FXObject*,FXSelector,void*ptr){
-#if FOXVERSION < FXVERSION(1,7,0)
-  DBusWatch * watch = fxdbus.find((FXint)(FXival)ptr);
-#else
   DBusWatch * watch = reinterpret_cast<DBusWatch*>(ptr);
-#endif
   dbus_watch_handle(watch,DBUS_WATCH_READABLE);
   FXApp::instance()->addChore(this,ID_DISPATCH);
   return 0;
   }
 
 long GMDBus::onHandleWrite(FXObject*,FXSelector,void*ptr){
-#if FOXVERSION < FXVERSION(1,7,0)
-  DBusWatch * watch = fxdbus.find((FXint)(FXival)ptr);
-#else
   DBusWatch * watch = reinterpret_cast<DBusWatch*>(ptr);
-#endif
   dbus_watch_handle(watch,DBUS_WATCH_WRITABLE);
   return 0;
   }
 
 long GMDBus::onHandleExcept(FXObject*,FXSelector,void*ptr){
-#if FOXVERSION < FXVERSION(1,7,0)
-  DBusWatch * watch = fxdbus.find((FXint)(FXival)ptr);
-#else
   DBusWatch * watch = reinterpret_cast<DBusWatch*>(ptr);
-#endif
   dbus_watch_handle(watch,DBUS_WATCH_ERROR|DBUS_WATCH_HANGUP);
   return 0;
   }
@@ -927,6 +875,6 @@ DBusHandlerResult gm_dbus_reply_if_needed(DBusConnection * connection,DBusMessag
   }
 
 void gm_dbus_match_signal(DBusConnection*connection,const FXchar * path,const FXchar * interface,const FXchar * member){
-  FXString rule = GMStringFormat("type='signal',path='%s',interface='%s',member='%s'",path,interface,member);
+  FXString rule = FXString::value("type='signal',path='%s',interface='%s',member='%s'",path,interface,member);
   dbus_bus_add_match(connection,rule.text(),NULL);
   }

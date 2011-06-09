@@ -225,13 +225,8 @@ FXString gm_url_encode(const FXString& url){
 //    if(!Ascii::isAlphaNumeric(c) && ((c<=' ' || c>='{') || strchr(URL_UNSAFE URL_RESERVED,c))){
     if (!Ascii::isAlphaNumeric(c)){
       result.append('%');
-#if FOXVERSION < FXVERSION(1,7,0)
-      result.append(FXString::HEX[(c>>4)&15]);
-      result.append(FXString::HEX[c&15]);
-#else
       result.append(FXString::value2Digit[(c>>4)&15]);
       result.append(FXString::value2Digit[c&15]);
-#endif
       continue;
       }
     result.append(c);
@@ -244,23 +239,12 @@ FXdouble gm_parse_number(const FXString & str) {
   if (str.empty())
     return NAN;
 
-/// FOX 1.7 has its own scanf and always uses C locale for number conversions.
-#if FOXVERSION > FXVERSION(1,7,0)
+  /// FOX 1.7 has its own scanf and always uses C locale for number conversions.
   FXdouble value=NAN;
   if (str.scan("%lg",&value)==1)
     return value;
   else
     return NAN;
-#else
-  errno=0;
-#ifdef HAVE_NLS
-  FXfloat value = strtod_l(str.text(),NULL,GMApp::instance()->clocale);
-#else
-  FXfloat value = strtod(str.text(),NULL);
-#endif
-  if (errno) return NAN;
-  return value;
-#endif
   }
 
 
@@ -345,12 +329,7 @@ void gm_parse_xspf(FXString & data,FXStringList & mrl,FXString & title) {
 
 
 FXbool gm_has_opengl() {
-#if FOXVERSION < FXVERSION(1,7,15)
-  int glminor,glmajor;
-  return FXGLVisual::supported(GMApp::instance(),glmajor,glminor);
-#else
   return FXGLVisual::hasOpenGL(GMApp::instance());
-#endif
   }
 
 
@@ -387,7 +366,7 @@ void gm_set_window_cursor(FXWindow * window,FXCursor * cur) {
 
 FXbool gm_is_local_file(const FXString & filename) {
   if (filename[0]=='/') return true;
-  FXString scheme = GMURL::scheme(filename);
+  FXString scheme = FXURL::scheme(filename);
   if (scheme.empty() || (comparecase(scheme,"file")==0))
     return true;
   else
@@ -398,10 +377,10 @@ FXbool gm_is_local_file(const FXString & filename) {
 
 void gm_convert_filenames_to_uri(const FXStringList & filenames,FXString & uri){
   if (filenames.no()) {
-    uri=GMURL::fileToURL(filenames[0]);
+    uri=FXURL::fileToURL(filenames[0]);
     for (FXint i=1;i<filenames.no();i++){
       uri+="\r\n";
-      uri+=GMURL::fileToURL(filenames[i]);
+      uri+=FXURL::fileToURL(filenames[i]);
       }
     }
   }
@@ -413,7 +392,7 @@ void gm_convert_uri_to_filenames(FXString & files,FXStringList & filelist){
   for(begin=0;begin<files.length();begin=end+2){
     end=files.find_first_of("\r\n",begin);
     if (end<0) end = files.length();
-    file = GMURL::decode(GMURL::fileFromURL(files.mid(begin,end-begin)));
+    file = FXURL::decode(FXURL::fileFromURL(files.mid(begin,end-begin)));
     if (!file.empty()) filelist.append(file);
     }
   }
@@ -421,10 +400,10 @@ void gm_convert_uri_to_filenames(FXString & files,FXStringList & filelist){
 
 void gm_convert_filenames_to_gnomeclipboard(const FXStringList & filenames,FXString & uri){
   if (filenames.no()) {
-    uri="copy\n" + GMURL::fileToURL(filenames[0]);
+    uri="copy\n" + FXURL::fileToURL(filenames[0]);
     for (FXint i=1;i<filenames.no();i++){
       uri+="\r\n";
-      uri+=GMURL::fileToURL(filenames[i]);
+      uri+=FXURL::fileToURL(filenames[i]);
       }
     }
   }
@@ -437,7 +416,7 @@ void gm_convert_gnomeclipboard_to_filenames(FXString & files,FXStringList & file
     end=files.find_first_of("\r\n",begin);
     if (end<0) end = files.length();
     if (begin) {
-      file = GMURL::decode(GMURL::fileFromURL(files.mid(begin,end-begin)));
+      file = FXURL::decode(FXURL::fileFromURL(files.mid(begin,end-begin)));
       if (!file.empty()) filelist.append(file);
       }
     }
@@ -448,9 +427,9 @@ void gm_make_absolute_path(const FXString & path,FXStringList & urls) {
   for (FXint i=0;i<urls.no();i++) {
     if (!urls[i].empty()) {
       if (urls[i][0]!='/') {
-        FXString scheme = GMURL::scheme(urls[i]);
+        FXString scheme = FXURL::scheme(urls[i]);
         if (comparecase(scheme,"file")==0) {
-          urls[i]=GMURL::fileFromURL(urls[i]);
+          urls[i]=FXURL::fileFromURL(urls[i]);
           if (urls[i][0]!='/')
             urls[i]=FXPath::absolute(path,urls[i]);
           }
@@ -513,11 +492,7 @@ FXbool gm_open_folder(const FXString & folder) {
 
 
 void gm_copy_hash(FXHash & from,FXHash & to) {
-#if FOXVERSION < FXVERSION(1,7,0)
-  for (FXint i=0;i<from.size();i++){
-#else
   for (FXuint i=0;i<from.size();i++){
-#endif
     if (!from.empty(i)) {
       to.insert(from.key(i),from.value(i));
       }
@@ -596,11 +571,7 @@ FXImage * gm_load_image_from_data(const void * data,FXuval size,const FXString &
   FXImage * image=gm_create_image(mime);
   if (image) {
     FXMemoryStream store;
-#if FOXVERSION < FXVERSION(1,7,18)
-    store.open(FXStreamLoad,size,(FXuchar*)data);
-#else
     store.open(FXStreamLoad,(FXuchar*)data,size);
-#endif
     if (gm_load_pixels(store,image,scale,crop))
       return image;
 
@@ -611,17 +582,7 @@ FXImage * gm_load_image_from_data(const void * data,FXuval size,const FXString &
 
 
 FXbool gm_make_path(const FXString & path,FXuint perm) {
-#if FOXVERSION < FXVERSION(1,7,0)
-  if(!path.empty()){
-    if(FXStat::isDirectory(path)) return true;
-    if(gm_make_path(FXPath::upLevel(path),perm)){
-      if(FXDir::create(path,perm)) return true;
-      }
-    }
-  return false;
-#else
   return FXDir::createDirectories(path,perm);
-#endif
   }
 
 

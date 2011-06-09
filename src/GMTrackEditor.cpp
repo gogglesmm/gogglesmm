@@ -45,7 +45,7 @@ FXint GMTagUpdateTask::run() {
 
     for (FXint i=0;i<tracks.no() && processing;i++) {
       if (!database->getTrack(tracks[i],info)) break;
-      taskmanager->setStatus(GMStringFormat("Writng Tags %d/%d..",i+1,tracks.no()));
+      taskmanager->setStatus(FXString::value("Writng Tags %d/%d..",i+1,tracks.no()));
 
       info.saveTag(info.mrl);
       database->beginTask();
@@ -83,7 +83,7 @@ GMUpdateTask::GMUpdateTask(GMTrackDatabase * db,GMTrackArray & t,FXIntList & i) 
 FXint GMUpdateTask::run() {
   try {
     for (FXint i=0;i<tracks.no() && processing;i++) {
-      taskmanager->setStatus(GMStringFormat("Writing Tags %d/%d..",i+1,tracks.no()));
+      taskmanager->setStatus(FXString::value("Writing Tags %d/%d..",i+1,tracks.no()));
       tracks[i].saveTag(tracks[i].mrl);
 
       database->beginTask();
@@ -433,38 +433,41 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     new FXLabel(matrix,tr("Size"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 #if defined(__LP64__) || defined(_LP64) || (_MIPS_SZLONG == 64) || (__WORDSIZE == 64)
-      textfield->setText(GMStringFormat("%'ld",FXStat::size(info.mrl)));
+      textfield->setText(FXString::value("%'ld",FXStat::size(info.mrl)));
 #else
-      textfield->setText(GMStringFormat("%'lld",FXStat::size(info.mrl)));
+      textfield->setText(FXString::value("%'lld",FXStat::size(info.mrl)));
 #endif
 
     new FXLabel(matrix,tr("Bitrate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(GMStringFormat("%dkbs",prop.bitrate));
+    textfield->setText(FXString::value("%dkbs",prop.bitrate));
 
     new FXLabel(matrix,tr("Samplerate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(GMStringFormat("%dHz",prop.samplerate));
+    textfield->setText(FXString::value("%dHz",prop.samplerate));
 
     new FXLabel(matrix,tr("Channels"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(GMStringFormat("%d",prop.channels));
+    textfield->setText(FXString::value("%d",prop.channels));
+
+/*
+  /// FIXME we should get this from the file directly
 
     new FXLabel(matrix,tr("Track Gain"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
     if (isnan(info.track_gain))
       textfield->setText("0 db");
     else
-      textfield->setText(GMStringFormat("%'g db",info.track_gain));
+      textfield->setText(FXString::value("%'g db",info.track_gain));
 
     new FXLabel(matrix,tr("Album Gain"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
     if (isnan(info.track_gain))
       textfield->setText("0 db");
     else
-      textfield->setText(GMStringFormat("%'g db",info.album_gain));
+      textfield->setText(FXString::value("%'g db",info.album_gain));
 
-
+*/
     if (art) {
       new GMTabItem(tabbook,tr("Co&ver"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
       tabframe = new GMTabFrame(tabbook);
@@ -603,7 +606,7 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     composerbox->setCurrentItem(composerbox->findItem(info.composer));
     conductorbox->setCurrentItem(conductorbox->findItem(info.conductor));
     //genrebox->setCurrentItem(genrebox->findItem(info.genre));
-    yearfield->setText(GMStringVal(info.year));
+    yearfield->setText(FXString::value(info.year));
     titlefield->setText(info.title);
     discspinner->setValue(GMDISCNO(info.no));
     }
@@ -614,7 +617,7 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     if (samemask&SAME_COMPOSER) composerbox->setCurrentItem(composerbox->findItem(info.composer));
     if (samemask&SAME_CONDUCTOR) conductorbox->setCurrentItem(conductorbox->findItem(info.conductor));
 //    if (samemask&SAME_GENRE) genrebox->setCurrentItem(genrebox->findItem(info.genre));
-    if (samemask&SAME_YEAR) yearfield->setText(GMStringVal(info.year));
+    if (samemask&SAME_YEAR) yearfield->setText(FXString::value(info.year));
     if (samemask&SAME_DISC) discspinner->setValue(GMDISCNO(info.no));
     }
   }
@@ -694,11 +697,7 @@ long GMEditTrackDialog::onCmdAccept(FXObject*sender,FXSelector sel,void*ptr){
     /// YEAR
     field=yearfield->getText().trim().simplify();
     if (!field.empty()){
-  #if FOXVERSION >= FXVERSION(1,7,12)
       FXint year=yearfield->getText().toInt();
-  #else
-      FXint year=FXIntVal(yearfield->getText());
-  #endif
       if ( ( tracks.no()>1 && ( (!(samemask&SAME_YEAR)) || info.year!=year ) ) ||
            ( tracks.no()==1 && info.year!=year )) {
         db->setTrackYear(tracks,year);
@@ -723,11 +722,7 @@ long GMEditTrackDialog::onCmdAccept(FXObject*sender,FXSelector sel,void*ptr){
           db->setTrackTrackNumber(tracks,autonumberoffset->getValue(),true);
           }
         else {
-  #if FOXVERSION >= FXVERSION(1,7,12)
           db->setTrackNumber(tracks,discfield->getText().toUInt(),autonumberoffset->getValue(),true);
-  #else
-          db->setTrackNumber(tracks,FXUIntVal(discfield->getText()),autonumberoffset->getValue(),true);
-  #endif
           }
         changed=true;
         sync=true;
@@ -741,11 +736,7 @@ long GMEditTrackDialog::onCmdAccept(FXObject*sender,FXSelector sel,void*ptr){
         else {
           field=discfield->getText().trim().simplify();
           if (!field.empty()) {
-  #if FOXVERSION >= FXVERSION(1,7,12)
             FXint disc=discfield->getText().toInt();
-  #else
-            FXint disc=FXIntVal(discfield->getText());
-  #endif
             db->setTrackDiscNumber(tracks,disc);
             changed=true;
             sync=true;

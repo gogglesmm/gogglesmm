@@ -31,12 +31,7 @@ class FXCheckListItem : public GMListItem {
   friend class FXList;
 protected:
   FXCheckListItem(){}
-
-//#if FOXVERSION < FXVERSION(1,7,0)
-//  virtual void draw(const GMList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h);
-//#else
   virtual void draw(const GMList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
-//#endif
   virtual FXint hitItem(const FXList* list,FXint x,FXint y) const;
 public:
   enum {

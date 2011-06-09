@@ -107,11 +107,7 @@ void GMImportOptions::save(FXSettings & reg) const {
   reg.writeStringEntry(section_import,key_import_filename_template,filename_template.text());
   reg.writeStringEntry(section_import,key_import_exclude_folder,exclude_folder.text());
   reg.writeStringEntry(section_import,key_import_exclude_file,exclude_file.text());
-#if FOXVERSION < FXVERSION(1,7,0)
-  reg.writeUnsignedEntry(section_import,key_import_parse_method,parse_method);
-#else
   reg.writeUIntEntry(section_import,key_import_parse_method,parse_method);
-#endif
   }
 
 void GMImportOptions::load(FXSettings & reg) {
@@ -121,12 +117,7 @@ void GMImportOptions::load(FXSettings & reg) {
   filename_template      = reg.readStringEntry(section_import,key_import_filename_template,filename_template.text());
   exclude_folder         = reg.readStringEntry(section_import,key_import_exclude_folder,exclude_folder.text());
   exclude_file           = reg.readStringEntry(section_import,key_import_exclude_file,exclude_file.text());
-#if FOXVERSION < FXVERSION(1,7,0)
-  parse_method           = FXMIN(reg.readUnsignedEntry(section_import,key_import_parse_method,parse_method),(FXuint)PARSE_BOTH);
-#else
   parse_method           = FXMIN(reg.readUIntEntry(section_import,key_import_parse_method,parse_method),(FXuint)PARSE_BOTH);
-#endif
-
   }
 
 
@@ -212,12 +203,7 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_export,key_export_underscore,export_underscore);
   reg.writeStringEntry(section_export,key_export_format_template,export_format_template.text());
   reg.writeStringEntry(section_export,key_export_character_filter,export_character_filter.text());
-
-#if FOXVERSION < FXVERSION(1,7,0)
-  reg.writeUnsignedEntry(section_export,key_export_encoding,export_encoding);
-#else
   reg.writeUIntEntry(section_export,key_export_encoding,export_encoding);
-#endif
 
   /// Colors
   reg.writeColorEntry(section_colors,key_gui_row_color,gui_row_color);
@@ -291,12 +277,7 @@ void GMPreferences::load(FXSettings & reg) {
   export_underscore             = reg.readBoolEntry(section_export,key_export_underscore,export_underscore);
   export_format_template        = reg.readStringEntry(section_export,key_export_format_template,export_format_template.text());
   export_character_filter       = reg.readStringEntry(section_export,key_export_character_filter,export_character_filter.text());
-
-#if FOXVERSION < FXVERSION(1,7,0)
-  export_encoding 							= FXMIN(GMFilename::ENCODING_LAST-1,reg.readUnsignedEntry(section_export,key_export_encoding,export_encoding));
-#else
   export_encoding 							= FXMIN(GMFilename::ENCODING_LAST-1,reg.readUIntEntry(section_export,key_export_encoding,export_encoding));
-#endif
 
   /// Colors
   gui_row_color                 = reg.readColorEntry(section_colors,key_gui_row_color,gui_row_color);

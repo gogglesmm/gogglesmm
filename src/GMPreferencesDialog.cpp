@@ -25,7 +25,6 @@
 
 #include "GMTrack.h"
 #include "GMApp.h"
-#include "GMPlayer.h"
 #include "GMAudioPlayer.h"
 #include "GMWindow.h"
 #include "GMAlbumList.h"
@@ -293,9 +292,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   target_gui_show_playing_titlebar.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_titlebar);
   target_gui_format_title.connect(GMPlayerManager::instance()->getPreferences().gui_format_title);
 
-#ifdef HAVE_XINE_LIB
-  GMPlayerManager::instance()->getPlayer()->checkInitialized();
-#endif
   GMPlayerManager::instance()->getPreferences().getKeyWords(keywords);
 
   const FXuint labelstyle=LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT;
@@ -625,81 +621,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   new FXFrame(matrix,FRAME_NONE);
 
-#ifdef HAVE_XINE_LIB
-  new GMTabItem(tabbook,tr("&Audio"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
-  vframe = new GMTabFrame(tabbook);
 
-  grpbox =  new FXGroupBox(vframe,tr("Engine"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
-  grpbox->setFont(GMApp::instance()->getThickFont());
-
-//  driverswitcher = new FXSwitcher(grpbox,LAYOUT_FILL_X);
-
-  FXString available,current;
-  FXint ndrivers;
-  ndrivers = GMPlayerManager::instance()->getPlayer()->getAvailableDrivers(available);
-  GMPlayerManager::instance()->getPlayer()->getCurrentDriver(current);
-
-
-  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
-  new FXLabel(matrix,tr("Audio Driver:"),NULL,labelstyle);
-
-  driverlist = new GMListBox(matrix,this,ID_AUDIO_DRIVER);
-  driverlist->clearItems();
-  driverlist->fillItems(available);
-  driverlist->setCurrentItem(driverlist->findItem(current));
-  driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
-
-
-
-  /// Alsa
-  alsa_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
-  alsa_device = new GMTextField(matrix,20);
-  alsa_mixer_label = new FXLabel(matrix,tr("Mixer:"),NULL,labelstyle);
-  alsa_mixer = new GMTextField(matrix,20);
-
-  /// OSS
-  oss_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
-  oss_device = new GMTextField(matrix,20);
-
-  /// Pulse
-  pulse_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
-  pulse_device = new GMTextField(matrix,20);
-
-  /// Jack
-  jack_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
-  jack_device = new GMTextField(matrix,20);
-
-  new FXFrame(matrix,FRAME_NONE);
-  new GMButton(matrix,tr("Apply Changes"),NULL,0);
-
-  /// Show Correct Switcher Pane
-  //showDriverSettings(current);
-
-  new GMCheckButton(grpbox,tr("Close audio device on pause."),&target_pause_close_device,FXDataTarget::ID_VALUE);
-  new GMCheckButton(grpbox,tr("Turn off playback engine on stop."),&target_close_audio,FXDataTarget::ID_VALUE);
-  new GMCheckButton(grpbox,tr("Turn on playback engine on startup.\tFor faster startup, playback engine is normally started when first track is played.\tFor faster startup, playback engine is normally started when first track is played."),&target_open_device_on_startup,FXDataTarget::ID_VALUE);
-
-
-  grpbox =  new FXGroupBox(vframe,tr("Playback"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
-  grpbox->setFont(GMApp::instance()->getThickFont());
-
-  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
-
-  new FXLabel(matrix,tr("Replay Gain:"),NULL,labelstyle);
-  GMListBox * gainlist = new GMListBox(matrix,&target_replaygain,FXDataTarget::ID_VALUE);
-  gainlist->appendItem(tr("Off"));
-  gainlist->appendItem(tr("Track"));
-  gainlist->appendItem(tr("Album"));
-  gainlist->setNumVisible(3);
-
-  new GMCheckButton(grpbox,tr("Gapless playback"),&target_gapless,FXDataTarget::ID_VALUE);
-  check_audio_normalization = new GMCheckButton(grpbox,tr("Volume Normalization"));
-
-
-  if (GMPlayerManager::instance()->getPlayer()->hasVolumeNormalization() && GMPlayerManager::instance()->getPlayer()->getVolumeNormalization())
-    check_audio_normalization->setCheck(true);
-
-#else
   new GMTabItem(tabbook,tr("&Audio"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
 
@@ -780,7 +702,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   gainlist->appendItem(tr("Album"));
   gainlist->setNumVisible(3);
 
-#endif
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
   new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
@@ -962,61 +883,18 @@ Device  audio.device.oss_device_name
 
 
 
-#ifdef HAVE_XINE_LIB
 
-#if 0
-
- FXString selected=driverlist->getItemText(driverlist->getCurrentItem());
-  FXString current;
-  FXString available;
-
-
-  showDriverSettings(selected);
-
-  /// Stop Playback
-  GMPlayerManager::instance()->stop();
-
-
-  if (!GMPlayerManager::instance()->getPlayer()->changeDriver(selected)) {
-
-      //FXMessageBox::error(this,MBOX_OK,"Audio Device Error","Failed to open requested audio driver: %s",selected.text());
-
-
-    driverlist->disable();
-    }
-  else {
-    GMPlayerManager::instance()->getPlayer()->getCurrentDriver(current);
-    if (selected!=current) {
-      FXMessageBox::error(this,MBOX_OK,tr("Audio Device Error"),fxtrformat("Failed to open requested audio driver: %s"),selected.text());
-      }
-    GMPlayerManager::instance()->getPlayer()->getAvailableDrivers(available);
-    driverlist->clearItems();
-    driverlist->fillItems(available);
-    driverlist->setCurrentItem(driverlist->findItem(current));
-    driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
-    showDriverSettings(current);
-    }
-#endif
-#else
   FXuchar device=(FXuchar)(FXival)driverlist->getItemData(driverlist->getCurrentItem());
   showDriverSettings(device);
-
-
-  //GMPlayerManager::instance()->getPlayer()->setOutputPlugin(selected);
-#endif
   return 1;
   }
 
 long GMPreferencesDialog::onCmdReplayGain(FXObject*,FXSelector,void*){
-#ifdef HAVE_XINE
-  //GMPlayerManager::instance()->update_replay_gain();
-#else
   switch(GMPlayerManager::instance()->getPreferences().play_replaygain){
     case 0: GMPlayerManager::instance()->getPlayer()->setReplayGain(ReplayGainOff); break;
     case 1: GMPlayerManager::instance()->getPlayer()->setReplayGain(ReplayGainTrack); break;
     case 2: GMPlayerManager::instance()->getPlayer()->setReplayGain(ReplayGainAlbum); break;
     }
-#endif
   return 1;
   }
 
@@ -1034,16 +912,6 @@ long GMPreferencesDialog::onCmdAccept(FXObject*,FXSelector,void*) {
     }
 
   GMPlayerManager::instance()->getPreferences().setKeyWords(keywords);
-
-#ifdef HAVE_XINE_LIB
-  if (check_audio_normalization->getCheck()) {
-    GMPlayerManager::instance()->getPlayer()->setVolumeNormalization(true);
-    }
-  else {
-    GMPlayerManager::instance()->getPlayer()->setVolumeNormalization(false);
-    }
-  GMPlayerManager::instance()->getPlayer()->setupGapless();
-#endif
 
   if (!(selected==current)) {
     GMIconTheme::instance()->load();
@@ -1678,21 +1546,21 @@ static void fancyfontname(FXFont * font,FXString & name) {
     }
 
   if (wgt && slt && wid)
-    name+=GMStringFormat(", %s %s %s, %d",wgt,wid,slt,size);
+    name+=FXString::value(", %s %s %s, %d",wgt,wid,slt,size);
   else if (wgt && slt)
-    name+=GMStringFormat(", %s %s, %d",wgt,slt,size);
+    name+=FXString::value(", %s %s, %d",wgt,slt,size);
   else if (wgt && wid)
-    name+=GMStringFormat(", %s %s, %d",wgt,wid,size);
+    name+=FXString::value(", %s %s, %d",wgt,wid,size);
   else if (wid && slt)
-    name+=GMStringFormat(", %s %s, %d",wid,slt,size);
+    name+=FXString::value(", %s %s, %d",wid,slt,size);
   else if (slt)
-    name+=GMStringFormat(", %s, %d",slt,size);
+    name+=FXString::value(", %s, %d",slt,size);
   else if (wgt)
-    name+=GMStringFormat(", %s, %d",wgt,size);
+    name+=FXString::value(", %s, %d",wgt,size);
   else if (wid)
-    name+=GMStringFormat(", %s, %d",wid,size);
+    name+=FXString::value(", %s, %d",wid,size);
   else
-    name+=GMStringFormat(", %d",size);
+    name+=FXString::value(", %d",size);
   }
 
 
@@ -1703,15 +1571,7 @@ long GMPreferencesDialog::onCmdChangeFont(FXObject*,FXSelector,void*){
   GMFontDialog dialog(this,tr("Select Normal Font"));
   FXFont * font = FXApp::instance()->getNormalFont();
   FXFontDesc fontdescription;
-#if FOXVERSION < FXVERSION(1,7,17)
-  font->getFontDesc(fontdescription);
-  fontdescription.size     = font->getActualSize();
-  fontdescription.weight   = font->getActualWeight();
-  fontdescription.setwidth = font->getActualSetWidth();
-  fontdescription.slant    = font->getActualSlant();
-#else
   fontdescription =  font->getActualFontDesc();
-#endif
   strncpy(fontdescription.face,font->getActualName().text(),sizeof(fontdescription.face));
   dialog.setFontDesc(fontdescription);
   if(dialog.execute(PLACEMENT_SCREEN)){

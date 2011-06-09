@@ -337,10 +337,10 @@ static FXString get_field(FXchar field,const GMTrack & track,FXTextCodec * codec
     case 'G': return convert(track.tags[0],codec,forbidden,opts); break;
     case 'w': return convert(track.composer,codec,forbidden,opts); break;
     case 'c': return convert(track.conductor,codec,forbidden,opts); break;
-    case 'N': return GMStringFormat("%.2d",GMTRACKNO(track.no)); break;
-    case 'n': return GMStringVal(GMTRACKNO(track.no));  break;
-    case 'd': return GMStringVal(GMDISCNO(track.no)); break;
-    case 'y': return GMStringVal(track.year); break;
+    case 'N': return FXString::value("%.2d",GMTRACKNO(track.no)); break;
+    case 'n': return FXString::value(GMTRACKNO(track.no));  break;
+    case 'd': return FXString::value(GMDISCNO(track.no)); break;
+    case 'y': return FXString::value(track.year); break;
 
     }
   return FXString::null;
@@ -554,11 +554,7 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
           case 'A' : if (options&OVERWRITE || track.album.empty()) track.album.adopt(field); break;
           case 'p' : if (options&OVERWRITE || track.artist.empty()) track.artist.adopt(field); break;
           case 'n' :
-#if FOXVERSION >= FXVERSION(1,7,12)
           case 'N' : if (options&OVERWRITE) track.no = field.toInt(); break;
-#else
-          case 'N' : if (options&OVERWRITE) track.no = FXIntVal(field); break;
-#endif
           }
         //fxmessage("%%%c=\"%s\"\n",item,field.text());
         beg=end+1;

@@ -30,11 +30,7 @@
 class GMPlayList;
 class GMTrackList;
 class GMTrackView;
-#ifdef HAVE_XINE_LIB
-class GMPlayer;
-#else
 class GMAudioPlayer;
-#endif
 class GMWindow;
 class GMRemote;
 class GMTrackDatabase;
@@ -42,8 +38,6 @@ class GMPlayer;
 class GMPlayList;
 class GMSource;
 class GMSourceView;
-class GMFetch;
-class GMEQDialog;
 #ifdef HAVE_DBUS
 class GMNotifyDaemon;
 class GMAppStatusNotify;
@@ -76,6 +70,14 @@ public:
 
 */
 
+
+enum {
+  TRACK_CURRENT = 0,
+  TRACK_NEXT,
+  TRACK_PREVIOUS
+  };
+
+
 class GMPlayerManager : public FXObject {
 FXDECLARE(GMPlayerManager)
 private:
@@ -85,11 +87,7 @@ protected:
   GMSourceList  sources;
   FXString      fifofilename;
   FXFile        fifo;
-#if FOXVERSION < FXVERSION(1,7,0)
-  FXuint        count_track_remaining;
-#else
   FXlong        count_track_remaining;
-#endif
   GMTaskManager        * taskmanager;
 protected:
 
@@ -104,11 +102,7 @@ protected:
 #endif
   FXApp 	 				     * application;
   GMWindow 				     * mainwindow;
-#ifdef HAVE_XINE_LIB
-  GMPlayer    		     * player;
-#else
   GMAudioPlayer        * player;
-#endif
   GMTrayIcon           * trayicon;
   GMAudioScrobbler     * scrobbler;
 #ifdef HAVE_LIRC
@@ -156,18 +150,13 @@ public:
     };
 public:
   long onUpdTrackDisplay(FXObject*,FXSelector,void*);
-#ifdef HAVE_XINE_LIB
-  long onUpdEvents(FXObject*,FXSelector,void*);
-#endif
   long onCmdCountTrack(FXObject*,FXSelector,void*);
   long onCmdSleepTimer(FXObject*,FXSelector,void*);
   long onDDEMessage(FXObject*,FXSelector,void*);
-  long onCmdDownloadComplete(FXObject*,FXSelector,void*);
   long onCmdCloseRemote(FXObject*,FXSelector,void*);
   long onCmdCloseWindow(FXObject*,FXSelector,void*);
   long onPlayNotify(FXObject*,FXSelector,void*);
   long onCmdChild(FXObject*,FXSelector,void*);
-  long onCmdEqualizer(FXObject*,FXSelector,void*);
   long onScrobblerError(FXObject*,FXSelector,void*);
   long onScrobblerOpen(FXObject*,FXSelector,void*);
 
@@ -191,6 +180,7 @@ public:
   long onPlayerEOS(FXObject*,FXSelector,void*);
   long onPlayerTime(FXObject*,FXSelector,void*);
   long onPlayerState(FXObject*,FXSelector,void*);
+  long onPlayerMeta(FXObject*,FXSelector,void*);
 //#endif
 protected:
   FXint  init_fifo(int & argc,char**argv);
@@ -251,11 +241,7 @@ public:
 
   FXuint getMainWindowId() const;
 
-#ifdef HAVE_XINE_LIB
-  GMPlayer * getPlayer() const { return player; }
-#else
   GMAudioPlayer * getPlayer() const { return player; }
-#endif
 
   GMPreferences & getPreferences() { return preferences; }
 
@@ -292,13 +278,14 @@ public:
 
   FXbool can_stop() const;
 
-  void play();
 
-  FXbool play(const FXString & mrl,FXbool flush=true);
-  FXbool play(const FXStringList & mrl);
+  /// Play
+///  FXbool play(const FXString & mrl,FXbool flush=true);
 
-  void download(const FXString & mrl);
 
+
+
+  void playItem(FXuint whence);
   void open(const FXString & mrl);
 
 
@@ -308,9 +295,6 @@ public:
 
   void stop(FXbool closedevice=false);
 
-  void next();
-
-  void prev();
 
   void volume(FXint l);
   FXint volume() const;
@@ -329,7 +313,7 @@ public:
 
   void update_time_display();
 
-  void update_replay_gain();
+//  void update_replay_gain();
 
   void update_album_covers();
 
@@ -346,15 +330,9 @@ public:
   FXint get_next() const;
 
   /// Set Sleep Timer - 0 turns the timer off
-#if FOXVERSION < FXVERSION(1,7,0)
-  void setSleepTimer(FXuint ms);
-#else
   void setSleepTimer(FXlong ns);
-#endif
 
   FXbool hasSleepTimer();
-
-  void handle_async_events();
 
   void show_message(const FXchar * title,const FXchar * msg);
 

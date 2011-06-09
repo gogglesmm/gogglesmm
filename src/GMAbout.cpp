@@ -20,11 +20,8 @@
 #include "GMAbout.h"
 #include "icons.h"
 
-#ifdef HAVE_XINE_LIB
-#include <xine.h>
-#else
 #include <ap.h>
-#endif
+
 #ifdef HAVE_DBUS
 #include "GMDBus.h"
 #endif
@@ -60,22 +57,13 @@ void GMAboutDialog::setup(){
   logo = new FXPNGIcon(getApp(),about_png);
   logo->blend(FXRGB(255,255,255));
 
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getApp()->getNormalFont()->getFontDesc(fontdescription);
-#else
   FXFontDesc fontdescription = getApp()->getNormalFont()->getFontDesc();
-#endif
   fontdescription.size  += 10;
   fontdescription.weight = FXFont::Bold;
   titlefont = new FXFont(getApp(),fontdescription);
   titlefont->create();
 
-#if FOXVERSION < FXVERSION(1,7,17)
-  getApp()->getNormalFont()->getFontDesc(fontdescription);
-#else
   fontdescription = getApp()->getNormalFont()->getFontDesc();
-#endif
   fontdescription.size -= 10;
   licensefont  = new FXFont(getApp(),fontdescription);
   licensefont->create();
@@ -111,26 +99,13 @@ void GMAboutDialog::setup(){
   FXString libraries;
 
   XML_Expat_Version expatversion = XML_ExpatVersionInfo();
-#ifdef HAVE_XINE_LIB
-  FXint xineversion[3];
-  xine_get_version(&xineversion[0],&xineversion[1],&xineversion[2]);
-  
-
-#ifdef HAVE_DBUS
-  libraries.format("Build with FOX %d.%d.%d, Xine %d.%d.%d,\nSQLite %s, DBus %s, Expat %d.%d.%d\nand Taglib",fxversion[0],fxversion[1],fxversion[2],xineversion[0],xineversion[1],xineversion[2],sqlite3_libversion(),GMDBus::dbusversion().text(),expatversion.major,expatversion.minor,expatversion.micro);
-#else
-  libraries.format("Build with FOX %d.%d.%d, Xine %d.%d.%d,\nSQLite %s, Expat %d.%d.%d and Taglib",fxversion[0],fxversion[1],fxversion[2],xineversion[0],xineversion[1],xineversion[2],sqlite3_libversion(),expatversion.major,expatversion.minor,expatversion.micro);
-#endif
-
-#else
   FXuchar ap_major,ap_minor;
   ap_get_version(ap_major,ap_minor);
 
 #ifdef HAVE_DBUS
-  libraries.format("Build with FOX %d.%d.%d, libgap %d.%d\nSQLite %s, DBus %s, Expat %d.%d.%d\nand Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion(),GMDBus::dbusversion().text(),expatversion.major,expatversion.minor,expatversion.micro);
+  libraries.format("Build with FOX %d.%d.%d, libgaplayer %d.%d\nSQLite %s, DBus %s, Expat %d.%d.%d\nand Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion(),GMDBus::dbusversion().text(),expatversion.major,expatversion.minor,expatversion.micro);
 #else
-  libraries.format("Build with FOX %d.%d.%d, libgap %d.%d\nSQLite %s, Expat %d.%d.%d and Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion(),expatversion.major,expatversion.minor,expatversion.micro);
-#endif
+  libraries.format("Build with FOX %d.%d.%d, libgaplayer %d.%d\nSQLite %s, Expat %d.%d.%d and Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion(),expatversion.major,expatversion.minor,expatversion.micro);
 #endif
 
 #if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)

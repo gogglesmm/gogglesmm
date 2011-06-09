@@ -122,7 +122,7 @@ void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint y
     if (year && list->getListStyle()&ALBUMLIST_YEAR) {
       FXint len=basefont->getTextWidth(title.text(),title.length());
       dc.setFont(tailfont);
-      dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,GMStringFormat("(%d)",year));
+      dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%d)",year));
       }
     }
   }
@@ -403,59 +403,13 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
 
   listbasefont=getApp()->getNormalFont();
   listheadfont=getApp()->getNormalFont();
-  listtailfont=getApp()->getNormalFont();
-  coverheadfont=getApp()->getNormalFont();
-  coverbasefont=getApp()->getNormalFont();
+  listtailfont=((GMApp*)(getApp()))->getListTailFont();
+  coverheadfont=((GMApp*)(getApp()))->getCoverHeadFont();
+  coverbasefont=((GMApp*)(getApp()))->getCoverBaseFont();
 
   altbackColor=GMPlayerManager::instance()->getPreferences().gui_row_color;
 
-#if 0
 
-{
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getApp()->getNormalFont()->getFontDesc(fontdescription);
-#else
-  FXFontDesc fontdescription = getApp()->getNormalFont()->getFontDesc();
-#endif
-// fontdescription.size += 50;
-//  fontdescription.setwidth = FXFont::SemiCondensed;
-
-  font=new FXFont(getApp(),fontdescription);
-}
-
-{
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getApp()->getNormalFont()->getFontDesc(fontdescription);
-#else
-  FXFontDesc fontdescription = getApp()->getNormalFont()->getFontDesc();
-#endif
-//  fontdescription.size -= 10;
-//  fontdescription.setwidth = FXFont::SemiCondensed;
-  fontdescription.weight = FXFont::Bold;
-
-  captionfont=new FXFont(getApp(),fontdescription);
-}
-
-#endif
-
-#if 0
-{
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getApp()->getNormalFont()->getFontDesc(fontdescription);
-#else
-  FXFontDesc fontdescription = getApp()->getNormalFont()->getFontDesc();
-#endif
-  fontdescription.size    -= 30;
-  fontdescription.setwidth = FXFont::SemiCondensed;
-  fontdescription.slant    = FXFont::Italic;
-  fontdescription.weight   = FXFont::Light;
-
-  listtailfont=new FXFont(getApp(),fontdescription);
-}
-#endif
 
 
   }
@@ -486,11 +440,7 @@ void GMAlbumList::detach(){
 
 
 // If window can have focus
-#if FOXVERSION < FXVERSION(1,7,0)
-bool GMAlbumList::canFocus() const { return true; }
-#else
 FXbool GMAlbumList::canFocus() const { return true; }
-#endif
 
 // Into focus chain
 void GMAlbumList::setFocus(){
@@ -514,11 +464,6 @@ void GMAlbumList::recalc(){
   }
 
 
-#if FOXVERSION < FXVERSION(1,7,0)
-FXint GMAlbumList::getViewportHeight(){
-  return height;
-  }
-#else
 
 // Return visible area y position
 FXint GMAlbumList::getVisibleY() const {
@@ -530,8 +475,6 @@ FXint GMAlbumList::getVisibleY() const {
 FXint GMAlbumList::getVisibleHeight() const {
   return height-horizontal->getHeight();
   }
-
-#endif
 
 // Determine number of columns and number of rows
 void GMAlbumList::getrowscols(FXint& nr,FXint& nc,FXint w,FXint h) const {
@@ -615,13 +558,8 @@ FXint GMAlbumList::getContentHeight(){
 
 // Recalculate layout
 void GMAlbumList::layout(){
-#if FOXVERSION < FXVERSION(1,7,0)
-  // Update scroll bars
-  FXScrollArea::layout();
-#else
   // Place scroll bars
   placeScrollBars(width,height);
-#endif
 
   // Set line size
   vertical->setLine(itemHeight);
@@ -704,19 +642,11 @@ FXbool GMAlbumList::isItemVisible(FXint index) const {
       x=pos_x+itemWidth*(index/nrows);
       y=pos_y+itemHeight*(index%nrows);
       }
-#if FOXVERSION < FXVERSION(1,7,0)
-    if(0<x+itemWidth && x<viewport_w && 0<y+itemHeight && y<viewport_h) vis=true;
-#else
     if(0<x+itemWidth && x<getVisibleWidth() && 0<y+itemHeight && y<getVisibleHeight()) vis=true;
-#endif
     }
   else{
     y=pos_y+index*itemHeight;
-#if FOXVERSION < FXVERSION(1,7,0)
-    if(0<y+itemHeight && y<viewport_h) vis=true;
-#else
     if(0<y+itemHeight && y<getVisibleHeight()) vis=true;
-#endif
     }
   return vis;
   }
@@ -739,13 +669,8 @@ void GMAlbumList::makeItemVisible(FXint index){
       px=pos_x;
       py=pos_y;
 
-#if FOXVERSION < FXVERSION(1,7,0)
-      vw=viewport_w;
-      vh=viewport_h;
-#else
       vw=getVisibleWidth();
       vh=getVisibleHeight();
-#endif
 
       // Showing icon view
       if(options&(ALBUMLIST_BROWSER)){
@@ -1278,11 +1203,7 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
 //      else
 //        dc.setFont(font);
 
-#if FOXVERSION < FXVERSION(1,7,0)
-      items[i]->drawList(this,dc,pos_x,y,FXMAX(itemWidth,viewport_w),h);
-#else
       items[i]->drawList(this,dc,pos_x,y,FXMAX(itemWidth,getVisibleWidth()),h);
-#endif
       }
     y+=h;
     }

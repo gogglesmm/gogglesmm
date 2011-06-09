@@ -1,0 +1,134 @@
+.TH gogglesmm 1 "03 August 2010"
+.SH NAME
+gogglesmm \- Goggles Music Manager
+.SH SYNOPSIS
+.B gogglesmm
+[options] [file]
+.SH INTRODUCTION
+Goggles Music Manager is a music collection manager and player. It supports gapless playback and features easy tag editing.
+.SH OPTIONS
+.I General Options
+.TP
+.B \-h, \-\-help
+Display list of options
+.TP
+.B \-v, \-\-version
+Display version information
+.LP
+.I Startup Options
+.TP
+.B \-\-tray
+Start minimized to tray
+.TP
+.B \-\-disable-opengl
+Disables opengl based features
+.TP
+.B \-\-xine-debug
+Output xine debug info to standard output
+.LP
+.I Playback Control
+.TP
+.B \-\-play
+Start playback
+.TP
+.B \-\-pause
+Pause playback
+.TP
+.B \-\-play\-pause
+Toggle pause / playback.
+.TP
+.B \-\-previous
+Play previous track
+.TP
+.B \-\-next
+Play next track
+.TP
+.B \-\-stop
+Stop playback
+.LP
+.I Misc Options
+.TP
+.B \-\-toggle-shown
+Show or Hide the main window
+.TP
+.B \-\-raise
+Try to raise the main window
+.TP
+.B \-\-now\-playing
+Show now playing notification
+.SH KEYBOARD SHORTCUTS
+.TP
+.B "Ctrl-N"
+Reset default sorting order in current view.
+.TP
+.B "Ctrl-R"
+Shuffle track list.
+.TP
+.B "Ctrl-B"
+Toggles browse mode on or off.
+.TP
+.B "Ctrl-G"
+Toggles Genre list in browse mode.
+.TP
+.B "Ctrl-Q"
+Quit Goggles Music Manager.
+.TP
+.B "Ctrl-O"
+Import files from given directory.
+.TP
+.B "Ctrl-J"
+Jump to playing song in track list.
+.TP
+.B "Ctrl-F" or "/"
+Find
+.TP
+.B "Ctrl-S"
+Show source browser
+.TP
+.B "Ctrl-P"
+Start / Pause playback.
+.TP
+.B "Ctrl-\"
+Stop playback.
+.TP
+.B "Ctrl-["
+Play previous track.
+.TP
+.B "Ctrl-]"
+Play next track.
+.TP
+.B "Ctrl-T"
+Toggle Repeat A-B.
+.TP
+.B "Ctrl-A"
+Select All in lists.
+.TP
+.B "Ctrl-W"
+Close Window
+.TP
+.B "F11" or "Ctrl-M"
+Toggle between mini player and browser.
+.TP
+.B "F12"
+Show Full Screen.
+.TP
+.B "F2"
+Edit selected track, album, artist or genre.
+.TP
+.B "Del"
+Delete selected track, album, artist or genre.
+.SH FILES
+.TP
+.I ~/.goggles/goggles.db
+Music Database
+.TP
+.I ~/.goggles/xineconf
+xine settings
+.TP
+.I ~/.foxrc/musicmanager
+settings
+.TP
+.I $(XDG_CACHE_HOME)/gogglesmm/icontheme.cache
+Icon theme cache
+.SH AUTHOR
+Sander Jansen <s.jansen@gmail.com>

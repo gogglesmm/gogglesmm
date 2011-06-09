@@ -22,54 +22,6 @@
 ********************************************************************************/
 #ifndef GMAUTOPTR_H
 #define GMAUTOPTR_H
-#if FOXVERSION < FXVERSION(1,7,0)
-
-namespace FX {
-
-
-/// Automatic pointer
-template<class TYPE> class FXAutoPtr {
-private:
-  TYPE* ptr;
-public:
-
-  /// Construct with optional pointer
-  FXAutoPtr(TYPE* p=NULL):ptr(p){ }
-
-  /// Copy constructor from an automatic pointer with compatible type
-  template<class T> FXAutoPtr(FXAutoPtr<T>& orig):ptr(orig.release()){ }
-
-  /// Assign from pointer
-  FXAutoPtr& operator=(TYPE *p){ ptr=p; return *this; }
-
-  /// Assign from an automatic pointer with compatible type
-  template<class T> FXAutoPtr& operator=(FXAutoPtr<T>& orig){ reset(orig.release()); return *this; }
-
-  /// Conversion operators
-  operator TYPE*() const { return ptr; }
-
-  /// Dereference operator
-  TYPE& operator*() const { return *ptr; }
-
-  /// Follow pointer operator
-  TYPE* operator->() const { return ptr; }
-
-  /// Release hold on the pointer
-  TYPE* release(){ TYPE* tmp=ptr; ptr=NULL; return tmp; }
-
-  /// Delete old object, replace by new, if any
-  void reset(TYPE* p=NULL){ if(p!=ptr){ delete ptr; ptr=p; } }
-
-  /// Destruction deletes pointer
-  ~FXAutoPtr(){ delete ptr; }
-  };
-
-}
-
-#else
-
-
-#endif
 
 namespace FX {
 

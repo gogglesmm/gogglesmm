@@ -229,11 +229,7 @@ void GMTrackList::detach(){
 
 
 // If window can have focus
-#if FOXVERSION < FXVERSION(1,7,0)
-bool GMTrackList::canFocus() const { return true; }
-#else
 FXbool GMTrackList::canFocus() const { return true; }
-#endif
 
 // Into focus chain
 void GMTrackList::setFocus(){
@@ -257,12 +253,6 @@ void GMTrackList::recalc(){
   }
 
 
-#if FOXVERSION < FXVERSION(1,7,0)
-FXint GMTrackList::getViewportHeight(){
-  return height-header->getDefaultHeight();
-  }
-#else
-
 // Return visible area y position
 FXint GMTrackList::getVisibleY() const {
   return header->getHeight();
@@ -273,24 +263,11 @@ FXint GMTrackList::getVisibleHeight() const {
   return height-header->getHeight()-horizontal->getHeight();
   }
 
-#endif
-
 
 // Move content
 void GMTrackList::moveContents(FXint x,FXint y){
-#if FOXVERSION < FXVERSION(1,7,0)
-  FXint dx=x-pos_x;
-  FXint dy=y-pos_y;
-  FXint top=0;
-  pos_x=x;
-  pos_y=y;
-  top=header->getDefaultHeight();
-  header->setPosition(x);
-  scroll(0,top,viewport_w,viewport_h,dx,dy);
-#else
   FXScrollArea::moveContents(x,y);
   header->setPosition(x);
-#endif
   }
 
 
@@ -317,28 +294,6 @@ FXint GMTrackList::getContentHeight(){
 
 // Recalculate layout
 void GMTrackList::layout(){
-#if FOXVERSION < FXVERSION(1,7,0)
-  // Update scroll bars
-  FXScrollArea::layout();
-
-  // In detail mode
-  header->position(0,0,viewport_w,header->getDefaultHeight());
-  header->show();
-
-  // Set line size
-  vertical->setLine(lineHeight);
-  horizontal->setLine(header->getTotalSize());
-
-  // We were supposed to make this item viewable
-  if(0<=viewable){
-    makeItemVisible(viewable);
-    }
-
-  // Force repaint
-  update();
-
-  flags&=~FLAG_DIRTY;
-#else
   FXint hh=header->getDefaultHeight();
 
   // Place scroll bars
@@ -361,8 +316,6 @@ void GMTrackList::layout(){
 
   // Clean
   flags&=~FLAG_DIRTY;
-#endif
-
   }
 
 
@@ -423,9 +376,9 @@ long GMTrackList::onCmdHeader(FXObject*,FXSelector,void*ptr){
       GMPlayerManager::instance()->getTrackView()->setSortMethod(data->type,(sortfunc==data->ascending));
     else
       GMPlayerManager::instance()->getTrackView()->setSortMethod(data->type);
-      
+
     if (sortfunc)
-      GMPlayerManager::instance()->getTrackView()->sortTracks();  
+      GMPlayerManager::instance()->getTrackView()->sortTracks();
     }
   /*
 
@@ -451,16 +404,6 @@ long GMTrackList::onUpdHeader(FXObject*,FXSelector,void*){
   for (FXint i=0;i<header->getNumItems();i++){
     data = getHeaderData(i);
     if (data && sortMethod==data->type) {
-#if FOXVERSION < FXVERSION(1,7,0)
-      if (sortfunc==data->ascending)
-        header->setArrowDir(i,FALSE);
-      else
-        header->setArrowDir(i,TRUE);
-      }
-    else {
-      header->setArrowDir(i,MAYBE);
-      }
-#else
       if (sortfunc==data->ascending)
         header->setArrowDir(i,FXHeaderItem::ARROW_DOWN);
       else
@@ -469,7 +412,6 @@ long GMTrackList::onUpdHeader(FXObject*,FXSelector,void*){
     else {
       header->setArrowDir(i,FXHeaderItem::ARROW_NONE);
       }
-#endif
     }
   return 1;
   }
@@ -589,11 +531,7 @@ FXbool GMTrackList::isItemVisible(FXint index) const {
   if(index<0 || items.no()<=index){ fxerror("%s::isItemVisible: index out of range.\n",getClassName()); }
   hh=header->getDefaultHeight();
   y=pos_y+hh+index*lineHeight;
-#if FOXVERSION < FXVERSION(1,7,0)
-  if(hh<y+lineHeight && y<viewport_h) vis=true;
-#else
   if(hh<y+lineHeight && y<getVisibleHeight()) vis=true;
-#endif
   return vis;
   }
 
@@ -614,13 +552,8 @@ void GMTrackList::makeItemVisible(FXint index){
       px=pos_x;
       py=pos_y;
 
-#if FOXVERSION < FXVERSION(1,7,0)
-      vw=viewport_w;
-      vh=viewport_h;
-#else
       vw=getVisibleWidth();
       vh=getVisibleHeight();
-#endif
       hh=header->getDefaultHeight();
       y=hh+index*lineHeight;
       if(py+y+lineHeight >= vh+hh) py=hh+vh-y-lineHeight;
@@ -1005,11 +938,7 @@ long GMTrackList::onPaint(FXObject*,FXSelector,void* ptr){
   if(rlo<0) rlo=0;
   if(rhi>=items.no()) rhi=items.no()-1;
 
-#if FOXVERSION < FXVERSION(1,7,0)
-  vw = getViewportWidth();
-#else
   vw = getVisibleWidth();
-#endif
 
   // Repaint the items
   y=pos_y+rlo*lineHeight+header->getDefaultHeight();
@@ -1089,17 +1018,9 @@ void GMTrackList::draw(FXDC& dc,FXEvent *,FXint index,FXint x,FXint y,FXint w,FX
     dc.setForeground(getTextColor());
 
   used=iw+DETAIL_TEXT_SPACING+SIDE_SPACING/2;
-#if FOXVERSION < FXVERSION(1,7,0)
-  for(hi=0;hi<header->getNumItems()&& xx<=w; hi++){
-#else
   for(hi=0;hi<header->getNumItems()&& xx<=w+getVisibleX(); hi++){
-#endif
     space=header->getItemSize(hi)-used;
-#if FOXVERSION < FXVERSION(1,7,0)
-    if (xx+space>=0){
-#else
     if (xx+space>=getVisibleX()){
-#endif
       type=getHeaderType(hi);
       textptr=items[index]->getColumnData(type,text,justify,max);
 

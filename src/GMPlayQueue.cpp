@@ -61,7 +61,7 @@ FXint GMPlayQueue::getNumTracks() const {
 
 
 FXString GMPlayQueue::getName() const {
-  return GMStringFormat("Play Queue (%d)",ntracks);
+  return FXString::value("Play Queue (%d)",ntracks);
   }
 
 FXbool GMPlayQueue::source_context_menu(FXMenuPane * pane) {

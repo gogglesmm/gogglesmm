@@ -8,7 +8,6 @@
 #---------------------------
 DEBUG=0
 DBUS=1
-XINE=1
 HELP=0
 NLS=1
 LIRC=0
@@ -64,23 +63,16 @@ for arg in $@; do
     --without-dbus)
       DBUS=0
       ;;
-    --without-xine)
-      XINE=0
-      ;;
     --prefix=*)
       PREFIX=${arg#*=}
       ;;
     --gap-prefix=*)
       GAP_PREFIX=${arg#*=}
       add_package_path $GAP_PREFIX
-      XINE=0
       ;;
     --fox-prefix=*)
       FOX_PREFIX=${arg#*=}
       add_package_path $FOX_PREFIX
-      ;;
-    --xine-prefix=*)
-      XINE_PREFIX=${arg#*=}
       ;;
     --sqlite-prefix=*)
       SQLITE_PREFIX=${arg#*=}
@@ -114,12 +106,9 @@ if [ $HELP -eq 1 ] ; then
   echo "   --enable-debug                  Compile with debug information"
   echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use. (gcrypt)"
   echo "   --without-dbus                  Turn off DBus Support"
-  echo "   --without-xine                  Use libgap backend instead of xinelib"
-  echo "   --without-new-remote            Disable new remote and use old mini player."
   echo "   --prefix=<p>                	   Installation prefix (/usr)"
   echo "   --fox-prefix=<p>                fox prefix path"
   echo "   --gap-prefix=<p>                gap prefix path"
-  echo "   --xine-prefix=<p>               xinelib prefix path"
   echo "   --taglib-prefix=<p>             tagLib prefix path"
   echo "   --sqlite-prefix=<p>             sqlite prefix path"
   echo "   --dbus-prefix=<p>               dbus prefix path"
@@ -168,19 +157,13 @@ echo "Goggles Music Manager:"
 
 # Libraries
 #------------------------
-if [ $XINE -eq 0 ] ; then
-  add_required_package "fox >= 1.7" "fox"
-  check_reswrap
-  check_foxversion
-  add_required_package "libgaplayer-0 >= 0.1" "gap"
-else
-  add_required_package "fox >= 1.6" "fox"
-  check_reswrap
-  check_foxversion
-fi
+add_required_package "fox17 >= 1.7.26" "fox"
+check_reswrap
+check_foxversion
 
+add_required_package "libgaplayer-0 >= 0.1" "gap"
 add_required_package "sqlite3 >= 3.6.3" "sqlite"
-add_required_package "libcurl >= 7.19" "curl"
+#add_required_package "libcurl >= 7.19" "curl"
 add_required_package "taglib >= 1.6.1" "taglib"
 
 # DBus is optional
@@ -210,35 +193,6 @@ if [ -n "$PKG_LDFLAGS"  ] ; then LIBS="$LIBS $PKG_LDFLAGS"; fi
 if [ -n "$PKG_LIBS"     ] ; then LIBS="$LIBS $PKG_LIBS"; fi
 if [ -n "$PKG_CFLAGS"   ] ; then GEN_CFLAGS="$GEN_CFLAGS $PKG_CFLAGS"; fi
 if [ -n "$PKG_CPPFLAGS" ] ; then INCFLAGS="$INCFLAGS $PKG_CPPFLAGS"; fi
-
-if [ $XINE -eq 1 ] ; then
-  XINE_MAJOR=1
-  XINE_MINOR=1
-  XINE_LEVEL=16
-  if [ -n "$XINE_PREFIX" ] ; then
-    check_in_prefix "XINE" $XINE_PREFIX "xine-config" $XINE_MAJOR $XINE_MINOR $XINE_LEVEL
-    if [ $? -eq 0 ] ; then
-      echo " Unable to find a compatible XINE library installation. Please make"
-      echo " sure the correct version is installed including the header files."
-      echo " You can use the \"--xine-prefix\" option to search in an"
-      echo " alternative installation directory."
-      exit -1
-    fi
-  else
-    check_in_prefix "XINE" "/usr" "xine-config" $XINE_MAJOR $XINE_MINOR $XINE_LEVEL
-    if [ $? -eq 0 ] ; then
-      check_in_prefix "XINE" "/usr/local" "xine-config" $XINE_MAJOR $XINE_MINOR $XINE_LEVEL
-      if [ $? -eq 0 ] ; then
-          echo " Unable to find a compatible XINE library installation. Please make"
-          echo " sure the correct version is installed including the header files."
-          echo " You can use the \"--xine-prefix\" option to search in an"
-          echo " alternative installation directory."
-          exit -1
-      fi
-    fi
-  fi
-  add_config "xine_lib"
-fi
 
 . build/byteorderdetect
 
@@ -297,11 +251,6 @@ echo "OPTIONS=$OPTIONS"                >> config.make
 # Summary
 #-------------------------
 echo "Features:"
-if [ $XINE -eq 0 ] ; then
-  echo "    Audio Player  => libgap"
-else
-  echo "    Audio Player  => xinelib"
-fi
 
 if [ "$MD5" != "internal" ] ; then
   echo "    MD5           => libgcrypt"

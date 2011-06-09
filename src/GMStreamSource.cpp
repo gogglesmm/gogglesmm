@@ -90,7 +90,7 @@ FXString GMStreamSource::getTrackFilename(FXint id) const{
   FXString query;
   GMQuery q;
   try {
-    query="SELECT url FROM streams WHERE id == " + GMStringVal(id) + ";";
+    query="SELECT url FROM streams WHERE id == " + FXString::value(id) + ";";
     q = db->compile(query);
     q.row();
     url = q.get(0);

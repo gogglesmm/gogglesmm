@@ -182,12 +182,7 @@ long GMList::onPaint(FXObject*,FXSelector,void* ptr){
         dc.setFont(thickfont);
       else
         dc.setFont(font);
-
-#if FOXVERSION < FXVERSION(1,7,0)
-      ((GMListItem*)items[i])->draw(this,dc,pos_x,y,FXMAX(listWidth,viewport_w),h);
-#else
       ((GMListItem*)items[i])->draw(this,dc,pos_x,y,FXMAX(listWidth,getVisibleWidth()),h);
-#endif
       }
     y+=h;
     }

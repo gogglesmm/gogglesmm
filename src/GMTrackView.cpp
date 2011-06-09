@@ -253,11 +253,7 @@ GMTrackView::GMTrackView() {
 GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0) , source(NULL) {
   GMScrollFrame * sunkenframe;
 
-#if FOXVERSION < FXVERSION(1,7,0)
-  shuffle_seed = (FXuint)FXSystem::now();
-#else
   shuffle_seed = (FXuint)FXThread::time();
-#endif
 
   filtermask=FILTER_DEFAULT;
 
@@ -392,21 +388,21 @@ FXbool GMTrackView::focusNext() {
   if (browsersplit->getExpanded()==SHOWBROWSER) {
     if (taglistframe->shown() && taglist->hasFocus()){
       artistlist->setFocus();
-      artistlist->makeItemVisible(artistlist->getCurrentItem());      
+      artistlist->makeItemVisible(artistlist->getCurrentItem());
       }
     else if (artistlist->hasFocus()) {
       albumlist->setFocus();
-      albumlist->makeItemVisible(albumlist->getCurrentItem());      
+      albumlist->makeItemVisible(albumlist->getCurrentItem());
       }
     else if (albumlist->hasFocus()){
       tracklist->setFocus();
-      tracklist->makeItemVisible(tracklist->getCurrentItem());      
+      tracklist->makeItemVisible(tracklist->getCurrentItem());
       }
     else {
       FXbool gotfocus = hasFocus();
       if (taglistframe->shown()) {
         taglist->setFocus();
-        taglist->makeItemVisible(taglist->getCurrentItem());              
+        taglist->makeItemVisible(taglist->getCurrentItem());
         }
       else {
         artistlist->setFocus();
@@ -418,7 +414,7 @@ FXbool GMTrackView::focusNext() {
   else {
     if (!tracklist->hasFocus()) {
       tracklist->setFocus();
-      tracklist->makeItemVisible(tracklist->getCurrentItem());      
+      tracklist->makeItemVisible(tracklist->getCurrentItem());
       return true;
       }
     else {
@@ -442,12 +438,7 @@ void GMTrackView::init_track_context_menu(FXMenuPane * pane,FXbool selected){
 
 
 void GMTrackView::updateFont() {
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getApp()->getNormalFont()->getFontDesc(fontdescription);
-#else
   FXFontDesc fontdescription = getApp()->getNormalFont()->getFontDesc();
-#endif
   fontdescription.slant  = FXFont::Italic;
   fontdescription.weight = FXFont::Bold;
   //fontdescription.size  -= 10;
@@ -782,7 +773,7 @@ void GMTrackView::saveSelection(GMList * list,const char * key,const FXString & 
   FXString value;
   for (FXint i=0;i<list->getNumItems();i++){
     if (list->isItemSelected(i))
-      value+=GMStringVal(i)+";";
+      value+=FXString::value(i)+";";
     }
   getApp()->reg().writeStringEntry(section.text(),key,value.text());
   }
@@ -792,7 +783,7 @@ void GMTrackView::saveSelection(GMAlbumList * list,const char * key,const FXStri
   FXString value;
   for (FXint i=0;i<list->getNumItems();i++){
     if (list->isItemSelected(i))
-      value+=GMStringVal(i)+";";
+      value+=FXString::value(i)+";";
     }
   getApp()->reg().writeStringEntry(section.text(),key,value.text());
   }
@@ -806,11 +797,7 @@ void GMTrackView::initSelection(GMList * list,const FXchar * key,const FXString 
     list->killSelection(false);
     part=view.section(';',i);
     while(!part.empty()){
-#if FOXVERSION >= FXVERSION(1,7,12)
       x = part.toInt();
-#else
-      x = FXIntVal(part);
-#endif
       if (x>=0 && x<list->getNumItems()){
         nselected++;
         list->selectItem(x);
@@ -833,11 +820,7 @@ void GMTrackView::initSelection(GMAlbumList * list,const FXchar * key,const FXSt
     list->killSelection(false);
     part=view.section(';',i);
     while(!part.empty()){
-#if FOXVERSION >= FXVERSION(1,7,12)
       x = part.toInt();
-#else
-      x = FXIntVal(part);
-#endif
       if (x>=0 && x<list->getNumItems()){
         nselected++;
         list->selectItem(x);
@@ -949,7 +932,7 @@ FXbool GMTrackView::listTags() {
 
     taglist->sortItems();
     if (taglist->getNumItems()>1)
-      taglist->prependItem(GMStringFormat(fxtrformat("All %d Tags"),taglist->getNumItems()),GMIconTheme::instance()->icon_genre,(void*)(FXival)-1);
+      taglist->prependItem(FXString::value(fxtrformat("All %d Tags"),taglist->getNumItems()),GMIconTheme::instance()->icon_genre,(void*)(FXival)-1);
     else
       taglist->prependItem(tr("All Tags"),GMIconTheme::instance()->icon_genre,(void*)(FXival)-1);
 
@@ -972,7 +955,7 @@ FXbool GMTrackView::listArtists(){
 
     artistlist->sortItems();
     if (artistlist->getNumItems()>1) {
-      artistlist->prependItem(GMStringFormat(fxtrformat("All %d Artists"),artistlist->getNumItems()),GMIconTheme::instance()->icon_artist,(void*)(FXival)-1);
+      artistlist->prependItem(FXString::value(fxtrformat("All %d Artists"),artistlist->getNumItems()),GMIconTheme::instance()->icon_artist,(void*)(FXival)-1);
       }
 
     if (GMPlayerManager::instance()->playing() && GMPlayerManager::instance()->getSource()) {
@@ -1005,7 +988,7 @@ FXbool GMTrackView::listAlbums(){
     albumlist->sortItems();
 
      if (albumlist->getNumItems()>1){
-      albumlist->prependItem(new GMAlbumListItem(GMStringFormat(fxtrformat("All %d Albums"),albumlist->getNumItems()),GMStringFormat(fxtrformat("All %d Albums"),albumlist->getNumItems()),0,-1));
+      albumlist->prependItem(new GMAlbumListItem(FXString::value(fxtrformat("All %d Albums"),albumlist->getNumItems()),FXString::value(fxtrformat("All %d Albums"),albumlist->getNumItems()),0,-1));
       }
 
     if (GMPlayerManager::instance()->playing() && GMPlayerManager::instance()->getSource()) {
@@ -1229,18 +1212,10 @@ void GMTrackView::loadSettings(const FXString & key) {
       default: filtermask=FILTER_DEFAULT; break;
       }
     getApp()->reg().deleteEntry(key.text(),"filter-mode");
-#if FOXVERSION < FXVERSION(1,7,0)
-    getApp()->reg().writeUnsignedEntry(key.text(),"filter-mask",filtermask);
-#else
     getApp()->reg().writeUIntEntry(key.text(),"filter-mask",filtermask);
-#endif
     }
   else {
-#if FOXVERSION < FXVERSION(1,7,0)
-    filtermask = getApp()->reg().readUnsignedEntry(key.text(),"filter-mask",FILTER_DEFAULT);
-#else
     filtermask = getApp()->reg().readUIntEntry(key.text(),"filter-mask",FILTER_DEFAULT);
-#endif
     }
 
   if (source) source->setFilter(filterfield->getText().trim().simplify(),filtermask);
@@ -1268,11 +1243,7 @@ void GMTrackView::loadTrackSettings(const FXString & key) {
   FXint sort = getApp()->reg().readIntEntry(key.text(),FXString(browseprefix+"-sort-column").text(),source->getSortColumn(browsersplit->getExpanded()==SHOWBROWSER));
   FXbool reverse = getApp()->reg().readBoolEntry(key.text(),FXString(browseprefix+"-sort-reverse").text(),false);
 
-#if FOXVERSION < FXVERSION(1,7,0)
-  sort_seed = getApp()->reg().readUnsignedEntry(key.text(),FXString(browseprefix+"-sort-seed").text(),(FXuint)FXSystem::now());
-#else
   sort_seed = getApp()->reg().readUIntEntry(key.text(),FXString(browseprefix+"-sort-seed").text(),(FXuint)FXThread::time());
-#endif
 
   setSortMethod(sort,reverse);
   }
@@ -1302,31 +1273,18 @@ void GMTrackView::saveSettings(const FXString & key) const {
   getApp()->reg().writeIntEntry(key.text(),"browser-track-split",browsersplit->getVSplit());
   getApp()->reg().writeIntEntry(key.text(),"artist-album-split",browsersplit->getHSplit());
   getApp()->reg().writeIntEntry(key.text(),"genre-artist-split",tagsplit->getHSplit());
-#if FOXVERSION < FXVERSION(1,7,0)
-  getApp()->reg().writeIntEntry(key.text(),"track-list-posx",tracklist->getXPosition());
-  getApp()->reg().writeIntEntry(key.text(),"track-list-posy",tracklist->getYPosition());
-#else
   getApp()->reg().writeIntEntry(key.text(),"track-list-posx",tracklist->getContentX());
   getApp()->reg().writeIntEntry(key.text(),"track-list-posy",tracklist->getContentY());
-#endif
 
   getApp()->reg().writeBoolEntry(key.text(),"filter",filterframe->shown());
 
   if (filterframe->shown() && !filterfield->getText().empty()) {
     getApp()->reg().writeStringEntry(key.text(),"filter-text",filterfield->getText().text());
-#if FOXVERSION < FXVERSION(1,7,0)
-    getApp()->reg().writeUnsignedEntry(key.text(),"filter-mask",filtermask);
-#else
     getApp()->reg().writeUIntEntry(key.text(),"filter-mask",filtermask);
-#endif
     }
   else{
     getApp()->reg().writeStringEntry(key.text(),"filter-text","");
-#if FOXVERSION < FXVERSION(1,7,0)
-    getApp()->reg().writeUnsignedEntry(key.text(),"filter-mask",FILTER_DEFAULT);
-#else
     getApp()->reg().writeUIntEntry(key.text(),"filter-mask",FILTER_DEFAULT);
-#endif
     }
 
   saveTrackSettings(key);
@@ -1345,11 +1303,7 @@ void GMTrackView::saveTrackSettings(const FXString & key) const {
     }
   getApp()->reg().writeIntEntry(key.text(),FXString(browseprefix+"-sort-column").text(),tracklist->getSortMethod());
   getApp()->reg().writeBoolEntry(key.text(),FXString(browseprefix+"-sort-reverse").text(),getSortReverse());
-#if FOXVERSION < FXVERSION(1,7,0)
-  getApp()->reg().writeUnsignedEntry(key.text(),FXString(browseprefix+"-sort-seed").text(),sort_seed);
-#else
   getApp()->reg().writeUIntEntry(key.text(),FXString(browseprefix+"-sort-seed").text(),sort_seed);
-#endif
   }
 
 
@@ -1407,7 +1361,7 @@ long GMTrackView::onUpdSort(FXObject*sender,FXSelector sel,void*){
     FXASSERT(cmd);
     FXint no=FXSELID(sel)-ID_SORT_FIRST;
     if (no<columns.no()) {
-      cmd->setText(GMStringFormat(fxtrformat("By %s"),fxtr(columns[no].name.text())));
+      cmd->setText(FXString::value(fxtrformat("By %s"),fxtr(columns[no].name.text())));
       if (columns[no].type==source->getSortColumn(browsersplit->getExpanded()==SHOWBROWSER))
         cmd->setAccelText("Ctrl-N");
       else
@@ -1482,11 +1436,7 @@ long GMTrackView::onUpdSortBrowse(FXObject*sender,FXSelector,void*){
 
 long GMTrackView::onCmdSortShuffle(FXObject*,FXSelector,void*){
   setSortMethod(HEADER_SHUFFLE);
-#if FOXVERSION < FXVERSION(1,7,0)
-  sort_seed = (FXuint)FXSystem::now();
-#else
   sort_seed = (FXuint)FXThread::time();
-#endif
   sortTracks();
   return 1;
   }
@@ -1605,7 +1555,7 @@ long GMTrackView::onCmdArtistSelected(FXObject*,FXSelector sel,void*ptr){
       GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
       }
     if (GMPlayerManager::instance()->can_play())
-      GMPlayerManager::instance()->play();
+      GMPlayerManager::instance()->playItem(TRACK_CURRENT);
     }
   else if ( FXSELTYPE(sel)==SEL_COMMAND ) {
     if (artist_selectionchanged>=0) {
@@ -1656,7 +1606,7 @@ long GMTrackView::onCmdAlbumSelected(FXObject*,FXSelector sel,void*ptr){
       GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
       }
     if (GMPlayerManager::instance()->can_play())
-      GMPlayerManager::instance()->play();
+      GMPlayerManager::instance()->playItem(TRACK_CURRENT);
     }
   else if ( FXSELTYPE(sel)==SEL_COMMAND ) {
     if (album_selectionchanged>=0) {
@@ -1997,10 +1947,10 @@ long GMTrackView::onCmdPlayTrack(FXObject*,FXSelector,void*){
     tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
     GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
     if (GMPlayerManager::instance()->can_play())
-      GMPlayerManager::instance()->play();
+      GMPlayerManager::instance()->playItem(TRACK_CURRENT);
     }
   else {
-    GMPlayerManager::instance()->play();
+    GMPlayerManager::instance()->playItem(TRACK_CURRENT);
     tracklist->deselectItem(tracklist->getCurrentItem());
     }
 

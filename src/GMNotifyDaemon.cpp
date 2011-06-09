@@ -155,7 +155,7 @@ void GMNotifyDaemon::init() {
   }
 
 void GMNotifyDaemon::notify_track_change(const GMTrack & track,FXImage * cover){
-  FXString body = GMStringFormat(fxtrformat("%s\n%s (%d)"),track.artist.text(),track.album.text(),track.year);
+  FXString body = FXString::value(fxtrformat("%s\n%s (%d)"),track.artist.text(),track.album.text(),track.year);
   /// Dirty Hack. According to the spec, we shouldn't have to do this,
   /// but try finding a notification notifydaemon that actually implements it...
   /// http://www.galago-project.org/specs/notification/0.9/index.html

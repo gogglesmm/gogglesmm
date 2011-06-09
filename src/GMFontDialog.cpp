@@ -97,12 +97,7 @@ GMFontDialog::GMFontDialog(FXWindow* owner,const FXString& name,FXuint opts,FXin
   stylelist=new GMList(sunken,this,ID_STYLE,LAYOUT_FILL_Y|LAYOUT_FILL_X|LIST_BROWSESELECT);
   stylelist->setSortFunc(FXList::ascending);
 
-
-#if FOXVERSION < FXVERSION(1,7,17)
-  getApp()->getNormalFont()->getFontDesc(selected);
-#else
   selected = getApp()->getNormalFont()->getActualFontDesc();
-#endif
   selected.flags|=FXFont::Scalable;
   }
 
@@ -248,13 +243,13 @@ void GMFontDialog::listFontStyle(){
 
         FXuint style=FXRGB((FXuchar)ww,(FXuchar)sl,(FXuchar)wi);
         if (wgt && slt && wid)
-          stylelist->appendItem(GMStringFormat("%s %s %s",wgt,wid,slt),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(FXString::value("%s %s %s",wgt,wid,slt),NULL,(void*)(FXuval)style);
         else if (wgt && slt)
-          stylelist->appendItem(GMStringFormat("%s %s",wgt,slt),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(FXString::value("%s %s",wgt,slt),NULL,(void*)(FXuval)style);
         else if (wgt && wid)
-          stylelist->appendItem(GMStringFormat("%s %s",wgt,wid),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(FXString::value("%s %s",wgt,wid),NULL,(void*)(FXuval)style);
         else if (wid && slt)
-          stylelist->appendItem(GMStringFormat("%s %s",wid,slt),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(FXString::value("%s %s",wid,slt),NULL,(void*)(FXuval)style);
         else if (slt)
           stylelist->appendItem(tr(slt),NULL,(void*)(FXuval)style);
         else if (wgt)
@@ -359,7 +354,7 @@ long GMFontDialog::onCmdSize(FXObject*,FXSelector,void*ptr){
   return 1;
   }
 long GMFontDialog::onCmdSizeText(FXObject*,FXSelector,void*){
-  selected.size=(FXuint)(10.0*GMFloatVal(sizefield->getText()));
+  selected.size=(FXuint)(10.0*sizefield->getText().toFloat());
   if(selected.size<60) selected.size=60;
   if(selected.size>2400) selected.size=2400;
   previewFont();

@@ -40,6 +40,7 @@ icons/32x32_apps_musicmanager.png
 SRCFILES := src/GMAbout.cpp \
 src/GMAnimImage.cpp \
 src/GMApp.cpp \
+src/GMAudioPlayer.cpp \
 src/GMAudioScrobbler.cpp \
 src/GMAlbumList.cpp \
 src/GMClipboard.cpp \
@@ -48,7 +49,6 @@ src/GMCover.cpp \
 src/GMCoverThumbs.cpp \
 src/GMDatabase.cpp \
 src/GMDatabaseSource.cpp \
-src/GMFetch.cpp \
 src/GMFilename.cpp \
 src/GMFontDialog.cpp \
 src/GMIconTheme.cpp \
@@ -80,22 +80,6 @@ src/main.cpp \
 src/icons.cpp \
 src/fxext.cpp \
 src/gmutils.cpp
-
-
-# Some files we need that are not available in FOX-1.6
-#-----------------------------------------------------
-ifneq (,$(findstring fox16,$(OPTIONS)))
-	SRCFILES += src/GMMessageChannel.cpp \
-	src/GMURL.cpp
-endif
-
-
-ifneq (,$(findstring gap,$(OPTIONS)))
-	SRCFILES += src/GMAudioPlayer.cpp
-else
-	SRCFILES += src/GMPlayer.cpp \
-	src/GMEQDialog.cpp
-endif
 
 ifneq (,$(findstring md5,$(OPTIONS)))
 	SRCFILES += src/md5.cpp
@@ -169,9 +153,13 @@ install: $(BINNAME)
 	@echo "    Installing $(INSTALLDIR)/share/applications/gogglesmm.desktop"
 	@$(INSTALL) -d $(INSTALLDIR)/share/applications
 	@$(INSTALL) -m 644 extra/gogglesmm.desktop $(INSTALLDIR)/share/applications/gogglesmm.desktop
-	@echo "    Installing $(INSTALLDIR)/share/icons/hicolor/48x48/apps/gogglesmm.png"
-	@$(INSTALL) -d $(INSTALLDIR)/share/icons/hicolor/48x48/apps
-	@$(INSTALL) -m 644 extra/gogglesmm.png $(INSTALLDIR)/share/icons/hicolor/48x48/apps/gogglesmm.png
+	@echo "    Installing Icons"
+	$(INSTALL) -m 644 -D icons/gogglesmm_16.png $(INSTALL_DIR)/share/icons/hicolor/16x16/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(INSTALL_DIR)/share/icons/hicolor/22x22/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(INSTALL_DIR)/share/icons/hicolor/24x24/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(INSTALL_DIR)/share/icons/hicolor/32x32/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(INSTALL_DIR)/share/icons/hicolor/48x48/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D extra/gogglesmm.svg $(INSTALL_DIR)/share/icons/hicolor/scalable/apps/gogglesmm.svg
 ifneq (,$(findstring nls,$(OPTIONS)))
 	@echo "    Installing Translations"
 	@linguas='$(filter $(TRANSLATIONS),$(LINGUAS))'; \
@@ -202,6 +190,16 @@ realclean :
 	@echo "    Remove Configuration ..."
 	@rm -f config.make
 	@rm -f src/gmconfig.h
+
+dist: clean realclean
+	sh build/makemo
+	rm po/fi.mo
+	rsvg-convert -w 22  extra/gogglesmm.svg -o extra/gogglesmm_22.png
+	rsvg-convert -w 24  extra/gogglesmm.svg -o extra/gogglesmm_24.png
+	rsvg-convert -w 48  extra/gogglesmm.svg -o extra/gogglesmm_48.png
+	@echo " Creating Tarbals .."
+	tar --create --xz --file='../../$(TARNAME).tar.xz' --verbose --exclude-vcs --exclude='*.tar.xz' --transform='s/^./$(TARNAME)/' --show-transformed-names .
+	tar --create --bzip2 --file='../../$(TARNAME).tar.bz2' --verbose --exclude-vcs --exclude='*.tar.bz2' --transform='s/^./$(TARNAME)/' --show-transformed-names .
 
 
 # Clean Icons

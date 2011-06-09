@@ -37,24 +37,11 @@ extern void fix_wm_properties(const FXWindow*);
 
 class FXIconThreshold : public FXIcon {
 public:
-#if FOXVERSION >= FXVERSION(1,7,22)
   static void set(FXIcon*ic) {
     FXIconThreshold * ih = (FXIconThreshold*) ic; ih->setThresholdValue(ih->guessthresh());
     }
-#else
-  static void set(FXIcon*) {}
-#endif
   };
 
-
-/// We need this to allow reading ini files with long lines.
-class GMSettings : public FXSettings {
-  FXDECLARE(GMSettings)
-#if FOXVERSION < FXVERSION(1,7,0)
-public:
-  FXbool parseFile(const FXString & filename,FXbool mark);
-#endif
-  };
 
 class GMListBox : public FXListBox {
   FXDECLARE(GMListBox)

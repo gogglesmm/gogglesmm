@@ -124,7 +124,7 @@ FXbool GMLocalSource::track_context_menu(FXMenuPane * pane){
 FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* albumlist*/,const FXIntList & /*genre*/){
 
   while(!FXStat::isDirectory(path) && !path.empty()) {
-    path=FXPath::upLevel(path);  
+    path=FXPath::upLevel(path);
     }
 
   FXDir     dir(path);
@@ -142,15 +142,8 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
   tracklist->clearItems();
   if (dir.isOpen()) {
 
-#if FOXVERSION < FXVERSION(1,7,0)
-    // Loop over directory entries
-    while(dir.next()){
-
-      name = dir.name();
-#else
     // Loop over directory entries
     while(dir.next(name)){
-#endif
 
       // Hidden files of the form ".xxx" are normally not shown, but ".." is so we can
       // navigate up as well as down.  However, at the root level we can't go up any

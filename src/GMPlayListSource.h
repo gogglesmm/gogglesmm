@@ -64,7 +64,7 @@ public:
 
   virtual FXbool defaultBrowse() const { return false; }
 
-  virtual FXString settingKey() const { return "database_playlist_" + GMStringVal(playlist); }
+  virtual FXString settingKey() const { return "database_playlist_" + FXString::value(playlist); }
 
 
   virtual void save(GMTrackList*);

@@ -43,27 +43,12 @@
 #include <FXTranslator.h>
 
 
-
-
 class GMTranslator : public FXTranslator {
 FXDECLARE(GMTranslator)
 private:
 private:
   GMTranslator(const GMTranslator&);
   GMTranslator &operator=(const GMTranslator&);
-#if FOXVERSION < FXVERSION(1,7,16)
-protected:
-  GMTranslator(){}
-public:
-  /// Construct translator
-  GMTranslator(FXApp* a): FXTranslator(a) {
-    setlocale(LC_ALL,"");
-    bindtextdomain(PACKAGE,LOCALEDIR);
-    bind_textdomain_codeset(PACKAGE,"UTF-8");
-    textdomain(PACKAGE);
-    GM_DEBUG_PRINT("localedir: %s\n",LOCALEDIR);
-    };
-#else
 public:
   GMTranslator(){
     setlocale(LC_ALL,"");
@@ -72,31 +57,17 @@ public:
     textdomain(PACKAGE);
     GM_DEBUG_PRINT("localedir: %s\n",LOCALEDIR);
     };
-#endif
-
-#if FOXVERSION < FXVERSION(1,7,16)
-  virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=NULL) const;
-#else
   virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=NULL,FXint count=-1) const;
-#endif
-
-  ~GMTranslator() {
-    }
+  ~GMTranslator() {}
 
   };
 
 FXIMPLEMENT(GMTranslator,FXTranslator,NULL,0)
 
 
-#if FOXVERSION < FXVERSION(1,7,16)
-const FXchar* GMTranslator::tr(const FXchar*,const FXchar* message,const FXchar*) const {
-  return gettext(message);
-  }
-#else
 const FXchar* GMTranslator::tr(const FXchar*,const FXchar* message,const FXchar*,FXint) const {
   return gettext(message);
   }
-#endif
 
 #endif
 
@@ -134,7 +105,7 @@ GMApp* GMApp::instance() {
 
 void GMApp::create() {
 
-  FXString systemtray = GMStringFormat("_NET_SYSTEM_TRAY_S%d",DefaultScreen((Display*)getDisplay()));
+  FXString systemtray = FXString::value("_NET_SYSTEM_TRAY_S%d",DefaultScreen((Display*)getDisplay()));
 
   xembed      = (FXID)XInternAtom((Display*)getDisplay(),"_XEMBED",False);
   xmanager    = (FXID)XInternAtom((Display*)getDisplay(),"MANAGER",True);
@@ -144,17 +115,32 @@ void GMApp::create() {
 
   XSelectInput((Display*)getDisplay(),getRootWindow()->id(),KeyPressMask|KeyReleaseMask|StructureNotifyMask);
 
-
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getNormalFont()->getFontDesc(fontdescription);
-#else
   FXFontDesc fontdescription = getNormalFont()->getFontDesc();
-#endif
   fontdescription.weight = FXFont::Bold;
 
   thickfont = new FXFont(this,fontdescription);
   thickfont->create();
+
+
+  fontdescription = getNormalFont()->getFontDesc();
+  fontdescription.size    -= 10;
+  fontdescription.weight   = FXFont::Bold;
+  fontdescription.setwidth = FXFont::SemiCondensed;
+  coverheadfont            = new FXFont(this,fontdescription);
+
+
+  fontdescription = getNormalFont()->getFontDesc();
+  fontdescription.size    -= 10;
+  fontdescription.setwidth = FXFont::SemiCondensed;
+  coverbasefont            = new FXFont(this,fontdescription);
+
+
+  fontdescription = getNormalFont()->getFontDesc();
+  fontdescription.size    -= 30;
+  fontdescription.setwidth = FXFont::SemiCondensed;
+  fontdescription.slant    = FXFont::Italic;
+  fontdescription.weight   = FXFont::Light;
+  listtailfont             = new FXFont(this,fontdescription);
   }
 
 
@@ -164,26 +150,40 @@ void GMApp::setFont(const FXFontDesc & fnt){
   getNormalFont()->create();
   reg().writeStringEntry("SETTINGS","normalfont",getNormalFont()->getFont().text());
 
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getNormalFont()->getFontDesc(fontdescription);
-#else
   FXFontDesc fontdescription = getNormalFont()->getFontDesc();
-#endif
   fontdescription.weight = FXFont::Bold;
   thickfont->destroy();
   thickfont->setFontDesc(fontdescription);
   thickfont->create();
+    
+  fontdescription = getNormalFont()->getFontDesc();
+  fontdescription.size    -= 10;
+  fontdescription.weight   = FXFont::Bold;
+  fontdescription.setwidth = FXFont::SemiCondensed;
+  coverheadfont->destroy();
+  coverheadfont->setFontDesc(fontdescription);
+  coverheadfont->create();
+  
+  fontdescription = getNormalFont()->getFontDesc();
+  fontdescription.size    -= 10;
+  fontdescription.setwidth = FXFont::SemiCondensed;
+  coverbasefont->destroy();
+  coverbasefont->setFontDesc(fontdescription);
+  coverbasefont->create();
+
+
+  fontdescription = getNormalFont()->getFontDesc();
+  fontdescription.size    -= 30;
+  fontdescription.setwidth = FXFont::SemiCondensed;
+  fontdescription.slant    = FXFont::Italic;
+  fontdescription.weight   = FXFont::Light;
+  listtailfont->destroy();
+  listtailfont->setFontDesc(fontdescription);
+  listtailfont->create();  
   }
 
 void GMApp::updateFont() {
-#if FOXVERSION < FXVERSION(1,7,17)
-  FXFontDesc fontdescription;
-  getNormalFont()->getFontDesc(fontdescription);
-#else
-  FXFontDesc fontdescription = getNormalFont()->getFontDesc();
-#endif
-  setFont(fontdescription);
+  setFont(getNormalFont()->getFontDesc());
   }
 
 
@@ -230,33 +230,13 @@ FXString GMApp::getCacheDirectory(FXbool create) {
   }
 
 
-#if FOXVERSION < FXVERSION(1,7,0)
-void GMApp::init(int& argc,char** argv,bool connect) {
-#else
 void GMApp::init(int& argc,char** argv,FXbool connect) {
-#endif
-
-#if FOXVERSION >= FXVERSION(1,7,22)
   reg().setVendorKey("gogglesmm");
   reg().setAppKey("settings");
   FXApp::init(argc,argv,connect);
-#else
-  ///FIXME This is slightly broken, I think.
-  FXApp::init(argc,argv,connect);
-
-  /// Read the new xdg settings file.
-  reg().parseFile(GMApp::getConfigDirectory()+PATHSEPSTRING "settings.rc",true);
-#endif
-
-
 #ifdef HAVE_NLS
-#if FOXVERSION < FXVERSION(1,7,16)
-  setTranslator(new GMTranslator(this));
-#else
   setTranslator(new GMTranslator());
 #endif
-#endif
-
   }
 
 void GMApp::exit(FXint code) {
@@ -286,11 +266,7 @@ static FXuint keysym(FXRawEvent& event){
   return sym;
   }
 
-#if FOXVERSION < FXVERSION(1,7,0)
-bool GMApp::dispatchEvent(FXRawEvent & ev) {
-#else
 FXbool GMApp::dispatchEvent(FXRawEvent & ev) {
-#endif
 
   /// Handle Global Hotkeys
   if (ev.xany.window==getRootWindow()->id()){
@@ -339,15 +315,9 @@ GMPlug::GMPlug(FXApp * app) : FXTopWindow(app,"gogglesmm",NULL,NULL,DECOR_NONE,0
 GMPlug::~GMPlug(){
   }
 
-#if FOXVERSION < FXVERSION(1,7,0)
-bool GMPlug::doesOverrideRedirect() const {
-  return true;
-  }
-#else
 FXbool GMPlug::doesOverrideRedirect() const{
   return true;
   }
-#endif
 
 void GMPlug::setFocus(){
   FXShell::setFocus();
@@ -388,11 +358,7 @@ void fix_wm_properties(const FXWindow * window) {
 #ifndef WIN32
   XTextProperty textprop;
 
-#if FOXVERSION < FXVERSION(1,7,0)
-  FXString host=FXURL::hostname();
-#else
   FXString host=FXSystem::getHostName();
-#endif
   /// set the name of the machine on which this application is running
   textprop.value = (unsigned char *)host.text();
   textprop.encoding = XA_STRING;
@@ -420,12 +386,7 @@ void ewmh_set_window_icon(const FXWindow * window,FXImage * icon) {
   data[0]=icon->getWidth();
   data[1]=icon->getHeight();
   for (FXint i=0;i<(icon->getWidth()*icon->getHeight());i++){
-#if FOXVERSION < FXVERSION(1,7,26)
-    const FXColor val = icon->getData()[i];
-    data[i+2]=FXRGBA(FXBLUEVAL(val),FXGREENVAL(val),FXREDVAL(val),FXALPHAVAL(val));
-#else
     data[i+2]=icon->getData()[i];
-#endif
     }
 
   /// Set Property

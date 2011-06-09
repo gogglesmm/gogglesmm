@@ -30,68 +30,22 @@
 #include <fx3d.h>
 #include <FXArray.h>
 #include <FXTextCodec.h>
-
-#if FOXVERSION == FXVERSION(1,7,22)
-#include <FXAutoPtr.h>
-#endif
-
 #include "GMAutoPtr.h"
-#include "GMURL.h"
-#if FOXVERSION < FXVERSION(1,7,0)
-#include "GMMessageChannel.h"
-#endif
 #include "fxext.h"
 
 /// for locale_t definition
 #include <locale.h>
 
-
-#if FOXVERSION < FXVERSION(1,7,0)
-#define TIME_MSEC(ms) (ms)
-#define TIME_SEC(s) 	(1000*s)
-#define TIME_MIN(m) 	TIME_SEC(60*m)
-#define TIME_HOUR(h) 	TIME_MIN(60*h)
-#define TO_NANO_SECONDS(x) ((FXlong)(1000000000LL*x))
-#else
 #define TIME_MSEC(ms) (1000000LL*ms)
 #define TIME_SEC(s) 	(1000000000LL*s)
 #define TIME_MIN(m) 	TIME_SEC(60*m)
 #define TIME_HOUR(h) 	TIME_MIN(60*h)
-#define TO_NANO_SECONDS(x) (x)
-#endif
-
-#if FOXVERSION >= FXVERSION(1,7,12)
-#define GMStringVal(str) FXString::value(str)
-#define GMStringFormat  FXString::value
-#define GMFloatVal(str) str.toFloat()
-#define GMIntVal(str) str.toInt()
-#else
-#define GMStringVal(str) FXStringVal(str)
-#define GMStringFormat  FXStringFormat
-#define GMFloatVal FXFloatVal
-#define GMIntVal FXIntVal
-#endif
-
-/// Branch prediction optimization
-#ifndef __likely
-#if __GNUC__ >= 3
-#define __likely(cond)    __builtin_expect(!!(cond),1)
-#define __unlikely(cond)  __builtin_expect(!!(cond),0)
-#else
-#define __likely(cond)    (!!(cond))
-#define __unlikely(cond)  (!!(cond))
-#endif
-#endif
-
 
 
 //#define NO_FXGETTICKS 1
 /// Some debugging macros
 #if defined DEBUG && !defined(NO_FXGETTICKS)
-namespace FX {
-  extern FXlong fxgetticks();
-  }
-#define GM_TICKS_START() FXlong end,start = fxgetticks();
+#define GM_TICKS_START() FXTime end,start = fxgetticks();
 #define GM_TICKS_END()  end = fxgetticks(); fxmessage("%20s:%20s:%15ld ticks.\n",__FILE__,__func__,end-start)
 #define GM_DEBUG_PRINT(format, args...) fxmessage (format , ##args)
 #else

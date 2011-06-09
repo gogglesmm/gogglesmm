@@ -24,7 +24,6 @@
 
 
 #include "GMTrack.h"
-#include "GMPlayer.h"
 #include "GMApp.h"
 #include "GMAbout.h"
 #include "GMWindow.h"
@@ -50,12 +49,9 @@
 
 #include "GMScanner.h"
 
-
-#if FOXVERSION > FXVERSION(1,7,21)
 #define HIDESOURCES (FX4Splitter::ExpandTopRight)
 #define SHOWSOURCES (FX4Splitter::ExpandTopLeft|FX4Splitter::ExpandTopRight)
 #define SHOWSOURCES_COVER (FX4Splitter::ExpandTopLeft|FX4Splitter::ExpandTopRight|FX4Splitter::ExpandBottomLeft)
-#endif
 
 // Define Message Map
 FXDEFMAP(GMWindow) GMWindowMap[]={
@@ -103,10 +99,7 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_PREV,              GMWindow::onCmdPrev),
 //  FXMAPFUNCS(SEL_COMMAND,GMWindow::ID_SEEK_FORWARD_10SEC,GMWindow::ID_SEEK_BACKWARD_1MIN,GMWindow::onCmdSeek),
 
-
-#if FOXVERSION >= FXVERSION(1,7,11)
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SHOW_FULLSCREEN,		GMWindow::onCmdShowFullScreen),
-#endif
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_MINIPLAYER,   GMWindow::onCmdShowMiniPlayer),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_BROWSER,      GMWindow::onCmdShowBrowser),
 
@@ -138,10 +131,8 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_CHANGE_COVERVIEW,		GMWindow::onCmdChangeCoverView),
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,	GMWindow::ID_COVERVIEW,					GMWindow::onCmdCoverView),
 
-#if FOXVERSION > FXVERSION(1,7,21)
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onUpdShowSources),
   FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onCmdShowSources),
-#endif
 
   FXMAPFUNCS(SEL_COMMAND,						GMWindow::ID_COVERSIZE_SMALL,GMWindow::ID_COVERSIZE_EXTRALARGE,		GMWindow::onCmdCoverSize),
   FXMAPFUNCS(SEL_UPDATE,						GMWindow::ID_COVERSIZE_SMALL,GMWindow::ID_COVERSIZE_EXTRALARGE,		GMWindow::onUpdCoverSize),
@@ -172,7 +163,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   setMiniIcon(icontheme->icon_applogo_small);
 
 #if APPLICATION_BETA > 0
-  setTitle(GMStringFormat("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
+  setTitle(FXString::value("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
 #endif
 
   /// Set myself as the target
@@ -213,19 +204,11 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   FXVerticalFrame * mainframe = new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
-#if FOXVERSION > FXVERSION(1,7,21)
   mainsplitter    = new FX4Splitter(mainframe,LAYOUT_FILL_X|LAYOUT_FILL_Y|FOURSPLITTER_VERTICAL|FOURSPLITTER_TRACKING);
   sourceview      = new GMSourceView(mainsplitter);
   trackview       = new GMTrackView(mainsplitter);
   coverframe      = new GMCoverFrame(mainsplitter);
-#else
-  mainsplitter    = new FXSplitter(mainframe,LAYOUT_FILL_X|LAYOUT_FILL_Y|SPLITTER_HORIZONTAL|SPLITTER_TRACKING);
-  sourcesplitter  = new FXSplitter(mainsplitter,LAYOUT_FILL_X|LAYOUT_FILL_Y|SPLITTER_VERTICAL|SPLITTER_TRACKING|SPLITTER_REVERSED);
-  sourceview      = new GMSourceView(sourcesplitter);
-  coverframe      = new GMCoverFrame(sourcesplitter);
-  trackview       = new GMTrackView(mainsplitter);
-  sourcesplitter->setBarSize(7);
-#endif
+
   mainsplitter->setBarSize(7);
 
   coverframe->setBackColor(getApp()->getBackColor());
@@ -255,6 +238,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   gm_set_window_cursor(menu_library,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
   //// Active View Menu
+/*
   menu_view    = new GMMenuPane(this);
   new GMMenuCommand(menu_view,tr("&Copy\tCtrl-C\tCopy Selected Tracks"),icontheme->icon_copy,trackview,GMTrackView::ID_COPY,MENU_AUTOGRAY);
   new GMMenuCommand(menu_view,tr("&Cut\tCtrl-X\tCut Selected Tracks"),icontheme->icon_cut,trackview,GMTrackView::ID_CUT,MENU_AUTOGRAY);
@@ -267,7 +251,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new GMMenuCheck(menu_view,tr("&Browse\tCtrl-B\tShow genre artist and album browser."),trackview,GMTrackView::ID_TOGGLE_BROWSER);
   new GMMenuCheck(menu_view,tr("Show &Tags\tCtrl-G\tShow tag browser."),trackview,GMTrackView::ID_TOGGLE_TAGS);
   gm_set_window_cursor(menu_view,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
-
+*/
   /// Media Controls
   menu_media   = new GMMenuPane(this);
   new GMMenuCheck(menu_media,tr("Queue Play\t\tPlay tracks from queue."),this,ID_PLAYQUEUE);
@@ -276,26 +260,15 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new GMMenuRadio(menu_media,tr("Repeat Off\tCtrl-,\tRepeat current track."),this,ID_REPEAT_OFF);
   new GMMenuRadio(menu_media,tr("Repeat Track\tCtrl-.\tRepeat current track."),this,ID_REPEAT);
   new GMMenuRadio(menu_media,tr("Repeat All Tracks\tCtrl-/\tRepeat all tracks."),this,ID_REPEAT_ALL);
-  new GMMenuCheck(menu_media,tr("Repeat A-B\tCtrl-T\tRepeat section of track."),this,ID_REPEAT_AB);
-#ifdef HAVE_XINE_LIB
-  new FXMenuSeparator(menu_media);
-  new GMMenuCommand(menu_media,tr("Equalizer\t\t"),NULL,GMPlayerManager::instance(),GMPlayerManager::ID_EQUALIZER);
-#endif
+//  new GMMenuCheck(menu_media,tr("Repeat A-B\tCtrl-T\tRepeat section of track."),this,ID_REPEAT_AB);
   new FXMenuSeparator(menu_media);
   new GMMenuCheck(menu_media,tr("Sleep Timer\t\tSetup sleeptimer."),this,ID_SLEEP);
   gm_set_window_cursor(menu_media,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
   /// Program Menu
   menu_gmm     = new GMMenuPane(this);
-#if FOXVERSION > FXVERSION(1,7,21)
   new GMMenuCheck(menu_gmm,tr("Show &Sources\tCtrl-S\tShow source browser "),this,ID_SHOW_SOURCES);
-#else
-  new GMMenuCheck(menu_gmm,tr("Show &Sources\tCtrl-S\tShow source browser "),sourcesplitter,FXWindow::ID_TOGGLESHOWN);
-#endif
-
-#if FOXVERSION >= FXVERSION(1,7,11)
   fullscreencheck = new GMMenuCheck(menu_gmm,tr("Show Full Screen\tF12\tToggle fullscreen mode."),this,ID_SHOW_FULLSCREEN);
-#endif
   new GMMenuCheck(menu_gmm,tr("Show Mini Player\tCtrl-M\tToggle Mini Player."),this,ID_SHOW_MINIPLAYER);
   new FXMenuSeparator(menu_gmm);
   new GMMenuCommand(menu_gmm,tr("Preferences…"),icontheme->icon_settings,this,GMWindow::ID_PREFERENCES);
@@ -309,7 +282,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   controldragcorner = new FXDragCorner(toolbar);
 
   menubutton_library = new GMMenuButton(toolbar,"\tManage Music Database",icontheme->icon_create,menu_library,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|ICON_AFTER_TEXT);
-  menubutton_view    = new GMMenuButton(toolbar,"\tEdit View",icontheme->icon_document,menu_view,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT);
+  //menubutton_view    = new GMMenuButton(toolbar,"\tEdit View",icontheme->icon_document,menu_view,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT);
   menubutton_gmm     = new GMMenuButton(toolbar,"\tCustomize and Control GMM",icontheme->icon_customize,menu_gmm,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT|LAYOUT_RIGHT);
   menubutton_media   = new GMMenuButton(toolbar,"\tMedia Control",icontheme->icon_media,menu_media,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_RIGHT|LAYOUT_CENTER_Y|ICON_AFTER_TEXT|LAYOUT_RIGHT);
   volumebutton       = new GMMenuButton(toolbar,"\tAdjust Volume\tAdjust Volume",icontheme->icon_audio_volume_muted,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
@@ -318,10 +291,10 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   new FXVerticalSeparator(toolbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE|LAYOUT_RIGHT);
   new FXVerticalSeparator(toolbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
-  playpausebutton = new GMToggleButton(toolbar,tr("\tStart Playback\tStart Playback"),tr("\tPause\tPause Playback"),icontheme->icon_play_toolbar,icontheme->icon_pause_toolbar,this,ID_PLAYPAUSE,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
-  stopbutton      = new GMButton(toolbar,tr("\tStop Playback\tStop Playback"),icontheme->icon_stop_toolbar,this,ID_STOP,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
-  prevbutton      = new GMButton(toolbar,tr("\tPlay Previous Track\tPlay previous track."),icontheme->icon_prev_toolbar,this,ID_PREV,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
-  nextbutton      = new GMButton(toolbar,tr("\tPlay Next Track\tPlay next track."),icontheme->icon_next_toolbar,this,ID_NEXT,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
+  playpausebutton = new FXToggleButton(toolbar,tr("\tStart Playback\tStart Playback"),tr("\tPause\tPause Playback"),icontheme->icon_play_toolbar,icontheme->icon_pause_toolbar,this,ID_PLAYPAUSE,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
+  stopbutton      = new FXButton(toolbar,tr("\tStop Playback\tStop Playback"),icontheme->icon_stop_toolbar,this,ID_STOP,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
+  prevbutton      = new FXButton(toolbar,tr("\tPlay Previous Track\tPlay previous track."),icontheme->icon_prev_toolbar,this,ID_PREV,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
+  nextbutton      = new FXButton(toolbar,tr("\tPlay Next Track\tPlay next track."),icontheme->icon_next_toolbar,this,ID_NEXT,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
   new FXVerticalSeparator(toolbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
 
 
@@ -483,13 +456,7 @@ GMWindow::~GMWindow(){
 // Create
 //----------------------------------------------------------------------------------
 void GMWindow::create(){
-
-#if FOXVERSION > FXVERSION(1,7,21)
   mainsplitter->setHSplit(getApp()->reg().readIntEntry("window","source-list-hsplit",2500));
-#else
-  mainsplitter->setSplit(0,getApp()->reg().readIntEntry("window","source-list-split",200));
-  sourcesplitter->setSplit(1,getApp()->reg().readIntEntry("window","cover-list-split",256+10+2));
-#endif
 
   configureStatusbar(GMPlayerManager::instance()->getPreferences().gui_show_status_bar);
 
@@ -523,7 +490,7 @@ void GMWindow::create(){
 */
   ewmh_change_window_type(menu_library,WINDOWTYPE_DROPDOWN_MENU);
   ewmh_change_window_type(menu_media,WINDOWTYPE_DROPDOWN_MENU);
-  ewmh_change_window_type(menu_view,WINDOWTYPE_DROPDOWN_MENU);
+//  ewmh_change_window_type(menu_view,WINDOWTYPE_DROPDOWN_MENU);
   ewmh_change_window_type(menu_gmm,WINDOWTYPE_DROPDOWN_MENU);
 
 
@@ -556,7 +523,6 @@ void GMWindow::hideRemote(){
   }
 
 
-#if FOXVERSION >= FXVERSION(1,7,11)
 void GMWindow::setFullScreen(FXbool show){
   if (show) {
     if (isMaximized()) restore();
@@ -577,19 +543,12 @@ void GMWindow::setFullScreen(FXbool show){
     fullscreencheck->setCheck(false);
     }
   }
-#endif
 
 
 void GMWindow::hide() {
-#if FOXVERSION >= FXVERSION(1,7,11)
   getApp()->reg().writeBoolEntry("window","fullscreen",isFullScreen());
-#endif
   getApp()->reg().writeBoolEntry("window","maximized",isMaximized());
-#if FOXVERSION >= FXVERSION(1,7,11)
   if (isFullScreen() || isMaximized() || isMinimized() )
-#else
-  if (isMaximized() || isMinimized() )
-#endif
     restore();
   FXMainWindow::hide();
   }
@@ -597,29 +556,25 @@ void GMWindow::hide() {
 void GMWindow::show(){
   FXMainWindow::show();
 
-#if FOXVERSION >= FXVERSION(1,7,11)
-    if (getApp()->reg().readBoolEntry("window","fullscreen",false)){
-      getApp()->reg().writeBoolEntry("window","fullscreen",false);
-      getApp()->reg().writeBoolEntry("window","maximized",false);
+  if (getApp()->reg().readBoolEntry("window","fullscreen",false)){
+    getApp()->reg().writeBoolEntry("window","fullscreen",false);
+    getApp()->reg().writeBoolEntry("window","maximized",false);
 
-     if (getApp()->reg().readIntEntry("window","x",-1)!=-1) {
-       FXint xx=getApp()->reg().readIntEntry("window","x",getX());
-       FXint yy=getApp()->reg().readIntEntry("window","y",getY());
-       FXint ww=getApp()->reg().readIntEntry("window","width",500);
-       FXint hh=getApp()->reg().readIntEntry("window","height",550);
-       position(xx,yy,ww,hh);
-       }
-     else {
-       place(PLACEMENT_SCREEN);
-       }
-      setFullScreen(true);
-      }
-    else
-#endif
-
-  if (getApp()->reg().readBoolEntry("window","maximized",false)){
-      getApp()->reg().writeBoolEntry("window","fullscreen",false);
-      getApp()->reg().writeBoolEntry("window","maximized",false);
+   if (getApp()->reg().readIntEntry("window","x",-1)!=-1) {
+     FXint xx=getApp()->reg().readIntEntry("window","x",getX());
+     FXint yy=getApp()->reg().readIntEntry("window","y",getY());
+     FXint ww=getApp()->reg().readIntEntry("window","width",500);
+     FXint hh=getApp()->reg().readIntEntry("window","height",550);
+     position(xx,yy,ww,hh);
+     }
+   else {
+     place(PLACEMENT_SCREEN);
+     }
+    setFullScreen(true);
+    }
+  else if (getApp()->reg().readBoolEntry("window","maximized",false)){
+    getApp()->reg().writeBoolEntry("window","fullscreen",false);
+    getApp()->reg().writeBoolEntry("window","maximized",false);
     maximize();
     }
   }
@@ -668,7 +623,7 @@ void GMWindow::reset() {
   loadCover(FXString::null);
 
 #if APPLICATION_BETA > 0
-  setTitle(GMStringFormat("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
+  setTitle(FXString::value("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
 #else
   setTitle("Goggles Music Manager");
 #endif
@@ -690,14 +645,14 @@ void GMWindow::display(const GMTrack& info){
   if (GMPlayerManager::instance()->getPreferences().gui_show_playing_titlebar){
 
 #if APPLICATION_BETA > 0
-    setTitle(GMStringFormat("%s ~ Goggles Music Manager %d.%d.%d-beta%d",title.text(),APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
+    setTitle(FXString::value("%s ~ Goggles Music Manager %d.%d.%d-beta%d",title.text(),APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
 #else
-    setTitle(GMStringFormat("%s ~ Goggles Music Manager",title.text()));
+    setTitle(FXString::value("%s ~ Goggles Music Manager",title.text()));
 #endif
     }
   else {
 #if APPLICATION_BETA > 0
-    setTitle(GMStringFormat("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
+    setTitle(FXString::value("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
 #else
     setTitle("Goggles Music Manager");
 #endif
@@ -735,9 +690,9 @@ void GMWindow::update_time_display() {
     seconds   = (FXint) floor((double)display/1000.0);
 
     if (hours>0)
-      timelabel->setText(GMStringFormat("%d:%.2d:%.2d",hours,minutes,seconds));
+      timelabel->setText(FXString::value("%d:%.2d:%.2d",hours,minutes,seconds));
     else
-      timelabel->setText(GMStringFormat("%.2d:%.2d",minutes,seconds));
+      timelabel->setText(FXString::value("%.2d:%.2d",minutes,seconds));
 
 
 
@@ -753,9 +708,9 @@ void GMWindow::update_time_display() {
 void GMWindow::update_elapsed_time(FXint hours,FXint minutes,FXint seconds,FXint position,FXbool playing,FXbool seekable) {
   if (playing) {
     if (hours>0)
-      timelabel->setText(GMStringFormat("%d:%.2d:%.2d",hours,minutes,seconds));
+      timelabel->setText(FXString::value("%d:%.2d:%.2d",hours,minutes,seconds));
     else
-      timelabel->setText(GMStringFormat("%.2d:%.2d",minutes,seconds));
+      timelabel->setText(FXString::value("%.2d:%.2d",minutes,seconds));
 
     if (seekable) {
       if (!trackslider->grabbed()){
@@ -787,27 +742,15 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   else
     getApp()->reg().writeBoolEntry("window","window-show",shown());
 
-#if FOXVERSION >= FXVERSION(1,7,11)
   if (!isFullScreen() && !isMaximized() && !isMinimized() &&shown()) {
-#else
-  if (!isMaximized() && !isMinimized() && shown()) {
-#endif
     getApp()->reg().writeIntEntry("window","x",getX());
     getApp()->reg().writeIntEntry("window","y",getY());
     getApp()->reg().writeIntEntry("window","width",getWidth());
     getApp()->reg().writeIntEntry("window","height",getHeight());
     }
-#if FOXVERSION >= FXVERSION(1,7,11)
   getApp()->reg().writeBoolEntry("window","fullscreen",isFullScreen());
-#endif
   getApp()->reg().writeBoolEntry("window","maximized",isMaximized());
-
-#if FOXVERSION > FXVERSION(1,7,21)
   getApp()->reg().writeIntEntry("window","source-list-hsplit",mainsplitter->getHSplit());
-#else
-  getApp()->reg().writeIntEntry("window","source-list-split",mainsplitter->getSplit(0));
-  getApp()->reg().writeIntEntry("window","cover-list-split",sourcesplitter->getSplit(1));
-#endif
 
 
   /// Get rid of remote
@@ -835,7 +778,6 @@ long GMWindow::onCmdAbout(FXObject *,FXSelector,void*){
   }
 
 
-#if FOXVERSION >= FXVERSION(1,7,11)
 long GMWindow::onCmdShowFullScreen(FXObject*,FXSelector,void*){
   if (isFullScreen()) {
     setFullScreen(false);
@@ -845,7 +787,6 @@ long GMWindow::onCmdShowFullScreen(FXObject*,FXSelector,void*){
     }
   return 1;
   }
-#endif
 
 long GMWindow::onCmdShowBrowser(FXObject*,FXSelector,void*){
   hideRemote();
@@ -907,11 +848,11 @@ void GMWindow::configureToolbar(FXbool docktop,FXbool init/*=false*/){
       toolbar->setLayoutHints(LAYOUT_FILL_X|LAYOUT_SIDE_TOP);
       controldragcorner->hide();
       menubutton_library->setAttachment(MENUBUTTON_ATTACH_LEFT);
-      menubutton_view->setAttachment(MENUBUTTON_ATTACH_LEFT);
+      //menubutton_view->setAttachment(MENUBUTTON_ATTACH_LEFT);
       menubutton_gmm->setAttachment(MENUBUTTON_ATTACH_RIGHT);
       menubutton_media->setAttachment(MENUBUTTON_ATTACH_RIGHT);
       menubutton_library->setPopupStyle(MENUBUTTON_DOWN);
-      menubutton_view->setPopupStyle(MENUBUTTON_DOWN);
+      //menubutton_view->setPopupStyle(MENUBUTTON_DOWN);
       menubutton_gmm->setPopupStyle(MENUBUTTON_DOWN);
       menubutton_media->setPopupStyle(MENUBUTTON_DOWN);
       }
@@ -919,11 +860,11 @@ void GMWindow::configureToolbar(FXbool docktop,FXbool init/*=false*/){
       toolbar->setLayoutHints(LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
       if (!statusbar->shown()) controldragcorner->show();
       menubutton_library->setAttachment(MENUBUTTON_ATTACH_LEFT);
-      menubutton_view->setAttachment(MENUBUTTON_ATTACH_LEFT);
+      //menubutton_view->setAttachment(MENUBUTTON_ATTACH_LEFT);
       menubutton_gmm->setAttachment(MENUBUTTON_ATTACH_RIGHT);
       menubutton_media->setAttachment(MENUBUTTON_ATTACH_RIGHT);
       menubutton_library->setPopupStyle(MENUBUTTON_UP);
-      menubutton_view->setPopupStyle(MENUBUTTON_UP);
+      //menubutton_view->setPopupStyle(MENUBUTTON_UP);
       menubutton_gmm->setPopupStyle(MENUBUTTON_UP);
       menubutton_media->setPopupStyle(MENUBUTTON_UP);
       }
@@ -978,7 +919,7 @@ long GMWindow::onCmdPlayPause(FXObject*,FXSelector,void*){
   else if (GMPlayerManager::instance()->can_unpause())
     GMPlayerManager::instance()->unpause();
   else
-    GMPlayerManager::instance()->play();
+    GMPlayerManager::instance()->playItem(TRACK_CURRENT);
   return 1;
   }
 
@@ -1033,7 +974,6 @@ long GMWindow::onUpdPlayPauseMenu(FXObject*sender,FXSelector,void*){
     }
   else {
     if (button) {
-      button->setText(tr("Play"));
       button->setHelpText(tr("Start playback."));
       button->setIcon(GMIconTheme::instance()->icon_play);
       button->disable();
@@ -1076,7 +1016,7 @@ long GMWindow::onUpdStop(FXObject*sender,FXSelector,void*){
   }
 
 long GMWindow::onCmdNext(FXObject*,FXSelector,void*){
-  GMPlayerManager::instance()->next();
+  GMPlayerManager::instance()->playItem(TRACK_NEXT);
   return 1;
   }
 
@@ -1089,7 +1029,7 @@ long GMWindow::onUpdNext(FXObject*sender,FXSelector,void*){
   }
 
 long GMWindow::onCmdPrev(FXObject*,FXSelector,void*){
-  GMPlayerManager::instance()->prev();
+  GMPlayerManager::instance()->playItem(TRACK_PREVIOUS);
   return 1;
   }
 
@@ -1125,7 +1065,6 @@ long GMWindow::onCmdSeek(FXObject*,FXSelector sel,void*){
 
 long GMWindow::onCmdTimeSlider(FXObject*,FXSelector,void*ptr){
   FXdouble pos = *(FXdouble*)ptr;
-  fxmessage("pos: %g\n",pos);
   GMPlayerManager::instance()->seek(pos);
   return 1;
   }
@@ -1143,27 +1082,28 @@ long GMWindow::onCmdVolumeButton(FXObject*,FXSelector sel,void*ptr){
   }
 
 long GMWindow::onUpdVolumeButton(FXObject*sender,FXSelector,void*){
-#ifdef HAVE_XINE_LIB
-  if (GMPlayerManager::instance()->getPlayer()->opened())
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
-#else
+//#ifdef HAVE_XINE_LIB
+///  if (GMPlayerManager::instance()->getPlayer()->opened())
+//    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+//  else
+//    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+//#else
     sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
 
 //  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
-#endif
+//#endif
   return 1;
   }
 
 long GMWindow::onCmdRepeatAB(FXObject*,FXSelector,void*){
-#ifdef HAVE_XINE_LIB
-  GMPlayerManager::instance()->getPlayer()->setRepeatAB();
-#endif
+//#ifdef HAVE_XINE_LIB
+//  GMPlayerManager::instance()->getPlayer()->setRepeatAB();
+//#endif
   return 1;
   }
 
 long GMWindow::onUpdRepeatAB(FXObject*sender,FXSelector,void*){
+#if 0
 #ifdef HAVE_XINE_LIB
   if (GMPlayerManager::instance()->getPlayer()->playing() && GMPlayerManager::instance()->getPlayer()->seekable()) {
     const FXString state_off = tr("Repeat A-B");
@@ -1187,6 +1127,7 @@ long GMWindow::onUpdRepeatAB(FXObject*sender,FXSelector,void*){
     }
 #else
   sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+#endif
 #endif
   return 1;
   }
@@ -1506,11 +1447,7 @@ void GMWindow::updateCoverView() {
       }
 
     if (!coverview_gl) {
-#if FOXVERSION < FXVERSION(1,7,15)
-      glvisual = new FXGLVisual(getApp(),VISUAL_DOUBLEBUFFER);
-#else
-      glvisual = new FXGLVisual(getApp(),VISUAL_DOUBLE_BUFFER);
-#endif
+      glvisual     = new FXGLVisual(getApp(),VISUAL_DOUBLE_BUFFER);
       coverview_gl = new GMImageView(coverframe,glvisual,LAYOUT_FILL_X|LAYOUT_FILL_Y);
       coverview_gl->setTarget(this);
       coverview_gl->setSelector(ID_COVERVIEW);
@@ -1651,7 +1588,6 @@ void GMWindow::create_dialog_header(FXDialogBox * dialog,const FXString & title,
   }
 
 
-#if FOXVERSION > FXVERSION(1,7,21)
 long GMWindow::onCmdShowSources(FXObject*,FXSelector,void*){
   if (mainsplitter->getExpanded()==HIDESOURCES) {
     if (!coverfile.empty())
@@ -1672,19 +1608,15 @@ long GMWindow::onUpdShowSources(FXObject*sender,FXSelector,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
   return 1;
   }
-#endif
+
 
 
 FXbool GMWindow::showSources() const {
-#if FOXVERSION > FXVERSION(1,7,21)
   FXuint exp = mainsplitter->getExpanded();
   if (exp==SHOWSOURCES || exp==SHOWSOURCES_COVER)
     return true;
   else
     return false;
-#else
-  return sourcesplitter->shown();
-#endif
   }
 
 

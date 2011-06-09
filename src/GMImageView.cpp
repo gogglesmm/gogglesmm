@@ -120,15 +120,6 @@ void GMImageView::updateTexture(FXImage * image) {
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 #endif
 
-#if FOXVERSION < FXVERSION(1,7,26)
-    if (texture_width==image_width && texture_height==image_height) {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGB8,texture_width,texture_height,0,GL_RGBA,GL_UNSIGNED_BYTE,image->getData());
-      }
-    else {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGB8,texture_width,texture_height,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
-      glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_RGBA,GL_UNSIGNED_BYTE,image->getData());
-      }
-#else
    if (texture_width==image_width && texture_height==image_height) {
       glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
       }
@@ -136,7 +127,6 @@ void GMImageView::updateTexture(FXImage * image) {
       glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,NULL);
       glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
       }
-#endif
 
 #if defined(GL_VERSION_3_0) && !defined(DISABLE_MIPMAP)
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -175,11 +165,7 @@ long GMImageView::onPaint(FXObject*,FXSelector,void*){
   FXGLVisual *vis=(FXGLVisual*)getVisual();
   FXfloat th=1.0f;
   FXfloat tw=1.0f;
-#if FOXVERSION < FXVERSION(1,7,0)
-  FXVec4f background(backColor);
-#else
   FXVec4f background=colorToVec4f(backColor);
-#endif
   FXASSERT(xid);
   if(makeCurrent()){
     glViewport(0,0,getWidth(),getHeight());

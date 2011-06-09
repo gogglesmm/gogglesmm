@@ -14,7 +14,8 @@ enum {
   SEL_PLAYER_BOS,
   SEL_PLAYER_TIME,
   SEL_PLAYER_STATE,
-  SEL_PLAYER_VOLUME
+  SEL_PLAYER_VOLUME,
+  SEL_PLAYER_META,
   };
 
 enum PlayerState {
@@ -57,9 +58,9 @@ public:
   FXbool playing() const { return state==PLAYER_PLAYING; }
 
   FXbool pausing() const { return state==PLAYER_PAUSING; }
-  
+
   void loadSettings();
-  
+
   void saveSettings();
 
   virtual ~GMAudioPlayer();

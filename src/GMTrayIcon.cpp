@@ -101,7 +101,7 @@ void GMTrayIcon::updateIcon() {
   }
 
 void GMTrayIcon::display(const GMTrack &track){
-  setToolTip(GMStringFormat("%s\n%s\n%s (%d)",track.title.text(),track.artist.text(),track.album.text(),track.year));
+  setToolTip(FXString::value("%s\n%s\n%s (%d)",track.title.text(),track.artist.text(),track.album.text(),track.year));
   }
 
 void GMTrayIcon::reset() {
@@ -109,7 +109,7 @@ void GMTrayIcon::reset() {
   }
 
 FXbool GMTrayIcon::findSystemTray() {
-  FXString systemtray = GMStringFormat("_NET_SYSTEM_TRAY_S%d",DefaultScreen((Display*)getApp()->getDisplay()));
+  FXString systemtray = FXString::value("_NET_SYSTEM_TRAY_S%d",DefaultScreen((Display*)getApp()->getDisplay()));
   Atom xtrayselection = XInternAtom((Display*)getApp()->getDisplay(),systemtray.text(),0);
   if (xtrayselection!=None) {
     xtraywindow = (FXID)XGetSelectionOwner((Display*)getApp()->getDisplay(),xtrayselection);
@@ -386,13 +386,7 @@ long GMTrayIcon::onLeftBtnPress(FXObject*,FXSelector,void*){
   }
 
 long GMTrayIcon::onMiddleBtnPress(FXObject*,FXSelector,void*){
-  GMPlayerManager * p = GMPlayerManager::instance();
-  if (p->can_pause())
-    p->pause();
-  else if (p->can_unpause())
-    p->unpause();
-  else if (p->can_play())
-    p->play();
+  GMPlayerManager::instance()->cmd_playpause();
   return 1;
   }
 

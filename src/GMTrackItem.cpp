@@ -140,16 +140,6 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
                                 //max=9999;
                                 if (playcount>0) {text.format("%d",playcount); textptr=&text; } else textptr=NULL; break;
 
-#if FOXVERSION < FXVERSION(1,7,0)
-    case HEADER_PLAYDATE      : if (playdate>0) {
-                                text=FXSystem::time((FXTime)(playdate / 1000000000));
-                                textptr=&text;
-                                }
-                                else {
-                                textptr=NULL;
-                                }
-                                break;
-#else
     case HEADER_PLAYDATE      : if (playdate>0) {
                                 text=FXSystem::localTime(playdate);
                                 textptr=&text;
@@ -158,7 +148,6 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
                                 textptr=NULL;
                                 }
                                 break;
-#endif
 
     case HEADER_TIME          : /*textptr = &timestring;*/
                                 text.format("%d:%.2d",time/60,time%60);

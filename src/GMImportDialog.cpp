@@ -101,13 +101,7 @@ GMDirSelector::GMDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
   GMScrollArea::replaceScrollbars(dirbox);
   ((FXVerticalFrame*)dirbox->getParent())->setFrameStyle(FRAME_LINE);
 
-#if FOXVERSION >= FXVERSION(1,7,11)
   dirbox->setAssociations(filedict,false);
-#else
-  FXFileDict * old = dirbox->getAssociations();
-  dirbox->setAssociations(filedict);
-  delete old;
-#endif
 /*
   getFirst()->hide();
   FXFrame * frame=(FXFrame*)getFirst()->getNext();
@@ -120,9 +114,7 @@ GMDirSelector::GMDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
 
 GMDirSelector::~GMDirSelector(){
   delete fileassoc;
-#if FOXVERSION >= FXVERSION(1,7,11)
   delete filedict;
-#endif
   }
 
 
@@ -151,8 +143,8 @@ public:
   void initFileDict();
   void hideButtons();
   void getSelectedFiles(FXStringList & files);
-  
-  FXMatrix * optionFrame() const { return entryblock; }  
+
+  FXMatrix * optionFrame() const { return entryblock; }
   };
 
 FXIMPLEMENT(GMFileSelector,FXFileSelector,NULL,0);
@@ -241,15 +233,8 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   fileassoc=new FXSettings();
   filedict=new FXFileDict(getApp(),fileassoc);
   initFileDict();
-#if FOXVERSION >= FXVERSION(1,7,11)
   filebox->setAssociations(filedict,false);
   dirbox->setAssociations(filedict,false);
-#else
-  FXFileDict * old = filebox->getAssociations();
-  filebox->setAssociations(filedict);
-  dirbox->setAssociations(filedict);
-  delete old;
-#endif
 /*
   entryblock->childAtIndex(2)->hide();
   cancel->hide();
@@ -268,9 +253,7 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
 
 GMFileSelector::~GMFileSelector(){
   delete fileassoc;
-#if FOXVERSION >= FXVERSION(1,7,11)
   delete filedict;
-#endif
   }
 
 
@@ -483,11 +466,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
       fileselector->setSelectMode(SELECTFILE_MULTIPLE);
       }
     fileselector->setCurrentPattern(0);
-#if FOXVERSION < FXVERSION(1,7,20)
-    fileselector->setMatchMode(FILEMATCH_CASEFOLD);
-#else
     fileselector->setMatchMode(FXPath::CaseFold);
-#endif
     fileselector->setDirectory(searchdir);
     fileselector->hideButtons();
     fileselector->acceptButton()->setTarget(this);

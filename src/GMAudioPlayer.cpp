@@ -1,7 +1,6 @@
-#ifndef HAVE_XINE_LIB
-
 #include "gmdefs.h"
 #include "GMApp.h"
+#include "GMTrack.h"
 
 #include <ap.h>
 #include "GMAudioPlayer.h"
@@ -68,11 +67,19 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void* ptr){
           ErrorMessage * err = dynamic_cast<ErrorMessage*>(event);
           fxmessage("[ERROR] %s\n",err->msg.text());
         } break;
+      case AP_META_INFO              :
+        {
+          GMTrack track;
+          MetaInfo * info = dynamic_cast<MetaInfo*>(event);
+//          fxmessage("title %s\n",info->title.text());
+
+          track.title = info->title;
+          target->handle(this,FXSEL(SEL_PLAYER_META,message),&track);
+        } break;
       default: break;
       }
     Event::unref(event);
     }
   return 1;
   }
-#endif
 

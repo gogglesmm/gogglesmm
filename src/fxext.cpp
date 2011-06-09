@@ -19,10 +19,6 @@
 #include "gmdefs.h"
 #include "fxext.h"
 
-#if FOXVERSION < FXVERSION(1,7,0)
-#define gm_make_hilite_color makeHiliteColor
-#define gm_make_shadow_color makeShadowColor
-#else
 
 // Get highlight color
 static FXColor gm_make_hilite_color(FXColor clr){
@@ -54,7 +50,6 @@ static FXColor gm_make_shadow_color(FXColor clr){
   return FXRGB(r,g,b);
   }
 
-#endif
 
 
 
@@ -2137,128 +2132,4 @@ long GMTrackProgressBar::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
     }
   return 0;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-FXIMPLEMENT(GMSettings,FXSettings,NULL,0);
-
-#if FOXVERSION < FXVERSION(1,7,0)
-// Parse filename
-FXbool GMSettings::parseFile(const FXString& filename,FXbool mrk){
-  FXFile file(filename,FXIO::Reading);
-  if(file.isOpen()){
-
-    // Prepare buffer string
-    FXString string('\0',file.size());
-
-    // Load file
-    if(file.readBlock((void*)string.text(),string.length())==string.length()){
-      FXStringDict *group=NULL;
-      FXint lineno=1,p=0,b,e;
-      FXString name;
-      FXString value;
-
-      // Skip BOM, if any
-      if(string[p]=='\xef' && string[p+1]=='\xbb' && string[p+2]=='\xbf') p+=3;
-
-      // Parse one line at a time
-      while(string[p]){
-
-        // Skip leading blanks
-        while(Ascii::isBlank(string[p])) p++;
-
-        // Non-comment
-        if(string[p] && string[p]!='\n' && string[p]!='\r' && string[p]!='#' && string[p]!=';'){
-
-          // Parse section name
-          if(string[p]=='['){
-
-            b=++p;
-
-            // Scan section name
-            while(string[p] && string[p]!=']' && string[p]!='\n' && string[p]!='\r' && !Ascii::isControl(string[p])) p++;
-
-            // Check errors
-            if(string[p]!=']'){ fxwarning("%s:%d: illegal section name.\n",filename.text(),lineno); goto next; }
-
-            e=p++;
-
-            // Grab name
-            name=string.mid(b,e-b);
-
-            // Add new section dict
-            group=insert(name.text());
-            }
-
-          // Parse name-value pair
-          else{
-
-            // Should have seen section prior to this
-            if(!group){ fxwarning("%s:%d: settings entry should follow a section.\n",filename.text(),lineno); goto next; }
-
-            b=p;
-
-            // Scan key name
-            while(string[p] && string[p]!='=' && string[p]!='\n' && string[p]!='\r' && !Ascii::isControl(string[p])) p++;
-
-            // Check errors
-            if(string[p]!='='){ fxwarning("%s:%d: expected '=' to follow key.\n",filename.text(),lineno); goto next; }
-
-            e=p++;
-
-            // Remove trailing spaces after name
-            while(b<e && Ascii::isBlank(string[e-1])) e--;
-
-            // Grab name
-            name=string.mid(b,e-b);
-
-            // Skip leading spaces
-            while(Ascii::isBlank(string[p])) p++;
-
-            // Mark value
-            b=p;
-
-            // Scan value
-            while(string[p] && string[p]!='\n' && string[p]!='\r' && !Ascii::isControl(string[p])) p++;
-
-            e=p;
-
-            // Remove trailing spaces after value
-            while(b<e && Ascii::isBlank(string[e-1])) e--;
-
-            // Grab the unescaped value
-            value=dequote((FXchar*)string.mid(b,e-b).text());
-
-            // Add entry to current section
-            group->replace(name.text(),value.text(),mrk);
-            }
-          }
-
-        // Skip to end of line
-next:   while(string[p] && string[p]!='\n') p++;
-
-        // End of line
-        if(string[p]=='\n'){
-          lineno++;
-          p++;
-          }
-        }
-      return true;
-      }
-    }
-  return false;
-  }
-#endif
 

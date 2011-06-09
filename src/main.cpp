@@ -50,8 +50,6 @@ static bool gm_display_help(int argc,char * argv[]) {
                 "     --toggle-shown    Show or Hide the main window\n"
                 "     --now-playing     Show now playing notification\n"
                 "\n"
-                "Debugging options:\n"
-                "     --xine-debug      Output xine debug info\n"
                 );
       return true;
       }

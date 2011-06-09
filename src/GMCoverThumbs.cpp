@@ -30,10 +30,6 @@
 #include "GMIconTheme.h"
 #include "GMCoverThumbs.h"
 
-#if FOXVERSION < FXVERSION(1,7,0)
-#include <FXJPGImage.h>
-#endif
-
 class UpdateThumbnails : public GMTask {
 public:
   GMAlbumPathList list;
@@ -132,11 +128,7 @@ public:
 
 void FXIntMap::save(FXStream & store) const {
   store << no();
-#if FOXVERSION < FXVERSION(1,7,0)
-  for (FXint i=0;i<size();i++){
-#else
   for (FXuint i=0;i<size();i++){
-#endif
     if (!empty(i)) {
       store << key(i);
       store << value(i);
@@ -236,7 +228,7 @@ FXbool GMCoverThumbs::load() {
   if (store.open(GMApp::getCacheDirectory()+PATHSEPSTRING+"albumcovers.cache",FXStreamLoad)) {
     FXint no,imgsize;
     FXuint version;
-    
+
     store >> version;
     if (version!=COVERTHUMBS_CACHE_FILE_VERSION)
       return false;
@@ -244,7 +236,7 @@ FXbool GMCoverThumbs::load() {
     store >> imgsize;
     if (imgsize!=image_size)
       return false;
-    
+
     id2map.load(store);
     id2album.load(store);
     store >> no;
@@ -328,7 +320,7 @@ FXint GenerateThumbnails::run() {
   fxmessage("Generating Thumbnails...\n");
   for (FXint i=0;i<list.no() && processing;i++){
     fraction = (i+1) / ((double)list.no());
-    taskmanager->setStatus(GMStringFormat("Loading Covers %d%%",(FXint)(100.0*fraction)));
+    taskmanager->setStatus(FXString::value("Loading Covers %d%%",(FXint)(100.0*fraction)));
     cover = GMCover::fromTag(list[i].path,thumbs.size(),1);
     if (cover==NULL)
       cover = GMCover::fromPath(FXPath::directory(list[i].path),thumbs.size(),1);
@@ -356,7 +348,7 @@ FXint UpdateThumbnails::run() {
   fxmessage("Updating Thumbnails...\n");
   for (FXint i=0;i<list.no() && processing;i++){
     fraction = (i+1) / ((double)list.no());
-    taskmanager->setStatus(GMStringFormat("Loading Covers %d%%",(FXint)(100.0*fraction)));
+    taskmanager->setStatus(FXString::value("Loading Covers %d%%",(FXint)(100.0*fraction)));
 
     cover = GMCover::fromTag(list[i].path,thumbs.size());
     if (cover==NULL)

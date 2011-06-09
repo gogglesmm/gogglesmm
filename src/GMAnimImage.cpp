@@ -42,10 +42,6 @@ GMAnimImage::GMAnimImage(FXComposite* p,FXImage *img,FXint base,FXuint opts,FXin
   imgw=imgh=base;
   nrow=img->getWidth()/imgw;
   ncol=img->getHeight()/imgh;
-
-
-//  nrow=8;
-//  ncol=4;
   }
 
 GMAnimImage::~GMAnimImage(){

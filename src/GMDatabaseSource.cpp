@@ -446,7 +446,7 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
 
     query = "CREATE TEMP VIEW filtered AS SELECT tracks.id as track, tracks.album as album FROM tracks WHERE ";
     if (playlist) {
-      query+="id IN (SELECT track FROM playlist_tracks WHERE playlist == " + GMStringVal(playlist) + ") AND (";
+      query+="id IN (SELECT track FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + ") AND (";
       }
 
     if (!tagfilter.empty()) {
@@ -504,7 +504,7 @@ FXbool GMDatabaseSource::listTags(GMList * list,FXIcon * icon) {
       }
     else {
       if (playlist)
-        query = "SELECT DISTINCT(tags.id),tags.name from tags WHERE id IN (SELECT tag FROM playlist_tracks JOIN track_tags ON (playlist_tracks.playlist == "  + GMStringVal(playlist) +" AND track_tags.track == playlist_tracks.track));";
+        query = "SELECT DISTINCT(tags.id),tags.name from tags WHERE id IN (SELECT tag FROM playlist_tracks JOIN track_tags ON (playlist_tracks.playlist == "  + FXString::value(playlist) +" AND track_tags.track == playlist_tracks.track));";
       else
         query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags);";
       }
@@ -524,14 +524,14 @@ FXbool GMDatabaseSource::listTags(GMList * list,FXIcon * icon) {
 
 static void gm_query_make_selection(const FXIntList & list,FXString & selection){
   if (list.no()>1) {
-    selection=GMStringFormat(" IN ( %d",list[0]);
+    selection=FXString::value(" IN ( %d",list[0]);
     for (FXint i=1;i<list.no();i++){
-      selection+=GMStringFormat(",%d",list[i]);
+      selection+=FXString::value(",%d",list[i]);
       }
     selection+=") ";
     }
   else if(list.no()==1) {
-    selection=GMStringFormat(" == %d ",list[0]);
+    selection=FXString::value(" == %d ",list[0]);
     }
   }
 
@@ -562,14 +562,14 @@ FXbool GMDatabaseSource::listComposers(GMList * list,FXIcon * icon,const FXIntLi
                   "FROM artists "
                   "WHERE id IN ( "
                     "SELECT DISTINCT(composer) FROM tracks WHERE id IN ( "
-                      "SELECT DISTINCT(track) FROM playlist_tracks WHERE playlist == " + GMStringVal(playlist) + "));";
+                      "SELECT DISTINCT(track) FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + "));";
           }
         }
       else {
         if (!playlist)
           query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(composer) FROM tracks WHERE genre " + genreselection + ");";
         else
-          query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(composer) FROM tracks WHERE genre " + genreselection + " AND id IN ( SELECT DISTINCT(track) FROM playlist_tracks WHERE playlist == " + GMStringVal(playlist) + "));";
+          query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(composer) FROM tracks WHERE genre " + genreselection + " AND id IN ( SELECT DISTINCT(track) FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + "));";
         }
       }
     else {
@@ -629,7 +629,7 @@ FXbool GMDatabaseSource::listArtists(GMList * list,FXIcon * icon,const FXIntList
         if (!playlist)
           query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums);";
         else
-          query = "SELECT DISTINCT(artists.id), artists.name FROM albums JOIN artists ON artists.id == albums.artist AND albums.id IN (SELECT DISTINCT(album) FROM playlist_tracks JOIN tracks ON playlist_tracks.track == tracks.id AND playlist_tracks.playlist == " + GMStringVal(playlist) + " ORDER BY album)";
+          query = "SELECT DISTINCT(artists.id), artists.name FROM albums JOIN artists ON artists.id == albums.artist AND albums.id IN (SELECT DISTINCT(album) FROM playlist_tracks JOIN tracks ON playlist_tracks.track == tracks.id AND playlist_tracks.playlist == " + FXString::value(playlist) + " ORDER BY album)";
         }
       else {
         if (!playlist) {
@@ -641,7 +641,7 @@ FXbool GMDatabaseSource::listArtists(GMList * list,FXIcon * icon,const FXIntList
           query+=tagselection + "));";
           }
         else {
-          query = "SELECT DISTINCT(artists.id),artists.name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums WHERE id IN (SELECT DISTINCT(album) from tracks WHERE id IN (SELECT track FROM playlist_tracks WHERE playlist == "+ GMStringVal(playlist) +" INTERSECT SELECT track from track_tags WHERE tag "+ tagselection +" )));";
+          query = "SELECT DISTINCT(artists.id),artists.name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums WHERE id IN (SELECT DISTINCT(album) from tracks WHERE id IN (SELECT track FROM playlist_tracks WHERE playlist == "+ FXString::value(playlist) +" INTERSECT SELECT track from track_tags WHERE tag "+ tagselection +" )));";
           }
         }
       }
@@ -694,10 +694,10 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
     else {
       if (playlist) {
         if (taglist.no()) {
-          query = "SELECT DISTINCT(albums.id),albums.name,albums.year,artists.name FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM tracks WHERE id IN (SELECT track FROM playlist_tracks WHERE playlist == "+ GMStringVal(playlist) +" INTERSECT SELECT track FROM track_tags WHERE tag " + tagselection + ")) ";
+          query = "SELECT DISTINCT(albums.id),albums.name,albums.year,artists.name FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM tracks WHERE id IN (SELECT track FROM playlist_tracks WHERE playlist == "+ FXString::value(playlist) +" INTERSECT SELECT track FROM track_tags WHERE tag " + tagselection + ")) ";
           }
         else {
-          query = "SELECT DISTINCT(albums.id),albums.name,albums.year,artists.name FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM playlist_tracks JOIN tracks ON playlist_tracks.track == tracks.id AND playlist_tracks.playlist == "+ GMStringVal(playlist) +")";
+          query = "SELECT DISTINCT(albums.id),albums.name,albums.year,artists.name FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM playlist_tracks JOIN tracks ON playlist_tracks.track == tracks.id AND playlist_tracks.playlist == "+ FXString::value(playlist) +")";
           }
         if (artistlist.no())
           query+=" AND artist " + artistselection;
@@ -814,7 +814,7 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
                    "tracks.rating ";
 
     if (playlist)
-      query += "FROM playlist_tracks JOIN tracks ON playlist_tracks.playlist == " + GMStringVal(playlist) + " AND playlist_tracks.track == tracks.id ";
+      query += "FROM playlist_tracks JOIN tracks ON playlist_tracks.playlist == " + FXString::value(playlist) + " AND playlist_tracks.track == tracks.id ";
     else
       query += "FROM tracks ";
 
@@ -984,11 +984,7 @@ long GMDatabaseSource::onCmdExport(FXObject*,FXSelector,void*){
   dialog.setSelectMode(SELECTFILE_ANY);
   dialog.setPatternList(patterns);
   dialog.setCurrentPattern(0);
-#if FOXVERSION < FXVERSION(1,7,20)
-  dialog.setMatchMode(FILEMATCH_CASEFOLD);
-#else
   dialog.setMatchMode(FXPath::CaseFold);
- #endif
   dialog.setRelativePath(FXApp::instance()->reg().readBoolEntry("Settings","export-relative-paths",false));
 
   if (dialog.execute()){
@@ -1103,7 +1099,7 @@ long GMDatabaseSource::onCmdExportTracks(FXObject*,FXSelector sel,void*){
     for (FXint i=0;i<files.no();i++){
       db->getTrack(tracks[i],info);
       GMFilename::create(dest,info,"/home/sxj/cartrip/-%p-%T","\'\\#~!\"$&();<>|`^*?[]/.:",GMFilename::NOSPACES|GMFilename::LOWERCASE|GMFilename::LOWERCASE_EXTENSION);
-      dest = FXPath::directory(dest) + PATHSEPSTRING + GMStringFormat("%.3d",i+1) + FXPath::name(dest);
+      dest = FXPath::directory(dest) + PATHSEPSTRING + FXString::value("%.3d",i+1) + FXPath::name(dest);
       fxmessage("%s\n",dest.text());
       FXFile::copy(files[i],dest);
       }

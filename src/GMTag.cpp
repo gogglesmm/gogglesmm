@@ -635,14 +635,15 @@ void GMFileTag::setTitle(const FXString & value){
 void GMFileTag::getTitle(FXString& value) const {
   if (xiph) {
     FXStringList vals;
-    xiph_get_field("TITLE",vals);  
+    xiph_get_field("TITLE",vals);
+    value.clear();
     if (vals.no()) {
       for (FXint i=0;i<vals.no();i++) {
         vals[i].trim();
         if (!value.empty()) value+=" - ";
         value+=vals[i];
         }
-      } 
+      }
     }
   else {
     value=tag->title().toCString(true);
@@ -663,13 +664,13 @@ void GMFileTag::parse_tagids(FXStringList & tags)const{
 void GMFileTag::setDiscNumber(FXushort disc) {
   if (xiph) {
     if (disc>0)
-      xiph_update_field("DISCNUMBER",GMStringFormat("%d",disc));
+      xiph_update_field("DISCNUMBER",FXString::value("%d",disc));
     else
       xiph_update_field("DISCNUMBER",FXString::null);
     }
   else if (id3v2) {
     if (disc>0)
-      id3v2_update_field("TPOS",GMStringFormat("%d",disc));
+      id3v2_update_field("TPOS",FXString::value("%d",disc));
     else
       id3v2_update_field("TPOS",FXString::null);
     }
@@ -687,11 +688,7 @@ void GMFileTag::setDiscNumber(FXushort disc) {
 static FXushort string_to_disc_number(const FXString & disc) {
   if (disc.empty())
     return 0;
-#if FOXVERSION >= FXVERSION(1,7,12)
   return FXMIN(disc.before('/').toUInt(),0xFFFF);
-#else
-  return FXMIN(FXUIntVal(disc.before('/')),0xFFFF);
-#endif
   }
 
 FXushort GMFileTag::getDiscNumber() const{

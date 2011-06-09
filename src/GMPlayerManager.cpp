@@ -47,7 +47,6 @@
 
 #include <FXPNGIcon.h>
 #include "GMApp.h"
-#include "GMPlayer.h"
 #include "GMWindow.h"
 #include "GMTrackList.h"
 #include "GMRemote.h"
@@ -67,15 +66,10 @@
 
 #include "GMIconTheme.h"
 #include "GMPlayerManager.h"
-#include "GMFetch.h"
-#include "GMEQDialog.h"
 #include "GMTrayIcon.h"
 
 #include "GMCoverThumbs.h"
-
-#ifndef HAVE_XINE_LIB
 #include "GMAudioPlayer.h"
-#endif
 
 #include "GMAudioScrobbler.h"
 
@@ -95,9 +89,6 @@ enum {
 
 FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
   FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_UPDATE_TRACK_DISPLAY,GMPlayerManager::onUpdTrackDisplay),
-#ifdef HAVE_XINE_LIB
-  FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_HANDLE_EVENTS,GMPlayerManager::onUpdEvents),
-#endif
   FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_SLEEP_TIMER,GMPlayerManager::onCmdSleepTimer),
   FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_PLAY_NOTIFY,GMPlayerManager::onPlayNotify),
   FXMAPFUNC(SEL_IO_READ,GMPlayerManager::ID_DDE_MESSAGE,GMPlayerManager::onDDEMessage),
@@ -108,7 +99,6 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_SCROBBLER,GMPlayerManager::onScrobblerError),
   FXMAPFUNC(SEL_OPENED,GMPlayerManager::ID_SCROBBLER,GMPlayerManager::onScrobblerOpen),
 
-  FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_EQUALIZER,GMPlayerManager::onCmdEqualizer),
 
 #ifdef HAVE_DBUS
   FXMAPFUNC(SEL_KEYPRESS,GMPlayerManager::ID_GNOME_SETTINGS_DAEMON,GMPlayerManager::onCmdSettingsDaemon),
@@ -116,13 +106,12 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
 #ifdef HAVE_LIRC
   FXMAPFUNC(SEL_IO_READ,GMPlayerManager::ID_LIRC,GMPlayerManager::onCmdLirc),
 #endif
-//#ifndef HAVE_XINE_LIB
   FXMAPFUNC(SEL_PLAYER_BOS,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerBOS),
   FXMAPFUNC(SEL_PLAYER_EOS,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerEOS),
   FXMAPFUNC(SEL_PLAYER_TIME,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerTime),
   FXMAPFUNC(SEL_PLAYER_STATE,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerState),
-//#endif
-  FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_DOWNLOAD_COMPLETE,GMPlayerManager::onCmdDownloadComplete),
+  FXMAPFUNC(SEL_PLAYER_META,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerMeta),
+
   FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_CANCEL_TASK,GMPlayerManager::onCancelTask),
 
   FXMAPFUNC(SEL_TASK_STATUS,GMPlayerManager::ID_TASKMANAGER,GMPlayerManager::onTaskManagerStatus),
@@ -364,13 +353,6 @@ long GMPlayerManager::onUpdTrackDisplay(FXObject*,FXSelector,void*){
   return 0;
   }
 
-#ifdef HAVE_XINE_LIB
-long GMPlayerManager::onUpdEvents(FXObject*,FXSelector,void*){
-  handle_async_events();
-  application->addTimeout(this,GMPlayerManager::ID_HANDLE_EVENTS,TIME_MSEC(500));
-  return 0;
-  }
-#endif
 
 /* Stop Playback! */
 long GMPlayerManager::onCmdSleepTimer(FXObject*,FXSelector,void*){
@@ -480,9 +462,6 @@ GMPlayerManager::~GMPlayerManager() {
   delete player;
   delete taskmanager;
 
-  /// Clean up global resources
-  GMFetch::exit();
-
   myself=NULL;
 
   delete application;
@@ -590,10 +569,8 @@ FXbool GMPlayerManager::init_sources() {
     sources.append(queue);
     }
 
-//#ifdef HAVE_XINE_LIB
   /// Internet Streams
   sources.append(new GMStreamSource(database));
-//#endif
 
   /// File System
   sources.append(new GMLocalSource());
@@ -692,9 +669,6 @@ void GMPlayerManager::init_window(FXbool wizard) {
     else
       mainwindow->init(SHOW_NORMAL);
     }
-#ifdef HAVE_XINE_LIB
-  application->addTimeout(this,GMPlayerManager::ID_HANDLE_EVENTS,TIME_MSEC(500));
-#endif
   }
 
 
@@ -729,7 +703,7 @@ void GMPlayerManager::init_configuration() {
     FXString oldconfig = FXSystem::getHomeDirectory()+PATHSEPSTRING ".foxrc" PATHSEPSTRING "musicmanager";
 
     /// Move old files over to new directory;
-    FXFile::moveFiles(oldbase+"xineconf",newbase+"xineconf");
+    ///FXFile::moveFiles(oldbase+"xineconf",newbase+"xineconf");
 
     /// Move Settings
     if (FXStat::exists(oldconfig))
@@ -756,11 +730,7 @@ void GMPlayerManager::init_lirc() {
     if (lirc_readconfig(NULL,&lirc_config,NULL))
       fxmessage("oops\n");
 
-#if FOXVERSION < FXVERSION(1,7,0)
-    application->addInput(lirc_fd,INPUT_READ,this,ID_LIRC);
-#else
     application->addInput(this,ID_LIRC,lirc_fd,INPUT_READ);
-#endif
     }
 
   }
@@ -849,7 +819,6 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
 
   /// Initialize pre-thread libraries.
   GMTag::init();
-  GMFetch::init();
 
   if (!init_gcrypt())
     return 1;
@@ -886,7 +855,6 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   taskmanager = new GMTaskManager(this,ID_TASKMANAGER);
 
 #ifdef HAVE_DBUS
-
   /// Connect to the dbus...
   if (!init_dbus(argc,argv))
     return 0;
@@ -919,33 +887,15 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     return false;
 
   /// Everything opened succesfully... now create the GUI
-#ifdef HAVE_XINE_LIB
-  player = new GMPlayer(application,argc,argv,this,ID_AUDIO_PLAYER);
-#else
   player = new GMAudioPlayer(application,this,ID_AUDIO_PLAYER);
-#endif
 
   /// Open Audio Device if needed.
-#ifdef HAVE_XINE_LIB
-  if (preferences.play_open_device_on_startup) {
-    if (!player->init()) {
-      FXString errormsg;
-      player->getErrorMessage(errormsg);
-      FXMessageBox::error(application,MBOX_OK,fxtr("Audio Device Error"),"%s",errormsg.text());
-      }
-    }
-#else
   player->init();
   player->loadSettings();
-#endif
 
   /// Receive events from fifo
   if (fifo.isOpen()) {
-#if FOXVERSION < FXVERSION(1,7,0)
-    application->addInput(fifo.handle(),INPUT_READ,this,GMPlayerManager::ID_DDE_MESSAGE);
-#else
     application->addInput(this,GMPlayerManager::ID_DDE_MESSAGE,fifo.handle(),INPUT_READ);
-#endif
     }
 
   FXString url = get_cmdline_url(argc,argv);
@@ -1000,21 +950,12 @@ void GMPlayerManager::exit() {
   /// Stop Playing
   stop();
 
-
-#ifndef HAVE_XINE_LIB
   player->saveSettings();
-#endif
-
   player->exit();
 
   /// Save settings
   for (FXint i=0;i<sources.no();i++)
     sources[i]->save(application->reg());
-
-
-#ifdef HAVE_XINE_LIB
-  application->removeTimeout(this,GMPlayerManager::ID_HANDLE_EVENTS);
-#endif
 
   application->removeTimeout(this,GMPlayerManager::ID_UPDATE_TRACK_DISPLAY);
 
@@ -1180,206 +1121,45 @@ void GMPlayerManager::removePlayListSources(){
     }
   }
 
-void GMPlayerManager::download(const FXString & filename){
-  FXString status = "Downloading " + filename + " ...";
-  GMPlayerManager::instance()->setStatus(status);
-  GMFetch::download(filename);
-  }
+///FXbool GMPlayerManager::play(const FXString & filename,FXbool flush) {
+//  player->open(filename,flush);
+//  }
 
-FXbool GMPlayerManager::play(const FXString & filename,FXbool flush) {
-  player->open(filename,flush);
 
-#if 0
-#ifdef HAVE_XINE_LIB
-  FXString errormsg;
 
-  /// Open Filename
-  if (!player->open(filename)){
 
-    /// Reset Source
-    if (source) {
-      application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
-      source->resetCurrent();
-      source=NULL;
-      }
 
-    /// Reset Track Display
-    reset_track_display();
+void GMPlayerManager::open(const FXString & url) {
 
-    /// Show error dialog once we return to event loop
-    application->addChore(this,ID_PLAYER_ERROR);
-
-    /// Close
-    if (preferences.play_close_stream)
-      player->exit();
-
-    return false;
-    }
-
-  /// Start Playback
-  if (!player->play()) {
-
-    /// Reset Source
-    if (source) {
-      application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
-      source->resetCurrent();
-      source=NULL;
-      }
-
-    /// Reset Track Display
-    reset_track_display();
-
-    /// Show error dialog once we return to event loop
-    application->addChore(this,ID_PLAYER_ERROR);
-
-    /// Close
-    if (preferences.play_close_stream)
-      player->exit();
-
-    return false;
-    }
-#else
-  fxmessage("open %s\n",filename.text());
-  player->open(filename,flush);
-//  player->play();
-#endif
-#endif
-  return true;
-  }
-
-#ifdef HAVE_XINE_LIB
-FXbool GMPlayerManager::play(const FXStringList & list) {
-  FXString errormsg;
-
-  for (FXint i=0;i<list.no();i++) {
-    /// Open Filename
-    if (!player->open(list[i])){
-      continue;
-      }
-    /// Start Playback
-    if (!player->play()) {
-      continue;
-      }
-    return true;
-    }
-
-  /// Show error dialog once we return to event loop
-  application->addChore(this,ID_PLAYER_ERROR);
-
-  /// Reset Source
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
     source->resetCurrent();
     source=NULL;
     }
 
-  /// Reset Track Display
-  reset_track_display();
-
-  /// Close
-  if (preferences.play_close_stream)
-    player->exit();
-
-  return false;
-  }
-#else
-FXbool GMPlayerManager::play(const FXStringList &) {
-  return false;
-  }
-#endif
-
-
-
-
-void GMPlayerManager::open(const FXString & filename) {
-
-  /// Stop Current Playback
-  player->stop();
-
-  /// Remove Current Timeout
-  if (source) {
-    application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
-    source->resetCurrent();
-    source=NULL;
-    }
-
-#ifdef HAVE_XINE_LIB
-  /// Check for pls or m3u, since xine cannot handle that
-  FXbool local = gm_is_local_file(filename);
-  if (!local) {
-    FXString extension = FXPath::extension(GMURL::path(filename));
-    if ((comparecase(extension,"pls")==0) || (comparecase(extension,"m3u")==0)){
-      download(filename);
-      return;
-      }
-    }
-
-  if (local) {
+  if (gm_is_local_file(url)) {
     FXint id;
-    if (sources[0]->hasTrack(filename,id)) {
-      sources[0]->setCurrentTrack(id);
-      source=sources[0];
-      getTrackView()->handle(this,FXSEL(SEL_COMMAND,GMTrackView::ID_SHOW_CURRENT),NULL);
+    if (sources[0]->hasTrack(url,id)) {
+      source       = sources[0];
       trackinfoset = source->getTrack(trackinfo);
+      sources[0]->setCurrentTrack(id);
       }
     else {
-      /// Reset Active Track
       getTrackView()->mark(-1);
       }
     }
   else {
-    /// Reset Active Track
     getTrackView()->mark(-1);
     }
 
-
-  play(filename);
-/*
-    /// Play File
-  if (play(filename) && local) {
-    if (source==NULL) {
-      player->getTrackInformation(trackinfo);
-      }
-    update_track_display();
-    }
-*/
-
-#else
-  FXbool local = gm_is_local_file(filename);
-  if (local) {
-    FXint id;
-    if (sources[0]->hasTrack(filename,id)) {
-      sources[0]->setCurrentTrack(id);
-      source=sources[0];
-//      getTrackView()->handle(this,FXSEL(SEL_COMMAND,GMTrackView::ID_SHOW_CURRENT),NULL);
-      trackinfoset = source->getTrack(trackinfo);
-      }
-    else {
-      /// Reset Active Track
-      getTrackView()->mark(-1);
-      }
-    }
-  else {
-    /// Reset Active Track
-    getTrackView()->mark(-1);
-    }
-  play(filename);
-#endif
+  player->open(url,true);
   }
 
 
 
-
-
-
-
-void GMPlayerManager::play() {
-  FXString filename;
+void GMPlayerManager::playItem(FXuint whence) {
   FXint track=-1;
 
-  /// Stop Current Playback
-  //player->stop();
-
   /// Remove Current Timeout
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
@@ -1387,57 +1167,45 @@ void GMPlayerManager::play() {
     source=NULL;
     }
 
-  if (queue) {
 
-    /// Get the track
-    track = queue->getCurrent();
+  if (queue) {
+    switch(whence) {
+      case TRACK_CURRENT : track = queue->getCurrent(); break;
+      case TRACK_NEXT    : track = queue->getNext(); break;
+      case TRACK_PREVIOUS: track = queue->getPrev(); break;
+      default            : FXASSERT(0); break;
+      };
     if (track!=-1) {
-      trackinfoset = queue->getTrack(trackinfo);
       source = queue;
       }
     }
 
   if (track==-1) {
-
-    /// Get Track
-    track = getTrackView()->getCurrent();
-    if (track==-1)
-      return;
-
-    /// Mark Track
-    source = getTrackView()->getSource();
-    getTrackView()->mark(track);
-
-    /// Get the track info
-    trackinfoset = source->getTrack(trackinfo);
-    }
-
-
-  /// Check for pls or m3u, since xine cannot handle that
-#ifdef HAVE_XINE_LIB
-  FXbool local = gm_is_local_file(trackinfo.mrl);
-  if (!local) {
-    FXString extension = FXPath::extension(GMURL::path(trackinfo.mrl));
-    if ((comparecase(extension,"pls")==0) || (comparecase(extension,"m3u")==0)){
-      download(trackinfo.mrl);
-      return;
+    switch(whence) {
+      case TRACK_CURRENT : track = getTrackView()->getCurrent(); break;
+      case TRACK_NEXT    : track = getTrackView()->getNext(true); break;
+      case TRACK_PREVIOUS: track = getTrackView()->getPrevious(); break;
+      default            : FXASSERT(0); break;
+      };
+    if (track!=-1) {
+      source = getTrackView()->getSource();
       }
     }
-#endif
 
-//#ifdef HAVE_GAP
-  play(trackinfo.mrl);
-//#else
-//  if (play(trackinfo.mrl) && local)
-//    update_track_display();
-//#endif
+  if (source) {
+    getTrackView()->mark(track);
+    trackinfoset = source->getTrack(trackinfo);
+    player->open(trackinfo.mrl,true);
+    }
+  else {
+    player->stop();
+    }
   }
 
 
-void GMPlayerManager::stop(FXbool force_close) {
 
-  /// Wait for download to finish.
-  GMFetch::cancel_and_wait();
+
+void GMPlayerManager::stop(FXbool force_close) {
 
   /// Reset Source
   if (source) {
@@ -1446,127 +1214,10 @@ void GMPlayerManager::stop(FXbool force_close) {
     source=NULL;
     }
 
-#ifdef HAVE_XINE_LIB
-  if (preferences.play_close_stream || force_close){
-    player->stop();
-    player->exit();
-    }
-  else {
-    player->stop();
-    }
-#else
   player->stop();
-#endif
 
   /// Reset Track Display
   reset_track_display();
-  }
-
-void GMPlayerManager::next() {
-  FXint track=-1;
-#ifdef HAVE_XINE_LIB
-  player->stop();
-#endif
-
-  if (source) {
-    application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
-    source->resetCurrent();
-    source=NULL;
-    }
-
-  if (queue) {
-    source = queue;
-    track = queue->getNext();
-    if (track!=-1) {
-      trackinfoset = queue->getTrack(trackinfo);
-      }
-    }
-
-  if (track==-1) {
-    track = getTrackView()->getNext(true);
-    if (track==-1) {
-      reset_track_display();
-      player->stop();
-      return;
-      }
-
-    source = getTrackView()->getSource();
-    getTrackView()->mark(track);
-
-    /// Get the Track info
-    trackinfoset = source->getTrack(trackinfo);
-    }
-
-#ifdef HAVE_XINE_LIB
-  /// Check for pls or m3u, since xine cannot handle that
-  FXbool local = gm_is_local_file(trackinfo.mrl);
-  if (!local) {
-    FXString extension = FXPath::extension(GMURL::path(trackinfo.mrl));
-    if ((comparecase(extension,"pls")==0) || (comparecase(extension,"m3u")==0)){
-      download(trackinfo.mrl);
-      return;
-      }
-    }
-#endif
-
-  play(trackinfo.mrl);
-  }
-
-
-void GMPlayerManager::prev() {
-  FXString filename;
-  FXint track=-1;
-
-#ifdef HAVE_XINE_LIB
-  player->stop();
-#endif
-
-  /// Stop Current Playback
-
-
-  /// Remove Current Timeout
-  if (source) {
-    application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
-    source->resetCurrent();
-    source=NULL;
-    }
-
-  if (queue) {
-    source = queue;
-    track = queue->getPrev();
-    if (track!=-1)
-      trackinfoset = queue->getTrack(trackinfo);
-    }
-
-  if (track==-1) {
-    track = getTrackView()->getPrevious();
-    if (track==-1) {
-      player->stop();
-      reset_track_display();
-      return;
-      }
-
-    /// Mark Track
-    source = getTrackView()->getSource();
-    getTrackView()->mark(track);
-
-    /// Get the Track info
-    trackinfoset = source->getTrack(trackinfo);
-    }
-
-#ifdef HAVE_XINE_LIB
-  /// Check for pls or m3u, since xine cannot handle that
-  FXbool local = gm_is_local_file(trackinfo.mrl);
-  if (!local) {
-    FXString extension = FXPath::extension(GMURL::path(trackinfo.mrl));
-    if ((comparecase(extension,"pls")==0) || (comparecase(extension,"m3u")==0)){
-      download(trackinfo.mrl);
-      return;
-      }
-    }
-#endif
-
-  play(trackinfo.mrl);
   }
 
 
@@ -1574,18 +1225,12 @@ void GMPlayerManager::prev() {
 void GMPlayerManager::seek(FXdouble pos) {
   application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
   player->seek(pos);
-#ifdef HAVE_XINE_LIB
-  application->addTimeout(this,GMPlayerManager::ID_HANDLE_EVENTS,TIME_MSEC(500));
-#endif
   }
 
 
 void GMPlayerManager::pause() {
   if (preferences.play_pause_close_device){
     player->pause();
-#ifdef HAVE_XINE_LIB
-    player->close_device();
-#endif
     }
   else {
     player->pause();
@@ -1604,22 +1249,7 @@ void GMPlayerManager::pause() {
   }
 
 void GMPlayerManager::unpause() {
-#ifdef HAVE_XINE_LIB
-  player->unpause();
-
-  if (player->getVolume()==0)
-    player->setVolume(50);
-
-  if (count_track_remaining && source){
-    application->addTimeout(source,GMSource::ID_TRACK_PLAYED,count_track_remaining);
-    }
-  count_track_remaining=0;
-
-  mainwindow->update_volume_display(player->getVolume());
-#else
- //fxmessage("unpause()\n");
   player->pause();
-#endif
  }
 
 FXbool GMPlayerManager::playlist_empty() {
@@ -1633,9 +1263,6 @@ void GMPlayerManager::notify_playback_finished() {
   FXString errormsg;
   FXString filename;
   FXint track=-1;
-#ifdef HAVE_XINE_LIB
-  FXint remaining = player->remaining();
-#endif
 
   if (queue) {
 
@@ -1694,37 +1321,19 @@ void GMPlayerManager::notify_playback_finished() {
     trackinfoset = source->getTrack(trackinfo);
     }
 
-
-#ifdef HAVE_XINE_LIB
-  if (play(trackinfo.mrl,false)) {
-    if (remaining>0)
-      application->addTimeout(this,GMPlayerManager::ID_UPDATE_TRACK_DISPLAY,TIME_SEC(remaining),(void*)(FXival)track);
-    else
-      update_track_display();
-    }
-#else
-  play(trackinfo.mrl,false);
-#endif
+  player->open(trackinfo.mrl,false);
   }
 
 FXbool GMPlayerManager::playing() const {
-  return player->playing() || GMFetch::busy() ;
+  return player->playing() ;
   }
 
 FXbool GMPlayerManager::audio_device_opened() const{
-#ifdef HAVE_XINE_LIB
-  return player->opened();
-#else
   return true;
-#endif
   }
 
 FXint GMPlayerManager::current_position() const {
-#ifdef HAVE_XINE_LIB
-  return player->getPosition();
-#else
   return 0;
-#endif
   }
 
 void GMPlayerManager::reset_track_display() {
@@ -1774,13 +1383,6 @@ void GMPlayerManager::update_track_display(FXbool notify) {
   FXTRACE((51,"GMPlayerManager::update_track_display()\n"));
 
   /// If track information is not set, we need to get the latest from the player.
-#ifdef HAVE_XINE_LIB
-  if (!trackinfoset && player->playing()) {
-    player->getTrackInformation(trackinfo);
-    if (source) source->setTrack(trackinfo);
-    }
-#endif
-
   if (source) {
     FXint time = (FXint) (((double)trackinfo.time) * 0.80);
     if (time <= 5) {
@@ -1793,20 +1395,13 @@ void GMPlayerManager::update_track_display(FXbool notify) {
       }
     }
 
-#ifdef HAVE_XINE_LIB
-  if (trayicon && player->playing()) {
-    trayicon->display(trackinfo);
-    }
-#endif
+//#ifdef HAVE_XINE_LIB
+//  if (trayicon && player->playing()) {
+//    trayicon->display(trackinfo);
+//    }
+//#endif
 
   mainwindow->display(trackinfo);
-
-#ifdef HAVE_XINE_LIB
-  /// Make sure Volume Level is up 2 date
-  mainwindow->update_volume_display(player->getVolume());
-#endif
-
-  update_replay_gain();
 
   if (notify) application->addTimeout(this,ID_PLAY_NOTIFY,TIME_MSEC(500));
 
@@ -1820,95 +1415,35 @@ void GMPlayerManager::update_track_display(FXbool notify) {
 
   }
 
-void GMPlayerManager::update_replay_gain() {
-#ifdef HAVE_XINE_LIB
-  switch(preferences.play_replaygain){
-    case REPLAYGAIN_OFF   : player->setReplayGain(NAN,NAN); break;
-    case REPLAYGAIN_TRACK : player->setReplayGain(trackinfo.track_gain,trackinfo.track_peak); break;
-    case REPLAYGAIN_ALBUM : player->setReplayGain(trackinfo.album_gain,trackinfo.album_peak); break;
-    }
-#endif
-  }
 
-
-void GMPlayerManager::handle_async_events() {
-#ifdef HAVE_XINE_LIB
-  /// Get Events from player
-  player->handle_async_events();
-
-  /// Mark Time
-  mainwindow->update_elapsed_time(player->getHours(),player->getMinutes(),player->getSeconds(),player->getPosition(),player->playing(),player->seekable());
-#endif
-  }
 
 FXint GMPlayerManager::volume() const{
-#ifdef HAVE_XINE_LIB
-  return player->getVolume();
-#else
   return 0;
-#endif
   }
 
 void GMPlayerManager::volume(FXint l) {
-#ifdef HAVE_XINE_LIB
-  player->setVolume(l);
-#else
   player->volume((FXfloat)l/100.0f);
-#endif
   }
 
 FXbool GMPlayerManager::can_stop() const {
-#ifdef HAVE_XINE_LIB
-  if (player->playing() || GMFetch::busy() ) return true;
+  if (player->playing()) return true;
   return false;
-#else
-  if (player->playing() || GMFetch::busy() ) return true;
-  return false;
-#endif
   }
 
 FXbool GMPlayerManager::can_play() const {
-#ifdef HAVE_XINE_LIB
-
-//  if (queue) {
-    return (!player->playing() && ((queue && queue->getNumTracks()>0) ||  getTrackView()->hasTracks())  && !GMFetch::busy());
-//    }
-//  else {
-//    return (!player->playing() && getTrackView()->hasTracks() && !GMFetch::busy());
-//    }
-  return false;
-
-//  return false;
-#else
-  return (!player->playing() && ((queue && queue->getNumTracks()>0) ||  getTrackView()->hasTracks())  && !GMFetch::busy());
-
-
-//  return true;
-#endif
+  return (!player->playing() && ((queue && queue->getNumTracks()>0) ||  getTrackView()->hasTracks()));
   }
 
 FXbool GMPlayerManager::can_pause() const {
-#ifdef HAVE_XINE_LIB
   if (player->playing() && !player->pausing())
     return true;
   return false;
-#else
-  if (player->playing() && !player->pausing())
-    return true;
-  return false;
-#endif
   }
 
 FXbool GMPlayerManager::can_unpause() const {
-#ifdef HAVE_XINE_LIB
-  if (player->playing() && player->pausing())
-    return true;
-  return false;
-#else
   if (player->pausing())
     return true;
   return false;
-#endif
   }
 
 FXbool GMPlayerManager::can_next() const {
@@ -2001,11 +1536,11 @@ long GMPlayerManager::onScrobblerOpen(FXObject*,FXSelector,void*ptr){
 
 
 long GMPlayerManager::onPlayerError(FXObject*,FXSelector,void*){
-#ifdef HAVE_XINE_LIB
-  FXString errormsg;
-  player->getErrorMessage(errormsg);
-  show_message(fxtr("Playback Error"),errormsg.text());
-#endif
+//#ifdef HAVE_XINE_LIB
+//  FXString errormsg;
+//  player->getErrorMessage(errormsg);
+//  show_message(fxtr("Playback Error"),errormsg.text());
+//#endif
   return 1;
   }
 
@@ -2018,25 +1553,6 @@ long GMPlayerManager::onPlayerError(FXObject*,FXSelector,void*){
 
 
 
-long GMPlayerManager::onCmdDownloadComplete(FXObject*,FXSelector,void*ptr){
-  GMFetchResponse * response = *((GMFetchResponse**)ptr);
-  if (response) {
-    if (response->url == trackinfo.mrl ) {
-      FXStringList list;
-      FXString extension = FXPath::extension(GMURL::path(response->url));
-
-      if (comparecase(extension,"pls")==0)
-        gm_parse_pls(response->data,list);
-      else if (comparecase(extension,"m3u")==0)
-        gm_parse_m3u(response->data,list);
-
-      if (list.no())
-        play(list);
-      }
-    delete response;
-    }
-  return 1;
-  }
 
 long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
   ///fxmessage("TASK COMPLETED\n");
@@ -2099,24 +1615,13 @@ long GMPlayerManager::onCancelTask(FXObject*,FXSelector,void*){
   }
 
 
-long GMPlayerManager::onCmdEqualizer(FXObject *,FXSelector,void*){
-#ifdef HAVE_XINE_LIB
-  GMEQDialog * eqdialog = GMEQDialog::instance();
-  if (eqdialog==NULL) {
-    eqdialog = new GMEQDialog(mainwindow);
-    eqdialog->create();
-    }
-  eqdialog->show();
-#endif
-  return 1;
-  }
 
 
 void GMPlayerManager::cmd_play(){
   if (can_unpause())
     unpause();
   else if (can_play())
-    play();
+    playItem(TRACK_CURRENT);
   }
 
 
@@ -2126,7 +1631,7 @@ void GMPlayerManager::cmd_playpause(){
   else if (can_unpause())
     unpause();
   else if (can_play())
-    play();
+    playItem(TRACK_CURRENT);
   }
 
 
@@ -2144,11 +1649,11 @@ void GMPlayerManager::cmd_stop(){
 
 void GMPlayerManager::cmd_next(){
   if (can_next())
-    next();
+    playItem(TRACK_NEXT);
   }
 void GMPlayerManager::cmd_prev(){
   if (can_prev())
-    prev();
+    playItem(TRACK_PREVIOUS);
   }
 
 void GMPlayerManager::cmd_toggle_shown(){
@@ -2167,8 +1672,8 @@ void GMPlayerManager::cmd_focus_next(){
 void GMPlayerManager::display_track_notification() {
 #ifdef HAVE_DBUS
   if (sessionbus) {
-    if (preferences.dbus_notify_daemon) {
-      if (notifydaemon) notifydaemon->notify_track_change(trackinfo,mainwindow->getSmallCover());
+    if (preferences.dbus_notify_daemon && notifydaemon) {
+      notifydaemon->notify_track_change(trackinfo,mainwindow->getSmallCover());
       }
     if (mpris) mpris->notify_track_change(trackinfo);
     }
@@ -2420,8 +1925,13 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
   return 1;
   }
 
-//#endif
 
+long GMPlayerManager::onPlayerMeta(FXObject*,FXSelector,void* ptr){
+  GMTrack * track = (GMTrack*)ptr;
+  trackinfo.title = track->title;
+  update_track_display();
+  return 1;
+  }
 
 
 FXint GMPlayerManager::createPlaylist(const FXString & name) {

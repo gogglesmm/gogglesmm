@@ -22,7 +22,7 @@
 
 #include <tag.h>
 #ifndef TAGLIB_MAJOR_VERSION
-#error "missing taglib_maor_version"
+#error "missing taglib_major_version"
 #endif
 #define MKVERSION(major,minor,release) ((release)+(minor*1000)+(major*1000000))
 #define TAGLIB_VERSION MKVERSION(TAGLIB_MAJOR_VERSION,TAGLIB_MINOR_VERSION,TAGLIB_PATCH_VERSION)

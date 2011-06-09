@@ -44,12 +44,11 @@ protected:
   FXID          xmanager;
   GMClipboard * clipboard;
   FXFontPtr     thickfont;
+  FXFontPtr     coverheadfont;
+  FXFontPtr     coverbasefont;
+  FXFontPtr     listtailfont;
 protected:
-#if FOXVERSION < FXVERSION(1,7,0)
-  virtual bool dispatchEvent(FXRawEvent & event);
-#else
   virtual FXbool dispatchEvent(FXRawEvent & event);
-#endif
 public:
 #ifdef HAVE_NLS
   locale_t      clocale;
@@ -59,11 +58,7 @@ public:
 public:
   GMApp();
 
-#if FOXVERSION < FXVERSION(1,7,0)
-  virtual void init(int& argc,char** argv,bool connect=true);
-#else
   virtual void init(int& argc,char** argv,FXbool connect=true);
-#endif
   virtual void create();
 
   void setFont(const FXFontDesc &);
@@ -71,6 +66,9 @@ public:
   void updateFont();
 
   FXFont* getThickFont() const { return thickfont; }
+  FXFont* getCoverHeadFont() const { return coverheadfont; }
+  FXFont* getCoverBaseFont() const { return coverbasefont; }
+  FXFont* getListTailFont() const { return listtailfont; }
 
   static FXString getConfigDirectory(FXbool create=false);
   static FXString getCacheDirectory(FXbool create=false);
@@ -89,11 +87,7 @@ protected:
   FXID         socket;
   FXuchar      xembedflags;
 protected:
-#if FOXVERSION < FXVERSION(1,7,0)
-  virtual bool doesOverrideRedirect() const;
-#else
   virtual FXbool doesOverrideRedirect() const;
-#endif
 private:
   GMPlug(const GMPlug*);
   GMPlug& operator=(const GMPlug&);
