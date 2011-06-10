@@ -482,31 +482,24 @@ struct {signed int x:5;} s;
 r = s.x = x;
 */
 
+#if 0
     struct {
       signed int x:10;
       } s10;
 
-    FXint g = (buffer[16]) | (((buffer[15])&0xC0)<<2);
+    FXuint g = (buffer[16]) | (((buffer[15])&0xC0)<<2);
     FXint intgain = s10.x = g;
-
     track_gain = intgain / 10.0f;
 
 
- //   FXint gain = /*(buffer[16]) | (((buffer[15])&0x80)<<1) |*/ ((buffer[15]&0x64)<<26);
-//    FXint gain = 0x80 00 00 00;
-
-//   FXint    mygain = (album_gain&0x1ff);
-
-//   mygain |= ((int)album_gain&0x200)<<21;
+    g = (buffer[18]) | (((buffer[17])&0xC0)<<2);
+    intgain = s10.x = g;
+    album_gain = intgain / 10.0f;
+#endif
 
 
-
-
-//   fxmessage("mygain %g\n",gain);
-
-
-//   fxmessage("album gain: %d\n",album_gain);
-//   fxmessage("track gain: %d\n",track_gain);
+   fxmessage("album gain: %g\n",album_gain);
+   fxmessage("track gain: %g\n",track_gain);
 
    FXuchar encoding_flags = (*(buffer+19))>>4;
    FXuchar lame_type = (*(buffer+19))&0xf;
@@ -748,7 +741,7 @@ ReadStatus MadReader::parse(Packet * packet) {
         if (lame) {
           cfg->stream_offset_start=lame->padstart;
           cfg->stream_offset_end  =lame->padend;
-          cfg->replaygain.track   =lame->track_gain; 
+          cfg->replaygain.track   =lame->track_gain;
           }
         engine->decoder->post(cfg);
         flags|=FLAG_PARSED;

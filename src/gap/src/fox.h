@@ -21,10 +21,7 @@ typedef FXArray<FXString> FXStringList;
 
 /// Some debugging macros
 #ifdef DEBUG
-namespace FX {
-  extern FXlong fxgetticks();
-  }
-#define GM_TICKS_START() FXlong end,start = fxgetticks();
+#define GM_TICKS_START() FXTime end,start = fxgetticks();
 #define GM_TICKS_END()  end = fxgetticks(); fxmessage("%20s:%15ld ticks.\n",__func__,end-start)
 #define GM_DEBUG_PRINT(format, args...) fxmessage (format , ##args)
 #else

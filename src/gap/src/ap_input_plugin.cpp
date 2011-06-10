@@ -1,19 +1,27 @@
+#include "ap_config.h"
 #include "ap_defs.h"
 #include "ap_utils.h"
-#include "ap_event.h"
 #include "ap_pipe.h"
+#include "ap_event.h"
 #include "ap_format.h"
 #include "ap_memory_buffer.h"
 #include "ap_input_plugin.h"
+#include "ap_event_queue.h"
+#include "ap_thread_queue.h"
+#include "ap_packet.h"
+#include "ap_engine.h"
+#include "ap_thread.h"
+#include "ap_thread_queue.h"
+#include "ap_input_thread.h"
 
 using namespace ap;
 
 namespace ap {
 
-InputPlugin::InputPlugin(FXInputHandle f,FXival size) : fifo(f), buffer(size) {
+InputPlugin::InputPlugin(InputThread * i,FXival size) : input(i), buffer(size) {
   }
 
-InputPlugin::InputPlugin(FXInputHandle f) : fifo(f), buffer(0) {
+InputPlugin::InputPlugin(InputThread * i) : input(i), buffer(0) {
   }
 
 InputPlugin::~InputPlugin() {
@@ -41,16 +49,16 @@ FXival InputPlugin::readBlock(void*data,FXival count,FXbool wait){
     else if (nread==0) { // eof!
       return count-ncount;
       }
-    else if (nread==-2 ) { // block!       
+    else if (nread==-2 ) { // block!
       /// wait if we have no data yet
       /// In case we receive data from socket and we don't know how long the stream will be.
       if (wait || (ncount==count)) {
-        if (!ap_wait_read(fifo,handle()))
+        if (!ap_wait_read(input->getFifoHandle(),handle()))
           return -1;
         }
       else {
         return count-ncount;
-        }    
+        }
       }
     else {
       return -1;

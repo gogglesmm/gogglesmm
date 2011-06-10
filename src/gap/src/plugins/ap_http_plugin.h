@@ -12,7 +12,9 @@ protected: /// Http
   FXlong        content_position;
 protected: /// Icecast
   FXint         icy_interval;
-  FXint         icy_count;
+  FXint         icy_count;  
+  FXString      icy_meta_genre;
+  FXString      icy_meta_name;
 private:
   HttpInput(const HttpInput&);
   HttpInput &operator=(const HttpInput&);
@@ -21,6 +23,7 @@ protected:
   FXlong write_raw(void*,FXival);
 protected:
   FXival icy_read(void*,FXival);
+  void icy_parse(const FXString & buffer);
   FXbool write(const FXString&);
   FXbool open(const FXString & hostname,FXint port);
   FXbool next_header(FXString & header);
@@ -31,7 +34,7 @@ protected:
   FXInputHandle handle() const { return device; }
 public:
   /// Constructor
-  HttpInput(FXInputHandle);
+  HttpInput(InputThread*);
 
   FXbool open(const FXString & uri);
 

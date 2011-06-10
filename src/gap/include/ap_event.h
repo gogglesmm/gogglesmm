@@ -12,6 +12,7 @@ enum EventType {
   AP_STATE_PAUSING,
   AP_TIMESTAMP,     // TimeUpdate
   AP_ERROR,         // ErrorMessage
+  AP_META_INFO,
   AP_LAST           // Reserved
   };
 
@@ -57,13 +58,18 @@ protected:
 public:
   TimeUpdate(FXuint p,FXuint l);
   };
-/*
-class GMAPI MetaInformation : public Event {
-  
+
+class GMAPI MetaInfo : public Event {
 public:
-  MetaInformation(FXuint p,FXuint l);
+  FXString title;
+  FXString artist;
+  FXString album;
+protected:
+  virtual ~MetaInfo();
+public:
+  MetaInfo();
   };
-*/
+
 
 }
 #endif

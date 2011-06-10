@@ -52,10 +52,10 @@ void ThreadQueue::post(Event*event,FXint where) {
       }
     }
   else {
-    fxmessage("posting event\n");
+    //fxmessage("posting event\n");
     event->next=head;
     head=event;
-    pfifo.signal();    
+    pfifo.signal();
     if (tail==NULL) {
       tail=head;
       }

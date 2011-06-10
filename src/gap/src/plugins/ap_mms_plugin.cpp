@@ -14,7 +14,7 @@ using namespace ap;
 namespace ap {
 
 
-MMSInput::MMSInput(FXInputHandle f) : InputPlugin(f),mms(NULL) {
+MMSInput::MMSInput(InputThread* i) : InputPlugin(i),mms(NULL) {
   }
 
 MMSInput::~MMSInput() {
@@ -26,7 +26,7 @@ FXbool MMSInput::open(const FXString & uri) {
     fxmessage("failed to connect\n");
     return false;
     }
-  fxmessage("mms connected\n");  
+  fxmessage("mms connected\n");
   return true;
   }
 

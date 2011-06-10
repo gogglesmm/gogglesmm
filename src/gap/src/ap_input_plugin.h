@@ -3,9 +3,11 @@
 
 namespace ap {
 
+class InputThread;
+
 class InputPlugin {
 protected:
-  FXInputHandle fifo;
+  InputThread*  input;
   MemoryStream  buffer;
 private:
   InputPlugin(const InputPlugin&);
@@ -20,9 +22,9 @@ protected:
   FXlong readBlock(void*data,FXival ncount,FXbool wait=true);
   FXival fillBuffer(FXival);
 protected:
-  InputPlugin(FXInputHandle f,FXival size);
+  InputPlugin(InputThread*,FXival size);
 public:
-  InputPlugin(FXInputHandle f);
+  InputPlugin(InputThread*);
 
   /// Read ncount bytes
   virtual FXival read(void*data,FXival ncount);

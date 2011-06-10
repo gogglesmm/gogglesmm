@@ -28,6 +28,9 @@ public:
   /// Post event to this thread
   void post(Event * event,FXint where=EventQueue::Back);
 
+  /// Return 
+  FXInputHandle getFifoHandle() const { return fifo.handle(); }
+
   /// Destructor
   virtual ~EngineThread();
   };

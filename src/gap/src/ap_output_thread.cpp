@@ -650,7 +650,8 @@ FXint OutputThread::run(){
                         }
                         break;
 
-      case Ctrl_EOS   : engine->input->post(event);
+      case Ctrl_EOS   : //engine->post(new Event(AP_EOS));
+                        engine->input->post(event);
                         continue;
                         break;
       case Ctrl_Volume: if (plugin) plugin->volume((dynamic_cast<CtrlVolumeEvent*>(event))->vol);
@@ -722,7 +723,10 @@ FXint OutputThread::run(){
                             }
                         } break;
 
-
+      case Meta       : engine->post(event);
+                        continue;
+                        break;
+                        
       case Configure  : configure(((ConfigureEvent*)event)->af);
                         replaygain.value = ((ConfigureEvent*)event)->replaygain;
                         break;

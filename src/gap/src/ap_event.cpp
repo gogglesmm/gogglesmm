@@ -55,6 +55,13 @@ TimeUpdate::TimeUpdate(FXuint p,FXuint l) : Event(AP_TIMESTAMP), position(p), le
 TimeUpdate::~TimeUpdate() {
   }
 
+MetaInfo::MetaInfo() : Event(AP_META_INFO) {
+  }
+
+MetaInfo::~MetaInfo() {
+  }
+
+
 
 CtrlSeekEvent::CtrlSeekEvent(FXdouble p) : Event(Ctrl_Seek), pos(p) {
   }

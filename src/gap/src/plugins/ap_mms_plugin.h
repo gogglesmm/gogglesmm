@@ -14,7 +14,7 @@ protected:
   FXInputHandle handle() const { return BadHandle; }
 public:
   /// Constructor
-  MMSInput(FXInputHandle f);
+  MMSInput(InputThread *);
 
   FXbool open(const FXString & uri);
 

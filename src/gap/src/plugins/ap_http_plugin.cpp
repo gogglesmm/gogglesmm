@@ -5,6 +5,13 @@
 #include "ap_format.h"
 #include "ap_memory_buffer.h"
 #include "ap_input_plugin.h"
+#include "ap_event_queue.h"
+#include "ap_thread_queue.h"
+#include "ap_packet.h"
+#include "ap_engine.h"
+#include "ap_thread.h"
+#include "ap_thread_queue.h"
+#include "ap_input_thread.h"
 #include "ap_http_plugin.h"
 
 
@@ -69,7 +76,7 @@ static FXbool ap_set_nosignal(FXint)  {
   }
 #endif
 
-HttpInput::HttpInput(FXInputHandle f) : InputPlugin(f,1024),device(BadHandle),
+HttpInput::HttpInput(InputThread *i) : InputPlugin(i,1024),device(BadHandle),
   content_type(Format::Unknown),
   content_length(-1),
   content_position(0),
@@ -87,13 +94,13 @@ void HttpInput::close() {
     ::close(device);
     device=BadHandle;
     }
-  
-  /// Reset Headers  
+
+  /// Reset Headers
   content_type=Format::Unknown;
   content_length=-1;
   content_position=0;
   icy_interval=0;
-  icy_count=0;        
+  icy_count=0;
   }
 
 
@@ -159,7 +166,7 @@ FXbool HttpInput::write(const FXString & data) {
       return false;
       }
     else if (nwritten==-2) {
-      if (!ap_wait_write(fifo,handle()))
+      if (!ap_wait_write(input->getFifoHandle(),handle()))
         return false;
       }
     else {
@@ -215,7 +222,7 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
     }
 
   for (item=list;item;item=item->ai_next){
-    device=try_connect(fifo,item);
+    device=try_connect(input->getFifoHandle(),item);
     if (device!=BadHandle) {
       freeaddrinfo(list);
       return true;
@@ -242,11 +249,11 @@ FXbool HttpInput::next_header(FXString & header) {
 
       /// header may continue on the next line, so check first byte of next line
       if (size>0) {
-      
-        /// Not enough data, so we need to fetch more.      
+
+        /// Not enough data, so we need to fetch more.
         if ((i+1)>=len)
-          return false; 
-      
+          return false;
+
         /// Header continues, keep reading
         if (buf[i+1]==' ' || buf[i+1]=='\t')
           continue;
@@ -271,8 +278,8 @@ FXbool HttpInput::next_header(FXString & header) {
         }
       }
     else {
-      header.clear();    
-      }  
+      header.clear();
+      }
     if (end>0) buffer.read(end);
     }
   return found;
@@ -343,17 +350,23 @@ FXbool HttpInput::parse_response() {
       else if (comparecase(header,"icy-metaint:",12)==0) {
         icy_count = icy_interval = header.after(':').trim().toInt();
         }
+      else if (comparecase(header,"icy-genre:",10)==0) {
+        icy_meta_genre = header.after(':').trim();
+        }
+      else if (comparecase(header,"icy-name:",9)==0) {
+        icy_meta_name  = header.after(':').trim();
+        }
       else if (comparecase(header,"Location:",9)==0){
         location=header.after(':').trim();
         }
       fxmessage("%s\n",header.text());
       }
-      
+
     if (eoh) break;
 
     /// Get more bytes
     if (fillBuffer(256)<=0)
-      return false;      
+      return false;
     }
 
   /// Handle redirects
@@ -374,7 +387,12 @@ FXbool HttpInput::parse_response() {
 
 
 
-
+void HttpInput::icy_parse(const FXString & buffer) {
+  FXString title = buffer.after('=').before(';');
+  MetaInfo * meta = new MetaInfo();
+  meta->title = title;
+  input->post(meta);
+  }
 
 
 FXival HttpInput::icy_read(void*data,FXival count){
@@ -407,6 +425,7 @@ FXival HttpInput::icy_read(void*data,FXival count){
       icy_buffer.length(icy_size);
       n=InputPlugin::read(&icy_buffer[0],icy_size);
       if (__unlikely(n!=icy_size)) return -1;
+      icy_parse(icy_buffer);
       }
 
     /// reset icy count

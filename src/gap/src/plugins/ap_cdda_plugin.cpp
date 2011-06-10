@@ -23,7 +23,7 @@
 namespace ap {
 
 
-  CDDAInput::CDDAInput(FXInputHandle f) : InputPlugin(f),drive(NULL) {
+  CDDAInput::CDDAInput(InputThread * i) : InputPlugin(i),drive(NULL) {
     }
 
   FXbool CDDAInput::open(const FXString & cdrom) {

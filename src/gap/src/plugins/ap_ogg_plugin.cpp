@@ -54,7 +54,7 @@ protected:
 protected:
   Packet *        packet;
   FXint           ogg_packet_written;
-  ReadStatus     status;
+  ReadStatus      status;
   FXuchar         codec;
   FXlong          stream_start;
   FXlong          input_position;
@@ -271,6 +271,7 @@ ReadStatus OggReader::parse_vorbis_stream() {
     if (vorbis_synthesis_headerin(&vi,&vc,&op)<0)
       goto error;
 
+
     flags|=FLAG_VORBIS_HEADER_COMMENT;
     submit_ogg_packet();
     }
@@ -287,6 +288,16 @@ ReadStatus OggReader::parse_vorbis_stream() {
 
     check_vorbis_length(&vi);
 
+
+
+/*
+    for (int i=0;i<vc.comments;i++) {
+      if (comparecase(vc.user_comments[i],"REPLAYGAIN_TRACK_GAIN=",22)==0) {
+        FXString tag(vc.user_comments[i],vc.comment_lengths[i]);
+        }
+      }
+
+*/
     /// Success
     vorbis_info_clear(&vi);
     vorbis_comment_clear(&vc);
@@ -356,6 +367,52 @@ ReadStatus OggReader::parse() {
   return ReadError;
   }
 
+#if 0
+void OggReader::schedule_ogg_packet() {
+  FXASSERT(packet);
+  FXASSERT(packet->capacity()>sizeof(ogg_packet));
+
+  state.has_packet=true;
+
+  if (state.header_written==false) {
+    if (codec==Codec::Vorbis) {
+      if (packet->space()>sizeof(ogg_packet)) {
+        packet->append(&op,sizeof(ogg_packet));
+        state.header_written=true;
+        if (packet->stream_position==-1) {
+          packet->stream_position=op.granulepos;
+          }
+        }
+      else {
+        packet->af=af;
+        vorbis_packets=packet;
+        packet=NULL;
+        return;
+        }
+      }
+    }
+
+  FXuint nbytes = FXMIN((op.bytes-state.bytes_written),packet->space());
+  if (nbytes) {
+    packet->append(&op.packet[state.bytes_written],nbytes);
+    state.bytes_written+=nbytes;
+    if (op.e_o_s) { packet->flags|=FLAG_EOS; state.has_eos=true; }
+    }
+
+  /// Check to make sure we're done with the packet
+  if (state.header_written && state.bytes_written==op.bytes) {
+    state.header_written=false;
+    state.bytes_written=0;
+    state.has_packet=false;
+    }
+
+  if (packet->space()==0 {
+    packet->af=af;
+    vorbis_packets=packet;
+    packet=NULL;
+    }
+  }
+#endif
 
 void OggReader::submit_ogg_packet() {
   FXASSERT(packet);

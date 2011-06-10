@@ -12,7 +12,7 @@ using namespace ap;
 namespace ap {
 
 
-FileInput::FileInput(FXInputHandle f) : InputPlugin(f) {
+FileInput::FileInput(InputThread * i) : InputPlugin(i) {
   }
 
 FileInput::~FileInput() {

@@ -140,6 +140,7 @@ public:
 
   void set(FXushort format,FXuint rate,FXuchar channels);
 
+  FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
 
   FXuchar byteorder() const {
     return (format>>Format::Order_Shift)&Format::Order_Mask;

@@ -16,7 +16,7 @@ protected:
 protected:
   FXlong read_raw(void*data,FXival ncount);
 public:
-  CDDAInput(FXInputHandle);
+  CDDAInput(InputThread*);
 
   FXbool open(const FXString & uri);
 

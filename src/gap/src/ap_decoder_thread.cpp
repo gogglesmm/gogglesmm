@@ -60,6 +60,14 @@ void DecoderThread::configure(ConfigureEvent * event) {
     engine->input->post(new ControlEvent(Ctrl_Close));
     engine->post(new ErrorMessage(FXString::value("No decoder plugin available for %s",Codec::name(event->codec))));
     }
+
+  /// Forward to output
+  if (!event->af.undefined()) {
+    engine->output->post(event);
+    }
+  else {
+    event->unref();
+    }
   }
 
 
@@ -89,13 +97,15 @@ FXint DecoderThread::run(){
                       break;
 
       case Configure: configure(dynamic_cast<ConfigureEvent*>(event));
-                      if (plugin) {
+                      continue;
+                      break;
+
+      case Meta     : if (plugin) {
                         engine->output->post(event);
                         continue;
                         }
-                      break;
-
-      case Buffer   : if (plugin) {
+                      break;  
+       case Buffer   : if (plugin) {
                         stream=event->stream;
                         switch(plugin->process(dynamic_cast<Packet*>(event))){
                           case DecoderError:

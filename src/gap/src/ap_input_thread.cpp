@@ -223,6 +223,9 @@ FXint InputThread::run(){
 
       case Ctrl_EOS       : if (event->stream==streamid) {fxmessage("closing %d\n",streamid); ctrl_eos(); }
                             break;
+      case Meta           : engine->decoder->post(event);
+                            continue;
+                            break;                              
       case Buffer         :
         {
           Packet * packet = dynamic_cast<Packet*>(event);
@@ -308,31 +311,6 @@ void InputThread::ctrl_seek(FXdouble pos) {
   }
 
 
-#if 0
-FXIO * InputThread::open_cdda(const FXString & uri) {
-  AudioCD * cdda = NULL;
-  if (io)
-    cdda = dynamic_cast<AudioCD*>(io);
-
-  if (cdda==NULL) {
-    if (io) ctrl_close_input();
-    cdda = new AudioCD;
-    if (!cdda->open(FXString::null)) {
-      delete cdda;
-      cdda=NULL;
-      }
-    }
-
-  if (cdda) {
-    url=uri;
-    FXint t = FXURL::path(url).after('/').toInt();
-    fxmessage("t=%d\n",t);
-    cdda->setTrack(t);
-    }
-  return cdda;
-  }
-#endif
-
 
 InputPlugin* InputThread::open_input(const FXString & uri) {
   FXString scheme = FXURL::scheme(uri);
@@ -343,7 +321,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     }
 
   if (scheme=="file" || scheme.empty()) {
-    FileInput * file = new FileInput(fifo.handle());
+    FileInput * file = new FileInput(this);
     if (!file->open(uri)){
       delete file;
       return NULL;
@@ -352,7 +330,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     return file;
     }
   else if (scheme=="http") {
-    HttpInput * http = new HttpInput(fifo.handle());
+    HttpInput * http = new HttpInput(this);
     if (!http->open(uri)){
       delete http;
       return NULL;
@@ -362,7 +340,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     }
 #ifdef HAVE_MMS_PLUGIN
   else if (scheme=="mms") {
-    MMSInput * mms = new MMSInput(fifo.handle());
+    MMSInput * mms = new MMSInput(this);
     if (!mms->open(uri)){
       delete mms;
       return NULL;
@@ -373,7 +351,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
 #endif
 #ifdef HAVE_CDDA_PLUGIN
   else if (scheme=="cdda") {
-    CDDAInput * cdda = new CDDAInput(fifo.handle());
+    CDDAInput * cdda = new CDDAInput(this);
     if (!cdda->open(uri)) {
       delete cdda;
       return NULL;

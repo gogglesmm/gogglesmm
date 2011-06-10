@@ -26,6 +26,7 @@ enum EventTypePrivate {
   Configure,
   Flush,
   Input_Read,
+  Meta = AP_META_INFO,
   };
 
 

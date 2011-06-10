@@ -15,7 +15,7 @@ protected:
   FXInputHandle handle() const { return file.handle(); }
 public:
   /// Constructor
-  FileInput(FXInputHandle f);
+  FileInput(InputThread*);
 
   FXbool open(const FXString & uri);
 
