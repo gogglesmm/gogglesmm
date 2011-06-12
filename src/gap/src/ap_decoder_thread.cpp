@@ -47,7 +47,7 @@ void DecoderThread::configure(ConfigureEvent * event) {
   if (plugin) {
     if (plugin->codec() == event->codec) {
       plugin->init(event);
-      return;
+      goto forward;
       }
     delete plugin;
     plugin=NULL;
@@ -59,8 +59,11 @@ void DecoderThread::configure(ConfigureEvent * event) {
   else {
     engine->input->post(new ControlEvent(Ctrl_Close));
     engine->post(new ErrorMessage(FXString::value("No decoder plugin available for %s",Codec::name(event->codec))));
+    event->unref();
+    return;
     }
 
+forward:
   /// Forward to output
   if (!event->af.undefined()) {
     engine->output->post(event);
@@ -104,7 +107,7 @@ FXint DecoderThread::run(){
                         engine->output->post(event);
                         continue;
                         }
-                      break;  
+                      break;
        case Buffer   : if (plugin) {
                         stream=event->stream;
                         switch(plugin->process(dynamic_cast<Packet*>(event))){
