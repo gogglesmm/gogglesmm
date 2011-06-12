@@ -194,7 +194,7 @@ static FXInputHandle try_connect(FXInputHandle fifo,struct addrinfo * item) {
   FXint result = connect(device,item->ai_addr,item->ai_addrlen);
   if (result==-1) {
     if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-      if (ap_wait_write(fifo,device,30000000000)) {
+      if (ap_wait_write(fifo,device,TIME_SEC(30))) {
         int socket_error=0;
         socklen_t socket_length=sizeof(socket_error);
         if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0)
@@ -214,6 +214,7 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
   memset(&hints,0,sizeof(struct addrinfo));
   hints.ai_family=AF_UNSPEC;
   hints.ai_socktype=SOCK_STREAM;
+  hints.ai_flags|=(AI_NUMERICSERV|AI_ADDRCONFIG);
 
   FXint result=getaddrinfo(hostname.text(),FXString::value(port).text(),&hints,&list);
   if (result) {

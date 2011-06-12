@@ -30,6 +30,12 @@ typedef FXArray<FXString> FXStringList;
 #define GM_DEBUG_PRINT(arguments, args...) ((void)0)
 #endif
 
+#define TIME_MSEC(ms) (1000000LL*ms)
+#define TIME_SEC(s) 	(1000000000LL*s)
+#define TIME_MIN(m) 	TIME_SEC(60*m)
+#define TIME_HOUR(h) 	TIME_MIN(60*h)
+
+
 
 #endif
 
