@@ -134,7 +134,6 @@ public:
     ID_WINDOW,
     ID_EQUALIZER,
     ID_SCROBBLER,
-    ID_PLAYER_ERROR,
 #ifdef HAVE_LIRC
     ID_LIRC,
 #endif
@@ -160,7 +159,6 @@ public:
   long onScrobblerError(FXObject*,FXSelector,void*);
   long onScrobblerOpen(FXObject*,FXSelector,void*);
 
-  long onPlayerError(FXObject*,FXSelector,void*);
 
   long onImportTaskCompleted(FXObject*,FXSelector,void*);
   long onTaskManagerRunning(FXObject*,FXSelector,void*);
@@ -181,6 +179,7 @@ public:
   long onPlayerTime(FXObject*,FXSelector,void*);
   long onPlayerState(FXObject*,FXSelector,void*);
   long onPlayerMeta(FXObject*,FXSelector,void*);
+  long onPlayerError(FXObject*,FXSelector,void*);
 //#endif
 protected:
   FXint  init_fifo(int & argc,char**argv);

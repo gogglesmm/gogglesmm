@@ -92,7 +92,6 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
   FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_SLEEP_TIMER,GMPlayerManager::onCmdSleepTimer),
   FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_PLAY_NOTIFY,GMPlayerManager::onPlayNotify),
   FXMAPFUNC(SEL_IO_READ,GMPlayerManager::ID_DDE_MESSAGE,GMPlayerManager::onDDEMessage),
-  FXMAPFUNC(SEL_CHORE,GMPlayerManager::ID_PLAYER_ERROR,GMPlayerManager::onPlayerError),
   FXMAPFUNC(SEL_CLOSE,GMPlayerManager::ID_WINDOW,GMPlayerManager::onCmdCloseWindow),
   FXMAPFUNC(SEL_SIGNAL,GMPlayerManager::ID_CHILD,GMPlayerManager::onCmdChild),
 
@@ -111,6 +110,7 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
   FXMAPFUNC(SEL_PLAYER_TIME,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerTime),
   FXMAPFUNC(SEL_PLAYER_STATE,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerState),
   FXMAPFUNC(SEL_PLAYER_META,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerMeta),
+  FXMAPFUNC(SEL_PLAYER_ERROR,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerError),
 
   FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_CANCEL_TASK,GMPlayerManager::onCancelTask),
 
@@ -1535,14 +1535,6 @@ long GMPlayerManager::onScrobblerOpen(FXObject*,FXSelector,void*ptr){
   }
 
 
-long GMPlayerManager::onPlayerError(FXObject*,FXSelector,void*){
-//#ifdef HAVE_XINE_LIB
-//  FXString errormsg;
-//  player->getErrorMessage(errormsg);
-//  show_message(fxtr("Playback Error"),errormsg.text());
-//#endif
-  return 1;
-  }
 
 
 
@@ -1930,6 +1922,13 @@ long GMPlayerManager::onPlayerMeta(FXObject*,FXSelector,void* ptr){
   GMTrack * track = (GMTrack*)ptr;
   trackinfo.title = track->title;
   update_track_display();
+  return 1;
+  }
+
+
+long GMPlayerManager::onPlayerError(FXObject*,FXSelector,void*ptr){
+  FXString * msg = (FXString*)ptr;
+  show_message(fxtr("Playback Error"),msg->text());
   return 1;
   }
 

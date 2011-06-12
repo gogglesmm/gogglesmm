@@ -16,6 +16,7 @@ enum {
   SEL_PLAYER_STATE,
   SEL_PLAYER_VOLUME,
   SEL_PLAYER_META,
+  SEL_PLAYER_ERROR
   };
 
 enum PlayerState {

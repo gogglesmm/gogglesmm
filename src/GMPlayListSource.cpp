@@ -63,6 +63,13 @@ FXDEFMAP(GMPlayListSource) GMPlayListSourceMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_ARTIST,GMPlayListSource::onCmdRemoveInPlaylist),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_ALBUM,GMPlayListSource::onCmdRemoveInPlaylist),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_TRACK,GMPlayListSource::onCmdRemoveInPlaylist),
+  FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_TAG_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
+  FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_ARTIST_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
+  FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_ALBUM_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
+  FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_TRACK_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
+
+
+
 //  FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_PASTE,GMPlayListSource::onCmdPaste),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_IMPORT,GMPlayListSource::onCmdImport),
   };
@@ -289,14 +296,97 @@ FXDEFMAP(FromDiskTarget) FromDiskTargetMap[]={
 FXIMPLEMENT(FromDiskTarget,FXObject,FromDiskTargetMap,ARRAYNUMBER(FromDiskTargetMap))
 
 
+long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
+  FXIntList queue;
+  FXIntList tracks;
+  FXStringList files;
+    
+  if (FXSELID(sel)==ID_DELETE_TRACK || FXSELID(sel)==ID_DELETE_TRACK_ADV) {
+    getSelectedTrackQueues(queue);
+    GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+    }
+  else {
+    getTrackQueues(queue);
+    GMPlayerManager::instance()->getTrackView()->getTracks(tracks);
+    }
+
+  if (tracks.no()==0) 
+    return 1;
 
 
+  FXbool from_library=false;
+  FXbool from_disk=false;
+
+  if (FXSELID(sel)>ID_DELETE_TRACK) {
+  
+    FXString title;
+    FXString subtitle;
+
+    switch(FXSELID(sel)){
+      case ID_DELETE_TAG_ADV    : title=fxtr("Remove Tag?");
+                                  subtitle=fxtr("Remove tracks with tag from play list?");
+                                  break;
+      case ID_DELETE_ARTIST_ADV : title=fxtr("Remove Artist?");
+                                  subtitle=fxtr("Remove tracks from artist from play list?");
+                                  break;
+      case ID_DELETE_ALBUM_ADV  : title=fxtr("Remove Album?");
+                                  subtitle=fxtr("Remove tracks from album from play list?");
+                                  break;
+      case ID_DELETE_TRACK_ADV  : title=fxtr("Remove Track(s)?");
+                                  subtitle=fxtr("Remove track(s) from play list?");
+                                  break;
+      default: FXASSERT(0); break;
+      }
+  
+    FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),title,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
+    GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,NULL);
+    FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
+    new GMButton(closebox,fxtr("&Remove"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
+    FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,30,20,10,10);
+    FXCheckButton * library_check = new FXCheckButton(main,fxtr("Remove tracks from music library"));
+    FXCheckButton * disk_check = new FXCheckButton(main,fxtr("Remove tracks from disk"));
+    FromDiskTarget disktgt(disk_check,library_check);
+    
+    if (!dialog.execute())  
+      return 1;
+    
+    from_library=library_check->getCheck();
+    from_disk=disk_check->getCheck();
+    }
+  
+  // Check current queue...
+  if (current_queue >= 0)  {
+    for (FXint i=0;i<queue.no();i++){
+      if (current_queue==queue[i]) {
+        current_queue=-1;
+        break;
+        }
+      }
+    }
+    
+  try {
+    db->begin();
+    if (from_library)
+      db->removeTracks(tracks);
+    else      
+      db->removePlaylistTracks(playlist,queue);
+    db->commit();
+    }
+  catch(GMDatabaseException&) {
+    db->rollback();
+    }
+  GMPlayerManager::instance()->getTrackView()->refresh();
+  }
+
+#if 0
 
 long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
   FXIntList queue;
   FXIntList tracks;
   FXStringList files;
-  if (FXSELID(sel)==ID_DELETE_TRACK) {
+  if (FXSELID(sel)==ID_DELETE_TRACK || FXSELID(sel)==ID_DELETE_TRACK_ADV) {
     getSelectedTrackQueues(queue);
     GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
     }
@@ -375,7 +465,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
   }
 
 
-
+#endif
 
 long GMPlayListSource::onCmdPaste(FXObject*sender,FXSelector sel,void*ptr){
   GMClipboard * clipboard = GMClipboard::instance();

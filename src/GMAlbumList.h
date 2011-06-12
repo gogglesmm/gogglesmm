@@ -70,7 +70,7 @@ public:
     };
 public:
   /// Construct new item with given text, icons, and user-data
-  GMAlbumListItem(const FXString& a,const FXString & t,FXint y,FXint i):artist(a),title(t),year(y),id(i),state(0){}
+  GMAlbumListItem(const FXString& a,const FXString & t,FXint y,FXint i):artist(a),title(t),year(y),id(i),state(DRAGGABLE){}
 
   /// Return item's id
   FXint getId() const { return id; }

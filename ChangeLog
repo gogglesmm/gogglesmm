@@ -10,7 +10,6 @@ To Do
     * GMButton needs to having drawing mode for BUTTON_DEFAULT"
 
 
-  - Remove ReplayGain from Database
   - Tag UI (replacement for genre) in edit track dialog
 
 0.13.0
@@ -38,8 +37,8 @@ To Do
   - Updated Requirements:
       o sqlite >= 3.6.3
       o libgaplayer >= 0.1
-      o FOX >= 1.7.22      
-      o No Longer needed: xinelib,libcurl          
+      o FOX >= 1.7.22
+      o No Longer needed: xinelib,libcurl
 
 0.10.2
   - Added Spanish translation.

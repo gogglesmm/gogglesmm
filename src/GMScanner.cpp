@@ -158,8 +158,6 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
     insert_album.set(0,track.album);
     insert_album.set(1,album_artist_id);
     insert_album.set(2,track.year);
-//    insert_album.set(3,track.album_gain);
-//    insert_album.set(4,track.album_peak);
     album_id = insert_album.insert();
     }
 
@@ -173,12 +171,9 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
   insert_track.set(3,track.time);
   insert_track.set(4,track.no);
   insert_track.set(5,track.year);
-//  insert_track.set(6,track.track_gain);
-//  insert_track.set(7,track.track_peak);
   insert_track.set(6,track.bitrate);
   insert_track.set(7,album_id);
   insert_track.set(8,artist_id);
-//  insert_track.set(11,album_artist_id);
   insert_track.set(9,composer_id);
   insert_track.set(10,conductor_id);
   insert_track.set(11,FXThread::time());
@@ -239,8 +234,6 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   insert_album.set(0,track.album);
   insert_album.set(1,track.album_artist);
   insert_album.set(2,track.year);
-//  insert_album.set(3,track.album_gain);
-//  insert_album.set(4,track.album_peak);
   insert_album.execute();
 
   /// Update Tracks
@@ -248,12 +241,9 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   update_track.set(1,track.time);
   update_track.set(2,track.no);
   update_track.set(3,track.year);
-//  update_track.set(4,track.track_gain);
-//  update_track.set(5,track.track_peak);
   update_track.set(4,track.bitrate);
   update_track.set(5,track.album);
   update_track.set(6,track.album_artist);
-//  update_track.set(9,track.genre);
   update_track.set(7,track.artist);
   update_track.set(8,track.composer);
   update_track.set(9,track.conductor);

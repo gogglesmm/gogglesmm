@@ -65,7 +65,8 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void* ptr){
       case AP_ERROR                  :
         {
           ErrorMessage * err = dynamic_cast<ErrorMessage*>(event);
-          fxmessage("[ERROR] %s\n",err->msg.text());
+          //fxmessage("[ERROR] %s\n",err->msg.text());
+          if (target) target->handle(this,FXSEL(SEL_PLAYER_ERROR,message),(void*)&err->msg);
         } break;
       case AP_META_INFO              :
         {

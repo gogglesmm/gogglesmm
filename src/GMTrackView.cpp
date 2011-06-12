@@ -1811,7 +1811,10 @@ long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
     }
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && artistlist->getNumItems()) {
-      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST),NULL);
+      if (event->state&(SHIFTMASK))    
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST_ADV),NULL);
+      else
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST),NULL);
       }
     return 1;
     }
@@ -1864,7 +1867,10 @@ long GMTrackView::onCmdAlbumKeyPress(FXObject*,FXSelector,void*ptr){
     }
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && albumlist->getNumItems()) {
-      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM),NULL);
+      if (event->state&(SHIFTMASK))    
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM_ADV),NULL);
+      else
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM),NULL);
       }
     return 1;
     }
@@ -1911,7 +1917,10 @@ long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
     }
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && numTrackSelected() ) {
-      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK),NULL);
+      if (event->state&(SHIFTMASK))    
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK_ADV),NULL);
+      else
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK),NULL);
       }
     return 1;
     }

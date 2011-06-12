@@ -411,6 +411,17 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("Ctrl-."),this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_10SEC));
 
   getAccelTable()->addAccel(parseAccel("Ctrl-L"),this,FXSEL(SEL_COMMAND,ID_NEXT_FOCUS));
+  
+  
+  
+  getAccelTable()->addAccel(parseAccel("Ctrl-C"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_COPY));  
+  getAccelTable()->addAccel(parseAccel("Ctrl-X"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_CUT));
+  getAccelTable()->addAccel(parseAccel("Ctrl-V"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_PASTE));
+  
+  
+  getAccelTable()->addAccel(parseAccel("Ctrl-F"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));  
+  getAccelTable()->addAccel(parseAccel("Ctrl-B"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_BROWSER));
+  getAccelTable()->addAccel(parseAccel("Ctrl-G"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_TAGS));
   }
 
 
