@@ -69,10 +69,12 @@ FXbool GMTaskManager::next() {
   }
 
 FXbool GMTaskManager::wait() {
-  if (target) mc.message(target,FXSEL(SEL_TASK_IDLE,message),NULL,0);
-  mutex.lock();
-  condition_task.wait(mutex);
-  mutex.unlock();
+  if (processing) {
+    if (target) mc.message(target,FXSEL(SEL_TASK_IDLE,message),NULL,0);
+    mutex.lock();
+    condition_task.wait(mutex);
+    mutex.unlock();
+    }
   return processing;
   }
 
