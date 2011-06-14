@@ -1287,6 +1287,12 @@ void GMPlayerManager::notify_playback_finished() {
     trackinfoset = queue->getTrack(trackinfo);
     }
   else {
+  
+    /// Don't play anything if we didn't play anything from the library
+    if (source==NULL)
+      return;
+  
+  
     /// Can we just start playback without user interaction
     if (!getTrackView()->getSource()->autoPlay()) {
 

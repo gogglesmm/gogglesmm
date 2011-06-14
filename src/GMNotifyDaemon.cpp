@@ -93,26 +93,25 @@ long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
   const FXchar ** caps;
   int ncaps;
-  dbus_message_get_args(msg,NULL,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&caps,&ncaps,DBUS_TYPE_INVALID);
+  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&caps,&ncaps,DBUS_TYPE_INVALID)) {
+    FXbool has_action_icons=false;
+    FXbool has_actions=false;
+    FXbool has_persistence=false;
 
-  FXbool has_action_icons=false;
-  FXbool has_actions=false;
-  FXbool has_persistence=false;
+    for (FXint i=0;i<ncaps;i++){
+      if (comparecase(caps[i],"actions")==0)
+        has_actions=true;
+      else if ((comparecase(caps[i],"action-icons")==0) || (comparecase(caps[i],"x-gnome-icon-buttons")==0))
+        has_action_icons=true;
+      else if (comparecase(caps[i],"persistence")==0)
+        has_persistence=true;
+      }
 
-  for (FXint i=0;i<ncaps;i++){
-    if (comparecase(caps[i],"actions")==0)
-      has_actions=true;
-    else if ((comparecase(caps[i],"action-icons")==0) || (comparecase(caps[i],"x-gnome-icon-buttons")==0))
-      has_action_icons=true;
-    else if (comparecase(caps[i],"persistence")==0)
-      has_persistence=true;
+    if (has_actions && has_action_icons && has_persistence) {
+      persistent=true;
+      reset();
+      }
     }
-
-  if (has_actions && has_action_icons && has_persistence) {
-    persistent=true;
-    reset();
-    }
-
   return 1;
   }
 
