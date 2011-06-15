@@ -79,7 +79,7 @@ FXbool GMTaskManager::wait() {
   }
 
 FXint GMTaskManager::run() {
-  ap_set_thread_name("taskmanager");
+  ap_set_thread_name("gm_taskmanager");
   do {
     while(next()) {
       if (target) mc.message(target,FXSEL(SEL_TASK_RUNNING,message),NULL,0);
