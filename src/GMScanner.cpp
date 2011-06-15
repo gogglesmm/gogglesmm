@@ -78,8 +78,7 @@ void GMDBTracks::init(GMTrackDatabase*db) {
 
   query_album                         = database->compile("SELECT id FROM albums WHERE artist == ? AND name == ?;");
   query_artist                        = database->compile("SELECT id FROM artists WHERE name == ?;");
-
-
+  delete_track                        = database->compile("DELETE FROM tracks WHERE id == ?;");
 
   initPathDict(database);
   }
@@ -252,7 +251,9 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   update_track.execute();
   }
 
-
+void GMDBTracks::remove(FXint track) {
+  delete_track.update(track);
+  }
 
 
 
@@ -679,14 +680,14 @@ void GMSyncTask::syncDirectory(const FXString & path) {
 
   if (options_sync.remove_all) {
     for (FXint i=0;i<list.no() && processing ;i++){
-      database->removeTrack(list[i].id);
+      dbtracks.remove(list[i].id);
       nchanged++;
       }
     }
   else if (options_sync.remove_missing) {
     for (FXint i=0;i<list.no() && processing ;i++){
       if (!FXStat::statFile(list[i].filename,stat)){
-        database->removeTrack(list[i].id);
+        dbtracks.remove(list[i].id);
         }
       else if (options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
         parse(list[i].filename,-1,info);

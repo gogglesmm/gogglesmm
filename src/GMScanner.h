@@ -39,6 +39,7 @@ protected:
   GMQuery update_track;
   GMQuery query_album;
   GMQuery query_artist;
+  GMQuery delete_track;
 protected:
   FXint insertPath(const FXString & path);
   FXint insertArtist(const FXString & name);
@@ -55,6 +56,8 @@ public:
   FXint hasPath(const FXString & filename);
 
   void update(FXint id,const GMTrack & info);
+
+  void remove(FXint id);
 
   ~GMDBTracks();
   };
