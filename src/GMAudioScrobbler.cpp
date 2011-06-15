@@ -1006,6 +1006,9 @@ FXuchar GMAudioScrobbler::getNextTask() {
 
 FXint GMAudioScrobbler::run() {
   FXTRACE((60,"GMAudioScrobbler::run\n"));
+
+  ap_set_thread_name("gm_scrobbler");
+  
   FXuchar next=TASK_NONE;
   do {
     while((next=getNextTask())!=TASK_NONE) {
