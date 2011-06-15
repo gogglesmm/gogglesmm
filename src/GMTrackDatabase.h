@@ -383,7 +383,8 @@ public:
   ///=======================================================================================
   void sync_tracks_removed();
 
-
+  
+  void initArtistLookup();
 
   /// Destructor
   ~GMTrackDatabase();

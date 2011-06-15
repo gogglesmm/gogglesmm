@@ -1809,6 +1809,10 @@ void GMTrackDatabase::clear_artist_lookup() {
   artistdict.clear();
   }
 
+void GMTrackDatabase::initArtistLookup() {
+  clear_artist_lookup();
+  setup_artist_lookup();
+  }
 
 
 FXbool GMTrackDatabase::queryGenre(FXint & result,const FXString & name,FXbool insert){
