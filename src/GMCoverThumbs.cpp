@@ -30,6 +30,7 @@
 #include "GMIconTheme.h"
 #include "GMCoverThumbs.h"
 
+#if 0
 class UpdateThumbnails : public GMTask {
 public:
   GMAlbumPathList list;
@@ -39,6 +40,7 @@ protected:
 public:
   UpdateThumbnails(GMAlbumPathList & l,FXint sz,FXObject *tgt=NULL,FXSelector sel=0);
   };
+#endif
 
 class GenerateThumbnails : public GMTask {
 public:
@@ -317,7 +319,6 @@ GenerateThumbnails::GenerateThumbnails(GMAlbumPathList & albums,FXint sz,FXObjec
 FXint GenerateThumbnails::run() {
   FXdouble fraction;
   GMCover * cover=NULL;
-  fxmessage("Generating Thumbnails...\n");
   for (FXint i=0;i<list.no() && processing;i++){
     fraction = (i+1) / ((double)list.no());
     taskmanager->setStatus(FXString::value("Loading Covers %d%%",(FXint)(100.0*fraction)));
@@ -332,12 +333,11 @@ FXint GenerateThumbnails::run() {
       }
     }
   if (processing) thumbs.save();
-  fxmessage("Finished Generating Thumbnails!\n");
   return 0;
   }
 
 
-
+#if 0
 UpdateThumbnails::UpdateThumbnails(GMAlbumPathList & albums,FXint sz,FXObject * tgt,FXSelector sel) : GMTask(tgt,sel), thumbs(sz) {
   list.adopt(albums);
   }
@@ -364,3 +364,4 @@ FXint UpdateThumbnails::run() {
   fxmessage("Finished Generating Thumbnails!\n");
   return 0;
   }
+#endif
