@@ -19,6 +19,7 @@
 #include "gmdefs.h"
 #include "GMTrack.h"
 #include "GMPlayerManager.h"
+#include "GMAudioPlayer.h"
 
 /*
   Display Help/Version
@@ -78,6 +79,11 @@ int main(int argc,char *argv[]){
     }
   else {
     fxwarning("Goggles Music Manager linked to a unknown/unsupported version of the FOX Library (v%d.%d.%d)",fxversion[0],fxversion[1],fxversion[2]);
+    return 1;
+    }
+
+  if (!ap_check_version(AP_MAJOR,AP_MINOR)) {
+    fxwarning("Goggles Music Manager linked to unsupported libgaplayer version.");
     return 1;
     }
 
