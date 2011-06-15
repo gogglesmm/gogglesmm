@@ -9,11 +9,9 @@
 # Increase major if abi has changed.
 
 # API version
-GAP_MAJOR=0
-GAP_MINOR=1
-GAP_PATCH=0
-GAP_ABI=0
-
+GAP_MAJOR=0             # Increase whenever we decide to break the API.
+GAP_MINOR=2             # Increase for regular release
+GAP_ABI=1               # increase whenever we break Application Binary Interface
 
 # Settings
 #---------------------------
@@ -260,6 +258,7 @@ echo "#define AP_MINOR ${GAP_MINOR}"             >> include/ap_version.h
 echo ""                                          >> include/ap_version.h
 echo "namespace ap {"                            >> include/ap_version.h
 echo "extern GMAPI void ap_get_version(FXuchar & major,FXuchar & minor);"  >> include/ap_version.h
+echo "extern GMAPI FXbool ap_check_version(FXuchar major,FXuchar minor);"  >> include/ap_version.h
 echo "}"                                         >> include/ap_version.h
 echo "#endif"                                    >> include/ap_version.h
 

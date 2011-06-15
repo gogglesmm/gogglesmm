@@ -12,6 +12,15 @@ void ap_get_version(FXuchar & major,FXuchar & minor) {
   minor=AP_MINOR;
   }
 
+FXbool ap_check_version(FXuchar major,FXuchar minor) {
+  /// For now, there is no stable api
+  if ((major!=AP_MAJOR) || (minor!=AP_MINOR))
+    return false;
+  else
+    return true;
+  }
+
+
 
 void ap_set_thread_name(const FXchar * name) {
 #ifdef __linux__
@@ -187,7 +196,7 @@ FXbool ap_wait_read(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout)
   FD_SET((int)interrupt,&er);
   FD_SET((int)handle,&rd);
   FD_SET((int)handle,&er);
-    
+
   if (timeout) {
     delta.tv_nsec=timeout%1000000000;
     delta.tv_sec=timeout/1000000000;
