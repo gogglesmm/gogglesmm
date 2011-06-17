@@ -1,4 +1,5 @@
 #include "ap_defs.h"
+#include "ap_common.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
 #include "ap_device.h"
@@ -19,7 +20,7 @@
 
 namespace ap {
 
-static void gm_parse_pls(FXString & data,FXStringList & mrl) {
+void ap_parse_pls(const FXString & data,FXStringList & mrl) {
   FXint start=0,end=0,pos,next;
   for (FXint i=0;i<data.length();i++) {
     if (data[i]=='\n') {
@@ -78,12 +79,12 @@ FXbool PLSReader::init() {
 
 ReadStatus PLSReader::process(Packet*packet) {
   if (TextReader::process(packet)==ReadDone) {
-    gm_parse_pls(textbuffer,uri);
+    ap_parse_pls(textbuffer,uri);
     if (uri.no())
       return ReadRedirect;
     else
       return ReadDone;
-    }  
+    }
   return ReadError;
   }
 

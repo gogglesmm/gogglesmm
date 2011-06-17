@@ -1,4 +1,5 @@
 #include "ap_defs.h"
+#include "ap_common.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
 #include "ap_device.h"
@@ -111,10 +112,11 @@ void XSPFParser::end(const FXchar*) {
     }
   }
 
-static void gm_parse_xspf(FXString & data,FXStringList & mrl) {
+void ap_parse_xspf(const FXString & data,FXStringList & mrl,FXString & title) {
   XSPFParser xspf;
   if (xspf.parse(data)) {
     mrl=xspf.files;
+    title=xspf.title;
     }
   }
 
@@ -146,7 +148,8 @@ FXbool XSPFReader::init() {
 
 ReadStatus XSPFReader::process(Packet*packet) {
   if (TextReader::process(packet)==ReadDone) {
-    gm_parse_xspf(textbuffer,uri);
+    FXString title;
+    ap_parse_xspf(textbuffer,uri,title);
     if (uri.no())
       return ReadRedirect;
     else

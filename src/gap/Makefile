@@ -257,6 +257,7 @@ endif
 	@$(INSTALL) -m 644 include/ap_player.h $(includedir)/$(GAP_INTERFACE)/ap_player.h
 	@$(INSTALL) -m 644 include/ap_version.h $(includedir)/$(GAP_INTERFACE)/ap_version.h
 	@$(INSTALL) -m 644 include/ap_device.h $(includedir)/$(GAP_INTERFACE)/ap_device.h
+	@$(INSTALL) -m 644 include/ap_common.h $(includedir)/$(GAP_INTERFACE)/ap_common.h
 	@echo "  Installing pkg-config ..."
 	@$(INSTALL) -d $(libdir)/pkgconfig
 	@$(INSTALL) -m 644 src/libgaplayer-$(GAP_MAJOR).pc $(libdir)/pkgconfig/libgaplayer-$(GAP_MAJOR).pc

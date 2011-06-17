@@ -13,6 +13,7 @@
 #include <ap_app_queue.h>
 #include <ap_device.h>
 #include <ap_player.h>
+#include <ap_common.h>
 
 using namespace ap;
 

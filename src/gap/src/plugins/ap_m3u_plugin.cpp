@@ -1,4 +1,5 @@
 #include "ap_defs.h"
+#include "ap_common.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
 #include "ap_device.h"
@@ -19,7 +20,7 @@
 
 namespace ap {
 
-static void gm_parse_m3u(FXString & data,FXStringList & mrl) {
+void ap_parse_m3u(const FXString & data,FXStringList & mrl) {
   FXint start=0,end=0,next;
 
   for (FXint i=0;i<data.length();i++) {
@@ -75,12 +76,12 @@ FXbool M3UReader::init() {
 
 ReadStatus M3UReader::process(Packet*packet) {
   if (TextReader::process(packet)==ReadDone) {
-    gm_parse_m3u(textbuffer,uri);
+    ap_parse_m3u(textbuffer,uri);
     if (uri.no())
       return ReadRedirect;
     else
       return ReadDone;
-    }  
+    }
   return ReadError;
   }
 

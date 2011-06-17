@@ -10,8 +10,8 @@
 
 # API version
 GAP_MAJOR=0             # Increase whenever we decide to break the API.
-GAP_MINOR=2             # Increase for regular release
-GAP_ABI=1               # increase whenever we break Application Binary Interface
+GAP_MINOR=3             # Increase for regular release
+GAP_ABI=2               # increase whenever we break Application Binary Interface
 
 # Settings
 #---------------------------
@@ -253,6 +253,7 @@ echo "Cflags: -I\${includedir}/gaplayer-${GAP_MAJOR}"        >> $GAP_PKGCONFIG
 # Generate version file
 #------------------------
 echo "#ifndef AP_VERSION_H"                       > include/ap_version.h
+echo "#define AP_VERSION_H"                      >> include/ap_version.h
 echo "#define AP_MAJOR ${GAP_MAJOR}"             >> include/ap_version.h
 echo "#define AP_MINOR ${GAP_MINOR}"             >> include/ap_version.h
 echo ""                                          >> include/ap_version.h
