@@ -36,6 +36,7 @@
 #include "GMImportDialog.h"
 #include "GMIconTheme.h"
 #include "GMClipboard.h"
+#include "GMAudioPlayer.h"
 
 
 void getSelectedTrackQueues(FXIntList & list) {
@@ -300,7 +301,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
   FXIntList queue;
   FXIntList tracks;
   FXStringList files;
-    
+
   if (FXSELID(sel)==ID_DELETE_TRACK || FXSELID(sel)==ID_DELETE_TRACK_ADV) {
     getSelectedTrackQueues(queue);
     GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
@@ -310,7 +311,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
     GMPlayerManager::instance()->getTrackView()->getTracks(tracks);
     }
 
-  if (tracks.no()==0) 
+  if (tracks.no()==0)
     return 1;
 
 
@@ -318,7 +319,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
   FXbool from_disk=false;
 
   if (FXSELID(sel)>ID_DELETE_TRACK) {
-  
+
     FXString title;
     FXString subtitle;
 
@@ -337,7 +338,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
                                   break;
       default: FXASSERT(0); break;
       }
-  
+
     FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),title,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
     GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,NULL);
     FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
@@ -348,14 +349,14 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
     FXCheckButton * library_check = new FXCheckButton(main,fxtr("Remove tracks from music library"));
     FXCheckButton * disk_check = new FXCheckButton(main,fxtr("Remove tracks from disk"));
     FromDiskTarget disktgt(disk_check,library_check);
-    
-    if (!dialog.execute())  
+
+    if (!dialog.execute())
       return 1;
-    
+
     from_library=library_check->getCheck();
     from_disk=disk_check->getCheck();
     }
-  
+
   // Check current queue...
   if (current_queue >= 0)  {
     for (FXint i=0;i<queue.no();i++){
@@ -365,12 +366,12 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
         }
       }
     }
-    
+
   try {
     db->begin();
     if (from_library)
       db->removeTracks(tracks);
-    else      
+    else
       db->removePlaylistTracks(playlist,queue);
     db->commit();
     }
@@ -499,11 +500,11 @@ long GMPlayListSource::onCmdImport(FXObject*,FXSelector,void*){
       FXString extension = FXPath::extension(dialog.getFilename());
 
       if (comparecase(extension,"m3u")==0)
-        gm_parse_m3u(buffer,urls);
+        ap_parse_m3u(buffer,urls);
       else if (comparecase(extension,"pls")==0)
-        gm_parse_pls(buffer,urls);
+        ap_parse_pls(buffer,urls);
       else
-        gm_parse_xspf(buffer,urls,title);
+        ap_parse_xspf(buffer,urls,title);
 
       if (urls.no()) {
         gm_make_absolute_path(FXPath::directory(dialog.getFilename()),urls);

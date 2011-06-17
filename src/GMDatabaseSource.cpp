@@ -41,6 +41,7 @@
 #include "GMTaskManager.h"
 #include "GMImportDialog.h"
 #include "GMAudioScrobbler.h"
+#include "GMAudioPlayer.h"
 #include "GMTrackEditor.h"
 #include "GMCoverThumbs.h"
 #include "GMScanner.h"
@@ -171,24 +172,25 @@ void GMDatabaseSource::shuffle(GMTrackList*list,FXuint sort_seed) const {
 
 void GMDatabaseSource::configure(GMColumnList& list) {
   list.no(18);
-  list[0]=GMColumn(notr("No"),HEADER_TRACK,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,43,(!playlist) ,true,0);
-  list[1]=GMColumn(notr("Queue"),HEADER_QUEUE,GMDBTrackItem::ascendingQueue,GMDBTrackItem::descendingQueue,60,(playlist),false,1);
-  list[2]=GMColumn(notr("Title"),HEADER_TITLE,GMDBTrackItem::ascendingTitle,GMDBTrackItem::descendingTitle,360,true,true,2);
-  list[3]=GMColumn(notr("Artist"),HEADER_ARTIST,GMDBTrackItem::ascendingArtist,GMDBTrackItem::descendingArtist,400,true,false,3);
-  list[4]=GMColumn(notr("Album Artist"),HEADER_ALBUM_ARTIST,GMDBTrackItem::ascendingAlbumArtist,GMDBTrackItem::descendingAlbumArtist,200,true,false,4);
-  list[5]=GMColumn(notr("Album"),HEADER_ALBUM,GMDBTrackItem::ascendingAlbum,GMDBTrackItem::descendingAlbum,200,true,false,5);
-  list[6]=GMColumn(notr("Disc"),HEADER_DISC,GMDBTrackItem::ascendingDisc,GMDBTrackItem::descendingDisc,43,false,false,6);
-  list[7]=GMColumn(notr("Tags"),HEADER_TAG,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,200,true,false,7);
-  list[8]=GMColumn(notr("Year"),HEADER_YEAR,GMDBTrackItem::ascendingYear,GMDBTrackItem::descendingYear,60,true,true,8);
-  list[9]=GMColumn(notr("Time"),HEADER_TIME,GMDBTrackItem::ascendingTime,GMDBTrackItem::descendingTime,60,true,true,9);
-  list[10]=GMColumn(notr("Play Count"),HEADER_PLAYCOUNT,GMDBTrackItem::ascendingPlaycount,GMDBTrackItem::descendingPlaycount,60,false,false,10);
-  list[11]=GMColumn(notr("Play Date"),HEADER_PLAYDATE,GMDBTrackItem::ascendingPlaydate,GMDBTrackItem::descendingPlaydate,60,false,false,11);
-  list[12]=GMColumn(notr("File Name"),HEADER_FILENAME,GMDBTrackItem::ascendingFilename,GMDBTrackItem::descendingFilename,400,false,false,12);
-  list[13]=GMColumn(notr("File Type"),HEADER_FILETYPE,GMDBTrackItem::ascendingFiletype,GMDBTrackItem::descendingFiletype,30,false,false,13);
-  list[14]=GMColumn(notr("Bitrate"),HEADER_BITRATE,GMDBTrackItem::ascendingBitrate,GMDBTrackItem::descendingBitrate,400,false,false,14);
-  list[15]=GMColumn(notr("Composer"),HEADER_COMPOSER,GMDBTrackItem::ascendingComposer,GMDBTrackItem::descendingComposer,30,false,false,15);
-  list[16]=GMColumn(notr("Conductor"),HEADER_CONDUCTOR,GMDBTrackItem::ascendingConductor,GMDBTrackItem::descendingConductor,400,false,false,16);
-  list[17]=GMColumn(notr("Rating"),HEADER_RATING,GMDBTrackItem::ascendingRating,GMDBTrackItem::descendingRating,30,false,false,17,this,ID_EDIT_RATING);
+  FXint i=0;
+  list[i++]=GMColumn(notr("No"),HEADER_TRACK,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,43,(!playlist) ,true,0);
+  list[i++]=GMColumn(notr("Queue"),HEADER_QUEUE,GMDBTrackItem::ascendingQueue,GMDBTrackItem::descendingQueue,60,(playlist),false,1);
+  list[i++]=GMColumn(notr("Title"),HEADER_TITLE,GMDBTrackItem::ascendingTitle,GMDBTrackItem::descendingTitle,360,true,true,2);
+  list[i++]=GMColumn(notr("Artist"),HEADER_ARTIST,GMDBTrackItem::ascendingArtist,GMDBTrackItem::descendingArtist,400,true,false,3);
+  list[i++]=GMColumn(notr("Album Artist"),HEADER_ALBUM_ARTIST,GMDBTrackItem::ascendingAlbumArtist,GMDBTrackItem::descendingAlbumArtist,200,true,false,4);
+  list[i++]=GMColumn(notr("Album"),HEADER_ALBUM,GMDBTrackItem::ascendingAlbum,GMDBTrackItem::descendingAlbum,200,true,false,5);
+  list[i++]=GMColumn(notr("Disc"),HEADER_DISC,GMDBTrackItem::ascendingDisc,GMDBTrackItem::descendingDisc,43,false,false,6);
+//  list[i++]=GMColumn(notr("Tags"),HEADER_TAG,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,200,true,false,7);
+  list[i++]=GMColumn(notr("Year"),HEADER_YEAR,GMDBTrackItem::ascendingYear,GMDBTrackItem::descendingYear,60,true,true,8);
+  list[i++]=GMColumn(notr("Time"),HEADER_TIME,GMDBTrackItem::ascendingTime,GMDBTrackItem::descendingTime,60,true,true,9);
+  list[i++]=GMColumn(notr("Play Count"),HEADER_PLAYCOUNT,GMDBTrackItem::ascendingPlaycount,GMDBTrackItem::descendingPlaycount,60,false,false,10);
+  list[i++]=GMColumn(notr("Play Date"),HEADER_PLAYDATE,GMDBTrackItem::ascendingPlaydate,GMDBTrackItem::descendingPlaydate,60,false,false,11);
+  list[i++]=GMColumn(notr("File Name"),HEADER_FILENAME,GMDBTrackItem::ascendingFilename,GMDBTrackItem::descendingFilename,400,false,false,12);
+  list[i++]=GMColumn(notr("File Type"),HEADER_FILETYPE,GMDBTrackItem::ascendingFiletype,GMDBTrackItem::descendingFiletype,30,false,false,13);
+  list[i++]=GMColumn(notr("Bitrate"),HEADER_BITRATE,GMDBTrackItem::ascendingBitrate,GMDBTrackItem::descendingBitrate,400,false,false,14);
+  list[i++]=GMColumn(notr("Composer"),HEADER_COMPOSER,GMDBTrackItem::ascendingComposer,GMDBTrackItem::descendingComposer,30,false,false,15);
+  list[i++]=GMColumn(notr("Conductor"),HEADER_CONDUCTOR,GMDBTrackItem::ascendingConductor,GMDBTrackItem::descendingConductor,400,false,false,16);
+  list[i++]=GMColumn(notr("Rating"),HEADER_RATING,GMDBTrackItem::ascendingRating,GMDBTrackItem::descendingRating,30,false,false,17,this,ID_EDIT_RATING);
   }
 
 
@@ -491,6 +493,50 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
   filterowner=this;
   return true;
   }
+/*
+class GMBrowserSelection {
+public:
+  FXIntList artists;
+  FXIntList composers;
+  FXIntList tags;
+  FXIntList albums;
+
+
+
+  };
+
+
+
+FXbool GMDatabaseSource::listTags(GMList * list,const GMBrowserSelection & selection) {
+  try {
+    query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags)"
+
+
+    if (selection.composers.no()) {
+      gm_query_make_selection(composers,sel);
+      query += " composer s" +  sel;
+      }
+
+
+
+    }
+  catch(GMDatabaseException & e){
+    list->clearItems();
+    return false;
+    }
+  return true;
+  }
+*/
+
+
+
+
+
+
+
+
+
+
 
 FXbool GMDatabaseSource::listTags(GMList * list,FXIcon * icon) {
   FXint id;
@@ -1440,11 +1486,11 @@ long GMDatabaseSource::onCmdImportPlayList(FXObject*,FXSelector,void*){
       FXString extension = FXPath::extension(dialog.getFilename());
 
       if (comparecase(extension,"m3u")==0)
-        gm_parse_m3u(buffer,urls);
+        ap_parse_m3u(buffer,urls);
       else if (comparecase(extension,"pls")==0)
-        gm_parse_pls(buffer,urls);
+        ap_parse_pls(buffer,urls);
       else
-        gm_parse_xspf(buffer,urls,title);
+        ap_parse_xspf(buffer,urls,title);
 
       if (urls.no()) {
 
