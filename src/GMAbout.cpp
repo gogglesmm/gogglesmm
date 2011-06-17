@@ -26,8 +26,6 @@
 #include "GMDBus.h"
 #endif
 #include <FXPNGIcon.h>
-
-#include <expat.h>
 #include <sqlite3.h>
 #include <tag.h>
 
@@ -98,14 +96,15 @@ void GMAboutDialog::setup(){
 
   FXString libraries;
 
-  XML_Expat_Version expatversion = XML_ExpatVersionInfo();
+
+//  XML_Expat_Version expatversion = XML_ExpatVersionInfo();
   FXuchar ap_major,ap_minor;
   ap_get_version(ap_major,ap_minor);
 
 #ifdef HAVE_DBUS
-  libraries.format("Build with FOX %d.%d.%d, libgaplayer %d.%d\nSQLite %s, DBus %s, Expat %d.%d.%d\nand Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion(),GMDBus::dbusversion().text(),expatversion.major,expatversion.minor,expatversion.micro);
+  libraries.format("Build with FOX %d.%d.%d, libgaplayer %d.%d\nSQLite %s, DBus %s \nand Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion(),GMDBus::dbusversion().text());
 #else
-  libraries.format("Build with FOX %d.%d.%d, libgaplayer %d.%d\nSQLite %s, Expat %d.%d.%d and Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion(),expatversion.major,expatversion.minor,expatversion.micro);
+  libraries.format("Build with FOX %d.%d.%d, libgaplayer %d.%d\nSQLite %s and Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion());
 #endif
 
 #if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)

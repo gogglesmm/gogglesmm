@@ -20,6 +20,7 @@
 #include "gmutils.h"
 #include "GMTrack.h"
 #include "GMAudioScrobbler.h"
+#include "GMAudioPlayer.h"
 
 #ifdef HAVE_GCRYPT
 #include "gcrypt.h"
@@ -42,7 +43,6 @@
 #define MSG_NOSIGNAL 0
 #endif
 
-#include <expat.h>
 
 
 /******************************************************************************
@@ -226,81 +226,7 @@ void GMAudioScrobblerTrack::load(FXStream & store) {
   }
 
 
-
-class XMLStream {
-protected:
-  XML_Parser   parser;
-  FXint        depth;
-  FXint        skip;
-private:
-  static void xml_element_start(void*,const FXchar*,const FXchar**);
-  static void xml_element_end(void*,const FXchar*);
-  static void xml_element_data(void*,const FXchar*,FXint);
-protected:
-  virtual FXint begin(const FXchar *,const FXchar**) { return 1;}
-  virtual void data(const FXchar *,FXint) {}
-  virtual void end(const FXchar *){}
-public:
-  XMLStream();
-
-  FXbool parse(const FXchar * buffer,FXint length);
-  FXbool parse(const FXString & buffer);
-
-  virtual ~XMLStream();
-  };
-
-XMLStream::XMLStream() : parser(NULL), depth(1),skip(0) {
-  parser = XML_ParserCreate(NULL);
-  XML_SetUserData(parser,this);
-  XML_SetElementHandler(parser,xml_element_start,xml_element_end);
-  XML_SetCharacterDataHandler(parser,xml_element_data);
-  }
-
-XMLStream::~XMLStream() {
-  XML_ParserFree(parser);
-  }
-
-FXbool XMLStream::parse(const FXchar * buffer,FXint length) {
-  return XML_Parse(parser,buffer,length,1)!=0;
-  }
-
-FXbool XMLStream::parse(const FXString & buffer) {
-  return XML_Parse(parser,buffer.text(),buffer.length(),1)!=0;
-  }
-
-void XMLStream::xml_element_start(void*ptr,const FXchar * element,const FXchar ** attributes) {
-  XMLStream * stream = reinterpret_cast<XMLStream*>(ptr);
-  if (!stream->skip) {
-    if (!stream->begin(element,attributes)) {
-      stream->skip=stream->depth;
-      }
-    }
-  stream->depth++;
-  }
-
-void XMLStream::xml_element_end(void*ptr,const FXchar * element) {
-  XMLStream * stream = reinterpret_cast<XMLStream*>(ptr);
-
-  if (!stream->skip)
-    stream->end(element);
-
-  stream->depth--;
-
-  // turn off skip
-  if (stream->skip==stream->depth)
-    stream->skip=0;
-  }
-
-void XMLStream::xml_element_data(void*ptr,const FXchar * data,FXint len) {
-  XMLStream * stream = reinterpret_cast<XMLStream*>(ptr);
-  stream->data(data,len);
-  }
-
-
-
-
-
-class ServiceResponse : public XMLStream{
+class ServiceResponse : public XMLStream {
 protected:
   FXbool       status;
   FXint        code;
@@ -313,7 +239,6 @@ protected:
   FXint begin(const FXchar *,const FXchar**);
   void data(const FXchar *,FXint len);
   void end(const FXchar *);
-
   void parse_lfm_atts(const FXchar **);
   void parse_lfm_error_atts(const FXchar **);
 public:
@@ -1008,7 +933,7 @@ FXint GMAudioScrobbler::run() {
   FXTRACE((60,"GMAudioScrobbler::run\n"));
 
   ap_set_thread_name("gm_scrobbler");
-  
+
   FXuchar next=TASK_NONE;
   do {
     while((next=getNextTask())!=TASK_NONE) {
