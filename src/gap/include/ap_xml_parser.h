@@ -1,13 +1,11 @@
 #ifndef AP_XML_PARSER_H
 #define AP_XML_PARSER_H
 
-#include <expat.h>
-
 namespace ap {
 
-class XMLStream {
+class GMAPI XMLStream {
 protected:
-  XML_Parser   parser;
+  void *       parser;
   FXint        depth;
   FXint        skip;
 private:

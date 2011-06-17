@@ -2,26 +2,28 @@
 #include "ap_utils.h"
 #include "ap_xml_parser.h"
 
+#include <expat.h>
+
 namespace ap {
 
 XMLStream::XMLStream() : parser(NULL), depth(1),skip(0) {
   parser = XML_ParserCreate(NULL);
-  XML_SetUserData(parser,this);
-  XML_SetElementHandler(parser,xml_element_start,xml_element_end);
-  XML_SetCharacterDataHandler(parser,xml_element_data);
+  XML_SetUserData((XML_Parser)parser,this);
+  XML_SetElementHandler((XML_Parser)parser,xml_element_start,xml_element_end);
+  XML_SetCharacterDataHandler((XML_Parser)parser,xml_element_data);
   }
 
 XMLStream::~XMLStream() {
-  XML_ParserFree(parser);
+  XML_ParserFree((XML_Parser)parser);
   }
 
 
 void XMLStream::xml_print_error() {
-  fxmessage("Parse Error (line %d, column %d): %s\n",XML_GetCurrentLineNumber(parser),XML_GetCurrentColumnNumber(parser),XML_ErrorString(XML_GetErrorCode(parser)));
+  fxmessage("Parse Error (line %d, column %d): %s\n",XML_GetCurrentLineNumber((XML_Parser)parser),XML_GetCurrentColumnNumber((XML_Parser)parser),XML_ErrorString(XML_GetErrorCode((XML_Parser)parser)));
   }
 
 FXbool XMLStream::parse(const FXchar * buffer,FXint length) {
-  XML_Status code = XML_Parse(parser,buffer,length,1);
+  XML_Status code = XML_Parse((XML_Parser)parser,buffer,length,1);
   if (code==XML_STATUS_ERROR) {
     xml_print_error();
     return false;
