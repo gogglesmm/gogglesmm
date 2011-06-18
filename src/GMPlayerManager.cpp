@@ -1145,6 +1145,7 @@ void GMPlayerManager::open(const FXString & url) {
       sources[0]->setCurrentTrack(id);
       }
     else {
+      trackinfoset = trackinfo.loadTag(url);
       getTrackView()->mark(-1);
       }
     }
@@ -1556,10 +1557,10 @@ long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
   ///fxmessage("TASK COMPLETED\n");
   GMTask * task = *((GMTask**)ptr);
   delete task;
-  
-  
+
+
   database->initArtistLookup();
-  
+
   /// Update the covers
 //  if (preferences.gui_show_albumcovers) {
     thumbs->refresh(database);
