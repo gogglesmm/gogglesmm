@@ -291,10 +291,10 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   new FXVerticalSeparator(toolbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE|LAYOUT_RIGHT);
   new FXVerticalSeparator(toolbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
-  playpausebutton = new FXToggleButton(toolbar,tr("\tStart Playback\tStart Playback"),tr("\tPause\tPause Playback"),icontheme->icon_play_toolbar,icontheme->icon_pause_toolbar,this,ID_PLAYPAUSE,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
-  stopbutton      = new FXButton(toolbar,tr("\tStop Playback\tStop Playback"),icontheme->icon_stop_toolbar,this,ID_STOP,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
-  prevbutton      = new FXButton(toolbar,tr("\tPlay Previous Track\tPlay previous track."),icontheme->icon_prev_toolbar,this,ID_PREV,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
-  nextbutton      = new FXButton(toolbar,tr("\tPlay Next Track\tPlay next track."),icontheme->icon_next_toolbar,this,ID_NEXT,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
+  playpausebutton = new FXToggleButton(toolbar,tr("\tStart Playback\tStart Playback"),tr("\tPause\tPause Playback"),icontheme->icon_play_toolbar,icontheme->icon_pause_toolbar,this,ID_PLAYPAUSE,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT|LAYOUT_CENTER_Y);
+  stopbutton      = new FXButton(toolbar,tr("\tStop Playback\tStop Playback"),icontheme->icon_stop_toolbar,this,ID_STOP,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT|LAYOUT_CENTER_Y);
+  prevbutton      = new FXButton(toolbar,tr("\tPlay Previous Track\tPlay previous track."),icontheme->icon_prev_toolbar,this,ID_PREV,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT|LAYOUT_CENTER_Y);
+  nextbutton      = new FXButton(toolbar,tr("\tPlay Next Track\tPlay next track."),icontheme->icon_next_toolbar,this,ID_NEXT,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT|LAYOUT_CENTER_Y);
   new FXVerticalSeparator(toolbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
 
 
@@ -411,15 +411,15 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("Ctrl-."),this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_10SEC));
 
   getAccelTable()->addAccel(parseAccel("Ctrl-L"),this,FXSEL(SEL_COMMAND,ID_NEXT_FOCUS));
-  
-  
-  
-  getAccelTable()->addAccel(parseAccel("Ctrl-C"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_COPY));  
+
+
+
+  getAccelTable()->addAccel(parseAccel("Ctrl-C"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_COPY));
   getAccelTable()->addAccel(parseAccel("Ctrl-X"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_CUT));
   getAccelTable()->addAccel(parseAccel("Ctrl-V"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_PASTE));
-  
-  
-  getAccelTable()->addAccel(parseAccel("Ctrl-F"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));  
+
+
+  getAccelTable()->addAccel(parseAccel("Ctrl-F"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
   getAccelTable()->addAccel(parseAccel("Ctrl-B"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_BROWSER));
   getAccelTable()->addAccel(parseAccel("Ctrl-G"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_TAGS));
   }
@@ -626,6 +626,9 @@ void GMWindow::reset() {
   if (remote) remote->reset();
 
   label_nowplaying->setText(" ");
+  timelabel->setText("--:--");
+  trackslider->disable();
+  trackslider->setProgress(0);
 
   /// Reset Status Text
   statusbar->getStatusLine()->setNormalText("Ready.");
