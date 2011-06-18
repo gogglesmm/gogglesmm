@@ -70,9 +70,9 @@ void GMDBTracks::init(GMTrackDatabase*db) {
                                                                   "bitrate = ?,"
                                                                   "album = (SELECT albums.id FROM albums WHERE albums.name == ? AND albums.artist == (SELECT id FROM artists WHERE name == ?)),"
 //                                                                  "genre = (SELECT id FROM genres WHERE name == ?)," /// genre
-                                                                  "artist = (SELECT id FROM artists WHERE name == ?)," // artist
-                                                                  "composer = (SELECT id FROM artists WHERE name == ?)," // composer
-                                                                  "conductor =(SELECT id FROM artists WHERE name == ?)," // conductor
+                                                                  "artist = ?," // artist
+                                                                  "composer = ?," // composer
+                                                                  "conductor = ?," // conductor
                                                                   "importdate = ? WHERE id == ?;");
 
 
@@ -214,14 +214,14 @@ void GMDBTracks::add2playlist(FXint playlist,FXint track,FXint queue) {
 
 
 
+
+///FIXME add/replace tags
 void GMDBTracks::update(FXint id,const GMTrack & track){
   /// Artist
-  FXint composer_id=0;
-  FXint conductor_id=0;
-
+  FXint composer_id     = 0;
+  FXint conductor_id    = 0;
   FXint album_artist_id = insert_artist.insert(track.album_artist);
-  FXint artist_id = album_artist_id;
-
+  FXint artist_id       = album_artist_id;
 
   if (track.album_artist!=track.artist)
     artist_id = insert_artist.insert(track.artist);
@@ -231,7 +231,7 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
 
   /// Album
   insert_album.set(0,track.album);
-  insert_album.set(1,track.album_artist);
+  insert_album.set(1,album_artist_id);
   insert_album.set(2,track.year);
   insert_album.execute();
 
@@ -243,9 +243,9 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   update_track.set(4,track.bitrate);
   update_track.set(5,track.album);
   update_track.set(6,track.album_artist);
-  update_track.set(7,track.artist);
-  update_track.set(8,track.composer);
-  update_track.set(9,track.conductor);
+  update_track.set(7,artist_id);
+  update_track.set(8,composer_id);
+  update_track.set(9,conductor_id);
   update_track.set(10,FXThread::time());
   update_track.set(11,id);
   update_track.execute();
