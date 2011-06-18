@@ -33,12 +33,6 @@ extern FXbool gm_buffer_file(const FXString & filename,FXString & buffer);
 
 extern void gm_make_absolute_path(const FXString & path,FXStringList & urls);
 
-extern void gm_parse_pls(FXString & data,FXStringList & mrl);
-
-extern void gm_parse_m3u(FXString & data,FXStringList & mrl);
-
-extern void gm_parse_xspf(FXString & data,FXStringList & mrl,FXString & title);
-
 extern void gm_set_window_cursor(FXWindow *,FXCursor*);
 
 extern void gm_focus_and_select(FXTextField*);
