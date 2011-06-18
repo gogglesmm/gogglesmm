@@ -2109,7 +2109,6 @@ long GMTrackProgressBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 // Released Left button
 long GMTrackProgressBar::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
   register FXEvent *event=(FXEvent*)ptr;
-  fxmessage("release\n");
   register FXuint flgs=flags;
   if(isEnabled()){
     ungrab();

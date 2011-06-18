@@ -408,10 +408,6 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   coverbasefont=((GMApp*)(getApp()))->getCoverBaseFont();
 
   altbackColor=GMPlayerManager::instance()->getPreferences().gui_row_color;
-
-
-
-
   }
 
 
