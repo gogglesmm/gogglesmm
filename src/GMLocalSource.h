@@ -24,6 +24,7 @@ class GMSource;
 class GMLocalSource : public GMSource {
 FXDECLARE(GMLocalSource)
 protected:
+  FXStringList files;
   FXString path;
 private:
   GMLocalSource(const GMLocalSource&);

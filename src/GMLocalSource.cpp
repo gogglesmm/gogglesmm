@@ -70,15 +70,17 @@ FXbool GMLocalSource::hasCurrentTrack(GMSource * src) const {
 
 
 FXbool GMLocalSource::getTrack(GMTrack & track) const {
-  GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(current_track);
-  track.mrl=path+PATHSEPSTRING+item->getFilename();
-  track.loadTag(path+PATHSEPSTRING+item->getFilename());
+//  GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(current_track);
+
+  track.mrl=path+PATHSEPSTRING+files[current_track-1];
+  track.loadTag(track.mrl);
+//  fxmessage("mrl: %s\n",track.mrl.text());
   return true;
   }
 
 FXString GMLocalSource::getTrackFilename(FXint id) const{
-  GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(id);
-  return path+PATHSEPSTRING+item->getFilename();
+//  GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(id);
+  return path+PATHSEPSTRING+files[id-1];
   }
 
 FXbool GMLocalSource::track_double_click() {
@@ -127,14 +129,18 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
     path=FXPath::upLevel(path);
     }
 
+
+
   FXDir     dir(path);
   FXStat    stat;
   FXString  name;
   FXString  pathname;
   FXString  ext;
-  FXint     id=0;
+  FXint     id=1;
   FXuchar   flags;
 
+
+  files.clear();
     // Are we at the top directory?
   FXbool istop=FXPath::isTopDirectory(path);
   FXbool islink;
@@ -183,6 +189,8 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
         flags|=GMLocalTrackItem::FOLDER;
 
       GMLocalTrackItem * item = new GMLocalTrackItem(id++,name,flags);
+
+      files.append(name);
 
       tracklist->appendItem(item);
       }
