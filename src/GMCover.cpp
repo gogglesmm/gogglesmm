@@ -290,7 +290,7 @@ GMCover * GMCover::fromTag(const FXString & mrl,FXint scale/*=0*/,FXint crop/*=0
   if (!tags.open(mrl,FILETAG_TAGS)) {
     return NULL;
     }
-  return tags.getFrontCover(scale);
+  return tags.getFrontCover(scale,crop);
   }
 
 
