@@ -296,7 +296,6 @@ FXbool gm_load_pixels(FXStream & store,FXImage *image,FXint scale,FXint crop) {
   if (image->loadPixels(store)){
     FXint ww=image->getWidth();
     FXint hh=image->getHeight();
-
     if (crop) {
       if (ww>hh) {
         FXfloat aspect = (float)ww/(float)hh;
@@ -305,7 +304,7 @@ FXbool gm_load_pixels(FXStream & store,FXImage *image,FXint scale,FXint crop) {
           ww=image->getWidth();
           }
         }
-      else if (hh<ww){
+      else if (hh>ww){
         FXfloat aspect = (float)hh/(float)ww;
         if (aspect<=(4.f/3.f)) {
           image->crop(0,((hh-ww)/2),ww,ww);
