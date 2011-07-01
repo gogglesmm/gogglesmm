@@ -191,17 +191,18 @@ static FXInputHandle try_connect(FXInputHandle fifo,struct addrinfo * item) {
 
   ap_set_nosignal(device);
 
-  FXint result = connect(device,item->ai_addr,item->ai_addrlen);
-  if (result==-1) {
-    if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-      if (ap_wait_write(fifo,device,TIME_SEC(30))) {
-        int socket_error=0;
-        socklen_t socket_length=sizeof(socket_error);
-        if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0)
-          return device;
-        }
+  if (connect(device,item->ai_addr,item->ai_addrlen)==0)
+    return device;
+
+  if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
+    if (ap_wait_write(fifo,device,TIME_SEC(30))) {
+      int socket_error=0;
+      socklen_t socket_length=sizeof(socket_error);
+      if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0)
+        return device;
       }
     }
+
   ::close(device);
   return BadHandle;
   }
@@ -390,9 +391,11 @@ FXbool HttpInput::parse_response() {
 
 void HttpInput::icy_parse(const FXString & buffer) {
   FXString title = buffer.after('=').before(';');
+/*
   MetaInfo * meta = new MetaInfo();
   meta->title = title;
   input->post(meta);
+*/  
   }
 
 
