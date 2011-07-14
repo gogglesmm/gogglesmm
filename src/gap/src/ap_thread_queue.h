@@ -34,6 +34,9 @@ public:
   /// Peek Event
   FXuchar peek();
 
+  /// Check for abort
+  FXbool checkAbort();
+
   /// Returns the wait fd.
   FXInputHandle handle() const;
 

@@ -93,43 +93,15 @@ FXuint ap_wait(FXInputHandle handle) {
   }
 
 FXuint ap_wait(FXInputHandle h1,FXInputHandle h2) {
-#ifndef WIN32
-  fd_set rd;
-  fd_set wr;
-  fd_set er;
-
-  FD_ZERO(&rd);
-  FD_ZERO(&wr);
-  FD_ZERO(&er);
-
-  FD_SET((int)h1,&rd);
-  FD_SET((int)h1,&er);
-
-  FD_SET((int)h2,&rd);
-  FD_SET((int)h2,&er);
-
-  int maxfds=FXMAX(h1,h2);
-
-  if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)>0) {
-    if ( (FD_ISSET(h1,&rd) || FD_ISSET(h1,&er)) &&
-         (FD_ISSET(h2,&rd) || FD_ISSET(h2,&er))) {
-      return 3;
-      }
-    else if (FD_ISSET(h1,&rd) || FD_ISSET(h1,&er)) {
-      return 1;
-      }
-    else if (FD_ISSET(h2,&rd) || FD_ISSET(h2,&er)) {
-      return 2;
-      }
-    }
-#endif
-  return 0;
+  return ap_wait_read(h1,h2,0);
   }
 
-FXbool ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout) {
+
+FXuint ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout) {
 //  fxmessage("Wait for write\n");
 #ifndef WIN32
-  int maxfds=handle;//FXMAX(interrupt,handle);
+  FXint result=WIO_TIMEOUT;
+  int maxfds=FXMAX(interrupt,handle);
   struct timespec delta;
 
   fd_set rd;
@@ -149,38 +121,32 @@ FXbool ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout
     delta.tv_nsec=timeout%1000000000;
     delta.tv_sec=timeout/1000000000;
     if (pselect(maxfds+1,&rd,&wr,&er,&delta,NULL)) {
-      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) ) {
-        return false;
-        }
-      else if(FD_ISSET((int)handle,&wr) || FD_ISSET((int)handle,&er)) {
-        return true;
-        }
-      else {
-        return false;
-        }
+      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) )
+        result|=WIO_INTERRUPT;
+
+      if(FD_ISSET((int)handle,&wr) || FD_ISSET((int)handle,&er))
+        result|=WIO_HANDLE;
       }
     }
   else {
     if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
-      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) ) {
-        return false;
-        }
-      else if(FD_ISSET((int)handle,&wr) || FD_ISSET((int)handle,&er)) {
-        return true;
-        }
-      else {
-        return false;
-        }
+      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) )
+        result|=WIO_INTERRUPT;
+
+      if(FD_ISSET((int)handle,&wr) || FD_ISSET((int)handle,&er))
+        result|=WIO_HANDLE;
       }
     }
-  fxmessage("pselect failed\n");
-  return false;
+  return result;
 #endif
   }
 
-FXbool ap_wait_read(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout){
+
+
+FXuint ap_wait_read(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout){
 //  fxmessage("Wait for read\n");
 #ifndef WIN32
+  FXuint result=WIO_TIMEOUT;
   int maxfds=FXMAX(interrupt,handle);
   struct timespec delta;
 
@@ -201,31 +167,25 @@ FXbool ap_wait_read(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout)
     delta.tv_nsec=timeout%1000000000;
     delta.tv_sec=timeout/1000000000;
     if (pselect(maxfds+1,&rd,&wr,&er,&delta,NULL)) {
-      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) ) {
-        return false;
+      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er)){
+        result|=WIO_INTERRUPT;
         }
-      else if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er)) {
-        return true;
-        }
-      else {
-        return false;
+      if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er)) {
+        result|=WIO_HANDLE;
         }
       }
     }
   else {
     if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
-      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) ) {
-        return false;
+      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er)){
+        result|=WIO_INTERRUPT;
         }
-      else if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er)) {
-        return true;
-        }
-      else {
-        return false;
+      if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er)) {
+        result|=WIO_HANDLE;
         }
       }
     }
-  return false;
+  return result;
 #endif
   }
 

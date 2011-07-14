@@ -166,7 +166,7 @@ FXbool HttpInput::write(const FXString & data) {
       return false;
       }
     else if (nwritten==-2) {
-      if (!ap_wait_write(input->getFifoHandle(),handle()))
+      if (!wait_write())
         return false;
       }
     else {
@@ -178,34 +178,36 @@ FXbool HttpInput::write(const FXString & data) {
 
 
 
-static FXInputHandle try_connect(FXInputHandle fifo,struct addrinfo * item) {
-  FXint  device = socket(item->ai_family,item->ai_socktype,item->ai_protocol);
-  if (device==BadHandle) {
+FXInputHandle HttpInput::open_connection(struct addrinfo * info) {
+
+  FXint s = socket(info->ai_family,info->ai_socktype,info->ai_protocol);
+  if (s==BadHandle) {
     return BadHandle;
     }
 
-  if (!ap_set_nonblocking(device) || !ap_set_closeonexec(device)) {
-    ::close(device);
+  if (!ap_set_nonblocking(s) || !ap_set_closeonexec(s)) {
+    ::close(s);
     return BadHandle;
     }
 
-  ap_set_nosignal(device);
+  ap_set_nosignal(s);
 
-  if (connect(device,item->ai_addr,item->ai_addrlen)==0)
-    return device;
+  if (connect(s,info->ai_addr,info->ai_addrlen)==0)
+    return true;
 
   if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-    if (ap_wait_write(fifo,device,TIME_SEC(30))) {
+    if (wait_write(s)) {
       int socket_error=0;
       socklen_t socket_length=sizeof(socket_error);
-      if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0)
-        return device;
+      if (getsockopt(s,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0)
+        return s;
       }
     }
 
-  ::close(device);
+  ::close(s);
   return BadHandle;
   }
+
 
 FXbool HttpInput::open(const FXString & hostname,FXint port) {
   struct addrinfo   hints;
@@ -224,7 +226,7 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
     }
 
   for (item=list;item;item=item->ai_next){
-    device=try_connect(input->getFifoHandle(),item);
+    device=open_connection(item);
     if (device!=BadHandle) {
       freeaddrinfo(list);
       return true;
@@ -391,11 +393,9 @@ FXbool HttpInput::parse_response() {
 
 void HttpInput::icy_parse(const FXString & buffer) {
   FXString title = buffer.after('=').before(';');
-/*
   MetaInfo * meta = new MetaInfo();
   meta->title = title;
   input->post(meta);
-*/  
   }
 
 

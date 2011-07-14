@@ -16,17 +16,20 @@ protected:
   virtual FXlong read_raw(void*data,FXival ncount)=0;
   virtual FXInputHandle handle() const { return BadHandle; }
 protected:
-
-
   /// Read block of bytes directly from input
   FXlong readBlock(void*data,FXival ncount,FXbool wait=true);
   FXival fillBuffer(FXival);
+
+
+  FXbool wait_read();
+  FXbool wait_write();
+  FXbool wait_write(FXInputHandle);
 protected:
   InputPlugin(InputThread*,FXival size);
 public:
   InputPlugin(InputThread*);
 
-  /// Read ncount bytes
+  /// Read ncount bytes, returns -1 for error, -2 for interrupted
   virtual FXival read(void*data,FXival ncount);
 
   //// Read ncount preview bytes. Position of stream doesn't change

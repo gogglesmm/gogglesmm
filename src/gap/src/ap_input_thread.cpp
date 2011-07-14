@@ -74,6 +74,9 @@ Event * InputThread::wait_for_io() {
 
 
 
+FXbool InputThread::aborted() {
+  return fifo.checkAbort();
+  }
 
 Event * InputThread::wait_for_event() {
   Event * event = fifo.pop();
@@ -214,18 +217,16 @@ FXint InputThread::run(){
                             ctrl_open_input(((ControlEvent*)event)->text);
                             break;
       case Ctrl_Quit      : ctrl_close_input(true);
-                            //AP_RELEASE_EVENT(event);
                             engine->decoder->post(event,EventQueue::Flush);
                             return 0;
                             break;
       case Ctrl_Seek      : ctrl_seek(((CtrlSeekEvent*)event)->pos);
                             break;
-
       case Ctrl_EOS       : if (event->stream==streamid) {fxmessage("closing %d\n",streamid); ctrl_eos(); }
                             break;
       case Meta           : engine->decoder->post(event);
                             continue;
-                            break;                              
+                            break;
       case Buffer         :
         {
           Packet * packet = dynamic_cast<Packet*>(event);

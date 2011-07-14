@@ -82,6 +82,16 @@ Event * ThreadQueue::pop() {
   return event;
   }
 
+FXbool ThreadQueue::checkAbort() {
+  FXMutexLock lock(mfifo);
+  if (head && (head->type&0x80))
+    return true;
+
+  pfifo.clear();
+  return false;
+  }
+
+
 void ThreadQueue::flush() {
   Event * event = NULL;
   mfifo.lock();
@@ -104,8 +114,6 @@ FXuchar ThreadQueue::peek() {
 
   if (head)
     type=head->type;
-//  else
-//    ap_pipe_clear(pfifo[0]);
 
   mfifo.unlock();
   return type;

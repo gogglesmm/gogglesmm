@@ -43,7 +43,7 @@ public:
   Event * wait_for_packet();
   Packet * get_packet();
 
-//  DecoderPacket * get_decoder_packet();
+  FXbool aborted();
 
 
   FXival preview(void*data,FXival ncount);

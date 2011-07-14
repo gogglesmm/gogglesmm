@@ -4,24 +4,23 @@
 namespace ap {
 
 enum EventTypePrivate {
-  Ctrl_Shutdown = AP_LAST,
-  Ctrl_Close,
-  Ctrl_Open,
-  Ctrl_Open_Flush,
-  Ctrl_Play,
+
+  /// These events abort reading
+  Ctrl_Quit       = 0x81,
+  Ctrl_Close      = 0x82,
+  Ctrl_Open       = 0x83,
+  Ctrl_Open_Flush = 0x84,
+
+
+
+  Ctrl_Seek       = AP_LAST,
   Ctrl_Pause,
-  Ctrl_Stop,
-  Ctrl_Quit,
-  Ctrl_Seek,
   Ctrl_EOS,
   Ctrl_Set_Output_Config,
   Ctrl_Get_Output_Config,
   Ctrl_Set_Replay_Gain,
   Ctrl_Get_Replay_Gain,
   Ctrl_Volume,
-  Packet_Configure,
-  Packet_Data,
-  Packet_Available,
   Buffer,
   Configure,
   Flush,

@@ -1,6 +1,8 @@
 #ifndef INPUT_HTTP_DEVICE_H
 #define INPUT_HTTP_DEVICE_H
 
+struct addrinfo;
+
 namespace ap {
 
 class HttpInput : public InputPlugin {
@@ -12,12 +14,14 @@ protected: /// Http
   FXlong        content_position;
 protected: /// Icecast
   FXint         icy_interval;
-  FXint         icy_count;  
+  FXint         icy_count;
   FXString      icy_meta_genre;
   FXString      icy_meta_name;
 private:
   HttpInput(const HttpInput&);
   HttpInput &operator=(const HttpInput&);
+private:
+  FXInputHandle open_connection(struct addrinfo*);
 protected:
   FXlong read_raw(void*,FXival);
   FXlong write_raw(void*,FXival);

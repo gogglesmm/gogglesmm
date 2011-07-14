@@ -18,6 +18,7 @@ using namespace ap;
 
 namespace ap {
 
+
 InputPlugin::InputPlugin(InputThread * i,FXival size) : input(i), buffer(size) {
   }
 
@@ -26,6 +27,55 @@ InputPlugin::InputPlugin(InputThread * i) : input(i), buffer(0) {
 
 InputPlugin::~InputPlugin() {
   }
+
+FXbool InputPlugin::wait_read() {
+  do {
+    FXuint x = ap_wait_read(input->getFifoHandle(),handle());
+    switch(x) {
+       case WIO_TIMEOUT      : return false; break;
+       case WIO_HANDLE       : return true; break;
+       default               :
+
+          if (input->aborted()){
+            return false;
+            }
+          else if (x==WIO_BOTH)
+            return true;
+          else
+            continue;
+      }
+    }
+  while(1);
+  }
+
+
+FXbool InputPlugin::wait_write() {
+  return wait_write(handle());
+  }
+
+FXbool InputPlugin::wait_write(FXInputHandle h) {
+  do {
+    FXuint x = ap_wait_write(input->getFifoHandle(),h);
+    switch(x) {
+       case WIO_TIMEOUT      : return false; break;
+       case WIO_HANDLE       : return true; break;
+       default               :
+
+          if (input->aborted()){
+            return false;
+            }
+          else if (x==WIO_BOTH)
+            return true;
+          else
+            continue;
+      }
+    }
+  while(1);
+  }
+
+
+
+
 
 
 FXival InputPlugin::fillBuffer(FXival count) {
@@ -53,8 +103,8 @@ FXival InputPlugin::readBlock(void*data,FXival count,FXbool wait){
       /// wait if we have no data yet
       /// In case we receive data from socket and we don't know how long the stream will be.
       if (wait || (ncount==count)) {
-        if (!ap_wait_read(input->getFifoHandle(),handle()))
-          return -1;
+        if (!wait_read())
+          return -2;
         }
       else {
         return count-ncount;
@@ -88,7 +138,7 @@ FXival InputPlugin::read(void * d,FXival count){
     FXival nbuffer = buffer.read(data,count);
     if (nbuffer==count) return nbuffer;
     FXival nblock = InputPlugin::readBlock(data+nbuffer,count-nbuffer);
-    if (nblock==-1) return -1;
+    if (nblock<0) return nblock;
     return nbuffer+nblock;
     }
   else {
