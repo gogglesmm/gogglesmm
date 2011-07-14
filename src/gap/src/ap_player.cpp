@@ -54,7 +54,19 @@ Event* AudioPlayer::pop() {
 
 void AudioPlayer::open(const FXString & url,FXbool flush) {
   FXASSERT(engine->input->running());
-  engine->input->post(new ControlEvent(flush ? Ctrl_Open_Flush : Ctrl_Open,url));
+  /// EventQueue::Flush => pending commands should not be executed
+  engine->input->post(new ControlEvent(flush ? Ctrl_Open_Flush : Ctrl_Open,url),EventQueue::Flush);
+  }
+
+void AudioPlayer::close() {
+  FXASSERT(engine->input->running());
+  /// EventQueue::Flush => pending commands should not be executed
+  engine->input->post(new ControlEvent(Ctrl_Close),EventQueue::Flush);
+  }
+
+void AudioPlayer::seek(FXdouble pos) {
+  FXASSERT(engine->input->running());
+  engine->input->post(new CtrlSeekEvent(pos));
   }
 
 void AudioPlayer::pause() {
@@ -62,20 +74,11 @@ void AudioPlayer::pause() {
   engine->output->post(new ControlEvent(Ctrl_Pause),EventQueue::Front);
   }
 
-void AudioPlayer::seek(FXdouble pos) {
-  FXASSERT(engine->input->running());
-  engine->input->post(new CtrlSeekEvent(pos),EventQueue::Front);
-  }
-
 void AudioPlayer::volume(FXfloat vol) {
   FXASSERT(engine->output->running());
   engine->output->post(new CtrlVolumeEvent(vol),EventQueue::Front);
   }
 
-void AudioPlayer::close() {
-  FXASSERT(engine->input->running());
-  engine->input->post(new ControlEvent(Ctrl_Close),EventQueue::Front);
-  }
 
 void AudioPlayer::getOutputConfig(OutputConfig & config) const{
   FXASSERT(engine->output->running());
