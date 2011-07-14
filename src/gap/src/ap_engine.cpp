@@ -67,7 +67,7 @@ void AudioEngine::exit() {
 
     GM_DEBUG_PRINT("AudioEngine::exit()\n");
 
-    input->post(new ControlEvent(Ctrl_Quit),EventQueue::Front);
+    input->post(new ControlEvent(Ctrl_Quit),EventQueue::Flush);
 
     GM_DEBUG_PRINT("Waiting for input\n");
     input->join();
