@@ -22,6 +22,7 @@ protected:
 
 
   FXbool wait_read();
+  FXbool wait_read(FXInputHandle);
   FXbool wait_write();
   FXbool wait_write(FXInputHandle);
 protected:

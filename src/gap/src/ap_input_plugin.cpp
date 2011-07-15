@@ -28,9 +28,9 @@ InputPlugin::InputPlugin(InputThread * i) : input(i), buffer(0) {
 InputPlugin::~InputPlugin() {
   }
 
-FXbool InputPlugin::wait_read() {
+FXbool InputPlugin::wait_read(FXInputHandle h) {
   do {
-    FXuint x = ap_wait_read(input->getFifoHandle(),handle());
+    FXuint x = ap_wait_read(input->getFifoHandle(),h);
     switch(x) {
        case WIO_TIMEOUT      : return false; break;
        case WIO_HANDLE       : return true; break;
@@ -48,6 +48,10 @@ FXbool InputPlugin::wait_read() {
   while(1);
   }
 
+
+FXbool InputPlugin::wait_read() {
+  return wait_read(handle());
+  }
 
 FXbool InputPlugin::wait_write() {
   return wait_write(handle());
