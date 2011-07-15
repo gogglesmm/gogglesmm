@@ -232,6 +232,9 @@ check_forced_mad
 
 check_expat
 
+# needed for getaddrinfo_a
+# check_anl
+
 ###############################################################################
 GAP_PKGCONFIG=src/libgaplayer-${GAP_MAJOR}.pc
 

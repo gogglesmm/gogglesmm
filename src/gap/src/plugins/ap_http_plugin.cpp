@@ -76,6 +76,68 @@ static FXbool ap_set_nosignal(FXint)  {
   }
 #endif
 
+#if 0
+
+FIXME: you cannot cancel a lookup...
+
+void async_notify_function(union sigval data) {
+  fxmessage("got notified\n");
+  NotifyPipe* pipe = (NotifyPipe*)data.sival_ptr;
+  pipe->signal();
+  }
+
+FXbool HttpInput::async_connect(const FXString & hostname,FXint port) {
+  FXString port_s = FXString::value(port);
+
+
+  struct sigevent se;
+  struct gaicb    request;
+  struct gaicb *  request_ptr = &request;
+
+  NotifyPipe notify;
+  notify.create();
+
+  /// Init Host Lookup
+  memset(request_ptr,0,sizeof(struct gaicb));
+
+  request.ar_name            = hostname.text();
+  request.ar_service         = port_s.text();
+  se.sigev_notify            = SIGEV_THREAD;
+  se.sigev_value.sival_ptr   = &notify;
+  se.sigev_notify_attributes = NULL;
+  se.sigev_notify_function   = &async_notify_function;
+
+  if (getaddrinfo_a(GAI_NOWAIT,&request_ptr,1,&se)!=0)
+    return false;
+
+  while(wait_read(notify.handle())) {
+    notify.clear();
+
+    int result = gai_error(&request);
+
+    /// Probably never happens
+    if (result==EAI_INPROGRESS)
+      continue;
+
+    /// Success
+    if (result==0) {
+      for (struct addrinfo * item=request.ar_result;item;item=item->ai_next){
+        device=open_connection(item);
+        if (device!=BadHandle) {
+          return true;
+          }
+        }
+      }
+    return false;
+    }
+
+  if (gai_cancel(&request)==EAI_NOTCANCELED) {
+    fxmessage("failed to cancel request...\n");
+    }
+  return false;
+  }
+#endif
+
 HttpInput::HttpInput(InputThread *i) : InputPlugin(i,1024),device(BadHandle),
   content_type(Format::Unknown),
   content_length(-1),

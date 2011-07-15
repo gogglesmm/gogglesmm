@@ -84,6 +84,12 @@ check_expat()
   LIBS="$LIBS -lexpat"
 }
 
+
+check_anl()
+{
+  LIBS="$LIBS -lanl"
+}
+
 check_alsa()
 {
   if [ $OPTION_PLUGIN_ALSA -eq 1 ] ; then
