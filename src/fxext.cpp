@@ -1787,6 +1787,8 @@ GMTabItem::GMTabItem(FXTabBar* p,const FXString& text,FXIcon* ic,FXuint opts,FXi
 //  recalc();
 //  }
 
+
+/// FIXME determine last tab based visibility...
 long GMTabItem::onPaint(FXObject*,FXSelector,void*){
   FXTabBar * bar = (FXTabBar*)getParent();
   FXint tab = bar->indexOfChild(this)/2;
@@ -1794,6 +1796,17 @@ long GMTabItem::onPaint(FXObject*,FXSelector,void*){
   FXint ctab = bar->getCurrent();
 
 
+  FXbool is_last = (tab==(ntabs-1));
+
+  if (!is_last) {
+    is_last=true;
+    for (FXint t=tab+1;t<ntabs;t++){
+      if (bar->childAtIndex(t<<1)->shown()) {
+        is_last=false;
+        break;
+        }
+      }
+    }
 
   FXDCWindow dc(this);
 
@@ -1807,7 +1820,7 @@ long GMTabItem::onPaint(FXObject*,FXSelector,void*){
         dc.fillRectangle(0,0,1,height-1);
 
     /// last one or active one
-    if ((tab == (ntabs-1)) || tab==ctab) {
+    if (is_last || tab==ctab) {
       dc.fillRectangle(width-1,0,1,height-1);
       if (tab!=ctab)
         fillVerticalGradient(dc,1,1,width-2,height-2,gm_make_hilite_color(shadowColor),gm_make_hilite_color(shadowColor));
