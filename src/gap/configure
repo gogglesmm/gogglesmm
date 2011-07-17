@@ -6,12 +6,13 @@
 #-----------------------
 
 
-# Increase major if abi has changed.
+# Increase major if api has changed.
 
 # API version
 GAP_MAJOR=0             # Increase whenever we decide to break the API.
-GAP_MINOR=4             # Increase for regular release
-GAP_ABI=3               # increase whenever we break Application Binary Interface
+GAP_MINOR=5             # Increase for regular release
+GAP_ABI_RELEASE=0       # Increase for every release, reset to 0 when GAP_ABI is change
+GAP_ABI=4               # Increase whenever we break Application Binary Interface
 
 # Settings
 #---------------------------
@@ -283,6 +284,7 @@ echo "PREFIX=$PREFIX"                                     >> config.make
 echo "GAP_MAJOR=$GAP_MAJOR"                               >> config.make
 echo "GAP_MINOR=$GAP_MINOR"                               >> config.make
 echo "GAP_ABI=$GAP_ABI"                                   >> config.make
+echo "GAP_ABI_RELEASE=$GAP_ABI_RELEASE"                   >> config.make
 echo "LIBDIR=$LIBDIR"                                     >> config.make
 echo "INCLUDEDIR=$INCLUDEDIR"                             >> config.make
 echo "SONAME=$SONAME"                                     >> config.make
