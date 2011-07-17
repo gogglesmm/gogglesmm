@@ -273,6 +273,8 @@ public:
 
   void init(GMSource * src);
 
+  void refreshUpdate();
+
   void refresh();
 
   void clear();
@@ -298,8 +300,12 @@ public:
   void saveView() const;
 
   FXbool focusNext();
-  
+
   FXbool focusPrevious();
+  
+  void selectNext();
+  
+  void selectPrevious();
 
   virtual ~GMTrackView();
   };

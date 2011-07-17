@@ -425,6 +425,30 @@ FXbool GMTrackView::focusNext() {
   }
 
 
+void GMTrackView::selectNext() {
+  FXint current = tracklist->getCurrentItem();
+  if (current==tracklist->getNumItems()-1)
+    current=0;
+  else
+    current+=1;
+
+  tracklist->killSelection();
+  tracklist->setCurrentItem(current);
+  tracklist->selectItem(current);
+  }
+
+void GMTrackView::selectPrevious() {
+  FXint current = tracklist->getCurrentItem();
+  if (current==0)
+    current=tracklist->getNumItems()-1;
+  else
+    current-=1;
+
+  tracklist->killSelection();
+  tracklist->setCurrentItem(current);
+  tracklist->selectItem(current);
+  }
+
 
 void GMTrackView::init_track_context_menu(FXMenuPane * pane,FXbool selected){
   if (selected && source->track_context_menu(pane))
@@ -894,6 +918,11 @@ void GMTrackView::saveView() const {
 
 void GMTrackView::redrawAlbumList() {
   albumlist->update();
+  }
+
+void GMTrackView::refreshUpdate() {
+  if (source)
+    source->updateSelectedTracks(tracklist);
   }
 
 void GMTrackView::refresh() {
@@ -1811,7 +1840,7 @@ long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
     }
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && artistlist->getNumItems()) {
-      if (event->state&(SHIFTMASK))    
+      if (event->state&(SHIFTMASK))
         source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST_ADV),NULL);
       else
         source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST),NULL);
@@ -1867,7 +1896,7 @@ long GMTrackView::onCmdAlbumKeyPress(FXObject*,FXSelector,void*ptr){
     }
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && albumlist->getNumItems()) {
-      if (event->state&(SHIFTMASK))    
+      if (event->state&(SHIFTMASK))
         source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM_ADV),NULL);
       else
         source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM),NULL);
@@ -1917,7 +1946,7 @@ long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
     }
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && numTrackSelected() ) {
-      if (event->state&(SHIFTMASK))    
+      if (event->state&(SHIFTMASK))
         source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK_ADV),NULL);
       else
         source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK),NULL);
