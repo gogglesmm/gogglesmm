@@ -124,7 +124,7 @@ public:
     ID_DELETE_TAG_ADV,
     ID_DELETE_ARTIST_ADV,
     ID_DELETE_ALBUM_ADV,
-    ID_DELETE_TRACK_ADV,    
+    ID_DELETE_TRACK_ADV,
     ID_PASTE,
     ID_DROP,
     ID_EXPORT,
@@ -215,7 +215,9 @@ public:
   virtual FXbool listAlbums(GMAlbumList *,const FXIntList &,const FXIntList &) { return false; }
 
   virtual FXbool listTracks(GMTrackList*,const FXIntList &,const FXIntList &) { return false; }
-
+  
+  virtual FXbool updateSelectedTracks(GMTrackList*) { return false; }
+  
   virtual FXbool genre_context_menu(FXMenuPane*) { return false; }
 
   virtual FXbool artist_context_menu(FXMenuPane*) { return false; }
