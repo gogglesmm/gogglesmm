@@ -36,7 +36,7 @@ PCMDecoder::PCMDecoder(AudioEngine * e) : DecoderPlugin(e) {
 PCMDecoder::~PCMDecoder() {
   }
 
-FXbool PCMDecoder::init(ConfigureEvent*event) {
+FXbool PCMDecoder::init(ConfigureEvent*/*event*/) {
   return true;
   }
 
@@ -47,10 +47,12 @@ FXbool PCMDecoder::flush() {
 DecoderStatus PCMDecoder::process(Packet*in) {
   FXbool eos    = (in->flags&FLAG_EOS);
   FXint  stream = in->stream;
+  
   /// Simply Forward to output
   engine->output->post(in);
+  
   if (eos) {
-    engine->output->post(new ControlEvent(Ctrl_EOS,in->stream));
+    engine->output->post(new ControlEvent(Ctrl_EOS,stream));
     engine->post(new Event(AP_EOS));
     }
   return DecoderOk;
