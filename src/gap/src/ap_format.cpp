@@ -146,7 +146,7 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
     }
   else if (comparecase(mime,"audio/x-ms-wax")==0) {
     return Format::ASX;
-    }      
+    }
   else {
     return Format::Unknown;
     }
@@ -186,7 +186,7 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
 
 
 extern FXuint ap_format_from_buffer(const FXchar * buffer,FXival size) {
-  if (comparecase(buffer,"<ASX",4)==0)
+  if (size>=4 && comparecase(buffer,"<ASX",4)==0)
     return Format::ASX;
   else
     return Format::Unknown;

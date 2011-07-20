@@ -422,7 +422,7 @@ void OggReader::submit_ogg_packet() {
 
   if (state.header_written==false) {
     if (codec==Codec::Vorbis) {
-      if (packet->space()>sizeof(ogg_packet)) {
+      if (packet->space()>(FXival)sizeof(ogg_packet)) {
         packet->append(&op,sizeof(ogg_packet));
         state.header_written=true;
         if (packet->stream_position==-1) {

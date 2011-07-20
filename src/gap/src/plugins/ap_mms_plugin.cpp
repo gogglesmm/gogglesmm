@@ -36,7 +36,7 @@ FXival MMSInput::read_raw(void*data,FXival ncount) {
   return result;
   }
 
-FXival MMSInput::position(FXlong offset,FXuint from) {
+FXival MMSInput::position(FXlong /*offset*/,FXuint /*from*/) {
   return -1;
   }
 

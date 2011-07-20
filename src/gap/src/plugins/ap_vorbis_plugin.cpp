@@ -56,7 +56,7 @@ public:
 
 
 
-VorbisDecoder::VorbisDecoder(AudioEngine * e) : DecoderPlugin(e),buffer(32768),engine(e),out(NULL),has_info(false),has_dsp(false) {
+VorbisDecoder::VorbisDecoder(AudioEngine * e) : DecoderPlugin(e),buffer(32768),engine(e),has_info(false),has_dsp(false),out(NULL) {
   }
 
 VorbisDecoder::~VorbisDecoder(){
@@ -115,7 +115,7 @@ FXbool VorbisDecoder::flush() {
 
 
 FXbool VorbisDecoder::get_next_packet() {
-  if (buffer.size() && buffer.size()>=sizeof(ogg_packet)) {
+  if (buffer.size() && buffer.size()>=(FXival)sizeof(ogg_packet)) {
     buffer.read((FXuchar*)&op,sizeof(ogg_packet));
 
     if (buffer.size()<op.bytes) {
@@ -146,7 +146,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
   FXfloat * buf32=NULL;
   FXint p,navail=0;
 
-  FXint ngiven,ntotalsamples,nsamples,sample,maxsamples,offset,c,s;
+  FXint ngiven,ntotalsamples,nsamples,sample,c,s;
 
   FXbool eos=packet->flags&FLAG_EOS;
   FXuint id=packet->stream;

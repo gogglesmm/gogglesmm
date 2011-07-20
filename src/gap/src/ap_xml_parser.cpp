@@ -19,7 +19,7 @@ XMLStream::~XMLStream() {
 
 
 void XMLStream::xml_print_error() {
-  fxmessage("Parse Error (line %d, column %d): %s\n",XML_GetCurrentLineNumber((XML_Parser)parser),XML_GetCurrentColumnNumber((XML_Parser)parser),XML_ErrorString(XML_GetErrorCode((XML_Parser)parser)));
+  fxmessage("Parse Error (line %ld, column %ld): %s\n",XML_GetCurrentLineNumber((XML_Parser)parser),XML_GetCurrentColumnNumber((XML_Parser)parser),XML_ErrorString(XML_GetErrorCode((XML_Parser)parser)));
   }
 
 FXbool XMLStream::parse(const FXchar * buffer,FXint length) {

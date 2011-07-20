@@ -506,7 +506,7 @@ r = s.x = x;
    fxmessage("encoding_flags: %x\n",encoding_flags);
    fxmessage("lame_type: %d\n",lame_type);
 
-   FXuchar bitrate = (*(buffer+21));
+//   FXuchar bitrate = (*(buffer+21));
 
    padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
    padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
@@ -515,8 +515,8 @@ r = s.x = x;
    FXuchar misc = (*(buffer+25));
    fxmessage("misc: %x\n",misc);
 
-   FXuchar mp3gain = (*(buffer+25));
-   FXushort surround = INT16_BE(buffer+26);
+//   FXuchar mp3gain = (*(buffer+25));
+//   FXushort surround = INT16_BE(buffer+26);
    length = INT32_BE(buffer+28);
    fxmessage("length: %d\n",length);
   }
@@ -672,9 +672,9 @@ FXbool MadReader::parse_ape() {
     fxmessage("mad_input: found ape tag");
     FXint ape_version  = INT32_LE(ape+8);
     FXint ape_size     = INT32_LE(ape+12);
-    FXint ape_count    = INT32_LE(ape+16);
+//    FXint ape_count    = INT32_LE(ape+16);
     FXint ape_flags    = INT32_LE(ape+20);
-    FXint ape_reserved = INT32_LE(ape+24);
+ //   FXint ape_reserved = INT32_LE(ape+24);
 
     enum {
       APE_HEADER          = (1<<29),

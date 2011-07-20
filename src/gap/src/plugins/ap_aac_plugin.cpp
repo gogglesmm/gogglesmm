@@ -55,21 +55,6 @@ public:
   ~MP4Reader();
   };
 
-static void ap_write_unsigned(Packet * p,FXuint b) {
-  memcpy(p->ptr(),(const FXchar*)&b,4);
-  p->wrote(4);
-  }
-
-
-static FXuint ap_read_unsigned(FXuchar * buffer,FXint pos) {
-  FXuint v;
-  ((FXuchar*)&v)[0]=buffer[pos+0];
-  ((FXuchar*)&v)[1]=buffer[pos+1];
-  ((FXuchar*)&v)[2]=buffer[pos+2];
-  ((FXuchar*)&v)[3]=buffer[pos+3];
-  return v;
-  }
-
 
 FXuint MP4Reader::mp4_read(void*ptr,void*data,FXuint len){
   InputThread* input = reinterpret_cast<InputThread*>(ptr);
@@ -163,9 +148,6 @@ ReadStatus MP4Reader::process(Packet*p) {
       return ReadOk;
       }
 
-    /// Write size
-    //ap_write_unsigned(packet,size);
-
     FXint n = mp4ff_read_sample_v2(handle,track,frame,packet->ptr());
     if (n<=0) {
       packet->unref();
@@ -192,7 +174,6 @@ ReadStatus MP4Reader::parse() {
   mp4AudioSpecificConfig cfg;
   FXuchar* buffer;
   FXuint   size;
-  FXint    result;
   FXint    ntracks;
 
   FXASSERT(handle==NULL);
@@ -202,13 +183,10 @@ ReadStatus MP4Reader::parse() {
   if (handle==NULL)
     goto error;
 
-fxmessage("PARSE\n");
-
   ntracks = mp4ff_total_tracks(handle);
   if (ntracks<=0)
     goto error;
 
-  fxmessage("check %d\n",ntracks);
   for (FXint i=0;i<ntracks;i++) {
     if ((mp4ff_get_decoder_config(handle,i,&buffer,&size)==0) && buffer && size) {
       if (NeAACDecAudioSpecificConfig(buffer,size,&cfg)==0) {

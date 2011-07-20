@@ -116,18 +116,18 @@ FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & af,FXlong & nf
 
   const FXuchar * const info = buffer + 4;
 
-  FXushort min_block_size;
-  FXushort max_block_size;
-  FXuint   min_frame_size;
-  FXuint   max_frame_size;
+//  FXushort min_block_size;
+//  FXushort max_block_size;
+//  FXuint   min_frame_size;
+//  FXuint   max_frame_size;
   FXuint   sample_rate;
   FXchar   channels;
   FXchar   bps;
 
-  min_block_size = FLAC_INFO_MIN_BLOCK_SIZE(info);
-  max_block_size = FLAC_INFO_MAX_BLOCK_SIZE(info);
-  min_frame_size = FLAC_INFO_MIN_FRAME_SIZE(info);
-  max_frame_size = FLAC_INFO_MAX_FRAME_SIZE(info);
+//  min_block_size = FLAC_INFO_MIN_BLOCK_SIZE(info);
+//  max_block_size = FLAC_INFO_MAX_BLOCK_SIZE(info);
+//  min_frame_size = FLAC_INFO_MIN_FRAME_SIZE(info);
+//  max_frame_size = FLAC_INFO_MAX_FRAME_SIZE(info);
   sample_rate    = FLAC_INFO_SAMPLE_RATE(info);
   channels       = FLAC_INFO_CHANNELS(info);
   bps            = FLAC_INFO_BPS(info);
@@ -341,7 +341,7 @@ void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const F
       plugin->af.debug();
       break;
     case FLAC__METADATA_TYPE_VORBIS_COMMENT:
-      for (FXint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {
+      for (FXuint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {
         if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_TRACK_GAIN=",22)==0){
           FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
           FXdouble gain=NAN;
@@ -369,8 +369,8 @@ void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const F
           tag.after('=').scan("%lg",&peak);
           plugin->gain.album_peak=peak;
           }
-          
-          
+
+
  //       fxmessage("%s\n",metadata->data.vorbis_comment.comments[i].entry);
         }
       break;

@@ -52,7 +52,7 @@ XSPFParser::XSPFParser() : elem(Elem_None) {
 XSPFParser::~XSPFParser(){
   }
 
-FXint XSPFParser::begin(const FXchar * element,const FXchar ** attributes){
+FXint XSPFParser::begin(const FXchar * element,const FXchar **/* attributes*/){
   switch(elem) {
     case Elem_None:
       {
