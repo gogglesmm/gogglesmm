@@ -22,6 +22,7 @@
 #include "plugins/ap_http_plugin.h"
 #include "plugins/ap_cdda_plugin.h"
 #include "plugins/ap_mms_plugin.h"
+#include "plugins/ap_smb_plugin.h"
 
 #ifndef WIN32
 #include <errno.h>
@@ -359,6 +360,17 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
       }
     url=uri;
     return cdda;
+    }
+#endif
+#ifdef HAVE_SMB_PLUGIN
+  else if (scheme=="smb") {
+    SMBInput * smb = new SMBInput(this);
+    if (!smb->open(uri)) {
+      delete smb;
+      return NULL;
+      }
+    url=uri;
+    return smb;
     }
 #endif
   else {

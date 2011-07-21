@@ -137,6 +137,10 @@ ifneq (,$(findstring mms,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_mms_plugin.cpp
 endif
 
+ifneq (,$(findstring smb,$(PLUGINS)))
+GAP_SRCFILES+=src/plugins/ap_smb_plugin.cpp
+endif
+
 ifneq (,$(findstring avcodec,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_avc_plugin.cpp src/plugins/ap_asf_plugin.cpp src/plugins/ap_asx_plugin.cpp
 endif

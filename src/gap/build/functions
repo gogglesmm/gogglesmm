@@ -198,6 +198,19 @@ check_faad()
   fi
 }
 
+check_smb()
+{
+  if [ $OPTION_PLUGIN_SMB -eq 1 ] ; then
+    echo "Search for smbclient"
+    if [ -e $SMB_PREFIX/$LIB/libsmbclient${LIBEXT} ] ; then
+      echo "  Found smbclient: $SMB_PREFIX/$LIB/libsmbclient${LIBEXT}"
+      PLUGIN_LIBS="$PLUGIN_LIBS -lsmbclient "
+      add_plugin_config smb
+    fi
+    echo " "
+  fi
+}
+
 
 check_packages()
 {
