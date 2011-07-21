@@ -15,6 +15,10 @@ using namespace ap;
 namespace ap {
 
 
+static void smb_auth(const char *srv, const char *shr, char *wg, int wglen, char *un, int unlen, char *pw, int pwlen){
+	wglen = unlen = pwlen = 0;
+  }
+
 SMBInput::SMBInput(InputThread * i) : InputPlugin(i), fd(-1) {
   }
 
@@ -26,6 +30,11 @@ SMBInput::~SMBInput() {
   }
 
 FXbool SMBInput::open(const FXString & uri) {
+
+  /// Perhaps we need an init function...
+  if (smbc_init(smb_auth,0))
+    return false;  
+
   fd=smbc_open(uri.text(),O_RDONLY,0);
   if (fd>=SMBC_BASE_FD){
     filename=uri;
