@@ -1,5 +1,6 @@
 #include "ap_defs.h"
 #include "ap_utils.h"
+#include "ap_format.h"
 
 #ifdef __linux__
 #include <sys/prctl.h>
@@ -35,6 +36,45 @@ FXString ap_get_environment(const FXchar * key,const FXchar * def) {
   else
     return value;
   }
+
+
+
+void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len) {
+  if (comparecase(comment,"REPLAYGAIN_TRACK_GAIN=",22)==0){
+    FXString tag(comment,len);
+    tag.after('=').scan("%lg",&gain.track);
+    fxmessage("track gain %lg\n",gain.track);
+    }
+  else if (comparecase(comment,"REPLAYGAIN_TRACK_PEAK=",22)==0){
+    FXString tag(comment,len);
+    tag.after('=').scan("%lg",&gain.track_peak);
+    fxmessage("track peak %lg\n",gain.track_peak);
+    }
+  else if (comparecase(comment,"REPLAYGAIN_ALBUM_GAIN=",22)==0){
+    FXString tag(comment,len);
+    tag.after('=').scan("%lg",&gain.album);
+    fxmessage("album gain %lg\n",gain.album);
+    }
+  else if (comparecase(comment,"REPLAYGAIN_ALBUM_PEAK=",22)==0){
+    FXString tag(comment,len);
+    tag.after('=').scan("%lg",&gain.album_peak);
+    fxmessage("album peak %lg\n",gain.album_peak);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

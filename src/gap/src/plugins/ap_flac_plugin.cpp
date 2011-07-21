@@ -327,6 +327,8 @@ FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDeco
     }
   }
 
+extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
+
 
 void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
   FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
@@ -342,6 +344,9 @@ void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const F
       break;
     case FLAC__METADATA_TYPE_VORBIS_COMMENT:
       for (FXuint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {
+        ap_replaygain_from_vorbis_comment(plugin->gain,(const FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
+        }
+/*
         if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_TRACK_GAIN=",22)==0){
           FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
           FXdouble gain=NAN;
@@ -372,7 +377,9 @@ void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const F
 
 
  //       fxmessage("%s\n",metadata->data.vorbis_comment.comments[i].entry);
+
         }
+*/
       break;
     default: break;
     }

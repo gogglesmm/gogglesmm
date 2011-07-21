@@ -3,6 +3,19 @@
 
 namespace ap {
 
+
+struct ReplayGain{
+  FXdouble album;
+  FXdouble album_peak;
+  FXdouble track;
+  FXdouble track_peak;
+
+  ReplayGain() : album(NAN), album_peak(NAN), track(NAN), track_peak(NAN) {}
+
+  void reset() { album=NAN; album_peak=NAN; track=NAN; track_peak=NAN; }
+  };
+
+
 namespace Codec {
 
   enum {
