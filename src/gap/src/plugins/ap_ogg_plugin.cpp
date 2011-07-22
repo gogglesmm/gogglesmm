@@ -334,7 +334,7 @@ error:
 ReadStatus OggReader::parse() {
   if (input_position==-1)
     input_position = engine->input->position();
-  
+
   while(packet) {
 
     if (!fetch_next_packet())
@@ -402,6 +402,7 @@ void OggReader::send_headers() {
   while(event) {
     Packet * p = dynamic_cast<Packet*>(event);
     event      = event->next;
+    p->next    = NULL;
     engine->decoder->post(p);
     }
   headers=NULL;
