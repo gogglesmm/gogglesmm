@@ -69,6 +69,7 @@ protected:
   void   check_vorbis_length(vorbis_info*);
   void   add_header(Packet * p);
   void   send_headers();
+  void   clear_headers();
 
   ReadStatus parse();
   ReadStatus parse_vorbis_stream();
@@ -105,6 +106,7 @@ OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e),packet(NULL),headers(NUL
 
 
 OggReader::~OggReader() {
+  clear_headers();
   ogg_sync_clear(&sync);
   }
 
@@ -177,16 +179,12 @@ FXbool OggReader::init() {
   ogg_sync_reset(&sync);
   flags&=~(FLAG_PARSED|FLAG_VORBIS_HEADER_INFO|FLAG_VORBIS_HEADER_COMMENT|FLAG_VORBIS_HEADER_BLOCK);
   status=ReadOk;
+  
+  clear_headers();
 
   input_position=-1;
   stream_length=0;
   stream_start=0;
-
-  while(headers) {
-    Event * p = headers;
-    headers = headers->next;
-    p->unref();
-    }
 
   if (state.has_stream) {
     ogg_stream_clear(&stream);
@@ -388,6 +386,7 @@ ReadStatus OggReader::parse() {
 
 void OggReader::add_header(Packet * p) {
   Event * h = headers;
+  p->next = NULL;
   if (h) {
     while(h->next) h=h->next;
     h->next = p;
@@ -398,14 +397,20 @@ void OggReader::add_header(Packet * p) {
   }
 
 void OggReader::send_headers() {
-  Event * event = headers;
-  while(event) {
-    Packet * p = dynamic_cast<Packet*>(event);
-    event      = event->next;
+  while(headers) {
+    Packet * p = dynamic_cast<Packet*>(headers);
+    headers    = headers->next;
     p->next    = NULL;
     engine->decoder->post(p);
     }
-  headers=NULL;
+  }
+
+void OggReader::clear_headers() {
+  while(headers) {
+    Event * p = headers;
+    headers = headers->next;
+    p->unref();
+    }
   }
 
 
