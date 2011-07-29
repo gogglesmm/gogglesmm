@@ -301,6 +301,7 @@ FXlong InputThread::size() const {
 void InputThread::ctrl_eos() {
   fxmessage("end of stream reached\n");
   if (state==StateIdle) {
+    ctrl_flush(true);
     ctrl_close_input(true);
     }
   }
