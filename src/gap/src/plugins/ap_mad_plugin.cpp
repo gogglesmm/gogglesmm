@@ -74,7 +74,7 @@ protected:
   FXlong  stream_position;
   FXshort stream_offset_start;
   FXshort stream_offset_end;
-  FXint        frame_counter;
+  FXint   frame_counter;
 
 protected:
   enum {

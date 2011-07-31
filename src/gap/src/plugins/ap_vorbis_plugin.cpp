@@ -131,10 +131,6 @@ FXbool VorbisDecoder::get_next_packet() {
   }
 
 
-//#define AP_AVAILABLE_FRAMES(p) ((OUTPUT_PACKET_SIZE / af.framesize()) - p->nframes);
-//#define AP_MAX_FRAMES ((OUTPUT_PACKET_SIZE / af.framesize());
-
-
 FXbool VorbisDecoder::is_vorbis_header() {
   return (op.bytes>6 && ((op.packet[0]==1) || (op.packet[0]==3) || (op.packet[0]==5)) && (compare((const FXchar*)&op.packet[1],"vorbis",6)==0));
   }
@@ -241,10 +237,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
             navail = out->availableFrames();
             }
 
-
-//          buf32 = reinterpret_cast<FXfloat*>(&(out->data[out->nframes*af.framesize()]));
-
-          buf32 = reinterpret_cast<FXfloat*>(out->ptr());
+          buf32 = out->flt();
 
           /// Copy Samples
           nsamples = FXMIN(ntotalsamples,navail);

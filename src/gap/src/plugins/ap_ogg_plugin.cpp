@@ -73,6 +73,9 @@ protected:
 
   ReadStatus parse();
   ReadStatus parse_vorbis_stream();
+#ifdef HAVE_FLAC_PLUGIN  
+  ReadStatus parse_flac_stream();
+#endif
 public:
   OggReader(AudioEngine *);
   FXuchar format() const { return Format::OGG; };
@@ -96,9 +99,6 @@ public:
 
 
 
-#ifdef HAVE_FLAC_PLUGIN
-extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
-#endif
 
 OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e),packet(NULL),headers(NULL),ogg_packet_written(-1),codec(Codec::Invalid) {
   ogg_sync_init(&sync);
@@ -179,7 +179,7 @@ FXbool OggReader::init() {
   ogg_sync_reset(&sync);
   flags&=~(FLAG_PARSED|FLAG_VORBIS_HEADER_INFO|FLAG_VORBIS_HEADER_COMMENT|FLAG_VORBIS_HEADER_BLOCK);
   status=ReadOk;
-  
+
   clear_headers();
 
   input_position=-1;
@@ -254,6 +254,7 @@ void OggReader::check_vorbis_length(vorbis_info * info) {
   }
 
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
+extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
 
 ReadStatus OggReader::parse_vorbis_stream() {
@@ -300,8 +301,17 @@ ReadStatus OggReader::parse_vorbis_stream() {
       ap_replaygain_from_vorbis_comment(config->replaygain,vc.user_comments[i],vc.comment_lengths[i]);
       }
 
+    /// Meta Info
+    MetaInfo * meta = new MetaInfo;
+    for (int i=0;i<vc.comments;i++){
+      ap_meta_from_vorbis_comment(meta,vc.user_comments[i],vc.comment_lengths[i]);
+      }
+
     /// Now we are ready to init the decoder
     engine->decoder->post(config);
+
+    //// Send Meta Info
+    engine->decoder->post(meta);
 
     /// Add last packet
     submit_ogg_packet(false);
@@ -326,8 +336,36 @@ error:
   return ReadError;
   }
 
+#ifdef HAVE_FLAC_PLUGIN
 
+extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
 
+ReadStatus OggReader::parse_flac_stream() {
+  /// Make sure we have enough bytes
+  if (op.bytes<51)
+    return ReadError;
+
+  /// Check Mapping Version
+  if (op.packet[5]!=0x01 || op.packet[6]!=0x00)
+    return ReadError;
+
+  /// Parse the stream info block.
+  /// FIXME stream_length may not be set.
+  if (!flac_parse_streaminfo(op.packet+13,af,stream_length))
+    return ReadError;
+
+  /// Post Config, done parsing.
+  codec=Codec::FLAC;
+  engine->decoder->post(new ConfigureEvent(af,codec,stream_length));
+
+  flags|=FLAG_PARSED;
+
+  submit_ogg_packet();
+
+  /// Success
+  return ReadOk;
+  }
+#endif
 
 ReadStatus OggReader::parse() {
   if (input_position==-1)
@@ -342,34 +380,10 @@ ReadStatus OggReader::parse() {
       if (parse_vorbis_stream()!=ReadOk)
         return ReadError;
       }
-
 #ifdef HAVE_FLAC_PLUGIN
     else if (compare((const FXchar*)&op.packet[1],"FLAC",4)==0) {
-
-      /// Make sure we have enough bytes
-      if (op.bytes<51)
-        return ReadError;
-
-      /// Check Mapping Version
-      if (op.packet[5]!=0x01 || op.packet[6]!=0x00)
-        return ReadError;
-
-      /// Parse the stream info block.
-      /// FIXME stream_length may not be set.
-      if (!flac_parse_streaminfo(op.packet+13,af,stream_length))
-        return ReadError;
-
-      /// Post Config, done parsing.
-      codec=Codec::FLAC;
-      engine->decoder->post(new ConfigureEvent(af,codec,stream_length));
-
-      flags|=FLAG_PARSED;
-
-      submit_ogg_packet();
-
-      /// Success
-      return ReadOk;
-      }
+      return parse_flac_stream();
+      }  
 #endif
     else {
       return ReadError;
@@ -487,7 +501,7 @@ FXbool OggReader::fetch_next_page() {
         return true;
       }
     else if (result==0) { /// Need more bytes
-      FXchar * buffer=ogg_sync_buffer(&sync,BUFFERSIZE);
+      FXchar * buffer = ogg_sync_buffer(&sync,BUFFERSIZE);
       if (buffer==NULL) return false;
       FXival nbytes = engine->input->read(buffer,BUFFERSIZE);
       if (nbytes<=0) return false;
@@ -532,7 +546,7 @@ ReadStatus OggReader::process(Packet * p) {
   packet->stream_position = -1;
   packet->stream_length   = stream_length;
 
-  if ((flags&FLAG_PARSED)==0) {
+  if (__unlikely((flags&FLAG_PARSED)==0)) {
 
     if (state.has_packet)
       submit_ogg_packet(false);
@@ -540,8 +554,9 @@ ReadStatus OggReader::process(Packet * p) {
     if (parse()!=ReadOk)
       return ReadError;
 
-    if ((flags&FLAG_PARSED)==0)
+    if (__unlikely((flags&FLAG_PARSED)==0))
       return ReadOk;
+      
     }
 
 

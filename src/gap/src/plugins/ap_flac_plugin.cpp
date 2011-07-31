@@ -49,7 +49,8 @@ namespace ap {
 class FlacReader : public ReaderPlugin {
 protected:
   FLAC__StreamDecoder * flac;
-  ReplayGain gain;
+  ReplayGain            gain;
+  MetaInfo            * meta;
 protected:
   static FLAC__StreamDecoderSeekStatus    flac_input_seek(const FLAC__StreamDecoder*,FLAC__uint64,void*);
   static FLAC__StreamDecoderTellStatus    flac_input_tell(const FLAC__StreamDecoder*,FLAC__uint64*,void*);
@@ -141,7 +142,7 @@ FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & af,FXlong & nf
 
 
 
-FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(NULL) {
+FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(NULL),meta(NULL) {
   }
 
 FlacReader::~FlacReader(){
@@ -177,6 +178,10 @@ FXbool FlacReader::init() {
       }
     }
   gain.reset();
+  if (meta) {
+    meta->unref();
+    meta=NULL;
+    }
   flags&=~FLAG_PARSED;
   return true;
   }
@@ -228,6 +233,11 @@ ReadStatus FlacReader::parse() {
     config->replaygain=gain;
     engine->decoder->post(config);
     flags|=FLAG_PARSED;
+
+    if (meta) {
+      engine->decoder->post(meta);
+      meta=NULL;    
+      }
     return ReadOk;
     }
 
@@ -328,6 +338,7 @@ FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDeco
   }
 
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
+extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
 
 void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
@@ -346,40 +357,11 @@ void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const F
       for (FXuint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {
         ap_replaygain_from_vorbis_comment(plugin->gain,(const FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
         }
-/*
-        if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_TRACK_GAIN=",22)==0){
-          FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
-          FXdouble gain=NAN;
-          tag.after('=').scan("%lg",&gain);
-          plugin->gain.track=gain;
-          fxmessage("track gain: %g db\n",plugin->gain.track);
-          }
-       else if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_TRACK_PEAK=",22)==0){
-          FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
-          FXdouble peak=NAN;
-          tag.after('=').scan("%lg",&peak);
-          plugin->gain.track_peak=peak;
-          }
 
-       else if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_ALBUM_GAIN=",22)==0){
-         FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
-         FXdouble gain=NAN;
-         tag.after('=').scan("%lg",&gain);
-         plugin->gain.album=gain;
-         fxmessage("album gain: %g db\n",plugin->gain.album);
-         }
-        else if (comparecase((FXchar*)metadata->data.vorbis_comment.comments[i].entry,"REPLAYGAIN_ALBUM_PEAK=",22)==0){
-          FXString tag((FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
-          FXdouble peak=NAN;
-          tag.after('=').scan("%lg",&peak);
-          plugin->gain.album_peak=peak;
-          }
-
-
- //       fxmessage("%s\n",metadata->data.vorbis_comment.comments[i].entry);
-
+      plugin->meta = new MetaInfo;
+      for (FXuint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {
+        ap_meta_from_vorbis_comment(plugin->meta,(const FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
         }
-*/
       break;
     default: break;
     }
