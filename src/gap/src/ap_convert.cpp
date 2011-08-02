@@ -10,13 +10,14 @@
 
 namespace ap {
 
-
-const FXint S16_MIN = -(1<<15);
-const FXint S16_MAX = (1<<15)-1;
-const FXint S24_MIN = -(1<<23);
-const FXint S24_MAX = (1<<23)-1;
-const FXint S32_MIN = -(1<<31);
-const FXint S32_MAX = (1<<31)-1;
+const FXint S8_MIN  = -128;
+const FXint S8_MAX  = 127;
+const FXint S16_MIN = -32768;
+const FXint S16_MAX = 32767;
+const FXint S24_MIN = -8388608;
+const FXint S24_MAX = 8388607;
+const FXint S32_MIN = -2147483648;
+const FXint S32_MAX = 2147483647;
 
 
 static FXint s16_to_s32(FXshort x) {
