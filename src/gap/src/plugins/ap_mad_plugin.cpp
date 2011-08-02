@@ -344,18 +344,18 @@ void VBRIHeader::parse(const FXuchar * buffer,FXival nbytes) {
     }
 
   fxmessage("VBRI:\n");
-  fxmessage("version  :%d\n",version);
-  fxmessage("delay   :%d\n",delay);
-  fxmessage("quality:%d\n",quality);
-  fxmessage("nbytes   :%ld\n",nbytes);
-  fxmessage("nframes:%d\n",nframes);
-  fxmessage("ntoc   :%d\n",ntoc);
-  fxmessage("toc_scale:%d\n",toc_scale);
-  fxmessage("toc_entry_nbytes   :%d\n",toc_entry_nbytes);
-  fxmessage("toc_entry_nframes:%d\n",toc_entry_nframes);
+  fxmessage("\tversion  :%d\n",version);
+  fxmessage("\tdelay   :%d\n",delay);
+  fxmessage("\tquality:%d\n",quality);
+  fxmessage("\tnbytes   :%ld\n",nbytes);
+  fxmessage("\tnframes:%d\n",nframes);
+  fxmessage("\tntoc   :%d\n",ntoc);
+  fxmessage("\ttoc_scale:%d\n",toc_scale);
+  fxmessage("\ttoc_entry_nbytes   :%d\n",toc_entry_nbytes);
+  fxmessage("\ttoc_entry_nframes:%d\n",toc_entry_nframes);
 
   for (FXint i=0;i<ntoc;i++) {
-    fxmessage("toc[%d]=%d\n",i,toc[i]);
+    fxmessage("\ttoc[%d]=%d\n",i,toc[i]);
     }
   }
 
@@ -397,25 +397,25 @@ void XingHeader::parse(const FXuchar * buffer,FXival nbytes) {
   if (flags&HAS_FRAMES) {
     nframes= INT32_BE(buffer);
     buffer+=4;
-    fxmessage("nframes: %d\n",nframes);
+    fxmessage("\tnframes: %d\n",nframes);
     }
 
   if (flags&HAS_BYTES) {
     nbytes = INT32_BE(buffer);
     buffer+=4;
-    fxmessage("nbytes   :%ld\n",nbytes);
+    fxmessage("\tnbytes   :%ld\n",nbytes);
     }
 
   if (flags&HAS_TOC) {
     memcpy(toc,buffer,100);
     buffer+=100;
-    fxmessage("has toc\n");
+    fxmessage("\thas toc\n");
     }
 
   if (flags&HAS_VBR_SCALE) {
     vbr_scale =  INT32_BE(buffer);
     buffer+=4;
-    fxmessage("vbr_scale:%d\n",vbr_scale);
+    fxmessage("\tvbr_scale:%d\n",vbr_scale);
     }
   }
 
@@ -479,42 +479,44 @@ FXdouble LameHeader::parse_replay_gain(const FXuchar * buffer) {
   }
 
 void LameHeader::parse(const FXuchar * buffer,FXival/* nbytes*/) {
-  fxmessage("Lame:\n");
+  fxmessage("Lame Info:\n");
   FXuchar revision = (*(buffer+9))>>4;
   FXuchar vbr_methed = (*(buffer+9))&0xf;
-  fxmessage("revision: %d\n",revision);
-  fxmessage("vbr_methed: %d\n",vbr_methed);
+  fxmessage("\trevision: %d\n",revision);
+  fxmessage("\tvbr_method: %d\n",vbr_methed);
 
   FXint lowpass = (*(buffer+10)) * 100;
-  fxmessage("lowpass: %d\n",lowpass);
+  fxmessage("\tlowpass: %d\n",lowpass);
 
-  FXfloat gain_peak = INT32_BE(buffer+11);
-  fxmessage("gain_peak: %f\n",gain_peak);
+  FXfloat peak = INT32_BE(buffer+11);
 
-  replaygain.track = parse_replay_gain(buffer+15);
-  replaygain.album = parse_replay_gain(buffer+17);
+  replaygain.album_peak = peak; 
+  replaygain.track_peak = peak; 
+  replaygain.track      = parse_replay_gain(buffer+15);
+  replaygain.album      = parse_replay_gain(buffer+17);
 
-  fxmessage("album gain: %g\n",replaygain.track);
-  fxmessage("track gain: %g\n",replaygain.album);
+  fxmessage("\ttrack gain: %g\n",replaygain.track);
+  fxmessage("\talbum gain: %g\n",replaygain.album);
+  fxmessage("\t      peak: %g\n",peak);
 
   FXuchar encoding_flags = (*(buffer+19))>>4;
   FXuchar lame_type = (*(buffer+19))&0xf;
-  fxmessage("encoding_flags: %x\n",encoding_flags);
-  fxmessage("lame_type: %d\n",lame_type);
+  fxmessage("\tencoding_flags: %x\n",encoding_flags);
+  fxmessage("\tlame_type: %d\n",lame_type);
 
 //   FXuchar bitrate = (*(buffer+21));
 
   padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
   padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
-  fxmessage("padding: %d %d\n",padstart,padend);
+  fxmessage("\tpadding: %d %d\n",padstart,padend);
 
   FXuchar misc = (*(buffer+25));
-  fxmessage("misc: %x\n",misc);
+  fxmessage("\tmisc: %x\n",misc);
 
 //   FXuchar mp3gain = (*(buffer+25));
 //   FXushort surround = INT16_BE(buffer+26);
   length = INT32_BE(buffer+28);
-  fxmessage("length: %d\n",length);
+  fxmessage("\tlength: %d\n",length);
   }
 
 
@@ -555,7 +557,7 @@ void MadReader::clear_headers() {
   }
 
 FXbool MadReader::init(){
-  fxmessage("[mad] init()\n");
+  fxmessage("[mad_reader] init()\n");
   buffer[0]=buffer[1]=buffer[2]=buffer[3]=0;
   clear_headers();
   clear_tags();
@@ -635,11 +637,11 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
         input_end = input_start+vbri->nbytes;
       }
     else {
-      fxmessage("mad_input: only lame header found\n");
+      fxmessage("[mad_reader] only lame header found\n");
       }
 
     if (lame) {
-      fxmessage("mad_input: lame adjusting stream length by -%d frames \n",(lame->padstart + lame->padend));
+      fxmessage("[mad_reader] lame adjusting stream length by -%d frames \n",(lame->padstart + lame->padend));
       stream_length -= (lame->padstart + lame->padend);
       }
 
@@ -658,7 +660,7 @@ FXbool MadReader::parse_id3v1() {
     return false;
 
   if (compare((FXchar*)buffer,"TAG",3)==0) {
-    fxmessage("mad_input: found id3v1 tag\n");
+    fxmessage("[mad_reader] found id3v1 tag\n");
     input_end -= 128;
     }
   return true;
@@ -675,7 +677,7 @@ FXbool MadReader::parse_ape() {
 
   if (compare(ape,"APETAGEX",8)==0) {
 
-    fxmessage("mad_input: found ape tag");
+    fxmessage("[mad_reader] found ape tag");
     FXint ape_version  = INT32_LE(ape+8);
     FXint ape_size     = INT32_LE(ape+12);
 //    FXint ape_count    = INT32_LE(ape+16);
@@ -704,7 +706,7 @@ FXbool MadReader::parse_ape() {
       input_end = input_end - ape_size;
       }
     else {
-      fxmessage("mad_input: unknown ape version %d\n",ape_version);
+      fxmessage("[mad_reader] unknown ape version %d\n",ape_version);
       }
     }
   return true;
@@ -749,15 +751,18 @@ FXbool MadReader::parse_id3v2() {
 
 void MadReader::set_replay_gain(ConfigureEvent* event) {
   if (id3v2 && !id3v2->replaygain.empty()) {
+    fxmessage("[mad_reader] gain from id3v2\n");
     event->replaygain = id3v2->replaygain;
     }
   else if (lame && !lame->replaygain.empty()){
+    fxmessage("[mad_reader] gain from lame\n");  
     event->replaygain = lame->replaygain;
     }
   }
 
 void MadReader::send_meta() {
   if (id3v2 && !id3v2->empty()) {
+    fxmessage("[mad_reader] meta from id3v2\n");    
     MetaInfo * meta = new MetaInfo;
     meta->artist.adopt(id3v2->artist);
     meta->album.adopt(id3v2->album);
@@ -902,7 +907,7 @@ ReadStatus MadReader::process(Packet*packet) {
       memcpy(packet->ptr(),buffer,4);
       nread = engine->input->read(packet->ptr()+4,frame.size()-4);
       if (nread!=(frame.size()-4)) {
-        fxmessage("mad_input: truncated frame at end of input.");
+        fxmessage("[mad_reader] truncated frame at end of input.");
         packet->flags|=FLAG_EOS;
         status=ReadDone;
         goto done;
@@ -919,7 +924,7 @@ ReadStatus MadReader::process(Packet*packet) {
     else {
       if (lostsync==false) {
         lostsync=true;
-        fxmessage("mad_input: lost frame sync\n");
+        fxmessage("[mad_reader] lost frame sync\n");
         }
       if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0) {
         if (engine->input->read(buffer,4)!=4){
@@ -1141,7 +1146,7 @@ DecoderStatus MadDecoder::process(Packet*in){
 
 
   if (buffer.size()==0) {
-    fxmessage("empty buffer, nothing to decode\n");
+    fxmessage("[mad_decoder] empty buffer, nothing to decode\n");
     return DecoderOk;
     }
 
@@ -1158,7 +1163,7 @@ DecoderStatus MadDecoder::process(Packet*in){
         }
       else if(stream.error==MAD_ERROR_BUFLEN) {
         if (eos) {
-          fxmessage("mad_decoder: post end of stream %d\n",streamid);
+          fxmessage("[mad_decoder] post end of stream %d\n",streamid);
           if (out && out->numFrames()) {
              if (stream_offset_end)
               out->trimFrames(stream_offset_end);
@@ -1171,7 +1176,7 @@ DecoderStatus MadDecoder::process(Packet*in){
         return DecoderOk;
         }
       else {
-        fxmessage("mad_decoder: %s\n",mad_stream_errorstr(&stream));
+        fxmessage("[mad_decoder] %s\n",mad_stream_errorstr(&stream));
         return DecoderError;
         }
       }
@@ -1181,7 +1186,7 @@ DecoderStatus MadDecoder::process(Packet*in){
     frame_counter++;
 
     if (frame.header.samplerate!=af.rate) {
-      fxmessage("mad_decoder: sample rate changed: %d->%d \n",af.rate,frame.header.samplerate);
+      fxmessage("[mad_decoder] sample rate changed: %d->%d \n",af.rate,frame.header.samplerate);
       }
 
 
@@ -1195,7 +1200,7 @@ DecoderStatus MadDecoder::process(Packet*in){
       left+=stream_offset_start;
       right+=stream_offset_start;
       nframes-=stream_offset_start;
-      fxmessage("mad_decoder: skipping %d frames\n",stream_offset_start);
+      fxmessage("[mad_decoder] skipping %d frames\n",stream_offset_start);
       }
 
 
