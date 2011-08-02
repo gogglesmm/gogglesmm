@@ -103,7 +103,8 @@ src/plugins/ap_xspf_plugin.cpp \
 src/plugins/ap_wav_plugin.cpp \
 src/plugins/ap_pcm_plugin.cpp \
 src/plugins/ap_file_plugin.cpp \
-src/plugins/ap_http_plugin.cpp
+src/plugins/ap_http_plugin.cpp \
+src/plugins/ap_id3v2.cpp
 
 ifneq (,$(findstring musepack,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_musepack_plugin.cpp

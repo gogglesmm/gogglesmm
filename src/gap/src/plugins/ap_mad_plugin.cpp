@@ -1,15 +1,10 @@
-
-
 #include "ap_defs.h"
-
-#include <FXUTF16Codec.h>
-#include <FX88591Codec.h>
-
 #include "ap_config.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
 #include "ap_device.h"
 #include "ap_event.h"
+#include "ap_id3v2.h"
 #include "ap_event_private.h"
 #include "ap_memory_buffer.h"
 #include "ap_packet.h"
@@ -24,7 +19,6 @@
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
 
-
 #include <mad.h>
 
 namespace ap {
@@ -32,6 +26,7 @@ namespace ap {
 class XingHeader;
 class VBRIHeader;
 class LameHeader;
+class ID3V2;
 struct mpeg_frame;
 
 class MadReader : public ReaderPlugin {
@@ -47,15 +42,22 @@ protected:
   XingHeader * xing;
   VBRIHeader * vbri;
   LameHeader * lame;
-  MetaInfo   * meta;
-  ReadStatus parse(Packet*);
 protected:
+  ID3V2      * id3v2;
+protected:
+  FXbool parse_id3v1();
+  FXbool parse_id3v2();
+  FXbool parse_ape();
+protected:
+  ReadStatus parse(Packet*);
   FXbool readFrame(Packet*,const mpeg_frame&);
   void parseFrame(Packet*,const mpeg_frame&);
-  FXbool parse_id3v1();
-  FXbool parse_ape();
-  FXbool parse_id3v2();
-  void   clear_headers();
+
+
+  void set_replay_gain(ConfigureEvent*);
+  void send_meta();
+  void clear_headers();
+  void clear_tags();
 public:
   MadReader(AudioEngine*);
 
@@ -127,148 +129,6 @@ static const FXchar * const channels[]={
   "Dual",
   "Single"
   };
-
-
-#define ID3_INT32(b) ( (((b)[0]&0x7f)<<21) | (((b)[1]&0x7f)<<14) | (((b)[2]&0x7f)<<7) | (((b)[3]&0x7f)))
-#define DEFINE_FRAME(b1,b2,b3,b4) ((b4<<24) | (b3<<16) | (b2<<8) | (b1))
-
-
-class ID3V2 {
-public:
-  enum Encoding {
-    ISO_8859_1     = 0,
-    UTF16_BOM      = 1,
-    UTF16          = 2,
-    UTF8           = 3
-    };
-
-  enum Frames {
-    TPE1 = DEFINE_FRAME('T','P','E','1'),
-    TCOM = DEFINE_FRAME('T','C','O','M'),
-    TALB = DEFINE_FRAME('T','A','L','B'),
-    TIT2 = DEFINE_FRAME('T','I','T','2')
-    };
-
-  enum {
-    HAS_FOOTER          = (1<<5),
-    HAS_EXTENDED_HEADER = (1<<6),
-    };
-    
-protected:
-  const FXuchar * buffer;
-  FXint           size;
-  FXint           p;
-public:
-  MetaInfo    * meta;
-public:
-  ID3V2(const FXuchar * b,FXint len);
-  ~ID3V2();
-
-  void parse();
-  void parse_frame();
-  void parse_text_frame(FXuint frameid,FXint framesize);
-  };
-
-ID3V2::ID3V2(const FXuchar *b,FXint len) : buffer(b),size(len),meta(NULL) {
-  parse();
-  }
-
-ID3V2::~ID3V2() {
-  }
-
-
-void ID3V2::parse_text_frame(FXuint frameid,FXint framesize) {
-  FXString text;
-  const FXuchar & encoding = buffer[p];
-
-  switch(encoding) {
-    case ISO_8859_1 :
-      {
-        FX88591Codec codec;
-        FXint n = codec.mb2utflen((const FXchar*)(buffer+p+1),framesize-1);
-        if (n>0) {
-          text.length(n);
-          codec.mb2utf(text.text(),text.length(),(const FXchar*)(buffer+p+1),framesize-1);
-          }
-      }
-    case UTF16_BOM  :
-    case UTF16      :
-      {
-        FXUTF16Codec codec;
-        FXint n = codec.mb2utflen((const FXchar*)(buffer+p+1),framesize-1);
-        if (n>0) {
-          text.length(n);
-          codec.mb2utf(text.text(),text.length(),(const FXchar*)(buffer+p+1),framesize-1);
-          }
-        break;
-      }
-    case UTF8       : text.assign((FXchar*)(buffer+p+1),framesize-1); break;
-    default         : return; break;
-    };
-
-//  fxmessage("text: \"%s\"\n",text.text());
-
-  if (meta==NULL)
-    meta = new MetaInfo;
-
-  switch(frameid) {
-    case TPE1 : meta->artist.adopt(text); break;
-    case TALB : meta->album.adopt(text); break;
-    case TIT2 : meta->title.adopt(text); break;
-    default   : break;
-    }
-  }
-
-
-void ID3V2::parse_frame() {
-  FXuint frameid   = DEFINE_FRAME(buffer[p+0],buffer[p+1],buffer[p+2],buffer[p+3]);
-  FXint  framesize = ID3_INT32(buffer+p+4);
-  p+=10;
-  switch(frameid) {
-    case TPE1 :
-    case TALB :
-//    case TCOM :
-    case TIT2 : parse_text_frame(frameid,framesize);
-                break;
-    case 0    : p=size; return; break;
-    default   : break;
-    };
-  p+=framesize;
-  }
-
-
-void ID3V2::parse() {
-  const FXchar & flags = buffer[5];
-
-  p=10;
-
-  /// we can skip the footer
-  if (flags&HAS_FOOTER)
-    size-=10;
-
-  /// skip the extended header
-  if (flags&HAS_EXTENDED_HEADER) {
-    FXint header_size = ID3_INT32(buffer+p);
-    p+=(header_size);
-    }
-
-  while(p<size) 
-    parse_frame();
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -590,81 +450,71 @@ FXlong XingHeader::seek(FXdouble pos,FXlong length) {
 
 
 class LameHeader {
+protected:
+  FXdouble parse_replay_gain(const FXuchar * buffer);
 public:
   FXushort padstart;
   FXushort padend;
   FXuint   length;
-  FXfloat  track_gain;
-  FXfloat  album_gain;
+  ReplayGain replaygain;
 public:
   LameHeader();
   void parse(const FXuchar * buffer,FXival nbytes);
   };
 
-LameHeader::LameHeader() : padstart(0), padend(0), length(0), track_gain(NAN), album_gain(NAN) {
+LameHeader::LameHeader() : padstart(0), padend(0), length(0) {
+  }
+
+FXdouble LameHeader::parse_replay_gain(const FXuchar * buffer) {
+  struct {
+    signed int x:10;
+    } s10;
+  FXint gain = s10.x = ((*buffer)&0xC0)<<2 | (*(buffer+1));
+  if (gain) {
+    if ((*buffer)&0x20)
+      gain=-gain;
+    return (gain/10.0f);
+    }
+  return NAN;
   }
 
 void LameHeader::parse(const FXuchar * buffer,FXival/* nbytes*/) {
-   fxmessage("Lame:\n");
-   FXuchar revision = (*(buffer+9))>>4;
-   FXuchar vbr_methed = (*(buffer+9))&0xf;
-   fxmessage("revision: %d\n",revision);
-   fxmessage("vbr_methed: %d\n",vbr_methed);
+  fxmessage("Lame:\n");
+  FXuchar revision = (*(buffer+9))>>4;
+  FXuchar vbr_methed = (*(buffer+9))&0xf;
+  fxmessage("revision: %d\n",revision);
+  fxmessage("vbr_methed: %d\n",vbr_methed);
 
-   FXint lowpass = (*(buffer+10)) * 100;
-   fxmessage("lowpass: %d\n",lowpass);
+  FXint lowpass = (*(buffer+10)) * 100;
+  fxmessage("lowpass: %d\n",lowpass);
 
-   FXfloat gain_peak = INT32_BE(buffer+11);
-   fxmessage("gain_peak: %f\n",gain_peak);
+  FXfloat gain_peak = INT32_BE(buffer+11);
+  fxmessage("gain_peak: %f\n",gain_peak);
 
- //  FXushort album_gain = INT16_BE(buffer+15);
- //  FXushort track_gain = INT16_BE(buffer+17);
-/*
+  replaygain.track = parse_replay_gain(buffer+15);
+  replaygain.album = parse_replay_gain(buffer+17);
 
+  fxmessage("album gain: %g\n",replaygain.track);
+  fxmessage("track gain: %g\n",replaygain.album);
 
-  int x; // convert this from using 5 bits to a full int
-int r; // resulting sign extended number goes here
-struct {signed int x:5;} s;
-r = s.x = x;
-*/
-
-#if 0
-    struct {
-      signed int x:10;
-      } s10;
-
-    FXuint g = (buffer[16]) | (((buffer[15])&0xC0)<<2);
-    FXint intgain = s10.x = g;
-    track_gain = intgain / 10.0f;
-
-
-    g = (buffer[18]) | (((buffer[17])&0xC0)<<2);
-    intgain = s10.x = g;
-    album_gain = intgain / 10.0f;
-#endif
-
-
-   fxmessage("album gain: %g\n",album_gain);
-   fxmessage("track gain: %g\n",track_gain);
-
-   FXuchar encoding_flags = (*(buffer+19))>>4;
-   FXuchar lame_type = (*(buffer+19))&0xf;
-   fxmessage("encoding_flags: %x\n",encoding_flags);
-   fxmessage("lame_type: %d\n",lame_type);
+  FXuchar encoding_flags = (*(buffer+19))>>4;
+  FXuchar lame_type = (*(buffer+19))&0xf;
+  fxmessage("encoding_flags: %x\n",encoding_flags);
+  fxmessage("lame_type: %d\n",lame_type);
 
 //   FXuchar bitrate = (*(buffer+21));
 
-   padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
-   padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
-   fxmessage("padding: %d %d\n",padstart,padend);
+  padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
+  padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
+  fxmessage("padding: %d %d\n",padstart,padend);
 
-   FXuchar misc = (*(buffer+25));
-   fxmessage("misc: %x\n",misc);
+  FXuchar misc = (*(buffer+25));
+  fxmessage("misc: %x\n",misc);
 
 //   FXuchar mp3gain = (*(buffer+25));
 //   FXushort surround = INT16_BE(buffer+26);
-   length = INT32_BE(buffer+28);
-   fxmessage("length: %d\n",length);
+  length = INT32_BE(buffer+28);
+  fxmessage("length: %d\n",length);
   }
 
 
@@ -674,15 +524,19 @@ MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
   xing(NULL),
   vbri(NULL),
   lame(NULL),
-  meta(NULL) {
+  id3v2(NULL) {
   }
 
 MadReader::~MadReader() {
   clear_headers();
-  if (meta) {
-    meta->unref();
-    meta=NULL;
-    }  
+  clear_tags();
+  }
+
+void MadReader::clear_tags() {
+  if (id3v2) {
+    delete id3v2;
+    id3v2=NULL;
+    }
   }
 
 void MadReader::clear_headers() {
@@ -704,14 +558,11 @@ FXbool MadReader::init(){
   fxmessage("[mad] init()\n");
   buffer[0]=buffer[1]=buffer[2]=buffer[3]=0;
   clear_headers();
+  clear_tags();
   flags&=~FLAG_PARSED;
   sync=false;
   input_start=0;
   input_end=0;
-  if (meta) {
-    meta->unref();
-    meta=NULL;
-    }    
   return true;
   }
 
@@ -870,7 +721,7 @@ FXbool MadReader::parse_id3v2() {
     return NULL;
 
   const FXuchar & flags = info[1];
-  FXint tagsize = ID3_INT32(info+2);
+  FXint tagsize = ID3_SYNCSAFE_INT32(info+2);
 
 
   tagsize+=10;
@@ -889,12 +740,30 @@ FXbool MadReader::parse_id3v2() {
   memcpy(tagbuffer,buffer,4);
   memcpy(tagbuffer+4,info,6);
 
-  ID3V2 tag(tagbuffer,tagsize);
-  
-  meta = tag.meta;
+  id3v2 = new ID3V2(tagbuffer,tagsize);
 
   freeElms(tagbuffer);
   return true;
+  }
+
+
+void MadReader::set_replay_gain(ConfigureEvent* event) {
+  if (id3v2 && !id3v2->replaygain.empty()) {
+    event->replaygain = id3v2->replaygain;
+    }
+  else if (lame && !lame->replaygain.empty()){
+    event->replaygain = lame->replaygain;
+    }
+  }
+
+void MadReader::send_meta() {
+  if (id3v2 && !id3v2->empty()) {
+    MetaInfo * meta = new MetaInfo;
+    meta->artist.adopt(id3v2->artist);
+    meta->album.adopt(id3v2->album);
+    meta->title.adopt(id3v2->title);
+    engine->decoder->post(meta);
+    }
   }
 
 
@@ -931,17 +800,17 @@ ReadStatus MadReader::parse(Packet * packet) {
         af.set(AP_FORMAT_S16,frame.samplerate(),(frame.channel()==mpeg_frame::Single) ? 1 : 2);
 #endif
         ConfigureEvent * cfg = new ConfigureEvent(af,Codec::MPEG);
+
+        set_replay_gain(cfg);
+
         if (lame) {
-          cfg->stream_offset_start=lame->padstart;
-          cfg->stream_offset_end  =lame->padend;
-          cfg->replaygain.track   =lame->track_gain;
+          cfg->stream_offset_start = lame->padstart;
+          cfg->stream_offset_end   = lame->padend;
           }
         engine->decoder->post(cfg);
 
-        if (meta) {
-          engine->decoder->post(meta);
-          meta=NULL;
-          }
+        /// Send Meta Data if any
+        send_meta();
 
         flags|=FLAG_PARSED;
         packet->af              = af;

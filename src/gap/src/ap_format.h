@@ -12,6 +12,8 @@ struct ReplayGain{
 
   ReplayGain() : album(NAN), album_peak(NAN), track(NAN), track_peak(NAN) {}
 
+  FXbool empty() const { return isnan(album) && isnan(track); }
+
   void reset() { album=NAN; album_peak=NAN; track=NAN; track_peak=NAN; }
   };
 
