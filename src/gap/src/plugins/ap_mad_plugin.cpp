@@ -1,4 +1,10 @@
+
+
 #include "ap_defs.h"
+
+#include <FXUTF16Codec.h>
+#include <FX88591Codec.h>
+
 #include "ap_config.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
@@ -41,12 +47,14 @@ protected:
   XingHeader * xing;
   VBRIHeader * vbri;
   LameHeader * lame;
+  MetaInfo   * meta;
   ReadStatus parse(Packet*);
 protected:
   FXbool readFrame(Packet*,const mpeg_frame&);
   void parseFrame(Packet*,const mpeg_frame&);
   FXbool parse_id3v1();
   FXbool parse_ape();
+  FXbool parse_id3v2();
   void   clear_headers();
 public:
   MadReader(AudioEngine*);
@@ -121,7 +129,149 @@ static const FXchar * const channels[]={
   };
 
 
-#define SYNCSAFE_INT32(b0,b1,b2,b3) (((b0&0x7f)<<21) | ((b1&0x7f)<<14) | ((b2&0x7F)<<7) | (b3&0x7F))
+#define ID3_INT32(b) ( (((b)[0]&0x7f)<<21) | (((b)[1]&0x7f)<<14) | (((b)[2]&0x7f)<<7) | (((b)[3]&0x7f)))
+#define DEFINE_FRAME(b1,b2,b3,b4) ((b4<<24) | (b3<<16) | (b2<<8) | (b1))
+
+
+class ID3V2 {
+public:
+  enum Encoding {
+    ISO_8859_1     = 0,
+    UTF16_BOM      = 1,
+    UTF16          = 2,
+    UTF8           = 3
+    };
+
+  enum Frames {
+    TPE1 = DEFINE_FRAME('T','P','E','1'),
+    TCOM = DEFINE_FRAME('T','C','O','M'),
+    TALB = DEFINE_FRAME('T','A','L','B'),
+    TIT2 = DEFINE_FRAME('T','I','T','2')
+    };
+
+  enum {
+    HAS_FOOTER          = (1<<5),
+    HAS_EXTENDED_HEADER = (1<<6),
+    };
+    
+protected:
+  const FXuchar * buffer;
+  FXint           size;
+  FXint           p;
+public:
+  MetaInfo    * meta;
+public:
+  ID3V2(const FXuchar * b,FXint len);
+  ~ID3V2();
+
+  FXbool parse();
+  FXbool parse_frame();
+  FXbool parse_text_frame(FXuint frameid,FXint framesize);
+  };
+
+ID3V2::ID3V2(const FXuchar *b,FXint len) : buffer(b),size(len),meta(NULL) {
+  }
+
+ID3V2::~ID3V2() {
+  }
+
+
+FXbool ID3V2::parse_text_frame(FXuint frameid,FXint framesize) {
+  FXString text;
+  const FXuchar & encoding = buffer[p];
+
+  switch(encoding) {
+    case ISO_8859_1 :
+      {
+        FX88591Codec codec;
+        FXint n = codec.mb2utflen((const FXchar*)(buffer+p+1),framesize-1);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),(const FXchar*)(buffer+p+1),framesize-1);
+          }
+      }
+    case UTF16_BOM  :
+    case UTF16      :
+      {
+        FXUTF16Codec codec;
+        FXint n = codec.mb2utflen((const FXchar*)(buffer+p+1),framesize-1);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),(const FXchar*)(buffer+p+1),framesize-1);
+          }
+        break;
+      }
+    case UTF8       : text.assign((FXchar*)(buffer+p),framesize-1); break;
+    default         : return false; break;
+    };
+
+  fxmessage("text: \"%s\"\n",text.text());
+
+  if (meta==NULL)
+    meta = new MetaInfo;
+
+  switch(frameid) {
+    case TPE1 : meta->artist.adopt(text); break;
+    case TALB : meta->album.adopt(text); break;
+    case TIT2 : meta->title.adopt(text); break;
+    default   : break;
+    }
+  return true;
+  }
+
+
+FXbool ID3V2::parse_frame() {
+  FXuint frameid   = DEFINE_FRAME(buffer[p+0],buffer[p+1],buffer[p+2],buffer[p+3]);
+  FXint  framesize = ID3_INT32(buffer+p+4);
+  p+=10;
+  switch(frameid) {
+    case TPE1 :
+    case TALB :
+//    case TCOM :
+    case TIT2 : parse_text_frame(frameid,framesize);
+                break;
+    case 0    : p=size; return true; break;
+    default   : break;
+    };
+  p+=framesize;
+  return true;
+  }
+
+
+FXbool ID3V2::parse() {
+  const FXchar & flags = buffer[5];
+
+  p=10;
+
+  /// we can skip the footer
+  if (flags&HAS_FOOTER)
+    size-=10;
+
+  /// skip the extended header
+  if (flags&HAS_EXTENDED_HEADER) {
+    FXint header_size = ID3_INT32(buffer+p);
+    p+=(header_size);
+    }
+
+  while(p<size) {
+    if (!parse_frame())
+      return false;
+    }
+  return true;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -527,11 +677,16 @@ MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
   sync(false),
   xing(NULL),
   vbri(NULL),
-  lame(NULL) {
+  lame(NULL),
+  meta(NULL) {
   }
 
 MadReader::~MadReader() {
   clear_headers();
+  if (meta) {
+    meta->unref();
+    meta=NULL;
+    }  
   }
 
 void MadReader::clear_headers() {
@@ -557,6 +712,10 @@ FXbool MadReader::init(){
   sync=false;
   input_start=0;
   input_end=0;
+  if (meta) {
+    meta->unref();
+    meta=NULL;
+    }    
   return true;
   }
 
@@ -705,6 +864,49 @@ FXbool MadReader::parse_ape() {
   }
 
 
+
+
+
+FXbool MadReader::parse_id3v2() {
+  FXuchar info[6];
+
+  if (engine->input->read(info,6)!=6)
+    return NULL;
+
+  const FXuchar & flags = info[1];
+  FXint tagsize = ID3_INT32(info+2);
+
+
+  tagsize+=10;
+  if (flags&ID3V2::HAS_FOOTER) {
+    tagsize+=10;
+    }
+
+  FXuchar * tagbuffer=NULL;
+  allocElms(tagbuffer,tagsize);
+
+  if (engine->input->read(tagbuffer+10,tagsize-10)!=tagsize-10){
+    freeElms(tagbuffer);
+    return NULL;
+    }
+
+  memcpy(tagbuffer,buffer,4);
+  memcpy(tagbuffer+4,info,6);
+
+  ID3V2 tag(tagbuffer,tagsize);
+
+  if (!tag.parse()) {
+    freeElms(tagbuffer);
+    return false;
+    }
+
+  meta = tag.meta;
+
+  freeElms(tagbuffer);
+  return true;
+  }
+
+
 ReadStatus MadReader::parse(Packet * packet) {
   mpeg_frame frame;
   FXbool found=false;
@@ -744,6 +946,12 @@ ReadStatus MadReader::parse(Packet * packet) {
           cfg->replaygain.track   =lame->track_gain;
           }
         engine->decoder->post(cfg);
+
+        if (meta) {
+          engine->decoder->post(meta);
+          meta=NULL;
+          }
+
         flags|=FLAG_PARSED;
         packet->af              = af;
         packet->stream_position = stream_position;
@@ -793,23 +1001,12 @@ ReadStatus MadReader::parse(Packet * packet) {
 
 
     if (buffer[0]=='I' && buffer[1]=='D' && buffer[2]=='3') {
-      fxmessage("mad_input: found id3 tag\n");
-
-      FXint   tagsize=0;
-      FXuchar id3buf[6];
-      if (engine->input->read(id3buf,6)!=6)
+      if (!parse_id3v2())
         return ReadError;
-
-      tagsize = SYNCSAFE_INT32(id3buf[2],id3buf[3],id3buf[4],id3buf[5]);
-
-      /* check for footer */
-      if (id3buf[1]&0x10)
-        tagsize+=10;
-
-      engine->input->position(tagsize,FXIO::Current);
       sync=false;
       continue;
       }
+
 
     if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0)
       sync=false;
