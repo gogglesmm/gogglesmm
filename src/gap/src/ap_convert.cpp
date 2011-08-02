@@ -108,7 +108,7 @@ void float_to_s32(FXuchar * buffer,FXuint nsamples){
   FXint *  output = reinterpret_cast<FXint*>(buffer);
   register FXlong val;
   for (FXuint i=0;i<nsamples;i++) {
-    output[i]=float_to_s16(input[i]);
+    output[i]=float_to_s32(input[i]);
 /*
 
     val=((FXint)(floor(input[i]*2147483647.f+.5f)));
