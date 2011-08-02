@@ -164,19 +164,20 @@ public:
   ID3V2(const FXuchar * b,FXint len);
   ~ID3V2();
 
-  FXbool parse();
-  FXbool parse_frame();
-  FXbool parse_text_frame(FXuint frameid,FXint framesize);
+  void parse();
+  void parse_frame();
+  void parse_text_frame(FXuint frameid,FXint framesize);
   };
 
 ID3V2::ID3V2(const FXuchar *b,FXint len) : buffer(b),size(len),meta(NULL) {
+  parse();
   }
 
 ID3V2::~ID3V2() {
   }
 
 
-FXbool ID3V2::parse_text_frame(FXuint frameid,FXint framesize) {
+void ID3V2::parse_text_frame(FXuint frameid,FXint framesize) {
   FXString text;
   const FXuchar & encoding = buffer[p];
 
@@ -201,11 +202,11 @@ FXbool ID3V2::parse_text_frame(FXuint frameid,FXint framesize) {
           }
         break;
       }
-    case UTF8       : text.assign((FXchar*)(buffer+p),framesize-1); break;
-    default         : return false; break;
+    case UTF8       : text.assign((FXchar*)(buffer+p+1),framesize-1); break;
+    default         : return; break;
     };
 
-  fxmessage("text: \"%s\"\n",text.text());
+//  fxmessage("text: \"%s\"\n",text.text());
 
   if (meta==NULL)
     meta = new MetaInfo;
@@ -216,11 +217,10 @@ FXbool ID3V2::parse_text_frame(FXuint frameid,FXint framesize) {
     case TIT2 : meta->title.adopt(text); break;
     default   : break;
     }
-  return true;
   }
 
 
-FXbool ID3V2::parse_frame() {
+void ID3V2::parse_frame() {
   FXuint frameid   = DEFINE_FRAME(buffer[p+0],buffer[p+1],buffer[p+2],buffer[p+3]);
   FXint  framesize = ID3_INT32(buffer+p+4);
   p+=10;
@@ -230,15 +230,14 @@ FXbool ID3V2::parse_frame() {
 //    case TCOM :
     case TIT2 : parse_text_frame(frameid,framesize);
                 break;
-    case 0    : p=size; return true; break;
+    case 0    : p=size; return; break;
     default   : break;
     };
   p+=framesize;
-  return true;
   }
 
 
-FXbool ID3V2::parse() {
+void ID3V2::parse() {
   const FXchar & flags = buffer[5];
 
   p=10;
@@ -253,11 +252,8 @@ FXbool ID3V2::parse() {
     p+=(header_size);
     }
 
-  while(p<size) {
-    if (!parse_frame())
-      return false;
-    }
-  return true;
+  while(p<size) 
+    parse_frame();
   }
 
 
@@ -894,12 +890,7 @@ FXbool MadReader::parse_id3v2() {
   memcpy(tagbuffer+4,info,6);
 
   ID3V2 tag(tagbuffer,tagsize);
-
-  if (!tag.parse()) {
-    freeElms(tagbuffer);
-    return false;
-    }
-
+  
   meta = tag.meta;
 
   freeElms(tagbuffer);
