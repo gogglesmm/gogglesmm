@@ -24,7 +24,8 @@
 #include <GL/glu.h>
 
 // non power of two textures are currently broken in Mesa 7.10.1 in combination with mip mapping
-#define DISABLE_TEXTURE_NON_POWER_OF_TWO 1
+// now fixed in Mesa 7.11
+//#define DISABLE_TEXTURE_NON_POWER_OF_TWO 1
 
 // Disable MIPMAP if needed
 //#define DISABLE_MIPMAP 1
