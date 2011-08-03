@@ -1672,6 +1672,12 @@ void GMPlayerManager::cmd_focus_next(){
 
 
 void GMPlayerManager::display_track_notification() {
+#ifdef DEBUG
+  fxmessage("Track Change Notification\n");
+  fxmessage("\t Title: %s\n",trackinfo.title.text());
+  fxmessage("\tArtist: %s\n",trackinfo.artist.text());
+  fxmessage("\t Album: %s\n",trackinfo.album.text());
+#endif
 #ifdef HAVE_DBUS
   if (sessionbus) {
     if (preferences.dbus_notify_daemon && notifydaemon) {
@@ -1930,7 +1936,11 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
 
 long GMPlayerManager::onPlayerMeta(FXObject*,FXSelector,void* ptr){
   GMTrack * track = (GMTrack*)ptr;
-  trackinfo.title = track->title;
+  if (trackinfoset==false) {
+    trackinfo.title.adopt(track->title);
+    trackinfo.artist.adopt(track->artist);
+    trackinfo.album.adopt(track->album);
+    }
   update_track_display();
   return 1;
   }
