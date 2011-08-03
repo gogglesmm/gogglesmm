@@ -22,6 +22,7 @@
 class GMTrackItem;
 
 class GMDBTrackItem : public GMTrackItem {
+friend class GMDatabaseSource;
 public:
   static FXint max_time;
   static FXint max_queue;
