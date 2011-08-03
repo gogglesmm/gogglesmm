@@ -30,6 +30,7 @@
 #include <fx3d.h>
 #include <FXArray.h>
 #include <FXTextCodec.h>
+#include <FXAutoPtr.h>
 #include "GMAutoPtr.h"
 #include "fxext.h"
 
