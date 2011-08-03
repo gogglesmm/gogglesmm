@@ -50,7 +50,6 @@ long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
   if (dbus_message_is_signal(msg,GALAGO_NOTIFY_INTERFACE,"NotificationClosed")){
     if ((dbus_message_has_signature(msg,"u") && dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&id,DBUS_TYPE_INVALID)) ||
         (dbus_message_has_signature(msg,"uu") && dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&id,DBUS_TYPE_UINT32,&reason,DBUS_TYPE_INVALID))) {
-      fxmessage("notify closed: %d %d\n",id,msgid);
       if (id==msgid) {
         msgid=0;
         }
@@ -121,7 +120,6 @@ long GMNotifyDaemon::onNotifyReply(FXObject*,FXSelector,void*ptr){
   FXASSERT(msg);
   if (dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) {
     dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&msgid,DBUS_TYPE_INVALID);
-    fxmessage("id reply %d\n",msgid);
     }
   return 1;
   }
@@ -186,9 +184,6 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
       DBusMessageIter value;
       DBusMessageIter variant;
       DBusMessageIter data;
-
-
-      fxmessage("notify with id %d\n",msgid);
 
       dbus_message_iter_init_append(msg,&iter);
 
