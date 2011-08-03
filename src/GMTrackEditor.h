@@ -25,7 +25,8 @@ protected:
   GMTrackDatabase * db;
   FXuint samemask;
   FXIntList tracks;
-  GMTrack info;
+  GMTrack           info;
+  GMTag::Properties properties;
   FXImage * art;
 public:
   GMComboBox    * trackartistbox;
@@ -43,14 +44,22 @@ public:
   GMCheckButton * autonumber;
   GMSpinner     * autonumberoffset;
   GMSpinner     * trackspinner;
+  GMTabItem     * covertab;
+  FXImageView   * coverview;
 protected:
   GMEditTrackDialog(){}
+  void getTrackSelection();
+  void displayTracks();
+  FXbool saveTracks();
 private:
   GMEditTrackDialog(const GMEditTrackDialog&);
   GMEditTrackDialog &operator=(const GMEditTrackDialog&);
 public:
   enum {
     ID_FILENAME_TEMPLATE=FXDialogBox::ID_LAST,
+    ID_NEXT_TRACK,
+    ID_PREV_TRACK,
+    ID_RESET
     };
 protected:
   enum {
@@ -67,6 +76,9 @@ public:
   long onCmdAccept(FXObject*,FXSelector,void*);
   long onCmdArtist(FXObject*,FXSelector,void*);
   long onCmdFilenameTemplate(FXObject*,FXSelector,void*);
+  long onCmdNextTrack(FXObject*,FXSelector,void*);
+  long onCmdPreviousTrack(FXObject*,FXSelector,void*);
+  long onCmdResetTrack(FXObject*,FXSelector,void*);
 public:
   GMEditTrackDialog(FXWindow *,GMTrackDatabase*);
   virtual ~GMEditTrackDialog();
