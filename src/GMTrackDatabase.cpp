@@ -2252,12 +2252,10 @@ void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & na
   DEBUG_DB_SET();
 
   GMQuery query_album_by_same_artist(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id JOIN albums AS a2 ON a1.artist==a2.artist AND a1.id!=a2.id WHERE tracks.id == ? AND a2.name == ?;");
-  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,replay_gain,replay_peak) "
+  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
                           "SELECT ?,"
                                 "artist,"
-                                "year,"
-                                "replay_gain,"
-                                "replay_peak "
+                                "year "
                           "FROM albums "
                           "WHERE id = (SELECT album FROM tracks WHERE id == ?);");
   GMQuery update_track_album(this,"UPDATE tracks SET album = ? WHERE id == ?;");
@@ -2320,21 +2318,17 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
 
   /// Don't do "a1.id!=a2.id" since the album entry may already exists.
   GMQuery query_album_by_same_name(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id JOIN albums AS a2 ON a1.name == a2.name JOIN artists ON a2.artist == artists.id WHERE tracks.id == ? AND artists.name == ?;");
-  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,replay_gain,replay_peak) "
+  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
                           "SELECT name,"
                                 "(SELECT id FROM artists WHERE name == ?),"
-                                "albums.year,"
-                                "albums.replay_gain,"
-                                "albums.replay_peak "
+                                "albums.year "
                           "FROM albums JOIN tracks ON albums.id == tracks.album "
                           "WHERE tracks.id = ?;");
 
-  GMQuery copy_album_with_title(this,"INSERT INTO albums (name,artist,year,replay_gain,replay_peak) "
+  GMQuery copy_album_with_title(this,"INSERT INTO albums (name,artist,year) "
                           "SELECT ?,"
                                 "(SELECT id FROM artists WHERE name == ?),"
-                                "albums.year,"
-                                "albums.replay_gain,"
-                                "albums.replay_peak "
+                                "albums.year "
                           "FROM albums JOIN tracks ON albums.id == tracks.album "
                           "WHERE tracks.id = ?;");
 
@@ -2365,15 +2359,21 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
       }
     }
   else {
-    copy_album_with_title.set(0,title);
-    copy_album_with_title.set(1,name);
-    copy_album_with_title.set(2,tracks[0]);
-    copy_album_with_title.execute();
-
     query_album.set(0,title);
     query_album.set(1,name);
     query_album.execute(album);
 
+    if (!album) {
+      copy_album_with_title.set(0,title);
+      copy_album_with_title.set(1,name);
+      copy_album_with_title.set(2,tracks[0]);
+      copy_album_with_title.execute();
+      
+      query_album.set(0,title);
+      query_album.set(1,name);
+      query_album.execute(album);
+      }
+  
     FXASSERT(album);
 
     for (FXint i=0;i<tracks.no();i++){
