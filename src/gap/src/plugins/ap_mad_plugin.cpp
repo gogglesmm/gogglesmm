@@ -602,14 +602,10 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
 
     xing = new XingHeader(packet->data()+frame.xing_offset(),packet->size()-frame.xing_offset());
 
-
     fxmessage("  nbytes: %d\n",xing->nbytes);
     fxmessage(" nframes: %d\n",xing->nframes);
     fxmessage("nsamples: %d\n",frame.nsamples());
     fxmessage("    rate: %d\n",frame.samplerate());
-
-    //fxmessage("avg bitrate: %g\n",(((float)xing->nbytes/(float)xing->nframes)/(float)frame.nsamples())*(float)frame.samplerate());
-
 
     const FXint lame_offset = frame.xing_offset()+XING_HEADER_SIZE;
     if (compare((const FXchar*)(packet->data()+lame_offset),"LAME",4)==0) {
