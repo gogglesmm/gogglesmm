@@ -378,7 +378,7 @@ public:
   };
 
 
-XingHeader::XingHeader(const FXuchar * buffer,FXival nbytes) : flags(0),nframes(0),nbytes(0),vbr_scale(0) {
+XingHeader::XingHeader(const FXuchar * buffer,FXival nb) : flags(0),nframes(0),nbytes(0),vbr_scale(0) {
   buffer+=4;
 
   fxmessage("Xing:\n");
@@ -480,9 +480,9 @@ LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), 
 //   FXuchar mp3gain = (*(buffer+25));
 //   FXushort surround = INT16_BE(buffer+26);
   length = INT32_BE(buffer+28);
-  
-  
-  fxmessage("Lame Info:\n");  
+
+
+  fxmessage("Lame Info:\n");
   fxmessage("\t      revision: %d\n",revision);
   fxmessage("\t    vbr_method: %d\n",vbr_methed);
   fxmessage("\t       lowpass: %d\n",lowpass);
@@ -493,7 +493,7 @@ LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), 
   fxmessage("\t     lame_type: %d\n",lame_type);
   fxmessage("\t       padding: %d %d\n",padstart,padend);
   fxmessage("\t          misc: %x\n",misc);
-  fxmessage("\t        length: %d\n",length);  
+  fxmessage("\t        length: %d\n",length);
   }
 
 FXdouble LameHeader::parse_replay_gain(const FXuchar * buffer) {
@@ -601,6 +601,16 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
       compare((const FXchar*)(packet->data()+frame.xing_offset()),"Info",4)==0 ) {
 
     xing = new XingHeader(packet->data()+frame.xing_offset(),packet->size()-frame.xing_offset());
+
+
+    fxmessage("  nbytes: %d\n",xing->nbytes);
+    fxmessage(" nframes: %d\n",xing->nframes);
+    fxmessage("nsamples: %d\n",frame.nsamples());
+    fxmessage("    rate: %d\n",frame.samplerate());
+
+    //fxmessage("avg bitrate: %g\n",(((float)xing->nbytes/(float)xing->nframes)/(float)frame.nsamples())*(float)frame.samplerate());
+
+
     const FXint lame_offset = frame.xing_offset()+XING_HEADER_SIZE;
     if (compare((const FXchar*)(packet->data()+lame_offset),"LAME",4)==0) {
       lame = new LameHeader(packet->data()+lame_offset,packet->size()-lame_offset);
