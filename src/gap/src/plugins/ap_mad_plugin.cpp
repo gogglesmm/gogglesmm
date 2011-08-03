@@ -307,19 +307,11 @@ public:
   FXushort toc_entry_nframes;
   FXuint*  toc;
 public:
-  VBRIHeader();
-  void parse(const FXuchar * buffer,FXival nbytes);
+  VBRIHeader(const FXuchar * buffer,FXival nbytes);
   ~VBRIHeader();
   };
 
-VBRIHeader::VBRIHeader() : toc(NULL) {
-  }
-
-VBRIHeader::~VBRIHeader(){
-  if (toc) freeElms(toc);
-  }
-
-void VBRIHeader::parse(const FXuchar * buffer,FXival nbytes) {
+VBRIHeader::VBRIHeader(const FXuchar * buffer,FXival nbytes) : toc(NULL) {
   version           = INT16_BE(buffer+4);
   delay             = INT16_BE(buffer+6);
   quality           = INT16_BE(buffer+8);
@@ -344,19 +336,23 @@ void VBRIHeader::parse(const FXuchar * buffer,FXival nbytes) {
     }
 
   fxmessage("VBRI:\n");
-  fxmessage("\tversion  :%d\n",version);
-  fxmessage("\tdelay   :%d\n",delay);
-  fxmessage("\tquality:%d\n",quality);
-  fxmessage("\tnbytes   :%ld\n",nbytes);
-  fxmessage("\tnframes:%d\n",nframes);
-  fxmessage("\tntoc   :%d\n",ntoc);
-  fxmessage("\ttoc_scale:%d\n",toc_scale);
-  fxmessage("\ttoc_entry_nbytes   :%d\n",toc_entry_nbytes);
+  fxmessage("\t          version:%d\n",version);
+  fxmessage("\t            delay:%d\n",delay);
+  fxmessage("\t          quality:%d\n",quality);
+  fxmessage("\t           nbytes:%ld\n",nbytes);
+  fxmessage("\t          nframes:%d\n",nframes);
+  fxmessage("\t             ntoc:%d\n",ntoc);
+  fxmessage("\t        toc_scale:%d\n",toc_scale);
+  fxmessage("\t toc_entry_nbytes:%d\n",toc_entry_nbytes);
   fxmessage("\ttoc_entry_nframes:%d\n",toc_entry_nframes);
 
   for (FXint i=0;i<ntoc;i++) {
     fxmessage("\ttoc[%d]=%d\n",i,toc[i]);
     }
+  }
+
+VBRIHeader::~VBRIHeader(){
+  if (toc) freeElms(toc);
   }
 
 #define XING_HEADER_SIZE 120
@@ -376,19 +372,14 @@ public:
     HAS_VBR_SCALE = 0x8
     };
 public:
-  XingHeader();
-  void parse(const FXuchar * buffer,FXival nbytes);
+  XingHeader(const FXuchar * buffer,FXival nbytes);
 
   FXlong seek(FXdouble pos,FXlong length);
   };
 
 
-XingHeader::XingHeader() : flags(0),nframes(0),nbytes(0),vbr_scale(0) {
-  }
-
-void XingHeader::parse(const FXuchar * buffer,FXival nbytes) {
+XingHeader::XingHeader(const FXuchar * buffer,FXival nbytes) : flags(0),nframes(0),nbytes(0),vbr_scale(0) {
   buffer+=4;
-
 
   fxmessage("Xing:\n");
 
@@ -397,25 +388,25 @@ void XingHeader::parse(const FXuchar * buffer,FXival nbytes) {
   if (flags&HAS_FRAMES) {
     nframes= INT32_BE(buffer);
     buffer+=4;
-    fxmessage("\tnframes: %d\n",nframes);
+    fxmessage("\t  nframes: %d\n",nframes);
     }
 
   if (flags&HAS_BYTES) {
     nbytes = INT32_BE(buffer);
     buffer+=4;
-    fxmessage("\tnbytes   :%ld\n",nbytes);
+    fxmessage("\t   nbytes: %ld\n",nbytes);
     }
 
   if (flags&HAS_TOC) {
     memcpy(toc,buffer,100);
     buffer+=100;
-    fxmessage("\thas toc\n");
+    fxmessage("\t      toc: yes\n");
     }
 
   if (flags&HAS_VBR_SCALE) {
     vbr_scale =  INT32_BE(buffer);
     buffer+=4;
-    fxmessage("\tvbr_scale:%d\n",vbr_scale);
+    fxmessage("\tvbr_scale: %d\n",vbr_scale);
     }
   }
 
@@ -458,11 +449,51 @@ public:
   FXuint   length;
   ReplayGain replaygain;
 public:
-  LameHeader();
-  void parse(const FXuchar * buffer,FXival nbytes);
+  LameHeader(const FXuchar * buffer,FXival nbytes);
   };
 
-LameHeader::LameHeader() : padstart(0), padend(0), length(0) {
+LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), padend(0), length(0) {
+  FXuchar revision = (*(buffer+9))>>4;
+  FXuchar vbr_methed = (*(buffer+9))&0xf;
+
+  FXint lowpass = (*(buffer+10)) * 100;
+
+
+  FXfloat peak = INT32_BE(buffer+11);
+
+  replaygain.album_peak = peak;
+  replaygain.track_peak = peak;
+  replaygain.track      = parse_replay_gain(buffer+15);
+  replaygain.album      = parse_replay_gain(buffer+17);
+
+
+  FXuchar encoding_flags = (*(buffer+19))>>4;
+  FXuchar lame_type = (*(buffer+19))&0xf;
+
+//   FXuchar bitrate = (*(buffer+21));
+
+  padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
+  padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
+
+  FXuchar misc = (*(buffer+25));
+
+//   FXuchar mp3gain = (*(buffer+25));
+//   FXushort surround = INT16_BE(buffer+26);
+  length = INT32_BE(buffer+28);
+  
+  
+  fxmessage("Lame Info:\n");  
+  fxmessage("\t      revision: %d\n",revision);
+  fxmessage("\t    vbr_method: %d\n",vbr_methed);
+  fxmessage("\t       lowpass: %d\n",lowpass);
+  fxmessage("\t    track gain: %g\n",replaygain.track);
+  fxmessage("\t    album gain: %g\n",replaygain.album);
+  fxmessage("\t          peak: %g\n",peak);
+  fxmessage("\tencoding_flags: %x\n",encoding_flags);
+  fxmessage("\t     lame_type: %d\n",lame_type);
+  fxmessage("\t       padding: %d %d\n",padstart,padend);
+  fxmessage("\t          misc: %x\n",misc);
+  fxmessage("\t        length: %d\n",length);  
   }
 
 FXdouble LameHeader::parse_replay_gain(const FXuchar * buffer) {
@@ -478,46 +509,6 @@ FXdouble LameHeader::parse_replay_gain(const FXuchar * buffer) {
   return NAN;
   }
 
-void LameHeader::parse(const FXuchar * buffer,FXival/* nbytes*/) {
-  fxmessage("Lame Info:\n");
-  FXuchar revision = (*(buffer+9))>>4;
-  FXuchar vbr_methed = (*(buffer+9))&0xf;
-  fxmessage("\trevision: %d\n",revision);
-  fxmessage("\tvbr_method: %d\n",vbr_methed);
-
-  FXint lowpass = (*(buffer+10)) * 100;
-  fxmessage("\tlowpass: %d\n",lowpass);
-
-  FXfloat peak = INT32_BE(buffer+11);
-
-  replaygain.album_peak = peak; 
-  replaygain.track_peak = peak; 
-  replaygain.track      = parse_replay_gain(buffer+15);
-  replaygain.album      = parse_replay_gain(buffer+17);
-
-  fxmessage("\ttrack gain: %g\n",replaygain.track);
-  fxmessage("\talbum gain: %g\n",replaygain.album);
-  fxmessage("\t      peak: %g\n",peak);
-
-  FXuchar encoding_flags = (*(buffer+19))>>4;
-  FXuchar lame_type = (*(buffer+19))&0xf;
-  fxmessage("\tencoding_flags: %x\n",encoding_flags);
-  fxmessage("\tlame_type: %d\n",lame_type);
-
-//   FXuchar bitrate = (*(buffer+21));
-
-  padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
-  padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
-  fxmessage("\tpadding: %d %d\n",padstart,padend);
-
-  FXuchar misc = (*(buffer+25));
-  fxmessage("\tmisc: %x\n",misc);
-
-//   FXuchar mp3gain = (*(buffer+25));
-//   FXushort surround = INT16_BE(buffer+26);
-  length = INT32_BE(buffer+28);
-  fxmessage("\tlength: %d\n",length);
-  }
 
 
 
@@ -609,19 +600,15 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
   if (compare((const FXchar*)(packet->data()+frame.xing_offset()),"Xing",4)==0 ||
       compare((const FXchar*)(packet->data()+frame.xing_offset()),"Info",4)==0 ) {
 
-    xing = new XingHeader;
-    xing->parse(packet->data()+frame.xing_offset(),packet->size()-frame.xing_offset());
-
+    xing = new XingHeader(packet->data()+frame.xing_offset(),packet->size()-frame.xing_offset());
     const FXint lame_offset = frame.xing_offset()+XING_HEADER_SIZE;
     if (compare((const FXchar*)(packet->data()+lame_offset),"LAME",4)==0) {
-      lame = new LameHeader;
-      lame->parse(packet->data()+lame_offset,packet->size()-lame_offset);
+      lame = new LameHeader(packet->data()+lame_offset,packet->size()-lame_offset);
       }
     }
 
   if (compare((const FXchar*)(packet->data()+frame.vbri_offset()),"VBRI",4)==0) {
-    vbri = new VBRIHeader;
-    vbri->parse(packet->data()+frame.vbri_offset(),packet->size()-frame.vbri_offset());
+    vbri = new VBRIHeader(packet->data()+frame.vbri_offset(),packet->size()-frame.vbri_offset());
     }
 
   if (xing || vbri || lame) {
@@ -755,14 +742,14 @@ void MadReader::set_replay_gain(ConfigureEvent* event) {
     event->replaygain = id3v2->replaygain;
     }
   else if (lame && !lame->replaygain.empty()){
-    fxmessage("[mad_reader] gain from lame\n");  
+    fxmessage("[mad_reader] gain from lame\n");
     event->replaygain = lame->replaygain;
     }
   }
 
 void MadReader::send_meta() {
   if (id3v2 && !id3v2->empty()) {
-    fxmessage("[mad_reader] meta from id3v2\n");    
+    fxmessage("[mad_reader] meta from id3v2\n");
     MetaInfo * meta = new MetaInfo;
     meta->artist.adopt(id3v2->artist);
     meta->album.adopt(id3v2->album);
