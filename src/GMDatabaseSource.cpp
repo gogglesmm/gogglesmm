@@ -21,6 +21,7 @@
 #include "GMTrack.h"
 #include "GMApp.h"
 #include "GMList.h"
+#include "GMTag.h"
 #include "GMDatabase.h"
 #include "GMTrackDatabase.h"
 #include "GMAlbumList.h"
@@ -45,7 +46,6 @@
 #include "GMTrackEditor.h"
 #include "GMCoverThumbs.h"
 #include "GMScanner.h"
-
 
 #include <sqlite3.h>
 
@@ -958,6 +958,101 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
   GM_TICKS_END();
   return true;
   }
+
+
+FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
+  FXString query;
+  GMQuery  q;
+  const FXchar * c_albumname;
+  const FXchar * c_title;
+  const FXchar * c_mrl;
+  FXint path;
+  FXint time;
+  FXuint no;
+  FXint id;
+  FXint queue=1;
+  FXint album_year;
+  FXint track_year;
+  FXint playcount;
+  FXlong playdate;
+  FXint bitrate;
+  FXint rating;
+
+  FXint artist,composer,conductor,albumartist;
+
+
+  GM_TICKS_START();
+
+  try {
+    query = "SELECT "
+                 "tracks.path, "
+                 "tracks.mrl, "
+                 "tracks.title, "
+                 "tracks.time,"
+                 "tracks.no,"
+                 "tracks.year,"
+                 "tracks.artist, "
+                 "tracks.composer, "
+                 "tracks.conductor, "
+                 "albums.artist,albums.name,albums.year,"
+                 "tracks.playcount,"
+                 "tracks.bitrate,"
+                 "tracks.playdate, "
+                 "tracks.rating "
+           "FROM tracks JOIN albums ON tracks.album == albums.id WHERE tracks.id == ?;";
+
+    q = db->compile(query);
+
+    for (FXint i=0;i<tracklist->getNumItems();i++) {
+      if (tracklist->isItemSelected(i)) {
+        GMDBTrackItem * item = dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i));
+        FXASSERT(item);
+        q.set(0,item->id);
+        q.row();
+        q.get(0,path);
+        c_mrl   = q.get(1);
+        c_title = q.get(2);
+        q.get(3,time);
+        q.get(4,no);
+        q.get(5,track_year);
+        q.get(6,artist);
+        q.get(7,composer);
+        q.get(8,conductor);
+        q.get(9,albumartist);
+        c_albumname = q.get(10);
+        q.get(11,album_year);
+        q.get(12,playcount);
+        q.get(13,bitrate);
+        q.get(14,playdate);
+        q.get(15,rating);
+
+        item->mrl         = c_mrl;
+        item->title       = c_title;
+        item->album       = c_albumname;
+        item->playdate    = playdate;
+        item->artist      = artist;
+        item->albumartist = albumartist;
+        item->composer    = composer;
+        item->conductor   = conductor;
+        item->time        = time;
+        item->no          = no;
+        item->path        = path;
+        item->year        = track_year;
+        item->album_year  = album_year;
+        item->playcount   = playcount;
+        item->rating      = rating;
+
+        q.reset();
+        tracklist->updateItem(i);
+        }
+      }
+    }
+  catch(GMDatabaseException & e){
+    return false;
+    }
+  return true;
+  }
+
 
 
 long GMDatabaseSource::onCmdQueue(FXObject*,FXSelector sel,void*){

@@ -151,6 +151,8 @@ public:
 
   virtual FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & taglist);
 
+  virtual FXbool updateSelectedTracks(GMTrackList*);
+
   virtual FXbool genre_context_menu(FXMenuPane * pane);
 
   virtual FXbool artist_context_menu(FXMenuPane * pane);
