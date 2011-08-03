@@ -45,6 +45,7 @@ protected:
   FXint    track;
 protected:
   ReadStatus parse();
+  void send_meta();
 public:
   MP4Reader(AudioEngine*);
   FXuchar format() const { return Format::MP4; };
@@ -118,6 +119,26 @@ FXbool MP4Reader::seek(FXdouble pos){
   if (f>=0) frame=f;
   return true;
   }
+  
+void MP4Reader::send_meta() {
+  FXchar * value;  
+  MetaInfo * meta = new MetaInfo();  
+  if (mp4ff_meta_get_title(handle,&value)) {
+    meta->title = value;  
+    free(value);
+    }
+  if (mp4ff_meta_get_artist(handle,&value)) {
+    meta->artist = value;  
+    free(value);
+    }
+
+  if (mp4ff_meta_get_album(handle,&value)) {
+    meta->album = value;  
+    free(value);
+    }
+  engine->decoder->post(meta);
+  }  
+
 
 
 ReadStatus MP4Reader::process(Packet*p) {
@@ -204,10 +225,14 @@ ReadStatus MP4Reader::parse() {
         frame=0;
         nframes=mp4ff_num_samples(handle,i);
         stream_length=mp4ff_get_track_duration(handle,i);
-
+        
+        
         packet->append(buffer,size);
         packet->flags|=AAC_FLAG_CONFIG|AAC_FLAG_FRAME;
         engine->decoder->post(new ConfigureEvent(af,Codec::AAC));
+        
+        send_meta();
+        
         engine->decoder->post(packet);
 
         packet=NULL;
