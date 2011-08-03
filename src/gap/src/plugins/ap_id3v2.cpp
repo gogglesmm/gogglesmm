@@ -11,7 +11,37 @@ namespace ap {
 
 
 ID3V2::ID3V2(FXuchar *b,FXint len) : buffer(b),size(len),p(0) {
-  parse();
+  const FXchar & flags = buffer[5];
+
+  version = buffer[3];
+  fxmessage("version %d\n",version);
+
+  buffer+=10;
+  size-=10;
+
+  /// we can skip the footer
+  if (version>=4 && flags&HAS_FOOTER)
+    size-=10;
+
+  /// Apply unsync, according to spec 2.3, the extended header also needs unsyncing
+  if (flags&HAS_UNSYNC) {
+    unsync(buffer,size);
+    }
+
+  /// skip the extended header
+  if (version>=3 && flags&HAS_EXTENDED_HEADER) {
+    FXint header_size;
+    if (version==3)
+      header_size = ID3_INT32(buffer);
+    else
+      header_size = ID3_SYNCSAFE_INT32(buffer);
+    buffer+=header_size;
+    }
+
+  /// Parse
+  p=0;
+  while(p<size)
+    parse_frame();
   }
 
 ID3V2::~ID3V2() {
@@ -25,7 +55,7 @@ void ID3V2::unsync(FXuchar * src,FXint & len) {
       i++;
     }
   len=k;
-	}
+  }
 
 void ID3V2::parse_rva2_frame(FXuint frameid,FXint framesize) {
   if (framesize>6) {
@@ -179,41 +209,6 @@ void ID3V2::parse_frame() {
   p+=framesize;
   }
 
-
-void ID3V2::parse() {
-  const FXchar & flags = buffer[5];
-
-  version = buffer[3];
-  fxmessage("version %d\n",version);
-
-  buffer+=10;
-  size-=10;
-
-  /// we can skip the footer
-  if (version>=4 && flags&HAS_FOOTER)
-    size-=10;
-
-  /// Apply unsync, according to spec 2.3, the extended header also needs unsyncing
-  if (flags&HAS_UNSYNC) {
-    unsync(buffer,size);
-    }
-
-  /// skip the extended header
-  if (version>=3 && flags&HAS_EXTENDED_HEADER) {
-    FXint header_size;
-    if (version==3)
-      header_size = ID3_INT32(buffer);
-    else
-      header_size = ID3_SYNCSAFE_INT32(buffer);
-    buffer+=header_size;
-    }
-
-  /// Parse
-  p=0;
-  while(p<size)
-    parse_frame();
-
-  }
 
 FXbool ID3V2::empty() const {
   return (artist.empty() && album.empty() && title.empty());
