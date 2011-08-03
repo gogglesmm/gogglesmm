@@ -34,7 +34,7 @@ void GMAudioPlayer::saveSettings() {
 
 void GMAudioPlayer::loadSettings() {
   OutputConfig config;
-  getOutputConfig(config);
+//  getOutputConfig(config);
   FXSettings settings;
   if (settings.parseFile(GMApp::getConfigDirectory()+PATHSEPSTRING+"gap.conf")){
     config.load(settings);
@@ -72,9 +72,12 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void* ptr){
         {
           GMTrack track;
           MetaInfo * info = dynamic_cast<MetaInfo*>(event);
-//          fxmessage("title %s\n",info->title.text());
 
-          track.title = info->title;
+          /// get data
+          track.title.adopt(info->title);
+          track.artist.adopt(info->artist);
+          track.album.adopt(info->album);
+          
           target->handle(this,FXSEL(SEL_PLAYER_META,message),&track);
         } break;
       default: break;
