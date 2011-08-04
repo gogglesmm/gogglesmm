@@ -57,7 +57,7 @@ void ID3V2::unsync(FXuchar * src,FXint & len) {
   len=k;
   }
 
-void ID3V2::parse_rva2_frame(FXuint frameid,FXint framesize) {
+void ID3V2::parse_rva2_frame(FXint framesize) {
   if (framesize>6) {
     FXbool is_track_gain=false;
     if (comparecase((const FXchar*)buffer+p,"track\0",6)==0) {
@@ -162,10 +162,12 @@ void ID3V2::parse_frame() {
     frameid = DEFINE_FRAME(buffer[p+0],buffer[p+1],buffer[p+2],buffer[p+3]);
 
   switch(version){
+    case 0  :
+    case 1  :
     case 2  : framesize = (buffer[p+3]<<16) | (buffer[p+4]<<8) | (buffer[p+5]); break;
     case 3  : framesize = ID3_INT32(buffer+p+4); break;
     case 4  : framesize = ID3_SYNCSAFE_INT32(buffer+p+4); break;
-    default : FXASSERT(0); break;
+    default : FXASSERT(0); p=size; return; break;
     };
 
   if (version==2)
@@ -201,7 +203,7 @@ void ID3V2::parse_frame() {
       case TALB :
       case TT2  :
       case TIT2 : parse_text_frame(frameid,framesize); break;
-      case RVA2 : parse_rva2_frame(frameid,framesize); break;
+      case RVA2 : parse_rva2_frame(framesize); break;
       case 0    : p=size; return; break;
       default   : break;
       };

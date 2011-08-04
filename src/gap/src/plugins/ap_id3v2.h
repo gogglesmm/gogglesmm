@@ -19,7 +19,7 @@ protected:
   void unsync(FXuchar * buffer,FXint & len);
   void parse_frame();
   void parse_text_frame(FXuint frameid,FXint framesize);
-  void parse_rva2_frame(FXuint frameid,FXint framesize);
+  void parse_rva2_frame(FXint framesize);
 public:
   enum Encoding {
     ISO_8859_1     = 0,
