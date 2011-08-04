@@ -145,6 +145,15 @@ static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame,FX
       frame->type()==TagLib::ID3v2::AttachedPictureFrame::ColouredFish) {
     return NULL;
     }
+
+
+  if (frame->picture().size()>8) {
+    if (compare(frame->picture().data(),"\211PNG\r\n\032\n",8)==0) {
+      mime = "png";
+      }
+    }
+
+
   FXImage * image = gm_load_image_from_data(frame->picture().data(),frame->picture().size(),mime,scale,crop);
   if (image) return new GMCover(image,frame->type());
   return NULL;
