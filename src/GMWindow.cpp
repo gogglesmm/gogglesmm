@@ -1385,8 +1385,8 @@ void GMWindow::loadCover(const FXString & filename) {
     remote->updateCover(NULL);
 
   if (cover_small)  {
-    delete cover_small;
-    cover_small=NULL;
+    FXImage * img = cover_small.release();
+    delete img;
     }
 
   if (coverview_x11) {
