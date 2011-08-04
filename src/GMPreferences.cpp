@@ -173,7 +173,7 @@ GMPreferences::GMPreferences() :
   play_gapless(true),
   play_shuffle(false),
   play_open_device_on_startup(false),
-  play_from_queue(true),
+  play_from_queue(false),
 
   export_encoding(GMFilename::ENCODING_ASCII),
   export_lowercase(false),

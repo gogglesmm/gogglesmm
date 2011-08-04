@@ -541,7 +541,7 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
     }
 
   /// Check if we should scrobble tracks or not.
-  if (!FXApp::instance()->reg().readBoolEntry("LastFM","scrobble-tracks",true))
+  if (!FXApp::instance()->reg().readBoolEntry("LastFM","scrobble-tracks",false))
     flags|=FLAG_DISABLED;
 
   FXApp::instance()->reg().writeStringEntry("LastFM","client-id",CLIENT_ID);
