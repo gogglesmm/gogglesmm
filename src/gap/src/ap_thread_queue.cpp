@@ -31,14 +31,14 @@ FXInputHandle ThreadQueue::handle() const {
 
 void ThreadQueue::post(Event*event,FXint where) {
   if (where==Flush) {
-    
+
     mfifo.lock();
       Event * h = head;
       event->next=NULL;
       head = tail = event;
       pfifo.signal();
     mfifo.unlock();
-    
+
     /// cleanup outside the fifo lock!
     while(h) {
       event = h;
@@ -49,7 +49,7 @@ void ThreadQueue::post(Event*event,FXint where) {
     }
   else if (where==Back) {
     mfifo.lock();
-  
+
     if (tail) tail->next = event;
     event->next=NULL;
     tail = event;
@@ -68,7 +68,7 @@ void ThreadQueue::post(Event*event,FXint where) {
     if (tail==NULL) {
       tail=head;
       }
-    mfifo.unlock();     
+    mfifo.unlock();
     }
   }
 
@@ -92,7 +92,7 @@ Event * ThreadQueue::pop() {
   }
 
 FXbool ThreadQueue::checkAbort() {
-  FXMutexLock lock(mfifo);
+  FXScopedMutex lock(mfifo);
   if (head && (head->type&0x80))
     return true;
 
