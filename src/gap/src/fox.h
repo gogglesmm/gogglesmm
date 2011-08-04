@@ -35,7 +35,9 @@ typedef FXArray<FXString> FXStringList;
 #define TIME_MIN(m) 	TIME_SEC(60*m)
 #define TIME_HOUR(h) 	TIME_MIN(60*h)
 
-
+#if FOXVERSION < FXVERSION(1,7,28)
+typedef FXMutexLock FXScopedMutex
+#endif
 
 #endif
 

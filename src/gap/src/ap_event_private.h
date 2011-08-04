@@ -113,7 +113,7 @@ public:
 
   /// Notify waiting thread we're done.
   void unref() {
-    FXMutexLock lock(mutex);
+    FXScopedMutex lock(mutex);
     condition.signal();
     }
   };
