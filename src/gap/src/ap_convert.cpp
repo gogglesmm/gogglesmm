@@ -27,13 +27,12 @@ static FXint s16_to_s32(FXshort x) {
     return (x<<16)+(x+x)+((x+16383)>>15);
   }
 
-static FXint s24le3_to_s32(FXint x) {
+static FXint s24_to_s32(FXint x) {
   if (x==S24_MIN)
     return S32_MIN;
   else
     return (x<<8)+(x>>16)+(x>>16)+((x+4194303)>>23);
   }
-
 
 static FXshort float_to_s16(FXfloat x) {
   FXfloat c = x*S16_MAX;
@@ -78,16 +77,8 @@ void s24le3_to_s16(FXuchar * input,FXuint nsamples) {
 void float_to_s16(FXuchar * buffer,FXuint nsamples){
   FXfloat * input  = reinterpret_cast<FXfloat*>(buffer);
   FXshort * output = reinterpret_cast<FXshort*>(buffer);
-  register FXint val;
   for (FXuint i=0;i<nsamples;i++) {
     output[i]=float_to_s16(input[i]);
-
-/*
-    val=((FXint)(floor(input[i]*32767.f+.5f)));
-    if (__unlikely(val>32767))  val=32767;
-    if (__unlikely(val<-32768)) val=-32768;
-    output[i]=val;
-*/
     }
   }
 
@@ -97,9 +88,7 @@ void s24le3_to_s32(const FXuchar * input,FXuint nsamples,MemoryBuffer & out){
   out.grow(nsamples*4);
   FXint * output = out.s32();
   for (FXuint i=0;i<nsamples;i++,input+=3) {
-    output[i] = s24le3_to_s32(input[0]|input[1]<<8|input[2]<<16);
-
-//    output[i] = (input[0]<<8) | (input[1]<<16) | (input[2]<<24) ;
+    output[i] = s24_to_s32(input[0]|input[1]<<8|input[2]<<16);
     }
   out.wrote(nsamples*4);
   }
@@ -107,16 +96,8 @@ void s24le3_to_s32(const FXuchar * input,FXuint nsamples,MemoryBuffer & out){
 void float_to_s32(FXuchar * buffer,FXuint nsamples){
   FXfloat * input = reinterpret_cast<FXfloat*>(buffer);
   FXint *  output = reinterpret_cast<FXint*>(buffer);
-  register FXlong val;
   for (FXuint i=0;i<nsamples;i++) {
     output[i]=float_to_s32(input[i]);
-/*
-
-    val=((FXint)(floor(input[i]*2147483647.f+.5f)));
-    if (__unlikely(val>2147483647))  val=2147483647;
-    if (__unlikely(val<-2147483648)) val=-2147483648;
-    output[i]=val;
-*/
     }
   }
 
