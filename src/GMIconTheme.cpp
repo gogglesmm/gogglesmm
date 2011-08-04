@@ -721,7 +721,7 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
         FXString dest   = get_svg_cache() + PATHSEPSTRING + FXString::value(size);
         FXString target = dest + PATHSEPSTRING + svg + ".png";
         if (!FXStat::exists(target)) {
-          gm_make_path(dest);
+          FXDir::createDirectories(dest);
 #ifdef DEBUG
           fxmessage("make %s\n",target.text());
 #endif

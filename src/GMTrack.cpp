@@ -24,15 +24,25 @@ GMTrack::GMTrack() :
   year(0),
   no(0),
   time(0),
-  bitrate(0),
-  album_gain(NAN),
-  album_peak(NAN),
-  track_gain(NAN),
-  track_peak(NAN){
+  bitrate(0){
+  }
+
+void GMTrack::adopt(GMTrack & t) {
+  mrl.adopt(t.mrl);
+  title.adopt(t.title);
+  artist.adopt(t.artist);
+  album.adopt(t.album);
+  album_artist.adopt(t.album_artist);
+  composer.adopt(t.composer);
+  conductor.adopt(t.conductor);
+  tags.adopt(t.tags);
+  year=t.year;
+  no=t.no;
+  time=t.time;
+  bitrate=t.bitrate;
   }
 
 void GMTrack::clear() {
-  path.clear();
   title.clear();
   artist.clear();
   album.clear();
@@ -44,10 +54,6 @@ void GMTrack::clear() {
   no=0;
   time=0;
   bitrate=0;
-  album_gain=NAN;
-  album_peak=NAN;
-  track_gain=NAN;
-  track_peak=NAN;
   }
 
 FXbool GMTrack::saveTag(const FXString & filename,FXuint /*opts=0*/) {
@@ -94,7 +100,6 @@ FXbool GMTrack::loadTag(const FXString & filename) {
   filetags.getAlbumArtist(album_artist);
   filetags.getComposer(composer);
   filetags.getConductor(conductor);
-  filetags.getGain(track_gain,track_peak,album_gain,album_peak);
   filetags.getTags(tags);
 
   year    = filetags.getYear();

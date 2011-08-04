@@ -710,49 +710,6 @@ FXushort GMFileTag::getDiscNumber() const{
   return 0;
   }
 
-void GMFileTag::getGain(FXdouble & track_gain,FXdouble & track_peak,FXdouble & album_gain,FXdouble & album_peak)const {
-  track_gain=track_peak=album_gain=album_peak=NAN;
-  FXString tmp;
-  if (xiph) {
-    xiph_get_field("REPLAYGAIN_ALBUM_GAIN",tmp);
-    album_gain=gm_parse_number(tmp);
-
-    xiph_get_field("REPLAYGAIN_ALBUM_PEAK",tmp);
-    album_peak=gm_parse_number(tmp);
-
-    xiph_get_field("REPLAYGAIN_TRACK_GAIN",tmp);
-    track_gain=gm_parse_number(tmp);
-
-    xiph_get_field("REPLAYGAIN_TRACK_PEAK",tmp);
-    track_peak=gm_parse_number(tmp);
-
-    if (isnan(track_peak) && isnan(album_gain)) {
-      xiph_get_field("RG_RADIO",tmp);
-      track_gain=gm_parse_number(tmp);
-
-      xiph_get_field("RG_PEAK",tmp);
-      track_peak=gm_parse_number(tmp);
-
-      xiph_get_field("RG_AUDIOPHILE",tmp);
-      album_gain=gm_parse_number(tmp);
-      }
-    }
-  else if (ape) {
-    ape_get_field("REPLAYGAIN_ALBUM_GAIN",tmp);
-    album_gain=gm_parse_number(tmp);
-
-    ape_get_field("REPLAYGAIN_ALBUM_PEAK",tmp);
-    album_peak=gm_parse_number(tmp);
-
-    ape_get_field("REPLAYGAIN_TRACK_GAIN",tmp);
-    track_gain=gm_parse_number(tmp);
-
-    ape_get_field("REPLAYGAIN_TRACK_PEAK",tmp);
-    track_peak=gm_parse_number(tmp);
-    }
-  }
-
-
 FXint GMFileTag::getTime() const{
   FXASSERT(file);
   TagLib::AudioProperties * properties = file->audioProperties();
@@ -917,6 +874,23 @@ FXint GMFileTag::getCovers(GMCoverList & covers,FXint scale,FXint crop) const {
   }
 
 
+GMAudioProperties::GMAudioProperties() :
+  bitrate(0),
+  samplerate(0),
+  channels(0) {
+  }
+
+FXbool GMAudioProperties::load(const FXString & filename){
+  GMFileTag tags;
+  if (tags.open(filename,FILETAG_AUDIOPROPERTIES)){
+    bitrate    = tags.getBitRate();
+    samplerate = tags.getSampleRate();
+    channels   = tags.getChannels();
+    return true;
+    }
+  return false;
+  }
+
 
 namespace GMTag {
 
@@ -934,19 +908,7 @@ FXbool length(GMTrack & info) {
   }
 
 
-FXbool properties(const FXString & mrl,Properties & info) {
-  info.bitrate=-1;
-  info.samplerate=-1;
-  info.channels=-1;
 
-  GMFileTag tags;
-  if (!tags.open(mrl,FILETAG_AUDIOPROPERTIES))
-    return false;
-  info.bitrate    = tags.getBitRate();
-  info.samplerate = tags.getSampleRate();
-  info.channels   = tags.getChannels();
-  return true;
-  }
 
 }
 

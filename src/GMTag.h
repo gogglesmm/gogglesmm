@@ -135,8 +135,6 @@ public:
   FXint getChannels() const;
   FXint getSampleRate() const;
 
-  void getGain(FXdouble & track_gain,FXdouble & track_peak,FXdouble & album_gain,FXdouble & album_peak) const;
-
   GMCover * getFrontCover(FXint scale=0,FXint crop=0) const;
   FXint getCovers(GMCoverList &,FXint scale=0,FXint crop=0) const;
 
@@ -145,19 +143,22 @@ public:
 
 
 
+class GMAudioProperties {
+public:
+  FXint    bitrate;
+  FXint    samplerate;
+  FXint    channels;
+public:
+  GMAudioProperties();
+
+  /// Load from tag in given filename.
+  FXbool load(const FXString & filename);
+  };
+
 
 namespace GMTag {
 
 void init();
-
-struct Properties {
-  FXint bitrate;
-  FXint samplerate;
-  FXint channels;
-  };
-
-
-FXbool properties(const FXString & mrl,Properties & p);
 
 FXbool length(GMTrack & info);
 

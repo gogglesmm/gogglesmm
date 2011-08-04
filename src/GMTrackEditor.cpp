@@ -129,7 +129,7 @@ FXint GMRenameTask::run() {
   try {
     for (FXint i=0;i<from.no() && processing;i++) {
       if (to[i].empty()) continue;
-      if (!gm_make_path(FXPath::directory(to[i]))) continue;
+      if (!FXDir::createDirectories(FXPath::directory(to[i]))) continue;
       if (FXStat::exists(to[i])) continue;
       fxmessage("Updating Filename %s\n",from[i].text());
       if (FXFile::rename(from[i],to[i])){
@@ -344,8 +344,7 @@ FXDEFMAP(GMEditTrackDialog) GMEditTrackDialogMap[]={
   FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_FILENAME_TEMPLATE,GMEditTrackDialog::onCmdFilenameTemplate),
   FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_ACCEPT,GMEditTrackDialog::onCmdAccept),
   FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_RESET,GMEditTrackDialog::onCmdResetTrack),
-  FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_NEXT_TRACK,GMEditTrackDialog::onCmdNextTrack),
-  FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_PREV_TRACK,GMEditTrackDialog::onCmdPreviousTrack),
+  FXMAPFUNCS(SEL_COMMAND,GMEditTrackDialog::ID_NEXT_TRACK,GMEditTrackDialog::ID_PREV_TRACK,GMEditTrackDialog::onCmdSwitchTrack)
   };
 
 FXIMPLEMENT(GMEditTrackDialog,FXDialogBox,GMEditTrackDialogMap,ARRAYNUMBER(GMEditTrackDialogMap));
@@ -367,41 +366,9 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
   discspinner=NULL;
   art=NULL;
 
-
-
   GMTrack other;
-  GMTag::Properties prop;
 
   getTrackSelection();
-
-#if 0
-
-  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
-
-  db->getTrack(tracks[0],info);
-  if (tracks.no()==1) {
-    GMTag::properties(info.mrl,prop);
-    art = GMCover::toImage(GMCover::fromTag(info.mrl,0));
-    }
-
-
-  samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR;
-
-  if (tracks.no()>1) {
-    for (FXint i=1;i<tracks.no() && samemask ;i++) {
-      db->getTrack(tracks[i],other);
-      if (other.album!=info.album) samemask&=~SAME_ALBUM;
-      if (other.artist!=info.artist) samemask&=~SAME_ARTIST;
-      if (other.album_artist!=info.album_artist) samemask&=~SAME_ALBUMARTIST;
-//      if (other.genre!=info.genre) samemask&=~SAME_GENRE;
-      if (other.year!=info.year) samemask&=~SAME_YEAR;
-      if (GMDISCNO(other.no)!=GMDISCNO(info.no)) samemask&=~SAME_DISC;
-      if (other.composer!=info.composer) samemask&=~SAME_COMPOSER;
-      if (other.conductor!=info.conductor) samemask&=~SAME_CONDUCTOR;
-      }
-    }
-
-#endif
 
   setTitle(tr("Edit Track Information"));
   FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
@@ -456,35 +423,16 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
 
     new FXLabel(matrix,tr("Bitrate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(FXString::value("%dkbs",prop.bitrate));
+    textfield->setText(FXString::value("%dkbs",properties.bitrate));
 
     new FXLabel(matrix,tr("Samplerate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(FXString::value("%dHz",prop.samplerate));
+    textfield->setText(FXString::value("%dHz",properties.samplerate));
 
     new FXLabel(matrix,tr("Channels"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(FXString::value("%d",prop.channels));
+    textfield->setText(FXString::value("%d",properties.channels));
 
-/*
-  /// FIXME we should get this from the file directly
-
-    new FXLabel(matrix,tr("Track Gain"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    if (isnan(info.track_gain))
-      textfield->setText("0 db");
-    else
-      textfield->setText(FXString::value("%'g db",info.track_gain));
-
-    new FXLabel(matrix,tr("Album Gain"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    if (isnan(info.track_gain))
-      textfield->setText("0 db");
-    else
-      textfield->setText(FXString::value("%'g db",info.album_gain));
-
-*/
-//    if (art) {
     if (tracks.no()==1){
       covertab = new GMTabItem(tabbook,tr("Co&ver"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
       tabframe = new GMTabFrame(tabbook);
@@ -602,71 +550,7 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
   conductorbox->sortItems();
   conductorbox->setCurrentItem(-1);
 
-
   displayTracks();
-#if 0
-
-  db->listAlbums(albumbox,tracks[0]);
-  albumbox->setSortFunc(generic_name_sort);
-  albumbox->setNumVisible(FXMIN(10,albumbox->getNumItems()));
-  albumbox->sortItems();
-  albumbox->setCurrentItem(-1);
-
-  db->listArtists(trackartistbox);
-  trackartistbox->setSortFunc(generic_name_sort);
-  trackartistbox->setNumVisible(FXMIN(10,trackartistbox->getNumItems()));
-  trackartistbox->sortItems();
-  trackartistbox->setCurrentItem(-1);
-
-  db->listArtists(albumartistbox);
-  albumartistbox->setSortFunc(generic_name_sort);
-  albumartistbox->setNumVisible(FXMIN(10,albumartistbox->getNumItems()));
-  albumartistbox->sortItems();
-  albumartistbox->setCurrentItem(-1);
-
-  db->listArtists(composerbox);
-  composerbox->setSortFunc(generic_name_sort);
-  composerbox->setNumVisible(FXMIN(10,composerbox->getNumItems()));
-  composerbox->sortItems();
-  composerbox->setCurrentItem(-1);
-
-  db->listArtists(conductorbox);
-  conductorbox->setSortFunc(generic_name_sort);
-  conductorbox->setNumVisible(FXMIN(10,conductorbox->getNumItems()));
-  conductorbox->sortItems();
-  conductorbox->setCurrentItem(-1);
-
-/*
-  db->listGenres(genrebox,false);
-  genrebox->setSortFunc(genre_list_sort);
-  genrebox->setNumVisible(FXMIN(10,genrebox->getNumItems()));
-  genrebox->sortItems();
-  genrebox->setCurrentItem(-1);
-*/
-
-  if (tracks.no()==1) {
-    trackspinner->setValue(GMTRACKNO(info.no));
-    albumbox->setCurrentItem(albumbox->findItem(info.album));
-    trackartistbox->setCurrentItem(trackartistbox->findItem(info.artist));
-    albumartistbox->setCurrentItem(albumartistbox->findItem(info.album_artist));
-    composerbox->setCurrentItem(composerbox->findItem(info.composer));
-    conductorbox->setCurrentItem(conductorbox->findItem(info.conductor));
-    //genrebox->setCurrentItem(genrebox->findItem(info.genre));
-    yearfield->setText(FXString::value(info.year));
-    titlefield->setText(info.title);
-    discspinner->setValue(GMDISCNO(info.no));
-    }
-  else {
-    if (samemask&SAME_ALBUM) albumbox->setCurrentItem(albumbox->findItem(info.album));
-    if (samemask&SAME_ARTIST) trackartistbox->setCurrentItem(trackartistbox->findItem(info.artist));
-    if (samemask&SAME_ALBUMARTIST) albumartistbox->setCurrentItem(albumartistbox->findItem(info.album_artist));
-    if (samemask&SAME_COMPOSER) composerbox->setCurrentItem(composerbox->findItem(info.composer));
-    if (samemask&SAME_CONDUCTOR) conductorbox->setCurrentItem(conductorbox->findItem(info.conductor));
-//    if (samemask&SAME_GENRE) genrebox->setCurrentItem(genrebox->findItem(info.genre));
-    if (samemask&SAME_YEAR) yearfield->setText(FXString::value(info.year));
-    if (samemask&SAME_DISC) discspinner->setValue(GMDISCNO(info.no));
-    }
-#endif
   }
 
 
@@ -692,7 +576,7 @@ void GMEditTrackDialog::getTrackSelection() {
       delete art;
       art=NULL;
       }
-    GMTag::properties(info.mrl,properties);
+    properties.load(info.mrl);
     art = GMCover::toImage(GMCover::fromTag(info.mrl,0));
     art->create();
     }
@@ -771,30 +655,18 @@ void GMEditTrackDialog::displayTracks() {
     }
   }
 
-long GMEditTrackDialog::onCmdNextTrack(FXObject*sender,FXSelector sel,void*ptr){
-  fxmessage("next\n");
-  /// Save current
+long GMEditTrackDialog::onCmdSwitchTrack(FXObject*,FXSelector sel,void*){
   saveTracks();
-  GMPlayerManager::instance()->getTrackView()->selectNext();
-  fxmessage("next\n");
-  getTrackSelection();
-    fxmessage("next\n");
-  displayTracks();
-  return 1;
-  }
-
-long GMEditTrackDialog::onCmdPreviousTrack(FXObject*sender,FXSelector sel,void*ptr){
-
-  /// Save current
-  saveTracks();
-
-  GMPlayerManager::instance()->getTrackView()->selectPrevious();
+  if (FXSELID(sel)==ID_NEXT_TRACK)
+    GMPlayerManager::instance()->getTrackView()->selectNext();
+  else
+    GMPlayerManager::instance()->getTrackView()->selectPrevious();
   getTrackSelection();
   displayTracks();
   return 1;
   }
 
-long GMEditTrackDialog::onCmdResetTrack(FXObject*sender,FXSelector sel,void*ptr){
+long GMEditTrackDialog::onCmdResetTrack(FXObject*,FXSelector,void*){
   getTrackSelection();
   displayTracks();
   return 1;

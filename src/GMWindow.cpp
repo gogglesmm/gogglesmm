@@ -1449,7 +1449,7 @@ void GMWindow::loadCover(const FXString & filename) {
 
 void GMWindow::updateCoverView() {
 
-  if (GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview && gm_has_opengl() ) {
+  if (GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview && FXGLVisual::hasOpenGL(getApp())) {
 
     if (coverview_x11) {
       loadCover(FXString::null);
@@ -1495,7 +1495,7 @@ long GMWindow::onCmdCoverView(FXObject*,FXSelector,void*ptr){
   if (!event->moved) {
     GMMenuPane pane(this);
     if (coverview_x11) {
-      if (gm_has_opengl()) {
+      if (FXGLVisual::hasOpenGL(getApp())) {
         new GMMenuCheck(&pane,"Use OpenGL viewer",this,ID_CHANGE_COVERVIEW);
         new FXMenuSeparator(&pane);
         }

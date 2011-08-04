@@ -1,7 +1,6 @@
 To Do
 =====
 
-  - Convert AudioScrobbler to libcurl.
   - Finish up lirc support.
   - Finish up mpris support.
   - New keyboard shortcuts to skip 10s or 1min in a track.

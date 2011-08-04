@@ -595,20 +595,19 @@ void GMDatabase::waitTask() {
   }
 
 void GMDatabase::lock() {
-  fxmessage("lock %d %d\n",FXThread::self()==NULL,mutex.locked());
+//  fxmessage("lock %d %d\n",FXThread::self()==NULL,mutex.locked());
   if (FXThread::self()==NULL) {
-    fxmessage("trylock %d\n",mutex.locked());
+//    fxmessage("trylock %d\n",mutex.locked());
     if (!mutex.trylock()) {
       fxmessage("Failed to lock mutex\n");
       interrupt=true;
       mutex.lock();
       }
-    fxmessage("got lock\n");
     }
   }
 
 void GMDatabase::unlock() {
-  fxmessage("unlock %d\n",FXThread::self()==NULL);
+//  fxmessage("unlock %d\n",FXThread::self()==NULL);
   if (FXThread::self()==NULL) {
     if (interrupt) {
       interrupt=false;

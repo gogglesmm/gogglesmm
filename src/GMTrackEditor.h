@@ -26,7 +26,7 @@ protected:
   FXuint samemask;
   FXIntList tracks;
   GMTrack           info;
-  GMTag::Properties properties;
+  GMAudioProperties properties;
   FXImage * art;
 public:
   GMComboBox    * trackartistbox;
@@ -76,8 +76,7 @@ public:
   long onCmdAccept(FXObject*,FXSelector,void*);
   long onCmdArtist(FXObject*,FXSelector,void*);
   long onCmdFilenameTemplate(FXObject*,FXSelector,void*);
-  long onCmdNextTrack(FXObject*,FXSelector,void*);
-  long onCmdPreviousTrack(FXObject*,FXSelector,void*);
+  long onCmdSwitchTrack(FXObject*,FXSelector,void*);
   long onCmdResetTrack(FXObject*,FXSelector,void*);
 public:
   GMEditTrackDialog(FXWindow *,GMTrackDatabase*);

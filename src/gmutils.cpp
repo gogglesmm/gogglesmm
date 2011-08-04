@@ -91,21 +91,6 @@ FXbool gm_buffer_file(const FXString & filename,FXString & buffer) {
   return false;
   }
 
-
-
-
-
-
-
-
-
-
-FXbool gm_has_opengl() {
-  return FXGLVisual::hasOpenGL(GMApp::instance());
-  }
-
-
-
 void gm_focus_and_select(FXTextField * textfield) {
   FXASSERT(textfield->id());
   textfield->setFocus();
@@ -351,12 +336,6 @@ FXImage * gm_load_image_from_data(const void * data,FXuval size,const FXString &
   return NULL;
   }
 
-
-FXbool gm_make_path(const FXString & path,FXuint perm) {
-  return FXDir::createDirectories(path,perm);
-  }
-
-
 FXbool gm_decode_base64(FXuchar * buffer,FXint & len){
   static const char base64[256]={
     0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
@@ -421,38 +400,4 @@ void gm_print_time(FXint time,FXString & result){
   FXint	minutes = (FXint) floor((double)time/60.0);
   result.format("%d days %d hours %d minutes",days,hours,minutes);
   }
-
-
-
-
-
-#ifndef HAVE_GAP
-#ifdef __linux__
-#include <sys/prctl.h>
-#endif
-namespace ap {
-
-void ap_set_thread_name(const FXchar * name) {
-#ifdef __linux__
-  prctl(PR_SET_NAME,(unsigned long)name,0,0,0);
-#endif
-  }
-
-
-FXbool ap_set_nonblocking(FXint fd) {
-  FXint flags;
-
-  flags = fcntl(fd, F_GETFL);
-  if (flags==-1) return false;
-
-  flags |= O_NONBLOCK;
-
-  if (fcntl(fd,F_SETFL,flags)==-1)
-    return false;
-
-  return true;
-  }
-
-}
-#endif
 

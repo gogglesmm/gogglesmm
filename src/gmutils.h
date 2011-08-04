@@ -19,8 +19,6 @@
 #ifndef GMUTILS_H
 #define GMUTILS_H
 
-extern FXbool gm_has_opengl();
-
 extern FXbool gm_open_folder(const FXString & folder);
 
 extern FXbool gm_open_browser(const FXString & folder);
@@ -52,8 +50,6 @@ extern void gm_convert_uri_to_filenames(FXString & uri,FXStringList & filenames)
 extern FXImage * gm_load_image_from_data(const void * data,FXuval size,const FXString & mime,FXint scale,FXint crop=0);
 extern FXImage * gm_load_image_from_file(const FXString & filename,FXint scale,FXint crop=0);
 
-
-extern FXbool gm_make_path(const FXString & path,FXuint perm=FXIO::OwnerFull|FXIO::GroupFull|FXIO::OtherFull);
 
 extern FXbool gm_decode_base64(FXuchar * buffer,FXint & len);
 

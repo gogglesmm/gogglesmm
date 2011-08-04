@@ -36,26 +36,27 @@ enum {
 
 class GMTrack{
 public:
-  FXString path;
-  FXString mrl;
-  FXString title;
-  FXString artist;
-  FXString album;
-  FXString album_artist;
-  FXString composer;
-  FXString conductor;
-  FXStringList tags;
-  FXint    year;
-  FXint 	 no;
-  FXint		 time;
-  FXint    bitrate;
-  FXdouble album_gain;
-  FXdouble album_peak;
-  FXdouble track_gain;
-  FXdouble track_peak;
-  FXuint   rating;
+  FXString      mrl;
+  FXString      title;
+  FXString      artist;
+  FXString      album;
+  FXString      album_artist;
+  FXString      composer;
+  FXString      conductor;
+  FXStringList  tags;
+  FXint         year;
+  FXint 	      no;
+  FXint		      time;
+  FXint         bitrate;
+  FXuint        rating;
 public:
   GMTrack();
+
+  /// Clear the track
+  void clear();
+  
+  /// Adopt from track
+  void adopt(GMTrack &);
 
   /// Get track number
   FXushort getTrackNumber() const { return (FXushort)(no&0xffff); }
@@ -69,17 +70,12 @@ public:
   /// Get disc number
   FXushort getDiscNumber() const { return (FXushort)(no>>16); }
 
+
   /// Load from tag in given filename. Note that mrl is not set
   FXbool loadTag(const FXString & filename);
 
   /// Save to tag in given filename. Note that mrl is not set
   FXbool saveTag(const FXString & filename,FXuint opts=0);
-
-  FXbool loadPath(const FXString & mrl);
-
-  static FXbool fromPath(const FXString & mrl,GMTrack & track);
-
-  void clear();
   };
 
 

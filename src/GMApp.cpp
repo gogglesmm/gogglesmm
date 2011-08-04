@@ -155,7 +155,7 @@ void GMApp::setFont(const FXFontDesc & fnt){
   thickfont->destroy();
   thickfont->setFontDesc(fontdescription);
   thickfont->create();
-    
+
   fontdescription = getNormalFont()->getFontDesc();
   fontdescription.size    -= 10;
   fontdescription.weight   = FXFont::Bold;
@@ -163,7 +163,7 @@ void GMApp::setFont(const FXFontDesc & fnt){
   coverheadfont->destroy();
   coverheadfont->setFontDesc(fontdescription);
   coverheadfont->create();
-  
+
   fontdescription = getNormalFont()->getFontDesc();
   fontdescription.size    -= 10;
   fontdescription.setwidth = FXFont::SemiCondensed;
@@ -179,7 +179,7 @@ void GMApp::setFont(const FXFontDesc & fnt){
   fontdescription.weight   = FXFont::Light;
   listtailfont->destroy();
   listtailfont->setFontDesc(fontdescription);
-  listtailfont->create();  
+  listtailfont->create();
   }
 
 void GMApp::updateFont() {
@@ -196,7 +196,7 @@ FXString GMApp::getDataDirectory(FXbool create) {
   xdg_data_home+=PATHSEPSTRING "gogglesmm";
 
   if (create)
-    gm_make_path(xdg_data_home);
+    FXDir::createDirectories(xdg_data_home);
 
   return xdg_data_home;
   }
@@ -211,7 +211,7 @@ FXString GMApp::getConfigDirectory(FXbool create) {
   xdg_config_home+=PATHSEPSTRING "gogglesmm";
 
   if (create)
-    gm_make_path(xdg_config_home);
+    FXDir::createDirectories(xdg_config_home);
 
   return xdg_config_home;
   }
@@ -224,7 +224,7 @@ FXString GMApp::getCacheDirectory(FXbool create) {
   xdg_cache_home+=PATHSEPSTRING "gogglesmm";
 
   if (create)
-    gm_make_path(xdg_cache_home);
+    FXDir::createDirectories(xdg_cache_home);
 
   return xdg_cache_home;
   }

@@ -88,7 +88,8 @@ private:
 private:
   FXString            coverfile;
 private:
-  FXImagePtr cover_small;
+  FXImagePtr          cover_small;
+  FXbool              has_opengl;
 private:
   void configureToolbar(FXbool docktop,FXbool init=false);
   void configureStatusbar(FXbool show);
