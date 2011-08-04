@@ -1150,9 +1150,9 @@ void GMPlayerManager::open(const FXString & url) {
       }
     }
   else {
+    trackinfoset=false; 
     getTrackView()->mark(-1);
     }
-
   player->open(url,true);
   }
 
