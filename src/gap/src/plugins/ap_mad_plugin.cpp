@@ -21,6 +21,9 @@
 
 #include <mad.h>
 
+#include <FX88591Codec.h>
+
+
 namespace ap {
 
 class XingHeader;
@@ -536,7 +539,14 @@ void ID3V1::parse_field(const FXchar * start,FXint maxlen,FXString & field){
   while(end>=start && (*end=='\0' || *end==' ')) end--;
 
   /// Anything Left?
-  if (end>=start) field.assign(start,end-start+1);
+  if (end>=start) {
+    FX88591Codec codec;
+    FXint n = codec.mb2utflen(start,end-start+1);
+    if (n>0) {
+      field.length(n);
+      codec.mb2utf(field.text(),field.length(),start,end-start+1);
+      }
+    }
   }
 
 ID3V1::ID3V1(const FXchar * b,FXint len) {
@@ -830,8 +840,8 @@ void MadReader::send_meta() {
     engine->decoder->post(meta);
     }
   }
-  
-   
+
+
 
 ReadStatus MadReader::parse(Packet * packet) {
   mpeg_frame frame;
