@@ -481,7 +481,6 @@ void GMImportTask::fixAlbumArtist(GMTrack * tracks,FXint no){
   FXint i;
 
   FXbool all_albumartist=true;
-  FXbool all_artist=true;
 
   /// Tracks should all have the same album name
   for (i=1;i<no;i++){
@@ -581,29 +580,29 @@ void GMImportTask::import() {
 void GMImportTask::listDirectory(const FXString & path) {
   GMTrackArray  tracks;
   FXIntList     tids;
+  GMTrack       info;
 
-  FXAutoArrayPtr<FXString> files;
-  GMTrack                  info;
-
-  FXString * lf=NULL;
+  FXString * files=NULL;
+  FXint pid,i;
 
   const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
 
 
-  FXint pid,tid,i;
 
-  FXint no = FXDir::listFiles(lf,path,"*",FXDir::AllDirs|FXDir::NoParent|FXDir::NoFiles);
-  files=lf;
+  FXint no = FXDir::listFiles(files,path,"*",FXDir::AllDirs|FXDir::NoParent|FXDir::NoFiles);
+  if (no) {
+    for (i=0;(i<no)&&processing;i++){
+      if (!FXStat::isLink(path+PATHSEPSTRING+files[i]) && (options.exclude_folder.empty() || !FXPath::match(files[i],options.exclude_folder,matchflags)))
+        listDirectory(path+PATHSEPSTRING+files[i]);
+      }
 
-  for (i=0;(i<no)&&processing;i++){
-    if (!FXStat::isLink(path+PATHSEPSTRING+files[i]) && (options.exclude_folder.empty() || !FXPath::match(files[i],options.exclude_folder,matchflags)))
-      listDirectory(path+PATHSEPSTRING+files[i]);
+    delete [] files;
+    files=NULL;
     }
-  files.reset();
-
+    
   if (!processing) return;
 
-  no=FXDir::listFiles(lf,path,"*.(ogg,oga,mp3,mpc,flac"
+  no=FXDir::listFiles(files,path,"*.(ogg,oga,mp3,mpc,flac"
 #if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
        ",mp4,m4a,aac,m4p,m4b"
 #endif
@@ -611,8 +610,6 @@ void GMImportTask::listDirectory(const FXString & path) {
        ",asf,wma"
 #endif
        ")",FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold);
-
-  files=lf;
 
   if (no) {
     pid=dbtracks.hasPath(path);
@@ -647,6 +644,8 @@ void GMImportTask::listDirectory(const FXString & path) {
           }
         }
       }
+    delete [] files;
+    files=NULL;       
     }
   }
 
