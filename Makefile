@@ -124,6 +124,8 @@ src/mpris2_xml.h:  src/mpris2.xml
 	@$(RESWRAP_TEXT) -o $@ src/mpris2.xml
 endif
 
+$(OBJECTS): src/icons.h src/icons.cpp
+
 src/icons.h: $(ICONS)
 	@echo "    Creating Icon Resource Header"
 	@$(RESWRAP_H) -o $@ $(ICONS)
@@ -137,8 +139,6 @@ src/GMPlayerManager.cpp: src/gogglesmm_xml.h
 src/GMAppStatusNotify.cpp: src/appstatus_xml.h
 src/GMMediaPlayerService.cpp: src/mpris2_xml.h
 endif
-
-src/GMAbout.cpp: src/icons.h src/icons.cpp
 
 
 TRANSLATIONS:=$(basename $(notdir $(wildcard po/*.mo)))
