@@ -27,6 +27,7 @@ class XingHeader;
 class VBRIHeader;
 class LameHeader;
 class ID3V2;
+class ID3V1;
 struct mpeg_frame;
 
 class MadReader : public ReaderPlugin {
@@ -43,6 +44,7 @@ protected:
   VBRIHeader * vbri;
   LameHeader * lame;
 protected:
+  ID3V1      * id3v1;
   ID3V2      * id3v2;
 protected:
   FXbool parse_id3v1();
@@ -511,12 +513,58 @@ FXdouble LameHeader::parse_replay_gain(const FXuchar * buffer) {
 
 
 
+class ID3V1 {
+public:
+  FXString title;
+  FXString artist;
+  FXString album;
+protected:
+  void parse_field(const FXchar * start,FXint maxlen,FXString & field);
+public:
+  ID3V1(const FXchar * buffer,FXint len);
+
+  FXbool empty() const;
+  };
+
+void ID3V1::parse_field(const FXchar * start,FXint maxlen,FXString & field){
+  const FXchar * end = start+maxlen-1;
+
+  /// Trim beginning
+  while(start<=end && (*start==' ')) start++;
+
+  /// Trim end
+  while(end>=start && (*end=='\0' || *end==' ')) end--;
+
+  /// Anything Left?
+  if (end>=start) field.assign(start,end-start+1);
+  }
+
+ID3V1::ID3V1(const FXchar * b,FXint len) {
+  parse_field(b,30,title);
+  parse_field(b+30,30,artist);
+  parse_field(b+60,30,album);
+  }
+
+FXbool ID3V1::empty() const {
+  return (title.empty() && artist.empty() && album.empty());
+  }
+
+
+
+
+
+
+
+
+
+
 
 MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
   sync(false),
   xing(NULL),
   vbri(NULL),
   lame(NULL),
+  id3v1(NULL),
   id3v2(NULL) {
   }
 
@@ -526,6 +574,10 @@ MadReader::~MadReader() {
   }
 
 void MadReader::clear_tags() {
+  if (id3v1) {
+    delete id3v1;
+    id3v1=NULL;
+    }
   if (id3v2) {
     delete id3v2;
     id3v2=NULL;
@@ -654,6 +706,13 @@ FXbool MadReader::parse_id3v1() {
 
   if (compare((FXchar*)buffer,"TAG",3)==0) {
     fxmessage("[mad_reader] found id3v1 tag\n");
+
+    FXchar tag[125];
+    if (engine->input->read(tag,125)!=125)
+      return false;
+
+    id3v1 = new ID3V1(tag,125);
+
     input_end -= 128;
     }
   return true;
@@ -762,8 +821,17 @@ void MadReader::send_meta() {
     meta->title.adopt(id3v2->title);
     engine->decoder->post(meta);
     }
+  else if (id3v1 && !id3v1->empty()) {
+    fxmessage("[mad_reader] meta from id3v1\n");
+    MetaInfo * meta = new MetaInfo;
+    meta->artist.adopt(id3v1->artist);
+    meta->album.adopt(id3v1->album);
+    meta->title.adopt(id3v1->title);
+    engine->decoder->post(meta);
+    }
   }
-
+  
+   
 
 ReadStatus MadReader::parse(Packet * packet) {
   mpeg_frame frame;
