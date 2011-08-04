@@ -161,10 +161,16 @@ void MemoryStream::reserve(FXival sz) {
   if ((data_size+sz)>data_capacity) {
     if (data_buffer) {
       if (data_ptr>data_buffer) {
-        FXival nbytes = (data_ptr-data_buffer);
-        memmove(data_buffer,data_ptr,nbytes);
-        data_size-=nbytes;
-        data_ptr=data_buffer;
+        if (size() > 0) {
+          FXival nbytes =size();
+          memmove(data_buffer,data_ptr,nbytes);
+          data_size-=nbytes;
+          data_ptr=data_buffer;
+          }
+        else {  
+          data_ptr=data_buffer;
+          data_size=0;
+          }
         }
       if ((data_size+sz)>data_capacity) {
         FXASSERT(data_ptr==data_buffer);
@@ -176,8 +182,8 @@ void MemoryStream::reserve(FXival sz) {
     else {
       data_capacity=sz;
       allocElms(data_buffer,data_capacity);
-      data_ptr=data_buffer;    
-      }    
+      data_ptr=data_buffer;
+      }
     }
   }
 
