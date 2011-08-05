@@ -167,7 +167,7 @@ void MemoryStream::reserve(FXival sz) {
           data_size-=nbytes;
           data_ptr=data_buffer;
           }
-        else {  
+        else {
           data_ptr=data_buffer;
           data_size=0;
           }

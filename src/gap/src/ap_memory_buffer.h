@@ -107,7 +107,7 @@ public:
   FXival capacity() const { return data_capacity; }
 
   /// Space left in buffer
-  FXival space() const { return data_capacity-data_size; }
+  FXival space() const { return data_capacity-size(); }
 
   /// Write Ptr
   FXuchar * ptr() const { return data_buffer+data_size; }
