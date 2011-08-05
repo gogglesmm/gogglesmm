@@ -578,7 +578,7 @@ void GMEditTrackDialog::getTrackSelection() {
       }
     properties.load(info.mrl);
     art = GMCover::toImage(GMCover::fromTag(info.mrl,0));
-    art->create();
+    if (art) art->create();
     }
 
   samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR;
