@@ -348,6 +348,7 @@ long GMPlayerManager::onPlayNotify(FXObject*,FXSelector,void*){
   }
 
 long GMPlayerManager::onUpdTrackDisplay(FXObject*,FXSelector,void*){
+  fxmessage("onUpdTrackDisplay\n");
   update_track_display();
   getTrackView()->showCurrent();
   return 0;
@@ -1150,7 +1151,7 @@ void GMPlayerManager::open(const FXString & url) {
       }
     }
   else {
-    trackinfoset=false; 
+    trackinfoset=false;
     getTrackView()->mark(-1);
     }
   player->open(url,true);
@@ -1887,14 +1888,14 @@ FXbool GMPlayerManager::handle_global_hotkeys(FXuint code) {
 
 //#ifndef HAVE_XINE_LIB
 long GMPlayerManager::onPlayerBOS(FXObject*,FXSelector,void*){
-  fxmessage("playback started\n");
+  fxmessage("[player] bos\n");
   update_track_display();
   getTrackView()->showCurrent();
   return 1;
   }
 
 long GMPlayerManager::onPlayerEOS(FXObject*,FXSelector,void*){
-  fxmessage("playback finished\n");
+  fxmessage("[player] eos\n");
   notify_playback_finished();
   return 1;
   }
@@ -1936,12 +1937,13 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
 
 long GMPlayerManager::onPlayerMeta(FXObject*,FXSelector,void* ptr){
   GMTrack * track = (GMTrack*)ptr;
+  fxmessage("[player] meta  %s\n",track->title.text());
   if (trackinfoset==false) {
     trackinfo.title.adopt(track->title);
     trackinfo.artist.adopt(track->artist);
     trackinfo.album.adopt(track->album);
+    update_track_display();
     }
-  update_track_display();
   return 1;
   }
 
