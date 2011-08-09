@@ -6,7 +6,7 @@ namespace ap {
 class AudioEngine;
 class OutputPlugin;
 class Packet;
-
+class FrameTimer;
 
 
 
@@ -23,7 +23,6 @@ struct ReplayGainConfig {
 
 class OutputThread : public EngineThread {
 protected:
-  Event * wait_for_packet();
   Event * wait_for_event();
 protected:
   OutputConfig   output_config;
@@ -37,6 +36,8 @@ public:
   ReplayGainConfig  replaygain;
 protected:
   FXbool processing;
+  FXbool draining;
+  FXbool pausing;
 protected:
   FXint     stream;
   FXint     stream_length;
@@ -44,6 +45,10 @@ protected:
   FXint     stream_written;
   FXint     stream_position;
   FXint     timestamp;
+protected:
+  FXPtrListOf<FrameTimer> timers;
+  void update_timers(FXint delay,FXint nframes);
+  void clear_timers();
 protected:
   void configure(const AudioFormat&);
   void load_plugin();
@@ -55,6 +60,7 @@ protected:
   void resample(Packet*,FXint & nframes);
 #endif
 
+  Event* wait_and_drain(FXbool flush=true);
   void drain(FXbool flush=true);
 
   void update_position(FXint stream,FXint position,FXint nframes,FXint length);

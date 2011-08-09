@@ -72,7 +72,7 @@ void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,
       FXString tag(comment+22,len-22);
       tag.scan("%lg",&gain.album_peak);
       }
-    }  
+    }
   }
 
 
@@ -122,8 +122,11 @@ FXuint ap_wait(FXInputHandle handle,FXlong timeout) {
   }
 #endif
 
-FXuint ap_wait(FXInputHandle handle) {
+FXuint ap_wait(FXInputHandle handle,FXTime timeout) {
 #ifndef WIN32
+  struct timespec delta;
+  FXuint result=WIO_TIMEOUT;
+
   fd_set rd;
   fd_set wr;
   fd_set er;
@@ -136,24 +139,35 @@ FXuint ap_wait(FXInputHandle handle) {
   FD_SET((int)handle,&er);
   int maxfds=(int)handle;
 
-  if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)>0) {
-    if (FD_ISSET(handle,&rd) || FD_ISSET(handle,&er)) {
-      return 1;
+  if (timeout) {
+    delta.tv_nsec=timeout%1000000000;
+    delta.tv_sec=timeout/1000000000;
+    if (pselect(maxfds+1,&rd,&wr,&er,&delta,NULL)>0) {
+      if (FD_ISSET(handle,&rd) || FD_ISSET(handle,&er)) {
+        result|=WIO_HANDLE;
+        }
+      }
+    }
+  else {
+    if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)>0) {
+      if (FD_ISSET(handle,&rd) || FD_ISSET(handle,&er)) {
+        result|=WIO_HANDLE;
+        }
       }
     }
   #endif
-  return 0;
+  return result;
   }
 
-FXuint ap_wait(FXInputHandle h1,FXInputHandle h2) {
-  return ap_wait_read(h1,h2,0);
-  }
+//FXuint ap_wait(FXInputHandle h1,FXInputHandle h2) {
+//  return ap_wait_read(h1,h2,0);
+ // }
 
 
 FXuint ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout) {
 //  fxmessage("Wait for write\n");
 #ifndef WIN32
-  FXint result=WIO_TIMEOUT;
+  FXuint result=WIO_TIMEOUT;
   int maxfds=FXMAX(interrupt,handle);
   struct timespec delta;
 

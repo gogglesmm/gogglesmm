@@ -108,7 +108,7 @@ FXint DecoderThread::run(){
                         continue;
                         }
                       break;
-       case Buffer   : if (plugin) {
+      case Buffer   : if (plugin) {
                         stream=event->stream;
                         switch(plugin->process(dynamic_cast<Packet*>(event))){
                           case DecoderError:
@@ -193,7 +193,7 @@ Packet * DecoderThread::get_output_packet() {
       return dynamic_cast<OutputPacket*>(event);
       }
 */
-    ap_wait(fifo.handle(),packetpool.handle());
+    ap_wait_read(fifo.handle(),packetpool.handle(),0);
     }
   while(1);
   return NULL;

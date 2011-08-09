@@ -29,7 +29,95 @@
 namespace ap {
 
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),processing(false) {
+class FrameTimer {
+private:
+  FXint nold;
+  FXint nwait;
+  FXint nwritten;
+public:
+  FrameTimer(FXint n) : nold(n),nwait(n),nwritten(0) {
+#ifdef DEBUG
+    fxmessage("timer set to %d\n",nwait);
+#endif
+    }
+
+  FXbool update(FXint delay,FXint nframes) {
+      FXint real = delay - nwritten;
+      FXint diff = FXABS(nold-real);
+
+/*
+      fxmessage("samples to wait for       : %10d\n",nwait);
+      fxmessage("samples left previously   : %10d\n",nold);
+      fxmessage("samples left              : %10d\n",delay);
+      fxmessage("samples left + new samples: %10d\n",real);
+      fxmessage("change in samples         : %10d\n",diff);
+*/
+      nwait-=diff;
+      nold=delay;
+      nwritten+=nframes;
+      if (nwait<=0) {
+        return true;
+        }
+
+
+  #if 0
+
+//    if (nwritten>0) {
+      diff = delay - nwritten;
+
+      if (diff<=0) {
+#ifdef DEBUG
+        fxmessage("timer is expired\n");
+#endif
+        return true;
+        }
+      else {
+        nwait=diff;
+        nwritten+=nframes;
+        }
+      fxmessage("nwait %d\n",nwait);
+
+#endif
+//      }
+//    else {
+//      nwritten+=nframes;
+//      }
+    return false;
+    }
+
+  virtual void execute(AudioEngine*) {}
+
+  virtual ~FrameTimer() {}
+  };
+
+
+class MetaTimer : public FrameTimer {
+public:
+  Event  * meta;
+public:
+  MetaTimer(Event * m,FXint n) : FrameTimer(n), meta(m) {}
+  ~MetaTimer() {
+    if (meta)
+      meta->unref();
+    }
+
+  void execute(AudioEngine* engine) {
+    engine->post(meta);
+    meta=NULL;
+    }
+  };
+
+
+class EOSTimer : public FrameTimer {
+  FXint stream;
+public:
+  EOSTimer(FXint s,FXint n) : FrameTimer(n),stream(s){}
+  void execute(AudioEngine* engine) {
+    engine->post(new Event(AP_EOS));
+    }
+  };
+
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),processing(false),draining(false) {
   stream=-1;
   stream_remaining=0;
   stream_written=0;
@@ -39,6 +127,7 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),proces
 
 OutputThread::~OutputThread() {
   FXASSERT(plugin==NULL);
+  clear_timers();
   }
 
 
@@ -58,6 +147,28 @@ void OutputThread::notify_position() {
     engine->post(new TimeUpdate(timestamp,len));
     }
   }
+
+
+
+void OutputThread::clear_timers() {
+  for (FXint i=0;i<timers.no();i++){
+    delete timers[i];
+    }
+  timers.clear();
+  }
+
+void OutputThread::update_timers(FXint delay,FXint nframes) {
+  for (FXint i=timers.no()-1;i>=0;i--){
+    if (timers[i]->update(delay,nframes)) {
+      timers[i]->execute(engine);
+      delete timers[i];
+      timers.erase(i);
+      }
+    }
+  }
+
+
+
 
 void OutputThread::update_position(FXint id,FXint position,FXint nframes,FXint length) {
   FXint delay = plugin->delay();
@@ -106,6 +217,10 @@ void OutputThread::update_position(FXint id,FXint position,FXint nframes,FXint l
     stream_length   = length;
     }
 
+
+  update_timers(delay,nframes);
+
+
   notify_position();
 
 
@@ -147,6 +262,8 @@ void OutputThread::update_position(FXint id,FXint position,FXint nframes,FXint l
 #endif
   }
 
+
+
 void OutputThread::drain(FXbool flush) {
   fxmessage("drain while updating time\n");
   if (plugin) {
@@ -172,34 +289,66 @@ void OutputThread::drain(FXbool flush) {
 
       stream_position += offset - delay;
       offset = delay;
-
+      update_timers(delay,0);
       notify_position();
       }
     }
   }
 
 
-
-
-
-Event * OutputThread::wait_for_packet() {
-  Event * event = fifo.pop();
-  if (event==NULL) {
-    ap_wait(fifo.handle());
-    event=fifo.pop();
-    }
-  FXASSERT(event);
-  return event;
-  }
-
 Event * OutputThread::wait_for_event() {
+  FXint offset,delay;
+  if (draining) {
+    offset=delay=plugin->delay();
+    }
   do {
-    Event * event = fifo.pop_if_not(Buffer,Configure);
-    if (event) return event;
-    ap_wait(fifo.handle());
+    if (pausing) {
+      Event * event = fifo.pop_if_not(Buffer,Configure);
+      if (event) return event;
+      ap_wait(fifo.handle());
+      }
+    else if (draining) {
+
+      Event * event = fifo.pop();
+      if (event) return event;
+
+      if (ap_wait(fifo.handle(),200000000)){
+        return fifo.pop();
+        }
+
+      if (plugin) {
+        delay = plugin->delay();
+        if (delay < (plugin->af.rate>>2) ) {
+          plugin->drain();
+          update_timers(0,0); /// make sure timers get fired
+          draining=false;
+          close_plugin();
+          engine->input->post(new ControlEvent(Ctrl_EOS,stream));
+          continue;
+          }
+        else {
+          stream_position += offset - delay;
+          offset = delay;
+          update_timers(delay,0);
+          notify_position();
+          }
+        }
+      else {
+        draining=false;
+        }
+      }
+    else {
+      Event * event = fifo.pop();
+      if (event) return event;
+      ap_wait(fifo.handle());
+      }
     }
   while(1);
   }
+
+
+
+
 
 
 void OutputThread::load_plugin() {
@@ -263,6 +412,7 @@ void OutputThread::close_plugin() {
     plugin->close();
     }
   processing=false;
+  draining=false;
   af.reset();
   }
 
@@ -274,6 +424,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
     if (!plugin) {
       engine->input->post(new ControlEvent(Ctrl_Close));
       processing=false;
+      draining=false;
       af.reset();
       return;
       }
@@ -284,6 +435,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
   if (af==fmt || fmt==plugin->af){
     af=fmt;
     processing=true;
+    draining=false;
     fxmessage("stream ");
     fmt.debug();
     fxmessage("output ");
@@ -311,6 +463,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
   fxmessage("output ");
   plugin->af.debug();
   processing=true;
+  draining=false;
   }
 
 
@@ -572,6 +725,7 @@ void OutputThread::process(Packet * packet) {
 mismatch:
   fxmessage("[output] config mismatch\n");
   processing=false;
+  draining=false;
   engine->input->post(new ControlEvent(Ctrl_Close));
   }
 
@@ -621,38 +775,46 @@ void OutputThread::update_position(FXint fs) {
 
 FXint OutputThread::run(){
   Event * event;
-  FXbool pausing=false;
-
+  pausing=false;
+  draining=false;
   ap_set_thread_name("ap_output");
 
   for (;;){
-
-    if (!pausing)
-      event = wait_for_packet();
-    else
-      event = wait_for_event();
-
+    event = wait_for_event();
     FXASSERT(event);
-
 
     switch(event->type) {
       case Flush      :
                         {
-                          fxmessage("[output] flush\n");
                           FlushEvent * flush = dynamic_cast<FlushEvent*>(event);
+                          fxmessage("[output] flush %d\n",flush->close);
+
                           if (plugin) {
                             plugin->drop();
                             if (flush->close)
                               close_plugin();
                             }
                           pausing=false;
+                          draining=false;
                           reset_position();
+                          clear_timers();
                         }
                         break;
 
       case Ctrl_EOS   : //engine->post(new Event(AP_EOS));
-                        engine->input->post(event);
-                        continue;
+                        //engine->input->post(event);
+                        if (plugin) {
+                          FXint wait = plugin->delay();
+                          FXint half = plugin->af.rate>>1;
+                          fxmessage("wait %d half %d\n",wait,half);
+                          if (wait<half)
+                            engine->post(new Event(AP_EOS));
+                          else
+                            timers.append(new EOSTimer(event->stream,wait-half));
+                          }
+                        //engine->input->post(event);
+                        draining=true;
+                        //continue;
                         break;
       case Ctrl_Volume: if (plugin) plugin->volume((dynamic_cast<CtrlVolumeEvent*>(event))->vol);
                         break;
@@ -669,6 +831,7 @@ FXint OutputThread::run(){
       case Ctrl_Quit  : fxmessage("[output] quit\n");
                         unload_plugin();
                         Event::unref(event);
+                        clear_timers();
                         return 0;
 
       case Ctrl_Set_Replay_Gain:
@@ -723,14 +886,17 @@ FXint OutputThread::run(){
                             }
                         } break;
 
-      case Meta       : engine->post(event);
-                        continue;
+      case Meta       : if (plugin) {
+                          timers.append(new MetaTimer(event,plugin->delay()));
+                          continue;
+                          }
                         break;
-                        
+
       case Configure  : configure(((ConfigureEvent*)event)->af);
                         replaygain.value = ((ConfigureEvent*)event)->replaygain;
                         break;
-      case Buffer     : if (processing)
+      case Buffer     :
+                        if (processing)
                           process(dynamic_cast<Packet*>(event));
                         break;
       };

@@ -236,7 +236,7 @@ ReadStatus FlacReader::parse() {
 
     if (meta) {
       engine->decoder->post(meta);
-      meta=NULL;    
+      meta=NULL;
       }
     return ReadOk;
     }
@@ -625,7 +625,6 @@ DecoderStatus FlacDecoder::process(Packet*packet){
         out=NULL;
         }
       engine->output->post(new ControlEvent(Ctrl_EOS,stream));
-      engine->post(new Event(AP_EOS));
       if (in) {
         in->unref();
         in=NULL;

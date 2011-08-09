@@ -15,9 +15,9 @@ enum {
   WIO_BOTH      = (WIO_INTERRUPT|WIO_HANDLE),
   };
 
-extern FXuint ap_wait(FXInputHandle handle);
+extern FXuint ap_wait(FXInputHandle handle,FXTime timeout=0);
 
-extern FXuint ap_wait(FXInputHandle h1,FXInputHandle h2);
+//extern FXuint ap_wait(FXInputHandle h1,FXInputHandle h2);
 
 extern FXuint ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout=30000000000);
 

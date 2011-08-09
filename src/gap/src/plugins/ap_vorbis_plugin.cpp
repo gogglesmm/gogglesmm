@@ -280,7 +280,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
       out=NULL;
       }
     engine->output->post(new ControlEvent(Ctrl_EOS,id));
-    engine->post(new Event(AP_EOS));
     }
   return DecoderOk;
   }

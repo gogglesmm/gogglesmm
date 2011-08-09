@@ -31,7 +31,6 @@ FXInputHandle ThreadQueue::handle() const {
 
 void ThreadQueue::post(Event*event,FXint where) {
   if (where==Flush) {
-
     mfifo.lock();
       Event * h = head;
       event->next=NULL;
@@ -95,6 +94,7 @@ FXbool ThreadQueue::checkAbort() {
   FXScopedMutex lock(mfifo);
   if (head && (head->type&0x80))
     return true;
+
 
   pfifo.clear();
   return false;

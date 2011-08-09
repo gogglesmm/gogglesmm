@@ -227,8 +227,8 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   snd_pcm_uframes_t availmin;
   snd_pcm_uframes_t startthreshold,stopthreshold;
   FXuint buffertime = 500000;
-#endif  
-  
+#endif
+
 
 
   snd_pcm_hw_params_alloca(&hw);
@@ -371,8 +371,8 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
     goto failed;
 
   /// Start when almost full
-  if (snd_pcm_sw_params_set_start_threshold(handle,sw,(buffersize/periodsize)*periodsize)<0)
-    goto failed;
+//  if (snd_pcm_sw_params_set_start_threshold(handle,sw,(buffersize/periodsize)*periodsize)<0)
+//    goto failed;
 
   if (snd_pcm_sw_params_set_stop_threshold(handle,sw,buffersize)<0)
     goto failed;
@@ -462,6 +462,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
             fxmessage("[alsa] %s",snd_strerror(result));
             return false;
             }
+
         } break;
 
       case SND_PCM_STATE_SUSPENDED:

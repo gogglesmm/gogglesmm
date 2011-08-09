@@ -101,7 +101,7 @@ Event * InputThread::wait_for_packet() {
     Packet * packet = packetpool.pop();
     if (packet) return packet;
 
-    ap_wait(packetpool.handle(),fifo.handle());
+    ap_wait_read(packetpool.handle(),fifo.handle(),0);
     }
   while(1);
   return NULL;
@@ -156,7 +156,7 @@ Packet * InputThread::get_packet() {
 //    event = DecoderPacket::get();
 //    if (event) return dynamic_cast<DecoderPacket*>(event);
 
-    ap_wait(fifo.handle(),packetpool.handle());
+    ap_wait_read(fifo.handle(),packetpool.handle(),0);
     }
   while(1);
   return NULL;
@@ -301,7 +301,7 @@ FXlong InputThread::size() const {
 void InputThread::ctrl_eos() {
   fxmessage("end of stream reached\n");
   if (state==StateIdle) {
-    ctrl_flush(true);
+    //ctrl_flush(true);
     ctrl_close_input(true);
     }
   }
@@ -310,6 +310,7 @@ void InputThread::ctrl_seek(FXdouble pos) {
   if (reader && !serial() && reader->can_seek()) {
     ctrl_flush();
     reader->seek(pos);
+    set_state(StateProcessing,true);
     }
   }
 
@@ -479,6 +480,7 @@ void InputThread::ctrl_close_input(FXbool notify) {
   }
 
 void InputThread::ctrl_flush(FXbool close){
+  fxmessage("ctrl_flush\n");
   engine->decoder->post(new FlushEvent(close),EventQueue::Flush);
   }
 
