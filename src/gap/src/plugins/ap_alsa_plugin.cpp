@@ -524,7 +524,10 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
             }
           if (nwritten>0) {
             buf+=(nwritten*af.framesize());
-            nframes-=nwritten;
+            nframes-=nwritten;            
+            if (snd_pcm_state(handle)!=SND_PCM_STATE_RUNNING) {
+              fxmessage("PCM NOT RUNNING\n");
+              }
             }
         } break;
       }

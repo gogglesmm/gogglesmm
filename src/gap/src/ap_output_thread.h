@@ -59,8 +59,6 @@ protected:
 #ifdef HAVE_SAMPLERATE_PLUGIN
   void resample(Packet*,FXint & nframes);
 #endif
-
-  Event* wait_and_drain(FXbool flush=true);
   void drain(FXbool flush=true);
 
   void update_position(FXint stream,FXint position,FXint nframes,FXint length);
