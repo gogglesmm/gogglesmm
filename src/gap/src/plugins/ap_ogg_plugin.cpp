@@ -43,6 +43,7 @@ protected:
     FLAG_VORBIS_HEADER_INFO    = 0x2,
     FLAG_VORBIS_HEADER_COMMENT = 0x4,
     FLAG_VORBIS_HEADER_BLOCK   = 0x8,
+    FLAG_OGG_FLAC              = 0x10,
     };
 protected:
   OggReaderState    state;
@@ -73,7 +74,7 @@ protected:
 
   ReadStatus parse();
   ReadStatus parse_vorbis_stream();
-#ifdef HAVE_FLAC_PLUGIN  
+#ifdef HAVE_FLAC_PLUGIN
   ReadStatus parse_flac_stream();
 #endif
 public:
@@ -177,7 +178,7 @@ FXbool OggReader::seek(FXdouble pos){
 FXbool OggReader::init() {
   ogg_sync_clear(&sync);
   ogg_sync_reset(&sync);
-  flags&=~(FLAG_PARSED|FLAG_VORBIS_HEADER_INFO|FLAG_VORBIS_HEADER_COMMENT|FLAG_VORBIS_HEADER_BLOCK);
+  flags&=~(FLAG_PARSED|FLAG_OGG_FLAC|FLAG_VORBIS_HEADER_INFO|FLAG_VORBIS_HEADER_COMMENT|FLAG_VORBIS_HEADER_BLOCK);
   status=ReadOk;
 
   clear_headers();
@@ -338,30 +339,50 @@ error:
 
 #ifdef HAVE_FLAC_PLUGIN
 
+extern void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
 
 ReadStatus OggReader::parse_flac_stream() {
-  /// Make sure we have enough bytes
-  if (op.bytes<51)
-    return ReadError;
+  if (flags&FLAG_OGG_FLAC)  {
 
-  /// Check Mapping Version
-  if (op.packet[5]!=0x01 || op.packet[6]!=0x00)
-    return ReadError;
+    codec=Codec::FLAC;
 
-  /// Parse the stream info block.
-  /// FIXME stream_length may not be set.
-  if (!flac_parse_streaminfo(op.packet+13,af,stream_length))
-    return ReadError;
+    ConfigureEvent * config = new ConfigureEvent(af,codec,stream_length);
+    MetaInfo * meta         = new MetaInfo;
 
-  /// Post Config, done parsing.
-  codec=Codec::FLAC;
-  engine->decoder->post(new ConfigureEvent(af,codec,stream_length));
+    flac_parse_vorbiscomment((const FXchar*)op.packet,op.bytes,config->replaygain,meta);
 
-  flags|=FLAG_PARSED;
+    /// Now we are ready to init the decoder
+    engine->decoder->post(config);
 
-  submit_ogg_packet();
+    //// Send Meta Info
+    engine->decoder->post(meta);
 
+    /// Add last packet
+    submit_ogg_packet(false);
+
+    /// Send all headers
+    send_headers();
+
+    flags|=FLAG_PARSED;
+    }
+  else {
+    /// Make sure we have enough bytes
+    if (op.bytes<51)
+      return ReadError;
+
+    /// Check Mapping Version
+    if (op.packet[5]!=0x01 || op.packet[6]!=0x00)
+      return ReadError;
+
+    /// Parse the stream info block.
+    /// FIXME stream_length may not be set.
+    if (!flac_parse_streaminfo(op.packet+13,af,stream_length))
+      return ReadError;
+
+    flags|=FLAG_OGG_FLAC;
+    submit_ogg_packet(false);
+    }
   /// Success
   return ReadOk;
   }
@@ -381,9 +402,10 @@ ReadStatus OggReader::parse() {
         return ReadError;
       }
 #ifdef HAVE_FLAC_PLUGIN
-    else if (compare((const FXchar*)&op.packet[1],"FLAC",4)==0) {
-      return parse_flac_stream();
-      }  
+    else if ((flags&FLAG_OGG_FLAC) || compare((const FXchar*)&op.packet[1],"FLAC",4)==0) {
+      if (parse_flac_stream()!=ReadOk)
+        return ReadError;
+      }
 #endif
     else {
       return ReadError;
@@ -556,7 +578,7 @@ ReadStatus OggReader::process(Packet * p) {
 
     if (__unlikely((flags&FLAG_PARSED)==0))
       return ReadOk;
-      
+
     }
 
 

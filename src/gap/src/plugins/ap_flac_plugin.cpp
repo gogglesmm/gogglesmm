@@ -101,13 +101,49 @@ public:
 
 
 
-
-
+extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
+extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
 
 enum {
   FLAC_BLOCK_STREAMINFO     = 0,
+  FLAC_BLOCK_VORBISCOMMENT  = 4
   };
+
+
+void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
+  FXString comment;
+  FXint size=0;
+  FXint ncomments=0;
+  const FXchar * end = buffer+len;
+
+  FXuint header=((const FXuint*)buffer)[0];
+  if (FLAC_BLOCK_TYPE(header)!=FLAC_BLOCK_VORBISCOMMENT)
+    return;
+    
+  /// skip the metaheader block
+  buffer+=4;
+  if (buffer>=end) return;
+
+  /// Vendor string
+  size = INT32_LE(buffer);
+  if (size) buffer+=4+size;
+  if (buffer>=end) return;
+
+  /// Number of user comments
+  ncomments = INT32_LE(buffer);
+  buffer+=4;
+
+  for (FXint i=0;i<ncomments && (buffer<=end);i++) {
+    size = INT32_LE(buffer);
+    if (buffer+size+4>end)
+      return;
+    ap_replaygain_from_vorbis_comment(gain,buffer+4,size);
+    ap_meta_from_vorbis_comment(meta,buffer+4,size);
+    buffer+=4+size;
+    }
+  }
+
 
 FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & af,FXlong & nframes) {
   FXuint header=((const FXuint*)buffer)[0];
@@ -624,7 +660,7 @@ DecoderStatus FlacDecoder::process(Packet*packet){
         engine->output->post(out);
         out=NULL;
         }
-      engine->output->post(new ControlEvent(Ctrl_EOS,stream));
+      engine->output->post(new ControlEvent(End,stream));
       if (in) {
         in->unref();
         in=NULL;
