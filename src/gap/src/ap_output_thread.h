@@ -27,15 +27,14 @@ protected:
 protected:
   OutputConfig   output_config;
 public:
-  AudioFormat    af;
-  OutputPlugin * plugin;
-  FXDLL          dll;
-  MemoryBuffer   converted_samples;
-  MemoryBuffer   src_input;
-  MemoryBuffer   src_output;
+  AudioFormat       af;
+  OutputPlugin *    plugin;
+  FXDLL             dll;
+  MemoryBuffer      converted_samples;
+  MemoryBuffer      src_input;
+  MemoryBuffer      src_output;
   ReplayGainConfig  replaygain;
 protected:
-  FXbool processing;
   FXbool draining;
   FXbool pausing;
 protected:
@@ -48,7 +47,7 @@ protected:
 protected:
   FXPtrListOf<FrameTimer> timers;
   void update_timers(FXint delay,FXint nframes);
-  void clear_timers();
+  void clear_timers(); 
 protected:
   void configure(const AudioFormat&);
   void load_plugin();

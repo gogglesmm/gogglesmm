@@ -157,6 +157,8 @@ public:
 
   FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
 
+  FXbool set() const { return (rate!=0) && (format!=0) && (channels!=0); }
+
   FXuchar byteorder() const {
     return (format>>Format::Order_Shift)&Format::Order_Mask;
     }

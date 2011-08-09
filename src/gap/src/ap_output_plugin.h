@@ -40,7 +40,7 @@ public:
 
   /// Close Output
   virtual void close() {}
-
+  
   /// Destructor
   virtual ~OutputPlugin() {}
   };

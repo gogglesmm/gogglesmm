@@ -117,7 +117,7 @@ public:
     }
   };
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),processing(false),draining(false) {
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),draining(false) {
   stream=-1;
   stream_remaining=0;
   stream_written=0;
@@ -298,9 +298,11 @@ void OutputThread::drain(FXbool flush) {
 
 Event * OutputThread::wait_for_event() {
   FXint offset,delay;
-  if (draining) {
+
+  if (draining && plugin) {
     offset=delay=plugin->delay();
     }
+
   do {
     if (pausing) {
       Event * event = fifo.pop_if_not(Buffer,Configure);
@@ -411,7 +413,6 @@ void OutputThread::close_plugin() {
   if (plugin) {
     plugin->close();
     }
-  processing=false;
   draining=false;
   af.reset();
   }
@@ -423,7 +424,6 @@ void OutputThread::configure(const AudioFormat & fmt) {
     load_plugin();
     if (!plugin) {
       engine->input->post(new ControlEvent(Ctrl_Close));
-      processing=false;
       draining=false;
       af.reset();
       return;
@@ -434,7 +434,6 @@ void OutputThread::configure(const AudioFormat & fmt) {
 
   if (af==fmt || fmt==plugin->af){
     af=fmt;
-    processing=true;
     draining=false;
     fxmessage("stream ");
     fmt.debug();
@@ -451,10 +450,12 @@ void OutputThread::configure(const AudioFormat & fmt) {
 
   if (!plugin->configure(af)) {
     plugin->drop();
-    fxmessage("OutputThread::configure failed\n");
+    close_plugin();
     engine->input->post(new ControlEvent(Ctrl_Close));
-    processing=false;
-    af.reset();
+
+//    fxmessage("OutputThread::configure failed\n");
+//    processing=false;
+//    af.reset();
     return;
     }
 
@@ -462,7 +463,6 @@ void OutputThread::configure(const AudioFormat & fmt) {
   af.debug();
   fxmessage("output ");
   plugin->af.debug();
-  processing=true;
   draining=false;
   }
 
@@ -716,61 +716,16 @@ void OutputThread::process(Packet * packet) {
     fxmessage("[output] write failed\n");
     engine->input->post(new ControlEvent(Ctrl_Close));
     engine->post(new ErrorMessage(FXString::value("Output Error")));
-    processing=false;
+    close_plugin();
     }
-
-
-
   return;
 mismatch:
   fxmessage("[output] config mismatch\n");
-  processing=false;
   draining=false;
   engine->input->post(new ControlEvent(Ctrl_Close));
+  close_plugin();
   }
 
-/*
-struct output_stream_state {
-  FXint  streamid;
-  FXlong remaining;
-  FXlong total;
-  FXlong fs;
-  };
-
-
-void OutputThread::update_position(FXint fs) {
-  fs_total_delay = plugin->delay();
-
-  FXint delay=fs_total_delay;
-
-  for (FXint i=0;i<ss.no();i++) {
-    if (ss[i].remaining) {
-      ss[i].remaining
-
-
-
-
-  if (fs==0) {
-
-    while(fs_total_
-    for (FXint i=0;i<nstreams;i++){
-      if (ss[i].rem
-
-
-    if (state.remaining
-
-
-
-    fs_remaining=fs_delay;
-    if (fs_remaining==0)
-      fs_output=0;
-    }
-  else if (fs
-
-
-  engine->post(new TimeUpdate(seconds,0));
-  }
-*/
 
 
 FXint OutputThread::run(){
@@ -784,121 +739,143 @@ FXint OutputThread::run(){
     FXASSERT(event);
 
     switch(event->type) {
+      case Buffer     : 
+        {
+          if (__likely(af.set()))
+            process(dynamic_cast<Packet*>(event));
+        } break;
+    
+       
       case Flush      :
-                        {
-                          FlushEvent * flush = dynamic_cast<FlushEvent*>(event);
-                          fxmessage("[output] flush %d\n",flush->close);
+        {
+          FlushEvent * flush = dynamic_cast<FlushEvent*>(event);
+          fxmessage("[output] flush %d\n",flush->close);
+          if (plugin) {
+            plugin->drop();
+            if (flush->close)
+              close_plugin();
+            }
+          pausing=false;
+          draining=false;
+          reset_position();
+          clear_timers();
+        } break;
 
-                          if (plugin) {
-                            plugin->drop();
-                            if (flush->close)
-                              close_plugin();
-                            }
-                          pausing=false;
-                          draining=false;
-                          reset_position();
-                          clear_timers();
-                        }
-                        break;
+      case Meta       : 
+        {
+          if (__likely(af.set())) {
+            FXASSERT(plugin);
+            timers.append(new MetaTimer(event,plugin->delay()));
+            continue;
+            }                        
+        } break;
+        
+      case Configure  : 
+        {
+          ConfigureEvent * cfg = dynamic_cast<ConfigureEvent*>(event);
+          configure(cfg->af);
+          replaygain.value = cfg->replaygain;
+        } break; 
+                      
 
-      case Ctrl_EOS   : //engine->post(new Event(AP_EOS));
-                        //engine->input->post(event);
-                        if (plugin) {
-                          FXint wait = plugin->delay();
-                          FXint half = plugin->af.rate>>1;
-                          fxmessage("wait %d half %d\n",wait,half);
-                          if (wait<half)
-                            engine->post(new Event(AP_EOS));
-                          else
-                            timers.append(new EOSTimer(event->stream,wait-half));
-                          }
-                        //engine->input->post(event);
-                        draining=true;
-                        //continue;
-                        break;
-      case Ctrl_Volume: if (plugin) plugin->volume((dynamic_cast<CtrlVolumeEvent*>(event))->vol);
-                        break;
-      case Ctrl_Pause : pausing=!pausing;
-                        if (plugin)
-                          plugin->pause(pausing);
+      case Ctrl_EOS   :
+        {
+          if (af.set()) {
+            FXint wait = plugin->delay();
+            FXint half = plugin->af.rate>>1;
 
-                        if (pausing)
-                          engine->post(new Event(AP_STATE_PAUSING));
-                        else
-                          engine->post(new Event(AP_STATE_PLAYING));
-                        break;
+            if (wait<=half)
+              engine->post(new Event(AP_EOS));
+            else
+              timers.append(new EOSTimer(event->stream,wait-half));
 
-      case Ctrl_Quit  : fxmessage("[output] quit\n");
-                        unload_plugin();
-                        Event::unref(event);
-                        clear_timers();
-                        return 0;
+            draining=true;
+            }
 
+        } break;
+        
+      case Ctrl_Volume: 
+        {
+          if (plugin) plugin->volume((dynamic_cast<CtrlVolumeEvent*>(event))->vol);
+        } break;
+        
+      case Ctrl_Pause : 
+        { 
+          pausing=!pausing;
+          if (plugin)
+            plugin->pause(pausing);
+
+          if (pausing)
+            engine->post(new Event(AP_STATE_PAUSING));
+          else
+            engine->post(new Event(AP_STATE_PLAYING));
+        } break;                 
+
+      case Ctrl_Quit  : 
+        {
+          fxmessage("[output] quit\n");
+          unload_plugin();
+          Event::unref(event);
+          clear_timers();
+          return 0;          
+        } break;
+        
       case Ctrl_Set_Replay_Gain:
-                        {
-                          SetReplayGain * g = dynamic_cast<SetReplayGain*>(event);
-                          fxmessage("[output] set replay gain mode %d\n",g->mode);
-                          replaygain.mode = g->mode;
-                        } break;
+        {
+          SetReplayGain * g = dynamic_cast<SetReplayGain*>(event);
+          fxmessage("[output] set replay gain mode %d\n",g->mode);
+          replaygain.mode = g->mode;
+        } break;
 
       case Ctrl_Get_Replay_Gain:
-                        {
-                          GetReplayGain * g = dynamic_cast<GetReplayGain*>(event);
-                          fxmessage("[output] get replay gain mode\n");
-                          g->mode = replaygain.mode;
-                        } break;
+        {
+          GetReplayGain * g = dynamic_cast<GetReplayGain*>(event);
+          fxmessage("[output] get replay gain mode\n");
+          g->mode = replaygain.mode;
+        } break;
 
       case Ctrl_Get_Output_Config:
-                        {
-                          GetOutputConfig * out = dynamic_cast<GetOutputConfig*>(event);
-                          FXASSERT(out);
-                          out->config = output_config;
-                          fxmessage("[output] get output config\n");
-                          break;
-                        }
+        {
+          GetOutputConfig * out = dynamic_cast<GetOutputConfig*>(event);
+          FXASSERT(out);
+          out->config = output_config;
+          fxmessage("[output] get output config\n");
+          
+        } break;
+        
       case Ctrl_Set_Output_Config:
-                        {
-                          fxmessage("[output] set ouput config");
-                          SetOutputConfig * out = dynamic_cast<SetOutputConfig*>(event);
-                          output_config = out->config;
-                          if (plugin) {
-                            if (plugin->type()==output_config.device) {
-                              if (processing) {
-                                drain(true);
-                                plugin->close();
-                                plugin->setOutputConfig(output_config);
-                                reconfigure();
-                                }
-                              else {
-                                close_plugin();
-                                plugin->setOutputConfig(output_config);
-                                }
-                              }
-                            else {
-                              if (processing)
-                                drain(true);
+        {
+          fxmessage("[output] set ouput config");
+          SetOutputConfig * out = dynamic_cast<SetOutputConfig*>(event);
+          output_config = out->config;
+          if (plugin) {
+            if (plugin->type()==output_config.device) {
+              if (af.set()) {
+                drain(true);
+                plugin->close();                                
+                plugin->setOutputConfig(output_config);
+                reconfigure();
+                }
+              else {
+                plugin->close();                                  
+                plugin->setOutputConfig(output_config);
+                }  
+              }
+            else {
+              if (af.set()) {
+                drain(true);
+                unload_plugin();
+                reconfigure();
+                }
+              else {
+                unload_plugin();
+                }
+              }
+            }
+        } break;
 
-                              unload_plugin();
 
-                              if (processing)
-                                reconfigure();
-                              }
-                            }
-                        } break;
-
-      case Meta       : if (plugin) {
-                          timers.append(new MetaTimer(event,plugin->delay()));
-                          continue;
-                          }
-                        break;
-
-      case Configure  : configure(((ConfigureEvent*)event)->af);
-                        replaygain.value = ((ConfigureEvent*)event)->replaygain;
-                        break;
-      case Buffer     :
-                        if (processing)
-                          process(dynamic_cast<Packet*>(event));
-                        break;
+                        
       };
     Event::unref(event);
     }
