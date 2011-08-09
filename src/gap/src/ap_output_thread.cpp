@@ -325,7 +325,7 @@ Event * OutputThread::wait_for_event() {
           update_timers(0,0); /// make sure timers get fired
           draining=false;
           close_plugin();
-          engine->input->post(new ControlEvent(Ctrl_EOS,stream));
+          engine->input->post(new ControlEvent(End,stream));
           continue;
           }
         else {
@@ -739,13 +739,13 @@ FXint OutputThread::run(){
     FXASSERT(event);
 
     switch(event->type) {
-      case Buffer     : 
+      case Buffer     :
         {
           if (__likely(af.set()))
             process(dynamic_cast<Packet*>(event));
         } break;
-    
-       
+
+
       case Flush      :
         {
           FlushEvent * flush = dynamic_cast<FlushEvent*>(event);
@@ -761,24 +761,24 @@ FXint OutputThread::run(){
           clear_timers();
         } break;
 
-      case Meta       : 
+      case Meta       :
         {
           if (__likely(af.set())) {
             FXASSERT(plugin);
             timers.append(new MetaTimer(event,plugin->delay()));
             continue;
-            }                        
+            }
         } break;
-        
-      case Configure  : 
+
+      case Configure  :
         {
           ConfigureEvent * cfg = dynamic_cast<ConfigureEvent*>(event);
           configure(cfg->af);
           replaygain.value = cfg->replaygain;
-        } break; 
-                      
+        } break;
 
-      case Ctrl_EOS   :
+
+      case End   :
         {
           if (af.set()) {
             FXint wait = plugin->delay();
@@ -793,14 +793,14 @@ FXint OutputThread::run(){
             }
 
         } break;
-        
-      case Ctrl_Volume: 
+
+      case Ctrl_Volume:
         {
           if (plugin) plugin->volume((dynamic_cast<CtrlVolumeEvent*>(event))->vol);
         } break;
-        
-      case Ctrl_Pause : 
-        { 
+
+      case Ctrl_Pause :
+        {
           pausing=!pausing;
           if (plugin)
             plugin->pause(pausing);
@@ -809,17 +809,17 @@ FXint OutputThread::run(){
             engine->post(new Event(AP_STATE_PAUSING));
           else
             engine->post(new Event(AP_STATE_PLAYING));
-        } break;                 
+        } break;
 
-      case Ctrl_Quit  : 
+      case Ctrl_Quit  :
         {
           fxmessage("[output] quit\n");
           unload_plugin();
           Event::unref(event);
           clear_timers();
-          return 0;          
+          return 0;
         } break;
-        
+
       case Ctrl_Set_Replay_Gain:
         {
           SetReplayGain * g = dynamic_cast<SetReplayGain*>(event);
@@ -840,9 +840,9 @@ FXint OutputThread::run(){
           FXASSERT(out);
           out->config = output_config;
           fxmessage("[output] get output config\n");
-          
+
         } break;
-        
+
       case Ctrl_Set_Output_Config:
         {
           fxmessage("[output] set ouput config");
@@ -852,14 +852,14 @@ FXint OutputThread::run(){
             if (plugin->type()==output_config.device) {
               if (af.set()) {
                 drain(true);
-                plugin->close();                                
+                plugin->close();
                 plugin->setOutputConfig(output_config);
                 reconfigure();
                 }
               else {
-                plugin->close();                                  
+                plugin->close();
                 plugin->setOutputConfig(output_config);
-                }  
+                }
               }
             else {
               if (af.set()) {
@@ -875,7 +875,7 @@ FXint OutputThread::run(){
         } break;
 
 
-                        
+
       };
     Event::unref(event);
     }

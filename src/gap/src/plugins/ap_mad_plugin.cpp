@@ -1241,7 +1241,7 @@ DecoderStatus MadDecoder::process(Packet*in){
              engine->output->post(out);
              out=NULL;
              }
-          engine->output->post(new ControlEvent(Ctrl_EOS,streamid));
+          engine->output->post(new ControlEvent(End,streamid));
           }
         return DecoderOk;
         }

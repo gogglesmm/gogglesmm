@@ -122,7 +122,8 @@ FXbool MusepackReader::seek(FXdouble pos) {
 
 
 ReadStatus MusepackReader::parse() {
-  if (mpc_streaminfo_read(&si,&reader)==ERROR_CODE_OK) {
+  FXint error=0;
+  if ((error=mpc_streaminfo_read(&si,&reader))==ERROR_CODE_OK) {
     stream_position = 0;
     stream_length   = mpc_streaminfo_get_length_samples(&si);
     af.set(AP_FORMAT_FLOAT,si.sample_freq,si.channels);
@@ -135,22 +136,22 @@ ReadStatus MusepackReader::parse() {
     flags|=FLAG_PARSED;
     return ReadOk;
     }
-  else
+  else {
     return ReadError;
+    }
   }
 
-ReadStatus MusepackReader::process(Packet * p){
+ReadStatus MusepackReader::process(Packet * packet){
 
   if (!(flags&FLAG_PARSED)) {
     fxmessage("parsing %d\n",flags&FLAG_PARSED);
     ReadStatus status = parse();
     if (status!=ReadOk) {
-      p->unref();
+      packet->unref();
       return status;
       }
     }
 
-  packet                  = p;
   packet->stream_position = stream_position;
   packet->stream_length   = stream_length;
   packet->af              = af;
@@ -161,12 +162,20 @@ ReadStatus MusepackReader::process(Packet * p){
     if (nframes==0) {
       frame=0;
       nframes = mpc_decoder_decode(&decoder,buffer,0,0);
-      if (nframes==(FXuint)-1) return ReadError;
+      if (nframes==(FXuint)-1) {
+        packet->unref();
+        return ReadError;
+        }
       else if (nframes==0) {
+        FXint stream = packet->stream;
         if (packet->size()) {
           engine->decoder->post(packet);
           packet=NULL;
           }
+        else {
+          packet->unref();
+          }
+        engine->decoder->post(new ControlEvent(End,stream));
         return ReadDone;
         }
       }

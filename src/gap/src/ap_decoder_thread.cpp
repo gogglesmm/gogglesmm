@@ -103,6 +103,7 @@ FXint DecoderThread::run(){
                       continue;
                       break;
 
+      case End      :
       case Meta     : if (plugin) {
                         engine->output->post(event);
                         continue;

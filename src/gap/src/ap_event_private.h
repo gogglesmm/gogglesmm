@@ -15,15 +15,17 @@ enum EventTypePrivate {
 
   Ctrl_Seek       = AP_LAST,
   Ctrl_Pause,
-  Ctrl_EOS,
   Ctrl_Set_Output_Config,
   Ctrl_Get_Output_Config,
   Ctrl_Set_Replay_Gain,
   Ctrl_Get_Replay_Gain,
   Ctrl_Volume,
+  
+  
   Buffer,
   Configure,
   Flush,
+  End,
   Input_Read,
   Meta = AP_META_INFO,
   };

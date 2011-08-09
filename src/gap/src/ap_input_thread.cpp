@@ -223,7 +223,7 @@ FXint InputThread::run(){
                             break;
       case Ctrl_Seek      : ctrl_seek(((CtrlSeekEvent*)event)->pos);
                             break;
-      case Ctrl_EOS       : if (event->stream==streamid) {fxmessage("closing %d\n",streamid); ctrl_eos(); }
+      case End            : if (event->stream==streamid) {fxmessage("closing %d\n",streamid); ctrl_eos(); }
                             break;
       case Meta           : engine->decoder->post(event);
                             continue;

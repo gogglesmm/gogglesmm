@@ -17,8 +17,6 @@ enum {
 
 extern FXuint ap_wait(FXInputHandle handle,FXTime timeout=0);
 
-//extern FXuint ap_wait(FXInputHandle h1,FXInputHandle h2);
-
 extern FXuint ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout=30000000000);
 
 extern FXuint ap_wait_read(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout=30000000000);

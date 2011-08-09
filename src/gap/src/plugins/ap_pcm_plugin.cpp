@@ -52,7 +52,7 @@ DecoderStatus PCMDecoder::process(Packet*in) {
   engine->output->post(in);
 
   if (eos) {
-    engine->output->post(new ControlEvent(Ctrl_EOS,stream));
+    engine->output->post(new ControlEvent(End,stream));
     }
   return DecoderOk;
   }

@@ -28,7 +28,7 @@ OPTION_PLUGIN_VORBIS=1
 OPTION_PLUGIN_FLAC=1
 OPTION_PLUGIN_FAAD=1
 OPTION_PLUGIN_FORCE_FAAD=0
-OPTION_PLUGIN_MUSEPACK=1
+OPTION_PLUGIN_MUSEPACK=0
 OPTION_PLUGIN_SAMPLERATE=1
 OPTION_PLUGIN_OGG=1
 OPTION_PLUGIN_ALSA=1
@@ -101,8 +101,8 @@ for arg in $@; do
     --without-faad)
       OPTION_PLUGIN_FAAD=0
       ;;
-    --without-musepack)
-      OPTION_PLUGIN_MUSEPACK=0
+    --with-musepack)
+      OPTION_PLUGIN_MUSEPACK=1
       ;;
     --without-samplerate)
       OPTION_PLUGIN_SAMPLERATE=0
@@ -168,7 +168,6 @@ for arg in $@; do
       echo "   --without-ogg                   Compile without ogg support"
       echo "   --without-flac                  Compile without flac support"
       echo "   --without-faad                  Compile without faad support"
-      echo "   --without-musepack              Compile without musepack support"
       echo "   --without-samplerate            Compile without samplerate support"
       echo "   --without-cdda                  Compile without cdda support"
       echo "   --without-smb                   Compile without smb support"
@@ -179,6 +178,7 @@ for arg in $@; do
       echo "   --without-avcodec               Compile without avcodec support"
       echo " "
       echo "   --with-mad                      Compile with mad support. (force) "
+      echo "   --with-musepack                 Compile with musepack (sv7) support. "
       echo " "
       echo "   --fox-prefix=<p>                FOX prefix path"
       echo "   --mad-prefix=<p>                Mad prefix path"
