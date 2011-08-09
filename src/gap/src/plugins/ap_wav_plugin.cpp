@@ -94,7 +94,7 @@ ReadStatus WavReader::process(Packet*packet) {
   packet->af              = af;
   packet->wrote(nread);
   packet->stream_position = static_cast<FXint>( (engine->input->position()-input_start-nread) / af.framesize() );
-
+  packet->stream_length   = stream_length;
   if (engine->input->eof())
     packet->flags=FLAG_EOS;
   else
@@ -251,6 +251,11 @@ ReadStatus WavReader::parse() {
 
 
   flags|=FLAG_PARSED;
+
+  stream_length=-1;
+  if (!engine->input->serial()) {
+    stream_length = (engine->input->size() - input_start) / af.framesize();
+    }
 
   engine->decoder->post(new ConfigureEvent(af,Codec::PCM));
   return ReadOk;
