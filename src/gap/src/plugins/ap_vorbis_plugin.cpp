@@ -117,14 +117,13 @@ FXbool VorbisDecoder::flush() {
 FXbool VorbisDecoder::get_next_packet() {
   if (buffer.size() && buffer.size()>=(FXival)sizeof(ogg_packet)) {
     buffer.read((FXuchar*)&op,sizeof(ogg_packet));
-
     if (buffer.size()<op.bytes) {
-      buffer.data_ptr-=sizeof(ogg_packet);
+      buffer.sr-=sizeof(ogg_packet);
       return false;
       }
 
-    op.packet=buffer.data_ptr;
-    buffer.data_ptr+=op.bytes;
+    op.packet=buffer.sr;
+    buffer.sr+=op.bytes;
     return true;
     }
   return false;
@@ -159,7 +158,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
   FXuchar * data_ptr = NULL;
   if (stream_position==-1) {
     fxmessage("stream position unknown\n");
-    data_ptr = buffer.data_ptr;
+    data_ptr = buffer.sr;
     nsamples = 0;
     }
 
@@ -179,7 +178,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         }
 
       if (data_ptr)
-        data_ptr = buffer.data_ptr;
+        data_ptr = buffer.sr;
       }
     else {
 
@@ -211,7 +210,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 //          stream_position=0;
 //          }
 
-        buffer.data_ptr=data_ptr;
+        buffer.sr=data_ptr;
         data_ptr=NULL;
         vorbis_synthesis_restart(&dsp);
 
@@ -270,7 +269,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
   /// Reset read ptr if we're still looking for the stream position..
   if (data_ptr) {
-    buffer.data_ptr=data_ptr;
+    buffer.sr=data_ptr;
     if (has_dsp) vorbis_synthesis_restart(&dsp);
     }
 

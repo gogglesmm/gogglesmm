@@ -72,10 +72,10 @@ public:
 
 class MemoryStream {
 public:
-  FXuchar * data_buffer;
-  FXuchar * data_ptr;
-  FXival    data_capacity;
-  FXival    data_size;
+  FXuchar * buffer;
+  FXival    buffersize;
+  FXuchar * sr;
+  FXuchar * sw;
 public:
   MemoryStream(FXival cap=32768);
 
@@ -101,17 +101,16 @@ public:
   void reserve(FXival sz);
 
   /// Number of bytes in buffer
-  FXival size() const { return data_size - (data_ptr-data_buffer); }
+  FXival size() const { return sw-sr; }
 
   /// Size of the total buffer
-  FXival capacity() const { return data_capacity; }
+  FXival capacity() const { return buffersize; }
 
   /// Space left in buffer
-  FXival space() const { return data_capacity-size(); }
+  FXival space() const { return buffersize-size(); }
 
   /// Write Ptr
-  FXuchar * ptr() const { return data_buffer+data_size; }
-
+  FXuchar * ptr() const { return sw; }
 
   ~MemoryStream();
   };

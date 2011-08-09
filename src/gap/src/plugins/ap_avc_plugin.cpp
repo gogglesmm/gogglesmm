@@ -570,7 +570,7 @@ DecoderStatus AVDecoder::process(Packet*in) {
 
   av_init_packet(&avp);
 
-  avp.data = buffer.data_ptr;
+  avp.data = buffer.sr;
   avp.size = buffer.size()-(FF_INPUT_BUFFER_PADDING_SIZE+1);
 
   fxmessage("buffer %ld\n",buffer.size());
