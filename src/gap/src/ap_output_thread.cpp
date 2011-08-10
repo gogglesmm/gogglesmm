@@ -845,7 +845,7 @@ FXint OutputThread::run(){
 
       case Ctrl_Set_Output_Config:
         {
-          fxmessage("[output] set ouput config");
+          fxmessage("[output] set output config");
           SetOutputConfig * out = dynamic_cast<SetOutputConfig*>(event);
           output_config = out->config;
           if (plugin) {
