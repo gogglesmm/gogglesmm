@@ -782,12 +782,12 @@ FXint OutputThread::run(){
         {
           if (af.set()) {
             FXint wait = plugin->delay();
-            FXint half = plugin->af.rate>>1;
+            FXint rate = plugin->af.rate;
 
-            if (wait<=half)
+            if (wait<=rate)
               engine->post(new Event(AP_EOS));
             else
-              timers.append(new EOSTimer(event->stream,wait-half));
+              timers.append(new EOSTimer(event->stream,wait-rate));
 
             draining=true;
             }
