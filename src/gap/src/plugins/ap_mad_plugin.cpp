@@ -49,6 +49,7 @@ protected:
 protected:
   ID3V1      * id3v1;
   ID3V2      * id3v2;
+  //ApeTag     * apetag;
 protected:
   FXbool parse_id3v1();
   FXbool parse_id3v2();
@@ -562,6 +563,63 @@ FXbool ID3V1::empty() const {
 
 
 
+/// Need MP3 files with APETAGS to test this...
+#if 0
+
+class ApeTag {
+public:
+  FXString title;
+protected:
+ enum {
+   APE_HEADER          = (1<<29),
+   APE_CONTAINS_FOOTER = (1<<30),
+   APE_CONTAINS_HEADER = (1<<31),
+   };
+protected:
+  void parse_item(FXuint flags,const FXchar * key,FXint key_length,const FXchar * value,FXint value_length);
+public:
+  ApeTag(const FXchar * buffer,FXint len);
+  };
+
+
+
+void ApeTag::parse_item(FXuint flags,const FXchar * key,FXint key_length,const FXchar * value,FXint value_length){
+  FXint type = (flags>>1)&0x3;
+  if (type==0) {
+    fxmessage("key: %s\n",key);
+    if (comparecase(key,"title",6)==0) {
+      title.assign(value,value_length);  
+      }
+    }
+  }
+
+
+
+ApeTag::ApeTag(const FXchar * buffer,FXint len) {
+  const FXchar * end = buffer+len;  
+  const FXchar * p;
+  
+  FXint version = INT32_LE(buffer+8);
+  FXint size    = INT32_LE(buffer+12);
+  FXint nitems  = INT32_LE(buffer+16);
+  FXint flags   = INT32_LE(buffer+20);
+
+  buffer+=32;
+  for (FXint i=0;i<nitems && (buffer+10)<end;i++) {        
+    p = buffer+8;    
+    while(*p!='\0' && p<end) p++;
+    if (p>=end) return;
+    const FXchar * item_key   = buffer+8;    
+    const FXchar * item_data  = p;    
+    FXint          item_size  = INT32_LE(buffer);
+    FXuint         item_flags = INT32_LE(buffer+4);    
+    parse_item(item_flags,item_key,p-item_key,item_data,item_size);
+    buffer=item_data+item_size;
+    }
+  }
+
+#endif
+
 
 
 
@@ -576,6 +634,7 @@ MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
   lame(NULL),
   id3v1(NULL),
   id3v2(NULL) {
+  //apetag(NULL) {
   }
 
 MadReader::~MadReader() {
@@ -592,6 +651,12 @@ void MadReader::clear_tags() {
     delete id3v2;
     id3v2=NULL;
     }
+/*    
+  if (apetag){
+    delete apetag;
+    apetag=NULL;
+    }  
+*/  
   }
 
 void MadReader::clear_headers() {
@@ -729,8 +794,9 @@ FXbool MadReader::parse_id3v1() {
   }
 
 FXbool MadReader::parse_ape() {
-  FXchar apebuffer[32];
-  FXchar * ape = apebuffer;
+
+#if 0
+  FXchar buf[32];
 
   engine->input->position(input_end-32,FXIO::Begin);
 
@@ -738,12 +804,40 @@ FXbool MadReader::parse_ape() {
     return false;
 
   if (compare(ape,"APETAGEX",8)==0) {
-
     fxmessage("[mad_reader] found ape tag");
-    FXint ape_version  = INT32_LE(ape+8);
-    FXint ape_size     = INT32_LE(ape+12);
+
+    FXint ape_version  = INT32_LE(buf+8);
+    FXint ape_size     = INT32_LE(buf+12);
+    FXint ape_flags    = INT32_LE(buf+20);
+
+    FXuchar * ape_buffer=NULL;
+    allocElms(ape_buffer,ape_size);
+
+    if (engine->input->read(ape_buffer+32,ape_size)!=ape_size) {
+      return false;
+      }
+    memcpy(ape_buffer,buf,32);
+    ape = new ApeTag(ape_buffer,ape_size+32);
+    freeElms(ape_buffer;
+    }
+  return true;    
+  }   
+#endif
+  FXchar buf[32];
+  FXchar * ape = buf;
+ 
+  engine->input->position(input_end-32,FXIO::Begin);
+
+  if (engine->input->read(ape,32)!=32)
+    return false;
+
+  if (compare(ape,"APETAGEX",8)==0) {
+    fxmessage("[mad_reader] found ape tag");
+
+    FXint ape_version  = INT32_LE(buf+8);
+    FXint ape_size     = INT32_LE(buf+12);
+    FXint ape_flags    = INT32_LE(buf+20);
 //    FXint ape_count    = INT32_LE(ape+16);
-    FXint ape_flags    = INT32_LE(ape+20);
  //   FXint ape_reserved = INT32_LE(ape+24);
 
     enum {
@@ -773,7 +867,6 @@ FXbool MadReader::parse_ape() {
     }
   return true;
   }
-
 
 
 
