@@ -10,7 +10,7 @@
 
 # API version
 GAP_MAJOR=0             # Increase whenever we decide to break the API.
-GAP_MINOR=6             # Increase for regular release
+GAP_MINOR=7             # Increase for regular release
 GAP_ABI_RELEASE=1       # Increase for every release, reset to 0 when GAP_ABI is change
 GAP_ABI=4               # Increase whenever we break Application Binary Interface
 
