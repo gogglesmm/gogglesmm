@@ -12,7 +12,7 @@ private:
   SMBInput(const SMBInput&);
   SMBInput &operator=(const SMBInput&);
 protected:
-  FXlong read_raw(void*data,FXival ncount);
+  FXival read_raw(void*data,FXival ncount);
   FXInputHandle handle() const { return fd; }
 public:
   /// Constructor

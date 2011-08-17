@@ -36,11 +36,11 @@ FXival MMSInput::read_raw(void*data,FXival ncount) {
   return result;
   }
 
-FXival MMSInput::position(FXlong /*offset*/,FXuint /*from*/) {
+FXlong MMSInput::position(FXlong /*offset*/,FXuint /*from*/) {
   return -1;
   }
 
-FXival MMSInput::position() const {
+FXlong MMSInput::position() const {
   return -1;
   }
 

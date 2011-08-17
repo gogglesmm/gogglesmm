@@ -608,7 +608,7 @@ FXbool HttpInput::open(const FXString & uri) {
   return true;
   }
 
-FXival HttpInput::position(FXlong offset,FXuint from) {
+FXlong HttpInput::position(FXlong offset,FXuint from) {
   fxmessage("position %ld %ld\n",offset,content_position);
   FXASSERT(from==FXIO::Current && offset>0);
   if (from==FXIO::End) {
@@ -652,7 +652,7 @@ FXival HttpInput::position(FXlong offset,FXuint from) {
 
 
 
-FXival HttpInput::position() const {
+FXlong HttpInput::position() const {
   return content_position;
   }
 

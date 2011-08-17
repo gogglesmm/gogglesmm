@@ -14,7 +14,7 @@ protected:
   track_t         track;
   track_t         ntracks;
 protected:
-  FXlong read_raw(void*data,FXival ncount);
+  FXival read_raw(void*data,FXival ncount);
 public:
   CDDAInput(InputThread*);
 

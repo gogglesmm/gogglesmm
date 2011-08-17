@@ -11,7 +11,7 @@ private:
   FileInput(const FileInput&);
   FileInput &operator=(const FileInput&);
 protected:
-  FXlong read_raw(void*data,FXival ncount);
+  FXival read_raw(void*data,FXival ncount);
   FXInputHandle handle() const { return file.handle(); }
 public:
   /// Constructor

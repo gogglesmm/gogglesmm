@@ -33,7 +33,7 @@ FXbool SMBInput::open(const FXString & uri) {
 
   /// Perhaps we need an init function...
   if (smbc_init(smb_auth,0))
-    return false;  
+    return false;
 
   fd=smbc_open(uri.text(),O_RDONLY,0);
   if (fd>=SMBC_BASE_FD){
@@ -47,12 +47,12 @@ FXival SMBInput::read_raw(void*data,FXival ncount) {
   return smbc_read(fd,data,ncount);
   }
 
-FXival SMBInput::position(FXlong offset,FXuint from) {
+FXlong SMBInput::position(FXlong offset,FXuint from) {
   return smbc_lseek(fd,offset,from);
   }
 
-FXival SMBInput::position() const {
-  FXival pos = smbc_lseek(fd,0,SEEK_CUR);
+FXlong SMBInput::position() const {
+  FXlong pos = smbc_lseek(fd,0,SEEK_CUR);
   if (pos<0)
     return 0;
   else

@@ -30,11 +30,11 @@ FXival FileInput::read_raw(void*data,FXival ncount) {
   return file.readBlock(data,ncount);
   }
 
-FXival FileInput::position(FXlong offset,FXuint from) {
+FXlong FileInput::position(FXlong offset,FXuint from) {
   return file.position(offset,from);
   }
 
-FXival FileInput::position() const {
+FXlong FileInput::position() const {
   return file.position();
   }
 

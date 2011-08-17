@@ -23,8 +23,8 @@ private:
 private:
   FXInputHandle open_connection(struct addrinfo*);
 protected:
-  FXlong read_raw(void*,FXival);
-  FXlong write_raw(void*,FXival);
+  FXival read_raw(void*,FXival);
+  FXival write_raw(void*,FXival);
 protected:
   FXival icy_read(void*,FXival);
   void icy_parse(const FXString & buffer);

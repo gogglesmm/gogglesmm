@@ -13,11 +13,11 @@ private:
   InputPlugin(const InputPlugin&);
   InputPlugin &operator=(const InputPlugin&);
 protected:
-  virtual FXlong read_raw(void*data,FXival ncount)=0;
+  virtual FXival read_raw(void*data,FXival ncount)=0;
   virtual FXInputHandle handle() const { return BadHandle; }
 protected:
   /// Read block of bytes directly from input
-  FXlong readBlock(void*data,FXival ncount,FXbool wait=true);
+  FXival readBlock(void*data,FXival ncount,FXbool wait=true);
   FXival fillBuffer(FXival);
 
 
