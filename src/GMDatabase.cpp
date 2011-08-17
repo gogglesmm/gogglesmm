@@ -552,43 +552,43 @@ FXint GMDatabase::execute_insert(GMQuery & q) {
 
 
 void GMDatabase::begin() {
-  fxmessage("begin()\n");
+  GM_DEBUG_PRINT("begin()\n");
   lock();
   execute("BEGIN TRANSACTION;");
   }
 
 void GMDatabase::commit() {
-  fxmessage("commit()\n");
+  GM_DEBUG_PRINT("commit()\n");
   execute("COMMIT TRANSACTION;");
   unlock();
   }
 
 void GMDatabase::rollback() {
-  fxmessage("rollback()\n");
+  GM_DEBUG_PRINT("rollback()\n");
   execute("ROLLBACK TRANSACTION;");
   unlock();
   }
 
 void GMDatabase::beginTask() {
-  fxmessage("beginTask()\n");
+  GM_DEBUG_PRINT("beginTask()\n");
   mutex.lock();
   execute("BEGIN IMMEDIATE TRANSACTION;");
   }
 
 void GMDatabase::commitTask() {
-  fxmessage("commitTask() %d\n",mutex.locked());
+  GM_DEBUG_PRINT("commitTask() %d\n",mutex.locked());
   execute("COMMIT TRANSACTION;");
   mutex.unlock();
   }
 
 void GMDatabase::rollbackTask() {
-  fxmessage("rollbackTask()\n");
+  GM_DEBUG_PRINT("rollbackTask()\n");
   execute("ROLLBACK TRANSACTION;");
   mutex.unlock();
   }
 
 void GMDatabase::waitTask() {
-  fxmessage("waitTask()\n");
+  GM_DEBUG_PRINT("waitTask()\n");
   execute("COMMIT TRANSACTION;");
   condition.wait(mutex);
   execute("BEGIN IMMEDIATE TRANSACTION;");
@@ -599,7 +599,7 @@ void GMDatabase::lock() {
   if (FXThread::self()==NULL) {
 //    fxmessage("trylock %d\n",mutex.locked());
     if (!mutex.trylock()) {
-      fxmessage("Failed to lock mutex\n");
+      GM_DEBUG_PRINT("Failed to lock mutex\n");
       interrupt=true;
       mutex.lock();
       }
