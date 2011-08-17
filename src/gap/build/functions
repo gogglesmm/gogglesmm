@@ -70,7 +70,7 @@ add_plugin_package()
 
 check_fox()
 {
-  pkgconfig_query_package "fox17 >= 1.7.26" "fox"
+  pkgconfig_query_package "fox17 >= 1.7.28" "fox"
   if [ $? -eq 0 ] ; then
     exit 1
   fi
