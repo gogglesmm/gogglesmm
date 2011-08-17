@@ -83,13 +83,13 @@ FXint DecoderThread::run(){
   for(;;) {
     event = wait_for_packet();
     switch(event->type) {
-      case Flush    : fxmessage("[decoder] flush\n");
+      case Flush    : GM_DEBUG_PRINT("[decoder] flush\n");
                       if (plugin) plugin->flush();
                       engine->output->post(event,EventQueue::Flush);
                       continue;
                       break;
 
-      case Ctrl_Quit: fxmessage("[decoder] quit\n");
+      case Ctrl_Quit: GM_DEBUG_PRINT("[decoder] quit\n");
                       if (plugin) {
                         delete plugin;
                         plugin=NULL;

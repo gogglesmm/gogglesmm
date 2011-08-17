@@ -55,7 +55,7 @@ WavOutput::~WavOutput() {
 FXbool WavOutput::configure(const AudioFormat & fmt) {
   FXString path=FXPath::unique("gap.wav");
   if (file.open(path,FXIO::Writing)) {
-    fxmessage("[wav] opened output file: %s\n",path.text());
+    GM_DEBUG_PRINT("[wav] opened output file: %s\n",path.text());
     af=fmt;
     FXuint chunksize=0;
     FXushort format=1;
@@ -82,7 +82,7 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
     file.writeBlock(&byterate,4);
     file.writeBlock(&blockalign,2);
     file.writeBlock(&bitspersample,2);
-        
+
     file.writeBlock("data",4);
     chunksize=0;
     data_pos=file.position();
@@ -105,16 +105,16 @@ FXbool WavOutput::write(const void * data,FXuint nframes) {
 
 void WavOutput::close() {
   if (file.isOpen()) {
-    fxmessage("[wav] closed output\n");
-    FXuint end=file.position();  
+    GM_DEBUG_PRINT("[wav] closed output\n");
+    FXuint end=file.position();
     FXuint size;
-    
+
     /// RIFF chunksize
     file.position(4);
     size=end-8;
-    file.writeBlock(&size,4);    
+    file.writeBlock(&size,4);
 
-    /// data chunksize          
+    /// data chunksize
     if (data_pos) {
       file.position(data_pos);
       size=end-data_pos-4;

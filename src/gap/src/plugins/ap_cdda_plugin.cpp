@@ -52,7 +52,7 @@ namespace ap {
       return false;
       }
 
-    fxmessage("%d tracks found\n",ntracks);
+    GM_DEBUG_PRINT("%d tracks found\n",ntracks);
 
     track=1;
     sector=cdio_cddap_track_firstsector(drive,track);

@@ -157,7 +157,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
   FXuchar * data_ptr = NULL;
   if (stream_position==-1) {
-    fxmessage("stream position unknown\n");
+    GM_DEBUG_PRINT("stream position unknown\n");
     data_ptr = buffer.sr;
     nsamples = 0;
     }
@@ -173,7 +173,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         }
 
       if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
-        fxmessage("vorbis_synthesis_headerin failed\n");
+        GM_DEBUG_PRINT("vorbis_synthesis_headerin failed\n");
         return DecoderError;
         }
 
@@ -204,7 +204,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
             }
           }
         if (op.granulepos>=0) {
-          fxmessage("found stream position: %ld\n",op.granulepos-nsamples);
+          GM_DEBUG_PRINT("found stream position: %ld\n",op.granulepos-nsamples);
           stream_position=op.granulepos-nsamples;
  //       else {
 //          stream_position=0;

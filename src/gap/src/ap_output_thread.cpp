@@ -36,9 +36,7 @@ private:
   FXint nwritten;
 public:
   FrameTimer(FXint n) : nold(n),nwait(n),nwritten(0) {
-#ifdef DEBUG
-    fxmessage("timer set to %d\n",nwait);
-#endif
+    GM_DEBUG_PRINT("timer set to %d\n",nwait);
     }
 
   FXbool update(FXint delay,FXint nframes) {
@@ -175,7 +173,7 @@ void OutputThread::update_position(FXint id,FXint position,FXint nframes,FXint l
 
   if (id!=stream) {
     if (stream_remaining>0) {
-      fxmessage("stream_remaining already set. probably very short track. let's drain\n");
+      GM_DEBUG_PRINT("stream_remaining already set. probably very short track. let's drain\n");
       drain(false);
 
       stream_remaining = 0;
@@ -265,14 +263,14 @@ void OutputThread::update_position(FXint id,FXint position,FXint nframes,FXint l
 
 
 void OutputThread::drain(FXbool flush) {
-  fxmessage("drain while updating time\n");
+  GM_DEBUG_PRINT("drain while updating time\n");
   if (plugin) {
     FXint delay,offset;
 
     delay=offset=plugin->delay();
 
     if ((delay<=0) || ((double)delay/(double)plugin->af.rate) < 0.5) {
-      fxmessage("Current delay not worth waiting for (%d frames)\n",delay);
+      GM_DEBUG_PRINT("Current delay not worth waiting for (%d frames)\n",delay);
       if (flush) plugin->drain();
       return;
       }
@@ -281,8 +279,8 @@ void OutputThread::drain(FXbool flush) {
       FXThread::sleep(200000000);
       delay = plugin->delay();
 
-      if (delay < (plugin->af.rate>>1) ) {
-        fxmessage("Less than 0.5 left. drain the soundcard\n");
+      if (delay < (FXint)(plugin->af.rate>>1) ) {
+        GM_DEBUG_PRINT("Less than 0.5 left. drain the soundcard\n");
         if (flush) plugin->drain();
         return;
         }
@@ -320,7 +318,7 @@ Event * OutputThread::wait_for_event() {
 
       if (plugin) {
         delay = plugin->delay();
-        if (delay < (plugin->af.rate>>2) ) {
+        if (delay < (FXint)(plugin->af.rate>>2) ) {
           plugin->drain();
           update_timers(0,0); /// make sure timers get fired
           draining=false;
@@ -357,7 +355,7 @@ void OutputThread::load_plugin() {
   typedef OutputPlugin*  (*ap_load_plugin_t)();
 
   if (output_config.device==DeviceNone) {
-    fxmessage("[output] no output plugin defined\n");
+    GM_DEBUG_PRINT("[output] no output plugin defined\n");
     return;
     }
 
@@ -373,13 +371,13 @@ void OutputThread::load_plugin() {
     }
 
   if (!dll.loaded() && !dll.load(plugin_name)) {
-    fxmessage("[output] unable to load %s\nreason: %s\n",plugin_name.text(),dll.error().text());
+    GM_DEBUG_PRINT("[output] unable to load %s\nreason: %s\n",plugin_name.text(),dll.error().text());
     return;
     }
 
   ap_load_plugin_t ap_load_plugin = (ap_load_plugin_t) dll.address("ap_load_plugin");
   if (ap_load_plugin==NULL || (plugin=ap_load_plugin())==NULL) {
-    fxmessage("[output] incompatible plugin\n");
+    GM_DEBUG_PRINT("[output] incompatible plugin\n");
     dll.unload();
     }
 
@@ -409,7 +407,7 @@ void OutputThread::unload_plugin() {
 
 
 void OutputThread::close_plugin() {
-  fxmessage("[output] close device\n");
+  GM_DEBUG_PRINT("[output] close device\n");
   if (plugin) {
     plugin->close();
     }
@@ -435,6 +433,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
   if (af==fmt || fmt==plugin->af){
     af=fmt;
     draining=false;
+    
     fxmessage("stream ");
     fmt.debug();
     fxmessage("output ");
@@ -443,7 +442,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
     }
 
   // We need to reconfigure the hardware, but first let's drain the existing samples
-  fxmessage("Potential new format... let's drain\n");
+  GM_DEBUG_PRINT("Potential new format... let's drain\n");
   drain();
 
   af=fmt;
@@ -713,14 +712,14 @@ void OutputThread::process(Packet * packet) {
     result = plugin->write(packet->data(),nframes);
 
   if (result==false) {
-    fxmessage("[output] write failed\n");
+    GM_DEBUG_PRINT("[output] write failed\n");
     engine->input->post(new ControlEvent(Ctrl_Close));
     engine->post(new ErrorMessage(FXString::value("Output Error")));
     close_plugin();
     }
   return;
 mismatch:
-  fxmessage("[output] config mismatch\n");
+  GM_DEBUG_PRINT("[output] config mismatch\n");
   draining=false;
   engine->input->post(new ControlEvent(Ctrl_Close));
   close_plugin();
@@ -749,7 +748,7 @@ FXint OutputThread::run(){
       case Flush      :
         {
           FlushEvent * flush = dynamic_cast<FlushEvent*>(event);
-          fxmessage("[output] flush %d\n",flush->close);
+          GM_DEBUG_PRINT("[output] flush %d\n",flush->close);
           if (plugin) {
             plugin->drop();
             if (flush->close)
@@ -813,7 +812,7 @@ FXint OutputThread::run(){
 
       case Ctrl_Quit  :
         {
-          fxmessage("[output] quit\n");
+          GM_DEBUG_PRINT("[output] quit\n");
           unload_plugin();
           Event::unref(event);
           clear_timers();
@@ -823,14 +822,14 @@ FXint OutputThread::run(){
       case Ctrl_Set_Replay_Gain:
         {
           SetReplayGain * g = dynamic_cast<SetReplayGain*>(event);
-          fxmessage("[output] set replay gain mode %d\n",g->mode);
+          GM_DEBUG_PRINT("[output] set replay gain mode %d\n",g->mode);
           replaygain.mode = g->mode;
         } break;
 
       case Ctrl_Get_Replay_Gain:
         {
           GetReplayGain * g = dynamic_cast<GetReplayGain*>(event);
-          fxmessage("[output] get replay gain mode\n");
+          GM_DEBUG_PRINT("[output] get replay gain mode\n");
           g->mode = replaygain.mode;
         } break;
 
@@ -839,13 +838,13 @@ FXint OutputThread::run(){
           GetOutputConfig * out = dynamic_cast<GetOutputConfig*>(event);
           FXASSERT(out);
           out->config = output_config;
-          fxmessage("[output] get output config\n");
+          GM_DEBUG_PRINT("[output] get output config\n");
 
         } break;
 
       case Ctrl_Set_Output_Config:
         {
-          fxmessage("[output] set output config");
+          GM_DEBUG_PRINT("[output] set output config");
           SetOutputConfig * out = dynamic_cast<SetOutputConfig*>(event);
           output_config = out->config;
           if (plugin) {

@@ -177,7 +177,7 @@ FXival HttpInput::write_raw(void*data,FXival count){
     if (errno==EAGAIN || errno==EWOULDBLOCK)
       return -2;
     else
-      fxmessage("[http] %s\n",strerror(errno));
+      GM_DEBUG_PRINT("[http] %s\n",strerror(errno));
     }
   else if (nwritten==0) {
     close();
@@ -202,7 +202,7 @@ FXival HttpInput::read_raw(void* data,FXival count){
       return -2;
       }
     else
-      fxmessage("[http] %s\n",strerror(errno));
+      GM_DEBUG_PRINT("[http] %s\n",strerror(errno));
     }
   else if (nread==0) {
     close();
@@ -283,7 +283,7 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
 
   FXint result=getaddrinfo(hostname.text(),FXString::value(port).text(),&hints,&list);
   if (result) {
-    fxmessage("[http] getaddrinfo: %s\n",gai_strerror(result));
+    GM_DEBUG_PRINT("[http] getaddrinfo: %s\n",gai_strerror(result));
     return false;
     }
 
@@ -368,11 +368,11 @@ FXbool HttpInput::parse_response() {
     }
   while(!next_header(header));
 
-  fxmessage("[http] %s\n",header.text());
+  GM_DEBUG_PRINT("[http] %s\n",header.text());
 
   if ( header.scan("HTTP/%d.%d %d",&http_major_version,&http_minor_version,&http_code)!=3 &&
        header.scan("ICY %d",&http_code)!=1 ){
-    fxmessage("[http] invalid http response: %s\n",header.text());
+    GM_DEBUG_PRINT("[http] invalid http response: %s\n",header.text());
     return false;
     }
 
@@ -381,7 +381,7 @@ FXbool HttpInput::parse_response() {
       redirect=true;
       }
     else {
-      fxmessage("[http] unhandled redirect (%d)\n",http_code);
+      GM_DEBUG_PRINT("[http] unhandled redirect (%d)\n",http_code);
       return false;
       }
     }
@@ -389,11 +389,11 @@ FXbool HttpInput::parse_response() {
     if (http_code==404)
       fxmessage("[http] 404!!\n");
     else
-      fxmessage("[http] client error (%d)\n",http_code);
+      GM_DEBUG_PRINT("[http] client error (%d)\n",http_code);
     return false;
     }
   else if (http_code<200 || http_code>=300){
-    fxmessage("[http] unhandled error (%d)\n",http_code);
+    GM_DEBUG_PRINT("[http] unhandled error (%d)\n",http_code);
     return false;
     }
 
@@ -440,7 +440,7 @@ FXbool HttpInput::parse_response() {
     if (location.empty())
       return false;
 
-    fxmessage("redirect: %s\n",location.text());
+    GM_DEBUG_PRINT("redirect: %s\n",location.text());
     close();
     buffer.clear();
     return open(location);
@@ -566,7 +566,7 @@ FXbool HttpInput::open(const FXString & uri) {
   if (port==0) port=80;
 
   if (!open(host,port)) {
-    fxmessage("Failed to open\n");
+    GM_DEBUG_PRINT("Failed to open\n");
     return false;
     }
 
@@ -586,11 +586,11 @@ FXbool HttpInput::open(const FXString & uri) {
                                      ,0,1
                                      );
 
-  fxmessage("request: %s\n",request.text());
+  GM_DEBUG_PRINT("request: %s\n",request.text());
 
   /// Send request
   if (!write(request)) {
-    fxmessage("failed to send request\n");
+    GM_DEBUG_PRINT("failed to send request\n");
     return false;
     }
 
@@ -604,15 +604,15 @@ FXbool HttpInput::open(const FXString & uri) {
     content_type=ap_format_from_extension(extension);
     }
 
-  fxmessage("success\n");
+  GM_DEBUG_PRINT("success\n");
   return true;
   }
 
 FXlong HttpInput::position(FXlong offset,FXuint from) {
-  fxmessage("position %ld %ld\n",offset,content_position);
+  GM_DEBUG_PRINT("position %ld %ld\n",offset,content_position);
   FXASSERT(from==FXIO::Current && offset>0);
   if (from==FXIO::End) {
-    fxmessage("cannot seek from end\n");
+    GM_DEBUG_PRINT("cannot seek from end\n");
     return -1;
     }
   else if (from==FXIO::Begin) {
@@ -628,12 +628,12 @@ FXlong HttpInput::position(FXlong offset,FXuint from) {
       return content_position;
       }
     else {
-      fxmessage("cannot seek backwards\n");
+      GM_DEBUG_PRINT("cannot seek backwards\n");
       }
     return -1;
     }
   else if (offset<0) {
-    fxmessage("cannot seek backwards\n");
+    GM_DEBUG_PRINT("cannot seek backwards\n");
     return -1;
     }
   else {

@@ -120,7 +120,7 @@ void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,
   FXuint header=((const FXuint*)buffer)[0];
   if (FLAC_BLOCK_TYPE(header)!=FLAC_BLOCK_VORBISCOMMENT)
     return;
-    
+
   /// skip the metaheader block
   buffer+=4;
   if (buffer>=end) return;
@@ -229,12 +229,12 @@ FXbool FlacReader::can_seek() const {
 FXbool FlacReader::seek(FXdouble pos){
   FXASSERT(stream_length>0);
   FXlong offset = (FXlong)(((FXdouble)stream_length)*pos);
-  fxmessage("seek to %ld\n",offset);
+  GM_DEBUG_PRINT("seek to %ld\n",offset);
   FLAC__stream_decoder_flush(flac);
   if (FLAC__stream_decoder_seek_absolute(flac,offset)) {
     return true;
     }
-  fxmessage("Oops. failed to seek\n");
+  GM_DEBUG_PRINT("Oops. failed to seek\n");
   return false;
   }
 
@@ -387,7 +387,6 @@ void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const F
                                                    metadata->data.stream_info.channels);
 
       plugin->stream_length=metadata->data.stream_info.total_samples;
-      plugin->af.debug();
       break;
     case FLAC__METADATA_TYPE_VORBIS_COMMENT:
       for (FXuint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {

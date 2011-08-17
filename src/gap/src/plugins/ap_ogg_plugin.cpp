@@ -137,11 +137,11 @@ FXbool OggReader::seek(FXdouble pos){
 
     input_position = engine->input->position(offset,FXIO::Begin);
 
-    fxmessage("target seek %ld / %ld => %ld\n",target,stream_length,offset);
+    GM_DEBUG_PRINT("target seek %ld / %ld => %ld\n",target,stream_length,offset);
 
     while(fetch_next_page()) {
       if (ogg_page_granulepos(&page)>target) {
-        fxmessage("found %ld %ld %ld\n",ogg_page_granulepos(&page),lastpos,offset);
+        GM_DEBUG_PRINT("found %ld %ld %ld\n",ogg_page_granulepos(&page),lastpos,offset);
         if (lastpos>=0 || offset==0) {
           engine->input->position((lastpos>=0) ? lastpos : offset,FXIO::Begin);
           ogg_sync_reset(&sync);
@@ -150,7 +150,7 @@ FXbool OggReader::seek(FXdouble pos){
           }
         else {
           offset=FXMIN(0,offset>>1);
-          fxmessage("went to far. start at %ld\n",offset);
+          GM_DEBUG_PRINT("went to far. start at %ld\n",offset);
           input_position=engine->input->position(offset,FXIO::Begin);
           lastpos=-1;
           ogg_sync_reset(&sync);
@@ -163,10 +163,10 @@ FXbool OggReader::seek(FXdouble pos){
       }
 
     if (lastpos==-1) {
-      fxmessage("seeking beyond end of stream\n");
+      GM_DEBUG_PRINT("seeking beyond end of stream\n");
       }
     else {
-      fxmessage("seeking to %ld\n",lastpos);
+      GM_DEBUG_PRINT("seeking to %ld\n",lastpos);
       engine->input->position(lastpos,FXIO::Begin);
       ogg_sync_reset(&sync);
       ogg_stream_reset(&stream);
@@ -229,7 +229,7 @@ void OggReader::check_vorbis_length(vorbis_info * info) {
       lb=cb;
       if (op.granulepos!=-1) {
         stream_start=op.granulepos-tb;
-        fxmessage("stream offset=%ld %d %ld\n",op.granulepos,tb,stream_start);
+        GM_DEBUG_PRINT("stream offset=%ld %d %ld\n",op.granulepos,tb,stream_start);
         break;
         }
       }
@@ -244,7 +244,7 @@ void OggReader::check_vorbis_length(vorbis_info * info) {
     while(fetch_next_page()) {
       if (ogg_page_eos(&page)) {
         stream_length = ogg_page_granulepos(&page) - stream_start;
-        fxmessage("found total %ld frames\n",stream_length);
+        GM_DEBUG_PRINT("found total %ld frames\n",stream_length);
         break;
         }
       }

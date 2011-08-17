@@ -128,19 +128,19 @@ enum {
 
 static FXuint get_guid_id(FXguid & g){
   if (memcmp(g,asf_guid_header,16)==0) {
-    fxmessage("found asf header\n");
+    GM_DEBUG_PRINT("found asf header\n");
     return ASF_GUID_HEADER;
     }
   else if (memcmp(g,asf_guid_file_header,16)==0) {
-    fxmessage("found asf file header\n");
+    GM_DEBUG_PRINT("found asf file header\n");
     return ASF_GUID_FILE_HEADER;
     }
   else if (memcmp(g,asf_guid_stream_header,16)==0) {
-    fxmessage("found asf stream header\n");
+    GM_DEBUG_PRINT("found asf stream header\n");
     return ASF_GUID_STREAM_HEADER;
     }
   else if (memcmp(g,asf_guid_data,16)==0) {
-    fxmessage("found asf data\n");
+    GM_DEBUG_PRINT("found asf data\n");
     return ASF_GUID_DATA;
     }
   else {
@@ -218,7 +218,7 @@ ReadStatus ASFReader::parse_data(Packet*) {
   if (!readLong(d.npackets)) return ReadError;
   if (!readShort(d.reserved)) return ReadError;
 
-  fxmessage("got %d packets\n",d.npackets);
+  GM_DEBUG_PRINT("got %d packets\n",d.npackets);
 
 
   FXuchar flags;
@@ -226,10 +226,10 @@ ReadStatus ASFReader::parse_data(Packet*) {
     return ReadError;
 
   if (flags&(1<<7)) {
-    fxmessage("got error block\n");
+    GM_DEBUG_PRINT("got error block\n");
     }
 
-  fxmessage("len: %d\n",flags&0xF);
+  GM_DEBUG_PRINT("len: %d\n",flags&0xF);
 
   engine->input->position(2,FXIO::Current);
 
@@ -240,7 +240,7 @@ ReadStatus ASFReader::parse_data(Packet*) {
 
   return ReadError;
   }
-  
+
 ReadStatus ASFReader::parse_stream_header(Packet*) {
   asf_stream_header h;
   if (!read_guid(h.stream_type))   return ReadError;
@@ -282,7 +282,7 @@ ReadStatus ASFReader::parse_header(Packet*) {
   /// Skip 2 bytes
   if (engine->input->read(&dummy,2)!=2)
 
-  fxmessage("got %d objects\n",nobjects);
+  GM_DEBUG_PRINT("got %d objects\n",nobjects);
   return ReadOk;
   }
 
@@ -296,8 +296,8 @@ ReadStatus ASFReader::process(Packet*p) {
 
     if (!read_guid(header.guid)) return ReadError;
     if (!readLong(header.size)) return ReadError;
-    fxmessage("id: "); print_guid(header.guid);
-    fxmessage("size: %ld\n",header.size-24);
+    GM_DEBUG_PRINT("id: "); print_guid(header.guid);
+    GM_DEBUG_PRINT("size: %ld\n",header.size-24);
 
     if (header.size<=24)
       return ReadError;

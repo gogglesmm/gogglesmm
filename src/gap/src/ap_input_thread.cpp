@@ -205,25 +205,23 @@ FXint InputThread::run(){
       event = wait_for_event();
 
     switch(event->type) {
-      case Ctrl_Close     : fxmessage("Ctrl_Close\n");
-                            ctrl_flush(true);
+      case Ctrl_Close     : ctrl_flush(true);
                             ctrl_close_input(true);
                             break;
-      case Ctrl_Open      : fxmessage("Ctrl_Open\n");
-                            //ctrl_close_input();
-                            ctrl_open_input(((ControlEvent*)event)->text);
+                            
+      case Ctrl_Open_Flush: ctrl_flush();                            
+      case Ctrl_Open      : ctrl_open_input(((ControlEvent*)event)->text);
                             break;
-      case Ctrl_Open_Flush: fxmessage("Ctrl_Open_Flush\n");
-                            ctrl_flush();
-                            ctrl_open_input(((ControlEvent*)event)->text);
-                            break;
+                            
       case Ctrl_Quit      : ctrl_close_input(true);
                             engine->decoder->post(event,EventQueue::Flush);
                             return 0;
                             break;
       case Ctrl_Seek      : ctrl_seek(((CtrlSeekEvent*)event)->pos);
                             break;
-      case End            : if (event->stream==streamid) {fxmessage("closing %d\n",streamid); ctrl_eos(); }
+      case End            : if (event->stream==streamid) {
+                              ctrl_eos(); 
+                              }
                             break;
       case Meta           : engine->decoder->post(event);
                             continue;
@@ -299,7 +297,7 @@ FXlong InputThread::size() const {
 
 
 void InputThread::ctrl_eos() {
-  fxmessage("end of stream reached\n");
+  GM_DEBUG_PRINT("[input] end of stream reached\n");
   if (state==StateIdle) {
     //ctrl_flush(true);
     ctrl_close_input(true);
@@ -414,7 +412,7 @@ void InputThread::ctrl_open_inputs(const FXStringList & url){
   }
 
 void InputThread::ctrl_open_input(const FXString & uri) {
-  fxmessage("ctrl_open_input %s\n",uri.text());
+  GM_DEBUG_PRINT("[input] ctrl_open_input %s\n",uri.text());
 
   if (uri.empty()) {
     goto failed;
@@ -466,7 +464,7 @@ void InputThread::set_state(FXuchar s,FXbool notify) {
 
 
 void InputThread::ctrl_close_input(FXbool notify) {
-  fxmessage("ctrl_close_input %d\n",notify);
+  GM_DEBUG_PRINT("[input] close input %d\n",notify);
   if (input) {
     delete input;
     input=NULL;
@@ -480,7 +478,7 @@ void InputThread::ctrl_close_input(FXbool notify) {
   }
 
 void InputThread::ctrl_flush(FXbool close){
-  fxmessage("ctrl_flush\n");
+  GM_DEBUG_PRINT("[input] flush\n");
   engine->decoder->post(new FlushEvent(close),EventQueue::Flush);
   }
 

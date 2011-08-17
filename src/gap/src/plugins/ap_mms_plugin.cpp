@@ -23,10 +23,10 @@ MMSInput::~MMSInput() {
 FXbool MMSInput::open(const FXString & uri) {
   mms=mms_connect(NULL,NULL,uri.text(),128*1024);
   if (!mms) {
-    fxmessage("failed to connect\n");
+    GM_DEBUG_PRINT("failed to connect\n");
     return false;
     }
-  fxmessage("mms connected\n");
+  GM_DEBUG_PRINT("mms connected\n");
   return true;
   }
 

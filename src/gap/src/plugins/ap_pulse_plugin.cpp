@@ -123,7 +123,7 @@ FXbool PulseOutput::open() {
   /// Try connecting
   if (pa_context_get_state(context)==PA_CONTEXT_UNCONNECTED) {
     if (pa_context_connect(context,NULL,PA_CONTEXT_NOFLAGS,NULL)<0) {
-      fxmessage("pa_context_connect failed\n");
+      GM_DEBUG_PRINT("pa_context_connect failed\n");
       pa_threaded_mainloop_unlock(mainloop);
       return false;
       }
@@ -133,7 +133,7 @@ FXbool PulseOutput::open() {
   pa_context_state_t state;
   while((state=pa_context_get_state(context))!=PA_CONTEXT_READY) {
     if (state==PA_CONTEXT_FAILED || state==PA_CONTEXT_TERMINATED){
-      fxmessage("Unable to connect to pulsedaemon\n");
+      GM_DEBUG_PRINT("Unable to connect to pulsedaemon\n");
       pa_threaded_mainloop_unlock(mainloop);
       return false;
       }
@@ -149,21 +149,21 @@ void PulseOutput::close() {
     pa_threaded_mainloop_lock(mainloop);
 
   if (stream) {
-    fxmessage("disconnecting stream\n");
+    GM_DEBUG_PRINT("disconnecting stream\n");
     pa_stream_disconnect(stream);
     pa_stream_unref(stream);
     stream=NULL;
     }
 
   if (context) {
-    fxmessage("disconnecting context\n");
+    GM_DEBUG_PRINT("disconnecting context\n");
     pa_context_disconnect(context);
     pa_context_unref(context);
     context=NULL;
     }
 
   if (mainloop) {
-    fxmessage("disconnecting mainloop\n");
+    GM_DEBUG_PRINT("disconnecting mainloop\n");
     pa_threaded_mainloop_unlock(mainloop);
     pa_threaded_mainloop_stop(mainloop);
     pa_threaded_mainloop_free(mainloop);
@@ -281,7 +281,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   pa_threaded_mainloop_unlock(mainloop);
   return true;
 failed:
-  fxmessage("Unsupported pulse configuration:\n");
+  GM_DEBUG_PRINT("Unsupported pulse configuration:\n");
   af.debug();
   pa_threaded_mainloop_unlock(mainloop);
   return false;

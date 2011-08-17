@@ -144,7 +144,7 @@ ReadStatus MusepackReader::parse() {
 ReadStatus MusepackReader::process(Packet * packet){
 
   if (!(flags&FLAG_PARSED)) {
-    fxmessage("parsing %d\n",flags&FLAG_PARSED);
+    GM_DEBUG_PRINT("parsing %d\n",flags&FLAG_PARSED);
     ReadStatus status = parse();
     if (status!=ReadOk) {
       packet->unref();

@@ -45,7 +45,7 @@ static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_form
     case AP_FORMAT_S32_BE    : alsa_format=SND_PCM_FORMAT_S32_BE;   break;
     case AP_FORMAT_FLOAT_LE  : alsa_format=SND_PCM_FORMAT_FLOAT_LE; break;
     case AP_FORMAT_FLOAT_BE  : alsa_format=SND_PCM_FORMAT_FLOAT_BE; break;
-    default                  : fxmessage("Unhandled format: %d\n", af.format); return false; break;
+    default                  : GM_DEBUG_PRINT("Unhandled format: %d\n", af.format); return false; break;
     }
   return true;
   }
@@ -86,43 +86,43 @@ FXbool AlsaOutput::open() {
   if (handle==NULL) {
 
     if ((result=snd_pcm_open(&handle,config.device.text(),SND_PCM_STREAM_PLAYBACK,0))<0) {
-      fxmessage("Unable to open device \"%s\": %s\n",config.device.text(),snd_strerror(result));
+      GM_DEBUG_PRINT("Unable to open device \"%s\": %s\n",config.device.text(),snd_strerror(result));
       return false;
       }
 
-    fxmessage("[alsa] opened device \"%s\"\n",config.device.text());
+    GM_DEBUG_PRINT("[alsa] opened device \"%s\"\n",config.device.text());
 
     snd_pcm_info_t* info;
     snd_pcm_info_alloca(&info);
 
     if (snd_pcm_info(handle,info)>=0) {
-      fxmessage("alsa device: %s %s %s\n",snd_pcm_info_get_id(info),snd_pcm_info_get_name(info),snd_pcm_info_get_subdevice_name(info));
+      GM_DEBUG_PRINT("alsa device: %s %s %s\n",snd_pcm_info_get_id(info),snd_pcm_info_get_name(info),snd_pcm_info_get_subdevice_name(info));
 
       FXString mixerdevice;
 
       mixerdevice.format("hw:%d",snd_pcm_info_get_card(info));
 
       if (snd_mixer_open(&mixer,0)<0) {
-        fxmessage("Unable to open mixer: %s\n",snd_strerror(result));
+        GM_DEBUG_PRINT("Unable to open mixer: %s\n",snd_strerror(result));
         return true;
         }
 
       if ((result=snd_mixer_attach(mixer,mixerdevice.text()))<0) {
-        fxmessage("Unable to attach mixer: %s\n",snd_strerror(result));
+        GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));
         snd_mixer_close(mixer);
         mixer=NULL;
         return true;
         }
 
       if ((result=snd_mixer_selem_register(mixer,NULL,NULL))<0){
-        fxmessage("Unable to register simple mixer: %s\n",snd_strerror(result));
+        GM_DEBUG_PRINT("Unable to register simple mixer: %s\n",snd_strerror(result));
         snd_mixer_close(mixer);
         mixer=NULL;
         return true;
         }
 
       if ((result=snd_mixer_load(mixer))<0) {
-        fxmessage("Unable to attach mixer: %s\n",snd_strerror(result));
+        GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));
         snd_mixer_close(mixer);
         mixer=NULL;
         return true;
@@ -134,7 +134,7 @@ FXbool AlsaOutput::open() {
         if (snd_mixer_selem_has_playback_channel(element,SND_MIXER_SCHN_FRONT_LEFT) &&
             snd_mixer_selem_has_playback_channel(element,SND_MIXER_SCHN_FRONT_RIGHT)) {
           mixer_element=element;
-          fxmessage("found mixer: %s\n",snd_mixer_selem_get_name(element));
+          GM_DEBUG_PRINT("found mixer: %s\n",snd_mixer_selem_get_name(element));
           break;
           }
         }
@@ -278,7 +278,7 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
 
   /// Select whether we want to allow ALSA to resample
   if (snd_pcm_hw_params_set_rate_resample(handle,hw,(config.flags&AlsaConfig::DeviceNoResample) ? 0 : 1 )<0){
-    fxmessage("Unable to set hardware sample rate only\n");
+    GM_DEBUG_PRINT("Unable to set hardware sample rate only\n");
     goto failed;
     }
 
@@ -402,12 +402,12 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   if (snd_pcm_sw_params_get_stop_threshold(sw,&stopthreshold)<0)
     goto failed;
 
-  fxmessage("[alsa] configuration\n");
-  fxmessage("\tstart threshold: %lu\n",startthreshold);
-  fxmessage("\tstop threshold: %lu\n",stopthreshold);
-  fxmessage("\tavail min: %lu\n",availmin);
-  fxmessage("\tperiod size: %lu\n",periodsize);
-  fxmessage("\tbuffer size: %lu\n",buffersize);
+  GM_DEBUG_PRINT("[alsa] configuration\n");
+  GM_DEBUG_PRINT("\tstart threshold: %lu\n",startthreshold);
+  GM_DEBUG_PRINT("\tstop threshold: %lu\n",stopthreshold);
+  GM_DEBUG_PRINT("\tavail min: %lu\n",availmin);
+  GM_DEBUG_PRINT("\tperiod size: %lu\n",periodsize);
+  GM_DEBUG_PRINT("\tbuffer size: %lu\n",buffersize);
 #endif
 
   if (snd_pcm_nonblock(handle,1)<0)
@@ -415,7 +415,7 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
 
   return true;
 failed:
-  fxmessage("[alsa] unsupported configuration\n");
+  GM_DEBUG_PRINT("[alsa] unsupported configuration\n");
   af.reset();
   return false;
   }
@@ -436,18 +436,18 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
       /// Failed States
       case SND_PCM_STATE_DRAINING     :
       case SND_PCM_STATE_DISCONNECTED :
-      case SND_PCM_STATE_OPEN         : fxmessage("[alsa] state is open, draining or disconnected\n");
+      case SND_PCM_STATE_OPEN         : GM_DEBUG_PRINT("[alsa] state is open, draining or disconnected\n");
                                         return false;
                                         break;
 
-      case SND_PCM_STATE_PAUSED       : fxerror("[alsa] state is paused while write is called\n");
+      case SND_PCM_STATE_PAUSED       : GM_DEBUG_PRINT("[alsa] state is paused while write is called\n");
                                         return false;
                                         break;
 
       /// Recoverable States
       case SND_PCM_STATE_XRUN         :
         {
-          fxmessage("[alsa] xrun\n");
+          GM_DEBUG_PRINT("[alsa] xrun\n");
           result = snd_pcm_prepare(handle);
           if (result<0) {
             fxmessage("[alsa] %s",snd_strerror(result));
@@ -459,7 +459,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
         {
           result = snd_pcm_prepare(handle);
           if (result<0) {
-            fxmessage("[alsa] %s",snd_strerror(result));
+            GM_DEBUG_PRINT("[alsa] %s",snd_strerror(result));
             return false;
             }
 
@@ -467,7 +467,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
 
       case SND_PCM_STATE_SUSPENDED:
         {
-          fxmessage("[alsa] suspended\n");
+          GM_DEBUG_PRINT("[alsa] suspended\n");
           result=-1;
 
           if (can_resume) {
@@ -480,7 +480,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
             result = snd_pcm_prepare(handle);
 
           if (result!=0) {
-            fxmessage("[alsa] %s",snd_strerror(result));
+            GM_DEBUG_PRINT("[alsa] %s",snd_strerror(result));
             return false;
             }
 
@@ -495,7 +495,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
             if (result<0) {
               /// Underrun / Suspended
               if (result==-EPIPE || result==-ESTRPIPE) {
-                fxmessage("[alsa] %s\n",snd_strerror(result));
+                GM_DEBUG_PRINT("[alsa] %s\n",snd_strerror(result));
                 continue;
                 }
               return false;
@@ -513,20 +513,20 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
             continue;
 
           if (nwritten<0) {
-            fxmessage("[alsa] xrun or suspend: %s\n",snd_strerror(nwritten));
+            GM_DEBUG_PRINT("[alsa] xrun or suspend: %s\n",snd_strerror(nwritten));
             nwritten = snd_pcm_recover(handle,nwritten,1);
             if (nwritten<0) {
               if (nwritten!=-EAGAIN) {
-                fxmessage("[alsa] fatal write error %ld:  %s\n",nwritten,snd_strerror(nwritten));
+                GM_DEBUG_PRINT("[alsa] fatal write error %ld:  %s\n",nwritten,snd_strerror(nwritten));
                 return false;
                 }
               }
             }
           if (nwritten>0) {
             buf+=(nwritten*af.framesize());
-            nframes-=nwritten;            
+            nframes-=nwritten;
             if (snd_pcm_state(handle)!=SND_PCM_STATE_RUNNING) {
-              fxmessage("PCM NOT RUNNING\n");
+              GM_DEBUG_PRINT("PCM NOT RUNNING\n");
               }
             }
         } break;

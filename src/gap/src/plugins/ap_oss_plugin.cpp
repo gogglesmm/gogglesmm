@@ -91,7 +91,7 @@ FXbool OSSOutput::open() {
   if (handle==BadHandle) {
     handle = ::open(config.device.text(),O_WRONLY);
     if (handle==BadHandle) {
-      fxmessage("[oss] Unable to open device %s.\nError:%s\n",config.device.text(),strerror(errno));
+      GM_DEBUG_PRINT("[oss] Unable to open device %s.\nError:%s\n",config.device.text(),strerror(errno));
       return false;
       }
 
@@ -100,10 +100,10 @@ FXbool OSSOutput::open() {
     /// Turn off automatic resampling.
     FXint enabled=(config.flags&OSSConfig::DeviceNoResample) ? 0 : 1;
     if (ioctl(fd,SNDCTL_DSP_COOKEDMODE,&enabled)==-1)
-      fxwarning("[oss] unable to set cooked mode\n");
+      GM_DEBUG_PRINT("[oss] unable to set cooked mode\n");
 #endif
 
-    fxmessage("[oss] opened device \"%s\"\n",config.device.text());
+    GM_DEBUG_PRINT("[oss] opened device \"%s\"\n",config.device.text());
     }
   return true;
   }
@@ -211,7 +211,7 @@ FXbool OSSOutput::configure(const AudioFormat & fmt){
   af.rate=sample_rate;
   return true;
 failed:
-  fxmessage("[oss] Unsupported configuration:\n");
+  GM_DEBUG_PRINT("[oss] Unsupported configuration:\n");
   af.debug();
   return false;
   }
@@ -224,7 +224,7 @@ FXbool OSSOutput::write(const void * buffer,FXuint nframes){
   const FXchar * buf = (const FXchar*)buffer;
 
   if (__unlikely(handle==BadHandle)) {
-    fxmessage("[oss] device not opened\n");
+    GM_DEBUG_PRINT("[oss] device not opened\n");
     return false;
     }
 
@@ -234,7 +234,7 @@ FXbool OSSOutput::write(const void * buffer,FXuint nframes){
       if (errno==EAGAIN || errno==EINTR)
         continue;
 
-      fxmessage("[oss] %s\n",strerror(errno));
+      GM_DEBUG_PRINT("[oss] %s\n",strerror(errno));
       return false;
       }
     buf+=nwritten;

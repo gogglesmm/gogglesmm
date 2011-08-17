@@ -65,7 +65,7 @@ FXbool WavReader::seek(FXdouble pos){
 //  if (af.codec==Codec::PCM) {
     FXlong b = (FXlong)(((FXdouble)datasize)*pos);
     FXlong offset=FXCLAMP(0,((b / af.framesize()) * af.framesize()),datasize);
-    fxmessage("seek to %ld\n",offset);
+    GM_DEBUG_PRINT("seek to %ld\n",offset);
 
     offset+=input_start;
     engine->input->position(offset,FXIO::Begin);
@@ -120,10 +120,10 @@ ReadStatus WavReader::parse() {
   FXushort validbitspersample;
   FXuint   channelmask;
 
-  fxmessage("parsing wav header\n");
+  GM_DEBUG_PRINT("parsing wav header\n");
 
   if (engine->input->read(&chunkid,4)!=4 || chunkid[0]!='R' || chunkid[1]!='I' || chunkid[2]!='F' || chunkid[3]!='F'){
-    fxmessage("no RIFF tag found\n");
+    GM_DEBUG_PRINT("no RIFF tag found\n");
     return ReadError;
     }
 
@@ -132,22 +132,22 @@ ReadStatus WavReader::parse() {
     }
 
   if (engine->input->read(&chunkid,4)!=4 || chunkid[0]!='W' || chunkid[1]!='A' || chunkid[2]!='V' || chunkid[3]!='E'){
-    fxmessage("no WAVE tag found\n");
+    GM_DEBUG_PRINT("no WAVE tag found\n");
     return ReadError;
     }
 
   if (engine->input->read(&chunkid,4)!=4 || chunkid[0]!='f' || chunkid[1]!='m' || chunkid[2]!='t' || chunkid[3]!=' '){
-    fxmessage("no fmt tag found\n");
+    GM_DEBUG_PRINT("no fmt tag found\n");
     return ReadError;
     }
 
   if (engine->input->read(&chunksize,4)!=4)
     return ReadError;
 
-  fxmessage("chunksize=%d\n",chunksize);
+  GM_DEBUG_PRINT("chunksize=%d\n",chunksize);
 
   if (engine->input->read(&wconfig,2)!=2 || !(wconfig==WAV_FORMAT_PCM || wconfig==WAV_FORMAT_EXTENSIBLE) ) {
-    fxmessage("WAV not in PCM config: %x\n",wconfig);
+    GM_DEBUG_PRINT("WAV not in PCM config: %x\n",wconfig);
     return ReadError;
     }
 
@@ -204,7 +204,7 @@ ReadStatus WavReader::parse() {
     if (engine->input->read(&validbitspersample,2)!=2)
       return ReadError;
 
-      fxmessage("subsize: %d\n",validbitspersample);
+      GM_DEBUG_PRINT("subsize: %d\n",validbitspersample);
 
 
     if (engine->input->read(&validbitspersample,2)!=2)
@@ -219,16 +219,16 @@ ReadStatus WavReader::parse() {
     chunksize-=10;
 
 
-    fxmessage("validbitspersample: %d\n",validbitspersample);
-    fxmessage("channelmask: %x\n",channelmask);
+    GM_DEBUG_PRINT("validbitspersample: %d\n",validbitspersample);
+    GM_DEBUG_PRINT("channelmask: %x\n",channelmask);
 
     }
 
-  fxmessage("chunksize left: %d\n",chunksize);
+  GM_DEBUG_PRINT("chunksize left: %d\n",chunksize);
   engine->input->position(chunksize,FXIO::Current);
 
   if (engine->input->read(&chunkid,4)!=4 || chunkid[0]!='d' || chunkid[1]!='a' || chunkid[2]!='t' || chunkid[3]!='a'){
-    fxmessage("data tag not found: %c%c%c%c\n",chunkid[0],chunkid[1],chunkid[2],chunkid[3]);
+    GM_DEBUG_PRINT("data tag not found: %c%c%c%c\n",chunkid[0],chunkid[1],chunkid[2],chunkid[3]);
     return ReadError;
     }
 
@@ -247,7 +247,7 @@ ReadStatus WavReader::parse() {
   af.debug();
 
   if (block!=af.framesize())
-    fxwarning("warning: blockalign not the same as framesize\n");
+    GM_DEBUG_PRINT("warning: blockalign not the same as framesize\n");
 
 
   flags|=FLAG_PARSED;

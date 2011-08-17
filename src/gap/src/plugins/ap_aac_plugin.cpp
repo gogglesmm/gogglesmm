@@ -216,7 +216,7 @@ ReadStatus MP4Reader::parse() {
         af.debug();
 
         if (size>packet->space()) {
-          fxmessage("MP4 config buffer is too big for decoder packet");
+          GM_DEBUG_PRINT("MP4 config buffer is too big for decoder packet");
           free(buffer);
           goto error;
           }
@@ -273,14 +273,14 @@ ReaderPlugin * ap_aac_reader(AudioEngine * engine) {
 
 ReadStatus AACReader::process(Packet*packet) {
   if (!(flags&FLAG_PARSED)) {
-    fxmessage("finding sync\n");
+    GM_DEBUG_PRINT("finding sync\n");
     FXuchar buffer[2];
     if (engine->input->read(buffer,2)!=2)
       return ReadError;
     do {
 //      fxmessage("0x%hhx  0x%hhx\n",buffer[0],buffer[1]);
       if ((buffer[0]==0xFF) && (buffer[1]&0xf0)==0xf0) {
-        fxmessage("found sync\n");
+        GM_DEBUG_PRINT("found sync\n");
  //       af.set(AP_FORMAT_S16,44100,2);
         engine->decoder->post(new ConfigureEvent(af,Codec::AAC));
         flags|=FLAG_PARSED;
@@ -400,7 +400,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
       }
 
 	  if (frame.error > 0) {
-	    fxmessage("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));
+	    GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));
 	    }
 
     if (frame.samples) {
