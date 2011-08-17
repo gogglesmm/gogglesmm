@@ -175,8 +175,8 @@ public:
     return 1+((format>>Format::Pack_Shift)&Format::Pack_Mask);
     }
 
-  FXuint framesize() const {
-    return channels * packing();
+  FXint framesize() const {
+    return (FXint)channels * (FXint)packing();
     }
 
 
