@@ -10,8 +10,6 @@ protected:
   ThreadQueue  fifo;
 public:
   AudioEngine * engine;
-protected:
-  virtual FXint process(Event*);
 public:
   /// Constructor
   EngineThread(AudioEngine * engine);
@@ -28,7 +26,7 @@ public:
   /// Post event to this thread
   void post(Event * event,FXint where=EventQueue::Back);
 
-  /// Return 
+  /// Return
   FXInputHandle getFifoHandle() const { return fifo.handle(); }
 
   /// Destructor

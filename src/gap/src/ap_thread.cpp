@@ -5,7 +5,7 @@
 #include "ap_thread_queue.h"
 #include "ap_thread.h"
 
-namespace ap { 
+namespace ap {
 
 EngineThread::EngineThread(AudioEngine * e) : engine(e){
   }
@@ -19,10 +19,6 @@ FXbool EngineThread::init() {
 
 void EngineThread::free() {
   fifo.free();
-  }
-
-FXint EngineThread::process(Event*){
-  return 0;
   }
 
 void EngineThread::post(Event * event,FXint where) {
