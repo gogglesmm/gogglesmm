@@ -1,6 +1,16 @@
 #include "ap_defs.h"
 #include "ap_memory_buffer.h"
 
+#define INT8_MIN (-128)
+#define INT8_MAX (127)
+#define INT16_MIN (-32767-1)
+#define INT16_MAX (32767)
+#define INT24_MIN (-8388608)
+#define INT24_MAX (8388607)
+#define INT32_MIN (-2147483647-1)
+#define INT32_MAX (2147483647)
+
+
 /*
   TODO:
     - Need audio dithering when converting between sample formats
@@ -10,46 +20,37 @@
 
 namespace ap {
 
-const FXint S8_MIN  = -128;
-const FXint S8_MAX  = 127;
-const FXint S16_MIN = -32768;
-const FXint S16_MAX = 32767;
-const FXint S24_MIN = -8388608;
-const FXint S24_MAX = 8388607;
-const FXint S32_MIN = -2147483648;
-const FXint S32_MAX = 2147483647;
-
 
 static FXint s16_to_s32(FXshort x) {
-  if (x==S16_MIN)
-    return S32_MIN;
+  if (x==INT16_MIN)
+    return INT32_MIN;
   else
     return (x<<16)+(x+x)+((x+16383)>>15);
   }
 
 static FXint s24_to_s32(FXint x) {
-  if (x==S24_MIN)
-    return S32_MIN;
+  if (x==INT24_MIN)
+    return INT32_MIN;
   else
     return (x<<8)+(x>>16)+(x>>16)+((x+4194303)>>23);
   }
 
 static FXshort float_to_s16(FXfloat x) {
-  FXfloat c = x*S16_MAX;
-  if (c>=S16_MAX)
-    return S16_MAX;
-  else if (c<=S16_MIN)
-    return S16_MIN;
+  FXfloat c = x*INT16_MAX;
+  if (c>=INT16_MAX)
+    return INT16_MAX;
+  else if (c<=INT16_MIN)
+    return INT16_MIN;
   else
     return lrintf(c);
   }
 
 static FXint float_to_s32(FXfloat x) {
-  FXfloat c = x*S32_MAX;
-  if (c>=S32_MAX)
-    return S32_MAX;
-  else if (c<=S32_MIN)
-    return S32_MIN;
+  FXfloat c = x*INT32_MAX;
+  if (c>=INT32_MAX)
+    return INT32_MAX;
+  else if (c<=INT32_MIN)
+    return INT32_MIN;
   else
     return lrintf(c);
   }
