@@ -134,10 +134,6 @@ enum {
   };
 
 
-//extern GMAPI FXushort ap_format_try_compatible(FXushort format);
-//extern GMAPI FXushort ap_format_try_swap(FXushort format);
-
-
 extern FXuint ap_format_from_extension(const FXString & extension);
 extern FXuint ap_format_from_mime(const FXString & mime);
 extern FXuint ap_format_from_buffer(const FXchar * buffer,FXival size);

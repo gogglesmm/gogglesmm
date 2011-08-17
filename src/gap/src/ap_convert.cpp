@@ -14,8 +14,6 @@
 /*
   TODO:
     - Need audio dithering when converting between sample formats
-
-
 */
 
 namespace ap {

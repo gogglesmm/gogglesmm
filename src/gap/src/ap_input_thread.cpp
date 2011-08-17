@@ -208,11 +208,11 @@ FXint InputThread::run(){
       case Ctrl_Close     : ctrl_flush(true);
                             ctrl_close_input(true);
                             break;
-                            
-      case Ctrl_Open_Flush: ctrl_flush();                            
+
+      case Ctrl_Open_Flush: ctrl_flush();
       case Ctrl_Open      : ctrl_open_input(((ControlEvent*)event)->text);
                             break;
-                            
+
       case Ctrl_Quit      : ctrl_close_input(true);
                             engine->decoder->post(event,EventQueue::Flush);
                             return 0;
@@ -220,7 +220,7 @@ FXint InputThread::run(){
       case Ctrl_Seek      : ctrl_seek(((CtrlSeekEvent*)event)->pos);
                             break;
       case End            : if (event->stream==streamid) {
-                              ctrl_eos(); 
+                              ctrl_eos();
                               }
                             break;
       case Meta           : engine->decoder->post(event);
@@ -234,13 +234,13 @@ FXint InputThread::run(){
           packet->stream = streamid;
           FXuint status = reader->process(packet);
           switch(status) {
-            case ReadError    : fxmessage("[input] error\n");
+            case ReadError    : GM_DEBUG_PRINT("[input] error\n");
                                 ctrl_close_input();
                                 break;
-            case ReadDone     : fxmessage("[input] done\n");
+            case ReadDone     : GM_DEBUG_PRINT("[input] done\n");
                                 set_state(StateIdle);
                                 break;
-            case ReadRedirect : {fxmessage("[input] redirect\n");
+            case ReadRedirect : {GM_DEBUG_PRINT("[input] redirect\n");
                                 FXStringList list;
                                 reader->redirect(list);
                                 ctrl_open_inputs(list);
@@ -449,7 +449,7 @@ failed:
 void InputThread::set_state(FXuchar s,FXbool notify) {
   if (state!=s) {
     state=s;
-    if (state==StateIdle) fxmessage("set state idle\n");
+    if (state==StateIdle) GM_DEBUG_PRINT("[input] set state idle\n");
     }
 
   /// Tell front end about the state.
