@@ -118,18 +118,18 @@ void OSSOutput::close() {
   }
 
 FXint OSSOutput::delay() {
-  FXint delay=0;
+  FXint value=0;
   if (__likely(handle!=BadHandle)) {
 
     /// Delay in bytes
-    if (ioctl(handle,SNDCTL_DSP_GETODELAY,&delay)==-1)
+    if (ioctl(handle,SNDCTL_DSP_GETODELAY,&value)==-1)
       return 0;
 
-    if (delay<0)
+    if (value<0)
       return 0;
 
     /// Return delay in number of frames
-    return (delay / af.framesize());
+    return (value / af.framesize());
     }
   else {
     return 0;

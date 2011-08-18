@@ -19,7 +19,7 @@ using namespace ap;
 namespace ap {
 
 
-InputPlugin::InputPlugin(InputThread * i,FXival size) : input(i), buffer(size) {
+InputPlugin::InputPlugin(InputThread * i,FXival sz) : input(i), buffer(sz) {
   }
 
 InputPlugin::InputPlugin(InputThread * i) : input(i), buffer(0) {
@@ -93,11 +93,11 @@ FXival InputPlugin::fillBuffer(FXival count) {
 FXival InputPlugin::readBlock(void*data,FXival count,FXbool wait){
   FXival nread;
   FXival ncount=count;
-  FXchar * buffer = (FXchar *)data;
+  FXchar * buf = (FXchar*)data;
   while(ncount>0) {
-    nread=read_raw(buffer,ncount);
+    nread=read_raw(buf,ncount);
     if (__likely(nread>0)) {
-      buffer+=nread;
+      buf+=nread;
       ncount-=nread;
       }
     else if (nread==0) { // eof!

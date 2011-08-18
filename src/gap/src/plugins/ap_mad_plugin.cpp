@@ -317,7 +317,7 @@ public:
   ~VBRIHeader();
   };
 
-VBRIHeader::VBRIHeader(const FXuchar * buffer,FXival nbytes) : toc(NULL) {
+VBRIHeader::VBRIHeader(const FXuchar * buffer,FXival) : toc(NULL) {
   version           = INT16_BE(buffer+4);
   delay             = INT16_BE(buffer+6);
   quality           = INT16_BE(buffer+8);
@@ -501,7 +501,7 @@ LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), 
   fxmessage("\t       padding: %d %d\n",padstart,padend);
   fxmessage("\t          misc: %x\n",misc);
   fxmessage("\t        length: %d\n",length);
-#endif  
+#endif
   }
 
 FXdouble LameHeader::parse_replay_gain(const FXuchar * buffer) {
@@ -879,12 +879,12 @@ FXbool MadReader::parse_id3v2() {
   if (engine->input->read(info,6)!=6)
     return NULL;
 
-  const FXuchar & flags = info[1];
+  const FXuchar & id3v2_flags = info[1];
   FXint tagsize = ID3_SYNCSAFE_INT32(info+2);
 
 
   tagsize+=10;
-  if (flags&ID3V2::HAS_FOOTER) {
+  if (id3v2_flags&ID3V2::HAS_FOOTER) {
     tagsize+=10;
     }
 

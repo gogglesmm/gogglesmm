@@ -388,12 +388,12 @@ ReaderPlugin* InputThread::open_reader() {
   }
 
 
-void InputThread::ctrl_open_inputs(const FXStringList & url){
-  for (FXint i=0;i<url.no();i++){
-    if (url[i].empty()) continue;
+void InputThread::ctrl_open_inputs(const FXStringList & urls){
+  for (FXint i=0;i<urls.no();i++){
+    if (urls[i].empty()) continue;
 
     /// Open Input
-    input=open_input(url[i]);
+    input=open_input(urls[i]);
     if (input==NULL) continue;
 
     /// Open Reader

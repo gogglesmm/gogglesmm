@@ -52,8 +52,8 @@ void AudioFormat::reset() {
   channels=0;
   }
 
-void AudioFormat::set(FXushort dt,FXushort bps,FXushort pack,FXuint r,FXuchar nc) {
-  format=dt|((bps-1)<<Format::Bits_Shift)|((pack-1)<<Format::Pack_Shift);
+void AudioFormat::set(FXushort dt,FXushort bits,FXushort pack,FXuint r,FXuchar nc) {
+  format=dt|((bits-1)<<Format::Bits_Shift)|((pack-1)<<Format::Pack_Shift);
   rate=r;
   channels=nc;
   }

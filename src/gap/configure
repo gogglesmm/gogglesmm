@@ -35,7 +35,7 @@ OPTION_PLUGIN_ALSA=1
 OPTION_PLUGIN_OSS=1
 OPTION_PLUGIN_PULSE=1
 OPTION_PLUGIN_JACK=1
-OPTION_PLUGIN_RSOUND=1  
+OPTION_PLUGIN_RSOUND=1
 OPTION_PLUGIN_AVCODEC=0 # disabled for now
 OPTION_PLUGIN_CDDA=1
 OPTION_PLUGIN_MMS=1 # disabled for now
@@ -61,7 +61,7 @@ SONAME=${SONAME:--Wl,-soname,}
 # Either override GEN_CFLAGS, OPT_CFLAGS and DEBUG_CFLAGS individually
 # or set CFLAGS which overrides all them
 #-------------------------------------------------------
-GEN_CFLAGS=${GEN_CFLAGS:--Wall -Wextra -Wformat=2 -pipe -fPIC -fvisibility=hidden}
+GEN_CFLAGS=${GEN_CFLAGS:--Wall -Wextra -Wdouble-promotion -Wshadow -Wformat=2 -pipe -fPIC -fvisibility=hidden}
 OPT_CFLAGS=${OPT_CFLAGS:--O3 -march=native -fstack-protector }
 DEBUG_CFLAGS=${DEBUG_CFLAGS:--g -fstack-protector-all}
 

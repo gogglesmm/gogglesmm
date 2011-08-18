@@ -147,9 +147,9 @@ void AlsaOutput::volume(FXfloat v) {
   if (mixer && mixer_element) {
     long min,max;
     snd_mixer_selem_get_playback_volume_range(mixer_element,&min,&max);
-    long volume = FXLERP(min,max,v);
+    long value = FXLERP(min,max,v);
 
-    snd_mixer_selem_set_playback_volume_all(mixer_element,volume);
+    snd_mixer_selem_set_playback_volume_all(mixer_element,value);
 
 //    snd_mixer_selem_set_playback_volume(mixer_element,SND_MIXER_SCHN_FRONT_LEFT,volume);
 //    snd_mixer_selem_set_playback_volume(mixer_element,SND_MIXER_SCHN_FRONT_RIGHT,volume);

@@ -137,9 +137,9 @@ void OutputThread::reconfigure() {
 
 
 void OutputThread::notify_position() {
-  FXint time = (FXint) floor((double)stream_position / (double)plugin->af.rate);
-  if (time!=timestamp) {
-    timestamp=time;
+  FXint tm = (FXint) floor((double)stream_position / (double)plugin->af.rate);
+  if (tm!=timestamp) {
+    timestamp=tm;
     FXuint len =0;
     len = floor((double)stream_length / (double)plugin->af.rate);
     engine->post(new TimeUpdate(timestamp,len));
@@ -168,10 +168,10 @@ void OutputThread::update_timers(FXint delay,FXint nframes) {
 
 
 
-void OutputThread::update_position(FXint id,FXint position,FXint nframes,FXint length) {
+void OutputThread::update_position(FXint sid,FXint position,FXint nframes,FXint length) {
   FXint delay = plugin->delay();
 
-  if (id!=stream) {
+  if (sid!=stream) {
     if (stream_remaining>0) {
       GM_DEBUG_PRINT("stream_remaining already set. probably very short track. let's drain\n");
       drain(false);
@@ -187,7 +187,7 @@ void OutputThread::update_position(FXint id,FXint position,FXint nframes,FXint l
       if (stream_remaining<=0)
         engine->post(new Event(AP_BOS));
       }
-    stream=id;
+    stream=sid;
     }
 
   if (stream_remaining>0) {
@@ -433,7 +433,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
   if (af==fmt || fmt==plugin->af){
     af=fmt;
     draining=false;
-    
+
     fxmessage("stream ");
     fmt.debug();
     fxmessage("output ");
@@ -616,7 +616,7 @@ void OutputThread::reset_position() {
 static void apply_scale_float(FXuchar * buffer,FXuint nsamples,FXdouble scale) {
   FXfloat * out = reinterpret_cast<FXfloat*>(buffer);
   for (FXuint i=0;i<nsamples;i++) {
-    out[i]*=scale;
+    out[i]*=(FXfloat)scale;
     }
   }
 

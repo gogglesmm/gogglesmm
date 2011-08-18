@@ -178,26 +178,26 @@ void PulseOutput::close() {
 void PulseOutput::volume(FXfloat v) {
   if (mainloop && context && stream) {
     pa_threaded_mainloop_lock(mainloop);
-    pa_cvolume volume;
-    pa_cvolume_set(&volume,af.channels,pa_sw_volume_from_linear((FXdouble)v));
-    pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&volume,NULL,NULL);
+    pa_cvolume cvol;
+    pa_cvolume_set(&cvol,af.channels,pa_sw_volume_from_linear((FXdouble)v));
+    pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&cvol,NULL,NULL);
     pa_operation_unref(operation);
     pa_threaded_mainloop_unlock(mainloop);
     }
   }
 
 FXint PulseOutput::delay() {
-  FXint delay=0;
+  FXint value=0;
   if (stream) {
     pa_usec_t latency;
     int negative;
     pa_threaded_mainloop_lock(mainloop);
     if (pa_stream_get_latency(stream,&latency,&negative)>=0){
-      delay = (latency*af.rate) / 1000000;
+      value = (latency*af.rate) / 1000000;
       }
     pa_threaded_mainloop_unlock(mainloop);
     }
-  return delay;
+  return value;
   }
 
 void PulseOutput::drop() {

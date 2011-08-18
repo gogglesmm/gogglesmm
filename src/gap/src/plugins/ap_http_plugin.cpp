@@ -217,11 +217,11 @@ FXival HttpInput::read_raw(void* data,FXival count){
 FXbool HttpInput::write(const FXString & data) {
   FXival nwritten;
   FXival ncount=data.length();
-  FXchar * buffer = (FXchar*)data.text();
+  FXchar * buf = (FXchar*)data.text();
   while(ncount>0) {
-    nwritten=write_raw(buffer,ncount);
+    nwritten=write_raw(buf,ncount);
     if (__likely(nwritten>0)) {
-      buffer+=nwritten;
+      buf+=nwritten;
       ncount-=nwritten;
       }
     else if (nwritten==0) {
@@ -303,7 +303,7 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
 FXbool HttpInput::next_header(FXString & header) {
   FXchar * buf  = (FXchar*)buffer.sr;
   FXint    len  = buffer.size();
-  FXint    size=0;
+  FXint    sz=0;
   FXint    end=0;
   FXint    i,h;
   FXbool   found = false;
@@ -314,7 +314,7 @@ FXbool HttpInput::next_header(FXString & header) {
     if (buf[i]=='\n') {
 
       /// header may continue on the next line, so check first byte of next line
-      if (size>0) {
+      if (sz>0) {
 
         /// Not enough data, so we need to fetch more.
         if ((i+1)>=len)
@@ -329,17 +329,17 @@ FXbool HttpInput::next_header(FXString & header) {
       break;
       }
     else if (buf[i]!='\r') {
-      size++;
+      sz++;
       }
     }
 
   if (found) {
-    if (size) {
-      header.length(size);
-      for (i=0,h=0;h<size;i++) {
+    if (sz) {
+      header.length(sz);
+      for (i=0,h=0;h<sz;i++) {
         if (buf[i]=='\r' || buf[i]=='\n')
           continue;
-        FXASSERT(h<size);
+        FXASSERT(h<sz);
         header[h++]=buf[i];
         }
       }
@@ -453,8 +453,8 @@ FXbool HttpInput::parse_response() {
 
 
 
-void HttpInput::icy_parse(const FXString & buffer) {
-  FXString title = buffer.after('=').before(';');
+void HttpInput::icy_parse(const FXString & str) {
+  FXString title = str.after('=').before(';');
   MetaInfo * meta = new MetaInfo();
   meta->title = title;
   input->post(meta);
