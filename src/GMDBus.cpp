@@ -151,8 +151,8 @@ void GMDBusTimeout::remove() {
   }
 
 
-static dbus_bool_t fxdbus_addtimeout(DBusTimeout *timeout,void *ptr) {
-  fxmessage("fxdbus_addtimeout %p\n",timeout);
+static dbus_bool_t fxdbus_addtimeout(DBusTimeout *timeout,void *) {
+  //fxmessage("fxdbus_addtimeout %p\n",timeout);
   GMDBusTimeout * tm = fxdbus.find(timeout);
   if (tm==NULL)
     tm = new GMDBusTimeout(timeout);
@@ -162,14 +162,14 @@ static dbus_bool_t fxdbus_addtimeout(DBusTimeout *timeout,void *ptr) {
   }
 
 
-static void fxdbus_removetimeout(DBusTimeout *timeout,void * data) {
-  fxmessage("fxdbus_removetimeout %p\n",timeout);
+static void fxdbus_removetimeout(DBusTimeout *timeout,void *) {
+  //fxmessage("fxdbus_removetimeout %p\n",timeout);
   GMDBusTimeout * tm = fxdbus.find(timeout);
   if (tm) tm->remove();
   }
 
-static void fxdbus_toggletimeout(DBusTimeout *timeout,void* data) {
-  fxmessage("fxdbus_toggletimeout %p\n",timeout);
+static void fxdbus_toggletimeout(DBusTimeout *timeout,void*data) {
+  //fxmessage("fxdbus_toggletimeout %p\n",timeout);
   if (dbus_timeout_get_enabled(timeout) && dbus_timeout_get_interval(timeout)>0)
     fxdbus_addtimeout(timeout,data);
   else
@@ -177,12 +177,12 @@ static void fxdbus_toggletimeout(DBusTimeout *timeout,void* data) {
   }
 
 long GMDBusTimeout::onTimeout(FXObject*,FXSelector,void*){
-  fxmessage("onTimeout() %p {\n",timeout);
+  //fxmessage("onTimeout() %p {\n",timeout);
   flags|=FLAG_CALLBACK;
   dbus_timeout_handle(timeout);
   if (flags&FLAG_REMOVED) {
     delete this;
-    fxmessage("}\n");
+    //fxmessage("}\n");
     return 1;
     }
   else {
@@ -191,7 +191,7 @@ long GMDBusTimeout::onTimeout(FXObject*,FXSelector,void*){
       }
     }
   flags&=~FLAG_CALLBACK;
-  fxmessage("}\n");
+  //fxmessage("}\n");
   return 1;
   }
 
@@ -424,7 +424,7 @@ long GMDBus::onHandleExcept(FXObject*,FXSelector,void*ptr){
   return 0;
   }
 
-long GMDBus::onDispatch(FXObject*,FXSelector,void*ptr){
+long GMDBus::onDispatch(FXObject*,FXSelector,void*){
   if (dbus_connection_dispatch((DBusConnection*)dc)==DBUS_DISPATCH_DATA_REMAINS) {
     FXApp::instance()->addChore(this,ID_DISPATCH);
     }
