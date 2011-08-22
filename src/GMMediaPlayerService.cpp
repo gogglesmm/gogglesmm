@@ -3,13 +3,8 @@
 #include "GMDBus.h"
 #include "GMMediaPlayerService.h"
 #include "GMSource.h"
-#include "GMWindow.h"
-
-
-#ifdef HAVE_XINE_LIB
-#include "GMPlayer.h"
-#endif
 #include "GMPlayerManager.h"
+#include "GMWindow.h"
 
 
 static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track) {

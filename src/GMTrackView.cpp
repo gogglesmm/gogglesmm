@@ -25,7 +25,6 @@
 #include "GMAlbumList.h"
 #include "GMTrackList.h"
 #include "GMTrackView.h"
-#include "GMWindow.h"
 #include "GMSource.h"
 #include "GMPlayerManager.h"
 #include "GMIconTheme.h"
@@ -35,6 +34,8 @@
 #include "GMDatabaseSource.h"
 #include "GMPlayListSource.h"
 #include "GMPlayQueue.h"
+#include "GMWindow.h"
+
 
 #define HIDEBROWSER (FX4Splitter::ExpandBottomLeft)
 #define SHOWBROWSER (FX4Splitter::ExpandTopLeft|FX4Splitter::ExpandTopRight|FX4Splitter::ExpandBottomLeft)

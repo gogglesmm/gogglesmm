@@ -2003,6 +2003,7 @@ GMTrackProgressBar::GMTrackProgressBar(FXComposite *p,FXObject* tgt,FXSelector s
   barColor=getApp()->getSelbackColor();
   textAltColor=getApp()->getSelforeColor();
   setFrameStyle(FRAME_LINE);
+  barsize=7;
   }
 
 
@@ -2068,7 +2069,6 @@ long GMTrackProgressBar::onMotion(FXObject*,FXSelector,void* ptr){
 
 // Pressed LEFT button
 long GMTrackProgressBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  fxmessage("press\n");
   register FXEvent *event=(FXEvent*)ptr;
   register FXint p=progress;
   flags&=~FLAG_TIP;
@@ -2108,11 +2108,13 @@ long GMTrackProgressBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 
 //    if(p<range[0]) p=range[0];
 //    if(p>range[1]) p=range[1];
+/*
     if(p!=progress){
       setProgress(p);
       flags|=FLAG_CHANGED;
       if(target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)(FXival)progress);
       }
+*/      
     return 1;
     }
   return 0;

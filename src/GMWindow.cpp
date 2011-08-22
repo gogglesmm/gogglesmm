@@ -26,15 +26,15 @@
 #include "GMTrack.h"
 #include "GMApp.h"
 #include "GMAbout.h"
-#include "GMWindow.h"
 #include "GMTrackList.h"
 #include "GMList.h"
-#include "GMRemote.h"
 #include "GMTaskManager.h"
 #include "GMSource.h"
 #include "GMFilename.h"
-#include "GMCover.h"
 #include "GMPlayerManager.h"
+#include "GMWindow.h"
+#include "GMRemote.h"
+#include "GMCover.h"
 #include "GMDatabase.h"
 #include "GMDatabaseSource.h"
 #include "GMTrackView.h"
@@ -310,11 +310,19 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
 
   FXVerticalFrame * timeframe = new FXVerticalFrame(toolbar,LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0,0,1);
-  FXHorizontalFrame *timelabelframe = new FXHorizontalFrame(timeframe,LAYOUT_FILL_X,0,0,0,0,0,0,0,0,0,0);
-  timelabel  =new FXLabel(timelabelframe,"--:--",NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0);
+  label_nowplaying = new FXLabel(timeframe," ",NULL,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_CENTER_X,0,0,0,0,0,0,0,0);
+//  new FXLabel(timeframe," ",NULL,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0);
 
-  label_nowplaying = new FXLabel(timelabelframe," ",NULL,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0);
-  trackslider      = new GMTrackProgressBar(timeframe,this,ID_TIMESLIDER,LAYOUT_FILL_X|LAYOUT_BOTTOM|FRAME_RAISED,0,0,0,0,0,0,0,0);
+  FXHorizontalFrame *timelabelframe = new FXHorizontalFrame(timeframe,LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
+  time_progress   = new FXTextField(timelabelframe,8,NULL,0,LAYOUT_LEFT|LAYOUT_CENTER_Y|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
+  time_remaining  = new FXTextField(timelabelframe,8,NULL,0,LAYOUT_RIGHT|LAYOUT_CENTER_Y|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
+  time_progress->disable();
+  time_remaining->disable();
+  time_progress->setJustify(JUSTIFY_CENTER_X);
+  time_remaining->setJustify(JUSTIFY_CENTER_X);
+
+
+  trackslider = new GMTrackProgressBar(timelabelframe,this,ID_TIMESLIDER,LAYOUT_FILL_X|LAYOUT_CENTER_Y|FRAME_RAISED,0,0,0,0,0,0,0,0);
   trackslider->setTotal(100000);
   trackslider->setDefaultCursor(GMIconTheme::instance()->cursor_hand);
   trackslider->setDragCursor(GMIconTheme::instance()->cursor_hand);
@@ -623,7 +631,9 @@ void GMWindow::reset() {
   if (remote) remote->reset();
 
   label_nowplaying->setText(" ");
-  timelabel->setText("--:--");
+  time_progress->setText("--:--");
+  time_remaining->setText("--:--");
+
   trackslider->disable();
   trackslider->setProgress(0);
 
@@ -716,12 +726,19 @@ void GMWindow::update_time_display() {
   }
   #endif
 
-void GMWindow::update_elapsed_time(FXint hours,FXint minutes,FXint seconds,FXint position,FXbool playing,FXbool seekable) {
+void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint position,FXbool playing,FXbool seekable) {
   if (playing) {
-    if (hours>0)
-      timelabel->setText(FXString::value("%d:%.2d:%.2d",hours,minutes,seconds));
+    if (c.hours>0)
+      time_progress->setText(FXString::value("%d:%.2d:%.2d",c.hours,c.minutes,c.seconds));
     else
-      timelabel->setText(FXString::value("%.2d:%.2d",minutes,seconds));
+      time_progress->setText(FXString::value("%.2d:%.2d",c.minutes,c.seconds));
+
+    if (position) {
+      if (r.hours>0)
+        time_remaining->setText(FXString::value("-%d:%.2d:%.2d",r.hours,r.minutes,r.seconds));
+      else
+        time_remaining->setText(FXString::value("-%.2d:%.2d",r.minutes,r.seconds));
+      }
 
     if (seekable) {
       if (!trackslider->grabbed()){
@@ -734,11 +751,12 @@ void GMWindow::update_elapsed_time(FXint hours,FXint minutes,FXint seconds,FXint
       }
     }
   else {
-    timelabel->setText("--:--");
+    time_remaining->setText("--:--");
+    time_progress->setText("--:--");
     trackslider->disable();
     trackslider->setProgress(0);
     }
-  if (remote) remote->elapsed_time(hours,minutes,seconds,position,playing);
+  if (remote) remote->update_time(c,position,playing);
   }
 
 long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){

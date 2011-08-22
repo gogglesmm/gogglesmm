@@ -59,7 +59,8 @@ public:
   // Update Display
   void display(const GMTrack & track);
 
-  void elapsed_time(FXint h,FXint m,FXint s,FXint p,FXbool playing);
+
+  void update_time(const TrackTime & current,FXint p,FXbool playing);
 
   void update_volume_display(FXint l);
 

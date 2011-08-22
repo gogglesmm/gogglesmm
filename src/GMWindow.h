@@ -77,7 +77,8 @@ private:
   FXSeparator       * controlseparator;
   FXDragCorner 			* controldragcorner;
   FXSeparator  			* controlstatusseparator;
-  FXLabel      			* timelabel;
+  FXTextField       * time_progress;
+  FXTextField      	* time_remaining;
   GMTrackProgressBar* trackslider;
   FX4Splitter       * mainsplitter;
   FXTextField       * nowplaying;
@@ -269,7 +270,7 @@ public:
   void loadCover(const FXString & filename);
 
 
-  void update_elapsed_time(FXint hours,FXint minutes,FXint seconds,FXint position,FXbool playing,FXbool seekable);
+  void update_time(const TrackTime & current,const TrackTime & remaining,FXint position,FXbool playing,FXbool seekable);
   void update_volume_display(FXint level);
 
 

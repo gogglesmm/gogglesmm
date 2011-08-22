@@ -47,9 +47,7 @@
 
 #include <FXPNGIcon.h>
 #include "GMApp.h"
-#include "GMWindow.h"
 #include "GMTrackList.h"
-#include "GMRemote.h"
 #include "GMTag.h"
 #include "GMFilename.h"
 
@@ -67,6 +65,9 @@
 #include "GMIconTheme.h"
 #include "GMPlayerManager.h"
 #include "GMTrayIcon.h"
+
+#include "GMWindow.h"
+#include "GMRemote.h"
 
 #include "GMCoverThumbs.h"
 #include "GMAudioPlayer.h"
@@ -348,7 +349,7 @@ long GMPlayerManager::onPlayNotify(FXObject*,FXSelector,void*){
   }
 
 long GMPlayerManager::onUpdTrackDisplay(FXObject*,FXSelector,void*){
-  fxmessage("onUpdTrackDisplay\n");
+  //fxmessage("onUpdTrackDisplay\n");
   update_track_display();
   getTrackView()->showCurrent();
   return 0;
@@ -1030,7 +1031,7 @@ void GMPlayerManager::update_tray_icon() {
   }
 
 void GMPlayerManager::update_album_covers() {
-  fxmessage("update_album_covers()\n");
+  //fxmessage("update_album_covers()\n");
 //  if (preferences.gui_show_albumcovers) {
     thumbs->init(database);
 //    }
@@ -1888,22 +1889,52 @@ FXbool GMPlayerManager::handle_global_hotkeys(FXuint code) {
 
 //#ifndef HAVE_XINE_LIB
 long GMPlayerManager::onPlayerBOS(FXObject*,FXSelector,void*){
-  fxmessage("[player] bos\n");
+  GM_DEBUG_PRINT("[player] bos\n");
   update_track_display();
   getTrackView()->showCurrent();
   return 1;
   }
 
 long GMPlayerManager::onPlayerEOS(FXObject*,FXSelector,void*){
-  fxmessage("[player] eos\n");
+  GM_DEBUG_PRINT("[player] eos\n");
   notify_playback_finished();
   return 1;
   }
 
-long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
 
-  PlaybackTime * tm = (PlaybackTime*)(ptr);
-  FXint time = tm->position;
+long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
+  const PlaybackTime * tm = reinterpret_cast<const PlaybackTime*>(ptr);
+
+  TrackTime tm_progress;
+  TrackTime tm_remaining;
+
+  FXint time,pos=0;
+
+  /// Time progressed
+  time                = tm->position;
+  tm_progress.hours   = (FXint) floor((double)time/3600.0);
+  time               -= (3600*tm_progress.hours);
+  tm_progress.minutes = (FXint) floor((double)time/60.0);
+  time               -= (FXint) (60*tm_progress.minutes);
+  tm_progress.seconds = (FXint) floor((double)time);
+
+
+  /// Time Remaining
+  if (tm->length) {
+    time                 = (tm->length-tm->position);
+    tm_remaining.hours   = (FXint) floor((double)time/3600.0);
+    time                -= (3600*tm_remaining.hours);
+    tm_remaining.minutes = (FXint) floor((double)time/60.0);
+    time                -= (FXint) (60*tm_remaining.minutes);
+    tm_remaining.seconds = (FXint) floor((double)time);
+
+    pos = (FXint)(100000.0 * ( (double)tm->position / (double)tm->length));
+    }
+
+
+  mainwindow->update_time(tm_progress,tm_remaining,pos,true,true);
+#if 0
+
   FXint pos=0;
 
   if (tm->length) {
@@ -1911,20 +1942,21 @@ long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
     pos = (FXint)(100000.0 * ( (double)tm->position / (double)tm->length));
     }
   FXint  hours  = (FXint) floor((double)time/3600.0);
-    time  -= (FXint) (3600*hours);
+  time  -= (FXint) (3600*hours);
   FXint minutes= (FXint) floor((double)time/60.0);
-    time  -= (FXint) (60*minutes);
+  time  -= (FXint) (60*minutes);
   FXint  seconds= (FXint) floor((double)time);
 
   /// Mark Time
   mainwindow->update_elapsed_time(hours,minutes,seconds,pos,true,true);
+#endif
   return 1;
   }
 
 long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
   FXint state = (FXint)(FXival)ptr;
   switch(state){
-    case PLAYER_STOPPED: fxmessage("player stopped\n"); reset_track_display(); break;
+    case PLAYER_STOPPED: GM_DEBUG_PRINT("player stopped\n"); reset_track_display(); break;
     case PLAYER_PLAYING: break;
     case PLAYER_PAUSING: break;
     }
@@ -1937,7 +1969,7 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
 
 long GMPlayerManager::onPlayerMeta(FXObject*,FXSelector,void* ptr){
   GMTrack * track = (GMTrack*)ptr;
-  fxmessage("[player] meta  %s\n",track->title.text());
+  GM_DEBUG_PRINT("[player] meta\n");
   if (trackinfoset==false) {
     trackinfo.title.adopt(track->title);
     trackinfo.artist.adopt(track->artist);

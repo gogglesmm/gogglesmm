@@ -9,7 +9,6 @@
 #include "GMTrackList.h"
 #include "GMTrackItem.h"
 #include "GMTrackView.h"
-#include "GMWindow.h"
 #include "GMSource.h"
 #include "GMSourceView.h"
 #include "GMClipboard.h"
@@ -22,6 +21,8 @@
 #include "GMIconTheme.h"
 #include "GMTaskManager.h"
 #include "GMTrackEditor.h"
+#include "GMWindow.h"
+
 
 #include "FXPNGIcon.h"
 #include "icons.h"

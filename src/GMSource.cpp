@@ -23,9 +23,9 @@
 #include "GMTrackDatabase.h"
 #include "GMTrackList.h"
 #include "GMTrackView.h"
-#include "GMWindow.h"
 #include "GMSource.h"
 #include "GMPlayerManager.h"
+#include "GMWindow.h"
 #include "GMIconTheme.h"
 #include "GMClipboard.h"
 

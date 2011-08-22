@@ -24,12 +24,12 @@
 #include "GMTrackList.h"
 #include "GMTrackItem.h"
 #include "GMTrackView.h"
-#include "GMWindow.h"
 #include "GMSource.h"
 #include "GMSourceView.h"
 #include "GMClipboard.h"
 #include "GMLocalSource.h"
 #include "GMPlayerManager.h"
+#include "GMWindow.h"
 #include "GMIconTheme.h"
 #include "GMFilename.h"
 

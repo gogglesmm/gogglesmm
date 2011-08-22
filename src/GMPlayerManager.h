@@ -78,6 +78,13 @@ enum {
   };
 
 
+struct TrackTime {
+  FXint hours;
+  FXint minutes;
+  FXint seconds;
+  };
+
+
 class GMPlayerManager : public FXObject {
 FXDECLARE(GMPlayerManager)
 private:

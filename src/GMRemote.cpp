@@ -21,11 +21,11 @@
 #include <FXPNGIcon.h>
 #include <FXPNGImage.h>
 #include "GMTrack.h"
-#include "GMRemote.h"
-#include "GMWindow.h"
 #include "GMList.h"
 #include "GMSource.h"
 #include "GMPlayerManager.h"
+#include "GMWindow.h"
+#include "GMRemote.h"
 #include "GMIconTheme.h"
 
 // Map
@@ -177,12 +177,12 @@ void GMRemote::reset(){
   layout();
   }
 
-void GMRemote::elapsed_time(FXint hours,FXint minutes,FXint seconds,FXint,FXbool playing){
+void GMRemote::update_time(const TrackTime & c,FXint,FXbool playing){
   if (playing) {
-    if (hours>0)
-      time_label->setText(FXString::value("%d:%.2d:%.2d",hours,minutes,seconds));
+    if (c.hours>0)
+      time_label->setText(FXString::value("%d:%.2d:%.2d",c.hours,c.minutes,c.seconds));
     else
-      time_label->setText(FXString::value("%.2d:%.2d",minutes,seconds));
+      time_label->setText(FXString::value("%.2d:%.2d",c.minutes,c.seconds));
     }
   else {
     time_label->setText("--:--");

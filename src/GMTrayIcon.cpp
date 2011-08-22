@@ -25,9 +25,10 @@
 #include "FXPNGIcon.h"
 
 #include "GMTrack.h"
-#include "GMRemote.h"
 #include "GMPlayerManager.h"
 #include "GMWindow.h"
+#include "GMRemote.h"
+
 
 #include "GMApp.h"
 #include "GMTrayIcon.h"
