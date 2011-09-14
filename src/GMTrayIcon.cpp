@@ -83,12 +83,12 @@ void GMTrayIcon::updateIcon() {
 
     /// Update
     if (size<=16) {
-      icon = new FXPNGIcon(getApp(),x16_apps_musicmanager_png,0,opaque ? IMAGE_OPAQUE : 0);
+      icon = new FXPNGIcon(getApp(),gogglesmm_16_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());
       if (size!=16) icon->scale(size,size,1);
       }
     else {
-      icon = new FXPNGIcon(getApp(),x32_apps_musicmanager_png,0,opaque ? IMAGE_OPAQUE : 0);
+      icon = new FXPNGIcon(getApp(),gogglesmm_32_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());
       if (size!=32) icon->scale(size,size,1);
       }
@@ -347,12 +347,12 @@ long GMTrayIcon::onConfigure(FXObject*,FXSelector,void*ptr){
 
   if (icon==NULL) {
     if (size<=16) {
-      icon = new FXPNGIcon(getApp(),x16_apps_musicmanager_png,0,opaque ? IMAGE_OPAQUE : 0);
+      icon = new FXPNGIcon(getApp(),gogglesmm_16_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());
       if (size!=16) icon->scale(size,size,1);
       }
     else {
-      icon = new FXPNGIcon(getApp(),x32_apps_musicmanager_png,0,opaque ? IMAGE_OPAQUE : 0);
+      icon = new FXPNGIcon(getApp(),gogglesmm_32_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());
       if (size!=32) icon->scale(size,size,1);
       }

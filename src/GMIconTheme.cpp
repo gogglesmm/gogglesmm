@@ -316,7 +316,7 @@ void XDGIconTheme::setup(XDGIconThemeList & themelist) {
 
 
 void gm_set_application_icon(FXWindow * window) {
-  FXPNGImage * image = new FXPNGImage(FXApp::instance(),x32_apps_musicmanager_png,0,0);
+  FXPNGImage * image = new FXPNGImage(FXApp::instance(),gogglesmm_32_png,0,0);
   ewmh_set_window_icon(window,image);
   delete image;
   }
@@ -851,8 +851,8 @@ void GMIconTheme::load() {
   loadSmall(icon_edit,"accessories-text-editor",basecolor);
   loadSmall(icon_sort,"view-sort-descending",basecolor);
 
-  loadResource(icon_applogo,x32_apps_musicmanager_png,"png");
-  loadResource(icon_applogo_small,x16_apps_musicmanager_png,"png");
+  loadResource(icon_applogo,gogglesmm_32_png,"png");
+  loadResource(icon_applogo_small,gogglesmm_16_png,"png");
 //  loadIcon(icon_equalizer,x16_categories_preferencesdesktop_png,"png");
 
   loadLarge(icon_nocover,"media-optical",backcolor);

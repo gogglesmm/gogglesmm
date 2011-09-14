@@ -30,10 +30,11 @@ endif
 
 all: $(BINNAME)
 
+
 ICONS := icons/cursor_hand.gif \
 icons/about.png \
-icons/16x16_apps_musicmanager.png \
-icons/32x32_apps_musicmanager.png
+icons/gogglesmm_16.png \
+icons/gogglesmm_32.png
 
 # Objects to Compile
 #----------------------------------------------------------
@@ -169,6 +170,12 @@ ifneq (,$(findstring nls,$(OPTIONS)))
 	done;
 endif
 
+svg2png:
+	rsvg-convert -w 22  extra/gogglesmm.svg -o extra/gogglesmm_22.png
+	rsvg-convert -w 24  extra/gogglesmm.svg -o extra/gogglesmm_24.png
+	rsvg-convert -w 48  extra/gogglesmm.svg -o extra/gogglesmm_48.png
+
+
 # Clean
 #----------------------------------------------------------
 clean :
@@ -191,12 +198,9 @@ realclean :
 	@rm -f config.make
 	@rm -f src/gmconfig.h
 
-dist: clean realclean
+dist: svg2png clean realclean
 	sh build/makemo
 	rm po/fi.mo
-	rsvg-convert -w 22  extra/gogglesmm.svg -o extra/gogglesmm_22.png
-	rsvg-convert -w 24  extra/gogglesmm.svg -o extra/gogglesmm_24.png
-	rsvg-convert -w 48  extra/gogglesmm.svg -o extra/gogglesmm_48.png
 	@echo " Creating Tarbals .."
 	tar --create --xz --file='../../$(TARNAME).tar.xz' --verbose --exclude-vcs --exclude='*.tar.xz' --transform='s/^./$(TARNAME)/' --show-transformed-names .
 	tar --create --bzip2 --file='../../$(TARNAME).tar.bz2' --verbose --exclude-vcs --exclude='*.tar.bz2' --transform='s/^./$(TARNAME)/' --show-transformed-names .
