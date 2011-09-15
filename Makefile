@@ -155,12 +155,12 @@ install: $(BINNAME)
 	@$(INSTALL) -d $(INSTALLDIR)/share/applications
 	@$(INSTALL) -m 644 extra/gogglesmm.desktop $(INSTALLDIR)/share/applications/gogglesmm.desktop
 	@echo "    Installing Icons"
-	$(INSTALL) -m 644 -D icons/gogglesmm_16.png $(INSTALL_DIR)/share/icons/hicolor/16x16/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(INSTALL_DIR)/share/icons/hicolor/22x22/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(INSTALL_DIR)/share/icons/hicolor/24x24/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(INSTALL_DIR)/share/icons/hicolor/32x32/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(INSTALL_DIR)/share/icons/hicolor/48x48/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D extra/gogglesmm.svg $(INSTALL_DIR)/share/icons/hicolor/scalable/apps/gogglesmm.svg
+	$(INSTALL) -m 644 -D icons/gogglesmm_16.png $(INSTALLDIR)/share/icons/hicolor/16x16/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(INSTALLDIR)/share/icons/hicolor/22x22/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(INSTALLDIR)/share/icons/hicolor/24x24/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(INSTALLDIR)/share/icons/hicolor/32x32/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(INSTALLDIR)/share/icons/hicolor/48x48/apps/gogglesmm.png
+	$(INSTALL) -m 644 -D extra/gogglesmm.svg $(INSTALLDIR)/share/icons/hicolor/scalable/apps/gogglesmm.svg
 ifneq (,$(findstring nls,$(OPTIONS)))
 	@echo "    Installing Translations"
 	@linguas='$(filter $(TRANSLATIONS),$(LINGUAS))'; \
