@@ -25,6 +25,8 @@ extern FXbool gm_open_browser(const FXString & folder);
 
 extern FXString gm_url_encode(const FXString& url);
 
+extern FXString gm_make_url(const FXString&);
+
 extern FXdouble gm_parse_number(const FXString &);
 
 extern FXbool gm_buffer_file(const FXString & filename,FXString & buffer);

@@ -16,6 +16,7 @@ static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track
     gm_dbus_dict_append_string_list(&array,"xesam:albumArtist",FXStringList(track.album_artist,1));
   gm_dbus_dict_append_string(&array,"xesam:album",track.album);
   gm_dbus_dict_append_string_list(&array,"xesam:composer",FXStringList(track.composer,1));
+  gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.mrl)s);
 
   dbus_message_iter_close_container(iter,&array);
   }

@@ -121,6 +121,13 @@ void gm_set_window_cursor(FXWindow * window,FXCursor * cur) {
 
 
 
+FXString gm_make_url(const FXString & in) {
+  if (in[0]=='/')
+    return GMURL::fileToURL(in);
+  else
+    return in;
+  }
+s
 FXbool gm_is_local_file(const FXString & filename) {
   if (filename[0]=='/') return true;
   FXString scheme = FXURL::scheme(filename);
