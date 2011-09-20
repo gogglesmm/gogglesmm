@@ -426,7 +426,7 @@ GMPlayerManager::GMPlayerManager() :
   queue(NULL),
   source(NULL),
   database(NULL),
-  thumbs(NULL) {
+  covercache(NULL) {
   FXASSERT(myself==NULL);
   myself=this;
   }
@@ -545,8 +545,8 @@ FXint GMPlayerManager::init_fifo(int& argc,char** argv){
 FXbool GMPlayerManager::init_sources() {
 
   // Main Database
-  database = new GMTrackDatabase;
-  thumbs   = new GMCoverThumbs;
+  database   = new GMTrackDatabase;
+  covercache = new GMCoverCache;
 
   // Make sure we can open it.
   if (!init_database(database)) {
@@ -1000,7 +1000,7 @@ void GMPlayerManager::exit() {
   for (FXint i=0;i<sources.no();i++)
     delete sources[i];
 
-  delete thumbs;
+  delete covercache;
 
   application->exit(0);
   }
@@ -1033,7 +1033,7 @@ void GMPlayerManager::update_tray_icon() {
 void GMPlayerManager::update_album_covers() {
   //fxmessage("update_album_covers()\n");
 //  if (preferences.gui_show_albumcovers) {
-    thumbs->init(database);
+    covercache->init(database);
 //    }
 //  else {
 //    thumbs->clear();
@@ -1565,7 +1565,7 @@ long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
 
   /// Update the covers
 //  if (preferences.gui_show_albumcovers) {
-    thumbs->refresh(database);
+    covercache->refresh(database);
  //   }
 
   //FIXME  only refresh when we have the music database open.

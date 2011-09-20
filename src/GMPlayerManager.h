@@ -49,7 +49,7 @@ class GMAudioScrobbler;
 class GMTrayIcon;
 class GMPlayQueue;
 class GMDatabaseSource;
-class GMCoverThumbs;
+class GMCoverCache;
 class GMTaskManager;
 class GMTask;
 
@@ -120,7 +120,7 @@ protected:
   GMPlayQueue          * queue;
   GMSource             * source;
   GMTrackDatabase      * database;
-  GMCoverThumbs        * thumbs;
+  GMCoverCache         * covercache;
   GMTrack    trackinfo;
   FXbool     trackinfoset;
 protected:
@@ -213,7 +213,7 @@ public:
 
   GMDatabaseSource * getDatabaseSource() const;
 
-  GMCoverThumbs * getCoverThumbs() const { return thumbs; }
+  GMCoverCache * getCoverCache() const { return covercache; }
 
 
 

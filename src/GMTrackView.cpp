@@ -327,7 +327,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   tracklist->setActiveFont(font_listhead);
 
   albumlist->setListIcon(GMIconTheme::instance()->icon_album);
-  albumlist->setCoverThumbs(GMPlayerManager::instance()->getCoverThumbs());
+  albumlist->setCoverCache(GMPlayerManager::instance()->getCoverCache());
 
   taglist->dropEnable();
   artistlist->dropEnable();

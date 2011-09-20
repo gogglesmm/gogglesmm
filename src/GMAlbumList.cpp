@@ -78,6 +78,10 @@ static void drawTextLimited(FXDC & dc,FXFont * font,FXint x,FXint y,FXint space,
     }
   }
 
+void GMAlbumListItem::prepare(const GMAlbumList * list) const {
+  list->getCoverCache()->markCover(id);
+  }
+
 void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint yy,FXint ww,FXint hh) const {
 
   FXFont *basefont = (id==-1) ? list->getListHeadFont() : list->getListBaseFont();
@@ -134,7 +138,7 @@ void GMAlbumListItem::draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXin
     dc.setForeground(list->getSelBackColor());
   dc.fillRectangle(x,y,w,h);
 
-  if (!list->getCoverThumbs())
+  if (!list->getCoverCache())
     return;
 
   FXFont *font=list->getCoverBaseFont();
@@ -142,13 +146,13 @@ void GMAlbumListItem::draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXin
   const FXint h1=cfont->getFontHeight();
   const FXint h2=font->getFontHeight();
   const FXint xx=x+SIDE_SPACING;
-  const FXint is=list->getCoverThumbs()->size();
+  const FXint is=list->getCoverCache()->getCoverSize();
   FXint yy=y+SIDE_SPACING;
 
   if (ids.no())
-    list->getCoverThumbs()->draw(dc,xx,yy,0);
+    list->getCoverCache()->drawCover(0,dc,xx,yy);
   else
-    list->getCoverThumbs()->draw(dc,xx,yy,id);
+    list->getCoverCache()->drawCover(id,dc,xx,yy);
 
   if(isSelected())
     dc.setForeground(list->getSelTextColor());
@@ -196,7 +200,7 @@ FXint GMAlbumListItem::hitItem(const GMAlbumList* list,FXint rx,FXint ry,FXint r
   FXint h2=font->getFontHeight();
 
   FXint iw,ih;
-  iw=ih=list->getCoverThumbs()->size();
+  iw=ih=list->getCoverCache()->getCoverSize();
 
 
   ix=SIDE_SPACING;
@@ -344,7 +348,7 @@ FXIMPLEMENT(GMAlbumList,FXScrollArea,GMAlbumListMap,ARRAYNUMBER(GMAlbumListMap))
 // Serialization
 GMAlbumList::GMAlbumList(){
   flags|=FLAG_ENABLED;
-  thumbs=NULL;
+  covers=NULL;
   nrows=1;
   ncols=1;
   anchor=-1;
@@ -372,7 +376,7 @@ GMAlbumList::GMAlbumList(){
 GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXScrollArea(p,opts,x,y,w,h){
   GMScrollArea::replaceScrollbars(this);
 
-  thumbs=NULL;
+  covers=NULL;
 
   flags|=FLAG_ENABLED;
   target=tgt;
@@ -508,9 +512,9 @@ void GMAlbumList::getrowscols(FXint& nr,FXint& nc,FXint w,FXint h) const {
 // Recompute interior
 void GMAlbumList::recompute(){
   if (options&ALBUMLIST_BROWSER) {
-    if (thumbs) {
-      itemWidth=thumbs->size()+SIDE_SPACING+SIDE_SPACING;
-      itemHeight=thumbs->size()+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
+    if (covers) {
+      itemWidth=covers->getCoverSize()+SIDE_SPACING+SIDE_SPACING;
+      itemHeight=covers->getCoverSize()+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
       }
     else {
 #define COVER_SIZE 128
@@ -1117,6 +1121,35 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
 //dc.setFont(font);
 
   // Exposed rows
+  rlo=(0-pos_y)/itemHeight;
+  rhi=(height-pos_y)/itemHeight;
+  if(rlo<0) rlo=0;
+  if(rhi>=nrows) rhi=nrows-1;
+
+  // Exposed columns
+  clo=(0-pos_x)/itemWidth;
+  chi=(width-pos_x)/itemWidth;
+  if(clo<0) clo=0;
+  if(chi>=ncols) chi=ncols-1;
+
+  covers->reset();
+  for(r=rlo; r<=rhi; r++){
+    y=pos_y+r*itemHeight;
+    for(c=clo; c<=chi; c++){
+      x=pos_x+c*itemWidth;
+      index=(options&ALBUMLIST_COLUMNS) ? ncols*r+c : nrows*c+r;
+      if(index<items.no()){
+        items[index]->prepare(this);
+        }
+      }
+    }
+
+
+
+
+
+
+  // Exposed rows
   rlo=(event->rect.y-pos_y)/itemHeight;
   rhi=(event->rect.y+event->rect.h-pos_y)/itemHeight;
   if(rlo<0) rlo=0;
@@ -1127,6 +1160,8 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
   chi=(event->rect.x+event->rect.w-pos_x)/itemWidth;
   if(clo<0) clo=0;
   if(chi>=ncols) chi=ncols-1;
+
+  //
 
   for(r=rlo; r<=rhi; r++){
     y=pos_y+r*itemHeight;

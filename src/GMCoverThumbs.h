@@ -20,6 +20,7 @@
 #define GMCOVERTHUMBS_H
 
 class GMImageMap;
+class GMCompressedImage;
 
 class FXIntMap : public FXHash {
 public:
@@ -35,44 +36,46 @@ public:
 
 
 
-
-
-
-
-class GMCoverThumbs : FXObject {
-FXDECLARE(GMCoverThumbs)
+class GMCoverCache : FXObject {
+FXDECLARE(GMCoverCache)
 protected:
-  FXArray<GMImageMap*> maps;
-  FXIntMap             id2map;
-  FXIntMap             id2album;
-  FXbool               loaded;
-  FXint                image_size;
-public:
-  enum {
-    ID_COVER_FETCHER = 1,
-    };
+  FXPtrListOf<GMCompressedImage> covers;
+  FXPtrListOf<FXImage>           buffers;
+  FXIntMap                       map;
+  FXint                          basesize;
+  FXbool                         loaded;
 protected:
-  void   adopt(GMCoverThumbs &);
+  FXImage * getCoverImage(FXint id);
+  void adopt(GMCoverCache &);
   FXbool load();
 public:
-  long onCmdCoversFetched(FXObject*,FXSelector,void*);
+  enum {
+    ID_COVER_LOADER = 1
+    };
 public:
-  FXbool contains(FXint id);
-  void   insert(FXint id,FXImage *);
-  void   draw(FXDC & dc,FXint x,FXint y,FXint id);
-  FXint size() const { return image_size; }
+  long onCmdCoversLoaded(FXObject*,FXSelector,void*ptr);
 public:
-  GMCoverThumbs(FXint sz=128);
+  GMCoverCache(FXint size=128);
 
-  void init(GMTrackDatabase * db);
+  void init(GMTrackDatabase*);
 
-  void refresh(GMTrackDatabase * db);
+  void refresh(GMTrackDatabase*);
 
-  void save() const;
+  void drawCover(FXint id,FXDC & dc,FXint x,FXint y);
+
+  void markCover(FXint id);
+
+  void reset();
 
   void clear();
 
-  ~GMCoverThumbs();
+  FXint getCoverSize() const { return basesize; }
+
+  void insertCover(FXint id,GMCompressedImage*);
+
+  void save() const;
+
+  ~GMCoverCache();
   };
 
 #endif
