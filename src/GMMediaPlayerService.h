@@ -56,8 +56,43 @@ public:
 
 #endif
 
+#ifndef HAVE_MPRIS2
+
+class GMMediaPlayerService : public FXObject {
+FXDECLARE(GMMediaPlayerService)
+protected:
+  GMDBus * bus;
+  FXbool   published;
+protected:
+  DBusObjectPathVTable root_vtable;
+  DBusObjectPathVTable player_vtable;
+  DBusObjectPathVTable tracklist_vtable;
+protected:
+  static DBusHandlerResult root_filter(DBusConnection*,DBusMessage*,void *);
+  static DBusHandlerResult player_filter(DBusConnection*,DBusMessage*,void *);
+  static DBusHandlerResult tracklist_filter(DBusConnection*,DBusMessage*,void *);
+protected:
+  GMMediaPlayerService(){}
+private:
+  GMMediaPlayerService(const GMMediaPlayerService&);
+  GMMediaPlayerService& operator=(const GMMediaPlayerService&);
+public:
+  GMMediaPlayerService(GMDBus*);
+
+  void notify_track_change(const GMTrack &);
+
+  void notify_status_change();
+
+  void notify_caps_change();
+
+  virtual ~GMMediaPlayerService();
+  };
+
+
+#else
+
 /*
-  MPRIS v2 
+  MPRIS v2
 */
 class GMMediaPlayerService : public FXObject {
 FXDECLARE(GMMediaPlayerService)
@@ -84,5 +119,7 @@ public:
 
   virtual ~GMMediaPlayerService();
   };
+
+#endif
 
 #endif

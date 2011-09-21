@@ -7,37 +7,9 @@
 #include "GMPlayerManager.h"
 #include "GMWindow.h"
 
-
-static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track) {
-  DBusMessageIter array;
-  dbus_message_iter_open_container(iter,DBUS_TYPE_ARRAY,"{sv}",&array);
-  gm_dbus_dict_append_string(&array,"xesam:title",track.title);
-  gm_dbus_dict_append_string_list(&array,"xesam:artist",FXStringList(track.artist,1));
-  if (!track.album_artist.empty())
-    gm_dbus_dict_append_string_list(&array,"xesam:albumArtist",FXStringList(track.album_artist,1));
-  gm_dbus_dict_append_string(&array,"xesam:album",track.album);
-  gm_dbus_dict_append_string_list(&array,"xesam:composer",FXStringList(track.composer,1));
-  gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.mrl));
-
-  dbus_message_iter_close_container(iter,&array);
-  }
-
-static void gm_dbus_dict_append_track(DBusMessageIter * iter,const FXchar * key,const GMTrack & track) {
-  DBusMessageIter entry;
-  DBusMessageIter variant;
-  dbus_message_iter_open_container(iter,DBUS_TYPE_DICT_ENTRY,0,&entry);
-    dbus_message_iter_append_basic(&entry,DBUS_TYPE_STRING,&key);
-    dbus_message_iter_open_container(&entry,DBUS_TYPE_VARIANT,"a{sv}",&variant);
-      gm_mpris2_track_to_dict(&variant,track);
-    dbus_message_iter_close_container(&entry,&variant);
-  dbus_message_iter_close_container(iter,&entry);
-  }
-
-
-#if 0
+#ifndef HAVE_MPRIS2
 
 #include "mpris_xml.h"
-
 
 static void gm_mpris_track_to_dict(DBusMessageIter * iter,const GMTrack & track) {
   DBusMessageIter array;
@@ -45,9 +17,28 @@ static void gm_mpris_track_to_dict(DBusMessageIter * iter,const GMTrack & track)
   gm_dbus_dict_append_string(&array,"title",track.title);
   gm_dbus_dict_append_string(&array,"artist",track.artist);
   gm_dbus_dict_append_string(&array,"album",track.album);
+  gm_dbus_dict_append_string(&array,"tracknumber",FXString::value(track.no));
+  gm_dbus_dict_append_uint32(&array,"time",track.time);
+  gm_dbus_dict_append_uint32(&array,"year",track.year);
+  if (track.tags.no())
+    gm_dbus_dict_append_string(&array,"genre",track.tags[0]);
+  gm_dbus_dict_append_string(&array,"location",gm_make_url(track.mrl));
   dbus_message_iter_close_container(iter,&array);
   }
 
+/*
+static void gm_dbus_dict_append_track(DBusMessageIter * iter,const FXchar * key,const GMTrack & track) {
+  DBusMessageIter entry;
+  DBusMessageIter variant;
+  dbus_message_iter_open_container(iter,DBUS_TYPE_DICT_ENTRY,0,&entry);
+    dbus_message_iter_append_basic(&entry,DBUS_TYPE_STRING,&key);
+    dbus_message_iter_open_container(&entry,DBUS_TYPE_VARIANT,"a{sv}",&variant);
+      gm_mpris_track_to_dict(&variant,track);
+    dbus_message_iter_close_container(&entry,&variant);
+  dbus_message_iter_close_container(iter,&entry);
+  }
+
+*/
 
 static const FXchar MPRIS_DBUS_NAME[]="org.mpris.gogglesmm";
 static const FXchar MPRIS_DBUS_INTERFACE[]="org.freedesktop.MediaPlayer";
@@ -104,9 +95,9 @@ static void gm_mpris_get_status(DBusMessageIter * iter,GMPlayerManager * p) {
   dbus_message_iter_close_container(iter,&str);
   }
 
-FXIMPLEMENT(GMMediaPlayerService1,FXObject,NULL,0)
+FXIMPLEMENT(GMMediaPlayerService,FXObject,NULL,0)
 
-GMMediaPlayerService1::GMMediaPlayerService1(GMDBus * b) : bus(b),published(false){
+GMMediaPlayerService::GMMediaPlayerService(GMDBus * b) : bus(b),published(false){
 
   memset(&root_vtable,0,sizeof(DBusObjectPathVTable));
   root_vtable.message_function=&root_filter;
@@ -124,7 +115,7 @@ GMMediaPlayerService1::GMMediaPlayerService1(GMDBus * b) : bus(b),published(fals
     }
   }
 
-GMMediaPlayerService1::~GMMediaPlayerService1(){
+GMMediaPlayerService::~GMMediaPlayerService(){
   if (published) {
     dbus_connection_unregister_object_path(bus->connection(),MPRIS_DBUS_ROOT);
     dbus_connection_unregister_object_path(bus->connection(),MPRIS_DBUS_PLAYER);
@@ -135,7 +126,7 @@ GMMediaPlayerService1::~GMMediaPlayerService1(){
   }
 
 
-void GMMediaPlayerService1::notify_track_change(const GMTrack & info) {
+void GMMediaPlayerService::notify_track_change(const GMTrack & info) {
   if (published) {
     DBusMessage * msg = dbus_message_new_signal(MPRIS_DBUS_PLAYER,MPRIS_DBUS_INTERFACE,"TrackChange");
     if (msg) {
@@ -147,7 +138,7 @@ void GMMediaPlayerService1::notify_track_change(const GMTrack & info) {
     }
   }
 
-void GMMediaPlayerService1::notify_status_change() {
+void GMMediaPlayerService::notify_status_change() {
   DBusMessage * msg = dbus_message_new_signal(MPRIS_DBUS_PLAYER,MPRIS_DBUS_INTERFACE,"StatusChange");
   if (msg) {
     DBusMessageIter iter;
@@ -157,7 +148,7 @@ void GMMediaPlayerService1::notify_status_change() {
     }
   }
 
-void GMMediaPlayerService1::notify_caps_change() {
+void GMMediaPlayerService::notify_caps_change() {
   if (published) {
     DBusMessage * msg = dbus_message_new_signal(MPRIS_DBUS_PLAYER,MPRIS_DBUS_INTERFACE,"CapsChange");
     if (msg) {
@@ -168,10 +159,7 @@ void GMMediaPlayerService1::notify_caps_change() {
     }
   }
 
-
-
-
-DBusHandlerResult GMMediaPlayerService1::root_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
+DBusHandlerResult GMMediaPlayerService::root_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
   DEBUG_DBUS_MESSAGE(msg);
   DBusMessage * reply=NULL;
   FXuint serial;
@@ -181,12 +169,11 @@ DBusHandlerResult GMMediaPlayerService1::root_filter(DBusConnection *connection,
     char ** children=NULL;
     if (dbus_connection_list_registered(connection,"/",&children)) {
       for (FXint i=0;children[i]!=NULL;i++) {
-        xml+=GMStringFormat("\t<node name=\"%s\"/>\n",children[i]);
+        xml+=FXString::value("\t<node name=\"%s\"/>\n",children[i]);
         }
       dbus_free_string_array(children);
       }
     xml+="</node>";
-    fxmessage("%s\n",xml.text());
     return gm_dbus_reply_string(connection,msg,xml.text());
     }
   else if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"Identity")) {
@@ -217,7 +204,7 @@ DBusHandlerResult GMMediaPlayerService1::root_filter(DBusConnection *connection,
   }
 
 
-DBusHandlerResult  GMMediaPlayerService1::player_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
+DBusHandlerResult  GMMediaPlayerService::player_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
   DEBUG_DBUS_MESSAGE(msg);
   DBusMessage * reply=NULL;
   FXuint serial;
@@ -230,15 +217,12 @@ DBusHandlerResult  GMMediaPlayerService1::player_filter(DBusConnection *connecti
     FXint caps = mpris_get_caps(p);
     return gm_dbus_reply_int(connection,msg,caps);
     }
-#ifdef HAVE_XINE_LIB
-  else if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"PositionGet")) {
-    return gm_dbus_reply_int(connection,msg,p->getPlayer()->getPositionMS());
-    }
-#else
   else if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"PositionGet")) {
     return gm_dbus_reply_int(connection,msg,0);
     }
-#endif
+  else if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"VolumeSet")) {
+    return gm_dbus_reply_if_needed(connection,msg);
+    }
   else if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"VolumeGet")) {
     return gm_dbus_reply_int(connection,msg,p->volume());
     }
@@ -286,19 +270,20 @@ DBusHandlerResult  GMMediaPlayerService1::player_filter(DBusConnection *connecti
     p->cmd_prev();
     return gm_dbus_reply_if_needed(connection,msg);
     }
+  else if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"Repeat")){
+    return gm_dbus_reply_if_needed(connection,msg);
+    }
   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
 
 
 
-DBusHandlerResult  GMMediaPlayerService1::tracklist_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
+DBusHandlerResult  GMMediaPlayerService::tracklist_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
   DEBUG_DBUS_MESSAGE(msg);
   DBusMessage * reply=NULL;
   FXuint serial;
-
   GMPlayerManager      * p     = GMPlayerManager::instance();
-//  GMMediaPlayerService1 * mpris = reinterpret_cast<GMMediaPlayerService1*>(ptr);
 
   if (dbus_message_is_method_call(msg,"org.freedesktop.DBus.Introspectable","Introspect")){
     return gm_dbus_reply_string(connection,msg,mpris_tracklist_xml);
@@ -337,7 +322,37 @@ DBusHandlerResult  GMMediaPlayerService1::tracklist_filter(DBusConnection *conne
   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
-#endif
+
+
+#else
+
+
+static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track) {
+  DBusMessageIter array;
+  dbus_message_iter_open_container(iter,DBUS_TYPE_ARRAY,"{sv}",&array);
+  gm_dbus_dict_append_string(&array,"xesam:title",track.title);
+  gm_dbus_dict_append_string_list(&array,"xesam:artist",FXStringList(track.artist,1));
+  if (!track.album_artist.empty())
+    gm_dbus_dict_append_string_list(&array,"xesam:albumArtist",FXStringList(track.album_artist,1));
+  gm_dbus_dict_append_string(&array,"xesam:album",track.album);
+  gm_dbus_dict_append_string_list(&array,"xesam:composer",FXStringList(track.composer,1));
+  gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.mrl));
+
+  dbus_message_iter_close_container(iter,&array);
+  }
+
+static void gm_dbus_dict_append_track(DBusMessageIter * iter,const FXchar * key,const GMTrack & track) {
+  DBusMessageIter entry;
+  DBusMessageIter variant;
+  dbus_message_iter_open_container(iter,DBUS_TYPE_DICT_ENTRY,0,&entry);
+    dbus_message_iter_append_basic(&entry,DBUS_TYPE_STRING,&key);
+    dbus_message_iter_open_container(&entry,DBUS_TYPE_VARIANT,"a{sv}",&variant);
+      gm_mpris2_track_to_dict(&variant,track);
+    dbus_message_iter_close_container(&entry,&variant);
+  dbus_message_iter_close_container(iter,&entry);
+  }
+
+
 
 #include "mpris2_xml.h"
 
@@ -503,12 +518,6 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
 
 
 
-
-
-
-
-
-
 DBusHandlerResult GMMediaPlayerService::mpris_filter(DBusConnection * c,DBusMessage * msg,void*){
   GMPlayerManager * p = GMPlayerManager::instance();
   if (dbus_message_has_interface(msg,DBUS_INTROSPECTABLE)) {
@@ -622,3 +631,4 @@ DBusHandlerResult GMMediaPlayerService::mpris_filter(DBusConnection * c,DBusMess
     }
   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
+#endif

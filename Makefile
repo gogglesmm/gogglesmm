@@ -120,9 +120,15 @@ src/appstatus_xml.h:  src/appstatus.xml src/dbusmenu.xml
 #src/mpris_xml.h:  src/mpris.xml src/mpris_player.xml
 #	@echo "    Creating DBUS Introspection..."
 #	@$(RESWRAP_TEXT) -o $@ src/mpris.xml src/mpris_player.xml src/mpris_tracklist.xml
+ifneq (,$(findstring mpris2,$(OPTIONS)))
 src/mpris2_xml.h:  src/mpris2.xml
 	@echo "    Creating mpris2_xml.h ..."
 	@$(RESWRAP_TEXT) -o $@ src/mpris2.xml
+else
+src/mpris_xml.h:  src/mpris.xml
+	@echo "    Creating mpris_xml.h ..."
+	@$(RESWRAP_TEXT) -o $@ src/mpris.xml src/mpris_player.xml src/mpris_tracklist.xml
+endif	
 endif
 
 $(OBJECTS): src/icons.h src/icons.cpp
@@ -138,7 +144,11 @@ src/icons.cpp: $(ICONS)
 ifneq (,$(findstring dbus,$(OPTIONS)))
 src/GMPlayerManager.cpp: src/gogglesmm_xml.h
 src/GMAppStatusNotify.cpp: src/appstatus_xml.h
+ifneq (,$(findstring mpris2,$(OPTIONS)))
 src/GMMediaPlayerService.cpp: src/mpris2_xml.h
+else
+src/GMMediaPlayerService.cpp: src/mpris_xml.h
+endif
 endif
 
 
