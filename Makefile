@@ -47,7 +47,7 @@ src/GMAlbumList.cpp \
 src/GMClipboard.cpp \
 src/GMColumnDialog.cpp \
 src/GMCover.cpp \
-src/GMCoverThumbs.cpp \
+src/GMCoverCache.cpp \
 src/GMDatabase.cpp \
 src/GMDatabaseSource.cpp \
 src/GMFilename.cpp \
@@ -128,7 +128,7 @@ else
 src/mpris_xml.h:  src/mpris.xml
 	@echo "    Creating mpris_xml.h ..."
 	@$(RESWRAP_TEXT) -o $@ src/mpris.xml src/mpris_player.xml src/mpris_tracklist.xml
-endif	
+endif
 endif
 
 $(OBJECTS): src/icons.h src/icons.cpp

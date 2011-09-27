@@ -28,7 +28,7 @@
 #include "GMTrackDatabase.h"
 #include "GMPlayerManager.h"
 #include "GMIconTheme.h"
-#include "GMCoverThumbs.h"
+#include "GMCoverCache.h"
 
 
 void FXIntMap::save(FXStream & store) const {
@@ -407,7 +407,7 @@ FXbool GMCoverCache::load() {
       cover->load(store);
       covers.append(cover);
       }
-    return true;     
+    return true;
     }
   GM_TICKS_END();
   return false;

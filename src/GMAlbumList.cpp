@@ -8,7 +8,7 @@
 #include "GMSource.h"
 #include "GMPlayerManager.h"
 #include "GMTrackView.h"
-#include "GMCoverThumbs.h"
+#include "GMCoverCache.h"
 #include "GMAlbumList.h"
 
 

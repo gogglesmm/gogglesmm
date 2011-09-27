@@ -44,7 +44,7 @@
 #include "GMAudioScrobbler.h"
 #include "GMAudioPlayer.h"
 #include "GMTrackEditor.h"
-#include "GMCoverThumbs.h"
+#include "GMCoverCache.h"
 #include "GMScanner.h"
 
 #include <sqlite3.h>

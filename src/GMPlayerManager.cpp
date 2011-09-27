@@ -69,7 +69,7 @@
 #include "GMWindow.h"
 #include "GMRemote.h"
 
-#include "GMCoverThumbs.h"
+#include "GMCoverCache.h"
 #include "GMAudioPlayer.h"
 
 #include "GMAudioScrobbler.h"
@@ -1035,7 +1035,7 @@ void GMPlayerManager::update_tray_icon() {
     else if (!trayicon && preferences.gui_tray_icon) {
       trayicon = new GMTrayIcon(application);
       trayicon->create();
-      }    
+      }
     }
   }
 
