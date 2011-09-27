@@ -415,6 +415,7 @@ GMPlayerManager::GMPlayerManager() :
   sessionbus(NULL),
   systembus(NULL),
   notifydaemon(NULL),
+  appstatus(NULL),
   gsd(NULL),
   mpris(NULL),
 #endif
@@ -921,8 +922,11 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
 #ifdef HAVE_DBUS
   if (sessionbus) {
     notifydaemon = new GMNotifyDaemon(sessionbus);
-    appstatus    = new GMAppStatusNotify(sessionbus);
-    appstatus->show();
+
+    if (gm_desktop_session()==DESKTOP_SESSION_KDE_PLASMA) {
+      appstatus    = new GMAppStatusNotify(sessionbus);
+      appstatus->show();
+      }
 
     /// Grab Media Player Keys
     gsd       = new GMSettingsDaemon(sessionbus,this,ID_GNOME_SETTINGS_DAEMON);
@@ -989,6 +993,8 @@ void GMPlayerManager::exit() {
     dbus_connection_unregister_object_path(sessionbus->connection(),"/org/fifthplanet/gogglesmm");
 
     if (mpris) delete mpris;
+    if (appstatus) delete appstatus;
+
     }
   if (systembus) {
     dbus_connection_remove_filter(systembus->connection(),dbus_systembus_filter,this);
@@ -1019,13 +1025,17 @@ void GMPlayerManager::update_mpris() {
 
 
 void GMPlayerManager::update_tray_icon() {
-  if (trayicon && !preferences.gui_tray_icon) {
-    delete trayicon;
-    trayicon=NULL;
-    }
-  else if (!trayicon && preferences.gui_tray_icon) {
-    trayicon = new GMTrayIcon(application);
-    trayicon->create();
+  /* We use AppStatusNotify for tray icon */
+  if (gm_desktop_session()!=DESKTOP_SESSION_KDE_PLASMA) {
+
+    if (trayicon && !preferences.gui_tray_icon) {
+      delete trayicon;
+      trayicon=NULL;
+      }
+    else if (!trayicon && preferences.gui_tray_icon) {
+      trayicon = new GMTrayIcon(application);
+      trayicon->create();
+      }    
     }
   }
 

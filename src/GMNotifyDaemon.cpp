@@ -26,11 +26,57 @@
 #define GALAGO_NOTIFY_PATH "/org/freedesktop/Notifications"
 #define GALAGO_NOTIFY_INTERFACE "org.freedesktop.Notifications"
 
+/*
+/// gnome3
+name: gnome-shell
+vendor: GNOME
+version: 3.0.2
+spec: 1.2
+
+
+/// gnome-fallback - notification-daemon
+name: Notification Daemon
+vendor: GNOME
+version: 0.7.2
+spec: 1.2
+quirks:
+
+
+/// XFCE  xfce4-notifyd
+name: Xfce Notify Daemon
+vendor: Xfce
+version: 0.2.2
+spec: 0.9
+quirks: IMAGE_WITHOUT_APPICON
+
+
+/// KDE
+name: Plasma
+vendor: KDE
+version: 1.0
+spec: 1.1
+quirks: 0
+
+
+/// Notify-OSD
+name: notify-osd
+vendor: Canonical Ltd
+version: 1.0
+spec: 1.1
+icondata: image_data
+flags: 0
+
+
+*/
+
+
 FXDEFMAP(GMNotifyDaemon) GMNotifyDaemonMap[]={
   FXMAPFUNC(SEL_SIGNAL,0,GMNotifyDaemon::onSignal),
   FXMAPFUNC(SEL_COMMAND,0,GMNotifyDaemon::onMethod),
   FXMAPFUNC(SEL_COMMAND,GMNotifyDaemon::ID_NOTIFY_REPLY,GMNotifyDaemon::onNotifyReply),
-  FXMAPFUNC(SEL_COMMAND,GMNotifyDaemon::ID_NOTIFY_CAPABILITIES,GMNotifyDaemon::onNotifyCapabilities)
+  FXMAPFUNC(SEL_COMMAND,GMNotifyDaemon::ID_NOTIFY_CAPABILITIES,GMNotifyDaemon::onNotifyCapabilities),
+  FXMAPFUNC(SEL_COMMAND,GMNotifyDaemon::ID_NOTIFY_SERVER,GMNotifyDaemon::onNotifyServer)
+
   };
 
 FXIMPLEMENT(GMNotifyDaemon,GMDBusProxy,GMNotifyDaemonMap,ARRAYNUMBER(GMNotifyDaemonMap));
@@ -38,9 +84,10 @@ FXIMPLEMENT(GMNotifyDaemon,GMDBusProxy,GMNotifyDaemonMap,ARRAYNUMBER(GMNotifyDae
 GMNotifyDaemon::GMNotifyDaemon(){
   }
 
-GMNotifyDaemon::GMNotifyDaemon(GMDBus * b) : GMDBusProxy(b,GALAGO_NOTIFY_NAME,GALAGO_NOTIFY_PATH,GALAGO_NOTIFY_INTERFACE),msgid(0),persistent(false){
+GMNotifyDaemon::GMNotifyDaemon(GMDBus * b) : GMDBusProxy(b,GALAGO_NOTIFY_NAME,GALAGO_NOTIFY_PATH,GALAGO_NOTIFY_INTERFACE),flags(0),msgid(0),persistent(false){
   appicon="gogglesmm";
   appname="gogglesmm";
+  icondata="icon_data";
   }
 
 long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
@@ -87,6 +134,44 @@ long GMNotifyDaemon::onMethod(FXObject*,FXSelector,void*ptr){
   return 1;
   }
 
+long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
+  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  const FXchar * name=NULL;
+  const FXchar * vendor=NULL;
+  const FXchar * version=NULL;
+  const FXchar * spec=NULL;
+
+  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&name,DBUS_TYPE_STRING,&vendor,DBUS_TYPE_STRING,&version,DBUS_TYPE_STRING,&spec,DBUS_TYPE_INVALID)) {
+
+    if (compareversion(spec,"1.1")==0) {
+      icondata="image_data";
+      }
+    else if (compareversion(spec,"1.2")>=0) {
+      icondata="image-data";
+      }
+    else {
+      icondata="icon_data";
+      }
+
+    if (comparecase(vendor,"xfce")==0 && comparecase(name,"xfce notify daemon")==0) {
+      flags|=IMAGE_WITHOUT_APPICON;
+      }
+
+    if (comparecase(name,"gnome-shell")==0 && comparecase(vendor,"gnome")==0) {
+      flags|=ACTION_ITEMS|IMAGE_WITHOUT_APPICON;
+      }
+
+#ifdef DEBUG
+    fxmessage("name: %s\n",name);
+    fxmessage("vendor: %s\n",vendor);
+    fxmessage("version: %s\n",version);
+    fxmessage("spec: %s\n",spec);
+    fxmessage("icondata: %s\n",icondata.text());
+    fxmessage("flags: %x\n",flags);
+#endif
+    }
+  return 1;
+  }
 
 long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
@@ -98,12 +183,18 @@ long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
     FXbool has_persistence=false;
 
     for (FXint i=0;i<ncaps;i++){
+#ifdef DEBUG
+      fxmessage("caps[%d]=%s\n",i,caps[i]);
+#endif
+      if (flags&ACTION_ITEMS) {
+
       if (comparecase(caps[i],"actions")==0)
         has_actions=true;
       else if ((comparecase(caps[i],"action-icons")==0) || (comparecase(caps[i],"x-gnome-icon-buttons")==0))
         has_action_icons=true;
       else if (comparecase(caps[i],"persistence")==0)
         has_persistence=true;
+        }
       }
 
     if (has_actions && has_action_icons && has_persistence) {
@@ -147,8 +238,17 @@ void GMNotifyDaemon::close() {
   }
 
 void GMNotifyDaemon::init() {
-  DBusMessage * msg = method("GetCapabilities");
-  send(msg,this,ID_NOTIFY_CAPABILITIES);
+  {
+    DBusMessage * msg = method("GetServerInformation");
+    send(msg,this,ID_NOTIFY_SERVER);
+  }
+
+
+  {
+    DBusMessage * msg = method("GetCapabilities");
+    send(msg,this,ID_NOTIFY_CAPABILITIES);
+  }
+
   }
 
 void GMNotifyDaemon::notify_track_change(const GMTrack & track,FXImage * cover){
@@ -166,15 +266,6 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
   dbus_bool_t ialpha;
 
   const FXchar * idata=NULL;
-//  const FXchar * appicon="";
-
-
-
-
-
-
-//  if (image==NULL)
-//    appicon=ic;
 
   DBusMessage * msg = method("Notify");
   if (msg){
@@ -189,7 +280,14 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
 
         gm_dbus_append_string(&iter,appname);
         dbus_message_iter_append_basic(&iter,DBUS_TYPE_UINT32,&msgid);
-        gm_dbus_append_string(&iter,appicon);
+
+        if (image && (flags&IMAGE_WITHOUT_APPICON)) {
+          FXString empty;
+          gm_dbus_append_string(&iter,empty);
+          }
+        else {
+          gm_dbus_append_string(&iter,appicon);
+          }
 
         dbus_message_iter_append_basic(&iter,DBUS_TYPE_STRING,&summary);
         dbus_message_iter_append_basic(&iter,DBUS_TYPE_STRING,&body);
@@ -212,7 +310,7 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
 
         dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&array);
         if (image && image->getData()) {
-          const FXchar * icon_data="icon_data"; /// spec 0.9 says "image_data". some use "icon_data" though..
+//          const FXchar * icon_data="icon_data"; /// spec 0.9 says "image_data". some use "icon_data" though..
 //          const FXchar * icon_data="image-data"; /// spec 0.9 says "image_data". some use "icon_data" though..
 
           idata     = (const FXchar*)image->getData();
@@ -225,7 +323,8 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
           isize     = iw*ih*4;
 
           dbus_message_iter_open_container(&array,DBUS_TYPE_DICT_ENTRY,0,&dict);
-            dbus_message_iter_append_basic(&dict,DBUS_TYPE_STRING,&icon_data);
+            gm_dbus_append_string(&dict,icondata);
+//            dbus_message_iter_append_basic(&dict,DBUS_TYPE_STRING,&icon_data);
             dbus_message_iter_open_container(&dict,DBUS_TYPE_VARIANT,"(iiibiiay)",&variant);
               dbus_message_iter_open_container(&variant,DBUS_TYPE_STRUCT,NULL,&value);
                 dbus_message_iter_append_basic(&value,DBUS_TYPE_INT32,&iw);
@@ -241,6 +340,8 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
             dbus_message_iter_close_container(&dict,&variant);
           dbus_message_iter_close_container(&array,&dict);
           }
+
+            //gm_dbus_dict_append_bool(&array,"transient",true);
 
         if (persistent) {
 //          if (GMPlayerManager::instance()->playing())

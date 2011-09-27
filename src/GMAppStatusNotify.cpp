@@ -80,7 +80,7 @@ DBusHandlerResult dbus_status_item_filter(DBusConnection *connection,DBusMessage
             gm_dbus_dict_append_path(&dict,"Menu",APPLICATION_STATUS_ITEM_MENU_PATH);
             gm_dbus_dict_append_string(&dict,"Category","ApplicationStatus");
             gm_dbus_dict_append_string(&dict,"Id","gogglesmm");
-            gm_dbus_dict_append_string(&dict,"IconName","gogglesmm_status_white");
+            gm_dbus_dict_append_string(&dict,"IconName","gogglesmm");
             gm_dbus_dict_append_string(&dict,"Status","Active");
             gm_dbus_dict_append_uint32(&dict,"WindowId",GMPlayerManager::instance()->getMainWindowId());
           dbus_message_iter_close_container(&iter,&dict);
@@ -178,7 +178,7 @@ GMAppStatusNotify::GMAppStatusNotify(GMDBus * b) : GMDBusProxy(b,APPLICATION_STA
   name = "org.kde.StatusNotifierItem-" + FXString::value(fxgetpid()) + "-1";
 #else
   name = "org.kde.StatusNotifierItem-" + FXString::value(FXProcess::current()) + "-1";
-#endif  
+#endif
   int result = dbus_bus_request_name(SESSIONBUS,name.text(),DBUS_NAME_FLAG_DO_NOT_QUEUE,NULL);
   if (result == DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ) {
     dbus_connection_register_object_path(SESSIONBUS,APPLICATION_STATUS_ITEM_PATH,&org_freedesktop_statusnotifieritem,this);

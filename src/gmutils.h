@@ -19,6 +19,17 @@
 #ifndef GMUTILS_H
 #define GMUTILS_H
 
+
+enum {
+  DESKTOP_SESSION_X11         = 0,
+  DESKTOP_SESSION_KDE_PLASMA  = 1,
+  DESKTOP_SESSION_XFCE        = 2,
+  DESKTOP_SESSION_GNOME       = 3,
+  DESKTOP_SESSION_LXDE        = 4
+  };
+
+extern FXuint gm_desktop_session();
+
 extern FXbool gm_open_folder(const FXString & folder);
 
 extern FXbool gm_open_browser(const FXString & folder);

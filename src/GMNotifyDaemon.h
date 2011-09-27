@@ -19,11 +19,19 @@
 #ifndef GMNOTIFY_H
 #define GMNOTIFY_H
 
+enum {
+  IMAGE_WITHOUT_APPICON = 0x1,   // Set if image and appicon may not be set at the same time
+  ACTION_ITEMS          = 0x2
+  };
+
+
 class GMNotifyDaemon : public GMDBusProxy {
 FXDECLARE(GMNotifyDaemon)
 protected:
+  FXuint   flags;
   FXString appname;
   FXString appicon;
+  FXString icondata;
   FXint msgid;
   FXbool persistent;
 protected:
@@ -34,12 +42,14 @@ private:
 public:
   enum {
     ID_NOTIFY_REPLY=1,
-    ID_NOTIFY_CAPABILITIES
+    ID_NOTIFY_CAPABILITIES,
+    ID_NOTIFY_SERVER
     };
 public:
   long onSignal(FXObject*,FXSelector,void*);
   long onMethod(FXObject*,FXSelector,void*);
   long onNotifyReply(FXObject*,FXSelector,void*);
+  long onNotifyServer(FXObject*,FXSelector,void*);
   long onNotifyCapabilities(FXObject*,FXSelector,void*);
 public:
   GMNotifyDaemon(GMDBus*);

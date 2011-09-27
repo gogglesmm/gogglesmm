@@ -319,8 +319,6 @@ public:
 
   void update_time_display();
 
-//  void update_replay_gain();
-
   void load_album_covers();
 
   void display_track_notification();

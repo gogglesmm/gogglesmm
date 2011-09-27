@@ -322,10 +322,12 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   new GMCheckButton(grpbox,tr("Show album cover of playing track\tShow album cover of playing track"),&target_show_playing_albumcover,FXDataTarget::ID_VALUE);
 //  new GMCheckButton(grpbox,tr("Show album covers in album browser\tShow album covers in album browser"),&target_show_albumcovers,FXDataTarget::ID_VALUE);
 
+
   grpbox =  new FXGroupBox(vframe,tr("System Tray"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
-  new GMCheckButton(grpbox,tr("Show Tray Icon\tShow tray icon in the system tray."),&target_gui_tray_icon,FXDataTarget::ID_VALUE);
+  if (gm_desktop_session()!=DESKTOP_SESSION_KDE_PLASMA)
+    new GMCheckButton(grpbox,tr("Show Tray Icon\tShow tray icon in the system tray."),&target_gui_tray_icon,FXDataTarget::ID_VALUE);
 #ifdef HAVE_DBUS
   if (GMPlayerManager::instance()->hasSessionBus()) {
     new GMCheckButton(grpbox,tr("Show Track Change Notifications\tInform notification daemon of track changes."),&target_dbus_notify_daemon,FXDataTarget::ID_VALUE);

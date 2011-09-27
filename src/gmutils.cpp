@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+#include "gmutils.h"
 #include "GMApp.h"
 
 #include "FXPNGImage.h"
@@ -37,10 +38,29 @@
 
 
 
+/*
+enum {
+  DESKTOP_SESSION_X11         = 0,
+  DESKTOP_SESSION_KDE_PLASMA  = 1,
+  DESKTOP_SESSION_XFCE        = 2,
+  DESKTOP_SESSION_GNOME       = 3,
+  };
+*/
+
+FXuint gm_desktop_session() {
+  FXString desktop = FXSystem::getEnvironment("DESKTOP_SESSION");
+  if (comparecase(desktop,"kde-plasma")==0)
+    return DESKTOP_SESSION_KDE_PLASMA;
+  else if (comparecase(desktop,"gnome")==0)
+    return DESKTOP_SESSION_GNOME;
+  else if (comparecase(desktop,"lxde")==0)
+    return DESKTOP_SESSION_LXDE;
+  else
+    return DESKTOP_SESSION_X11;
+  }
 
 
 /******************************************************************************/
-
 
 
 #define URL_UNSAFE   "#$-_.+!*'><()\\,%\""          // Always Encode
