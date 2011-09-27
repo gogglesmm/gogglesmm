@@ -321,7 +321,7 @@ public:
 
 //  void update_replay_gain();
 
-  void update_album_covers();
+  void load_album_covers();
 
   void display_track_notification();
 

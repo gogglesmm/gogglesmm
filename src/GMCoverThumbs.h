@@ -43,11 +43,12 @@ protected:
   FXPtrListOf<FXImage>           buffers;
   FXIntMap                       map;
   FXint                          basesize;
-  FXbool                         loaded;
+  FXbool                         initialized;
 protected:
   FXImage * getCoverImage(FXint id);
   void adopt(GMCoverCache &);
   FXbool load();
+  FXString getCacheFile() const;
 public:
   enum {
     ID_COVER_LOADER = 1

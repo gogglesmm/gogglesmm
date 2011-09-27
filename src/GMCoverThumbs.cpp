@@ -228,7 +228,7 @@ FXIMPLEMENT(GMCoverCache,FXObject,GMCoverCacheMap,ARRAYNUMBER(GMCoverCacheMap));
 
 
 
-GMCoverCache::GMCoverCache(FXint size) : basesize(size),loaded(false) {
+GMCoverCache::GMCoverCache(FXint size) : basesize(size),initialized(false) {
   }
 
 
@@ -247,14 +247,19 @@ void GMCoverCache::clear() {
     }
   }
 
+
+FXString GMCoverCache::getCacheFile() const {
+  return GMApp::getCacheDirectory()+PATHSEPSTRING+"albumcovers.cache";
+  }
+
 void GMCoverCache::adopt(GMCoverCache & src) {
-  
-  clear(); /// clear 
+
+  clear(); /// clear
   reset(); /// reset buffers
-  
+
   covers.adopt(src.covers);
   gm_copy_hash(src.map,map);
-  
+
   src.covers.clear();
   src.map.clear();
   }
@@ -341,17 +346,25 @@ FXImage* GMCoverCache::getCoverImage(FXint id) {
 
 
 void GMCoverCache::init(GMTrackDatabase * database){
-  if (!loaded && !load()) {
+  if (!initialized && !load()) {
     refresh(database);
     }
   }
 
 void GMCoverCache::refresh(GMTrackDatabase * database){
-  GMAlbumPathList list;
-  database->listAlbumPaths(list);
-  if (list.no()){
-    CoverLoader * task = new CoverLoader(list,basesize,this,ID_COVER_LOADER);
-    GMPlayerManager::instance()->runTask(task);
+
+  /// Remove the cache file.
+  if (FXStat::exists(getCacheFile()))
+    FXFile::remove(getCacheFile());
+
+  /// Only scan for covers if needed
+  if (initialized) {
+    GMAlbumPathList list;
+    database->listAlbumPaths(list);
+    if (list.no()){
+      CoverLoader * task = new CoverLoader(list,basesize,this,ID_COVER_LOADER);
+      GMPlayerManager::instance()->runTask(task);
+      }
     }
   }
 
@@ -360,7 +373,7 @@ void GMCoverCache::refresh(GMTrackDatabase * database){
 void GMCoverCache::save() const {
   const FXuint version=COVERTHUMBS_CACHE_FILE_VERSION;
   FXFileStream store;
-  if (store.open(GMApp::getCacheDirectory()+PATHSEPSTRING+"albumcovers.cache",FXStreamSave)){
+  if (store.open(getCacheFile(),FXStreamSave)){
     store << version;
     store << basesize;
     map.save(store);
@@ -373,9 +386,9 @@ void GMCoverCache::save() const {
 
 FXbool GMCoverCache::load() {
   GM_TICKS_START();
+  initialized=true;
   FXFileStream store;
-  loaded=false;
-  if (store.open(GMApp::getCacheDirectory()+PATHSEPSTRING+"albumcovers.cache",FXStreamLoad)) {
+  if (store.open(getCacheFile(),FXStreamLoad)) {
     FXint no,size;
     FXuint version;
 
@@ -394,10 +407,10 @@ FXbool GMCoverCache::load() {
       cover->load(store);
       covers.append(cover);
       }
-    loaded=true;
+    return true;     
     }
   GM_TICKS_END();
-  return loaded;
+  return false;
   }
 
 

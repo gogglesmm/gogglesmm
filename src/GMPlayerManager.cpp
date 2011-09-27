@@ -939,7 +939,6 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   if (!url.empty())
     open(url);
 
-  update_album_covers();
   update_tray_icon();
 
   /// Run the application
@@ -1030,34 +1029,9 @@ void GMPlayerManager::update_tray_icon() {
     }
   }
 
-void GMPlayerManager::update_album_covers() {
-  //fxmessage("update_album_covers()\n");
-//  if (preferences.gui_show_albumcovers) {
-    covercache->init(database);
-//    }
-//  else {
-//    thumbs->clear();
-//    getTrackView()->refresh();
-//    }
-/*
-
-    if (!thumbs->isLoaded() && !thumbs->load()) {
-      GMAlbumPathList list;
-      database->listAlbumPaths(list);
-      thumbs->generate(list);
-      }
-    }
-  else {
-//    GMCoverThumbs::reset();
-    if (!thumbs->isLoaded()) {
-      thumbs->clear();
-      getTrackView()->refresh();
-      }
-    }
-*/
+void GMPlayerManager::load_album_covers() {
+  covercache->init(database);
   }
-
-
 
 GMTrackView * GMPlayerManager::getTrackView() const {
   return mainwindow->trackview;

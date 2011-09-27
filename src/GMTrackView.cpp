@@ -1179,6 +1179,7 @@ void GMTrackView::loadSettings(const FXString & key) {
   if (getApp()->reg().readBoolEntry(key.text(),"album-list-browser",false)){
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
+    GMPlayerManager::instance()->load_album_covers();
     }
   else {
     FXuint opts=albumlist->getListStyle();
@@ -2421,8 +2422,9 @@ long GMTrackView::onCmdAlbumListView(FXObject*,FXSelector sel,void*){
     albumlist->setListStyle(opts&~ALBUMLIST_BROWSER);
     }
   else {
-    FXuint opts=albumlist->getListStyle();
+    FXuint opts=albumlist->getListStyle();    
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
+    GMPlayerManager::instance()->load_album_covers();
     }
   return 1;
   }
