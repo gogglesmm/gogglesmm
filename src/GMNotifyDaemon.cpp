@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+#include "gmutils.h"
 #include "GMDBus.h"
 #include "GMTrack.h"
 #include "GMPlayerManager.h"
@@ -313,7 +314,6 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
 //          const FXchar * icon_data="icon_data"; /// spec 0.9 says "image_data". some use "icon_data" though..
 //          const FXchar * icon_data="image-data"; /// spec 0.9 says "image_data". some use "icon_data" though..
 
-          idata     = (const FXchar*)image->getData();
           ialpha    = true;
           iw        = image->getWidth();
           ih        = image->getHeight();
@@ -322,9 +322,14 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
           ichannels = 4;
           isize     = iw*ih*4;
 
+          FXColor * bgra = NULL;
+          allocElms(bgra,(iw*ih));
+          gm_bgra_to_rgba(image->getData(),bgra,(iw*ih));
+
+          idata     = (const FXchar*)bgra;
+
           dbus_message_iter_open_container(&array,DBUS_TYPE_DICT_ENTRY,0,&dict);
             gm_dbus_append_string(&dict,icondata);
-//            dbus_message_iter_append_basic(&dict,DBUS_TYPE_STRING,&icon_data);
             dbus_message_iter_open_container(&dict,DBUS_TYPE_VARIANT,"(iiibiiay)",&variant);
               dbus_message_iter_open_container(&variant,DBUS_TYPE_STRUCT,NULL,&value);
                 dbus_message_iter_append_basic(&value,DBUS_TYPE_INT32,&iw);
@@ -339,6 +344,8 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
               dbus_message_iter_close_container(&variant,&value);
             dbus_message_iter_close_container(&dict,&variant);
           dbus_message_iter_close_container(&array,&dict);
+
+          freeElms(bgra);
           }
 
             //gm_dbus_dict_append_bool(&array,"transient",true);

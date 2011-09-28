@@ -428,3 +428,15 @@ void gm_print_time(FXint time,FXString & result){
   result.format("%d days %d hours %d minutes",days,hours,minutes);
   }
 
+
+void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
+   FXuchar * in  = reinterpret_cast<FXuchar*>(inbuf);
+   FXuchar * out = reinterpret_cast<FXuchar*>(outbuf);
+   for (FXint i=0;i<(len*4);i+=4) {
+      out[i+0]=in[i+2]; // r
+      out[i+1]=in[i+1]; // g
+      out[i+2]=in[i+0]; // b
+      out[i+3]=in[i+3]; // a  
+      }
+  }      
+

@@ -60,6 +60,8 @@ extern void gm_convert_gnomeclipboard_to_filenames(FXString & clipboard,FXString
 
 extern void gm_convert_uri_to_filenames(FXString & uri,FXStringList & filenames);
 
+extern void gm_bgra_to_rgba(FXColor * in,FXColor * out,FXint len);
+
 extern FXImage * gm_load_image_from_data(const void * data,FXuval size,const FXString & mime,FXint scale,FXint crop=0);
 extern FXImage * gm_load_image_from_file(const FXString & filename,FXint scale,FXint crop=0);
 
