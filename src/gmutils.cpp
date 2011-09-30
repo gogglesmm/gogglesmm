@@ -287,78 +287,78 @@ void gm_copy_hash(FXHash & from,FXHash & to) {
 /******************************************************************************/
 
 
-FXImage * gm_create_image(const FXString & mime) {
-  FXImage * image=NULL;
-  if ((comparecase(mime,"image/jpg")==0) || (comparecase(mime,"image/jpeg")==0) || (comparecase(mime,"JPG")==0)) {
-    image=new FXJPGImage(FXApp::instance(),NULL,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP);
+static void gm_scale_crop(FXImage * image,FXint scale,FXint crop){
+  FXint ww=image->getWidth();
+  FXint hh=image->getHeight();
+  if (crop) {
+    if (ww>hh) {
+      FXfloat aspect = (float)ww/(float)hh;
+      if (aspect<=(4.f/3.f)) {
+        image->crop(((ww-hh)/2),0,hh,hh);
+        ww=image->getWidth();
+        }
+      }
+    else if (hh>ww){
+      FXfloat aspect = (float)hh/(float)ww;
+      if (aspect<=(4.f/3.f)) {
+        image->crop(0,((hh-ww)/2),ww,ww);
+        hh=image->getHeight();
+        }
+      }
     }
-  else if (comparecase(mime,FXPNGImage::mimeType)==0 || (comparecase(mime,"png")==0)) {
-    image=new FXPNGImage(FXApp::instance(),NULL,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP);
+  if (scale && ((ww>scale) || (hh>scale))) {
+    if (ww>hh)
+      image->scale(scale,(scale*hh)/ww,1);
+    else
+      image->scale((scale*ww)/hh,scale,1);
     }
-  else if ((comparecase(mime,"image/bmp")==0) || (comparecase(mime,"image/x-bmp")==0) || (comparecase(mime,"bmp")==0)) {
-    image=new FXBMPImage(FXApp::instance(),NULL,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP);
+  }
+
+static FXImage * gm_load_pixels(FXStream & store,FXint scale,FXint crop){
+  FXImage * image = NULL;
+  FXColor * data = NULL;
+  FXint     width,height,extra;
+
+  if (fxcheckJPG(store)) {
+    if (fxloadJPG(store,data,width,height,extra)) {
+      image = new FXImage(FXApp::instance(),data,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,width,height);
+      }
     }
-  else if ((comparecase(mime,FXGIFImage::mimeType)==0) || (comparecase(mime,"gif")==0)) {
-    image=new FXGIFImage(FXApp::instance(),NULL,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP);
+  else if (fxcheckPNG(store)) {
+    if (fxloadPNG(store,data,width,height)) {
+      image =new FXImage(FXApp::instance(),data,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,width,height);
+      }
+    }
+  else if (fxcheckBMP(store)) {
+    if (fxloadBMP(store,data,width,height)) {
+      image = new FXImage(FXApp::instance(),data,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,width,height);
+      }
+    }
+  else if (fxcheckGIF(store)) {
+    if (fxloadGIF(store,data,width,height)) {
+      image = new FXImage(FXApp::instance(),data,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,width,height);
+      }
+    }
+  if (image) {
+    gm_scale_crop(image,scale,crop);
     }
   return image;
   }
 
-FXbool gm_load_pixels(FXStream & store,FXImage *image,FXint scale,FXint crop) {
-  if (image->loadPixels(store)){
-    FXint ww=image->getWidth();
-    FXint hh=image->getHeight();
-    if (crop) {
-      if (ww>hh) {
-        FXfloat aspect = (float)ww/(float)hh;
-        if (aspect<=(4.f/3.f)) {
-          image->crop(((ww-hh)/2),0,hh,hh);
-          ww=image->getWidth();
-          }
-        }
-      else if (hh>ww){
-        FXfloat aspect = (float)hh/(float)ww;
-        if (aspect<=(4.f/3.f)) {
-          image->crop(0,((hh-ww)/2),ww,ww);
-          hh=image->getHeight();
-          }
-        }
-      }
-    if (scale && ((ww>scale) || (hh>scale))) {
-      if (ww>hh)
-        image->scale(scale,(scale*hh)/ww,1);
-      else
-        image->scale((scale*ww)/hh,scale,1);
-      }
-    return true;
-    }
-  return false;
-  }
-
 
 FXImage * gm_load_image_from_file(const FXString & filename,FXint scale,FXint crop) {
-  FXImage * image=gm_create_image(FXPath::extension(filename));
-  if (image) {
-    FXFileStream store;
-    if (store.open(filename,FXStreamLoad)) {
-      if (gm_load_pixels(store,image,scale,crop))
-        return image;
-      }
-    delete image;
+  FXFileStream store;
+  if (store.open(filename,FXStreamLoad)) {
+    return gm_load_pixels(store,scale,crop);
     }
   return NULL;
   }
 
 
-FXImage * gm_load_image_from_data(const void * data,FXuval size,const FXString & mime,FXint scale,FXint crop) {
-  FXImage * image=gm_create_image(mime);
-  if (image) {
-    FXMemoryStream store;
-    store.open(FXStreamLoad,(FXuchar*)data,size);
-    if (gm_load_pixels(store,image,scale,crop))
-      return image;
-
-    delete image;
+FXImage * gm_load_image_from_data(const void * data,FXuval size,FXint scale,FXint crop) {
+  FXMemoryStream store;
+  if (store.open(FXStreamLoad,(FXuchar*)data,size)) {
+    return gm_load_pixels(store,scale,crop);
     }
   return NULL;
   }
@@ -436,7 +436,7 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
       out[i+0]=in[i+2]; // r
       out[i+1]=in[i+1]; // g
       out[i+2]=in[i+0]; // b
-      out[i+3]=in[i+3]; // a  
+      out[i+3]=in[i+3]; // a
       }
-  }      
+  }
 

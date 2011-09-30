@@ -113,7 +113,7 @@ static GMCover * xiph_parse_flac_picture_block(const FXuchar * buffer,FXint len,
     picture.data = (FXuchar*) p+20;
     if (picture.data+picture.data_size>buffer+len)
       return NULL;
-    FXImage * image = gm_load_image_from_data(picture.data,picture.data_size,picture.mimetype,scale,crop);
+    FXImage * image = gm_load_image_from_data(picture.data,picture.data_size,scale,crop);
     if (image) return new GMCover(image,picture.type,picture.description);
     }
   return NULL;
@@ -145,16 +145,7 @@ static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame,FX
       frame->type()==TagLib::ID3v2::AttachedPictureFrame::ColouredFish) {
     return NULL;
     }
-
-
-  if (frame->picture().size()>8) {
-    if (compare(frame->picture().data(),"\211PNG\r\n\032\n",8)==0) {
-      mime = "png";
-      }
-    }
-
-
-  FXImage * image = gm_load_image_from_data(frame->picture().data(),frame->picture().size(),mime,scale,crop);
+  FXImage * image = gm_load_image_from_data(frame->picture().data(),frame->picture().size(),scale,crop);
   if (image) return new GMCover(image,frame->type());
   return NULL;
   }
@@ -206,7 +197,7 @@ GMCover* flac_load_cover_from_taglib(const TagLib::FLAC::Picture * picture,FXint
         return NULL;
         }
 
-    FXImage * image = gm_load_image_from_data(picture->data().data(),picture->data().size(),picture->mimeType().toCString(true),scale,crop);
+    FXImage * image = gm_load_image_from_data(picture->data().data(),picture->data().size(),scale,crop);
     if (image) {
       cover = new GMCover(image,picture->type(),picture->description().toCString(true));
       }
@@ -217,7 +208,7 @@ GMCover* flac_load_cover_from_taglib(const TagLib::FLAC::Picture * picture,FXint
 GMCover* flac_load_frontcover_from_taglib(const TagLib::FLAC::Picture * picture,FXint scale,FXint crop) {
   GMCover * cover=NULL;
   if (picture && picture->type()==TagLib::FLAC::Picture::FrontCover) {
-    FXImage * image = gm_load_image_from_data(picture->data().data(),picture->data().size(),picture->mimeType().toCString(true),scale,crop);
+    FXImage * image = gm_load_image_from_data(picture->data().data(),picture->data().size(),scale,crop);
     if (image) {
       cover = new GMCover(image,picture->type(),picture->description().toCString(true));
       }
@@ -819,10 +810,7 @@ GMCover * GMFileTag::getFrontCover(FXint scale,FXint crop) const {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
         FXImage * img = NULL;
-        if (it->format()==TagLib::MP4::CoverArt::PNG)
-          img = gm_load_image_from_data(it->data().data(),it->data().size(),FXPNGImage::fileExt,scale,crop);
-        else if (it->format()==TagLib::MP4::CoverArt::JPEG)
-          img = gm_load_image_from_data(it->data().data(),it->data().size(),FXJPGImage::fileExt,scale,crop);
+        img = gm_load_image_from_data(it->data().data(),it->data().size(),scale,crop);
         if (img) return new GMCover(img,0);
         }
       }
@@ -868,12 +856,7 @@ FXint GMFileTag::getCovers(GMCoverList & covers,FXint scale,FXint crop) const {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
         FXImage * img = NULL;
-
-        if (it->format()==TagLib::MP4::CoverArt::PNG)
-          img = gm_load_image_from_data(it->data().data(),it->data().size(),FXPNGImage::fileExt,scale,crop);
-        else if (it->format()==TagLib::MP4::CoverArt::JPEG)
-          img = gm_load_image_from_data(it->data().data(),it->data().size(),FXJPGImage::fileExt,scale,crop);
-
+        img = gm_load_image_from_data(it->data().data(),it->data().size(),scale,crop);
         if (img) covers.append(new GMCover(img,0));
         }
       }
