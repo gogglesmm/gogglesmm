@@ -926,6 +926,9 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     if (gm_desktop_session()==DESKTOP_SESSION_KDE_PLASMA) {
       appstatus    = new GMAppStatusNotify(sessionbus);
       appstatus->show();
+      
+      /// Disable trayicon
+      preferences.gui_tray_icon_disabled=true;         
       }
 
     /// Grab Media Player Keys
@@ -943,7 +946,9 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   if (!url.empty())
     open(url);
 
+#ifndef HAVE_DBUS
   update_tray_icon();
+#endif
 
   /// Run the application
   return application->run();
@@ -1025,9 +1030,7 @@ void GMPlayerManager::update_mpris() {
 
 
 void GMPlayerManager::update_tray_icon() {
-  /* We use AppStatusNotify for tray icon */
-  if (gm_desktop_session()!=DESKTOP_SESSION_KDE_PLASMA) {
-
+  if (!preferences.gui_tray_icon_disabled) {
     if (trayicon && !preferences.gui_tray_icon) {
       delete trayicon;
       trayicon=NULL;

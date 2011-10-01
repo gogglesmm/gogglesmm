@@ -326,7 +326,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   grpbox =  new FXGroupBox(vframe,tr("System Tray"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
-  if (gm_desktop_session()!=DESKTOP_SESSION_KDE_PLASMA)
+  if (!GMPlayerManager::instance()->getPreferences().gui_tray_icon_disabled)
     new GMCheckButton(grpbox,tr("Show Tray Icon\tShow tray icon in the system tray."),&target_gui_tray_icon,FXDataTarget::ID_VALUE);
 #ifdef HAVE_DBUS
   if (GMPlayerManager::instance()->hasSessionBus()) {

@@ -128,6 +128,7 @@ public:
 //  FXbool gui_show_albumcovers;
   FXbool gui_merge_albums;
   FXbool gui_tray_icon;
+  FXbool gui_tray_icon_disabled;
   FXbool gui_show_playing_titlebar;
   FXbool gui_show_opengl_coverview;
 

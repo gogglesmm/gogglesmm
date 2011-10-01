@@ -319,7 +319,7 @@ FXImage* GMCoverCache::getCoverImage(FXint id) {
     if (index==id) return buffers[i];
     }
 
-  /// unused
+  /// find empty
   for (i=0;i<buffers.no();i++){
     index=(FXint)(FXival)buffers[i]->getUserData();
     if (index<0) {
@@ -337,9 +337,7 @@ FXImage* GMCoverCache::getCoverImage(FXint id) {
     buffers.append(image);
     }
 
-
   index = map.find(id);
- // fxmessage("%d %d\n",covers.no(),index);
   covers[index-1]->make(image);
   return image;
   }

@@ -162,6 +162,7 @@ GMPreferences::GMPreferences() :
   //gui_show_albumcovers(false),
   gui_merge_albums(true),
   gui_tray_icon(false),
+  gui_tray_icon_disabled(false),
   gui_show_playing_titlebar(false),
   gui_show_opengl_coverview(true),
   gui_coverdisplay_size(256),
@@ -183,6 +184,7 @@ GMPreferences::GMPreferences() :
   dbus_notify_daemon(true),
   dbus_mpris(true) {
   resetColors();
+      
   }
 
 void GMPreferences::save(FXSettings & reg) const {

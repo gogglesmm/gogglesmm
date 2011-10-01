@@ -28,11 +28,20 @@
 #define GALAGO_NOTIFY_INTERFACE "org.freedesktop.Notifications"
 
 /*
+
+/// gnome 3.2.0
+name: gnome-shell
+vendor: GNOME
+version: 3.2.0
+spec: 1.2
+quirks:
+
 /// gnome3
 name: gnome-shell
 vendor: GNOME
 version: 3.0.2
 spec: 1.2
+quirks: IMAGE_WITHOUT_APPICON
 
 
 /// gnome-fallback - notification-daemon
@@ -159,9 +168,12 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
       }
 
     if (comparecase(name,"gnome-shell")==0 && comparecase(vendor,"gnome")==0) {
-      flags|=ACTION_ITEMS|IMAGE_WITHOUT_APPICON;
+      GMPlayerManager::instance()->getPreferences().gui_tray_icon_disabled=true;
+      flags|=ACTION_ITEMS;
+      if (compareversion(version,"3.2.0")<0){
+        flags|=IMAGE_WITHOUT_APPICON;
+        }
       }
-
 #ifdef DEBUG
     fxmessage("name: %s\n",name);
     fxmessage("vendor: %s\n",vendor);
@@ -171,6 +183,8 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
     fxmessage("flags: %x\n",flags);
 #endif
     }
+
+  GMPlayerManager::instance()->update_tray_icon();
   return 1;
   }
 
