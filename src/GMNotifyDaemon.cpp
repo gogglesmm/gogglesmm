@@ -202,13 +202,12 @@ long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
       fxmessage("caps[%d]=%s\n",i,caps[i]);
 #endif
       if (flags&ACTION_ITEMS) {
-
-      if (comparecase(caps[i],"actions")==0)
-        has_actions=true;
-      else if ((comparecase(caps[i],"action-icons")==0) || (comparecase(caps[i],"x-gnome-icon-buttons")==0))
-        has_action_icons=true;
-      else if (comparecase(caps[i],"persistence")==0)
-        has_persistence=true;
+        if (comparecase(caps[i],"actions")==0)
+          has_actions=true;
+        else if ((comparecase(caps[i],"action-icons")==0) || (comparecase(caps[i],"x-gnome-icon-buttons")==0))
+          has_action_icons=true;
+        else if (comparecase(caps[i],"persistence")==0)
+          has_persistence=true;
         }
       }
 

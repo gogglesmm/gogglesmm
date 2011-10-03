@@ -285,10 +285,6 @@ public:
   FXbool can_stop() const;
 
 
-  /// Play
-///  FXbool play(const FXString & mrl,FXbool flush=true);
-
-
 
 
   void playItem(FXuint whence);

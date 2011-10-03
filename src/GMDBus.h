@@ -164,6 +164,8 @@ public:
   FXbool matchSerial(DBusMessage * msg);
 
   DBusMessage * method(const FXchar * method);
+  
+  DBusMessage * signal(const FXchar * name);
 
   void send(DBusMessage*,FXObject*,FXSelector);
 

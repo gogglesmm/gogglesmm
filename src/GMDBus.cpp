@@ -566,6 +566,11 @@ DBusMessage * GMDBusProxy::method(const FXchar * method){
   return dbus_message_new_method_call(name.text(),path.text(),interface.text(),method);
   }
 
+DBusMessage * GMDBusProxy::signal(const FXchar * name){
+  return dbus_message_new_signal(path.text(),interface.text(),name);
+  }
+
+
 long GMDBusProxy::onCreate(FXObject*,FXSelector,void*ptr) {
   associated=true;
   return target && target->tryHandle(this,FXSEL(SEL_DESTROY,message),ptr);

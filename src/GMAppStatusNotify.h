@@ -33,6 +33,11 @@ public:
 public:
   GMAppStatusNotify(GMDBus * bus);
   void show();
+
+  void notify_status_change();
+  
+  void notify_track_change(const GMTrack & track);
+
   ~GMAppStatusNotify();
   };
 #endif
