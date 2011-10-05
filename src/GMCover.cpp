@@ -226,20 +226,24 @@ static GMCover * flac_load_front_cover(const FXString & mrl,FXint scale,FXint cr
 
 
 
-GMCover::GMCover() : image(NULL), type(0) {
+GMCover::GMCover() : data(NULL),len(0), type(0) {
   }
 
-GMCover::GMCover(FXImage * img,FXuint t,const FXString & label) : image(img),description(label),type(t) {
-  }
-
-GMCover::~GMCover() {
-  if (image) {
-    delete image;
-    image=NULL;
+GMCover::GMCover(const void * ptr,FXuval size,FXuint t,const FXString & label,FXbool owned) : data(NULL), len(size) {
+  if (owned==false) {
+    allocElms(data,len);
+    memcpy(data,(const FXuchar*)ptr,len);
+    }
+  else {
+    data=(FXuchar*)ptr;
     }
   }
 
-FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers,FXint scale/*=0*/,FXint crop/*=0*/) {
+GMCover::~GMCover() {
+  freeElms(data);
+  }
+
+FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
   GM_TICKS_START();
   FXString extension = FXPath::extension(mrl);
 
@@ -255,18 +259,18 @@ FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers,FXint scale/*=0
     GM_TICKS_END();
     return 0;
     }
-  tags.getCovers(covers,scale);
+  tags.getCovers(covers);
   GM_TICKS_END();
   return covers.no();
   }
 
-FXint GMCover::fromPath(const FXString & path,GMCoverList & list,FXint scale/*=0*/,FXint crop/*=0*/) {
+FXint GMCover::fromPath(const FXString & path,GMCoverList & list) {
   FXString * files=NULL;
   FXImage * image;
   FXint nfiles = FXDir::listFiles(files,path,"*.(png,jpg,jpeg,bmp,gif)",FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold|FXDir::HiddenFiles);
   if (nfiles) {
     for (FXint i=0;i<nfiles;i++) {
-      image = gm_load_image_from_file(path+PATHSEPSTRING+files[i],scale,crop);
+      image = gm_load_image_from_file(path+PATHSEPSTRING+files[i],1);
       if (image)
         list.append(new GMCover(image,0));
       }
@@ -278,7 +282,7 @@ FXint GMCover::fromPath(const FXString & path,GMCoverList & list,FXint scale/*=0
 
 
 
-GMCover * GMCover::fromTag(const FXString & mrl,FXint scale/*=0*/,FXint crop/*=0*/) {
+GMCover * GMCover::fromTag(const FXString & mrl) {
   FXString extension = FXPath::extension(mrl);
 #if TAGLIB_VERSION < MKVERSION(1,7,0)
   if (comparecase(extension,"flac")==0){
@@ -290,16 +294,28 @@ GMCover * GMCover::fromTag(const FXString & mrl,FXint scale/*=0*/,FXint crop/*=0
   if (!tags.open(mrl,FILETAG_TAGS)) {
     return NULL;
     }
-  return tags.getFrontCover(scale,crop);
+  return tags.getFrontCover();
   }
 
+GMCover * GMCover::fromFile(const FXString & filename) {
+  FXFile file(filename,FXIO::Reading);
+  FXuval size = file.size();
+  if (file.isOpen() && size) {
+    FXchar * data=NULL;
+    allocElms(data,size);
+    if (file.readBlock(data,size)==size) {
+      return new GMCover(data,size);
+      }
+    freeElms(data);
+    }
+  return NULL;
+  }
 
-
-GMCover * GMCover::fromPath(const FXString & path,FXint scale/*=0*/,FXint crop/*=0*/) {
+GMCover * GMCover::fromPath(const FXString & path) {
   static const FXchar * covernames[]={"cover","album","front","albumart",".folder","folder",NULL};
   FXString * files=NULL;
   FXString * names=NULL;
-  FXImage  * image=NULL;
+  GMCover  * cover=NULL;
 
   FXIconSource src(FXApp::instance());
 
@@ -312,47 +328,30 @@ GMCover * GMCover::fromPath(const FXString & path,FXint scale/*=0*/,FXint crop/*
     for (FXint c=0;covernames[c]!=NULL;c++) {
       for (FXint i=0;i<nfiles;i++){
         if (comparecase(names[i],covernames[c])==0) {
-          image = gm_load_image_from_file(path+PATHSEPSTRING+files[i],scale,crop);
-          if (image) {
+          cover = GMCover::fromFile(path+PATHSEPSTRING+files[i]);
+          if (cover) {
             delete [] names;
             delete [] files;
-            return new GMCover(image,0);
+            return cover;
             }
           }
         }
       }
+
     delete [] names;
     /// No matching cover name found. Just load the first file.
-    image = gm_load_image_from_file(path+PATHSEPSTRING+files[0],scale,crop);
+    cover = GMCover::fromFile(path+PATHSEPSTRING+files[0]);
     delete [] files;
     }
-
-  if (image)
-    return new GMCover(image,0);
-
-  return NULL;
+  return cover;
   }
 
 
-FXImage * GMCover::toImage(GMCover * cover) {
+FXImage * GMCover::toImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
   if (cover) {
-    FXImage * image = cover->image;
-    cover->image=NULL;
+    FXImage * image = gm_load_image_from_data(cover->data,cover->len,scale,crop);
     delete cover;
     return image;
-    }
-  return NULL;
-  }
-
-FXIcon * GMCover::toIcon(GMCover * cover) {
-  if (cover) {
-    FXImage * image = GMCover::toImage(cover);
-    if (image) {
-      FXIcon * icon = new FXIcon(FXApp::instance(),image->getData(),0,IMAGE_OWNED,image->getWidth(),image->getHeight());
-      FXImageOwner::clear(image);
-      delete image;
-      return icon;
-      }
     }
   return NULL;
   }

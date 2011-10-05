@@ -78,7 +78,7 @@ static FXbool gm_uint32_be(const FXuchar * block,FXuint & v) {
   }
 
 //// Parse FLAC picture block from buffer
-static GMCover * xiph_parse_flac_picture_block(const FXuchar * buffer,FXint len,FXint scale,FXint crop) {
+static GMCover * xiph_parse_flac_picture_block(const FXuchar * buffer,FXint len) {
   FlacPictureBlock picture;
   const FXuchar * p = buffer;
   FXuint sz;
@@ -113,15 +113,14 @@ static GMCover * xiph_parse_flac_picture_block(const FXuchar * buffer,FXint len,
     picture.data = (FXuchar*) p+20;
     if (picture.data+picture.data_size>buffer+len)
       return NULL;
-    FXImage * image = gm_load_image_from_data(picture.data,picture.data_size,scale,crop);
-    if (image) return new GMCover(image,picture.type,picture.description);
+    return new GMCover(picture.data,picture.data_size,picture.type,picture.description);
     }
   return NULL;
   }
 
 
 /// Load xiph cover
-static GMCover * xiph_load_cover(const TagLib::ByteVector & tbuf,FXint scale,FXint crop) {
+static GMCover * xiph_load_cover(const TagLib::ByteVector & tbuf) {
   GMCover * cover = NULL;
   if (tbuf.size()) {
     FXuchar * buffer=NULL;
@@ -130,14 +129,14 @@ static GMCover * xiph_load_cover(const TagLib::ByteVector & tbuf,FXint scale,FXi
     allocElms(buffer,len);
     memcpy(buffer,tbuf.data(),len);
     if (gm_decode_base64(buffer,len)) {
-      cover = xiph_parse_flac_picture_block(buffer,len,scale,crop);
+      cover = xiph_parse_flac_picture_block(buffer,len);
       }
     freeElms(buffer);
     }
   return cover;
   }
 
-static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame,FXint scale,FXint crop) {
+static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame) {
   FXString mime = frame->mimeType().toCString(true);
   /// Skip File Icon
   if (frame->type()==TagLib::ID3v2::AttachedPictureFrame::FileIcon ||
@@ -145,9 +144,7 @@ static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame,FX
       frame->type()==TagLib::ID3v2::AttachedPictureFrame::ColouredFish) {
     return NULL;
     }
-  FXImage * image = gm_load_image_from_data(frame->picture().data(),frame->picture().size(),scale,crop);
-  if (image) return new GMCover(image,frame->type());
-  return NULL;
+  return new GMCover(frame->picture().data(),frame->picture().size(),frame->type());
   }
 
 static FXbool id3v2_is_front_cover(TagLib::ID3v2::AttachedPictureFrame * frame){
@@ -188,32 +185,23 @@ FXbool id3v2_save_cover(const FXString & mrl,const FXuchar * data,FXival size,co
 
 
 #if TAGLIB_VERSION >= MKVERSION(1,7,0)
-GMCover* flac_load_cover_from_taglib(const TagLib::FLAC::Picture * picture,FXint scale,FXint crop) {
-  GMCover * cover=NULL;
+GMCover* flac_load_cover_from_taglib(const TagLib::FLAC::Picture * picture) {
   if (picture) {
     if (picture->type()==TagLib::FLAC::Picture::FileIcon ||
         picture->type()==TagLib::FLAC::Picture::OtherFileIcon ||
         picture->type()==TagLib::FLAC::Picture::ColouredFish) {
         return NULL;
         }
-
-    FXImage * image = gm_load_image_from_data(picture->data().data(),picture->data().size(),scale,crop);
-    if (image) {
-      cover = new GMCover(image,picture->type(),picture->description().toCString(true));
-      }
+    return new GMCover(picture->data().data(),picture->data().size(),picture->type(),picture->description().toCString(true));
     }
-  return cover;
+  return NULL;
   }
 
-GMCover* flac_load_frontcover_from_taglib(const TagLib::FLAC::Picture * picture,FXint scale,FXint crop) {
-  GMCover * cover=NULL;
+GMCover* flac_load_frontcover_from_taglib(const TagLib::FLAC::Picture * picture) {
   if (picture && picture->type()==TagLib::FLAC::Picture::FrontCover) {
-    FXImage * image = gm_load_image_from_data(picture->data().data(),picture->data().size(),scale,crop);
-    if (image) {
-      cover = new GMCover(image,picture->type(),picture->description().toCString(true));
-      }
+    return new GMCover(picture->data().data(),picture->data().size(),picture->type(),picture->description().toCString(true));
     }
-  return cover;
+  return NULL;
   }
 #endif
 
@@ -764,13 +752,13 @@ FXint GMFileTag::getYear()const {
   return tag->year();
   }
 
-GMCover * GMFileTag::getFrontCover(FXint scale,FXint crop) const {
+GMCover * GMFileTag::getFrontCover() const {
 #if TAGLIB_VERSION >= MKVERSION(1,7,0)
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
   if (flacfile) {
     const TagLib::List<TagLib::FLAC::Picture*> picturelist = flacfile->pictureList();
     for(TagLib::List<TagLib::FLAC::Picture*>::ConstIterator it = picturelist.begin(); it != picturelist.end(); it++) {
-      GMCover * cover = flac_load_frontcover_from_taglib((*it),scale,crop);
+      GMCover * cover = flac_load_frontcover_from_taglib((*it));
       if (cover) return cover;
       }
     }
@@ -783,14 +771,14 @@ GMCover * GMFileTag::getFrontCover(FXint scale,FXint crop) const {
         TagLib::ID3v2::AttachedPictureFrame * frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame*>(*it);
         FXASSERT(frame);
         if (id3v2_is_front_cover(frame)) {
-          GMCover * cover = id3v2_load_cover(frame,scale,crop);
+          GMCover * cover = id3v2_load_cover(frame);
           if (cover) return cover;
           }
         }
       for(TagLib::ID3v2::FrameList::Iterator it = framelist.begin(); it != framelist.end(); it++) {
         TagLib::ID3v2::AttachedPictureFrame * frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame*>(*it);
         FXASSERT(frame);
-        GMCover * cover = id3v2_load_cover(frame,scale,crop);
+        GMCover * cover = id3v2_load_cover(frame);
         if (cover) return cover;
         }
       }
@@ -799,7 +787,7 @@ GMCover * GMFileTag::getFrontCover(FXint scale,FXint crop) const {
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        GMCover * cover = xiph_load_cover((*it).data(TagLib::String::UTF8),scale,crop);
+        GMCover * cover = xiph_load_cover((*it).data(TagLib::String::UTF8));
         if (cover) return cover;
         }
       }
@@ -809,9 +797,7 @@ GMCover * GMFileTag::getFrontCover(FXint scale,FXint crop) const {
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        FXImage * img = NULL;
-        img = gm_load_image_from_data(it->data().data(),it->data().size(),scale,crop);
-        if (img) return new GMCover(img,0);
+        return new GMCover(it->data().data(),it->data().size());
         }
       }
     }
@@ -819,13 +805,13 @@ GMCover * GMFileTag::getFrontCover(FXint scale,FXint crop) const {
   return NULL;
   }
 
-FXint GMFileTag::getCovers(GMCoverList & covers,FXint scale,FXint crop) const {
+FXint GMFileTag::getCovers(GMCoverList & covers) const {
 #if TAGLIB_VERSION >= MKVERSION(1,7,0)
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
   if (flacfile) {
     const TagLib::List<TagLib::FLAC::Picture*> picturelist = flacfile->pictureList();
     for(TagLib::List<TagLib::FLAC::Picture*>::ConstIterator it = picturelist.begin(); it != picturelist.end(); it++) {
-      GMCover * cover = flac_load_cover_from_taglib((*it),scale,crop);
+      GMCover * cover = flac_load_cover_from_taglib((*it));
       if (cover) covers.append(cover);
       }
     if (covers.no()) return covers.no();
@@ -835,7 +821,7 @@ FXint GMFileTag::getCovers(GMCoverList & covers,FXint scale,FXint crop) const {
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        GMCover * cover = xiph_load_cover((*it).data(TagLib::String::UTF8),scale,crop);
+        GMCover * cover = xiph_load_cover((*it).data(TagLib::String::UTF8));
         if (cover) covers.append(cover);
         }
       }
@@ -845,7 +831,7 @@ FXint GMFileTag::getCovers(GMCoverList & covers,FXint scale,FXint crop) const {
     if(!framelist.isEmpty()){
       for(TagLib::ID3v2::FrameList::Iterator it = framelist.begin(); it != framelist.end(); it++) {
         TagLib::ID3v2::AttachedPictureFrame * frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame*>(*it);
-        GMCover * cover = id3v2_load_cover(frame,scale,crop);
+        GMCover * cover = id3v2_load_cover(frame);
         if (cover) covers.append(cover);
         }
       }
@@ -855,9 +841,7 @@ FXint GMFileTag::getCovers(GMCoverList & covers,FXint scale,FXint crop) const {
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        FXImage * img = NULL;
-        img = gm_load_image_from_data(it->data().data(),it->data().size(),scale,crop);
-        if (img) covers.append(new GMCover(img,0));
+        covers.append(new GMCover(it->data().data(),it->data().size(),0));
         }
       }
     }

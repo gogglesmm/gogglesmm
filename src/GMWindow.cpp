@@ -1387,13 +1387,13 @@ void GMWindow::loadCover(const FXString & filename) {
 
   /// If empty skip cover searching
   if (!filename.empty()) {
-    cover = GMCover::toImage(GMCover::fromTag(filename,coverdisplaysize));
+    cover = GMCover::toImage(GMCover::fromTag(filename),coverdisplaysize);
     if (cover==NULL) {
       dirname = FXPath::directory(filename);
       if (!dirname.empty()) {
         if (dirname==coverfile)
           return;
-        cover= GMCover::toImage(GMCover::fromPath(dirname,coverdisplaysize));
+        cover= GMCover::toImage(GMCover::fromPath(dirname),coverdisplaysize);
         }
       }
     }

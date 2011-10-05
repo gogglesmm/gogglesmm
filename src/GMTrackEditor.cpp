@@ -578,7 +578,7 @@ void GMEditTrackDialog::getTrackSelection() {
       art=NULL;
       }
     properties.load(info.mrl);
-    art = GMCover::toImage(GMCover::fromTag(info.mrl,0));
+    art = GMCover::toImage(GMCover::fromTag(info.mrl));
     if (art) art->create();
     }
 

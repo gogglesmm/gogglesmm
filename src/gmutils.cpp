@@ -346,6 +346,8 @@ static FXImage * gm_load_pixels(FXStream & store,FXint scale,FXint crop){
   }
 
 
+
+
 FXImage * gm_load_image_from_file(const FXString & filename,FXint scale,FXint crop) {
   FXFileStream store;
   if (store.open(filename,FXStreamLoad)) {

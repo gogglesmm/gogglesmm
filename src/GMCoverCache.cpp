@@ -137,11 +137,11 @@ FXint CoverLoader::run() {
   for (FXint i=0;i<albums.no() && processing;i++){
     fraction = (i+1) / ((double)albums.no());
     taskmanager->setStatus(FXString::value("Loading Covers %d%%",(FXint)(100.0*fraction)));
-    cover = GMCover::fromTag(albums[i].path,cache.getCoverSize(),1);
+    cover = GMCover::fromTag(albums[i].path);
     if (cover==NULL)
-      cover = GMCover::fromPath(FXPath::directory(albums[i].path),cache.getCoverSize(),1);
+      cover = GMCover::fromPath(FXPath::directory(albums[i].path));
     if (cover) {
-      cache.insertCover(albums[i].id,compress(GMCover::toImage(cover)));
+      cache.insertCover(albums[i].id,compress(GMCover::toImage(cover,cache.getCoverSize(),1)));
       }
     else {
       cache.insertCover(albums[i].id,NULL);

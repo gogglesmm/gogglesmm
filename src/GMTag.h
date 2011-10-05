@@ -135,8 +135,8 @@ public:
   FXint getChannels() const;
   FXint getSampleRate() const;
 
-  GMCover * getFrontCover(FXint scale=0,FXint crop=0) const;
-  FXint getCovers(GMCoverList &,FXint scale=0,FXint crop=0) const;
+  GMCover * getFrontCover() const;
+  FXint getCovers(GMCoverList &) const;
 
   ~GMFileTag();
   };

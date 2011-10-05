@@ -65,25 +65,26 @@ public:
     PublisherLogo     = 20
     };
 public:
-  FXImage * image;
+  FXuchar*  data;
+  FXuval    len;
   FXString  description;
   FXuint    type;
 public:
   GMCover();
-  GMCover(FXImage * img,FXuint t=GMCover::Other,const FXString & label=FXString::null);
+  GMCover(const void * data, FXuval len,FXuint t=GMCover::Other,const FXString & label=FXString::null,FXbool owned=false);
   ~GMCover();
 public:
-  static FXint fromTag(const FXString & mrl,GMCoverList & list,FXint scale=0,FXint crop=0);
+  static FXint fromTag(const FXString & mrl,GMCoverList & list);
 
-  static FXint fromPath(const FXString & mrl,GMCoverList & list,FXint scale=0,FXint crop=0);
+  static FXint fromPath(const FXString & mrl,GMCoverList & list);
 
-  static GMCover * fromTag(const FXString & mrl,FXint scale=0,FXint crop=0);
+  static GMCover * fromTag(const FXString & mrl);
 
-  static GMCover * fromPath(const FXString & mrl,FXint scale=0,FXint crop=0);
+  static GMCover * fromPath(const FXString & mrl);
 
-  static FXImage * toImage(GMCover*);
+  static GMCover * fromFile(const FXString & file);
 
-  static FXIcon * toIcon(GMCover*);
+  static FXImage * toImage(GMCover*,FXint scale=0,FXint crop=0);
   };
 
 #endif
