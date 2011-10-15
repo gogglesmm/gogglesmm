@@ -1,29 +1,28 @@
 #-------------------------------------------------------------------------------
 # Make template
 #-------------------------------------------------------------------------------
-FOXDIR=../../../fox-1.7.26
+FOXDIR=../../../../fox-1.7.29
 
 
 INPUT="src/*.cpp src/*.h"
-xgettext -C  --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com --package-name=gogglesmm --package-version=0.10.0 --copyright-holder="Sander Jansen" --keyword=tr:1 --keyword=fxtr:1 --keyword=notr:1 --keyword=fxtrformat:1 --flag=fxtrformat:1:c-format -o po/gogglesmm.pot $INPUT
+xgettext -C  --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com --package-name=gogglesmm --package-version=0.13.0 --copyright-holder="Sander Jansen" --keyword=tr:1 --keyword=fxtr:1 --keyword=notr:1 --keyword=fxtrformat:1 --flag=fxtrformat:1:c-format -o po/gogglesmm.pot $INPUT
 
 # FOX files
-INPUT="$FOXDIR/src/FXMessageBox.cpp \
-$FOXDIR/src/FXColorSelector.cpp \
-$FOXDIR/src/FXFontSelector.cpp \
-$FOXDIR/src/FXDirSelector.cpp \
-$FOXDIR/src/FXFileList.cpp \
-$FOXDIR/src/FXFileSelector.cpp \
-$FOXDIR/src/FXReplaceDialog.cpp \
-$FOXDIR/src/FXSearchDialog.cpp \
-$FOXDIR/src/FXStatusLine.cpp"
+INPUT="$FOXDIR/lib/FXMessageBox.cpp \
+$FOXDIR/lib/FXColorSelector.cpp \
+$FOXDIR/lib/FXDirSelector.cpp \
+$FOXDIR/lib/FXFileList.cpp \
+$FOXDIR/lib/FXFileSelector.cpp \
+$FOXDIR/lib/FXReplaceDialog.cpp \
+$FOXDIR/lib/FXSearchDialog.cpp \
+$FOXDIR/lib/FXStatusLine.cpp"
 
-xgettext -C -j --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=0.10.0 --copyright-holder="Sander Jansen" --keyword=tr:1 -o po/gogglesmm.pot $INPUT
+xgettext -C -j --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=0.13.0 --copyright-holder="Sander Jansen" --keyword=tr:1 -o po/gogglesmm.pot $INPUT
 
 
 # Additional non tr ones
 #INPUT="$FOXDIR/src/FXColorNames.cpp"
-#xgettext -C -j -a --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=0.10.0 --copyright-holder="Sander Jansen" -o po/gogglesmm.pot $INPUT
+#xgettext -C -j -a --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=0.13.0 --copyright-holder="Sander Jansen" -o po/gogglesmm.pot $INPUT
 
 
 for i in po/*.po

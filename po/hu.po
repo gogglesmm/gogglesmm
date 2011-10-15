@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hu\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2010-12-14 15:28+0100\n"
+"POT-Creation-Date: 2011-10-14 19:28-0500\n"
 "PO-Revision-Date: 2010-12-14 15:48+0100\n"
 "Last-Translator: Sipos Sándor <ss1978@lajt.hu>\n"
 "Language-Team:  <hu@li.org>\n"
@@ -15,31 +15,44 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: src/GMAbout.cpp:151 src/GMPreferencesDialog.cpp:692
-#: src/GMTrackEditor.cpp:320
+#: src/GMAbout.cpp:131 src/GMPreferencesDialog.cpp:709
+#: src/GMTrackEditor.cpp:333 src/GMTrackEditor.cpp:379
+#: src/GMTrackEditor.cpp:384
 msgid "&Close"
 msgstr "&Bezár"
 
-#: src/GMColumnDialog.cpp:204
+#: src/GMColumnDialog.cpp:199
 msgid "Configure Columns"
 msgstr "Oszlopok beállítása"
 
-#: src/GMColumnDialog.cpp:207
+#: src/GMColumnDialog.cpp:202
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:172
 msgid "&Accept"
 msgstr "&Ok"
 
-#: src/GMColumnDialog.cpp:208 src/GMDatabaseSource.cpp:983
-#: src/GMDatabaseSource.cpp:1083 src/GMDatabaseSource.cpp:1195
-#: src/GMDatabaseSource.cpp:1435 src/GMDatabaseSource.cpp:1507
-#: src/GMImportDialog.cpp:176 src/GMImportDialog.cpp:564
-#: src/GMPlayListSource.cpp:335 src/GMPlayListSource.cpp:440
-#: src/GMStreamSource.cpp:161 src/GMStreamSource.cpp:198
-#: src/GMStreamSource.cpp:259 src/GMTrackEditor.cpp:194
-#: src/GMTrackEditor.cpp:384 src/GMWindow.cpp:1307 src/GMWindow.cpp:1355
+#: src/GMColumnDialog.cpp:203 src/GMDatabaseSource.cpp:1093
+#: src/GMDatabaseSource.cpp:1199 src/GMDatabaseSource.cpp:1311
+#: src/GMDatabaseSource.cpp:1551 src/GMDatabaseSource.cpp:1623
+#: src/GMImportDialog.cpp:170 src/GMImportDialog.cpp:566
+#: src/GMPlayListSource.cpp:346 src/GMPlayListSource.cpp:424
+#: src/GMPlayListSource.cpp:529 src/GMStreamSource.cpp:160
+#: src/GMStreamSource.cpp:197 src/GMStreamSource.cpp:258
+#: src/GMTrackEditor.cpp:206 src/GMWindow.cpp:1284 src/GMWindow.cpp:1332
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:104
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:115
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:120
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:126
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:132
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:139
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:148
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:173
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:134
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:205
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:111
 msgid "&Cancel"
 msgstr "&Mégsem"
 
-#: src/GMColumnDialog.cpp:212
+#: src/GMColumnDialog.cpp:207
 msgid ""
 "Choose the order of information to appear\n"
 "in the track list."
@@ -47,515 +60,565 @@ msgstr ""
 "Válassza ki a zeneszámok listájának \n"
 "rendezési sorrendjét."
 
-#: src/GMColumnDialog.cpp:218
+#: src/GMColumnDialog.cpp:213
 msgid "Move Up"
 msgstr "Felfelé mozgat"
 
-#: src/GMColumnDialog.cpp:219
+#: src/GMColumnDialog.cpp:214
 msgid "Move Down"
 msgstr "Lefelé mozgat"
 
-#: src/GMDatabaseSource.cpp:175 src/GMPlayListSource.cpp:462
-#: src/GMStreamSource.cpp:62
+#: src/GMDatabaseSource.cpp:176 src/GMPlayListSource.cpp:551
+#: src/GMStreamSource.cpp:61
 msgid "No"
 msgstr "Nem"
 
-#: src/GMDatabaseSource.cpp:176
+#: src/GMDatabaseSource.cpp:177
 msgid "Queue"
 msgstr "Sor"
 
-#: src/GMDatabaseSource.cpp:177 src/GMTrackView.cpp:244
+#: src/GMDatabaseSource.cpp:178 src/GMTrackView.cpp:265
 msgid "Title"
 msgstr "Cím"
 
-#: src/GMDatabaseSource.cpp:178 src/GMTrackView.cpp:245
+#: src/GMDatabaseSource.cpp:179 src/GMTrackView.cpp:266
 msgid "Artist"
 msgstr "Előadó"
 
-#: src/GMDatabaseSource.cpp:179
+#: src/GMDatabaseSource.cpp:180
 msgid "Album Artist"
 msgstr "Album előadója"
 
-#: src/GMDatabaseSource.cpp:180 src/GMPreferencesDialog.cpp:679
-#: src/GMTrackView.cpp:246
+#: src/GMDatabaseSource.cpp:181 src/GMPreferencesDialog.cpp:704
+#: src/GMTrackView.cpp:267
 msgid "Album"
 msgstr "Album"
 
-#: src/GMDatabaseSource.cpp:181
+#: src/GMDatabaseSource.cpp:182
 msgid "Disc"
 msgstr "Lemez"
 
-#: src/GMDatabaseSource.cpp:182 src/GMStreamSource.cpp:65
-#: src/GMStreamSource.cpp:169 src/GMStreamSource.cpp:208
-#: src/GMTrackView.cpp:247
-msgid "Genre"
-msgstr "Műfaj"
-
-#: src/GMDatabaseSource.cpp:183 src/GMTrackEditor.cpp:507
-#: src/GMTrackEditor.cpp:530
+#: src/GMDatabaseSource.cpp:184
 msgid "Year"
 msgstr "Év"
 
-#: src/GMDatabaseSource.cpp:184
+#: src/GMDatabaseSource.cpp:185
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:761
 msgid "Time"
 msgstr "Idő"
 
-#: src/GMDatabaseSource.cpp:185
+#: src/GMDatabaseSource.cpp:186
 msgid "Play Count"
 msgstr "Lejátszás száma"
 
-#: src/GMDatabaseSource.cpp:186
+#: src/GMDatabaseSource.cpp:187
 msgid "Play Date"
 msgstr "Lejátszás dátuma"
 
-#: src/GMDatabaseSource.cpp:187
+#: src/GMDatabaseSource.cpp:188
 msgid "File Name"
 msgstr "File név"
 
-#: src/GMDatabaseSource.cpp:188
+#: src/GMDatabaseSource.cpp:189
 msgid "File Type"
 msgstr "Fáj típus"
 
-#: src/GMDatabaseSource.cpp:189 src/GMStreamSource.cpp:64
-#: src/GMTrackEditor.cpp:455
+#: src/GMDatabaseSource.cpp:190 src/GMStreamSource.cpp:63
+#: src/GMTrackEditor.cpp:425
 msgid "Bitrate"
 msgstr "Bitráta"
 
-#: src/GMDatabaseSource.cpp:190
+#: src/GMDatabaseSource.cpp:191
 msgid "Composer"
 msgstr "Zeneszerző:"
 
-#: src/GMDatabaseSource.cpp:191
+#: src/GMDatabaseSource.cpp:192
 msgid "Conductor"
 msgstr ""
 
-#: src/GMDatabaseSource.cpp:192
+#: src/GMDatabaseSource.cpp:193
 msgid "Rating"
 msgstr "Értékelés"
 
-#: src/GMDatabaseSource.cpp:268
+#: src/GMDatabaseSource.cpp:269
 msgid "Remove…\tDel\tRemove Genre from Library."
 msgstr "Törlés…\tDel\tA műfaj eltávolítása a gyűjteményből."
 
-#: src/GMDatabaseSource.cpp:274 src/GMDatabaseSource.cpp:284
-#: src/GMDatabaseSource.cpp:294 src/GMPlayListSource.cpp:155
-#: src/GMPlayListSource.cpp:165 src/GMPlayListSource.cpp:175
+#: src/GMDatabaseSource.cpp:275 src/GMDatabaseSource.cpp:285
+#: src/GMDatabaseSource.cpp:295 src/GMPlayListSource.cpp:161
+#: src/GMPlayListSource.cpp:171 src/GMPlayListSource.cpp:181
 msgid "Add to Play Queue…"
 msgstr "Hozzáadás a lejátszási sorhoz…"
 
-#: src/GMDatabaseSource.cpp:276 src/GMDatabaseSource.cpp:286
-#: src/GMPlayListSource.cpp:157 src/GMPlayListSource.cpp:167
+#: src/GMDatabaseSource.cpp:277 src/GMDatabaseSource.cpp:287
+#: src/GMPlayListSource.cpp:163 src/GMPlayListSource.cpp:173
 msgid "Copy\tCtrl-C\tCopy associated tracks to the clipboard."
 msgstr "Másolás\tCtrl-C\tA kijelölt számok másolása a vágólapra."
 
-#: src/GMDatabaseSource.cpp:278 src/GMDatabaseSource.cpp:288
+#: src/GMDatabaseSource.cpp:279 src/GMDatabaseSource.cpp:289
 msgid "Remove…\tDel\tRemove associated tracks from library."
 msgstr "Törlés…\tDel\tA kijelölt számok eltávolítása a gyűjteményből."
 
-#: src/GMDatabaseSource.cpp:298 src/GMPlayListSource.cpp:178
-#: src/GMPlayQueue.cpp:96
+#: src/GMDatabaseSource.cpp:299 src/GMPlayListSource.cpp:184
+#: src/GMPlayQueue.cpp:95
 msgid "Edit…\tF2\tEdit Track Information."
 msgstr "Szerkesztés…\tF2\tZeneszám információinak szerkesztése"
 
-#: src/GMDatabaseSource.cpp:299 src/GMPlayListSource.cpp:179
-#: src/GMPlayQueue.cpp:97
+#: src/GMDatabaseSource.cpp:300 src/GMPlayListSource.cpp:185
+#: src/GMPlayQueue.cpp:96
 msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
 msgstr "Másolás\tCtrl-C\tSzám(ok) másolása a vágólapra."
 
-#: src/GMDatabaseSource.cpp:305
+#: src/GMDatabaseSource.cpp:306
 msgid "Remove…\tDel\tRemove track(s) from library."
 msgstr "Törlés…\tDel\tA szám(ok) eltávolítása a gyűjteményből."
 
-#: src/GMDatabaseSource.cpp:321 src/GMPlayListSource.cpp:239
+#: src/GMDatabaseSource.cpp:322 src/GMPlayListSource.cpp:245
 msgid "Export…"
 msgstr "Exportálás…"
 
-#: src/GMDatabaseSource.cpp:323
+#: src/GMDatabaseSource.cpp:324
 msgid "Remove All Tracks\t\tRemove all tracks from the library"
 msgstr "Mindet töröl\t\tAz összes zeneszám eltávolítása a gyűjteményből."
 
-#: src/GMDatabaseSource.cpp:979
+#: src/GMDatabaseSource.cpp:1089
 msgid "Remove Audio Files?"
 msgstr "Töröljem a hangfájlokat?"
 
-#: src/GMDatabaseSource.cpp:980
+#: src/GMDatabaseSource.cpp:1090
 msgid "Remove Audio Files..."
 msgstr "A hangfájlok eltávolítása..."
 
-#: src/GMDatabaseSource.cpp:980
+#: src/GMDatabaseSource.cpp:1090
 msgid "The following audio files are going to be removed"
 msgstr "A következő hangfájlokat fogom törölni"
 
-#: src/GMDatabaseSource.cpp:982 src/GMDatabaseSource.cpp:1194
-#: src/GMPlayListSource.cpp:334 src/GMStreamSource.cpp:258
+#: src/GMDatabaseSource.cpp:1092 src/GMDatabaseSource.cpp:1310
+#: src/GMPlayListSource.cpp:345 src/GMPlayListSource.cpp:423
+#: src/GMStreamSource.cpp:257
 msgid "&Remove"
 msgstr "&Törlés"
 
-#: src/GMDatabaseSource.cpp:1008
+#: src/GMDatabaseSource.cpp:1120
 msgid "Export Main Library"
 msgstr "Fő gyűjtemény exportálása"
 
-#: src/GMDatabaseSource.cpp:1010
+#: src/GMDatabaseSource.cpp:1122
 msgid "Export Playlist"
 msgstr "Lejátszólista exportálása"
 
-#: src/GMDatabaseSource.cpp:1023
+#: src/GMDatabaseSource.cpp:1133
 msgid "Overwrite File?"
 msgstr "Felülírjam a fájt?"
 
-#: src/GMDatabaseSource.cpp:1023
+#: src/GMDatabaseSource.cpp:1133
 msgid "File already exists. Would you like to overwrite it?"
 msgstr "A fájl már létezik. Felülírjam a fájlt?"
 
-#: src/GMDatabaseSource.cpp:1063
+#: src/GMDatabaseSource.cpp:1179
 msgid "Export Genre"
 msgstr "Műfaj exportálása"
 
-#: src/GMDatabaseSource.cpp:1064
+#: src/GMDatabaseSource.cpp:1180
 msgid "Export tracks with genre to destination directory."
 msgstr "Számok exportálása könyvtárba műfajuk alapján."
 
-#: src/GMDatabaseSource.cpp:1066
+#: src/GMDatabaseSource.cpp:1182
 msgid "Export Artists"
 msgstr "Előadók exportálása"
 
-#: src/GMDatabaseSource.cpp:1067
+#: src/GMDatabaseSource.cpp:1183
 msgid "Export tracks from artist to destination directory."
 msgstr "Számok exportálása könyvtárba előadójuk alapján."
 
-#: src/GMDatabaseSource.cpp:1069
+#: src/GMDatabaseSource.cpp:1185
 msgid "Export Albums"
 msgstr "Albumok exportálása"
 
-#: src/GMDatabaseSource.cpp:1070
+#: src/GMDatabaseSource.cpp:1186
 msgid "Export tracks from album to destination directory."
 msgstr "Számok exportálása könyvtárba albumuk alapján."
 
-#: src/GMDatabaseSource.cpp:1072
+#: src/GMDatabaseSource.cpp:1188
 msgid "Export Tracks"
 msgstr "Számok exportálása"
 
-#: src/GMDatabaseSource.cpp:1073
+#: src/GMDatabaseSource.cpp:1189
 msgid "Export tracks to destination directory."
 msgstr "Számok exportálása könyvtárba."
 
-#: src/GMDatabaseSource.cpp:1082
+#: src/GMDatabaseSource.cpp:1198
 msgid "&Export"
 msgstr "&Exportálás"
 
-#: src/GMDatabaseSource.cpp:1094 src/GMImportDialog.cpp:547
-#: src/GMTrackEditor.cpp:297
+#: src/GMDatabaseSource.cpp:1210 src/GMImportDialog.cpp:549
+#: src/GMTrackEditor.cpp:310
 msgid "Template:"
 msgstr "Sablon:"
 
-#: src/GMDatabaseSource.cpp:1098 src/GMTrackEditor.cpp:301
+#: src/GMDatabaseSource.cpp:1214 src/GMTrackEditor.cpp:314
 msgid "Encoding:"
 msgstr "Kódolás:"
 
-#: src/GMDatabaseSource.cpp:1104 src/GMTrackEditor.cpp:311
+#: src/GMDatabaseSource.cpp:1220 src/GMTrackEditor.cpp:324
 msgid "Options:"
 msgstr "Beállítások:"
 
-#: src/GMDatabaseSource.cpp:1105 src/GMTrackEditor.cpp:312
+#: src/GMDatabaseSource.cpp:1221 src/GMTrackEditor.cpp:325
 msgid "Replace spaces with underscores"
 msgstr "Szóközök kicserélése alsóvonalra"
 
-#: src/GMDatabaseSource.cpp:1107 src/GMTrackEditor.cpp:314
+#: src/GMDatabaseSource.cpp:1223 src/GMTrackEditor.cpp:327
 msgid "Lower case"
 msgstr "Kisbetűs"
 
-#: src/GMDatabaseSource.cpp:1109 src/GMTrackEditor.cpp:316
+#: src/GMDatabaseSource.cpp:1225 src/GMTrackEditor.cpp:329
 msgid "Lower case extension"
 msgstr "Kisbetűs kiterjesztés"
 
-#: src/GMDatabaseSource.cpp:1167 src/GMPlayListSource.cpp:315
+#: src/GMDatabaseSource.cpp:1283
 msgid "Remove Genre?"
 msgstr "Eltávolítsam a műfajt?"
 
-#: src/GMDatabaseSource.cpp:1168
+#: src/GMDatabaseSource.cpp:1284
 msgid "Remove tracks with genre from library?"
 msgstr "Eltávolítsam az adott műfajú zenéket a gyűjteményből?"
 
-#: src/GMDatabaseSource.cpp:1172 src/GMPlayListSource.cpp:318
+#: src/GMDatabaseSource.cpp:1288 src/GMPlayListSource.cpp:330
+#: src/GMPlayListSource.cpp:407
 msgid "Remove Artist?"
 msgstr "Töröljem az előadót?"
 
-#: src/GMDatabaseSource.cpp:1173
+#: src/GMDatabaseSource.cpp:1289
 msgid "Remove tracks from artist from library?"
 msgstr "Töröljem az előadó összes számát a gyűjteményből?"
 
-#: src/GMDatabaseSource.cpp:1177 src/GMPlayListSource.cpp:321
+#: src/GMDatabaseSource.cpp:1293 src/GMPlayListSource.cpp:333
+#: src/GMPlayListSource.cpp:410
 msgid "Remove Album?"
 msgstr "Töröljem az albumot?"
 
-#: src/GMDatabaseSource.cpp:1178
+#: src/GMDatabaseSource.cpp:1294
 msgid "Remove tracks from album from library?"
 msgstr "Töröljem az albumhoz tartozó összes számot a gyűjteményből?"
 
-#: src/GMDatabaseSource.cpp:1182 src/GMPlayListSource.cpp:324
+#: src/GMDatabaseSource.cpp:1298 src/GMPlayListSource.cpp:336
+#: src/GMPlayListSource.cpp:413
 msgid "Remove Track(s)?"
 msgstr "Töröljem a számo(ka)t"
 
-#: src/GMDatabaseSource.cpp:1183
+#: src/GMDatabaseSource.cpp:1299
 msgid "Remove track(s) from library?"
 msgstr "Töröljem a számo(ka)t a gyűjteményből?"
 
-#: src/GMDatabaseSource.cpp:1198 src/GMPlayListSource.cpp:339
+#: src/GMDatabaseSource.cpp:1314 src/GMPlayListSource.cpp:350
+#: src/GMPlayListSource.cpp:428
 msgid "Remove tracks from disk"
 msgstr "Számok törlése a lemezről"
 
-#: src/GMDatabaseSource.cpp:1212 src/GMDatabaseSource.cpp:1216
-#: src/GMDatabaseSource.cpp:1220 src/GMDatabaseSource.cpp:1230
-#: src/GMStreamSource.cpp:268
+#: src/GMDatabaseSource.cpp:1328 src/GMDatabaseSource.cpp:1332
+#: src/GMDatabaseSource.cpp:1336 src/GMDatabaseSource.cpp:1346
+#: src/GMStreamSource.cpp:267
 msgid "Library Error"
 msgstr "Gyűjtemény hiba"
 
-#: src/GMDatabaseSource.cpp:1212
+#: src/GMDatabaseSource.cpp:1328
 msgid "Unable to remove genre from the library"
 msgstr "A műfaj eltávolítása az adatbázisból sikertelen."
 
-#: src/GMDatabaseSource.cpp:1216
+#: src/GMDatabaseSource.cpp:1332
 msgid "Unable to remove artist from the library"
 msgstr "Az előadó eltávolítása az adatbázisból sikertelen."
 
-#: src/GMDatabaseSource.cpp:1220
+#: src/GMDatabaseSource.cpp:1336
 msgid "Unable to remove album from the library"
 msgstr "Az album eltávolítása az adatbázisból sikertelen."
 
-#: src/GMDatabaseSource.cpp:1230
+#: src/GMDatabaseSource.cpp:1346
 msgid "Unable to remove track from the library."
 msgstr "A zeneszám eltávolítása az adatbázisból sikertelen."
 
-#: src/GMDatabaseSource.cpp:1431 src/GMDatabaseSource.cpp:1432
+#: src/GMDatabaseSource.cpp:1547 src/GMDatabaseSource.cpp:1548
 msgid "Create Playlist"
 msgstr "Lejátszólista létrehozása"
 
-#: src/GMDatabaseSource.cpp:1432
+#: src/GMDatabaseSource.cpp:1548
 msgid "Specify name of the new playlist"
 msgstr "Adja meg az új lejátszólista nevét"
 
-#: src/GMDatabaseSource.cpp:1434
+#: src/GMDatabaseSource.cpp:1550
 msgid "&Create"
 msgstr "&Létrehozás"
 
-#: src/GMDatabaseSource.cpp:1439 src/GMPlayListSource.cpp:444
+#: src/GMDatabaseSource.cpp:1555 src/GMPlayListSource.cpp:533
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:758
 msgid "Name"
 msgstr "Név"
 
-#: src/GMDatabaseSource.cpp:1441
+#: src/GMDatabaseSource.cpp:1557
 msgid "New Playlist"
 msgstr "Új lejátszólista"
 
-#: src/GMDatabaseSource.cpp:1503 src/GMDatabaseSource.cpp:1504
+#: src/GMDatabaseSource.cpp:1619 src/GMDatabaseSource.cpp:1620
 msgid "Clear Music Library?"
 msgstr "Töröljük a Zenei gyűjteményt?"
 
-#: src/GMDatabaseSource.cpp:1504
+#: src/GMDatabaseSource.cpp:1620
 msgid "Remove all tracks from the music library?"
 msgstr "Eltávolítsuk az összes számot a gyűjteményből?"
 
-#: src/GMDatabaseSource.cpp:1506
+#: src/GMDatabaseSource.cpp:1622
 msgid "&Remove All"
 msgstr "&Összes eltávolítása"
 
-#: src/GMDatabaseSource.cpp:1510
+#: src/GMDatabaseSource.cpp:1626
 msgid "Keep play lists"
 msgstr "Lejátszólisták megtartása"
 
-#: src/GMEQDialog.cpp:92
-msgid "Equalizer"
-msgstr "Hangszínszabályozó"
+#: src/GMFontDialog.cpp:204
+msgid "Ultra Condensed"
+msgstr ""
 
-#: src/GMEQDialog.cpp:131
-msgid "Equalizer:"
-msgstr "Hangszínszabályozó:"
+#: src/GMFontDialog.cpp:205
+msgid "Extra Condensed"
+msgstr ""
 
-#: src/GMEQDialog.cpp:133
-msgid "\tSave"
-msgstr "\tMentés"
+#: src/GMFontDialog.cpp:206
+msgid "Condensed"
+msgstr ""
 
-#: src/GMEQDialog.cpp:134
-msgid "\tReset"
-msgstr "\tAlapállapot"
+#: src/GMFontDialog.cpp:207
+msgid "Semi Condensed"
+msgstr ""
 
-#: src/GMEQDialog.cpp:135
-msgid "\tRemove"
-msgstr "\tTörlés"
+#: src/GMFontDialog.cpp:209
+msgid "Semi Expanded"
+msgstr ""
 
-#: src/GMEQDialog.cpp:168
-msgid "Pre-amp"
-msgstr "Előerősítés"
+#: src/GMFontDialog.cpp:210
+msgid "Expanded"
+msgstr ""
 
-#: src/GMEQDialog.cpp:240 src/GMEQDialog.cpp:250
-msgid "Disabled"
-msgstr "Letiltva"
+#: src/GMFontDialog.cpp:211
+msgid "Extra Expanded"
+msgstr ""
 
-#: src/GMEQDialog.cpp:243 src/GMEQDialog.cpp:295
-msgid "Manual"
-msgstr "Kézi"
+#: src/GMFontDialog.cpp:212
+msgid "Ultra Expanded"
+msgstr ""
 
-#: src/GMEQDialog.cpp:310
-msgid "Delete Preset"
-msgstr "Beállítás törlése"
+#: src/GMFontDialog.cpp:219 src/GMPreferencesDialog.cpp:1529
+msgid "Thin"
+msgstr ""
 
-#: src/GMEQDialog.cpp:310
-#, c-format
-msgid "Are you sure you want to delete %s preset?"
-msgstr "Biztos, hogy törölni akarja a(z) \"%s\" nevű hangszín beállítást?"
+#: src/GMFontDialog.cpp:220 src/GMPreferencesDialog.cpp:1530
+msgid "Extra Light"
+msgstr ""
 
-#: src/GMEQDialog.cpp:330
-msgid "Preset Name"
-msgstr "Beállítás neve"
+#: src/GMFontDialog.cpp:221 src/GMPreferencesDialog.cpp:1531
+msgid "Light"
+msgstr "Vékony"
 
-#: src/GMEQDialog.cpp:330
-msgid "Please enter preset name:"
-msgstr "Adja meg a beállítás nevét:"
+#: src/GMFontDialog.cpp:223 src/GMPreferencesDialog.cpp:1533
+msgid "Medium"
+msgstr "Közepes"
 
-#: src/GMEQDialog.cpp:334
-msgid "Overwrite Preset"
-msgstr "Beállítás felülírása"
+#: src/GMFontDialog.cpp:224 src/GMPreferencesDialog.cpp:1534
+msgid "Demibold"
+msgstr ""
 
-#: src/GMEQDialog.cpp:334
-#, c-format
-msgid "Preset %s already exists. Would you like to overwrite it?"
-msgstr "A(z) \"%s\" beállítás már létezik. Felülírjam?"
+#: src/GMFontDialog.cpp:225 src/GMPreferencesDialog.cpp:1535
+msgid "Bold"
+msgstr ""
 
-#: src/GMFontDialog.cpp:265
+#: src/GMFontDialog.cpp:226 src/GMPreferencesDialog.cpp:1536
+msgid "Extra Bold"
+msgstr ""
+
+#: src/GMFontDialog.cpp:227 src/GMPreferencesDialog.cpp:1537
+msgid "Heavy"
+msgstr ""
+
+#: src/GMFontDialog.cpp:234
+#, fuzzy
+msgid "Reverse Oblique"
+msgstr "Visszafelé"
+
+#: src/GMFontDialog.cpp:235
+#, fuzzy
+msgid "Reverse Italic"
+msgstr "Visszafelé"
+
+#: src/GMFontDialog.cpp:237
+#, fuzzy
+msgid "Italic"
+msgstr "Dőlt"
+
+#: src/GMFontDialog.cpp:238
+#, fuzzy
+msgid "Oblique"
+msgstr "Dőlt"
+
+#: src/GMFontDialog.cpp:260
 msgid "Normal"
 msgstr "Normál"
 
-#: src/GMImportDialog.cpp:92
+#: src/GMImportDialog.cpp:92 ../../../../fox-1.7.29/lib/FXDirSelector.cpp:136
 msgid "&Directory:"
 msgstr "&Könyvtár:"
 
-#: src/GMImportDialog.cpp:167
+#: src/GMImportDialog.cpp:161
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:196
 msgid "&File Name:"
 msgstr "&File név:"
 
-#: src/GMImportDialog.cpp:169
+#: src/GMImportDialog.cpp:163 ../../../../fox-1.7.29/lib/FXMessageBox.cpp:99
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:103
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:133
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:198
 msgid "&OK"
 msgstr "&OK"
 
-#: src/GMImportDialog.cpp:171
+#: src/GMImportDialog.cpp:165
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:200
 msgid "File F&ilter:"
 msgstr "F&ile szűrő:"
 
-#: src/GMImportDialog.cpp:175
+#: src/GMImportDialog.cpp:169
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:204
 msgid "Read Only"
 msgstr "Csak olvasható"
 
-#: src/GMImportDialog.cpp:180
+#: src/GMImportDialog.cpp:174
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:208
 msgid "Directory:"
 msgstr "Könyvtár:"
 
-#: src/GMImportDialog.cpp:187
+#: src/GMImportDialog.cpp:181
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:229
 msgid "&Set bookmark\t\tBookmark current directory."
 msgstr "&Könyvjelző ide\t\tKönyvjelző elhelyezése az aktuális könyvtárra."
 
-#: src/GMImportDialog.cpp:188
+#: src/GMImportDialog.cpp:182
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:230
 msgid "&Clear bookmarks\t\tClear bookmarks."
 msgstr "&Könyvjelzők törlése\t\tKönyvjelzők törlése"
 
-#: src/GMImportDialog.cpp:204
+#: src/GMImportDialog.cpp:198
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:245
 msgid "\tGo up one directory\tMove up to higher directory."
 msgstr "\tEgy könyvtárral feljebb\tEgy könyvtárral feljebb"
 
-#: src/GMImportDialog.cpp:205
+#: src/GMImportDialog.cpp:199
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:246
 msgid "\tGo to home directory\tBack to home directory."
 msgstr "\tSaját könyvtár\tSaját könyvtár."
 
-#: src/GMImportDialog.cpp:206
+#: src/GMImportDialog.cpp:200
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:247
 msgid "\tGo to work directory\tBack to working directory."
 msgstr "\tMunkakönyvtár\tUgrás a futtatási könyvtárba"
 
-#: src/GMImportDialog.cpp:207
+#: src/GMImportDialog.cpp:201
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:248
 msgid "\tBookmarks\tVisit bookmarked directories."
 msgstr "\tKönyvjelzők\tA könyvjelzők megtekintése."
 
-#: src/GMImportDialog.cpp:210
+#: src/GMImportDialog.cpp:204
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:251
 msgid "\tCreate new directory\tCreate new directory."
 msgstr "\tÚj könyvtár létrehozása\tÚj könyvtár létrehozása"
 
-#: src/GMImportDialog.cpp:211
+#: src/GMImportDialog.cpp:205
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:252
 msgid "\tShow list\tDisplay directory with small icons."
 msgstr "\tLista\tA könyvtár tartalmának megjelenítése listaként."
 
-#: src/GMImportDialog.cpp:212
+#: src/GMImportDialog.cpp:206
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:253
 msgid "\tShow icons\tDisplay directory with big icons."
 msgstr "\tIkonok\tA könyvtár tartalmának megjelenítése nagy ikonok formájában."
 
-#: src/GMImportDialog.cpp:213
+#: src/GMImportDialog.cpp:207
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:254
 msgid "\tShow details\tDisplay detailed directory listing."
 msgstr "\tRészletek megjelenítése\tRészletes könvtárlista megjelenítése."
 
-#: src/GMImportDialog.cpp:214
+#: src/GMImportDialog.cpp:208
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:255
 msgid "\tShow hidden files\tShow hidden files and directories."
 msgstr ""
 "\tRejtett fájlok megjelenítése\tRejtett fájlok és könyvtárak megjelenítése."
 
-#: src/GMImportDialog.cpp:214
+#: src/GMImportDialog.cpp:208
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:255
 msgid "\tHide Hidden Files\tHide hidden files and directories."
 msgstr ""
 "\tRejtett fájlok rejtése\tNe mutassa a rejtett fájlokat és könyvtárakat."
 
-#: src/GMImportDialog.cpp:413
+#: src/GMImportDialog.cpp:388 src/GMImportDialog.cpp:398
+#, fuzzy
+msgid "&Options:"
+msgstr "Beállítások:"
+
+#: src/GMImportDialog.cpp:419
 msgid "Synchronize Folder"
 msgstr "Könyvtár szinkronizálása"
 
-#: src/GMImportDialog.cpp:415
+#: src/GMImportDialog.cpp:421
 msgid "Import Playlist"
 msgstr "Lejátszólista exportálása"
 
-#: src/GMImportDialog.cpp:417
+#: src/GMImportDialog.cpp:423
 msgid "Import Music"
 msgstr "Zenék importálása"
 
-#: src/GMImportDialog.cpp:449
+#: src/GMImportDialog.cpp:455
 msgid "&File(s)"
 msgstr "&Fájl(ok)"
 
-#: src/GMImportDialog.cpp:476
+#: src/GMImportDialog.cpp:478
 msgid "&Directory"
 msgstr "&Könyvtár"
 
-#: src/GMImportDialog.cpp:479
+#: src/GMImportDialog.cpp:481
 msgid "Exclude Filter\tFilter out directories and/or files based on pattern"
 msgstr ""
 "Kizáró szűrő\tHagyja ki azokat a fájlokat/könyvtárakat amelyre teljesül a "
 "szűrő"
 
-#: src/GMImportDialog.cpp:482
+#: src/GMImportDialog.cpp:484
 msgid "Folders:"
 msgstr "Könyvtárak:"
 
-#: src/GMImportDialog.cpp:484
+#: src/GMImportDialog.cpp:486
 msgid "Files:"
 msgstr "Fájlok:"
 
-#: src/GMImportDialog.cpp:500 src/GMImportDialog.cpp:561
+#: src/GMImportDialog.cpp:502 src/GMImportDialog.cpp:563
 msgid "&Sync"
 msgstr "&Szinkronizálás"
 
-#: src/GMImportDialog.cpp:502
+#: src/GMImportDialog.cpp:504
 msgid "Sync Operation"
 msgstr "Szinkronizálás"
 
-#: src/GMImportDialog.cpp:505
+#: src/GMImportDialog.cpp:507
 msgid "Import new tracks\tImports files not yet in the database."
 msgstr ""
 "Új számok importálása\tImportálja azon fájlokat, amelyek eddig nem "
 "szerepeltek a gyűjteményben."
 
-#: src/GMImportDialog.cpp:506
+#: src/GMImportDialog.cpp:508
 msgid "Remove tracks that have been deleted from disk"
 msgstr ""
 "Számok eltávolítása a gyűjteményből, melyek már nem találhatók a lemezen"
 
-#: src/GMImportDialog.cpp:508
+#: src/GMImportDialog.cpp:510
 msgid "Update existing tracks:"
 msgstr "Meglévő számok frissítése"
 
-#: src/GMImportDialog.cpp:509
+#: src/GMImportDialog.cpp:511
 msgid ""
 "Modified since last import\tOnly reread the tag when the file has been "
 "modified."
@@ -563,52 +626,53 @@ msgstr ""
 "Módosult a legutóbbi importálás óta\tCsak a címkék (Tag) újraolvasása "
 "azoknál a fájloknál, amelyek a legutóbbi import óta módosultak."
 
-#: src/GMImportDialog.cpp:511
+#: src/GMImportDialog.cpp:513
 msgid "All\tAlways read the tags"
 msgstr "Összes\tMindig olvassa be a címkéket (Tag)"
 
-#: src/GMImportDialog.cpp:512
+#: src/GMImportDialog.cpp:514
 msgid "Remove tracks found in folder from database"
 msgstr "A könyvtárban található számok eltávolítása a gyűjteményből"
 
-#: src/GMImportDialog.cpp:515
+#: src/GMImportDialog.cpp:517
 msgid "&Track"
 msgstr "&Szám"
 
-#: src/GMImportDialog.cpp:518
+#: src/GMImportDialog.cpp:520
 msgid "Parse Settings"
 msgstr "Beállítások beolvasása"
 
-#: src/GMImportDialog.cpp:522
+#: src/GMImportDialog.cpp:524
 msgid "Parse info from:"
 msgstr "Beállítások beolvasása innen:"
 
-#: src/GMImportDialog.cpp:525
+#: src/GMImportDialog.cpp:527 src/GMStreamSource.cpp:168
+#: src/GMTrackView.cpp:268
 msgid "Tag"
 msgstr "Címke"
 
-#: src/GMImportDialog.cpp:526 src/GMLocalSource.cpp:56
-#: src/GMTrackEditor.cpp:439
+#: src/GMImportDialog.cpp:528 src/GMLocalSource.cpp:55
+#: src/GMTrackEditor.cpp:409
 msgid "Filename"
 msgstr "Fájlnév"
 
-#: src/GMImportDialog.cpp:527
+#: src/GMImportDialog.cpp:529
 msgid "Both"
 msgstr "Mindkettő"
 
-#: src/GMImportDialog.cpp:529
+#: src/GMImportDialog.cpp:531
 msgid "Default value:"
 msgstr "Alapértelmezett érték:"
 
-#: src/GMImportDialog.cpp:533
+#: src/GMImportDialog.cpp:535
 msgid "Set track number based on scan order."
 msgstr "A szám sorszáma a beolvasás sorrendje szerint"
 
-#: src/GMImportDialog.cpp:535 src/GMTrackEditor.cpp:271
+#: src/GMImportDialog.cpp:537 src/GMTrackEditor.cpp:283
 msgid "Filename Template"
 msgstr "Fájlnév sablonok"
 
-#: src/GMImportDialog.cpp:538
+#: src/GMImportDialog.cpp:540
 msgid ""
 "%T - title              %A - album name\n"
 "%P - album artist name  %p - track artist name \n"
@@ -618,155 +682,42 @@ msgstr ""
 "%P - album előadója  %p - szám előadója \n"
 "%N - szám sorszáma       %G - műfaj"
 
-#: src/GMImportDialog.cpp:550
+#: src/GMImportDialog.cpp:552
 msgid "Replace underscores with spaces"
 msgstr "Alsóvonalakat cserélje szóközre"
 
-#: src/GMImportDialog.cpp:563
+#: src/GMImportDialog.cpp:565
 msgid "&Import"
 msgstr "&Importálás"
 
-#: src/GMPlayListSource.cpp:149 src/GMPlayListSource.cpp:159
-#: src/GMPlayListSource.cpp:169 src/GMPlayListSource.cpp:186
-msgid "Remove…\tDel\tRemove track(s) from play list."
-msgstr "Törlés…\tDel\tA szám eltávolítása a lejátszólistából."
+#: src/GMNotifyDaemon.cpp:269
+#, c-format
+msgid ""
+"%s\n"
+"%s (%d)"
+msgstr ""
+"%s\n"
+"%s (%d)"
 
-#: src/GMPlayListSource.cpp:237
-msgid "Edit…"
-msgstr "Szerkesztés…"
-
-#: src/GMPlayListSource.cpp:238
-msgid "Import…"
-msgstr "Importálás…"
-
-#: src/GMPlayListSource.cpp:240
-msgid "Remove Playlist"
-msgstr "Lejátszólista eltávolítása"
-
-#: src/GMPlayListSource.cpp:316
-msgid "Remove tracks with genre from play list?"
-msgstr "Eltávolítsuk az ilyen műfajú számokat a lejátszólistából?"
-
-#: src/GMPlayListSource.cpp:319
-msgid "Remove tracks from artist from play list?"
-msgstr "Eltávolítsuk az előadóhoz tartozó számokat a lejátszólistából?"
-
-#: src/GMPlayListSource.cpp:322
-msgid "Remove tracks from album from play list?"
-msgstr "Eltávolítsuk az albumhoz tartozó számokat a lejátszólistából?"
-
-#: src/GMPlayListSource.cpp:325
-msgid "Remove track(s) from play list?"
-msgstr "Eltávolítsuk a számokat a lejátszólistából?"
-
-#: src/GMPlayListSource.cpp:338
-msgid "Remove tracks from music library"
-msgstr "Számok eltávolítása a lejátszólistából"
-
-#: src/GMPlayListSource.cpp:436 src/GMPlayListSource.cpp:437
-msgid "Edit Playlist"
-msgstr "Lejátszólista szerkesztése"
-
-#: src/GMPlayListSource.cpp:437
-msgid "Change playlist name"
-msgstr "Lejátszólista nevének megváltoztatása"
-
-#: src/GMPlayListSource.cpp:439 src/GMStreamSource.cpp:197
-#: src/GMTrackEditor.cpp:385
-msgid "&Save"
-msgstr "Menté&s"
-
-#: src/GMPlayListSource.cpp:462
-msgid "Delete Play List?"
-msgstr "Töröljem a lejátszólistát?"
-
-#: src/GMPlayListSource.cpp:462
-msgid "Are you sure you want to delete the playlist?"
-msgstr "Biztos benne, hogy töröljem a lejátszólistát?"
-
-#: src/GMPlayListSource.cpp:462
-msgid "Yes"
-msgstr "Igen"
-
-#: src/GMPlayQueue.cpp:99
-msgid "Remove…\tDel\tRemove track(s) from play queue."
-msgstr "Törlés…\tDel\tA szám eltávolítása a lejátszólistából."
-
-#: src/GMPlayer.cpp:248
-msgid "Unable to initialize audio driver."
-msgstr "Nem tudom inicializálni a lejátszót."
-
-#: src/GMPlayer.cpp:814
-msgid "Unknown host."
-msgstr "Ismeretlen host."
-
-#: src/GMPlayer.cpp:815
-msgid "Unknown device"
-msgstr "Ismeretlen eszköz"
-
-#: src/GMPlayer.cpp:816
-msgid "Network not reachable."
-msgstr "A hálózat nem elérhető."
-
-#: src/GMPlayer.cpp:817
-msgid "Audio output unavailable."
-msgstr "A hangkimenet nem elérhető."
-
-#: src/GMPlayer.cpp:818
-msgid "Connection Refused."
-msgstr "Kapcsolódás visszautasítva."
-
-#: src/GMPlayer.cpp:819
-msgid "File not found."
-msgstr "A fájl nem található."
-
-#: src/GMPlayer.cpp:820
-msgid "Resource not accessible. Check permissions"
-msgstr "Az erőforrás nem elérhető. Ellenőrizze a jogosultságokat."
-
-#: src/GMPlayer.cpp:821
-msgid "Read Error"
-msgstr "Olvasási hiba"
-
-#: src/GMPlayer.cpp:822
-msgid "Error while loading library/plugin"
-msgstr "Hiba a könyvtár/kiegészítő betöltése során."
-
-#: src/GMPlayer.cpp:823
-msgid "Warning"
-msgstr "Figyelmeztetés"
-
-#: src/GMPlayer.cpp:824
-msgid "Security Warning"
-msgstr "Biztonsági figyelmeztetés"
-
-#: src/GMPlayer.cpp:825
-msgid "Unknown Error"
-msgstr "Ismeretlen hiba"
-
-#: src/GMPlayer.cpp:861
-msgid "Error"
-msgstr "Hiba"
-
-#: src/GMPlayerManager.cpp:489
+#: src/GMPlayerManager.cpp:495
 #, c-format
 msgid "Unable to create directory %s\n"
 msgstr "Nem tudom létrehozni a(z) \"%s\" könyvtárat\n"
 
-#: src/GMPlayerManager.cpp:769
+#: src/GMPlayerManager.cpp:767
 msgid "Session bus not available. All features requiring dbus are disabled."
 msgstr "A session busz nem elérhető. A dbus-t igénylő funkciókat kikapcsoltam."
 
-#: src/GMPlayerManager.cpp:779
+#: src/GMPlayerManager.cpp:777
 msgid "A DBus error occurred. All features requiring sessionbus are disabled."
 msgstr "DBus hiba keletkezett. A dbus-t igénylő funkciókat kikapcsoltam."
 
-#: src/GMPlayerManager.cpp:791
+#: src/GMPlayerManager.cpp:789
 msgid ""
 "Session Bus not available. All features requiring sessionbus are disabled."
 msgstr "A session busz nem elérhető. A dbus-t igénylő funkciókat kikapcsoltam."
 
-#: src/GMPlayerManager.cpp:861
+#: src/GMPlayerManager.cpp:858
 #, c-format
 msgid ""
 "A non threadsafe version of SQLite (%s) is being used.\n"
@@ -778,7 +729,7 @@ msgstr ""
 "Goggles Music Manager használatához szükséges a többszálú használat.\n"
 "Frissítse az SQLite csomagot."
 
-#: src/GMPlayerManager.cpp:870
+#: src/GMPlayerManager.cpp:867
 msgid ""
 "For some reason the FOX library was compiled without PNG support.\n"
 "In order to show all icons, Goggles Music Manager requires PNG\n"
@@ -791,84 +742,138 @@ msgstr ""
 "Ha a FOX könyvtárat Ön fordította, ellenőrizze, hogy a libpng fejlesztői "
 "fájlok telepítve legyenek a FOX lefordításakor."
 
-#: src/GMPlayerManager.cpp:924 src/GMPreferencesDialog.cpp:853
-msgid "Audio Device Error"
-msgstr "Hangeszköz hiba"
-
-#: src/GMPlayerManager.cpp:1950
+#: src/GMPlayerManager.cpp:1544
 msgid "Last.FM Error"
 msgstr "Last.FM hiba."
 
-#: src/GMPlayerManager.cpp:1958
+#: src/GMPlayerManager.cpp:1994
 msgid "Playback Error"
 msgstr "Lejátszási hiba"
 
-#: src/GMPlayerManager.cpp:2116
-#, c-format
-msgid ""
-"%s\n"
-"%s (%d)"
-msgstr ""
-"%s\n"
-"%s (%d)"
+#: src/GMPlayListSource.cpp:155 src/GMPlayListSource.cpp:165
+#: src/GMPlayListSource.cpp:175 src/GMPlayListSource.cpp:192
+msgid "Remove…\tDel\tRemove track(s) from play list."
+msgstr "Törlés…\tDel\tA szám eltávolítása a lejátszólistából."
 
-#: src/GMPreferencesDialog.cpp:273
+#: src/GMPlayListSource.cpp:243
+msgid "Edit…"
+msgstr "Szerkesztés…"
+
+#: src/GMPlayListSource.cpp:244
+msgid "Import…"
+msgstr "Importálás…"
+
+#: src/GMPlayListSource.cpp:246
+msgid "Remove Playlist"
+msgstr "Lejátszólista eltávolítása"
+
+#: src/GMPlayListSource.cpp:327 src/GMPlayListSource.cpp:404
+#, fuzzy
+msgid "Remove Tag?"
+msgstr "Töröljem a számo(ka)t"
+
+#: src/GMPlayListSource.cpp:328 src/GMPlayListSource.cpp:405
+#, fuzzy
+msgid "Remove tracks with tag from play list?"
+msgstr "Eltávolítsuk az ilyen műfajú számokat a lejátszólistából?"
+
+#: src/GMPlayListSource.cpp:331 src/GMPlayListSource.cpp:408
+msgid "Remove tracks from artist from play list?"
+msgstr "Eltávolítsuk az előadóhoz tartozó számokat a lejátszólistából?"
+
+#: src/GMPlayListSource.cpp:334 src/GMPlayListSource.cpp:411
+msgid "Remove tracks from album from play list?"
+msgstr "Eltávolítsuk az albumhoz tartozó számokat a lejátszólistából?"
+
+#: src/GMPlayListSource.cpp:337 src/GMPlayListSource.cpp:414
+msgid "Remove track(s) from play list?"
+msgstr "Eltávolítsuk a számokat a lejátszólistából?"
+
+#: src/GMPlayListSource.cpp:349 src/GMPlayListSource.cpp:427
+msgid "Remove tracks from music library"
+msgstr "Számok eltávolítása a lejátszólistából"
+
+#: src/GMPlayListSource.cpp:525 src/GMPlayListSource.cpp:526
+msgid "Edit Playlist"
+msgstr "Lejátszólista szerkesztése"
+
+#: src/GMPlayListSource.cpp:526
+msgid "Change playlist name"
+msgstr "Lejátszólista nevének megváltoztatása"
+
+#: src/GMPlayListSource.cpp:528 src/GMStreamSource.cpp:196
+#: src/GMTrackEditor.cpp:383 ../../../../fox-1.7.29/lib/FXMessageBox.cpp:125
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:140
+msgid "&Save"
+msgstr "Menté&s"
+
+#: src/GMPlayListSource.cpp:551
+msgid "Delete Play List?"
+msgstr "Töröljem a lejátszólistát?"
+
+#: src/GMPlayListSource.cpp:551
+msgid "Are you sure you want to delete the playlist?"
+msgstr "Biztos benne, hogy töröljem a lejátszólistát?"
+
+#: src/GMPlayListSource.cpp:551
+msgid "Yes"
+msgstr "Igen"
+
+#: src/GMPlayQueue.cpp:98
+msgid "Remove…\tDel\tRemove track(s) from play queue."
+msgstr "Törlés…\tDel\tA szám eltávolítása a lejátszólistából."
+
+#: src/GMPreferencesDialog.cpp:275
 msgid "Preferences"
 msgstr "Beállítások"
 
-#: src/GMPreferencesDialog.cpp:315
+#: src/GMPreferencesDialog.cpp:309
 msgid "&General"
 msgstr "&Általános"
 
-#: src/GMPreferencesDialog.cpp:318
+#: src/GMPreferencesDialog.cpp:312
 msgid "Sort Options"
 msgstr "Rendezési beállítások"
 
-#: src/GMPreferencesDialog.cpp:322
+#: src/GMPreferencesDialog.cpp:316
 msgid "Ignore leading words"
 msgstr "Névelők figylemen kívül hagyása"
 
-#: src/GMPreferencesDialog.cpp:325
+#: src/GMPreferencesDialog.cpp:319
 msgid "Album Covers"
 msgstr "Album borítók"
 
-#: src/GMPreferencesDialog.cpp:328
+#: src/GMPreferencesDialog.cpp:322
 msgid "Show album cover of playing track\tShow album cover of playing track"
 msgstr ""
 "Mutassa az albumborítót a szám lejátszásakor\tMutassa a lejátszott szám "
 "ablumborítóját."
 
-#: src/GMPreferencesDialog.cpp:329
-msgid "Show album covers in album browser\tShow album covers in album browser"
-msgstr ""
-"Albumborítók megjelenítése az albumböngészőben\tAlbumborítók megjelenítése "
-"az albumböngészőben"
-
-#: src/GMPreferencesDialog.cpp:331
+#: src/GMPreferencesDialog.cpp:326
 msgid "System Tray"
 msgstr "Tálca"
 
-#: src/GMPreferencesDialog.cpp:334
+#: src/GMPreferencesDialog.cpp:330
 msgid "Show Tray Icon\tShow tray icon in the system tray."
 msgstr "Tálca ikon használata\tMutassa a kis tálca ikont."
 
-#: src/GMPreferencesDialog.cpp:337
+#: src/GMPreferencesDialog.cpp:333
 msgid ""
 "Show Track Change Notifications\tInform notification daemon of track changes."
 msgstr ""
 "Számváltás üzenetpanel\tÜzenetet küld a notification daemonnak,hogy más "
 "számot játszik már a program."
 
-#: src/GMPreferencesDialog.cpp:338
+#: src/GMPreferencesDialog.cpp:334
 msgid "MPRIS Connectivity\tEnable MPRIS connectivity"
 msgstr ""
 "MPRIS vezérlés\tEngedélyezi az MPRIS protokollon keresztül törtnő vezérlést"
 
-#: src/GMPreferencesDialog.cpp:342
+#: src/GMPreferencesDialog.cpp:338
 msgid "Last.fm"
 msgstr "Last.fm"
 
-#: src/GMPreferencesDialog.cpp:347
+#: src/GMPreferencesDialog.cpp:343
 msgid ""
 "This version of Goggles Music Manager is\n"
 "not supported by Last-FM. Please upgrade\n"
@@ -878,322 +883,231 @@ msgstr ""
 "nem támogatott a Last.fm által. Frissítsen\n"
 "egy frissebb verziójú programra."
 
-#: src/GMPreferencesDialog.cpp:353
+#: src/GMPreferencesDialog.cpp:349
 msgid "Service:"
 msgstr "Service:"
 
-#: src/GMPreferencesDialog.cpp:370
+#: src/GMPreferencesDialog.cpp:366
 msgid "&Sign up…"
 msgstr "&Feliratkozás…"
 
-#: src/GMPreferencesDialog.cpp:375
+#: src/GMPreferencesDialog.cpp:372
 msgid "Username:"
 msgstr "Felhasználónév:"
 
-#: src/GMPreferencesDialog.cpp:377
+#: src/GMPreferencesDialog.cpp:374
 msgid "Password:"
 msgstr "Jelszó:"
 
-#: src/GMPreferencesDialog.cpp:381
+#: src/GMPreferencesDialog.cpp:378
 msgid "Scrobble"
 msgstr "Közzététel"
 
-#: src/GMPreferencesDialog.cpp:433
+#: src/GMPreferencesDialog.cpp:444
 msgid "&Window"
 msgstr "&Ablak"
 
-#: src/GMPreferencesDialog.cpp:436
+#: src/GMPreferencesDialog.cpp:447
 msgid "Window"
 msgstr "Ablak"
 
-#: src/GMPreferencesDialog.cpp:438
+#: src/GMPreferencesDialog.cpp:449
 msgid "Close button minimizes to tray"
 msgstr "A bezáró gomb elrejti a főablakot"
 
-#: src/GMPreferencesDialog.cpp:439
+#: src/GMPreferencesDialog.cpp:450
 msgid "Show Status Bar"
 msgstr "Állapotsor megjelenítése"
 
-#: src/GMPreferencesDialog.cpp:442
+#: src/GMPreferencesDialog.cpp:453
 msgid "Display playing track in title bar"
 msgstr "A lejátszott szám információinak megjelenítése a címsorban"
 
-#: src/GMPreferencesDialog.cpp:445
+#: src/GMPreferencesDialog.cpp:456
 msgid "Toolbar"
 msgstr "Eszköztár"
 
-#: src/GMPreferencesDialog.cpp:449
+#: src/GMPreferencesDialog.cpp:460
 msgid "Location:"
 msgstr "Hely:"
 
-#: src/GMPreferencesDialog.cpp:451
+#: src/GMPreferencesDialog.cpp:462
 msgid "Top"
 msgstr "Tetejére"
 
-#: src/GMPreferencesDialog.cpp:452
+#: src/GMPreferencesDialog.cpp:463
 msgid "Bottom"
 msgstr "Aljára"
 
-#: src/GMPreferencesDialog.cpp:455
+#: src/GMPreferencesDialog.cpp:466
 msgid "Title Format:"
 msgstr "Cím formátum:"
 
-#: src/GMPreferencesDialog.cpp:478
+#: src/GMPreferencesDialog.cpp:489
 msgid "A&ppearance"
 msgstr "&Megjelenés"
 
-#: src/GMPreferencesDialog.cpp:480
+#: src/GMPreferencesDialog.cpp:491
 msgid "Colors"
 msgstr "Színek"
 
-#: src/GMPreferencesDialog.cpp:486
+#: src/GMPreferencesDialog.cpp:497
 msgid "fg\tForeground Color"
 msgstr "elő\tElőtér színe"
 
-#: src/GMPreferencesDialog.cpp:487
+#: src/GMPreferencesDialog.cpp:498
 msgid "bg\tBackground Color"
 msgstr "hát\tHáttér színe"
 
-#: src/GMPreferencesDialog.cpp:488
+#: src/GMPreferencesDialog.cpp:499
 msgid "alt bg\tAlternative Background Color"
 msgstr "alt\tAlternatív szín"
 
-#: src/GMPreferencesDialog.cpp:499
+#: src/GMPreferencesDialog.cpp:510
 msgid "Normal\tNormal Text Color"
 msgstr "Normál\tNormál betűszín"
 
-#: src/GMPreferencesDialog.cpp:503
+#: src/GMPreferencesDialog.cpp:514
 msgid "Base\tBase Color"
 msgstr "Alap\tAlap szín"
 
-#: src/GMPreferencesDialog.cpp:506
+#: src/GMPreferencesDialog.cpp:517
 msgid "Selected\tSelected Text Color"
 msgstr "Kijelölt\tKijelölt szöveg színe"
 
-#: src/GMPreferencesDialog.cpp:510
+#: src/GMPreferencesDialog.cpp:521
 msgid "Menu\tMenu Base Color"
 msgstr "Menü\tMenü alapszíne"
 
-#: src/GMPreferencesDialog.cpp:514
+#: src/GMPreferencesDialog.cpp:525
 msgid "Menu\tMenu Text Color"
 msgstr "Menü\tMenü színe"
 
-#: src/GMPreferencesDialog.cpp:518
+#: src/GMPreferencesDialog.cpp:529
 msgid "Border\tBorder Color"
 msgstr "Keret\tKeret színe"
 
-#: src/GMPreferencesDialog.cpp:522
+#: src/GMPreferencesDialog.cpp:533
 msgid "Tooltip\tTooltip Color"
 msgstr "Súgó\tSúgó színe"
 
-#: src/GMPreferencesDialog.cpp:526
+#: src/GMPreferencesDialog.cpp:537
 msgid "Hilite\tHilite Color"
 msgstr "Aktuális\tAktuális menüpont színe"
 
-#: src/GMPreferencesDialog.cpp:533
+#: src/GMPreferencesDialog.cpp:544
 msgid "Shadow\tShadow Color"
 msgstr "Árnyék\tÁrnyék színe"
 
-#: src/GMPreferencesDialog.cpp:536
+#: src/GMPreferencesDialog.cpp:547
 msgid "Playing\tPlaying Track Color"
 msgstr "Lejátszott\tAz éppen lejátszott szám színe"
 
-#: src/GMPreferencesDialog.cpp:540
+#: src/GMPreferencesDialog.cpp:551
 msgid "Tray\tTray Background Color"
 msgstr "Tálca\tTálca háttér színe"
 
-#: src/GMPreferencesDialog.cpp:550
+#: src/GMPreferencesDialog.cpp:561
 msgid "Presets:"
 msgstr "Beállítás:"
 
-#: src/GMPreferencesDialog.cpp:558
+#: src/GMPreferencesDialog.cpp:569
 msgid "Font & Icons"
 msgstr "Betűk és ikonok"
 
-#: src/GMPreferencesDialog.cpp:563
+#: src/GMPreferencesDialog.cpp:574
 msgid "Default Font"
 msgstr "Alapértelmezett betűtípus:"
 
-#: src/GMPreferencesDialog.cpp:565
+#: src/GMPreferencesDialog.cpp:576
 msgid "Change…"
 msgstr "Változtatás…"
 
-#: src/GMPreferencesDialog.cpp:567
+#: src/GMPreferencesDialog.cpp:578
 msgid "Display DPI"
 msgstr "Kijelző DPI-je"
 
-#: src/GMPreferencesDialog.cpp:574
+#: src/GMPreferencesDialog.cpp:585
 msgid "Icons"
 msgstr "Ikonok"
 
-#: src/GMPreferencesDialog.cpp:616
+#: src/GMPreferencesDialog.cpp:627
 msgid "&Audio"
 msgstr "&Hang"
 
-#: src/GMPreferencesDialog.cpp:619
-msgid "Engine"
-msgstr "Lejátszó modul"
+#: src/GMPreferencesDialog.cpp:630
+msgid "Output"
+msgstr ""
 
-#: src/GMPreferencesDialog.cpp:631
-msgid "Audio Driver:"
+#: src/GMPreferencesDialog.cpp:634
+#, fuzzy
+msgid "Driver:"
 msgstr "Hangeszköz"
 
-#: src/GMPreferencesDialog.cpp:642 src/GMPreferencesDialog.cpp:648
-#: src/GMPreferencesDialog.cpp:652 src/GMPreferencesDialog.cpp:656
+#: src/GMPreferencesDialog.cpp:666 src/GMPreferencesDialog.cpp:674
+#: src/GMPreferencesDialog.cpp:679 src/GMPreferencesDialog.cpp:683
 msgid "Device:"
 msgstr "Eszköz:"
 
-#: src/GMPreferencesDialog.cpp:644
-msgid "Mixer:"
-msgstr "Keverő:"
-
-#: src/GMPreferencesDialog.cpp:660
+#: src/GMPreferencesDialog.cpp:691
 msgid "Apply Changes"
 msgstr "Alkalmaz"
 
-#: src/GMPreferencesDialog.cpp:665
-msgid "Close audio device on pause."
-msgstr "Zárja le a hangeszközt szünetre"
-
-#: src/GMPreferencesDialog.cpp:666
-msgid "Turn off playback engine on stop."
-msgstr "Kapcsolja ki a lejátszó modult leállításkor"
-
-#: src/GMPreferencesDialog.cpp:667
-msgid ""
-"Turn on playback engine on startup.\tFor faster startup, playback engine is "
-"normally started when first track is played.\tFor faster startup, playback "
-"engine is normally started when first track is played."
-msgstr ""
-"Kapcsolja be a lejátszó modult induláskor\tA gyorsabb indulás érdekében a "
-"lejátszó modul csak az első szám lejátszásakor kerül elindításra.\tA "
-"gyorsabb indulás érdekében a lejátszó modul csak az első szám lejátszásakor "
-"kerül elindításra."
-
-#: src/GMPreferencesDialog.cpp:670
+#: src/GMPreferencesDialog.cpp:694
 msgid "Playback"
 msgstr "Lejátszás"
 
-#: src/GMPreferencesDialog.cpp:675
+#: src/GMPreferencesDialog.cpp:699
 msgid "Replay Gain:"
 msgstr "Lejátszás vezérlés"
 
-#: src/GMPreferencesDialog.cpp:677
+#: src/GMPreferencesDialog.cpp:702
 msgid "Off"
 msgstr "Kikapcsol"
 
-#: src/GMPreferencesDialog.cpp:678 src/GMTrackEditor.cpp:496
+#: src/GMPreferencesDialog.cpp:703
 msgid "Track"
 msgstr "Szám"
 
-#: src/GMPreferencesDialog.cpp:682
-msgid "Gapless playback"
-msgstr "Szünetmentes lejátszás"
-
-#: src/GMPreferencesDialog.cpp:683
-msgid "Volume Normalization"
-msgstr "Hangerő normalizálása"
-
-#: src/GMPreferencesDialog.cpp:853
-#, c-format
-msgid "Failed to open requested audio driver: %s"
-msgstr "A(z) %s hangeszköz megnyitása sikertelen."
-
-#: src/GMPreferencesDialog.cpp:943
+#: src/GMPreferencesDialog.cpp:963
 msgid "Current"
 msgstr "Aktuális"
 
-#: src/GMPreferencesDialog.cpp:961
+#: src/GMPreferencesDialog.cpp:981
 msgid "Custom"
 msgstr "Egyedi"
 
-#: src/GMPreferencesDialog.cpp:1039 src/GMPreferencesDialog.cpp:1044
-#: src/GMWindow.cpp:1245 src/GMWindow.cpp:1252 src/GMWindow.cpp:1259
-#: src/GMWindow.cpp:1266
+#: src/GMPreferencesDialog.cpp:1074 src/GMPreferencesDialog.cpp:1079
+#: src/GMWindow.cpp:1222 src/GMWindow.cpp:1229 src/GMWindow.cpp:1236
+#: src/GMWindow.cpp:1243
 msgid "Unable to launch webbrowser"
 msgstr "Nem tudtam elindítani a böngészőt"
 
-#: src/GMPreferencesDialog.cpp:1486
-msgid "Thin"
-msgstr ""
-
-#: src/GMPreferencesDialog.cpp:1487
-msgid "Extra Light"
-msgstr ""
-
-#: src/GMPreferencesDialog.cpp:1488
-msgid "Light"
-msgstr "Vékony"
-
-#: src/GMPreferencesDialog.cpp:1490
-msgid "Medium"
-msgstr "Közepes"
-
-#: src/GMPreferencesDialog.cpp:1491
-msgid "Demibold"
-msgstr ""
-
-#: src/GMPreferencesDialog.cpp:1492
-msgid "Bold"
-msgstr ""
-
-#: src/GMPreferencesDialog.cpp:1493
-msgid "Extra Bold"
-msgstr ""
-
-#: src/GMPreferencesDialog.cpp:1494
-msgid "Heavy"
-msgstr ""
-
-#: src/GMPreferencesDialog.cpp:1530
+#: src/GMPreferencesDialog.cpp:1573
 msgid "Select Normal Font"
 msgstr "Normál betűtípus kiválasztása"
 
-#: src/GMRemote.cpp:296
-msgid "&Next"
-msgstr "&Következő"
-
-#: src/GMRemote.cpp:297
-msgid "P&revious"
-msgstr "&Előző"
-
-#: src/GMRemote.cpp:298 src/GMWindow.cpp:1306
-msgid "&Play"
-msgstr "&Lejátszás"
-
-#: src/GMRemote.cpp:299
-msgid "&Stop"
-msgstr "Áll&j"
-
-#: src/GMRemote.cpp:301
-msgid "Show Browser"
-msgstr "Böngésző megjelenítése"
-
-#: src/GMRemote.cpp:302 src/GMTrayIcon.cpp:374
-msgid "Quit"
-msgstr "Kilépés"
-
-#: src/GMRemote.cpp:386
+#: src/GMRemote.cpp:75
 msgid "\tShow Browser\tShow Browser"
 msgstr "\tBöngésző megjelenítése\tBöngésző megjelenítése"
 
-#: src/GMRemote.cpp:388 src/GMWindow.cpp:320
+#: src/GMRemote.cpp:77 src/GMWindow.cpp:294
 msgid "\tStart Playback\tStart Playback"
 msgstr "\tLejátszás\tLejátszás"
 
-#: src/GMRemote.cpp:389 src/GMWindow.cpp:321
+#: src/GMRemote.cpp:78 src/GMWindow.cpp:295
 msgid "\tStop Playback\tStop Playback"
 msgstr "\tLejátszás megállítása\tLejátszás megállítása"
 
-#: src/GMRemote.cpp:391 src/GMWindow.cpp:322
+#: src/GMRemote.cpp:80 src/GMWindow.cpp:296
 msgid "\tPlay Previous Track\tPlay previous track."
 msgstr "\tElőző szám lejátszása\tElőző szám lejátszása"
 
-#: src/GMRemote.cpp:392 src/GMWindow.cpp:323
+#: src/GMRemote.cpp:81 src/GMWindow.cpp:297
 msgid "\tPlay Next Track\tPlay next track."
 msgstr "\tKövetkező szám lejátszása\tKövetkező szám lejátszása"
 
-#: src/GMRemote.cpp:398
+#: src/GMRemote.cpp:87
 msgid "\tAdjust Volume\tAdjust Volume"
 msgstr "\tHangerő beállítása\tHangerő beállítása"
 
@@ -1203,84 +1117,89 @@ msgstr ""
 "Források\tNyomja meg a sorrend megváltoztatásához\tNyomja meg a sorrend "
 "megváltoztatásához"
 
-#: src/GMSourceView.cpp:275 src/GMWindow.cpp:251 src/GMWindow.cpp:358
+#: src/GMSourceView.cpp:286 src/GMWindow.cpp:235 src/GMWindow.cpp:340
 msgid "New Playlist…\t\tCreate a new playlist"
 msgstr "Új lejátszólista…\t\tÚj lejátszólista létrehozása"
 
-#: src/GMSourceView.cpp:276
+#: src/GMSourceView.cpp:287
 msgid "Import Playlist…\t\tImport a existing playlist"
 msgstr "Lejátszólista importálása…\t\tLétező lejátszólista importálása"
 
-#: src/GMSourceView.cpp:277 src/GMWindow.cpp:253 src/GMWindow.cpp:360
+#: src/GMSourceView.cpp:288 src/GMWindow.cpp:237 src/GMWindow.cpp:342
 msgid "New Radio Station…\t\tCreate a new playlist"
 msgstr "Új rádióállomás…\t\tÚj rádióállomás hozzáadása"
 
-#: src/GMStreamSource.cpp:63
+#: src/GMStreamSource.cpp:62
 msgid "Station"
 msgstr "Rádióállomás"
 
-#: src/GMStreamSource.cpp:108 src/GMStreamSource.cpp:114
+#: src/GMStreamSource.cpp:64 src/GMStreamSource.cpp:207
+msgid "Genre"
+msgstr "Műfaj"
+
+#: src/GMStreamSource.cpp:107 src/GMStreamSource.cpp:113
 msgid "New Station…\t\t"
 msgstr "Új Rádióállomás…\t\t"
 
-#: src/GMStreamSource.cpp:113
+#: src/GMStreamSource.cpp:112
 msgid "Edit…\t\t"
 msgstr "Szerkesztés…\t\t"
 
-#: src/GMStreamSource.cpp:115
+#: src/GMStreamSource.cpp:114
 msgid "Remove\t\tRemove."
 msgstr "Törlés\t\tTörlés"
 
-#: src/GMStreamSource.cpp:157 src/GMStreamSource.cpp:158
+#: src/GMStreamSource.cpp:156 src/GMStreamSource.cpp:157
 msgid "New Internet Radio Station"
 msgstr "Új Internetes Rádióállomás"
 
-#: src/GMStreamSource.cpp:158
+#: src/GMStreamSource.cpp:157
 msgid "Specify url and description of new station"
 msgstr "Adja meg az új rádióállomás címét és leírását"
 
-#: src/GMStreamSource.cpp:160
+#: src/GMStreamSource.cpp:159
 msgid "C&reate"
 msgstr "&Létrehozás"
 
-#: src/GMStreamSource.cpp:165 src/GMStreamSource.cpp:203
+#: src/GMStreamSource.cpp:164 src/GMStreamSource.cpp:202
 msgid "Location"
 msgstr "Cím"
 
-#: src/GMStreamSource.cpp:167 src/GMStreamSource.cpp:206
+#: src/GMStreamSource.cpp:166 src/GMStreamSource.cpp:205
 msgid "Description"
 msgstr "Leírás"
 
-#: src/GMStreamSource.cpp:181
+#: src/GMStreamSource.cpp:180
 msgid "Untitled"
 msgstr "Névtelen"
 
-#: src/GMStreamSource.cpp:194 src/GMStreamSource.cpp:195
+#: src/GMStreamSource.cpp:193 src/GMStreamSource.cpp:194
 msgid "Edit Internet Radio Station"
 msgstr "Internetes Rádióállomás szerkesztése"
 
-#: src/GMStreamSource.cpp:195
+#: src/GMStreamSource.cpp:194
 msgid "Update url and description of station"
 msgstr "Adja meg a rádióállomás URL-jét és leírását"
 
-#: src/GMStreamSource.cpp:253
+#: src/GMStreamSource.cpp:252
 msgid "Remove Internet Radio Station(s)?"
 msgstr "Eltávolítsam az Internetes Rádióállomás(oka)t?"
 
-#: src/GMStreamSource.cpp:254
+#: src/GMStreamSource.cpp:253
 msgid "Remove Internet Radio Station(s) from library?"
 msgstr "Eltávolítsam az Internetes Rádióállomás(oka)t a gyűjteményből?"
 
-#: src/GMStreamSource.cpp:268
+#: src/GMStreamSource.cpp:267
 #, c-format
 msgid "Unable to remove station from the library."
 msgstr "Nem tudom a rádióállomást eltávolítani a gyűjteményből!"
 
-#: src/GMTrackDatabase.cpp:265 src/GMTrackEditor.cpp:167
+#: src/GMTrackDatabase.cpp:261 src/GMTrackDatabase.cpp:267
+#: src/GMTrackEditor.cpp:179
 msgid "Database Error"
 msgstr "Adatbázis hiba"
 
-#: src/GMTrackDatabase.cpp:265
+#: src/GMTrackDatabase.cpp:261
 msgid ""
 "An incompatible (future) version of the database was found.\n"
 "This usually happens when you try to downgrade to a older version of GMM\n"
@@ -1294,11 +1213,25 @@ msgstr ""
 "Nyomjon OK-t az adatbázis eldobásához (minden ott tárolt információ elvész)\n"
 "Nyomjon \"Mégsem\"-et a kilépéshez, az adatbázis meghagyásához."
 
-#: src/GMTrackDatabase.cpp:280
+#: src/GMTrackDatabase.cpp:267
+#, fuzzy
+msgid ""
+"An incompatible (older) version of the database was found.\n"
+"Press OK to continue and reset the database (all information will be "
+"lost!).\n"
+"Press Cancel to quit now and leave the database as is."
+msgstr ""
+"Inkompatibilis (jövőbeli verziószámmal rendelkező) adatbázist találtam! \n"
+"Ez általában akkor fordulhat elő, ha a korábban használtnál régebbi GMM "
+"változatot telepített.\n"
+"Nyomjon OK-t az adatbázis eldobásához (minden ott tárolt információ elvész)\n"
+"Nyomjon \"Mégsem\"-et a kilépéshez, az adatbázis meghagyásához."
+
+#: src/GMTrackDatabase.cpp:279
 msgid "Fatal Error"
 msgstr "Súlyos hiba"
 
-#: src/GMTrackDatabase.cpp:280
+#: src/GMTrackDatabase.cpp:279
 #, c-format
 msgid ""
 "Goggles Music Manager was unable to open the database.\n"
@@ -1312,11 +1245,11 @@ msgstr ""
 "Ha a hiba továbbra is elfordul, kérem, tegyen hibabejelentést a http://code."
 "google.com/p/gogglesmm címen."
 
-#: src/GMTrackEditor.cpp:148
+#: src/GMTrackEditor.cpp:160
 msgid "Invalid Template"
 msgstr "Rossz sablon"
 
-#: src/GMTrackEditor.cpp:148
+#: src/GMTrackEditor.cpp:160
 #, c-format
 msgid ""
 "The provided template is invalid. The track title %%T needs to be "
@@ -1326,35 +1259,35 @@ msgstr ""
 "A megadott sablon rossz! A szám címét %%T szükséges megadni. \n"
 "Kérjük javítsa ki a sablont a Beállítások ablakban."
 
-#: src/GMTrackEditor.cpp:167
+#: src/GMTrackEditor.cpp:179
 msgid "Oops. Database Error"
 msgstr "Húha! Adatbázis hiba!"
 
-#: src/GMTrackEditor.cpp:182
+#: src/GMTrackEditor.cpp:194
 msgid "No changes"
 msgstr "Nincs változás"
 
-#: src/GMTrackEditor.cpp:182
+#: src/GMTrackEditor.cpp:194
 msgid "Filenames did not require any changes"
 msgstr "A fájlnév változatlan"
 
-#: src/GMTrackEditor.cpp:189
+#: src/GMTrackEditor.cpp:201
 msgid "Rename Audio Files?"
 msgstr "Átnevezzem a hangfájlokat?"
 
-#: src/GMTrackEditor.cpp:190
+#: src/GMTrackEditor.cpp:202
 msgid "Renaming Audio Files…"
 msgstr "Hangfájlok átnevezése…"
 
-#: src/GMTrackEditor.cpp:190
+#: src/GMTrackEditor.cpp:202
 msgid "The following audio files are going to be renamed"
 msgstr "A következő hangfájlok kerülnek átnevezésre"
 
-#: src/GMTrackEditor.cpp:193
+#: src/GMTrackEditor.cpp:205
 msgid "&Rename"
 msgstr "Át&nevezés"
 
-#: src/GMTrackEditor.cpp:288
+#: src/GMTrackEditor.cpp:300
 msgid ""
 "Template may contain absolute or relative path, environment variables\n"
 "and ~. Relative paths are based on the location of the original file. The\n"
@@ -1366,10 +1299,12 @@ msgstr ""
 "A kiterjesztést automatikusan hozzáadja a program. A következő makrók "
 "használhatók:"
 
-#: src/GMTrackEditor.cpp:289
+#: src/GMTrackEditor.cpp:301
+#, fuzzy
 msgid ""
 "%T - title                   %A - album name\n"
 "%P - album artist name       %p - track artist name\n"
+"%w - composer                %c - conductor\n"
 "%y - year                    %d - disc number\n"
 "%N - track number (2 digits) %n - track number      \n"
 "%G - genre"
@@ -1380,112 +1315,115 @@ msgstr ""
 "%N - Zeneszám sorszáma (2 jegy)\t%n - Zeneszám sorszáma\n"
 "%G - Műfaj"
 
-#: src/GMTrackEditor.cpp:307
+#: src/GMTrackEditor.cpp:320
 msgid "Exclude:"
 msgstr "Kivéve:"
 
-#: src/GMTrackEditor.cpp:382
+#: src/GMTrackEditor.cpp:374
 msgid "Edit Track Information"
 msgstr "Szám információk szerkesztése"
 
-#: src/GMTrackEditor.cpp:429
+#: src/GMTrackEditor.cpp:377
+#, fuzzy
+msgid "&Previous"
+msgstr "Előző"
+
+#: src/GMTrackEditor.cpp:378
+msgid "&Next"
+msgstr "&Következő"
+
+#: src/GMTrackEditor.cpp:380
+#, fuzzy
+msgid "&Reset"
+msgstr "\tAlapállapot"
+
+#: src/GMTrackEditor.cpp:399
 msgid "&Tag"
 msgstr "&Címke"
 
-#: src/GMTrackEditor.cpp:434
+#: src/GMTrackEditor.cpp:404
 msgid "&Properties"
 msgstr "&Tulajdonságok"
 
-#: src/GMTrackEditor.cpp:443
+#: src/GMTrackEditor.cpp:413 ../../../../fox-1.7.29/lib/FXFileSelector.cpp:759
 msgid "Type"
 msgstr "Típus"
 
-#: src/GMTrackEditor.cpp:447
+#: src/GMTrackEditor.cpp:417 ../../../../fox-1.7.29/lib/FXFileSelector.cpp:760
 msgid "Size"
 msgstr "Méret"
 
-#: src/GMTrackEditor.cpp:459
+#: src/GMTrackEditor.cpp:429
 msgid "Samplerate"
 msgstr "Mintavételezés"
 
-#: src/GMTrackEditor.cpp:463
+#: src/GMTrackEditor.cpp:433
 msgid "Channels"
 msgstr "Csatornák"
 
-#: src/GMTrackEditor.cpp:467
-msgid "Track Gain"
-msgstr "Szám"
-
-#: src/GMTrackEditor.cpp:474
-msgid "Album Gain"
-msgstr "Album"
-
-#: src/GMTrackEditor.cpp:483
+#: src/GMTrackEditor.cpp:438
 msgid "Co&ver"
 msgstr "Borí&tó"
 
-#: src/GMTrackEditor.cpp:502 src/GMTrackEditor.cpp:518
-#: src/GMTrackEditor.cpp:524
+#: src/GMTrackEditor.cpp:448
+#, fuzzy
+msgid "Trac&k"
+msgstr "Szám"
+
+#: src/GMTrackEditor.cpp:454 src/GMTrackEditor.cpp:466
+#: src/GMTrackEditor.cpp:472
 msgid "&Disc"
 msgstr "&Lemez"
 
-#: src/GMTrackEditor.cpp:534
+#: src/GMTrackEditor.cpp:459 src/GMTrackEditor.cpp:478
+msgid "Y&ear"
+msgstr ""
+
+#: src/GMTrackEditor.cpp:482
 msgid "T&itle"
 msgstr "&Cím"
 
-#: src/GMTrackEditor.cpp:539 src/GMTrackEditor.cpp:544
+#: src/GMTrackEditor.cpp:486
 msgid "&Artist"
 msgstr "&Előadó"
 
-#: src/GMTrackEditor.cpp:540 src/GMTrackEditor.cpp:548
+#: src/GMTrackEditor.cpp:489
 msgid "Album A&rtist"
 msgstr "Album előadója"
 
-#: src/GMTrackEditor.cpp:551
-msgid "\tSeparate Artists"
-msgstr "\tKülönböző előadók"
-
-#: src/GMTrackEditor.cpp:551
-msgid "\tShared Artists"
-msgstr "\tKözös előadók"
-
-#: src/GMTrackEditor.cpp:553
+#: src/GMTrackEditor.cpp:492
 msgid "A&lbum"
 msgstr "A&lbum"
 
-#: src/GMTrackEditor.cpp:556
+#: src/GMTrackEditor.cpp:495
 msgid "C&omposer"
 msgstr "Szerző"
 
-#: src/GMTrackEditor.cpp:559
+#: src/GMTrackEditor.cpp:498
 msgid "Cond&uctor"
 msgstr ""
 
-#: src/GMTrackEditor.cpp:562
-msgid "&Genre"
-msgstr "&Műfaj"
-
-#: src/GMTrackEditor.cpp:570
+#: src/GMTrackEditor.cpp:509
 msgid "Auto track number. Offset:"
 msgstr "Automatikus sorszámozás. Eltolás:"
 
-#: src/GMTrackEditor.cpp:579
+#: src/GMTrackEditor.cpp:518
 msgid "Update Tag in File"
 msgstr "Címkék (Tag) frissítése a fájlban"
 
-#: src/GMTrackEditor.cpp:584
+#: src/GMTrackEditor.cpp:523
 msgid "Update Filename"
 msgstr "Fájlnév frissítése"
 
-#: src/GMTrackEditor.cpp:585
+#: src/GMTrackEditor.cpp:524
 msgid "Set export template…"
 msgstr "Exportálási sablon…"
 
-#: src/GMTrackEditor.cpp:836
+#: src/GMTrackEditor.cpp:811
 msgid "Update Tags?"
 msgstr "Frissítsem a címkéket (Tag)?"
 
-#: src/GMTrackEditor.cpp:836
+#: src/GMTrackEditor.cpp:811
 msgid ""
 "No tracks were updated.\n"
 "Would you still like to write the tags for the selected tracks?"
@@ -1493,358 +1431,388 @@ msgstr ""
 "Nem változott egyetlen szám sem.\n"
 "Továbbra is szeretné a címkék frissítését a kijelölt számokra?"
 
-#: src/GMTrackView.cpp:251
+#: src/GMTrackView.cpp:272
 msgid "\tClose Filter\tClose Filter"
 msgstr "\tSzűrő bezárása\tSzűrő bezárása"
 
-#: src/GMTrackView.cpp:252
+#: src/GMTrackView.cpp:273
 msgid "&Find"
 msgstr "&Keresés"
 
-#: src/GMTrackView.cpp:258
-msgid "Genres\tPress to change sorting order\tPress to change sorting order"
+#: src/GMTrackView.cpp:279
+#, fuzzy
+msgid "Tags\tPress to change sorting order\tPress to change sorting order"
 msgstr ""
 "Műfajok\tNyomja meg a sorrend megváltoztatásához\tNyomja meg a sorrend "
 "megváltoztatásához"
 
-#: src/GMTrackView.cpp:262
+#: src/GMTrackView.cpp:283
 msgid "Artists\tPress to change sorting order\tPress to change sorting order"
 msgstr ""
 "Előadók\tNyomja meg a rendezés megváltoztatásához\tNyomja meg a rendezés "
 "megváltoztatásához"
 
-#: src/GMTrackView.cpp:266
+#: src/GMTrackView.cpp:287
 msgid "Albums\tPress to change sorting order\tPress to change sorting order"
 msgstr ""
 "Albumok\tNyomja meg a sorrend megváltoztatásához\tNyomja meg a sorrend "
 "megváltoztatásához"
 
-#: src/GMTrackView.cpp:281
+#: src/GMTrackView.cpp:301
 msgid "Browse"
 msgstr "Böngészés"
 
-#: src/GMTrackView.cpp:282
+#: src/GMTrackView.cpp:302
 msgid "Shuffle\tCtrl-R"
 msgstr "Keverés\tCtrl-R"
 
-#: src/GMTrackView.cpp:289
+#: src/GMTrackView.cpp:309 ../../../../fox-1.7.29/lib/FXDirSelector.cpp:389
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:765
 msgid "Reverse"
 msgstr "Visszafelé"
 
-#: src/GMTrackView.cpp:293 src/GMTrackView.cpp:339 src/GMWindow.cpp:264
-#: src/GMWindow.cpp:390
+#: src/GMTrackView.cpp:313 src/GMTrackView.cpp:457 src/GMWindow.cpp:372
 msgid "&Configure Columns…"
 msgstr "Oszlopok &beállítása"
 
-#: src/GMTrackView.cpp:294 src/GMTrackView.cpp:340
+#: src/GMTrackView.cpp:314 src/GMTrackView.cpp:458
 msgid "&Sort\t\tChange Sorting."
 msgstr "Rendezé&s\t\tRendezés beállítása."
 
-#: src/GMTrackView.cpp:822
-#, c-format
-msgid "All %d Genres"
+#: src/GMTrackView.cpp:965
+#, fuzzy, c-format
+msgid "All %d Tags"
 msgstr "Az összes (%d db) műfaj"
 
-#: src/GMTrackView.cpp:824
-msgid "All Genres"
-msgstr "Összes műfaj"
+#: src/GMTrackView.cpp:967
+msgid "All Tags"
+msgstr ""
 
-#: src/GMTrackView.cpp:845
+#: src/GMTrackView.cpp:988
 #, c-format
 msgid "All %d Artists"
 msgstr "Az összes (%d db) előadó"
 
-#: src/GMTrackView.cpp:881
+#: src/GMTrackView.cpp:1021
 #, c-format
 msgid "All %d Albums"
 msgstr "Az összes (%d db) album"
 
-#: src/GMTrackView.cpp:1277
+#: src/GMTrackView.cpp:1382
 #, c-format
 msgid "By %s"
 msgstr "%s alapján"
 
-#: src/GMTrackView.cpp:1616 src/GMTrackView.cpp:1644 src/GMTrackView.cpp:1790
+#: src/GMTrackView.cpp:1711
+#, fuzzy
+msgid "Show Album Year"
+msgstr "Rendezés az album (kiadási) éve alapján"
+
+#: src/GMTrackView.cpp:1712 src/GMTrackView.cpp:1746 src/GMTrackView.cpp:1899
 msgid "Sort by Album Year"
 msgstr "Rendezés az album (kiadási) éve alapján"
 
-#: src/GMTrackView.cpp:1617
+#: src/GMTrackView.cpp:1713
 msgid "Merge Albums"
 msgstr "Albumok összefésülése"
 
-#: src/GMTrayIcon.cpp:369 src/GMWindow.cpp:1006 src/GMWindow.cpp:1029
-#: src/GMWindow.cpp:1035
+#: src/GMTrackView.cpp:1715
+#, fuzzy
+msgid "List View"
+msgstr "Előző nézet"
+
+#: src/GMTrackView.cpp:1716
+msgid "Cover View"
+msgstr ""
+
+#: src/GMTrackView.cpp:1717
+msgid "Arrange By Rows"
+msgstr ""
+
+#: src/GMTrackView.cpp:1718
+msgid "Arrange By COlumns"
+msgstr ""
+
+#: src/GMTrayIcon.cpp:370 src/GMWindow.cpp:983 src/GMWindow.cpp:1011
 msgid "Play"
 msgstr "Lejátszás"
 
-#: src/GMTrayIcon.cpp:370
+#: src/GMTrayIcon.cpp:371
 msgid "Stop"
 msgstr "Állj"
 
-#: src/GMTrayIcon.cpp:371
+#: src/GMTrayIcon.cpp:372
 msgid "Previous Track"
 msgstr "Előző szám"
 
-#: src/GMTrayIcon.cpp:372
+#: src/GMTrayIcon.cpp:373
 msgid "Next Track"
 msgstr "Következő szám"
 
-#: src/GMWindow.cpp:207
+#: src/GMTrayIcon.cpp:375
+msgid "Quit"
+msgstr "Kilépés"
+
+#: src/GMWindow.cpp:199
 msgid "\tCancel Task\tCancel Task"
 msgstr "\tFeladat megszakítása\tFeladat megszakítása"
 
-#: src/GMWindow.cpp:246 src/GMWindow.cpp:353
+#: src/GMWindow.cpp:230 src/GMWindow.cpp:335
 msgid "Import Folder…\tCtrl-O\tImport Music from folder into Library"
 msgstr ""
 "Könyvtár importálása…\tCtrl-O\tZenék importálása a megadott könyvtárból a "
 "gyűjteménybe"
 
-#: src/GMWindow.cpp:247 src/GMWindow.cpp:354
+#: src/GMWindow.cpp:231 src/GMWindow.cpp:336
 msgid "Sync Folder…\t\tSynchronize Folder with Music in Library"
 msgstr "Szinkronizálás…\t\tA könyvtár szinkronizálása a gyűjteménnyel"
 
-#: src/GMWindow.cpp:249 src/GMWindow.cpp:356
+#: src/GMWindow.cpp:233 src/GMWindow.cpp:338
 msgid "Play File or Stream…\t\tPlay File or Stream"
 msgstr "Fájl/adatfolyam lejátszása…\t\tFájl/adatfolyam lejátszása"
 
-#: src/GMWindow.cpp:252 src/GMWindow.cpp:359
+#: src/GMWindow.cpp:236 src/GMWindow.cpp:341
 msgid "Import Playlist…\t\tImport existing playlist"
 msgstr "Lejátszólista importálása…\t\tLétező lejátszólista importálása"
 
-#: src/GMWindow.cpp:258 src/GMWindow.cpp:368
-msgid "&Copy\tCtrl-C\tCopy Selected Tracks"
-msgstr "&Másolás\tCtrl-C\tKijelölt fájlok másolása"
-
-#: src/GMWindow.cpp:259 src/GMWindow.cpp:369
-msgid "&Cut\tCtrl-X\tCut Selected Tracks"
-msgstr "&Kivágás\tCtrl-X\tKijelölt fájlok kivágása"
-
-#: src/GMWindow.cpp:260 src/GMWindow.cpp:370
-msgid "&Paste\tCtrl-V\tPaste Clipboard Selection"
-msgstr "&Beillesztés\tCtrl-V\tBeillesztés a vágólapról."
-
-#: src/GMWindow.cpp:262 src/GMWindow.cpp:372
-msgid "Find…\tCtrl-F\tShow search filter."
-msgstr "Keresés…\tCtrl-F\tKeresőszűrő megjelenítése."
-
-#: src/GMWindow.cpp:265 src/GMWindow.cpp:391
-msgid "&Sort"
-msgstr "&Rendezés"
-
-#: src/GMWindow.cpp:266 src/GMWindow.cpp:379
-msgid "&Browse\tCtrl-B\tShow genre artist and album browser."
-msgstr "&Böngészés\tCtrl-B\tMűfaj, előadó, album böngésző megjelenítése."
-
-#: src/GMWindow.cpp:267 src/GMWindow.cpp:380
-msgid "Show &Genres\tCtrl-G\tShow genre browser."
-msgstr "&Műfajok megjelenítése\tCtrl-G\tMűfajböngésző megjelenítése."
-
-#: src/GMWindow.cpp:272 src/GMWindow.cpp:403
+#: src/GMWindow.cpp:257 src/GMWindow.cpp:385
 msgid "Queue Play\t\tPlay tracks from queue."
 msgstr "Lejátszási sor használata\t\tSort használ a számok lejtszásához"
 
-#: src/GMWindow.cpp:273
+#: src/GMWindow.cpp:258
 msgid "Shuffle Play\tAlt-R\tPlay tracks in random order."
 msgstr "Véletlenszerű lejátszás\tAlt-R\tA számok véletlenszerű lejátszása."
 
-#: src/GMWindow.cpp:275 src/GMWindow.cpp:405
+#: src/GMWindow.cpp:260 src/GMWindow.cpp:387
 msgid "Repeat Off\tCtrl-,\tRepeat current track."
 msgstr "Ismétlés kikapcsolása\tCtrl-,\tNem ismétli a számokat."
 
-#: src/GMWindow.cpp:276 src/GMWindow.cpp:406
+#: src/GMWindow.cpp:261 src/GMWindow.cpp:388
 msgid "Repeat Track\tCtrl-.\tRepeat current track."
 msgstr "Szám ismétlése\tCtrl-.\tAz aktuális szám ismétlése."
 
-#: src/GMWindow.cpp:277 src/GMWindow.cpp:407
+#: src/GMWindow.cpp:262 src/GMWindow.cpp:389
 msgid "Repeat All Tracks\tCtrl-/\tRepeat all tracks."
 msgstr "Összes ismétlése\tCtrl-/\tAz összes számot ismétli."
 
-#: src/GMWindow.cpp:278 src/GMWindow.cpp:408
-msgid "Repeat A-B\tCtrl-T\tRepeat section of track."
-msgstr "Szám egy részének ismétlése\tCtrl-T\tA szám egy részének ismétlése"
-
-#: src/GMWindow.cpp:281 src/GMWindow.cpp:411
-msgid "Equalizer\t\t"
-msgstr "Hangszínszabályozó\t\t"
-
-#: src/GMWindow.cpp:284 src/GMWindow.cpp:412
+#: src/GMWindow.cpp:265 src/GMWindow.cpp:394
 msgid "Sleep Timer\t\tSetup sleeptimer."
 msgstr "Sleep funkció\t\tSleep funkció beállítása"
 
-#: src/GMWindow.cpp:290 src/GMWindow.cpp:292 src/GMWindow.cpp:382
+#: src/GMWindow.cpp:270 src/GMWindow.cpp:364
 msgid "Show &Sources\tCtrl-S\tShow source browser "
 msgstr "Források megjelenítése\tCtrl-S\tForrás böngésző megjelenítése."
 
-#: src/GMWindow.cpp:296 src/GMWindow.cpp:385
+#: src/GMWindow.cpp:271 src/GMWindow.cpp:367
 msgid "Show Full Screen\tF12\tToggle fullscreen mode."
 msgstr "Teljes képernyő\tF12\tTeljes képernyő ki/bekapcsolása."
 
-#: src/GMWindow.cpp:298
+#: src/GMWindow.cpp:272
 msgid "Show Mini Player\tCtrl-M\tToggle Mini Player."
 msgstr "Mini lejátszó\tCtrl-M\tMini lejátszó üzemmódba kapcsolás"
 
-#: src/GMWindow.cpp:300 src/GMWindow.cpp:374
+#: src/GMWindow.cpp:274 src/GMWindow.cpp:356
 msgid "Preferences…"
 msgstr "Beállítások…"
 
-#: src/GMWindow.cpp:301 src/GMWindow.cpp:423
+#: src/GMWindow.cpp:275 src/GMWindow.cpp:405
 msgid "&About…"
 msgstr "&A programról…"
 
-#: src/GMWindow.cpp:302 src/GMWindow.cpp:362
+#: src/GMWindow.cpp:276 src/GMWindow.cpp:344
 msgid "&Quit\tCtrl-Q\tQuit the application."
 msgstr "&Kilépés\tCtrl-Q\tKilépés a programból"
 
-#: src/GMWindow.cpp:320
+#: src/GMWindow.cpp:294
 msgid "\tPause\tPause Playback"
 msgstr "\tSzünet\tA lejátszás megakasztása"
 
-#: src/GMWindow.cpp:351
+#: src/GMWindow.cpp:333
 msgid "&Music"
 msgstr "&Fájl"
 
-#: src/GMWindow.cpp:367
+#: src/GMWindow.cpp:349
 msgid "&Edit"
 msgstr "Sz&erkesztés"
 
-#: src/GMWindow.cpp:378
+#: src/GMWindow.cpp:350
+msgid "&Copy\tCtrl-C\tCopy Selected Tracks"
+msgstr "&Másolás\tCtrl-C\tKijelölt fájlok másolása"
+
+#: src/GMWindow.cpp:351
+msgid "&Cut\tCtrl-X\tCut Selected Tracks"
+msgstr "&Kivágás\tCtrl-X\tKijelölt fájlok kivágása"
+
+#: src/GMWindow.cpp:352
+msgid "&Paste\tCtrl-V\tPaste Clipboard Selection"
+msgstr "&Beillesztés\tCtrl-V\tBeillesztés a vágólapról."
+
+#: src/GMWindow.cpp:354
+msgid "Find…\tCtrl-F\tShow search filter."
+msgstr "Keresés…\tCtrl-F\tKeresőszűrő megjelenítése."
+
+#: src/GMWindow.cpp:360
 msgid "&View"
 msgstr "&Nézet"
 
-#: src/GMWindow.cpp:387
+#: src/GMWindow.cpp:361
+msgid "&Browse\tCtrl-B\tShow genre artist and album browser."
+msgstr "&Böngészés\tCtrl-B\tMűfaj, előadó, album böngésző megjelenítése."
+
+#: src/GMWindow.cpp:362
+msgid "Show &Genres\tCtrl-G\tShow genre browser."
+msgstr "&Műfajok megjelenítése\tCtrl-G\tMűfajböngésző megjelenítése."
+
+#: src/GMWindow.cpp:369
 msgid "Show Mini Player\tF11\tToggle Mini Player."
 msgstr "Mini lejátszó\tF11\tMini lejátszó üzemódba kapcsolás"
 
-#: src/GMWindow.cpp:393
+#: src/GMWindow.cpp:373
+msgid "&Sort"
+msgstr "&Rendezés"
+
+#: src/GMWindow.cpp:375
 msgid "&Jump to Current Track\tCtrl-J\tShow current playing track."
 msgstr ""
 "&Ugrás az aktuális számra\tCtrl-J\tAz éppen lejátszott számra ugrik a "
 "listában."
 
-#: src/GMWindow.cpp:397
+#: src/GMWindow.cpp:379
 msgid "&Control"
 msgstr "&Lejátszás"
 
-#: src/GMWindow.cpp:398
+#: src/GMWindow.cpp:380
 msgid "Play\tCtrl-P\tStart playback."
 msgstr "Lejátszás\tCtrl-P\tLejátszás megkezdése"
 
-#: src/GMWindow.cpp:399
+#: src/GMWindow.cpp:381
 msgid "Stop\tCtrl-\\\tStop playback."
 msgstr "Állj\tCtrl-\\\tA lejátszás megállítása"
 
-#: src/GMWindow.cpp:400
+#: src/GMWindow.cpp:382
 msgid "Previous Track\tCtrl-[\tPlay next track."
 msgstr "Előző szám\tCtrl-[\tElőző szám lejátszása"
 
-#: src/GMWindow.cpp:401
+#: src/GMWindow.cpp:383
 msgid "Next Track\tCtrl-]\tPlay previous track."
 msgstr "Következő szám\tCtrl-]\tA következő szám lejátszása."
 
-#: src/GMWindow.cpp:409
+#: src/GMWindow.cpp:390
+msgid "Repeat A-B\tCtrl-T\tRepeat section of track."
+msgstr "Szám egy részének ismétlése\tCtrl-T\tA szám egy részének ismétlése"
+
+#: src/GMWindow.cpp:391
 msgid "Shuffle Mode\tAlt-R\tPlay tracks in random order."
 msgstr "Véletlenszerűen\tAlt-R\tA számok véletlenszerű lejátszása."
 
-#: src/GMWindow.cpp:416
+#: src/GMWindow.cpp:393
+msgid "Equalizer\t\t"
+msgstr "Hangszínszabályozó\t\t"
+
+#: src/GMWindow.cpp:398
 msgid "&Help"
 msgstr "&Segítség"
 
-#: src/GMWindow.cpp:417
+#: src/GMWindow.cpp:399
 msgid "&Homepage"
 msgstr "&Honlap"
 
-#: src/GMWindow.cpp:418
+#: src/GMWindow.cpp:400
 msgid "&Report Issue…"
 msgstr "Hiba &bejelentése"
 
-#: src/GMWindow.cpp:420
+#: src/GMWindow.cpp:402
 msgid "&Sign up for last.fm…"
 msgstr "&Feliratkozás last.fm-re…"
 
-#: src/GMWindow.cpp:421
+#: src/GMWindow.cpp:403
 msgid ""
 "&Join GMM on last.fm…\t\tJoin the Goggles Music Manager group on last.fm…"
 msgstr ""
 "&Csatlakozás a GMM-hez a last.fm-en…\t\tCsatlakozás a last.fm GMM "
 "csoportjához."
 
-#: src/GMWindow.cpp:1001 src/GMWindow.cpp:1030 src/GMWindow.cpp:1036
+#: src/GMWindow.cpp:978 src/GMWindow.cpp:1006 src/GMWindow.cpp:1012
 msgid "Start playback."
 msgstr "Lejátszás."
 
-#: src/GMWindow.cpp:1007 src/GMWindow.cpp:1008
+#: src/GMWindow.cpp:984 src/GMWindow.cpp:985
 msgid "Start playback"
 msgstr "Lejátszás megkezdése"
 
-#: src/GMWindow.cpp:1015 src/GMWindow.cpp:1022
+#: src/GMWindow.cpp:992 src/GMWindow.cpp:999
 msgid "Pause playback."
 msgstr "Lejátszás megszakítása."
 
-#: src/GMWindow.cpp:1016
+#: src/GMWindow.cpp:993
 msgid "Pause playback"
 msgstr "Szünet"
 
-#: src/GMWindow.cpp:1021
+#: src/GMWindow.cpp:998
 msgid "Pause"
 msgstr "Szünet"
 
-#: src/GMWindow.cpp:1162 src/GMWindow.cpp:1164
+#: src/GMWindow.cpp:1138 src/GMWindow.cpp:1140
 msgid "Repeat A-B"
 msgstr "Szám egy részének ismétlése"
 
-#: src/GMWindow.cpp:1163
+#: src/GMWindow.cpp:1139
 msgid "Repeat A"
 msgstr "Szám egy részének megjelölése"
 
-#: src/GMWindow.cpp:1304
+#: src/GMWindow.cpp:1281
 msgid "Play File or Stream"
 msgstr "Fájl/adatfolyam lejátszása"
 
-#: src/GMWindow.cpp:1311
+#: src/GMWindow.cpp:1283
+msgid "&Play"
+msgstr "&Lejátszás"
+
+#: src/GMWindow.cpp:1288
 msgid "Please specify a file or url to play:"
 msgstr "Kérem adja meg a lejátszandó file-t, vagy címet:"
 
-#: src/GMWindow.cpp:1315
+#: src/GMWindow.cpp:1292
 msgid "…"
 msgstr "…"
 
-#: src/GMWindow.cpp:1321
+#: src/GMWindow.cpp:1298
 msgid "Select File"
 msgstr "Fájl kiválasztása"
 
-#: src/GMWindow.cpp:1351
+#: src/GMWindow.cpp:1328
 msgid "Sleep Timer"
 msgstr "Sleep időzítő"
 
-#: src/GMWindow.cpp:1352
+#: src/GMWindow.cpp:1329
 msgid "Setup sleep timer"
 msgstr "Sleep időzítő beállítása"
 
-#: src/GMWindow.cpp:1352
+#: src/GMWindow.cpp:1329
 msgid "Stop playback within a certain time"
 msgstr "Lejátszás megállítása ennyi idő után"
 
-#: src/GMWindow.cpp:1354
+#: src/GMWindow.cpp:1331
 msgid "&Start Timer"
 msgstr "Időzítő indítá&sa"
 
-#: src/GMWindow.cpp:1359
+#: src/GMWindow.cpp:1336
 msgid "Sleep in"
 msgstr "Kapcsoljon ki "
 
-#: src/GMWindow.cpp:1361
+#: src/GMWindow.cpp:1338
 msgid "hours and"
 msgstr "óra és"
 
-#: src/GMWindow.cpp:1363
+#: src/GMWindow.cpp:1340
 msgid "minutes."
 msgstr "perc múlva."
 
-#: src/GMDatabaseSource.h:131
+#: src/GMDatabaseSource.h:130
 msgid "Music Library"
 msgstr "Zenei gyűjtemény"
 
-#: src/GMLocalSource.h:49
+#: src/GMLocalSource.h:50
 msgid "File System"
 msgstr "Fájlrendszer"
 
@@ -1852,14 +1820,729 @@ msgstr "Fájlrendszer"
 msgid "Internet Radio"
 msgstr "Internet Rádió"
 
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:108
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:113
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:144
+msgid "&Yes"
+msgstr "&Igen"
+
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:109
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:114
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:146
+msgid "&No"
+msgstr "&Nem"
+
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:119
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:124
+msgid "&Quit"
+msgstr "&Kilépés"
+
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:130
+msgid "&Skip"
+msgstr "&Kihagyás"
+
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:131
+msgid "Skip &All"
+msgstr "Min&dent kihagy"
+
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:137
+msgid "&Don't Save"
+msgstr "&Nincs mentés"
+
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:145
+#, fuzzy
+msgid "Y&es to All"
+msgstr "&Összes eltávolítása"
+
+#: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:147
+msgid "N&o to All"
+msgstr ""
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:219
+msgid "\tPick color"
+msgstr "\tSzín kiválasztása"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:228
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:271
+msgid "\tHue, Saturation, Value"
+msgstr "\tSzín, telítettség, fényerő"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:236
+msgid "\tRed, Green, Blue"
+msgstr "\tPiros, Zöld, Kék"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:242
+msgid "&Red:"
+msgstr "&Piros:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:247
+msgid "&Green:"
+msgstr "&Zöld:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:252
+msgid "&Blue:"
+msgstr "&Kék:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:257
+msgid "&Alpha:"
+msgstr "&Alfa:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:277
+msgid "Hue:"
+msgstr "Szín:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:282
+msgid "Saturation:"
+msgstr "Telítettség:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:287
+msgid "Value:"
+msgstr "Fényerő:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:292
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:327
+msgid "Alpha:"
+msgstr "Alfa:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:306
+msgid "\tCyan, Magenta, Yellow"
+msgstr "\tCián, Magenta, Sárga"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:312
+msgid "Cyan:"
+msgstr "Cián:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:317
+msgid "Magenta:"
+msgstr "Magenta:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:322
+msgid "Yellow:"
+msgstr "Sárga:"
+
+#: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:341
+msgid "\tBy Name"
+msgstr "\tNév szerint"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:281
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:524
+#, fuzzy
+msgid "Folder"
+msgstr "Könyvtárak:"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:282
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:526
+msgid "Create New Directory"
+msgstr "Új könyvtár létrehozása"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:285
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:529
+msgid "Already Exists"
+msgstr "Már létezik"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:289
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:533
+msgid "Cannot Create"
+msgstr "Nem tudtam létrehozni"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:310
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:626
+msgid "Copy File"
+msgstr "Fájl másolása"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:316
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:632
+msgid "Error Copying File"
+msgstr "Hiba a másolás során"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:327
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:649
+msgid "Move File"
+msgstr "Fájl mozgatása"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:333
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:655
+msgid "Error Moving File"
+msgstr "Hiba a mozgatás során"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:344
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:672
+msgid "Link File"
+msgstr "Hivatkozás"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:350
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:678
+msgid "Error Linking File"
+msgstr "Hiba a hivatkozás létrehozásakor"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:360
+msgid "Deleting file"
+msgstr "Fájl törlése"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:362
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:698
+msgid "Error Deleting File"
+msgstr "Hiba a törlés során"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:382
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:750
+msgid "Up one level"
+msgstr "Egy szinttel feljebb"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:383
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:751
+msgid "Home directory"
+msgstr "Saját könyvtár"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:384
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:752
+msgid "Work directory"
+msgstr "Futtatási könyvtár"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:388
+#, fuzzy
+msgid "Sorting"
+msgstr "&Rendezés"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:390
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:766
+msgid "Ignore case"
+msgstr "kisbetű/Nagybetű"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:391
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:777
+msgid "Hidden files"
+msgstr "Rejtett fájlok"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:394
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:785
+msgid "Bookmarks"
+msgstr "Könyvjelzők"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:395
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:788
+msgid "Set bookmark"
+msgstr "Könyvjelző létrehozása"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:396
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:789
+msgid "Clear bookmarks"
+msgstr "Könyvjelzők törlése"
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:412
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:805
+msgid "New directory..."
+msgstr "Új könyvtár..."
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:413
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:807
+msgid "Copy..."
+msgstr "Másolás..."
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:414
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:808
+msgid "Move..."
+msgstr "Mozgatás..."
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:415
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:809
+msgid "Link..."
+msgstr "Hivatkozás..."
+
+#: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:416
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:810
+msgid "Delete..."
+msgstr "Törlés..."
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:209
+#, fuzzy
+msgid "Name\tName"
+msgstr "Új név"
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:210
+#, fuzzy
+msgid "Type\tFile type"
+msgstr "Fáj típus"
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:211
+msgid "Size\tFile size"
+msgstr ""
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:212
+msgid "Modified Date\tDate when last modified"
+msgstr ""
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:213
+#, fuzzy
+msgid "User\tUser name"
+msgstr "Felhasználónév:"
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:214
+msgid "Group\tGroup name"
+msgstr ""
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:215
+msgid "Attributes\tFile attributes"
+msgstr ""
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:217
+msgid "Link\tSymbolic link to"
+msgstr ""
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:695
+#, fuzzy
+msgid "Move Here"
+msgstr "Fájl mozgatása"
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:696
+#, fuzzy
+msgid "Copy Here"
+msgstr "Fájl másolása"
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:697
+#, fuzzy
+msgid "Link Here"
+msgstr "Hivatkozás"
+
+#: ../../../../fox-1.7.29/lib/FXFileList.cpp:699
+#, fuzzy
+msgid "Cancel"
+msgstr "&Mégsem"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:274
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:938
+msgid "All Files (*)"
+msgstr ""
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:526
+msgid "Create new directory with name: "
+msgstr "Új könyvtár létrehozása a következő névvel:"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:529
+#, c-format
+msgid "File or directory %s already exists.\n"
+msgstr "A %s fájl vagy könyvtár már létezik.\n"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:533
+#, c-format
+msgid "Cannot create directory %s.\n"
+msgstr "Nem tudtam a %s könyvtárat létrehozni.\n"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:602
+#, fuzzy, c-format
+msgid ""
+"Rename file from:\n"
+"\n"
+"%s\n"
+"\n"
+"to: "
+msgstr ""
+"A fájl mozgatása innen:\n"
+"\n"
+"%s\n"
+"\n"
+"ide:"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:603
+#, fuzzy
+msgid "Rename File"
+msgstr "Átnevezzem a hangfájlokat?"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:609
+#, fuzzy
+msgid "Error Renaming File"
+msgstr "Hiba a hivatkozás létrehozásakor"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:609
+#, fuzzy, c-format
+msgid ""
+"Unable to rename file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"A fájl mozgatása sikertelen:\n"
+"\n"
+"%s ide: %s\n"
+"\n"
+"Folytassam a műveletet?"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:625
+#, c-format
+msgid ""
+"Copy file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"Fájl másolása innen:\n"
+"\n"
+"%s\n"
+"\n"
+"ide: "
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:632
+#, c-format
+msgid ""
+"Unable to copy file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"A fájl másolása sikertelen:\n"
+"\n"
+"%s ide: %s\n"
+"\n"
+"Folytassam a műveletet?"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:648
+#, c-format
+msgid ""
+"Move file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"A fájl mozgatása innen:\n"
+"\n"
+"%s\n"
+"\n"
+"ide:"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:655
+#, c-format
+msgid ""
+"Unable to move file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"A fájl mozgatása sikertelen:\n"
+"\n"
+"%s ide: %s\n"
+"\n"
+"Folytassam a műveletet?"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:671
+#, c-format
+msgid ""
+"Link file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"A fájl hivatkozása innen:\n"
+"\n"
+"%s\n"
+"\n"
+"ide:"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:678
+#, c-format
+msgid ""
+"Unable to link file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"A fájl hivatkozása sikertelen:\n"
+"\n"
+"%s fájlt ide: %s \n"
+"\n"
+"Folytassam a műveletet?"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:694
+msgid "Deleting files"
+msgstr "Fájlok törlése"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:694
+#, c-format
+msgid ""
+"Are you sure you want to delete the file:\n"
+"\n"
+"%s"
+msgstr ""
+"Biztos, hogy törölni akarja a fájlt:\n"
+"\n"
+"%s"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:698
+#, c-format
+msgid ""
+"Unable to delete file:\n"
+"\n"
+"%s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"A fájl törlése sikertelen:\n"
+"\n"
+"%s\n"
+"\n"
+"Folytassam a műveletet?"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:753
+msgid "Select all"
+msgstr "Mindet kijelöl"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:757
+msgid "Sort by"
+msgstr "Rendezés"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:762
+msgid "User"
+msgstr "Felhasználó"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:763
+msgid "Group"
+msgstr "Csoport"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:769
+msgid "View"
+msgstr "Nézet"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:770
+msgid "Small icons"
+msgstr "Kis ikonok"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:771
+msgid "Big icons"
+msgstr "Nagy ikonok"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:772
+msgid "Details"
+msgstr "Részletek"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:774
+msgid "Rows"
+msgstr "Sorok"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:775
+msgid "Columns"
+msgstr "Oszlopo"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:778
+msgid "Preview images"
+msgstr "Előnézeti képek"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:780
+msgid "Normal images"
+msgstr "Normál méretű képek"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:781
+#, fuzzy
+msgid "Medium images"
+msgstr "Előnézeti képek"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:782
+msgid "Giant images"
+msgstr "Nagy képek"
+
+#: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:806
+#, fuzzy
+msgid "Rename..."
+msgstr "Át&nevezés"
+
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:109
+msgid "&Replace"
+msgstr "&Csere"
+
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:110
+msgid "Re&place All"
+msgstr "Cserélje &mindet"
+
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:119
+msgid "S&earch for:"
+msgstr "Keresse e&zt"
+
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:127
+msgid "Replace &with:"
+msgstr "Csere e&rre:"
+
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:136
+msgid "Ex&act"
+msgstr "&Teljes"
+
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:137
+msgid "&Ignore Case"
+msgstr "&Nagybetűérzékeny"
+
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:138
+msgid "E&xpression"
+msgstr "Ki&fejezés"
+
+#: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:139
+msgid "&Backward"
+msgstr "&Visszafelé"
+
+#: ../../../../fox-1.7.29/lib/FXSearchDialog.cpp:69
+msgid "&Search"
+msgstr "&Keresés"
+
+#: ../../../../fox-1.7.29/lib/FXStatusLine.cpp:79
+msgid "Ready."
+msgstr "Ok."
+
+#~ msgid "Equalizer"
+#~ msgstr "Hangszínszabályozó"
+
+#~ msgid "Equalizer:"
+#~ msgstr "Hangszínszabályozó:"
+
+#~ msgid "\tSave"
+#~ msgstr "\tMentés"
+
+#~ msgid "\tRemove"
+#~ msgstr "\tTörlés"
+
+#~ msgid "Pre-amp"
+#~ msgstr "Előerősítés"
+
+#~ msgid "Disabled"
+#~ msgstr "Letiltva"
+
+#~ msgid "Manual"
+#~ msgstr "Kézi"
+
+#~ msgid "Delete Preset"
+#~ msgstr "Beállítás törlése"
+
+#~ msgid "Are you sure you want to delete %s preset?"
+#~ msgstr "Biztos, hogy törölni akarja a(z) \"%s\" nevű hangszín beállítást?"
+
+#~ msgid "Preset Name"
+#~ msgstr "Beállítás neve"
+
+#~ msgid "Please enter preset name:"
+#~ msgstr "Adja meg a beállítás nevét:"
+
+#~ msgid "Overwrite Preset"
+#~ msgstr "Beállítás felülírása"
+
+#~ msgid "Preset %s already exists. Would you like to overwrite it?"
+#~ msgstr "A(z) \"%s\" beállítás már létezik. Felülírjam?"
+
+#~ msgid "Unable to initialize audio driver."
+#~ msgstr "Nem tudom inicializálni a lejátszót."
+
+#~ msgid "Unknown host."
+#~ msgstr "Ismeretlen host."
+
+#~ msgid "Unknown device"
+#~ msgstr "Ismeretlen eszköz"
+
+#~ msgid "Network not reachable."
+#~ msgstr "A hálózat nem elérhető."
+
+#~ msgid "Audio output unavailable."
+#~ msgstr "A hangkimenet nem elérhető."
+
+#~ msgid "Connection Refused."
+#~ msgstr "Kapcsolódás visszautasítva."
+
+#~ msgid "File not found."
+#~ msgstr "A fájl nem található."
+
+#~ msgid "Resource not accessible. Check permissions"
+#~ msgstr "Az erőforrás nem elérhető. Ellenőrizze a jogosultságokat."
+
+#~ msgid "Read Error"
+#~ msgstr "Olvasási hiba"
+
+#~ msgid "Error while loading library/plugin"
+#~ msgstr "Hiba a könyvtár/kiegészítő betöltése során."
+
+#~ msgid "Warning"
+#~ msgstr "Figyelmeztetés"
+
+#~ msgid "Security Warning"
+#~ msgstr "Biztonsági figyelmeztetés"
+
+#~ msgid "Unknown Error"
+#~ msgstr "Ismeretlen hiba"
+
+#~ msgid "Error"
+#~ msgstr "Hiba"
+
+#~ msgid "Audio Device Error"
+#~ msgstr "Hangeszköz hiba"
+
+#~ msgid ""
+#~ "Show album covers in album browser\tShow album covers in album browser"
+#~ msgstr ""
+#~ "Albumborítók megjelenítése az albumböngészőben\tAlbumborítók "
+#~ "megjelenítése az albumböngészőben"
+
+#~ msgid "Engine"
+#~ msgstr "Lejátszó modul"
+
+#~ msgid "Mixer:"
+#~ msgstr "Keverő:"
+
+#~ msgid "Close audio device on pause."
+#~ msgstr "Zárja le a hangeszközt szünetre"
+
+#~ msgid "Turn off playback engine on stop."
+#~ msgstr "Kapcsolja ki a lejátszó modult leállításkor"
+
+#~ msgid ""
+#~ "Turn on playback engine on startup.\tFor faster startup, playback engine "
+#~ "is normally started when first track is played.\tFor faster startup, "
+#~ "playback engine is normally started when first track is played."
+#~ msgstr ""
+#~ "Kapcsolja be a lejátszó modult induláskor\tA gyorsabb indulás érdekében a "
+#~ "lejátszó modul csak az első szám lejátszásakor kerül elindításra.\tA "
+#~ "gyorsabb indulás érdekében a lejátszó modul csak az első szám "
+#~ "lejátszásakor kerül elindításra."
+
+#~ msgid "Gapless playback"
+#~ msgstr "Szünetmentes lejátszás"
+
+#~ msgid "Volume Normalization"
+#~ msgstr "Hangerő normalizálása"
+
+#~ msgid "Failed to open requested audio driver: %s"
+#~ msgstr "A(z) %s hangeszköz megnyitása sikertelen."
+
+#~ msgid "P&revious"
+#~ msgstr "&Előző"
+
+#~ msgid "&Stop"
+#~ msgstr "Áll&j"
+
+#~ msgid "Show Browser"
+#~ msgstr "Böngésző megjelenítése"
+
+#~ msgid "Track Gain"
+#~ msgstr "Szám"
+
+#~ msgid "Album Gain"
+#~ msgstr "Album"
+
+#~ msgid "\tSeparate Artists"
+#~ msgstr "\tKülönböző előadók"
+
+#~ msgid "\tShared Artists"
+#~ msgstr "\tKözös előadók"
+
+#~ msgid "&Genre"
+#~ msgstr "&Műfaj"
+
+#~ msgid "All Genres"
+#~ msgstr "Összes műfaj"
+
 #~ msgid "About"
 #~ msgstr "A programról"
 
 #~ msgid "Old Name"
 #~ msgstr "Régi név"
-
-#~ msgid "New Name"
-#~ msgstr "Új név"
 
 #~ msgid "Unable to rename file"
 #~ msgstr "A fájl átnevezése sikertelen"
@@ -1966,9 +2649,6 @@ msgstr "Internet Rádió"
 #~ msgid "Show Mini Remote"
 #~ msgstr "Mini ablak megjelenítése"
 
-#~ msgid "Previous View"
-#~ msgstr "Előző nézet"
-
 #~ msgid "Always Show Remote"
 #~ msgstr "Mindig látszódjon a mini lejátszó"
 
@@ -1998,12 +2678,6 @@ msgstr "Internet Rádió"
 
 #~ msgid "normal"
 #~ msgstr "Normál"
-
-#~ msgid "italic"
-#~ msgstr "Dőlt"
-
-#~ msgid "oblique"
-#~ msgstr "Dőlt"
 
 #~ msgid "P&ause"
 #~ msgstr "&Szünet"
@@ -2070,9 +2744,6 @@ msgstr "Internet Rádió"
 #~ msgid "Pause\t\tPause playback."
 #~ msgstr "Szünet\t\tA lejátszás megakasztása"
 
-#~ msgid "Previous"
-#~ msgstr "Előző"
-
 #~ msgid "Next"
 #~ msgstr "Következő"
 
@@ -2084,72 +2755,6 @@ msgstr "Internet Rádió"
 
 #~ msgid "Duet"
 #~ msgstr "Duett"
-
-#~ msgid "&Yes"
-#~ msgstr "&Igen"
-
-#~ msgid "&No"
-#~ msgstr "&Nem"
-
-#~ msgid "&Quit"
-#~ msgstr "&Kilépés"
-
-#~ msgid "&Skip"
-#~ msgstr "&Kihagyás"
-
-#~ msgid "Skip &All"
-#~ msgstr "Min&dent kihagy"
-
-#~ msgid "&Don't Save"
-#~ msgstr "&Nincs mentés"
-
-#~ msgid "\tPick color"
-#~ msgstr "\tSzín kiválasztása"
-
-#~ msgid "\tHue, Saturation, Value"
-#~ msgstr "\tSzín, telítettség, fényerő"
-
-#~ msgid "\tRed, Green, Blue"
-#~ msgstr "\tPiros, Zöld, Kék"
-
-#~ msgid "&Red:"
-#~ msgstr "&Piros:"
-
-#~ msgid "&Green:"
-#~ msgstr "&Zöld:"
-
-#~ msgid "&Blue:"
-#~ msgstr "&Kék:"
-
-#~ msgid "&Alpha:"
-#~ msgstr "&Alfa:"
-
-#~ msgid "Hue:"
-#~ msgstr "Szín:"
-
-#~ msgid "Saturation:"
-#~ msgstr "Telítettség:"
-
-#~ msgid "Value:"
-#~ msgstr "Fényerő:"
-
-#~ msgid "Alpha:"
-#~ msgstr "Alfa:"
-
-#~ msgid "\tCyan, Magenta, Yellow"
-#~ msgstr "\tCián, Magenta, Sárga"
-
-#~ msgid "Cyan:"
-#~ msgstr "Cián:"
-
-#~ msgid "Magenta:"
-#~ msgstr "Magenta:"
-
-#~ msgid "Yellow:"
-#~ msgstr "Sárga:"
-
-#~ msgid "\tBy Name"
-#~ msgstr "\tNév szerint"
 
 #~ msgid "&Family:"
 #~ msgstr "&Család"
@@ -2226,267 +2831,14 @@ msgstr "Internet Rádió"
 #~ msgid "Preview:"
 #~ msgstr "Előnézet:"
 
-#~ msgid "Create New Directory"
-#~ msgstr "Új könyvtár létrehozása"
-
-#~ msgid "Already Exists"
-#~ msgstr "Már létezik"
-
-#~ msgid "Cannot Create"
-#~ msgstr "Nem tudtam létrehozni"
-
-#~ msgid "Copy File"
-#~ msgstr "Fájl másolása"
-
-#~ msgid "Error Copying File"
-#~ msgstr "Hiba a másolás során"
-
-#~ msgid "Move File"
-#~ msgstr "Fájl mozgatása"
-
-#~ msgid "Error Moving File"
-#~ msgstr "Hiba a mozgatás során"
-
-#~ msgid "Link File"
-#~ msgstr "Hivatkozás"
-
-#~ msgid "Error Linking File"
-#~ msgstr "Hiba a hivatkozás létrehozásakor"
-
-#~ msgid "Deleting file"
-#~ msgstr "Fájl törlése"
-
-#~ msgid "Error Deleting File"
-#~ msgstr "Hiba a törlés során"
-
-#~ msgid "Up one level"
-#~ msgstr "Egy szinttel feljebb"
-
-#~ msgid "Home directory"
-#~ msgstr "Saját könyvtár"
-
-#~ msgid "Work directory"
-#~ msgstr "Futtatási könyvtár"
-
-#~ msgid "Ignore case"
-#~ msgstr "kisbetű/Nagybetű"
-
-#~ msgid "Hidden files"
-#~ msgstr "Rejtett fájlok"
-
-#~ msgid "Bookmarks"
-#~ msgstr "Könyvjelzők"
-
-#~ msgid "Set bookmark"
-#~ msgstr "Könyvjelző létrehozása"
-
-#~ msgid "Clear bookmarks"
-#~ msgstr "Könyvjelzők törlése"
-
-#~ msgid "New directory..."
-#~ msgstr "Új könyvtár..."
-
-#~ msgid "Copy..."
-#~ msgstr "Másolás..."
-
-#~ msgid "Move..."
-#~ msgstr "Mozgatás..."
-
-#~ msgid "Link..."
-#~ msgstr "Hivatkozás..."
-
-#~ msgid "Delete..."
-#~ msgstr "Törlés..."
-
 #~ msgid "Modified Date"
 #~ msgstr "Módosítás dátuma"
-
-#~ msgid "User"
-#~ msgstr "Felhasználó"
-
-#~ msgid "Group"
-#~ msgstr "Csoport"
 
 #~ msgid "Attributes"
 #~ msgstr "Tulajdonságok"
 
 #~ msgid "Link"
 #~ msgstr "Hivatkozás"
-
-#~ msgid "Create new directory with name: "
-#~ msgstr "Új könyvtár létrehozása a következő névvel:"
-
-#~ msgid "File or directory %s already exists.\n"
-#~ msgstr "A %s fájl vagy könyvtár már létezik.\n"
-
-#~ msgid "Cannot create directory %s.\n"
-#~ msgstr "Nem tudtam a %s könyvtárat létrehozni.\n"
-
-#~ msgid ""
-#~ "Copy file from location:\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "to location: "
-#~ msgstr ""
-#~ "Fájl másolása innen:\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "ide: "
-
-#~ msgid ""
-#~ "Unable to copy file:\n"
-#~ "\n"
-#~ "%s  to:  %s\n"
-#~ "\n"
-#~ "Continue with operation?"
-#~ msgstr ""
-#~ "A fájl másolása sikertelen:\n"
-#~ "\n"
-#~ "%s ide: %s\n"
-#~ "\n"
-#~ "Folytassam a műveletet?"
-
-#~ msgid ""
-#~ "Move file from location:\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "to location: "
-#~ msgstr ""
-#~ "A fájl mozgatása innen:\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "ide:"
-
-#~ msgid ""
-#~ "Unable to move file:\n"
-#~ "\n"
-#~ "%s  to:  %s\n"
-#~ "\n"
-#~ "Continue with operation?"
-#~ msgstr ""
-#~ "A fájl mozgatása sikertelen:\n"
-#~ "\n"
-#~ "%s ide: %s\n"
-#~ "\n"
-#~ "Folytassam a műveletet?"
-
-#~ msgid ""
-#~ "Link file from location:\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "to location: "
-#~ msgstr ""
-#~ "A fájl hivatkozása innen:\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "ide:"
-
-#~ msgid ""
-#~ "Unable to link file:\n"
-#~ "\n"
-#~ "%s  to:  %s\n"
-#~ "\n"
-#~ "Continue with operation?"
-#~ msgstr ""
-#~ "A fájl hivatkozása sikertelen:\n"
-#~ "\n"
-#~ "%s fájlt ide: %s \n"
-#~ "\n"
-#~ "Folytassam a műveletet?"
-
-#~ msgid "Deleting files"
-#~ msgstr "Fájlok törlése"
-
-#~ msgid ""
-#~ "Are you sure you want to delete the file:\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Biztos, hogy törölni akarja a fájlt:\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "Unable to delete file:\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Continue with operation?"
-#~ msgstr ""
-#~ "A fájl törlése sikertelen:\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Folytassam a műveletet?"
-
-#~ msgid "Select all"
-#~ msgstr "Mindet kijelöl"
-
-#~ msgid "Sort by"
-#~ msgstr "Rendezés"
-
-#~ msgid "View"
-#~ msgstr "Nézet"
-
-#~ msgid "Small icons"
-#~ msgstr "Kis ikonok"
-
-#~ msgid "Big icons"
-#~ msgstr "Nagy ikonok"
-
-#~ msgid "Details"
-#~ msgstr "Részletek"
-
-#~ msgid "Rows"
-#~ msgstr "Sorok"
-
-#~ msgid "Columns"
-#~ msgstr "Oszlopo"
-
-#~ msgid "Preview images"
-#~ msgstr "Előnézeti képek"
-
-#~ msgid "Normal images"
-#~ msgstr "Normál méretű képek"
-
-#~ msgid "Giant images"
-#~ msgstr "Nagy képek"
-
-#~ msgid "&Replace"
-#~ msgstr "&Csere"
-
-#~ msgid "Re&place All"
-#~ msgstr "Cserélje &mindet"
-
-#~ msgid "S&earch for:"
-#~ msgstr "Keresse e&zt"
-
-#~ msgid "Replace &with:"
-#~ msgstr "Csere e&rre:"
-
-#~ msgid "Ex&act"
-#~ msgstr "&Teljes"
-
-#~ msgid "&Ignore Case"
-#~ msgstr "&Nagybetűérzékeny"
-
-#~ msgid "E&xpression"
-#~ msgstr "Ki&fejezés"
-
-#~ msgid "&Backward"
-#~ msgstr "&Visszafelé"
-
-#~ msgid "&Search"
-#~ msgstr "&Keresés"
-
-#~ msgid "Ready."
-#~ msgstr "Ok."
 
 #~ msgid ""
 #~ "?c<a|b> - display a if c is not empty else display b.\n"
