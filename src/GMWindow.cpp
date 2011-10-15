@@ -1365,6 +1365,88 @@ long GMWindow::onUpdSleepTimer(FXObject*sender,FXSelector,void*){
   }
 
 
+void GMWindow::setCover(GMCover*cvr) {
+  FXIconSource src(getApp());
+  FXImage * cover=NULL;
+  FXint coverdisplaysize;
+
+  const FXint smallcoversize=64;
+
+  /// Whether to scale the image when loading or not
+  if (coverview_gl)
+    coverdisplaysize=0;
+  else
+    coverdisplaysize=FXCLAMP(64,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,500);
+
+
+
+  cover = GMCover::copyToImage(cvr,coverdisplaysize);
+
+  /// Delete current cover
+  if (remote)
+    remote->updateCover(NULL);
+
+  if (cover_small)  {
+    FXImage * img = cover_small.release();
+    delete img;
+    }
+
+  if (coverview_x11) {
+    if (coverview_x11->getImage()){
+      delete coverview_x11->getImage();
+      coverview_x11->setImage(NULL);
+      }
+    }
+
+  /// Set new cover to coverview
+  if (coverview_gl)
+    coverview_gl->setImage(cover);
+  else
+    coverview_x11->setImage(cover);
+
+  if (cover) {
+
+    /// Retrieve Image Data
+    FXColor * imagedata = cover->getData();
+
+    /// Disown image data
+    FXImageOwner::clear(cover);
+
+    /// Make sure to create cover for x11
+    if (coverview_x11)
+      cover->create();
+
+    /// Make small cover the owner of the data
+    cover_small = new FXImage(getApp(),imagedata,IMAGE_SHMI|IMAGE_SHMP|IMAGE_KEEP|IMAGE_OWNED,cover->getWidth(),cover->getHeight());
+    if (cover_small->getWidth()>smallcoversize || cover_small->getHeight()>smallcoversize) {
+      if (cover_small->getWidth()>cover_small->getHeight())
+        cover_small->scale(smallcoversize,(smallcoversize*cover_small->getHeight())/cover_small->getWidth(),1);
+      else
+        cover_small->scale((smallcoversize*cover_small->getWidth())/cover_small->getHeight(),smallcoversize,1);
+      }
+
+    /// delete the cover for gl.
+    if (coverview_gl)
+      delete cover;
+
+    cover_small->create();
+
+    if (remote)
+      remote->updateCover(cover_small);
+
+    if (!coverframe->shown()) {
+      coverframe->show();
+      coverframe->recalc();
+      }
+    }
+  else {
+    if (coverframe->shown()) {
+      coverframe->hide();
+      coverframe->recalc();
+      }
+    }
+  }
+
 
 void GMWindow::loadCover(const FXString & filename) {
   FXIconSource src(getApp());
@@ -1387,6 +1469,24 @@ void GMWindow::loadCover(const FXString & filename) {
 
   /// If empty skip cover searching
   if (!filename.empty()) {
+    GMCover * c = GMCover::fromTag(filename);
+    if (!c) {
+      dirname = FXPath::directory(filename);
+      if (!dirname.empty()) {
+        if (dirname==coverfile)
+          return;
+        c = GMCover::fromPath(dirname);
+        }
+      }
+    if (c) {
+     // c->save("/dev/shm/gogglesmm","cover");
+      cover = GMCover::toImage(c,coverdisplaysize);
+      }
+
+
+/*
+
+
     cover = GMCover::toImage(GMCover::fromTag(filename),coverdisplaysize);
     if (cover==NULL) {
       dirname = FXPath::directory(filename);
@@ -1396,6 +1496,7 @@ void GMWindow::loadCover(const FXString & filename) {
         cover= GMCover::toImage(GMCover::fromPath(dirname),coverdisplaysize);
         }
       }
+     */
     }
 
   /// Delete current cover

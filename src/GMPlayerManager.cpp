@@ -30,6 +30,7 @@
 #include "gmdefs.h"
 #include "gmutils.h"
 
+#include "GMCover.h"
 #include "GMTrack.h"
 #include "GMTrackDatabase.h"
 
@@ -337,6 +338,18 @@ static FXint dbus_send_commands(DBusConnection * connection,int& argc,char** arg
 
 
 long GMPlayerManager::onPlayNotify(FXObject*,FXSelector,void*){
+
+  // Load Cover
+  covermanager->load(trackinfo.mrl);
+
+  mainwindow->setCover(covermanager->getCover());
+
+
+//  if (preferences.gui_show_playing_albumcover && gm_is_local_file(trackinfo.mrl))
+//    mainwindow->loadCover(trackinfo.mrl);
+
+
+
   update_cover_display();
 
   if (!trackinfo.title.empty() && !trackinfo.artist.empty()) {
@@ -427,7 +440,8 @@ GMPlayerManager::GMPlayerManager() :
   queue(NULL),
   source(NULL),
   database(NULL),
-  covercache(NULL) {
+  covercache(NULL),
+  covermanager(NULL) {
   FXASSERT(myself==NULL);
   myself=this;
   }
@@ -546,8 +560,9 @@ FXint GMPlayerManager::init_fifo(int& argc,char** argv){
 FXbool GMPlayerManager::init_sources() {
 
   // Main Database
-  database   = new GMTrackDatabase;
-  covercache = new GMCoverCache;
+  database      = new GMTrackDatabase;
+  covercache    = new GMCoverCache;
+  covermanager  = new GMCoverManager;
 
   // Make sure we can open it.
   if (!init_database(database)) {
@@ -1010,6 +1025,8 @@ void GMPlayerManager::exit() {
   for (FXint i=0;i<sources.no();i++)
     delete sources[i];
 
+
+  delete covermanager;
   delete covercache;
 
   application->exit(0);
@@ -1335,6 +1352,9 @@ FXint GMPlayerManager::current_position() const {
 void GMPlayerManager::reset_track_display() {
   FXTRACE((51,"GMPlayerManager::reset_track_display()\n"));
 
+  /// Reset the cover
+  covermanager->clear();
+
   /// Reset Main Window
   mainwindow->reset();
 
@@ -1370,8 +1390,8 @@ void GMPlayerManager::setStatus(const FXString & text){
   }
 
 void GMPlayerManager::update_cover_display() {
-  if (preferences.gui_show_playing_albumcover && gm_is_local_file(trackinfo.mrl))
-    mainwindow->loadCover(trackinfo.mrl);
+//  if (preferences.gui_show_playing_albumcover && gm_is_local_file(trackinfo.mrl))
+//    mainwindow->loadCover(trackinfo.mrl);
   }
 
 

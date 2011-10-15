@@ -441,4 +441,14 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
       out[i+3]=in[i+3]; // a
       }
   }
+  
+
+
+
+
+
+
+
+
+  
 

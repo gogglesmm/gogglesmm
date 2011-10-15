@@ -73,6 +73,11 @@ public:
   GMCover();
   GMCover(const void * data, FXuval len,FXuint t=GMCover::Other,const FXString & label=FXString::null,FXbool owned=false);
   ~GMCover();
+
+  /// Return file extension for image.
+  FXString fileExtension() const;
+
+  FXbool save(const FXString & path);
 public:
   static FXint fromTag(const FXString & mrl,GMCoverList & list);
 
@@ -84,7 +89,33 @@ public:
 
   static GMCover * fromFile(const FXString & file);
 
+  static FXImage * copyToImage(GMCover*,FXint scale=0,FXint crop=0);
   static FXImage * toImage(GMCover*,FXint scale=0,FXint crop=0);
+  };
+
+
+
+class GMCoverManager {
+protected:
+  GMCover* cover;
+  FXString file;
+  FXString share;
+public:
+  GMCoverManager();
+
+  // Clear
+  void clear();
+
+  // Load Cover
+  void load(const FXString & filename);
+
+  // Get the share filename
+  FXString getShareFilename() const { return share; }
+
+  // Get the cover
+  GMCover* getCover() const { return cover; }
+
+  ~GMCoverManager();
   };
 
 #endif

@@ -1280,19 +1280,6 @@ void GMTrackView::loadTrackSettings(const FXString & key) {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 void GMTrackView::saveSettings(const FXString & key) const {
   getApp()->reg().writeBoolEntry(key.text(),"genre-list-sort-reverse",taglist->getSortFunc()==genre_list_sort_reverse);
   getApp()->reg().writeBoolEntry(key.text(),"artist-list-sort-reverse",artistlist->getSortFunc()==generic_name_sort_reverse);
@@ -2422,7 +2409,7 @@ long GMTrackView::onCmdAlbumListView(FXObject*,FXSelector sel,void*){
     albumlist->setListStyle(opts&~ALBUMLIST_BROWSER);
     }
   else {
-    FXuint opts=albumlist->getListStyle();    
+    FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
     GMPlayerManager::instance()->load_album_covers();
     }

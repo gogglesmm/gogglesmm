@@ -25,6 +25,7 @@ class GMSourceView;
 class GMIconTheme;
 class GMPreferencesDialog;
 class GMImageView;
+class GMCover;
 
 enum {
   SHOW_NORMAL,
@@ -266,6 +267,8 @@ public:
   GMTrackView * getTrackView() const { return trackview; }
   GMSourceView  * getSourceView() const { return sourceview; }
 
+
+  void setCover(GMCover*);
 
   void loadCover(const FXString & filename);
 

@@ -50,6 +50,7 @@ class GMTrayIcon;
 class GMPlayQueue;
 class GMDatabaseSource;
 class GMCoverCache;
+class GMCoverManager;
 class GMTaskManager;
 class GMTask;
 
@@ -121,6 +122,7 @@ protected:
   GMSource             * source;
   GMTrackDatabase      * database;
   GMCoverCache         * covercache;
+  GMCoverManager       * covermanager;
   GMTrack    trackinfo;
   FXbool     trackinfoset;
 protected:

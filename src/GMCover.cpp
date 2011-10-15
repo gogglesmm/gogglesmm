@@ -243,6 +243,47 @@ GMCover::~GMCover() {
   freeElms(data);
   }
 
+
+FXString GMCover::fileExtension() const{
+  if (     data[0]==137 &&
+           data[1]==80  &&
+           data[2]==78  &&
+           data[3]==71  &&
+           data[4]==13  &&
+           data[5]==10  &&
+           data[6]==26  &&
+           data[7]==10) {
+
+    return ".png";
+    }
+  else if (data[0]==0xFF &&
+           data[1]==0xD8){
+    return ".jpg";
+    }
+  else if (data[0]=='B' &&
+           data[1]=='M'){
+    return ".bmp";
+    }
+  else if (data[0]==0x47 &&
+           data[1]==0x49 &&
+           data[2]==0x46){
+    return ".gif";
+    }
+  return FXString::null;
+  }
+
+
+FXbool GMCover::save(const FXString & filename) {
+  FXString path = FXPath::directory(filename);
+  if (FXStat::exists(path) || FXDir::createDirectories(path)) {
+    FXFile file (filename,FXIO::Writing);
+    file.writeBlock(data,len);
+    file.close();
+    return true;
+    }
+  return false;
+  }
+
 FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
   GM_TICKS_START();
   FXString extension = FXPath::extension(mrl);
@@ -317,8 +358,6 @@ GMCover * GMCover::fromPath(const FXString & path) {
   FXString * names=NULL;
   GMCover  * cover=NULL;
 
-  FXIconSource src(FXApp::instance());
-
   FXint nfiles = FXDir::listFiles(files,path,"*.(png,jpg,jpeg,bmp,gif)",FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold|FXDir::HiddenFiles);
   if (nfiles) {
     names = new FXString[nfiles];
@@ -347,6 +386,14 @@ GMCover * GMCover::fromPath(const FXString & path) {
   }
 
 
+FXImage * GMCover::copyToImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
+  if (cover) {
+    FXImage * image = gm_load_image_from_data(cover->data,cover->len,scale,crop);
+    return image;
+    }
+  return NULL;
+  }
+
 FXImage * GMCover::toImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
   if (cover) {
     FXImage * image = gm_load_image_from_data(cover->data,cover->len,scale,crop);
@@ -354,4 +401,56 @@ FXImage * GMCover::toImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
     return image;
     }
   return NULL;
+  }
+
+
+GMCoverManager::GMCoverManager() : cover(NULL){
+  }
+
+GMCoverManager::~GMCoverManager(){
+  clear();
+  }
+
+void GMCoverManager::clear() {
+  if (cover) {
+    delete cover;
+    cover = NULL;
+    }
+
+  if (!share.empty()){
+    FXFile::remove(share);
+    share.clear();
+    }
+
+  file.clear();
+  }
+
+void GMCoverManager::load(const FXString & filename) {
+  FXString path = FXPath::directory(filename);
+
+  // Reuse existing
+  if (filename==file || filename==path)
+    return;
+
+  // Clear  Existing
+  clear();
+
+  if (gm_is_local_file(filename)) {
+
+    // Load
+    cover = GMCover::fromTag(filename);
+    if (cover==NULL) {
+      cover = GMCover::fromPath(path);
+      if (cover) file=path;
+      }
+    else {
+      file=filename;
+      }
+
+    if (cover) {
+      share = "/dev/shm/gogglesmm/cover" + cover->fileExtension();
+      if (!cover->save(share))
+        share.clear();
+      }
+    }
   }
