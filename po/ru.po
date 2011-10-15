@@ -1309,15 +1309,15 @@ msgstr "Редактировать информацию о треке"
 #: src/GMTrackEditor.cpp:377
 #, fuzzy
 msgid "&Previous"
-msgstr "Предыдущий трек"
+msgstr "Предыдущий"
 
 #: src/GMTrackEditor.cpp:378
 msgid "&Next"
-msgstr ""
+msgstr "Следующий"
 
 #: src/GMTrackEditor.cpp:380
 msgid "&Reset"
-msgstr ""
+msgstr "Сбросить"
 
 #: src/GMTrackEditor.cpp:399
 msgid "&Tag"
@@ -1359,7 +1359,7 @@ msgstr "&Диск"
 
 #: src/GMTrackEditor.cpp:459 src/GMTrackEditor.cpp:478
 msgid "Y&ear"
-msgstr ""
+msgstr "Год"
 
 #: src/GMTrackEditor.cpp:482
 msgid "T&itle"
@@ -1803,7 +1803,7 @@ msgstr "Интернет радио"
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:113
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:144
 msgid "&Yes"
-msgstr ""
+msgstr "Да"
 
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:109
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:114
@@ -1816,15 +1816,15 @@ msgstr "Нет"
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:124
 #, fuzzy
 msgid "&Quit"
-msgstr "Выйти"
+msgstr "В&ыйти"
 
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:130
 msgid "&Skip"
-msgstr ""
+msgstr "Пропустить"
 
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:131
 msgid "Skip &All"
-msgstr ""
+msgstr "Пропустить все"
 
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:137
 #, fuzzy
@@ -1838,287 +1838,287 @@ msgstr "&Удалить все"
 
 #: ../../../../fox-1.7.29/lib/FXMessageBox.cpp:147
 msgid "N&o to All"
-msgstr ""
+msgstr "Нет для всех"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:219
 msgid "\tPick color"
-msgstr ""
+msgstr "\tВыбрать цвет"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:228
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:271
 msgid "\tHue, Saturation, Value"
-msgstr ""
+msgstr "\tТон, Насыщенность, Значение"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:236
 msgid "\tRed, Green, Blue"
-msgstr ""
+msgstr "\tКрасный, Зеленый, Синий"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:242
 msgid "&Red:"
-msgstr ""
+msgstr "Красный"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:247
 msgid "&Green:"
-msgstr ""
+msgstr "Зеленый"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:252
 msgid "&Blue:"
-msgstr ""
+msgstr "Синий"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:257
 msgid "&Alpha:"
-msgstr ""
+msgstr "Прозрачность"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:277
 msgid "Hue:"
-msgstr ""
+msgstr "Тон"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:282
 #, fuzzy
 msgid "Saturation:"
-msgstr "Радио-станция"
+msgstr "Насыщенность"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:287
 msgid "Value:"
-msgstr ""
+msgstr "Значение"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:292
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:327
 msgid "Alpha:"
-msgstr ""
+msgstr "Прозрачность"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:306
 msgid "\tCyan, Magenta, Yellow"
-msgstr ""
+msgstr "\tГолубой, Розовый, Желтый"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:312
 msgid "Cyan:"
-msgstr ""
+msgstr "Голубой"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:317
 msgid "Magenta:"
-msgstr ""
+msgstr "Розовый"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:322
 msgid "Yellow:"
-msgstr ""
+msgstr "Желтый"
 
 #: ../../../../fox-1.7.29/lib/FXColorSelector.cpp:341
 #, fuzzy
 msgid "\tBy Name"
-msgstr "Имя"
+msgstr "\tПо имени"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:281
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:524
 #, fuzzy
 msgid "Folder"
-msgstr "Папки:"
+msgstr "Папка"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:282
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:526
 #, fuzzy
 msgid "Create New Directory"
-msgstr "Папка:"
+msgstr "Создать новую папку"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:285
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:529
 msgid "Already Exists"
-msgstr ""
+msgstr "Уже существует"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:289
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:533
 #, fuzzy
 msgid "Cannot Create"
-msgstr "&Создать"
+msgstr "Невозможно создать"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:310
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:626
 msgid "Copy File"
-msgstr ""
+msgstr "Копировать файл"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:316
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:632
 msgid "Error Copying File"
-msgstr ""
+msgstr "Ошибка копирования файла"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:327
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:649
 #, fuzzy
 msgid "Move File"
-msgstr "Переместить вверх"
+msgstr "Переместить файл"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:333
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:655
 msgid "Error Moving File"
-msgstr ""
+msgstr "Ошибка перемещения файла"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:344
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:672
 msgid "Link File"
-msgstr ""
+msgstr "Создать ссылку на файл"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:350
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:678
 msgid "Error Linking File"
-msgstr ""
+msgstr "Ошиька создания ссылки на файл"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:360
 msgid "Deleting file"
-msgstr ""
+msgstr "Удаление файла"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:362
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:698
 #, fuzzy
 msgid "Error Deleting File"
-msgstr "Выбрать файл"
+msgstr "Ошибка удаления файла"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:382
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:750
 msgid "Up one level"
-msgstr ""
+msgstr "На уровень вверх"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:383
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:751
 #, fuzzy
 msgid "Home directory"
-msgstr "Папка:"
+msgstr "Домашняя папка"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:384
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:752
 #, fuzzy
 msgid "Work directory"
-msgstr "Папка:"
+msgstr "Рабочая папка"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:388
 #, fuzzy
 msgid "Sorting"
-msgstr "&Сортировать"
+msgstr "Сортировка"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:390
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:766
 #, fuzzy
 msgid "Ignore case"
-msgstr "Нижний регистр"
+msgstr "Игнорировать регистр"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:391
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:777
 msgid "Hidden files"
-msgstr ""
+msgstr "Скрытые файлы"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:394
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:785
 msgid "Bookmarks"
-msgstr ""
+msgstr "Закладки"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:395
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:788
 msgid "Set bookmark"
-msgstr ""
+msgstr "Установить закладку"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:396
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:789
 #, fuzzy
 msgid "Clear bookmarks"
-msgstr "&Очистить закладки\t\tОчистить закладки."
+msgstr "Очистить закладки"
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:412
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:805
 #, fuzzy
 msgid "New directory..."
-msgstr "Папка:"
+msgstr "Новая папка..."
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:413
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:807
 msgid "Copy..."
-msgstr ""
+msgstr "Копировать..."
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:414
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:808
 msgid "Move..."
-msgstr ""
+msgstr "Переместить..."
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:415
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:809
 msgid "Link..."
-msgstr ""
+msgstr "Создать ссылку..."
 
 #: ../../../../fox-1.7.29/lib/FXDirSelector.cpp:416
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:810
 msgid "Delete..."
-msgstr ""
+msgstr "Удалить..."
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:209
 #, fuzzy
 msgid "Name\tName"
-msgstr "Имя"
+msgstr "Имя\tИмя"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:210
 #, fuzzy
 msgid "Type\tFile type"
-msgstr "Тип файла"
+msgstr "Тип\tТип файла"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:211
 msgid "Size\tFile size"
-msgstr ""
+msgstr "Размер\tРазмер файла"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:212
 msgid "Modified Date\tDate when last modified"
-msgstr ""
+msgstr "Дата зменение\tДата последнего изменения"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:213
 #, fuzzy
 msgid "User\tUser name"
-msgstr "Логин:"
+msgstr "Логин\tИмя пользователя"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:214
 msgid "Group\tGroup name"
-msgstr ""
+msgstr "Группа\tИмя группы"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:215
 msgid "Attributes\tFile attributes"
-msgstr ""
+msgstr "Атрибуты\tАтрибуты файла"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:217
 msgid "Link\tSymbolic link to"
-msgstr ""
+msgstr "Сслыка\tСимволическая ссылка на"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:695
 #, fuzzy
 msgid "Move Here"
-msgstr "Удалить жанр?"
+msgstr "Переместить сюда"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:696
 msgid "Copy Here"
-msgstr ""
+msgstr "Скопировать сюда"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:697
 msgid "Link Here"
-msgstr ""
+msgstr "Создать ссылку здесь"
 
 #: ../../../../fox-1.7.29/lib/FXFileList.cpp:699
 #, fuzzy
 msgid "Cancel"
-msgstr "&Отменить"
+msgstr "Отменить"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:274
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:938
 msgid "All Files (*)"
-msgstr ""
+msgstr "Все файлы (*)"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:526
 #, fuzzy
 msgid "Create new directory with name: "
-msgstr "\tСоздать новую папку\tСоздать новую папку."
+msgstr "Создать новую папку с именем: "
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:529
 #, c-format
 msgid "File or directory %s already exists.\n"
-msgstr ""
+msgstr "Файл или папка %s уже существует.\n"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:533
 #, fuzzy, c-format
 msgid "Cannot create directory %s.\n"
-msgstr "Невозможно создать папку %s\n"
+msgstr "Невозможно создать папку %s.\n"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:602
 #, c-format
@@ -2129,16 +2129,21 @@ msgid ""
 "\n"
 "to: "
 msgstr ""
+"Переименовать файл из:\n"
+"\n"
+"%s\n"
+"\n"
+"в: "
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:603
 #, fuzzy
 msgid "Rename File"
-msgstr "Переименовать аудио-файлы?"
+msgstr "Переименовать файл"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:609
 #, fuzzy
 msgid "Error Renaming File"
-msgstr "Переименовывание аудио-файлов…"
+msgstr "Ошибка переименования файла"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:609
 #, c-format
@@ -2149,6 +2154,11 @@ msgid ""
 "\n"
 "Continue with operation?"
 msgstr ""
+"Невозможно переименовать файл:\n"
+"\n"
+"%s  в:  %s\n"
+"\n"
+"Продолжить?" 
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:625
 #, c-format
@@ -2159,6 +2169,11 @@ msgid ""
 "\n"
 "to location: "
 msgstr ""
+"Копировать файл из:\n"
+"\n"
+"%s\n"
+"\n"
+"в: "
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:632
 #, c-format
@@ -2169,6 +2184,11 @@ msgid ""
 "\n"
 "Continue with operation?"
 msgstr ""
+"Невозможно скопировать файл:\n"
+"\n"
+"%s  в:  %s\n"
+"\n"
+"Продолжить?" 
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:648
 #, c-format
@@ -2189,6 +2209,11 @@ msgid ""
 "\n"
 "Continue with operation?"
 msgstr ""
+"Невозможно переместить файл:\n"
+"\n"
+"%s  в:  %s\n"
+"\n"
+"Продолжить?"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:671
 #, c-format
@@ -2199,6 +2224,11 @@ msgid ""
 "\n"
 "to location: "
 msgstr ""
+"Создать ссылку на файл:\n"
+"\n"
+"%s\n"
+"\n"
+"в: "
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:678
 #, c-format
@@ -2209,10 +2239,15 @@ msgid ""
 "\n"
 "Continue with operation?"
 msgstr ""
+"Невозможно создать ссылку на файл:\n"
+"\n"
+"%s  в:  %s\n"
+"\n"
+"Продолжить?"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:694
 msgid "Deleting files"
-msgstr ""
+msgstr "Удаления фалов"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:694
 #, fuzzy, c-format
@@ -2220,7 +2255,9 @@ msgid ""
 "Are you sure you want to delete the file:\n"
 "\n"
 "%s"
-msgstr "Вы уверены, что хотите удалить плейлист?"
+msgstr "Вы уверены, что хотите файл:\n"
+"\n"
+"%s"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:698
 #, c-format
@@ -2231,113 +2268,118 @@ msgid ""
 "\n"
 "Continue with operation?"
 msgstr ""
+"Невозможно удалить файл:\n"
+"\n"
+"%s\n"
+"\n"
+"Продолжить?"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:753
 #, fuzzy
 msgid "Select all"
-msgstr "Выбрать файл"
+msgstr "Выбрать все"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:757
 #, fuzzy
 msgid "Sort by"
-msgstr "&Сортировать"
+msgstr "Сортировать по"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:762
 #, fuzzy
 msgid "User"
-msgstr "Логин:"
+msgstr "Логин"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:763
 msgid "Group"
-msgstr ""
+msgstr "Группа"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:769
 #, fuzzy
 msgid "View"
-msgstr "&Вид"
+msgstr "Вид"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:770
 msgid "Small icons"
-msgstr ""
+msgstr "Маленькие значки"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:771
 msgid "Big icons"
-msgstr ""
+msgstr "Большие значки"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:772
 msgid "Details"
-msgstr ""
+msgstr "Детильный"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:774
 msgid "Rows"
-msgstr ""
+msgstr "Строки"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:775
 msgid "Columns"
-msgstr ""
+msgstr "Колонки"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:778
 msgid "Preview images"
-msgstr ""
+msgstr "Предпросмотр"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:780
 #, fuzzy
 msgid "Normal images"
-msgstr "Нормальный"
+msgstr "Нормальные изобржения"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:781
 #, fuzzy
 msgid "Medium images"
-msgstr "Средний"
+msgstr "Средние изображения"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:782
 msgid "Giant images"
-msgstr ""
+msgstr "Большие изображения"
 
 #: ../../../../fox-1.7.29/lib/FXFileSelector.cpp:806
 #, fuzzy
 msgid "Rename..."
-msgstr "&Переименовать"
+msgstr "Переименовать..."
 
 #: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:109
 msgid "&Replace"
-msgstr ""
+msgstr "Заменить"
 
 #: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:110
 #, fuzzy
 msgid "Re&place All"
-msgstr "&Удалить все"
+msgstr "Заменить все"
 
 #: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:119
 msgid "S&earch for:"
-msgstr ""
+msgstr "Искать:"
 
 #: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:127
 #, fuzzy
 msgid "Replace &with:"
-msgstr "Выравнивание громкости:"
+msgstr "Заменить на:"
 
 #: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:136
 msgid "Ex&act"
-msgstr ""
+msgstr "Точно"
 
 #: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:137
 msgid "&Ignore Case"
-msgstr ""
+msgstr "Игнорировать регистр"
 
 #: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:138
 msgid "E&xpression"
-msgstr ""
+msgstr "Вырежение"
 
 #: ../../../../fox-1.7.29/lib/FXReplaceDialog.cpp:139
 msgid "&Backward"
-msgstr ""
+msgstr "Назад"
 
 #: ../../../../fox-1.7.29/lib/FXSearchDialog.cpp:69
 msgid "&Search"
-msgstr ""
+msgstr "Поиск"
 
 #: ../../../../fox-1.7.29/lib/FXStatusLine.cpp:79
 #, fuzzy
 msgid "Ready."
-msgstr "Только чтение"
+msgstr "Готово."
