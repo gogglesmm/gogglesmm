@@ -1331,8 +1331,10 @@ DecoderStatus MadDecoder::process(Packet*in){
         if (eos) {
           GM_DEBUG_PRINT("[mad_decoder] post end of stream %d\n",streamid);
           if (out && out->numFrames()) {
-             if (stream_offset_end)
-              out->trimFrames(stream_offset_end);
+             if (stream_offset_end) {             
+              FXASSERT(out->numFrames()>=stream_offset_end); // FIXME
+              out->trimFrames(FXMIN(out->numFrames(),stream_offset_end));
+              }
              engine->output->post(out);
              out=NULL;
              }
