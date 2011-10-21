@@ -130,20 +130,24 @@ check_reswrap()
 {
   # Configure Reswrap
   #------------------
-  RESCMD=$(${PKG_PREFIX}/bin/reswrap -v 2>&1)
+  echo "    Checking Reswrap ... "
+  COMMAND=${RESWRAP:-${PKG_PREFIX}/bin/reswrap}
+  if [ ! -x $COMMAND ] ; then
+    echo "Missing reswrap"
+    exit 1
+  fi
+  RESCMD=$(${COMMAND} -v 2>&1)
   RESVERSION=$(echo ${RESCMD} | cut -d" " -f2)
   RESWRAP_MAJOR=$(echo ${RESVERSION} | cut -d. -f1)
 
-  if [ -d icons ] ; then
-    if [ $RESWRAP_MAJOR = "5" ] ; then
-      RESWRAP_H="${PKG_PREFIX}/bin/reswrap --keep-ext --header"
-      RESWRAP_CPP="${PKG_PREFIX}/bin/reswrap --keep-ext --source --extern"
-      RESWRAP_TEXT="${PKG_PREFIX}/bin/reswrap -t --keep-ext"
-    else
-      RESWRAP_H="${PKG_PREFIX}/bin/reswrap -i -k"
-      RESWRAP_CPP="${PKG_PREFIX}/bin/reswrap -e -k"
-      RESWRAP_TEXT="${PKG_PREFIX}/bin/reswrap -t -k"
-    fi
+  if [ $RESWRAP_MAJOR = "5" ] ; then
+    RESWRAP_H="${PKG_PREFIX}/bin/reswrap --keep-ext --header"
+    RESWRAP_CPP="${PKG_PREFIX}/bin/reswrap --keep-ext --source --extern"
+    RESWRAP_TEXT="${PKG_PREFIX}/bin/reswrap -t --keep-ext"
+  else
+    RESWRAP_H="${PKG_PREFIX}/bin/reswrap -i -k"
+    RESWRAP_CPP="${PKG_PREFIX}/bin/reswrap -e -k"
+    RESWRAP_TEXT="${PKG_PREFIX}/bin/reswrap -t -k"
   fi
 }
 
