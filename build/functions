@@ -141,13 +141,13 @@ check_reswrap()
   RESWRAP_MAJOR=$(echo ${RESVERSION} | cut -d. -f1)
 
   if [ $RESWRAP_MAJOR = "5" ] ; then
-    RESWRAP_H="${PKG_PREFIX}/bin/reswrap --keep-ext --header"
-    RESWRAP_CPP="${PKG_PREFIX}/bin/reswrap --keep-ext --source --extern"
-    RESWRAP_TEXT="${PKG_PREFIX}/bin/reswrap -t --keep-ext"
+    RESWRAP_H="${COMMAND}--keep-ext --header"
+    RESWRAP_CPP="${COMMAND} --keep-ext --source --extern"
+    RESWRAP_TEXT="${COMMAND} -t --keep-ext"
   else
-    RESWRAP_H="${PKG_PREFIX}/bin/reswrap -i -k"
-    RESWRAP_CPP="${PKG_PREFIX}/bin/reswrap -e -k"
-    RESWRAP_TEXT="${PKG_PREFIX}/bin/reswrap -t -k"
+    RESWRAP_H="${COMMAND} -i -k"
+    RESWRAP_CPP="${COMMAND} -e -k"
+    RESWRAP_TEXT="${COMMAND} -t -k"
   fi
 }
 
