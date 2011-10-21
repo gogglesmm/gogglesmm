@@ -269,9 +269,9 @@ echo "Name: libgaplayer"                                >> $GAP_PKGCONFIG
 echo "Description: Goggles Audio Player Library"        >> $GAP_PKGCONFIG
 echo "URL: http://gogglesmm.googlecode.com"             >> $GAP_PKGCONFIG
 echo "Version: ${GAP_MAJOR}.${GAP_MINOR}"               >> $GAP_PKGCONFIG
-echo "Requires: fox17 >= 1.7.0"                           >> $GAP_PKGCONFIG
-echo "Libs: -L\${libdir} -lgaplayer-${GAP_MAJOR}"            >> $GAP_PKGCONFIG
-echo "Cflags: -I\${includedir}/gaplayer-${GAP_MAJOR}"        >> $GAP_PKGCONFIG
+echo "Requires: fox17 >= 1.7.28"                        >> $GAP_PKGCONFIG
+echo "Libs: -L\${libdir} -lgaplayer-${GAP_MAJOR}"       >> $GAP_PKGCONFIG
+echo "Cflags: -I\${includedir}/gaplayer-${GAP_MAJOR}"   >> $GAP_PKGCONFIG
 
 # Generate version file
 #------------------------
