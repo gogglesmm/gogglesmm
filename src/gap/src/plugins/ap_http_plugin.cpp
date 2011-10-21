@@ -301,7 +301,7 @@ FXbool HttpInput::open(const FXString & hostname,FXint port) {
 
 /// Maybe move to memory stream
 FXbool HttpInput::next_header(FXString & header) {
-  FXchar * buf  = (FXchar*)buffer.sr;
+  FXchar * buf  = (FXchar*)buffer.data();
   FXint    len  = buffer.size();
   FXint    sz=0;
   FXint    end=0;
@@ -346,7 +346,7 @@ FXbool HttpInput::next_header(FXString & header) {
     else {
       header.clear();
       }
-    if (end>0) buffer.read(end);
+    if (end>0) buffer.readBytes(end);
     }
   return found;
   }

@@ -720,7 +720,7 @@ FXbool MadReader::readFrame(Packet * packet,const mpeg_frame & frame) {
     packet->unref();
     return false;
     }
-  packet->wrote(frame.size());
+  packet->wroteBytes(frame.size());
   return true;
   }
 
@@ -1078,7 +1078,7 @@ ReadStatus MadReader::process(Packet*packet) {
         status=ReadDone;
         goto done;
         }
-      packet->wrote(frame.size());
+      packet->wroteBytes(frame.size());
       stream_position+=frame.nsamples();
       if (engine->input->read(buffer,4)!=4){
         packet->flags|=FLAG_EOS;
@@ -1299,14 +1299,14 @@ DecoderStatus MadDecoder::process(Packet*in){
     if (in->size()) {
       if (buffer.size()) {
         if (stream.next_frame!=NULL)
-          buffer.trimBefore(stream.next_frame);
+          buffer.setReadPosition(stream.next_frame);
         }
       else {
         stream_position=in->stream_position;
         }
       buffer.append(in->data(),in->size());
       }
-    if (eos) buffer.appendZero(MAD_BUFFER_GUARD);
+    if (eos) buffer.append((FXchar)0,MAD_BUFFER_GUARD);
     mad_stream_buffer(&stream,buffer.data(),buffer.size());
     }
 

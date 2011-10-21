@@ -26,7 +26,7 @@ namespace ap {
 
 class VorbisDecoder : public DecoderPlugin{
 protected:
-  MemoryStream buffer;
+  MemoryBuffer buffer;
 protected:
   FXbool get_next_packet();
   FXbool is_vorbis_header();
@@ -118,12 +118,12 @@ FXbool VorbisDecoder::get_next_packet() {
   if (buffer.size() && buffer.size()>=(FXival)sizeof(ogg_packet)) {
     buffer.read((FXuchar*)&op,sizeof(ogg_packet));
     if (buffer.size()<op.bytes) {
-      buffer.sr-=sizeof(ogg_packet);
+      buffer.readBytes(-sizeof(ogg_packet));
       return false;
       }
 
-    op.packet=buffer.sr;
-    buffer.sr+=op.bytes;
+    op.packet=(FXuchar*)buffer.data();
+    buffer.readBytes(op.bytes);
     return true;
     }
   return false;
@@ -158,7 +158,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
   FXuchar * data_ptr = NULL;
   if (stream_position==-1) {
     GM_DEBUG_PRINT("stream position unknown\n");
-    data_ptr = buffer.sr;
+    data_ptr = buffer.data();
     nsamples = 0;
     }
 
@@ -178,7 +178,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         }
 
       if (data_ptr)
-        data_ptr = buffer.sr;
+        data_ptr = buffer.data();
       }
     else {
 
@@ -210,7 +210,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 //          stream_position=0;
 //          }
 
-        buffer.sr=data_ptr;
+        buffer.setReadPosition(data_ptr);
         data_ptr=NULL;
         vorbis_synthesis_restart(&dsp);
 
@@ -269,7 +269,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
   /// Reset read ptr if we're still looking for the stream position..
   if (data_ptr) {
-    buffer.sr=data_ptr;
+    buffer.setReadPosition(data_ptr);
     if (has_dsp) vorbis_synthesis_restart(&dsp);
     }
 

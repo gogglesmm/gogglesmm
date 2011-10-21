@@ -92,7 +92,7 @@ ReadStatus WavReader::process(Packet*packet) {
     }
 
   packet->af              = af;
-  packet->wrote(nread);
+  packet->wroteBytes(nread);
   packet->stream_position = static_cast<FXint>( (engine->input->position()-input_start-nread) / af.framesize() );
   packet->stream_length   = stream_length;
   if (engine->input->eof())

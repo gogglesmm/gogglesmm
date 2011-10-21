@@ -31,7 +31,7 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
     }
   else if (nread==0) {
     packet->af=af;
-    packet->wrote(nread);
+    packet->wroteBytes(nread);
     packet->stream_position  = -1;
     packet->stream_length    = 0;
     packet->flags = FLAG_EOS;
@@ -40,7 +40,7 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
     }
   else {
     packet->af=af;
-    packet->wrote(nread);
+    packet->wroteBytes(nread);
     packet->flags = 0;
     packet->stream_position = -1;
     packet->stream_length   = 0;
@@ -176,9 +176,9 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
       else
         return ap_asf_reader(engine);
       }
-      
+
                             }
-      
+
 #endif
 
 

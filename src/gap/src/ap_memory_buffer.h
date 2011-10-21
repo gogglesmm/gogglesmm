@@ -3,6 +3,98 @@
 
 namespace ap {
 
+
+class MemoryBuffer {
+protected:
+  FXchar * buffer;
+  FXival   buffersize;
+  FXchar * rdptr;
+  FXchar * wrptr;
+public:
+  // Constructor
+  MemoryBuffer(FXival cap=4096);
+
+  // Construct initialized from other buffer
+  MemoryBuffer(const MemoryBuffer &);
+
+  // Assignment operator
+  MemoryBuffer& operator=(const MemoryBuffer&);
+
+  // Append operator
+  MemoryBuffer& operator+=(const MemoryBuffer&);
+
+  // Adopt from buffer
+  void adopt(MemoryBuffer &);
+
+  // Make room for nbytes
+  void reserve(FXival nbytes);
+
+  // Clear buffer and reset to nbytes
+  void reset(FXival nbytes=4096);
+
+  // Clear buffer
+  void clear();
+
+  // Number of unread bytes
+  FXival size() const { return (wrptr-rdptr); }
+
+  // Number of bytes that can be written
+  FXival space() const { return buffersize - (wrptr-buffer); }
+
+  // Size of the buffer
+  FXival capacity() const { return buffersize; }
+
+  // Read nbytes
+  FXival read(void * bytes,FXival nbytes);
+
+  // Read nbytes without advancing the read ptr.
+  FXival peek(void * bytes,FXival nbytes);
+
+  // Append bytes of nbytes.
+  void append(const void * bytes,FXival nbytes);
+
+  // Append constant nbytes.
+  void append(const FXchar c, FXival nbytes=1);
+
+  // Wrote nbytes. Updates the wrptr
+  void wroteBytes(FXival nbytes);
+
+  // Read nbytes. Update the rdptr
+  void readBytes(FXival nbytes);
+
+  /// Trim nbytes at beginning
+  void trimBegin(FXival nbytes);
+
+  /// Trim nbytes at end
+  void trimEnd(FXival nbytes);
+
+
+  /// Index into array
+  const FXchar& operator[](FXint i) const { return rdptr[i]; }
+
+  /// Return write pointer
+  FXuchar* ptr() { return (FXuchar*)wrptr; }
+  const FXuchar* ptr() const { return (FXuchar*)wrptr; }
+
+  FXfloat * flt() { return reinterpret_cast<FXfloat*>(wrptr); }
+  FXchar  * s8()  { return reinterpret_cast<FXchar*>(wrptr); }
+  FXshort * s16() { return reinterpret_cast<FXshort*>(wrptr); }
+  FXint   * s32() { return reinterpret_cast<FXint*>(wrptr); }
+
+  /// Return pointer to buffer
+  FXuchar* data() { return (FXuchar*)rdptr; }
+  const FXuchar* data() const { return (const FXuchar*)rdptr; }
+
+  void setReadPosition(const FXuchar *p) { rdptr=(FXchar*)p; }
+
+  // Destructor
+  ~MemoryBuffer();
+  };
+#if 0
+
+
+
+
 class MemoryBuffer {
 protected:
   FXuchar * data_buffer;
@@ -115,6 +207,7 @@ public:
   ~MemoryStream();
   };
 
+#endif
 }
 
 #endif

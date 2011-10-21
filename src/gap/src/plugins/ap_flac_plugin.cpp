@@ -561,7 +561,7 @@ FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamD
     ncopy=FXMIN(nbytes,packet->size());
     memcpy(&buffer[p],packet->data(),ncopy);
     nbytes-=ncopy;
-    packet->read(ncopy);
+    packet->readBytes(ncopy);
 
 //    packet->size-=ncopy;
     p+=ncopy;

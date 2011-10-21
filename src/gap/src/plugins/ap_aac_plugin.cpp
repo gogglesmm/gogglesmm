@@ -174,7 +174,7 @@ ReadStatus MP4Reader::process(Packet*p) {
       packet->unref();
       return ReadError;
       }
-    packet->wrote(size);
+    packet->wroteBytes(size);
 
 
     if (frame==nframes-1)
@@ -371,7 +371,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
       handle = NeAACDecOpen();
       long n = NeAACDecInit(handle,buffer.data(),buffer.size(),&samplerate,&channels);
       if (n<0) return DecoderError;
-      else if (n>0) buffer.read(n);
+      else if (n>0) buffer.readBytes(n);
 
       af.set(AP_FORMAT_S16,samplerate,channels);
       engine->output->post(new ConfigureEvent(af,Codec::AAC));
@@ -396,7 +396,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
     void * outbuffer = out->ptr();
     NeAACDecDecode2(handle,&frame,buffer.data(),buffer.size(),&outbuffer,out->availableFrames()*out->af.framesize());
     if (frame.bytesconsumed>0) {
-      buffer.read(frame.bytesconsumed);
+      buffer.readBytes(frame.bytesconsumed);
       }
 
 	  if (frame.error > 0) {

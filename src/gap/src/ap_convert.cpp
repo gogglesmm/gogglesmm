@@ -57,13 +57,13 @@ static FXint float_to_s32(FXfloat x) {
 
 void s16_to_s32(const FXuchar *buffer,FXuint nsamples,MemoryBuffer & out) {
   out.clear();
-  out.grow(nsamples*4);
+  out.reserve(nsamples*4);
   FXint  * output = out.s32();
   const FXshort * input = reinterpret_cast<const FXshort*>(buffer);
   for (FXuint i=0;i<nsamples;i++) {
     output[i]=s16_to_s32(input[i]);
     }
-  out.wrote(nsamples*4);
+  out.wroteBytes(nsamples*4);
   }
 
 void s24le3_to_s16(FXuchar * input,FXuint nsamples) {
@@ -84,12 +84,12 @@ void float_to_s16(FXuchar * buffer,FXuint nsamples){
 
 void s24le3_to_s32(const FXuchar * input,FXuint nsamples,MemoryBuffer & out){
   out.clear();
-  out.grow(nsamples*4);
+  out.reserve(nsamples*4);
   FXint * output = out.s32();
   for (FXuint i=0;i<nsamples;i++,input+=3) {
     output[i] = s24_to_s32(input[0]|input[1]<<8|input[2]<<16);
     }
-  out.wrote(nsamples*4);
+  out.wroteBytes(nsamples*4);
   }
 
 void float_to_s32(FXuchar * buffer,FXuint nsamples){

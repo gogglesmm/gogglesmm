@@ -6,193 +6,163 @@
 
 namespace ap {
 
-MemoryBuffer::MemoryBuffer(FXival cap) : data_buffer(NULL),data_capacity(cap),data_size(0) {
-  allocElms(data_buffer,data_capacity);
+MemoryBuffer::MemoryBuffer(FXival cap) :
+  buffer(NULL),
+  buffersize(0),
+  rdptr(NULL),
+  wrptr(NULL) {
+  reserve(cap);
   }
 
-void MemoryBuffer::append(const void *buf,FXival sz) {
-  if (data_capacity < data_size+sz ) {
-    data_capacity = ROUNDUP(data_size+sz);
-    resizeElms(data_buffer,data_capacity);
-    }
-  memcpy(&data_buffer[data_size],buf,sz);
-  data_size+=sz;
-  }
-
-
-void MemoryBuffer::appendZero(FXival sz) {
-  if (data_capacity < data_size+sz ) {
-    data_capacity = ROUNDUP(data_size+sz);
-    resizeElms(data_buffer,data_capacity);
-    }
-  memset(&data_buffer[data_size],0,sz);
-  data_size+=sz;
-  }
-
-void MemoryBuffer::wrote(FXival sz) {
-  FXASSERT(data_capacity>=data_size+sz);
-  data_size+=sz;
-  }
-
-
-void MemoryBuffer::read(FXival sz) {
-  if (sz<data_size) {
-    memmove(data_buffer,data_buffer+sz,data_size-sz);
-    data_size-=sz;
-    }
-  else {
-    data_size=0;
-    }
-  }
-
-
-void MemoryBuffer::trimBegin(FXival sz) {
-  FXASSERT(sz<=data_size);
-  memmove(data_buffer,data_buffer+sz,data_size-sz);
-  data_size-=sz;
-  }
-
-void MemoryBuffer::trimEnd(FXival sz) {
-  data_size-=sz;
-  if (data_size<0) data_size=0;
-  }
-
-
-
-void MemoryBuffer::trimBefore(const FXuchar * p) {
-  FXASSERT(p>=data_buffer && p<(data_buffer+data_size));
-  if (p>data_buffer && p<data_buffer+data_size) {
-    memmove(data_buffer,p,(data_buffer+data_size)-p);
-    data_size=(data_buffer+data_size)-p;
-    }
-  }
-
-void MemoryBuffer::clear() {
-  data_size=0;
-  memset(data_buffer,0,data_capacity);
+MemoryBuffer::MemoryBuffer(const MemoryBuffer & other) :
+  buffer(NULL),
+  buffersize(0),
+  rdptr(NULL),
+  wrptr(NULL) {
+  reserve(other.capacity());
+  append(other.data(),other.size());
   }
 
 MemoryBuffer::~MemoryBuffer() {
-  freeElms(data_buffer);
-  }
-
-void MemoryBuffer::stats() {
-  fxmessage("buffer %ld / %ld\n",data_size,data_capacity);
-  }
-/*
-void MemoryBuffer::grow(FXival sz) {
-  if (data_capacity<ROUNDUP(data_capacity+sz)){
-    data_capacity=ROUNDUP(data_capacity+sz);
-    resizeElms(data_buffer,data_capacity);
-    }
-  }
-*/
-void MemoryBuffer::grow(FXival sz) {
-  if (data_capacity<ROUNDUP(sz)) {
-    data_capacity=ROUNDUP(sz);
-    resizeElms(data_buffer,data_capacity);
-    }
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-MemoryStream::MemoryStream(FXival cap) : buffer(NULL),buffersize(cap),sr(NULL),sw(NULL){
-  if (buffersize) {
-    allocElms(buffer,buffersize);
-    sr=sw=buffer;
-    }
-  }
-
-MemoryStream::~MemoryStream() {
   freeElms(buffer);
-  sr=sw=NULL;
+  buffersize=0;
+  wrptr=rdptr=NULL;
   }
 
-void MemoryStream::clear() {
-  sr=sw=buffer;
+// Assignment operator
+MemoryBuffer& MemoryBuffer::operator=(const MemoryBuffer& other) {
+  clear();
+  reserve(other.capacity());
+  append(other.data(),other.size());
+  return *this;
   }
 
-void MemoryStream::append(const void *buf,FXival sz) {
-  reserve(sz);
-  memcpy(sw,buf,sz);
-  sw+=sz;
-  }
-
-void MemoryStream::padding(FXival sz) {
-  reserve(sz);
-  memset(sw,0,sz);
-  sw+=sz;
-  }
-
-
-FXival MemoryStream::read(void *buf,FXival sz) {
-  FXival n=FXMIN(sz,size());
-  memcpy(buf,sr,n);
-  sr+=n;
-  return n;
-  }
-
-FXival MemoryStream::copy(void *buf,FXival sz) {
-  FXival n=FXMIN(sz,size());
-  memcpy(buf,sr,n);
-  return n;
+// Append operator
+MemoryBuffer& MemoryBuffer::operator+=(const MemoryBuffer& other) {
+  reserve(other.capacity());
+  append(other.data(),other.size());
+  return *this;
   }
 
 
-void MemoryStream::wrote(FXival sz) {
-  FXASSERT(sz<(buffersize-(sw-buffer)));
-  sw+=sz;
+void MemoryBuffer::adopt(MemoryBuffer & other) {
+
+  // Take over
+  buffer=other.buffer;
+  buffersize=other.buffersize;
+  rdptr=other.rdptr;
+  wrptr=other.wrptr;
+
+  // Reset Other
+  other.buffer=other.rdptr=other.wrptr=NULL;
+  other.buffersize=0;
   }
 
-void MemoryStream::read(FXival sz) {
-  FXASSERT(sz<=size());
-  sr+=sz;
+
+// Clear
+void MemoryBuffer::clear() {
+  wrptr=rdptr=buffer;
+  }
+
+// Clear and reset
+void MemoryBuffer::reset(FXival nbytes) {
+  clear();
+  if (buffersize!=nbytes) {
+    buffersize=nbytes;
+    resizeElms(buffer,buffersize);
+    wrptr=rdptr=buffer;
+    }
   }
 
 
-void MemoryStream::reserve(FXival sz) {
-  if (buffer) {
-    FXival sp = (buffersize-(sw-buffer));
-    if (sp<sz) {
-      if (sr>buffer) {
-        if (sw>sr) {
-          memmove(buffer,sr,sw-sr);
-          sw-=(sr-buffer);
-          sr=buffer;
-          }
-        else {
-          sw=sr=buffer;
+// Make room for needed bytes
+void MemoryBuffer::reserve(FXival needed) {
+  if (needed>0) {
+    if (buffer) {
+      FXival avail = space();
+
+      /// Check if we can move back rdptr/wrptr
+      if (avail<needed) {
+        if (rdptr>buffer) {
+          if (wrptr>rdptr) {
+            memmove(buffer,rdptr,wrptr-rdptr);
+            wrptr-=(rdptr-buffer);
+            rdptr = buffer;
+            avail = space();
+            }
+          else {
+            wrptr=rdptr=buffer;
+            avail=buffersize;
+            }
           }
         }
+
+      /// Still not enough space, resize buffer
+      if (avail<needed) {
+        buffersize=ROUNDUP(buffersize+(needed-avail));
+        avail=wrptr-buffer;
+        resizeElms(buffer,buffersize);
+        wrptr=rdptr=buffer;
+        wrptr+=avail;
+        }
       }
-    sp = (buffersize-(sw-buffer));
-    if (sp<sz) {
-      buffersize+=sz-sp;
-      sp=sw-buffer;
-      resizeElms(buffer,buffersize);
-      sw=sr=buffer;
-      sw+=sp;
+    else {
+      buffersize=needed;
+      allocElms(buffer,buffersize);
+      wrptr=rdptr=buffer;
       }
-    }
-  else {
-    buffersize=sz;
-    allocElms(buffer,buffersize);
-    sw=sr=buffer;
+    }    
+  }
+
+
+void MemoryBuffer::readBytes(FXival nbytes) {
+  FXASSERT(nbytes<=size());
+  rdptr+=nbytes;
+  }
+
+void MemoryBuffer::wroteBytes(FXival nbytes) {
+  FXASSERT(nbytes<=space());
+  wrptr+=nbytes;
+  }
+
+void MemoryBuffer::append(const void * b,FXival nbytes) {
+  if (nbytes) {
+    reserve(nbytes);
+    memcpy(wrptr,b,nbytes);
+    wrptr+=nbytes;
     }
   }
 
+void MemoryBuffer::append(const FXchar c,FXival nbytes/*=1*/) {
+  FXASSERT(nbytes>=1);
+  reserve(nbytes);
+  while(nbytes--) *wrptr++=c;
+  }
+
+
+FXival MemoryBuffer::read(void * b, FXival nbytes) {
+  //FXASSERT(nbytes<size());
+  nbytes=FXMIN(size(),nbytes);
+  memcpy(b,rdptr,nbytes);
+  readBytes(nbytes);
+  return nbytes;
+  }
+
+FXival MemoryBuffer::peek(void * b, FXival nbytes) {
+//  FXASSERT(nbytes<size());
+  nbytes=FXMIN(size(),nbytes);
+  memcpy(b,rdptr,nbytes);
+  return nbytes;
+  }
+
+
+void MemoryBuffer::trimBegin(FXival nbytes) {
+  readBytes(nbytes);
+  }
+
+void MemoryBuffer::trimEnd(FXival nbytes) {
+  FXASSERT(nbytes<=size());
+  wrptr-=nbytes;
+  }
 
 }

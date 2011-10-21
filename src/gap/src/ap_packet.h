@@ -66,7 +66,7 @@ public:
 
   FXint availableFrames() const { return space() / af.framesize(); }
 
-  void wroteFrames(FXint nframes) { wrote(nframes*af.framesize()); }
+  void wroteFrames(FXint nframes) { wroteBytes(nframes*af.framesize()); }
 
   void appendFrames(const FXuchar * buf,FXival nframes) { append(buf,af.framesize()*nframes); }
 

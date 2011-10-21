@@ -86,7 +86,7 @@ FXival InputPlugin::fillBuffer(FXival count) {
   buffer.reserve(count);
   FXival nread = InputPlugin::readBlock(buffer.ptr(),count,false);
   if (nread>0)
-    buffer.wrote(nread);
+    buffer.wroteBytes(nread);
   return nread;
   }
 
@@ -126,7 +126,7 @@ FXival InputPlugin::preview(void*data,FXival count) {
   if (serial() || buffer.size()) {
     if (buffer.size()<count)
       fillBuffer(count-buffer.size());
-    return buffer.copy(data,count);
+    return buffer.peek(data,count);
     }
   else { // no need to buffer if we have non-serial streams
     FXlong readpos = position();

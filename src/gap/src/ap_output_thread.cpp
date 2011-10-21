@@ -469,7 +469,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
 
 static FXbool mono_to_stereo(FXuchar * in,FXuint nsamples,FXuchar bps,MemoryBuffer & out){
   out.clear();
-  out.grow(nsamples*bps*2);
+  out.reserve(nsamples*bps*2);
   for (FXuint i=0;i<nsamples*bps;i+=bps) {
     out.append(&in[i],bps);
     out.append(&in[i],bps);
@@ -585,13 +585,13 @@ void OutputThread::resample(Packet * packet,FXint & nframes) {
   srcdata.output_frames= (FXint)((FXdouble)srcdata.input_frames*srcdata.src_ratio);
   srcdata.end_of_input = 0;
 
-  converted_samples.grow(framesize*srcdata.output_frames);
+  converted_samples.reserve(framesize*srcdata.output_frames);
 
   if (src_process(src_state,&srcdata)==0) {
     fxmessage("converted %ld|%ld|%d\n",srcdata.output_frames_gen,srcdata.input_frames_used,packet->numFrames());
     if (srcdata.input_frames_used) {
       if ((srcdata.input_frames_used*framesize)<src_input.size())
-        src_input.trimBefore(src_input.data ()+ (srcdata.input_frames_used*framesize));
+        src_input.trimBegin((srcdata.input_frames_used*framesize));
       else
         src_input.clear();
       }

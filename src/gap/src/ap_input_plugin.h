@@ -8,7 +8,7 @@ class InputThread;
 class InputPlugin {
 protected:
   InputThread*  input;
-  MemoryStream  buffer;
+  MemoryBuffer  buffer;
 private:
   InputPlugin(const InputPlugin&);
   InputPlugin &operator=(const InputPlugin&);

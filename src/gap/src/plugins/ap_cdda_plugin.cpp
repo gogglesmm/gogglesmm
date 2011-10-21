@@ -176,7 +176,7 @@ ReadStatus CDDAReader::process(Packet * packet) {
   FXint nread = engine->input->read(packet->data(),n);
   if (nread) {
 //    fxmessage("got %d\n",nread);
-    packet->wrote(CDIO_CD_FRAMESIZE_RAW*nread);
+    packet->wroteBytes(CDIO_CD_FRAMESIZE_RAW*nread);
     packet->af=af;
     packet->stream_position=stream_position;
     packet->stream_length=(engine->input->size()*CDIO_CD_FRAMESIZE_RAW)/af.framesize();
