@@ -70,7 +70,11 @@ DEBUG_CFLAGS=${DEBUG_CFLAGS:--g -fstack-protector-all}
 # Either override GEN_LDFLAGS, OPT_LDFLAGS and DEBUG_LDFLAGS individually
 # or set LDFLAGS which overrides all them
 #-------------------------------------------------------
-GEN_LDFLAGS=${GEN_LDFLAGS:--shared -fPIC}
+
+# always need -share -fPIC
+LDFLAGS="$LDFLAGS -shared -fPIC"
+
+GEN_LDFLAGS=${GEN_LDFLAGS:-}
 OPT_LDFLAGS=${OPT_LDFLAGS:-}
 DEBUG_LDFLAGS=${DEBUG_LDFLAGS:-}
 
@@ -175,6 +179,7 @@ for arg in $@; do
       echo "   --without-alsa                  Compile without alsa support"
       echo "   --without-oss                   Compile without oss support"
       echo "   --without-pulse                 Compile without pulseaudio support"
+      echo "   --without-jack                  Compile without jack support"
       echo "   --without-rsound                Compile without rsound support"
       echo "   --without-avcodec               Compile without avcodec support"
       echo " "
