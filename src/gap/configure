@@ -57,12 +57,17 @@ OUTPUTBIN=${OUTPUTBIN:--o }
 OBJEXT=${OBJEXT:-.o}
 SONAME=${SONAME:--Wl,-soname,}
 
+
+# We always want these flags. If you want to override this, change config.make
+CFLAGS="$CFLAGS -fPIC -fvisibility=hidden"
+LDFLAGS="$LDFLAGS -shared -fPIC"
+
 # Overriding Compiler Flags
 # Either override GEN_CFLAGS, OPT_CFLAGS and DEBUG_CFLAGS individually
 # or set CFLAGS which overrides all them
 # Handy flags: -Wdouble-promotion
 #-------------------------------------------------------
-GEN_CFLAGS=${GEN_CFLAGS:--Wall -Wextra -Wshadow -Wformat=2 -pipe -fPIC -fvisibility=hidden}
+GEN_CFLAGS=${GEN_CFLAGS:--Wall -Wextra -Wshadow -Wformat=2 -pipe}
 OPT_CFLAGS=${OPT_CFLAGS:--O3 -march=native -fstack-protector }
 DEBUG_CFLAGS=${DEBUG_CFLAGS:--g -fstack-protector-all}
 
@@ -71,8 +76,6 @@ DEBUG_CFLAGS=${DEBUG_CFLAGS:--g -fstack-protector-all}
 # or set LDFLAGS which overrides all them
 #-------------------------------------------------------
 
-# always need -share -fPIC
-LDFLAGS="$LDFLAGS -shared -fPIC"
 
 GEN_LDFLAGS=${GEN_LDFLAGS:-}
 OPT_LDFLAGS=${OPT_LDFLAGS:-}
