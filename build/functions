@@ -141,7 +141,7 @@ check_reswrap()
   RESWRAP_MAJOR=$(echo ${RESVERSION} | cut -d. -f1)
 
   if [ $RESWRAP_MAJOR = "5" ] ; then
-    RESWRAP_H="${COMMAND}--keep-ext --header"
+    RESWRAP_H="${COMMAND} --keep-ext --header"
     RESWRAP_CPP="${COMMAND} --keep-ext --source --extern"
     RESWRAP_TEXT="${COMMAND} -t --keep-ext"
   else
