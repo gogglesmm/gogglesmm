@@ -273,8 +273,8 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
     if (has_dsp) vorbis_synthesis_restart(&dsp);
     }
 
-  if (eos && out) {
-    if (out->numFrames())  {
+  if (eos) {
+    if (out && out->numFrames())  {
       engine->output->post(out);
       out=NULL;
       }
