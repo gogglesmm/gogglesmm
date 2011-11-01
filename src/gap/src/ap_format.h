@@ -94,7 +94,7 @@ enum {
   MP4               = 5,
   AAC               = 6,
   Musepack          = 7,
-  Wavpack           = 8
+  WavPack           = 8,
   CDDA              = 9,
   M3U               = 10,
   PLS               = 11,

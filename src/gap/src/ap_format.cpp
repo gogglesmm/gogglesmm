@@ -171,7 +171,7 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
   else if (comparecase(extension,"aac")==0)
     return Format::AAC;
   else if (comparecase(extension,"wv")==0)
-    return Format::Wavpack;      
+    return Format::WavPack;
   else if (comparecase(extension,"m3u")==0)
     return Format::M3U;
   else if (comparecase(extension,"pls")==0)

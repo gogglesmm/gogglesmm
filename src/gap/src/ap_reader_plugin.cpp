@@ -132,6 +132,10 @@ extern ReaderPlugin * ap_avf_reader(AudioEngine*);
 extern ReaderPlugin * ap_asx_reader(AudioEngine*);
 #endif
 
+#ifdef HAVE_WAVPACK_PLUGIN
+extern ReaderPlugin * ap_wavepack_reader(AudioEngine*);
+#endif
+
 
 ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
   switch(type){
@@ -151,6 +155,9 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #endif
 #ifdef HAVE_MUSEPACK_PLUGIN
     case Format::Musepack : return ap_musepack_reader(engine); break;
+#endif
+#ifdef HAVE_WAVPACK_PLUGIN
+    case Format::WavPack  : return ap_wavepack_reader(engine); break;
 #endif
 #ifdef HAVE_CDDA_PLUGIN
     case Format::CDDA     : return ap_cdda_reader(engine); break;
