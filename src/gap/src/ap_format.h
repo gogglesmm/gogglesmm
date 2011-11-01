@@ -94,13 +94,14 @@ enum {
   MP4               = 5,
   AAC               = 6,
   Musepack          = 7,
-  CDDA              = 8,
-  M3U               = 9,
-  PLS               = 10,
-  XSPF              = 11,
-  ASF               = 12,
-  ASX               = 13,
-  ASFX              = 14 // either ASX or ASF
+  Wavpack           = 8
+  CDDA              = 9,
+  M3U               = 10,
+  PLS               = 11,
+  XSPF              = 12,
+  ASF               = 13,
+  ASX               = 14,
+  ASFX              = 15, // either ASX or ASF
   };
 
 }
