@@ -25,7 +25,7 @@ public:
   WavPackReader(AudioEngine*);
 
   /// Init plugin
-  FXbool init();
+  FXbool init(InputPlugin*);
 
   /// Format type
   FXuchar format() const { return Format::WavPack; }
@@ -41,7 +41,8 @@ public:
 WavPackReader::WavPackReader(AudioEngine*e) : ReaderPlugin(e) {
   }
 
-FXbool WavPackReader::init() {
+FXbool WavPackReader::init(InputPlugin*plugin) {
+  ReaderPlugin::init(plugin);
   return true;
   }
 

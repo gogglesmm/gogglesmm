@@ -54,7 +54,7 @@ protected:
 public:
   M3UReader(AudioEngine*);
   ReadStatus process(Packet*);
-  FXbool init();
+  FXbool init(InputPlugin*);
   FXuchar format() const { return Format::M3U; };
   FXbool redirect(FXStringList & u) { u=uri; return true; }
   virtual ~M3UReader();
@@ -68,8 +68,8 @@ M3UReader::M3UReader(AudioEngine*e) : TextReader(e) {
 M3UReader::~M3UReader(){
   }
 
-FXbool M3UReader::init() {
-  TextReader::init();
+FXbool M3UReader::init(InputPlugin*plugin) {
+  TextReader::init(plugin);
   uri.clear();
   return true;
   }

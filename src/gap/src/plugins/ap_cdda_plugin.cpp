@@ -125,7 +125,7 @@ protected:
   FXlong stream_position;
 public:
   CDDAReader(AudioEngine*);
-  FXbool init();
+  FXbool init(InputPlugin*);
   ReadStatus process(Packet*);
   FXuchar format() const { return Format::CDDA; };
   FXbool can_seek() const;
@@ -141,7 +141,8 @@ CDDAReader::CDDAReader(AudioEngine*e) : ReaderPlugin(e) {
 CDDAReader::~CDDAReader(){
   }
 
-FXbool CDDAReader::init() {
+FXbool CDDAReader::init(InputPlugin*plugin) {
+  ReaderPlugin::init(plugin);
   datasize=0;
   input_start=0;
   flags=0;
@@ -154,8 +155,8 @@ FXbool CDDAReader::can_seek() const {
   }
 
 FXbool CDDAReader::seek(FXdouble pos){
-  stream_position=(pos*engine->input->size()*CDIO_CD_FRAMESIZE_RAW)/af.framesize();
-  engine->input->position(pos*engine->input->size(),FXIO::Begin);
+  stream_position=(pos*input->size()*CDIO_CD_FRAMESIZE_RAW)/af.framesize();
+  input->position(pos*input->size(),FXIO::Begin);
   return true;
   }
 
@@ -173,17 +174,17 @@ ReadStatus CDDAReader::process(Packet * packet) {
 
   FXint n = packet->space() / CDIO_CD_FRAMESIZE_RAW;
 
-  FXint nread = engine->input->read(packet->data(),n);
+  FXint nread = input->read(packet->data(),n);
   if (nread) {
 //    fxmessage("got %d\n",nread);
     packet->wroteBytes(CDIO_CD_FRAMESIZE_RAW*nread);
     packet->af=af;
     packet->stream_position=stream_position;
-    packet->stream_length=(engine->input->size()*CDIO_CD_FRAMESIZE_RAW)/af.framesize();
+    packet->stream_length=(input->size()*CDIO_CD_FRAMESIZE_RAW)/af.framesize();
 //    fxmessage("%ld/%ld\n",packet->stream_position,packet->stream_length);
     stream_position+=(nread*CDIO_CD_FRAMESIZE_RAW/af.framesize());
 
-    if (engine->input->eof())
+    if (input->eof())
       packet->flags=FLAG_EOS;
     else
       packet->flags=0;

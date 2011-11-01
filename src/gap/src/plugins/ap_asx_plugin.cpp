@@ -109,7 +109,7 @@ protected:
 public:
   ASXReader(AudioEngine*);
   ReadStatus process(Packet*);
-  FXbool init();
+  FXbool init(InputPlugin);
   FXuchar format() const { return Format::ASX; };
   FXbool redirect(FXStringList & u) { u=uri; return true; }
   virtual ~ASXReader();
@@ -122,8 +122,8 @@ ASXReader::ASXReader(AudioEngine*e) : TextReader(e) {
 ASXReader::~ASXReader(){
   }
 
-FXbool ASXReader::init() {
-  TextReader::init();
+FXbool ASXReader::init(InputPlugin*plugin) {
+  TextReader::init(plugin);
   uri.clear();
   return true;
   }

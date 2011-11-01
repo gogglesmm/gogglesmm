@@ -162,7 +162,7 @@ protected:
   ReadStatus parse_data(Packet*);
 public:
   ASFReader(AudioEngine*);
-  FXbool init();
+  FXbool init(InputPlugin*);
   ReadStatus process(Packet*);
 
   FXuchar format() const { return Format::ASF; };
@@ -176,7 +176,8 @@ ASFReader::ASFReader(AudioEngine*e) : ReaderPlugin(e){
 ASFReader::~ASFReader(){
   }
 
-FXbool ASFReader::init(){
+FXbool ASFReader::init(InputPlugin*plugin){
+  ReaderPlugin::init(plugin);
   return true;
   }
 

@@ -11,6 +11,7 @@
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
 #include "ap_reader_plugin.h"
+#include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -49,7 +50,7 @@ protected:
 public:
   MP4Reader(AudioEngine*);
   FXuchar format() const { return Format::MP4; };
-  FXbool init();
+  FXbool init(InputPlugin*);
   FXbool can_seek() const;
   FXbool seek(FXdouble);
   ReadStatus process(Packet*);
@@ -58,7 +59,7 @@ public:
 
 
 FXuint MP4Reader::mp4_read(void*ptr,void*data,FXuint len){
-  InputThread* input = reinterpret_cast<InputThread*>(ptr);
+  InputPlugin* input = reinterpret_cast<InputPlugin*>(ptr);
   return (FXuint) input->read(data,len);
   }
 
@@ -69,7 +70,7 @@ FXuint MP4Reader::mp4_write(void*,void*,FXuint){
   }
 
 FXuint MP4Reader::mp4_seek(void*ptr,FXulong p){
-  InputThread* input = reinterpret_cast<InputThread*>(ptr);
+  InputPlugin* input = reinterpret_cast<InputPlugin*>(ptr);
   return input->position(p,FXIO::Begin);
   //return input->position();
   }
@@ -83,23 +84,25 @@ FXuint MP4Reader::mp4_truncate(void*){
 
 
 MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e),handle(NULL),nframes(-1),track(-1) {
-  callback.read      = mp4_read;
-  callback.write     = mp4_write;
-  callback.seek      = mp4_seek;
-  callback.truncate  = mp4_truncate;
-  callback.user_data = engine->input;
   }
 
 MP4Reader::~MP4Reader(){
   if (handle) mp4ff_close(handle);
   }
 
-FXbool MP4Reader::init() {
+FXbool MP4Reader::init(InputPlugin*plugin) {
+  ReaderPlugin::init(plugin);
 
   if (handle) {
     mp4ff_close(handle);
     handle=NULL;
     }
+
+  callback.read      = mp4_read;
+  callback.write     = mp4_write;
+  callback.seek      = mp4_seek;
+  callback.truncate  = mp4_truncate;
+  callback.user_data = input;
 
   track=-1;
   frame=0;
@@ -259,7 +262,7 @@ ReaderPlugin * ap_mp4_reader(AudioEngine * engine) {
 class AACReader : public ReaderPlugin {
 public:
   AACReader(AudioEngine*e) : ReaderPlugin(e) {}
-  FXbool init() { flags=0; return true; }
+  FXbool init(InputPlugin*plugin) { ReaderPlugin::init(plugin); flags=0; return true; }
   FXuchar format() const { return Format::AAC; }
 
   ReadStatus process(Packet*p);
@@ -275,7 +278,7 @@ ReadStatus AACReader::process(Packet*packet) {
   if (!(flags&FLAG_PARSED)) {
     GM_DEBUG_PRINT("finding sync\n");
     FXuchar buffer[2];
-    if (engine->input->read(buffer,2)!=2)
+    if (input->read(buffer,2)!=2)
       return ReadError;
     do {
 //      fxmessage("0x%hhx  0x%hhx\n",buffer[0],buffer[1]);
@@ -288,7 +291,7 @@ ReadStatus AACReader::process(Packet*packet) {
         break;
         }
       buffer[0]=buffer[1];
-      if (engine->input->read(&buffer[1],1)!=1)
+      if (input->read(&buffer[1],1)!=1)
         return ReadError;
       }
     while(1);

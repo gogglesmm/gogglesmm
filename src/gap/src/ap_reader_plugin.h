@@ -4,6 +4,7 @@
 namespace ap {
 
 class Packet;
+class InputPlugin;
 
 enum ReadStatus {
   ReadError,
@@ -17,6 +18,7 @@ class ReaderPlugin {
 public:
   AudioEngine * engine;
   AudioFormat   af;
+  InputPlugin * input;
 protected:
   FXuchar flags;
   FXlong  stream_length;      /// Length of stream in samples
@@ -28,7 +30,7 @@ public:
   ReaderPlugin(AudioEngine*);
 
   /// Init plugin
-  virtual FXbool init()=0;
+  virtual FXbool init(InputPlugin*);
 
   /// Format type
   virtual FXuchar format() const=0;
@@ -59,8 +61,8 @@ class TextReader : public ReaderPlugin {
 protected:
   FXString textbuffer;
 public:
-  TextReader(AudioEngine*);  
-  FXbool init();
+  TextReader(AudioEngine*);
+  FXbool init(InputPlugin*);
   ReadStatus process(Packet*);
   virtual ~TextReader();
   };

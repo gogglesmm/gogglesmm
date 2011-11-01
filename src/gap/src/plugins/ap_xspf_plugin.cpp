@@ -127,7 +127,7 @@ protected:
 public:
   XSPFReader(AudioEngine*);
   ReadStatus process(Packet*);
-  FXbool init();
+  FXbool init(InputPlugin*);
   FXuchar format() const { return Format::XSPF; };
   FXbool redirect(FXStringList & u) { u=uri; return true; }
   virtual ~XSPFReader();
@@ -140,8 +140,8 @@ XSPFReader::XSPFReader(AudioEngine*e) : TextReader(e) {
 XSPFReader::~XSPFReader(){
   }
 
-FXbool XSPFReader::init() {
-  TextReader::init();
+FXbool XSPFReader::init(InputPlugin*plugin) {
+  TextReader::init(plugin);
   uri.clear();
   return true;
   }

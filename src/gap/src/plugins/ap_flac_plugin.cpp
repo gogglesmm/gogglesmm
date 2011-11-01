@@ -11,6 +11,7 @@
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
 #include "ap_reader_plugin.h"
+#include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -65,7 +66,7 @@ protected:
 public:
   FlacReader(AudioEngine*);
   FXuchar format() const { return Format::FLAC; };
-  FXbool init();
+  FXbool init(InputPlugin*);
   FXbool seek(FXdouble);
   FXbool can_seek() const;
   ReadStatus process(Packet*);
@@ -189,7 +190,8 @@ FlacReader::~FlacReader(){
     }
   }
 
-FXbool FlacReader::init() {
+FXbool FlacReader::init(InputPlugin*plugin) {
+  ReaderPlugin::init(plugin);
   if (flac == NULL) {
 
     flac =  FLAC__stream_decoder_new();
@@ -260,9 +262,9 @@ ReadStatus FlacReader::parse() {
   if (FLAC__stream_decoder_process_until_end_of_metadata(flac)){
 
     if (FLAC__stream_decoder_get_decode_position(flac,&pos))
-      engine->input->position(pos,FXIO::Begin);
+      input->position(pos,FXIO::Begin);
     else
-      engine->input->position(0,FXIO::Begin);
+      input->position(0,FXIO::Begin);
 
 
     ConfigureEvent * config = new ConfigureEvent(af,Codec::FLAC,stream_length);
@@ -301,7 +303,7 @@ FLAC__StreamDecoderSeekStatus FlacReader::flac_input_seek(const FLAC__StreamDeco
 //  if (inputflac->input->io->isSerial())
 //    return FLAC__STREAM_DECODER_SEEK_STATUS_UNSUPPORTED;
 
-  FXlong pos = plugin->engine->input->position(absolute_byte_offset,FXIO::Begin);
+  FXlong pos = plugin->input->position(absolute_byte_offset,FXIO::Begin);
   if (pos<0 || ((FXulong)pos)!=absolute_byte_offset)
     return FLAC__STREAM_DECODER_SEEK_STATUS_ERROR;
   else
@@ -316,7 +318,7 @@ FLAC__StreamDecoderTellStatus FlacReader::flac_input_tell(const FLAC__StreamDeco
 //  if (inputflac->input->io->isSerial())
 //    return FLAC__STREAM_DECODER_TELL_STATUS_UNSUPPORTED;
 
-  FXlong pos = plugin->engine->input->position();
+  FXlong pos = plugin->input->position();
   if (pos<0)
     return FLAC__STREAM_DECODER_TELL_STATUS_ERROR;
 
@@ -331,7 +333,7 @@ FLAC__StreamDecoderLengthStatus FlacReader::flac_input_length(const FLAC__Stream
 ///  if (plugin->engine->input->isSerial())
  //   return FLAC__STREAM_DECODER_LENGTH_STATUS_UNSUPPORTED;
 
-  FXlong length = plugin->engine->input->size();
+  FXlong length = plugin->input->size();
   if (length<0)
     return FLAC__STREAM_DECODER_LENGTH_STATUS_ERROR;
 
@@ -341,7 +343,7 @@ FLAC__StreamDecoderLengthStatus FlacReader::flac_input_length(const FLAC__Stream
 
 FLAC__bool FlacReader::flac_input_eof(const FLAC__StreamDecoder */*decoder*/, void *client_data){
   FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
-  return plugin->engine->input->eof();
+  return plugin->input->eof();
   }
 
 
@@ -359,7 +361,7 @@ FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDeco
   if ((*bytes)<=0)
     return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
 
-  FXival nbytes = plugin->engine->input->read(buffer,(*bytes));
+  FXival nbytes = plugin->input->read(buffer,(*bytes));
 
   if (nbytes<0)
     return FLAC__STREAM_DECODER_READ_STATUS_ABORT;

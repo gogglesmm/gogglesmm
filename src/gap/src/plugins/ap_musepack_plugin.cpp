@@ -47,7 +47,7 @@ protected:
 public:
   MusepackReader(AudioEngine*);
   FXuchar format() const { return Format::Musepack; };
-  FXbool init();
+  FXbool init(InputPlugin*);
   FXbool can_seek() const;
   FXbool seek(FXdouble);
   ReadStatus process(Packet*);
@@ -97,7 +97,8 @@ MusepackReader::MusepackReader(AudioEngine *e) : ReaderPlugin(e), stream_positio
   reader.data     = engine->input;
   }
 
-FXbool MusepackReader::init() {
+FXbool MusepackReader::init(InputPlugin*plugin) {
+  ReaderPlugin::init(plugin);
   mpc_streaminfo_init(&si);
 //  mpc_decoder_setup(&decoder,&reader);
   nframes=0;

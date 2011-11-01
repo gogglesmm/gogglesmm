@@ -57,7 +57,7 @@ protected:
 public:
   PLSReader(AudioEngine*);
   ReadStatus process(Packet*);
-  FXbool init();
+  FXbool init(InputPlugin*);
   FXuchar format() const { return Format::PLS; };
   FXbool redirect(FXStringList & u) { u=uri; return true; }
   virtual ~PLSReader();
@@ -71,8 +71,8 @@ PLSReader::PLSReader(AudioEngine*e) : TextReader(e) {
 PLSReader::~PLSReader(){
   }
 
-FXbool PLSReader::init() {
-  TextReader::init();
+FXbool PLSReader::init(InputPlugin*plugin) {
+  TextReader::init(plugin);
   uri.clear();
   return true;
   }

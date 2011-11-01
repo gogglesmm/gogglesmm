@@ -258,43 +258,6 @@ FXint InputThread::run(){
   }
 
 
-FXival InputThread::read(void * data,FXival count) {
-  FXASSERT(input);
-  return input->read(data,count);
-  }
-
-FXival InputThread::preview(void * data,FXival count) {
-  FXASSERT(input);
-  return input->preview(data,count);
-  }
-
-FXlong InputThread::position(FXlong offset,FXuint from){
-  FXASSERT(input);
-  return input->position(offset,from);
-  }
-
-FXlong InputThread::position() const{
-  FXASSERT(input);
-  return input->position();
-  }
-
-  /// Postion Input
-FXbool InputThread::serial() const{
-  FXASSERT(input);
-  return input->serial();
-  }
-
-  /// Postion Input
-FXbool InputThread::eof() const{
-  FXASSERT(input);
-  return input->eof();
-  }
-  /// Postion Input
-FXlong InputThread::size() const {
-  FXASSERT(input);
-  return input->size();
-  }
-
 
 void InputThread::ctrl_eos() {
   GM_DEBUG_PRINT("[input] end of stream reached\n");
@@ -305,7 +268,7 @@ void InputThread::ctrl_eos() {
   }
 
 void InputThread::ctrl_seek(FXdouble pos) {
-  if (reader && !serial() && reader->can_seek()) {
+  if (reader && !input->serial() && reader->can_seek()) {
     ctrl_flush();
     reader->seek(pos);
     set_state(StateProcessing,true);
@@ -400,7 +363,7 @@ void InputThread::ctrl_open_inputs(const FXStringList & urls){
     reader = open_reader();
     if (reader==NULL) continue;
 
-    if (!reader->init())
+    if (!reader->init(input))
       continue;
 
     streamid++;
@@ -431,7 +394,7 @@ void InputThread::ctrl_open_input(const FXString & uri) {
     goto failed;
     }
 
-  if (!reader->init()) {
+  if (!reader->init(input)) {
     engine->post(new ErrorMessage(FXString::value("Failed to initialize plugin")));
     goto failed;
     }

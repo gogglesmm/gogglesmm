@@ -10,6 +10,7 @@
 #include "ap_thread.h"
 #include "ap_reader_plugin.h"
 #include "ap_input_thread.h"
+#include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_decoder_thread.h"
 
@@ -17,14 +18,19 @@ using namespace ap;
 
 namespace ap {
 
-ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e), flags(0),stream_length(-1) {
+ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e),input(NULL), flags(0),stream_length(-1) {
   }
 
 ReaderPlugin::~ReaderPlugin() {
   }
 
+FXbool ReaderPlugin::init(InputPlugin* plugin) {
+  input=plugin;
+  return true;
+  }
+
 ReadStatus ReaderPlugin::process(Packet*packet) {
-  FXint nread = engine->input->read(packet->ptr(),packet->space());
+  FXint nread = input->read(packet->ptr(),packet->space());
   if (nread<0) {
     packet->unref();
     return ReadError;
@@ -58,7 +64,8 @@ TextReader::TextReader(AudioEngine*e) : ReaderPlugin(e) {
 TextReader::~TextReader(){
   }
 
-FXbool TextReader::init() {
+FXbool TextReader::init(InputPlugin * plugin) {
+  ReaderPlugin::init(plugin);
   textbuffer.clear();
   return true;
   }
@@ -68,13 +75,13 @@ ReadStatus TextReader::process(Packet*packet) {
   fxmessage("[text] starting read\n");
   FXint len=0,nread;
   const FXint chunk=4096;
-  while(!engine->input->eof()) {
+  while(!input->eof()) {
     if (len>0xFFFF) {
       fxmessage("[text] input too big %d\n",len);
       return ReadError;
       }
     textbuffer.length(textbuffer.length()+chunk);
-    nread=engine->input->read(&textbuffer[len],chunk);
+    nread=input->read(&textbuffer[len],chunk);
     if (nread==-1)
       return ReadInterrupted;
     else

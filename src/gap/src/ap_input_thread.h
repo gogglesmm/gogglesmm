@@ -45,16 +45,6 @@ public:
 
   FXbool aborted();
 
-
-  FXival preview(void*data,FXival ncount);
-  FXival read(void*data,FXival ncount);
-  FXlong position(FXlong offset,FXuint from);
-  FXlong position() const;
-  FXlong size() const;
-  FXbool eof() const;
-  FXbool serial() const;
-
-
   void ctrl_open_inputs(const FXStringList & url);
   void ctrl_open_input(const FXString & url);
   void ctrl_close_input(FXbool notify=false);

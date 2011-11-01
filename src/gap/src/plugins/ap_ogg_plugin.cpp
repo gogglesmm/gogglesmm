@@ -11,6 +11,7 @@
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
 #include "ap_reader_plugin.h"
+#include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
@@ -80,7 +81,7 @@ protected:
 public:
   OggReader(AudioEngine *);
   FXuchar format() const { return Format::OGG; };
-  FXbool init();
+  FXbool init(InputPlugin*);
   FXbool seek(FXdouble);
   FXbool can_seek() const;
   ReadStatus process(Packet*);
@@ -132,10 +133,10 @@ FXbool OggReader::seek(FXdouble pos){
 
 
     FXlong target  = stream_start + (stream_length * pos);
-    FXlong offset  = engine->input->size() * pos;
+    FXlong offset  = input->size() * pos;
     FXlong lastpos = -1;
 
-    input_position = engine->input->position(offset,FXIO::Begin);
+    input_position = input->position(offset,FXIO::Begin);
 
     GM_DEBUG_PRINT("target seek %ld / %ld => %ld\n",target,stream_length,offset);
 
@@ -143,7 +144,7 @@ FXbool OggReader::seek(FXdouble pos){
       if (ogg_page_granulepos(&page)>target) {
         GM_DEBUG_PRINT("found %ld %ld %ld\n",ogg_page_granulepos(&page),lastpos,offset);
         if (lastpos>=0 || offset==0) {
-          engine->input->position((lastpos>=0) ? lastpos : offset,FXIO::Begin);
+          input->position((lastpos>=0) ? lastpos : offset,FXIO::Begin);
           ogg_sync_reset(&sync);
           ogg_stream_reset(&stream);
           return true;
@@ -151,7 +152,7 @@ FXbool OggReader::seek(FXdouble pos){
         else {
           offset=FXMIN(0,offset>>1);
           GM_DEBUG_PRINT("went to far. start at %ld\n",offset);
-          input_position=engine->input->position(offset,FXIO::Begin);
+          input_position=input->position(offset,FXIO::Begin);
           lastpos=-1;
           ogg_sync_reset(&sync);
           ogg_stream_reset(&stream);
@@ -167,7 +168,7 @@ FXbool OggReader::seek(FXdouble pos){
       }
     else {
       GM_DEBUG_PRINT("seeking to %ld\n",lastpos);
-      engine->input->position(lastpos,FXIO::Begin);
+      input->position(lastpos,FXIO::Begin);
       ogg_sync_reset(&sync);
       ogg_stream_reset(&stream);
       }
@@ -175,7 +176,8 @@ FXbool OggReader::seek(FXdouble pos){
   }
 
 
-FXbool OggReader::init() {
+FXbool OggReader::init(InputPlugin*plugin) {
+  ReaderPlugin::init(plugin);
   ogg_sync_clear(&sync);
   ogg_sync_reset(&sync);
   flags&=~(FLAG_PARSED|FLAG_OGG_FLAC|FLAG_VORBIS_HEADER_INFO|FLAG_VORBIS_HEADER_COMMENT|FLAG_VORBIS_HEADER_BLOCK);
@@ -217,9 +219,9 @@ FXbool OggReader::match_page() {
 void OggReader::check_vorbis_length(vorbis_info * info) {
   stream_length=0;
   stream_start=0;
-  if (!engine->input->serial()) {
+  if (!input->serial()) {
     FXlong cpos = input_position;
-    FXlong size = engine->input->size();
+    FXlong size = input->size();
 
     /// First Determine the pcm offset at the start of the stream
     FXint cb,lb=-1,tb=0;
@@ -236,7 +238,7 @@ void OggReader::check_vorbis_length(vorbis_info * info) {
 
     /// TODO need a smart way of finding the last page in stream.
     if (size>=0xFFFF) {
-      engine->input->position((size-0xFFFF),FXIO::Begin);
+      input->position((size-0xFFFF),FXIO::Begin);
       ogg_sync_reset(&sync);
       }
 
@@ -248,7 +250,7 @@ void OggReader::check_vorbis_length(vorbis_info * info) {
         break;
         }
       }
-    engine->input->position(cpos,FXIO::Begin);
+    input->position(cpos,FXIO::Begin);
     ogg_sync_reset(&sync);
     ogg_stream_reset(&stream);
     }
@@ -390,7 +392,7 @@ ReadStatus OggReader::parse_flac_stream() {
 
 ReadStatus OggReader::parse() {
   if (input_position==-1)
-    input_position = engine->input->position();
+    input_position = input->position();
 
   while(packet) {
 
@@ -525,7 +527,7 @@ FXbool OggReader::fetch_next_page() {
     else if (result==0) { /// Need more bytes
       FXchar * buffer = ogg_sync_buffer(&sync,BUFFERSIZE);
       if (buffer==NULL) return false;
-      FXival nbytes = engine->input->read(buffer,BUFFERSIZE);
+      FXival nbytes = input->read(buffer,BUFFERSIZE);
       if (nbytes<=0) return false;
       ogg_sync_wrote(&sync,nbytes);
       }

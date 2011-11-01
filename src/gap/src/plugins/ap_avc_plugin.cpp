@@ -367,7 +367,7 @@ protected:
   AVCodecContext*  av_codec_context;
 public:
   AVReader(AudioEngine*);
-  FXbool init();
+  FXbool init(InputPlugin*);
   ReadStatus process(Packet*);
 
   FXuchar format() const { return Format::Unknown; };
@@ -383,7 +383,9 @@ AVReader::AVReader(AudioEngine*e) : ReaderPlugin(e) {
 AVReader::~AVReader(){
   }
 
-FXbool AVReader::init(){
+FXbool AVReader::init(InputPlugin*plugin){
+  ReaderPlugin::init(plugin);
+
   AVFormatParameters av_format_params;
   av_input_format=NULL;
   av_format_context=NULL;
