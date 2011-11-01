@@ -27,6 +27,7 @@ OPTION_PLUGIN_FORCE_MAD=0
 OPTION_PLUGIN_VORBIS=1
 OPTION_PLUGIN_FLAC=1
 OPTION_PLUGIN_FAAD=1
+OPTION_PLUGIN_WAVPACK=1
 OPTION_PLUGIN_FORCE_FAAD=0
 OPTION_PLUGIN_MUSEPACK=0
 OPTION_PLUGIN_SAMPLERATE=1
@@ -112,6 +113,9 @@ for arg in $@; do
     --with-musepack)
       OPTION_PLUGIN_MUSEPACK=1
       ;;
+    --without-wavpack)
+      OPTION_PLUGIN_WAVPACK=0
+      ;;      
     --without-samplerate)
       OPTION_PLUGIN_SAMPLERATE=0
       ;;
@@ -176,6 +180,7 @@ for arg in $@; do
       echo "   --without-ogg                   Compile without ogg support"
       echo "   --without-flac                  Compile without flac support"
       echo "   --without-faad                  Compile without faad support"
+      echo "   --without-wavepack              Compile without wavpack support"
       echo "   --without-samplerate            Compile without samplerate support"
       echo "   --without-cdda                  Compile without cdda support"
       echo "   --without-smb                   Compile without smb support"

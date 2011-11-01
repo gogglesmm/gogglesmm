@@ -230,6 +230,10 @@ check_packages()
     add_plugin_package "mad >= 0.15" "mad"
   fi
 
+  if [ $OPTION_PLUGIN_WAVPACK -eq 1 ] ; then
+    add_plugin_package "wavpack >= 4.60" "wavpack"
+  fi
+
   if [ $OPTION_PLUGIN_SAMPLERATE -eq 1 ] ; then
     add_plugin_package "samplerate >= 0.1" "samplerate"
   fi

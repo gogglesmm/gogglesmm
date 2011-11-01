@@ -122,6 +122,10 @@ ifneq (,$(findstring mad,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_mad_plugin.cpp
 endif
 
+ifneq (,$(findstring wavpack,$(PLUGINS)))
+GAP_SRCFILES+=src/plugins/ap_wavpack_plugin.cpp
+endif
+
 ifneq (,$(findstring flac,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_flac_plugin.cpp
 endif
