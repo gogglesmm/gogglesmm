@@ -14,6 +14,8 @@
 #include <ap_device.h>
 #include <ap_player.h>
 #include <ap_common.h>
+#include <ap_memory_buffer.h>
+#include <ap_http.h>
 
 using namespace ap;
 

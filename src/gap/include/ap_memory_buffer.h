@@ -4,7 +4,7 @@
 namespace ap {
 
 
-class MemoryBuffer {
+class GMAPI MemoryBuffer {
 protected:
   FXchar * buffer;
   FXival   buffersize;
