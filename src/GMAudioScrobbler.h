@@ -108,9 +108,7 @@ private:
 protected:
   FXint run();
 protected:
-  FXbool open_connection(const GMHost &);
-  void close_connection();
-  FXbool do_request(const GMHost & host,const FXString & msg,FXchar *& buffer,FXint & length);
+  FXbool do_request(const GMHost & host,const FXString & request,FXString & response);
 protected:
   FXuchar getNextTask();
   FXbool  waitForTask();
@@ -128,15 +126,15 @@ protected:
   void nowplaying();
   void loveban();
   void create_loveban_request(GMHost &,FXString &);
-  void process_loveban_response(const FXchar *,FXint);
+  void process_loveban_response(const FXString&);
   void create_token_request(FXString &);
-  void process_token_response(const FXchar *,FXint);
+  void process_token_response(const FXString&);
   void create_handshake_request(FXString &);
-  void process_handshake_response(const FXchar *,FXint);
+  void process_handshake_response(const FXString&);
   void create_nowplaying_request(GMHost &,FXString &);
-  void process_nowplaying_response(const FXchar *,FXint);
+  void process_nowplaying_response(const FXString&);
   void create_submit_request(GMHost &,FXString &);
-  void process_submit_response(const FXchar *,FXint);
+  void process_submit_response(const FXString&);
   void set_timeout();
   void reset_timeout();
   void set_submit_failed();

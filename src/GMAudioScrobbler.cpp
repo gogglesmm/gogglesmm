@@ -173,25 +173,6 @@ FXbool GMHost::parse(const FXString & url){
 #define URL_RESERVED ";/?:@=&"              // Only encode if not used as reserved by scheme
 
 
-static FXint tryconnect(struct addrinfo * entry) {
-  FXTRACE((60,"GMAudioScrobbler::tryconnect\n"));
-
-  FXint server = socket(entry->ai_family,entry->ai_socktype,entry->ai_protocol);
-  if (server==-1) return -1;
-
-  FXint result = connect(server,entry->ai_addr,entry->ai_addrlen);
-  if (result!=-1){
-#if defined(SO_NOSIGPIPE)
-    int onoff=1;
-    setsockopt(server,SOL_SOCKET,SO_NOSIGPIPE,1,(void*)&onoff,sizeof(onoff));
-#endif
-    return server;
-    }
-
-  ::close(server);
-  return -1;
-  }
-
 /**********************************************************************************************************/
 
 
@@ -256,10 +237,9 @@ public:
 
   FXbool getStatus() const { return status; }
   FXint  getErrorCode() const { return code; }
-  FXString getErrorMessage() const { return message; }
-  FXString getSessionKey() const { return key; }
-  FXString getToken() const { return token; }
-
+  const FXString & getErrorMessage() const { return message; }
+  const FXString & getSessionKey() const { return key; }
+  const FXString & getToken() const { return token; }
   };
 
 
@@ -356,61 +336,19 @@ void ServiceResponse::end(const FXchar*) {
 
 
 
-
-
-FXbool GMAudioScrobbler::do_request(const GMHost & host,const FXString & msg,FXchar *& buffer,FXint & length) {
-  FXint ncount,nread,nwritten;
-
-  buffer=NULL;
-  length=0;
-
-  if (!open_connection(host)){
-    set_timeout();
-    return false;
+FXbool GMAudioScrobbler::do_request(const GMHost & host,const FXString & msg,FXString & output) {
+    HttpClient client(host.name,host.port);
+    client.request(msg);
+    switch(client.response()) {
+        case HTTP_RESPONSE_SUCCESS: 
+            output = client.body(); 
+            return true;
+            break;
+        default:
+            return false;
+            break;
+        }
     }
-
-  //// Send
-  ncount=0;
-  do {
-    nwritten=::send(server,&msg[ncount],msg.length()-ncount,MSG_NOSIGNAL);
-    if (nwritten==-1) {
-      close_connection();
-      set_timeout();
-      return false;
-      }
-    ncount+=nwritten;
-    } while(ncount<msg.length());
-
-
-  length=1024;
-  allocElms(buffer,length);
-
-  //// Get Reply
-  ncount=0;
-  do {
-
-    /// Resize Buffer
-    if ((length-ncount)==0) {
-      resizeElms(buffer,length+256);
-      length+=256;
-      }
-
-    /// Read
-    nread=::recv(server,buffer+ncount,length-ncount,0);
-    if (nread<0) {
-      close_connection();
-      set_timeout();
-      freeElms(buffer);
-      return false;
-      }
-
-    ncount+=nread;
-    } while(nread>0);
-
-  close_connection();
-  length=ncount;
-  return true;
-  }
 
 
 
@@ -430,60 +368,6 @@ static void gm_http_post(GMHost & host,const FXString & content,FXString & buf) 
   FXTRACE((71,"Post:\n%s\n\n",buf.text()));
   }
 
-
-static FXbool gm_http_success(const FXchar * buffer,FXint len) {
-  if (      (len>=12)
-      && (
-            (compare(buffer,"HTTP/1.0",8)==0) ||
-            (compare(buffer,"HTTP/1.1",8)==0)
-         )
-      && (
-            (compare(buffer+9,"200",3)==0) ||
-            (compare(buffer+9,"400",3)==0) ||
-            (compare(buffer+9,"403",3)==0) ||
-            (compare(buffer+9,"404",3)==0)
-        )
-        ) {
-    return true;
-    }
-  else {
-    fxmessage("http failed:\n%s\n",buffer);
-    return false;
-    }
-  }
-
-
-static void gm_http_message(const FXchar *& buffer,FXint & len) {
-
-  /// Skip HTTP Headers
-  FXint i,s;
-  for (i=0,s=0;i<len;i++){
-    if (buffer[i]=='\r' &&  (buffer[i+1]=='\n' || buffer[i+1]=='\0')){
-      if (i-s==0) break;
-      s=i+2;
-      i++;
-      }
-    }
-  s=i=(i+2);
-
-  buffer+=i;
-  len-=i;
-  }
-
-static void gm_parse_http(FXStringList & headers,FXString & content,const FXchar * buffer,FXint len) {
-  FXint i,s;
-  for (i=0,s=0;i<len;i++){
-    if (buffer[i]=='\r' &&  (buffer[i+1]=='\n' || buffer[i+1]=='\0')){
-      if (i-s==0) break;
-      headers.append(FXString(&buffer[s],i-s));
-      s=i+2;
-      i++;
-      }
-    }
-  s=i=(i+2);
-  content.assign(&buffer[i],len-i);
-  FXTRACE((70,"%s\n\n",content.text()));
-  }
 
 
 
@@ -959,64 +843,6 @@ done:
   }
 
 
-FXbool GMAudioScrobbler::open_connection(const GMHost & host) {
-  FXTRACE((60,"GMAudioScrobbler::open_connection %s %d %s\n",host.name.text(),host.port,host.path.text()));
-
-  if (host.name.empty() || host.port==0)
-    return false;
-
-  FXString lookupname = host.name+FXString::value(host.port);
-  struct addrinfo   hints;
-  struct addrinfo * available=NULL,*entry=NULL;
-  int result=0;
-
-  memset(&hints,0,sizeof(struct addrinfo));
-  hints.ai_family=AF_UNSPEC;
-  hints.ai_socktype=SOCK_STREAM;
-
-  FXASSERT(server==-1);
-
-  available = (struct addrinfo *) dnscache.find(lookupname.text());
-  if (available) {
-    for (entry=available;entry;entry=entry->ai_next){
-      server = tryconnect(entry);
-      if (server!=-1) break;
-      }
-    if (server==-1) {
-      dnscache.remove(lookupname.text());
-      freeaddrinfo(available);
-      }
-    }
-
-  if (server==-1) {
-    if ((result=getaddrinfo(host.name.text(),FXString::value(host.port).text(),&hints,&available))!=0){
-      FXTRACE((60,"getaddrinfo: %s\n", gai_strerror(result)));
-      return false;
-      }
-    for (entry=available;entry;entry=entry->ai_next){
-      server = tryconnect(entry);
-      if (server!=-1) break;
-      }
-    if (server!=-1) {
-      dnscache.insert(lookupname.text(),available);
-      }
-    else {
-      freeaddrinfo(available);
-      }
-    }
-
-  if (server==-1)
-    return false;
-
-  return true;
-  }
-
-void GMAudioScrobbler::close_connection(){
-  if (server!=-1) {
-    ::close(server);
-    server=-1;
-    }
-  }
 
 void GMAudioScrobbler::set_timeout(){
   flags|=FLAG_TIMEOUT;
@@ -1055,29 +881,22 @@ void GMAudioScrobbler::create_token_request(FXString & msg) {
   }
 
 
-void GMAudioScrobbler::process_token_response(const FXchar * buffer,FXint len){
+void GMAudioScrobbler::process_token_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
+  ServiceResponse service;
   FXTRACE((60,"GMAudioScrobbler::process_token_response\n"));
-  if (gm_http_success(buffer,len)) {
-    gm_http_message(buffer,len);
-    ServiceResponse service;
-    if (service.parse(buffer,len) && service.getStatus()) {
-      token=service.getToken();
-      FXTRACE((60,"GMAudioScrobbler::process_token_response => token=%s\n",token.text()));
-      FXString url="http://www.last.fm/api/auth/?api_key="CLIENT_KEY"&token="+token;
-      feedback.message(target,FXSEL(SEL_OPENED,message),url.text(),url.length());
-      reset_timeout(); /// Reset timer
-      set_timeout();   /// Let's wait at least 60s
-      }
-    else {
-      FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
-      flags|=FLAG_BADAUTH;
-      }
+  if (service.parse(response) && service.getStatus()) {
+    token=service.getToken();
+    FXTRACE((60,"GMAudioScrobbler::process_token_response => token=%s\n",token.text()));
+    FXString url="http://www.last.fm/api/auth/?api_key="CLIENT_KEY"&token="+token;
+    feedback.message(target,FXSEL(SEL_OPENED,message),url.text(),url.length());
+    reset_timeout(); /// Reset timer
+    set_timeout();   /// Let's wait at least 60s
     }
   else {
-    FXTRACE((60,"\t=> HTTP error\n"));
-    set_timeout();
+    FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
+    flags|=FLAG_BADAUTH;
     }
   }
 
@@ -1106,144 +925,122 @@ void GMAudioScrobbler::create_handshake_request(FXString & msg) {
 
 
 
-void GMAudioScrobbler::process_handshake_response(const FXchar * buffer,FXint len){
+
+void GMAudioScrobbler::process_handshake_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
   FXTRACE((60,"GMAudioScrobbler::process_handshake_response\n"));
-  if (gm_http_success(buffer,len)) {
-
-    if (mode==SERVICE_LASTFM) {
-
-      gm_http_message(buffer,len);
-
-      ServiceResponse service;
-      if (!service.parse(buffer,len) || !service.getStatus()){
-        FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
-        switch(service.getErrorCode()) {
-          case LASTFM_ERROR_TOKEN_EXPIRED     : token.clear();        break;
-          case LASTFM_ERROR_TOKEN_UNAUTHORIZED:
-          case LASTFM_ERROR_OFFLINE           :
-          case LASTFM_ERROR_UNAVAILABLE       : set_timeout();        break;
-          default                             : flags|=FLAG_BADAUTH;  break;
-          }
-        }
-      else {
-        session=service.getSessionKey();
-        host_nowplaying=host_handshake;
-        host_submit=host_handshake;
-        flags&=~FLAG_BADAUTH;
-        reset_timeout();
+  if (mode==SERVICE_LASTFM) {
+    ServiceResponse service;
+    if (!service.parse(response) || !service.getStatus()){
+      FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
+      switch(service.getErrorCode()) {
+        case LASTFM_ERROR_TOKEN_EXPIRED     : token.clear();        break;
+        case LASTFM_ERROR_TOKEN_UNAUTHORIZED:
+        case LASTFM_ERROR_OFFLINE           :
+        case LASTFM_ERROR_UNAVAILABLE       : set_timeout();        break;
+        default                             : flags|=FLAG_BADAUTH;  break;
         }
       }
     else {
-      FXStringList headers;
-      FXString     response;
-
-      gm_parse_http(headers,response,buffer,len);
-
-      FXString code;
-      code=response.section('\n',0);
-
-      if (compare(code,"OK",2)==0) {
-        session = response.section('\n',1);
-
-        host_nowplaying.parse(response.section('\n',2));
-        host_submit.parse(response.section('\n',3));
-
-        flags&=~FLAG_BADAUTH;
-        reset_timeout();
-        }
-      else if (compare(code,"BANNED",6)==0){
-        FXTRACE((60,"\t=> BANNED\n"));
-        const FXchar msg[] = "This version of Goggles Music Manager is not supported\nby scrobbler service. Please upgrade to a newer version of GMM.";
-        feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
-        flags|=FLAG_BANNED;
-        //FXApp::instance()->reg().writeBoolEntry("LastFM","client-banned",true);
-        }
-      else if (compare(code,"BADTIME",7)==0){
-        FXTRACE((60,"\t=> BADTIME\n"));
-        const FXchar msg[] = "Unable submit tracks scrobbler service. The system time doesn't match\n"
-                             "the scrobbler server time. Please adjust your system time\n"
-                             "and restart GMM to start scrobbling.";
-        feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
-        flags|=FLAG_BADTIME;
-        }
-      else if (compare(code,"BADAUTH",7)==0){
-        FXTRACE((60,"\t=> BADAUTH\n"));
-        const FXchar msg[] = "Unable to login to scrobbler service.\nUsername and password do not match.";
-        feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
-        flags|=FLAG_BADAUTH;
-        }
-      else if (compare(code,"FAILED",6)==0){
-        FXTRACE((60,"\t=> FAILED\n"));
-        set_timeout();
-        }
-      else {
-        FXTRACE((60,"\t=> Unknown\n"));
-        FXTRACE((60,"%s\n",buffer));
-        set_timeout();
-        }
+      session=service.getSessionKey();
+      host_nowplaying=host_handshake;
+      host_submit=host_handshake;
+      flags&=~FLAG_BADAUTH;
+      reset_timeout();
       }
     }
   else {
-    FXTRACE((60,"\t=> HTTP error\n"));
-    set_timeout();
+    FXString code;
+    code=response.section('\n',0);
+
+    if (compare(code,"OK",2)==0) {
+      session = response.section('\n',1);
+
+      host_nowplaying.parse(response.section('\n',2));
+      host_submit.parse(response.section('\n',3));
+
+      flags&=~FLAG_BADAUTH;
+      reset_timeout();
+      }
+    else if (compare(code,"BANNED",6)==0){
+      FXTRACE((60,"\t=> BANNED\n"));
+      const FXchar msg[] = "This version of Goggles Music Manager is not supported\nby scrobbler service. Please upgrade to a newer version of GMM.";
+      feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
+      flags|=FLAG_BANNED;
+      //FXApp::instance()->reg().writeBoolEntry("LastFM","client-banned",true);
+      }
+    else if (compare(code,"BADTIME",7)==0){
+      FXTRACE((60,"\t=> BADTIME\n"));
+      const FXchar msg[] = "Unable submit tracks scrobbler service. The system time doesn't match\n"
+                           "the scrobbler server time. Please adjust your system time\n"
+                           "and restart GMM to start scrobbling.";
+      feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
+      flags|=FLAG_BADTIME;
+      }
+    else if (compare(code,"BADAUTH",7)==0){
+      FXTRACE((60,"\t=> BADAUTH\n"));
+      const FXchar msg[] = "Unable to login to scrobbler service.\nUsername and password do not match.";
+      feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
+      flags|=FLAG_BADAUTH;
+      }
+    else if (compare(code,"FAILED",6)==0){
+      FXTRACE((60,"\t=> FAILED\n"));
+      set_timeout();
+      }
+    else {
+      FXTRACE((60,"\t=> Unknown\n"));
+      FXTRACE((60,"%s\n",buffer));
+      set_timeout();
+      }
     }
   }
 
+
+
 void GMAudioScrobbler::authenticate() {
   FXString request;
-  FXint    ncount=0;
-  FXchar * buffer=NULL;
+  FXString response;   
   create_token_request(request);
-  if (do_request(host_handshake,request,buffer,ncount)) {
-    process_token_response(buffer,ncount);
+  if (do_request(host_handshake,request,response)) {
+    process_token_response(response);
     }
-  if (buffer) freeElms(buffer);
   }
 
 void GMAudioScrobbler::handshake() {
   FXString request;
-  FXint    ncount=0;
-  FXchar*   buffer=NULL;
+  FXString response;   
   create_handshake_request(request);
-  if (do_request(host_handshake,request,buffer,ncount)) {
-    process_handshake_response(buffer,ncount);
+  if (do_request(host_handshake,request,response)) {
+    process_handshake_response(response);
     }
-  if (buffer) freeElms(buffer);
   }
 
 void GMAudioScrobbler::nowplaying() {
   FXString request;
-  FXint    ncount=0;
-  FXchar*  buffer=NULL;
+  FXString response;   
   create_nowplaying_request(host_nowplaying,request);
-  if (do_request(host_nowplaying,request,buffer,ncount)) {
-    process_nowplaying_response(buffer,ncount);
+  if (do_request(host_nowplaying,request,response)) {
+    process_nowplaying_response(response);
     }
-  if (buffer) freeElms(buffer);
   }
 
 void GMAudioScrobbler::submit() {
   FXString request;
-  FXint    ncount=0;
-  FXchar*  buffer=NULL;
+  FXString response;   
   create_submit_request(host_submit,request);
-  if (do_request(host_submit,request,buffer,ncount)) {
-    process_submit_response(buffer,ncount);
+  if (do_request(host_submit,request,response)) {
+    process_submit_response(response);
     }
-  if (buffer) freeElms(buffer);
   }
 
 void GMAudioScrobbler::loveban() {
   FXString request;
-  FXint    ncount=0;
-  FXchar*  buffer=NULL;
+  FXString response;
   create_loveban_request(host_submit,request);
-  if (do_request(host_submit,request,buffer,ncount)) {
-    process_loveban_response(buffer,ncount);
+  if (do_request(host_submit,request,response)) {
+    process_loveban_response(response);
     }
-  if (buffer) freeElms(buffer);
   }
 
 
@@ -1306,45 +1103,33 @@ void GMAudioScrobbler::create_nowplaying_request(GMHost & host,FXString & msg) {
   }
 
 
-void GMAudioScrobbler::process_nowplaying_response(const FXchar * buffer,FXint len){
+void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
   FXTRACE((60,"GMAudioScrobbler::process_nowplaying_response\n"));
-  if (gm_http_success(buffer,len)) {
-
-    if (mode==SERVICE_LASTFM) {
-      gm_http_message(buffer,len);
-      ServiceResponse service;
-      if (!service.parse(buffer,len) || !service.getStatus()) {
-        FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
-        switch(service.getErrorCode()) {
-          case LASTFM_ERROR_OFFLINE      :
-          case LASTFM_ERROR_UNAVAILABLE  : set_timeout();           break;
-          case LASTFM_ERROR_BADSESSION   : session.clear();         break;
-          case LASTFM_ERROR_KEY_INVALID  :
-          case LASTFM_ERROR_KEY_SUSPENDED: flags|=FLAG_BANNED;      break;
-          default                        : flags|=FLAG_BADAUTH;     break;
-          }
-        }
-      }
-    else {
-      FXStringList headers;
-      FXString response;
-      gm_parse_http(headers,response,buffer,len);
-      FXString code=response.section('\n',0);
-      FXTRACE((70,"Now Playing Response: %s\n\n",response.text()));
-      if (compare(code,"BADSESSION",10)==0) {
-        session.clear();
+  if (mode==SERVICE_LASTFM) {
+    ServiceResponse service;
+    if (!service.parse(response) || !service.getStatus()) {
+      FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
+      switch(service.getErrorCode()) {
+        case LASTFM_ERROR_OFFLINE      :
+        case LASTFM_ERROR_UNAVAILABLE  : set_timeout();           break;
+        case LASTFM_ERROR_BADSESSION   : session.clear();         break;
+        case LASTFM_ERROR_KEY_INVALID  :
+        case LASTFM_ERROR_KEY_SUSPENDED: flags|=FLAG_BANNED;      break;
+        default                        : flags|=FLAG_BADAUTH;     break;
         }
       }
     }
   else {
-    FXTRACE((70,"Now Playing Response:\n%s\n\n",buffer));
+    FXString response;
+    FXString code=response.section('\n',0);
+    FXTRACE((70,"Now Playing Response: %s\n\n",response.text()));
+    if (compare(code,"BADSESSION",10)==0) {
+      session.clear();
+      }
     }
   }
-
-
-
 
 
 void GMAudioScrobbler::create_submit_request(GMHost & host,FXString & msg) {
@@ -1524,67 +1309,53 @@ void GMAudioScrobbler::create_submit_request(GMHost & host,FXString & msg) {
   gm_http_post(host,content,msg);
   }
 
-
-void GMAudioScrobbler::process_submit_response(const FXchar * buffer,FXint len){
+void GMAudioScrobbler::process_submit_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::process_submit_response\n"));
-  if (gm_http_success(buffer,len)) {
-    if (mode==SERVICE_LASTFM) {
-      gm_http_message(buffer,len);
-      ServiceResponse service;
-      if (!service.parse(buffer,len) || !service.getStatus()) {
-        FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
-        switch(service.getErrorCode()) {
-          case LASTFM_ERROR_OFFLINE      :
-          case LASTFM_ERROR_UNAVAILABLE  : set_timeout(); break;
-          case LASTFM_ERROR_BADSESSION   : session.clear();         break;
-          case LASTFM_ERROR_KEY_INVALID  :
-          case LASTFM_ERROR_KEY_SUSPENDED: flags|=FLAG_BANNED;      break;
-          default                        : flags|=FLAG_BADAUTH;     break;
-          }
-        }
-      else {
-        FXTRACE((60,"last.fm service submit success\n"));
-        submitqueue.erase(0,nsubmitted);
-        nsubmitted=0;
+  if (mode==SERVICE_LASTFM) {
+    ServiceResponse service;
+    if (!service.parse(response) || !service.getStatus()) {
+      FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
+      switch(service.getErrorCode()) {
+        case LASTFM_ERROR_OFFLINE      :
+        case LASTFM_ERROR_UNAVAILABLE  : set_timeout(); break;
+        case LASTFM_ERROR_BADSESSION   : session.clear();         break;
+        case LASTFM_ERROR_KEY_INVALID  :
+        case LASTFM_ERROR_KEY_SUSPENDED: flags|=FLAG_BANNED;      break;
+        default                        : flags|=FLAG_BADAUTH;     break;
         }
       }
     else {
-      FXStringList headers;
-      FXString response;
-
-      gm_parse_http(headers,response,buffer,len);
-
-      FXString code=response.section('\n',0);
-      FXTRACE((70,"Submit Response: %s\n\n",response.text()));
-      if (compare(code,"OK",2)==0) {
-        if (submitqueue[0].loveban!=0) {
-          submitqueue[0].timestamp=0;
-          loveban();
-          }
-        else {
-          submitqueue.erase(0,nsubmitted);
-          }
-        nsubmitted=0;
-        }
-      else if (compare(code,"BADSESSION",10)==0) {
-        session.clear();
-        nsubmitted=0;
-        }
-      else if (compare(code,"FAILED",6)==0) {
-        session.clear();
-        nsubmitted=0;
-        }
-      else {
-        set_submit_failed();
-        nsubmitted=0;
-        }
+      FXTRACE((60,"last.fm service submit success\n"));
+      submitqueue.erase(0,nsubmitted);
+      nsubmitted=0;
       }
     }
   else {
-    FXTRACE((70,"Submit Response: %s\n\n",buffer));
-    set_submit_failed();
-    nsubmitted=0;
+    FXString code=response.section('\n',0);
+    FXTRACE((70,"Submit Response: %s\n\n",response.text()));
+    if (compare(code,"OK",2)==0) {
+      if (submitqueue[0].loveban!=0) {
+        submitqueue[0].timestamp=0;
+        loveban();
+        }
+      else {
+        submitqueue.erase(0,nsubmitted);
+        }
+      nsubmitted=0;
+      }
+    else if (compare(code,"BADSESSION",10)==0) {
+      session.clear();
+      nsubmitted=0;
+      }
+    else if (compare(code,"FAILED",6)==0) {
+      session.clear();
+      nsubmitted=0;
+      }
+    else {
+      set_submit_failed();
+      nsubmitted=0;
+      }
     }
   }
 
@@ -1621,21 +1392,12 @@ void GMAudioScrobbler::create_loveban_request(GMHost & host,FXString & msg){
   gm_http_post(host,content,msg);
   }
 
-void GMAudioScrobbler::process_loveban_response(const FXchar * buffer,FXint len){
+void GMAudioScrobbler::process_loveban_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::process_loveban_response\n"));
-  if (gm_http_success(buffer,len)) {
-    gm_http_message(buffer,len);
-    ServiceResponse service;
-    if (!service.parse(buffer,len) || !service.getStatus()) {
-      session.clear();
-      FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
-      }
-    }
-  else {
-    FXTRACE((70,"Loveban Response: %s\n\n",buffer));
-    set_submit_failed();
-    nsubmitted=0;
+  ServiceResponse service;
+  if (!service.parse(response) || !service.getStatus()) {
+    session.clear();
+    FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
     }
   }
-
