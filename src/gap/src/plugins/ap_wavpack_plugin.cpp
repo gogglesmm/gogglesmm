@@ -50,6 +50,10 @@ ReadStatus WavPackReader::process(Packet*) {
   return ReadError;
   }
 
+WavPackReader::~WavPackReader() {
+  }
+  
+  
 
 }
 
