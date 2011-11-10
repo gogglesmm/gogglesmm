@@ -95,7 +95,7 @@ src/ap_output_thread.cpp \
 src/ap_engine.cpp \
 src/ap_reader_plugin.cpp \
 src/ap_player.cpp \
-src/ap_memory_buffer.cpp \
+src/ap_buffer.cpp \
 src/ap_xml_parser.cpp \
 src/ap_http.cpp \
 src/plugins/ap_m3u_plugin.cpp \
@@ -270,7 +270,7 @@ endif
 	@$(INSTALL) -m 644 include/ap_common.h $(includedir)/$(GAP_INTERFACE)/ap_common.h
 	@$(INSTALL) -m 644 include/ap_xml_parser.h $(includedir)/$(GAP_INTERFACE)/ap_xml_parser.h
 	@$(INSTALL) -m 644 include/ap_http.h $(includedir)/$(GAP_INTERFACE)/ap_http.h
-	@$(INSTALL) -m 644 include/ap_memory_buffer.h $(includedir)/$(GAP_INTERFACE)/ap_memory_buffer.h
+	@$(INSTALL) -m 644 include/ap_buffer.h $(includedir)/$(GAP_INTERFACE)/ap_buffer.h
 
 	@echo "  Installing pkg-config ..."
 	@$(INSTALL) -d $(libdir)/pkgconfig

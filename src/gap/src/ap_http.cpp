@@ -3,7 +3,7 @@
 #include "ap_event.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
-#include "ap_memory_buffer.h"
+#include "ap_buffer.h"
 #include "ap_input_plugin.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
@@ -75,7 +75,7 @@ FXival HttpResponse::read(FXchar*ptr,FXival nbytes) {
             FXival n = buffer.read(ptr,nbytes);
             nread+=n;
             nbytes-=n;
-            ptr+=n;            
+            ptr+=n;
             }
         else {
             FXival n = readBlock(ptr,nbytes);
@@ -100,10 +100,10 @@ FXival HttpResponse::fill(FXival nbytes) {
 
 
 // Try parsing one HTTP header from buffer. If succesfull, returns
-// headers. Mode can either be HEADER_SINGLE_LINE or HEADER_MULTIPLE_LINES, 
+// headers. Mode can either be HEADER_SINGLE_LINE or HEADER_MULTIPLE_LINES,
 // depending on whether headers may span multiple lines or not.
 FXbool HttpResponse::parse_header(FXString & line,FXuint mode) {
-    FXint len=0,i,j,l;    
+    FXint len=0,i,j,l;
     for (i=0;i<buffer.size()-1;i++){
         if (buffer[i]=='\r' && buffer[i+1]=='\n') {
 
@@ -116,11 +116,11 @@ FXbool HttpResponse::parse_header(FXString & line,FXuint mode) {
 
             // check if header continues on the next line
             if (len>0) {
-                
+
                 // need more bytes
                 if ((i+2)>=buffer.size())
                     return false;
-    
+
                 /// header continues on next line
                 if (buffer[i+2]==' ' || buffer[i+2]=='\t')
                     continue;
@@ -128,17 +128,17 @@ FXbool HttpResponse::parse_header(FXString & line,FXuint mode) {
 
             /// copy string
             line.length(len);
-            for (j=0,l=0;l<len;j++){ 
+            for (j=0,l=0;l<len;j++){
                 if (buffer[j]=='\r' || buffer[j]=='\n')
                     continue;
-                line[l++]=buffer[j];                
-                }            
+                line[l++]=buffer[j];
+                }
             buffer.readBytes(i+2);
             return true;
             }
         len++;
         }
-    return false;    
+    return false;
     }
 
 // Store parsed header into headers.
@@ -148,7 +148,7 @@ void HttpResponse::insert_header(const FXString & header) {
 
     FXString * existing = (FXString*)headers.find(key.text());
     if (existing) {
-        (*existing) += ", " + value;            
+        (*existing) += ", " + value;
         }
     else {
         FXString * v = new FXString;
@@ -172,7 +172,7 @@ void HttpResponse::check_headers() {
     field = (FXString*) headers.find("content-length");
     if (field)
         content_length = field->toInt();
-    
+
     field = (FXString*) headers.find("transfer-encoding");
     if (field && field->contains("chunked") )
         flags|=ChunkedResponse;
@@ -254,7 +254,7 @@ FXString HttpResponse::read_body() {
             }
         while(n==BLOCK);
 
-        if (pos>0) 
+        if (pos>0)
             body.length(pos);
         }
     return body;
@@ -275,7 +275,7 @@ FXString HttpResponse::read_body_chunked() {
             chunksize=0;
             if (!read_chunk_header(chunksize)) {
                 fxmessage("reading next chunk failed\n");
-                return FXString::null;       
+                return FXString::null;
                 }
             }
 
@@ -287,7 +287,7 @@ FXString HttpResponse::read_body_chunked() {
             if (header.empty())
                 break;
             insert_header(header);
-            }        
+            }
         }
     return body;
     }
@@ -323,7 +323,7 @@ FXival HttpResponse::read_body_chunked(void * ptr,FXival len) {
     FXival n,nread=0;
     FXchar * data = (FXchar*)ptr;
 
-    while(len){    
+    while(len){
         if (chunk_remaining<=0) {
 
             if (!read_chunk_header(chunk_remaining))
@@ -336,7 +336,7 @@ FXival HttpResponse::read_body_chunked(void * ptr,FXival len) {
                     if (header.empty())
                         break;
                     insert_header(header);
-                    }        
+                    }
                 return nread;
                 }
             }
@@ -379,7 +379,7 @@ void HttpResponse::discard() {
 
 FXString HttpResponse::getHeader(const FXString & key) const {
     FXString * value = (FXString*)headers.find(key.text());
-    if (value) 
+    if (value)
         return (*value);
     else
         return FXString::null;
@@ -438,10 +438,10 @@ void HttpClient::close() {
     }
 
 void HttpClient::discard() {
-    if (flags&ConnectionClose) 
+    if (flags&ConnectionClose)
         close();
-    else 
-        HttpResponse::discard();            
+    else
+        HttpResponse::discard();
     }
 
 
@@ -459,7 +459,7 @@ FXbool HttpClient::open_server() {
     if (result)
         return false;
 
-    for (item=list;item;item=item->ai_next){       
+    for (item=list;item;item=item->ai_next){
 
         device = socket(item->ai_family,item->ai_socktype,item->ai_protocol);
         if (device == BadHandle)
@@ -533,7 +533,7 @@ HttpClient * HttpClient::getUrl(const FXString & url) {
 
     HttpClient * client = new HttpClient(host,port);
     do {
-        cmd = "GET " + path + " HTTP/1.1\r\nHost: " + host +  "\r\n\r\n"; 
+        cmd = "GET " + path + " HTTP/1.1\r\nHost: " + host +  "\r\n\r\n";
         if (!client->request(cmd))
             goto failed;
 
@@ -554,7 +554,7 @@ HttpClient * HttpClient::getUrl(const FXString & url) {
                     client->setServer(host,port);
                     continue;
 
-                } break;        
+                } break;
 
             default: break;
             }

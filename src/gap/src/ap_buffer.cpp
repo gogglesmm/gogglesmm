@@ -1,5 +1,5 @@
 #include "ap_defs.h"
-#include "ap_memory_buffer.h"
+#include "ap_buffer.h"
 
 #define ROUNDVAL    16
 #define ROUNDUP(n)  (((n)+ROUNDVAL-1)&-ROUNDVAL)
@@ -111,7 +111,7 @@ void MemoryBuffer::reserve(FXival needed) {
       allocElms(buffer,buffersize);
       wrptr=rdptr=buffer;
       }
-    }    
+    }
   }
 
 

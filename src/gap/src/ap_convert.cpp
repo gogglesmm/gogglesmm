@@ -1,5 +1,5 @@
 #include "ap_defs.h"
-#include "ap_memory_buffer.h"
+#include "ap_buffer.h"
 
 #define INT8_MIN (-128)
 #define INT8_MAX (127)

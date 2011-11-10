@@ -3,7 +3,7 @@
 #include "ap_event_queue.h"
 
 #include "ap_format.h"
-#include "ap_memory_buffer.h"
+#include "ap_buffer.h"
 #include "ap_engine.h"
 
 #include "ap_reader_plugin.h"

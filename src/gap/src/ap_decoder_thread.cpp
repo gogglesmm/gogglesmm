@@ -7,7 +7,7 @@
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
-#include "ap_memory_buffer.h"
+#include "ap_buffer.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
 #include "ap_thread.h"

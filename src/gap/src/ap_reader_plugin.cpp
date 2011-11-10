@@ -4,7 +4,7 @@
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_format.h"
-#include "ap_memory_buffer.h"
+#include "ap_buffer.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
 #include "ap_thread.h"
@@ -140,7 +140,7 @@ extern ReaderPlugin * ap_asx_reader(AudioEngine*);
 #endif
 
 #ifdef HAVE_WAVPACK_PLUGIN
-extern ReaderPlugin * ap_wavepack_reader(AudioEngine*);
+//extern ReaderPlugin * ap_wavepack_reader(AudioEngine*);
 #endif
 
 
@@ -164,7 +164,7 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
     case Format::Musepack : return ap_musepack_reader(engine); break;
 #endif
 #ifdef HAVE_WAVPACK_PLUGIN
-    case Format::WavPack  : return ap_wavepack_reader(engine); break;
+//    case Format::WavPack  : return ap_wavepack_reader(engine); break;
 #endif
 #ifdef HAVE_CDDA_PLUGIN
     case Format::CDDA     : return ap_cdda_reader(engine); break;

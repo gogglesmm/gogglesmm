@@ -16,7 +16,7 @@
 #include "ap_input_thread.h"
 #include "ap_memory_buffer.h"
 #include "ap_decoder_thread.h"
-#include "ap_memory_buffer.h"
+#include "ap_buffer.h"
 #include "ap_output_thread.h"
 #include "ap_reader_plugin.h"
 
