@@ -114,13 +114,15 @@ protected:
     /// read nbytes from source.
     virtual FXival readBlock(void * ptr,FXival nbytes)=0;
 
+private:
+
     /// read nbytes
     FXival read(FXchar*ptr,FXival nbytes);
 
     /// read (at most) nbytes into buffer
     FXival fill(FXival nbytes=128);
 
-protected:
+private:
 
     // Try reading complete header from buffer
     FXbool parse_header(FXString & header,FXuint span);
@@ -134,7 +136,7 @@ protected:
     // Clear Headers
     void clear_headers();
 
-protected:
+private:
 
     // Reads chunk header and gives back size.
     FXbool read_chunk_header(FXint & chunksize);
@@ -145,7 +147,7 @@ protected:
     // Read status line
     FXbool read_status();
 
-protected:
+private:
 
     // Read body using chunked transfer
     FXString read_body_chunked();
@@ -173,7 +175,7 @@ public:
     virtual void discard();
 
     // Read response status and headers.
-    FXint response();
+    FXint parse();
 
     // Return the body as a whole string
     FXString body();
@@ -181,12 +183,28 @@ public:
     // Read Message Body
     FXival readBody(void*ptr,FXival len);
 
-    /// Return header for given key
+    // Return header for given key
     FXString getHeader(const FXString & key) const;
+
+    // Return Content Length if known or -1
+    FXint getContentLength() const;
     
     // Destructor
     virtual ~HttpResponse();
     };
+
+
+
+struct HttpHost {
+  FXString name;
+  FXint    port;
+
+  HttpHost();    
+  HttpHost(const FXString & url);
+
+  // Set from url. returns true if changed
+  FXbool set(const FXString & url);
+  };
 
 
 
@@ -195,31 +213,26 @@ public:
 class GMAPI HttpClient : public HttpResponse {
 protected:
     FXInputHandle device;
-    FXString      servername;
-    FXint         serverport;
+protected:
+    HttpHost      server;
+    HttpHost      proxy;
 protected:
     FXival readBlock(void*,FXival);
     FXival writeBlock(const void*,FXival);
 protected:
     FXbool send(const FXchar *,FXint len);
-    FXbool open_server();
+    FXbool open_connection();
 public:
-    HttpClient(const FXString & hostname=FXString::null,FXint port=0);
-
-    // Set the server to connect to. Closes current connection if needed
-    void setServer(const FXString & hostname,FXint port);
-
+    HttpClient();
 
     void close();
 
     // Discard response
     virtual void discard();
 
+    FXbool request(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);
 
-    // Send a http request
-    FXbool request(const FXString & request);
-
-    static HttpClient * getUrl(const FXString & url);
+    static FXString perform(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);
 
     ~HttpClient();
     };
