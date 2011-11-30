@@ -29,22 +29,6 @@
 #endif
 
 
-/* Needed for sockets */
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-
-/* Some platforms like Apple don't MSG_NOSIGNAL */
-#ifndef MSG_NOSIGNAL
-#define MSG_NOSIGNAL 0
-#endif
-
-
-
 /******************************************************************************
  *
  * D E F I N E S
@@ -150,22 +134,6 @@ static void checksum(FXString & io){
     io[i]=Ascii::toLower(FXString::value2Digit[(digest[d]/16)%16]);
     io[i+1]=Ascii::toLower(FXString::value2Digit[digest[d]%16]);
     }
-  }
-
-FXbool GMHost::parse(const FXString & url){
-  FXTRACE((70,"parseurl: %s\n",url.text()));
-  name=FXURL::host(url);
-  port=FXURL::port(url);
-  path=FXURL::path(url);
-
-  FXTRACE((70,"hostname=%s\nport=%d\npath=%s\n",name.text(),port,path.text()));
-  if (name.empty())
-    return false;
-
-  if (port==0)
-    port=80;
-
-  return true;
   }
 
 
@@ -336,37 +304,33 @@ void ServiceResponse::end(const FXchar*) {
 
 
 
-FXbool GMAudioScrobbler::do_request(const GMHost & host,const FXString & msg,FXString & output) {
-    HttpClient client(host.name,host.port);
-    client.request(msg);
-    switch(client.response()) {
-        case HTTP_RESPONSE_SUCCESS:
-            output = client.body();
-            return true;
-            break;
-        default:
-            return false;
-            break;
-        }
-    }
-
-
-
-
-static void gm_http_post(GMHost & host,const FXString & content,FXString & buf) {
-  buf=FXString::value("POST %s HTTP/1.1\r\n"
-                      "HOST: %s\r\n"
+FXbool GMAudioScrobbler::post_request(const FXString & url,const FXString & message,FXString & output) {
+  FXTRACE((60,"post_request %s - %s\n",url.text(),message.text()));
+  if (client->basic("POST",url,
                       "Content-Type: application/x-www-form-urlencoded\r\n"
-                      "Content-Length: %d\r\n"
-                      "Connection: close\r\n" 
-                      "\r\n"
-                      "%s",
-                      host.path.text(),
-                      host.name.text(),
-                      content.length(),
-                      content.text()
-                     );
-  FXTRACE((71,"Post:\n%s\n\n",buf.text()));
+                      "Connection: close\r\n",
+                       message)) {
+    output = client->body();
+    return true;
+    }
+  else {
+    FXTRACE((60,"post_request failed\n"));
+    set_timeout();
+    return false;
+    }
+  }
+
+FXbool GMAudioScrobbler::get_request(const FXString & url,FXString & output) {
+  FXTRACE((60,"get_request\n"));
+  if (client->basic("GET",url,"Connection: close\r\n")) {
+    output = client->body();
+    return true;
+    }
+  else {
+    FXTRACE((60,"get_request failed\n"));
+    set_timeout();
+    return false;
+    }
   }
 
 
@@ -387,9 +351,10 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
   started(false),
   mode(SERVICE_LASTFM),
   timeout(DISABLE_HANDSHAKE_TIMEOUT),
-  server(-1),
   nsubmitted(0),
   nfailed(0) {
+
+  client = new HttpClient();
 
   username=FXApp::instance()->reg().readStringEntry("LastFM","username",NULL);
   password=FXApp::instance()->reg().readStringEntry("LastFM","password",NULL);
@@ -402,7 +367,7 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
     FXApp::instance()->reg().writeBoolEntry("LastFM","client-banned",false);
     }
 
-  host_handshake.parse(uri);
+  handshake_url = uri;
   mode=getService();
 
   /// Get last session
@@ -410,8 +375,8 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
     session=FXApp::instance()->reg().readStringEntry("LastFM","session",NULL);
     if (!session.empty()) {
       FXTRACE((60,"GMAudioScrobbler::GMAudioScrobbler - Session: %s\n",session.text()));
-      host_nowplaying=host_handshake;
-      host_submit=host_handshake;
+      nowplaying_url=handshake_url;
+      submit_url=handshake_url;
       }
     }
 
@@ -432,13 +397,13 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
   FXApp::instance()->reg().writeStringEntry("LastFM","client-id",CLIENT_ID);
   FXApp::instance()->reg().writeStringEntry("LastFM","client-version",CLIENT_VERSION);
   load_queue();
+
+
   }
 
 GMAudioScrobbler::~GMAudioScrobbler(){
-  for (FXint e=dnscache.first();e<dnscache.size();e=dnscache.next(e)){
-    freeaddrinfo((struct addrinfo*)dnscache.data(e));
-    }
   save_queue();
+  delete client;
   }
 
 
@@ -449,15 +414,17 @@ GMAudioScrobbler::~GMAudioScrobbler(){
  ******************************************************************************/
 
 FXuint GMAudioScrobbler::getService() {
-  if (host_handshake.name=="ws.audioscrobbler.com")
+  FXString host = FXURL::host(handshake_url);
+  if (host=="ws.audioscrobbler.com")
     return SERVICE_LASTFM;
-  else if (host_handshake.name=="turtle.libre.fm")
+  else if (host=="turtle.libre.fm")
     return SERVICE_LIBREFM;
   else
     return SERVICE_CUSTOM;
   }
 
 void GMAudioScrobbler::service(FXuint s) {
+  FXTRACE((60,"GMAudioScrobbler::service\n"));
   if (s==SERVICE_LASTFM || s==SERVICE_LIBREFM) {
 
     mutex_data.lock();
@@ -467,7 +434,11 @@ void GMAudioScrobbler::service(FXuint s) {
     else
       FXApp::instance()->reg().writeStringEntry("LastFM","handshake-url",LIBREFM_URL);
 
-    host_handshake.parse(FXApp::instance()->reg().readStringEntry("LastFM","handshake-url",LASTFM_URL));
+    handshake_url=FXApp::instance()->reg().readStringEntry("LastFM","handshake-url",LASTFM_URL);
+    nowplaying_url.clear();
+    submit_url.clear();
+    session.clear();
+    token.clear();
 
     flags|=FLAG_SERVICE;
     flags&=~FLAG_BADAUTH|FLAG_TIMEOUT|FLAG_BANNED|FLAG_BADTIME;
@@ -871,13 +842,12 @@ void GMAudioScrobbler::set_submit_failed() {
 
 
 
-void GMAudioScrobbler::create_token_request(FXString & msg) {
+void GMAudioScrobbler::create_token_request(FXString & request) {
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_token_request\n"));
   FXString signature="api_key"CLIENT_KEY"methodauth.getToken"CLIENT_SECRET;
   checksum(signature);
-  FXString content=FXString::value("method=auth.getToken&api_key="CLIENT_KEY"&api_sig=%s",signature.text());
-  gm_http_post(host_handshake,content,msg);
+  request=FXString::value("method=auth.getToken&api_key="CLIENT_KEY"&api_sig=%s",signature.text());
   flags&=~(FLAG_LOGIN_CHANGED);
   }
 
@@ -886,7 +856,7 @@ void GMAudioScrobbler::process_token_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
   ServiceResponse service;
-  FXTRACE((60,"GMAudioScrobbler::process_token_response\n"));
+  FXTRACE((60,"GMAudioScrobbler::process_token_response\n%s\n",response.text()));
   if (service.parse(response) && service.getStatus()) {
     token=service.getToken();
     FXTRACE((60,"GMAudioScrobbler::process_token_response => token=%s\n",token.text()));
@@ -903,25 +873,23 @@ void GMAudioScrobbler::process_token_response(const FXString & response){
 
 
 
-void GMAudioScrobbler::create_handshake_request(FXString & msg) {
+FXuint GMAudioScrobbler::create_handshake_request(FXString & request) {
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_handshake_request\n"));
   if (mode==SERVICE_LASTFM) {
     FXString signature=FXString::value("api_key%smethodauth.getSessiontoken%s%s",CLIENT_KEY,token.text(),CLIENT_SECRET);
     checksum(signature);
-
-    FXString content=FXString::value("method=auth.getSession&api_key=%s&api_sig=%s&token=%s",CLIENT_KEY,signature.text(),token.text());
-
-    gm_http_post(host_handshake,content,msg);
+    request=FXString::value("method=auth.getSession&api_key=%s&api_sig=%s&token=%s",CLIENT_KEY,signature.text(),token.text());
     }
   else {
     FXlong timestamp = FXThread::time()/1000000000;
     FXString timestamp_text = FXString::value(timestamp);
-    token = password + timestamp_text;
-    checksum(token);
-    msg=FXString::value("GET /?hs=true&p=1.2&c="CLIENT_ID"&v="CLIENT_VERSION"&u=%s&t=%s&a=%s HTTP/1.1\r\nHOST:%s\r\nConnection: close\r\n\r\n",username.text(),timestamp_text.text(),token.text(),host_handshake.name.text());
+    FXString tk = password + timestamp_text;
+    checksum(tk);
+    request=FXString::value("/?hs=true&p=1.2&c="CLIENT_ID"&v="CLIENT_VERSION"&u=%s&t=%s&a=%s",username.text(),timestamp_text.text(),tk.text());
     }
   flags&=~(FLAG_LOGIN_CHANGED);
+  return mode;
   }
 
 
@@ -930,7 +898,8 @@ void GMAudioScrobbler::create_handshake_request(FXString & msg) {
 void GMAudioScrobbler::process_handshake_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
-  FXTRACE((60,"GMAudioScrobbler::process_handshake_response\n"));
+  FXTRACE((60,"GMAudioScrobbler::process_handshake_response\n%s",response.text()));
+
   if (mode==SERVICE_LASTFM) {
     ServiceResponse service;
     if (!service.parse(response) || !service.getStatus()){
@@ -945,8 +914,8 @@ void GMAudioScrobbler::process_handshake_response(const FXString & response){
       }
     else {
       session=service.getSessionKey();
-      host_nowplaying=host_handshake;
-      host_submit=host_handshake;
+      nowplaying_url=handshake_url;
+      submit_url=handshake_url;
       flags&=~FLAG_BADAUTH;
       reset_timeout();
       }
@@ -954,13 +923,10 @@ void GMAudioScrobbler::process_handshake_response(const FXString & response){
   else {
     FXString code;
     code=response.section('\n',0);
-
     if (compare(code,"OK",2)==0) {
       session = response.section('\n',1);
-
-      host_nowplaying.parse(response.section('\n',2));
-      host_submit.parse(response.section('\n',3));
-
+      nowplaying_url=response.section('\n',2);
+      submit_url=response.section('\n',3);
       flags&=~FLAG_BADAUTH;
       reset_timeout();
       }
@@ -1003,45 +969,46 @@ void GMAudioScrobbler::authenticate() {
   FXString request;
   FXString response;
   create_token_request(request);
-  if (do_request(host_handshake,request,response)) {
+  if (post_request(handshake_url,request,response))
     process_token_response(response);
-    }
   }
 
 void GMAudioScrobbler::handshake() {
   FXString request;
   FXString response;
-  create_handshake_request(request);
-  if (do_request(host_handshake,request,response)) {
+  FXbool result;
+
+  if (create_handshake_request(request)==SERVICE_LASTFM)
+    result = post_request(handshake_url,request,response);
+  else
+    result = get_request(handshake_url+request,response);
+
+  if (result)
     process_handshake_response(response);
-    }
   }
 
 void GMAudioScrobbler::nowplaying() {
   FXString request;
   FXString response;
-  create_nowplaying_request(host_nowplaying,request);
-  if (do_request(host_nowplaying,request,response)) {
+  create_nowplaying_request(request);
+  if (post_request(nowplaying_url,request,response))
     process_nowplaying_response(response);
-    }
   }
 
 void GMAudioScrobbler::submit() {
   FXString request;
   FXString response;
-  create_submit_request(host_submit,request);
-  if (do_request(host_submit,request,response)) {
+  create_submit_request(request);
+  if (post_request(submit_url,request,response))
     process_submit_response(response);
-    }
   }
 
 void GMAudioScrobbler::loveban() {
   FXString request;
   FXString response;
-  create_loveban_request(host_submit,request);
-  if (do_request(host_submit,request,response)) {
+  create_loveban_request(request);
+  if (post_request(submit_url,request,response))
     process_loveban_response(response);
-    }
   }
 
 
@@ -1050,11 +1017,9 @@ void GMAudioScrobbler::loveban() {
 
 
 
-void GMAudioScrobbler::create_nowplaying_request(GMHost & host,FXString & msg) {
+void GMAudioScrobbler::create_nowplaying_request(FXString & request) {
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_nowplaying_request\n"));
-  FXString content;
-
   if (mode==SERVICE_LASTFM) {
     FXString signature=FXString::value("album%s"
                                       "api_key"CLIENT_KEY
@@ -1074,7 +1039,7 @@ void GMAudioScrobbler::create_nowplaying_request(GMHost & host,FXString & msg) {
 
     checksum(signature);
 
-    content=FXString::value("method=track.updateNowPlaying"
+    request=FXString::value("method=track.updateNowPlaying"
                            "&track=%s"
                            "&artist=%s"
                            "&album=%s"
@@ -1092,7 +1057,7 @@ void GMAudioScrobbler::create_nowplaying_request(GMHost & host,FXString & msg) {
                            session.text());
     }
   else {
-    content=FXString::value("s=%s&a=%s&t=%s&b=%s&l=%d&n=%d&m",gm_url_encode(session).text(),
+    request=FXString::value("s=%s&a=%s&t=%s&b=%s&l=%d&n=%d&m",gm_url_encode(session).text(),
                                                              gm_url_encode(nowplayingtrack.artist).text(),
                                                              gm_url_encode(nowplayingtrack.title).text(),
                                                              gm_url_encode(nowplayingtrack.album).text(),
@@ -1100,14 +1065,13 @@ void GMAudioScrobbler::create_nowplaying_request(GMHost & host,FXString & msg) {
                                                              nowplayingtrack.no);
     }
   nowplayingtrack.clear();
-  gm_http_post(host,content,msg);
   }
 
 
 void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
-  FXTRACE((60,"GMAudioScrobbler::process_nowplaying_response\n"));
+  FXTRACE((60,"GMAudioScrobbler::process_nowplaying_response:\n %s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
     ServiceResponse service;
     if (!service.parse(response) || !service.getStatus()) {
@@ -1133,12 +1097,12 @@ void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
   }
 
 
-void GMAudioScrobbler::create_submit_request(GMHost & host,FXString & msg) {
+void GMAudioScrobbler::create_submit_request(FXString & request) {
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_submit_request\n"));
   FXint i,s;
   FXint ntracks = FXMIN(50,submitqueue.no());
-  FXString content,signature;
+  FXString signature;
 
   if (mode==SERVICE_LASTFM) {
     if (ntracks==1) {
@@ -1266,9 +1230,9 @@ void GMAudioScrobbler::create_submit_request(GMHost & host,FXString & msg) {
 
     checksum(signature);
 
-    content="method=track.scrobble";
+    request="method=track.scrobble";
     for (i=0;i<ntracks;i++) {
-      content+=FXString::value("&track[%d]=%s"
+      request+=FXString::value("&track[%d]=%s"
                               "&timestamp[%d]=%u"
                               "&artist[%d]=%s"
                               "&album[%d]=%s"
@@ -1281,13 +1245,13 @@ void GMAudioScrobbler::create_submit_request(GMHost & host,FXString & msg) {
                               i,submitqueue[i].no,
                               i,submitqueue[i].duration);
       }
-    content+=FXString::value("&api_key="CLIENT_KEY"&api_sig=%s&sk=%s",signature.text(),session.text());
+    request+=FXString::value("&api_key="CLIENT_KEY"&api_sig=%s&sk=%s",signature.text(),session.text());
     }
   else {
-    content+="s=";
-    content+=gm_url_encode(session);
+    request+="s=";
+    request+=gm_url_encode(session);
     for (i=0;i<ntracks;i++) {
-      content+=FXString::value("&a[%d]=%s"
+      request+=FXString::value("&a[%d]=%s"
                               "&t[%d]=%s"
                               "&i[%d]=%u"
                               "&o[%d]=P"
@@ -1307,7 +1271,6 @@ void GMAudioScrobbler::create_submit_request(GMHost & host,FXString & msg) {
         }
     }
   nsubmitted=ntracks;
-  gm_http_post(host,content,msg);
   }
 
 void GMAudioScrobbler::process_submit_response(const FXString & response){
@@ -1362,7 +1325,7 @@ void GMAudioScrobbler::process_submit_response(const FXString & response){
 
 
 /* LastFM */
-void GMAudioScrobbler::create_loveban_request(GMHost & host,FXString & msg){
+void GMAudioScrobbler::create_loveban_request(FXString & request){
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_loveban_request\n"));
   FXASSERT(mode==SERVICE_LASTFM);
@@ -1379,7 +1342,7 @@ void GMAudioScrobbler::create_loveban_request(GMHost & host,FXString & msg){
 
   checksum(signature);
 
-  FXString content=FXString::value("method=track.love" ////method=track.ban
+  request=FXString::value("method=track.love" ////method=track.ban
                          "&track=%s"
                          "&artist=%s"
                          "&api_key="CLIENT_KEY
@@ -1389,8 +1352,6 @@ void GMAudioScrobbler::create_loveban_request(GMHost & host,FXString & msg){
                          gm_url_encode(submitqueue[0].artist).text(),
                          signature.text(),
                          session.text());
-
-  gm_http_post(host,content,msg);
   }
 
 void GMAudioScrobbler::process_loveban_response(const FXString & response){

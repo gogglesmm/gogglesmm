@@ -19,19 +19,6 @@
 #ifndef GMAUDIOSCROBBLER_H
 #define GMAUDIOSCROBBLER_H
 
-
-class GMHost {
-public:
-  FXString name;
-  FXString path;
-  FXuint port;
-public:
-  GMHost() : port(0) {}
-  GMHost(const FXString & n,FXuint p) : name(n), port(p) {}
-
-  FXbool parse(const FXString & uri);
-  };
-
 struct GMAudioScrobblerTrack {
   FXString artist;
   FXString album;
@@ -59,6 +46,10 @@ enum {
   SERVICE_CUSTOM
   };
 
+namespace ap {
+class HttpClient;
+};
+
 class GMAudioScrobbler : public FXThread {
 private:
   FXMutex           mutex_task;
@@ -70,25 +61,26 @@ private:
   FXSelector        message;
   FXbool            started;
 private:
+  HttpClient*       client;  
+private:
   FXuint            mode;
-  GMHost            host_handshake;
-  GMHost            host_nowplaying;
-  GMHost            host_submit;
+  FXString          handshake_url;
+  FXString          nowplaying_url;
+  FXString          submit_url;    
+
+
   FXString          username;
   FXString          password;
   FXString          session;
   FXString          token;
 protected:
   FXlong            timeout;
-protected:
-  FXint             server;
-  FXDict            dnscache;
 private:
   enum {
     TASK_NONE         = 0x0,
-    TASK_LOGIN 			  = 0x1,
+    TASK_LOGIN 	      = 0x1,
     TASK_NOWPLAYING   = 0x2,
-    TASK_SUBMIT 		  = 0x4,
+    TASK_SUBMIT 	  = 0x4,
     TASK_SHUTDOWN     = 0x8,
     TASK_AUTHENTICATE = 0x10,
     };
@@ -98,7 +90,7 @@ private:
     FLAG_LOGIN_CHANGED = 0x1,
     FLAG_BANNED        = 0x2,
     FLAG_BADAUTH       = 0x4,
-    FLAG_BADTIME			 = 0x8,
+    FLAG_BADTIME	   = 0x8,
     FLAG_SHUTDOWN      = 0x10,
     FLAG_TIMEOUT       = 0x20,
     FLAG_NETWORK       = 0x40,
@@ -108,7 +100,8 @@ private:
 protected:
   FXint run();
 protected:
-  FXbool do_request(const GMHost & host,const FXString & request,FXString & response);
+  FXbool post_request(const FXString & url,const FXString & request,FXString & response);
+  FXbool get_request(const FXString & url,FXString & response);
 protected:
   FXuchar getNextTask();
   FXbool  waitForTask();
@@ -125,15 +118,15 @@ protected:
   void submit();
   void nowplaying();
   void loveban();
-  void create_loveban_request(GMHost &,FXString &);
+  void create_loveban_request(FXString &);
   void process_loveban_response(const FXString&);
   void create_token_request(FXString &);
   void process_token_response(const FXString&);
-  void create_handshake_request(FXString &);
+  FXuint create_handshake_request(FXString &);
   void process_handshake_response(const FXString&);
-  void create_nowplaying_request(GMHost &,FXString &);
+  void create_nowplaying_request(FXString &);
   void process_nowplaying_response(const FXString&);
-  void create_submit_request(GMHost &,FXString &);
+  void create_submit_request(FXString &);
   void process_submit_response(const FXString&);
   void set_timeout();
   void reset_timeout();
