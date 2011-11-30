@@ -28,7 +28,7 @@ enum {
     HTTP_PARTIAL_CONTENT                    = 206,
     HTTP_MULTI_STATUS                       = 207, //WEBDAV
     HTTP_IM_USED                            = 226, //RFC3229
-    
+
     // Redirect 3xx
     HTTP_MULTIPLE_CHOICES                   = 300,
     HTTP_MOVED_PERMANENTLY                  = 301,
@@ -72,9 +72,9 @@ enum {
     HTTP_VERSION_NOTSUPPORTED               = 505,
     HTTP_INSUFFICIENT_STORAGE               = 507, //RFC4918 - WEBDAV
     HTTP_BANDWITH_LIMIT_EXCEEDED            = 509,
-    HTTP_NOT_EXTENDED                       = 510 //RFC 2774 
+    HTTP_NOT_EXTENDED                       = 510 //RFC 2774
     };
-    
+
 
 enum {
     HEADER_MULTIPLE_LINES = 0,
@@ -92,9 +92,9 @@ struct HttpStatus {
 
 /* Http Response Parser */
 class GMAPI HttpResponse {
-private: 
+private:
     MemoryBuffer buffer;            // Internal Buffer
-protected: 
+protected:
     FXuint       flags;             // Options flags used by parser
     FXint        content_length;    // Content Length from header
     FXint        chunk_remaining;   // Remaining bytes left to read in chunk
@@ -106,7 +106,8 @@ protected:
     // Internal Parser Flags
     enum {
         ChunkedResponse = 0x1,      // Chunked Response
-        ConnectionClose = 0x2       // Connection Closes
+        ConnectionClose = 0x2,      // Connection Closes
+        Last            = 0x4
         };
 
 protected:
@@ -166,8 +167,8 @@ protected:
     // Constructor
     HttpResponse();
 
-    // Clear Response 
-    void clear(); 
+    // Clear Response
+    void clear();
 
 public:
 
@@ -188,7 +189,7 @@ public:
 
     // Return Content Length if known or -1
     FXint getContentLength() const;
-    
+
     // Destructor
     virtual ~HttpResponse();
     };
@@ -199,12 +200,14 @@ struct HttpHost {
   FXString name;
   FXint    port;
 
-  HttpHost();    
+  HttpHost();
   HttpHost(const FXString & url);
 
   // Set from url. returns true if changed
   FXbool set(const FXString & url);
   };
+
+
 
 
 
@@ -216,6 +219,10 @@ protected:
 protected:
     HttpHost      server;
     HttpHost      proxy;
+protected:
+    enum {
+        UseProxy = 0x4 // Keep in Sync with HttpResponse
+        };
 protected:
     FXival readBlock(void*,FXival);
     FXival writeBlock(const void*,FXival);
@@ -232,7 +239,13 @@ public:
 
     FXbool request(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);
 
-    static FXString perform(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);
+
+
+    // Perform basic request and handles some basic HTTP features
+    FXbool basic(const FXchar *   method,
+                 const FXString & url,
+                 const FXString & headers=FXString::null,
+                 const FXString & body=FXString::null);
 
     ~HttpClient();
     };

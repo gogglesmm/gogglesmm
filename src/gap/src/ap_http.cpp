@@ -81,6 +81,7 @@ FXival HttpResponse::fill(FXival nbytes) {
   buffer.reserve(nbytes);
   FXival nread = readBlock((FXchar*)buffer.ptr(),nbytes);
   if (nread>0) {
+    //fxmessage("buf: \"%s\"\n",buffer.data());
     buffer.wroteBytes(nread);
     }
   return nread;
@@ -133,7 +134,6 @@ FXbool HttpResponse::parse_header(FXString & line,FXuint mode) {
 void HttpResponse::insert_header(const FXString & header) {
   FXString key   = header.before(':').lower();
   FXString value = header.after(':').trim();
-
   FXString * existing = (FXString*)headers.find(key.text());
   if (existing) {
     (*existing) += ", " + value;
@@ -143,7 +143,6 @@ void HttpResponse::insert_header(const FXString & header) {
     v->adopt(value);
     headers.replace(key.text(),v);
     }
-//    fxmessage("%s : %s\n",key.text(),value.text());
   }
 
 void HttpResponse::clear_headers() {
@@ -168,6 +167,12 @@ void HttpResponse::check_headers() {
   field = (FXString*) headers.find("connection");
   if (field && comparecase(*field,"close")==0)
     flags|=ConnectionClose;
+    
+#ifdef DEBUG    
+  for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
+    fxmessage("%s: %s\n",headers.key(pos),((FXString*)headers.data(pos))->text());
+    }
+#endif    
   }
 
 
@@ -181,15 +186,13 @@ FXbool HttpResponse::read_chunk_header(FXint & chunksize) {
   // We've read a previous chunk
   if (chunksize==0) {
     if (read(clrf,2)!=2 || clrf[0]!='\r' || clrf[1]!='\n') {
-      fxmessage("missing line feed: %c%c\n",clrf[0],clrf[2]);
+      fxwarning("http: missing line feed: %c%c\n",clrf[0],clrf[2]);
       return false;
       }
     }
 
   if (read_header(header,HEADER_SINGLE_LINE)) {
-    //fxmessage("chunk_header: \"%s\"\n",header.text());
     if (header.scan("%x",&chunksize)==1) {
-      //fxmessage("chunk: %d\n",chunksize);
       return true;
       }
     }
@@ -202,7 +205,7 @@ FXbool HttpResponse::read_status() {
   FXString header;
   if (read_header(header,HEADER_SINGLE_LINE)) {
     if (header.scan("HTTP/%d.%d %d",&status.major,&status.minor,&status.code)==3){
-      fxmessage("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
+      //fxmessage("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
       return true;
       }
     }
@@ -262,7 +265,7 @@ FXString HttpResponse::read_body_chunked() {
       pos+=chunksize;
       chunksize=0;
       if (!read_chunk_header(chunksize)) {
-        fxmessage("reading next chunk failed\n");
+        fxwarning("http: reading next chunk failed\n");
         return FXString::null;
         }
       }
@@ -327,7 +330,7 @@ FXival HttpResponse::read_body_chunked(void * ptr,FXival len) {
           }
         return nread;
         }
-      } 
+      }
     n = read(data,FXMIN(len,chunk_remaining));
     if (n<=0) return nread;
     data+=n;
@@ -398,14 +401,14 @@ FXbool HttpHost::set(const FXString & url) {
   FXString nn = FXURL::host(url);
   FXint    np = FXURL::port(url);
   if (np==0) np=80;
-  
+
   if (name!=nn || port!=np) {
     name.adopt(nn);
     port=np;
     return true;
     }
   return false;
-  }  
+  }
 
 
 
@@ -438,13 +441,21 @@ FXbool HttpClient::open_connection() {
   struct addrinfo   hints;
   struct addrinfo * list=NULL;
   struct addrinfo * item=NULL;
+  FXint result;
+
 
   memset(&hints,0,sizeof(struct addrinfo));
   hints.ai_family=AF_UNSPEC;
   hints.ai_socktype=SOCK_STREAM;
   hints.ai_flags|=(AI_NUMERICSERV|AI_ADDRCONFIG);
 
-  FXint result=getaddrinfo(server.name.text(),FXString::value(server.port).text(),&hints,&list);
+
+  if (flags&UseProxy)
+    result=getaddrinfo(proxy.name.text(),FXString::value(proxy.port).text(),&hints,&list);
+  else
+    result=getaddrinfo(server.name.text(),FXString::value(server.port).text(),&hints,&list);
+
+
   if (result)
     return false;
 
@@ -505,7 +516,7 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
 
   // Set Server Host
   if (server.set(url)) {
-//    if (!flags&HttpProxy) 
+//    if (!flags&HttpProxy)
       close();
     }
 
@@ -513,17 +524,25 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
   if (device==BadHandle && !open_connection())
     return false;
 
+
   // Extract path and query
   path  = FXURL::path(url);
+  if (path.empty())
+    path = "/";
+
   query = FXURL::query(url);
   if (!query.empty())
     path += "?" + query;
 
+
+//  fxmessage("path: %s\n",path.text());
+
   // Method + Path
 //  if (flags&HttpProxy)
-//    command = method + url  + "\r\n" 
+//    command = method + url  + "\r\n"
   //else
-    command = method + path + "\r\n"; 
+  command = method;
+  command += " " + path + " HTTP/1.1\r\n";
 
   // Add Host
   command += "Host: " + server.name + "\r\n";
@@ -533,8 +552,8 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
     command +=  "Content-Length: " + FXString::value(body.length()) + "\r\n";
 
   // Additional headers
-  command+=headers;    
-    
+  command+=headers;
+
   // End of headers
   command += "\r\n";
 
@@ -548,52 +567,107 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
 
 
 
+FXString ap_encode_base64(const FXString & source) {
+  const FXchar base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  const FXuchar * in = (const FXuchar*)source.text();
+  FXint remaining = source.length() % 3;
+  FXint length    = source.length() - remaining;
+  FXint n=0;
+  FXString out;
+
+  out.length(4*(source.length()/3));
+
+  for (int i=0;i<length;i+=3) {
+    out[n++]=base64[(in[i]>>2)];
+    out[n++]=base64[((in[i]&0x3)<<4)|(in[i+1]>>4)];
+    out[n++]=base64[(in[i+1]&0xf)|(in[i+2]>>6)];
+    out[n++]=base64[(in[i+2]&0x3f)];
+    }
+
+  if (remaining) {
+    out[n++]=base64[(in[length]>>2)];
+    if (remaining>1) {
+      out[n++]=base64[((in[length]&0x3)<<4)|(in[length+1]>>4)];
+      out[n++]=base64[(in[length+1]&0xf)|in[length+2]>>6];
+      out[n++]='=';
+      }
+    else {
+      out[n++]=base64[((in[length]&0x3)<<4)];
+      out[n++]='=';
+      out[n++]='=';
+      }
+    }
+  return out;
+  }
 
 
-FXString HttpClient::perform(const FXchar * method,const FXString & url,const FXString & headers,const FXString & body) {
-  HttpClient client;
-  if (client.request(method,url,headers,body)) { 
+
+
+FXbool HttpClient::basic(const FXchar *   method,
+                         const FXString & url,
+                         const FXString & headers,
+                         const FXString & body) {
+  FXString auth;
+  FXString location=url;
+
+  close();
+  clear();
+
+  if (request(method,url,headers,body)) {
     do {
-      switch(client.parse()) {
+      switch(parse()) {
         case HTTP_RESPONSE_INFORMATIONAL:
           {
-            if (client.status.code==HTTP_CONTINUE) {
-              client.discard();
+            if (status.code==HTTP_CONTINUE) {
+              discard();
+              continue;
               }
-            else {
-              return FXString::null;
-              }
-            break;
-          }
-        case HTTP_RESPONSE_SUCCESS      : 
-          {
-            return client.body(); 
             break;
           }
         case HTTP_RESPONSE_REDIRECT     :
           {
-            FXString location = client.getHeader("location");
+            FXString location = getHeader("location");
+            if (location.empty() || (comparecase(method,"GET") && comparecase(method,"HEAD")) ) {
+              return false;
+              }
 
-            if (location.empty() || (comparecase(method,"GET") && comparecase(method,"HEAD")) )
-              return FXString::null;  
+            discard();
 
-            client.discard();
-
-            if (!client.request(method,location,headers,body))
-              return FXString::null;  
+            if (!request(method,location,headers,body)) {
+              return false;
+              }
 
             break;
           }
-        default: 
+        case HTTP_RESPONSE_CLIENT_ERROR  :
           {
-            return FXString::null; 
-            break;
-          } 
+#if 0
+            if (status.code==HTTP_UNAUTHORIZED) {
+              FXString challenge = getHeader("www-authenticate");
+              if (comparecase(challenge,"basic",5)==0) {
+                FXString auth = "Basic " + ap_encode_base64(FXURL::username(url) + ":" + FXURL::password(url)) + "\r\n";
+                discard();
+                if (!request(method,location,headers+auth,body)) {
+                  return false;
+                  }
+                }
+              else if (comparecase(challenge,"digest",6)==0){
+                FXASSERT(0);
+                }
+              }
+            else {
+              return false;
+              }
+#endif
+          } break;
+
+        default: break;
         }
+      return true;
       }
     while(1);
     }
-  return FXString::null; 
+  return false;
   }
 
 
