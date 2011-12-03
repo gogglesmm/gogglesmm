@@ -83,7 +83,7 @@ enum {
 
 
 /* Http Status */
-struct HttpStatus {
+struct GMAPI HttpStatus {
     FXint major;
     FXint minor;
     FXint code;
@@ -97,6 +97,7 @@ private:
 protected:
     FXuint       flags;             // Options flags used by parser
     FXint        content_length;    // Content Length from header
+    FXint        content_remaining; // Content left to read
     FXint        chunk_remaining;   // Remaining bytes left to read in chunk
 public:
     HttpStatus   status;            // Response Status. Valid after response() returns true
@@ -105,9 +106,10 @@ protected:
 
     // Internal Parser Flags
     enum {
-        ChunkedResponse = 0x1,      // Chunked Response
-        ConnectionClose = 0x2,      // Connection Closes
-        Last            = 0x4
+        ChunkedResponse  = 0x1,      // Chunked Response
+        ConnectionClose  = 0x2,      // Connection Closes
+        ResponseComplete = 0x4,
+        Last             = 0x8
         };
 
 protected:
@@ -150,14 +152,22 @@ private:
 
 private:
 
-    // Read body using chunked transfer
+    // Read body using normal transfer. Returns a string
+    FXString read_body();
+
+    // Read body using chunked transfer. Returns a string
     FXString read_body_chunked();
+
+
+    // Read body using normal transfer. Returns size of message body or -1.
+    FXival   read_body(FXchar*&);
+
+    // Read body using chunked transfer. Returns size of message body or -1.
+    FXival   read_body_chunked(FXchar*&);
+
 
     // Read body using chunked transfer
     FXival   read_body_chunked(void * ptr,FXival len);
-
-    // Read body using normal transfer
-    FXString read_body();
 
     // Read body using normal transfer
     FXival   read_body(void * ptr,FXival len);
@@ -178,11 +188,17 @@ public:
     // Read response status and headers.
     FXint parse();
 
-    // Return the body as a whole string
+    // Return the complete message body as string
     FXString body();
 
-    // Read Message Body
+    // Return the complete message body as buffer. Returns body size or -1 on error.
+    // Buffer needs to be freed with freeElms()
+    FXival body(FXchar *& out);
+
+
+    /// Read partial body
     FXival readBody(void*ptr,FXival len);
+
 
     // Return header for given key
     FXString getHeader(const FXString & key) const;
@@ -221,14 +237,21 @@ protected:
     HttpHost      proxy;
 protected:
     enum {
-        UseProxy = 0x4 // Keep in Sync with HttpResponse
+        UseProxy    =  0x8,   // Keep in Sync with HttpResponse
+        UseNonBlock = 0x10,  // Non Blocking Sockets
         };
 protected:
-    FXival readBlock(void*,FXival);
-    FXival writeBlock(const void*,FXival);
+    virtual FXival readBlock(void*,FXival);
+    virtual FXival writeBlock(const void*,FXival);
+
+    // Subclass for non-blocking IO
+    virtual FXbool wait_write(FXInputHandle) { return false; }
 protected:
     FXbool send(const FXchar *,FXint len);
     FXbool open_connection();
+
+    // Reset Response
+    void reset(FXbool forceclose);
 public:
     HttpClient();
 
@@ -240,10 +263,9 @@ public:
     FXbool request(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);
 
 
-
     // Perform basic request and handles some basic HTTP features
     FXbool basic(const FXchar *   method,
-                 const FXString & url,
+                 FXString         url,
                  const FXString & headers=FXString::null,
                  const FXString & body=FXString::null);
 

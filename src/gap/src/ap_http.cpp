@@ -167,12 +167,12 @@ void HttpResponse::check_headers() {
   field = (FXString*) headers.find("connection");
   if (field && comparecase(*field,"close")==0)
     flags|=ConnectionClose;
-    
-#ifdef DEBUG    
+
+#ifdef DEBUG
   for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
     fxmessage("%s: %s\n",headers.key(pos),((FXString*)headers.data(pos))->text());
     }
-#endif    
+#endif
   }
 
 
@@ -221,6 +221,9 @@ FXbool HttpResponse::read_header(FXString & header,FXuint mode) {
   return true;
   }
 
+
+
+
 // Read the full message body non-chunked
 FXString HttpResponse::read_body() {
   FXString body;
@@ -253,35 +256,188 @@ FXString HttpResponse::read_body() {
 
 // Read the full message body chunked
 FXString HttpResponse::read_body_chunked() {
+  FXString header;
   FXString body;
-  FXint    pos=0;
   FXint    chunksize=-1;
-  FXchar   clrf[2];
+
   if (read_chunk_header(chunksize)) {
+
     while(chunksize) {
+
+      // Resize buffer
       body.length(body.length()+chunksize);
-      FXival n = read(&body[pos],chunksize);
-      if (n<chunksize) return FXString::null;
-      pos+=chunksize;
+
+      // Anything less than chunksize is an error
+      if (read(&body[body.length()-chunksize],chunksize)<chunksize)
+        goto fail;
+
+      // Set to zero so read_chunk_header will check for crlf
       chunksize=0;
-      if (!read_chunk_header(chunksize)) {
-        fxwarning("http: reading next chunk failed\n");
-        return FXString::null;
-        }
+
+      // Next chunk header
+      if (!read_chunk_header(chunksize))
+        goto fail;
       }
 
-    // Possible... there may be a trailer
-    ///fxmessage("now trying to read trailers...\n");
-    FXString header;
+    // Trailing Headers
     while(read_header(header,HEADER_MULTIPLE_LINES)) {
+
       // empty header indicates end of headers
       if (header.empty())
         break;
+
       insert_header(header);
       }
+
+    return body;
     }
-  return body;
+fail:
+  return FXString::null;
   }
+
+
+
+
+
+FXival HttpResponse::read_body(FXchar *& body) {
+  body=NULL;
+
+  if (content_length>0) {
+    allocElms(body,content_length);
+    FXival n = read(body,content_length);
+    if (n!=content_length) {
+      freeElms(body);
+      body=NULL;
+      return -1;
+      }
+    return content_length;
+    }
+  else if (content_length<0) {
+    const FXint BLOCK=4096;
+    FXint  size = 0;
+    FXival len  = 0;
+    FXival n;
+    do {
+      resizeElms(body,size+BLOCK);
+      size+=BLOCK;
+      n = read(body+len,BLOCK);
+      if (n>0) len+=n;
+      }
+    while(n==BLOCK);
+    return len;
+    }
+  else {
+    return 0;
+    }
+  }
+
+
+FXival HttpResponse::read_body_chunked(FXchar *& body) {
+  FXString header;
+  FXint    size=0;
+  FXint    chunksize=-1;
+
+  body = NULL;
+
+  if (read_chunk_header(chunksize)) {
+
+    while(chunksize) {
+
+      // Resize buffer
+      size+=chunksize;
+      resizeElms(body,size);
+
+      // Anything less than chunksize is an error
+      if (read(body+size-chunksize,chunksize)<chunksize)
+        goto fail;
+
+      // Set to zero so read_chunk_header will check for crlf
+      chunksize=0;
+
+      // Next chunk header
+      if (!read_chunk_header(chunksize))
+        goto fail;
+      }
+
+    // Trailing Headers
+    while(read_header(header,HEADER_MULTIPLE_LINES)) {
+
+      // empty header indicates end of headers
+      if (header.empty())
+        break;
+
+      insert_header(header);
+      }
+
+    return size;
+    }
+fail:
+  freeElms(body);
+  return -1;
+  }
+
+
+FXival HttpResponse::read_body(void*ptr,FXival len) {
+  if (content_length >= 0) {
+    FXchar * data = (FXchar*)ptr;
+    FXival n = read(data,FXMIN(content_length,len));
+    if (n>0) content_length-=n;
+    return n;
+    }
+  else {
+    return read((FXchar*)ptr,len);
+    }
+  }
+
+
+FXival HttpResponse::read_body_chunked(void * ptr,FXival len) {
+  FXchar * data = (FXchar*)ptr;
+  FXString header;
+  FXival   nbytes=0;
+  while(len) {
+
+    if (chunk_remaining<=0) {
+
+      if (!read_chunk_header(chunk_remaining))
+        return -1;
+
+      if (chunk_remaining==0) {
+
+        // Trailing Headers
+        while(read_header(header,HEADER_MULTIPLE_LINES)) {
+
+          // empty header indicates end of headers
+          if (header.empty())
+            break;
+
+          insert_header(header);
+          }
+
+        return nbytes;
+        }
+      }
+
+    FXival n = read(data+nbytes,FXMIN(len,chunk_remaining));
+    if (n<=0) return nbytes;
+    chunk_remaining-=n;
+    nbytes+=n;
+    len-=n;
+    }
+  return nbytes;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -310,45 +466,12 @@ FXString HttpResponse::body() {
     return read_body();
   }
 
-FXival HttpResponse::read_body_chunked(void * ptr,FXival len) {
-  FXival n,nread=0;
-  FXchar * data = (FXchar*)ptr;
-
-  while(len){
-    if (chunk_remaining<=0) {
-
-      if (!read_chunk_header(chunk_remaining))
-        return -1;
-
-      if (chunk_remaining==0) {
-        FXString header;
-        while(read_header(header,HEADER_MULTIPLE_LINES)) {
-          // empty header indicates end of headers
-          if (header.empty())
-              break;
-          insert_header(header);
-          }
-        return nread;
-        }
-      }
-    n = read(data,FXMIN(len,chunk_remaining));
-    if (n<=0) return nread;
-    data+=n;
-    len-=n;
-    nread+=n;
-    chunk_remaining-=n;
-    }
-  return nread;
-  }
-
-FXival HttpResponse::read_body(void*ptr,FXival len) {
-  if (content_length >= 0) {
-    //return read(ptr,FXMIN(content_length_remaining,len);
-    return 0;
-    }
-  else {
-    return read((FXchar*)ptr,len);
-    }
+// Read the full message body into buffer
+FXival HttpResponse::body(FXchar *& out) {
+  if (flags&ChunkedResponse)
+    return read_body_chunked(out);
+  else
+    return read_body(out);
   }
 
 
@@ -365,7 +488,6 @@ void HttpResponse::discard() {
     FXchar buffer[1024];
     while(readBody(buffer,1024)==1024) ;
     }
-  clear();
   }
 
 FXString HttpResponse::getHeader(const FXString & key) const {
@@ -430,11 +552,57 @@ void HttpClient::close() {
   }
 
 void HttpClient::discard() {
-  if (flags&ConnectionClose)
+  if (flags&ConnectionClose) {
     close();
-  else
+    }
+  else {
     HttpResponse::discard();
+    }
   }
+
+
+static FXbool ap_set_nonblocking(FXint fd) {
+  FXint flags;
+
+  flags = fcntl(fd, F_GETFL);
+  if (flags==-1) return false;
+
+  flags |= O_NONBLOCK;
+
+  if (fcntl(fd,F_SETFL,flags)==-1)
+    return false;
+
+  return true;
+  }
+
+static FXbool ap_set_closeonexec(FXint fd) {
+  FXint flags;
+
+  flags = fcntl(fd, F_GETFD);
+  if (flags==-1) return false;
+
+  flags |= FD_CLOEXEC;
+
+  if (fcntl(fd,F_SETFD,flags)==-1)
+    return false;
+
+  return true;
+  }
+
+#if defined(SO_NOSIGPIPE)
+static FXbool ap_set_nosignal(FXint fd) {
+  int nosignal=1;
+  socklen_t len=sizeof(nosignal);
+  if (setsockopt(fd,SOL_SOCKET,SO_NOSIGPIPE,&nosignal,len)==0)
+    return true;
+  else
+    return false;
+  }
+#else
+static FXbool ap_set_nosignal(FXint)  {
+  return true;
+  }
+#endif
 
 
 FXbool HttpClient::open_connection() {
@@ -465,11 +633,42 @@ FXbool HttpClient::open_connection() {
     if (device == BadHandle)
       continue;
 
+    if (!ap_set_closeonexec(device)){
+      ::close(device);
+      continue;
+      }
+
+    if (flags&UseNonBlock && !ap_set_nonblocking(device)){
+      ::close(device);
+      continue;
+      }
+
+    ap_set_nosignal(device);
+
     if (connect(device,item->ai_addr,item->ai_addrlen)==0){
       freeaddrinfo(list);
       return true;
       }
 
+    // In case of non-blocking we need to wait for the socket to become ready to write.
+    if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
+      if (wait_write(device)) {
+        int socket_error=0;
+        socklen_t socket_length=sizeof(socket_error);
+        if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0){
+          freeaddrinfo(list);
+          return true;
+          }
+        }
+      else {
+        ::close(device);
+        device=BadHandle;
+        freeaddrinfo(list);
+        return false;
+        }
+      }
+
+    // Failed, try some other one.
     ::close(device);
     device=BadHandle;
     }
@@ -511,19 +710,31 @@ FXbool HttpClient::send(const FXchar * data,FXint len) {
   }
 
 
+
+void HttpClient::reset(FXbool forceclose){
+  if (forceclose)
+    close();
+  else
+    discard();
+
+  clear();
+  }
+
+
 FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXString & headers,const FXString & body) {
   FXString command,path,query;
 
   // Set Server Host
-  if (server.set(url)) {
-//    if (!flags&HttpProxy)
-      close();
-    }
+  FXbool host_changed = server.set(url);
+  if (flags&UseProxy)
+    host_changed = false;
+
+  // Reset Client
+  reset(host_changed);
 
   // Open connection if necessary
   if (device==BadHandle && !open_connection())
     return false;
-
 
   // Extract path and query
   path  = FXURL::path(url);
@@ -567,7 +778,7 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
 
 
 
-FXString ap_encode_base64(const FXString & source) {
+static FXString ap_encode_base64(const FXString & source) {
   const FXchar base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   const FXuchar * in = (const FXuchar*)source.text();
   FXint remaining = source.length() % 3;
@@ -580,7 +791,7 @@ FXString ap_encode_base64(const FXString & source) {
   for (int i=0;i<length;i+=3) {
     out[n++]=base64[(in[i]>>2)];
     out[n++]=base64[((in[i]&0x3)<<4)|(in[i+1]>>4)];
-    out[n++]=base64[(in[i+1]&0xf)|(in[i+2]>>6)];
+    out[n++]=base64[((in[i+1]&0xf)<<2)|(in[i+2]>>6)];
     out[n++]=base64[(in[i+2]&0x3f)];
     }
 
@@ -588,7 +799,7 @@ FXString ap_encode_base64(const FXString & source) {
     out[n++]=base64[(in[length]>>2)];
     if (remaining>1) {
       out[n++]=base64[((in[length]&0x3)<<4)|(in[length+1]>>4)];
-      out[n++]=base64[(in[length+1]&0xf)|in[length+2]>>6];
+      out[n++]=base64[((in[length+1]&0xf)<<2)|in[length+2]>>6];
       out[n++]='=';
       }
     else {
@@ -603,15 +814,10 @@ FXString ap_encode_base64(const FXString & source) {
 
 
 
-FXbool HttpClient::basic(const FXchar *   method,
-                         const FXString & url,
+FXbool HttpClient::basic(const FXchar*    method,
+                         FXString         url,
                          const FXString & headers,
                          const FXString & body) {
-  FXString auth;
-  FXString location=url;
-
-  close();
-  clear();
 
   if (request(method,url,headers,body)) {
     do {
@@ -619,46 +825,58 @@ FXbool HttpClient::basic(const FXchar *   method,
         case HTTP_RESPONSE_INFORMATIONAL:
           {
             if (status.code==HTTP_CONTINUE) {
-              discard();
               continue;
               }
             break;
           }
         case HTTP_RESPONSE_REDIRECT     :
           {
-            FXString location = getHeader("location");
-            if (location.empty() || (comparecase(method,"GET") && comparecase(method,"HEAD")) ) {
+            // 304 - Document not changed. We're done
+            // 305 - Need to use a proxy. Currently not handled
+            // 306 - Unused
+            if (status.code==HTTP_NOT_MODIFIED || status.code==HTTP_USE_PROXY || status.code==306)
+              return true;
+
+            url = getHeader("location");
+
+            // No url given, done here
+            if (url.empty())
+              return false;
+
+            // Don't do automatic redirections for non GET/HEAD requests
+            if (comparecase(method,"GET") && comparecase(method,"HEAD"))
+              return true;
+
+            if (!request(method,url,headers,body)) {
               return false;
               }
-
-            discard();
-
-            if (!request(method,location,headers,body)) {
-              return false;
-              }
-
+            continue;
             break;
           }
         case HTTP_RESPONSE_CLIENT_ERROR  :
           {
-#if 0
             if (status.code==HTTP_UNAUTHORIZED) {
+
+              FXString user     = FXURL::username(url);
+              FXString password = FXURL::password(url);
+
+              if (user.empty() || password.empty())
+                return true;
+
               FXString challenge = getHeader("www-authenticate");
+
               if (comparecase(challenge,"basic",5)==0) {
-                FXString auth = "Basic " + ap_encode_base64(FXURL::username(url) + ":" + FXURL::password(url)) + "\r\n";
-                discard();
-                if (!request(method,location,headers+auth,body)) {
+                FXString auth = "Authorization: Basic " + ap_encode_base64(user+":"+password) + "\r\n";
+
+                if (!request(method,url,headers+auth,body)) {
                   return false;
                   }
+                continue;
                 }
-              else if (comparecase(challenge,"digest",6)==0){
-                FXASSERT(0);
-                }
+//              else if (comparecase(challenge,"digest",6)==0){
+//                FXASSERT(0);
+//                }
               }
-            else {
-              return false;
-              }
-#endif
           } break;
 
         default: break;
