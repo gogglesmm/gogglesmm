@@ -186,7 +186,7 @@ FXbool HttpResponse::read_chunk_header(FXint & chunksize) {
   // We've read a previous chunk
   if (chunksize==0) {
     if (read(clrf,2)!=2 || clrf[0]!='\r' || clrf[1]!='\n') {
-      fxwarning("http: missing line feed: %c%c\n",clrf[0],clrf[2]);
+      fxwarning("http: missing line feed: %c%c\n",clrf[0],clrf[1]);
       return false;
       }
     }
