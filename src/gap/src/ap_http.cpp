@@ -238,7 +238,6 @@ FXString HttpResponse::read_body() {
     }
   else {
     const FXint BLOCK=4096;
-    FXint size=0;
     FXint pos=0;
     FXival n=0;
     do {
