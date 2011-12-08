@@ -131,7 +131,8 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
   else if (comparecase(mime,"audio/aacp")==0){
     return Format::AAC;
     }
-  else if (comparecase(mime,"audio/x-mpegurl")==0){
+  else if (comparecase(mime,"audio/x-mpegurl")==0 ||
+           comparecase(mime,"audio/mpegurl")==0) {
     return Format::M3U;
     }
   else if ((comparecase(mime,"application/pls+xml")==0) || /// wrong mimetype, but NPR actually returns this: http://www.npr.org/streams/mp3/nprlive24.pls

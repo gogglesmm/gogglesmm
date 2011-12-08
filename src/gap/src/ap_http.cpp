@@ -20,8 +20,17 @@
 #define APIntVal(x)  FXIntVal((x))
 #define APStringVal FXStringVal
 #else
-#define APIntVal(x) ((x).toInt()) 
-#define APStringVal FXString::value 
+#define APIntVal(x) ((x).toInt())
+#define APStringVal FXString::value
+#endif
+
+
+#ifndef BadHandle
+#ifdef WIN32
+#define BadHandle INVALID_HANDLE_VALUE
+#else
+#define BadHandle -1
+#endif
 #endif
 
 
@@ -625,7 +634,7 @@ static FXbool ap_set_timeout(FXInputHandle handle,FXint timeout) {
   memset(&tv,0,sizeof(struct timeval));
 
   tv.tv_sec  = timeout;
-  
+
   // Receiving
   if (setsockopt(handle,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(struct timeval)))
     return false;
@@ -634,7 +643,7 @@ static FXbool ap_set_timeout(FXInputHandle handle,FXint timeout) {
   if (setsockopt(handle,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(struct timeval)))
     return false;
 
-  return true;    
+  return true;
   }
 
 
@@ -652,24 +661,24 @@ static FXbool ap_set_timeout(FXInputHandle handle,FXint timeout) {
 
 static FXInputHandle ap_create_socket(FXint domain, FXint type, FXint protocol,FXbool nonblocking,FXuint timeout=10) {
   FXInputHandle device = BadHandle;
-    
+
   // On linux 2.6.27 we can pass additional socket options
   int opts=0;
 
-#ifdef SOCK_CLOEXEC     
+#ifdef SOCK_CLOEXEC
   opts|=SOCK_CLOEXEC;
 #endif
 
-#ifdef SOCK_NONBLOCK     
-  if (nonblocking) 
+#ifdef SOCK_NONBLOCK
+  if (nonblocking)
     opts|=SOCK_NONBLOCK;
-#endif    
+#endif
 
   device = socket(domain,type|opts,protocol);
   if (device==BadHandle)
     return BadHandle;
 
-#ifndef SOCK_CLOEXEC   
+#ifndef SOCK_CLOEXEC
   if (!ap_set_closeonexec(device)){
     ::close(device);
     return BadHandle;
@@ -694,7 +703,7 @@ static FXInputHandle ap_create_socket(FXint domain, FXint type, FXint protocol,F
     ::close(device);
     return BadHandle;
     }
- 
+
   return device;
   }
 
@@ -814,7 +823,7 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
   reset(host_changed);
 
   if (compare(method,"HEAD")==0) {
-    flags|=HeadRequest;        
+    flags|=HeadRequest;
     }
 
   // Open connection if necessary
