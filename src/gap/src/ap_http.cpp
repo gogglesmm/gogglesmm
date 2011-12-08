@@ -16,6 +16,15 @@
 #define MSG_NOSIGNAL 0
 #endif
 
+#if FOXVERSION < FXVERSION(1,7,0)
+#define APIntVal(x)  FXIntVal((x))
+#define APStringVal FXStringVal
+#else
+#define APIntVal(x) ((x).toInt()) 
+#define APStringVal FXString::value 
+#endif
+
+
 using namespace ap;
 
 namespace ap {
@@ -158,7 +167,7 @@ void HttpResponse::check_headers() {
 
   field = (FXString*) headers.find("content-length");
   if (field)
-    content_length = field->toInt();
+    content_length = APIntVal(*field);
 
   field = (FXString*) headers.find("transfer-encoding");
   if (field && field->contains("chunked") )
@@ -205,7 +214,7 @@ FXbool HttpResponse::read_status() {
   FXString header;
   if (read_header(header,HEADER_SINGLE_LINE)) {
     if (header.scan("HTTP/%d.%d %d",&status.major,&status.minor,&status.code)==3){
-      //fxmessage("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
+      fxmessage("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
       return true;
       }
     }
@@ -459,7 +468,9 @@ FXint HttpResponse::parse() {
 
 // Read the full message body into string
 FXString HttpResponse::body() {
-  if (flags&ChunkedResponse)
+  if (flags&HeadRequest)
+    return FXString::null;
+  else if (flags&ChunkedResponse)
     return read_body_chunked();
   else
     return read_body();
@@ -467,7 +478,9 @@ FXString HttpResponse::body() {
 
 // Read the full message body into buffer
 FXival HttpResponse::body(FXchar *& out) {
-  if (flags&ChunkedResponse)
+  if (flags&HeadRequest)
+    return 0;
+  else if (flags&ChunkedResponse)
     return read_body_chunked(out);
   else
     return read_body(out);
@@ -475,7 +488,9 @@ FXival HttpResponse::body(FXchar *& out) {
 
 
 FXival HttpResponse::readBody(void * ptr,FXival len) {
-  if (flags&ChunkedResponse)
+  if (flags&HeadRequest)
+    return 0;
+  else if (flags&ChunkedResponse)
     return read_body_chunked(ptr,len);
   else
     return read_body(ptr,len);
@@ -483,7 +498,7 @@ FXival HttpResponse::readBody(void * ptr,FXival len) {
 
 
 void HttpResponse::discard() {
-  if (!(flags&ConnectionClose)) {
+  if (!(flags&ConnectionClose) && !(flags&HeadRequest)) {
     FXchar buffer[1024];
     while(readBody(buffer,1024)==1024) ;
     }
@@ -599,9 +614,89 @@ static FXbool ap_set_nosignal(FXint fd) {
   }
 #else
 static FXbool ap_set_nosignal(FXint)  {
+  // will try to use MSG_NOSIGNAL instead...
   return true;
   }
 #endif
+
+static FXbool ap_set_timeout(FXInputHandle handle,FXint timeout) {
+  struct timeval tv;
+
+  memset(&tv,0,sizeof(struct timeval));
+
+  tv.tv_sec  = timeout;
+  
+  // Receiving
+  if (setsockopt(handle,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(struct timeval)))
+    return false;
+
+  // Sending
+  if (setsockopt(handle,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(struct timeval)))
+    return false;
+
+  return true;    
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+static FXInputHandle ap_create_socket(FXint domain, FXint type, FXint protocol,FXbool nonblocking,FXuint timeout=10) {
+  FXInputHandle device = BadHandle;
+    
+  // On linux 2.6.27 we can pass additional socket options
+  int opts=0;
+
+#ifdef SOCK_CLOEXEC     
+  opts|=SOCK_CLOEXEC;
+#endif
+
+#ifdef SOCK_NONBLOCK     
+  if (nonblocking) 
+    opts|=SOCK_NONBLOCK;
+#endif    
+
+  device = socket(domain,type|opts,protocol);
+  if (device==BadHandle)
+    return BadHandle;
+
+#ifndef SOCK_CLOEXEC   
+  if (!ap_set_closeonexec(device)){
+    ::close(device);
+    return BadHandle;
+    }
+#endif
+
+#ifndef SOCK_NONBLOCK
+  if (nonblocking && !ap_set_nonblocking(device)){
+    ::close(device);
+    return BadHandle;
+    }
+#endif
+
+  // Don't want signals
+  if (!ap_set_nosignal(device)) {
+    ::close(device);
+    return BadHandle;
+    }
+
+  // In case of blocking sockets, set a timeout
+  if (!nonblocking && !ap_set_timeout(device,timeout)) {
+    ::close(device);
+    return BadHandle;
+    }
+ 
+  return device;
+  }
 
 
 FXbool HttpClient::open_connection() {
@@ -618,31 +713,18 @@ FXbool HttpClient::open_connection() {
 
 
   if (flags&UseProxy)
-    result=getaddrinfo(proxy.name.text(),FXString::value(proxy.port).text(),&hints,&list);
+    result=getaddrinfo(proxy.name.text(),APStringVal(proxy.port).text(),&hints,&list);
   else
-    result=getaddrinfo(server.name.text(),FXString::value(server.port).text(),&hints,&list);
-
+    result=getaddrinfo(server.name.text(),APStringVal(server.port).text(),&hints,&list);
 
   if (result)
     return false;
 
   for (item=list;item;item=item->ai_next){
 
-    device = socket(item->ai_family,item->ai_socktype,item->ai_protocol);
+    device = ap_create_socket(item->ai_family,item->ai_socktype,item->ai_protocol,(flags&UseNonBlock));
     if (device == BadHandle)
       continue;
-
-    if (!ap_set_closeonexec(device)){
-      ::close(device);
-      continue;
-      }
-
-    if (flags&UseNonBlock && !ap_set_nonblocking(device)){
-      ::close(device);
-      continue;
-      }
-
-    ap_set_nosignal(device);
 
     if (connect(device,item->ai_addr,item->ai_addrlen)==0){
       freeaddrinfo(list);
@@ -731,6 +813,10 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
   // Reset Client
   reset(host_changed);
 
+  if (compare(method,"HEAD")==0) {
+    flags|=HeadRequest;        
+    }
+
   // Open connection if necessary
   if (device==BadHandle && !open_connection())
     return false;
@@ -759,7 +845,7 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
 
   // Add Content Length
   if (body.length())
-    command +=  "Content-Length: " + FXString::value(body.length()) + "\r\n";
+    command +=  "Content-Length: " + APStringVal(body.length()) + "\r\n";
 
   // Additional headers
   command+=headers;

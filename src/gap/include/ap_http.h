@@ -1,6 +1,10 @@
 #ifndef AP_HTTP_H
 #define AP_HTTP_H
 
+#ifndef GMAPI
+#define GMAPI
+#endif
+
 namespace ap {
 
 enum {
@@ -109,7 +113,8 @@ protected:
         ChunkedResponse  = 0x1,      // Chunked Response
         ConnectionClose  = 0x2,      // Connection Closes
         ResponseComplete = 0x4,
-        Last             = 0x8
+        HeadRequest      = 0x8,
+        Last             = 0x10
         };
 
 protected:
@@ -237,8 +242,8 @@ protected:
     HttpHost      proxy;
 protected:
     enum {
-        UseProxy    =  0x8,   // Keep in Sync with HttpResponse
-        UseNonBlock = 0x10,  // Non Blocking Sockets
+        UseProxy    = 0x10,   // Keep in Sync with HttpResponse
+        UseNonBlock = 0x20,  // Non Blocking Sockets
         };
 protected:
     virtual FXival readBlock(void*,FXival);
