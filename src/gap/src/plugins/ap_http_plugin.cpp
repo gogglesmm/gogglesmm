@@ -405,7 +405,7 @@ FXbool HttpInput::parse_response() {
         break;
         }
       else if (comparecase(header,"Content-Type:",13)==0) {
-        FXString type = header.after(':').trim();
+        FXString type = header.after(':').before(';').trim();
         content_type=ap_format_from_mime(type);
         }
       else if (comparecase(header,"Content-Length:",15)==0) {
