@@ -544,9 +544,13 @@ HttpHost::HttpHost(const FXString & url) {
 
 FXbool HttpHost::set(const FXString & url) {
   FXString nn = FXURL::host(url);
+#if FOXVERSION >= FXVERSION(1,7,31)
+  FXint    np = FXURL::port(url,80);
+#else  
   FXint    np = FXURL::port(url);
   if (np==0) np=80;
-
+#endif  
+  
   if (name!=nn || port!=np) {
     name.adopt(nn);
     port=np;
