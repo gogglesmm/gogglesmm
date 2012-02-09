@@ -50,10 +50,6 @@ protected:
 protected:
   virtual FXbool dispatchEvent(FXRawEvent & event);
 public:
-#ifdef HAVE_NLS
-  locale_t      clocale;
-#endif
-public:
   static GMApp * instance();
 public:
   GMApp();

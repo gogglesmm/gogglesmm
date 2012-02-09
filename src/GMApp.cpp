@@ -86,15 +86,9 @@ FXIMPLEMENT(GMApp,FXApp,NULL,0)
 GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
   clipboard = new GMClipboard(this);
   xembed=0;
-#ifdef HAVE_NLS
-  clocale = newlocale(LC_ALL_MASK,"C",NULL);
-#endif
   }
 
 GMApp::~GMApp(){
-#ifdef HAVE_NLS
-  freelocale(clocale);
-#endif
   delete clipboard;
   }
 
