@@ -92,6 +92,14 @@ GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
   }
 
 GMApp::~GMApp(){
+
+
+  delete coverheadfont;
+  delete coverbasefont;
+  delete listtailfont;
+  delete thickfont;
+
+
 #ifdef HAVE_NLS
   freelocale(clocale);
 #endif

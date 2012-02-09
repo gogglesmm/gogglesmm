@@ -641,7 +641,8 @@ void GMWindow::reset() {
   statusbar->getStatusLine()->setNormalText("Ready.");
 
   /// Clear Cover
-  loadCover(FXString::null);
+  setCover(NULL);
+
 
 #if APPLICATION_BETA > 0
   setTitle(FXString::value("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
@@ -1111,23 +1112,12 @@ long GMWindow::onCmdVolumeButton(FXObject*,FXSelector sel,void*ptr){
   }
 
 long GMWindow::onUpdVolumeButton(FXObject*sender,FXSelector,void*){
-//#ifdef HAVE_XINE_LIB
-///  if (GMPlayerManager::instance()->getPlayer()->opened())
-//    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-//  else
-//    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
-//#else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-
-//  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
-//#endif
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
   return 1;
   }
 
+// FIXME
 long GMWindow::onCmdRepeatAB(FXObject*,FXSelector,void*){
-//#ifdef HAVE_XINE_LIB
-//  GMPlayerManager::instance()->getPlayer()->setRepeatAB();
-//#endif
   return 1;
   }
 
@@ -1378,8 +1368,6 @@ void GMWindow::setCover(GMCover*cvr) {
   else
     coverdisplaysize=FXCLAMP(64,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,500);
 
-
-
   cover = GMCover::copyToImage(cvr,coverdisplaysize);
 
   /// Delete current cover
@@ -1447,131 +1435,12 @@ void GMWindow::setCover(GMCover*cvr) {
     }
   }
 
-
-void GMWindow::loadCover(const FXString & filename) {
-  FXIconSource src(getApp());
-  FXImage * cover=NULL;
-  FXint coverdisplaysize;
-  FXString dirname=filename;
-
-  const FXint smallcoversize=64;
-
-  /// Whether to scale the image when loading or not
-  if (coverview_gl)
-    coverdisplaysize=0;
-  else
-    coverdisplaysize=FXCLAMP(64,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,500);
-
-  /// Check if we've already loaded it.
-  if (filename==coverfile) {
-    return;
-    }
-
-  /// If empty skip cover searching
-  if (!filename.empty()) {
-    GMCover * c = GMCover::fromTag(filename);
-    if (!c) {
-      dirname = FXPath::directory(filename);
-      if (!dirname.empty()) {
-        if (dirname==coverfile)
-          return;
-        c = GMCover::fromPath(dirname);
-        }
-      }
-    if (c) {
-     // c->save("/dev/shm/gogglesmm","cover");
-      cover = GMCover::toImage(c,coverdisplaysize);
-      }
-
-
-/*
-
-
-    cover = GMCover::toImage(GMCover::fromTag(filename),coverdisplaysize);
-    if (cover==NULL) {
-      dirname = FXPath::directory(filename);
-      if (!dirname.empty()) {
-        if (dirname==coverfile)
-          return;
-        cover= GMCover::toImage(GMCover::fromPath(dirname),coverdisplaysize);
-        }
-      }
-     */
-    }
-
-  /// Delete current cover
-  if (remote)
-    remote->updateCover(NULL);
-
-  if (cover_small)  {
-    FXImage * img = cover_small.release();
-    delete img;
-    }
-
-  if (coverview_x11) {
-    if (coverview_x11->getImage()){
-      delete coverview_x11->getImage();
-      coverview_x11->setImage(NULL);
-      }
-    }
-
-  /// Set new cover to coverview
-  if (coverview_gl)
-    coverview_gl->setImage(cover);
-  else
-    coverview_x11->setImage(cover);
-
-  if (cover) {
-    coverfile = dirname;
-
-    /// Retrieve Image Data
-    FXColor * imagedata = cover->getData();
-
-    /// Disown image data
-    FXImageOwner::clear(cover);
-
-    /// Make sure to create cover for x11
-    if (coverview_x11)
-      cover->create();
-
-    /// Make small cover the owner of the data
-    cover_small = new FXImage(getApp(),imagedata,IMAGE_SHMI|IMAGE_SHMP|IMAGE_KEEP|IMAGE_OWNED,cover->getWidth(),cover->getHeight());
-    if (cover_small->getWidth()>smallcoversize || cover_small->getHeight()>smallcoversize) {
-      if (cover_small->getWidth()>cover_small->getHeight())
-        cover_small->scale(smallcoversize,(smallcoversize*cover_small->getHeight())/cover_small->getWidth(),1);
-      else
-        cover_small->scale((smallcoversize*cover_small->getWidth())/cover_small->getHeight(),smallcoversize,1);
-      }
-
-    /// delete the cover for gl.
-    if (coverview_gl)
-      delete cover;
-
-    cover_small->create();
-
-    if (remote)
-      remote->updateCover(cover_small);
-
-    if (!coverframe->shown()) {
-      coverframe->show();
-      coverframe->recalc();
-      }
-    }
-  else {
-    coverfile = FXString::null;
-    if (coverframe->shown()) {
-      coverframe->hide();
-      coverframe->recalc();
-      }
-    }
-  }
-
 void GMWindow::updateCoverView() {
 
   if (GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview && FXGLVisual::hasOpenGL(getApp())) {
 
     if (coverview_x11) {
-      loadCover(FXString::null);
+      setCover(NULL);
       delete coverview_x11;
       coverview_x11=NULL;
       }
@@ -1589,7 +1458,7 @@ void GMWindow::updateCoverView() {
   else {
 
     if (coverview_gl) {
-      loadCover(FXString::null);
+      setCover(NULL);
       delete coverview_gl;
       coverview_gl=NULL;
       delete glvisual;
@@ -1652,7 +1521,8 @@ long GMWindow::onCmdCoverSize(FXObject*,FXSelector sel,void*){
     case ID_COVERSIZE_LARGE      : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size=384; break;
     case ID_COVERSIZE_EXTRALARGE : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size=512; break;
     }
-  loadCover(FXString::null);
+  setCover(NULL);
+//  loadCover(FXString::null);
   if (GMPlayerManager::instance()->playing())
     GMPlayerManager::instance()->update_cover_display();
   return 1;

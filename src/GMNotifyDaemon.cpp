@@ -190,7 +190,7 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
 
 long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
-  const FXchar ** caps;
+  FXchar ** caps = NULL;
   int ncaps;
   if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&caps,&ncaps,DBUS_TYPE_INVALID)) {
     FXbool has_action_icons=false;
@@ -215,6 +215,9 @@ long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
       persistent=true;
       reset();
       }
+
+    // Need to delete array of strings returned by dbus_message_get_args
+    dbus_free_string_array(caps);
     }
   return 1;
   }

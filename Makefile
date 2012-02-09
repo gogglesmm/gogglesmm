@@ -48,6 +48,7 @@ src/GMClipboard.cpp \
 src/GMColumnDialog.cpp \
 src/GMCover.cpp \
 src/GMCoverCache.cpp \
+src/GMCoverManager.cpp \
 src/GMDatabase.cpp \
 src/GMDatabaseSource.cpp \
 src/GMFilename.cpp \

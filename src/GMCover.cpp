@@ -36,9 +36,6 @@
 
 #if TAGLIB_VERSION < MKVERSION(1,7,0)
 
-
-
-
 #if FOX_BIGENDIAN == 0
 #define FLAC_LAST_BLOCK   0x80
 #define FLAC_BLOCK_TYPE_MASK 0x7f
@@ -208,24 +205,6 @@ static GMCover * flac_load_front_cover(const FXString & mrl,FXint scale,FXint cr
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 GMCover::GMCover() : data(NULL),len(0), type(0) {
   }
 
@@ -353,7 +332,7 @@ GMCover * GMCover::fromFile(const FXString & filename) {
   }
 
 GMCover * GMCover::fromPath(const FXString & path) {
-  static const FXchar * covernames[]={"cover","album","front","albumart",".folder","folder",NULL};
+  static const FXchar * const covernames[]={"cover","album","front","albumart",".folder","folder",NULL};
   FXString * files=NULL;
   FXString * names=NULL;
   GMCover  * cover=NULL;
@@ -401,56 +380,4 @@ FXImage * GMCover::toImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
     return image;
     }
   return NULL;
-  }
-
-
-GMCoverManager::GMCoverManager() : cover(NULL){
-  }
-
-GMCoverManager::~GMCoverManager(){
-  clear();
-  }
-
-void GMCoverManager::clear() {
-  if (cover) {
-    delete cover;
-    cover = NULL;
-    }
-
-  if (!share.empty()){
-    FXFile::remove(share);
-    share.clear();
-    }
-
-  file.clear();
-  }
-
-void GMCoverManager::load(const FXString & filename) {
-  FXString path = FXPath::directory(filename);
-
-  // Reuse existing
-  if (filename==file || filename==path)
-    return;
-
-  // Clear  Existing
-  clear();
-
-  if (gm_is_local_file(filename)) {
-
-    // Load
-    cover = GMCover::fromTag(filename);
-    if (cover==NULL) {
-      cover = GMCover::fromPath(path);
-      if (cover) file=path;
-      }
-    else {
-      file=filename;
-      }
-
-    if (cover) {
-      share = "/dev/shm/gogglesmm/cover" + cover->fileExtension();
-      if (!cover->save(share))
-        share.clear();
-      }
-    }
   }

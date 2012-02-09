@@ -906,7 +906,7 @@ void GMAudioScrobbler::process_handshake_response(const FXString & response){
       FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
       switch(service.getErrorCode()) {
         case LASTFM_ERROR_TOKEN_EXPIRED     : token.clear();        break;
-        case LASTFM_ERROR_TOKEN_UNAUTHORIZED:
+        case LASTFM_ERROR_TOKEN_UNAUTHORIZED: 
         case LASTFM_ERROR_OFFLINE           :
         case LASTFM_ERROR_UNAVAILABLE       : set_timeout();        break;
         default                             : flags|=FLAG_BADAUTH;  break;

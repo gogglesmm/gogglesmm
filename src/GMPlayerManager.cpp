@@ -34,6 +34,8 @@
 #include "GMTrack.h"
 #include "GMTrackDatabase.h"
 
+#include "GMCoverManager.h"
+
 #ifdef HAVE_DBUS
 #include "GMDBus.h"
 #include "GMNotifyDaemon.h"
@@ -338,17 +340,6 @@ static FXint dbus_send_commands(DBusConnection * connection,int& argc,char** arg
 
 
 long GMPlayerManager::onPlayNotify(FXObject*,FXSelector,void*){
-
-  // Load Cover
-  covermanager->load(trackinfo.mrl);
-
-  mainwindow->setCover(covermanager->getCover());
-
-
-//  if (preferences.gui_show_playing_albumcover && gm_is_local_file(trackinfo.mrl))
-//    mainwindow->loadCover(trackinfo.mrl);
-
-
 
   update_cover_display();
 
@@ -1143,6 +1134,8 @@ void GMPlayerManager::open(const FXString & url) {
     source=NULL;
     }
 
+  trackinfo.mrl = url;
+
   if (gm_is_local_file(url)) {
     FXint id;
     if (sources[0]->hasTrack(url,id)) {
@@ -1390,6 +1383,11 @@ void GMPlayerManager::setStatus(const FXString & text){
   }
 
 void GMPlayerManager::update_cover_display() {
+
+  covermanager->load(trackinfo.mrl);
+
+  mainwindow->setCover(covermanager->getCover());
+
 //  if (preferences.gui_show_playing_albumcover && gm_is_local_file(trackinfo.mrl))
 //    mainwindow->loadCover(trackinfo.mrl);
   }

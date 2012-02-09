@@ -267,13 +267,10 @@ public:
   GMTrackView * getTrackView() const { return trackview; }
   GMSourceView  * getSourceView() const { return sourceview; }
 
-
   void setCover(GMCover*);
 
-  void loadCover(const FXString & filename);
-
-
   void update_time(const TrackTime & current,const TrackTime & remaining,FXint position,FXbool playing,FXbool seekable);
+
   void update_volume_display(FXint level);
 
 

@@ -93,30 +93,5 @@ public:
   static FXImage * toImage(GMCover*,FXint scale=0,FXint crop=0);
   };
 
-
-
-class GMCoverManager {
-protected:
-  GMCover* cover;
-  FXString file;
-  FXString share;
-public:
-  GMCoverManager();
-
-  // Clear
-  void clear();
-
-  // Load Cover
-  void load(const FXString & filename);
-
-  // Get the share filename
-  FXString getShareFilename() const { return share; }
-
-  // Get the cover
-  GMCover* getCover() const { return cover; }
-
-  ~GMCoverManager();
-  };
-
 #endif
 
