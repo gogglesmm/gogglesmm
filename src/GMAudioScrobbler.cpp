@@ -1074,6 +1074,7 @@ void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
   if (mode==SERVICE_LASTFM) {
     ServiceResponse service;
     if (!service.parse(response) || !service.getStatus()) {
+      FXASSERT(0);
       FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
       switch(service.getErrorCode()) {
         case LASTFM_ERROR_OFFLINE      :
@@ -1278,6 +1279,7 @@ void GMAudioScrobbler::process_submit_response(const FXString & response){
   if (mode==SERVICE_LASTFM) {
     ServiceResponse service;
     if (!service.parse(response) || !service.getStatus()) {
+      FXASSERT(0);
       FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
       switch(service.getErrorCode()) {
         case LASTFM_ERROR_OFFLINE      :
