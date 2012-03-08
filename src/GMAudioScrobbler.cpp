@@ -211,7 +211,7 @@ public:
   };
 
 
-ServiceResponse::ServiceResponse() : elem(Elem_None) {
+ServiceResponse::ServiceResponse() : status(false),code(LASTFM_ERROR_UNKNOWN), elem(Elem_None) {
    }
 
 ServiceResponse::~ServiceResponse() {
@@ -898,15 +898,14 @@ FXuint GMAudioScrobbler::create_handshake_request(FXString & request) {
 void GMAudioScrobbler::process_handshake_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
-  FXTRACE((60,"GMAudioScrobbler::process_handshake_response\n%s",response.text()));
-
+  FXTRACE((60,"GMAudioScrobbler::process_handshake_response\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
     ServiceResponse service;
     if (!service.parse(response) || !service.getStatus()){
       FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
       switch(service.getErrorCode()) {
         case LASTFM_ERROR_TOKEN_EXPIRED     : token.clear();        break;
-        case LASTFM_ERROR_TOKEN_UNAUTHORIZED: 
+        case LASTFM_ERROR_TOKEN_UNAUTHORIZED:
         case LASTFM_ERROR_OFFLINE           :
         case LASTFM_ERROR_UNAVAILABLE       : set_timeout();        break;
         default                             : flags|=FLAG_BADAUTH;  break;
@@ -1071,7 +1070,7 @@ void GMAudioScrobbler::create_nowplaying_request(FXString & request) {
 void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
-  FXTRACE((60,"GMAudioScrobbler::process_nowplaying_response:\n %s\n",response.text()));
+  FXTRACE((60,"GMAudioScrobbler::process_nowplaying_response:\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
     ServiceResponse service;
     if (!service.parse(response) || !service.getStatus()) {
@@ -1275,7 +1274,7 @@ void GMAudioScrobbler::create_submit_request(FXString & request) {
 
 void GMAudioScrobbler::process_submit_response(const FXString & response){
   FXMutexLock lock(mutex_data);
-  FXTRACE((60,"GMAudioScrobbler::process_submit_response\n"));
+  FXTRACE((60,"GMAudioScrobbler::process_submit_response\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
     ServiceResponse service;
     if (!service.parse(response) || !service.getStatus()) {
@@ -1356,7 +1355,7 @@ void GMAudioScrobbler::create_loveban_request(FXString & request){
 
 void GMAudioScrobbler::process_loveban_response(const FXString & response){
   FXMutexLock lock(mutex_data);
-  FXTRACE((60,"GMAudioScrobbler::process_loveban_response\n"));
+  FXTRACE((60,"GMAudioScrobbler::process_loveban_response\n%s\n",response.text()));
   ServiceResponse service;
   if (!service.parse(response) || !service.getStatus()) {
     session.clear();
