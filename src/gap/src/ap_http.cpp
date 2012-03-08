@@ -223,7 +223,7 @@ FXbool HttpResponse::read_status() {
   FXString header;
   if (read_header(header,HEADER_SINGLE_LINE)) {
     if (header.scan("HTTP/%d.%d %d",&status.major,&status.minor,&status.code)==3){
-      fxmessage("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
+      //fxmessage("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
       return true;
       }
     }
@@ -546,11 +546,11 @@ FXbool HttpHost::set(const FXString & url) {
   FXString nn = FXURL::host(url);
 #if FOXVERSION >= FXVERSION(1,7,31)
   FXint    np = FXURL::port(url,80);
-#else  
+#else
   FXint    np = FXURL::port(url);
   if (np==0) np=80;
-#endif  
-  
+#endif
+
   if (name!=nn || port!=np) {
     name.adopt(nn);
     port=np;
