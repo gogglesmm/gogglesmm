@@ -40,17 +40,17 @@ void GMCoverManager::clear() {
     share.clear();
     }
 
-  file.clear();
+  source.clear();
   }
 
 void GMCoverManager::load(const FXString & filename) {
   FXString path = FXPath::directory(filename);
 
   // Reuse existing
-  if (filename==file || filename==path)
+  if (source==filename || source==path)
     return;
 
-  // Clear  Existing
+  // Clear existing
   clear();
 
   if (gm_is_local_file(filename)) {
@@ -59,10 +59,10 @@ void GMCoverManager::load(const FXString & filename) {
     cover = GMCover::fromTag(filename);
     if (cover==NULL) {
       cover = GMCover::fromPath(path);
-      if (cover) file=path;
+      if (cover) source=path;
       }
     else {
-      file=filename;
+      source=filename;
       }
 
     if (cover) {
