@@ -2079,11 +2079,11 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
 
 void GMTrackDatabase::setTrackImported(FXint track,FXlong tm){
   DEBUG_DB_SET();
-  begin();
+  //begin();
   update_track_importdate.set(0,tm);
   update_track_importdate.set(1,track);
   update_track_importdate.execute();
-  commit();
+  //commit();
   }
 
 void GMTrackDatabase::setTrackRating(FXint id,FXuchar rating){
@@ -2368,12 +2368,12 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
       copy_album_with_title.set(1,name);
       copy_album_with_title.set(2,tracks[0]);
       copy_album_with_title.execute();
-      
+
       query_album.set(0,title);
       query_album.set(1,name);
       query_album.execute(album);
       }
-  
+
     FXASSERT(album);
 
     for (FXint i=0;i<tracks.no();i++){
