@@ -46,7 +46,7 @@ FXint GMTagUpdateTask::run() {
 
     for (FXint i=0;i<tracks.no() && processing;i++) {
       if (!database->getTrack(tracks[i],info)) break;
-      taskmanager->setStatus(FXString::value("Writng Tags %d/%d..",i+1,tracks.no()));
+      taskmanager->setStatus(FXString::value("Writing Tags %d/%d..",i+1,tracks.no()));
 
       info.saveTag(info.mrl);
       database->beginTask();
