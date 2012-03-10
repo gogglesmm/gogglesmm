@@ -22,7 +22,7 @@
 class GMCoverManager {
 protected:
   GMCover* cover;
-  FXString file;
+  FXString source;
   FXString share;
 public:
   GMCoverManager();
