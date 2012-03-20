@@ -130,6 +130,7 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_CHANGE_COVERVIEW,		GMWindow::onCmdChangeCoverView),
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,	GMWindow::ID_COVERVIEW,					GMWindow::onCmdCoverView),
+  FXMAPFUNC(SEL_CONFIGURE,          GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
 
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onUpdShowSources),
   FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onCmdShowSources),
@@ -1367,7 +1368,7 @@ void GMWindow::setCover(GMCover*cvr) {
   if (coverview_gl)
     coverdisplaysize=0;
   else
-    coverdisplaysize=FXCLAMP(64,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,500);
+    coverdisplaysize=FXCLAMP(64,FXMIN(coverview_x11->getWidth(),coverview_x11->getHeight()),500);//FXCLAMP(64,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,500);
 
   cover = GMCover::copyToImage(cvr,coverdisplaysize);
 
@@ -1543,6 +1544,15 @@ long GMWindow::onUpdCoverSize(FXObject*sender,FXSelector sel,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
   return 1;
   }
+
+long GMWindow::onConfigureCoverView(FXObject*,FXSelector,void*){
+  if (coverview_x11 && GMPlayerManager::instance()->playing()) {
+    fxmessage("configure %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
+    GMPlayerManager::instance()->update_cover_display();  
+    }
+  return 1;
+  }
+
 
 
 long GMWindow::onCmdPlayQueue(FXObject*,FXSelector,void*){

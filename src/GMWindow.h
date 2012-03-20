@@ -162,6 +162,7 @@ public: /// Message Handlers
   long onCmdCoverView(FXObject*,FXSelector,void*);
   long onCmdCoverSize(FXObject*,FXSelector,void*);
   long onUpdCoverSize(FXObject*,FXSelector,void*);
+  long onConfigureCoverView(FXObject*,FXSelector,void*);
 
   long onCmdSeek(FXObject*,FXSelector,void*);
   long onCmdNextFocus(FXObject*,FXSelector,void*);
