@@ -30,6 +30,8 @@
 #include "gmdefs.h"
 #include "gmutils.h"
 
+#include "GMSession.h"
+
 #include "GMCover.h"
 #include "GMTrack.h"
 #include "GMTrackDatabase.h"
@@ -124,7 +126,9 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
 
   FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN,GMPlayerManager::onTaskManagerShutdown),
 
-  FXMAPFUNC(SEL_TASK_COMPLETED,GMPlayerManager::ID_IMPORT_TASK,GMPlayerManager::onImportTaskCompleted)
+  FXMAPFUNC(SEL_TASK_COMPLETED,GMPlayerManager::ID_IMPORT_TASK,GMPlayerManager::onImportTaskCompleted),
+
+  FXMAPFUNC(SEL_SESSION_CLOSED,GMPlayerManager::ID_SESSION_MANAGER,GMPlayerManager::onCmdQuit)
 
 //  FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_COVERS_LOADED,GMPlayerManager::onCoversLoaded)
   };
@@ -424,6 +428,7 @@ GMPlayerManager::GMPlayerManager() :
   mpris(NULL),
 #endif
   application(NULL),
+  session(NULL),
   mainwindow(NULL),
   player(NULL),
   trayicon(NULL),
@@ -442,14 +447,11 @@ GMPlayerManager::GMPlayerManager() :
 GMPlayerManager::~GMPlayerManager() {
 
   /// Remove Signal Handlers
-#ifndef DEBUG
   application->removeSignal(SIGINT);
   application->removeSignal(SIGQUIT);
   application->removeSignal(SIGTERM);
   application->removeSignal(SIGHUP);
   application->removeSignal(SIGPIPE);
-#endif
-
   application->removeSignal(SIGCHLD);
 
   /// Cleanup fifo crap
@@ -472,6 +474,7 @@ GMPlayerManager::~GMPlayerManager() {
 
   myself=NULL;
 
+  delete session;
   delete application;
   }
 
@@ -647,13 +650,11 @@ void GMPlayerManager::init_window(FXbool wizard) {
   register_global_hotkeys();
 
   /// Handle interrupt to save stuff nicely
-#ifndef DEBUG
   application->addSignal(SIGINT,mainwindow,GMWindow::ID_QUIT);
   application->addSignal(SIGQUIT,mainwindow,GMWindow::ID_QUIT);
   application->addSignal(SIGTERM,mainwindow,GMWindow::ID_QUIT);
   application->addSignal(SIGHUP,mainwindow,GMWindow::ID_QUIT);
   application->addSignal(SIGPIPE,mainwindow,GMWindow::ID_QUIT);
-#endif
 
   /// Create Tooltip Window
   FXToolTip * tooltip = new FXToolTip(application);
@@ -885,6 +886,7 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     return 0;
 #endif
 
+
   /// Load Application Preferences
   preferences.load(application->reg());
 
@@ -947,6 +949,10 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     notifydaemon->init();
     }
 #endif
+
+  /// Connect to the session manager
+  session = new GMSession(application,this,GMPlayerManager::ID_SESSION_MANAGER);
+  session->init(argc,argv);
 
   /// Open url from command line
   if (!url.empty())
@@ -1205,7 +1211,7 @@ void GMPlayerManager::playItem(FXuint whence) {
 
 
 
-void GMPlayerManager::stop(FXbool force_close) {
+void GMPlayerManager::stop(FXbool /*force_close*/) {
 
   /// Reset Source
   if (source) {
@@ -1440,7 +1446,7 @@ void GMPlayerManager::volume(FXint l) {
   }
 
 FXbool GMPlayerManager::can_stop() const {
-  if (player->playing()) return true;
+  if (player->playing() || player->pausing()) return true;
   return false;
   }
 
@@ -1521,6 +1527,11 @@ long GMPlayerManager::onCmdCloseWindow(FXObject*sender,FXSelector,void*){
   else {
     getMainWindow()->handle(this,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),NULL);
     }
+  return 1;
+  }
+
+long GMPlayerManager::onCmdQuit(FXObject*,FXSelector,void*){
+  getMainWindow()->handle(this,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),NULL);
   return 1;
   }
 

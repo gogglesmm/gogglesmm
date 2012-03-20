@@ -53,6 +53,7 @@ class GMCoverCache;
 class GMCoverManager;
 class GMTaskManager;
 class GMTask;
+class GMSession;
 
 struct lirc_config;
 
@@ -109,6 +110,7 @@ protected:
   GMMediaPlayerService * mpris;
 #endif
   FXApp 	 				     * application;
+  GMSession            * session;
   GMWindow 				     * mainwindow;
   GMAudioPlayer        * player;
   GMTrayIcon           * trayicon;
@@ -154,6 +156,7 @@ public:
     ID_CANCEL_TASK,
     ID_TASKMANAGER,
     ID_TASKMANAGER_SHUTDOWN,
+    ID_SESSION_MANAGER,
     ID_CHILD
     };
 public:
@@ -175,6 +178,7 @@ public:
   long onTaskManagerIdle(FXObject*,FXSelector,void*);
   long onTaskManagerShutdown(FXObject*,FXSelector,void*);
   long onCancelTask(FXObject*,FXSelector,void*);
+  long onCmdQuit(FXObject*,FXSelector,void*);
 #ifdef HAVE_LIRC
   long onCmdLirc(FXObject*,FXSelector,void*);
 #endif

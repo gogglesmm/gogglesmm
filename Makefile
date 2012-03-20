@@ -64,6 +64,7 @@ src/GMPlayQueue.cpp \
 src/GMPreferences.cpp \
 src/GMPreferencesDialog.cpp \
 src/GMRemote.cpp \
+src/GMSession.cpp \
 src/GMScanner.cpp \
 src/GMSource.cpp \
 src/GMSourceView.cpp \

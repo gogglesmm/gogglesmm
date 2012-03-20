@@ -188,6 +188,11 @@ if [ $? -eq 0 ] ; then
   EXTRALIBS="$EXTRALIBS -lGL -lGLU"
 fi
 
+# Session Management
+add_package "ice" "ice"
+add_package "sm" "sm"
+
+
 PKG_LDFLAGS=$(pkg-config --libs-only-L $PACKAGES)
 PKG_LIBS=$(pkg-config --libs-only-l --libs-only-other $PACKAGES)
 PKG_CFLAGS=$(pkg-config --cflags-only-other $PACKAGES)
