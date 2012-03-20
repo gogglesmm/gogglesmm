@@ -208,7 +208,7 @@ static GMCover * flac_load_front_cover(const FXString & mrl,FXint scale,FXint cr
 GMCover::GMCover() : data(NULL),len(0), type(0) {
   }
 
-GMCover::GMCover(const void * ptr,FXuval size,FXuint t,const FXString & label,FXbool owned) : data(NULL), len(size) {
+GMCover::GMCover(const void * ptr,FXuval size,FXuint /*t*/,const FXString & /*label*/,FXbool owned) : data(NULL), len(size) {
   if (owned==false) {
     allocElms(data,len);
     memcpy(data,(const FXuchar*)ptr,len);
@@ -323,7 +323,7 @@ GMCover * GMCover::fromFile(const FXString & filename) {
   if (file.isOpen() && size) {
     FXchar * data=NULL;
     allocElms(data,size);
-    if (file.readBlock(data,size)==size) {
+    if (file.readBlock(data,size)==(FXival)size) {
       return new GMCover(data,size);
       }
     freeElms(data);

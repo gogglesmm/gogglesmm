@@ -98,10 +98,10 @@ void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint y
     baseline+=tailfont->getFontAscent()+(hi-hb)/2;
 
 
-  register FXint ih=0,th=0;
+//  register FXint th=0;
 
-  if(!title.empty())
-    th=basefont->getFontHeight();
+//  if(!title.empty())
+//    th=basefont->getFontHeight();
 
   if(isSelected())
     dc.setForeground(list->getSelBackColor());
@@ -144,7 +144,6 @@ void GMAlbumListItem::draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXin
   FXFont *font=list->getCoverBaseFont();
   FXFont *cfont=list->getCoverHeadFont();
   const FXint h1=cfont->getFontHeight();
-  const FXint h2=font->getFontHeight();
   const FXint xx=x+SIDE_SPACING;
   const FXint is=list->getCoverCache()->getCoverSize();
   FXint yy=y+SIDE_SPACING;
@@ -193,8 +192,8 @@ FXint GMAlbumListItem::hitItem(const GMAlbumList* list,FXint rx,FXint ry,FXint r
   register FXFont *font=list->getCoverBaseFont();
   register FXFont *cfont=list->getCoverHeadFont();
 
-  register FXuint options=list->getListStyle();
-  register FXint tw=0,th=0,ss=0,ix,iy,tx,ty,w,h,sp,tlen;
+  //register FXuint options=list->getListStyle();
+  register FXint tw=0,th=0,ix,iy,tx,ty;
 
   FXint h1=cfont->getFontHeight();
   FXint h2=font->getFontHeight();
@@ -417,7 +416,6 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
 
 // Create window
 void GMAlbumList::create(){
-  register FXint i;
   FXScrollArea::create();
   listbasefont->create();
   listheadfont->create();
@@ -429,7 +427,6 @@ void GMAlbumList::create(){
 
 // Detach window
 void GMAlbumList::detach(){
-  register FXint i;
   FXScrollArea::detach();
   listbasefont->detach();
   listheadfont->detach();

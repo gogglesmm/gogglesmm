@@ -549,7 +549,7 @@ void GMAudioScrobbler::submit(FXlong timestamp,GMTrack & info){
     }
   }
 
-void GMAudioScrobbler::loveban(GMTrack & info, FXint loveban){
+void GMAudioScrobbler::loveban(GMTrack & /*info*/, FXint /*loveban*/){
 #if 0
   mutex_data.lock();
   if (!can_submit()) {

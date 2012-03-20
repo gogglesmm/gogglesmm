@@ -2009,16 +2009,17 @@ GMTrackProgressBar::GMTrackProgressBar(FXComposite *p,FXObject* tgt,FXSelector s
 
 
 // Moving
-long GMTrackProgressBar::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint xx,yy,ww,hh,lo,hi,p,h,travel;
+long GMTrackProgressBar::onMotion(FXObject*,FXSelector,void*){
+//  register FXEvent *event=(FXEvent*)ptr;
+  register FXuint /*xx,yy,ww,hh,lo,hi,*/p=0/*,h,travel*/;
   if(!isEnabled()) return 0;
   if(flags&FLAG_PRESSED){
+/*
+
     yy=border+padtop;
     xx=border+padleft;
     hh=height-(border<<1)-padtop-padbottom;
     ww=width-(border<<1)-padleft-padright;
-/*
     if(options&PROGRESSBAR_VERTICAL){
       h=event->win_y-dragpoint;
       travel=hh-headsize;
@@ -2069,8 +2070,8 @@ long GMTrackProgressBar::onMotion(FXObject*,FXSelector,void* ptr){
 
 // Pressed LEFT button
 long GMTrackProgressBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint p=progress;
+//  register FXEvent *event=(FXEvent*)ptr;
+//  register FXint p=progress;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -2091,7 +2092,6 @@ long GMTrackProgressBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
         }
       }
     else{
-/*
       if(event->win_x<headpos){
         p=progress-incr;
         }
@@ -2114,7 +2114,7 @@ long GMTrackProgressBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
       flags|=FLAG_CHANGED;
       if(target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)(FXival)progress);
       }
-*/      
+*/
     return 1;
     }
   return 0;
@@ -2124,7 +2124,7 @@ long GMTrackProgressBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 // Released Left button
 long GMTrackProgressBar::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
   register FXEvent *event=(FXEvent*)ptr;
-  register FXuint flgs=flags;
+//  register FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
 

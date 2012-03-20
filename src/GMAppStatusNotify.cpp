@@ -66,7 +66,7 @@ DBusHandlerResult dbus_status_item_filter(DBusConnection *connection,DBusMessage
   DBusMessage *   reply;
   DBusMessageIter iter;
   DBusMessageIter dict;
-  DBusMessageIter dictentry;
+  //DBusMessageIter dictentry;
 
   FXuint serial;
   if (dbus_message_has_path(msg,APPLICATION_STATUS_ITEM_PATH)){
@@ -312,9 +312,9 @@ GMAppStatusNotify::~GMAppStatusNotify() {
   dbus_connection_unregister_object_path(SESSIONBUS,APPLICATION_STATUS_ITEM_MENU_PATH);
   }
 
-long GMAppStatusNotify::onSignal(FXObject*,FXSelector,void*ptr) {
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
-  FXASSERT(msg);
+long GMAppStatusNotify::onSignal(FXObject*,FXSelector,void*) {
+  //DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  //FXASSERT(msg);
   return 1;
   }
 

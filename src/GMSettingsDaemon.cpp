@@ -41,7 +41,6 @@ void GMSettingsDaemon::ReleaseMediaPlayerKeys(const FXchar * pl) {
 
 long GMSettingsDaemon::onSignal(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
-  FXuint id,reason;
   if (dbus_message_is_signal(msg,GNOME_SETTINGS_DAEMON_INTERFACE,"MediaPlayerKeyPressed")){
     const FXchar * pl=NULL;
     const FXchar * cmd=NULL;

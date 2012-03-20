@@ -32,9 +32,6 @@ enum {
   SEL_TASK_IDLE,
   };
 
-
-
-
 class GMApp : public FXApp {
 FXDECLARE(GMApp)
 friend class GMPlug;

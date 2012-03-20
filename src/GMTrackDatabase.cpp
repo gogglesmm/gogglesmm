@@ -1325,7 +1325,7 @@ FXbool GMTrackDatabase::getTrackAssociation(FXint id,FXint & artist,FXint & albu
 
 
 ///FIXME
-FXbool GMTrackDatabase::removeGenre(FXint id) {
+FXbool GMTrackDatabase::removeGenre(FXint/* id*/) {
   DEBUG_DB_SET();
   GMQuery remove_genre;
   try {
@@ -1348,7 +1348,7 @@ FXbool GMTrackDatabase::removeGenre(FXint id) {
 
 
 ///FIXME
-FXbool GMTrackDatabase::removeArtist(FXint artist) {
+FXbool GMTrackDatabase::removeArtist(FXint/* artist*/) {
   DEBUG_DB_SET();
 
   GMQuery query;
@@ -1755,7 +1755,7 @@ FXbool GMTrackDatabase::listAlbums(FXComboBox * list,FXint track){
 
 void GMTrackDatabase::clear_path_lookup() {
   DEBUG_DB_GET();
-  for (FXint i=0;i<pathdict.size();i++) {
+  for (FXuint i=0;i<pathdict.size();i++) {
     if (!pathdict.empty(i) && pathdict.value(i)!=NULL) {
       free(pathdict.value(i));
       }
@@ -1800,7 +1800,7 @@ void GMTrackDatabase::setup_artist_lookup() {
 
 void GMTrackDatabase::clear_artist_lookup() {
   DEBUG_DB_GET();
-  for (FXint i=0;i<artistdict.size();i++) {
+  for (FXuint i=0;i<artistdict.size();i++) {
     if (!artistdict.empty(i) && artistdict.value(i)!=NULL) {
       FXString * a = (FXString*)artistdict.value(i);
       delete a;

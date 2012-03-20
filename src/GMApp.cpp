@@ -16,9 +16,9 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#include <xincs.h>
-
 #include "gmdefs.h"
+#include <fxkeys.h>
+#include <xincs.h>
 #include "gmutils.h"
 #include "GMApp.h"
 #include "GMTrack.h"
@@ -79,6 +79,12 @@ extern const FXchar * fxtr(const FXchar *x){
   return x;
 #endif
   }
+
+
+
+
+
+
 
 
 FXIMPLEMENT(GMApp,FXApp,NULL,0)
@@ -250,7 +256,6 @@ enum {
   XEMBED_REQUEST_FOCUS   = 3
   };
 
-#include <fxkeys.h>
 
 // Get keysym; interprets the modifiers!
 static FXuint keysym(FXRawEvent& event){
@@ -289,7 +294,6 @@ FXbool GMApp::dispatchEvent(FXRawEvent & ev) {
       }
     return true;
     }
-
   return FXApp::dispatchEvent(ev);
   }
 

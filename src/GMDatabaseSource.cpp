@@ -969,8 +969,8 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
   FXint path;
   FXint time;
   FXuint no;
-  FXint id;
-  FXint queue=1;
+  //FXint id;
+  //FXint queue=1;
   FXint album_year;
   FXint track_year;
   FXint playcount;

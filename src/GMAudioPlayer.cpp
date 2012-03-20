@@ -43,7 +43,7 @@ void GMAudioPlayer::loadSettings() {
   }
 
 
-long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void* ptr){
+long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
   Event * event=NULL;
   while((event=pop())!=NULL) {
     switch(event->type) {
@@ -77,7 +77,7 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void* ptr){
           track.title.adopt(info->title);
           track.artist.adopt(info->artist);
           track.album.adopt(info->album);
-          
+
           target->handle(this,FXSEL(SEL_PLAYER_META,message),&track);
         } break;
       default: break;

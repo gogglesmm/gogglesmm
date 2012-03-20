@@ -64,7 +64,7 @@ FXString GMPlayQueue::getName() const {
   return FXString::value("Play Queue (%d)",ntracks);
   }
 
-FXbool GMPlayQueue::source_context_menu(FXMenuPane * pane) {
+FXbool GMPlayQueue::source_context_menu(FXMenuPane * /*pane*/) {
   return false;
   }
 
@@ -109,7 +109,7 @@ void GMPlayQueue::addTracks(GMSource * src,const FXIntList & tracks) {
 
 
 
-long GMPlayQueue::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
+long GMPlayQueue::onCmdRemoveInPlaylist(FXObject*,FXSelector,void*){
   FXIntList queue;
   FXIntList tracks;
   getSelectedTrackQueues(queue);

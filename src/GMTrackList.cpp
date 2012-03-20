@@ -544,7 +544,7 @@ void GMTrackList::makeItemVisible(FXint index){
 
     // Was realized
     if(xid){
-      FXint y,hh,px,py,vw,vh;
+      FXint y,hh,px,py,vh;
 
       // Force layout if dirty
       if(flags&FLAG_RECALC) layout();
@@ -552,7 +552,7 @@ void GMTrackList::makeItemVisible(FXint index){
       px=pos_x;
       py=pos_y;
 
-      vw=getVisibleWidth();
+      //vw=getVisibleWidth();
       vh=getVisibleHeight();
       hh=header->getDefaultHeight();
       y=hh+index*lineHeight;
@@ -571,11 +571,10 @@ void GMTrackList::makeItemVisible(FXint index){
 
 // Get item at position x,y
 FXint GMTrackList::getItemAt(FXint x,FXint y) const {
-  register FXint c,index;
+  register FXint index;
   y-=pos_y;
   x-=pos_x;
   y-=header->getDefaultHeight();
-  c=0;
   index=y/lineHeight;
   if(index<0 || index>=items.no()) return -1;
   return index;
@@ -583,9 +582,10 @@ FXint GMTrackList::getItemAt(FXint x,FXint y) const {
 
 
 // Did we hit the item, and which part of it did we hit
-FXint GMTrackList::hitItem(FXint index,FXint x,FXint y,FXint /*ww*/,FXint /*hh*/) const {
-  FXint ix,iy,r,c,hit=0;
+FXint GMTrackList::hitItem(FXint index,FXint /*x*/,FXint /*y*/,FXint /*ww*/,FXint /*hh*/) const {
+  FXint /*ix,iy,r,c,*/hit=0;
   if(0<=index && index<items.no()){
+/*
     x-=pos_x;
     y-=pos_y;
     y-=header->getDefaultHeight();
@@ -594,6 +594,8 @@ FXint GMTrackList::hitItem(FXint index,FXint x,FXint y,FXint /*ww*/,FXint /*hh*/
     ix=header->getTotalSize()*c;
     iy=lineHeight*r;
     hit=2; //FIXME items[index]->hitItem(this,x-ix,y-iy,ww,hh);
+*/
+    hit=2;    
     }
   return hit;
   }

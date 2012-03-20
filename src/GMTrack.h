@@ -54,7 +54,7 @@ public:
 
   /// Clear the track
   void clear();
-  
+
   /// Adopt from track
   void adopt(GMTrack &);
 
@@ -69,7 +69,6 @@ public:
 
   /// Get disc number
   FXushort getDiscNumber() const { return (FXushort)(no>>16); }
-
 
   /// Load from tag in given filename. Note that mrl is not set
   FXbool loadTag(const FXString & filename);

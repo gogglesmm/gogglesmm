@@ -316,7 +316,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
 
 
   FXbool from_library=false;
-  FXbool from_disk=false;
+  //FXbool from_disk=false;
 
   if (FXSELID(sel)>ID_DELETE_TRACK) {
 
@@ -354,7 +354,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
       return 1;
 
     from_library=library_check->getCheck();
-    from_disk=disk_check->getCheck();
+    //from_disk=disk_check->getCheck();
     }
 
   // Check current queue...
@@ -379,6 +379,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
     db->rollback();
     }
   GMPlayerManager::instance()->getTrackView()->refresh();
+  return 1;
   }
 
 #if 0

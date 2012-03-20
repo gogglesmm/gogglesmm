@@ -761,6 +761,7 @@ void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint positio
   }
 
 long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
+  fxmessage("clean shutdown\n");
 
   sourceview->saveView();
   trackview->saveView();
@@ -1072,7 +1073,7 @@ long GMWindow::onUpdPrev(FXObject*sender,FXSelector,void*){
   }
 
 
-long GMWindow::onCmdSeek(FXObject*,FXSelector sel,void*){
+long GMWindow::onCmdSeek(FXObject*,FXSelector,void*){
 #if 0
 #ifdef HAVE_XINE_LIB
   if (GMPlayerManager::instance()->getPlayer()->playing() && GMPlayerManager::instance()->getPlayer()->seekable()){
@@ -1121,7 +1122,7 @@ long GMWindow::onCmdRepeatAB(FXObject*,FXSelector,void*){
   return 1;
   }
 
-long GMWindow::onUpdRepeatAB(FXObject*sender,FXSelector,void*){
+long GMWindow::onUpdRepeatAB(FXObject*,FXSelector,void*){
 #if 0
 #ifdef HAVE_XINE_LIB
   if (GMPlayerManager::instance()->getPlayer()->playing() && GMPlayerManager::instance()->getPlayer()->seekable()) {

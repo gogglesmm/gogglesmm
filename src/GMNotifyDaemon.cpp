@@ -140,7 +140,7 @@ long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
   }
 
 
-long GMNotifyDaemon::onMethod(FXObject*,FXSelector,void*ptr){
+long GMNotifyDaemon::onMethod(FXObject*,FXSelector,void*){
   return 1;
   }
 

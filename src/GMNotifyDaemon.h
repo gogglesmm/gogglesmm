@@ -32,7 +32,7 @@ protected:
   FXString appname;
   FXString appicon;
   FXString icondata;
-  FXint msgid;
+  FXuint msgid;
   FXbool persistent;
 protected:
   GMNotifyDaemon();
