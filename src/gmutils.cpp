@@ -286,7 +286,6 @@ void gm_copy_hash(FXHash & from,FXHash & to) {
 
 /******************************************************************************/
 
-
 static void gm_scale_crop(FXImage * image,FXint scale,FXint crop){
   FXint ww=image->getWidth();
   FXint hh=image->getHeight();
@@ -339,6 +338,7 @@ static FXImage * gm_load_pixels(FXStream & store,FXint scale,FXint crop){
       image = new FXImage(FXApp::instance(),data,IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,width,height);
       }
     }
+
   if (image) {
     gm_scale_crop(image,scale,crop);
     }
@@ -366,7 +366,7 @@ FXImage * gm_load_image_from_data(const void * data,FXuval size,FXint scale,FXin
   }
 
 FXbool gm_decode_base64(FXuchar * buffer,FXint & len){
-  static const char base64[256]={
+  static const FXuchar base64[256]={
     0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
     0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
     0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x3e,0x80,0x80,0x80,0x3f,
@@ -441,7 +441,6 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
       out[i+3]=in[i+3]; // a
       }
   }
-  
 
 
 
@@ -450,5 +449,6 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
 
 
 
-  
+
+
 
