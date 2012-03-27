@@ -82,7 +82,7 @@ OutputConfig::OutputConfig() {
 #elif defined(HAVE_RSOUND_PLUGIN)
   device=DeviceRSound;
 #else
-  device=DeviceNone;
+  device=DeviceWav;
 #endif
   }
 
