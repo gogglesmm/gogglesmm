@@ -60,7 +60,7 @@ public:
   void notify(const FXchar * summary,const FXchar * body,FXint timeout,FXImage* img);
 
 public:
-  void notify_track_change(const GMTrack & track,FXImage * cover);
+  void notify_track_change(const GMTrack & track);
   };
 
 #endif

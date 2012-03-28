@@ -1695,7 +1695,7 @@ void GMPlayerManager::display_track_notification() {
 #ifdef HAVE_DBUS
   if (sessionbus) {
     if (preferences.dbus_notify_daemon && notifydaemon) {
-      notifydaemon->notify_track_change(trackinfo,GMCover::copyToImage(covermanager->getCover(),64));
+      notifydaemon->notify_track_change(trackinfo);
       }
     if (mpris) mpris->notify_track_change(trackinfo);
     if (appstatus) appstatus->notify_track_change(trackinfo);

@@ -20,7 +20,9 @@
 #include "gmutils.h"
 #include "GMDBus.h"
 #include "GMTrack.h"
+#include "GMCover.h"
 #include "GMPlayerManager.h"
+#include "GMCoverManager.h"
 #include "GMNotifyDaemon.h"
 
 #define GALAGO_NOTIFY_NAME "org.freedesktop.Notifications"
@@ -268,13 +270,18 @@ void GMNotifyDaemon::init() {
 
   }
 
-void GMNotifyDaemon::notify_track_change(const GMTrack & track,FXImage * cover){
+void GMNotifyDaemon::notify_track_change(const GMTrack & track){
   FXString body = FXString::value(fxtrformat("%s\n%s (%d)"),track.artist.text(),track.album.text(),track.year);
   /// Dirty Hack. According to the spec, we shouldn't have to do this,
   /// but try finding a notification notifydaemon that actually implements it...
   /// http://www.galago-project.org/specs/notification/0.9/index.html
   body.substitute("&","&amp;");
-  notify(track.title.text(),body.text(),-1,cover);
+
+  FXImagePtr image;
+
+  image = GMCover::copyToImage(GMPlayerManager::instance()->getCoverManager()->getCover(),64);
+  
+  notify(track.title.text(),body.text(),-1,image);
   }
 
 
