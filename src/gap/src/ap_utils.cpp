@@ -3,11 +3,23 @@
 #include "ap_format.h"
 #include "ap_event.h"
 
+
+// for prctl
 #ifdef __linux__
 #include <sys/prctl.h>
 #endif
 
+// for fcntl
+#ifndef WIN32
+#include <unistd.h>
+#include <fcntl.h>
+#endif
+
 namespace ap {
+
+
+// PUBLIC API
+//----------------------------------------------------
 
 void ap_get_version(FXuchar & major,FXuchar & minor) {
   major=AP_MAJOR;
@@ -21,7 +33,6 @@ FXbool ap_check_version(FXuchar major,FXuchar minor) {
   else
     return true;
   }
-
 
 
 void ap_set_thread_name(const FXchar * name) {
@@ -38,6 +49,29 @@ FXString ap_get_environment(const FXchar * key,const FXchar * def) {
     return value;
   }
 
+
+FXbool ap_set_nonblocking(FXInputHandle fd) {
+#ifndef WIN32
+  FXint flags = fcntl(fd,F_GETFL);
+  if (flags==-1 || fcntl(fd,F_SETFL,(flags|O_NONBLOCK))==-1)
+    return false;
+#endif
+  return true;
+  }
+
+FXbool ap_set_closeonexec(FXInputHandle fd) {
+#ifndef WIN32
+  FXint flags;
+  flags = fcntl(fd,F_GETFD);
+  if (flags==-1 || fcntl(fd,F_SETFD,(flags|FD_CLOEXEC))==-1)
+    return false;
+#endif
+  return true;
+  }
+
+
+// PRIVATE API
+//----------------------------------------------------
 
 void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len) {
   FXASSERT(meta);

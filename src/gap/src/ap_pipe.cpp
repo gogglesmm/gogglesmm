@@ -1,10 +1,10 @@
 #include "ap_defs.h"
 #include "ap_event.h"
 #include "ap_pipe.h"
+#include "ap_utils.h"
 
 #ifndef WIN32
 #include <unistd.h>
-#include <fcntl.h>
 #include <errno.h>
 #endif
 
@@ -19,37 +19,6 @@
 
 
 namespace ap {
-
-
-#ifndef WIN32
-static FXbool ap_set_nonblocking(FXint fd) {
-  FXint flags;
-
-  flags = fcntl(fd, F_GETFL);
-  if (flags==-1) return false;
-
-  flags |= O_NONBLOCK;
-
-  if (fcntl(fd,F_SETFL,flags)==-1)
-    return false;
-
-  return true;
-  }
-
-static FXbool ap_set_closeonexec(FXint fd) {
-  FXint flags;
-
-  flags = fcntl(fd, F_GETFD);
-  if (flags==-1) return false;
-
-  flags |= FD_CLOEXEC;
-
-  if (fcntl(fd,F_SETFD,flags)==-1)
-    return false;
-
-  return true;
-  }
-#endif
 
 
 

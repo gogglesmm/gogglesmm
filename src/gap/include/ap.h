@@ -16,6 +16,7 @@
 #include <ap_common.h>
 #include <ap_buffer.h>
 #include <ap_http.h>
+#include <ap_xml_parser.h>
 
 using namespace ap;
 

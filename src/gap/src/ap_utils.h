@@ -1,12 +1,14 @@
 #ifndef AP_UTILS_H
 #define AP_UTILS_H
 
+#include "ap_common.h"
+
 namespace ap {
 
-extern GMAPI void ap_set_thread_name(const FXchar *);
 
 extern GMAPI FXString ap_get_environment(const FXchar * key,const FXchar * def=NULL);
 
+extern FXbool ap_set_closeonexec(FXInputHandle fd);
 
 enum {
   WIO_TIMEOUT   = 0,
