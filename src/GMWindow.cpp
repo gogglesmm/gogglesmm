@@ -35,6 +35,8 @@
 #include "GMWindow.h"
 #include "GMRemote.h"
 #include "GMCover.h"
+#include "GMCoverManager.h"
+
 #include "GMDatabase.h"
 #include "GMDatabaseSource.h"
 #include "GMTrackView.h"
@@ -128,16 +130,18 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_NEXT_FOCUS,		GMWindow::onCmdNextFocus),
 
-  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_CHANGE_COVERVIEW,		GMWindow::onCmdChangeCoverView),
-  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,	GMWindow::ID_COVERVIEW,					GMWindow::onCmdCoverView),
+//  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_CHANGE_COVERVIEW,		GMWindow::onCmdChangeCoverView),
+//  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,	GMWindow::ID_COVERVIEW,					GMWindow::onCmdCoverView),
   FXMAPFUNC(SEL_CONFIGURE,          GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
+  //FXMAPFUNC(SEL_MAP,                GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
+
+  FXMAPFUNC(SEL_TIMEOUT,            GMWindow::ID_REFRESH_COVERVIEW,    GMWindow::onConfigureCoverView),
 
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onUpdShowSources),
   FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onCmdShowSources),
 
-  FXMAPFUNCS(SEL_COMMAND,						GMWindow::ID_COVERSIZE_SMALL,GMWindow::ID_COVERSIZE_EXTRALARGE,		GMWindow::onCmdCoverSize),
-  FXMAPFUNCS(SEL_UPDATE,						GMWindow::ID_COVERSIZE_SMALL,GMWindow::ID_COVERSIZE_EXTRALARGE,		GMWindow::onUpdCoverSize),
-
+//  FXMAPFUNCS(SEL_COMMAND,						GMWindow::ID_COVERSIZE_SMALL,GMWindow::ID_COVERSIZE_EXTRALARGE,		GMWindow::onCmdCoverSize),
+//  FXMAPFUNCS(SEL_UPDATE,						GMWindow::ID_COVERSIZE_SMALL,GMWindow::ID_COVERSIZE_EXTRALARGE,		GMWindow::onUpdCoverSize),
 
   };
 
@@ -155,7 +159,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   flags|=FLAG_ENABLED;
 
   remote=NULL;
-  cover_small=NULL;
 
   icontheme = new GMIconTheme(getApp());
   icontheme->load();
@@ -523,7 +526,7 @@ void GMWindow::showRemote(){
     if (GMPlayerManager::instance()->playing()){
       GMTrack info;
       GMPlayerManager::instance()->getTrackInformation(info);
-      remote->updateCover(cover_small);
+      remote->update_cover_display();
       remote->display(info);
       }
     remote->show();
@@ -642,7 +645,7 @@ void GMWindow::reset() {
   statusbar->getStatusLine()->setNormalText("Ready.");
 
   /// Clear Cover
-  setCover(NULL);
+  update_cover_display();
 
 
 #if APPLICATION_BETA > 0
@@ -1347,7 +1350,6 @@ long GMWindow::onCmdSleepTimer(FXObject*,FXSelector,void*ptr){
     }
   return 1;
   }
-
 long GMWindow::onUpdSleepTimer(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->hasSleepTimer())
     sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
@@ -1357,7 +1359,82 @@ long GMWindow::onUpdSleepTimer(FXObject*sender,FXSelector,void*){
   }
 
 
+void GMWindow::clearCover() {
+  if (coverview_x11 && coverview_x11->getImage()) {
+    delete coverview_x11->getImage();
+    coverview_x11->setImage(NULL);
+    }
+  }
+
+
+void GMWindow::update_cover_display() {
+  GMCover * cover = GMPlayerManager::instance()->getCoverManager()->getCover();
+  if (cover) {
+    if (!coverframe->shown()) {
+      if (coverview_x11) {
+          coverview_x11->setTarget(NULL);
+          }
+
+      coverframe->show();
+      coverframe->recalc();
+
+      layout();
+      updateCover();// gets called by SEL_CONFIGURE event
+
+      if (coverview_x11) {
+          coverview_x11->setTarget(this);
+          }
+      }
+    else {
+      fxmessage("update\n");
+      updateCover();
+      }
+    }
+  else {
+    clearCover();
+    if (coverframe->shown()) {
+      coverframe->hide();
+      coverframe->recalc();
+      }
+    }
+  
+  if (remote)
+    remote->update_cover_display();
+  }
+
+
+void GMWindow::updateCover() {
+  fxmessage("updateCover\n");
+
+  GMCover * cover = GMPlayerManager::instance()->getCoverManager()->getCover();
+
+  // clear old
+  clearCover();
+
+  // load new
+  if (cover) {
+    FXint size ;
+
+    if (coverview_x11)
+      size = FXCLAMP(64,FXMIN(coverview_x11->getWidth(),coverview_x11->getHeight()),500);
+    else
+      size = 0;
+
+    FXImage * image = GMCover::copyToImage(cover,size);
+    if (coverview_x11) {
+      image->create();
+      coverview_x11->setImage(image);
+      }
+    else {
+      coverview_gl->setImage(image);
+      }
+    }
+  }
+
+
+#if 0
 void GMWindow::setCover(GMCover*cvr) {
+fxmessage("setCover()\n");
   FXIconSource src(getApp());
   FXImage * cover=NULL;
   FXint coverdisplaysize;
@@ -1437,12 +1514,14 @@ void GMWindow::setCover(GMCover*cvr) {
     }
   }
 
+#endif
+
 void GMWindow::updateCoverView() {
 
   if (GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview && FXGLVisual::hasOpenGL(getApp())) {
 
     if (coverview_x11) {
-      setCover(NULL);
+      clearCover();
       delete coverview_x11;
       coverview_x11=NULL;
       }
@@ -1460,7 +1539,7 @@ void GMWindow::updateCoverView() {
   else {
 
     if (coverview_gl) {
-      setCover(NULL);
+      clearCover();
       delete coverview_gl;
       coverview_gl=NULL;
       delete glvisual;
@@ -1479,76 +1558,16 @@ void GMWindow::updateCoverView() {
     }
   }
 
-
-long GMWindow::onCmdCoverView(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
-  if (!event->moved) {
-    GMMenuPane pane(this);
-    if (coverview_x11) {
-      if (FXGLVisual::hasOpenGL(getApp())) {
-        new GMMenuCheck(&pane,"Use OpenGL viewer",this,ID_CHANGE_COVERVIEW);
-        new FXMenuSeparator(&pane);
-        }
-      new GMMenuRadio(&pane,"Small Cover",this,ID_COVERSIZE_SMALL);
-      new GMMenuRadio(&pane,"Medium Cover",this,ID_COVERSIZE_MEDIUM);
-      new GMMenuRadio(&pane,"Large Cover",this,ID_COVERSIZE_LARGE);
-      new GMMenuRadio(&pane,"Extra Large Cover",this,ID_COVERSIZE_EXTRALARGE);
+long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
+  if (coverview_x11 && GMPlayerManager::instance()->playing()) {
+    if (FXSELID(sel)==ID_COVERVIEW && coverview_x11->getUserData()==NULL) {
+      fxmessage("resize %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
+      getApp()->addTimeout(this,ID_REFRESH_COVERVIEW,TIME_MSEC(50));
       }
     else {
-      new GMMenuCheck(&pane,"Use X11 viewer",this,ID_CHANGE_COVERVIEW);
+      fxmessage("configure %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
+      updateCover();
       }
-    gm_set_window_cursor(&pane,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
-    pane.create();
-
-    ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-    pane.popup(NULL,event->root_x+3,event->root_y+3);
-    getApp()->runPopup(&pane);
-    return 1;
-    }
-  return 0;
-  }
-
-long GMWindow::onCmdChangeCoverView(FXObject*,FXSelector,void*){
-  GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview=!GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview;
-  updateCoverView();
-  if (GMPlayerManager::instance()->playing())
-    GMPlayerManager::instance()->update_cover_display();
-  return 1;
-  }
-
-long GMWindow::onCmdCoverSize(FXObject*,FXSelector sel,void*){
-  switch(FXSELID(sel)){
-    case ID_COVERSIZE_SMALL      : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size=128; break;
-    case ID_COVERSIZE_MEDIUM     : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size=256; break;
-    case ID_COVERSIZE_LARGE      : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size=384; break;
-    case ID_COVERSIZE_EXTRALARGE : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size=512; break;
-    }
-  setCover(NULL);
-//  loadCover(FXString::null);
-  if (GMPlayerManager::instance()->playing())
-    GMPlayerManager::instance()->update_cover_display();
-  return 1;
-  }
-
-long GMWindow::onUpdCoverSize(FXObject*sender,FXSelector sel,void*){
-  FXbool check=false;
-  switch(FXSELID(sel)){
-    case ID_COVERSIZE_SMALL      : check = (GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size<=128); break;
-    case ID_COVERSIZE_MEDIUM     : check = ((GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size>128) && (GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size<384)); break;
-    case ID_COVERSIZE_LARGE      : check = ((GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size>=384) && (GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size<512)); break;
-    case ID_COVERSIZE_EXTRALARGE : check = (GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size>=512); break;
-    }
-  if (check)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-  else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
-  return 1;
-  }
-
-long GMWindow::onConfigureCoverView(FXObject*,FXSelector,void*){
-  if (coverview_x11 && GMPlayerManager::instance()->playing()) {
-    fxmessage("configure %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
-    GMPlayerManager::instance()->update_cover_display();  
     }
   return 1;
   }
@@ -1601,7 +1620,7 @@ void GMWindow::create_dialog_header(FXDialogBox * dialog,const FXString & title,
 
 long GMWindow::onCmdShowSources(FXObject*,FXSelector,void*){
   if (mainsplitter->getExpanded()==HIDESOURCES) {
-    if (!coverfile.empty())
+    if (GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover && GMPlayerManager::instance()->getCoverManager()->getCover())
       mainsplitter->setExpanded(SHOWSOURCES_COVER);
     else
       mainsplitter->setExpanded(SHOWSOURCES);

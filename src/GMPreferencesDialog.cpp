@@ -928,7 +928,7 @@ long GMPreferencesDialog::onCmdAccept(FXObject*,FXSelector,void*) {
       GMPlayerManager::instance()->update_cover_display();
     }
   else {
-    mainwindow->setCover(NULL);
+    mainwindow->clearCover();
     }
 
   GMPlayerManager::instance()->update_tray_icon();

@@ -32,7 +32,6 @@ class GMTrackList;
 class GMTrackView;
 class GMAudioPlayer;
 class GMWindow;
-class GMRemote;
 class GMTrackDatabase;
 class GMPlayer;
 class GMPlayList;
@@ -220,6 +219,8 @@ public:
   GMDatabaseSource * getDatabaseSource() const;
 
   GMCoverCache * getCoverCache() const { return covercache; }
+
+  GMCoverManager * getCoverManager() const { return covermanager; }
 
 
 

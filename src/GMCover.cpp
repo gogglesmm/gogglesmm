@@ -367,8 +367,7 @@ GMCover * GMCover::fromPath(const FXString & path) {
 
 FXImage * GMCover::copyToImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
   if (cover) {
-    FXImage * image = gm_load_image_from_data(cover->data,cover->len,scale,crop);
-    return image;
+    return gm_load_image_from_data(cover->data,cover->len,scale,crop);
     }
   return NULL;
   }

@@ -88,15 +88,12 @@ private:
   FXHorizontalFrame * progressbar_cancelbutton;
   GMRemote          * remote;
 private:
-  FXString            coverfile;
-private:
-  FXImagePtr          cover_small;
-  FXbool              has_opengl;
-private:
   void configureToolbar(FXbool docktop,FXbool init=false);
   void configureStatusbar(FXbool show);
   void setFullScreen(FXbool show);
   FXbool showSources() const;
+  void updateCover();
+  void clearCover();
 private:
   GMWindow(){}
   GMWindow(const GMWindow&);
@@ -158,10 +155,6 @@ public: /// Message Handlers
   long onUpdPlayQueue(FXObject*,FXSelector,void*);
 
 
-  long onCmdChangeCoverView(FXObject*,FXSelector,void*);
-  long onCmdCoverView(FXObject*,FXSelector,void*);
-  long onCmdCoverSize(FXObject*,FXSelector,void*);
-  long onUpdCoverSize(FXObject*,FXSelector,void*);
   long onConfigureCoverView(FXObject*,FXSelector,void*);
 
   long onCmdSeek(FXObject*,FXSelector,void*);
@@ -226,6 +219,7 @@ public:
     ID_SLEEP,
 
     ID_COVERVIEW,
+    ID_REFRESH_COVERVIEW,
     ID_CHANGE_COVERVIEW,
     ID_COVERSIZE_SMALL,
     ID_COVERSIZE_MEDIUM,
@@ -268,18 +262,14 @@ public:
   GMTrackView * getTrackView() const { return trackview; }
   GMSourceView  * getSourceView() const { return sourceview; }
 
-  void setCover(GMCover*);
 
   void update_time(const TrackTime & current,const TrackTime & remaining,FXint position,FXbool playing,FXbool seekable);
 
   void update_volume_display(FXint level);
 
-
-  FXImage * getSmallCover() const { return cover_small; }
-
+  void update_cover_display();
 
   void setStatus(const FXString& status);
-
 
   void focusNext();
   void focusPrevious();

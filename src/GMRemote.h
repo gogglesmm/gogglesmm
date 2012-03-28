@@ -38,9 +38,11 @@ private:
   FXIconPtr     icon_volume_low;
   FXIconPtr     icon_volume_muted;
   FXIconPtr     icon_home;
+  FXImage*      cover;
 protected:
   virtual bool doesOverrideRedirect() const;
   GMRemote() {}
+  void updateCover();
 public:
   long onCmdVolume(FXObject*,FXSelector,void*);
   long onCmdVolumeButton(FXObject*,FXSelector,void*);
@@ -54,7 +56,6 @@ public:
   /// Construct Remote Window
   GMRemote(FXApp* a,FXObject*,FXSelector);
 
-  void updateCover(FXImage * img);
 
   // Update Display
   void display(const GMTrack & track);
@@ -63,6 +64,8 @@ public:
   void update_time(const TrackTime & current,FXint p,FXbool playing);
 
   void update_volume_display(FXint l);
+
+  void update_cover_display();
 
   void reset();
 

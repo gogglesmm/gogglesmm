@@ -24,6 +24,8 @@
 #include "GMList.h"
 #include "GMSource.h"
 #include "GMPlayerManager.h"
+#include "GMCover.h"
+#include "GMCoverManager.h"
 #include "GMWindow.h"
 #include "GMRemote.h"
 #include "GMIconTheme.h"
@@ -42,8 +44,12 @@ FXIMPLEMENT(GMRemote,FXMainWindow,GMRemoteMap,ARRAYNUMBER(GMRemoteMap))
 
 GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggles Music Manager",NULL,NULL,DECOR_BORDER|DECOR_TITLE|DECOR_CLOSE|DECOR_STRETCHABLE,0,0,0,0,3,3,3,3,3,3){
   flags|=FLAG_ENABLED;
+  cover=NULL;
+
   setTarget(tgt);
   setSelector(msg);
+
+
 
   setIcon(GMIconTheme::instance()->icon_applogo);
   setMiniIcon(GMIconTheme::instance()->icon_applogo_small);
@@ -124,6 +130,12 @@ GMRemote::~GMRemote(){
   volumeslider->setTarget(NULL);
   volumeslider->setSelector(0);
   volumebutton->setMenu(NULL);
+
+  if (cover) {
+    delete cover;
+    cover=NULL;
+    }
+  updateCover();
   }
 
 void GMRemote::writeRegistry(){
@@ -135,11 +147,12 @@ void GMRemote::writeRegistry(){
     }
   }
 
-void GMRemote::updateCover(FXImage * cover) {
+void GMRemote::updateCover() {
   if (cover==NULL) {
     cover_label->setImage(img_default);
     }
   else {
+    cover->create();
     cover_label->setImage(cover);
     }
   }
@@ -173,6 +186,13 @@ void GMRemote::reset(){
   artistalbum_label->setTipText(FXString::null);
   artistalbum_label->hide();
   time_label->setText("--:--");
+
+  if (cover) {
+    delete cover;
+    cover=NULL;
+    }
+  updateCover();
+
   recalc();
   layout();
   }
@@ -200,6 +220,15 @@ void GMRemote::update_volume_display(FXint level) {
     volumebutton->setIcon(icon_volume_high);
 
   volumeslider->setValue(level);
+  }
+
+void GMRemote::update_cover_display() {
+  if (cover) {
+    delete cover;
+    cover=NULL;
+    }
+  cover = GMCover::copyToImage(GMPlayerManager::instance()->getCoverManager()->getCover(),64);
+  updateCover();
   }
 
 

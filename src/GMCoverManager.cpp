@@ -43,12 +43,12 @@ void GMCoverManager::clear() {
   source.clear();
   }
 
-void GMCoverManager::load(const FXString & filename) {
+FXbool GMCoverManager::load(const FXString & filename) {
   FXString path = FXPath::directory(filename);
 
   // Reuse existing
   if (source==filename || source==path)
-    return;
+    return false;
 
   // Clear existing
   clear();
@@ -71,4 +71,6 @@ void GMCoverManager::load(const FXString & filename) {
         share.clear();
       }
     }
+
+  return true;
   }

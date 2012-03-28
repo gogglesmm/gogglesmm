@@ -31,7 +31,7 @@ public:
   void clear();
 
   // Load Cover
-  void load(const FXString & filename);
+  FXbool load(const FXString & filename);
 
   // Get the share filename
   FXString getShareFilename() const { return share; }

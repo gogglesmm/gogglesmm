@@ -1389,13 +1389,9 @@ void GMPlayerManager::setStatus(const FXString & text){
   }
 
 void GMPlayerManager::update_cover_display() {
-
-  covermanager->load(trackinfo.mrl);
-
-  mainwindow->setCover(covermanager->getCover());
-
-//  if (preferences.gui_show_playing_albumcover && gm_is_local_file(trackinfo.mrl))
-//    mainwindow->loadCover(trackinfo.mrl);
+  if (preferences.gui_show_playing_albumcover && covermanager->load(trackinfo.mrl)) {
+    mainwindow->update_cover_display();
+    }
   }
 
 
@@ -1699,7 +1695,7 @@ void GMPlayerManager::display_track_notification() {
 #ifdef HAVE_DBUS
   if (sessionbus) {
     if (preferences.dbus_notify_daemon && notifydaemon) {
-      notifydaemon->notify_track_change(trackinfo,mainwindow->getSmallCover());
+      notifydaemon->notify_track_change(trackinfo,GMCover::copyToImage(covermanager->getCover(),64));
       }
     if (mpris) mpris->notify_track_change(trackinfo);
     if (appstatus) appstatus->notify_track_change(trackinfo);
