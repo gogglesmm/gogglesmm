@@ -101,8 +101,6 @@ class CoverLoader: public GMTask {
 protected:
   FXuchar * compress_buffer;
   FXuval    compress_buffer_length;
-  FXuval    total_c;
-  FXuval    total_u;
 public:
   GMAlbumPathList albums;
   GMCoverCache    cache;

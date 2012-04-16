@@ -47,8 +47,8 @@ enum {
   };
 
 namespace ap {
-class HttpClient;
-};
+  class HttpClient;
+  }
 
 class GMAudioScrobbler : public FXThread {
 private:
@@ -61,12 +61,12 @@ private:
   FXSelector        message;
   FXbool            started;
 private:
-  HttpClient*       client;  
+  ap::HttpClient*   client;
 private:
   FXuint            mode;
   FXString          handshake_url;
   FXString          nowplaying_url;
-  FXString          submit_url;    
+  FXString          submit_url;
 
 
   FXString          username;

@@ -22,7 +22,6 @@
 
 #include <FXArray.h>
 
-
 #include "GMTrack.h"
 #include "GMApp.h"
 #include "GMAbout.h"
@@ -129,9 +128,6 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_UPDATE,						  GMWindow::ID_PLAYQUEUE,					GMWindow::onUpdPlayQueue),
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_NEXT_FOCUS,		GMWindow::onCmdNextFocus),
-
-//  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_CHANGE_COVERVIEW,		GMWindow::onCmdChangeCoverView),
-//  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,	GMWindow::ID_COVERVIEW,					GMWindow::onCmdCoverView),
   FXMAPFUNC(SEL_CONFIGURE,          GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
   //FXMAPFUNC(SEL_MAP,                GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
 
@@ -139,10 +135,6 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onUpdShowSources),
   FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onCmdShowSources),
-
-//  FXMAPFUNCS(SEL_COMMAND,						GMWindow::ID_COVERSIZE_SMALL,GMWindow::ID_COVERSIZE_EXTRALARGE,		GMWindow::onCmdCoverSize),
-//  FXMAPFUNCS(SEL_UPDATE,						GMWindow::ID_COVERSIZE_SMALL,GMWindow::ID_COVERSIZE_EXTRALARGE,		GMWindow::onUpdCoverSize),
-
   };
 
 
@@ -300,18 +292,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   prevbutton      = new FXButton(toolbar,tr("\tPlay Previous Track\tPlay previous track."),icontheme->icon_prev_toolbar,this,ID_PREV,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT|LAYOUT_CENTER_Y);
   nextbutton      = new FXButton(toolbar,tr("\tPlay Next Track\tPlay next track."),icontheme->icon_next_toolbar,this,ID_NEXT,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT|LAYOUT_CENTER_Y);
   new FXVerticalSeparator(toolbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
-
-
-
-
-
-
-
-
-
-
-
-
 
   FXVerticalFrame * timeframe = new FXVerticalFrame(toolbar,LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0,0,1);
   label_nowplaying = new FXLabel(timeframe," ",NULL,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_CENTER_X,0,0,0,0,0,0,0,0);
@@ -1364,6 +1344,9 @@ void GMWindow::clearCover() {
     delete coverview_x11->getImage();
     coverview_x11->setImage(NULL);
     }
+  else if (coverview_gl) {
+    coverview_gl->setImage(NULL);  
+    }      
   }
 
 
@@ -1397,7 +1380,7 @@ void GMWindow::update_cover_display() {
       coverframe->recalc();
       }
     }
-  
+
   if (remote)
     remote->update_cover_display();
   }
@@ -1427,94 +1410,10 @@ void GMWindow::updateCover() {
       }
     else {
       coverview_gl->setImage(image);
+      delete image;
       }
     }
   }
-
-
-#if 0
-void GMWindow::setCover(GMCover*cvr) {
-fxmessage("setCover()\n");
-  FXIconSource src(getApp());
-  FXImage * cover=NULL;
-  FXint coverdisplaysize;
-
-  const FXint smallcoversize=64;
-
-  /// Whether to scale the image when loading or not
-  if (coverview_gl)
-    coverdisplaysize=0;
-  else
-    coverdisplaysize=FXCLAMP(64,FXMIN(coverview_x11->getWidth(),coverview_x11->getHeight()),500);//FXCLAMP(64,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,500);
-
-  cover = GMCover::copyToImage(cvr,coverdisplaysize);
-
-  /// Delete current cover
-  if (remote)
-    remote->updateCover(NULL);
-
-  if (cover_small)  {
-    FXImage * img = cover_small.release();
-    delete img;
-    }
-
-  if (coverview_x11) {
-    if (coverview_x11->getImage()){
-      delete coverview_x11->getImage();
-      coverview_x11->setImage(NULL);
-      }
-    }
-
-  /// Set new cover to coverview
-  if (coverview_gl)
-    coverview_gl->setImage(cover);
-  else
-    coverview_x11->setImage(cover);
-
-  if (cover) {
-
-    /// Retrieve Image Data
-    FXColor * imagedata = cover->getData();
-
-    /// Disown image data
-    FXImageOwner::clear(cover);
-
-    /// Make sure to create cover for x11
-    if (coverview_x11)
-      cover->create();
-
-    /// Make small cover the owner of the data
-    cover_small = new FXImage(getApp(),imagedata,IMAGE_SHMI|IMAGE_SHMP|IMAGE_KEEP|IMAGE_OWNED,cover->getWidth(),cover->getHeight());
-    if (cover_small->getWidth()>smallcoversize || cover_small->getHeight()>smallcoversize) {
-      if (cover_small->getWidth()>cover_small->getHeight())
-        cover_small->scale(smallcoversize,(smallcoversize*cover_small->getHeight())/cover_small->getWidth(),1);
-      else
-        cover_small->scale((smallcoversize*cover_small->getWidth())/cover_small->getHeight(),smallcoversize,1);
-      }
-
-    /// delete the cover for gl.
-    if (coverview_gl)
-      delete cover;
-
-    cover_small->create();
-
-    if (remote)
-      remote->updateCover(cover_small);
-
-    if (!coverframe->shown()) {
-      coverframe->show();
-      coverframe->recalc();
-      }
-    }
-  else {
-    if (coverframe->shown()) {
-      coverframe->hide();
-      coverframe->recalc();
-      }
-    }
-  }
-
-#endif
 
 void GMWindow::updateCoverView() {
 

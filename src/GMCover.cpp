@@ -263,6 +263,7 @@ FXbool GMCover::save(const FXString & filename) {
   return false;
   }
 
+
 FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
   GM_TICKS_START();
   FXString extension = FXPath::extension(mrl);

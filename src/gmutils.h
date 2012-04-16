@@ -71,12 +71,4 @@ extern void gm_print_time(FXint nseconds,FXString & result);
 
 extern void gm_copy_hash(FXHash & from,FXHash & to);
 
-/// Possible coming from libgap
-namespace ap {
-extern FXbool ap_set_nonblocking(FXint fd);
-extern void ap_set_thread_name(const FXchar * name);
-}
-
-using namespace ap;
-
 #endif

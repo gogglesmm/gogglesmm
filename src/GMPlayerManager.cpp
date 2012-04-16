@@ -1222,8 +1222,8 @@ void GMPlayerManager::stop(FXbool /*force_close*/) {
 
   player->stop();
 
-  /// Reset Track Display
-  reset_track_display();
+  // We don't call reset_track_display() here, since we'll do that when we get the
+  // PLAYER_STATE_STOPPED signal from the audio player.
   }
 
 

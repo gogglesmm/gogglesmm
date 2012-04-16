@@ -200,9 +200,7 @@ long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
     FXbool has_persistence=false;
 
     for (FXint i=0;i<ncaps;i++){
-#ifdef DEBUG
-      fxmessage("caps[%d]=%s\n",i,caps[i]);
-#endif
+      GM_DEBUG_PRINT("caps[%d]=%s\n",i,caps[i]);
       if (flags&ACTION_ITEMS) {
         if (comparecase(caps[i],"actions")==0)
           has_actions=true;
@@ -245,13 +243,16 @@ void GMNotifyDaemon::reset() {
   }
 
 void GMNotifyDaemon::close() {
-  fxmessage("GMNotifyDaemon::close()\n");
   if (msgid>0) {
+    GM_DEBUG_PRINT("GMNotifyDaemon::close()\n");
     DBusMessage * msg = method("CloseNotification");
     if (msg) {
       dbus_message_append_args(msg,DBUS_TYPE_UINT32,&msgid,DBUS_TYPE_INVALID);
       dbus_message_set_no_reply(msg,true);
       bus->send(msg);
+      // We don't want to wait for NotificationClosed signal.
+      // and we want to prevent calling CloseNotification multiple times.
+      msgid=0;
       }
     }
   }
@@ -259,12 +260,13 @@ void GMNotifyDaemon::close() {
 void GMNotifyDaemon::init() {
   {
     DBusMessage * msg = method("GetServerInformation");
+    FXASSERT(msg);
     send(msg,this,ID_NOTIFY_SERVER);
   }
 
-
   {
     DBusMessage * msg = method("GetCapabilities");
+    FXASSERT(msg);
     send(msg,this,ID_NOTIFY_CAPABILITIES);
   }
 
@@ -280,7 +282,7 @@ void GMNotifyDaemon::notify_track_change(const GMTrack & track){
   FXImagePtr image;
 
   image = GMCover::copyToImage(GMPlayerManager::instance()->getCoverManager()->getCover(),64);
-  
+
   notify(track.title.text(),body.text(),-1,image);
   }
 

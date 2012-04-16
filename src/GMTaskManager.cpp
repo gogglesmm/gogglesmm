@@ -20,6 +20,7 @@
 #include "gmutils.h"
 #include "GMApp.h"
 #include "GMTaskManager.h"
+#include "GMAudioPlayer.h"
 
 
 GMTask::GMTask(FXObject*tgt,FXSelector sel) : taskmanager(NULL),mc(NULL),processing(true),target(tgt),message(sel) {
