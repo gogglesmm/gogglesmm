@@ -97,22 +97,32 @@ FXbool AlsaOutput::open() {
 
     if (snd_pcm_info(handle,info)>=0) {
       GM_DEBUG_PRINT("alsa device: %s %s %s\n",snd_pcm_info_get_id(info),snd_pcm_info_get_name(info),snd_pcm_info_get_subdevice_name(info));
-
-      FXString mixerdevice;
-
-      mixerdevice.format("hw:%d",snd_pcm_info_get_card(info));
-
       if (snd_mixer_open(&mixer,0)<0) {
         GM_DEBUG_PRINT("Unable to open mixer: %s\n",snd_strerror(result));
         return true;
         }
 
+      FXString mixerdevice = snd_pcm_name(handle);
+
       if ((result=snd_mixer_attach(mixer,mixerdevice.text()))<0) {
-        GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));
-        snd_mixer_close(mixer);
-        mixer=NULL;
-        return true;
+        GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));         
+        if (snd_pcm_info_get_card(info)!=-1) {        
+          mixerdevice.format("hw:%d",snd_pcm_info_get_card(info));
+          if ((result=snd_mixer_attach(mixer,mixerdevice.text()))<0) {
+            GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));         
+            snd_mixer_close(mixer);
+            mixer=NULL;
+            return true;
+            }
+          }
+        else {
+          snd_mixer_close(mixer);
+          mixer=NULL;
+          return true;
+          }  
         }
+
+      GM_DEBUG_PRINT("mixer device: %s\n",mixerdevice.text());
 
       if ((result=snd_mixer_selem_register(mixer,NULL,NULL))<0){
         GM_DEBUG_PRINT("Unable to register simple mixer: %s\n",snd_strerror(result));
@@ -153,7 +163,7 @@ void AlsaOutput::volume(FXfloat v) {
 
 //    snd_mixer_selem_set_playback_volume(mixer_element,SND_MIXER_SCHN_FRONT_LEFT,volume);
 //    snd_mixer_selem_set_playback_volume(mixer_element,SND_MIXER_SCHN_FRONT_RIGHT,volume);
-//    fxmessage("vol: %g %d\n",v,volume);
+//    fxmessage("vol: %g %d\n",v,value);
     }
   }
 
