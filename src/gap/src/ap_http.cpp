@@ -602,7 +602,7 @@ static FXbool ap_set_nosignal(FXint)  {
   }
 #endif
 
-static FXbool ap_set_timeout(FXInputHandle handle,FXint timeout) {
+static FXbool ap_set_socket_timeout(FXInputHandle handle,FXint timeout) {
   struct timeval tv;
 
   memset(&tv,0,sizeof(struct timeval));
@@ -674,7 +674,7 @@ static FXInputHandle ap_create_socket(FXint domain, FXint type, FXint protocol,F
     }
 
   // Probably best to always set a sane timeout, blocking or nonblocking
-  if (!ap_set_timeout(device,timeout)){
+  if (!ap_set_socket_timeout(device,timeout)){
     ::close(device);
     return BadHandle;
     }
