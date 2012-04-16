@@ -1,0 +1,4 @@
+0.9 (2012-04-14)
+  - Refactor http_plugin to use new http response parser.
+  - Refactor input plugin api to use more consistent naming.
+  
