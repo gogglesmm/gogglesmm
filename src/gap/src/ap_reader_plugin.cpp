@@ -72,22 +72,29 @@ FXbool TextReader::init(InputPlugin * plugin) {
 
 ReadStatus TextReader::process(Packet*packet) {
   packet->unref();
-  fxmessage("[text] starting read\n");
-  FXint len=0,nread;
-  const FXint chunk=4096;
-  while(!input->eof()) {
-    if (len>0xFFFF) {
-      fxmessage("[text] input too big %d\n",len);
-      return ReadError;
-      }
-    textbuffer.length(textbuffer.length()+chunk);
-    nread=input->read(&textbuffer[len],chunk);
-    if (nread==-1)
+  GM_DEBUG_PRINT("[text] starting read\n");
+  if (input->size()>0) {
+    textbuffer.length(input->size());
+    if (input->read(textbuffer.text(),input->size())!=input->size())
       return ReadInterrupted;
-    else
-      len+=nread;
     }
-  textbuffer.trunc(len);
+  else {
+    FXint len=0,nread;
+    const FXint chunk=4096;
+    while(!input->eof()) {
+      if (len>0xFFFF) {
+        GM_DEBUG_PRINT("[text] input too big %d\n",len);
+        return ReadError;
+        }
+      textbuffer.length(textbuffer.length()+chunk);
+      nread=input->read(&textbuffer[len],chunk);
+      if (nread==-1)
+        return ReadInterrupted;
+      else
+        len+=nread;
+      }
+    textbuffer.trunc(len);
+    }
   return ReadDone;
   }
 

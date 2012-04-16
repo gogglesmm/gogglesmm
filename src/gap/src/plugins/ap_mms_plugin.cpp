@@ -30,7 +30,7 @@ FXbool MMSInput::open(const FXString & uri) {
   return true;
   }
 
-FXival MMSInput::read_raw(void*data,FXival ncount) {
+FXival MMSInput::io_read(void*data,FXival ncount) {
   FXint result = mms_read(NULL,(mms_t*)mms,(FXchar*)data,ncount);
   if (result<0) return -1;
   return result;

@@ -28,111 +28,143 @@ InputPlugin::InputPlugin(InputThread * i) : input(i), buffer(0) {
 InputPlugin::~InputPlugin() {
   }
 
-FXbool InputPlugin::wait_read(FXInputHandle h) {
-  do {
-    FXuint x = ap_wait_read(input->getFifoHandle(),h);
-    switch(x) {
-       case WIO_TIMEOUT      : return false; break;
-       case WIO_HANDLE       : return true; break;
-       default               :
-
-          if (input->aborted()){
-            return false;
-            }
-          else if (x==WIO_BOTH)
-            return true;
-          else
-            continue;
-      }
-    }
-  while(1);
-  }
-
-
-FXbool InputPlugin::wait_read() {
-  return wait_read(handle());
-  }
-
-FXbool InputPlugin::wait_write() {
-  return wait_write(handle());
-  }
-
-FXbool InputPlugin::wait_write(FXInputHandle h) {
-  do {
-    FXuint x = ap_wait_write(input->getFifoHandle(),h);
-    switch(x) {
-       case WIO_TIMEOUT      : return false; break;
-       case WIO_HANDLE       : return true; break;
-       default               :
-
-          if (input->aborted()){
-            return false;
-            }
-          else if (x==WIO_BOTH)
-            return true;
-          else
-            continue;
-      }
-    }
-  while(1);
-  }
-
-
-
-
-
-
-FXival InputPlugin::fillBuffer(FXival count) {
+FXival InputPlugin::io_buffer(FXival count) {
+  register FXival nread=0;
+  register FXival n;
   buffer.reserve(count);
-  FXival nread = InputPlugin::readBlock(buffer.ptr(),count,false);
-  if (nread>0)
-    buffer.wroteBytes(nread);
+  while(nread<count) {
+    n=io_read(buffer.ptr(),count-nread);
+    if (__likely(n>0)){
+      buffer.wroteBytes(n);
+      nread+=n;
+      }
+    else if (n==0){
+      return nread;
+      }
+    else if (n==AP_IO_BLOCK) {
+      // Only block if we haven't received any bytes yet.
+      // This prevents us from locking up if we don't know how many bytes we'll receive.
+      if (nread)
+        return nread;
+      else if (!io_wait_read())
+        return AP_IO_BLOCK;
+      }
+    else {
+      return AP_IO_ERROR;
+      }
+    }
   return nread;
   }
 
-FXival InputPlugin::readBlock(void*data,FXival count,FXbool wait){
-  FXival nread;
-  FXival ncount=count;
-  FXchar * buf = (FXchar*)data;
-  while(ncount>0) {
-    nread=read_raw(buf,ncount);
-    if (__likely(nread>0)) {
-      buf+=nread;
-      ncount-=nread;
+
+
+FXival InputPlugin::io_read_block(void*ptr,FXival count) {
+  FXchar * buf = static_cast<FXchar*>(ptr);
+  register FXival nread=0;
+  register FXival n;
+  while(nread<count) {
+    n=io_read(buf+nread,count-nread);
+    if (__likely(n>0)){
+      nread+=n;
       }
-    else if (nread==0) { // eof!
-      return count-ncount;
+    else if (n==0){
+      return nread;
       }
-    else if (nread==-2 ) { // block!
-      /// wait if we have no data yet
-      /// In case we receive data from socket and we don't know how long the stream will be.
-      if (wait || (ncount==count)) {
-        if (!wait_read())
-          return -2;
-        }
-      else {
-        return count-ncount;
-        }
+    else if (n==AP_IO_BLOCK) {
+      if (!io_wait_read())
+        return AP_IO_BLOCK;
       }
     else {
-      return -1;
+      return AP_IO_ERROR;
       }
     }
-  return count;
+  return nread;
   }
 
 
+FXival InputPlugin::io_write_block(const void*ptr,FXival count) {
+  const FXchar * buf = static_cast<const FXchar*>(ptr);
+  register FXival nwrite=0;
+  register FXival n;
+  while(nwrite<count) {
+    n=io_write(buf+nwrite,count-nwrite);
+    if (__likely(n>0)){
+      nwrite+=n;
+      }
+    else if (n==0){
+      return nwrite;
+      }
+    else if (n==AP_IO_BLOCK) {
+      if (!io_wait_write())
+        return AP_IO_BLOCK;
+      }
+    else {
+      return AP_IO_ERROR;
+      }
+    }
+  return nwrite;
+  }
+
+
+
+FXbool InputPlugin::io_wait_read() {
+  do {
+    FXuint x = ap_wait_read(input->getFifoHandle(),io_handle());
+    switch(x) {
+       case WIO_TIMEOUT      : return false; break;
+       case WIO_HANDLE       : return true; break;
+       default               :
+
+          if (input->aborted()){
+            return false;
+            }
+          else if (x==WIO_BOTH)
+            return true;
+          else
+            continue;
+      }
+    }
+  while(1);
+  }
+
+
+FXbool InputPlugin::io_wait_write() {
+  do {
+    FXuint x = ap_wait_write(input->getFifoHandle(),io_handle());
+    switch(x) {
+       case WIO_TIMEOUT      : return false; break;
+       case WIO_HANDLE       : return true; break;
+       default               :
+
+          if (input->aborted()){
+            return false;
+            }
+          else if (x==WIO_BOTH)
+            return true;
+          else
+            continue;
+      }
+    }
+  while(1);
+  }
+
 FXival InputPlugin::preview(void*data,FXival count) {
   if (serial() || buffer.size()) {
-    if (buffer.size()<count)
-      fillBuffer(count-buffer.size());
+    if (buffer.size()<count) {
+      buffer.reserve(count-buffer.size());
+      FXival n=InputPlugin::io_read_block(buffer.ptr(),count-buffer.size());
+      if (n>0)
+        buffer.wroteBytes(n);
+      else if (n<0 && buffer.size()==0)
+        return n;
+      }
     return buffer.peek(data,count);
     }
   else { // no need to buffer if we have non-serial streams
     FXlong readpos = position();
-    FXival nblock  = InputPlugin::readBlock(data,count);
+    FXival n = InputPlugin::io_read_block(data,count);
     position(readpos,FXIO::Begin);
-    return nblock;
+    return n;
     }
   }
 
@@ -141,38 +173,13 @@ FXival InputPlugin::read(void * d,FXival count){
     FXchar * data = (FXchar*)d;
     FXival nbuffer = buffer.read(data,count);
     if (nbuffer==count) return nbuffer;
-    FXival nblock = InputPlugin::readBlock(data+nbuffer,count-nbuffer);
+    FXival nblock = InputPlugin::io_read_block(data+nbuffer,count-nbuffer);
     if (nblock<0) return nblock;
     return nbuffer+nblock;
     }
   else {
-    return InputPlugin::readBlock(d,count);
+    return InputPlugin::io_read_block(d,count);
     }
   }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

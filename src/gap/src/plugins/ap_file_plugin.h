@@ -11,8 +11,8 @@ private:
   FileInput(const FileInput&);
   FileInput &operator=(const FileInput&);
 protected:
-  FXival read_raw(void*data,FXival ncount);
-  FXInputHandle handle() const { return file.handle(); }
+  FXival io_read(void*data,FXival ncount);
+  FXInputHandle io_handle() const { return file.handle(); }
 public:
   /// Constructor
   FileInput(InputThread*);

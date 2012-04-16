@@ -56,9 +56,10 @@ FXint HttpStatus::type() const {
 
 
 HttpResponse::HttpResponse() :
-  flags(0),
+  buffer(NULL),
   content_length(-1),
-  chunk_remaining(-1) {
+  chunk_remaining(-1),
+  flags(0){
   }
 
 HttpResponse::~HttpResponse() {
@@ -74,33 +75,34 @@ void HttpResponse::clear() {
 
 
 // Read (at most) nbytes from buffer or source
-FXival HttpResponse::read(FXchar*ptr,FXival nbytes) {
+FXival HttpResponse::read(void*ptr,FXival nbytes) {
+  register FXchar * dest = static_cast<FXchar*>(ptr);
   FXival nread=0;
   while(nbytes) {
-    if (buffer.size()) {
-      FXival n = buffer.read(ptr,nbytes);
+    if (buffer->size()) {
+      FXival n = buffer->read(ptr,nbytes);
       nread+=n;
       nbytes-=n;
-      ptr+=n;
+      dest+=n;
       }
     else {
-      FXival n = readBlock(ptr,nbytes);
+      FXival n = io_read(dest,nbytes);
       if (n<=0) return (nread>0) ? nread : n;
       nread+=n;
       nbytes-=n;
-      ptr+=n;
+      dest+=n;
       }
     }
   return nread;
   }
 
 // Fill buffer with (at most) nbytes
-FXival HttpResponse::fill(FXival nbytes) {
-  buffer.reserve(nbytes);
-  FXival nread = readBlock((FXchar*)buffer.ptr(),nbytes);
+FXival HttpResponse::io_buffer(FXival nbytes) {
+  buffer->reserve(nbytes);
+  FXival nread = io_read(buffer->ptr(),nbytes);
   if (nread>0) {
     //fxmessage("buf: \"%s\"\n",buffer.data());
-    buffer.wroteBytes(nread);
+    buffer->wroteBytes(nread);
     }
   return nread;
   }
@@ -110,14 +112,15 @@ FXival HttpResponse::fill(FXival nbytes) {
 // headers. Mode can either be HEADER_SINGLE_LINE or HEADER_MULTIPLE_LINES,
 // depending on whether headers may span multiple lines or not.
 FXbool HttpResponse::parse_header(FXString & line,FXuint mode) {
+  MemoryBuffer & b = *(buffer);
   FXint len=0,i,j,l;
-  for (i=0;i<buffer.size()-1;i++){
-    if (buffer[i]=='\r' && buffer[i+1]=='\n') {
+  for (i=0;i<buffer->size()-1;i++){
+    if (b[i]=='\r' && b[i+1]=='\n') {
 
       // If header cannot span multiple lines, we're done here.
       if (mode==HEADER_SINGLE_LINE) {
-        if (i>0) line.assign((FXchar*)buffer.data(),i);
-        buffer.readBytes(i+2);
+        if (i>0) line.assign((FXchar*)buffer->data(),i);
+        buffer->readBytes(i+2);
         return true;
         }
 
@@ -125,22 +128,22 @@ FXbool HttpResponse::parse_header(FXString & line,FXuint mode) {
       if (len>0) {
 
         // need more bytes
-        if ((i+2)>=buffer.size())
+        if ((i+2)>=buffer->size())
             return false;
 
         /// header continues on next line
-        if (buffer[i+2]==' ' || buffer[i+2]=='\t')
+        if (b[i+2]==' ' || b[i+2]=='\t')
             continue;
         }
 
       /// copy string
       line.length(len);
       for (j=0,l=0;l<len;j++){
-        if (buffer[j]=='\r' || buffer[j]=='\n')
+        if (b[j]=='\r' || b[j]=='\n')
           continue;
-        line[l++]=buffer[j];
+        line[l++]=b[j];
         }
-      buffer.readBytes(i+2);
+      buffer->readBytes(i+2);
       return true;
       }
     len++;
@@ -223,7 +226,7 @@ FXbool HttpResponse::read_status() {
   FXString header;
   if (read_header(header,HEADER_SINGLE_LINE)) {
     if (header.scan("HTTP/%d.%d %d",&status.major,&status.minor,&status.code)==3){
-      //fxmessage("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
+      GM_DEBUG_PRINT("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
       return true;
       }
     }
@@ -233,7 +236,7 @@ FXbool HttpResponse::read_status() {
 // Read header
 FXbool HttpResponse::read_header(FXString & header,FXuint mode) {
   while(!parse_header(header,mode)) {
-    if (fill()==-1)
+    if (io_buffer(128)<=0)
       return false;
     }
   return true;
@@ -244,13 +247,13 @@ FXbool HttpResponse::read_header(FXString & header,FXuint mode) {
 
 // Read the full message body non-chunked
 FXString HttpResponse::read_body() {
-  FXString body;
+  FXString content;
   if (content_length==0) {
     return FXString::null;
     }
   else if (content_length>0) {
-    body.length(content_length);
-    FXival n = read(&body[0],content_length);
+    content.length(content_length);
+    FXival n = read(&content[0],content_length);
     if (n<content_length)  // Partial Transfer...
       return FXString::null;
     }
@@ -259,22 +262,22 @@ FXString HttpResponse::read_body() {
     FXint pos=0;
     FXival n=0;
     do {
-      body.length(body.length()+BLOCK);
-      n = read(&body[pos],BLOCK);
+      content.length(content.length()+BLOCK);
+      n = read(&content[pos],BLOCK);
       if (n>0) pos+=n;
       }
     while(n==BLOCK);
 
     if (pos>0)
-      body.length(pos);
+      content.length(pos);
     }
-  return body;
+  return content;
   }
 
 // Read the full message body chunked
 FXString HttpResponse::read_body_chunked() {
   FXString header;
-  FXString body;
+  FXString content;
   FXint    chunksize=-1;
 
   if (read_chunk_header(chunksize)) {
@@ -282,10 +285,10 @@ FXString HttpResponse::read_body_chunked() {
     while(chunksize) {
 
       // Resize buffer
-      body.length(body.length()+chunksize);
+      content.length(content.length()+chunksize);
 
       // Anything less than chunksize is an error
-      if (read(&body[body.length()-chunksize],chunksize)<chunksize)
+      if (read(&content[content.length()-chunksize],chunksize)<chunksize)
         goto fail;
 
       // Set to zero so read_chunk_header will check for crlf
@@ -306,7 +309,7 @@ FXString HttpResponse::read_body_chunked() {
       insert_header(header);
       }
 
-    return body;
+    return content;
     }
 fail:
   return FXString::null;
@@ -316,15 +319,15 @@ fail:
 
 
 
-FXival HttpResponse::read_body(FXchar *& body) {
-  body=NULL;
+FXival HttpResponse::read_body(FXchar *& content) {
+  content=NULL;
 
   if (content_length>0) {
-    allocElms(body,content_length);
-    FXival n = read(body,content_length);
+    allocElms(content,content_length);
+    FXival n = read(content,content_length);
     if (n!=content_length) {
-      freeElms(body);
-      body=NULL;
+      freeElms(content);
+      content=NULL;
       return -1;
       }
     return content_length;
@@ -335,9 +338,9 @@ FXival HttpResponse::read_body(FXchar *& body) {
     FXival len  = 0;
     FXival n;
     do {
-      resizeElms(body,size+BLOCK);
+      resizeElms(content,size+BLOCK);
       size+=BLOCK;
-      n = read(body+len,BLOCK);
+      n = read(content+len,BLOCK);
       if (n>0) len+=n;
       }
     while(n==BLOCK);
@@ -349,12 +352,12 @@ FXival HttpResponse::read_body(FXchar *& body) {
   }
 
 
-FXival HttpResponse::read_body_chunked(FXchar *& body) {
+FXival HttpResponse::read_body_chunked(FXchar *& content) {
   FXString header;
   FXint    size=0;
   FXint    chunksize=-1;
 
-  body = NULL;
+  content = NULL;
 
   if (read_chunk_header(chunksize)) {
 
@@ -362,10 +365,10 @@ FXival HttpResponse::read_body_chunked(FXchar *& body) {
 
       // Resize buffer
       size+=chunksize;
-      resizeElms(body,size);
+      resizeElms(content,size);
 
       // Anything less than chunksize is an error
-      if (read(body+size-chunksize,chunksize)<chunksize)
+      if (read(content+size-chunksize,chunksize)<chunksize)
         goto fail;
 
       // Set to zero so read_chunk_header will check for crlf
@@ -389,7 +392,7 @@ FXival HttpResponse::read_body_chunked(FXchar *& body) {
     return size;
     }
 fail:
-  freeElms(body);
+  freeElms(content);
   return -1;
   }
 
@@ -444,21 +447,6 @@ FXival HttpResponse::read_body_chunked(void * ptr,FXival len) {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Parse the response status and headers. Returns true if succesful
 FXint HttpResponse::parse() {
   FXString header;
@@ -508,8 +496,8 @@ FXival HttpResponse::readBody(void * ptr,FXival len) {
 
 void HttpResponse::discard() {
   if (!(flags&ConnectionClose) && !(flags&HeadRequest)) {
-    FXchar buffer[1024];
-    while(readBody(buffer,1024)==1024) ;
+    FXchar b[1024];
+    while(readBody(b,1024)==1024) ;
     }
   }
 
@@ -525,6 +513,11 @@ FXString HttpResponse::getHeader(const FXString & key) const {
 FXint HttpResponse::getContentLength() const {
   return content_length;
   }
+
+
+
+
+
 
 
 
@@ -562,12 +555,17 @@ FXbool HttpHost::set(const FXString & url) {
 
 
 
-HttpClient::HttpClient() : device(BadHandle) {
-    }
+HttpClient::HttpClient() : device(BadHandle),options(0) {
+  buffer = new MemoryBuffer;
+  }
 
+HttpClient::HttpClient(MemoryBuffer* buf) : options(0) {
+  buffer = buf;
+  }
 
 HttpClient::~HttpClient() {
   close();
+  delete buffer;
   }
 
 void HttpClient::close() {
@@ -646,8 +644,9 @@ static FXInputHandle ap_create_socket(FXint domain, FXint type, FXint protocol,F
 #endif
 
 #ifdef SOCK_NONBLOCK
-  if (nonblocking)
+  if (nonblocking) {
     opts|=SOCK_NONBLOCK;
+    }
 #endif
 
   device = socket(domain,type|opts,protocol);
@@ -674,11 +673,17 @@ static FXInputHandle ap_create_socket(FXint domain, FXint type, FXint protocol,F
     return BadHandle;
     }
 
-  // In case of blocking sockets, set a timeout
-  if (!nonblocking && !ap_set_timeout(device,timeout)) {
+  // Probably best to always set a sane timeout, blocking or nonblocking
+  if (!ap_set_timeout(device,timeout)){
     ::close(device);
     return BadHandle;
     }
+
+  // In case of blocking sockets, set a timeout
+  // if (!nonblocking && !ap_set_timeout(device,timeout)) {
+  //  ::close(device);
+  //  return BadHandle;
+  //  }
 
   return device;
   }
@@ -690,14 +695,13 @@ FXbool HttpClient::open_connection() {
   struct addrinfo * item=NULL;
   FXint result;
 
-
   memset(&hints,0,sizeof(struct addrinfo));
   hints.ai_family=AF_UNSPEC;
   hints.ai_socktype=SOCK_STREAM;
   hints.ai_flags|=(AI_NUMERICSERV|AI_ADDRCONFIG);
 
 
-  if (flags&UseProxy)
+  if (options&UseProxy)
     result=getaddrinfo(proxy.name.text(),APStringVal(proxy.port).text(),&hints,&list);
   else
     result=getaddrinfo(server.name.text(),APStringVal(server.port).text(),&hints,&list);
@@ -707,7 +711,7 @@ FXbool HttpClient::open_connection() {
 
   for (item=list;item;item=item->ai_next){
 
-    device = ap_create_socket(item->ai_family,item->ai_socktype,item->ai_protocol,(flags&UseNonBlock));
+    device = ap_create_socket(item->ai_family,item->ai_socktype,item->ai_protocol,(options&UseNonBlock));
     if (device == BadHandle)
       continue;
 
@@ -718,7 +722,7 @@ FXbool HttpClient::open_connection() {
 
     // In case of non-blocking we need to wait for the socket to become ready to write.
     if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-      if (wait_write(device)) {
+      if (io_wait_write()) {
         int socket_error=0;
         socklen_t socket_length=sizeof(socket_error);
         if (getsockopt(device,SOL_SOCKET,SO_ERROR,&socket_error,&socket_length)==0 && socket_error==0){
@@ -745,7 +749,7 @@ FXbool HttpClient::open_connection() {
   }
 
 
-FXival HttpClient::writeBlock(const void * data,FXival count) {
+FXival HttpClient::io_write(const void * data,FXival count) {
   FXival nwritten=-1;
   do{
     nwritten=::write(device,data,count);
@@ -754,7 +758,7 @@ FXival HttpClient::writeBlock(const void * data,FXival count) {
   return nwritten;
   }
 
-FXival HttpClient::readBlock(void * data,FXival count) {
+FXival HttpClient::io_read(void * data,FXival count) {
   FXival nread=-1;
   do{
     nread=::read(device,data,count);
@@ -764,11 +768,12 @@ FXival HttpClient::readBlock(void * data,FXival count) {
   }
 
 
-FXbool HttpClient::send(const FXchar * data,FXint len) {
+FXbool HttpClient::write(const void * data,FXival len) {
+  const FXchar * d = static_cast<const FXchar*>(data);
   do {
-     FXival n = writeBlock(data,len);
+     FXival n = io_write(d,len);
      if (n<=0) return false;
-     data += n;
+     d += n;
      len -= n;
      }
   while(len);
@@ -787,12 +792,12 @@ void HttpClient::reset(FXbool forceclose){
   }
 
 
-FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXString & headers,const FXString & body) {
+FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXString & header,const FXString & message) {
   FXString command,path,query;
 
   // Set Server Host
   FXbool host_changed = server.set(url);
-  if (flags&UseProxy)
+  if (options&UseProxy)
     host_changed = false;
 
   // Reset Client
@@ -829,21 +834,21 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
   command += "Host: " + server.name + "\r\n";
 
   // Add Content Length
-  if (body.length())
-    command +=  "Content-Length: " + APStringVal(body.length()) + "\r\n";
+  if (message.length())
+    command +=  "Content-Length: " + APStringVal(message.length()) + "\r\n";
 
   // Additional headers
-  command+=headers;
+  command+=header;
 
   // End of headers
   command += "\r\n";
 
   // Add body
-  if (body.length())
-    command += body;
+  if (message.length())
+    command += message;
 
   // Send Command
-  return send(command.text(),command.length());
+  return write(command.text(),command.length());
   }
 
 
@@ -886,10 +891,10 @@ static FXString ap_encode_base64(const FXString & source) {
 
 FXbool HttpClient::basic(const FXchar*    method,
                          FXString         url,
-                         const FXString & headers,
-                         const FXString & body) {
+                         const FXString & header,
+                         const FXString & content) {
 
-  if (request(method,url,headers,body)) {
+  if (request(method,url,header,content)) {
     do {
       switch(parse()) {
         case HTTP_RESPONSE_INFORMATIONAL:
@@ -917,7 +922,7 @@ FXbool HttpClient::basic(const FXchar*    method,
             if (comparecase(method,"GET") && comparecase(method,"HEAD"))
               return true;
 
-            if (!request(method,url,headers,body)) {
+            if (!request(method,url,header,content)) {
               return false;
               }
             continue;
@@ -938,7 +943,7 @@ FXbool HttpClient::basic(const FXchar*    method,
               if (comparecase(challenge,"basic",5)==0) {
                 FXString auth = "Authorization: Basic " + ap_encode_base64(user+":"+password) + "\r\n";
 
-                if (!request(method,url,headers+auth,body)) {
+                if (!request(method,url,header+auth,content)) {
                   return false;
                   }
                 continue;

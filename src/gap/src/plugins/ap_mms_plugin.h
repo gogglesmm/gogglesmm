@@ -10,8 +10,7 @@ private:
   MMSInput(const MMSInput&);
   MMSInput &operator=(const MMSInput&);
 protected:
-  FXival read_raw(void*data,FXival ncount);
-  FXInputHandle handle() const { return BadHandle; }
+  FXival io_read(void*,FXival);
 public:
   /// Constructor
   MMSInput(InputThread *);

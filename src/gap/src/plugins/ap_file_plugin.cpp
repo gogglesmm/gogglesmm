@@ -26,7 +26,7 @@ FXbool FileInput::open(const FXString & uri) {
   return false;
   }
 
-FXival FileInput::read_raw(void*data,FXival ncount) {
+FXival FileInput::io_read(void*data,FXival ncount) {
   return file.readBlock(data,ncount);
   }
 

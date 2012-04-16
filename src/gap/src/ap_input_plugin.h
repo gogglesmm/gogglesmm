@@ -5,6 +5,11 @@ namespace ap {
 
 class InputThread;
 
+enum {
+  AP_IO_ERROR = -1, // error occured
+  AP_IO_BLOCK = -2  // nothing available
+  };
+
 class InputPlugin {
 protected:
   InputThread*  input;
@@ -13,18 +18,14 @@ private:
   InputPlugin(const InputPlugin&);
   InputPlugin &operator=(const InputPlugin&);
 protected:
-  virtual FXival read_raw(void*data,FXival ncount)=0;
-  virtual FXInputHandle handle() const { return BadHandle; }
-protected:
-  /// Read block of bytes directly from input
-  FXival readBlock(void*data,FXival ncount,FXbool wait=true);
-  FXival fillBuffer(FXival);
-
-
-  FXbool wait_read();
-  FXbool wait_read(FXInputHandle);
-  FXbool wait_write();
-  FXbool wait_write(FXInputHandle);
+  virtual FXival        io_read(void*,FXival)=0;
+  virtual FXival        io_read_block(void*,FXival);
+  virtual FXival        io_write(const void*,FXival) { return -1; }
+  virtual FXival        io_write_block(const void*,FXival);
+  virtual FXival        io_buffer(FXival);
+  FXbool                io_wait_read();
+  FXbool                io_wait_write();
+  virtual FXInputHandle io_handle() const { return BadHandle; }
 protected:
   InputPlugin(InputThread*,FXival size);
 public:

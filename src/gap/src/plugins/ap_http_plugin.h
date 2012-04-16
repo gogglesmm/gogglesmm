@@ -1,49 +1,36 @@
 #ifndef INPUT_HTTP_DEVICE_H
 #define INPUT_HTTP_DEVICE_H
 
-struct addrinfo;
-
 namespace ap {
 
+class HttpInputClient;
+
 class HttpInput : public InputPlugin {
+friend class HttpInputClient;
 protected:
-  FXInputHandle device;
-protected: /// Http
-  FXuint        content_type;
-  FXlong        content_length;
+  HttpInputClient* client;
+protected:
   FXlong        content_position;
-protected: /// Icecast
+  FXuint        content_type;
   FXint         icy_interval;
   FXint         icy_count;
-  FXString      icy_meta_genre;
-  FXString      icy_meta_name;
 private:
   HttpInput(const HttpInput&);
   HttpInput &operator=(const HttpInput&);
-private:
-  FXInputHandle open_connection(struct addrinfo*);
 protected:
-  FXival read_raw(void*,FXival);
-  FXival write_raw(void*,FXival);
+  FXival        io_read(void*,FXival);
+  FXival        io_write(const void*,FXival);
+  FXInputHandle io_handle() const;
 protected:
-  FXival icy_read(void*,FXival);
-  void icy_parse(const FXString & buffer);
-  FXbool write(const FXString&);
-  FXbool open(const FXString & hostname,FXint port);
-  FXbool next_header(FXString & header);
-  FXbool parse_response();
-
-  void close();
-protected:
-  FXInputHandle handle() const { return device; }
+  void          check_headers();
+  FXival        icy_read(void*,FXival);
+  void          icy_parse(const FXString &);
+  void          close();
 public:
-  /// Constructor
   HttpInput(InputThread*);
 
+  /// Open uri
   FXbool open(const FXString & uri);
-
-  /// Read ncount bytes
-  FXival read(void*data,FXival ncount);
 
   /// Set Position
   FXlong position(FXlong offset,FXuint from);
@@ -63,9 +50,10 @@ public:
   /// Get plugin type
   FXuint plugin() const;
 
-  /// Destructor
-  virtual ~HttpInput();
-  };
+  /// Read
+  FXival read(void*,FXival);
 
+  ~HttpInput();
+  };
 }
 #endif

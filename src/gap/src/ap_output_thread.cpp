@@ -295,7 +295,7 @@ void OutputThread::drain(FXbool flush) {
 
 
 Event * OutputThread::wait_for_event() {
-  FXint offset,delay;
+  FXint offset=0,delay=0;
 
   if (draining && plugin) {
     offset=delay=plugin->delay();

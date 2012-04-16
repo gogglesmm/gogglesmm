@@ -63,16 +63,6 @@
 
 using namespace FX;
 
-
-
-
-
-
-
-
-
-
-
 #ifndef BadHandle
 #ifdef WIN32
 #define BadHandle INVALID_HANDLE_VALUE

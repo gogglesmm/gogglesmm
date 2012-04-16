@@ -75,7 +75,7 @@ namespace ap {
     return 0;
     }
 
-  FXival CDDAInput::read_raw(void* data,FXival count) {
+  FXival CDDAInput::io_read(void* data,FXival count) {
 
     if (sector>cdio_cddap_track_lastsector(drive,track))
       return 0;

@@ -43,7 +43,7 @@ FXbool SMBInput::open(const FXString & uri) {
   return false;
   }
 
-FXival SMBInput::read_raw(void*data,FXival ncount) {
+FXival SMBInput::io_read(void*data,FXival ncount) {
   return smbc_read(fd,data,ncount);
   }
 

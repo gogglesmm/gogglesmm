@@ -6,14 +6,14 @@ namespace ap {
 
 class SMBInput : public InputPlugin {
 protected:
-  FXString filename;
-  FXint    fd;
+  FXString      filename;
+  FXInputHandle fd;
 private:
   SMBInput(const SMBInput&);
   SMBInput &operator=(const SMBInput&);
 protected:
-  FXival read_raw(void*data,FXival ncount);
-  FXInputHandle handle() const { return fd; }
+  FXival        io_read(void*,FXival);
+  FXInputHandle io_handle() const { return fd; }
 public:
   /// Constructor
   SMBInput(InputThread*);

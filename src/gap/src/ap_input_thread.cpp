@@ -353,11 +353,15 @@ ReaderPlugin* InputThread::open_reader() {
 
 void InputThread::ctrl_open_inputs(const FXStringList & urls){
   for (FXint i=0;i<urls.no();i++){
+    GM_DEBUG_PRINT("[input] ctrl_open_inputs[%d] %s\n",i,urls[i].text());
     if (urls[i].empty()) continue;
 
     /// Open Input
     input=open_input(urls[i]);
-    if (input==NULL) continue;
+    if (input==NULL) {
+      if (aborted()) break;
+      continue;
+      }
 
     /// Open Reader
     reader = open_reader();
