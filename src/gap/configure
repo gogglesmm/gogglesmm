@@ -10,9 +10,9 @@
 
 # API version
 GAP_MAJOR=0             # Increase whenever we decide to break the API.
-GAP_MINOR=8             # Increase for regular release
-GAP_ABI_RELEASE=2       # Increase for every release, reset to 0 when GAP_ABI is change
-GAP_ABI=4               # Increase whenever we break Application Binary Interface
+GAP_MINOR=9             # Increase for regular release
+GAP_ABI_RELEASE=0       # Increase for every release, reset to 0 when GAP_ABI is change
+GAP_ABI=5               # Increase whenever we break Application Binary Interface
 
 # Settings
 #---------------------------
@@ -115,7 +115,7 @@ for arg in $@; do
       ;;
     --without-wavpack)
       OPTION_PLUGIN_WAVPACK=0
-      ;;      
+      ;;
     --without-samplerate)
       OPTION_PLUGIN_SAMPLERATE=0
       ;;
@@ -216,12 +216,12 @@ INCLUDEDIR="${PREFIX}/include"
 # Debug / Release Mode
 #----------------------
 if [ $DEBUG -eq 1 ] ; then
-  CFLAGS=${CFLAGS:-$GEN_CFLAGS $DEBUG_CFLAGS}
-  LDFLAGS=${LDFLAGS:-$GEN_LDFLAGS $DEBUG_LDFLAGS}
+  CFLAGS="$CFLAGS $GEN_CFLAGS $DEBUG_CFLAGS"
+  LDFLAGS="$LDFLAGS $GEN_LDFLAGS $DEBUG_LDFLAGS"
   DEFINES="$DEFINES -DDEBUG"
 else
-  CFLAGS=${CFLAGS:-$GEN_CFLAGS $OPT_CFLAGS}
-  LDFLAGS=${LDFLAGS:-$GEN_LDFLAGS $OPT_LDFLAGS}
+  CFLAGS="$CFLAGS $GEN_CFLAGS $OPT_CFLAGS"
+  LDFLAGS="$LDFLAGS $GEN_LDFLAGS $OPT_LDFLAGS"
   DEFINES="$DEFINES -DNDEBUG"
 fi
 
