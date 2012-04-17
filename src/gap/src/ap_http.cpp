@@ -71,6 +71,7 @@ void HttpResponse::clear() {
   content_length=-1;
   chunk_remaining=-1;
   clear_headers();
+  buffer->clear();
   }
 
 
@@ -101,7 +102,6 @@ FXival HttpResponse::io_buffer(FXival nbytes) {
   buffer->reserve(nbytes);
   FXival nread = io_read(buffer->ptr(),nbytes);
   if (nread>0) {
-    //fxmessage("buf: \"%s\"\n",buffer.data());
     buffer->wroteBytes(nread);
     }
   return nread;
@@ -559,7 +559,7 @@ HttpClient::HttpClient() : device(BadHandle),options(0) {
   buffer = new MemoryBuffer;
   }
 
-HttpClient::HttpClient(MemoryBuffer* buf) : options(0) {
+HttpClient::HttpClient(MemoryBuffer* buf) : device(BadHandle), options(0) {
   buffer = buf;
   }
 
