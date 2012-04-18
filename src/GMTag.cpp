@@ -522,7 +522,7 @@ void GMFileTag::getComposer(FXString & composer) const{
 
 void GMFileTag::setConductor(const FXString & conductor) {
   if (xiph)
-    xiph_update_field("COMPOSER",conductor);
+    xiph_update_field("CONDUCTOR",conductor);
   else if (id3v2)
     id3v2_update_field("TPE3",conductor);
   else if (mp4)
@@ -531,7 +531,7 @@ void GMFileTag::setConductor(const FXString & conductor) {
 
 void GMFileTag::getConductor(FXString & conductor) const{
   if (xiph)
-    xiph_get_field("COMPOSER",conductor);
+    xiph_get_field("CONDUCTOR",conductor);
   else if (id3v2)
     id3v2_get_field("TPE3",conductor);
   else if (mp4)
