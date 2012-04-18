@@ -71,7 +71,9 @@ void HttpResponse::clear() {
   content_length=-1;
   chunk_remaining=-1;
   clear_headers();
-  buffer->clear();
+  
+  // buffer will be null in destructor
+  if (buffer) buffer->clear();
   }
 
 
