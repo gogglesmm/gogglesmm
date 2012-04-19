@@ -15,8 +15,8 @@ using namespace ap;
 namespace ap {
 
 
-static void smb_auth(const char *srv, const char *shr, char *wg, int wglen, char *un, int unlen, char *pw, int pwlen){
-	wglen = unlen = pwlen = 0;
+static void smb_auth(const char * /*srv*/, const char */*shr*/, char */*wg*/, int /*wglen*/, char */*un*/, int /*unlen*/, char */*pw*/, int /*pwlen*/){
+	//wglen = unlen = pwlen = 0;
   }
 
 SMBInput::SMBInput(InputThread * i) : InputPlugin(i), fd(-1) {

@@ -453,7 +453,7 @@ void OggReader::clear_headers() {
 
 void OggReader::submit_ogg_packet(FXbool post) {
   FXASSERT(packet);
-  FXASSERT(packet->capacity()>sizeof(ogg_packet));
+  FXASSERT((FXuval)packet->capacity()>sizeof(ogg_packet));
 
   state.has_packet=true;
 

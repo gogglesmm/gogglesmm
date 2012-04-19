@@ -54,7 +54,7 @@ void JackOutput::close() {
   }
 
 
-void JackOutput::volume(FXfloat v) {
+void JackOutput::volume(FXfloat) {
   }
 
 FXint JackOutput::delay() {
@@ -70,14 +70,14 @@ void JackOutput::drain() {
 void JackOutput::pause(FXbool) {
   }
 
-FXbool JackOutput::configure(const AudioFormat & fmt){
+FXbool JackOutput::configure(const AudioFormat &){
 //  af.format = AP_FORMAT_FLOAT;
 //  af.rate   = jack_get_sample_rate(jack);
   return false;
   }
 
 
-FXbool JackOutput::write(const void * b,FXuint nframes){
+FXbool JackOutput::write(const void *,FXuint){
   return false;
   }
 }

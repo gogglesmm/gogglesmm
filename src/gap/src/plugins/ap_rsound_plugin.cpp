@@ -31,7 +31,7 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
 namespace ap {
 
 
-
+/*
 static FXbool to_gap_format(const FXint rsd,AudioFormat & af) {
   switch(rsd){
     case RSD_U8          : af.format=AP_FORMAT_U8;      break;
@@ -43,7 +43,7 @@ static FXbool to_gap_format(const FXint rsd,AudioFormat & af) {
     }
   return true;
   }
-
+*/
 static FXbool to_rsd_format(const AudioFormat & af,FXint & rsd){
   switch(af.format) {
     case AP_FORMAT_S8       : rsd=RSD_S8;     break;
@@ -76,7 +76,7 @@ void RSoundOutput::close() {
   }
 
 
-void RSoundOutput::volume(FXfloat v) {
+void RSoundOutput::volume(FXfloat) {
   }
 
 FXint RSoundOutput::delay() {

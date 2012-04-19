@@ -220,7 +220,6 @@ failed:
 FXbool OSSOutput::write(const void * buffer,FXuint nframes){
   FXival nwritten;
   FXival nbytes = nframes*af.framesize();
-  int result;
   const FXchar * buf = (const FXchar*)buffer;
 
   if (__unlikely(handle==BadHandle)) {

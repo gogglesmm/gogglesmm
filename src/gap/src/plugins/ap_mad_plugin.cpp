@@ -345,8 +345,8 @@ VBRIHeader::VBRIHeader(const FXuchar * buffer,FXival) : toc(NULL) {
   fxmessage("\t          version:%d\n",version);
   fxmessage("\t            delay:%d\n",delay);
   fxmessage("\t          quality:%d\n",quality);
-  fxmessage("\t           nbytes:%ld\n",nbytes);
-  fxmessage("\t          nframes:%d\n",nframes);
+  fxmessage("\t           nbytes:%u\n",nbytes);
+  fxmessage("\t          nframes:%u\n",nframes);
   fxmessage("\t             ntoc:%d\n",ntoc);
   fxmessage("\t        toc_scale:%d\n",toc_scale);
   fxmessage("\t toc_entry_nbytes:%d\n",toc_entry_nbytes);
@@ -385,7 +385,7 @@ public:
   };
 
 
-XingHeader::XingHeader(const FXuchar * buffer,FXival nb) : flags(0),nframes(0),nbytes(0),vbr_scale(0) {
+XingHeader::XingHeader(const FXuchar * buffer,FXival /*nb*/) : flags(0),nframes(0),nbytes(0),vbr_scale(0) {
   buffer+=4;
 
   GM_DEBUG_PRINT("Xing:\n");
@@ -395,13 +395,13 @@ XingHeader::XingHeader(const FXuchar * buffer,FXival nb) : flags(0),nframes(0),n
   if (flags&HAS_FRAMES) {
     nframes= INT32_BE(buffer);
     buffer+=4;
-    GM_DEBUG_PRINT("\t  nframes: %d\n",nframes);
+    GM_DEBUG_PRINT("\t  nframes: %u\n",nframes);
     }
 
   if (flags&HAS_BYTES) {
     nbytes = INT32_BE(buffer);
     buffer+=4;
-    GM_DEBUG_PRINT("\t   nbytes: %ld\n",nbytes);
+    GM_DEBUG_PRINT("\t   nbytes: %u\n",nbytes);
     }
 
   if (flags&HAS_TOC) {
@@ -552,7 +552,7 @@ void ID3V1::parse_field(const FXchar * start,FXint maxlen,FXString & field){
     }
   }
 
-ID3V1::ID3V1(const FXchar * b,FXint len) {
+ID3V1::ID3V1(const FXchar * b,FXint /*len*/) {
   parse_field(b,30,title);
   parse_field(b+30,30,artist);
   parse_field(b+60,30,album);

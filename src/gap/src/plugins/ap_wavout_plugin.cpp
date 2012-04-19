@@ -36,7 +36,7 @@ public:
 
   void drop(){}
   void drain(){}
-  void pause(FXbool t) {}
+  void pause(FXbool) {}
 
   void close();
 
