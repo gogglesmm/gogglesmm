@@ -53,7 +53,8 @@ protected:
         GM_DEBUG_PRINT("[http] %s\n",strerror(errno));
       }
     else if (nread==0) {
-      input->close(); // this indirectly calls ::reset()
+      //input->close(); // this indirectly calls ::reset()
+      close();
       }
     return nread;
     }
@@ -73,7 +74,8 @@ protected:
         GM_DEBUG_PRINT("[http] %s\n",strerror(errno));
       }
     else if (nwritten==0) {
-      input->close(); // this indirectly calls ::reset()
+      //input->close(); // this indirectly calls ::reset()
+      close();
       }
     return nwritten;
     }
@@ -260,6 +262,7 @@ FXival HttpInput::io_write(const void*ptr,FXival count) {
 FXInputHandle HttpInput::io_handle() const {
   return client->io_handle();
   }
+
 
 FXival HttpInput::read(void*ptr,FXival count){
   FXival n;
