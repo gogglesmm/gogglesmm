@@ -30,7 +30,7 @@ protected:
   InputPlugin(InputThread*,FXival size);
 public:
   InputPlugin(InputThread*);
-
+  
   /// Read ncount bytes, returns -1 for error, -2 for interrupted
   virtual FXival read(void*data,FXival ncount);
 
@@ -46,7 +46,7 @@ public:
   /// Size
   virtual FXlong size()=0;
 
-  /// End of InputPlugin
+  /// End of Input
   virtual FXbool eof()=0;
 
   /// Serial

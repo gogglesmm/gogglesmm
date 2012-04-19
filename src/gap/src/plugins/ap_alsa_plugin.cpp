@@ -105,11 +105,11 @@ FXbool AlsaOutput::open() {
       FXString mixerdevice = snd_pcm_name(handle);
 
       if ((result=snd_mixer_attach(mixer,mixerdevice.text()))<0) {
-        GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));         
-        if (snd_pcm_info_get_card(info)!=-1) {        
+        GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));
+        if (snd_pcm_info_get_card(info)!=-1) {
           mixerdevice.format("hw:%d",snd_pcm_info_get_card(info));
           if ((result=snd_mixer_attach(mixer,mixerdevice.text()))<0) {
-            GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));         
+            GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));
             snd_mixer_close(mixer);
             mixer=NULL;
             return true;
@@ -119,7 +119,7 @@ FXbool AlsaOutput::open() {
           snd_mixer_close(mixer);
           mixer=NULL;
           return true;
-          }  
+          }
         }
 
       GM_DEBUG_PRINT("mixer device: %s\n",mixerdevice.text());
@@ -232,11 +232,11 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   snd_pcm_sw_params_t * sw=NULL;
 
 #ifdef DEBUG
-  snd_pcm_uframes_t minperiod,maxperiod;
-  snd_pcm_uframes_t minbuffer,maxbuffer;
+  //snd_pcm_uframes_t minperiod,maxperiod;
+  //snd_pcm_uframes_t minbuffer,maxbuffer;
   snd_pcm_uframes_t availmin;
   snd_pcm_uframes_t startthreshold,stopthreshold;
-  FXuint buffertime = 500000;
+  //FXuint buffertime = 500000;
 #endif
 
 
@@ -255,15 +255,25 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
 
 //  do {
 
-    if (__unlikely(handle==NULL)) {
-      if (!open()) {
-        return false;
-        }
+  if (__unlikely(handle==NULL)) {
+    if (!open()) {
+      return false;
       }
+    }
 
-    if (fmt==af) {
-      return true;
-      }
+  if (fmt==af) {
+    return true;
+    }
+/*
+  else {
+    close()
+    if (!open())
+      return false;
+    }
+*/
+
+
+
 
   af=fmt;
 
