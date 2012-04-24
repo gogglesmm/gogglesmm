@@ -434,10 +434,13 @@ void OutputThread::configure(const AudioFormat & fmt) {
     af=fmt;
     draining=false;
 
+#ifdef DEBUG
     fxmessage("stream ");
     fmt.debug();
     fxmessage("output ");
     plugin->af.debug();
+#endif
+
     return;
     }
 
@@ -457,11 +460,12 @@ void OutputThread::configure(const AudioFormat & fmt) {
 //    af.reset();
     return;
     }
-
+#ifdef DEBUG
   fxmessage("stream ");
   af.debug();
   fxmessage("output ");
   plugin->af.debug();
+#endif  
   draining=false;
   }
 
