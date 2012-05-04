@@ -612,9 +612,9 @@ void GMIconTheme::build() {
       iconsets[current].medium.adopt(mediumpath);
       iconsets[current].large.adopt(largepath);
       }
-      
+
     delete [] index;
-    delete [] inherits;             
+    delete [] inherits;
     }
   }
 

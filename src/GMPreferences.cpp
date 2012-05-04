@@ -82,7 +82,8 @@ const char key_play_open_device_on_startup[]="open_audio_device_on_startup";
 const char key_play_from_queue[]="play-from-queue";
 
 const char key_dbus_notify_daemon[]="notification-daemon";
-const char key_dbus_mpris[]="mpris";
+const char key_dbus_mpris1[]="mpris";
+const char key_dbus_mpris2[]="mpris-2";
 
 const char key_sync_import_new[]="import-new";
 const char key_sync_remove_missing[]="remove-missing";
@@ -182,9 +183,10 @@ GMPreferences::GMPreferences() :
   export_underscore(false),
 
   dbus_notify_daemon(true),
-  dbus_mpris(true) {
+  dbus_mpris1(true),
+  dbus_mpris2(true){
   resetColors();
-      
+
   }
 
 void GMPreferences::save(FXSettings & reg) const {
@@ -246,7 +248,9 @@ void GMPreferences::save(FXSettings & reg) const {
 
   /// Dbus
   reg.writeBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
-  reg.writeBoolEntry(section_dbus,key_dbus_mpris,dbus_mpris);
+  reg.writeBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
+  reg.writeBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
+
   }
 
 
@@ -319,7 +323,8 @@ void GMPreferences::load(FXSettings & reg) {
 
   /// Dbus
   dbus_notify_daemon            = reg.readBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
-  dbus_mpris                    = reg.readBoolEntry(section_dbus,key_dbus_mpris,dbus_mpris);
+  dbus_mpris1                   = reg.readBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
+  dbus_mpris2                   = reg.readBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
 
   setKeyWords(keywords);
   }

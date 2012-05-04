@@ -157,7 +157,8 @@ public:
 
   FXbool dbus_notify_daemon;
 #ifdef HAVE_DBUS
-  FXbool dbus_mpris;
+  FXbool dbus_mpris1;
+  FXbool dbus_mpris2;
 #endif
 public:
   /// Default Constructor

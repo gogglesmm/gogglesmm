@@ -425,7 +425,8 @@ GMPlayerManager::GMPlayerManager() :
   notifydaemon(NULL),
   appstatus(NULL),
   gsd(NULL),
-  mpris(NULL),
+  mpris1(NULL),
+  mpris2(NULL),
 #endif
   application(NULL),
   session(NULL),
@@ -1009,7 +1010,8 @@ void GMPlayerManager::exit() {
 
     dbus_connection_unregister_object_path(sessionbus->connection(),"/org/fifthplanet/gogglesmm");
 
-    if (mpris) delete mpris;
+    if (mpris1) delete mpris1;
+    if (mpris2) delete mpris2;
     if (appstatus) delete appstatus;
 
     }
@@ -1031,13 +1033,22 @@ void GMPlayerManager::exit() {
 
 #ifdef HAVE_DBUS
 void GMPlayerManager::update_mpris() {
-  if (mpris && ( !preferences.dbus_mpris || !sessionbus )) {
-    delete mpris;
-    mpris=NULL;
+  if (mpris1 || mpris2) {
+    if (!sessionbus || !preferences.dbus_mpris1){
+      delete mpris1;
+      mpris1=NULL;
+      }
+    if (!sessionbus || !preferences.dbus_mpris2){
+      delete mpris2;
+      mpris2=NULL;
+      }
     }
-  else if (!mpris && preferences.dbus_mpris && sessionbus) {
-    mpris = new GMMediaPlayerService(sessionbus);
-    }
+
+  if (!mpris1 && preferences.dbus_mpris1 && sessionbus)
+    mpris1=new GMMediaPlayerService1(sessionbus);
+
+  if (!mpris2 && preferences.dbus_mpris2 && sessionbus)
+    mpris2=new GMMediaPlayerService2(sessionbus);
   }
 #endif
 
@@ -1697,7 +1708,8 @@ void GMPlayerManager::display_track_notification() {
     if (preferences.dbus_notify_daemon && notifydaemon) {
       notifydaemon->notify_track_change(trackinfo);
       }
-    if (mpris) mpris->notify_track_change(trackinfo);
+    if (mpris1) mpris1->notify_track_change(trackinfo);
+    if (mpris2) mpris2->notify_track_change(trackinfo);
     if (appstatus) appstatus->notify_track_change(trackinfo);
     }
 #endif
@@ -1974,7 +1986,8 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
     case PLAYER_PAUSING: break;
     }
 #ifdef HAVE_DBUS
-  if (mpris) mpris->notify_status_change();
+  if (mpris1) mpris1->notify_status_change();
+  if (mpris2) mpris2->notify_status_change();
   if (appstatus) appstatus->notify_status_change();
 #endif
   return 1;

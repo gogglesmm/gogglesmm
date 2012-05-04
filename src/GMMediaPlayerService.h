@@ -19,10 +19,6 @@
 #ifndef GMMPRISSERVICE_H
 #define GMMPRISSERVICE_H
 
-#if 0
-/*
-  MPRIS v1
-*/
 class GMMediaPlayerService1 : public FXObject {
 FXDECLARE(GMMediaPlayerService1)
 protected:
@@ -53,49 +49,8 @@ public:
   virtual ~GMMediaPlayerService1();
   };
 
-
-#endif
-
-#ifndef HAVE_MPRIS2
-
-class GMMediaPlayerService : public FXObject {
-FXDECLARE(GMMediaPlayerService)
-protected:
-  GMDBus * bus;
-  FXbool   published;
-protected:
-  DBusObjectPathVTable root_vtable;
-  DBusObjectPathVTable player_vtable;
-  DBusObjectPathVTable tracklist_vtable;
-protected:
-  static DBusHandlerResult root_filter(DBusConnection*,DBusMessage*,void *);
-  static DBusHandlerResult player_filter(DBusConnection*,DBusMessage*,void *);
-  static DBusHandlerResult tracklist_filter(DBusConnection*,DBusMessage*,void *);
-protected:
-  GMMediaPlayerService(){}
-private:
-  GMMediaPlayerService(const GMMediaPlayerService&);
-  GMMediaPlayerService& operator=(const GMMediaPlayerService&);
-public:
-  GMMediaPlayerService(GMDBus*);
-
-  void notify_track_change(const GMTrack &);
-
-  void notify_status_change();
-
-  void notify_caps_change();
-
-  virtual ~GMMediaPlayerService();
-  };
-
-
-#else
-
-/*
-  MPRIS v2
-*/
-class GMMediaPlayerService : public FXObject {
-FXDECLARE(GMMediaPlayerService)
+class GMMediaPlayerService2 : public FXObject {
+FXDECLARE(GMMediaPlayerService2)
 protected:
   GMDBus * bus;
   FXbool   published;
@@ -104,12 +59,12 @@ protected:
 protected:
   static DBusHandlerResult mpris_filter(DBusConnection*,DBusMessage*,void *);
 protected:
-  GMMediaPlayerService(){}
+  GMMediaPlayerService2(){}
 private:
-  GMMediaPlayerService(const GMMediaPlayerService&);
-  GMMediaPlayerService& operator=(const GMMediaPlayerService&);
+  GMMediaPlayerService2(const GMMediaPlayerService2&);
+  GMMediaPlayerService2& operator=(const GMMediaPlayerService2&);
 public:
-  GMMediaPlayerService(GMDBus*);
+  GMMediaPlayerService2(GMDBus*);
 
   void notify_track_change(const GMTrack &);
 
@@ -117,9 +72,7 @@ public:
 
   void notify_caps_change();
 
-  virtual ~GMMediaPlayerService();
+  virtual ~GMMediaPlayerService2();
   };
-
-#endif
 
 #endif

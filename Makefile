@@ -119,17 +119,15 @@ src/gogglesmm_xml.h: src/gogglesmm.xml
 src/appstatus_xml.h:  src/appstatus.xml src/dbusmenu.xml
 	@echo "    Creating appstatus_xml.h ..."
 	@$(RESWRAP_TEXT) -o $@  src/appstatus.xml  src/dbusmenu.xml
-#src/mpris_xml.h:  src/mpris.xml src/mpris_player.xml
-#	@echo "    Creating DBUS Introspection..."
-#	@$(RESWRAP_TEXT) -o $@ src/mpris.xml src/mpris_player.xml src/mpris_tracklist.xml
+ifneq (,$(findstring mpris1,$(OPTIONS)))
+src/mpris1_xml.h:  src/mpris.xml
+	@echo "    Creating mpris1_xml.h ..."
+	@$(RESWRAP_TEXT) -o $@ src/mpris.xml src/mpris_player.xml src/mpris_tracklist.xml
+endif
 ifneq (,$(findstring mpris2,$(OPTIONS)))
 src/mpris2_xml.h:  src/mpris2.xml
 	@echo "    Creating mpris2_xml.h ..."
 	@$(RESWRAP_TEXT) -o $@ src/mpris2.xml
-else
-src/mpris_xml.h:  src/mpris.xml
-	@echo "    Creating mpris_xml.h ..."
-	@$(RESWRAP_TEXT) -o $@ src/mpris.xml src/mpris_player.xml src/mpris_tracklist.xml
 endif
 endif
 
@@ -146,10 +144,17 @@ src/icons.cpp: $(ICONS)
 ifneq (,$(findstring dbus,$(OPTIONS)))
 src/GMPlayerManager.cpp: src/gogglesmm_xml.h
 src/GMAppStatusNotify.cpp: src/appstatus_xml.h
+
+ifneq (,$(findstring mpris1,$(OPTIONS)))
+ifneq (,$(findstring mpris2,$(OPTIONS)))
+src/GMMediaPlayerService.cpp: src/mpris1_xml.h src/mpris2_xml.h
+else
+src/GMMediaPlayerService.cpp: src/mpris1_xml.h
+endif
+else
 ifneq (,$(findstring mpris2,$(OPTIONS)))
 src/GMMediaPlayerService.cpp: src/mpris2_xml.h
-else
-src/GMMediaPlayerService.cpp: src/mpris_xml.h
+endif
 endif
 endif
 
@@ -200,6 +205,7 @@ clean :
 	@rm -f src/icons.cpp
 	@rm -f src/icons.h
 	@rm -f src/gogglesmm_xml.h
+	@rm -f src/mpris1_xml.h
 	@rm -f src/mpris2_xml.h
 	@rm -f src/appstatus_xml.h
 

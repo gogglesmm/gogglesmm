@@ -42,7 +42,8 @@ class GMNotifyDaemon;
 class GMAppStatusNotify;
 class GMSettingsDaemon;
 class GMDBus;
-class GMMediaPlayerService;
+class GMMediaPlayerService1;
+class GMMediaPlayerService2;
 #endif
 class GMAudioScrobbler;
 class GMTrayIcon;
@@ -106,7 +107,8 @@ protected:
   GMNotifyDaemon       * notifydaemon;
   GMAppStatusNotify    * appstatus;
   GMSettingsDaemon     * gsd;
-  GMMediaPlayerService * mpris;
+  GMMediaPlayerService1* mpris1;
+  GMMediaPlayerService2* mpris2;
 #endif
   FXApp 	 				     * application;
   GMSession            * session;
