@@ -1050,6 +1050,7 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
   catch(GMDatabaseException & e){
     return false;
     }
+  GM_TICKS_END();  
   return true;
   }
 
