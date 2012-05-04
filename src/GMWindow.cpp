@@ -181,7 +181,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   progressbar = new FXHorizontalFrame(statusbar,LAYOUT_LEFT|FRAME_NONE,0,0,0,0,3,3,0,0);
 
   FXint size = GMIconTheme::instance()->getSmallSize();
-  FXImage * animation_image = GMIconTheme::instance()->loadSmall("process-working.png");
+  animation_image = GMIconTheme::instance()->loadSmall("process-working.png");
   if (animation_image) {
     animation_image->blend(getApp()->getBaseColor());
     animation_image->create();
