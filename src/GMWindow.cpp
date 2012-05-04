@@ -745,7 +745,7 @@ void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint positio
   }
 
 long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
-  fxmessage("clean shutdown\n");
+  GM_DEBUG_PRINT("GMWindow::onCmdQuit\n");
 
   sourceview->saveView();
   trackview->saveView();
@@ -1345,8 +1345,8 @@ void GMWindow::clearCover() {
     coverview_x11->setImage(NULL);
     }
   else if (coverview_gl) {
-    coverview_gl->setImage(NULL);  
-    }      
+    coverview_gl->setImage(NULL);
+    }
   }
 
 
@@ -1369,7 +1369,6 @@ void GMWindow::update_cover_display() {
           }
       }
     else {
-      fxmessage("update\n");
       updateCover();
       }
     }
@@ -1387,8 +1386,6 @@ void GMWindow::update_cover_display() {
 
 
 void GMWindow::updateCover() {
-  fxmessage("updateCover\n");
-
   GMCover * cover = GMPlayerManager::instance()->getCoverManager()->getCover();
 
   // clear old
@@ -1460,11 +1457,10 @@ void GMWindow::updateCoverView() {
 long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
   if (coverview_x11 && GMPlayerManager::instance()->playing()) {
     if (FXSELID(sel)==ID_COVERVIEW && coverview_x11->getUserData()==NULL) {
-      fxmessage("resize %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
       getApp()->addTimeout(this,ID_REFRESH_COVERVIEW,TIME_MSEC(50));
       }
     else {
-      fxmessage("configure %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
+      GM_DEBUG_PRINT("configure %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
       updateCover();
       }
     }
