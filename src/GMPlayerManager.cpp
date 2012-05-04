@@ -970,10 +970,8 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
 
 void GMPlayerManager::exit() {
 
-  /// Stop Playing
-  stop();
-
   player->saveSettings();
+  player->stop();
   player->exit();
 
   /// Save settings
