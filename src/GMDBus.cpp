@@ -667,8 +667,8 @@ void gm_dbus_variant_append_string_list(DBusMessageIter * iter,const FXStringLis
   DBusMessageIter array;
   dbus_message_iter_open_container(iter,DBUS_TYPE_VARIANT,DBUS_TYPE_ARRAY_AS_STRING DBUS_TYPE_STRING_AS_STRING,&container);
   dbus_message_iter_open_container(&container,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING_AS_STRING,&array);
-  for (FXint n=0;list.no();n++) {
-    dbus_message_iter_append_basic(&array,DBUS_TYPE_STRING,list[n].text());
+  for (FXint n=0;n<list.no();n++) {
+    gm_dbus_append_string(&array,list[n]);
     }
   dbus_message_iter_close_container(&container,&array);
   dbus_message_iter_close_container(iter,&container);
