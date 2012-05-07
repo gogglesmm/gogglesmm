@@ -215,8 +215,7 @@ DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessa
       return gm_dbus_reply_if_needed(connection,msg);
       }
     else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"raise")){
-      if (p->getMainWindow()->shown())
-        p->getMainWindow()->raise();
+      p->cmd_raise();
       return gm_dbus_reply_if_needed(connection,msg);
       }
     else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"notify")){
@@ -388,10 +387,7 @@ long GMPlayerManager::onDDEMessage(FXObject*,FXSelector,void*){
     else if (cmd=="--stop") cmd_stop();
     else if (cmd=="--toggle-shown") cmd_toggle_shown();
     else if (cmd=="--now-playing") display_track_notification();
-    else if (cmd=="--raise") {
-      if (mainwindow->shown())
-        mainwindow->raise();
-      }
+    else if (cmd=="--raise") cmd_raise();
     else {
       if (gm_is_local_file(cmd)) {
         if (!FXPath::isAbsolute(cmd)) {
@@ -1603,20 +1599,20 @@ void GMPlayerManager::runTask(GMTask * task) {
 
 long GMPlayerManager::onTaskManagerIdle(FXObject*,FXSelector,void*){
   mainwindow->setStatus(FXString::null);
-  fxmessage("Schedule taskmanager shutdown in 30s\n");
+  GM_DEBUG_PRINT("Schedule taskmanager shutdown in 30s\n");
   application->addTimeout(this,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN,TIME_SEC(30));
   return 0;
   }
 
 long GMPlayerManager::onTaskManagerRunning(FXObject*,FXSelector,void*){
-  fxmessage("Taskmanager running\n");
+  GM_DEBUG_PRINT("Taskmanager running\n");
   application->removeTimeout(this,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN);
   return 0;
   }
 
 
 long GMPlayerManager::onTaskManagerShutdown(FXObject*,FXSelector,void*){
-  fxmessage("Shutdown taskmanager now\n");
+  GM_DEBUG_PRINT("Shutdown taskmanager now\n");
   taskmanager->shutdown();
   return 0;
   }
@@ -1679,6 +1675,10 @@ void GMPlayerManager::cmd_next(){
 void GMPlayerManager::cmd_prev(){
   if (can_prev())
     playItem(TRACK_PREVIOUS);
+  }
+
+void GMPlayerManager::cmd_raise() {
+  getMainWindow()->raiseWindow();
   }
 
 void GMPlayerManager::cmd_toggle_shown(){
@@ -2020,7 +2020,6 @@ FXint GMPlayerManager::createPlaylist(const FXString & name) {
     }
   return playlist;
   }
-
 
 
 FXuint GMPlayerManager::getMainWindowId() const {

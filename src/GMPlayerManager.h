@@ -361,6 +361,7 @@ public:
   void cmd_toggle_shown();
   void cmd_focus_next();
   void cmd_focus_previous();
+  void cmd_raise();
 
 
 

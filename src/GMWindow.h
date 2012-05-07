@@ -274,6 +274,7 @@ public:
 
   void focusNext();
   void focusPrevious();
+  void raiseWindow();
 
 
   /// Destructor

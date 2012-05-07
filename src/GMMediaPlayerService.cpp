@@ -24,6 +24,11 @@ static void gm_mpris_track_to_dict(DBusMessageIter * iter,const GMTrack & track)
   if (track.tags.no())
     gm_dbus_dict_append_string(&array,"genre",track.tags[0]);
   gm_dbus_dict_append_string(&array,"location",gm_make_url(track.mrl));
+
+  const FXString & arturl = GMPlayerManager::instance()->getCoverManager()->getShareFilename();
+  if (!arturl.empty())
+    gm_dbus_dict_append_string(&array,"arturl",FXURL::fileToURL(arturl));
+
   dbus_message_iter_close_container(iter,&array);
   }
 
@@ -340,7 +345,9 @@ static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track
   gm_dbus_dict_append_string(&array,"xesam:album",track.album);
   gm_dbus_dict_append_string_list(&array,"xesam:composer",FXStringList(track.composer,1));
   gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.mrl));
-  gm_dbus_dict_append_string(&array,"mpris:artUrl","file://"+GMPlayerManager::instance()->getCoverManager()->getShareFilename());
+  const FXString & arturl = GMPlayerManager::instance()->getCoverManager()->getShareFilename();
+  if (!arturl.empty())
+    gm_dbus_dict_append_string(&array,"mpris:artUrl",FXURL::fileToURL(arturl));
   dbus_message_iter_close_container(iter,&array);
   }
 
@@ -607,7 +614,7 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
     }
   else if (dbus_message_has_interface(msg,MPRIS2_ROOT)) {
     if (dbus_message_is_method_call(msg,MPRIS2_ROOT,"Raise")) {
-      FXASSERT(0);
+      p->cmd_raise();
       return gm_dbus_reply_if_needed(c,msg);
       }
     else if (dbus_message_is_method_call(msg,MPRIS2_ROOT,"Quit")) {

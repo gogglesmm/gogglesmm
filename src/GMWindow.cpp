@@ -579,6 +579,19 @@ void GMWindow::show(){
     }
   }
 
+void GMWindow::raiseWindow() {
+  if (remote) {
+    if (!remote->shown())
+      remote->show();
+    remote->raise();
+    }
+  else {  
+    if (!shown())
+      show();
+    raise();      
+    }
+  }
+
 void GMWindow::toggleShown() {
   if (remote) {
     if (remote->shown())
