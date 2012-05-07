@@ -235,7 +235,9 @@ void GMApp::init(int& argc,char** argv,FXbool connect) {
   reg().setAppKey("settings");
   FXApp::init(argc,argv,connect);
 #ifdef HAVE_NLS
+  FXTranslator * old = getTranslator();
   setTranslator(new GMTranslator());
+  if (old) delete old;
 #endif
   }
 
