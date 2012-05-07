@@ -750,7 +750,8 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
   if (icon) {
     icon->destroy();
     icon->setData(ic->getData(),ic->getOptions(),ic->getWidth(),ic->getHeight());
-    FXImageOwner::clear(ic);
+
+    ic->setOwned(false);
     delete ic;
     }
   else {
@@ -758,7 +759,6 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
     }
 
   icon->blend(blendcolor);
-  FXIconThreshold::set(icon);
   icon->create();
   }
 
@@ -790,7 +790,7 @@ void GMIconTheme::loadResource(FXIconPtr & icon,const unsigned char * data,const
   if (icon) {
     icon->destroy();
     icon->setData(newicon->getData(),newicon->getOptions(),newicon->getWidth(),newicon->getHeight());
-    FXImageOwner::clear(newicon);
+    newicon->setOwned(false);
     delete newicon;
     }
   else {

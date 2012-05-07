@@ -34,15 +34,6 @@ extern void ewmh_activate_window(const FXWindow*);
 extern void fix_wm_properties(const FXWindow*);
 
 
-
-class FXIconThreshold : public FXIcon {
-public:
-  static void set(FXIcon*ic) {
-    FXIconThreshold * ih = (FXIconThreshold*) ic; ih->setThresholdValue(ih->guessthresh());
-    }
-  };
-
-
 class GMListBox : public FXListBox {
   FXDECLARE(GMListBox)
 protected:
@@ -461,13 +452,6 @@ public:
 public:
   /// Construct progress bar
   GMTrackProgressBar(FXComposite* p,FXObject* target=NULL,FXSelector sel=0,FXuint opts=PROGRESSBAR_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
-  };
-
-
-class FXImageOwner : public FXImage {
-public:
-  FXImageOwner();
-  static void clear(FXImage * img) { FXImageOwner* owner = (FXImageOwner*) img; owner->options&=~IMAGE_OWNED; }
   };
 
 
