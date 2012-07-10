@@ -46,6 +46,12 @@ public:
   GMSpinner     * trackspinner;
   GMTabItem     * covertab;
   FXImageView   * coverview;
+  GMTextField   * bitratefield;
+  GMTextField   * sampleratefield;
+  GMTextField   * channelfield;
+  GMTextField   * sizefield;
+  GMTextField   * filenamefield;
+  GMTextField   * typefield; 
 protected:
   GMEditTrackDialog(){}
   void getTrackSelection();

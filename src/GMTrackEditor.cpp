@@ -43,16 +43,24 @@ GMTagUpdateTask::GMTagUpdateTask(GMTrackDatabase * db,const FXIntList & t) : dat
 FXint GMTagUpdateTask::run() {
   try {
     GMTrack info;
+    database->beginTask();
 
     for (FXint i=0;i<tracks.no() && processing;i++) {
-      if (!database->getTrack(tracks[i],info)) break;
+
+     if (database->interrupt)
+        database->waitTask();
+
+      if (!database->getTrack(tracks[i],info)) {
+        break;
+        }
+
       taskmanager->setStatus(FXString::value("Writing Tags %d/%d..",i+1,tracks.no()));
 
       info.saveTag(info.mrl);
-      database->beginTask();
+
       database->setTrackImported(tracks[i],FXThread::time());
-      database->commitTask();
       }
+    database->commitTask();
     }
   catch(GMDatabaseException&) {
     database->rollbackTask();
@@ -356,7 +364,6 @@ static const FXchar update_filenames_key[] = "track-update-filenames";
 
 GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogBox(p,FXString::null,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0), db(d) {
   FXPacker * main=NULL;
-  GMTextField * textfield = NULL;
   FXHorizontalFrame * hframe = NULL;
   GMTabBook * tabbook = NULL;
   FXMatrix * matrix = NULL;
@@ -407,32 +414,22 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     matrix = new FXMatrix(tabframe,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS,0,0,0,0,10,10,10,10);
 
     new FXLabel(matrix,tr("Filename"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    textfield = new GMTextField(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(info.mrl);
+    filenamefield = new GMTextField(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     new FXLabel(matrix,tr("Type"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(FXPath::extension(info.mrl).upper());
+    typefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     new FXLabel(matrix,tr("Size"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-#if defined(__LP64__) || defined(_LP64) || (_MIPS_SZLONG == 64) || (__WORDSIZE == 64)
-      textfield->setText(FXString::value("%'ld",FXStat::size(info.mrl)));
-#else
-      textfield->setText(FXString::value("%'lld",FXStat::size(info.mrl)));
-#endif
+    sizefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     new FXLabel(matrix,tr("Bitrate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(FXString::value("%dkbs",properties.bitrate));
+    bitratefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     new FXLabel(matrix,tr("Samplerate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(FXString::value("%dHz",properties.samplerate));
+    sampleratefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     new FXLabel(matrix,tr("Channels"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
-    textfield->setText(FXString::value("%d",properties.channels));
+    channelfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     if (tracks.no()==1){
       covertab = new GMTabItem(tabbook,tr("Co&ver"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
@@ -637,6 +634,18 @@ void GMEditTrackDialog::displayTracks() {
     yearfield->setText(FXString::value(info.year));
     titlefield->setText(info.title);
     discspinner->setValue(GMDISCNO(info.no));
+
+    filenamefield->setText(info.mrl);
+    typefield->setText(FXPath::extension(info.mrl).upper());
+#if defined(__LP64__) || defined(_LP64) || (_MIPS_SZLONG == 64) || (__WORDSIZE == 64)
+    sizefield->setText(FXString::value("%'ld",FXStat::size(info.mrl)));
+#else
+    sizefield->setText(FXString::value("%'lld",FXStat::size(info.mrl)));
+#endif
+    bitratefield->setText(FXString::value("%dkbs",properties.bitrate));
+    sampleratefield->setText(FXString::value("%dHz",properties.samplerate));
+    channelfield->setText(FXString::value("%d",properties.channels));
+
 
     coverview->setImage(art);
     if (art)
