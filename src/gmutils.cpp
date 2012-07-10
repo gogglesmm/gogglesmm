@@ -444,7 +444,333 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
 
 
 
+#if FOX_BIGENDIAN == 0
+#define MSB_UINT(x) ((x)[3]) | ((x)[2]<<8) | ((x)[1]<<16) | ((x)[0]<<24)
+#define MSB_SHORT(x) ((x)[0]<<8) | ((x)[1])
+#else
+#define MSB_UINT(data) (data[0]) | (data[1]<<8) | (data[2]<<16) | (data[3]<<24)
+#define MSB_SHORT(data) (data[1]<<8) | (data[0])
+#endif
 
+struct ImageInfo {
+  FXint   width;
+  FXint   height;
+  FXuchar bps;
+  FXuchar colors;
+  };
+
+FXbool gm_meta_png(const FXuchar * data,FXival size,ImageInfo & info) {
+
+  enum {
+    PNG_TYPE_GRAYSCALE            = 0,
+    PNG_TYPE_TRUECOLOR            = 2,
+    PNG_TYPE_PALETTE              = 3,
+    PNG_TYPE_GRAYSCALE_WITH_ALPHA = 4,
+    PNG_TYPE_TRUECOLOR_WITH_ALPHA = 6,
+    };
+
+  info.width   = 0;
+  info.height  = 0;
+  info.bps     = 0;
+  info.colors  = 0;
+
+  // Make sure it's a PNG file with a IHDR as first chunk
+  if (data[ 0]==137 && data[ 1]==80  && data[ 2]==78  && data[ 3]==71  &&
+      data[ 4]==13  && data[ 5]==10  && data[ 6]==26  && data[ 7]==10  &&
+      data[12]=='I' && data[13]=='H' && data[14]=='D' && data[15]=='R') {
+
+    FXival nbytes  = size-8;
+    const FXuchar * chunk = data + 8;
+
+    while(nbytes>=12) {
+      FXuint chunk_length = MSB_UINT(chunk);
+
+      // IHDR chunk
+      if (compare((const FXchar*)chunk,"IHDR",4)==0) {
+        if (chunk_length!=13)
+          return false;
+
+        info.width     = MSB_UINT(chunk+16);
+        info.height    = MSB_UINT(chunk+20);
+        FXuchar depth  = chunk[24];
+        FXuchar color  = chunk[24];
+
+        switch(color) {
+          case PNG_TYPE_GRAYSCALE           : info.bps = depth;   break;
+          case PNG_TYPE_TRUECOLOR           : info.bps = depth*3; break;
+          case PNG_TYPE_PALETTE             : info.bps = 24;      break;
+          case PNG_TYPE_GRAYSCALE_WITH_ALPHA: info.bps = depth*2; break;
+          case PNG_TYPE_TRUECOLOR_WITH_ALPHA: info.bps = depth*4; break;
+          default                           : return false;       break;
+          }
+
+        if (color!=PNG_TYPE_PALETTE)
+          return true;
+
+        }
+      else if (compare((const FXchar*)chunk,"PLTE",4)==0) {
+        info.colors = chunk_length / 3; /// 3 bytes for each palette entry
+        return true;
+        }
+
+      // next chunk
+      chunk  += chunk_length + 12;
+      nbytes -= chunk_length + 12;
+      }
+    }
+  return false;
+  }
+
+
+FXbool gm_meta_jpeg(const FXuchar * data,FXival size,ImageInfo & info) {
+  const FXuchar * chunk  = data + 2;
+  FXival   nbytes = size - 2;
+  FXuchar  marker;
+
+  if (nbytes>2 && data[0]==0xFF && data[1]==0xD8){
+
+    while(nbytes) {
+
+      // Find Marker
+      while(nbytes && *chunk!=0xFF){
+        chunk++;
+        nbytes--;
+        }
+
+      // End of data
+      if (nbytes==0)
+        return false;
+
+      // Skip padding
+      while(nbytes && *chunk==0xFF){
+        chunk++;
+        nbytes--;
+        }
+
+      // End of data
+      if (nbytes<2)
+        return false;
+
+      // Read marker
+      marker = *chunk;
+      chunk++;
+      nbytes--;
+
+      switch(marker) {
+
+        // Start of Frame
+        case 0xC0:
+        case 0xC1:
+        case 0xC2:
+        case 0xC3:
+        case 0xC5:
+        case 0xC6:
+        case 0xC7:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:
+          {
+            FXuint length = MSB_SHORT(chunk);
+
+            if (length<8 || nbytes<8)
+              return false;
+
+            info.height      = MSB_SHORT(chunk+3);
+            info.width       = MSB_SHORT(chunk+5);
+            info.bps         = chunk[7]*chunk[2];
+            info.colors      = 0;
+
+            return true;
+          }
+
+
+        // Bail out
+        case 0xDA:                // Beginning of compressed data
+        case 0xD9:  return false; // End of datastream
+
+
+        /* Skip unknown chunks */
+        default:
+          {
+            FXuint length = MSB_SHORT(chunk);
+            if (length<2)
+              return false;
+
+            chunk  += length;
+            nbytes -= length;
+          }
+        }
+      }
+    }
+  return false;
+  }
+
+
+#define BIH_RGB         0       // biCompression values
+#define BIH_RLE8        1
+#define BIH_RLE4        2
+#define BIH_BITFIELDS   3
+
+#define OS2_OLD         12      // biSize values
+#define WIN_NEW         40
+#define OS2_NEW         64
+
+
+
+FXbool gm_meta_bmp(const FXuchar * data,FXival size,ImageInfo & info) {
+  FXMemoryStream store(FXStreamLoad,(FXuchar*)data,size);
+
+  FXint    bfSize;
+  FXint    bfOffBits;
+  FXushort bfType;
+  FXushort bfReserved;
+  FXushort biBitCount;
+  FXushort biPlanes;
+
+  FXint    biWidth;
+  FXint    biHeight;
+  FXint    biSizeImage;
+  FXint    biSize;
+  FXint    biCompression;
+  FXint    biXPelsPerMeter;
+  FXint    biYPelsPerMeter;
+  FXint    biClrUsed;
+  FXint    biClrImportant;
+
+  store.setBigEndian(false);
+
+  // Get size and offset
+  store >> bfType;
+  store >> bfSize;
+  store >> bfReserved;
+  store >> bfReserved;
+  store >> bfOffBits;
+
+  // Check signature
+  if(bfType!=0x4d42)
+    return false;
+
+  store >> biSize;
+  if(biSize==OS2_OLD){                  // Old format
+    store >> bfReserved; biWidth=bfReserved;
+    store >> bfReserved; biHeight=bfReserved;
+    store >> biPlanes;
+    store >> biBitCount;
+
+    info.width  = biWidth;
+    info.height = biHeight;
+    info.bps    = biBitCount;
+
+    if (biBitCount<=8)
+      info.colors = 1<<biBitCount;
+    else
+      info.colors = 0;
+    }
+  else {
+    store >> biWidth;
+    store >> biHeight;
+    store >> biPlanes;
+    store >> biBitCount;
+    store >> biCompression;
+    store >> biSizeImage;
+    store >> biXPelsPerMeter;
+    store >> biYPelsPerMeter;
+    store >> biClrUsed;
+    store >> biClrImportant;
+
+    info.width  = biWidth;
+    info.height = biHeight;
+    info.bps    = biBitCount;
+    if (biBitCount<=8)
+      info.colors = biClrUsed ? biClrUsed : 1<<biBitCount;
+    else
+      info.colors = 0;
+    }
+  return true;
+  }
+
+
+// Codes found in the GIF specification
+const FXuchar TAG_EXTENSION   = 0x21;   // Extension block
+const FXuchar TAG_IMAGE       = 0x2c;   // Image separator
+
+
+FXbool gm_meta_gif(const FXuchar * data,FXival size,ImageInfo & info) {
+  FXMemoryStream store(FXStreamLoad,(FXuchar*)data,size);
+
+  FXuchar c1,c2,c3,flagbits,background,sbsize;
+  FXint ncolors;
+
+  // Load signature
+  store >> c1;
+  store >> c2;
+  store >> c3;
+
+  // Check signature
+  if(c1!=0x47 || c2!=0x49 || c3!=0x46) return false;
+
+  // Load version
+  store >> c1;
+  store >> c2;
+  store >> c3;
+
+  // Check version
+  if(c1!=0x38 || (c2!=0x37 && c2!=0x39) || c3!=0x61) return false;
+
+  // Get screen descriptor
+  store >> c1 >> c2;    // Skip screen width
+  store >> c1 >> c2;    // Skip screen height
+  store >> flagbits;    // Get flag bits
+  store >> background;  // Background
+  store >> c2;          // Skip aspect ratio
+
+  // Determine number of colors
+  ncolors=2<<(flagbits&7);
+
+  info.colors = ncolors;
+  info.bps    = 3 * (1+((flagbits&0x70)>>4));
+
+  // Skip Global Colormap
+  if(flagbits&0x80){
+    store.position(ncolors*3);
+    }
+
+  while(1){
+    store >> c1;
+    if(c1==TAG_EXTENSION){
+      do{
+        store >> sbsize;
+        store.position(sbsize,FXFromCurrent);
+        }
+      while(sbsize>0 && !store.eof());    // FIXME this logic still flawed
+      continue;
+      }
+    else if (c1==TAG_IMAGE) {
+      store >> c1 >> c2;
+      store >> c1 >> c2;
+
+      // Get image width
+      store >> c1 >> c2;
+      info.width=(c2<<8)+c1;
+
+      // Get image height
+      store >> c1 >> c2;
+      info.height=(c2<<8)+c1;
+
+      // Read local map if there is one
+      if(flagbits&0x80){
+        ncolors=2<<(flagbits&7);
+        info.colors = ncolors;
+        }
+      return true;
+      }
+    break;
+    }
+  return false;
+  }
 
 
 
