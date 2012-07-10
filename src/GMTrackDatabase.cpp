@@ -1228,7 +1228,7 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
   DEBUG_DB_GET();
   FXbool ok=false;
   try {
-    begin();
+    //begin();
     query_track.set(0,tid);
     if (query_track.row()) {
       query_track.get( 0,track.mrl);
@@ -1256,10 +1256,12 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
       track.tags.append(query_track_tags.get(0));
       }
     query_track_tags.reset();
-    commit();
+
+
+    //commit();
     }
   catch (GMDatabaseException & e){
-    rollback();
+    //rollback();
     return false;
     }
   return ok;
