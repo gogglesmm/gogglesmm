@@ -585,10 +585,10 @@ void GMWindow::raiseWindow() {
       remote->show();
     remote->raise();
     }
-  else {  
+  else {
     if (!shown())
       show();
-    raise();      
+    raise();
     }
   }
 
@@ -905,38 +905,28 @@ long GMWindow::onCmdImport(FXObject *,FXSelector sel,void*){
 
 
   FXuint mode=(FXSELID(sel)==ID_IMPORT_DIRS || FXSELID(sel)==ID_SYNC_DIRS) ? IMPORT_FROMDIR : IMPORT_FROMFILE;
-  if (FXSELID(sel)==ID_SYNC_DIRS) mode|=IMPORT_SYNC;
+
+  if (FXSELID(sel)==ID_SYNC_DIRS) 
+    mode|=IMPORT_SYNC;
 
   GMImportDialog dialog(this,mode);
   if (dialog.execute()) {
     FXStringList files;
     dialog.getSelectedFiles(files);
-    //GMPlayerManager::instance()->stop();
 
     if (FXSELID(sel)==ID_SYNC_DIRS) {
-
       GMSyncTask * task = new GMSyncTask(GMPlayerManager::instance(),GMPlayerManager::ID_IMPORT_TASK);
       task->setOptions(GMPlayerManager::instance()->getPreferences().import);
       task->setSyncOptions(GMPlayerManager::instance()->getPreferences().sync);
       task->setInput(files);
       GMPlayerManager::instance()->runTask(task);
-
-
-
-//      GMSyncDatabase searchdialog(this,files,GMPlayerManager::instance()->getPreferences().import,GMPlayerManager::instance()->getPreferences().sync,-1,true);
-//      searchdialog.execute();
       }
     else {
-//      GMImportDatabase searchdialog(this,files,GMPlayerManager::instance()->getPreferences().import,-1);
-//      searchdialog.execute();
-
       GMImportTask * task = new GMImportTask(GMPlayerManager::instance(),GMPlayerManager::ID_IMPORT_TASK);
       task->setOptions(GMPlayerManager::instance()->getPreferences().import);
       task->setInput(files);
       GMPlayerManager::instance()->runTask(task);
       }
-//    if (sourceview->getSource()==GMPlayerManager::instance()->getSource(0))
-//      trackview->refresh();
     }
   return 1;
   }
