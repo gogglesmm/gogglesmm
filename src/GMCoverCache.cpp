@@ -58,23 +58,28 @@ public:
   FXuchar * buffer;
   FXuval    len;
 public:
-  GMCompressedImage() : buffer(NULL),len(0){}
-  GMCompressedImage(FXuchar * b,FXuval l) : len(l) {
+  GMCompressedImage() : buffer(NULL),len(0) {}
+public:
+  GMCompressedImage(const FXuchar * b,FXuval l) : buffer(NULL), len(l) {
     allocElms(buffer,len);
     memcpy(buffer,b,len);
     }
 
   void make(FXImage * img) {
-    FXint ww,hh,dd;
-    FXColor * data=NULL;
-    FXMemoryStream ms(FXStreamLoad,buffer,len,false);
-    fxloadJPG(ms,data,ww,hh,dd);
-    ms.close();
-    FXASSERT(ww==128);
-    FXASSERT(hh==128);
-
-    img->setData(data,IMAGE_OWNED);
-    img->render();
+    FXASSERT(buffer);
+    FXASSERT(len);
+    if (buffer && len) {
+      FXint ww,hh,dd;
+      FXColor * data=NULL;
+      FXMemoryStream ms(FXStreamLoad,buffer,len,false);
+      if (fxloadJPG(ms,data,ww,hh,dd)) {
+        img->setData(data,IMAGE_OWNED);
+        img->render();
+        }
+      ms.close();
+      FXASSERT(ww==128);
+      FXASSERT(hh==128);
+      }
     }
 
   ~GMCompressedImage() {
@@ -136,14 +141,11 @@ FXint CoverLoader::run() {
     fraction = (i+1) / ((double)albums.no());
     taskmanager->setStatus(FXString::value("Loading Covers %d%%",(FXint)(100.0*fraction)));
     cover = GMCover::fromTag(albums[i].path);
+
     if (cover==NULL)
       cover = GMCover::fromPath(FXPath::directory(albums[i].path));
-    if (cover) {
-      cache.insertCover(albums[i].id,compress(GMCover::toImage(cover,cache.getCoverSize(),1)));
-      }
-    else {
-      cache.insertCover(albums[i].id,NULL);
-      }
+      
+    cache.insertCover(albums[i].id,compress(GMCover::toImage(cover,cache.getCoverSize(),1)));
     }
   if (processing) cache.save();
   return 0;
@@ -192,16 +194,21 @@ GMCompressedImage * CoverLoader::compress(FXColor*pix,FXint width,FXint height){
   }
 
 
-GMCompressedImage * CoverLoader::compress(FXImage*img) {
-  GMCompressedImage * cimage = NULL;
-  if (img->getWidth()!=cache.getCoverSize() || img->getHeight()!=cache.getCoverSize()) {
-    cimage = compress_fit(img);
+GMCompressedImage * CoverLoader::compress(FXImage * img) {
+  if (img) {
+    GMCompressedImage * cimage = NULL;
+    if (img->getWidth()!=cache.getCoverSize() || img->getHeight()!=cache.getCoverSize()) {
+      cimage = compress_fit(img);
+      }
+    else {
+      cimage = compress(img->getData(),cache.getCoverSize(),cache.getCoverSize());
+      }
+    delete img;
+    return cimage;
     }
   else {
-    cimage = compress(img->getData(),cache.getCoverSize(),cache.getCoverSize());
+    return NULL;
     }
-  delete img;
-  return cimage;
   }
 
 
