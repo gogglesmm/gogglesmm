@@ -2399,7 +2399,7 @@ void GMTrackDatabase::sync_tracks_removed() {
   DEBUG_DB_SET();
   GM_TICKS_START();
   execute("DELETE FROM albums WHERE id NOT IN (SELECT DISTINCT(album) FROM tracks);");
-  execute("DELETE FROM artists WHERE id NOT IN (SELECT artist FROM albums UNION SELECT artist FROM tracks UNION SELECT composer FROM tracks WHERE composer!=NULL UNION SELECT conductor FROM tracks WHERE conductor!=NULL );");
+  execute("DELETE FROM artists WHERE id NOT IN (SELECT artist FROM albums UNION SELECT artist FROM tracks UNION SELECT composer FROM tracks WHERE composer!=0 UNION SELECT conductor FROM tracks WHERE conductor!=0 );");
   execute("DELETE FROM tags WHERE id NOT IN (SELECT tag FROM track_tags UNION SELECT genre FROM streams);");
   execute("DELETE FROM pathlist WHERE id NOT IN (SELECT DISTINCT(path) FROM tracks);");
   GM_TICKS_END();

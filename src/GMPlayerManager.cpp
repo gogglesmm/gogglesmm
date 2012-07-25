@@ -104,7 +104,6 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_SCROBBLER,GMPlayerManager::onScrobblerError),
   FXMAPFUNC(SEL_OPENED,GMPlayerManager::ID_SCROBBLER,GMPlayerManager::onScrobblerOpen),
 
-
 #ifdef HAVE_DBUS
   FXMAPFUNC(SEL_KEYPRESS,GMPlayerManager::ID_GNOME_SETTINGS_DAEMON,GMPlayerManager::onCmdSettingsDaemon),
 #endif
@@ -1573,11 +1572,12 @@ long GMPlayerManager::onScrobblerOpen(FXObject*,FXSelector,void*ptr){
 
 
 long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
-  ///fxmessage("TASK COMPLETED\n");
-  GMTask * task = *((GMTask**)ptr);
-  delete task;
 
-
+  {
+    GMTask * task = *((GMTask**)ptr);
+    delete task;
+  }
+  
   database->initArtistLookup();
 
   /// Update the covers
@@ -1619,13 +1619,7 @@ long GMPlayerManager::onTaskManagerShutdown(FXObject*,FXSelector,void*){
 
 
 long GMPlayerManager::onTaskManagerStatus(FXObject*,FXSelector,void*ptr){
-
-
-
   FXchar * msg = (FXchar*)ptr;
-//  fxmessage("msg: %s\n",msg);
-//  free(msg);
-
   mainwindow->setStatus(msg);
   return 0;
   }
@@ -1825,7 +1819,7 @@ static int xregisterhotkeys(Display* dpy,XErrorEvent* eev){
   XGetErrorText(dpy,eev->error_code,buf,sizeof(buf));
 
   // Print out meaningful warning
-  fxwarning("GMM X Error: code %d major %d minor %d: %s.\n",eev->error_code,eev->request_code,eev->minor_code,buf);
+  fxwarning("gogglesmm X Error: code %d major %d minor %d: %s.\n",eev->error_code,eev->request_code,eev->minor_code,buf);
   return 1;
   }
 
