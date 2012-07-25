@@ -21,6 +21,15 @@
 #include "ap_pipe.h"
 #include "ap_utils.h"
 
+/// On Linux we want to use pipe2
+#if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 9))
+#define HAVE_PIPE2
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <fcntl.h>
+#endif
+
 #ifndef WIN32
 #include <unistd.h>
 #include <errno.h>
@@ -54,6 +63,24 @@ FXbool Pipe::create() {
   if (CreatePipe(&h[0],&h[1],NULL,0)==0)
     return false;
 #else
+
+#ifdef HAVE_PIPE2
+  if (pipe2(h,O_CLOEXEC)==0) {
+    
+    /// Set the read end non-blocking
+    if (!ap_set_nonblocking(h[0])){
+      close();
+      return false;
+      }
+  
+    return true;
+    }
+  
+  // In case of EINVAL (invalid flags) try again using regular pipe api  
+  if (errno!=EINVAL)
+    return false;
+#endif
+
   /// Create Pipe
   if (pipe(h)==-1)
     return false;
