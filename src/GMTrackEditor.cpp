@@ -183,10 +183,13 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
 
   /// Create New Mrls.
   for (i=0;i<tracks.no();i++) {
+    db->begin();
     if (!db->getTrack(tracks[i],trackinfo)) {
+      db->commit();  
       FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Database Error"),fxtr("Oops. Database Error"));
       return true;
       }
+    db->commit();  
     if (GMFilename::create(mrl,trackinfo,GMPlayerManager::instance()->getPreferences().export_format_template,GMPlayerManager::instance()->getPreferences().export_character_filter,options,codec) && mrl!=trackinfo.mrl) {
       newmrls.append(mrl);
       oldmrls.append(trackinfo.mrl);
@@ -568,7 +571,9 @@ void GMEditTrackDialog::getTrackSelection() {
   tracks.clear();
 
   GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+  db->begin();
   db->getTrack(tracks[0],info);
+  db->commit();
   if (tracks.no()==1) {
     if (art) {
       delete art;
@@ -582,8 +587,10 @@ void GMEditTrackDialog::getTrackSelection() {
   samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR;
   if (tracks.no()>1) {
     GMTrack other;
-    for (FXint i=1;i<tracks.no() && samemask ;i++) {
+    for (FXint i=1;i<tracks.no() && samemask ;i++) {      
+      db->begin();
       db->getTrack(tracks[i],other);
+      db->commit();  
       if (other.album!=info.album) samemask&=~SAME_ALBUM;
       if (other.artist!=info.artist) samemask&=~SAME_ARTIST;
       if (other.album_artist!=info.album_artist) samemask&=~SAME_ALBUMARTIST;
