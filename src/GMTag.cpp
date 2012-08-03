@@ -143,6 +143,18 @@ static FXbool to_int(const FXString & str,FXint & val){
   }
 
 
+/// FlacPictureBlock structure.
+struct FlacPictureBlock{
+  FXString    mimetype;
+  FXString    description;
+  FXuint      type;
+  FXuint      width;
+  FXuint      height;
+  FXuint      bps;
+  FXuint      ncolors;
+  FXuint      data_size;
+  FXuchar*    data;
+  };
 
 static FXbool gm_uint32_be(const FXuchar * block,FXuint & v) {
 #if FOX_BIGENDIAN == 0
@@ -237,36 +249,6 @@ static FXbool id3v2_is_front_cover(TagLib::ID3v2::AttachedPictureFrame * frame){
   }
 
 
-/*
-FXbool id3v2_save_cover(const FXString & mrl,const FXuchar * data,FXival size,const FXString & mime) {
-
-  if (!FXStat::isWritable(info.mrl))
-    return false;
-
-  TagLib::FileRef file(info.mrl.text(),false);
-  if (file.isNull() || !file.tag())
-    return false;
-
-  GMFileTag tags(file.file());
-
-  if (tags.id3v2tag) {
-    TagLib::ID3v2::FrameList framelist = id3v2tag->frameListMap()["APIC"];
-    if(framelist.isEmpty()){
-      TagLib::ID3v2::AttachedPictureFrame *frame = new TagLib::ID3v2::AttachedPictureFrame();
-      frame->setPicture(ByteVector(data,size));
-      frame->setMimeType(TagLib::String(mime.text(),TagLib::String::UTF8));
-      frame->setType(TagLib::ID3v2::AttachedPictureFrame::FrontCover);
-      id3v2tag->addFrame(frame);
-      }
-    }
-  else {
-    return false;
-    }
-  }
-*/
-
-
-#if TAGLIB_VERSION >= MKVERSION(1,7,0)
 GMCover* flac_load_cover_from_taglib(const TagLib::FLAC::Picture * picture) {
   if (picture) {
     if (picture->type()==TagLib::FLAC::Picture::FileIcon ||
@@ -285,7 +267,6 @@ GMCover* flac_load_frontcover_from_taglib(const TagLib::FLAC::Picture * picture)
     }
   return NULL;
   }
-#endif
 
 
 
@@ -835,7 +816,6 @@ FXint GMFileTag::getYear()const {
   }
 
 GMCover * GMFileTag::getFrontCover() const {
-#if TAGLIB_VERSION >= MKVERSION(1,7,0)
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
   if (flacfile) {
     const TagLib::List<TagLib::FLAC::Picture*> picturelist = flacfile->pictureList();
@@ -844,8 +824,7 @@ GMCover * GMFileTag::getFrontCover() const {
       if (cover) return cover;
       }
     }
-#endif
-  if (id3v2) {
+  else if (id3v2) {
     TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["APIC"];
     if(!framelist.isEmpty()){
       /// First Try Front Cover
@@ -875,7 +854,7 @@ GMCover * GMFileTag::getFrontCover() const {
       }
     }
 #ifdef TAGLIB_HAVE_MP4
-  if (mp4) { /// MP4
+  else if (mp4) { /// MP4
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
@@ -888,7 +867,6 @@ GMCover * GMFileTag::getFrontCover() const {
   }
 
 FXint GMFileTag::getCovers(GMCoverList & covers) const {
-#if TAGLIB_VERSION >= MKVERSION(1,7,0)
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
   if (flacfile) {
     const TagLib::List<TagLib::FLAC::Picture*> picturelist = flacfile->pictureList();
@@ -898,8 +876,7 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
       }
     if (covers.no()) return covers.no();
     }
-#endif
-  if (xiph) {
+  else if (xiph) {
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
@@ -908,7 +885,7 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
         }
       }
     }
-  if (id3v2) {
+  else if (id3v2) {
     TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["APIC"];
     if(!framelist.isEmpty()){
       for(TagLib::ID3v2::FrameList::Iterator it = framelist.begin(); it != framelist.end(); it++) {

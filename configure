@@ -164,7 +164,7 @@ check_foxversion
 add_required_package "libgaplayer-0 >= 0.4" "gap"
 add_required_package "sqlite3 >= 3.6.3" "sqlite"
 #add_required_package "libcurl >= 7.19" "curl"
-add_required_package "taglib >= 1.6.1" "taglib"
+add_required_package "taglib >= 1.7.0" "taglib"
 
 # DBus is optional
 if [ $DBUS -eq 1 ] ; then

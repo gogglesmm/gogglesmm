@@ -19,22 +19,7 @@
 #ifndef GMCOVER_H
 #define GMCOVER_H
 
-/// FlacPictureBlock structure.
-struct FlacPictureBlock{
-  FXString    mimetype;
-  FXString    description;
-  FXuint      type;
-  FXuint      width;
-  FXuint      height;
-  FXuint      bps;
-  FXuint      ncolors;
-  FXuint      data_size;
-  FXuchar*    data;
 
-  FXuint size() const {
-    return 64 + description.length() + mimetype.length() + data_size;
-    }
-  };
 
 class GMCover;
 typedef FXArray<GMCover*> GMCoverList;
