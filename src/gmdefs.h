@@ -70,5 +70,8 @@ extern const FXchar * fxtr(const FXchar *) __attribute__ ((format_arg(1)));
 #define notr(x) x
 #define fxtrformat(x) fxtr(x)
 
+// Best Image Scaler in FXImage
+#define FOX_SCALE_BEST 2
+
 #endif
 

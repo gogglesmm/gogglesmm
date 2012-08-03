@@ -79,9 +79,9 @@ void GMImageView::updateTexture(FXImage * image) {
     if((image_width>texture_max) || (image_height>texture_max)){
 
       if(image_width>image_height)
-        image->scale(texture_max,(texture_max*image_height)/image_width,1);
+        image->scale(texture_max,(texture_max*image_height)/image_width,FOX_SCALE_BEST);
       else
-        image->scale((texture_max*image_width)/image_height,texture_max,1);
+        image->scale((texture_max*image_width)/image_height,texture_max,FOX_SCALE_BEST);
 
       image_width=image->getWidth();
       image_height=image->getHeight();

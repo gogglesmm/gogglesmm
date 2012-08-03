@@ -63,7 +63,7 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   font_title->create();
 
   img_default = new FXPNGImage(getApp(),about_png);
-  img_default->scale(64,64,1);
+  img_default->scale(64,64,FOX_SCALE_BEST);
   img_default->blend(getApp()->getBackColor());
   img_default->create();
 

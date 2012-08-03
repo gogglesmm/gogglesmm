@@ -85,12 +85,12 @@ void GMTrayIcon::updateIcon() {
     if (size<=16) {
       icon = new FXPNGIcon(getApp(),gogglesmm_16_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());
-      if (size!=16) icon->scale(size,size,1);
+      if (size!=16) icon->scale(size,size,FOX_SCALE_BEST);
       }
     else {
       icon = new FXPNGIcon(getApp(),gogglesmm_32_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());
-      if (size!=32) icon->scale(size,size,1);
+      if (size!=32) icon->scale(size,size,FOX_SCALE_BEST);
       }
 
     icon->blend(GMPlayerManager::instance()->getPreferences().gui_tray_color);
@@ -349,12 +349,12 @@ long GMTrayIcon::onConfigure(FXObject*,FXSelector,void*ptr){
     if (size<=16) {
       icon = new FXPNGIcon(getApp(),gogglesmm_16_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());
-      if (size!=16) icon->scale(size,size,1);
+      if (size!=16) icon->scale(size,size,FOX_SCALE_BEST);
       }
     else {
       icon = new FXPNGIcon(getApp(),gogglesmm_32_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());
-      if (size!=32) icon->scale(size,size,1);
+      if (size!=32) icon->scale(size,size,FOX_SCALE_BEST);
       }
     icon->blend(GMPlayerManager::instance()->getPreferences().gui_tray_color);
     icon->create();
