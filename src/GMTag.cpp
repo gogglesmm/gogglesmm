@@ -48,6 +48,88 @@
 
 
 
+class Base64Encoder {
+private:
+  static const FXchar base64[];
+private:
+  FXString out;
+  FXuchar  buffer[3];
+  FXint    nbuffer;
+  FXint    index;
+protected: 
+  void encodeChunks(const FXuchar * in,FXint len) {
+
+    // resize buffer if needed
+    FXint needed = 4*(len/3);
+    if (index+needed>=out.length()) {
+      out.length(out.length()+needed-(out.length()-index));
+      }
+
+    for (int i=0;i<len;i+=3) {
+      out[index++]=base64[(in[i]>>2)];
+      out[index++]=base64[((in[i]&0x3)<<4)|(in[i+1]>>4)];
+      out[index++]=base64[((in[i+1]&0xf)<<2)|(in[i+2]>>6)];
+      out[index++]=base64[(in[i+2]&0x3f)];
+      }
+    }
+public:
+  Base64Encoder(FXint source_length=0) : nbuffer(0), index(0){
+    if (source_length)
+      out.length(4*(source_length/3));
+    }
+
+  void encode(FXuint value) {
+    encode((const FXuchar*)&value,4);
+    }
+
+
+  void encode(const FXuchar * in,FXint len) {
+    FXint rindex=0;
+
+    if (nbuffer) {    
+      for (rindex=0;(nbuffer<3)&&(rindex<len);rindex++)
+        buffer[nbuffer++]=in[rindex];              
+
+      if (nbuffer<3)
+        return;
+
+      encodeChunks(buffer,3);
+      len-=rindex;
+      nbuffer=0;
+      }
+    
+    FXint r = len % 3;
+    FXint n = len - r;    
+    if (n) encodeChunks(in+rindex,n);
+
+    for (int i=0;i<r;i++)
+      buffer[i]=in[rindex+n+i];
+    }
+  
+  void finish() {
+    if (nbuffer) {  
+      if (index+4>=out.length()) {
+        out.length(out.length()+4-(out.length()-index));
+        } 
+      out[index++]=base64[(buffer[0]>>2)];
+      if (nbuffer>1) {
+        out[index++]=base64[((buffer[0]&0x3)<<4)|(buffer[1]>>4)];
+        out[index++]=base64[((buffer[1]&0xf)<<2)|buffer[2]>>6];
+        out[index++]='=';
+        }
+      else {
+        out[index++]=base64[((buffer[0]&0x3)<<4)];
+        out[index++]='=';
+        out[index++]='=';
+        }
+      }
+    }
+
+  FXString & getOutput() { return out; }
+  };
+
+const FXchar Base64Encoder::base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
 static FXbool to_int(const FXString & str,FXint & val){
   char * endptr=NULL;
   errno=0;
@@ -848,6 +930,81 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
 #endif
   return covers.no();
   }
+
+
+
+
+void GMFileTag::appendCover(GMCover* cover){
+  GMImageInfo info;
+	
+  TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
+  if (flacfile) {
+    if (cover->getImageInfo(info)) {
+      TagLib::FLAC::Picture * picture = new TagLib::FLAC::Picture();
+      picture->setWidth(info.width);
+      picture->setHeight(info.height);
+      picture->setColorDepth(info.bps);
+      picture->setNumColors(info.colors);
+      picture->setMimeType(TagLib::String(cover->mimeType().text(),TagLib::String::UTF8));
+      picture->setDescription(TagLib::String(cover->description.text(),TagLib::String::UTF8));
+      picture->setType(static_cast<TagLib::FLAC::Picture::Type>(cover->type));      
+      picture->setData(TagLib::ByteVector((const FXchar*)cover->data,cover->size));
+      flacfile->pictureList().append(picture);
+      }
+    }
+  else if (xiph) {
+    if (cover->getImageInfo(info)) {
+      FXString mimetype = cover->mimeType();
+      FXint nbytes = 32 + cover->description.length() + mimetype.length() + cover->size;
+      Base64Encoder base64(nbytes);
+#if FOX_BIGENDIAN == 0
+      base64.encode(swap32(cover->type));
+      base64.encode(swap32(mimetype.length()));
+      base64.encode((const FXuchar*)mimetype.text(),mimetype.length());
+      base64.encode(swap32(cover->description.length()));
+      base64.encode((const FXuchar*)cover->description.text(),cover->description.length());
+      base64.encode(swap32(info.width));
+      base64.encode(swap32(info.height));
+      base64.encode(swap32(info.bps));
+      base64.encode(swap32(info.colors));
+      base64.encode(swap32(cover->size));
+#else
+      base64.encode(cover->type);
+      base64.encode(mimetype.length());
+      base64.encode((const FXuchar*)mimetype.text(),mimetype.length());
+      base64.encode(cover->description.length());
+      base64.encode(cover->description.text(),cover->description.length());
+      base64.encode(info.width);
+      base64.encode(info.height);
+      base64.encode(info.bps);
+      base64.encode(info.colors);
+      base64.encode(cover->size);
+#endif			
+      base64.encode(cover->data,cover->size);
+      base64.finish();
+      xiph_update_field("METADATA_BLOCK_PICTURE",base64.getOutput());
+      }
+    }
+  else if (id3v2) {
+    TagLib::ID3v2::AttachedPictureFrame * frame = new TagLib::ID3v2::AttachedPictureFrame();
+    frame->setPicture(TagLib::ByteVector((const FXchar*)cover->data,cover->size));
+    frame->setType(static_cast<TagLib::ID3v2::AttachedPictureFrame::Type>(cover->type));
+    frame->setMimeType(TagLib::String(cover->mimeType().text(),TagLib::String::UTF8));
+    frame->setDescription(TagLib::String(cover->description.text(),TagLib::String::UTF8));
+    frame->setTextEncoding(TagLib::ID3v2::FrameFactory::instance()->defaultTextEncoding());
+    id3v2->addFrame(frame);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
 
 
 GMAudioProperties::GMAudioProperties() :

@@ -26,6 +26,329 @@
 
 
 
+#if FOX_BIGENDIAN == 0
+#define MSB_UINT(x) ((x)[3]) | ((x)[2]<<8) | ((x)[1]<<16) | ((x)[0]<<24)
+#define MSB_SHORT(x) ((x)[0]<<8) | ((x)[1])
+#else
+#define MSB_UINT(data) (data[0]) | (data[1]<<8) | (data[2]<<16) | (data[3]<<24)
+#define MSB_SHORT(data) (data[1]<<8) | (data[0])
+#endif
+
+
+FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
+
+  enum {
+    PNG_TYPE_GRAYSCALE            = 0,
+    PNG_TYPE_TRUECOLOR            = 2,
+    PNG_TYPE_PALETTE              = 3,
+    PNG_TYPE_GRAYSCALE_WITH_ALPHA = 4,
+    PNG_TYPE_TRUECOLOR_WITH_ALPHA = 6,
+    };
+
+  info.width   = 0;
+  info.height  = 0;
+  info.bps     = 0;
+  info.colors  = 0;
+
+  // Make sure it's a PNG file with a IHDR as first chunk
+  if (data[ 0]==137 && data[ 1]==80  && data[ 2]==78  && data[ 3]==71  &&
+      data[ 4]==13  && data[ 5]==10  && data[ 6]==26  && data[ 7]==10  &&
+      data[12]=='I' && data[13]=='H' && data[14]=='D' && data[15]=='R') {
+
+    FXival nbytes  = size-8;
+    const FXuchar * chunk = data + 8;
+
+    while(nbytes>=12) {
+      FXuint chunk_length = MSB_UINT(chunk);
+
+      // IHDR chunk
+      if (compare((const FXchar*)chunk,"IHDR",4)==0) {
+        if (chunk_length!=13)
+          return false;
+
+        info.width     = MSB_UINT(chunk+16);
+        info.height    = MSB_UINT(chunk+20);
+        FXuchar depth  = chunk[24];
+        FXuchar color  = chunk[24];
+
+        switch(color) {
+          case PNG_TYPE_GRAYSCALE           : info.bps = depth;   break;
+          case PNG_TYPE_TRUECOLOR           : info.bps = depth*3; break;
+          case PNG_TYPE_PALETTE             : info.bps = 24;      break;
+          case PNG_TYPE_GRAYSCALE_WITH_ALPHA: info.bps = depth*2; break;
+          case PNG_TYPE_TRUECOLOR_WITH_ALPHA: info.bps = depth*4; break;
+          default                           : return false;       break;
+          }
+
+        if (color!=PNG_TYPE_PALETTE)
+          return true;
+
+        }
+      else if (compare((const FXchar*)chunk,"PLTE",4)==0) {
+        info.colors = chunk_length / 3; /// 3 bytes for each palette entry
+        return true;
+        }
+
+      // next chunk
+      chunk  += chunk_length + 12;
+      nbytes -= chunk_length + 12;
+      }
+    }
+  return false;
+  }
+
+
+FXbool gm_meta_jpeg(const FXuchar * data,FXival size,GMImageInfo & info) {
+  const FXuchar * chunk  = data + 2;
+  FXival   nbytes = size - 2;
+  FXuchar  marker;
+
+  if (nbytes>2 && data[0]==0xFF && data[1]==0xD8){
+
+    while(nbytes) {
+
+      // Find Marker
+      while(nbytes && *chunk!=0xFF){
+        chunk++;
+        nbytes--;
+        }
+
+      // End of data
+      if (nbytes==0)
+        return false;
+
+      // Skip padding
+      while(nbytes && *chunk==0xFF){
+        chunk++;
+        nbytes--;
+        }
+
+      // End of data
+      if (nbytes<2)
+        return false;
+
+      // Read marker
+      marker = *chunk;
+      chunk++;
+      nbytes--;
+
+      switch(marker) {
+
+        // Start of Frame
+        case 0xC0:
+        case 0xC1:
+        case 0xC2:
+        case 0xC3:
+        case 0xC5:
+        case 0xC6:
+        case 0xC7:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:
+          {
+            FXuint length = MSB_SHORT(chunk);
+
+            if (length<8 || nbytes<8)
+              return false;
+
+            info.height      = MSB_SHORT(chunk+3);
+            info.width       = MSB_SHORT(chunk+5);
+            info.bps         = chunk[7]*chunk[2];
+            info.colors      = 0;
+
+            return true;
+          }
+
+
+        // Bail out
+        case 0xDA:                // Beginning of compressed data
+        case 0xD9:  return false; // End of datastream
+
+
+        /* Skip unknown chunks */
+        default:
+          {
+            FXuint length = MSB_SHORT(chunk);
+            if (length<2)
+              return false;
+
+            chunk  += length;
+            nbytes -= length;
+          }
+        }
+      }
+    }
+  return false;
+  }
+
+
+#define BIH_RGB         0       // biCompression values
+#define BIH_RLE8        1
+#define BIH_RLE4        2
+#define BIH_BITFIELDS   3
+
+#define OS2_OLD         12      // biSize values
+#define WIN_NEW         40
+#define OS2_NEW         64
+
+
+
+FXbool gm_meta_bmp(const FXuchar * data,FXival size,GMImageInfo & info) {
+  FXMemoryStream store(FXStreamLoad,(FXuchar*)data,size);
+
+  FXint    bfSize;
+  FXint    bfOffBits;
+  FXushort bfType;
+  FXushort bfReserved;
+  FXushort biBitCount;
+  FXushort biPlanes;
+
+  FXint    biWidth;
+  FXint    biHeight;
+  FXint    biSizeImage;
+  FXint    biSize;
+  FXint    biCompression;
+  FXint    biXPelsPerMeter;
+  FXint    biYPelsPerMeter;
+  FXint    biClrUsed;
+  FXint    biClrImportant;
+
+  store.setBigEndian(false);
+
+  // Get size and offset
+  store >> bfType;
+  store >> bfSize;
+  store >> bfReserved;
+  store >> bfReserved;
+  store >> bfOffBits;
+
+  // Check signature
+  if(bfType!=0x4d42)
+    return false;
+
+  store >> biSize;
+  if(biSize==OS2_OLD){                  // Old format
+    store >> bfReserved; biWidth=bfReserved;
+    store >> bfReserved; biHeight=bfReserved;
+    store >> biPlanes;
+    store >> biBitCount;
+
+    info.width  = biWidth;
+    info.height = biHeight;
+    info.bps    = biBitCount;
+
+    if (biBitCount<=8)
+      info.colors = 1<<biBitCount;
+    else
+      info.colors = 0;
+    }
+  else {
+    store >> biWidth;
+    store >> biHeight;
+    store >> biPlanes;
+    store >> biBitCount;
+    store >> biCompression;
+    store >> biSizeImage;
+    store >> biXPelsPerMeter;
+    store >> biYPelsPerMeter;
+    store >> biClrUsed;
+    store >> biClrImportant;
+
+    info.width  = biWidth;
+    info.height = biHeight;
+    info.bps    = biBitCount;
+    if (biBitCount<=8)
+      info.colors = biClrUsed ? biClrUsed : 1<<biBitCount;
+    else
+      info.colors = 0;
+    }
+  return true;
+  }
+
+
+// Codes found in the GIF specification
+const FXuchar TAG_EXTENSION   = 0x21;   // Extension block
+const FXuchar TAG_IMAGE       = 0x2c;   // Image separator
+
+
+FXbool gm_meta_gif(const FXuchar * data,FXival size,GMImageInfo & info) {
+  FXMemoryStream store(FXStreamLoad,(FXuchar*)data,size);
+
+  FXuchar c1,c2,c3,flagbits,background,sbsize;
+  FXint ncolors;
+
+  // Load signature
+  store >> c1;
+  store >> c2;
+  store >> c3;
+
+  // Check signature
+  if(c1!=0x47 || c2!=0x49 || c3!=0x46) return false;
+
+  // Load version
+  store >> c1;
+  store >> c2;
+  store >> c3;
+
+  // Check version
+  if(c1!=0x38 || (c2!=0x37 && c2!=0x39) || c3!=0x61) return false;
+
+  // Get screen descriptor
+  store >> c1 >> c2;    // Skip screen width
+  store >> c1 >> c2;    // Skip screen height
+  store >> flagbits;    // Get flag bits
+  store >> background;  // Background
+  store >> c2;          // Skip aspect ratio
+
+  // Determine number of colors
+  ncolors=2<<(flagbits&7);
+
+  info.colors = ncolors;
+  info.bps    = 3 * (1+((flagbits&0x70)>>4));
+
+  // Skip Global Colormap
+  if(flagbits&0x80){
+    store.position(ncolors*3);
+    }
+
+  while(1){
+    store >> c1;
+    if(c1==TAG_EXTENSION){
+      do{
+        store >> sbsize;
+        store.position(sbsize,FXFromCurrent);
+        }
+      while(sbsize>0 && !store.eof());    // FIXME this logic still flawed
+      continue;
+      }
+    else if (c1==TAG_IMAGE) {
+      store >> c1 >> c2;
+      store >> c1 >> c2;
+
+      // Get image width
+      store >> c1 >> c2;
+      info.width=(c2<<8)+c1;
+
+      // Get image height
+      store >> c1 >> c2;
+      info.height=(c2<<8)+c1;
+
+      // Read local map if there is one
+      if(flagbits&0x80){
+        ncolors=2<<(flagbits&7);
+        info.colors = ncolors;
+        }
+      return true;
+      }
+    break;
+    }
+  return false;
+  }
+
+
 
 
 /******************************************************************************/
@@ -205,16 +528,23 @@ static GMCover * flac_load_front_cover(const FXString & mrl,FXint scale,FXint cr
 
 
 
-GMCover::GMCover() : data(NULL),len(0), type(0) {
+GMCover::GMCover() : data(NULL),size(0),type(0) {
   }
 
-GMCover::GMCover(const void * ptr,FXuval size,FXuint /*t*/,const FXString & /*label*/,FXbool owned) : data(NULL), len(size) {
-  if (owned==false) {
-    allocElms(data,len);
-    memcpy(data,(const FXuchar*)ptr,len);
-    }
-  else {
-    data=(FXuchar*)ptr;
+GMCover::GMCover(const void * ptr,FXuint len,FXuint t,const FXString & label,FXbool owned) : 
+  data(NULL), 
+  size(len),
+  description(label),
+  type(t) {
+
+  if (ptr && size) {
+    if (owned==false) {
+      allocElms(data,size);
+      memcpy(data,(const FXuchar*)ptr,size);
+      }
+    else {
+      data=(FXuchar*)ptr;
+      }
     }
   }
 
@@ -223,7 +553,29 @@ GMCover::~GMCover() {
   }
 
 
-FXString GMCover::fileExtension() const{
+FXbool GMCover::getImageInfo(GMImageInfo & ii) {
+  if (info.width==0 && info.height==0) {
+    FXbool success = false;
+    switch(fileType()) {    
+      case FILETYPE_PNG: success = gm_meta_png(data,size,info); break;
+      case FILETYPE_JPG: success = gm_meta_jpeg(data,size,info); break;
+      case FILETYPE_BMP: success = gm_meta_bmp(data,size,info); break;
+      case FILETYPE_GIF: success = gm_meta_gif(data,size,info); break;
+      default          : break;
+      }
+    if (!success) return false;
+    }
+
+  if (info.width>0 && info.height>0) {
+    info=ii;
+    return true;    
+    }
+
+  return false;  
+  }
+
+
+FXuint GMCover::fileType() const {
   if (     data[0]==137 &&
            data[1]==80  &&
            data[2]==78  &&
@@ -233,37 +585,51 @@ FXString GMCover::fileExtension() const{
            data[6]==26  &&
            data[7]==10) {
 
-    return ".png";
+    return FILETYPE_PNG;
     }
   else if (data[0]==0xFF &&
            data[1]==0xD8){
-    return ".jpg";
+    return FILETYPE_JPG;
     }
   else if (data[0]=='B' &&
            data[1]=='M'){
-    return ".bmp";
+    return FILETYPE_BMP;
     }
   else if (data[0]==0x47 &&
            data[1]==0x49 &&
            data[2]==0x46){
-    return ".gif";
+    return FILETYPE_GIF;
     }
-  return FXString::null;
+  else
+    return FILETYPE_UNKNOWN;
   }
+
+
+FXString GMCover::fileExtension() const{
+  static const FXchar * const filetype_extension[]={"",".png",".jpg",".bmp",".gif"};
+  return filetype_extension[fileType()];
+  }
+
+FXString GMCover::mimeType() const{
+  static const FXchar * const mimetypes[]={"","image/png","image/jpeg","image/x-bmp","image/gif"};
+  return mimetypes[fileType()];
+  }
+
+
 
 
 FXbool GMCover::save(const FXString & filename) {
   FXString path = FXPath::directory(filename);
   if (FXStat::exists(path) || FXDir::createDirectories(path)) {
     FXFile file (filename,FXIO::Writing);
-    file.writeBlock(data,len);
+    file.writeBlock(data,size);
     file.close();
     return true;
     }
   return false;
   }
 
-
+#if 0
 FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
   GM_TICKS_START();
   FXString extension = FXPath::extension(mrl);
@@ -284,8 +650,11 @@ FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
   GM_TICKS_END();
   return covers.no();
   }
+#endif
 
+#if 0 // FIXME
 FXint GMCover::fromPath(const FXString & path,GMCoverList & list) {
+
   FXString * files=NULL;
   FXImage * image;
   FXint nfiles = FXDir::listFiles(files,path,"*.(png,jpg,jpeg,bmp,gif)",FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold|FXDir::HiddenFiles);
@@ -299,7 +668,7 @@ FXint GMCover::fromPath(const FXString & path,GMCoverList & list) {
     }
   return list.no();
   }
-
+#endif
 
 
 
@@ -368,14 +737,14 @@ GMCover * GMCover::fromPath(const FXString & path) {
 
 FXImage * GMCover::copyToImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
   if (cover) {
-    return gm_load_image_from_data(cover->data,cover->len,scale,crop);
+    return gm_load_image_from_data(cover->data,cover->size,scale,crop);
     }
   return NULL;
   }
 
 FXImage * GMCover::toImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
   if (cover) {
-    FXImage * image = gm_load_image_from_data(cover->data,cover->len,scale,crop);
+    FXImage * image = gm_load_image_from_data(cover->data,cover->size,scale,crop);
     delete cover;
     return image;
     }

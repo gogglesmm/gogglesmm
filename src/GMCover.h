@@ -39,6 +39,24 @@ struct FlacPictureBlock{
 class GMCover;
 typedef FXArray<GMCover*> GMCoverList;
 
+struct GMImageInfo {
+  FXuint  width;
+  FXuint  height;
+  FXuchar bps;
+  FXuchar colors;
+
+  GMImageInfo() : width(0),height(0),bps(0),colors(0) {}
+  };
+
+enum {
+  FILETYPE_UNKNOWN = 0,
+  FILETYPE_PNG     = 1,
+  FILETYPE_JPG     = 2,
+  FILETYPE_BMP     = 3,
+  FILETYPE_GIF     = 4
+  };
+
+
 class GMCover {
 public:
   enum {
@@ -64,32 +82,52 @@ public:
     BandLogo          = 19,
     PublisherLogo     = 20
     };
+protected:
+  GMImageInfo info;
 public:
-  FXuchar*  data;
-  FXuval    len;
-  FXString  description;
-  FXuint    type;
+  FXuchar*    data;
+  FXuint      size;
+  FXString    description;
+  FXuchar     type;
 public:
+  // Empty Cover	
   GMCover();
-  GMCover(const void * data, FXuval len,FXuint t=GMCover::Other,const FXString & label=FXString::null,FXbool owned=false);
+
+  /// Construct Cover 
+  GMCover(const void * data,FXuint sz,FXuint t=GMCover::Other,const FXString & label=FXString::null,FXbool owned=false);
+
+  /// Destructor	
   ~GMCover();
 
-  /// Return file extension for image.
+  /// Return Image Information
+  FXbool getImageInfo(GMImageInfo &);
+
+  /// Return file extension for image type.
   FXString fileExtension() const;
+
+  /// Return mimetype for image type
+  FXString mimeType() const;
+
+  /// Return filetype
+  FXuint fileType() const;
 
   FXbool save(const FXString & path);
 public:
+
+#if 0
   static FXint fromTag(const FXString & mrl,GMCoverList & list);
 
   static FXint fromPath(const FXString & mrl,GMCoverList & list);
+#endif
 
-  static GMCover * fromTag(const FXString & mrl);
+  static GMCover * fromTag(const FXString & file);
 
-  static GMCover * fromPath(const FXString & mrl);
+  static GMCover * fromPath(const FXString & path);
 
   static GMCover * fromFile(const FXString & file);
 
   static FXImage * copyToImage(GMCover*,FXint scale=0,FXint crop=0);
+
   static FXImage * toImage(GMCover*,FXint scale=0,FXint crop=0);
   };
 
