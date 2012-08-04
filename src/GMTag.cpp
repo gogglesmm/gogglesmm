@@ -56,7 +56,7 @@ private:
   FXuchar  buffer[3];
   FXint    nbuffer;
   FXint    index;
-protected: 
+protected:
   void encodeChunks(const FXuchar * in,FXint len) {
 
     // resize buffer if needed
@@ -86,9 +86,9 @@ public:
   void encode(const FXuchar * in,FXint len) {
     FXint rindex=0;
 
-    if (nbuffer) {    
+    if (nbuffer) {
       for (rindex=0;(nbuffer<3)&&(rindex<len);rindex++)
-        buffer[nbuffer++]=in[rindex];              
+        buffer[nbuffer++]=in[rindex];
 
       if (nbuffer<3)
         return;
@@ -97,20 +97,20 @@ public:
       len-=rindex;
       nbuffer=0;
       }
-    
+
     FXint r = len % 3;
-    FXint n = len - r;    
+    FXint n = len - r;
     if (n) encodeChunks(in+rindex,n);
 
     for (int i=0;i<r;i++)
       buffer[i]=in[rindex+n+i];
     }
-  
+
   void finish() {
-    if (nbuffer) {  
+    if (nbuffer) {
       if (index+4>=out.length()) {
         out.length(out.length()+4-(out.length()-index));
-        } 
+        }
       out[index++]=base64[(buffer[0]>>2)];
       if (nbuffer>1) {
         out[index++]=base64[((buffer[0]&0x3)<<4)|(buffer[1]>>4)];
@@ -908,12 +908,24 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
   return covers.no();
   }
 
-
+void GMFileTag::replaceCover(GMCover*cover){
+  TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
+  if (flacfile) {
+    flacfile->removePictures();
+    }
+  else if (id3v2) {
+    id3v2->removeFrames("APIC");
+    }      
+  else if (xiph) {
+    xiph->removeField("METADATA_BLOCK_PICTURE");
+    }
+  appendCover(cover);
+  }
 
 
 void GMFileTag::appendCover(GMCover* cover){
   GMImageInfo info;
-	
+
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
   if (flacfile) {
     if (cover->getImageInfo(info)) {
@@ -924,9 +936,9 @@ void GMFileTag::appendCover(GMCover* cover){
       picture->setNumColors(info.colors);
       picture->setMimeType(TagLib::String(cover->mimeType().text(),TagLib::String::UTF8));
       picture->setDescription(TagLib::String(cover->description.text(),TagLib::String::UTF8));
-      picture->setType(static_cast<TagLib::FLAC::Picture::Type>(cover->type));      
+      picture->setType(static_cast<TagLib::FLAC::Picture::Type>(cover->type));
       picture->setData(TagLib::ByteVector((const FXchar*)cover->data,cover->size));
-      flacfile->pictureList().append(picture);
+      flacfile->addPicture(picture);
       }
     }
   else if (xiph) {
@@ -956,7 +968,7 @@ void GMFileTag::appendCover(GMCover* cover){
       base64.encode(info.bps);
       base64.encode(info.colors);
       base64.encode(cover->size);
-#endif			
+#endif
       base64.encode(cover->data,cover->size);
       base64.finish();
       xiph_update_field("METADATA_BLOCK_PICTURE",base64.getOutput());

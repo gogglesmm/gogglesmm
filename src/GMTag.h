@@ -138,7 +138,9 @@ public:
   GMCover * getFrontCover() const;
   FXint getCovers(GMCoverList &) const;
 
-  void appendCover(GMCover*);	
+  void appendCover(GMCover*);
+  
+  void replaceCover(GMCover*);
 
 
   ~GMFileTag();
