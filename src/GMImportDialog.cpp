@@ -131,6 +131,8 @@ protected:
   FXIconPtr icon_audio_big;
   FXIconPtr icon_folder_small;
   FXIconPtr icon_folder_big;
+  FXIconPtr icon_image_small;
+  FXIconPtr icon_image_big;
 protected:
   GMFileSelector(){}
 private:
@@ -280,6 +282,14 @@ void GMFileSelector::getSelectedFiles(FXStringList & files) {
 
 
 
+static const FXchar * const imagetypes[]={
+  "png",";Portable Network Graphics",
+  "jpg",";JPEG",
+  "jpeg",";JPEG",
+  "bmp",";BMP",
+  "gif",";GIF"
+  };
+
 static const FXchar * const filetypes[]={
   "mp3",";MPEG-1 Audio Layer 3",
   "ogg",";Ogg Vorbis",
@@ -310,6 +320,8 @@ void GMFileSelector::initFileDict() {
   GMIconTheme::instance()->loadMedium(icon_file_big,"text-x-generic",backcolor);
   GMIconTheme::instance()->loadSmall(icon_audio_small,"audio-x-generic",backcolor);
   GMIconTheme::instance()->loadMedium(icon_audio_big,"audio-x-generic",backcolor);
+  GMIconTheme::instance()->loadSmall(icon_image_small,"image-x-generic",backcolor);
+  GMIconTheme::instance()->loadMedium(icon_image_big,"image-x-generic",backcolor);
   GMIconTheme::instance()->loadSmall(icon_folder_small,"folder",backcolor);
   GMIconTheme::instance()->loadMedium(icon_folder_big,"folder",backcolor);
 
@@ -320,6 +332,15 @@ void GMFileSelector::initFileDict() {
     assoc = filedict->replace(FXString(filetypes[i]).upper().text(),filetypes[i+1]);
     assoc->bigicon  = icon_audio_big;
     assoc->miniicon = icon_audio_small;
+    }
+
+  for (FXuint i=0;i<ARRAYNUMBER(imagetypes);i+=2) {
+    assoc = filedict->replace(imagetypes[i],imagetypes[i+1]);
+    assoc->bigicon  = icon_image_big;
+    assoc->miniicon = icon_image_small;
+    assoc = filedict->replace(FXString(filetypes[i]).upper().text(),imagetypes[i+1]);
+    assoc->bigicon  = icon_image_big;
+    assoc->miniicon = icon_image_small;
     }
 
   assoc = filedict->replace(FXFileDict::defaultFileBinding,";");
