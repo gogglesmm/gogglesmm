@@ -98,7 +98,7 @@ FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
   }
 
 
-FXbool gm_meta_jpeg(const FXuchar * data,FXival size,GMImageInfo & info) {
+FXbool gm_meta_jpg(const FXuchar * data,FXival size,GMImageInfo & info) {
   const FXuchar * chunk  = data + 2;
   FXival   nbytes = size - 2;
   FXuchar  marker;
@@ -352,8 +352,8 @@ FXbool gm_meta_gif(const FXuchar * data,FXival size,GMImageInfo & info) {
 GMCover::GMCover() : data(NULL),size(0),type(0) {
   }
 
-GMCover::GMCover(const void * ptr,FXuint len,FXuint t,const FXString & label,FXbool owned) : 
-  data(NULL), 
+GMCover::GMCover(const void * ptr,FXuint len,FXuint t,const FXString & label,FXbool owned) :
+  data(NULL),
   size(len),
   description(label),
   type(t) {
@@ -377,9 +377,9 @@ GMCover::~GMCover() {
 FXbool GMCover::getImageInfo(GMImageInfo & ii) {
   if (info.width==0 && info.height==0) {
     FXbool success = false;
-    switch(fileType()) {    
+    switch(fileType()) {
       case FILETYPE_PNG: success = gm_meta_png(data,size,info); break;
-      case FILETYPE_JPG: success = gm_meta_jpeg(data,size,info); break;
+      case FILETYPE_JPG: success = gm_meta_jpg(data,size,info); break;
       case FILETYPE_BMP: success = gm_meta_bmp(data,size,info); break;
       case FILETYPE_GIF: success = gm_meta_gif(data,size,info); break;
       default          : break;
@@ -388,11 +388,11 @@ FXbool GMCover::getImageInfo(GMImageInfo & ii) {
     }
 
   if (info.width>0 && info.height>0) {
-    info=ii;
-    return true;    
+    ii=info;
+    return true;
     }
 
-  return false;  
+  return false;
   }
 
 
