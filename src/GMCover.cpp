@@ -62,14 +62,15 @@ FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
       FXuint chunk_length = MSB_UINT(chunk);
 
       // IHDR chunk
-      if (compare((const FXchar*)chunk,"IHDR",4)==0) {
+      if (compare((const FXchar*)(chunk+4),"IHDR",4)==0) {
+              
         if (chunk_length!=13)
           return false;
 
-        info.width     = MSB_UINT(chunk+16);
-        info.height    = MSB_UINT(chunk+20);
-        FXuchar depth  = chunk[24];
-        FXuchar color  = chunk[24];
+        info.width     = MSB_UINT(chunk+8);
+        info.height    = MSB_UINT(chunk+12);
+        FXuchar depth  = chunk[16];
+        FXuchar color  = chunk[17];
 
         switch(color) {
           case PNG_TYPE_GRAYSCALE           : info.bps = depth;   break;
@@ -77,14 +78,14 @@ FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
           case PNG_TYPE_PALETTE             : info.bps = 24;      break;
           case PNG_TYPE_GRAYSCALE_WITH_ALPHA: info.bps = depth*2; break;
           case PNG_TYPE_TRUECOLOR_WITH_ALPHA: info.bps = depth*4; break;
-          default                           : return false;       break;
+          default                           :  return false;       break;
           }
 
         if (color!=PNG_TYPE_PALETTE)
           return true;
 
         }
-      else if (compare((const FXchar*)chunk,"PLTE",4)==0) {
+      else if (compare((const FXchar*)(chunk+4),"PLTE",4)==0) {
         info.colors = chunk_length / 3; /// 3 bytes for each palette entry
         return true;
         }
