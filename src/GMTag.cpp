@@ -84,26 +84,30 @@ public:
 
 
   void encode(const FXuchar * in,FXint len) {
-    FXint rindex=0;
+    if (len) {
+      FXint rindex=0;
 
-    if (nbuffer) {
-      for (rindex=0;(nbuffer<3)&&(rindex<len);rindex++)
-        buffer[nbuffer++]=in[rindex];
+      if (nbuffer) {
+        for (rindex=0;(nbuffer<3)&&(rindex<len);rindex++)
+          buffer[nbuffer++]=in[rindex];
 
-      if (nbuffer<3)
-        return;
+        if (nbuffer<3)
+          return;
 
-      encodeChunks(buffer,3);
-      len-=rindex;
-      nbuffer=0;
+        encodeChunks(buffer,3);
+        len-=rindex;
+        nbuffer=0;
+        }
+
+      FXint r = len % 3;
+      FXint n = len - r;
+      if (n) encodeChunks(in+rindex,n);
+
+      for (int i=0;i<r;i++)
+        buffer[i]=in[rindex+n+i];
+
+      nbuffer=r;    
       }
-
-    FXint r = len % 3;
-    FXint n = len - r;
-    if (n) encodeChunks(in+rindex,n);
-
-    for (int i=0;i<r;i++)
-      buffer[i]=in[rindex+n+i];
     }
 
   void finish() {
@@ -114,7 +118,7 @@ public:
       out[index++]=base64[(buffer[0]>>2)];
       if (nbuffer>1) {
         out[index++]=base64[((buffer[0]&0x3)<<4)|(buffer[1]>>4)];
-        out[index++]=base64[((buffer[1]&0xf)<<2)|buffer[2]>>6];
+        out[index++]=base64[((buffer[1]&0xf)<<2)];
         out[index++]='=';
         }
       else {
@@ -124,6 +128,10 @@ public:
         }
       }
     }
+
+
+
+
 
   FXString & getOutput() { return out; }
   };
@@ -171,30 +179,50 @@ static FXbool gm_uint32_be(const FXuchar * block,FXuint & v) {
   return true;
   }
 
-//// Parse FLAC picture block from buffer
-static GMCover * xiph_parse_flac_picture_block(const FXuchar * buffer,FXint len) {
-  FlacPictureBlock picture;
+
+static FXbool xiph_decode_bytevector(const TagLib::ByteVector & bytevector,FXuchar *& buffer,FXint & length) {
+  if (bytevector.size()) {
+    if (length==0)
+      length = bytevector.size();
+
+    allocElms(buffer,length);
+    memcpy(buffer,bytevector.data(),length);
+    if (gm_decode_base64(buffer,length))
+      return true;
+
+    freeElms(buffer);
+    }
+  return false;
+  }
+
+static FXbool xiph_decode_picture(const FXuchar * buffer,FXint len,FlacPictureBlock & picture,FXbool full=true){
   const FXuchar * p = buffer;
+  const FXuchar * end = buffer+len;
   FXuint sz;
+
   gm_uint32_be(p,picture.type);
 
-  /// Skip useless icons
-  if (picture.type==GMCover::FileIcon || picture.type==GMCover::OtherFileIcon ||
-      picture.type==GMCover::Fish) {
-    return NULL;
-    }
+  if (!full)
+    return true;
+
   p+=4;
 
   gm_uint32_be(p,sz);
-  picture.mimetype.length(sz);
-  picture.mimetype.assign((const FXchar*)p+4,sz);
-
+  if (sz) {
+    if (p+4+sz>end) 
+      return false;
+    picture.mimetype.length(sz);
+    picture.mimetype.assign((const FXchar*)p+4,sz);
+    }
   p+=(4+sz);
 
   gm_uint32_be(p,sz);
-  picture.description.length(sz);
-  picture.description.assign((const FXchar*)p+4,sz);
-
+  if (sz) {
+    if (p+4+sz>end) 
+      return false;
+    picture.description.length(sz);
+    picture.description.assign((const FXchar*)p+4,sz);
+    }
   p+=(4+sz);
 
   gm_uint32_be(p+0,picture.width);
@@ -203,32 +231,49 @@ static GMCover * xiph_parse_flac_picture_block(const FXuchar * buffer,FXint len)
   gm_uint32_be(p+12,picture.ncolors);
   gm_uint32_be(p+16,picture.data_size);
 
-  if (picture.data_size>0) {
+  if (picture.data_size>0 && (p+20+picture.data_size)==end) {
     picture.data = (FXuchar*) p+20;
-    if (picture.data+picture.data_size>buffer+len)
-      return NULL;
-    return new GMCover(picture.data,picture.data_size,picture.type,picture.description);
+    return true;
     }
-  return NULL;
+  return false;
   }
 
 
-/// Load xiph cover
-static GMCover * xiph_load_cover(const TagLib::ByteVector & tbuf) {
-  GMCover * cover = NULL;
-  if (tbuf.size()) {
-    FXuchar * buffer=NULL;
-    FXint   len=tbuf.size();
+static FXint xiph_check_cover(const TagLib::ByteVector & bytevector){
+  FlacPictureBlock picture;
+  FXint     covertype = -1;
+  FXuchar * buffer = NULL;
+  FXint     length = 8; // decode only 8 bytes
 
-    allocElms(buffer,len);
-    memcpy(buffer,tbuf.data(),len);
-    if (gm_decode_base64(buffer,len)) {
-      cover = xiph_parse_flac_picture_block(buffer,len);
+  if (xiph_decode_bytevector(bytevector,buffer,length)) {
+    if (xiph_decode_picture(buffer,length,picture,false)) {
+      covertype = picture.type;
+      }
+    freeElms(buffer);
+    }
+  return covertype;
+  }
+
+static GMCover * xiph_load_cover(const TagLib::ByteVector & bytevector) {
+  FlacPictureBlock picture;
+  GMCover * cover  = NULL;
+  FXuchar * buffer = NULL;
+  FXint     length = 0;
+  if (xiph_decode_bytevector(bytevector,buffer,length)){
+    if (xiph_decode_picture(buffer,length,picture)) {
+      cover = new GMCover(picture.data,picture.data_size,picture.type,picture.description);
       }
     freeElms(buffer);
     }
   return cover;
   }
+
+
+
+
+
+
+
 
 static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame) {
   FXString mime = frame->mimeType().toCString(true);
@@ -848,8 +893,11 @@ GMCover * GMFileTag::getFrontCover() const {
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        GMCover * cover = xiph_load_cover((*it).data(TagLib::String::UTF8));
-        if (cover) return cover;
+        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::UTF8);
+        if (xiph_check_cover(bytevector)==GMCover::FrontCover){
+          GMCover* cover = xiph_load_cover(bytevector);
+          if (cover) return cover;
+         }
         }
       }
     }
@@ -880,8 +928,12 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        GMCover * cover = xiph_load_cover((*it).data(TagLib::String::UTF8));
-        if (cover) covers.append(cover);
+        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::UTF8);
+        FXint type = xiph_check_cover(bytevector);
+        if (type>=0 && type!=GMCover::FileIcon && type!=GMCover::OtherFileIcon && type!=GMCover::Fish){
+          GMCover * cover = xiph_load_cover((*it).data(TagLib::String::UTF8));
+          if (cover) covers.append(cover);
+          }
         }
       }
     }
@@ -915,7 +967,7 @@ void GMFileTag::replaceCover(GMCover*cover){
     }
   else if (id3v2) {
     id3v2->removeFrames("APIC");
-    }      
+    }
   else if (xiph) {
     xiph->removeField("METADATA_BLOCK_PICTURE");
     }
