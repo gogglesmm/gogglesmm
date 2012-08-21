@@ -141,10 +141,9 @@ FXint CoverLoader::run() {
     fraction = (i+1) / ((double)albums.no());
     taskmanager->setStatus(FXString::value("Loading Covers %d%%",(FXint)(100.0*fraction)));
     cover = GMCover::fromTag(albums[i].path);
-
     if (cover==NULL)
       cover = GMCover::fromPath(FXPath::directory(albums[i].path));
-      
+
     cache.insertCover(albums[i].id,compress(GMCover::toImage(cover,cache.getCoverSize(),1)));
     }
   if (processing) cache.save();
@@ -258,13 +257,16 @@ FXString GMCoverCache::getCacheFile() const {
   }
 
 void GMCoverCache::adopt(GMCoverCache & src) {
-
-  clear(); /// clear
-  reset(); /// reset buffers
-
+  // To force reloading of cover art, set user data to 0
+  // We can't use reset() here since cover art will be reused in the next onPaint
+  // by the calls reset / markCover. 
+  for (FXint i=0;i<buffers.no();i++){
+    buffers[i]->setUserData((void*)(FXival)0);
+    }
+    
+  clear(); 
   covers.adopt(src.covers);
   gm_copy_hash(src.map,map);
-
   src.covers.clear();
   src.map.clear();
   }
@@ -310,7 +312,7 @@ void GMCoverCache::markCover(FXint id) {
 void GMCoverCache::reset() {
   for (FXint i=0,index;i<buffers.no();i++){
     index=(FXint)(FXival)buffers[i]->getUserData();
-    buffers[i]->setUserData((void*)(FXival)-index);
+    if (index>0) buffers[i]->setUserData((void*)(FXival)(-index));
     }
   }
 
@@ -323,11 +325,11 @@ FXImage* GMCoverCache::getCoverImage(FXint id) {
     index=(FXint)(FXival)buffers[i]->getUserData();
     if (index==id) return buffers[i];
     }
-
+    
   /// find empty
   for (i=0;i<buffers.no();i++){
     index=(FXint)(FXival)buffers[i]->getUserData();
-    if (index<0) {
+    if (index<=0) {
       buffers[i]->setUserData((void*)(FXival)id);
       image=buffers[i];
       break;
