@@ -236,32 +236,24 @@ void gm_make_absolute_path(const FXString & path,FXStringList & urls) {
 static FXbool gm_launch_program(const FXchar * const * programs,const FXString & url) {
   FXString path = FXSystem::getExecPath();
   FXString exec;
-
   for (int i=0;programs[i]!=NULL;i++){
     exec = FXPath::search(path,programs[i]);
-    if (!exec.empty()) break;
-    }
-
-  if (exec.empty()) return false;
-
-  exec += " " + FXPath::enquote(url);
-
-  pid_t pid = fork();
-  if (pid==-1){ /// Failure delivered to Parent Process
-      return false;
-      }
-  else if (pid==0) { /// Child Process
-      int i = sysconf(_SC_OPEN_MAX);
-      while (--i >= 3) {
-        close(i);
+    if (!exec.empty()) {
+      pid_t pid = fork();
+      if (pid==0) {
+        int i = sysconf(_SC_OPEN_MAX);
+        while (--i >= 3) {
+          close(i);
+          }
+        execl(exec.text(),programs[i],url.text(),NULL);
+        exit(EXIT_FAILURE);
         }
-      execlp("/bin/sh", "sh", "-c",exec.text(),(char *)0);
-      exit(EXIT_FAILURE);
+      else if (pid==-1) 
+        return false;
+      return true;
       }
-  else { /// Parent Process
-    return true;
-      }
-  return true;
+    }
+  return false;
   }
 
 FXbool gm_open_browser(const FXString & url) {
