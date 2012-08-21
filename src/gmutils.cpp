@@ -274,6 +274,13 @@ FXbool gm_open_folder(const FXString & folder) {
   return gm_launch_program(programs,folder);
   }
 
+FXbool gm_image_search(const FXString & s) {
+  #define ENCODE_THESE "<>#%{}|^~[]`\"?$&'*,;="   // Encode these for pathnames
+  FXString search = FXURL::encode(s,ENCODE_THESE);
+  FXString query = "http://www.google.com/search?&tbm=isch&as_epq=" + search;
+  return gm_open_browser(query);
+  }
+
 
 void gm_copy_hash(FXHash & from,FXHash & to) {
   for (FXuint i=0;i<from.size();i++){

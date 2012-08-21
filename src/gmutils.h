@@ -34,6 +34,8 @@ extern FXbool gm_open_folder(const FXString & folder);
 
 extern FXbool gm_open_browser(const FXString & folder);
 
+extern FXbool gm_image_search(const FXString & query);
+
 extern FXString gm_url_encode(const FXString& url);
 
 extern FXString gm_make_url(const FXString&);
