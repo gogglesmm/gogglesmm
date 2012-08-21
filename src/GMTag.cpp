@@ -106,7 +106,7 @@ public:
       for (int i=0;i<r;i++)
         buffer[i]=in[rindex+n+i];
 
-      nbuffer=r;    
+      nbuffer=r;
       }
     }
 
@@ -209,7 +209,7 @@ static FXbool xiph_decode_picture(const FXuchar * buffer,FXint len,FlacPictureBl
 
   gm_uint32_be(p,sz);
   if (sz) {
-    if (p+4+sz>end) 
+    if (p+4+sz>end)
       return false;
     picture.mimetype.length(sz);
     picture.mimetype.assign((const FXchar*)p+4,sz);
@@ -218,7 +218,7 @@ static FXbool xiph_decode_picture(const FXuchar * buffer,FXint len,FlacPictureBl
 
   gm_uint32_be(p,sz);
   if (sz) {
-    if (p+4+sz>end) 
+    if (p+4+sz>end)
       return false;
     picture.description.length(sz);
     picture.description.assign((const FXchar*)p+4,sz);
@@ -244,7 +244,6 @@ static FXint xiph_check_cover(const TagLib::ByteVector & bytevector){
   FXint     covertype = -1;
   FXuchar * buffer = NULL;
   FXint     length = 8; // decode only 8 bytes
-
   if (xiph_decode_bytevector(bytevector,buffer,length)) {
     if (xiph_decode_picture(buffer,length,picture,false)) {
       covertype = picture.type;
@@ -395,6 +394,13 @@ FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
 
 FXbool GMFileTag::save() {
   return file->save();
+  }
+
+void GMFileTag::xiph_add_field(const FXchar * field,const FXString & value) {
+  FXASSERT(field);
+  FXASSERT(xiph);
+  if (!value.empty())
+    xiph->addField(field,TagLib::String(value.text(),TagLib::String::UTF8),false);
   }
 
 void GMFileTag::xiph_update_field(const FXchar * field,const FXString & value) {
@@ -1023,7 +1029,7 @@ void GMFileTag::appendCover(GMCover* cover){
 #endif
       base64.encode(cover->data,cover->size);
       base64.finish();
-      xiph_update_field("METADATA_BLOCK_PICTURE",base64.getOutput());
+      xiph_add_field("METADATA_BLOCK_PICTURE",base64.getOutput());
       }
     }
   else if (id3v2) {

@@ -83,6 +83,7 @@ protected:
   void xiph_get_field(const FXchar * field,FXStringList &) const;
   void xiph_update_field(const FXchar * field,const FXString & value);
   void xiph_update_field(const FXchar * field,const FXStringList & value);
+  void xiph_add_field(const FXchar * field,const FXString & value);
 
   void mp4_get_field(const FXchar * field,FXString &) const;
   void mp4_get_field(const FXchar * field,FXStringList &) const;
@@ -139,7 +140,7 @@ public:
   FXint getCovers(GMCoverList &) const;
 
   void appendCover(GMCover*);
-  
+
   void replaceCover(GMCover*);
 
 
