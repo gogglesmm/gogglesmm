@@ -82,6 +82,8 @@ public:
     ID_QUEUE_ARTIST,
     ID_OPEN_FOLDER,
     ID_EDIT_RATING,
+    ID_SEARCH_COVER,
+    ID_SEARCH_COVER_ALBUM,
     ID_LAST
     };
 public:
@@ -108,6 +110,7 @@ public:
   long onCmdOpenFolder(FXObject*,FXSelector,void*);
   long onCmdEditRating(FXObject*,FXSelector,void*);
   long onDndImportFiles(FXObject*,FXSelector,void*);
+  long onCmdSearchCover(FXObject*,FXSelector,void*);
 public:
   GMDatabaseSource(GMTrackDatabase * db);
 

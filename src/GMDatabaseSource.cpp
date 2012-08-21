@@ -84,7 +84,7 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
 //  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_ARTIST,GMDatabaseSource::onCmdEditArtist),
 //  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_ALBUM,GMDatabaseSource::onCmdEditAlbum),
   FXMAPFUNCS(SEL_COMMAND,GMDatabaseSource::ID_QUEUE_TRACK,GMDatabaseSource::ID_QUEUE_ARTIST,GMDatabaseSource::onCmdQueue),
-
+  FXMAPFUNCS(SEL_COMMAND,GMDatabaseSource::ID_SEARCH_COVER,GMDatabaseSource::ID_SEARCH_COVER_ALBUM,GMDatabaseSource::onCmdSearchCover),
 
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_TRACK,GMDatabaseSource::onCmdEditTrack),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_RATING,GMDatabaseSource::onCmdEditRating),
@@ -117,7 +117,6 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
   FXMAPFUNC(SEL_UPDATE,GMDatabaseSource::ID_PASTE,GMDatabaseSource::onUpdPaste),
   FXMAPFUNC(SEL_TIMEOUT,GMDatabaseSource::ID_TRACK_PLAYED,GMDatabaseSource::onCmdTrackPlayed),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_OPEN_FOLDER,GMDatabaseSource::onCmdOpenFolder),
-
 
   FXMAPFUNC(SEL_CHORE,GMDatabaseSource::ID_IMPORT_FILES,GMDatabaseSource::onDndImportFiles)
   };
@@ -285,6 +284,7 @@ FXbool GMDatabaseSource::album_context_menu(FXMenuPane * pane){
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ALBUM);
     }
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ALBUM);
+  new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),NULL,this,ID_SEARCH_COVER_ALBUM);
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove associated tracks from library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_ALBUM);
   return true;
@@ -301,8 +301,12 @@ FXbool GMDatabaseSource::track_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,"Export\t\tCopy tracks to destination.",GMIconTheme::instance()->icon_export,this,ID_EXPORT_TRACK);
   new FXMenuSeparator(pane);
 
-  if (GMPlayerManager::instance()->getTrackView()->numTrackSelected()==1)
+  if (GMPlayerManager::instance()->getTrackView()->numTrackSelected()==1){
     new GMMenuCommand(pane,"Open Folder Location\t\tOpen Folder Location.",NULL,this,ID_OPEN_FOLDER);
+    new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),NULL,this,ID_SEARCH_COVER); 
+    new FXMenuSeparator(pane);
+    }
+
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove track(s) from library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_TRACK);
 
 /*
@@ -1050,7 +1054,7 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
   catch(GMDatabaseException & e){
     return false;
     }
-  GM_TICKS_END();  
+  GM_TICKS_END();
   return true;
   }
 
@@ -1665,6 +1669,22 @@ long GMDatabaseSource::onCmdOpenFolder(FXObject*,FXSelector,void*){
   GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
   if (tracks.no()==1) {
     gm_open_folder(FXPath::directory(db->getTrackFilename(tracks[0])));
+    }
+  return 1;
+  }
+
+long GMDatabaseSource::onCmdSearchCover(FXObject*,FXSelector sel,void*){
+  FXIntList tracks;
+  GMTrack   info;
+
+  if (FXSELID(sel)==ID_SEARCH_COVER)
+    GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+  else
+    GMPlayerManager::instance()->getTrackView()->getTracks(tracks);
+
+  if (tracks.no()) {
+    db->getTrack(tracks[0],info);
+    gm_image_search(info.album_artist + "+" + info.album);
     }
   return 1;
   }
