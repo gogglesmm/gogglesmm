@@ -75,13 +75,13 @@ public:
   FXString    description;
   FXuchar     type;
 public:
-  // Empty Cover	
+  // Empty Cover
   GMCover();
 
-  /// Construct Cover 
+  /// Construct Cover
   GMCover(const void * data,FXuint sz,FXuint t=GMCover::Other,const FXString & label=FXString::null,FXbool owned=false);
 
-  /// Destructor	
+  /// Destructor
   ~GMCover();
 
   /// Return Image Information
@@ -99,9 +99,8 @@ public:
   FXbool save(const FXString & path);
 public:
 
-#if 0
   static FXint fromTag(const FXString & mrl,GMCoverList & list);
-
+#if 0
   static FXint fromPath(const FXString & mrl,GMCoverList & list);
 #endif
 

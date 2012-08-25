@@ -63,7 +63,7 @@ FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
 
       // IHDR chunk
       if (compare((const FXchar*)(chunk+4),"IHDR",4)==0) {
-              
+
         if (chunk_length!=13)
           return false;
 
@@ -312,12 +312,14 @@ FXbool gm_meta_gif(const FXuchar * data,FXival size,GMImageInfo & info) {
 
   // Skip Global Colormap
   if(flagbits&0x80){
-    store.position(ncolors*3);
+    store.position(ncolors*3,FXFromCurrent);
     }
 
   while(1){
     store >> c1;
     if(c1==TAG_EXTENSION){
+      // Read extension code
+      store >> c2;
       do{
         store >> sbsize;
         store.position(sbsize,FXFromCurrent);
@@ -451,18 +453,9 @@ FXbool GMCover::save(const FXString & filename) {
   return false;
   }
 
-#if 0
 FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
   GM_TICKS_START();
   FXString extension = FXPath::extension(mrl);
-
-#if TAGLIB_VERSION < MKVERSION(1,7,0)
-  if (comparecase(extension,"flac")==0){
-    flac_load_covers(mrl,covers,scale,crop);
-    if (covers.no()) return (covers.no());
-    }
-#endif
-
   GMFileTag tags;
   if (!tags.open(mrl,FILETAG_TAGS)) {
     GM_TICKS_END();
@@ -472,7 +465,6 @@ FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
   GM_TICKS_END();
   return covers.no();
   }
-#endif
 
 #if 0 // FIXME
 FXint GMCover::fromPath(const FXString & path,GMCoverList & list) {
