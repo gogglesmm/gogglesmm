@@ -22,13 +22,13 @@
 namespace ap {
 
 enum {
-  DeviceNone    = -1,
-  DeviceAlsa    = 0,
-  DeviceOSS     = 1,
-  DevicePulse   = 2,
-  DeviceRSound  = 3,
-  DeviceJack    = 4,
-  DeviceWav     = 5,
+  DeviceNone    = 0,
+  DeviceAlsa    = 1,
+  DeviceOSS     = 2,
+  DevicePulse   = 3,
+  DeviceRSound  = 4,
+  DeviceJack    = 5,
+  DeviceWav     = 6,
   DeviceLast,
   };
 
@@ -88,7 +88,7 @@ class GMAPI OutputConfig {
 public:
   AlsaConfig  alsa;
   OSSConfig   oss;
-  FXchar      device;
+  FXuchar     device;
   FXuchar     replaygain;
 public:
   OutputConfig();
@@ -103,7 +103,7 @@ public:
   static FXuint devices();
   };
 
-#define AP_HAS_PLUGIN(devices,plugin) (devices&(1<<plugin))
+#define AP_HAS_PLUGIN(devices,plugin) (devices&(1<<(plugin-1)))
 
 
 }

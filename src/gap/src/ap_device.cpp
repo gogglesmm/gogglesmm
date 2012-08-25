@@ -28,6 +28,7 @@ DeviceConfig::~DeviceConfig(){
   }
 
 static const FXchar * plugin_names[DeviceLast]={
+  "none",
   "alsa",
   "oss",
   "pulse",
@@ -105,43 +106,45 @@ OutputConfig::OutputConfig() {
   }
 
 
+#define AP_ENABLE_PLUGIN(plugins,device) (plugins|=(1<<(device-1)))
+
 
 FXuint OutputConfig::devices() {
   FXuint plugins=0;
 #ifdef HAVE_ALSA_PLUGIN
   if (ap_has_plugin(DeviceAlsa))
-    plugins|=(1<<DeviceAlsa);
+    AP_ENABLE_PLUGIN(plugins,DeviceAlsa);
 #endif
 #ifdef HAVE_OSS_PLUGIN
   if (ap_has_plugin(DeviceOSS))
-    plugins|=(1<<DeviceOSS);
+    AP_ENABLE_PLUGIN(plugins,DeviceOSS);
 #endif
 #ifdef HAVE_PULSE_PLUGIN
   if (ap_has_plugin(DevicePulse))
-    plugins|=(1<<DevicePulse);
+    AP_ENABLE_PLUGIN(plugins,DevicePulse);
 #endif
 #ifdef HAVE_RSOUND_PLUGIN
   if (ap_has_plugin(DeviceRSound))
-    plugins|=(1<<DeviceRSound);
+    AP_ENABLE_PLUGIN(plugins,DeviceRSound);
 #endif
 #ifdef HAVE_JACK_PLUGIN
   if (ap_has_plugin(DeviceJack))
-    plugins|=(1<<DeviceJack);
+    AP_ENABLE_PLUGIN(plugins,DeviceJack);
 #endif
   if (ap_has_plugin(DeviceWav))
-    plugins|=(1<<DeviceWav);
+    AP_ENABLE_PLUGIN(plugins,DeviceWav);
   return plugins;
   }
 
 FXString OutputConfig::plugin() const {
   if (device>=DeviceAlsa && device<DeviceLast)
-    return plugin_names[(FXuchar)device];
+    return plugin_names[device];
   else
     return FXString::null;
   }
 
 void OutputConfig::load(FXSettings & settings) {
-  FXString output=settings.readStringEntry("engine","output",plugin_names[(FXuchar)device]);
+  FXString output=settings.readStringEntry("engine","output",plugin_names[device]);
   for (FXint i=DeviceAlsa;i<DeviceLast;i++) {
     if (output==plugin_names[i]){
       device=i;
@@ -161,7 +164,7 @@ void OutputConfig::save(FXSettings & settings) const {
 */
 
   if (device>=DeviceAlsa && device<DeviceLast)
-    settings.writeStringEntry("engine","output",plugin_names[(FXuchar)device]);
+    settings.writeStringEntry("engine","output",plugin_names[device]);
   else
     settings.deleteEntry("engine","output");
 
