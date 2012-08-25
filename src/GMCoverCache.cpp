@@ -56,11 +56,11 @@ void FXIntMap::load(FXStream & store) {
 class GMCompressedImage {
 public:
   FXuchar * buffer;
-  FXuval    len;
+  FXuint    len;
 public:
   GMCompressedImage() : buffer(NULL),len(0) {}
 public:
-  GMCompressedImage(const FXuchar * b,FXuval l) : buffer(NULL), len(l) {
+  GMCompressedImage(const FXuchar * b,FXuint l) : buffer(NULL), len(l) {
     allocElms(buffer,len);
     memcpy(buffer,b,len);
     }
@@ -259,12 +259,12 @@ FXString GMCoverCache::getCacheFile() const {
 void GMCoverCache::adopt(GMCoverCache & src) {
   // To force reloading of cover art, set user data to 0
   // We can't use reset() here since cover art will be reused in the next onPaint
-  // by the calls reset / markCover. 
+  // by the calls reset / markCover.
   for (FXint i=0;i<buffers.no();i++){
     buffers[i]->setUserData((void*)(FXival)0);
     }
-    
-  clear(); 
+
+  clear();
   covers.adopt(src.covers);
   gm_copy_hash(src.map,map);
   src.covers.clear();
@@ -325,7 +325,7 @@ FXImage* GMCoverCache::getCoverImage(FXint id) {
     index=(FXint)(FXival)buffers[i]->getUserData();
     if (index==id) return buffers[i];
     }
-    
+
   /// find empty
   for (i=0;i<buffers.no();i++){
     index=(FXint)(FXival)buffers[i]->getUserData();
@@ -373,7 +373,7 @@ void GMCoverCache::refresh(GMTrackDatabase * database){
     }
   }
 
-#define COVERTHUMBS_CACHE_FILE_VERSION 20110920
+#define COVERTHUMBS_CACHE_FILE_VERSION 20120824
 
 void GMCoverCache::save() const {
   const FXuint version=COVERTHUMBS_CACHE_FILE_VERSION;
