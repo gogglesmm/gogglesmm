@@ -10,9 +10,9 @@
 
 # API version
 GAP_MAJOR=0             # Increase whenever we decide to break the API.
-GAP_MINOR=9             # Increase for regular release
+GAP_MINOR=10            # Increase for regular release
 GAP_ABI_RELEASE=0       # Increase for every release, reset to 0 when GAP_ABI is change
-GAP_ABI=5               # Increase whenever we break Application Binary Interface
+GAP_ABI=6               # Increase whenever we break Application Binary Interface
 
 # Settings
 #---------------------------
@@ -35,12 +35,13 @@ OPTION_PLUGIN_OGG=1
 OPTION_PLUGIN_ALSA=1
 OPTION_PLUGIN_OSS=1
 OPTION_PLUGIN_PULSE=1
-OPTION_PLUGIN_JACK=1
-OPTION_PLUGIN_RSOUND=1
+OPTION_PLUGIN_JACK=0
+OPTION_PLUGIN_RSOUND=0
 OPTION_PLUGIN_AVCODEC=0 # disabled for now
 OPTION_PLUGIN_CDDA=1
-OPTION_PLUGIN_MMS=1 # disabled for now
+OPTION_PLUGIN_MMS=0 # disabled for now
 OPTION_PLUGIN_SMB=1
+#OPTION_PLUGIN_PROXY=1
 
 
 # Default Compiler Settings
