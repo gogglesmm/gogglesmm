@@ -117,7 +117,7 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
   FXMAPFUNC(SEL_UPDATE,GMDatabaseSource::ID_PASTE,GMDatabaseSource::onUpdPaste),
   FXMAPFUNC(SEL_TIMEOUT,GMDatabaseSource::ID_TRACK_PLAYED,GMDatabaseSource::onCmdTrackPlayed),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_OPEN_FOLDER,GMDatabaseSource::onCmdOpenFolder),
-
+  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_ADD_COVER,GMDatabaseSource::onCmdAddCover),
   FXMAPFUNC(SEL_CHORE,GMDatabaseSource::ID_IMPORT_FILES,GMDatabaseSource::onDndImportFiles)
   };
 
@@ -297,13 +297,15 @@ FXbool GMDatabaseSource::track_context_menu(FXMenuPane * pane){
     }
 
   new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Track Information."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_TRACK);
+  new GMMenuCommand(pane,fxtr("Set Cover…\t\t"),NULL,this,GMDatabaseSource::ID_ADD_COVER);
+
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy track(s) to clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_TRACK);
   new GMMenuCommand(pane,"Export\t\tCopy tracks to destination.",GMIconTheme::instance()->icon_export,this,ID_EXPORT_TRACK);
   new FXMenuSeparator(pane);
 
   if (GMPlayerManager::instance()->getTrackView()->numTrackSelected()==1){
     new GMMenuCommand(pane,"Open Folder Location\t\tOpen Folder Location.",NULL,this,ID_OPEN_FOLDER);
-    new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),NULL,this,ID_SEARCH_COVER); 
+    new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),NULL,this,ID_SEARCH_COVER);
     new FXMenuSeparator(pane);
     }
 
@@ -484,7 +486,7 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
       }
     query+=";";
 
-    fxmessage("q: %s\n",query.text());
+    //fxmessage("q: %s\n",query.text());
 
     GM_TICKS_START();
     db->execute(query);
@@ -1232,6 +1234,7 @@ long GMDatabaseSource::onCmdExportTracks(FXObject*,FXSelector sel,void*){
   if (dialog.execute()){
 
 
+
 /*
     FXStringList files;
 
@@ -1265,6 +1268,166 @@ long GMDatabaseSource::onCmdExportTracks(FXObject*,FXSelector sel,void*){
 
 
 
+    }
+  return 1;
+  }
+
+#include "GMCover.h"
+
+
+
+
+class GMCoverTask : public GMTask {
+public:
+  enum {
+    COVER_APPEND       = 0,
+    COVER_REPLACE      = 1,
+    COVER_REPLACE_ALL  = 2,
+    };
+protected:
+  GMTrackDatabase * database;
+  FXIntList         tracks;
+  FXStringList      files;
+  GMCover*          cover;
+  FXint             mode;
+protected:
+  FXint run() {
+    try {
+      database->beginTask();
+      for (FXint i=0;i<files.no() && processing;i++) {
+        if (database->interrupt)
+          database->waitTask();
+
+        taskmanager->setStatus(FXString::value("Writing Cover %d/%d..",i+1,tracks.no()));
+
+        GMFileTag tag;
+        if (tag.open(files[i],FILETAG_TAGS)) {
+          switch (mode) {
+            case COVER_APPEND     : tag.appendCover(cover);  break;
+            case COVER_REPLACE    : tag.replaceCover(cover); break;
+            case COVER_REPLACE_ALL: tag.replaceCover(cover); break; // FIXME
+            default               : break;
+            }
+          tag.save();
+          database->setTrackImported(tracks[i],FXThread::time());
+          }
+        }
+      database->commitTask();
+      }
+    catch(GMDatabaseException&) {
+      database->rollbackTask();
+      return 1;
+      }
+    return 0;
+    }
+public:
+  GMCoverTask(GMTrackDatabase*db,const FXIntList & t,const FXStringList & f,GMCover * c,FXint m) : database(db), tracks(t), files(f), cover(c),mode(m) {
+    }
+  ~GMCoverTask() {
+    delete cover;
+    }
+  };
+
+
+
+
+
+static const FXchar * const covertypes[]={
+  "Other",
+  "File Icon",
+  "Other File Icon",
+  "Front",
+  "Back",
+  "Leaflet",
+  "Media",
+  "Lead Artist",
+  "Artist",
+  "Conductor",
+  "Band",
+  "Composer",
+  "Lyricist",
+  "Recording Location",
+  "During Recording",
+  "During Perfomance",
+  "Screen Capture",
+  "Fish",
+  "Illustration",
+  "Band Logo",
+  "Publisher Logo"
+  };
+
+
+long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector sel,void*){
+  const FXuint labelstyle=LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT;
+
+  FXIntList tracks;
+  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+
+  const FXchar image_patterns[]="All Images (*.png,*.jpeg,*.jpg,*.bmp,*.gif)";
+
+  GMFileDialog dialog(GMPlayerManager::instance()->getMainWindow(),"Select Cover");
+
+  dialog.setPatternList(image_patterns);
+
+  if (dialog.execute()) {
+    GMCover * cover = GMCover::fromFile(dialog.getFilename());
+    GMImageInfo info;
+    if (cover && cover->getImageInfo(info)) {
+      FXDialogBox confirmdialog(GMPlayerManager::instance()->getMainWindow(),"Add Album Cover",DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
+      FXHorizontalFrame *closebox=new FXHorizontalFrame(&confirmdialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
+      new GMButton(closebox,fxtr("&OK"),NULL,&confirmdialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+      new GMButton(closebox,fxtr("&Cancel"),NULL,&confirmdialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+      new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
+   //   FXHorizontalFrame * main = new FXHorizontalFrame(&confirmdialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,10,10,10);
+      FXVerticalFrame * main = new FXVerticalFrame(&confirmdialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,10,10,10);
+
+      FXImage * image = GMCover::copyToImage(cover,256);
+      FXImageFrame * view = new FXImageFrame(main,image,LAYOUT_FILL|FRAME_LINE);
+      view->setBackColor(FXApp::instance()->getBackColor());
+
+
+      FXMatrix * matrix = new FXMatrix(main,2,MATRIX_BY_COLUMNS|LAYOUT_FILL,0,0,0,0,0,0,4,0);
+
+      new FXLabel(matrix,fxtr("Dimensions:"),NULL,labelstyle);
+      new FXLabel(matrix,FXString::value("%d x %d",info.width,info.height),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
+
+      new FXLabel(matrix,fxtr("Size:"),NULL,labelstyle);
+      new FXLabel(matrix,FXString::value("%d",cover->size,info.height),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
+
+      new FXLabel(matrix,fxtr("Cover Type:"),NULL,labelstyle);
+      GMListBox * list_types = new GMListBox(matrix,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+      for (int i=0;i<ARRAYNUMBER(covertypes);i++)
+        list_types->appendItem(covertypes[i],NULL,(void*)(FXival)i);
+
+      list_types->setNumVisible(9);
+      list_types->setCurrentItem(list_types->findItem("Front"));
+
+      new FXLabel(matrix,fxtr("Description:"),NULL,labelstyle|LAYOUT_FILL_ROW);
+      GMTextField * label = new GMTextField(matrix,20,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN|LAYOUT_FILL);
+
+      new FXLabel(matrix,fxtr("Tag Mode:"),NULL,labelstyle);
+      GMListBox * list_tag = new GMListBox(matrix,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+      list_tag->appendItem("Append",NULL,(void*)(FXival)GMCoverTask::COVER_APPEND);
+      list_tag->appendItem("Replace",NULL,(void*)(FXival)GMCoverTask::COVER_REPLACE);
+      list_tag->appendItem("Replace All",NULL,(void*)(FXival)GMCoverTask::COVER_REPLACE_ALL);
+      list_tag->setNumVisible(3);
+
+      if (confirmdialog.execute()) {
+        FXStringList files;
+        db->getTrackFilenames(tracks,files);
+
+        FXint mode  = (FXint)(FXival)list_tag->getItemData(list_tag->getCurrentItem());
+        cover->type = (FXint)(FXival)list_types->getItemData(list_types->getCurrentItem());
+        cover->description = label->getText();
+
+        GMCoverTask * task = new GMCoverTask(db,tracks,files,cover,mode);
+        task->setTarget(GMPlayerManager::instance());
+        task->setSelector(GMPlayerManager::ID_IMPORT_TASK);
+        GMPlayerManager::instance()->runTask(task);
+        return 1;
+        }
+      }
+    delete cover;
     }
   return 1;
   }
