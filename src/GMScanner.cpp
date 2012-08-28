@@ -684,12 +684,20 @@ void GMSyncTask::syncDirectory(const FXString & path) {
 
   if (options_sync.remove_all) {
     for (FXint i=0;i<list.no() && processing ;i++){
+    
+      if (database->interrupt)
+        database->waitTask();
+    
       dbtracks.remove(list[i].id);
       nchanged++;
       }
     }
   else if (options_sync.remove_missing) {
     for (FXint i=0;i<list.no() && processing ;i++){
+    
+      if (database->interrupt)
+        database->waitTask();
+    
       if (!FXStat::statFile(list[i].filename,stat)){
         dbtracks.remove(list[i].id);
         }
@@ -702,6 +710,10 @@ void GMSyncTask::syncDirectory(const FXString & path) {
     }
   else {
     for (FXint i=0;i<list.no() && processing ;i++){
+
+      if (database->interrupt)
+        database->waitTask();
+        
       if (FXStat::statFile(list[i].filename,stat) && options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
         parse(list[i].filename,-1,info);
         dbtracks.update(list[i].id,info);
