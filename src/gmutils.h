@@ -71,6 +71,4 @@ extern FXbool gm_decode_base64(FXuchar * buffer,FXint & len);
 
 extern void gm_print_time(FXint nseconds,FXString & result);
 
-extern void gm_copy_hash(FXHash & from,FXHash & to);
-
 #endif

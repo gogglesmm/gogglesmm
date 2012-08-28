@@ -248,7 +248,7 @@ static FXbool gm_launch_program(const FXchar * const * programs,const FXString &
         execl(exec.text(),programs[i],url.text(),NULL);
         exit(EXIT_FAILURE);
         }
-      else if (pid==-1) 
+      else if (pid==-1)
         return false;
       return true;
       }
@@ -271,15 +271,6 @@ FXbool gm_image_search(const FXString & s) {
   FXString search = FXURL::encode(s,ENCODE_THESE);
   FXString query = "http://www.google.com/search?&tbm=isch&as_epq=" + search;
   return gm_open_browser(query);
-  }
-
-
-void gm_copy_hash(FXHash & from,FXHash & to) {
-  for (FXuint i=0;i<from.size();i++){
-    if (!from.empty(i)) {
-      to.insert(from.key(i),from.value(i));
-      }
-    }
   }
 
 
