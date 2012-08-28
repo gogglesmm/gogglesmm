@@ -587,6 +587,7 @@ HttpClient::HttpClient(MemoryBuffer* buf) : device(BadHandle), options(0) {
 HttpClient::~HttpClient() {
   close();
   delete buffer;
+  buffer=NULL;
   }
 
 void HttpClient::close() {
