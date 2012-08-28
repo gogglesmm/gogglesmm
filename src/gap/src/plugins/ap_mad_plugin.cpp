@@ -72,6 +72,7 @@ protected:
   FXbool parse_id3v1();
   FXbool parse_id3v2();
   FXbool parse_ape();
+  FXbool parse_lyrics();
 protected:
   ReadStatus parse(Packet*);
   FXbool readFrame(Packet*,const mpeg_frame&);
@@ -924,6 +925,55 @@ FXbool MadReader::parse_id3v2() {
   return true;
   }
 
+FXbool MadReader::parse_lyrics() {
+  FXchar buf[11];
+
+  input->position(input_end-9,FXIO::Begin);
+
+  if (input->read(buf,9)!=9)
+    return false;
+
+  if (comparecase(buf,"LYRICS200",9)==0){    
+    input->position(input_end-15,FXIO::Begin);
+    if (input->read(buf,6)!=6)    
+      return false;
+
+    FXint size = FXString(buf,6).toInt();
+    input_end = input_end - (15 + size);
+    }
+  else if (comparecase(buf,"LYRICSEND",9)==0) {
+
+    input->position(input_end-5100,FXIO::Begin);
+
+    if (input->read(buf,11)!=11)
+      return false;
+
+    FXint i,nb=11;
+
+    while(nb<5100) {
+
+      /* Check if we found start of lyrics */
+      if (buf[0]=='B' && comparecase(buf,"LYRICSBEGIN")==0) {
+        input_end = input->position()-11;
+        return true;
+        }
+
+      for (i=0;i<10;i++)
+        buf[i]=buf[i+1];
+
+      if (!input->read(&buf[10],1)!=1)
+        return false;
+
+      nb++;
+      }
+    }
+  return true;
+  }
+
+
+
+
+
 
 void MadReader::set_replay_gain(ConfigureEvent* event) {
   if (id3v2 && !id3v2->replaygain.empty()) {
@@ -1025,8 +1075,23 @@ ReadStatus MadReader::parse(Packet * packet) {
       if (!found) {
 
         if (!input->serial()) {
-          if (!parse_id3v1() || !parse_ape())
+      
+          if (!parse_id3v1())
             return ReadError;
+
+          /* 
+             It's unspecified whether the lyrics frame comes 
+             before or after the ape frame, so check both
+          */
+          if (!parse_lyrics())
+            return ReadError;
+
+          if (!parse_ape())
+            return ReadError;
+
+          if (!parse_lyrics())
+            return ReadError;
+
           input->position(input_start,FXIO::Begin);
           }
         parseFrame(packet,frame);
