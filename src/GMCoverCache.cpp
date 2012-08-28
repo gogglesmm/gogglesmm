@@ -51,6 +51,21 @@ void FXIntMap::load(FXStream & store) {
     }
   }
 
+void FXIntMap::adopt(FXIntMap & other) {
+  // Clear this map first
+  clear();
+
+  // Populate with new entries
+  for (FXuint i=0;i<other.size();i++){
+    if (!other.empty(i)) {
+      insert(other.key(i),other.value(i));
+      }
+    }
+
+  // Leave other empty
+  other.clear();
+  }
+
 
 
 class GMCompressedImage {
@@ -249,6 +264,7 @@ void GMCoverCache::clear() {
   for (FXint i=0;i<covers.no();i++) {
     delete covers[i];
     }
+  covers.clear();
   }
 
 
@@ -257,6 +273,7 @@ FXString GMCoverCache::getCacheFile() const {
   }
 
 void GMCoverCache::adopt(GMCoverCache & src) {
+
   // To force reloading of cover art, set user data to 0
   // We can't use reset() here since cover art will be reused in the next onPaint
   // by the calls reset / markCover.
@@ -264,11 +281,14 @@ void GMCoverCache::adopt(GMCoverCache & src) {
     buffers[i]->setUserData((void*)(FXival)0);
     }
 
+  // Clear Covers
   clear();
+
+  // Adopt Covers
   covers.adopt(src.covers);
-  gm_copy_hash(src.map,map);
-  src.covers.clear();
-  src.map.clear();
+
+  // Adopt Map
+  map.adopt(src.map);
   }
 
 

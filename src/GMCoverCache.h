@@ -30,6 +30,7 @@ public:
   FXint find(FXint name) const { return (FXint)(FXival)FXHash::find((void*)(FXival)name); }
   FXint key(FXuint pos) const { return (FXint)(FXival)table[pos].name; }
   FXint value(FXuint pos) const { return (FXint)(FXival)table[pos].data; }
+  void adopt(FXIntMap &);
   void load(FXStream & store);
   void save(FXStream & store) const;
   };
