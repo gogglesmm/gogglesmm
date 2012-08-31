@@ -175,15 +175,13 @@ void GMAudioScrobblerTrack::load(FXStream & store) {
   }
 
 
-class ServiceResponse : public XMLStream {
+class ServiceResponse : public XmlParser {
 protected:
   FXbool       status;
   FXint        code;
   FXString     message;
   FXString     key;
   FXString     token;
-protected:
-  FXint        elem;
 protected:
   FXint begin(const FXchar *,const FXchar**);
   void data(const FXchar *,FXint len);
@@ -192,8 +190,7 @@ protected:
   void parse_lfm_error_atts(const FXchar **);
 public:
   enum {
-    Elem_None,
-    Elem_LastFM,
+    Elem_LastFM = Elem_Last,
     Elem_LastFM_Error,
     Elem_LastFM_Token,
     Elem_LastFM_Session,
@@ -211,7 +208,7 @@ public:
   };
 
 
-ServiceResponse::ServiceResponse() : status(false),code(LASTFM_ERROR_UNKNOWN), elem(Elem_None) {
+ServiceResponse::ServiceResponse() : status(false), code(LASTFM_ERROR_UNKNOWN) {
    }
 
 ServiceResponse::~ServiceResponse() {
@@ -242,36 +239,31 @@ void ServiceResponse::parse_lfm_error_atts(const FXchar ** attributes) {
 
 
 FXint ServiceResponse::begin(const FXchar * element,const FXchar ** attributes){
-  switch(elem) {
+  switch(node()) {
     case Elem_None:
       {
         if (compare(element,"lfm")==0) {
           parse_lfm_atts(attributes);
-          elem=Elem_LastFM;
-          return 1;
+          return Elem_LastFM;
           }
       } break;
     case Elem_LastFM:
       {
         if (compare(element,"error")==0) {
           parse_lfm_error_atts(attributes);
-          elem=Elem_LastFM_Error;
-          return 1;
+          return Elem_LastFM_Error;
           }
         else if (compare(element,"session")==0) {
-          elem=Elem_LastFM_Session;
-          return 1;
+          return Elem_LastFM_Session;
           }
         else if (compare(element,"token")==0) {
-          elem=Elem_LastFM_Token;
-          return 1;
+          return Elem_LastFM_Token;
           }
       } break;
     case Elem_LastFM_Session:
       {
         if (compare(element,"key")==0) {
-          elem=Elem_LastFM_Session_Key;
-          return 1;
+          return Elem_LastFM_Session_Key;
           }
       } break;
     default: return 0; // skip
@@ -281,25 +273,14 @@ FXint ServiceResponse::begin(const FXchar * element,const FXchar ** attributes){
 
 
 void ServiceResponse::data(const FXchar* data,FXint len){
-  if (elem==Elem_LastFM_Error) {
-    message.assign(data,len);
-    }
-  else if (elem==Elem_LastFM_Session_Key) {
-    key.assign(data,len);
-    }
-  else if (elem==Elem_LastFM_Token) {
-    token.assign(data,len);
+  switch(node()) {
+    case Elem_LastFM_Error: message.assign(data,len); break;
+    case Elem_LastFM_Session_Key: key.assign(data,len); break;
+    case Elem_LastFM_Token: token.assign(data,len); break;
     }
   }
 
 void ServiceResponse::end(const FXchar*) {
-  switch(elem){
-    case Elem_LastFM_Session_Key : elem=Elem_LastFM_Session; break;
-    case Elem_LastFM_Token       :
-    case Elem_LastFM_Error       :
-    case Elem_LastFM_Session     : elem=Elem_LastFM; break;
-    case Elem_LastFM             : elem=Elem_None; break;
-    }
   }
 
 
