@@ -79,11 +79,24 @@ check_fox()
 }
 
 
+
+
 check_expat()
 {
   LIBS="$LIBS -lexpat"
 }
 
+check_libxml2()
+{
+  pkgconfig_query_package "libxml-2.0" "libxml"
+  if [ $? -eq 0 ] ; then
+    exit 1
+  fi
+  if [ -n "$PKG_LDFLAGS" ] ; then PLUGIN_LIBS="$PLUGIN_LIBS $PKG_LDFLAGS"; fi
+  if [ -n "$PKG_LIBS" ] ; then PLUGIN_LIBS="$PLUGIN_LIBS $PKG_LIBS"; fi
+  if [ -n "$PKG_CPPFLAGS" ] ; then PLUGIN_CPPFLAGS="$PLUGIN_CPPFLAGS $PKG_CPPFLAGS"; fi
+  if [ -n "$PKG_CFLAGS" ] ; then PLUGIN_CFLAGS="$PLUGIN_CFLAGS $PKG_CFLAGS"; fi
+}
 
 check_anl()
 {

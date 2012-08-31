@@ -256,7 +256,8 @@ check_rsound
 # These may not be detected correctly, so lets add them
 check_forced_mad
 
-check_expat
+check_libxml2
+#check_expat
 
 # needed for getaddrinfo_a
 # check_anl

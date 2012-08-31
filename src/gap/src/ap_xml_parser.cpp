@@ -20,67 +20,119 @@
 #include "ap_utils.h"
 #include "ap_xml_parser.h"
 
-#include <expat.h>
 
 namespace ap {
 
-XMLStream::XMLStream() : parser(NULL), depth(1),skip(0) {
-  parser = XML_ParserCreate(NULL);
+#ifdef USE_EXPAT
+#include <expat.h>
+#else
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+#include <libxml/HTMLparser.h>
+#endif
+
+#define NUM_NODES 32
+
+XmlParser::XmlParser() : nnodes(NUM_NODES),level(0) {
+  allocElms(nodes,nnodes);
+  nodes[0]=Elem_None;
+  }
+
+XmlParser::~XmlParser() {
+  freeElms(nodes);
+  }
+
+void XmlParser::element_start(void*ptr,const FXuchar*element,const FXuchar**attributes){
+  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
+  FXint node = 0;
+
+  if (parser->nodes[parser->level])
+    node = parser->begin((const FXchar*)element,(const FXchar**)attributes);
+
+  parser->level++;
+  if (parser->level==parser->nnodes){
+    parser->nnodes+=NUM_NODES;
+    resizeElms(parser->nodes,parser->nnodes);
+    }
+  parser->nodes[parser->level] = node;
+  }
+
+void XmlParser::element_end(void*ptr,const FXuchar * element) {
+  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
+
+  if (parser->nodes[parser->level]){
+    parser->end((const FXchar*)element);
+    }
+
+  parser->level--; 
+  }
+
+void XmlParser::element_data(void*ptr,const FXuchar * data,FXint len) {
+  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
+  if (parser->nodes[parser->level])
+    parser->data((const FXchar*)data,len);
+  }
+
+
+FXbool XmlParser::parse(const FXString & buffer) {
+  return parseBuffer(buffer.text(),buffer.length());
+  }
+
+FXbool XmlParser::parseBuffer(const FXchar * buffer,FXint length) {
+#ifdef USE_EXPAT
+  XML_Parser * parser = XML_ParserCreate(NULL);
   XML_SetUserData((XML_Parser)parser,this);
-  XML_SetElementHandler((XML_Parser)parser,xml_element_start,xml_element_end);
-  XML_SetCharacterDataHandler((XML_Parser)parser,xml_element_data);
-  }
-
-XMLStream::~XMLStream() {
-  XML_ParserFree((XML_Parser)parser);
-  }
-
-
-void XMLStream::xml_print_error() {
-  fxmessage("Parse Error (line %ld, column %ld): %s\n",XML_GetCurrentLineNumber((XML_Parser)parser),XML_GetCurrentColumnNumber((XML_Parser)parser),XML_ErrorString(XML_GetErrorCode((XML_Parser)parser)));
-  }
-
-FXbool XMLStream::parse(const FXchar * buffer,FXint length) {
+  XML_SetElementHandler((XML_Parser)parser,element_start,element_end);
+  XML_SetCharacterDataHandler((XML_Parser)parser,element_data);
   XML_Status code = XML_Parse((XML_Parser)parser,buffer,length,1);
   if (code==XML_STATUS_ERROR) {
     xml_print_error();
     return false;
     }
+  XML_ParserFree(parser);
+#else
+  xmlSAXHandler sax;
+  memset(&sax,0,sizeof(xmlSAXHandler));
+  sax.startElement = &element_start;
+  sax.endElement = &element_end;
+  sax.characters = &element_data;
+  xmlSAXUserParseMemory(&sax,this,buffer,length);
+#endif
   return true;
   }
 
-FXbool XMLStream::parse(const FXString & buffer) {
-  return parse(buffer.text(),buffer.length());
+
+
+HtmlParser::HtmlParser() {
   }
 
-void XMLStream::xml_element_start(void*ptr,const FXchar * element,const FXchar ** attributes) {
-  XMLStream * stream = reinterpret_cast<XMLStream*>(ptr);
-  if (!stream->skip) {
-    if (!stream->begin(element,attributes)) {
-      stream->skip=stream->depth;
-      }
-    }
-  stream->depth++;
+HtmlParser::~HtmlParser() {
   }
 
-void XMLStream::xml_element_end(void*ptr,const FXchar * element) {
-  XMLStream * stream = reinterpret_cast<XMLStream*>(ptr);
 
-  if (!stream->skip)
-    stream->end(element);
+FXbool HtmlParser::parseBuffer(const FXchar * buffer,FXint length) {
+  xmlSAXHandler sax;
 
-  stream->depth--;
+  memset(&sax,0,sizeof(xmlSAXHandler));
+  sax.startElement = &element_start;
+  sax.endElement = &element_end;
+  sax.characters = &element_data;
 
-  // turn off skip
-  if (stream->skip==stream->depth)
-    stream->skip=0;
+  htmlParserCtxtPtr ctxt;
+
+  xmlInitParser();
+  ctxt = htmlCreateMemoryParserCtxt(buffer,length);
+  if (ctxt->sax)
+    xmlFree(ctxt->sax);
+  ctxt->sax = &sax;
+  ctxt->userData = this;
+  htmlParseDocument(ctxt);
+  ctxt->sax = NULL;
+  ctxt->userData = NULL;
+
+  htmlFreeParserCtxt(ctxt);
+  return true;
   }
-
-void XMLStream::xml_element_data(void*ptr,const FXchar * data,FXint len) {
-  XMLStream * stream = reinterpret_cast<XMLStream*>(ptr);
-  stream->data(data,len);
-  }
-
 
 
 }

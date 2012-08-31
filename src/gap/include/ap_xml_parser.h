@@ -21,25 +21,38 @@
 
 namespace ap {
 
-class GMAPI XMLStream {
-protected:
-  void *       parser;
-  FXint        depth;
-  FXint        skip;
+class GMAPI XmlParser {
 private:
-  static void xml_element_start(void*,const FXchar*,const FXchar**);
-  static void xml_element_end(void*,const FXchar*);
-  static void xml_element_data(void*,const FXchar*,FXint);
+  FXint* nodes;
+  FXint  nnodes;
+  FXint  level;
 protected:
-  virtual FXint begin(const FXchar *,const FXchar**) { return 1;}
+  static void element_start(void*,const FXuchar*,const FXuchar**);
+  static void element_end(void*,const FXuchar*);
+  static void element_data(void*,const FXuchar*,FXint);
+protected:
+  virtual FXint begin(const FXchar *,const FXchar**) { return Elem_Skip;}
   virtual void data(const FXchar *,FXint) {}
   virtual void end(const FXchar *){}
-  void xml_print_error();
+  FXint node() const { return nodes[level]; }
 public:
-  XMLStream();
-  FXbool parse(const FXchar * buffer,FXint length);
+  enum {
+    Elem_Skip = 0, // Skipped Element
+    Elem_None,     // Document Root
+    Elem_Last,
+    };
+public:
+  XmlParser();
+  virtual FXbool parseBuffer(const FXchar * buffer,FXint length);
   FXbool parse(const FXString & buffer);
-  virtual ~XMLStream();
+  virtual ~XmlParser();
+  };
+
+class GMAPI HtmlParser : public XmlParser {
+public:
+  HtmlParser();
+  virtual FXbool parseBuffer(const FXchar * buffer,FXint length);
+  virtual ~HtmlParser();
   };
 
 }

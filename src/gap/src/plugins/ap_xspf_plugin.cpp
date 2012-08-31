@@ -40,7 +40,7 @@
 namespace ap {
 
 
-class XSPFParser : public XMLStream{
+class XSPFParser : public XmlParser{
 public:
   FXStringList files;
   FXString     title;
@@ -52,8 +52,7 @@ protected:
   void end(const FXchar *);
 public:
   enum {
-    Elem_None,
-    Elem_Playlist,
+    Elem_Playlist = Elem_Last,
     Elem_Playlist_Title,
     Elem_Playlist_TrackList,
     Elem_Playlist_TrackList_Track,
@@ -71,38 +70,30 @@ XSPFParser::~XSPFParser(){
   }
 
 FXint XSPFParser::begin(const FXchar * element,const FXchar **/* attributes*/){
-  switch(elem) {
+  switch(node()) {
     case Elem_None:
       {
-        if (compare(element,"playlist")==0) {
-          elem=Elem_Playlist;
-          return 1;
-          }
+        if (compare(element,"playlist")==0)
+          return Elem_Playlist;
       } break;
     case Elem_Playlist:
       {
-        if (compare(element,"title")==0) {
-          elem=Elem_Playlist_Title;
-          return 1;
-          }
-        else if (compare(element,"trackList")==0) {
-          elem=Elem_Playlist_TrackList;
-          return 1;
-          }
+        if (compare(element,"title")==0)
+          return Elem_Playlist_Title;
+        else if (compare(element,"trackList")==0)
+          return Elem_Playlist_TrackList;
+
       } break;
     case Elem_Playlist_TrackList:
       {
-        if (compare(element,"track")==0) {
-          elem=Elem_Playlist_TrackList_Track;
-          return 1;
-          }
+        if (compare(element,"track")==0)
+          return Elem_Playlist_TrackList_Track;
+
       } break;
     case Elem_Playlist_TrackList_Track:
       {
-        if (compare(element,"location")==0) {
-          elem=Elem_Playlist_TrackList_Track_Location;
-          return 1;
-          }
+        if (compare(element,"location")==0)
+          return Elem_Playlist_TrackList_Track_Location;
       } break;
     default: return 0; // skip
     }
@@ -111,23 +102,18 @@ FXint XSPFParser::begin(const FXchar * element,const FXchar **/* attributes*/){
 
 
 void XSPFParser::data(const FXchar* str,FXint len){
-  if (elem==Elem_Playlist_Title) {
-    title.assign(str,len);
-    }
-  else if (elem==Elem_Playlist_TrackList_Track_Location) {
-    FXString url(str,len);
-    files.append(url);
+  switch(node()) {
+    case Elem_Playlist_Title:  title.assign(str,len); break;
+    case Elem_Playlist_TrackList_Track_Location:
+      {
+        FXString url(str,len);
+        files.append(url);
+
+      } break;
     }
   }
 
 void XSPFParser::end(const FXchar*) {
-  switch(elem){
-    case Elem_Playlist_TrackList_Track_Location: elem=Elem_Playlist_TrackList_Track; break;
-    case Elem_Playlist_TrackList_Track         : elem=Elem_Playlist_TrackList; break;
-    case Elem_Playlist_TrackList               :
-    case Elem_Playlist_Title                   : elem=Elem_Playlist; break;
-    case Elem_Playlist                         : elem=Elem_None; break;
-    }
   }
 
 void ap_parse_xspf(const FXString & data,FXStringList & mrl,FXString & title) {
