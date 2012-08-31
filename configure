@@ -161,7 +161,7 @@ add_required_package "fox17 >= 1.7.28" "fox"
 check_reswrap
 check_foxversion
 
-add_required_package "libgaplayer-0 >= 0.4" "gap"
+add_required_package "libgaplayer-0 >= 0.11" "gap"
 add_required_package "sqlite3 >= 3.6.3" "sqlite"
 #add_required_package "libcurl >= 7.19" "curl"
 add_required_package "taglib >= 1.7.0" "taglib"
