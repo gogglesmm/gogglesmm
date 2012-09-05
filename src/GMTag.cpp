@@ -966,16 +966,39 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
   return covers.no();
   }
 
-void GMFileTag::replaceCover(GMCover*cover){
+
+void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
-  if (flacfile) {
-    flacfile->removePictures();
+  if (mode==COVER_REPLACE_TYPE) {
+    if (flacfile) {
+      // FIXME
+      }
+    else if (id3v2) {
+      // FIXME
+      }
+    else if (xiph) {
+      TagLib::StringList & coverlist = const_cast<TagLib::StringList&>(xiph->fieldListMap()["METADATA_BLOCK_PICTURE"]);
+      TagLib::StringList::Iterator it = coverlist.begin();
+      while(it!=coverlist.end()){
+        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::UTF8);
+        FXint type = xiph_check_cover(bytevector);
+        if (type==cover->type)
+          it=coverlist.erase(it);
+        else
+          it++;
+        }
+      }
     }
-  else if (id3v2) {
-    id3v2->removeFrames("APIC");
-    }
-  else if (xiph) {
-    xiph->removeField("METADATA_BLOCK_PICTURE");
+  else {
+    if (flacfile) {
+      flacfile->removePictures();
+      }
+    else if (id3v2) {
+      id3v2->removeFrames("APIC");
+      }
+    else if (xiph) {
+      xiph->removeField("METADATA_BLOCK_PICTURE");
+      }
     }
   appendCover(cover);
   }

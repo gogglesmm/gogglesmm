@@ -57,6 +57,11 @@ enum {
   FILETAG_AUDIOPROPERTIES = 0x1  // Determine audio properties from file
   };
 
+enum {
+  COVER_REPLACE_ALL   = 0,
+  COVER_REPLACE_TYPE  = 1
+  };
+
 
 class GMCover;
 typedef FXArray<GMCover*> GMCoverList;
@@ -141,7 +146,7 @@ public:
 
   void appendCover(GMCover*);
 
-  void replaceCover(GMCover*);
+  void replaceCover(GMCover*,FXuint mode=COVER_REPLACE_ALL);
 
 
   ~GMFileTag();
