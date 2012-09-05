@@ -70,6 +70,8 @@ public:
   /// Get disc number
   FXushort getDiscNumber() const { return (FXushort)(no>>16); }
 
+  void setTagsFromString(const FXString &);
+  
   /// Load from tag in given filename. Note that mrl is not set
   FXbool loadTag(const FXString & filename);
 

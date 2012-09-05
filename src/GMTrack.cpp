@@ -56,6 +56,17 @@ void GMTrack::clear() {
   bitrate=0;
   }
 
+void GMTrack::setTagsFromString(const FXString & str){
+  tags.clear();
+  FXint ncomma = 1 + str.contains(',');
+  for (FXint i=0;i<ncomma;i++){
+    FXString item = str.section(',',i).trim();
+    if (!item.empty())
+      tags.append(item);
+    }
+  }
+
+
 FXbool GMTrack::saveTag(const FXString & filename,FXuint /*opts=0*/) {
   GMFileTag filetags;
 
