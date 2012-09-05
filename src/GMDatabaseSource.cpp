@@ -1198,7 +1198,7 @@ long GMDatabaseSource::onCmdExportTracks(FXObject*,FXSelector sel,void*){
     default: FXASSERT(0); break;
     }
 
-  GMTextField * textfield;
+//  GMTextField * textfield;
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),title,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
   GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,NULL);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
@@ -1215,7 +1215,7 @@ long GMDatabaseSource::onCmdExportTracks(FXObject*,FXSelector sel,void*){
 
 */
   new FXLabel(matrix,fxtr("Template:"),NULL,labelstyle);
-  textfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|TEXTFIELD_ENTER_ONLY|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+  new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|TEXTFIELD_ENTER_ONLY|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
  // textfield->setFont(font_fixed);
 
   new FXLabel(matrix,fxtr("Encoding:"),NULL,labelstyle);
@@ -1357,7 +1357,7 @@ static const FXchar * const covertypes[]={
   };
 
 
-long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector sel,void*){
+long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector,void*){
   const FXuint labelstyle=LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT;
 
   FXIntList tracks;
@@ -1392,11 +1392,11 @@ long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector sel,void*){
       new FXLabel(matrix,FXString::value("%d x %d",info.width,info.height),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
 
       new FXLabel(matrix,fxtr("Size:"),NULL,labelstyle);
-      new FXLabel(matrix,FXString::value("%d",cover->size,info.height),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
+      new FXLabel(matrix,FXString::value("%d",cover->size),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
 
       new FXLabel(matrix,fxtr("Cover Type:"),NULL,labelstyle);
       GMListBox * list_types = new GMListBox(matrix,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
-      for (int i=0;i<ARRAYNUMBER(covertypes);i++)
+      for (FXuint i=0;i<ARRAYNUMBER(covertypes);i++)
         list_types->appendItem(covertypes[i],NULL,(void*)(FXival)i);
 
       list_types->setNumVisible(9);
