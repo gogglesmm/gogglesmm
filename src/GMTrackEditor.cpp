@@ -315,6 +315,14 @@ GMFilenameTemplateDialog::GMFilenameTemplateDialog(FXWindow*p) : FXDialogBox(p,F
                                         "%y - year                    %d - disc number\n"
                                         "%N - track number (2 digits) %n - track number      \n%G - genre"),NULL,JUSTIFY_LEFT,0,0,0,0,30);
   label->setFont(font_fixed);
+
+  new FXLabel(main,tr("Conditions may be used as well:"),NULL,JUSTIFY_LEFT);
+  label = new FXLabel(main,tr("?c<a|b> - display a if c is not empty else display b.\n"
+                                        "?c      - display c if not empty\n"
+                                        ),NULL,JUSTIFY_LEFT,0,0,0,0,30);
+  label->setFont(font_fixed);
+
+
   new FXSeparator(main,SEPARATOR_GROOVE|LAYOUT_FILL_X);
 
   FXMatrix * matrix = new FXMatrix(main,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,0,0,4,0);
@@ -685,7 +693,7 @@ void GMEditTrackDialog::displayTracks() {
       covertab->show();
     else
       covertab->hide();
-#endif      
+#endif
     }
   else {
     if (samemask&SAME_ALBUM) albumbox->setCurrentItem(albumbox->findItem(info.album));
