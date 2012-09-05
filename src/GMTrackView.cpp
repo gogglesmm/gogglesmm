@@ -1546,7 +1546,7 @@ long GMTrackView::onCmdTagSelected(FXObject*,FXSelector sel,void*ptr){
         taglist->killSelection();
         taglist->selectItem(0);
         }
-      else if (artistlist->isItemSelected(0)){
+      else if (taglist->isItemSelected(0)){
         taglist->deselectItem(0);
         }
       }
