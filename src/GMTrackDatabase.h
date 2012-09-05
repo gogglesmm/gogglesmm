@@ -67,13 +67,13 @@ public:
   GMQuery insert_genre;                 /// Insert Genre
   GMQuery insert_artist;                /// Insert Artist;
   GMQuery insert_album;                 /// Insert Album;
+
   GMQuery insert_playlist_track;        /// Insert Track in Playlist
   GMQuery insert_playlist_track_by_id;  /// Insert Track in Playlist
 
   GMQuery insert_track_playlist;  /// Insert Track into Playlist
   GMQuery insert_in_playlist;
 
-  GMQuery query_genre;            /// Query unique genre
   GMQuery query_artist;           /// Query unique artist
   GMQuery query_path;             /// Query unique artist
 
@@ -134,7 +134,6 @@ protected:
 
 
 protected:
-  FXbool queryGenre(FXint & result,const FXString & name,FXbool insert);
   FXbool updateAlbum(FXint &album,const GMTrack&,FXint artist);
 
   FXint insertPath(const FXString & path);
@@ -305,9 +304,6 @@ public:
   /// Set Track Title
   void setTrackTitle(FXint id,const FXString & name);
 
-  /// Set Track Genre
-  void setTrackGenre(const FXIntList & ids,const FXString & name);
-
   /// Set Track Album
   void setTrackAlbum(const FXIntList & ids,const FXString & name,FXbool sameartist);
 
@@ -325,6 +321,9 @@ public:
 
   /// Set Track Year
   void setTrackYear(const FXIntList & ids,FXuint year);
+
+  /// Set Track Tags
+  void setTrackTags(const FXIntList & ids,const FXStringList & tags);
 
 
   ///=======================================================================================
@@ -383,7 +382,7 @@ public:
   ///=======================================================================================
   void sync_tracks_removed();
 
-  
+
   void initArtistLookup();
 
   /// Destructor

@@ -185,11 +185,11 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
   for (i=0;i<tracks.no();i++) {
     db->begin();
     if (!db->getTrack(tracks[i],trackinfo)) {
-      db->commit();  
+      db->commit();
       FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Database Error"),fxtr("Oops. Database Error"));
       return true;
       }
-    db->commit();  
+    db->commit();
     if (GMFilename::create(mrl,trackinfo,GMPlayerManager::instance()->getPreferences().export_format_template,GMPlayerManager::instance()->getPreferences().export_character_filter,options,codec) && mrl!=trackinfo.mrl) {
       newmrls.append(mrl);
       oldmrls.append(trackinfo.mrl);
@@ -375,19 +375,18 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
   titlefield=NULL;
   discfield=NULL;
   discspinner=NULL;
-  art=NULL;
 
   GMTrack other;
 
   getTrackSelection();
 
   setTitle(tr("Edit Track Information"));
-  FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
+  FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|PACK_UNIFORM_WIDTH|LAYOUT_FILL_X,0,0,0,0);
   if (tracks.no()==1) { /* only show spinner when one track is selected */
     new GMButton(closebox,tr("&Previous"),NULL,this,ID_PREV_TRACK,BUTTON_DEFAULT|LAYOUT_LEFT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
     new GMButton(closebox,tr("&Next"),NULL,this,ID_NEXT_TRACK,BUTTON_INITIAL|LAYOUT_LEFT|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Save"),NULL,this,ID_ACCEPT,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
     new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    new GMButton(closebox,tr("&Reset"),NULL,this,ID_RESET,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
     }
   else {
     new GMButton(closebox,tr("&Save"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|LAYOUT_RIGHT|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
@@ -434,6 +433,7 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     new FXLabel(matrix,tr("Channels"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     channelfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
+#if 0
     if (tracks.no()==1){
       covertab = new GMTabItem(tabbook,tr("Co&ver"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
       tabframe = new GMTabFrame(tabbook);
@@ -442,6 +442,7 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
       coverview = new FXImageView(scrollframe,NULL,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
       GMScrollArea::replaceScrollbars(coverview);
       }
+#endif
 
     matrix = tagmatrix;
 
@@ -497,6 +498,9 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
 
   new FXLabel(matrix,tr("Cond&uctor"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   conductorbox = new GMComboBox(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
+
+  new FXLabel(matrix,tr("Ta&gs"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  tagsfield = new GMTextField(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
 
 
 //  new FXLabel(matrix,tr("&Genre"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
@@ -556,7 +560,6 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
 
 
 GMEditTrackDialog::~GMEditTrackDialog() {
-  if (art) delete art;
   }
 
 long GMEditTrackDialog::onCmdFilenameTemplate(FXObject*,FXSelector,void*){
@@ -564,6 +567,32 @@ long GMEditTrackDialog::onCmdFilenameTemplate(FXObject*,FXSelector,void*){
   dialog.execute();
   return 1;
   }
+
+static FXString list_concat(const FXStringList & list) {
+  FXString str;
+  if (list.no()){
+    str=list[0];
+    for (FXint i=1;i<list.no();i++){
+      str+=", ";
+      str+=list[i];
+      }
+    }
+  return str;
+  }
+
+static FXbool list_equals(const FXStringList & a,const FXStringList & b){
+  if (a.no()==b.no()) {
+    for (FXint i=0;i<a.no();i++) {
+      if (a[i]!=b[i])
+        return false;
+      }
+    return true;
+    }
+  return false;
+  }
+
+
+
 
 
 void GMEditTrackDialog::getTrackSelection() {
@@ -574,31 +603,27 @@ void GMEditTrackDialog::getTrackSelection() {
   db->begin();
   db->getTrack(tracks[0],info);
   db->commit();
+  infotags = list_concat(info.tags);
+
   if (tracks.no()==1) {
-    if (art) {
-      delete art;
-      art=NULL;
-      }
     properties.load(info.mrl);
-    art = GMCover::toImage(GMCover::fromTag(info.mrl));
-    if (art) art->create();
     }
 
-  samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR;
+  samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR|SAME_TAGS;
   if (tracks.no()>1) {
     GMTrack other;
-    for (FXint i=1;i<tracks.no() && samemask ;i++) {      
+    for (FXint i=1;i<tracks.no() && samemask ;i++) {
       db->begin();
       db->getTrack(tracks[i],other);
-      db->commit();  
+      db->commit();
       if (other.album!=info.album) samemask&=~SAME_ALBUM;
       if (other.artist!=info.artist) samemask&=~SAME_ARTIST;
       if (other.album_artist!=info.album_artist) samemask&=~SAME_ALBUMARTIST;
-//      if (other.genre!=info.genre) samemask&=~SAME_GENRE;
       if (other.year!=info.year) samemask&=~SAME_YEAR;
       if (GMDISCNO(other.no)!=GMDISCNO(info.no)) samemask&=~SAME_DISC;
       if (other.composer!=info.composer) samemask&=~SAME_COMPOSER;
       if (other.conductor!=info.conductor) samemask&=~SAME_CONDUCTOR;
+      if ((samemask&SAME_TAGS) && !list_equals(other.tags,info.tags)) samemask&=~SAME_TAGS;
       }
     }
   }
@@ -652,13 +677,15 @@ void GMEditTrackDialog::displayTracks() {
     bitratefield->setText(FXString::value("%dkbs",properties.bitrate));
     sampleratefield->setText(FXString::value("%dHz",properties.samplerate));
     channelfield->setText(FXString::value("%d",properties.channels));
+    tagsfield->setText(list_concat(info.tags));
 
-
+#if 0
     coverview->setImage(art);
     if (art)
       covertab->show();
     else
       covertab->hide();
+#endif      
     }
   else {
     if (samemask&SAME_ALBUM) albumbox->setCurrentItem(albumbox->findItem(info.album));
@@ -666,9 +693,9 @@ void GMEditTrackDialog::displayTracks() {
     if (samemask&SAME_ALBUMARTIST) albumartistbox->setCurrentItem(albumartistbox->findItem(info.album_artist));
     if (samemask&SAME_COMPOSER) composerbox->setCurrentItem(composerbox->findItem(info.composer));
     if (samemask&SAME_CONDUCTOR) conductorbox->setCurrentItem(conductorbox->findItem(info.conductor));
-//    if (samemask&SAME_GENRE) genrebox->setCurrentItem(genrebox->findItem(info.genre));
     if (samemask&SAME_YEAR) yearfield->setText(FXString::value(info.year));
     if (samemask&SAME_DISC) discspinner->setValue(GMDISCNO(info.no));
+    if (samemask&SAME_TAGS) tagsfield->setText(list_concat(info.tags));
     }
   }
 
@@ -696,6 +723,7 @@ FXbool GMEditTrackDialog::saveTracks() {
   FXbool sync=false;
   FXString field;
   FXString altfield;
+  FXStringList tags;
 
   try {
     db->begin();
@@ -740,6 +768,15 @@ FXbool GMEditTrackDialog::saveTracks() {
       sync=true;
       }
 
+    field=tagsfield->getText().trim().simplify();
+    if (( !field.empty()) && (
+        ( tracks.no()>1 && ( (!(samemask&SAME_TAGS)) || field!=infotags)) ||
+        ( tracks.no()==1 && field!=infotags) )) {
+      info.setTagsFromString(field);
+      db->setTrackTags(tracks,info.tags);
+      changed=true;
+      sync=true;
+      }
 
     /// YEAR
     field=yearfield->getText().trim().simplify();

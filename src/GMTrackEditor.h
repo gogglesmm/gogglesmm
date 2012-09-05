@@ -26,8 +26,8 @@ protected:
   FXuint samemask;
   FXIntList tracks;
   GMTrack           info;
+  FXString          infotags;
   GMAudioProperties properties;
-  FXImage * art;
 public:
   GMComboBox    * trackartistbox;
   GMComboBox    * albumartistbox;
@@ -39,19 +39,18 @@ public:
   GMSpinner     * discspinner;
   GMTextField   * discfield;
   GMTextField   * titlefield;
+  GMTextField   * tagsfield;
   GMCheckButton * updatetags;
   GMCheckButton * updatefilename;
   GMCheckButton * autonumber;
   GMSpinner     * autonumberoffset;
   GMSpinner     * trackspinner;
-  GMTabItem     * covertab;
-  FXImageView   * coverview;
   GMTextField   * bitratefield;
   GMTextField   * sampleratefield;
   GMTextField   * channelfield;
   GMTextField   * sizefield;
   GMTextField   * filenamefield;
-  GMTextField   * typefield; 
+  GMTextField   * typefield;
 protected:
   GMEditTrackDialog(){}
   void getTrackSelection();
@@ -69,14 +68,15 @@ public:
     };
 protected:
   enum {
-    SAME_ALBUM      =0x1,
-    SAME_ARTIST     =0x2,
-    SAME_ALBUMARTIST=0x4,
-    SAME_GENRE      =0x8,
-    SAME_YEAR       =0x10,
-    SAME_DISC       =0x20,
-    SAME_COMPOSER   =0x40,
-    SAME_CONDUCTOR  =0x80,
+    SAME_ALBUM      =0x001,
+    SAME_ARTIST     =0x002,
+    SAME_ALBUMARTIST=0x004,
+    SAME_GENRE      =0x008,
+    SAME_YEAR       =0x010,
+    SAME_DISC       =0x020,
+    SAME_COMPOSER   =0x040,
+    SAME_CONDUCTOR  =0x080,
+    SAME_TAGS       =0x100,
     };
 public:
   long onCmdAccept(FXObject*,FXSelector,void*);

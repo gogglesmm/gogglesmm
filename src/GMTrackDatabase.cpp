@@ -427,7 +427,6 @@ FXbool GMTrackDatabase::init_queries() {
 
 
   query_path                          = compile("SELECT id FROM pathlist WHERE name = ?;");
-  query_genre                         = compile("SELECT id FROM tags WHERE name == ?;");
   query_artist                        = compile("SELECT id FROM artists WHERE name == ?;");
 
 
@@ -454,7 +453,7 @@ FXbool GMTrackDatabase::init_queries() {
                                                   "AND a2.id == tracks.artist "
                                                   "AND tracks.id == ?;");
 
-  query_track_tags                    = compile("SELECT name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track == ?);");
+  query_track_tags                    = compile("SELECT name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track == ?) ORDER BY name;");
 
 
 
@@ -655,8 +654,15 @@ FXbool GMTrackDatabase::insertStream(const FXString & url,const FXString & descr
   try {
     begin();
     FXint genreid=0;
-    if (!genre.empty() && !queryGenre(genreid,genre,true))
-      return false;
+
+    GMQuery insert_tag(this,"INSERT OR IGNORE INTO tags VALUES ( NULL, ? );");
+    GMQuery query_tag(this,"SELECT id FROM tags WHERE name == ?;");
+
+    if (!genre.empty()){
+      query_tag.execute(genre,genreid);
+      if (!genreid) genreid = insert_tag.insert(genre);
+      }
+
     GMQuery q(this,"INSERT INTO streams VALUES(NULL,?,?,?,0,0);");
     q.set(0,url);
     q.set(1,description);
@@ -944,13 +950,16 @@ FXbool GMTrackDatabase::setStreamBitrate(FXint id,FXint rate){
 
 FXbool GMTrackDatabase::setStreamGenre(FXint id,const FXString & name){
   DEBUG_DB_SET();
-  FXint genreid=-1;
+  FXint genreid=0;
   FXString query;
   try {
     /// Query for existing genre
-    query_genre.execute(name,genreid);
-    if (genreid==-1) {
-      genreid = insert_genre.insert(name);
+    GMQuery insert_tag(this,"INSERT OR IGNORE INTO tags VALUES ( NULL, ? );");
+    GMQuery query_tag(this,"SELECT id FROM tags WHERE name == ?;");
+
+    if (!name.empty()){
+      query_tag.execute(name,genreid);
+      if (!genreid) genreid = insert_tag.insert(name);
       }
     query.format("UPDATE streams SET genre = %d WHERE id==%d;",genreid,id);
     execute(query);
@@ -1252,6 +1261,7 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
 
     /// Get All tags
     query_track_tags.set(0,tid);
+    track.tags.clear();
     while(query_track_tags.row()){
       track.tags.append(query_track_tags.get(0));
       }
@@ -1817,27 +1827,6 @@ void GMTrackDatabase::initArtistLookup() {
   }
 
 
-FXbool GMTrackDatabase::queryGenre(FXint & result,const FXString & name,FXbool insert){
-  DEBUG_DB_SET();
-  result=-1;
-  try {
-    query_genre.execute(name,result);
-    if (result==-1 && insert) {
-      insert_genre.set(0,name);
-      insert_genre.execute();
-      result = rowid();
-      insert_genre.reset();
-      }
-    }
-  catch (GMDatabaseException & e){
-    result=-1;
-    return FALSE;
-    }
-  return true;
-  }
-
-
-
 FXbool GMTrackDatabase::updateAlbum(FXint & result,const GMTrack & track,FXint artist){
   DEBUG_DB_SET();
   result=0;
@@ -2165,22 +2154,38 @@ void GMTrackDatabase::setTrackYear(const FXIntList & tracks,FXuint year){
     }
   }
 
-void GMTrackDatabase::setTrackGenre(const FXIntList & tracks,const FXString & name){
+
+
+void GMTrackDatabase::setTrackTags(const FXIntList & tracks,const FXStringList & tags) {
   DEBUG_DB_SET();
-  GMQuery update_track_genre(this,"UPDATE tracks SET genre == ? WHERE id == ?;");
 
-  /// Make sure genre exists
-  FXint genre=0;
-  insert_genre.update(name);
-  query_genre.execute(name,genre);
+  GMQuery reset_track_tags(this,"DELETE FROM track_tags WHERE track == ?;");
+  GMQuery insert_track_tags(this,"INSERT OR IGNORE INTO track_tags VALUES ( ?, ? );");
+  GMQuery insert_tag(this,"INSERT OR IGNORE INTO tags VALUES ( NULL, ? );");
+  GMQuery query_tag(this,"SELECT id FROM tags WHERE name == ?;");
 
-  FXASSERT(genre);
+  FXIntList ids;
+  ids.no(tags.no());
 
-  /// Set Genre
-  for (FXint i=0;i<tracks.no();i++) {
-    update_track_genre.set(0,genre);
-    update_track_genre.set(1,tracks[i]);
-    update_track_genre.execute();
+  /// Insert all tags
+  for (FXint i=0;i<tags.no();i++) {
+    ids[i]=0;
+    query_tag.execute(tags[i],ids[i]);
+    if (!ids[i])
+      ids[i] = insert_tag.insert(tags[i]);
+    }
+
+  for (FXint t=0;t<tracks.no();t++) {
+    // clear existing tags
+    reset_track_tags.set(0,tracks[t]);
+    reset_track_tags.execute();
+
+    // Set tags
+    for (FXint i=0;i<tags.no();i++){
+      insert_track_tags.set(0,tracks[t]);
+      insert_track_tags.set(1,ids[i]);
+      insert_track_tags.execute();
+      }
     }
   }
 
