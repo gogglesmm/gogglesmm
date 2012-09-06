@@ -56,14 +56,40 @@ void GMTrack::clear() {
   bitrate=0;
   }
 
+
+static void gmsplit(const FXString & in,FXStringList & output) {
+  FXint s=0;
+  FXint e=0;
+  FXint n=0;
+  const FXchar sep=',';
+
+  while(s<in.length()) {
+
+    // trim leading white space
+    while(in[s]==' ') s++;
+
+    e=s;
+
+    // find end
+    while(in[e]!=sep && in[e]!='\0') e++;
+
+    n=e+1;
+    e=e-1;
+
+    // trim end
+    while(e>=s && in[e]==' ') e--;
+
+    if (e>=s) {
+      output.no(output.no()+1);
+      output[output.no()-1].assign(&in[s],(e-s)+1);
+      }
+    s=n;
+    }
+  }
+
 void GMTrack::setTagsFromString(const FXString & str){
   tags.clear();
-  FXint ncomma = 1 + str.contains(',');
-  for (FXint i=0;i<ncomma;i++){
-    FXString item = str.section(',',i).trim();
-    if (!item.empty())
-      tags.append(item);
-    }
+  gmsplit(str,tags);
   }
 
 
