@@ -62,6 +62,7 @@ protected:
     FLAG_VORBIS_HEADER_COMMENT = 0x4,
     FLAG_VORBIS_HEADER_BLOCK   = 0x8,
     FLAG_OGG_FLAC              = 0x10,
+    FLAG_OGG_OPUS              = 0x20,
     };
 protected:
   OggReaderState    state;
@@ -94,6 +95,9 @@ protected:
   ReadStatus parse_vorbis_stream();
 #ifdef HAVE_FLAC_PLUGIN
   ReadStatus parse_flac_stream();
+#endif
+#ifdef HAVE_OPUS_PLUGIN
+  ReadStatus parse_opus_stream();
 #endif
 public:
   OggReader(AudioEngine *);
@@ -197,7 +201,7 @@ FXbool OggReader::init(InputPlugin*plugin) {
   ReaderPlugin::init(plugin);
   ogg_sync_clear(&sync);
   ogg_sync_reset(&sync);
-  flags&=~(FLAG_PARSED|FLAG_OGG_FLAC|FLAG_VORBIS_HEADER_INFO|FLAG_VORBIS_HEADER_COMMENT|FLAG_VORBIS_HEADER_BLOCK);
+  flags&=~(FLAG_PARSED|FLAG_OGG_FLAC|FLAG_VORBIS_HEADER_INFO|FLAG_VORBIS_HEADER_COMMENT|FLAG_VORBIS_HEADER_BLOCK|FLAG_OGG_OPUS);
   status=ReadOk;
 
   clear_headers();
@@ -276,6 +280,64 @@ void OggReader::check_vorbis_length(vorbis_info * info) {
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
+
+struct opus_header {
+  FXuchar  channels;
+  FXushort preskip;
+  FXuchar  cmf;
+  };
+#if 0
+ap_parse_opus_header(const FXuchar * buffer, FXint len,opus_header & header) {
+
+  FXuchar version = buffer[8];
+  if (version!=1) return false;
+
+  header.channels = buffer[9];
+  if (header.channels==0) return false;
+
+  header.preskip = (buffer[10] | buffer[11]<<8);
+
+  header.channel_mapping_family = buffer[18];
+
+  if (he
+
+
+
+
+
+
+
+
+
+
+  }
+
+#endif
+
+
+#ifdef HAVE_OPUS_PLUGIN
+ReadStatus OggReader::parse_opus_stream() {
+  if (flags&FLAG_OGG_OPUS)  {
+    fxmessage("got opus tag header\n");
+    codec=Codec::Opus;
+    af.set(AP_FORMAT_FLOAT,48000,2);
+
+    ConfigureEvent * config = new ConfigureEvent(af,codec);
+
+    /// Now we are ready to init the decoder
+    engine->decoder->post(config);
+
+    //send_headers();
+    flags|=FLAG_PARSED;
+    }
+  else {
+    fxmessage("got opus header\n");
+    flags|=FLAG_OGG_OPUS;
+    //submit_ogg_packet(false);
+    }
+  return ReadOk;
+  }
+#endif
 
 ReadStatus OggReader::parse_vorbis_stream() {
   if (op.packet[0]==1) {
@@ -426,6 +488,13 @@ ReadStatus OggReader::parse() {
         return ReadError;
       }
 #endif
+
+#ifdef HAVE_OPUS_PLUGIN
+    else if ((flags&FLAG_OGG_OPUS) || compare((const FXchar*)&op.packet[0],"OpusHead",8)==0){
+      if (parse_opus_stream()!=ReadOk)
+        return ReadError;
+      }
+#endif
     else {
       return ReadError;
       }
@@ -476,7 +545,7 @@ void OggReader::submit_ogg_packet(FXbool post) {
   state.has_packet=true;
 
   if (state.header_written==false) {
-    if (codec==Codec::Vorbis) {
+    if (codec==Codec::Vorbis || codec==Codec::Opus) {
       if (packet->space()>(FXival)sizeof(ogg_packet)) {
         packet->append(&op,sizeof(ogg_packet));
         state.header_written=true;

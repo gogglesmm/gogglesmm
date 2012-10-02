@@ -115,6 +115,10 @@ ifneq (,$(findstring vorbis,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_vorbis_plugin.cpp
 endif
 
+ifneq (,$(findstring opus,$(PLUGINS)))
+GAP_SRCFILES+=src/plugins/ap_opus_plugin.cpp
+endif
+
 ifneq (,$(findstring ogg,$(PLUGINS)))
 GAP_SRCFILES+=src/plugins/ap_ogg_plugin.cpp
 endif

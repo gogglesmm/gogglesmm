@@ -235,6 +235,10 @@ check_packages()
     add_plugin_package "vorbis >= 1.2" "vorbis"
   fi
 
+  if [ $OPTION_PLUGIN_OPUS -eq 1 ] ; then
+    add_plugin_package "opus >= 1.0" "opus"
+  fi
+  
   if [ $OPTION_PLUGIN_FLAC -eq 1 ] ; then
     add_plugin_package "flac >= 1.2" "flac"
   fi

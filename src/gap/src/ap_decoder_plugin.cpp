@@ -43,7 +43,7 @@ extern DecoderPlugin * ap_pcm_decoder(AudioEngine*);
 extern DecoderPlugin * ap_vorbis_decoder(AudioEngine*);
 extern DecoderPlugin * ap_mad_decoder(AudioEngine*);
 extern DecoderPlugin * ap_aac_decoder(AudioEngine*);
-
+extern DecoderPlugin * ap_opus_decoder(AudioEngine*);
 
 DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
   switch(codec) {
@@ -63,6 +63,11 @@ DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
 #ifdef HAVE_AAC_PLUGIN
     case Codec::AAC     : return ap_aac_decoder(engine); break;
 #endif
+
+#ifdef HAVE_OPUS_PLUGIN
+    case Codec::Opus    : return ap_opus_decoder(engine); break;
+#endif
+
     default             : break;
     }
   return NULL;

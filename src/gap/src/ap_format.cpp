@@ -28,7 +28,8 @@ static const FXchar * const codecs[]={
   "Vorbis",
   "Musepack",
   "MPEG",
-  "AAC"
+  "AAC",
+  "Opus",
   };
 
 static const FXchar * const byteorders[]={
@@ -176,7 +177,7 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::WAV;
   else if (comparecase(extension,"flac")==0)
     return Format::FLAC;
-  else if (comparecase(extension,"ogg")==0 || comparecase(extension,"oga")==0)
+  else if (comparecase(extension,"ogg")==0 || comparecase(extension,"oga")==0 || comparecase(extension,"opus")==0)
     return Format::OGG;
   else if (comparecase(extension,"mp3")==0)
     return Format::MP3;

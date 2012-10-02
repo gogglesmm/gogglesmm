@@ -45,7 +45,8 @@ namespace Codec {
     Vorbis    = 3,
     Musepack  = 4,
     MPEG      = 5,
-    AAC       = 6
+    AAC       = 6,
+    Opus      = 7
     };
 
   extern const FXchar * name(FXuchar codec);
@@ -119,7 +120,7 @@ enum {
   XSPF              = 12,
   ASF               = 13,
   ASX               = 14,
-  ASFX              = 15, // either ASX or ASF
+  ASFX              = 15, // either ASX or ASF  
   };
 
 }
