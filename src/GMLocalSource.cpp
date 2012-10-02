@@ -181,7 +181,7 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
 
       if (stat.isFile()) {
         ext = FXPath::extension(name);
-        if (ext!="ogg" && ext!="flac" && ext!="mp3" && ext!="oga" && ext!="mpc" && ext!="wav" && ext!="m4a")
+        if (ext!="ogg" && ext!="opus" && ext!="flac" && ext!="mp3" && ext!="oga" && ext!="mpc" && ext!="wav" && ext!="m4a")
           continue;
         }
 
