@@ -75,6 +75,10 @@ public:
 
 
 VorbisDecoder::VorbisDecoder(AudioEngine * e) : DecoderPlugin(e),buffer(32768),engine(e),has_info(false),has_dsp(false),out(NULL) {
+
+  // Dummy comment structure. libvorbis will only check for a non-null vendor. 
+  vorbis_comment_init(&comment); 
+  comment.vendor = (FXchar*)"";
   }
 
 VorbisDecoder::~VorbisDecoder(){
@@ -84,7 +88,6 @@ VorbisDecoder::~VorbisDecoder(){
     has_dsp=false;
     }
   if (has_info) {
-    vorbis_comment_clear(&comment);
     vorbis_info_clear(&info);
     has_info=false;
     }
@@ -103,14 +106,12 @@ FXbool VorbisDecoder::init(ConfigureEvent*event) {
     }
 
   if (has_info) {
-    vorbis_comment_clear(&comment);
     vorbis_info_clear(&info);
     has_info=false;
     }
 
   /// Init
   vorbis_info_init(&info);
-  vorbis_comment_init(&comment); // not strictly necessary
   has_info=true;
 
   stream_position=-1;

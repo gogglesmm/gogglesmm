@@ -363,7 +363,8 @@ ReadStatus OggReader::parse_vorbis_stream() {
       goto error;
 
     flags|=FLAG_VORBIS_HEADER_COMMENT;
-    submit_ogg_packet(false);
+    
+    // Don't pass comment packet to decoder.
     }
   else if (op.packet[0]==5) {
 
