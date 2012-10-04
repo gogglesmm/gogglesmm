@@ -19,6 +19,52 @@
 #ifndef GMTHREAD_H
 #define GMTHREAD_H
 
+class GMWorker;
+
+class GMWorkerThread : public FXThread {
+protected:
+  GMWorker*worker;
+public:
+  FXint run();
+protected:
+  GMWorkerThread(const GMWorkerThread&);
+  GMWorkerThread &operator=(const GMWorkerThread&);
+public:
+  GMWorkerThread(GMWorker *w);
+
+  ~GMWorkerThread();
+  };
+
+class GMWorker : public FXObject {
+FXDECLARE(GMWorker)
+protected:
+  GMWorkerThread   * thread;
+  FXMessageChannel * channel;
+public:
+  enum {
+    ID_THREAD_ENTER = 1,
+    ID_THREAD_LEAVE,
+    ID_LAST
+  };
+protected:
+  GMWorker();
+  GMWorker(const GMWorker&);
+  GMWorker &operator=(const GMWorker&);
+public:
+  GMWorker(FXApp * app);
+
+  virtual FXint run() { return 0; }
+
+  void start();
+
+  FXbool send(FXSelector msg,const void* data=NULL,FXint size=0);
+
+  virtual ~GMWorker();
+  };
+
+
+
+
 class GMTaskManager;
 
 class GMTask {

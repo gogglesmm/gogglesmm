@@ -23,6 +23,50 @@
 #include "GMAudioPlayer.h"
 
 
+
+GMWorkerThread::GMWorkerThread(GMWorker *w) : worker(w) {
+  }
+
+GMWorkerThread::~GMWorkerThread() {
+  }
+
+FXint GMWorkerThread::run() {
+  worker->send(FXSEL(SEL_COMMAND,GMWorker::ID_THREAD_ENTER));
+  FXint result = worker->run();
+  worker->send(FXSEL(SEL_COMMAND,GMWorker::ID_THREAD_LEAVE));
+  return result;
+  }
+
+
+FXIMPLEMENT(GMWorker,FXObject,NULL,0);
+
+GMWorker::GMWorker(){
+  }
+
+GMWorker::GMWorker(FXApp * app) : thread(NULL) {
+  thread  = new GMWorkerThread(this);
+  channel = new FXMessageChannel(app);
+  }
+
+GMWorker::~GMWorker() {
+  delete channel;
+  delete thread;
+  }
+
+void GMWorker::start() {
+  thread->start();
+  }
+
+FXbool GMWorker::send(FXSelector msg,const void* data,FXint size){
+  return channel->message(this,msg,data,size);
+  }
+
+
+
+
+
+
+
 GMTask::GMTask(FXObject*tgt,FXSelector sel) : taskmanager(NULL),mc(NULL),processing(true),target(tgt),message(sel) {
   }
 
