@@ -71,4 +71,6 @@ extern FXbool gm_decode_base64(FXuchar * buffer,FXint & len);
 
 extern void gm_print_time(FXint nseconds,FXString & result);
 
+extern FXbool gm_parse_datetime(const FXString & str,FXTime & timestamp);
+
 #endif

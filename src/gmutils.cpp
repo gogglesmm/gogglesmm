@@ -437,6 +437,366 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
 
 
 
+/*
+  The following function tries to parse datetime strings for the following
+  standards:
+
+    RFC 822 (2 digit years)
+    RFC 1123 (updated 822 with 4 digit years)
+    RFC 2822:
+
+        Sun, 06 Nov 1994 08:49:37 GMT
+
+    RFC 850, obsoleted by RFC 1036:
+
+        Sunday, 06-Nov-94 08:49:37 GMT
+
+    asctime:
+
+        Sun Nov  6 08:49:37 1994
+
+    It doesn't handle any header unfolding, but does skip over any comments which may appear anywhere
+    between fields as described in RFC822 / RFC 2822.
+
+    It also handles missing or optional week days for all formats
+*/
+
+
+#define ONE_DIGIT_VALUE(d1) (FXString::digit2Value[(const FXuchar)d1])
+#define TWO_DIGIT_VALUE(d1,d2) (FXString::digit2Value[(const FXuchar)d1]*10) + (FXString::digit2Value[(const FXuchar)d2])
+#define THREE_DIGIT_VALUE(d1,d2,d3) (FXString::digit2Value[(const FXuchar)d1]*100) +\
+                                    (FXString::digit2Value[(const FXuchar)d2]*10) +\
+                                    (FXString::digit2Value[(const FXuchar)d3])
+
+#define FOUR_DIGIT_VALUE(d1,d2,d3,d4) (FXString::digit2Value[(const FXuchar)d1]*1000) + \
+                                      (FXString::digit2Value[(const FXuchar)d2]*100) + \
+                                      (FXString::digit2Value[(const FXuchar)d3]*10) +\
+                                      (FXString::digit2Value[(const FXuchar)d4])
+
+FXbool gm_parse_datetime(const FXString & str,FXTime & timestamp) {
+
+  // Fields
+  enum {
+    Done = 0,
+    WeekDay,
+    WeekDaySep,
+    Day,
+    DaySep,
+    Month,
+    MonthSep,
+    Year,
+    Hour,
+    HourSep,
+    Minute,
+    MinuteSep,
+    Seconds,
+    Zone
+    };
+
+  /// 1 second expresed in nanoseconds
+  const FXlong seconds = 1000000000;
+
+  FXbool is_week_day = false;
+  FXbool ctime       = false;
+  FXuint parse       = WeekDay;
+  FXint i=0;
+  FXint tzoffset = 0;
+  FXint day      = 0;
+  FXint month    = 0;
+  FXint year     = 0;
+  FXint hour     = 0;
+  FXint minute   = 0;
+  FXint second   = 0;
+
+  while(parse) {
+
+    // skip comments and white space
+    do {
+      while(Ascii::isSpace(str[i])) i++;
+      if (str[i]=='('){
+        FXint c=1;
+        do {
+          i++;
+          switch(str[i]) {
+            case '\\': i++;           break;
+            case  '(': c++;           break;
+            case  ')': c--;           break;
+            case '\0': return false;  break;
+            default  : break;
+            }
+          }
+        while(c);
+        i++;
+        continue;
+        }
+      break;
+      }
+    while(1);
+
+    // Check end of input
+    if (i>=str.length())
+      break;
+
+parsefield:
+
+    switch(parse) {
+
+      /// Skip optional weekday. If we don't encounter a letter, we skip to the day parsing.
+      case WeekDay    :
+
+        if (Ascii::isLetter(str[i])) {
+
+          /* does it look like a day */
+          switch(str[i]){
+            case 'T':
+            case 'W': is_week_day=true;
+                      break;
+
+            case 'M': if (str[i+1]=='o')
+                        is_week_day=true;
+                      break;
+
+            case 'S': if (str[i+1]=='u' || str[i+1]=='a')
+                        is_week_day=true;
+                      break;
+
+            case 'F': if (str[i+1]=='r')
+                        is_week_day=true;
+            default : break;
+            }
+
+          // Input doesn't look like a weekday, assume it's ctime and look for month.
+          if (!is_week_day) {
+            ctime=true;
+            parse=Month;
+            goto parsefield;
+            }
+
+          // skip weekday and look for separator
+          parse=WeekDaySep;
+          while(Ascii::isLetter(str[i])) i++;
+          continue;
+          }
+
+        // Not a letter, so it must be starting with a Day.
+        parse=Day;
+        goto parsefield;
+        break;
+
+
+
+      /// Skip weekday separator. If there isn't any, it means we're parsing the asctime format
+      case WeekDaySep :
+
+        // If there's a separator, it must be followed by a day
+        if (str[i]==',') {
+          i++;
+          parse=Day;
+          continue;
+          }
+
+        /// No Separator, so this must be a ctime format and next up is month
+        parse=Month;
+        ctime=true;
+        goto parsefield;
+        break;
+
+      /// Parse day, handles both 1 or 2 digit cases
+      case Day        :
+        if (Ascii::isDigit(str[i])) {
+          if (Ascii::isDigit(str[i+1])) {
+            day = TWO_DIGIT_VALUE(str[i+0],str[i+1]);
+            i+=2;
+            }
+          else {
+            day = ONE_DIGIT_VALUE(str[i+0]);
+            i+=1;
+            }
+          parse=(ctime) ? Hour : DaySep;
+          continue;
+          }
+        break;
+
+      // Optional separator between day and month in case we're dealing with rfc 850
+      case DaySep:
+        parse=Month;
+        if (str[i]=='-') {
+          i++;
+          continue;
+          }
+        // not a separator, so go directly to month parsing
+        goto parsefield;
+        break;
+
+
+      /// Parse abbreviated month. In ctime the month is followed by the day.
+      case Month      :
+        if (Ascii::isLetter(str[i]) && Ascii::isLetter(str[i+1]) && Ascii::isLetter(str[i+2])) {
+          switch(str[i]) {
+            case 'A': month=(str[i+1]=='p') ? 4 : 8; break;                         // Apr or Aug
+            case 'D': month=12; break;                                              // Dec
+            case 'F': month=2; break;                                               // Feb
+            case 'J': month=(str[i+1]=='a') ? 1 : (str[i+2]=='n') ? 6 : 7 ; break;  // Jan or Jun or Jul
+            case 'M': month=(str[i+2]=='r') ? 3 : 5; break;                         // Mar or May
+            case 'N': month=11; break;                                              // Nov
+            case 'O': month=10; break;                                              // Oct
+            case 'S': month=9; break;                                               // Sep
+            default : return false; break;
+            };
+          parse=(ctime) ? Day : MonthSep;
+          i+=3;
+          continue;
+          }
+        break;
+
+      // Optional separator between month and year in case we're dealing with rfc 850
+      case MonthSep    :
+        parse=Year;
+        if (str[i]=='-') {
+          i++;
+          continue;
+          }
+        // not a separator, so go directly to year parsing
+        goto parsefield;
+        break;
+
+      /*
+         Parse the year, we liberally accept either 2, 3 or 4 digits and interpret them according RFC2822:
+
+         If a two digit year is encountered whose
+         value is between 00 and 49, the year is interpreted by adding 2000,
+         ending up with a value between 2000 and 2049.  If a two digit year is
+         encountered with a value between 50 and 99, or any three digit year
+         is encountered, the year is interpreted by adding 1900.
+      */
+      case Year       :
+        if (Ascii::isDigit(str[i+0]) && Ascii::isDigit(str[i+1])) {
+          if (Ascii::isDigit(str[i+2])) {
+            if (Ascii::isDigit(str[i+3])) { /// 4 digit year
+              year = FOUR_DIGIT_VALUE(str[i+0],str[i+1],str[i+2],str[i+3]);
+              i+=4;
+              }
+            else { /// 3 digit year
+              year = 1900 + THREE_DIGIT_VALUE(str[i+0],str[i+1],str[i+2]);
+              i+=3;
+              }
+            }
+          else { // 2 digit year
+            year = TWO_DIGIT_VALUE(str[i+0],str[i+1]);
+            i+=2;
+            if (year<50)
+              year+=2000;
+            else
+              year+=1900;
+            }
+          parse=(ctime) ? Done : Hour;
+          continue;
+          }
+        break;
+
+
+      /// Parse hour, handles both 1 and 2 digit hours just in case
+      case Hour       :
+        if (Ascii::isDigit(str[i])) {
+          if (Ascii::isDigit(str[i+1])) {
+            hour = TWO_DIGIT_VALUE(str[i+0],str[i+1]);
+            i+=2;
+            }
+          else {
+            hour = ONE_DIGIT_VALUE(str[i+0]);
+            i+=1;
+            }
+          parse=HourSep;
+          continue;
+          }
+        break;
+
+      /// Skip separator between hours and minutes
+      case HourSep    :
+        if (str[i]==':') {
+          parse=Minute;
+          i++;
+          continue;
+          }
+        break;
+
+      /// Minutes should be 2 digits
+      case Minute     :
+        if (Ascii::isDigit(str[i]) && Ascii::isDigit(str[i+1])) {
+          minute=TWO_DIGIT_VALUE(str[i+0],str[i+1]);
+          parse=MinuteSep;
+          i+=2;
+          continue;
+          }
+        break;
+
+      /// If we find a separator, it means the minutes are followed by seconds. If not,
+      /// we skip to the next field (year or zone).
+      case MinuteSep  :
+        if (str[i]==':') {
+          parse=Seconds;
+          i++;
+          continue;
+          }
+        parse=(ctime) ? Year : Zone;
+        goto parsefield;
+        break;
+
+      /// Seconds should be 2 digits. Seconds are followed by Year or Zone
+      case Seconds    :
+        if (Ascii::isDigit(str[i]) && Ascii::isDigit(str[i+1])) {
+          second=TWO_DIGIT_VALUE(str[i+0],str[i+1]);
+          parse=(ctime) ? Year : Zone;
+          i+=2;
+          continue;
+          }
+        break;
+
+      /// Time Zone
+      case Zone       :
+        if ((str[i]=='+' || str[i]=='-') && ( Ascii::isDigit(str[i+1]) && Ascii::isDigit(str[i+2]) && Ascii::isDigit(str[i+3]) && Ascii::isDigit(str[i+4]))) {
+          FXint hh = TWO_DIGIT_VALUE(str[i+1],str[i+2]);
+          FXint mm = TWO_DIGIT_VALUE(str[i+3],str[i+4]);
+          tzoffset = (hh*3500+mm*60);
+          if (str[i]=='-' ) tzoffset=-tzoffset;
+          }
+        else {
+          if ((str[i+0]=='G' && str[i+1]=='M' && str[i+2]=='T') || (str[i+0]=='U' && str[i+1]=='T'))
+            tzoffset = 0;
+          else if (str[i+0]=='E' && str[i+1]=='D' && str[i+2]=='T')
+            tzoffset=-(4*3600);
+          else if (str[i+0]=='E' && str[i+1]=='S' && str[i+2]=='T')
+            tzoffset=-(5*3600);
+          else if (str[i+0]=='C' && str[i+1]=='D' && str[i+2]=='T')
+            tzoffset=-(5*3600);
+          else if (str[i+0]=='C' && str[i+1]=='S' && str[i+2]=='T')
+            tzoffset=-(6*3600);
+          else if (str[i+0]=='M' && str[i+1]=='D' && str[i+2]=='T')
+            tzoffset=-(6*3600);
+          else if (str[i+0]=='M' && str[i+1]=='S' && str[i+2]=='T')
+            tzoffset=-(7*3600);
+          else if (str[i+0]=='P' && str[i+1]=='D' && str[i+2]=='T')
+            tzoffset=-(7*3600);
+          else if (str[i+0]=='P' && str[i+1]=='S' && str[i+2]=='T')
+            tzoffset=-(8*3600);
+          else
+            tzoffset=-0;
+          }
+        parse=Done;
+        continue;
+        break;
+
+      default: break;
+      }
+    return false;
+    }
+
+  timestamp  = FXDate(year,month,day).getTime();
+  timestamp += seconds * ((hour*3600)+(minute*60)+(second)-(tzoffset));
+  return true;
+  }
+
+
 
 
 
