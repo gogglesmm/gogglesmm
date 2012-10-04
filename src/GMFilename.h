@@ -75,6 +75,9 @@ namespace GMFilename {
     ENCODING_LAST
     };
 
+  /// Filter a string
+  FXString filter(const FXString & input,const FXString & forbidden,FXuint options);
+
   /// Return FXTextCodec for given codec number
   FXTextCodec * findcodec(const FXuint & codec);
 

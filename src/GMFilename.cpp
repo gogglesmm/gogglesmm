@@ -195,7 +195,7 @@ FXTextCodec * findcodec(const FXuint & codec) {
     3) make everything lowercase [optional]
     4) do not use any of the shell dangerous character set \'\\#~!\"$&();<>|`^*?[]/
 */
-static FXString filter(const FXString & input,const FXString & forbidden,FXuint options){
+FXString filter(const FXString & input,const FXString & forbidden,FXuint options){
 //  const FXString forbidden = "\'\\#~!\"$&();<>|`^*?[]/.:";  // Allowed  %+,-=@_{}
   FXString result;
   FXwchar w;
@@ -248,9 +248,9 @@ static FXString convert_and_decompose(const FXString & input,FXTextCodec * codec
       }
     else {
       input_decompose.assign(&input[i],input.extent(i));
-#if FOXVERSION < FXVERSION(1,7,29)      
+#if FOXVERSION < FXVERSION(1,7,29)
       input_decompose = decompose(input_decompose,DecCompat);
-#else      
+#else
       input_decompose = decompose(input_decompose,DecomposeCompat);
 #endif
       for (j=0;j<input_decompose.length();j=input_decompose.inc(j)){
@@ -269,8 +269,8 @@ static FXString convert_and_decompose(const FXString & input) {
   register FXint i=0;
   FXString result;
 #if FOXVERSION < FXVERSION(1,7,29)
-  FXString in = decompose(input,DecCanonical);      
-#else      
+  FXString in = decompose(input,DecCanonical);
+#else
   FXString in = decompose(input,DecomposeCanonical);
 #endif
   for (i=0;i<in.length();i=in.inc(i)){
@@ -293,7 +293,7 @@ static FXString to_8bit_codec(const FXString & input,FXTextCodec * codec,const F
   result = compose(result,DecCompat);
 #else
   result = compose(result,DecomposeCompat);
-#endif  
+#endif
 
   /// convert to given codec.
   if (dynamic_cast<FXUTF8Codec*>(codec)==NULL)
@@ -314,7 +314,7 @@ static FXString to_8bit_ascii(const FXString & input,const FXString & forbidden,
   result = compose(result,DecCompat);
 #else
   result = compose(result,DecomposeCompat);
-#endif  
+#endif
 
   /// convert to given codec.
   result = convert_and_decompose(result);
