@@ -19,6 +19,94 @@
 #include "gmdefs.h"
 #include "fxext.h"
 
+// Map
+FXDEFMAP(GMThreadDialog) GMThreadDialogMap[]={
+  FXMAPFUNC(SEL_KEYPRESS,0,GMThreadDialog::onKeyPress),
+  FXMAPFUNC(SEL_KEYRELEASE,0,GMThreadDialog::onKeyRelease),
+  FXMAPFUNC(SEL_CLOSE,0,GMThreadDialog::onCmdCancel),
+  FXMAPFUNC(SEL_COMMAND,FXDialogBox::ID_ACCEPT,GMThreadDialog::onCmdAccept),
+  FXMAPFUNC(SEL_CHORE,FXDialogBox::ID_CANCEL,GMThreadDialog::onCmdCancel),
+  FXMAPFUNC(SEL_TIMEOUT,FXDialogBox::ID_CANCEL,GMThreadDialog::onCmdCancel),
+  FXMAPFUNC(SEL_COMMAND,FXDialogBox::ID_CANCEL,GMThreadDialog::onCmdCancel),
+  FXMAPFUNC(SEL_COMMAND,GMThreadDialog::ID_THREAD_EXEC,GMThreadDialog::onThreadExec),
+  };
+
+
+// Object implementation
+FXIMPLEMENT(GMThreadDialog,FXTopWindow,GMThreadDialogMap,ARRAYNUMBER(GMThreadDialogMap))
+
+GMThreadDialog::GMThreadDialog(FXApp* a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(a,name,NULL,NULL,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
+  code=0;
+  }
+
+GMThreadDialog::GMThreadDialog(FXWindow* own,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(own,name,NULL,NULL,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
+  code=0;
+  }
+
+long GMThreadDialog::onThreadExec(FXObject*,FXSelector,void*){
+  create();
+  show();
+  return 1;
+  }
+
+FXuint GMThreadDialog::execute(FXMessageChannel* channel) {
+  mutex.lock();
+  channel->message(this,FXSEL(SEL_COMMAND,ID_THREAD_EXEC),NULL,0);
+  condition.wait(mutex);
+  mutex.unlock();
+  return code;
+  }
+
+// Close dialog with an accept
+long GMThreadDialog::onCmdAccept(FXObject*,FXSelector,void*){
+  mutex.lock();
+  hide();
+  destroy();
+  code=1;
+  condition.signal();
+  mutex.unlock();
+  return 1;
+  }
+
+// Close dialog with a cancel
+long GMThreadDialog::onCmdCancel(FXObject*,FXSelector,void*){
+  mutex.lock();
+  hide();
+  destroy();
+  code=0;
+  condition.signal();
+  mutex.unlock();
+  return 1;
+  }
+
+// Keyboard press; handle escape to close the dialog
+long GMThreadDialog::onKeyPress(FXObject* sender,FXSelector sel,void* ptr){
+  if(FXTopWindow::onKeyPress(sender,sel,ptr)) return 1;
+  if(((FXEvent*)ptr)->code==KEY_Escape){
+    handle(this,FXSEL(SEL_COMMAND,ID_CANCEL),NULL);
+    return 1;
+    }
+  return 0;
+  }
+
+// Keyboard release; handle escape to close the dialog
+long GMThreadDialog::onKeyRelease(FXObject* sender,FXSelector sel,void* ptr){
+  if(FXTopWindow::onKeyRelease(sender,sel,ptr)) return 1;
+  if(((FXEvent*)ptr)->code==KEY_Escape){
+    return 1;
+    }
+  return 0;
+  }
+
+
+
+
+
+
+
+
+
+
 
 // Get highlight color
 static FXColor gm_make_hilite_color(FXColor clr){

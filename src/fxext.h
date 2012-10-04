@@ -34,6 +34,46 @@ extern void ewmh_activate_window(const FXWindow*);
 extern void fix_wm_properties(const FXWindow*);
 
 
+class FXAPI GMThreadDialog : public FXTopWindow {
+  FXDECLARE(GMThreadDialog)
+protected:
+  FXMutex     mutex;
+  FXCondition condition;
+  FXuint      code;
+protected:
+  GMThreadDialog(){}
+private:
+  GMThreadDialog(const GMThreadDialog&);
+  GMThreadDialog &operator=(const GMThreadDialog&);
+public:
+  long onCmdAccept(FXObject*,FXSelector,void*);
+  long onCmdCancel(FXObject*,FXSelector,void*);
+  long onThreadExec(FXObject*,FXSelector,void*);
+  long onKeyPress(FXObject*,FXSelector,void*);
+  long onKeyRelease(FXObject*,FXSelector,void*);
+public:
+  enum {
+    ID_CANCEL=FXTopWindow::ID_LAST,     /// Closes the dialog, cancel the entry
+    ID_ACCEPT,                          /// Closes the dialog, accept the entry
+    ID_THREAD_EXEC,
+    ID_LAST
+    };
+public:
+
+  /// Construct free-floating dialog
+  GMThreadDialog(FXApp* a,const FXString& name,FXuint opts=DECOR_TITLE|DECOR_BORDER,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=10,FXint pr=10,FXint pt=10,FXint pb=10,FXint hs=4,FXint vs=4);
+
+  /// Construct dialog which will always float over the owner window
+  GMThreadDialog(FXWindow* owner,const FXString& name,FXuint opts=DECOR_TITLE|DECOR_BORDER,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=10,FXint pr=10,FXint pt=10,FXint pb=10,FXint hs=4,FXint vs=4);
+
+  /// Execute from thread using message channel
+  FXuint execute(FXMessageChannel*);
+  };
+
+
+
+
+
 class GMListBox : public FXListBox {
   FXDECLARE(GMListBox)
 protected:
