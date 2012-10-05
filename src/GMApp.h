@@ -65,8 +65,8 @@ public:
 
   static FXString getConfigDirectory(FXbool create=false);
   static FXString getCacheDirectory(FXbool create=false);
-
   static FXString getDataDirectory(FXbool create=false);
+  static FXString getPodcastDirectory(FXbool create=false);
 
   virtual void exit(FXint code=0);
 

@@ -187,6 +187,19 @@ void GMApp::updateFont() {
   }
 
 
+FXString GMApp::getPodcastDirectory(FXbool create) {
+  FXString xdg_data_home = FXSystem::getEnvironment("XDG_DATA_HOME");
+  if (xdg_data_home.empty())
+    xdg_data_home=FXSystem::getHomeDirectory()+PATHSEPSTRING ".local" PATHSEPSTRING "share" ;
+
+  xdg_data_home += PATHSEPSTRING "gogglesmm" PATHSEPSTRING "podcasts";
+
+  if (create)
+    FXDir::createDirectories(xdg_data_home);
+
+  return xdg_data_home;
+  }
+
 FXString GMApp::getDataDirectory(FXbool create) {
   FXString xdg_data_home = FXSystem::getEnvironment("XDG_DATA_HOME");
 
