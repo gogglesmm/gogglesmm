@@ -141,7 +141,7 @@ FXint GMRenameTask::run() {
       if (!FXDir::createDirectories(FXPath::directory(to[i]))) continue;
       if (FXStat::exists(to[i])) continue;
       fxmessage("Updating Filename %s\n",from[i].text());
-      if (FXFile::rename(from[i],to[i])){
+      if (FXFile::moveFiles(from[i],to[i])){
         database->setTrackFilename(tracks[i],to[i]);
         }
       }
