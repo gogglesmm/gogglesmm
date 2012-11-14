@@ -37,6 +37,9 @@ FXDEFMAP(GMRemote) GMRemoteMap[]={
   FXMAPFUNC(SEL_CHANGED,						GMRemote::ID_VOLUME_SLIDER,			GMRemote::onCmdVolume),
   FXMAPFUNC(SEL_MOUSEWHEEL,					GMRemote::ID_VOLUME_BUTTON,     GMRemote::onCmdVolumeButton),
   FXMAPFUNC(SEL_MOUSEWHEEL,					0,															GMRemote::onCmdVolumeButton),
+  FXMAPFUNC(SEL_COMMAND,        		GMRemote::ID_TIMESLIDER,        GMRemote::onCmdTimeSlider),
+  FXMAPFUNC(SEL_LEFTBUTTONPRESS, 		GMRemote::ID_TIME_LABEL,        GMRemote::onCmdSetTimeLabelDirection),
+  FXMAPFUNC(SEL_RIGHTBUTTONPRESS, 	GMRemote::ID_TIME_LABEL,        GMRemote::onCmdSetTimeLabelDirection),
   };
 
 // Implementation
@@ -89,11 +92,13 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   time_label =new FX7Segment(buttons,"--:--",SEVENSEGMENT_SHADOW|LAYOUT_CENTER_Y);
   time_label->setCellWidth(10);
   time_label->setCellHeight(15);
+  time_label->setTarget(this);
+  time_label->setSelector(ID_TIME_LABEL);
   new FXVerticalSeparator(buttons,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
   volumebutton = new FXMenuButton(buttons,tr("\tAdjust Volume\tAdjust Volume"),NULL,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y);
   volumebutton->setTarget(this);
   volumebutton->setSelector(ID_VOLUME_BUTTON);
-  new FXSeparator(this,LAYOUT_SIDE_BOTTOM|SEPARATOR_GROOVE|LAYOUT_FILL_X);
+//  new FXSeparator(this,LAYOUT_SIDE_BOTTOM|SEPARATOR_GROOVE|LAYOUT_FILL_X);
 
   FXVerticalFrame * info = new FXVerticalFrame(this,LAYOUT_CENTER_Y|FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,2,2,2,2,0,0);
   title_label = new FXTextField(info,20,NULL,0,FRAME_NONE|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
@@ -106,6 +111,11 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   artistalbum_label = new FXTextField(info,30,NULL,0,FRAME_NONE|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
   artistalbum_label->setBackColor(getApp()->getBaseColor());
   artistalbum_label->setDefaultCursor(getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
+
+  trackslider = new GMTrackProgressBar(info,this,ID_TIMESLIDER,LAYOUT_FILL_X|LAYOUT_CENTER_Y|FRAME_RAISED,0,0,0,0,0,0,0,0);
+  trackslider->setTotal(100000);
+  trackslider->setDefaultCursor(GMIconTheme::instance()->cursor_hand);
+  trackslider->setDragCursor(GMIconTheme::instance()->cursor_hand);
 
   getAccelTable()->addAccel(parseAccel("F11"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_SHOW_BROWSER));
   getAccelTable()->addAccel(parseAccel("Ctrl-M"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_SHOW_BROWSER));
@@ -144,6 +154,7 @@ void GMRemote::writeRegistry(){
     getApp()->reg().writeIntEntry("window","remote-y",getY());
     getApp()->reg().writeIntEntry("window","remote-width",getWidth());
     getApp()->reg().writeIntEntry("window","remote-height",getHeight());
+    getApp()->reg().writeBoolEntry("window","remote-time-remaining",is_remaining);
     }
   }
 
@@ -187,6 +198,9 @@ void GMRemote::reset(){
   artistalbum_label->hide();
   time_label->setText("--:--");
 
+  trackslider->disable();
+  trackslider->setProgress(0);
+
   if (cover) {
     delete cover;
     cover=NULL;
@@ -197,15 +211,34 @@ void GMRemote::reset(){
   layout();
   }
 
-void GMRemote::update_time(const TrackTime & c,FXint,FXbool playing){
+void GMRemote::update_time(const TrackTime & c,const TrackTime & r,FXint position,FXbool playing,FXbool seekable){
   if (playing) {
-    if (c.hours>0)
-      time_label->setText(FXString::value("%d:%.2d:%.2d",c.hours,c.minutes,c.seconds));
-    else
-      time_label->setText(FXString::value("%.2d:%.2d",c.minutes,c.seconds));
+    if (is_remaining == false) {
+      if (c.hours>0)
+        time_label->setText(FXString::value("%d:%.2d:%.2d",c.hours,c.minutes,c.seconds));
+      else
+        time_label->setText(FXString::value("%.2d:%.2d",c.minutes,c.seconds));
+      }
+    else {
+      if (c.hours>0)
+        time_label->setText(FXString::value("-%d:%.2d:%.2d",r.hours,r.minutes,r.seconds));
+      else
+        time_label->setText(FXString::value("-%.2d:%.2d",r.minutes,r.seconds));
+      }
+    if (seekable) {
+      if (!trackslider->grabbed()){
+        trackslider->setProgress(position);
+        }
+      trackslider->enable();
+      }
+    else {
+      trackslider->disable();
+      }
     }
   else {
     time_label->setText("--:--");
+    trackslider->disable();
+    trackslider->setProgress(0);
     }
   }
 
@@ -250,6 +283,7 @@ void GMRemote::create(){
   else {
     place(PLACEMENT_SCREEN);
     }
+  is_remaining = getApp()->reg().readBoolEntry("window","remote-time-remaining",false);
   gm_set_application_icon(this);
   }
 
@@ -276,3 +310,14 @@ long GMRemote::onUpdVolumeButton(FXObject*sender,FXSelector,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
   return 1;
   }
+
+long GMRemote::onCmdTimeSlider(FXObject*,FXSelector,void*ptr){
+  FXdouble pos = *(FXdouble*)ptr;
+  GMPlayerManager::instance()->seek(pos);
+  return 1;
+  }
+
+long GMRemote::onCmdSetTimeLabelDirection(FXObject*,FXSelector,void*){
+  is_remaining = !is_remaining;
+  return 1;
+}

@@ -754,7 +754,7 @@ void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint positio
     trackslider->disable();
     trackslider->setProgress(0);
     }
-  if (remote) remote->update_time(c,position,playing);
+  if (remote) remote->update_time(c,r,position,playing,seekable);
   }
 
 long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){

@@ -39,6 +39,8 @@ private:
   FXIconPtr     icon_volume_muted;
   FXIconPtr     icon_home;
   FXImage*      cover;
+  GMTrackProgressBar* trackslider;
+  bool          is_remaining;
 protected:
   virtual bool doesOverrideRedirect() const;
   GMRemote() {}
@@ -47,10 +49,14 @@ public:
   long onCmdVolume(FXObject*,FXSelector,void*);
   long onCmdVolumeButton(FXObject*,FXSelector,void*);
   long onUpdVolumeButton(FXObject*,FXSelector,void*);
+  long onCmdTimeSlider(FXObject*,FXSelector,void*);
+  long onCmdSetTimeLabelDirection(FXObject*,FXSelector,void*);
 public:
   enum {
     ID_VOLUME_SLIDER = FXMainWindow::ID_LAST,
     ID_VOLUME_BUTTON,
+    ID_TIMESLIDER,
+    ID_TIME_LABEL,
     };
 public:
   /// Construct Remote Window
@@ -60,8 +66,7 @@ public:
   // Update Display
   void display(const GMTrack & track);
 
-
-  void update_time(const TrackTime & current,FXint p,FXbool playing);
+  void update_time(const TrackTime & current,const TrackTime & remaining,FXint position,FXbool playing,FXbool seekable);
 
   void update_volume_display(FXint l);
 
