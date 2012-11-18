@@ -570,7 +570,9 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
           case 'A' : if (options&OVERWRITE || track.album.empty()) track.album.adopt(field); break;
           case 'p' : if (options&OVERWRITE || track.artist.empty()) track.artist.adopt(field); break;
           case 'n' :
-          case 'N' : if (options&OVERWRITE) track.no = field.toInt(); break;
+          case 'N' : if (options&OVERWRITE) track.setTrackNumber(field.toInt()); break;
+          case 'd' : if (options&OVERWRITE) track.setDiscNumber(field.toInt()); break;
+          default  : break;
           }
         //fxmessage("%%%c=\"%s\"\n",item,field.text());
         beg=end+1;
