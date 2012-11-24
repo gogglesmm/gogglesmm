@@ -53,7 +53,8 @@ enum {
   SOURCE_ALBUM,
   SOURCE_ARTIST,
   SOURCE_AUDIOCD,
-  SOURCE_FILESYSTEM
+  SOURCE_FILESYSTEM,
+  SOURCE_PODCAST,
   };
 
 enum {
@@ -78,6 +79,8 @@ enum {
   HEADER_FILETYPE,
   HEADER_COMPOSER,
   HEADER_CONDUCTOR,
+  HEADER_DATE,
+  HEADER_STATUS,
   HEADER_NONE
   };
 
@@ -181,6 +184,8 @@ public:
 
   virtual FXbool autoPlay() const { return true; }
 
+  virtual FXbool hasArtistList() const { return true; }
+
   virtual FXString getName() const { return FXString::null; }
 
 
@@ -215,9 +220,9 @@ public:
   virtual FXbool listAlbums(GMAlbumList *,const FXIntList &,const FXIntList &) { return false; }
 
   virtual FXbool listTracks(GMTrackList*,const FXIntList &,const FXIntList &) { return false; }
-  
+
   virtual FXbool updateSelectedTracks(GMTrackList*) { return false; }
-  
+
   virtual FXbool genre_context_menu(FXMenuPane*) { return false; }
 
   virtual FXbool artist_context_menu(FXMenuPane*) { return false; }

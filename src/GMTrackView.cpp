@@ -922,8 +922,9 @@ void GMTrackView::redrawAlbumList() {
   }
 
 void GMTrackView::refreshUpdate() {
-  if (source)
+  if (source) {
     source->updateSelectedTracks(tracklist);
+    }
   }
 
 void GMTrackView::refresh() {
@@ -1251,6 +1252,10 @@ void GMTrackView::loadSettings(const FXString & key) {
 
   if (source) source->setFilter(filterfield->getText().trim().simplify(),filtermask);
 
+  if (source->hasArtistList())
+    artistlist->getParent()->show();
+  else
+    artistlist->getParent()->hide();
 
   loadTrackSettings(key);
   }
