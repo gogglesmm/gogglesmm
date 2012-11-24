@@ -559,8 +559,10 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   template_grpbox->setFont(GMApp::instance()->getThickFont());
 
   FXLabel * label = new FXLabel(template_grpbox,tr("%T - title              %A - album name\n"
-                                          "%P - album artist name  %p - track artist name \n"
-                                          "%N - track number       %G - genre"),NULL,FRAME_LINE|JUSTIFY_LEFT,0,0,0,0,30);
+                                                   "%P - album artist name  %p - track artist name \n"
+                                                   "%N - track number       %d - disc number\n"
+                                                   "%G - genre"),NULL,FRAME_LINE|JUSTIFY_LEFT,0,0,0,0,30);
+
   label->setFont(font_fixed);
   label->setBackColor(getApp()->getTipbackColor());
   label->setBorderColor(getApp()->getShadowColor());
