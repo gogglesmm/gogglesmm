@@ -357,7 +357,6 @@ static FXString get_field(FXchar field,const GMTrack & track,FXTextCodec * codec
     case 'n': return FXString::value(GMTRACKNO(track.no));  break;
     case 'd': return FXString::value(GMDISCNO(track.no)); break;
     case 'y': return FXString::value(track.year); break;
-
     }
   return FXString::null;
   }
