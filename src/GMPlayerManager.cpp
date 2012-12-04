@@ -64,6 +64,8 @@
 #include "GMDatabaseSource.h"
 #include "GMStreamSource.h"
 #include "GMPlayListSource.h"
+#include "GMPodcastSource.h"
+
 #include "GMPlayQueue.h"
 #include "GMLocalSource.h"
 
@@ -78,6 +80,7 @@
 #include "GMAudioPlayer.h"
 
 #include "GMAudioScrobbler.h"
+
 
 
 #if APPLICATION_BETA_DB > 0
@@ -583,6 +586,8 @@ FXbool GMPlayerManager::init_sources() {
   /// File System
   sources.append(new GMLocalSource());
 
+  sources.append(new GMPodcastSource(database));
+
   /// Load Settings
   for (FXint i=0;i<sources.no();i++) {
     sources[i]->load(application->reg());
@@ -657,7 +662,7 @@ void GMPlayerManager::init_window(FXbool wizard) {
   tooltip->create();
   ewmh_change_window_type(tooltip,WINDOWTYPE_TOOLTIP);
 
-  if (database->getNumTracks()==0 && database->getNumStreams()==0 && wizard) {
+  if (database->isEmpty() && wizard) {
     cleanSourceSettings();
     mainwindow->init(SHOW_WIZARD);
     }
@@ -1577,7 +1582,7 @@ long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
     GMTask * task = *((GMTask**)ptr);
     delete task;
   }
-  
+
   database->initArtistLookup();
 
   /// Update the covers

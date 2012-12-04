@@ -131,6 +131,7 @@ static FXIcon * icon_for_sourcetype(FXint type) {
     case SOURCE_DATABASE_PLAYLIST : return GMIconTheme::instance()->icon_source_playlist; break;
     case SOURCE_PLAYQUEUE         : return GMIconTheme::instance()->icon_source_playqueue; break;
     case SOURCE_FILESYSTEM        : return GMIconTheme::instance()->icon_source_local; break;
+    case SOURCE_PODCAST           : return GMIconTheme::instance()->icon_source_podcast; break;
     default                       : break;
     }
   return NULL;

@@ -191,6 +191,32 @@ public:
   };
 
 
+class GMFeedItem : public GMTrackItem {
+protected:
+  FXString title;
+  FXTime   date;
+  FXuint   time;
+  FXuint   flags;
+public:
+  enum {
+    FOLDER = 0x8 // Keep this in sync with GMTrackItem::state
+    };
+public:
+  static FXint ascendingDate(const GMTrackItem*,const GMTrackItem*);
+  static FXint descendingDate(const GMTrackItem*,const GMTrackItem*);
+  static FXint ascendingTime(const GMTrackItem*,const GMTrackItem*);
+  static FXint descendingTime(const GMTrackItem*,const GMTrackItem*);
+protected:
+  GMFeedItem(){}
+protected:
+  virtual const FXString * getColumnData(FXint i,FXString & t,FXuint &justify,FXint & max) const;
+//  virtual FXIcon* getIcon() const;
+public:
+  GMFeedItem(FXint id,const FXString & title,FXTime date,FXuint time,FXuint flags);
+
+  virtual ~GMFeedItem() {}
+  };
+
 
 
 

@@ -41,7 +41,7 @@ private:
   FXint         smallsize;
   FXint         mediumsize;
   FXint         largesize;
-  FXbool        rsvg;  
+  FXbool        rsvg;
 protected:
   FXIcon  * loadIcon(const FXString & filename);
   FXImage * loadImage(const FXString & filename);
@@ -91,6 +91,7 @@ public:
   FXIconPtr icon_source_playqueue;
   FXIconPtr icon_source_local;
   FXIconPtr icon_source_internetradio;
+  FXIconPtr icon_source_podcast;
   FXIconPtr icon_playlist;
   FXIconPtr icon_playqueue;
   FXIconPtr icon_audio_volume_high;
@@ -105,7 +106,6 @@ public:
   FXIconPtr icon_fullscreen;
   FXIconPtr icon_local_folder;
   FXIconPtr icon_local_file;
-
   FXIconPtr icon_customize;
   FXIconPtr icon_document;
   FXIconPtr icon_create;

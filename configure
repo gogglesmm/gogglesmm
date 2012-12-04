@@ -157,7 +157,7 @@ echo "Goggles Music Manager:"
 
 # Libraries
 #------------------------
-add_required_package "fox17 >= 1.7.28" "fox"
+add_required_package "fox17 >= 1.7.37" "fox"
 check_reswrap
 check_foxversion
 

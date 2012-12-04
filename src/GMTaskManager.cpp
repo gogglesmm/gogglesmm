@@ -38,12 +38,13 @@ FXint GMWorkerThread::run() {
   }
 
 
+
 FXIMPLEMENT(GMWorker,FXObject,NULL,0);
 
 GMWorker::GMWorker(){
   }
 
-GMWorker::GMWorker(FXApp * app) : thread(NULL) {
+GMWorker::GMWorker(FXApp * app) : thread(NULL),processing(true) {
   thread  = new GMWorkerThread(this);
   channel = new FXMessageChannel(app);
   }
@@ -55,6 +56,10 @@ GMWorker::~GMWorker() {
 
 void GMWorker::start() {
   thread->start();
+  }
+
+void GMWorker::stop() {
+  processing=false;
   }
 
 FXbool GMWorker::send(FXSelector msg,const void* data,FXint size){

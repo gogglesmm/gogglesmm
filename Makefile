@@ -61,6 +61,7 @@ src/GMLocalSource.cpp \
 src/GMPlayerManager.cpp \
 src/GMPlayListSource.cpp \
 src/GMPlayQueue.cpp \
+src/GMPodcastSource.cpp \
 src/GMPreferences.cpp \
 src/GMPreferencesDialog.cpp \
 src/GMRemote.cpp \

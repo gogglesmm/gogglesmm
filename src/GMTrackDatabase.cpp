@@ -31,7 +31,11 @@
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2010
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2012
+#define GOGGLESMM_DATABASE_SCHEMA_DEV1    2010  /* Dev DB before podcast manager */
+#define GOGGLESMM_DATABASE_SCHEMA_V12     2009
+#define GOGGLESMM_DATABASE_SCHEMA_V10     2008
+
 /*
 
 *****************************************************
@@ -87,7 +91,59 @@
         track     INTEGER
         queue     INTEGER
 
+
+    TABLE feeds
+        id            INTEGER
+        url           TEXT
+        title         TEXT
+        description   TEXT
+        local         TEXT
+        tag           INTEGER
+        date          INTEGER
+        http_etag     TEXT
+        http_modified INTEGER
+
+    TABLE feed_items
+        id            INTEGER
+        feed          INTEGER
+        guid          TEXT
+        url           TEXT
+        local         TEXT
+        title         TEXT
+        description   TEXT
+        size          INTEGER
+        time          INTEGER
+        date          INTEGER
+        flags         INTEGER
+
 */
+
+
+const FXchar create_feed[]="CREATE TABLE IF NOT EXISTS feeds (id INTEGER NOT NULL,"
+                                                             "url TEXT,"
+                                                             "title TEXT,"
+                                                             "description TEXT,"
+                                                             "local TEXT,"
+                                                             "tag INTEGER,"
+                                                             "date INTEGER,"
+                                                             "http_etag TEXT,"
+                                                             "http_modified INTEGER,"
+                                                             "PRIMARY KEY (id) );";
+
+const FXchar create_feed_items[] ="CREATE TABLE IF NOT EXISTS feed_items ( id INTEGER NOT NULL,"
+                                                                          "feed INTEGER NOT NULL, "
+                                                                          "guid TEXT NOT NULL, "
+                                                                          "url TEXT NOT NULL, "
+                                                                          "local TEXT, "
+                                                                          "title TEXT, "
+                                                                          "description TEXT, "
+                                                                          "size INTEGER,"
+                                                                          "time INTEGER,"
+                                                                          "date INTEGER,"
+                                                                          "flags INTEGER,"
+                                                                          "PRIMARY KEY (id) );";
+
+
 
 
 const FXchar create_streams[]="CREATE TABLE IF NOT EXISTS streams ( id INTEGER NOT NULL, "
@@ -286,15 +342,16 @@ FXbool GMTrackDatabase::init_database() {
     switch(getVersion()) {
       case GOGGLESMM_DATABASE_SCHEMA_VERSION:
         break;
-/*
-  /// DISABLED FOR NOW UNTIL WE HAVE AN UPGRADE PATH TO THE LATEST VERSION
-      case 2008                             :
-        upgrade_to_2009(); /// intentionally no break
-      case 2009                             :
-        //upgrade_to_2010();
-        return false;
+
+      case GOGGLESMM_DATABASE_SCHEMA_DEV1 :
+        execute(create_feed);
+        execute(create_feed_items);
+        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
-*/
+
+      case GOGGLESMM_DATABASE_SCHEMA_V10    :
+      case GOGGLESMM_DATABASE_SCHEMA_V12    :
+        // No upgrade path yet for gogglesmm 0.12
       default                               :
         /// Some unknown database. Let's start from scratch
         reset();
@@ -310,6 +367,9 @@ FXbool GMTrackDatabase::init_database() {
         execute(create_pathlist);
         execute(create_streams);
 
+
+        execute(create_feed);
+        execute(create_feed_items);
 
 
         execute("CREATE INDEX tracks_album ON tracks(album);");
@@ -1068,19 +1128,22 @@ void GMTrackDatabase::getTrackStats(FXint & ntracks,FXint & nartists,FXint & nal
     }
   }
 
+FXbool GMTrackDatabase::isEmpty() {
+  DEBUG_DB_GET();
+  FXint total=0;
+  execute("SELECT SUM(rows) FROM ( "
+              "SELECT COUNT(*) AS rows FROM tracks UNION ALL "
+              "SELECT COUNT(*) AS rows FROM feeds UNION ALL "
+              "SELECT COUNT(*) As rows FROM streams"
+              ");",total);
 
+  return (total==0);
+  }
 
 FXint GMTrackDatabase::getNumTracks() {
   DEBUG_DB_GET();
   FXint total=0;
   execute("SELECT COUNT(*) FROM tracks;",total);
-  return total;
-  }
-
-FXint GMTrackDatabase::getNumStreams() {
-  DEBUG_DB_GET();
-  FXint total=0;
-  execute("SELECT COUNT(*) FROM streams;",total);
   return total;
   }
 
@@ -1097,7 +1160,6 @@ FXint GMTrackDatabase::getNumAlbums() {
   execute("SELECT COUNT(id) FROM albums;",total);
   return total;
   }
-
 
 FXint GMTrackDatabase::getTotalTime() {
   DEBUG_DB_GET();

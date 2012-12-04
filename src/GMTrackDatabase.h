@@ -193,6 +193,9 @@ public:
   /// Get the track stats
   void getTrackStats(FXint & ntracks,FXint & nartists,FXint & nalbums,FXint & ntime,FXint playlist=0);
 
+  /// Check if database is empty
+  FXbool isEmpty();
+
   /// Return number of tracks in database
   FXint getNumTracks();
 
@@ -201,9 +204,6 @@ public:
 
   /// Return number of artists in database
   FXint getNumArtists();
-
-  /// Return number of streams in database
-  FXint getNumStreams();
 
   /// Return total time of all tracks
   FXint getTotalTime();

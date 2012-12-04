@@ -23,7 +23,7 @@ class GMWorker;
 
 class GMWorkerThread : public FXThread {
 protected:
-  GMWorker*worker;
+  GMWorker * worker;
 public:
   FXint run();
 protected:
@@ -31,7 +31,6 @@ protected:
   GMWorkerThread &operator=(const GMWorkerThread&);
 public:
   GMWorkerThread(GMWorker *w);
-
   ~GMWorkerThread();
   };
 
@@ -40,6 +39,7 @@ FXDECLARE(GMWorker)
 protected:
   GMWorkerThread   * thread;
   FXMessageChannel * channel;
+  volatile FXbool    processing;
 public:
   enum {
     ID_THREAD_ENTER = 1,
@@ -56,6 +56,8 @@ public:
   virtual FXint run() { return 0; }
 
   void start();
+
+  void stop();
 
   FXbool send(FXSelector msg,const void* data=NULL,FXint size=0);
 

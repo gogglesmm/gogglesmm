@@ -28,6 +28,7 @@
 #include "GMTrackDatabase.h"
 #include "GMDatabaseSource.h"
 #include "GMPlayListSource.h"
+#include "GMPodcastSource.h"
 #include "GMPlayQueue.h"
 #include "GMTrackDatabase.h"
 #include "GMIconTheme.h"
@@ -850,3 +851,83 @@ FXint GMLocalTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackIt
   if (diff==0) return -comparecase(ta->filename,tb->filename);
   return diff;
   }
+
+
+
+
+
+GMFeedItem::GMFeedItem(FXint i,const FXString & t, FXTime d,FXuint tm,FXuint f) : GMTrackItem(i),title(t),date(d),time(tm),flags(f) {
+  }
+
+
+const FXString * GMFeedItem::getColumnData(FXint type,FXString&text,FXuint & justify,FXint &) const{
+  const FXString * textptr;
+  justify=COLUMN_JUSTIFY_NORMAL;
+  switch(type){
+    case HEADER_TITLE   : textptr = &title;  			break;
+    case HEADER_DATE    : text=FXSystem::localTime("%x",date);
+                          textptr=&text;
+                          break;
+    case HEADER_STATUS  : if (flags&(1<<ITEM_FLAG_LOCAL))
+                            text = "On Disk";
+                          else if (flags&(1<<ITEM_FLAG_QUEUE))
+                            text = "In Queue";
+                          else
+                            text.clear();
+
+                          textptr=&text;
+                          break;
+    case HEADER_TIME    : if (time) {
+                            if (time>3600)
+                              text.format("%d:%.2d:%.2d",(time/3600),(time%3600)/60,(time%60));
+                            else
+                              text.format("%d:%.2d",time/60,time%60);
+
+                            textptr=&text;
+                            justify=COLUMN_JUSTIFY_CENTER_RIGHT_ALIGNED;
+                            }
+                          else {
+                            textptr = NULL;
+                            }
+                          //max=GMDBTrackItem::max_time;
+                          break;
+
+    default							: textptr = NULL;			 			  break;
+    }
+  return textptr;
+  }
+
+
+FXint GMFeedItem::ascendingDate(const GMTrackItem* pa,const GMTrackItem* pb){
+  const GMFeedItem * const ta = (GMFeedItem*)pa;
+  const GMFeedItem * const tb = (GMFeedItem*)pb;
+  if (ta->date>tb->date) return 1;
+  else if (ta->date<tb->date) return -1;
+  return 0;
+  }
+
+FXint GMFeedItem::descendingDate(const GMTrackItem* pa,const GMTrackItem* pb){
+  const GMFeedItem * const ta = (GMFeedItem*)pa;
+  const GMFeedItem * const tb = (GMFeedItem*)pb;
+  if (ta->date>tb->date) return -1;
+  else if (ta->date<tb->date) return 1;
+  return 0;
+  }
+
+
+FXint GMFeedItem::ascendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
+  register const FXint a=((GMFeedItem*)pa)->time;
+  register const FXint b=((GMFeedItem*)pb)->time;
+  if (a>b) return 1;
+  if (a<b) return -1;
+  return 0;
+  }
+
+FXint GMFeedItem::descendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
+  register const FXint a=((GMFeedItem*)pa)->time;
+  register const FXint b=((GMFeedItem*)pb)->time;
+  if (a>b) return -1;
+  if (a<b) return 1;
+  return 0;
+  }
+

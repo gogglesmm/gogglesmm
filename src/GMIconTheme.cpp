@@ -357,6 +357,7 @@ FXbool GMIconTheme::load_cache() {
   FXuint   cache_file_version;
   FXint    cache_size;
   FXint    n;
+  FXFileStream store;
   FXTime theme_dir_date=0;
   FXTime cache_dir_date=FXStat::modified(cache_file);
 
@@ -368,14 +369,13 @@ FXbool GMIconTheme::load_cache() {
 
   /// Any dirs newer, then reload.
   if (theme_dir_date==0 || cache_dir_date==0 || theme_dir_date>cache_dir_date)
-    return false;
+    goto failed;
 
-  FXFileStream store;
   if (store.open(GMApp::getCacheDirectory()+PATHSEPSTRING+"icontheme.cache",FXStreamLoad)) {
 
     store >> cache_file_version;
     if (cache_file_version!=CACHE_FILE_VERSION)
-      return false;
+      goto failed;
 
     for (FXint i=0;i<basedirs.no();i++) {
       dirs+=basedirs[i] + ":";
@@ -383,30 +383,31 @@ FXbool GMIconTheme::load_cache() {
 
     store >> cache_dirs;
     if (dirs!=cache_dirs)
-      return false;
+      goto failed;
 
     store >> cache_size;
     if (cache_size!=smallsize)
-      return false;
+      goto failed;
 
     store >> cache_size;
     if (cache_size!=mediumsize)
-      return false;
+      goto failed;
 
     store >> cache_size;
     if (cache_size!=largesize)
-      return false;
+      goto failed;
 
     store >> n;
     iconsets.no(n);
     for (FXint i=0;i<iconsets.no();i++){
       iconsets[i].load(store);
-      }
-#ifdef DEBUG
-    fxmessage("loading icon cache succesful\n");
-#endif
+      }      
+      
     return true;
     }
+
+failed:
+  GM_DEBUG_PRINT("GMIconTheme::load_cache() - failed\n");        
   return false;
   }
 
@@ -621,17 +622,13 @@ void GMIconTheme::build() {
 
 
 void GMIconTheme::clear_svg_cache() {
-#ifdef DEBUG
-  fxmessage("clear svg cache\n");
-#endif
+  GM_DEBUG_PRINT("GMIconTheme::clear_svg_cache()\n");
   FXFile::removeFiles(get_svg_cache(),true);
   }
 
 FXString GMIconTheme::get_svg_cache() {
   return GMApp::getCacheDirectory(false) + CACHE_SVG_NAME;
   }
-
-
 
 FXImage * GMIconTheme::loadImage(const FXString & filename) {
   FXImage * img=NULL;
@@ -725,9 +722,9 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
         FXString target = dest + PATHSEPSTRING + svg + ".png";
         if (!FXStat::exists(target)) {
           FXDir::createDirectories(dest);
-#ifdef DEBUG
-          fxmessage("make %s\n",target.text());
-#endif
+          
+          GM_DEBUG_PRINT("GMIconTheme::loadIcon() - rsvg-convert %s",target.text());
+
           if (system(FXString::value("rsvg-convert --format=png --width=%d --height=%d -o %s %s\n",size,size,target.text(),path.text()).text())==0){
             name.adopt(target);
             break;
@@ -847,6 +844,7 @@ void GMIconTheme::load() {
   loadMedium(icon_source_playlist,"user-bookmarks",backcolor);
   loadMedium(icon_source_playqueue,"x-office-presentation",backcolor);
   loadMedium(icon_source_local,"drive-harddisk",backcolor);
+  loadMedium(icon_source_podcast,"application-rss+xml",basecolor);
 
   loadSmall(icon_playlist,"user-bookmarks",basecolor);
   loadSmall(icon_playqueue,"x-office-presentation",basecolor);
@@ -874,6 +872,7 @@ void GMIconTheme::load() {
   loadMedium(icon_document,"document-properties",basecolor);
   loadMedium(icon_create,"document-open",basecolor);
   loadMedium(icon_media,"applications-multimedia",basecolor);
+
 
   icon_applogo->blend(basecolor);
   icon_applogo_small->blend(basecolor);
