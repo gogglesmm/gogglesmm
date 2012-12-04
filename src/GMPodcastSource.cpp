@@ -662,7 +662,7 @@ public:
 
   long onDownloadComplete(FXObject*,FXSelector,void*) {
     mutex.lock();
-    GMQuery update_feed(db,"UPDATE feed_items SET local = ?, flags = ((flags&~(1<<?))|?) WHERE id == ?;");
+    GMQuery update_feed(db,"UPDATE feed_items SET local = ?, flags = ((flags&~(1<<?))|(1<<?)) WHERE id == ?;");
 
     update_feed.set(0,local);
     update_feed.set(1,ITEM_FLAG_QUEUE);
