@@ -597,7 +597,6 @@ protected:
     FXTime modtime=0;
     if (gm_parse_datetime(http.getHeader("last-modified"),modtime) && modtime!=0) {
       FXStat::modified(filename,modtime);
-      //gm_set_modification_time(filename,modtime);
       }
 
     /// Check for partial content
@@ -897,7 +896,7 @@ void GMPodcastSource::removeFeeds(const FXIntList & feeds) {
     // Construct feed directory
     feed_directory.prepend(GMApp::getPodcastDirectory()+PATHSEPSTRING);
 
-    fxmessage("feed dir: %s\n",feed_directory.text());
+    GM_DEBUG_PRINT("feed dir: %s\n",feed_directory.text());
 
     // Delete all music files
     while(query_feed_files.row()) {
@@ -905,7 +904,7 @@ void GMPodcastSource::removeFeeds(const FXIntList & feeds) {
 
       if (!local.empty()) {
         file = feed_directory+PATHSEPSTRING+local;
-        fxmessage("feed file: %s\n",file.text());
+        GM_DEBUG_PRINT("feed file: %s\n",file.text());
         if (FXStat::exists(file))
           FXFile::remove(file);
         }
@@ -948,7 +947,7 @@ FXbool GMPodcastSource::setTrack(GMTrack & track) const {
   }
 
 FXbool GMPodcastSource::getTrack(GMTrack & info) const {
-  GMQuery q(db,"SELECT feed_items.url,feed_items.local,feeds.local FROM feed_items,feeds WHERE feeds.id == feed_items.feed AND feed_items.id == ?;");
+  GMQuery q(db,"SELECT feed_items.url,feed_items.local,feeds.local,feeds.title,feed_items.title FROM feed_items,feeds WHERE feeds.id == feed_items.feed AND feed_items.id == ?;");
   FXString local;
   FXString localdir;
   q.set(0,current_track);
@@ -959,8 +958,11 @@ FXbool GMPodcastSource::getTrack(GMTrack & info) const {
     if (!local.empty()){
       info.mrl = GMApp::getPodcastDirectory() + PATHSEPSTRING + localdir + PATHSEPSTRING + local;
       }
+    info.artist       = q.get(3);
+    info.album_artist = q.get(3);
+    info.album        = q.get(3);
+    info.title        = q.get(4);
     }
-//  q.execute(current_track,info.mrl);
   return true;
   }
 
