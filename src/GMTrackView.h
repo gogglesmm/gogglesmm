@@ -52,6 +52,7 @@ protected:
   FXuint              sort_seed;
   FXuint              shuffle_seed;
   FXuint              filtermask;
+  FXuint              view;
 public:
   static FXbool reverse_artist;
   static FXbool reverse_album;
@@ -69,6 +70,7 @@ protected:
   void initSelection(GMAlbumList * list,const FXchar *,const FXString & section="window");
   void saveSelection(GMList * list,const FXchar *,const FXString & section="window") const;
   void saveSelection(GMAlbumList * list,const FXchar *,const FXString & section="window") const;
+  void configureView(FXuint);
 protected:
   void init_track_context_menu(FXMenuPane *pane,FXbool selected);
 private:
@@ -207,6 +209,8 @@ public:
 
   FXbool hasTracks() const;
 
+  FXbool hasBrowser() const;
+
   void getSelectedTags(FXIntList & tags) const;
 
   void getSelectedArtists(FXIntList & artists) const;
@@ -302,9 +306,9 @@ public:
   FXbool focusNext();
 
   FXbool focusPrevious();
-  
+
   void selectNext();
-  
+
   void selectPrevious();
 
   virtual ~GMTrackView();

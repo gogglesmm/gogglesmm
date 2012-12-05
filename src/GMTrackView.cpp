@@ -49,23 +49,13 @@ static inline FXbool begins_with_keyword(const FXString & t){
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+enum {
+  VIEW_BROWSER_LEFT   = 0x1,
+  VIEW_BROWSER_MIDDLE = 0x2,
+  VIEW_BROWSER_RIGHT  = 0x4,
+  VIEW_LIST           = 0x8,
+  VIEW_BROWSER        = 0x10,
+  };
 
 
 
@@ -345,7 +335,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   browsersplit->setBarSize(7);
   tagsplit->setBarSize(7);
 
-
+  view=0;
 
   getShell()->getAccelTable()->addAccel(parseAccel("Ctrl-N"),this,FXSEL(SEL_COMMAND,ID_SORT_DEFAULT));
   updateColors();
@@ -356,8 +346,56 @@ GMTrackView::~GMTrackView(){
   }
 
 
+FXbool GMTrackView::hasBrowser() const {
+  return view&VIEW_BROWSER;
+  }
+
+void GMTrackView::configureView(FXuint nvw) {
+  FXint expand=0;
+
+  // Always Enabled
+  nvw|=VIEW_BROWSER_RIGHT|VIEW_LIST;
+
+  if (nvw&VIEW_BROWSER_LEFT)
+    expand|=FX4Splitter::ExpandTopLeft;
+
+  if (nvw&VIEW_BROWSER_MIDDLE)
+    expand|=FX4Splitter::ExpandTopRight;
+
+  tagsplit->setExpanded(expand);
+
+
+  if (nvw&VIEW_BROWSER) {
+    if (nvw&(VIEW_BROWSER_LEFT|VIEW_BROWSER_MIDDLE))
+      browsersplit->setExpanded(FX4Splitter::ExpandTopLeft|FX4Splitter::ExpandTopRight|FX4Splitter::ExpandBottomLeft);
+    else{
+      browsersplit->setExpanded(FX4Splitter::ExpandTopRight|FX4Splitter::ExpandBottomLeft);
+      }
+    }
+  else {
+    browsersplit->setExpanded(FX4Splitter::ExpandBottomLeft);
+    }
+
+
+  if ((nvw&(VIEW_BROWSER_LEFT|VIEW_BROWSER_MIDDLE))!=(view&(VIEW_BROWSER_LEFT|VIEW_BROWSER_MIDDLE))) {
+    // 1/3 | 1/3 | 1/3
+    if ((nvw&VIEW_BROWSER_MIDDLE) && (nvw&VIEW_BROWSER_LEFT)) {
+      tagsplit->setHSplit(5000);
+      browsersplit->setHSplit(6666);
+      }
+    // 1/3 | 2/3
+    else if ((nvw&VIEW_BROWSER_MIDDLE) || (nvw&VIEW_BROWSER_LEFT)) {
+      browsersplit->setHSplit(3333);
+      }
+    }
+  view=nvw;
+  }
+
+
+
+
 FXbool GMTrackView::focusPrevious() {
-  if (browsersplit->getExpanded()==SHOWBROWSER) {
+  if (hasBrowser()) {
     if (tracklist->hasFocus()){
       albumlist->setFocus();
       }
@@ -386,7 +424,7 @@ FXbool GMTrackView::focusPrevious() {
 
 
 FXbool GMTrackView::focusNext() {
-  if (browsersplit->getExpanded()==SHOWBROWSER) {
+  if (hasBrowser()) {
     if (taglistframe->shown() && taglist->hasFocus()){
       artistlist->setFocus();
       artistlist->makeItemVisible(artistlist->getCurrentItem());
@@ -720,7 +758,6 @@ void GMTrackView::selectTagItem(FXint item) {
   taglist->selectItem(item,true);
   taglist->setCurrentItem(item,true);
   handle(this,FXSEL(SEL_COMMAND,ID_TAG_LIST),(void*)(FXival)item);
-
   }
 
 
@@ -756,7 +793,7 @@ void GMTrackView::setSource(GMSource * src) {
 
       saveSettings(source->settingKey());
 
-      if (browsersplit->getExpanded()==SHOWBROWSER){
+      if (hasBrowser()){
         saveSelection(taglist,"genre-list-selection",source->settingKey());
         saveSelection(artistlist,"artist-list-selection",source->settingKey());
         saveSelection(albumlist,"album-list-selection",source->settingKey());
@@ -776,7 +813,7 @@ void GMTrackView::setSource(GMSource * src) {
 
       clear();
 
-      if (browsersplit->getExpanded()==SHOWBROWSER) {
+      if (hasBrowser()) {
         listTags();
         initSelection(taglist,"genre-list-selection",source->settingKey());
         listArtists();
@@ -875,7 +912,7 @@ void GMTrackView::init(GMSource * src) {
   clear();
 
   if (source) {
-    if (browsersplit->getExpanded()==SHOWBROWSER) {
+    if (hasBrowser()) {
       listTags();
       initSelection(taglist,"genre-list-selection",source->settingKey());
       listArtists();
@@ -906,7 +943,7 @@ void GMTrackView::saveView() const {
 
     saveSettings(source->settingKey());
 
-    if (browsersplit->getExpanded()==SHOWBROWSER){
+    if (hasBrowser()){
       saveSelection(taglist,"genre-list-selection",source->settingKey());
       saveSelection(artistlist,"artist-list-selection",source->settingKey());
       saveSelection(albumlist,"album-list-selection",source->settingKey());
@@ -931,13 +968,13 @@ void GMTrackView::refresh() {
   clear();
 
   if (source) {
-    if (browsersplit->getExpanded()==SHOWBROWSER) {
-      fxmessage("begin refresh()\n");
+    if (hasBrowser()) {
+      GM_DEBUG_PRINT("begin refresh()\n");
       listTags();
       listArtists();
       listAlbums();
       listTracks();
-      fxmessage("done\n");
+      GM_DEBUG_PRINT("done\n");
       }
     else {
       listTracks();
@@ -1045,7 +1082,7 @@ FXbool GMTrackView::listTracks(){
     FXIntList tagselection;
     FXIntList albumselection;
 
-    if (browsersplit->getExpanded()==SHOWBROWSER){
+    if (hasBrowser()){
       getSelectedTags(tagselection);
       getSelectedAlbums(albumselection);
       if (albumselection.no()==0)
@@ -1155,7 +1192,7 @@ FXbool GMTrackView::getSortReverse() const {
 
 void GMTrackView::loadSettings(const FXString & key) {
   FXbool sort_reverse,shown;
-  FXint split;
+  FXint split,nvw=0;
 
   sort_reverse = getApp()->reg().readBoolEntry(key.text(),"genre-list-sort-reverse",false);
   if (sort_reverse) {
@@ -1198,18 +1235,17 @@ void GMTrackView::loadSettings(const FXString & key) {
     albumlistheader->setArrowState(ARROW_DOWN);
     }
 
-  shown = getApp()->reg().readBoolEntry(key.text(),"genre-list",false);
-  if (shown)
-    taglistframe->show();
-  else
-    taglistframe->hide();
+  if (getApp()->reg().readBoolEntry(key.text(),"genre-list",false))
+    nvw|=VIEW_BROWSER_LEFT;
 
   shown = getApp()->reg().readBoolEntry(key.text(),"browser",source->defaultBrowse());
   if (shown && source->canBrowse())
-    browsersplit->setExpanded(SHOWBROWSER);
-  else
-    browsersplit->setExpanded(HIDEBROWSER);
+    nvw|=VIEW_BROWSER;
 
+  if (source->hasArtistList())
+    nvw|=VIEW_BROWSER_MIDDLE;
+
+  configureView(nvw);
 
   split = getApp()->reg().readIntEntry(key.text(),"browser-track-split",-1);
   if (split!=-1) browsersplit->setVSplit(split);
@@ -1219,7 +1255,6 @@ void GMTrackView::loadSettings(const FXString & key) {
 
   split = getApp()->reg().readIntEntry(key.text(),"genre-artist-split",-1);
   if (split!=-1) tagsplit->setHSplit(split);
-
 
 //  split = getApp()->reg().readIntEntry(key.text(),"browser-split",-1);
 //  if (split!=-1) setSplit(0,split);
@@ -1252,10 +1287,6 @@ void GMTrackView::loadSettings(const FXString & key) {
 
   if (source) source->setFilter(filterfield->getText().trim().simplify(),filtermask);
 
-  if (source->hasArtistList())
-    artistlist->getParent()->show();
-  else
-    artistlist->getParent()->hide();
 
   loadTrackSettings(key);
   }
@@ -1263,20 +1294,20 @@ void GMTrackView::loadSettings(const FXString & key) {
 
 
 void GMTrackView::loadTrackSettings(const FXString & key) {
-  FXString browseprefix = (browsersplit->getExpanded()==SHOWBROWSER) ? "browse" : "list";
+  FXString browseprefix = (hasBrowser()) ? "browse" : "list";
   FXString name;
   tracklist->clearHeaders();
   for (FXint i=0;i<columns.no();i++){
     name = columns[i].name;
     name.lower();
-    columns[i].show = getApp()->reg().readBoolEntry(key.text(),FXString(browseprefix+"-showcolumn-"+name).text(),(browsersplit->getExpanded()==SHOWBROWSER) ? columns[i].default_browser_show : columns[i].default_show);
+    columns[i].show = getApp()->reg().readBoolEntry(key.text(),FXString(browseprefix+"-showcolumn-"+name).text(),(hasBrowser()) ? columns[i].default_browser_show : columns[i].default_show);
     columns[i].size = getApp()->reg().readIntEntry(key.text(),FXString(browseprefix+"-columnwidth-"+name).text(),columns[i].size);
     columns[i].index = getApp()->reg().readIntEntry(key.text(),FXString(browseprefix+"-columnindex-"+name).text(),columns[i].index);
     if (columns[i].show) {
       tracklist->appendHeader(fxtr(columns[i].name.text()),columns[i].size,&columns[i]);
       }
     }
-  FXint sort = getApp()->reg().readIntEntry(key.text(),FXString(browseprefix+"-sort-column").text(),source->getSortColumn(browsersplit->getExpanded()==SHOWBROWSER));
+  FXint sort = getApp()->reg().readIntEntry(key.text(),FXString(browseprefix+"-sort-column").text(),source->getSortColumn(hasBrowser()));
   FXbool reverse = getApp()->reg().readBoolEntry(key.text(),FXString(browseprefix+"-sort-reverse").text(),false);
 
   sort_seed = getApp()->reg().readUIntEntry(key.text(),FXString(browseprefix+"-sort-seed").text(),(FXuint)FXThread::time());
@@ -1292,7 +1323,7 @@ void GMTrackView::saveSettings(const FXString & key) const {
   getApp()->reg().writeBoolEntry(key.text(),"album-list-sort-by-year",album_by_year);
   getApp()->reg().writeBoolEntry(key.text(),"album-list-browser",(albumlist->getListStyle()&ALBUMLIST_BROWSER));
   getApp()->reg().writeBoolEntry(key.text(),"genre-list",taglistframe->shown());
-  getApp()->reg().writeBoolEntry(key.text(),"browser",browsersplit->getExpanded()==SHOWBROWSER);
+  getApp()->reg().writeBoolEntry(key.text(),"browser",hasBrowser());
   getApp()->reg().writeIntEntry(key.text(),"browser-track-split",browsersplit->getVSplit());
   getApp()->reg().writeIntEntry(key.text(),"artist-album-split",browsersplit->getHSplit());
   getApp()->reg().writeIntEntry(key.text(),"genre-artist-split",tagsplit->getHSplit());
@@ -1316,7 +1347,7 @@ void GMTrackView::saveSettings(const FXString & key) const {
 
 void GMTrackView::saveTrackSettings(const FXString & key) const {
   tracklist->saveHeaders();
-  FXString browseprefix = (browsersplit->getExpanded()==SHOWBROWSER) ? "browse" : "list";
+  FXString browseprefix = (hasBrowser()) ? "browse" : "list";
   FXString name;
   for (FXint i=0;i<columns.no();i++){
     name = columns[i].name;
@@ -1385,7 +1416,7 @@ long GMTrackView::onUpdSort(FXObject*sender,FXSelector sel,void*){
     FXint no=FXSELID(sel)-ID_SORT_FIRST;
     if (no<columns.no()) {
       cmd->setText(FXString::value(fxtrformat("By %s"),fxtr(columns[no].name.text())));
-      if (columns[no].type==source->getSortColumn(browsersplit->getExpanded()==SHOWBROWSER))
+      if (columns[no].type==source->getSortColumn(hasBrowser()))
         cmd->setAccelText("Ctrl-N");
       else
         cmd->setAccelText(FXString::null);
@@ -1422,7 +1453,7 @@ long GMTrackView::onUpdSortReverse(FXObject*sender,FXSelector,void*){
   }
 
 long GMTrackView::onCmdSortDefault(FXObject*,FXSelector,void*){
-  setSortMethod(source->getSortColumn(browsersplit->getExpanded()==SHOWBROWSER));
+  setSortMethod(source->getSortColumn(hasBrowser()));
   sortTracks();
   return 1;
   }
@@ -1436,7 +1467,7 @@ long GMTrackView::onCmdSortBrowse(FXObject*,FXSelector,void*){
 
 
 long GMTrackView::onUpdSortBrowse(FXObject*sender,FXSelector,void*){
-  if ((browsersplit->getExpanded()==SHOWBROWSER) && source && source->getSortBrowse()) {
+  if ((hasBrowser()) && source && source->getSortBrowse()) {
     sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
     if (tracklist->getSortMethod()==HEADER_BROWSE)
       sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
@@ -1445,7 +1476,7 @@ long GMTrackView::onUpdSortBrowse(FXObject*sender,FXSelector,void*){
 
     FXMenuCommand * cmd = dynamic_cast<FXMenuCommand*>(sender);
     FXASSERT(cmd);
-    if (HEADER_BROWSE==source->getSortColumn(browsersplit->getExpanded()==SHOWBROWSER))
+    if (HEADER_BROWSE==source->getSortColumn(hasBrowser()))
       cmd->setAccelText("Ctrl-N");
     else
       cmd->setAccelText(FXString::null);
@@ -2314,27 +2345,23 @@ long GMTrackView::onDndRequest(FXObject*sender,FXSelector sel,void*ptr){
 
 
 long GMTrackView::onCmdToggleBrowser(FXObject*,FXSelector,void*){
+  if (source && source->canBrowse()) {
 
-  if (source)
     saveTrackSettings(source->settingKey());
 
-  if (browsersplit->getExpanded()==SHOWBROWSER)
-    browsersplit->setExpanded(HIDEBROWSER);
-  else
-    browsersplit->setExpanded(SHOWBROWSER);
+    configureView(view^VIEW_BROWSER);
 
-
-  if (source)
     loadTrackSettings(source->settingKey());
 
-  refresh();
+    refresh();
+    }
   return 1;
   }
 
 long GMTrackView::onUpdToggleBrowser(FXObject*sender,FXSelector,void*){
   if (source && source->canBrowse()) {
     sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
-    if (browsersplit->getExpanded()==SHOWBROWSER)
+    if (hasBrowser())
       sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
     else
       sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
@@ -2348,25 +2375,22 @@ long GMTrackView::onUpdToggleBrowser(FXObject*sender,FXSelector,void*){
 
 
 
+
+
+
+
 long GMTrackView::onCmdToggleTags(FXObject*,FXSelector,void*){
-  if (taglistframe->shown()) {
-    taglistframe->hide();
-    taglist->killSelection(false);
-    taglist->selectItem(0,true);
-    taglistframe->recalc();
-    browsersplit->setHSplit(5000);
-    }
-  else {
-    taglistframe->show();
-    taglistframe->recalc();
-    tagsplit->setHSplit(5000);
-    browsersplit->setHSplit(6666);
+  if (hasBrowser()) {
+    configureView(view^VIEW_BROWSER_LEFT);
+    if (!(view&VIEW_BROWSER_LEFT)) {
+      selectTagItem(0);
+      }
     }
   return 1;
   }
 
 long GMTrackView::onUpdToggleTags(FXObject*sender,FXSelector,void*){
-  if (source && source->canBrowse() && browsersplit->getExpanded()==SHOWBROWSER) {
+  if (source && source->canBrowse() && hasBrowser()) {
     sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
     if (taglistframe->shown())
       sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
