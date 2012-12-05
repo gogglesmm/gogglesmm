@@ -864,6 +864,7 @@ FXDEFMAP(GMPodcastSource) GMPodcastSourceMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_ADD_FEED,GMPodcastSource::onCmdAddFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_REFRESH_FEED,GMPodcastSource::onCmdRefreshFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_DOWNLOAD_FEED,GMPodcastSource::onCmdDownloadFeed),
+  FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_REMOVE_FEED,GMPodcastSource::onCmdRemoveFeed),
   };
 FXIMPLEMENT(GMPodcastSource,GMSource,GMPodcastSourceMap,ARRAYNUMBER(GMPodcastSourceMap));
 
@@ -878,6 +879,58 @@ GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : db(database),down
 GMPodcastSource::~GMPodcastSource(){
   if (downloader) {
     downloader->stop();
+    }
+  }
+
+
+void GMPodcastSource::removeFeeds(const FXIntList & feeds) {
+  GMQuery remove_feed_items(db,"DELETE FROM feed_items WHERE feed = ?;");
+  GMQuery remove_feed(db,"DELETE FROM feeds WHERE id = ?;");
+  GMQuery query_feed_dir(db,"SELECT local FROM feeds WHERE id = ?;");
+  GMQuery query_feed_files(db,"SELECT local FROM feed_items WHERE feed = ? AND flags&2;");
+
+  FXString feed_directory;
+  FXString file,local;
+
+  for (FXint i=0;i<feeds.no();i++){
+
+    // Get feed directory
+    query_feed_dir.execute(feeds[i],feed_directory);
+
+    // Get feed files
+    query_feed_files.set(0,feeds[i]);
+
+    // Construct feed directory
+    feed_directory.prepend(GMApp::getPodcastDirectory()+PATHSEPSTRING);
+
+    fxmessage("feed dir: %s\n",feed_directory.text());
+
+    // Delete all music files
+    while(query_feed_files.row()) {
+      query_feed_files.get(0,local);
+
+      if (!local.empty()) {
+        file = feed_directory+PATHSEPSTRING+local;
+        fxmessage("feed file: %s\n",file.text());
+        if (FXStat::exists(file))
+          FXFile::remove(file);
+        }
+
+      }
+
+    // try removing feed directory
+    if (FXStat::exists(feed_directory) && !FXDir::remove(feed_directory))
+      fxwarning("failed to remove feed directory");
+
+    db->begin();
+
+    // Remove feed items
+    remove_feed_items.update(feeds[i]);
+
+    // Remove feed
+    remove_feed.update(feeds[i]);
+
+    db->commit();
     }
   }
 
@@ -927,6 +980,11 @@ FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("New Feed…\t\t"),NULL,this,ID_ADD_FEED);
   new GMMenuCommand(pane,fxtr("Refresh\t\t"),NULL,this,ID_REFRESH_FEED);
   return false;
+  }
+
+FXbool GMPodcastSource::album_context_menu(FXMenuPane * pane){
+  new GMMenuCommand(pane,fxtr("Remove Feed\t\t"),NULL,this,ID_REMOVE_FEED);
+  return true;
   }
 
 FXbool GMPodcastSource::track_context_menu(FXMenuPane * pane){
@@ -1044,5 +1102,26 @@ long GMPodcastSource::onCmdAddFeed(FXObject*,FXSelector,void*){
     }
   return 1;
   }
+
+long GMPodcastSource::onCmdRemoveFeed(FXObject*,FXSelector,void*){
+  FXIntList feeds;
+  GMPlayerManager::instance()->getTrackView()->getSelectedAlbums(feeds);
+  if (FXMessageBox::question(GMPlayerManager::instance()->getMainWindow(),MBOX_YES_NO,fxtr("Remove Feed?"),fxtr("Remove feed and all downloaded podcasts?"))==MBOX_CLICKED_YES) {
+    removeFeeds(feeds);
+    GMPlayerManager::instance()->getTrackView()->refresh();
+    }
+  return 1;
+  }
+
+
+
+
+
+
+
+
+
+
+
 
 

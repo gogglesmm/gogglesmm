@@ -46,12 +46,16 @@ public:
     ID_ADD_FEED = GMSource::ID_LAST,
     ID_REFRESH_FEED,
     ID_DOWNLOAD_FEED,
+    ID_REMOVE_FEED,
     ID_LAST
     };
 public:
   long onCmdAddFeed(FXObject*,FXSelector,void*);
   long onCmdRefreshFeed(FXObject*,FXSelector,void*);
   long onCmdDownloadFeed(FXObject*,FXSelector,void*);
+  long onCmdRemoveFeed(FXObject*,FXSelector,void*);
+protected:
+  void removeFeeds(const FXIntList&);
 public:
   GMPodcastSource(GMTrackDatabase * db);
 
@@ -82,6 +86,8 @@ public:
   FXbool autoPlay() const { return false; }
 
   FXbool source_context_menu(FXMenuPane * pane);
+
+  FXbool album_context_menu(FXMenuPane * pane);
 
   FXbool track_context_menu(FXMenuPane * pane);
 
