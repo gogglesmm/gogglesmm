@@ -439,21 +439,26 @@ public:
     return 1;
     }
 
-  FXint select_feed(FXArray<FeedLink> links){
-    GMThreadDialog dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Select Feed"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
-    FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-    new GMButton(closebox,fxtr("Subscribe"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,5,10,10);
-    FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
-    new FXLabel(matrix,fxtr("Feed:"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    GMListBox * feedbox = new GMListBox(matrix,NULL,0,LAYOUT_FILL_X|FRAME_LINE);
-    for (int i=0;i<links.no();i++){
-      feedbox->appendItem(links[i].description);
+  FXint select_feed(const FXArray<FeedLink> & links){
+    if (links.no()>1) {
+      GMThreadDialog dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Select Feed"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
+      FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
+      new GMButton(closebox,fxtr("Subscribe"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+      new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+      FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,5,10,10);
+      FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
+      new FXLabel(matrix,fxtr("Feed:"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+      GMListBox * feedbox = new GMListBox(matrix,NULL,0,LAYOUT_FILL_X|FRAME_LINE);
+      for (int i=0;i<links.no();i++){
+        feedbox->appendItem(links[i].description);
+        }
+      feedbox->setNumVisible(FXMIN(feedbox->getNumItems(),9));
+      if (dialog.execute(channel)) {
+        return feedbox->getCurrentItem();
+        }
       }
-    feedbox->setNumVisible(FXMIN(feedbox->getNumItems(),9));
-    if (dialog.execute(channel)) {
-      return feedbox->getCurrentItem();
+    else if (links.no()==1){
+      return 0;
       }
     return -1;
     }
@@ -461,46 +466,35 @@ public:
   FXint run() {
     HttpClient client;
 
-    if (!client.basic("GET",url))
-      return 1;
+    do {
 
-    FXString content = client.getHeader("content-type").before(';');
-    fxmessage("%s\n",content.text());
-    if (comparecase(content,"application/rss+xml")==0 || comparecase(content,"text/xml")==0) {
-      rss.parse(client.body());
-      return 0;
-      }
-    else if (comparecase(content,"text/html")==0) {
-      HtmlFeedParser html;
-      html.parse(client.body());
-      client.close();
-      if (html.links.no()) {
-        //fxmessage("%s\n",html.links[1].url.text());
-        FXint index = select_feed(html.links);
-        if (index==-1) return 1;
+      if (!client.basic("GET",url))
+        break;
 
-        FXString uri = html.links[index].url;
-        if (uri[0]=='/') {
-          uri = FXURL::scheme(url) + "://" +FXURL::host(url) + uri;
-          }
-        url=uri;
-
-        fxmessage("uri: %s\n",url.text());
-
-        if (client.basic("GET",url)) {
-          content = client.getHeader("content-type");
-          fxmessage("%s\n",content.text());
-          if (comparecase(content,"application/rss+xml")==0 || comparecase(content,"text/xml")==0) {
-            rss.parse(client.body());
-
-
-            // process_feed(db,html.links[index].url,client.body());
-            //printf("%s\n",feed.text());
-            return 0;
+      FXString content = client.getHeader("content-type").before(';');
+      if (comparecase(content,"application/rss+xml")==0 || comparecase(content,"text/xml")==0) {
+        rss.parse(client.body());
+        return 0;
+        }
+      else if (comparecase(content,"text/html")==0) {
+        HtmlFeedParser html;
+        html.parse(client.body());
+        client.close();
+        if (html.links.no()) {
+          FXint index = select_feed(html.links);
+          if (index==-1) return 1;
+          FXString uri = html.links[index].url;
+          if (uri[0]=='/') {
+            uri = FXURL::scheme(url) + "://" +FXURL::host(url) + uri;
             }
+          url=uri;
+          continue;
           }
         }
+      break;
       }
+    while(1);
+
     return 1;
     }
   };
