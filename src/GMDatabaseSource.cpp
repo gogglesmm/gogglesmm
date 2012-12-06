@@ -807,6 +807,16 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
     list->clearItems();
     return false;
     }
+
+
+  list->sortItems();
+  if (list->getNumItems()>1){
+    FXString all = FXString::value(fxtrformat("All %d Albums"),list->getNumItems());
+    list->prependItem(new GMAlbumListItem(all,all,0,-1));
+    }
+
+
+
   GM_TICKS_END();
   return true;
   }

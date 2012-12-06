@@ -188,6 +188,7 @@ public:
 
   virtual FXString getName() const { return FXString::null; }
 
+  virtual const FXchar * getAlbumName() const { return fxtr("Albums"); }
 
   /// Items have been dragged around.
   virtual void dragged(GMTrackList*);

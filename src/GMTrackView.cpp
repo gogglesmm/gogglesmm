@@ -274,7 +274,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   artistlist       = new GMList(sunkenframe,this,ID_ARTIST_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|LIST_EXTENDEDSELECT);
 
   sunkenframe      = new GMScrollFrame(browsersplit);
-  albumlistheader  = new GMHeaderButton(sunkenframe,tr("Albums\tPress to change sorting order\tPress to change sorting order"),NULL,this,GMTrackView::ID_ALBUM_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
+  albumlistheader  = new GMHeaderButton(sunkenframe,tr("\tPress to change sorting order\tPress to change sorting order"),NULL,this,GMTrackView::ID_ALBUM_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
   albumlist        = new GMAlbumList(sunkenframe,this,ID_ALBUM_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|ALBUMLIST_EXTENDEDSELECT|ALBUMLIST_COLUMNS);
 
   sunkenframe      = new GMScrollFrame(browsersplit);
@@ -809,6 +809,7 @@ void GMTrackView::setSource(GMSource * src) {
 
       loadSettings(source->settingKey());
 
+
       //source->show(tracklist);
 
       clear();
@@ -1053,11 +1054,14 @@ FXbool GMTrackView::listAlbums(){
     if (!source->listAlbums(albumlist,artistselection,tagselection))
       return false;
 
+/*
     albumlist->sortItems();
 
      if (albumlist->getNumItems()>1){
-      albumlist->prependItem(new GMAlbumListItem(FXString::value(fxtrformat("All %d Albums"),albumlist->getNumItems()),FXString::value(fxtrformat("All %d Albums"),albumlist->getNumItems()),0,-1));
+      albumlist->prependItem(new GMAlbumListItem(FXString::value(fxtrformat(source->getAlbumText()),albumlist->getNumItems()),FXString::value(fxtrformat("All %d Albums"),albumlist->getNumItems()),0,-1));
       }
+*/
+
 
     if (GMPlayerManager::instance()->playing() && GMPlayerManager::instance()->getSource()) {
       if (source->findCurrentAlbum(albumlist,GMPlayerManager::instance()->getSource())) {
@@ -1234,6 +1238,9 @@ void GMTrackView::loadSettings(const FXString & key) {
     albumlist->setSortFunc(album_list_sort);
     albumlistheader->setArrowState(ARROW_DOWN);
     }
+  albumlistheader->setText(source->getAlbumName());
+
+
 
   if (getApp()->reg().readBoolEntry(key.text(),"genre-list",false))
     nvw|=VIEW_BROWSER_LEFT;

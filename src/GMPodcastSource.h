@@ -71,6 +71,8 @@ public:
 
   FXString getName() const { return fxtr("Podcasts"); }
 
+  virtual const FXchar * getAlbumName() const { return fxtr("Feeds"); }
+
   FXint getType() const { return SOURCE_PODCAST; }
 
   FXString settingKey() const { return "podcast"; }

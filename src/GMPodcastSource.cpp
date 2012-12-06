@@ -1009,10 +1009,15 @@ FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXI
   while(q.row()){
       q.get(0,id);
       c_title = q.get(1);
-
       item = new GMAlbumListItem(FXString::null,c_title,0,id);
       list->appendItem(item);
       }
+
+  list->sortItems();
+  if (list->getNumItems()>1){
+    FXString all = FXString::value(fxtrformat("All %d Feeds"),list->getNumItems());
+    list->prependItem(new GMAlbumListItem(all,all,0,-1));
+    }
   return true;
   }
 
