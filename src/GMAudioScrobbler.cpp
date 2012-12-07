@@ -1058,6 +1058,7 @@ void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
       FXASSERT(0);
       FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
       switch(service.getErrorCode()) {
+        case LASTFM_ERROR_UNKNOWN      :
         case LASTFM_ERROR_OFFLINE      :
         case LASTFM_ERROR_UNAVAILABLE  : set_timeout();           break;
         case LASTFM_ERROR_BADSESSION   : session.clear();         break;
@@ -1263,8 +1264,9 @@ void GMAudioScrobbler::process_submit_response(const FXString & response){
       FXASSERT(0);
       FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
       switch(service.getErrorCode()) {
+        case LASTFM_ERROR_UNKNOWN      :
         case LASTFM_ERROR_OFFLINE      :
-        case LASTFM_ERROR_UNAVAILABLE  : set_timeout(); break;
+        case LASTFM_ERROR_UNAVAILABLE  : set_timeout();           break;
         case LASTFM_ERROR_BADSESSION   : session.clear();         break;
         case LASTFM_ERROR_KEY_INVALID  :
         case LASTFM_ERROR_KEY_SUSPENDED: flags|=FLAG_BANNED;      break;
