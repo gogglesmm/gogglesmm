@@ -508,7 +508,7 @@ GMCover * GMCover::fromFile(const FXString & filename) {
     FXchar * data=NULL;
     allocElms(data,size);
     if (file.readBlock(data,size)==(FXival)size) {
-      return new GMCover(data,size);
+      return new GMCover(data,size,GMCover::Other,FXString::null,true);
       }
     freeElms(data);
     }
