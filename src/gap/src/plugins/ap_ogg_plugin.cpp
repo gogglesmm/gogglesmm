@@ -131,6 +131,11 @@ OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e),packet(NULL),headers(NUL
 OggReader::~OggReader() {
   clear_headers();
   ogg_sync_clear(&sync);
+
+  if (state.has_stream) {
+    ogg_stream_clear(&stream);
+    state.has_stream=false;
+    }
   }
 
 FXbool OggReader::can_seek() const {
@@ -363,7 +368,7 @@ ReadStatus OggReader::parse_vorbis_stream() {
       goto error;
 
     flags|=FLAG_VORBIS_HEADER_COMMENT;
-    
+
     // Don't pass comment packet to decoder.
     }
   else if (op.packet[0]==5) {
