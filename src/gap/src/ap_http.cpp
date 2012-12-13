@@ -250,6 +250,9 @@ FXbool HttpResponse::read_status() {
       GM_DEBUG_PRINT("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
       return true;
       }
+    else {
+      GM_DEBUG_PRINT("HttpResponse::read_status() - Failed to parse http header: %s\n",header.text());
+      }
     }
   return false;
   }
@@ -556,6 +559,11 @@ HttpHost::HttpHost(const FXString & url) {
   set(url);
   }
 
+void HttpHost::clear() {
+  name.clear();
+  port=0;
+  }
+
 FXbool HttpHost::set(const FXString & url) {
   FXString nn = FXURL::host(url);
 #if FOXVERSION >= FXVERSION(1,7,31)
@@ -602,7 +610,7 @@ void HttpClient::discard() {
   if (flags&ConnectionClose) {
     close();
     }
-  else {
+  else if (device!=BadHandle) {
     HttpResponse::discard();
     }
   }
@@ -764,7 +772,7 @@ FXbool HttpClient::open_connection() {
     ::close(device);
     device=BadHandle;
     }
-
+        
   if (list)
     freeaddrinfo(list);
   return false;
@@ -772,6 +780,7 @@ FXbool HttpClient::open_connection() {
 
 
 FXival HttpClient::io_write(const void * data,FXival count) {
+  FXASSERT(device!=BadHandle);
   FXival nwritten=-1;
   do{
     nwritten=::write(device,data,count);
@@ -781,6 +790,7 @@ FXival HttpClient::io_write(const void * data,FXival count) {
   }
 
 FXival HttpClient::io_read(void * data,FXival count) {
+  FXASSERT(device!=BadHandle);
   FXival nread=-1;
   do{
     nread=::read(device,data,count);
@@ -830,8 +840,10 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
     }
 
   // Open connection if necessary
-  if (device==BadHandle && !open_connection())
+  if (device==BadHandle && !open_connection()){
+    server.clear();
     return false;
+    }
 
   // Extract path and query
   path  = FXURL::path(url);
@@ -976,6 +988,16 @@ FXbool HttpClient::basic(const FXchar*    method,
               }
           } break;
 
+        case HTTP_RESPONSE_FAILED:  /* something went wrong */
+          {
+#ifdef DEBUG
+            fxmessage("HttpClient::basic() - Response Failed:\n");
+            FXString b((const FXchar*)buffer->data(),buffer->size());
+            fxmessage("%s\n",b.text());
+#endif
+            return false;
+            break;
+          }
         default: break;
         }
       return true;

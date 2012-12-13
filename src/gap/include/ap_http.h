@@ -233,6 +233,9 @@ struct HttpHost {
 
   // Set from url. returns true if changed
   FXbool set(const FXString & url);
+  
+  // Clear
+  void clear();
   };
 
 class GMAPI HttpClient : public HttpResponse {

@@ -1,3 +1,6 @@
+0.11 (2012-12-12)
+  - Improved http error checking
+
 0.10 (2012-08-24)
   - Slight change in Device Config to accommendate ARM compilation.
 
