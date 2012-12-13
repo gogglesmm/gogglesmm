@@ -46,10 +46,6 @@ enum {
   SERVICE_CUSTOM
   };
 
-namespace ap {
-  class HttpClient;
-  }
-
 class GMAudioScrobbler : public FXThread {
 private:
   FXMutex           mutex_task;
@@ -61,14 +57,10 @@ private:
   FXSelector        message;
   FXbool            started;
 private:
-  ap::HttpClient*   client;
-private:
   FXuint            mode;
   FXString          handshake_url;
   FXString          nowplaying_url;
   FXString          submit_url;
-
-
   FXString          username;
   FXString          password;
   FXString          session;

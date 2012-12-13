@@ -287,11 +287,12 @@ void ServiceResponse::end(const FXchar*) {
 
 FXbool GMAudioScrobbler::post_request(const FXString & url,const FXString & message,FXString & output) {
   FXTRACE((60,"post_request %s - %s\n",url.text(),message.text()));
-  if (client->basic("POST",url,
+  HttpClient client;
+  if (client.basic("POST",url,
                       "Content-Type: application/x-www-form-urlencoded\r\n"
                       "Connection: close\r\n",
                        message)) {
-    output = client->body();
+    output = client.body();
     return true;
     }
   else {
@@ -303,8 +304,9 @@ FXbool GMAudioScrobbler::post_request(const FXString & url,const FXString & mess
 
 FXbool GMAudioScrobbler::get_request(const FXString & url,FXString & output) {
   FXTRACE((60,"get_request\n"));
-  if (client->basic("GET",url,"Connection: close\r\n")) {
-    output = client->body();
+  HttpClient client;
+  if (client.basic("GET",url,"Connection: close\r\n")) {
+    output = client.body();
     return true;
     }
   else {
@@ -334,8 +336,6 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
   timeout(DISABLE_HANDSHAKE_TIMEOUT),
   nsubmitted(0),
   nfailed(0) {
-
-  client = new HttpClient();
 
   username=FXApp::instance()->reg().readStringEntry("LastFM","username",NULL);
   password=FXApp::instance()->reg().readStringEntry("LastFM","password",NULL);
@@ -384,7 +384,6 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
 
 GMAudioScrobbler::~GMAudioScrobbler(){
   save_queue();
-  delete client;
   }
 
 
@@ -672,7 +671,7 @@ FXbool GMAudioScrobbler::waitForTask() {
     FXlong wakeuptime = ((FXlong)timeout*1000000000LL); // relative time
     FXlong start      = FXThread::time();
     while(1) {
-      FXTRACE((60,"GMAudioScrobbler::waitForTask => %ld\n",wakeuptime));
+      FXTRACE((60,"GMAudioScrobbler::waitForTask => %lld\n",wakeuptime/1000000000LL));
       mutex_task.lock();
       if (!condition_task.wait(mutex_task,wakeuptime)){
         mutex_task.unlock();
