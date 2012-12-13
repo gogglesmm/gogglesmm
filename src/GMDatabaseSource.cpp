@@ -325,7 +325,7 @@ FXbool GMDatabaseSource::source_context_menu(FXMenuPane * pane){
 //  new GMMenuCommand(pane,fxtr("Import Folder…\tCtrl-O\tImport Music from folder into Library"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_IMPORT_DIRS);
 //  new GMMenuCommand(pane,fxtr("New Play List…\t\tCreate a new play list."),GMIconTheme::instance()->icon_playlist,this,GMDatabaseSource::ID_NEW_PLAYLIST);
  // new FXMenuSeparator(pane);
-  new GMMenuCommand(pane,fxtr("Export…"),GMIconTheme::instance()->icon_export,this,GMDatabaseSource::ID_EXPORT);
+  new GMMenuCommand(pane,fxtr("Export As…"),GMIconTheme::instance()->icon_export,this,GMDatabaseSource::ID_EXPORT);
  // new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove All Tracks\t\tRemove all tracks from the library"),GMIconTheme::instance()->icon_delete,this,GMDatabaseSource::ID_CLEAR);
   return true;

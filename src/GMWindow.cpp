@@ -223,12 +223,13 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   /// Library Menu
   menu_library = new GMMenuPane(this);
-  new GMMenuCommand(menu_library,tr("Sync Folder…\tCtrl-O\tSynchronize Folder with Music in Library"),icontheme->icon_sync,this,GMWindow::ID_SYNC_DIRS);
-
-//  new GMMenuCommand(menu_library,tr("New Playlist…\t\tCreate a new playlist"),icontheme->icon_playlist,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_NEW_PLAYLIST);
-//  new FXMenuSeparator(menu_library);
-//  new GMMenuCommand(menu_library,tr("Import Playlist…\t\tImport existing playlist"),icontheme->icon_import,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_IMPORT_PLAYLIST);
-//  new GMMenuCommand(menu_library,tr("Play File or Stream…\t\tPlay File or Stream"),NULL,this,GMWindow::ID_OPEN);
+  new GMMenuCommand(menu_library,tr("Import Folder…\tCtrl-O\tImport Music from folder into Library"),icontheme->icon_import,this,GMWindow::ID_IMPORT_DIRS);
+  new GMMenuCommand(menu_library,tr("Sync Folder…\t\tSynchronize Folder with Music in Library"),icontheme->icon_sync,this,GMWindow::ID_SYNC_DIRS);
+  new FXMenuSeparator(menu_library);
+  new GMMenuCommand(menu_library,tr("Play File or Stream…\t\tPlay File or Stream"),NULL,this,GMWindow::ID_OPEN);
+  new FXMenuSeparator(menu_library);
+  new GMMenuCommand(menu_library,tr("New Playlist…\t\tCreate a new playlist"),icontheme->icon_playlist,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_NEW_PLAYLIST);
+  new GMMenuCommand(menu_library,tr("Import Playlist…\t\tImport existing playlist"),icontheme->icon_import,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_IMPORT_PLAYLIST);
 
 //  new GMMenuCommand(menu_library,tr("Sync Folder…\t\tSynchronize Folder with Music in Library"),icontheme->icon_sync,this,GMWindow::ID_SYNC_DIRS);
 //  new FXMenuSeparator(menu_library);
@@ -418,7 +419,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("Ctrl-J"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_SHOW_CURRENT));
   getAccelTable()->addAccel(parseAccel("Ctrl-F"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
   getAccelTable()->addAccel(parseAccel("Ctrl-B"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_BROWSER));
-  getAccelTable()->addAccel(parseAccel("Ctrl-G"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_TAGS));
+  getAccelTable()->addAccel(parseAccel("Ctrl-T"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_TAGS));
   }
 
 

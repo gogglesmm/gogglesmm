@@ -260,7 +260,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
 
   filterframe      = new FXHorizontalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X|PACK_UNIFORM_HEIGHT,0,0,0,0,0,0,0,0);
                      new GMButton(filterframe,tr("\tClose Filter\tClose Filter"),GMIconTheme::instance()->icon_close,this,ID_CLOSE_FILTER,BUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_RIGHT);
-                     new GMMenuButton(filterframe,tr("&Find"),GMIconTheme::instance()->icon_find,filtermenu,MENUBUTTON_NOARROWS|FRAME_RAISED|MENUBUTTON_TOOLBAR|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
+                     new FXMenuButton(filterframe,tr("&Find"),GMIconTheme::instance()->icon_find,filtermenu,MENUBUTTON_NOARROWS|FRAME_RAISED|MENUBUTTON_TOOLBAR|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
   filterfield      = new GMTextField(filterframe,20,this,ID_FILTER,LAYOUT_FILL_X|FRAME_LINE);
 
   browsersplit     = new FX4Splitter(this,LAYOUT_FILL_X|LAYOUT_FILL_Y|FOURSPLITTER_TRACKING);

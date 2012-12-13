@@ -104,13 +104,13 @@ FXString GMStreamSource::getTrackFilename(FXint id) const{
 
 
 FXbool GMStreamSource::source_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Add Station…"),NULL,this,ID_NEW_STATION);
+  new GMMenuCommand(pane,fxtr("Add Radio Station…"),NULL,this,ID_NEW_STATION);
   return true;
   }
 
 FXbool GMStreamSource::track_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Edit…"),GMIconTheme::instance()->icon_edit,this,ID_EDIT_STATION);
-  new GMMenuCommand(pane,fxtr("Add Station…"),NULL,this,ID_NEW_STATION);
+  new GMMenuCommand(pane,fxtr("Add Radio Station…"),NULL,this,ID_NEW_STATION);
   new GMMenuCommand(pane,fxtr("Remove\t\tRemove."),GMIconTheme::instance()->icon_delete,this,ID_DELETE_STATION);
   return true;
   }

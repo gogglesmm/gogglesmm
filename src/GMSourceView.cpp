@@ -276,27 +276,62 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
   if (event->moved) return 0;
   GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   GMMenuPane pane(this);
-  if (item) {
-    GMSource * source = (GMSource*)item->getData();
-    if (source && source->source_context_menu(&pane)) {
+  GMSource * source = item ? reinterpret_cast<GMSource*>(item->getData()) : NULL;
+  FXbool src_items = false;
+  
+  if (source) 
+    src_items = source->source_context_menu(&pane);
       
-      new FXMenuSeparator(&pane);
+  //new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
+  //new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
+
+  if (source && source->canBrowse()) { 
+    if (src_items) new FXMenuSeparator(&pane);
+    new GMMenuCheck(&pane,tr("Show Browser\tCtrl-B\tShow Browser"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_BROWSER);
+    new GMMenuCheck(&pane,tr("Show Tags\tCtrl-T\tShow Tags"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_TAGS);  
+    }
+
+  if (item) {
+    sourcelist->setCurrentItem(item);
+    onCmdSourceSelected(NULL,0,NULL); // Simulate SEL_COMMAND
+    }
+
+/*  if (item) {
+    GMSource * source = (GMSource*)item->getData();
+    if (source) {
+      FXbool src_menu = source->source_context_menu(&pane);
+
+      if (source->canBrowse()) {
+        if (src_menu) new FXMenuSeparator(&pane);
+        new GMMenuCheck(&pane,tr("Show Browser\tCtrl-B\tShow Browser"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_BROWSER);
+        new GMMenuCheck(&pane,tr("Show Tags\tCtrl-T\tShow Tags"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_TAGS);
+        }
       }
     sourcelist->setCurrentItem(item);
     onCmdSourceSelected(NULL,0,NULL); // Simulate SEL_COMMAND
     }
+
+  if 
+
+
+  else {
+    new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
+    new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
+    }
+
     //new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
     //new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
   //  }
   //else {
-    new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
-    new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
  //   new GMMenuCommand(&pane,tr("New Radio Station…\t\tCreate a new playlist"),NULL,this,GMSourceView::ID_NEW_STATION);
     //}
-  pane.create();
-  ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-  pane.popup(NULL,event->root_x,event->root_y);
-  getApp()->runPopup(&pane);
+*/    
+  if (pane.getFirst()){
+    pane.create();
+    ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
+    pane.popup(NULL,event->root_x,event->root_y);
+    getApp()->runPopup(&pane);
+    }
   return 1;
   }
 
