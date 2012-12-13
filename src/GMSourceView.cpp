@@ -279,15 +279,20 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
   if (item) {
     GMSource * source = (GMSource*)item->getData();
     if (source && source->source_context_menu(&pane)) {
-      sourcelist->setCurrentItem(item);
-      onCmdSourceSelected(NULL,0,NULL); // Simulate SEL_COMMAND
+      
+      new FXMenuSeparator(&pane);
       }
+    sourcelist->setCurrentItem(item);
+    onCmdSourceSelected(NULL,0,NULL); // Simulate SEL_COMMAND
     }
-  else {
+    //new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
+    //new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
+  //  }
+  //else {
     new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
     new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
-    new GMMenuCommand(&pane,tr("New Radio Station…\t\tCreate a new playlist"),NULL,this,GMSourceView::ID_NEW_STATION);
-    }
+ //   new GMMenuCommand(&pane,tr("New Radio Station…\t\tCreate a new playlist"),NULL,this,GMSourceView::ID_NEW_STATION);
+    //}
   pane.create();
   ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
   pane.popup(NULL,event->root_x,event->root_y);

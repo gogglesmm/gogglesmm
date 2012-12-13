@@ -973,18 +973,18 @@ FXString GMPodcastSource::getTrackFilename(FXint id) const{
 
 
 FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("New Feed…\t\t"),NULL,this,ID_ADD_FEED);
+  new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
   new GMMenuCommand(pane,fxtr("Refresh\t\t"),NULL,this,ID_REFRESH_FEED);
-  return false;
+  return true;
   }
 
 FXbool GMPodcastSource::album_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Remove Feed\t\t"),NULL,this,ID_REMOVE_FEED);
+  new GMMenuCommand(pane,fxtr("Remove Podcast"),NULL,this,ID_REMOVE_FEED);
   return true;
   }
 
 FXbool GMPodcastSource::track_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Download\t\t"),NULL,this,ID_DOWNLOAD_FEED);
+  new GMMenuCommand(pane,fxtr("Download"),NULL,this,ID_DOWNLOAD_FEED);
   return true;
   }
 

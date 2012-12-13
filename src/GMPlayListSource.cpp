@@ -240,9 +240,9 @@ void GMPlayListSource::markCurrent(GMTrackList * list,FXint item) {
 */
 
 FXbool GMPlayListSource::source_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Edit…"),GMIconTheme::instance()->icon_edit,this,GMPlayListSource::ID_EDIT_NAME);
-  new GMMenuCommand(pane,fxtr("Import…"),GMIconTheme::instance()->icon_import,this,GMPlayListSource::ID_IMPORT);
-  new GMMenuCommand(pane,fxtr("Export…"),GMIconTheme::instance()->icon_export,this,GMPlayListSource::ID_EXPORT);
+  new GMMenuCommand(pane,fxtr("Rename…"),GMIconTheme::instance()->icon_edit,this,GMPlayListSource::ID_EDIT_NAME);
+  new GMMenuCommand(pane,fxtr("Import Playlist…"),GMIconTheme::instance()->icon_import,this,GMPlayListSource::ID_IMPORT);
+  new GMMenuCommand(pane,fxtr("Export Playlist…"),GMIconTheme::instance()->icon_export,this,GMPlayListSource::ID_EXPORT);
   new GMMenuCommand(pane,fxtr("Remove Playlist"),GMIconTheme::instance()->icon_delete,this,GMPlayListSource::ID_REMOVE);
   return true;
   }
