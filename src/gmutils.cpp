@@ -53,6 +53,8 @@ FXuint gm_desktop_session() {
     return DESKTOP_SESSION_KDE_PLASMA;
   else if (comparecase(desktop,"gnome")==0)
     return DESKTOP_SESSION_GNOME;
+  else if (comparecase(desktop,"xfce")==0)
+    return DESKTOP_SESSION_XFCE;
   else if (comparecase(desktop,"lxde")==0)
     return DESKTOP_SESSION_LXDE;
   else
