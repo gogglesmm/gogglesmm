@@ -163,15 +163,33 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
 
       FXuint state=0;
       enum {
-        NETWORK_STATE_UNKNOWN      = 0,
-        NETWORK_STATE_ASLEEP       = 1,
-        NETWORK_STATE_CONNECTING   = 2,
-        NETWORK_STATE_CONNECTED    = 3,
-        NETWORK_STATE_DISCONNECTED = 4
+/*
+        // Network Manager 0.7 / 0.8
+
+        NM7_STATE_UNKNOWN          =  0,
+        NM7_STATE_ASLEEP           =  1,
+        NM7_STATE_CONNECTING       =  2,
+        NM7_STATE_CONNECTED        =  3,
+        NM7_STATE_DISCONNECTED     =  4,
+
+        // Network Manager 0.9
+        NM9_STATE_UNKNOWN          =  0,
+        NM9_STATE_ASLEEP           = 10,
+        NM9_STATE_DISCONNECTED     = 20,
+        NM9_STATE_DISCONNECTING    = 30,
+        NM9_STATE_CONNECTING       = 40,
+        NM9_STATE_CONNECTED_LOCAL  = 50,
+        NM9_STATE_CONNECTED_SITE   = 60,
+        NM9_STATE_CONNECTED_GLOBAL = 70,
+
+*/
+        NM7_STATE_CONNECTED        =  3,
+        NM9_STATE_CONNECTED_GLOBAL = 70,
         };
 
       if (dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&state,DBUS_TYPE_INVALID)) {
-        if (p->getAudioScrobbler() && state==NETWORK_STATE_CONNECTED)
+        if (p->getAudioScrobbler() && (state==NM7_STATE_CONNECTED ||
+                                       state==NM9_STATE_CONNECTED_GLOBAL))
           p->getAudioScrobbler()->nudge();
         }
       return DBUS_HANDLER_RESULT_HANDLED;
