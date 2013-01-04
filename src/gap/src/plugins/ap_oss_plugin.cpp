@@ -41,7 +41,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <stropts.h>
+#include <ioctl.h>
 #include <unistd.h>
 
 using namespace ap;
