@@ -34,7 +34,70 @@ all: $(BINNAME)
 ICONS := icons/cursor_hand.gif \
 icons/about.png \
 icons/gogglesmm_16.png \
-icons/gogglesmm_32.png
+icons/gogglesmm_32.png \
+icons/x16_accessories_text_editor.png \
+icons/x16_applications_internet.png \
+icons/x16_audio_volume_high.png \
+icons/x16_audio_volume_low.png \
+icons/x16_audio_volume_medium.png \
+icons/x16_audio_volume_muted.png \
+icons/x16_audio_x_generic.png \
+icons/x16_bookmark_new.png \
+icons/x16_document_open.png \
+icons/x16_document_save.png \
+icons/x16_edit_copy.png \
+icons/x16_edit_cut.png \
+icons/x16_edit_delete.png \
+icons/x16_edit_find.png \
+icons/x16_edit_paste.png \
+icons/x16_edit_undo.png \
+icons/x16_exit.png \
+icons/x16_folder.png \
+icons/x16_folder_open.png \
+icons/x16_go_home.png \
+icons/x16_help_browser.png \
+icons/x16_image_x_generic.png \
+icons/x16_media_optical.png \
+icons/x16_media_playback_pause.png \
+icons/x16_media_playback_start.png \
+icons/x16_media_playback_stop.png \
+icons/x16_media_skip_backward.png \
+icons/x16_media_skip_forward.png \
+icons/x16_preferences_desktop.png \
+icons/x16_process_working.png \
+icons/x16_system_users.png \
+icons/x16_text_x_generic.png \
+icons/x16_view_refresh.png \
+icons/x16_view_sort_descending.png \
+icons/x16_window_close.png \
+icons/x16_x_office_presentation.png \
+icons/x22_applications_internet.png \
+icons/x22_applications_multimedia.png \
+icons/x22_applications_rss_xml.png \
+icons/x22_audio_volume_high.png \
+icons/x22_audio_volume_low.png \
+icons/x22_audio_volume_medium.png \
+icons/x22_audio_volume_muted.png \
+icons/x22_audio_x_generic.png \
+icons/x22_document_open.png \
+icons/x22_document_properties.png \
+icons/x22_drive_harddisk.png \
+icons/x22_folder.png \
+icons/x22_image_x_generic.png \
+icons/x22_media_playback_pause.png \
+icons/x22_media_playback_start.png \
+icons/x22_media_playback_stop.png \
+icons/x22_media_skip_backward.png \
+icons/x22_media_skip_forward.png \
+icons/x22_preferences_system.png \
+icons/x22_text_x_generic.png \
+icons/x22_user_bookmarks.png \
+icons/x22_user_home.png \
+icons/x22_x_office_presentation.png \
+icons/x48_media_optical.png
+
+
+
 
 # Objects to Compile
 #----------------------------------------------------------

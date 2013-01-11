@@ -31,17 +31,16 @@ FXIMPLEMENT(GMAnimImage,FXImageFrame,GMAnimImageMap,ARRAYNUMBER(GMAnimImageMap))
 
 GMAnimImage::GMAnimImage(){
   index=1;
-  imgw=imgh=32;
-  nrow=8;
-  ncol=4;
+  base=32;
+  //nrow=8;
+  //ncol=4;
   }
 
 // Construct it
-GMAnimImage::GMAnimImage(FXComposite* p,FXImage *img,FXint base,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXImageFrame(p,img,opts,x,y,w,h,pl,pr,pt,pb){
+GMAnimImage::GMAnimImage(FXComposite* p,FXImage *img,FXint bs,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXImageFrame(p,img,opts,x,y,w,h,pl,pr,pt,pb),base(bs){
   index=1;
-  imgw=imgh=base;
-  nrow=img->getWidth()/imgw;
-  ncol=img->getHeight()/imgh;
+  //nrow=img->getWidth()/base;
+  //ncol=img->getHeight()/base;
   }
 
 GMAnimImage::~GMAnimImage(){
@@ -67,24 +66,28 @@ void GMAnimImage::create() {
 // Get default width
 FXint GMAnimImage::getDefaultWidth(){
   register FXint w=0;
-  if(image) w=imgw;
+  if(image) w=base;
   return w+padleft+padright+(border<<1);
   }
 
 // Get default height
 FXint GMAnimImage::getDefaultHeight(){
   register FXint h=0;
-  if(image) h=imgh;
+  if(image) h=base;
   return h+padtop+padbottom+(border<<1);
   }
 
 long GMAnimImage::onTimer(FXObject*,FXSelector,void*){
-  if (index==((nrow*ncol)-1))
-    index=1;
-  else
-    index++;
-  update();
-  getApp()->addTimeout(this,ID_TIMER,TIME_MSEC(100));
+  if (image) {
+    FXint nrow=image->getWidth()/base;
+    FXint ncol=image->getHeight()/base;
+    if (index==((nrow*ncol)-1))
+      index=1;
+    else
+      index++;
+    update();
+    getApp()->addTimeout(this,ID_TIMER,TIME_MSEC(100));
+    }
   return 0;
   }
 
@@ -93,9 +96,10 @@ long GMAnimImage::onTimer(FXObject*,FXSelector,void*){
 long GMAnimImage::onPaint(FXObject*,FXSelector,void* ptr){
   FXEvent *ev=(FXEvent*)ptr;
   FXDCWindow dc(this,ev);
-  FXint imgx,imgy;
+  FXint imgx,imgy,imgw=base,imgh=base;
   dc.setForeground(backColor);
   if(image){
+    FXint nrow=image->getWidth()/base;
     if(options&JUSTIFY_LEFT) imgx=padleft+border;
     else if(options&JUSTIFY_RIGHT) imgx=width-padright-border-imgw;
     else imgx=border+padleft+(width-padleft-padright-(border<<1)-imgw)/2;

@@ -52,12 +52,8 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   setTarget(tgt);
   setSelector(msg);
 
-
-
   setIcon(GMIconTheme::instance()->icon_applogo);
   setMiniIcon(GMIconTheme::instance()->icon_applogo_small);
-
-  GMIconTheme::instance()->loadSmall(icon_home,"go-home",FXApp::instance()->getBaseColor());
 
   FXFontDesc fontdescription = getApp()->getNormalFont()->getFontDesc();
   fontdescription.weight = FXFont::Bold;
@@ -81,7 +77,7 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   volumeslider->setIncrement(10);
 
   FXHorizontalFrame * buttons = new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0,3,3,0,0);
-  new FXButton(buttons,tr("\tShow Browser\tShow Browser"),icon_home,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_SHOW_BROWSER,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
+  new FXButton(buttons,tr("\tShow Browser\tShow Browser"),GMIconTheme::instance()->icon_home,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_SHOW_BROWSER,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
   new FXVerticalSeparator(buttons,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
   new FXButton(buttons,tr("\tStart Playback\tStart Playback"),GMIconTheme::instance()->icon_play,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_PLAYPAUSEMENU,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
   new FXButton(buttons,tr("\tStop Playback\tStop Playback"),GMIconTheme::instance()->icon_stop,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_STOP,BUTTON_TOOLBAR|FRAME_RAISED|ICON_ABOVE_TEXT);
@@ -127,10 +123,12 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("Ctrl-["),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_PREV));
   getAccelTable()->addAccel(parseAccel("Ctrl-]"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_NEXT));
 
-  GMIconTheme::instance()->loadSmall(icon_volume_high,"audio-volume-high",FXApp::instance()->getBaseColor());
-  GMIconTheme::instance()->loadSmall(icon_volume_medium,"audio-volume-medium",FXApp::instance()->getBaseColor());
-  GMIconTheme::instance()->loadSmall(icon_volume_low,"audio-volume-low",FXApp::instance()->getBaseColor());
-  GMIconTheme::instance()->loadSmall(icon_volume_muted,"audio-volume-muted",FXApp::instance()->getBaseColor());
+  //icon_volume_high = 
+
+  //GMIconTheme::instance()->loadSmall(icon_volume_high,"audio-volume-high",FXApp::instance()->getBaseColor());
+  //GMIconTheme::instance()->loadSmall(icon_volume_medium,"audio-volume-medium",FXApp::instance()->getBaseColor());
+  //GMIconTheme::instance()->loadSmall(icon_volume_low,"audio-volume-low",FXApp::instance()->getBaseColor());
+  //GMIconTheme::instance()->loadSmall(icon_volume_muted,"audio-volume-muted",FXApp::instance()->getBaseColor());
 
   reset();
   }
@@ -244,13 +242,13 @@ void GMRemote::update_time(const TrackTime & c,const TrackTime & r,FXint positio
 
 void GMRemote::update_volume_display(FXint level) {
   if (level<=0)
-    volumebutton->setIcon(icon_volume_muted);
+    volumebutton->setIcon(GMIconTheme::instance()->icon_volume_muted);
   else if (level<=33)
-    volumebutton->setIcon(icon_volume_low);
+    volumebutton->setIcon(GMIconTheme::instance()->icon_volume_low);
   else if (level<=66)
-    volumebutton->setIcon(icon_volume_medium);
+    volumebutton->setIcon(GMIconTheme::instance()->icon_volume_medium);
   else
-    volumebutton->setIcon(icon_volume_high);
+    volumebutton->setIcon(GMIconTheme::instance()->icon_volume_high);
 
   volumeslider->setValue(level);
   }

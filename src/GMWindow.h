@@ -51,7 +51,6 @@ private:
   FXMenuButton     *volumebutton;
   FXPopup          *volumecontrol;
   FXSlider         *volumeslider;
-  FXImagePtr        animation_image;
 private:
   FXMenuPtr         menu_library;
   FXMenuPtr         menu_media;

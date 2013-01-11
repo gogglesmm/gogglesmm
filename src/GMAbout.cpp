@@ -40,7 +40,7 @@ GMAboutDialog::GMAboutDialog(FXApp * app) : FXDialogBox(app,FXString::null,DECOR
   setup();
   }
 
-GMAboutDialog::GMAboutDialog(FXWindow* owner) : FXDialogBox(owner,FXString::null,DECOR_TITLE|DECOR_BORDER,0,0,0,0,0,0,0,0,0,0) {
+GMAboutDialog::GMAboutDialog(FXWindow* owner) : FXDialogBox(owner,FXString::null,DECOR_TITLE|DECOR_BORDER|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0) {
   setup();
   }
 
@@ -127,6 +127,8 @@ void GMAboutDialog::setup(){
   label->setFont(licensefont);
 
   new FXSeparator(this,SEPARATOR_GROOVE|LAYOUT_FILL_X);
-  FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_BOTTOM|LAYOUT_FILL_X,0,0,0,0);
+  FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
+  new GMButton(closebox,tr("&Homepage"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
+  new GMButton(closebox,tr("&Report Issue"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
   new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
   }
