@@ -374,15 +374,15 @@ FLAC__StreamDecoderWriteStatus FlacReader::flac_input_write(const FLAC__StreamDe
 FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDecoder */*decoder*/, FLAC__byte buffer[], size_t *bytes, void *client_data) {
   FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
   FXASSERT(bytes);
-//  fxmessage("read\n");
 
   if ((*bytes)<=0)
     return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
 
   FXival nbytes = plugin->input->read(buffer,(*bytes));
 
-  if (nbytes<0)
+  if (nbytes<0) {
     return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
+    }
   else if (nbytes==0) {
     (*bytes)=nbytes;
     return FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
@@ -602,17 +602,18 @@ FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamD
   return FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
   }
 
-void FlacDecoder::flac_decoder_error(const FLAC__StreamDecoder */*decoder*/, FLAC__StreamDecoderErrorStatus /*status*/, void */*client_data*/) {
+void FlacDecoder::flac_decoder_error(const FLAC__StreamDecoder */*decoder*/, FLAC__StreamDecoderErrorStatus/*status*/, void */*client_data*/) {
+#if 0
   //FlacDecoder * plugin = reinterpret_cast<FlacDecoder*>(client_data);
   //FXASSERT(plugin);
-/*
+  
   switch(status) {
     case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC          : fxmessage("flac_decoder_error: An error in the stream caused the decoder to lose synchronization.\n"); break;
     case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER         : fxmessage("flac_decoder_error: The decoder encountered a corrupted frame header.\n"); break;
     case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH : fxmessage("flac_decoder_error: The frame's data did not match the CRC in the footer.\n"); break;
     case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM : fxmessage("flac_decoder_error: The decoder encountered reserved fields in use in the stream.\n"); break;
     }
-*/
+#endif
   }
 
 FlacDecoder::FlacDecoder(AudioEngine * e) : DecoderPlugin(e), flac(NULL),in(NULL),out(NULL) {
@@ -673,32 +674,25 @@ DecoderStatus FlacDecoder::process(Packet*packet){
     FXASSERT(in);
     FXASSERT(in->next==NULL);
     FXbool result = FLAC__stream_decoder_process_until_end_of_stream(flac);
+
     FLAC__stream_decoder_flush(flac);
     if (result) {
       if (out) {
         engine->output->post(out);
         out=NULL;
         }
-      engine->output->post(new ControlEvent(End,stream));
-      if (in) {
-        in->unref();
-        in=NULL;
-        }
-      if (out) {
-        out->unref();
-        out=NULL;
-        }
       }
-    else {
-      if (in) {
-        in->unref();
-        in=NULL;
-        }
-      if (out) {
-        out->unref();
-        out=NULL;
-        }
+
+    if (in) {
+      in->unref();
+      in=NULL;
       }
+
+    if (out) {
+      out->unref();
+      out=NULL;
+      }
+    engine->output->post(new ControlEvent(End,stream));
     return DecoderOk;
     }
   return DecoderError;
