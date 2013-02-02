@@ -731,12 +731,9 @@ void GMPlayerManager::init_configuration() {
     /// Let's move
     FXString oldconfig = FXSystem::getHomeDirectory()+PATHSEPSTRING ".foxrc" PATHSEPSTRING "musicmanager";
 
-    /// Move old files over to new directory;
-    ///FXFile::moveFiles(oldbase+"xineconf",newbase+"xineconf");
-
-    /// Move Settings
+    /// Copy Settings
     if (FXStat::exists(oldconfig))
-      FXFile::moveFiles(oldconfig,newbase+"settings.rc");
+      FXFile::copyFiles(oldconfig,newbase+"settings.rc");
 
     ///FIXME enable this when we release 0.12. Remove the old config directory.
     //FXFile::removeFiles(FXSystem::getHomeDirectory()+PATHSEPSTRING+".goggles",true);
@@ -959,7 +956,7 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
       }
 
     /// Grab Media Player Keys
-    gsd       = new GMSettingsDaemon(sessionbus,this,ID_GNOME_SETTINGS_DAEMON);
+    gsd = new GMSettingsDaemon(sessionbus,this,ID_GNOME_SETTINGS_DAEMON);
     gsd->GrabMediaPlayerKeys("gogglesmm");
 
     update_mpris();
@@ -1438,12 +1435,6 @@ void GMPlayerManager::update_track_display(FXbool notify) {
       }
     }
 
-//#ifdef HAVE_XINE_LIB
-//  if (trayicon && player->playing()) {
-//    trayicon->display(trackinfo);
-//    }
-//#endif
-
   mainwindow->display(trackinfo);
 
   if (notify) application->addTimeout(this,ID_PLAY_NOTIFY,TIME_MSEC(500));
@@ -1507,21 +1498,12 @@ FXbool GMPlayerManager::can_prev() const {
   return false;
   }
 
-#if FOXVERSION < 107000
-void GMPlayerManager::setSleepTimer(FXuint ms) {
-  if (ms==0)
-    application->removeTimeout(this,GMPlayerManager::ID_SLEEP_TIMER);
-  else
-    application->addTimeout(this,GMPlayerManager::ID_SLEEP_TIMER,ms);
-  }
-#else
 void GMPlayerManager::setSleepTimer(FXlong ns) {
   if (ns==0)
     application->removeTimeout(this,GMPlayerManager::ID_SLEEP_TIMER);
   else
     application->addTimeout(this,GMPlayerManager::ID_SLEEP_TIMER,ns);
   }
-#endif
 
 FXbool GMPlayerManager::hasSleepTimer() {
   return application->hasTimeout(this,GMPlayerManager::ID_SLEEP_TIMER);
@@ -1584,16 +1566,6 @@ long GMPlayerManager::onScrobblerOpen(FXObject*,FXSelector,void*ptr){
 
 
 
-
-
-
-
-
-
-
-
-
-
 long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
 
   {
@@ -1602,11 +1574,7 @@ long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
   }
 
   database->initArtistLookup();
-
-  /// Update the covers
-//  if (preferences.gui_show_albumcovers) {
-    covercache->refresh(database);
- //   }
+  covercache->refresh(database);
 
   //FIXME  only refresh when we have the music database open.
   getTrackView()->refresh();
@@ -1973,23 +1941,6 @@ long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
 
 
   mainwindow->update_time(tm_progress,tm_remaining,pos,true,true);
-#if 0
-
-  FXint pos=0;
-
-  if (tm->length) {
-//    fxmessage("%d/%d -> %g -> %d\n",tm->position,tm->length,( (double)tm->position / (double)tm->length),(FXint)(100000.0 * ( (double)tm->position / (double)tm->length)));
-    pos = (FXint)(100000.0 * ( (double)tm->position / (double)tm->length));
-    }
-  FXint  hours  = (FXint) floor((double)time/3600.0);
-  time  -= (FXint) (3600*hours);
-  FXint minutes= (FXint) floor((double)time/60.0);
-  time  -= (FXint) (60*minutes);
-  FXint  seconds= (FXint) floor((double)time);
-
-  /// Mark Time
-  mainwindow->update_elapsed_time(hours,minutes,seconds,pos,true,true);
-#endif
   return 1;
   }
 
@@ -2037,7 +1988,6 @@ FXint GMPlayerManager::createPlaylist(const FXString & name) {
     }
   return playlist;
   }
-
 
 FXuint GMPlayerManager::getMainWindowId() const {
   return mainwindow->id();

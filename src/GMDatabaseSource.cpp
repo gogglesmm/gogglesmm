@@ -265,8 +265,8 @@ FXbool GMDatabaseSource::genre_context_menu(FXMenuPane * pane) {
   //new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Genre."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_GENRE);
 //  new GMMenuCommand(pane,"Export" … "\t\tCopy associated tracks to destination.",GMIconTheme::instance()->icon_export,this,ID_EXPORT_GENRE);
 //  new FXMenuSeparator(pane);
-  new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove Genre from Library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_TAG);
-  return true;
+  //new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove Genre from Library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_TAG);
+  return false;
   }
 
 FXbool GMDatabaseSource::artist_context_menu(FXMenuPane * pane){

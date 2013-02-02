@@ -384,7 +384,6 @@ public:
     get_feed.execute(feed);
     if (feed) return;
 
-    fxmessage("adding feed\n");
 
     FXString feed_dir = make_podcast_feed_directory(rss.feed.title);
 

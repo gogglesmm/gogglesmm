@@ -205,9 +205,6 @@ public:
 
   virtual void save(GMTrackList*) {}
 
-
-
-
   virtual FXbool setFilter(const FXString&,FXuint) {return false;}
 
   virtual FXbool listGenres(GMList *,FXIcon *) { return false; }
@@ -234,15 +231,11 @@ public:
 
   virtual FXbool source_context_menu(FXMenuPane*) { return false; }
 
-
   virtual FXbool dnd_accepts(FXDragType*,FXuint) { return false; }
 
   virtual FXuint dnd_provides(FXDragType []) {return 0;}
 
-
   virtual FXbool track_double_click() { return false; }
-
-
 
   virtual ~GMSource();
   };
