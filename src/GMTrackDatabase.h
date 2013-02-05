@@ -75,11 +75,9 @@ public:
   GMQuery update_track_importdate;      /// Update Track as played
   GMQuery update_track_filename;  		  /// Update track filename
 
-
-  GMQuery delete_track;						        /// Delete Track
+  GMQuery delete_track;						      /// Delete Track
   GMQuery delete_playlist_track;
   GMQuery delete_tag_track;
-
   GMQuery update_album;           /// Update Album
   GMQuery update_track_rating;    /// Update track rating
 
@@ -149,7 +147,7 @@ public:
   const FXchar * getTrackPath(FXint pid) const;
 
   /// Return the track path;
-  const FXString * getArtist(FXint aid) const;
+  const FXString * getArtist(FXint aid);
 
   /// Get the track stats
   void getTrackStats(FXint & ntracks,FXint & nartists,FXint & nalbums,FXint & ntime,FXint playlist=0);

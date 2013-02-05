@@ -396,7 +396,7 @@ FXbool GMTrackDatabase::clearTracks(FXbool removeplaylists){
     rollback();
     return false;
     }
-  clear_path_lookup();
+  vacuum();
   return true;
   }
 
@@ -994,9 +994,14 @@ const FXchar * GMTrackDatabase::getTrackPath(FXint pid) const {
   }
 
 /// Return artist;
-const FXString * GMTrackDatabase::getArtist(FXint aid) const {
-  const void * ptr = artistdict.find((void*)(FXival)aid);
-  if (ptr) return (const FXString*)ptr;
+const FXString * GMTrackDatabase::getArtist(FXint aid) {
+  if (__likely(aid>0)) {
+    const void * ptr = artistdict.find((void*)(FXival)aid);
+    if (__likely(ptr)) return (const FXString*)ptr;
+    initArtistLookup();
+    ptr = artistdict.find((void*)(FXival)aid);
+    if (__likely(ptr)) return (const FXString*)ptr;
+    }
   return &empty;
   }
 
