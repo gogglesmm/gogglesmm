@@ -1,0 +1,176 @@
+/*******************************************************************************
+*                         Goggles Audio Player Library                         *
+********************************************************************************
+*           Copyright (C) 2010-2012 by Sander Jansen. All Rights Reserved      *
+*                               ---                                            *
+* This program is free software: you can redistribute it and/or modify         *
+* it under the terms of the GNU General Public License as published by         *
+* the Free Software Foundation, either version 3 of the License, or            *
+* (at your option) any later version.                                          *
+*                                                                              *
+* This program is distributed in the hope that it will be useful,              *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of               *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
+* GNU General Public License for more details.                                 *
+*                                                                              *
+* You should have received a copy of the GNU General Public License            *
+* along with this program.  If not, see http://www.gnu.org/licenses.           *
+********************************************************************************/
+#include "ap_config.h"
+#include "ap_defs.h"
+#include "ap_device.h"
+
+namespace ap {
+
+DeviceConfig:: DeviceConfig() {
+  }
+DeviceConfig::~DeviceConfig(){
+  }
+
+static const FXchar * plugin_names[DeviceLast]={
+  "none",
+  "alsa",
+  "oss",
+  "pulse",
+  "rsound",
+  "jack",
+  "wav"
+  };
+
+static FXbool ap_has_plugin(FXuchar device) {
+  FXString name = FXSystem::dllName(FXString::value("gaplugin_%s",plugin_names[device]));
+  FXString path = AP_PLUGIN_PATH PATHSEPSTRING + name;
+
+  if (FXStat::exists(path) || FXStat::exists(name))
+    return true;
+
+  return false;
+  }
+
+
+
+
+AlsaConfig::AlsaConfig() : device("default"), flags(0) {
+  }
+
+AlsaConfig::AlsaConfig(const FXString & d,FXuint f) : device(d),flags(f) {
+  }
+
+AlsaConfig::~AlsaConfig(){
+  }
+
+void AlsaConfig::load(FXSettings & settings) {
+  device=settings.readStringEntry("alsa","device",device.text());
+  }
+
+void AlsaConfig::save(FXSettings & settings) const {
+  settings.writeStringEntry("alsa","device",device.text());
+  }
+
+OSSConfig::OSSConfig() : device("/dev/dsp"), flags(0) {
+  }
+
+OSSConfig::OSSConfig(const FXString & d): device(d) {
+  }
+
+OSSConfig::~OSSConfig(){
+  }
+
+void OSSConfig::load(FXSettings & settings) {
+  device=settings.readStringEntry("oss","device",device.text());
+  }
+
+void OSSConfig::save(FXSettings & settings) const {
+  settings.writeStringEntry("oss","device",device.text());
+  }
+
+
+
+
+OutputConfig::OutputConfig() {
+#if defined(__linux__) && defined(HAVE_ALSA_PLUGIN)
+  device=DeviceAlsa;
+#elif defined(HAVE_OSS_PLUGIN)
+  device=DeviceOSS;
+#elif defined(HAVE_ALSA_PLUGIN)
+  device=DeviceAlsa;
+#elif defined(HAVE_PULSE_PLUGIN)
+  device=DevicePulse;
+#elif defined(HAVE_JACK_PLUGIN)
+  device=DeviceJack;
+#elif defined(HAVE_RSOUND_PLUGIN)
+  device=DeviceRSound;
+#else
+  device=DeviceWav;
+#endif
+  }
+
+
+#define AP_ENABLE_PLUGIN(plugins,device) (plugins|=(1<<(device-1)))
+
+
+FXuint OutputConfig::devices() {
+  FXuint plugins=0;
+#ifdef HAVE_ALSA_PLUGIN
+  if (ap_has_plugin(DeviceAlsa))
+    AP_ENABLE_PLUGIN(plugins,DeviceAlsa);
+#endif
+#ifdef HAVE_OSS_PLUGIN
+  if (ap_has_plugin(DeviceOSS))
+    AP_ENABLE_PLUGIN(plugins,DeviceOSS);
+#endif
+#ifdef HAVE_PULSE_PLUGIN
+  if (ap_has_plugin(DevicePulse))
+    AP_ENABLE_PLUGIN(plugins,DevicePulse);
+#endif
+#ifdef HAVE_RSOUND_PLUGIN
+  if (ap_has_plugin(DeviceRSound))
+    AP_ENABLE_PLUGIN(plugins,DeviceRSound);
+#endif
+#ifdef HAVE_JACK_PLUGIN
+  if (ap_has_plugin(DeviceJack))
+    AP_ENABLE_PLUGIN(plugins,DeviceJack);
+#endif
+  if (ap_has_plugin(DeviceWav))
+    AP_ENABLE_PLUGIN(plugins,DeviceWav);
+  return plugins;
+  }
+
+FXString OutputConfig::plugin() const {
+  if (device>=DeviceAlsa && device<DeviceLast)
+    return plugin_names[device];
+  else
+    return FXString::null;
+  }
+
+void OutputConfig::load(FXSettings & settings) {
+  FXString output=settings.readStringEntry("engine","output",plugin_names[device]);
+  for (FXint i=DeviceAlsa;i<DeviceLast;i++) {
+    if (output==plugin_names[i]){
+      device=i;
+      break;
+      }
+    }
+  alsa.load(settings);
+  oss.load(settings);
+  }
+
+void OutputConfig::save(FXSettings & settings) const {
+/*
+  FXuchar major,minor;
+  ap_get_version(major,minor);
+  settings.writeIntEntry("version","major",major);
+  settings.writeIntEntry("version","minor",minor);
+*/
+
+  if (device>=DeviceAlsa && device<DeviceLast)
+    settings.writeStringEntry("engine","output",plugin_names[device]);
+  else
+    settings.deleteEntry("engine","output");
+
+  alsa.save(settings);
+  oss.save(settings);
+  }
+
+
+}
