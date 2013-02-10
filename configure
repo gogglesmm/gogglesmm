@@ -4,16 +4,57 @@
 . build/version
 . build/functions
 
+
+
+
+
+
+ALSA_VERSION="1.0"
+FOX_VERSION="1.7.37"
+PULSE_VERSION="0.9.21"
+
 # Settings
 #---------------------------
 DEBUG=0
-DBUS=1
 HELP=0
-NLS=1
-LIRC=0
-MD5=gcrypt
-BUILDIN_MD5=1
-PREFIX=${PREFIX:-/usr}
+
+MUSEPACK_PREFIX=/usr
+FAAD_PREFIX=/usr
+SMB_PREFIX=/usr
+
+OPTION_GAP_MAD=1
+OPTION_GAP_FORCE_MAD=0
+OPTION_GAP_VORBIS=1
+OPTION_GAP_OPUS=1
+OPTION_GAP_FLAC=1
+OPTION_GAP_FAAD=1
+OPTION_GAP_WAVPACK=0
+OPTION_GAP_FORCE_FAAD=0
+OPTION_GAP_MUSEPACK=0
+OPTION_GAP_SAMPLERATE=0
+OPTION_GAP_OGG=1
+OPTION_GAP_ALSA=1
+OPTION_GAP_OSS=1
+OPTION_GAP_PULSE=1
+OPTION_GAP_JACK=0
+OPTION_GAP_RSOUND=0
+OPTION_GAP_AVCODEC=0 # disabled for now
+OPTION_GAP_CDDA=0
+OPTION_GAP_MMS=0 # disabled for now
+OPTION_GAP_SMB=0
+#OPTION_GAP_PROXY=1
+
+OPTION_GMM_DBUS=1
+OPTION_GMM_NLS=1
+OPTION_GMM_MD5=gcrypt
+OPTION_GMM_LIRC=0
+
+
+
+
+
+
+
 
 # Default Compiler Settings
 # Use environment variables to override
@@ -24,9 +65,20 @@ INCFLAGS=${INCFLAGS:-}
 LIBS=${LIBS:-}
 LIBPREFIX=${LIBPREFIX:-lib}
 LIBEXT=${LIBEXT:-.so}
+LIB=${LIB:-lib}
 OUTPUTOBJ=${OUTPUTOBJ:--o }
 OUTPUTBIN=${OUTPUTBIN:--o }
 OBJEXT=${OBJEXT:-.o}
+
+PREFIX=${PREFIX:-/usr}
+
+
+
+# For making plugins
+# We always want these flags. If you want to override this, change config.make
+SO_CFLAGS="-fPIC -fvisibility=hidden"
+SO_LDFLAGS="-shared -fPIC"
+
 
 # Overriding Compiler Flags
 # Either override GEN_CFLAGS, OPT_CFLAGS and DEBUG_CFLAGS individually
@@ -40,7 +92,7 @@ DEBUG_CFLAGS=${DEBUG_CFLAGS:--g  -fstack-protector-all}
 # Either override GEN_LDFLAGS, OPT_LDFLAGS and DEBUG_LDFLAGS individually
 # or set LDFLAGS which overrides all them
 #-------------------------------------------------------
-GEN_LDFLAGS=${GEN_LDFLAGS:-}
+GEN_LDFLAGS=${GEN_LDFLAGS:--Wl,--as-needed}
 OPT_LDFLAGS=${OPT_LDFLAGS:--s}
 DEBUG_LDFLAGS=${DEBUG_LDFLAGS:-}
 
@@ -48,77 +100,152 @@ DEBUG_LDFLAGS=${DEBUG_LDFLAGS:-}
 #-----------------------------
 for arg in $@; do
   case $arg in
-    --enable-debug)
+    --enable-debug*)
       DEBUG=1
-      ;;
-    --with-md5=*)
-      MD5=${arg#*=}
-      ;;
-    --with-lirc)
-      LIRC=1
-      ;;
-    --disable-nls)
-      NLS=0
-      ;;
-    --without-dbus)
-      DBUS=0
       ;;
     --prefix=*)
       PREFIX=${arg#*=}
       ;;
-    --gap-prefix=*)
-      GAP_PREFIX=${arg#*=}
-      add_package_path $GAP_PREFIX
+    --lib64)
+      LIB=lib64
+      ;;
+    --localedir=*)
+      NLSDIR=${arg#*=}
+      ;;
+    --without-mad)
+      OPTION_GAP_MAD=0
+      ;;
+    --without-vorbis)
+      OPTION_GAP_VORBIS=0
+      ;;
+    --without-opus)
+      OPTION_GAP_OPUS=0
+      ;;
+    --without-ogg)
+      OPTION_GAP_OGG=0
+      ;;
+    --without-flac)
+      OPTION_GAP_FLAC=0
+      ;;
+    --without-faad)
+      OPTION_GAP_FAAD=0
+      ;;
+    --with-musepack)
+      OPTION_GAP_MUSEPACK=1
+      ;;
+    --without-wavpack)
+      OPTION_GAP_WAVPACK=0
+      ;;
+    --without-samplerate)
+      OPTION_GAP_SAMPLERATE=0
+      ;;
+    --without-cdda)
+      OPTION_GAP_CDDA=0
+      ;;
+    --without-smb)
+      OPTION_GAP_SMB=0
+      ;;
+    --without-alsa)
+      OPTION_GAP_ALSA=0
+      ;;
+    --without-oss)
+      OPTION_GAP_OSS=0
+      ;;
+    --without-pulse)
+      OPTION_GAP_PULSE=0
+      ;;
+    --without-rsound)
+      OPTION_GAP_RSOUND=0
+      ;;
+    --without-jack)
+      OPTION_GAP_JACK=0
+      ;;
+    --without-avcodec)
+      OPTION_GAP_AVCODEC=0
+      ;;
+    --without-mms)
+      OPTION_GAP_MMS=0
+      ;;
+    --with-mad)
+      OPTION_GAP_FORCE_MAD=1
+      ;;
+    --with-faad)
+      OPTION_GAP_FORCE_FAAD=1
+      ;;
+    --mad-prefix=*)
+      MAD_PREFIX=${arg#*=}
+      pkgconfig_add_path $MAD_PREFX
+      ;;
+    --musepack-prefix=*)
+      MUSEPACK_PREFIX=${arg#*=}
+      ;;
+    --faad-prefix=*)
+      FAAD_PREFIX=${arg#*=}
+      ;;
+    --smb-prefix=*)
+      SMB_PREFIX=${arg#*=}
       ;;
     --fox-prefix=*)
       FOX_PREFIX=${arg#*=}
-      add_package_path $FOX_PREFIX
+      pkgconfig_add_path $FOX_PREFIX
       ;;
-    --sqlite-prefix=*)
-      SQLITE_PREFIX=${arg#*=}
-      add_package_path $SQLITE_PREFIX
+    --with-md5=*)
+      OPTION_GMM_MD5=${arg#*=}
       ;;
-    --taglib-prefix=*)
-      TAGLIB_PREFIX=${arg#*=}
-      add_package_path $TAGLIB_PREFIX
+    --without-dbus)
+      OPTION_GMM_DBUS=0
       ;;
-    --dbus-prefix=*)
-      DBUS_PREFIX=${arg#*=}
-      add_package_path $DBUS_PREFIX
+    --without-nls)
+      OPTION_GMM_NLS=0
       ;;
-    --localedir=*)
-      NLSDIR${arg#*=}
-      ;;
-    --help)
-      HELP=1
-      ;;
-    -h)
-      HELP=1
+    --help|-h)
+      echo "Options:"
+      echo "   --enable-debug                  Compile with debug information"
+      echo "   -h,--help                       Show Help"
+      echo " "
+      echo "Components: "
+      echo "   --without-mad                   Compile without mad support"
+      echo "   --without-vorbis                Compile without vorbis support"
+      echo "   --without-ogg                   Compile without ogg support"
+      echo "   --without-flac                  Compile without flac support"
+      echo "   --without-faad                  Compile without faad support"
+      echo "   --without-wavepack              Compile without wavpack support"
+      echo "   --without-samplerate            Compile without samplerate support"
+      echo "   --without-cdda                  Compile without cdda support"
+      echo "   --without-smb                   Compile without smb support"
+      echo "   --without-alsa                  Compile without alsa support"
+      echo "   --without-oss                   Compile without oss support"
+      echo "   --without-pulse                 Compile without pulseaudio support"
+      echo "   --without-jack                  Compile without jack support"
+      echo "   --without-rsound                Compile without rsound support"
+      echo "   --without-avcodec               Compile without avcodec support"
+      echo " "
+		  echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use.(gcrypt)"
+ 		  echo "   --without-dbus                  Compile without dbus support"
+ 		  echo "   --without-nls                   Compile without locale support"
+			echo " "
+      echo "   --with-mad                      Compile with mad support. (force) "
+      echo "   --with-musepack                 Compile with musepack (sv7) support. "
+      echo " "
+      echo "   --fox-prefix=<p>                FOX prefix path"
+      echo "   --mad-prefix=<p>                Mad prefix path"
+      echo "   --musepack-prefix=<p>           Musepack prefix path"
+      echo " "
+      echo "Install Directories: "
+      echo "   --prefix=<p>                	   Install prefix (/usr)"
+      echo "   --lib64                         Install in lib64 instead of lib"
+  		echo "   --localedir=<dir>               locale-dependent data (<prefix>/share/locale)"
+      echo " "
+      exit 0
       ;;
   esac
 done
 
 
-# Print Command Line Options
-#---------------------------
-if [ $HELP -eq 1 ] ; then
-  echo "Available options:"
-  echo "   --enable-debug                  Compile with debug information"
-  echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use. (gcrypt)"
-  echo "   --without-dbus                  Turn off DBus Support"
-  echo "   --prefix=<p>                	   Installation prefix (/usr)"
-  echo "   --fox-prefix=<p>                fox prefix path"
-  echo "   --gap-prefix=<p>                gap prefix path"
-  echo "   --taglib-prefix=<p>             tagLib prefix path"
-  echo "   --sqlite-prefix=<p>             sqlite prefix path"
-  echo "   --dbus-prefix=<p>               dbus prefix path"
-  echo "   --localedir=<dir>               locale-dependent data (<prefix>/share/locale)"
-  echo "   -h,--help                       Show Help"
-  exit 0
-fi
+# Setup libdir
+LIBDIR="${PREFIX}/$LIB"
 
 # Debug / Release Mode
-#----------------------
 if [ $DEBUG -eq 1 ] ; then
   CFLAGS=${CFLAGS:-$GEN_CFLAGS $DEBUG_CFLAGS}
   LDFLAGS=${LDFLAGS:-$GEN_LDFLAGS $DEBUG_LDFLAGS}
@@ -129,7 +256,16 @@ else
   DEFINES="$DEFINES -DNDEBUG"
 fi
 
-# Init Config File
+# Build Config
+echo "#Generated by configure utility"          > config.make
+
+# Gap Config File
+#------------------------------
+PLUGIN_PATH=".:$LIBDIR/gogglesmm"
+echo "/* Generated by configure utility */"     > src/gap/ap_config.h
+echo "#define AP_PLUGIN_PATH \"$PLUGIN_PATH\"" >> src/gap/ap_config.h
+
+# Gogglesmm Config File
 #------------------------------
 echo "/* Generated by configure utility */"     > $CFG
 echo "#ifndef GMCONFIG_H"                       >> $CFG
@@ -142,8 +278,6 @@ echo "#define APPLICATION_BETA $BETA_APP"       >> $CFG
 echo "#define APPLICATION_BETA_DB $BETA_DB"     >> $CFG
 echo "#define BUILD_DATE __DATE__"              >> $CFG
 echo "#define BUILD_TIME __TIME__"              >> $CFG
-echo "" >> $CFG
-
 if [ $BETA_APP -eq 0 ] ; then
 echo "#define APPLICATION_VERSION_STRING \"$MAJOR.$MINOR.$LEVEL\"" >> $CFG
 else
@@ -151,87 +285,21 @@ echo "#define APPLICATION_VERSION_STRING \"$MAJOR.$MINOR.$LEVEL-$BETA_APP\"" >> 
 fi
 echo "" >> $CFG
 
-echo ""
-echo "Goggles Music Manager:"
 
 
-# Libraries
-#------------------------
-add_required_package "fox17 >= 1.7.37" "fox"
-check_reswrap
-check_foxversion
+# Base Dependencies
+#------------------------------
+check_fox
 
-add_required_package "libgaplayer-0 >= 0.11" "gap"
-add_required_package "sqlite3 >= 3.6.3" "sqlite"
-#add_required_package "libcurl >= 7.19" "curl"
-add_required_package "taglib >= 1.7.0" "taglib"
-
-# DBus is optional
-if [ $DBUS -eq 1 ] ; then
-  add_package "dbus-1 >= 1.0" "dbus"
-  DBUS=$?
-fi
-
-# We need both X11 and GLU
-# For systems without pkg-config for x11 and glu we'll just hardwire it.
-add_package "x11" "x11"
-if [ $? -eq 0 ] ; then
-  EXTRALIBS="$EXTRALIBS -lX11"
-fi
-
-add_package "glu" "glu"
-if [ $? -eq 0 ] ; then
-  EXTRALIBS="$EXTRALIBS -lGL -lGLU"
-fi
-
-# Session Management
-add_package "ice" "ice"
-add_package "sm" "sm"
-
-
-PKG_LDFLAGS=$(pkg-config --libs-only-L $PACKAGES)
-PKG_LIBS=$(pkg-config --libs-only-l --libs-only-other $PACKAGES)
-PKG_CFLAGS=$(pkg-config --cflags-only-other $PACKAGES)
-PKG_CPPFLAGS=$(pkg-config --cflags-only-I $PACKAGES)
-
-if [ -n "$PKG_LDFLAGS"  ] ; then LIBS="$LIBS $PKG_LDFLAGS"; fi
-if [ -n "$PKG_LIBS"     ] ; then LIBS="$LIBS $PKG_LIBS"; fi
-if [ -n "$PKG_CFLAGS"   ] ; then GEN_CFLAGS="$GEN_CFLAGS $PKG_CFLAGS"; fi
-if [ -n "$PKG_CPPFLAGS" ] ; then INCFLAGS="$INCFLAGS $PKG_CPPFLAGS"; fi
+# Gap Dependencies
+#------------------------------
+check_gap_plugins
+check_gap_packages
+check_gogglesmm
+check_all
 
 . build/byteorderdetect
 
-if [ $NLS -eq 1 ] ; then
-  NLSDIR=${NLSDIR:-$PREFIX/share/locale}
-  add_config "nls"
-  add_config_string "LOCALEDIR" ${NLSDIR}
-fi
-
-if [ "$MD5" != "internal" ] ; then
-  add_config "gcrypt"
-  GCRYPT_LIBS=$(libgcrypt-config --libs)
-  LIBS="$LIBS $GCRYPT_LIBS"
-else
-  add_config "md5"
-fi
-
-if [ $LIRC -eq 1 ] ; then
-  add_config "lirc"
-  INCFLAGS="$INCFLAGS -I/usr/include/lirc"
-  LIBS="$LIBS -llirc_client "
-fi
-
-#if [ $MPRIS2 -eq 1 ] ; then
-add_config "mpris1"
-add_config "mpris2"
-#fi
-
-# expat (for now hardwired)
-#------------------------
-# LIBS="$LIBS -lexpat"
-
-# Set Icon Path
-add_config_string "DEFAULT_ICON_PATH" "${PREFIX}/share/icons"
 
 # End of configuration
 #-------------------------
@@ -239,9 +307,14 @@ echo ""       >> $CFG
 echo "#endif" >> $CFG
 
 
+
+
+
+
+
 # Write out Makefile configuration
 #--------------------------------------
-echo "#Generated by configure utility"  > config.make
+echo "LIBDIR=$LIBDIR" >> config.make
 echo "CXX=$CXX"                        >> config.make
 echo "LINK=$LINK"                      >> config.make
 echo "CFLAGS=$CFLAGS"                  >> config.make
@@ -257,38 +330,54 @@ echo "RESWRAP_TEXT=$RESWRAP_TEXT"      >> config.make
 echo "PREFIX=$PREFIX"                  >> config.make
 echo "OPTIONS=$OPTIONS"                >> config.make
 
+echo "GAP_CFLAGS=$FOX_CFLAGS"          >> config.make
+echo "GAP_CPPFLAGS=$FOX_CPPFLAGS"      >> config.make
+
+echo "GAP_LIBS=$GAP_LIBS"              >> config.make
+echo "GAP_PLUGINS=$PLUGINS"            >> config.make
+
+echo "SO_CFLAGS=$SO_CFLAGS"            >> config.make
+echo "SO_LDFLAGS=$SO_LDFLAGS"          >> config.make
+
 
 # Summary
 #-------------------------
-echo "Features:"
+echo "---------------------------------------------"
+echo "Build Setup:"
+
+echo "  Audio Plugins : "
+for arg in $PLUGINS; do
+	echo "                  $arg"
+done
+
 
 if [ "$MD5" != "internal" ] ; then
-  echo "    MD5           => libgcrypt"
+  echo "  MD5           : libgcrypt"
 else
-  echo "    MD5           => internal"
+  echo "  MD5           : internal"
 fi
 
-if [ $DBUS -eq 0 ] ; then
-  echo "    DBUS Support  => no"
+if [ $OPTION_GMM_DBUS -eq 0 ] ; then
+  echo "  DBUS Support  : no"
 else
-  echo "    DBUS Support  => yes"
+  echo "  DBUS Support  : yes"
 fi
 
-if [ $LIRC -eq 0 ] ; then
-  echo "    LIRC Support  => no"
+if [ $OPTION_GMM_LIRC -eq 0 ] ; then
+  echo "  LIRC Support  : no"
 else
-  echo "    LIRC Support  => yes"
+  echo "  LIRC Support  : yes"
 fi
 
-if [ $NLS -eq 0 ] ; then
-  echo "    NLS Support   => no"
+if [ $OPTION_GMM_NLS -eq 0 ] ; then
+  echo "  NLS Support   : no"
 else
-  echo "    NLS Support   => yes"
-  echo "    Locale Path   => $NLSDIR"
+  echo "  NLS Support   : yes"
+  echo "  Locale Path   : $NLSDIR"
 fi
 
-  echo "    Icon Path     => $PREFIX/share/icons"
-  echo "    Install Path  => $PREFIX"
+  echo "  Icon Path     : $PREFIX/share/icons"
+  echo "  Install Path  : $PREFIX"
 
 
 # Success

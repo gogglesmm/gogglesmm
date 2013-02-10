@@ -20,7 +20,6 @@
 #include "GMAbout.h"
 #include "icons.h"
 
-#include <ap.h>
 
 #ifdef HAVE_DBUS
 #include "GMDBus.h"
@@ -98,13 +97,13 @@ void GMAboutDialog::setup(){
 
 
 //  XML_Expat_Version expatversion = XML_ExpatVersionInfo();
-  FXuchar ap_major,ap_minor;
-  ap_get_version(ap_major,ap_minor);
+ // FXuchar ap_major,ap_minor;
+//  ap_get_version(ap_major,ap_minor);
 
 #ifdef HAVE_DBUS
-  libraries.format("Build with FOX %d.%d.%d, libgaplayer %d.%d\nSQLite %s, DBus %s \nand Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion(),GMDBus::dbusversion().text());
+  libraries.format("Build with FOX %d.%d.%d\nSQLite %s, DBus %s \nand Taglib",fxversion[0],fxversion[1],fxversion[2],sqlite3_libversion(),GMDBus::dbusversion().text());
 #else
-  libraries.format("Build with FOX %d.%d.%d, libgaplayer %d.%d\nSQLite %s and Taglib",fxversion[0],fxversion[1],fxversion[2],ap_major,ap_minor,sqlite3_libversion());
+  libraries.format("Build with FOX %d.%d.%d\nSQLite %s and Taglib",fxversion[0],fxversion[1],fxversion[2],sqlite3_libversion());
 #endif
 
 #if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)

@@ -20,7 +20,9 @@
 #ifndef PULSE_PLUGIN_H
 #define PULSE_PLUGIN_H
 
+extern "C" {
 #include <pulse/pulseaudio.h>
+}
 
 namespace ap {
 

@@ -100,7 +100,7 @@ FXbool AudioFormat::swap() {
   flt -> 32 -> 16
 */
 
-FXbool AudioFormat::compatible() {
+FXbool AudioFormat::compatible()  {
   switch(format){
     case AP_FORMAT_S24_3BE  : format=AP_FORMAT_S24_BE; break;
     case AP_FORMAT_S24_3LE  : format=AP_FORMAT_S24_LE; break;

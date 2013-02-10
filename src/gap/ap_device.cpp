@@ -38,10 +38,12 @@ static const FXchar * plugin_names[DeviceLast]={
   };
 
 static FXbool ap_has_plugin(FXuchar device) {
-  FXString name = FXSystem::dllName(FXString::value("gaplugin_%s",plugin_names[device]));
-  FXString path = AP_PLUGIN_PATH PATHSEPSTRING + name;
+  FXString path = FXPath::search(AP_PLUGIN_PATH,FXSystem::dllName(FXString::value("gap_%s",plugin_names[device])));
 
-  if (FXStat::exists(path) || FXStat::exists(name))
+//  FXString name = FXSystem::dllName(FXString::value("gaplugin_%s",plugin_names[device]));
+ // FXString path = AP_PLUGIN_PATH PATHSEPSTRING + name;
+
+  if (FXStat::exists(path) /*|| FXStat::exists(name)*/)
     return true;
 
   return false;

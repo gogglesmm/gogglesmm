@@ -6,250 +6,69 @@
 #
 #-----------------------------------------------------------
 
+.PHONY : all plugins clean realclean cleanicons install install-desktop nls
+
+ifeq "$(wildcard config.make)" ""
+  $(error No configuration found. Run ./configure first)
+endif
+
 include config.make
 
 # Set suffixes
 .SUFFIXES:
 .SUFFIXES: .cpp .h .gif .png $(OBJEXT) $(BINEXT) $(LIBEXT)
 
-.PHONY : all clean realclean cleanicons install install-desktop
+# Set Installation directories
+installdir=$(DESTDIR)$(PREFIX)
+bindir=$(installdir)/bin
+libdir=$(DESTDIR)$(LIBDIR)
+sharedir=$(installdir)/share
+localefile=$(sharedir)/locale/$(tr)/LC_MESSAGES/gogglesmm.mo
+pluginfile=$(libdir)/gogglesmm/$(notdir $(plugin))
 
+# Install Utility
 INSTALL=install
 
+# Define Targets
+include build/targets.mk
 
-# Convert to Platform specific names
-#----------------------------------------------------------
-BINNAME=src/gogglesmm$(BINEXT)    						# XXX on Linux, X.exe on Windows
+# Build Targets
+all: $(GAP_ALL_PLUGINS) $(GMM_NAME) 
 
-# Installation Directory
-ifdef DESTDIR
-INSTALLDIR=$(DESTDIR)$(PREFIX)
-else
-INSTALLDIR=$(PREFIX)
-endif
+# Get Sources and Rules
+include build/gap.mk
+include build/gmm.mk
 
-all: $(BINNAME)
-
-
-ICONS := icons/cursor_hand.gif \
-icons/about.png \
-icons/gogglesmm_16.png \
-icons/gogglesmm_32.png \
-icons/x16_accessories_text_editor.png \
-icons/x16_applications_internet.png \
-icons/x16_audio_volume_high.png \
-icons/x16_audio_volume_low.png \
-icons/x16_audio_volume_medium.png \
-icons/x16_audio_volume_muted.png \
-icons/x16_audio_x_generic.png \
-icons/x16_bookmark_new.png \
-icons/x16_document_open.png \
-icons/x16_document_save.png \
-icons/x16_edit_copy.png \
-icons/x16_edit_cut.png \
-icons/x16_edit_delete.png \
-icons/x16_edit_find.png \
-icons/x16_edit_paste.png \
-icons/x16_edit_undo.png \
-icons/x16_exit.png \
-icons/x16_folder.png \
-icons/x16_folder_open.png \
-icons/x16_go_home.png \
-icons/x16_help_browser.png \
-icons/x16_image_x_generic.png \
-icons/x16_media_optical.png \
-icons/x16_media_playback_pause.png \
-icons/x16_media_playback_start.png \
-icons/x16_media_playback_stop.png \
-icons/x16_media_skip_backward.png \
-icons/x16_media_skip_forward.png \
-icons/x16_preferences_desktop.png \
-icons/x16_process_working.png \
-icons/x16_system_users.png \
-icons/x16_text_x_generic.png \
-icons/x16_view_refresh.png \
-icons/x16_view_sort_descending.png \
-icons/x16_window_close.png \
-icons/x16_x_office_presentation.png \
-icons/x22_applications_internet.png \
-icons/x22_applications_multimedia.png \
-icons/x22_applications_rss_xml.png \
-icons/x22_audio_volume_high.png \
-icons/x22_audio_volume_low.png \
-icons/x22_audio_volume_medium.png \
-icons/x22_audio_volume_muted.png \
-icons/x22_audio_x_generic.png \
-icons/x22_document_open.png \
-icons/x22_document_properties.png \
-icons/x22_drive_harddisk.png \
-icons/x22_folder.png \
-icons/x22_image_x_generic.png \
-icons/x22_media_playback_pause.png \
-icons/x22_media_playback_start.png \
-icons/x22_media_playback_stop.png \
-icons/x22_media_skip_backward.png \
-icons/x22_media_skip_forward.png \
-icons/x22_preferences_system.png \
-icons/x22_text_x_generic.png \
-icons/x22_user_bookmarks.png \
-icons/x22_user_home.png \
-icons/x22_x_office_presentation.png \
-icons/x48_media_optical.png
-
-
-
-
-# Objects to Compile
-#----------------------------------------------------------
-SRCFILES := src/GMAbout.cpp \
-src/GMAnimImage.cpp \
-src/GMApp.cpp \
-src/GMAudioPlayer.cpp \
-src/GMAudioScrobbler.cpp \
-src/GMAlbumList.cpp \
-src/GMClipboard.cpp \
-src/GMColumnDialog.cpp \
-src/GMCover.cpp \
-src/GMCoverCache.cpp \
-src/GMCoverManager.cpp \
-src/GMDatabase.cpp \
-src/GMDatabaseSource.cpp \
-src/GMFilename.cpp \
-src/GMFontDialog.cpp \
-src/GMIconTheme.cpp \
-src/GMImportDialog.cpp \
-src/GMImageView.cpp \
-src/GMList.cpp \
-src/GMLocalSource.cpp \
-src/GMPlayerManager.cpp \
-src/GMPlayListSource.cpp \
-src/GMPlayQueue.cpp \
-src/GMPodcastSource.cpp \
-src/GMPreferences.cpp \
-src/GMPreferencesDialog.cpp \
-src/GMRemote.cpp \
-src/GMSession.cpp \
-src/GMScanner.cpp \
-src/GMSource.cpp \
-src/GMSourceView.cpp \
-src/GMTag.cpp \
-src/GMTaskManager.cpp \
-src/GMTrack.cpp \
-src/GMTrackDatabase.cpp \
-src/GMTrackEditor.cpp \
-src/GMTrackList.cpp \
-src/GMTrackItem.cpp \
-src/GMTrackView.cpp \
-src/GMTrayIcon.cpp \
-src/GMStreamSource.cpp \
-src/GMWindow.cpp \
-src/main.cpp \
-src/icons.cpp \
-src/fxext.cpp \
-src/gmutils.cpp
-
-ifneq (,$(findstring md5,$(OPTIONS)))
-	SRCFILES += src/md5.cpp
-endif
-
-ifneq (,$(findstring dbus,$(OPTIONS)))
-	SRCFILES += src/GMDBus.cpp \
-	src/GMAppStatusNotify.cpp \
-	src/GMNotifyDaemon.cpp \
-  src/GMSettingsDaemon.cpp \
-  src/GMMediaPlayerService.cpp
-endif
-
-
-OBJECTS := $(patsubst %.cpp,%$(OBJEXT),$(SRCFILES))
-DEPENDENCIES = $(patsubst %.cpp,%.d,$(SRCFILES))
-
-$(BINNAME): $(OBJECTS)
-	@echo "    Linking $@ ..."
-#	@echo "$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(BINNAME) $(OBJECTS) $(LIBS)"
-	@$(LINK) $(LDFLAGS) $(OUTPUTBIN)$(BINNAME) $(OBJECTS) $(LIBS)
-
-%$(OBJEXT):	%.cpp
-	@echo "    Compiling $< ..."
-#	@echo "$(CXX) $(CFLAGS) $(DEFS) $(CPPFLAGS) -MM -o $*.d -MT $@ $<"
-	@$(CXX) $(CFLAGS) $(DEFS) $(CPPFLAGS) -MM -o $*.d -MT $@ $<
-#	@echo "$(CXX) $(CFLAGS) $(DEFS) $(CPPFLAGS) $(OUTPUTOBJ)$@ -c $<"
-	@$(CXX) $(CFLAGS) $(DEFS) $(CPPFLAGS) $(OUTPUTOBJ)$@ -c $<
-
-ifneq (,$(findstring dbus,$(OPTIONS)))
-src/gogglesmm_xml.h: src/gogglesmm.xml
-	@echo "    Creating gogglesmm_xml.h ..."
-	@$(RESWRAP_TEXT) -o $@ src/gogglesmm.xml
-src/appstatus_xml.h:  src/appstatus.xml src/dbusmenu.xml
-	@echo "    Creating appstatus_xml.h ..."
-	@$(RESWRAP_TEXT) -o $@  src/appstatus.xml  src/dbusmenu.xml
-ifneq (,$(findstring mpris1,$(OPTIONS)))
-src/mpris1_xml.h:  src/mpris.xml
-	@echo "    Creating mpris1_xml.h ..."
-	@$(RESWRAP_TEXT) -o $@ src/mpris.xml src/mpris_player.xml src/mpris_tracklist.xml
-endif
-ifneq (,$(findstring mpris2,$(OPTIONS)))
-src/mpris2_xml.h:  src/mpris2.xml
-	@echo "    Creating mpris2_xml.h ..."
-	@$(RESWRAP_TEXT) -o $@ src/mpris2.xml
-endif
-endif
-
-$(OBJECTS): src/icons.h src/icons.cpp
-
-src/icons.h: $(ICONS)
-	@echo "    Creating Icon Resource Header"
-	@$(RESWRAP_H) -o $@ $(ICONS)
-
-src/icons.cpp: $(ICONS)
-	@echo "    Creating Icon Resources"
-	@$(RESWRAP_CPP) -o $@ $(ICONS)
-
-ifneq (,$(findstring dbus,$(OPTIONS)))
-src/GMPlayerManager.cpp: src/gogglesmm_xml.h
-src/GMAppStatusNotify.cpp: src/appstatus_xml.h
-
-ifneq (,$(findstring mpris1,$(OPTIONS)))
-ifneq (,$(findstring mpris2,$(OPTIONS)))
-src/GMMediaPlayerService.cpp: src/mpris1_xml.h src/mpris2_xml.h
-else
-src/GMMediaPlayerService.cpp: src/mpris1_xml.h
-endif
-else
-ifneq (,$(findstring mpris2,$(OPTIONS)))
-src/GMMediaPlayerService.cpp: src/mpris2_xml.h
-endif
-endif
-endif
-
-
+# Setup Translations
 TRANSLATIONS:=$(basename $(notdir $(wildcard po/*.mo)))
 LINGUAS?=$(TRANSLATIONS)
 
+# Install Variables
+
 # Install
 #----------------------------------------------------------
-install: $(BINNAME)
-	@echo "    Installing $(INSTALLDIR)/bin/gogglesmm ..."
-	@$(INSTALL) -d $(INSTALLDIR)/bin
-	@$(INSTALL) -m 755 src/gogglesmm $(INSTALLDIR)/bin/gogglesmm
-	@echo "    Installing $(INSTALLDIR)/share/applications/gogglesmm.desktop"
-	@$(INSTALL) -d $(INSTALLDIR)/share/applications
-	@$(INSTALL) -m 644 extra/gogglesmm.desktop $(INSTALLDIR)/share/applications/gogglesmm.desktop
-	@echo "    Installing Icons"
-	$(INSTALL) -m 644 -D icons/gogglesmm_16.png $(INSTALLDIR)/share/icons/hicolor/16x16/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(INSTALLDIR)/share/icons/hicolor/22x22/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(INSTALLDIR)/share/icons/hicolor/24x24/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(INSTALLDIR)/share/icons/hicolor/32x32/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(INSTALLDIR)/share/icons/hicolor/48x48/apps/gogglesmm.png
-	$(INSTALL) -m 644 -D extra/gogglesmm.svg $(INSTALLDIR)/share/icons/hicolor/scalable/apps/gogglesmm.svg
+install: $(GMM_NAME) $(GAP_ALL_PLUGINS)
+
+	@echo "    Installing $(bindir)/gogglesmm ..."
+	@$(INSTALL) -D -m 755 src/gogglesmm $(bindir)/gogglesmm
+	@$(foreach plugin,$(GAP_ALL_PLUGINS),echo "    Installing $(pluginfile) ..." ; $(INSTALL) -D -m 755  $(plugin) $(pluginfile);)
+
+	@echo "    Installing $(sharedir)/applications/gogglesmm.desktop"
+	@$(INSTALL) -D -m 644 extra/gogglesmm.desktop $(sharedir)/applications/gogglesmm.desktop
+
+# install nls if needed
 ifneq (,$(findstring nls,$(OPTIONS)))
-	@echo "    Installing Translations"
-	@linguas='$(filter $(TRANSLATIONS),$(LINGUAS))'; \
-	for tr in $$linguas ; do \
-    echo "    Installing $(INSTALLDIR)/share/locale/$$tr/LC_MESSAGES/gogglesmm.mo" ;\
-  	$(INSTALL) -m 644 -D po/$$tr.mo -T $(INSTALLDIR)/share/locale/$$tr/LC_MESSAGES/gogglesmm.mo ; \
-	done;
+	@$(foreach tr,$(filter $(TRANSLATIONS),$(LINGUAS)),echo "    Installing $(localefile) ..." ;$(INSTALL) -m 644 -D po/$(tr).mo $(localefile); )
 endif
+
+	@echo "    Installing icons..."
+	@$(INSTALL) -m 644 -D icons/gogglesmm_16.png $(sharedir)/icons/hicolor/16x16/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(sharedir)/icons/hicolor/22x22/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(sharedir)/icons/hicolor/24x24/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(sharedir)/icons/hicolor/32x32/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(sharedir)icons/hicolor/48x48/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm.svg $(sharedir)/icons/hicolor/scalable/apps/gogglesmm.svg
+	@echo "    Done."
 
 svg2png:
 	rsvg-convert -w 22  extra/gogglesmm.svg -o extra/gogglesmm_22.png
@@ -261,10 +80,14 @@ svg2png:
 #----------------------------------------------------------
 clean :
 	@echo "    Remove Executables ..."
-	@rm -f $(BINNAME)
+	@rm -f $(GMM_NAME) $(GAP_ALL_PLUGINS)
 	@echo "    Remove Objects ..."
 	@rm -f src/*$(OBJEXT)
 	@rm -f src/*.d
+	@rm -f src/gap/*$(OBJEXT)
+	@rm -f src/gap/*.d
+	@rm -f src/gap/plugins/*$(OBJEXT)
+	@rm -f src/gap/plugins/*.d
 	@echo "    Remove Generated Files ..."
 	@rm -f src/icons.cpp
 	@rm -f src/icons.h
@@ -275,25 +98,39 @@ clean :
 
 #----------------------------------------------------------
 
-realclean :
+realclean : clean
 	@echo "    Remove Configuration ..."
 	@rm -f config.make
 	@rm -f src/gmconfig.h
+	@rm -f src/gap/ap_config.h
+	@rm -f po/*.mo
+	@rm -f extra/gogglesmm_22.png
+	@rm -f extra/gogglesmm_24.png
+	@rm -f extra/gogglesmm_48.png
+  
+PO_FILES=$(wildcard po/*.po)
+MO_FILES=$(PO_FILES:.po=.mo)
 
-dist: svg2png clean realclean
-	sh build/makemo
-	rm po/fi.mo
+# Make mo files
+%.mo: %.po
+	msgfmt $< -o $@ 
+
+nls: $(MO_FILES)
+
+dist: svg2png clean realclean nls
 	@echo " Creating Tarbals .."
 	tar --create --xz --file='../../$(TARNAME).tar.xz' --verbose --exclude-vcs --exclude='*.tar.xz' --transform='s/^./$(TARNAME)/' --show-transformed-names .
-	tar --create --bzip2 --file='../../$(TARNAME).tar.bz2' --verbose --exclude-vcs --exclude='*.tar.bz2' --transform='s/^./$(TARNAME)/' --show-transformed-names .
-
 
 # Clean Icons
-#----------------------------------------------------------
-cleanicons :
+cleanicons : $(MO_FILES)
 	@rm -f src/icons.*
 	@rm -f include/icons.*
-#----------------------------------------------------------
+
+# Compile to object
+%$(OBJEXT):	%.cpp
+	@echo "    Compiling $< ..."
+	@$(CXX) $(CFLAGS) $(DEFS) $(CPPFLAGS) -MM -o $*.d -MT $@ $<
+	@$(CXX) $(CFLAGS) $(DEFS) $(CPPFLAGS) $(OUTPUTOBJ)$@ -c $<
 
 # How to make everything else
 -include $(DEPENDENCIES)

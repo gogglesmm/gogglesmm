@@ -61,16 +61,36 @@ check_in_prefix()
 }
 
 
+pkgconfig_has_package()
+{
+  echo "Check for $1... "
+  pkg-config --exists $1
+  if [ "$?" -ne "0" ] ; then
+    echo "  Unable to find a compatible $2 installation. Please make"
+    echo "  sure the correct version is installed including the header files."
+    echo "  You can use the \"--$2-prefix\" option to search in an"
+    echo "  alternative installation directory."
+    echo ""
+    return 0
+  fi
+  PKG_VERSION=$(pkg-config --modversion $1 --print-errors --errors-to-stdout)
+  PKG_PREFIX=$(pkg-config --variable=prefix $1)
+  PKG_PREFIX=$(echo $PKG_PREFIX | tr -d '"')
+  echo "  Found $2 $PKG_VERSION in $PKG_PREFIX"
+  echo ""
+	return 1
+}
 
 pkgconfig_query_package()
 {
-  echo "    Search for $1"
+  echo "Check for $1... "
   pkg-config --exists $1
   if [ "$?" -ne "0" ] ; then
-    echo " Unable to find a compatible $2 installation. Please make"
-    echo " sure the correct version is installed including the header files."
-    echo " You can use the \"--$2-prefix\" option to search in an"
-    echo " alternative installation directory."
+    echo "  Unable to find a compatible $2 installation. Please make"
+    echo "  sure the correct version is installed including the header files."
+    echo "  You can use the \"--$2-prefix\" option to search in an"
+    echo "  alternative installation directory."
+    echo ""
     return 0
   fi
 
@@ -82,8 +102,7 @@ pkgconfig_query_package()
   PKG_LIBS=$(pkg-config --libs-only-l --libs-only-other $1)
   PKG_CFLAGS=$(pkg-config --cflags-only-other $1)
   PKG_CPPFLAGS=$(pkg-config --cflags-only-I $1)
-
-  echo "        Found $2 $PKG_VERSION in $PKG_PREFIX"
+  echo "  Found $2 $PKG_VERSION in $PKG_PREFIX"
   echo ""
 	return 1
 }
@@ -130,7 +149,7 @@ check_reswrap()
 {
   # Configure Reswrap
   #------------------
-  echo "    Checking Reswrap ... "
+  echo "Check for reswrap ... "
   COMMAND=${RESWRAP:-${PKG_PREFIX}/bin/reswrap}
   if [ ! -x $COMMAND ] ; then
     echo "Missing reswrap"
@@ -139,6 +158,9 @@ check_reswrap()
   RESCMD=$(${COMMAND} -v 2>&1)
   RESVERSION=$(echo ${RESCMD} | cut -d" " -f2)
   RESWRAP_MAJOR=$(echo ${RESVERSION} | cut -d. -f1)
+
+  echo "  Found reswrap $RESVERSION"
+  echo ""
 
   if [ $RESWRAP_MAJOR = "5" ] ; then
     RESWRAP_H="${COMMAND} --keep-ext --header"
@@ -158,5 +180,347 @@ check_foxversion()
   PKG_LEVEL=$(echo "${PKG_VERSION}" | cut -d. -f3)
   add_config "fox${PKG_MAJOR}${PKG_MINOR}"
 }
+
+
+
+
+pkgconfig_package_flags()
+{
+  PKG_LDFLAGS=$(pkg-config --libs-only-L $1)
+  PKG_LIBS=$(pkg-config --libs-only-l --libs-only-other $1)
+  PKG_CFLAGS=$(pkg-config --cflags-only-other $1)
+  PKG_CPPFLAGS=$(pkg-config --cflags-only-I $1)
+}
+add_gap_config()
+{
+  echo "#define HAVE_$(echo $1 | tr '[:lower:]' '[:upper:]')_PLUGIN" >> src/gap/ap_config.h
+  PLUGINS="$PLUGINS $1"
+}
+
+add_gap_package()
+{
+	pkgconfig_query_package "$1" "$2"
+  if [ "$?" -eq "0" ] ; then
+		return 0
+	fi
+	add_gap_config "$2"
+	GAP_PACKAGES="$GAP_PACKAGES $1"
+  return 1
+}
+
+
+
+
+check_fox()
+{
+  FOX="fox17 >= $FOX_VERSION"
+  add_required_package "$FOX" "fox"
+
+  FOX_CFLAGS=$PKG_CFLAGS
+  FOX_CPPFLAGS=$PKG_CPPFLAGS
+
+  check_reswrap
+  check_foxversion
+}
+
+
+
+
+check_libxml2()
+{
+  add_gap_package "libxml-2.0" "libxml"
+  if [ $? -eq 0 ] ; then
+    exit 1
+  fi
+  echo "XML_CFLAGS=$PKG_CFLAGS"     >> config.make
+  echo "XML_CPPFLAGS=$PKG_CPPFLAGS" >> config.make  
+}
+
+
+
+check_musepack()
+{
+  if [ $OPTION_GAP_MUSEPACK -eq 1 ] ; then
+    echo "Search for musepack"
+    if [ -e $MUSEPACK_PREFIX/$LIB/libmpcdec.so ] ; then
+      echo "  Found musepack"
+      PLUGIN_LIBS="$PLUGIN_LIBS -lmpcdec "
+      add_gap_config musepack
+    fi
+    echo " "
+  fi
+}
+
+check_forced_mad()
+{
+  if [ $OPTION_GAP_MAD -eq 1 ] && [ $OPTION_GAP_FORCE_MAD -eq 1 ] && [ "$PLUGINS" != *mad* ] ; then
+    echo "Adding mad"
+    PLUGIN_LIBS="$PLUGIN_LIBS -lmad"
+    if [ -n $MAD_PREFIX ] ; then
+      PLUGIN_CPPFLAGS="$PLUGIN_CPPFLAGS -I${MAD_PREFIX}/include"
+    fi
+    add_gap_config mad
+    echo " "
+  fi
+}
+
+
+check_faad()
+{
+  if [ $OPTION_GAP_FAAD -eq 1 ] ; then
+    echo "Search for faad"
+    if [ -e $FAAD_PREFIX/$LIB/libfaad${LIBEXT} ] ; then
+      echo "  Found faad: $FAAD_PREFIX/$LIB/libfaad${LIBEXT}"
+      PLUGIN_LIBS="$PLUGIN_LIBS -lfaad -lmp4ff"
+      add_gap_config aac
+    elif [ $OPTION_GAP_FORCE_FAAD -eq 1 ] ; then
+      echo "  Adding faad"
+      PLUGIN_LIBS="$PLUGIN_LIBS -lfaad -lmp4ff"
+      add_gap_config aac
+    fi
+    echo " "
+  fi
+}
+
+check_smb()
+{
+  if [ $OPTION_GAP_SMB -eq 1 ] ; then
+    echo "Search for smbclient"
+    if [ -e $SMB_PREFIX/$LIB/libsmbclient${LIBEXT} ] ; then
+      echo "  Found smbclient: $SMB_PREFIX/$LIB/libsmbclient${LIBEXT}"
+      PLUGIN_LIBS="$PLUGIN_LIBS -lsmbclient "
+      add_gap_config smb
+    fi
+    echo " "
+  fi
+}
+
+
+
+check_gap_plugins()
+{
+  if [ $OPTION_GAP_ALSA -eq 1 ] ; then
+    pkgconfig_query_package "alsa >= $ALSA_VERSION" alsa
+    if [ $? -eq 1 ] ; then
+      add_gap_config alsa
+      echo "ALSA_CFLAGS=$FOX_CFLAGS $PKG_CFLAGS"       >> config.make
+      echo "ALSA_CPPFLAGS=$FOX_CPPFLAGS $PKG_CPPFLAGS" >> config.make
+      echo "ALSA_LDFLAGS=$PKG_LDFLAGS"                 >> config.make
+      echo "ALSA_LIBS=$PKG_LIBS"                       >> config.make
+    fi
+  fi
+ 
+  if [ $OPTION_GAP_PULSE -eq 1 ] ; then
+    pkgconfig_query_package "libpulse >= $PULSE_VERSION" pulse
+    if [ $? -eq 1 ] ; then
+      add_gap_config pulse
+      echo "PULSE_CFLAGS=$FOX_CFLAGS $PKG_CFLAGS"       >> config.make
+      echo "PULSE_CPPFLAGS=$FOX_CPPFLAGS $PKG_CPPFLAGS" >> config.make
+      echo "PULSE_LDFLAGS=$PKG_LDFLAGS"                 >> config.make
+      echo "PULSE_LIBS=$PKG_LIBS"                       >> config.make
+    fi
+  fi
+
+  if [ $OPTION_GAP_OSS -eq 1 ] ; then
+    echo "OSS_CPPFLAGS=-idirafter /usr/include/sys $FOX_CPPFLAGS" >> config.make
+    echo "OSS_CFLAGS=$FOX_CFLAGS" >> config.make
+    add_gap_config oss
+  fi
+
+  if [ $OPTION_GAP_JACK -eq 1 ] ; then
+    pkgconfig_query_package "jack >= 0.118" jack
+    if [ $? -eq 1 ] ; then
+      add_gap_config jack
+      echo "JACK_CFLAGS=$FOX_CFLAGS $PKG_CFLAGS"       >> config.make
+      echo "JACK_CPPFLAGS=$FOX_CPPFLAGS $PKG_CPPFLAGS" >> config.make
+      echo "JACK_LDFLAGS=$PKG_LDFLAGS"                 >> config.make
+      echo "JACK_LIBS=$PKG_LIBS"                       >> config.make
+    fi
+  fi
+
+  if [ $OPTION_GAP_RSOUND -eq 1 ] ; then
+    pkgconfig_query_package "rsound" rsound
+    if [ $? -eq 1 ] ; then
+      add_gap_config rsound
+      echo "RSOUND_CFLAGS=$FOX_CFLAGS $PKG_CFLAGS"       >> config.make
+      echo "RSOUND_CPPFLAGS=$FOX_CPPFLAGS $PKG_CPPFLAGS" >> config.make
+      echo "RSOUND_LDFLAGS=$PKG_LDFLAGS"                 >> config.make
+      echo "RSOUND_LIBS=$PKG_LIBS"                       >> config.make
+    fi
+  fi
+
+  echo "WAV_CPPFLAGS=$FOX_CPPFLAGS" >> config.make
+  echo "WAV_CFLAGS=$FOX_CFLAGS" >> config.make
+}
+
+
+
+check_gap_packages()
+{
+  check_libxml2
+  if [ $OPTION_GAP_OGG -eq 1 ] ; then
+    add_gap_package "ogg >= 1.0" "ogg"
+  fi
+
+  if [ $OPTION_GAP_VORBIS -eq 1 ] ; then
+    add_gap_package "vorbis >= 1.2" "vorbis"
+    echo "VORBIS_CFLAGS=$PKG_CFLAGS"     >> config.make
+    echo "VORBIS_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
+  fi
+
+  if [ $OPTION_GAP_OPUS -eq 1 ] ; then
+    add_gap_package "opus >= 1.0" "opus"
+  fi
+  
+  if [ $OPTION_GAP_FLAC -eq 1 ] ; then
+    add_gap_package "flac >= 1.2" "flac"
+    echo "FLAC_CFLAGS=$PKG_CFLAGS"     >> config.make
+    echo "FLAC_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
+  fi
+
+  if [ $OPTION_GAP_MAD -eq 1 ] ; then
+    add_gap_package "mad >= 0.15" "mad"
+  fi
+
+  if [ $OPTION_GAP_WAVPACK -eq 1 ] ; then
+    add_gap_package "wavpack >= 4.60" "wavpack"
+  fi
+
+  if [ $OPTION_GAP_SAMPLERATE -eq 1 ] ; then
+    add_gap_package "samplerate >= 0.1" "samplerate"
+  fi
+
+  if [ $OPTION_GAP_AVCODEC -eq 1 ] ; then
+    add_gap_package "libavcodec" "avcodec"
+    add_gap_package "libavformat" "avformat"
+  fi
+
+  if [ $OPTION_GAP_CDDA -eq 1 ] ; then
+    add_gap_package "libcdio_cdda" "cdda"
+  fi
+
+  if [ $OPTION_GAP_MMS -eq 1 ] ; then
+    add_gap_package "libmms" "mms"
+  fi
+
+  if [ $OPTION_GAP_FAAD -eq 1 ] ; then
+    echo "Search for faad"
+    if [ -e $FAAD_PREFIX/$LIB/libfaad${LIBEXT} ] ; then
+      echo "  Found faad: $FAAD_PREFIX/$LIB/libfaad${LIBEXT}"
+      EXTRA_LIBS="$EXTRA_LIBS -lfaad -lmp4ff"
+      add_gap_config aac
+    elif [ $OPTION_GAP_FORCE_FAAD -eq 1 ] ; then
+      echo "  Adding faad"
+      EXTRA_LIBS="$EXTRA_LIBS -lfaad -lmp4ff"
+      add_gap_config aac
+    fi
+    echo " "
+  fi
+
+  if [ $OPTION_GAP_SMB -eq 1 ] ; then
+    echo "Search for smbclient"
+    if [ -e $SMB_PREFIX/$LIB/libsmbclient${LIBEXT} ] ; then
+      echo "  Found smbclient: $SMB_PREFIX/$LIB/libsmbclient${LIBEXT}"
+      EXTRA_LIBS="$EXTRA_LIBS -lsmbclient"
+      add_gap_config smb
+    fi
+    echo " "
+  fi
+
+  if [ $OPTION_GAP_MUSEPACK -eq 1 ] ; then
+    echo "Search for musepack"
+    if [ -e $MUSEPACK_PREFIX/$LIB/libmpcdec.so ] ; then
+      echo "  Found musepack"
+      EXTRA_LIBS="$EXTRA_LIBS -lmpcdec "
+      add_gap_config musepack
+    fi
+    echo " "
+  fi
+}
+
+
+check_gogglesmm()
+{
+  add_required_package "sqlite3 >= 3.6.3" "sqlite"
+  add_required_package "taglib >= 1.7.0" "taglib"
+  if [ $OPTION_GMM_DBUS -eq 1 ] ; then
+    add_package "dbus-1 >= 1.0" "dbus"
+    OPTION_GMM_DBUS=$?
+  fi
+
+  # We need both X11 and GLU
+  # For systems without pkg-config for x11 and glu we'll just hardwire it.
+  add_package "x11" "x11"
+  if [ $? -eq 0 ] ; then
+    EXTRA_LIBS="$EXTRA_LIBS -lX11"
+  fi
+
+  add_package "glu" "glu"
+  if [ $? -eq 0 ] ; then
+    EXTRA_LIBS="$EXTRA_LIBS -lGL -lGLU"
+  fi
+
+  # Session Management
+  add_package "ice" "ice"
+  add_package "sm" "sm"
+
+  # MD5
+  if [ "$OPTION_GMM_MD5" != "internal" ] ; then
+    add_config "gcrypt"
+    EXTRA_LIBS="$EXTRA_LIBS $(libgcrypt-config --libs)"
+  else
+    add_config "md5"
+  fi
+
+	# NLS
+	if [ $OPTION_GMM_NLS -eq 1 ] ; then
+  	NLSDIR=${NLSDIR:-$PREFIX/share/locale}
+	  add_config "nls"
+  	add_config_string "LOCALEDIR" ${NLSDIR}
+	fi
+
+	# LIRC
+	if [ $OPTION_GMM_LIRC -eq 1 ] ; then
+  	add_config "lirc"
+  	INCFLAGS="$INCFLAGS -I/usr/include/lirc"
+  	#LIBS="$LIBS -llirc_client "
+	fi
+
+
+	add_config "mpris1"
+	add_config "mpris2"
+
+	# Set Icon Path
+	add_config_string "DEFAULT_ICON_PATH" "${PREFIX}/share/icons"
+
+  pkgconfig_package_flags "$PACKAGES"
+  echo "GMM_CFLAGS=$PKG_CFLAGS"       >> config.make
+  echo "GMM_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
+}
+
+
+check_all()
+{
+   pkgconfig_package_flags "$PACKAGES $GAP_PACKAGES"
+   echo "ALL_LDFLAGS=-Wl,--export-dynamic $PKG_LDFLAGS"       >> config.make
+   echo "ALL_LIBS=$PKG_LIBS $EXTRA_LIBS"                      >> config.make 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

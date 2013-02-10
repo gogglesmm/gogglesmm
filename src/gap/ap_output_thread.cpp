@@ -367,8 +367,6 @@ Event * OutputThread::wait_for_event() {
 
 
 
-
-
 void OutputThread::load_plugin() {
   typedef OutputPlugin*  (*ap_load_plugin_t)();
 
@@ -377,12 +375,17 @@ void OutputThread::load_plugin() {
     return;
     }
 
-  FXString plugin_name = AP_PLUGIN_PATH;
-  FXString plugin_dll = "gaplugin_" + output_config.plugin();
+  FXString plugin_name = ap_get_environment("GOGGLESMM_PLUGIN_PATH",AP_PLUGIN_PATH) + PATHSEPSTRING + FXSystem::dllName("gap_"+output_config.plugin());
 
-  plugin_name += PATHSEPSTRING + FXSystem::dllName(plugin_dll);
-  if (!FXStat::exists(plugin_name))
-    plugin_name = FXSystem::dllName(plugin_dll);
+
+//  FXString plugin_name = FXPath::search(FXPath::expand(AP_PLUGIN_PATH),FXSystem::dllName("gap_" + output_config.plugin()));
+//  fxmessage("plugin %s %s %s\n",FXPath::expand(AP_PLUGIN_PATH).text(),FXSystem::dllName("gap_" + output_config.plugin()).text(),plugin_name.text());
+  //FXString plugin_name = AP_PLUGIN_PATH;
+  //FXString plugin_dll = ;
+
+//  plugin_name += PATHSEPSTRING + FXSystem::dllName(plugin_dll);
+//  if (!FXStat::exists(plugin_name))
+ //   plugin_name = FXSystem::dllName(plugin_dll);
 
   if (dll.loaded() && dll.name()!=plugin_name) {
     dll.unload();

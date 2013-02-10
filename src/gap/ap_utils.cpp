@@ -39,20 +39,6 @@ namespace ap {
 // PUBLIC API
 //----------------------------------------------------
 
-void ap_get_version(FXuchar & major,FXuchar & minor) {
-  major=AP_MAJOR;
-  minor=AP_MINOR;
-  }
-
-FXbool ap_check_version(FXuchar major,FXuchar minor) {
-  /// For now, there is no stable api
-  if ((major!=AP_MAJOR) || (minor!=AP_MINOR))
-    return false;
-  else
-    return true;
-  }
-
-
 void ap_set_thread_name(const FXchar * name) {
 #ifdef __linux__
   prctl(PR_SET_NAME,(unsigned long)name,0,0,0);
