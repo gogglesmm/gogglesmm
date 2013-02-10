@@ -21,6 +21,7 @@ HELP=0
 MUSEPACK_PREFIX=/usr
 FAAD_PREFIX=/usr
 SMB_PREFIX=/usr
+MAD_PREFIX=/usr
 
 OPTION_GAP_MAD=1
 OPTION_GAP_FORCE_MAD=0
@@ -224,7 +225,6 @@ for arg in $@; do
  		  echo "   --without-dbus                  Compile without dbus support"
  		  echo "   --without-nls                   Compile without locale support"
 			echo " "
-      echo "   --with-mad                      Compile with mad support. (force) "
       echo "   --with-musepack                 Compile with musepack (sv7) support. "
       echo " "
       echo "   --fox-prefix=<p>                FOX prefix path"

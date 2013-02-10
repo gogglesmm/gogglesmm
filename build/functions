@@ -233,7 +233,7 @@ check_libxml2()
     exit 1
   fi
   echo "XML_CFLAGS=$PKG_CFLAGS"     >> config.make
-  echo "XML_CPPFLAGS=$PKG_CPPFLAGS" >> config.make  
+  echo "XML_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
 }
 
 
@@ -309,7 +309,7 @@ check_gap_plugins()
       echo "ALSA_LIBS=$PKG_LIBS"                       >> config.make
     fi
   fi
- 
+
   if [ $OPTION_GAP_PULSE -eq 1 ] ; then
     pkgconfig_query_package "libpulse >= $PULSE_VERSION" pulse
     if [ $? -eq 1 ] ; then
@@ -371,7 +371,7 @@ check_gap_packages()
   if [ $OPTION_GAP_OPUS -eq 1 ] ; then
     add_gap_package "opus >= 1.0" "opus"
   fi
-  
+
   if [ $OPTION_GAP_FLAC -eq 1 ] ; then
     add_gap_package "flac >= 1.2" "flac"
     echo "FLAC_CFLAGS=$PKG_CFLAGS"     >> config.make
@@ -380,6 +380,16 @@ check_gap_packages()
 
   if [ $OPTION_GAP_MAD -eq 1 ] ; then
     add_gap_package "mad >= 0.15" "mad"
+    
+    # Not all distro use pkg-config for mad.
+    if [ "$?" -eq "0" ] ; then
+      if [ -e $MAD_PREFIX/$LIB/libmad${LIBEXT} ] ; then
+        echo "  Found mad: $MAD_PREFIX/$LIB/libmad${LIBEXT}"
+        EXTRA_LIBS="$EXTRA_LIBS -lmad"
+        add_gap_config mad
+        echo "MAD_CPPFLAGS=-I${MAD_PREFIX}/include" >> config.make
+      fi
+    fi
   fi
 
   if [ $OPTION_GAP_WAVPACK -eq 1 ] ; then
@@ -503,7 +513,7 @@ check_all()
 {
    pkgconfig_package_flags "$PACKAGES $GAP_PACKAGES"
    echo "ALL_LDFLAGS=-Wl,--export-dynamic $PKG_LDFLAGS"       >> config.make
-   echo "ALL_LIBS=$PKG_LIBS $EXTRA_LIBS"                      >> config.make 
+   echo "ALL_LIBS=$PKG_LIBS $EXTRA_LIBS"                      >> config.make
 }
 
 

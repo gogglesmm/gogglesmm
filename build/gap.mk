@@ -49,6 +49,7 @@ endif
 
 ifneq (,$(findstring mad,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_mad_plugin.cpp
+src/gap/plugins/ap_mad_plugin$(OBJEXT): CPPFLAGS+=$(MAD_CPPFLAGS)
 endif
 
 ifneq (,$(findstring wavpack,$(GAP_PLUGINS)))
