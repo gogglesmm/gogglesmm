@@ -587,11 +587,8 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   new FXLabel(matrix,tr("Icons"),NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
 
-
-//  if (GMIconTheme::instance()->getNumThemes()==0)
-//    GMIconTheme::instance()->listThemes();
-
   themelist = new GMListBox(matrix,this,ID_ICON_THEME,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN|LAYOUT_FILL_X);
+  themelist->appendItem("Standard",NULL,(void*)(FXival)-1);
     for (FXint i=0;i<GMIconTheme::instance()->getNumThemes();i++) {
       themelist->appendItem(GMIconTheme::instance()->getThemeName(i),NULL,(void*)(FXival)i);
       }

@@ -33,11 +33,6 @@ private:
   FXSlider    * volumeslider;
   FXFontPtr     font_title;
   FXImagePtr    img_default;
-  FXIconPtr     icon_volume_high;
-  FXIconPtr     icon_volume_medium;
-  FXIconPtr     icon_volume_low;
-  FXIconPtr     icon_volume_muted;
-  FXIconPtr     icon_home;
   FXImage*      cover;
   GMTrackProgressBar* trackslider;
   bool          is_remaining;

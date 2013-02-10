@@ -26,10 +26,8 @@
 /// For listing default genres
 #include <id3v1genres.h>
 
-
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
-
 
 #define GOGGLESMM_DATABASE_SCHEMA_VERSION 2012
 #define GOGGLESMM_DATABASE_SCHEMA_DEV1    2010  /* Dev DB before podcast manager */
@@ -39,7 +37,7 @@
 /*
 
 *****************************************************
-    Goggles Music Manager Database Schema v2010
+    Goggles Music Manager Database Schema v2012
 *****************************************************
 
     TABLE tracks
@@ -179,8 +177,8 @@ const FXchar create_tracks[]="CREATE TABLE tracks ( id INTEGER NOT NULL,"
                                                   " PRIMARY KEY (id) );";
 
 const FXchar create_tags[]="CREATE TABLE tags ( id INTEGER NOT NULL,"
-                                                  " name TEXT NOT NULL UNIQUE,"
-                                                  " PRIMARY KEY (id) );";
+                                              " name TEXT NOT NULL UNIQUE,"
+                                              " PRIMARY KEY (id) );";
 
 const FXchar create_track_tags[]="CREATE TABLE track_tags ( track INTEGER NOT NULL REFERENCES tracks(id),"
                                                           " tag INTEGER NOT NULL REFERENCES tags(id),"
@@ -209,94 +207,6 @@ const FXchar create_playlist_tracks[]="CREATE TABLE playlist_tracks ( playlist I
 const FXchar create_pathlist[]="CREATE TABLE pathlist (id INTEGER NOT NULL,"
                                                       "name TEXT NOT NULL UNIQUE,"
                                                       "PRIMARY KEY (id));";
-
-
-
-
-
-FXbool GMTrackDatabase::upgrade_to_2010() {
-  return false;
-
-
-//  if (!execute(create_playqueue))
-//    return false;
-#if 0
-  execute("ALTER TABLE tracks ADD COLUMN collection INTEGER;");
-
-  execute("ALTER TABLE tracks ADD COLUMN bitrate INTEGER;");
-
-  execute("ALTER TABLE tracks ADD COLUMN composer INTEGER;");
-
-  execute("ALTER TABLE tracks ADD COLUMN conductor INTEGER;");
-
-  /// Convert 'directories' table to the new pathlist table
-  ///-----------------------------------------------------------
-  execute(create_pathlist);
-
-  execute("UPDATE directories SET name='' WHERE name=='/';");
-
-  execute("INSERT INTO pathlist SELECT d1.id,group_concat(d2.name,'/') FROM directories AS d1, directories AS d2 WHERE (d1.path || d1.id || '/')  LIKE (d2.path || d2.id || '/%') AND d1.id IN (SELECT DISTINCT(path) FROM tracks) GROUP BY d1.id;");
-
-  execute("DROP TABLE directories;");
-
-  ///-----------------------------------------------------------
-
-  execute("CREATE INDEX IF NOT EXISTS tracks_album ON tracks(album);");
-  execute("CREATE INDEX IF NOT EXISTS tracks_mrl ON tracks(mrl);");
-  execute("CREATE INDEX IF NOT EXISTS playlist_tracks_idx ON playlist_tracks(track);");
-
-  setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
-#endif
-  /// Rebuild the database
-  execute("VACUUM;");
-  return true;
-  }
-
-FXbool GMTrackDatabase::upgrade_to_2009() {
-
-  execute("ALTER TABLE albums RENAME TO albums_old;");
-  execute(create_albums);
-  execute("INSERT INTO albums (id, name, artist, year) SELECT albums_old.id, name, artist,year FROM albums_old,album_artist,tracks WHERE album_artist.album == albums_old.id AND tracks.album==albums_old.id GROUP BY albums_old.id;");
-  execute("DROP TABLE albums_old;");
-  execute("DROP TABLE album_artist;");
-  execute("ALTER TABLE tracks ADD COLUMN artist INTEGER;");
-//  execute("ALTER TABLE tracks ADD COLUMN replay_gain REAL;");
-//  execute("ALTER TABLE tracks ADD COLUMN replay_peak REAL;");
-  execute("UPDATE tracks SET artist = ( SELECT DISTINCT(albums.artist) FROM albums WHERE albums.id == tracks.album );");
-/*
-  FXdouble v=NAN;
-  GMQuery q(this,"UPDATE tracks SET replay_gain = ?, replay_peak = ?;");
-  q.set(0,v);
-  q.set(1,v);
-  q.execute();
-*/
-  execute(create_streams);
-
-  setVersion(2009);
-  return true;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -351,11 +261,12 @@ FXbool GMTrackDatabase::init_database() {
 
       case GOGGLESMM_DATABASE_SCHEMA_V10    :
       case GOGGLESMM_DATABASE_SCHEMA_V12    :
-        // No upgrade path yet for gogglesmm 0.12
+        FXASSERT(0);
+        break;
+
       default                               :
         /// Some unknown database. Let's start from scratch
         reset();
-
 
         execute(create_tracks);
         execute(create_tags);
@@ -366,94 +277,13 @@ FXbool GMTrackDatabase::init_database() {
         execute(create_playlist_tracks);
         execute(create_pathlist);
         execute(create_streams);
-
-
         execute(create_feed);
         execute(create_feed_items);
 
-
         execute("CREATE INDEX tracks_album ON tracks(album);");
-//        execute("CREATE INDEX playlist_tracks_idx ON playlist_tracks(track);");
         execute("CREATE INDEX tracks_mrl ON tracks(mrl);");
-
         /// for hasTrack()
         execute("CREATE INDEX tracks_has_track ON tracks(path,mrl);");
-
-
-
-//        execute("CREATE INDEX playlist_queue_idx ON playlist_tracks(queue DESC);");
-
-#if 0
-        /// Two triggers to automatically delete artists when they're not needed anymore.
-        execute("CREATE TRIGGER IF NOT EXISTS artist_update_from_tracks AFTER DELETE ON tracks FOR EACH ROW "
-                "WHEN 0 == ((SELECT count(id) FROM tracks WHERE artist == OLD.artist || composer == OLD.artist || conductor == OLD.artist) + (SELECT count(id) FROM albums WHERE artist == OLD.artist)) "
-                "BEGIN "
-                  "DELETE FROM artists WHERE id == OLD.artist;"
-                "END;");
-
-        execute("CREATE TRIGGER IF NOT EXISTS artist_update_from_albums AFTER DELETE ON albums FOR EACH ROW "
-                "WHEN 0 == ((SELECT count(id) FROM tracks WHERE artist == OLD.artist || composer == OLD.artist || conductor == OLD.artist) + (SELECT count(id) FROM albums WHERE artist == OLD.artist)) "
-                "BEGIN "
-                  "DELETE FROM artists WHERE id == OLD.artist;"
-                "END;");
-
-         //// Remove album when tracks get deleted.
-        execute("CREATE TRIGGER IF NOT EXISTS album_update AFTER DELETE ON tracks FOR EACH ROW "
-                "WHEN 0 == (SELECT count(id) FROM tracks WHERE album == OLD.album) "
-                "BEGIN "
-                  "DELETE FROM albums WHERE id == OLD.album;"
-                "END;");
-
-
-        /// Remove pathlist item if not used anymore
-        execute("CREATE TRIGGER IF NOT EXISTS pathlist_update AFTER DELETE ON tracks FOR EACH ROW "
-                "WHEN 0 == (SELECT count(id) FROM tracks WHERE path == OLD.path) "
-                "BEGIN "
-                  "DELETE FROM pathlist WHERE id == OLD.path;"
-                "END;");
-
-        /// Remove genre if not used anymore
-        execute("CREATE TRIGGER IF NOT EXISTS genre_update AFTER DELETE ON tracks FOR EACH ROW "
-                "WHEN 0 == ((SELECT count(id) FROM tracks WHERE genre == OLD.genre) + (SELECT count(id) FROM streams WHERE genre == OLD.genre)) "
-                "BEGIN "
-                  "DELETE FROM genres WHERE id == OLD.genre;"
-                "END;");
-
-        /// Remove track from playlist if it gets deleted.
-        execute("CREATE TRIGGER IF NOT EXISTS track_deleted AFTER DELETE ON tracks FOR EACH ROW "
-                "BEGIN "
-                  "DELETE FROM playlist_tracks WHERE track == OLD.id;"
-                "END;");
-
-        /// Remove tracks from album.
-        execute("CREATE TRIGGER IF NOT EXISTS album_deleted AFTER DELETE ON albums FOR EACH ROW "
-                "BEGIN "
-                  "DELETE FROM tracks WHERE album == OLD.id;"
-                "END;");
-
-        /// Remove album and tracks from artist
-        execute("CREATE TRIGGER IF NOT EXISTS artist_deleted AFTER DELETE ON artists FOR EACH ROW "
-                "BEGIN "
-                  "DELETE FROM albums WHERE artist == OLD.id;"
-                  "DELETE FROM tracks WHERE artist == OLD.id;"
-                "END;");
-
-        /// Update the queue numbers when removing track from playlist
-        /// execute("CREATE TRIGGER IF NOT EXISTS track_deleted_from_playlist AFTER DELETE ON playlist_tracks FOR EACH ROW "
-        ///        "BEGIN "
-        ///          "UPDATE playlist_tracks SET queue = queue - 1 WHERE playlist == OLD.playlist AND queue > OLD.queue; "
-        ///        "END;");
-
-        /// Remove tracks from playlists if playlist gets deleted.
-        /// NEED A STATEMENT TRIGGER FOR THIS
-        /// execute("CREATE TRIGGER IF NOT EXISTS playlist_deleted AFTER DELETE ON playlists FOR EACH ROW "
-        ///        "BEGIN "
-        ///          "DELETE FROM playlist_tracks WHERE playlist == OLD.id;"
-        ///        "END;");
-
-#endif
- //       execute("CREATE INDEX pathlist_path ON pathlist(name);");
- //       execute("CREATE INDEX artists_name ON artists(name);");
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
       }
@@ -467,86 +297,52 @@ FXbool GMTrackDatabase::init_database() {
 
 FXbool GMTrackDatabase::init_queries() {
   try {
+    insert_path                         = compile("INSERT OR IGNORE INTO pathlist VALUES ( NULL , ? );");
+    insert_artist                       = compile("INSERT OR IGNORE INTO artists VALUES ( NULL , ? );");
+    insert_album                        = compile("INSERT OR IGNORE INTO albums SELECT NULL, ?, (SELECT id FROM artists WHERE name == ?), ?;");
 
+    insert_playlist_track_by_id         = compile("INSERT INTO playlist_tracks VALUES (?,?,?);");
 
-  insert_genre                        = compile("INSERT OR IGNORE INTO tags VALUES ( NULL , ?  );");
-  insert_artist                       = compile("INSERT OR IGNORE INTO artists VALUES ( NULL , ?  );");
-  insert_album                        = compile("INSERT OR IGNORE INTO albums SELECT NULL, ?, (SELECT id FROM artists WHERE name == ?), ?;");
-  insert_path                         = compile("INSERT OR IGNORE INTO pathlist VALUES (NULL,?);");
+    query_filename                      = compile("SELECT id FROM tracks WHERE path == ? AND mrl == ?;");
+    query_path                          = compile("SELECT id FROM pathlist WHERE name = ?;");
+    query_artist                        = compile("SELECT id FROM artists WHERE name == ?;");
+    query_path_name                     = compile("SELECT name FROM pathlist WHERE id == ?;");
 
-  insert_playlist_track_by_id         = compile("INSERT INTO playlist_tracks VALUES (?,?,?);");
+    query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating "
+                                                  "FROM tracks LEFT JOIN artists AS composer_artist ON tracks.composer == composer_artist.id LEFT JOIN artists AS conductor_artist ON tracks.conductor == conductor_artist.id,pathlist, albums, artists AS a1, artists AS a2 "
+                                                  "WHERE tracks.path == pathlist.id "
+                                                    "AND albums.id == tracks.album "
+                                                    "ANd a1.id == albums.artist "
+                                                    "AND a2.id == tracks.artist "
+                                                    "AND tracks.id == ?;");
 
-
-
-
-  query_filename                      = compile("SELECT id FROM tracks WHERE path == ? AND mrl == ?;");
-
-
-
-
-
-
-  query_path                          = compile("SELECT id FROM pathlist WHERE name = ?;");
-  query_artist                        = compile("SELECT id FROM artists WHERE name == ?;");
-
-
-
-  query_path_name                     = compile("SELECT name FROM pathlist WHERE id == ?;");
-
-/*
-  query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,genres.name, title, time, no, tracks.year, tracks.replay_gain, tracks.replay_peak, albums.replay_gain, albums.replay_peak, tracks.rating "
-                                                "FROM tracks LEFT JOIN artists AS composer_artist ON tracks.composer == composer_artist.id LEFT JOIN artists AS conductor_artist ON tracks.conductor == conductor_artist.id,pathlist, albums, genres, artists AS a1, artists AS a2 "
-                                                "WHERE tracks.path == pathlist.id "
-                                                  "AND albums.id == tracks.album "
-                                                  "ANd a1.id == albums.artist "
-                                                  "AND genres.id == tracks.genre "
-                                                  "AND a2.id == tracks.artist "
-                                                  "AND tracks.id == ?;");
-*/
-
-//  query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.replay_gain, tracks.replay_peak, albums.replay_gain, albums.replay_peak, tracks.rating "
-  query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating "
-                                                "FROM tracks LEFT JOIN artists AS composer_artist ON tracks.composer == composer_artist.id LEFT JOIN artists AS conductor_artist ON tracks.conductor == conductor_artist.id,pathlist, albums, artists AS a1, artists AS a2 "
-                                                "WHERE tracks.path == pathlist.id "
-                                                  "AND albums.id == tracks.album "
-                                                  "ANd a1.id == albums.artist "
-                                                  "AND a2.id == tracks.artist "
-                                                  "AND tracks.id == ?;");
-
-  query_track_tags                    = compile("SELECT name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track == ?) ORDER BY name;");
+    query_track_tags                    = compile("SELECT name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track == ?) ORDER BY name;");
 
 
 
-  query_artist_name_album             = compile("SELECT name FROM artists WHERE id == ( SELECT artist FROM albums WHERE id == ? );");
-  query_album_with_track              = compile("SELECT album,year FROM tracks WHERE id == ?;");
-  query_track_filename                = compile("SELECT name ||'" PATHSEPSTRING "' || mrl FROM tracks,pathlist WHERE tracks.path == pathlist.id AND tracks.id == ?;");
+    query_track_filename                = compile("SELECT name ||'" PATHSEPSTRING "' || mrl FROM tracks,pathlist WHERE tracks.path == pathlist.id AND tracks.id == ?;");
 
-  query_artist_year                   = compile("SELECT albums.artist,tracks.year FROM tracks,albums WHERE albums.id ==tracks.album AND tracks.id == ?;");
-  query_album_artists                 = compile("SELECT albums.artist,album FROM tracks,albums WHERE albums.id ==tracks.album AND tracks.id == ?;");
+    query_album_artists                 = compile("SELECT albums.artist,album FROM tracks,albums WHERE albums.id ==tracks.album AND tracks.id == ?;");
 
 
-  list_tags                           = compile("SELECT id,name FROM tags WHERE id IN (SELECT DISTINCT(tag) FROM track_tags);");
-  list_artists                        = compile("SELECT id,name FROM artists;");
+  
 
-  list_albums_with_artist_from_track  = compile("SELECT albums.name FROM tracks AS t1 JOIN tracks AS t2 ON (t1.artist == t2.artist AND t1.id==?) JOIN albums ON (albums.id == t2.album) GROUP BY t2.album");
-
-  query_playlist_queue                = compile("SELECT MAX(queue) FROM playlist_tracks WHERE playlist == ?;");
-  insert_track_playlist               = compile("INSERT INTO playlist_tracks VALUES ( ? , ? , ?);");
-  update_track_rating                 = compile("UPDATE tracks SET rating = ? WHERE id == ?;");
+    //query_playlist_queue                = compile("SELECT MAX(queue) FROM playlist_tracks WHERE playlist == ?;");
+    update_track_rating                 = compile("UPDATE tracks SET rating = ? WHERE id == ?;");
 
 
-  update_track_filename               = compile("UPDATE tracks SET path = ?, mrl = ? WHERE id == ?;");
-  update_track_playcount              = compile("UPDATE tracks SET playcount = playcount + 1, playdate = ? WHERE id == ?;");
-  update_track_importdate             = compile("UPDATE tracks SET importdate = ? WHERE id == ?;");
+    update_track_filename               = compile("UPDATE tracks SET path = ?, mrl = ? WHERE id == ?;");
+    update_track_playcount              = compile("UPDATE tracks SET playcount = playcount + 1, playdate = ? WHERE id == ?;");
+    update_track_importdate             = compile("UPDATE tracks SET importdate = ? WHERE id == ?;");
 
-  delete_track = compile("DELETE FROM tracks WHERE id == ?;");
-  delete_playlist_track = compile("DELETE FROM playlist_tracks WHERE track == ?;");
-  delete_tag_track = compile("DELETE FROM track_tags WHERE track == ?;");
+    delete_track = compile("DELETE FROM tracks WHERE id == ?;");
+    delete_playlist_track = compile("DELETE FROM playlist_tracks WHERE track == ?;");
+    delete_tag_track = compile("DELETE FROM track_tags WHERE track == ?;");
 
 
 
-  setup_path_lookup();
-  setup_artist_lookup();
+    setup_path_lookup();
+    setup_artist_lookup();
     }
   catch(GMDatabaseException&){
     return false;
@@ -592,7 +388,7 @@ FXbool GMTrackDatabase::clearTracks(FXbool removeplaylists){
 
     execute("DELETE FROM pathlist;");
 
-    execute("DELETE FROM tags WHERE id NOT IN (SELECT DISTINCT(tag) FROM track_tags) AND id NOT IN (SELECT DISTINCT(genre) FROM streams);");
+    execute("DELETE FROM tags WHERE id NOT IN (SELECT DISTINCT(tag) FROM track_tags) AND id NOT IN (SELECT genre FROM streams UNION SELECT tag FROM feeds);");
 
     commit();
     }
@@ -600,7 +396,7 @@ FXbool GMTrackDatabase::clearTracks(FXbool removeplaylists){
     rollback();
     return false;
     }
-  clear_path_lookup();
+  vacuum();
   return true;
   }
 
@@ -643,16 +439,6 @@ void GMTrackDatabase::clear(){
 
 
 
-FXint GMTrackDatabase::insertPath(const FXString & path) {
-  DEBUG_DB_SET();
-  GM_TICKS_START();
-  FXint pid = insert_path.insert(path);
-  pathdict.insert((void*)(FXival)pid,strdup(path.text()));
-  GM_TICKS_END();
-  return pid;
-  }
-
-
 FXint GMTrackDatabase::hasPath(const FXString & path){
   DEBUG_DB_GET();
   GM_TICKS_START();
@@ -674,37 +460,6 @@ FXint GMTrackDatabase::hasTrack(const FXString & filename,FXint pid) {
   GM_TICKS_END();
   return tid;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1168,10 +923,6 @@ FXint GMTrackDatabase::getTotalTime() {
   return total;
   }
 
-
-
-
-
 FXint GMTrackDatabase::getPlayQueue() {
   DEBUG_DB_GET();
   FXint playqueue=0;
@@ -1188,9 +939,6 @@ FXint GMTrackDatabase::getPlayQueue() {
     }
   return playqueue;
   }
-
-
-
 
 FXbool GMTrackDatabase::trackInPlaylist(FXint track,FXint playlist) {
   DEBUG_DB_GET();
@@ -1246,9 +994,14 @@ const FXchar * GMTrackDatabase::getTrackPath(FXint pid) const {
   }
 
 /// Return artist;
-const FXString * GMTrackDatabase::getArtist(FXint aid) const {
-  const void * ptr = artistdict.find((void*)(FXival)aid);
-  if (ptr) return (const FXString*)ptr;
+const FXString * GMTrackDatabase::getArtist(FXint aid) {
+  if (__likely(aid>0)) {
+    const void * ptr = artistdict.find((void*)(FXival)aid);
+    if (__likely(ptr)) return (const FXString*)ptr;
+    initArtistLookup();
+    ptr = artistdict.find((void*)(FXival)aid);
+    if (__likely(ptr)) return (const FXString*)ptr;
+    }
   return &empty;
   }
 
@@ -1259,7 +1012,6 @@ void GMTrackDatabase::getTrackPath(FXint id,FXString & path) {
   static FXString last_path;
   GM_TICKS_START();
   if (last==id) {
-    fxmessage("same\n");
     path=last_path;
     GM_TICKS_END();
     return;
@@ -1312,10 +1064,6 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
       query_track.get( 7,track.time);
       query_track.get( 8,track.no);
       query_track.get( 9,track.year);
-//      query_track.get(10,track.track_gain);
-//      query_track.get(11,track.track_peak);
-//      query_track.get(12,track.album_gain);
-//      query_track.get(13,track.album_peak);
       query_track.get(10,track.rating);
       ok=true;
       }
@@ -1356,10 +1104,6 @@ FXbool GMTrackDatabase::getTracks(const FXIntList & tids,GMTrackArray & tracks){
         query_track.get( 7,tracks[i].time);
         query_track.get( 8,tracks[i].no);
         query_track.get( 9,tracks[i].year);
-//        query_track.get(10,tracks[i].track_gain);
-//        query_track.get(11,tracks[i].track_peak);
-//        query_track.get(12,tracks[i].album_gain);
-//        query_track.get(13,tracks[i].album_peak);
         query_track.get(10,tracks[i].rating);
         }
       query_track.reset();
@@ -1474,6 +1218,10 @@ FXbool GMTrackDatabase::removeAlbum(FXint album) {
     query = compile("DELETE FROM playlist_tracks WHERE track IN (SELECT id FROM tracks WHERE album == ?);");
     query.update(album);
 
+    // Remove tracks from track_tags
+    query = compile("DELETE FROM track_tags WHERE track IN (SELECT id FROM tracks WHERE album == ?);");
+    query.update(album);
+
     /// Removes tracks with album
     query = compile("DELETE FROM tracks WHERE album == ?;");
     query.update(album);
@@ -1484,8 +1232,7 @@ FXbool GMTrackDatabase::removeAlbum(FXint album) {
 
     /// Cleanup
     execute("DELETE FROM artists WHERE id NOT IN (SELECT artist FROM albums UNION SELECT artist FROM tracks UNION SELECT composer FROM tracks UNION SELECT conductor FROM tracks);");
-    execute("DELETE FROM tags WHERE id NOT IN (SELECT tag FROM track_tags UNION SELECT genre FROM streams);");
-    execute("DELETE FROM track_tags WHERE id NOT IN (SELECT id FROM tags);");
+    clean_tags();
     execute("DELETE FROM pathlist WHERE id NOT IN (SELECT DISTINCT(path) FROM tracks);");
 
     commit();
@@ -1752,11 +1499,6 @@ FXbool GMTrackDatabase::moveQueueTrack(FXint oldq,FXint newq){
 
 #endif
 
-
-
-
-
-
 FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
   DEBUG_DB_GET();
   register int i=0;
@@ -1764,6 +1506,8 @@ FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
   FXString name;
   FXint id;
   try {
+    GMQuery list_tags(this,"SELECT id,name FROM tags WHERE id IN (SELECT DISTINCT(tag) FROM track_tags);");
+
     if (insert_default) {
       for (i=0;!TagLib::ID3v1::genre(i).isNull();i++) {
         tags.insert(TagLib::ID3v1::genre(i).toCString(true),(void*)(FXival)1);
@@ -1793,13 +1537,12 @@ FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
   }
 
 
-
-
 FXbool GMTrackDatabase::listArtists(FXComboBox * list){
   DEBUG_DB_GET();
   FXString name;
   FXint id;
   try {
+    GMQuery list_artists(this,"SELECT id,name FROM artists;");
     while(list_artists.row()){
       list_artists.get(0,id);
       list_artists.get(1,name);
@@ -1816,9 +1559,16 @@ FXbool GMTrackDatabase::listArtists(FXComboBox * list){
 
 FXbool GMTrackDatabase::listAlbums(FXComboBox * list,FXint track){
   DEBUG_DB_GET();
-  list_albums_with_artist_from_track.set(0,track);
-  while(list_albums_with_artist_from_track.row()) {
-    list->appendItem(list_albums_with_artist_from_track.get(0));
+  try {
+    GMQuery list_albums_with_artist_from_track(this,"SELECT albums.name FROM tracks AS t1 JOIN tracks AS t2 ON (t1.artist == t2.artist AND t1.id==?) JOIN albums ON (albums.id == t2.album) GROUP BY t2.album");
+    list_albums_with_artist_from_track.set(0,track);
+    while(list_albums_with_artist_from_track.row()) {
+      list->appendItem(list_albums_with_artist_from_track.get(0));
+      }
+    }
+  catch(GMDatabaseException & e){
+    list->clearItems();
+    return false;
     }
   return true;
   }
@@ -1902,16 +1652,12 @@ FXbool GMTrackDatabase::updateAlbum(FXint & result,const GMTrack & track,FXint a
       insert_album.set(0,track.album);
       insert_album.set(1,artist);
       insert_album.set(2,track.year);
-//      insert_album.set(3,track.album_gain);
-//      insert_album.set(4,track.album_peak);
       insert_album.execute();
       result = rowid();
       }
     else {
       update_album.set(0,track.year);
-//      update_album.set(1,track.album_gain);
-//      update_album.set(2,track.album_peak);
-      update_album.set(3,result);
+      update_album.set(1,result);
       update_album.execute();
       }
     }
@@ -1954,7 +1700,7 @@ FXbool GMTrackDatabase::vacuum() {
   GM_DEBUG_PRINT("Remove unused genres\n");
 
   /// Remove unused tags
-  execute("DELETE FROM tags WHERE id NOT IN (SELECT tag FROM track_tags UNION SELECT genre FROM streams);");
+  clean_tags();
 
   GM_DEBUG_PRINT("Remove unused paths\n");
 
@@ -2460,14 +2206,16 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
 
 
 
-
+void GMTrackDatabase::clean_tags() {
+  execute("DELETE FROM tags WHERE id NOT IN (SELECT tag FROM track_tags UNION SELECT genre FROM streams UNION SELECT tag FROM feeds);");
+  }
 
 void GMTrackDatabase::sync_tracks_removed() {
   DEBUG_DB_SET();
   GM_TICKS_START();
   execute("DELETE FROM albums WHERE id NOT IN (SELECT DISTINCT(album) FROM tracks);");
   execute("DELETE FROM artists WHERE id NOT IN (SELECT artist FROM albums UNION SELECT artist FROM tracks UNION SELECT composer FROM tracks WHERE composer!=0 UNION SELECT conductor FROM tracks WHERE conductor!=0 );");
-  execute("DELETE FROM tags WHERE id NOT IN (SELECT tag FROM track_tags UNION SELECT genre FROM streams);");
+  clean_tags();
   execute("DELETE FROM pathlist WHERE id NOT IN (SELECT DISTINCT(path) FROM tracks);");
   GM_TICKS_END();
   }

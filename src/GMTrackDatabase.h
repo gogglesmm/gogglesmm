@@ -57,74 +57,33 @@ protected:
   FXHash   artistdict;
   FXString empty;
 public:
-  /// Browse Queries
-  /// ------------------------------------------------------------------------
-  GMQuery list_tags;
-
-  /// Insert Queries
-  /// ------------------------------------------------------------------------
-  GMQuery insert_path;
-  GMQuery insert_genre;                 /// Insert Genre
+  GMQuery insert_path;                  /// Insert Path
   GMQuery insert_artist;                /// Insert Artist;
   GMQuery insert_album;                 /// Insert Album;
-
-  GMQuery insert_playlist_track;        /// Insert Track in Playlist
   GMQuery insert_playlist_track_by_id;  /// Insert Track in Playlist
-
-  GMQuery insert_track_playlist;  /// Insert Track into Playlist
-  GMQuery insert_in_playlist;
-
-  GMQuery query_artist;           /// Query unique artist
-  GMQuery query_path;             /// Query unique artist
-
-  GMQuery query_filename;         /// Query filename
-  GMQuery query_path_id;
+  GMQuery query_artist;                 /// Query unique artist
+  GMQuery query_path;                   /// Query unique artist
+  GMQuery query_filename;               /// Query filename
   GMQuery query_path_name;
-  GMQuery query_album;            /// Query unique album from artist
-//  GMQuery query_album_name;       /// Query album name
-//  GMQuery query_artist_with_album;/// Query artist by album
-//  GMQuery query_artist_name;      /// Query Artist Name for id
-  GMQuery query_track;            /// Query track
-  GMQuery query_track_tags;       /// Query track tags
-  GMQuery query_track_genre;		  /// Query track genre
-  GMQuery query_playlist_queue;               /// Get the max playlist queue
-  GMQuery query_track_filename;   /// Query filename by track id
-  GMQuery query_track_genre_id;		/// Query Track Genre ID
-  GMQuery query_album_with_track; /// Query album by track
-  GMQuery query_artist_name_album;/// Query artist by album
-  GMQuery query_artist_year;      /// Query artist, year for track
-  GMQuery query_album_artists;    /// Query artist and album for track
+  GMQuery query_album;                  /// Query unique album from artist
+  GMQuery query_track;                  /// Query track
+  GMQuery query_track_tags;             /// Query track tags
+  //GMQuery query_playlist_queue;         /// Get the max playlist queue
+  GMQuery query_track_filename;         /// Query filename by track id
+  GMQuery query_album_artists;          /// Query artist and album for track
+  GMQuery update_track_playcount;       /// Update Track as played
+  GMQuery update_track_importdate;      /// Update Track as played
+  GMQuery update_track_filename;  		  /// Update track filename
 
-
-
-  GMQuery list_artists;
-
-  GMQuery list_albums_with_artist_from_track;
-
-
-  GMQuery update_track_playcount;           /// Update Track as played
-  GMQuery update_track_importdate;          /// Update Track as played
-  GMQuery update_track_filename;  		      /// Update track filename
-
-
-  /// Delete Queries
-  /// ------------------------------------------------------------------------
-  GMQuery delete_track;						        /// Delete Track
+  GMQuery delete_track;						      /// Delete Track
   GMQuery delete_playlist_track;
   GMQuery delete_tag_track;
-
-
-
   GMQuery update_album;           /// Update Album
   GMQuery update_track_rating;    /// Update track rating
-
-
 
 private: /// Called from init()
   FXbool init_database();
   FXbool init_queries();
-  FXbool upgrade_to_2009();
-  FXbool upgrade_to_2010();
 protected:
 
   FXbool reorderPlaylists();
@@ -136,12 +95,12 @@ protected:
 protected:
   FXbool updateAlbum(FXint &album,const GMTrack&,FXint artist);
 
-  FXint insertPath(const FXString & path);
-
   void setup_path_lookup();
   void clear_path_lookup();
   void setup_artist_lookup();
   void clear_artist_lookup();
+
+  void clean_tags();
 public:
   /// Constructor
   GMTrackDatabase();
@@ -188,7 +147,7 @@ public:
   const FXchar * getTrackPath(FXint pid) const;
 
   /// Return the track path;
-  const FXString * getArtist(FXint aid) const;
+  const FXString * getArtist(FXint aid);
 
   /// Get the track stats
   void getTrackStats(FXint & ntracks,FXint & nartists,FXint & nalbums,FXint & ntime,FXint playlist=0);
@@ -236,16 +195,6 @@ public:
   /// Set Track Import Date
   void setTrackImported(FXint id,FXlong tm);
 
-
-
-
-
-
-
-
-
-
-
   ///=======================================================================================
   ///   DELETING ITEMS
   ///=======================================================================================
@@ -271,9 +220,6 @@ public:
 
   /// Remove Stream
   FXbool removeStream(FXint id);
-
-
-
 
   /// Synchronize all tables and makes sure no empty entries are left behind.
   FXbool vacuum();
@@ -359,7 +305,7 @@ public:
   ///   LISTING ITEMS
   ///=======================================================================================
 
-  /// List Genres
+  /// List Tags
   FXbool listTags(FXComboBox * list,FXbool insert_default=TRUE);
 
   /// List Artists
@@ -376,12 +322,10 @@ public:
 
   FXbool exportList(const FXString & filename,FXint playlist,FXuint format,FXuint opts=0);
 
-
   ///=======================================================================================
   ///  Sync API
   ///=======================================================================================
   void sync_tracks_removed();
-
 
   void initArtistLookup();
 

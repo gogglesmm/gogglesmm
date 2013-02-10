@@ -44,10 +44,6 @@ class GMTrackList;
 class GMColumn;
 
 
-
-
-
-
 class GMTrackItem {
   friend class GMTrackList;
 protected:
@@ -97,7 +93,8 @@ class GMDBTrackItem;
 /// Icon item collate function
 typedef FXint (*GMTrackListSortFunc)(const GMTrackItem*,const GMTrackItem*);
 
-struct GMColumn {
+class GMColumn {
+  public:
   FXString            name;
   FXint               type;
   FXint               size;

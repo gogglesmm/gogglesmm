@@ -23,11 +23,8 @@ class GMAnimImage : public FXImageFrame {
 FXDECLARE(GMAnimImage)
 protected:
   FXuint index;
-  FXuint imgw;
-  FXuint imgh;
   FXuint nframes;
-  FXuint nrow;
-  FXuint ncol;
+  FXuint base;
 protected:
   GMAnimImage();
 private:

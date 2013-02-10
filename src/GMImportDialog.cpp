@@ -125,15 +125,6 @@ protected:
   FXFileDict * filedict;
   FXSettings * fileassoc;
 protected:
-  FXIconPtr icon_file_small;
-  FXIconPtr icon_file_big;
-  FXIconPtr icon_audio_small;
-  FXIconPtr icon_audio_big;
-  FXIconPtr icon_folder_small;
-  FXIconPtr icon_folder_big;
-  FXIconPtr icon_image_small;
-  FXIconPtr icon_image_big;
-protected:
   GMFileSelector(){}
 private:
   GMFileSelector(const GMFileSelector&);
@@ -314,53 +305,38 @@ static const FXchar * const filetypes[]={
 
 void GMFileSelector::initFileDict() {
   FXFileAssoc * assoc=NULL;
-  const FXColor backcolor = FXApp::instance()->getBackColor();
-
-  GMIconTheme::instance()->loadSmall(icon_file_small,"text-x-generic",backcolor);
-  GMIconTheme::instance()->loadMedium(icon_file_big,"text-x-generic",backcolor);
-  GMIconTheme::instance()->loadSmall(icon_audio_small,"audio-x-generic",backcolor);
-  GMIconTheme::instance()->loadMedium(icon_audio_big,"audio-x-generic",backcolor);
-  GMIconTheme::instance()->loadSmall(icon_image_small,"image-x-generic",backcolor);
-  GMIconTheme::instance()->loadMedium(icon_image_big,"image-x-generic",backcolor);
-  GMIconTheme::instance()->loadSmall(icon_folder_small,"folder",backcolor);
-  GMIconTheme::instance()->loadMedium(icon_folder_big,"folder",backcolor);
-
   for (FXuint i=0;i<ARRAYNUMBER(filetypes);i+=2) {
     assoc = filedict->replace(filetypes[i],filetypes[i+1]);
-    assoc->bigicon  = icon_audio_big;
-    assoc->miniicon = icon_audio_small;
+    assoc->bigicon  = GMIconTheme::instance()->icon_audio_big;
+    assoc->miniicon = GMIconTheme::instance()->icon_audio_small;
     assoc = filedict->replace(FXString(filetypes[i]).upper().text(),filetypes[i+1]);
-    assoc->bigicon  = icon_audio_big;
-    assoc->miniicon = icon_audio_small;
+    assoc->bigicon  = GMIconTheme::instance()->icon_audio_big;
+    assoc->miniicon = GMIconTheme::instance()->icon_audio_small;
     }
 
   for (FXuint i=0;i<ARRAYNUMBER(imagetypes);i+=2) {
     assoc = filedict->replace(imagetypes[i],imagetypes[i+1]);
-    assoc->bigicon  = icon_image_big;
-    assoc->miniicon = icon_image_small;
+    assoc->bigicon  = GMIconTheme::instance()->icon_image_big;
+    assoc->miniicon = GMIconTheme::instance()->icon_image_small;
     assoc = filedict->replace(FXString(filetypes[i]).upper().text(),imagetypes[i+1]);
-    assoc->bigicon  = icon_image_big;
-    assoc->miniicon = icon_image_small;
+    assoc->bigicon  = GMIconTheme::instance()->icon_image_big;
+    assoc->miniicon = GMIconTheme::instance()->icon_image_small;
     }
 
   assoc = filedict->replace(FXFileDict::defaultFileBinding,";");
-  assoc->bigicon  = icon_file_big;
-  assoc->miniicon = icon_file_small;
+  assoc->bigicon  = GMIconTheme::instance()->icon_file_big;
+  assoc->miniicon = GMIconTheme::instance()->icon_file_small;
 
   assoc = filedict->replace(FXFileDict::defaultDirBinding,";");
-  assoc->bigicon      = icon_folder_big;
-  assoc->miniicon     = icon_folder_small;
+  assoc->bigicon      = GMIconTheme::instance()->icon_folder_big;
+  assoc->miniicon     = GMIconTheme::instance()->icon_folder_small;
   }
 
 void GMDirSelector::initFileDict() {
   FXFileAssoc * assoc=NULL;
-  const FXColor backcolor = FXApp::instance()->getBackColor();
-  GMIconTheme::instance()->loadSmall(icon_folder,"folder",backcolor);
-  GMIconTheme::instance()->loadSmall(icon_folderopen,"folder-open",backcolor);
-
   assoc = filedict->replace(FXFileDict::defaultDirBinding,";");
-  assoc->miniiconopen = icon_folderopen;
-  assoc->miniicon     = icon_folder;
+  assoc->miniiconopen = GMIconTheme::instance()->icon_folder_open_small;
+  assoc->miniicon     = GMIconTheme::instance()->icon_folder_small;
   }
 
 

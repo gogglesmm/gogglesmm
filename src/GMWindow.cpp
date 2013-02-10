@@ -180,14 +180,8 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   progressbar = new FXHorizontalFrame(statusbar,LAYOUT_LEFT|FRAME_NONE,0,0,0,0,3,3,0,0);
 
-  FXint size = GMIconTheme::instance()->getSmallSize();
-  animation_image = GMIconTheme::instance()->loadSmall("process-working.png");
-  if (animation_image) {
-    animation_image->blend(getApp()->getBaseColor());
-    animation_image->create();
-    GMAnimImage *animation = new GMAnimImage(progressbar,animation_image,size,FRAME_NONE|LAYOUT_CENTER_Y);
-    animation->setBackColor(getApp()->getBaseColor());
-    }
+  GMAnimImage *animation = new GMAnimImage(progressbar,GMIconTheme::instance()->icon_progress,GMIconTheme::instance()->getSmallSize(),FRAME_NONE|LAYOUT_CENTER_Y);
+  animation->setBackColor(getApp()->getBaseColor());
 
 
 //  progressbar_animation = new GMAnimImage(progressbar,
@@ -228,7 +222,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new FXMenuSeparator(menu_library);
   new GMMenuCommand(menu_library,tr("Play File or Stream…\t\tPlay File or Stream"),NULL,this,GMWindow::ID_OPEN);
   new FXMenuSeparator(menu_library);
-  new GMMenuCommand(menu_library,tr("New Playlist…\t\tCreate a new playlist"),icontheme->icon_playlist,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_NEW_PLAYLIST);
+  new GMMenuCommand(menu_library,tr("New Playlist…\t\tCreate a new playlist"),NULL,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_NEW_PLAYLIST);
   new GMMenuCommand(menu_library,tr("Import Playlist…\t\tImport existing playlist"),icontheme->icon_import,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_IMPORT_PLAYLIST);
 
 //  new GMMenuCommand(menu_library,tr("Sync Folder…\t\tSynchronize Folder with Music in Library"),icontheme->icon_sync,this,GMWindow::ID_SYNC_DIRS);
@@ -278,6 +272,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new FXMenuSeparator(menu_gmm);
   new GMMenuCommand(menu_gmm,tr("Preferences…"),icontheme->icon_settings,this,GMWindow::ID_PREFERENCES);
   new GMMenuCommand(menu_gmm,tr("&About…"),icontheme->icon_info,this,GMWindow::ID_ABOUT);
+  new FXMenuSeparator(menu_gmm);
   new GMMenuCommand(menu_gmm,tr("&Quit\tCtrl-Q\tQuit the application."),icontheme->icon_exit,this,GMWindow::ID_QUIT);
   gm_set_window_cursor(menu_gmm,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
@@ -290,7 +285,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   //menubutton_view    = new GMMenuButton(toolbar,"\tEdit View",icontheme->icon_document,menu_view,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT);
   menubutton_gmm     = new GMMenuButton(toolbar,"\tCustomize and Control GMM",icontheme->icon_customize,menu_gmm,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT|LAYOUT_RIGHT);
   menubutton_media   = new GMMenuButton(toolbar,"\tMedia Control",icontheme->icon_media,menu_media,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_RIGHT|LAYOUT_CENTER_Y|ICON_AFTER_TEXT|LAYOUT_RIGHT);
-  volumebutton       = new GMMenuButton(toolbar,"\tAdjust Volume\tAdjust Volume",icontheme->icon_audio_volume_muted,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+  volumebutton       = new GMMenuButton(toolbar,"\tAdjust Volume\tAdjust Volume",icontheme->icon_volume_muted_toolbar,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
   volumebutton->setTarget(this);
   volumebutton->setSelector(ID_VOLUME_BUTTON);
 
@@ -691,13 +686,13 @@ void GMWindow::display(const GMTrack& info){
 
 void GMWindow::update_volume_display(FXint level) {
   if (level<=0)
-    volumebutton->setIcon(icontheme->icon_audio_volume_muted);
+    volumebutton->setIcon(icontheme->icon_volume_muted_toolbar);
   else if (level<=33)
-    volumebutton->setIcon(icontheme->icon_audio_volume_low);
+    volumebutton->setIcon(icontheme->icon_volume_low_toolbar);
   else if (level<=66)
-    volumebutton->setIcon(icontheme->icon_audio_volume_medium);
+    volumebutton->setIcon(icontheme->icon_volume_medium_toolbar);
   else
-    volumebutton->setIcon(icontheme->icon_audio_volume_high);
+    volumebutton->setIcon(icontheme->icon_volume_high_toolbar);
 
   volumeslider->setValue(level);
 

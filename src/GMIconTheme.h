@@ -47,7 +47,7 @@ protected:
   FXImage * loadImage(const FXString & filename);
 protected:
   void loadIcon(FXIconPtr & icon,const FXString &pathlist,FXint size,const char * value,const FXColor blend);
-  void loadResource(FXIconPtr & icon,const unsigned char * data,const char * type);
+  void loadResource(FXIconPtr & icon,const void * data,const FXColor blend,const char * type="png");
 protected:
   FXbool load_cache();
   void   save_cache();
@@ -75,14 +75,11 @@ public:
   FXIconPtr icon_close;
   FXIconPtr icon_settings;
   FXIconPtr icon_import;
-  FXIconPtr icon_importfile;
   FXIconPtr icon_delete;
   FXIconPtr icon_edit;
   FXIconPtr icon_undo;
   FXIconPtr icon_info;
-  FXIconPtr icon_homepage;
   FXIconPtr icon_sort;
-  FXIconPtr icon_columns;
   FXIconPtr icon_album;
   FXIconPtr icon_artist;
   FXIconPtr icon_genre;
@@ -92,24 +89,34 @@ public:
   FXIconPtr icon_source_local;
   FXIconPtr icon_source_internetradio;
   FXIconPtr icon_source_podcast;
-  FXIconPtr icon_playlist;
   FXIconPtr icon_playqueue;
-  FXIconPtr icon_audio_volume_high;
-  FXIconPtr icon_audio_volume_medium;
-  FXIconPtr icon_audio_volume_low;
-  FXIconPtr icon_audio_volume_muted;
+  FXIconPtr icon_volume_high;
+  FXIconPtr icon_volume_medium;
+  FXIconPtr icon_volume_low;
+  FXIconPtr icon_volume_muted;
+  FXIconPtr icon_volume_high_toolbar;
+  FXIconPtr icon_volume_medium_toolbar;
+  FXIconPtr icon_volume_low_toolbar;
+  FXIconPtr icon_volume_muted_toolbar;
   FXIconPtr icon_export;
   FXIconPtr icon_find;
   FXIconPtr icon_sync;
-  FXIconPtr icon_equalizer;
   FXIconPtr icon_nocover;
-  FXIconPtr icon_fullscreen;
-  FXIconPtr icon_local_folder;
-  FXIconPtr icon_local_file;
   FXIconPtr icon_customize;
   FXIconPtr icon_document;
   FXIconPtr icon_create;
   FXIconPtr icon_media;
+  FXIconPtr icon_home;
+  FXIconPtr icon_file_small;
+  FXIconPtr icon_file_big;
+  FXIconPtr icon_audio_small;
+  FXIconPtr icon_audio_big;
+  FXIconPtr icon_folder_open_small;
+  FXIconPtr icon_folder_small;
+  FXIconPtr icon_folder_big;
+  FXIconPtr icon_image_small;
+  FXIconPtr icon_image_big;
+  FXIconPtr icon_progress;
 public:
   FXCursorPtr cursor_hand;
 private:
@@ -142,6 +149,10 @@ public:
   FXString getThemeName(FXint i);
 
   void load();
+
+  void loadExternal();
+
+  void loadInternal();
 
   ~GMIconTheme();
   };

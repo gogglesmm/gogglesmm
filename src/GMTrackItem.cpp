@@ -818,10 +818,10 @@ GMLocalTrackItem::GMLocalTrackItem(FXint i,const FXString & f, FXuchar flags) : 
 
 FXIcon* GMLocalTrackItem::getIcon() const {
   if (state&FOLDER){
-    return GMIconTheme::instance()->icon_local_folder;
+    return GMIconTheme::instance()->icon_folder_small;
     }
   else {
-    return GMIconTheme::instance()->icon_local_file;
+    return GMIconTheme::instance()->icon_file_small;
     }
   }
 
