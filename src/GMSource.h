@@ -149,7 +149,7 @@ public:
   void setCurrentTrack(FXint t) { current_track=t; }
 
   FXint getCurrentTrack() const { return current_track; }
-
+  
   virtual FXbool hasCurrentTrack(GMSource * ) const { return false; }
 
   virtual FXbool hasTrack(const FXString &,FXint &) { return false; }
@@ -165,8 +165,6 @@ public:
   virtual FXbool findCurrentAlbum(GMAlbumList *,GMSource * src);
 
   virtual FXint getNumTracks() const;
-
-  virtual FXString getTrackFilename(FXint id) const;
 
   virtual FXbool getTrack(GMTrack & info) const;
 

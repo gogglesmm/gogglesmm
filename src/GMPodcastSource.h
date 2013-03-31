@@ -67,8 +67,6 @@ public:
 
   virtual FXbool setTrack(GMTrack & info) const;
 
-  FXString getTrackFilename(FXint id) const;
-
   FXString getName() const { return fxtr("Podcasts"); }
 
   virtual const FXchar * getAlbumName() const { return fxtr("Feeds"); }

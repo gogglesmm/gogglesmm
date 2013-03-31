@@ -45,8 +45,6 @@ public:
 
 //  virtual FXbool setTrack(GMTrack & info) const;
 
-  FXString getTrackFilename(FXint id) const;
-
   FXString getName() const { return fxtr("File System"); }
 
   FXint getType() const { return SOURCE_FILESYSTEM; }
