@@ -140,7 +140,7 @@ FXint GMRenameTask::run() {
       if (to[i].empty()) continue;
       if (!FXDir::createDirectories(FXPath::directory(to[i]))) continue;
       if (FXStat::exists(to[i])) continue;
-      fxmessage("Updating Filename %s\n",from[i].text());
+      fxmessage("Updating Filename %s\n",to[i].text());
       if (FXFile::moveFiles(from[i],to[i])){
         database->setTrackFilename(tracks[i],to[i]);
         }

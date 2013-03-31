@@ -80,6 +80,11 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
 
           target->handle(this,FXSEL(SEL_PLAYER_META,message),&track);
         } break;
+      case AP_VOLUME_NOTIFY          :  
+        {
+            VolumeNotify * info = dynamic_cast<VolumeNotify*>(event);
+            target->handle(this,FXSEL(SEL_PLAYER_VOLUME,message),&info->value);
+        }
       default: break;
       }
     Event::unref(event);

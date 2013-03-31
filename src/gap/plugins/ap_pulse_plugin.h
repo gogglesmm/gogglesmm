@@ -24,17 +24,33 @@ extern "C" {
 #include <pulse/pulseaudio.h>
 }
 
+class PulseEventLoop;
+
 namespace ap {
+
 
 class PulseOutput : public OutputPlugin {
 protected:
-  pa_threaded_mainloop * mainloop;
+  PulseEventLoop       * eventloop;
+  //pa_threaded_mainloop * mainloop;
   pa_context           * context;
   pa_stream            * stream;
 protected:
   FXbool open();
 public:
-  PulseOutput();
+  // Handle pending events.
+  virtual void ev_handle_pending();
+
+  // Return number of poll entries
+  virtual FXint ev_num_poll();
+
+  // Prepare Poll 
+  virtual void ev_prepare_poll(struct ::pollfd*,FXint,FXTime & wakeup);
+
+  // Handle Poll
+  virtual void ev_handle_poll(struct ::pollfd*,FXint,FXTime now);
+public:
+  PulseOutput(OutputThread*);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -56,6 +72,11 @@ public:
 
   /// Change Volume
   void volume(FXfloat);
+
+  /// Get Volume
+  //FXfloat volume();
+
+  void start();
 
   /// Close Output
   void close();

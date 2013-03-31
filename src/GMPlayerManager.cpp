@@ -119,6 +119,7 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
   FXMAPFUNC(SEL_PLAYER_STATE,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerState),
   FXMAPFUNC(SEL_PLAYER_META,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerMeta),
   FXMAPFUNC(SEL_PLAYER_ERROR,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerError),
+  FXMAPFUNC(SEL_PLAYER_VOLUME,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerVolume),
 
   FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_CANCEL_TASK,GMPlayerManager::onCancelTask),
 
@@ -1956,6 +1957,13 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
   if (mpris2) mpris2->notify_status_change();
   if (appstatus) appstatus->notify_status_change();
 #endif
+  return 1;
+  }
+
+long GMPlayerManager::onPlayerVolume(FXObject*,FXSelector,void* ptr){
+  FXfloat value = *(FXfloat*)ptr;
+  GM_DEBUG_PRINT("[player] volume %g\n",value);
+  getMainWindow()->update_volume_display((int)(value*100.0f));
   return 1;
   }
 

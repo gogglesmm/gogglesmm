@@ -92,7 +92,7 @@ static FXbool to_oss_format(const AudioFormat & af,FXint & oss_format){
 
 
 
-OSSOutput::OSSOutput() : OutputPlugin(), handle(BadHandle) {
+OSSOutput::OSSOutput() : OutputPlugin(NULL), handle(BadHandle) {
   }
 
 OSSOutput::~OSSOutput() {

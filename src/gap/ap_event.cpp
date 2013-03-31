@@ -81,6 +81,13 @@ MetaInfo::~MetaInfo() {
 
 
 
+VolumeNotify::VolumeNotify(FXfloat v,FXbool e) : Event(AP_VOLUME_NOTIFY),enabled(e),value(v) {
+  }
+
+VolumeNotify::~VolumeNotify() {
+  }
+
+
 CtrlSeekEvent::CtrlSeekEvent(FXdouble p) : Event(Ctrl_Seek), pos(p) {
   }
 

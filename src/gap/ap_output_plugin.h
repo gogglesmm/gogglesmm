@@ -19,14 +19,44 @@
 #ifndef OUTPUT_PLUGIN_H
 #define OUTPUT_PLUGIN_H
 
+struct pollfd;
+
 namespace ap {
 
 class GMAPI OutputPlugin {
 public:
-  AudioFormat af;
+  OutputThread* output;
+  AudioFormat   af;
+public:
+
+  // Handle pending events.
+  virtual void ev_handle_pending() {}
+
+  // Return number of poll entries
+  virtual FXint ev_num_poll() { return 0;}
+
+  // Prepare Poll 
+  virtual void ev_prepare_poll(struct ::pollfd*,FXint,FXTime & wakeup) {}
+
+  // Handle Poll
+  virtual void ev_handle_poll(struct ::pollfd*,FXint,FXTime now) {}
+
 public:
   /// Constructor
-  OutputPlugin() {}
+  OutputPlugin(OutputThread * o) : output(o) {}
+
+
+  // Register Event Handle
+#ifndef WIN32
+  virtual void setEventHandles(struct ::pollfd *,FXint) {}
+
+  // Handle Events
+  virtual void events(struct ::pollfd*,FXint) {}
+#endif
+
+  // Return the number of event handlers
+  virtual FXint getNumEventHandles() { return 0; }
+
 
   virtual FXchar type() const=0;
 
@@ -50,11 +80,16 @@ public:
   /// Wait until playback buffer is emtpy.
   virtual void drain()=0;
 
+  virtual void start() {}
+
   /// Pause Playback
   virtual void pause(FXbool t)=0;
 
   /// Change Volume
-  virtual void volume(FXfloat) { }
+  virtual void volume(FXfloat) {}
+
+  /// Get Volume
+  virtual FXfloat volume() {return 1.0f;}
 
   /// Close Output
   virtual void close() {}

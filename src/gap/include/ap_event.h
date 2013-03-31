@@ -31,6 +31,7 @@ enum EventType {
   AP_TIMESTAMP,     // TimeUpdate
   AP_ERROR,         // ErrorMessage
   AP_META_INFO,
+  AP_VOLUME_NOTIFY,
   AP_LAST           // Reserved
   };
 
@@ -88,6 +89,15 @@ public:
   MetaInfo();
   };
 
+class GMAPI VolumeNotify : public Event{
+public:
+  FXbool  enabled;
+  FXfloat value;
+protected:
+  virtual ~VolumeNotify();
+public:
+  VolumeNotify(FXfloat value,FXbool enabled);
+  };
 
 }
 #endif

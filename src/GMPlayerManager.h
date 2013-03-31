@@ -187,14 +187,14 @@ public:
   long onCmdSettingsDaemon(FXObject*,FXSelector,void*);
 #endif
 
-//#ifndef HAVE_XINE_LIB
   long onPlayerBOS(FXObject*,FXSelector,void*);
   long onPlayerEOS(FXObject*,FXSelector,void*);
   long onPlayerTime(FXObject*,FXSelector,void*);
   long onPlayerState(FXObject*,FXSelector,void*);
   long onPlayerMeta(FXObject*,FXSelector,void*);
   long onPlayerError(FXObject*,FXSelector,void*);
-//#endif
+  long onPlayerVolume(FXObject*,FXSelector,void*);
+
 protected:
   FXint  init_fifo(int & argc,char**argv);
   FXbool init_database(GMTrackDatabase *);

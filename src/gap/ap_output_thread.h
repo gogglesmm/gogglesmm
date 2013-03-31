@@ -44,6 +44,13 @@ protected:
   Event * wait_for_event();
 protected:
   OutputConfig   output_config;
+protected:
+#ifndef WIN32
+  struct pollfd * pfds;
+  FXint           nfds;
+  void setup_event_handles();
+  void handle_plugin_events();
+#endif
 public:
   AudioFormat       af;
   OutputPlugin *    plugin;
@@ -52,6 +59,8 @@ public:
   MemoryBuffer      src_input;
   MemoryBuffer      src_output;
   ReplayGainConfig  replaygain;
+	FXfloat						volume;
+  Packet * packet_queue;
 protected:
   FXbool draining;
   FXbool pausing;
@@ -72,6 +81,9 @@ protected:
   void unload_plugin();
   void close_plugin();
   void process(Packet*);
+  void process2(Packet*);
+
+  void queuePacket(Packet*);
 
 #ifdef HAVE_SAMPLERATE_PLUGIN
   void resample(Packet*,FXint & nframes);
@@ -85,6 +97,9 @@ protected:
   void reconfigure();
 public:
   OutputThread(AudioEngine*);
+
+  void getSamples(const void*&,FXuint &);
+
   virtual FXint run();
   virtual ~OutputThread();
   };

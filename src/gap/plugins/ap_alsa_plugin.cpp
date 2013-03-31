@@ -86,13 +86,53 @@ static void alsa_list_devices() {
 
 
 
-AlsaOutput::AlsaOutput() : OutputPlugin(), handle(NULL),mixer(NULL),mixer_element(NULL) {
+AlsaOutput::AlsaOutput() : OutputPlugin(NULL), handle(NULL),mixer(NULL),mixer_element(NULL) {
   }
 
 AlsaOutput::~AlsaOutput() {
   close();
   }
 
+
+
+
+
+
+
+  // Register Event Handle
+#ifndef WIN32
+void AlsaOutput::setEventHandles(struct ::pollfd * pfds,FXint nfd){
+  if (handle) {  
+    int n = snd_pcm_poll_descriptors(handle,pfds,nfd);
+    FXASSERT(n==nfd);
+    }
+  }
+
+  // Handle Events
+void AlsaOutput::events(struct ::pollfd* pfds,FXint nfd) {
+  if (handle) {
+    GM_DEBUG_PRINT("ALSA events\n");
+    unsigned short revents = 0;
+    int err=0;
+    if (snd_pcm_poll_descriptors_revents(handle,pfds,nfd,&revents)<0)
+      return;
+    if (revents&POLLIN) 
+      GM_DEBUG_PRINT("ALSA readable\n");
+    if (revents&POLLOUT)
+      GM_DEBUG_PRINT("ALSA writeable\n");
+    }
+  }
+#endif
+
+// Return the number of event handlers
+FXint AlsaOutput::getNumEventHandles() {
+  if (__likely(handle)) {
+    fxmessage("GOT %d\n",snd_pcm_poll_descriptors_count(handle));
+    return snd_pcm_poll_descriptors_count(handle);
+}
+  else 
+    return 0;
+  }
 
 FXbool AlsaOutput::setOutputConfig(const OutputConfig & c) {
   config=c.alsa;

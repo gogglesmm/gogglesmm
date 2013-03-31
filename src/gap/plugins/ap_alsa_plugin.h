@@ -22,6 +22,7 @@
 
 #include <alsa/asoundlib.h>
 
+
 namespace ap {
 
 class AlsaOutput : public OutputPlugin {
@@ -37,6 +38,18 @@ protected:
   FXbool open();
 public:
   AlsaOutput();
+
+  // Register Event Handle
+#ifndef WIN32
+  virtual void setEventHandles(struct ::pollfd *,FXint);
+
+  // Handle Events
+  virtual void events(struct ::pollfd*,FXint);
+#endif
+
+  // Return the number of event handlers
+  virtual FXint getNumEventHandles();
+
 
   /// Configure
   FXbool configure(const AudioFormat &);
