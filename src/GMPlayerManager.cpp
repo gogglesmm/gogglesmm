@@ -577,7 +577,6 @@ FXbool GMPlayerManager::init_sources() {
 
   // Make sure we can open it.
   if (!init_database(database)) {
-    delete database;
     return false;
     }
 
