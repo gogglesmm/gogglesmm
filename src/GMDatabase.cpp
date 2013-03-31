@@ -447,6 +447,7 @@ sqlite3_stmt * GMDatabase::compile(const FXchar * query){
   }
 
 FXbool GMDatabase::open(const FXString & filename){
+  GM_DEBUG_PRINT("Open Database %s\n",filename.text());
   if (sqlite3_open_v2(filename.text(),&db,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FULLMUTEX,NULL)!=SQLITE_OK){
     sqlite3_close(db);
     db=NULL;

@@ -219,17 +219,20 @@ GMTrackDatabase::~GMTrackDatabase() {
   }
 
 FXbool GMTrackDatabase::init(const FXString & database) {
+  FXint version = 0;
 
   if (!open(database))
     goto error;
 
-  if ( getVersion()>GOGGLESMM_DATABASE_SCHEMA_VERSION) {
+  version = getVersion();
+
+  if ( version > GOGGLESMM_DATABASE_SCHEMA_VERSION) {
     if (FXMessageBox::question(FXApp::instance(),MBOX_OK_CANCEL,fxtr("Database Error"),fxtr("An incompatible (future) version of the database was found.\nThis usually happens when you try to downgrade to a older version of GMM\nPress OK to continue and reset the database (all information will be lost!).\nPress Cancel to quit now and leave the database as is."))==MBOX_CLICKED_CANCEL)
       return false;
     }
 
   /// No upgrade path yet
-  if ( getVersion()<GOGGLESMM_DATABASE_SCHEMA_VERSION) {
+  if ( version>0 && version<GOGGLESMM_DATABASE_SCHEMA_VERSION) {
     if (FXMessageBox::question(FXApp::instance(),MBOX_OK_CANCEL,fxtr("Database Error"),fxtr("An incompatible (older) version of the database was found.\nPress OK to continue and reset the database (all information will be lost!).\nPress Cancel to quit now and leave the database as is."))==MBOX_CLICKED_CANCEL)
       return false;
     }
