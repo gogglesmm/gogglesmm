@@ -19,6 +19,7 @@
 #ifndef GMIMAGEVIEW_H
 #define GMIMAGEVIEW_H
 
+
 class GMImageView : public FXGLCanvas {
 FXDECLARE(GMImageView)
 protected:

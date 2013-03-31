@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+#ifdef HAVE_OPENGL_COVERVIEW
 #include "GMImageView.h"
 
 #define GL_GLEXT_PROTOTYPES
@@ -240,3 +241,4 @@ long GMImageView::onPaint(FXObject*,FXSelector,void*){
     }
   return 1;
   }
+#endif

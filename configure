@@ -49,7 +49,7 @@ OPTION_GMM_DBUS=1
 OPTION_GMM_NLS=1
 OPTION_GMM_MD5=gcrypt
 OPTION_GMM_LIRC=0
-
+OPTION_GMM_OPENGL=1
 
 
 
@@ -199,6 +199,9 @@ for arg in $@; do
     --without-nls)
       OPTION_GMM_NLS=0
       ;;
+    --without-opengl)
+      OPTION_GMM_OPENGL=0
+      ;;
     --help|-h)
       echo "Options:"
       echo "   --enable-debug                  Compile with debug information"
@@ -224,6 +227,7 @@ for arg in $@; do
 		  echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use.(gcrypt)"
  		  echo "   --without-dbus                  Compile without dbus support"
  		  echo "   --without-nls                   Compile without locale support"
+ 		  echo "   --without-opengl                Compile without OpenGL support"
 			echo " "
       echo "   --with-musepack                 Compile with musepack (sv7) support. "
       echo " "
@@ -362,6 +366,13 @@ if [ $OPTION_GMM_DBUS -eq 0 ] ; then
 else
   echo "  DBUS Support  : yes"
 fi
+
+if [ $OPTION_GMM_OPENGL -eq 0 ] ; then
+  echo "  OpenGL Support: no"
+else
+  echo "  OpenGL Support: yes"
+fi
+
 
 if [ $OPTION_GMM_LIRC -eq 0 ] ; then
   echo "  LIRC Support  : no"

@@ -458,16 +458,20 @@ check_gogglesmm()
     OPTION_GMM_DBUS=$?
   fi
 
-  # We need both X11 and GLU
+  # We need X11 for key bindings and such
   # For systems without pkg-config for x11 and glu we'll just hardwire it.
   add_package "x11" "x11"
   if [ $? -eq 0 ] ; then
     EXTRA_LIBS="$EXTRA_LIBS -lX11"
   fi
 
-  add_package "glu" "glu"
-  if [ $? -eq 0 ] ; then
-    EXTRA_LIBS="$EXTRA_LIBS -lGL -lGLU"
+  # We need OpenGL for cover viewer
+  if [ $OPTION_GMM_OPENGL -eq 1 ] ; then
+    add_config "opengl_coverview"
+    add_package "glu" "glu"
+    if [ $? -eq 0 ] ; then
+      EXTRA_LIBS="$EXTRA_LIBS -lGL -lGLU"
+    fi
   fi
 
   # Session Management

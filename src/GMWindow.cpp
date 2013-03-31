@@ -45,7 +45,11 @@
 #include "GMImportDialog.h"
 #include "GMPreferencesDialog.h"
 #include "FXUTF8Codec.h"
+
+#ifdef HAVE_OPENGL_COVERVIEW
 #include "GMImageView.h"
+#endif
+
 #include "GMAnimImage.h"
 
 #include "GMScanner.h"
@@ -205,8 +209,10 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   coverframe->setBorderColor(getApp()->getShadowColor());
   coverframe->hide();
   coverview_x11=NULL;
+#ifdef HAVE_OPENGL_COVERVIEW
   coverview_gl=NULL;
   glvisual=NULL;
+#endif
 
   updateCoverView();
 
@@ -446,11 +452,13 @@ void GMWindow::init(FXuint mode) {
 // Destructor
 //----------------------------------------------------------------------------------
 GMWindow::~GMWindow(){
+#ifdef HAVE_OPENGL_COVERVIEW
   if (coverview_gl) {
     coverview_gl->setImage(NULL);
     delete coverview_gl;
     delete glvisual;
     }
+#endif
   delete icontheme;
   }
 
@@ -1351,9 +1359,11 @@ void GMWindow::clearCover() {
     delete coverview_x11->getImage();
     coverview_x11->setImage(NULL);
     }
+#ifdef HAVE_OPENGL_COVERVIEW
   else if (coverview_gl) {
     coverview_gl->setImage(NULL);
     }
+#endif
   }
 
 
@@ -1412,15 +1422,17 @@ void GMWindow::updateCover() {
       image->create();
       coverview_x11->setImage(image);
       }
+#ifdef HAVE_OPENGL_COVERVIEW
     else {
       coverview_gl->setImage(image);
       delete image;
       }
+#endif
     }
   }
 
 void GMWindow::updateCoverView() {
-
+#ifdef HAVE_OPENGL_COVERVIEW
   if (GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview && FXGLVisual::hasOpenGL(getApp())) {
 
     if (coverview_x11) {
@@ -1448,7 +1460,7 @@ void GMWindow::updateCoverView() {
       delete glvisual;
       glvisual=NULL;
       }
-
+#endif
     if (!coverview_x11) {
       coverview_x11 = new GMImageFrame(coverframe,NULL,FRAME_NONE|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
       coverview_x11->setBackColor(getApp()->getBackColor());
@@ -1457,8 +1469,9 @@ void GMWindow::updateCoverView() {
       coverview_x11->enable();
       if (coverframe->id()) coverview_x11->create();
       }
-
+#ifdef HAVE_OPENGL_COVERVIEW
     }
+#endif
   }
 
 long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
@@ -1467,7 +1480,7 @@ long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
       getApp()->addTimeout(this,ID_REFRESH_COVERVIEW,TIME_MSEC(50));
       }
     else {
-      GM_DEBUG_PRINT("configure %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
+      GM_DEBUG_PRINT("configure cover view %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
       updateCover();
       }
     }

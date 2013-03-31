@@ -66,9 +66,11 @@ private:
   GMSourceView      * sourceview;
   FXHorizontalFrame * statusframe;
   GMCoverFrame      * coverframe;
+#ifdef HAVE_OPENGL_COVERVIEW
   GMImageView       * coverview_gl;
-  FXImageFrame      * coverview_x11;
   FXGLVisual        * glvisual;
+#endif
+  FXImageFrame      * coverview_x11;
   FXToggleButton    * playpausebutton;
   FXButton          * stopbutton;
   FXButton          * nextbutton;
