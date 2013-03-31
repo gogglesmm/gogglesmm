@@ -81,27 +81,13 @@ FXbool GMStreamSource::setTrack(GMTrack & track) const {
 
 FXbool GMStreamSource::getTrack(GMTrack & info) const {
   info.clear();
-  info.mrl=getTrackFilename(current_track);
+  GMStream sinfo;
+  if (db->getStream(current_track,sinfo)){
+    info.mrl = sinfo.url;
+    return true;
+    }
   return false;
   }
-
-FXString GMStreamSource::getTrackFilename(FXint id) const{
-  const char * url;
-  FXString query;
-  GMQuery q;
-  try {
-    query="SELECT url FROM streams WHERE id == " + FXString::value(id) + ";";
-    q = db->compile(query);
-    q.row();
-    url = q.get(0);
-    return url;
-    }
-  catch(GMDatabaseException & e){
-    return FXString::null;
-    }
-  return url;
-  }
-
 
 FXbool GMStreamSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Add Radio Station…"),NULL,this,ID_NEW_STATION);

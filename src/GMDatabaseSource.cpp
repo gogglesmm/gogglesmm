@@ -253,9 +253,9 @@ FXint GMDatabaseSource::getNumTracks() const{
   return db->getNumTracks();
   }
 
-FXString GMDatabaseSource::getTrackFilename(FXint id) const{
-  return db->getTrackFilename(id);
-  }
+//FXString GMDatabaseSource::getTrackFilename(FXint id) const{
+//  return db->getTrackFilename(id);
+//  }
 
 FXbool GMDatabaseSource::getTrack(GMTrack & info) const{
   return db->getTrack(current_track,info);

@@ -78,11 +78,6 @@ FXbool GMLocalSource::getTrack(GMTrack & track) const {
   return true;
   }
 
-FXString GMLocalSource::getTrackFilename(FXint id) const{
-//  GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(id);
-  return path+PATHSEPSTRING+files[id-1];
-  }
-
 FXbool GMLocalSource::track_double_click() {
   GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem();
   if (item->getFilename()=="..") {

@@ -629,14 +629,14 @@ FXint GMTrackView::getPrevious(){
     }
   }
 
-
+/*
 FXString GMTrackView::getTrackFilename(FXint item) const {
   FXint track = tracklist->getItemId(item);
   if (source && track!=-1 )
     return source->getTrackFilename(track);
   return FXString::null;
   }
-
+*/
 
 void GMTrackView::getTracks(FXIntList & tracks) const{
   for (FXint i=0;i<tracklist->getNumItems();i++){

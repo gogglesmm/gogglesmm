@@ -69,20 +69,8 @@ void GMSource::markCurrent(const GMTrackItem*item) {
     current_track = -1;
   }
 
-/*
-void GMSource::markCurrent(GMTrackList * list,FXint item) {
-  current_track=-1;
-  if (list->getNumItems()) {
-    current_track = list->getItemId(item);
-    }
-  }
-*/
 FXint GMSource::getNumTracks() const{
   return 0;
-  }
-
-FXString GMSource::getTrackFilename(FXint) const{
-  return FXString::null;
   }
 
 FXbool GMSource::getTrack(GMTrack &) const{

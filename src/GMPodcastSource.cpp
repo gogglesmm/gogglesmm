@@ -965,12 +965,6 @@ FXbool GMPodcastSource::getTrack(GMTrack & info) const {
   return true;
   }
 
-FXString GMPodcastSource::getTrackFilename(FXint id) const{
-  fxmessage("id %d\n",id);
-  return FXString::null;
-  }
-
-
 FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
   new GMMenuCommand(pane,fxtr("Refresh\t\t"),NULL,this,ID_REFRESH_FEED);
