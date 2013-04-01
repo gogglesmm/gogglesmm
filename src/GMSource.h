@@ -137,6 +137,7 @@ public:
 public:
   GMSource();
 
+  /// Configure the columns in the tracklist
   virtual void configure(GMColumnList&) {}
 
   virtual void shuffle(GMTrackList*,FXuint) const{}

@@ -5,10 +5,6 @@
 . build/functions
 
 
-
-
-
-
 ALSA_VERSION="1.0"
 FOX_VERSION="1.7.37"
 PULSE_VERSION="0.9.21"
@@ -51,12 +47,6 @@ OPTION_GMM_MD5=gcrypt
 OPTION_GMM_LIRC=0
 OPTION_GMM_OPENGL=1
 
-
-
-
-
-
-
 # Default Compiler Settings
 # Use environment variables to override
 #--------------------------
@@ -70,10 +60,7 @@ LIB=${LIB:-lib}
 OUTPUTOBJ=${OUTPUTOBJ:--o }
 OUTPUTBIN=${OUTPUTBIN:--o }
 OBJEXT=${OBJEXT:-.o}
-
 PREFIX=${PREFIX:-/usr}
-
-
 
 # For making plugins
 # We always want these flags. If you want to override this, change config.make
@@ -333,7 +320,7 @@ echo "RESWRAP_H=$RESWRAP_H"            >> config.make
 echo "RESWRAP_TEXT=$RESWRAP_TEXT"      >> config.make
 echo "PREFIX=$PREFIX"                  >> config.make
 echo "OPTIONS=$OPTIONS"                >> config.make
-
+echo "TARNAME=gogglesmm-$MAJOR.$MINOR.$LEVEL" >> config.make
 echo "GAP_CFLAGS=$FOX_CFLAGS"          >> config.make
 echo "GAP_CPPFLAGS=$FOX_CPPFLAGS"      >> config.make
 
@@ -386,7 +373,6 @@ else
   echo "  NLS Support   : yes"
   echo "  Locale Path   : $NLSDIR"
 fi
-
   echo "  Icon Path     : $PREFIX/share/icons"
   echo "  Install Path  : $PREFIX"
 

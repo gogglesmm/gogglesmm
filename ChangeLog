@@ -1,4 +1,4 @@
-To Do
+
 =====
 
   - Finish up lirc support.
@@ -27,6 +27,7 @@ GAP
 
 0.13.0
 
+  - New playback engine
   - Add playing queue.
   - MPRIS v2 Interface
 
@@ -49,9 +50,10 @@ GAP
 
   - Updated Requirements:
       o sqlite >= 3.6.3
-      o libgaplayer >= 0.1
-      o FOX >= 1.7.22
+      o FOX >= 1.7.37
       o No Longer needed: xinelib,libcurl
+
+--------
 
 0.10.2
   - Added Spanish translation.
