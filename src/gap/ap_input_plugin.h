@@ -28,14 +28,17 @@ enum {
   AP_IO_BLOCK = -2  // nothing available
   };
 
+
+
 class InputPlugin {
 protected:
-  InputThread*  input;
-  MemoryBuffer  buffer;
+  InputThread * input;
+  //MemoryBuffer  buffer;
 private:
   InputPlugin(const InputPlugin&);
   InputPlugin &operator=(const InputPlugin&);
 protected:
+/*
   virtual FXival        io_read(void*,FXival)=0;
   virtual FXival        io_read_block(void*,FXival);
   virtual FXival        io_write(const void*,FXival) { return -1; }
@@ -44,16 +47,17 @@ protected:
   FXbool                io_wait_read();
   FXbool                io_wait_write();
   virtual FXInputHandle io_handle() const { return BadHandle; }
-protected:
-  InputPlugin(InputThread*,FXival size);
+*/
+//protected:
+//  InputPlugin(InputThread*,FXival size);
 public:
   InputPlugin(InputThread*);
 
   /// Read ncount bytes, returns -1 for error, -2 for interrupted
-  virtual FXival read(void*data,FXival ncount);
+  virtual FXival read(void*data,FXival ncount) = 0;
 
   //// Read ncount preview bytes. Position of stream doesn't change
-  virtual FXival preview(void*data,FXival ncount);
+  virtual FXival preview(void*data,FXival ncount) = 0;
 
   /// Set Position
   virtual FXlong position(FXlong offset,FXuint from)=0;
@@ -78,6 +82,22 @@ public:
   };
 
 
+/*
+class InputPlugin : public GMBufferIO {
+private:
+  InputPlugin(const InputPlugin&);
+  InputPlugin &operator=(const InputPlugin&);
+public:
+  InputPlugin(InputThread*);
+
+	FXival read(void*data,FXival count) { return readBlock(data,count); }
+
+	FXival preview(void*,FXival);
+
+  /// Get plugin type
+  virtual FXuint plugin() const { return Format::Unknown; }
+	};
+*/
 
 }
 #endif

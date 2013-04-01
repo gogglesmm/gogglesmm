@@ -32,6 +32,7 @@
 #include "ap_engine.h"
 #include "ap_thread.h"
 #include "ap_thread_queue.h"
+#include "ap_http.h"
 #include "ap_input_thread.h"
 #include "ap_reader_plugin.h"
 #include "ap_decoder_thread.h"

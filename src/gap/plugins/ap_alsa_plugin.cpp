@@ -156,6 +156,11 @@ FXbool AlsaOutput::open() {
         return true;
         }
 
+			FXint ncount = snd_mixer_poll_descriptors_count(mixer);
+      GM_DEBUG_PRINT("Nmixer Count: %d\n",ncount);
+			
+
+
       for (snd_mixer_elem_t * element = snd_mixer_first_elem(mixer);element;element=snd_mixer_elem_next(element)){
         if (snd_mixer_elem_get_type(element)!=SND_MIXER_ELEM_SIMPLE) continue;
         if (!snd_mixer_selem_is_active(element)) continue;

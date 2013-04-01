@@ -2,10 +2,14 @@
 #----------------------------------------------------------
 
 GAP_SRC = src/gap/ap_event.cpp \
+src/gap/ap_wait_io.cpp \
+src/gap/ap_buffer_io.cpp \
 src/gap/ap_packet.cpp \
 src/gap/ap_thread_queue.cpp \
 src/gap/ap_app_queue.cpp \
 src/gap/ap_pipe.cpp \
+src/gap/ap_socket.cpp \
+src/gap/ap_connect.cpp \
 src/gap/ap_utils.cpp \
 src/gap/ap_convert.cpp \
 src/gap/ap_format.cpp \
@@ -21,7 +25,8 @@ src/gap/ap_reader_plugin.cpp \
 src/gap/ap_player.cpp \
 src/gap/ap_buffer.cpp \
 src/gap/ap_xml_parser.cpp \
-src/gap/ap_http.cpp \
+src/gap/ap_http_response.cpp \
+src/gap/ap_http_client.cpp \
 src/gap/plugins/ap_m3u_plugin.cpp \
 src/gap/plugins/ap_pls_plugin.cpp \
 src/gap/plugins/ap_xspf_plugin.cpp \

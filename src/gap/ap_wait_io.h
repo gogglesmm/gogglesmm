@@ -16,54 +16,72 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifndef INPUT_FILE_DEVICE_H
-#define INPUT_FILE_DEVICE_H
+#ifndef AP_WAIT_IO_H
+#define AP_WAIT_IO_H
 
 namespace ap {
 
-class FileInput : public InputPlugin {
+/*
+	Wraps a non-blocking FXIO and makes it blocking. An optional watch handle and timeout
+	can be passed to fall out of the blocking io.
+*/
+class WaitIO : public FXIO {
 protected:
-  FXFile   file;
-  FXString filename;
-private:
-  FileInput(const FileInput&);
-  FileInput &operator=(const FileInput&);
-protected:
-  FXival io_read(void*data,FXival ncount);
-  FXInputHandle io_handle() const { return file.handle(); }
+	FXIODevice* 	io;
+	FXInputHandle watch;
+	FXTime 			  timeout;
 public:
-  /// Constructor
-  FileInput(InputThread*);
+	enum {
+		Readable = 0,
+		Writable = 1
+		};
+private:
+  WaitIO(const WaitIO&);
+  WaitIO &operator=(const WaitIO&);
+public:
+	WaitIO(FXIODevice * io,FXInputHandle watch=BadHandle,FXTime timeout=0);
 
-  FXbool open(const FXString & uri);
+	/// Return device
+	FXIODevice* getDevice() const { return io; }
 
-	/// Read
-	FXival read(void*,FXival);
+  /// Return true if open
+  virtual FXbool isOpen() const;
 
-	/// Preview
-	FXival preview(void*,FXival);
+  /// Return true if serial access only
+  virtual FXbool isSerial() const;
 
-  /// Set Position
-  FXlong position(FXlong offset,FXuint from);
+  /// Get current file position
+  virtual FXlong position() const;
 
-  /// Get Position
-  FXlong position() const;
+  /// Change file position, returning new position from start
+  virtual FXlong position(FXlong offset,FXuint from=FXIO::Begin);
 
-  /// Size
-  FXlong size();
+  /// Read block of bytes, returning number of bytes read
+  virtual FXival readBlock(void* data,FXival count);
 
-  /// End of Input
-  FXbool eof();
+  /// Write block of bytes, returning number of bytes written
+  virtual FXival writeBlock(const void* data,FXival count);
 
-  /// Serial
-  FXbool serial() const;
+  /// Truncate file
+  virtual FXlong truncate(FXlong size);
 
-  /// Get plugin type
-  FXuint plugin() const;
+  /// Flush to disk
+  virtual FXbool flush();
 
-  /// Destructor
-  virtual ~FileInput();
-  };
+  /// Test if we're at the end
+  virtual FXbool eof();
 
+  /// Return size of i/o device
+  virtual FXlong size();
+
+  /// Close handle
+  virtual FXbool close();
+
+	/// Wait until
+	FXbool wait(FXuchar mode=WaitIO::Readable);
+
+  /// Destroy and close
+  virtual ~WaitIO();
+	};
 }
 #endif

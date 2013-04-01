@@ -16,69 +16,46 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#include "ap_defs.h"
-#include "ap_utils.h"
-#include "ap_event.h"
-#include "ap_pipe.h"
-#include "ap_format.h"
-#include "ap_buffer.h"
-#include "ap_input_plugin.h"
-#include "ap_file_plugin.h"
-
-using namespace ap;
+#ifndef AP_SOCKET_H
+#define AP_SOCKET_H
 
 namespace ap {
 
+class Socket : public FXIODevice {
+private:
+  Socket(const Socket&);
+  Socket &operator=(const Socket&);
+	Socket(FXInputHandle h,FXuint mode);
+public:
+	static Socket* create(int domain,int type,int protocol,FXuint mode);
 
-FileInput::FileInput(InputThread * i) : InputPlugin(i) {
-  }
+	void setKeepAlive(FXbool);
 
-FileInput::~FileInput() {
-  }
+	FXbool getKeepAlive() const;
 
-FXbool FileInput::open(const FXString & uri) {
-  if (file.open(uri,FXIO::Reading)){
-    filename=uri;
-    return true;
-    }
-  return false;
-  }
+	void setReuseAddress(FXbool);
 
-FXival FileInput::preview(void*data,FXival count) {
-	FXlong pos = file.position();
-	FXival n = file.readBlock(data,count);
-	file.position(pos,FXIO::Begin);
-	return n;
-  }
+	FXbool getReuseAddress() const;
 
-FXival FileInput::read(void*data,FXival ncount) {
-  return file.readBlock(data,ncount);
-  }
+	void setReceiveTimeout(FXTime);
 
-FXlong FileInput::position(FXlong offset,FXuint from) {
-  return file.position(offset,from);
-  }
+	void setSendTimeout(FXTime);
 
-FXlong FileInput::position() const {
-  return file.position();
-  }
+	void setLinger(FXTime);
 
-FXlong FileInput::size() {
-  return file.size();
-  }
+	FXTime getLinger() const;
 
-FXbool FileInput::eof()  {
-  return file.eof();
-  }
+	FXint getError() const;
 
-FXbool FileInput::serial() const {
-  return file.isSerial();
-  }
+  /// Read block of bytes, returning number of bytes read
+  FXival readBlock(void* data,FXival count);
 
-FXuint FileInput::plugin() const {
-  FXString extension=FXPath::extension(filename);
-  return ap_format_from_extension(extension);
-  }
+  /// Write block of bytes, returning number of bytes written
+  FXival writeBlock(const void* data,FXival count);
 
+	/// Close Socket
+	FXbool close();
+	};
 
 }
+#endif

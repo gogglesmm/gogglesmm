@@ -37,15 +37,15 @@ using namespace ap;
 namespace ap {
 
 
-InputPlugin::InputPlugin(InputThread * i,FXival sz) : input(i), buffer(sz) {
-  }
+//InputPlugin::InputPlugin(InputThread * i,FXival sz) : input(i), buffer(sz) {
+//  }
 
-InputPlugin::InputPlugin(InputThread * i) : input(i), buffer(0) {
+InputPlugin::InputPlugin(InputThread * i) : input(i){
   }
 
 InputPlugin::~InputPlugin() {
   }
-
+/*
 FXival InputPlugin::io_buffer(FXival count) {
   register FXival nread=0;
   register FXival n;
@@ -166,6 +166,7 @@ FXbool InputPlugin::io_wait_write() {
   while(1);
   }
 
+
 FXival InputPlugin::preview(void*data,FXival count) {
   if (serial() || buffer.size()) {
     if (buffer.size()<count) {
@@ -199,5 +200,5 @@ FXival InputPlugin::read(void * d,FXival count){
     return InputPlugin::io_read_block(d,count);
     }
   }
-
+*/
 }

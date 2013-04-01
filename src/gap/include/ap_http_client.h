@@ -16,69 +16,70 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#include "ap_defs.h"
-#include "ap_utils.h"
-#include "ap_event.h"
-#include "ap_pipe.h"
-#include "ap_format.h"
-#include "ap_buffer.h"
-#include "ap_input_plugin.h"
-#include "ap_file_plugin.h"
+#ifndef AP_HTTP_CLIENT_H
+#define AP_HTTP_CLIENT_H
 
-using namespace ap;
+#ifndef GMAPI
+#define GMAPI
+#endif
 
 namespace ap {
 
+class HttpHost {
+public:
+  FXString name;
+  FXint    port;
+public:
+  HttpHost();
+  HttpHost(const FXString & url);
 
-FileInput::FileInput(InputThread * i) : InputPlugin(i) {
-  }
+  // Set from url. returns true if changed
+  FXbool set(const FXString & url);
 
-FileInput::~FileInput() {
-  }
+  // Clear
+  void clear();
+  };
 
-FXbool FileInput::open(const FXString & uri) {
-  if (file.open(uri,FXIO::Reading)){
-    filename=uri;
-    return true;
-    }
-  return false;
-  }
 
-FXival FileInput::preview(void*data,FXival count) {
-	FXlong pos = file.position();
-	FXival n = file.readBlock(data,count);
-	file.position(pos,FXIO::Begin);
-	return n;
-  }
+class ConnectionFactory;
 
-FXival FileInput::read(void*data,FXival ncount) {
-  return file.readBlock(data,ncount);
-  }
+class GMAPI HttpClient : public HttpResponse {
+protected:
+	ConnectionFactory* connection;
+  HttpHost      		 server;
+  HttpHost      		 proxy;
+  FXuchar       		 options;
+protected:
+  enum {
+    UseProxy    = (1<<0),
+    };
+protected:
+  FXbool open_connection();
+  void reset(FXbool forceclose);
+public:
+  HttpClient(ConnectionFactory * c=NULL);
 
-FXlong FileInput::position(FXlong offset,FXuint from) {
-  return file.position(offset,from);
-  }
+	/// Change the Connection Factory
+	void setConnectionFactory(ConnectionFactory*);
 
-FXlong FileInput::position() const {
-  return file.position();
-  }
+	// Close Connection
+  void close();
 
-FXlong FileInput::size() {
-  return file.size();
-  }
+	// Discard response
+  void discard();
 
-FXbool FileInput::eof()  {
-  return file.eof();
-  }
+	// Send a request. Response can be
+  FXbool request(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);
 
-FXbool FileInput::serial() const {
-  return file.isSerial();
-  }
+  // Perform basic request and handles some basic HTTP features
+  FXbool basic(const FXchar *   method,
+               FXString         url,
+               const FXString & headers=FXString::null,
+               const FXString & body=FXString::null);
 
-FXuint FileInput::plugin() const {
-  FXString extension=FXPath::extension(filename);
-  return ap_format_from_extension(extension);
-  }
-
+  ~HttpClient();
+  };
 
 }
+
+#endif

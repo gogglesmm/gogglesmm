@@ -16,69 +16,42 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#include "ap_defs.h"
-#include "ap_utils.h"
-#include "ap_event.h"
-#include "ap_pipe.h"
-#include "ap_format.h"
-#include "ap_buffer.h"
-#include "ap_input_plugin.h"
-#include "ap_file_plugin.h"
-
-using namespace ap;
+#ifndef AP_CONNECT_H
+#define AP_CONNECT_H
 
 namespace ap {
 
+/* Connection Factory */
+class ConnectionFactory {
+protected:
+	enum {
+		Connected = 1,
+		Error = 2,
+	 	Abort	= 3
+		};
+protected:
+	virtual FXIO* create(FXint domain,FXint type,FXint protocol);
+	virtual FXuint connect(FXIO * socket,const struct sockaddr * address,FXint address_len);
+public:
+	ConnectionFactory();
 
-FileInput::FileInput(InputThread * i) : InputPlugin(i) {
-  }
+	// Open connection to hostname and port
+	FXIO * open(const FXString & hostname,FXint port);
 
-FileInput::~FileInput() {
-  }
+	virtual ~ConnectionFactory();
+	};
 
-FXbool FileInput::open(const FXString & uri) {
-  if (file.open(uri,FXIO::Reading)){
-    filename=uri;
-    return true;
-    }
-  return false;
-  }
-
-FXival FileInput::preview(void*data,FXival count) {
-	FXlong pos = file.position();
-	FXival n = file.readBlock(data,count);
-	file.position(pos,FXIO::Begin);
-	return n;
-  }
-
-FXival FileInput::read(void*data,FXival ncount) {
-  return file.readBlock(data,ncount);
-  }
-
-FXlong FileInput::position(FXlong offset,FXuint from) {
-  return file.position(offset,from);
-  }
-
-FXlong FileInput::position() const {
-  return file.position();
-  }
-
-FXlong FileInput::size() {
-  return file.size();
-  }
-
-FXbool FileInput::eof()  {
-  return file.eof();
-  }
-
-FXbool FileInput::serial() const {
-  return file.isSerial();
-  }
-
-FXuint FileInput::plugin() const {
-  FXString extension=FXPath::extension(filename);
-  return ap_format_from_extension(extension);
-  }
+/* Non-Blocking Connection Factory */
+class NBConnectionFactory : public ConnectionFactory {
+protected:
+	FXInputHandle watch;
+protected:
+	virtual FXIO * create(FXint domain,FXint type,FXint protocol);
+	virtual FXuint connect(FXIO * io,const struct sockaddr * address,FXint address_len);
+public:
+	NBConnectionFactory(FXInputHandle);
+	};
 
 
 }
+#endif
