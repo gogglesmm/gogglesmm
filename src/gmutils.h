@@ -44,6 +44,8 @@ extern FXdouble gm_parse_number(const FXString &);
 
 extern FXbool gm_buffer_file(const FXString & filename,FXString & buffer);
 
+extern FXbool gm_dump_file(const FXString & filename,FXString & buffer);
+
 extern void gm_make_absolute_path(const FXString & path,FXStringList & urls);
 
 extern void gm_set_window_cursor(FXWindow *,FXCursor*);

@@ -113,6 +113,15 @@ FXbool gm_buffer_file(const FXString & filename,FXString & buffer) {
   return false;
   }
 
+FXbool gm_dump_file(const FXString & filename,FXString & buffer) {
+  FXFile file(filename,FXIO::Writing);
+  if (file.isOpen()) {
+    return (file.writeBlock((void*)buffer.text(),buffer.length())==buffer.length());
+    }
+  return false;
+  }
+
+
 void gm_focus_and_select(FXTextField * textfield) {
   FXASSERT(textfield->id());
   textfield->setFocus();
