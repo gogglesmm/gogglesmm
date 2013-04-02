@@ -178,7 +178,8 @@ FXlong BufferIO::position(FXlong offset,FXuint from){
 
 FXival BufferIO::peekBlock(void* data,FXival n) {
 	if (isSerial()) {
-		FXival nr=0,avail;
+		FXival nr=0;
+    FXuval avail;
 
 		if (endptr-begptr<n && !setSpace(n)) 
 			return -1;
@@ -203,9 +204,9 @@ FXival BufferIO::peekBlock(void* data,FXival n) {
 		}
 	else {
 		FXlong pos = position();
-		FXival n = readBlock(data,n);
+		FXival nr = readBlock(data,n);
 		position(pos,FXIO::Begin);
-		return n;
+		return nr;
 		}
 	return -1;
 	}
