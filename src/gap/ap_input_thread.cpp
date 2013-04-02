@@ -254,7 +254,7 @@ FXint InputThread::run(){
           FXuint status = reader->process(packet);
           switch(status) {
             case ReadError    : GM_DEBUG_PRINT("[input] error\n");
-                                ctrl_close_input();
+                                ctrl_close_input(true);
                                 break;
             case ReadDone     : GM_DEBUG_PRINT("[input] done\n");
                                 set_state(StateIdle);
