@@ -84,11 +84,31 @@ FXbool HttpInput::open(const FXString & uri) {
   }
 
 FXival HttpInput::preview(void*data,FXival count) {
+  FXival n;
+
+  preview_buffer.reserve(count);
+
+  if (client.getContentLength()>=0) {
+    if (content_position>=client.getContentLength())
+      return -1;
+    else
+      count=FXMIN((client.getContentLength()-content_position),count);
+    }
+
+  if (icy_interval)
+    n=icy_read(data,count);
+  else
+    n=client.readBody(data,count);
+  
+  if (n>0)
+    preview_buffer.append(data,n);
+  
 	return -1;
   }
 
 FXival HttpInput::read(void * data,FXival count) {
-  FXival n;
+  FXival n,t;
+  FXuchar * p = (FXuchar*)data;
 
   /// Don't read past content
   if (client.getContentLength()>=0) {
@@ -98,15 +118,23 @@ FXival HttpInput::read(void * data,FXival count) {
       count=FXMIN((client.getContentLength()-content_position),count);
     }
 
+  // Read from preview buffer
+  if (preview_buffer.size()) {
+    n=preview_buffer.read(p,count);
+    if (0<n) { p+=n;count-=n; t+=n;}    
+    }
+
+  // Regular Read
   if (icy_interval)
     n=icy_read(data,count);
   else
     n=client.readBody(data,count);
 
-  if (n>0)
+  if (n>0) {
     content_position+=n;
-
-  return n;
+    t+=n;  
+    }
+  return t;
 	}
 
 FXlong HttpInput::position(FXlong offset,FXuint from) {

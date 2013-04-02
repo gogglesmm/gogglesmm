@@ -29,6 +29,7 @@ protected:
 	FXuint		 content_type;
   FXint 		 icy_interval;
   FXint      icy_count;
+  MemoryBuffer preview_buffer;
 private:
   HttpInput(const HttpInput&);
   HttpInput &operator=(const HttpInput&);
