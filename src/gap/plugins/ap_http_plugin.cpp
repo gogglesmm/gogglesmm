@@ -69,7 +69,6 @@ FXbool HttpInput::open(const FXString & uri) {
                                      "Accept: */*\r\n",0,1);
 
   if (client.basic("GET",uri,headers)) {
-		fxmessage("status = %d\n",client.status.code);
     if (client.status.code==HTTP_OK){
 
       check_headers();
@@ -86,16 +85,6 @@ FXbool HttpInput::open(const FXString & uri) {
 
 FXival HttpInput::preview(void*data,FXival count) {
 	return -1;
-	//return client.peekBlock(data,count);
-
-/*
-
-	FXlong pos = file.position();
-	FXival n = file.readBlock(data,count);
-	file.position(pos,FXIO::Begin);
-	return n;
-*/
-//	return -1;
   }
 
 FXival HttpInput::read(void * data,FXival count) {

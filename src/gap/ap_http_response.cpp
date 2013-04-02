@@ -182,14 +182,13 @@ FXbool HttpResponse::read_chunk_header(FXint & chunksize) {
   // We've read a previous chunk
   if (chunksize==0) {
     if (io.readBlock(clrf,2)!=2 || clrf[0]!='\r' || clrf[1]!='\n') {
-      fxwarning("http: missing line feed: %c%c\n",clrf[0],clrf[1]);
+      GM_DEBUG_PRINT("http: missing line feed: %c%c\n",clrf[0],clrf[1]);
       return false;
       }
     }
 
   if (io.readHeader(header,true)) {
     if (header.scan("%x",&chunksize)==1) {
-			fxmessage("chunk header \"%s\" => %d bytes\n",header.text(),chunksize);
       return true;
       }
     }

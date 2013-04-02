@@ -205,7 +205,6 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
     case Format::ASF      : return ap_asf_reader(engine); break;
     case Format::ASFX     : {
 
-
     FXchar buffer[1024];
     FXival nbuffer=0;
     nbuffer=engine->input->preview(buffer,1024);

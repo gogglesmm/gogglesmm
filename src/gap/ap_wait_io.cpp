@@ -101,7 +101,7 @@ FXbool WaitIO::wait(FXuchar mode) {
 	fds[0].fd    	= io->handle();
 	fds[0].events = (mode==WaitIO::Readable) ? POLLIN : POLLOUT;
 	if (watch!=BadHandle) {
-		fds[1].fd 	 = watch;
+		fds[1].fd 	  = watch;
 		fds[1].events = POLLIN;
 		nfds=2;
 		}

@@ -125,27 +125,4 @@ FXuint NBConnectionFactory::connect(FXIO * io,const struct sockaddr * address,FX
 	return Error;
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

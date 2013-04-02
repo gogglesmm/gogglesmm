@@ -88,7 +88,6 @@ void BufferIO::attach(FXIO * stream) {
 FXuval BufferIO::readBuffer(){
   register FXival m,n;
   if(dir==DirWrite) {fxerror("BufferIO::readBuffer: wrong io direction.\n");}
-	//fxmessage("rb=> %p : %p : %p : %p\n",begptr,rdptr,wrptr,endptr);
   FXASSERT(begptr<=rdptr);
   FXASSERT(rdptr<=wrptr);
   FXASSERT(wrptr<=endptr);
@@ -96,10 +95,8 @@ FXuval BufferIO::readBuffer(){
   if(m){memmove(begptr,rdptr,m);}
   rdptr=begptr;
   wrptr=begptr+m;
-	//fxmessage("readBuffer %ld\n",endptr-wrptr);
   n=io->readBlock(wrptr,endptr-wrptr);
   if(0<n){
-		//printf("readBuffer[%d] {{{%*s}}}\n",nn,nn,wrptr);
     wrptr+=n;
 	  }
 	dir = (wrptr>rdptr) ? DirRead : DirNone;
@@ -110,13 +107,11 @@ FXuval BufferIO::readBuffer(){
 FXuval BufferIO::writeBuffer(){
   register FXival m,n;
   if(dir==DirRead) {fxerror("BufferIO::writeBuffer: wrong io direction.\n");}
-	//fxmessage("wb=> %p : %p : %p : %p\n",begptr,rdptr,wrptr,endptr);
   FXASSERT(begptr<=rdptr);
   FXASSERT(rdptr<=wrptr);
   FXASSERT(wrptr<=endptr);
   m=wrptr-rdptr;
   n=io->writeBlock(rdptr,m);
-	//fxmessage("writeBuffer %ld\n",n);
   if(0<n){
     m-=n;
     if(m)
@@ -126,13 +121,11 @@ FXuval BufferIO::writeBuffer(){
     rdptr=begptr;
     wrptr=begptr+m;
     }
-	//fxmessage("wb=> %p : %p : %p : %p\n",begptr,rdptr,wrptr,endptr);
   return endptr-wrptr;
   }
 
 
 FXbool BufferIO::flushBuffer() {
-	fxmessage("flushBuffer %ld\n",wrptr-rdptr);
 	if (dir==DirWrite && wrptr>rdptr) {
 		FXuchar*p=wrptr;
 		while(wrptr>rdptr) {
