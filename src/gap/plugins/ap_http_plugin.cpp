@@ -39,11 +39,11 @@ namespace ap {
 
 
 HttpInput::HttpInput(InputThread * i) : InputPlugin(i),
-	content_position(0),
-	content_type(Format::Unknown),
+  content_position(0),
+  content_type(Format::Unknown),
   icy_interval(0),
   icy_count(0) {
-	client.setConnectionFactory(new NBConnectionFactory(input->getFifoHandle()));
+  client.setConnectionFactory(new NBConnectionFactory(input->getFifoHandle()));
   }
 
 HttpInput::~HttpInput() {
@@ -56,9 +56,9 @@ void HttpInput::check_headers() {
   if (field) icy_count = icy_interval = field->toInt();
 
   field = (FXString*) client.headers.find("content-type");
-	if (field) fxmessage("%s\n",field->text());
+  if (field) fxmessage("%s\n",field->text());
   if (field) content_type = ap_format_from_mime(field->before(';'));
-	}
+  }
 
 
 
@@ -99,15 +99,15 @@ FXival HttpInput::preview(void*data,FXival count) {
     n=icy_read(data,count);
   else
     n=client.readBody(data,count);
-  
+
   if (n>0)
     preview_buffer.append(data,n);
-  
-	return -1;
+
+  return -1;
   }
 
 FXival HttpInput::read(void * data,FXival count) {
-  FXival n,t;
+  FXival n,t=0;
   FXuchar * p = (FXuchar*)data;
 
   /// Don't read past content
@@ -121,7 +121,7 @@ FXival HttpInput::read(void * data,FXival count) {
   // Read from preview buffer
   if (preview_buffer.size()) {
     n=preview_buffer.read(p,count);
-    if (0<n) { p+=n;count-=n; t+=n;}    
+    if (0<n) { p+=n;count-=n; t+=n;}
     }
 
   // Regular Read
@@ -132,18 +132,18 @@ FXival HttpInput::read(void * data,FXival count) {
 
   if (n>0) {
     content_position+=n;
-    t+=n;  
+    t+=n;
     }
   return t;
-	}
+  }
 
 FXlong HttpInput::position(FXlong offset,FXuint from) {
-	return -1;
+  return -1;
   //return client->position(offset,from);
   }
 
 FXlong HttpInput::position() const {
-	return content_position;
+  return content_position;
   }
 
 FXlong HttpInput::size() {
@@ -162,7 +162,7 @@ FXbool HttpInput::serial() const {
   }
 
 FXuint HttpInput::plugin() const {
-	return content_type;
+  return content_type;
   }
 
 
