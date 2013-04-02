@@ -153,14 +153,19 @@ void unescape_html(FXString & value) {
 
 
 void parse_duration(const FXString & value,FXuint & d) {
+  //fxmessage("duration %s\n",value.text());
   FXint n = value.contains(":");
   FXint hh=0,mm=0,ss=0;
   switch(n) {
     case 2: value.scan("%d:%d:%d",&hh,&mm,&ss); break;
     case 1: value.scan("%d:%d",&mm,&ss); break;
     case 0: value.scan("%d",&ss); break;
+    default: fxmessage("oops\n"); break;
     };
+  //fxmessage("%d %d %d\n",hh,mm,ss);
   d=(hh*3600)+(mm*60)+ss;
+  if (d==0)
+    fxmessage("rss duration was 0: %s\n",value.text());
   }
 
 
@@ -751,11 +756,12 @@ GMPodcastUpdater::~GMPodcastUpdater() {
 
 
 FXint GMPodcastUpdater::run() {
-  GMQuery all_feeds(db,"SELECT id,url,date FROM feeds;");
+  GMQuery all_feeds(db,"SELECT id,url,local,date FROM feeds;");
   GMQuery all_items(db,"SELECT id,guid FROM feed_items WHERE feed = ?;");
   GMQuery del_items(db,"DELETE FROM feed_items WHERE id == ? AND NOT (flags&2);");
   GMQuery get_item(db,"SELECT id FROM feed_items WHERE feed == ? AND guid == ?;");
   GMQuery set_feed(db,"UPDATE feeds SET date = ? WHERE id = ?;");
+  GMQuery fix_time(db,"UPDATE feed_items SET time = ? WHERE feed = ? AND guid = ?;");
   GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, 0)");
 
 
@@ -765,12 +771,14 @@ FXint GMPodcastUpdater::run() {
   FXTime date;
   FXString url;
   FXString guid;
+  FXString feed_dir;
   FXint id,item_id;
 
   while(all_feeds.row()) {
     all_feeds.get(0,id);
     all_feeds.get(1,url);
-    all_feeds.get(2,date);
+    all_feeds.get(2,feed_dir);
+    all_feeds.get(3,date);
 
     HttpClient http;
 
@@ -781,7 +789,10 @@ FXint GMPodcastUpdater::run() {
     RssParser rss;
 
     rss.parse(feed);
-   // rss.feed.debug();
+
+    gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
+
+    //rss.feed.debug();
 
    fxmessage("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
 
@@ -820,6 +831,14 @@ FXint GMPodcastUpdater::run() {
         add_feed_item.set(6,rss.feed.items[i].time);
         add_feed_item.set(7,rss.feed.items[i].date);
         add_feed_item.execute();
+        }
+      else {
+        if (rss.feed.items[i].time) {
+          fix_time.set(0,rss.feed.items[i].time);
+          fix_time.set(1,id);
+          fix_time.set(2,rss.feed.items[i].id);
+          fix_time.execute();
+          }
         }
       }
 
