@@ -790,7 +790,7 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
     }
   else {
     bitrate = frame.bitrate();
-    if (bitrate>0)
+    if (bitrate>0 && input_end>input_start)
       stream_length =  (FXlong)frame.samplerate() * ((input_end-input_start) / (bitrate / 8) );
     }
   }
@@ -933,9 +933,9 @@ FXbool MadReader::parse_lyrics() {
   if (input->read(buf,9)!=9)
     return false;
 
-  if (comparecase(buf,"LYRICS200",9)==0){    
+  if (comparecase(buf,"LYRICS200",9)==0){
     input->position(input_end-15,FXIO::Begin);
-    if (input->read(buf,6)!=6)    
+    if (input->read(buf,6)!=6)
       return false;
 
     FXint size = FXString(buf,6).toInt();
@@ -1021,15 +1021,18 @@ ReadStatus MadReader::parse(Packet * packet) {
       buffer[0]=buffer[1];
       buffer[1]=buffer[2];
       buffer[2]=buffer[3];
-      if (input->read(&buffer[3],1)!=1)
+      if (input->read(&buffer[3],1)!=1){
         return ReadError;
+        }
       }
     else {
-      if (input->read(buffer,4)!=4)
+      if (input->read(buffer,4)!=4){
         return ReadError;
+        }
       }
 
     if (frame.validate(buffer)) {
+
 
       /// Success if we're able to fill up the packet!
       if (frame.size()>packet->space()) {
@@ -1061,13 +1064,10 @@ ReadStatus MadReader::parse(Packet * packet) {
         return ReadOk;
         }
 
+      /// Mark this frame as start of our file.
       if (!found) {
-        /// Mark this frame as start of our file.
         input_start = input->position() - 4;
-        if (!input->serial())
-          input_end = input->size();
-        else
-          input_end = -1;
+        input_end   = input->size();
         }
 
       readFrame(packet,frame);
@@ -1075,12 +1075,12 @@ ReadStatus MadReader::parse(Packet * packet) {
       if (!found) {
 
         if (!input->serial()) {
-      
+
           if (!parse_id3v1())
             return ReadError;
 
-          /* 
-             It's unspecified whether the lyrics frame comes 
+          /*
+             It's unspecified whether the lyrics frame comes
              before or after the ape frame, so check both
           */
           if (!parse_lyrics())
