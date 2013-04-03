@@ -24,6 +24,7 @@
 #include "GMTrack.h"
 #include "GMCover.h"
 #include "GMTag.h"
+#include "GMAudioPlayer.h"
 
 /// TagLib
 #include <fileref.h>
@@ -46,97 +47,6 @@
 #include "FXPNGImage.h"
 #include "FXJPGImage.h"
 
-
-
-class Base64Encoder {
-private:
-  static const FXchar base64[];
-private:
-  FXString out;
-  FXuchar  buffer[3];
-  FXint    nbuffer;
-  FXint    index;
-protected:
-  void encodeChunks(const FXuchar * in,FXint len) {
-
-    // resize buffer if needed
-    FXint needed = 4*(len/3);
-    if (index+needed>=out.length()) {
-      out.length(out.length()+needed-(out.length()-index));
-      }
-
-    for (int i=0;i<len;i+=3) {
-      out[index++]=base64[(in[i]>>2)];
-      out[index++]=base64[((in[i]&0x3)<<4)|(in[i+1]>>4)];
-      out[index++]=base64[((in[i+1]&0xf)<<2)|(in[i+2]>>6)];
-      out[index++]=base64[(in[i+2]&0x3f)];
-      }
-    }
-public:
-  Base64Encoder(FXint source_length=0) : nbuffer(0), index(0){
-    if (source_length)
-      out.length(4*(source_length/3));
-    }
-
-  void encode(FXuint value) {
-    encode((const FXuchar*)&value,4);
-    }
-
-
-  void encode(const FXuchar * in,FXint len) {
-    if (len) {
-      FXint rindex=0;
-
-      if (nbuffer) {
-        for (rindex=0;(nbuffer<3)&&(rindex<len);rindex++)
-          buffer[nbuffer++]=in[rindex];
-
-        if (nbuffer<3)
-          return;
-
-        encodeChunks(buffer,3);
-        len-=rindex;
-        nbuffer=0;
-        }
-
-      FXint r = len % 3;
-      FXint n = len - r;
-      if (n) encodeChunks(in+rindex,n);
-
-      for (int i=0;i<r;i++)
-        buffer[i]=in[rindex+n+i];
-
-      nbuffer=r;
-      }
-    }
-
-  void finish() {
-    if (nbuffer) {
-      if (index+4>=out.length()) {
-        out.length(out.length()+4-(out.length()-index));
-        }
-      out[index++]=base64[(buffer[0]>>2)];
-      if (nbuffer>1) {
-        out[index++]=base64[((buffer[0]&0x3)<<4)|(buffer[1]>>4)];
-        out[index++]=base64[((buffer[1]&0xf)<<2)];
-        out[index++]='=';
-        }
-      else {
-        out[index++]=base64[((buffer[0]&0x3)<<4)];
-        out[index++]='=';
-        out[index++]='=';
-        }
-      }
-    }
-
-
-
-
-
-  FXString & getOutput() { return out; }
-  };
-
-const FXchar Base64Encoder::base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 static FXbool to_int(const FXString & str,FXint & val){
   char * endptr=NULL;

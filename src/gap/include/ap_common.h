@@ -31,5 +31,40 @@ extern GMAPI FXbool ap_set_nonblocking(FXInputHandle fd);
 
 extern GMAPI void ap_set_thread_name(const FXchar *);
 
+
+class GMAPI Base64Encoder {
+private:
+  static const FXchar base64[];
+private:
+  FXString out;
+  FXuchar  buffer[3];
+  FXint    nbuffer;
+  FXint    index;
+protected:
+  void encodeChunks(const FXuchar * in,FXint len);
+public:
+  Base64Encoder(FXint source_length=0);
+
+  void encode(FXuint value);
+
+  void encode(const FXuchar * in,FXint len);
+
+  void encode(const FXString & str);
+
+  static FXString encodeString(const FXString &);
+
+  void finish();
+
+  FXString & getOutput() { return out; }
+  };
+
+
+
+
+
+
+
+
+
 }
 #endif

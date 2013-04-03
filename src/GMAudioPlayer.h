@@ -2,7 +2,7 @@
 #define GM_AUDIO_PLAYER_H
 
 #ifndef AP_H
-#include <ap.h>
+#include "ap.h"
 #endif
 
 #ifndef SEL_PLAYER_OFFSET

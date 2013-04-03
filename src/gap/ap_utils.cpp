@@ -116,10 +116,90 @@ void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,
 
 
 
+const FXchar Base64Encoder::base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
+Base64Encoder::Base64Encoder(FXint source_length) : nbuffer(0), index(0){
+  if (source_length)
+    out.length(4*(source_length/3));
+  }
 
+FXString Base64Encoder::encodeString(const FXString & source) {
+  Base64Encoder base64(source.length());
+  base64.encode(source);
+  base64.finish();
+  return base64.getOutput();
+  }
 
+void Base64Encoder::encode(FXuint value) {
+  encode((const FXuchar*)&value,4);
+  }
+
+void Base64Encoder::encode(const FXString & str) {
+  encode((const FXuchar*)str.text(),str.length());
+  }
+
+void Base64Encoder::encodeChunks(const FXuchar * in,FXint len) {
+
+  // resize buffer if needed
+  FXint needed = 4*(len/3);
+  if (index+needed>=out.length()) {
+    out.length(out.length()+needed-(out.length()-index));
+    }
+
+  for (int i=0;i<len;i+=3) {
+    out[index++]=base64[(in[i]>>2)];
+    out[index++]=base64[((in[i]&0x3)<<4)|(in[i+1]>>4)];
+    out[index++]=base64[((in[i+1]&0xf)<<2)|(in[i+2]>>6)];
+    out[index++]=base64[(in[i+2]&0x3f)];
+    }
+  }
+
+void Base64Encoder::finish() {
+  if (nbuffer) {
+    if (index+4>=out.length()) {
+      out.length(out.length()+4-(out.length()-index));
+      }
+    out[index++]=base64[(buffer[0]>>2)];
+    if (nbuffer>1) {
+      out[index++]=base64[((buffer[0]&0x3)<<4)|(buffer[1]>>4)];
+      out[index++]=base64[((buffer[1]&0xf)<<2)];
+      out[index++]='=';
+      }
+    else {
+      out[index++]=base64[((buffer[0]&0x3)<<4)];
+      out[index++]='=';
+      out[index++]='=';
+      }
+    }
+  }
+
+void Base64Encoder::encode(const FXuchar * in,FXint len) {
+  if (len) {
+    FXint rindex=0;
+
+    if (nbuffer) {
+      for (rindex=0;(nbuffer<3)&&(rindex<len);rindex++)
+        buffer[nbuffer++]=in[rindex];
+
+      if (nbuffer<3)
+        return;
+
+      encodeChunks(buffer,3);
+      len-=rindex;
+      nbuffer=0;
+      }
+
+    FXint r = len % 3;
+    FXint n = len - r;
+    if (n) encodeChunks(in+rindex,n);
+
+    for (int i=0;i<r;i++)
+      buffer[i]=in[rindex+n+i];
+
+    nbuffer=r;
+    }
+  }
 
 
 

@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_common.h"
 #include "ap_connect.h"
 #include "ap_buffer_io.h"
 #include "ap_http_response.h"
@@ -178,43 +179,6 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
   }
 
 
-
-static FXString ap_encode_base64(const FXString & source) {
-  const FXchar base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  const FXuchar * in = (const FXuchar*)source.text();
-  FXint remaining = source.length() % 3;
-  FXint length    = source.length() - remaining;
-  FXint n=0;
-  FXString out;
-
-  out.length(4*(source.length()/3));
-
-  for (int i=0;i<length;i+=3) {
-    out[n++]=base64[(in[i]>>2)];
-    out[n++]=base64[((in[i]&0x3)<<4)|(in[i+1]>>4)];
-    out[n++]=base64[((in[i+1]&0xf)<<2)|(in[i+2]>>6)];
-    out[n++]=base64[(in[i+2]&0x3f)];
-    }
-
-  if (remaining) {
-    out[n++]=base64[(in[length]>>2)];
-    if (remaining>1) {
-      out[n++]=base64[((in[length]&0x3)<<4)|(in[length+1]>>4)];
-      out[n++]=base64[((in[length+1]&0xf)<<2)|in[length+2]>>6];
-      out[n++]='=';
-      }
-    else {
-      out[n++]=base64[((in[length]&0x3)<<4)];
-      out[n++]='=';
-      out[n++]='=';
-      }
-    }
-  return out;
-  }
-
-
-
-
 FXbool HttpClient::basic(const FXchar*    method,
                          FXString         url,
                          const FXString & header,
@@ -267,7 +231,7 @@ FXbool HttpClient::basic(const FXchar*    method,
               FXString challenge = getHeader("www-authenticate");
 
               if (comparecase(challenge,"basic",5)==0) {
-                FXString auth = "Authorization: Basic " + ap_encode_base64(user+":"+password) + "\r\n";
+                FXString auth = "Authorization: Basic " + Base64Encoder::encodeString(user+":"+password) + "\r\n";
 
                 if (!request(method,url,header+auth,content)) {
                   return false;
