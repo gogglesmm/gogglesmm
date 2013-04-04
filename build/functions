@@ -357,7 +357,18 @@ check_gap_plugins()
 
 check_gap_packages()
 {
-  check_libxml2
+
+
+  if [  "$OPTION_GMM_XML" == "xml2" ] ; then
+    check_libxml2
+  else
+    add_gap_config "expat"
+    add_config "expat"
+    EXTRA_LIBS="$EXTRA_LIBS -lexpat"
+  fi
+  
+
+
   if [ $OPTION_GAP_OGG -eq 1 ] ; then
     add_gap_package "ogg >= 1.0" "ogg"
   fi

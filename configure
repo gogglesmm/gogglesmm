@@ -44,6 +44,7 @@ OPTION_GAP_SMB=0
 OPTION_GMM_DBUS=1
 OPTION_GMM_NLS=1
 OPTION_GMM_MD5=gcrypt
+OPTION_GMM_XML=expat
 OPTION_GMM_LIRC=0
 OPTION_GMM_OPENGL=1
 
@@ -177,6 +178,9 @@ for arg in $@; do
       FOX_PREFIX=${arg#*=}
       pkgconfig_add_path $FOX_PREFIX
       ;;
+    --with-xml=*)
+      OPTION_GMM_XML=${arg#*=}
+      ;;
     --with-md5=*)
       OPTION_GMM_MD5=${arg#*=}
       ;;
@@ -211,11 +215,12 @@ for arg in $@; do
       echo "   --without-rsound                Compile without rsound support"
       echo "   --without-avcodec               Compile without avcodec support"
       echo " "
-		  echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use.(gcrypt)"
- 		  echo "   --without-dbus                  Compile without dbus support"
- 		  echo "   --without-nls                   Compile without locale support"
- 		  echo "   --without-opengl                Compile without OpenGL support"
-			echo " "
+      echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use. default: gcrypt"
+      echo "   --with-xml=expat,xml2           Select which xml implementation to use. default: expat"
+      echo "   --without-dbus                  Compile without dbus support"
+      echo "   --without-nls                   Compile without locale support"
+      echo "   --without-opengl                Compile without OpenGL support"
+      echo " "
       echo "   --with-musepack                 Compile with musepack (sv7) support. "
       echo " "
       echo "   --fox-prefix=<p>                FOX prefix path"
@@ -225,7 +230,7 @@ for arg in $@; do
       echo "Install Directories: "
       echo "   --prefix=<p>                	   Install prefix (/usr)"
       echo "   --lib64                         Install in lib64 instead of lib"
-  		echo "   --localedir=<dir>               locale-dependent data (<prefix>/share/locale)"
+      echo "   --localedir=<dir>               locale-dependent data (<prefix>/share/locale)"
       echo " "
       exit 0
       ;;
@@ -338,7 +343,7 @@ echo "Build Setup:"
 
 echo "  Audio Plugins : "
 for arg in $PLUGINS; do
-	echo "                  $arg"
+  echo "                  $arg"
 done
 
 

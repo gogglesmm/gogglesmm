@@ -16,20 +16,21 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
+#include "ap_config.h"
 #include "ap_defs.h"
 #include "ap_utils.h"
 #include "ap_xml_parser.h"
 
-
-namespace ap {
-
-#ifdef USE_EXPAT
+#ifdef HAVE_EXPAT_PLUGIN
 #include <expat.h>
 #else
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <libxml/HTMLparser.h>
 #endif
+
+namespace ap {
+
 
 #define NUM_NODES 32
 
@@ -42,35 +43,55 @@ XmlParser::~XmlParser() {
   freeElms(nodes);
   }
 
-void XmlParser::element_start(void*ptr,const FXuchar*element,const FXuchar**attributes){
-  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
-  FXint node = 0;
-
-  if (parser->nodes[parser->level])
-    node = parser->begin((const FXchar*)element,(const FXchar**)attributes);
-
-  parser->level++;
-  if (parser->level==parser->nnodes){
-    parser->nnodes+=NUM_NODES;
-    resizeElms(parser->nodes,parser->nnodes);
+void XmlParser::element_start(const FXchar*element,const FXchar**attributes){
+  FXint n =0 ;
+  if (nodes[level])
+    n = begin(element,attributes);
+  level++;
+  if (level==nnodes){
+    nnodes+=NUM_NODES;
+    resizeElms(nodes,nnodes);
     }
-  parser->nodes[parser->level] = node;
+  nodes[level] = n;
   }
 
-void XmlParser::element_end(void*ptr,const FXuchar * element) {
-  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
-
-  if (parser->nodes[parser->level]){
-    parser->end((const FXchar*)element);
-    }
-
-  parser->level--; 
+void XmlParser::element_end(const FXchar * element) {
+  if (nodes[level])
+    end(element);
+  level--; 
   }
 
-void XmlParser::element_data(void*ptr,const FXuchar * data,FXint len) {
+void XmlParser::element_data(const FXchar * d,FXint len) {
+  if (nodes[level])
+    data(d,len);
+  }
+
+
+#ifdef HAVE_EXPAT_PLUGIN
+static void element_start(void*ptr,const FXchar*element,const FXchar**attributes){
+#else
+static void element_start(void*ptr,const FXuchar*element,const FXuchar**attributes){
+#endif
   XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
-  if (parser->nodes[parser->level])
-    parser->data((const FXchar*)data,len);
+  parser->element_start((const FXchar*)element,(const FXchar**)attributes);
+  }
+
+#ifdef HAVE_EXPAT_PLUGIN
+static void element_end(void*ptr,const FXchar * element) {
+#else
+static void element_end(void*ptr,const FXuchar * element) {
+#endif
+  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
+  parser->element_end((const FXchar*)element);
+  }
+
+#ifdef HAVE_EXPAT_PLUGIN
+static void element_data(void*ptr,const FXchar * data,FXint len) {
+#else
+static void element_data(void*ptr,const FXuchar * data,FXint len) {
+#endif
+  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
+  parser->element_data((const FXchar*)data,len);
   }
 
 
@@ -78,24 +99,25 @@ FXbool XmlParser::parse(const FXString & buffer) {
   return parseBuffer(buffer.text(),buffer.length());
   }
 
+
 FXbool XmlParser::parseBuffer(const FXchar * buffer,FXint length) {
-#ifdef USE_EXPAT
-  XML_Parser * parser = XML_ParserCreate(NULL);
+#ifdef HAVE_EXPAT_PLUGIN
+  XML_Parser parser = XML_ParserCreate(NULL);
   XML_SetUserData((XML_Parser)parser,this);
-  XML_SetElementHandler((XML_Parser)parser,element_start,element_end);
-  XML_SetCharacterDataHandler((XML_Parser)parser,element_data);
+  XML_SetElementHandler((XML_Parser)parser,ap::element_start,ap::element_end);
+  XML_SetCharacterDataHandler((XML_Parser)parser,ap::element_data);
   XML_Status code = XML_Parse((XML_Parser)parser,buffer,length,1);
   if (code==XML_STATUS_ERROR) {
-    xml_print_error();
+    //xml_print_error();
     return false;
     }
   XML_ParserFree(parser);
 #else
   xmlSAXHandler sax;
   memset(&sax,0,sizeof(xmlSAXHandler));
-  sax.startElement = &element_start;
-  sax.endElement = &element_end;
-  sax.characters = &element_data;
+  sax.startElement = &ap::element_start;
+  sax.endElement = &ap::element_end;
+  sax.characters = &ap::element_data;
   xmlSAXUserParseMemory(&sax,this,buffer,length);
 #endif
   return true;
@@ -111,12 +133,13 @@ HtmlParser::~HtmlParser() {
 
 
 FXbool HtmlParser::parseBuffer(const FXchar * buffer,FXint length) {
+#ifndef HAVE_EXPAT_PLUGIN
   xmlSAXHandler sax;
 
   memset(&sax,0,sizeof(xmlSAXHandler));
-  sax.startElement = &element_start;
-  sax.endElement = &element_end;
-  sax.characters = &element_data;
+  sax.startElement = &ap::element_start;
+  sax.endElement = &ap::element_end;
+  sax.characters = &ap::element_data;
 
   htmlParserCtxtPtr ctxt;
 
@@ -132,7 +155,9 @@ FXbool HtmlParser::parseBuffer(const FXchar * buffer,FXint length) {
 
   htmlFreeParserCtxt(ctxt);
   return true;
+#else
+  return false;
+#endif
   }
-
 
 }

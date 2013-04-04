@@ -26,12 +26,12 @@ private:
   FXint* nodes;
   FXint  nnodes;
   FXint  level;
+public:
+  void element_start(const FXchar*,const FXchar**);
+  void element_end(const FXchar * element);
+  void element_data(const FXchar * d,FXint len);
 protected:
-  static void element_start(void*,const FXuchar*,const FXuchar**);
-  static void element_end(void*,const FXuchar*);
-  static void element_data(void*,const FXuchar*,FXint);
-protected:
-  virtual FXint begin(const FXchar *,const FXchar**) { return Elem_Skip;}
+  virtual FXint begin(const FXchar*,const FXchar**) { return Elem_Skip;}
   virtual void data(const FXchar *,FXint) {}
   virtual void end(const FXchar *){}
   FXint node() const { return nodes[level]; }
@@ -48,12 +48,14 @@ public:
   virtual ~XmlParser();
   };
 
+
 class GMAPI HtmlParser : public XmlParser {
 public:
   HtmlParser();
   virtual FXbool parseBuffer(const FXchar * buffer,FXint length);
   virtual ~HtmlParser();
   };
+
 
 }
 #endif

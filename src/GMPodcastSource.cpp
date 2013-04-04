@@ -67,6 +67,7 @@ FXString gm_rfc1123(FXTime time) {
 
 //-----------------------------------------------------------------------------
 
+#ifndef HAVE_EXPAT
 
 struct FeedLink {
   FXString description;
@@ -138,6 +139,7 @@ public:
     }
   };
 
+#endif
 //-----------------------------------------------------------------------------
 
 
@@ -443,6 +445,7 @@ public:
     return 1;
     }
 
+#ifndef HAVE_EXPAT
   FXint select_feed(const FXArray<FeedLink> & links){
     if (links.no()>1) {
       GMThreadDialog dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Select Feed"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
@@ -466,6 +469,7 @@ public:
       }
     return -1;
     }
+#endif
 
   FXint run() {
     HttpClient client;
@@ -480,6 +484,7 @@ public:
         rss.parse(client.body());
         return 0;
         }
+#ifndef HAVE_EXPAT
       else if (comparecase(content,"text/html")==0) {
         HtmlFeedParser html;
         html.parse(client.body());
@@ -495,6 +500,7 @@ public:
           continue;
           }
         }
+#endif
       break;
       }
     while(1);
