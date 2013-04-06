@@ -26,6 +26,7 @@ class GMIconTheme;
 class GMPreferencesDialog;
 class GMImageView;
 class GMCover;
+class GMAnimImage;
 
 enum {
   SHOW_NORMAL,
@@ -88,6 +89,7 @@ private:
   FXHorizontalFrame * progressbar;
   FXLabel           * progressbar_label;
   FXHorizontalFrame * progressbar_cancelbutton;
+  GMAnimImage       * progressbar_animation;
   GMRemote          * remote;
 private:
   void configureToolbar(FXbool docktop,FXbool init=false);

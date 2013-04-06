@@ -749,11 +749,13 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
     ic=loadIcon(name);  
 
   if (ic==NULL) {
+    //fxmessage("%s\n",value);
     ic = new FXIcon(app,NULL,0,IMAGE_OWNED,size,size);
+    ic->fill(blendcolor);
     }
-  else {
-    FXFile::copyFiles(name,FXString::value("/home/sxj/gmm/x%d_%s",size,FXPath::name(name).substitute('-','_').text()),true);
-    }
+//  else {
+//    FXFile::copyFiles(name,FXString::value("/home/sxj/gmm/x%d_%s",size,FXPath::name(name).substitute('-','_').text()),true);
+//    }
 
 
   if (icon) {
@@ -986,7 +988,7 @@ void GMIconTheme::loadExternal() {
   loadSmall(icon_folder_small,"folder",backcolor);
   loadMedium(icon_folder_big,"folder",backcolor);
 
-  loadSmall(icon_progress,"process-working.png",basecolor);
+  loadSmall(icon_progress,"process-working",basecolor);
   }
 
 

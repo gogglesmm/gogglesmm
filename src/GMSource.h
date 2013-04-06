@@ -95,16 +95,7 @@ typedef FXint (*GMTrackListSortFunc)(const GMTrackItem*,const GMTrackItem*);
 
 class GMSource : public FXObject {
 FXDECLARE(GMSource)
-/*
 protected:
-  FXString settingkey;
-  FXString name;
-  FXuint   sourcetype;
-*/
-protected:
-//	FXIntList genre_selection;
-//	FXIntList artist_selection;
-//	FXIntList album_selection;
   FXint current_track;
   GMTrackListSortFunc sort_browse;
 private:

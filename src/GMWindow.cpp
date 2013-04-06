@@ -184,16 +184,14 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   progressbar = new FXHorizontalFrame(statusbar,LAYOUT_LEFT|FRAME_NONE,0,0,0,0,3,3,0,0);
 
-  GMAnimImage *animation = new GMAnimImage(progressbar,GMIconTheme::instance()->icon_progress,GMIconTheme::instance()->getSmallSize(),FRAME_NONE|LAYOUT_CENTER_Y);
-  animation->setBackColor(getApp()->getBaseColor());
-
-
-//  progressbar_animation = new GMAnimImage(progressbar,
+  progressbar_animation = new GMAnimImage(progressbar,GMIconTheme::instance()->icon_progress,GMIconTheme::instance()->getSmallSize(),FRAME_NONE|LAYOUT_CENTER_Y);
+  progressbar_animation->setBackColor(getApp()->getBaseColor());
   progressbar_label = new FXLabel(progressbar,FXString::null,NULL,LAYOUT_CENTER_Y|JUSTIFY_CENTER_Y);
   new GMButton(progressbar,tr("\tCancel Task\tCancel Task"),GMIconTheme::instance()->icon_close,GMPlayerManager::instance(),GMPlayerManager::ID_CANCEL_TASK,BUTTON_TOOLBAR|FRAME_RAISED);
   new FXSeparator(progressbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
 
   progressbar->reparent(statusbar,statusbar->getStatusLine());
+  progressbar_animation->hide();  
   progressbar->hide();
 
   FXVerticalFrame * mainframe = new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -1505,13 +1503,15 @@ long GMWindow::onUpdPlayQueue(FXObject*sender,FXSelector,void*){
 
 void GMWindow::setStatus(const FXString & msg){
   if (!msg.empty()) {
-    if (!progressbar->shown())
+    if (!progressbar->shown()) {
       progressbar->show();
-
+      progressbar_animation->show();
+      }
     progressbar_label->setText(msg);
     }
   else {
     progressbar->hide();
+    progressbar_animation->hide();
     progressbar_label->setText(FXString::null);
     }
   }
