@@ -66,7 +66,7 @@ endif
 	@$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(sharedir)/icons/hicolor/22x22/apps/gogglesmm.png
 	@$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(sharedir)/icons/hicolor/24x24/apps/gogglesmm.png
 	@$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(sharedir)/icons/hicolor/32x32/apps/gogglesmm.png
-	@$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(sharedir)icons/hicolor/48x48/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(sharedir)/icons/hicolor/48x48/apps/gogglesmm.png
 	@$(INSTALL) -m 644 -D extra/gogglesmm.svg $(sharedir)/icons/hicolor/scalable/apps/gogglesmm.svg
 	@echo "    Done."
 
