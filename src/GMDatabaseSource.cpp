@@ -574,18 +574,6 @@ FXbool GMDatabaseSource::listTags(GMList * list,FXIcon * icon) {
   return true;
   }
 
-static void gm_query_make_selection(const FXIntList & list,FXString & selection){
-  if (list.no()>1) {
-    selection=FXString::value(" IN ( %d",list[0]);
-    for (FXint i=1;i<list.no();i++){
-      selection+=FXString::value(",%d",list[i]);
-      }
-    selection+=") ";
-    }
-  else if(list.no()==1) {
-    selection=FXString::value(" == %d ",list[0]);
-    }
-  }
 
 #if 0
 
@@ -664,7 +652,7 @@ FXbool GMDatabaseSource::listArtists(GMList * list,FXIcon * icon,const FXIntList
   FXString query;
   FXString filterquery;
 
-  gm_query_make_selection(taglist,tagselection);
+  GMQuery::makeSelection(taglist,tagselection);
 
 
   GM_TICKS_START();
@@ -724,8 +712,8 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
   FXString tagselection;
   FXString artistselection;
 
-  gm_query_make_selection(taglist,tagselection);
-  gm_query_make_selection(artistlist,artistselection);
+  GMQuery::makeSelection(taglist,tagselection);
+  GMQuery::makeSelection(artistlist,artistselection);
 
 
   GM_TICKS_START();
@@ -846,8 +834,8 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
   FXString tagselection;
   FXString albumselection;
 
-  gm_query_make_selection(taglist,tagselection);
-  gm_query_make_selection(albumlist,albumselection);
+  GMQuery::makeSelection(taglist,tagselection);
+  GMQuery::makeSelection(albumlist,albumselection);
 
   GMDBTrackItem * item;
 

@@ -362,6 +362,18 @@ void GMQuery::get(FXint p,FXuchar *& data,FXuval & size){
   }
 
 
+void GMQuery::makeSelection(const FXIntList & list,FXString & selection) {
+  if (list.no()>1) {
+    selection=FXString::value(" IN ( %d",list[0]);
+    for (FXint i=1;i<list.no();i++){
+      selection+=FXString::value(",%d",list[i]);
+      }
+    selection+=") ";
+    }
+  else if(list.no()==1) {
+    selection=FXString::value(" == %d ",list[0]);
+    }
+  }
 
 
 

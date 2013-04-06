@@ -1018,24 +1018,11 @@ FXbool GMPodcastSource::listTags(GMList * list,FXIcon * icon){
   return true;
   }
 
-static void gm_query_make_selection(const FXIntList & list,FXString & selection){
-  if (list.no()>1) {
-    selection=FXString::value(" IN ( %d",list[0]);
-    for (FXint i=1;i<list.no();i++){
-      selection+=FXString::value(",%d",list[i]);
-      }
-    selection+=") ";
-    }
-  else if(list.no()==1) {
-    selection=FXString::value(" == %d ",list[0]);
-    }
-  }
-
 FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXIntList & taglist){
   FXString q = "SELECT id,title FROM feeds";
   if (taglist.no()) {
     FXString tagselection;  
-    gm_query_make_selection(taglist,tagselection);
+    GMQuery::makeSelection(taglist,tagselection);
     q += " WHERE tag " + tagselection;
     }
 
@@ -1063,8 +1050,8 @@ FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXI
 
 FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & taglist){
   FXString selection,tagselection;
-  gm_query_make_selection(albumlist,selection);
-  gm_query_make_selection(taglist,tagselection);
+  GMQuery::makeSelection(albumlist,selection);
+  GMQuery::makeSelection(taglist,tagselection);
 
   FXString query = "SELECT feed_items.id,feed_items.title,time,feed_items.date,flags FROM feed_items, feeds"; 
   query+=" WHERE feeds.id == feed_items.feed";
