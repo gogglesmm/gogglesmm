@@ -36,7 +36,7 @@ enum {
 
 class GMTrack{
 public:
-  FXString      mrl;
+  FXString      url;
   FXString      title;
   FXString      artist;
   FXString      album;

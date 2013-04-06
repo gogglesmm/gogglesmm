@@ -476,7 +476,7 @@ FXbool create(FXString & result,const GMTrack & track, const FXString & format,c
 
   /// Make absolute
   if (!FXPath::isAbsolute(path)) {
-    path = FXPath::absolute(FXPath::directory(track.mrl),path);
+    path = FXPath::absolute(FXPath::directory(track.url),path);
     }
 
   /// Simplify things
@@ -488,9 +488,9 @@ FXbool create(FXString & result,const GMTrack & track, const FXString & format,c
   /// Add extension
   result+=".";
   if (options&LOWERCASE_EXTENSION || options&LOWERCASE)
-    result.append(FXPath::extension(track.mrl).lower());
+    result.append(FXPath::extension(track.url).lower());
   else
-    result.append(FXPath::extension(track.mrl));
+    result.append(FXPath::extension(track.url));
   return true;
   }
 
@@ -511,15 +511,15 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
   /// Remove path components from the front that are not part of the mask
   /// Or if the mask doesn't specifiy path components, we just take the title of the filename.
   if (nsep) {
-    input=FXPath::title(track.mrl);
-    FXString dir=FXPath::directory(track.mrl);
+    input=FXPath::title(track.url);
+    FXString dir=FXPath::directory(track.url);
     for (i=0;i<nsep;i++) {
       input = FXPath::name(dir) + PATHSEPSTRING + input;
       dir=FXPath::upLevel(dir);
       }
     }
   else {
-    input=FXPath::title(track.mrl);
+    input=FXPath::title(track.url);
     }
 
   // Start from fresh

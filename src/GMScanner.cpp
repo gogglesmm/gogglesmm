@@ -129,9 +129,9 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
 
   /// Path
   if (!pid) {
-    pid = insertPath(FXPath::directory(track.mrl));
+    pid = insertPath(FXPath::directory(track.url));
     FXASSERT(pid);
-    if (!pid) fxmessage("pid==0 for %s\n",FXPath::directory(track.mrl).text());
+    if (!pid) fxmessage("pid==0 for %s\n",FXPath::directory(track.url).text());
     }
 
   /// Artist
@@ -461,7 +461,7 @@ void GMImportTask::fixEmptyTags(GMTrack & track,FXint n) {
 
 
 void GMImportTask::parse(const FXString & filename,FXint n,GMTrack & info){
-  info.mrl=filename;
+  info.url=filename;
   switch(options.parse_method) {
     case GMImportOptions::PARSE_TAG      : info.loadTag(filename);
                                            break;
@@ -489,7 +489,7 @@ void GMImportTask::fixAlbumArtist(GMTrack * tracks,FXint no){
 
   /// Tracks should all have the same album name
   for (i=1;i<no;i++){
-    if (!tracks[i].mrl.empty()) {
+    if (!tracks[i].url.empty()) {
       if (tracks[i].album!=tracks[0].album) {
         return;
         }
@@ -505,7 +505,7 @@ void GMImportTask::fixAlbumArtist(GMTrack * tracks,FXint no){
 
   /// All tracks should have album_artist==artist
   for (i=0;i<no;i++){
-    if (!tracks[i].mrl.empty()) continue;
+    if (!tracks[i].url.empty()) continue;
     if (tracks[i].album_artist!=tracks[i].artist) {
       return;
       }
@@ -637,7 +637,7 @@ void GMImportTask::listDirectory(const FXString & path) {
       if (database->interrupt)
         database->waitTask();
 
-      if (tracks[i].mrl.empty()) {
+      if (tracks[i].url.empty()) {
         if (playlist && tids[i])
           dbtracks.add2playlist(playlist,tids[i],queue++);
         }

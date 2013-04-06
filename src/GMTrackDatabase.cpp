@@ -1057,7 +1057,7 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
     //begin();
     query_track.set(0,tid);
     if (query_track.row()) {
-      query_track.get( 0,track.mrl);
+      query_track.get( 0,track.url);
       query_track.get( 1,track.album);
       query_track.get( 2,track.album_artist);
       query_track.get( 3,track.artist);
@@ -1097,7 +1097,7 @@ FXbool GMTrackDatabase::getTracks(const FXIntList & tids,GMTrackArray & tracks){
     for (FXint i=0;i<tids.no();i++) {
       query_track.set(0,tids[i]);
       if (query_track.row()) {
-        query_track.get( 0,tracks[i].mrl);
+        query_track.get( 0,tracks[i].url);
         query_track.get( 1,tracks[i].album);
         query_track.get( 2,tracks[i].album_artist);
         query_track.get( 3,tracks[i].artist);
@@ -1747,7 +1747,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
     if (playlist)
       getPlaylistName(playlist,title);
 
-    query = "SELECT pathlist.name || '" PATHSEPSTRING "' || mrl,title,artists.name,albums.name,no,time,tracks.year "
+    query = "SELECT pathlist.name || '" PATHSEPSTRING "' || url,title,artists.name,albums.name,no,time,tracks.year "
             "FROM tracks,pathlist, albums, artists";
 
     if (playlist)

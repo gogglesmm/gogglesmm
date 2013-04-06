@@ -201,7 +201,7 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
 
 
 DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessage * msg,void * data){
-  FXchar * mrl;
+  FXchar * url;
   GMPlayerManager * p = (GMPlayerManager*)data;
   if (dbus_message_has_path(msg,GOGGLESMM_DBUS_PATH)){
     if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"play")){
@@ -229,8 +229,8 @@ DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessa
       return gm_dbus_reply_if_needed(connection,msg);
       }
     else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"open")){
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&mrl,DBUS_TYPE_INVALID)) {
-        p->open(mrl);
+      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&url,DBUS_TYPE_INVALID)) {
+        p->open(url);
         }
       return gm_dbus_reply_if_needed(connection,msg);
       }
@@ -1163,7 +1163,7 @@ void GMPlayerManager::open(const FXString & url) {
     source=NULL;
     }
 
-  trackinfo.mrl = url;
+  trackinfo.url = url;
 
   if (gm_is_local_file(url)) {
     FXint id;
@@ -1224,7 +1224,7 @@ void GMPlayerManager::playItem(FXuint whence) {
   if (source) {
     getTrackView()->mark(track);
     trackinfoset = source->getTrack(trackinfo);
-    player->open(trackinfo.mrl,true);
+    player->open(trackinfo.url,true);
     }
   else {
     player->stop();
@@ -1356,7 +1356,7 @@ void GMPlayerManager::notify_playback_finished() {
     trackinfoset = source->getTrack(trackinfo);
     }
 
-  player->open(trackinfo.mrl,false);
+  player->open(trackinfo.url,false);
   }
 
 FXbool GMPlayerManager::playing() const {
@@ -1412,7 +1412,7 @@ void GMPlayerManager::setStatus(const FXString & text){
   }
 
 void GMPlayerManager::update_cover_display() {
-  if (preferences.gui_show_playing_albumcover && covermanager->load(trackinfo.mrl)) {
+  if (preferences.gui_show_playing_albumcover && covermanager->load(trackinfo.url)) {
     mainwindow->update_cover_display();
     }
   }

@@ -72,8 +72,8 @@ FXbool GMLocalSource::hasCurrentTrack(GMSource * src) const {
 FXbool GMLocalSource::getTrack(GMTrack & track) const {
 //  GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(current_track);
 
-  track.mrl=path+PATHSEPSTRING+files[current_track-1];
-  track.loadTag(track.mrl);
+  track.url=path+PATHSEPSTRING+files[current_track-1];
+  track.loadTag(track.url);
 //  fxmessage("mrl: %s\n",track.mrl.text());
   return true;
   }

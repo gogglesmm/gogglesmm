@@ -142,7 +142,6 @@ public:
 
   virtual void shuffle(GMTrackList*,FXuint) const{}
 
-
   GMTrackListSortFunc getSortBrowse() const { return sort_browse; }
 
   virtual FXint getSortColumn(FXbool browse) const { if (browse) return HEADER_BROWSE; else return HEADER_ARTIST; }

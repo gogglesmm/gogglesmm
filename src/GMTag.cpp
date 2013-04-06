@@ -1014,7 +1014,7 @@ void init(){
 
 FXbool length(GMTrack & info) {
   GMFileTag tags;
-  if (!tags.open(info.mrl,FILETAG_AUDIOPROPERTIES))
+  if (!tags.open(info.url,FILETAG_AUDIOPROPERTIES))
     return false;
   info.time = tags.getTime();
   return true;

@@ -976,11 +976,11 @@ FXbool GMPodcastSource::getTrack(GMTrack & info) const {
   FXString localdir;
   q.set(0,current_track);
   if (q.row()) {
-    q.get(0,info.mrl);
+    q.get(0,info.url);
     q.get(1,local);
     q.get(2,localdir);
     if (!local.empty()){
-      info.mrl = GMApp::getPodcastDirectory() + PATHSEPSTRING + localdir + PATHSEPSTRING + local;
+      info.url = GMApp::getPodcastDirectory() + PATHSEPSTRING + localdir + PATHSEPSTRING + local;
       }
     info.artist       = q.get(3);
     info.album_artist = q.get(3);
