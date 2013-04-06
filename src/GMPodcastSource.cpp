@@ -1013,29 +1013,8 @@ FXbool GMPodcastSource::listTags(GMList * list,FXIcon * icon){
   while(q.row()){
       q.get(0,id);
       c_title = q.get(1);
-      list->appendItem(c_title,icon);
+      list->appendItem(c_title,icon,(void*)(FXival)id);
       }
-  return true;
-  }
-
-
-FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXIntList &){
-  GMQuery q(db,"SELECT id,title FROM feeds");
-  const FXchar * c_title;
-  FXint id;
-  GMAlbumListItem* item;
-  while(q.row()){
-      q.get(0,id);
-      c_title = q.get(1);
-      item = new GMAlbumListItem(FXString::null,c_title,0,id);
-      list->appendItem(item);
-      }
-
-  list->sortItems();
-  if (list->getNumItems()>1){
-    FXString all = FXString::value(fxtrformat("All %d Feeds"),list->getNumItems());
-    list->prependItem(new GMAlbumListItem(all,all,0,-1));
-    }
   return true;
   }
 
@@ -1052,12 +1031,50 @@ static void gm_query_make_selection(const FXIntList & list,FXString & selection)
     }
   }
 
-FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & /*genre*/){
-  FXString selection;
-  gm_query_make_selection(albumlist,selection);
-  FXString query = "SELECT id,title,time,date,flags FROM feed_items WHERE feed ";
-  query+=selection;
+FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXIntList & taglist){
+  FXString q = "SELECT id,title FROM feeds";
+  if (taglist.no()) {
+    FXString tagselection;  
+    gm_query_make_selection(taglist,tagselection);
+    q += " WHERE tag " + tagselection;
+    }
 
+  GMQuery query;
+  query = db->compile(q);
+
+  const FXchar * c_title;
+  FXint id;
+  GMAlbumListItem* item;
+  while(query.row()){
+      query.get(0,id);
+      c_title = query.get(1);
+      item = new GMAlbumListItem(FXString::null,c_title,0,id);
+      list->appendItem(item);
+      }
+
+  list->sortItems();
+  if (list->getNumItems()>1){
+    FXString all = FXString::value(fxtrformat("All %d Feeds"),list->getNumItems());
+    list->prependItem(new GMAlbumListItem(all,all,0,-1));
+    }
+  return true;
+  }
+
+
+FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & taglist){
+  FXString selection,tagselection;
+  gm_query_make_selection(albumlist,selection);
+  gm_query_make_selection(taglist,tagselection);
+
+  FXString query = "SELECT feed_items.id,feed_items.title,time,feed_items.date,flags FROM feed_items, feeds"; 
+  query+=" WHERE feeds.id == feed_items.feed";
+
+  if (albumlist.no())    
+    query+=" AND feed " + selection;
+
+  if (taglist.no()) 
+    query+=" AND feeds.tag " + tagselection;
+  
   GMQuery q(db,query.text());
   const FXchar * c_title;
   FXint id;
