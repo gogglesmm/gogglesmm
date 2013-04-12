@@ -111,6 +111,7 @@ FXint HttpStatus::type() const {
 
 HttpResponse::HttpResponse() :
   content_length(-1),
+  content_remaining(-1),
   chunk_remaining(-1),
   flags(0){
   }
@@ -156,7 +157,7 @@ void HttpResponse::check_headers() {
 
   field = (FXString*) headers.find("content-length");
   if (field)
-    content_length = field->toInt();
+    content_length = content_remaining = field->toInt();
 
   field = (FXString*) headers.find("transfer-encoding");
   if (field && field->contains("chunked") )
@@ -280,10 +281,10 @@ fail:
 
 
 FXival HttpResponse::read_body(void*ptr,FXival len) {
-  if (content_length >= 0) {
+  if (content_remaining >= 0) {
     FXchar * data = (FXchar*)ptr;
-    FXival n = io.readBlock(data,FXMIN(content_length,len));
-    if (n>0) content_length-=n;
+    FXival n = io.readBlock(data,FXMIN(content_remaining,len));
+    if (n>0) content_remaining-=n;
     return n;
     }
   else {
