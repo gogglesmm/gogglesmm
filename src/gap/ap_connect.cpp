@@ -17,6 +17,9 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_pipe.h"
+#include "ap_event_queue.h"
+#include "ap_thread_queue.h"
 
 #ifndef WIN32
 #include <unistd.h> // for close()
@@ -27,6 +30,8 @@
 #include <netdb.h> // for getaddrinfo()
 #endif
 
+
+
 #include "ap_connect.h"
 #include "ap_wait_io.h"
 #include "ap_socket.h"
@@ -35,28 +40,28 @@
 namespace ap {
 
 ConnectionFactory::ConnectionFactory(){
-	}
+  }
 
 ConnectionFactory::~ConnectionFactory(){
-	}
+  }
 
 FXIO* ConnectionFactory::create(FXint domain,FXint type,FXint protocol){
-	Socket * s = Socket::create(domain,type,protocol,0);
-	if (s) {
-		s->setReceiveTimeout(10000000000);
-		s->setSendTimeout(10000000000);
-		return s;
-		}
-	return NULL;
-	}
+  Socket * s = Socket::create(domain,type,protocol,0);
+  if (s) {
+    s->setReceiveTimeout(10000000000);
+    s->setSendTimeout(10000000000);
+    return s;
+    }
+  return NULL;
+  }
 
 FXuint ConnectionFactory::connect(FXIO * socket,const struct sockaddr * address,FXint address_len) {
-	FXIODevice * device  = dynamic_cast<FXIODevice*>(socket);
+  FXIODevice * device  = dynamic_cast<FXIODevice*>(socket);
   if (::connect(device->handle(),address,address_len)==0){
-		return Connected;
-		}
-	return Error;
-	}
+    return Connected;
+    }
+  return Error;
+  }
 
 FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
   struct addrinfo   hints;
@@ -73,56 +78,69 @@ FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
   if (result) return NULL;
 
   for (item=list;item;item=item->ai_next){
-		FXIO * io = create(item->ai_family,item->ai_socktype,item->ai_protocol);
-		if (io==NULL)
-			continue;
+    FXIO * io = create(item->ai_family,item->ai_socktype,item->ai_protocol);
+    if (io==NULL)
+      continue;
 
-		switch(connect(io,item->ai_addr,item->ai_addrlen)){
-			case Connected : freeaddrinfo(list); return io; break;
-			case Error		 : delete io; break;
-			default				 : delete io; freeaddrinfo(list); return NULL; break;
-			}
-		}
+    switch(connect(io,item->ai_addr,item->ai_addrlen)){
+      case Connected : freeaddrinfo(list); return io; break;
+      case Error		 : delete io; break;
+      default				 : delete io; freeaddrinfo(list); return NULL; break;
+      }
+    }
 
-	if (list) {
-		freeaddrinfo(list);
-		}
-	return NULL;
-	}
+  if (list) {
+    freeaddrinfo(list);
+    }
+  return NULL;
+  }
 
 
 NBConnectionFactory::NBConnectionFactory(FXInputHandle w) : watch(w) {
-	}
+  }
 
 
 FXIO * NBConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
-	Socket * s = Socket::create(domain,type,protocol,FXIO::NonBlocking);
-	if (s) {
-		s->setReceiveTimeout(10000000000);
-		s->setSendTimeout(10000000000);
-		return new WaitIO(s,watch,10000000000);
-		}
-	return NULL;
-	}
+  Socket * s = Socket::create(domain,type,protocol,FXIO::NonBlocking);
+  if (s) {
+    s->setReceiveTimeout(10000000000);
+    s->setSendTimeout(10000000000);
+    return new WaitIO(s,watch,10000000000);
+    }
+  return NULL;
+  }
 
 
 FXuint NBConnectionFactory::connect(FXIO * io,const struct sockaddr * address,FXint address_len) {
-	WaitIO * wio = dynamic_cast<WaitIO*>(io);
-	FXASSERT(wio);
-	Socket * sio = dynamic_cast<Socket*>(wio->getDevice());
-	if (::connect(sio->handle(),address,address_len)==0) {
-		return Connected;
-		}
- 	if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-		if (wio->wait(WaitIO::Writable)) {
-			if (sio->getError()==0)
-				return Connected;
-			}
-		else {
-			return Abort;
-			}
-		}
-	return Error;
-	}
+  WaitIO * wio = dynamic_cast<WaitIO*>(io);
+  FXASSERT(wio);
+  Socket * sio = dynamic_cast<Socket*>(wio->getDevice());
+  if (::connect(sio->handle(),address,address_len)==0) {
+    return Connected;
+    }
+  if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
+    if (wio->wait(WaitIO::Writable)==0) {
+      if (sio->getError()==0)
+        return Connected;
+      }
+    else {
+      return Abort;
+      }
+    }
+  return Error;
+  }
 
+ThreadConnectionFactory::ThreadConnectionFactory(ThreadQueue * q) : NBConnectionFactory(q->handle()), fifo(q){
+  }
+
+
+FXIO * ThreadConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
+  Socket * s = Socket::create(domain,type,protocol,FXIO::NonBlocking);
+  if (s) {
+    s->setReceiveTimeout(10000000000);
+    s->setSendTimeout(10000000000);
+    return new ThreadIO(s,fifo,10000000000);
+    }
+  return NULL;
+  }
 }

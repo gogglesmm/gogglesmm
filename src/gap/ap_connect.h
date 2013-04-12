@@ -52,6 +52,18 @@ public:
 	NBConnectionFactory(FXInputHandle);
 	};
 
+class ThreadQueue;
+
+/* InputThread Connection Factory */
+class ThreadConnectionFactory  : public NBConnectionFactory {
+protected:
+	ThreadQueue*fifo;
+protected:
+	virtual FXIO * create(FXint domain,FXint type,FXint protocol);
+public:
+	ThreadConnectionFactory(ThreadQueue*);
+  };
+
 
 }
 #endif

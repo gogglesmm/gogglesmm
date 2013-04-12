@@ -212,7 +212,7 @@ Packet * DecoderThread::get_output_packet() {
       return dynamic_cast<OutputPacket*>(event);
       }
 */
-    ap_wait_read(fifo.handle(),packetpool.handle(),0);
+    ap_wait(packetpool.handle(),fifo.handle());
     }
   while(1);
   return NULL;

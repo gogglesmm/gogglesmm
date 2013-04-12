@@ -22,27 +22,27 @@
 namespace ap {
 
 /*
-	Wraps a non-blocking FXIO and makes it blocking. An optional watch handle and timeout
-	can be passed to fall out of the blocking io.
+  Wraps a non-blocking FXIO and makes it blocking. An optional watch handle and timeout
+  can be passed to fall out of the blocking io.
 */
 class WaitIO : public FXIO {
 protected:
-	FXIODevice* 	io;
-	FXInputHandle watch;
-	FXTime 			  timeout;
+  FXIODevice* 	io;
+  FXInputHandle watch;
+  FXTime 			  timeout;
 public:
-	enum {
-		Readable = 0,
-		Writable = 1
-		};
+  enum {
+    Readable = 0,
+    Writable = 1
+    };
 private:
   WaitIO(const WaitIO&);
   WaitIO &operator=(const WaitIO&);
 public:
-	WaitIO(FXIODevice * io,FXInputHandle watch=BadHandle,FXTime timeout=0);
+  WaitIO(FXIODevice * io,FXInputHandle watch=BadHandle,FXTime timeout=0);
 
-	/// Return device
-	FXIODevice* getDevice() const { return io; }
+  /// Return device
+  FXIODevice* getDevice() const { return io; }
 
   /// Return true if open
   virtual FXbool isOpen() const;
@@ -77,11 +77,29 @@ public:
   /// Close handle
   virtual FXbool close();
 
-	/// Wait until
-	FXbool wait(FXuchar mode=WaitIO::Readable);
+  /// Wait until
+  virtual FXuint wait(FXuchar mode=WaitIO::Readable);
 
   /// Destroy and close
   virtual ~WaitIO();
-	};
+  };
+
+class ThreadQueue;
+
+class ThreadIO : public WaitIO {
+protected:
+  ThreadQueue * fifo;
+public:
+  ThreadIO(FXIODevice * io,ThreadQueue*q,FXTime timeout=0);
+
+  virtual FXuint wait(FXuchar mode=WaitIO::Readable);
+  };
+
+
+
+
+
+
+
 }
 #endif

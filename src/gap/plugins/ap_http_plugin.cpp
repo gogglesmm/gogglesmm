@@ -43,7 +43,7 @@ HttpInput::HttpInput(InputThread * i) : InputPlugin(i),
   content_type(Format::Unknown),
   icy_interval(0),
   icy_count(0) {
-  client.setConnectionFactory(new NBConnectionFactory(input->getFifoHandle()));
+  client.setConnectionFactory(new ThreadConnectionFactory(&input->getFifo()));
   }
 
 HttpInput::~HttpInput() {
@@ -168,9 +168,11 @@ FXuint HttpInput::plugin() const {
 
 void HttpInput::icy_parse(const FXString & str) {
   FXString title = str.after('=').before(';');
-  MetaInfo * meta = new MetaInfo();
-  meta->title = title;
-  input->post(meta);
+  if (title.length()) {
+    MetaInfo* meta = new MetaInfo();
+    meta->title = title;
+    input->post(meta);
+    }
   }
 
 FXival HttpInput::icy_read(void*ptr,FXival count){

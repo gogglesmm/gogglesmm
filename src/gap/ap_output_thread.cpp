@@ -330,7 +330,7 @@ Event * OutputThread::wait_for_event() {
       Event * event = fifo.pop();
       if (event) return event;
 
-      if (ap_wait(fifo.handle(),200000000)){
+      if (ap_wait(fifo.handle(),BadHandle,200000000)){
         return fifo.pop();
         }
 

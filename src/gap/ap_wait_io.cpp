@@ -17,117 +17,140 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_utils.h"
+#include "ap_pipe.h"
+#include "ap_event_queue.h"
+#include "ap_thread_queue.h"
 #include "ap_wait_io.h"
 
 #ifndef WIN32
 #include <errno.h>
-#include <poll.h>
 #endif
 
 namespace ap {
 
 
 WaitIO::WaitIO(FXIODevice * device,FXInputHandle w,FXTime tm) : FXIO(device->mode()),io(device),watch(w),timeout(tm) {
-	}
+  }
 
 WaitIO::~WaitIO() {
-	close();
-	}
+  close();
+  }
 
 FXbool WaitIO::isOpen() const {
-	return io->isOpen();
-	}
+  return io->isOpen();
+  }
 
 FXbool WaitIO::isSerial() const {
-	return io->isSerial();
-	}
+  return io->isSerial();
+  }
 
 FXlong WaitIO::position() const {
-	return io->position();
-	}
+  return io->position();
+  }
 
 FXlong WaitIO::position(FXlong offset,FXuint from) {
-	return io->position(offset,from);
-	}
+  return io->position(offset,from);
+  }
 
 FXival WaitIO::writeBlock(const void* data,FXival count){
-	FXival n;
-	do {
-		n = io->writeBlock(data,count);
-		}
-	while(n<0 && ((errno==EWOULDBLOCK || errno==EAGAIN) && wait(WaitIO::Readable)));
-	return n;
-	}
+  FXival n;
+  do {
+    n = io->writeBlock(data,count);
+    }
+  while(n<0 && ((errno==EWOULDBLOCK || errno==EAGAIN) && wait(WaitWritable)==WaitHasIO));
+  return n;
+  }
 
 FXival WaitIO::readBlock(void*data,FXival count) {
-	FXival n;
-	do {
-		n = io->readBlock(data,count);
-		}
-	while(n<0 && ((errno==EWOULDBLOCK || errno==EAGAIN) && wait(WaitIO::Readable)));
-	return n;
-	}
+  FXival n;
+  do {
+    n = io->readBlock(data,count);
+    }
+  while(n<0 && ((errno==EWOULDBLOCK || errno==EAGAIN) && wait(WaitReadable)==WaitHasIO));
+  return n;
+  }
 
 
 FXlong WaitIO::truncate(FXlong size) {
-	return io->truncate(size);
-	}
+  return io->truncate(size);
+  }
 
 FXbool WaitIO::flush() {
-	return io->flush();
-	}
+  return io->flush();
+  }
 
 FXbool WaitIO::eof() {
-	return io->eof();
-	}
+  return io->eof();
+  }
 
 FXlong WaitIO::size() {
-	return io->size();
-	}
+  return io->size();
+  }
 
 FXbool WaitIO::close() {
-	if (io) {
-		io->close();
-		delete io;
-		io=NULL;
-		}
-	return true;
-	}
+  if (io) {
+    io->close();
+    delete io;
+    io=NULL;
+    }
+  return true;
+  }
 
-FXbool WaitIO::wait(FXuchar mode) {
-#ifndef WIN32
-	FXint n,nfds=1;
-	struct pollfd fds[2];
-	fds[0].fd    	= io->handle();
-	fds[0].events = (mode==WaitIO::Readable) ? POLLIN : POLLOUT;
-	if (watch!=BadHandle) {
-		fds[1].fd 	  = watch;
-		fds[1].events = POLLIN;
-		nfds=2;
-		}
-	if (timeout) {
-		struct timespec ts;
-		ts.tv_sec  = (timeout / 1000000000);
-		ts.tv_nsec = (timeout % 1000000000);
-		do {
-			n=ppoll(fds,nfds,&ts,NULL);
-			}
-		while(n==-1 && (errno==EAGAIN || errno==EINTR));
-		}
-	else {
-		do {
-			n=ppoll(fds,nfds,NULL,NULL);
-			}
-		while(n==-1 && (errno==EAGAIN || errno==EINTR));
-		}
 
-	// false if timeout, error or interrupt
-	if ((0>=n) || (0<n && watch!=BadHandle && fds[1].revents))
-		return false;
-
-	return true;
+FXuint WaitIO::wait(FXuchar mode) {
+  return ap_wait(io->handle(),watch,timeout,mode);
+#if 0
+  FXint n,nfds=1;
+  struct pollfd fds[2];
+  fds[0].fd    	= io->handle();
+  fds[0].events = (mode==WaitIO::Readable) ? POLLIN : POLLOUT;
+  if (watch!=BadHandle) {
+    fds[1].fd 	  = watch;
+    fds[1].events = POLLIN;
+    nfds=2;
+    }
+  if (timeout) {
+    struct timespec ts;
+    ts.tv_sec  = (timeout / 1000000000);
+    ts.tv_nsec = (timeout % 1000000000);
+    do {
+      n=ppoll(fds,nfds,&ts,NULL);
+      }
+    while(n==-1 && (errno==EAGAIN || errno==EINTR));
+    }
+  else {
+    do {
+      n=ppoll(fds,nfds,NULL,NULL);
+      }
+    while(n==-1 && (errno==EAGAIN || errno==EINTR));
+    }
+  if (0<n) {
+    if (watch!=BadHandle && fds[1].revents)
+      return WAIT_HAS_INTERRUPT;
+    else
+      return WAIT_HAS_IO;
+    }
+  else if (n==0)
+    return WAIT_HAS_TIMEOUT;
+  else
+    return WAIT_HAS_ERROR;
 #endif
-	}
+  }
+
+ThreadIO::ThreadIO(FXIODevice * io,ThreadQueue*queue,FXTime timeout) : WaitIO(io,queue->handle(),timeout), fifo(queue) {
+  }
+
+
+FXuint ThreadIO::wait(FXuchar mode) {
+  FXuint w;
+  do {
+    w =  ap_wait(io->handle(),watch,timeout,mode);
+    }
+  while(w==WaitHasInterrupt && !fifo->checkAbort());
+  return w;
+  }
+
 
 
 }

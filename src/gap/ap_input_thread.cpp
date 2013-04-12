@@ -101,9 +101,6 @@ FXbool InputThread::aborted() {
 Event * InputThread::wait_for_event() {
   Event * event = fifo.pop();
   if (event==NULL) {
-    //fxmessage("wait %d\n",ap_wait(fifo.handle()));
-    //ap_pipe_read_one(fifo.handle());
-    //ap_pipe_clear(fifo.handle());
     ap_wait(fifo.handle());
     event = fifo.pop();
     }
@@ -120,7 +117,7 @@ Event * InputThread::wait_for_packet() {
     Packet * packet = packetpool.pop();
     if (packet) return packet;
 
-    ap_wait_read(packetpool.handle(),fifo.handle(),0);
+    ap_wait(fifo.handle(),packetpool.handle());
     }
   while(1);
   return NULL;
@@ -172,10 +169,7 @@ Packet * InputThread::get_packet() {
     Packet * packet = packetpool.pop();
     if (packet) return packet;
 
-//    event = DecoderPacket::get();
-//    if (event) return dynamic_cast<DecoderPacket*>(event);
-
-    ap_wait_read(fifo.handle(),packetpool.handle(),0);
+    ap_wait(packetpool.handle(),fifo.handle());
     }
   while(1);
   return NULL;

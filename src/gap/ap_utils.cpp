@@ -31,6 +31,8 @@
 #ifndef WIN32
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
+#include <poll.h>
 #endif
 
 namespace ap {
@@ -203,177 +205,44 @@ void Base64Encoder::encode(const FXuchar * in,FXint len) {
 
 
 
-
-
-
-
-
-
-#if 0
-
-FXuint ap_wait(FXInputHandle handle,FXlong timeout) {
+FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode){
 #ifndef WIN32
-  struct timespec delta;
-
-  fd_set rd;
-  fd_set wr;
-  fd_set er;
-
-  FD_ZERO(&rd);
-  FD_ZERO(&wr);
-  FD_ZERO(&er);
-
-  FD_SET((int)handle,&rd);
-  FD_SET((int)handle,&er);
-  int maxfds=(int)handle;
-
-  delta.tv_nsec=blocking%1000000000;
-  delta.tv_sec=blocking/1000000000;
-
-  if (pselect(maxfds+1,&rd,&wr,&er,&delta,NULL)>0) {
-    if (FD_ISSET(handle,&rd) || FD_ISSET(handle,&er)) {
-      return 1;
-      }
+  FXint n,nfds=1;
+  struct pollfd fds[2];
+  fds[0].fd    	= io;
+  fds[0].events = (mode==WaitReadable) ? POLLIN : POLLOUT;
+  if (watch!=BadHandle) {
+    fds[1].fd 	  = watch;
+    fds[1].events = POLLIN;
+    nfds=2;
     }
-#endif
-  return 0;
-  }
-#endif
-
-FXuint ap_wait(FXInputHandle handle,FXTime timeout) {
-#ifndef WIN32
-  struct timespec delta;
-  FXuint result=WIO_TIMEOUT;
-
-  fd_set rd;
-  fd_set wr;
-  fd_set er;
-
-  FD_ZERO(&rd);
-  FD_ZERO(&wr);
-  FD_ZERO(&er);
-
-  FD_SET((int)handle,&rd);
-  FD_SET((int)handle,&er);
-  int maxfds=(int)handle;
-
   if (timeout) {
-    delta.tv_nsec=timeout%1000000000;
-    delta.tv_sec=timeout/1000000000;
-    if (pselect(maxfds+1,&rd,&wr,&er,&delta,NULL)>0) {
-      if (FD_ISSET(handle,&rd) || FD_ISSET(handle,&er)) {
-        result|=WIO_HANDLE;
-        }
+    struct timespec ts;
+    ts.tv_sec  = (timeout / 1000000000);
+    ts.tv_nsec = (timeout % 1000000000);
+    do {
+      n=ppoll(fds,nfds,&ts,NULL);
       }
+    while(n==-1 && (errno==EAGAIN || errno==EINTR));
     }
   else {
-    if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)>0) {
-      if (FD_ISSET(handle,&rd) || FD_ISSET(handle,&er)) {
-        result|=WIO_HANDLE;
-        }
+    do {
+      n=ppoll(fds,nfds,NULL,NULL);
       }
+    while(n==-1 && (errno==EAGAIN || errno==EINTR));
     }
-  #endif
-  return result;
-  }
-
-//FXuint ap_wait(FXInputHandle h1,FXInputHandle h2) {
-//  return ap_wait_read(h1,h2,0);
- // }
-
-
-FXuint ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout) {
-//  fxmessage("Wait for write\n");
-#ifndef WIN32
-  FXuint result=WIO_TIMEOUT;
-  int maxfds=FXMAX(interrupt,handle);
-  struct timespec delta;
-
-  fd_set rd;
-  fd_set wr;
-  fd_set er;
-
-  FD_ZERO(&rd);
-  FD_ZERO(&wr);
-  FD_ZERO(&er);
-
-  FD_SET((int)interrupt,&rd);
-  FD_SET((int)interrupt,&er);
-  FD_SET((int)handle,&wr);
-  FD_SET((int)handle,&er);
-
-  if (timeout) {
-    delta.tv_nsec=timeout%1000000000;
-    delta.tv_sec=timeout/1000000000;
-    if (pselect(maxfds+1,&rd,&wr,&er,&delta,NULL)) {
-      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) )
-        result|=WIO_INTERRUPT;
-
-      if(FD_ISSET((int)handle,&wr) || FD_ISSET((int)handle,&er))
-        result|=WIO_HANDLE;
-      }
+  if (0<n) {
+    if (watch!=BadHandle && fds[1].revents)
+      return WaitHasInterrupt;
+    else
+      return WaitHasIO;
     }
-  else {
-    if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
-      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er) )
-        result|=WIO_INTERRUPT;
-
-      if(FD_ISSET((int)handle,&wr) || FD_ISSET((int)handle,&er))
-        result|=WIO_HANDLE;
-      }
-    }
-  return result;
+  else if (n==0)
+    return WaitHasTimeout;
+  else
+    return WaitHasError;
 #endif
   }
-
-
-
-FXuint ap_wait_read(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout){
-//  fxmessage("Wait for read\n");
-#ifndef WIN32
-  FXuint result=WIO_TIMEOUT;
-  int maxfds=FXMAX(interrupt,handle);
-  struct timespec delta;
-
-  fd_set rd;
-  fd_set wr;
-  fd_set er;
-
-  FD_ZERO(&rd);
-  FD_ZERO(&wr);
-  FD_ZERO(&er);
-
-  FD_SET((int)interrupt,&rd);
-  FD_SET((int)interrupt,&er);
-  FD_SET((int)handle,&rd);
-  FD_SET((int)handle,&er);
-
-  if (timeout) {
-    delta.tv_nsec=timeout%1000000000;
-    delta.tv_sec=timeout/1000000000;
-    if (pselect(maxfds+1,&rd,&wr,&er,&delta,NULL)) {
-      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er)){
-        result|=WIO_INTERRUPT;
-        }
-      if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er)) {
-        result|=WIO_HANDLE;
-        }
-      }
-    }
-  else {
-    if (pselect(maxfds+1,&rd,&wr,&er,NULL,NULL)) {
-      if (FD_ISSET((int)interrupt,&rd) || FD_ISSET((int)interrupt,&er)){
-        result|=WIO_INTERRUPT;
-        }
-      if(FD_ISSET((int)handle,&rd) || FD_ISSET((int)handle,&er)) {
-        result|=WIO_HANDLE;
-        }
-      }
-    }
-  return result;
-#endif
-  }
-
-
 
 }
+

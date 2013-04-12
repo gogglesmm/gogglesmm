@@ -113,7 +113,6 @@ FXbool ThreadQueue::checkAbort() {
   if (head && (head->type&0x80))
     return true;
 
-
   pfifo.clear();
   return false;
   }

@@ -90,7 +90,7 @@ FXbool TextReader::init(InputPlugin * plugin) {
 
 ReadStatus TextReader::process(Packet*packet) {
   packet->unref();
-  GM_DEBUG_PRINT("[text] starting read\n");
+  GM_DEBUG_PRINT("[text] starting read %ld\n",input->size());
   if (input->size()>0) {
     textbuffer.length(input->size());
     if (input->read(textbuffer.text(),input->size())!=input->size())
