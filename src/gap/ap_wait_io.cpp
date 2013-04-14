@@ -100,42 +100,6 @@ FXbool WaitIO::close() {
 
 FXuint WaitIO::wait(FXuchar mode) {
   return ap_wait(io->handle(),watch,timeout,mode);
-#if 0
-  FXint n,nfds=1;
-  struct pollfd fds[2];
-  fds[0].fd    	= io->handle();
-  fds[0].events = (mode==WaitIO::Readable) ? POLLIN : POLLOUT;
-  if (watch!=BadHandle) {
-    fds[1].fd 	  = watch;
-    fds[1].events = POLLIN;
-    nfds=2;
-    }
-  if (timeout) {
-    struct timespec ts;
-    ts.tv_sec  = (timeout / 1000000000);
-    ts.tv_nsec = (timeout % 1000000000);
-    do {
-      n=ppoll(fds,nfds,&ts,NULL);
-      }
-    while(n==-1 && (errno==EAGAIN || errno==EINTR));
-    }
-  else {
-    do {
-      n=ppoll(fds,nfds,NULL,NULL);
-      }
-    while(n==-1 && (errno==EAGAIN || errno==EINTR));
-    }
-  if (0<n) {
-    if (watch!=BadHandle && fds[1].revents)
-      return WAIT_HAS_INTERRUPT;
-    else
-      return WAIT_HAS_IO;
-    }
-  else if (n==0)
-    return WAIT_HAS_TIMEOUT;
-  else
-    return WAIT_HAS_ERROR;
-#endif
   }
 
 ThreadIO::ThreadIO(FXIODevice * io,ThreadQueue*queue,FXTime timeout) : WaitIO(io,queue->handle(),timeout), fifo(queue) {
