@@ -856,7 +856,7 @@ FXint GMLocalTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackIt
 
 
 
-GMFeedItem::GMFeedItem(FXint i,const FXString & t, FXTime d,FXuint tm,FXuint f) : GMTrackItem(i),title(t),date(d),time(tm),flags(f) {
+GMFeedItem::GMFeedItem(FXint i,const FXchar * tf,const FXchar * t, FXTime d,FXuint tm,FXuint f) : GMTrackItem(i),feed(tf),title(t),date(d),time(tm),flags(f) {
   }
 
 
@@ -864,6 +864,7 @@ const FXString * GMFeedItem::getColumnData(FXint type,FXString&text,FXuint & jus
   const FXString * textptr;
   justify=COLUMN_JUSTIFY_NORMAL;
   switch(type){
+    case HEADER_ALBUM   : textptr = &feed;  			break;
     case HEADER_TITLE   : textptr = &title;  			break;
     case HEADER_DATE    : text=FXSystem::localTime("%x",date);
                           textptr=&text;
@@ -931,3 +932,44 @@ FXint GMFeedItem::descendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
   return 0;
   }
 
+FXint GMFeedItem::ascendingFeed(const GMTrackItem* pa,const GMTrackItem* pb){
+  const GMFeedItem * const ta = (GMFeedItem*)pa;
+  const GMFeedItem * const tb = (GMFeedItem*)pb;
+
+  register FXint x = keywordcompare(ta->feed,tb->feed);
+  if (x!=0) return x;
+
+  if (ta->date<tb->date) return 1;
+  else if (ta->date>tb->date) return -1;
+  return 0;
+  }
+
+FXint GMFeedItem::descendingFeed(const GMTrackItem* pa,const GMTrackItem* pb){
+  const GMFeedItem * const ta = (GMFeedItem*)pa;
+  const GMFeedItem * const tb = (GMFeedItem*)pb;
+
+  register FXint x = keywordcompare(tb->feed,ta->feed);
+  if (x!=0) return x;
+
+  if (ta->date<tb->date) return 1;
+  else if (ta->date>tb->date) return -1;
+  return 0;
+  }
+
+FXint GMFeedItem::ascendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
+  const GMFeedItem * const ta = (GMFeedItem*)pa;
+  const GMFeedItem * const tb = (GMFeedItem*)pb;
+  register FXint a=0,b=0;
+  if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
+  if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
+  return comparecase(&ta->title[a],&tb->title[b]);
+  }
+
+FXint GMFeedItem::descendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
+  const GMFeedItem * const ta = (GMFeedItem*)pa;
+  const GMFeedItem * const tb = (GMFeedItem*)pb;
+  register FXint a=0,b=0;
+  if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
+  if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
+  return -comparecase(&ta->title[a],&tb->title[b]);
+  }

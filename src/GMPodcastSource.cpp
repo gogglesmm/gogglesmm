@@ -953,11 +953,12 @@ void GMPodcastSource::removeFeeds(const FXIntList & feeds) {
 
 
 void GMPodcastSource::configure(GMColumnList& list){
-  list.no(4);
+  list.no(5);
   list[0]=GMColumn(notr("Date"),HEADER_DATE,GMFeedItem::ascendingDate,GMFeedItem::descendingDate,200,true,true,1);
-  list[1]=GMColumn(notr("Title"),HEADER_TITLE,GMStreamTrackItem::ascendingTitle,GMStreamTrackItem::descendingTitle,200,true,true,1);
-  list[2]=GMColumn(notr("Status"),HEADER_STATUS,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
-  list[3]=GMColumn(notr("Time"),HEADER_TIME,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
+  list[1]=GMColumn(notr("Feed"),HEADER_ALBUM,GMFeedItem::ascendingFeed,GMFeedItem::descendingFeed,100,true,true,1);
+  list[2]=GMColumn(notr("Title"),HEADER_TITLE,GMFeedItem::ascendingTitle,GMFeedItem::descendingTitle,200,true,true,1);
+  list[3]=GMColumn(notr("Status"),HEADER_STATUS,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
+  list[4]=GMColumn(notr("Time"),HEADER_TIME,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
   }
 
 
@@ -1021,7 +1022,7 @@ FXbool GMPodcastSource::listTags(GMList * list,FXIcon * icon){
 FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXIntList & taglist){
   FXString q = "SELECT id,title FROM feeds";
   if (taglist.no()) {
-    FXString tagselection;  
+    FXString tagselection;
     GMQuery::makeSelection(taglist,tagselection);
     q += " WHERE tag " + tagselection;
     }
@@ -1053,17 +1054,18 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
   GMQuery::makeSelection(albumlist,selection);
   GMQuery::makeSelection(taglist,tagselection);
 
-  FXString query = "SELECT feed_items.id,feed_items.title,time,feed_items.date,flags FROM feed_items, feeds"; 
+  FXString query = "SELECT feed_items.id,feeds.title,feed_items.title,time,feed_items.date,flags FROM feed_items, feeds";
   query+=" WHERE feeds.id == feed_items.feed";
 
-  if (albumlist.no())    
+  if (albumlist.no())
     query+=" AND feed " + selection;
 
-  if (taglist.no()) 
+  if (taglist.no())
     query+=" AND feeds.tag " + tagselection;
-  
+
   GMQuery q(db,query.text());
   const FXchar * c_title;
+  const FXchar * c_feed;
   FXint id;
   FXTime date;
   FXuint time;
@@ -1071,11 +1073,12 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
 
   while(q.row()){
       q.get(0,id);
-      c_title = q.get(1);
-      q.get(2,time);
-      q.get(3,date);
-      q.get(4,flags);
-      GMFeedItem* item = new GMFeedItem(id,c_title,date,time,flags);
+      c_feed = q.get(1);
+      c_title = q.get(2);
+      q.get(3,time);
+      q.get(4,date);
+      q.get(5,flags);
+      GMFeedItem* item = new GMFeedItem(id,c_feed,c_title,date,time,flags);
       tracklist->appendItem((GMTrackItem*)item);
       }
   return true;
@@ -1135,16 +1138,3 @@ long GMPodcastSource::onCmdRemoveFeed(FXObject*,FXSelector,void*){
     }
   return 1;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
