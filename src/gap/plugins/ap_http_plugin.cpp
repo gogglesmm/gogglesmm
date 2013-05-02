@@ -64,7 +64,7 @@ void HttpInput::check_headers() {
 
 FXbool HttpInput::open(const FXString & uri) {
   FXString url = uri;
-  FXString headers = FXString::value("User-agent: libgaplayer/%d.%d\r\n"
+  FXString headers = FXString::value("User-agent: gogglesmm/%d.%d\r\n"
                                      "Icy-MetaData: 1\r\n"
                                      "Accept: */*\r\n",0,1);
 
@@ -153,8 +153,10 @@ FXlong HttpInput::size() {
 FXbool HttpInput::eof()  {
   if (client.getContentLength()>=0 && content_position>=client.getContentLength())
     return true;
-  else
+  else if (preview_buffer.size())
     return false;
+  else
+    return client.eof();
   }
 
 FXbool HttpInput::serial() const {

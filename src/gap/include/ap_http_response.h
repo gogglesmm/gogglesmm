@@ -216,6 +216,9 @@ public:
   // Return Content Length if known or -1
   FXint getContentLength() const;
 
+  // Check end-of-response
+  FXbool eof();
+
   // Destructor
   virtual ~HttpResponse();
   };

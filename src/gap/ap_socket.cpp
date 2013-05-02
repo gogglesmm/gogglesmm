@@ -50,7 +50,7 @@ Socket::Socket(FXInputHandle h,FXuint m) : FXIODevice(h,m|ReadWrite|OwnHandle) {
     return BadHandle;
     }
 #endif
-	}
+  }
 
 
 Socket * Socket::create(int domain,int type,int protocol,FXuint mode) {
@@ -65,80 +65,80 @@ Socket * Socket::create(int domain,int type,int protocol,FXuint mode) {
     opts|=SOCK_NONBLOCK;
     }
 #endif
-	FXInputHandle handle = socket(domain,type|opts,protocol);
-	if (handle!=BadHandle) {
-		return new Socket(handle,mode);
-		}
-	return NULL;
-	}
+  FXInputHandle handle = socket(domain,type|opts,protocol);
+  if (handle!=BadHandle) {
+    return new Socket(handle,mode);
+    }
+  return NULL;
+  }
 
 
 void Socket::setKeepAlive(FXbool enable) {
-	int value = (enable) ? 1 : 0;
-	setsockopt(device,SOL_SOCKET,SO_KEEPALIVE,&value,sizeof(int));
-	}
+  int value = (enable) ? 1 : 0;
+  setsockopt(device,SOL_SOCKET,SO_KEEPALIVE,&value,sizeof(int));
+  }
 
 FXbool Socket::getKeepAlive() const {
-	int 			 value=0;
+  int 			 value=0;
   socklen_t length=sizeof(value);
-	if (getsockopt(device,SOL_SOCKET,SO_KEEPALIVE,&value,&length)==0)
-		return value;
-	else
-		return false;
-	}
+  if (getsockopt(device,SOL_SOCKET,SO_KEEPALIVE,&value,&length)==0)
+    return value;
+  else
+    return false;
+  }
 
 void Socket::setReuseAddress(FXbool enable) {
-	int value = (enable) ? 1 : 0;
-	setsockopt(device,SOL_SOCKET,SO_REUSEADDR,&value,sizeof(int));
-	}
+  int value = (enable) ? 1 : 0;
+  setsockopt(device,SOL_SOCKET,SO_REUSEADDR,&value,sizeof(int));
+  }
 
 FXbool Socket::getReuseAddress() const {
-	int value = 0;
+  int value = 0;
   socklen_t length=sizeof(value);
-	if (getsockopt(device,SOL_SOCKET,SO_REUSEADDR,&value,&length)==0)
-		return value;
-	else
-		return false;
-	}
+  if (getsockopt(device,SOL_SOCKET,SO_REUSEADDR,&value,&length)==0)
+    return value;
+  else
+    return false;
+  }
 
 void Socket::setLinger(FXTime tm) {
-	struct linger l;
-	l.l_onoff  = (tm>0) ? 1 : 0;
-	l.l_linger = tm;
-	setsockopt(device,SOL_SOCKET,SO_LINGER,&l,sizeof(struct linger));
-	}
+  struct linger l;
+  l.l_onoff  = (tm>0) ? 1 : 0;
+  l.l_linger = tm;
+  setsockopt(device,SOL_SOCKET,SO_LINGER,&l,sizeof(struct linger));
+  }
 
 FXTime Socket::getLinger() const {
-	struct linger l;
+  struct linger l;
   socklen_t length=sizeof(struct linger);
-	if (getsockopt(device,SOL_SOCKET,SO_LINGER,&l,&length)==0 && (l.l_onoff) ){
-		return l.l_linger;
-		}
-	return 0;
-	}
+  if (getsockopt(device,SOL_SOCKET,SO_LINGER,&l,&length)==0 && (l.l_onoff) ){
+    return l.l_linger;
+    }
+  return 0;
+  }
 
 void Socket::setReceiveTimeout(FXTime tm) {
-	struct timeval tv;
-	tv.tv_sec  = tm / 1000000000;
-	tv.tv_usec = (tm % 1000000000) / 1000;
-	setsockopt(device,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(struct timeval));
-	}
+  struct timeval tv;
+  tv.tv_sec  = tm / 1000000000;
+  tv.tv_usec = (tm % 1000000000) / 1000;
+  setsockopt(device,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(struct timeval));
+  }
 
 void Socket::setSendTimeout(FXTime tm) {
-	struct timeval tv;
-	tv.tv_sec  = tm / 1000000000;
-	tv.tv_usec = (tm % 1000000000) / 1000;
-	setsockopt(device,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(struct timeval));
-	}
+  struct timeval tv;
+  tv.tv_sec  = tm / 1000000000;
+  tv.tv_usec = (tm % 1000000000) / 1000;
+  setsockopt(device,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(struct timeval));
+  }
 
 FXint Socket::getError() const {
-	int value = 0;
+  int value = 0;
   socklen_t length=sizeof(value);
-	if (getsockopt(device,SOL_SOCKET,SO_ERROR,&value,&length)==0)
-		return value;
-	else
-		return -1;
-	}
+  if (getsockopt(device,SOL_SOCKET,SO_ERROR,&value,&length)==0)
+    return value;
+  else
+    return -1;
+  }
 
 FXival Socket::readBlock(void* data,FXival count){
   FXival nread=-1;
@@ -146,6 +146,11 @@ FXival Socket::readBlock(void* data,FXival count){
     nread=::recv(device,data,count,MSG_NOSIGNAL);
     }
   while(nread<0 && errno==EINTR);
+
+
+  if ((nread==0 && count>0) || (nread<0 && errno!=EWOULDBLOCK && errno!=EAGAIN))
+    access|=EndOfStream;
+
   return nread;
   }
 
@@ -156,16 +161,25 @@ FXival Socket::writeBlock(const void* data,FXival count){
     nwritten=::send(device,data,count,MSG_NOSIGNAL);
     }
   while(nwritten<0 && errno==EINTR);
+
+  if ((nwritten==0 && count>0) || (nwritten<0 && errno!=EWOULDBLOCK && errno!=EAGAIN))
+    access|=EndOfStream;
+
   return nwritten;
   }
 
 
 FXbool Socket::close() {
-	if (isOpen()) {
-		shutdown(device,SHUT_RDWR);
-		return FXIODevice::close();
-		}
-	return true;
-	}
+  if (isOpen()) {
+    shutdown(device,SHUT_RDWR);
+    return FXIODevice::close();
+    }
+  return true;
+  }
+
+
+FXbool Socket::eof() {
+  return (access&EndOfStream);
+  }
 
 }

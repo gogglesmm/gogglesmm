@@ -25,27 +25,31 @@ class Socket : public FXIODevice {
 private:
   Socket(const Socket&);
   Socket &operator=(const Socket&);
-	Socket(FXInputHandle h,FXuint mode);
+  Socket(FXInputHandle h,FXuint mode);
 public:
-	static Socket* create(int domain,int type,int protocol,FXuint mode);
+  enum {
+    EndOfStream = 2048
+    };
+public:
+  static Socket* create(int domain,int type,int protocol,FXuint mode);
 
-	void setKeepAlive(FXbool);
+  void setKeepAlive(FXbool);
 
-	FXbool getKeepAlive() const;
+  FXbool getKeepAlive() const;
 
-	void setReuseAddress(FXbool);
+  void setReuseAddress(FXbool);
 
-	FXbool getReuseAddress() const;
+  FXbool getReuseAddress() const;
 
-	void setReceiveTimeout(FXTime);
+  void setReceiveTimeout(FXTime);
 
-	void setSendTimeout(FXTime);
+  void setSendTimeout(FXTime);
 
-	void setLinger(FXTime);
+  void setLinger(FXTime);
 
-	FXTime getLinger() const;
+  FXTime getLinger() const;
 
-	FXint getError() const;
+  FXint getError() const;
 
   /// Read block of bytes, returning number of bytes read
   FXival readBlock(void* data,FXival count);
@@ -53,9 +57,12 @@ public:
   /// Write block of bytes, returning number of bytes written
   FXival writeBlock(const void* data,FXival count);
 
-	/// Close Socket
-	FXbool close();
-	};
+  /// Close Socket
+  FXbool close();
+
+  /// Handle eof
+  FXbool eof();
+  };
 
 }
 #endif

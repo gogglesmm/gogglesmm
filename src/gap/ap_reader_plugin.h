@@ -25,10 +25,10 @@ class Packet;
 class InputPlugin;
 
 enum ReadStatus {
-  ReadError,
-  ReadOk,
+  ReadError,    /* Error Occurred */
+  ReadOk,       
   ReadDone,
-  ReadInterrupted,
+//  ReadInterrupted,
   ReadRedirect
   };
 

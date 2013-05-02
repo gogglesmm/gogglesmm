@@ -1159,14 +1159,14 @@ ReadStatus MadReader::process(Packet*packet) {
       if (nread!=(frame.size()-4)) {
         GM_DEBUG_PRINT("[mad_reader] truncated frame at end of input.");
         packet->flags|=FLAG_EOS;
-        status=ReadDone;
+        status=ReadError;
         goto done;
         }
       packet->wroteBytes(frame.size());
       stream_position+=frame.nsamples();
       if (input->read(buffer,4)!=4){
         packet->flags|=FLAG_EOS;
-        status=ReadDone;
+        status=ReadError;
         goto done;
         }
       continue;
@@ -1179,7 +1179,7 @@ ReadStatus MadReader::process(Packet*packet) {
       if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0) {
         if (input->read(buffer,4)!=4){
           packet->flags|=FLAG_EOS;
-          status=ReadDone;
+          status=ReadError;
           goto done;
           }
         }
@@ -1189,7 +1189,7 @@ ReadStatus MadReader::process(Packet*packet) {
         buffer[2]=buffer[3];
         if (input->read(&buffer[3],1)!=1){
           packet->flags|=FLAG_EOS;
-          status=ReadDone;
+          status=ReadError;
           goto done;
           }
         }

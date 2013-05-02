@@ -94,24 +94,21 @@ ReadStatus TextReader::process(Packet*packet) {
   if (input->size()>0) {
     textbuffer.length(input->size());
     if (input->read(textbuffer.text(),input->size())!=input->size())
-      return ReadInterrupted;
+      return ReadError;
     }
   else {
-    FXint len=0,nread;
+    FXint len=0,nread=0;
     const FXint chunk=4096;
-    while(!input->eof()) {
-      if (len>0xFFFF) {
-        GM_DEBUG_PRINT("[text] input too big %d\n",len);
-        return ReadError;
-        }
+    do {
+      len+=nread;
       textbuffer.length(textbuffer.length()+chunk);
       nread=input->read(&textbuffer[len],chunk);
-      if (nread==-1)
-        return ReadInterrupted;
-      else
-        len+=nread;
       }
+    while(nread>0);
     textbuffer.trunc(len);
+
+    if (nread==-1)
+      return ReadError;
     }
   return ReadDone;
   }

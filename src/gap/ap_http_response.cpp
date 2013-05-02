@@ -221,6 +221,7 @@ FXString HttpResponse::read_body() {
     return FXString::null;
     }
   else if (content_length>0) {
+    content_remaining=0;
 		if (io.read(content,content_length)!=content_length)
 			return FXString::null;
     }
@@ -239,6 +240,10 @@ FXString HttpResponse::read_body_chunked() {
   FXString header;
   FXString content;
   FXint    chunksize=-1;
+
+  // Reading all content
+  if (content_remaining>0)
+    content_remaining=0;
 
   if (read_chunk_header(chunksize)) {
 
@@ -388,6 +393,15 @@ FXString HttpResponse::getHeader(const FXString & key) const {
 FXint HttpResponse::getContentLength() const {
   return content_length;
   }
+
+
+FXbool HttpResponse::eof() {
+  if (content_remaining>=0)
+    return (content_remaining==0);
+  else
+    return io.eof();
+  }
+
 
 
 }
