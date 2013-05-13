@@ -80,7 +80,7 @@ FXbool WaitIO::flush() {
   return io->flush();
   }
 
-FXbool WaitIO::eof() {
+FXint WaitIO::eof() {
   return io->eof();
   }
 

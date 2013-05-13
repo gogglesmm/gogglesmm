@@ -69,7 +69,7 @@ public:
   virtual FXbool flush();
 
   /// Test if we're at the end
-  virtual FXbool eof();
+  virtual FXint eof();
 
   /// Return size of i/o device
   virtual FXlong size();

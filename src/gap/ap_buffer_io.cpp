@@ -181,10 +181,10 @@ FXival BufferIO::peekBlock(void* data,FXival n) {
 		FXival nr=0;
     FXuval avail;
 
-		if (endptr-begptr<n && !setSpace(n)) 
+		if (endptr-begptr<n && !setSpace(n))
 			return -1;
 
-		while(wrptr-rdptr<n) {			
+		while(wrptr-rdptr<n) {
 			avail = wrptr-rdptr;
 			if (readBuffer()>avail)
 				continue;
@@ -200,7 +200,7 @@ FXival BufferIO::peekBlock(void* data,FXival n) {
       n--;
       }
   	while(0<n && rdptr<wrptr);
-		return nr;		
+		return nr;
 		}
 	else {
 		FXlong pos = position();
@@ -278,11 +278,11 @@ FXbool BufferIO::flush() {
 	return flushBuffer();
 	}
 
-FXbool BufferIO::eof() {
+FXint BufferIO::eof() {
 	FXASSERT(wrptr);
 	FXASSERT(rdptr);
 	if (dir==DirRead && wrptr-rdptr)
-		return false;
+		return 0;
 	return io->eof();
 	}
 

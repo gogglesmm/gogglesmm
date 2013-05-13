@@ -61,7 +61,7 @@ public:
   FXbool close();
 
   /// Handle eof
-  FXbool eof();
+  FXint eof();
   };
 
 }

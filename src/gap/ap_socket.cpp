@@ -178,8 +178,8 @@ FXbool Socket::close() {
   }
 
 
-FXbool Socket::eof() {
-  return (access&EndOfStream);
+FXint Socket::eof() {
+  return (access&EndOfStream) ? 1 : 0;
   }
 
 }
