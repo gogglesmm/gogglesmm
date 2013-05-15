@@ -46,7 +46,8 @@ protected:
 protected:
   enum {
     StateIdle       = 0,
-    StateProcessing = 1
+    StateProcessing = 1,
+    StateError      = 2
     };
   FXuchar state;
   void set_state(FXuchar s,FXbool notify=false);

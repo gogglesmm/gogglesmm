@@ -129,7 +129,7 @@ class EOSTimer : public FrameTimer {
 public:
   EOSTimer(FXint s,FXint n) : FrameTimer(n),stream(s){}
   void execute(AudioEngine* engine) {
-    engine->post(new Event(AP_EOS));
+    engine->input->post(new Event(AP_EOS));
     }
   };
 
@@ -337,9 +337,9 @@ Event * OutputThread::wait_for_event() {
       if (plugin) {
         delay = plugin->delay();
         if (delay < (FXint)(plugin->af.rate>>2) ) {
+          GM_DEBUG_PRINT("[output] end of drain\n");
           plugin->drain();
           update_timers(0,0); /// make sure timers get fired
-          draining=false;
           close_plugin();
           engine->input->post(new ControlEvent(End,stream));
           continue;
@@ -809,7 +809,7 @@ FXint OutputThread::run(){
             FXint rate = plugin->af.rate;
 
             if (wait<=rate)
-              engine->post(new Event(AP_EOS));
+              engine->input->post(new Event(AP_EOS));
             else
               timers.append(new EOSTimer(event->stream,wait-rate));
 

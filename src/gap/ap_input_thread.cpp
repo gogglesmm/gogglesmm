@@ -239,6 +239,12 @@ FXint InputThread::run(){
       case Meta           : engine->decoder->post(event);
                             continue;
                             break;
+      case AP_EOS         : GM_DEBUG_PRINT("[input] eos\n");
+                            if (state!=StateError) {
+                              engine->post(event);
+                              continue;
+                              } 
+                            break;
       case Buffer         :
         {
           Packet * packet = dynamic_cast<Packet*>(event);
@@ -248,7 +254,8 @@ FXint InputThread::run(){
           FXuint status = reader->process(packet);
           switch(status) {
             case ReadError    : GM_DEBUG_PRINT("[input] error\n");
-                                ctrl_close_input(true);
+                                ctrl_close_input();
+                                set_state(StateError);
                                 break;
             case ReadDone     : GM_DEBUG_PRINT("[input] done\n");
                                 set_state(StateIdle);
@@ -274,7 +281,7 @@ FXint InputThread::run(){
 
 void InputThread::ctrl_eos() {
   GM_DEBUG_PRINT("[input] end of stream reached\n");
-  if (state==StateIdle) {
+  if (state!=StateProcessing) {
     //ctrl_flush(true);
     ctrl_close_input(true);
     }
@@ -429,7 +436,11 @@ failed:
 void InputThread::set_state(FXuchar s,FXbool notify) {
   if (state!=s) {
     state=s;
-    if (state==StateIdle) GM_DEBUG_PRINT("[input] set state idle\n");
+    switch(state) {
+      case StateIdle      : GM_DEBUG_PRINT("[input] state = idle\n");       break;
+      case StateProcessing: GM_DEBUG_PRINT("[input] state = processing\n"); break;
+      case StateError     : GM_DEBUG_PRINT("[input] state = error\n");      break;
+      }
     }
 
   /// Tell front end about the state.
