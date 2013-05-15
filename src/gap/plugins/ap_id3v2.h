@@ -38,6 +38,7 @@ protected:
   void parse_frame();
   void parse_text_frame(FXuint frameid,FXint framesize);
   void parse_rva2_frame(FXint framesize);
+  void parse_priv_frame(FXint framesize);
 public:
   enum Encoding {
     ISO_8859_1     = 0,
@@ -58,7 +59,8 @@ public:
     TCOM = DEFINE_FRAME('T','C','O','M'),
     TALB = DEFINE_FRAME('T','A','L','B'),
     TIT2 = DEFINE_FRAME('T','I','T','2'),
-    RVA2 = DEFINE_FRAME('R','V','A','2')
+    RVA2 = DEFINE_FRAME('R','V','A','2'),
+    PRIV = DEFINE_FRAME('P','R','I','V')
     };
 
   enum {

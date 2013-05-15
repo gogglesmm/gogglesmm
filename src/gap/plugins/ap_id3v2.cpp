@@ -75,6 +75,12 @@ void ID3V2::unsync(FXuchar * src,FXint & len) {
   len=k;
   }
 
+void ID3V2::parse_priv_frame(FXint framesize) {
+  if (buffer+p!='\0'){
+    GM_DEBUG_PRINT("priv %s\n",buffer+p);
+    }
+  }
+
 void ID3V2::parse_rva2_frame(FXint framesize) {
   if (framesize>6) {
     FXbool is_track_gain=false;
@@ -222,6 +228,7 @@ void ID3V2::parse_frame() {
       case TT2  :
       case TIT2 : parse_text_frame(frameid,framesize); break;
       case RVA2 : parse_rva2_frame(framesize); break;
+      case PRIV : parse_priv_frame(framesize); break;
       case 0    : p=size; return; break;
       default   : break;
       };
