@@ -770,11 +770,13 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
     input_start = input_start + frame.size(); // start at next frame.
     if (xing) {
       stream_length = xing->nframes * frame.nsamples();
+      GM_DEBUG_PRINT("[mad_reader] xing stream length %ld\n",stream_length);
       if (input_end==-1 || (xing->nbytes>0 && input_start+xing->nbytes<=input_end))
         input_end = input_start+xing->nbytes;
       }
     else if (vbri) {
       stream_length = vbri->nframes * frame.nsamples();
+      GM_DEBUG_PRINT("[mad_reader] vbri stream length %ld\n",stream_length);
       if (input_end==-1 || (vbri->nbytes>0 && input_start+vbri->nbytes<=input_end))
         input_end = input_start+vbri->nbytes;
       }
@@ -782,16 +784,18 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
       GM_DEBUG_PRINT("[mad_reader] only lame header found\n");
       }
 
-    if (lame) {
-      GM_DEBUG_PRINT("[mad_reader] lame adjusting stream length by -%d frames \n",(lame->padstart + lame->padend));
-      stream_length -= (lame->padstart + lame->padend);
-      }
+    //if (lame) {
+    //  GM_DEBUG_PRINT("[mad_reader] lame adjusting stream length by -%d frames \n",(lame->padstart + lame->padend));
+    //  stream_length -= (lame->padstart + lame->padend);
+    //  }
 
     }
   else {
     bitrate = frame.bitrate();
-    if (bitrate>0 && input_end>input_start)
+    if (bitrate>0 && input_end>input_start) {
       stream_length =  (FXlong)frame.samplerate() * ((input_end-input_start) / (bitrate / 8) );
+      GM_DEBUG_PRINT("[mad_reader] estimated stream length %ld\n",stream_length);
+      }
     }
   }
 
@@ -1148,52 +1152,54 @@ ReadStatus MadReader::process(Packet*packet) {
 
   while(1) {
     if (frame.validate(buffer)) {
-
       lostsync=false;
-
-      if (frame.size()>packet->space())
-        goto done;
+      if (frame.size()>packet->space()) goto done;
 
       memcpy(packet->ptr(),buffer,4);
       nread = input->read(packet->ptr()+4,frame.size()-4);
       if (nread!=(frame.size()-4)) {
-        GM_DEBUG_PRINT("[mad_reader] truncated frame at end of input.");
+        GM_DEBUG_PRINT("[mad_reader] truncated frame\n");
         packet->flags|=FLAG_EOS;
         status=ReadError;
         goto done;
         }
       packet->wroteBytes(frame.size());
       stream_position+=frame.nsamples();
-      if (input->read(buffer,4)!=4){
-        packet->flags|=FLAG_EOS;
-        status=ReadError;
-        goto done;
-        }
-      continue;
+      if (input->read(buffer,4)!=4)
+        goto error_or_eos;
       }
     else {
       if (lostsync==false) {
         lostsync=true;
         GM_DEBUG_PRINT("[mad_reader] lost frame sync\n");
-        }
-      if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0) {
-        if (input->read(buffer,4)!=4){
+        if (input_end>0 && input->position()>input_end) {
+          GM_DEBUG_PRINT("[mad_reader] end of stream\n");
           packet->flags|=FLAG_EOS;
-          status=ReadError;
+          status=ReadDone;
           goto done;
           }
+        }
+      if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0) {
+        if (input->read(buffer,4)!=4) goto error_or_eos;
         }
       else {
         buffer[0]=buffer[1];
         buffer[1]=buffer[2];
         buffer[2]=buffer[3];
-        if (input->read(&buffer[3],1)!=1){
-          packet->flags|=FLAG_EOS;
-          status=ReadError;
-          goto done;
-          }
+        if (input->read(&buffer[3],1)!=1) goto error_or_eos;
         }
       }
+    }
+
+
+error_or_eos:
+  packet->flags|=FLAG_EOS;
+  if (input_end>0 && input->position()>=input_end) {
+    GM_DEBUG_PRINT("[mad_reader] end of stream\n");
+    status=ReadDone;
+    }
+  else {
+    status=ReadError;
     }
 done:
   if (packet->size() || packet->flags&FLAG_EOS)
@@ -1375,15 +1381,25 @@ DecoderStatus MadDecoder::process(Packet*in){
   FXASSERT(in);
 
   FXint p,s,n;
+  FXint max_samples=0;  // maximum number of samples to writr
+  FXint max_frames=0;   // maximum frames to decode
+  FXint total_frames=0; // frames in buffer
+
+
+
+  FXint nframes;
   FXuint streamid=in->stream;
   FXlong stream_length=in->stream_length;
   FXbool eos=(in->flags&FLAG_EOS);
 
+
+  // Update the buffer
   if (in->size() || eos){
     if (in->size()) {
       if (buffer.size()) {
-        if (stream.next_frame!=NULL)
+        if (stream.next_frame!=NULL) {
           buffer.setReadPosition(stream.next_frame);
+          }
         }
       else {
         stream_position=in->stream_position;
@@ -1393,37 +1409,42 @@ DecoderStatus MadDecoder::process(Packet*in){
     if (eos) buffer.append((FXchar)0,MAD_BUFFER_GUARD);
     mad_stream_buffer(&stream,buffer.data(),buffer.size());
     }
+  in->unref();
 
-
+  // Nothing to see here
   if (buffer.size()==0) {
     GM_DEBUG_PRINT("[mad_decoder] empty buffer, nothing to decode\n");
     return DecoderOk;
     }
 
-  stream.error=MAD_ERROR_NONE;
+  // Get sample and frame count
+  mpeg_frame mf;
+  FXuchar * beg = buffer.data();
+  FXuchar * end = beg + buffer.size();
+  while(mf.validate(beg) && beg<end) {
+    beg+=mf.size();
+    total_frames++;
+    if (max_samples>stream_offset_end) max_frames++;
+    max_samples+=mf.nsamples();
+    }
 
-  in->unref();
+  // Adjust for end of stream
+  if (eos) {
+    GM_DEBUG_PRINT("[mad_decoder] stream offset end %ld. max_samples from %d to %d\n",stream_offset_end,max_samples,max_samples-stream_offset_end);
+    max_frames=total_frames;
+    max_samples-=stream_offset_end;
+    }
 
-  do {
+  stream.error=MAD_ERROR_NONE;  
+  while(max_frames>0 && max_samples>0) {
 
-    /// Decode a frame
+    // Decode a frame
     if (mad_frame_decode(&frame,&stream)) {
       if (MAD_RECOVERABLE(stream.error)) {
         continue;
         }
-      else if(stream.error==MAD_ERROR_BUFLEN) {
-        if (eos) {
-          GM_DEBUG_PRINT("[mad_decoder] post end of stream %d\n",streamid);
-          if (out && out->numFrames()) {
-             if (stream_offset_end) {
-              FXASSERT(out->numFrames()>=stream_offset_end); // FIXME
-              out->trimFrames(FXMIN(out->numFrames(),stream_offset_end));
-              }
-             engine->output->post(out);
-             out=NULL;
-             }
-          engine->output->post(new ControlEvent(End,streamid));
-          }
+      else if (stream.error==MAD_ERROR_BUFLEN){
+        FXASSERT(eos==false);
         return DecoderOk;
         }
       else {
@@ -1432,38 +1453,39 @@ DecoderStatus MadDecoder::process(Packet*in){
         }
       }
 
+    // Access PCM
     mad_synth_frame(&synth,&frame);
+    mad_fixed_t * left  = synth.pcm.samples[0];
+    mad_fixed_t * right = synth.pcm.samples[1];
 
-    frame_counter++;
-
+    // Not sure what to do here...
     if (frame.header.samplerate!=af.rate) {
       GM_DEBUG_PRINT("[mad_decoder] sample rate changed: %d->%d \n",af.rate,frame.header.samplerate);
       }
 
+    // Prevent from writing to many samples..
+    nframes=FXMIN(synth.pcm.length,max_samples);
 
-    FXint nframes=synth.pcm.length;
-    if (nframes==0)  { GM_DEBUG_PRINT("[mad_decoder] nframes == 0 ?\n"); continue; }
-
-    mad_fixed_t * left  = synth.pcm.samples[0];
-    mad_fixed_t * right = synth.pcm.samples[1];
-
-    if (stream_position==0) {
-      left+=stream_offset_start;
-      right+=stream_offset_start;
-      nframes-=stream_offset_start;
-      GM_DEBUG_PRINT("[mad_decoder] skipping %d frames\n",stream_offset_start);
+    // Adjust for beginning of stream
+    if (stream_position<stream_offset_start) {
+      FXlong offset = stream_offset_start - stream_position;
+      GM_DEBUG_PRINT("[mad_decoder] stream offset start %ld. Skip %ld at %ld\n",stream_offset_start,offset,stream_position);
+      nframes-=offset;
+      left+=offset;
+      right+=offset;
+      stream_position+=offset;
       }
 
-
-    do {
+    // Write samples from this frame
+    while(nframes>0) {
 
       // Get new buffer
       if (out==NULL) {
         out = engine->decoder->get_output_packet();
         if (out==NULL) return DecoderInterrupted; // FIXME
         out->af=af;
-        out->stream_position=stream_position;
-        out->stream_length=stream_length;
+        out->stream_position=stream_position-stream_offset_start;
+        out->stream_length=stream_length-stream_offset_start-stream_offset_end;
         }
 
       n = FXMIN(out->availableFrames(),nframes);
@@ -1504,16 +1526,17 @@ DecoderStatus MadDecoder::process(Packet*in){
         out=NULL;
         }
       }
-    while(nframes);
+    max_samples-=synth.pcm.length;
+    max_frames--;
     }
-  while(1);
 
-
-
-
-  if (eos && out) {
-    engine->output->post(out);
-    out=NULL;
+  if (eos) {
+    if (out) {
+      engine->output->post(out);
+      out=NULL;
+      }
+    GM_DEBUG_PRINT("[mad_decoder] end of stream %d\n",streamid);
+    engine->output->post(new ControlEvent(End,streamid));
     }
   return DecoderOk;
   }
