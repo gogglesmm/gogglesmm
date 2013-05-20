@@ -1159,9 +1159,12 @@ ReadStatus MadReader::process(Packet*packet) {
       nread = input->read(packet->ptr()+4,frame.size()-4);
       if (nread!=(frame.size()-4)) {
         GM_DEBUG_PRINT("[mad_reader] truncated frame\n");
-        packet->flags|=FLAG_EOS;
-        status=ReadError;
-        goto done;
+        /* 
+           It's not too uncommon to find truncated frames at the end
+           of a file, perhaps caused by buggy tagging software overwriting 
+           the last 128 bytes or something else.
+        */
+        goto error_or_eos;
         }
       packet->wroteBytes(frame.size());
       stream_position+=frame.nsamples();
@@ -1430,12 +1433,12 @@ DecoderStatus MadDecoder::process(Packet*in){
 
   // Adjust for end of stream
   if (eos) {
-    GM_DEBUG_PRINT("[mad_decoder] stream offset end %ld. max_samples from %d to %d\n",stream_offset_end,max_samples,max_samples-stream_offset_end);
+    GM_DEBUG_PRINT("[mad_decoder] stream offset end %hd. max_samples from %d to %d\n",stream_offset_end,max_samples,max_samples-stream_offset_end);
     max_frames=total_frames;
     max_samples-=stream_offset_end;
     }
 
-  stream.error=MAD_ERROR_NONE;  
+  stream.error=MAD_ERROR_NONE;
   while(max_frames>0 && max_samples>0) {
 
     // Decode a frame
@@ -1469,7 +1472,7 @@ DecoderStatus MadDecoder::process(Packet*in){
     // Adjust for beginning of stream
     if (stream_position<stream_offset_start) {
       FXlong offset = stream_offset_start - stream_position;
-      GM_DEBUG_PRINT("[mad_decoder] stream offset start %ld. Skip %ld at %ld\n",stream_offset_start,offset,stream_position);
+      GM_DEBUG_PRINT("[mad_decoder] stream offset start %hd. Skip %ld at %ld\n",stream_offset_start,offset,stream_position);
       nframes-=offset;
       left+=offset;
       right+=offset;
