@@ -185,7 +185,6 @@ protected:
 public:
   mpeg_frame() : header(0) {}
 
-
 #define PRINT_YES_NO(x) (x ? "yes" : "no")
 
   void debug() {
@@ -1159,9 +1158,9 @@ ReadStatus MadReader::process(Packet*packet) {
       nread = input->read(packet->ptr()+4,frame.size()-4);
       if (nread!=(frame.size()-4)) {
         GM_DEBUG_PRINT("[mad_reader] truncated frame\n");
-        /* 
+        /*
            It's not too uncommon to find truncated frames at the end
-           of a file, perhaps caused by buggy tagging software overwriting 
+           of a file, perhaps caused by buggy tagging software overwriting
            the last 128 bytes or something else.
         */
         goto error_or_eos;
@@ -1172,14 +1171,33 @@ ReadStatus MadReader::process(Packet*packet) {
         goto error_or_eos;
       }
     else {
+
+
       if (lostsync==false) {
         lostsync=true;
         GM_DEBUG_PRINT("[mad_reader] lost frame sync\n");
-        if (input_end>0 && input->position()>input_end) {
-          GM_DEBUG_PRINT("[mad_reader] end of stream\n");
-          packet->flags|=FLAG_EOS;
-          status=ReadDone;
-          goto done;
+
+        if (input_end>0) {
+          /*
+              Check if we're past the end of stream
+          */
+          if (input->position()>input_end) {
+            GM_DEBUG_PRINT("[mad_reader] past end of stream\n");
+            packet->flags|=FLAG_EOS;
+            status=ReadDone;
+            goto done; 
+            }
+
+          /* 
+              Check for id3 tag. We may not have found this one 
+              if a (broken) file contains multiple id3 tags.
+          */  
+          if (buffer[0]=='T' && buffer[1]=='A' && buffer[2]=='G') {
+            GM_DEBUG_PRINT("[mad_reader] found ID3 tag. Assume end of stream\n");
+            packet->flags|=FLAG_EOS;
+            status=ReadDone;
+            goto done;
+            }
           }
         }
       if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0) {
@@ -1444,10 +1462,14 @@ DecoderStatus MadDecoder::process(Packet*in){
     // Decode a frame
     if (mad_frame_decode(&frame,&stream)) {
       if (MAD_RECOVERABLE(stream.error)) {
+        GM_DEBUG_PRINT("[mad_decoder] %s\n",mad_stream_errorstr(&stream));
         continue;
         }
       else if (stream.error==MAD_ERROR_BUFLEN){
-        FXASSERT(eos==false);
+        if (eos) {
+          GM_DEBUG_PRINT("[mad_decoder] unexpected end of stream (max_frames %d and max_samples %d)\n",max_frames,max_samples);
+          goto done;
+          }
         return DecoderOk;
         }
       else {
@@ -1533,6 +1555,7 @@ DecoderStatus MadDecoder::process(Packet*in){
     max_frames--;
     }
 
+done:
   if (eos) {
     if (out) {
       engine->output->post(out);
