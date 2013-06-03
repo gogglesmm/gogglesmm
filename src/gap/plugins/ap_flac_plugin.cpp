@@ -60,7 +60,7 @@
 #error "BUG: FLAC  macros not defined for Big Endian Architecture"
 #endif
 
-#include <stream_decoder.h>
+#include <FLAC/stream_decoder.h>
 
 namespace ap {
 
@@ -606,7 +606,7 @@ void FlacDecoder::flac_decoder_error(const FLAC__StreamDecoder */*decoder*/, FLA
 #if 0
   //FlacDecoder * plugin = reinterpret_cast<FlacDecoder*>(client_data);
   //FXASSERT(plugin);
-  
+
   switch(status) {
     case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC          : fxmessage("flac_decoder_error: An error in the stream caused the decoder to lose synchronization.\n"); break;
     case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER         : fxmessage("flac_decoder_error: The decoder encountered a corrupted frame header.\n"); break;
