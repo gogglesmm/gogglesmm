@@ -30,7 +30,10 @@
 #include <netdb.h> // for getaddrinfo()
 #endif
 
-
+// AI_ADDRCONFIG not available on OpenBSD
+#ifndef AI_ADDRCONFIG
+#define AI_ADDRCONFIG 0
+#endif
 
 #include "ap_connect.h"
 #include "ap_wait_io.h"
