@@ -36,9 +36,15 @@
 #include "ap_output_thread.h"
 
 
-
 #include <ogg/ogg.h>
+
+#if defined(HAVE_VORBIS_PLUGIN)
 #include <vorbis/codec.h>
+#elif defined(HAVE_TREMOR_PLUGIN)
+#include <tremor/ivorbiscodec.h>
+#else
+#error "No vorbis decoder library specified"
+#endif
 
 namespace ap {
 
@@ -76,8 +82,8 @@ public:
 
 VorbisDecoder::VorbisDecoder(AudioEngine * e) : DecoderPlugin(e),buffer(32768),engine(e),has_info(false),has_dsp(false),out(NULL) {
 
-  // Dummy comment structure. libvorbis will only check for a non-null vendor. 
-  vorbis_comment_init(&comment); 
+  // Dummy comment structure. libvorbis will only check for a non-null vendor.
+  vorbis_comment_init(&comment);
   comment.vendor = (FXchar*)"";
   }
 
@@ -153,11 +159,26 @@ FXbool VorbisDecoder::is_vorbis_header() {
   return (op.bytes>6 && ((op.packet[0]==1) || (op.packet[0]==3) || (op.packet[0]==5)) && (compare((const FXchar*)&op.packet[1],"vorbis",6)==0));
   }
 
+#ifdef HAVE_TREMOR_PLUGIN
+static ogg_int32_t CLIP_TO_15(ogg_int32_t x) {
+  int ret=x;
+  ret-= ((x<=32767)-1)&(x-32767);
+  ret-= ((x>=-32768)-1)&(x+32768);
+  return(ret);
+  }
+#endif
+
 DecoderStatus VorbisDecoder::process(Packet * packet) {
   FXASSERT(packet);
 
+#ifdef HAVE_VORBIS_PLUGIN
   FXfloat ** pcm=NULL;
   FXfloat * buf32=NULL;
+#else // HAVE_TREMOR_PLUGIN
+  FXint ** pcm=NULL;
+  FXshort * buf32=NULL;
+#endif
+
   FXint p,navail=0;
 
   FXint ngiven,ntotalsamples,nsamples,sample,c,s;
@@ -255,14 +276,23 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
             navail = out->availableFrames();
             }
 
+#ifdef HAVE_VORBIS_PLUGIN
           buf32 = out->flt();
-
+#else // HAVE_TREMOR_PLUGIN
+          buf32 = out->s16();
+#endif
           /// Copy Samples
+          FXint min=0,max=0;
+
           nsamples = FXMIN(ntotalsamples,navail);
           for (p=0,s=sample;s<(nsamples+sample);s++){
             for (c=0;c<info.channels;c++,p++) {
               FXASSERT(s<ngiven);
-              buf32[p]=pcm[c][s];
+#ifdef HAVE_VORBIS_PLUGIN
+              buf32[p]=pcm[c][s];              
+#else
+              buf32[p]=CLIP_TO_15(pcm[c][s]>>9);
+#endif
               }
             }
 

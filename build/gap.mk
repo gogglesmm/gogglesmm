@@ -44,6 +44,10 @@ ifneq (,$(findstring vorbis,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_vorbis_plugin.cpp
 endif
 
+ifneq (,$(findstring tremor,$(GAP_PLUGINS)))
+GAP_SRC+=src/gap/plugins/ap_vorbis_plugin.cpp
+endif
+
 ifneq (,$(findstring opus,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_opus_plugin.cpp
 endif

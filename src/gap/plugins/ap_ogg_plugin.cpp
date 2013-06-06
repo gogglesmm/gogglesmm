@@ -36,7 +36,14 @@
 #include "ap_decoder_thread.h"
 
 #include <ogg/ogg.h>
+
+#if defined(HAVE_VORBIS_PLUGIN)
 #include <vorbis/codec.h>
+#elif defined(HAVE_TREMOR_PLUGIN)
+#include <tremor/ivorbiscodec.h>
+#else
+#error "Fixme: implement vorbis-less ogg decoder"
+#endif
 
 namespace ap {
 
@@ -354,7 +361,11 @@ ReadStatus OggReader::parse_vorbis_stream() {
       goto error;
 
     codec=Codec::Vorbis;
+#ifdef HAVE_VORBIS_PLUGIN
     af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels);
+#else // HAVE_TREMOR_PLUGIN
+    af.set(AP_FORMAT_S16,vi.rate,vi.channels);
+#endif
 
     flags|=FLAG_VORBIS_HEADER_INFO;
     submit_ogg_packet(false);

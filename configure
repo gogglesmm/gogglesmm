@@ -22,6 +22,7 @@ MAD_PREFIX=/usr
 OPTION_GAP_MAD=1
 OPTION_GAP_FORCE_MAD=0
 OPTION_GAP_VORBIS=1
+OPTION_GAP_TREMOR=0
 OPTION_GAP_OPUS=1
 OPTION_GAP_FLAC=1
 OPTION_GAP_FAAD=1
@@ -105,6 +106,10 @@ for arg in $@; do
       OPTION_GAP_MAD=0
       ;;
     --without-vorbis)
+      OPTION_GAP_VORBIS=0
+      ;;
+    --with-tremor)
+      OPTION_GAP_TREMOR=1
       OPTION_GAP_VORBIS=0
       ;;
     --without-opus)
