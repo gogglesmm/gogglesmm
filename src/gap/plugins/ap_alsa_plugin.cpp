@@ -158,7 +158,7 @@ FXbool AlsaOutput::open() {
 
 			//FXint ncount = snd_mixer_poll_descriptors_count(mixer);
       //GM_DEBUG_PRINT("Nmixer Count: %d\n",ncount);
-			
+
       for (snd_mixer_elem_t * element = snd_mixer_first_elem(mixer);element;element=snd_mixer_elem_next(element)){
         if (snd_mixer_elem_get_type(element)!=SND_MIXER_ELEM_SIMPLE) continue;
         if (!snd_mixer_selem_is_active(element)) continue;
@@ -411,9 +411,8 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   if (snd_pcm_sw_params_set_avail_min(handle,sw,periodsize)<0)
     goto failed;
 
-  /// Start when almost full
-//  if (snd_pcm_sw_params_set_start_threshold(handle,sw,(buffersize/periodsize)*periodsize)<0)
-//    goto failed;
+  if (snd_pcm_sw_params_set_start_threshold(handle,sw,(buffersize/periodsize)*periodsize)<0)
+    goto failed;
 
   if (snd_pcm_sw_params_set_stop_threshold(handle,sw,buffersize)<0)
     goto failed;
@@ -542,6 +541,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
               return false;
               }
             }
+
         } /// intentionally no break
       default                         :
         {
@@ -566,9 +566,9 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
           if (nwritten>0) {
             buf+=(nwritten*af.framesize());
             nframes-=nwritten;
-            if (snd_pcm_state(handle)!=SND_PCM_STATE_RUNNING) {
-              GM_DEBUG_PRINT("PCM NOT RUNNING\n");
-              }
+            //if (snd_pcm_state(handle)!=SND_PCM_STATE_RUNNING) {
+            //  GM_DEBUG_PRINT("[alsa] not running\n");
+            //  }
             }
         } break;
       }
