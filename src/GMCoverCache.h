@@ -22,9 +22,6 @@
 class GMImageMap;
 class GMCompressedImage;
 
-
-
-
 class GMCoverCache : FXObject {
 FXDECLARE(GMCoverCache)
 protected:
