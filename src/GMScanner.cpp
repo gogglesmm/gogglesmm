@@ -578,6 +578,7 @@ void GMImportTask::import() {
         }
       }
     }
+  database->sync_album_year();
   database->commitTask();
   }
 
@@ -680,24 +681,42 @@ void GMSyncTask::syncDirectory(const FXString & path) {
   GMTrackFilenameList list;
   FXStat stat;
 
+  //fxmessage("path %s\n",path.text());
   database->getTrackFilenames(list,path);
+  //fxmessage("files %d\n",list.no());
+
+  FXint progress = -1;
+  FXdouble fraction = 0;
+
 
   if (options_sync.remove_all) {
     for (FXint i=0;i<list.no() && processing ;i++){
-    
+
+      fraction = 100.0 * ((i+1) / (FXdouble)(list.no()));
+      if (progress!=(FXint)fraction){
+        progress=(FXint)fraction;
+        taskmanager->setStatus(FXString::value("Syncing Files %d%%",progress));
+        }
+
       if (database->interrupt)
         database->waitTask();
-    
+
       dbtracks.remove(list[i].id);
       nchanged++;
       }
     }
   else if (options_sync.remove_missing) {
     for (FXint i=0;i<list.no() && processing ;i++){
-    
+
+      fraction = 100.0 * ((i+1) / (FXdouble)(list.no()));
+      if (progress!=(FXint)fraction){
+        progress=(FXint)fraction;
+        taskmanager->setStatus(FXString::value("Syncing Files %d%%",progress));
+        }
+
       if (database->interrupt)
         database->waitTask();
-    
+
       if (!FXStat::statFile(list[i].filename,stat)){
         dbtracks.remove(list[i].id);
         }
@@ -710,10 +729,15 @@ void GMSyncTask::syncDirectory(const FXString & path) {
     }
   else {
     for (FXint i=0;i<list.no() && processing ;i++){
+      fraction = 100.0 * ((i+1) / (FXdouble)(list.no()));
+      if (progress!=(FXint)fraction){
+        progress=(FXint)fraction;
+        taskmanager->setStatus(FXString::value("Syncing Files %d%%",progress));
+        }
 
       if (database->interrupt)
         database->waitTask();
-        
+
       if (FXStat::statFile(list[i].filename,stat) && options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
         parse(list[i].filename,-1,info);
         dbtracks.update(list[i].id,info);
@@ -730,8 +754,10 @@ void GMSyncTask::sync(){
     for (FXint i=0;(i<files.no()) && processing;i++){
       syncDirectory(files[i]);
       }
-    if (nchanged)
+    if (nchanged) {
       database->sync_tracks_removed();
+      database->sync_album_year();
+      }
     }
   database->commitTask();
   }
