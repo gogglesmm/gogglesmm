@@ -2243,6 +2243,15 @@ void GMTrackDatabase::sync_tracks_removed() {
   GM_TICKS_END();
   }
 
+void GMTrackDatabase::sync_album_year() {
+  DEBUG_DB_SET();
+  GM_TICKS_START();
+  execute("UPDATE albums SET year = (SELECT ifnull(MIN(year),0) FROM tracks WHERE album = albums.id AND year > 0);");
+  GM_TICKS_END();
+  }
+
+
+
 void GMTrackDatabase::removeTracks(const FXIntList & tracks) {
   DEBUG_DB_SET();
   GM_TICKS_START();

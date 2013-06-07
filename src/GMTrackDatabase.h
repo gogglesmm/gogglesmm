@@ -329,6 +329,7 @@ public:
   ///  Sync API
   ///=======================================================================================
   void sync_tracks_removed();
+  void sync_album_year();
 
   void initArtistLookup();
 
