@@ -31,40 +31,6 @@
 #include "GMCoverCache.h"
 
 
-void FXIntMap::save(FXStream & store) const {
-  store << no();
-  for (FXuint i=0;i<size();i++){
-    if (!empty(i)) {
-      store << key(i);
-      store << value(i);
-      }
-    }
-  }
-
-void FXIntMap::load(FXStream & store) {
-  FXint key,value,no;
-  store >> no;
-  for (FXint i=0;i<no;i++){
-    store >> key;
-    store >> value;
-    insert(key,value);
-    }
-  }
-
-void FXIntMap::adopt(FXIntMap & other) {
-  // Clear this map first
-  clear();
-
-  // Populate with new entries
-  for (FXuint i=0;i<other.size();i++){
-    if (!other.empty(i)) {
-      insert(other.key(i),other.value(i));
-      }
-    }
-
-  // Leave other empty
-  other.clear();
-  }
 
 
 

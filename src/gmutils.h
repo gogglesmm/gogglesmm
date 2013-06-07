@@ -20,6 +20,21 @@
 #define GMUTILS_H
 
 
+class FXIntMap : public FXHash {
+public:
+  FXint insert(FXint name,FXint value) { return (FXint)(FXival)FXHash::insert((void*)(FXival)name,(void*)(FXival)value); }
+  FXint replace(FXint name,FXint value) { return (FXint)(FXival)FXHash::replace((void*)(FXival)name,(void*)(FXival)value); }
+  FXint remove(FXint name) {  return (FXint)(FXival)FXHash::remove((void*)(FXival)name); }
+  FXint find(FXint name) const { return (FXint)(FXival)FXHash::find((void*)(FXival)name); }
+  FXint key(FXuint pos) const { return (FXint)(FXival)table[pos].name; }
+  FXint value(FXuint pos) const { return (FXint)(FXival)table[pos].data; }
+  void adopt(FXIntMap &);
+  void load(FXStream & store);
+  void save(FXStream & store) const;
+  };
+
+
+
 enum {
   DESKTOP_SESSION_X11         = 0,
   DESKTOP_SESSION_KDE_PLASMA  = 1,
