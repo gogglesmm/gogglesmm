@@ -911,6 +911,12 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
           it++;
         }
       }
+#ifdef TAGLIB_HAVE_MP4
+    else if (mp4) {
+      // mp4 has no type information so we erase all
+      mp4->itemListMap().erase("covr");
+      }
+#endif
     }
   else { // COVER_REPLACE_ALL
     if (flacfile) {
@@ -921,6 +927,9 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
       }
     else if (xiph) {
       xiph->removeField("METADATA_BLOCK_PICTURE");
+      }
+    else if (mp4) {
+      mp4->itemListMap().erase("covr");
       }
     }
   appendCover(cover);
@@ -987,12 +996,26 @@ void GMFileTag::appendCover(GMCover* cover){
     frame->setTextEncoding(TagLib::ID3v2::FrameFactory::instance()->defaultTextEncoding());
     id3v2->addFrame(frame);
     }
-  }
+  else if (mp4) {
+    TagLib::MP4::CoverArt::Format format;
+    switch(cover->fileType()){
+      case FILETYPE_PNG: format = TagLib::MP4::CoverArt::PNG; break;
+      case FILETYPE_JPG: format = TagLib::MP4::CoverArt::JPEG; break;
+      case FILETYPE_BMP: format = TagLib::MP4::CoverArt::BMP; break;
+      case FILETYPE_GIF: format = TagLib::MP4::CoverArt::GIF; break;
+      default: return; break;
+      }     
+    if (!mp4->itemListMap().contains("covr")) {
+      TagLib::MP4::CoverArtList list;
+      list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
+      mp4->itemListMap().insert("covr",list);
+      }
+    else {
+      mp4->itemListMap()["covr"].toCoverArtList().append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
+      }
+    }    
 
-
-
-
-
+}
 
 
 
