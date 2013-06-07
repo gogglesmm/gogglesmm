@@ -786,17 +786,6 @@ FXbool GMEditTrackDialog::saveTracks() {
       sync=true;
       }
 
-    /// YEAR
-    field=yearfield->getText().trim().simplify();
-    if (!field.empty()){
-      FXint year=yearfield->getText().toInt();
-      if ( ( tracks.no()>1 && ( (!(samemask&SAME_YEAR)) || info.year!=year ) ) ||
-           ( tracks.no()==1 && info.year!=year )) {
-        db->setTrackYear(tracks,year);
-        changed=true;
-        }
-      }
-
     /// DISC and TRACK number
     if (tracks.no()==1) {
       if (GMTRACKNO(info.no)!=trackspinner->getValue() || GMDISCNO(info.no)!=discspinner->getValue() ) {
@@ -858,6 +847,19 @@ FXbool GMEditTrackDialog::saveTracks() {
       db->setTrackAlbum(tracks,altfield,(samemask&SAME_ALBUMARTIST));
       changed=true;
       sync=true;
+      }
+
+
+    /// YEAR
+    field=yearfield->getText().trim().simplify();
+    if (!field.empty()){
+      FXint year=yearfield->getText().toInt();
+      if ( ( tracks.no()>1 && ( (!(samemask&SAME_YEAR)) || info.year!=year ) ) ||
+           ( tracks.no()==1 && info.year!=year )) {
+        db->setTrackYear(tracks,year);
+        db->updateAlbumYear(tracks);
+        changed=true;
+        }
       }
 
     db->sync_tracks_removed();
