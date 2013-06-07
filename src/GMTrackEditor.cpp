@@ -857,12 +857,12 @@ FXbool GMEditTrackDialog::saveTracks() {
       if ( ( tracks.no()>1 && ( (!(samemask&SAME_YEAR)) || info.year!=year ) ) ||
            ( tracks.no()==1 && info.year!=year )) {
         db->setTrackYear(tracks,year);
-        db->updateAlbumYear(tracks);
         changed=true;
         }
       }
 
     db->sync_tracks_removed();
+    db->sync_album_year();
     db->commit();
     }
   catch(GMDatabaseException&) {
