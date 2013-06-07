@@ -1363,11 +1363,11 @@ long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector,void*){
 
   const FXchar image_patterns[]="All Images (*.png,*.jpeg,*.jpg,*.bmp,*.gif)";
 
-  GMFileDialog dialog(GMPlayerManager::instance()->getMainWindow(),"Select Cover");
-
+  GMFileDialog dialog(GMPlayerManager::instance()->getMainWindow(),"Select Cover"); 
+  dialog.setDirectory(GMApp::instance()->reg().readStringEntry("directories","last-add-cover-dir",FXSystem::getHomeDirectory().text()));
   dialog.setPatternList(image_patterns);
-
   if (dialog.execute()) {
+    GMApp::instance()->reg().writeStringEntry("directories","last-add-cover-dir",dialog.getDirectory().text());
     GMCover * cover = GMCover::fromFile(dialog.getFilename());
     GMImageInfo info;
     if (cover && cover->getImageInfo(info)) {
