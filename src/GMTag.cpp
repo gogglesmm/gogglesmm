@@ -881,10 +881,23 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
   if (mode==COVER_REPLACE_TYPE) {
     if (flacfile) {
-      // FIXME
+      const TagLib::List<TagLib::FLAC::Picture*> picturelist = flacfile->pictureList();
+      for(TagLib::List<TagLib::FLAC::Picture*>::ConstIterator it = picturelist.begin(); it != picturelist.end();it++){
+        if (cover->type==(*it)->type()) {
+          flacfile->removePicture((*it));
+          }
+        }
       }
     else if (id3v2) {
-      // FIXME
+      TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["APIC"];
+      if(!framelist.isEmpty()){
+        for(TagLib::ID3v2::FrameList::Iterator it = framelist.begin(); it != framelist.end(); it++) {
+          TagLib::ID3v2::AttachedPictureFrame * frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame*>(*it);
+          if (frame->type()==cover->type) {
+            id3v2->removeFrame(frame);
+            }
+          }
+        }
       }
     else if (xiph) {
       TagLib::StringList & coverlist = const_cast<TagLib::StringList&>(xiph->fieldListMap()["METADATA_BLOCK_PICTURE"]);
@@ -899,7 +912,7 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
         }
       }
     }
-  else {
+  else { // COVER_REPLACE_ALL
     if (flacfile) {
       flacfile->removePictures();
       }

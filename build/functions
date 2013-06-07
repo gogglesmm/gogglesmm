@@ -471,7 +471,7 @@ check_gap_packages()
 check_gogglesmm()
 {
   add_required_package "sqlite3 >= 3.6.3" "sqlite"
-  add_required_package "taglib >= 1.7.0" "taglib"
+  add_required_package "taglib >= 1.8.0" "taglib"
   if [ $OPTION_GMM_DBUS -eq 1 ] ; then
     add_package "dbus-1 >= 1.0" "dbus"
     OPTION_GMM_DBUS=$?
