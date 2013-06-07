@@ -328,7 +328,7 @@ FXbool GMTrackDatabase::init_queries() {
     query_album_artists                 = compile("SELECT albums.artist,album FROM tracks,albums WHERE albums.id ==tracks.album AND tracks.id == ?;");
 
 
-  
+
 
     //query_playlist_queue                = compile("SELECT MAX(queue) FROM playlist_tracks WHERE playlist == ?;");
     update_track_rating                 = compile("UPDATE tracks SET rating = ? WHERE id == ?;");
@@ -1962,6 +1962,26 @@ void GMTrackDatabase::setTrackYear(const FXIntList & tracks,FXuint year){
     update_track_year.set(0,year);
     update_track_year.set(1,tracks[i]);
     update_track_year.execute();
+    }
+  }
+
+void GMTrackDatabase::updateAlbumYear(const FXIntList & tracks) {
+  DEBUG_DB_SET();
+  FXint album;
+  FXIntMap albums;
+  GMQuery query_album(this,"SELECT album FROM tracks WHERE id == ?");
+  // Set album year to minimum year that is not 0 or 0 if all are 0.
+  GMQuery update_album_year(this,"UPDATE albums SET year = ( SELECT ifnull(MIN(year),0) FROM tracks WHERE album = ? ) WHERE id = ?;");
+  for (FXint i=0;i<tracks.no();i++){
+    album=0;
+    query_album.execute(tracks[i],album);
+    FXASSERT(album);
+    if (album && albums.find(album)==0) {
+      update_album_year.set(0,album);
+      update_album_year.set(1,album);
+      update_album_year.execute();
+      albums.insert(album,1);
+      }
     }
   }
 

@@ -271,6 +271,9 @@ public:
   /// Set Track Tags
   void setTrackTags(const FXIntList & ids,const FXStringList & tags);
 
+  /// Update Album Year for tracks
+  void updateAlbumYear(const FXIntList & ids);
+
 
   ///=======================================================================================
   /// Play Lists
