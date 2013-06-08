@@ -192,8 +192,15 @@ void AlsaOutput::volume(FXfloat v) {
 FXint AlsaOutput::delay() {
   snd_pcm_sframes_t nframes=0;
   if (handle) {
-    if (snd_pcm_delay(handle,&nframes)<0 || nframes<0)
+    if (snd_pcm_delay(handle,&nframes)!=0){
+      GM_DEBUG_PRINT("[alsa] failed to get delay\n");  
       return 0;
+      }
+    if (nframes<0) {
+      FXASSERT(0);
+      GM_DEBUG_PRINT("[alsa] delay was negative\n");  
+      return 0;
+      }  
     }
   return nframes;
   }
@@ -217,14 +224,12 @@ void AlsaOutput::close() {
 void AlsaOutput::drop() {
   if (__likely(handle)) {
     snd_pcm_drop(handle);
-//    snd_pcm_prepare(handle);
     }
   }
 
 void AlsaOutput::drain() {
   if (__likely(handle)) {
     snd_pcm_drain(handle);
-//    snd_pcm_prepare(handle);
     }
   }
 
@@ -251,14 +256,8 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   snd_pcm_format_t  format;
   snd_pcm_hw_params_t * hw=NULL;
   snd_pcm_sw_params_t * sw=NULL;
-
-#ifdef DEBUG
-  //snd_pcm_uframes_t minperiod,maxperiod;
-  //snd_pcm_uframes_t minbuffer,maxbuffer;
   snd_pcm_uframes_t availmin;
   snd_pcm_uframes_t startthreshold,stopthreshold;
-  //FXuint buffertime = 500000;
-#endif
 
 
 
