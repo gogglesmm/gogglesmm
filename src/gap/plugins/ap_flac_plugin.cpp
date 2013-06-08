@@ -70,6 +70,7 @@ protected:
   FLAC__StreamDecoder * flac;
   ReplayGain            gain;
   MetaInfo            * meta;
+  FXlong                lastseek;
 protected:
   static FLAC__StreamDecoderSeekStatus    flac_input_seek(const FLAC__StreamDecoder*,FLAC__uint64,void*);
   static FLAC__StreamDecoderTellStatus    flac_input_tell(const FLAC__StreamDecoder*,FLAC__uint64*,void*);
@@ -249,12 +250,12 @@ FXbool FlacReader::can_seek() const {
 FXbool FlacReader::seek(FXdouble pos){
   FXASSERT(stream_length>0);
   FXlong offset = (FXlong)(((FXdouble)stream_length)*pos);
-  GM_DEBUG_PRINT("seek to %ld\n",offset);
+  GM_DEBUG_PRINT("[flac_reader] seek to %g %ld / %ld\n",pos,offset,stream_length);
   FLAC__stream_decoder_flush(flac);
   if (FLAC__stream_decoder_seek_absolute(flac,offset)) {
+    input->position(lastseek,FXIO::Begin);
     return true;
     }
-  GM_DEBUG_PRINT("Oops. failed to seek\n");
   return false;
   }
 
@@ -320,11 +321,12 @@ FLAC__StreamDecoderSeekStatus FlacReader::flac_input_seek(const FLAC__StreamDeco
 // FIXME
 //  if (inputflac->input->io->isSerial())
 //    return FLAC__STREAM_DECODER_SEEK_STATUS_UNSUPPORTED;
-
   FXlong pos = plugin->input->position(absolute_byte_offset,FXIO::Begin);
+  plugin->lastseek = pos;
+
   if (pos<0 || ((FXulong)pos)!=absolute_byte_offset)
     return FLAC__STREAM_DECODER_SEEK_STATUS_ERROR;
-  else
+  else 
     return FLAC__STREAM_DECODER_SEEK_STATUS_OK;
   }
 
@@ -365,7 +367,7 @@ FLAC__bool FlacReader::flac_input_eof(const FLAC__StreamDecoder */*decoder*/, vo
   }
 
 
-FLAC__StreamDecoderWriteStatus FlacReader::flac_input_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame */*frame*/, const FLAC__int32 *const /*buffer*/[], void */*client_data*/) {
+FLAC__StreamDecoderWriteStatus FlacReader::flac_input_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame *frame, const FLAC__int32 *const /*buffer*/[], void */*client_data*/) {
 //  FXASSERT(0);
   return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;//FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
   }
@@ -465,8 +467,6 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
   FXint nframes = frame->header.blocksize;
 
   FXASSERT(frame->header.number_type==FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER);
-
-//  fxmessage("flac nframes %d with sample number %ld\n",nframes,frame->header.number.sample_number);
 
   if (nframes==0)
     return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
