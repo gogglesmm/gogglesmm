@@ -54,7 +54,7 @@ private:
   FXint nwritten;
 public:
   FrameTimer(FXint n) : nold(n),nwait(n),nwritten(0) {
-    GM_DEBUG_PRINT("timer set to %d\n",nwait);
+    GM_DEBUG_PRINT("[output] frame timer set to %d\n",nwait);
     }
 
   FXbool update(FXint delay,FXint nframes) {
@@ -157,6 +157,8 @@ void OutputThread::reconfigure() {
 void OutputThread::notify_position() {
   FXint tm = (FXint) floor((double)stream_position / (double)plugin->af.rate);
   if (tm!=timestamp) {
+    FXASSERT(stream_position>=0);
+    FXASSERT(tm>=0);
     timestamp=tm;
     FXuint len =0;
     len = floor((double)stream_length / (double)plugin->af.rate);
@@ -188,10 +190,11 @@ void OutputThread::update_timers(FXint delay,FXint nframes) {
 
 void OutputThread::update_position(FXint sid,FXint position,FXint nframes,FXint length) {
   FXint delay = plugin->delay();
+  FXASSERT(position>=0);
 
   if (sid!=stream) {
     if (stream_remaining>0) {
-      GM_DEBUG_PRINT("stream_remaining already set. probably very short track. let's drain\n");
+      GM_DEBUG_PRINT("[output] stream_remaining already set. probably very short track. let's drain\n");
       drain(false);
 
       stream_remaining = 0;
@@ -216,6 +219,7 @@ void OutputThread::update_position(FXint sid,FXint position,FXint nframes,FXint 
           stream_position += stream_remaining - diff;
         stream_remaining = diff;
         stream_written += nframes;
+        FXASSERT(stream_position>0);
         }
       else {
         stream_remaining = 0;
@@ -229,7 +233,8 @@ void OutputThread::update_position(FXint sid,FXint position,FXint nframes,FXint 
       }
     }
   else {
-    stream_position = position - delay;
+    FXASSERT(delay<position);
+    stream_position = FXMAX(0,position - delay);
     stream_length   = length;
     }
 
@@ -281,14 +286,14 @@ void OutputThread::update_position(FXint sid,FXint position,FXint nframes,FXint 
 
 
 void OutputThread::drain(FXbool flush) {
-  GM_DEBUG_PRINT("drain while updating time\n");
+  GM_DEBUG_PRINT("[output] drain while updating time\n");
   if (plugin) {
     FXint delay,offset;
 
     delay=offset=plugin->delay();
 
     if ((delay<=0) || ((double)delay/(double)plugin->af.rate) < 0.5) {
-      GM_DEBUG_PRINT("Current delay not worth waiting for (%d frames)\n",delay);
+      GM_DEBUG_PRINT("[output] Current delay not worth waiting for (%d frames)\n",delay);
       if (flush) plugin->drain();
       return;
       }
@@ -298,7 +303,7 @@ void OutputThread::drain(FXbool flush) {
       delay = plugin->delay();
 
       if (delay < (FXint)(plugin->af.rate>>1) ) {
-        GM_DEBUG_PRINT("Less than 0.5 left. drain the soundcard\n");
+        GM_DEBUG_PRINT("[output] Less than 0.5 left. drain the soundcard\n");
         if (flush) plugin->drain();
         return;
         }
@@ -456,9 +461,9 @@ void OutputThread::configure(const AudioFormat & fmt) {
     draining=false;
 
 #ifdef DEBUG
-    fxmessage("stream ");
+    fxmessage("[output] stream ");
     fmt.debug();
-    fxmessage("output ");
+    fxmessage("[output] plugin ");
     plugin->af.debug();
 #endif
 
@@ -466,7 +471,7 @@ void OutputThread::configure(const AudioFormat & fmt) {
     }
 
   // We need to reconfigure the hardware, but first let's drain the existing samples
-  GM_DEBUG_PRINT("Potential new format... let's drain\n");
+  GM_DEBUG_PRINT("[output] Potential new format... let's drain\n");
   drain();
 
   af=fmt;
@@ -475,16 +480,12 @@ void OutputThread::configure(const AudioFormat & fmt) {
     plugin->drop();
     close_plugin();
     engine->input->post(new ControlEvent(Ctrl_Close));
-
-//    fxmessage("OutputThread::configure failed\n");
-//    processing=false;
-//    af.reset();
     return;
     }
 #ifdef DEBUG
-  fxmessage("stream ");
+  fxmessage("[output] stream ");
   af.debug();
-  fxmessage("output ");
+  fxmessage("[output] plugin ");
   plugin->af.debug();
 #endif
   draining=false;
@@ -654,8 +655,6 @@ static void apply_scale_s16(FXuchar * buffer,FXuint nsamples,FXdouble scale) {
 
 
 void OutputThread::process(Packet * packet) {
-
-//  GM_TICKS_START();
   FXASSERT(packet);
   FXbool use_buffer=false;
   FXbool result=false;
