@@ -133,7 +133,7 @@ FXint DecoderThread::run(){
                           case DecoderError:
                                                            delete plugin;
                                                            plugin=NULL;
-                                                           fxmessage("[decoder] error\n");
+                                                           GM_DEBUG_PRINT("[decoder] fatal error");
                                                            engine->input->post(new ControlEvent(Ctrl_Close));
                                                            engine->post(new ErrorMessage("Fatal decoder error"));
                                                            break;
