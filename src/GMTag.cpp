@@ -760,6 +760,18 @@ FXint GMFileTag::getChannels() const{
   }
 
 
+FXint GMFileTag::getSampleSize() const{
+  FXASSERT(file);
+  TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
+  if (flacfile && flacfile->audioProperties()) {
+    return flacfile->audioProperties()->sampleWidth();
+    }
+  else
+    return 0;
+  }
+
+
+
 void GMFileTag::setTrackNumber(FXushort track) {
   tag->setTrack(track);
   }
@@ -1047,6 +1059,7 @@ FXbool GMAudioProperties::load(const FXString & filename){
     bitrate    = tags.getBitRate();
     samplerate = tags.getSampleRate();
     channels   = tags.getChannels();
+    samplesize = tags.getSampleSize();
     return true;
     }
   return false;

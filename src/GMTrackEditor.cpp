@@ -432,10 +432,10 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     new FXLabel(matrix,tr("Size"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     sizefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    new FXLabel(matrix,tr("Bitrate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    bitratelabel = new FXLabel(matrix,FXString::null,NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     bitratefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    new FXLabel(matrix,tr("Samplerate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    new FXLabel(matrix,tr("Sample Rate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     sampleratefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     new FXLabel(matrix,tr("Channels"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
@@ -682,7 +682,14 @@ void GMEditTrackDialog::displayTracks() {
 #else
     sizefield->setText(FXString::value("%'lld",FXStat::size(info.url)));
 #endif
-    bitratefield->setText(FXString::value("%dkbs",properties.bitrate));
+    if (properties.samplesize>0) {
+      bitratelabel->setText(tr("Sample Size"));
+      bitratefield->setText(FXString::value("%dbit",properties.samplesize));
+      }
+    else {
+      bitratelabel->setText(tr("Bitrate"));
+      bitratefield->setText(FXString::value("%dkbs",properties.bitrate));
+      }
     sampleratefield->setText(FXString::value("%dHz",properties.samplerate));
     channelfield->setText(FXString::value("%d",properties.channels));
     tagsfield->setText(list_concat(info.tags));
