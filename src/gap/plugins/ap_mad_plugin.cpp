@@ -716,7 +716,7 @@ FXbool MadReader::seek(FXdouble pos) {
     FXlong offset = 0;
     if (xing) {
       offset = xing->seek(pos,(input_end - input_start));
-      GM_DEBUG_PRINT("offset: %ld\n",offset);
+      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",pos,offset);
       if (offset==-1) return false;
       stream_position = stream_length * pos;
       }
@@ -874,7 +874,7 @@ FXbool MadReader::parse_ape() {
     if (ape_version==2000) {
       if (ape_flags&APE_HEADER) {
         /// We expect a footer
-        GM_DEBUG_PRINT("mad_input: found ape tag header but expected a footer?\n");
+        GM_DEBUG_PRINT("[mad_reader] found ape tag header but expected a footer?\n");
         }
       else {
         if (ape_flags&APE_CONTAINS_HEADER)
