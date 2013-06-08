@@ -170,7 +170,7 @@ void HttpResponse::check_headers() {
 #ifdef DEBUG
 	fxmessage("Headers:\n");
   for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
-    fxmessage("%s: %s\n",headers.key(pos),((FXString*)headers.data(pos))->text());
+    fxmessage("\t%s: %s\n",headers.key(pos),((FXString*)headers.data(pos))->text());
     }
 #endif
   }
