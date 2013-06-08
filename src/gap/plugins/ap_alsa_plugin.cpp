@@ -256,9 +256,10 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   snd_pcm_format_t  format;
   snd_pcm_hw_params_t * hw=NULL;
   snd_pcm_sw_params_t * sw=NULL;
+#ifdef DEBUG
   snd_pcm_uframes_t availmin;
   snd_pcm_uframes_t startthreshold,stopthreshold;
-
+#endif
 
 
   snd_pcm_hw_params_alloca(&hw);
