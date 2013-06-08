@@ -32,7 +32,7 @@ ID3V2::ID3V2(FXuchar *b,FXint len) : buffer(b),size(len),p(0) {
   const FXchar & flags = buffer[5];
 
   version = buffer[3];
-  GM_DEBUG_PRINT("version %d\n",version);
+  GM_DEBUG_PRINT("[id3v2] version %d\n",version);
 
   buffer+=10;
   size-=10;
@@ -77,7 +77,7 @@ void ID3V2::unsync(FXuchar * src,FXint & len) {
 
 void ID3V2::parse_priv_frame(FXint framesize) {
   if (buffer+p!='\0'){
-    GM_DEBUG_PRINT("priv %s\n",buffer+p);
+    GM_DEBUG_PRINT("[id3v2] priv text %s\n",buffer+p);
     }
   }
 
@@ -162,7 +162,7 @@ void ID3V2::parse_text_frame(FXuint frameid,FXint framesize) {
     default         : return; break;
     };
 
-  GM_DEBUG_PRINT("text: \"%s\"\n",text.text());
+  GM_DEBUG_PRINT("[id3v2] text: \"%s\"\n",text.text());
 
   switch(frameid) {
     case TP1  :
@@ -195,9 +195,9 @@ void ID3V2::parse_frame() {
     };
 
   if (version==2)
-    GM_DEBUG_PRINT("frame=%c%c%c\n",buffer[p+0],buffer[p+1],buffer[p+2]);
+    GM_DEBUG_PRINT("[id3v2] frame %c%c%c\n",buffer[p+0],buffer[p+1],buffer[p+2]);
   else
-    GM_DEBUG_PRINT("frame=%c%c%c%c\n",buffer[p+0],buffer[p+1],buffer[p+2],buffer[p+3]);
+    GM_DEBUG_PRINT("[id3v2] frame %c%c%c%c\n",buffer[p+0],buffer[p+1],buffer[p+2],buffer[p+3]);
 
 
   if (version==2) {
