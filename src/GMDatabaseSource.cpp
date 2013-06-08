@@ -1301,9 +1301,9 @@ protected:
         GMFileTag tag;
         if (tag.open(files[i],FILETAG_TAGS)) {
           switch (mode) {
-            case COVER_APPEND     : tag.appendCover(cover);  break;
-            case COVER_REPLACE    : tag.replaceCover(cover); break;
-            case COVER_REPLACE_ALL: tag.replaceCover(cover); break; // FIXME
+            case COVER_APPEND     : tag.appendCover(cover);                     break;
+            case COVER_REPLACE    : tag.replaceCover(cover,COVER_REPLACE_TYPE); break;
+            case COVER_REPLACE_ALL: tag.replaceCover(cover,COVER_REPLACE_ALL);  break;
             default               : break;
             }
           tag.save();

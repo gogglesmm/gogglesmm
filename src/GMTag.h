@@ -147,7 +147,7 @@ public:
   void appendCover(GMCover*);
 
   void replaceCover(GMCover*,FXuint mode=COVER_REPLACE_ALL);
-
+  void clearCovers();
 
   ~GMFileTag();
   };

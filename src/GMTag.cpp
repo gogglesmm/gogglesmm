@@ -464,7 +464,7 @@ void GMFileTag::mp4_update_field(const FXchar * field,const FXString & value) {
   FXASSERT(field);
   FXASSERT(mp4);
   if (!value.empty())
-    mp4->itemListMap()[field] = TagLib::StringList(TagLib::String(value.text(),TagLib::String::UTF8));
+    mp4->itemListMap().insert(field,TagLib::StringList(TagLib::String(value.text(),TagLib::String::UTF8)));
   else
     mp4->itemListMap().erase(field);
 #endif
@@ -483,7 +483,7 @@ void GMFileTag::mp4_update_field(const FXchar * field,const FXStringList & list)
     for (FXint i=0;i<list.no();i++) {
       values.append(TagLib::String(list[i].text(),TagLib::String::UTF8));
       }
-    mp4->itemListMap()[field]=values;
+    mp4->itemListMap().insert(field,values);
     }
 #endif
   }
@@ -493,7 +493,7 @@ void GMFileTag::mp4_get_field(const FXchar * field,FXString & value) const {
 #ifdef TAGLIB_HAVE_MP4
   FXASSERT(field);
   FXASSERT(mp4);
-  if (mp4->itemListMap().contains(field) && !mp4->itemListMap().isEmpty())
+  if (mp4->itemListMap().contains(field))
     value=mp4->itemListMap()[field].toStringList().toString(", ").toCString(true);
   else
     value.clear();
@@ -507,7 +507,7 @@ void GMFileTag::mp4_get_field(const FXchar * field,FXStringList & list) const{
 #ifdef TAGLIB_HAVE_MP4
   FXASSERT(field);
   FXASSERT(mp4);
-  if (mp4->itemListMap().contains(field) && !mp4->itemListMap().isEmpty()) {
+  if (mp4->itemListMap().contains(field)) {
     TagLib::StringList fieldlist = mp4->itemListMap()[field].toStringList();
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
       list.append(it->toCString(true));
@@ -689,7 +689,7 @@ void GMFileTag::setDiscNumber(FXushort disc) {
 #ifdef TAGLIB_HAVE_MP4
   else if (mp4) {
     if (disc>0)
-      mp4->itemListMap()["disk"] = TagLib::MP4::Item(disc,0);
+      mp4->itemListMap().insert("disk",TagLib::MP4::Item(disc,0));
     else
       mp4->itemListMap().erase("disk");
     }
@@ -787,7 +787,7 @@ GMCover * GMFileTag::getFrontCover() const {
     }
   else if (id3v2) {
     TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["APIC"];
-    if(!framelist.isEmpty()){
+    if(!framelist.isEmpty()){  
       /// First Try Front Cover
       for(TagLib::ID3v2::FrameList::Iterator it = framelist.begin(); it != framelist.end(); it++) {
         TagLib::ID3v2::AttachedPictureFrame * frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame*>(*it);
@@ -919,20 +919,27 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
 #endif
     }
   else { // COVER_REPLACE_ALL
-    if (flacfile) {
-      flacfile->removePictures();
-      }
-    else if (id3v2) {
-      id3v2->removeFrames("APIC");
-      }
-    else if (xiph) {
-      xiph->removeField("METADATA_BLOCK_PICTURE");
-      }
-    else if (mp4) {
-      mp4->itemListMap().erase("covr");
-      }
+    clearCovers();
     }
   appendCover(cover);
+  }
+
+void GMFileTag::clearCovers() {
+  TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
+  if (flacfile) {
+    flacfile->removePictures();
+    }
+  else if (id3v2) {
+    id3v2->removeFrames("APIC");
+    }
+  else if (xiph) {
+    xiph->removeField("METADATA_BLOCK_PICTURE");
+    }
+#ifdef TAGLIB_HAVE_MP4
+  else if (mp4) {
+    mp4->itemListMap().erase("covr");
+    }
+#endif
   }
 
 
@@ -996,6 +1003,7 @@ void GMFileTag::appendCover(GMCover* cover){
     frame->setTextEncoding(TagLib::ID3v2::FrameFactory::instance()->defaultTextEncoding());
     id3v2->addFrame(frame);
     }
+#ifdef TAGLIB_HAVE_MP4
   else if (mp4) {
     TagLib::MP4::CoverArt::Format format;
     switch(cover->fileType()){
@@ -1011,9 +1019,13 @@ void GMFileTag::appendCover(GMCover* cover){
       mp4->itemListMap().insert("covr",list);
       }
     else {
-      mp4->itemListMap()["covr"].toCoverArtList().append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
+      TagLib::MP4::CoverArtList list = mp4->itemListMap()["covr"].toCoverArtList();
+      list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
+      mp4->itemListMap().insert("covr",list);
       }
-    }    
+    }
+#endif
+    
 
 }
 
