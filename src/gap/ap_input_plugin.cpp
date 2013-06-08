@@ -45,6 +45,42 @@ InputPlugin::InputPlugin(InputThread * i) : input(i){
 
 InputPlugin::~InputPlugin() {
   }
+
+FXbool InputPlugin::read_uint32_be(FXuint & value) {
+  if (read(&value,4)==4) {
+    value = swap32(value);
+    return true;
+    }
+  return false;
+  }
+
+FXbool InputPlugin::read_int32_be(FXint & value) {
+  if (read(&value,4)==4) {
+    value = swap32(value);
+    return true;
+    }
+  return false;
+  }
+
+
+
+FXbool InputPlugin::read_uint16_be(FXushort & value) {
+  if (read(&value,2)==2) {
+    value = swap16(value);
+    return true;
+    }
+  return false;
+  }
+
+FXbool InputPlugin::read_int16_be(FXshort & value) {
+  if (read(&value,2)==2) {
+    value = swap16(value);
+    return true;
+    }
+  return false;
+  }
+
+
 /*
 FXival InputPlugin::io_buffer(FXival count) {
   register FXival nread=0;
