@@ -22,10 +22,6 @@
 #include "GMCover.h"
 #include "GMTag.h"
 
-
-
-
-
 #if FOX_BIGENDIAN == 0
 #define MSB_UINT(x) ((x)[3]) | ((x)[2]<<8) | ((x)[1]<<16) | ((x)[0]<<24)
 #define MSB_SHORT(x) ((x)[0]<<8) | ((x)[1])
@@ -466,40 +462,15 @@ FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
   return covers.no();
   }
 
-#if 0 // FIXME
-FXint GMCover::fromPath(const FXString & path,GMCoverList & list) {
-
-  FXString * files=NULL;
-  FXImage * image;
-  FXint nfiles = FXDir::listFiles(files,path,"*.(png,jpg,jpeg,bmp,gif)",FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold|FXDir::HiddenFiles);
-  if (nfiles) {
-    for (FXint i=0;i<nfiles;i++) {
-      image = gm_load_image_from_file(path+PATHSEPSTRING+files[i],1);
-      if (image)
-        list.append(new GMCover(image,0));
-      }
-    delete [] files;
-    }
-  return list.no();
-  }
-#endif
-
-
 
 GMCover * GMCover::fromTag(const FXString & mrl) {
   FXString extension = FXPath::extension(mrl);
-#if TAGLIB_VERSION < MKVERSION(1,7,0)
-  if (comparecase(extension,"flac")==0){
-    GMCover * cover = flac_load_front_cover(mrl,scale,crop);
-    if (cover) { return cover; }
-    }
-#endif
   GMFileTag tags;
-  if (!tags.open(mrl,FILETAG_TAGS)) {
-    return NULL;
+  if (tags.open(mrl,FILETAG_TAGS)) {
+    return tags.getFrontCover();
     }
-  return tags.getFrontCover();
-  }
+  return NULL;
+  } 
 
 GMCover * GMCover::fromFile(const FXString & filename) {
   FXFile file(filename,FXIO::Reading);
