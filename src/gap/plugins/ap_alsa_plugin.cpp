@@ -37,6 +37,8 @@
 
 #define ALSA_VERSION(major,minor,patch) ((major<<16)|(minor<<8)|patch)
 
+#define DEBUG 1
+
 using namespace ap;
 
 
@@ -99,12 +101,43 @@ FXbool AlsaOutput::setOutputConfig(const OutputConfig & c) {
   return true;
   }
 
+
+
+
+static snd_mixer_elem_t * find_mixer_element_by_name(snd_mixer_t * mixer,const FXchar * name){
+  long volume;
+  for (snd_mixer_elem_t * element = snd_mixer_first_elem(mixer);element;element=snd_mixer_elem_next(element)){
+
+    /* Filter out the obvious ones */
+    if (!snd_mixer_selem_is_active(element) || 
+         snd_mixer_elem_get_type(element)!=SND_MIXER_ELEM_SIMPLE ||
+        !snd_mixer_selem_has_playback_volume(element)) 
+      continue;
+
+    /* Check if we can query the volume */     
+    if (snd_mixer_selem_get_playback_volume(element,SND_MIXER_SCHN_FRONT_LEFT,&volume)<0 ||
+        snd_mixer_selem_get_playback_volume(element,SND_MIXER_SCHN_FRONT_RIGHT,&volume)<0 ){
+      continue;
+      }
+
+    /* If we don't know what we're looking for, return first one found */
+    if (name==NULL)       
+      return element;
+
+    /* Check if this is the one we want */
+    if (comparecase(snd_mixer_selem_get_name(element),name)==0)
+      return element;
+
+    }
+  return NULL;
+  }
+
 FXbool AlsaOutput::open() {
   FXint result;
   if (handle==NULL) {
 
     if ((result=snd_pcm_open(&handle,config.device.text(),SND_PCM_STREAM_PLAYBACK,0))<0) {
-      GM_DEBUG_PRINT("Unable to open device \"%s\": %s\n",config.device.text(),snd_strerror(result));
+      GM_DEBUG_PRINT("[alsa] Unable to open device \"%s\": %s\n",config.device.text(),snd_strerror(result));
       return false;
       }
 
@@ -156,18 +189,22 @@ FXbool AlsaOutput::open() {
         return true;
         }
 
-			//FXint ncount = snd_mixer_poll_descriptors_count(mixer);
-      //GM_DEBUG_PRINT("Nmixer Count: %d\n",ncount);
-
-      for (snd_mixer_elem_t * element = snd_mixer_first_elem(mixer);element;element=snd_mixer_elem_next(element)){
-        if (snd_mixer_elem_get_type(element)!=SND_MIXER_ELEM_SIMPLE) continue;
-        if (!snd_mixer_selem_is_active(element)) continue;
-        if (snd_mixer_selem_has_playback_channel(element,SND_MIXER_SCHN_FRONT_LEFT) &&
-            snd_mixer_selem_has_playback_channel(element,SND_MIXER_SCHN_FRONT_RIGHT)) {
-          mixer_element=element;
-          GM_DEBUG_PRINT("found mixer: %s\n",snd_mixer_selem_get_name(element));
-          break;
+      /* Yay... let's guess what mixer we want */
+      mixer_element = find_mixer_element_by_name(mixer,"PCM");
+      if (mixer_element==NULL) {
+        mixer_element = find_mixer_element_by_name(mixer,"MASTER");
+        if (mixer_element==NULL) {
+          mixer_element = find_mixer_element_by_name(mixer,NULL);
           }
+        }
+      
+#ifdef DEBUG
+      if (mixer_element)
+        GM_DEBUG_PRINT("[alsa] Using mixer element: %s\n",snd_mixer_selem_get_name(mixer_element));
+#endif
+      if (mixer_element==NULL) {
+        snd_mixer_close(mixer);
+        mixer=NULL;
         }
       }
     }
@@ -209,7 +246,6 @@ void AlsaOutput::close() {
   if (handle) {
     snd_pcm_drop(handle);
     if (mixer) {
-      snd_mixer_free(mixer);
       snd_mixer_close(mixer);
       mixer=NULL;
       mixer_element=NULL;
@@ -261,20 +297,12 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   snd_pcm_uframes_t startthreshold,stopthreshold;
 #endif
 
-
   snd_pcm_hw_params_alloca(&hw);
   snd_pcm_sw_params_alloca(&sw);
 
   FXuint num_channels;
   FXint dir=0;
   FXuint sample_rate;
-
-
-
-//  bool try_reopen=(handle) ? true : false;
-
-
-//  do {
 
   if (__unlikely(handle==NULL)) {
     if (!open()) {
@@ -285,16 +313,6 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   if (fmt==af) {
     return true;
     }
-/*
-  else {
-    close()
-    if (!open())
-      return false;
-    }
-*/
-
-
-
 
   af=fmt;
 
@@ -357,10 +375,37 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
     }
 
 /*
-  if (snd_pcm_hw_params_get_buffer_size_max(hw,&maxbuffer)<0)
+  if (snd_pcm_hw_params_get_period_size_min(hw,&periodsize,&dir)<0)
     goto failed;
 
+  GM_DEBUG_PRINT("\tmin period: %lu\n",periodsize);
+  
+  if (snd_pcm_hw_params_get_period_size_max(hw,&periodsize,&dir)<0)
+    goto failed;
+
+  GM_DEBUG_PRINT("\tmax period: %lu\n",periodsize);
+
+    dir=0;
+  if (snd_pcm_hw_params_set_buffer_time_near(handle,hw,&buffertime,&dir)<0)
+    goto failed;
+*/
+
+
+  //dir=1;
+  //if (snd_pcm_hw_params_set_period_time_near(handle,hw,&buffertime,&dir)<0)
+   // goto failed;
+
+//  dir=-1;
+//  if (snd_pcm_hw_params_set_period_size_near(handle,hw,&periodsize,&dir)<0)
+//    goto failed;
+
+/*
   if (snd_pcm_hw_params_set_buffer_size_near(handle,hw,&maxbuffer)<0)
+    goto failed;
+
+
+
+  if (snd_pcm_hw_params_get_buffer_size_max(hw,&maxbuffer)<0)
     goto failed;
 
   dir=0;
@@ -371,10 +416,8 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   if (snd_pcm_hw_params_set_period_size_near(handle,hw,&maxperiod,&dir)<0)
     goto failed;
 
-  dir=0;
-  if (snd_pcm_hw_params_set_buffer_time_near(handle,hw,&buffertime,&dir)<0)
-    goto failed;
 */
+
 
   // Configure the hardware
   if (snd_pcm_hw_params(handle,hw)<0)
@@ -411,7 +454,7 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   if (snd_pcm_sw_params_set_avail_min(handle,sw,periodsize)<0)
     goto failed;
 
-  if (snd_pcm_sw_params_set_start_threshold(handle,sw,(buffersize/periodsize)*periodsize)<0)
+  if (snd_pcm_sw_params_set_start_threshold(handle,sw,periodsize)<0)
     goto failed;
 
   if (snd_pcm_sw_params_set_stop_threshold(handle,sw,buffersize)<0)

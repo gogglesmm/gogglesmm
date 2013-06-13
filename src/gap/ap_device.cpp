@@ -59,10 +59,12 @@ AlsaConfig::~AlsaConfig(){
 
 void AlsaConfig::load(FXSettings & settings) {
   device=settings.readStringEntry("alsa","device",device.text());
+  mixer=settings.readStringEntry("alsa","mixer",mixer.text());
   }
 
 void AlsaConfig::save(FXSettings & settings) const {
   settings.writeStringEntry("alsa","device",device.text());
+  settings.writeStringEntry("alsa","mixer",mixer.text());
   }
 
 OSSConfig::OSSConfig() : device("/dev/dsp"), flags(0) {
