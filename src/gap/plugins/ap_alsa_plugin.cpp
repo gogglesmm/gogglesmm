@@ -37,7 +37,7 @@
 
 #define ALSA_VERSION(major,minor,patch) ((major<<16)|(minor<<8)|patch)
 
-#define DEBUG 1
+//#define DEBUG 1
 
 using namespace ap;
 
