@@ -97,7 +97,7 @@ static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_form
 
 
 
-
+#ifdef DEBUG
 
 
 #define DISPLAY_DIR(d) ((d==0) ? '=' : (d==-1) ? '<' : '>')
@@ -158,6 +158,8 @@ static void debug_hw_minmax(int s1,int s2,int mindir,int maxdir,snd_pcm_uframes_
     }
   fxmessage("\n");
   }
+
+#endif
 
 class AlsaSetup {
 protected:

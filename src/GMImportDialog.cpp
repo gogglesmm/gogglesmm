@@ -150,11 +150,12 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   FXAccelTable *table=getShell()->getAccelTable();
 
   navbuttons=new FXHorizontalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X,0,0,0,0, 0,0,0,0, 0,0);
-  entryblock=new FXMatrix(this,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
+  entryblock=new FXMatrix(this,3,MATRIX_BY_COLUMNS|LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0, 0,0,0,0);
   new FXLabel(entryblock,tr("&File Name:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
   filename=new GMTextField(entryblock,25,this,ID_ACCEPT,TEXTFIELD_ENTER_ONLY|LAYOUT_FILL_COLUMN|LAYOUT_FILL_X|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y);
   new GMButton(entryblock,tr("&OK"),NULL,this,ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X,0,0,0,0,20,20);
   accept=new FXButton(navbuttons,FXString::null,NULL,NULL,0,LAYOUT_FIX_X|LAYOUT_FIX_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,0,0,0,0, 0,0,0,0);
+  accept->hide();
   new FXLabel(entryblock,tr("File F&ilter:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
   FXHorizontalFrame *filterframe=new FXHorizontalFrame(entryblock,LAYOUT_FILL_COLUMN|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0, 0,0,0,0);
   filefilter=new GMComboBox(filterframe,10,this,ID_FILEFILTER,COMBOBOX_STATIC|LAYOUT_FILL_X|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y);
@@ -163,16 +164,20 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   cancel=new GMButton(entryblock,tr("&Cancel"),NULL,NULL,0,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X,0,0,0,0,20,20);
   fileboxframe=new GMScrollHFrame(this);
   filebox=new FXFileList(fileboxframe,this,ID_FILELIST,ICONLIST_MINI_ICONS|ICONLIST_BROWSESELECT|ICONLIST_AUTOSIZE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  filebox->setDraggableFiles(false);
+  filebox->setFocus();
   GMScrollArea::replaceScrollbars(filebox);
   new FXLabel(navbuttons,tr("Directory:"),NULL,LAYOUT_CENTER_Y);
   dirbox=new FXDirBox(navbuttons,this,ID_DIRTREE,DIRBOX_NO_OWN_ASSOC|FRAME_LINE|LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0,1,1,1,1);
   dirbox->setNumVisible(5);
-  dirbox->setAssociations(filebox->getAssociations());
+  dirbox->setAssociations(filebox->getAssociations(),false);    // Shared file associations
   GMTreeListBox::replace(dirbox);
 
+
   bookmarkmenu=new GMMenuPane(this,POPUP_SHRINKWRAP);
-  new GMMenuCommand(bookmarkmenu,tr("&Set bookmark\t\tBookmark current directory."),markicon,this,ID_BOOKMARK);
-  new GMMenuCommand(bookmarkmenu,tr("&Clear bookmarks\t\tClear bookmarks."),clearicon,&bookmarks,FXRecentFiles::ID_CLEAR);
+  new GMMenuCommand(bookmarkmenu,tr("&Set bookmark\t\tBookmark current directory."),bookaddicon,this,ID_BOOKMARK);
+  new GMMenuCommand(bookmarkmenu,tr("&Unset bookmark\t\tRemove current directory bookmark."),bookdelicon,this,ID_UNBOOKMARK);
+  new GMMenuCommand(bookmarkmenu,tr("&Clear all bookmarks\t\tClear all bookmarks."),bookclricon,&bookmarks,FXRecentFiles::ID_CLEAR);
   FXMenuSeparator* sep1=new FXMenuSeparator(bookmarkmenu);
   sep1->setTarget(&bookmarks);
   sep1->setSelector(FXRecentFiles::ID_ANYFILES);
@@ -186,12 +191,16 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   new GMMenuCommand(bookmarkmenu,FXString::null,NULL,&bookmarks,FXRecentFiles::ID_FILE_8);
   new GMMenuCommand(bookmarkmenu,FXString::null,NULL,&bookmarks,FXRecentFiles::ID_FILE_9);
   new GMMenuCommand(bookmarkmenu,FXString::null,NULL,&bookmarks,FXRecentFiles::ID_FILE_10);
-
+  new GMMenuCommand(bookmarkmenu,FXString::null,NULL,&bookmarks,FXRecentFiles::ID_FILE_11);
+  new GMMenuCommand(bookmarkmenu,FXString::null,NULL,&bookmarks,FXRecentFiles::ID_FILE_12);
+  new GMMenuCommand(bookmarkmenu,FXString::null,NULL,&bookmarks,FXRecentFiles::ID_FILE_13);
+  new GMMenuCommand(bookmarkmenu,FXString::null,NULL,&bookmarks,FXRecentFiles::ID_FILE_14);
+  new GMMenuCommand(bookmarkmenu,FXString::null,NULL,&bookmarks,FXRecentFiles::ID_FILE_15);
   new FXFrame(navbuttons,LAYOUT_FIX_WIDTH,0,0,4,1);
   new GMButton(navbuttons,tr("\tGo up one directory\tMove up to higher directory."),updiricon,this,ID_DIRECTORY_UP,BUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
   new GMButton(navbuttons,tr("\tGo to home directory\tBack to home directory."),homeicon,this,ID_HOME,BUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
   new GMButton(navbuttons,tr("\tGo to work directory\tBack to working directory."),workicon,this,ID_WORK,BUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
-  GMMenuButton *bookmenu=new GMMenuButton(navbuttons,tr("\tBookmarks\tVisit bookmarked directories."),markicon,bookmarkmenu,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
+  FXMenuButton *bookmenu=new FXMenuButton(navbuttons,tr("\tBookmarks\tVisit bookmarked directories."),bookmarkicon,bookmarkmenu,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
   bookmenu->setTarget(this);
   bookmenu->setSelector(ID_BOOKMENU);
   new GMButton(navbuttons,tr("\tCreate new directory\tCreate new directory."),newicon,this,ID_NEW,BUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
@@ -199,28 +208,38 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   new GMButton(navbuttons,tr("\tShow icons\tDisplay directory with big icons."),iconsicon,filebox,FXFileList::ID_SHOW_BIG_ICONS,BUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
   new GMButton(navbuttons,tr("\tShow details\tDisplay detailed directory listing."),detailicon,filebox,FXFileList::ID_SHOW_DETAILS,BUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
   new GMToggleButton(navbuttons,tr("\tShow hidden files\tShow hidden files and directories."),tr("\tHide Hidden Files\tHide hidden files and directories."),hiddenicon,shownicon,filebox,FXFileList::ID_TOGGLE_HIDDEN,TOGGLEBUTTON_TOOLBAR|FRAME_RAISED,0,0,0,0, 3,3,3,3);
-  bookmarks.setTarget(this);
-  bookmarks.setSelector(ID_VISIT);
   readonly->hide();
   if(table){
-    table->addAccel(MKUINT(KEY_BackSpace,0),this,FXSEL(SEL_COMMAND,ID_DIRECTORY_UP));
-    table->addAccel(MKUINT(KEY_Delete,0),this,FXSEL(SEL_COMMAND,ID_DELETE));
-    table->addAccel(MKUINT(KEY_h,CONTROLMASK),this,FXSEL(SEL_COMMAND,ID_HOME));
-    table->addAccel(MKUINT(KEY_w,CONTROLMASK),this,FXSEL(SEL_COMMAND,ID_WORK));
-    table->addAccel(MKUINT(KEY_n,CONTROLMASK),this,FXSEL(SEL_COMMAND,ID_NEW));
+    table->addAccel(MKUINT(KEY_BackSpace,0),this,FXSEL(SEL_COMMAND,FXFileSelector::ID_DIRECTORY_UP));
+    table->addAccel(MKUINT(KEY_Delete,0),this,FXSEL(SEL_COMMAND,FXFileSelector::ID_REMOVE));
+    table->addAccel(MKUINT(KEY_h,CONTROLMASK),this,FXSEL(SEL_COMMAND,FXFileSelector::ID_HOME));
+    table->addAccel(MKUINT(KEY_w,CONTROLMASK),this,FXSEL(SEL_COMMAND,FXFileSelector::ID_WORK));
+    table->addAccel(MKUINT(KEY_n,CONTROLMASK),this,FXSEL(SEL_COMMAND,FXFileSelector::ID_NEW));
     table->addAccel(MKUINT(KEY_a,CONTROLMASK),filebox,FXSEL(SEL_COMMAND,FXFileList::ID_SELECT_ALL));
     table->addAccel(MKUINT(KEY_b,CONTROLMASK),filebox,FXSEL(SEL_COMMAND,FXFileList::ID_SHOW_BIG_ICONS));
     table->addAccel(MKUINT(KEY_s,CONTROLMASK),filebox,FXSEL(SEL_COMMAND,FXFileList::ID_SHOW_MINI_ICONS));
     table->addAccel(MKUINT(KEY_l,CONTROLMASK),filebox,FXSEL(SEL_COMMAND,FXFileList::ID_SHOW_DETAILS));
+//    table->addAccel(MKUINT(KEY_c,CONTROLMASK),filebox,FXSEL(SEL_COMMAND,FXFileList::ID_COPY_SEL));
+//    table->addAccel(MKUINT(KEY_x,CONTROLMASK),filebox,FXSEL(SEL_COMMAND,FXFileList::ID_CUT_SEL));
+//    table->addAccel(MKUINT(KEY_v,CONTROLMASK),filebox,FXSEL(SEL_COMMAND,FXFileList::ID_PASTE_SEL));
     }
-  setSelectMode(SELECTFILE_ANY);    // For backward compatibility, this HAS to be the default!
-  //setPatternList(allfiles);
-  setDirectory(FXSystem::getCurrentDirectory());
-  filebox->setFocus();
-  accept->hide();
-  navigable=TRUE;
 
+  // Now use up to 15 bookmarked directories
+  bookmarks.setMaxFiles(15);
+  bookmarks.setTarget(this);
+  bookmarks.setSelector(ID_VISIT);
 
+  // For backward compatibility, this HAS to be the default!
+  setSelectMode(SELECTFILE_ANY);
+
+  // Initial pattern
+  setPatternList(tr("All Files (*)"));
+
+  // Consistent value in dir box; don't rescan just yet!
+  dirbox->setDirectory(filebox->getDirectory());
+
+  // Default is navigation is allowed
+  navigable=true;
 
 
   fileassoc=new FXSettings();

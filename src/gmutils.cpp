@@ -41,7 +41,7 @@
 
 void FXIntMap::save(FXStream & store) const {
   store << no();
-  for (FXuint i=0;i<size();i++){
+  for (FXint i=0;i<size();i++){
     if (!empty(i)) {
       store << key(i);
       store << value(i);
@@ -64,7 +64,7 @@ void FXIntMap::adopt(FXIntMap & other) {
   clear();
 
   // Populate with new entries
-  for (FXuint i=0;i<other.size();i++){
+  for (FXint i=0;i<other.size();i++){
     if (!other.empty(i)) {
       insert(other.key(i),other.value(i));
       }

@@ -58,7 +58,7 @@ public:
     }
 
   void setuphooks() {
-    for (FXuint i=0;i<connections.size();i++) {
+    for (FXint i=0;i<connections.size();i++) {
       if (!connections.empty(i)) {
         ((GMDBus*)connections.value(i))->setup_event_loop();
         }
