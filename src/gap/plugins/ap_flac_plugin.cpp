@@ -645,6 +645,11 @@ FXbool FlacDecoder::init(ConfigureEvent*event) {
       }
 
      }
+  else {
+    // Apparently just flushing the decoder is not enough. 
+    // Prevent faulty seeking behaviour by resetting the decoder as well.
+    FLAC__stream_decoder_reset(flac);
+    }
   af=event->af;
   stream_length=event->stream_length;
   return true;
