@@ -228,16 +228,6 @@ void GMPlayListSource::markCurrent(const GMTrackItem*item) {
     }
   }
 
-/*
-void GMPlayListSource::markCurrent(GMTrackList * list,FXint item) {
-  current_track=-1;
-  current_queue=-1;
-  if (list->getNumItems()) {
-    current_track = list->getItemId(item);
-    current_queue = ((GMDBTrackItem*)list->getItem(item))->getTrackQueue();
-    }
-  }
-*/
 
 FXbool GMPlayListSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Rename…"),GMIconTheme::instance()->icon_edit,this,GMPlayListSource::ID_EDIT_NAME);

@@ -510,6 +510,12 @@ void GMTrackList::saveHeaders() {
   }
 
 
+// True if item is current
+FXbool GMTrackList::isItemPlayable(FXint index) const {
+  if(index<0 || items.no()<=index){ fxerror("%s::isItemPlayable: index out of range.\n",getClassName()); }
+  return items[index]->canPlay();
+  }
+
 
 // True if item is selected
 FXbool GMTrackList::isItemSelected(FXint index) const {

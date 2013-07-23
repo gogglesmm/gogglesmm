@@ -575,8 +575,56 @@ void GMTrackView::showCurrent() {
   source->findCurrent(tracklist,GMPlayerManager::instance()->getSource());
   }
 
+FXint GMTrackView::getPreviousPlayable(FXint from,FXbool wrap) const {
+  register FXint i;
+  for (i=from;i>0;i--){
+    if (tracklist->isItemPlayable(i)) {
+      if (tracklist->getActiveItem()!=i) 
+        return i;
+      else
+        return -1;
+      }
+    }
+  if (wrap) {
+    for (i=tracklist->getNumItems()-1;i>from;i--){
+      if (tracklist->isItemPlayable(i)) {
+        if (tracklist->getActiveItem()!=i) 
+          return i;
+        else
+          return -1;
+        }
+      }
+    }
+  return -1;
+  }
+
+FXint GMTrackView::getNextPlayable(FXint from,FXbool wrap) const {
+  register FXint i;
+  for (i=from;i<tracklist->getNumItems();i++){
+    if (tracklist->isItemPlayable(i)) {
+      if (tracklist->getActiveItem()!=i) 
+        return i;
+      else
+        return -1;
+      }
+    }
+  if (wrap) {
+    for (i=0;i<from;i++){
+      if (tracklist->isItemPlayable(i)) {
+        if (tracklist->getActiveItem()!=i) 
+          return i;
+        else
+          return -1;
+        }
+      }
+    }
+  return -1;
+  }
+
+
+
 FXint GMTrackView::getCurrent() const{
-  return tracklist->getCurrentItem();
+  return getNextPlayable(tracklist->getCurrentItem(),true);
   }
 
 //generates a psuedo-random integer between min and max
@@ -595,17 +643,7 @@ FXint GMTrackView::getNext(FXbool wrap){
       }
     return randint(0,tracklist->getNumItems()-1,&shuffle_seed);
     }
-  else if (tracklist->getActiveItem()==tracklist->getNumItems()-1){
-    if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_ALL || wrap)
-      return 0;
-    else {
-      if (tracklist->getCurrentItem()==tracklist->getNumItems()-1){
-        tracklist->setCurrentItem(0);
-        }
-      return -1;
-      }
-    }
-  return tracklist->getActiveItem()+1;
+  return getNextPlayable(tracklist->getActiveItem()+1,(wrap||GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_ALL));
   }
 
 FXint GMTrackView::getPrevious(){
@@ -621,12 +659,7 @@ FXint GMTrackView::getPrevious(){
       }
     return randint(0,tracklist->getNumItems()-1,&shuffle_seed);
     }
-  else if (tracklist->getActiveItem()==0) {
-    return tracklist->getNumItems()-1;
-    }
-  else {
-    return tracklist->getActiveItem()-1;
-    }
+  return getPreviousPlayable(tracklist->getActiveItem()-1,(GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_ALL));
   }
 
 /*

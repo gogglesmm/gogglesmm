@@ -255,7 +255,11 @@ public:
 
   FXint getCurrent() const;
 
+  FXint getNextPlayable(FXint,FXbool) const;
+
   FXint getNext(FXbool wrap=false);
+
+  FXint getPreviousPlayable(FXint,FXbool) const;
 
   FXint getPrevious();
 

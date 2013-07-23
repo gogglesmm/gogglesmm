@@ -56,12 +56,30 @@ void GMLocalSource::configure(GMColumnList& list){
   }
 
 
-void GMLocalSource::markCurrent(GMTrackList * list,FXint item) {
-  current_track=-1;
-  if (list->getNumItems()) {
-    current_track=item;
+void GMLocalSource::markCurrent(const GMTrackItem* item) {
+  GMSource::markCurrent(item);
+  if (current_track!=-1) {  
+    current_path  = path + PATHSEPSTRING + (dynamic_cast<const GMLocalTrackItem*>(item))->getFilename();
     }
   }
+
+FXbool GMLocalSource::findCurrent(GMTrackList * list,GMSource * src) {
+  if (src==this) {
+    if (FXPath::directory(current_path)==path) {
+      const FXString & name = FXPath::name(current_path);
+      for (FXint i=0;i<list->getNumItems();i++){
+        GMLocalTrackItem * item = dynamic_cast<GMLocalTrackItem*>(list->getItem(i));
+        if (item->getFilename()==name) {
+          list->setActiveItem(i);
+          list->setCurrentItem(i);
+          return true;
+          }
+        }
+      }
+    }
+  return false;
+  }
+
 
 FXbool GMLocalSource::hasCurrentTrack(GMSource * src) const {
   if (src==this) return true;
@@ -70,11 +88,8 @@ FXbool GMLocalSource::hasCurrentTrack(GMSource * src) const {
 
 
 FXbool GMLocalSource::getTrack(GMTrack & track) const {
-//  GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(current_track);
-
   track.url=path+PATHSEPSTRING+files[current_track-1];
   track.loadTag(track.url);
-//  fxmessage("mrl: %s\n",track.mrl.text());
   return true;
   }
 
