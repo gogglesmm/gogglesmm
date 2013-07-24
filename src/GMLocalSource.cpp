@@ -59,14 +59,14 @@ void GMLocalSource::configure(GMColumnList& list){
 void GMLocalSource::markCurrent(const GMTrackItem* item) {
   GMSource::markCurrent(item);
   if (current_track!=-1) {  
-    current_path  = path + PATHSEPSTRING + (dynamic_cast<const GMLocalTrackItem*>(item))->getFilename();
+    current_path = path + PATHSEPSTRING + (dynamic_cast<const GMLocalTrackItem*>(item))->getFilename();
     }
   }
 
 FXbool GMLocalSource::findCurrent(GMTrackList * list,GMSource * src) {
   if (src==this) {
     if (FXPath::directory(current_path)==path) {
-      const FXString & name = FXPath::name(current_path);
+      const FXString name = FXPath::name(current_path);
       for (FXint i=0;i<list->getNumItems();i++){
         GMLocalTrackItem * item = dynamic_cast<GMLocalTrackItem*>(list->getItem(i));
         if (item->getFilename()==name) {

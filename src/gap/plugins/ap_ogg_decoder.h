@@ -44,6 +44,8 @@ public:
   FXbool flush();
 
   DecoderStatus process(Packet*);
+
+  ~OggDecoder();
   };
 
 }

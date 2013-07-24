@@ -382,7 +382,6 @@ ReadStatus OggReader::parse_opus_stream() {
   if (flags&FLAG_OGG_OPUS)  {
     fxmessage("got opus tag header\n");
     codec=Codec::Opus;
-    af.set(AP_FORMAT_FLOAT,48000,2);
 
     ConfigureEvent * config = new ConfigureEvent(af,codec);
     config->stream_offset_start = stream_offset_start;
@@ -399,27 +398,11 @@ ReadStatus OggReader::parse_opus_stream() {
     fxmessage("got opus header\n");
     flags|=FLAG_OGG_OPUS;
 
+
     stream_offset_start = (op.packet[10] | op.packet[11]<<8);
     GM_DEBUG_PRINT("offset start %hu\n",stream_offset_start);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //submit_ogg_packet(false);
+    
+    af.set(AP_FORMAT_FLOAT,48000,op.packet[9]);
     }
   return ReadOk;
   }

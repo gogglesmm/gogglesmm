@@ -572,8 +572,10 @@ void GMImportTask::import() {
           if (playlist) dbtracks.add2playlist(playlist,tid,queue++);
           }
         else {
-          parse(files[i],i,info);
-          dbtracks.add(filename,info,pid,playlist,queue++);
+          if (FXStat::isReadable(files[i])) {
+            parse(files[i],i,info);
+            dbtracks.add(filename,info,pid,playlist,queue++);
+            }
           }
         }
       }

@@ -73,9 +73,6 @@ public:
   };
 
 
-
-
-
 VorbisDecoder::VorbisDecoder(AudioEngine * e) : OggDecoder(e),has_info(false),has_dsp(false) {
   // Dummy comment structure. libvorbis will only check for a non-null vendor.
   vorbis_comment_init(&comment);
@@ -275,10 +272,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
     while((ngiven=vorbis_synthesis_pcmout(&dsp,&pcm))>0) {
       FXASSERT(stream_position+ngiven<=len);
 
-      //if (stream_position+ngiven>len) {
-      //  fxmessage("too many samples %ld %ld %d %ld\n",stream_position,len,ngiven,stream_position+ngiven-len);
-       // }
-
       for (sample=0,ntotalsamples=ngiven;ntotalsamples>0;) {
 
         /// Get new buffer
@@ -340,39 +333,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
   return DecoderOk;
   }
 
-/*
-      fxmessage("vorbis header\n");
-
-      if (has_dsp) {
-        vorbis_block_clear(&block);
-        vorbis_dsp_clear(&dsp);
-        has_dsp=false;
-        }
-
-      if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
-        GM_DEBUG_PRINT("vorbis_synthesis_headerin failed\n");
-        return DecoderError;
-        }
-
-      if (data_ptr)
-        data_ptr = buffer.data();
-      }
-    else {
-
-      if (__unlikely(!has_dsp)) {
-
-        if (vorbis_synthesis_init(&dsp,&info)<0)
-          return DecoderError;
-
-        if (vorbis_block_init(&dsp,&block)<0) {
-          vorbis_dsp_clear(&dsp);
-          return DecoderError;
-          }
-
-        has_dsp=true;
-        }
-
-*/
 
 DecoderPlugin * ap_vorbis_decoder(AudioEngine * engine) {
   return new VorbisDecoder(engine);

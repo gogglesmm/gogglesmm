@@ -45,6 +45,13 @@ OggDecoder::OggDecoder(AudioEngine*e) : DecoderPlugin(e),
   stream_position(-1) {
   }
 
+OggDecoder::~OggDecoder() {
+  if (out) {
+    out->unref();
+    out=NULL;
+    }
+  }
+
 FXbool OggDecoder::init(ConfigureEvent*){
   buffer.clear();
   stream_position=-1; 
