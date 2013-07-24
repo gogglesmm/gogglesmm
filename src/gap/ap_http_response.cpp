@@ -25,71 +25,71 @@ using namespace ap;
 namespace ap {
 
 HttpIO::HttpIO() : BufferIO(4096) {
-	}
+  }
 
 HttpIO::HttpIO(FXIO * io) : BufferIO(io,4096) {
-	}
+  }
 
 HttpIO::~HttpIO() {
-	}
+  }
 
 FXival HttpIO::read(FXString & str,FXival n) {
-	if (0<n) {
-		FXint pos = str.length();
-		str.length(pos+n);
-		return readBlock(&str[pos],n);
-		}
-	return 0;
-	}
+  if (0<n) {
+    FXint pos = str.length();
+    str.length(pos+n);
+    return readBlock(&str[pos],n);
+    }
+  return 0;
+  }
 
 FXbool HttpIO::readHeader(FXString & header,FXbool single) {
-	FXbool cnl=false; // continue next line
-	FXuchar * p;
-	do {
+  FXbool cnl=false; // continue next line
+  FXuchar * p;
+  do {
 
-		/* check if we continue on the next line */
-		if (cnl) {
+    /* check if we continue on the next line */
+    if (cnl) {
 test_cnl:
-			FXASSERT(rdptr<wrptr);
-			if (!(*rdptr=='\t' || *rdptr==' ')) {
-				return true;
-				}
-			cnl=false;
-			}
+      FXASSERT(rdptr<wrptr);
+      if (!(*rdptr=='\t' || *rdptr==' ')) {
+        return true;
+        }
+      cnl=false;
+      }
 
-		/* find end of line \r\n */
-		for (p=rdptr;p<(wrptr-1);p++) {
-			if (*p=='\r' && *(p+1)=='\n') {
-				header.append((const FXchar*)rdptr,p-rdptr);
- 			  rdptr=p+2;
+    /* find end of line \r\n */
+    for (p=rdptr;p<(wrptr-1);p++) {
+      if (*p=='\r' && *(p+1)=='\n') {
+        header.append((const FXchar*)rdptr,p-rdptr);
+        rdptr=p+2;
 
-				if (single || header.length()==0)
-					return true;
+        if (single || header.length()==0)
+          return true;
 
-				cnl=true;
-				if (wrptr>rdptr)
-					goto test_cnl;
-				break;
-				}
-			}
-		/* consume what we have so far */
-		if (p>rdptr) {
-			header.append((const FXchar*)rdptr,p-rdptr);
-			rdptr=p;
-			}
-		}
-	while(readBuffer());
-	return false;
-	}
+        cnl=true;
+        if (wrptr>rdptr)
+          goto test_cnl;
+        break;
+        }
+      }
+    /* consume what we have so far */
+    if (p>rdptr) {
+      header.append((const FXchar*)rdptr,p-rdptr);
+      rdptr=p;
+      }
+    }
+  while(readBuffer());
+  return false;
+  }
 
 
 FXbool HttpIO::write(const FXString & str) {
-	//fxmessage("[%d]%s\n",str.length(),str.text());
-	FXint n = writeBlock(str.text(),str.length());
-	if (n==-1) return false;
-	FXASSERT(n==str.length());
-	return flush();
-	}
+  //fxmessage("[%d]%s\n",str.length(),str.text());
+  FXint n = writeBlock(str.text(),str.length());
+  if (n==-1) return false;
+  FXASSERT(n==str.length());
+  return flush();
+  }
 
 
 
@@ -121,9 +121,10 @@ HttpResponse::~HttpResponse() {
   }
 
 void HttpResponse::clear() {
-	GM_DEBUG_PRINT("HttpResponse::clear()\n");
+  GM_DEBUG_PRINT("HttpResponse::clear()\n");
   flags=0;
   content_length=-1;
+  content_remaining=-1;
   chunk_remaining=-1;
   clear_headers();
   }
@@ -163,12 +164,20 @@ void HttpResponse::check_headers() {
   if (field && field->contains("chunked") )
     flags|=ChunkedResponse;
 
-  field = (FXString*) headers.find("connection");
-  if (field && comparecase(*field,"close")==0)
-    flags|=ConnectionClose;
+
+  if (status.major==1 && status.minor==1) {		
+    field = (FXString*) headers.find("connection");	
+    if (comparecase(*field,"close")==0)
+      flags|=ConnectionClose;		
+    }
+  else {
+    field = (FXString*) headers.find("connection");
+    if (field==NULL || comparecase(*field,"Keep-Alive"))
+      flags|=ConnectionClose;
+    }
 
 #ifdef DEBUG
-	fxmessage("Headers:\n");
+  fxmessage("Headers:\n");
   for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
     fxmessage("\t%s: %s\n",headers.key(pos),((FXString*)headers.data(pos))->text());
     }
@@ -222,15 +231,15 @@ FXString HttpResponse::read_body() {
     }
   else if (content_length>0) {
     content_remaining=0;
-		if (io.read(content,content_length)!=content_length)
-			return FXString::null;
+    if (io.read(content,content_length)!=content_length)
+      return FXString::null;
     }
   else {
-		FXival n,c=0;
-		const FXival BLOCK = 4096;
-		while((n=io.read(content,BLOCK))==BLOCK) c+=n;
-		if (0<n) c+=n;
-		content.length(c);
+    FXival n,c=0;
+    const FXival BLOCK = 4096;
+    while((n=io.read(content,BLOCK))==BLOCK) c+=n;
+    if (0<n) c+=n;
+    content.length(c);
     }
   return content;
   }
@@ -249,10 +258,10 @@ FXString HttpResponse::read_body_chunked() {
 
     while(chunksize) {
 
-			if (io.read(content,chunksize)!=chunksize) {
-				GM_DEBUG_PRINT("HttpResponse::read_body_chunked() - failed reading chunksize %d\n",chunksize);
-				goto fail;
-				}
+      if (io.read(content,chunksize)!=chunksize) {
+        GM_DEBUG_PRINT("HttpResponse::read_body_chunked() - failed reading chunksize %d\n",chunksize);
+        goto fail;
+        }
 
       // Set to zero so read_chunk_header will check for crlf
       chunksize=0;
@@ -262,7 +271,7 @@ FXString HttpResponse::read_body_chunked() {
         goto fail;
       }
 
-		GM_DEBUG_PRINT("done with chunks...\n");
+    GM_DEBUG_PRINT("done with chunks...\n");
 
     // Trailing Headers
     while(io.readHeader(header)) {
@@ -273,7 +282,7 @@ FXString HttpResponse::read_body_chunked() {
 
       insert_header(header);
 
-			header.clear();
+      header.clear();
       }
 
     return content;
@@ -320,7 +329,7 @@ FXival HttpResponse::read_body_chunked(void * ptr,FXival len) {
 
           insert_header(header);
 
-					header.clear();
+          header.clear();
           }
 
         return nbytes;
@@ -348,7 +357,7 @@ FXint HttpResponse::parse() {
         return status.type();
         }
       insert_header(header);
-			header.clear();
+      header.clear();
       }
     }
   return HTTP_RESPONSE_FAILED;
