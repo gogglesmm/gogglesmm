@@ -377,31 +377,42 @@ ap_parse_opus_header(const FXuchar * buffer, FXint len,opus_header & header) {
 #endif
 
 
+
+
 #ifdef HAVE_OPUS_PLUGIN
+
+extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+
+
 ReadStatus OggReader::parse_opus_stream() {
   if (flags&FLAG_OGG_OPUS)  {
-    fxmessage("got opus tag header\n");
-    codec=Codec::Opus;
+    if (compare((FXchar*)op.packet,"OpusTags",8)==0) {
+      codec=Codec::Opus;
 
-    ConfigureEvent * config = new ConfigureEvent(af,codec);
-    config->stream_offset_start = stream_offset_start;
+      ConfigureEvent * config = new ConfigureEvent(af,codec);
+      MetaInfo       * meta   = new MetaInfo();
+      ap_parse_vorbiscomment((FXchar*)op.packet+8,op.bytes-8,config->replaygain,meta);
 
-    /// Now we are ready to init the decoder
-    engine->decoder->post(config);
+      config->stream_offset_start = stream_offset_start;
 
-    //send_headers();
-    flags|=FLAG_PARSED;
+      // Now we are ready to init the decoder
+      engine->decoder->post(config);
 
-    check_opus_length();
+      // Send Meta Info
+      engine->decoder->post(meta);
+
+
+      flags|=FLAG_PARSED;
+
+      check_opus_length();
+      return ReadOk;
+      }
+    return ReadError;
     }
   else {
-    fxmessage("got opus header\n");
     flags|=FLAG_OGG_OPUS;
-
-
     stream_offset_start = (op.packet[10] | op.packet[11]<<8);
     GM_DEBUG_PRINT("offset start %hu\n",stream_offset_start);
-    
     af.set(AP_FORMAT_FLOAT,48000,op.packet[9]);
     }
   return ReadOk;
