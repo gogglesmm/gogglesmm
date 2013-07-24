@@ -53,7 +53,8 @@ GAP_SRC+=src/gap/plugins/ap_opus_plugin.cpp
 endif
 
 ifneq (,$(findstring ogg,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_ogg_plugin.cpp
+GAP_SRC+=src/gap/plugins/ap_ogg_plugin.cpp \
+src/gap/plugins/ap_ogg_decoder.cpp
 endif
 
 ifneq (,$(findstring mad,$(GAP_PLUGINS)))

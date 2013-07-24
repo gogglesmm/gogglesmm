@@ -34,9 +34,8 @@
 #include "ap_input_thread.h"
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
+#include "ap_ogg_decoder.h"
 
-
-#include <ogg/ogg.h>
 
 #if defined(HAVE_VORBIS_PLUGIN)
 #include <vorbis/codec.h>
@@ -48,23 +47,20 @@
 
 namespace ap {
 
-class VorbisDecoder : public DecoderPlugin{
+class VorbisDecoder : public OggDecoder {
 protected:
-  MemoryBuffer buffer;
-protected:
-  FXbool get_next_packet();
   FXbool is_vorbis_header();
 protected:
-  AudioEngine *     engine;
   vorbis_info       info;
   vorbis_comment    comment;
   vorbis_dsp_state  dsp;
   vorbis_block      block;
-  ogg_packet        op;
   FXbool            has_info;
   FXbool            has_dsp;
-  Packet *          out;
-  FXint             stream_position;
+protected:
+  FXbool init_decoder();
+  void   reset_decoder(); 
+  FXbool find_stream_position();
 public:
   VorbisDecoder(AudioEngine*);
 
@@ -80,19 +76,14 @@ public:
 
 
 
-VorbisDecoder::VorbisDecoder(AudioEngine * e) : DecoderPlugin(e),buffer(32768),engine(e),has_info(false),has_dsp(false),out(NULL) {
-
+VorbisDecoder::VorbisDecoder(AudioEngine * e) : OggDecoder(e),has_info(false),has_dsp(false) {
   // Dummy comment structure. libvorbis will only check for a non-null vendor.
   vorbis_comment_init(&comment);
   comment.vendor = (FXchar*)"";
   }
 
 VorbisDecoder::~VorbisDecoder(){
-  if (has_dsp) {
-    vorbis_block_clear(&block);
-    vorbis_dsp_clear(&dsp);
-    has_dsp=false;
-    }
+  reset_decoder();
   if (has_info) {
     vorbis_info_clear(&info);
     has_info=false;
@@ -102,14 +93,11 @@ VorbisDecoder::~VorbisDecoder(){
 
 
 FXbool VorbisDecoder::init(ConfigureEvent*event) {
-  af=event->af;
-  buffer.clear();
+  OggDecoder::init(event);
 
-  if (has_dsp) {
-    vorbis_block_clear(&block);
-    vorbis_dsp_clear(&dsp);
-    has_dsp=false;
-    }
+  af=event->af;
+
+  reset_decoder();
 
   if (has_info) {
     vorbis_info_clear(&info);
@@ -120,38 +108,15 @@ FXbool VorbisDecoder::init(ConfigureEvent*event) {
   vorbis_info_init(&info);
   has_info=true;
 
-  stream_position=-1;
   return true;
   }
 
 
 FXbool VorbisDecoder::flush() {
-  if (out) {
-    out->unref();
-    out=NULL;
-    }
-
-  buffer.clear();
-  stream_position=-1;
+  OggDecoder::flush();
 //  if (has_dsp)
 //    vorbis_synthesis_restart(&dsp);
   return true;
-  }
-
-
-FXbool VorbisDecoder::get_next_packet() {
-  if (buffer.size() && buffer.size()>=(FXival)sizeof(ogg_packet)) {
-    buffer.read((FXuchar*)&op,sizeof(ogg_packet));
-    if (buffer.size()<op.bytes) {
-      buffer.readBytes(-sizeof(ogg_packet));
-      return false;
-      }
-
-    op.packet=(FXuchar*)buffer.data();
-    buffer.readBytes(op.bytes);
-    return true;
-    }
-  return false;
   }
 
 
@@ -168,6 +133,94 @@ static ogg_int32_t CLIP_TO_15(ogg_int32_t x) {
   }
 #endif
 
+
+void VorbisDecoder::reset_decoder() {
+  if (has_dsp) {
+    vorbis_block_clear(&block);
+    vorbis_dsp_clear(&dsp);
+    has_dsp=false;
+    }
+  }
+
+FXbool VorbisDecoder::init_decoder() {
+  const FXuchar * data_ptr = get_packet_offset();
+  while(get_next_packet()) {
+    if (is_vorbis_header()) {
+      if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
+        GM_DEBUG_PRINT("[vorbis] vorbis_synthesis_headerin failed\n");
+        return false;
+        }
+      }
+    else {
+
+      if (vorbis_synthesis_init(&dsp,&info)<0)
+        return false;
+
+      if (vorbis_block_init(&dsp,&block)<0) {
+        vorbis_dsp_clear(&dsp);
+        return false;
+        }
+
+      has_dsp=true;
+      push_back_packet();
+      return true;
+      }
+    }
+  set_packet_offset(data_ptr);
+  return true;
+  }
+
+
+
+FXbool VorbisDecoder::find_stream_position() {
+  const FXuchar * data_ptr = get_packet_offset();
+  FXint cb,lb=-1,tb=0;
+  while(get_next_packet()) {
+    if (is_vorbis_header()){
+      reset_decoder(); 
+      goto reset;
+      }
+    cb=vorbis_packet_blocksize(&info,&op);
+    if (lb!=-1) tb+=(lb+cb)>>2;
+    lb=cb;
+    if (op.granulepos!=-1) {
+      stream_position=op.granulepos-tb;
+      set_packet_offset(data_ptr);
+      return true;
+      }
+    }
+reset:
+  set_packet_offset(data_ptr);
+  return false;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 DecoderStatus VorbisDecoder::process(Packet * packet) {
   FXASSERT(packet);
 
@@ -183,28 +236,112 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
   FXint ngiven,ntotalsamples,nsamples,sample,c,s;
 
-  FXbool eos=packet->flags&FLAG_EOS;
-  FXuint id=packet->stream;
-  FXint  len=packet->stream_length;
+  FXbool  eos=packet->flags&FLAG_EOS;
+  FXuint   id=packet->stream;
+  FXlong  len=packet->stream_length;
 
-  buffer.append(packet->data(),packet->size());
 
-  packet->unref();
+  OggDecoder::process(packet);
 
-  if (out) {
-    navail = out->availableFrames();
+  /// Init Decoder
+  if (!has_dsp) {
+    if (!init_decoder())
+      return DecoderError;
+    if (!has_dsp)
+      return DecoderOk;
     }
 
-  FXuchar * data_ptr = NULL;
-  if (stream_position==-1) {
-    GM_DEBUG_PRINT("stream position unknown\n");
-    data_ptr = buffer.data();
-    nsamples = 0;
+  /// Find Stream Position
+  if (stream_position==-1 && !find_stream_position())
+    return DecoderOk;
+
+   
+  if (out) {
+    navail = out->availableFrames();
     }
 
   while(get_next_packet()) {
 
     if (__unlikely(is_vorbis_header())) {
+      GM_DEBUG_PRINT("[vorbis] unexpected vorbis header found. Resetting decoder\n");
+      push_back_packet();
+      reset_decoder();
+      return DecoderOk;
+      }
+
+    if (vorbis_synthesis(&block,&op)==0)
+      vorbis_synthesis_blockin(&dsp,&block);
+
+    while((ngiven=vorbis_synthesis_pcmout(&dsp,&pcm))>0) {
+      FXASSERT(stream_position+ngiven<=len);
+
+      //if (stream_position+ngiven>len) {
+      //  fxmessage("too many samples %ld %ld %d %ld\n",stream_position,len,ngiven,stream_position+ngiven-len);
+       // }
+
+      for (sample=0,ntotalsamples=ngiven;ntotalsamples>0;) {
+
+        /// Get new buffer
+        if (out==NULL) {
+          out = engine->decoder->get_output_packet();
+          if (out==NULL) return DecoderInterrupted;
+          out->stream_position=stream_position;
+          out->stream_length=len;
+          out->af=af;
+          navail = out->availableFrames();
+          }
+
+#ifdef HAVE_VORBIS_PLUGIN
+        buf32 = out->flt();
+#else // HAVE_TREMOR_PLUGIN
+        buf32 = out->s16();
+#endif
+        /// Copy Samples
+        FXint min=0,max=0;
+
+        nsamples = FXMIN(ntotalsamples,navail);
+        for (p=0,s=sample;s<(nsamples+sample);s++){
+          for (c=0;c<info.channels;c++,p++) {
+            FXASSERT(s<ngiven);
+#ifdef HAVE_VORBIS_PLUGIN
+            buf32[p]=pcm[c][s];
+#else
+            buf32[p]=CLIP_TO_15(pcm[c][s]>>9);
+#endif
+            }
+          }
+
+        /// Update sample counts
+        out->wroteFrames(nsamples);
+
+        sample+=nsamples;
+        navail-=nsamples;
+        ntotalsamples-=nsamples;
+        stream_position+=nsamples;
+
+        /// Send out packet if full
+        ///FIXME handle EOS.
+        if (navail==0) {
+          engine->output->post(out);
+          out=NULL;
+          }
+        }
+      vorbis_synthesis_read(&dsp,ngiven);
+      }
+    }
+
+  if (eos) {
+    if (out && out->numFrames())  {
+      engine->output->post(out);
+      out=NULL;
+      }
+    engine->output->post(new ControlEvent(End,id));
+    }
+  return DecoderOk;
+  }
+
+/*
+      fxmessage("vorbis header\n");
 
       if (has_dsp) {
         vorbis_block_clear(&block);
@@ -234,104 +371,8 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
         has_dsp=true;
         }
-      if (stream_position==-1) {
-//        fxmessage("packet: %ld %ld\n",op.packetno,op.granulepos);
-        if (vorbis_synthesis(&block,&op)==0) {
-          vorbis_synthesis_blockin(&dsp,&block);
-          while((ngiven=vorbis_synthesis_pcmout(&dsp,NULL))>0) {
-            nsamples+=ngiven;
-            vorbis_synthesis_read(&dsp,ngiven);
-            }
-          }
-        if (op.granulepos>=0) {
-          GM_DEBUG_PRINT("found stream position: %ld\n",op.granulepos-nsamples);
-          stream_position=op.granulepos-nsamples;
- //       else {
-//          stream_position=0;
-//          }
 
-        buffer.setReadPosition(data_ptr);
-        data_ptr=NULL;
-        vorbis_synthesis_restart(&dsp);
-
-          }
-        continue;
-
-        }
-
-      if (vorbis_synthesis(&block,&op)==0)
-        vorbis_synthesis_blockin(&dsp,&block);
-
-      while((ngiven=vorbis_synthesis_pcmout(&dsp,&pcm))>0) {
-//        fxmessage("got %d samples\n",ngiven);
-        for (sample=0,ntotalsamples=ngiven;ntotalsamples>0;) {
-
-          /// Get new buffer
-          if (out==NULL) {
-            out = engine->decoder->get_output_packet();
-            if (out==NULL) return DecoderInterrupted;
-            out->stream_position=stream_position;
-            out->stream_length=len;
-            out->af=af;
-            navail = out->availableFrames();
-            }
-
-#ifdef HAVE_VORBIS_PLUGIN
-          buf32 = out->flt();
-#else // HAVE_TREMOR_PLUGIN
-          buf32 = out->s16();
-#endif
-          /// Copy Samples
-          FXint min=0,max=0;
-
-          nsamples = FXMIN(ntotalsamples,navail);
-          for (p=0,s=sample;s<(nsamples+sample);s++){
-            for (c=0;c<info.channels;c++,p++) {
-              FXASSERT(s<ngiven);
-#ifdef HAVE_VORBIS_PLUGIN
-              buf32[p]=pcm[c][s];              
-#else
-              buf32[p]=CLIP_TO_15(pcm[c][s]>>9);
-#endif
-              }
-            }
-
-          /// Update sample counts
-          out->wroteFrames(nsamples);
-
-          sample+=nsamples;
-          navail-=nsamples;
-          ntotalsamples-=nsamples;
-          stream_position+=nsamples;
-
-          /// Send out packet if full
-          ///FIXME handle EOS.
-          if (navail==0) {
-            engine->output->post(out);
-            out=NULL;
-            }
-          }
-        vorbis_synthesis_read(&dsp,ngiven);
-        }
-      }
-    }
-
-  /// Reset read ptr if we're still looking for the stream position..
-  if (data_ptr) {
-    buffer.setReadPosition(data_ptr);
-    if (has_dsp) vorbis_synthesis_restart(&dsp);
-    }
-
-  if (eos) {
-    if (out && out->numFrames())  {
-      engine->output->post(out);
-      out=NULL;
-      }
-    engine->output->post(new ControlEvent(End,id));
-    }
-  return DecoderOk;
-  }
-
+*/
 
 DecoderPlugin * ap_vorbis_decoder(AudioEngine * engine) {
   return new VorbisDecoder(engine);

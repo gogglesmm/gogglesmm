@@ -45,6 +45,10 @@
 #error "Fixme: implement vorbis-less ogg decoder"
 #endif
 
+#ifdef HAVE_OPUS_PLUGIN
+#include <opus/opus.h>
+#endif
+
 namespace ap {
 
 class AudioEngine;
@@ -88,12 +92,17 @@ protected:
   FXuchar         codec;
   FXlong          stream_start;
   FXlong          input_position;
+  FXushort        stream_offset_start;
+  FXushort        stream_offset_end;
 protected:
   FXbool match_page();
   FXbool fetch_next_page();
   FXbool fetch_next_packet();
   void   submit_ogg_packet(FXbool post=true);
   void   check_vorbis_length(vorbis_info*);
+#ifdef HAVE_OPUS_PLUGIN
+  void   check_opus_length();
+#endif
   void   add_header(Packet * p);
   void   send_headers();
   void   clear_headers();
@@ -249,6 +258,47 @@ FXbool OggReader::match_page() {
   return false;
   }
 
+
+
+#ifdef HAVE_OPUS_PLUGIN
+void OggReader::check_opus_length() {
+  stream_length=0;
+  stream_start=0;
+  if (!input->serial()) {
+    FXlong cpos = input_position;
+    FXlong size = input->size();
+    FXlong nsamples = 0;
+
+    /// First determine the pcm offset at the start of a stream
+    while(fetch_next_packet()) {
+      nsamples += opus_packet_get_nb_samples((unsigned char*)op.packet,op.bytes,48000);
+      if (op.granulepos!=-1) {
+        stream_start=op.granulepos-nsamples;
+        GM_DEBUG_PRINT("stream start=%ld %ld %ld\n",op.granulepos,nsamples,stream_start);
+        break;
+        }
+      }
+    /// TODO need a smart way of finding the last page in stream.
+    if (size>=0xFFFF) {
+      input->position((size-0xFFFF),FXIO::Begin);
+      ogg_sync_reset(&sync);
+      }
+
+    /// Go to last page of stream to find out last pcm position
+    while(fetch_next_page()) {
+      if (ogg_page_eos(&page)) {
+        stream_length = ogg_page_granulepos(&page) - stream_start - stream_offset_start;
+        GM_DEBUG_PRINT("stream length = %ld\n",stream_length);
+        break;
+        }
+      }
+    input->position(cpos,FXIO::Begin);
+    ogg_sync_reset(&sync);
+    ogg_stream_reset(&stream);
+    }
+  }
+#endif
+
 void OggReader::check_vorbis_length(vorbis_info * info) {
   stream_length=0;
   stream_start=0;
@@ -335,16 +385,40 @@ ReadStatus OggReader::parse_opus_stream() {
     af.set(AP_FORMAT_FLOAT,48000,2);
 
     ConfigureEvent * config = new ConfigureEvent(af,codec);
+    config->stream_offset_start = stream_offset_start;
 
     /// Now we are ready to init the decoder
     engine->decoder->post(config);
 
     //send_headers();
     flags|=FLAG_PARSED;
+
+    check_opus_length();
     }
   else {
     fxmessage("got opus header\n");
     flags|=FLAG_OGG_OPUS;
+
+    stream_offset_start = (op.packet[10] | op.packet[11]<<8);
+    GM_DEBUG_PRINT("offset start %hu\n",stream_offset_start);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //submit_ogg_packet(false);
     }
   return ReadOk;
@@ -624,8 +698,9 @@ FXbool OggReader::fetch_next_page() {
     long result=ogg_sync_pageseek(&sync,&page);
     if (result>0) { /// Return page with size result
       input_position+=result;
-      if (match_page())
+      if (match_page()) {
         return true;
+        }
       }
     else if (result==0) { /// Need more bytes
       FXchar * buffer = ogg_sync_buffer(&sync,BUFFERSIZE);
@@ -683,9 +758,7 @@ ReadStatus OggReader::process(Packet * p) {
 
     if (__unlikely((flags&FLAG_PARSED)==0))
       return ReadOk;
-
     }
-
 
   if (state.has_packet)
     submit_ogg_packet();
