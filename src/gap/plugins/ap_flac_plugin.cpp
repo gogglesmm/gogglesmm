@@ -123,7 +123,7 @@ public:
 
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
-
+extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 
 enum {
   FLAC_BLOCK_STREAMINFO     = 0,
@@ -145,23 +145,7 @@ void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,
   buffer+=4;
   if (buffer>=end) return;
 
-  /// Vendor string
-  size = INT32_LE(buffer);
-  if (size) buffer+=4+size;
-  if (buffer>=end) return;
-
-  /// Number of user comments
-  ncomments = INT32_LE(buffer);
-  buffer+=4;
-
-  for (FXint i=0;i<ncomments && (buffer<=end);i++) {
-    size = INT32_LE(buffer);
-    if (buffer+size+4>end)
-      return;
-    ap_replaygain_from_vorbis_comment(gain,buffer+4,size);
-    ap_meta_from_vorbis_comment(meta,buffer+4,size);
-    buffer+=4+size;
-    }
+  ap_parse_vorbiscomment(buffer,len-4,gain,meta);
   }
 
 
@@ -326,7 +310,7 @@ FLAC__StreamDecoderSeekStatus FlacReader::flac_input_seek(const FLAC__StreamDeco
 
   if (pos<0 || ((FXulong)pos)!=absolute_byte_offset)
     return FLAC__STREAM_DECODER_SEEK_STATUS_ERROR;
-  else 
+  else
     return FLAC__STREAM_DECODER_SEEK_STATUS_OK;
   }
 
@@ -395,8 +379,6 @@ FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDeco
     }
   }
 
-extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
-extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
 
 void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
@@ -646,7 +628,7 @@ FXbool FlacDecoder::init(ConfigureEvent*event) {
 
      }
   else {
-    // Apparently just flushing the decoder is not enough. 
+    // Apparently just flushing the decoder is not enough.
     // Prevent faulty seeking behaviour by resetting the decoder as well.
     FLAC__stream_decoder_reset(flac);
     }
