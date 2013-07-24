@@ -56,7 +56,6 @@ void HttpInput::check_headers() {
   if (field) icy_count = icy_interval = field->toInt();
 
   field = (FXString*) client.headers.find("content-type");
-  if (field) fxmessage("%s\n",field->text());
   if (field) content_type = ap_format_from_mime(field->before(';'));
   }
 

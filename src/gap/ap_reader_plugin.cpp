@@ -106,7 +106,6 @@ ReadStatus TextReader::process(Packet*packet) {
       }
     while(nread>0);
     textbuffer.trunc(len);
-
     if (nread==-1)
       return ReadError;
     }

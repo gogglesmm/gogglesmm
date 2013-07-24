@@ -59,7 +59,7 @@ protected:
   FXbool            has_dsp;
 protected:
   FXbool init_decoder();
-  void   reset_decoder(); 
+  void   reset_decoder();
   FXbool find_stream_position();
 public:
   VorbisDecoder(AudioEngine*);
@@ -174,7 +174,7 @@ FXbool VorbisDecoder::find_stream_position() {
   FXint cb,lb=-1,tb=0;
   while(get_next_packet()) {
     if (is_vorbis_header()){
-      reset_decoder(); 
+      reset_decoder();
       goto reset;
       }
     cb=vorbis_packet_blocksize(&info,&op);
@@ -252,7 +252,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
   if (stream_position==-1 && !find_stream_position())
     return DecoderOk;
 
-   
+
   if (out) {
     navail = out->availableFrames();
     }
@@ -270,7 +270,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
       vorbis_synthesis_blockin(&dsp,&block);
 
     while((ngiven=vorbis_synthesis_pcmout(&dsp,&pcm))>0) {
-      FXASSERT(stream_position+ngiven<=len);
+      if (len>0) FXASSERT(stream_position+ngiven<=len);
 
       for (sample=0,ntotalsamples=ngiven;ntotalsamples>0;) {
 
