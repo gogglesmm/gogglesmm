@@ -75,7 +75,7 @@ void ID3V2::unsync(FXuchar * src,FXint & len) {
   len=k;
   }
 
-void ID3V2::parse_priv_frame(FXint framesize) {
+void ID3V2::parse_priv_frame(FXint /*framesize*/) {
   if (buffer+p!='\0'){
     GM_DEBUG_PRINT("[id3v2] priv text %s\n",buffer+p);
     }

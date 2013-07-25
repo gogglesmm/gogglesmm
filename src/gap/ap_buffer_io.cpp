@@ -17,65 +17,20 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_buffer_base.h"
 #include "ap_buffer_io.h"
 
 namespace ap {
 
-BufferIO::BufferIO(FXuval size) : io(NULL),dir(DirNone) {
-	FXASSERT(size>1);
-	begptr=NULL;
-  endptr=NULL;
-  wrptr=NULL;
-  rdptr=NULL;
-
-	callocElms(begptr,size);
-	endptr=begptr+size;
-	wrptr=begptr;
-	rdptr=begptr;
+BufferIO::BufferIO(FXuval size) : BufferBase(size),io(NULL),dir(DirNone) {
 	}
 
-BufferIO::BufferIO(FXIO * stream,FXuval size) : FXIO(stream->mode()),io(stream),dir(DirNone) {
-	FXASSERT(size>1);
-	begptr=NULL;
-  endptr=NULL;
-  wrptr=NULL;
-  rdptr=NULL;
-
-	callocElms(begptr,size);
-	endptr=begptr+size;
-	wrptr=begptr;
-	rdptr=begptr;
+BufferIO::BufferIO(FXIO * stream,FXuval size) : FXIO(stream->mode()),BufferBase(size),io(stream),dir(DirNone) {
 	}
 
 BufferIO::~BufferIO() {
 	close();
-	freeElms(begptr);
 	}
-
-
-/// Set Space
-FXbool BufferIO::setSpace(FXuval size){
-
-	// Changed size?
-  if(begptr+size!=endptr){
-
-  	// Old buffer location
-    register FXuchar *oldbegptr=begptr;
-
-    // Resize the buffer
-    if(!resizeElms(begptr,size)) return false;
-
-    // Adjust pointers, buffer may have moved
-    endptr=begptr+size;
-    wrptr=begptr+(wrptr-oldbegptr);
-    rdptr=begptr+(rdptr-oldbegptr);
-    if(wrptr>endptr) wrptr=endptr;
-    if(rdptr>endptr) rdptr=endptr;
-    }
-
-	return true;
-  }
-
 
 /// Attach an IO. Close and delete existing
 void BufferIO::attach(FXIO * stream) {
@@ -181,7 +136,7 @@ FXival BufferIO::peekBlock(void* data,FXival n) {
 		FXival nr=0;
     FXuval avail;
 
-		if (endptr-begptr<n && !setSpace(n))
+		if (endptr-begptr<n && !resize(n))
 			return -1;
 
 		while(wrptr-rdptr<n) {

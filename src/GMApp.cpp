@@ -291,7 +291,7 @@ FXbool GMApp::dispatchEvent(FXRawEvent & ev) {
         return true;
       }
     else if (ev.xany.type==ClientMessage) {
-      if (ev.xclient.message_type==xmanager && ev.xclient.data.l[1]==xsystemtray) {
+      if (ev.xclient.message_type==xmanager && ((FXID)ev.xclient.data.l[1])==xsystemtray) {
         if (GMPlayerManager::instance()->getTrayIcon())
           GMPlayerManager::instance()->getTrayIcon()->dock();
         return true;

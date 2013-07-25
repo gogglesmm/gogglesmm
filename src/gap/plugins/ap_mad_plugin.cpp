@@ -478,12 +478,6 @@ public:
   };
 
 LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), padend(0), length(0) {
-  FXuchar revision = (*(buffer+9))>>4;
-  FXuchar vbr_methed = (*(buffer+9))&0xf;
-
-  FXint lowpass = (*(buffer+10)) * 100;
-
-
   FXfloat peak = INT32_BE(buffer+11);
 
   replaygain.album_peak = peak;
@@ -491,22 +485,25 @@ LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), 
   replaygain.track      = parse_replay_gain(buffer+15);
   replaygain.album      = parse_replay_gain(buffer+17);
 
-
-  FXuchar encoding_flags = (*(buffer+19))>>4;
-  FXuchar lame_type = (*(buffer+19))&0xf;
-
 //   FXuchar bitrate = (*(buffer+21));
 
   padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
   padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
 
-  FXuchar misc = (*(buffer+25));
 
 //   FXuchar mp3gain = (*(buffer+25));
 //   FXushort surround = INT16_BE(buffer+26);
   length = INT32_BE(buffer+28);
 
 #ifdef DEBUG
+  FXuchar revision = (*(buffer+9))>>4;
+  FXuchar vbr_methed = (*(buffer+9))&0xf;
+  FXint lowpass = (*(buffer+10)) * 100;
+  FXuchar encoding_flags = (*(buffer+19))>>4;
+  FXuchar lame_type = (*(buffer+19))&0xf;
+  FXuchar misc = (*(buffer+25));
+
+
   fxmessage("Lame Info:\n");
   fxmessage("\t      revision: %d\n",revision);
   fxmessage("\t    vbr_method: %d\n",vbr_methed);
@@ -1185,13 +1182,13 @@ ReadStatus MadReader::process(Packet*packet) {
             GM_DEBUG_PRINT("[mad_reader] past end of stream\n");
             packet->flags|=FLAG_EOS;
             status=ReadDone;
-            goto done; 
+            goto done;
             }
 
-          /* 
-              Check for id3 tag. We may not have found this one 
+          /*
+              Check for id3 tag. We may not have found this one
               if a (broken) file contains multiple id3 tags.
-          */  
+          */
           if (buffer[0]=='T' && buffer[1]=='A' && buffer[2]=='G') {
             GM_DEBUG_PRINT("[mad_reader] found ID3 tag. Assume end of stream\n");
             packet->flags|=FLAG_EOS;

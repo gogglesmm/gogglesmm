@@ -19,48 +19,26 @@
 #ifndef AP_MEMORY_BUFFER_H
 #define AP_MEMORY_BUFFER_H
 
+#ifndef AP_BUFFER_BASE_H
+#include "ap_buffer_base.h"
+#endif
+
 namespace ap {
 
 
-class GMAPI MemoryBuffer {
-protected:
-  FXchar * buffer;
-  FXival   buffersize;
-  FXchar * rdptr;
-  FXchar * wrptr;
+class GMAPI MemoryBuffer : public BufferBase {
 public:
   // Constructor
   MemoryBuffer(FXival cap=4096);
-
-  // Construct initialized from other buffer
-  MemoryBuffer(const MemoryBuffer &);
-
-  // Assignment operator
-  MemoryBuffer& operator=(const MemoryBuffer&);
-
-  // Append operator
-  MemoryBuffer& operator+=(const MemoryBuffer&);
-
-  // Adopt from buffer
-  void adopt(MemoryBuffer &);
-
-  // Make room for nbytes
-  void reserve(FXival nbytes);
-
-  // Clear buffer and reset to nbytes
-  void reset(FXival nbytes=4096);
-
-  // Clear buffer
-  void clear();
 
   // Number of unread bytes
   FXival size() const { return (wrptr-rdptr); }
 
   // Number of bytes that can be written
-  FXival space() const { return buffersize - (wrptr-buffer); }
+  FXival space() const { return (endptr-begptr) - (wrptr-begptr); }
 
   // Size of the buffer
-  FXival capacity() const { return buffersize; }
+  FXival capacity() const { return (endptr-begptr); }
 
   // Read nbytes
   FXival read(void * bytes,FXival nbytes);
@@ -86,10 +64,6 @@ public:
   /// Trim nbytes at end
   void trimEnd(FXival nbytes);
 
-
-  /// Index into array
-  const FXchar& operator[](FXint i) const { return rdptr[i]; }
-
   /// Return write pointer
   FXuchar* ptr() { return (FXuchar*)wrptr; }
   const FXuchar* ptr() const { return (FXuchar*)wrptr; }
@@ -100,14 +74,15 @@ public:
   FXint   * s32() { return reinterpret_cast<FXint*>(wrptr); }
 
   /// Return pointer to buffer
-  FXuchar* data() { return (FXuchar*)rdptr; }
-  const FXuchar* data() const { return (const FXuchar*)rdptr; }
+  FXuchar* data() { return rdptr; }
+  const FXuchar* data() const { return rdptr; }
 
-  void setReadPosition(const FXuchar *p) { rdptr=(FXchar*)p; }
+  void setReadPosition(const FXuchar *p) { rdptr=(FXuchar*)p; }
 
   // Destructor
   ~MemoryBuffer();
   };
+
 }
 
 #endif

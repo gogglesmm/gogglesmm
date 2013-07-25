@@ -58,7 +58,7 @@ void XmlParser::element_start(const FXchar*element,const FXchar**attributes){
 void XmlParser::element_end(const FXchar * element) {
   if (nodes[level])
     end(element);
-  level--; 
+  level--;
   }
 
 void XmlParser::element_data(const FXchar * d,FXint len) {
@@ -132,8 +132,8 @@ HtmlParser::~HtmlParser() {
   }
 
 
-FXbool HtmlParser::parseBuffer(const FXchar * buffer,FXint length) {
 #ifndef HAVE_EXPAT_PLUGIN
+FXbool HtmlParser::parseBuffer(const FXchar * buffer,FXint length) {
   xmlSAXHandler sax;
 
   memset(&sax,0,sizeof(xmlSAXHandler));
@@ -155,9 +155,12 @@ FXbool HtmlParser::parseBuffer(const FXchar * buffer,FXint length) {
 
   htmlFreeParserCtxt(ctxt);
   return true;
-#else
-  return false;
-#endif
   }
+#else
+FXbool HtmlParser::parseBuffer(const FXchar *,FXint) {
+  return false;
+  }
+#endif
+
 
 }

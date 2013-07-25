@@ -369,25 +369,26 @@ check_gap_packages()
   fi
 
 
-
   if [ $OPTION_GAP_OGG -eq 1 ] ; then
     add_gap_package "ogg >= 1.0" "ogg"
+
+    if [ $OPTION_GAP_VORBIS -eq 1 ] ; then
+      add_gap_package "vorbis >= 1.2" "vorbis"
+      echo "VORBIS_CFLAGS=$PKG_CFLAGS"     >> config.make
+      echo "VORBIS_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
+    elif [ $OPTION_GAP_TREMOR -eq 1 ] ; then
+      add_gap_package "vorbisidec >= 1.2" "tremor"
+      echo "VORBIS_CFLAGS=$PKG_CFLAGS"     >> config.make
+      echo "VORBIS_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
+    fi
+
+    if [ $OPTION_GAP_OPUS -eq 1 ] ; then
+      add_gap_package "opus >= 1.0" "opus"
+    fi
+
   fi
 
-  if [ $OPTION_GAP_VORBIS -eq 1 ] ; then
-    add_gap_package "vorbis >= 1.2" "vorbis"
-    echo "VORBIS_CFLAGS=$PKG_CFLAGS"     >> config.make
-    echo "VORBIS_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
-  elif [ $OPTION_GAP_TREMOR -eq 1 ] ; then
-    add_gap_package "vorbisidec >= 1.2" "tremor"
-    echo "VORBIS_CFLAGS=$PKG_CFLAGS"     >> config.make
-    echo "VORBIS_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
-  fi
 
-
-  if [ $OPTION_GAP_OPUS -eq 1 ] ; then
-    add_gap_package "opus >= 1.0" "opus"
-  fi
 
   if [ $OPTION_GAP_FLAC -eq 1 ] ; then
     add_gap_package "flac >= 1.2" "flac"

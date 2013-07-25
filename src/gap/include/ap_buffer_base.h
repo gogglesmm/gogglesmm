@@ -16,74 +16,33 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifndef AP_BUFFER_IO_H
-#define AP_BUFFER_IO_H
+#ifndef AP_BUFFER_BASE_H
+#define AP_BUFFER_BASE_H
 
 namespace ap {
 
-class BufferIO : public FXIO, public BufferBase  {
+class GMAPI BufferBase {
 protected:
-	FXIO    * io;      // IO
-	FXuchar   dir;		 // buffer direction
-protected:
-	enum { // Buffer Direction
-		DirNone  = 0,
-		DirWrite = 1,
-		DirRead  = 2,
-		};
-protected:
-	FXuval writeBuffer();
-	FXuval readBuffer();
-	FXbool flushBuffer();
-private:
-  BufferIO(const BufferIO&);
-  BufferIO &operator=(const BufferIO&);
+  FXuchar * begptr;  // Begin of buffer
+  FXuchar * endptr;  // End of buffer
+  FXuchar * wrptr;   // Write pointer
+  FXuchar * rdptr;   // Read pointer
 public:
-	BufferIO(FXuval size=8192UL);
-	BufferIO(FXIO * io,FXuval size=8192UL);
+  BufferBase(FXival n=4096);
 
-	/// Attach an IO
-	void attach(FXIO * io);
+  // Resize buffer
+  FXbool resize(FXival n);
 
-  /// Return true if open
-  virtual FXbool isOpen() const;
+  // Reserve up to free n bytes.
+  FXbool reserve(FXival n);
 
-  /// Return true if serial access only
-  virtual FXbool isSerial() const;
+  // Clear buffer by resetting read and write pointers
+  void clear();
 
-  /// Get current file position
-  virtual FXlong position() const;
-
-  /// Change file position, returning new position from start
-  virtual FXlong position(FXlong offset,FXuint from=FXIO::Begin);
-
-	/// Peek block of bytes, return number of bytes peeked
-	virtual FXival peekBlock(void* data,FXival count);
-
-  /// Read block of bytes, returning number of bytes read
-  virtual FXival readBlock(void* data,FXival count);
-
-  /// Write block of bytes, returning number of bytes written
-  virtual FXival writeBlock(const void* data,FXival count);
-
-  /// Truncate file
-  virtual FXlong truncate(FXlong size);
-
-  /// Flush
-  virtual FXbool flush();
-
-  /// Test if we're at the end
-  virtual FXint eof();
-
-  /// Return size of i/o device
-  virtual FXlong size();
-
-  /// Close handle
-  virtual FXbool close();
-
-  /// Destroy and close
-  virtual ~BufferIO();
+  ~BufferBase();
   };
 
 }
+
 #endif
+

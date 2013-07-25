@@ -75,7 +75,7 @@ SO_LDFLAGS="-shared -fPIC"
 # or set CFLAGS which overrides all them
 #-------------------------------------------------------
 GEN_CFLAGS=${GEN_CFLAGS:--Wall -Wextra -Wformat=2 -pipe}
-OPT_CFLAGS=${OPT_CFLAGS:--O3 -march=native -fstack-protector}
+OPT_CFLAGS=${OPT_CFLAGS:--O2 -march=native -fstack-protector}
 DEBUG_CFLAGS=${DEBUG_CFLAGS:--g  -fstack-protector-all}
 
 # Overriding Linker Flags
@@ -206,6 +206,7 @@ for arg in $@; do
       echo "Components: "
       echo "   --without-mad                   Compile without mad support"
       echo "   --without-vorbis                Compile without vorbis support"
+      echo "   --without-opus                  Compile without opus support"
       echo "   --without-ogg                   Compile without ogg support"
       echo "   --without-flac                  Compile without flac support"
       echo "   --without-faad                  Compile without faad support"

@@ -290,8 +290,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         buf32 = out->s16();
 #endif
         /// Copy Samples
-        FXint min=0,max=0;
-
         nsamples = FXMIN(ntotalsamples,navail);
         for (p=0,s=sample;s<(nsamples+sample);s++){
           for (c=0;c<info.channels;c++,p++) {

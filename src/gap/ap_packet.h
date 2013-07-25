@@ -87,8 +87,6 @@ public:
   void wroteFrames(FXint nframes) { wroteBytes(nframes*af.framesize()); }
 
   void appendFrames(const FXuchar * buf,FXival nframes) { append(buf,af.framesize()*nframes); }
-
-  void trimFrames(FXint nframes) { trimEnd(nframes*af.framesize()); }
   };
 
 }

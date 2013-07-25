@@ -136,7 +136,7 @@ FXival HttpInput::read(void * data,FXival count) {
   return t;
   }
 
-FXlong HttpInput::position(FXlong offset,FXuint from) {
+FXlong HttpInput::position(FXlong /*offset*/,FXuint /*from*/) {  
   return -1;
   //return client->position(offset,from);
   }

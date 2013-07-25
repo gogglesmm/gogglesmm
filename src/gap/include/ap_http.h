@@ -19,6 +19,7 @@
 #ifndef AP_HTTP_H
 #define AP_HTTP_H
 
+#include "ap_buffer_base.h"
 #include "ap_buffer_io.h"
 #include "ap_http_response.h"
 #include "ap_http_client.h"

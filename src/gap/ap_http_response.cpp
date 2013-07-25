@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_buffer_base.h"
 #include "ap_buffer_io.h"
 #include "ap_http_response.h"
 
@@ -165,10 +166,10 @@ void HttpResponse::check_headers() {
     flags|=ChunkedResponse;
 
 
-  if (status.major==1 && status.minor==1) {		
-    field = (FXString*) headers.find("connection");	
+  if (status.major==1 && status.minor==1) {
+    field = (FXString*) headers.find("connection");
     if (field!=NULL && comparecase(*field,"close")==0)
-      flags|=ConnectionClose;		
+      flags|=ConnectionClose;
     }
   else {
     field = (FXString*) headers.find("connection");

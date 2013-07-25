@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_buffer_base.h"
 #include "ap_buffer.h"
 
 #define ROUNDVAL    16
@@ -24,114 +25,68 @@
 
 namespace ap {
 
-MemoryBuffer::MemoryBuffer(FXival cap) :
-  buffer(NULL),
-  buffersize(0),
-  rdptr(NULL),
-  wrptr(NULL) {
-  reserve(cap);
+BufferBase::BufferBase(FXival n) {
+  allocElms(begptr,ROUNDUP(n));
+  endptr=begptr+n;
+  wrptr=begptr;
+  rdptr=begptr;
   }
 
-MemoryBuffer::MemoryBuffer(const MemoryBuffer & other) :
-  buffer(NULL),
-  buffersize(0),
-  rdptr(NULL),
-  wrptr(NULL) {
-  reserve(other.capacity());
-  append(other.data(),other.size());
+BufferBase::~BufferBase(){
+  freeElms(begptr);
+  }
+
+void BufferBase::clear() {
+  wrptr=rdptr=begptr;
+  }
+
+FXbool BufferBase::resize(FXival n) {
+  FXASSERT(n>0);
+  if(begptr+n!=endptr){
+    register FXuchar *oldbegptr=begptr;
+
+    // Resize the buffer
+    if(!resizeElms(begptr,ROUNDUP(n))) return false;
+
+    // Adjust pointers, buffer may have moved
+    endptr=begptr+n;
+    wrptr=begptr+(wrptr-oldbegptr);
+    rdptr=begptr+(rdptr-oldbegptr);
+    if(wrptr>endptr) wrptr=endptr;
+    if(rdptr>endptr) rdptr=endptr;
+    }
+  return true;
+  }
+
+FXbool BufferBase::reserve(FXival n) {
+  FXASSERT(n>0);
+  if (n>(endptr-wrptr)) {
+    if (rdptr>begptr) {
+      if (rdptr<wrptr) {
+        memmove(begptr,rdptr,wrptr-rdptr);
+        wrptr-=(rdptr-begptr);
+        rdptr=begptr;
+        }
+      else {
+        rdptr=wrptr=begptr;
+        }
+      if (n<=endptr-wrptr)
+        return true;
+      }
+    return resize((endptr-begptr)+(n-(endptr-wrptr)));
+    }
+  return true;
+  }
+
+
+
+//----------------------------------------------
+
+MemoryBuffer::MemoryBuffer(FXival cap) : BufferBase(cap) {
   }
 
 MemoryBuffer::~MemoryBuffer() {
-  freeElms(buffer);
-  buffersize=0;
-  wrptr=rdptr=NULL;
   }
-
-// Assignment operator
-MemoryBuffer& MemoryBuffer::operator=(const MemoryBuffer& other) {
-  clear();
-  reserve(other.capacity());
-  append(other.data(),other.size());
-  return *this;
-  }
-
-// Append operator
-MemoryBuffer& MemoryBuffer::operator+=(const MemoryBuffer& other) {
-  reserve(other.capacity());
-  append(other.data(),other.size());
-  return *this;
-  }
-
-
-void MemoryBuffer::adopt(MemoryBuffer & other) {
-
-  // Take over
-  buffer=other.buffer;
-  buffersize=other.buffersize;
-  rdptr=other.rdptr;
-  wrptr=other.wrptr;
-
-  // Reset Other
-  other.buffer=other.rdptr=other.wrptr=NULL;
-  other.buffersize=0;
-  }
-
-
-// Clear
-void MemoryBuffer::clear() {
-  wrptr=rdptr=buffer;
-  }
-
-// Clear and reset
-void MemoryBuffer::reset(FXival nbytes) {
-  clear();
-  if (buffersize!=nbytes) {
-    buffersize=nbytes;
-    resizeElms(buffer,buffersize);
-    wrptr=rdptr=buffer;
-    }
-  }
-
-
-// Make room for needed bytes
-void MemoryBuffer::reserve(FXival needed) {
-  if (needed>0) {
-    if (buffer) {
-      FXival avail = space();
-
-      /// Check if we can move back rdptr/wrptr
-      if (avail<needed) {
-        if (rdptr>buffer) {
-          if (wrptr>rdptr) {
-            memmove(buffer,rdptr,wrptr-rdptr);
-            wrptr-=(rdptr-buffer);
-            rdptr = buffer;
-            avail = space();
-            }
-          else {
-            wrptr=rdptr=buffer;
-            avail=buffersize;
-            }
-          }
-        }
-
-      /// Still not enough space, resize buffer
-      if (avail<needed) {
-        buffersize=ROUNDUP(buffersize+(needed-avail));
-        avail=wrptr-buffer;
-        resizeElms(buffer,buffersize);
-        wrptr=rdptr=buffer;
-        wrptr+=avail;
-        }
-      }
-    else {
-      buffersize=needed;
-      allocElms(buffer,buffersize);
-      wrptr=rdptr=buffer;
-      }
-    }
-  }
-
 
 void MemoryBuffer::readBytes(FXival nbytes) {
   FXASSERT(nbytes<=size());
@@ -159,7 +114,6 @@ void MemoryBuffer::append(const FXchar c,FXival nbytes/*=1*/) {
 
 
 FXival MemoryBuffer::read(void * b, FXival nbytes) {
-  //FXASSERT(nbytes<size());
   nbytes=FXMIN(size(),nbytes);
   memcpy(b,rdptr,nbytes);
   readBytes(nbytes);
@@ -167,12 +121,10 @@ FXival MemoryBuffer::read(void * b, FXival nbytes) {
   }
 
 FXival MemoryBuffer::peek(void * b, FXival nbytes) {
-//  FXASSERT(nbytes<size());
   nbytes=FXMIN(size(),nbytes);
   memcpy(b,rdptr,nbytes);
   return nbytes;
   }
-
 
 void MemoryBuffer::trimBegin(FXival nbytes) {
   readBytes(nbytes);

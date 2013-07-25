@@ -243,7 +243,7 @@ FXint InputThread::run(){
                             if (state!=StateError) {
                               engine->post(event);
                               continue;
-                              } 
+                              }
                             break;
       case Buffer         :
         {
@@ -255,7 +255,7 @@ FXint InputThread::run(){
           switch(status) {
             case ReadError    : GM_DEBUG_PRINT("[input] error\n");
                                 ctrl_close_input();
-                                set_state(StateError);
+                                set_state(StateError,true);
                                 break;
             case ReadDone     : GM_DEBUG_PRINT("[input] done\n");
                                 set_state(StateIdle);
@@ -446,6 +446,7 @@ void InputThread::set_state(FXuchar s,FXbool notify) {
   /// Tell front end about the state.
   if (notify) {
     switch(state) {
+      case StateError     :
       case StateIdle      : engine->post(new Event(AP_STATE_READY));   break;
       case StateProcessing: engine->post(new Event(AP_STATE_PLAYING)); break;
       default       : break;

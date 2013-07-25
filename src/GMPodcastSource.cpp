@@ -579,16 +579,16 @@ protected:
     /// Actual transfer
     FXuchar buffer[4096];
     FXlong  n,nbytes=0,ntotal=0,ncontent=http.getContentLength();
-    FXTime  timestamp,last = FXThread::time();
-    const FXlong seconds   = 1000000000;
-    const FXlong msample   = 100000000;
-    const FXlong kilobytes = 1024;
+    //FXTime  timestamp,last = FXThread::time();
+    //const FXlong seconds   = 1000000000;
+    //const FXlong msample   = 100000000;
+    //const FXlong kilobytes = 1024;
 
     while((n=http.readBody(buffer,4096))>0 && processing) {
       nbytes+=n;
       ntotal+=n;
 
-      /* calculate transfer speed */
+      /* calculate transfer speed 
       timestamp = FXThread::time();
       if (timestamp-last>msample) {
         FXuint kbps = (nbytes * seconds ) / (kilobytes*(timestamp-last));
@@ -596,6 +596,7 @@ protected:
         nbytes=0;
         last=timestamp;
         }
+      */
 
       /* Write and check out of disk space */
       if (file.writeBlock(buffer,n)<n)
@@ -967,7 +968,7 @@ FXbool GMPodcastSource::hasCurrentTrack(GMSource * src) const {
   return false;
   }
 
-FXbool GMPodcastSource::setTrack(GMTrack & track) const {
+FXbool GMPodcastSource::setTrack(GMTrack&) const {
   return false;
   }
 

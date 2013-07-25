@@ -133,8 +133,6 @@ enum {
 
 void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
   FXString comment;
-  FXint size=0;
-  FXint ncomments=0;
   const FXchar * end = buffer+len;
 
   FXuint header=((const FXuint*)buffer)[0];
@@ -351,7 +349,7 @@ FLAC__bool FlacReader::flac_input_eof(const FLAC__StreamDecoder */*decoder*/, vo
   }
 
 
-FLAC__StreamDecoderWriteStatus FlacReader::flac_input_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame *frame, const FLAC__int32 *const /*buffer*/[], void */*client_data*/) {
+FLAC__StreamDecoderWriteStatus FlacReader::flac_input_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame */*frame*/, const FLAC__int32 *const /*buffer*/[], void */*client_data*/) {
 //  FXASSERT(0);
   return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;//FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
   }

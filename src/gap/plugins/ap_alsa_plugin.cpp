@@ -174,7 +174,7 @@ protected:
 protected:
 
   void debug_hw_caps(){
-#ifdef DEBUG    
+#ifdef DEBUG
     int s1,s2,mindir,maxdir;
     unsigned int minus,maxus;
     snd_pcm_uframes_t minframes,maxframes;
@@ -368,7 +368,7 @@ protected:
     int dir  = 0;
     out      = in;
     channels = out.channels;
-    rate     = out.rate;         
+    rate     = out.rate;
     format   = alsaformat(out);
 
     if (format==SND_PCM_FORMAT_UNKNOWN)
@@ -389,10 +389,10 @@ protected:
         return false;
 
       }
-    
+
     if (snd_pcm_hw_params_set_format(pcm,hw,format)<0)
       return false;
-    
+
     if (snd_pcm_hw_params_set_channels_near(pcm,hw,&channels)<0)
       return false;
 
@@ -446,7 +446,7 @@ protected:
     if (snd_pcm_hw_params_current(pcm,hw)<0)
       return false;
 
-    return getHardware();    
+    return getHardware();
     }
 
   FXbool getHardware() {
@@ -489,7 +489,7 @@ protected:
 public:
 
   static FXbool configure(snd_pcm_t * pcm,AlsaConfig & config,const AudioFormat & in,AudioFormat & out) {
-    AlsaSetup alsa(pcm);  
+    AlsaSetup alsa(pcm);
 
     // Init structures
     if (!alsa.init())
@@ -503,14 +503,14 @@ public:
     if (!alsa.setupHardware())
       return false;
 
-    /// Set the software parameters      
+    /// Set the software parameters
     if (!alsa.setupSoftware())
       return false;
 
     /// Finish up and get the Configured Format
     if (!alsa.finish(out))
       return false;
-        
+
     return true;
     }
 
