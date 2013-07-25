@@ -167,7 +167,7 @@ void HttpResponse::check_headers() {
 
   if (status.major==1 && status.minor==1) {		
     field = (FXString*) headers.find("connection");	
-    if (comparecase(*field,"close")==0)
+    if (field!=NULL && comparecase(*field,"close")==0)
       flags|=ConnectionClose;		
     }
   else {
