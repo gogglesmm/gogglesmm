@@ -381,6 +381,7 @@ void OutputThread::load_plugin() {
     }
 
   FXString plugin_name = ap_get_environment("GOGGLESMM_PLUGIN_PATH",AP_PLUGIN_PATH) + PATHSEPSTRING + FXSystem::dllName("gap_"+output_config.plugin());
+  GM_DEBUG_PRINT("[output] loading plugin: %s\n",plugin_name.text());
 
 
 //  FXString plugin_name = FXPath::search(FXPath::expand(AP_PLUGIN_PATH),FXSystem::dllName("gap_" + output_config.plugin()));

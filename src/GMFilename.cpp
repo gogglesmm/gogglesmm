@@ -248,11 +248,7 @@ static FXString convert_and_decompose(const FXString & input,FXTextCodec * codec
       }
     else {
       input_decompose.assign(&input[i],input.extent(i));
-#if FOXVERSION < FXVERSION(1,7,29)
-      input_decompose = decompose(input_decompose,DecCompat);
-#else
       input_decompose = decompose(input_decompose,DecomposeCompat);
-#endif
       for (j=0;j<input_decompose.length();j=input_decompose.inc(j)){
         len = codec->utf2mb(&c,1,&input_decompose[j],input_decompose.extent(j));
         if (len>0 && c!=0x1A) {
@@ -268,11 +264,7 @@ static FXString convert_and_decompose(const FXString & input,FXTextCodec * codec
 static FXString convert_and_decompose(const FXString & input) {
   register FXint i=0;
   FXString result;
-#if FOXVERSION < FXVERSION(1,7,29)
-  FXString in = decompose(input,DecCanonical);
-#else
   FXString in = decompose(input,DecomposeCanonical);
-#endif
   for (i=0;i<in.length();i=in.inc(i)){
     if (Ascii::isAscii(in[i]) && Ascii::isPrint(in[i]) ) {
       result+=in[i];
@@ -289,11 +281,7 @@ static FXString to_8bit_codec(const FXString & input,FXTextCodec * codec,const F
   result = filter(input,forbidden,opts);
 
   /// Make sure it is properly composed. Should we do this?
-#if FOXVERSION < FXVERSION(1,7,29)
-  result = compose(result,DecCompat);
-#else
   result = compose(result,DecomposeCompat);
-#endif
 
   /// convert to given codec.
   if (dynamic_cast<FXUTF8Codec*>(codec)==NULL)
@@ -310,11 +298,7 @@ static FXString to_8bit_ascii(const FXString & input,const FXString & forbidden,
   result = filter(input,forbidden,opts);
 
   /// Make sure it is properly composed. Should we do this?
-#if FOXVERSION < FXVERSION(1,7,29)
-  result = compose(result,DecCompat);
-#else
   result = compose(result,DecomposeCompat);
-#endif
 
   /// convert to given codec.
   result = convert_and_decompose(result);

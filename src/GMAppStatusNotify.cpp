@@ -295,11 +295,7 @@ GMAppStatusNotify::GMAppStatusNotify(){
   }
 
 GMAppStatusNotify::GMAppStatusNotify(GMDBus * b) : GMDBusProxy(b,APPLICATION_STATUS_NAME,APPLICATION_STATUS_PATH,APPLICATION_STATUS_INTERFACE)  {
-#if FOXVERSION <= FXVERSION(1,7,26)
-  name = "org.kde.StatusNotifierItem-" + FXString::value(fxgetpid()) + "-1";
-#else
   name = "org.kde.StatusNotifierItem-" + FXString::value(FXProcess::current()) + "-1";
-#endif
   int result = dbus_bus_request_name(SESSIONBUS,name.text(),DBUS_NAME_FLAG_DO_NOT_QUEUE,NULL);
   if (result == DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ) {
     dbus_connection_register_object_path(SESSIONBUS,APPLICATION_STATUS_ITEM_PATH,&org_freedesktop_statusnotifieritem,this);

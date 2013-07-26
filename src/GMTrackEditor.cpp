@@ -45,7 +45,7 @@ FXint GMTagUpdateTask::run() {
     GMTrack info;
     database->beginTask();
 
-    for (FXint i=0;i<tracks.no() && processing;i++) {
+    for (FXival i=0;i<tracks.no() && processing;i++) {
 
      if (database->interrupt)
         database->waitTask();
@@ -54,7 +54,7 @@ FXint GMTagUpdateTask::run() {
         break;
         }
 
-      taskmanager->setStatus(FXString::value("Writing Tags %d/%d..",i+1,tracks.no()));
+      taskmanager->setStatus(FXString::value("Writing Tags %ld/%ld..",i+1,tracks.no()));
 
       info.saveTag(info.url);
 
@@ -91,8 +91,8 @@ GMUpdateTask::GMUpdateTask(GMTrackDatabase * db,GMTrackArray & t,FXIntList & i) 
 
 FXint GMUpdateTask::run() {
   try {
-    for (FXint i=0;i<tracks.no() && processing;i++) {
-      taskmanager->setStatus(FXString::value("Writing Tags %d/%d..",i+1,tracks.no()));
+    for (FXival i=0;i<tracks.no() && processing;i++) {
+      taskmanager->setStatus(FXString::value("Writing Tags %ld/%ld..",i+1,tracks.no()));
       tracks[i].saveTag(tracks[i].url);
 
       database->beginTask();

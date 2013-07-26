@@ -3,12 +3,11 @@ Installation Instructions
 
    1. Install all required dependencies:
 
-      * FOX >= 1.7.26 (latest development release, see README file for details)
-	    * libgaplayer >= 0.1
+      * FOX >= 1.7.40 (latest development release, see README file for details)
   	  * sqlite >= 3.6.3
     	* taglib >= 1.6.3
       * dbus 1.0.x (optional)
-      * expat
+      * expat or libxml2
 
    2. Run the configure script:
 

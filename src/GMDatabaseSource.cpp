@@ -1292,11 +1292,11 @@ protected:
   FXint run() {
     try {
       database->beginTask();
-      for (FXint i=0;i<files.no() && processing;i++) {
+      for (FXival i=0;i<files.no() && processing;i++) {
         if (database->interrupt)
           database->waitTask();
 
-        taskmanager->setStatus(FXString::value("Writing Cover %d/%d..",i+1,tracks.no()));
+        taskmanager->setStatus(FXString::value("Writing Cover %ld/%ld..",i+1,tracks.no()));
 
         GMFileTag tag;
         if (tag.open(files[i],FILETAG_TAGS)) {
@@ -1363,7 +1363,7 @@ long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector,void*){
 
   const FXchar image_patterns[]="All Images (*.png,*.jpeg,*.jpg,*.bmp,*.gif)";
 
-  GMFileDialog dialog(GMPlayerManager::instance()->getMainWindow(),"Select Cover"); 
+  GMFileDialog dialog(GMPlayerManager::instance()->getMainWindow(),"Select Cover");
   dialog.setDirectory(GMApp::instance()->reg().readStringEntry("directories","last-add-cover-dir",FXSystem::getHomeDirectory().text()));
   dialog.setPatternList(image_patterns);
   if (dialog.execute()) {

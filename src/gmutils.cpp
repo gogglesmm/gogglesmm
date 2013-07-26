@@ -40,7 +40,7 @@
 
 
 void FXIntMap::save(FXStream & store) const {
-  store << no();
+  store << (FXint)no();
   for (FXint i=0;i<size();i++){
     if (!empty(i)) {
       store << key(i);

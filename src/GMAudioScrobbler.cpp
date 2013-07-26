@@ -648,7 +648,7 @@ void GMAudioScrobbler::load_queue(){
 
 
 void GMAudioScrobbler::save_queue(){
-  FXTRACE((60,"GMAudioScrobbler::save_queue => %d entries\n",submitqueue.no()));
+  FXTRACE((60,"GMAudioScrobbler::save_queue => %ld entries\n",submitqueue.no()));
   FXuint version=20080501;
   FXString filename = FXSystem::getHomeDirectory() + SCROBBLER_CACHE_FILE;
   if (submitqueue.no()) {
