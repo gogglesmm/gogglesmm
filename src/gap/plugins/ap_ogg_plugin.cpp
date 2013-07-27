@@ -104,6 +104,8 @@ protected:
   void   send_headers();
   void   clear_headers();
 
+  FXlong find_lastpage_position();
+
   ReadStatus parse();
 #if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
   ReadStatus parse_vorbis_stream();
@@ -181,11 +183,11 @@ FXbool OggReader::seek(FXdouble pos){
 
     input_position = input->position(offset,FXIO::Begin);
 
-    GM_DEBUG_PRINT("target seek %ld / %ld => %ld\n",target,stream_length,offset);
+    GM_DEBUG_PRINT("[ogg] target seek %ld / %ld => %ld\n",target,stream_length,offset);
 
     while(fetch_next_page()) {
       if (ogg_page_granulepos(&page)>target) {
-        GM_DEBUG_PRINT("found %ld %ld %ld\n",ogg_page_granulepos(&page),lastpos,offset);
+        GM_DEBUG_PRINT("[ogg] found %ld %ld %ld\n",ogg_page_granulepos(&page),lastpos,offset);
         if (lastpos>=0 || offset==0) {
           input->position((lastpos>=0) ? lastpos : offset,FXIO::Begin);
           ogg_sync_reset(&sync);
@@ -229,7 +231,7 @@ FXbool OggReader::init(InputPlugin*plugin) {
   clear_headers();
 
   input_position=-1;
-  stream_length=0;
+  stream_length=-1;
   stream_start=0;
 
   if (state.has_stream) {
@@ -247,6 +249,8 @@ FXbool OggReader::match_page() {
   if (state.has_stream) {
     if (ogg_page_serialno(&page)==stream.serialno)
       return true;
+    else
+      GM_DEBUG_PRINT("non-matching page %d (expected %ld)\n",ogg_page_serialno(&page),stream.serialno);
     }
   else {
     if (ogg_page_bos(&page)) {
@@ -260,6 +264,29 @@ FXbool OggReader::match_page() {
   }
 
 
+FXlong OggReader::find_lastpage_position() {
+  FXlong size = input->size();
+  FXlong pos = -1;
+
+  /// TODO need a smart way of finding the last page in stream.
+  if (size>=0xFFFF) {
+    input->position((size-0xFFFF),FXIO::Begin);
+    ogg_sync_reset(&sync);
+    }
+
+  /// Go to last page of stream to find out last pcm position
+  while(fetch_next_page()) {
+    pos=ogg_page_granulepos(&page);
+    if (ogg_page_eos(&page)) {
+      return pos;
+      }
+    }
+  
+  /// eos not found, use last found pos
+  GM_DEBUG_PRINT("[ogg] no page found with eos. Truncated file?\n");
+  return pos;
+  }
+
 
 #ifdef HAVE_OPUS_PLUGIN
 void OggReader::check_opus_length() {
@@ -267,7 +294,6 @@ void OggReader::check_opus_length() {
   stream_start=0;
   if (!input->serial()) {
     FXlong cpos = input_position;
-    FXlong size = input->size();
     FXlong nsamples = 0;
 
     /// First determine the pcm offset at the start of a stream
@@ -275,24 +301,18 @@ void OggReader::check_opus_length() {
       nsamples += opus_packet_get_nb_samples((unsigned char*)op.packet,op.bytes,48000);
       if (op.granulepos!=-1) {
         stream_start=op.granulepos-nsamples;
-        GM_DEBUG_PRINT("stream start=%ld %ld %ld\n",op.granulepos,nsamples,stream_start);
+        GM_DEBUG_PRINT("[ogg] stream start=%ld %ld %ld\n",op.granulepos,nsamples,stream_start);
         break;
         }
       }
-    /// TODO need a smart way of finding the last page in stream.
-    if (size>=0xFFFF) {
-      input->position((size-0xFFFF),FXIO::Begin);
-      ogg_sync_reset(&sync);
+    
+    /// Find end of stream
+    FXlong pos = find_lastpage_position();
+    if (pos>0) {
+      stream_length = pos - stream_start - stream_offset_start;
+      GM_DEBUG_PRINT("[ogg] stream length = %ld\n",stream_length);
       }
 
-    /// Go to last page of stream to find out last pcm position
-    while(fetch_next_page()) {
-      if (ogg_page_eos(&page)) {
-        stream_length = ogg_page_granulepos(&page) - stream_start - stream_offset_start;
-        GM_DEBUG_PRINT("stream length = %ld\n",stream_length);
-        break;
-        }
-      }
     input->position(cpos,FXIO::Begin);
     ogg_sync_reset(&sync);
     ogg_stream_reset(&stream);
@@ -302,11 +322,10 @@ void OggReader::check_opus_length() {
 
 #if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
 void OggReader::check_vorbis_length(vorbis_info * info) {
-  stream_length=0;
+  stream_length=-1;
   stream_start=0;
   if (!input->serial()) {
     FXlong cpos = input_position;
-    FXlong size = input->size();
 
     /// First Determine the pcm offset at the start of the stream
     FXint cb,lb=-1,tb=0;
@@ -316,25 +335,18 @@ void OggReader::check_vorbis_length(vorbis_info * info) {
       lb=cb;
       if (op.granulepos!=-1) {
         stream_start=op.granulepos-tb;
-        GM_DEBUG_PRINT("stream offset=%ld %d %ld\n",op.granulepos,tb,stream_start);
+        GM_DEBUG_PRINT("[ogg] stream offset=%ld %d %ld\n",op.granulepos,tb,stream_start);
         break;
         }
       }
 
-    /// TODO need a smart way of finding the last page in stream.
-    if (size>=0xFFFF) {
-      input->position((size-0xFFFF),FXIO::Begin);
-      ogg_sync_reset(&sync);
+    /// Find end of stream
+    FXlong pos = find_lastpage_position();
+    if (pos>0) {
+      stream_length = pos - stream_start;
+      GM_DEBUG_PRINT("[ogg] stream length = %ld\n",stream_length);
       }
 
-    /// Go to last page of stream to find out last pcm position
-    while(fetch_next_page()) {
-      if (ogg_page_eos(&page)) {
-        stream_length = ogg_page_granulepos(&page) - stream_start;
-        GM_DEBUG_PRINT("found total %ld frames\n",stream_length);
-        break;
-        }
-      }
     input->position(cpos,FXIO::Begin);
     ogg_sync_reset(&sync);
     ogg_stream_reset(&stream);
@@ -765,7 +777,14 @@ ReadStatus OggReader::process(Packet * p) {
   if (state.has_packet)
     submit_ogg_packet();
 
-  while(packet && fetch_next_packet()) {
+  while(packet) {
+    if (!fetch_next_packet()){
+      GM_DEBUG_PRINT("[ogg] unexpected end of stream\n");
+      packet->flags|=FLAG_EOS;
+      state.has_eos=true;
+      engine->decoder->post(packet);
+      return ReadDone;  
+      }
     submit_ogg_packet();
     }
 
