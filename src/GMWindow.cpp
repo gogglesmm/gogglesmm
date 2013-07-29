@@ -33,6 +33,7 @@
 #include "GMPlayerManager.h"
 #include "GMWindow.h"
 #include "GMRemote.h"
+#include "GMPresenter.h"
 #include "GMCover.h"
 #include "GMCoverManager.h"
 
@@ -107,6 +108,7 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SHOW_FULLSCREEN,		GMWindow::onCmdShowFullScreen),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_MINIPLAYER,   GMWindow::onCmdShowMiniPlayer),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_BROWSER,      GMWindow::onCmdShowBrowser),
+  FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_PRESENTER,    GMWindow::onCmdShowPresenter),
 
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_PREFERENCES,       GMWindow::onCmdPreferences),
 
@@ -155,6 +157,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   flags|=FLAG_ENABLED;
 
   remote=NULL;
+  presenter=NULL;
 
   icontheme = new GMIconTheme(getApp());
   icontheme->load();
@@ -209,8 +212,8 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   coverview_x11=NULL;
 #ifdef HAVE_OPENGL_COVERVIEW
   coverview_gl=NULL;
-  glvisual=NULL;
 #endif
+  glvisual=NULL;
 
   updateCoverView();
 
@@ -273,6 +276,8 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new GMMenuCheck(menu_gmm,tr("Show &Sources\tCtrl-S\tShow source browser "),this,ID_SHOW_SOURCES);
   fullscreencheck = new GMMenuCheck(menu_gmm,tr("Show Full Screen\tF12\tToggle fullscreen mode."),this,ID_SHOW_FULLSCREEN);
   new GMMenuCheck(menu_gmm,tr("Show Mini Player\tCtrl-M\tToggle Mini Player."),this,ID_SHOW_MINIPLAYER);
+  new GMMenuCheck(menu_gmm,tr("Show Presenter\t\tShow Presenter."),this,ID_SHOW_PRESENTER);
+
   new FXMenuSeparator(menu_gmm);
   new GMMenuCommand(menu_gmm,tr("Find…\tCtrl-F\tShow search filter."),GMIconTheme::instance()->icon_find,trackview,GMTrackView::ID_TOGGLE_FILTER);
   new FXMenuSeparator(menu_gmm);
@@ -509,6 +514,24 @@ void GMWindow::create(){
   gm_set_application_icon(this);
   }
 
+
+void GMWindow::showPresenter(){
+  if (!presenter) {
+    GMPresenter p(getApp(),glvisual,target,message);
+    p.create();
+    presenter=&p;
+    updateCover();
+    p.execute();
+    presenter=NULL;
+    }
+  }
+
+void GMWindow::hidePresenter(){
+  if (presenter) {
+    delete presenter;
+    presenter=NULL;
+    }
+  }
 
 void GMWindow::showRemote(){
   if (!remote) {
@@ -827,6 +850,12 @@ long GMWindow::onCmdShowFullScreen(FXObject*,FXSelector,void*){
     }
   return 1;
   }
+
+long GMWindow::onCmdShowPresenter(FXObject*,FXSelector,void*){
+  showPresenter();
+  return 1;
+  }
+
 
 long GMWindow::onCmdShowBrowser(FXObject*,FXSelector,void*){
   hideRemote();
@@ -1425,6 +1454,7 @@ void GMWindow::updateCover() {
 #ifdef HAVE_OPENGL_COVERVIEW
     else {
       coverview_gl->setImage(image);
+      if (presenter) presenter->setImage(image);
       delete image;
       }
 #endif

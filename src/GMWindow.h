@@ -27,6 +27,7 @@ class GMPreferencesDialog;
 class GMImageView;
 class GMCover;
 class GMAnimImage;
+class GMPresenter;
 
 enum {
   SHOW_NORMAL,
@@ -69,8 +70,8 @@ private:
   GMCoverFrame      * coverframe;
 #ifdef HAVE_OPENGL_COVERVIEW
   GMImageView       * coverview_gl;
-  FXGLVisual        * glvisual;
 #endif
+  FXGLVisual        * glvisual;
   FXImageFrame      * coverview_x11;
   FXToggleButton    * playpausebutton;
   FXButton          * stopbutton;
@@ -91,6 +92,7 @@ private:
   FXHorizontalFrame * progressbar_cancelbutton;
   GMAnimImage       * progressbar_animation;
   GMRemote          * remote;
+  GMPresenter       * presenter;
 private:
   void configureToolbar(FXbool docktop,FXbool init=false);
   void configureStatusbar(FXbool show);
@@ -122,6 +124,7 @@ public: /// Message Handlers
   long onCmdShowBrowser(FXObject*,FXSelector,void*);
   long onCmdShowMiniPlayer(FXObject*,FXSelector,void*);
   long onUpdShowMiniPlayer(FXObject*,FXSelector,void*);
+  long onCmdShowPresenter(FXObject*,FXSelector,void*);
 
   long onCmdPlayPause(FXObject*,FXSelector,void*);
   long onUpdPlayPause(FXObject*,FXSelector,void*);
@@ -213,6 +216,7 @@ public:
     ID_SHOW_SOURCES,
     ID_SHOW_MINIPLAYER,
     ID_SHOW_BROWSER,
+    ID_SHOW_PRESENTER,
 
     ID_OPEN_DIR,
 
@@ -255,6 +259,9 @@ public:
 
   void showRemote();
   void hideRemote();
+  void showPresenter();
+  void hidePresenter();
+
   void init(FXuint);
   void toggleShown();
 

@@ -91,6 +91,7 @@ src/GMPlayQueue.cpp \
 src/GMPodcastSource.cpp \
 src/GMPreferences.cpp \
 src/GMPreferencesDialog.cpp \
+src/GMPresenter.cpp \
 src/GMRemote.cpp \
 src/GMSession.cpp \
 src/GMScanner.cpp \
