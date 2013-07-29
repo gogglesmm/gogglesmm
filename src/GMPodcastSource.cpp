@@ -532,7 +532,7 @@ protected:
     FXlong     offset = 0;
 
     if (FXStat::exists(filename) && resume) {
-      fxmessage("file exists trying resume");
+      fxmessage("file %s exists trying resume\n",filename.text());
       mode    = FXIO::ReadWrite|FXIO::Append;
       offset  = FXStat::size(filename);
       if (offset>0) {
@@ -547,7 +547,7 @@ protected:
       }
 
     if (!http.basic("GET",url,headers)) {
-      fxmessage("failed to get url\n");
+      fxmessage("failed to get url %s\n",url.text());
       return false;
       }
 
@@ -588,7 +588,7 @@ protected:
       nbytes+=n;
       ntotal+=n;
 
-      /* calculate transfer speed 
+      /* calculate transfer speed
       timestamp = FXThread::time();
       if (timestamp-last>msample) {
         FXuint kbps = (nbytes * seconds ) / (kilobytes*(timestamp-last));
@@ -673,7 +673,7 @@ public:
     if (!local.empty())
       update_feed.set(2,ITEM_FLAG_LOCAL);
     else
-      update_feed.set(2,ITEM_FLAG_QUEUE);
+      update_feed.set(2,ITEM_FLAG_DOWNLOAD_FAILED);
 
     update_feed.set(3,id);
     update_feed.execute();

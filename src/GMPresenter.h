@@ -51,7 +51,7 @@ protected:
   GMPresenter& operator=(const GMPresenter&);
 public:
   /// Construct Remote Window
-  GMPresenter(FXApp* a,FXGLVisual*,FXObject*,FXSelector);
+  GMPresenter(FXApp* a,FXGLContext*,FXObject*,FXSelector);
 
   /// Create
   virtual void create();

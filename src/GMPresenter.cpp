@@ -44,7 +44,7 @@ FXDEFMAP(GMPresenter) GMPresenterMap[]={
 // Implementation
 FXIMPLEMENT(GMPresenter,FXDialogBox,GMPresenterMap,ARRAYNUMBER(GMPresenterMap))
 
-GMPresenter::GMPresenter(FXApp* a,FXGLVisual * vis,FXObject * tgt,FXSelector msg):FXDialogBox(a,"Goggles Music Manager",DECOR_NONE,0,0,400,300,0,0,0,0,0,0){
+GMPresenter::GMPresenter(FXApp* a,FXGLContext * ctx,FXObject * tgt,FXSelector msg):FXDialogBox(a,"Goggles Music Manager",DECOR_NONE,0,0,400,300,0,0,0,0,0,0){
 
   pos=FXVec2f(0.1f,0.1f);
   dir=FXVec2f(0.0003f,0.0005f);
@@ -56,16 +56,16 @@ GMPresenter::GMPresenter(FXApp* a,FXGLVisual * vis,FXObject * tgt,FXSelector msg
 
   setBackColor(FXRGB(0,0,0));
 //  if (vis==NULL)
-    glvisual = vis = new FXGLVisual(getApp(),VISUAL_DOUBLE_BUFFER);
+   // glvisual = vis = new FXGLVisual(getApp(),VISUAL_DOUBLE_BUFFER);
 //  else
 //    glvisual = NULL;
 
-  glcanvas = new FXGLCanvas(this,vis,this,ID_CANVAS,LAYOUT_FILL);
+  glcanvas = new FXGLCanvas(this,ctx,this,ID_CANVAS,LAYOUT_FILL);
   }
 
 // Destroy main window
 GMPresenter::~GMPresenter(){
-  delete glvisual;
+ // delete glvisual;
   getApp()->removeTimeout(this,ID_ANIMATION);
   }
 
@@ -226,7 +226,7 @@ long GMPresenter::onCanvasPaint(FXObject*,FXSelector,void*){
 
    // glMatrixMode(GL_MODELVIEW);
    // glLoadIdentity();
-/*  
+/*
   glBegin(GL_QUADS);
       glColor3f(1.0f,0.0f,0.00f);
       glVertex2f(0.0f,0.0f);

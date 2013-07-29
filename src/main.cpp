@@ -37,7 +37,7 @@ static bool gm_display_help(int argc,char * argv[]) {
                 " -h, --help            Display this help page\n"
                 " -v, --version         Display version information\n"
                 "     --tray            Start minimized to tray\n"
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
                 "     --disable-opengl  Disables opengl based features\n"
 #endif
                 "\n"

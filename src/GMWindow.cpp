@@ -47,7 +47,7 @@
 #include "GMPreferencesDialog.h"
 #include "FXUTF8Codec.h"
 
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
 #include "GMImageView.h"
 #endif
 
@@ -194,7 +194,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new FXSeparator(progressbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
 
   progressbar->reparent(statusbar,statusbar->getStatusLine());
-  progressbar_animation->hide();  
+  progressbar_animation->hide();
   progressbar->hide();
 
   FXVerticalFrame * mainframe = new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -210,10 +210,9 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   coverframe->setBorderColor(getApp()->getShadowColor());
   coverframe->hide();
   coverview_x11=NULL;
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
   coverview_gl=NULL;
 #endif
-  glvisual=NULL;
 
   updateCoverView();
 
@@ -457,15 +456,15 @@ void GMWindow::init(FXuint mode) {
 // Destructor
 //----------------------------------------------------------------------------------
 GMWindow::~GMWindow(){
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
   if (coverview_gl) {
     coverview_gl->setImage(NULL);
     delete coverview_gl;
-    delete glvisual;
     }
 #endif
   delete icontheme;
   }
+
 
 
 
@@ -517,7 +516,8 @@ void GMWindow::create(){
 
 void GMWindow::showPresenter(){
   if (!presenter) {
-    GMPresenter p(getApp(),glvisual,target,message);
+    GMApp::instance()->initOpenGL();
+    GMPresenter p(getApp(),GMApp::instance()->getGLContext(),target,message);
     p.create();
     presenter=&p;
     updateCover();
@@ -1388,7 +1388,7 @@ void GMWindow::clearCover() {
     delete coverview_x11->getImage();
     coverview_x11->setImage(NULL);
     }
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
   else if (coverview_gl) {
     coverview_gl->setImage(NULL);
     }
@@ -1451,7 +1451,7 @@ void GMWindow::updateCover() {
       image->create();
       coverview_x11->setImage(image);
       }
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
     else {
       coverview_gl->setImage(image);
       if (presenter) presenter->setImage(image);
@@ -1462,7 +1462,7 @@ void GMWindow::updateCover() {
   }
 
 void GMWindow::updateCoverView() {
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
   if (GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview && FXGLVisual::hasOpenGL(getApp())) {
 
     if (coverview_x11) {
@@ -1472,8 +1472,8 @@ void GMWindow::updateCoverView() {
       }
 
     if (!coverview_gl) {
-      glvisual     = new FXGLVisual(getApp(),VISUAL_DOUBLE_BUFFER);
-      coverview_gl = new GMImageView(coverframe,glvisual,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+      GMApp::instance()->initOpenGL();
+      coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLVisual(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
       coverview_gl->setTarget(this);
       coverview_gl->setSelector(ID_COVERVIEW);
       coverview_gl->enable();
@@ -1487,8 +1487,7 @@ void GMWindow::updateCoverView() {
       clearCover();
       delete coverview_gl;
       coverview_gl=NULL;
-      delete glvisual;
-      glvisual=NULL;
+      GMApp::instance()->releaseOpenGL();
       }
 #endif
     if (!coverview_x11) {
@@ -1499,7 +1498,7 @@ void GMWindow::updateCoverView() {
       coverview_x11->enable();
       if (coverframe->id()) coverview_x11->create();
       }
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
     }
 #endif
   }

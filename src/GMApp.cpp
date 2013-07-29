@@ -92,6 +92,10 @@ FXIMPLEMENT(GMApp,FXApp,NULL,0)
 GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
   clipboard = new GMClipboard(this);
   xembed=0;
+#ifdef HAVE_OPENGL
+  glvisual=NULL;
+  glcontext=NULL;
+#endif
   }
 
 GMApp::~GMApp(){
@@ -255,6 +259,9 @@ void GMApp::init(int& argc,char** argv,FXbool connect) {
   }
 
 void GMApp::exit(FXint code) {
+#ifdef HAVE_OPENGL
+  releaseOpenGL();
+#endif
 
   /// Write the new xdg settings file.
   reg().unparseFile(GMApp::getConfigDirectory()+PATHSEPSTRING "settings.rc");
@@ -263,6 +270,37 @@ void GMApp::exit(FXint code) {
 
   FXApp::exit(code);
   }
+
+
+#ifdef HAVE_OPENGL
+
+void GMApp::initOpenGL() {
+  if (glcontext == NULL) {
+    glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
+    glcontext = new FXGLContext(this,glvisual);
+    }
+  }
+
+void GMApp::releaseOpenGL() {
+  if (glcontext) {
+    delete glcontext;
+    glcontext=NULL;
+    }
+  if (glvisual) {
+    delete glvisual;
+    glvisual=NULL;
+    }
+  }
+
+#endif
+
+
+
+
+
+
+
+
 
 enum {
   XEMBED_EMBEDDED_NOTIFY = 0,

@@ -17,12 +17,17 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
 #include "GMImageView.h"
 
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glu.h>
+
+#ifndef GL_VERSION_1_2
+#error Need at least OpenGL 1.2
+#endif
+
 
 // non power of two textures are currently broken in Mesa 7.10.1 in combination with mip mapping
 // now fixed in Mesa 7.11
@@ -30,6 +35,143 @@
 
 // Disable MIPMAP if needed
 //#define DISABLE_MIPMAP 1
+
+
+
+class GMImageTexture {
+public:
+  FXuint  id;           // texture id
+  FXint   image_width;
+  FXint   image_height;
+  FXfloat cw;
+  FXfloat ch;
+public:
+  GMImageTexture();
+
+  FXbool setImage(FXImage*);
+
+  ~GMImageTexture();
+  };
+
+GMImageTexture::GMImageTexture() :
+  id(0),
+  image_width(0),
+  image_height(0),
+  cw(1.0f),
+  ch(1.0f) {}
+
+GMImageTexture::~GMImageTexture() {
+  if (id) setImage(NULL);
+  }
+
+FXbool GMImageTexture::setImage(FXImage* image) {
+  if (image) {
+    image_width  = image->getWidth();
+    image_height = image->getHeight();
+    FXint  texture_width,texture_height;
+    FXbool texture_power_of_two = true;
+    FXint  texture_max;
+
+    /// Query Maximum Texture Size
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&texture_max);
+
+#ifndef DISABLE_TEXTURE_NON_POWER_OF_TWO
+    /// Check if non power of two textures are supported.
+    const GLubyte * extensions = glGetString(GL_EXTENSIONS);
+    texture_power_of_two = (strstr((const char*)extensions,"GL_ARB_texture_non_power_of_two")==NULL);
+#endif
+
+    /// Prescale to maximum texture size if necessary
+    if((image_width>texture_max) || (image_height>texture_max)){
+
+      if(image_width>image_height)
+        image->scale(texture_max,(texture_max*image_height)/image_width,FOX_SCALE_BEST);
+      else
+        image->scale((texture_max*image_width)/image_height,texture_max,FOX_SCALE_BEST);
+
+      image_width=image->getWidth();
+      image_height=image->getHeight();
+      }
+
+    /// Get a nice texture size
+    if (texture_power_of_two) {
+      texture_width=1;
+      texture_height=1;
+      while(image_width>texture_width) texture_width<<=1;
+      while(image_height>texture_height) texture_height<<=1;
+      }
+    else {
+      texture_width=image_width;
+      texture_height=image_height;
+      }
+
+    FXASSERT(texture_width<=texture_max);
+    FXASSERT(texture_height<=texture_max);
+
+    /// Generate a new texture if required.
+    if (id==0) {
+      glGenTextures(1,&id);
+      }
+
+    glBindTexture(GL_TEXTURE_2D,id);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
+#if (defined(GL_VERSION_3_0) || defined(GL_VERSION_1_4)) && !defined(DISABLE_MIPMAP)
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    #ifndef GL_VERSION_3_0
+    glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
+    glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP,GL_TRUE);
+    #endif
+#else
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+#endif
+
+    if (texture_width==image_width && texture_height==image_height) {
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
+      cw=ch=1.0f;
+      }
+    else {
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,NULL);
+      glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
+      cw = (1.0f / (FXfloat)(texture_width))  * image_width;
+      ch = (1.0f / (FXfloat)(texture_height)) * image_height;
+      }
+
+#if defined(GL_VERSION_3_0) && !defined(DISABLE_MIPMAP)
+    glGenerateMipmap(GL_TEXTURE_2D);
+#endif
+    }
+  else {
+    if (id) {
+      glDeleteTextures(1,&id);
+      id=0;
+      }
+    }
+  return true;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 FXDEFMAP(GMImageView) GMImageViewMap[]={
   FXMAPFUNC(SEL_PAINT,0,GMImageView::onPaint)
@@ -100,6 +242,11 @@ void GMImageView::updateTexture(FXImage * image) {
       texture_height=image_height;
       }
 
+    if (texture_width!=image_width || texture_height!=image_height){
+      }
+
+
+
     FXASSERT(texture_width<=texture_max);
     FXASSERT(texture_height<=texture_max);
 
@@ -135,8 +282,6 @@ void GMImageView::updateTexture(FXImage * image) {
 #endif
     }
   else {
-    image_width=0;
-    image_height=0;
     if (texture_id) {
       glDeleteTextures(1,&texture_id);
       texture_id=0;
@@ -197,7 +342,6 @@ long GMImageView::onPaint(FXObject*,FXSelector,void*){
         tw = (1.0f / (FXfloat)(texture_width))*image_width;
         }
 
-#ifndef GL_VERSION_1_1
       FXint      coords[8]={xmin,ymin,
                             xmin,ymax,
                             xmax,ymax,
@@ -224,15 +368,6 @@ long GMImageView::onPaint(FXObject*,FXSelector,void*){
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
-#else
-      glColor4fv(background);
-      glBegin(GL_QUADS);
-        glTexCoord2f(0.0,0.0); glVertex2i(xmin,ymin);
-        glTexCoord2f(0.0,th);  glVertex2i(xmin,ymax);
-        glTexCoord2f(tw,th);   glVertex2i(xmax,ymax);
-        glTexCoord2f(tw,0.0);  glVertex2i(xmax,ymin);
-      glEnd();
-#endif
 
       glDisable(GL_TEXTURE_2D);
       }

@@ -36,7 +36,7 @@
 #include "GMDatabaseSource.h"
 #include "GMTrackView.h"
 #include "GMSourceView.h"
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
 #include "GMImageView.h"
 #endif
 #include "GMAudioScrobbler.h"
@@ -1238,7 +1238,7 @@ void GMPreferencesDialog::updateColors(){
   GMTabFrame    * gmtabframe;
   GMImageFrame  * gmimageframe;
   GMCoverFrame  * gmcoverframe;
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
   GMImageView   * gmimageview;
 #endif
   GMMenuPane    * gmmenupane;
@@ -1477,7 +1477,7 @@ void GMPreferencesDialog::updateColors(){
       tooltip->setTextColor(selected.tipfore);
       tooltip->setBackColor(selected.tipback);
       }
-#ifdef HAVE_OPENGL_COVERVIEW
+#ifdef HAVE_OPENGL
     else if ((gmimageview=dynamic_cast<GMImageView*>(w))){
       gmimageview->setBackColor(selected.back);
       }

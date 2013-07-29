@@ -25,6 +25,7 @@ enum {
   ITEM_FLAG_QUEUE  = 0,
   ITEM_FLAG_LOCAL  = 1,
   ITEM_FLAG_PLAYED = 2,
+  ITEM_FLAG_DOWNLOAD_FAILED = 3,
   };
 
 class GMSource;
