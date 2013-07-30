@@ -274,6 +274,10 @@ void GMApp::exit(FXint code) {
 
 #ifdef HAVE_OPENGL
 
+FXbool GMApp::hasOpenGL() {
+  return (GMPlayerManager::instance()->getPreferences().gui_use_opengl && FXGLVisual::hasOpenGL(this));
+  }
+
 void GMApp::initOpenGL() {
   if (glcontext == NULL) {
     glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);

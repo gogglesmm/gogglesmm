@@ -19,21 +19,14 @@
 #ifndef GMPRESENTER_H
 #define GMPRESENTER_H
 
+class GMImageTexture;
+class GMBouncingImage;
+
 class GMPresenter : public FXDialogBox {
 FXDECLARE(GMPresenter)
 protected:
-  FXVec2f pos;
-  FXVec2f dir;
-protected:
-  FXint     image_width;
-  FXint     image_height;
-  FXuint    texture_id;
-  FXint     texture_width;
-  FXint     texture_height;
-  FXbool    texture_power_of_two;
-protected:
-  void updateTexture(FXImage*);
-
+  GMImageTexture  * texture;
+  GMBouncingImage * effect;
 protected:
   FXGLVisual * glvisual;
   FXGLCanvas * glcanvas;
@@ -57,7 +50,6 @@ public:
   virtual void create();
 
   FXuint execute(FXuint placement=PLACEMENT_CURSOR);
-
 
   void setImage(FXImage * image);
 

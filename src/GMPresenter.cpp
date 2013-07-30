@@ -29,10 +29,67 @@
 #include "GMWindow.h"
 #include "GMPresenter.h"
 #include "GMIconTheme.h"
+#include "GMImageView.h"
 
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glu.h>
+
+
+class GMBouncingImage {
+protected:
+  GMImageTexture * texture;
+  FXVec2f     pos;
+  FXVec2f     dir;
+  FXfloat     size;
+public:
+  GMBouncingImage(GMImageTexture*t) : texture(t), pos(0.0f,0.0f),dir(0.001f,0.001f),size(0.4f) {}
+
+  void move(FXVec2f range) {
+    FXVec2f n = pos+dir;
+    if (n.x+(size*texture->aspect)>range.x)
+      dir.x=-dir.x;
+    if (n.y+size>range.y)
+      dir.y=-dir.y;
+    if (n.x<0.0f)
+      dir.x=-dir.x;
+    if (n.y<0.0f)
+      dir.y=-dir.y;
+    pos+=dir;
+    }
+
+  void draw() {
+    const FXfloat coordinates[8] = { pos.x,pos.y,
+                                     pos.x,pos.y+size,
+                                     pos.x+(size*texture->aspect),pos.y+size,
+                                     pos.x+(size*texture->aspect),pos.y };
+    const FXfloat tex[8] = { 0.0f,texture->ch,
+                             0.0f,0.0f,
+                            texture->cw,0.0f,
+                            texture->cw,texture->ch
+                            };
+
+    const FXuchar colors[16] = { 0,0,0,0,
+                                 0,0,0,0,
+                                 0,0,0,0,
+                                 0,0,0,0};
+
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+    glBindTexture(GL_TEXTURE_2D,texture->id);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(4,GL_UNSIGNED_BYTE,0,colors);
+    glVertexPointer(2,GL_FLOAT,0,coordinates);
+    glTexCoordPointer(2,GL_FLOAT,0,tex);
+    glDrawArrays(GL_QUADS,0,4);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    }
+  };
+
 
 
 // Map
@@ -44,28 +101,22 @@ FXDEFMAP(GMPresenter) GMPresenterMap[]={
 // Implementation
 FXIMPLEMENT(GMPresenter,FXDialogBox,GMPresenterMap,ARRAYNUMBER(GMPresenterMap))
 
-GMPresenter::GMPresenter(FXApp* a,FXGLContext * ctx,FXObject * tgt,FXSelector msg):FXDialogBox(a,"Goggles Music Manager",DECOR_NONE,0,0,400,300,0,0,0,0,0,0){
-
-  pos=FXVec2f(0.1f,0.1f);
-  dir=FXVec2f(0.0003f,0.0005f);
-
-  image_width=0;
-  image_height=0;
-  texture_id=0;
-
-
-  setBackColor(FXRGB(0,0,0));
-//  if (vis==NULL)
-   // glvisual = vis = new FXGLVisual(getApp(),VISUAL_DOUBLE_BUFFER);
-//  else
-//    glvisual = NULL;
-
+GMPresenter::GMPresenter(FXApp* a,FXGLContext * ctx,FXObject * /*tgt*/,FXSelector /*msg*/):FXDialogBox(a,FXString::null,DECOR_TITLE|DECOR_RESIZE,0,0,400,300,0,0,0,0,0,0){
+  texture=NULL;
+  effect=NULL;
   glcanvas = new FXGLCanvas(this,ctx,this,ID_CANVAS,LAYOUT_FILL);
   }
 
 // Destroy main window
 GMPresenter::~GMPresenter(){
- // delete glvisual;
+  if (texture) {
+    glcanvas->makeCurrent();
+    texture->setImage(NULL);
+    glcanvas->makeNonCurrent();
+    delete texture;
+    }
+  if (effect)
+    delete effect;
   getApp()->removeTimeout(this,ID_ANIMATION);
   }
 
@@ -74,104 +125,28 @@ void GMPresenter::create() {
   getApp()->addTimeout(this,ID_ANIMATION,100000000);
   }
 
-
-
-
-void GMPresenter::updateTexture(FXImage * image) {
-  FXint texture_max;
-
-  if (!glcanvas->makeCurrent()) return;
-  if (image) {
-
-    image_width=image->getWidth();
-    image_height=image->getHeight();
-
-    /// Query Maximum Texture Size
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&texture_max);
-
-#ifndef DISABLE_TEXTURE_NON_POWER_OF_TWO
-    /// Check if non power of two textures are supported.
-    const GLubyte * extensions = glGetString(GL_EXTENSIONS);
-    texture_power_of_two = (strstr((const char*)extensions,"GL_ARB_texture_non_power_of_two")==NULL);
-#else
-    texture_power_of_two = true;
-#endif
-
-    /// Prescale to maximum texture size if necessary
-    if((image_width>texture_max) || (image_height>texture_max)){
-
-      if(image_width>image_height)
-        image->scale(texture_max,(texture_max*image_height)/image_width,FOX_SCALE_BEST);
-      else
-        image->scale((texture_max*image_width)/image_height,texture_max,FOX_SCALE_BEST);
-
-      image_width=image->getWidth();
-      image_height=image->getHeight();
-      }
-
-    /// Get a nice texture size
-    if (texture_power_of_two) {
-      texture_width=1;
-      texture_height=1;
-      while(image_width>texture_width) texture_width<<=1;
-      while(image_height>texture_height) texture_height<<=1;
-      }
-    else {
-      texture_width=image_width;
-      texture_height=image_height;
-      }
-
-    FXASSERT(texture_width<=texture_max);
-    FXASSERT(texture_height<=texture_max);
-
-    /// Generate a new texture if required.
-    if (texture_id==0) {
-      glGenTextures(1,&texture_id);
-      }
-    glBindTexture(GL_TEXTURE_2D,texture_id);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
-#if (defined(GL_VERSION_3_0) || defined(GL_VERSION_1_4)) && !defined(DISABLE_MIPMAP)
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    #ifndef GL_VERSION_3_0
-    glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
-    glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP,GL_TRUE);
-    #endif
-#else
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-#endif
-
-   if (texture_width==image_width && texture_height==image_height) {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
-      }
-    else {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,NULL);
-      glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
-      }
-
-#if defined(GL_VERSION_3_0) && !defined(DISABLE_MIPMAP)
-    glGenerateMipmap(GL_TEXTURE_2D);
-#endif
-    }
-  else {
-    image_width=0;
-    image_height=0;
-    if (texture_id) {
-      glDeleteTextures(1,&texture_id);
-      texture_id=0;
-      }
-    }
-  glcanvas->makeNonCurrent();
-  }
-
-
-
-
-
 void GMPresenter::setImage(FXImage * image) {
-  updateTexture(image);
+  if (glcanvas->makeCurrent()) {
+    if (image) {
+      if (texture==NULL) {
+        texture = new GMImageTexture();
+        effect  = new GMBouncingImage(texture);
+        }
+      texture->setImage(image);
+      }
+    else {
+      if (texture) {
+        texture->setImage(NULL);
+        delete texture;
+        texture=NULL;
+        }
+      if (effect) {
+        delete effect;
+        effect=NULL;
+        }
+      }
+    glcanvas->makeNonCurrent();
+    }
   recalc();
   update();
   }
@@ -192,27 +167,14 @@ FXuint GMPresenter::execute(FXuint placement) {
 
 long GMPresenter::onAnimation(FXObject*,FXSelector,void*){
   FXfloat aspect=getWidth()/(float)getHeight();
-  FXVec2f n = pos+dir;
-  if (n.x+0.4f>1.0*aspect)
-    dir.x=-dir.x;
-  if (n.y+0.4f>1.0)
-    dir.y=-dir.y;
-  if (n.x<0.0f)
-    dir.x=-dir.x;
-  if (n.y<0.0f)
-    dir.y=-dir.y;
-
-  pos+=dir;
+  if (effect) effect->move(FXVec2f(aspect*1.0f,1.0f));
   getApp()->addTimeout(this,ID_ANIMATION,10000000);
   glcanvas->update();
   return 1;
   }
 
-
 long GMPresenter::onCanvasPaint(FXObject*,FXSelector,void*){
-  FXfloat th=1.0f;
-  FXfloat tw=1.0f;
-  FXfloat aspect=getWidth()/(float)getHeight();
+  const FXfloat aspect=getWidth()/(float)getHeight();
   FXVec4f background=colorToVec4f(FXRGBA(0,0,0,0));
 
   if (glcanvas->makeCurrent()) {
@@ -220,94 +182,12 @@ long GMPresenter::onCanvasPaint(FXObject*,FXSelector,void*){
     glClearColor(0.0f,0.0f,0.0f,0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluOrtho2D(0.0f,1.0f*aspect,0.0f,1.0f);
-
-   // glMatrixMode(GL_MODELVIEW);
-   // glLoadIdentity();
-/*
-  glBegin(GL_QUADS);
-      glColor3f(1.0f,0.0f,0.00f);
-      glVertex2f(0.0f,0.0f);
-      glVertex2f(1.0f*aspect,0.0f);
-
-      glColor3f(0.0f,0.0f,0.0f);
-      glVertex2f(1.0f*aspect,0.5f);
-      glVertex2f(0.0f,0.5f);
-    glEnd();
-*/
-
-
-
-      //FXfloat scale =(float)image_width/(float)image_height;
-//      FXfloat yscale =(height/(FXfloat)image_height);
-      //FXint xmin=0,xmax=image_width*scale;
-      //FXint ymin=0,ymax=image_height*scale;
-/*
-      xmin=(getWidth()-xmax)/2.0;
-      ymin=(getHeight()-ymax)/2.0;
-      xmax+=xmin;
-      ymax+=ymin;
-
-*/
-      //fxmessage("scale %f\n",scale);
-      FXfloat xmin=pos.x;
-      FXfloat xmax=pos.x+0.4f;
-      FXfloat ymin=pos.y;
-      FXfloat ymax=pos.y+0.4f;
-      //fxmessage("%g ymax=%g\n",aspect,ymax);
-
-
-      glEnable(GL_TEXTURE_2D);
-      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
-      glBindTexture(GL_TEXTURE_2D,texture_id);
-
-
-      if (texture_width!=image_width || texture_height!=image_height){
-        th = (1.0f / (FXfloat)(texture_height))*image_height;
-        tw = (1.0f / (FXfloat)(texture_width))*image_width;
-        }
-
-#ifndef GL_VERSION_1_1
-#if 0
-      FXint      coords[8]={xmin,ymin,
-                            xmin,ymax,
-                            xmax,ymax,
-                            xmax,ymin};
-      FXfloat       tex[8]={0.0f,0.0f,
-                            0.0f,th,
-                            tw,th,
-                            tw,0.0f};
-/*
-      FXfloat   colors[12]={background.x,background.y,background.z,
-                            background.x,background.y,background.z,
-                            background.x,background.y,background.z,
-                            background.x,background.y,background.z};
-*/
-      glEnableClientState(GL_VERTEX_ARRAY);
-  //    glEnableClientState(GL_COLOR_ARRAY);
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-      glVertexPointer(2,GL_INT,0,coords);
-      //glColorPointer(3,GL_FLOAT,0,colors);
-      glTexCoordPointer(2,GL_FLOAT,0,tex);
-
-      glDrawArrays(GL_QUADS,0,4);
-
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      //glDisableClientState(GL_COLOR_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
-#endif
-#else
-      glColor4fv(background);
-      glBegin(GL_QUADS);
-        glTexCoord2f(0.0f,th); glVertex2f(xmin,ymin);
-        glTexCoord2f(tw,th);  glVertex2f(xmax,ymin);
-        glTexCoord2f(tw,0.0f);   glVertex2f(xmax,ymax);
-        glTexCoord2f(0.0f,0.0f);  glVertex2f(xmin,ymax);
-      glEnd();
-#endif
+    if (effect && texture && texture->id) {
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+      gluOrtho2D(0.0f,1.0f*aspect,0.0f,1.0f);
+      effect->draw();
+      }
     if (glcanvas->getContext()->isDoubleBuffer()) glcanvas->swapBuffers();
     glcanvas->makeNonCurrent();
     }

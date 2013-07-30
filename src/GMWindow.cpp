@@ -275,7 +275,10 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new GMMenuCheck(menu_gmm,tr("Show &Sources\tCtrl-S\tShow source browser "),this,ID_SHOW_SOURCES);
   fullscreencheck = new GMMenuCheck(menu_gmm,tr("Show Full Screen\tF12\tToggle fullscreen mode."),this,ID_SHOW_FULLSCREEN);
   new GMMenuCheck(menu_gmm,tr("Show Mini Player\tCtrl-M\tToggle Mini Player."),this,ID_SHOW_MINIPLAYER);
-  new GMMenuCheck(menu_gmm,tr("Show Presenter\t\tShow Presenter."),this,ID_SHOW_PRESENTER);
+#ifdef HAVE_OPENGL
+  if (GMApp::instance()->hasOpenGL())
+    new GMMenuCommand(menu_gmm,tr("Show Presenter\t\tShow Presenter."),NULL,this,ID_SHOW_PRESENTER);
+#endif
 
   new FXMenuSeparator(menu_gmm);
   new GMMenuCommand(menu_gmm,tr("Find…\tCtrl-F\tShow search filter."),GMIconTheme::instance()->icon_find,trackview,GMTrackView::ID_TOGGLE_FILTER);
@@ -1392,6 +1395,8 @@ void GMWindow::clearCover() {
   else if (coverview_gl) {
     coverview_gl->setImage(NULL);
     }
+  if (presenter)
+    presenter->setImage(NULL);
 #endif
   }
 
@@ -1463,8 +1468,7 @@ void GMWindow::updateCover() {
 
 void GMWindow::updateCoverView() {
 #ifdef HAVE_OPENGL
-  if (GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview && FXGLVisual::hasOpenGL(getApp())) {
-
+  if (GMApp::instance()->hasOpenGL()) {
     if (coverview_x11) {
       clearCover();
       delete coverview_x11;
@@ -1473,7 +1477,7 @@ void GMWindow::updateCoverView() {
 
     if (!coverview_gl) {
       GMApp::instance()->initOpenGL();
-      coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLVisual(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
+      coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLContext(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
       coverview_gl->setTarget(this);
       coverview_gl->setSelector(ID_COVERVIEW);
       coverview_gl->enable();

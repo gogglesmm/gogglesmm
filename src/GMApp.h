@@ -56,15 +56,15 @@ public:
 public:
   GMApp();
 
+
 #ifdef HAVE_OPENGL
   void initOpenGL();
 
   void releaseOpenGL();
 
-  FXGLContext* getGLContext() { return glcontext; }
+  FXbool hasOpenGL();
 
-  FXGLVisual* getGLVisual() { return glvisual; }
-
+  FXGLContext* getGLContext() const { return glcontext; }
 #endif
 
   virtual void init(int& argc,char** argv,FXbool connect=true);
