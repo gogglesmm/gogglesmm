@@ -46,19 +46,28 @@ public:
   GMBouncingImage(GMImageTexture*t) : texture(t), pos(0.0f,0.0f),dir(0.001f,0.001f),size(0.4f) {}
 
   void move(FXVec2f range) {
-    FXVec2f n = pos+dir;
-    if (n.x+(size*texture->aspect)>range.x)
-      dir.x=-dir.x;
-    if (n.y+size>range.y)
-      dir.y=-dir.y;
-    if (n.x<0.0f)
-      dir.x=-dir.x;
-    if (n.y<0.0f)
-      dir.y=-dir.y;
-    pos+=dir;
+    if (texture) {
+      FXVec2f n = pos+dir;
+      if (n.x+(size*texture->aspect)>range.x)
+        dir.x=-dir.x;
+      if (n.y+size>range.y)
+        dir.y=-dir.y;
+      if (n.x<0.0f)
+        dir.x=-dir.x;
+      if (n.y<0.0f)
+        dir.y=-dir.y;
+      pos+=dir;
+      }
+    }
+
+  void setTexture(GMImageTexture * t) {
+    texture=t;
     }
 
   void draw() {
+    glHint(GL_POLYGON_SMOOTH_HINT,GL_NICEST);
+
+
     const FXfloat coordinates[8] = { pos.x,pos.y,
                                      pos.x,pos.y+size,
                                      pos.x+(size*texture->aspect),pos.y+size,
@@ -130,7 +139,12 @@ void GMPresenter::setImage(FXImage * image) {
     if (image) {
       if (texture==NULL) {
         texture = new GMImageTexture();
+        }
+      if (effect==NULL) {
         effect  = new GMBouncingImage(texture);
+        }
+      else {
+        effect->setTexture(texture);
         }
       texture->setImage(image);
       }
@@ -139,10 +153,6 @@ void GMPresenter::setImage(FXImage * image) {
         texture->setImage(NULL);
         delete texture;
         texture=NULL;
-        }
-      if (effect) {
-        delete effect;
-        effect=NULL;
         }
       }
     glcanvas->makeNonCurrent();
