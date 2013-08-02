@@ -36,6 +36,8 @@
 #include <GL/glu.h>
 
 
+
+
 class GMBouncingImage {
 protected:
   GMImageTexture * texture;
@@ -65,37 +67,8 @@ public:
     }
 
   void draw() {
-    glHint(GL_POLYGON_SMOOTH_HINT,GL_NICEST);
-
-
-    const FXfloat coordinates[8] = { pos.x,pos.y,
-                                     pos.x,pos.y+size,
-                                     pos.x+(size*texture->aspect),pos.y+size,
-                                     pos.x+(size*texture->aspect),pos.y };
-    const FXfloat tex[8] = { 0.0f,texture->ch,
-                             0.0f,0.0f,
-                            texture->cw,0.0f,
-                            texture->cw,texture->ch
-                            };
-
-    const FXuchar colors[16] = { 0,0,0,0,
-                                 0,0,0,0,
-                                 0,0,0,0,
-                                 0,0,0,0};
-
-    glEnable(GL_TEXTURE_2D);
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
-    glBindTexture(GL_TEXTURE_2D,texture->id);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(4,GL_UNSIGNED_BYTE,0,colors);
-    glVertexPointer(2,GL_FLOAT,0,coordinates);
-    glTexCoordPointer(2,GL_FLOAT,0,tex);
-    glDrawArrays(GL_QUADS,0,4);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    if (texture && texture->id) 
+      texture->drawQuad(pos.x,pos.y,(size*texture->aspect),size,0);
     }
   };
 
@@ -169,8 +142,10 @@ void GMPresenter::setImage(FXImage * image) {
 FXuint GMPresenter::execute(FXuint placement) {
   create();
   show(placement);
+#ifndef DEBUG
   fullScreen(true);
   glcanvas->showCursor(false);
+#endif
   getApp()->refresh();
   return getApp()->runModalFor(this);
   }
@@ -192,7 +167,7 @@ long GMPresenter::onCanvasPaint(FXObject*,FXSelector,void*){
     glClearColor(0.0f,0.0f,0.0f,0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (effect && texture && texture->id) {
+    if (effect) {
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
       gluOrtho2D(0.0f,1.0f*aspect,0.0f,1.0f);

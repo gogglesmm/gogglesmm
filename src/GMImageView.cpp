@@ -140,23 +140,38 @@ FXbool GMImageTexture::setImage(FXImage* image) {
   }
 
 
+void GMImageTexture::drawQuad(FXfloat x,FXfloat y,FXfloat width,FXfloat height,FXColor background) {
+  const FXfloat coordinates[8] = { x,y,
+                                   x,y+height,
+                                   x+width,y+height,
+                                   x+width,y };
+
+  const FXfloat tex[8] = { 0.0f,ch,
+                           0.0f,0.0f,
+                           cw,0.0f,
+                           cw,ch };
+
+  const FXuchar colors[16] = { FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
+                               FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
+                               FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
+                               FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background) };
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  glEnable(GL_TEXTURE_2D);
+  glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+  glBindTexture(GL_TEXTURE_2D,id);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  glColorPointer(3,GL_UNSIGNED_BYTE,0,colors);
+  glVertexPointer(2,GL_FLOAT,0,coordinates);
+  glTexCoordPointer(2,GL_FLOAT,0,tex);
+  glDrawArrays(GL_QUADS,0,4);
+  glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  }
 
 
 
@@ -205,7 +220,6 @@ FXint GMImageView::getDefaultHeight() const {
   return 256;
   }
 
-
 // Repaint the GL window
 long GMImageView::onPaint(FXObject*,FXSelector,void*){
   FXGLVisual *vis=(FXGLVisual*)getVisual();
@@ -217,7 +231,6 @@ long GMImageView::onPaint(FXObject*,FXSelector,void*){
   FXASSERT(xid);
   if(makeCurrent()){
     glViewport(0,0,getWidth(),getHeight());
-
     glClearColor(background.x,background.y,background.z,background.w);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -226,57 +239,14 @@ long GMImageView::onPaint(FXObject*,FXSelector,void*){
       glLoadIdentity();
       gluOrtho2D(0,xwidth,0.0f,1.0f);
 
-      glEnable(GL_TEXTURE_2D);
-      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
-      glBindTexture(GL_TEXTURE_2D,texture->id);
-
-      FXfloat colors[12]={background.x,background.y,background.z,
-                          background.x,background.y,background.z,
-                          background.x,background.y,background.z,
-                          background.x,background.y,background.z};
-      FXfloat coords[8];
-      FXfloat tex[8] = { 0.0f,texture->ch,
-                         0.0f,0.0f,
-                         texture->cw,0.0f,
-                         texture->cw,texture->ch
-                         };
-      /*
-          (xmin,ymin),(xmin,ymax),(xmax,ymax),(xmax,ymin)
-      */
       if (aspect>=texture->aspect) {
         size = 1.0f*texture->aspect;
-        coords[0]=0.5f*(xwidth-size);
-        coords[1]=0.0f;
-        coords[2]=coords[0];
-        coords[3]=1.0f;
-        coords[4]=coords[0]+size;
-        coords[5]=1.0f;
-        coords[6]=coords[0]+size;
-        coords[7]=0.0f;
+        texture->drawQuad(0.5f*(xwidth-size),0.0f,size,1.0f,backColor);
         }
       else {
         size = xwidth / texture->aspect;
-        coords[0]=0.0f;
-        coords[1]=0.5f * (1.0f-size);
-        coords[2]=0.0f;
-        coords[3]=coords[1]+size;
-        coords[4]=xwidth;
-        coords[5]=coords[1]+size;
-        coords[6]=xwidth;
-        coords[7]=coords[1];
+        texture->drawQuad(0.0f,0.5f * (1.0f-size),xwidth,size,backColor);
         }
-
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glEnableClientState(GL_COLOR_ARRAY);
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glVertexPointer(2,GL_FLOAT,0,coords);
-      glColorPointer(3,GL_FLOAT,0,colors);
-      glTexCoordPointer(2,GL_FLOAT,0,tex);
-      glDrawArrays(GL_QUADS,0,4);
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      glDisableClientState(GL_COLOR_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
-      glDisable(GL_TEXTURE_2D);
       }
     if(vis->isDoubleBuffer()) swapBuffers();
     makeNonCurrent();

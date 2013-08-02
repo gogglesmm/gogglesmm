@@ -31,6 +31,8 @@ public:
 
   FXbool setImage(FXImage*);
 
+  void drawQuad(FXfloat x,FXfloat y,FXfloat width,FXfloat height,FXColor background);
+
   ~GMImageTexture();
   };
 

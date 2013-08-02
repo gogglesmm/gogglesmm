@@ -1,59 +1,44 @@
 
 =====
 
-  - Finish up lirc support.
   - Finish up mpris support.
   - New keyboard shortcuts to skip 10s or 1min in a track.
   - filename template should perhaps support: alphabet index?
-  - Theming:
-    * GMButton needs to having drawing mode for BUTTON_DEFAULT"
 
-GAP
-----
-0.13 (2013-01-13)
-  - Fix getting stuck when playing truncated/broken flac files.
 
-0.11 (2012-12-12)
-  - Improved http error checking
 
-0.10 (2012-08-24)
-  - Slight change in Device Config to accommendate ARM compilation.
+Todo
+ * add gzip compression support to http
+ * auto-refresh the podcast manager every x hours or at startup
+ * GMButton needs to having drawing mode for BUTTON_DEFAULT"
+ * lirc support
+ * volume change notifications to UI.
 
-0.9 (2012-04-14)
-  - Refactor http_plugin to use new http response parser.
-  - Refactor input plugin api to use more consistent naming.
---------
-
+Release Todo List
+ * check database schema (foreign references composer,conductor) and check upgrade paths
+ * add all generated icons to repository
+ * decide what to do with playqueue?
+ * update README,ChangeLog,AUTHTORS,man page.
+ * update DOC website.
 
 0.13.0
-
   - New playback engine
-  - Add playing queue.
-  - MPRIS v2 Interface
-
+  - Podcast Manager
+  - Long running operations (import/sync) are now performed in the background.
+  - Album list view with album covers in a grid.
+  - File browser view.
+  - MPRIS v2 Interface.
+  - Fullscreen Presentation mode.
+  - New minimalist UI.
   - Music Library Improvements:
+      o Support composer and conductor tags.
+      o Support tagging tracks instead of genre.
+      o Ratings Support.
 
-    o Support composer and conductor tags.
-    o Support tagging tracks instead of genre.
-    o Ratings Support.
-
-  - General Improvements:
-
-      o Support the XDG spec (http://standards.freedesktop.org/basedir-spec/basedir-spec-0.6.html).
-          - Config files have moved to $XDG_CONFIG_HOME/gogglesmm.
-          - The database has been moved to $XDG_DATA_HOME/gogglesmm.
-          - Temporary files are saved to $XDG_CACHE_HOME/gogglesmm.
-
-  - User Interface Improvements
-
-      o Hotkey for find menu.
-
-  - Updated Requirements:
-      o sqlite >= 3.6.3
-      o FOX >= 1.7.37
-      o No Longer needed: xinelib,libcurl
-
---------
+  - Support the XDG spec (http://standards.freedesktop.org/basedir-spec/basedir-spec-0.6.html).
+      o Config files have moved to $XDG_CONFIG_HOME/gogglesmm.
+      o The database has been moved to $XDG_DATA_HOME/gogglesmm.
+      o Temporary files are saved to $XDG_CACHE_HOME/gogglesmm.
 
 0.10.2
   - Added Spanish translation.
