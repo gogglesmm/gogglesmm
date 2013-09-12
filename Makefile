@@ -56,6 +56,10 @@ install: $(GMM_NAME) $(GAP_ALL_PLUGINS)
 	@echo "    Installing $(sharedir)/applications/gogglesmm.desktop"
 	@$(INSTALL) -D -m 644 extra/gogglesmm.desktop $(sharedir)/applications/gogglesmm.desktop
 
+	@echo "    Installing $(sharedir)/gogglesmm/utils"
+	@$(INSTALL) -D -m 644 extra/import_banshee_stats.py $(sharedir)/gogglesmm/utils/import_banshee_stats.py
+	@$(INSTALL) -D -m 644 extra/import_gogglesmm12_stats.py $(sharedir)/gogglesmm/utils/import_gogglesmm12_stats.py
+
 # install nls if needed
 ifneq (,$(findstring nls,$(OPTIONS)))
 	@$(foreach tr,$(filter $(TRANSLATIONS),$(LINGUAS)),echo "    Installing $(localefile) ..." ;$(INSTALL) -m 644 -D po/$(tr).mo $(localefile); )
