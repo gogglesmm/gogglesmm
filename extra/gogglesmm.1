@@ -1,4 +1,4 @@
-.TH gogglesmm 1 "03 August 2010"
+.TH gogglesmm 1 "03 August 2013"
 .SH NAME
 gogglesmm \- Goggles Music Manager
 .SH SYNOPSIS
@@ -114,16 +114,26 @@ Edit selected track, album, artist or genre.
 .TP
 .B "Del"
 Delete selected track, album, artist or genre.
+.SH UTILITIES
+.TP
+.I /usr/share/gogglesmm/utils/import_banshee_stats.py
+Import banshee play statistics (count,date and rating)
+.TP
+.I /usr/share/gogglesmm/utils/import_gogglesmm12_stats.py
+Import gogglesmm v0.12  play statistics (count and date)
 .SH FILES
 .TP
-.I ~/.goggles/goggles.db
+.I $(XDG_DATA_HOME)/gogglesmm/goggles.db
 Music Database
 .TP
-.I ~/.goggles/xineconf
-xine settings
+.I $(XDG_DATA_HOME)/gogglesmm/podcasts
+Downloaded Podcasts 
 .TP
-.I ~/.foxrc/musicmanager
+.I $(XDG_CONFIG_HOME)/gogglesmm/settings.rc
 settings
+.TP
+.I $(XDG_CACHE_HOME)/gogglesmm/albumcovers.cache
+Album cover cache
 .TP
 .I $(XDG_CACHE_HOME)/gogglesmm/icontheme.cache
 Icon theme cache
