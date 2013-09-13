@@ -5,8 +5,6 @@
   - New keyboard shortcuts to skip 10s or 1min in a track.
   - filename template should perhaps support: alphabet index?
 
-
-
 Todo
  * add gzip compression support to http
  * auto-refresh the podcast manager every x hours or at startup
@@ -39,6 +37,215 @@ Release Todo List
       o Config files have moved to $XDG_CONFIG_HOME/gogglesmm.
       o The database has been moved to $XDG_DATA_HOME/gogglesmm.
       o Temporary files are saved to $XDG_CACHE_HOME/gogglesmm.
+
+0.12.7
+  - Support WAV files.
+  - Minor optimizatons
+  - Add disc number support in filename parser
+  - Support NetworkManager 0.9 notifications.
+  - Fixes to audioscrobbler.
+
+0.12.6
+  - Fix xine 1.2 detection in configure.
+
+0.12.5
+  - Fix memory leak.
+  - Fix libre.fm support.
+  - New authentication method for last.fm.
+  - Improved compatibility/detection for m3u/pls urls when playing Internet Radio.
+  - Removed libcurl dependency.
+
+0.12.4
+  - Added Portuguese Translation by Sérgio Marques
+  - Improved notification daemon compatibility
+  - Support for latest FOX 1.7.29.
+  - Added genre and location to mpris information.
+
+0.12.3
+  - Do not pass unsupported GL_LINEAR_MIPMAP_LINEAR to GL_TEXTURE_MAG_FILTER.
+  - Enable support for non-power-of-two textures now that Mesa 7.11-rc4 fixes the issue.
+  - Fix incorrect usage of FXAutoPtr.
+  - Fix parallel build.
+
+0.12.2
+  - Gnome 3 compatibility updates
+  - Fix infinite last.fm warnings when the system time is out of sync with the last.fm server time.
+  - Merge title that were split into multiple entries in vorbiscomments.
+
+0.12.1
+  - fix crash when right-clicking tray icon (issue 230)
+  - timer fix in audioscrobbler for fox-1.7
+
+0.12.0
+  - Updated Look and Feel.
+  - Updated Czech Translation.
+  - Allow relative paths when exporting playlists.
+  - Support for taglib 1.7
+  - Remove support for old miniplayer
+  - Fix audioscrobbler on FOX 1.7
+
+0.11.6
+  - Updated Spanish Translation
+  - Improved opengl compatibility in cover display.
+
+0.11.5
+  - Fix ignored icon theme (issue 222)
+  - Initial svg icon support through use of rsvg-convert (part of librsvg) utility.
+
+0.11.4
+  - Link explicitly to X11, GL and GLU (issue 212).
+  - Improved icon theme specification support. Now also load from ~/.icons, $XDG_DATA_DIRS/icons and /usr/share/pixmaps.
+  - Properly initialize libgcrypt to avoid warnings.
+  - Added button to get out of miniplayer mode and make the miniplayer behave the same as the regular browser window. (issue 196).
+  - New additional shortcut to toggle between miniplayer mode and browser mode (Ctrl-M).
+  - Miniplayer is resizeable and remember its size and position. It will no longer automatically resize itself.
+  - Fix crash when importing with specific icon themes selected. (issue 218)
+  - Add big-endian support to flac album art loading. (issue 218)
+
+0.11.3
+  - Icon name in desktop file shouldn't have file extension
+  - Fix disabled mp4 support.
+  - Translation Updates
+
+0.11.2
+  - Support for .oga files.
+  - Allow scrobbling to last.fm or libre.fm.
+  - Fix some threading issues in the audio scrobbler.
+
+0.11.1
+  - Updated Hungarian Translation
+  - Fixed MANDIR and LOCALEDIR not being defined by configure, resulting in locale data
+    and manpages to be installed in root.
+
+0.11.0
+  - Drop support for taglib 0.5.x, taglib-extras and internal asf/mp4 support.
+  - Remove internal icon theme and depend only on external ones.
+  - Depend optionally on gcrypt for md5 calculation.
+  - Partial MPRIS v1 interface.
+
+0.10.27
+  - configure cleanups
+  - Use proper uri (file://<path> instead of file:<path>) (issue 203).
+  - Added man page.
+
+0.10.26
+  - Backport new font dialog.
+  - Use posix sh instead of bash for configure script.
+
+0.10.25
+  - Fix build issue with older taglib releases (1.5.x).
+  - Updated Czech translation.
+
+0.10.24
+  - Support mp4 and ogg vorbis embedded album art.
+  - New opengl based cover viewer which allows for smooth scaling of the album cover.
+    If opengl is not available or slow, the old x11 cover viewer can be used instead, which now has an option to choose the displayed cover size.
+  - Import Playlists (xspf, m3u and pls) (issue 123)
+  - Export playlist title for xspf playlists.
+  - Changed Open MRL -> Play File or Stream and improved the dialog to make it easier choosing a local file from disk.
+  - Add conditional support to filename format. Window title may now also be customized.
+  - Show import options when dragging or copy/pasting files.
+  - Added Tooltip to trayicon showing the current playing track information.
+  - Open directory of track with right click (issue 146)
+  - Fix active track in playlist when reordering (issue 194).
+
+0.10.23
+  - Unify package, application and executable name.
+  - Don't grab keys we're not going to use (issue 189).
+
+0.10.22
+  - Added Czech translation by David Vachulka.
+
+0.10.21
+  - Fix build script issue.
+
+0.10.20
+  - Tray icon background color may now be customized to improve look of the tray icon.
+  - Don't try to install mo files we don't have when LINGUAS environment variable is set (issue 165)
+  - Replace libfetch with libcurl.
+  - Load album art from tag in the album browser as well. (issue 176)
+  - Fix main library listing genres from the Radio Streams.
+
+0.10.19
+  - Support media keys through the Gnome Settings Daemon.
+  - Don't show import dialog when radio streams are in the database. (issue 154)
+  - Use ewmh icon hint to specify application icon which should result in a nicer looking icon in the taskbar.
+  - Fix various dbus event handling to prevent crashes (issue 159)
+
+0.10.18
+  - Make some functions static that don't need global scope.
+  - Be more flexible about the http return code (issue 147).
+  - Fix crash when pressing delete on "All Arists/Genres/Albums"
+
+0.10.17
+  - Russian Translation.
+
+0.10.16
+  - Hungarian Translation.
+  - Compilation fix for older taglib in combination with mp4.
+
+0.10.15
+  - Add additional signal handler(s) to correctly save state on exit.
+  - Fix focus getting stuck in Edit Track dialog.
+  - Year field in edit track dialog should be empty if multiple tracks with different years are selected.
+  - Support bmp and gif embedded album art.
+  - Fix memory leak in embedded album art loader.
+
+0.10.14
+  - Support for .m4b files.
+  - Minor fixes.
+
+0.10.13
+  - Take disc number into account when sorting.
+
+0.10.12
+  - Updated German Translation
+
+0.10.11
+  - Prevent crash when settting input focus on widgets when a FOX version with xim support is being used.
+  - Fix timeout type mixup with FOX-1.6 vs FOX-1.7
+
+0.10.10
+  - Fix crash when removing tracks from the library via a playlist.
+
+0.10.9
+  - Fix segfault in certain cases when no track information is yet available.
+  - Removed support for libdownload.
+  - Fixed segfault when using libfetch.
+  - Improved error checking when downloading m3u and pls files.
+
+0.10.8
+  - New command line option (--tray) to start gmm minimized in tray.
+  - Album Artist tag support for MP4 files.
+  - Fix shortcut to toggle playback (issue 121)
+  - Use buildin mp4/asf support from taglib 1.6 if available.
+  - Rely on default genre list from taglib.
+  - Build fixes.
+
+0.10.7
+  - Fix compilation --without-new-remote (issue 113)
+  - Fix duplicate hotkeys in preferences dialog (issue 112)
+
+0.10.6
+  - Fix time/duration display to account for hours.
+  - Fix critical bug when sending album art to notification daemon.
+  - Support for fox-1.7.20.
+  - Optionally use taglib-extras for MP4 and ASF support.
+  - Allow other scrobbler compatible servers to be used.
+  - Added French translation.
+
+0.10.5
+  - Override all compiler flags if CFLAGS has been set.
+
+0.10.4
+  - Minor translation fixes
+  - Fix duplicate hotkey in new radio station dialog.
+  - Fix exporting playlist.
+
+0.10.3
+  - Translation fixes and updates.
+  - Warn user when a incompatible (future) version of the database is encountered.
+  - Fix compilation with taglib-1.4.
 
 0.10.2
   - Added Spanish translation.
