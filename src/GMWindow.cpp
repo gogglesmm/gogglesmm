@@ -1240,15 +1240,15 @@ long GMWindow::onUpdShuffle(FXObject*sender,FXSelector,void*){
   }
 
 long GMWindow::onCmdHomePage(FXObject*,FXSelector,void*){
-  if (!gm_open_browser("http://code.google.com/p/gogglesmm")){
-    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit http://code.google.com/p/gogglesmm for the official homepage.");
+  if (!gm_open_browser("http://gogglesmm.github.io")){
+    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit http://gogglesmm.github.io for the official homepage.");
     }
   return 1;
   }
 
 long GMWindow::onCmdReportIssue(FXObject*,FXSelector,void*){
-  if (!gm_open_browser("http://code.google.com/p/gogglesmm/issues/list")){
-    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit http://code.google.com/p/gogglesmm/issues/list to report an issue.");
+  if (!gm_open_browser("https://github.com/gogglesmm/gogglesmm/issues")){
+    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit https://github.com/gogglesmm/gogglesmm/issues to report an issue.");
     }
   return 1;
   }
