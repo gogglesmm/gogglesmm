@@ -29,7 +29,8 @@
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2012
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2013  /* Foreign Keys */
+#define GOGGLESMM_DATABASE_SCHEMA_DEV2    2012  /* Feed Tables */
 #define GOGGLESMM_DATABASE_SCHEMA_DEV1    2010  /* Dev DB before podcast manager */
 #define GOGGLESMM_DATABASE_SCHEMA_V12     2009
 #define GOGGLESMM_DATABASE_SCHEMA_V10     2008
@@ -37,7 +38,7 @@
 /*
 
 *****************************************************
-    Goggles Music Manager Database Schema v2012
+    Goggles Music Manager Database Schema v2013
 *****************************************************
 
     TABLE tracks
@@ -54,8 +55,8 @@
 
         album       INTEGER NOT NULL REFERENCES albums (id)
         artist      INTEGER NOT NULL REFERENCES artists (id)
-        composer    INTEGER
-        conductor   INTEGER
+        composer    INTEGER REFERENCES artists (id)
+        conductor   INTEGER REFERENCES artists (id)
 
         playcount   INTEGER
         playdate    INTEGER
@@ -103,7 +104,7 @@
 
     TABLE feed_items
         id            INTEGER
-        feed          INTEGER
+        feed          INTEGER NOT NULL REFERENCES feeds(id)
         guid          TEXT
         url           TEXT
         local         TEXT
@@ -129,7 +130,7 @@ const FXchar create_feed[]="CREATE TABLE IF NOT EXISTS feeds (id INTEGER NOT NUL
                                                              "PRIMARY KEY (id) );";
 
 const FXchar create_feed_items[] ="CREATE TABLE IF NOT EXISTS feed_items ( id INTEGER NOT NULL,"
-                                                                          "feed INTEGER NOT NULL, "
+                                                                          "feed INTEGER NOT NULL REFERENCES feeds(id), "
                                                                           "guid TEXT NOT NULL, "
                                                                           "url TEXT NOT NULL, "
                                                                           "local TEXT, "
@@ -147,7 +148,7 @@ const FXchar create_feed_items[] ="CREATE TABLE IF NOT EXISTS feed_items ( id IN
 const FXchar create_streams[]="CREATE TABLE IF NOT EXISTS streams ( id INTEGER NOT NULL, "
                                                                    "url TEXT, "
                                                                    "description TEXT, "
-                                                                   "genre INTEGER, "
+                                                                   "genre INTEGER REFERENCES tags(id), "
                                                                    "bitrate INTEGER, "
                                                                    "rating INTEGER, "
                                                                    "PRIMARY KEY (id) );";
@@ -165,9 +166,8 @@ const FXchar create_tracks[]="CREATE TABLE tracks ( id INTEGER NOT NULL,"
 
                                                   " album INTEGER NOT NULL REFERENCES albums (id),"
                                                   " artist INTEGER NOT NULL REFERENCES artists (id),"
-//                                                  " album_artist INTEGER NOT NULL REFERENCES artists (id),"
-                                                  " composer INTEGER,"
-                                                  " conductor INTEGER,"
+                                                  " composer INTEGER REFERENCES artists (id),"
+                                                  " conductor INTEGER REFERENCES artists (id),"
 
                                                   " playcount INTEGER,"
                                                   " playdate INTEGER,"
@@ -231,8 +231,8 @@ FXbool GMTrackDatabase::init(const FXString & database) {
       return false;
     }
 
-  /// No upgrade path yet
-  if ( version>0 && version<GOGGLESMM_DATABASE_SCHEMA_VERSION) {
+  // Warn if there's no upgrade path
+  if ( version>0 && version<GOGGLESMM_DATABASE_SCHEMA_DEV1) {
     if (FXMessageBox::question(FXApp::instance(),MBOX_OK_CANCEL,fxtr("Database Error"),fxtr("An incompatible (older) version of the database was found.\nPress OK to continue and reset the database (all information will be lost!).\nPress Cancel to quit now and leave the database as is."))==MBOX_CLICKED_CANCEL)
       return false;
     }
@@ -245,7 +245,7 @@ FXbool GMTrackDatabase::init(const FXString & database) {
 
   return true;
 error:
-  FXMessageBox::error(FXApp::instance(),MBOX_OK,fxtr("Fatal Error"),fxtr("Goggles Music Manager was unable to open the database.\nThe database may have been corrupted. Please remove %s to try again.\nif the error keeps occuring, please file an issue at http://code.google.com/p/gogglesmm"),database.text());
+  FXMessageBox::error(FXApp::instance(),MBOX_OK,fxtr("Fatal Error"),fxtr("Goggles Music Manager was unable to open the database.\nThe database may have been corrupted. Please remove %s to try again.\nif the error keeps occuring, please file an issue at http://gogglesmm.github.io"),database.text());
   return false;
   }
 
@@ -253,10 +253,49 @@ error:
 FXbool GMTrackDatabase::init_database() {
   try {
     switch(getVersion()) {
+
       case GOGGLESMM_DATABASE_SCHEMA_VERSION:
         break;
 
+      // More foreign keys
+      case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
+
+        // Replace Tracks Table
+        execute("ALTER TABLE tracks RENAME TO old_tracks;");
+        execute(create_tracks);
+        execute("INSERT INTO tracks SELECT * FROM old_tracks;");
+        execute("DROP TABLE old_tracks;");
+
+        // Replace Streams Table
+        execute("ALTER TABLE streams RENAME TO old_streams;");
+        execute(create_streams);
+        execute("INSERT INTO streams SELECT * FROM old_streams;");
+        execute("DROP TABLE old_streams;");
+
+        // Replace Feed_Items Table
+        execute("ALTER TABLE feed_items RENAME TO old_feed_items;");
+        execute(create_feed_items);
+        execute("INSERT INTO feed_items SELECT * FROM old_feed_items;");
+        execute("DROP TABLE old_feed_items;");
+
+        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
+        break;
+
+
       case GOGGLESMM_DATABASE_SCHEMA_DEV1 :
+
+        // Replace Tracks Table
+        execute("ALTER TABLE tracks RENAME TO old_tracks;");
+        execute(create_tracks);
+        execute("INSERT INTO tracks SELECT * FROM old_tracks;");
+        execute("DROP TABLE old_tracks;");
+
+        // Replace Streams Table
+        execute("ALTER TABLE streams RENAME TO old_streams;");
+        execute(create_streams);
+        execute("INSERT INTO streams SELECT * FROM old_streams;");
+        execute("DROP TABLE old_streams;");
+
         execute(create_feed);
         execute(create_feed_items);
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
