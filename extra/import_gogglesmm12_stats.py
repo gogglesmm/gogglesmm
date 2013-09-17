@@ -31,8 +31,8 @@ for row in vc:
     id = gc.fetchone()
     if id:
       print 'Update playcount %d, playdate %s for \'%s/%s\'' % (playcount,datetime.datetime.fromtimestamp(playdate/1000000000),path,file)
-      #gc.execute('UPDATE tracks SET playcount = playcount + ?, playdate = max(playdate,?) WHERE tracks.id == ?',(playcount,playdate,id[0],))
-      #gogglesmm.commit()
+      gc.execute('UPDATE tracks SET playcount = playcount + ?, playdate = max(playdate,?) WHERE tracks.id == ?',(playcount,playdate,id[0],))
+      gogglesmm.commit()
     else:
       print 'Not found in database %s/%s' % (path,file)
 
