@@ -41,7 +41,11 @@
 
 void FXIntMap::save(FXStream & store) const {
   store << (FXint)no();
+#if FOXVERSION <= FXVERSION(1,7,42)
   for (FXint i=0;i<size();i++){
+#else
+  for (FXint i=0;i<no();i++){
+#endif
     if (!empty(i)) {
       store << key(i);
       store << value(i);
@@ -64,7 +68,11 @@ void FXIntMap::adopt(FXIntMap & other) {
   clear();
 
   // Populate with new entries
+#if FOXVERSION <= FXVERSION(1,7,42)
   for (FXint i=0;i<other.size();i++){
+#else
+  for (FXint i=0;i<other.no();i++){
+#endif
     if (!other.empty(i)) {
       insert(other.key(i),other.value(i));
       }
