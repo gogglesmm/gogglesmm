@@ -84,6 +84,7 @@ public:
 private: /// Called from init()
   FXbool init_database();
   FXbool init_queries();
+  void   init_index();
 protected:
 
   FXbool reorderPlaylists();

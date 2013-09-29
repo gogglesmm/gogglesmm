@@ -249,12 +249,19 @@ error:
   return false;
   }
 
+void GMTrackDatabase::init_index() {
+  execute("CREATE INDEX IF NOT EXISTS tracks_album ON tracks(album);");
+  execute("CREATE INDEX IF NOT EXISTS tracks_mrl ON tracks(mrl);");
+  execute("CREATE INDEX IF NOT EXISTS tracks_has_track ON tracks(path,mrl);");
+  }
+
 
 FXbool GMTrackDatabase::init_database() {
   try {
     switch(getVersion()) {
 
       case GOGGLESMM_DATABASE_SCHEMA_VERSION:
+        init_index();
         break;
 
       // More foreign keys
@@ -278,6 +285,7 @@ FXbool GMTrackDatabase::init_database() {
         execute("INSERT INTO feed_items SELECT * FROM old_feed_items;");
         execute("DROP TABLE old_feed_items;");
 
+        init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
@@ -298,6 +306,8 @@ FXbool GMTrackDatabase::init_database() {
 
         execute(create_feed);
         execute(create_feed_items);
+
+        init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
@@ -322,10 +332,7 @@ FXbool GMTrackDatabase::init_database() {
         execute(create_feed);
         execute(create_feed_items);
 
-        execute("CREATE INDEX tracks_album ON tracks(album);");
-        execute("CREATE INDEX tracks_mrl ON tracks(mrl);");
-        /// for hasTrack()
-        execute("CREATE INDEX tracks_has_track ON tracks(path,mrl);");
+        init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
       }
