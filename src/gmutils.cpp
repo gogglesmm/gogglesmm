@@ -40,12 +40,13 @@
 
 
 void FXIntMap::save(FXStream & store) const {
-  store << (FXint)no();
 #if FOXVERSION <= FXVERSION(1,7,42)
-  for (FXint i=0;i<size();i++){
+  FXint n = size();
 #else
-  for (FXint i=0;i<no();i++){
+  FXint n = no();
 #endif
+  store << n;
+  for (FXint i=0;i<n;i++){
     if (!empty(i)) {
       store << key(i);
       store << value(i);
@@ -54,9 +55,9 @@ void FXIntMap::save(FXStream & store) const {
   }
 
 void FXIntMap::load(FXStream & store) {
-  FXint key,value,no;
-  store >> no;
-  for (FXint i=0;i<no;i++){
+  FXint key,value,n;
+  store >> n;
+  for (FXint i=0;i<n;i++){
     store >> key;
     store >> value;
     insert(key,value);

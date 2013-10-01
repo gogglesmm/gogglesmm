@@ -343,7 +343,8 @@ void GMIconTheme::save_cache() {
     store << smallsize;
     store << mediumsize;
     store << largesize;
-    store << (FXint)iconsets.no();
+    FXint n = iconsets.no();
+    store << n;
     for (FXint i=0;i<iconsets.no();i++) {
       iconsets[i].save(store);
       }
@@ -401,13 +402,13 @@ FXbool GMIconTheme::load_cache() {
     iconsets.no(n);
     for (FXint i=0;i<iconsets.no();i++){
       iconsets[i].load(store);
-      }      
-      
+      }
+
     return true;
     }
 
 failed:
-  GM_DEBUG_PRINT("GMIconTheme::load_cache() - failed\n");        
+  GM_DEBUG_PRINT("GMIconTheme::load_cache() - failed\n");
   return false;
   }
 
@@ -729,7 +730,7 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
         FXString target = dest + PATHSEPSTRING + svg + ".png";
         if (!FXStat::exists(target)) {
           FXDir::createDirectories(dest);
-          
+
           GM_DEBUG_PRINT("GMIconTheme::loadIcon() - rsvg-convert %s",target.text());
 
           if (system(FXString::value("rsvg-convert --format=png --width=%d --height=%d -o %s %s\n",size,size,target.text(),path.text()).text())==0){
@@ -745,8 +746,8 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
       }
     }
 
-  if (!name.empty()) 
-    ic=loadIcon(name);  
+  if (!name.empty())
+    ic=loadIcon(name);
 
   if (ic==NULL) {
     //fxmessage("%s\n",value);
@@ -864,7 +865,7 @@ void GMIconTheme::loadInternal() {
   loadResource(icon_folder_small,x16_folder_png,backcolor);
   loadResource(icon_folder_big,x22_folder_png,backcolor);
 
- 
+
   loadResource(icon_home,x16_go_home_png,basecolor);
   loadResource(icon_playqueue,x16_x_office_presentation_png,basecolor);
   loadResource(icon_settings,x16_preferences_desktop_png,basecolor);

@@ -368,7 +368,8 @@ void GMCoverCache::save() const {
     store << version;
     store << basesize;
     map.save(store);
-    store << (FXint)covers.no();
+    FXint n = covers.no();
+    store << n;
     for (FXint i=0;i<covers.no();i++){
       covers[i]->save(store);
       }

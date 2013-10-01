@@ -536,7 +536,8 @@ protected:
       mode    = FXIO::ReadWrite|FXIO::Append;
       offset  = FXStat::size(filename);
       if (offset>0) {
-        headers = FXString::value("Range: bytes=%ld-\r\nIf-Range: %s\r\n",offset,gm_rfc1123(FXStat::modified(filename)).text());
+        /// %lld for FOX is FXlong on 32bit and 64bit so ignore any formating warnings.
+        headers = FXString::value("Range: bytes=%lld-\r\nIf-Range: %s\r\n",offset,gm_rfc1123(FXStat::modified(filename)).text());
         fxmessage("%s\n",headers.text());
         }
       }
