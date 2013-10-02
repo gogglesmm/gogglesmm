@@ -41,12 +41,14 @@
 
 void FXIntMap::save(FXStream & store) const {
 #if FOXVERSION <= FXVERSION(1,7,42)
-  FXint n = size();
+  FXint u = no();
+  FXint t = size();
 #else
-  FXint n = no();
+  FXint u = used();
+  FXint t = no();
 #endif
-  store << n;
-  for (FXint i=0;i<n;i++){
+  store << u;
+  for (FXint i=0;i<t;i++){
     if (!empty(i)) {
       store << key(i);
       store << value(i);
