@@ -132,6 +132,7 @@ public: /// Message Handlers
   long onUpdPlay(FXObject*,FXSelector,void*);
   long onCmdPause(FXObject*,FXSelector,void*);
   long onUpdPause(FXObject*,FXSelector,void*);
+  long onCmdScheduleStop(FXObject*,FXSelector,void*);
   long onCmdStop(FXObject*,FXSelector,void*);
   long onUpdStop(FXObject*,FXSelector,void*);
   long onCmdNext(FXObject*,FXSelector,void*);
@@ -182,6 +183,7 @@ public:
     ID_PLAYPAUSE,
     ID_PLAYPAUSEMENU,
     ID_STOP,
+    ID_SCHEDULE_STOP,
     ID_NEXT,
     ID_PREV,
 

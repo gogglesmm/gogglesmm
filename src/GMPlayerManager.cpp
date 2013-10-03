@@ -434,6 +434,7 @@ GMPlayerManager* GMPlayerManager::instance() {
 /// Constructor
 GMPlayerManager::GMPlayerManager() :
   count_track_remaining(0),
+  scheduled_stop(false),
   taskmanager(NULL),
 #ifdef HAVE_DBUS
   sessionbus(NULL),
@@ -1189,6 +1190,9 @@ void GMPlayerManager::open(const FXString & url) {
 void GMPlayerManager::playItem(FXuint whence) {
   FXint track=-1;
 
+  // Any scheduled stops should be cancelled
+  scheduled_stop = false;
+
   /// Remove Current Timeout
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
@@ -1236,6 +1240,9 @@ void GMPlayerManager::playItem(FXuint whence) {
 
 void GMPlayerManager::stop(FXbool /*force_close*/) {
 
+  // Any scheduled stops should be cancelled
+  scheduled_stop = false;
+
   /// Reset Source
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
@@ -1258,6 +1265,10 @@ void GMPlayerManager::seek(FXdouble pos) {
 
 
 void GMPlayerManager::pause() {
+
+  // Any scheduled stops should be cancelled
+  scheduled_stop = false;
+
   if (preferences.play_pause_close_device){
     player->pause();
     }
@@ -1293,6 +1304,10 @@ void GMPlayerManager::notify_playback_finished() {
   FXString filename;
   FXint track=-1;
 
+  // Check whether playback should be stopped and reset flag
+  FXbool stop_playback = scheduled_stop;
+  scheduled_stop=false;
+
   if (queue) {
 
     /// Reset Source
@@ -1301,6 +1316,7 @@ void GMPlayerManager::notify_playback_finished() {
      source=NULL;
      }
 
+    //FIXME handle stop_playback
     track = queue->getNext();
     if (track==-1) {
       source = NULL;
@@ -1312,7 +1328,6 @@ void GMPlayerManager::notify_playback_finished() {
      return;
      }
 
-
     trackinfoset = queue->getTrack(trackinfo);
     }
   else {
@@ -1321,9 +1336,8 @@ void GMPlayerManager::notify_playback_finished() {
     if (source==NULL)
       return;
 
-
     /// Can we just start playback without user interaction
-    if (!getTrackView()->getSource()->autoPlay()) {
+    if (!getTrackView()->getSource()->autoPlay() || stop_playback) {
 
       /// Reset Source
       if (source) {
@@ -1388,7 +1402,6 @@ void GMPlayerManager::reset_track_display() {
 
   /// Remove Notify
   application->removeTimeout(this,ID_PLAY_NOTIFY);
-
 
 #ifdef HAVE_DBUS
   if (notifydaemon && preferences.dbus_notify_daemon)
@@ -1646,6 +1659,19 @@ void GMPlayerManager::cmd_pause(){
     pause();
   else if (can_unpause())
     unpause();
+  }
+
+void GMPlayerManager::cmd_schedule_stop(){
+  if (scheduled_stop==false) {
+    if (can_stop()) {
+      GM_DEBUG_PRINT("enable scheduled stop\n");
+      scheduled_stop=true;
+      }
+    }
+  else {
+    GM_DEBUG_PRINT("disable scheduled stop\n");
+    scheduled_stop=false;
+    }
   }
 
 void GMPlayerManager::cmd_stop(){

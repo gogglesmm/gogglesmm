@@ -101,6 +101,8 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_PAUSE,             GMWindow::onCmdPause),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_STOP,              GMWindow::onCmdStop),
+  FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SCHEDULE_STOP,     GMWindow::onCmdScheduleStop),
+
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_NEXT,              GMWindow::onCmdNext),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_PREV,              GMWindow::onCmdPrev),
 //  FXMAPFUNCS(SEL_COMMAND,GMWindow::ID_SEEK_FORWARD_10SEC,GMWindow::ID_SEEK_BACKWARD_1MIN,GMWindow::onCmdSeek),
@@ -414,6 +416,15 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("F11"),this,FXSEL(SEL_COMMAND,ID_SHOW_MINIPLAYER));
   getAccelTable()->addAccel(parseAccel("Ctrl-W"),this,FXSEL(SEL_CLOSE,0));
   getAccelTable()->addAccel(parseAccel("/"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
+
+
+  getAccelTable()->addAccel(parseAccel("Ctrl-P"),this,FXSEL(SEL_COMMAND,ID_PLAYPAUSE));
+  getAccelTable()->addAccel(parseAccel("Ctrl-\\"),this,FXSEL(SEL_COMMAND,ID_STOP));
+  // We want Ctrl-Shift-\ but this won't work unless we specify the upper case of \ which is |
+  getAccelTable()->addAccel(parseAccel("Ctrl-Shift-|"),this,FXSEL(SEL_COMMAND,ID_SCHEDULE_STOP));
+  getAccelTable()->addAccel(parseAccel("Ctrl-["),this,FXSEL(SEL_COMMAND,ID_PREV));
+  getAccelTable()->addAccel(parseAccel("Ctrl-]"),this,FXSEL(SEL_COMMAND,ID_NEXT));
+
   getAccelTable()->addAccel(parseAccel("Ctrl-;"),this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_1MIN));
   getAccelTable()->addAccel(parseAccel("Ctrl-'"),this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_1MIN));
   getAccelTable()->addAccel(parseAccel("Ctrl-,"),this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_10SEC));
@@ -1062,6 +1073,12 @@ long GMWindow::onUpdPause(FXObject*sender,FXSelector,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),NULL);
   else
     sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+  return 1;
+  }
+
+long GMWindow::onCmdScheduleStop(FXObject*,FXSelector,void*){
+  fxmessage("onCmdScheduleStop\n");
+  GMPlayerManager::instance()->cmd_schedule_stop();
   return 1;
   }
 
