@@ -1077,7 +1077,6 @@ long GMWindow::onUpdPause(FXObject*sender,FXSelector,void*){
   }
 
 long GMWindow::onCmdScheduleStop(FXObject*,FXSelector,void*){
-  fxmessage("onCmdScheduleStop\n");
   GMPlayerManager::instance()->cmd_schedule_stop();
   return 1;
   }
