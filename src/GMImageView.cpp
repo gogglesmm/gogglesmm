@@ -44,7 +44,7 @@ GMImageTexture::GMImageTexture() :
   aspect(1.0f) {}
 
 GMImageTexture::~GMImageTexture() {
-  if (id) setImage(NULL);
+  FXASSERT(id==0);
   }
 
 FXbool GMImageTexture::setImage(FXImage* image) {
@@ -191,20 +191,15 @@ GMImageView::GMImageView(FXComposite* p,FXGLContext *ctx,FXuint opts,FXint x,FXi
   }
 
 GMImageView::~GMImageView(){
-  if (texture) {
-    makeCurrent();
-    delete texture;
-    texture=NULL;
-    makeNonCurrent();
-    }
+  delete texture;
   }
 
 void GMImageView::setImage(FXImage * image) {
   if (makeCurrent()) {
-    if (texture==NULL) {
+    if (texture==NULL && image) {
       texture = new GMImageTexture();
       }
-    texture->setImage(image);
+    if (texture) texture->setImage(image);
     makeNonCurrent();
     }
   recalc();

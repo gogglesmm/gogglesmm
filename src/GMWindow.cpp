@@ -459,12 +459,6 @@ void GMWindow::init(FXuint mode) {
 // Destructor
 //----------------------------------------------------------------------------------
 GMWindow::~GMWindow(){
-#ifdef HAVE_OPENGL
-  if (coverview_gl) {
-    coverview_gl->setImage(NULL);
-    delete coverview_gl;
-    }
-#endif
   delete icontheme;
   }
 
@@ -830,6 +824,13 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   volumeslider->setSelector(0);
   volumebutton->setMenu(NULL);
   delete volumecontrol;
+
+#ifdef HAVE_OPENGL
+  if (coverview_gl) {
+    coverview_gl->setImage(NULL);
+    delete coverview_gl;
+    }
+#endif
 
   GMPlayerManager::instance()->exit();
   return 1;
