@@ -1174,12 +1174,12 @@ void GMPlayerManager::open(const FXString & url) {
       }
     else {
       trackinfoset = trackinfo.loadTag(url);
-      getTrackView()->mark(-1);
+      getTrackView()->setActive(-1);
       }
     }
   else {
     trackinfoset=false;
-    getTrackView()->mark(-1);
+    getTrackView()->setActive(-1);
     }
   player->open(url,true);
   }
@@ -1222,7 +1222,7 @@ void GMPlayerManager::playItem(FXuint whence) {
     }
 
   if (source) {
-    getTrackView()->mark(track);
+    getTrackView()->setActive(track);
     trackinfoset = source->getTrack(trackinfo);
     player->open(trackinfo.url,true);
     }
@@ -1341,7 +1341,7 @@ void GMPlayerManager::notify_playback_finished() {
       }
 
     if (preferences.play_repeat==REPEAT_TRACK)
-      track = getTrackView()->getCurrent();
+      track = getTrackView()->getActive();
     else
       track = getTrackView()->getNext();
 
@@ -1349,8 +1349,9 @@ void GMPlayerManager::notify_playback_finished() {
       reset_track_display();
       return;
       }
-//(remaining<=0)
-    getTrackView()->mark(track,false);
+
+    // FIXME only does source->markCurrent
+    getTrackView()->setActive(track,false);
 
     source = getTrackView()->getSource();
     trackinfoset = source->getTrack(trackinfo);
@@ -1383,7 +1384,7 @@ void GMPlayerManager::reset_track_display() {
   if (trayicon) trayicon->reset();
 
   /// Reset Active Track
-  getTrackView()->mark(-1);
+  getTrackView()->setActive(-1);
 
   /// Remove Notify
   application->removeTimeout(this,ID_PLAY_NOTIFY);

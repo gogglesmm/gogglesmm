@@ -562,8 +562,10 @@ void GMTrackView::clear() {
   tracklist->setActiveItem(-1);
   }
 
-
-void GMTrackView::mark(FXint item,FXbool show/*=true*/) {
+// FIXME get rid of show parameter, we only call this function with false when
+// notify_playback_finished() is called. When  show==false we delay the marking of the active
+// track until BOS event is fired from the player.
+void GMTrackView::setActive(FXint item,FXbool show/*=true*/) {
   if (source && item>=0){
     source->markCurrent(tracklist->getItem(item));
     if (show) tracklist->setCurrentItem(item);
@@ -579,7 +581,7 @@ FXint GMTrackView::getPreviousPlayable(FXint from,FXbool wrap) const {
   register FXint i;
   for (i=from;i>0;i--){
     if (tracklist->isItemPlayable(i)) {
-      if (tracklist->getActiveItem()!=i) 
+      if (tracklist->getActiveItem()!=i)
         return i;
       else
         return -1;
@@ -588,7 +590,7 @@ FXint GMTrackView::getPreviousPlayable(FXint from,FXbool wrap) const {
   if (wrap) {
     for (i=tracklist->getNumItems()-1;i>from;i--){
       if (tracklist->isItemPlayable(i)) {
-        if (tracklist->getActiveItem()!=i) 
+        if (tracklist->getActiveItem()!=i)
           return i;
         else
           return -1;
@@ -602,7 +604,7 @@ FXint GMTrackView::getNextPlayable(FXint from,FXbool wrap) const {
   register FXint i;
   for (i=from;i<tracklist->getNumItems();i++){
     if (tracklist->isItemPlayable(i)) {
-      if (tracklist->getActiveItem()!=i) 
+      if (tracklist->getActiveItem()!=i)
         return i;
       else
         return -1;
@@ -611,7 +613,7 @@ FXint GMTrackView::getNextPlayable(FXint from,FXbool wrap) const {
   if (wrap) {
     for (i=0;i<from;i++){
       if (tracklist->isItemPlayable(i)) {
-        if (tracklist->getActiveItem()!=i) 
+        if (tracklist->getActiveItem()!=i)
           return i;
         else
           return -1;
@@ -621,10 +623,12 @@ FXint GMTrackView::getNextPlayable(FXint from,FXbool wrap) const {
   return -1;
   }
 
-
+FXint GMTrackView::getActive() const{
+  return tracklist->getActiveItem();
+  }
 
 FXint GMTrackView::getCurrent() const{
-  return getNextPlayable(tracklist->getCurrentItem(),true);
+  return tracklist->getCurrentItem();
   }
 
 //generates a psuedo-random integer between min and max

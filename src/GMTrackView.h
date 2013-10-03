@@ -253,6 +253,8 @@ public:
 
   FXbool listTracks();
 
+  FXint getActive() const;
+
   FXint getCurrent() const;
 
   FXint getNextPlayable(FXint,FXbool) const;
@@ -289,7 +291,7 @@ public:
 
   void redrawAlbumList();
 
-  void mark(FXint item,FXbool show=true);
+  void setActive(FXint item,FXbool show=true);
 
   void showCurrent();
 
