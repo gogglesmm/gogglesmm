@@ -579,7 +579,7 @@ void GMTrackView::showCurrent() {
 
 FXint GMTrackView::getPreviousPlayable(FXint from,FXbool wrap) const {
   register FXint i;
-  for (i=from;i>0;i--){
+  for (i=from;i>=0;i--){
     if (tracklist->isItemPlayable(i)) {
       if (tracklist->getActiveItem()!=i)
         return i;
