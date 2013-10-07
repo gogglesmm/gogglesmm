@@ -551,6 +551,7 @@ void GMImportTask::import() {
       if (comparecase(ext,"mp3")==0
       || comparecase(ext,"ogg")==0
       || comparecase(ext,"oga")==0
+      || comparecase(ext,"opus")==0
       || comparecase(ext,"flac")==0
       || comparecase(ext,"mpc")==0
 #if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
@@ -610,7 +611,7 @@ void GMImportTask::listDirectory(const FXString & path) {
 
   if (!processing) return;
 
-  no=FXDir::listFiles(files,path,"*.(ogg,oga,mp3,mpc,flac"
+  no=FXDir::listFiles(files,path,"*.(ogg,oga,opus,mp3,mpc,flac"
 #if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
        ",mp4,m4a,aac,m4p,m4b"
 #endif

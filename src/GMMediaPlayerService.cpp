@@ -449,7 +449,7 @@ void GMMediaPlayerService2::notify_caps_change(){
 
 static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBusMessage * msg,const FXchar * prop){
   static const FXchar * schemes[]={"file","http",NULL};
-  static const FXchar * mimetypes[]={"audio/flac","audio/ogg","audio/mpeg","audio/mp4a-latm","audio/x-musepack",NULL};
+  static const FXchar * mimetypes[]={"audio/flac","audio/ogg","audio/opus","audio/mpeg","audio/mp4a-latm","audio/x-musepack",NULL};
   static const FXchar prop_identity[]="Goggles Music Manager";
   static const FXchar prop_desktopentry[]="gogglesmm";
   if (prop==NULL) {

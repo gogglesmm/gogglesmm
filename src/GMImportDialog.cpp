@@ -29,7 +29,7 @@
 #include "GMImportDialog.h"
 
 
-extern const FXchar gmfilepatterns[]="All Music (*.mp3,*.ogg,*.oga,*.flac,*.mpc"
+extern const FXchar gmfilepatterns[]="All Music (*.mp3,*.ogg,*.oga,*.opus,*.flac,*.mpc"
 #if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
 ",*.aac,*.m4a,*.m4p,*.mp4,*.m4b"
 #endif
@@ -44,6 +44,7 @@ extern const FXchar gmfilepatterns[]="All Music (*.mp3,*.ogg,*.oga,*.flac,*.mpc"
 "Musepack (*.mpc)\n"
 "Ogg Vorbis (*.ogg)\n"
 "Ogg Audio (*.oga)\n"
+"Opus Audio (*.opus)\n"
 #if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
 "Window Media (*.wma,*,asf)\n"
 #endif
@@ -304,6 +305,7 @@ static const FXchar * const filetypes[]={
   "mp3",";MPEG-1 Audio Layer 3",
   "ogg",";Ogg Vorbis",
   "oga",";Ogg Audio",
+  "opus",";Opus Audio",
   "flac",";Free Lossless Audio Codec",
   "mpc",";Musepack",
 #if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)

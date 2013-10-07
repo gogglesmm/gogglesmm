@@ -27,6 +27,8 @@
 #include "GMAudioPlayer.h"
 
 /// TagLib
+
+
 #include <fileref.h>
 #include <tstring.h>
 #include <id3v1genres.h>
@@ -34,6 +36,16 @@
 #include <id3v2framefactory.h>
 #include <mpegfile.h>
 #include <vorbisfile.h>
+
+
+#if (TAGLIB_MAJOR_VERSION>1) || (TAGLIB_MAJOR_VERSION==1 && TAGLIB_MINOR_VERSION>=9)
+#define TAGLIB_HAVE_OPUS 1
+#endif
+
+#ifdef TAGLIB_HAVE_OPUS
+#include <opusfile.h>
+#endif
+
 #include <flacfile.h>
 #include <apetag.h>
 #include <textidentificationframe.h>
@@ -277,6 +289,7 @@ FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
 
   TagLib::MPEG::File        * mpgfile   = NULL;
   TagLib::Ogg::Vorbis::File * oggfile   = NULL;
+  TagLib::Ogg::Opus::File   * opusfile  = NULL;
   TagLib::FLAC::File        * flacfile  = NULL;
 #ifdef TAGLIB_HAVE_MP4
   TagLib::MP4::File         * mp4file   = NULL;
@@ -297,6 +310,11 @@ FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
 #ifdef TAGLIB_HAVE_MP4
   else if ((mp4file = dynamic_cast<TagLib::MP4::File*>(file))){
     mp4=mp4file->tag();
+    }
+#endif
+#ifdef TAGLIB_HAVE_OPUS
+  else if ((opusfile = dynamic_cast<TagLib::Ogg::Opus::File*>(file))){
+    xiph=opusfile->tag();
     }
 #endif
   return true;
@@ -799,7 +817,7 @@ GMCover * GMFileTag::getFrontCover() const {
     }
   else if (id3v2) {
     TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["APIC"];
-    if(!framelist.isEmpty()){  
+    if(!framelist.isEmpty()){
       /// First Try Front Cover
       for(TagLib::ID3v2::FrameList::Iterator it = framelist.begin(); it != framelist.end(); it++) {
         TagLib::ID3v2::AttachedPictureFrame * frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame*>(*it);
@@ -1024,7 +1042,7 @@ void GMFileTag::appendCover(GMCover* cover){
       case FILETYPE_BMP: format = TagLib::MP4::CoverArt::BMP; break;
       case FILETYPE_GIF: format = TagLib::MP4::CoverArt::GIF; break;
       default: return; break;
-      }     
+      }
     if (!mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList list;
       list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
@@ -1037,7 +1055,7 @@ void GMFileTag::appendCover(GMCover* cover){
       }
     }
 #endif
-    
+
 
 }
 
