@@ -44,6 +44,7 @@
 
 #ifdef TAGLIB_HAVE_OPUS
 #include <opusfile.h>
+#include <tdebuglistener.h>
 #endif
 
 #include <flacfile.h>
@@ -625,6 +626,7 @@ void GMFileTag::setTags(const FXStringList & tags){
   }
 
 void GMFileTag::getTags(FXStringList & tags) const {
+  tags.clear();
   if (xiph)
     xiph_get_field("GENRE",tags);
   else if (id3v2) {
@@ -1084,10 +1086,31 @@ FXbool GMAudioProperties::load(const FXString & filename){
   }
 
 
+#ifdef TAGLIB_HAVE_OPUS
+
+class GMTagLibDebugListener : public TagLib::DebugListener {
+private:
+  GMTagLibDebugListener(const GMTagLibDebugListener &);
+  GMTagLibDebugListener &operator=(const GMTagLibDebugListener &);
+public:
+  GMTagLibDebugListener(){}
+  virtual void printMessage(const TagLib::String &msg){
+    GM_DEBUG_PRINT("%s\n",msg.toCString(true));
+    }
+  };
+
+
+static GMTagLibDebugListener debuglistener;
+
+#endif
+
 namespace GMTag {
 
 void init(){
   TagLib::ID3v2::FrameFactory::instance()->setDefaultTextEncoding(TagLib::String::UTF16);
+#ifdef TAGLIB_HAVE_OPUS
+  TagLib::setDebugListener(&debuglistener);
+#endif
   }
 
 

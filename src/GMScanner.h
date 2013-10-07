@@ -30,7 +30,7 @@ protected:
 protected:
   GMQuery insert_artist;
   GMQuery insert_album;
-  GMQuery insert_genre;
+  GMQuery insert_tag;
   GMQuery insert_path;
   GMQuery insert_track;
   GMQuery insert_playlist_track;
@@ -39,10 +39,14 @@ protected:
   GMQuery update_track;
   GMQuery query_album;
   GMQuery query_artist;
+  GMQuery query_tag;
   GMQuery delete_track;
+  GMQuery delete_track_tags;
 protected:
   FXint insertPath(const FXString & path);
   FXint insertArtist(const FXString & name);
+  void insertTags(FXint,const FXStringList&);
+  void updateTags(FXint,const FXStringList&);
   void initPathDict(GMTrackDatabase*);
 public:
   GMDBTracks();

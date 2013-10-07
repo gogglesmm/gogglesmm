@@ -37,19 +37,17 @@ void GMDBTracks::init(GMTrackDatabase*db) {
                                                                            "?," // time
                                                                            "?," // no
                                                                            "?," // year
-//                                                                           "?,?," // gain
                                                                            "?,"  // bitrate
                                                                            "?," // album
-//                                                                           "(SELECT id FROM genres WHERE name == ?)," /// genre
                                                                            "?," // artist
-//                                                                           "?," // album artist
                                                                            "?," // composer
                                                                            "?," // conductor
                                                                            "0," // playcount
                                                                            "0," // playdate
                                                                            "?," // importdate
                                                                            "0);"); // rating
-  insert_genre                        = database->compile("INSERT OR IGNORE INTO tags VALUES ( NULL , ?  );");
+
+  insert_tag                          = database->compile("INSERT INTO tags VALUES ( NULL , ?  );");
   insert_artist                       = database->compile("INSERT INTO artists VALUES ( NULL , ?  );");
   insert_album                        = database->compile("INSERT INTO albums VALUES (NULL, ?, ?, ?);");
 
@@ -59,25 +57,24 @@ void GMDBTracks::init(GMTrackDatabase*db) {
                                                                                    "(SELECT id FROM tracks WHERE path == ? AND mrl == ?),"
                                                                                    "? ;");
   insert_playlist_track_by_id         = database->compile("INSERT INTO playlist_tracks VALUES (?,?,?);");
-  insert_track_tag                    = database->compile("INSERT OR IGNORE INTO track_tags VALUES ( ? , (SELECT id FROM tags WHERE name == ?) );");
+  insert_track_tag                    = database->compile("INSERT OR IGNORE INTO track_tags VALUES ( ? , ? );");
 
   update_track                        = database->compile("UPDATE tracks SET title = ?,"
                                                                   "time = ?,"
                                                                   "no = ?,"
                                                                   "year = ?,"
-//                                                                  "replay_gain = ?,"
-  //                                                                "replay_peak = ?,"
                                                                   "bitrate = ?,"
-                                                                  "album =  ?," //(SELECT albums.id FROM albums WHERE albums.name == ? AND albums.artist == (SELECT id FROM artists WHERE name == ?)),"
-//                                                                  "genre = (SELECT id FROM genres WHERE name == ?)," /// genre
+                                                                  "album =  ?," 
                                                                   "artist = ?," // artist
                                                                   "composer = ?," // composer
                                                                   "conductor = ?," // conductor
                                                                   "importdate = ? WHERE id == ?;");
 
-
   query_album                         = database->compile("SELECT id FROM albums WHERE artist == ? AND name == ?;");
   query_artist                        = database->compile("SELECT id FROM artists WHERE name == ?;");
+  query_tag                           = database->compile("SELECT id FROM tags WHERE name == ?;");
+
+  delete_track_tags                   = database->compile("DELETE FROM track_tags WHERE track == ?;");
   delete_track                        = database->compile("DELETE FROM tracks WHERE id == ?;");
 
   initPathDict(database);
@@ -110,14 +107,36 @@ FXint GMDBTracks::insertArtist(const FXString & artist){
   return id;
   }
 
+
+void GMDBTracks::insertTags(FXint track,const FXStringList & tags){
+  FXIntList ids(tags.no());
+
+  for (int i=0;i<tags.no();i++) {
+    ids[i]=0;
+    query_tag.execute(tags[i],ids[i]);
+    if (!ids[i])
+      ids[i] = insert_tag.insert(tags[i]);
+    }
+
+  for (FXint i=0;i<ids.no();i++) {
+    insert_track_tag.set(0,track);
+    insert_track_tag.set(1,ids[i]);
+    insert_track_tag.execute();
+    }
+  }
+
+void GMDBTracks::updateTags(FXint track,const FXStringList & tags){
+  /// Remove current tags
+  delete_track_tags.update(track);
+
+  /// Insert new tags
+  if (tags.no())
+    insertTags(track,tags);
+  }
+
+
 void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid,FXint playlist,FXint queue){
   FXASSERT(!track.album_artist.empty());
-//  FXASSERT(!track.genre.empty());
-
-//  GM_TICKS_START();
-
-//  begin();
-
 
   FXint artist_id;
   FXint album_artist_id;
@@ -131,7 +150,7 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
   if (!pid) {
     pid = insertPath(FXPath::directory(track.url));
     FXASSERT(pid);
-    if (!pid) fxmessage("pid==0 for %s\n",FXPath::directory(track.url).text());
+    if (!pid) fxwarning("pid==0 for %s\n",FXPath::directory(track.url).text());
     }
 
   /// Artist
@@ -186,22 +205,9 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
     insert_playlist_track_by_id.execute();
     }
 
-  /// Tags
-  if (track.tags.no()) {
-    for (FXint i=0;i<track.tags.no();i++) {
-      insert_genre.update(track.tags[i]);
-      }
-    for (FXint i=0;i<track.tags.no();i++){
-      insert_track_tag.set(0,track_id);
-      insert_track_tag.set(1,track.tags[i]);
-      insert_track_tag.execute();
-      }
-    }
-
-
-
-//  commit();
-//  GM_TICKS_END();
+  // Tags
+  if (track.tags.no())
+    insertTags(track_id,track.tags);
   }
 
 
@@ -212,10 +218,6 @@ void GMDBTracks::add2playlist(FXint playlist,FXint track,FXint queue) {
   insert_playlist_track_by_id.execute();
   }
 
-
-
-
-///FIXME add/replace tags
 void GMDBTracks::update(FXint id,const GMTrack & track){
   /// Artist
   FXint composer_id     = 0;
@@ -254,6 +256,9 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   update_track.set(9,FXThread::time());
   update_track.set(10,id);
   update_track.execute();
+
+  /// Update Tags
+  updateTags(id,track.tags);
   }
 
 void GMDBTracks::remove(FXint track) {
@@ -451,9 +456,6 @@ void GMImportTask::fixEmptyTags(GMTrack & track,FXint n) {
 
   if (track.artist.empty())
     track.artist=track.album_artist;
-
-//  if (track.genre.empty())
-//    track.genre=options.default_field;
 
   if (options.track_from_filelist && n>=0)
     track.no=n+1;
