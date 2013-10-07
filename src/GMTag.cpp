@@ -290,7 +290,9 @@ FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
 
   TagLib::MPEG::File        * mpgfile   = NULL;
   TagLib::Ogg::Vorbis::File * oggfile   = NULL;
+#ifdef TAGLIB_HAVE_OPUS
   TagLib::Ogg::Opus::File   * opusfile  = NULL;
+#endif
   TagLib::FLAC::File        * flacfile  = NULL;
 #ifdef TAGLIB_HAVE_MP4
   TagLib::MP4::File         * mp4file   = NULL;
