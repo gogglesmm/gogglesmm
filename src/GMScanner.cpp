@@ -10,6 +10,14 @@
 #include "GMScanner.h"
 #include "GMTag.h"
 
+// ALL patterns
+//#define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac,mpc,wma,asf"
+//#define FILE_PATTERNS "*.(" FILE_EXTENSIONS ")"
+
+// Just the once we can playback at the moment.
+#define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac"
+#define FILE_PATTERNS "*.(" FILE_EXTENSIONS ")"
+
 GMDBTracks::GMDBTracks() {
   }
 
@@ -266,170 +274,6 @@ void GMDBTracks::remove(FXint track) {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-class GMImportFiles : public FXDirVisitor {
-protected:
-  GMTrackDatabase * database;
-  GMImportOptions   options;
-protected:
-  FXint playlist;
-  FXint filecount;
-  FXint pathid;
-  FXint queue;
-protected:
-  void parse(const FXString & filename,GMTrack&);
-public:
-  GMImportFiles(GMTrackDatabase*,FXint playlist=0);
-
-  FXuint enter(const FXString& path);
-  FXuint visit(const FXString& path);
-  FXuint leave(const FXString& path);
-
-  void setDatabase(GMTrackDatabase * db) { database=db; }
-  void setOptions(const GMImportOptions & o) { options=o; }
-    };
-
-
-GMImportFiles::GMImportFiles(GMTrackDatabase * db,FXint p) : database(db),playlist(p),filecount(0),pathid(0),queue(0) {
-  }
-
-FXuint GMImportFiles::enter(const FXString & path) {
-  filecount=0;
-  pathid=database->hasPath(path);
-
-  if (database->interrupt){
-    database->waitTask();
-    queue = database->getNextQueue(playlist);
-    }
-
-  return 1;
-  }
-
-FXuint GMImportFiles::visit(const FXString & path) {
-  filecount++;
-  GMTrack info;
-  FXint trackid;
-
-
-#if FOXVERSION < FXVERSION(1,7,20)
-  const FXuint matchflags=FILEMATCH_FILE_NAME|FILEMATCH_CASEFOLD|FILEMATCH_NOESCAPE;
-#else
-  const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
-#endif
-
-#if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
-  #if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
-    const FXchar extensions[]="*.(flac,ogg,mp3,mpc,wma,asf,m4a,mp4,m4p,m4b,aac)";
-  #else
-    const FXchar extensions[]="*.(flac,ogg,mp3,mpc,wma,asf)";
-  #endif
-#else
-  #if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
-    const FXchar extensions[]="*.(flac,ogg,mp3,mpc,m4a,mp4,m4p,m4b,aac)";
-  #else
-    const FXchar extensions[]="*.(flac,ogg,mp3,mpc)";
-  #endif
-#endif
-
-  FXString filename = FXPath::name(path);
-
-  if (FXPath::match(filename,extensions,matchflags)) {
-    if (pathid && (trackid=database->hasTrack(filename,pathid))) {
-      if (playlist) database->insertPlaylistTrack(playlist,trackid,queue++);
-      }
-    else {
-      parse(path,info);
-      database->insertTrack(filename,info,pathid,playlist,queue++);
-      }
-    }
-  return 1;
-  }
-
-FXuint GMImportFiles::leave(const FXString & path) {
-  pathid=0;
-  return 1;
-  }
-
-
-void GMImportFiles::parse(const FXString & filename,GMTrack& info) {
-
-  info.mrl = filename;
-
-  /* Get track information */
-  switch(options.parse_method) {
-    case GMImportOptions::PARSE_TAG      : info.loadTag(filename);
-                                           break;
-    case GMImportOptions::PARSE_FILENAME : GMFilename::parse(info,options.filename_template,(options.replace_underscores ? (GMFilename::OVERWRITE|GMFilename::REPLACE_UNDERSCORE) : (GMFilename::OVERWRITE)));
-                                           GMTag::length(info);
-                                           break;
-    case GMImportOptions::PARSE_BOTH     : info.loadTag(filename);
-                                           if (info.title.empty() ||
-                                               info.artist.empty() ||
-                                               info.album.empty() ||
-                                               info.album_artist.empty() ||
-                                               info.genre.empty() ) {
-                                             GMFilename::parse(info,options.filename_template,(options.replace_underscores ? (GMFilename::REPLACE_UNDERSCORE) : (0)));
-                                             }
-                                           break;
-    }
-
-  if (info.title.empty())
-    info.title=options.default_field;
-
-  if (info.album.empty())
-    info.album=options.default_field;
-
-  if (info.album_artist.empty()){
-    if (info.artist.empty()) {
-      info.album_artist=options.default_field;
-      info.artist=options.default_field;
-      }
-    else {
-      info.album_artist=info.artist;
-      }
-    }
-
-  if (info.artist.empty())
-    info.artist=info.album_artist;
-
-  if (info.genre.empty())
-    info.genre=options.default_field;
-
-  if (options.track_from_filelist && filecount>=0)
-    info.no=filecount+1;
-  }
-
-
-
-
-
-#endif
-
-
 GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel),database(NULL),playlist(0),count(0) {
   database = GMPlayerManager::instance()->getTrackDatabase();
   }
@@ -524,7 +368,6 @@ void GMImportTask::fixAlbumArtist(GMTrack * tracks,FXint no){
 
 void GMImportTask::import() {
   FXint tid,pid=0;
-  FXString ext;
   FXString filename,pathname;
   GMTrack info;
 
@@ -546,29 +389,7 @@ void GMImportTask::import() {
       listDirectory(files[i]);
       }
     else if (FXStat::isFile(files[i])) {
-//        fxmessage("%s\n",files[i].text());
-
-      ext = FXPath::extension(files[i]);
-
-      if (comparecase(ext,"mp3")==0
-      || comparecase(ext,"ogg")==0
-      || comparecase(ext,"oga")==0
-      || comparecase(ext,"opus")==0
-      || comparecase(ext,"flac")==0
-      || comparecase(ext,"mpc")==0
-#if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
-      || comparecase(ext,"wma")==0
-      || comparecase(ext,"asf")==0
-#endif
-#if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
-      || comparecase(ext,"m4a")==0
-      || comparecase(ext,"mp4")==0
-      || comparecase(ext,"aac")==0
-      || comparecase(ext,"m4p")==0
-      || comparecase(ext,"m4b")==0) {
-#else
-        ) {
-#endif
+      if (strstr(FILE_EXTENSIONS,FXPath::extension(files[i]).lower().text())) {
         filename = FXPath::name(files[i]);
         pathname = FXPath::directory(files[i]);
         if ( (pid=dbtracks.hasPath(pathname)) && (tid=database->hasTrack(filename,pid))) {
@@ -613,15 +434,7 @@ void GMImportTask::listDirectory(const FXString & path) {
 
   if (!processing) return;
 
-  no=FXDir::listFiles(files,path,"*.(ogg,oga,opus,mp3,mpc,flac"
-#if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
-       ",mp4,m4a,aac,m4p,m4b"
-#endif
-#if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
-       ",asf,wma"
-#endif
-       ")",FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold);
-
+  no=FXDir::listFiles(files,path,FILE_PATTERNS,FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold);
   if (no) {
     pid=dbtracks.hasPath(path);
     tracks.no(no);
@@ -783,4 +596,153 @@ FXint GMSyncTask::run() {
     }
   return 0;
   }
+
+
+
+
+
+
+#if 0
+class GMImportFiles : public FXDirVisitor {
+protected:
+  GMTrackDatabase * database;
+  GMImportOptions   options;
+protected:
+  FXint playlist;
+  FXint filecount;
+  FXint pathid;
+  FXint queue;
+protected:
+  void parse(const FXString & filename,GMTrack&);
+public:
+  GMImportFiles(GMTrackDatabase*,FXint playlist=0);
+
+  FXuint enter(const FXString& path);
+  FXuint visit(const FXString& path);
+  FXuint leave(const FXString& path);
+
+  void setDatabase(GMTrackDatabase * db) { database=db; }
+  void setOptions(const GMImportOptions & o) { options=o; }
+    };
+
+
+GMImportFiles::GMImportFiles(GMTrackDatabase * db,FXint p) : database(db),playlist(p),filecount(0),pathid(0),queue(0) {
+  }
+
+FXuint GMImportFiles::enter(const FXString & path) {
+  filecount=0;
+  pathid=database->hasPath(path);
+
+  if (database->interrupt){
+    database->waitTask();
+    queue = database->getNextQueue(playlist);
+    }
+
+  return 1;
+  }
+
+FXuint GMImportFiles::visit(const FXString & path) {
+  filecount++;
+  GMTrack info;
+  FXint trackid;
+
+
+#if FOXVERSION < FXVERSION(1,7,20)
+  const FXuint matchflags=FILEMATCH_FILE_NAME|FILEMATCH_CASEFOLD|FILEMATCH_NOESCAPE;
+#else
+  const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
+#endif
+
+#if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
+  #if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
+    const FXchar extensions[]="*.(flac,ogg,mp3,mpc,wma,asf,m4a,mp4,m4p,m4b,aac)";
+  #else
+    const FXchar extensions[]="*.(flac,ogg,mp3,mpc,wma,asf)";
+  #endif
+#else
+  #if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
+    const FXchar extensions[]="*.(flac,ogg,mp3,mpc,m4a,mp4,m4p,m4b,aac)";
+  #else
+    const FXchar extensions[]="*.(flac,ogg,mp3,mpc)";
+  #endif
+#endif
+
+  FXString filename = FXPath::name(path);
+
+  if (FXPath::match(filename,extensions,matchflags)) {
+    if (pathid && (trackid=database->hasTrack(filename,pathid))) {
+      if (playlist) database->insertPlaylistTrack(playlist,trackid,queue++);
+      }
+    else {
+      parse(path,info);
+      database->insertTrack(filename,info,pathid,playlist,queue++);
+      }
+    }
+  return 1;
+  }
+
+FXuint GMImportFiles::leave(const FXString & path) {
+  pathid=0;
+  return 1;
+  }
+
+
+void GMImportFiles::parse(const FXString & filename,GMTrack& info) {
+
+  info.mrl = filename;
+
+  /* Get track information */
+  switch(options.parse_method) {
+    case GMImportOptions::PARSE_TAG      : info.loadTag(filename);
+                                           break;
+    case GMImportOptions::PARSE_FILENAME : GMFilename::parse(info,options.filename_template,(options.replace_underscores ? (GMFilename::OVERWRITE|GMFilename::REPLACE_UNDERSCORE) : (GMFilename::OVERWRITE)));
+                                           GMTag::length(info);
+                                           break;
+    case GMImportOptions::PARSE_BOTH     : info.loadTag(filename);
+                                           if (info.title.empty() ||
+                                               info.artist.empty() ||
+                                               info.album.empty() ||
+                                               info.album_artist.empty() ||
+                                               info.genre.empty() ) {
+                                             GMFilename::parse(info,options.filename_template,(options.replace_underscores ? (GMFilename::REPLACE_UNDERSCORE) : (0)));
+                                             }
+                                           break;
+    }
+
+  if (info.title.empty())
+    info.title=options.default_field;
+
+  if (info.album.empty())
+    info.album=options.default_field;
+
+  if (info.album_artist.empty()){
+    if (info.artist.empty()) {
+      info.album_artist=options.default_field;
+      info.artist=options.default_field;
+      }
+    else {
+      info.album_artist=info.artist;
+      }
+    }
+
+  if (info.artist.empty())
+    info.artist=info.album_artist;
+
+  if (info.genre.empty())
+    info.genre=options.default_field;
+
+  if (options.track_from_filelist && filecount>=0)
+    info.no=filecount+1;
+  }
+
+
+
+
+
+#endif
+
+
+
+
+
 
