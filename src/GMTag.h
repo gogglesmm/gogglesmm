@@ -20,26 +20,12 @@
 #define GMTAG_H
 
 
-#include <tag.h>
-#ifndef TAGLIB_MAJOR_VERSION
-#error "missing taglib_major_version"
-#endif
-#define MKVERSION(major,minor,release) ((release)+(minor*1000)+(major*1000000))
-#define TAGLIB_VERSION MKVERSION(TAGLIB_MAJOR_VERSION,TAGLIB_MINOR_VERSION,TAGLIB_PATCH_VERSION)
-
-#if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
-#define TAGLIB_HAVE_MP4 1
-#endif
-
-
 namespace TagLib {
   class File;
   class Tag;
-#ifdef TAGLIB_HAVE_MP4
   namespace MP4 {
     class Tag;
     }
-#endif
   namespace Ogg {
     class XiphComment;
     }
@@ -70,11 +56,7 @@ class GMFileTag {
 protected:
   TagLib::File              * file;
   TagLib::Tag               * tag;
-#ifdef TAGLIB_HAVE_MP4
   TagLib::MP4::Tag          * mp4;
-#else
-  void                      * mp4;
-#endif
   TagLib::Ogg::XiphComment  * xiph;
   TagLib::ID3v2::Tag        * id3v2;
   TagLib::APE::Tag          * ape;

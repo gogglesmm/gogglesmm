@@ -30,24 +30,16 @@
 
 
 extern const FXchar gmfilepatterns[]="All Music (*.mp3,*.ogg,*.oga,*.opus,*.flac,*.mpc"
-#if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
 ",*.aac,*.m4a,*.m4p,*.mp4,*.m4b"
-#endif
-#if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
 ",*.wma,*.asf"
-#endif
 ")\nFree Lossless Audio Codec (*.flac)\n"
 "MPEG-1 Audio Layer 3 (*.mp3)\n"
-#if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
 "MPEG-4 Part 14 (*.mp4,*.m4a,*.m4p,*.aac,*.m4b)\n"
-#endif
 "Musepack (*.mpc)\n"
 "Ogg Vorbis (*.ogg)\n"
 "Ogg Audio (*.oga)\n"
 "Opus Audio (*.opus)\n"
-#if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
 "Window Media (*.wma,*,asf)\n"
-#endif
 "All Files (*.*)";
 
 
@@ -308,16 +300,12 @@ static const FXchar * const filetypes[]={
   "opus",";Opus Audio",
   "flac",";Free Lossless Audio Codec",
   "mpc",";Musepack",
-#if defined(TAGLIB_WITH_ASF) && (TAGLIB_WITH_ASF==1)
   "wma",";Windows Media",
   "asf",";Windows Media",
-#endif
-#if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
   "m4a",";MPEG-4 Part 14",
   "m4b",";MPEG-4 Part 14",
   "m4p",";MPEG-4 Part 14",
   "aac",";MPEG-4 Part 14",
-#endif
   "m3u",";M3U Playlist",
   "pls",";PLS Playlist",
   "xspf",";XML Shareable Playlist"
@@ -701,11 +689,9 @@ void GMImportDialog::getDefaultSearchDirectory(FXString & directory){
     "ogg",
     "OGG",
     "Ogg",
-#if defined(TAGLIB_WITH_MP4) && (TAGLIB_WITH_MP4==1)
     "mp4",
     "MP4",
     "Mp4",
-#endif
     NULL
     };
   FXString test;
