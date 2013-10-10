@@ -1048,9 +1048,15 @@ private:
   GMTagLibDebugListener &operator=(const GMTagLibDebugListener &);
 public:
   GMTagLibDebugListener(){}
+
+#ifdef DEBUG
   virtual void printMessage(const TagLib::String &msg){
-    GM_DEBUG_PRINT("%s\n",msg.toCString(true));
+    fxmessage("%s\n",msg.toCString(true));
     }
+#else
+  virtual void printMessage(const TagLib::String&){}
+#endif
+
   };
 
 
