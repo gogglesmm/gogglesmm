@@ -16,6 +16,7 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
+#ifdef HAVE_OPENGL
 #include "icons.h"
 #include "gmdefs.h"
 #include <FXPNGIcon.h>
@@ -67,7 +68,7 @@ public:
     }
 
   void draw() {
-    if (texture && texture->id) 
+    if (texture && texture->id)
       texture->drawQuad(pos.x,pos.y,(size*texture->aspect),size,0);
     }
   };
@@ -179,3 +180,4 @@ long GMPresenter::onCanvasPaint(FXObject*,FXSelector,void*){
   return 1;
   }
 
+#endif

@@ -523,6 +523,7 @@ void GMWindow::create(){
 
 
 void GMWindow::showPresenter(){
+#ifdef HAVE_OPENGL
   if (!presenter) {
     GMApp::instance()->initOpenGL();
     GMPresenter p(getApp(),GMApp::instance()->getGLContext(),target,message);
@@ -532,13 +533,16 @@ void GMWindow::showPresenter(){
     p.execute();
     presenter=NULL;
     }
+#endif
   }
 
 void GMWindow::hidePresenter(){
+#ifdef HAVE_OPENGL
   if (presenter) {
     delete presenter;
     presenter=NULL;
     }
+#endif
   }
 
 void GMWindow::showRemote(){

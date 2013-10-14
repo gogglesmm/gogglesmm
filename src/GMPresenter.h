@@ -18,6 +18,8 @@
 ********************************************************************************/
 #ifndef GMPRESENTER_H
 #define GMPRESENTER_H
+#ifdef HAVE_OPENGL
+
 
 class GMImageTexture;
 class GMBouncingImage;
@@ -56,4 +58,6 @@ public:
   /// Destroy calculator
   virtual ~GMPresenter();
   };
+
+#endif
 #endif
