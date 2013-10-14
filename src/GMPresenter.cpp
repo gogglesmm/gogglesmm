@@ -16,9 +16,8 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifdef HAVE_OPENGL
-#include "icons.h"
 #include "gmdefs.h"
+#ifdef HAVE_OPENGL
 #include <FXPNGIcon.h>
 #include <FXPNGImage.h>
 #include "GMTrack.h"
