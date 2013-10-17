@@ -19,22 +19,7 @@
 #include "gmdefs.h"
 #ifdef HAVE_OPENGL
 #include "GMImageView.h"
-
-#define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-#include <GL/glu.h>
-
-#ifndef GL_VERSION_1_2
-#error Need at least OpenGL 1.2
-#endif
-
-
-// non power of two textures are currently broken in Mesa 7.10.1 in combination with mip mapping
-// now fixed in Mesa 7.11
-//#define DISABLE_TEXTURE_NON_POWER_OF_TWO 1
-
-// Disable MIPMAP if needed
-//#define DISABLE_MIPMAP 1
+#include <GL/glew.h>
 
 
 GMImageTexture::GMImageTexture() :
@@ -49,20 +34,22 @@ GMImageTexture::~GMImageTexture() {
 
 FXbool GMImageTexture::setImage(FXImage* image) {
   if (image) {
-    FXint  image_width  = image->getWidth();
-    FXint  image_height = image->getHeight();
-    FXint  texture_width,texture_height;
-    FXbool texture_power_of_two = true;
-    FXint  texture_max;
+    FXint image_width  = image->getWidth();
+    FXint image_height = image->getHeight();
+    FXint texture_width,texture_height;
+    FXint texture_max;
 
 
     /// Query Maximum Texture Size
     glGetIntegerv(GL_MAX_TEXTURE_SIZE,&texture_max);
 
+#if 0
+    //FXbool texture_power_of_two = true;
 #ifndef DISABLE_TEXTURE_NON_POWER_OF_TWO
     /// Check if non power of two textures are supported.
     const GLubyte * extensions = glGetString(GL_EXTENSIONS);
     texture_power_of_two = (strstr((const char*)extensions,"GL_ARB_texture_non_power_of_two")==NULL);
+#endif
 #endif
 
     /// Prescale to maximum texture size if necessary
@@ -81,15 +68,15 @@ FXbool GMImageTexture::setImage(FXImage* image) {
     aspect = image->getWidth() / (FXfloat) image->getHeight();
 
     /// Get a nice texture size
-    if (texture_power_of_two) {
+    if (GLEW_ARB_texture_non_power_of_two) {
+      texture_width=image_width;
+      texture_height=image_height;
+      }
+    else {
       texture_width=1;
       texture_height=1;
       while(image_width>texture_width) texture_width<<=1;
       while(image_height>texture_height) texture_height<<=1;
-      }
-    else {
-      texture_width=image_width;
-      texture_height=image_height;
       }
 
     FXASSERT(texture_width<=texture_max);
@@ -99,6 +86,41 @@ FXbool GMImageTexture::setImage(FXImage* image) {
     if (id==0) {
       glGenTextures(1,&id);
       }
+
+    glBindTexture(GL_TEXTURE_2D,id);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
+
+    FXbool use_mipmap = (glGenerateMipmap!=NULL || GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap );
+
+    if (use_mipmap) {
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+      if (glGenerateMipmap==NULL){
+        glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
+        glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP,GL_TRUE);
+        }
+      }
+    else {
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+      }
+
+   if (texture_width==image_width && texture_height==image_height) {
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
+      cw=ch=1.0f;
+      }
+    else {
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,NULL);
+      glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
+      cw = (1.0f / (FXfloat)(texture_width))  * image_width;
+      ch = (1.0f / (FXfloat)(texture_height)) * image_height;
+      }
+
+    if (glGenerateMipmap)
+      glGenerateMipmap(GL_TEXTURE_2D);
+
+#if 0
 
     glBindTexture(GL_TEXTURE_2D,id);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
@@ -129,6 +151,9 @@ FXbool GMImageTexture::setImage(FXImage* image) {
 #if defined(GL_VERSION_3_0) && !defined(DISABLE_MIPMAP)
     glGenerateMipmap(GL_TEXTURE_2D);
 #endif
+
+#endif
+
     }
   else {
     if (id) {

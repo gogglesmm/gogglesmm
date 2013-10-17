@@ -31,9 +31,7 @@
 #include "GMIconTheme.h"
 #include "GMImageView.h"
 
-#define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <GL/glew.h>
 
 
 

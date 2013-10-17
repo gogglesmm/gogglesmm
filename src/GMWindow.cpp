@@ -1512,7 +1512,7 @@ void GMWindow::updateCoverView() {
       clearCover();
       delete coverview_gl;
       coverview_gl=NULL;
-      GMApp::instance()->releaseOpenGL();
+      //GMApp::instance()->releaseOpenGL();
       }
 #endif
     if (!coverview_x11) {
