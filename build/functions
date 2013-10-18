@@ -488,10 +488,20 @@ check_gogglesmm()
   # We need OpenGL for cover viewer
   if [ $OPTION_GMM_OPENGL -eq 1 ] ; then
     add_config "opengl"
-    add_package "glew" "glu" "glu"
+
+    # Not all systems have pc files for OpenGL, so add fallback
+    add_package "gl" "gl"
     if [ $? -eq 0 ] ; then
-      EXTRA_LIBS="$EXTRA_LIBS -lGL -lGLU"
-    fi
+      EXTRA_LIBS="$EXTRA_LIBS -lGL"
+    fi      
+
+    add_package "glu" "glu"
+    if [ $? -eq 0 ] ; then
+      EXTRA_LIBS="$EXTRA_LIBS -lGLU"
+    fi 
+    
+    # Also add glew 
+    add_required_package "glew" "glew"
   fi
 
   # Session Management
