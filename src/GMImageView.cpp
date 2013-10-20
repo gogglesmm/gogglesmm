@@ -21,7 +21,6 @@
 #include "GMImageView.h"
 #include <GL/glew.h>
 
-
 GMImageTexture::GMImageTexture() :
   id(0),
   cw(1.0f),
@@ -42,15 +41,6 @@ FXbool GMImageTexture::setImage(FXImage* image) {
 
     /// Query Maximum Texture Size
     glGetIntegerv(GL_MAX_TEXTURE_SIZE,&texture_max);
-
-#if 0
-    //FXbool texture_power_of_two = true;
-#ifndef DISABLE_TEXTURE_NON_POWER_OF_TWO
-    /// Check if non power of two textures are supported.
-    const GLubyte * extensions = glGetString(GL_EXTENSIONS);
-    texture_power_of_two = (strstr((const char*)extensions,"GL_ARB_texture_non_power_of_two")==NULL);
-#endif
-#endif
 
     /// Prescale to maximum texture size if necessary
     if((image_width>texture_max) || (image_height>texture_max)){
@@ -119,40 +109,6 @@ FXbool GMImageTexture::setImage(FXImage* image) {
 
     if (glGenerateMipmap)
       glGenerateMipmap(GL_TEXTURE_2D);
-
-#if 0
-
-    glBindTexture(GL_TEXTURE_2D,id);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
-#if (defined(GL_VERSION_3_0) || defined(GL_VERSION_1_4)) && !defined(DISABLE_MIPMAP)
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    #ifndef GL_VERSION_3_0
-    glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
-    glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP,GL_TRUE);
-    #endif
-#else
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-#endif
-
-    if (texture_width==image_width && texture_height==image_height) {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
-      cw=ch=1.0f;
-      }
-    else {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,NULL);
-      glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
-      cw = (1.0f / (FXfloat)(texture_width))  * image_width;
-      ch = (1.0f / (FXfloat)(texture_height)) * image_height;
-      }
-
-#if defined(GL_VERSION_3_0) && !defined(DISABLE_MIPMAP)
-    glGenerateMipmap(GL_TEXTURE_2D);
-#endif
-
-#endif
 
     }
   else {
