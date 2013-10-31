@@ -67,12 +67,13 @@ FXString gm_rfc1123(FXTime time) {
 
 //-----------------------------------------------------------------------------
 
-#ifndef HAVE_EXPAT
 
 struct FeedLink {
   FXString description;
   FXString url;
   };
+
+#ifndef HAVE_EXPAT
 
 class HtmlFeedParser : public HtmlParser{
 public:
@@ -437,7 +438,7 @@ public:
       GMPlayerManager::instance()->getTrackView()->refresh();
       }
     else {
-      fxmessage("OOPS %d\n",code);
+      GM_DEBUG_PRINT("No feed found code %d\n",code);
       }
 
 
@@ -445,7 +446,6 @@ public:
     return 1;
     }
 
-#ifndef HAVE_EXPAT
   FXint select_feed(const FXArray<FeedLink> & links){
     if (links.no()>1) {
       GMThreadDialog dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Select Feed"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
@@ -469,7 +469,50 @@ public:
       }
     return -1;
     }
+
+
+
+#ifdef HAVE_EXPAT
+  FXbool findFeedLink(const FXString & html,FXArray<FeedLink> & links) {
+    FXRex link("<link[^>]*>",FXRex::IgnoreCase|FXRex::Normal);
+    FXRex attr("\\s+(\\l\\w*)(?:\\s*=\\s*(?:([\'\"])(.*?)\\2|([^\\s\"\'>]+)))?",FXRex::Capture);
+
+    FXint b[5],e[5],f=0;
+    while(link.match(html,b,e,FXRex::Forward,1,f)){
+      f=e[0];
+
+      FeedLink feed;
+      FXString mimetype;
+      FXString mlink = html.mid(b[0],e[0]-b[0]);
+
+
+      FXint ff=0;
+      while(attr.match(mlink,b,e,FXRex::Forward,5,ff)){
+        if (b[1]>=0) {
+          if (e[1]-b[1]==4) {
+            if (comparecase(&mlink[b[1]],"type",4)==0) {
+              mimetype = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
+              GM_DEBUG_PRINT("mimetype=%s\n",mimetype.text());
+              }
+            else if (comparecase(&mlink[b[1]],"href",4)==0) {
+              feed.url = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
+              GM_DEBUG_PRINT("href=%s\n",feed.url.text());
+              }
+            }
+          else if (e[1]-b[1]==5 && comparecase(&mlink[b[1]],"title",5)==0) {
+            feed.description = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
+            }          
+          }
+        ff=e[0];
+        }
+      if (comparecase(mimetype,"application/rss+xml")==0 && !feed.url.empty()) {
+        links.append(feed);
+        }
+      }
+    return (links.no()>0);
+    }
 #endif
+
 
   FXint run() {
     HttpClient client;
@@ -484,8 +527,8 @@ public:
         rss.parse(client.body());
         return 0;
         }
-#ifndef HAVE_EXPAT
       else if (comparecase(content,"text/html")==0) {
+#ifndef HAVE_EXPAT
         HtmlFeedParser html;
         html.parse(client.body());
         client.close();
@@ -499,8 +542,20 @@ public:
           url=uri;
           continue;
           }
-        }
+#else
+        FXArray<FeedLink> links;
+        if (findFeedLink(client.body(),links)) {
+          FXint index = select_feed(links);
+          if (index==-1) return 1;
+          FXString uri = links[index].url;
+          if (uri[0]=='/') {
+            uri = FXURL::scheme(url) + "://" +FXURL::host(url) + uri;
+            }
+          url=uri;
+          continue;        
+          }
 #endif
+        }
       break;
       }
     while(1);
