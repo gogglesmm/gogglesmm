@@ -37,6 +37,9 @@
 
 namespace ap {
 
+#define HTTP_TOKEN "[\\w!#$%&\'*+-.^`|~]+"
+#define HTTP_MEDIA_TYPE HTTP_TOKEN "/" HTTP_TOKEN
+
 
 HttpInput::HttpInput(InputThread * i) : InputPlugin(i),
   content_position(0),
@@ -56,7 +59,13 @@ void HttpInput::check_headers() {
   if (field) icy_count = icy_interval = field->toInt();
 
   field = (FXString*) client.headers.find("content-type");
-  if (field) content_type = ap_format_from_mime(field->before(';'));
+  if (field) {
+    FXRex mediatype(HTTP_MEDIA_TYPE);
+    FXint beg,end;
+    if (mediatype.match(*field,&beg,&end)){
+      content_type = ap_format_from_mime(field->mid(beg,end-beg));
+      }
+    }
   }
 
 
@@ -136,7 +145,7 @@ FXival HttpInput::read(void * data,FXival count) {
   return t;
   }
 
-FXlong HttpInput::position(FXlong /*offset*/,FXuint /*from*/) {  
+FXlong HttpInput::position(FXlong /*offset*/,FXuint /*from*/) {
   return -1;
   //return client->position(offset,from);
   }

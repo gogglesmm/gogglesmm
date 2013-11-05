@@ -79,6 +79,8 @@
 #include <FXSettings.h>
 #include <FXMessageChannel.h>
 
+#include <FXRex.h>
+
 using namespace FX;
 
 #ifndef BadHandle
