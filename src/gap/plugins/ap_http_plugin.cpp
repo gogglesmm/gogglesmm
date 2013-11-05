@@ -37,7 +37,7 @@
 
 namespace ap {
 
-#define HTTP_TOKEN "[\\w!#$%&\'*+-.^`|~]+"
+#define HTTP_TOKEN "[\\w!#$%&'*+-.^`|~]+"
 #define HTTP_MEDIA_TYPE HTTP_TOKEN "/" HTTP_TOKEN
 
 
