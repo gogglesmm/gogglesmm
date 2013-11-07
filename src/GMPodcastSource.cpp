@@ -501,7 +501,7 @@ public:
             }
           else if (e[1]-b[1]==5 && comparecase(&mlink[b[1]],"title",5)==0) {
             feed.description = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
-            }          
+            }
           }
         ff=e[0];
         }
@@ -522,12 +522,16 @@ public:
       if (!client.basic("GET",url))
         break;
 
-      FXString content = client.getHeader("content-type").before(';');
-      if (comparecase(content,"application/rss+xml")==0 || comparecase(content,"text/xml")==0) {
+      HttpMediaType media;
+
+      if (!client.getContentType(media))
+        break;
+
+      if (comparecase(media.mime,"application/rss+xml")==0 || comparecase(media.mime,"text/xml")==0) {
         rss.parse(client.body());
         return 0;
         }
-      else if (comparecase(content,"text/html")==0) {
+      else if (comparecase(media.mime,"text/html")==0) {
 #ifndef HAVE_EXPAT
         HtmlFeedParser html;
         html.parse(client.body());
@@ -552,7 +556,7 @@ public:
             uri = FXURL::scheme(url) + "://" +FXURL::host(url) + uri;
             }
           url=uri;
-          continue;        
+          continue;
           }
 #endif
         }
@@ -581,6 +585,7 @@ FXDECLARE(GMDownloader)
 protected:
   FXbool download(const FXString & url,const FXString & filename,FXbool resume=true) {
     HttpClient http;
+    HttpContentRange range;
     FXFile     file;
     FXString   headers;
     FXuint     mode   = FXIO::Writing;
@@ -608,13 +613,16 @@ protected:
       }
 
     if (http.status.code == HTTP_PARTIAL_CONTENT) {
-      fxmessage("partial content succes\n");
-      FXString range = http.getHeader("content-range");
-      fxmessage("%s\n",range.text());
+
+      if (!http.getContentRange(range))
+        return false;
+
+      // FIXME make sure range is what we requested...
+      fxmessage("got partial content %lld-%lld of %lld\n",range.first,range.last,range.length);
       }
     else if (http.status.code == HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-      FXString range = http.getHeader("content-range");
-      fxmessage("range: %s\n",range.text());
+      //FXString range = http.getHeader("content-range");
+      //fxmessage("range: %s\n",range.text());
       //return false;
 
       fxmessage("partial content failed\n");

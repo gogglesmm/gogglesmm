@@ -58,13 +58,9 @@ void HttpInput::check_headers() {
   field = (FXString*) client.headers.find("icy-metaint");
   if (field) icy_count = icy_interval = field->toInt();
 
-  field = (FXString*) client.headers.find("content-type");
-  if (field) {
-    FXRex mediatype(HTTP_MEDIA_TYPE);
-    FXint beg,end;
-    if (mediatype.match(*field,&beg,&end)){
-      content_type = ap_format_from_mime(field->mid(beg,end-beg));
-      }
+  HttpMediaType media;
+  if (client.getContentType(media)) {
+    content_type = ap_format_from_mime(media.mime);
     }
   }
 
