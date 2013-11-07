@@ -133,6 +133,41 @@ struct GMAPI HttpStatus {
   FXint type() const;
   };
 
+
+class GMAPI HttpHeader {
+public:
+  enum {
+    ParseFieldName = 0x1,
+    };
+protected:
+  FXint parseToken(const FXString & str,FXint & p);
+  FXint parseQuotedString(const FXString & str,FXint & p);
+  };
+
+
+class GMAPI HttpMediaType : public HttpHeader {
+public:
+  FXString     mime;
+  FXStringDict parameters;
+public:
+  HttpMediaType();
+  HttpMediaType(const FXString & str,FXuint opts=0);
+  FXbool parse(const FXString & str,FXuint opts=0);
+  };
+
+
+class GMAPI HttpContentRange : public HttpHeader {
+public:
+  FXlong first;
+  FXlong last;
+  FXlong length;
+public:
+  HttpContentRange();
+  HttpContentRange(const FXString & str,FXuint opts=0);
+  FXbool parse(const FXString & str,FXuint opts=0);
+  };
+
+
 /* Http Response Parser */
 class GMAPI HttpResponse {
 protected:
@@ -215,6 +250,12 @@ public:
 
   // Return Content Length if known or -1
   FXint getContentLength() const;
+
+  // Return Content Type if known or return false
+  FXbool getContentType(HttpMediaType &) const;
+
+  // Return Content Range if known or return false
+  FXbool getContentRange(HttpContentRange &) const;
 
   // Check end-of-response
   FXbool eof();

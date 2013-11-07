@@ -110,6 +110,200 @@ FXint HttpStatus::type() const {
   }
 
 
+// HttpHeader
+
+FXint HttpHeader::parseToken(const FXString & str,FXint & p){
+  FXchar c;
+  FXint  s=p;
+  while(p<str.length()){
+    c=str[p];
+    if (!Ascii::isAlphaNumeric(c)) {
+      switch(c) {
+        case  '!':
+        case  '#':
+        case  '$':
+        case  '%':
+        case  '&':
+        case '\'':
+        case  '*':
+        case  '+':
+        case  '-':
+        case  '.':
+        case  '^':
+        case  '_':
+        case  '`':
+        case  '|':
+        case  '~': break;
+        default  : return p-s; break;
+        }
+      }
+    p++;
+    }
+  return p-s;
+  }
+
+FXint HttpHeader::parseQuotedString(const FXString & str,FXint & p){
+  FXint s=p;
+  while(p<str.length()) {
+    if (str[p]=='\"' && str[p-1]!='\\')
+      return p-s;
+    p++;
+    }
+  return 0;
+  }
+
+
+HttpMediaType::HttpMediaType() {}
+
+HttpMediaType::HttpMediaType(const FXString & str,FXuint opts) {
+  parse(str,opts);
+  }
+
+FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
+  FXint s,p=0,ks,kp;
+
+  // parse the field name
+  if (opts&ParseFieldName)
+    s=p=str.find(':')+1;
+
+  // white space
+  while(str[p]==' '||str[p]=='\t') p++;
+  s=p;
+
+  // "type/"
+  if (parseToken(str,p)==0 || str[p++]!='/')
+    return false;
+
+  // "subtype"
+  if (parseToken(str,p)==0)
+    return false;
+
+  // Get mime
+  mime = str.mid(s,p-s);
+
+  // Parameters
+  while(p<str.length()) {
+
+    // white space
+    while(str[p]==' '||str[p]=='\t') p++;
+
+    // check for parameter separator
+    if (str[p++]!=';') break;
+
+    // eat space
+    while(str[p]==' '||str[p]=='\t') p++;
+
+    // get key and =
+    ks=kp=p;
+    if (parseToken(str,kp)==0 || str[kp]!='=')
+      break;
+    p=kp+1;
+
+    // get the value
+    if (str[p]=='"') {
+      s=p;
+      if (parseQuotedString(str,p)==0)
+        break;
+
+      parameters.insert(str.mid(ks,kp-ks).text(),
+                        unescape(str.mid(s,p-s),'\"','\"').text());
+      p++;
+      }
+    else {
+      s=p;
+      if (parseToken(str,p)==0)
+        break;
+
+      parameters.insert(str.mid(ks,kp-ks).text(),
+                        str.mid(s,p-s).text());
+      p++;
+      }
+    }
+  return true;
+  }
+
+
+HttpContentRange::HttpContentRange() : first(-1),last(-1),length(-1) {}
+HttpContentRange::HttpContentRange(const FXString & str,FXuint opts) : first(-1),last(-1),length(-1) {
+  parse(str,opts);
+  }
+
+FXbool HttpContentRange::parse(const FXString & str,FXuint opts) {
+  FXint s,p=0;
+
+  // parse the field name
+  if (opts&ParseFieldName)
+    s=p=str.find(':')+1;
+
+  // white space
+  while(str[p]==' '||str[p]=='\t') p++;
+  s=p;
+
+  // Make sure ranges are in bytes
+  if (str[p]!='b' || str[p+1]!='y' || str[p+2]!='t' || str[p+3]!='e' || str[p+4]!='s' || str[p+5]!=' ')
+    return false;
+  p+=6;
+
+  // first and last byte pos
+  if (str[p]!='*') {
+    s=p;
+    while(Ascii::isDigit(str[p])) p++;
+
+    if (str[p]!='-')
+      return false;
+
+    first = str.mid(s,p-s).toLong();
+
+    s=++p;
+    while(Ascii::isDigit(str[p])) p++;
+    if (str[p]!='/')
+      goto failed;
+
+    last = str.mid(s,p-s).toLong();
+
+    if (last<first)
+      goto failed;
+    }
+  p++;
+
+  // Length
+  if (str[p]!='*') {
+    s=p;
+    while(Ascii::isDigit(str[p])) p++;
+    length = str.mid(s,p-s).toLong();
+
+    if (last!=-1 && length<last)
+      goto failed;
+    }
+
+  return true;
+failed:
+  length=first=last=-1;
+  return false;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 HttpResponse::HttpResponse() :
   content_length(-1),
   content_remaining(-1),
@@ -403,6 +597,17 @@ FXString HttpResponse::getHeader(const FXString & key) const {
 FXint HttpResponse::getContentLength() const {
   return content_length;
   }
+
+FXbool HttpResponse::getContentType(HttpMediaType & media) const {
+  const FXString * value = (const FXString*)headers.find("content-type");
+  return (value && media.parse(*value));
+  }
+
+FXbool HttpResponse::getContentRange(HttpContentRange & range) const {
+  const FXString * value = (const FXString*)headers.find("content-range");
+  return (value && range.parse(*value));
+  }
+
 
 
 FXbool HttpResponse::eof() {
