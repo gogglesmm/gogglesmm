@@ -178,7 +178,11 @@ protected:
   FXuchar      flags;             // Options flags used by parser
 public:
   HttpStatus   status;            // Response Status. Valid after response() returns true
+#if FOXVERSION < FXVERSION(1,7,44)
   FXDict       headers;           // Dictionary of all http headers
+#else
+  FXStringMap  headers;
+#endif
 protected:
 
   // Internal Parser Flags

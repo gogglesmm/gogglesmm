@@ -329,6 +329,7 @@ void HttpResponse::clear() {
 void HttpResponse::insert_header(const FXString & header) {
   FXString key   = header.before(':').lower();
   FXString value = header.after(':').trim();
+#if FOXVERSION < FXVERSION(1,7,44)
   FXString * existing = (FXString*)headers.find(key.text());
   if (existing) {
     (*existing) += ", " + value;
@@ -338,17 +339,27 @@ void HttpResponse::insert_header(const FXString & header) {
     v->adopt(value);
     headers.replace(key.text(),v);
     }
+#else
+  FXint p = headers.find(key);
+  if (p!=-1)
+    headers[key].append(","+value);
+  else
+    headers[key] = value;
+#endif
   }
 
 void HttpResponse::clear_headers() {
+#if FOXVERSION < FXVERSION(1,7,44)
   for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
     FXString * field = (FXString*) headers.data(pos);
     delete field;
     }
+#endif
   headers.clear();
   }
 
 void HttpResponse::check_headers() {
+#if FOXVERSION < FXVERSION(1,7,44)
   FXString * field = NULL;
 
   field = (FXString*) headers.find("content-length");
@@ -370,6 +381,29 @@ void HttpResponse::check_headers() {
     if (field==NULL || comparecase(*field,"Keep-Alive"))
       flags|=ConnectionClose;
     }
+#else
+  FXint p;
+
+  p = headers.find("content-length");
+  if (p!=-1) content_length = content_remaining = headers.data(p).toInt();
+
+  p = headers.find("transfer-encoding");
+  if (p!=-1 && headers.data(p).contains("chunked"))
+    flags|=ChunkedResponse;
+
+  if (status.major==1 && status.minor==1) {
+    p = headers.find("connection");
+    if (p!=-1 && comparecase(headers.data(p),"close")==0)
+      flags|=ConnectionClose;
+    }
+  else {
+    p = headers.find("connection");
+    if (p!=-1 && comparecase(headers.data(p),"Keep-Alive")==0)
+      flags|=ConnectionClose;
+    }
+#endif
+
+
 
 #ifdef DEBUG
   fxmessage("Headers:\n");
@@ -586,11 +620,15 @@ void HttpResponse::discard() {
   }
 
 FXString HttpResponse::getHeader(const FXString & key) const {
+#if FOXVERSION < FXVERSION(1,7,44)
   FXString * value = (FXString*)headers.find(key.text());
   if (value)
     return (*value);
   else
     return FXString::null;
+#else
+  return headers[key];
+#endif
   }
 
 
@@ -599,13 +637,21 @@ FXint HttpResponse::getContentLength() const {
   }
 
 FXbool HttpResponse::getContentType(HttpMediaType & media) const {
+#if FOXVERSION < FXVERSION(1,7,44)
   const FXString * value = (const FXString*)headers.find("content-type");
   return (value && media.parse(*value));
+#else
+  return media.parse(headers["content-type"]);
+#endif
   }
 
 FXbool HttpResponse::getContentRange(HttpContentRange & range) const {
+#if FOXVERSION < FXVERSION(1,7,44)
   const FXString * value = (const FXString*)headers.find("content-range");
   return (value && range.parse(*value));
+#else
+  return range.parse(headers["content-range"]);
+#endif
   }
 
 
