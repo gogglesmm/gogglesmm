@@ -75,9 +75,11 @@
 #include <FXStream.h>
 #include <FXObject.h>
 #include <FXDict.h>
-#include <FXDictionary.h>
 #include <FXStringDict.h>
+#if FOXVERSION >= FXVERSION(1,7,44)
+#include <FXDictionary.h>
 #include <FXStringMap.h>
+#endif
 #include <FXSettings.h>
 #include <FXMessageChannel.h>
 
