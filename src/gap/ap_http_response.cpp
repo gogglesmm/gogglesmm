@@ -342,7 +342,7 @@ void HttpResponse::insert_header(const FXString & header) {
 #else
   FXint p = headers.find(key);
   if (p!=-1)
-    headers[key].append(","+value);
+    headers.data(p).append(","+value);
   else
     headers[key] = value;
 #endif
