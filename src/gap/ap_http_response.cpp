@@ -406,10 +406,12 @@ void HttpResponse::check_headers() {
 
 
 #ifdef DEBUG
+#if FOXVERSION < FXVERSION(1,7,44)
   fxmessage("Headers:\n");
   for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
     fxmessage("\t%s: %s\n",headers.key(pos),((FXString*)headers.data(pos))->text());
     }
+#endif
 #endif
   }
 
