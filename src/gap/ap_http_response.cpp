@@ -392,13 +392,11 @@ void HttpResponse::check_headers() {
     flags|=ChunkedResponse;
 
   if (status.major==1 && status.minor==1) {
-    p = headers.find("connection");
-    if (p!=-1 && comparecase(headers.data(p),"close")==0)
+    if (comparecase(headers["connection"],"close")==0)
       flags|=ConnectionClose;
     }
   else {
-    p = headers.find("connection");
-    if (p!=-1 && comparecase(headers.data(p),"Keep-Alive")==0)
+    if (comparecase(headers["connection"],"Keep-Alive"))
       flags|=ConnectionClose;
     }
 #endif
