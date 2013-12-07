@@ -373,12 +373,12 @@ void HttpResponse::check_headers() {
 
   if (status.major==1 && status.minor==1) {
     field = (FXString*) headers.find("connection");
-    if (field!=NULL && comparecase(*field,"close")==0)
+    if (field!=NULL && field->contains("close"))
       flags|=ConnectionClose;
     }
   else {
     field = (FXString*) headers.find("connection");
-    if (field==NULL || comparecase(*field,"Keep-Alive"))
+    if (field==NULL || field->lower().contains("Keep-Alive"))
       flags|=ConnectionClose;
     }
 #else
@@ -392,11 +392,11 @@ void HttpResponse::check_headers() {
     flags|=ChunkedResponse;
 
   if (status.major==1 && status.minor==1) {
-    if (comparecase(headers["connection"],"close")==0)
+    if (headers["connection"].contains("close"))
       flags|=ConnectionClose;
     }
   else {
-    if (comparecase(headers["connection"],"Keep-Alive"))
+    if (headers["connection"].lower().contains("keep-alive"))
       flags|=ConnectionClose;
     }
 #endif
