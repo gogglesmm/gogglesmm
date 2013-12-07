@@ -411,6 +411,13 @@ void HttpResponse::check_headers() {
   for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
     fxmessage("\t%s: %s\n",headers.key(pos),((FXString*)headers.data(pos))->text());
     }
+#else
+  fxmessage("Headers:\n");
+  for (FXint pos=0;pos<headers.no();pos++) {
+    if (!headers.key(pos).empty())
+      fxmessage("\t%s: %s\n",headers.key(pos).text(),headers.data(pos).text());
+    }
+
 #endif
 #endif
   }
