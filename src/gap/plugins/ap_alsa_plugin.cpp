@@ -416,9 +416,11 @@ protected:
     }
 
 
-  FXbool finish(AudioFormat & af) {
+  FXbool finish(AudioFormat & af,FXbool & can_pause,FXbool & can_resume) {
     af.rate     = rate;
     af.channels = channels;
+    can_pause   = snd_pcm_hw_params_can_pause(hw);
+    can_resume  = snd_pcm_hw_params_can_resume(hw);
 
     debug_hw_parameters();
     debug_sw_parameters();
@@ -488,7 +490,7 @@ protected:
 
 public:
 
-  static FXbool configure(snd_pcm_t * pcm,AlsaConfig & config,const AudioFormat & in,AudioFormat & out) {
+  static FXbool configure(snd_pcm_t * pcm,AlsaConfig & config,const AudioFormat & in,AudioFormat & out,FXbool & can_pause,FXbool & can_resume) {
     AlsaSetup alsa(pcm);
 
     // Init structures
@@ -508,8 +510,9 @@ public:
       return false;
 
     /// Finish up and get the Configured Format
-    if (!alsa.finish(out))
+    if (!alsa.finish(out,can_pause,can_resume))
       return false;
+
 
     return true;
     }
@@ -519,7 +522,7 @@ public:
 
 
 
-AlsaOutput::AlsaOutput() : OutputPlugin(), handle(NULL),mixer(NULL),mixer_element(NULL) {
+AlsaOutput::AlsaOutput() : OutputPlugin(), handle(NULL),mixer(NULL),mixer_element(NULL),can_pause(false),can_resume(false) {
   }
 
 AlsaOutput::~AlsaOutput() {
@@ -725,7 +728,7 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
     return true;
     }
 
-  if (!AlsaSetup::configure(handle,config,fmt,af)) {
+  if (!AlsaSetup::configure(handle,config,fmt,af,can_pause,can_resume)) {
     GM_DEBUG_PRINT("[alsa] error configuring device\n");
     af.reset();
     return false;
