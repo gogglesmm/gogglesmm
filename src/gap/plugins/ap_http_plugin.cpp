@@ -54,9 +54,18 @@ HttpInput::~HttpInput() {
 
 
 void HttpInput::check_headers() {
+#if FOXVERSION < FXVERSION(1,7,44)
   FXString * field = NULL;
   field = (FXString*) client.headers.find("icy-metaint");
   if (field) icy_count = icy_interval = field->toInt();
+#else
+  FXint p = client.headers.find("icy-metaint");
+  if (p!=-1) icy_count = icy_interval = client.headers.data(p).toInt();
+#endif
+
+
+
+
 
   HttpMediaType media;
   if (client.getContentType(media)) {
