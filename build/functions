@@ -3,7 +3,7 @@
 
 CFG="src/gmconfig.h"
 
-add_package_path()
+pkgconfig_add_path()
 {
   if [ -n "$PKG_CONFIG_PATH" ] ; then
     PKG_CONFIG_PATH="$1/lib/pkgconfig:$1/lib64/pkgconfig:$1/share/pkgconfig:$PKG_CONFIG_PATH"
@@ -493,14 +493,14 @@ check_gogglesmm()
     add_package "gl" "gl"
     if [ $? -eq 0 ] ; then
       EXTRA_LIBS="$EXTRA_LIBS -lGL"
-    fi      
+    fi
 
     add_package "glu" "glu"
     if [ $? -eq 0 ] ; then
       EXTRA_LIBS="$EXTRA_LIBS -lGLU"
-    fi 
-    
-    # Also add glew 
+    fi
+
+    # Also add glew
     add_required_package "glew" "glew"
   fi
 
