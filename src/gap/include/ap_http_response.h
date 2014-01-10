@@ -181,7 +181,7 @@ public:
 #if FOXVERSION < FXVERSION(1,7,44)
   FXDict       headers;           // Dictionary of all http headers
 #else
-  FXStringMap  headers;
+  FXStringDictionary  headers;
 #endif
 protected:
 
