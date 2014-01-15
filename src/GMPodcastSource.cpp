@@ -954,7 +954,7 @@ FXIMPLEMENT(GMPodcastSource,GMSource,GMPodcastSourceMap,ARRAYNUMBER(GMPodcastSou
 GMPodcastSource::GMPodcastSource() : db(NULL) {
   }
 
-GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : db(database),downloader(NULL) {
+GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(database),downloader(NULL) {
   FXASSERT(db);
   }
 

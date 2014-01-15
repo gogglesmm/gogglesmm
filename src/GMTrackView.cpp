@@ -1205,6 +1205,7 @@ void GMTrackView::setSortMethod(FXint def,FXbool reverse) {
     tracklist->setSortFunc(NULL);
     }
   else {
+    tracklist->setSortFunc(NULL);
     for (FXint i=0;i<columns.no();i++){
       if (columns[i].type==def) {
         tracklist->setSortMethod(columns[i].type);
@@ -1279,7 +1280,7 @@ void GMTrackView::loadSettings(const FXString & key) {
 
 
 
-  if (getApp()->reg().readBoolEntry(key.text(),"genre-list",false))
+  if (getApp()->reg().readBoolEntry(key.text(),"genre-list",source->defaultTags()))
     nvw|=VIEW_BROWSER_LEFT;
 
   shown = getApp()->reg().readBoolEntry(key.text(),"browser",source->defaultBrowse());

@@ -82,7 +82,9 @@ public:
 
   FXbool hasArtistList() const { return false; }
 
-  FXbool defaultBrowse() const { return false; }
+  FXbool defaultBrowse() const { return true; }
+  
+  FXbool defaultTags() const { return true; }
 
   FXbool autoPlay() const { return false; }
 

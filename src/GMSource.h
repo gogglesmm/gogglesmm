@@ -171,6 +171,8 @@ public:
 
   virtual FXbool defaultBrowse() const { return true; }
 
+  virtual FXbool defaultTags() const { return false; }
+
   virtual FXbool autoPlay() const { return true; }
 
   virtual FXbool hasArtistList() const { return true; }
