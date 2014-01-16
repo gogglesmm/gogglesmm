@@ -130,7 +130,7 @@ protected:
   GMTrack    trackinfo;
   FXbool     trackinfoset;
 protected:
-  FXbool hasSourceWithKey(const char * key) const;
+  FXbool hasSourceWithKey(const FXString & key) const;
   void cleanSourceSettings();
 public:
   static GMPlayerManager * instance();

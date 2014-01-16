@@ -147,8 +147,8 @@ protected:
 
 class GMAPI HttpMediaType : public HttpHeader {
 public:
-  FXString     mime;
-  FXStringDict parameters;
+  FXString           mime;
+  FXStringDictionary parameters;
 public:
   HttpMediaType();
   HttpMediaType(const FXString & str,FXuint opts=0);
@@ -177,12 +177,8 @@ protected:
   FXint        chunk_remaining;   // Remaining bytes left to read in chunk
   FXuchar      flags;             // Options flags used by parser
 public:
-  HttpStatus   status;            // Response Status. Valid after response() returns true
-#if FOXVERSION < FXVERSION(1,7,44)
-  FXDict       headers;           // Dictionary of all http headers
-#else
-  FXStringDictionary  headers;
-#endif
+  HttpStatus          status;     // Response Status. Valid after response() returns true
+  FXStringDictionary  headers;    // Dictionary of all headers
 protected:
 
   // Internal Parser Flags

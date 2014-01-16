@@ -1110,9 +1110,9 @@ FXbool GMPlayerManager::init_database(GMTrackDatabase * db){
   return true;
   }
 
-FXbool GMPlayerManager::hasSourceWithKey(const char * key) const{
+FXbool GMPlayerManager::hasSourceWithKey(const FXString & key) const{
   for (FXint i=0;i<sources.no();i++){
-    if (sources[i]->settingKey()==key)
+    if (key==sources[i]->settingKey())
       return true;
     }
   return false;
@@ -1123,8 +1123,8 @@ void GMPlayerManager::cleanSourceSettings() {
   FXint s;
   FXStringList keys;
 
-  for (s=application->reg().first();s<application->reg().size();s=application->reg().next(s)){
-    if (comparecase(application->reg().key(s),"database",8)==0){
+  for (s=0;s<application->reg().no();s++){    
+    if (!application->reg().empty(s) && comparecase(application->reg().key(s),"database",8)==0){
       if (!hasSourceWithKey(application->reg().key(s))) {
         keys.append(application->reg().key(s));
         }
@@ -1132,7 +1132,7 @@ void GMPlayerManager::cleanSourceSettings() {
     }
 
   for (s=0;s<keys.no();s++){
-    application->reg().deleteSection(keys[s].text());
+    application->reg().deleteSection(keys[s]);
     }
   }
 

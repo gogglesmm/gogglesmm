@@ -260,11 +260,11 @@ void GMPreferences::load(FXSettings & reg) {
   /// Remove Keys that interfere with new ones..
   if (reg.readIntEntry(section_app,"major-version",0)==0 && reg.readIntEntry(section_app,"minor-version",8)<9) {
     FXint s;
-    FXStringDict *dict;
-    for (s = reg.first(); s < reg.size(); s = reg.next(s)){
-      dict = reg.data(s);
-      dict->remove("browse-showcolumn-no");
-      dict->remove("list-showcolumn-no");
+    for (s = 0; s < reg.no(); s++){
+      if (!reg.empty(s)) {
+        reg.data(s).remove("browse-showcolumn-no");
+        reg.data(s).remove("list-showcolumn-no");
+        }
       }
     }
 

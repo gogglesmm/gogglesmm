@@ -205,8 +205,8 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
       if (parseQuotedString(str,p)==0)
         break;
 
-      parameters.insert(str.mid(ks,kp-ks).text(),
-                        unescape(str.mid(s,p-s),'\"','\"').text());
+      parameters.insert(str.mid(ks,kp-ks),
+                        unescape(str.mid(s,p-s),'\"','\"'));
       p++;
       }
     else {
@@ -214,8 +214,8 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
       if (parseToken(str,p)==0)
         break;
 
-      parameters.insert(str.mid(ks,kp-ks).text(),
-                        str.mid(s,p-s).text());
+      parameters.insert(str.mid(ks,kp-ks),
+                        str.mid(s,p-s));
       p++;
       }
     }
@@ -329,59 +329,25 @@ void HttpResponse::clear() {
 void HttpResponse::insert_header(const FXString & header) {
   FXString key   = header.before(':').lower();
   FXString value = header.after(':').trim();
-#if FOXVERSION < FXVERSION(1,7,44)
-  FXString * existing = (FXString*)headers.find(key.text());
-  if (existing) {
-    (*existing) += ", " + value;
-    }
-  else {
-    FXString * v = new FXString;
-    v->adopt(value);
-    headers.replace(key.text(),v);
-    }
-#else
   FXint p = headers.find(key);
   if (p!=-1)
     headers.data(p).append(","+value);
   else
     headers[key] = value;
-#endif
   }
 
 void HttpResponse::clear_headers() {
-#if FOXVERSION < FXVERSION(1,7,44)
-  for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
-    FXString * field = (FXString*) headers.data(pos);
-    delete field;
-    }
-#endif
   headers.clear();
   }
 
 void HttpResponse::check_headers() {
-#if FOXVERSION < FXVERSION(1,7,44)
-  FXString * field = NULL;
-
-  field = (FXString*) headers.find("content-length");
-  if (field)
-    content_length = content_remaining = field->toInt();
-
-  field = (FXString*) headers.find("transfer-encoding");
-  if (field && field->contains("chunked") )
-    flags|=ChunkedResponse;
-
-
-  if (status.major==1 && status.minor==1) {
-    field = (FXString*) headers.find("connection");
-    if (field!=NULL && field->contains("close"))
-      flags|=ConnectionClose;
+#ifdef DEBUG
+  fxmessage("Headers:\n");
+  for (FXint pos=0;pos<headers.no();pos++) {
+    if (!headers.key(pos).empty())
+      fxmessage("\t%s: %s\n",headers.key(pos).text(),headers.data(pos).text());
     }
-  else {
-    field = (FXString*) headers.find("connection");
-    if (field==NULL || field->lower().contains("Keep-Alive"))
-      flags|=ConnectionClose;
-    }
-#else
+#endif
   FXint p;
 
   p = headers.find("content-length");
@@ -399,25 +365,6 @@ void HttpResponse::check_headers() {
     if (headers["connection"].lower().contains("keep-alive"))
       flags|=ConnectionClose;
     }
-#endif
-
-
-
-#ifdef DEBUG
-#if FOXVERSION < FXVERSION(1,7,44)
-  fxmessage("Headers:\n");
-  for (FXint pos=headers.first();pos<=headers.last();pos=headers.next(pos)) {
-    fxmessage("\t%s: %s\n",headers.key(pos),((FXString*)headers.data(pos))->text());
-    }
-#else
-  fxmessage("Headers:\n");
-  for (FXint pos=0;pos<headers.no();pos++) {
-    if (!headers.key(pos).empty())
-      fxmessage("\t%s: %s\n",headers.key(pos).text(),headers.data(pos).text());
-    }
-
-#endif
-#endif
   }
 
 // Read a chunk header and set the chunksize
@@ -627,15 +574,7 @@ void HttpResponse::discard() {
   }
 
 FXString HttpResponse::getHeader(const FXString & key) const {
-#if FOXVERSION < FXVERSION(1,7,44)
-  FXString * value = (FXString*)headers.find(key.text());
-  if (value)
-    return (*value);
-  else
-    return FXString::null;
-#else
   return headers[key];
-#endif
   }
 
 
@@ -644,21 +583,11 @@ FXint HttpResponse::getContentLength() const {
   }
 
 FXbool HttpResponse::getContentType(HttpMediaType & media) const {
-#if FOXVERSION < FXVERSION(1,7,44)
-  const FXString * value = (const FXString*)headers.find("content-type");
-  return (value && media.parse(*value));
-#else
   return media.parse(headers["content-type"]);
-#endif
   }
 
 FXbool HttpResponse::getContentRange(HttpContentRange & range) const {
-#if FOXVERSION < FXVERSION(1,7,44)
-  const FXString * value = (const FXString*)headers.find("content-range");
-  return (value && range.parse(*value));
-#else
   return range.parse(headers["content-range"]);
-#endif
   }
 
 
