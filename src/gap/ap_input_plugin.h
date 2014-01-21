@@ -28,32 +28,30 @@ enum {
   AP_IO_BLOCK = -2  // nothing available
   };
 
+
+
 class InputPlugin {
 protected:
-  InputThread*  input;
-  MemoryBuffer  buffer;
+  InputThread * input;
 private:
   InputPlugin(const InputPlugin&);
   InputPlugin &operator=(const InputPlugin&);
 protected:
-  virtual FXival        io_read(void*,FXival)=0;
-  virtual FXival        io_read_block(void*,FXival);
-  virtual FXival        io_write(const void*,FXival) { return -1; }
-  virtual FXival        io_write_block(const void*,FXival);
-  virtual FXival        io_buffer(FXival);
-  FXbool                io_wait_read();
-  FXbool                io_wait_write();
-  virtual FXInputHandle io_handle() const { return BadHandle; }
-protected:
-  InputPlugin(InputThread*,FXival size);
 public:
   InputPlugin(InputThread*);
 
+  FXbool read_uint32_be(FXuint &);
+  FXbool read_int32_be(FXint &);
+
+  FXbool read_int16_be(FXshort&);
+  FXbool read_uint16_be(FXushort&);
+
+
   /// Read ncount bytes, returns -1 for error, -2 for interrupted
-  virtual FXival read(void*data,FXival ncount);
+  virtual FXival read(void*data,FXival ncount) = 0;
 
   //// Read ncount preview bytes. Position of stream doesn't change
-  virtual FXival preview(void*data,FXival ncount);
+  virtual FXival preview(void*data,FXival ncount) = 0;
 
   /// Set Position
   virtual FXlong position(FXlong offset,FXuint from)=0;
@@ -76,7 +74,6 @@ public:
   /// Destructor
   virtual ~InputPlugin();
   };
-
 
 
 }

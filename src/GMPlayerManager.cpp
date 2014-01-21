@@ -202,7 +202,7 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
 
 
 DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessage * msg,void * data){
-  FXchar * mrl;
+  FXchar * url;
   GMPlayerManager * p = (GMPlayerManager*)data;
   if (dbus_message_has_path(msg,GOGGLESMM_DBUS_PATH)){
     if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"play")){
@@ -230,8 +230,8 @@ DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessa
       return gm_dbus_reply_if_needed(connection,msg);
       }
     else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"open")){
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&mrl,DBUS_TYPE_INVALID)) {
-        p->open(mrl);
+      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&url,DBUS_TYPE_INVALID)) {
+        p->open(url);
         }
       return gm_dbus_reply_if_needed(connection,msg);
       }
@@ -435,6 +435,7 @@ GMPlayerManager* GMPlayerManager::instance() {
 /// Constructor
 GMPlayerManager::GMPlayerManager() :
   count_track_remaining(0),
+  scheduled_stop(false),
   taskmanager(NULL),
 #ifdef HAVE_DBUS
   sessionbus(NULL),
@@ -578,7 +579,6 @@ FXbool GMPlayerManager::init_sources() {
 
   // Make sure we can open it.
   if (!init_database(database)) {
-    delete database;
     return false;
     }
 
@@ -1111,9 +1111,9 @@ FXbool GMPlayerManager::init_database(GMTrackDatabase * db){
   return true;
   }
 
-FXbool GMPlayerManager::hasSourceWithKey(const char * key) const{
+FXbool GMPlayerManager::hasSourceWithKey(const FXString & key) const{
   for (FXint i=0;i<sources.no();i++){
-    if (sources[i]->settingKey()==key)
+    if (key==sources[i]->settingKey())
       return true;
     }
   return false;
@@ -1124,8 +1124,8 @@ void GMPlayerManager::cleanSourceSettings() {
   FXint s;
   FXStringList keys;
 
-  for (s=application->reg().first();s<application->reg().size();s=application->reg().next(s)){
-    if (comparecase(application->reg().key(s),"database",8)==0){
+  for (s=0;s<application->reg().no();s++){    
+    if (!application->reg().empty(s) && comparecase(application->reg().key(s),"database",8)==0){
       if (!hasSourceWithKey(application->reg().key(s))) {
         keys.append(application->reg().key(s));
         }
@@ -1133,7 +1133,7 @@ void GMPlayerManager::cleanSourceSettings() {
     }
 
   for (s=0;s<keys.no();s++){
-    application->reg().deleteSection(keys[s].text());
+    application->reg().deleteSection(keys[s]);
     }
   }
 
@@ -1165,7 +1165,7 @@ void GMPlayerManager::open(const FXString & url) {
     source=NULL;
     }
 
-  trackinfo.mrl = url;
+  trackinfo.url = url;
 
   if (gm_is_local_file(url)) {
     FXint id;
@@ -1176,12 +1176,12 @@ void GMPlayerManager::open(const FXString & url) {
       }
     else {
       trackinfoset = trackinfo.loadTag(url);
-      getTrackView()->mark(-1);
+      getTrackView()->setActive(-1);
       }
     }
   else {
     trackinfoset=false;
-    getTrackView()->mark(-1);
+    getTrackView()->setActive(-1);
     }
   player->open(url,true);
   }
@@ -1190,6 +1190,9 @@ void GMPlayerManager::open(const FXString & url) {
 
 void GMPlayerManager::playItem(FXuint whence) {
   FXint track=-1;
+
+  // Any scheduled stops should be cancelled
+  scheduled_stop = false;
 
   /// Remove Current Timeout
   if (source) {
@@ -1224,9 +1227,9 @@ void GMPlayerManager::playItem(FXuint whence) {
     }
 
   if (source) {
-    getTrackView()->mark(track);
+    getTrackView()->setActive(track);
     trackinfoset = source->getTrack(trackinfo);
-    player->open(trackinfo.mrl,true);
+    player->open(trackinfo.url,true);
     }
   else {
     player->stop();
@@ -1237,6 +1240,9 @@ void GMPlayerManager::playItem(FXuint whence) {
 
 
 void GMPlayerManager::stop(FXbool /*force_close*/) {
+
+  // Any scheduled stops should be cancelled
+  scheduled_stop = false;
 
   /// Reset Source
   if (source) {
@@ -1260,6 +1266,10 @@ void GMPlayerManager::seek(FXdouble pos) {
 
 
 void GMPlayerManager::pause() {
+
+  // Any scheduled stops should be cancelled
+  scheduled_stop = false;
+
   if (preferences.play_pause_close_device){
     player->pause();
     }
@@ -1295,6 +1305,10 @@ void GMPlayerManager::notify_playback_finished() {
   FXString filename;
   FXint track=-1;
 
+  // Check whether playback should be stopped and reset flag
+  FXbool stop_playback = scheduled_stop;
+  scheduled_stop=false;
+
   if (queue) {
 
     /// Reset Source
@@ -1303,6 +1317,7 @@ void GMPlayerManager::notify_playback_finished() {
      source=NULL;
      }
 
+    //FIXME handle stop_playback
     track = queue->getNext();
     if (track==-1) {
       source = NULL;
@@ -1314,7 +1329,6 @@ void GMPlayerManager::notify_playback_finished() {
      return;
      }
 
-
     trackinfoset = queue->getTrack(trackinfo);
     }
   else {
@@ -1323,9 +1337,8 @@ void GMPlayerManager::notify_playback_finished() {
     if (source==NULL)
       return;
 
-
     /// Can we just start playback without user interaction
-    if (!getTrackView()->getSource()->autoPlay()) {
+    if (!getTrackView()->getSource()->autoPlay() || stop_playback) {
 
       /// Reset Source
       if (source) {
@@ -1343,7 +1356,7 @@ void GMPlayerManager::notify_playback_finished() {
       }
 
     if (preferences.play_repeat==REPEAT_TRACK)
-      track = getTrackView()->getCurrent();
+      track = getTrackView()->getActive();
     else
       track = getTrackView()->getNext();
 
@@ -1351,14 +1364,15 @@ void GMPlayerManager::notify_playback_finished() {
       reset_track_display();
       return;
       }
-//(remaining<=0)
-    getTrackView()->mark(track,false);
+
+    // FIXME only does source->markCurrent
+    getTrackView()->setActive(track,false);
 
     source = getTrackView()->getSource();
     trackinfoset = source->getTrack(trackinfo);
     }
 
-  player->open(trackinfo.mrl,false);
+  player->open(trackinfo.url,false);
   }
 
 FXbool GMPlayerManager::playing() const {
@@ -1385,11 +1399,10 @@ void GMPlayerManager::reset_track_display() {
   if (trayicon) trayicon->reset();
 
   /// Reset Active Track
-  getTrackView()->mark(-1);
+  getTrackView()->setActive(-1);
 
   /// Remove Notify
   application->removeTimeout(this,ID_PLAY_NOTIFY);
-
 
 #ifdef HAVE_DBUS
   if (notifydaemon && preferences.dbus_notify_daemon)
@@ -1414,7 +1427,7 @@ void GMPlayerManager::setStatus(const FXString & text){
   }
 
 void GMPlayerManager::update_cover_display() {
-  if (preferences.gui_show_playing_albumcover && covermanager->load(trackinfo.mrl)) {
+  if (preferences.gui_show_playing_albumcover && covermanager->load(trackinfo.url)) {
     mainwindow->update_cover_display();
     }
   }
@@ -1647,6 +1660,19 @@ void GMPlayerManager::cmd_pause(){
     pause();
   else if (can_unpause())
     unpause();
+  }
+
+void GMPlayerManager::cmd_schedule_stop(){
+  if (scheduled_stop==false) {
+    if (can_stop()) {
+      GM_DEBUG_PRINT("enable scheduled stop\n");
+      scheduled_stop=true;
+      }
+    }
+  else {
+    GM_DEBUG_PRINT("disable scheduled stop\n");
+    scheduled_stop=false;
+    }
   }
 
 void GMPlayerManager::cmd_stop(){

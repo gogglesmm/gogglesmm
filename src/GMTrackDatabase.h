@@ -84,6 +84,7 @@ public:
 private: /// Called from init()
   FXbool init_database();
   FXbool init_queries();
+  void   init_index();
 protected:
 
   FXbool reorderPlaylists();
@@ -271,6 +272,9 @@ public:
   /// Set Track Tags
   void setTrackTags(const FXIntList & ids,const FXStringList & tags);
 
+  /// Update Album Year for tracks
+  void updateAlbumYear(const FXIntList & ids);
+
 
   ///=======================================================================================
   /// Play Lists
@@ -326,6 +330,7 @@ public:
   ///  Sync API
   ///=======================================================================================
   void sync_tracks_removed();
+  void sync_album_year();
 
   void initArtistLookup();
 

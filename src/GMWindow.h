@@ -26,6 +26,8 @@ class GMIconTheme;
 class GMPreferencesDialog;
 class GMImageView;
 class GMCover;
+class GMAnimImage;
+class GMPresenter;
 
 enum {
   SHOW_NORMAL,
@@ -66,9 +68,10 @@ private:
   GMSourceView      * sourceview;
   FXHorizontalFrame * statusframe;
   GMCoverFrame      * coverframe;
+#ifdef HAVE_OPENGL
   GMImageView       * coverview_gl;
+#endif
   FXImageFrame      * coverview_x11;
-  FXGLVisual        * glvisual;
   FXToggleButton    * playpausebutton;
   FXButton          * stopbutton;
   FXButton          * nextbutton;
@@ -86,7 +89,9 @@ private:
   FXHorizontalFrame * progressbar;
   FXLabel           * progressbar_label;
   FXHorizontalFrame * progressbar_cancelbutton;
+  GMAnimImage       * progressbar_animation;
   GMRemote          * remote;
+  GMPresenter       * presenter;
 private:
   void configureToolbar(FXbool docktop,FXbool init=false);
   void configureStatusbar(FXbool show);
@@ -118,6 +123,7 @@ public: /// Message Handlers
   long onCmdShowBrowser(FXObject*,FXSelector,void*);
   long onCmdShowMiniPlayer(FXObject*,FXSelector,void*);
   long onUpdShowMiniPlayer(FXObject*,FXSelector,void*);
+  long onCmdShowPresenter(FXObject*,FXSelector,void*);
 
   long onCmdPlayPause(FXObject*,FXSelector,void*);
   long onUpdPlayPause(FXObject*,FXSelector,void*);
@@ -126,6 +132,7 @@ public: /// Message Handlers
   long onUpdPlay(FXObject*,FXSelector,void*);
   long onCmdPause(FXObject*,FXSelector,void*);
   long onUpdPause(FXObject*,FXSelector,void*);
+  long onCmdScheduleStop(FXObject*,FXSelector,void*);
   long onCmdStop(FXObject*,FXSelector,void*);
   long onUpdStop(FXObject*,FXSelector,void*);
   long onCmdNext(FXObject*,FXSelector,void*);
@@ -176,6 +183,7 @@ public:
     ID_PLAYPAUSE,
     ID_PLAYPAUSEMENU,
     ID_STOP,
+    ID_SCHEDULE_STOP,
     ID_NEXT,
     ID_PREV,
 
@@ -209,6 +217,7 @@ public:
     ID_SHOW_SOURCES,
     ID_SHOW_MINIPLAYER,
     ID_SHOW_BROWSER,
+    ID_SHOW_PRESENTER,
 
     ID_OPEN_DIR,
 
@@ -251,6 +260,9 @@ public:
 
   void showRemote();
   void hideRemote();
+  void showPresenter();
+  void hidePresenter();
+
   void init(FXuint);
   void toggleShown();
 

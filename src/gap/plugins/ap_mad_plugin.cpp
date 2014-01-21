@@ -185,7 +185,6 @@ protected:
 public:
   mpeg_frame() : header(0) {}
 
-
 #define PRINT_YES_NO(x) (x ? "yes" : "no")
 
   void debug() {
@@ -479,12 +478,6 @@ public:
   };
 
 LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), padend(0), length(0) {
-  FXuchar revision = (*(buffer+9))>>4;
-  FXuchar vbr_methed = (*(buffer+9))&0xf;
-
-  FXint lowpass = (*(buffer+10)) * 100;
-
-
   FXfloat peak = INT32_BE(buffer+11);
 
   replaygain.album_peak = peak;
@@ -492,22 +485,25 @@ LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), 
   replaygain.track      = parse_replay_gain(buffer+15);
   replaygain.album      = parse_replay_gain(buffer+17);
 
-
-  FXuchar encoding_flags = (*(buffer+19))>>4;
-  FXuchar lame_type = (*(buffer+19))&0xf;
-
 //   FXuchar bitrate = (*(buffer+21));
 
   padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
   padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
 
-  FXuchar misc = (*(buffer+25));
 
 //   FXuchar mp3gain = (*(buffer+25));
 //   FXushort surround = INT16_BE(buffer+26);
   length = INT32_BE(buffer+28);
 
 #ifdef DEBUG
+  FXuchar revision = (*(buffer+9))>>4;
+  FXuchar vbr_methed = (*(buffer+9))&0xf;
+  FXint lowpass = (*(buffer+10)) * 100;
+  FXuchar encoding_flags = (*(buffer+19))>>4;
+  FXuchar lame_type = (*(buffer+19))&0xf;
+  FXuchar misc = (*(buffer+25));
+
+
   fxmessage("Lame Info:\n");
   fxmessage("\t      revision: %d\n",revision);
   fxmessage("\t    vbr_method: %d\n",vbr_methed);
@@ -717,7 +713,7 @@ FXbool MadReader::seek(FXdouble pos) {
     FXlong offset = 0;
     if (xing) {
       offset = xing->seek(pos,(input_end - input_start));
-      GM_DEBUG_PRINT("offset: %ld\n",offset);
+      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",pos,offset);
       if (offset==-1) return false;
       stream_position = stream_length * pos;
       }
@@ -770,11 +766,13 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
     input_start = input_start + frame.size(); // start at next frame.
     if (xing) {
       stream_length = xing->nframes * frame.nsamples();
+      GM_DEBUG_PRINT("[mad_reader] xing stream length %ld\n",stream_length);
       if (input_end==-1 || (xing->nbytes>0 && input_start+xing->nbytes<=input_end))
         input_end = input_start+xing->nbytes;
       }
     else if (vbri) {
       stream_length = vbri->nframes * frame.nsamples();
+      GM_DEBUG_PRINT("[mad_reader] vbri stream length %ld\n",stream_length);
       if (input_end==-1 || (vbri->nbytes>0 && input_start+vbri->nbytes<=input_end))
         input_end = input_start+vbri->nbytes;
       }
@@ -782,16 +780,18 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
       GM_DEBUG_PRINT("[mad_reader] only lame header found\n");
       }
 
-    if (lame) {
-      GM_DEBUG_PRINT("[mad_reader] lame adjusting stream length by -%d frames \n",(lame->padstart + lame->padend));
-      stream_length -= (lame->padstart + lame->padend);
-      }
+    //if (lame) {
+    //  GM_DEBUG_PRINT("[mad_reader] lame adjusting stream length by -%d frames \n",(lame->padstart + lame->padend));
+    //  stream_length -= (lame->padstart + lame->padend);
+    //  }
 
     }
   else {
     bitrate = frame.bitrate();
-    if (bitrate>0)
+    if (bitrate>0 && input_end>input_start) {
       stream_length =  (FXlong)frame.samplerate() * ((input_end-input_start) / (bitrate / 8) );
+      GM_DEBUG_PRINT("[mad_reader] estimated stream length %ld\n",stream_length);
+      }
     }
   }
 
@@ -871,7 +871,7 @@ FXbool MadReader::parse_ape() {
     if (ape_version==2000) {
       if (ape_flags&APE_HEADER) {
         /// We expect a footer
-        GM_DEBUG_PRINT("mad_input: found ape tag header but expected a footer?\n");
+        GM_DEBUG_PRINT("[mad_reader] found ape tag header but expected a footer?\n");
         }
       else {
         if (ape_flags&APE_CONTAINS_HEADER)
@@ -933,9 +933,9 @@ FXbool MadReader::parse_lyrics() {
   if (input->read(buf,9)!=9)
     return false;
 
-  if (comparecase(buf,"LYRICS200",9)==0){    
+  if (comparecase(buf,"LYRICS200",9)==0){
     input->position(input_end-15,FXIO::Begin);
-    if (input->read(buf,6)!=6)    
+    if (input->read(buf,6)!=6)
       return false;
 
     FXint size = FXString(buf,6).toInt();
@@ -1021,15 +1021,18 @@ ReadStatus MadReader::parse(Packet * packet) {
       buffer[0]=buffer[1];
       buffer[1]=buffer[2];
       buffer[2]=buffer[3];
-      if (input->read(&buffer[3],1)!=1)
+      if (input->read(&buffer[3],1)!=1){
         return ReadError;
+        }
       }
     else {
-      if (input->read(buffer,4)!=4)
+      if (input->read(buffer,4)!=4){
         return ReadError;
+        }
       }
 
     if (frame.validate(buffer)) {
+
 
       /// Success if we're able to fill up the packet!
       if (frame.size()>packet->space()) {
@@ -1061,13 +1064,10 @@ ReadStatus MadReader::parse(Packet * packet) {
         return ReadOk;
         }
 
+      /// Mark this frame as start of our file.
       if (!found) {
-        /// Mark this frame as start of our file.
         input_start = input->position() - 4;
-        if (!input->serial())
-          input_end = input->size();
-        else
-          input_end = -1;
+        input_end   = input->size();
         }
 
       readFrame(packet,frame);
@@ -1075,12 +1075,12 @@ ReadStatus MadReader::parse(Packet * packet) {
       if (!found) {
 
         if (!input->serial()) {
-      
+
           if (!parse_id3v1())
             return ReadError;
 
-          /* 
-             It's unspecified whether the lyrics frame comes 
+          /*
+             It's unspecified whether the lyrics frame comes
              before or after the ape frame, so check both
           */
           if (!parse_lyrics())
@@ -1148,52 +1148,76 @@ ReadStatus MadReader::process(Packet*packet) {
 
   while(1) {
     if (frame.validate(buffer)) {
-
       lostsync=false;
-
-      if (frame.size()>packet->space())
-        goto done;
+      if (frame.size()>packet->space()) goto done;
 
       memcpy(packet->ptr(),buffer,4);
       nread = input->read(packet->ptr()+4,frame.size()-4);
       if (nread!=(frame.size()-4)) {
-        GM_DEBUG_PRINT("[mad_reader] truncated frame at end of input.");
-        packet->flags|=FLAG_EOS;
-        status=ReadDone;
-        goto done;
+        GM_DEBUG_PRINT("[mad_reader] truncated frame\n");
+        /*
+           It's not too uncommon to find truncated frames at the end
+           of a file, perhaps caused by buggy tagging software overwriting
+           the last 128 bytes or something else.
+        */
+        goto error_or_eos;
         }
       packet->wroteBytes(frame.size());
       stream_position+=frame.nsamples();
-      if (input->read(buffer,4)!=4){
-        packet->flags|=FLAG_EOS;
-        status=ReadDone;
-        goto done;
-        }
-      continue;
+      if (input->read(buffer,4)!=4)
+        goto error_or_eos;
       }
     else {
+
+
       if (lostsync==false) {
         lostsync=true;
         GM_DEBUG_PRINT("[mad_reader] lost frame sync\n");
+
+        if (input_end>0) {
+          /*
+              Check if we're past the end of stream
+          */
+          if (input->position()>input_end) {
+            GM_DEBUG_PRINT("[mad_reader] past end of stream\n");
+            packet->flags|=FLAG_EOS;
+            status=ReadDone;
+            goto done;
+            }
+
+          /*
+              Check for id3 tag. We may not have found this one
+              if a (broken) file contains multiple id3 tags.
+          */
+          if (buffer[0]=='T' && buffer[1]=='A' && buffer[2]=='G') {
+            GM_DEBUG_PRINT("[mad_reader] found ID3 tag. Assume end of stream\n");
+            packet->flags|=FLAG_EOS;
+            status=ReadDone;
+            goto done;
+            }
+          }
         }
       if (buffer[0]==0 && buffer[1]==0 && buffer[2]==0 && buffer[3]==0) {
-        if (input->read(buffer,4)!=4){
-          packet->flags|=FLAG_EOS;
-          status=ReadDone;
-          goto done;
-          }
+        if (input->read(buffer,4)!=4) goto error_or_eos;
         }
       else {
         buffer[0]=buffer[1];
         buffer[1]=buffer[2];
         buffer[2]=buffer[3];
-        if (input->read(&buffer[3],1)!=1){
-          packet->flags|=FLAG_EOS;
-          status=ReadDone;
-          goto done;
-          }
+        if (input->read(&buffer[3],1)!=1) goto error_or_eos;
         }
       }
+    }
+
+
+error_or_eos:
+  packet->flags|=FLAG_EOS;
+  if (input_end>0 && input->position()>=input_end) {
+    GM_DEBUG_PRINT("[mad_reader] end of stream\n");
+    status=ReadDone;
+    }
+  else {
+    status=ReadError;
     }
 done:
   if (packet->size() || packet->flags&FLAG_EOS)
@@ -1375,15 +1399,25 @@ DecoderStatus MadDecoder::process(Packet*in){
   FXASSERT(in);
 
   FXint p,s,n;
+  FXint max_samples=0;  // maximum number of samples to writr
+  FXint max_frames=0;   // maximum frames to decode
+  FXint total_frames=0; // frames in buffer
+
+
+
+  FXint nframes;
   FXuint streamid=in->stream;
   FXlong stream_length=in->stream_length;
   FXbool eos=(in->flags&FLAG_EOS);
 
+
+  // Update the buffer
   if (in->size() || eos){
     if (in->size()) {
       if (buffer.size()) {
-        if (stream.next_frame!=NULL)
+        if (stream.next_frame!=NULL) {
           buffer.setReadPosition(stream.next_frame);
+          }
         }
       else {
         stream_position=in->stream_position;
@@ -1393,36 +1427,45 @@ DecoderStatus MadDecoder::process(Packet*in){
     if (eos) buffer.append((FXchar)0,MAD_BUFFER_GUARD);
     mad_stream_buffer(&stream,buffer.data(),buffer.size());
     }
+  in->unref();
 
-
+  // Nothing to see here
   if (buffer.size()==0) {
     GM_DEBUG_PRINT("[mad_decoder] empty buffer, nothing to decode\n");
     return DecoderOk;
     }
 
+  // Get sample and frame count
+  mpeg_frame mf;
+  FXuchar * beg = buffer.data();
+  FXuchar * end = beg + buffer.size();
+  while(mf.validate(beg) && beg<end) {
+    beg+=mf.size();
+    total_frames++;
+    if (max_samples>stream_offset_end) max_frames++;
+    max_samples+=mf.nsamples();
+    }
+
+  // Adjust for end of stream
+  if (eos) {
+    GM_DEBUG_PRINT("[mad_decoder] stream offset end %hd. max_samples from %d to %d\n",stream_offset_end,max_samples,max_samples-stream_offset_end);
+    max_frames=total_frames;
+    max_samples-=stream_offset_end;
+    }
+
   stream.error=MAD_ERROR_NONE;
+  while(max_frames>0 && max_samples>0) {
 
-  in->unref();
-
-  do {
-
-    /// Decode a frame
+    // Decode a frame
     if (mad_frame_decode(&frame,&stream)) {
       if (MAD_RECOVERABLE(stream.error)) {
+        GM_DEBUG_PRINT("[mad_decoder] %s\n",mad_stream_errorstr(&stream));
         continue;
         }
-      else if(stream.error==MAD_ERROR_BUFLEN) {
+      else if (stream.error==MAD_ERROR_BUFLEN){
         if (eos) {
-          GM_DEBUG_PRINT("[mad_decoder] post end of stream %d\n",streamid);
-          if (out && out->numFrames()) {
-             if (stream_offset_end) {
-              FXASSERT(out->numFrames()>=stream_offset_end); // FIXME
-              out->trimFrames(FXMIN(out->numFrames(),stream_offset_end));
-              }
-             engine->output->post(out);
-             out=NULL;
-             }
-          engine->output->post(new ControlEvent(End,streamid));
+          GM_DEBUG_PRINT("[mad_decoder] unexpected end of stream (max_frames %d and max_samples %d)\n",max_frames,max_samples);
+          goto done;
           }
         return DecoderOk;
         }
@@ -1432,38 +1475,39 @@ DecoderStatus MadDecoder::process(Packet*in){
         }
       }
 
+    // Access PCM
     mad_synth_frame(&synth,&frame);
+    mad_fixed_t * left  = synth.pcm.samples[0];
+    mad_fixed_t * right = synth.pcm.samples[1];
 
-    frame_counter++;
-
+    // Not sure what to do here...
     if (frame.header.samplerate!=af.rate) {
       GM_DEBUG_PRINT("[mad_decoder] sample rate changed: %d->%d \n",af.rate,frame.header.samplerate);
       }
 
+    // Prevent from writing to many samples..
+    nframes=FXMIN(synth.pcm.length,max_samples);
 
-    FXint nframes=synth.pcm.length;
-    if (nframes==0)  { GM_DEBUG_PRINT("[mad_decoder] nframes == 0 ?\n"); continue; }
-
-    mad_fixed_t * left  = synth.pcm.samples[0];
-    mad_fixed_t * right = synth.pcm.samples[1];
-
-    if (stream_position==0) {
-      left+=stream_offset_start;
-      right+=stream_offset_start;
-      nframes-=stream_offset_start;
-      GM_DEBUG_PRINT("[mad_decoder] skipping %d frames\n",stream_offset_start);
+    // Adjust for beginning of stream
+    if (stream_position<stream_offset_start) {
+      FXlong offset = stream_offset_start - stream_position;
+      GM_DEBUG_PRINT("[mad_decoder] stream offset start %hd. Skip %ld at %ld\n",stream_offset_start,offset,stream_position);
+      nframes-=offset;
+      left+=offset;
+      right+=offset;
+      stream_position+=offset;
       }
 
-
-    do {
+    // Write samples from this frame
+    while(nframes>0) {
 
       // Get new buffer
       if (out==NULL) {
         out = engine->decoder->get_output_packet();
         if (out==NULL) return DecoderInterrupted; // FIXME
         out->af=af;
-        out->stream_position=stream_position;
-        out->stream_length=stream_length;
+        out->stream_position=stream_position-stream_offset_start;
+        out->stream_length=stream_length-stream_offset_start-stream_offset_end;
         }
 
       n = FXMIN(out->availableFrames(),nframes);
@@ -1504,16 +1548,18 @@ DecoderStatus MadDecoder::process(Packet*in){
         out=NULL;
         }
       }
-    while(nframes);
+    max_samples-=synth.pcm.length;
+    max_frames--;
     }
-  while(1);
 
-
-
-
-  if (eos && out) {
-    engine->output->post(out);
-    out=NULL;
+done:
+  if (eos) {
+    if (out) {
+      engine->output->post(out);
+      out=NULL;
+      }
+    GM_DEBUG_PRINT("[mad_decoder] end of stream %d\n",streamid);
+    engine->output->post(new ControlEvent(End,streamid));
     }
   return DecoderOk;
   }

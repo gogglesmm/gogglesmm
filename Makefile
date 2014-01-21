@@ -56,6 +56,10 @@ install: $(GMM_NAME) $(GAP_ALL_PLUGINS)
 	@echo "    Installing $(sharedir)/applications/gogglesmm.desktop"
 	@$(INSTALL) -D -m 644 extra/gogglesmm.desktop $(sharedir)/applications/gogglesmm.desktop
 
+	@echo "    Installing $(sharedir)/gogglesmm/utils"
+	@$(INSTALL) -D -m 644 extra/import_banshee_stats.py $(sharedir)/gogglesmm/utils/import_banshee_stats.py
+	@$(INSTALL) -D -m 644 extra/import_gogglesmm12_stats.py $(sharedir)/gogglesmm/utils/import_gogglesmm12_stats.py
+
 # install nls if needed
 ifneq (,$(findstring nls,$(OPTIONS)))
 	@$(foreach tr,$(filter $(TRANSLATIONS),$(LINGUAS)),echo "    Installing $(localefile) ..." ;$(INSTALL) -m 644 -D po/$(tr).mo $(localefile); )
@@ -66,7 +70,7 @@ endif
 	@$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(sharedir)/icons/hicolor/22x22/apps/gogglesmm.png
 	@$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(sharedir)/icons/hicolor/24x24/apps/gogglesmm.png
 	@$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(sharedir)/icons/hicolor/32x32/apps/gogglesmm.png
-	@$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(sharedir)icons/hicolor/48x48/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(sharedir)/icons/hicolor/48x48/apps/gogglesmm.png
 	@$(INSTALL) -m 644 -D extra/gogglesmm.svg $(sharedir)/icons/hicolor/scalable/apps/gogglesmm.svg
 	@echo "    Done."
 

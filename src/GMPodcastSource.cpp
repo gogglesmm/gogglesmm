@@ -73,6 +73,8 @@ struct FeedLink {
   FXString url;
   };
 
+#ifndef HAVE_EXPAT
+
 class HtmlFeedParser : public HtmlParser{
 public:
   enum {
@@ -138,6 +140,7 @@ public:
     }
   };
 
+#endif
 //-----------------------------------------------------------------------------
 
 
@@ -153,14 +156,19 @@ void unescape_html(FXString & value) {
 
 
 void parse_duration(const FXString & value,FXuint & d) {
+  //fxmessage("duration %s\n",value.text());
   FXint n = value.contains(":");
   FXint hh=0,mm=0,ss=0;
   switch(n) {
     case 2: value.scan("%d:%d:%d",&hh,&mm,&ss); break;
     case 1: value.scan("%d:%d",&mm,&ss); break;
     case 0: value.scan("%d",&ss); break;
+    default: fxmessage("oops\n"); break;
     };
+  //fxmessage("%d %d %d\n",hh,mm,ss);
   d=(hh*3600)+(mm*60)+ss;
+  if (d==0)
+    fxmessage("rss duration was 0: %s\n",value.text());
   }
 
 
@@ -430,7 +438,7 @@ public:
       GMPlayerManager::instance()->getTrackView()->refresh();
       }
     else {
-      fxmessage("OOPS %d\n",code);
+      GM_DEBUG_PRINT("No feed found code %d\n",code);
       }
 
 
@@ -462,6 +470,50 @@ public:
     return -1;
     }
 
+
+
+#ifdef HAVE_EXPAT
+  FXbool findFeedLink(const FXString & html,FXArray<FeedLink> & links) {
+    FXRex link("<link[^>]*>",FXRex::IgnoreCase|FXRex::Normal);
+    FXRex attr("\\s+(\\l\\w*)(?:\\s*=\\s*(?:([\'\"])(.*?)\\2|([^\\s\"\'>]+)))?",FXRex::Capture);
+
+    FXint b[5],e[5],f=0;
+    while(link.match(html,b,e,FXRex::Forward,1,f)){
+      f=e[0];
+
+      FeedLink feed;
+      FXString mimetype;
+      FXString mlink = html.mid(b[0],e[0]-b[0]);
+
+
+      FXint ff=0;
+      while(attr.match(mlink,b,e,FXRex::Forward,5,ff)){
+        if (b[1]>=0) {
+          if (e[1]-b[1]==4) {
+            if (comparecase(&mlink[b[1]],"type",4)==0) {
+              mimetype = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
+              GM_DEBUG_PRINT("mimetype=%s\n",mimetype.text());
+              }
+            else if (comparecase(&mlink[b[1]],"href",4)==0) {
+              feed.url = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
+              GM_DEBUG_PRINT("href=%s\n",feed.url.text());
+              }
+            }
+          else if (e[1]-b[1]==5 && comparecase(&mlink[b[1]],"title",5)==0) {
+            feed.description = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
+            }
+          }
+        ff=e[0];
+        }
+      if (comparecase(mimetype,"application/rss+xml")==0 && !feed.url.empty()) {
+        links.append(feed);
+        }
+      }
+    return (links.no()>0);
+    }
+#endif
+
+
   FXint run() {
     HttpClient client;
 
@@ -470,12 +522,17 @@ public:
       if (!client.basic("GET",url))
         break;
 
-      FXString content = client.getHeader("content-type").before(';');
-      if (comparecase(content,"application/rss+xml")==0 || comparecase(content,"text/xml")==0) {
+      HttpMediaType media;
+
+      if (!client.getContentType(media))
+        break;
+
+      if (comparecase(media.mime,"application/rss+xml")==0 || comparecase(media.mime,"text/xml")==0) {
         rss.parse(client.body());
         return 0;
         }
-      else if (comparecase(content,"text/html")==0) {
+      else if (comparecase(media.mime,"text/html")==0) {
+#ifndef HAVE_EXPAT
         HtmlFeedParser html;
         html.parse(client.body());
         client.close();
@@ -489,6 +546,19 @@ public:
           url=uri;
           continue;
           }
+#else
+        FXArray<FeedLink> links;
+        if (findFeedLink(client.body(),links)) {
+          FXint index = select_feed(links);
+          if (index==-1) return 1;
+          FXString uri = links[index].url;
+          if (uri[0]=='/') {
+            uri = FXURL::scheme(url) + "://" +FXURL::host(url) + uri;
+            }
+          url=uri;
+          continue;
+          }
+#endif
         }
       break;
       }
@@ -515,17 +585,19 @@ FXDECLARE(GMDownloader)
 protected:
   FXbool download(const FXString & url,const FXString & filename,FXbool resume=true) {
     HttpClient http;
+    HttpContentRange range;
     FXFile     file;
     FXString   headers;
     FXuint     mode   = FXIO::Writing;
     FXlong     offset = 0;
 
     if (FXStat::exists(filename) && resume) {
-      fxmessage("file exists trying resume");
+      fxmessage("file %s exists trying resume\n",filename.text());
       mode    = FXIO::ReadWrite|FXIO::Append;
       offset  = FXStat::size(filename);
       if (offset>0) {
-        headers = FXString::value("Range: bytes=%ld-\r\nIf-Range: %s\r\n",offset,gm_rfc1123(FXStat::modified(filename)).text());
+        /// %lld for FOX is FXlong on 32bit and 64bit so ignore any formating warnings.
+        headers = FXString::value("Range: bytes=%lld-\r\nIf-Range: %s\r\n",offset,gm_rfc1123(FXStat::modified(filename)).text());
         fxmessage("%s\n",headers.text());
         }
       }
@@ -536,18 +608,21 @@ protected:
       }
 
     if (!http.basic("GET",url,headers)) {
-      fxmessage("failed to get url\n");
+      fxmessage("failed to get url %s\n",url.text());
       return false;
       }
 
     if (http.status.code == HTTP_PARTIAL_CONTENT) {
-      fxmessage("partial content succes\n");
-      FXString range = http.getHeader("content-range");
-      fxmessage("%s\n",range.text());
+
+      if (!http.getContentRange(range))
+        return false;
+
+      // FIXME make sure range is what we requested...
+      fxmessage("got partial content %lld-%lld of %lld\n",range.first,range.last,range.length);
       }
     else if (http.status.code == HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-      FXString range = http.getHeader("content-range");
-      fxmessage("range: %s\n",range.text());
+      //FXString range = http.getHeader("content-range");
+      //fxmessage("range: %s\n",range.text());
       //return false;
 
       fxmessage("partial content failed\n");
@@ -568,16 +643,16 @@ protected:
     /// Actual transfer
     FXuchar buffer[4096];
     FXlong  n,nbytes=0,ntotal=0,ncontent=http.getContentLength();
-    FXTime  timestamp,last = FXThread::time();
-    const FXlong seconds   = 1000000000;
-    const FXlong msample   = 100000000;
-    const FXlong kilobytes = 1024;
+    //FXTime  timestamp,last = FXThread::time();
+    //const FXlong seconds   = 1000000000;
+    //const FXlong msample   = 100000000;
+    //const FXlong kilobytes = 1024;
 
     while((n=http.readBody(buffer,4096))>0 && processing) {
       nbytes+=n;
       ntotal+=n;
 
-      /* calculate transfer speed */
+      /* calculate transfer speed
       timestamp = FXThread::time();
       if (timestamp-last>msample) {
         FXuint kbps = (nbytes * seconds ) / (kilobytes*(timestamp-last));
@@ -585,6 +660,7 @@ protected:
         nbytes=0;
         last=timestamp;
         }
+      */
 
       /* Write and check out of disk space */
       if (file.writeBlock(buffer,n)<n)
@@ -661,7 +737,7 @@ public:
     if (!local.empty())
       update_feed.set(2,ITEM_FLAG_LOCAL);
     else
-      update_feed.set(2,ITEM_FLAG_QUEUE);
+      update_feed.set(2,ITEM_FLAG_DOWNLOAD_FAILED);
 
     update_feed.set(3,id);
     update_feed.execute();
@@ -751,11 +827,12 @@ GMPodcastUpdater::~GMPodcastUpdater() {
 
 
 FXint GMPodcastUpdater::run() {
-  GMQuery all_feeds(db,"SELECT id,url,date FROM feeds;");
+  GMQuery all_feeds(db,"SELECT id,url,local,date FROM feeds;");
   GMQuery all_items(db,"SELECT id,guid FROM feed_items WHERE feed = ?;");
   GMQuery del_items(db,"DELETE FROM feed_items WHERE id == ? AND NOT (flags&2);");
   GMQuery get_item(db,"SELECT id FROM feed_items WHERE feed == ? AND guid == ?;");
   GMQuery set_feed(db,"UPDATE feeds SET date = ? WHERE id = ?;");
+  GMQuery fix_time(db,"UPDATE feed_items SET time = ? WHERE feed = ? AND guid = ?;");
   GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, 0)");
 
 
@@ -765,12 +842,14 @@ FXint GMPodcastUpdater::run() {
   FXTime date;
   FXString url;
   FXString guid;
+  FXString feed_dir;
   FXint id,item_id;
 
   while(all_feeds.row()) {
     all_feeds.get(0,id);
     all_feeds.get(1,url);
-    all_feeds.get(2,date);
+    all_feeds.get(2,feed_dir);
+    all_feeds.get(3,date);
 
     HttpClient http;
 
@@ -781,7 +860,10 @@ FXint GMPodcastUpdater::run() {
     RssParser rss;
 
     rss.parse(feed);
-   // rss.feed.debug();
+
+    gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
+
+    //rss.feed.debug();
 
    fxmessage("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
 
@@ -820,6 +902,14 @@ FXint GMPodcastUpdater::run() {
         add_feed_item.set(6,rss.feed.items[i].time);
         add_feed_item.set(7,rss.feed.items[i].date);
         add_feed_item.execute();
+        }
+      else {
+        if (rss.feed.items[i].time) {
+          fix_time.set(0,rss.feed.items[i].time);
+          fix_time.set(1,id);
+          fix_time.set(2,rss.feed.items[i].id);
+          fix_time.execute();
+          }
         }
       }
 
@@ -864,7 +954,7 @@ FXIMPLEMENT(GMPodcastSource,GMSource,GMPodcastSourceMap,ARRAYNUMBER(GMPodcastSou
 GMPodcastSource::GMPodcastSource() : db(NULL) {
   }
 
-GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : db(database),downloader(NULL) {
+GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(database),downloader(NULL) {
   FXASSERT(db);
   }
 
@@ -928,11 +1018,12 @@ void GMPodcastSource::removeFeeds(const FXIntList & feeds) {
 
 
 void GMPodcastSource::configure(GMColumnList& list){
-  list.no(4);
+  list.no(5);
   list[0]=GMColumn(notr("Date"),HEADER_DATE,GMFeedItem::ascendingDate,GMFeedItem::descendingDate,200,true,true,1);
-  list[1]=GMColumn(notr("Title"),HEADER_TITLE,GMStreamTrackItem::ascendingTitle,GMStreamTrackItem::descendingTitle,200,true,true,1);
-  list[2]=GMColumn(notr("Status"),HEADER_STATUS,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
-  list[3]=GMColumn(notr("Time"),HEADER_TIME,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
+  list[1]=GMColumn(notr("Feed"),HEADER_ALBUM,GMFeedItem::ascendingFeed,GMFeedItem::descendingFeed,100,true,true,1);
+  list[2]=GMColumn(notr("Title"),HEADER_TITLE,GMFeedItem::ascendingTitle,GMFeedItem::descendingTitle,200,true,true,1);
+  list[3]=GMColumn(notr("Status"),HEADER_STATUS,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
+  list[4]=GMColumn(notr("Time"),HEADER_TIME,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
   }
 
 
@@ -941,7 +1032,7 @@ FXbool GMPodcastSource::hasCurrentTrack(GMSource * src) const {
   return false;
   }
 
-FXbool GMPodcastSource::setTrack(GMTrack & track) const {
+FXbool GMPodcastSource::setTrack(GMTrack&) const {
   return false;
   }
 
@@ -951,11 +1042,11 @@ FXbool GMPodcastSource::getTrack(GMTrack & info) const {
   FXString localdir;
   q.set(0,current_track);
   if (q.row()) {
-    q.get(0,info.mrl);
+    q.get(0,info.url);
     q.get(1,local);
     q.get(2,localdir);
     if (!local.empty()){
-      info.mrl = GMApp::getPodcastDirectory() + PATHSEPSTRING + localdir + PATHSEPSTRING + local;
+      info.url = GMApp::getPodcastDirectory() + PATHSEPSTRING + localdir + PATHSEPSTRING + local;
       }
     info.artist       = q.get(3);
     info.album_artist = q.get(3);
@@ -964,12 +1055,6 @@ FXbool GMPodcastSource::getTrack(GMTrack & info) const {
     }
   return true;
   }
-
-FXString GMPodcastSource::getTrackFilename(FXint id) const{
-  fxmessage("id %d\n",id);
-  return FXString::null;
-  }
-
 
 FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
@@ -994,20 +1079,28 @@ FXbool GMPodcastSource::listTags(GMList * list,FXIcon * icon){
   while(q.row()){
       q.get(0,id);
       c_title = q.get(1);
-      list->appendItem(c_title,icon);
+      list->appendItem(c_title,icon,(void*)(FXival)id);
       }
   return true;
   }
 
+FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXIntList & taglist){
+  FXString q = "SELECT id,title FROM feeds";
+  if (taglist.no()) {
+    FXString tagselection;
+    GMQuery::makeSelection(taglist,tagselection);
+    q += " WHERE tag " + tagselection;
+    }
 
-FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXIntList &){
-  GMQuery q(db,"SELECT id,title FROM feeds");
+  GMQuery query;
+  query = db->compile(q);
+
   const FXchar * c_title;
   FXint id;
   GMAlbumListItem* item;
-  while(q.row()){
-      q.get(0,id);
-      c_title = q.get(1);
+  while(query.row()){
+      query.get(0,id);
+      c_title = query.get(1);
       item = new GMAlbumListItem(FXString::null,c_title,0,id);
       list->appendItem(item);
       }
@@ -1020,27 +1113,24 @@ FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXI
   return true;
   }
 
-static void gm_query_make_selection(const FXIntList & list,FXString & selection){
-  if (list.no()>1) {
-    selection=FXString::value(" IN ( %d",list[0]);
-    for (FXint i=1;i<list.no();i++){
-      selection+=FXString::value(",%d",list[i]);
-      }
-    selection+=") ";
-    }
-  else if(list.no()==1) {
-    selection=FXString::value(" == %d ",list[0]);
-    }
-  }
 
-FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & /*genre*/){
-  FXString selection;
-  gm_query_make_selection(albumlist,selection);
-  FXString query = "SELECT id,title,time,date,flags FROM feed_items WHERE feed ";
-  query+=selection;
+FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & taglist){
+  FXString selection,tagselection;
+  GMQuery::makeSelection(albumlist,selection);
+  GMQuery::makeSelection(taglist,tagselection);
+
+  FXString query = "SELECT feed_items.id,feeds.title,feed_items.title,time,feed_items.date,flags FROM feed_items, feeds";
+  query+=" WHERE feeds.id == feed_items.feed";
+
+  if (albumlist.no())
+    query+=" AND feed " + selection;
+
+  if (taglist.no())
+    query+=" AND feeds.tag " + tagselection;
 
   GMQuery q(db,query.text());
   const FXchar * c_title;
+  const FXchar * c_feed;
   FXint id;
   FXTime date;
   FXuint time;
@@ -1048,11 +1138,12 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
 
   while(q.row()){
       q.get(0,id);
-      c_title = q.get(1);
-      q.get(2,time);
-      q.get(3,date);
-      q.get(4,flags);
-      GMFeedItem* item = new GMFeedItem(id,c_title,date,time,flags);
+      c_feed = q.get(1);
+      c_title = q.get(2);
+      q.get(3,time);
+      q.get(4,date);
+      q.get(5,flags);
+      GMFeedItem* item = new GMFeedItem(id,c_feed,c_title,date,time,flags);
       tracklist->appendItem((GMTrackItem*)item);
       }
   return true;
@@ -1112,16 +1203,3 @@ long GMPodcastSource::onCmdRemoveFeed(FXObject*,FXSelector,void*){
     }
   return 1;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-

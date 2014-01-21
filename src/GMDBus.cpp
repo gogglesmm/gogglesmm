@@ -58,7 +58,11 @@ public:
     }
 
   void setuphooks() {
-    for (FXuint i=0;i<connections.size();i++) {
+#if FOXVERSION <= FXVERSION(1,7,42)
+    for (FXint i=0;i<connections.size();i++) {
+#else
+    for (FXint i=0;i<connections.no();i++) {
+#endif
       if (!connections.empty(i)) {
         ((GMDBus*)connections.value(i))->setup_event_loop();
         }

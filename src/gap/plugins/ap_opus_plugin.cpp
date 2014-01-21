@@ -34,26 +34,23 @@
 #include "ap_input_thread.h"
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
+#include "ap_ogg_decoder.h"
 
-#include <ogg/ogg.h>
 #include <opus/opus.h>
 
 
 namespace ap {
 
-class OpusDecoderPlugin : public DecoderPlugin{
+
+class OpusDecoderPlugin : public OggDecoder{
 protected:
-  MemoryBuffer  buffer;
   OpusDecoder*  opus;
-  FXfloat*      pcm;
+  FXfloat    *  pcm;
+  FXushort      stream_offset_start;
 protected:
-  FXbool get_next_packet();
-  FXbool is_vorbis_header();
+  FXbool find_stream_position();
+  FXlong find_stream_length();
 protected:
-  AudioEngine *     engine;
-  ogg_packet        op;
-  Packet *          out;
-  FXint             stream_position;
 public:
   OpusDecoderPlugin(AudioEngine*);
 
@@ -62,267 +59,149 @@ public:
   DecoderStatus process(Packet*);
   FXbool flush();
 
+
   virtual ~OpusDecoderPlugin();
   };
 
 
-
-
-
-OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : DecoderPlugin(e),buffer(32768),engine(e),out(NULL) {
+OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(NULL),pcm(NULL) {
   }
 
 OpusDecoderPlugin::~OpusDecoderPlugin(){
+  freeElms(pcm);
+  if (opus) {
+    opus_decoder_destroy(opus);
+    opus=NULL;
+    }
   }
 
 #define MAX_FRAME_SIZE (960*6)
 
 FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
+  OggDecoder::init(event);
   af=event->af;
-  buffer.clear();
-
-  fxmessage("init");
-
   int error;
+  if (opus) {
+    opus_decoder_destroy(opus);
+    }
+
+
   opus = opus_decoder_create(af.rate,af.channels,&error);
   if (error!=OPUS_OK)
     return false;
 
-  fxmessage("success");
-  allocElms(pcm,MAX_FRAME_SIZE*af.channels*2);
+  if (pcm)
+    resizeElms(pcm,MAX_FRAME_SIZE*af.channels*2);
+  else
+    allocElms(pcm,MAX_FRAME_SIZE*af.channels*2);
 
-  stream_position=-1;
+  stream_offset_start = event->stream_offset_start;
   return true;
   }
 
 
 FXbool OpusDecoderPlugin::flush() {
-  if (out) {
-    out->unref();
-    out=NULL;
-    }
-  buffer.clear();
-  stream_position=-1;
+  OggDecoder::flush(); 
+  //if (opus) opus_decoder_ctl(opus,OPUS_RESET_STATE);
   return true;
   }
 
 
-FXbool OpusDecoderPlugin::get_next_packet() {
-  if (buffer.size() && buffer.size()>=(FXival)sizeof(ogg_packet)) {
-    buffer.read((FXuchar*)&op,sizeof(ogg_packet));
-    if (buffer.size()<op.bytes) {
-      buffer.readBytes(-sizeof(ogg_packet));
-      return false;
+FXbool OpusDecoderPlugin::find_stream_position() {
+  const FXuchar * data_ptr = get_packet_offset();
+  FXlong    nsamples = 0;
+  GM_DEBUG_PRINT("[opus] find stream position\n");
+  while(get_next_packet()) {
+    nsamples += opus_packet_get_nb_samples((unsigned char*)op.packet,op.bytes,48000);
+    if (op.granulepos>=0) {
+      GM_DEBUG_PRINT("[opus] found stream position: %ld\n",op.granulepos-nsamples);
+      stream_position=op.granulepos-nsamples;
+      set_packet_offset(data_ptr);
+      return true;
       }
-
-    op.packet=(FXuchar*)buffer.data();
-    buffer.readBytes(op.bytes);
-    return true;
     }
+  set_packet_offset(data_ptr);
   return false;
   }
 
-
-FXbool OpusDecoderPlugin::is_vorbis_header() {
-  return (op.bytes>6 && ((op.packet[0]==1) || (op.packet[0]==3) || (op.packet[0]==5)) && (compare((const FXchar*)&op.packet[1],"vorbis",6)==0));
+FXlong OpusDecoderPlugin::find_stream_length() {
+  const FXuchar * data_ptr = get_packet_offset();
+  FXlong    nlast = 0;
+  GM_DEBUG_PRINT("[opus] find stream length\n");
+  while(get_next_packet()) {
+    nlast = op.granulepos;
+    }
+  set_packet_offset(data_ptr);
+  return nlast - stream_offset_start;
   }
 
 
 
 
 DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
+  FXbool eos           = packet->flags&FLAG_EOS;
+  FXuint id            = packet->stream;
+  FXlong stream_length = packet->stream_length;
+  FXlong stream_end    = stream_length;
 
-  buffer.append(packet->data(),packet->size());
-  packet->unref();
+  OggDecoder::process(packet);
+
+  if (stream_position==-1 && !find_stream_position())
+    return DecoderOk;
+
+  if (eos && stream_end==-1) {
+    stream_end = find_stream_length();
+    FXASSERT(stream_position-stream_offset_start<stream_end);
+    }
 
   while(get_next_packet()) {
-    fxmessage("decode %d\n",op.bytes);
-
-    //memset(pcm,0,MAX_FRAME_SIZE*af.channels);
     FXint nsamples = opus_decode_float(opus,(unsigned char*)op.packet,op.bytes,pcm,MAX_FRAME_SIZE,0);
-    fxmessage("got %d nsamples\n",nsamples);
 
-     const FXuchar * pcmi = (const FXuchar*)pcm;
+    const FXuchar * pcmi = (const FXuchar*)pcm;
+
+    // Adjust for beginning of stream
+    if (stream_position<stream_offset_start) {
+      FXlong offset = FXMIN(nsamples,stream_offset_start - stream_position);
+      GM_DEBUG_PRINT("[opus] stream offset start %hu. Skip %ld at %ld of %d\n",stream_offset_start,offset,stream_position,nsamples);
+      nsamples-=offset;
+      pcmi+=(offset*af.framesize());
+      stream_position+=offset;
+      }
+
+    //GM_DEBUG_PRINT("[opus] decoded %d frames\n",nsamples);
+    if (eos) {
+      FXlong total = stream_position-stream_offset_start+nsamples;
+      if (total>stream_end) {
+        GM_DEBUG_PRINT("adjusting end trimming by %ld\n",(total-stream_end));
+        nsamples -= (total-stream_end);
+        }
+      }
 
     while(nsamples>0) {
-
       /// Get new buffer
       if (out==NULL) {
         out = engine->decoder->get_output_packet();
         if (out==NULL) return DecoderInterrupted;
-        out->stream_position=0;
-        out->stream_length=0;
+        out->stream_position=stream_position - stream_offset_start;
+        out->stream_length=stream_length;
         out->af=af;
         }
 
-
- 
       FXint nw = FXMIN(out->availableFrames(),nsamples);
       if (nw>0){
-        fxmessage("add %d / %d / %d / %d\n",nw,nsamples,out->availableFrames(),af.framesize());
+        //fxmessage("add %d / %d / %d / %d\n",nw,nsamples,out->availableFrames(),af.framesize());
         out->appendFrames(pcmi,nw);
         pcmi+=(nw*af.framesize());
         nsamples-=nw;
+        stream_position+=nw;
         }
 
       if (out->availableFrames()==0) {
-        fxmessage("posting\n");
+        //fxmessage("posting\n");
         engine->output->post(out);
         out=NULL;
         }
       }
-    }
-
-
-
-/*
-nt opus_decode_float	(	OpusDecoder * 	st,
-const unsigned char * 	data,
-opus_int32 	len,
-float * 	pcm,
-int 	frame_size,
-int 	decode_fec
-)
-*/
-
-
-#if  0
-  FXASSERT(packet);
-
-  FXfloat ** pcm=NULL;
-  FXfloat * buf32=NULL;
-  FXint p,navail=0;
-
-  FXint ngiven,ntotalsamples,nsamples,sample,c,s;
-
-  FXbool eos=packet->flags&FLAG_EOS;
-  FXuint id=packet->stream;
-  FXint  len=packet->stream_length;
-
-  buffer.append(packet->data(),packet->size());
-
-  packet->unref();
-
-  if (out) {
-    navail = out->availableFrames();
-    }
-
-  FXuchar * data_ptr = NULL;
-  if (stream_position==-1) {
-    GM_DEBUG_PRINT("stream position unknown\n");
-    data_ptr = buffer.data();
-    nsamples = 0;
-    }
-
-  while(get_next_packet()) {
-
-    if (__unlikely(is_vorbis_header())) {
-
-      if (has_dsp) {
-        vorbis_block_clear(&block);
-        vorbis_dsp_clear(&dsp);
-        has_dsp=false;
-        }
-
-      if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
-        GM_DEBUG_PRINT("vorbis_synthesis_headerin failed\n");
-        return DecoderError;
-        }
-
-      if (data_ptr)
-        data_ptr = buffer.data();
-      }
-    else {
-
-      if (__unlikely(!has_dsp)) {
-
-        if (vorbis_synthesis_init(&dsp,&info)<0)
-          return DecoderError;
-
-        if (vorbis_block_init(&dsp,&block)<0) {
-          vorbis_dsp_clear(&dsp);
-          return DecoderError;
-          }
-
-        has_dsp=true;
-        }
-      if (stream_position==-1) {
-//        fxmessage("packet: %ld %ld\n",op.packetno,op.granulepos);
-        if (vorbis_synthesis(&block,&op)==0) {
-          vorbis_synthesis_blockin(&dsp,&block);
-          while((ngiven=vorbis_synthesis_pcmout(&dsp,NULL))>0) {
-            nsamples+=ngiven;
-            vorbis_synthesis_read(&dsp,ngiven);
-            }
-          }
-        if (op.granulepos>=0) {
-          GM_DEBUG_PRINT("found stream position: %ld\n",op.granulepos-nsamples);
-          stream_position=op.granulepos-nsamples;
- //       else {
-//          stream_position=0;
-//          }
-
-        buffer.setReadPosition(data_ptr);
-        data_ptr=NULL;
-        vorbis_synthesis_restart(&dsp);
-
-          }
-        continue;
-
-        }
-
-      if (vorbis_synthesis(&block,&op)==0)
-        vorbis_synthesis_blockin(&dsp,&block);
-
-      while((ngiven=vorbis_synthesis_pcmout(&dsp,&pcm))>0) {
-//        fxmessage("got %d samples\n",ngiven);
-        for (sample=0,ntotalsamples=ngiven;ntotalsamples>0;) {
-
-          /// Get new buffer
-          if (out==NULL) {
-            out = engine->decoder->get_output_packet();
-            if (out==NULL) return DecoderInterrupted;
-            out->stream_position=stream_position;
-            out->stream_length=len;
-            out->af=af;
-            navail = out->availableFrames();
-            }
-
-          buf32 = out->flt();
-
-          /// Copy Samples
-          nsamples = FXMIN(ntotalsamples,navail);
-          for (p=0,s=sample;s<(nsamples+sample);s++){
-            for (c=0;c<info.channels;c++,p++) {
-              FXASSERT(s<ngiven);
-              buf32[p]=pcm[c][s];
-              }
-            }
-
-          /// Update sample counts
-          out->wroteFrames(nsamples);
-
-          sample+=nsamples;
-          navail-=nsamples;
-          ntotalsamples-=nsamples;
-          stream_position+=nsamples;
-
-          /// Send out packet if full
-          ///FIXME handle EOS.
-          if (navail==0) {
-            engine->output->post(out);
-            out=NULL;
-            }
-          }
-        vorbis_synthesis_read(&dsp,ngiven);
-        }
-      }
-    }
-
-  /// Reset read ptr if we're still looking for the stream position..
-  if (data_ptr) {
-    buffer.setReadPosition(data_ptr);
-    if (has_dsp) vorbis_synthesis_restart(&dsp);
     }
 
   if (eos) {
@@ -332,7 +211,6 @@ int 	decode_fec
       }
     engine->output->post(new ControlEvent(End,id));
     }
-#endif
   return DecoderOk;
   }
 

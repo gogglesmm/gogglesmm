@@ -57,6 +57,7 @@ public:
     SELECTED      = 1,  /// Selected
     FOCUS         = 2,  /// Focus
     DRAGGABLE     = 4,  /// Draggable
+    DONOTPLAY     = 8,  /// Playable
     };
 public:
   GMTrackItem() : state(0) {}
@@ -82,6 +83,9 @@ public:
 
   /// Return true if this item is draggable
   FXbool isDraggable() const { return (state&DRAGGABLE)!=0; }
+
+  /// Return true if this item is playable
+  FXbool canPlay() const { return (state&DONOTPLAY)==0; }
 
   /// Destructor
   virtual ~GMTrackItem() {}
@@ -342,6 +346,9 @@ public:
 
   /// Return true if item at index is enabled
   FXbool isItemEnabled(FXint index) const;
+
+  /// Check if item is Playable
+  FXbool isItemPlayable(FXint index) const;
 
   /// Return item hit code: 0 outside, 1 icon, 2 text
   FXint hitItem(FXint index,FXint x,FXint y,FXint ww=1,FXint hh=1) const;

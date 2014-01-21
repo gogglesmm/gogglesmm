@@ -253,15 +253,15 @@ FXint GMDatabaseSource::getNumTracks() const{
   return db->getNumTracks();
   }
 
-FXString GMDatabaseSource::getTrackFilename(FXint id) const{
-  return db->getTrackFilename(id);
-  }
+//FXString GMDatabaseSource::getTrackFilename(FXint id) const{
+//  return db->getTrackFilename(id);
+//  }
 
 FXbool GMDatabaseSource::getTrack(GMTrack & info) const{
   return db->getTrack(current_track,info);
   }
 
-FXbool GMDatabaseSource::genre_context_menu(FXMenuPane * pane) {
+FXbool GMDatabaseSource::genre_context_menu(FXMenuPane * /*pane*/) {
   //new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Genre."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_GENRE);
 //  new GMMenuCommand(pane,"Export" … "\t\tCopy associated tracks to destination.",GMIconTheme::instance()->icon_export,this,ID_EXPORT_GENRE);
 //  new FXMenuSeparator(pane);
@@ -574,18 +574,6 @@ FXbool GMDatabaseSource::listTags(GMList * list,FXIcon * icon) {
   return true;
   }
 
-static void gm_query_make_selection(const FXIntList & list,FXString & selection){
-  if (list.no()>1) {
-    selection=FXString::value(" IN ( %d",list[0]);
-    for (FXint i=1;i<list.no();i++){
-      selection+=FXString::value(",%d",list[i]);
-      }
-    selection+=") ";
-    }
-  else if(list.no()==1) {
-    selection=FXString::value(" == %d ",list[0]);
-    }
-  }
 
 #if 0
 
@@ -664,7 +652,7 @@ FXbool GMDatabaseSource::listArtists(GMList * list,FXIcon * icon,const FXIntList
   FXString query;
   FXString filterquery;
 
-  gm_query_make_selection(taglist,tagselection);
+  GMQuery::makeSelection(taglist,tagselection);
 
 
   GM_TICKS_START();
@@ -724,8 +712,8 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
   FXString tagselection;
   FXString artistselection;
 
-  gm_query_make_selection(taglist,tagselection);
-  gm_query_make_selection(artistlist,artistselection);
+  GMQuery::makeSelection(taglist,tagselection);
+  GMQuery::makeSelection(artistlist,artistselection);
 
 
   GM_TICKS_START();
@@ -846,8 +834,8 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
   FXString tagselection;
   FXString albumselection;
 
-  gm_query_make_selection(taglist,tagselection);
-  gm_query_make_selection(albumlist,albumselection);
+  GMQuery::makeSelection(taglist,tagselection);
+  GMQuery::makeSelection(albumlist,albumselection);
 
   GMDBTrackItem * item;
 
@@ -1304,18 +1292,18 @@ protected:
   FXint run() {
     try {
       database->beginTask();
-      for (FXint i=0;i<files.no() && processing;i++) {
+      for (FXival i=0;i<files.no() && processing;i++) {
         if (database->interrupt)
           database->waitTask();
 
-        taskmanager->setStatus(FXString::value("Writing Cover %d/%d..",i+1,tracks.no()));
+        taskmanager->setStatus(FXString::value("Writing Cover %ld/%ld..",i+1,tracks.no()));
 
         GMFileTag tag;
         if (tag.open(files[i],FILETAG_TAGS)) {
           switch (mode) {
-            case COVER_APPEND     : tag.appendCover(cover);  break;
-            case COVER_REPLACE    : tag.replaceCover(cover); break;
-            case COVER_REPLACE_ALL: tag.replaceCover(cover); break; // FIXME
+            case COVER_APPEND     : tag.appendCover(cover);                     break;
+            case COVER_REPLACE    : tag.replaceCover(cover,COVER_REPLACE_TYPE); break;
+            case COVER_REPLACE_ALL: tag.replaceCover(cover,COVER_REPLACE_ALL);  break;
             default               : break;
             }
           tag.save();
@@ -1376,10 +1364,10 @@ long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector,void*){
   const FXchar image_patterns[]="All Images (*.png,*.jpeg,*.jpg,*.bmp,*.gif)";
 
   GMFileDialog dialog(GMPlayerManager::instance()->getMainWindow(),"Select Cover");
-
+  dialog.setDirectory(GMApp::instance()->reg().readStringEntry("directories","last-add-cover-dir",FXSystem::getHomeDirectory().text()));
   dialog.setPatternList(image_patterns);
-
   if (dialog.execute()) {
+    GMApp::instance()->reg().writeStringEntry("directories","last-add-cover-dir",dialog.getDirectory().text());
     GMCover * cover = GMCover::fromFile(dialog.getFilename());
     GMImageInfo info;
     if (cover && cover->getImageInfo(info)) {

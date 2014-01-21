@@ -29,7 +29,8 @@
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2012
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2013  /* Foreign Keys */
+#define GOGGLESMM_DATABASE_SCHEMA_DEV2    2012  /* Feed Tables */
 #define GOGGLESMM_DATABASE_SCHEMA_DEV1    2010  /* Dev DB before podcast manager */
 #define GOGGLESMM_DATABASE_SCHEMA_V12     2009
 #define GOGGLESMM_DATABASE_SCHEMA_V10     2008
@@ -37,7 +38,7 @@
 /*
 
 *****************************************************
-    Goggles Music Manager Database Schema v2012
+    Goggles Music Manager Database Schema v2013
 *****************************************************
 
     TABLE tracks
@@ -54,8 +55,8 @@
 
         album       INTEGER NOT NULL REFERENCES albums (id)
         artist      INTEGER NOT NULL REFERENCES artists (id)
-        composer    INTEGER
-        conductor   INTEGER
+        composer    INTEGER REFERENCES artists (id)
+        conductor   INTEGER REFERENCES artists (id)
 
         playcount   INTEGER
         playdate    INTEGER
@@ -103,7 +104,7 @@
 
     TABLE feed_items
         id            INTEGER
-        feed          INTEGER
+        feed          INTEGER NOT NULL REFERENCES feeds(id)
         guid          TEXT
         url           TEXT
         local         TEXT
@@ -129,7 +130,7 @@ const FXchar create_feed[]="CREATE TABLE IF NOT EXISTS feeds (id INTEGER NOT NUL
                                                              "PRIMARY KEY (id) );";
 
 const FXchar create_feed_items[] ="CREATE TABLE IF NOT EXISTS feed_items ( id INTEGER NOT NULL,"
-                                                                          "feed INTEGER NOT NULL, "
+                                                                          "feed INTEGER NOT NULL REFERENCES feeds(id), "
                                                                           "guid TEXT NOT NULL, "
                                                                           "url TEXT NOT NULL, "
                                                                           "local TEXT, "
@@ -147,7 +148,7 @@ const FXchar create_feed_items[] ="CREATE TABLE IF NOT EXISTS feed_items ( id IN
 const FXchar create_streams[]="CREATE TABLE IF NOT EXISTS streams ( id INTEGER NOT NULL, "
                                                                    "url TEXT, "
                                                                    "description TEXT, "
-                                                                   "genre INTEGER, "
+                                                                   "genre INTEGER REFERENCES tags(id), "
                                                                    "bitrate INTEGER, "
                                                                    "rating INTEGER, "
                                                                    "PRIMARY KEY (id) );";
@@ -165,9 +166,8 @@ const FXchar create_tracks[]="CREATE TABLE tracks ( id INTEGER NOT NULL,"
 
                                                   " album INTEGER NOT NULL REFERENCES albums (id),"
                                                   " artist INTEGER NOT NULL REFERENCES artists (id),"
-//                                                  " album_artist INTEGER NOT NULL REFERENCES artists (id),"
-                                                  " composer INTEGER,"
-                                                  " conductor INTEGER,"
+                                                  " composer INTEGER REFERENCES artists (id),"
+                                                  " conductor INTEGER REFERENCES artists (id),"
 
                                                   " playcount INTEGER,"
                                                   " playdate INTEGER,"
@@ -219,17 +219,20 @@ GMTrackDatabase::~GMTrackDatabase() {
   }
 
 FXbool GMTrackDatabase::init(const FXString & database) {
+  FXint version = 0;
 
   if (!open(database))
     goto error;
 
-  if ( getVersion()>GOGGLESMM_DATABASE_SCHEMA_VERSION) {
+  version = getVersion();
+
+  if ( version > GOGGLESMM_DATABASE_SCHEMA_VERSION) {
     if (FXMessageBox::question(FXApp::instance(),MBOX_OK_CANCEL,fxtr("Database Error"),fxtr("An incompatible (future) version of the database was found.\nThis usually happens when you try to downgrade to a older version of GMM\nPress OK to continue and reset the database (all information will be lost!).\nPress Cancel to quit now and leave the database as is."))==MBOX_CLICKED_CANCEL)
       return false;
     }
 
-  /// No upgrade path yet
-  if ( getVersion()<GOGGLESMM_DATABASE_SCHEMA_VERSION) {
+  // Warn if there's no upgrade path
+  if ( version>0 && version<GOGGLESMM_DATABASE_SCHEMA_DEV1) {
     if (FXMessageBox::question(FXApp::instance(),MBOX_OK_CANCEL,fxtr("Database Error"),fxtr("An incompatible (older) version of the database was found.\nPress OK to continue and reset the database (all information will be lost!).\nPress Cancel to quit now and leave the database as is."))==MBOX_CLICKED_CANCEL)
       return false;
     }
@@ -242,20 +245,69 @@ FXbool GMTrackDatabase::init(const FXString & database) {
 
   return true;
 error:
-  FXMessageBox::error(FXApp::instance(),MBOX_OK,fxtr("Fatal Error"),fxtr("Goggles Music Manager was unable to open the database.\nThe database may have been corrupted. Please remove %s to try again.\nif the error keeps occuring, please file an issue at http://code.google.com/p/gogglesmm"),database.text());
+  FXMessageBox::error(FXApp::instance(),MBOX_OK,fxtr("Fatal Error"),fxtr("Goggles Music Manager was unable to open the database.\nThe database may have been corrupted. Please remove %s to try again.\nif the error keeps occuring, please file an issue at http://gogglesmm.github.io"),database.text());
   return false;
+  }
+
+void GMTrackDatabase::init_index() {
+  execute("CREATE INDEX IF NOT EXISTS tracks_album ON tracks(album);");
+  execute("CREATE INDEX IF NOT EXISTS tracks_mrl ON tracks(mrl);");
+  execute("CREATE INDEX IF NOT EXISTS tracks_has_track ON tracks(path,mrl);");
   }
 
 
 FXbool GMTrackDatabase::init_database() {
   try {
     switch(getVersion()) {
+
       case GOGGLESMM_DATABASE_SCHEMA_VERSION:
+        init_index();
         break;
 
+      // More foreign keys
+      case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
+
+        // Replace Tracks Table
+        execute("ALTER TABLE tracks RENAME TO old_tracks;");
+        execute(create_tracks);
+        execute("INSERT INTO tracks SELECT * FROM old_tracks;");
+        execute("DROP TABLE old_tracks;");
+
+        // Replace Streams Table
+        execute("ALTER TABLE streams RENAME TO old_streams;");
+        execute(create_streams);
+        execute("INSERT INTO streams SELECT * FROM old_streams;");
+        execute("DROP TABLE old_streams;");
+
+        // Replace Feed_Items Table
+        execute("ALTER TABLE feed_items RENAME TO old_feed_items;");
+        execute(create_feed_items);
+        execute("INSERT INTO feed_items SELECT * FROM old_feed_items;");
+        execute("DROP TABLE old_feed_items;");
+
+        init_index();
+        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
+        break;
+
+
       case GOGGLESMM_DATABASE_SCHEMA_DEV1 :
+
+        // Replace Tracks Table
+        execute("ALTER TABLE tracks RENAME TO old_tracks;");
+        execute(create_tracks);
+        execute("INSERT INTO tracks SELECT * FROM old_tracks;");
+        execute("DROP TABLE old_tracks;");
+
+        // Replace Streams Table
+        execute("ALTER TABLE streams RENAME TO old_streams;");
+        execute(create_streams);
+        execute("INSERT INTO streams SELECT * FROM old_streams;");
+        execute("DROP TABLE old_streams;");
+
         execute(create_feed);
         execute(create_feed_items);
+
+        init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
@@ -280,10 +332,7 @@ FXbool GMTrackDatabase::init_database() {
         execute(create_feed);
         execute(create_feed_items);
 
-        execute("CREATE INDEX tracks_album ON tracks(album);");
-        execute("CREATE INDEX tracks_mrl ON tracks(mrl);");
-        /// for hasTrack()
-        execute("CREATE INDEX tracks_has_track ON tracks(path,mrl);");
+        init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
       }
@@ -325,7 +374,7 @@ FXbool GMTrackDatabase::init_queries() {
     query_album_artists                 = compile("SELECT albums.artist,album FROM tracks,albums WHERE albums.id ==tracks.album AND tracks.id == ?;");
 
 
-  
+
 
     //query_playlist_queue                = compile("SELECT MAX(queue) FROM playlist_tracks WHERE playlist == ?;");
     update_track_rating                 = compile("UPDATE tracks SET rating = ? WHERE id == ?;");
@@ -1054,7 +1103,7 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
     //begin();
     query_track.set(0,tid);
     if (query_track.row()) {
-      query_track.get( 0,track.mrl);
+      query_track.get( 0,track.url);
       query_track.get( 1,track.album);
       query_track.get( 2,track.album_artist);
       query_track.get( 3,track.artist);
@@ -1094,7 +1143,7 @@ FXbool GMTrackDatabase::getTracks(const FXIntList & tids,GMTrackArray & tracks){
     for (FXint i=0;i<tids.no();i++) {
       query_track.set(0,tids[i]);
       if (query_track.row()) {
-        query_track.get( 0,tracks[i].mrl);
+        query_track.get( 0,tracks[i].url);
         query_track.get( 1,tracks[i].album);
         query_track.get( 2,tracks[i].album_artist);
         query_track.get( 3,tracks[i].artist);
@@ -1579,7 +1628,11 @@ FXbool GMTrackDatabase::listAlbums(FXComboBox * list,FXint track){
 
 void GMTrackDatabase::clear_path_lookup() {
   DEBUG_DB_GET();
-  for (FXuint i=0;i<pathdict.size();i++) {
+#if FOXVERSION <= FXVERSION(1,7,42)
+  for (FXint i=0;i<pathdict.size();i++) {
+#else
+  for (FXint i=0;i<pathdict.no();i++) {
+#endif
     if (!pathdict.empty(i) && pathdict.value(i)!=NULL) {
       free(pathdict.value(i));
       }
@@ -1624,7 +1677,11 @@ void GMTrackDatabase::setup_artist_lookup() {
 
 void GMTrackDatabase::clear_artist_lookup() {
   DEBUG_DB_GET();
-  for (FXuint i=0;i<artistdict.size();i++) {
+#if FOXVERSION <= FXVERSION(1,7,42)
+  for (FXint i=0;i<artistdict.size();i++) {
+#else
+  for (FXint i=0;i<artistdict.no();i++) {
+#endif
     if (!artistdict.empty(i) && artistdict.value(i)!=NULL) {
       FXString * a = (FXString*)artistdict.value(i);
       delete a;
@@ -1744,7 +1801,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
     if (playlist)
       getPlaylistName(playlist,title);
 
-    query = "SELECT pathlist.name || '" PATHSEPSTRING "' || mrl,title,artists.name,albums.name,no,time,tracks.year "
+    query = "SELECT pathlist.name || '" PATHSEPSTRING "' || url,title,artists.name,albums.name,no,time,tracks.year "
             "FROM tracks,pathlist, albums, artists";
 
     if (playlist)
@@ -1959,6 +2016,26 @@ void GMTrackDatabase::setTrackYear(const FXIntList & tracks,FXuint year){
     update_track_year.set(0,year);
     update_track_year.set(1,tracks[i]);
     update_track_year.execute();
+    }
+  }
+
+void GMTrackDatabase::updateAlbumYear(const FXIntList & tracks) {
+  DEBUG_DB_SET();
+  FXint album;
+  FXIntMap albums;
+  GMQuery query_album(this,"SELECT album FROM tracks WHERE id == ?");
+  // Set album year to minimum year that is not 0 or 0 if all are 0.
+  GMQuery update_album_year(this,"UPDATE albums SET year = ( SELECT ifnull(MIN(year),0) FROM tracks WHERE album = ? ) WHERE id = ?;");
+  for (FXint i=0;i<tracks.no();i++){
+    album=0;
+    query_album.execute(tracks[i],album);
+    FXASSERT(album);
+    if (album && albums.find(album)==0) {
+      update_album_year.set(0,album);
+      update_album_year.set(1,album);
+      update_album_year.execute();
+      albums.insert(album,1);
+      }
     }
   }
 
@@ -2219,6 +2296,15 @@ void GMTrackDatabase::sync_tracks_removed() {
   execute("DELETE FROM pathlist WHERE id NOT IN (SELECT DISTINCT(path) FROM tracks);");
   GM_TICKS_END();
   }
+
+void GMTrackDatabase::sync_album_year() {
+  DEBUG_DB_SET();
+  GM_TICKS_START();
+  execute("UPDATE albums SET year = (SELECT ifnull(MIN(year),0) FROM tracks WHERE album = albums.id AND year > 0);");
+  GM_TICKS_END();
+  }
+
+
 
 void GMTrackDatabase::removeTracks(const FXIntList & tracks) {
   DEBUG_DB_SET();

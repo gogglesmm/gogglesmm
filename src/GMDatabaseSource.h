@@ -136,8 +136,6 @@ public:
 
   virtual FXint getNumTracks() const;
 
-  virtual FXString getTrackFilename(FXint id) const;
-
   virtual FXbool getTrack(GMTrack & info) const;
 
   virtual FXint getType() const { return SOURCE_DATABASE; }

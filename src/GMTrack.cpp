@@ -28,7 +28,7 @@ GMTrack::GMTrack() :
   }
 
 void GMTrack::adopt(GMTrack & t) {
-  mrl.adopt(t.mrl);
+  url.adopt(t.url);
   title.adopt(t.title);
   artist.adopt(t.artist);
   album.adopt(t.album);
@@ -129,7 +129,7 @@ FXbool GMTrack::loadTag(const FXString & filename) {
     return false;
     }
 
-  mrl = filename;
+  url = filename;
 
   filetags.getTitle(title);
   filetags.getAlbum(album);

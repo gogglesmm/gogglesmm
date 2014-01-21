@@ -97,6 +97,7 @@ protected:
   FXString      fifofilename;
   FXFile        fifo;
   FXlong        count_track_remaining;
+  FXbool        scheduled_stop;
   GMTaskManager        * taskmanager;
 protected:
 
@@ -129,7 +130,7 @@ protected:
   GMTrack    trackinfo;
   FXbool     trackinfoset;
 protected:
-  FXbool hasSourceWithKey(const char * key) const;
+  FXbool hasSourceWithKey(const FXString & key) const;
   void cleanSourceSettings();
 public:
   static GMPlayerManager * instance();
@@ -356,6 +357,7 @@ public:
   void cmd_playpause();
   void cmd_pause();
   void cmd_stop();
+  void cmd_schedule_stop();
   void cmd_next();
   void cmd_prev();
   void cmd_toggle_shown();

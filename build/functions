@@ -3,7 +3,7 @@
 
 CFG="src/gmconfig.h"
 
-add_package_path()
+pkgconfig_add_path()
 {
   if [ -n "$PKG_CONFIG_PATH" ] ; then
     PKG_CONFIG_PATH="$1/lib/pkgconfig:$1/lib64/pkgconfig:$1/share/pkgconfig:$PKG_CONFIG_PATH"
@@ -78,7 +78,7 @@ pkgconfig_has_package()
   PKG_PREFIX=$(echo $PKG_PREFIX | tr -d '"')
   echo "  Found $2 $PKG_VERSION in $PKG_PREFIX"
   echo ""
-	return 1
+  return 1
 }
 
 pkgconfig_query_package()
@@ -104,7 +104,7 @@ pkgconfig_query_package()
   PKG_CPPFLAGS=$(pkg-config --cflags-only-I $1)
   echo "  Found $2 $PKG_VERSION in $PKG_PREFIX"
   echo ""
-	return 1
+  return 1
 }
 
 add_config_string()
@@ -123,12 +123,12 @@ add_config()
 
 add_required_package()
 {
-	pkgconfig_query_package "$1" "$2"
+  pkgconfig_query_package "$1" "$2"
   if [ "$?" -eq "0" ] ; then
-		exit -1
-	fi
-	PACKAGES="$PACKAGES $1 "
-	add_config "$2"
+    exit -1
+  fi
+  PACKAGES="$PACKAGES $1 "
+  add_config "$2"
   return 1
 }
 
@@ -142,6 +142,7 @@ add_package()
   add_config "$2"
   return 1
 }
+
 
 # Check for the FOX library
 #--------------------------
@@ -199,12 +200,12 @@ add_gap_config()
 
 add_gap_package()
 {
-	pkgconfig_query_package "$1" "$2"
+  pkgconfig_query_package "$1" "$2"
   if [ "$?" -eq "0" ] ; then
-		return 0
-	fi
-	add_gap_config "$2"
-	GAP_PACKAGES="$GAP_PACKAGES $1"
+    return 0
+  fi
+  add_gap_config "$2"
+  GAP_PACKAGES="$GAP_PACKAGES $1"
   return 1
 }
 
@@ -357,20 +358,37 @@ check_gap_plugins()
 
 check_gap_packages()
 {
-  check_libxml2
+
+
+  if [  "$OPTION_GMM_XML" == "xml2" ] ; then
+    check_libxml2
+  else
+    add_gap_config "expat"
+    add_config "expat"
+    EXTRA_LIBS="$EXTRA_LIBS -lexpat"
+  fi
+
+
   if [ $OPTION_GAP_OGG -eq 1 ] ; then
     add_gap_package "ogg >= 1.0" "ogg"
+
+    if [ $OPTION_GAP_VORBIS -eq 1 ] ; then
+      add_gap_package "vorbis >= 1.2" "vorbis"
+      echo "VORBIS_CFLAGS=$PKG_CFLAGS"     >> config.make
+      echo "VORBIS_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
+    elif [ $OPTION_GAP_TREMOR -eq 1 ] ; then
+      add_gap_package "vorbisidec >= 1.2" "tremor"
+      echo "VORBIS_CFLAGS=$PKG_CFLAGS"     >> config.make
+      echo "VORBIS_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
+    fi
+
+    if [ $OPTION_GAP_OPUS -eq 1 ] ; then
+      add_gap_package "opus >= 1.0" "opus"
+    fi
+
   fi
 
-  if [ $OPTION_GAP_VORBIS -eq 1 ] ; then
-    add_gap_package "vorbis >= 1.2" "vorbis"
-    echo "VORBIS_CFLAGS=$PKG_CFLAGS"     >> config.make
-    echo "VORBIS_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
-  fi
 
-  if [ $OPTION_GAP_OPUS -eq 1 ] ; then
-    add_gap_package "opus >= 1.0" "opus"
-  fi
 
   if [ $OPTION_GAP_FLAC -eq 1 ] ; then
     add_gap_package "flac >= 1.2" "flac"
@@ -380,7 +398,7 @@ check_gap_packages()
 
   if [ $OPTION_GAP_MAD -eq 1 ] ; then
     add_gap_package "mad >= 0.15" "mad"
-    
+
     # Not all distro use pkg-config for mad.
     if [ "$?" -eq "0" ] ; then
       if [ -e $MAD_PREFIX/$LIB/libmad${LIBEXT} ] ; then
@@ -446,28 +464,44 @@ check_gap_packages()
     fi
     echo " "
   fi
+
+  add_gap_package "zlib" "zlib"
 }
 
 
 check_gogglesmm()
 {
   add_required_package "sqlite3 >= 3.6.3" "sqlite"
-  add_required_package "taglib >= 1.7.0" "taglib"
+  add_required_package "taglib >= 1.9.0" "taglib"
   if [ $OPTION_GMM_DBUS -eq 1 ] ; then
     add_package "dbus-1 >= 1.0" "dbus"
     OPTION_GMM_DBUS=$?
   fi
 
-  # We need both X11 and GLU
+  # We need X11 for key bindings and such
   # For systems without pkg-config for x11 and glu we'll just hardwire it.
   add_package "x11" "x11"
   if [ $? -eq 0 ] ; then
     EXTRA_LIBS="$EXTRA_LIBS -lX11"
   fi
 
-  add_package "glu" "glu"
-  if [ $? -eq 0 ] ; then
-    EXTRA_LIBS="$EXTRA_LIBS -lGL -lGLU"
+  # We need OpenGL for cover viewer
+  if [ $OPTION_GMM_OPENGL -eq 1 ] ; then
+    add_config "opengl"
+
+    # Not all systems have pc files for OpenGL, so add fallback
+    add_package "gl" "gl"
+    if [ $? -eq 0 ] ; then
+      EXTRA_LIBS="$EXTRA_LIBS -lGL"
+    fi
+
+    add_package "glu" "glu"
+    if [ $? -eq 0 ] ; then
+      EXTRA_LIBS="$EXTRA_LIBS -lGLU"
+    fi
+
+    # Also add glew
+    add_required_package "glew" "glew"
   fi
 
   # Session Management
@@ -482,26 +516,26 @@ check_gogglesmm()
     add_config "md5"
   fi
 
-	# NLS
-	if [ $OPTION_GMM_NLS -eq 1 ] ; then
-  	NLSDIR=${NLSDIR:-$PREFIX/share/locale}
-	  add_config "nls"
-  	add_config_string "LOCALEDIR" ${NLSDIR}
-	fi
+  # NLS
+  if [ $OPTION_GMM_NLS -eq 1 ] ; then
+    NLSDIR=${NLSDIR:-$PREFIX/share/locale}
+    add_config "nls"
+    add_config_string "LOCALEDIR" ${NLSDIR}
+  fi
 
-	# LIRC
-	if [ $OPTION_GMM_LIRC -eq 1 ] ; then
-  	add_config "lirc"
-  	INCFLAGS="$INCFLAGS -I/usr/include/lirc"
-  	#LIBS="$LIBS -llirc_client "
-	fi
+  # LIRC
+  if [ $OPTION_GMM_LIRC -eq 1 ] ; then
+    add_config "lirc"
+    INCFLAGS="$INCFLAGS -I/usr/include/lirc"
+    #LIBS="$LIBS -llirc_client "
+  fi
 
 
-	add_config "mpris1"
-	add_config "mpris2"
+  add_config "mpris1"
+  add_config "mpris2"
 
-	# Set Icon Path
-	add_config_string "DEFAULT_ICON_PATH" "${PREFIX}/share/icons"
+  # Set Icon Path
+  add_config_string "DEFAULT_ICON_PATH" "${PREFIX}/share/icons"
 
   pkgconfig_package_flags "$PACKAGES"
   echo "GMM_CFLAGS=$PKG_CFLAGS"       >> config.make

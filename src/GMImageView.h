@@ -19,17 +19,28 @@
 #ifndef GMIMAGEVIEW_H
 #define GMIMAGEVIEW_H
 
+
+class GMImageTexture {
+public:
+  FXuint  id;           // texture id
+  FXfloat cw;           // max texture coordinate width
+  FXfloat ch;           // max texture coordinate height
+  FXfloat aspect;       // aspect ratio of image
+public:
+  GMImageTexture();
+
+  FXbool setImage(FXImage*);
+
+  void drawQuad(FXfloat x,FXfloat y,FXfloat width,FXfloat height,FXColor background);
+
+  ~GMImageTexture();
+  };
+
+
 class GMImageView : public FXGLCanvas {
 FXDECLARE(GMImageView)
 protected:
-  FXint     image_width;
-  FXint     image_height;
-  FXuint    texture_id;
-  FXint     texture_width;
-  FXint     texture_height;
-  FXbool    texture_power_of_two;
-protected:
-  void updateTexture(FXImage*);
+  GMImageTexture * texture;
 public:
   long onPaint(FXObject*,FXSelector,void*);
 protected:
@@ -38,7 +49,7 @@ private:
   GMImageView(const GMImageView&);
   GMImageView &operator=(const GMImageView&);
 public:
-  GMImageView(FXComposite* p,FXGLVisual *vis,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  GMImageView(FXComposite* p,FXGLContext *ctx,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   FXint getDefaultWidth() const;
 

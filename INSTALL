@@ -3,28 +3,36 @@ Installation Instructions
 
    1. Install all required dependencies:
 
-      * FOX >= 1.7.26 (latest development release, see README file for details)
-	    * libgaplayer >= 0.1
-  	  * sqlite >= 3.6.3
-    	* taglib >= 1.6.3
-      * dbus 1.0.x (optional)
-      * expat
+      * FOX >= 1.7.40 
+      * sqlite >= 3.6.3
+      * taglib >= 1.9.0
+      * expat or libxml2
 
-   2. Run the configure script:
+   2. Install optional dependencies:
+
+      * dbus 1.0.x (optional)
+      * flac
+      * mad
+      * vorbis
+      * ogg
+      * opus
+      * faad2
+      * pulse
+
+   3. Run the configure script:
 
       > ./configure
 
-   3. Compile
+   4. Compile
 
       > make
 
-   4. If everything compiled fine, you are ready to install Goggles Music Manager in its final location.
-   		By default this will be in /usr. Using the --prefix option on the configure command line you may
-   		change this to something else (eg. ./configure --prefix=/usr/local )
+   5. If everything compiled fine, you are ready to install Goggles Music Manager in its final location.
+      By default this will be in /usr. Using the --prefix option on the configure command line you may
+      change this to something else (eg. ./configure --prefix=/usr/local )
 
-			> su
-      > make install
+      > sudo make install
 
    5. Run the software
 
-			> gogglesmm
+      > gogglesmm

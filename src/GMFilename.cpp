@@ -248,11 +248,7 @@ static FXString convert_and_decompose(const FXString & input,FXTextCodec * codec
       }
     else {
       input_decompose.assign(&input[i],input.extent(i));
-#if FOXVERSION < FXVERSION(1,7,29)
-      input_decompose = decompose(input_decompose,DecCompat);
-#else
       input_decompose = decompose(input_decompose,DecomposeCompat);
-#endif
       for (j=0;j<input_decompose.length();j=input_decompose.inc(j)){
         len = codec->utf2mb(&c,1,&input_decompose[j],input_decompose.extent(j));
         if (len>0 && c!=0x1A) {
@@ -268,11 +264,7 @@ static FXString convert_and_decompose(const FXString & input,FXTextCodec * codec
 static FXString convert_and_decompose(const FXString & input) {
   register FXint i=0;
   FXString result;
-#if FOXVERSION < FXVERSION(1,7,29)
-  FXString in = decompose(input,DecCanonical);
-#else
   FXString in = decompose(input,DecomposeCanonical);
-#endif
   for (i=0;i<in.length();i=in.inc(i)){
     if (Ascii::isAscii(in[i]) && Ascii::isPrint(in[i]) ) {
       result+=in[i];
@@ -289,11 +281,7 @@ static FXString to_8bit_codec(const FXString & input,FXTextCodec * codec,const F
   result = filter(input,forbidden,opts);
 
   /// Make sure it is properly composed. Should we do this?
-#if FOXVERSION < FXVERSION(1,7,29)
-  result = compose(result,DecCompat);
-#else
   result = compose(result,DecomposeCompat);
-#endif
 
   /// convert to given codec.
   if (dynamic_cast<FXUTF8Codec*>(codec)==NULL)
@@ -310,11 +298,7 @@ static FXString to_8bit_ascii(const FXString & input,const FXString & forbidden,
   result = filter(input,forbidden,opts);
 
   /// Make sure it is properly composed. Should we do this?
-#if FOXVERSION < FXVERSION(1,7,29)
-  result = compose(result,DecCompat);
-#else
   result = compose(result,DecomposeCompat);
-#endif
 
   /// convert to given codec.
   result = convert_and_decompose(result);
@@ -476,7 +460,7 @@ FXbool create(FXString & result,const GMTrack & track, const FXString & format,c
 
   /// Make absolute
   if (!FXPath::isAbsolute(path)) {
-    path = FXPath::absolute(FXPath::directory(track.mrl),path);
+    path = FXPath::absolute(FXPath::directory(track.url),path);
     }
 
   /// Simplify things
@@ -488,9 +472,9 @@ FXbool create(FXString & result,const GMTrack & track, const FXString & format,c
   /// Add extension
   result+=".";
   if (options&LOWERCASE_EXTENSION || options&LOWERCASE)
-    result.append(FXPath::extension(track.mrl).lower());
+    result.append(FXPath::extension(track.url).lower());
   else
-    result.append(FXPath::extension(track.mrl));
+    result.append(FXPath::extension(track.url));
   return true;
   }
 
@@ -511,15 +495,15 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
   /// Remove path components from the front that are not part of the mask
   /// Or if the mask doesn't specifiy path components, we just take the title of the filename.
   if (nsep) {
-    input=FXPath::title(track.mrl);
-    FXString dir=FXPath::directory(track.mrl);
+    input=FXPath::title(track.url);
+    FXString dir=FXPath::directory(track.url);
     for (i=0;i<nsep;i++) {
       input = FXPath::name(dir) + PATHSEPSTRING + input;
       dir=FXPath::upLevel(dir);
       }
     }
   else {
-    input=FXPath::title(track.mrl);
+    input=FXPath::title(track.url);
     }
 
   // Start from fresh

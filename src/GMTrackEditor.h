@@ -51,6 +51,7 @@ public:
   GMTextField   * sizefield;
   GMTextField   * filenamefield;
   GMTextField   * typefield;
+  FXLabel       * bitratelabel;
 protected:
   GMEditTrackDialog(){}
   void getTrackSelection();

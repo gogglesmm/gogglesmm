@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+#include "gmutils.h"
 #include "GMTrack.h"
 #include "GMApp.h"
 #include "GMTrackList.h"

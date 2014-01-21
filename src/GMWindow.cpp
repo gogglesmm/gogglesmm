@@ -33,6 +33,7 @@
 #include "GMPlayerManager.h"
 #include "GMWindow.h"
 #include "GMRemote.h"
+#include "GMPresenter.h"
 #include "GMCover.h"
 #include "GMCoverManager.h"
 
@@ -45,7 +46,11 @@
 #include "GMImportDialog.h"
 #include "GMPreferencesDialog.h"
 #include "FXUTF8Codec.h"
+
+#ifdef HAVE_OPENGL
 #include "GMImageView.h"
+#endif
+
 #include "GMAnimImage.h"
 
 #include "GMScanner.h"
@@ -96,6 +101,8 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_PAUSE,             GMWindow::onCmdPause),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_STOP,              GMWindow::onCmdStop),
+  FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SCHEDULE_STOP,     GMWindow::onCmdScheduleStop),
+
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_NEXT,              GMWindow::onCmdNext),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_PREV,              GMWindow::onCmdPrev),
 //  FXMAPFUNCS(SEL_COMMAND,GMWindow::ID_SEEK_FORWARD_10SEC,GMWindow::ID_SEEK_BACKWARD_1MIN,GMWindow::onCmdSeek),
@@ -103,6 +110,7 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SHOW_FULLSCREEN,		GMWindow::onCmdShowFullScreen),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_MINIPLAYER,   GMWindow::onCmdShowMiniPlayer),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_BROWSER,      GMWindow::onCmdShowBrowser),
+  FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_PRESENTER,    GMWindow::onCmdShowPresenter),
 
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_PREFERENCES,       GMWindow::onCmdPreferences),
 
@@ -151,6 +159,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   flags|=FLAG_ENABLED;
 
   remote=NULL;
+  presenter=NULL;
 
   icontheme = new GMIconTheme(getApp());
   icontheme->load();
@@ -180,16 +189,14 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   progressbar = new FXHorizontalFrame(statusbar,LAYOUT_LEFT|FRAME_NONE,0,0,0,0,3,3,0,0);
 
-  GMAnimImage *animation = new GMAnimImage(progressbar,GMIconTheme::instance()->icon_progress,GMIconTheme::instance()->getSmallSize(),FRAME_NONE|LAYOUT_CENTER_Y);
-  animation->setBackColor(getApp()->getBaseColor());
-
-
-//  progressbar_animation = new GMAnimImage(progressbar,
+  progressbar_animation = new GMAnimImage(progressbar,GMIconTheme::instance()->icon_progress,GMIconTheme::instance()->getSmallSize(),FRAME_NONE|LAYOUT_CENTER_Y);
+  progressbar_animation->setBackColor(getApp()->getBaseColor());
   progressbar_label = new FXLabel(progressbar,FXString::null,NULL,LAYOUT_CENTER_Y|JUSTIFY_CENTER_Y);
   new GMButton(progressbar,tr("\tCancel Task\tCancel Task"),GMIconTheme::instance()->icon_close,GMPlayerManager::instance(),GMPlayerManager::ID_CANCEL_TASK,BUTTON_TOOLBAR|FRAME_RAISED);
   new FXSeparator(progressbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
 
   progressbar->reparent(statusbar,statusbar->getStatusLine());
+  progressbar_animation->hide();
   progressbar->hide();
 
   FXVerticalFrame * mainframe = new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
@@ -205,8 +212,9 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   coverframe->setBorderColor(getApp()->getShadowColor());
   coverframe->hide();
   coverview_x11=NULL;
+#ifdef HAVE_OPENGL
   coverview_gl=NULL;
-  glvisual=NULL;
+#endif
 
   updateCoverView();
 
@@ -269,6 +277,13 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new GMMenuCheck(menu_gmm,tr("Show &Sources\tCtrl-S\tShow source browser "),this,ID_SHOW_SOURCES);
   fullscreencheck = new GMMenuCheck(menu_gmm,tr("Show Full Screen\tF12\tToggle fullscreen mode."),this,ID_SHOW_FULLSCREEN);
   new GMMenuCheck(menu_gmm,tr("Show Mini Player\tCtrl-M\tToggle Mini Player."),this,ID_SHOW_MINIPLAYER);
+#ifdef HAVE_OPENGL
+  if (GMApp::instance()->hasOpenGL())
+    new GMMenuCommand(menu_gmm,tr("Show Presenter\t\tShow Presenter."),NULL,this,ID_SHOW_PRESENTER);
+#endif
+
+  new FXMenuSeparator(menu_gmm);
+  new GMMenuCommand(menu_gmm,tr("Find…\tCtrl-F\tShow search filter."),GMIconTheme::instance()->icon_find,trackview,GMTrackView::ID_TOGGLE_FILTER);
   new FXMenuSeparator(menu_gmm);
   new GMMenuCommand(menu_gmm,tr("Preferences…"),icontheme->icon_settings,this,GMWindow::ID_PREFERENCES);
   new GMMenuCommand(menu_gmm,tr("&About…"),icontheme->icon_info,this,GMWindow::ID_ABOUT);
@@ -401,6 +416,15 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("F11"),this,FXSEL(SEL_COMMAND,ID_SHOW_MINIPLAYER));
   getAccelTable()->addAccel(parseAccel("Ctrl-W"),this,FXSEL(SEL_CLOSE,0));
   getAccelTable()->addAccel(parseAccel("/"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
+
+
+  getAccelTable()->addAccel(parseAccel("Ctrl-P"),this,FXSEL(SEL_COMMAND,ID_PLAYPAUSE));
+  getAccelTable()->addAccel(parseAccel("Ctrl-\\"),this,FXSEL(SEL_COMMAND,ID_STOP));
+  // We want Ctrl-Shift-\ but this won't work unless we specify the upper case of \ which is |
+  getAccelTable()->addAccel(parseAccel("Ctrl-Shift-|"),this,FXSEL(SEL_COMMAND,ID_SCHEDULE_STOP));
+  getAccelTable()->addAccel(parseAccel("Ctrl-["),this,FXSEL(SEL_COMMAND,ID_PREV));
+  getAccelTable()->addAccel(parseAccel("Ctrl-]"),this,FXSEL(SEL_COMMAND,ID_NEXT));
+
   getAccelTable()->addAccel(parseAccel("Ctrl-;"),this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_1MIN));
   getAccelTable()->addAccel(parseAccel("Ctrl-'"),this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_1MIN));
   getAccelTable()->addAccel(parseAccel("Ctrl-,"),this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_10SEC));
@@ -412,7 +436,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("Ctrl-X"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_CUT));
   getAccelTable()->addAccel(parseAccel("Ctrl-V"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_PASTE));
   getAccelTable()->addAccel(parseAccel("Ctrl-J"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_SHOW_CURRENT));
-  getAccelTable()->addAccel(parseAccel("Ctrl-F"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
+  //getAccelTable()->addAccel(parseAccel("Ctrl-F"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
   getAccelTable()->addAccel(parseAccel("Ctrl-B"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_BROWSER));
   getAccelTable()->addAccel(parseAccel("Ctrl-T"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_TAGS));
   }
@@ -446,13 +470,9 @@ void GMWindow::init(FXuint mode) {
 // Destructor
 //----------------------------------------------------------------------------------
 GMWindow::~GMWindow(){
-  if (coverview_gl) {
-    coverview_gl->setImage(NULL);
-    delete coverview_gl;
-    delete glvisual;
-    }
   delete icontheme;
   }
+
 
 
 
@@ -501,6 +521,29 @@ void GMWindow::create(){
   gm_set_application_icon(this);
   }
 
+
+void GMWindow::showPresenter(){
+#ifdef HAVE_OPENGL
+  if (!presenter) {
+    GMApp::instance()->initOpenGL();
+    GMPresenter p(getApp(),GMApp::instance()->getGLContext(),target,message);
+    p.create();
+    presenter=&p;
+    updateCover();
+    p.execute();
+    presenter=NULL;
+    }
+#endif
+  }
+
+void GMWindow::hidePresenter(){
+#ifdef HAVE_OPENGL
+  if (presenter) {
+    delete presenter;
+    presenter=NULL;
+    }
+#endif
+  }
 
 void GMWindow::showRemote(){
   if (!remote) {
@@ -797,6 +840,13 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   volumebutton->setMenu(NULL);
   delete volumecontrol;
 
+#ifdef HAVE_OPENGL
+  if (coverview_gl) {
+    coverview_gl->setImage(NULL);
+    delete coverview_gl;
+    }
+#endif
+
   GMPlayerManager::instance()->exit();
   return 1;
   }
@@ -819,6 +869,12 @@ long GMWindow::onCmdShowFullScreen(FXObject*,FXSelector,void*){
     }
   return 1;
   }
+
+long GMWindow::onCmdShowPresenter(FXObject*,FXSelector,void*){
+  showPresenter();
+  return 1;
+  }
+
 
 long GMWindow::onCmdShowBrowser(FXObject*,FXSelector,void*){
   hideRemote();
@@ -1024,6 +1080,11 @@ long GMWindow::onUpdPause(FXObject*sender,FXSelector,void*){
   return 1;
   }
 
+long GMWindow::onCmdScheduleStop(FXObject*,FXSelector,void*){
+  GMPlayerManager::instance()->cmd_schedule_stop();
+  return 1;
+  }
+
 long GMWindow::onCmdStop(FXObject*,FXSelector,void*){
   GMPlayerManager::instance()->stop();
   return 1;
@@ -1200,15 +1261,15 @@ long GMWindow::onUpdShuffle(FXObject*sender,FXSelector,void*){
   }
 
 long GMWindow::onCmdHomePage(FXObject*,FXSelector,void*){
-  if (!gm_open_browser("http://code.google.com/p/gogglesmm")){
-    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit http://code.google.com/p/gogglesmm for the official homepage.");
+  if (!gm_open_browser("http://gogglesmm.github.io")){
+    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit http://gogglesmm.github.io for the official homepage.");
     }
   return 1;
   }
 
 long GMWindow::onCmdReportIssue(FXObject*,FXSelector,void*){
-  if (!gm_open_browser("http://code.google.com/p/gogglesmm/issues/list")){
-    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit http://code.google.com/p/gogglesmm/issues/list to report an issue.");
+  if (!gm_open_browser("https://github.com/gogglesmm/gogglesmm/issues")){
+    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit https://github.com/gogglesmm/gogglesmm/issues to report an issue.");
     }
   return 1;
   }
@@ -1351,9 +1412,13 @@ void GMWindow::clearCover() {
     delete coverview_x11->getImage();
     coverview_x11->setImage(NULL);
     }
+#ifdef HAVE_OPENGL
   else if (coverview_gl) {
     coverview_gl->setImage(NULL);
     }
+  if (presenter)
+    presenter->setImage(NULL);
+#endif
   }
 
 
@@ -1412,17 +1477,19 @@ void GMWindow::updateCover() {
       image->create();
       coverview_x11->setImage(image);
       }
+#ifdef HAVE_OPENGL
     else {
       coverview_gl->setImage(image);
+      if (presenter) presenter->setImage(image);
       delete image;
       }
+#endif
     }
   }
 
 void GMWindow::updateCoverView() {
-
-  if (GMPlayerManager::instance()->getPreferences().gui_show_opengl_coverview && FXGLVisual::hasOpenGL(getApp())) {
-
+#ifdef HAVE_OPENGL
+  if (GMApp::instance()->hasOpenGL()) {
     if (coverview_x11) {
       clearCover();
       delete coverview_x11;
@@ -1430,8 +1497,8 @@ void GMWindow::updateCoverView() {
       }
 
     if (!coverview_gl) {
-      glvisual     = new FXGLVisual(getApp(),VISUAL_DOUBLE_BUFFER);
-      coverview_gl = new GMImageView(coverframe,glvisual,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+      GMApp::instance()->initOpenGL();
+      coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLContext(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
       coverview_gl->setTarget(this);
       coverview_gl->setSelector(ID_COVERVIEW);
       coverview_gl->enable();
@@ -1445,10 +1512,9 @@ void GMWindow::updateCoverView() {
       clearCover();
       delete coverview_gl;
       coverview_gl=NULL;
-      delete glvisual;
-      glvisual=NULL;
+      //GMApp::instance()->releaseOpenGL();
       }
-
+#endif
     if (!coverview_x11) {
       coverview_x11 = new GMImageFrame(coverframe,NULL,FRAME_NONE|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
       coverview_x11->setBackColor(getApp()->getBackColor());
@@ -1457,8 +1523,9 @@ void GMWindow::updateCoverView() {
       coverview_x11->enable();
       if (coverframe->id()) coverview_x11->create();
       }
-
+#ifdef HAVE_OPENGL
     }
+#endif
   }
 
 long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
@@ -1467,7 +1534,7 @@ long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
       getApp()->addTimeout(this,ID_REFRESH_COVERVIEW,TIME_MSEC(50));
       }
     else {
-      GM_DEBUG_PRINT("configure %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
+      GM_DEBUG_PRINT("configure cover view %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
       updateCover();
       }
     }
@@ -1492,13 +1559,15 @@ long GMWindow::onUpdPlayQueue(FXObject*sender,FXSelector,void*){
 
 void GMWindow::setStatus(const FXString & msg){
   if (!msg.empty()) {
-    if (!progressbar->shown())
+    if (!progressbar->shown()) {
       progressbar->show();
-
+      progressbar_animation->show();
+      }
     progressbar_label->setText(msg);
     }
   else {
     progressbar->hide();
+    progressbar_animation->hide();
     progressbar_label->setText(FXString::null);
     }
   }

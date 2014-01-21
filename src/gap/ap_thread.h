@@ -44,8 +44,11 @@ public:
   /// Post event to this thread
   void post(Event * event,FXint where=EventQueue::Back);
 
-  /// Return
+  /// Return Fifo Handle
   FXInputHandle getFifoHandle() const { return fifo.handle(); }
+
+  /// Return Fifo
+  ThreadQueue & getFifo() { return fifo; }
 
   /// Destructor
   virtual ~EngineThread();

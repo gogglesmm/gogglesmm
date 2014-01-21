@@ -648,14 +648,15 @@ void GMAudioScrobbler::load_queue(){
 
 
 void GMAudioScrobbler::save_queue(){
-  FXTRACE((60,"GMAudioScrobbler::save_queue => %d entries\n",submitqueue.no()));
-  FXuint version=20080501;
+  FXTRACE((60,"GMAudioScrobbler::save_queue => %ld entries\n",submitqueue.no()));
+  FXuint version=20080501,size;
   FXString filename = FXSystem::getHomeDirectory() + SCROBBLER_CACHE_FILE;
   if (submitqueue.no()) {
     FXFileStream store;
     if (store.open(filename,FXStreamSave)){
       store << version;
-      store << submitqueue.no();
+      size = submitqueue.no();
+      store << size;
       for (FXint i=0;i<submitqueue.no();i++)
         submitqueue[i].save(store);
       }

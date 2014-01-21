@@ -34,6 +34,61 @@
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 
+
+
+
+
+
+void FXIntMap::save(FXStream & store) const {
+#if FOXVERSION <= FXVERSION(1,7,42)
+  FXint u = no();
+  FXint t = size();
+#else
+  FXint u = used();
+  FXint t = no();
+#endif
+  store << u;
+  for (FXint i=0;i<t;i++){
+    if (!empty(i)) {
+      store << key(i);
+      store << value(i);
+      }
+    }
+  }
+
+void FXIntMap::load(FXStream & store) {
+  FXint key,value,n;
+  store >> n;
+  for (FXint i=0;i<n;i++){
+    store >> key;
+    store >> value;
+    insert(key,value);
+    }
+  }
+
+void FXIntMap::adopt(FXIntMap & other) {
+  // Clear this map first
+  clear();
+
+  // Populate with new entries
+#if FOXVERSION <= FXVERSION(1,7,42)
+  for (FXint i=0;i<other.size();i++){
+#else
+  for (FXint i=0;i<other.no();i++){
+#endif
+    if (!other.empty(i)) {
+      insert(other.key(i),other.value(i));
+      }
+    }
+
+  // Leave other empty
+  other.clear();
+  }
+
+
+
+
+
 /******************************************************************************/
 
 
@@ -112,6 +167,15 @@ FXbool gm_buffer_file(const FXString & filename,FXString & buffer) {
     }
   return false;
   }
+
+FXbool gm_dump_file(const FXString & filename,FXString & buffer) {
+  FXFile file(filename,FXIO::Writing);
+  if (file.isOpen()) {
+    return (file.writeBlock((void*)buffer.text(),buffer.length())==buffer.length());
+    }
+  return false;
+  }
+
 
 void gm_focus_and_select(FXTextField * textfield) {
   FXASSERT(textfield->id());

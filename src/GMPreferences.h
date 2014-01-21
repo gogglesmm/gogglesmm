@@ -130,7 +130,7 @@ public:
   FXbool gui_tray_icon;
   FXbool gui_tray_icon_disabled;
   FXbool gui_show_playing_titlebar;
-  FXbool gui_show_opengl_coverview;
+  FXbool gui_use_opengl;
 
   FXColor gui_row_color;
   FXColor gui_play_color;

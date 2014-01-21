@@ -23,7 +23,7 @@ static void gm_mpris_track_to_dict(DBusMessageIter * iter,const GMTrack & track)
   gm_dbus_dict_append_uint32(&array,"year",track.year);
   if (track.tags.no())
     gm_dbus_dict_append_string(&array,"genre",track.tags[0]);
-  gm_dbus_dict_append_string(&array,"location",gm_make_url(track.mrl));
+  gm_dbus_dict_append_string(&array,"location",gm_make_url(track.url));
 
   const FXString & arturl = GMPlayerManager::instance()->getCoverManager()->getShareFilename();
   if (!arturl.empty())
@@ -344,7 +344,7 @@ static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track
     gm_dbus_dict_append_string_list(&array,"xesam:albumArtist",FXStringList(track.album_artist,1));
   gm_dbus_dict_append_string(&array,"xesam:album",track.album);
   gm_dbus_dict_append_string_list(&array,"xesam:composer",FXStringList(track.composer,1));
-  gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.mrl));
+  gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.url));
   const FXString & arturl = GMPlayerManager::instance()->getCoverManager()->getShareFilename();
   if (!arturl.empty())
     gm_dbus_dict_append_string(&array,"mpris:artUrl",FXURL::fileToURL(arturl));
@@ -449,7 +449,7 @@ void GMMediaPlayerService2::notify_caps_change(){
 
 static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBusMessage * msg,const FXchar * prop){
   static const FXchar * schemes[]={"file","http",NULL};
-  static const FXchar * mimetypes[]={"audio/flac","audio/ogg","audio/mpeg","audio/mp4a-latm","audio/x-musepack",NULL};
+  static const FXchar * mimetypes[]={"audio/flac","audio/ogg","audio/opus","audio/mpeg","audio/mp4a-latm","audio/x-musepack",NULL};
   static const FXchar prop_identity[]="Goggles Music Manager";
   static const FXchar prop_desktopentry[]="gogglesmm";
   if (prop==NULL) {

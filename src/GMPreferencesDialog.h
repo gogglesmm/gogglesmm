@@ -48,6 +48,7 @@ protected:
 
   FXLabel     * alsa_device_label;
   FXTextField * alsa_device;
+
   FXCheckButton* alsa_hardware_only;
   FXFrame * alsa_hardware_only_frame;
   FXLabel     * alsa_mixer_label;

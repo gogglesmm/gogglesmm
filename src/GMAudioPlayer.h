@@ -2,7 +2,7 @@
 #define GM_AUDIO_PLAYER_H
 
 #ifndef AP_H
-#include <ap.h>
+#include "ap.h"
 #endif
 
 #ifndef SEL_PLAYER_OFFSET
@@ -27,8 +27,8 @@ enum PlayerState {
 
 
 struct PlaybackTime {
-  FXint position;
-  FXint length;
+  FXuint position;
+  FXuint length;
   };
 
 class GMAudioPlayer : public AudioPlayer {

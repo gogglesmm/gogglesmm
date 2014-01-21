@@ -37,6 +37,12 @@ public:
 
   FXbool open(const FXString & uri);
 
+	/// Read
+	FXival read(void*,FXival);
+
+	/// Preview
+	FXival preview(void*,FXival);
+
   /// Set Position
   FXlong position(FXlong offset,FXuint from);
 

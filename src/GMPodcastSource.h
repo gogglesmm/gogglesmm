@@ -25,6 +25,7 @@ enum {
   ITEM_FLAG_QUEUE  = 0,
   ITEM_FLAG_LOCAL  = 1,
   ITEM_FLAG_PLAYED = 2,
+  ITEM_FLAG_DOWNLOAD_FAILED = 3,
   };
 
 class GMSource;
@@ -67,8 +68,6 @@ public:
 
   virtual FXbool setTrack(GMTrack & info) const;
 
-  FXString getTrackFilename(FXint id) const;
-
   FXString getName() const { return fxtr("Podcasts"); }
 
   virtual const FXchar * getAlbumName() const { return fxtr("Feeds"); }
@@ -83,7 +82,9 @@ public:
 
   FXbool hasArtistList() const { return false; }
 
-  FXbool defaultBrowse() const { return false; }
+  FXbool defaultBrowse() const { return true; }
+  
+  FXbool defaultTags() const { return true; }
 
   FXbool autoPlay() const { return false; }
 

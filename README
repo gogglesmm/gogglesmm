@@ -1,10 +1,7 @@
-Support
--------
+Support and Feedback
+--------------------
 
-  Found a bug, want a feature or tell how great Goggles Music Manager is/sucks.
-  Please mail me at s.jansen@gmail.com or file an issue at
-  http://code.google.com/p/gogglesmm
-
+  For support or feedback, feel free to email at s.jansen@gmail.com or file an issue at http://gogglesmm.github.io
 
 Installation
 ------------
@@ -12,12 +9,13 @@ Installation
   Read the INSTALL file on how to build and install Goggles Music Manager on
   your machine.
 
-
 Upgrading
 ---------
 
-  The database for 0.8.x / 0.9.x / 0.10.x users are automatically upgraded. If you're upgrading from
-  Goggles Music Manager 0.7.x or before you will have to reimport your music due to changes in the database.
+  If you're upgrading you will have to re-import your music due to changes in the database.
+  Use the mport_gogglesmm12_stats.py script in /usr/share/gogglesmm/utils to transfer playcount statistics.
+  Playlists may be preserved by exporting them to m3u files before upgrading.
+
 
 Keyboard Shortcuts
 ------------------
@@ -39,7 +37,7 @@ Keyboard Shortcuts
     Ctrl-T  Toggle Repeat A-B.
     Ctrl-A  Select All in lists.
     Ctrl-W  Close Main Window
-		F11			Show Mini Player.
+    F11     Show Mini Player.
     F12     Show Full Screen.
     F2      Edit selected track, album, artist or genre.
     Del     Delete selected track, album, artist or genre.
@@ -48,8 +46,8 @@ Keyboard Shortcuts
 Last-FM
 -------
 
-	Join the Goggles Music Manager group:
-		http://www.last.fm/group/Goggles+Music+Manager
+  Join the Goggles Music Manager group:
+    http://www.last.fm/group/Goggles+Music+Manager
 
   To start scrobble tracks:
 

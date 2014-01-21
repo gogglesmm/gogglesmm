@@ -87,16 +87,16 @@ static void init_basedirs(FXStringList & basedirs) {
 #endif
   }
 
-static void init_themedict(FXStringList & basedirs,FXStringDict & themedict){
+static void init_themedict(FXStringList & basedirs,FXStringDictionary & themedict){
   FXString * dirs=NULL;
   for (FXint i=0;i<basedirs.no();i++) {
     FXint no = FXDir::listFiles(dirs,basedirs[i],"*",FXDir::AllDirs|FXDir::NoParent|FXDir::NoFiles);
     if (no) {
       for (FXint j=0;j<no;j++) {
-        if (themedict.find(dirs[j].text())==NULL && !FXStat::isLink(basedirs[i]+PATHSEPSTRING+dirs[j])) {
+        if (themedict.find(dirs[j])==-1 && !FXStat::isLink(basedirs[i]+PATHSEPSTRING+dirs[j])) {
           FXString index = basedirs[i]+PATHSEPSTRING+dirs[j]+PATHSEPSTRING+"index.theme";
           if (FXStat::exists(index)) {
-            themedict.insert(dirs[j].text(),index.text());
+            themedict.insert(dirs[j],index);
             }
           }
         }
@@ -106,8 +106,9 @@ static void init_themedict(FXStringList & basedirs,FXStringDict & themedict){
     }
 #ifdef DEBUG
   fxmessage("themes:\n");
-  for (FXint i=themedict.first();i<themedict.size();i=themedict.next(i)){
-    fxmessage("\t%s\n",themedict.key(i));
+  for (FXint i=0;i<themedict.no();i++){
+    if (!themedict.empty(i))
+      fxmessage("\t%s\n",themedict.key(i).text());
     }
 #endif
   }
@@ -343,7 +344,8 @@ void GMIconTheme::save_cache() {
     store << smallsize;
     store << mediumsize;
     store << largesize;
-    store << (FXint)iconsets.no();
+    FXint n = iconsets.no();
+    store << n;
     for (FXint i=0;i<iconsets.no();i++) {
       iconsets[i].save(store);
       }
@@ -401,13 +403,13 @@ FXbool GMIconTheme::load_cache() {
     iconsets.no(n);
     for (FXint i=0;i<iconsets.no();i++){
       iconsets[i].load(store);
-      }      
-      
+      }
+
     return true;
     }
 
 failed:
-  GM_DEBUG_PRINT("GMIconTheme::load_cache() - failed\n");        
+  GM_DEBUG_PRINT("GMIconTheme::load_cache() - failed\n");
   return false;
   }
 
@@ -522,9 +524,9 @@ void GMIconTheme::build() {
   FXString base;
   FXString dir;
 
-  FXStringDict themedict;
-  FXDict       indexmap;
-  FXint        s,i,j,xx;
+  FXStringDictionary themedict;
+  FXDict             indexmap;
+  FXint              s,i,j,xx;
 
   init_themedict(basedirs,themedict);
 
@@ -533,16 +535,18 @@ void GMIconTheme::build() {
     FXDict     * inherits = new FXDict[themedict.no()];
 
     /// Parse Index Files
-    for (i=themedict.first(),j=0;i<themedict.size();i=themedict.next(i)){
-      const FXchar * themedir  = themedict.key(i);
-      const FXchar * themefile = themedict.data(i);
-      index[j++].parseFile(themefile,true);
-      indexmap.insert(themedir,(void*)(FXival)(j));
+    for (i=0,j=0;i<themedict.no();i++){
+      if (!themedict.empty(i)){
+        index[j++].parseFile(themedict.data(i),true);
+        indexmap.insert(themedict.key(i).text(),(void*)(FXival)(j));
+        }
       }
 
-    for (i=themedict.first();i<themedict.size();i=themedict.next(i)){
-      const FXchar * themedir  = themedict.key(i);
-      const FXint            x = (FXint)(FXival)indexmap.find(themedir) - 1;
+    for (i=0;i<themedict.no();i++){
+      if (themedict.empty(i)) continue;
+
+      const FXString themedir  = themedict.key(i);
+      const FXint            x = (FXint)(FXival)indexmap.find(themedir.text()) - 1;
 
       if (index[x].readBoolEntry("Icon Theme","Hidden",false))
         continue;
@@ -615,7 +619,7 @@ void GMIconTheme::build() {
       /// Finally add the theme
       const FXint current=iconsets.no();
       iconsets.no(current+1);
-      iconsets[current].name        = index[x].readStringEntry("Icon Theme","Name",themedir);
+      iconsets[current].name        = index[x].readStringEntry("Icon Theme","Name",themedir.text());
       iconsets[current].dir         = themedir;
       iconsets[current].small.adopt(smallpath);
       iconsets[current].medium.adopt(mediumpath);
@@ -729,7 +733,7 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
         FXString target = dest + PATHSEPSTRING + svg + ".png";
         if (!FXStat::exists(target)) {
           FXDir::createDirectories(dest);
-          
+
           GM_DEBUG_PRINT("GMIconTheme::loadIcon() - rsvg-convert %s",target.text());
 
           if (system(FXString::value("rsvg-convert --format=png --width=%d --height=%d -o %s %s\n",size,size,target.text(),path.text()).text())==0){
@@ -745,15 +749,17 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
       }
     }
 
-  if (!name.empty()) 
-    ic=loadIcon(name);  
+  if (!name.empty())
+    ic=loadIcon(name);
 
   if (ic==NULL) {
+    //fxmessage("%s\n",value);
     ic = new FXIcon(app,NULL,0,IMAGE_OWNED,size,size);
+    ic->fill(blendcolor);
     }
-  else {
-    FXFile::copyFiles(name,FXString::value("/home/sxj/gmm/x%d_%s",size,FXPath::name(name).substitute('-','_').text()),true);
-    }
+//  else {
+//    FXFile::copyFiles(name,FXString::value("/home/sxj/gmm/x%d_%s",size,FXPath::name(name).substitute('-','_').text()),true);
+//    }
 
 
   if (icon) {
@@ -793,8 +799,8 @@ void GMIconTheme::loadLarge(FXIconPtr & icon,const FXchar * value,const FXColor 
   }
 
 void GMIconTheme::loadResource(FXIconPtr & icon,const void * data,const FXColor blendcolor,const char * type) {
-  FXIconSource source(app);
-  FXIcon * newicon = source.loadIconData(data,type);
+  FXIconSource source;
+  FXIcon * newicon = source.loadIconData(app,data,type);
   FXASSERT(newicon);
   if (icon) {
     icon->destroy();
@@ -862,7 +868,7 @@ void GMIconTheme::loadInternal() {
   loadResource(icon_folder_small,x16_folder_png,backcolor);
   loadResource(icon_folder_big,x22_folder_png,backcolor);
 
- 
+
   loadResource(icon_home,x16_go_home_png,basecolor);
   loadResource(icon_playqueue,x16_x_office_presentation_png,basecolor);
   loadResource(icon_settings,x16_preferences_desktop_png,basecolor);
@@ -986,7 +992,7 @@ void GMIconTheme::loadExternal() {
   loadSmall(icon_folder_small,"folder",backcolor);
   loadMedium(icon_folder_big,"folder",backcolor);
 
-  loadSmall(icon_progress,"process-working.png",basecolor);
+  loadSmall(icon_progress,"process-working",basecolor);
   }
 
 

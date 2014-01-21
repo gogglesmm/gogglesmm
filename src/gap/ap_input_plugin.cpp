@@ -37,15 +37,51 @@ using namespace ap;
 namespace ap {
 
 
-InputPlugin::InputPlugin(InputThread * i,FXival sz) : input(i), buffer(sz) {
-  }
+//InputPlugin::InputPlugin(InputThread * i,FXival sz) : input(i), buffer(sz) {
+//  }
 
-InputPlugin::InputPlugin(InputThread * i) : input(i), buffer(0) {
+InputPlugin::InputPlugin(InputThread * i) : input(i){
   }
 
 InputPlugin::~InputPlugin() {
   }
 
+FXbool InputPlugin::read_uint32_be(FXuint & value) {
+  if (read(&value,4)==4) {
+    value = swap32(value);
+    return true;
+    }
+  return false;
+  }
+
+FXbool InputPlugin::read_int32_be(FXint & value) {
+  if (read(&value,4)==4) {
+    value = swap32(value);
+    return true;
+    }
+  return false;
+  }
+
+
+
+FXbool InputPlugin::read_uint16_be(FXushort & value) {
+  if (read(&value,2)==2) {
+    value = swap16(value);
+    return true;
+    }
+  return false;
+  }
+
+FXbool InputPlugin::read_int16_be(FXshort & value) {
+  if (read(&value,2)==2) {
+    value = swap16(value);
+    return true;
+    }
+  return false;
+  }
+
+
+/*
 FXival InputPlugin::io_buffer(FXival count) {
   register FXival nread=0;
   register FXival n;
@@ -166,6 +202,7 @@ FXbool InputPlugin::io_wait_write() {
   while(1);
   }
 
+
 FXival InputPlugin::preview(void*data,FXival count) {
   if (serial() || buffer.size()) {
     if (buffer.size()<count) {
@@ -199,5 +236,5 @@ FXival InputPlugin::read(void * d,FXival count){
     return InputPlugin::io_read_block(d,count);
     }
   }
-
+*/
 }

@@ -253,9 +253,15 @@ public:
 
   FXbool listTracks();
 
+  FXint getActive() const;
+
   FXint getCurrent() const;
 
+  FXint getNextPlayable(FXint,FXbool) const;
+
   FXint getNext(FXbool wrap=false);
+
+  FXint getPreviousPlayable(FXint,FXbool) const;
 
   FXint getPrevious();
 
@@ -263,7 +269,7 @@ public:
 
   GMSource * getSource() const { return source; }
 
-  FXString getTrackFilename(FXint i) const;
+  //FXString getTrackFilename(FXint i) const;
 
   void sortTags() const;
 
@@ -285,7 +291,7 @@ public:
 
   void redrawAlbumList();
 
-  void mark(FXint item,FXbool show=true);
+  void setActive(FXint item,FXbool show=true);
 
   void showCurrent();
 

@@ -44,12 +44,28 @@ protected:
   FXFontPtr     coverheadfont;
   FXFontPtr     coverbasefont;
   FXFontPtr     listtailfont;
+#ifdef HAVE_OPENGL
+protected:
+  FXGLVisual*   glvisual;
+  FXGLContext*  glcontext;
+#endif
 protected:
   virtual FXbool dispatchEvent(FXRawEvent & event);
 public:
   static GMApp * instance();
 public:
   GMApp();
+
+
+#ifdef HAVE_OPENGL
+  void initOpenGL();
+
+  void releaseOpenGL();
+
+  FXbool hasOpenGL();
+
+  FXGLContext* getGLContext() const { return glcontext; }
+#endif
 
   virtual void init(int& argc,char** argv,FXbool connect=true);
   virtual void create();

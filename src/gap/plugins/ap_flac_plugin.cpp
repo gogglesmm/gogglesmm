@@ -60,7 +60,7 @@
 #error "BUG: FLAC  macros not defined for Big Endian Architecture"
 #endif
 
-#include <stream_decoder.h>
+#include <FLAC/stream_decoder.h>
 
 namespace ap {
 
@@ -70,6 +70,7 @@ protected:
   FLAC__StreamDecoder * flac;
   ReplayGain            gain;
   MetaInfo            * meta;
+  FXlong                lastseek;
 protected:
   static FLAC__StreamDecoderSeekStatus    flac_input_seek(const FLAC__StreamDecoder*,FLAC__uint64,void*);
   static FLAC__StreamDecoderTellStatus    flac_input_tell(const FLAC__StreamDecoder*,FLAC__uint64*,void*);
@@ -122,7 +123,7 @@ public:
 
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
-
+extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 
 enum {
   FLAC_BLOCK_STREAMINFO     = 0,
@@ -132,8 +133,6 @@ enum {
 
 void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
   FXString comment;
-  FXint size=0;
-  FXint ncomments=0;
   const FXchar * end = buffer+len;
 
   FXuint header=((const FXuint*)buffer)[0];
@@ -144,23 +143,7 @@ void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,
   buffer+=4;
   if (buffer>=end) return;
 
-  /// Vendor string
-  size = INT32_LE(buffer);
-  if (size) buffer+=4+size;
-  if (buffer>=end) return;
-
-  /// Number of user comments
-  ncomments = INT32_LE(buffer);
-  buffer+=4;
-
-  for (FXint i=0;i<ncomments && (buffer<=end);i++) {
-    size = INT32_LE(buffer);
-    if (buffer+size+4>end)
-      return;
-    ap_replaygain_from_vorbis_comment(gain,buffer+4,size);
-    ap_meta_from_vorbis_comment(meta,buffer+4,size);
-    buffer+=4+size;
-    }
+  ap_parse_vorbiscomment(buffer,len-4,gain,meta);
   }
 
 
@@ -249,12 +232,12 @@ FXbool FlacReader::can_seek() const {
 FXbool FlacReader::seek(FXdouble pos){
   FXASSERT(stream_length>0);
   FXlong offset = (FXlong)(((FXdouble)stream_length)*pos);
-  GM_DEBUG_PRINT("seek to %ld\n",offset);
+  GM_DEBUG_PRINT("[flac_reader] seek to %g %ld / %ld\n",pos,offset,stream_length);
   FLAC__stream_decoder_flush(flac);
   if (FLAC__stream_decoder_seek_absolute(flac,offset)) {
+    input->position(lastseek,FXIO::Begin);
     return true;
     }
-  GM_DEBUG_PRINT("Oops. failed to seek\n");
   return false;
   }
 
@@ -320,8 +303,9 @@ FLAC__StreamDecoderSeekStatus FlacReader::flac_input_seek(const FLAC__StreamDeco
 // FIXME
 //  if (inputflac->input->io->isSerial())
 //    return FLAC__STREAM_DECODER_SEEK_STATUS_UNSUPPORTED;
-
   FXlong pos = plugin->input->position(absolute_byte_offset,FXIO::Begin);
+  plugin->lastseek = pos;
+
   if (pos<0 || ((FXulong)pos)!=absolute_byte_offset)
     return FLAC__STREAM_DECODER_SEEK_STATUS_ERROR;
   else
@@ -393,8 +377,6 @@ FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDeco
     }
   }
 
-extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
-extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
 
 void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
@@ -465,8 +447,6 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
   FXint nframes = frame->header.blocksize;
 
   FXASSERT(frame->header.number_type==FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER);
-
-//  fxmessage("flac nframes %d with sample number %ld\n",nframes,frame->header.number.sample_number);
 
   if (nframes==0)
     return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
@@ -606,7 +586,7 @@ void FlacDecoder::flac_decoder_error(const FLAC__StreamDecoder */*decoder*/, FLA
 #if 0
   //FlacDecoder * plugin = reinterpret_cast<FlacDecoder*>(client_data);
   //FXASSERT(plugin);
-  
+
   switch(status) {
     case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC          : fxmessage("flac_decoder_error: An error in the stream caused the decoder to lose synchronization.\n"); break;
     case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER         : fxmessage("flac_decoder_error: The decoder encountered a corrupted frame header.\n"); break;
@@ -645,6 +625,11 @@ FXbool FlacDecoder::init(ConfigureEvent*event) {
       }
 
      }
+  else {
+    // Apparently just flushing the decoder is not enough.
+    // Prevent faulty seeking behaviour by resetting the decoder as well.
+    FLAC__stream_decoder_reset(flac);
+    }
   af=event->af;
   stream_length=event->stream_length;
   return true;

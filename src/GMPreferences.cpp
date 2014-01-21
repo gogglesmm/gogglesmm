@@ -165,7 +165,7 @@ GMPreferences::GMPreferences() :
   gui_tray_icon(false),
   gui_tray_icon_disabled(false),
   gui_show_playing_titlebar(false),
-  gui_show_opengl_coverview(true),
+  gui_use_opengl(true),
   gui_coverdisplay_size(256),
 
   play_replaygain(REPLAYGAIN_OFF),
@@ -232,7 +232,7 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_window,key_gui_merge_albums,gui_merge_albums);
   reg.writeBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   reg.writeBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
-  reg.writeBoolEntry(section_window,key_gui_show_opengl_coverview,gui_show_opengl_coverview);
+  reg.writeBoolEntry(section_window,key_gui_show_opengl_coverview,gui_use_opengl);
   reg.writeStringEntry(section_window,key_gui_format_title,gui_format_title.text());
   reg.writeIntEntry(section_window,key_gui_coverdisplay_size,gui_coverdisplay_size);
 
@@ -260,11 +260,11 @@ void GMPreferences::load(FXSettings & reg) {
   /// Remove Keys that interfere with new ones..
   if (reg.readIntEntry(section_app,"major-version",0)==0 && reg.readIntEntry(section_app,"minor-version",8)<9) {
     FXint s;
-    FXStringDict *dict;
-    for (s = reg.first(); s < reg.size(); s = reg.next(s)){
-      dict = reg.data(s);
-      dict->remove("browse-showcolumn-no");
-      dict->remove("list-showcolumn-no");
+    for (s = 0; s < reg.no(); s++){
+      if (!reg.empty(s)) {
+        reg.data(s).remove("browse-showcolumn-no");
+        reg.data(s).remove("list-showcolumn-no");
+        }
       }
     }
 
@@ -308,7 +308,7 @@ void GMPreferences::load(FXSettings & reg) {
   gui_tray_icon                 = reg.readBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   gui_show_playing_titlebar     = reg.readBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
   gui_format_title              = reg.readStringEntry(section_window,key_gui_format_title,gui_format_title.text());
-  gui_show_opengl_coverview     = reg.readBoolEntry(section_window,key_gui_show_opengl_coverview,gui_show_opengl_coverview);
+  gui_use_opengl                = reg.readBoolEntry(section_window,key_gui_show_opengl_coverview,gui_use_opengl);
   gui_coverdisplay_size         = reg.readIntEntry(section_window,key_gui_coverdisplay_size,gui_coverdisplay_size);
 
   /// Player
@@ -409,7 +409,7 @@ void GMPreferences::getKeyWords(FXString & keywords) const {
 void GMPreferences::parseCommandLine(int argc,char **argv){
   for (FXint i=0;i<argc;i++){
     if (comparecase(argv[i],"--disable-opengl")==0) {
-      gui_show_opengl_coverview=false;
+      gui_use_opengl=false;
       }
     }
   }

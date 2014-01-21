@@ -90,6 +90,9 @@ public:
   void update(const FXString&);
   FXint insert(const FXString&);
   FXint insert();
+
+  static void makeSelection(const FXIntList & list,FXString & selection);
+
   };
 
 

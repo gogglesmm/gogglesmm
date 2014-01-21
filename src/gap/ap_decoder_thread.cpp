@@ -133,7 +133,7 @@ FXint DecoderThread::run(){
                           case DecoderError:
                                                            delete plugin;
                                                            plugin=NULL;
-                                                           fxmessage("[decoder] error\n");
+                                                           GM_DEBUG_PRINT("[decoder] fatal error");
                                                            engine->input->post(new ControlEvent(Ctrl_Close));
                                                            engine->post(new ErrorMessage("Fatal decoder error"));
                                                            break;
@@ -212,7 +212,7 @@ Packet * DecoderThread::get_output_packet() {
       return dynamic_cast<OutputPacket*>(event);
       }
 */
-    ap_wait_read(fifo.handle(),packetpool.handle(),0);
+    ap_wait(packetpool.handle(),fifo.handle());
     }
   while(1);
   return NULL;

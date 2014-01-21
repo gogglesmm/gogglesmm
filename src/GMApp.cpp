@@ -17,7 +17,16 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+
+#ifdef HAVE_OPENGL
+#include <GL/glew.h>
+#endif
+
 #include <fxkeys.h>
+
+
+
+
 #include <xincs.h>
 #include "gmutils.h"
 #include "GMApp.h"
@@ -92,6 +101,10 @@ FXIMPLEMENT(GMApp,FXApp,NULL,0)
 GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
   clipboard = new GMClipboard(this);
   xembed=0;
+#ifdef HAVE_OPENGL
+  glvisual=NULL;
+  glcontext=NULL;
+#endif
   }
 
 GMApp::~GMApp(){
@@ -255,6 +268,9 @@ void GMApp::init(int& argc,char** argv,FXbool connect) {
   }
 
 void GMApp::exit(FXint code) {
+#ifdef HAVE_OPENGL
+  releaseOpenGL();
+#endif
 
   /// Write the new xdg settings file.
   reg().unparseFile(GMApp::getConfigDirectory()+PATHSEPSTRING "settings.rc");
@@ -263,6 +279,55 @@ void GMApp::exit(FXint code) {
 
   FXApp::exit(code);
   }
+
+
+#ifdef HAVE_OPENGL
+
+FXbool GMApp::hasOpenGL() {
+  return (GMPlayerManager::instance()->getPreferences().gui_use_opengl && FXGLVisual::hasOpenGL(this));
+  }
+
+
+void GMApp::initOpenGL() {
+  if (glcontext == NULL) {
+    glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
+    glcontext = new FXGLContext(this,glvisual);
+
+    FXImage * glimage = new FXImage(this);
+    glimage->setVisual(glvisual);
+    glimage->create();
+
+    if (glcontext->begin(glimage)) {
+      if (glewInit()!=GLEW_OK) {   
+        fxwarning("failed to initialize opengl extensions");
+        }
+      glcontext->end();
+      }
+
+    delete glimage;
+    }
+  }
+
+void GMApp::releaseOpenGL() {
+  if (glcontext) {
+    delete glcontext;
+    glcontext=NULL;
+    }
+  if (glvisual) {
+    delete glvisual;
+    glvisual=NULL;
+    }
+  }
+
+#endif
+
+
+
+
+
+
+
+
 
 enum {
   XEMBED_EMBEDDED_NOTIFY = 0,
@@ -291,7 +356,7 @@ FXbool GMApp::dispatchEvent(FXRawEvent & ev) {
         return true;
       }
     else if (ev.xany.type==ClientMessage) {
-      if (ev.xclient.message_type==xmanager && ev.xclient.data.l[1]==xsystemtray) {
+      if (ev.xclient.message_type==xmanager && ((FXID)ev.xclient.data.l[1])==xsystemtray) {
         if (GMPlayerManager::instance()->getTrayIcon())
           GMPlayerManager::instance()->getTrayIcon()->dock();
         return true;

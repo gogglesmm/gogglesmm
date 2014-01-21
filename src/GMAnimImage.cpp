@@ -31,16 +31,12 @@ FXIMPLEMENT(GMAnimImage,FXImageFrame,GMAnimImageMap,ARRAYNUMBER(GMAnimImageMap))
 
 GMAnimImage::GMAnimImage(){
   index=1;
-  base=32;
-  //nrow=8;
-  //ncol=4;
+  base=16;
   }
 
 // Construct it
 GMAnimImage::GMAnimImage(FXComposite* p,FXImage *img,FXint bs,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXImageFrame(p,img,opts,x,y,w,h,pl,pr,pt,pb),base(bs){
   index=1;
-  //nrow=img->getWidth()/base;
-  //ncol=img->getHeight()/base;
   }
 
 GMAnimImage::~GMAnimImage(){
@@ -60,7 +56,8 @@ void GMAnimImage::hide() {
 
 void GMAnimImage::create() {
   FXImageFrame::create();
-  getApp()->addTimeout(this,ID_TIMER,TIME_MSEC(50));
+  if (shown())
+    getApp()->addTimeout(this,ID_TIMER,TIME_MSEC(50));
   }
 
 // Get default width
@@ -79,9 +76,12 @@ FXint GMAnimImage::getDefaultHeight(){
 
 long GMAnimImage::onTimer(FXObject*,FXSelector,void*){
   if (image) {
-    FXint nrow=image->getWidth()/base;
-    FXint ncol=image->getHeight()/base;
-    if (index==((nrow*ncol)-1))
+    FXuint nrow=image->getHeight() / base;
+    FXuint ncol=image->getWidth() / base;
+    FXuint n = ((nrow*ncol)-1);
+    if (n==0) 
+      index=0;
+    else if (index==n)
       index=1;
     else
       index++;
@@ -98,7 +98,7 @@ long GMAnimImage::onPaint(FXObject*,FXSelector,void* ptr){
   FXDCWindow dc(this,ev);
   FXint imgx,imgy,imgw=base,imgh=base;
   dc.setForeground(backColor);
-  if(image){
+  if(image && image->getWidth()>=(FXint)base){
     FXint nrow=image->getWidth()/base;
     if(options&JUSTIFY_LEFT) imgx=padleft+border;
     else if(options&JUSTIFY_RIGHT) imgx=width-padright-border-imgw;

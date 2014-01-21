@@ -33,7 +33,7 @@ protected:
 protected:
   AlsaConfig config;
   FXbool   can_pause;
-  FXbool   can_resume;
+  FXbool   can_resume;  
 protected:
   FXbool open();
 public:

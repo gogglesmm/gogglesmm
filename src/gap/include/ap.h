@@ -25,14 +25,12 @@
   #define GMAPI
 #endif
 
-//#include <ap_version.h>
 #include <ap_event.h>
 #include <ap_event_queue.h>
 #include <ap_app_queue.h>
 #include <ap_device.h>
 #include <ap_player.h>
 #include <ap_common.h>
-#include <ap_buffer.h>
 #include <ap_http.h>
 #include <ap_xml_parser.h>
 

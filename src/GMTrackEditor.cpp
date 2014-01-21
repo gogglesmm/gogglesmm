@@ -45,7 +45,7 @@ FXint GMTagUpdateTask::run() {
     GMTrack info;
     database->beginTask();
 
-    for (FXint i=0;i<tracks.no() && processing;i++) {
+    for (FXival i=0;i<tracks.no() && processing;i++) {
 
      if (database->interrupt)
         database->waitTask();
@@ -54,9 +54,9 @@ FXint GMTagUpdateTask::run() {
         break;
         }
 
-      taskmanager->setStatus(FXString::value("Writing Tags %d/%d..",i+1,tracks.no()));
+      taskmanager->setStatus(FXString::value("Writing Tags %ld/%ld..",i+1,tracks.no()));
 
-      info.saveTag(info.mrl);
+      info.saveTag(info.url);
 
       database->setTrackImported(tracks[i],FXThread::time());
       }
@@ -91,9 +91,9 @@ GMUpdateTask::GMUpdateTask(GMTrackDatabase * db,GMTrackArray & t,FXIntList & i) 
 
 FXint GMUpdateTask::run() {
   try {
-    for (FXint i=0;i<tracks.no() && processing;i++) {
-      taskmanager->setStatus(FXString::value("Writing Tags %d/%d..",i+1,tracks.no()));
-      tracks[i].saveTag(tracks[i].mrl);
+    for (FXival i=0;i<tracks.no() && processing;i++) {
+      taskmanager->setStatus(FXString::value("Writing Tags %ld/%ld..",i+1,tracks.no()));
+      tracks[i].saveTag(tracks[i].url);
 
       database->beginTask();
       database->setTrackImported(ids[i],FXThread::time());
@@ -159,10 +159,10 @@ FXint GMRenameTask::run() {
 static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
   register FXint i=0;
   FXint numchanges=0;
-  FXString mrl;
+  FXString url;
   GMTrack trackinfo;
-  FXStringList newmrls;
-  FXStringList oldmrls;
+  FXStringList newurls;
+  FXStringList oldurls;
 
   if (!GMPlayerManager::instance()->getPreferences().export_format_template.contains("%T")) {
     FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Invalid Template"),fxtr("The provided template is invalid. The track title %%T needs to be specified.\nPlease fix the filename template in the preference panel."));
@@ -190,14 +190,14 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
       return true;
       }
     db->commit();
-    if (GMFilename::create(mrl,trackinfo,GMPlayerManager::instance()->getPreferences().export_format_template,GMPlayerManager::instance()->getPreferences().export_character_filter,options,codec) && mrl!=trackinfo.mrl) {
-      newmrls.append(mrl);
-      oldmrls.append(trackinfo.mrl);
+    if (GMFilename::create(url,trackinfo,GMPlayerManager::instance()->getPreferences().export_format_template,GMPlayerManager::instance()->getPreferences().export_character_filter,options,codec) && url!=trackinfo.url) {
+      newurls.append(url);
+      oldurls.append(trackinfo.url);
       numchanges++;
       }
     else {
-      newmrls.append(FXString::null);
-      oldmrls.append(FXString::null);
+      newurls.append(FXString::null);
+      oldurls.append(FXString::null);
       }
     }
 
@@ -222,8 +222,8 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
   GMList * list = new GMList(sunken,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
   for (i=0;i<tracks.no();i++) {
-    if (!newmrls[i].empty()) {
-      list->appendItem(newmrls[i]);
+    if (!newurls[i].empty()) {
+      list->appendItem(newurls[i]);
       }
     }
 
@@ -233,7 +233,7 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
 
   if (dialog.execute()) {
 
-    GMRenameTask * task = new GMRenameTask(db,tracks,newmrls,oldmrls);
+    GMRenameTask * task = new GMRenameTask(db,tracks,newurls,oldurls);
 //    task->setTarget(GMPlayerManager::instance()->getTrackView()->getSource());
  //   task->setSelector(
 
@@ -432,10 +432,10 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     new FXLabel(matrix,tr("Size"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     sizefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    new FXLabel(matrix,tr("Bitrate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    bitratelabel = new FXLabel(matrix,FXString::null,NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     bitratefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    new FXLabel(matrix,tr("Samplerate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    new FXLabel(matrix,tr("Sample Rate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     sampleratefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     new FXLabel(matrix,tr("Channels"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
@@ -614,7 +614,7 @@ void GMEditTrackDialog::getTrackSelection() {
   infotags = list_concat(info.tags);
 
   if (tracks.no()==1) {
-    properties.load(info.mrl);
+    properties.load(info.url);
     }
 
   samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR|SAME_TAGS;
@@ -675,14 +675,21 @@ void GMEditTrackDialog::displayTracks() {
     titlefield->setText(info.title);
     discspinner->setValue(GMDISCNO(info.no));
 
-    filenamefield->setText(info.mrl);
-    typefield->setText(FXPath::extension(info.mrl).upper());
+    filenamefield->setText(info.url);
+    typefield->setText(FXPath::extension(info.url).upper());
 #if defined(__LP64__) || defined(_LP64) || (_MIPS_SZLONG == 64) || (__WORDSIZE == 64)
-    sizefield->setText(FXString::value("%'ld",FXStat::size(info.mrl)));
+    sizefield->setText(FXString::value("%'ld",FXStat::size(info.url)));
 #else
-    sizefield->setText(FXString::value("%'lld",FXStat::size(info.mrl)));
+    sizefield->setText(FXString::value("%'lld",FXStat::size(info.url)));
 #endif
-    bitratefield->setText(FXString::value("%dkbs",properties.bitrate));
+    if (properties.samplesize>0) {
+      bitratelabel->setText(tr("Sample Size"));
+      bitratefield->setText(FXString::value("%dbit",properties.samplesize));
+      }
+    else {
+      bitratelabel->setText(tr("Bitrate"));
+      bitratefield->setText(FXString::value("%dkbs",properties.bitrate));
+      }
     sampleratefield->setText(FXString::value("%dHz",properties.samplerate));
     channelfield->setText(FXString::value("%d",properties.channels));
     tagsfield->setText(list_concat(info.tags));
@@ -786,17 +793,6 @@ FXbool GMEditTrackDialog::saveTracks() {
       sync=true;
       }
 
-    /// YEAR
-    field=yearfield->getText().trim().simplify();
-    if (!field.empty()){
-      FXint year=yearfield->getText().toInt();
-      if ( ( tracks.no()>1 && ( (!(samemask&SAME_YEAR)) || info.year!=year ) ) ||
-           ( tracks.no()==1 && info.year!=year )) {
-        db->setTrackYear(tracks,year);
-        changed=true;
-        }
-      }
-
     /// DISC and TRACK number
     if (tracks.no()==1) {
       if (GMTRACKNO(info.no)!=trackspinner->getValue() || GMDISCNO(info.no)!=discspinner->getValue() ) {
@@ -860,7 +856,20 @@ FXbool GMEditTrackDialog::saveTracks() {
       sync=true;
       }
 
+
+    /// YEAR
+    field=yearfield->getText().trim().simplify();
+    if (!field.empty()){
+      FXint year=yearfield->getText().toInt();
+      if ( ( tracks.no()>1 && ( (!(samemask&SAME_YEAR)) || info.year!=year ) ) ||
+           ( tracks.no()==1 && info.year!=year )) {
+        db->setTrackYear(tracks,year);
+        changed=true;
+        }
+      }
+
     db->sync_tracks_removed();
+    db->sync_album_year();
     db->commit();
     }
   catch(GMDatabaseException&) {

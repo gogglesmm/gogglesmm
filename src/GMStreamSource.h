@@ -52,8 +52,6 @@ public:
 
   virtual FXbool setTrack(GMTrack & info) const;
 
-  FXString getTrackFilename(FXint id) const;
-
   FXString getName() const { return fxtr("Internet Radio"); }
 
   FXint getType() const { return SOURCE_INTERNET_RADIO; }

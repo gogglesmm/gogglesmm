@@ -21,34 +21,33 @@
 
 namespace ap {
 
-class HttpInputClient;
 
 class HttpInput : public InputPlugin {
-friend class HttpInputClient;
 protected:
-  HttpInputClient* client;
-protected:
-  FXlong        content_position;
-  FXuint        content_type;
-  FXint         icy_interval;
-  FXint         icy_count;
+  HttpClient client;
+	FXlong 		 content_position;
+	FXuint		 content_type;
+  FXint 		 icy_interval;
+  FXint      icy_count;
+  MemoryBuffer preview_buffer;
 private:
   HttpInput(const HttpInput&);
   HttpInput &operator=(const HttpInput&);
 protected:
-  FXival        io_read(void*,FXival);
-  FXival        io_write(const void*,FXival);
-  FXInputHandle io_handle() const;
-protected:
-  void          check_headers();
-  FXival        icy_read(void*,FXival);
-  void          icy_parse(const FXString &);
-  void          close();
+	void check_headers();
+	FXival icy_read(void*,FXival);
+	void icy_parse(const FXString&);
 public:
+  /// Constructor
   HttpInput(InputThread*);
 
-  /// Open uri
   FXbool open(const FXString & uri);
+
+	/// Read
+	FXival read(void*,FXival);
+
+	/// Preview
+	FXival preview(void*,FXival);
 
   /// Set Position
   FXlong position(FXlong offset,FXuint from);
@@ -68,10 +67,9 @@ public:
   /// Get plugin type
   FXuint plugin() const;
 
-  /// Read
-  FXival read(void*,FXival);
-
-  ~HttpInput();
+  /// Destructor
+  virtual ~HttpInput();
   };
+
 }
 #endif

@@ -95,16 +95,7 @@ typedef FXint (*GMTrackListSortFunc)(const GMTrackItem*,const GMTrackItem*);
 
 class GMSource : public FXObject {
 FXDECLARE(GMSource)
-/*
 protected:
-  FXString settingkey;
-  FXString name;
-  FXuint   sourcetype;
-*/
-protected:
-//	FXIntList genre_selection;
-//	FXIntList artist_selection;
-//	FXIntList album_selection;
   FXint current_track;
   GMTrackListSortFunc sort_browse;
 private:
@@ -137,10 +128,10 @@ public:
 public:
   GMSource();
 
+  /// Configure the columns in the tracklist
   virtual void configure(GMColumnList&) {}
 
   virtual void shuffle(GMTrackList*,FXuint) const{}
-
 
   GMTrackListSortFunc getSortBrowse() const { return sort_browse; }
 
@@ -149,7 +140,7 @@ public:
   void setCurrentTrack(FXint t) { current_track=t; }
 
   FXint getCurrentTrack() const { return current_track; }
-
+  
   virtual FXbool hasCurrentTrack(GMSource * ) const { return false; }
 
   virtual FXbool hasTrack(const FXString &,FXint &) { return false; }
@@ -166,8 +157,6 @@ public:
 
   virtual FXint getNumTracks() const;
 
-  virtual FXString getTrackFilename(FXint id) const;
-
   virtual FXbool getTrack(GMTrack & info) const;
 
   virtual FXbool setTrack(GMTrack &) const { return false; }
@@ -181,6 +170,8 @@ public:
   virtual FXbool canFilter() const { return false; }
 
   virtual FXbool defaultBrowse() const { return true; }
+
+  virtual FXbool defaultTags() const { return false; }
 
   virtual FXbool autoPlay() const { return true; }
 

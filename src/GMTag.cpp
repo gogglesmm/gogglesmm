@@ -24,8 +24,11 @@
 #include "GMTrack.h"
 #include "GMCover.h"
 #include "GMTag.h"
+#include "GMAudioPlayer.h"
 
 /// TagLib
+
+
 #include <fileref.h>
 #include <tstring.h>
 #include <id3v1genres.h>
@@ -33,110 +36,19 @@
 #include <id3v2framefactory.h>
 #include <mpegfile.h>
 #include <vorbisfile.h>
+#include <opusfile.h>
+#include <tdebuglistener.h>
 #include <flacfile.h>
 #include <apetag.h>
 #include <textidentificationframe.h>
 #include <attachedpictureframe.h>
-#ifdef TAGLIB_HAVE_MP4
 #include "mp4file.h"
 #include "mp4tag.h"
 #include "mp4coverart.h"
-#endif
 
 #include "FXPNGImage.h"
 #include "FXJPGImage.h"
 
-
-
-class Base64Encoder {
-private:
-  static const FXchar base64[];
-private:
-  FXString out;
-  FXuchar  buffer[3];
-  FXint    nbuffer;
-  FXint    index;
-protected:
-  void encodeChunks(const FXuchar * in,FXint len) {
-
-    // resize buffer if needed
-    FXint needed = 4*(len/3);
-    if (index+needed>=out.length()) {
-      out.length(out.length()+needed-(out.length()-index));
-      }
-
-    for (int i=0;i<len;i+=3) {
-      out[index++]=base64[(in[i]>>2)];
-      out[index++]=base64[((in[i]&0x3)<<4)|(in[i+1]>>4)];
-      out[index++]=base64[((in[i+1]&0xf)<<2)|(in[i+2]>>6)];
-      out[index++]=base64[(in[i+2]&0x3f)];
-      }
-    }
-public:
-  Base64Encoder(FXint source_length=0) : nbuffer(0), index(0){
-    if (source_length)
-      out.length(4*(source_length/3));
-    }
-
-  void encode(FXuint value) {
-    encode((const FXuchar*)&value,4);
-    }
-
-
-  void encode(const FXuchar * in,FXint len) {
-    if (len) {
-      FXint rindex=0;
-
-      if (nbuffer) {
-        for (rindex=0;(nbuffer<3)&&(rindex<len);rindex++)
-          buffer[nbuffer++]=in[rindex];
-
-        if (nbuffer<3)
-          return;
-
-        encodeChunks(buffer,3);
-        len-=rindex;
-        nbuffer=0;
-        }
-
-      FXint r = len % 3;
-      FXint n = len - r;
-      if (n) encodeChunks(in+rindex,n);
-
-      for (int i=0;i<r;i++)
-        buffer[i]=in[rindex+n+i];
-
-      nbuffer=r;
-      }
-    }
-
-  void finish() {
-    if (nbuffer) {
-      if (index+4>=out.length()) {
-        out.length(out.length()+4-(out.length()-index));
-        }
-      out[index++]=base64[(buffer[0]>>2)];
-      if (nbuffer>1) {
-        out[index++]=base64[((buffer[0]&0x3)<<4)|(buffer[1]>>4)];
-        out[index++]=base64[((buffer[1]&0xf)<<2)];
-        out[index++]='=';
-        }
-      else {
-        out[index++]=base64[((buffer[0]&0x3)<<4)];
-        out[index++]='=';
-        out[index++]='=';
-        }
-      }
-    }
-
-
-
-
-
-  FXString & getOutput() { return out; }
-  };
-
-const FXchar Base64Encoder::base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 static FXbool to_int(const FXString & str,FXint & val){
   char * endptr=NULL;
@@ -367,10 +279,10 @@ FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
 
   TagLib::MPEG::File        * mpgfile   = NULL;
   TagLib::Ogg::Vorbis::File * oggfile   = NULL;
+  TagLib::Ogg::Opus::File   * opusfile  = NULL;
   TagLib::FLAC::File        * flacfile  = NULL;
-#ifdef TAGLIB_HAVE_MP4
   TagLib::MP4::File         * mp4file   = NULL;
-#endif
+
   tag = file->tag();
 
   if ((oggfile = dynamic_cast<TagLib::Ogg::Vorbis::File*>(file))) {
@@ -384,11 +296,12 @@ FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
     id3v2=mpgfile->ID3v2Tag();
     ape=mpgfile->APETag();
     }
-#ifdef TAGLIB_HAVE_MP4
   else if ((mp4file = dynamic_cast<TagLib::MP4::File*>(file))){
     mp4=mp4file->tag();
     }
-#endif
+  else if ((opusfile = dynamic_cast<TagLib::Ogg::Opus::File*>(file))){
+    xiph=opusfile->tag();
+    }
   return true;
   }
 
@@ -550,19 +463,16 @@ void  GMFileTag::id3v2_get_field(const FXchar * field,FXStringList & list) const
 
 
 void GMFileTag::mp4_update_field(const FXchar * field,const FXString & value) {
-#ifdef TAGLIB_HAVE_MP4
   FXASSERT(field);
   FXASSERT(mp4);
   if (!value.empty())
-    mp4->itemListMap()[field] = TagLib::StringList(TagLib::String(value.text(),TagLib::String::UTF8));
+    mp4->itemListMap().insert(field,TagLib::StringList(TagLib::String(value.text(),TagLib::String::UTF8)));
   else
     mp4->itemListMap().erase(field);
-#endif
   }
 
 
 void GMFileTag::mp4_update_field(const FXchar * field,const FXStringList & list) {
-#ifdef TAGLIB_HAVE_MP4
   FXASSERT(field);
   FXASSERT(mp4);
   if (list.no()==0) {
@@ -573,31 +483,25 @@ void GMFileTag::mp4_update_field(const FXchar * field,const FXStringList & list)
     for (FXint i=0;i<list.no();i++) {
       values.append(TagLib::String(list[i].text(),TagLib::String::UTF8));
       }
-    mp4->itemListMap()[field]=values;
+    mp4->itemListMap().insert(field,values);
     }
-#endif
   }
 
 
 void GMFileTag::mp4_get_field(const FXchar * field,FXString & value) const {
-#ifdef TAGLIB_HAVE_MP4
   FXASSERT(field);
   FXASSERT(mp4);
-  if (mp4->itemListMap().contains(field) && !mp4->itemListMap().isEmpty())
+  if (mp4->itemListMap().contains(field))
     value=mp4->itemListMap()[field].toStringList().toString(", ").toCString(true);
   else
     value.clear();
-#else
-  value.clear();
-#endif
   }
 
 
 void GMFileTag::mp4_get_field(const FXchar * field,FXStringList & list) const{
-#ifdef TAGLIB_HAVE_MP4
   FXASSERT(field);
   FXASSERT(mp4);
-  if (mp4->itemListMap().contains(field) && !mp4->itemListMap().isEmpty()) {
+  if (mp4->itemListMap().contains(field)) {
     TagLib::StringList fieldlist = mp4->itemListMap()[field].toStringList();
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
       list.append(it->toCString(true));
@@ -605,9 +509,6 @@ void GMFileTag::mp4_get_field(const FXchar * field,FXStringList & list) const{
     }
   else
     list.clear();
-#else
-  list.clear();
-#endif
   }
 
 
@@ -697,6 +598,7 @@ void GMFileTag::setTags(const FXStringList & tags){
   }
 
 void GMFileTag::getTags(FXStringList & tags) const {
+  tags.clear();
   if (xiph)
     xiph_get_field("GENRE",tags);
   else if (id3v2) {
@@ -776,14 +678,12 @@ void GMFileTag::setDiscNumber(FXushort disc) {
     else
       id3v2_update_field("TPOS",FXString::null);
     }
-#ifdef TAGLIB_HAVE_MP4
   else if (mp4) {
     if (disc>0)
-      mp4->itemListMap()["disk"] = TagLib::MP4::Item(disc,0);
+      mp4->itemListMap().insert("disk",TagLib::MP4::Item(disc,0));
     else
       mp4->itemListMap().erase("disk");
     }
-#endif
   }
 
 
@@ -803,12 +703,10 @@ FXushort GMFileTag::getDiscNumber() const{
     id3v2_get_field("TPOS",disc);
     return string_to_disc_number(disc);
     }
-#ifdef TAGLIB_HAVE_MP4
   else if (mp4) {
     if (mp4->itemListMap().contains("disk"))
       return FXMIN(mp4->itemListMap()["disk"].toIntPair().first,0xFFFF);
     }
-#endif
   return 0;
   }
 
@@ -848,6 +746,18 @@ FXint GMFileTag::getChannels() const{
   else
     return 0;
   }
+
+
+FXint GMFileTag::getSampleSize() const{
+  FXASSERT(file);
+  TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
+  if (flacfile && flacfile->audioProperties()) {
+    return flacfile->audioProperties()->sampleWidth();
+    }
+  else
+    return 0;
+  }
+
 
 
 void GMFileTag::setTrackNumber(FXushort track) {
@@ -907,7 +817,6 @@ GMCover * GMFileTag::getFrontCover() const {
         }
       }
     }
-#ifdef TAGLIB_HAVE_MP4
   else if (mp4) { /// MP4
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
@@ -916,7 +825,6 @@ GMCover * GMFileTag::getFrontCover() const {
         }
       }
     }
-#endif
   return NULL;
   }
 
@@ -953,7 +861,6 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
         }
       }
     }
-#ifdef TAGLIB_HAVE_MP4
   else if (mp4) {
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
@@ -962,7 +869,6 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
         }
       }
     }
-#endif
   return covers.no();
   }
 
@@ -971,10 +877,23 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
   if (mode==COVER_REPLACE_TYPE) {
     if (flacfile) {
-      // FIXME
+      const TagLib::List<TagLib::FLAC::Picture*> picturelist = flacfile->pictureList();
+      for(TagLib::List<TagLib::FLAC::Picture*>::ConstIterator it = picturelist.begin(); it != picturelist.end();it++){
+        if (cover->type==(*it)->type()) {
+          flacfile->removePicture((*it));
+          }
+        }
       }
     else if (id3v2) {
-      // FIXME
+      TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["APIC"];
+      if(!framelist.isEmpty()){
+        for(TagLib::ID3v2::FrameList::Iterator it = framelist.begin(); it != framelist.end(); it++) {
+          TagLib::ID3v2::AttachedPictureFrame * frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame*>(*it);
+          if (frame->type()==cover->type) {
+            id3v2->removeFrame(frame);
+            }
+          }
+        }
       }
     else if (xiph) {
       TagLib::StringList & coverlist = const_cast<TagLib::StringList&>(xiph->fieldListMap()["METADATA_BLOCK_PICTURE"]);
@@ -988,19 +907,31 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
           it++;
         }
       }
+    else if (mp4) {
+      // mp4 has no type information so we erase all
+      mp4->itemListMap().erase("covr");
+      }
     }
-  else {
-    if (flacfile) {
-      flacfile->removePictures();
-      }
-    else if (id3v2) {
-      id3v2->removeFrames("APIC");
-      }
-    else if (xiph) {
-      xiph->removeField("METADATA_BLOCK_PICTURE");
-      }
+  else { // COVER_REPLACE_ALL
+    clearCovers();
     }
   appendCover(cover);
+  }
+
+void GMFileTag::clearCovers() {
+  TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
+  if (flacfile) {
+    flacfile->removePictures();
+    }
+  else if (id3v2) {
+    id3v2->removeFrames("APIC");
+    }
+  else if (xiph) {
+    xiph->removeField("METADATA_BLOCK_PICTURE");
+    }
+  else if (mp4) {
+    mp4->itemListMap().erase("covr");
+    }
   }
 
 
@@ -1064,12 +995,27 @@ void GMFileTag::appendCover(GMCover* cover){
     frame->setTextEncoding(TagLib::ID3v2::FrameFactory::instance()->defaultTextEncoding());
     id3v2->addFrame(frame);
     }
-  }
-
-
-
-
-
+  else if (mp4) {
+    TagLib::MP4::CoverArt::Format format;
+    switch(cover->fileType()){
+      case FILETYPE_PNG: format = TagLib::MP4::CoverArt::PNG; break;
+      case FILETYPE_JPG: format = TagLib::MP4::CoverArt::JPEG; break;
+      case FILETYPE_BMP: format = TagLib::MP4::CoverArt::BMP; break;
+      case FILETYPE_GIF: format = TagLib::MP4::CoverArt::GIF; break;
+      default: return; break;
+      }
+    if (!mp4->itemListMap().contains("covr")) {
+      TagLib::MP4::CoverArtList list;
+      list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
+      mp4->itemListMap().insert("covr",list);
+      }
+    else {
+      TagLib::MP4::CoverArtList list = mp4->itemListMap()["covr"].toCoverArtList();
+      list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
+      mp4->itemListMap().insert("covr",list);
+      }
+    }
+}
 
 
 
@@ -1089,22 +1035,45 @@ FXbool GMAudioProperties::load(const FXString & filename){
     bitrate    = tags.getBitRate();
     samplerate = tags.getSampleRate();
     channels   = tags.getChannels();
+    samplesize = tags.getSampleSize();
     return true;
     }
   return false;
   }
 
 
+class GMTagLibDebugListener : public TagLib::DebugListener {
+private:
+  GMTagLibDebugListener(const GMTagLibDebugListener &);
+  GMTagLibDebugListener &operator=(const GMTagLibDebugListener &);
+public:
+  GMTagLibDebugListener(){}
+
+#ifdef DEBUG
+  virtual void printMessage(const TagLib::String &msg){
+    fxmessage("%s\n",msg.toCString(true));
+    }
+#else
+  virtual void printMessage(const TagLib::String&){}
+#endif
+
+  };
+
+
+static GMTagLibDebugListener debuglistener;
+
+
 namespace GMTag {
 
 void init(){
   TagLib::ID3v2::FrameFactory::instance()->setDefaultTextEncoding(TagLib::String::UTF16);
+  TagLib::setDebugListener(&debuglistener);
   }
 
 
 FXbool length(GMTrack & info) {
   GMFileTag tags;
-  if (!tags.open(info.mrl,FILETAG_AUDIOPROPERTIES))
+  if (!tags.open(info.url,FILETAG_AUDIOPROPERTIES))
     return false;
   info.time = tags.getTime();
   return true;

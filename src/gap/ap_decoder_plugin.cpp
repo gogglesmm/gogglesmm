@@ -48,7 +48,7 @@ extern DecoderPlugin * ap_opus_decoder(AudioEngine*);
 DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
   switch(codec) {
     case Codec::PCM     : return ap_pcm_decoder(engine); break;
-#ifdef HAVE_VORBIS_PLUGIN
+#if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
     case Codec::Vorbis  : return ap_vorbis_decoder(engine); break;
 #endif
 #ifdef HAVE_FLAC_PLUGIN

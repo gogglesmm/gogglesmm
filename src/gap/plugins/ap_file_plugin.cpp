@@ -44,7 +44,14 @@ FXbool FileInput::open(const FXString & uri) {
   return false;
   }
 
-FXival FileInput::io_read(void*data,FXival ncount) {
+FXival FileInput::preview(void*data,FXival count) {
+	FXlong pos = file.position();
+	FXival n = file.readBlock(data,count);
+	file.position(pos,FXIO::Begin);
+	return n;
+  }
+
+FXival FileInput::read(void*data,FXival ncount) {
   return file.readBlock(data,ncount);
   }
 

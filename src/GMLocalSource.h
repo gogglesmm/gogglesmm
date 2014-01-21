@@ -26,6 +26,7 @@ FXDECLARE(GMLocalSource)
 protected:
   FXStringList files;
   FXString path;
+  FXString current_path;
 private:
   GMLocalSource(const GMLocalSource&);
   GMLocalSource& operator=(const GMLocalSource&);
@@ -35,17 +36,17 @@ public:
 public:
   GMLocalSource();
 
-  virtual void markCurrent(GMTrackList * tracklist,FXint item);
+  virtual FXbool findCurrent(GMTrackList * list,GMSource * src);
 
-  virtual void configure(GMColumnList&);
+  void markCurrent(const GMTrackItem*);
+
+  void configure(GMColumnList&);
 
   FXbool hasCurrentTrack(GMSource * ) const;
 
   virtual FXbool getTrack(GMTrack & info) const;
 
 //  virtual FXbool setTrack(GMTrack & info) const;
-
-  FXString getTrackFilename(FXint id) const;
 
   FXString getName() const { return fxtr("File System"); }
 

@@ -75,9 +75,12 @@
 #include <FXStream.h>
 #include <FXObject.h>
 #include <FXDict.h>
-#include <FXStringDict.h>
+#include <FXDictionary.h>
+#include <FXStringDictionary.h>
 #include <FXSettings.h>
 #include <FXMessageChannel.h>
+
+#include <FXRex.h>
 
 using namespace FX;
 

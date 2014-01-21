@@ -32,6 +32,7 @@
 #include "ap_engine.h"
 #include "ap_thread.h"
 #include "ap_thread_queue.h"
+#include "ap_http.h"
 #include "ap_input_thread.h"
 #include "ap_reader_plugin.h"
 #include "ap_decoder_thread.h"
@@ -100,9 +101,6 @@ FXbool InputThread::aborted() {
 Event * InputThread::wait_for_event() {
   Event * event = fifo.pop();
   if (event==NULL) {
-    //fxmessage("wait %d\n",ap_wait(fifo.handle()));
-    //ap_pipe_read_one(fifo.handle());
-    //ap_pipe_clear(fifo.handle());
     ap_wait(fifo.handle());
     event = fifo.pop();
     }
@@ -119,7 +117,7 @@ Event * InputThread::wait_for_packet() {
     Packet * packet = packetpool.pop();
     if (packet) return packet;
 
-    ap_wait_read(packetpool.handle(),fifo.handle(),0);
+    ap_wait(fifo.handle(),packetpool.handle());
     }
   while(1);
   return NULL;
@@ -171,10 +169,7 @@ Packet * InputThread::get_packet() {
     Packet * packet = packetpool.pop();
     if (packet) return packet;
 
-//    event = DecoderPacket::get();
-//    if (event) return dynamic_cast<DecoderPacket*>(event);
-
-    ap_wait_read(fifo.handle(),packetpool.handle(),0);
+    ap_wait(packetpool.handle(),fifo.handle());
     }
   while(1);
   return NULL;
@@ -244,6 +239,12 @@ FXint InputThread::run(){
       case Meta           : engine->decoder->post(event);
                             continue;
                             break;
+      case AP_EOS         : GM_DEBUG_PRINT("[input] eos\n");
+                            if (state!=StateError) {
+                              engine->post(event);
+                              continue;
+                              }
+                            break;
       case Buffer         :
         {
           Packet * packet = dynamic_cast<Packet*>(event);
@@ -254,6 +255,7 @@ FXint InputThread::run(){
           switch(status) {
             case ReadError    : GM_DEBUG_PRINT("[input] error\n");
                                 ctrl_close_input();
+                                set_state(StateError,true);
                                 break;
             case ReadDone     : GM_DEBUG_PRINT("[input] done\n");
                                 set_state(StateIdle);
@@ -279,7 +281,7 @@ FXint InputThread::run(){
 
 void InputThread::ctrl_eos() {
   GM_DEBUG_PRINT("[input] end of stream reached\n");
-  if (state==StateIdle) {
+  if (state!=StateProcessing) {
     //ctrl_flush(true);
     ctrl_close_input(true);
     }
@@ -434,12 +436,17 @@ failed:
 void InputThread::set_state(FXuchar s,FXbool notify) {
   if (state!=s) {
     state=s;
-    if (state==StateIdle) GM_DEBUG_PRINT("[input] set state idle\n");
+    switch(state) {
+      case StateIdle      : GM_DEBUG_PRINT("[input] state = idle\n");       break;
+      case StateProcessing: GM_DEBUG_PRINT("[input] state = processing\n"); break;
+      case StateError     : GM_DEBUG_PRINT("[input] state = error\n");      break;
+      }
     }
 
   /// Tell front end about the state.
   if (notify) {
     switch(state) {
+      case StateError     :
       case StateIdle      : engine->post(new Event(AP_STATE_READY));   break;
       case StateProcessing: engine->post(new Event(AP_STATE_PLAYING)); break;
       default       : break;

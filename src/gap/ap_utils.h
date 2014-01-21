@@ -28,18 +28,21 @@ extern GMAPI FXString ap_get_environment(const FXchar * key,const FXchar * def=N
 
 extern FXbool ap_set_closeonexec(FXInputHandle fd);
 
+
 enum {
-  WIO_TIMEOUT   = 0,
-  WIO_INTERRUPT = 0x1,
-  WIO_HANDLE    = 0x2,
-  WIO_BOTH      = (WIO_INTERRUPT|WIO_HANDLE),
+  WaitReadable = 0,
+  WaitWritable = 1,
   };
 
-extern FXuint ap_wait(FXInputHandle handle,FXTime timeout=0);
+enum {
+  WaitHasIO        = 0,
+  WaitHasTimeout   = 1,
+  WaitHasError     = 2,
+  WaitHasInterrupt = 3,
+  };
 
-extern FXuint ap_wait_write(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout=30000000000);
-
-extern FXuint ap_wait_read(FXInputHandle interrupt,FXInputHandle handle,FXTime timeout=30000000000);
+// Wait for IO
+extern FXuint ap_wait(FXInputHandle io,FXInputHandle watch=BadHandle,FXTime timeout=0,FXuchar mode=WaitReadable);
 
 
 }
