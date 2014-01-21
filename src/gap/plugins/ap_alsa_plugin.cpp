@@ -43,7 +43,7 @@ using namespace ap;
 
 
 extern "C" GMAPI OutputPlugin * ap_load_plugin() {
-  return new AlsaOutput();
+  return new AlsaOutput(NULL);
   }
 
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
@@ -522,7 +522,7 @@ public:
 
 
 
-AlsaOutput::AlsaOutput() : OutputPlugin(), handle(NULL),mixer(NULL),mixer_element(NULL),can_pause(false),can_resume(false) {
+AlsaOutput::AlsaOutput(OutputThread * o) : OutputPlugin(o), handle(NULL),mixer(NULL),mixer_element(NULL),can_pause(false),can_resume(false) {
   }
 
 AlsaOutput::~AlsaOutput() {

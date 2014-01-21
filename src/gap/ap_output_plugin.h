@@ -36,10 +36,10 @@ public:
   virtual FXint ev_num_poll() { return 0;}
 
   // Prepare Poll 
-  virtual void ev_prepare_poll(struct ::pollfd*,FXint,FXTime & wakeup) {}
+  virtual void ev_prepare_poll(struct ::pollfd*,FXint,FXTime &) {}
 
   // Handle Poll
-  virtual void ev_handle_poll(struct ::pollfd*,FXint,FXTime now) {}
+  virtual void ev_handle_poll(struct ::pollfd*,FXint,FXTime) {}
 
 public:
   /// Constructor

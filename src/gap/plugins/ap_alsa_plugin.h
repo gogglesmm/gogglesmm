@@ -37,7 +37,7 @@ protected:
 protected:
   FXbool open();
 public:
-  AlsaOutput();
+  AlsaOutput(OutputThread*);
 
   // Register Event Handle
 #ifndef WIN32

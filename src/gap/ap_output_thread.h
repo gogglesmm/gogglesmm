@@ -84,6 +84,7 @@ protected:
   void process2(Packet*);
 
   void queuePacket(Packet*);
+  void flushQueue();
 
 #ifdef HAVE_SAMPLERATE_PLUGIN
   void resample(Packet*,FXint & nframes);

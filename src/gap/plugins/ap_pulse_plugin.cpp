@@ -137,7 +137,7 @@ public:
     FXbool handled = false;
     for (FXint d=0;d<deferred.no();d++) {
       if (deferred[d]->enabled && deferred[d]->callback) {
-        fxmessage("deferred callback %p\n",deferred[d]);
+        //fxmessage("deferred callback %p\n",deferred[d]);
         deferred[d]->callback(api(),deferred[d],deferred[d]->userdata);
         handled=true;
         }
@@ -166,8 +166,6 @@ public:
       pfd[i].events = watches[w]->flags;      
       }
 
-
-
     if (timers) {
       FXTime now = FXThread::time();
       pa_time_event * tt = timers;
@@ -192,7 +190,7 @@ public:
         }
       }
     else if (i) {
-      fxmessage("ppoll no timeout\n");
+      //fxmessage("ppoll no timeout\n");
       int result = ppoll(pfd,i,NULL,NULL);
       if (result) {
         i=0;
@@ -203,14 +201,19 @@ public:
             }
           }
         }
-      fxmessage("result %d\n",result);
+      //fxmessage("result %d\n",result);
       }
     else {
-      fxmessage("nothing to do\n");
+      //fxmessage("nothing to do\n");
       }
 
     freeElms(pfd);
     }
+
+  ~PulseEventLoop() {
+    //FIXME
+    }
+
 
   };
 
@@ -226,18 +229,18 @@ pa_io_event* pulse_io_new(pa_mainloop_api*api, int fd, pa_io_event_flags_t event
   event->userdata         = userdata;
   event->fd               = fd;
   event->flags            = map_flags_to_libc(events);
-  GM_DEBUG_PRINT("pulse_io_new %p %d\n",event,fd);
+  //GM_DEBUG_PRINT("pulse_io_new %p %d\n",event,fd);
   PulseEventLoop::instance()->watches.append(event);
   return event;
   }
 
 void pulse_io_enable(pa_io_event* event, pa_io_event_flags_t events){
-  GM_DEBUG_PRINT("pulse_io_enable %p %d %d\n",event,event->fd,(int)events);
+  //GM_DEBUG_PRINT("pulse_io_enable %p %d %d\n",event,event->fd,(int)events);
   event->flags = map_flags_to_libc(events);
   }
 
 void pulse_io_free(pa_io_event* event){
-  GM_DEBUG_PRINT("pulse_io_free %p %d\n",event,event->fd);
+  //GM_DEBUG_PRINT("pulse_io_free %p %d\n",event,event->fd);
 
   if (event->destroy_callback)
     event->destroy_callback(PulseEventLoop::instance()->api(),event,event->userdata);
@@ -247,7 +250,7 @@ void pulse_io_free(pa_io_event* event){
   }
 
 void pulse_io_set_destroy(pa_io_event *event, pa_io_event_destroy_cb_t cb){
-  GM_DEBUG_PRINT("pulse_io_set_destroy %p %d\n",event,event->fd);
+  //GM_DEBUG_PRINT("pulse_io_set_destroy %p %d\n",event,event->fd);
   event->destroy_callback = cb;
   }
 
@@ -260,19 +263,18 @@ pa_defer_event* pulse_defer_new(pa_mainloop_api*api, pa_defer_event_cb_t cb, voi
   event->destroy_callback = NULL;
   event->enabled          = true;
   event->userdata         = userdata;
-  GM_DEBUG_PRINT("pulse_defer_new %p\n",event);
+  //GM_DEBUG_PRINT("pulse_defer_new %p\n",event);
   PulseEventLoop::instance()->deferred.append(event);
   return event;
   }
 
 void pulse_defer_enable(pa_defer_event* event, int b){
-  GM_DEBUG_PRINT("pulse_defer_enable %p %d\n",event,b);
+  //GM_DEBUG_PRINT("pulse_defer_enable %p %d\n",event,b);
   event->enabled = (b==1) ? true : false;
   }
 
 void pulse_defer_free(pa_defer_event* event){
-  GM_DEBUG_PRINT("pulse_defer_free %p\n",event);
-
+  //GM_DEBUG_PRINT("pulse_defer_free %p\n",event);
   if (event->destroy_callback)
     event->destroy_callback(PulseEventLoop::instance()->api(),event,event->userdata);
 
@@ -281,7 +283,7 @@ void pulse_defer_free(pa_defer_event* event){
   }
 
 void pulse_defer_set_destroy(pa_defer_event *event, pa_defer_event_destroy_cb_t cb){
-  GM_DEBUG_PRINT("pulse_defer_set_destroy %p\n",event);
+  //GM_DEBUG_PRINT("pulse_defer_set_destroy %p\n",event);
   event->destroy_callback = cb;
   }
 
@@ -294,18 +296,18 @@ pa_time_event* pulse_time_new(pa_mainloop_api*a, const struct timeval *tv, pa_ti
   event->destroy_callback = NULL;
   event->userdata         = userdata;
   event->time             = (tv->tv_sec*1000000000) + (tv->tv_usec*1000);
-  GM_DEBUG_PRINT("pulse_time_new %p %ld.%ld\n",event,tv->tv_sec,tv->tv_usec);
+  //GM_DEBUG_PRINT("pulse_time_new %p %ld.%ld\n",event,tv->tv_sec,tv->tv_usec);
   PulseEventLoop::instance()->addTimer(event);
   return event;
   }
 
 void pulse_time_restart(pa_time_event* event, const struct timeval *tv){
   event->time  = (tv->tv_sec*1000000000) + (tv->tv_usec*1000);
-  GM_DEBUG_PRINT("pulse_time_restart %p %ld.%ld\n",event,tv->tv_sec,tv->tv_usec);
+  //GM_DEBUG_PRINT("pulse_time_restart %p %ld.%ld\n",event,tv->tv_sec,tv->tv_usec);
   }
 
 void pulse_time_free(pa_time_event* event){
-  GM_DEBUG_PRINT("pulse_time_free %p\n",event);
+  //GM_DEBUG_PRINT("pulse_time_free %p\n",event);
   if (event->destroy_callback)
     event->destroy_callback(PulseEventLoop::instance()->api(),event,event->userdata);
   PulseEventLoop::instance()->removeTimer(event);
@@ -313,11 +315,9 @@ void pulse_time_free(pa_time_event* event){
   }
 
 void pulse_time_set_destroy(pa_time_event *event, pa_time_event_destroy_cb_t cb){
-  GM_DEBUG_PRINT("pulse_time_set_destroy %p\n",event);
+  //GM_DEBUG_PRINT("pulse_time_set_destroy %p\n",event);
   event->destroy_callback=cb;
   }
-
-
 
 void pulse_quit(pa_mainloop_api*,int){  
   GM_DEBUG_PRINT("pulse_quit\n");
@@ -402,12 +402,12 @@ PulseOutput::~PulseOutput() {
 
 
 void PulseOutput::ev_handle_pending(){
-  GM_DEBUG_PRINT("EV_HANDLE_PENDING\n");
+  //GM_DEBUG_PRINT("EV_HANDLE_PENDING\n");
   eventloop->handle_deferred();
   }
 
 FXint PulseOutput::ev_num_poll(){
-  GM_DEBUG_PRINT("EV_NUM_POLL\n");
+  //GM_DEBUG_PRINT("EV_NUM_POLL\n");
   FXint n=0;
   for (FXint i=0;i<eventloop->watches.no();i++) {
     if (eventloop->watches[i]->fd && eventloop->watches[i]->flags)
@@ -417,8 +417,7 @@ FXint PulseOutput::ev_num_poll(){
   }
 
 void PulseOutput::ev_prepare_poll(struct ::pollfd* pfd,FXint n,FXTime & wakeup){
-  GM_DEBUG_PRINT("EV_PREPARE_POLL\n");
-
+  //GM_DEBUG_PRINT("EV_PREPARE_POLL\n");
   for (FXint i=0,w=0;w<eventloop->watches.no();w++) {
     if (eventloop->watches[w]->fd && eventloop->watches[w]->flags){
       pfd[i].fd     = eventloop->watches[w]->fd;
@@ -427,7 +426,6 @@ void PulseOutput::ev_prepare_poll(struct ::pollfd* pfd,FXint n,FXTime & wakeup){
       i++;
       }
     }
-
   if (eventloop->timers) {
     FXTime now = FXThread::time();
     pa_time_event * tt = eventloop->timers;
@@ -441,7 +439,7 @@ void PulseOutput::ev_prepare_poll(struct ::pollfd* pfd,FXint n,FXTime & wakeup){
 void PulseOutput::ev_handle_poll(struct ::pollfd* pfd,FXint n,FXTime now){
   for (FXint w=0;w<eventloop->watches.no();w++) {
     if (pfd[w].revents) {
-      GM_DEBUG_PRINT("EV_HANDLE_POLL\n");  
+      //GM_DEBUG_PRINT("EV_HANDLE_POLL\n");  
       FXASSERT(pfd[w].fd == eventloop->watches[w]->fd);
       eventloop->watches[w]->callback(eventloop->api(),eventloop->watches[w],eventloop->watches[w]->fd,map_flags_from_libc(pfd[w].revents),eventloop->watches[w]->userdata);
       pfd[w].revents=0;
@@ -539,24 +537,12 @@ static void stream_write_callback(pa_stream*stream,size_t bs,void *ptr){
 
   const void * buffer = NULL;
   FXuint nframes = bs / pulse->af.framesize();
-  GM_DEBUG_PRINT("stream_write_callback requested %ld\n",nframes);
+//  GM_DEBUG_PRINT("stream_write_callback requested %ld\n",nframes);
   pulse->output->getSamples(buffer,nframes);
-  GM_DEBUG_PRINT("stream_write_callback got %ld\n",nframes);
+//  GM_DEBUG_PRINT("stream_write_callback got %ld\n",nframes);
 
   if (buffer && nframes) //pulse->write(buffer,nframes);
     pa_stream_write(stream,(const FXchar*)buffer,nframes*pulse->af.framesize(),NULL,0,PA_SEEK_RELATIVE);
-
-
-
-
-  
-
-
-
-
-
-  //pa_threaded_mainloop * mainloop = (pa_threaded_mainloop*)ptr;
-  //pa_threaded_mainloop_signal(mainloop,0);
   }
 
 
@@ -566,22 +552,11 @@ FXbool PulseOutput::open() {
   /// Start the mainloop
   if (eventloop==NULL) {
     eventloop = new PulseEventLoop();
-    //mainloop = eventloop->api();
-
-    //mainloop = pa_threaded_mainloop_new();
-    //pa_threaded_mainloop_start(mainloop);
-
-    
-
     }
-
-  //pa_threaded_mainloop_lock(mainloop);
 
   /// Get a context
   if (context==NULL) {
-    //context = pa_context_new(pa_threaded_mainloop_get_api(mainloop),"Goggles Music Manager");
     context = pa_context_new(eventloop->api(),"Goggles Music Manager");
-    //pa_context_set_state_callback(context,context_state_callback,mainloop);
     pa_context_set_state_callback(context,context_state_callback,eventloop);
     }
 
@@ -590,7 +565,6 @@ FXbool PulseOutput::open() {
   if (pa_context_get_state(context)==PA_CONTEXT_UNCONNECTED) {
     if (pa_context_connect(context,NULL,PA_CONTEXT_NOFLAGS,NULL)<0) {
       GM_DEBUG_PRINT("pa_context_connect failed\n");
-      //pa_threaded_mainloop_unlock(mainloop);
       return false;
       }
     }
@@ -601,24 +575,16 @@ FXbool PulseOutput::open() {
   while((state=pa_context_get_state(context))!=PA_CONTEXT_READY) {
     if (state==PA_CONTEXT_FAILED || state==PA_CONTEXT_TERMINATED){
       GM_DEBUG_PRINT("Unable to connect to pulsedaemon\n");
-      //pa_threaded_mainloop_unlock(mainloop);
       return false;
       }
-    //FXThread::sleep(10000000);
     eventloop->wait();
-    //pa_threaded_mainloop_wait(mainloop);
     }
 
   GM_DEBUG_PRINT("ready()\n");
-  //pa_threaded_mainloop_unlock(mainloop);
   return true;
   }
 
 void PulseOutput::close() {
-  //if (mainloop)
-  //  pa_threaded_mainloop_lock(mainloop);
- // if (eventloop)
-  //  delete eventloop;
 
   if (stream) {
     GM_DEBUG_PRINT("disconnecting stream\n");
@@ -650,14 +616,11 @@ void PulseOutput::close() {
 
 
 void PulseOutput::volume(FXfloat v) {
-//  if (mainloop && context && stream) {
   if (eventloop && context && stream) {
-    //pa_threaded_mainloop_lock(mainloop);
     pa_cvolume cvol;
     pa_cvolume_set(&cvol,af.channels,pa_sw_volume_from_linear((FXdouble)v));
     pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&cvol,NULL,NULL);
     pa_operation_unref(operation);
-    //pa_threaded_mainloop_unlock(mainloop);
     }
   }
 
@@ -666,21 +629,17 @@ FXint PulseOutput::delay() {
   if (stream) {
     pa_usec_t latency;
     int negative;
-    //pa_threaded_mainloop_lock(mainloop);
     if (pa_stream_get_latency(stream,&latency,&negative)>=0){
       value = (latency*af.rate) / 1000000;
       }
-    //pa_threaded_mainloop_unlock(mainloop);
     }
   return value;
   }
 
 void PulseOutput::drop() {
   if (stream) {
-    //pa_threaded_mainloop_lock(mainloop);
     pa_operation* operation = pa_stream_flush(stream,NULL,0);
     pa_operation_unref(operation);
-    //pa_threaded_mainloop_unlock(mainloop);
     }
   }
 
@@ -693,13 +652,10 @@ static void drain_callback(pa_stream*,int,void *ptr) {
 
 void PulseOutput::drain() {
   if (stream) {
-    //pa_threaded_mainloop_lock(mainloop);
-    //pa_operation * operation = pa_stream_drain(stream,drain_callback,mainloop);
     pa_operation * operation = pa_stream_drain(stream,drain_callback,eventloop);
-    //while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
-    //  pa_threaded_mainloop_wait(mainloop);
+    while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
+      eventloop->wait();
     pa_operation_unref(operation);
-    //pa_threaded_mainloop_unlock(mainloop);
     }
   }
 
@@ -714,8 +670,6 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
 
   if (stream && fmt==af)
     return true;
-
-  //pa_threaded_mainloop_lock(mainloop);
 
   if (stream) {
     pa_stream_disconnect(stream);
@@ -733,7 +687,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
 
   stream = pa_stream_new(context,"Goggles Music Manager",&spec,NULL);
   pa_stream_set_state_callback(stream,stream_state_callback,eventloop);
-  //pa_stream_set_write_callback(stream,stream_write_callback,this);
+  pa_stream_set_write_callback(stream,stream_write_callback,this);
 
   if (pa_stream_connect_playback(stream,NULL,NULL,PA_STREAM_NOFLAGS,NULL,NULL)<0)
     goto failed;
@@ -745,7 +699,6 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
       goto failed;
       }
     eventloop->wait();
-    //pa_threaded_mainloop_wait(mainloop);
     }
 
   /// Get Actual Format
@@ -754,13 +707,10 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
     goto failed;
   af.channels=config->channels;
   af.rate=config->rate;
-
- // pa_threaded_mainloop_unlock(mainloop);
   return true;
 failed:
   GM_DEBUG_PRINT("Unsupported pulse configuration:\n");
   af.debug();
-  //pa_threaded_mainloop_unlock(mainloop);
   return false;
   }
 

@@ -386,9 +386,7 @@ Event * OutputThread::wait_for_event() {
       FXTime ts = FXThread::time();
       int n = poll(pfds,nfds,-1);
       FXTime te = FXThread::time();
-      GM_DEBUG_PRINT("Slept for %ld\n",(te-ts));
-
-
+      //GM_DEBUG_PRINT("Slept for %ld\n",(te-ts));
       //GM_DEBUG_PRINT("poll returned %d\n",n);
 
       handle_plugin_events();
@@ -565,9 +563,9 @@ void OutputThread::setup_event_handles(){
 
     }
 
-  GM_DEBUG_PRINT("[output] setup_event_handles() with %d handles\n",n);
+  //GM_DEBUG_PRINT("[output] setup_event_handles() with %d handles\n",n);
 
-  if (n>nfds) {
+  if (n!=nfds) {
     nfds = n;
     if (pfds==NULL)
       allocElms(pfds,nfds);
@@ -584,7 +582,6 @@ void OutputThread::setup_event_handles(){
   if (plugin) {
     FXTime timeout;
     plugin->ev_prepare_poll(pfds+1,nfds-1,timeout);
-    //plugin->setEventHandles(pfds+1,nfds-1);
     }
   }
 
@@ -764,6 +761,15 @@ void OutputThread::queuePacket(Packet * p) {
   plugin->start();  
   }
 
+void OutputThread::flushQueue() {
+  Packet * p;
+  while(packet_queue) {
+    p = packet_queue;
+    packet_queue = (Packet*)packet_queue->next;
+    p->unref();
+    }
+  }
+
 /*
 void OutputThread::consumeSamples(FXuint & nframes) {
   Packet * p = packet_queue;
@@ -782,13 +788,14 @@ void OutputThread::getSamples(const void *& buffer,FXuint & nframes) {
       p = packet_queue;
       }
     if (p) {
+
       FXuint n = FXMIN(nframes,(p->size()/plugin->af.framesize()));
       GM_DEBUG_PRINT("PACKET %ld %ld %ld %d\n",n,plugin->af.framesize(),p->size(),nframes*plugin->af.framesize());
-
       if (n) {
         buffer = p->data();
         p->readBytes(plugin->af.framesize()*n);
         nframes = n;
+        update_position(p->stream,p->stream_position,nframes,p->stream_length);
         return;
         }
       }
@@ -1041,6 +1048,7 @@ FXint OutputThread::run(){
             }
           pausing=false;
           draining=false;
+          flushQueue();
           reset_position();
           clear_timers();
         } break;
