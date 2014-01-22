@@ -1551,7 +1551,7 @@ FXbool GMTrackDatabase::moveQueueTrack(FXint oldq,FXint newq){
 FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
   DEBUG_DB_GET();
   register int i=0;
-  FXDict tags;
+  FXDictionary tags;
   FXString name;
   FXint id;
   try {

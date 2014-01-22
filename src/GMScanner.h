@@ -26,7 +26,7 @@ class GMDBTracks {
 protected:
   GMTrackDatabase * database;
 protected:
-  FXDict  pathdict;
+  FXDictionary pathdict;
 protected:
   GMQuery insert_artist;
   GMQuery insert_album;
