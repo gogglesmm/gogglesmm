@@ -48,6 +48,7 @@ protected:
 #ifndef WIN32
   struct pollfd * pfds;
   FXint           nfds;
+  FXint           mfds;
   void setup_event_handles();
   void handle_plugin_events();
 #endif
@@ -100,6 +101,9 @@ public:
   OutputThread(AudioEngine*);
 
   void getSamples(const void*&,FXuint &);
+
+  void notify_volume(FXfloat value);
+
 
   virtual FXint run();
   virtual ~OutputThread();

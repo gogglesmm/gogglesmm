@@ -737,7 +737,8 @@ void GMWindow::update_volume_display(FXint level) {
   else
     volumebutton->setIcon(icontheme->icon_volume_high_toolbar);
 
-  volumeslider->setValue(level);
+  if (!volumeslider->grabbed())
+    volumeslider->setValue(level);
 
   if (remote) remote->update_volume_display(level);
   }

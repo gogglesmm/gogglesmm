@@ -144,6 +144,7 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),volume
   packet_queue=NULL;
   pfds=NULL;
   nfds=0;
+  mfds=0;
   }
 
 OutputThread::~OutputThread() {
@@ -172,6 +173,13 @@ void OutputThread::notify_position() {
   }
 
 
+void OutputThread::notify_volume(FXfloat value) {
+  fxmessage("notify %g %g\n",value,volume);
+  if (value!=volume) {
+    engine->post(new VolumeNotify(value,true));
+    volume=value;
+    }
+  }
 
 void OutputThread::clear_timers() {
   for (FXint i=0;i<timers.no();i++){
@@ -245,8 +253,6 @@ void OutputThread::update_position(FXint sid,FXint position,FXint nframes,FXint 
 
 
   update_timers(delay,nframes);
-
-
   notify_position();
 
 
@@ -323,7 +329,6 @@ void OutputThread::drain(FXbool flush) {
 
 
 Event * OutputThread::wait_for_event() {
-  GM_DEBUG_PRINT("{\n");
   FXint offset=0,delay=0;
 
   if (draining && plugin) {
@@ -370,43 +375,13 @@ Event * OutputThread::wait_for_event() {
         }
       }
     else {
-    
-  
       setup_event_handles();
-
       Event * event = fifo.pop();
       if (event) {
-          GM_DEBUG_PRINT("}\n");
           return event;
           }
-        //ap_wait(fifo.handle());
-
-
-
-      FXTime ts = FXThread::time();
       int n = poll(pfds,nfds,-1);
-      FXTime te = FXThread::time();
-      //GM_DEBUG_PRINT("Slept for %ld\n",(te-ts));
-      //GM_DEBUG_PRINT("poll returned %d\n",n);
-
       handle_plugin_events();
-/*
-      if (pfds[0].revents){
-        Event * event = fifo.pop();
-        if (event) {
-          GM_DEBUG_PRINT("}\n");
-          return event;
-          }
-        }
-*/
-      
-
-
-
-
-
-
-
       }
     }
   while(1);
@@ -416,7 +391,6 @@ void OutputThread::handle_plugin_events(){
   if (plugin && nfds>1) {
     for (FXint i=1;i<nfds;i++) {
       if (pfds[i].revents) {
-        //plugin->events(pfds+1,nfds-1);
         plugin->ev_handle_poll(pfds+1,nfds-1,FXThread::time());
         return;
         }
@@ -555,22 +529,18 @@ void OutputThread::configure(const AudioFormat & fmt) {
 
 
 void OutputThread::setup_event_handles(){
-  FXint n = 1;
+  nfds = 1;
   if (plugin) {
     plugin->ev_handle_pending();
-    //n+=plugin->getNumEventHandles();
-    n+=plugin->ev_num_poll();
-
+    nfds+=plugin->ev_num_poll();
     }
 
-  //GM_DEBUG_PRINT("[output] setup_event_handles() with %d handles\n",n);
-
-  if (n!=nfds) {
-    nfds = n;
+  if (nfds>mfds) {
+    mfds = nfds;
     if (pfds==NULL)
-      allocElms(pfds,nfds);
+      allocElms(pfds,mfds);
     else
-      resizeElms(pfds,nfds);
+      resizeElms(pfds,mfds);
     }
 
   // Fifo io
@@ -788,7 +758,6 @@ void OutputThread::getSamples(const void *& buffer,FXuint & nframes) {
       p = packet_queue;
       }
     if (p) {
-
       FXuint n = FXMIN(nframes,(p->size()/plugin->af.framesize()));
       GM_DEBUG_PRINT("PACKET %ld %ld %ld %d\n",n,plugin->af.framesize(),p->size(),nframes*plugin->af.framesize());
       if (n) {
@@ -1031,8 +1000,8 @@ FXint OutputThread::run(){
       case Buffer     :
         {
           if (__likely(af.set())) {
-            process2(dynamic_cast<Packet*>(event));
-            continue;
+            process(dynamic_cast<Packet*>(event));
+            //continue;
             }
         } break;
 

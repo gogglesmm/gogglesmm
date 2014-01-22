@@ -45,19 +45,6 @@ public:
   /// Constructor
   OutputPlugin(OutputThread * o) : output(o) {}
 
-
-  // Register Event Handle
-#ifndef WIN32
-  virtual void setEventHandles(struct ::pollfd *,FXint) {}
-
-  // Handle Events
-  virtual void events(struct ::pollfd*,FXint) {}
-#endif
-
-  // Return the number of event handlers
-  virtual FXint getNumEventHandles() { return 0; }
-
-
   virtual FXchar type() const=0;
 
   /// Set Device Configuration

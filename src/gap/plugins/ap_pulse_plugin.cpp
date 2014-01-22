@@ -176,9 +176,9 @@ public:
     if (wait>0){
       ts.tv_sec = wait / 1000000000;
       ts.tv_nsec = wait % 1000000000;
-      fxmessage("ppoll %ld\n",wait);
+     // fxmessage("ppoll %ld\n",wait);
       int result = ppoll(pfd,i,&ts,NULL);
-      fxmessage("result %d\n",result);
+      //fxmessage("result %d\n",result);
       if (result) {
         FXint i=0;
         for (FXint w=0;w<watches.no();w++,i++) {
@@ -222,7 +222,7 @@ public:
 
 
 
-pa_io_event* pulse_io_new(pa_mainloop_api*api, int fd, pa_io_event_flags_t events, pa_io_event_cb_t cb, void *userdata){
+pa_io_event* pulse_io_new(pa_mainloop_api*, int fd, pa_io_event_flags_t events, pa_io_event_cb_t cb, void *userdata){
   pa_io_event * event = new pa_io_event;
   event->callback         = cb;
   event->destroy_callback = NULL;
@@ -257,7 +257,7 @@ void pulse_io_set_destroy(pa_io_event *event, pa_io_event_destroy_cb_t cb){
 
 
 
-pa_defer_event* pulse_defer_new(pa_mainloop_api*api, pa_defer_event_cb_t cb, void *userdata){
+pa_defer_event* pulse_defer_new(pa_mainloop_api*, pa_defer_event_cb_t cb, void *userdata){
   pa_defer_event* event = new pa_defer_event;
   event->callback         = cb;
   event->destroy_callback = NULL;
@@ -289,7 +289,7 @@ void pulse_defer_set_destroy(pa_defer_event *event, pa_defer_event_destroy_cb_t 
 
 
 
-pa_time_event* pulse_time_new(pa_mainloop_api*a, const struct timeval *tv, pa_time_event_cb_t cb, void *userdata){
+pa_time_event* pulse_time_new(pa_mainloop_api*, const struct timeval *tv, pa_time_event_cb_t cb, void *userdata){
   pa_time_event * event = new pa_time_event;
   event->next             = NULL;
   event->callback         = cb;
@@ -393,7 +393,7 @@ namespace ap {
 
 
 
-PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),eventloop(NULL),context(NULL),stream(NULL) {
+PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),eventloop(NULL),context(NULL),stream(NULL),svolume(PA_VOLUME_MUTED) {
   }
 
 PulseOutput::~PulseOutput() {
@@ -402,12 +402,10 @@ PulseOutput::~PulseOutput() {
 
 
 void PulseOutput::ev_handle_pending(){
-  //GM_DEBUG_PRINT("EV_HANDLE_PENDING\n");
   eventloop->handle_deferred();
   }
 
 FXint PulseOutput::ev_num_poll(){
-  //GM_DEBUG_PRINT("EV_NUM_POLL\n");
   FXint n=0;
   for (FXint i=0;i<eventloop->watches.no();i++) {
     if (eventloop->watches[i]->fd && eventloop->watches[i]->flags)
@@ -416,8 +414,7 @@ FXint PulseOutput::ev_num_poll(){
   return n;
   }
 
-void PulseOutput::ev_prepare_poll(struct ::pollfd* pfd,FXint n,FXTime & wakeup){
-  //GM_DEBUG_PRINT("EV_PREPARE_POLL\n");
+void PulseOutput::ev_prepare_poll(struct ::pollfd* pfd,FXint,FXTime & wakeup){
   for (FXint i=0,w=0;w<eventloop->watches.no();w++) {
     if (eventloop->watches[w]->fd && eventloop->watches[w]->flags){
       pfd[i].fd     = eventloop->watches[w]->fd;
@@ -436,7 +433,7 @@ void PulseOutput::ev_prepare_poll(struct ::pollfd* pfd,FXint n,FXTime & wakeup){
   if (wakeup<0) wakeup=0;
   }
 
-void PulseOutput::ev_handle_poll(struct ::pollfd* pfd,FXint n,FXTime now){
+void PulseOutput::ev_handle_poll(struct ::pollfd* pfd,FXint,FXTime/*now*/){
   for (FXint w=0;w<eventloop->watches.no();w++) {
     if (pfd[w].revents) {
       //GM_DEBUG_PRINT("EV_HANDLE_POLL\n");  
@@ -502,48 +499,50 @@ static FXbool to_gap_format(pa_sample_format pulse_format,AudioFormat & af){
   return true;
   }
 
-static void context_state_callback(pa_context *c,void*ptr){
+static void context_state_callback(pa_context *c,void*){
   GM_DEBUG_PRINT("context_state_callback %d\n",pa_context_get_state(c));
-  //pa_threaded_mainloop * mainloop = (pa_threaded_mainloop*)ptr;
-  switch (pa_context_get_state(c)) {
-    case PA_CONTEXT_READY:
-    case PA_CONTEXT_TERMINATED:
-    case PA_CONTEXT_FAILED:
-      //pa_threaded_mainloop_signal(mainloop,0);
-      break;
-    default: break;
-    }
   }
 
-static void stream_state_callback(pa_stream *s,void*ptr){
+static void stream_state_callback(pa_stream *s,void*){
   GM_DEBUG_PRINT("stream_state_callback %d\n",pa_stream_get_state(s));
-  //pa_threaded_mainloop * mainloop = (pa_threaded_mainloop*)ptr;
-  switch (pa_stream_get_state(s)) {
-    case PA_STREAM_READY:
-    case PA_STREAM_TERMINATED:
-    case PA_STREAM_FAILED:
-      //pa_threaded_mainloop_signal(mainloop, 0);
-      break;
-    default: break;
+  }
+
+void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * info,int eol,void*userdata){
+  PulseOutput * out = reinterpret_cast<PulseOutput*>(userdata);
+  if (info) {
+    pa_volume_t v = pa_cvolume_avg(&info->volume);
+
+    float vol = (float) v / (float)PA_VOLUME_NORM ;
+
+//    float vol = ((float)pa_cvolume_avg(&info->volume)) / PA_VOLUME_NORM;
+    fxmessage("sink %ld output %ld\n",v,out->svolume);    
+
+
+    if (out->svolume!=v)
+      out->output->notify_volume(vol);
+    fxmessage("sink volume %g\n",vol);
     }
   }
 
-static void stream_write_callback(pa_stream*stream,size_t bs,void *ptr){
-  PulseOutput * pulse = (PulseOutput*)ptr;
-  if (pulse->af.framesize()==0) {
-    //pa_stream_write(stream,NULL,0,NULL,0,PA_SEEK_RELATIVE);
+void PulseOutput::context_subscribe_callback(pa_context * context, pa_subscription_event_type_t type, uint32_t index, void *userdata){
+  PulseOutput * out = reinterpret_cast<PulseOutput*>(userdata);
+
+  if (out->stream==NULL)
     return;
+
+  if (pa_stream_get_index(out->stream)!=index)
+    return;
+
+  if ((type&PA_SUBSCRIPTION_EVENT_FACILITY_MASK)!=PA_SUBSCRIPTION_EVENT_SINK_INPUT)
+    return;
+
+  if ((type&PA_SUBSCRIPTION_EVENT_TYPE_MASK)==PA_SUBSCRIPTION_EVENT_CHANGE || 
+      (type&PA_SUBSCRIPTION_EVENT_TYPE_MASK)==PA_SUBSCRIPTION_EVENT_NEW) {
+    pa_operation *operation = pa_context_get_sink_input_info(context,index,sink_info_callback,userdata);
+    if (operation) pa_operation_unref(operation);
     }
-
-  const void * buffer = NULL;
-  FXuint nframes = bs / pulse->af.framesize();
-//  GM_DEBUG_PRINT("stream_write_callback requested %ld\n",nframes);
-  pulse->output->getSamples(buffer,nframes);
-//  GM_DEBUG_PRINT("stream_write_callback got %ld\n",nframes);
-
-  if (buffer && nframes) //pulse->write(buffer,nframes);
-    pa_stream_write(stream,(const FXchar*)buffer,nframes*pulse->af.framesize(),NULL,0,PA_SEEK_RELATIVE);
   }
+
 
 
 
@@ -558,6 +557,7 @@ FXbool PulseOutput::open() {
   if (context==NULL) {
     context = pa_context_new(eventloop->api(),"Goggles Music Manager");
     pa_context_set_state_callback(context,context_state_callback,eventloop);
+    pa_context_set_subscribe_callback(context,context_subscribe_callback,this);
     }
 
   /// Try connecting
@@ -579,6 +579,9 @@ FXbool PulseOutput::open() {
       }
     eventloop->wait();
     }
+
+  pa_operation* operation = pa_context_subscribe(context,PA_SUBSCRIPTION_MASK_SINK_INPUT,NULL,this);
+  if (operation) pa_operation_unref(operation);
 
   GM_DEBUG_PRINT("ready()\n");
   return true;
@@ -617,8 +620,9 @@ void PulseOutput::close() {
 
 void PulseOutput::volume(FXfloat v) {
   if (eventloop && context && stream) {
+    svolume = (pa_volume_t)(v*PA_VOLUME_NORM);
     pa_cvolume cvol;
-    pa_cvolume_set(&cvol,af.channels,pa_sw_volume_from_linear((FXdouble)v));
+    pa_cvolume_set(&cvol,af.channels,svolume);
     pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&cvol,NULL,NULL);
     pa_operation_unref(operation);
     }
@@ -643,16 +647,9 @@ void PulseOutput::drop() {
     }
   }
 
-
-static void drain_callback(pa_stream*,int,void *ptr) {
-  //pa_threaded_mainloop * mainloop = (pa_threaded_mainloop*)ptr;
-  //pa_threaded_mainloop_signal(mainloop,0);
-  }
-
-
 void PulseOutput::drain() {
   if (stream) {
-    pa_operation * operation = pa_stream_drain(stream,drain_callback,eventloop);
+    pa_operation * operation = pa_stream_drain(stream,NULL,NULL);
     while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
       eventloop->wait();
     pa_operation_unref(operation);
@@ -687,7 +684,6 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
 
   stream = pa_stream_new(context,"Goggles Music Manager",&spec,NULL);
   pa_stream_set_state_callback(stream,stream_state_callback,eventloop);
-  pa_stream_set_write_callback(stream,stream_write_callback,this);
 
   if (pa_stream_connect_playback(stream,NULL,NULL,PA_STREAM_NOFLAGS,NULL,NULL)<0)
     goto failed;
@@ -699,7 +695,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
       goto failed;
       }
     eventloop->wait();
-    }
+    } 
 
   /// Get Actual Format
   config = pa_stream_get_sample_spec(stream);
@@ -714,43 +710,21 @@ failed:
   return false;
   }
 
-void PulseOutput::start() {
-  if (pa_stream_writable_size(stream)>1) {
-    GM_DEBUG_PRINT("PulseOutput::start() %ld\n",pa_stream_writable_size(stream));
-    stream_write_callback(stream,pa_stream_writable_size(stream),this);
-    }
-  }
-
 FXbool PulseOutput::write(const void * b,FXuint nframes){
-/*
   FXASSERT(stream);
   const FXchar * buffer = reinterpret_cast<const FXchar*>(b);
-
-
-
-
-
-
- // pa_threaded_mainloop_lock(mainloop);
   FXuint total = nframes*af.framesize();
   while(total) {
     size_t nbytes = pa_stream_writable_size(stream);
     size_t n = FXMIN(total,nbytes);
-    GM_DEBUG_PRINT("WRITE-%ld------\n",n);
     if (n<=0) {
-      GM_DEBUG_PRINT("WRITE-WAIT-------\n");
       eventloop->wait();
-      //pa_threaded_mainloop_wait(mainloop);
       continue;
       }
     pa_stream_write(stream,buffer,n,NULL,0,PA_SEEK_RELATIVE);
     total-=n;
     buffer+=n;
-    if (total)
-      eventloop->wait();
-    }
- // pa_threaded_mainloop_unlock(mainloop);
-*/
+     }
   return true;
   }
 

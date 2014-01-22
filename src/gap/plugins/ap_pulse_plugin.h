@@ -28,13 +28,15 @@ class PulseEventLoop;
 
 namespace ap {
 
-
 class PulseOutput : public OutputPlugin {
 protected:
-  PulseEventLoop       * eventloop;
-  //pa_threaded_mainloop * mainloop;
-  pa_context           * context;
-  pa_stream            * stream;
+  PulseEventLoop * eventloop;
+  pa_context     * context;
+  pa_stream      * stream;
+  pa_volume_t      svolume; 
+protected:
+  static void sink_info_callback(pa_context*, const pa_sink_input_info *,int eol,void*);
+  static void context_subscribe_callback(pa_context *c,pa_subscription_event_type_t, uint32_t,void*);
 protected:
   FXbool open();
 public:
@@ -72,11 +74,6 @@ public:
 
   /// Change Volume
   void volume(FXfloat);
-
-  /// Get Volume
-  //FXfloat volume();
-
-  void start();
 
   /// Close Output
   void close();
