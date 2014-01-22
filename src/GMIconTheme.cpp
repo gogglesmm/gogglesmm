@@ -55,7 +55,7 @@ static void init_basedirs(FXStringList & basedirs) {
   FXString datadirs = FXSystem::getEnvironment("XDG_DATA_DIRS");
   if (datadirs.empty()) datadirs = "/usr/local/share:/usr/share";
 
-  FXDict pathdict;
+  FXDictionary pathdict;
 
   if (FXStat::exists(userdir)) {
     pathdict.insert(userdir.text(),(void*)(FXival)1);
@@ -76,7 +76,7 @@ static void init_basedirs(FXStringList & basedirs) {
     pathdict.insert(dir.text(),(void*)(FXival)1);
     }
 
-  if (pathdict.find("/usr/share/pixmaps")==NULL && FXStat::exists("/usr/share/pixmaps"))
+  if (pathdict.find("/usr/share/pixmaps")==-1 && FXStat::exists("/usr/share/pixmaps"))
     basedirs.append("/usr/share/pixmaps");
 
 #ifdef DEBUG
@@ -525,14 +525,14 @@ void GMIconTheme::build() {
   FXString dir;
 
   FXStringDictionary themedict;
-  FXDict             indexmap;
+  FXDictionary       indexmap;
   FXint              s,i,j,xx;
 
   init_themedict(basedirs,themedict);
 
   if (themedict.no()) {
-    FXSettings * index    = new FXSettings[themedict.no()];
-    FXDict     * inherits = new FXDict[themedict.no()];
+    FXSettings   * index    = new FXSettings[themedict.no()];
+    FXDictionary * inherits = new FXDictionary[themedict.no()];
 
     /// Parse Index Files
     for (i=0,j=0;i<themedict.no();i++){

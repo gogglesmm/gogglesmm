@@ -867,7 +867,7 @@ FXint GMPodcastUpdater::run() {
 
    fxmessage("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
 
-    FXDict guids;
+    FXDictionary guids;
     for (int i=0;i<rss.feed.items.no();i++)
         guids.insert(rss.feed.items[i].id.text(),(void*)(FXival)1);
 
@@ -875,7 +875,7 @@ FXint GMPodcastUpdater::run() {
     while(all_items.row()){
       all_items.get(0,item_id);
       all_items.get(1,guid);
-      if (guids.find(guid.text())==NULL){
+      if (guids.find(guid.text())==-1){
         //fxmessage("item removed from feed\n");
         del_items.set(0,item_id);
         del_items.execute();
