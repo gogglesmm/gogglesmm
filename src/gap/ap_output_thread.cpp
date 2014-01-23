@@ -36,7 +36,11 @@
 #include "ap_output_plugin.h"
 #include "ap_output_thread.h"
 
+#ifndef WIN32
 #include <poll.h>
+#include <errno.h>
+#endif
+
 
 #ifndef AP_PLUGIN_PATH
 #error "AP_PLUGIN_PATH PATH not defined"
@@ -135,7 +139,7 @@ public:
     }
   };
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),volume(1.0f),draining(false) {
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),draining(false) {
   stream=-1;
   stream_remaining=0;
   stream_written=0;
@@ -174,11 +178,7 @@ void OutputThread::notify_position() {
 
 
 void OutputThread::notify_volume(FXfloat value) {
-  fxmessage("notify %g %g\n",value,volume);
-  if (value!=volume) {
-    engine->post(new VolumeNotify(value,true));
-    volume=value;
-    }
+  engine->post(new VolumeNotify(value,true));
   }
 
 void OutputThread::clear_timers() {
@@ -327,7 +327,7 @@ void OutputThread::drain(FXbool flush) {
     }
   }
 
-
+/*
 Event * OutputThread::wait_for_event() {
   FXint offset=0,delay=0;
 
@@ -339,13 +339,11 @@ Event * OutputThread::wait_for_event() {
     if (pausing) {
       Event * event = fifo.pop_if_not(Buffer,Configure);
       if (event) return event;
-      int n = poll(pfds,nfds,-1);
-      //GM_DEBUG_PRINT("poll returned %d\n",n);
-
-      //ap_wait(fifo.handle());
+      poll(pfds,nfds,-1);
+      handle_plugin_events();
+      setup_event_handles();
       }
     else if (draining) {
-
       Event * event = fifo.pop();
       if (event) return event;
 
@@ -377,26 +375,203 @@ Event * OutputThread::wait_for_event() {
     else {
       setup_event_handles();
       Event * event = fifo.pop();
-      if (event) {
-          return event;
-          }
-      int n = poll(pfds,nfds,-1);
+      if (event) return event;
+      poll(pfds,nfds,-1);
       handle_plugin_events();
       }
     }
   while(1);
   }
+*/
 
 void OutputThread::handle_plugin_events(){
-  if (plugin && nfds>1) {
-    for (FXint i=1;i<nfds;i++) {
-      if (pfds[i].revents) {
-        plugin->ev_handle_poll(pfds+1,nfds-1,FXThread::time());
-        return;
-        }
-      }
+  if (plugin){
+    plugin->ev_handle_poll(pfds+1,nfds-1,FXThread::time());
     }
   }
+
+
+void OutputThread::prepare_wait(FXTime & timeout) {
+#ifndef WIN32
+  timeout = -1;
+  nfds    = 1;
+
+  if (plugin) {
+    plugin->ev_handle_pending();
+    nfds+=plugin->ev_num_poll();
+    }
+
+  if (nfds>mfds) {
+    mfds = nfds;
+    if (pfds==NULL)
+      allocElms(pfds,mfds);
+    else
+      resizeElms(pfds,mfds);
+    }
+
+  // Fifo io
+  pfds[0].fd = fifo.handle();
+  pfds[0].events  = POLLIN;
+  pfds[0].revents = 0;
+
+  // Plugin io
+  if (plugin) {
+    plugin->ev_prepare_poll(pfds+1,nfds-1,timeout);
+    }
+#endif
+  }  
+
+
+
+FXint OutputThread::wait(FXTime timeout) {
+#ifndef WIN32
+  struct timespec ts;
+  FXint n;
+  if (timeout>=0) {
+    ts.tv_sec  = timeout / 1000000000;
+    ts.tv_nsec = timeout % 1000000000;
+    do {
+      n=ppoll(pfds,nfds,&ts,NULL);
+      }
+    while(n==-1 && (errno==EAGAIN || errno==EINTR));
+    }
+  else {
+    do {
+      n=ppoll(pfds,nfds,NULL,NULL);
+      }
+    while(n==-1 && (errno==EAGAIN || errno==EINTR));
+    }
+  return n;
+#endif
+  }
+
+
+
+Event * OutputThread::wait_for_event() {
+  if (draining) 
+    return wait_drain();
+  else if (pausing)
+    return wait_pause();
+  else
+    return wait_event();
+  }
+
+
+Event * OutputThread::wait_event() {
+  FXTime timeout=-1;
+  do {
+    Event * event = fifo.pop();
+    if (event) {
+      prepare_wait(timeout);
+      if (wait(0)) handle_plugin_events();
+      return event;
+      }
+  
+    prepare_wait(timeout);
+    GM_DEBUG_PRINT("wait_event with timeout %ld\n",timeout);
+
+    FXint n = wait(timeout);
+    GM_DEBUG_PRINT("wait_event %ld %ld\n",n,pfds[0].revents);
+
+    if(n && pfds[0].revents) {
+      return fifo.pop();
+      }
+    handle_plugin_events();
+    GM_DEBUG_PRINT("wait_event again\n");
+
+    }
+  while(1);
+  }
+
+
+/*
+  Player is paused and we don't handle any Buffer or Configure
+  events until we receive some other command first. Plugin events
+  are continueing to be handled.
+*/
+Event * OutputThread::wait_pause() {
+  Event * event = fifo.pop_if_not(Buffer,Configure);
+  if (event) return event;
+
+  FXTime timeout=-1;
+  do {  
+    prepare_wait(timeout);
+    GM_DEBUG_PRINT("wait_pause with timeout %ld\n",timeout);
+
+    FXint n = wait(timeout);
+    GM_DEBUG_PRINT("wait_pause %ld %ld\n",n,pfds[0].revents);
+
+    if(n && pfds[0].revents) {
+      Event * event = fifo.pop_if_not(Buffer,Configure);
+      if (event) return event;
+      }
+    handle_plugin_events();
+    GM_DEBUG_PRINT("wait_pause again\n");
+    }
+  while(1);
+  }
+
+Event * OutputThread::wait_drain() {
+  FXTime timeout = -1;
+  const FXTime interval = 200;
+  FXTime now = FXThread::time();
+  FXTime wakeup = now + interval;
+  FXint n;
+
+  FXint delay=plugin->delay();
+  FXint offset=delay;  
+  FXint threshold=(FXint)(plugin->af.rate>>2);
+  do {
+    prepare_wait(timeout);  
+
+    if (timeout==-1)
+      timeout = wakeup-now;
+    else
+      timeout = FXMIN(timeout,wakeup-now);
+
+    n=wait(timeout);
+
+    // handle events first
+    if (n && pfds[0].revents)
+      return fifo.pop();
+
+    // handle position updates
+    if (FXThread::time()>=wakeup) {
+      delay = plugin->delay();
+      if (delay<threshold) {  
+        plugin->drain();
+        update_timers(0,0); /// make sure timers get fired
+        close_plugin();
+        engine->input->post(new ControlEvent(End,stream));
+        draining=false;
+        return wait_event();
+        }
+      else {
+        stream_position += offset - delay;
+        offset = delay;
+        update_timers(delay,0);
+        notify_position();
+        }
+      wakeup = FXThread::time() + interval;
+      }
+
+    // handle plugin events
+    handle_plugin_events();
+ 
+    // set new time
+    now = FXThread::time();
+    }
+  while(1);
+  }
+ 
+
+
+
+
+
+
+
+
 
 
 
@@ -513,10 +688,6 @@ void OutputThread::configure(const AudioFormat & fmt) {
     return;
     }
 
-//  engine->post(new VolumeNotify(plugin->volume(),true));
-
-	//plugin->volume(volume);
-
 #ifdef DEBUG
   fxmessage("[output] stream ");
   af.debug();
@@ -526,9 +697,13 @@ void OutputThread::configure(const AudioFormat & fmt) {
   draining=false;
   }
 
+/*
+void OutputThread::waitall() {
+  FXTime timeout = -1;
+  ppoll(pfds,nfds,timeout);
+  }
 
-
-void OutputThread::setup_event_handles(){
+void OutputThread::prepare_wait(FXTime & timeout) {
   nfds = 1;
   if (plugin) {
     plugin->ev_handle_pending();
@@ -550,13 +725,42 @@ void OutputThread::setup_event_handles(){
 
   // Plugin io
   if (plugin) {
-    FXTime timeout;
     plugin->ev_prepare_poll(pfds+1,nfds-1,timeout);
     }
   }
 
 
 
+*/
+/*
+void OutputThread::setup_event_handles(){
+  FXTime timeout;
+ nfds = 1;
+  if (plugin) {
+    plugin->ev_handle_pending();
+    nfds+=plugin->ev_num_poll();
+    }
+
+  if (nfds>mfds) {
+    mfds = nfds;
+    if (pfds==NULL)
+      allocElms(pfds,mfds);
+    else
+      resizeElms(pfds,mfds);
+    }
+
+  // Fifo io
+  pfds[0].fd = fifo.handle();
+  pfds[0].events  = POLLIN;
+  pfds[0].revents = 0;
+
+  // Plugin io
+  if (plugin) {
+    plugin->ev_prepare_poll(pfds+1,nfds-1,timeout);
+    }
+  }
+
+*/
 static FXbool mono_to_stereo(FXuchar * in,FXuint nsamples,FXuchar bps,MemoryBuffer & out){
   out.clear();
   out.reserve(nsamples*bps*2);
@@ -717,176 +921,6 @@ static void apply_scale_s16(FXuchar * buffer,FXuint nsamples,FXdouble scale) {
     }
   }
 
-
-void OutputThread::queuePacket(Packet * p) {
-  p->next = NULL;
-  if (packet_queue==NULL) {
-    packet_queue = p;
-    }
-  else {
-    Event * pp = (Event*)packet_queue;
-    while(pp->next) pp = pp->next;
-    pp->next = p;
-    }
-  plugin->start();  
-  }
-
-void OutputThread::flushQueue() {
-  Packet * p;
-  while(packet_queue) {
-    p = packet_queue;
-    packet_queue = (Packet*)packet_queue->next;
-    p->unref();
-    }
-  }
-
-/*
-void OutputThread::consumeSamples(FXuint & nframes) {
-  Packet * p = packet_queue;
-  FXASSERT(p);
-  p->readBytes(plugin->af.framesize()*nframes);
-  }
-*/
-
-void OutputThread::getSamples(const void *& buffer,FXuint & nframes) {
-  Packet * p = packet_queue;
-  if (p) {
-    if (p->numFrames()==0) {
-      fxmessage("unref packet\n");
-      packet_queue = (Packet*)packet_queue->next;
-      p->unref();
-      p = packet_queue;
-      }
-    if (p) {
-      FXuint n = FXMIN(nframes,(p->size()/plugin->af.framesize()));
-      GM_DEBUG_PRINT("PACKET %ld %ld %ld %d\n",n,plugin->af.framesize(),p->size(),nframes*plugin->af.framesize());
-      if (n) {
-        buffer = p->data();
-        p->readBytes(plugin->af.framesize()*n);
-        nframes = n;
-        update_position(p->stream,p->stream_position,nframes,p->stream_length);
-        return;
-        }
-      }
-    }
-  buffer=NULL;
-  nframes=0;
-  }
-
-    
-
-
-
-
-
-
-
-
-
-
-void OutputThread::process2(Packet * packet) {
-
-//  GM_TICKS_START();
-  FXASSERT(packet);
-  FXbool use_buffer=false;
-  FXbool result=false;
-  FXint nframes=packet->numFrames();
-/*
-  if (packet->af.format==AP_FORMAT_FLOAT) {
-    softvol_float(packet->data,packet->nframes*packet->af.channels,softvol);
-    }
-  else if (packet->af.format==AP_FORMAT_S16){
-    softvol_s16(packet->data,packet->nframes*packet->af.channels,softvol);
-    }
-*/
-
-  if (replaygain.mode!=ReplayGainOff) {
-    FXdouble gain  = replaygain.gain();
-    if(!isnan(gain)) {
-      FXdouble peak  = replaygain.peak();
-      FXdouble scale = pow(10.0,(gain / 20.0));
-
-      /// Avoid clipping
-      if (!isnan(peak) && peak!=0.0 && (scale*peak)>1.0)
-        scale = 1.0 / peak;
-
-      switch(packet->af.format) {
-        case AP_FORMAT_FLOAT: apply_scale_float(packet->data(),packet->numFrames()*packet->af.channels,scale); break;
-        case AP_FORMAT_S16  : apply_scale_s16(packet->data(),packet->numFrames()*packet->af.channels,scale);   break;
-        }
-      }
-    }
-
-
-
-  if (packet->af!=plugin->af) {
-
-
-    if (plugin->af.format!=packet->af.format) {
-
-      if (plugin->af.format==AP_FORMAT_S16) {
-        switch(packet->af.format) {
-          case AP_FORMAT_FLOAT: float_to_s16(packet->data(),packet->numFrames()*packet->af.channels); break;
-          case AP_FORMAT_S24_3: s24le3_to_s16(packet->data(),packet->numFrames()*packet->af.channels); break;
-          default             : goto mismatch; break;
-          }
-        }
-      else if (plugin->af.format==AP_FORMAT_S32) {
-        switch(packet->af.format) {
-          case AP_FORMAT_FLOAT: float_to_s32(packet->data(),packet->numFrames()*packet->af.channels); break;
-          //case AP_FORMAT_S24_3: s24le3_to_s32(packet->data(),packet->numFrames()*packet->af.channels,converted_samples); use_buffer=true; break;
-          default             : goto mismatch; break;
-          }
-        }
-
-      }
-
-    if (packet->af.channels!=plugin->af.channels) {
-
-      /// FIXME
-      if (use_buffer==true)
-        goto mismatch;
-
-      if (packet->af.channels==1 && plugin->af.channels==2 ) {
-        mono_to_stereo(packet->data(),packet->numFrames(),packet->af.packing(),converted_samples);
-        use_buffer=true;
-        }
-      else {
-        goto mismatch;
-        }
-      }
-    if (packet->af.rate!=plugin->af.rate) {
-      goto mismatch;
-      }
-    }
-
-  queuePacket(packet);
-
-/*
-  update_position(packet->stream,packet->stream_position,packet->numFrames(),packet->stream_length);
-
-  if (use_buffer)
-    result = plugin->write(converted_samples.data(),nframes);
-  else
-    result = plugin->write(packet->data(),nframes);
-
-  if (result==false) {
-    GM_DEBUG_PRINT("[output] write failed\n");
-    engine->input->post(new ControlEvent(Ctrl_Close));
-    engine->post(new ErrorMessage(FXString::value("Output Error")));
-    close_plugin();
-    }
-*/
-  return;
-mismatch:
-  GM_DEBUG_PRINT("[output] config mismatch\n");
-  draining=false;
-  engine->input->post(new ControlEvent(Ctrl_Close));
-  close_plugin();
-  }
-
-
-
 void OutputThread::process(Packet * packet) {
   FXASSERT(packet);
   FXbool use_buffer=false;
@@ -990,18 +1024,18 @@ FXint OutputThread::run(){
   draining=false;
   ap_set_thread_name("ap_output");
 
-  setup_event_handles();
+  //setup_event_handles();
 
   for (;;){
     event = wait_for_event();
     FXASSERT(event);
+    //GM_DEBUG_PRINT("got event  type %d\n",event->type);
 
     switch(event->type) {
       case Buffer     :
         {
           if (__likely(af.set())) {
             process(dynamic_cast<Packet*>(event));
-            //continue;
             }
         } break;
 
@@ -1017,7 +1051,6 @@ FXint OutputThread::run(){
             }
           pausing=false;
           draining=false;
-          flushQueue();
           reset_position();
           clear_timers();
         } break;
@@ -1057,7 +1090,7 @@ FXint OutputThread::run(){
 
       case Ctrl_Volume:
         {
-					volume=(dynamic_cast<CtrlVolumeEvent*>(event))->vol;
+					FXfloat volume=(dynamic_cast<CtrlVolumeEvent*>(event))->vol;
           if (plugin) plugin->volume(volume);
         } break;
 
@@ -1135,9 +1168,6 @@ FXint OutputThread::run(){
               }
             }
         } break;
-
-
-
       };
     Event::unref(event);
     }

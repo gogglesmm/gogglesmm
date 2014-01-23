@@ -40,8 +40,8 @@ struct ReplayGainConfig {
   };
 
 class OutputThread : public EngineThread {
-protected:
-  Event * wait_for_event();
+//protected:
+//  Event * wait_for_event();
 protected:
   OutputConfig   output_config;
 protected:
@@ -49,9 +49,27 @@ protected:
   struct pollfd * pfds;
   FXint           nfds;
   FXint           mfds;
-  void setup_event_handles();
+protected:
+  /// wait for pfds / timeouts
+  FXint wait(FXTime);
+
+  /// prepare pfds / timeouts
+  void prepare_wait(FXTime &);
+
+  /// plugin event handling
   void handle_plugin_events();
+
+  /// Wait while pausing
+  Event * wait_pause();
+
+  /// Wait while draining
+  Event * wait_drain();
+
+  /// Wait normal events
+  Event * wait_event();
 #endif
+protected:
+  Event * wait_for_event();
 public:
   AudioFormat       af;
   OutputPlugin *    plugin;
@@ -60,7 +78,6 @@ public:
   MemoryBuffer      src_input;
   MemoryBuffer      src_output;
   ReplayGainConfig  replaygain;
-	FXfloat						volume;
   Packet * packet_queue;
 protected:
   FXbool draining;
@@ -82,10 +99,7 @@ protected:
   void unload_plugin();
   void close_plugin();
   void process(Packet*);
-  void process2(Packet*);
 
-  void queuePacket(Packet*);
-  void flushQueue();
 
 #ifdef HAVE_SAMPLERATE_PLUGIN
   void resample(Packet*,FXint & nframes);

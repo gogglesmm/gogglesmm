@@ -132,7 +132,6 @@ public:
       }
     }
 
-
   FXbool handle_deferred() {
     FXbool handled = false;
     for (FXint d=0;d<deferred.no();d++) {
@@ -144,6 +143,38 @@ public:
       }
     return handled;
     }
+
+  void handle_timers(FXTime now) {
+    struct timeval tv;
+    pa_time_event * t;
+    for (pa_time_event * t = timers;t;t=t->next) {
+      if (t->time>0 && t->time<=now) {
+        if (t->callback) {
+          tv.tv_usec=(t->time/1000)%1000000;
+          tv.tv_sec=t->time/1000000000;
+          fxmessage("time callback %ld\n",t->time);
+          t->callback(api(),t,&tv,t->userdata);
+          }
+        t->time=0; // disable timeout
+        }
+      }
+    }
+
+  void handle_watches(struct ::pollfd* pfd) {
+    for (FXint w=0;w<watches.no();w++) {
+      if (pfd[w].revents) {
+        GM_DEBUG_PRINT("EV_HANDLE_POLL\n");  
+        FXASSERT(pfd[w].fd == watches[w]->fd);
+        watches[w]->callback(api(),watches[w],watches[w]->fd,map_flags_from_libc(pfd[w].revents),watches[w]->userdata);
+        pfd[w].revents=0;
+        }
+      }
+    }
+
+
+
+
+
 
   void run_once() {
     handle_deferred();
@@ -296,13 +327,15 @@ pa_time_event* pulse_time_new(pa_mainloop_api*, const struct timeval *tv, pa_tim
   event->destroy_callback = NULL;
   event->userdata         = userdata;
   event->time             = (tv->tv_sec*1000000000) + (tv->tv_usec*1000);
-  //GM_DEBUG_PRINT("pulse_time_new %p %ld.%ld\n",event,tv->tv_sec,tv->tv_usec);
+  //GM_DEBUG_PRINT("pulse_time_new %p, %p %ld.%ld\n",cb,event,tv->tv_sec,tv->tv_usec);
   PulseEventLoop::instance()->addTimer(event);
   return event;
   }
 
 void pulse_time_restart(pa_time_event* event, const struct timeval *tv){
+  PulseEventLoop::instance()->removeTimer(event);
   event->time  = (tv->tv_sec*1000000000) + (tv->tv_usec*1000);
+  PulseEventLoop::instance()->addTimer(event);
   //GM_DEBUG_PRINT("pulse_time_restart %p %ld.%ld\n",event,tv->tv_sec,tv->tv_usec);
   }
 
@@ -427,21 +460,14 @@ void PulseOutput::ev_prepare_poll(struct ::pollfd* pfd,FXint,FXTime & wakeup){
     FXTime now = FXThread::time();
     pa_time_event * tt = eventloop->timers;
     while(tt && tt->time<now) tt=tt->next;
-    if (tt) wakeup = tt->time - now;
+    if (tt && tt->time) wakeup = tt->time - now;
     }
-
-  if (wakeup<0) wakeup=0;
+  //if (wakeup<0) wakeup=0;
   }
 
-void PulseOutput::ev_handle_poll(struct ::pollfd* pfd,FXint,FXTime/*now*/){
-  for (FXint w=0;w<eventloop->watches.no();w++) {
-    if (pfd[w].revents) {
-      //GM_DEBUG_PRINT("EV_HANDLE_POLL\n");  
-      FXASSERT(pfd[w].fd == eventloop->watches[w]->fd);
-      eventloop->watches[w]->callback(eventloop->api(),eventloop->watches[w],eventloop->watches[w]->fd,map_flags_from_libc(pfd[w].revents),eventloop->watches[w]->userdata);
-      pfd[w].revents=0;
-      }
-    }
+void PulseOutput::ev_handle_poll(struct ::pollfd* pfd,FXint,FXTime now){  
+  eventloop->handle_timers(now);
+  eventloop->handle_watches(pfd);  
   }
 
 
@@ -724,7 +750,7 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
     pa_stream_write(stream,buffer,n,NULL,0,PA_SEEK_RELATIVE);
     total-=n;
     buffer+=n;
-     }
+    }
   return true;
   }
 
