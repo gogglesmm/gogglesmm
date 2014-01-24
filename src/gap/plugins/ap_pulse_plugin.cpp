@@ -20,6 +20,7 @@
 #include "ap_config.h"
 #include "ap_event.h"
 #include "ap_pipe.h"
+#include "ap_event_loop.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_format.h"
@@ -41,6 +42,97 @@
 using namespace ap;
 
 
+class pa_io_event : public EventLoop::Watch {
+  static PulseOutput * plugin;
+  pa_io_event_cb_t         callback;
+  pa_io_event_destroy_cb_t destroy_callback;
+  void *                   userdata;   
+
+  pa_io_event_flags_t toPulse() {
+    int event=PA_IO_EVENT_NULL;
+    event|=(mode&EventLoop::Watch::IsReadable) ? PA_IO_EVENT_INPUT : 0;
+    event|=(mode&EventLoop::Watch::IsWritable) ? PA_IO_EVENT_OUTPUT : 0;
+    event|=(mode&EventLoop::Watch::IsException) ? (PA_IO_EVENT_ERROR|PA_IO_EVENT_HANGUP) : 0;
+    return (pa_io_event_flags_t)event;
+    }
+
+  virtual void onSignal() {
+    callback(api(),this,handle,toPulse(),userdata);
+    }
+
+  pa_io_event(FXInputHandle h,FXuchar m,pa_io_event_cb_t cb,void * data) : EventLoop::Watch(h,m), 
+    callback(cb),
+    destroy_callback(NULL),
+    userdata(d) {
+    }
+    
+
+  static FXuchar toMode(pa_io_event_flags_t flags) {
+    return (((flags&PA_IO_EVENT_INPUT)  ? EventLoop::Watch::Readable : 0) | 
+            ((flags&PA_IO_EVENT_OUTPUT) ? EventLoop::Watch::Writable : 0) |
+            ((flags&PA_IO_EVENT_ERROR)  ? EventLoop::Watch::Exception : 0) |
+            ((flags&PA_IO_EVENT_HANGUP) ? EventLoop::Watch::Exception : 0));
+    }
+
+
+
+  static pa_io_event * create(pa_mainloop_api*, int fd, pa_io_event_flags_t events, pa_io_event_cb_t cb, void *userdata) {
+    pa_io_event * event = new pa_io_event(fd,toMode(events),cb,userdata);
+    pa_io_event::plugin->addWatch(event);
+    }
+
+  static void destroy(pa_io_event* event){
+    pa_io_event::plugin->removeWatch(event);
+    delete event;
+    }
+
+
+  }
+
+
+
+
+
+
+
+
+pa_io_event* pulse_io_new(pa_mainloop_api*, int fd, pa_io_event_flags_t events, pa_io_event_cb_t cb, void *userdata){
+  pa_io_event * event = new pa_io_event;
+  event->callback         = cb;
+  event->destroy_callback = NULL;
+  event->userdata         = userdata;
+  event->fd               = fd;
+  event->flags            = map_flags_to_libc(events);
+  //GM_DEBUG_PRINT("pulse_io_new %p %d\n",event,fd);
+  PulseEventLoop::instance()->watches.append(event);
+  return event;
+  }
+
+void pulse_io_enable(pa_io_event* event, pa_io_event_flags_t events){
+  //GM_DEBUG_PRINT("pulse_io_enable %p %d %d\n",event,event->fd,(int)events);
+  event->flags = map_flags_to_libc(events);
+  }
+
+void pulse_io_free(pa_io_event* event){
+  //GM_DEBUG_PRINT("pulse_io_free %p %d\n",event,event->fd);
+
+  if (event->destroy_callback)
+    event->destroy_callback(PulseEventLoop::instance()->api(),event,event->userdata);
+
+  PulseEventLoop::instance()->watches.remove(event);
+  delete event;
+  }
+
+void pulse_io_set_destroy(pa_io_event *event, pa_io_event_destroy_cb_t cb){
+  //GM_DEBUG_PRINT("pulse_io_set_destroy %p %d\n",event,event->fd);
+  event->destroy_callback = cb;
+  }
+
+
+
+
+
+ 
 struct pa_io_event {
   pa_io_event_cb_t         callback;
   pa_io_event_destroy_cb_t destroy_callback;

@@ -40,11 +40,14 @@ struct ReplayGainConfig {
   };
 
 class OutputThread : public EngineThread {
-//protected:
-//  Event * wait_for_event();
 protected:
   OutputConfig   output_config;
 protected:
+  EventLoop      eventloop;
+public:
+
+
+
 #ifndef WIN32
   struct pollfd * pfds;
   FXint           nfds;
@@ -117,6 +120,9 @@ public:
   void getSamples(const void*&,FXuint &);
 
   void notify_volume(FXfloat value);
+
+  
+  EventLoop & getEventLoop();
 
 
   virtual FXint run();

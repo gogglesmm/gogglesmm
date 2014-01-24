@@ -39,6 +39,10 @@ protected:
   static void context_subscribe_callback(pa_context *c,pa_subscription_event_type_t, uint32_t,void*);
 protected:
   FXbool open();
+protected:
+  void addWatch(EventLoop::Watch*);
+  void removeWatch(EventLoop::Watch*);
+
 public:
   // Handle pending events.
   virtual void ev_handle_pending();
