@@ -99,8 +99,6 @@ public:
     bindings[FXFileAssociations::defaultDirBinding]=assoc;
     }
 
-
-
   void initFileBindings() {
     FXFileAssoc * assoc=NULL;
 
@@ -121,7 +119,6 @@ public:
       }
     }
    
-  // Find file association from registry
   FXFileAssoc* findFileBinding(const FXString& pathname){
     FXString ext = FXPath::extension(pathname);
     FXFileAssoc * record = NULL;
@@ -130,7 +127,7 @@ public:
     return bindings[defaultFileBinding];
     }  
 
-  FXFileAssoc* findDirBinding(const FXString& pathname){
+  FXFileAssoc* findDirBinding(const FXString&){
     return bindings[defaultDirBinding];
     }
 
@@ -362,64 +359,6 @@ void GMFileSelector::getSelectedFiles(FXStringList & files) {
     FXASSERT(0);
     }
   }
-
-
-
-
-
-
-/*
-
-void GMFileSelector::initFileDict() {
-  FIXME  
-  FXFileAssoc * assoc=NULL;
-  for (FXuint i=0;i<ARRAYNUMBER(filetypes);i+=2) {
-    assoc = filedict->replace(filetypes[i],filetypes[i+1]);
-    assoc->bigicon  = GMIconTheme::instance()->icon_audio_big;
-    assoc->miniicon = GMIconTheme::instance()->icon_audio_small;
-    assoc = filedict->replace(FXString(filetypes[i]).upper().text(),filetypes[i+1]);
-    assoc->bigicon  = GMIconTheme::instance()->icon_audio_big;
-    assoc->miniicon = GMIconTheme::instance()->icon_audio_small;
-    }
-
-  for (FXuint i=0;i<ARRAYNUMBER(imagetypes);i+=2) {
-    assoc = filedict->replace(imagetypes[i],imagetypes[i+1]);
-    assoc->bigicon  = GMIconTheme::instance()->icon_image_big;
-    assoc->miniicon = GMIconTheme::instance()->icon_image_small;
-    assoc = filedict->replace(FXString(filetypes[i]).upper().text(),imagetypes[i+1]);
-    assoc->bigicon  = GMIconTheme::instance()->icon_image_big;
-    assoc->miniicon = GMIconTheme::instance()->icon_image_small;
-    }
-
-  assoc = filedict->replace(FXFileDict::defaultFileBinding,";");
-  assoc->bigicon  = GMIconTheme::instance()->icon_file_big;
-  assoc->miniicon = GMIconTheme::instance()->icon_file_small;
-
-  assoc = filedict->replace(FXFileDict::defaultDirBinding,";");
-  assoc->bigicon      = GMIconTheme::instance()->icon_folder_big;
-  assoc->miniicon     = GMIconTheme::instance()->icon_folder_small;
-  }
-*/
-
-/*
-
-void GMDirSelector::initFileDict() {
-  FIXME
-  FXFileAssoc * assoc=NULL;
-  assoc = filedict->replace(FXFileDict::defaultDirBinding,";");
-  assoc->miniiconopen = GMIconTheme::instance()->icon_folder_open_small;
-  assoc->miniicon     = GMIconTheme::instance()->icon_folder_small;
-  }
-
-*/
-
-
-
-
-
-
-
-
 
 
 FXIMPLEMENT(GMFileDialog,FXFileDialog,NULL,0);
