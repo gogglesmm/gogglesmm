@@ -42,119 +42,204 @@
 using namespace ap;
 
 
+
 class pa_io_event : public EventLoop::Watch {
-  static PulseOutput * plugin;
+  
+
+public:
   pa_io_event_cb_t         callback;
   pa_io_event_destroy_cb_t destroy_callback;
   void *                   userdata;   
-
+protected:
   pa_io_event_flags_t toPulse() {
     int event=PA_IO_EVENT_NULL;
-    event|=(mode&EventLoop::Watch::IsReadable) ? PA_IO_EVENT_INPUT : 0;
-    event|=(mode&EventLoop::Watch::IsWritable) ? PA_IO_EVENT_OUTPUT : 0;
-    event|=(mode&EventLoop::Watch::IsException) ? (PA_IO_EVENT_ERROR|PA_IO_EVENT_HANGUP) : 0;
+    event=  ((mode&EventLoop::Watch::IsReadable)  ? PA_IO_EVENT_INPUT : 0) |
+            ((mode&EventLoop::Watch::IsWritable)  ? PA_IO_EVENT_OUTPUT : 0) |
+            ((mode&EventLoop::Watch::IsException) ? (PA_IO_EVENT_ERROR|PA_IO_EVENT_HANGUP) : 0);
     return (pa_io_event_flags_t)event;
     }
 
-  virtual void onSignal() {
-    callback(api(),this,handle,toPulse(),userdata);
-    }
-
-  pa_io_event(FXInputHandle h,FXuchar m,pa_io_event_cb_t cb,void * data) : EventLoop::Watch(h,m), 
-    callback(cb),
-    destroy_callback(NULL),
-    userdata(d) {
-    }
-    
-
   static FXuchar toMode(pa_io_event_flags_t flags) {
-    return (((flags&PA_IO_EVENT_INPUT)  ? EventLoop::Watch::Readable : 0) | 
-            ((flags&PA_IO_EVENT_OUTPUT) ? EventLoop::Watch::Writable : 0) |
+    return (((flags&PA_IO_EVENT_INPUT)  ? EventLoop::Watch::Readable  : 0) | 
+            ((flags&PA_IO_EVENT_OUTPUT) ? EventLoop::Watch::Writable  : 0) |
             ((flags&PA_IO_EVENT_ERROR)  ? EventLoop::Watch::Exception : 0) |
             ((flags&PA_IO_EVENT_HANGUP) ? EventLoop::Watch::Exception : 0));
     }
 
+public:
+  static pa_io_event * recycle;
+  virtual void onSignal() {
+    //fxmessage("IsWritable %d\n",(mode&EventLoop::Watch::IsWritable));
+    callback(&(PulseOutput::instance->api),this,handle,toPulse(),userdata);
+    }
+public:
+  pa_io_event(FXInputHandle h,FXuchar m,pa_io_event_cb_t cb,void * data) : EventLoop::Watch(h,m), 
+    callback(cb),
+    destroy_callback(NULL),
+    userdata(data) {
+    }
 
 
-  static pa_io_event * create(pa_mainloop_api*, int fd, pa_io_event_flags_t events, pa_io_event_cb_t cb, void *userdata) {
-    pa_io_event * event = new pa_io_event(fd,toMode(events),cb,userdata);
-    pa_io_event::plugin->addWatch(event);
+  static pa_io_event * create(pa_mainloop_api*,int fd,pa_io_event_flags_t events, pa_io_event_cb_t cb, void *userdata) {
+    pa_io_event * event = NULL;
+    if (recycle) {
+      event = recycle;
+      event->handle           = fd;
+      event->mode             = toMode(events);
+      event->callback         = cb;
+      event->userdata         = userdata;
+      event->destroy_callback = NULL;
+      recycle = NULL;
+      //fxmessage("pa_io_event recycle %d %d\n",fd,toMode(events));
+      }
+    else {
+      //fxmessage("pa_io_event create %d %d\n",fd,toMode(events));
+      event = new pa_io_event(fd,toMode(events),cb,userdata);
+      }
+
+    PulseOutput::instance->output->getEventLoop().addWatch(event);
+    return event;
     }
 
   static void destroy(pa_io_event* event){
-    pa_io_event::plugin->removeWatch(event);
-    delete event;
+    //fxmessage("pa_io_event destroy\n",event->handle);
+    if (event->destroy_callback)
+      event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
+    PulseOutput::instance->output->getEventLoop().removeWatch(event);
+    if (recycle==NULL) 
+      recycle=event;
+    else
+      delete event;
     }
 
+  static void enable(pa_io_event*event,pa_io_event_flags_t events) {
+    //fxmessage("pa_io_event enable %d %d\n",event->handle,toMode(events));
+    event->mode = toMode(events);
+    }
 
-  }
+  static void set_destroy(pa_io_event *event, pa_io_event_destroy_cb_t cb){
+    //fxmessage("pa_io_event set_destroy %d\n",event->handle);
+    event->destroy_callback=cb;
+    }
 
-
-
-
-
-
-
-
-pa_io_event* pulse_io_new(pa_mainloop_api*, int fd, pa_io_event_flags_t events, pa_io_event_cb_t cb, void *userdata){
-  pa_io_event * event = new pa_io_event;
-  event->callback         = cb;
-  event->destroy_callback = NULL;
-  event->userdata         = userdata;
-  event->fd               = fd;
-  event->flags            = map_flags_to_libc(events);
-  //GM_DEBUG_PRINT("pulse_io_new %p %d\n",event,fd);
-  PulseEventLoop::instance()->watches.append(event);
-  return event;
-  }
-
-void pulse_io_enable(pa_io_event* event, pa_io_event_flags_t events){
-  //GM_DEBUG_PRINT("pulse_io_enable %p %d %d\n",event,event->fd,(int)events);
-  event->flags = map_flags_to_libc(events);
-  }
-
-void pulse_io_free(pa_io_event* event){
-  //GM_DEBUG_PRINT("pulse_io_free %p %d\n",event,event->fd);
-
-  if (event->destroy_callback)
-    event->destroy_callback(PulseEventLoop::instance()->api(),event,event->userdata);
-
-  PulseEventLoop::instance()->watches.remove(event);
-  delete event;
-  }
-
-void pulse_io_set_destroy(pa_io_event *event, pa_io_event_destroy_cb_t cb){
-  //GM_DEBUG_PRINT("pulse_io_set_destroy %p %d\n",event,event->fd);
-  event->destroy_callback = cb;
-  }
-
-
-
-
-
- 
-struct pa_io_event {
-  pa_io_event_cb_t         callback;
-  pa_io_event_destroy_cb_t destroy_callback;
-  void *                   userdata;
-  FXint                    fd;
-  FXushort                 flags;
   };
 
-struct pa_defer_event {
-  pa_defer_event_cb_t         callback;
-  pa_defer_event_destroy_cb_t destroy_callback;
-  void*                       userdata;
-  FXbool                      enabled;
-  };
 
-struct pa_time_event {
-  pa_time_event*              next;  
+pa_io_event * pa_io_event::recycle;
+
+
+
+
+
+
+
+
+class pa_time_event : public EventLoop::Timer {
+public:
   pa_time_event_cb_t          callback;
   pa_time_event_destroy_cb_t  destroy_callback;
   void*                       userdata;
-  FXTime                      time;
+public:
+  virtual void onExpired() {
+    struct timeval tv;
+    tv.tv_usec=(time/1000)%1000000;
+    tv.tv_sec=time/1000000000;
+    callback(&(PulseOutput::instance->api),this,&tv,userdata);
+    }
+public:
+  pa_time_event() : callback(NULL),destroy_callback(NULL),userdata(NULL) {}
+
+
+  static pa_time_event * create(pa_mainloop_api*,const struct timeval *tv, pa_time_event_cb_t cb, void *userdata) {
+    //fxmessage("pa_time_event create\n");
+    FXTime time = (tv->tv_sec*1000000000) + (tv->tv_usec*1000); 
+    pa_time_event * event = new pa_time_event();
+    event->callback = cb;
+    event->userdata = userdata;
+    PulseOutput::instance->output->getEventLoop().addTimer(event,time);
+    return event;
+    }
+
+  static void destroy(pa_time_event* event){
+    //fxmessage("pa_time_event destroy\n");
+    if (event->destroy_callback)
+      event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
+    PulseOutput::instance->output->getEventLoop().removeTimer(event);
+    delete event;
+    }
+
+  static void restart(pa_time_event* event, const struct timeval *tv){
+    //fxmessage("pa_time_event restart\n");
+    FXTime time = (tv->tv_sec*1000000000) + (tv->tv_usec*1000); 
+    PulseOutput::instance->output->getEventLoop().removeTimer(event);
+    PulseOutput::instance->output->getEventLoop().addTimer(event,time);
+    }    
+
+  static void set_destroy(pa_time_event *event, pa_time_event_destroy_cb_t cb){
+    //fxmessage("pa_time_event set_destroy\n");
+    event->destroy_callback=cb;
+    }
+
+
+
+
+
   };
+
+
+
+
+
+
+
+
+class pa_defer_event : public EventLoop::Deferred {  
+  pa_defer_event_cb_t         callback;
+  pa_defer_event_destroy_cb_t destroy_callback;
+  void*                       userdata;
+
+public:
+  virtual void run() {
+    //fxmessage("pa_defer_event callback %p\n",callback);
+    callback(&PulseOutput::instance->api,this,userdata);
+    }
+
+public:
+  pa_defer_event(pa_defer_event_cb_t cb,void *data) : callback(cb),destroy_callback(NULL),userdata(data) {}
+    
+    
+  static pa_defer_event* create(pa_mainloop_api*, pa_defer_event_cb_t cb, void *userdata){
+    //fxmessage("pa_defer_event create %p\n",cb);
+    pa_defer_event * event = new pa_defer_event(cb,userdata);
+    PulseOutput::instance->output->getEventLoop().addDeferred(event);
+    return event;
+    };
+
+  static void toggle_enabled(pa_defer_event*event,int b) {
+    //fxmessage("pa_defer_event enable %p %d\n",event->callback,b);
+    if (b)
+      event->enable();
+    else
+      event->disable();
+    }
+
+  static void destroy(pa_defer_event* event){
+    //fxmessage("pa_defer_event destroy %p\n",event->callback);
+    if (event->destroy_callback)
+      event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
+    PulseOutput::instance->output->getEventLoop().removeDeferred(event);
+    delete event;
+    }
+
+  static void set_destroy(pa_defer_event *event, pa_defer_event_destroy_cb_t cb){
+    //fxmessage("pa_defer_event set_destroy\n");
+    event->destroy_callback=cb;
+    }
+  };
+
+
+
+
 
 
 static short map_flags_to_libc(pa_io_event_flags_t flags) {
@@ -189,260 +274,7 @@ static pa_io_event_flags_t map_flags_from_libc(short flags) {
   
 
 
-class PulseEventLoop  {
-protected:
-  static PulseEventLoop * loop;
-public: 
-  pa_mainloop_api mapi;
-public:
-  FXPtrListOf<pa_io_event>    watches;
-  FXPtrListOf<pa_defer_event> deferred;
-  pa_time_event * timers;
-public:
-  static PulseEventLoop* instance();
-public:
-  PulseEventLoop();
 
-  pa_mainloop_api * api() { return &mapi; }
-
-  void addTimer(pa_time_event* t){
-    pa_time_event**tt;
-    for(tt=&timers; *tt && ((*tt)->time < t->time); tt=&(*tt)->next){}
-    t->next=*tt;
-    *tt=t;
-    }
-
-  void removeTimer(pa_time_event*event) {
-    if (timers) {
-      for (pa_time_event ** node = &timers; *node; node = &(*node)->next) {
-        if ((*node)==event) {
-          pa_time_event * next = (*node)->next;
-          *node = next;
-          return;
-          }
-        }
-      }
-    }
-
-  FXbool handle_deferred() {
-    FXbool handled = false;
-    for (FXint d=0;d<deferred.no();d++) {
-      if (deferred[d]->enabled && deferred[d]->callback) {
-        //fxmessage("deferred callback %p\n",deferred[d]);
-        deferred[d]->callback(api(),deferred[d],deferred[d]->userdata);
-        handled=true;
-        }
-      }
-    return handled;
-    }
-
-  void handle_timers(FXTime now) {
-    struct timeval tv;
-    pa_time_event * t;
-    for (pa_time_event * t = timers;t;t=t->next) {
-      if (t->time>0 && t->time<=now) {
-        if (t->callback) {
-          tv.tv_usec=(t->time/1000)%1000000;
-          tv.tv_sec=t->time/1000000000;
-          fxmessage("time callback %ld\n",t->time);
-          t->callback(api(),t,&tv,t->userdata);
-          }
-        t->time=0; // disable timeout
-        }
-      }
-    }
-
-  void handle_watches(struct ::pollfd* pfd) {
-    for (FXint w=0;w<watches.no();w++) {
-      if (pfd[w].revents) {
-        GM_DEBUG_PRINT("EV_HANDLE_POLL\n");  
-        FXASSERT(pfd[w].fd == watches[w]->fd);
-        watches[w]->callback(api(),watches[w],watches[w]->fd,map_flags_from_libc(pfd[w].revents),watches[w]->userdata);
-        pfd[w].revents=0;
-        }
-      }
-    }
-
-
-
-
-
-
-  void run_once() {
-    handle_deferred();
-    }
-
-  void wait() {
-
-    if (handle_deferred())
-      return;
-
-    FXTime wait = -1;
-    struct timespec ts;
-    struct pollfd * pfd = NULL;
-    FXint ntotal = watches.no();
-    allocElms(pfd,ntotal);
-    FXint i=0;
-    
-    for (FXint w=0;w<watches.no();w++,i++) {
-      pfd[i].fd     = watches[w]->fd;
-      pfd[i].events = watches[w]->flags;      
-      }
-
-    if (timers) {
-      FXTime now = FXThread::time();
-      pa_time_event * tt = timers;
-      while(tt && tt->time<now) tt=tt->next;
-      if (tt) wait = tt->time - now;
-      }
-
-    if (wait>0){
-      ts.tv_sec = wait / 1000000000;
-      ts.tv_nsec = wait % 1000000000;
-     // fxmessage("ppoll %ld\n",wait);
-      int result = ppoll(pfd,i,&ts,NULL);
-      //fxmessage("result %d\n",result);
-      if (result) {
-        FXint i=0;
-        for (FXint w=0;w<watches.no();w++,i++) {
-          if (pfd[i].revents) {
-            FXASSERT(pfd[i].fd == watches[w]->fd);
-            watches[w]->callback(api(),watches[w],watches[w]->fd,map_flags_from_libc(pfd[i].revents),watches[w]->userdata);
-            }
-          }
-        }
-      }
-    else if (i) {
-      //fxmessage("ppoll no timeout\n");
-      int result = ppoll(pfd,i,NULL,NULL);
-      if (result) {
-        i=0;
-        for (FXint w=0;w<watches.no();w++,i++) {
-          if (pfd[i].revents) {
-            FXASSERT(pfd[i].fd == watches[w]->fd);
-            watches[w]->callback(api(),watches[w],watches[w]->fd,map_flags_from_libc(pfd[i].revents),watches[w]->userdata);
-            }
-          }
-        }
-      //fxmessage("result %d\n",result);
-      }
-    else {
-      //fxmessage("nothing to do\n");
-      }
-
-    freeElms(pfd);
-    }
-
-  ~PulseEventLoop() {
-    //FIXME
-    }
-
-
-  };
-
-
-
-
-
-
-pa_io_event* pulse_io_new(pa_mainloop_api*, int fd, pa_io_event_flags_t events, pa_io_event_cb_t cb, void *userdata){
-  pa_io_event * event = new pa_io_event;
-  event->callback         = cb;
-  event->destroy_callback = NULL;
-  event->userdata         = userdata;
-  event->fd               = fd;
-  event->flags            = map_flags_to_libc(events);
-  //GM_DEBUG_PRINT("pulse_io_new %p %d\n",event,fd);
-  PulseEventLoop::instance()->watches.append(event);
-  return event;
-  }
-
-void pulse_io_enable(pa_io_event* event, pa_io_event_flags_t events){
-  //GM_DEBUG_PRINT("pulse_io_enable %p %d %d\n",event,event->fd,(int)events);
-  event->flags = map_flags_to_libc(events);
-  }
-
-void pulse_io_free(pa_io_event* event){
-  //GM_DEBUG_PRINT("pulse_io_free %p %d\n",event,event->fd);
-
-  if (event->destroy_callback)
-    event->destroy_callback(PulseEventLoop::instance()->api(),event,event->userdata);
-
-  PulseEventLoop::instance()->watches.remove(event);
-  delete event;
-  }
-
-void pulse_io_set_destroy(pa_io_event *event, pa_io_event_destroy_cb_t cb){
-  //GM_DEBUG_PRINT("pulse_io_set_destroy %p %d\n",event,event->fd);
-  event->destroy_callback = cb;
-  }
-
-
-
-
-pa_defer_event* pulse_defer_new(pa_mainloop_api*, pa_defer_event_cb_t cb, void *userdata){
-  pa_defer_event* event = new pa_defer_event;
-  event->callback         = cb;
-  event->destroy_callback = NULL;
-  event->enabled          = true;
-  event->userdata         = userdata;
-  //GM_DEBUG_PRINT("pulse_defer_new %p\n",event);
-  PulseEventLoop::instance()->deferred.append(event);
-  return event;
-  }
-
-void pulse_defer_enable(pa_defer_event* event, int b){
-  //GM_DEBUG_PRINT("pulse_defer_enable %p %d\n",event,b);
-  event->enabled = (b==1) ? true : false;
-  }
-
-void pulse_defer_free(pa_defer_event* event){
-  //GM_DEBUG_PRINT("pulse_defer_free %p\n",event);
-  if (event->destroy_callback)
-    event->destroy_callback(PulseEventLoop::instance()->api(),event,event->userdata);
-
-  PulseEventLoop::instance()->deferred.remove(event);
-  delete event;
-  }
-
-void pulse_defer_set_destroy(pa_defer_event *event, pa_defer_event_destroy_cb_t cb){
-  //GM_DEBUG_PRINT("pulse_defer_set_destroy %p\n",event);
-  event->destroy_callback = cb;
-  }
-
-
-
-pa_time_event* pulse_time_new(pa_mainloop_api*, const struct timeval *tv, pa_time_event_cb_t cb, void *userdata){
-  pa_time_event * event = new pa_time_event;
-  event->next             = NULL;
-  event->callback         = cb;
-  event->destroy_callback = NULL;
-  event->userdata         = userdata;
-  event->time             = (tv->tv_sec*1000000000) + (tv->tv_usec*1000);
-  //GM_DEBUG_PRINT("pulse_time_new %p, %p %ld.%ld\n",cb,event,tv->tv_sec,tv->tv_usec);
-  PulseEventLoop::instance()->addTimer(event);
-  return event;
-  }
-
-void pulse_time_restart(pa_time_event* event, const struct timeval *tv){
-  PulseEventLoop::instance()->removeTimer(event);
-  event->time  = (tv->tv_sec*1000000000) + (tv->tv_usec*1000);
-  PulseEventLoop::instance()->addTimer(event);
-  //GM_DEBUG_PRINT("pulse_time_restart %p %ld.%ld\n",event,tv->tv_sec,tv->tv_usec);
-  }
-
-void pulse_time_free(pa_time_event* event){
-  //GM_DEBUG_PRINT("pulse_time_free %p\n",event);
-  if (event->destroy_callback)
-    event->destroy_callback(PulseEventLoop::instance()->api(),event,event->userdata);
-  PulseEventLoop::instance()->removeTimer(event);
-  delete event;
-  }
-
-void pulse_time_set_destroy(pa_time_event *event, pa_time_event_destroy_cb_t cb){
-  //GM_DEBUG_PRINT("pulse_time_set_destroy %p\n",event);
-  event->destroy_callback=cb;
-  }
 
 void pulse_quit(pa_mainloop_api*,int){  
   GM_DEBUG_PRINT("pulse_quit\n");
@@ -451,33 +283,6 @@ void pulse_quit(pa_mainloop_api*,int){
 
 
 
-
-PulseEventLoop* PulseEventLoop::loop = NULL;
-
-PulseEventLoop* PulseEventLoop::instance() {
-  return loop;
-  }
-
-
-PulseEventLoop::PulseEventLoop() : timers(NULL) {
-  loop = this;
-  mapi.userdata = this;
-  mapi.io_new            = pulse_io_new;
-  mapi.io_free           = pulse_io_free;
-  mapi.io_enable         = pulse_io_enable;
-  mapi.io_set_destroy    = pulse_io_set_destroy;
-  mapi.defer_new         = pulse_defer_new;
-  mapi.defer_free        = pulse_defer_free;
-  mapi.defer_enable      = pulse_defer_enable;
-  mapi.defer_set_destroy = pulse_defer_set_destroy;
-  mapi.time_new          = pulse_time_new;
-  mapi.time_restart      = pulse_time_restart;
-  mapi.time_free         = pulse_time_free;
-  mapi.time_set_destroy  = pulse_time_set_destroy;
-  mapi.quit              = pulse_quit;
-  }
-
-  
 
 
 
@@ -515,28 +320,49 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
 namespace ap {
 
 
+PulseOutput * PulseOutput::instance = NULL;
 
 
 
-PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),eventloop(NULL),context(NULL),stream(NULL),svolume(PA_VOLUME_MUTED) {
+
+PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(NULL),stream(NULL),svolume(PA_VOLUME_MUTED) {
+  instance              = this;
+  api.userdata          = this;
+  api.io_new            = pa_io_event::create; //pulse_io_new;
+  api.io_free           = pa_io_event::destroy;// pulse_io_free;
+  api.io_enable         = pa_io_event::enable; //pulse_io_enable;
+  api.io_set_destroy    = pa_io_event::set_destroy;//pulse_io_set_destroy;
+  api.defer_new         = pa_defer_event::create; //pulse_defer_new;
+  api.defer_free        = pa_defer_event::destroy; //pulse_defer_free;
+  api.defer_enable      = pa_defer_event::toggle_enabled; //pulse_defer_enable;
+  api.defer_set_destroy = pa_defer_event::set_destroy; //pulse_defer_set_destroy;
+  api.time_new          = pa_time_event::create;  //pulse_time_new;
+  api.time_restart      = pa_time_event::restart; //pulse_time_restart;
+  api.time_free         = pa_time_event::destroy; //pulse_time_free;
+  api.time_set_destroy  = pa_time_event::set_destroy; //pulse_time_set_destroy;
+  api.quit              = pulse_quit;
+
+  pa_io_event::recycle = NULL;
   }
 
 PulseOutput::~PulseOutput() {
   close();
   }
 
-
+#if 0
 void PulseOutput::ev_handle_pending(){
   eventloop->handle_deferred();
   }
 
 FXint PulseOutput::ev_num_poll(){
+/*
   FXint n=0;
   for (FXint i=0;i<eventloop->watches.no();i++) {
     if (eventloop->watches[i]->fd && eventloop->watches[i]->flags)
       n++;
     }
   return n;
+*/
   }
 
 void PulseOutput::ev_prepare_poll(struct ::pollfd* pfd,FXint,FXTime & wakeup){
@@ -562,7 +388,7 @@ void PulseOutput::ev_handle_poll(struct ::pollfd* pfd,FXint,FXTime now){
   eventloop->handle_watches(pfd);  
   }
 
-
+#endif
 
 
 
@@ -618,12 +444,25 @@ static FXbool to_gap_format(pa_sample_format pulse_format,AudioFormat & af){
   }
 
 static void context_state_callback(pa_context *c,void*){
-  GM_DEBUG_PRINT("context_state_callback %d\n",pa_context_get_state(c));
+  GM_DEBUG_PRINT("context_state_callback %d ",pa_context_get_state(c));
+  switch(pa_context_get_state(c)) {
+    case PA_CONTEXT_UNCONNECTED : fxmessage(" unconnected\n"); break;
+    case PA_CONTEXT_CONNECTING  : fxmessage(" connecting\n"); break;
+    case PA_CONTEXT_AUTHORIZING : fxmessage(" authorizing\n"); break;
+    case PA_CONTEXT_SETTING_NAME: fxmessage(" setting name\n"); break;
+    case PA_CONTEXT_READY       : fxmessage(" ready\n"); break;
+    case PA_CONTEXT_FAILED      : fxmessage(" failed\n"); break;
+    case PA_CONTEXT_TERMINATED  : fxmessage(" terminated\n"); break;
+    };
   }
 
 static void stream_state_callback(pa_stream *s,void*){
   GM_DEBUG_PRINT("stream_state_callback %d\n",pa_stream_get_state(s));
   }
+
+//static void stream_write_callback(pa_stream*s,size_t,void *){
+//  GM_DEBUG_PRINT("stream_write_callback %d\n",pa_stream_get_state(s));
+//  }
 
 void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * info,int eol,void*userdata){
   PulseOutput * out = reinterpret_cast<PulseOutput*>(userdata);
@@ -667,14 +506,14 @@ void PulseOutput::context_subscribe_callback(pa_context * context, pa_subscripti
 FXbool PulseOutput::open() {
 
   /// Start the mainloop
-  if (eventloop==NULL) {
-    eventloop = new PulseEventLoop();
-    }
+  //if (eventloop==NULL) {
+   // eventloop = new PulseEventLoop();
+   // }
 
   /// Get a context
   if (context==NULL) {
-    context = pa_context_new(eventloop->api(),"Goggles Music Manager");
-    pa_context_set_state_callback(context,context_state_callback,eventloop);
+    context = pa_context_new(&api,"Goggles Music Manager");
+    pa_context_set_state_callback(context,context_state_callback,this);
     pa_context_set_subscribe_callback(context,context_subscribe_callback,this);
     }
 
@@ -695,7 +534,7 @@ FXbool PulseOutput::open() {
       GM_DEBUG_PRINT("Unable to connect to pulsedaemon\n");
       return false;
       }
-    eventloop->wait();
+    output->wait_plugin_events();
     }
 
   pa_operation* operation = pa_context_subscribe(context,PA_SUBSCRIPTION_MASK_SINK_INPUT,NULL,this);
@@ -737,7 +576,7 @@ void PulseOutput::close() {
 
 
 void PulseOutput::volume(FXfloat v) {
-  if (eventloop && context && stream) {
+  if (context && stream) {
     svolume = (pa_volume_t)(v*PA_VOLUME_NORM);
     pa_cvolume cvol;
     pa_cvolume_set(&cvol,af.channels,svolume);
@@ -769,7 +608,7 @@ void PulseOutput::drain() {
   if (stream) {
     pa_operation * operation = pa_stream_drain(stream,NULL,NULL);
     while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
-      eventloop->wait();
+      output->wait_plugin_events();
     pa_operation_unref(operation);
     }
   }
@@ -801,7 +640,8 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   spec.channels = fmt.channels;
 
   stream = pa_stream_new(context,"Goggles Music Manager",&spec,NULL);
-  pa_stream_set_state_callback(stream,stream_state_callback,eventloop);
+  pa_stream_set_state_callback(stream,stream_state_callback,this);
+  //pa_stream_set_write_callback(stream,stream_write_callback,this);
 
   if (pa_stream_connect_playback(stream,NULL,NULL,PA_STREAM_NOFLAGS,NULL,NULL)<0)
     goto failed;
@@ -812,7 +652,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
     if (state==PA_STREAM_FAILED || state==PA_STREAM_TERMINATED){
       goto failed;
       }
-    eventloop->wait();
+    output->wait_plugin_events();
     } 
 
   /// Get Actual Format
@@ -836,7 +676,8 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
     size_t nbytes = pa_stream_writable_size(stream);
     size_t n = FXMIN(total,nbytes);
     if (n<=0) {
-      eventloop->wait();
+      //fxmessage("size %ld\n",nbytes);
+      output->wait_plugin_events();
       continue;
       }
     pa_stream_write(stream,buffer,n,NULL,0,PA_SEEK_RELATIVE);
@@ -845,5 +686,15 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
     }
   return true;
   }
+
+void PulseOutput::addWatch(EventLoop::Watch * watch) {
+  output->getEventLoop().addWatch(watch);
+  }
+
+void PulseOutput::removeWatch(EventLoop::Watch * watch) {
+  output->getEventLoop().removeWatch(watch);
+  }
+
+
 
 }

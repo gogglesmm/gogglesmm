@@ -24,13 +24,19 @@ extern "C" {
 #include <pulse/pulseaudio.h>
 }
 
-class PulseEventLoop;
 
 namespace ap {
 
 class PulseOutput : public OutputPlugin {
 protected:
-  PulseEventLoop * eventloop;
+  static PulseOutput* instance;
+protected:
+  friend class ::pa_io_event;
+  friend class ::pa_time_event;
+  friend class ::pa_defer_event;
+
+protected:
+  pa_mainloop_api  api;
   pa_context     * context;
   pa_stream      * stream;
   pa_volume_t      svolume; 
@@ -39,11 +45,12 @@ protected:
   static void context_subscribe_callback(pa_context *c,pa_subscription_event_type_t, uint32_t,void*);
 protected:
   FXbool open();
-protected:
+public:
   void addWatch(EventLoop::Watch*);
   void removeWatch(EventLoop::Watch*);
 
 public:
+#if 0
   // Handle pending events.
   virtual void ev_handle_pending();
 
@@ -55,6 +62,7 @@ public:
 
   // Handle Poll
   virtual void ev_handle_poll(struct ::pollfd*,FXint,FXTime now);
+#endif
 public:
   PulseOutput(OutputThread*);
 

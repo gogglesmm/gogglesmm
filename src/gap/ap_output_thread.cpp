@@ -140,7 +140,7 @@ public:
     }
   };
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),draining(false) {
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifowatch(NULL),plugin(NULL),draining(false) {
   stream=-1;
   stream_remaining=0;
   stream_written=0;
@@ -150,7 +150,17 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), plugin(NULL),draini
   pfds=NULL;
   nfds=0;
   mfds=0;
+  
   }
+
+FXbool OutputThread::init() {
+  if (EngineThread::init()) {
+    fifowatch=new EventLoop::Watch(fifo.handle(),EventLoop::Watch::Readable);
+    return true;
+    }
+  return false;
+  }
+
 
 OutputThread::~OutputThread() {
   FXASSERT(plugin==NULL);
@@ -386,9 +396,9 @@ Event * OutputThread::wait_for_event() {
 */
 
 void OutputThread::handle_plugin_events(){
-  if (plugin){
-    plugin->ev_handle_poll(pfds+1,nfds-1,FXThread::time());
-    }
+//  if (plugin){
+//    plugin->ev_handle_poll(pfds+1,nfds-1,FXThread::time());
+//    }
   }
 
 
@@ -396,12 +406,12 @@ void OutputThread::prepare_wait(FXTime & timeout) {
 #ifndef WIN32
   timeout = -1;
   nfds    = 1;
-
+/*
   if (plugin) {
     plugin->ev_handle_pending();
     nfds+=plugin->ev_num_poll();
     }
-
+*/
   if (nfds>mfds) {
     mfds = nfds;
     if (pfds==NULL)
@@ -415,12 +425,20 @@ void OutputThread::prepare_wait(FXTime & timeout) {
   pfds[0].events  = POLLIN;
   pfds[0].revents = 0;
 
+/*
   // Plugin io
   if (plugin) {
     plugin->ev_prepare_poll(pfds+1,nfds-1,timeout);
     }
+*/
 #endif
   }  
+
+void OutputThread::wait_plugin_events() {
+  eventloop.removeWatch(fifowatch);
+  eventloop.runOnce();
+  eventloop.addWatch(fifowatch);
+  }
 
 
 
@@ -464,7 +482,7 @@ Event * OutputThread::wait_event() {
     Event * event = fifo.pop();
     if (event) {
       prepare_wait(timeout);
-      if (wait(0)) handle_plugin_events();
+      //if (wait(0)) handle_plugin_events();
       return event;
       }
   

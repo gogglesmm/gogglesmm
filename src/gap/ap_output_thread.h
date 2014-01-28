@@ -43,11 +43,9 @@ class OutputThread : public EngineThread {
 protected:
   OutputConfig   output_config;
 protected:
-  EventLoop      eventloop;
+  EventLoop         eventloop;
+  EventLoop::Watch* fifowatch;
 public:
-
-
-
 #ifndef WIN32
   struct pollfd * pfds;
   FXint           nfds;
@@ -117,12 +115,18 @@ protected:
 public:
   OutputThread(AudioEngine*);
 
+  virtual FXbool init();
+
   void getSamples(const void*&,FXuint &);
 
   void notify_volume(FXfloat value);
 
   
-  EventLoop & getEventLoop();
+  EventLoop & getEventLoop() { return eventloop; }
+
+
+  void wait_plugin_events();
+
 
 
   virtual FXint run();
