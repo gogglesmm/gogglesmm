@@ -87,29 +87,26 @@ class GMFileAssociations : public FXFileAssociations {
 
 public:
   GMFileAssociations(FXApp*app) : FXFileAssociations(app) {
-#if 0
     FXFileAssoc* assoc = new FXFileAssoc;
     assoc->bigicon  = GMIconTheme::instance()->icon_file_big;
     assoc->miniicon = GMIconTheme::instance()->icon_file_small;
-    bindings[FXFileDict::defaultFileBinding]=assoc;
+    bindings[FXFileAssociations::defaultFileBinding]=assoc;
 
     assoc = new FXFileAssoc;
     assoc->bigicon      = GMIconTheme::instance()->icon_folder_big;
     assoc->miniicon     = GMIconTheme::instance()->icon_folder_small;
     assoc->miniiconopen = GMIconTheme::instance()->icon_folder_open_small;
-    bindings[FXFileDict::defaultDirBinding]=assoc;
-#endif
+    bindings[FXFileAssociations::defaultDirBinding]=assoc;
     }
 
 
 
   void initFileBindings() {
-#if 0
     FXFileAssoc * assoc=NULL;
 
     for (FXuint i=0;i<ARRAYNUMBER(filetypes);i+=2) {
       assoc = new FXFileAssoc;
-      assoc->extension = filestypes[i+1];
+      assoc->extension = filetypes[i+1];
       assoc->bigicon  = GMIconTheme::instance()->icon_audio_big;
       assoc->miniicon = GMIconTheme::instance()->icon_audio_small;
       bindings[filetypes[i]]=assoc;
@@ -117,29 +114,24 @@ public:
 
     for (FXuint i=0;i<ARRAYNUMBER(imagetypes);i+=2){
       assoc = new FXFileAssoc;
-      assoc->extension = filestypes[i+1];
+      assoc->extension = imagetypes[i+1];
       assoc->bigicon  = GMIconTheme::instance()->icon_image_big;
       assoc->miniicon = GMIconTheme::instance()->icon_image_small;
-      bindings[filetypes[i]]=assoc;
+      bindings[imagetypes[i]]=assoc;
       }
-#endif
     }
    
   // Find file association from registry
   FXFileAssoc* findFileBinding(const FXString& pathname){
-#if 0
     FXString ext = FXPath::extension(pathname);
     FXFileAssoc * record = NULL;
-    if ((record = fetch(ext) return record;
-    if ((record = fetch(ext.lower())!=NULL) return record;
+    if ((record = bindings[ext])!=NULL) return record;
+    if ((record = bindings[ext.lower()])!=NULL) return record;
     return bindings[defaultFileBinding];
-#endif
-    return NULL;
     }  
 
   FXFileAssoc* findDirBinding(const FXString& pathname){
-    //return bindings[defaultDirBinding];
-    return NULL;
+    return bindings[defaultDirBinding];
     }
 
   ~GMFileAssociations() {
