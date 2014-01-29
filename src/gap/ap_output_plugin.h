@@ -28,23 +28,10 @@ public:
   OutputThread* output;
   AudioFormat   af;
 public:
-
-  // Handle pending events.
-  virtual void ev_handle_pending() {}
-
-  // Return number of poll entries
-  virtual FXint ev_num_poll() { return 0;}
-
-  // Prepare Poll 
-  virtual void ev_prepare_poll(struct ::pollfd*,FXint,FXTime &) {}
-
-  // Handle Poll
-  virtual void ev_handle_poll(struct ::pollfd*,FXint,FXTime) {}
-
-public:
   /// Constructor
   OutputPlugin(OutputThread * o) : output(o) {}
 
+  /// Output Plugin Type
   virtual FXchar type() const=0;
 
   /// Set Device Configuration

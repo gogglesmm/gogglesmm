@@ -46,24 +46,6 @@ protected:
 protected:
   FXbool open();
 public:
-  void addWatch(EventLoop::Watch*);
-  void removeWatch(EventLoop::Watch*);
-
-public:
-#if 0
-  // Handle pending events.
-  virtual void ev_handle_pending();
-
-  // Return number of poll entries
-  virtual FXint ev_num_poll();
-
-  // Prepare Poll 
-  virtual void ev_prepare_poll(struct ::pollfd*,FXint,FXTime & wakeup);
-
-  // Handle Poll
-  virtual void ev_handle_poll(struct ::pollfd*,FXint,FXTime now);
-#endif
-public:
   PulseOutput(OutputThread*);
 
   /// Configure

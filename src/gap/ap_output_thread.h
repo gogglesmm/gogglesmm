@@ -43,23 +43,9 @@ class OutputThread : public EngineThread {
 protected:
   OutputConfig   output_config;
 protected:
-  EventLoop         eventloop;
-  EventLoop::Watch* fifowatch;
-public:
-#ifndef WIN32
-  struct pollfd * pfds;
-  FXint           nfds;
-  FXint           mfds;
+  Reactor           reactor;
+  Reactor::Input*   fifoinput;
 protected:
-  /// wait for pfds / timeouts
-  FXint wait(FXTime);
-
-  /// prepare pfds / timeouts
-  void prepare_wait(FXTime &);
-
-  /// plugin event handling
-  void handle_plugin_events();
-
   /// Wait while pausing
   Event * wait_pause();
 
@@ -68,9 +54,9 @@ protected:
 
   /// Wait normal events
   Event * wait_event();
-#endif
-protected:
-  Event * wait_for_event();
+
+  /// Get Next Event
+  Event * get_next_event();
 public:
   AudioFormat       af;
   OutputPlugin *    plugin;
@@ -122,7 +108,7 @@ public:
   void notify_volume(FXfloat value);
 
   
-  EventLoop & getEventLoop() { return eventloop; }
+  Reactor & getReactor() { return reactor; }
 
 
   void wait_plugin_events();

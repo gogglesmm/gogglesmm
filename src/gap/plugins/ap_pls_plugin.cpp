@@ -22,7 +22,6 @@
 #include "ap_format.h"
 #include "ap_device.h"
 #include "ap_event.h"
-#include "ap_event_loop.h"
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
@@ -35,7 +34,6 @@
 #include "ap_input_thread.h"
 #include "ap_buffer.h"
 #include "ap_decoder_thread.h"
-#include "ap_output_thread.h"
 
 namespace ap {
 

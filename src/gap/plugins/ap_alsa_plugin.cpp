@@ -24,7 +24,7 @@
 #include "ap_event.h"
 #include "ap_buffer.h"
 #include "ap_packet.h"
-#include "ap_event_loop.h"
+#include "ap_reactor.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_engine.h"
@@ -533,7 +533,7 @@ AlsaOutput::~AlsaOutput() {
 
 
 
-
+#if 0
 
 
   // Register Event Handle
@@ -571,10 +571,14 @@ FXint AlsaOutput::getNumEventHandles() {
     return 0;
   }
 
+#endif
+
+
 FXbool AlsaOutput::setOutputConfig(const OutputConfig & c) {
   config=c.alsa;
   return true;
   }
+
 
 
 static snd_mixer_elem_t * find_mixer_element_by_name(snd_mixer_t * mixer,const FXchar * name){

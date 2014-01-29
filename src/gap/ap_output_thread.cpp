@@ -23,7 +23,7 @@
 #include "ap_event.h"
 #include "ap_format.h"
 #include "ap_device.h"
-#include "ap_event_loop.h"
+#include "ap_reactor.h"
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
@@ -140,22 +140,19 @@ public:
     }
   };
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifowatch(NULL),plugin(NULL),draining(false) {
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(NULL),plugin(NULL),draining(false) {
   stream=-1;
   stream_remaining=0;
   stream_written=0;
   stream_position=0;
   timestamp=-1;
   packet_queue=NULL;
-  pfds=NULL;
-  nfds=0;
-  mfds=0;
-  
   }
 
 FXbool OutputThread::init() {
   if (EngineThread::init()) {
-    fifowatch=new EventLoop::Watch(fifo.handle(),EventLoop::Watch::Readable);
+    fifoinput=new Reactor::Input(fifo.handle(),Reactor::Input::Readable);
+    reactor.addInput(fifoinput);
     return true;
     }
   return false;
@@ -164,6 +161,8 @@ FXbool OutputThread::init() {
 
 OutputThread::~OutputThread() {
   FXASSERT(plugin==NULL);
+  reactor.removeInput(fifoinput);
+  delete fifoinput;
   clear_timers();
   }
 
@@ -338,135 +337,15 @@ void OutputThread::drain(FXbool flush) {
     }
   }
 
-/*
-Event * OutputThread::wait_for_event() {
-  FXint offset=0,delay=0;
-
-  if (draining && plugin) {
-    offset=delay=plugin->delay();
-    }
-
-  do {
-    if (pausing) {
-      Event * event = fifo.pop_if_not(Buffer,Configure);
-      if (event) return event;
-      poll(pfds,nfds,-1);
-      handle_plugin_events();
-      setup_event_handles();
-      }
-    else if (draining) {
-      Event * event = fifo.pop();
-      if (event) return event;
-
-      if (ap_wait(fifo.handle(),BadHandle,200000000)==WaitHasIO){
-        return fifo.pop();
-        }
-
-      if (plugin) {
-        delay = plugin->delay();
-        if (delay < (FXint)(plugin->af.rate>>2) ) {
-          GM_DEBUG_PRINT("[output] end of drain\n");
-          plugin->drain();
-          update_timers(0,0); /// make sure timers get fired
-          close_plugin();
-          engine->input->post(new ControlEvent(End,stream));
-          continue;
-          }
-        else {
-          stream_position += offset - delay;
-          offset = delay;
-          update_timers(delay,0);
-          notify_position();
-          }
-        }
-      else {
-        draining=false;
-        }
-      }
-    else {
-      setup_event_handles();
-      Event * event = fifo.pop();
-      if (event) return event;
-      poll(pfds,nfds,-1);
-      handle_plugin_events();
-      }
-    }
-  while(1);
-  }
-*/
-
-void OutputThread::handle_plugin_events(){
-//  if (plugin){
-//    plugin->ev_handle_poll(pfds+1,nfds-1,FXThread::time());
-//    }
-  }
-
-
-void OutputThread::prepare_wait(FXTime & timeout) {
-#ifndef WIN32
-  timeout = -1;
-  nfds    = 1;
-/*
-  if (plugin) {
-    plugin->ev_handle_pending();
-    nfds+=plugin->ev_num_poll();
-    }
-*/
-  if (nfds>mfds) {
-    mfds = nfds;
-    if (pfds==NULL)
-      allocElms(pfds,mfds);
-    else
-      resizeElms(pfds,mfds);
-    }
-
-  // Fifo io
-  pfds[0].fd = fifo.handle();
-  pfds[0].events  = POLLIN;
-  pfds[0].revents = 0;
-
-/*
-  // Plugin io
-  if (plugin) {
-    plugin->ev_prepare_poll(pfds+1,nfds-1,timeout);
-    }
-*/
-#endif
-  }  
 
 void OutputThread::wait_plugin_events() {
-  eventloop.removeWatch(fifowatch);
-  eventloop.runOnce();
-  eventloop.addWatch(fifowatch);
+  reactor.removeInput(fifoinput);
+  reactor.runOnce();
+  reactor.addInput(fifoinput);
   }
 
 
-
-FXint OutputThread::wait(FXTime timeout) {
-#ifndef WIN32
-  struct timespec ts;
-  FXint n;
-  if (timeout>=0) {
-    ts.tv_sec  = timeout / 1000000000;
-    ts.tv_nsec = timeout % 1000000000;
-    do {
-      n=ppoll(pfds,nfds,&ts,NULL);
-      }
-    while(n==-1 && (errno==EAGAIN || errno==EINTR));
-    }
-  else {
-    do {
-      n=ppoll(pfds,nfds,NULL,NULL);
-      }
-    while(n==-1 && (errno==EAGAIN || errno==EINTR));
-    }
-  return n;
-#endif
-  }
-
-
-
-Event * OutputThread::wait_for_event() {
+Event * OutputThread::get_next_event() {
   if (draining) 
     return wait_drain();
   else if (pausing)
@@ -477,31 +356,17 @@ Event * OutputThread::wait_for_event() {
 
 
 Event * OutputThread::wait_event() {
-  FXTime timeout=-1;
   do {
     Event * event = fifo.pop();
     if (event) {
-      prepare_wait(timeout);
-      //if (wait(0)) handle_plugin_events();
+      reactor.runPending();
       return event;
       }
-  
-    prepare_wait(timeout);
-    GM_DEBUG_PRINT("wait_event with timeout %ld\n",timeout);
-
-    FXint n = wait(timeout);
-    GM_DEBUG_PRINT("wait_event %ld %ld\n",n,pfds[0].revents);
-
-    if(n && pfds[0].revents) {
-      return fifo.pop();
-      }
-    handle_plugin_events();
-    GM_DEBUG_PRINT("wait_event again\n");
-
+    // FIXME maybe split into wait & dispatch so we can give higher priority to fifo.
+    reactor.runOnce();
     }
   while(1);
   }
-
 
 /*
   Player is paused and we don't handle any Buffer or Configure
@@ -510,22 +375,17 @@ Event * OutputThread::wait_event() {
 */
 Event * OutputThread::wait_pause() {
   Event * event = fifo.pop_if_not(Buffer,Configure);
-  if (event) return event;
+  if (event) {
+    reactor.runPending();
+    return event;
+    }
 
-  FXTime timeout=-1;
-  do {  
-    prepare_wait(timeout);
-    GM_DEBUG_PRINT("wait_pause with timeout %ld\n",timeout);
-
-    FXint n = wait(timeout);
-    GM_DEBUG_PRINT("wait_pause %ld %ld\n",n,pfds[0].revents);
-
-    if(n && pfds[0].revents) {
-      Event * event = fifo.pop_if_not(Buffer,Configure);
-      if (event) return event;
+  do {
+    // FIXME maybe split into wait & dispatch so we can give higher priority to fifo.
+    reactor.runOnce();
+    if (fifoinput->readable()){
+      return fifo.pop();
       }
-    handle_plugin_events();
-    GM_DEBUG_PRINT("wait_pause again\n");
     }
   while(1);
   }
@@ -541,19 +401,20 @@ Event * OutputThread::wait_drain() {
   FXint offset=delay;  
   FXint threshold=(FXint)(plugin->af.rate>>2);
   do {
-    prepare_wait(timeout);  
-
     if (timeout==-1)
       timeout = wakeup-now;
     else
       timeout = FXMIN(timeout,wakeup-now);
 
-    n=wait(timeout);
+    // FIXME maybe split into wait & dispatch so we can give higher priority to fifo.
+    // Run reactor
+    reactor.runOnce(timeout);
 
-    // handle events first
-    if (n && pfds[0].revents)
+    // Check for event
+    if (fifoinput->readable()){
       return fifo.pop();
-
+      }
+    
     // handle position updates
     if (FXThread::time()>=wakeup) {
       delay = plugin->delay();
@@ -574,24 +435,12 @@ Event * OutputThread::wait_drain() {
       wakeup = FXThread::time() + interval;
       }
 
-    // handle plugin events
-    handle_plugin_events();
- 
     // set new time
     now = FXThread::time();
     }
   while(1);
+  return NULL;
   }
- 
-
-
-
-
-
-
-
-
-
 
 
 
@@ -716,70 +565,6 @@ void OutputThread::configure(const AudioFormat & fmt) {
   draining=false;
   }
 
-/*
-void OutputThread::waitall() {
-  FXTime timeout = -1;
-  ppoll(pfds,nfds,timeout);
-  }
-
-void OutputThread::prepare_wait(FXTime & timeout) {
-  nfds = 1;
-  if (plugin) {
-    plugin->ev_handle_pending();
-    nfds+=plugin->ev_num_poll();
-    }
-
-  if (nfds>mfds) {
-    mfds = nfds;
-    if (pfds==NULL)
-      allocElms(pfds,mfds);
-    else
-      resizeElms(pfds,mfds);
-    }
-
-  // Fifo io
-  pfds[0].fd = fifo.handle();
-  pfds[0].events  = POLLIN;
-  pfds[0].revents = 0;
-
-  // Plugin io
-  if (plugin) {
-    plugin->ev_prepare_poll(pfds+1,nfds-1,timeout);
-    }
-  }
-
-
-
-*/
-/*
-void OutputThread::setup_event_handles(){
-  FXTime timeout;
- nfds = 1;
-  if (plugin) {
-    plugin->ev_handle_pending();
-    nfds+=plugin->ev_num_poll();
-    }
-
-  if (nfds>mfds) {
-    mfds = nfds;
-    if (pfds==NULL)
-      allocElms(pfds,mfds);
-    else
-      resizeElms(pfds,mfds);
-    }
-
-  // Fifo io
-  pfds[0].fd = fifo.handle();
-  pfds[0].events  = POLLIN;
-  pfds[0].revents = 0;
-
-  // Plugin io
-  if (plugin) {
-    plugin->ev_prepare_poll(pfds+1,nfds-1,timeout);
-    }
-  }
-
-*/
 static FXbool mono_to_stereo(FXuchar * in,FXuint nsamples,FXuchar bps,MemoryBuffer & out){
   out.clear();
   out.reserve(nsamples*bps*2);
@@ -971,8 +756,6 @@ void OutputThread::process(Packet * packet) {
       }
     }
 
-
-
   if (packet->af!=plugin->af) {
 
 
@@ -1043,12 +826,9 @@ FXint OutputThread::run(){
   draining=false;
   ap_set_thread_name("ap_output");
 
-  //setup_event_handles();
-
   for (;;){
-    event = wait_for_event();
+    event = get_next_event();
     FXASSERT(event);
-    //GM_DEBUG_PRINT("got event  type %d\n",event->type);
 
     switch(event->type) {
       case Buffer     :

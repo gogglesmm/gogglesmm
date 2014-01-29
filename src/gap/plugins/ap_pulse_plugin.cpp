@@ -20,7 +20,7 @@
 #include "ap_config.h"
 #include "ap_event.h"
 #include "ap_pipe.h"
-#include "ap_event_loop.h"
+#include "ap_reactor.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_format.h"
@@ -43,7 +43,7 @@ using namespace ap;
 
 
 
-class pa_io_event : public EventLoop::Watch {
+class pa_io_event : public Reactor::Input {
   
 
 public:
@@ -53,27 +53,27 @@ public:
 protected:
   pa_io_event_flags_t toPulse() {
     int event=PA_IO_EVENT_NULL;
-    event=  ((mode&EventLoop::Watch::IsReadable)  ? PA_IO_EVENT_INPUT : 0) |
-            ((mode&EventLoop::Watch::IsWritable)  ? PA_IO_EVENT_OUTPUT : 0) |
-            ((mode&EventLoop::Watch::IsException) ? (PA_IO_EVENT_ERROR|PA_IO_EVENT_HANGUP) : 0);
+    event=  ((mode&Reactor::Input::IsReadable)  ? PA_IO_EVENT_INPUT : 0) |
+            ((mode&Reactor::Input::IsWritable)  ? PA_IO_EVENT_OUTPUT : 0) |
+            ((mode&Reactor::Input::IsException) ? (PA_IO_EVENT_ERROR|PA_IO_EVENT_HANGUP) : 0);
     return (pa_io_event_flags_t)event;
     }
 
   static FXuchar toMode(pa_io_event_flags_t flags) {
-    return (((flags&PA_IO_EVENT_INPUT)  ? EventLoop::Watch::Readable  : 0) | 
-            ((flags&PA_IO_EVENT_OUTPUT) ? EventLoop::Watch::Writable  : 0) |
-            ((flags&PA_IO_EVENT_ERROR)  ? EventLoop::Watch::Exception : 0) |
-            ((flags&PA_IO_EVENT_HANGUP) ? EventLoop::Watch::Exception : 0));
+    return (((flags&PA_IO_EVENT_INPUT)  ? Reactor::Input::Readable  : 0) | 
+            ((flags&PA_IO_EVENT_OUTPUT) ? Reactor::Input::Writable  : 0) |
+            ((flags&PA_IO_EVENT_ERROR)  ? Reactor::Input::Exception : 0) |
+            ((flags&PA_IO_EVENT_HANGUP) ? Reactor::Input::Exception : 0));
     }
 
 public:
   static pa_io_event * recycle;
   virtual void onSignal() {
-    //fxmessage("IsWritable %d\n",(mode&EventLoop::Watch::IsWritable));
+    //fxmessage("IsWritable %d\n",(mode&Reactor::Input::IsWritable));
     callback(&(PulseOutput::instance->api),this,handle,toPulse(),userdata);
     }
 public:
-  pa_io_event(FXInputHandle h,FXuchar m,pa_io_event_cb_t cb,void * data) : EventLoop::Watch(h,m), 
+  pa_io_event(FXInputHandle h,FXuchar m,pa_io_event_cb_t cb,void * data) : Reactor::Input(h,m), 
     callback(cb),
     destroy_callback(NULL),
     userdata(data) {
@@ -97,7 +97,7 @@ public:
       event = new pa_io_event(fd,toMode(events),cb,userdata);
       }
 
-    PulseOutput::instance->output->getEventLoop().addWatch(event);
+    PulseOutput::instance->output->getReactor().addInput(event);
     return event;
     }
 
@@ -105,7 +105,7 @@ public:
     //fxmessage("pa_io_event destroy\n",event->handle);
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
-    PulseOutput::instance->output->getEventLoop().removeWatch(event);
+    PulseOutput::instance->output->getReactor().removeInput(event);
     if (recycle==NULL) 
       recycle=event;
     else
@@ -134,7 +134,7 @@ pa_io_event * pa_io_event::recycle;
 
 
 
-class pa_time_event : public EventLoop::Timer {
+class pa_time_event : public Reactor::Timer {
 public:
   pa_time_event_cb_t          callback;
   pa_time_event_destroy_cb_t  destroy_callback;
@@ -156,7 +156,7 @@ public:
     pa_time_event * event = new pa_time_event();
     event->callback = cb;
     event->userdata = userdata;
-    PulseOutput::instance->output->getEventLoop().addTimer(event,time);
+    PulseOutput::instance->output->getReactor().addTimer(event,time);
     return event;
     }
 
@@ -164,15 +164,15 @@ public:
     //fxmessage("pa_time_event destroy\n");
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
-    PulseOutput::instance->output->getEventLoop().removeTimer(event);
+    PulseOutput::instance->output->getReactor().removeTimer(event);
     delete event;
     }
 
   static void restart(pa_time_event* event, const struct timeval *tv){
     //fxmessage("pa_time_event restart\n");
     FXTime time = (tv->tv_sec*1000000000) + (tv->tv_usec*1000); 
-    PulseOutput::instance->output->getEventLoop().removeTimer(event);
-    PulseOutput::instance->output->getEventLoop().addTimer(event,time);
+    PulseOutput::instance->output->getReactor().removeTimer(event);
+    PulseOutput::instance->output->getReactor().addTimer(event,time);
     }    
 
   static void set_destroy(pa_time_event *event, pa_time_event_destroy_cb_t cb){
@@ -193,7 +193,7 @@ public:
 
 
 
-class pa_defer_event : public EventLoop::Deferred {  
+class pa_defer_event : public Reactor::Deferred {  
   pa_defer_event_cb_t         callback;
   pa_defer_event_destroy_cb_t destroy_callback;
   void*                       userdata;
@@ -211,7 +211,7 @@ public:
   static pa_defer_event* create(pa_mainloop_api*, pa_defer_event_cb_t cb, void *userdata){
     //fxmessage("pa_defer_event create %p\n",cb);
     pa_defer_event * event = new pa_defer_event(cb,userdata);
-    PulseOutput::instance->output->getEventLoop().addDeferred(event);
+    PulseOutput::instance->output->getReactor().addDeferred(event);
     return event;
     };
 
@@ -227,7 +227,7 @@ public:
     //fxmessage("pa_defer_event destroy %p\n",event->callback);
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
-    PulseOutput::instance->output->getEventLoop().removeDeferred(event);
+    PulseOutput::instance->output->getReactor().removeDeferred(event);
     delete event;
     }
 
@@ -507,7 +507,7 @@ FXbool PulseOutput::open() {
 
   /// Start the mainloop
   //if (eventloop==NULL) {
-   // eventloop = new PulseEventLoop();
+   // eventloop = new PulseReactor();
    // }
 
   /// Get a context
@@ -545,6 +545,7 @@ FXbool PulseOutput::open() {
   }
 
 void PulseOutput::close() {
+  output->getReactor().debug();    
 
   if (stream) {
     GM_DEBUG_PRINT("disconnecting stream\n");
@@ -559,6 +560,8 @@ void PulseOutput::close() {
     pa_context_unref(context);
     context=NULL;
     }
+
+  output->getReactor().debug();    
 
 /*
   if (mainloop) {
@@ -687,13 +690,6 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
   return true;
   }
 
-void PulseOutput::addWatch(EventLoop::Watch * watch) {
-  output->getEventLoop().addWatch(watch);
-  }
-
-void PulseOutput::removeWatch(EventLoop::Watch * watch) {
-  output->getEventLoop().removeWatch(watch);
-  }
 
 
 

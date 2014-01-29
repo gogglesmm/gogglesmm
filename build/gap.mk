@@ -7,7 +7,7 @@ src/gap/ap_buffer_io.cpp \
 src/gap/ap_packet.cpp \
 src/gap/ap_thread_queue.cpp \
 src/gap/ap_app_queue.cpp \
-src/gap/ap_event_loop.cpp \
+src/gap/ap_reactor.cpp \
 src/gap/ap_pipe.cpp \
 src/gap/ap_socket.cpp \
 src/gap/ap_connect.cpp \
