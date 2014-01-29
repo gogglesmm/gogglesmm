@@ -392,15 +392,15 @@ Event * OutputThread::wait_pause() {
 
 Event * OutputThread::wait_drain() {
   FXTime timeout = -1;
-  const FXTime interval = 200;
+  const FXTime interval = 200000000;
   FXTime now = FXThread::time();
   FXTime wakeup = now + interval;
-  FXint n;
 
   FXint delay=plugin->delay();
   FXint offset=delay;  
   FXint threshold=(FXint)(plugin->af.rate>>2);
   do {
+
     if (timeout==-1)
       timeout = wakeup-now;
     else

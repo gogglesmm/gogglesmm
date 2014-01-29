@@ -242,7 +242,9 @@ void Reactor::runOnce() {
 
 void Reactor::runOnce(FXTime wakeup) {
   if (dispatchDeferred()==false) {
-    FXTime timeout = FXMIN(wakeup,prepare());
+    FXTime timeout = prepare();
+    if (timeout<0 || wakeup<timeout)
+      timeout = wakeup;
     wait(timeout);
     dispatch();
     } 
