@@ -31,6 +31,23 @@ private:
   FXint mfds;
 #endif
 public:
+
+#ifndef WIN32
+  class Native {
+  public:
+    // Number of inputs
+    virtual FXint no(){ return 0;};
+    
+    // Prepare inputs
+    virtual void prepare(struct pollfd * pfds){};
+
+    // Dispatch inputs
+    virtual void dispatch(struct pollfd * pfds){};
+  
+    virtual ~Native(){}
+    };
+#endif
+
   class Input {
     public:
       FXInputHandle handle;
@@ -93,6 +110,7 @@ public:
 protected:
   FXPtrListOf<Deferred> deferred; // run once every iteration
   FXPtrListOf<Input>    inputs;
+  FXPtrListOf<Native>   native;
   Timer *               timers;
 protected:
   FXTime prepare();
@@ -101,6 +119,10 @@ protected:
   FXbool dispatchDeferred();
 public:
   Reactor();
+
+  void addNative(Native*);
+
+  void removeNative(Native*);  
 
   // Add a deferred call
   void addDeferred(Deferred*);

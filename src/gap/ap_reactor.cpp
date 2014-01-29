@@ -64,15 +64,22 @@ void Reactor::debug() {
 
 void Reactor::dispatch() {
 #ifndef WIN32
+  FXint i;
   FXuchar mode;
 
-  for (FXint i=inputs.no()-1;i>=0;i--) {
+  for (i=inputs.no()-1;i>=0;i--) {
     if (pfds[i].revents) { 
       inputs[i]->mode|=((pfds[i].revents&POLLIN )          ? Input::IsReadable : 0);
       inputs[i]->mode|=((pfds[i].revents&POLLOUT)          ? Input::IsWritable : 0);
       inputs[i]->mode|=((pfds[i].revents&(POLLERR|POLLHUP))? Input::IsException: 0);
       inputs[i]->onSignal();
       }
+    }
+  
+  FXint offset=inputs.no();
+  for (i=0;i<native.no();i++){
+    native[i]->dispatch(pfds+offset);
+    offset+=native[i]->no();
     }
 
   FXTime now = FXThread::time();
@@ -110,8 +117,10 @@ void Reactor::wait(FXTime timeout) {
 
 FXTime Reactor::prepare() {
   FXTime timeout;
+  FXint i;
 #ifndef WIN32
   nfds = inputs.no();
+  for (i=0;i<native.no();i++) nfds+=native[i]->no();
 
   if (nfds>mfds) {  
     mfds=nfds;
@@ -138,6 +147,12 @@ FXTime Reactor::prepare() {
       }
     }
 
+  FXint offset = inputs.no();
+  for (i=0;i<native.no();i++) {
+    native[i]->prepare(pfds+offset);
+    offset+=native[i]->no();
+    }
+
   FXTime now = FXThread::time();
   Timer * t = timers;
   while(t && t->time<now) t=t->next;
@@ -149,6 +164,25 @@ FXTime Reactor::prepare() {
   return timeout;    
 #endif
   }
+
+
+void Reactor::addNative(Native*n) {
+  native.append(n);
+  }
+
+void Reactor::removeNative(Native*n){
+  native.remove(n);
+  }
+
+
+void Reactor::addInput(Input*w) {
+  inputs.append(w);
+  }
+
+void Reactor::removeInput(Input*w){
+  inputs.remove(w);
+  }
+
 
 
 void Reactor::addTimer(Timer*t,FXTime time) {
@@ -178,13 +212,6 @@ void Reactor::removeDeferred(Deferred*d){
   deferred.remove(d);
   }
 
-void Reactor::addInput(Input*w) {
-  inputs.append(w);
-  }
-
-void Reactor::removeInput(Input*w){
-  inputs.remove(w);
-  }
 
 FXbool Reactor::dispatchDeferred() {
   FXbool done=false;
