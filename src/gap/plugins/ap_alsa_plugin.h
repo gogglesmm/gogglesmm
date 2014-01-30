@@ -29,11 +29,8 @@ class AlsaMixer;
 
 class AlsaOutput : public OutputPlugin {
 protected:
-  AlsaMixer*           amixer;
-
-  snd_pcm_t         * handle;
-  snd_mixer_t       * mixer;
-  snd_mixer_elem_t  * mixer_element;
+  snd_pcm_t * handle;
+  AlsaMixer * mixer;
 protected:
   AlsaConfig config;
   FXbool   can_pause;

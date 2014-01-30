@@ -356,6 +356,7 @@ Event * OutputThread::get_next_event() {
 
 
 Event * OutputThread::wait_event() {
+  fxmessage("wait_event\n");
   do {
     Event * event = fifo.pop();
     if (event) {
@@ -374,6 +375,7 @@ Event * OutputThread::wait_event() {
   are continueing to be handled.
 */
 Event * OutputThread::wait_pause() {
+  fxmessage("wait_pause\n");
   Event * event = fifo.pop_if_not(Buffer,Configure);
   if (event) {
     reactor.runPending();
@@ -391,6 +393,7 @@ Event * OutputThread::wait_pause() {
   }
 
 Event * OutputThread::wait_drain() {
+  fxmessage("wait_drain\n");
   FXTime timeout = -1;
   const FXTime interval = 200000000;
   FXTime now = FXThread::time();
@@ -829,6 +832,7 @@ FXint OutputThread::run(){
   for (;;){
     event = get_next_event();
     FXASSERT(event);
+    fxmessage("event->type %d\n",event->type);
 
     switch(event->type) {
       case Buffer     :

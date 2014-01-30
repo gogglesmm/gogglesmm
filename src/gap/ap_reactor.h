@@ -39,10 +39,10 @@ public:
     virtual FXint no(){ return 0;};
     
     // Prepare inputs
-    virtual void prepare(struct pollfd * pfds){};
+    virtual void prepare(struct pollfd*){};
 
     // Dispatch inputs
-    virtual void dispatch(struct pollfd * pfds){};
+    virtual void dispatch(struct pollfd*){};
   
     virtual ~Native(){}
     };

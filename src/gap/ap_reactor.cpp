@@ -26,7 +26,7 @@
 
 namespace ap {
 
-Reactor::Reactor() : pfds(NULL),nfds(0),mfds(0) {
+Reactor::Reactor() : pfds(NULL),nfds(0),mfds(0), timers(NULL) {
   }
 
 Reactor::~Reactor() {
@@ -65,7 +65,6 @@ void Reactor::debug() {
 void Reactor::dispatch() {
 #ifndef WIN32
   FXint i;
-  FXuchar mode;
 
   for (i=inputs.no()-1;i>=0;i--) {
     if (pfds[i].revents) { 
