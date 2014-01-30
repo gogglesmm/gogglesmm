@@ -327,7 +327,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
       engine->output->post(out);
       out=NULL;
       }
-    fxmessage("got eos, sending End\n");
     engine->output->post(new ControlEvent(End,id));
     }
   return DecoderOk;
