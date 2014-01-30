@@ -169,6 +169,7 @@ FXbool OggReader::seek(FXdouble pos){
       packet=NULL;
       }
 
+    state.has_eos=false;
     state.has_packet=false;
     state.has_page=false;
     state.header_written=false;
