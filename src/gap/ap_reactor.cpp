@@ -55,12 +55,13 @@ Reactor::~Reactor() {
 
   }
 
+#ifdef DEBUG
 void Reactor::debug() {
   int ntimers = 0;
   for (Timer * t=timers;t;t=t->next) ntimers++;
   fxmessage("Reactor timers=%d inputs=%d deferred=%d\n",ntimers,inputs.no(),deferred.no());
-
   }
+#endif
 
 void Reactor::dispatch() {
 #ifndef WIN32

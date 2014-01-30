@@ -151,7 +151,10 @@ public:
   // Run Once with Timeout
   void runOnce(FXTime timeout);
 
+#ifdef DEBUG
+  // Debug Objects
   void debug();  
+#endif
 
   ~Reactor();
   };

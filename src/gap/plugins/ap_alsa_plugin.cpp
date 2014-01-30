@@ -543,7 +543,7 @@ protected:
     }
 public:
   void updateVolume() {
-    FXfloat volume;
+    FXfloat volume=0.0f;
     long min,max;
     long value;
     int nvalues=0;
@@ -551,16 +551,16 @@ public:
     if (snd_mixer_selem_get_playback_volume_range(element,&min,&max)<0)
       return;  
 
+    GM_DEBUG_PRINT("Volume for channels:\n");
     for (int c = SND_MIXER_SCHN_FRONT_LEFT;c<SND_MIXER_SCHN_LAST;c++){
       if (snd_mixer_selem_has_playback_channel(element,(snd_mixer_selem_channel_id_t)c)==1){
         if (snd_mixer_selem_get_playback_volume	(element,(snd_mixer_selem_channel_id_t)c,&value)==0) {
-          fxmessage("channel %d volume %d\n",c,value);
+          GM_DEBUG_PRINT("\tchannel %d volume %ld\n",c,value);
           nvalues++;
           volume+=value;
           }
         }
       }
-    fxmessage("avg volume %g = %g %g\n",(volume/nvalues),(float)(volume/nvalues)/(float)(max-min),volume/(nvalues*(max-min)));
     output->notify_volume(volume/(nvalues*(max-min)));
     }
 
@@ -579,7 +579,7 @@ public:
     snd_mixer_poll_descriptors(mixer,pfds,nhandles); 
     }
   
-  virtual void dispatch(struct pollfd *pfds) {
+  virtual void dispatch(struct pollfd*) {
     if (snd_mixer_handle_events(mixer)>0) {
       updateVolume();
       }
@@ -833,7 +833,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
           GM_DEBUG_PRINT("[alsa] xrun\n");
           result = snd_pcm_prepare(handle);
           if (result<0) {
-            fxmessage("[alsa] %s",snd_strerror(result));
+            GM_DEBUG_PRINT("[alsa] %s",snd_strerror(result));
             return false;
             }
         } break;

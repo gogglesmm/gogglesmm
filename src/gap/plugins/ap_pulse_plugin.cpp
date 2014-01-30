@@ -311,8 +311,10 @@ static FXbool to_gap_format(pa_sample_format pulse_format,AudioFormat & af){
   return true;
   }
 
-static void context_state_callback(pa_context *c,void*){
+
+
 #ifdef DEBUG
+static void context_state_callback(pa_context *c,void*){
   GM_DEBUG_PRINT("context_state_callback %d ",pa_context_get_state(c));
   switch(pa_context_get_state(c)) {
     case PA_CONTEXT_UNCONNECTED : fxmessage(" unconnected\n"); break;
@@ -323,31 +325,24 @@ static void context_state_callback(pa_context *c,void*){
     case PA_CONTEXT_FAILED      : fxmessage(" failed\n"); break;
     case PA_CONTEXT_TERMINATED  : fxmessage(" terminated\n"); break;
     };
-#endif
   }
 
 static void stream_state_callback(pa_stream *s,void*){
   GM_DEBUG_PRINT("stream_state_callback %d\n",pa_stream_get_state(s));
   }
+#endif
 
 //static void stream_write_callback(pa_stream*s,size_t,void *){
 //  GM_DEBUG_PRINT("stream_write_callback %d\n",pa_stream_get_state(s));
 //  }
 
-void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * info,int eol,void*userdata){
+void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * info,int /*eol*/,void*userdata){
   PulseOutput * out = reinterpret_cast<PulseOutput*>(userdata);
   if (info) {
     pa_volume_t v = pa_cvolume_avg(&info->volume);
-
     float vol = (float) v / (float)PA_VOLUME_NORM ;
-
-//    float vol = ((float)pa_cvolume_avg(&info->volume)) / PA_VOLUME_NORM;
-//    fxmessage("sink %ld output %ld\n",v,out->svolume);    
-
-
     if (out->svolume!=v)
       out->output->notify_volume(vol);
-    fxmessage("sink volume %g\n",vol);
     }
   }
 
@@ -383,7 +378,9 @@ FXbool PulseOutput::open() {
   /// Get a context
   if (context==NULL) {
     context = pa_context_new(&api,"Goggles Music Manager");
+#ifdef DEBUG
     pa_context_set_state_callback(context,context_state_callback,this);
+#endif
     pa_context_set_subscribe_callback(context,context_subscribe_callback,this);
     }
 
@@ -415,7 +412,9 @@ FXbool PulseOutput::open() {
   }
 
 void PulseOutput::close() {
+#ifdef DEBUG
   output->getReactor().debug();    
+#endif
 
   if (stream) {
     GM_DEBUG_PRINT("disconnecting stream\n");
@@ -430,9 +429,9 @@ void PulseOutput::close() {
     pa_context_unref(context);
     context=NULL;
     }
-
+#ifdef DEBUG
   output->getReactor().debug();    
-
+#endif
 
   delete pa_io_event::recycle;
   delete pa_time_event::recycle;
@@ -522,7 +521,9 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   spec.channels = fmt.channels;
 
   stream = pa_stream_new(context,"Goggles Music Manager",&spec,NULL);
+#ifdef DEBUG
   pa_stream_set_state_callback(stream,stream_state_callback,this);
+#endif
   //pa_stream_set_write_callback(stream,stream_write_callback,this);
 
   if (pa_stream_connect_playback(stream,NULL,NULL,PA_STREAM_NOFLAGS,NULL,NULL)<0)
