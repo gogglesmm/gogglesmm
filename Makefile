@@ -108,9 +108,6 @@ realclean : clean
 	@rm -f src/gmconfig.h
 	@rm -f src/gap/ap_config.h
 	@rm -f po/*.mo
-	@rm -f extra/gogglesmm_22.png
-	@rm -f extra/gogglesmm_24.png
-	@rm -f extra/gogglesmm_48.png
   
 PO_FILES=$(wildcard po/*.po)
 MO_FILES=$(PO_FILES:.po=.mo)

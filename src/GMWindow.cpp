@@ -167,10 +167,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   setIcon(icontheme->icon_applogo);
   setMiniIcon(icontheme->icon_applogo_small);
 
-#if APPLICATION_BETA > 0
-  setTitle(FXString::value("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
-#endif
-
   /// Set myself as the target
   setTarget(tgt);
   setSelector(msg);
@@ -687,12 +683,8 @@ void GMWindow::reset() {
   /// Clear Cover
   update_cover_display();
 
-
-#if APPLICATION_BETA > 0
-  setTitle(FXString::value("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
-#else
+  /// Reset Title
   setTitle("Goggles Music Manager");
-#endif
   }
 
 void GMWindow::display(const GMTrack& info){
@@ -709,19 +701,10 @@ void GMWindow::display(const GMTrack& info){
   label_nowplaying->setText(title);
 
   if (GMPlayerManager::instance()->getPreferences().gui_show_playing_titlebar){
-
-#if APPLICATION_BETA > 0
-    setTitle(FXString::value("%s ~ Goggles Music Manager %d.%d.%d-beta%d",title.text(),APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
-#else
     setTitle(FXString::value("%s ~ Goggles Music Manager",title.text()));
-#endif
     }
   else {
-#if APPLICATION_BETA > 0
-    setTitle(FXString::value("Goggles Music Manager %d.%d.%d-beta%d",APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL,APPLICATION_BETA));
-#else
     setTitle("Goggles Music Manager");
-#endif
     }
 
   if (remote) remote->display(info);

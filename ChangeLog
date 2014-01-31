@@ -10,7 +10,6 @@ Todo
  * auto-refresh the podcast manager every x hours or at startup
  * GMButton needs to having drawing mode for BUTTON_DEFAULT"
  * lirc support
- * volume change notifications to UI.
 
 Release Todo List
  * check database schema (foreign references composer,conductor) and check upgrade paths
