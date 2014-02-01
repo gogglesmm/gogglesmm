@@ -121,9 +121,11 @@ public:
    
   FXFileAssoc* findFileBinding(const FXString& pathname){
     FXString ext = FXPath::extension(pathname);
-    FXFileAssoc * record = NULL;
-    if ((record = bindings[ext])!=NULL) return record;
-    if ((record = bindings[ext.lower()])!=NULL) return record;
+    if (!ext.empty()) {
+      FXFileAssoc * record = NULL;
+      if ((record = bindings[ext])!=NULL) return record;
+      if ((record = bindings[ext.lower()])!=NULL) return record;
+      }
     return bindings[defaultFileBinding];
     }  
 
