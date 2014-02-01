@@ -1565,7 +1565,7 @@ FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
       while(list_tags.row()) {
         list_tags.get(0,id);
         list_tags.get(1,name);
-        if (!tags.find(name.text()))
+        if (!tags.has(name))
           list->appendItem(name);
         }
       }

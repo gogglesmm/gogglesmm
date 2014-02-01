@@ -58,7 +58,7 @@ static void init_basedirs(FXStringList & basedirs) {
   FXDictionary pathdict;
 
   if (FXStat::exists(userdir)) {
-    pathdict.insert(userdir.text(),(void*)(FXival)1);
+    pathdict.insert(userdir,(void*)(FXival)1);
     basedirs.append(userdir);
     }
 
@@ -71,12 +71,12 @@ static void init_basedirs(FXStringList & basedirs) {
     else
       dir += PATHSEPSTRING "icons";
 
-    if (pathdict.find(dir.text()) || !FXStat::exists(dir) ) continue;
+    if (pathdict.has(dir)) || !FXStat::exists(dir) ) continue;
     basedirs.append(dir);
-    pathdict.insert(dir.text(),(void*)(FXival)1);
+    pathdict.insert(dir,(void*)(FXival)1);
     }
 
-  if (pathdict.find("/usr/share/pixmaps")==-1 && FXStat::exists("/usr/share/pixmaps"))
+  if (pathdict.has("/usr/share/pixmaps") && FXStat::exists("/usr/share/pixmaps"))
     basedirs.append("/usr/share/pixmaps");
 
 #ifdef DEBUG
@@ -93,7 +93,7 @@ static void init_themedict(FXStringList & basedirs,FXStringDictionary & themedic
     FXint no = FXDir::listFiles(dirs,basedirs[i],"*",FXDir::AllDirs|FXDir::NoParent|FXDir::NoFiles);
     if (no) {
       for (FXint j=0;j<no;j++) {
-        if (themedict.find(dirs[j])==-1 && !FXStat::isLink(basedirs[i]+PATHSEPSTRING+dirs[j])) {
+        if (!themedict.has(dirs[j]) && !FXStat::isLink(basedirs[i]+PATHSEPSTRING+dirs[j])) {
           FXString index = basedirs[i]+PATHSEPSTRING+dirs[j]+PATHSEPSTRING+"index.theme";
           if (FXStat::exists(index)) {
             themedict.insert(dirs[j],index);
@@ -538,7 +538,7 @@ void GMIconTheme::build() {
     for (i=0,j=0;i<themedict.no();i++){
       if (!themedict.empty(i)){
         index[j++].parseFile(themedict.data(i),true);
-        indexmap.insert(themedict.key(i).text(),(void*)(FXival)(j));
+        indexmap.insert(themedict.key(i),(void*)(FXival)(j));
         }
       }
 
@@ -565,7 +565,7 @@ void GMIconTheme::build() {
         themedirs = index[xx].readStringEntry("Icon Theme","Directories",NULL);
         parents   = index[xx].readStringEntry("Icon Theme","Inherits","hicolor");
 
-        inherits[x].insert(base.text(),(void*)(FXival)1);
+        inherits[x].insert(base,(void*)(FXival)1);
 
         for (s=0;;s++) {
 
@@ -607,7 +607,7 @@ void GMIconTheme::build() {
         /// Find next inherited
         for (s=0,xx=-1;xx==-1;s++) {
           base = parents.section(',',s);
-          if (base.empty() || inherits[x].find(base.text()))
+          if (base.empty() || inherits[x].has(base))
             break;
           xx = (FXint)(FXival)indexmap.find(base.text()) - 1;
           }

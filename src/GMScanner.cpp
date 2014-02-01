@@ -113,14 +113,12 @@ FXint GMDBTracks::insertPath(const FXString & path) {
   FXint pid = insert_path.insert(path);
   pathdict.insert(path.text(),(void*)(FXival)pid);
   GM_TICKS_END();
-  fxmessage("insertPath %s %d\n",path.text(),pid);
   return pid;
   }
 
 FXint GMDBTracks::hasPath(const FXString & path) {
   GM_TICKS_START();
-  FXint id = (FXint)(FXival)pathdict.find(path.text());
-  if (id==-1) return 0;
+  FXint id = (FXint)(FXival)pathdict[path];
   GM_TICKS_END();
   return id;
   }
