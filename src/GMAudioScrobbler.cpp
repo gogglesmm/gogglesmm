@@ -18,6 +18,7 @@
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
+#include "GMApp.h"
 #include "GMTrack.h"
 #include "GMAudioScrobbler.h"
 #include "GMAudioPlayer.h"

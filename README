@@ -6,16 +6,14 @@ Support and Feedback
 Installation
 ------------
 
-  Read the INSTALL file on how to build and install Goggles Music Manager on
-  your machine.
+  Read the INSTALL file on how to build and install Goggles Music Manager on your machine.
 
 Upgrading
 ---------
 
   If you're upgrading you will have to re-import your music due to changes in the database.
-  Use the mport_gogglesmm12_stats.py script in /usr/share/gogglesmm/utils to transfer playcount statistics.
+  Use the import_gogglesmm12_stats.py script in /usr/share/gogglesmm/utils to transfer playcount statistics.
   Playlists may be preserved by exporting them to m3u files before upgrading.
-
 
 Keyboard Shortcuts
 ------------------
@@ -23,7 +21,7 @@ Keyboard Shortcuts
     Ctrl-N	Reset default sorting order in current view.
     Ctrl-R  Shuffle track list.
     Ctrl-B	Toggles browse mode on or off.
-    Ctrl-G	Toggles Genre list in browse mode.
+    Ctrl-T	Toggles Tag list in browse mode.
     Ctrl-Q	Quit Goggles Music Manager.
     Ctrl-O	Import files from given directory.
     Ctrl-J	Jump to playing song in track list.
@@ -34,10 +32,14 @@ Keyboard Shortcuts
     Ctrl-\  Stop playback.
     Ctrl-[  Play previous track.
     Ctrl-]  Play next track.
-    Ctrl-T  Toggle Repeat A-B.
+    Ctrl-,  Repeat Off
+    Ctrl-.  Repeat Track
+    Ctrl-/  Repeat All
+    Alt-R   Shuffle Play
     Ctrl-A  Select All in lists.
     Ctrl-W  Close Main Window
-    F11     Show Mini Player.
+    F11
+    Ctrl-M  Show Mini Player.
     F12     Show Full Screen.
     F2      Edit selected track, album, artist or genre.
     Del     Delete selected track, album, artist or genre.
@@ -46,28 +48,4 @@ Keyboard Shortcuts
 Last-FM
 -------
 
-  Join the Goggles Music Manager group:
-    http://www.last.fm/group/Goggles+Music+Manager
-
-  To start scrobble tracks:
-
-    Go to <edit><preferences> and fill in your lastfm username and password.
-    If Goggles Music Manager can successfully authenticate with the lastfm service tracks,
-    will automatically get 'scrobbled'. If no internet connection is present (or a invalid
-    user/password has been given), tracks to be submitted will be queued until a internet
-    connection can be established again.
-
-    The queue is kept in ~/.goggles/scrobbler.cache.
-
-  To stop scrobble tracks:
-
-    Uncheck last.fm or remove the lastfm username and password from preferences dialog.
-    Note that tracks won't be queued either.
-
-  Limitations / Implementation Details
-
-    * Uses audioscrobbler realtime submission protocol v1.2
-    * No proxy support.
-    * Standard 1 minute delay before submitting played tracks.
-    * 80% of track need to be played to be counted as played.
-      Only tracks longer than 30sec will be submitted to last-fm.
+  Join the Goggles Music Manager group: http://www.last.fm/group/Goggles+Music+Manager
