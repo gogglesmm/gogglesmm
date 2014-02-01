@@ -71,7 +71,7 @@ static void init_basedirs(FXStringList & basedirs) {
     else
       dir += PATHSEPSTRING "icons";
 
-    if (pathdict.has(dir)) || !FXStat::exists(dir) ) continue;
+    if (pathdict.has(dir) || !FXStat::exists(dir) ) continue;
     basedirs.append(dir);
     pathdict.insert(dir,(void*)(FXival)1);
     }
