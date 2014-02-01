@@ -1,19 +1,14 @@
-
-=====
-
-  - Finish up mpris support.
-  - New keyboard shortcuts to skip 10s or 1min in a track.
-  - filename template should perhaps support: alphabet index?
-
 Todo
  * add gzip compression support to http
  * auto-refresh the podcast manager every x hours or at startup
  * GMButton needs to having drawing mode for BUTTON_DEFAULT"
  * lirc support
+ * Finish up mpris support.
+ * New keyboard shortcuts to skip 10s or 1min in a track.
+ * filename template should perhaps support: alphabet index?
 
 Release Todo List
  * check database schema (foreign references composer,conductor) and check upgrade paths
- * add all generated icons to repository
  * decide what to do with playqueue?
  * update README,ChangeLog,AUTHTORS,man page.
  * update DOC website.

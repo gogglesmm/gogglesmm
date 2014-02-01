@@ -3,7 +3,7 @@ Installation Instructions
 
    1. Install all required dependencies:
 
-      * FOX >= 1.7.40 
+      * FOX >= 1.7.46 
       * sqlite >= 3.6.3
       * taglib >= 1.9.0
       * expat or libxml2
