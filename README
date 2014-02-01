@@ -18,13 +18,13 @@ Upgrading
 Keyboard Shortcuts
 ------------------
 
-    Ctrl-N	Reset default sorting order in current view.
+    Ctrl-N  Reset default sorting order in current view.
     Ctrl-R  Shuffle track list.
-    Ctrl-B	Toggles browse mode on or off.
-    Ctrl-T	Toggles Tag list in browse mode.
-    Ctrl-Q	Quit Goggles Music Manager.
-    Ctrl-O	Import files from given directory.
-    Ctrl-J	Jump to playing song in track list.
+    Ctrl-B  Toggles browse mode on or off.
+    Ctrl-T  Toggles Tag list in browse mode.
+    Ctrl-Q  Quit Goggles Music Manager.
+    Ctrl-O  Import files from given directory.
+    Ctrl-J  Jump to playing song in track list.
     Ctrl-F  Find
          /  Find
     Ctrl-S  Show source browser
