@@ -939,7 +939,7 @@ FXint GMPodcastUpdater::run() {
 FXDEFMAP(GMPodcastSource) GMPodcastSourceMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_ADD_FEED,GMPodcastSource::onCmdAddFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_REFRESH_FEED,GMPodcastSource::onCmdRefreshFeed),
-  FXMAPFUNC(SEL_CHORE,GMPodcastSource::ID_REFRESH_FEED,GMPodcastSource::onCmdRefreshFeed),
+  FXMAPFUNC(SEL_TIMEOUT,GMPodcastSource::ID_REFRESH_FEED,GMPodcastSource::onCmdRefreshFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_DOWNLOAD_FEED,GMPodcastSource::onCmdDownloadFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_REMOVE_FEED,GMPodcastSource::onCmdRemoveFeed),
   };
@@ -951,7 +951,8 @@ GMPodcastSource::GMPodcastSource() : db(NULL) {
 
 GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(database),downloader(NULL) {
   FXASSERT(db);
-  GMApp::instance()->addChore(this,GMPodcastSource::ID_REFRESH_FEED);
+  // Auto refresh in 60 seconds
+  GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,60000000000);
   }
 
 GMPodcastSource::~GMPodcastSource(){
@@ -1058,8 +1059,8 @@ FXbool GMPodcastSource::source_menu(FXMenuPane * pane){
   }
 
 FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
   new GMMenuCommand(pane,fxtr("Refresh\t\t"),NULL,this,ID_REFRESH_FEED);
+  new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
   return true;
   }
 

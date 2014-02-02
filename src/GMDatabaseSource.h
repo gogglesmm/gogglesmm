@@ -115,6 +115,7 @@ public:
   long onDndImportFiles(FXObject*,FXSelector,void*);
   long onCmdAddCover(FXObject*,FXSelector,void*);
   long onCmdSearchCover(FXObject*,FXSelector,void*);
+  long onCmdMainWindow(FXObject*,FXSelector,void*);
 public:
   GMDatabaseSource(GMTrackDatabase * db);
 

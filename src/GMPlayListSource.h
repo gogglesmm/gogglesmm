@@ -72,7 +72,7 @@ public:
 
   virtual void sorted(GMTrackList*,FXint method);
 
-  virtual FXbool source_menu(FXMenuPane * pane) { return false; }
+  virtual FXbool source_menu(FXMenuPane*) { return false; }
 
   virtual FXbool source_context_menu(FXMenuPane * pane);
 

@@ -223,29 +223,14 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   /// Library Menu
   menu_library = new GMMenuPane(this);
+
+/*
   new GMMenuCommand(menu_library,tr("Import Folder…\tCtrl-O\tImport Music from folder into Library"),icontheme->icon_import,this,GMWindow::ID_IMPORT_DIRS);
   new GMMenuCommand(menu_library,tr("Sync Folder…\t\tSynchronize Folder with Music in Library"),icontheme->icon_sync,this,GMWindow::ID_SYNC_DIRS);
   new FXMenuSeparator(menu_library);
   new GMMenuCommand(menu_library,tr("Play File or Stream…\t\tPlay File or Stream"),NULL,this,GMWindow::ID_OPEN);
   new FXMenuSeparator(menu_library);
-
-
-  // Install Source Items (Group by source)
-  FXint nadded=0,nlast=menu_library->numChildren();
-  for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++) {
-    if (nadded>1) {
-      new FXMenuSeparator(menu_library);
-      nadded=0;
-      nlast+=1;
-      }
-    if (GMPlayerManager::instance()->getSource(i)->source_menu(menu_library)){            
-      FXint n = menu_library->numChildren();          
-      nadded = n - nlast;
-      nlast  = n;
-      }
-    }
-
-  gm_set_window_cursor(menu_library,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
+*/
 
   //// Active View Menu
 /*
@@ -485,6 +470,27 @@ GMWindow::~GMWindow(){
 // Create
 //----------------------------------------------------------------------------------
 void GMWindow::create(){
+
+
+  // Install Source Items (Group by source)
+  FXint nadded=0,nlast=menu_library->numChildren();
+  for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++) {
+    if (nadded>1) {
+      new FXMenuSeparator(menu_library);
+      nadded=0;
+      nlast+=1;
+      }
+    if (GMPlayerManager::instance()->getSource(i)->source_menu(menu_library)){            
+      FXint n = menu_library->numChildren();          
+      nadded = n - nlast;
+      nlast  = n;
+      }
+    }
+  gm_set_window_cursor(menu_library,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
+
+
+
+
   mainsplitter->setHSplit(getApp()->reg().readIntEntry("window","source-list-hsplit",2500));
 
   configureStatusbar(GMPlayerManager::instance()->getPreferences().gui_show_status_bar);

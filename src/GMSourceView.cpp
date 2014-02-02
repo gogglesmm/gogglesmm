@@ -282,13 +282,28 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
   if (source) 
     src_items = source->source_context_menu(&pane);
       
-  //new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
-  //new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
-
   if (source && source->canBrowse()) { 
     if (src_items) new FXMenuSeparator(&pane);
     new GMMenuCheck(&pane,tr("Show Browser\tCtrl-B\tShow Browser"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_BROWSER);
-    new GMMenuCheck(&pane,tr("Show Tags\tCtrl-T\tShow Tags"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_TAGS);  
+    new GMMenuCheck(&pane,tr("Show Tags\tCtrl-T\tShow Tags"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_TAGS);    
+    }
+
+  // Install Source Items (Group by source)
+  if (source==NULL || src_items==false) {
+    FXint nadded=(&pane)->numChildren();
+    FXint nlast=(&pane)->numChildren();
+    for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++) {
+      if (nadded>1) {
+        new FXMenuSeparator(&pane);
+        nadded=0;
+        nlast+=1;
+        }
+      if (GMPlayerManager::instance()->getSource(i)->source_menu(&pane)){            
+        FXint n = (&pane)->numChildren();          
+        nadded = n - nlast;
+        nlast  = n;
+        }
+      }
     }
 
   if (item) {
@@ -296,36 +311,6 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
     onCmdSourceSelected(NULL,0,NULL); // Simulate SEL_COMMAND
     }
 
-/*  if (item) {
-    GMSource * source = (GMSource*)item->getData();
-    if (source) {
-      FXbool src_menu = source->source_context_menu(&pane);
-
-      if (source->canBrowse()) {
-        if (src_menu) new FXMenuSeparator(&pane);
-        new GMMenuCheck(&pane,tr("Show Browser\tCtrl-B\tShow Browser"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_BROWSER);
-        new GMMenuCheck(&pane,tr("Show Tags\tCtrl-T\tShow Tags"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_TAGS);
-        }
-      }
-    sourcelist->setCurrentItem(item);
-    onCmdSourceSelected(NULL,0,NULL); // Simulate SEL_COMMAND
-    }
-
-  if 
-
-
-  else {
-    new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
-    new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
-    }
-
-    //new GMMenuCommand(&pane,tr("New Playlist…\t\tCreate a new playlist"),GMIconTheme::instance()->icon_playlist,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_NEW_PLAYLIST);
-    //new GMMenuCommand(&pane,tr("Import Playlist…\t\tImport a existing playlist"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getSource(0),GMDatabaseSource::ID_IMPORT_PLAYLIST);
-  //  }
-  //else {
- //   new GMMenuCommand(&pane,tr("New Radio Station…\t\tCreate a new playlist"),NULL,this,GMSourceView::ID_NEW_STATION);
-    //}
-*/    
   if (pane.getFirst()){
     pane.create();
     ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
@@ -357,8 +342,6 @@ long GMSourceView::onDndSourceMotion(FXObject*,FXSelector,void*ptr){
   return 0;
   }
 
-
-
 long GMSourceView::onDndSourceDrop(FXObject*,FXSelector,void*ptr){
   if (sourcedrop) {
     long code =  sourcedrop->handle(this,FXSEL(SEL_DND_DROP,GMSource::ID_DROP),ptr);
@@ -368,8 +351,6 @@ long GMSourceView::onDndSourceDrop(FXObject*,FXSelector,void*ptr){
   return 0;
   }
 
-
-
 long GMSourceView::onCmdNewStation(FXObject*sender,FXSelector,void*ptr){
   for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++){
     GMSource * source = GMPlayerManager::instance()->getSource(i);
@@ -378,9 +359,6 @@ long GMSourceView::onCmdNewStation(FXObject*sender,FXSelector,void*ptr){
     }
   return 0;
   }
-
-
-
 
 long GMSourceView::onCmdExport(FXObject*sender,FXSelector,void*ptr){
   if (source)
@@ -394,19 +372,4 @@ long GMSourceView::onUpdExport(FXObject*sender,FXSelector,void*ptr){
     return source->handle(sender,FXSEL(SEL_UPDATE,GMSource::ID_EXPORT),ptr);
   return 0;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -335,6 +335,11 @@ FXbool GMDatabaseSource::source_context_menu(FXMenuPane * pane){
 
 
 FXbool GMDatabaseSource::source_menu(FXMenuPane * pane){
+  new GMMenuCommand(pane,fxtr("Import Folder…\tCtrl-O\tImport Music from folder into Library"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_IMPORT_DIRS);
+  new GMMenuCommand(pane,fxtr("Sync Folder…\t\tSynchronize Folder with Music in Library"),GMIconTheme::instance()->icon_sync,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_SYNC_DIRS);
+  new FXMenuSeparator(pane);
+  new GMMenuCommand(pane,fxtr("Play File or Stream…\t\tPlay File or Stream"),NULL,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_OPEN);
+  new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("New Playlist…\t\tCreate a new playlist"),NULL,this,GMDatabaseSource::ID_NEW_PLAYLIST);
   new GMMenuCommand(pane,fxtr("Import Playlist…\t\tImport existing playlist"),GMIconTheme::instance()->icon_import,this,GMDatabaseSource::ID_IMPORT_PLAYLIST);
   return true;
