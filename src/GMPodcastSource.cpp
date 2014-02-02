@@ -1182,7 +1182,7 @@ long GMPodcastSource::onCmdDownloadFeed(FXObject*,FXSelector,void*){
 
 long GMPodcastSource::onCmdAddFeed(FXObject*,FXSelector,void*){
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Subscribe to Podcast"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
-  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Subscribe to Podcast"),fxtr("Specify url and description of new station"),NULL);
+  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Subscribe to Podcast"),fxtr("Specify url for the rss feed"),NULL);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
   new GMButton(closebox,fxtr("Subscribe"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
