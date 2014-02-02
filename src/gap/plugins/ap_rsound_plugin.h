@@ -30,7 +30,7 @@ protected:
 protected:
   FXbool open();
 public:
-  RSoundOutput();
+  RSoundOutput(OutputThread * output);
 
   /// Configure
   FXbool configure(const AudioFormat &);

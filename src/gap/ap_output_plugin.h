@@ -27,6 +27,8 @@ class GMAPI OutputPlugin {
 public:
   OutputThread* output;
   AudioFormat   af;
+private:
+  OutputPlugin(){}
 public:
   /// Constructor
   OutputPlugin(OutputThread * o) : output(o) {}

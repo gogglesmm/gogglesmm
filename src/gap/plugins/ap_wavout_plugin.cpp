@@ -44,7 +44,7 @@ protected:
   FXlong header_pos;
   FXlong data_pos;
 public:
-  WavOutput();
+  WavOutput(OutputThread * output);
 
   FXchar type() const { return DeviceWav; }
 
@@ -61,7 +61,7 @@ public:
   virtual ~WavOutput();
   };
 
-WavOutput::WavOutput() : OutputPlugin(NULL){
+WavOutput::WavOutput(OutputThread * output) : OutputPlugin(output){
   }
 
 WavOutput::~WavOutput() {
@@ -145,8 +145,8 @@ void WavOutput::close() {
 }
 
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin() {
-  return new WavOutput();
+extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
+  return new WavOutput(output);
   }
 
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {

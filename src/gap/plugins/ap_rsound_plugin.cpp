@@ -38,8 +38,8 @@
 using namespace ap;
 
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin() {
-  return new RSoundOutput();
+extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
+  return new RSoundOutput(output);
   }
 
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
@@ -72,7 +72,7 @@ static FXbool to_rsd_format(const AudioFormat & af,FXint & rsd){
   return true;
   }
 
-RSoundOutput::RSoundOutput() : OutputPlugin(), rsd(NULL) {
+RSoundOutput::RSoundOutput(OutputThread * output) : OutputPlugin(output), rsd(NULL) {
   }
 
 RSoundOutput::~RSoundOutput() {

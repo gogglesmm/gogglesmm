@@ -34,7 +34,7 @@ protected:
 protected:
   FXbool open();
 public:
-  OSSOutput();
+  OSSOutput(OutputThread * output);
 
   /// Configure
   FXbool configure(const AudioFormat &);

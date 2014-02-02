@@ -38,8 +38,8 @@
 using namespace ap;
 
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin() {
-  return new JackOutput();
+extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
+  return new JackOutput(output);
   }
 
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
@@ -48,7 +48,7 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
 
 namespace ap {
 
-JackOutput::JackOutput() : OutputPlugin() {
+JackOutput::JackOutput(OutputThread * output) : OutputPlugin(output) {
   }
 
 JackOutput::~JackOutput() {

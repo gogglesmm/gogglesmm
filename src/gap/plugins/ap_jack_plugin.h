@@ -30,7 +30,7 @@ protected:
 protected:
   FXbool open();
 public:
-  JackOutput();
+  JackOutput(OutputThread * output);
 
   /// Configure
   FXbool configure(const AudioFormat &);

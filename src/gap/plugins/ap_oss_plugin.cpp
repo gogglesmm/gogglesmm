@@ -47,8 +47,8 @@
 using namespace ap;
 
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin() {
-  return new OSSOutput();
+extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
+  return new OSSOutput(output);
   }
 
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
@@ -92,7 +92,7 @@ static FXbool to_oss_format(const AudioFormat & af,FXint & oss_format){
 
 
 
-OSSOutput::OSSOutput() : OutputPlugin(NULL), handle(BadHandle) {
+OSSOutput::OSSOutput(OutputThread * output) : OutputPlugin(output), handle(BadHandle) {
   }
 
 OSSOutput::~OSSOutput() {
