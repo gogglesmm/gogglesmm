@@ -939,6 +939,7 @@ FXint GMPodcastUpdater::run() {
 FXDEFMAP(GMPodcastSource) GMPodcastSourceMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_ADD_FEED,GMPodcastSource::onCmdAddFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_REFRESH_FEED,GMPodcastSource::onCmdRefreshFeed),
+  FXMAPFUNC(SEL_CHORE,GMPodcastSource::ID_REFRESH_FEED,GMPodcastSource::onCmdRefreshFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_DOWNLOAD_FEED,GMPodcastSource::onCmdDownloadFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_REMOVE_FEED,GMPodcastSource::onCmdRemoveFeed),
   };
@@ -950,6 +951,7 @@ GMPodcastSource::GMPodcastSource() : db(NULL) {
 
 GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(database),downloader(NULL) {
   FXASSERT(db);
+  GMApp::instance()->addChore(this,GMPodcastSource::ID_REFRESH_FEED);
   }
 
 GMPodcastSource::~GMPodcastSource(){
@@ -1050,6 +1052,11 @@ FXbool GMPodcastSource::getTrack(GMTrack & info) const {
   return true;
   }
 
+FXbool GMPodcastSource::source_menu(FXMenuPane * pane){
+  new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
+  return true;
+  }
+
 FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
   new GMMenuCommand(pane,fxtr("Refresh\t\t"),NULL,this,ID_REFRESH_FEED);
@@ -1145,7 +1152,12 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
 
 
 long GMPodcastSource::onCmdRefreshFeed(FXObject*,FXSelector,void*){
-  GMPlayerManager::instance()->runTask(new GMPodcastUpdater);
+  FXint num_feeds=0;
+  db->execute("SELECT COUNT(*) FROM feeds;",num_feeds);
+  if (num_feeds) {
+    GM_DEBUG_PRINT("Found %d feeds. Running Podcast Updater\n",num_feeds);
+    GMPlayerManager::instance()->runTask(new GMPodcastUpdater);
+    }
   return 1;
   }
 

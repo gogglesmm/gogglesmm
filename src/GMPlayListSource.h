@@ -66,13 +66,13 @@ public:
 
   virtual FXString settingKey() const { return "database_playlist_" + FXString::value(playlist); }
 
-
   virtual void save(GMTrackList*);
 
   virtual void dragged(GMTrackList*);
 
   virtual void sorted(GMTrackList*,FXint method);
 
+  virtual FXbool source_menu(FXMenuPane * pane) { return false; }
 
   virtual FXbool source_context_menu(FXMenuPane * pane);
 

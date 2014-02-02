@@ -104,7 +104,6 @@ protected:
 #ifdef HAVE_DBUS
   GMDBus               * sessionbus;
   GMDBus               * systembus;
-
   GMNotifyDaemon       * notifydaemon;
   GMAppStatusNotify    * appstatus;
   GMSettingsDaemon     * gsd;

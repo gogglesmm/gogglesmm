@@ -228,18 +228,23 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new FXMenuSeparator(menu_library);
   new GMMenuCommand(menu_library,tr("Play File or Stream…\t\tPlay File or Stream"),NULL,this,GMWindow::ID_OPEN);
   new FXMenuSeparator(menu_library);
-  new GMMenuCommand(menu_library,tr("New Playlist…\t\tCreate a new playlist"),NULL,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_NEW_PLAYLIST);
-  new GMMenuCommand(menu_library,tr("Import Playlist…\t\tImport existing playlist"),icontheme->icon_import,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_IMPORT_PLAYLIST);
-
-//  new GMMenuCommand(menu_library,tr("Sync Folder…\t\tSynchronize Folder with Music in Library"),icontheme->icon_sync,this,GMWindow::ID_SYNC_DIRS);
-//  new FXMenuSeparator(menu_library);
-//  new GMMenuCommand(menu_library,tr("Add Podcast…\t\tAdd a radio station"),NULL,sourceview,GMSourceView::ID_NEW_STATION);
-//  new GMMenuCommand(menu_library,tr("Add Radio Station…\t\tAdd a radio station"),NULL,sourceview,GMSourceView::ID_NEW_STATION);
-//  new FXMenuSeparator(menu_library);
-//  new FXMenuSeparator(menu_library);
 
 
- // new GMMenuCommand(menu_library,tr("New Radio Station…\t\tCreate a new playlist"),NULL,sourceview,GMSourceView::ID_NEW_STATION);
+  // Install Source Items (Group by source)
+  FXint nadded=0,nlast=menu_library->numChildren();
+  for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++) {
+    if (nadded>1) {
+      new FXMenuSeparator(menu_library);
+      nadded=0;
+      nlast+=1;
+      }
+    if (GMPlayerManager::instance()->getSource(i)->source_menu(menu_library)){            
+      FXint n = menu_library->numChildren();          
+      nadded = n - nlast;
+      nlast  = n;
+      }
+    }
+
   gm_set_window_cursor(menu_library,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
   //// Active View Menu

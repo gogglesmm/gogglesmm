@@ -88,6 +88,8 @@ public:
 
   FXbool autoPlay() const { return false; }
 
+  FXbool source_menu(FXMenuPane * pane);
+
   FXbool source_context_menu(FXMenuPane * pane);
 
   FXbool album_context_menu(FXMenuPane * pane);

@@ -168,6 +168,8 @@ public:
 
   virtual FXbool source_context_menu(FXMenuPane * pane);
 
+  virtual FXbool source_menu(FXMenuPane * pane);
+
   virtual FXbool dnd_accepts(FXDragType*,FXuint);
 
   virtual FXuint dnd_provides(FXDragType types[]);

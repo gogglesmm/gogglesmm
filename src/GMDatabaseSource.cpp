@@ -333,6 +333,13 @@ FXbool GMDatabaseSource::source_context_menu(FXMenuPane * pane){
   return true;
   }
 
+
+FXbool GMDatabaseSource::source_menu(FXMenuPane * pane){
+  new GMMenuCommand(pane,fxtr("New Playlist…\t\tCreate a new playlist"),NULL,this,GMDatabaseSource::ID_NEW_PLAYLIST);
+  new GMMenuCommand(pane,fxtr("Import Playlist…\t\tImport existing playlist"),GMIconTheme::instance()->icon_import,this,GMDatabaseSource::ID_IMPORT_PLAYLIST);
+  return true;
+  }
+
 FXuint GMDatabaseSource::dnd_provides(FXDragType types[]){
   types[0]=GMClipboard::kdeclipboard;
   types[1]=GMClipboard::urilistType;

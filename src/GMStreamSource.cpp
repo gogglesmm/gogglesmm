@@ -89,6 +89,11 @@ FXbool GMStreamSource::getTrack(GMTrack & info) const {
   return false;
   }
 
+FXbool GMStreamSource::source_menu(FXMenuPane * pane){
+  new GMMenuCommand(pane,fxtr("Add Radio Station…"),NULL,this,ID_NEW_STATION);
+  return true;
+  }
+
 FXbool GMStreamSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Add Radio Station…"),NULL,this,ID_NEW_STATION);
   return true;
