@@ -531,22 +531,22 @@ void GMIconTheme::build() {
   init_themedict(basedirs,themedict);
 
   if (themedict.no()) {
-    FXSettings   * index    = new FXSettings[themedict.no()];
-    FXDictionary * inherits = new FXDictionary[themedict.no()];
+    FXSettings   * index    = new FXSettings[themedict.used()];
+    FXDictionary * inherits = new FXDictionary[themedict.used()];
 
     /// Parse Index Files
     for (i=0,j=0;i<themedict.no();i++){
-      if (!themedict.empty(i)){
+      if (!themedict.empty(i)){        
         index[j++].parseFile(themedict.data(i),true);
-        indexmap.insert(themedict.key(i),(void*)(FXival)(j));
+        indexmap.insert(themedict.key(i),(void*)(FXival)(j-1));
         }
       }
 
     for (i=0;i<themedict.no();i++){
       if (themedict.empty(i)) continue;
 
-      const FXString themedir  = themedict.key(i);
-      const FXint            x = (FXint)(FXival)indexmap.find(themedir.text()) - 1;
+      const FXString themedir = themedict.key(i);
+      const FXint           x = (FXint)(FXival)indexmap[themedir];
 
       if (index[x].readBoolEntry("Icon Theme","Hidden",false))
         continue;
@@ -609,7 +609,7 @@ void GMIconTheme::build() {
           base = parents.section(',',s);
           if (base.empty() || inherits[x].has(base))
             break;
-          xx = (FXint)(FXival)indexmap.find(base.text()) - 1;
+          xx = (FXint)(FXival)indexmap[base];
           }
         }
 
