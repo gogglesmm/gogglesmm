@@ -150,19 +150,21 @@ void unescape_html(FXString & value) {
 
 
 void parse_duration(const FXString & value,FXuint & d) {
-  //fxmessage("duration %s\n",value.text());
   FXint n = value.contains(":");
   FXint hh=0,mm=0,ss=0;
   switch(n) {
     case 2: value.scan("%d:%d:%d",&hh,&mm,&ss); break;
     case 1: value.scan("%d:%d",&mm,&ss); break;
     case 0: value.scan("%d",&ss); break;
-    default: fxmessage("oops\n"); break;
+    default: GM_DEBUG_PRINT("[rss] failed to parse duration %s\n",value.text()); d=0; return; break;
     };
   //fxmessage("%d %d %d\n",hh,mm,ss);
   d=(hh*3600)+(mm*60)+ss;
+#ifdef DEBUG
   if (d==0)
-    fxmessage("rss duration was 0: %s\n",value.text());
+    fxmessage("[rss] ignoring 0 duration: \"%s\"\n",value.text());
+#endif
+
   }
 
 
@@ -300,7 +302,6 @@ protected:
         value.clear();
         break;
       case Elem_Channel_Date:
-        fxmessage("channel date %s\n",value.text());
         gm_parse_datetime(value,feed.date);
         value.clear();
         break;
@@ -592,7 +593,7 @@ protected:
       if (offset>0) {
         /// %lld for FOX is FXlong on 32bit and 64bit so ignore any formating warnings.
         headers = FXString::value("Range: bytes=%lld-\r\nIf-Range: %s\r\n",offset,gm_rfc1123(FXStat::modified(filename)).text());
-        fxmessage("%s\n",headers.text());
+        GM_DEBUG_PRINT("%s\n",headers.text());
         }
       }
 
@@ -857,9 +858,7 @@ FXint GMPodcastUpdater::run() {
 
     gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
 
-    //rss.feed.debug();
-
-   fxmessage("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
+    GM_DEBUG_PRINT("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
 
     FXDictionary guids;
     for (int i=0;i<rss.feed.items.no();i++)
@@ -907,14 +906,14 @@ FXint GMPodcastUpdater::run() {
         }
       }
 
-    fxmessage("Update date to %s\n",FXSystem::universalTime(rss.feed.date).text());
+    GM_DEBUG_PRINT("[rss] Update date to %s\n",FXSystem::universalTime(rss.feed.date).text());
     set_feed.set(0,rss.feed.date);
     set_feed.set(1,id);
     if (rss.feed.date>date) {
-      fxmessage("feed needs updating %s - %s\n",FXSystem::universalTime(rss.feed.date).text(),FXSystem::localTime(rss.feed.date).text());
+      GM_DEBUG_PRINT("[rss] feed needs updating %s - %s\n",FXSystem::universalTime(rss.feed.date).text(),FXSystem::localTime(rss.feed.date).text());
       }
     else {
-      fxmessage("feed is up to date\n");
+      GM_DEBUG_PRINT("[rss] feed is up to date\n");
       }
     }
 
@@ -956,6 +955,7 @@ GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(da
   }
 
 GMPodcastSource::~GMPodcastSource(){
+  GMApp::instance()->removeTimeout(this,ID_REFRESH_FEED);
   if (downloader) {
     downloader->stop();
     }
@@ -1153,6 +1153,7 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
 
 
 long GMPodcastSource::onCmdRefreshFeed(FXObject*,FXSelector,void*){
+  GMApp::instance()->removeTimeout(this,ID_REFRESH_FEED);
   FXint num_feeds=0;
   db->execute("SELECT COUNT(*) FROM feeds;",num_feeds);
   if (num_feeds) {

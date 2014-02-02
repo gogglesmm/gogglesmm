@@ -261,6 +261,7 @@ FXbool GMTrackDatabase::init_database() {
     switch(getVersion()) {
 
       case GOGGLESMM_DATABASE_SCHEMA_VERSION:
+        enableForeignKeys();
         init_index();
         break;
 
@@ -285,6 +286,7 @@ FXbool GMTrackDatabase::init_database() {
         execute("INSERT INTO feed_items SELECT * FROM old_feed_items;");
         execute("DROP TABLE old_feed_items;");
 
+        enableForeignKeys();
         init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
@@ -307,6 +309,8 @@ FXbool GMTrackDatabase::init_database() {
         execute(create_feed);
         execute(create_feed_items);
 
+
+        enableForeignKeys();
         init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
@@ -319,7 +323,7 @@ FXbool GMTrackDatabase::init_database() {
       default                               :
         /// Some unknown database. Let's start from scratch
         reset();
-
+        enableForeignKeys();    
         execute(create_tracks);
         execute(create_tags);
         execute(create_track_tags);
@@ -423,21 +427,21 @@ FXbool GMTrackDatabase::clearTracks(FXbool removeplaylists){
   try {
     begin();
 
+    execute("DELETE FROM playlist_tracks;");
+    execute("DELETE FROM track_tags;");
     execute("DELETE FROM tracks;");
+    execute("DELETE FROM pathlist;");
     execute("DELETE FROM albums;");
     execute("DELETE FROM artists;");
 
-    execute("DELETE FROM playlist_tracks;");
-    execute("DELETE FROM track_tags;");
 
+
+    execute("DELETE FROM tags WHERE id NOT IN (SELECT DISTINCT(tag) FROM track_tags) AND id NOT IN (SELECT genre FROM streams UNION SELECT tag FROM feeds);");
 
     if (removeplaylists) {
       execute("DELETE FROM playlists;");
       }
 
-    execute("DELETE FROM pathlist;");
-
-    execute("DELETE FROM tags WHERE id NOT IN (SELECT DISTINCT(tag) FROM track_tags) AND id NOT IN (SELECT genre FROM streams UNION SELECT tag FROM feeds);");
 
     commit();
     }

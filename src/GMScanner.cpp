@@ -109,17 +109,17 @@ void GMDBTracks::init(GMTrackDatabase*db) {
 
 
 FXint GMDBTracks::insertPath(const FXString & path) {
-  GM_TICKS_START();
+  //GM_TICKS_START();
   FXint pid = insert_path.insert(path);
   pathdict.insert(path.text(),(void*)(FXival)pid);
-  GM_TICKS_END();
+  //GM_TICKS_END();
   return pid;
   }
 
 FXint GMDBTracks::hasPath(const FXString & path) {
-  GM_TICKS_START();
+//  GM_TICKS_START();
   FXint id = (FXint)(FXival)pathdict[path];
-  GM_TICKS_END();
+//  GM_TICKS_END();
   return id;
   }
 
@@ -162,6 +162,8 @@ void GMDBTracks::updateTags(FXint track,const FXStringList & tags){
 
 
 void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid,FXint playlist,FXint queue){
+//  GM_TICKS_START();
+
   FXASSERT(!track.album_artist.empty());
 
   FXint artist_id;
@@ -218,8 +220,8 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
   insert_track.set(6,track.bitrate);
   insert_track.set(7,album_id);
   insert_track.set(8,artist_id);
-  insert_track.set(9,composer_id);
-  insert_track.set(10,conductor_id);
+  insert_track.set_null(9,composer_id);
+  insert_track.set_null(10,conductor_id);
   insert_track.set(11,FXThread::time());
   track_id = insert_track.insert();
 
@@ -234,6 +236,7 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
   // Tags
   if (track.tags.no())
     insertTags(track_id,track.tags);
+//  GM_TICKS_END();
   }
 
 
@@ -385,6 +388,7 @@ void GMImportTask::fixAlbumArtist(GMTrack * tracks,FXint no){
 
 
 void GMImportTask::import() {
+  GM_TICKS_START();
   FXint tid,pid=0;
   FXString filename,pathname;
   GMTrack info;
@@ -393,6 +397,7 @@ void GMImportTask::import() {
 
   if (playlist)
     queue = database->getNextQueue(playlist);
+
 
   taskmanager->setStatus("Importing...");
 
@@ -424,6 +429,7 @@ void GMImportTask::import() {
     }
   database->sync_album_year();
   database->commitTask();
+  GM_TICKS_END();
   }
 
 

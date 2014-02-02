@@ -53,6 +53,7 @@ public:
   ~GMQuery();
 public: /// Parameter / Column retrieval
   void set(FXint p,FXint v);
+  void set_null(FXint p,FXint v);
   void set(FXint p,FXuint v);
   void set(FXint p,FXlong v);
   void set(FXint p,FXfloat v);
@@ -159,6 +160,9 @@ public:
 
   FXint rowid() const;
   FXint changes() const;
+
+  /// Enable Foreign Keys
+  void enableForeignKeys();
 
   /// Set Version
   void setVersion(FXint v);

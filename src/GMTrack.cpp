@@ -121,7 +121,7 @@ FXbool GMTrack::saveTag(const FXString & filename,FXuint /*opts=0*/) {
 
 
 FXbool GMTrack::loadTag(const FXString & filename) {
-  GM_TICKS_START();
+//  GM_TICKS_START();
   GMFileTag filetags;
 
   if (!filetags.open(filename,FILETAG_TAGS|FILETAG_AUDIOPROPERTIES)){
@@ -145,7 +145,7 @@ FXbool GMTrack::loadTag(const FXString & filename) {
   bitrate = filetags.getBitRate();
 
   setDiscNumber(filetags.getDiscNumber());
-  GM_TICKS_END();
+//  GM_TICKS_END();
   return true;
   }
 

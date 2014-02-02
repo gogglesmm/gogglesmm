@@ -289,6 +289,19 @@ void GMQuery::set(FXint p,FXint v){
   if (__unlikely(sqlite3_bind_int(statement,(p+1),v)!=SQLITE_OK))
     fatal();
   }
+
+void GMQuery::set_null(FXint p,FXint v){
+  if (v!=0) {
+    if (__unlikely(sqlite3_bind_int(statement,(p+1),v)!=SQLITE_OK))
+      fatal();
+    }
+  else {
+    if (__unlikely(sqlite3_bind_null(statement,(p+1))!=SQLITE_OK))
+      fatal();
+    }
+  }
+
+
 void GMQuery::set(FXint p,FXuint v){
   if (__unlikely(sqlite3_bind_int(statement,(p+1),(FXint)v)!=SQLITE_OK))
     fatal();
@@ -629,6 +642,23 @@ void GMDatabase::unlock() {
     mutex.unlock();
     }
   }
+
+void GMDatabase::enableForeignKeys(){
+  FXint enabled = -1;
+  execute("PRAGMA foreign_keys",enabled);
+  if (enabled==-1)
+    GM_DEBUG_PRINT("[sqlite] foreign keys not supported\n");
+  else if (enabled==0) {
+    GM_DEBUG_PRINT("[sqlite] foreign keys disabled, enabling\n");
+    execute("PRAGMA foreign_keys = ON");
+    execute("PRAGMA foreign_keys",enabled);
+    FXASSERT(enabled==1);
+    }
+  else {
+    GM_DEBUG_PRINT("[sqlite] foreign keys enabled\n");
+    }
+  }
+
 
 void GMDatabase::setVersion(FXint v){
   executeFormat("PRAGMA user_version=%d",v);
