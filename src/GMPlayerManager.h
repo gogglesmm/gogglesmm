@@ -122,7 +122,9 @@ protected:
   struct lirc_config*    lirc_config;
 #endif
 protected:
+#ifdef HAVE_PLAYQUEUE
   GMPlayQueue          * queue;
+#endif
   GMSource             * source;
   GMTrackDatabase      * database;
   GMCoverCache         * covercache;
@@ -246,7 +248,9 @@ public:
 
   GMSource * getSource() const { return source; }
 
+#ifdef HAVE_PLAYQUEUE
   GMPlayQueue * getPlayQueue() const { return queue; }
+#endif
 
   GMWindow * getMainWindow() const { return mainwindow; }
 
@@ -366,8 +370,9 @@ public:
   void cmd_raise();
 
 
-
+#ifdef HAVE_PLAYQUEUE
   void setPlayQueue(FXbool enable);
+#endif
 
 
 

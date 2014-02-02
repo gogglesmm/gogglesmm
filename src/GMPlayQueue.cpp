@@ -16,6 +16,7 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
+#ifdef HAVE_PLAYQUEUE
 #include "gmdefs.h"
 #include "GMList.h"
 #include "GMTrack.h"
@@ -146,26 +147,6 @@ FXbool GMPlayQueue::hasTrack(FXint id) {
     GM_TICKS_END();
     return false;
     }
-
-  /*
-  FXint n=0;
-  try {
-    GMQuery q(db,"SELECT COUNT(track) FROM playlist_tracks WHERE playlist == ? AND track == ?");
-    q.set(0,playlist);
-    q.set(1,id);
-    q.execute();
-    q.get(0,n);
-    q.reset();
-    }
-  catch(FXCompileException & e){
-    return false;
-    }
-  catch(FXExecuteException & e){
-    return false;
-    }
-*/
- // GM_TICKS_END();
- // return (n>0);
   }
 
 
@@ -243,7 +224,7 @@ FXint GMPlayQueue::getCurrent() {
     }
   return current_track;
   }
-
+#endif
 
 
 

@@ -83,7 +83,9 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
 //  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_GENRE,GMDatabaseSource::onCmdEditGenre),
 //  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_ARTIST,GMDatabaseSource::onCmdEditArtist),
 //  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_ALBUM,GMDatabaseSource::onCmdEditAlbum),
+#ifdef HAVE_PLAYQUEUE
   FXMAPFUNCS(SEL_COMMAND,GMDatabaseSource::ID_QUEUE_TRACK,GMDatabaseSource::ID_QUEUE_ARTIST,GMDatabaseSource::onCmdQueue),
+#endif
   FXMAPFUNCS(SEL_COMMAND,GMDatabaseSource::ID_SEARCH_COVER,GMDatabaseSource::ID_SEARCH_COVER_ALBUM,GMDatabaseSource::onCmdSearchCover),
 
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_TRACK,GMDatabaseSource::onCmdEditTrack),
@@ -1059,7 +1061,7 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
   }
 
 
-
+#ifdef HAVE_PLAYQUEUE
 long GMDatabaseSource::onCmdQueue(FXObject*,FXSelector sel,void*){
   FXIntList tracks;
 
@@ -1071,7 +1073,7 @@ long GMDatabaseSource::onCmdQueue(FXObject*,FXSelector sel,void*){
   GMPlayerManager::instance()->getPlayQueue()->addTracks(this,tracks);
   return 1;
   }
-
+#endif
 
 long GMDatabaseSource::onCmdEditTrack(FXObject*,FXSelector,void*){
   GMEditTrackDialog dialog(GMPlayerManager::instance()->getMainWindow(),db);

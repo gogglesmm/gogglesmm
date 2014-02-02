@@ -6,10 +6,11 @@ Todo
  * Finish up mpris support.
  * New keyboard shortcuts to skip 10s or 1min in a track.
  * filename template should perhaps support: alphabet index?
+ * fix the playqueue (don't make it crash)
+
 
 Release Todo List
  * check database schema (foreign references composer,conductor) and check upgrade paths
- * decide what to do with playqueue?
  * update README,ChangeLog,AUTHTORS,man page.
  * update DOC website.
 

@@ -88,7 +88,9 @@ public:
     ID_LAST
     };
 public:
+#ifdef HAVE_PLAYQUEUE
   long onCmdQueue(FXObject*,FXSelector,void*);
+#endif
   long onCmdEditTrack(FXObject*,FXSelector,void*);
   long onCmdDelete(FXObject*,FXSelector,void*);
   long onCmdCopyArtistAlbum(FXObject*,FXSelector,void*);

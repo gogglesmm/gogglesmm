@@ -19,6 +19,7 @@
 #ifndef GMPLAYQUEUE_H
 #define GMPLAYQUEUE_H
 
+#ifdef HAVE_PLAYQUEUE
 class GMPlayListSource;
 
 class GMPlayQueue : public GMPlayListSource {
@@ -62,5 +63,5 @@ public:
 
   virtual ~GMPlayQueue();
   };
-
+#endif
 #endif

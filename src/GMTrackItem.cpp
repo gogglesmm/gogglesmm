@@ -85,9 +85,11 @@ GMDBTrackItem::~GMDBTrackItem(){
 
 
 FXIcon * GMDBTrackItem::getIcon() const {
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPlayQueue() && GMPlayerManager::instance()->getPlayQueue()->hasTrack(id))
     return GMIconTheme::instance()->icon_playqueue;
   else
+#endif
     return NULL;
   }
 

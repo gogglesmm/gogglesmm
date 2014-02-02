@@ -1648,11 +1648,13 @@ long GMTrackView::onCmdTagSelected(FXObject*,FXSelector sel,void*ptr){
 
 long GMTrackView::onCmdArtistSelected(FXObject*,FXSelector sel,void*ptr){
   if ( FXSELTYPE(sel)==SEL_DOUBLECLICKED) {
+#ifdef HAVE_PLAYQUEUE
     if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
       FXIntList tracks;
       getTracks(tracks);
       GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
       }
+#endif
     if (GMPlayerManager::instance()->can_play())
       GMPlayerManager::instance()->playItem(TRACK_CURRENT);
     }
@@ -1699,11 +1701,13 @@ long GMTrackView::onCmdArtistSelected(FXObject*,FXSelector sel,void*ptr){
 
 long GMTrackView::onCmdAlbumSelected(FXObject*,FXSelector sel,void*ptr){
   if ( FXSELTYPE(sel)==SEL_DOUBLECLICKED) {
+#ifdef HAVE_PLAYQUEUE
     if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
       FXIntList tracks;
       getTracks(tracks);
       GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
       }
+#endif
     if (GMPlayerManager::instance()->can_play())
       GMPlayerManager::instance()->playItem(TRACK_CURRENT);
     }
@@ -2048,20 +2052,21 @@ long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
 
 long GMTrackView::onCmdPlayTrack(FXObject*,FXSelector,void*){
   if (!source->track_double_click()) {
-
-
-  if (GMPlayerManager::instance()->getPlayQueue()) {
-    FXIntList tracks;
-    tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
-    GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
-    if (GMPlayerManager::instance()->can_play())
+#ifdef HAVE_PLAYQUEUE
+    if (GMPlayerManager::instance()->getPlayQueue()) {
+      FXIntList tracks;
+      tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
+      GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
+      if (GMPlayerManager::instance()->can_play())
+        GMPlayerManager::instance()->playItem(TRACK_CURRENT);
+      }
+    else {
+#endif
       GMPlayerManager::instance()->playItem(TRACK_CURRENT);
-    }
-  else {
-    GMPlayerManager::instance()->playItem(TRACK_CURRENT);
-    tracklist->deselectItem(tracklist->getCurrentItem());
-    }
-
+      tracklist->deselectItem(tracklist->getCurrentItem());
+#ifdef HAVE_PLAYQUEUE
+      }
+#endif
     }
   return 1;
   }

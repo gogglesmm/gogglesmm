@@ -452,7 +452,9 @@ GMPlayerManager::GMPlayerManager() :
   player(NULL),
   trayicon(NULL),
   scrobbler(NULL),
+#ifdef HAVE_PLAYQUEUE
   queue(NULL),
+#endif
   source(NULL),
   database(NULL),
   covercache(NULL),
@@ -593,11 +595,13 @@ FXbool GMPlayerManager::init_sources() {
       }
     }
 
+#ifdef HAVE_PLAYQUEUE
   /// Init Play Queue
   if (preferences.play_from_queue) {
     queue = new GMPlayQueue(database);
     sources.append(queue);
     }
+#endif
 
   /// Internet Streams
   sources.append(new GMStreamSource(database));
@@ -620,6 +624,7 @@ GMDatabaseSource * GMPlayerManager::getDatabaseSource() const {
   return dynamic_cast<GMDatabaseSource*>(sources[0]);
   }
 
+#ifdef HAVE_PLAYQUEUE
 void GMPlayerManager::setPlayQueue(FXbool enable) {
   preferences.play_from_queue=enable;
   if (enable) {
@@ -636,7 +641,7 @@ void GMPlayerManager::setPlayQueue(FXbool enable) {
       }
     }
   }
-
+#endif
 
 
 void GMPlayerManager::removeSource(GMSource * src) {
@@ -1201,7 +1206,7 @@ void GMPlayerManager::playItem(FXuint whence) {
     source=NULL;
     }
 
-
+#ifdef HAVE_PLAYQUEUE
   if (queue) {
     switch(whence) {
       case TRACK_CURRENT : track = queue->getCurrent(); break;
@@ -1213,6 +1218,7 @@ void GMPlayerManager::playItem(FXuint whence) {
       source = queue;
       }
     }
+#endif
 
   if (track==-1) {
     switch(whence) {
@@ -1309,6 +1315,7 @@ void GMPlayerManager::notify_playback_finished() {
   FXbool stop_playback = scheduled_stop;
   scheduled_stop=false;
 
+#ifdef HAVE_PLAYQUEUE
   if (queue) {
 
     /// Reset Source
@@ -1332,6 +1339,7 @@ void GMPlayerManager::notify_playback_finished() {
     trackinfoset = queue->getTrack(trackinfo);
     }
   else {
+#endif
 
     /// Don't play anything if we didn't play anything from the library
     if (source==NULL)
@@ -1370,7 +1378,9 @@ void GMPlayerManager::notify_playback_finished() {
 
     source = getTrackView()->getSource();
     trackinfoset = source->getTrack(trackinfo);
+#ifdef HAVE_PLAYQUEUE
     }
+#endif
 
   player->open(trackinfo.url,false);
   }
@@ -1409,6 +1419,7 @@ void GMPlayerManager::reset_track_display() {
     notifydaemon->reset();
 #endif
 
+#ifdef HAVE_PLAYQUEUE
   /// Update View in queue play.
   if (queue) {
     getSourceView()->refresh(queue);
@@ -1416,6 +1427,7 @@ void GMPlayerManager::reset_track_display() {
       getTrackView()->refresh();
       }
     }
+#endif
 
   /// Schedule a GUI update
   application->refresh();
@@ -1453,13 +1465,14 @@ void GMPlayerManager::update_track_display(FXbool notify) {
 
   if (notify) application->addTimeout(this,ID_PLAY_NOTIFY,TIME_MSEC(500));
 
-
+#ifdef HAVE_PLAYQUEUE
   if (queue) {
     getSourceView()->refresh(queue);
     if (getTrackView()->getSource()==queue)
       getTrackView()->refresh();
     getTrackView()->showCurrent();
     }
+#endif
 
   }
 
@@ -1479,7 +1492,11 @@ FXbool GMPlayerManager::can_stop() const {
   }
 
 FXbool GMPlayerManager::can_play() const {
+#ifdef HAVE_PLAYQUEUE
   return (!player->playing() && ((queue && queue->getNumTracks()>0) ||  getTrackView()->hasTracks()));
+#else
+   return (!player->playing() &&  getTrackView()->hasTracks());
+#endif
   }
 
 FXbool GMPlayerManager::can_pause() const {
@@ -1496,11 +1513,12 @@ FXbool GMPlayerManager::can_unpause() const {
 
 FXbool GMPlayerManager::can_next() const {
   if (player->playing() && !player->pausing()) {
+#ifdef HAVE_PLAYQUEUE
     if (( queue && queue->getNumTracks()>1) || getTrackView()->getNumTracks()>1)
       return true;
-//      return (queue->getNumTracks()>1);
-//    else
-//      return (getTrackView()->getNumTracks()>1);
+#else
+    return (getTrackView()->getNumTracks()>1);
+#endif
     }
   return false;
   }
