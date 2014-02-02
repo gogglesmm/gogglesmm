@@ -222,7 +222,7 @@ public:
 
   virtual FXbool source_context_menu(FXMenuPane*) { return false; }
 
-  virtual FXbool source_menu(FXMenuPane*) { return 0; }
+  virtual FXbool source_menu(FXMenuPane*) { return false; }
 
   virtual FXbool dnd_accepts(FXDragType*,FXuint) { return false; }
 
