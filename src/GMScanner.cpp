@@ -100,6 +100,7 @@ void GMDBTracks::init(GMTrackDatabase*db) {
   query_artist                        = database->compile("SELECT id FROM artists WHERE name == ?;");
   query_tag                           = database->compile("SELECT id FROM tags WHERE name == ?;");
 
+  delete_track_playlists              = database->compile("DELETE FROM playlist_tracks WHERE track == ?;");
   delete_track_tags                   = database->compile("DELETE FROM track_tags WHERE track == ?;");
   delete_track                        = database->compile("DELETE FROM tracks WHERE id == ?;");
 
@@ -291,6 +292,8 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   }
 
 void GMDBTracks::remove(FXint track) {
+  delete_track_playlists.update(track);
+  delete_track_tags.update(track);
   delete_track.update(track);
   }
 
@@ -533,7 +536,6 @@ void GMSyncTask::syncDirectory(const FXString & path) {
 
   if (options_sync.remove_all) {
     for (FXint i=0;i<list.no() && processing ;i++){
-
       fraction = 100.0 * ((i+1) / (FXdouble)(list.no()));
       if (progress!=(FXint)fraction){
         progress=(FXint)fraction;

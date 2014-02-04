@@ -157,9 +157,11 @@ FXbool GMPlayListSource::genre_context_menu(FXMenuPane * pane) {
   }
 
 FXbool GMPlayListSource::artist_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ARTIST);
     }
+#endif
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ARTIST);
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove track(s) from play list."),GMIconTheme::instance()->icon_delete,this,ID_DELETE_ARTIST);
@@ -167,9 +169,11 @@ FXbool GMPlayListSource::artist_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMPlayListSource::album_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ALBUM);
     }
+#endif
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ALBUM);
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove track(s) from play list."),GMIconTheme::instance()->icon_delete,this,ID_DELETE_ALBUM);
@@ -177,10 +181,12 @@ FXbool GMPlayListSource::album_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMPlayListSource::track_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_TRACK);
     new FXMenuSeparator(pane);
     }
+#endif
   new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Track Information."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_TRACK);
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy track(s) to clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_TRACK);
   new GMMenuCommand(pane,"Export\t\tCopy tracks to destination.",GMIconTheme::instance()->icon_export,this,ID_EXPORT_TRACK);

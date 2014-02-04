@@ -42,6 +42,7 @@ protected:
   GMQuery query_tag;
   GMQuery delete_track;
   GMQuery delete_track_tags;
+  GMQuery delete_track_playlists;
 protected:
   FXint insertPath(const FXString & path);
   FXint insertArtist(const FXString & name);
