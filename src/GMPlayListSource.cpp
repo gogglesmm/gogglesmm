@@ -68,10 +68,6 @@ FXDEFMAP(GMPlayListSource) GMPlayListSourceMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_ARTIST_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_ALBUM_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_TRACK_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
-
-
-
-//  FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_PASTE,GMPlayListSource::onCmdPaste),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_IMPORT,GMPlayListSource::onCmdImport),
   };
 
@@ -464,24 +460,6 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
 
 
 #endif
-
-long GMPlayListSource::onCmdPaste(FXObject*sender,FXSelector sel,void*ptr){
-  GMClipboard * clipboard = GMClipboard::instance();
-  if (clipboard->offeredDNDType(FROM_CLIPBOARD,GMClipboard::trackdatabase)){
-    GMDatabaseClipboardData * clipdata = dynamic_cast<GMDatabaseClipboardData*>(clipboard->getClipData());
-    if (clipdata && clipdata->tracks.no() && db->insertPlaylistTracks(playlist,clipdata->tracks)) {
-      GMPlayerManager::instance()->getTrackView()->refresh();
-      }
-    else {
-      FXApp::instance()->beep();
-      }
-    }
-  else {
-    return GMDatabaseSource::onCmdPaste(sender,sel,ptr);
-    }
-  return 1;
-  }
-
 
 
 long GMPlayListSource::onCmdImport(FXObject*,FXSelector,void*){

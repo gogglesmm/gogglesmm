@@ -1648,6 +1648,7 @@ FXuint gm_parse_dragtypes(FXDragType*types,FXuint ntypes){
   for (FXuint i=0;i<ntypes;i++){
     if (types[i]==GMClipboard::alltracks)            dnd|=DND_TRACKS_ALL;
     else if (types[i]==GMClipboard::selectedtracks)  dnd|=DND_TRACKS_SELECTED;
+    else if (types[i]==GMClipboard::trackdatabase)   dnd|=DND_TRACKS_ID;
     else if (types[i]==GMClipboard::kdeclipboard)    dnd|=DND_KDE;
     else if (types[i]==FXWindow::urilistType)        dnd|=DND_URI;
     else if (types[i]==GMClipboard::gnomeclipboard)  dnd|=DND_GNOME;
@@ -1700,7 +1701,15 @@ long GMDatabaseSource::onCmdPaste(FXObject*,FXSelector,void*){
     if (!playlist && from&(DND_TRACKS_SELECTED|DND_TRACKS_ALL|DND_TRACKS_ID) )
       return 0;
 
-    if (from&DND_GNOME && clipboard->getDNDData(FROM_CLIPBOARD,GMClipboard::gnomeclipboard,files)) {
+    if (from&DND_TRACKS_ID) {
+      GMDatabaseClipboardData * clipdata = dynamic_cast<GMDatabaseClipboardData*>(clipboard->getClipData());
+      if (clipdata && clipdata->tracks.no() && db->insertPlaylistTracks(playlist,clipdata->tracks))
+        GMPlayerManager::instance()->getTrackView()->refresh();
+      else
+        FXApp::instance()->beep();
+      return 0; // done here
+      }
+    else if (from&DND_GNOME && clipboard->getDNDData(FROM_CLIPBOARD,GMClipboard::gnomeclipboard,files)) {
       gm_convert_gnomeclipboard_to_filenames(files,filelist);
       }
     else if (from&DND_URI && clipboard->getDNDData(FROM_CLIPBOARD,FXWindow::urilistType,files)) {
@@ -1714,16 +1723,7 @@ long GMDatabaseSource::onCmdPaste(FXObject*,FXSelector,void*){
   return 0;
   }
 
-
-
-
-
-
-
-
-
-
-
+ 
 
 long GMDatabaseSource::onUpdPaste(FXObject*,FXSelector,void*){
   return 1;
