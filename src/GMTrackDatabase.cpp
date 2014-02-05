@@ -269,7 +269,6 @@ FXbool GMTrackDatabase::init_database() {
 
       // Add foreign keys to playlist_tracks
       case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
-        fxmessage("check\n");
         execute("ALTER TABLE playlist_tracks RENAME TO old_playlist_tracks;");
         execute(create_playlist_tracks);
         execute("INSERT INTO playlist_tracks SELECT * FROM old_playlist_tracks;");
@@ -900,7 +899,7 @@ void GMTrackDatabase::getTrackFilenames(GMTrackFilenameList & result,const FXStr
   GMQuery list;
 
   if (!root.empty())
-    list = compile("SELECT tracks.id,pathlist.name || '" PATHSEPSTRING "' || mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id AND pathlist.name == '" + root + "' OR pathlist.name LIKE '" + root + PATHSEPSTRING"%' ORDER BY path;");
+    list = compile("SELECT tracks.id,pathlist.name || '" PATHSEPSTRING "' || mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id AND (pathlist.name == '" + root + "' OR pathlist.name LIKE '" + root + PATHSEPSTRING"%') ORDER BY path;");
   else
     list = compile("SELECT tracks.id,pathlist.name || '" PATHSEPSTRING "' || mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id ORDER BY path");
 

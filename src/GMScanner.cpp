@@ -128,7 +128,7 @@ FXint GMDBTracks::hasPath(const FXString & path) {
 FXint GMDBTracks::insertArtist(const FXString & artist){
   FXint id=0;
   query_artist.execute(artist,id);
-  if (!id) {
+  if (id==0) {
     id = insert_artist.insert(artist);
     }
   return id;
@@ -141,7 +141,7 @@ void GMDBTracks::insertTags(FXint track,const FXStringList & tags){
   for (int i=0;i<tags.no();i++) {
     ids[i]=0;
     query_tag.execute(tags[i],ids[i]);
-    if (!ids[i])
+    if (ids[i]==0) 
       ids[i] = insert_tag.insert(tags[i]);
     }
 
@@ -281,8 +281,8 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   update_track.set(4,track.bitrate);
   update_track.set(5,album_id);
   update_track.set(6,artist_id);
-  update_track.set(7,composer_id);
-  update_track.set(8,conductor_id);
+  update_track.set_null(7,composer_id);
+  update_track.set_null(8,conductor_id);
   update_track.set(9,FXThread::time());
   update_track.set(10,id);
   update_track.execute();
