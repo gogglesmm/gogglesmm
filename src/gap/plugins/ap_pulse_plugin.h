@@ -38,7 +38,7 @@ protected:
   pa_mainloop_api  api;
   pa_context     * context;
   pa_stream      * stream;
-  pa_volume_t      volume; 
+  pa_volume_t      pulsevolume; 
 protected:
   static void sink_info_callback(pa_context*, const pa_sink_input_info *,int eol,void*);
   static void context_subscribe_callback(pa_context *c,pa_subscription_event_type_t, uint32_t,void*);

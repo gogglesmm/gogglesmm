@@ -253,7 +253,7 @@ namespace ap {
 
 PulseOutput * PulseOutput::instance = NULL;
 
-PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(NULL),stream(NULL),volume(PA_VOLUME_MUTED) {
+PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(NULL),stream(NULL),pulsevolume(PA_VOLUME_MUTED) {
   FXASSERT(instance==NULL);
   instance                = this;
   api.userdata            = this;
@@ -341,7 +341,7 @@ void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * inf
   PulseOutput * out = reinterpret_cast<PulseOutput*>(userdata);
   if (info) {
     pa_volume_t value = pa_cvolume_avg(&info->volume);
-    if (out->volume!=value) {
+    if (out->pulsevolume!=value) {
       out->output->notify_volume((float)value / (float)PA_VOLUME_NORM);
       }
     }
@@ -441,7 +441,7 @@ void PulseOutput::close() {
   pa_io_event::recycle    = NULL;
   pa_time_event::recycle  = NULL;
   pa_defer_event::recycle = NULL;
-  volume                  = PA_VOLUME_MUTED;
+  pulsevolume             = PA_VOLUME_MUTED;
   af.reset();
   }
 
@@ -450,9 +450,9 @@ void PulseOutput::close() {
 
 void PulseOutput::volume(FXfloat v) {
   if (context && stream) {
-    svolume = (pa_volume_t)(v*PA_VOLUME_NORM);
+    pulsevolume = (pa_volume_t)(v*PA_VOLUME_NORM);
     pa_cvolume cvol;
-    pa_cvolume_set(&cvol,af.channels,svolume);
+    pa_cvolume_set(&cvol,af.channels,pulsevolume);
     pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&cvol,NULL,NULL);
     pa_operation_unref(operation);
     }
