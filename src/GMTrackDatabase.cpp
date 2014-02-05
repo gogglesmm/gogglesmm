@@ -2330,11 +2330,24 @@ void GMTrackDatabase::removeTrack(FXint track) {
   delete_track.update(track);
   }
 
-void GMTrackDatabase::removePlaylistTracks(FXint playlist,const FXIntList & queue){
+void GMTrackDatabase::removePlaylistTracks(FXint playlist,const FXIntList & tracks){
+  DEBUG_DB_SET();
+  GMQuery q;
+  q = compile("DELETE FROM playlist_tracks WHERE playlist == ? AND track == ?;");
+  for (FXint i=0;i<tracks.no();i++) {    
+    q.set(0,playlist);
+    q.set(1,tracks[i]);
+    q.execute();
+    }
+  reorderPlaylist(playlist);
+  }
+
+
+void GMTrackDatabase::removePlaylistQueue(FXint playlist,const FXIntList & queue){
   DEBUG_DB_SET();
   GMQuery q;
   q = compile("DELETE FROM playlist_tracks WHERE playlist == ? AND queue == ?;");
-  for (FXint i=0;i<queue.no();i++) {
+  for (FXint i=0;i<queue.no();i++) {    
     q.set(0,playlist);
     q.set(1,queue[i]);
     fxmessage("%d %d\n",playlist,queue[i]);  

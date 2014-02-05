@@ -205,6 +205,7 @@ public:
   void removeTrack(FXint id);
   void removeTracks(const FXIntList &ids);
   void removePlaylistTracks(FXint playlist,const FXIntList &);
+  void removePlaylistQueue(FXint playlist,const FXIntList &);
 
 
   /// Remove Album from database

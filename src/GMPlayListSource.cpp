@@ -363,8 +363,10 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
     db->begin();
     if (from_library)
       db->removeTracks(tracks);
+    else if (GMPlayerManager::instance()->getTrackView()->hasBrowser())
+      db->removePlaylistTracks(playlist,tracks);
     else
-      db->removePlaylistTracks(playlist,queue);
+      db->removePlaylistQueue(playlist,queue);
     db->commit();
     }
   catch(GMDatabaseException&) {

@@ -419,13 +419,13 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
   db->execute("DROP VIEW IF EXISTS filtered;");
 
   if ((years.no() || keywords.no() || rules.no()) && filtermask) {
-   FXString tagfilter;
-   FXString artistfilter;
-   FXString albumfilter;
-   FXString albumartistfilter;
-   FXString titlefilter;
-   FXString filter;
-   FXString combine=" OR ";
+    FXString tagfilter;
+    FXString artistfilter;
+    FXString albumfilter;
+    FXString albumartistfilter;
+    FXString titlefilter;
+    FXString filter;
+    FXString combine=" OR ";
 
     if (filtermask&FILTER_TAG) {
       tagfilter = "(SELECT track FROM track_tags WHERE tag IN ( SELECT id FROM tags WHERE ";
@@ -833,6 +833,7 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
 
 
 FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & taglist){
+  const FXbool browse_mode = GMPlayerManager::instance()->getTrackView()->hasBrowser();
   GMQuery q;
   FXString query;
   const FXchar * c_albumname;
@@ -884,7 +885,7 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
                    "tracks.playdate, "
                    "tracks.rating ";
 
-    if (playlist)
+    if (playlist && browse_mode==false)
       query += "FROM playlist_tracks JOIN tracks ON playlist_tracks.playlist == " + FXString::value(playlist) + " AND playlist_tracks.track == tracks.id ";
     else
       query += "FROM tracks ";
@@ -900,17 +901,25 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
 
       if (hasFilter())
         query+=" AND tracks.id IN (SELECT track FROM filtered) ";
+
+      if (playlist && browse_mode)
+        query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
     else if (albumlist.no()) {
       query+=" WHERE tracks.album " + albumselection;
       if (hasFilter())
         query+=" AND tracks.id IN (SELECT track FROM filtered) ";
+
+      if (playlist && browse_mode)
+        query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
     else if (hasFilter()) {
       query+=" WHERE tracks.id IN (SELECT track FROM filtered) ";
+      if (playlist && browse_mode)
+        query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
 
-    if (playlist)
+    if (playlist && browse_mode==false)
       query+=" ORDER BY playlist_tracks.queue;";
     else
       query+=";";
