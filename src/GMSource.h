@@ -96,7 +96,7 @@ typedef FXint (*GMTrackListSortFunc)(const GMTrackItem*,const GMTrackItem*);
 class GMSource : public FXObject {
 FXDECLARE(GMSource)
 protected:
-  FXint current_track;
+  FXint               current_track;
   GMTrackListSortFunc sort_browse;
 private:
   GMSource(const GMSource&);
@@ -186,7 +186,6 @@ public:
 
   /// Sorting is about to be changed.
   virtual void sorted(GMTrackList*,FXint) {}
-
 
   virtual FXString settingKey() const { return "nokey"; }
 
