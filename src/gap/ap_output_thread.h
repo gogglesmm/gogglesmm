@@ -105,6 +105,8 @@ public:
 
   void getSamples(const void*&,FXuint &);
 
+
+  void notify_disable_volume();
   void notify_volume(FXfloat value);
 
   

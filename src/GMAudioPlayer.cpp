@@ -47,12 +47,12 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
   Event * event=NULL;
   while((event=pop())!=NULL) {
     switch(event->type) {
-      case AP_EOS   : if (target) target->handle(this,FXSEL(SEL_PLAYER_EOS,message),NULL); break;
-      case AP_BOS : if (target) target->handle(this,FXSEL(SEL_PLAYER_BOS,message),NULL); break;
+      case AP_EOS              : if (target) target->handle(this,FXSEL(SEL_PLAYER_EOS,message),NULL); break;
+      case AP_BOS              : if (target) target->handle(this,FXSEL(SEL_PLAYER_BOS,message),NULL); break;
       case AP_STATE_READY      : state=PLAYER_STOPPED; if (target) target->handle(this,FXSEL(SEL_PLAYER_STATE,message),(void*)(FXival)state);break;
       case AP_STATE_PLAYING    : state=PLAYER_PLAYING; if (target) target->handle(this,FXSEL(SEL_PLAYER_STATE,message),(void*)(FXival)state);break;
       case AP_STATE_PAUSING    : state=PLAYER_PAUSING; if (target) target->handle(this,FXSEL(SEL_PLAYER_STATE,message),(void*)(FXival)state);break;
-      case AP_TIMESTAMP              :
+      case AP_TIMESTAMP        :
         {
           if (target) {
             PlaybackTime tm;
@@ -83,7 +83,14 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
       case AP_VOLUME_NOTIFY          :  
         {
             VolumeNotify * info = dynamic_cast<VolumeNotify*>(event);
-            target->handle(this,FXSEL(SEL_PLAYER_VOLUME,message),&info->value);
+            FXint value;
+            if (info->volume.enabled)
+              value = (FXint)(info->volume.value * 100.0f);
+            else
+              value = -1;
+
+            target->handle(this,FXSEL(SEL_PLAYER_VOLUME,message),(void*)(FXival)value);
+            break;
         }
       default: break;
       }

@@ -196,7 +196,6 @@ public:
   long onPlayerMeta(FXObject*,FXSelector,void*);
   long onPlayerError(FXObject*,FXSelector,void*);
   long onPlayerVolume(FXObject*,FXSelector,void*);
-
 protected:
   FXint  init_fifo(int & argc,char**argv);
   FXbool init_database(GMTrackDatabase *);

@@ -187,8 +187,12 @@ void OutputThread::notify_position() {
   }
 
 
+void OutputThread::notify_disable_volume(){
+  engine->post(new VolumeNotify());
+  }
+
 void OutputThread::notify_volume(FXfloat value) {
-  engine->post(new VolumeNotify(value,true));
+  engine->post(new VolumeNotify(value));
   }
 
 void OutputThread::clear_timers() {

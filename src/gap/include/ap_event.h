@@ -41,6 +41,16 @@ enum ReplayGainMode {
   ReplayGainAlbum   = 2,
   };
 
+class Volume {
+public:
+  FXfloat value;
+  FXuchar enabled;
+public:
+  Volume() : value(0.0f), enabled(false) {}
+  Volume(FXfloat v) : value(v), enabled(true) {}
+  };
+
+
 
 class Event;
 
@@ -91,12 +101,12 @@ public:
 
 class GMAPI VolumeNotify : public Event{
 public:
-  FXbool  enabled;
-  FXfloat value;
+  Volume volume;
 protected:
   virtual ~VolumeNotify();
 public:
-  VolumeNotify(FXfloat value,FXbool enabled);
+  VolumeNotify();
+  VolumeNotify(FXfloat v);
   };
 
 }

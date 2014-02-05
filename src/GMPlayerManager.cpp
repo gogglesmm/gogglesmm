@@ -2005,12 +2005,9 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
   }
 
 long GMPlayerManager::onPlayerVolume(FXObject*,FXSelector,void* ptr){
-  FXfloat value = *(FXfloat*)ptr;
-  GM_DEBUG_PRINT("[player] volume %g\n",value);
-  getMainWindow()->update_volume_display((int)(value*100.0f));
+  getMainWindow()->update_volume_display((FXint)(FXival)ptr);
   return 1;
   }
-
 
 long GMPlayerManager::onPlayerMeta(FXObject*,FXSelector,void* ptr){
   GMTrack * track = (GMTrack*)ptr;
