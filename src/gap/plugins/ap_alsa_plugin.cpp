@@ -530,12 +530,6 @@ private:
   snd_mixer_t       * mixer;
   snd_mixer_elem_t  * element;
   FXint               nhandles;
-
-
-
-
-
-
 protected:
   AlsaMixer(OutputThread * o,snd_mixer_t * m,snd_mixer_elem_t * e) : output(o),mixer(m),element(e) {
     updateVolume();
@@ -680,6 +674,7 @@ public:
       return new AlsaMixer(output,mixer,element);
       }
 fail:
+    output->notify_disable_volume();
     if (mixer) snd_mixer_close(mixer);
     return NULL;
     }

@@ -253,23 +253,23 @@ namespace ap {
 
 PulseOutput * PulseOutput::instance = NULL;
 
-PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(NULL),stream(NULL),svolume(PA_VOLUME_MUTED) {
-  instance              = this;
-  api.userdata          = this;
-  api.io_new            = pa_io_event::create; //pulse_io_new;
-  api.io_free           = pa_io_event::destroy;// pulse_io_free;
-  api.io_enable         = pa_io_event::enable; //pulse_io_enable;
-  api.io_set_destroy    = pa_io_event::set_destroy;//pulse_io_set_destroy;
-  api.defer_new         = pa_defer_event::create; //pulse_defer_new;
-  api.defer_free        = pa_defer_event::destroy; //pulse_defer_free;
-  api.defer_enable      = pa_defer_event::toggle_enabled; //pulse_defer_enable;
-  api.defer_set_destroy = pa_defer_event::set_destroy; //pulse_defer_set_destroy;
-  api.time_new          = pa_time_event::create;  //pulse_time_new;
-  api.time_restart      = pa_time_event::restart; //pulse_time_restart;
-  api.time_free         = pa_time_event::destroy; //pulse_time_free;
-  api.time_set_destroy  = pa_time_event::set_destroy; //pulse_time_set_destroy;
-  api.quit              = pulse_quit;
-
+PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(NULL),stream(NULL),pulsevolume(PA_VOLUME_MUTED) {
+  FXASSERT(instance==NULL);
+  instance                = this;
+  api.userdata            = this;
+  api.io_new              = pa_io_event::create; //pulse_io_new;
+  api.io_free             = pa_io_event::destroy;// pulse_io_free;
+  api.io_enable           = pa_io_event::enable; //pulse_io_enable;
+  api.io_set_destroy      = pa_io_event::set_destroy;//pulse_io_set_destroy;
+  api.defer_new           = pa_defer_event::create; //pulse_defer_new;
+  api.defer_free          = pa_defer_event::destroy; //pulse_defer_free;
+  api.defer_enable        = pa_defer_event::toggle_enabled; //pulse_defer_enable;
+  api.defer_set_destroy   = pa_defer_event::set_destroy; //pulse_defer_set_destroy;
+  api.time_new            = pa_time_event::create;  //pulse_time_new;
+  api.time_restart        = pa_time_event::restart; //pulse_time_restart;
+  api.time_free           = pa_time_event::destroy; //pulse_time_free;
+  api.time_set_destroy    = pa_time_event::set_destroy; //pulse_time_set_destroy;
+  api.quit                = pulse_quit;
   pa_io_event::recycle    = NULL;
   pa_time_event::recycle  = NULL;
   pa_defer_event::recycle = NULL;
@@ -277,6 +277,7 @@ PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(N
 
 PulseOutput::~PulseOutput() {
   close();
+  instance=NULL;
   }
 
 static FXbool to_pulse_format(const AudioFormat & af,pa_sample_format & pulse_format){
@@ -339,10 +340,10 @@ static void stream_state_callback(pa_stream *s,void*){
 void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * info,int /*eol*/,void*userdata){
   PulseOutput * out = reinterpret_cast<PulseOutput*>(userdata);
   if (info) {
-    pa_volume_t v = pa_cvolume_avg(&info->volume);
-    float vol = (float) v / (float)PA_VOLUME_NORM ;
-    if (out->svolume!=v)
-      out->output->notify_volume(vol);
+    pa_volume_t value = pa_cvolume_avg(&info->volume);
+    if (out->pulsevolume!=value) {
+      out->output->notify_volume((float)value / (float)PA_VOLUME_NORM);
+      }
     }
   }
 
@@ -407,6 +408,7 @@ FXbool PulseOutput::open() {
   pa_operation* operation = pa_context_subscribe(context,PA_SUBSCRIPTION_MASK_SINK_INPUT,NULL,this);
   if (operation) pa_operation_unref(operation);
 
+
   GM_DEBUG_PRINT("ready()\n");
   return true;
   }
@@ -439,17 +441,7 @@ void PulseOutput::close() {
   pa_io_event::recycle    = NULL;
   pa_time_event::recycle  = NULL;
   pa_defer_event::recycle = NULL;
-
-
-/*
-  if (mainloop) {
-    GM_DEBUG_PRINT("disconnecting mainloop\n");    
-    pa_threaded_mainloop_unlock(mainloop);
-    pa_threaded_mainloop_stop(mainloop);
-    pa_threaded_mainloop_free(mainloop);
-    mainloop=NULL;
-    }
-*/
+  pulsevolume             = PA_VOLUME_MUTED;
   af.reset();
   }
 
@@ -458,9 +450,9 @@ void PulseOutput::close() {
 
 void PulseOutput::volume(FXfloat v) {
   if (context && stream) {
-    svolume = (pa_volume_t)(v*PA_VOLUME_NORM);
+    pulsevolume = (pa_volume_t)(v*PA_VOLUME_NORM);
     pa_cvolume cvol;
-    pa_cvolume_set(&cvol,af.channels,svolume);
+    pa_cvolume_set(&cvol,af.channels,pulsevolume);
     pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&cvol,NULL,NULL);
     pa_operation_unref(operation);
     }
@@ -499,6 +491,7 @@ void PulseOutput::pause(FXbool) {
 
 FXbool PulseOutput::configure(const AudioFormat & fmt){
   const pa_sample_spec * config=NULL;
+  pa_operation *operation=NULL;
 
   if (!open())
     return false;
@@ -544,6 +537,11 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
     goto failed;
   af.channels=config->channels;
   af.rate=config->rate;
+
+  /// Get Current Volume
+  operation = pa_context_get_sink_input_info(context,pa_stream_get_index(stream),sink_info_callback,this);
+  if (operation) pa_operation_unref(operation);
+
   return true;
 failed:
   GM_DEBUG_PRINT("Unsupported pulse configuration:\n");

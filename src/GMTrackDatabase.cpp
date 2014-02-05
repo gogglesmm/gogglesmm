@@ -29,7 +29,8 @@
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2013  /* Foreign Keys */
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2014  /* Foreign Keys Fix*/
+#define GOGGLESMM_DATABASE_SCHEMA_DEV3    2013  /* Foreign Keys */
 #define GOGGLESMM_DATABASE_SCHEMA_DEV2    2012  /* Feed Tables */
 #define GOGGLESMM_DATABASE_SCHEMA_DEV1    2010  /* Dev DB before podcast manager */
 #define GOGGLESMM_DATABASE_SCHEMA_V12     2009
@@ -87,7 +88,7 @@
 
     TABLE playlist_tracks
         playlist  INTEGER
-        track     INTEGER
+        track     INTEGER INTEGER NOT NULL REFERENCES tracks(id)*
         queue     INTEGER
 
 
@@ -200,8 +201,8 @@ const FXchar create_playlists[]="CREATE TABLE playlists ( id INTEGER NOT NULL,"
                                                          "name TEXT,"
                                                          "PRIMARY KEY (id));";
 
-const FXchar create_playlist_tracks[]="CREATE TABLE playlist_tracks ( playlist INTEGER NOT NULL,"
-                                                                     "track INTEGER NOT NULL,"
+const FXchar create_playlist_tracks[]="CREATE TABLE playlist_tracks ( playlist INTEGER NOT NULL REFERENCES playlists(id),"
+                                                                     "track INTEGER NOT NULL REFERENCES tracks(id),"
                                                                      "queue INTEGER );";
 
 const FXchar create_pathlist[]="CREATE TABLE pathlist (id INTEGER NOT NULL,"
@@ -260,9 +261,22 @@ FXbool GMTrackDatabase::init_database() {
   try {
     switch(getVersion()) {
 
+      // All's well.
       case GOGGLESMM_DATABASE_SCHEMA_VERSION:
         enableForeignKeys();
         init_index();
+        break;
+
+      // Add foreign keys to playlist_tracks
+      case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
+        execute("ALTER TABLE playlist_tracks RENAME TO old_playlist_tracks;");
+        execute(create_playlist_tracks);
+        execute("INSERT INTO playlist_tracks SELECT * FROM old_playlist_tracks;");
+        execute("DROP TABLE old_playlist_tracks;");
+
+        enableForeignKeys();
+        init_index();
+        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
       // More foreign keys
@@ -885,7 +899,7 @@ void GMTrackDatabase::getTrackFilenames(GMTrackFilenameList & result,const FXStr
   GMQuery list;
 
   if (!root.empty())
-    list = compile("SELECT tracks.id,pathlist.name || '" PATHSEPSTRING "' || mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id AND pathlist.name LIKE '" + root + PATHSEPSTRING + "%' ORDER BY path;");
+    list = compile("SELECT tracks.id,pathlist.name || '" PATHSEPSTRING "' || mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id AND (pathlist.name == '" + root + "' OR pathlist.name LIKE '" + root + PATHSEPSTRING"%') ORDER BY path;");
   else
     list = compile("SELECT tracks.id,pathlist.name || '" PATHSEPSTRING "' || mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id ORDER BY path");
 
@@ -1217,40 +1231,33 @@ FXbool GMTrackDatabase::removeGenre(FXint/* id*/) {
   }
 
 
-
-///FIXME
-FXbool GMTrackDatabase::removeArtist(FXint/* artist*/) {
+FXbool GMTrackDatabase::removeArtist(FXint artist) {
   DEBUG_DB_SET();
 
   GMQuery query;
   try {
 
     begin();
-/*
-    /// Remove tracks from playlist
-    query = compile("DELETE FROM playlist_tracks WHERE track IN (SELECT id FROM tracks WHERE artist == ? OR album IN ( SELECT id FROM albums WHERE artist == ?));");
+
+    query = compile("DELETE FROM playlist_tracks WHERE track IN (SELECT id FROM tracks WHERE artist == ? OR album IN (SELECT id FROM albums WHERE artist == ?))");
+    query.set(0,artist);
+    query.set(1,artist);
+    query.execute();
+    
+    query = compile("DELETE FROM track_tags WHERE track IN (SELECT id FROM tracks WHERE artist == ? OR album IN (SELECT id FROM albums WHERE artist == ?))");
     query.set(0,artist);
     query.set(1,artist);
     query.execute();
 
-    /// Removes tracks with artist or with album from artist
-    query = compile("DELETE FROM tracks WHERE artist == ?  OR album IN ( SELECT id FROM albums WHERE artist == ?);");
+    query = compile("DELETE FROM tracks WHERE artist == ? OR album IN ( SELECT id FROM albums WHERE artist == ?);");
     query.set(0,artist);
     query.set(1,artist);
     query.execute();
 
-    /// Remove albums with artist
     query = compile("DELETE FROM albums WHERE artist == ?;");
-    query.execute_simple(artist);
+    query.update(artist);
 
-    /// Remove artist itself
-    query = compile("DELETE FROM artists WHERE id == ?;");
-    query.execute_simple(artist);
-
-    /// Cleanup genres and pathlist
-    execute("DELETE FROM genres WHERE id NOT IN (SELECT genre FROM tracks UNION SELECT genre FROM streams);");
-    execute("DELETE FROM pathlist WHERE id NOT IN (SELECT DISTINCT(path) FROM tracks);");
-*/
+    sync_tracks_removed();   
     commit();
     }
   catch (GMDatabaseException & e){
@@ -1446,7 +1453,6 @@ FXbool GMTrackDatabase::updatePlaylist(FXint playlist,const GMPlayListItemList &
       insert_playlist_track_by_id.set(2,items[i].queue);
       insert_playlist_track_by_id.execute();
       }
-
     commit();
     }
   catch (GMDatabaseException & e){
@@ -1465,10 +1471,10 @@ FXbool GMTrackDatabase::removePlaylist(FXint playlist){
   try {
     begin();
 
-    q = compile("DELETE FROM playlists WHERE id == ?;");
+    q = compile("DELETE FROM playlist_tracks WHERE playlist == ?;");
     q.update(playlist);
 
-    q = compile("DELETE FROM playlist_tracks WHERE playlist == ?;");
+    q = compile("DELETE FROM playlists WHERE id == ?;");
     q.update(playlist);
 
     commit();
@@ -1632,11 +1638,7 @@ FXbool GMTrackDatabase::listAlbums(FXComboBox * list,FXint track){
 
 void GMTrackDatabase::clear_path_lookup() {
   DEBUG_DB_GET();
-#if FOXVERSION <= FXVERSION(1,7,42)
-  for (FXint i=0;i<pathdict.size();i++) {
-#else
   for (FXint i=0;i<pathdict.no();i++) {
-#endif
     if (!pathdict.empty(i) && pathdict.value(i)!=NULL) {
       free(pathdict.value(i));
       }
@@ -1681,11 +1683,7 @@ void GMTrackDatabase::setup_artist_lookup() {
 
 void GMTrackDatabase::clear_artist_lookup() {
   DEBUG_DB_GET();
-#if FOXVERSION <= FXVERSION(1,7,42)
-  for (FXint i=0;i<artistdict.size();i++) {
-#else
   for (FXint i=0;i<artistdict.no();i++) {
-#endif
     if (!artistdict.empty(i) && artistdict.value(i)!=NULL) {
       FXString * a = (FXString*)artistdict.value(i);
       delete a;
@@ -2314,13 +2312,13 @@ void GMTrackDatabase::removeTracks(const FXIntList & tracks) {
   DEBUG_DB_SET();
   GM_TICKS_START();
   for (FXint i=0;i<tracks.no();i++){
-    delete_track.update(tracks[i]);
-    }
-  for (FXint i=0;i<tracks.no();i++){
     delete_playlist_track.update(tracks[i]);
     }
   for (FXint i=0;i<tracks.no();i++){
     delete_tag_track.update(tracks[i]);
+    }
+  for (FXint i=0;i<tracks.no();i++){
+    delete_track.update(tracks[i]);
     }
   GM_TICKS_END();
   sync_tracks_removed();
@@ -2331,13 +2329,28 @@ void GMTrackDatabase::removeTrack(FXint track) {
   delete_track.update(track);
   }
 
-void GMTrackDatabase::removePlaylistTracks(FXint playlist,const FXIntList & queue){
+void GMTrackDatabase::removePlaylistTracks(FXint playlist,const FXIntList & tracks){
+  DEBUG_DB_SET();
+  GMQuery q;
+  q = compile("DELETE FROM playlist_tracks WHERE playlist == ? AND track == ?;");
+  for (FXint i=0;i<tracks.no();i++) {    
+    q.set(0,playlist);
+    q.set(1,tracks[i]);
+    q.execute();
+    }
+  reorderPlaylist(playlist);
+  }
+
+
+void GMTrackDatabase::removePlaylistQueue(FXint playlist,const FXIntList & queue){
   DEBUG_DB_SET();
   GMQuery q;
   q = compile("DELETE FROM playlist_tracks WHERE playlist == ? AND queue == ?;");
-  for (FXint i=0;i<queue.no();i++) {
+  for (FXint i=0;i<queue.no();i++) {    
     q.set(0,playlist);
     q.set(1,queue[i]);
+    fxmessage("%d %d\n",playlist,queue[i]);  
     q.execute();
     }
+  reorderPlaylist(playlist);
   }

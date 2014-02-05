@@ -840,7 +840,7 @@ FXint GMPodcastUpdater::run() {
   FXString feed_dir;
   FXint id,item_id;
 
-  while(all_feeds.row()) {
+  while(all_feeds.row() && processing) {
     all_feeds.get(0,id);
     all_feeds.get(1,url);
     all_feeds.get(2,feed_dir);

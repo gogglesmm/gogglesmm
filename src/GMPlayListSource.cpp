@@ -68,10 +68,6 @@ FXDEFMAP(GMPlayListSource) GMPlayListSourceMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_ARTIST_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_ALBUM_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_DELETE_TRACK_ADV,GMPlayListSource::onCmdRemoveInPlaylist),
-
-
-
-//  FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_PASTE,GMPlayListSource::onCmdPaste),
   FXMAPFUNC(SEL_COMMAND,GMPlayListSource::ID_IMPORT,GMPlayListSource::onCmdImport),
   };
 
@@ -157,9 +153,11 @@ FXbool GMPlayListSource::genre_context_menu(FXMenuPane * pane) {
   }
 
 FXbool GMPlayListSource::artist_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ARTIST);
     }
+#endif
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ARTIST);
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove track(s) from play list."),GMIconTheme::instance()->icon_delete,this,ID_DELETE_ARTIST);
@@ -167,9 +165,11 @@ FXbool GMPlayListSource::artist_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMPlayListSource::album_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ALBUM);
     }
+#endif
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ALBUM);
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove track(s) from play list."),GMIconTheme::instance()->icon_delete,this,ID_DELETE_ALBUM);
@@ -177,10 +177,12 @@ FXbool GMPlayListSource::album_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMPlayListSource::track_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_TRACK);
     new FXMenuSeparator(pane);
     }
+#endif
   new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Track Information."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_TRACK);
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy track(s) to clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_TRACK);
   new GMMenuCommand(pane,"Export\t\tCopy tracks to destination.",GMIconTheme::instance()->icon_export,this,ID_EXPORT_TRACK);
@@ -361,8 +363,10 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
     db->begin();
     if (from_library)
       db->removeTracks(tracks);
+    else if (GMPlayerManager::instance()->getTrackView()->hasBrowser())
+      db->removePlaylistTracks(playlist,tracks);
     else
-      db->removePlaylistTracks(playlist,queue);
+      db->removePlaylistQueue(playlist,queue);
     db->commit();
     }
   catch(GMDatabaseException&) {
@@ -458,24 +462,6 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
 
 
 #endif
-
-long GMPlayListSource::onCmdPaste(FXObject*sender,FXSelector sel,void*ptr){
-  GMClipboard * clipboard = GMClipboard::instance();
-  if (clipboard->offeredDNDType(FROM_CLIPBOARD,GMClipboard::trackdatabase)){
-    GMDatabaseClipboardData * clipdata = dynamic_cast<GMDatabaseClipboardData*>(clipboard->getClipData());
-    if (clipdata && clipdata->tracks.no() && db->insertPlaylistTracks(playlist,clipdata->tracks)) {
-      GMPlayerManager::instance()->getTrackView()->refresh();
-      }
-    else {
-      FXApp::instance()->beep();
-      }
-    }
-  else {
-    return GMDatabaseSource::onCmdPaste(sender,sel,ptr);
-    }
-  return 1;
-  }
-
 
 
 long GMPlayListSource::onCmdImport(FXObject*,FXSelector,void*){

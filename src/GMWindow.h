@@ -111,7 +111,6 @@ public: /// Message Handlers
   long onCmdTimeSlider(FXObject*,FXSelector,void*);
   long onCmdVolume(FXObject*,FXSelector,void*);
   long onCmdVolumeButton(FXObject*,FXSelector,void*);
-  long onUpdVolumeButton(FXObject*,FXSelector,void*);
 
   long onCmdOpen(FXObject*,FXSelector,void*);
 
@@ -278,9 +277,7 @@ public:
 
 
   void update_time(const TrackTime & current,const TrackTime & remaining,FXint position,FXbool playing,FXbool seekable);
-
   void update_volume_display(FXint level);
-
   void update_cover_display();
 
   void setStatus(const FXString& status);

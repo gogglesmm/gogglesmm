@@ -79,9 +79,10 @@ MetaInfo::MetaInfo() : Event(AP_META_INFO) {
 MetaInfo::~MetaInfo() {
   }
 
+VolumeNotify::VolumeNotify() : Event(AP_VOLUME_NOTIFY) {
+  }
 
-
-VolumeNotify::VolumeNotify(FXfloat v,FXbool e) : Event(AP_VOLUME_NOTIFY),enabled(e),value(v) {
+VolumeNotify::VolumeNotify(FXfloat v) : Event(AP_VOLUME_NOTIFY),volume(v) {
   }
 
 VolumeNotify::~VolumeNotify() {

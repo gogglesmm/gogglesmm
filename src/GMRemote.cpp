@@ -234,16 +234,25 @@ void GMRemote::update_time(const TrackTime & c,const TrackTime & r,FXint positio
   }
 
 void GMRemote::update_volume_display(FXint level) {
-  if (level<=0)
+  if (level<0) {
     volumebutton->setIcon(GMIconTheme::instance()->icon_volume_muted);
-  else if (level<=33)
-    volumebutton->setIcon(GMIconTheme::instance()->icon_volume_low);
-  else if (level<=66)
-    volumebutton->setIcon(GMIconTheme::instance()->icon_volume_medium);
-  else
-    volumebutton->setIcon(GMIconTheme::instance()->icon_volume_high);
+    volumebutton->disable();
+    }
+  else {
+    if (level<=0)
+      volumebutton->setIcon(GMIconTheme::instance()->icon_volume_muted);
+    else if (level<=33)
+      volumebutton->setIcon(GMIconTheme::instance()->icon_volume_low);
+    else if (level<=66)
+      volumebutton->setIcon(GMIconTheme::instance()->icon_volume_medium);
+    else
+      volumebutton->setIcon(GMIconTheme::instance()->icon_volume_high);
 
-  volumeslider->setValue(level);
+    volumebutton->enable();
+    }
+
+  if (!volumeslider->grabbed())
+    volumeslider->setValue(level);
   }
 
 void GMRemote::update_cover_display() {

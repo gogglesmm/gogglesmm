@@ -41,7 +41,6 @@ public:
   long onCmdEditName(FXObject*,FXSelector,void*);
   long onCmdRemove(FXObject*,FXSelector,void*);
   long onCmdRemoveInPlaylist(FXObject*,FXSelector,void*);
-  long onCmdPaste(FXObject*,FXSelector,void*);
   long onCmdImport(FXObject*,FXSelector,void*);
 public:
   GMPlayListSource(GMTrackDatabase * db,FXint playlist);

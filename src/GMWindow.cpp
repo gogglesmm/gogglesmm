@@ -76,7 +76,6 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHUFFLE,    				GMWindow::onUpdShuffle),
   FXMAPFUNC(SEL_UPDATE,							GMWindow::ID_SLEEP,					    GMWindow::onUpdSleepTimer),
-  FXMAPFUNC(SEL_UPDATE,					    GMWindow::ID_VOLUME_BUTTON,     GMWindow::onUpdVolumeButton),
   FXMAPFUNC(SEL_UPDATE,        		  GMWindow::ID_SHOW_MINIPLAYER,   GMWindow::onUpdShowMiniPlayer),
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_QUIT,							GMWindow::onCmdQuit),
@@ -127,24 +126,24 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_HOMEPAGE,					GMWindow::onCmdHomePage),
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_REPORT_ISSUE,	  	GMWindow::onCmdReportIssue),
 
-  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_JOIN_LASTFM,	  	GMWindow::onCmdJoinLastFM),
-  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_JOIN_GMM_LASTFM,	  	GMWindow::onCmdJoinGMMLastFM),
+  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_JOIN_LASTFM,	  	  GMWindow::onCmdJoinLastFM),
+  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_JOIN_GMM_LASTFM,	  GMWindow::onCmdJoinGMMLastFM),
 
-  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SLEEP,					GMWindow::onCmdSleepTimer),
+  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SLEEP,					    GMWindow::onCmdSleepTimer),
 
 #ifdef HAVE_PLAYQUEUE
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_PLAYQUEUE,					GMWindow::onCmdPlayQueue),
   FXMAPFUNC(SEL_UPDATE,						  GMWindow::ID_PLAYQUEUE,					GMWindow::onUpdPlayQueue),
 #endif
 
-  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_NEXT_FOCUS,		GMWindow::onCmdNextFocus),
+  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_NEXT_FOCUS,		    GMWindow::onCmdNextFocus),
   FXMAPFUNC(SEL_CONFIGURE,          GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
-  //FXMAPFUNC(SEL_MAP,                GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
+  //FXMAPFUNC(SEL_MAP,                GMWindow::ID_COVERVIEW,       GMWindow::onConfigureCoverView),
 
-  FXMAPFUNC(SEL_TIMEOUT,            GMWindow::ID_REFRESH_COVERVIEW,    GMWindow::onConfigureCoverView),
+  FXMAPFUNC(SEL_TIMEOUT,            GMWindow::ID_REFRESH_COVERVIEW, GMWindow::onConfigureCoverView),
 
-  FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onUpdShowSources),
-  FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,       	GMWindow::onCmdShowSources),
+  FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,      GMWindow::onUpdShowSources),
+  FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,      GMWindow::onCmdShowSources),
   };
 
 
@@ -726,14 +725,22 @@ void GMWindow::display(const GMTrack& info){
   }
 
 void GMWindow::update_volume_display(FXint level) {
-  if (level<=0)
+  if (level<0) {
     volumebutton->setIcon(icontheme->icon_volume_muted_toolbar);
-  else if (level<=33)
-    volumebutton->setIcon(icontheme->icon_volume_low_toolbar);
-  else if (level<=66)
-    volumebutton->setIcon(icontheme->icon_volume_medium_toolbar);
-  else
-    volumebutton->setIcon(icontheme->icon_volume_high_toolbar);
+    volumebutton->disable();
+    }
+  else {
+    if (level<=0)
+      volumebutton->setIcon(icontheme->icon_volume_muted_toolbar);
+    else if (level<=33)
+      volumebutton->setIcon(icontheme->icon_volume_low_toolbar);
+    else if (level<=66)
+      volumebutton->setIcon(icontheme->icon_volume_medium_toolbar);
+    else
+      volumebutton->setIcon(icontheme->icon_volume_high_toolbar);
+
+    volumebutton->enable();
+    }
 
   if (!volumeslider->grabbed())
     volumeslider->setValue(level);
@@ -1160,11 +1167,6 @@ long GMWindow::onCmdVolume(FXObject*,FXSelector,void*ptr){
 
 long GMWindow::onCmdVolumeButton(FXObject*,FXSelector sel,void*ptr){
   volumeslider->handle(this,FXSEL(FXSELTYPE(sel),0),ptr);
-  return 1;
-  }
-
-long GMWindow::onUpdVolumeButton(FXObject*sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
   return 1;
   }
 

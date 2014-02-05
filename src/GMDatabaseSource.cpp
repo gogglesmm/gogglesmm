@@ -272,9 +272,11 @@ FXbool GMDatabaseSource::genre_context_menu(FXMenuPane * /*pane*/) {
   }
 
 FXbool GMDatabaseSource::artist_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ARTIST);
     }
+#endif
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ARTIST);
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove associated tracks from library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_ARTIST);
@@ -282,9 +284,11 @@ FXbool GMDatabaseSource::artist_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMDatabaseSource::album_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ALBUM);
     }
+#endif
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ALBUM);
   new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),NULL,this,ID_SEARCH_COVER_ALBUM);
   new FXMenuSeparator(pane);
@@ -293,16 +297,19 @@ FXbool GMDatabaseSource::album_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMDatabaseSource::track_context_menu(FXMenuPane * pane){
+#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_TRACK);
     new FXMenuSeparator(pane);
     }
-
+#endif
   new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Track Information."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_TRACK);
   new GMMenuCommand(pane,fxtr("Set Cover…\t\t"),NULL,this,GMDatabaseSource::ID_ADD_COVER);
 
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy track(s) to clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_TRACK);
+#ifdef DEBUG
   new GMMenuCommand(pane,"Export\t\tCopy tracks to destination.",GMIconTheme::instance()->icon_export,this,ID_EXPORT_TRACK);
+#endif
   new FXMenuSeparator(pane);
 
   if (GMPlayerManager::instance()->getTrackView()->numTrackSelected()==1){
@@ -412,13 +419,13 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
   db->execute("DROP VIEW IF EXISTS filtered;");
 
   if ((years.no() || keywords.no() || rules.no()) && filtermask) {
-   FXString tagfilter;
-   FXString artistfilter;
-   FXString albumfilter;
-   FXString albumartistfilter;
-   FXString titlefilter;
-   FXString filter;
-   FXString combine=" OR ";
+    FXString tagfilter;
+    FXString artistfilter;
+    FXString albumfilter;
+    FXString albumartistfilter;
+    FXString titlefilter;
+    FXString filter;
+    FXString combine=" OR ";
 
     if (filtermask&FILTER_TAG) {
       tagfilter = "(SELECT track FROM track_tags WHERE tag IN ( SELECT id FROM tags WHERE ";
@@ -826,6 +833,7 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
 
 
 FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & taglist){
+  const FXbool browse_mode = GMPlayerManager::instance()->getTrackView()->hasBrowser();
   GMQuery q;
   FXString query;
   const FXchar * c_albumname;
@@ -877,7 +885,7 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
                    "tracks.playdate, "
                    "tracks.rating ";
 
-    if (playlist)
+    if (playlist && browse_mode==false)
       query += "FROM playlist_tracks JOIN tracks ON playlist_tracks.playlist == " + FXString::value(playlist) + " AND playlist_tracks.track == tracks.id ";
     else
       query += "FROM tracks ";
@@ -893,17 +901,25 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
 
       if (hasFilter())
         query+=" AND tracks.id IN (SELECT track FROM filtered) ";
+
+      if (playlist && browse_mode)
+        query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
     else if (albumlist.no()) {
       query+=" WHERE tracks.album " + albumselection;
       if (hasFilter())
         query+=" AND tracks.id IN (SELECT track FROM filtered) ";
+
+      if (playlist && browse_mode)
+        query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
     else if (hasFilter()) {
       query+=" WHERE tracks.id IN (SELECT track FROM filtered) ";
+      if (playlist && browse_mode)
+        query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
 
-    if (playlist)
+    if (playlist && browse_mode==false)
       query+=" ORDER BY playlist_tracks.queue;";
     else
       query+=";";
@@ -1641,6 +1657,7 @@ FXuint gm_parse_dragtypes(FXDragType*types,FXuint ntypes){
   for (FXuint i=0;i<ntypes;i++){
     if (types[i]==GMClipboard::alltracks)            dnd|=DND_TRACKS_ALL;
     else if (types[i]==GMClipboard::selectedtracks)  dnd|=DND_TRACKS_SELECTED;
+    else if (types[i]==GMClipboard::trackdatabase)   dnd|=DND_TRACKS_ID;
     else if (types[i]==GMClipboard::kdeclipboard)    dnd|=DND_KDE;
     else if (types[i]==FXWindow::urilistType)        dnd|=DND_URI;
     else if (types[i]==GMClipboard::gnomeclipboard)  dnd|=DND_GNOME;
@@ -1693,7 +1710,15 @@ long GMDatabaseSource::onCmdPaste(FXObject*,FXSelector,void*){
     if (!playlist && from&(DND_TRACKS_SELECTED|DND_TRACKS_ALL|DND_TRACKS_ID) )
       return 0;
 
-    if (from&DND_GNOME && clipboard->getDNDData(FROM_CLIPBOARD,GMClipboard::gnomeclipboard,files)) {
+    if (from&DND_TRACKS_ID) {
+      GMDatabaseClipboardData * clipdata = dynamic_cast<GMDatabaseClipboardData*>(clipboard->getClipData());
+      if (clipdata && clipdata->tracks.no() && db->insertPlaylistTracks(playlist,clipdata->tracks))
+        GMPlayerManager::instance()->getTrackView()->refresh();
+      else
+        FXApp::instance()->beep();
+      return 0; // done here
+      }
+    else if (from&DND_GNOME && clipboard->getDNDData(FROM_CLIPBOARD,GMClipboard::gnomeclipboard,files)) {
       gm_convert_gnomeclipboard_to_filenames(files,filelist);
       }
     else if (from&DND_URI && clipboard->getDNDData(FROM_CLIPBOARD,FXWindow::urilistType,files)) {
@@ -1707,16 +1732,7 @@ long GMDatabaseSource::onCmdPaste(FXObject*,FXSelector,void*){
   return 0;
   }
 
-
-
-
-
-
-
-
-
-
-
+ 
 
 long GMDatabaseSource::onUpdPaste(FXObject*,FXSelector,void*){
   return 1;

@@ -136,7 +136,6 @@ FXint GMTaskManager::run() {
       FXint code = active->run();
       mutex.lock();
       if (target) {
-
         if (code)
           mc.message(active->target,FXSEL(SEL_TASK_CANCELLED,active->message),&active,sizeof(GMTask*));
         else

@@ -100,6 +100,7 @@ void GMDBTracks::init(GMTrackDatabase*db) {
   query_artist                        = database->compile("SELECT id FROM artists WHERE name == ?;");
   query_tag                           = database->compile("SELECT id FROM tags WHERE name == ?;");
 
+  delete_track_playlists              = database->compile("DELETE FROM playlist_tracks WHERE track == ?;");
   delete_track_tags                   = database->compile("DELETE FROM track_tags WHERE track == ?;");
   delete_track                        = database->compile("DELETE FROM tracks WHERE id == ?;");
 
@@ -127,7 +128,7 @@ FXint GMDBTracks::hasPath(const FXString & path) {
 FXint GMDBTracks::insertArtist(const FXString & artist){
   FXint id=0;
   query_artist.execute(artist,id);
-  if (!id) {
+  if (id==0) {
     id = insert_artist.insert(artist);
     }
   return id;
@@ -140,7 +141,7 @@ void GMDBTracks::insertTags(FXint track,const FXStringList & tags){
   for (int i=0;i<tags.no();i++) {
     ids[i]=0;
     query_tag.execute(tags[i],ids[i]);
-    if (!ids[i])
+    if (ids[i]==0) 
       ids[i] = insert_tag.insert(tags[i]);
     }
 
@@ -280,8 +281,8 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   update_track.set(4,track.bitrate);
   update_track.set(5,album_id);
   update_track.set(6,artist_id);
-  update_track.set(7,composer_id);
-  update_track.set(8,conductor_id);
+  update_track.set_null(7,composer_id);
+  update_track.set_null(8,conductor_id);
   update_track.set(9,FXThread::time());
   update_track.set(10,id);
   update_track.execute();
@@ -291,6 +292,8 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   }
 
 void GMDBTracks::remove(FXint track) {
+  delete_track_playlists.update(track);
+  delete_track_tags.update(track);
   delete_track.update(track);
   }
 
@@ -533,7 +536,6 @@ void GMSyncTask::syncDirectory(const FXString & path) {
 
   if (options_sync.remove_all) {
     for (FXint i=0;i<list.no() && processing ;i++){
-
       fraction = 100.0 * ((i+1) / (FXdouble)(list.no()));
       if (progress!=(FXint)fraction){
         progress=(FXint)fraction;
