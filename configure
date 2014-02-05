@@ -99,9 +99,6 @@ for arg in $@; do
     --lib64)
       LIB=lib64
       ;;
-    --localedir=*)
-      NLSDIR=${arg#*=}
-      ;;
     --without-mad)
       OPTION_GAP_MAD=0
       ;;
@@ -238,7 +235,6 @@ for arg in $@; do
       echo "Install Directories: "
       echo "   --prefix=<p>                	   Install prefix (/usr)"
       echo "   --lib64                         Install in lib64 instead of lib"
-      echo "   --localedir=<dir>               locale-dependent data (<prefix>/share/locale)"
       echo " "
       exit 0
       ;;
@@ -383,9 +379,10 @@ if [ $OPTION_GMM_NLS -eq 0 ] ; then
   echo "  NLS Support   : no"
 else
   echo "  NLS Support   : yes"
-  echo "  Locale Path   : $NLSDIR"
+  echo "  Locale Path   : $PREFIX/share/locale"
 fi
   echo "  Icon Path     : $PREFIX/share/icons"
+  echo "  Man Path      : $PREFIX/share/man"
   echo "  Install Path  : $PREFIX"
 
 
