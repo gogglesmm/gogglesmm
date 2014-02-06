@@ -75,14 +75,6 @@ public:
 
   virtual FXbool source_context_menu(FXMenuPane * pane);
 
-  virtual FXbool genre_context_menu(FXMenuPane * pane);
-
-  virtual FXbool artist_context_menu(FXMenuPane * pane);
-
-  virtual FXbool album_context_menu(FXMenuPane * pane);
-
-  virtual FXbool track_context_menu(FXMenuPane * pane);
-
   virtual FXbool dnd_accepts(FXDragType*,FXuint);
 
   virtual ~GMPlayListSource();

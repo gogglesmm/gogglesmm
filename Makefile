@@ -25,6 +25,9 @@ libdir=$(DESTDIR)$(LIBDIR)
 sharedir=$(installdir)/share
 localefile=$(sharedir)/locale/$(tr)/LC_MESSAGES/gogglesmm.mo
 pluginfile=$(libdir)/gogglesmm/$(notdir $(plugin))
+mandir=$(sharedir)/man
+icondir=$(sharedir)/icons
+
 
 # Install Utility
 INSTALL=install
@@ -58,7 +61,11 @@ install: $(GMM_NAME) $(GAP_ALL_PLUGINS)
 
 	@echo "    Installing $(sharedir)/gogglesmm/utils"
 	@$(INSTALL) -D -m 644 extra/import_banshee_stats.py $(sharedir)/gogglesmm/utils/import_banshee_stats.py
+	@$(INSTALL) -D -m 644 extra/import_gogglesmm12.py $(sharedir)/gogglesmm/utils/import_gogglesmm12.py
 	@$(INSTALL) -D -m 644 extra/import_gogglesmm12_stats.py $(sharedir)/gogglesmm/utils/import_gogglesmm12_stats.py
+
+	@echo "    Installing $(mandir)/man1/gogglesmm.1"
+	@$(INSTALL) -m 644 -D extra/gogglesmm.1 $(mandir)/man1/gogglesmm.1
 
 # install nls if needed
 ifneq (,$(findstring nls,$(OPTIONS)))
@@ -66,12 +73,12 @@ ifneq (,$(findstring nls,$(OPTIONS)))
 endif
 
 	@echo "    Installing icons..."
-	@$(INSTALL) -m 644 -D icons/gogglesmm_16.png $(sharedir)/icons/hicolor/16x16/apps/gogglesmm.png
-	@$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(sharedir)/icons/hicolor/22x22/apps/gogglesmm.png
-	@$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(sharedir)/icons/hicolor/24x24/apps/gogglesmm.png
-	@$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(sharedir)/icons/hicolor/32x32/apps/gogglesmm.png
-	@$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(sharedir)/icons/hicolor/48x48/apps/gogglesmm.png
-	@$(INSTALL) -m 644 -D extra/gogglesmm.svg $(sharedir)/icons/hicolor/scalable/apps/gogglesmm.svg
+	@$(INSTALL) -m 644 -D icons/gogglesmm_16.png $(icondir)/hicolor/16x16/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm_22.png $(icondir)/hicolor/22x22/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm_24.png $(icondir)/hicolor/24x24/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(icondir)/hicolor/32x32/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(icondir)/hicolor/48x48/apps/gogglesmm.png
+	@$(INSTALL) -m 644 -D extra/gogglesmm.svg $(icondir)/hicolor/scalable/apps/gogglesmm.svg
 	@echo "    Done."
 
 svg2png:
