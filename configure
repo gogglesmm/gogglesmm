@@ -279,7 +279,7 @@ echo "#define APPLICATION_BETA_DB $BETA_DB"     >> $CFG
 echo "#define BUILD_DATE __DATE__"              >> $CFG
 echo "#define BUILD_TIME __TIME__"              >> $CFG
 if [ -n "$VERSION_TAG" ] ; then
-echo "#define APPLICATION_VERSION_STRING \"$MAJOR.$MINOR.$LEVEL-$VERSION_TAG\"" >> $CFG
+echo "#define APPLICATION_VERSION_STRING \"$MAJOR.$MINOR.$LEVEL$VERSION_TAG\"" >> $CFG
 else
 echo "#define APPLICATION_VERSION_STRING \"$MAJOR.$MINOR.$LEVEL\"" >> $CFG
 fi
@@ -325,7 +325,7 @@ echo "RESWRAP_TEXT=$RESWRAP_TEXT"      >> config.make
 echo "PREFIX=$PREFIX"                  >> config.make
 echo "OPTIONS=$OPTIONS"                >> config.make
 if [ -n "$VERSION_TAG" ] ; then
-echo "TARNAME=gogglesmm-$MAJOR.$MINOR.$LEVEL-$VERSION_TAG" >> config.make
+echo "TARNAME=gogglesmm-$MAJOR.$MINOR.$LEVEL$VERSION_TAG" >> config.make
 else
 echo "TARNAME=gogglesmm-$MAJOR.$MINOR.$LEVEL" >> config.make
 fi
