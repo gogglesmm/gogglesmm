@@ -265,24 +265,6 @@ check_forced_mad()
   fi
 }
 
-
-check_faad()
-{
-  if [ $OPTION_GAP_FAAD -eq 1 ] ; then
-    echo "Search for faad"
-    if [ -e $FAAD_PREFIX/$LIB/libfaad${LIBEXT} ] ; then
-      echo "  Found faad: $FAAD_PREFIX/$LIB/libfaad${LIBEXT}"
-      PLUGIN_LIBS="$PLUGIN_LIBS -lfaad -lmp4ff"
-      add_gap_config aac
-    elif [ $OPTION_GAP_FORCE_FAAD -eq 1 ] ; then
-      echo "  Adding faad"
-      PLUGIN_LIBS="$PLUGIN_LIBS -lfaad -lmp4ff"
-      add_gap_config aac
-    fi
-    echo " "
-  fi
-}
-
 check_smb()
 {
   if [ $OPTION_GAP_SMB -eq 1 ] ; then
@@ -435,12 +417,22 @@ check_gap_packages()
     echo "Search for faad"
     if [ -e $FAAD_PREFIX/$LIB/libfaad${LIBEXT} ] ; then
       echo "  Found faad: $FAAD_PREFIX/$LIB/libfaad${LIBEXT}"
-      EXTRA_LIBS="$EXTRA_LIBS -lfaad -lmp4ff"
-      add_gap_config aac
+      echo " "
+      echo "Search for libmp4ff"
+      if [ -e $FAAD_PREFIX/$LIB/libmp4ff${LIBEXT} ] ; then
+        echo "  Found libmp4ff: $FAAD_PREFIX/$LIB/libmp4ff${LIBEXT}"
+        EXTRA_LIBS="$EXTRA_LIBS -lfaad -lmp4ff"
+        add_gap_config aac
+        add_gap_config mp4
+      else
+        EXTRA_LIBS="$EXTRA_LIBS -lfaad"
+        add_gap_config aac
+      fi
     elif [ $OPTION_GAP_FORCE_FAAD -eq 1 ] ; then
       echo "  Adding faad"
-      EXTRA_LIBS="$EXTRA_LIBS -lfaad -lmp4ff"
+      EXTRA_LIBS="$PLUGIN_LIBS -lfaad -lmp4ff"
       add_gap_config aac
+      add_gap_config mp4
     fi
     echo " "
   fi
