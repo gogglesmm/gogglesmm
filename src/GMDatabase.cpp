@@ -491,7 +491,7 @@ void GMDatabase::reset() {
     tables.append(table);
     }
   for (FXint i=0;i<tables.no();i++) {
-    ("DROP TABLE IF EXISTS " + tables[i] + ";");
+    execute("DROP TABLE IF EXISTS " + tables[i]);
     }
   }
 
@@ -657,6 +657,13 @@ void GMDatabase::enableForeignKeys(){
   else {
     GM_DEBUG_PRINT("[sqlite] foreign keys enabled\n");
     }
+  }
+
+void GMDatabase::recreate_table(const FXchar * table,const FXchar * make_new_table) {
+  execute(FXString::value("ALTER TABLE %s RENAME TO old_%s",table,table));
+  execute(make_new_table);
+  execute(FXString::value("INSERT INTO %s SELECT * FROM old_%s",table,table));
+  execute(FXString::value("DROP TABLE old_%s",table));
   }
 
 

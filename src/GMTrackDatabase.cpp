@@ -29,186 +29,107 @@
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2014  /* Foreign Keys Fix*/
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2015  /* Fix empty tags and add foreign reference to feeds table*/
+#define GOGGLESMM_DATABASE_SCHEMA_DEV4    2014  /* Foreign Keys Fix*/
 #define GOGGLESMM_DATABASE_SCHEMA_DEV3    2013  /* Foreign Keys */
 #define GOGGLESMM_DATABASE_SCHEMA_DEV2    2012  /* Feed Tables */
 #define GOGGLESMM_DATABASE_SCHEMA_DEV1    2010  /* Dev DB before podcast manager */
 #define GOGGLESMM_DATABASE_SCHEMA_V12     2009
 #define GOGGLESMM_DATABASE_SCHEMA_V10     2008
 
-/*
 
-*****************************************************
-    Goggles Music Manager Database Schema v2013
-*****************************************************
+const FXchar create_feed[]=           "CREATE TABLE IF NOT EXISTS feeds ("
+                                          "id INTEGER NOT NULL,"
+                                          "url TEXT,"
+                                          "title TEXT,"
+                                          "description TEXT,"
+                                          "local TEXT,"
+                                          "tag INTEGER REFERENCES tags(id),"
+                                          "date INTEGER,"
+                                          "http_etag TEXT,"
+                                          "http_modified INTEGER,"
+                                          "PRIMARY KEY (id) );";
 
-    TABLE tracks
-        id          INTEGER NOT NULL *
-        collection  INTEGER NOT NULL
-        path        INTEGER NOT NULL REFERENCES pathlist (id),
-        mrl         TEXT
+const FXchar create_feed_items[] =    "CREATE TABLE IF NOT EXISTS feed_items ("
+                                          "id INTEGER NOT NULL,"
+                                          "feed INTEGER NOT NULL REFERENCES feeds(id), "
+                                          "guid TEXT NOT NULL, "
+                                          "url TEXT NOT NULL, "
+                                          "local TEXT, "
+                                          "title TEXT, "
+                                          "description TEXT, "
+                                          "size INTEGER,"
+                                          "time INTEGER,"
+                                          "date INTEGER,"
+                                          "flags INTEGER,"
+                                          "PRIMARY KEY (id) );";
 
-        title       TEXT NOT NULL
-        time        INTEGER
-        no          INTEGER
-        year        INTEGER
-        bitrate     INTEGER
+const FXchar create_streams[]=        "CREATE TABLE IF NOT EXISTS streams ("
+                                          "id INTEGER NOT NULL, "
+                                          "url TEXT, "
+                                          "description TEXT, "
+                                          "genre INTEGER REFERENCES tags(id),"
+                                          "bitrate INTEGER, "
+                                          "rating INTEGER, "
+                                          "PRIMARY KEY (id) );";
 
-        album       INTEGER NOT NULL REFERENCES albums (id)
-        artist      INTEGER NOT NULL REFERENCES artists (id)
-        composer    INTEGER REFERENCES artists (id)
-        conductor   INTEGER REFERENCES artists (id)
+const FXchar create_tracks[]=         "CREATE TABLE tracks ( "
+                                          "id INTEGER NOT NULL,"
+                                          "collection INTEGER NOT NULL,"
+                                          "path INTEGER NOT NULL REFERENCES pathlist (id),"
+                                          "mrl TEXT,"
+                                          "title TEXT NOT NULL,"
+                                          "time INTEGER,"
+                                          "no INTEGER,"
+                                          "year INTEGER,"
+                                          "bitrate INTEGER,"
+                                          "album INTEGER NOT NULL REFERENCES albums (id),"
+                                          "artist INTEGER NOT NULL REFERENCES artists (id),"
+                                          "composer INTEGER REFERENCES artists (id),"
+                                          "conductor INTEGER REFERENCES artists (id),"
+                                          "playcount INTEGER,"
+                                          "playdate INTEGER,"
+                                          "importdate INTEGER,"
+                                          "rating INTEGER,"
+                                          "PRIMARY KEY (id) );";
 
-        playcount   INTEGER
-        playdate    INTEGER
-        importdate  INTEGER
-        rating      INTEGER
+const FXchar create_tags[]=           "CREATE TABLE tags ("
+                                          "id INTEGER NOT NULL,"
+                                          "name TEXT NOT NULL UNIQUE,"
+                                          "PRIMARY KEY (id) );";
 
-    TABLE tags
-        id        INTEGER NOT NULL *
-        name      TEXT NOT NULL UNIQUE
+const FXchar create_track_tags[]=     "CREATE TABLE track_tags ("
+                                          "track INTEGER NOT NULL REFERENCES tracks(id),"
+                                          "tag INTEGER NOT NULL REFERENCES tags(id),"
+                                          "PRIMARY KEY (track, tag) );";
 
-    TABLE track_tags
-        track     INTEGER NOT NULL REFERENCES tracks(id)*
-        tag       INTEGER NOT NULL REFERENCES tags(id)*
+const FXchar create_albums[]=         "CREATE TABLE albums ("
+                                          "id INTEGER NOT NULL,"
+                                          "name TEXT NOT NULL,"
+                                          "artist INTEGER NOT NULL REFERENCES artists (id),"
+                                          "year INTEGER,"
+                                          "PRIMARY KEY (id),"
+                                          "UNIQUE(name,artist));";
 
-    TABLE artists
-        id        INTEGER NOT NULL *
-        name      TEXT NOT NULL UNIQUE
+const FXchar create_artists[]=        "CREATE TABLE artists ("
+                                          "id INTEGER NOT NULL,"
+                                          "name TEXT NOT NULL UNIQUE,"
+                                          "PRIMARY KEY (id) );";
 
-    TABLE albums
-        id        INTEGER NOT NULL *
-        name      TEXT
-        artists   INTEGER NOT NULL
-        year      INTEGER NOT NULL
+const FXchar create_playlists[]=      "CREATE TABLE playlists ("
+                                          "id INTEGER NOT NULL,"
+                                          "name TEXT,"
+                                          "PRIMARY KEY (id));";
 
-    TABLE playlists
-        id        INTEGER NOT NULL *
-        name      TEXT
+const FXchar create_playlist_tracks[]="CREATE TABLE playlist_tracks ("
+                                          "playlist INTEGER NOT NULL REFERENCES playlists(id),"
+                                          "track INTEGER NOT NULL REFERENCES tracks(id),"
+                                          "queue INTEGER );";
 
-    TABLE playlist_tracks
-        playlist  INTEGER
-        track     INTEGER INTEGER NOT NULL REFERENCES tracks(id)*
-        queue     INTEGER
-
-
-    TABLE feeds
-        id            INTEGER
-        url           TEXT
-        title         TEXT
-        description   TEXT
-        local         TEXT
-        tag           INTEGER
-        date          INTEGER
-        http_etag     TEXT
-        http_modified INTEGER
-
-    TABLE feed_items
-        id            INTEGER
-        feed          INTEGER NOT NULL REFERENCES feeds(id)
-        guid          TEXT
-        url           TEXT
-        local         TEXT
-        title         TEXT
-        description   TEXT
-        size          INTEGER
-        time          INTEGER
-        date          INTEGER
-        flags         INTEGER
-
-*/
-
-
-const FXchar create_feed[]="CREATE TABLE IF NOT EXISTS feeds (id INTEGER NOT NULL,"
-                                                             "url TEXT,"
-                                                             "title TEXT,"
-                                                             "description TEXT,"
-                                                             "local TEXT,"
-                                                             "tag INTEGER,"
-                                                             "date INTEGER,"
-                                                             "http_etag TEXT,"
-                                                             "http_modified INTEGER,"
-                                                             "PRIMARY KEY (id) );";
-
-const FXchar create_feed_items[] ="CREATE TABLE IF NOT EXISTS feed_items ( id INTEGER NOT NULL,"
-                                                                          "feed INTEGER NOT NULL REFERENCES feeds(id), "
-                                                                          "guid TEXT NOT NULL, "
-                                                                          "url TEXT NOT NULL, "
-                                                                          "local TEXT, "
-                                                                          "title TEXT, "
-                                                                          "description TEXT, "
-                                                                          "size INTEGER,"
-                                                                          "time INTEGER,"
-                                                                          "date INTEGER,"
-                                                                          "flags INTEGER,"
-                                                                          "PRIMARY KEY (id) );";
-
-
-
-
-const FXchar create_streams[]="CREATE TABLE IF NOT EXISTS streams ( id INTEGER NOT NULL, "
-                                                                   "url TEXT, "
-                                                                   "description TEXT, "
-                                                                   "genre INTEGER REFERENCES tags(id), "
-                                                                   "bitrate INTEGER, "
-                                                                   "rating INTEGER, "
-                                                                   "PRIMARY KEY (id) );";
-
-const FXchar create_tracks[]="CREATE TABLE tracks ( id INTEGER NOT NULL,"
-                                                  " collection INTEGER NOT NULL,"
-                                                  " path INTEGER NOT NULL REFERENCES pathlist (id),"
-
-                                                  " mrl TEXT,"
-                                                  " title TEXT NOT NULL,"
-                                                  " time INTEGER,"
-                                                  " no INTEGER,"
-                                                  " year INTEGER,"
-                                                  " bitrate INTEGER,"
-
-                                                  " album INTEGER NOT NULL REFERENCES albums (id),"
-                                                  " artist INTEGER NOT NULL REFERENCES artists (id),"
-                                                  " composer INTEGER REFERENCES artists (id),"
-                                                  " conductor INTEGER REFERENCES artists (id),"
-
-                                                  " playcount INTEGER,"
-                                                  " playdate INTEGER,"
-                                                  " importdate INTEGER,"
-                                                  " rating INTEGER,"
-
-                                                  " PRIMARY KEY (id) );";
-
-const FXchar create_tags[]="CREATE TABLE tags ( id INTEGER NOT NULL,"
-                                              " name TEXT NOT NULL UNIQUE,"
-                                              " PRIMARY KEY (id) );";
-
-const FXchar create_track_tags[]="CREATE TABLE track_tags ( track INTEGER NOT NULL REFERENCES tracks(id),"
-                                                          " tag INTEGER NOT NULL REFERENCES tags(id),"
-                                                          " PRIMARY KEY (track, tag) );";
-
-
-const FXchar create_albums[]="CREATE TABLE albums ( id INTEGER NOT NULL,"
-                                                  " name TEXT NOT NULL,"
-                                                  " artist INTEGER NOT NULL REFERENCES artists (id),"
-                                                  " year INTEGER,"
-                                                  " PRIMARY KEY (id),"
-                                                  " UNIQUE(name,artist) );";
-
-const FXchar create_artists[]="CREATE TABLE artists ( id INTEGER NOT NULL,"
-                                                    " name TEXT NOT NULL UNIQUE,"
-                                                    " PRIMARY KEY (id) );";
-
-const FXchar create_playlists[]="CREATE TABLE playlists ( id INTEGER NOT NULL,"
-                                                         "name TEXT,"
-                                                         "PRIMARY KEY (id));";
-
-const FXchar create_playlist_tracks[]="CREATE TABLE playlist_tracks ( playlist INTEGER NOT NULL REFERENCES playlists(id),"
-                                                                     "track INTEGER NOT NULL REFERENCES tracks(id),"
-                                                                     "queue INTEGER );";
-
-const FXchar create_pathlist[]="CREATE TABLE pathlist (id INTEGER NOT NULL,"
-                                                      "name TEXT NOT NULL UNIQUE,"
-                                                      "PRIMARY KEY (id));";
-
+const FXchar create_pathlist[]=       "CREATE TABLE pathlist ("
+                                          "id INTEGER NOT NULL,"
+                                          "name TEXT NOT NULL UNIQUE,"
+                                          "PRIMARY KEY (id));";
 
 
 GMTrackDatabase::GMTrackDatabase()  {
@@ -256,88 +177,82 @@ void GMTrackDatabase::init_index() {
   execute("CREATE INDEX IF NOT EXISTS tracks_has_track ON tracks(path,mrl);");
   }
 
+void GMTrackDatabase::fix_empty_tags(){
+
+  // Remove empty string tags from tracks
+  execute("DELETE FROM track_tags WHERE tag == (SELECT id FROM tags WHERE name == '')");
+
+  // Reset tag in feeds with empty string tag
+  execute("UPDATE streams SET genre = NULL WHERE genre == (SELECT id FROM tags WHERE name == '')");
+
+  // Reset tag in feeds with empty string tag
+  execute("UPDATE feeds SET tag = NULL WHERE tag == (SELECT id FROM tags WHERE name == '')");
+
+  // Remove empty string tags
+  execute("DELETE FROM tags WHERE name == ''");
+  }
 
 FXbool GMTrackDatabase::init_database() {
   try {
     switch(getVersion()) {
 
       // All's well.
-      case GOGGLESMM_DATABASE_SCHEMA_VERSION:
-        enableForeignKeys();
-        init_index();
+      case GOGGLESMM_DATABASE_SCHEMA_VERSION: 
         break;
 
-      // Add foreign keys to playlist_tracks
-      case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
-        execute("ALTER TABLE playlist_tracks RENAME TO old_playlist_tracks;");
-        execute(create_playlist_tracks);
-        execute("INSERT INTO playlist_tracks SELECT * FROM old_playlist_tracks;");
-        execute("DROP TABLE old_playlist_tracks;");
+      case GOGGLESMM_DATABASE_SCHEMA_DEV4  :
 
-        enableForeignKeys();
-        init_index();
+        // foreign key fixes
+        recreate_table("feeds",create_feed);
+
+        fix_empty_tags();
+        break;
+
+      case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
+        recreate_table("playlist_tracks",create_playlist_tracks);
+        recreate_table("feeds",create_feed);
+        fix_empty_tags();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
-      // More foreign keys
       case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
 
-        // Replace Tracks Table
-        execute("ALTER TABLE tracks RENAME TO old_tracks;");
-        execute(create_tracks);
-        execute("INSERT INTO tracks SELECT * FROM old_tracks;");
-        execute("DROP TABLE old_tracks;");
+        // foreign key fixes
+        recreate_table("tracks",create_tracks);
+        recreate_table("streams",create_streams);
+        recreate_table("playlist_tracks",create_playlist_tracks);
+        recreate_table("feeds",create_feed);
+        recreate_table("feed_items",create_feed_items);
 
-        // Replace Streams Table
-        execute("ALTER TABLE streams RENAME TO old_streams;");
-        execute(create_streams);
-        execute("INSERT INTO streams SELECT * FROM old_streams;");
-        execute("DROP TABLE old_streams;");
+        fix_empty_tags();
 
-        // Replace Feed_Items Table
-        execute("ALTER TABLE feed_items RENAME TO old_feed_items;");
-        execute(create_feed_items);
-        execute("INSERT INTO feed_items SELECT * FROM old_feed_items;");
-        execute("DROP TABLE old_feed_items;");
-
-        enableForeignKeys();
-        init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
-
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV1 :
 
-        // Replace Tracks Table
-        execute("ALTER TABLE tracks RENAME TO old_tracks;");
-        execute(create_tracks);
-        execute("INSERT INTO tracks SELECT * FROM old_tracks;");
-        execute("DROP TABLE old_tracks;");
-
-        // Replace Streams Table
-        execute("ALTER TABLE streams RENAME TO old_streams;");
-        execute(create_streams);
-        execute("INSERT INTO streams SELECT * FROM old_streams;");
-        execute("DROP TABLE old_streams;");
+        // foreign key fixes
+        recreate_table("tracks",create_tracks);
+        recreate_table("streams",create_streams);
+        recreate_table("playlist_tracks",create_playlist_tracks);
 
         execute(create_feed);
         execute(create_feed_items);
 
+        fix_empty_tags();
 
-        enableForeignKeys();
-        init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
       case GOGGLESMM_DATABASE_SCHEMA_V10    :
       case GOGGLESMM_DATABASE_SCHEMA_V12    :
+        /// don't touch old database.
         FXASSERT(0);
         break;
 
       default                               :
         /// Some unknown database. Let's start from scratch
         reset();
-        enableForeignKeys();    
         execute(create_tracks);
         execute(create_tags);
         execute(create_track_tags);
@@ -349,11 +264,15 @@ FXbool GMTrackDatabase::init_database() {
         execute(create_streams);
         execute(create_feed);
         execute(create_feed_items);
-
-        init_index();
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
       }
+
+    // Turn on forein keys
+    enableForeignKeys();
+
+    // Index if needed
+    init_index();
     }
   catch(GMDatabaseException&) {
     return false;
@@ -418,45 +337,20 @@ FXbool GMTrackDatabase::init_queries() {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 FXbool GMTrackDatabase::clearTracks(FXbool removeplaylists){
   DEBUG_DB_SET();
   try {
     begin();
-
     execute("DELETE FROM playlist_tracks;");
     execute("DELETE FROM track_tags;");
     execute("DELETE FROM tracks;");
     execute("DELETE FROM pathlist;");
     execute("DELETE FROM albums;");
     execute("DELETE FROM artists;");
-
-
-
-    execute("DELETE FROM tags WHERE id NOT IN (SELECT DISTINCT(tag) FROM track_tags) AND id NOT IN (SELECT genre FROM streams UNION SELECT tag FROM feeds);");
-
+    execute("DELETE FROM tags WHERE id NOT IN (SELECT genre FROM streams UNION SELECT tag FROM feeds);");
     if (removeplaylists) {
       execute("DELETE FROM playlists;");
       }
-
-
     commit();
     }
   catch(GMDatabaseException&) {
@@ -466,29 +360,6 @@ FXbool GMTrackDatabase::clearTracks(FXbool removeplaylists){
   vacuum();
   return true;
   }
-
-
-void GMTrackDatabase::clear(){
-  DEBUG_DB_SET();
-  try {
-    begin();
-    execute("DROP tracks;");
-    execute("DROP artists;");
-    execute("DROP albums;");
-    execute("DROP pathlist;");
-    execute("DROP playlist;");
-    execute("DROP playlist_tracks;");
-    execute("DROP tags;");
-    execute("DROP track_tags;");
-    execute("DROP streams;");
-    commit();
-    }
-  catch(GMDatabaseException&) {
-    rollback();
-    }
-  }
-
-
 
 
 // void GMTrackDatabase::beginDelete() {
@@ -1243,7 +1114,7 @@ FXbool GMTrackDatabase::removeArtist(FXint artist) {
     query.set(0,artist);
     query.set(1,artist);
     query.execute();
-    
+
     query = compile("DELETE FROM track_tags WHERE track IN (SELECT id FROM tracks WHERE artist == ? OR album IN (SELECT id FROM albums WHERE artist == ?))");
     query.set(0,artist);
     query.set(1,artist);
@@ -1257,7 +1128,7 @@ FXbool GMTrackDatabase::removeArtist(FXint artist) {
     query = compile("DELETE FROM albums WHERE artist == ?;");
     query.update(artist);
 
-    sync_tracks_removed();   
+    sync_tracks_removed();
     commit();
     }
   catch (GMDatabaseException & e){
@@ -1575,7 +1446,7 @@ FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
       while(list_tags.row()) {
         list_tags.get(0,id);
         list_tags.get(1,name);
-        if (!tags.has(name))
+        if (!name.empty() && !tags.has(name))
           list->appendItem(name);
         }
       }
@@ -2333,7 +2204,7 @@ void GMTrackDatabase::removePlaylistTracks(FXint playlist,const FXIntList & trac
   DEBUG_DB_SET();
   GMQuery q;
   q = compile("DELETE FROM playlist_tracks WHERE playlist == ? AND track == ?;");
-  for (FXint i=0;i<tracks.no();i++) {    
+  for (FXint i=0;i<tracks.no();i++) {
     q.set(0,playlist);
     q.set(1,tracks[i]);
     q.execute();
@@ -2346,10 +2217,9 @@ void GMTrackDatabase::removePlaylistQueue(FXint playlist,const FXIntList & queue
   DEBUG_DB_SET();
   GMQuery q;
   q = compile("DELETE FROM playlist_tracks WHERE playlist == ? AND queue == ?;");
-  for (FXint i=0;i<queue.no();i++) {    
+  for (FXint i=0;i<queue.no();i++) {
     q.set(0,playlist);
     q.set(1,queue[i]);
-    fxmessage("%d %d\n",playlist,queue[i]);  
     q.execute();
     }
   reorderPlaylist(playlist);

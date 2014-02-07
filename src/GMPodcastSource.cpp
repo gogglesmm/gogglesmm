@@ -180,6 +180,13 @@ struct RssItem {
 
   RssItem() { clear(); }
 
+
+  void trim() {
+    url.trim();
+    title.trim();
+    description.trim();
+    }
+
   void clear() {
     id.clear();
     url.clear();
@@ -192,15 +199,23 @@ struct RssItem {
   };
 
 struct RssFeed {
-  FXString title;
-  FXString description;
-  FXString category;
-  FXTime   date;
-
+public:
+  FXString         title;
+  FXString         description;
+  FXString         category;
+  FXTime           date;
+  FXArray<RssItem> items;
+public:
   RssFeed() : date(0) {}
 
-  FXArray<RssItem> items;
-
+  void trim() {
+    title.trim();
+    description.trim();
+    category.trim();
+    for (FXint i=0;i<items.no();i++) {
+      items[i].trim();
+      }
+    }
 
   void debug() {
     fxmessage("      title: %s\n",title.text());
@@ -387,24 +402,29 @@ public:
     get_feed.execute(feed);
     if (feed) return;
 
+    rss.feed.trim();
 
     FXString feed_dir = make_podcast_feed_directory(rss.feed.title);
 
 
     db->begin();
     FXint tag=0;
-    get_tag.set(0,rss.feed.category);
-    get_tag.execute(tag);
-    if (!tag) {
-      add_tag.set(0,rss.feed.category);
-      tag = add_tag.insert();
+
+    // Allow unset categories, just don't insert empty strings
+    if (!rss.feed.category.empty()) {
+      get_tag.set(0,rss.feed.category);
+      get_tag.execute(tag);
+      if (!tag) {
+        add_tag.set(0,rss.feed.category);
+        tag = add_tag.insert();
+        }
       }
 
     add_feed.set(0,url);
     add_feed.set(1,rss.feed.title);
     add_feed.set(2,rss.feed.description);
     add_feed.set(3,feed_dir);
-    add_feed.set(4,tag);
+    add_feed.set_null(4,tag);
     add_feed.set(5,rss.feed.date);
     FXint feed_id = add_feed.insert();
 
@@ -855,6 +875,7 @@ FXint GMPodcastUpdater::run() {
     RssParser rss;
 
     rss.parse(feed);
+    rss.feed.trim();
 
     gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
 
@@ -868,13 +889,9 @@ FXint GMPodcastUpdater::run() {
     while(all_items.row()){
       all_items.get(0,item_id);
       all_items.get(1,guid);
-      if (guids.find(guid.text())==-1){
-        //fxmessage("item removed from feed\n");
+      if (guids.has(guid)==false){
         del_items.set(0,item_id);
         del_items.execute();
-        }
-      else {
-        //fxmessage("item still in feed\n");
         }
       }
     all_items.reset();
