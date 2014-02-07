@@ -1266,6 +1266,15 @@ void GMTrackView::loadSettings(const FXString & key) {
     albumlist->setListStyle(opts&~ALBUMLIST_BROWSER);
     }
 
+  if (getApp()->reg().readBoolEntry(key.text(),"album-list-show-year",true)){
+    FXuint opts=albumlist->getListStyle();
+    albumlist->setListStyle(opts|ALBUMLIST_YEAR);
+    }
+  else {
+    FXuint opts=albumlist->getListStyle();
+    albumlist->setListStyle(opts&~ALBUMLIST_YEAR);
+    }
+
   album_by_year = getApp()->reg().readBoolEntry(key.text(),"album-list-sort-by-year",false);
   reverse_album = getApp()->reg().readBoolEntry(key.text(),"album-list-sort-reverse",false);
   if (reverse_album) {
@@ -1367,6 +1376,7 @@ void GMTrackView::saveSettings(const FXString & key) const {
   getApp()->reg().writeBoolEntry(key.text(),"album-list-sort-reverse",albumlist->getSortFunc()==album_list_sort_reverse);
   getApp()->reg().writeBoolEntry(key.text(),"album-list-sort-by-year",album_by_year);
   getApp()->reg().writeBoolEntry(key.text(),"album-list-browser",(albumlist->getListStyle()&ALBUMLIST_BROWSER));
+  getApp()->reg().writeBoolEntry(key.text(),"album-list-show-year",(albumlist->getListStyle()&ALBUMLIST_YEAR));
   getApp()->reg().writeBoolEntry(key.text(),"genre-list",taglistframe->shown());
   getApp()->reg().writeBoolEntry(key.text(),"browser",hasBrowser());
   getApp()->reg().writeIntEntry(key.text(),"browser-track-split",browsersplit->getVSplit());
