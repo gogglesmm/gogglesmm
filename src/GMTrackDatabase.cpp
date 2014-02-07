@@ -419,7 +419,7 @@ FXbool GMTrackDatabase::insertStream(const FXString & url,const FXString & descr
     GMQuery q(this,"INSERT INTO streams VALUES(NULL,?,?,?,0,0);");
     q.set(0,url);
     q.set(1,description);
-    q.set(2,genreid);
+    q.set_null(2,genreid);
     q.execute();
     commit();
     }
@@ -1175,27 +1175,6 @@ FXbool GMTrackDatabase::removeAlbum(FXint album) {
   return true;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /// For each playlist, we reset the queue number from 1 to max tracks.
 FXbool GMTrackDatabase::reorderPlaylists(){
   DEBUG_DB_SET();
@@ -1772,39 +1751,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
   return true;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*********************************************/
-
-
-
-
-
-
-
-
-
-
-
-
 
 void GMTrackDatabase::setTrackImported(FXint track,FXlong tm){
   DEBUG_DB_SET();
