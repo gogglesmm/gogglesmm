@@ -145,6 +145,7 @@ public:
   void execute(const FXchar * query,const FXint,FXString &);
 
 
+  void recreate_table(const FXchar * table,const FXchar * make_table);
 
 
 

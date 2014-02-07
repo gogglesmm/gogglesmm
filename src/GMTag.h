@@ -82,6 +82,8 @@ protected:
   void ape_update_field(const FXchar * field,const FXStringList & value);
 
   void parse_tagids(FXStringList&) const;
+
+  void trimList(FXStringList & value) const;
 public:
   GMFileTag();
 
