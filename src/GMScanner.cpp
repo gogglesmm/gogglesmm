@@ -563,6 +563,7 @@ void GMSyncTask::syncDirectory(const FXString & path) {
 
       if (!FXStat::statFile(list[i].filename,stat)){
         dbtracks.remove(list[i].id);
+        nchanged++;
         }
       else if (options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
         parse(list[i].filename,-1,info);
