@@ -113,209 +113,6 @@ static void init_themedict(FXStringList & basedirs,FXStringDictionary & themedic
 #endif
   }
 
-#if 0
-class XDGIconDir {
-public:
-  enum {
-    Scalable,
-    Fixed,
-    Threshold
-    };
-public:
-  FXString path;
-  FXint    size;
-  FXint    threshold;
-  FXint    min;
-  FXint    max;
-  FXuchar  type;
-public:
-  XDGIconDir();
-  void init(const FXString&,FXSettings*);
-
-  void debug();
-  };
-
-
-XDGIconDir::XDGIconDir() : size(0),threshold(2),min(0),max(0),type(Threshold) {
-  }
-
-void XDGIconDir::init(const FXString & subdir,FXSettings * index){
-  path                     = subdir;
-  size                     = index->readIntEntry(subdir,"Size",0);
-  threshold                = index->readIntEntry(subdir,"Threshold",2);
-  min                      = index->readIntEntry(subdir,"MinSize",size);
-  max                      = index->readIntEntry(subdir,"MaxSize",size);
-  const FXchar * typestr   = index->readStringEntry(subdir,"Type","Threshold");
-
-  if (comparecase(typestr,"scalable")==0)
-    type=Scalable;
-  else if (comparecase(typestr,"fixed")==0)
-    type=Fixed;
-  else
-    type=Threshold;
-  }
-
-
-void XDGIconDir::debug() {
-  fxmessage("\t\t\t\t%s - %d - %d - (%d , %d) - ",path.text(),size,threshold,min,max);
-  switch(type){
-    case Scalable: fxmessage("Scalable\n"); break;
-    case Fixed: fxmessage("Fixed\n"); break;
-    case Threshold: fxmessage("Threshold\n"); break;
-    }
-  }
-
-
-class XDGIconTheme;
-
-typedef FXArray<XDGIconTheme> XDGIconThemeList;
-
-class XDGIconTheme {
-public:
-  FXString name;
-  FXString dir;
-  FXbool   hidden;
-public:
-  XDGIconTheme *      parent;
-  FXStringList        basedirs;
-  FXArray<XDGIconDir> subdirs;
-protected:
-  void parseDirectories(FXSettings*);
-  void init(const FXchar * theme,FXSettings *,const FXStringList & pathlist);
-public:
-  XDGIconTheme();
-  ~XDGIconTheme();
-
-  void debug();
-
-  static void setup(XDGIconThemeList &);
-  };
-
-
-
-XDGIconTheme::XDGIconTheme() : parent(NULL) {
-  }
-
-XDGIconTheme::~XDGIconTheme(){
-  }
-
-void XDGIconTheme::debug() {
-  FXint i;
-  fxmessage("---\n");
-  fxmessage("\t    Name: %s\n",name.text());
-  fxmessage("\t     Dir: %s\n",dir.text());
-  fxmessage("\t  Hidden: %d\n",hidden ? 1 : 0);
-  fxmessage("\t  Parent: %s\n",parent ? parent->name.text() : "");
-  fxmessage("\tBasedirs:\n");
-  for (i=0;i<basedirs.no();i++) {
-    fxmessage("\t\t\t\t%s\n",basedirs[i].text());
-    }
-  fxmessage("\t Subdirs:\n");
-  for (i=0;i<subdirs.no();i++) {
-    subdirs[i].debug();
-    }
-  }
-
-
-void XDGIconTheme::parseDirectories(FXSettings * index,const FXString & pathlist) {
-  FXString item;
-  FXint beg,end;
-  for(beg=0; pathlist[beg]; beg=end){
-    while(pathlist[beg]==',') beg++;
-    for(end=beg; pathlist[end] && pathlist[end]!=','; end++){}
-    if(beg==end) break;
-    item=pathlist.mid(beg,end-beg);
-    if (!item.empty()) {
-      subdirs.no(subdirs.no()+1);
-      subdirs[subdirs.no()-1].init(item,index);
-      }
-    }
-  }
-
-void XDGIconTheme::init(const FXchar * theme,FXSettings * index,const FXStringList & pathlist) {
-  name   = index->readStringEntry("Icon Theme","Name",theme);
-  hidden = index->readBoolEntry("Icon Theme","Hidden",false);
-  dir    = theme;
-  parent = NULL;
-  for (FXint i=0;i<pathlist.no();i++) {
-    if (FXStat::exists(FXPath::absolute(FXPath::expand(pathlist[i]),theme)))
-      basedirs.append(pathlist[i]);
-    }
-  parseDirectories(index);
-  }
-
-
-void XDGIconTheme::setup(XDGIconThemeList & themelist) {
-  FXStringList basedirs;
-  FXStringDict themedict;
-  FXDict       indexmap;
-
-  init_basedirs(basedirs);
-  init_themedict(basedirs,themedict);
-
-  if (themedict.no()==0)
-    return;
-
-  GMSettings * index    = new GMSettings[themedict.no()];
-  FXDict     * inherits = new FXDict[themedict.no()];
-
-  /// Parse Index Files
-  for (FXint i=themedict.first(),j=0;i!=themedict.last();i=themedict.next(i)){
-    const FXchar * themedir  = themedict.key(i);
-    const FXchar * themefile = themedict.data(i);
-    index[j++].parseFile(themefile,true);
-    indexmap.insert(themedir,(void*)(FXival)(j));
-    }
-
-  themelist.no(themedict.no());
-  for (FXint i=themedict.first(),j=0;i!=themedict.last();i=themedict.next(i),j++){
-    const FXchar * themedir  = themedict.key(i);
-    themelist[j].init(themedir,&index[j],basedirs)
-    }
-  }
-
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void gm_set_application_icon(FXWindow * window) {
   FXPNGImage * image = new FXPNGImage(FXApp::instance(),gogglesmm_32_png,0,0);
   ewmh_set_window_icon(window,image);
@@ -462,22 +259,6 @@ GMIconTheme::GMIconTheme(FXApp * application) : app(application), set(-1),rsvg(f
     }
 
 
-#if 0
-  XDGIconThemeList xdg;
-  XDGIconTheme::setup(xdg);
-
-  for (FXint i=0;i<xdg.no();i++)
-    xdg[i].debug();
-#endif
-#if 0
-
-  init_basedirs(basedirs);
-  if (!load_cache()) {
-    clear_svg_cache();
-    build();
-    save_cache();
-    }
-#endif
   const FXString theme = app->reg().readStringEntry("user-interface","icon-theme","");
   if (!theme.empty()) {
 
@@ -502,10 +283,6 @@ GMIconTheme * GMIconTheme::instance(){
   }
 
 
-
-
-
-
 static void add_path(const FXStringList & list,const FXString & theme,const FXString & path,FXString & result) {
   for (FXint i=0;i<list.no();i++) {
     FXString p = list[i] + PATHSEPSTRING + theme + PATHSEPSTRING + path;
@@ -513,10 +290,6 @@ static void add_path(const FXStringList & list,const FXString & theme,const FXSt
     }
 
   }
-
-
-
-
 
 void GMIconTheme::build() {
   FXString parents;

@@ -371,15 +371,7 @@ public:
 #ifdef HAVE_PLAYQUEUE
   void setPlayQueue(FXbool enable);
 #endif
-
-
-
-
   FXint createPlaylist(const FXString & name);
-
-
-
-
 
   ~GMPlayerManager();
   };

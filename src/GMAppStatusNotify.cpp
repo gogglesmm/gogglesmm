@@ -96,10 +96,9 @@ DBusHandlerResult dbus_status_item_filter(DBusConnection *connection,DBusMessage
       }
     else if (dbus_message_has_interface(msg,DBUS_INTERFACE_PROPERTIES)) {
       if (dbus_message_is_method_call(msg,DBUS_INTERFACE_PROPERTIES,"Get")){
-        fxmessage("get\n");
+        GM_DEBUG_PRINT("get\n");
         }
       else if (dbus_message_is_method_call(msg,DBUS_INTERFACE_PROPERTIES,"GetAll")){
-        fxmessage("getall\n");
         if ((reply=dbus_message_new_method_return(msg))!=NULL) {
           dbus_message_iter_init_append(reply,&iter);
           dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
@@ -110,10 +109,6 @@ DBusHandlerResult dbus_status_item_filter(DBusConnection *connection,DBusMessage
             gm_dbus_dict_append_string(&dict,"Status","Active");
             gm_dbus_dict_append_uint32(&dict,"WindowId",GMPlayerManager::instance()->getMainWindowId());
             gm_add_tooltip(&dict);
-
-
-
-
           dbus_message_iter_close_container(&iter,&dict);
           dbus_connection_send(connection,reply,&serial);
           dbus_message_unref(reply);

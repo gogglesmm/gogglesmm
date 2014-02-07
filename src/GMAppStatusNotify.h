@@ -22,8 +22,6 @@
 class GMAppStatusNotify : public GMDBusProxy {
 FXDECLARE(GMAppStatusNotify)
 protected:
-  FXString name;
-protected:
   GMAppStatusNotify();
 private:
   GMAppStatusNotify(const GMAppStatusNotify*);

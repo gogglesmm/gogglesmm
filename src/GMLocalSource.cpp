@@ -248,7 +248,7 @@ long GMLocalSource::onCmdCopyTrack(FXObject*,FXSelector,void*){
     for (FXint i=0;i<view->getNumTracks();i++){
       if (view->isTrackItemSelected(i)) {
         data->files.append(path+PATHSEPSTRING+((GMLocalTrackItem*)view->getTrackItem(i))->getFilename());
-        fxmessage("%s\n",data->files[data->files.no()-1].text());
+        GM_DEBUG_PRINT("%s\n",data->files[data->files.no()-1].text());
         }
       }
     FXApp::instance()->endWaitCursor();
@@ -275,7 +275,7 @@ long GMLocalSource::onCmdRequestTrack(FXObject*sender,FXSelector,void*ptr){
     for (FXint i=0;i<view->getNumTracks();i++){
       if (view->isTrackItemSelected(i)) {
         filenames.append(path+PATHSEPSTRING+((GMLocalTrackItem*)view->getTrackItem(i))->getFilename());
-        fxmessage("%s\n",filenames[filenames.no()-1].text());
+        GM_DEBUG_PRINT("%s\n",filenames[filenames.no()-1].text());
         }
       }
     gm_convert_filenames_to_uri(filenames,uri);

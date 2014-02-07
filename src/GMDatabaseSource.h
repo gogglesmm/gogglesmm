@@ -38,7 +38,6 @@ public:
     }
   };
 
-class GMCoverThumbs;
 
 class GMDatabaseSource : public GMSource {
 FXDECLARE(GMDatabaseSource)

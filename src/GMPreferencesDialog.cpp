@@ -72,8 +72,6 @@ ColorTheme::ColorTheme() {
   hilite    = FXApp::instance()->getHiliteColor();
   playfore  = GMPlayerManager::instance()->getPreferences().gui_playtext_color;
   playback  = GMPlayerManager::instance()->getPreferences().gui_play_color;
-//  sourcefore= GMPlayerManager::instance()->getPreferences().gui_sourceselecttext_color;
-//  sourceback= GMPlayerManager::instance()->getPreferences().gui_sourceselect_color;
   altback   = GMPlayerManager::instance()->getPreferences().gui_row_color;
   trayback  = GMPlayerManager::instance()->getPreferences().gui_tray_color;
   }
@@ -92,8 +90,6 @@ ColorTheme::ColorTheme(const FXchar * _name,FXColor _base,FXColor _border,FXColo
   menuback(_selback),
   menufore(_selfore),
   menubase(_back),
-//  sourcefore(_psfore),
-//  sourceback(_psback),
   playfore(_psfore),
   playback(_psback),
   hilite(makeHiliteColor(base)),
@@ -135,8 +131,6 @@ bool operator==(const ColorTheme& t1,const ColorTheme& t2) {
       t1.menuback==t2.menuback &&
       t1.menufore==t2.menufore &&
       t1.menubase==t2.menubase &&
-//      t1.sourcefore==t2.sourcefore &&
-//      t1.sourceback==t2.sourceback &&
       t1.playfore==t2.playfore &&
       t1.playback==t2.playback &&
       t1.hilite==t2.hilite &&
@@ -283,7 +277,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   target_gapless.connect(GMPlayerManager::instance()->getPreferences().play_gapless);
   target_open_device_on_startup.connect(GMPlayerManager::instance()->getPreferences().play_open_device_on_startup);
   target_show_playing_albumcover.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover);
-//  target_show_albumcovers.connect(GMPlayerManager::instance()->getPreferences().gui_show_albumcovers);
 
 #ifdef HAVE_DBUS
   target_dbus_notify_daemon.connect(GMPlayerManager::instance()->getPreferences().dbus_notify_daemon);
@@ -323,8 +316,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   grpbox->setFont(GMApp::instance()->getThickFont());
 
   new GMCheckButton(grpbox,tr("Show album cover of playing track\tShow album cover of playing track"),&target_show_playing_albumcover,FXDataTarget::ID_VALUE);
-//  new GMCheckButton(grpbox,tr("Show album covers in album browser\tShow album covers in album browser"),&target_show_albumcovers,FXDataTarget::ID_VALUE);
-
 
   grpbox =  new FXGroupBox(vframe,tr("System Tray"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
@@ -404,48 +395,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-/*
-  new FXLabel(vframe2,FXString::null,icon_lastfm,JUSTIFY_LEFT,0,0,0,0,8,0,0,0);
-  GMButton * linkbutton = new GMButton(vframe2,tr("&Sign up for last.fm…"),NULL,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_JOIN_LASTFM,ICON_AFTER_TEXT|FRAME_RAISED|JUSTIFY_CENTER_Y|JUSTIFY_LEFT|BUTTON_TOOLBAR,0,0,0,0,7);
-  linkbutton->setTextColor(FXRGB(0,0,255));
-  linkbutton->setDefaultCursor(GMIconTheme::instance()->cursor_hand);
-  linkbutton = new GMButton(vframe2,tr("&Join GMM on last.fm…\tJoin the Goggles Music Manager group on last.fm…\tJoin the Goggles Music Manager group on last.fm…"),NULL,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_JOIN_GMM_LASTFM,ICON_AFTER_TEXT|FRAME_RAISED|JUSTIFY_CENTER_Y|JUSTIFY_LEFT|BUTTON_TOOLBAR,0,0,0,0,7);
-  linkbutton->setTextColor(FXRGB(0,0,255));
-  linkbutton->setDefaultCursor(GMIconTheme::instance()->cursor_hand);
-  if (GMPlayerManager::instance()->getAudioScrobbler()->isBanned()) {
-    new FXLabel(grpbox,tr("This version of Goggles Music Manager is\n"
-                       "not supported by Last-FM. Please upgrade\n"
-                       "to a newer version of GMM."),NULL,JUSTIFY_LEFT);
-    }
-  else {
-    matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0);
-    new FXLabel(matrix,tr("Username:"),NULL,labelstyle);
-    lastfm_username = new GMTextField(matrix,20,this,ID_LASTFM_USERNAME,FRAME_SUNKEN|FRAME_THICK);
-    new FXLabel(matrix,tr("Password:"),NULL,labelstyle);
-    lastfm_password = new GMTextField(matrix,20,this,ID_LASTFM_PASSWORD,FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_PASSWD);
-    new FXFrame(matrix,FRAME_NONE);
-    lastfm_scrobble = new GMCheckButton(grpbox,tr("Last.fm"),this,ID_LASTFM_SCROBBLE,LAYOUT_FIX_X|LAYOUT_FIX_Y|CHECKBUTTON_NORMAL,6,0);
-    lastfm_scrobble->setFont(GMApp::instance()->getThickFont());
-
-    lastfm_username->setText(GMPlayerManager::instance()->getAudioScrobbler()->getUsername());
-    if (GMPlayerManager::instance()->getAudioScrobbler()->hasPassword())
-      lastfm_password->setText("1234567890");
-
-    lastfm_scrobble->setCheck(GMPlayerManager::instance()->getAudioScrobbler()->isEnabled());
-    }
-*/
-
   new GMTabItem(tabbook,tr("&Window"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
 
@@ -471,25 +420,10 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   new FXLabel(matrix,tr("Title Format:"),NULL,labelstyle);
   new GMTextField(matrix,20,&target_gui_format_title,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|LAYOUT_FILL_X);
 
-
-
   if (GMPlayerManager::instance()->getPreferences().gui_toolbar_docktop)
     toolbar_docktop->setCurrentItem(0);
   else
     toolbar_docktop->setCurrentItem(1);
-/*
-  new FXLabel(matrix,tr("Style:"),NULL,labelstyle);
-  toolbar_showlabels = new GMCheckButton(matrix,tr("Show Labels"),NULL,0);
-  toolbar_showlabels->setCheck(GMPlayerManager::instance()->getPreferences().gui_toolbar_showlabels);
-
-  new FXFrame(matrix,FRAME_NONE);
-  toolbar_labelsabove = new GMCheckButton(matrix,tr("Label Besides Icon"),NULL,0);
-  toolbar_labelsabove->setCheck(!GMPlayerManager::instance()->getPreferences().gui_toolbar_labelsabove);
-
-  new FXFrame(matrix,FRAME_NONE);
-  toolbar_bigicons = new GMCheckButton(matrix,tr("Large Icons"),NULL,0);
-  toolbar_bigicons->setCheck(GMPlayerManager::instance()->getPreferences().gui_toolbar_bigicons);
-*/
 
   new GMTabItem(tabbook,tr("A&ppearance"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
@@ -604,27 +538,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
       }
     }
 
-#if 0
-  if (GMIconTheme::instance()->iconsets.no()==0)
-    GMIconTheme::instance()->listIconSets();
-
-  themelist = new GMListBox(matrix,this,ID_ICON_THEME,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN|LAYOUT_FILL_X);
-    for (FXint i=0;i<GMIconTheme::instance()->iconsets.no();i++) {
-      themelist->appendItem(GMIconTheme::instance()->iconsets[i].name,NULL,(void*)(FXival)i);
-      }
-  themelist->setSortFunc(FXList::ascending);
-  themelist->sortItems();
-  themelist->setNumVisible(FXMIN(9,themelist->getNumItems()));
-  for (FXint i=0;i<themelist->getNumItems();i++) {
-    if (GMIconTheme::instance()->getIconSet()==(FXint)(FXival)themelist->getItemData(i)) {
-      themelist->setCurrentItem(i);
-      break;
-      }
-    }
-#endif
-
   new FXFrame(matrix,FRAME_NONE);
-
 
   new GMTabItem(tabbook,tr("&Audio"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
@@ -689,13 +603,10 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   jack_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
   jack_device = new GMTextField(matrix,20);
 
-
   showDriverSettings(config.device);
-
 
   new FXFrame(matrix,FRAME_NONE);
   new GMButton(matrix,tr("Apply Changes"),NULL,this,ID_APPLY_AUDIO);
-
 
   grpbox =  new FXGroupBox(vframe,tr("Playback"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
@@ -721,7 +632,6 @@ GMPreferencesDialog::~GMPreferencesDialog(){
 
 
 void GMPreferencesDialog::updateFonts() {
-//  GMPlayerManager::instance()->getMainWindow()->layoutToolBarButtons();
   GMPlayerManager::instance()->getMainWindow()->getTrackView()->updateFont();
   redraw();
   FXint nw =getDefaultWidth();
@@ -824,8 +734,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
 
 
 long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
-  fxmessage("applying audio\n");
-
 
   OutputConfig config;
   GMPlayerManager::instance()->getPlayer()->getOutputConfig(config);
@@ -843,56 +751,11 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
 
   config.oss.device = oss_device->getText();
 
-
   GMPlayerManager::instance()->getPlayer()->setOutputConfig(config);
   return 1;
   }
 
 long GMPreferencesDialog::onCmdAudioDriver(FXObject*,FXSelector,void*){
-
-
-
-
-
-
-/*
-
-
-ALSA
-
-Device audio.device.alsa_front_device
-       plug:front:default
-
-Mixer audio.device.alsa_mixer_name
-      PCM
-
-
-Pulse
-
-Device  audio.pulseaudio_device
-        blank
-
-Jack
-
-Device  audio.device.jack_device_name
-        blank
-
-
-OSS
-
-Device  audio.device.oss_device_name
-        (auto,...)
-
-//        audio.device.oss_device_number
-
-
-
-*/
-
-
-
-
-
   FXuchar device=(FXuchar)(FXival)driverlist->getItemData(driverlist->getCurrentItem());
   showDriverSettings(device);
   return 1;
@@ -1048,7 +911,6 @@ long GMPreferencesDialog::onCmdLastFMService(FXObject*,FXSelector,void*){
 
 
 long GMPreferencesDialog::onCmdLastFMPassWord(FXObject*,FXSelector,void*){
-//  fxmessage("onCmdLastFMPassWord %d\n",password_set);
   if (!GMPlayerManager::instance()->getAudioScrobbler()->isBanned() && password_set) {
     lastfm_scrobble->setCheck(true);
     GMPlayerManager::instance()->getAudioScrobbler()->login(lastfm_username->getText(),lastfm_password->getText());
@@ -1057,7 +919,6 @@ long GMPreferencesDialog::onCmdLastFMPassWord(FXObject*,FXSelector,void*){
   }
 
 long GMPreferencesDialog::onFocusLastFMPassWord(FXObject*,FXSelector,void*){
-//  fxmessage("onFocusLastFMPassWord %d\n",password_set);
   if (password_set==false) {
     password_set=true;
     lastfm_password->setText(FXString::null,false);
@@ -1066,11 +927,9 @@ long GMPreferencesDialog::onFocusLastFMPassWord(FXObject*,FXSelector,void*){
   }
 
 long GMPreferencesDialog::onCmdLastFMUserName(FXObject*,FXSelector sel,void*){
- // if (GMPlayerManager::instance()->getAudioScrobbler()->getUsername()!=lastfm_username->getText()){
-    lastfm_password->setText(FXString::null,false);
-    password_set=true;
-    if (FXSELTYPE(sel)==SEL_COMMAND) lastfm_password->setFocus();
- //   }
+  lastfm_password->setText(FXString::null,false);
+  password_set=true;
+  if (FXSELTYPE(sel)==SEL_COMMAND) lastfm_password->setFocus();
   return 1;
   }
 
@@ -1115,8 +974,6 @@ long GMPreferencesDialog::onCmdElementColor(FXObject*,FXSelector sel,void* rgba)
     case ID_TIP_FORE_COLOR: selected.tipfore=color; break;
     case ID_PLAY_BACK_COLOR: selected.playback=color; break;
     case ID_PLAY_FORE_COLOR: selected.playfore=color; break;
-//    case ID_SOURCE_BACK_COLOR: selected.sourceback=color; break;
-//    case ID_SOURCE_FORE_COLOR: selected.sourcefore=color; break;
     case ID_ALTERNATIVE_BACK_COLOR: selected.altback=color; break;
     case ID_TRAY_COLOR: selected.trayback=color; break;
 
@@ -1147,14 +1004,8 @@ long GMPreferencesDialog::onUpdElementColor(FXObject*sender,FXSelector sel,void*
     case ID_TIP_FORE_COLOR: rgba=selected.tipfore; break;
     case ID_PLAY_BACK_COLOR: rgba=selected.playback; break;
     case ID_PLAY_FORE_COLOR: rgba=selected.playfore; break;
-
- //   case ID_SOURCE_BACK_COLOR: rgba=selected.sourceback; break;
- //   case ID_SOURCE_FORE_COLOR: rgba=selected.sourcefore; break;
     case ID_ALTERNATIVE_BACK_COLOR: rgba=selected.altback; break;
     case ID_TRAY_COLOR: rgba=selected.trayback; break;
-
-
-
     }
   sender->tryHandle(this,FXSEL(SEL_COMMAND,FXColorWell::ID_SETINTVALUE),&rgba);
   return 1;
@@ -1179,8 +1030,6 @@ long GMPreferencesDialog::onCmdColorTheme(FXObject*,FXSelector,void*ptr) {
   selected.hilite   = makeHiliteColor(selected.base);
   selected.playback = theme_selected->playback;
   selected.playfore = theme_selected->playfore;
-//  selected.sourceback = theme_selected->sourceback;
-//  selected.sourcefore = theme_selected->sourcefore;
   selected.trayback = theme_selected->trayback;
 
   updateColors();

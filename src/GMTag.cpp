@@ -180,12 +180,6 @@ static GMCover * xiph_load_cover(const TagLib::ByteVector & bytevector) {
   }
 
 
-
-
-
-
-
-
 static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame) {
   FXString mime = frame->mimeType().toCString(true);
   /// Skip File Icon

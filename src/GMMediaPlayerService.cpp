@@ -50,19 +50,6 @@ static void gm_mpris_track_to_dict(DBusMessageIter * iter,const GMTrack & track)
   dbus_message_iter_close_container(iter,&array);
   }
 
-/*
-static void gm_dbus_dict_append_track(DBusMessageIter * iter,const FXchar * key,const GMTrack & track) {
-  DBusMessageIter entry;
-  DBusMessageIter variant;
-  dbus_message_iter_open_container(iter,DBUS_TYPE_DICT_ENTRY,0,&entry);
-    dbus_message_iter_append_basic(&entry,DBUS_TYPE_STRING,&key);
-    dbus_message_iter_open_container(&entry,DBUS_TYPE_VARIANT,"a{sv}",&variant);
-      gm_mpris_track_to_dict(&variant,track);
-    dbus_message_iter_close_container(&entry,&variant);
-  dbus_message_iter_close_container(iter,&entry);
-  }
-
-*/
 
 static const FXchar MPRIS_DBUS_NAME[]="org.mpris.gogglesmm";
 static const FXchar MPRIS_DBUS_INTERFACE[]="org.freedesktop.MediaPlayer";

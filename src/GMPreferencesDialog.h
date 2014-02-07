@@ -32,7 +32,6 @@ protected:
   FXDataTarget target_replaygain;
   FXDataTarget target_open_device_on_startup;
   FXDataTarget target_show_playing_albumcover;
-//  FXDataTarget target_show_albumcovers;
 #ifdef HAVE_DBUS
   FXDataTarget target_dbus_notify_daemon;
   FXDataTarget target_dbus_mpris1;
@@ -107,8 +106,6 @@ public:
     ID_MENU_BASE_COLOR,
     ID_TIP_BACK_COLOR,
     ID_TIP_FORE_COLOR,
-    ID_SOURCE_BACK_COLOR,
-    ID_SOURCE_FORE_COLOR,
     ID_PLAY_BACK_COLOR,
     ID_PLAY_FORE_COLOR,
     ID_ALTERNATIVE_BACK_COLOR,

@@ -94,7 +94,6 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   volumebutton = new FXMenuButton(buttons,tr("\tAdjust Volume\tAdjust Volume"),NULL,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y);
   volumebutton->setTarget(this);
   volumebutton->setSelector(ID_VOLUME_BUTTON);
-//  new FXSeparator(this,LAYOUT_SIDE_BOTTOM|SEPARATOR_GROOVE|LAYOUT_FILL_X);
 
   FXVerticalFrame * info = new FXVerticalFrame(this,LAYOUT_CENTER_Y|FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,2,2,2,2,0,0);
   title_label = new FXTextField(info,20,NULL,0,FRAME_NONE|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);

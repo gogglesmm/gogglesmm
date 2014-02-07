@@ -269,8 +269,6 @@ public:
 
   GMSource * getSource() const { return source; }
 
-  //FXString getTrackFilename(FXint i) const;
-
   void sortTags() const;
 
   void sortArtists() const;

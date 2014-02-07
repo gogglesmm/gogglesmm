@@ -137,19 +137,6 @@ void GMFontDialog::previewFont(){
   // Set new font
   preview->setFont(previewfont);
 
-/*
-  FXString previewtext;
-  for (FXwchar w=previewfont->getMinChar();w<=previewfont->getMaxChar()&& previewtext.length()<64;w++) {
-    if (previewfont->hasChar(w)) {
-      previewtext.append(&w,1);
-      }
-    if (previewtext.length()==26)
-      previewtext+="\n";
-    if (previewtext.length()==53)
-      previewtext+="\n";
-    }
-  preview->setText(previewtext);
-*/
   // Delete old font
   delete old;
   }

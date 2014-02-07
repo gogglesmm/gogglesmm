@@ -57,7 +57,6 @@ public:
   /// Construct Remote Window
   GMRemote(FXApp* a,FXObject*,FXSelector);
 
-
   // Update Display
   void display(const GMTrack & track);
 

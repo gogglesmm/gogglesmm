@@ -75,7 +75,6 @@ bool GMClipboard::doesOverrideRedirect() const {
 
 FXbool GMClipboard::acquire(FXObject * owner,const FXDragType * types,FXuint num_types,GMClipboardData * data){
   if (acquireClipboard(types,num_types)){
-//    fxmessage("acquired clipboard %d\n",hasClipboard());
     clipowner=owner;
     clipdata=data;
     return true;
@@ -94,7 +93,6 @@ FXbool GMClipboard::release(){
 
 
 long GMClipboard::onClipboardLost(FXObject*,FXSelector,void*){
-  //fxmessage("lost clipboard\n");
   if (clipdata) delete clipdata;
   clipdata=NULL;
   clipowner=NULL;
@@ -102,24 +100,14 @@ long GMClipboard::onClipboardLost(FXObject*,FXSelector,void*){
   }
 
 long GMClipboard::onClipboardGained(FXObject*,FXSelector,void*){
- // fxmessage("gained clipboard\n");
   return 1;
   }
 
 
 long GMClipboard::onClipboardRequest(FXObject*,FXSelector,void*ptr){
   FXEvent *event=(FXEvent*)ptr;
-  //fxmessage("got request: %s\n",getApp()->getDragTypeName(event->target).text());
   if (clipdata && clipdata->request(event->target,this)){
     return 1;
     }
   return 0;
   }
-
-
-
-
-
-
-
-

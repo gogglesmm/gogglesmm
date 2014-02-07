@@ -280,13 +280,6 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   sunkenframe      = new GMScrollFrame(browsersplit);
   tracklist        = new GMTrackList(sunkenframe,this,ID_TRACK_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|TRACKLIST_EXTENDEDSELECT);
 
-
-
-//                  for (FXint i=ID_COLUMN_FIRST;i<ID_COLUMN_LAST;i++)
-//                     new GMMenuCheck(columnmenu,FXString::null,this,i);
-//                     new FXMenuSeparator(columnmenu);
-
-
   sortmenu         = new GMMenuPane(getShell());
                      new GMMenuRadio(sortmenu,tr("Browse"),this,ID_SORT_BROWSE);
                      new GMMenuRadio(sortmenu,tr("Shuffle\tCtrl-R"),this,ID_SORT_SHUFFLE);
@@ -666,14 +659,6 @@ FXint GMTrackView::getPrevious(){
   return getPreviousPlayable(tracklist->getActiveItem()-1,(GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_ALL));
   }
 
-/*
-FXString GMTrackView::getTrackFilename(FXint item) const {
-  FXint track = tracklist->getItemId(item);
-  if (source && track!=-1 )
-    return source->getTrackFilename(track);
-  return FXString::null;
-  }
-*/
 
 void GMTrackView::getTracks(FXIntList & tracks) const{
   for (FXint i=0;i<tracklist->getNumItems();i++){
@@ -720,11 +705,6 @@ void GMTrackView::getSelectedArtists(FXIntList & artists) const{
         artists.append((FXint)(FXival)artistlist->getItemData(i));
         }
       }
-
-//      if (artistlist->getNumItems()>1 && artislist->isItemSelected(0))
-//        artistlist->deselect
-
-
     }
   qsort(artists.data(),artists.no(),sizeof(FXint),compareindex);
   }
@@ -2563,8 +2543,6 @@ FXint GMTrackView::getArtist(FXint index) const { return (FXint)(FXival)artistli
 
 FXint GMTrackView::getAlbum(FXint index) const {
   return albumlist->getItemId(index);
-
-//  return (FXint)(FXival)albumlist->getItemData(index);
   }
 
 FXint GMTrackView::getTrack(FXint index) const { return (FXint)(FXival)tracklist->getItemId(index); }

@@ -223,29 +223,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   /// Library Menu
   menu_library = new GMMenuPane(this);
 
-/*
-  new GMMenuCommand(menu_library,tr("Import Folder…\tCtrl-O\tImport Music from folder into Library"),icontheme->icon_import,this,GMWindow::ID_IMPORT_DIRS);
-  new GMMenuCommand(menu_library,tr("Sync Folder…\t\tSynchronize Folder with Music in Library"),icontheme->icon_sync,this,GMWindow::ID_SYNC_DIRS);
-  new FXMenuSeparator(menu_library);
-  new GMMenuCommand(menu_library,tr("Play File or Stream…\t\tPlay File or Stream"),NULL,this,GMWindow::ID_OPEN);
-  new FXMenuSeparator(menu_library);
-*/
-
-  //// Active View Menu
-/*
-  menu_view    = new GMMenuPane(this);
-  new GMMenuCommand(menu_view,tr("&Copy\tCtrl-C\tCopy Selected Tracks"),icontheme->icon_copy,trackview,GMTrackView::ID_COPY,MENU_AUTOGRAY);
-  new GMMenuCommand(menu_view,tr("&Cut\tCtrl-X\tCut Selected Tracks"),icontheme->icon_cut,trackview,GMTrackView::ID_CUT,MENU_AUTOGRAY);
-  new GMMenuCommand(menu_view,tr("&Paste\tCtrl-V\tPaste Clipboard Selection"),icontheme->icon_paste,trackview,GMTrackView::ID_PASTE);
-  new FXMenuSeparator(menu_view);
-  new GMMenuCommand(menu_view,tr("Find…\tCtrl-F\tShow search filter."),GMIconTheme::instance()->icon_find,trackview,GMTrackView::ID_TOGGLE_FILTER);
-  new FXMenuSeparator(menu_view);
-  new GMMenuCommand(menu_view,tr("&Configure Columns""…"),NULL,trackview,GMTrackView::ID_CONFIGURE_COLUMNS);
-  new GMMenuCascade(menu_view,tr("&Sort"),icontheme->icon_sort,trackview->getSortMenu());
-  new GMMenuCheck(menu_view,tr("&Browse\tCtrl-B\tShow genre artist and album browser."),trackview,GMTrackView::ID_TOGGLE_BROWSER);
-  new GMMenuCheck(menu_view,tr("Show &Tags\tCtrl-G\tShow tag browser."),trackview,GMTrackView::ID_TOGGLE_TAGS);
-  gm_set_window_cursor(menu_view,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
-*/
   /// Media Controls
   menu_media   = new GMMenuPane(this);
 #ifdef HAVE_PLAYQUEUE
@@ -288,7 +265,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   menubutton_library = new GMMenuButton(toolbar,"\tManage Music Database",icontheme->icon_create,menu_library,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|ICON_AFTER_TEXT);
   //menubutton_view    = new GMMenuButton(toolbar,"\tEdit View",icontheme->icon_document,menu_view,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT);
   menubutton_gmm     = new GMMenuButton(toolbar,"\tCustomize and Control GMM",icontheme->icon_customize,menu_gmm,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT|LAYOUT_RIGHT);
-  menubutton_media   = new GMMenuButton(toolbar,"\tMedia Control",icontheme->icon_media,menu_media,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_RIGHT|LAYOUT_CENTER_Y|ICON_AFTER_TEXT|LAYOUT_RIGHT);
+  menubutton_media   = new GMMenuButton(toolbar,"\tMedia Control",icontheme->icon_media,menu_media,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_RIGHT|LAYOUT_CENTER_Y|ICON_AFTER_TEXT);
   volumebutton       = new GMMenuButton(toolbar,"\tAdjust Volume\tAdjust Volume",icontheme->icon_volume_muted_toolbar,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
   volumebutton->setTarget(this);
   volumebutton->setSelector(ID_VOLUME_BUTTON);
@@ -319,88 +296,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   trackslider->setDefaultCursor(GMIconTheme::instance()->cursor_hand);
   trackslider->setDragCursor(GMIconTheme::instance()->cursor_hand);
 
-#if 0
-  // File Menu
-  filemenu=new GMMenuPane(this);
-  new GMMenuTitle(menubar,tr("&Music"),NULL,filemenu);
-//  new GMMenuCommand(filemenu,tr("Import File(s)…\t\tImport Music into Library"),icontheme->icon_importfile,this,GMWindow::ID_IMPORT_FILES);
-  new GMMenuCommand(filemenu,tr("Import Folder…\tCtrl-O\tImport Music from folder into Library"),icontheme->icon_import,this,GMWindow::ID_IMPORT_DIRS);
-  new GMMenuCommand(filemenu,tr("Sync Folder…\t\tSynchronize Folder with Music in Library"),icontheme->icon_sync,this,GMWindow::ID_SYNC_DIRS);
-  new FXMenuSeparator(filemenu);
-  new GMMenuCommand(filemenu,tr("Play File or Stream…\t\tPlay File or Stream"),NULL,this,GMWindow::ID_OPEN);
-  new FXMenuSeparator(filemenu);
-  new GMMenuCommand(filemenu,tr("New Playlist…\t\tCreate a new playlist"),icontheme->icon_playlist,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_NEW_PLAYLIST);
-  new GMMenuCommand(filemenu,tr("Import Playlist…\t\tImport existing playlist"),icontheme->icon_import,GMPlayerManager::instance()->getDatabaseSource(),GMDatabaseSource::ID_IMPORT_PLAYLIST);
-  new GMMenuCommand(filemenu,tr("New Radio Station…\t\tCreate a new playlist"),NULL,sourceview,GMSourceView::ID_NEW_STATION);
-  new FXMenuSeparator(filemenu);
-  new GMMenuCommand(filemenu,tr("&Quit\tCtrl-Q\tQuit the application."),icontheme->icon_exit,this,GMWindow::ID_QUIT);
-  gm_set_window_cursor(filemenu,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
-
-  // Help Menu
-  editmenu=new GMMenuPane(this);
-  new GMMenuTitle(menubar,tr("&Edit"),NULL,editmenu);
-  new GMMenuCommand(editmenu,tr("&Copy\tCtrl-C\tCopy Selected Tracks"),icontheme->icon_copy,trackview,GMTrackView::ID_COPY,MENU_AUTOGRAY);
-  new GMMenuCommand(editmenu,tr("&Cut\tCtrl-X\tCut Selected Tracks"),icontheme->icon_cut,trackview,GMTrackView::ID_CUT,MENU_AUTOGRAY);
-  new GMMenuCommand(editmenu,tr("&Paste\tCtrl-V\tPaste Clipboard Selection"),icontheme->icon_paste,trackview,GMTrackView::ID_PASTE,MENU_AUTOGRAY);
-  new FXMenuSeparator(editmenu);
-  new GMMenuCommand(editmenu,tr("Find…\tCtrl-F\tShow search filter."),GMIconTheme::instance()->icon_find,trackview,GMTrackView::ID_TOGGLE_FILTER);
-  new FXMenuSeparator(editmenu);
-  new GMMenuCommand(editmenu,tr("Preferences…"),icontheme->icon_settings,this,GMWindow::ID_PREFERENCES);
-  gm_set_window_cursor(editmenu,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
-
-  viewmenu=new GMMenuPane(this);
-  new GMMenuTitle(menubar,tr("&View"),NULL,viewmenu);
-  new GMMenuCheck(viewmenu,tr("&Browse\tCtrl-B\tShow genre artist and album browser."),trackview,GMTrackView::ID_TOGGLE_BROWSER);
-  new GMMenuCheck(viewmenu,tr("Show &Genres\tCtrl-G\tShow genre browser."),trackview,GMTrackView::ID_TOGGLE_GENRES);
-  new FXMenuSeparator(viewmenu);
-  new GMMenuCheck(viewmenu,tr("Show &Sources\tCtrl-S\tShow source browser "),sourcesplitter,FXWindow::ID_TOGGLESHOWN);
-  new FXMenuSeparator(viewmenu);
-#if FOXVERSION >= FXVERSION(1,7,11)
-  fullscreencheck = new GMMenuCheck(viewmenu,tr("Show Full Screen\tF12\tToggle fullscreen mode."),this,ID_SHOW_FULLSCREEN);
-#endif
-  new GMMenuCheck(viewmenu,tr("Show Mini Player\tF11\tToggle Mini Player."),this,ID_SHOW_MINIPLAYER);
-
-  new FXMenuSeparator(viewmenu);
-  new GMMenuCommand(viewmenu,tr("&Configure Columns""…"),NULL,trackview,GMTrackView::ID_CONFIGURE_COLUMNS);
-  new GMMenuCascade(viewmenu,tr("&Sort"),icontheme->icon_sort,trackview->getSortMenu());
-  new FXMenuSeparator(viewmenu);
-  new GMMenuCommand(viewmenu,tr("&Jump to Current Track\tCtrl-J\tShow current playing track."),NULL,trackview,GMTrackView::ID_SHOW_CURRENT);
-  gm_set_window_cursor(viewmenu,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
-
-  playmenu=new GMMenuPane(this);
-  new GMMenuTitle(menubar,tr("&Control"),NULL,playmenu);
-  new GMMenuCommand(playmenu,tr("Play\tCtrl-P\tStart playback."),icontheme->icon_play,this,ID_PLAYPAUSEMENU);
-  new GMMenuCommand(playmenu,tr("Stop\tCtrl-\\\tStop playback."),icontheme->icon_stop,this,ID_STOP);
-  new GMMenuCommand(playmenu,tr("Previous Track\tCtrl-[\tPlay next track."),icontheme->icon_prev,this,ID_PREV);
-  new GMMenuCommand(playmenu,tr("Next Track\tCtrl-]\tPlay previous track."),icontheme->icon_next,this,ID_NEXT);
-  new FXMenuSeparator(playmenu);
-  new GMMenuCheck(playmenu,tr("Queue Play\t\tPlay tracks from queue."),this,ID_PLAYQUEUE);
-  new FXMenuSeparator(playmenu);
-  new GMMenuRadio(playmenu,tr("Repeat Off\tCtrl-,\tRepeat current track."),this,ID_REPEAT_OFF);
-  new GMMenuRadio(playmenu,tr("Repeat Track\tCtrl-.\tRepeat current track."),this,ID_REPEAT);
-  new GMMenuRadio(playmenu,tr("Repeat All Tracks\tCtrl-/\tRepeat all tracks."),this,ID_REPEAT_ALL);
-  new GMMenuCheck(playmenu,tr("Repeat A-B\tCtrl-T\tRepeat section of track."),this,ID_REPEAT_AB);
-  new GMMenuCheck(playmenu,tr("Shuffle Mode\tAlt-R\tPlay tracks in random order."),this,ID_SHUFFLE);
-  new FXMenuSeparator(playmenu);
-  new GMMenuCommand(playmenu,tr("Equalizer\t\t"),icontheme->icon_equalizer,GMPlayerManager::instance(),GMPlayerManager::ID_EQUALIZER);
-  new GMMenuCheck(playmenu,tr("Sleep Timer\t\tSetup sleeptimer."),this,ID_SLEEP);
-  gm_set_window_cursor(playmenu,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
-
-  helpmenu=new GMMenuPane(this);
-  new GMMenuTitle(menubar,tr("&Help"),NULL,helpmenu,LAYOUT_RIGHT);
-  new GMMenuCommand(helpmenu,tr("&Homepage"),icontheme->icon_homepage,this,GMWindow::ID_HOMEPAGE);
-  new GMMenuCommand(helpmenu,tr("&Report Issue…"),NULL,this,GMWindow::ID_REPORT_ISSUE);
-  new FXMenuSeparator(helpmenu);
-  new GMMenuCommand(helpmenu,tr("&Sign up for last.fm…"),NULL,this,GMWindow::ID_JOIN_LASTFM);
-  new GMMenuCommand(helpmenu,tr("&Join GMM on last.fm…\t\tJoin the Goggles Music Manager group on last.fm…"),NULL,this,GMWindow::ID_JOIN_GMM_LASTFM);
-  new FXMenuSeparator(helpmenu);
-  new GMMenuCommand(helpmenu,tr("&About…"),icontheme->icon_info,this,GMWindow::ID_ABOUT);
-  gm_set_window_cursor(helpmenu,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
-
-
-
-  menubar->hide();
-#endif
 
   getAccelTable()->addAccel(parseAccel("F11"),this,FXSEL(SEL_COMMAND,ID_SHOW_MINIPLAYER));
   getAccelTable()->addAccel(parseAccel("Ctrl-W"),this,FXSEL(SEL_CLOSE,0));
@@ -702,14 +597,6 @@ void GMWindow::reset() {
   }
 
 void GMWindow::display(const GMTrack& info){
-
-
-  /// Update Ticker Text
- // FXString statustext = FXString("Now playing: " + info.artist + " - " + info.title);
-  //statusbar->getStatusLine()->setNormalText(statustext);
-  //FXint nchars = nowplaying->getWidth() / nowplaying->getFont()->getTextWidth("8");
-  //printf("nchars=%d\n",nchars);
-  //nowplaying->setText(info.artist + " - " + info.title);
   FXUTF8Codec codec;
   FXString title = GMFilename::format_track(info,GMPlayerManager::instance()->getPreferences().gui_format_title,FXString::null,0,&codec);
   label_nowplaying->setText(title);
@@ -747,35 +634,6 @@ void GMWindow::update_volume_display(FXint level) {
 
   if (remote) remote->update_volume_display(level);
   }
-#if 0
-void GMWindow::update_time_display() {
-  FXint display;
-  const GMPlayer * player = GMPlayerManager::instance()->getPlayer();
-  FXASSERT(player);
-  if (player->playing()) {
-    display = player->getCurrentTime();
-
-    hours 	  = (FXint) floor((double)display/3600000.0);
-    display  -= (FXint) (3600000.0*hours);
-    minutes   = (FXint) floor((double)display/60000.0);
-    display  -= (FXint) (60000.0*minutes);
-    seconds   = (FXint) floor((double)display/1000.0);
-
-    if (hours>0)
-      timelabel->setText(FXString::value("%d:%.2d:%.2d",hours,minutes,seconds));
-    else
-      timelabel->setText(FXString::value("%.2d:%.2d",minutes,seconds));
-
-
-
-    }
-
-
-
-
-
-  }
-  #endif
 
 void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint position,FXbool playing,FXbool seekable) {
   if (playing) {
@@ -1176,32 +1034,6 @@ long GMWindow::onCmdRepeatAB(FXObject*,FXSelector,void*){
   }
 
 long GMWindow::onUpdRepeatAB(FXObject*,FXSelector,void*){
-#if 0
-#ifdef HAVE_XINE_LIB
-  if (GMPlayerManager::instance()->getPlayer()->playing() && GMPlayerManager::instance()->getPlayer()->seekable()) {
-    const FXString state_off = tr("Repeat A-B");
-    const FXString state_a = tr("Repeat A");
-    const FXString state_b = tr("Repeat A-B");
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-    switch(GMPlayerManager::instance()->getPlayer()->getRepeatAB()){
-      case REPEAT_AB_OFF: sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
-                          sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),(void*)&state_off);
-                          break;
-      case REPEAT_AB_A  : sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-                          sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),(void*)&state_a);
-                          break;
-      case REPEAT_AB_B  : sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-                          sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),(void*)&state_b);
-                          break;
-      }
-    }
-  else {
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
-    }
-#else
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
-#endif
-#endif
   return 1;
   }
 

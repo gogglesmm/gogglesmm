@@ -31,9 +31,6 @@
 #include "GMCoverCache.h"
 
 
-
-
-
 class GMCompressedImage {
 public:
   FXuchar * buffer;
@@ -190,17 +187,6 @@ GMCompressedImage * CoverLoader::compress(FXImage * img) {
     return NULL;
     }
   }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

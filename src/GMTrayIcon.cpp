@@ -193,72 +193,6 @@ FXuint GMTrayIcon::getTrayVisual(){
   return 0;
   }
 
-#if 0
-class GMVisual : public FXVisual {
-FXDECLARE(GMVisual)
-protected:
-  FXuint reqid;
-protected:
-  GMVisual();
-private:
-  GMVisual(const GMVisual&);
-  GMVisual &operator=(const GMVisual&);
-public:
-  GMVisual(FXApp * app,FXuint r);
-  virtual void create();
-  };
-
-FXIMPLEMENT(GMVisual,FXVisual,NULL,0)
-
-GMVisual::GMVisual(){
-  }
-
-GMVisual::GMVisual(FXApp * app,FXuint r) : FXVisual(app,VISUAL_DEFAULT), reqid(r) {
-  }
-
-void GMVisual::create() {
-  if(!xid){
-    if(getApp()->isInitialized()){
-      FXTRACE((100,"%s::create %p\n",getClassName(),this));
-#ifndef WIN32
-      XVisualInfo vitemplate;
-      XVisualInfo *vi;
-      FXint nvi,i,d,dbest;
-
-      // Assume the default
-      visual=DefaultVisual((Display*)getApp()->getDisplay(),DefaultScreen((Display*)getApp()->getDisplay()));
-      depth=DefaultDepth((Display*)getApp()->getDisplay(),DefaultScreen((Display*)getApp()->getDisplay()));
-
-      vitemplate.screen=DefaultScreen((Display*)getApp()->getDisplay());
-      vi=XGetVisualInfo((Display*)getApp()->getDisplay(),VisualScreenMask,&vitemplate,&nvi);
-      if(vi){
-        for(i=0;i<nvi;i++){
-          if (vi[i].visualid==reqid) {
-            visual=vi[i].visual;
-            depth=vi[i].depth;
-            break;
-            }
-          }
-        XFree((char*)vi);
-        }
-
-      FXASSERT(visual);
-
-      // Initialize colormap
-      setupcolormap();
-
-      // Make GC's for this visual
-      gc=setupgc(FALSE);
-      scrollgc=setupgc(TRUE);
-
-      xid=1;
-#endif
-      }
-    }
-  }
-#endif
-
-
 void GMTrayIcon::create(){
   xtrayopcode           = (FXID)XInternAtom((Display*)getApp()->getDisplay(),"_NET_SYSTEM_TRAY_OPCODE",0);
   xtrayorientation      = (FXID)XInternAtom((Display*)getApp()->getDisplay(),"_NET_SYSTEM_TRAY_ORIENTATION",0);
@@ -319,9 +253,6 @@ void GMTrayIcon::dock() {
 
 long GMTrayIcon::onConfigure(FXObject*,FXSelector,void*ptr){
   FXEvent * event = (FXEvent*)ptr;
-//  GMPlug::onConfigure(sender,sel,ptr);
-  //fxmessage("GMTrayIcon::onConfigure %d %d\n",event->rect.w,event->rect.h);
-
 
   FXuint orientation = getTrayOrientation();
   FXint size=0;
