@@ -520,49 +520,6 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
   filterowner=this;
   return true;
   }
-/*
-class GMBrowserSelection {
-public:
-  FXIntList artists;
-  FXIntList composers;
-  FXIntList tags;
-  FXIntList albums;
-
-
-
-  };
-
-
-
-FXbool GMDatabaseSource::listTags(GMList * list,const GMBrowserSelection & selection) {
-  try {
-    query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags)"
-
-
-    if (selection.composers.no()) {
-      gm_query_make_selection(composers,sel);
-      query += " composer s" +  sel;
-      }
-
-
-
-    }
-  catch(GMDatabaseException & e){
-    list->clearItems();
-    return false;
-    }
-  return true;
-  }
-*/
-
-
-
-
-
-
-
-
-
 
 
 FXbool GMDatabaseSource::listTags(GMList * list,FXIcon * icon) {
@@ -1308,9 +1265,9 @@ long GMDatabaseSource::onCmdExportTracks(FXObject*,FXSelector sel,void*){
 class GMCoverTask : public GMTask {
 public:
   enum {
-    COVER_APPEND       = 0,
-    COVER_REPLACE      = 1,
-    COVER_REPLACE_ALL  = 2,
+    ModeAppend       = 0,
+    ModeReplace      = 1,
+    ModeReplaceAll   = 2,
     };
 protected:
   GMTrackDatabase * database;
@@ -1331,10 +1288,10 @@ protected:
         GMFileTag tag;
         if (tag.open(files[i],FILETAG_TAGS)) {
           switch (mode) {
-            case COVER_APPEND     : tag.appendCover(cover);                     break;
-            case COVER_REPLACE    : tag.replaceCover(cover,COVER_REPLACE_TYPE); break;
-            case COVER_REPLACE_ALL: tag.replaceCover(cover,COVER_REPLACE_ALL);  break;
-            default               : break;
+            case ModeAppend     : tag.appendCover(cover);                     break;
+            case ModeReplace    : tag.replaceCover(cover,COVER_REPLACE_TYPE); break;
+            case ModeReplaceAll : tag.replaceCover(cover,COVER_REPLACE_ALL);  break;
+            default             : break;
             }
           tag.save();
           database->setTrackImported(tracks[i],FXThread::time());
@@ -1435,9 +1392,9 @@ long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector,void*){
 
       new FXLabel(matrix,fxtr("Tag Mode:"),NULL,labelstyle);
       GMListBox * list_tag = new GMListBox(matrix,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
-      list_tag->appendItem("Append",NULL,(void*)(FXival)GMCoverTask::COVER_APPEND);
-      list_tag->appendItem("Replace",NULL,(void*)(FXival)GMCoverTask::COVER_REPLACE);
-      list_tag->appendItem("Replace All",NULL,(void*)(FXival)GMCoverTask::COVER_REPLACE_ALL);
+      list_tag->appendItem("Append",NULL,(void*)(FXival)GMCoverTask::ModeAppend);
+      list_tag->appendItem("Replace",NULL,(void*)(FXival)GMCoverTask::ModeReplace);
+      list_tag->appendItem("Replace All",NULL,(void*)(FXival)GMCoverTask::ModeReplaceAll);
       list_tag->setNumVisible(3);
 
       if (confirmdialog.execute()) {

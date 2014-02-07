@@ -85,14 +85,11 @@ private: /// Called from init()
   FXbool init_database();
   FXbool init_queries();
   void   init_index();
+  void   fix_empty_tags();
 protected:
-
   FXbool reorderPlaylists();
   FXbool reorderPlaylist(FXint pl);
   FXbool reorderQueue();
-
-
-
 protected:
   FXbool updateAlbum(FXint &album,const GMTrack&,FXint artist);
 
@@ -106,10 +103,8 @@ public:
   /// Constructor
   GMTrackDatabase();
 
+  /// Clear Tracks
   FXbool clearTracks(FXbool removeplaylists);
-
-  /// Clear Database
-  void clear();
 
   /// Initialize the database. Return FALSE if failed else TRUE
   FXbool init(const FXString & filename);

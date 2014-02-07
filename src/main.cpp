@@ -63,18 +63,10 @@ static bool gm_display_help(int argc,char * argv[]) {
   return false;
   }
 int main(int argc,char *argv[]){
-
-  /// Check and make sure we're linked correctly to FOX
-  /// If we're not linked correctly, we cannot obviously popup a dialog...
-  if (fxversion[0]==1 && (fxversion[1]==6) ) { /// Test for Stable Version of FOX 1.6
-    if (FOX_MAJOR!=fxversion[0] || FOX_MINOR!=fxversion[1]){
-      fxwarning("FOX Header (v%d.%d.%d) / Library (v%d.%d.%d) mismatch!  -\n",FOX_MAJOR,FOX_MINOR,FOX_LEVEL,fxversion[0],fxversion[1],fxversion[2]);
-      return 1;
-      }
-    }
-  else if (fxversion[0]==1 && ( fxversion[1]==7)) { /// Test for Development version of FOX 1.7
+  if (fxversion[0]==1 && ( fxversion[1]==7)) {
+    // FOX 1.7 is not api stable, so rather than crashing refuse to run.
     if (FOX_MAJOR!=fxversion[0] || FOX_MINOR!=fxversion[1] || FOX_LEVEL!=fxversion[2]) {
-      fxwarning("FOX Header (v%d.%d.%d) / Library (v%d.%d.%d) mismatch!  -\n",FOX_MAJOR,FOX_MINOR,FOX_LEVEL,fxversion[0],fxversion[1],fxversion[2]);
+      fxwarning("FOX Header (v%d.%d.%d) / Library (v%d.%d.%d) mismatch!\n",FOX_MAJOR,FOX_MINOR,FOX_LEVEL,fxversion[0],fxversion[1],fxversion[2]);
       return 1;
       }
     }

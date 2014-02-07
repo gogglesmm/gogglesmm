@@ -389,14 +389,3 @@ long GMTreeList::onPaint(FXObject*,FXSelector,void* ptr){
     }
   return 1;
   }
-
-
-
-
-
-
-
-
-
-
-

@@ -166,28 +166,6 @@ FXint GMPlayQueue::getNext() {
   }
 
 
-#if 0
-
-  current_track=-1;
-  play_queue+=1;
-  try {
-    GMQuery q(db,"SELECT track FROM playlist_tracks WHERE playlist == ? AND queue == ?;");
-    q.set(0,playlist);
-    q.set(1,play_queue);
-    q.execute();
-    q.get(0,current_track);
-    //fxmessage("check %d %d %d\n",playlist,current_queue,current_track);
-    q.reset();
-    }
-  catch(FXCompileException & e){
-    return -1;
-    }
-  catch(FXExecuteException & e){
-    return -1;
-    }
-  return current_track;
-  }
-#endif
 
 FXint GMPlayQueue::getPrev() {
 #if 0
@@ -225,18 +203,3 @@ FXint GMPlayQueue::getCurrent() {
   return current_track;
   }
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

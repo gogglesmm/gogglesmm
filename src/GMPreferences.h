@@ -125,7 +125,6 @@ public:
   FXbool gui_toolbar_labelsabove;
   FXbool gui_show_browser_icons;
   FXbool gui_show_playing_albumcover;
-//  FXbool gui_show_albumcovers;
   FXbool gui_merge_albums;
   FXbool gui_tray_icon;
   FXbool gui_tray_icon_disabled;

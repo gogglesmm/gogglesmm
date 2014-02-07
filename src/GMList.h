@@ -44,7 +44,6 @@ public:
   GMListItem(const FXString& text,FXIcon* ic=NULL,void* ptr=NULL): FXListItem(text,ic,ptr) { }
   };
 
-class GMCoverThumbs;
 
 
 class GMList : public FXList {

@@ -158,14 +158,13 @@ FXint GMRenameTask::run() {
       if (to[i].empty()) continue;
       if (!FXDir::createDirectories(FXPath::directory(to[i]))) continue;
       if (FXStat::exists(to[i])) continue;
-      fxmessage("Updating Filename %s\n",to[i].text());
       if (FXFile::moveFiles(from[i],to[i])){
         database->setTrackFilename(tracks[i],to[i]);
         }
       }
     }
   catch(GMDatabaseException&) {
-    fxmessage("Database Error\n");
+    GM_DEBUG_PRINT("Database Exception\n");
     }
   return 0;
   }
@@ -244,41 +243,9 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
       list->appendItem(newurls[i]);
       }
     }
-
-
-
-
-
   if (dialog.execute()) {
-
     GMRenameTask * task = new GMRenameTask(db,tracks,newurls,oldurls);
-//    task->setTarget(GMPlayerManager::instance()->getTrackView()->getSource());
- //   task->setSelector(
-
     GMPlayerManager::instance()->runTask(task);
-/*
-
-    for (i=0;i<tracks.no();i++){
-      if (!newmrls[i].empty()) {
-        if (gm_make_path(FXPath::directory(newmrls[i]))) {
-          if (!FXStat::exists(newmrls[i])) {
-            if (FXFile::rename(oldmrls[i],newmrls[i])){
-              db->setTrackFilename(tracks[i],newmrls[i]);
-              }
-            else {
-              if (i+1<tracks.no()) {
-                if (FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_YES_NO,fxtr("Unable to rename file"),fxtrformat("Unable to rename:\n%s\n\nto:%s\nContinue renaming files?"),oldmrls[i].text(),newmrls[i].text())==MBOX_CLICKED_NO)
-                  break;
-                }
-              else {
-                FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Unable to rename file"),fxtrformat("Unable to rename:\n%s\n\nto:%s"),oldmrls[i].text(),newmrls[i].text());
-                }
-              }
-            }
-          }
-        }
-      }
-*/
     return true;
     }
   delete codec;
@@ -617,10 +584,6 @@ static FXbool list_equals(const FXStringList & a,const FXStringList & b){
   return false;
   }
 
-
-
-
-
 void GMEditTrackDialog::getTrackSelection() {
 
   tracks.clear();
@@ -663,15 +626,6 @@ void GMEditTrackDialog::displayTracks() {
   albumbox->sortItems();
   albumbox->setCurrentItem(-1);
 
-
-/*
-  db->listGenres(genrebox,false);
-  genrebox->setSortFunc(genre_list_sort);
-  genrebox->setNumVisible(FXMIN(10,genrebox->getNumItems()));
-  genrebox->sortItems();
-  genrebox->setCurrentItem(-1);
-*/
-
   if (tracks.no()==1) {
     trackspinner->setValue(GMTRACKNO(info.no));
     albumbox->setCurrentItem(albumbox->findItem(info.album));
@@ -687,8 +641,6 @@ void GMEditTrackDialog::displayTracks() {
     composerbox->setText(info.composer);
     conductorbox->setText(info.conductor);
 
-
-    //genrebox->setCurrentItem(genrebox->findItem(info.genre));
     yearfield->setText(FXString::value(info.year));
     titlefield->setText(info.title);
     discspinner->setValue(GMDISCNO(info.no));
@@ -712,13 +664,6 @@ void GMEditTrackDialog::displayTracks() {
     channelfield->setText(FXString::value("%d",properties.channels));
     tagsfield->setText(list_concat(info.tags));
 
-#if 0
-    coverview->setImage(art);
-    if (art)
-      covertab->show();
-    else
-      covertab->hide();
-#endif
     }
   else {
     if (samemask&SAME_ALBUM) albumbox->setCurrentItem(albumbox->findItem(info.album));

@@ -56,7 +56,6 @@ const char key_gui_toolbar_labelsabove[]="toolbar-labels-above";
 const char key_gui_show_browser_icons[]="browser-icons";
 const char key_gui_keywords[]="sort-keywords";
 const char key_gui_show_playing_albumcover[]="show-playing-albumcover";
-//const char key_gui_show_albumcovers[]="show-albumcovers";
 const char key_gui_merge_albums[]="merge-album-names";
 const char key_gui_show_opengl_coverview[]="show-opengl-coverview";
 const char key_gui_tray_icon[]="tray-icon";
@@ -150,7 +149,7 @@ void GMSyncOptions::load(FXSettings & reg) {
 GMPreferences::GMPreferences() :
   export_format_template("%N %T"),
   export_character_filter("\'\\#~!\"$&();<>|`^*?[]/.:"),
-  gui_format_title("%N - %T - %P"),
+  gui_format_title("%P - %T"),
 
   gui_show_status_bar(true),
   gui_hide_player_when_close(false),
@@ -228,7 +227,6 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_window,key_gui_show_browser_icons,gui_show_browser_icons);
   reg.writeStringEntry(section_window,key_gui_keywords,keywords.text());
   reg.writeBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
-//  reg.writeBoolEntry(section_window,key_gui_show_albumcovers,gui_show_albumcovers);
   reg.writeBoolEntry(section_window,key_gui_merge_albums,gui_merge_albums);
   reg.writeBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   reg.writeBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
@@ -304,7 +302,6 @@ void GMPreferences::load(FXSettings & reg) {
   gui_show_browser_icons        = reg.readBoolEntry(section_window,key_gui_show_browser_icons,gui_show_browser_icons);
   keywords                      = reg.readStringEntry(section_window,key_gui_keywords,keywords.text());
   gui_show_playing_albumcover   = reg.readBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
-//  gui_show_albumcovers          = reg.readBoolEntry(section_window,key_gui_show_albumcovers,gui_show_albumcovers);
   gui_tray_icon                 = reg.readBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   gui_show_playing_titlebar     = reg.readBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
   gui_format_title              = reg.readStringEntry(section_window,key_gui_format_title,gui_format_title.text());
@@ -344,12 +341,8 @@ void GMPreferences::resetColors(){
 
 void gm_make_string_list(const FXString & input,const FXchar sep,FXStringList & output) {
   FXint s=0,e,n;
-//  FXint len = input.length();
-//  for (i=0;i<len;i++) {
-
   while(s<input.length()) {
 
-//    fxmessage("s: %d\n",s);
     /// Skip white space.
     while(input[s]==' ') s++;
     e=s;
@@ -363,37 +356,15 @@ void gm_make_string_list(const FXString & input,const FXchar sep,FXStringList & 
     if (e-s) output.append(input.mid(s,e-s));
     s=n;
     }
-
-
-
-/*
-    if (skip && input[i]==' ')
-      s++;
-    else if (input[i]==sep) {
-      FXString item = input.mid(s,i-s).trim();
-      if (!item.empty()) output.append(item);
-      s=i+1;
-      }
-    }
-  if ((len-s)>0) {
-    FXString item = input.mid(s,i-s).trim();
-    if (!item.empty()) output.append(item);
-    }
-*/
   }
 
 
 void GMPreferences::setKeyWords(const FXString & keywords) {
   gui_sort_keywords.clear();
-
-//  fxmessage("input: \"%s\"\n",keywords.text());
   gm_make_string_list(keywords,';',gui_sort_keywords);
   for (FXint i=0;i<gui_sort_keywords.no();i++){
     gui_sort_keywords[i]+=' ';
     }
-
-//    fxmessage("key: \"%s\"\n",gui_sort_keywords[i].text());
- //   }
   }
 
 void GMPreferences::getKeyWords(FXString & keywords) const {
@@ -402,7 +373,6 @@ void GMPreferences::getKeyWords(FXString & keywords) const {
     for (FXint i=1;i<gui_sort_keywords.no();i++) {
       keywords+=";" + FXString(gui_sort_keywords[i]).trim();
       }
- //   fxmessage("get %s\n",keywords.text());
     }
   }
 

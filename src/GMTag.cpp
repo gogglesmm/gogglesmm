@@ -180,12 +180,6 @@ static GMCover * xiph_load_cover(const TagLib::ByteVector & bytevector) {
   }
 
 
-
-
-
-
-
-
 static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame) {
   FXString mime = frame->mimeType().toCString(true);
   /// Skip File Icon
@@ -309,6 +303,16 @@ FXbool GMFileTag::save() {
   return file->save();
   }
 
+
+void GMFileTag::trimList(FXStringList & list) const {
+  for (FXint i=list.no()-1;i>=0;i--){
+    list[i].trim();
+    if (list[i].empty())
+      list.erase(i);
+    }
+  }
+
+
 void GMFileTag::xiph_add_field(const FXchar * field,const FXString & value) {
   FXASSERT(field);
   FXASSERT(xiph);
@@ -339,10 +343,13 @@ void GMFileTag::xiph_update_field(const FXchar * field,const FXStringList & list
 void  GMFileTag::xiph_get_field(const FXchar * field,FXString & value) const {
   FXASSERT(field);
   FXASSERT(xiph);
-  if (xiph->contains(field))
+  if (xiph->contains(field)) {
     value=xiph->fieldListMap()[field].front().toCString(true);
-  else
+    value.trim();
+    }
+  else {
     value.clear();
+    }
   }
 
 void GMFileTag::xiph_get_field(const FXchar * field,FXStringList & list)  const{
@@ -353,6 +360,7 @@ void GMFileTag::xiph_get_field(const FXchar * field,FXStringList & list)  const{
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
       list.append(it->toCString(true));
       }
+    trimList(list);
     }
   else {
     list.clear();
@@ -362,10 +370,13 @@ void GMFileTag::xiph_get_field(const FXchar * field,FXStringList & list)  const{
 void GMFileTag::ape_get_field(const FXchar * field,FXString & value)  const{
   FXASSERT(field);
   FXASSERT(ape);
-  if (ape->itemListMap().contains(field) && !ape->itemListMap()[field].isEmpty())
+  if (ape->itemListMap().contains(field) && !ape->itemListMap()[field].isEmpty()){
     value=ape->itemListMap()[field].toString().toCString(true);
-  else
+    value.trim();
+    }
+  else {
     value.clear();
+    }
   }
 
 void GMFileTag::ape_get_field(const FXchar * field,FXStringList & list)  const{
@@ -376,6 +387,7 @@ void GMFileTag::ape_get_field(const FXchar * field,FXStringList & list)  const{
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
       list.append(it->toCString(true));
       }
+    trimList(list);
     }
   else {
     list.clear();
@@ -440,10 +452,13 @@ void GMFileTag::id3v2_update_field(const FXchar * field,const FXStringList & lis
 void  GMFileTag::id3v2_get_field(const FXchar * field,FXString & value) const{
   FXASSERT(field);
   FXASSERT(id3v2);
-  if (id3v2->frameListMap().contains(field) && !id3v2->frameListMap()[field].isEmpty() )
+  if (id3v2->frameListMap().contains(field) && !id3v2->frameListMap()[field].isEmpty() ){
     value=id3v2->frameListMap()[field].front()->toString().toCString(true);
-  else
+    value.trim();
+    }
+  else {
     value.clear();
+    }
   }
 
 void  GMFileTag::id3v2_get_field(const FXchar * field,FXStringList & list) const {
@@ -455,6 +470,7 @@ void  GMFileTag::id3v2_get_field(const FXchar * field,FXStringList & list) const
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
       list.append(it->toCString(true));
       }
+    trimList(list);
     }
   else {
     list.clear();
@@ -491,10 +507,13 @@ void GMFileTag::mp4_update_field(const FXchar * field,const FXStringList & list)
 void GMFileTag::mp4_get_field(const FXchar * field,FXString & value) const {
   FXASSERT(field);
   FXASSERT(mp4);
-  if (mp4->itemListMap().contains(field))
+  if (mp4->itemListMap().contains(field)) {
     value=mp4->itemListMap()[field].toStringList().toString(", ").toCString(true);
-  else
+    value.trim();
+    }
+  else {
     value.clear();
+    }
   }
 
 
@@ -506,6 +525,7 @@ void GMFileTag::mp4_get_field(const FXchar * field,FXStringList & list) const{
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
       list.append(it->toCString(true));
       }
+    trimList(list);
     }
   else
     list.clear();
@@ -609,8 +629,11 @@ void GMFileTag::getTags(FXStringList & tags) const {
     mp4_get_field("\251gen",tags);
   else if (ape)
     ape_get_field("GENRE",tags);
-  else
-    tags.append(FXString(tag->genre().toCString(true)));
+  else {
+    FXString genre = tag->genre().toCString(true);
+    genre.trim();
+    if (!genre.empty()) tags.append(genre);
+    }
   }
 
 
@@ -627,6 +650,7 @@ void GMFileTag::getArtist(FXString& value) const{
 void GMFileTag::setAlbum(const FXString & value){
   tag->setAlbum(TagLib::String(value.text(),TagLib::String::UTF8));
   }
+
 void GMFileTag::getAlbum(FXString& value) const{
   value=tag->album().toCString(true);
   value.trim();
@@ -642,9 +666,9 @@ void GMFileTag::getTitle(FXString& value) const {
     xiph_get_field("TITLE",vals);
     value.clear();
     if (vals.no()) {
-      for (FXint i=0;i<vals.no();i++) {
-        vals[i].trim();
-        if (!value.empty()) value+=" - ";
+      value=vals[0];
+      for (FXint i=1;i<vals.no();i++) {
+        value+=" - ";
         value+=vals[i];
         }
       }
@@ -662,6 +686,7 @@ void GMFileTag::parse_tagids(FXStringList & tags)const{
       tags[i]=TagLib::ID3v1::genre(id).toCString(true);
       }
     }
+  trimList(tags);
   }
 
 

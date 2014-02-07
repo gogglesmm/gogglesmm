@@ -1276,18 +1276,18 @@ void GMPlayerManager::pause() {
   // Any scheduled stops should be cancelled
   scheduled_stop = false;
 
+/*
   if (preferences.play_pause_close_device){
     player->pause();
     }
   else {
     player->pause();
     }
+*/
+  player->pause();
 
   if (application->hasTimeout(source,GMSource::ID_TRACK_PLAYED)) {
-//    count_track_remaining=(((FXuint)(((double)trackinfo.time) * 0.80)) * 1000) - player->getPositionMS();
-
     count_track_remaining = application->remainingTimeout(source,GMSource::ID_TRACK_PLAYED);
-//    fxmessage("timeout remaining to %u ms (%u s)\n",count_track_remaining,count_track_remaining/1000);
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
     }
   else {

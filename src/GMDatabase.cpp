@@ -81,23 +81,6 @@ FXbool GMQuery::row() {
   while(1);
   return false;
   }
-#if 0
-/// Run
-void GMQuery::runAll() {
-  FXASSERT(statement);
-  register FXint result;
-  do {
-    result = sqlite3_step(statement);
-    switch(result) {
-      case SQLITE_ROW   : continue;                         break;
-      case SQLITE_DONE  : sqlite3_reset(statement); return; break;
-      case SQLITE_BUSY  : FXThread::sleep(DATABASE_SLEEP);  break;
-      default           : fatal();                          break;
-      }
-    }
-  while(1);
-  }
-#endif
 
 /// Run
 void GMQuery::execute() {
@@ -113,8 +96,6 @@ void GMQuery::execute() {
     }
   while(1);
   }
-
-
 
 void GMQuery::execute(FXint & out){
   if (__likely(row()==true))
@@ -171,119 +152,6 @@ void GMQuery::execute(const FXString & in,FXint & out){
     get(0,out);
   sqlite3_reset(statement);
   }
-
-
-
-
-#if 0
-FXbool GMQuery::execute_with_result(FXint & value) {
-  FXASSERT(statement);
-  FXint result = sqlite3_step(statement);
-  switch(result) {
-    case SQLITE_DONE  : sqlite3_reset(statement); return false; break;
-    case SQLITE_ROW   : get(0,value); reset(); return true; break;
-    case SQLITE_BUSY  :
-    case SQLITE_LOCKED:
-    default					  :  gm_print_backtrace(statement,"bug: database was locked"); reset(); throw GMDatabaseException(); break;
-    }
-  return false;
-  }
-
-FXbool GMQuery::execute_with_result(FXString & value) {
-  FXASSERT(statement);
-  FXint result = sqlite3_step(statement);
-  switch(result) {
-    case SQLITE_DONE  : sqlite3_reset(statement);  return false; break;
-    case SQLITE_ROW   : get(0,value); reset(); return true; break;
-    case SQLITE_BUSY  :
-    case SQLITE_LOCKED:
-    default					  : gm_print_backtrace(statement,"bug: database was locked"); reset(); throw GMDatabaseException(); break;
-    }
-  return false;
-  }
-
-
-FXbool GMQuery::execute_simple(FXint in,FXString & out) {
-  FXASSERT(statement);
-  set(0,in);
-  FXint result = sqlite3_step(statement);
-  switch(result) {
-    case SQLITE_DONE  : sqlite3_reset(statement); return false; break;
-    case SQLITE_ROW   : get(0,out); reset(); return true; break;
-    case SQLITE_BUSY  :
-    case SQLITE_LOCKED:
-
-    default					  : gm_print_backtrace(statement,"bug: database was locked"); reset(); throw GMDatabaseException(); break;
-    }
-  return false;
-  }
-
-FXbool GMQuery::execute_simple(FXint in,FXint & out) {
-  FXASSERT(statement);
-  set(0,in);
-  FXint result = sqlite3_step(statement);
-  switch(result) {
-    case SQLITE_DONE  : sqlite3_reset(statement);return false; break;
-    case SQLITE_ROW   : get(0,out); sqlite3_reset(statement); return true; break;
-    case SQLITE_BUSY  :
-    case SQLITE_LOCKED:
-
-    default					  : gm_print_backtrace(statement,"bug: database was locked"); reset(); throw GMDatabaseException(); break;
-    }
-  return false;
-  }
-
-
-
-FXbool GMQuery::execute_simple(const FXString & in,FXint & out) {
-  FXASSERT(statement);
-  set(0,in);
-  FXint result = sqlite3_step(statement);
-  switch(result) {
-    case SQLITE_DONE  : sqlite3_reset(statement); return false; break;
-    case SQLITE_ROW   : get(0,out); sqlite3_reset(statement); return true; break;
-    case SQLITE_BUSY  :
-    case SQLITE_LOCKED:
-
-    default					  : gm_print_backtrace(statement,"bug: database was locked"); reset(); throw GMDatabaseException(); break;
-    }
-  return false;
-  }
-
-
-FXbool GMQuery::execute_simple(FXint in) {
-  FXASSERT(statement);
-  set(0,in);
-  FXint result = sqlite3_step(statement);
-  switch(result) {
-    case SQLITE_DONE  : sqlite3_reset(statement); return true; break;
-    case SQLITE_ROW   : reset(); FXASSERT(0); return false; break;
-    case SQLITE_BUSY  :
-    case SQLITE_LOCKED:
-
-    default					  : gm_print_backtrace(statement,"bug: database was locked");
-                        reset();FXASSERT(0); throw GMDatabaseException(); break;
-    }
-  return false;
-  }
-
-void GMQuery::execute_simple(const FXString & in) {
-  FXASSERT(statement);
-  set(0,in);
-  FXint result = sqlite3_step(statement);
-  switch(result) {
-    case SQLITE_DONE  : sqlite3_reset(statement); break;
-    case SQLITE_BUSY  :
-    case SQLITE_LOCKED:
-    default           : gm_print_backtrace(statement,"bug: database was locked");
-                        throw GMDatabaseException();
-    }
-  }
-
-#endif
-
-
-
 
 void GMQuery::set(FXint p,FXint v){
   if (__unlikely(sqlite3_bind_int(statement,(p+1),v)!=SQLITE_OK))
@@ -388,28 +256,6 @@ void GMQuery::makeSelection(const FXIntList & list,FXString & selection) {
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 FXMutex         GMDatabase::mutex;
 FXCondition     GMDatabase::condition;
 volatile FXbool GMDatabase::interrupt = false;
@@ -491,7 +337,7 @@ void GMDatabase::reset() {
     tables.append(table);
     }
   for (FXint i=0;i<tables.no();i++) {
-    ("DROP TABLE IF EXISTS " + tables[i] + ";");
+    execute("DROP TABLE IF EXISTS " + tables[i]);
     }
   }
 
@@ -543,39 +389,6 @@ void GMDatabase::execute(const FXchar * statement,const FXint in,FXString & out)
   GMQuery q(this,statement);
   q.execute(in,out);
   }
-
-
-#if 0
-
-
-
-/// Execute a simple query
-
-
-
-
-
-/// Execute a simple query
-void GMDatabase::execute_simple(const FXchar * statement,FXint & val){
-  GMQuery q(compile(statement));
-  q.execute_with_result(val);
-  }
-
-
-/// Execute a simple query
-void GMDatabase::execute_simple(const FXchar * statement,FXint in,FXString & out){
-  GMQuery q(compile(statement));
-  q.execute_simple(in,out);
-  }
-
-FXint GMDatabase::execute_insert(GMQuery & q) {
-  q.execute();
-  q.reset();
-  return sqlite3_last_insert_rowid(db);
-  }
-#endif
-
-
 
 void GMDatabase::begin() {
   GM_DEBUG_PRINT("begin()\n");
@@ -657,6 +470,13 @@ void GMDatabase::enableForeignKeys(){
   else {
     GM_DEBUG_PRINT("[sqlite] foreign keys enabled\n");
     }
+  }
+
+void GMDatabase::recreate_table(const FXchar * table,const FXchar * make_new_table) {
+  execute(FXString::value("ALTER TABLE %s RENAME TO old_%s",table,table));
+  execute(make_new_table);
+  execute(FXString::value("INSERT INTO %s SELECT * FROM old_%s",table,table));
+  execute(FXString::value("DROP TABLE old_%s",table));
   }
 
 
