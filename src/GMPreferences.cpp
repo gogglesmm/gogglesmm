@@ -150,7 +150,7 @@ void GMSyncOptions::load(FXSettings & reg) {
 GMPreferences::GMPreferences() :
   export_format_template("%N %T"),
   export_character_filter("\'\\#~!\"$&();<>|`^*?[]/.:"),
-  gui_format_title("%N - %T - %P"),
+  gui_format_title("%P - %T"),
 
   gui_show_status_bar(true),
   gui_hide_player_when_close(false),
