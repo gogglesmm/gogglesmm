@@ -397,6 +397,10 @@ FXbool HttpResponse::read_status() {
       GM_DEBUG_PRINT("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
       return true;
       }
+    else if (header.scan("ICY %d",&status.code)==1){
+      GM_DEBUG_PRINT("Code: %d \nVersion: ICY\n",status.code);
+      return true;
+      }
     else {
       GM_DEBUG_PRINT("HttpResponse::read_status() - Failed to parse http header: %s\n",header.text());
       }
