@@ -149,9 +149,7 @@ extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 extern ReaderPlugin * ap_aac_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_MP4_PLUGIN
 extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
-#endif
 
 #ifdef HAVE_CDDA_PLUGIN
 extern ReaderPlugin * ap_cdda_reader(AudioEngine*);
@@ -185,9 +183,7 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #ifdef HAVE_AAC_PLUGIN
     case Format::AAC      : return ap_aac_reader(engine); break;
 #endif
-#ifdef HAVE_MP4_PLUGIN
     case Format::MP4      : return ap_mp4_reader(engine); break;
-#endif
 #ifdef HAVE_MUSEPACK_PLUGIN
     case Format::Musepack : return ap_musepack_reader(engine); break;
 #endif

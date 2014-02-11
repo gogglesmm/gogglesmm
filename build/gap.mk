@@ -35,7 +35,8 @@ src/gap/plugins/ap_wav_plugin.cpp \
 src/gap/plugins/ap_pcm_plugin.cpp \
 src/gap/plugins/ap_file_plugin.cpp \
 src/gap/plugins/ap_http_plugin.cpp \
-src/gap/plugins/ap_id3v2.cpp
+src/gap/plugins/ap_id3v2.cpp \
+src/gap/plugins/ap_mp4.cpp 
 
 ifneq (,$(findstring musepack,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_musepack_plugin.cpp
