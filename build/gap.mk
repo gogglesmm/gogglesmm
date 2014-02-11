@@ -35,8 +35,7 @@ src/gap/plugins/ap_wav_plugin.cpp \
 src/gap/plugins/ap_pcm_plugin.cpp \
 src/gap/plugins/ap_file_plugin.cpp \
 src/gap/plugins/ap_http_plugin.cpp \
-src/gap/plugins/ap_id3v2.cpp \
-src/gap/plugins/ap_mp4.cpp 
+src/gap/plugins/ap_id3v2.cpp
 
 ifneq (,$(findstring musepack,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_musepack_plugin.cpp
@@ -75,7 +74,7 @@ src/gap/plugins/ap_flac_plugin$(OBJEXT): CFLAGS+=$(FLAC_CFLAGS)
 endif
 
 ifneq (,$(findstring aac,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_aac_plugin.cpp
+GAP_SRC+=src/gap/plugins/ap_aac_plugin.cpp src/gap/plugins/ap_mp4.cpp
 endif
 
 ifneq (,$(findstring cdda,$(GAP_PLUGINS)))

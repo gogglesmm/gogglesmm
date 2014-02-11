@@ -44,84 +44,139 @@ enum {
   };
 
 
-struct stts_entry {
-  FXuint nsamples;
-  FXuint delta;
-  };
-
 class Track {
-public:
+  struct stts_entry {
+    FXuint nsamples;
+    FXuint delta;
+    };
 
   struct stsc_entry {
     FXint first;
     FXint nsamples;
     FXint index;
     };
+public:
+  AudioFormat         af;                           // Audio Format
+  FXuchar             codec;                        // Audio Codec
+  FXArray<FXuint>     stsz;                         // samples size lookup table (in bytes)
+  FXArray<FXuint>     stco;                         // chunk offset table
+  FXArray<stts_entry> stts;                         // time to sample number lookup table 
+  FXArray<stsc_entry> stsc;                         // chunk-to-sample table
+  FXuint              fixed_sample_size;            // used if all samples have the same size
+  FXuchar*            decoder_specific_info;        // decoder specific info
+  FXuint              decoder_specific_info_length; // decoder specific length
+public:
+  Track() : codec(Codec::Invalid),decoder_specific_info(NULL),decoder_specific_info_length(0) {}
+  ~Track() { freeElms(decoder_specific_info); }
 
 public:
-  FXuchar             codec;                  // Audio Codec
-  FXArray<FXuint>     stsz;                   // samples size lookup table (in bytes)
-  FXArray<FXuint>     stco;                   // chunk offset table
-  FXArray<stts_entry> stts;                   // time to sample number lookup table 
-  FXArray<stsc_entry> stsc;                   // chunk-to-sample table
+  FXlong getChunkOffset(FXuint chunk,FXuint chunk_nsamples,FXuint sample) {
+    FXlong offset;
+    if (stco.no()) 
+      offset = stco[FXMIN(chunk,stco.no()-1)];
+    else 
+      offset = 8;
+    
+    if (fixed_sample_size) {
+      offset += (sample-chunk_nsamples)*fixed_sample_size;
+      }
+    else {
+      for (FXint i=chunk_nsamples;i<sample;i++) {
+        offset+=stsz[i];
+        }
+      }
+    return offset;
+    }
 
-  FXuint              fixed_sample_size;
-  FXArray<FXuchar>    decoder_specific_info;
-  AudioFormat         af;
+  // Find the chunk that contains sample s. Also return nsamples at start of chunk
+  void getChunk(FXuint s,FXuint & chunk,FXuint & chunk_nsamples) {
+    FXuint nchunks,nsamples,ntotal=0;
+    for (FXint i=0;i<stsc.no()-1;i++) {
+      nchunks  = (stsc[i+1].first - stsc[i].first);
+      nsamples = nchunks * stsc[i].nsamples;  
+      if (s<ntotal+nsamples) {
+        chunk          = stsc[i].first + ((s-ntotal)/stsc[i].nsamples) - 1;
+        chunk_nsamples = ntotal + ((chunk+1)-stsc[i].first) * stsc[i].nsamples;
+        return;
+        }
+      ntotal+=nsamples;
+      }
+
+    chunk          = stsc.tail().first + ((s-ntotal) / stsc.tail().nsamples) - 1;
+    chunk_nsamples = ntotal + ((chunk+1) - stsc.tail().first) * stsc.tail().nsamples;
+    }
+
+  FXint getSample(FXlong position) {
+    FXlong n,ntotal = 0;
+    FXint nsamples = 0;
+    for (int i=0;i<stts.no();i++){
+      n = stts[i].nsamples*stts[i].delta;
+      if (position<ntotal+n) {
+        return nsamples+((position-ntotal)/stts[i].delta);        
+        }
+      ntotal+=n;
+      nsamples+=stts[i].nsamples;
+      }
+    return -1;
+    }
+
+  FXlong getSamplePosition(FXuint s) {
+    FXlong pos=0;
+    FXuint nsamples=0;
+    for (int i=0;i<stts.no();i++){
+      if (s<(stts[i].nsamples+nsamples)){
+        pos+=stts[i].delta*(s-nsamples);
+        return pos;
+        }
+      else {
+        pos+=stts[i].delta*stts[i].nsamples;
+        }
+      nsamples+=stts[i].nsamples;
+      }
+    return 0;
+    }
+ 
+  FXlong getLength() {
+    FXlong length=0;
+    for (int i=0;i<stts.no();i++){
+      length+=stts[i].delta*stts[i].nsamples;
+      }
+    return length; 
+    }
 
 
-public:
-  FXuint sample_size(FXuint s) {
+  FXlong getSampleOffset(FXuint s) {
+    FXuint chunk,nsamples;
+    getChunk(s,chunk,nsamples);
+    return getChunkOffset(chunk,nsamples,s);
+    }
+
+  FXlong getSampleSize(FXuint s) {
     if (fixed_sample_size)
       return fixed_sample_size;
     else
       return stsz[s];
     }
 
-  FXuint get_chunk_for_sample(FXuint s) {
-    fxmessage("get_chunk_for_sample %d\n",s);
-    FXint nchunks,nsamples,ntotal=0;;
-    for (FXint i=0;i<stsc.no()-1;i++){
-      nchunks  = (stsc[i+1].first - stsc[i].first);
-      nsamples = nchunks * stsc[i].nsamples;  
-      if (s<ntotal+nsamples) {
-        fxmessage("found chunk in range %d-%d=%d = %d\n",stsc[i].first,stsc[i+1].first,stsc[i].nsamples,stsc[i].first + ((s-ntotal) / stsc[i].nsamples));
-        return (s-ntotal) / stsc[i].nsamples;
-        }
-      ntotal+=nsamples;
-      }    
-    fxmessage("found s in last range %d-%d = %d\n",stsc.tail().first,stsc[stsc.no()-1].nsamples,stsc[stsc.no()-1].first + ((s-ntotal) / stsc[stsc.no()-1].nsamples));
-    return stsc[stsc.no()-1].first + ((s-ntotal) / stsc[stsc.no()-1].nsamples);
-    }
-
-  FXlong get_chunk_offset(FXuint c) {
-    if (stco.no()) {
-      return stco[FXMIN(stco.no(),c];
+  FXuint getNumSamples() {
+    FXint nsamples = 0;
+    for (FXint i=0;i<stts.no();i++) {
+      nsamples += stts[i].nsamples;
       }
-    else {
-      return 0;
-      }
+    return nsamples;  
     }
-
-
-
   };
 
 
 class MP4Reader : public ReaderPlugin {
 protected:
-  Packet * packet;
-
-protected:
 #ifdef DEBUG
   FXint indent;
-
 #endif  
   FXPtrListOf<Track> tracks;
-  Track*           track;  
+  Track*             track;  
 protected:
   FXuint read_descriptor_length(FXuint&);
-
   FXbool atom_parse_esds(FXlong size);
   FXbool atom_parse_mp4a(FXlong size);
   FXbool atom_parse_stsd(FXlong size);
@@ -133,7 +188,12 @@ protected:
   FXbool atom_parse_header(FXuint & atom_type,FXlong & atom_size);
   FXbool atom_parse(FXlong size);
 protected:
-  ReadStatus parse();
+  FXuint   sample;      // current sample
+  FXuint   nsamples;    // number of samples
+protected:
+  ReadStatus parse(Packet * p);
+  FXbool select_track();
+  void clear_tracks();
 public:
   MP4Reader(AudioEngine*);
 
@@ -167,6 +227,7 @@ MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e) {
   }
 
 MP4Reader::~MP4Reader(){
+  clear_tracks();
   }
 
 FXbool MP4Reader::init(InputPlugin*plugin) {
@@ -175,71 +236,115 @@ FXbool MP4Reader::init(InputPlugin*plugin) {
 #ifdef DEBUG
   indent=0;
 #endif
-
-  for (int i=0;i<tracks.no();i++)
-    delete tracks[i];
-  tracks.clear();
-  track=NULL;
-
+  clear_tracks();
+  nsamples=0;
+  sample=0;
   return true;
   }
 
-
 FXbool MP4Reader::can_seek() const {
-  return false;
+  return true;
   }
 
 FXbool MP4Reader::seek(FXdouble pos){
+  FXlong sk = pos * stream_length;
+  FXint s = track->getSample(pos*stream_length);
+  if (s>=0) {
+    sample = s;
+    return true;
+    }
   return false;
   }
 
-ReadStatus MP4Reader::process(Packet*p) {
-  packet = p;
+ReadStatus MP4Reader::process(Packet*packet) {
   packet->stream_position=-1;
-  packet->stream_length=-1;
+  packet->stream_length=stream_length;
+  packet->flags=AAC_FLAG_FRAME;
 
   if (!(flags&FLAG_PARSED)) {
-    return parse();
+    return parse(packet);
     }
 
-  return ReaderPlugin::process(p);
+  packet->stream_position = track->getSamplePosition(sample);
+
+  for (;sample<nsamples;sample++) {    
+    FXlong size = track->getSampleSize(sample);
+    if (size<0) return ReadError;
+    if (size>packet->space()){
+      if (packet->size()) {
+        engine->decoder->post(packet);
+        packet=NULL;
+        }
+      return ReadOk;
+      }
+    FXlong offset = track->getSampleOffset(sample);
+    input->position(offset,FXIO::Begin);
+    if (input->read(packet->ptr(),size)!=size){
+      packet->unref();
+      return ReadError;
+      }
+    packet->wroteBytes(size);
+    if (sample==nsamples-1) {
+      packet->flags|=FLAG_EOS;
+      engine->decoder->post(packet);
+      packet=NULL;
+      return ReadDone;
+      }
+    }
+  return ReadOk;
   }
 
 
+void MP4Reader::clear_tracks(){
+  for (int i=0;i<tracks.no();i++)
+    if (tracks[i]!=track)
+      delete tracks[i];
+  tracks.clear();
+  delete track;
+  track = NULL;      
+  }
 
-ReadStatus MP4Reader::parse() {
+
+FXbool MP4Reader::select_track() {
+  Track* selected = NULL;
+  for (FXint i=0;i<tracks.no();i++) {
+    if (tracks[i]->codec!=Codec::Invalid) {
+      selected = tracks[i];
+      }
+    }
+  for (FXint i=0;i<tracks.no();i++){
+    if (tracks[i]!=selected)
+      delete tracks[i];
+    }
+  tracks.clear();
+  track = selected;
+  return (track!=NULL);
+  }
+
+
+ReadStatus MP4Reader::parse(Packet * packet) {
   if (atom_parse(input->size())) {
 
-    if (tracks.no()==0) 
+    if (!select_track()) {
+      packet->unref();
       return ReadError;
+      }
 
-    // fixme get best track
+    FXASSERT(track);
+    stream_length = track->getLength();
+    nsamples = track->getNumSamples();
+    sample   = 0;
 
     af = track->af;
-    engine->decoder->post(new ConfigureEvent(af,track->codec));
-  
-  //  fxmessage("chunk offset %d\n",track->stco[0]);
-    packet->append(&track->decoder_specific_info[0],track->decoder_specific_info.no());
+    engine->decoder->post(new ConfigureEvent(af,track->codec));  
+    packet->append(track->decoder_specific_info,track->decoder_specific_info_length);
     packet->flags|=AAC_FLAG_CONFIG|AAC_FLAG_FRAME;
     engine->decoder->post(packet);
-    input->position(track->stco[0],FXIO::Begin);
-
-
-
-
-    fxmessage("size of sample %d\n",track->sample_size(0));
-    track->get_chunk_for_sample(0);
-
-    track->get_chunk_for_sample(9460);
-
-
-
-
-
+    flags|=FLAG_PARSED;
+    return ReadOk;
     }
-  af = track->af;
-  flags|=FLAG_PARSED;
-  return ReadOk;
+  packet->unref();
+  return ReadError;
   }
 
 
@@ -440,10 +545,13 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
   length = read_descriptor_length(l);
   nbytes-=(length);
 
-  track->decoder_specific_info.no(length);
-  if (input->read(&track->decoder_specific_info[0],length)!=length)
-    return false;
-    
+  if (length) {
+    allocElms(track->decoder_specific_info,length);
+    track->decoder_specific_info_length = length;
+    if (input->read(track->decoder_specific_info,length)!=length)
+      return false;
+    }
+
   FXlong end = input->position();
   fxmessage("%ld / %ld / %ld\n",size-nbytes,end-start,size);
  
@@ -605,8 +713,10 @@ FXbool MP4Reader::atom_parse_header(FXuint & type,FXlong & size) {
 
 
 FXbool MP4Reader::atom_parse(FXlong size) {
+#ifdef DEBUG
   indent++;
   fxmessage("atom_parse %d\n",indent);
+#endif
   FXuint atom_type;
   FXlong atom_size;
   while(size>=8 && atom_parse_header(atom_type,atom_size)){
@@ -626,12 +736,12 @@ FXbool MP4Reader::atom_parse(FXlong size) {
       case ESDS: atom_parse_esds(atom_size); break;
       default  : input->position(atom_size,FXIO::Current); break;
       }
-    for (int i=0;i<indent;i++) fxmessage("  ");
-    fxmessage("%d-%ld\n",indent,atom_size);
     size-=atom_size;
     //fxmessage("size left: %ld\n",size);
     }
+#ifdef DEBUG
   indent--;
+#endif
   return true;
   }
 

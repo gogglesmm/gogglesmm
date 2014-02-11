@@ -193,9 +193,9 @@ DecoderStatus AacDecoder::process(Packet*packet){
       buffer.readBytes(frame.bytesconsumed);
       }
 
-	  if (frame.error > 0) {
-	    GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));
-	    }
+//	  if (frame.error > 0) {
+//	    GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));//
+//	    }
 
     if (frame.samples) {
       position+=(frame.samples/frame.channels);
