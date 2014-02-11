@@ -84,7 +84,7 @@ FXbool GMStreamSource::getTrack(GMTrack & info) const {
   GMStream sinfo;
   if (db->getStream(current_track,sinfo)){
     info.url = sinfo.url;
-    return true;
+    return false;
     }
   return false;
   }

@@ -39,14 +39,22 @@
 
 
 #include "neaacdec.h"
+
+#ifdef HAVE_MP4_PLUGIN
 #include "mp4ff.h"
+#endif
+
 
 namespace ap {
+
+
 
 enum {
   AAC_FLAG_CONFIG = 0x2,
   AAC_FLAG_FRAME  = 0x4
   };
+
+#ifdef HAVE_MP4_PLUGIN
 
 class MP4Reader : public ReaderPlugin {
 protected:
@@ -277,6 +285,10 @@ ReaderPlugin * ap_mp4_reader(AudioEngine * engine) {
   return new MP4Reader(engine);
   }
 
+#endif
+
+
+#ifdef HAVE_AAC_PLUGIN
 
 class AACReader : public ReaderPlugin {
 public:
@@ -300,10 +312,8 @@ ReadStatus AACReader::process(Packet*packet) {
     if (input->read(buffer,2)!=2)
       return ReadError;
     do {
-//      fxmessage("0x%hhx  0x%hhx\n",buffer[0],buffer[1]);
       if ((buffer[0]==0xFF) && (buffer[1]&0xf0)==0xf0) {
         GM_DEBUG_PRINT("found sync\n");
- //       af.set(AP_FORMAT_S16,44100,2);
         engine->decoder->post(new ConfigureEvent(af,Codec::AAC));
         flags|=FLAG_PARSED;
         packet->append(buffer,2);
@@ -332,6 +342,7 @@ class AacDecoder : public DecoderPlugin {
 protected:
   NeAACDecHandle handle;
   MemoryBuffer   buffer;
+  FXlong         position;
 protected:
   Packet * in;
   Packet * out;
@@ -346,7 +357,7 @@ public:
 
 
 
-AacDecoder::AacDecoder(AudioEngine * e) : DecoderPlugin(e),handle(NULL),in(NULL),out(NULL) {
+AacDecoder::AacDecoder(AudioEngine * e) : DecoderPlugin(e),handle(NULL),position(-1),in(NULL),out(NULL) {
   }
 
 AacDecoder::~AacDecoder() {
@@ -371,8 +382,10 @@ FXbool AacDecoder::flush() {
   }
 
 DecoderStatus AacDecoder::process(Packet*packet){
-  FXlong fs  = packet->stream_position;
   FXbool eos = packet->flags&FLAG_EOS;
+
+  if (packet->flags&AAC_FLAG_FRAME)
+    position = packet->stream_position;
 
   long unsigned int samplerate;
   FXuchar           channels;
@@ -394,9 +407,9 @@ DecoderStatus AacDecoder::process(Packet*packet){
       long n = NeAACDecInit(handle,buffer.data(),buffer.size(),&samplerate,&channels);
       if (n<0) return DecoderError;
       else if (n>0) buffer.readBytes(n);
-
       af.set(AP_FORMAT_S16,samplerate,channels);
       engine->output->post(new ConfigureEvent(af,Codec::AAC));
+      position=0;
       }
     }
 
@@ -411,7 +424,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
       out = engine->decoder->get_output_packet();
       if (out==NULL) return DecoderInterrupted;
       out->af              = af;
-      out->stream_position = fs;
+      out->stream_position = position;
       out->stream_length   = packet->stream_length;
       }
 
@@ -426,7 +439,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
 	    }
 
     if (frame.samples) {
-      fs+=(frame.samples/frame.channels);
+      position+=(frame.samples/frame.channels);
       out->wroteFrames((frame.samples/frame.channels));
       if (out->availableFrames()==0) {
         engine->output->post(out);
@@ -454,7 +467,7 @@ DecoderPlugin * ap_aac_decoder(AudioEngine * engine) {
   return new AacDecoder(engine);
   }
 
-
+#endif
 }
 
 
