@@ -54,6 +54,14 @@ FXbool InputPlugin::read_uint32_be(FXuint & value) {
   return false;
   }
 
+FXbool InputPlugin::read_int64_be(FXlong & value) {
+  if (read(&value,8)==8) {
+    value = swap64(value);
+    return true;
+    }
+  return false;
+  }
+
 FXbool InputPlugin::read_int32_be(FXint & value) {
   if (read(&value,4)==4) {
     value = swap32(value);

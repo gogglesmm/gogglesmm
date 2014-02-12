@@ -1984,7 +1984,6 @@ long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
     pos = (FXint)(100000.0 * ( (double)tm->position / (double)tm->length));
     }
 
-
   mainwindow->update_time(tm_progress,tm_remaining,pos,true,true);
   return 1;
   }

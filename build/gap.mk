@@ -74,7 +74,7 @@ src/gap/plugins/ap_flac_plugin$(OBJEXT): CFLAGS+=$(FLAC_CFLAGS)
 endif
 
 ifneq (,$(findstring aac,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_aac_plugin.cpp
+GAP_SRC+=src/gap/plugins/ap_aac_plugin.cpp src/gap/plugins/ap_mp4.cpp
 endif
 
 ifneq (,$(findstring cdda,$(GAP_PLUGINS)))
