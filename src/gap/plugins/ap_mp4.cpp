@@ -81,7 +81,7 @@ public:
       offset += (sample-chunk_nsamples)*fixed_sample_size;
       }
     else {
-      for (FXint i=chunk_nsamples;i<sample;i++) {
+      for (FXuint i=chunk_nsamples;i<sample;i++) {
         offset+=stsz[i];
         }
       }
@@ -185,7 +185,7 @@ protected:
   FXbool atom_parse_stts(FXlong size);
   FXbool atom_parse_stsz(FXlong size);
   FXbool atom_parse_trak(FXlong size);
-  FXbool atom_parse_header(FXuint & atom_type,FXlong & atom_size);
+  FXbool atom_parse_header(FXuint & atom_type,FXlong & atom_size,FXlong & container);
   FXbool atom_parse(FXlong size);
 protected:
   FXuint   sample;      // current sample
@@ -223,7 +223,7 @@ ReaderPlugin * ap_mp4_reader(AudioEngine * engine) {
 
 
 
-MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e) {
+MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e),track(NULL) {
   }
 
 MP4Reader::~MP4Reader(){
@@ -247,7 +247,6 @@ FXbool MP4Reader::can_seek() const {
   }
 
 FXbool MP4Reader::seek(FXdouble pos){
-  FXlong sk = pos * stream_length;
   FXint s = track->getSample(pos*stream_length);
   if (s>=0) {
     sample = s;
@@ -271,10 +270,8 @@ ReadStatus MP4Reader::process(Packet*packet) {
     FXlong size = track->getSampleSize(sample);
     if (size<0) return ReadError;
     if (size>packet->space()){
-      if (packet->size()) {
-        engine->decoder->post(packet);
-        packet=NULL;
-        }
+      engine->decoder->post(packet);
+      packet=NULL;
       return ReadOk;
       }
     FXlong offset = track->getSampleOffset(sample);
@@ -352,6 +349,7 @@ ReadStatus MP4Reader::parse(Packet * packet) {
 // Defined in reverse so we don't have to byteswap while reading on LE.
 #define DEFINE_ATOM(b1,b2,b3,b4) ((b4<<24) | (b3<<16) | (b2<<8) | (b1))
 
+
 enum Atom {
 
   ESDS = DEFINE_ATOM('e','s','d','s'),
@@ -383,7 +381,7 @@ enum Atom {
   };
 
 
-FXbool MP4Reader::atom_parse_trak(FXlong size) {
+FXbool MP4Reader::atom_parse_trak(FXlong /*size*/) {
   track = new Track();
   tracks.append(track);
   return true;
@@ -397,8 +395,6 @@ FXbool MP4Reader::atom_parse_mp4a(FXlong size) {
   FXushort channels;
   FXushort samplesize;
   FXuint   samplerate;
-  FXuint   atom_type;
-  FXlong   atom_size;
 
   FXlong nbytes = size;
 
@@ -447,8 +443,6 @@ FXbool MP4Reader::atom_parse_mp4a(FXlong size) {
   if (nbytes-28>0) {
     return atom_parse(nbytes-28);      
     }
-
-
   return true;
   }
 
@@ -467,16 +461,15 @@ FXuint MP4Reader::read_descriptor_length(FXuint & length) {
   }
 
 
-#define ES_DescrTag           0x3
-#define DecoderConfigDescrTag 0x4 
-#define DecSpecificInfoTag    0x5
+#define ESDescriptorTag            0x3
+#define DecoderConfigDescriptorTag 0x4 
+#define DecoderSpecificInfoTag     0x5
          
 FXbool MP4Reader::atom_parse_esds(FXlong size) {
   FXlong   nbytes = size;
   FXuint   version;
   FXushort esid;
   FXuchar  flags;
-  FXuchar  reserved[3];
   FXuint   length;
   FXuint   l;
 
@@ -493,7 +486,7 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
   if (input->read(&tag,1)!=1)
     return false;
 
-  if (tag==ES_DescrTag) {
+  if (tag==ESDescriptorTag) {
 
     length = read_descriptor_length(l); 
 
@@ -513,13 +506,12 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
   if (input->read(&tag,1)!=1)
     return false;
 
-  if (tag!=DecoderConfigDescrTag)
+  if (tag!=DecoderConfigDescriptorTag)
     return false;
 
   length = read_descriptor_length(l);
   nbytes-=(length);
 
-  fxmessage("len %d\n",length); 
 
   if (input->read(&tag,1)!=1)
     return false;
@@ -539,7 +531,7 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
   if (input->read(&tag,1)!=1)
     return false;
 
-  if (tag!=DecSpecificInfoTag)
+  if (tag!=DecoderSpecificInfoTag)
     return false;
 
   length = read_descriptor_length(l);
@@ -553,7 +545,6 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
     }
 
   FXlong end = input->position();
-  fxmessage("%ld / %ld / %ld\n",size-nbytes,end-start,size);
  
   if (end-start>0)
     input->position(size-(end-start),FXIO::Current);
@@ -582,7 +573,7 @@ FXbool MP4Reader::atom_parse_stsd(FXlong size) {
   }
 
 
-FXbool MP4Reader::atom_parse_stsc(FXlong size) {
+FXbool MP4Reader::atom_parse_stsc(FXlong /*size*/) {
   FXuint version;
   FXuint nentries;      
 
@@ -606,13 +597,13 @@ FXbool MP4Reader::atom_parse_stsc(FXlong size) {
         return false;
       }
     }
-  FXASSERT(size==((nentries*12)+8));
+  //FXASSERT(size==((nentries*12)+8));
   return true;   
   }
 
 
 
-FXbool MP4Reader::atom_parse_stco(FXlong size) {
+FXbool MP4Reader::atom_parse_stco(FXlong/*size*/) {
   FXuint   version;
   FXuint   nchunks;      
 
@@ -631,11 +622,11 @@ FXbool MP4Reader::atom_parse_stco(FXlong size) {
       input->read_uint32_be(track->stco[i]);
       }
     }
-  FXASSERT(size==((nchunks*4)+8));
+  //FXASSERT(size==((nchunks*4)+8));
   return true;
   }
 
-FXbool MP4Reader::atom_parse_stts(FXlong size) {
+FXbool MP4Reader::atom_parse_stts(FXlong /*size*/) {
   FXuint   version;
   FXuint   nsize;      
 
@@ -651,16 +642,16 @@ FXbool MP4Reader::atom_parse_stts(FXlong size) {
   if (nsize>0) {
     track->stts.no(nsize);    
     for (FXuint i=0;i<nsize;i++) {
-      input->read_uint32_be(track->stts[i].nsamples);
-      input->read_uint32_be(track->stts[i].delta);
+      if (!input->read_uint32_be(track->stts[i].nsamples)) return false;
+      if (!input->read_uint32_be(track->stts[i].delta)) return false;
       }
     }
-  FXASSERT(size==((nsize*8)+8));
+  //FXASSERT(size==((nsize*8)+8));
   return true;
   }
 
 
-FXbool MP4Reader::atom_parse_stsz(FXlong size) {
+FXbool MP4Reader::atom_parse_stsz(FXlong /*size*/) {
   FXuint   version;
   FXuint   nsamples;      
 
@@ -682,11 +673,11 @@ FXbool MP4Reader::atom_parse_stsz(FXlong size) {
       input->read_uint32_be(track->stsz[i]);
       }
     }
-  FXASSERT(size==((nsamples*4)+12));
+  //FXASSERT(size==((nsamples*4)+12));
   return true;
   }
 
-FXbool MP4Reader::atom_parse_header(FXuint & type,FXlong & size) {
+FXbool MP4Reader::atom_parse_header(FXuint & type,FXlong & size,FXlong & container) {
   FXuint sz;
 
   if (!input->read_uint32_be(sz)) 
@@ -699,9 +690,11 @@ FXbool MP4Reader::atom_parse_header(FXuint & type,FXlong & size) {
     if (!input->read_int64_be(size))
       return false;
     size -= 16;
+    container -= 16;
     }
   else {
     size = sz - 8;
+    container -= 8;
     }
 #ifdef DEBUG
   for (int i=0;i<indent;i++) fxmessage("  ");
@@ -715,29 +708,31 @@ FXbool MP4Reader::atom_parse_header(FXuint & type,FXlong & size) {
 FXbool MP4Reader::atom_parse(FXlong size) {
 #ifdef DEBUG
   indent++;
-  fxmessage("atom_parse %d\n",indent);
 #endif
   FXuint atom_type;
   FXlong atom_size;
-  while(size>=8 && atom_parse_header(atom_type,atom_size)){
+  FXbool ok;
+  while(size>=8 && atom_parse_header(atom_type,atom_size,size)){
+    FXASSERT(size>=atom_size);
     switch(atom_type){
-      case TRAK: atom_parse_trak(atom_size); // intentionally no break
+      case TRAK: ok=atom_parse_trak(atom_size); // intentionally no break
       case MDIA:
       case MINF: 
       case STBL:
-      case MOOV: atom_parse(atom_size);      
+      case MOOV: ok=atom_parse(atom_size);      
                  break;
-      case STSZ: atom_parse_stsz(atom_size); break;
-      case STCO: atom_parse_stco(atom_size); break;
-      case STSD: atom_parse_stsd(atom_size); break;
-      case STSC: atom_parse_stsc(atom_size); break;
-      case STTS: atom_parse_stts(atom_size); break;
-      case MP4A: atom_parse_mp4a(atom_size); break;
-      case ESDS: atom_parse_esds(atom_size); break;
-      default  : input->position(atom_size,FXIO::Current); break;
+      case STSZ: ok=atom_parse_stsz(atom_size); break;
+      case STCO: ok=atom_parse_stco(atom_size); break;
+      case STSD: ok=atom_parse_stsd(atom_size); break;
+      case STSC: ok=atom_parse_stsc(atom_size); break;
+      case STTS: ok=atom_parse_stts(atom_size); break;
+      case MP4A: ok=atom_parse_mp4a(atom_size); break;
+      case ESDS: ok=atom_parse_esds(atom_size); break;
+      default  : input->position(atom_size,FXIO::Current); ok=true; 
+                 break;
       }
+    if (!ok) return false;
     size-=atom_size;
-    //fxmessage("size left: %ld\n",size);
     }
 #ifdef DEBUG
   indent--;
