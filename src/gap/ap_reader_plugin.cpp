@@ -36,7 +36,7 @@ using namespace ap;
 
 namespace ap {
 
-ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e),input(NULL), flags(0),stream_length(-1) {
+ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e),input(NULL),flags(0),stream_length(-1) {
   }
 
 ReaderPlugin::~ReaderPlugin() {
@@ -44,6 +44,7 @@ ReaderPlugin::~ReaderPlugin() {
 
 FXbool ReaderPlugin::init(InputPlugin* plugin) {
   input=plugin;
+  stream_length=-1;
   return true;
   }
 
