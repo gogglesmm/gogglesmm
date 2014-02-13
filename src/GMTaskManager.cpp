@@ -135,12 +135,11 @@ FXint GMTaskManager::run() {
       if (target) mc.message(target,FXSEL(SEL_TASK_RUNNING,message),NULL,0);
       FXint code = active->run();
       mutex.lock();
-      if (target) {
+      if (active->target) {
         if (code)
           mc.message(active->target,FXSEL(SEL_TASK_CANCELLED,active->message),&active,sizeof(GMTask*));
         else
           mc.message(active->target,FXSEL(SEL_TASK_COMPLETED,active->message),&active,sizeof(GMTask*));
-
         active=NULL;
         }
       else {
@@ -166,5 +165,9 @@ void GMTaskManager::shutdown() {
   condition_task.signal();
   mutex.unlock();
   join();
+  for (FXint i=0;i<tasks.no();i++) {
+    delete tasks[i];
+    }
+  tasks.clear();
   started=false;
   }

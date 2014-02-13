@@ -127,7 +127,8 @@ void EventPipe::push(Event *ptr) {
   DWORD nw;
   WriteFile(device,&ptr,(DWORD)sizeof(Event*),&nw,NULL);
 #else
-  write(h[1],&ptr,sizeof(Event*));
+  if (write(h[1],&ptr,sizeof(Event*))!=sizeof(Event*))
+    fxwarning("gogglesmm: EventPipe::push failed\n");
 #endif
   }
 
@@ -213,7 +214,8 @@ void NotifyPipe::signal() {
   write(h[0],&value,sizeof(FXlong));
 #else
   const FXchar buf=1;
-  write(h[1],&buf,1);
+  if (write(h[1],&buf,1)!=1)
+    fxwarning("gogglesmm: NotifyPipe::signal failed\n");
 #endif
   }
 

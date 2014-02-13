@@ -704,9 +704,10 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   volumebutton->setMenu(NULL);
   delete volumecontrol;
 
+  clearCover();  
+
 #ifdef HAVE_OPENGL
   if (coverview_gl) {
-    coverview_gl->setImage(NULL);
     delete coverview_gl;
     }
 #endif
