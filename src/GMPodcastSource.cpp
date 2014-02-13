@@ -611,8 +611,10 @@ protected:
       mode    = FXIO::ReadWrite|FXIO::Append;
       offset  = FXStat::size(filename);
       if (offset>0) {
+        // shutup compiler warnings and just pass string to bytes value
+        headers = FXString::value("Range: bytes=%s-\r\nIf-Range: %s\r\n",FXString::value(offset).text(),gm_rfc1123(FXStat::modified(filename)).text());
         /// %lld for FOX is FXlong on 32bit and 64bit so ignore any formating warnings.
-        headers = FXString::value("Range: bytes=%lld-\r\nIf-Range: %s\r\n",offset,gm_rfc1123(FXStat::modified(filename)).text());
+        //headers = FXString::value("Range: bytes=%lld-\r\nIf-Range: %s\r\n",offset,gm_rfc1123(FXStat::modified(filename)).text());
         GM_DEBUG_PRINT("%s\n",headers.text());
         }
       }

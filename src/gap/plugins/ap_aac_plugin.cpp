@@ -120,6 +120,10 @@ AacDecoder::AacDecoder(AudioEngine * e) : DecoderPlugin(e),handle(NULL),stream_p
 
 AacDecoder::~AacDecoder() {
   flush();
+  if (handle) {
+    NeAACDecClose(handle);
+    handle=NULL;
+    }
   }
 
 FXbool AacDecoder::init(ConfigureEvent*event) {
@@ -163,6 +167,8 @@ DecoderStatus AacDecoder::process(Packet*packet){
       packet=NULL;
       return DecoderError;
       }
+    packet->unref();
+    packet=NULL;
     return DecoderOk;
     }
   else {

@@ -505,6 +505,14 @@ static DBusHandlerResult dbus_proxy_filter(DBusConnection *,DBusMessage * msg,vo
   }
 
 
+
+struct GMDBusProxyReply {
+  FXObject * target;
+  FXSelector message;
+  GMDBusProxyReply(FXObject * t,FXSelector m) : target(t), message(m) {}
+  };
+
+
 FXDEFMAP(GMDBusProxy) GMDBusProxyMap[]={
   FXMAPFUNC(SEL_CREATE,   0,GMDBusProxy::onCreate),
   FXMAPFUNC(SEL_DESTROY,  0,GMDBusProxy::onDestroy),
@@ -523,6 +531,15 @@ GMDBusProxy::~GMDBusProxy()  {
   FXString rule = "type='signal',sender='"+ name +"',path='" + path +"',interface='"+interface+"'";
   dbus_bus_remove_match(bus->connection(),rule.text(),NULL);
   dbus_connection_remove_filter(bus->connection(),dbus_proxy_filter,this);
+
+  /// remove any pending proxy replies;
+  for (FXint i=0;i<serial.no();i++) {
+    if (!serial.empty(i)) {
+      GMDBusProxyReply * reply = reinterpret_cast<GMDBusProxyReply*>(serial.value(i));
+      delete reply;
+      }
+    }
+  serial.clear();
   }
 
 GMDBusProxy::GMDBusProxy(GMDBus *c,const FXchar * n,const FXchar * p,const FXchar * i) : bus(c),name(n),path(p),interface(i),associated(true),target(NULL) {
@@ -531,12 +548,6 @@ GMDBusProxy::GMDBusProxy(GMDBus *c,const FXchar * n,const FXchar * p,const FXcha
   dbus_connection_add_filter(bus->connection(),dbus_proxy_filter,this,NULL);
   }
 
-
-struct GMDBusProxyReply {
-  FXObject * target;
-  FXSelector message;
-  GMDBusProxyReply(FXObject * t,FXSelector m) : target(t), message(m) {}
-  };
 
 FXbool GMDBusProxy::matchSerial(DBusMessage * msg) {
   void * ptr;
