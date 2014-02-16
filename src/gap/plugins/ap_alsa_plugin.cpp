@@ -55,31 +55,6 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
 namespace ap {
 
 
-
-
-static snd_pcm_format_t alsaformat(const AudioFormat & af) {
-  switch(af.format){
-    case AP_FORMAT_S8        : return SND_PCM_FORMAT_S8;       break;
-    case AP_FORMAT_S16_LE    : return SND_PCM_FORMAT_S16_LE;   break;
-    case AP_FORMAT_S16_BE    : return SND_PCM_FORMAT_S16_BE;   break;
-    case AP_FORMAT_S24_LE    : return SND_PCM_FORMAT_S24_LE;   break;
-    case AP_FORMAT_S24_BE    : return SND_PCM_FORMAT_S24_BE;   break;
-    case AP_FORMAT_S24_3LE   : return SND_PCM_FORMAT_S24_3LE;  break;
-    case AP_FORMAT_S24_3BE   : return SND_PCM_FORMAT_S24_3BE;  break;
-    case AP_FORMAT_S32_LE    : return SND_PCM_FORMAT_S32_LE;   break;
-    case AP_FORMAT_S32_BE    : return SND_PCM_FORMAT_S32_BE;   break;
-    case AP_FORMAT_FLOAT_LE  : return SND_PCM_FORMAT_FLOAT_LE; break;
-    case AP_FORMAT_FLOAT_BE  : return SND_PCM_FORMAT_FLOAT_BE; break;
-    default                  : break;
-    }
-  return SND_PCM_FORMAT_UNKNOWN;
-  }
-
-
-
-
-
-
 static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_format) {
   switch(af.format){
     case AP_FORMAT_S8        : alsa_format=SND_PCM_FORMAT_S8;       break;
@@ -93,12 +68,12 @@ static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_form
     case AP_FORMAT_S32_BE    : alsa_format=SND_PCM_FORMAT_S32_BE;   break;
     case AP_FORMAT_FLOAT_LE  : alsa_format=SND_PCM_FORMAT_FLOAT_LE; break;
     case AP_FORMAT_FLOAT_BE  : alsa_format=SND_PCM_FORMAT_FLOAT_BE; break;
-    default                  : GM_DEBUG_PRINT("Unhandled format: %d\n", af.format); return false; break;
+    default                  : GM_DEBUG_PRINT("[alsa] No alsa format specified for %s\n",af.debug_format().text()); 
+                               return false; 
+                               break;
     }
   return true;
   }
-
-
 
 
 #ifdef DEBUG
@@ -351,16 +326,23 @@ protected:
     }
 
   FXbool init() {
+#ifdef DEBUG
+    int result;
+#endif
     snd_pcm_hw_params_malloc(&hw);
     snd_pcm_sw_params_malloc(&sw);
 
     /// blocking while configuring
-    if (snd_pcm_nonblock(pcm,0)<0)
+    if ((result=snd_pcm_nonblock(pcm,0))<0) {
+      GM_DEBUG_PRINT("[alsa] failed to set blocking mode. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
     /// Get all configurations
-    if (snd_pcm_hw_params_any(pcm,hw)<0)
+    if ((result=snd_pcm_hw_params_any(pcm,hw))<0){
+      GM_DEBUG_PRINT("[alsa] failed to query hardware parameters. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
     debug_hw_caps();
 
@@ -369,51 +351,74 @@ protected:
 
 
   FXbool matchFormat(const AudioFormat & in,AudioFormat & out,AlsaConfig & config) {
-    int dir  = 0;
-    out      = in;
-    channels = out.channels;
-    rate     = out.rate;
-    format   = alsaformat(out);
+#ifdef DEBUG
+    int result;
+#endif
+    int dir    = 0;
+    out        = in;
+    channels   = out.channels;
+    rate       = out.rate;
 
-    if (format==SND_PCM_FORMAT_UNKNOWN)
+    if (!to_alsa_format(out,format)){
+      GM_DEBUG_PRINT("[alsa] failed to find format %s\n",in.debug_format().text());
       return false;
+      }
+
+    GM_DEBUG_PRINT("[alsa] check format %s\n",snd_pcm_format_name(format));
 
     /// Find closest matching format based on what we can handle and what alsa offers
     while(snd_pcm_hw_params_test_format(pcm,hw,format)<0) {
 
       // Try a simple swap
       if (out.swap()) {
-        if (to_alsa_format(out,format) && snd_pcm_hw_params_test_format(pcm,hw,format)==0)
-          break;
+        if (to_alsa_format(out,format)) {
+          GM_DEBUG_PRINT("[alsa] check swapped format %s\n",snd_pcm_format_name(format));
+          if (snd_pcm_hw_params_test_format(pcm,hw,format)==0)
+            break;
+          }
         out.swap();
         }
 
       // Try a compatible format.
-      if (!out.compatible() || (format=alsaformat(out))==SND_PCM_FORMAT_UNKNOWN)
+      if (!out.compatible() || !to_alsa_format(out,format)) {
+        GM_DEBUG_PRINT("[alsa] failed to find format %s\n",in.debug_format().text());
         return false;
-
+        }
+      GM_DEBUG_PRINT("[alsa] check compatible format %s\n",snd_pcm_format_name(format));
       }
 
-    if (snd_pcm_hw_params_set_format(pcm,hw,format)<0)
+    if ((result=snd_pcm_hw_params_set_format(pcm,hw,format))<0) {
+      GM_DEBUG_PRINT("[alsa] failed to set format %s. Reason: %s\n",snd_pcm_format_name(format),snd_strerror(result));
       return false;
+      }
 
-    if (snd_pcm_hw_params_set_channels_near(pcm,hw,&channels)<0)
+    if ((result=snd_pcm_hw_params_set_channels_near(pcm,hw,&channels))<0){
+      GM_DEBUG_PRINT("[alsa] failed to set channels %d. Reason: %s\n",channels,snd_strerror(result));
       return false;
+      }
 
-    if (snd_pcm_hw_params_set_rate_near(pcm,hw,&rate,&dir)<0)
+    if ((result=snd_pcm_hw_params_set_rate_near(pcm,hw,&rate,&dir))<0){
+      GM_DEBUG_PRINT("[alsa] failed to set rate %d. Reason: %s\n",rate,snd_strerror(result));
       return false;
+      }
 
     if (config.flags&AlsaConfig::DeviceMMap) {
       if (snd_pcm_hw_params_set_access(pcm,hw,SND_PCM_ACCESS_MMAP_INTERLEAVED)<0) {
-        if (snd_pcm_hw_params_set_access(pcm,hw,SND_PCM_ACCESS_RW_INTERLEAVED)<0)
+        GM_DEBUG_PRINT("[alsa] failed to set access MMAP_RW_INTERLEAVED. Reason: %s\n",snd_strerror(result));
+
+        if ((result=snd_pcm_hw_params_set_access(pcm,hw,SND_PCM_ACCESS_RW_INTERLEAVED))<0){
+          GM_DEBUG_PRINT("[alsa] failed to set access RW_INTERLEAVED. Reason: %s\n",snd_strerror(result));
           return false;
+          }
 
         config.flags&=~AlsaConfig::DeviceMMap;
         }
       }
     else {
-      if (snd_pcm_hw_params_set_access(pcm,hw,SND_PCM_ACCESS_RW_INTERLEAVED)<0)
+      if (snd_pcm_hw_params_set_access(pcm,hw,SND_PCM_ACCESS_RW_INTERLEAVED)<0) {
+        GM_DEBUG_PRINT("[alsa] failed to set access RW_INTERLEAVED. Reason: %s\n",snd_strerror(result));
         return false;
+        }
       }
 
     return true;
@@ -421,6 +426,10 @@ protected:
 
 
   FXbool finish(AudioFormat & af,FXbool & can_pause,FXbool & can_resume) {
+#ifdef DEBUG
+    int result;
+#endif
+
     af.rate     = rate;
     af.channels = channels;
     can_pause   = snd_pcm_hw_params_can_pause(hw);
@@ -429,13 +438,16 @@ protected:
     debug_hw_parameters();
     debug_sw_parameters();
 
-    if (snd_pcm_nonblock(pcm,1)<0)
+    if ((result=snd_pcm_nonblock(pcm,1))<0) {
+      GM_DEBUG_PRINT("[alsa] failed to set nonblock mode. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
     return true;
     }
 
   FXbool setupHardware() {
+    int result;
     //unsigned int buffer_time = 1000000; // 1 sec
     //unsigned int periods     = 5;       // periods every 200ms
     //int dir=0;
@@ -446,47 +458,73 @@ protected:
     //if (snd_pcm_hw_params_set_periods_near(pcm,hw,&periods,&dir)<0)
     //  return false;
 
-    if (snd_pcm_hw_params(pcm,hw)<0)
+    if ((result=snd_pcm_hw_params(pcm,hw))<0) {
+      GM_DEBUG_PRINT("[alsa] failed to set hardware paramaters. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
-    if (snd_pcm_hw_params_current(pcm,hw)<0)
+    if (snd_pcm_hw_params_current(pcm,hw)<0){
+      GM_DEBUG_PRINT("[alsa] failed to retrieve hardware paramaters. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
     return getHardware();
     }
 
   FXbool getHardware() {
     int dir=0;
+#ifdef DEBUG
+    int result;
+#endif
 
-    if (snd_pcm_hw_params_get_rate(hw,&rate,&dir)<0)
+    if ((result=snd_pcm_hw_params_get_rate(hw,&rate,&dir))<0){
+      GM_DEBUG_PRINT("[alsa] failed to retrieve rate. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
-    if (snd_pcm_hw_params_get_channels(hw,&channels)<0)
+    if ((result=snd_pcm_hw_params_get_channels(hw,&channels))<0) {
+      GM_DEBUG_PRINT("[alsa] failed to retrieve channels. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
-    if (snd_pcm_hw_params_get_period_size(hw,&period_size,&dir)<0)
+    if ((result=snd_pcm_hw_params_get_period_size(hw,&period_size,&dir))<0){
+      GM_DEBUG_PRINT("[alsa] failed to retrieve period size. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
-    if (snd_pcm_hw_params_get_buffer_size(hw,&buffer_size)<0)
+    if ((result=snd_pcm_hw_params_get_buffer_size(hw,&buffer_size))<0){
+      GM_DEBUG_PRINT("[alsa] failed to retrieve buffer size. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 
     return true;
     }
 
   FXbool setupSoftware() {
+#ifdef DEBUG
+    int result;
+#endif
 
-    if (snd_pcm_sw_params_set_avail_min(pcm,sw,period_size)<0)
+    if ((result=snd_pcm_sw_params_set_avail_min(pcm,sw,period_size))<0){
+      GM_DEBUG_PRINT("[alsa] failed to set avail_min to %lu. Reason: %s\n",period_size,snd_strerror(result));
       return false;
+      }
 
-    if (snd_pcm_sw_params_set_start_threshold(pcm,sw,period_size)<0)
+    if ((result=snd_pcm_sw_params_set_start_threshold(pcm,sw,period_size))<0){
+      GM_DEBUG_PRINT("[alsa] failed to set start threshold to %lu. Reason: %s\n",period_size,snd_strerror(result));
       return false;
+      }
 
-    if (snd_pcm_sw_params_set_stop_threshold(pcm,sw,buffer_size)<0)
+    if ((result=snd_pcm_sw_params_set_stop_threshold(pcm,sw,buffer_size))<0){
+      GM_DEBUG_PRINT("[alsa] failed to set stop threshold to %lu. Reason: %s\n",buffer_size,snd_strerror(result));
       return false;
+      }
 
 #if SND_LIB_VERSION < ALSA_VERSION(1,0,16)
-    if (snd_pcm_sw_params_set_xfer_align(pcm,sw,1)<0)
+    if ((result=snd_pcm_sw_params_set_xfer_align(pcm,sw,1))<0){
+      GM_DEBUG_PRINT("[alsa] failed to set xfer align to 1. Reason: %s\n",snd_strerror(result));
       return false;
+      }
 #endif
 
     return true;
@@ -751,15 +789,44 @@ FXint AlsaOutput::delay() {
 
 
 void AlsaOutput::drop() {
+  int result;
   if (__likely(handle)) {
-    snd_pcm_reset(handle);
-    snd_pcm_drop(handle);
+    if ((result=snd_pcm_drop(handle))<0){
+      GM_DEBUG_PRINT("[alsa] failed to drop. Reason: %s\n",snd_strerror(result));    
+      }
+
+//    snd_pcm_reset(handle);
+//    snd_pcm_drop(handle);
     }
   }
 
 void AlsaOutput::drain() {
   if (__likely(handle)) {
-    snd_pcm_drain(handle);
+    int result;
+    snd_pcm_state_t state = snd_pcm_state(handle);
+    if (state==SND_PCM_STATE_RUNNING) {
+
+      /// block while draining
+      //if ((result=snd_pcm_nonblock(handle,0))<0) {
+      //  GM_DEBUG_PRINT("[alsa] failed to set blocking mode. Reason: %s\n",snd_strerror(result));
+      //  return;
+      //  }
+
+      result=snd_pcm_drain(handle);
+      if (result==-EAGAIN) {
+        GM_DEBUG_PRINT("[alsa] waiting for drain\n");
+        while(snd_pcm_state(handle)==SND_PCM_STATE_DRAINING){
+          FXThread::sleep(500000000); // 50ms        
+          }
+        GM_DEBUG_PRINT("[alsa] drain complete. State: %s\n",snd_pcm_state_name(snd_pcm_state(handle)));
+        }
+      else if (result<0) {
+        GM_DEBUG_PRINT("[alsa] drain failed. Reason: %s\n",snd_strerror(result));
+        }
+      else {
+        GM_DEBUG_PRINT("[alsa] drain complete\n");
+        }
+      }
     }
   }
 

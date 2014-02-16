@@ -204,6 +204,8 @@ public:
 
   void debug() const;
 
+  FXString debug_format() const;
+
   void reset();
   };
 
