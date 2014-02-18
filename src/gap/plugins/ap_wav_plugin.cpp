@@ -102,7 +102,7 @@ ReadStatus WavReader::process(Packet*packet) {
     }
 
   FXint nbytes = (packet->space() / af.framesize()) * af.framesize();
-  FXint nread = input->read(packet->data(),nbytes);
+  FXint nread = input->read(packet->ptr(),nbytes);
   if (nread<0) {
     packet->unref();
     return ReadError;
