@@ -29,7 +29,12 @@ class AlsaMixer;
 
 class AlsaOutput : public OutputPlugin {
 protected:
-  snd_pcm_t * handle;
+  snd_pcm_t*        handle;
+  snd_pcm_uframes_t period_size;
+  snd_pcm_uframes_t period_written;
+  FXuchar*          silence;
+  
+
   AlsaMixer * mixer;
 protected:
   AlsaConfig config;
