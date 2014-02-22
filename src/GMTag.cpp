@@ -1094,7 +1094,9 @@ class GMStringHandler : public TagLib::ID3v1::StringHandler {
   public:
     GMStringHandler(FXTextCodec *c) : codec(c) {
       FXASSERT(codec!=NULL);
+      FXASSERT(instance==NULL);
       GM_DEBUG_PRINT("[tag] id3v1 string handler: %s\n",codec->name()); 
+      instance=this;
       }
 
       /*!
@@ -1120,7 +1122,11 @@ class GMStringHandler : public TagLib::ID3v1::StringHandler {
        */
       //virtual ByteVector render(const String &s) const;
 
-    virtual ~GMStringHandler() {}
+    virtual ~GMStringHandler() {
+      delete codec;
+      codec=NULL;
+      instance=NULL;
+      }
     };
 
 
@@ -1144,7 +1150,6 @@ void setID3v1Encoding(FXTextCodec * codec){
     TagLib::ID3v1::Tag::setStringHandler(NULL);
     if (GMStringHandler::instance) {
       delete GMStringHandler::instance;
-      GMStringHandler::instance=NULL;
       }
     }
   }        
