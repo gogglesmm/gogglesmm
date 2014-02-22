@@ -31,6 +31,7 @@
 
 #include <fileref.h>
 #include <tstring.h>
+#include <id3v1tag.h>
 #include <id3v1genres.h>
 #include <id3v2tag.h>
 #include <id3v2framefactory.h>
@@ -1085,8 +1086,47 @@ public:
   };
 
 
-static GMTagLibDebugListener debuglistener;
+class GMStringHandler : public TagLib::ID3v1::StringHandler {
+  public:
+    static GMStringHandler * instance;
+  protected:
+    FXTextCodec * codec;
+  public:
+    GMStringHandler(FXTextCodec *c) : codec(c) {
+      FXASSERT(codec!=NULL);
+      GM_DEBUG_PRINT("[tag] id3v1 string handler: %s\n",codec->name()); 
+      }
 
+      /*!
+       * Decode a string from \a data.  The default implementation assumes that
+       * \a data is an ISO-8859-1 (Latin1) character array.
+       */
+    virtual TagLib::String parse(const TagLib::ByteVector &in) const {
+       TagLib::ByteVector utf;      
+       FXint n = codec->mb2utflen(in.data(),in.size());
+       utf.resize(n);
+       codec->mb2utf(utf.data(),utf.size(),in.data(),in.size());
+       return TagLib::String(utf,TagLib::String::UTF8).stripWhiteSpace();
+      }
+
+      /*!
+       * Encode a ByteVector with the data from \a s.  The default implementation
+       * assumes that \a s is an ISO-8859-1 (Latin1) string.  If the string is
+       * does not conform to ISO-8859-1, no value is written.
+       *
+       * \warning It is recommended that you <b>not</b> override this method, but
+       * instead do not write an ID3v1 tag in the case that the data is not
+       * ISO-8859-1.
+       */
+      //virtual ByteVector render(const String &s) const;
+
+    virtual ~GMStringHandler() {}
+    };
+
+
+
+static GMTagLibDebugListener debuglistener;
+GMStringHandler* GMStringHandler::instance = NULL;
 
 namespace GMTag {
 
@@ -1094,6 +1134,20 @@ void init(){
   TagLib::ID3v2::FrameFactory::instance()->setDefaultTextEncoding(TagLib::String::UTF16);
   TagLib::setDebugListener(&debuglistener);
   }
+
+void setID3v1Encoding(FXTextCodec * codec){
+  if (codec) {
+    FXASSERT(GMStringHandler::instance==NULL);
+    TagLib::ID3v1::Tag::setStringHandler(new GMStringHandler(codec));
+    }
+  else {
+    TagLib::ID3v1::Tag::setStringHandler(NULL);
+    if (GMStringHandler::instance) {
+      delete GMStringHandler::instance;
+      GMStringHandler::instance=NULL;
+      }
+    }
+  }        
 
 
 FXbool length(GMTrack & info) {
