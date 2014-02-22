@@ -77,6 +77,7 @@ protected:
   GMFileSelector  * fileselector;
   GMDirSelector   * dirselector;
   FXGroupBox      * template_grpbox;
+  FXListBox       * id3v1_listbox;
 protected:
   FXFontPtr         font_fixed;
 protected:

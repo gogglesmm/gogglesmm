@@ -544,12 +544,15 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   new FXLabel(matrix,tr("Default value:"),NULL,labelstyle);
   new GMTextField(matrix,10,&target_default_field,FXDataTarget::ID_VALUE,textfieldstyle|LAYOUT_FILL_COLUMN);
 
-  new FXLabel(matrix,tr("ID3v1 Encoding:"),NULL,labelstyle);
-  GMListBox * list_codecs = new GMListBox(matrix,&target_id3v1_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+  new FXLabel(matrix,tr("ID3v1 Encoding:\tTestTEsttEs"),NULL,labelstyle);
+  id3v1_listbox = new GMListBox(matrix,&target_id3v1_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
   for (int i=0;gmcodecnames[i]!=NULL;i++)
-    list_codecs->appendItem(gmcodecnames[i]);
-  list_codecs->setNumVisible(9);
+    id3v1_listbox->appendItem(gmcodecnames[i]);
+  id3v1_listbox->setNumVisible(9);
 
+  if (GMPlayerManager::instance()->getPreferences().import.parse_method==GMImportOptions::PARSE_FILENAME) {
+    id3v1_listbox->disable();
+    }
 
 
   new FXFrame(matrix,FRAME_NONE);
@@ -687,6 +690,14 @@ long GMImportDialog::onCmdParseMethod(FXObject*,FXSelector,void*){
   else {
     template_grpbox->show();
     }
+
+  if (GMPlayerManager::instance()->getPreferences().import.parse_method==GMImportOptions::PARSE_FILENAME) {
+    id3v1_listbox->disable();
+    }
+  else{
+    id3v1_listbox->enable();
+    }
+
   template_grpbox->getParent()->recalc();
   template_grpbox->getParent()->layout();
   return 1;
