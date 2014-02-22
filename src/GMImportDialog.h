@@ -72,6 +72,7 @@ protected:
   FXDataTarget target_exclude_file;
   FXDataTarget target_parse_method;
   FXDataTarget target_filename_template;
+  FXDataTarget target_id3v1_encoding;
 protected:
   GMFileSelector  * fileselector;
   GMDirSelector   * dirselector;

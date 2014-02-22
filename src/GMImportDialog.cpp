@@ -26,6 +26,7 @@
 #include "GMIconTheme.h"
 #include "GMPlayerManager.h"
 #include "GMWindow.h"
+#include "GMFilename.h"
 #include "GMImportDialog.h"
 
 
@@ -449,6 +450,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
 
   target_exclude_dir.connect(GMPlayerManager::instance()->getPreferences().import.exclude_folder);
   target_exclude_file.connect(GMPlayerManager::instance()->getPreferences().import.exclude_file);
+  target_id3v1_encoding.connect(GMPlayerManager::instance()->getPreferences().import.id3v1_encoding);
 
   const FXuint labelstyle=LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT;
   const FXuint textfieldstyle=TEXTFIELD_ENTER_ONLY|LAYOUT_FILL_X|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN;
@@ -541,6 +543,14 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
 
   new FXLabel(matrix,tr("Default value:"),NULL,labelstyle);
   new GMTextField(matrix,10,&target_default_field,FXDataTarget::ID_VALUE,textfieldstyle|LAYOUT_FILL_COLUMN);
+
+  new FXLabel(matrix,tr("ID3v1 Encoding:"),NULL,labelstyle);
+  GMListBox * list_codecs = new GMListBox(matrix,&target_id3v1_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+  for (int i=0;gmcodecnames[i]!=NULL;i++)
+    list_codecs->appendItem(gmcodecnames[i]);
+  list_codecs->setNumVisible(9);
+
+
 
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);

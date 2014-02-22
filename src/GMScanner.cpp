@@ -398,6 +398,14 @@ void GMImportTask::import() {
 
   database->beginTask();
 
+  // Set codec for id3v1
+  if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
+    FXTextCodec * codec = GMFilename::findcodec(options.id3v1_encoding);
+    if (codec) {
+      GMTag::setID3v1Encoding(codec);
+      }
+    }
+
   if (playlist)
     queue = database->getNextQueue(playlist);
 
@@ -432,6 +440,7 @@ void GMImportTask::import() {
     }
   database->sync_album_year();
   database->commitTask();
+  GMTag::setID3v1Encoding(NULL);
   GM_TICKS_END();
   }
 
