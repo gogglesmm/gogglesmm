@@ -1163,6 +1163,7 @@ void GMPlayerManager::removePlayListSources(){
 
 
 void GMPlayerManager::open(const FXString & url) {
+  FXint id;
 
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
@@ -1171,23 +1172,16 @@ void GMPlayerManager::open(const FXString & url) {
     }
 
   trackinfo.url = url;
-
-  if (gm_is_local_file(url)) {
-    FXint id;
-    if (sources[0]->hasTrack(url,id)) {
-      source       = sources[0];
-      trackinfoset = source->getTrack(trackinfo);
-      sources[0]->setCurrentTrack(id);
-      }
-    else {
-      trackinfoset = trackinfo.loadTag(url);
-      getTrackView()->setActive(-1);
-      }
+  if (gm_is_local_file(url) && sources[0]->hasTrack(url,id)) {
+    source       = sources[0];
+    trackinfoset = source->getTrack(trackinfo);
+    sources[0]->setCurrentTrack(id);
     }
   else {
     trackinfoset=false;
     getTrackView()->setActive(-1);
     }
+
   player->open(url,true);
   }
 
