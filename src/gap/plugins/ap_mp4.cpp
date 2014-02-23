@@ -174,7 +174,8 @@ protected:
   FXint indent;
 #endif  
   FXPtrListOf<Track> tracks;
-  Track*             track;  
+  Track*             track;
+  MetaInfo*          meta;  
 protected:
   FXuint read_descriptor_length(FXuint&);
   FXbool atom_parse_esds(FXlong size);
@@ -185,6 +186,10 @@ protected:
   FXbool atom_parse_stts(FXlong size);
   FXbool atom_parse_stsz(FXlong size);
   FXbool atom_parse_trak(FXlong size);
+  //FXbool atom_parse_freeform(FXlong size);
+  //FXbool atom_parse_text(FXlong size,FXString & value);
+  FXbool atom_parse_meta(FXlong size);
+  FXbool atom_parse_meta_text(FXlong size,FXString &);
   FXbool atom_parse_header(FXuint & atom_type,FXlong & atom_size,FXlong & container);
   FXbool atom_parse(FXlong size);
 protected:
@@ -239,6 +244,10 @@ FXbool MP4Reader::init(InputPlugin*plugin) {
   clear_tracks();
   nsamples=0;
   sample=0;
+  if (meta) {
+    meta->unref();
+    meta=NULL;
+    }
   return true;
   }
 
@@ -320,6 +329,8 @@ FXbool MP4Reader::select_track() {
 
 
 ReadStatus MP4Reader::parse(Packet * packet) {
+  meta = new MetaInfo();
+
   if (atom_parse(input->size())) {
 
     if (!select_track()) {
@@ -334,6 +345,16 @@ ReadStatus MP4Reader::parse(Packet * packet) {
 
     af = track->af;
     engine->decoder->post(new ConfigureEvent(af,track->codec));  
+
+    if (meta->title.length()) {
+      engine->decoder->post(meta);
+      meta = NULL;
+      }
+    else {
+      meta->unref();
+      meta = NULL;
+      }
+
     packet->append(track->decoder_specific_info,track->decoder_specific_info_length);
     packet->flags|=AAC_FLAG_CONFIG|AAC_FLAG_FRAME;
     engine->decoder->post(packet);
@@ -341,6 +362,8 @@ ReadStatus MP4Reader::parse(Packet * packet) {
     return ReadOk;
     }
   packet->unref();
+  meta->unref();
+  meta=NULL;
   return ReadError;
   }
 
@@ -358,6 +381,8 @@ enum Atom {
   
   FTYP = DEFINE_ATOM('f','t','y','p'),
   
+  ILST = DEFINE_ATOM('i','l','s','t'),  
+
   MDAT = DEFINE_ATOM('m','d','a','t'),
 
   MOOV = DEFINE_ATOM('m','o','o','v'),
@@ -378,6 +403,17 @@ enum Atom {
   UDTA = DEFINE_ATOM('u','d','t','a'),
   MP4A = DEFINE_ATOM('m','p','4','a'),
   ALAC = DEFINE_ATOM('a','l','a','c'),
+  META = DEFINE_ATOM('m','e','t','a'),
+
+  CART = DEFINE_ATOM(169,'A','R','T'),
+  CALB = DEFINE_ATOM(169,'a','l','b'),
+  CNAM = DEFINE_ATOM(169,'n','a','m')
+/*
+  MEAN = DEFINE_ATOM('m','e','a','n'),
+  NAME = DEFINE_ATOM('n','a','m','e'),
+  DATA = DEFINE_ATOM('d','a','t','a'),
+  DDDD = DEFINE_ATOM('-','-','-','-')
+*/
   };
 
 
@@ -553,6 +589,95 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
   }
   
 
+
+FXbool MP4Reader::atom_parse_meta(FXlong size) {
+  FXuint   version;
+
+  if (track==NULL)
+    return false;
+
+  if (!input->read_uint32_be(version)) 
+    return false;
+
+  if (!atom_parse(size-4))
+    return false;
+
+  return true;
+  }
+
+#if 0
+FXbool MP4Reader::atom_parse_text(FXlong size,FXString & value) {
+  FXuint version;
+
+  if (!input->read_uint32_be(version)) 
+    return false;
+
+  value.length(size-4);
+  if (input->read(&value[0],size-4)!=value.length())
+    return false;
+
+  return true;
+  }
+
+
+FXbool MP4Reader::atom_parse_freeform(FXlong size) {
+#ifdef DEBUG
+  indent++;
+#endif
+  FXString mean,name;
+  FXuint version;
+  FXuint atom_type;
+  FXlong atom_size;
+
+  FXbool ok;
+  while(size>=8 && atom_parse_header(atom_type,atom_size,size)){
+    switch(atom_type) {
+      case MEAN: ok = atom_parse_text(atom_size,mean); fxmessage("mean: %s\n",mean.text()); break;               
+      case NAME: ok = atom_parse_text(atom_size,name); fxmessage("name: %s\n",name.text());  break;
+      case DATA: input->position(atom_size,FXIO::Current); ok=true; break;
+      }
+    if (!ok) return false;
+    size-=atom_size;    
+    }
+#ifdef DEBUG
+  indent--;
+#endif
+  return true;
+  }
+#endif
+
+FXbool MP4Reader::atom_parse_meta_text(FXlong size,FXString & field) {
+  FXint  length;
+  FXchar id[4];
+  FXint  type;
+  FXshort  county;
+  FXshort  language;
+
+  if (!input->read_int32_be(length)) 
+    return false;
+
+  if (size!=length)
+    return false;
+
+  if (input->read(&id,4)!=4) 
+    return false;
+
+  if (!input->read_int32_be(type)) 
+    return false;
+
+  if (!input->read_int16_be(county))
+    return false;
+
+  if (!input->read_int16_be(language))
+    return false;
+
+  field.length(length-16);
+  if (input->read(&field[0],(length-16))!=(length-16))
+    return false;
+
+  return true;
+  }
+
 FXbool MP4Reader::atom_parse_stsd(FXlong size) {
   FXuint   version;
   FXuint   nentries;      
@@ -713,14 +838,17 @@ FXbool MP4Reader::atom_parse(FXlong size) {
   FXlong atom_size;
   FXbool ok;
   while(size>=8 && atom_parse_header(atom_type,atom_size,size)){
-    FXASSERT(size>=atom_size);
+    //FXASSERT(size>=atom_size);
     switch(atom_type){
       case TRAK: ok=atom_parse_trak(atom_size); // intentionally no break
       case MDIA:
       case MINF: 
       case STBL:
+      case UDTA:
+      case ILST:
       case MOOV: ok=atom_parse(atom_size);      
                  break;
+      case META: ok=atom_parse_meta(atom_size); break;
       case STSZ: ok=atom_parse_stsz(atom_size); break;
       case STCO: ok=atom_parse_stco(atom_size); break;
       case STSD: ok=atom_parse_stsd(atom_size); break;
@@ -728,6 +856,9 @@ FXbool MP4Reader::atom_parse(FXlong size) {
       case STTS: ok=atom_parse_stts(atom_size); break;
       case MP4A: ok=atom_parse_mp4a(atom_size); break;
       case ESDS: ok=atom_parse_esds(atom_size); break;
+      case CART: ok=atom_parse_meta_text(atom_size,meta->artist); break;
+      case CALB: ok=atom_parse_meta_text(atom_size,meta->album); break;
+      case CNAM: ok=atom_parse_meta_text(atom_size,meta->title); break;
       default  : input->position(atom_size,FXIO::Current); ok=true; 
                  break;
       }
