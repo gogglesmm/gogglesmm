@@ -89,8 +89,9 @@ FXbool GMLocalSource::hasCurrentTrack(GMSource * src) const {
 
 FXbool GMLocalSource::getTrack(GMTrack & track) const {
   track.url=path+PATHSEPSTRING+files[current_track-1];
-  track.loadTag(track.url);
-  return true;
+  // engine should pass on track info...
+  // track.loadTag(track.url);
+  return false;
   }
 
 FXbool GMLocalSource::track_double_click() {
