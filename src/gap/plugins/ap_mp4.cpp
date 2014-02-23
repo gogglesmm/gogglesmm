@@ -256,10 +256,12 @@ FXbool MP4Reader::can_seek() const {
   }
 
 FXbool MP4Reader::seek(FXdouble pos){
-  FXint s = track->getSample(pos*stream_length);
-  if (s>=0) {
-    sample = s;
-    return true;
+  if (!input->serial()){
+    FXint s = track->getSample(pos*stream_length);
+    if (s>=0) {
+      sample = s;
+      return true;
+      }
     }
   return false;
   }
@@ -838,8 +840,14 @@ FXbool MP4Reader::atom_parse(FXlong size) {
   FXlong atom_size;
   FXbool ok;
   while(size>=8 && atom_parse_header(atom_type,atom_size,size)){
-    //FXASSERT(size>=atom_size);
     switch(atom_type){
+
+      // Don't go any further than the mdat atom in serial streams.
+      case MDAT: if (input->serial())
+                   return true;
+                 input->position(atom_size,FXIO::Current); ok=true;
+                 break; 
+
       case TRAK: ok=atom_parse_trak(atom_size); // intentionally no break
       case MDIA:
       case MINF: 
