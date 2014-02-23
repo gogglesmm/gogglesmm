@@ -599,6 +599,10 @@ void GMWindow::reset() {
 void GMWindow::display(const GMTrack& info){
   FXUTF8Codec codec;
   FXString title = GMFilename::format_track(info,GMPlayerManager::instance()->getPreferences().gui_format_title,FXString::null,0,&codec);
+
+  // Escape & for FXLabel
+  title.substitute("&","&&");
+
   label_nowplaying->setText(title);
 
   if (GMPlayerManager::instance()->getPreferences().gui_show_playing_titlebar){
