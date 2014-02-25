@@ -79,6 +79,7 @@ protected:
 
   void ape_get_field(const FXchar * field,FXString &) const;
   void ape_get_field(const FXchar * field,FXStringList &) const;
+  void ape_update_field(const FXchar * field,const FXString & value);
   void ape_update_field(const FXchar * field,const FXStringList & value);
 
   void parse_tagids(FXStringList&) const;

@@ -395,6 +395,16 @@ void GMFileTag::ape_get_field(const FXchar * field,FXStringList & list)  const{
     }
   }
 
+void GMFileTag::ape_update_field(const FXchar * field,const FXString & value) {
+  FXASSERT(field);
+  FXASSERT(ape);
+  if (!value.empty())
+    ape->addValue(field,TagLib::String(value.text(),TagLib::String::UTF8),true);
+  else
+    ape->removeItem(field);
+  }
+
+
 void GMFileTag::ape_update_field(const FXchar * field,const FXStringList & list) {
   FXASSERT(field);
   FXASSERT(ape);
@@ -539,10 +549,12 @@ void GMFileTag::mp4_get_field(const FXchar * field,FXStringList & list) const{
 void GMFileTag::setComposer(const FXString & composer) {
   if (xiph)
     xiph_update_field("COMPOSER",composer);
-  else if (id3v2)
-    id3v2_update_field("TCOM",composer);
-  else if (mp4)
+  if (id3v2)
+    id3v2_update_field("TCOM",composer);  
+  if (mp4)
     mp4_update_field("\251wrt",composer);
+  if (ape)
+    ape_update_field("Composer",composer);
   }
 
 void GMFileTag::getComposer(FXString & composer) const{
@@ -552,6 +564,8 @@ void GMFileTag::getComposer(FXString & composer) const{
     id3v2_get_field("TCOM",composer);
   else if (mp4)
     mp4_get_field("\251wrt",composer);
+  else if (ape)
+    ape_get_field("Composer",composer);
   else
     composer.clear();
   }
@@ -559,10 +573,12 @@ void GMFileTag::getComposer(FXString & composer) const{
 void GMFileTag::setConductor(const FXString & conductor) {
   if (xiph)
     xiph_update_field("CONDUCTOR",conductor);
-  else if (id3v2)
+  if (id3v2)
     id3v2_update_field("TPE3",conductor);
-  else if (mp4)
+  if (mp4)
     mp4_update_field("----:com.apple.iTunes:CONDUCTOR",conductor);
+  if (ape)
+    ape_update_field("Conductor",conductor);
   }
 
 void GMFileTag::getConductor(FXString & conductor) const{
@@ -572,6 +588,8 @@ void GMFileTag::getConductor(FXString & conductor) const{
     id3v2_get_field("TPE3",conductor);
   else if (mp4)
     mp4_get_field("----:com.apple.iTunes:CONDUCTOR",conductor);
+  else if (ape)
+    ape_get_field("Conductor",conductor);
   else
     conductor.clear();
   }
@@ -580,10 +598,11 @@ void GMFileTag::getConductor(FXString & conductor) const{
 void GMFileTag::setAlbumArtist(const FXString & albumartist) {
   if (xiph)
     xiph_update_field("ALBUMARTIST",albumartist);
-  else if (id3v2)
+  if (id3v2)
     id3v2_update_field("TPE2",albumartist);
-  else if (mp4)
+  if (mp4)
     mp4_update_field("aART",albumartist);
+  //FIXME ape?
   }
 
 
@@ -604,13 +623,14 @@ void GMFileTag::getAlbumArtist(FXString & albumartist) const{
 void GMFileTag::setTags(const FXStringList & tags){
   if (xiph)
     xiph_update_field("GENRE",tags);
-  else if (id3v2)
+  if (id3v2)
     id3v2_update_field("TCON",tags);
-  else if (mp4)
+  if (mp4)
     mp4_update_field("\251gen",tags);
-  else if (ape)
+  if (ape)
     ape_update_field("GENRE",tags);
-  else {
+
+  if (xiph==NULL && id3v2==NULL && mp4==NULL && ape==NULL) {
     if (tags.no())
       tag->setGenre(TagLib::String(tags[0].text(),TagLib::String::UTF8));
     else
@@ -698,13 +718,13 @@ void GMFileTag::setDiscNumber(FXushort disc) {
     else
       xiph_update_field("DISCNUMBER",FXString::null);
     }
-  else if (id3v2) {
+  if (id3v2) {
     if (disc>0)
       id3v2_update_field("TPOS",FXString::value("%d",disc));
     else
       id3v2_update_field("TPOS",FXString::null);
     }
-  else if (mp4) {
+  if (mp4) {
     if (disc>0)
       mp4->itemListMap().insert("disk",TagLib::MP4::Item(disc,0));
     else
