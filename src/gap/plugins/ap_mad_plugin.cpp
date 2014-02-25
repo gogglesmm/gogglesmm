@@ -205,7 +205,7 @@ public:
     if ((!sync()) ||
         (version()==Invalid) ||
         (layer()==Invalid) ||
-        (bitrate()==Invalid) ||
+        (bitrate()<0) ||
         (samplerate()==-1)
         ) {
       return false;
@@ -1156,6 +1156,9 @@ ReadStatus MadReader::process(Packet*packet) {
       nread = input->read(packet->ptr()+4,frame.size()-4);
       if (nread!=(frame.size()-4)) {
         GM_DEBUG_PRINT("[mad_reader] truncated frame\n");
+#ifdef DEBUG
+        frame.debug();
+#endif
         /*
            It's not too uncommon to find truncated frames at the end
            of a file, perhaps caused by buggy tagging software overwriting
