@@ -335,8 +335,6 @@ public:
 
   FXbool playing() const;
 
-  FXbool audio_device_opened() const;
-
   FXint get_prev() const;
 
   FXint get_next() const;

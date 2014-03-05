@@ -78,7 +78,6 @@ const char key_play_close_stream[]="close-audio-stream";
 const char key_play_pause_close_device[]="pause-close-device";
 const char key_play_gapless[]="gapless-playback";
 const char key_play_shuffle[]="shuffle";
-const char key_play_open_device_on_startup[]="open_audio_device_on_startup";
 const char key_play_from_queue[]="play-from-queue";
 
 const char key_dbus_notify_daemon[]="notification-daemon";
@@ -163,7 +162,6 @@ GMPreferences::GMPreferences() :
   gui_toolbar_labelsabove(true),
   gui_show_browser_icons(true),
   gui_show_playing_albumcover(true),
-  //gui_show_albumcovers(false),
   gui_merge_albums(true),
   gui_tray_icon(false),
   gui_tray_icon_disabled(false),
@@ -177,7 +175,6 @@ GMPreferences::GMPreferences() :
   play_pause_close_device(false),
   play_gapless(true),
   play_shuffle(false),
-  play_open_device_on_startup(false),
   play_from_queue(false),
 
   export_encoding(GMFilename::ENCODING_ASCII),
@@ -245,7 +242,6 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_player,key_play_pause_close_device,play_pause_close_device);
   reg.writeBoolEntry(section_player,key_play_gapless,play_gapless);
   reg.writeBoolEntry(section_player,key_play_shuffle,play_shuffle);
-  reg.writeBoolEntry(section_player,key_play_open_device_on_startup,play_open_device_on_startup);
   reg.writeBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
   /// Dbus
@@ -319,7 +315,6 @@ void GMPreferences::load(FXSettings & reg) {
   play_pause_close_device       = reg.readBoolEntry(section_player,key_play_pause_close_device,play_pause_close_device);
   play_gapless                  = reg.readBoolEntry(section_player,key_play_gapless,play_gapless);
   play_shuffle                  = reg.readBoolEntry(section_player,key_play_shuffle,play_shuffle);
-  play_open_device_on_startup   = reg.readBoolEntry(section_player,key_play_open_device_on_startup,play_open_device_on_startup);
   play_from_queue               = reg.readBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
   /// Dbus

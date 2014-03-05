@@ -43,7 +43,6 @@ protected:
 public:
   long onCmdVolume(FXObject*,FXSelector,void*);
   long onCmdVolumeButton(FXObject*,FXSelector,void*);
-  long onUpdVolumeButton(FXObject*,FXSelector,void*);
   long onCmdTimeSlider(FXObject*,FXSelector,void*);
   long onCmdSetTimeLabelDirection(FXObject*,FXSelector,void*);
 public:

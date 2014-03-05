@@ -1386,10 +1386,6 @@ FXbool GMPlayerManager::playing() const {
   return player->playing() ;
   }
 
-FXbool GMPlayerManager::audio_device_opened() const{
-  return true;
-  }
-
 FXint GMPlayerManager::current_position() const {
   return 0;
   }

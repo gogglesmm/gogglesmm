@@ -147,7 +147,6 @@ public:
   FXbool play_pause_close_device;
   FXbool play_gapless;
   FXbool play_shuffle;
-  FXbool play_open_device_on_startup;
   FXbool play_from_queue;
 
   FXuint export_encoding;
