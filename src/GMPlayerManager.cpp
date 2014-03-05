@@ -1386,9 +1386,6 @@ FXbool GMPlayerManager::playing() const {
   return player->playing() ;
   }
 
-FXint GMPlayerManager::current_position() const {
-  return 0;
-  }
 
 void GMPlayerManager::reset_track_display() {
   FXTRACE((51,"GMPlayerManager::reset_track_display()\n"));
@@ -1468,7 +1465,6 @@ void GMPlayerManager::update_track_display(FXbool notify) {
 #endif
 
   }
-
 
 
 FXint GMPlayerManager::volume() const{
@@ -1684,6 +1680,13 @@ void GMPlayerManager::cmd_schedule_stop(){
     GM_DEBUG_PRINT("disable scheduled stop\n");
     scheduled_stop=false;
     }
+  }
+
+FXbool GMPlayerManager::has_scheduled_stop() const {
+  if (can_stop() && scheduled_stop)
+    return true;
+  else
+    return false;
   }
 
 void GMPlayerManager::cmd_stop(){
@@ -1984,7 +1987,7 @@ long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
 long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
   FXint state = (FXint)(FXival)ptr;
   switch(state){
-    case PLAYER_STOPPED: GM_DEBUG_PRINT("player stopped\n"); reset_track_display(); break;
+    case PLAYER_STOPPED: GM_DEBUG_PRINT("[player] stopped\n"); reset_track_display(); break;
     case PLAYER_PLAYING: break;
     case PLAYER_PAUSING: break;
     }

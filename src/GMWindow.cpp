@@ -67,6 +67,7 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_PAUSE,             GMWindow::onUpdPause),
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_STOP,              GMWindow::onUpdStop),
+  FXMAPFUNC(SEL_UPDATE,        		  GMWindow::ID_SCHEDULE_STOP,     GMWindow::onUpdScheduleStop),
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_NEXT,              GMWindow::onUpdNext),
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_PREV,              GMWindow::onUpdPrev),
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_REPEAT_ALL,       	GMWindow::onUpdRepeatAll),
@@ -235,6 +236,8 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new GMMenuRadio(menu_media,tr("Repeat All Tracks\tCtrl-/\tRepeat all tracks."),this,ID_REPEAT_ALL);
 //  new GMMenuCheck(menu_media,tr("Repeat A-B\tCtrl-T\tRepeat section of track."),this,ID_REPEAT_AB);
   new FXMenuSeparator(menu_media);
+  // We want Ctrl-Shift-\ but this won't work unless we specify the upper case of \ which is |
+  new GMMenuCheck(menu_media,tr("Stop After Track\tCtrl-Shift-|\tStop playback at end of track."),this,ID_SCHEDULE_STOP);
   new GMMenuCheck(menu_media,tr("Sleep Timer\t\tSetup sleeptimer."),this,ID_SLEEP);
   gm_set_window_cursor(menu_media,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
@@ -304,8 +307,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   getAccelTable()->addAccel(parseAccel("Ctrl-P"),this,FXSEL(SEL_COMMAND,ID_PLAYPAUSE));
   getAccelTable()->addAccel(parseAccel("Ctrl-\\"),this,FXSEL(SEL_COMMAND,ID_STOP));
-  // We want Ctrl-Shift-\ but this won't work unless we specify the upper case of \ which is |
-  getAccelTable()->addAccel(parseAccel("Ctrl-Shift-|"),this,FXSEL(SEL_COMMAND,ID_SCHEDULE_STOP));
   getAccelTable()->addAccel(parseAccel("Ctrl-["),this,FXSEL(SEL_COMMAND,ID_PREV));
   getAccelTable()->addAccel(parseAccel("Ctrl-]"),this,FXSEL(SEL_COMMAND,ID_NEXT));
 
@@ -966,6 +967,20 @@ long GMWindow::onUpdStop(FXObject*sender,FXSelector,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
   return 1;
   }
+
+long GMWindow::onUpdScheduleStop(FXObject*sender,FXSelector,void*){
+  if (GMPlayerManager::instance()->can_stop())
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+  else
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+
+  if (GMPlayerManager::instance()->has_scheduled_stop())
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+  else
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+  return 1;
+  }
+
 
 long GMWindow::onCmdNext(FXObject*,FXSelector,void*){
   GMPlayerManager::instance()->playItem(TRACK_NEXT);

@@ -296,6 +296,7 @@ public:
 
   FXbool can_stop() const;
 
+  FXbool has_scheduled_stop() const;
 
 
 
@@ -330,8 +331,6 @@ public:
   void load_album_covers();
 
   void display_track_notification();
-
-  FXint current_position() const;
 
   FXbool playing() const;
 
