@@ -1301,6 +1301,10 @@ FXbool GMPlayerManager::playlist_empty() {
   }
 
 void GMPlayerManager::notify_playback_finished() {
+  /*
+    The current track is still playing (and about to be finished) so don't call reset_track_display if
+    there is nothing to play anymore. It will eventually be called by the PLAYER_STATE_STOPPED signal.
+  */
   FXString errormsg;
   FXString filename;
   FXint track=-1;
@@ -1326,7 +1330,7 @@ void GMPlayerManager::notify_playback_finished() {
       if (getTrackView()->getSource()==queue)
         getTrackView()->refresh();
 
-     reset_track_display();
+     //reset_track_display();
      return;
      }
 
@@ -1348,7 +1352,7 @@ void GMPlayerManager::notify_playback_finished() {
          source=NULL;
          }
 
-       reset_track_display();
+       //reset_track_display();
        return;
        }
 
@@ -1363,7 +1367,7 @@ void GMPlayerManager::notify_playback_finished() {
       track = getTrackView()->getNext();
 
     if (track==-1) {
-      reset_track_display();
+      //reset_track_display();
       return;
       }
 
@@ -1375,7 +1379,6 @@ void GMPlayerManager::notify_playback_finished() {
 #ifdef HAVE_PLAYQUEUE
     }
 #endif
-
   player->open(trackinfo.url,false);
   }
 
