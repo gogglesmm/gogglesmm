@@ -35,6 +35,7 @@ class DecoderPlugin {
 protected:
   AudioEngine * engine;
   AudioFormat   af;
+  FXlong        stream_decode_offset;
 public:
 public:
   DecoderPlugin(AudioEngine*);
@@ -45,7 +46,7 @@ public:
 
   virtual DecoderStatus process(Packet*)=0;
 
-  virtual FXbool flush()=0;
+  virtual FXbool flush(FXlong offset=0);
 
   static DecoderPlugin* open(AudioEngine * engine,FXuchar codec);
 

@@ -121,7 +121,7 @@ public:
   FXuchar codec() const { return Codec::MPEG; }
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
-  FXbool flush();
+  FXbool flush(FXlong);
   virtual ~MadDecoder();
   };
 
@@ -1568,7 +1568,8 @@ done:
   return DecoderOk;
   }
 
-FXbool MadDecoder::flush(){
+FXbool MadDecoder::flush(FXlong offset){
+  DecoderPlugin::flush(offset);
   if (out) {
     out->unref();
     out=NULL;

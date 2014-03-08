@@ -59,7 +59,8 @@ FXbool OggDecoder::init(ConfigureEvent*){
   return true;
   }
 
-FXbool OggDecoder::flush() {
+FXbool OggDecoder::flush(FXlong offset) {
+  DecoderPlugin::flush(offset);
   buffer.clear();
   stream_position=-1;
   if (out) {

@@ -68,7 +68,7 @@ public:
   FXuchar codec() const { return Codec::Vorbis; }
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
-  FXbool flush();
+  FXbool flush(FXlong);
 
   virtual ~VorbisDecoder();
   };
@@ -110,8 +110,8 @@ FXbool VorbisDecoder::init(ConfigureEvent*event) {
   }
 
 
-FXbool VorbisDecoder::flush() {
-  OggDecoder::flush();
+FXbool VorbisDecoder::flush(FXlong offset) {
+  OggDecoder::flush(offset);
 //  if (has_dsp)
 //    vorbis_synthesis_restart(&dsp);
   return true;

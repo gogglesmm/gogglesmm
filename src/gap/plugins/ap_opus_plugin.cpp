@@ -58,7 +58,7 @@ public:
   FXuchar codec() const { return Codec::Opus; }
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
-  FXbool flush();
+  FXbool flush(FXlong);
 
 
   virtual ~OpusDecoderPlugin();
@@ -101,8 +101,8 @@ FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
   }
 
 
-FXbool OpusDecoderPlugin::flush() {
-  OggDecoder::flush(); 
+FXbool OpusDecoderPlugin::flush(FXlong offset) {
+  OggDecoder::flush(offset); 
   //if (opus) opus_decoder_ctl(opus,OPUS_RESET_STATE);
   return true;
   }

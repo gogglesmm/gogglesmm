@@ -109,7 +109,7 @@ protected:
 public:
   FlacDecoder(AudioEngine*);
   FXuchar codec() const { return Codec::FLAC; }
-  FXbool flush();
+  FXbool flush(FXlong offset=0);
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
   ~FlacDecoder();
@@ -636,7 +636,8 @@ FXbool FlacDecoder::init(ConfigureEvent*event) {
   return true;
   }
 
-FXbool FlacDecoder::flush() {
+FXbool FlacDecoder::flush(FXlong offset) {
+  DecoderPlugin::flush(offset);
   FLAC__stream_decoder_flush(flac);
   if (in) {
     in->unref();

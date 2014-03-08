@@ -107,7 +107,7 @@ protected:
 public:
   AacDecoder(AudioEngine*);
   FXuchar codec() const { return Codec::AAC; }
-  FXbool flush();
+  FXbool flush(FXlong offset=0);
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
   ~AacDecoder();
@@ -137,7 +137,8 @@ FXbool AacDecoder::init(ConfigureEvent*event) {
   return true;
   }
 
-FXbool AacDecoder::flush() {
+FXbool AacDecoder::flush(FXlong offset) {
+  DecoderPlugin::flush(offset);
   buffer.clear();
   if (out) {
     out->unref();
