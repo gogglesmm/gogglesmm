@@ -45,8 +45,10 @@ void Event::unref(Event*& event) {
   }
 
 
+FlushEvent::FlushEvent(FXlong o) : Event(Flush), offset(o), close(false) {
+  }
 
-FlushEvent::FlushEvent(FXbool c) : Event(Flush), close(c) {
+FlushEvent::FlushEvent(FXbool c) : Event(Flush), offset(0), close(c) {
   }
 
 

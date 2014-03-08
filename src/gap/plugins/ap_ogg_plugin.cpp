@@ -122,7 +122,7 @@ public:
   OggReader(AudioEngine *);
   FXuchar format() const { return Format::OGG; };
   FXbool init(InputPlugin*);
-  FXbool seek(FXdouble);
+  FXbool seek(FXdouble,FXlong & offset);
   FXbool can_seek() const;
   ReadStatus process(Packet*);
   virtual ~OggReader();
@@ -161,7 +161,7 @@ FXbool OggReader::can_seek() const {
   return stream_length>0;
   }
 
-FXbool OggReader::seek(FXdouble pos){
+FXbool OggReader::seek(FXdouble pos,FXlong & target){
  FXASSERT(stream_length>0);
 
     if (packet) {
@@ -178,7 +178,7 @@ FXbool OggReader::seek(FXdouble pos){
     ogg_stream_reset(&stream);
 
 
-    FXlong target  = stream_start + (stream_length * pos);
+    target  = stream_start + (stream_length * pos);
     FXlong offset  = input->size() * pos;
     FXlong lastpos = -1;
 

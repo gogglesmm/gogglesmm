@@ -67,6 +67,7 @@ public:
   void ctrl_open_inputs(const FXStringList & url);
   void ctrl_open_input(const FXString & url);
   void ctrl_close_input(FXbool notify=false);
+  void ctrl_seek_flush(FXlong offset);
   void ctrl_flush(FXbool close=false);
   void ctrl_seek(FXdouble pos);
   void ctrl_eos();

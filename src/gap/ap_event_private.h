@@ -71,9 +71,11 @@ public:
 
 class FlushEvent : public Event {
 public:
+  FXlong offset;
   FXbool close;
 public:
-  FlushEvent(FXbool c=false);
+  FlushEvent(FXbool c=false); 
+  FlushEvent(FXlong offset);
   };
 
 class ControlEvent : public Event {

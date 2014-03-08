@@ -87,7 +87,7 @@ public:
   FlacReader(AudioEngine*);
   FXuchar format() const { return Format::FLAC; };
   FXbool init(InputPlugin*);
-  FXbool seek(FXdouble);
+  FXbool seek(FXdouble,FXlong & offset);
   FXbool can_seek() const;
   ReadStatus process(Packet*);
   ~FlacReader();
@@ -230,9 +230,9 @@ FXbool FlacReader::can_seek() const {
   return stream_length>0;
   }
 
-FXbool FlacReader::seek(FXdouble pos){
+FXbool FlacReader::seek(FXdouble pos,FXlong & offset){
   FXASSERT(stream_length>0);
-  FXlong offset = (FXlong)(((FXdouble)stream_length)*pos);
+  offset = (FXlong)(((FXdouble)stream_length)*pos);
   GM_DEBUG_PRINT("[flac_reader] seek to %g %ld / %ld\n",pos,offset,stream_length);
   FLAC__stream_decoder_flush(flac);
   if (FLAC__stream_decoder_seek_absolute(flac,offset)) {

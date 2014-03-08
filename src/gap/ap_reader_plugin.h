@@ -60,7 +60,7 @@ public:
   virtual FXbool can_seek() const { return false; }
 
     /// Seek
-  virtual FXbool seek(FXdouble) { return false; }
+  virtual FXbool seek(FXdouble,FXlong &) { return false; }
 
   /// Process Input
   virtual ReadStatus process(Packet*);
