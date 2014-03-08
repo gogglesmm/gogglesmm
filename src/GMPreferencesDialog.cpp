@@ -399,7 +399,8 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   grpbox =  new FXGroupBox(vframe,tr("Window"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
-  new GMCheckButton(grpbox,tr("Close button minimizes to tray"),&target_closeishide,FXDataTarget::ID_VALUE);
+  if (!GMPlayerManager::instance()->getPreferences().gui_tray_icon_disabled)
+    new GMCheckButton(grpbox,tr("Close button minimizes to tray"),&target_closeishide,FXDataTarget::ID_VALUE);
   statusbarbutton = new GMCheckButton(grpbox,tr("Show Status Bar"),NULL,0);
   statusbarbutton->setCheck(GMPlayerManager::instance()->getPreferences().gui_show_status_bar);
 
