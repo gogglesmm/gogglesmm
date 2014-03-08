@@ -692,11 +692,13 @@ void GMPlayerManager::init_window(FXbool wizard) {
     }
   else {
     FXbool start_as_tray=false;
-    for(FXint i=1;i<argc;i++) {
-      if (comparecase(argv[i],"--tray")==0){
-        start_as_tray=true;
-        preferences.gui_tray_icon=true;
-        break;
+    if (preferences.gui_tray_icon_disabled==false){
+      for(FXint i=1;i<argc;i++) {
+        if (comparecase(argv[i],"--tray")==0){
+          start_as_tray=true;
+          preferences.gui_tray_icon=true;
+          break;
+          }
         }
       }
     if (start_as_tray)
@@ -967,7 +969,6 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
 
     update_mpris();
 
-
     notifydaemon->init();
     }
 #endif
@@ -1074,12 +1075,14 @@ void GMPlayerManager::update_mpris() {
 
 
 void GMPlayerManager::update_tray_icon() {
-  if (!preferences.gui_tray_icon_disabled) {
-    if (trayicon && !preferences.gui_tray_icon) {
+  if (trayicon){
+    if (!preferences.gui_tray_icon || preferences.gui_tray_icon_disabled) {
       delete trayicon;
       trayicon=NULL;
       }
-    else if (!trayicon && preferences.gui_tray_icon) {
+    }
+  else {
+    if (preferences.gui_tray_icon && !preferences.gui_tray_icon_disabled) {
       trayicon = new GMTrayIcon(application);
       trayicon->create();
       }
@@ -1547,7 +1550,7 @@ void GMPlayerManager::show_message(const FXchar * title,const FXchar * msg){
 
 long GMPlayerManager::onCmdCloseWindow(FXObject*sender,FXSelector,void*){
   FXWindow * window = reinterpret_cast<FXWindow*>(sender);
-  if (getPreferences().gui_hide_player_when_close) {
+  if (getPreferences().gui_hide_player_when_close && !getPreferences().gui_tray_icon_disabled) {
     window->hide();
     }
   else {
