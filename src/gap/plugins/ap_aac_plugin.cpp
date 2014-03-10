@@ -127,6 +127,7 @@ AacDecoder::~AacDecoder() {
   }
 
 FXbool AacDecoder::init(ConfigureEvent*event) {
+  DecoderPlugin::init(event);
   buffer.clear();
   af=event->af;
   if (handle) {

@@ -1276,6 +1276,7 @@ MadDecoder::~MadDecoder(){
 
 
 FXbool MadDecoder::init(ConfigureEvent* event){
+  DecoderPlugin::init(event);
   FXASSERT(out==NULL);
   af=event->af;
   stream_offset_start=event->stream_offset_start;

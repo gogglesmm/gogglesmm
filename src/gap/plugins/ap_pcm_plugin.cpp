@@ -53,7 +53,8 @@ PCMDecoder::PCMDecoder(AudioEngine * e) : DecoderPlugin(e) {
 PCMDecoder::~PCMDecoder() {
   }
 
-FXbool PCMDecoder::init(ConfigureEvent*/*event*/) {
+FXbool PCMDecoder::init(ConfigureEvent*event) {
+  DecoderPlugin::init(event);
   return true;
   }
 

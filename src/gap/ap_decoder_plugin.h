@@ -42,7 +42,7 @@ public:
 
   virtual FXuchar codec() const { return Codec::Invalid; }
 
-  virtual FXbool init(ConfigureEvent*)=0;
+  virtual FXbool init(ConfigureEvent*);
 
   virtual DecoderStatus process(Packet*)=0;
 

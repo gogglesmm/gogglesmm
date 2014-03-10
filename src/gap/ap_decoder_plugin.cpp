@@ -32,6 +32,12 @@ namespace ap {
 DecoderPlugin::DecoderPlugin(AudioEngine *e) : engine(e),stream_decode_offset(0) {
   }
 
+FXbool DecoderPlugin::init(ConfigureEvent*){
+  stream_decode_offset = 0;
+  return true;
+  }
+
+
 FXbool DecoderPlugin::flush(FXlong offset) {
   stream_decode_offset = offset;
   return true;
