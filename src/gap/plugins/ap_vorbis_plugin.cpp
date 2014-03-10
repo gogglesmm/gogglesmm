@@ -273,7 +273,20 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
     while((ngiven=vorbis_synthesis_pcmout(&dsp,&pcm))>0) {
       if (len>0) FXASSERT(stream_position+ngiven<=len);
 
-      for (sample=0,ntotalsamples=ngiven;ntotalsamples>0;) {
+      if (__unlikely(stream_position<stream_decode_offset)) {
+        FXlong offset = FXMIN(ngiven,stream_decode_offset - stream_position);
+        GM_DEBUG_PRINT("[vorbis] stream decode offset %ld. Skipping %ld of %ld \n",stream_decode_offset,offset,stream_decode_offset-stream_position);
+        ngiven-=offset;
+        stream_position+=offset;
+        sample=offset;
+        vorbis_synthesis_read(&dsp,offset);
+        if (ngiven==0) continue;
+        }
+      else {
+        sample=0;
+        }
+
+      for (ntotalsamples=ngiven;ntotalsamples>0;) {
 
         /// Get new buffer
         if (out==NULL) {
@@ -294,7 +307,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         nsamples = FXMIN(ntotalsamples,navail);
         for (p=0,s=sample;s<(nsamples+sample);s++){
           for (c=0;c<info.channels;c++,p++) {
-            FXASSERT(s<ngiven);
 #ifdef HAVE_VORBIS_PLUGIN
             buf32[p]=pcm[c][s];
 #else
