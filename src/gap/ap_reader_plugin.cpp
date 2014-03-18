@@ -42,6 +42,13 @@ ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e),input(NULL),flags(0),stre
 ReaderPlugin::~ReaderPlugin() {
   }
 
+FXlong ReaderPlugin::seek_offset(FXdouble value) const {
+  if (stream_length>0)
+    return stream_length*value;
+  else
+    return -1;
+  }
+
 FXbool ReaderPlugin::init(InputPlugin* plugin) {
   input=plugin;
   stream_length=-1;

@@ -59,8 +59,11 @@ public:
   /// Return whether plugin can seek
   virtual FXbool can_seek() const { return false; }
 
-    /// Seek
-  virtual FXbool seek(FXdouble,FXlong &) { return false; }
+  /// Seek to sample
+  virtual FXbool seek(FXlong) { return false; }
+
+  // Get the seek offset for given percentage (0-1.0)
+  FXlong seek_offset(FXdouble) const;
 
   /// Process Input
   virtual ReadStatus process(Packet*);

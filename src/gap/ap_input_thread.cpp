@@ -289,9 +289,12 @@ void InputThread::ctrl_eos() {
 
 void InputThread::ctrl_seek(FXdouble pos) {
   FXlong offset;
-  if (reader && !input->serial() && reader->can_seek() && reader->seek(pos,offset)) {
-    ctrl_seek_flush(offset);
-    set_state(StateProcessing,true);
+  if (reader && !input->serial() && reader->can_seek()) {
+    offset = reader->seek_offset(pos);
+    if (offset>=0 && reader->seek(offset)) {
+      ctrl_seek_flush(offset);
+      set_state(StateProcessing,true);
+      }
     }
   }
 

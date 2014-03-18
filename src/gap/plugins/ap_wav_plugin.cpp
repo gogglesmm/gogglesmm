@@ -53,7 +53,7 @@ public:
   FXuchar format() const { return Format::WAV; };
 
   FXbool can_seek() const;
-  FXbool seek(FXdouble);
+  FXbool seek(FXlong);
   virtual ~WavReader();
   };
 
@@ -82,14 +82,20 @@ FXbool WavReader::can_seek() const {
   return true;
   }
 
-FXbool WavReader::seek(FXdouble pos){
+
+FXbool WavReader::seek(FXlong pos){
 //  if (af.codec==Codec::PCM) {
+  FXlong offset=input_start + FXCLAMP(0,pos*af.framesize(),datasize);
+  input->position(offset,FXIO::Begin);
+  
+/*
     FXlong b = (FXlong)(((FXdouble)datasize)*pos);
     FXlong offset=FXCLAMP(0,((b / af.framesize()) * af.framesize()),datasize);
     GM_DEBUG_PRINT("seek to %ld\n",offset);
 
     offset+=input_start;
     input->position(offset,FXIO::Begin);
+*/
 //    }
   return true;
   }

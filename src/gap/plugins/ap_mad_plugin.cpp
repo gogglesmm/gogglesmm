@@ -87,11 +87,16 @@ protected:
 public:
   MadReader(AudioEngine*);
 
+  FXlong getSeekOffset(FXdouble);
+
+
   FXuchar format() const { return Format::MP3; };
 
   FXbool init(InputPlugin*);
   FXbool can_seek() const;
-  FXbool seek(FXdouble);
+  FXbool seek(FXlong);
+  FXlong seek_offset(FXdouble) const;
+
   ReadStatus process(Packet*);
   virtual ~MadReader();
   };
@@ -709,20 +714,30 @@ FXbool MadReader::can_seek() const{
   return true;
   }
 
-FXbool MadReader::seek(FXdouble pos) {
+FXlong MadReader::seek_offset(FXdouble pos) const{
+  if (lame) {
+    return lame->padstart+((stream_length-lame->padstart-lame->padend)*pos);
+    }
+  else {
+    return stream_length*pos;
+    }
+  }
+
+
+FXbool MadReader::seek(FXlong pos) {
   if (!input->serial()){
     FXlong offset = 0;
     if (xing) {
-      offset = xing->seek(pos,(input_end - input_start));
-      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",pos,offset);
+      offset = xing->seek((pos /(double)stream_length),(input_end - input_start));
+      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",(double)(pos / stream_length),offset);
       if (offset==-1) return false;
-      stream_position = stream_length * pos;
+      stream_position = offset; //getSeekOffset(pos);
       }
     else if (vbri) {
       }
     else {
-      stream_position = stream_length * pos;
-      offset = (input_end - input_start) * pos;
+      stream_position = offset;
+      offset = (input_end - input_start) * ((double)pos/(double)stream_length);
       }
     input->position(input_start+offset,FXIO::Begin);
     }
@@ -1132,6 +1147,8 @@ ReadStatus MadReader::parse(Packet * packet) {
   return ReadError;
   }
 
+
+
 ReadStatus MadReader::process(Packet*packet) {
   packet->af              = af;
   packet->stream_position = stream_position;
@@ -1493,10 +1510,12 @@ DecoderStatus MadDecoder::process(Packet*in){
     // Prevent from writing to many samples..
     nframes=FXMIN(synth.pcm.length,max_samples);
 
+    FXlong stream_begin = FXMAX(stream_offset_start,stream_decode_offset);
+
     // Adjust for beginning of stream
-    if (stream_position<stream_offset_start) {
-      FXlong offset = stream_offset_start - stream_position;
-      GM_DEBUG_PRINT("[mad_decoder] stream offset start %hd. Skip %ld at %ld\n",stream_offset_start,offset,stream_position);
+    if (stream_position<stream_begin) {
+      FXlong offset = stream_begin - stream_position;
+      GM_DEBUG_PRINT("[mad_decoder] stream offset start %ld. Skip %ld at %ld\n",stream_begin,offset,stream_position);
       nframes-=offset;
       left+=offset;
       right+=offset;
