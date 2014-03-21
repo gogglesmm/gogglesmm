@@ -440,7 +440,6 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
   FXint s,c,p=0;
   FXint sample  = 0;
   FXint nchannels = frame->header.channels;
-  FXint framesize = (frame->header.bits_per_sample>>3)*nchannels;
   FXint ncopy;
 
   FXlong stream_position = frame->header.number.sample_number;
@@ -455,7 +454,6 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
 
   Packet * packet = plugin->out;
   if (packet) {
-    //navail = packet->availableFrames();
     FXASSERT(packet->stream_position+packet->numFrames()==stream_position);
     if (packet->numFrames()==0) 
       packet->stream_position = stream_position;  
