@@ -380,140 +380,83 @@ FXbool GMDatabaseSource::dnd_accepts(FXDragType*types,FXuint ntypes){
 
 
 FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
-  if (filtermask==mask && filter==text && filterowner==this) return false;
+
+  // don't do anything if nothing changed
+  if (filtermask==mask && filter==text && filterowner==this) 
+    return false;
 
   filter=text;
   filtermask=mask;
 
-  FXStringList keywords;
-  FXStringList years;
-  FXStringList rules;
-  FXString word,filterquery,query;
-  FXbool quotes=false;
-  FXint i;
 
-  for (i=0;i<text.length();i++){
-    if (text[i]=='\\' && (i+1)<text.length() && text[i+1]=='\"'){
-      word+=text[i+1];
-      i++;
-      }
-    else if (text[i]=='\"') {
-      quotes=!quotes;
-      }
-    else if (Ascii::isSpace(text[i]) && !quotes) {
-      if (!word.empty()) {
+  FXString query,keyword_query,match_query;
+  FXPtrListOf<FXchar> keywords;
+  if (filtermask) {
+
+    // get search words from string
+    FXString word,match_query,keyword_query,query;
+    FXbool quotes=false;
+    FXint i;
+    for (i=0;i<text.length();i++){
+      if (text[i]=='\\' && (i+1)<text.length() && text[i+1]=='\"'){
+        word+=text[i+1];
+        i++;
+        }
+      else if (text[i]=='\"') {
+        quotes=!quotes;
+        }
+      else if (Ascii::isSpace(text[i]) && !quotes) {
+        if (!word.empty()) {
           FXchar * sf = sqlite3_mprintf("LIKE '%%%q%%'",word.text());
-          keywords.append(FXString(sf));
+          keywords.append(sf);
           word.clear();
-          sqlite3_free(sf);
+          }
+        }
+      else {
+        word+=text[i];
         }
       }
-    else {
-      word+=text[i];
+
+    if (!word.empty()) {
+      FXchar * sf = sqlite3_mprintf("LIKE '%%%q%%'",word.text());
+      keywords.append(sf);
+      word=FXString::null;
       }
-    }
 
-  if (!word.empty()) {
-    FXchar * sf = sqlite3_mprintf("LIKE '%%%q%%'",word.text());
-    keywords.append(FXString(sf));
-    word=FXString::null;
-    sqlite3_free(sf);
     }
-
 
   db->execute("DROP VIEW IF EXISTS filtered;");
 
-  if ((years.no() || keywords.no() || rules.no()) && filtermask) {
-    FXString tagfilter;
-    FXString artistfilter;
-    FXString albumfilter;
-    FXString albumartistfilter;
-    FXString titlefilter;
-    FXString filter;
-    FXString combine=" OR ";
+  if (keywords.no() && filtermask) {
 
-    if (filtermask&FILTER_TAG) {
-      tagfilter = "(SELECT track FROM track_tags WHERE tag IN ( SELECT id FROM tags WHERE ";
-      tagfilter+=" name " + keywords[0];
-      for (i=1;i<keywords.no();i++) {
-        tagfilter+=" AND name " + keywords[i];
-        }
-      tagfilter+="))";
+    query = "CREATE TEMP VIEW filtered AS SELECT tracks.id as track, tracks.album as album FROM tracks JOIN albums ON tracks.album == albums.id JOIN artists AS album_artist ON (albums.artist == album_artist.id) JOIN artists AS track_artist ON (tracks.artist == track_artist.id) LEFT JOIN artists AS composers ON (tracks.composer == composers.id) LEFT JOIN artists AS conductors ON (tracks.conductor == conductors.id) WHERE ";
+    if (playlist) {
+      query+="tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + ") AND ";
       }
-
-    if (filtermask&FILTER_ARTIST) {
-      artistfilter = "(SELECT id FROM artists WHERE ";
-      artistfilter+=" name " + keywords[0];
-      for (i=1;i<keywords.no();i++) {
-        artistfilter+=" AND name " + keywords[i];
+    for (int i=0;i<keywords.no();i++){      
+      if (filtermask&FILTER_ARTIST) {
+        if (!match_query.empty()) match_query+=" OR ";
+        match_query+=FXString::value("(composers.name %s OR conductors.name %s OR track_artist.name %s OR album_artist.name %s)",keywords[i],keywords[i],keywords[i],keywords[i]);
         }
-      artistfilter+=")";
-
-      albumartistfilter = "(SELECT id FROM albums WHERE ";
       if (filtermask&FILTER_ALBUM) {
-        albumartistfilter+="( name " + keywords[0];
-        for (i=1;i<keywords.no();i++) {
-          albumartistfilter+=" AND name " + keywords[i];
-          }
-        albumartistfilter+=") OR";
+        if (!match_query.empty()) match_query+=" OR ";
+        match_query+=FXString::value("(albums.name %s)",keywords[i]);
         }
-      albumartistfilter+=" artist IN " + artistfilter + ")";
-      }
-
-    if (filtermask&FILTER_ALBUM) {
-      albumfilter = "(SELECT id FROM albums WHERE ";
-      albumfilter+=" name " + keywords[0];
-      for (i=1;i<keywords.no();i++) {
-        albumfilter+=" AND name " + keywords[i];
+      if (filtermask&FILTER_TRACK) {
+        if (!match_query.empty()) match_query+=" OR ";
+        match_query+=FXString::value("(title %s)",keywords[i]);
         }
-      albumfilter+="))";
-      }
-
-    if (filtermask&FILTER_TRACK) {
-      titlefilter+="( title " + keywords[0];
-      for (i=1;i<keywords.no();i++) {
-        titlefilter+=" AND title " + keywords[i];
+      if (filtermask&FILTER_TAG) {
+        if (!match_query.empty()) match_query+=" OR ";
+        match_query+=FXString::value("(track IN (SELECT track FROM track_tags JOIN tags ON track_tags.tag == tags.id WHERE tags.name %s))",keywords[i]);
         }
-      titlefilter+=")";
+      if (!keyword_query.empty()) keyword_query+=" AND ";
+      keyword_query+="("+match_query+")";
+      match_query.clear();
       }
-
-
-    query = "CREATE TEMP VIEW filtered AS SELECT tracks.id as track, tracks.album as album FROM tracks WHERE ";
-    if (playlist) {
-      query+="id IN (SELECT track FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + ") AND (";
-      }
-
-    if (!tagfilter.empty()) {
-      filter="id IN " + tagfilter;
-      }
-
-    if (!artistfilter.empty()) {
-      if (!filter.empty()) { filter+=" OR "; }
-      filter+="( ";
-      filter+="artist IN " + artistfilter + " OR ";
-      filter+="composer IN " + artistfilter + " OR ";
-      filter+="conductor IN " + artistfilter + " OR ";
-      filter+="album IN " + albumartistfilter + ") ";
-      }
-
-    if (!artistfilter && !albumfilter.empty()) {
-      if (!filter.empty()) { filter+=" OR "; }
-      filter+="album IN " + tagfilter;
-      }
-
-    if (!titlefilter.empty()){
-      if (!filter.empty()) { filter+=" OR "; }
-      filter+=titlefilter;
-      }
-
-    query += filter;
-    if (playlist) {
-      query += ")";
-      }
-    query+=";";
+    query+=keyword_query;
 
     //fxmessage("q: %s\n",query.text());
-
     GM_TICKS_START();
     db->execute(query);
     GM_TICKS_END();
@@ -522,6 +465,11 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
   else {
     hasfilter=false;
     }
+
+  for (FXint i=0;i<keywords.no();i++){
+    sqlite3_free(keywords[i]);  
+    }
+
   filterowner=this;
   return true;
   }
