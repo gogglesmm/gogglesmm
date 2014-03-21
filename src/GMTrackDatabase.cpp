@@ -171,10 +171,33 @@ error:
   return false;
   }
 
+
+
 void GMTrackDatabase::init_index() {
-  execute("CREATE INDEX IF NOT EXISTS tracks_album ON tracks(album);");
-  execute("CREATE INDEX IF NOT EXISTS tracks_mrl ON tracks(mrl);");
-  execute("CREATE INDEX IF NOT EXISTS tracks_has_track ON tracks(path,mrl);");
+  /*
+    https://www.sqlite.org/foreignkeys.html#fk_indexes
+    So, in most real systems, an index should be created on the child key columns of each foreign key constraint.
+  */
+  execute("CREATE INDEX IF NOT EXISTS feeds_tag ON feeds(tag)");
+
+  execute("CREATE INDEX IF NOT EXISTS feed_items_feed ON feed_items(feed)");
+  execute("CREATE INDEX IF NOT EXISTS streams_genre ON streams(genre)");
+
+  execute("CREATE INDEX IF NOT EXISTS tracks_album ON tracks(album)");
+  execute("CREATE INDEX IF NOT EXISTS tracks_mrl ON tracks(mrl)");
+  execute("CREATE INDEX IF NOT EXISTS tracks_has_track ON tracks(path,mrl)");
+  execute("CREATE INDEX IF NOT EXISTS tracks_path ON tracks(path)");
+  execute("CREATE INDEX IF NOT EXISTS tracks_artist ON tracks(artist)");
+  execute("CREATE INDEX IF NOT EXISTS tracks_composer ON tracks(composer)");
+  execute("CREATE INDEX IF NOT EXISTS tracks_conductor ON tracks(conductor)");
+
+  execute("CREATE INDEX IF NOT EXISTS track_tags_track ON track_tags(track)");
+  execute("CREATE INDEX IF NOT EXISTS track_tags_tag ON track_tags(tag)");
+
+  execute("CREATE INDEX IF NOT EXISTS albums_artist ON albums(artist)");
+
+  execute("CREATE INDEX IF NOT EXISTS playlist_tracks_track ON playlist_tracks(track)");
+  execute("CREATE INDEX IF NOT EXISTS playlist_tracks_playlist ON playlist_tracks(playlist)");
   }
 
 void GMTrackDatabase::fix_empty_tags(){
