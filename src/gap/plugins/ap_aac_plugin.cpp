@@ -150,9 +150,9 @@ FXbool AacDecoder::flush(FXlong offset) {
   }
 
 DecoderStatus AacDecoder::process(Packet*packet){
-  FXbool eos = packet->flags&FLAG_EOS;
-  FXlong stream_length = packet->stream_length;
-  FXuint stream_id = packet->stream;
+  const FXbool eos = packet->flags&FLAG_EOS;
+  const FXlong stream_length = packet->stream_length;
+  const FXuint stream_id = packet->stream;
 
   if (stream_position==-1 && buffer.size()==0)
     stream_position = packet->stream_position;
@@ -212,13 +212,27 @@ DecoderStatus AacDecoder::process(Packet*packet){
       buffer.readBytes(frame.bytesconsumed);
       }
 
-	  if (frame.error > 0) {
-	    GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));//
-	    }
+    if (frame.error > 0) {
+      GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));//
+      }
 
     if (frame.samples) {
-      stream_position+=(frame.samples/frame.channels);
-      out->wroteFrames((frame.samples/frame.channels));
+      const FXint nframes = frame.samples / frame.channels;
+      if (__unlikely(stream_position<stream_decode_offset)) {
+	if ((nframes+stream_position)<stream_decode_offset) {
+          stream_position+=nframes;
+          }
+        else {
+          out->wroteFrames(nframes);
+          out->trimBegin(af.framesize()*(stream_decode_offset-stream_position));
+          out->stream_position = stream_decode_offset;
+          stream_position+=nframes;	  		
+          }
+	}
+      else {
+        stream_position+=nframes;
+        out->wroteFrames(nframes);
+        }
       if (out->availableFrames()==0) {
         engine->output->post(out);
         out=NULL;
