@@ -219,16 +219,18 @@ DecoderStatus AacDecoder::process(Packet*packet){
     if (frame.samples) {
       const FXint nframes = frame.samples / frame.channels;
       if (__unlikely(stream_position<stream_decode_offset)) {
-	if ((nframes+stream_position)<stream_decode_offset) {
+        if ((nframes+stream_position)<stream_decode_offset) {
+          GM_DEBUG_PRINT("[aac] stream decode offset %ld. Full skip %d\n",stream_decode_offset,nframes);
           stream_position+=nframes;
           }
         else {
+          GM_DEBUG_PRINT("[aac] stream decode offset %ld. Partial skip %ld\n",stream_decode_offset,(stream_decode_offset-stream_position));
           out->wroteFrames(nframes);
           out->trimBegin(af.framesize()*(stream_decode_offset-stream_position));
           out->stream_position = stream_decode_offset;
           stream_position+=nframes;	  		
           }
-	}
+        }
       else {
         stream_position+=nframes;
         out->wroteFrames(nframes);
