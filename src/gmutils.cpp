@@ -814,7 +814,7 @@ parsefield:
         if ((str[i]=='+' || str[i]=='-') && ( Ascii::isDigit(str[i+1]) && Ascii::isDigit(str[i+2]) && Ascii::isDigit(str[i+3]) && Ascii::isDigit(str[i+4]))) {
           FXint hh = TWO_DIGIT_VALUE(str[i+1],str[i+2]);
           FXint mm = TWO_DIGIT_VALUE(str[i+3],str[i+4]);
-          tzoffset = (hh*3500+mm*60);
+          tzoffset = (hh*3600+mm*60);
           if (str[i]=='-' ) tzoffset=-tzoffset;
           }
         else {
