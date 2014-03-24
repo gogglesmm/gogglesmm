@@ -140,10 +140,11 @@ FXlong OpusDecoderPlugin::find_stream_length() {
 
 
 DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
-  FXbool eos           = packet->flags&FLAG_EOS;
-  FXuint id            = packet->stream;
-  FXlong stream_length = packet->stream_length;
-  FXlong stream_end    = stream_length;
+  const FXlong stream_begin  = FXMAX(stream_offset_start,stream_decode_offset);
+  const FXlong stream_length = packet->stream_length;
+  const FXbool eos           = packet->flags&FLAG_EOS;
+  FXuint id                  = packet->stream;
+  FXlong stream_end          = stream_length;
 
   OggDecoder::process(packet);
 
@@ -160,10 +161,11 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
 
     const FXuchar * pcmi = (const FXuchar*)pcm;
 
+
     // Adjust for beginning of stream
-    if (stream_position<stream_offset_start) {
-      FXlong offset = FXMIN(nsamples,stream_offset_start - stream_position);
-      GM_DEBUG_PRINT("[opus] stream offset start %hu. Skip %ld at %ld of %d\n",stream_offset_start,offset,stream_position,nsamples);
+    if (stream_position<stream_begin) {
+      FXlong offset = FXMIN(nsamples,stream_begin - stream_position);
+      GM_DEBUG_PRINT("[opus] stream offset start %ld. Skip %ld at %ld\n",stream_begin,offset,stream_position);
       nsamples-=offset;
       pcmi+=(offset*af.framesize());
       stream_position+=offset;
