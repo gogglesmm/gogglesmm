@@ -32,6 +32,14 @@ private:
   GMAboutDialog(const GMAboutDialog&);
   GMAboutDialog& operator=(const GMAboutDialog&);
 public:
+  enum {
+    ID_HOMEPAGE=FXDialogBox::ID_LAST,
+    ID_REPORT_ISSUE,
+    };
+public:
+  long onCmdHomePage(FXObject*,FXSelector,void*);
+  long onCmdReportIssue(FXObject*,FXSelector,void*);
+public:
 /// Construct free-floating About dialog
   GMAboutDialog(FXApp* a);
 

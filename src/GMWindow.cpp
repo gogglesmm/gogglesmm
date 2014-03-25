@@ -123,10 +123,6 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_MOUSEWHEEL,					GMWindow::ID_VOLUME_BUTTON,     GMWindow::onCmdVolumeButton),
   FXMAPFUNC(SEL_MOUSEWHEEL,					0,															GMWindow::onCmdVolumeButton),
 
-
-  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_HOMEPAGE,					GMWindow::onCmdHomePage),
-  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_REPORT_ISSUE,	  	GMWindow::onCmdReportIssue),
-
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_JOIN_LASTFM,	  	  GMWindow::onCmdJoinLastFM),
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_JOIN_GMM_LASTFM,	  GMWindow::onCmdJoinGMMLastFM),
 
@@ -1110,20 +1106,6 @@ long GMWindow::onUpdShuffle(FXObject*sender,FXSelector,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
   else
     sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
-  return 1;
-  }
-
-long GMWindow::onCmdHomePage(FXObject*,FXSelector,void*){
-  if (!gm_open_browser("http://gogglesmm.github.io")){
-    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit http://gogglesmm.github.io for the official homepage.");
-    }
-  return 1;
-  }
-
-long GMWindow::onCmdReportIssue(FXObject*,FXSelector,void*){
-  if (!gm_open_browser("https://github.com/gogglesmm/gogglesmm/issues")){
-    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit https://github.com/gogglesmm/gogglesmm/issues to report an issue.");
-    }
   return 1;
   }
 

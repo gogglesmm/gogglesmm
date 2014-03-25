@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+#include "gmutils.h"
 #include "GMAbout.h"
 #include "icons.h"
 
@@ -32,8 +33,13 @@
 
 #define APPLICATION_TITLE "Goggles Music Manager"
 
-// Object implementation
-FXIMPLEMENT(GMAboutDialog,FXDialogBox,NULL,0)
+FXDEFMAP(GMAboutDialog) GMAboutDialogMap[]={
+  FXMAPFUNC(SEL_COMMAND,GMAboutDialog::ID_HOMEPAGE,		 GMAboutDialog::onCmdHomePage),
+  FXMAPFUNC(SEL_COMMAND,GMAboutDialog::ID_REPORT_ISSUE,GMAboutDialog::onCmdReportIssue)
+  };
+
+FXIMPLEMENT(GMAboutDialog,FXDialogBox,GMAboutDialogMap,ARRAYNUMBER(GMAboutDialogMap))
+
 
 GMAboutDialog::GMAboutDialog(FXApp * app) : FXDialogBox(app,FXString::null,DECOR_ALL,0,0,0,0,0,0,0,0,0,0) {
   setup();
@@ -113,7 +119,23 @@ void GMAboutDialog::setup(){
 
   new FXSeparator(this,SEPARATOR_GROOVE|LAYOUT_FILL_X);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,tr("&Homepage"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
-  new GMButton(closebox,tr("&Report Issue"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
+  new GMButton(closebox,tr("&Homepage"),NULL,this,ID_HOMEPAGE,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
+  new GMButton(closebox,tr("&Report Issue"),NULL,this,ID_REPORT_ISSUE,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
   new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
   }
+
+
+long GMAboutDialog::onCmdHomePage(FXObject*,FXSelector,void*){
+  if (!gm_open_browser("http://gogglesmm.github.io")){
+    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit http://gogglesmm.github.io for the official homepage.");
+    }
+  return 1;
+  }
+
+long GMAboutDialog::onCmdReportIssue(FXObject*,FXSelector,void*){
+  if (!gm_open_browser("https://github.com/gogglesmm/gogglesmm/issues")){
+    FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit https://github.com/gogglesmm/gogglesmm/issues to report an issue.");
+    }
+  return 1;
+  }
+
