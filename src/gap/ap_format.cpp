@@ -116,6 +116,10 @@ FXbool AudioFormat::compatible()  {
   }
 
 
+FXString AudioFormat::debug_format() const {
+  return FXString::value("%s%2d%s%d",formats[datatype()],bps(),byteorders[byteorder()],packing());
+  }
+
 void AudioFormat::debug() const {
   fxmessage("format: %6dHz, %dch, %s%2d%s%d\n",rate,channels,formats[datatype()],bps(),byteorders[byteorder()],packing());
   }

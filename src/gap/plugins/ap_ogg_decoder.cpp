@@ -53,13 +53,15 @@ OggDecoder::~OggDecoder() {
     }
   }
 
-FXbool OggDecoder::init(ConfigureEvent*){
+FXbool OggDecoder::init(ConfigureEvent*event){
+  DecoderPlugin::init(event);
   buffer.clear();
   stream_position=-1; 
   return true;
   }
 
-FXbool OggDecoder::flush() {
+FXbool OggDecoder::flush(FXlong offset) {
+  DecoderPlugin::flush(offset);
   buffer.clear();
   stream_position=-1;
   if (out) {

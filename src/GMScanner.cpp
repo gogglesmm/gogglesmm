@@ -398,6 +398,7 @@ void GMImportTask::import() {
 
   database->beginTask();
 
+
   if (playlist)
     queue = database->getNextQueue(playlist);
 
@@ -504,7 +505,17 @@ FXint GMImportTask::run() {
   FXASSERT(database);
   try {
     dbtracks.init(database);
+
+    // Set codec for id3v1
+    if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
+      FXTextCodec * codec = GMFilename::findcodec(options.id3v1_encoding);
+      if (codec) {
+        GMTag::setID3v1Encoding(codec);
+        }
+      }
     import();
+
+    GMTag::setID3v1Encoding(NULL);
     }
   catch(GMDatabaseException&) {
     database->rollbackTask();
@@ -611,9 +622,20 @@ FXint GMSyncTask::run() {
   FXASSERT(database);
   try {
     dbtracks.init(database);
+
+    // Set codec for id3v1
+    if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
+      FXTextCodec * codec = GMFilename::findcodec(options.id3v1_encoding);
+      if (codec) {
+        GMTag::setID3v1Encoding(codec);
+        }
+      }
+
     sync();
     if (options_sync.import_new && !options_sync.remove_all)
       import();
+
+    GMTag::setID3v1Encoding(NULL);
     }
   catch(GMDatabaseException&) {
     database->rollbackTask();

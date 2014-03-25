@@ -34,6 +34,7 @@ const char key_import_default_field[]="default-user-title";
 const char key_import_track_from_filelist[]="track-from-filelist";
 const char key_import_replace_underscores[]="replace-underscores";
 const char key_import_parse_filename_only[]="parse-filename-only";
+const char key_import_id3v1_encoding[]="id3v1-encoding";
 
 const char key_import_filename_template[]="filename-template";
 const char key_import_parse_method[]="parse-method";
@@ -77,7 +78,6 @@ const char key_play_close_stream[]="close-audio-stream";
 const char key_play_pause_close_device[]="pause-close-device";
 const char key_play_gapless[]="gapless-playback";
 const char key_play_shuffle[]="shuffle";
-const char key_play_open_device_on_startup[]="open_audio_device_on_startup";
 const char key_play_from_queue[]="play-from-queue";
 
 const char key_dbus_notify_daemon[]="notification-daemon";
@@ -94,10 +94,11 @@ const char key_sync_update_always[]="update-always";
 GMImportOptions::GMImportOptions() :
   default_field("Untitled"),
   filename_template("%P/%A/%N %T"),
+  parse_method(PARSE_BOTH),
+  id3v1_encoding(GMFilename::ENCODING_8859_1),
   track_from_filelist(false),
   replace_underscores(true),
-  fix_album_artist(false),
-  parse_method(PARSE_BOTH){
+  fix_album_artist(false) {
   }
 
 void GMImportOptions::save(FXSettings & reg) const {
@@ -108,6 +109,7 @@ void GMImportOptions::save(FXSettings & reg) const {
   reg.writeStringEntry(section_import,key_import_exclude_folder,exclude_folder.text());
   reg.writeStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   reg.writeUIntEntry(section_import,key_import_parse_method,parse_method);
+  reg.writeUIntEntry(section_export,key_import_id3v1_encoding,id3v1_encoding);
   }
 
 void GMImportOptions::load(FXSettings & reg) {
@@ -118,6 +120,7 @@ void GMImportOptions::load(FXSettings & reg) {
   exclude_folder         = reg.readStringEntry(section_import,key_import_exclude_folder,exclude_folder.text());
   exclude_file           = reg.readStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   parse_method           = FXMIN(reg.readUIntEntry(section_import,key_import_parse_method,parse_method),(FXuint)PARSE_BOTH);
+  id3v1_encoding         = FXMIN(GMFilename::ENCODING_LAST-1,reg.readUIntEntry(section_import,key_import_id3v1_encoding,id3v1_encoding));
   }
 
 
@@ -159,7 +162,6 @@ GMPreferences::GMPreferences() :
   gui_toolbar_labelsabove(true),
   gui_show_browser_icons(true),
   gui_show_playing_albumcover(true),
-  //gui_show_albumcovers(false),
   gui_merge_albums(true),
   gui_tray_icon(false),
   gui_tray_icon_disabled(false),
@@ -173,7 +175,6 @@ GMPreferences::GMPreferences() :
   play_pause_close_device(false),
   play_gapless(true),
   play_shuffle(false),
-  play_open_device_on_startup(false),
   play_from_queue(false),
 
   export_encoding(GMFilename::ENCODING_ASCII),
@@ -241,7 +242,6 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_player,key_play_pause_close_device,play_pause_close_device);
   reg.writeBoolEntry(section_player,key_play_gapless,play_gapless);
   reg.writeBoolEntry(section_player,key_play_shuffle,play_shuffle);
-  reg.writeBoolEntry(section_player,key_play_open_device_on_startup,play_open_device_on_startup);
   reg.writeBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
   /// Dbus
@@ -315,7 +315,6 @@ void GMPreferences::load(FXSettings & reg) {
   play_pause_close_device       = reg.readBoolEntry(section_player,key_play_pause_close_device,play_pause_close_device);
   play_gapless                  = reg.readBoolEntry(section_player,key_play_gapless,play_gapless);
   play_shuffle                  = reg.readBoolEntry(section_player,key_play_shuffle,play_shuffle);
-  play_open_device_on_startup   = reg.readBoolEntry(section_player,key_play_open_device_on_startup,play_open_device_on_startup);
   play_from_queue               = reg.readBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
   /// Dbus

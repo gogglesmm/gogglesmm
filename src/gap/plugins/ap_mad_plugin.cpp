@@ -87,11 +87,16 @@ protected:
 public:
   MadReader(AudioEngine*);
 
+  FXlong getSeekOffset(FXdouble);
+
+
   FXuchar format() const { return Format::MP3; };
 
   FXbool init(InputPlugin*);
   FXbool can_seek() const;
-  FXbool seek(FXdouble);
+  FXbool seek(FXlong);
+  FXlong seek_offset(FXdouble) const;
+
   ReadStatus process(Packet*);
   virtual ~MadReader();
   };
@@ -121,7 +126,7 @@ public:
   FXuchar codec() const { return Codec::MPEG; }
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
-  FXbool flush();
+  FXbool flush(FXlong);
   virtual ~MadDecoder();
   };
 
@@ -200,12 +205,12 @@ public:
     }
 
 
-  FXbool validate(const FXuchar * buffer) {
+  inline FXbool validate(const FXuchar * buffer) {
     header=INT32_BE(buffer);
     if ((!sync()) ||
         (version()==Invalid) ||
         (layer()==Invalid) ||
-        (bitrate()==Invalid) ||
+        (bitrate()<0) ||
         (samplerate()==-1)
         ) {
       return false;
@@ -214,11 +219,11 @@ public:
     return true;
     }
 
-  FXbool sync() const {
+  inline FXbool sync() const {
     return (header>>21)==0x7ff;
     }
 
-  FXchar version() const {
+  inline FXchar version() const {
     const FXuchar v = (header&0x180000)>>19;
     switch(v) {
       case 0 : return V25; break;
@@ -229,7 +234,7 @@ public:
     return Invalid;
     }
 
-  FXchar layer() const {
+  inline FXchar layer() const {
     const FXuchar v = ((header>>17)&0x3);
     switch(v) {
       case 1 : return Layer_3; break;
@@ -241,11 +246,11 @@ public:
     return Invalid;
     }
 
-  FXbool crc() const {
+  inline FXbool crc() const {
     return ((header>>16)&0x1)==0;
     }
 
-  FXint bitrate() const {
+  inline FXint bitrate() const {
     const FXuint b = ((header>>12)&0xf);
     if (version()==V1)
       return 1000*(FXint)bitrates[b+(layer()<<4)];
@@ -258,24 +263,24 @@ public:
     return Invalid;
     }
 
-  FXint samplerate() const {
+  inline FXint samplerate() const {
     const FXuchar s = ((header>>10)&0x3);
     FXASSERT(version()!=Invalid);
     return samplerates[s+(version()<<2)];
     }
 
-  FXint padding() const {
+  inline FXint padding() const {
     if ((header>>9)&0x1)
       return (layer()==Layer_1) ? 4 : 1;
     else
       return 0;
     }
 
-  FXuchar channel() const {
+  inline FXuchar channel() const {
     return ((header>>6)&0x3);
     }
 
-  FXint nsamples() const {
+  inline FXint nsamples() const {
     if (layer()==Layer_1)
       return 384;
     else if (layer()==Layer_2 || version()==V1)
@@ -284,14 +289,14 @@ public:
       return 576;
     }
 
-  FXint size() const {
+  inline FXint size() const {
     FXint s = nsamples() * (bitrate() / 8);
     s /= samplerate();
     s += padding();
     return s;
     }
 
-  FXint xing_offset() const {
+  inline FXint xing_offset() const {
     if (version()==V1) {
       if (channel()!=3)
         return 32+4;
@@ -306,11 +311,11 @@ public:
       }
     }
 
-  FXint vbri_offset() const {
+  inline FXint vbri_offset() const {
     return 32+4;
     }
 
-  FXint lame_offset()  const {
+  inline FXint lame_offset()  const {
     return xing_offset() + 120;
     }
 
@@ -709,20 +714,30 @@ FXbool MadReader::can_seek() const{
   return true;
   }
 
-FXbool MadReader::seek(FXdouble pos) {
+FXlong MadReader::seek_offset(FXdouble pos) const{
+  if (lame) {
+    return lame->padstart+((stream_length-lame->padstart-lame->padend)*pos);
+    }
+  else {
+    return stream_length*pos;
+    }
+  }
+
+
+FXbool MadReader::seek(FXlong pos) {
   if (!input->serial()){
     FXlong offset = 0;
     if (xing) {
-      offset = xing->seek(pos,(input_end - input_start));
-      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",pos,offset);
+      offset = xing->seek((pos /(double)stream_length),(input_end - input_start));
+      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",(double)(pos / stream_length),offset);
       if (offset==-1) return false;
-      stream_position = stream_length * pos;
+      stream_position = offset; //getSeekOffset(pos);
       }
     else if (vbri) {
       }
     else {
-      stream_position = stream_length * pos;
-      offset = (input_end - input_start) * pos;
+      stream_position = offset;
+      offset = (input_end - input_start) * ((double)pos/(double)stream_length);
       }
     input->position(input_start+offset,FXIO::Begin);
     }
@@ -1132,6 +1147,8 @@ ReadStatus MadReader::parse(Packet * packet) {
   return ReadError;
   }
 
+
+
 ReadStatus MadReader::process(Packet*packet) {
   packet->af              = af;
   packet->stream_position = stream_position;
@@ -1156,6 +1173,9 @@ ReadStatus MadReader::process(Packet*packet) {
       nread = input->read(packet->ptr()+4,frame.size()-4);
       if (nread!=(frame.size()-4)) {
         GM_DEBUG_PRINT("[mad_reader] truncated frame\n");
+#ifdef DEBUG
+        frame.debug();
+#endif
         /*
            It's not too uncommon to find truncated frames at the end
            of a file, perhaps caused by buggy tagging software overwriting
@@ -1273,6 +1293,7 @@ MadDecoder::~MadDecoder(){
 
 
 FXbool MadDecoder::init(ConfigureEvent* event){
+  DecoderPlugin::init(event);
   FXASSERT(out==NULL);
   af=event->af;
   stream_offset_start=event->stream_offset_start;
@@ -1440,7 +1461,7 @@ DecoderStatus MadDecoder::process(Packet*in){
   mpeg_frame mf;
   FXuchar * beg = buffer.data();
   FXuchar * end = beg + buffer.size();
-  while(mf.validate(beg) && beg<end) {
+  while(beg<end && mf.validate(beg)) {
     beg+=mf.size();
     total_frames++;
     if (max_samples>stream_offset_end) max_frames++;
@@ -1489,10 +1510,12 @@ DecoderStatus MadDecoder::process(Packet*in){
     // Prevent from writing to many samples..
     nframes=FXMIN(synth.pcm.length,max_samples);
 
+    FXlong stream_begin = FXMAX(stream_offset_start,stream_decode_offset);
+
     // Adjust for beginning of stream
-    if (stream_position<stream_offset_start) {
-      FXlong offset = stream_offset_start - stream_position;
-      GM_DEBUG_PRINT("[mad_decoder] stream offset start %hd. Skip %ld at %ld\n",stream_offset_start,offset,stream_position);
+    if (stream_position<stream_begin) {
+      FXlong offset = stream_begin - stream_position;
+      GM_DEBUG_PRINT("[mad_decoder] stream offset start %ld. Skip %ld at %ld\n",stream_begin,offset,stream_position);
       nframes-=offset;
       left+=offset;
       right+=offset;
@@ -1565,7 +1588,8 @@ done:
   return DecoderOk;
   }
 
-FXbool MadDecoder::flush(){
+FXbool MadDecoder::flush(FXlong offset){
+  DecoderPlugin::flush(offset);
   if (out) {
     out->unref();
     out=NULL;

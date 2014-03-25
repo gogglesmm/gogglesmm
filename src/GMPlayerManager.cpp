@@ -692,11 +692,13 @@ void GMPlayerManager::init_window(FXbool wizard) {
     }
   else {
     FXbool start_as_tray=false;
-    for(FXint i=1;i<argc;i++) {
-      if (comparecase(argv[i],"--tray")==0){
-        start_as_tray=true;
-        preferences.gui_tray_icon=true;
-        break;
+    if (preferences.gui_tray_icon_disabled==false){
+      for(FXint i=1;i<argc;i++) {
+        if (comparecase(argv[i],"--tray")==0){
+          start_as_tray=true;
+          preferences.gui_tray_icon=true;
+          break;
+          }
         }
       }
     if (start_as_tray)
@@ -967,7 +969,6 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
 
     update_mpris();
 
-
     notifydaemon->init();
     }
 #endif
@@ -1074,12 +1075,14 @@ void GMPlayerManager::update_mpris() {
 
 
 void GMPlayerManager::update_tray_icon() {
-  if (!preferences.gui_tray_icon_disabled) {
-    if (trayicon && !preferences.gui_tray_icon) {
+  if (trayicon){
+    if (!preferences.gui_tray_icon || preferences.gui_tray_icon_disabled) {
       delete trayicon;
       trayicon=NULL;
       }
-    else if (!trayicon && preferences.gui_tray_icon) {
+    }
+  else {
+    if (preferences.gui_tray_icon && !preferences.gui_tray_icon_disabled) {
       trayicon = new GMTrayIcon(application);
       trayicon->create();
       }
@@ -1163,6 +1166,7 @@ void GMPlayerManager::removePlayListSources(){
 
 
 void GMPlayerManager::open(const FXString & url) {
+  FXint id;
 
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
@@ -1171,23 +1175,16 @@ void GMPlayerManager::open(const FXString & url) {
     }
 
   trackinfo.url = url;
-
-  if (gm_is_local_file(url)) {
-    FXint id;
-    if (sources[0]->hasTrack(url,id)) {
-      source       = sources[0];
-      trackinfoset = source->getTrack(trackinfo);
-      sources[0]->setCurrentTrack(id);
-      }
-    else {
-      trackinfoset = trackinfo.loadTag(url);
-      getTrackView()->setActive(-1);
-      }
+  if (gm_is_local_file(url) && sources[0]->hasTrack(url,id)) {
+    source       = sources[0];
+    trackinfoset = source->getTrack(trackinfo);
+    sources[0]->setCurrentTrack(id);
     }
   else {
     trackinfoset=false;
     getTrackView()->setActive(-1);
     }
+
   player->open(url,true);
   }
 
@@ -1307,6 +1304,10 @@ FXbool GMPlayerManager::playlist_empty() {
   }
 
 void GMPlayerManager::notify_playback_finished() {
+  /*
+    The current track is still playing (and about to be finished) so don't call reset_track_display if
+    there is nothing to play anymore. It will eventually be called by the PLAYER_STATE_STOPPED signal.
+  */
   FXString errormsg;
   FXString filename;
   FXint track=-1;
@@ -1332,7 +1333,7 @@ void GMPlayerManager::notify_playback_finished() {
       if (getTrackView()->getSource()==queue)
         getTrackView()->refresh();
 
-     reset_track_display();
+     //reset_track_display();
      return;
      }
 
@@ -1354,7 +1355,7 @@ void GMPlayerManager::notify_playback_finished() {
          source=NULL;
          }
 
-       reset_track_display();
+       //reset_track_display();
        return;
        }
 
@@ -1369,7 +1370,7 @@ void GMPlayerManager::notify_playback_finished() {
       track = getTrackView()->getNext();
 
     if (track==-1) {
-      reset_track_display();
+      //reset_track_display();
       return;
       }
 
@@ -1381,7 +1382,6 @@ void GMPlayerManager::notify_playback_finished() {
 #ifdef HAVE_PLAYQUEUE
     }
 #endif
-
   player->open(trackinfo.url,false);
   }
 
@@ -1389,13 +1389,6 @@ FXbool GMPlayerManager::playing() const {
   return player->playing() ;
   }
 
-FXbool GMPlayerManager::audio_device_opened() const{
-  return true;
-  }
-
-FXint GMPlayerManager::current_position() const {
-  return 0;
-  }
 
 void GMPlayerManager::reset_track_display() {
   FXTRACE((51,"GMPlayerManager::reset_track_display()\n"));
@@ -1475,7 +1468,6 @@ void GMPlayerManager::update_track_display(FXbool notify) {
 #endif
 
   }
-
 
 
 FXint GMPlayerManager::volume() const{
@@ -1558,7 +1550,7 @@ void GMPlayerManager::show_message(const FXchar * title,const FXchar * msg){
 
 long GMPlayerManager::onCmdCloseWindow(FXObject*sender,FXSelector,void*){
   FXWindow * window = reinterpret_cast<FXWindow*>(sender);
-  if (getPreferences().gui_hide_player_when_close) {
+  if (getPreferences().gui_hide_player_when_close && !getPreferences().gui_tray_icon_disabled) {
     window->hide();
     }
   else {
@@ -1691,6 +1683,13 @@ void GMPlayerManager::cmd_schedule_stop(){
     GM_DEBUG_PRINT("disable scheduled stop\n");
     scheduled_stop=false;
     }
+  }
+
+FXbool GMPlayerManager::has_scheduled_stop() const {
+  if (can_stop() && scheduled_stop)
+    return true;
+  else
+    return false;
   }
 
 void GMPlayerManager::cmd_stop(){
@@ -1991,7 +1990,7 @@ long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
 long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
   FXint state = (FXint)(FXival)ptr;
   switch(state){
-    case PLAYER_STOPPED: GM_DEBUG_PRINT("player stopped\n"); reset_track_display(); break;
+    case PLAYER_STOPPED: GM_DEBUG_PRINT("[player] stopped\n"); reset_track_display(); break;
     case PLAYER_PLAYING: break;
     case PLAYER_PAUSING: break;
     }

@@ -32,7 +32,6 @@
 
 // Map
 FXDEFMAP(GMRemote) GMRemoteMap[]={
-  FXMAPFUNC(SEL_UPDATE,   					GMRemote::ID_VOLUME_BUTTON,     GMRemote::onUpdVolumeButton),
   FXMAPFUNC(SEL_COMMAND,						GMRemote::ID_VOLUME_SLIDER,			GMRemote::onCmdVolume),
   FXMAPFUNC(SEL_CHANGED,						GMRemote::ID_VOLUME_SLIDER,			GMRemote::onCmdVolume),
   FXMAPFUNC(SEL_MOUSEWHEEL,					GMRemote::ID_VOLUME_BUTTON,     GMRemote::onCmdVolumeButton),
@@ -299,14 +298,6 @@ long GMRemote::onCmdVolume(FXObject*,FXSelector,void*ptr){
 
 long GMRemote::onCmdVolumeButton(FXObject*,FXSelector sel,void*ptr){
   volumeslider->handle(this,FXSEL(FXSELTYPE(sel),0),ptr);
-  return 1;
-  }
-
-long GMRemote::onUpdVolumeButton(FXObject*sender,FXSelector,void*){
-  if (GMPlayerManager::instance()->audio_device_opened())
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
   return 1;
   }
 

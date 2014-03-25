@@ -296,6 +296,7 @@ public:
 
   FXbool can_stop() const;
 
+  FXbool has_scheduled_stop() const;
 
 
 
@@ -331,11 +332,7 @@ public:
 
   void display_track_notification();
 
-  FXint current_position() const;
-
   FXbool playing() const;
-
-  FXbool audio_device_opened() const;
 
   FXint get_prev() const;
 

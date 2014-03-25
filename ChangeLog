@@ -8,6 +8,25 @@ To do / wishlist..
  * filename template should perhaps support: alphabet index?
  * fix the playqueue (don't make it crash)
 
+0.13.1
+  - Add sample accurate seeking to most formats (flac,vorbis,opus,mp4).
+  - Add menu option to schedule stop after track finishes.
+  - Add import option to override default text encoding for id3v1 tags.
+  - Add meta data parsing to mp4 reader
+  - Add indexes in the database for all foreign keys.
+  - Use meta from audioplayer if available rather than using taglib.
+  - Fix UI issue to correctly indicate when the last track has finished playing.
+  - Fix cross search capability that was present in 0.12.x but didn't make it to 0.13.0
+  - Fix importing podcast whose mimetype are set to application/xml
+  - Fix drain behaviour in alsa output.
+  - Fix incorrect date parsing in the RSS parser.
+  - Fix tag saving to correctly handle multiple tag types.
+  - Fix UI track display by escaping special characters.
+  - Fix homepage and report issue buttons in about dialog.
+  - Add bitrate check to mp3 reader to avoid incorrect syncs.
+  - Disable minimize to tray on systems that don't support a tray icon (gnome 3)
+  - General cleanups to remove some unused code.
+
 0.13.0
   - New playback engine
   - Podcast Manager

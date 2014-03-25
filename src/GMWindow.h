@@ -131,6 +131,7 @@ public: /// Message Handlers
   long onUpdPlay(FXObject*,FXSelector,void*);
   long onCmdPause(FXObject*,FXSelector,void*);
   long onUpdPause(FXObject*,FXSelector,void*);
+  long onUpdScheduleStop(FXObject*,FXSelector,void*);
   long onCmdScheduleStop(FXObject*,FXSelector,void*);
   long onCmdStop(FXObject*,FXSelector,void*);
   long onUpdStop(FXObject*,FXSelector,void*);
@@ -150,8 +151,6 @@ public: /// Message Handlers
   long onUpdSleepTimer(FXObject*,FXSelector,void*);
   long onCmdShuffle(FXObject*,FXSelector,void*);
   long onUpdShuffle(FXObject*,FXSelector,void*);
-  long onCmdHomePage(FXObject*,FXSelector,void*);
-  long onCmdReportIssue(FXObject*,FXSelector,void*);
   long onCmdJoinLastFM(FXObject*,FXSelector,void*);
   long onCmdJoinGMMLastFM(FXObject*,FXSelector,void*);
 
@@ -172,9 +171,6 @@ public:
     ID_QUIT,
 
     ID_OPEN,
-
-    ID_HOMEPAGE,
-    ID_REPORT_ISSUE,
     ID_JOIN_LASTFM,
     ID_JOIN_GMM_LASTFM,
 

@@ -107,7 +107,7 @@ protected:
 public:
   AacDecoder(AudioEngine*);
   FXuchar codec() const { return Codec::AAC; }
-  FXbool flush();
+  FXbool flush(FXlong offset=0);
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
   ~AacDecoder();
@@ -127,6 +127,7 @@ AacDecoder::~AacDecoder() {
   }
 
 FXbool AacDecoder::init(ConfigureEvent*event) {
+  DecoderPlugin::init(event);
   buffer.clear();
   af=event->af;
   if (handle) {
@@ -137,7 +138,8 @@ FXbool AacDecoder::init(ConfigureEvent*event) {
   return true;
   }
 
-FXbool AacDecoder::flush() {
+FXbool AacDecoder::flush(FXlong offset) {
+  DecoderPlugin::flush(offset);
   buffer.clear();
   if (out) {
     out->unref();
@@ -148,9 +150,9 @@ FXbool AacDecoder::flush() {
   }
 
 DecoderStatus AacDecoder::process(Packet*packet){
-  FXbool eos = packet->flags&FLAG_EOS;
-  FXlong stream_length = packet->stream_length;
-  FXuint stream_id = packet->stream;
+  const FXbool eos = packet->flags&FLAG_EOS;
+  const FXlong stream_length = packet->stream_length;
+  const FXuint stream_id = packet->stream;
 
   if (stream_position==-1 && buffer.size()==0)
     stream_position = packet->stream_position;
@@ -210,13 +212,29 @@ DecoderStatus AacDecoder::process(Packet*packet){
       buffer.readBytes(frame.bytesconsumed);
       }
 
-	  if (frame.error > 0) {
-	    GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));//
-	    }
+    if (frame.error > 0) {
+      GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));//
+      }
 
     if (frame.samples) {
-      stream_position+=(frame.samples/frame.channels);
-      out->wroteFrames((frame.samples/frame.channels));
+      const FXint nframes = frame.samples / frame.channels;
+      if (__unlikely(stream_position<stream_decode_offset)) {
+        if ((nframes+stream_position)<stream_decode_offset) {
+          GM_DEBUG_PRINT("[aac] stream decode offset %ld. Full skip %d\n",stream_decode_offset,nframes);
+          stream_position+=nframes;
+          }
+        else {
+          GM_DEBUG_PRINT("[aac] stream decode offset %ld. Partial skip %ld\n",stream_decode_offset,(stream_decode_offset-stream_position));
+          out->wroteFrames(nframes);
+          out->trimBegin(af.framesize()*(stream_decode_offset-stream_position));
+          out->stream_position = stream_decode_offset;
+          stream_position+=nframes;	  		
+          }
+        }
+      else {
+        stream_position+=nframes;
+        out->wroteFrames(nframes);
+        }
       if (out->availableFrames()==0) {
         engine->output->post(out);
         out=NULL;

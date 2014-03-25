@@ -103,7 +103,10 @@ FXint DecoderThread::run(){
     event = wait_for_packet();
     switch(event->type) {
       case Flush    : GM_DEBUG_PRINT("[decoder] flush\n");
-                      if (plugin) plugin->flush();
+                      if (plugin) {
+                        FlushEvent * f = dynamic_cast<FlushEvent*>(event);
+                        plugin->flush(f->offset);
+                        }  
                       engine->output->post(event,EventQueue::Flush);
                       continue;
                       break;

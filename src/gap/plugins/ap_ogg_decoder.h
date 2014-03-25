@@ -41,7 +41,7 @@ public:
 
   FXbool init(ConfigureEvent*);
 
-  FXbool flush();
+  FXbool flush(FXlong);
 
   DecoderStatus process(Packet*);
 

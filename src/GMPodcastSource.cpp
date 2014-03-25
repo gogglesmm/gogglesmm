@@ -542,7 +542,9 @@ public:
       if (!client.getContentType(media))
         break;
 
-      if (comparecase(media.mime,"application/rss+xml")==0 || comparecase(media.mime,"text/xml")==0) {
+      if (comparecase(media.mime,"application/rss+xml")==0 || 
+          comparecase(media.mime,"text/xml")==0 ||
+          comparecase(media.mime,"application/xml")==0) {
         rss.parse(client.body());
         return 0;
         }

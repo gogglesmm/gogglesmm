@@ -275,7 +275,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   target_close_audio.connect(GMPlayerManager::instance()->getPreferences().play_close_stream);
   target_pause_close_device.connect(GMPlayerManager::instance()->getPreferences().play_pause_close_device);
   target_gapless.connect(GMPlayerManager::instance()->getPreferences().play_gapless);
-  target_open_device_on_startup.connect(GMPlayerManager::instance()->getPreferences().play_open_device_on_startup);
   target_show_playing_albumcover.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover);
 
 #ifdef HAVE_DBUS
@@ -327,7 +326,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
     new GMCheckButton(grpbox,tr("Show Track Change Notifications\tInform notification daemon of track changes."),&target_dbus_notify_daemon,FXDataTarget::ID_VALUE);
     new GMCheckButton(grpbox,tr("MPRIS v1 Connectivity\tEnable MPRIS v1 connectivity"),&target_dbus_mpris1,FXDataTarget::ID_VALUE);
     new GMCheckButton(grpbox,tr("MPRIS v2 Connectivity\tEnable MPRIS v2 connectivity"),&target_dbus_mpris2,FXDataTarget::ID_VALUE);
-
     }
 #endif
 
@@ -400,7 +398,8 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   grpbox =  new FXGroupBox(vframe,tr("Window"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
-  new GMCheckButton(grpbox,tr("Close button minimizes to tray"),&target_closeishide,FXDataTarget::ID_VALUE);
+  if (!GMPlayerManager::instance()->getPreferences().gui_tray_icon_disabled)
+    new GMCheckButton(grpbox,tr("Close button minimizes to tray"),&target_closeishide,FXDataTarget::ID_VALUE);
   statusbarbutton = new GMCheckButton(grpbox,tr("Show Status Bar"),NULL,0);
   statusbarbutton->setCheck(GMPlayerManager::instance()->getPreferences().gui_show_status_bar);
 

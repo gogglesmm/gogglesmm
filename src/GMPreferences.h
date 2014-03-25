@@ -68,10 +68,11 @@ public:
   FXString exclude_folder;
   FXString exclude_file;
   FXString filename_template;
+  FXuint   parse_method;
+  FXuint   id3v1_encoding;
   FXbool   track_from_filelist;
   FXbool   replace_underscores;
   FXbool   fix_album_artist;
-  FXuint   parse_method;
 public:
   enum {
     PARSE_TAG = 0,
@@ -146,7 +147,6 @@ public:
   FXbool play_pause_close_device;
   FXbool play_gapless;
   FXbool play_shuffle;
-  FXbool play_open_device_on_startup;
   FXbool play_from_queue;
 
   FXuint export_encoding;

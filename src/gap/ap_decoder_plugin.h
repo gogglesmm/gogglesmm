@@ -35,17 +35,18 @@ class DecoderPlugin {
 protected:
   AudioEngine * engine;
   AudioFormat   af;
+  FXlong        stream_decode_offset;
 public:
 public:
   DecoderPlugin(AudioEngine*);
 
   virtual FXuchar codec() const { return Codec::Invalid; }
 
-  virtual FXbool init(ConfigureEvent*)=0;
+  virtual FXbool init(ConfigureEvent*);
 
   virtual DecoderStatus process(Packet*)=0;
 
-  virtual FXbool flush()=0;
+  virtual FXbool flush(FXlong offset=0);
 
   static DecoderPlugin* open(AudioEngine * engine,FXuchar codec);
 
