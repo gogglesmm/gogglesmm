@@ -228,7 +228,7 @@ ReaderPlugin * ap_mp4_reader(AudioEngine * engine) {
 
 
 
-MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e),track(NULL) {
+MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e),track(NULL),meta(NULL) {
   }
 
 MP4Reader::~MP4Reader(){
