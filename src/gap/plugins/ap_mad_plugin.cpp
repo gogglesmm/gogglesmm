@@ -205,7 +205,7 @@ public:
     }
 
 
-  FXbool validate(const FXuchar * buffer) {
+  inline FXbool validate(const FXuchar * buffer) {
     header=INT32_BE(buffer);
     if ((!sync()) ||
         (version()==Invalid) ||
@@ -219,11 +219,11 @@ public:
     return true;
     }
 
-  FXbool sync() const {
+  inline FXbool sync() const {
     return (header>>21)==0x7ff;
     }
 
-  FXchar version() const {
+  inline FXchar version() const {
     const FXuchar v = (header&0x180000)>>19;
     switch(v) {
       case 0 : return V25; break;
@@ -234,7 +234,7 @@ public:
     return Invalid;
     }
 
-  FXchar layer() const {
+  inline FXchar layer() const {
     const FXuchar v = ((header>>17)&0x3);
     switch(v) {
       case 1 : return Layer_3; break;
@@ -246,11 +246,11 @@ public:
     return Invalid;
     }
 
-  FXbool crc() const {
+  inline FXbool crc() const {
     return ((header>>16)&0x1)==0;
     }
 
-  FXint bitrate() const {
+  inline FXint bitrate() const {
     const FXuint b = ((header>>12)&0xf);
     if (version()==V1)
       return 1000*(FXint)bitrates[b+(layer()<<4)];
@@ -263,24 +263,24 @@ public:
     return Invalid;
     }
 
-  FXint samplerate() const {
+  inline FXint samplerate() const {
     const FXuchar s = ((header>>10)&0x3);
     FXASSERT(version()!=Invalid);
     return samplerates[s+(version()<<2)];
     }
 
-  FXint padding() const {
+  inline FXint padding() const {
     if ((header>>9)&0x1)
       return (layer()==Layer_1) ? 4 : 1;
     else
       return 0;
     }
 
-  FXuchar channel() const {
+  inline FXuchar channel() const {
     return ((header>>6)&0x3);
     }
 
-  FXint nsamples() const {
+  inline FXint nsamples() const {
     if (layer()==Layer_1)
       return 384;
     else if (layer()==Layer_2 || version()==V1)
@@ -289,14 +289,14 @@ public:
       return 576;
     }
 
-  FXint size() const {
+  inline FXint size() const {
     FXint s = nsamples() * (bitrate() / 8);
     s /= samplerate();
     s += padding();
     return s;
     }
 
-  FXint xing_offset() const {
+  inline FXint xing_offset() const {
     if (version()==V1) {
       if (channel()!=3)
         return 32+4;
@@ -311,11 +311,11 @@ public:
       }
     }
 
-  FXint vbri_offset() const {
+  inline FXint vbri_offset() const {
     return 32+4;
     }
 
-  FXint lame_offset()  const {
+  inline FXint lame_offset()  const {
     return xing_offset() + 120;
     }
 
