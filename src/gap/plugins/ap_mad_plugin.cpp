@@ -1461,7 +1461,7 @@ DecoderStatus MadDecoder::process(Packet*in){
   mpeg_frame mf;
   FXuchar * beg = buffer.data();
   FXuchar * end = beg + buffer.size();
-  while(mf.validate(beg) && beg<end) {
+  while(beg<end && mf.validate(beg)) {
     beg+=mf.size();
     total_frames++;
     if (max_samples>stream_offset_end) max_frames++;
