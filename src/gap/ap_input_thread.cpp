@@ -288,10 +288,13 @@ void InputThread::ctrl_eos() {
   }
 
 void InputThread::ctrl_seek(FXdouble pos) {
+  FXlong offset;
   if (reader && !input->serial() && reader->can_seek()) {
-    ctrl_flush();
-    reader->seek(pos);
-    set_state(StateProcessing,true);
+    offset = reader->seek_offset(pos);
+    if (offset>=0 && reader->seek(offset)) {
+      ctrl_seek_flush(offset);
+      set_state(StateProcessing,true);
+      }
     }
   }
 
@@ -467,6 +470,11 @@ void InputThread::ctrl_close_input(FXbool notify) {
     reader=NULL;
     }
   set_state(StateIdle,notify);
+  }
+
+void InputThread::ctrl_seek_flush(FXlong offset){
+  GM_DEBUG_PRINT("[input] seek flush\n");
+  engine->decoder->post(new FlushEvent(offset),EventQueue::Flush);
   }
 
 void InputThread::ctrl_flush(FXbool close){

@@ -42,7 +42,6 @@ class PCMDecoder : public DecoderPlugin {
 public:
   PCMDecoder(AudioEngine*);
   FXuchar codec() const { return Codec::PCM; }
-  FXbool flush();
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
   virtual ~PCMDecoder();
@@ -54,13 +53,11 @@ PCMDecoder::PCMDecoder(AudioEngine * e) : DecoderPlugin(e) {
 PCMDecoder::~PCMDecoder() {
   }
 
-FXbool PCMDecoder::init(ConfigureEvent*/*event*/) {
+FXbool PCMDecoder::init(ConfigureEvent*event) {
+  DecoderPlugin::init(event);
   return true;
   }
 
-FXbool PCMDecoder::flush() {
-  return true;
-  }
 
 DecoderStatus PCMDecoder::process(Packet*in) {
   FXbool eos    = (in->flags&FLAG_EOS);

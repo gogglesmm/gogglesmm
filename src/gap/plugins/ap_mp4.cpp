@@ -212,7 +212,7 @@ public:
   FXbool can_seek() const;
 
   // Seek
-  FXbool seek(FXdouble);
+  FXbool seek(FXlong );
 
   // Process Packet
   ReadStatus process(Packet*); 
@@ -255,9 +255,9 @@ FXbool MP4Reader::can_seek() const {
   return true;
   }
 
-FXbool MP4Reader::seek(FXdouble pos){
+FXbool MP4Reader::seek(FXlong offset){
   if (!input->serial()){
-    FXint s = track->getSample(pos*stream_length);
+    FXint s = track->getSample(offset);
     if (s>=0) {
       sample = s;
       return true;

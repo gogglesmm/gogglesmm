@@ -87,7 +87,7 @@ public:
   FlacReader(AudioEngine*);
   FXuchar format() const { return Format::FLAC; };
   FXbool init(InputPlugin*);
-  FXbool seek(FXdouble);
+  FXbool seek(FXlong offset);
   FXbool can_seek() const;
   ReadStatus process(Packet*);
   ~FlacReader();
@@ -109,7 +109,7 @@ protected:
 public:
   FlacDecoder(AudioEngine*);
   FXuchar codec() const { return Codec::FLAC; }
-  FXbool flush();
+  FXbool flush(FXlong offset=0);
   FXbool init(ConfigureEvent*);
   DecoderStatus process(Packet*);
   ~FlacDecoder();
@@ -230,10 +230,9 @@ FXbool FlacReader::can_seek() const {
   return stream_length>0;
   }
 
-FXbool FlacReader::seek(FXdouble pos){
+FXbool FlacReader::seek(FXlong offset) {
   FXASSERT(stream_length>0);
-  FXlong offset = (FXlong)(((FXdouble)stream_length)*pos);
-  GM_DEBUG_PRINT("[flac_reader] seek to %g %ld / %ld\n",pos,offset,stream_length);
+  GM_DEBUG_PRINT("[flac_reader] seek to %ld / %ld\n",offset,stream_length);
   FLAC__stream_decoder_flush(flac);
   if (FLAC__stream_decoder_seek_absolute(flac,offset)) {
     input->position(lastseek,FXIO::Begin);
@@ -441,8 +440,9 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
   FXint s,c,p=0;
   FXint sample  = 0;
   FXint nchannels = frame->header.channels;
-  FXint framesize = (frame->header.bits_per_sample>>3)*nchannels;
-  FXint navail = 0,ncopy;
+  FXint ncopy;
+
+  FXlong stream_position = frame->header.number.sample_number;
 
 
   FXint nframes = frame->header.blocksize;
@@ -454,10 +454,19 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
 
   Packet * packet = plugin->out;
   if (packet) {
-    navail = packet->availableFrames();
-    if (packet->numFrames()==0)
-      packet->stream_position=frame->header.number.sample_number;
+    FXASSERT(packet->stream_position+packet->numFrames()==stream_position);
+    if (packet->numFrames()==0) 
+      packet->stream_position = stream_position;  
     }
+
+  if (stream_position<plugin->stream_decode_offset) {
+    FXlong offset = FXMIN(nframes,plugin->stream_decode_offset-stream_position);
+    GM_DEBUG_PRINT("[flac] stream decode offset %ld. Skipping %ld of %ld \n",plugin->stream_decode_offset,offset,plugin->stream_decode_offset-stream_position); 
+    nframes-=offset;  
+    stream_position+=offset;
+    sample+=offset;    
+    }
+
 
   while(nframes>0) {
 
@@ -468,13 +477,13 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
       packet->af=plugin->af;
-      packet->stream_position=frame->header.number.sample_number+(frame->header.blocksize-nframes);
+//      packet->stream_position=frame->header.number.sample_number+(frame->header.blocksize-nframes);
+      packet->stream_position=stream_position;
       packet->stream_length=plugin->stream_length;
-      navail = (packet->space()) / framesize;
       plugin->out=packet;
       }
 
-    ncopy = FXMIN(nframes,navail);
+    ncopy = FXMIN(nframes,packet->availableFrames());
     switch(frame->header.bits_per_sample) {
       case 8:
         {
@@ -506,11 +515,11 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
         break;
       default: return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT; break;
       }
-    navail-=ncopy;
-    nframes-=ncopy;
-    packet->wroteFrames(ncopy);
     sample+=ncopy;
-    if (navail==0) {
+    nframes-=ncopy;
+    stream_position+=ncopy;
+    packet->wroteFrames(ncopy);
+    if (packet->availableFrames()==0) {
       plugin->out=NULL;
       plugin->engine->output->post(packet);
       packet=NULL;
@@ -610,6 +619,7 @@ FlacDecoder::~FlacDecoder() {
   }
 
 FXbool FlacDecoder::init(ConfigureEvent*event) {
+  DecoderPlugin::init(event);
   if (flac == NULL) {
     flac =  FLAC__stream_decoder_new();
 
@@ -636,7 +646,8 @@ FXbool FlacDecoder::init(ConfigureEvent*event) {
   return true;
   }
 
-FXbool FlacDecoder::flush() {
+FXbool FlacDecoder::flush(FXlong offset) {
+  DecoderPlugin::flush(offset);
   FLAC__stream_decoder_flush(flac);
   if (in) {
     in->unref();
