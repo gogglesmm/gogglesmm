@@ -5,6 +5,7 @@ icons/about.png \
 icons/gogglesmm_16.png \
 icons/gogglesmm_32.png \
 icons/x16_accessories_text_editor.png \
+icons/x16_application_rss_xml.png \
 icons/x16_applications_internet.png \
 icons/x16_audio_volume_high.png \
 icons/x16_audio_volume_low.png \
@@ -23,6 +24,7 @@ icons/x16_edit_undo.png \
 icons/x16_exit.png \
 icons/x16_folder.png \
 icons/x16_folder_open.png \
+icons/x16_go_bottom.png \
 icons/x16_go_home.png \
 icons/x16_help_browser.png \
 icons/x16_image_x_generic.png \
@@ -34,6 +36,7 @@ icons/x16_media_skip_backward.png \
 icons/x16_media_skip_forward.png \
 icons/x16_preferences_desktop.png \
 icons/x16_process_working.png \
+icons/x16_stock_attach.png \
 icons/x16_system_users.png \
 icons/x16_text_x_generic.png \
 icons/x16_view_refresh.png \

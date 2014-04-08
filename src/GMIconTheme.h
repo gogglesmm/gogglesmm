@@ -89,6 +89,7 @@ public:
   FXIconPtr icon_source_local;
   FXIconPtr icon_source_internetradio;
   FXIconPtr icon_source_podcast;
+  FXIconPtr icon_podcast;
   FXIconPtr icon_playqueue;
   FXIconPtr icon_volume_high;
   FXIconPtr icon_volume_medium;
@@ -117,6 +118,8 @@ public:
   FXIconPtr icon_image_small;
   FXIconPtr icon_image_big;
   FXIconPtr icon_progress;
+  FXIconPtr icon_localcopy;
+  FXIconPtr icon_download;
 public:
   FXCursorPtr cursor_hand;
 private:
