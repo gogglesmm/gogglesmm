@@ -859,6 +859,21 @@ FXint GMLocalTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackIt
 
 
 GMFeedItem::GMFeedItem(FXint i,const FXchar * tf,const FXchar * t, FXTime d,FXuint tm,FXuint f) : GMTrackItem(i),feed(tf),title(t),date(d),time(tm),flags(f) {
+  if (flags&(1<<ITEM_FLAG_PLAYED))
+    state|=SHADED;
+  }
+
+
+FXIcon* GMFeedItem::getIcon() const {
+  if (flags&(1<<ITEM_FLAG_LOCAL)) {   
+    return GMIconTheme::instance()->icon_localcopy;
+    }
+  else if (flags&(1<<ITEM_FLAG_QUEUE)){
+    return GMIconTheme::instance()->icon_download;
+    }
+  else {
+    return NULL;    
+    }
   }
 
 
@@ -868,7 +883,7 @@ const FXString * GMFeedItem::getColumnData(FXint type,FXString&text,FXuint & jus
   switch(type){
     case HEADER_ALBUM   : textptr = &feed;  			break;
     case HEADER_TITLE   : textptr = &title;  			break;
-    case HEADER_DATE    : text=FXSystem::localTime("%x",date);
+    case HEADER_DATE    : text=FXSystem::localTime("%b %d, %Y",date);
                           textptr=&text;
                           break;
     case HEADER_STATUS  : if (flags&(1<<ITEM_FLAG_LOCAL))
