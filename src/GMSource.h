@@ -25,6 +25,8 @@
 
 class GMList;
 class GMAlbumList;
+class GMCoverCache;
+
 /*
 enum {
   FLAG_CAN_AUTOPLAY	 =0x1,
@@ -180,6 +182,14 @@ public:
   virtual FXString getName() const { return FXString::null; }
 
   virtual const FXchar * getAlbumName() const { return fxtr("Albums"); }
+
+  virtual FXIcon* getAlbumIcon() const;
+
+  virtual GMCoverCache * getCoverCache() const { return NULL; }
+
+  virtual void loadCovers() {}
+
+  virtual void updateCovers() {}
 
   /// Items have been dragged around.
   virtual void dragged(GMTrackList*);
