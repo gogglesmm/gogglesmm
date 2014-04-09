@@ -8,6 +8,7 @@
 #include "GMSource.h"
 #include "GMPlayerManager.h"
 #include "GMTrackView.h"
+
 #include "GMCoverCache.h"
 #include "GMAlbumList.h"
 
@@ -78,8 +79,8 @@ static void drawTextLimited(FXDC & dc,FXFont * font,FXint x,FXint y,FXint space,
     }
   }
 
-void GMAlbumListItem::prepare(const GMAlbumList * list) const {
-  list->getCoverCache()->markCover(id);
+void GMAlbumListItem::prepare(GMAlbumList * list) {
+  list->getCoverRender().markCover(id);
   }
 
 void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint yy,FXint ww,FXint hh) const {
@@ -133,25 +134,22 @@ void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint y
 
 
 // Draw item
-void GMAlbumListItem::draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const {
+void GMAlbumListItem::draw(GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const {
   if(isSelected())
     dc.setForeground(list->getSelBackColor());
   dc.fillRectangle(x,y,w,h);
-
-  if (!list->getCoverCache())
-    return;
 
   FXFont *font=list->getCoverBaseFont();
   FXFont *cfont=list->getCoverHeadFont();
   const FXint h1=cfont->getFontHeight();
   const FXint xx=x+SIDE_SPACING;
-  const FXint is=list->getCoverCache()->getCoverSize();
+  const FXint is=list->getCoverRender().getSize();
   FXint yy=y+SIDE_SPACING;
 
   if (ids.no())
-    list->getCoverCache()->drawCover(0,dc,xx,yy);
+    list->getCoverRender().drawCover(0,dc,xx,yy);
   else
-    list->getCoverCache()->drawCover(id,dc,xx,yy);
+    list->getCoverRender().drawCover(id,dc,xx,yy);
 
   if(isSelected())
     dc.setForeground(list->getSelTextColor());
@@ -176,8 +174,8 @@ void GMAlbumListItem::draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXin
   if(!artist.empty() && ids.no()==0){
     dc.setFont(cfont);
     drawTextLimited(dc,cfont,xx,yy,is,artist);
-    }
-  yy+=h1;
+    yy+=h1;  
+    }  
   if(!title.empty() && id!=-1){
     dc.setFont(font);
     drawTextLimited(dc,font,xx,yy,is,title);
@@ -199,7 +197,7 @@ FXint GMAlbumListItem::hitItem(const GMAlbumList* list,FXint rx,FXint ry,FXint r
   FXint h2=font->getFontHeight();
 
   FXint iw,ih;
-  iw=ih=list->getCoverCache()->getCoverSize();
+  iw=ih=list->getCoverRender().getSize();
 
 
   ix=SIDE_SPACING;
@@ -347,7 +345,6 @@ FXIMPLEMENT(GMAlbumList,FXScrollArea,GMAlbumListMap,ARRAYNUMBER(GMAlbumListMap))
 // Serialization
 GMAlbumList::GMAlbumList(){
   flags|=FLAG_ENABLED;
-  covers=NULL;
   nrows=1;
   ncols=1;
   anchor=-1;
@@ -374,9 +371,6 @@ GMAlbumList::GMAlbumList(){
 // Icon List
 GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXScrollArea(p,opts,x,y,w,h){
   GMScrollArea::replaceScrollbars(this);
-
-  covers=NULL;
-
   flags|=FLAG_ENABLED;
   target=tgt;
   message=sel;
@@ -411,6 +405,12 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   coverbasefont=((GMApp*)(getApp()))->getCoverBaseFont();
 
   altbackColor=GMPlayerManager::instance()->getPreferences().gui_row_color;
+  }
+
+
+void GMAlbumList::setCoverCache(GMCoverCache* cache){
+  covers.setCache(cache);
+  recalc();
   }
 
 
@@ -509,16 +509,8 @@ void GMAlbumList::getrowscols(FXint& nr,FXint& nc,FXint w,FXint h) const {
 // Recompute interior
 void GMAlbumList::recompute(){
   if (options&ALBUMLIST_BROWSER) {
-    if (covers) {
-      itemWidth=covers->getCoverSize()+SIDE_SPACING+SIDE_SPACING;
-      itemHeight=covers->getCoverSize()+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
-      }
-    else {
-#define COVER_SIZE 128
-      /// Fixed width/height
-      itemWidth=COVER_SIZE+SIDE_SPACING+SIDE_SPACING;
-      itemHeight=COVER_SIZE+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
-      }
+    itemWidth=covers.getSize()+SIDE_SPACING+SIDE_SPACING;
+    itemHeight=covers.getSize()+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
     }
   else {
     register FXint w;
@@ -1129,7 +1121,7 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
   if(clo<0) clo=0;
   if(chi>=ncols) chi=ncols-1;
 
-  covers->reset();
+  covers.reset();
   for(r=rlo; r<=rhi; r++){
     y=pos_y+r*itemHeight;
     for(c=clo; c<=chi; c++){
@@ -1140,11 +1132,6 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
         }
       }
     }
-
-
-
-
-
 
   // Exposed rows
   rlo=(event->rect.y-pos_y)/itemHeight;

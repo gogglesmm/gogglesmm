@@ -24,6 +24,8 @@
 #include "GMTag.h"
 #include "GMDatabase.h"
 #include "GMTrackDatabase.h"
+#include "GMCover.h"
+#include "GMCoverCache.h"
 #include "GMAlbumList.h"
 #include "GMTrackList.h"
 #include "GMTrackItem.h"
@@ -35,17 +37,17 @@
 #include "GMPlayListSource.h"
 #include "GMPlayQueue.h"
 
+#include "GMTaskManager.h"
 #include "GMPlayerManager.h"
 #include "GMWindow.h"
 #include "GMIconTheme.h"
 #include "GMFilename.h"
-#include "GMTaskManager.h"
 #include "GMImportDialog.h"
 #include "GMAudioScrobbler.h"
 #include "GMAudioPlayer.h"
 #include "GMTrackEditor.h"
-#include "GMCoverCache.h"
 #include "GMScanner.h"
+#include "GMCoverLoader.h"
 
 #include <sqlite3.h>
 
@@ -120,12 +122,15 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
   FXMAPFUNC(SEL_TIMEOUT,GMDatabaseSource::ID_TRACK_PLAYED,GMDatabaseSource::onCmdTrackPlayed),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_OPEN_FOLDER,GMDatabaseSource::onCmdOpenFolder),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_ADD_COVER,GMDatabaseSource::onCmdAddCover),
+  FXMAPFUNC(SEL_TASK_COMPLETED,GMDatabaseSource::ID_LOAD_COVERS,GMDatabaseSource::onCmdLoadCovers),
+  FXMAPFUNC(SEL_TASK_CANCELLED,GMDatabaseSource::ID_LOAD_COVERS,GMDatabaseSource::onCmdLoadCovers),
   FXMAPFUNC(SEL_CHORE,GMDatabaseSource::ID_IMPORT_FILES,GMDatabaseSource::onDndImportFiles)
   };
 
 FXIMPLEMENT(GMDatabaseSource,GMSource,GMDatabaseSourceMap,ARRAYNUMBER(GMDatabaseSourceMap));
 
 GMDatabaseSource* GMDatabaseSource::filterowner=NULL;
+GMCoverCache* GMDatabaseSource::covercache=NULL;
 
 GMDatabaseSource::GMDatabaseSource(GMTrackDatabase * database) :
   db(database),
@@ -138,6 +143,45 @@ GMDatabaseSource::GMDatabaseSource(GMTrackDatabase * database) :
 
 GMDatabaseSource::~GMDatabaseSource() {
   }
+
+void GMDatabaseSource::shutdown() {
+  delete covercache;
+  covercache=NULL;
+  }
+
+void GMDatabaseSource::loadCovers() {
+  if (covercache==NULL) {
+    covercache = new GMCoverCache("albumcovers",GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size);
+    if (!covercache->load()) {
+      updateCovers();
+      }
+    }
+  }
+
+void GMDatabaseSource::updateCovers() {
+  if (covercache) {
+    GMCoverPathList list;    
+    if (db->listAlbumPaths(list)) {
+      GMCoverLoader * loader = new GMCoverLoader(covercache->getTempFilename(),list,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,GMPlayerManager::instance()->getDatabaseSource(),ID_LOAD_COVERS);
+      GMPlayerManager::instance()->runTask(loader);
+      }
+    }
+  }
+
+
+long GMDatabaseSource::onCmdLoadCovers(FXObject*,FXSelector sel,void*ptr) {
+  GMCoverLoader * loader = *reinterpret_cast<GMCoverLoader**>(ptr);
+  if (FXSELTYPE(sel)==SEL_TASK_COMPLETED) {
+    covercache->load(loader->getCacheWriter());
+    GMPlayerManager::instance()->getTrackView()->redrawAlbumList();
+    }
+  delete loader;
+  return 0;
+  }
+
+
+
+
 
 
 

@@ -22,6 +22,7 @@
 #include "GMTrack.h"
 #include "GMApp.h"
 #include "GMList.h"
+#include "GMCoverCache.h"
 #include "GMAlbumList.h"
 #include "GMTrackList.h"
 #include "GMTrackView.h"
@@ -232,6 +233,15 @@ FXDEFMAP(GMTrackView) GMTrackViewMap[]={
   FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_ALBUMS_VIEW_LIST,GMTrackView::onUpdAlbumListView),
   FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_ALBUMS_VIEW_BROWSER,GMTrackView::onUpdAlbumListView),
 
+  FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_COVERSIZE_SMALL,GMTrackView::onCmdCoverSize),
+  FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_COVERSIZE_MEDIUM,GMTrackView::onCmdCoverSize),
+  FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_COVERSIZE_BIG,GMTrackView::onCmdCoverSize),
+  FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_COVERSIZE_SMALL,GMTrackView::onUpdCoverSize),
+  FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_COVERSIZE_MEDIUM,GMTrackView::onUpdCoverSize),
+  FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_COVERSIZE_BIG,GMTrackView::onUpdCoverSize),
+
+
+
   FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_CONFIGURE_COLUMNS,GMTrackView::onCmdConfigureColumns),
   };
 
@@ -308,9 +318,6 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   artistlist->setThickFont(font_listhead);
   albumlist->setListHeadFont(font_listhead);
   tracklist->setActiveFont(font_listhead);
-
-  albumlist->setListIcon(GMIconTheme::instance()->icon_album);
-  albumlist->setCoverCache(GMPlayerManager::instance()->getCoverCache());
 
   taglist->dropEnable();
   artistlist->dropEnable();
@@ -973,6 +980,7 @@ void GMTrackView::saveView() const {
 
 
 void GMTrackView::redrawAlbumList() {
+  if (source) albumlist->setCoverCache(source->getCoverCache());
   albumlist->update();
   }
 
@@ -1239,12 +1247,15 @@ void GMTrackView::loadSettings(const FXString & key) {
   if (getApp()->reg().readBoolEntry(key.text(),"album-list-browser",false)){
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
-    GMPlayerManager::instance()->load_album_covers();
+    source->loadCovers();
     }
   else {
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts&~ALBUMLIST_BROWSER);
     }
+
+  albumlist->setListIcon(source->getAlbumIcon());
+  albumlist->setCoverCache(source->getCoverCache());
 
   if (getApp()->reg().readBoolEntry(key.text(),"album-list-show-year",true)){
     FXuint opts=albumlist->getListStyle();
@@ -1775,6 +1786,8 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector,void*ptr){
   FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
   FXbool old        = album_by_year;
   FXbool old_merge  = GMPlayerManager::instance()->getPreferences().gui_merge_albums;
+  FXint  old_size   = GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
+
   FXDataTarget target_yearsort(album_by_year);
   FXDataTarget target_merge(GMPlayerManager::instance()->getPreferences().gui_merge_albums);
   if (source && !event->moved) {
@@ -1789,9 +1802,13 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector,void*ptr){
     new FXMenuSeparator(&pane),
     new GMMenuRadio(&pane,fxtr("List View"),this,ID_ALBUMS_VIEW_LIST);
     new GMMenuRadio(&pane,fxtr("Cover View"),this,ID_ALBUMS_VIEW_BROWSER);
+    new FXMenuSeparator(&pane),
+    new GMMenuRadio(&pane,fxtr("Small Cover"), this,ID_COVERSIZE_SMALL),
+    new GMMenuRadio(&pane,fxtr("Medium Cover"), this,ID_COVERSIZE_MEDIUM),
+    new GMMenuRadio(&pane,fxtr("Big Cover"),this,ID_COVERSIZE_BIG),
+    new FXMenuSeparator(&pane),
     new GMMenuRadio(&pane,fxtr("Arrange By Rows"),albumlist,GMAlbumList::ID_ARRANGE_BY_ROWS);
     new GMMenuRadio(&pane,fxtr("Arrange By COlumns"),albumlist,GMAlbumList::ID_ARRANGE_BY_COLUMNS);
-
 
     pane.create();
     pane.forceRefresh();
@@ -1805,6 +1822,10 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector,void*ptr){
     else if (old!=album_by_year){
       sortAlbums();
       sortTracks();
+      }
+
+    if (old_size!=GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size){
+      source->updateCovers();  
       }
     return 1;
     }
@@ -2480,7 +2501,7 @@ long GMTrackView::onCmdAlbumListView(FXObject*,FXSelector sel,void*){
   else {
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
-    GMPlayerManager::instance()->load_album_covers();
+    if (source) source->loadCovers();
     }
   return 1;
   }
@@ -2501,6 +2522,32 @@ long GMTrackView::onUpdAlbumListView(FXObject*sender,FXSelector sel,void*){
     }
   return 1;
   }
+
+
+long GMTrackView::onCmdCoverSize(FXObject*,FXSelector sel,void*){
+  switch(FXSELID(sel)){
+    case ID_COVERSIZE_SMALL   : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size = 128; break;
+    case ID_COVERSIZE_MEDIUM  : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size = 160; break;
+    case ID_COVERSIZE_BIG     : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size = 256; break;
+    }
+  return 1;
+  }
+
+long GMTrackView::onUpdCoverSize(FXObject*sender,FXSelector sel,void*){
+  FXbool check=false;
+  const FXint size = GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
+  switch(FXSELID(sel)){
+    case ID_COVERSIZE_SMALL  : if (size <= 128) check = true; break;
+    case ID_COVERSIZE_MEDIUM : if (size>128 && size<=160) check = true; break;
+    case ID_COVERSIZE_BIG    : if (size>160 && size<=256) check = true; break;
+    }
+  if (check)
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  else
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  return 1;
+  }
+
 
 long GMTrackView::onCmdConfigureColumns(FXObject*,FXSelector,void*){
   GMColumnDialog dialog(getShell(),columns);

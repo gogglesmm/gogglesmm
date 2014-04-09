@@ -112,6 +112,9 @@ public:
     ID_FILTER_LAST = ID_FILTER_TAG,
     ID_ALBUMS_VIEW_LIST,
     ID_ALBUMS_VIEW_BROWSER,
+    ID_COVERSIZE_SMALL,
+    ID_COVERSIZE_MEDIUM,
+    ID_COVERSIZE_BIG,
     ID_LAST,
     };
 public:
@@ -188,6 +191,9 @@ public:
 
   long onCmdAlbumListView(FXObject*,FXSelector,void*);
   long onUpdAlbumListView(FXObject*,FXSelector,void*);
+
+  long onCmdCoverSize(FXObject*,FXSelector,void*);
+  long onUpdCoverSize(FXObject*,FXSelector,void*);
 
   long onCmdConfigureColumns(FXObject*,FXSelector,void*);
 public:

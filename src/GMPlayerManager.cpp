@@ -130,10 +130,9 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
   FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN,GMPlayerManager::onTaskManagerShutdown),
 
   FXMAPFUNC(SEL_TASK_COMPLETED,GMPlayerManager::ID_IMPORT_TASK,GMPlayerManager::onImportTaskCompleted),
+  FXMAPFUNC(SEL_TASK_CANCELLED,GMPlayerManager::ID_IMPORT_TASK,GMPlayerManager::onImportTaskCompleted),
 
   FXMAPFUNC(SEL_SESSION_CLOSED,GMPlayerManager::ID_SESSION_MANAGER,GMPlayerManager::onCmdQuit)
-
-//  FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_COVERS_LOADED,GMPlayerManager::onCoversLoaded)
   };
 
 FXIMPLEMENT(GMPlayerManager,FXObject,GMPlayerManagerMap,ARRAYNUMBER(GMPlayerManagerMap))
@@ -457,7 +456,6 @@ GMPlayerManager::GMPlayerManager() :
 #endif
   source(NULL),
   database(NULL),
-  covercache(NULL),
   covermanager(NULL) {
   FXASSERT(myself==NULL);
   myself=this;
@@ -576,7 +574,6 @@ FXbool GMPlayerManager::init_sources() {
 
   // Main Database
   database      = new GMTrackDatabase;
-  covercache    = new GMCoverCache;
   covermanager  = new GMCoverManager;
 
   // Make sure we can open it.
@@ -609,7 +606,9 @@ FXbool GMPlayerManager::init_sources() {
   /// File System
   sources.append(new GMLocalSource());
 
-  sources.append(new GMPodcastSource(database));
+  /// Podcast Source
+  podcast = new GMPodcastSource(database);
+  sources.append(podcast);
 
   /// Load Settings
   for (FXint i=0;i<sources.no();i++) {
@@ -623,6 +622,8 @@ FXbool GMPlayerManager::init_sources() {
 GMDatabaseSource * GMPlayerManager::getDatabaseSource() const {
   return dynamic_cast<GMDatabaseSource*>(sources[0]);
   }
+
+
 
 #ifdef HAVE_PLAYQUEUE
 void GMPlayerManager::setPlayQueue(FXbool enable) {
@@ -1040,13 +1041,14 @@ void GMPlayerManager::exit() {
     }
 #endif
 
+  // Destroy shared datastructures between playlists
+  getDatabaseSource()->shutdown();
+
   /// Delete Sources
   for (FXint i=0;i<sources.no();i++)
     delete sources[i];
 
-
   delete covermanager;
-  delete covercache;
 
   application->exit(0);
   }
@@ -1089,9 +1091,6 @@ void GMPlayerManager::update_tray_icon() {
     }
   }
 
-void GMPlayerManager::load_album_covers() {
-  covercache->init(database);
-  }
 
 GMTrackView * GMPlayerManager::getTrackView() const {
   return mainwindow->trackview;
@@ -1590,18 +1589,21 @@ long GMPlayerManager::onScrobblerOpen(FXObject*,FXSelector,void*ptr){
 
 
 
-long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
-
-  {
-    GMTask * task = *((GMTask**)ptr);
-    delete task;
-  }
-
-  database->initArtistLookup();
-  covercache->refresh(database);
-
-  //FIXME  only refresh when we have the music database open.
-  getTrackView()->refresh();
+long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector sel,void*ptr){
+  GMTask * task = *reinterpret_cast<GMTask**>(ptr);
+  if (FXSELTYPE(sel)==SEL_TASK_COMPLETED) {
+    database->initArtistLookup();
+    getDatabaseSource()->updateCovers();  
+    GMSource * src = getTrackView()->getSource();
+    if (src) {
+      switch(src->getType()){
+        case SOURCE_DATABASE:
+        case SOURCE_DATABASE_PLAYLIST: getTrackView()->refresh(); break;
+        default: break;
+        }
+      }
+    }
+  delete task;  
   return 0;
   }
 

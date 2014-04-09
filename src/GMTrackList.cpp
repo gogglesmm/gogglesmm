@@ -179,6 +179,7 @@ GMTrackList::GMTrackList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   textColor=getApp()->getForeColor();
   selbackColor=getApp()->getSelbackColor();
   seltextColor=getApp()->getSelforeColor();
+  shadowColor=getApp()->getShadowColor();
   rowColor=backColor;
   activeColor=backColor;
   activeTextColor=textColor;
@@ -195,18 +196,7 @@ GMTrackList::GMTrackList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   state=false;
   sortMethod=HEADER_DEFAULT;
 
-
   GMScrollArea::replaceScrollbars(this);
-
-/*
-  delete vertical;
-  delete horizontal;
-  delete corner;
-
-  vertical=new GMScrollBar(this,this,FXWindow::ID_VSCROLLED,SCROLLBAR_VERTICAL);
-  horizontal=new GMScrollBar(this,this,FXWindow::ID_HSCROLLED,SCROLLBAR_HORIZONTAL);
-  corner=new GMScrollCorner(this);
-*/
   }
 
 // Create window
@@ -380,22 +370,6 @@ long GMTrackList::onCmdHeader(FXObject*,FXSelector,void*ptr){
     if (sortfunc)
       GMPlayerManager::instance()->getTrackView()->sortTracks();
     }
-  /*
-
-
-      if (sortfunc==data->ascending)
-        sortfunc=data->descending;
-      else
-        sortfunc=data->ascending;
-      }
-    else {
-      sortMethod=data->type;
-      sortfunc=data->ascending;
-      }
-    if (sortfunc)
-      GMPlayerManager::instance()->getTrackView()->sortTracks();
-    }
-*/
   return 1;
   }
 
@@ -1022,6 +996,8 @@ void GMTrackList::draw(FXDC& dc,FXEvent *,FXint index,FXint x,FXint y,FXint w,FX
     dc.setForeground(getSelTextColor());
   else if (active==index)
     dc.setForeground(getActiveTextColor());
+  else if (items[index]->isShaded())
+    dc.setForeground(getShadowColor());
   else
     dc.setForeground(getTextColor());
 
@@ -1988,6 +1964,13 @@ void GMTrackList::setActiveColor(FXColor clr){
     }
   }
 
+// Change the active color
+void GMTrackList::setShadowColor(FXColor clr){
+  if(clr!=shadowColor){
+    shadowColor=clr;
+    update();
+    }
+  }
 
 // Change the active text color
 void GMTrackList::setActiveTextColor(FXColor clr){

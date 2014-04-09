@@ -58,8 +58,8 @@ private:
   GMAlbumListItem& operator=(const GMAlbumListItem&);
 protected:
   GMAlbumListItem(): state(0){}
-  void prepare(const GMAlbumList*) const;
-  virtual void draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
+  void prepare(GMAlbumList*);
+  virtual void draw(GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
   virtual void drawList(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
   virtual FXint hitItem(const GMAlbumList* list,FXint rx,FXint ry,FXint rw=1,FXint rh=1) const;
 protected:
@@ -131,7 +131,7 @@ typedef FXObjectListOf<GMAlbumListItem> GMAlbumListItemList;
 class FXAPI GMAlbumList : public FXScrollArea {
   FXDECLARE(GMAlbumList)
 protected:
-  GMCoverCache     * covers;
+  GMCoverRender      covers; 
   GMAlbumListItemList items;		// Item list
   FXint              nrows;             // Number of rows
   FXint              ncols;             // Number of columns
@@ -227,10 +227,14 @@ public:
   GMAlbumList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=ICONLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Get Thumbs
-  GMCoverCache * getCoverCache() const { return covers; }
+  GMCoverRender & getCoverRender() { return covers; }
+
+  /// Get Thumbs
+  const GMCoverRender & getCoverRender() const { return covers; }
+
 
   /// Set thumbs
-  void setCoverCache(GMCoverCache* t) { covers=t; }
+  void setCoverCache(GMCoverCache* t);
 
   /// Create server-side resources
   virtual void create();

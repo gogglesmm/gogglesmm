@@ -318,7 +318,7 @@ public:
   FXbool listPlaylists(FXIntList & ids);
 
   /// List Album Paths
-  FXbool listAlbumPaths(GMAlbumPathList & list);
+  FXbool listAlbumPaths(GMCoverPathList & list);
 
   FXbool exportList(const FXString & filename,FXint playlist,FXuint format,FXuint opts=0);
 

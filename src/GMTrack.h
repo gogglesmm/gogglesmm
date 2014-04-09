@@ -92,12 +92,11 @@ struct GMTrackFilename {
 typedef FXArray<GMTrackFilename> GMTrackFilenameList;
 
 
-struct GMAlbumPath {
+struct GMCoverPath {
   FXint    id;
   FXString path;
   };
-
-typedef FXArray<GMAlbumPath> GMAlbumPathList;
+typedef FXArray<GMCoverPath> GMCoverPathList;
 
 
 struct GMStream{

@@ -918,7 +918,7 @@ FXbool GMTrackDatabase::trackInPlaylist(FXint track,FXint playlist) {
 
 
 /// List Album Paths
-FXbool GMTrackDatabase::listAlbumPaths(GMAlbumPathList & list){
+FXbool GMTrackDatabase::listAlbumPaths(GMCoverPathList & list){
   DEBUG_DB_GET();
   FXint n=0;
   try {
@@ -931,7 +931,9 @@ FXbool GMTrackDatabase::listAlbumPaths(GMAlbumPathList & list){
         list[n].path = query.get(1);
         n++;
         }
+      return true;
       }
+    return false;
     }
   catch (GMDatabaseException & e){
     return false;

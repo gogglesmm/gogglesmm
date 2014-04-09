@@ -54,10 +54,11 @@ protected:
   virtual FXIcon * getIcon() const { return NULL; }
 public:
   enum {
-    SELECTED      = 1,  /// Selected
-    FOCUS         = 2,  /// Focus
-    DRAGGABLE     = 4,  /// Draggable
-    DONOTPLAY     = 8,  /// Playable
+    SELECTED      = 0x01,  /// Selected
+    FOCUS         = 0x02,  /// Focus
+    DRAGGABLE     = 0x04,  /// Draggable
+    DONOTPLAY     = 0x08,  /// Playable
+    SHADED        = 0x10   /// Shaded
     };
 public:
   GMTrackItem() : state(0) {}
@@ -86,6 +87,9 @@ public:
 
   /// Return true if this item is playable
   FXbool canPlay() const { return (state&DONOTPLAY)==0; }
+
+  /// Return true if this item is shaded
+  FXbool isShaded() const { return (state&SHADED)!=0; }
 
   /// Destructor
   virtual ~GMTrackItem() {}
@@ -141,6 +145,7 @@ protected:
   FXColor            rowColor;
   FXColor            activeColor;
   FXColor            activeTextColor;
+  FXColor            shadowColor;
   FXint              lineHeight;        // Item height
   FXint              anchorx;           // Rectangular selection
   FXint              anchory;
@@ -451,6 +456,12 @@ public:
 
   /// Change the active color
   void setActiveColor(FXColor clr);
+
+  /// Change shadow color
+  void setShadowColor(FXColor clr);
+
+  /// Get shadow color
+  FXColor getShadowColor() const { return shadowColor; }
 
   /// Get the current icon list style
   FXuint getListStyle() const;

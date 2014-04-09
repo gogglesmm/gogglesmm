@@ -23,6 +23,8 @@
 #include "GMList.h"
 #include "GMDatabase.h"
 #include "GMTrackDatabase.h"
+#include "GMCover.h"
+#include "GMCoverCache.h"
 #include "GMTrackList.h"
 #include "GMTrackItem.h"
 #include "GMTrackView.h"
@@ -37,6 +39,8 @@
 #include "GMFilename.h"
 #include "GMAlbumList.h"
 #include "GMAudioPlayer.h"
+#include "GMCoverLoader.h"
+
 
 #include <fcntl.h> /* Definition of AT_* constants */
 #include <sys/stat.h>
@@ -203,6 +207,7 @@ public:
   FXString         title;
   FXString         description;
   FXString         category;
+  FXString         image;
   FXTime           date;
   FXArray<RssItem> items;
 public:
@@ -263,6 +268,10 @@ protected:
           return Elem_Channel_Category;
         else if (comparecase(element,"itunes:category")==0)
           parse_itunes_category(attributes);
+        else if (comparecase(element,"itunes:image")==0 && feed.image.empty())
+          parse_itunes_image(attributes);        
+        else if (comparecase(element,"image")==0 && feed.image.empty())
+          return Elem_Channel_Image;
         else if (comparecase(element,"pubdate")==0)
           return Elem_Channel_Date;
         break;
@@ -282,6 +291,9 @@ protected:
         else if (comparecase(element,"itunes:duration")==0)
           return Elem_Item_Duration;
         break;
+      case Elem_Channel_Image:
+        if (comparecase(element,"url")==0)
+          return Elem_Channel_Image_Url;        
       default: break;
       }
     return 0;
@@ -298,6 +310,7 @@ protected:
       case Elem_Channel_Description: feed.description.append(data,len); break;
       case Elem_Channel_Category   : feed.category.append(data,len); break;
       case Elem_Channel_Date       : value.append(data,len); break;
+      case Elem_Channel_Image_Url  : feed.image.append(data,len); break;
       }
     }
   void end(const FXchar*) {
@@ -320,6 +333,14 @@ protected:
         gm_parse_datetime(value,feed.date);
         value.clear();
         break;
+      }
+    }
+
+  void parse_itunes_image(const FXchar** attributes) {      
+    for (FXint i=0;attributes[i];i+=2) {
+      if (comparecase(attributes[i],"href")==0){
+        feed.image = attributes[i+1];
+        }
       }
     }
 
@@ -348,6 +369,8 @@ public:
     Elem_Channel_Description,
     Elem_Channel_Category,
     Elem_Channel_Date,
+    Elem_Channel_Image,
+    Elem_Channel_Image_Url,
     Elem_Item,
     Elem_Item_Title,
     Elem_Item_Description,
@@ -830,19 +853,65 @@ protected:
 protected:
   virtual FXint run();
 public:
-  GMPodcastUpdater();
+  GMPodcastUpdater(FXObject*tgt,FXSelector sel);
   virtual ~GMPodcastUpdater();
   };
 
 
 
-GMPodcastUpdater::GMPodcastUpdater() : GMTask(NULL,0) {
+GMPodcastUpdater::GMPodcastUpdater(FXObject*tgt,FXSelector sel) : GMTask(tgt,sel) {
   db = GMPlayerManager::instance()->getTrackDatabase();
   }
 
 GMPodcastUpdater::~GMPodcastUpdater() {
   }
 
+
+FXbool gm_transfer_file(HttpClient & http,FXFile & file) {
+  FXuchar buffer[4096];
+  FXlong  n;
+  while((n=http.readBody(buffer,4096))>0) {
+    if (file.writeBlock(buffer,n)<n) {
+      return false;
+      }
+    }
+  return true;
+  }
+
+
+
+FXbool gm_download_cover(const FXString & url,FXString path) {
+  FXString filename;
+  HttpClient http;
+  HttpMediaType media;
+
+  if (FXStat::exists(path+PATHSEPSTRING+"cover.png") ||
+      FXStat::exists(path+PATHSEPSTRING+"cover.jpg"))
+    return true;
+
+  if (http.basic("GET",url)) {
+    if (http.getContentType(media)) {
+      FXString ext = "jpg";
+
+      if (media.mime=="image/jpg" ||  media.mime=="image/jpeg")
+        filename=path+PATHSEPSTRING+"cover.jpg";
+      else if (media.mime=="image/png")
+        filename=path+PATHSEPSTRING+"cover.png";
+            
+      FXFile file;
+      if (!file.open(filename,FXIO::Writing))
+        return false;  
+
+      if (!gm_transfer_file(http,file)) {
+        file.close();
+        FXFile::remove(filename);
+        }
+      file.close();
+      return true;        
+      }
+    }
+  return false;
+  }
 
 
 FXint GMPodcastUpdater::run() {
@@ -884,6 +953,9 @@ FXint GMPodcastUpdater::run() {
     gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
 
     GM_DEBUG_PRINT("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
+    if (!rss.feed.image.empty()) {
+      gm_download_cover(rss.feed.image,GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir);
+      }
 
     FXDictionary guids;
     for (int i=0;i<rss.feed.items.no();i++)
@@ -962,6 +1034,13 @@ FXDEFMAP(GMPodcastSource) GMPodcastSourceMap[]={
   FXMAPFUNC(SEL_TIMEOUT,GMPodcastSource::ID_REFRESH_FEED,GMPodcastSource::onCmdRefreshFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_DOWNLOAD_FEED,GMPodcastSource::onCmdDownloadFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_REMOVE_FEED,GMPodcastSource::onCmdRemoveFeed),
+  FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_MARK_PLAYED,GMPodcastSource::onCmdMarkPlayed),
+  FXMAPFUNC(SEL_TASK_COMPLETED,GMPodcastSource::ID_FEED_UPDATER,GMPodcastSource::onCmdFeedUpdated),
+  FXMAPFUNC(SEL_TASK_CANCELLED,GMPodcastSource::ID_FEED_UPDATER,GMPodcastSource::onCmdFeedUpdated),
+  FXMAPFUNC(SEL_TIMEOUT,GMPodcastSource::ID_TRACK_PLAYED,GMPodcastSource::onCmdTrackPlayed),
+  FXMAPFUNC(SEL_TASK_COMPLETED,GMPodcastSource::ID_LOAD_COVERS,GMPodcastSource::onCmdLoadCovers),
+  FXMAPFUNC(SEL_TASK_CANCELLED,GMPodcastSource::ID_LOAD_COVERS,GMPodcastSource::onCmdLoadCovers)
+
   };
 FXIMPLEMENT(GMPodcastSource,GMSource,GMPodcastSourceMap,ARRAYNUMBER(GMPodcastSourceMap));
 
@@ -969,18 +1048,124 @@ FXIMPLEMENT(GMPodcastSource,GMSource,GMPodcastSourceMap,ARRAYNUMBER(GMPodcastSou
 GMPodcastSource::GMPodcastSource() : db(NULL) {
   }
 
-GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(database),downloader(NULL) {
+GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(database),covercache(NULL),downloader(NULL) {
   FXASSERT(db);
-  // Auto refresh in 60 seconds
-  GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,60000000000);
+  db->execute("SELECT count(id) FROM feed_items WHERE (flags&4)==0",navailable);
+  scheduleUpdate();
   }
 
+ 
 GMPodcastSource::~GMPodcastSource(){
   GMApp::instance()->removeTimeout(this,ID_REFRESH_FEED);
   if (downloader) {
     downloader->stop();
     }
+  delete covercache;
   }
+
+
+FXIcon* GMPodcastSource::getAlbumIcon() const {
+  return GMIconTheme::instance()->icon_podcast;
+  }
+
+
+void GMPodcastSource::loadCovers() {
+  if (covercache==NULL) {
+    covercache = new GMCoverCache("podcastcovers",GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size);
+    if (!covercache->load()) {
+      updateCovers();
+      }
+    }
+  }
+
+void GMPodcastSource::updateCovers() {
+  if (covercache) {
+    GMCoverPathList list;
+    FXString feed_dir;
+    FXint feed,n=0;
+    FXint nfeeds;  
+    db->execute("SELECT COUNT(*) FROM feeds",nfeeds);
+    if (nfeeds) {
+      list.no(nfeeds);
+      GMQuery all_feeds(db,"SELECT id,local FROM feeds");
+      while(all_feeds.row()){
+        all_feeds.get(0,feed);
+        all_feeds.get(1,feed_dir);    
+        list[n].path = GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir;
+        list[n].id   = feed;
+        n++;
+        }
+      GMCoverLoader * loader = new GMCoverLoader(covercache->getTempFilename(),list,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,this,ID_LOAD_COVERS);
+      loader->setFolderOnly(true);
+      GMPlayerManager::instance()->runTask(loader);
+      }
+    }
+  }
+
+
+
+long GMPodcastSource::onCmdLoadCovers(FXObject*,FXSelector sel,void*ptr) {
+  GMCoverLoader * loader = *reinterpret_cast<GMCoverLoader**>(ptr);
+  if (FXSELTYPE(sel)==SEL_TASK_COMPLETED) {
+    covercache->load(loader->getCacheWriter());
+    GMPlayerManager::instance()->getTrackView()->redrawAlbumList();
+    }
+  delete loader;
+  return 0;
+  }
+
+
+
+void GMPodcastSource::updateAvailable() {
+  db->execute("SELECT count(id) FROM feed_items WHERE (flags&4)==0",navailable);
+  GMPlayerManager::instance()->getSourceView()->refresh(this);
+  }
+
+
+#define SECONDS 1000000000LL
+                
+
+FXlong GMPodcastSource::getUpdateInterval() {
+  return GMApp::instance()->reg().readLongEntry(settingKey(),"update-interval",0);    
+  }
+
+void GMPodcastSource::setUpdateInterval(FXlong interval) {
+  GMApp::instance()->reg().writeLongEntry(settingKey(),"update-interval",interval);
+  scheduleUpdate(); 
+  }
+
+void GMPodcastSource::setLastUpdate() {
+  GMApp::instance()->reg().writeLongEntry(settingKey(),"last-update",FXThread::time());
+  GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,getUpdateInterval());
+  }
+
+
+void GMPodcastSource::scheduleUpdate() {
+  FXlong interval   = getUpdateInterval();
+  FXTime lastupdate = FXThread::time() - GMApp::instance()->reg().readLongEntry(settingKey(),"last-update",0);    
+  if (interval) {
+    FXlong next = interval - lastupdate;
+    GM_DEBUG_PRINT("Podcast schedule %ld %ld %ld\n",interval/SECONDS,lastupdate/SECONDS,next/SECONDS); 
+    if (next<=(10*SECONDS)) 
+      GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,1*SECONDS);
+    else
+      GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,next);
+    }
+  else {
+    GMApp::instance()->removeTimeout(this,GMPodcastSource::ID_REFRESH_FEED);
+    }
+  }
+
+
+
+
+FXString GMPodcastSource::getName() const {
+  if (navailable)
+    return FXString::value(fxtr("Podcasts (%d)"),navailable);
+  else
+    return fxtr("Podcasts");
+  }
+
 
 
 void GMPodcastSource::removeFeeds(const FXIntList & feeds) {
@@ -1036,12 +1221,11 @@ void GMPodcastSource::removeFeeds(const FXIntList & feeds) {
 
 
 void GMPodcastSource::configure(GMColumnList& list){
-  list.no(5);
+  list.no(4);
   list[0]=GMColumn(notr("Date"),HEADER_DATE,GMFeedItem::ascendingDate,GMFeedItem::descendingDate,200,true,true,1);
   list[1]=GMColumn(notr("Feed"),HEADER_ALBUM,GMFeedItem::ascendingFeed,GMFeedItem::descendingFeed,100,true,true,1);
   list[2]=GMColumn(notr("Title"),HEADER_TITLE,GMFeedItem::ascendingTitle,GMFeedItem::descendingTitle,200,true,true,1);
-  list[3]=GMColumn(notr("Status"),HEADER_STATUS,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
-  list[4]=GMColumn(notr("Time"),HEADER_TIME,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
+  list[3]=GMColumn(notr("Time"),HEADER_TIME,GMFeedItem::ascendingTime,GMFeedItem::descendingTime,200,true,true,1);
   }
 
 
@@ -1092,6 +1276,7 @@ FXbool GMPodcastSource::album_context_menu(FXMenuPane * pane){
 
 FXbool GMPodcastSource::track_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Download"),NULL,this,ID_DOWNLOAD_FEED);
+  new GMMenuCommand(pane,fxtr("Mark as played"),NULL,this,ID_MARK_PLAYED);
   return true;
   }
 
@@ -1174,16 +1359,23 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
 
 
 long GMPodcastSource::onCmdRefreshFeed(FXObject*,FXSelector,void*){
-  GMApp::instance()->removeTimeout(this,ID_REFRESH_FEED);
   FXint num_feeds=0;
   db->execute("SELECT COUNT(*) FROM feeds;",num_feeds);
   if (num_feeds) {
     GM_DEBUG_PRINT("Found %d feeds. Running Podcast Updater\n",num_feeds);
-    GMPlayerManager::instance()->runTask(new GMPodcastUpdater);
+    GMPlayerManager::instance()->runTask(new GMPodcastUpdater(this,ID_FEED_UPDATER));
     }
   return 1;
   }
 
+long GMPodcastSource::onCmdFeedUpdated(FXObject*,FXSelector,void*ptr){
+  GMTask * task = *reinterpret_cast<GMTask**>(ptr);
+  db->execute("SELECT count(id) FROM feed_items WHERE (flags&4)==0",navailable);
+  GMPlayerManager::instance()->getSourceView()->refresh(this);
+  setLastUpdate();
+  delete task;
+  return 0;  
+  }
 
 long GMPodcastSource::onCmdDownloadFeed(FXObject*,FXSelector,void*){
   FXIntList tracks;
@@ -1201,6 +1393,36 @@ long GMPodcastSource::onCmdDownloadFeed(FXObject*,FXSelector,void*){
     }
   return 1;
   }
+
+
+long GMPodcastSource::onCmdMarkPlayed(FXObject*,FXSelector,void*){
+  FXIntList tracks;
+  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+  GMQuery queue_tracks(db,"UPDATE feed_items SET flags = (flags|4) WHERE id == ?;");
+  db->begin();
+  for (FXint i=0;i<tracks.no();i++){
+    queue_tracks.set(0,tracks[i]);
+    queue_tracks.execute();
+    }
+  db->commit();
+  updateAvailable();
+  return 1;
+  }
+
+long GMPodcastSource::onCmdTrackPlayed(FXObject*,FXSelector,void*) {
+  FXTRACE((60,"%s::onCmdTrackPlayed\n",getClassName()));
+  FXASSERT(current_track>=0);
+  GMQuery set_played(db,"UPDATE feed_items SET flags = (flags|4) WHERE id == ?;");
+  db->begin();
+  set_played.set(0,current_track);
+  set_played.execute();
+  db->commit();
+  updateAvailable();
+  return 1;
+  }
+
+
+
 
 long GMPodcastSource::onCmdAddFeed(FXObject*,FXSelector,void*){
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Subscribe to Podcast"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);

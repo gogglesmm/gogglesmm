@@ -43,6 +43,7 @@ class GMDatabaseSource : public GMSource {
 FXDECLARE(GMDatabaseSource)
 protected:
   static GMDatabaseSource * filterowner;
+  static GMCoverCache     * covercache;
 protected:
   GMTrackDatabase   * db;
   FXint               playlist;
@@ -84,6 +85,7 @@ public:
     ID_ADD_COVER,
     ID_SEARCH_COVER,
     ID_SEARCH_COVER_ALBUM,
+    ID_LOAD_COVERS,
     ID_LAST
     };
 public:
@@ -115,8 +117,17 @@ public:
   long onCmdAddCover(FXObject*,FXSelector,void*);
   long onCmdSearchCover(FXObject*,FXSelector,void*);
   long onCmdMainWindow(FXObject*,FXSelector,void*);
+  long onCmdLoadCovers(FXObject*,FXSelector,void*);
 public:
   GMDatabaseSource(GMTrackDatabase * db);
+
+  void shutdown();
+
+  virtual GMCoverCache* getCoverCache() const { return covercache; }
+
+  virtual void loadCovers();
+
+  virtual void updateCovers();
 
   virtual FXbool canFilter() const { return true; }
 

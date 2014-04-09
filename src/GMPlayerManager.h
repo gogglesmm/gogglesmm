@@ -48,6 +48,7 @@ class GMMediaPlayerService2;
 class GMAudioScrobbler;
 class GMTrayIcon;
 class GMPlayQueue;
+class GMPodcastSource;
 class GMDatabaseSource;
 class GMCoverCache;
 class GMCoverManager;
@@ -125,8 +126,8 @@ protected:
   GMPlayQueue          * queue;
 #endif
   GMSource             * source;
+  GMPodcastSource      * podcast;
   GMTrackDatabase      * database;
-  GMCoverCache         * covercache;
   GMCoverManager       * covermanager;
   GMTrack    trackinfo;
   FXbool     trackinfoset;
@@ -215,13 +216,10 @@ public:
 
   FXString getDatabaseFilename() const;
 
-
   /// Return the track database.
   GMTrackDatabase * getTrackDatabase() const { return database; }
 
   GMDatabaseSource * getDatabaseSource() const;
-
-  GMCoverCache * getCoverCache() const { return covercache; }
 
   GMCoverManager * getCoverManager() const { return covermanager; }
 
@@ -249,6 +247,8 @@ public:
 #ifdef HAVE_PLAYQUEUE
   GMPlayQueue * getPlayQueue() const { return queue; }
 #endif
+
+  GMPodcastSource * getPodcastSource() const { return podcast; }
 
   GMWindow * getMainWindow() const { return mainwindow; }
 
@@ -327,8 +327,6 @@ public:
   void update_track_display(FXbool notify=true);
 
   void update_time_display();
-
-  void load_album_covers();
 
   void display_track_notification();
 

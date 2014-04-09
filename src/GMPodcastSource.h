@@ -36,18 +36,26 @@ friend class GMPodcastDownloader;
 FXDECLARE(GMPodcastSource)
 protected:
   GMTrackDatabase     * db;
+  GMCoverCache        * covercache;
   GMPodcastDownloader * downloader;
+  FXint                 navailable;
 protected:
   GMPodcastSource();
 private:
   GMPodcastSource(const GMPodcastSource&);
   GMPodcastSource& operator=(const GMPodcastSource&);
+protected:
+  void scheduleUpdate();
+  void updateAvailable();
 public:
   enum {
     ID_ADD_FEED = GMSource::ID_LAST,
     ID_REFRESH_FEED,
     ID_DOWNLOAD_FEED,
     ID_REMOVE_FEED,
+    ID_MARK_PLAYED,
+    ID_FEED_UPDATER,
+    ID_LOAD_COVERS,
     ID_LAST
     };
 public:
@@ -55,10 +63,24 @@ public:
   long onCmdRefreshFeed(FXObject*,FXSelector,void*);
   long onCmdDownloadFeed(FXObject*,FXSelector,void*);
   long onCmdRemoveFeed(FXObject*,FXSelector,void*);
+  long onCmdMarkPlayed(FXObject*,FXSelector,void*);
+  long onCmdFeedUpdated(FXObject*,FXSelector,void*);
+  long onCmdTrackPlayed(FXObject*,FXSelector,void*);
+  long onCmdLoadCovers(FXObject*,FXSelector,void*);
 protected:
   void removeFeeds(const FXIntList&);
 public:
   GMPodcastSource(GMTrackDatabase * db);
+
+  void loadCovers();
+
+  void updateCovers();
+
+  void setLastUpdate();
+
+  void setUpdateInterval(FXlong);
+
+  FXlong getUpdateInterval();
 
   virtual void configure(GMColumnList&);
 
@@ -68,9 +90,13 @@ public:
 
   virtual FXbool setTrack(GMTrack & info) const;
 
-  FXString getName() const { return fxtr("Podcasts"); }
+  FXString getName() const;
 
   virtual const FXchar * getAlbumName() const { return fxtr("Feeds"); }
+
+  virtual FXIcon* getAlbumIcon() const;
+
+  virtual GMCoverCache * getCoverCache() const { return covercache; }
 
   FXint getType() const { return SOURCE_PODCAST; }
 
