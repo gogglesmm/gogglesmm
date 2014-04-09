@@ -19,11 +19,35 @@
 #ifndef GMANIMIMAGE_H
 #define GMANIMIMAGE_H
 
+#if 0
+class GMAnimation : public FXObject {
+FXDECLARE(GMAnimation)
+protected:
+  FXImage * image;
+  FXuint    index;
+  FXuint    base;
+protected:
+  GMAnimation(){}
+private:
+  GMAnimation(const GMAnimation&);
+  GMAnimation& operator=(const GMAnimation&);
+public:
+  GMAnimation(FXImage * img,FXuint base);
+
+  FXint getWidth() const { return base; }
+
+  FXint getHeight() const { return base; }
+
+  void advance();
+
+  void draw(FXDC & dc,FXint x,FXint y); 
+  };
+#endif
+
 class GMAnimImage : public FXImageFrame {
 FXDECLARE(GMAnimImage)
 protected:
   FXuint index;
-  FXuint nframes;
   FXuint base;
 protected:
   GMAnimImage();
