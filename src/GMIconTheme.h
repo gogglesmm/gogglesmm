@@ -120,6 +120,7 @@ public:
   FXIconPtr icon_progress;
   FXIconPtr icon_localcopy;
   FXIconPtr icon_download;
+  FXIconPtr icon_error;
 public:
   FXCursorPtr cursor_hand;
 private:

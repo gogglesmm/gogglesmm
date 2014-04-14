@@ -37,6 +37,7 @@ icons/x16_media_skip_forward.png \
 icons/x16_preferences_desktop.png \
 icons/x16_process_working.png \
 icons/x16_stock_attach.png \
+icons/x16_status_error.png \
 icons/x16_system_users.png \
 icons/x16_text_x_generic.png \
 icons/x16_view_refresh.png \

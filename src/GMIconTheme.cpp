@@ -642,6 +642,7 @@ void GMIconTheme::loadInternal() {
   loadResource(icon_folder_big,x22_folder_png,backcolor);
   loadResource(icon_localcopy,x16_stock_attach_png,backcolor);
   loadResource(icon_download,x16_go_bottom_png,backcolor);
+  loadResource(icon_error,x16_status_error_png,backcolor);
   loadResource(icon_podcast,x16_application_rss_xml_png,backcolor);
 
   loadResource(icon_home,x16_go_home_png,basecolor);
@@ -725,7 +726,7 @@ void GMIconTheme::loadExternal() {
 
   loadSmall(icon_home,"go-home",basecolor);
   loadSmall(icon_download,"go-bottom",backcolor);
-
+  loadSmall(icon_error,"error",backcolor);
   loadSmall(icon_localcopy,"stock_attach",backcolor);
 
   loadMedium(icon_source_library,"user-home",backcolor);
