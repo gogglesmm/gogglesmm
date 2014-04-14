@@ -554,6 +554,10 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
   const FXchar * buffer = reinterpret_cast<const FXchar*>(b);
   FXuint total = nframes*af.framesize();
   while(total) {
+
+    if (pa_stream_get_state(stream)!=PA_STREAM_READY)
+      return false;
+
     size_t nbytes = pa_stream_writable_size(stream);
     size_t n = FXMIN(total,nbytes);
     if (n<=0) {
