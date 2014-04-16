@@ -634,7 +634,10 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   new GMTabItem(tabbook,tr("&Podcasts"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
 
-  matrix = new FXMatrix(vframe,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0);
+  grpbox =  new FXGroupBox(vframe,tr("Updates"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+  grpbox->setFont(GMApp::instance()->getThickFont());
+
+  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0);
   new FXLabel(matrix,tr("Update Interval"),NULL,labelstyle);
   interval  = new GMListBox(matrix);
   interval->appendItem(tr("Disabled"));
@@ -664,7 +667,10 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
     interval->setCurrentItem(6);
   else
     interval->setCurrentItem(7);
-      
+
+  new FXFrame(matrix,FRAME_NONE);
+  podcast_autodownload = new GMCheckButton(matrix,"Download New Episodes");
+  podcast_autodownload->setCheck(GMPlayerManager::instance()->getPodcastSource()->getAutoDownload());    
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
   new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
@@ -831,7 +837,7 @@ long GMPreferencesDialog::onCmdAccept(FXObject*,FXSelector,void*) {
     default: break;
     }
   GMPlayerManager::instance()->getPodcastSource()->setUpdateInterval(update_interval);
-
+  GMPlayerManager::instance()->getPodcastSource()->setAutoDownload(podcast_autodownload->getCheck());
 
   GMWindow * mainwindow = GMPlayerManager::instance()->getMainWindow();
 

@@ -81,6 +81,7 @@ public:
   GMListBox     * themelist;
   GMListBox     * lastfm_service;
   GMListBox     * interval;
+  FXCheckButton * podcast_autodownload;
   FXbool password_set;
   FXFont * selectedfont;
   FXint theme;
