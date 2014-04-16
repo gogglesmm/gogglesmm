@@ -106,13 +106,10 @@ FXbool HttpClient::open_connection() {
 	}
 
 void HttpClient::reset(FXbool forceclose){
-	GM_DEBUG_PRINT("HttpClient::reset(%d)\n", forceclose ? 1 : 0);
-
   if (forceclose)
     close();
   else
     discard();
-
   clear();
   }
 

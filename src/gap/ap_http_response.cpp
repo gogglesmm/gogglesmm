@@ -316,7 +316,6 @@ HttpResponse::~HttpResponse() {
   }
 
 void HttpResponse::clear() {
-  GM_DEBUG_PRINT("HttpResponse::clear()\n");
   flags=0;
   content_length=-1;
   content_remaining=-1;
