@@ -861,7 +861,8 @@ FXint GMLocalTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackIt
 GMFeedItem::GMFeedItem(FXint i,const FXchar * tf,const FXchar * t, FXTime d,FXuint tm,FXuint f) : GMTrackItem(i),feed(tf),title(t),date(d),time(tm),flags(f) {
   if (flags&(1<<ITEM_FLAG_PLAYED))
     state|=SHADED;
-  }
+  state|=GMTrackItem::DRAGGABLE; 
+ }
 
 
 FXIcon* GMFeedItem::getIcon() const {
@@ -870,6 +871,9 @@ FXIcon* GMFeedItem::getIcon() const {
     }
   else if (flags&(1<<ITEM_FLAG_QUEUE)){
     return GMIconTheme::instance()->icon_download;
+    }
+  else if (flags&ITEM_FAILED){
+    return GMIconTheme::instance()->icon_error;
     }
   else {
     return NULL;    
