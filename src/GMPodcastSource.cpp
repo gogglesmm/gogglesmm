@@ -632,7 +632,7 @@ protected:
     FXlong     offset = 0;
 
     if (FXStat::exists(filename) && resume) {
-      GM_DEBUG_PRINT("file %s exists trying resume\n",filename.text());
+      GM_DEBUG_PRINT("[download] file %s exists trying resume\n",filename.text());
       mode    = FXIO::ReadWrite|FXIO::Append;
       offset  = FXStat::size(filename);
       if (offset>0) {
@@ -645,40 +645,38 @@ protected:
       }
 
     if (!file.open(filename,mode)){
-      GM_DEBUG_PRINT("failed to open file\n");
+      GM_DEBUG_PRINT("[download] failed to open local file\n");
       return false;
       }
 
     if (!http.basic("GET",url,headers)) {
-      GM_DEBUG_PRINT("failed to get url %s\n",url.text());
+      GM_DEBUG_PRINT("[download] failed to connect %s\n",url.text());
       return false;
       }
 
     if (http.status.code == HTTP_PARTIAL_CONTENT) {
 
-      if (!http.getContentRange(range))
+      if (!http.getContentRange(range)) {
+        GM_DEBUG_PRINT("[download] failed to parse content range header\n");
         return false;
+        }
 
       // FIXME make sure range is what we requested...
-      GM_DEBUG_PRINT("got partial content %lld-%lld of %lld\n",range.first,range.last,range.length);
+      GM_DEBUG_PRINT("[download] http partial content %lld-%lld of %lld\n",range.first,range.last,range.length);
       }
     else if (http.status.code == HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-      //FXString range = http.getHeader("content-range");
-      //fxmessage("range: %s\n",range.text());
-      //return false;
-
-      GM_DEBUG_PRINT("partial content failed\n");
+      GM_DEBUG_PRINT("[download] http invalid range. retrying full content\n");
       http.discard();
       if (!http.basic("GET",url) || http.status.code!=HTTP_OK)
         return false;
       file.truncate(0);
       }
     else if (http.status.code == HTTP_OK) {
-      GM_DEBUG_PRINT("full content\n");
+      GM_DEBUG_PRINT("[download] get full content\n");
       file.truncate(0);
       }
     else {
-      GM_DEBUG_PRINT("failed %d\n",http.status.code);
+      GM_DEBUG_PRINT("[download] http failed %d\n",http.status.code);
       return false;
       }
 
@@ -705,21 +703,31 @@ protected:
       */
 
       /* Write and check out of disk space */
-      if (file.writeBlock(buffer,n)<n)
+      if (file.writeBlock(buffer,n)<n) {
+        GM_DEBUG_PRINT("[download] disk write error\n");
         return false;
+        }
       }
     file.close();
 
     /// Set the modtime
     FXTime modtime=0;
     if (gm_parse_datetime(http.getHeader("last-modified"),modtime) && modtime!=0) {
+      GM_DEBUG_PRINT("[download] Set Modified to \"%s\"\n",http.getHeader("last-modified").text());
       FXStat::modified(filename,modtime);
       }
 
     /// Check for partial content
-    if (ncontent!=-1 && ncontent<ntotal)
+    if (ncontent!=-1 && ncontent<ntotal){
+      GM_DEBUG_PRINT("[download] Incomplete %ld / %ld\n",ncontent,ntotal);
       return false;
+      }
 
+    if (ncontent!=-1)
+      GM_DEBUG_PRINT("[download] Finished %ld / %ld\n",ncontent,ntotal);
+    else
+      GM_DEBUG_PRINT("[download] Finished %ld\n",ncontent);
+    
     return true;
     }
 
@@ -850,16 +858,17 @@ FXIMPLEMENT(GMPodcastDownloader,GMDownloader,GMPodcastDownloaderMap,ARRAYNUMBER(
 class GMPodcastUpdater : public GMTask {
 protected:
   GMTrackDatabase * db;
+  FXbool            autodownload;
 protected:
   virtual FXint run();
 public:
-  GMPodcastUpdater(FXObject*tgt,FXSelector sel);
+  GMPodcastUpdater(FXbool dl,FXObject*tgt,FXSelector sel);
   virtual ~GMPodcastUpdater();
   };
 
 
 
-GMPodcastUpdater::GMPodcastUpdater(FXObject*tgt,FXSelector sel) : GMTask(tgt,sel) {
+GMPodcastUpdater::GMPodcastUpdater(FXbool dl,FXObject*tgt,FXSelector sel) : GMTask(tgt,sel), autodownload(dl) {
   db = GMPlayerManager::instance()->getTrackDatabase();
   }
 
@@ -921,7 +930,7 @@ FXint GMPodcastUpdater::run() {
   GMQuery get_item(db,"SELECT id FROM feed_items WHERE feed == ? AND guid == ?;");
   GMQuery set_feed(db,"UPDATE feeds SET date = ? WHERE id = ?;");
   GMQuery fix_time(db,"UPDATE feed_items SET time = ? WHERE feed = ? AND guid = ?;");
-  GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, 0)");
+  GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, ?)");
 
 
   taskmanager->setStatus("Syncing Podcasts...");
@@ -932,6 +941,10 @@ FXint GMPodcastUpdater::run() {
   FXString guid;
   FXString feed_dir;
   FXint id,item_id;
+  FXuint flags=0;
+
+  if (autodownload)
+    flags|=ITEM_QUEUE;
 
   while(all_feeds.row() && processing) {
     all_feeds.get(0,id);
@@ -987,6 +1000,7 @@ FXint GMPodcastUpdater::run() {
         add_feed_item.set(5,rss.feed.items[i].length);
         add_feed_item.set(6,rss.feed.items[i].time);
         add_feed_item.set(7,rss.feed.items[i].date);
+        add_feed_item.set(8,flags);
         add_feed_item.execute();
         }
       else {
@@ -1025,6 +1039,39 @@ FXint GMPodcastUpdater::run() {
 
 
 
+class GMPodcastClipboardData : public GMClipboardData {
+public:
+  GMPodcastSource * src;
+  FXIntList         ids;
+public:
+  FXbool request(FXDragType target,GMClipboard * clipboard) {
+    if (target==GMClipboard::urilistType){
+      FXString uri;
+      FXStringList filenames;
+      src->getLocalFiles(ids,filenames);
+      gm_convert_filenames_to_uri(filenames,uri);
+      clipboard->setDNDData(FROM_CLIPBOARD,target,uri);
+      return true;
+      }
+    else if (target==GMClipboard::kdeclipboard){
+      clipboard->setDNDData(FROM_CLIPBOARD,target,"0");
+      return true;
+      }
+    else if (target==GMClipboard::gnomeclipboard){
+      FXString clipdata;
+      FXStringList filenames;
+      src->getLocalFiles(ids,filenames);
+      gm_convert_filenames_to_gnomeclipboard(filenames,clipdata);
+      clipboard->setDNDData(FROM_CLIPBOARD,target,clipdata);
+      return true;
+      }
+    return false;
+    }
+
+  ~GMPodcastClipboardData() {
+    src=NULL;
+    }
+  };
 
 
 
@@ -1034,12 +1081,17 @@ FXDEFMAP(GMPodcastSource) GMPodcastSourceMap[]={
   FXMAPFUNC(SEL_TIMEOUT,GMPodcastSource::ID_REFRESH_FEED,GMPodcastSource::onCmdRefreshFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_DOWNLOAD_FEED,GMPodcastSource::onCmdDownloadFeed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_REMOVE_FEED,GMPodcastSource::onCmdRemoveFeed),
+  FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_MARK_NEW,GMPodcastSource::onCmdMarkNew),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_MARK_PLAYED,GMPodcastSource::onCmdMarkPlayed),
+  FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_DELETE_LOCAL,GMPodcastSource::onCmdDeleteLocal),
   FXMAPFUNC(SEL_TASK_COMPLETED,GMPodcastSource::ID_FEED_UPDATER,GMPodcastSource::onCmdFeedUpdated),
   FXMAPFUNC(SEL_TASK_CANCELLED,GMPodcastSource::ID_FEED_UPDATER,GMPodcastSource::onCmdFeedUpdated),
   FXMAPFUNC(SEL_TIMEOUT,GMPodcastSource::ID_TRACK_PLAYED,GMPodcastSource::onCmdTrackPlayed),
   FXMAPFUNC(SEL_TASK_COMPLETED,GMPodcastSource::ID_LOAD_COVERS,GMPodcastSource::onCmdLoadCovers),
-  FXMAPFUNC(SEL_TASK_CANCELLED,GMPodcastSource::ID_LOAD_COVERS,GMPodcastSource::onCmdLoadCovers)
+  FXMAPFUNC(SEL_TASK_CANCELLED,GMPodcastSource::ID_LOAD_COVERS,GMPodcastSource::onCmdLoadCovers),
+  FXMAPFUNC(SEL_COMMAND,GMSource::ID_COPY_TRACK,GMPodcastSource::onCmdCopyTrack),
+  FXMAPFUNC(SEL_DND_REQUEST,GMSource::ID_COPY_TRACK,GMPodcastSource::onCmdRequestTrack)
+
 
   };
 FXIMPLEMENT(GMPodcastSource,GMSource,GMPodcastSourceMap,ARRAYNUMBER(GMPodcastSourceMap));
@@ -1062,6 +1114,21 @@ GMPodcastSource::~GMPodcastSource(){
     }
   delete covercache;
   }
+
+
+void GMPodcastSource::getLocalFiles(const FXIntList & ids,FXStringList & files) {
+  GMQuery get_local(db,"SELECT (? || '/' || feeds.local || '/' || feed_items.local)  FROM feed_items,feeds WHERE feeds.id == feed_items.feed AND feed_items.id == ? AND feed_items.flags&2;");
+  for (FXint i=0;i<ids.no();i++) {  
+    get_local.set(0,GMApp::instance()->getPodcastDirectory());
+    get_local.set(1,ids[i]);
+    if (get_local.row()) {
+      files.no(files.no()+1);
+      get_local.get(0,files[files.no()-1]);   
+      }
+    get_local.reset();
+    }
+  }
+
 
 
 FXIcon* GMPodcastSource::getAlbumIcon() const {
@@ -1125,7 +1192,7 @@ void GMPodcastSource::updateAvailable() {
 #define SECONDS 1000000000LL
                 
 
-FXlong GMPodcastSource::getUpdateInterval() {
+FXlong GMPodcastSource::getUpdateInterval() const {
   return GMApp::instance()->reg().readLongEntry(settingKey(),"update-interval",0);    
   }
 
@@ -1138,7 +1205,6 @@ void GMPodcastSource::setLastUpdate() {
   GMApp::instance()->reg().writeLongEntry(settingKey(),"last-update",FXThread::time());
   GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,getUpdateInterval());
   }
-
 
 void GMPodcastSource::scheduleUpdate() {
   FXlong interval   = getUpdateInterval();
@@ -1155,6 +1221,16 @@ void GMPodcastSource::scheduleUpdate() {
     GMApp::instance()->removeTimeout(this,GMPodcastSource::ID_REFRESH_FEED);
     }
   }
+
+
+FXbool GMPodcastSource::getAutoDownload() const {
+  return GMApp::instance()->reg().readBoolEntry(settingKey(),"auto-download",false);
+  }
+ 
+void GMPodcastSource::setAutoDownload(FXbool value) {
+  GMApp::instance()->reg().writeBoolEntry(settingKey(),"auto-download",value);
+  } 
+
 
 
 
@@ -1276,7 +1352,9 @@ FXbool GMPodcastSource::album_context_menu(FXMenuPane * pane){
 
 FXbool GMPodcastSource::track_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Download"),NULL,this,ID_DOWNLOAD_FEED);
-  new GMMenuCommand(pane,fxtr("Mark as played"),NULL,this,ID_MARK_PLAYED);
+  new GMMenuCommand(pane,fxtr("Mark Played"),NULL,this,ID_MARK_PLAYED);
+  new GMMenuCommand(pane,fxtr("Mark New"),NULL,this,ID_MARK_NEW);
+  new GMMenuCommand(pane,fxtr("Remove Local"),NULL,this,ID_DELETE_LOCAL);
   return true;
   }
 
@@ -1363,14 +1441,39 @@ long GMPodcastSource::onCmdRefreshFeed(FXObject*,FXSelector,void*){
   db->execute("SELECT COUNT(*) FROM feeds;",num_feeds);
   if (num_feeds) {
     GM_DEBUG_PRINT("Found %d feeds. Running Podcast Updater\n",num_feeds);
-    GMPlayerManager::instance()->runTask(new GMPodcastUpdater(this,ID_FEED_UPDATER));
+    GMPlayerManager::instance()->runTask(new GMPodcastUpdater(getAutoDownload(),this,ID_FEED_UPDATER));
     }
   return 1;
   }
 
+
+void GMPodcastSource::setItemFlags(FXuint add,FXuint remove,FXuint condition){
+  GMQuery q(db,"UPDATE feed_items SET flags = (flags&~(?))|? WHERE flags&?");
+  q.set(0,remove);
+  q.set(1,add);
+  q.set(2,condition);
+  q.execute();
+  }
+
+
+
 long GMPodcastSource::onCmdFeedUpdated(FXObject*,FXSelector,void*ptr){
   GMTask * task = *reinterpret_cast<GMTask**>(ptr);
   db->execute("SELECT count(id) FROM feed_items WHERE (flags&4)==0",navailable);
+
+  // Retry any failed downloads
+  setItemFlags(ITEM_QUEUE,ITEM_FAILED,ITEM_FAILED);
+
+  if (downloader==NULL) {
+    FXint n;
+    db->execute("SELECT count(id) FROM feed_items WHERE flags&1",n);
+    if (n)  {
+      GM_DEBUG_PRINT("Found %d queued. Start fetching\n",n);  
+      downloader = new GMPodcastDownloader(FXApp::instance(),this);
+      downloader->start();
+      }
+    }
+
   GMPlayerManager::instance()->getSourceView()->refresh(this);
   setLastUpdate();
   delete task;
@@ -1391,6 +1494,62 @@ long GMPodcastSource::onCmdDownloadFeed(FXObject*,FXSelector,void*){
     downloader = new GMPodcastDownloader(FXApp::instance(),this);
     downloader->start();
     }
+  return 1;
+  }
+
+
+long GMPodcastSource::onCmdDeleteLocal(FXObject*,FXSelector,void*){
+  FXIntList tracks;
+  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+  GMQuery get_local(db,"SELECT (? || '/' || feeds.local || '/' || feed_items.local)  FROM feed_items,feeds WHERE feeds.id == feed_items.feed AND feed_items.id == ? AND feed_items.flags&2;");
+  GMQuery clear_local(db,"UPDATE feed_items SET flags = (flags&~(?)) WHERE id == ?");
+  FXString local;
+  FXString localdir;
+  for (FXint i=0;i<tracks.no();i++) {
+    get_local.set(0,GMApp::getPodcastDirectory());
+    get_local.set(1,tracks[i]);    
+    if (get_local.row()) {
+      get_local.get(0,local);
+      GM_DEBUG_PRINT("delete local: %s\n",local.text());
+      if (FXFile::remove(local) || !FXStat::exists(local)) {
+        clear_local.set(0,ITEM_LOCAL);
+        clear_local.set(1,tracks[i]);
+        clear_local.execute();
+        }
+      else {
+        GM_DEBUG_PRINT("failed to remove local: %s\n",local.text());
+        }
+      get_local.reset();
+      }
+    }
+  return 1;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+long GMPodcastSource::onCmdMarkNew(FXObject*,FXSelector,void*){
+  FXIntList tracks;
+  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+  GMQuery mark_tracks(db,"UPDATE feed_items SET flags = (flags&~(4)) WHERE id == ?;");
+  db->begin();
+  for (FXint i=0;i<tracks.no();i++){
+    mark_tracks.set(0,tracks[i]);
+    mark_tracks.execute();
+    }
+  db->commit();
+  updateAvailable();
   return 1;
   }
 
@@ -1453,4 +1612,47 @@ long GMPodcastSource::onCmdRemoveFeed(FXObject*,FXSelector,void*){
     GMPlayerManager::instance()->getTrackView()->refresh();
     }
   return 1;
+  }
+
+FXuint GMPodcastSource::dnd_provides(FXDragType types[]){
+  types[0]=GMClipboard::kdeclipboard;
+  types[1]=GMClipboard::urilistType;
+  types[2]=GMClipboard::selectedtracks;
+  return 3;
+  }
+
+long GMPodcastSource::onCmdCopyTrack(FXObject*,FXSelector,void*){
+  FXDragType types[3]={GMClipboard::kdeclipboard,GMClipboard::gnomeclipboard,FXWindow::urilistType};
+  GMPodcastClipboardData * data = new GMPodcastClipboardData;
+  if (GMClipboard::instance()->acquire(this,types,3,data)){
+    FXApp::instance()->beginWaitCursor();
+    data->src=this;
+    GMPlayerManager::instance()->getTrackView()->getSelectedTracks(data->ids);
+    FXApp::instance()->endWaitCursor();
+    }
+  else {
+    delete data;
+    FXApp::instance()->beep();
+    }
+  return 1;
+  }
+
+long GMPodcastSource::onCmdRequestTrack(FXObject*sender,FXSelector,void*ptr){
+  FXEvent* event=(FXEvent*)ptr;
+  FXWindow*window=(FXWindow*)sender;
+  if(event->target==GMClipboard::urilistType){
+    FXStringList filenames;
+    FXIntList tracks;
+    FXString uri;
+    GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+    getLocalFiles(tracks,filenames);
+    gm_convert_filenames_to_uri(filenames,uri);
+    window->setDNDData(FROM_DRAGNDROP,event->target,uri);
+    return 1;
+    }
+  else if (event->target==GMClipboard::kdeclipboard){
+    window->setDNDData(FROM_DRAGNDROP,event->target,"0"); // copy
+    return 1;
+    }
+  return 0;
   }
