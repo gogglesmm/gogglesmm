@@ -243,7 +243,7 @@ void gm_convert_filenames_to_gnomeclipboard(const FXStringList & filenames,FXStr
   if (filenames.no()) {
     uri="copy\n" + FXURL::fileToURL(filenames[0]);
     for (FXint i=1;i<filenames.no();i++){
-      uri+="\r\n";
+      uri+="\n";
       uri+=FXURL::fileToURL(filenames[i]);
       }
     }
