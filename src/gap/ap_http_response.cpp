@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_utils.h"
 #include "ap_buffer_base.h"
 #include "ap_buffer_io.h"
 #include "ap_http_response.h"
@@ -558,6 +559,25 @@ FXString HttpResponse::body() {
   else
     return read_body();
   }
+
+FXString HttpResponse::textBody() {
+  HttpMediaType media;
+
+  if (getContentType(media) && media.parameters.has("charset")) {
+    FXAutoPtr<FXTextCodec> codec;
+
+    codec = ap_get_textcodec(media.parameters["charset"]);
+    if (codec) 
+      return codec->mb2utf(body());
+
+    discard();
+    }
+  else {
+    return body();
+    }
+  return FXString::null;
+  }
+
 
 FXival HttpResponse::readBody(void * ptr,FXival len) {
   if (flags&HeadRequest)

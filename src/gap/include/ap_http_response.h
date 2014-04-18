@@ -242,6 +242,9 @@ public:
   // Return the complete message body as string
   FXString body();
 
+  // Return the complete message body as string. 
+  FXString textBody();
+
   /// Read partial body
   FXival readBody(void*ptr,FXival len);
 
