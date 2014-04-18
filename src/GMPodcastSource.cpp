@@ -1607,7 +1607,7 @@ long GMPodcastSource::onCmdAddFeed(FXObject*,FXSelector,void*){
 long GMPodcastSource::onCmdRemoveFeed(FXObject*,FXSelector,void*){
   FXIntList feeds;
   GMPlayerManager::instance()->getTrackView()->getSelectedAlbums(feeds);
-  if (FXMessageBox::question(GMPlayerManager::instance()->getMainWindow(),MBOX_YES_NO,fxtr("Remove Feed?"),fxtr("Remove feed and all downloaded podcasts?"))==MBOX_CLICKED_YES) {
+  if (FXMessageBox::question(GMPlayerManager::instance()->getMainWindow(),MBOX_YES_NO,fxtr("Remove Feed?"),fxtr("Remove feed and all downloaded episodes?"))==MBOX_CLICKED_YES) {
     removeFeeds(feeds);
     GMPlayerManager::instance()->getTrackView()->refresh();
     }
