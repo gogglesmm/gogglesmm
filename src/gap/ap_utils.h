@@ -24,6 +24,9 @@
 namespace ap {
 
 
+/* Get textcodec for given mime or name */
+extern GMAPI FXTextCodec * ap_get_textcodec(const FXString & name);
+
 extern GMAPI FXString ap_get_environment(const FXchar * key,const FXchar * def=NULL);
 
 extern FXbool ap_set_closeonexec(FXInputHandle fd);

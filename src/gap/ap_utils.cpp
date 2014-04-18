@@ -17,6 +17,54 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+
+// Text Codecs from FOX
+#include <FX88591Codec.h>
+#include <FX88592Codec.h>
+#include <FX88593Codec.h>
+#include <FX88594Codec.h>
+#include <FX88595Codec.h>
+#include <FX88596Codec.h>
+#include <FX88597Codec.h>
+#include <FX88598Codec.h>
+#include <FX88599Codec.h>
+#include <FX885910Codec.h>
+#include <FX885911Codec.h>
+#include <FX885913Codec.h>
+#include <FX885914Codec.h>
+#include <FX885915Codec.h>
+#include <FX885916Codec.h>
+#include <FXCP437Codec.h>
+#include <FXCP850Codec.h>
+#include <FXCP852Codec.h>
+#include <FXCP855Codec.h>
+#include <FXCP856Codec.h>
+#include <FXCP857Codec.h>
+#include <FXCP860Codec.h>
+#include <FXCP861Codec.h>
+#include <FXCP862Codec.h>
+#include <FXCP863Codec.h>
+#include <FXCP864Codec.h>
+#include <FXCP865Codec.h>
+#include <FXCP866Codec.h>
+#include <FXCP869Codec.h>
+#include <FXCP874Codec.h>
+#include <FXCP1250Codec.h>
+#include <FXCP1251Codec.h>
+#include <FXCP1252Codec.h>
+#include <FXCP1253Codec.h>
+#include <FXCP1254Codec.h>
+#include <FXCP1255Codec.h>
+#include <FXCP1256Codec.h>
+#include <FXCP1257Codec.h>
+#include <FXCP1258Codec.h>
+#include <FXKOI8RCodec.h>
+#include <FXUTF8Codec.h>
+#include <FXUTF16Codec.h>
+#include <FXUTF32Codec.h>
+
+
+
 #include "ap_utils.h"
 #include "ap_format.h"
 #include "ap_event.h"
@@ -34,6 +82,7 @@
 #include <errno.h>
 #include <poll.h>
 #endif
+
 
 namespace ap {
 
@@ -75,6 +124,87 @@ FXbool ap_set_closeonexec(FXInputHandle fd) {
   return true;
   }
 
+
+extern GMAPI FXTextCodec * ap_get_textcodec(const FXString & name) {
+
+  FXObjectListOf<FXTextCodec> codecs;
+
+  codecs.append(new FXUTF8Codec);
+  codecs.append(new FXUTF16Codec);
+  codecs.append(new FXUTF32Codec);
+  codecs.append(new FX88591Codec);
+  codecs.append(new FX88592Codec);
+  codecs.append(new FX88593Codec);
+  codecs.append(new FX88594Codec);
+  codecs.append(new FX88595Codec);
+  codecs.append(new FX88596Codec);
+  codecs.append(new FX88597Codec);
+  codecs.append(new FX88598Codec);
+  codecs.append(new FX88599Codec);
+  codecs.append(new FX885910Codec);
+  codecs.append(new FX885911Codec);
+  codecs.append(new FX885913Codec);
+  codecs.append(new FX885914Codec);
+  codecs.append(new FX885915Codec);
+  codecs.append(new FX885916Codec);
+  codecs.append(new FXCP437Codec);
+  codecs.append(new FXCP850Codec);
+  codecs.append(new FXCP852Codec);
+  codecs.append(new FXCP855Codec);
+  codecs.append(new FXCP856Codec);
+  codecs.append(new FXCP857Codec);
+  codecs.append(new FXCP860Codec);
+  codecs.append(new FXCP861Codec);
+  codecs.append(new FXCP862Codec);
+  codecs.append(new FXCP863Codec);
+  codecs.append(new FXCP864Codec);
+  codecs.append(new FXCP865Codec);
+  codecs.append(new FXCP866Codec);
+  codecs.append(new FXCP869Codec);
+  codecs.append(new FXCP874Codec);
+  codecs.append(new FXCP1250Codec);
+  codecs.append(new FXCP1251Codec);
+  codecs.append(new FXCP1252Codec);
+  codecs.append(new FXCP1253Codec);
+  codecs.append(new FXCP1254Codec);
+  codecs.append(new FXCP1255Codec);
+  codecs.append(new FXCP1256Codec);
+  codecs.append(new FXCP1257Codec);
+  codecs.append(new FXCP1258Codec);
+  codecs.append(new FXKOI8RCodec);
+ 
+  FXTextCodec * found = NULL;
+
+  // Check if any of the codecs match
+  for (FXint i=0;i<codecs.no();i++) {
+    if (comparecase(codecs[i]->name(),name)==0) {
+      found = codecs[i];
+      codecs.erase(i);
+      goto done;
+      }
+    const FXchar * const * alias = codecs[i]->aliases();
+    for (FXint j=0;alias[j]!=NULL;j++) { 
+      if (comparecase(alias[j],name)==0) {
+        found = codecs[i];
+        codecs.erase(i);
+        goto done;
+        }
+      }
+    }
+done:
+  for (FXint i=0;i<codecs.no();i++) {
+    delete codecs[i];
+    }
+#ifdef DEBUG
+  if (found) {
+    GM_DEBUG_PRINT("Using codec %s for %s\n",found->name(),name.text()); 
+    }
+  else {
+    GM_DEBUG_PRINT("No codec found for %s\n",name.text()); 
+    }
+#endif
+  return found;  
+  }
 
 // PRIVATE API
 //----------------------------------------------------
