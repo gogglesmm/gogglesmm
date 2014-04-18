@@ -35,6 +35,7 @@
 #define COVERCACHE_JPG  1
 #define COVERCACHE_WEBP 2
 #define COVERCACHE_PNG  3
+#define COVERCACHE_BMP  4
 
 void GMCacheInfo::adopt(GMCacheInfo & info) {
   index.adopt(info.index);
@@ -84,14 +85,14 @@ void GMCacheInfo::load(FXStream & store) {
 
 
 GMCoverCacheWriter::GMCoverCacheWriter(FXint sz) : info(sz),pixels(NULL) {
-  if (FXJPGImage::supported)
-    info.format = COVERCACHE_JPG;
-  else if (FXWEBPImage::supported)
+  if (FXWEBPImage::supported)
     info.format = COVERCACHE_WEBP;
+  else if (FXJPGImage::supported)
+    info.format = COVERCACHE_JPG;
   else if (FXPNGImage::supported)
     info.format = COVERCACHE_PNG;
-
-  info.format = COVERCACHE_WEBP;
+  else
+    info.format = COVERCACHE_BMP; // Getting real desperate here...
   }
 
 GMCoverCacheWriter::~GMCoverCacheWriter() {
@@ -117,6 +118,7 @@ FXlong GMCoverCacheWriter::save(FXColor * buffer){
     case COVERCACHE_JPG : fxsaveJPG(store,buffer,info.size,info.size,75); break;
     case COVERCACHE_WEBP: fxsaveWEBP(store,buffer,info.size,info.size,75.0f); break;
     case COVERCACHE_PNG : fxsavePNG(store,buffer,info.size,info.size); break;
+    case COVERCACHE_BMP : fxsaveBMP(store,buffer,info.size,info.size); break;
     }
   return store.position()-offset;
   }
@@ -202,6 +204,7 @@ FXbool GMCoverCache::render(FXint id,FXImage * image) {
       case COVERCACHE_JPG : result = fxloadJPG(store,pixels,ww,hh,dd); break;
       case COVERCACHE_WEBP: result = fxloadWEBP(store,pixels,ww,hh); break;
       case COVERCACHE_PNG : result = fxloadPNG(store,pixels,ww,hh); break;
+      case COVERCACHE_BMP : result = fxloadBMP(store,pixels,ww,hh); break;
       default             : result = false; break;
       }
     if (result) {
