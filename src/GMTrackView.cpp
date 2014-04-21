@@ -176,7 +176,7 @@ FXDEFMAP(GMTrackView) GMTrackViewMap[]={
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_ALBUM_LIST,GMTrackView::onAlbumContextMenu),
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_TRACK_LIST,GMTrackView::onTrackContextMenu),
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_TRACK_LIST_HEADER,GMTrackView::onTrackHeaderContextMenu),
-  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_ALBUM_LIST_HEADER,GMTrackView::onAlbumHeaderContextMenu),
+  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_ALBUM_LIST_HEADER,GMTrackView::onAlbumContextMenu),
 
 
   FXMAPFUNC(SEL_KEYPRESS,GMTrackView::ID_TAG_LIST,GMTrackView::onCmdTagKeyPress),
@@ -1782,7 +1782,7 @@ long GMTrackView::onArtistContextMenu(FXObject*,FXSelector,void*ptr){
   }
 
 
-long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector,void*ptr){
+long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
   FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
   FXbool old        = album_by_year;
   FXbool old_merge  = GMPlayerManager::instance()->getPreferences().gui_merge_albums;
@@ -1794,10 +1794,11 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector,void*ptr){
     GMMenuPane pane(this);
     GMMenuPane viewpane(this);
 
-    FXint item = albumlist->getItemAt(event->win_x,event->win_y);
-    if (item>=0 && getAlbum(item)!=-1 && source->album_context_menu(&pane))
-      selectAlbumItem(item);
-
+    if (FXSELID(sel)==ID_ALBUM_LIST) {
+      FXint item = albumlist->getItemAt(event->win_x,event->win_y);
+      if (item>=0 && getAlbum(item)!=-1 && source->album_context_menu(&pane))
+        selectAlbumItem(item);
+      }
     /*
       FIXME Dirty Hack. We need to get this info from the source really.
     */
@@ -1843,64 +1844,6 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector,void*ptr){
     }
   return 0;
   }
-
-long GMTrackView::onAlbumHeaderContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
-  FXbool old = album_by_year;
-  FXbool old_merge  = GMPlayerManager::instance()->getPreferences().gui_merge_albums;
-  FXint  old_size   = GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
-
-  FXDataTarget target_yearsort(album_by_year);
-  FXDataTarget target_merge(GMPlayerManager::instance()->getPreferences().gui_merge_albums);
-
-  if (source && !event->moved) {
-    GMMenuPane pane(this);
-    GMMenuPane viewpane(this);
-
-    /*
-      FIXME Dirty Hack. We need to get this info from the source really.
-    */
-    if (dynamic_cast<GMDatabaseSource*>(source)!=NULL) {
-      new GMMenuCheck(&pane,fxtr("Show Album Year"),albumlist,GMAlbumList::ID_YEAR);
-      new GMMenuCheck(&pane,fxtr("Sort by Album Year"),&target_yearsort,FXDataTarget::ID_VALUE);
-      new GMMenuCheck(&pane,fxtr("Merge Albums"),&target_merge,FXDataTarget::ID_VALUE);
-      new FXMenuSeparator(&pane);
-      }
-
-    new GMMenuCascade(&pane,fxtr("View"),NULL,&viewpane);
-    new GMMenuRadio(&viewpane,fxtr("List View"),this,ID_ALBUMS_VIEW_LIST);
-    new GMMenuRadio(&viewpane,fxtr("Cover View"),this,ID_ALBUMS_VIEW_BROWSER);
-    if (albumlist->getListStyle()&ALBUMLIST_BROWSER) {
-      new FXMenuSeparator(&viewpane),
-      new GMMenuRadio(&viewpane,fxtr("Small Cover"), this,ID_COVERSIZE_SMALL),
-      new GMMenuRadio(&viewpane,fxtr("Medium Cover"), this,ID_COVERSIZE_MEDIUM),
-      new GMMenuRadio(&viewpane,fxtr("Big Cover"),this,ID_COVERSIZE_BIG),
-      new FXMenuSeparator(&viewpane),
-      new GMMenuRadio(&viewpane,fxtr("Arrange By Rows"),albumlist,GMAlbumList::ID_ARRANGE_BY_ROWS);
-      new GMMenuRadio(&viewpane,fxtr("Arrange By Columns"),albumlist,GMAlbumList::ID_ARRANGE_BY_COLUMNS);
-      }
-
-    pane.create();
-    pane.forceRefresh();
-    ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-    ewmh_change_window_type(&viewpane,WINDOWTYPE_POPUP_MENU);
-    pane.popup(NULL,event->root_x+3,event->root_y+3);
-    getApp()->runPopup(&pane);
-
-    if (old_merge!=GMPlayerManager::instance()->getPreferences().gui_merge_albums){
-      refresh();
-      }
-    else if (old!=album_by_year){
-      sortAlbums();
-      sortTracks();
-      }
-    return 1;
-    }
-  return 0;
-  }
-
-
-
 
 
 long GMTrackView::onTrackContextMenu(FXObject*,FXSelector,void*ptr){

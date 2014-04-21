@@ -129,7 +129,6 @@ public:
   long onTagContextMenu(FXObject*,FXSelector,void*);
   long onArtistContextMenu(FXObject*,FXSelector,void*);
   long onAlbumContextMenu(FXObject*,FXSelector,void*);
-  long onAlbumHeaderContextMenu(FXObject*,FXSelector,void*);
   long onTrackContextMenu(FXObject*,FXSelector,void*);
   long onTrackHeaderContextMenu(FXObject*,FXSelector,void*);
 
