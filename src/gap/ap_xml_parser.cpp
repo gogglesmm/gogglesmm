@@ -100,15 +100,16 @@ FXbool XmlParser::parse(const FXString & buffer) {
   }
 
 
+
 FXbool XmlParser::parseBuffer(const FXchar * buffer,FXint length) {
 #ifdef HAVE_EXPAT_PLUGIN
-  XML_Parser parser = XML_ParserCreate(NULL);
+  XML_Parser parser = XML_ParserCreate("UTF-8");
   XML_SetUserData((XML_Parser)parser,this);
   XML_SetElementHandler((XML_Parser)parser,ap::element_start,ap::element_end);
   XML_SetCharacterDataHandler((XML_Parser)parser,ap::element_data);
   XML_Status code = XML_Parse((XML_Parser)parser,buffer,length,1);
   if (code==XML_STATUS_ERROR) {
-    //xml_print_error();
+    XML_ParserFree(parser);
     return false;
     }
   XML_ParserFree(parser);
@@ -118,7 +119,8 @@ FXbool XmlParser::parseBuffer(const FXchar * buffer,FXint length) {
   sax.startElement = &ap::element_start;
   sax.endElement = &ap::element_end;
   sax.characters = &ap::element_data;
-  xmlSAXUserParseMemory(&sax,this,buffer,length);
+  if (xmlSAXUserParseMemory(&sax,this,buffer,length)!=0)
+    return false;
 #endif
   return true;
   }
