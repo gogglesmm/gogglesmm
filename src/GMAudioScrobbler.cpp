@@ -290,10 +290,10 @@ FXbool GMAudioScrobbler::post_request(const FXString & url,const FXString & mess
   FXTRACE((60,"post_request %s - %s\n",url.text(),message.text()));
   HttpClient client;
   if (client.basic("POST",url,
-                      "Content-Type: application/x-www-form-urlencoded\r\n"
-                      "Connection: close\r\n",
-                       message)) {
-    output = client.body();
+                   "Content-Type: application/x-www-form-urlencoded\r\n"
+                   "Connection: close\r\n",
+                   message)) {
+    output = client.textBody();
     return true;
     }
   else {
@@ -307,7 +307,7 @@ FXbool GMAudioScrobbler::get_request(const FXString & url,FXString & output) {
   FXTRACE((60,"get_request\n"));
   HttpClient client;
   if (client.basic("GET",url,"Connection: close\r\n")) {
-    output = client.body();
+    output = client.textBody();
     return true;
     }
   else {
