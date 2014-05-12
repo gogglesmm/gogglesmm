@@ -531,6 +531,7 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
                                       (FXString::digit2Value[(const FXuchar)d4])
 
 FXbool gm_parse_datetime(const FXString & str,FXTime & timestamp) {
+  if (str.empty()) return false;
 
   // Fields
   enum {
