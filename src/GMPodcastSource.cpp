@@ -63,6 +63,17 @@ FXString gm_rfc1123(FXTime time) {
   }
 
 
+static FXbool gm_is_feed(const FXString & mime) {
+  if ( comparecase(mime,"application/rss+xml")==0 || 
+       comparecase(mime,"text/xml")==0 ||
+       comparecase(mime,"application/xml")==0 ) {
+    return true;
+    }
+  else {
+    return false;
+    }
+  }
+
 //-----------------------------------------------------------------------------
 
 
@@ -71,8 +82,7 @@ struct FeedLink {
   FXString url;
   };
 
-#ifndef HAVE_EXPAT
-
+#if 0
 class HtmlFeedParser : public HtmlParser{
 public:
   enum {
@@ -137,8 +147,8 @@ public:
   ~HtmlFeedParser() {
     }
   };
-
 #endif
+
 //-----------------------------------------------------------------------------
 
 
@@ -146,14 +156,12 @@ public:
 
 
 
-
-
-void unescape_html(FXString & value) {
+static void unescape_html(FXString & value) {
   value.substitute("&#38;","&");
   }
 
 
-void parse_duration(const FXString & value,FXuint & d) {
+static void parse_duration(const FXString & value,FXuint & d) {
   FXint n = value.contains(":");
   FXint hh=0,mm=0,ss=0;
   switch(n) {
@@ -162,13 +170,7 @@ void parse_duration(const FXString & value,FXuint & d) {
     case 0: value.scan("%d",&ss); break;
     default: GM_DEBUG_PRINT("[rss] failed to parse duration %s\n",value.text()); d=0; return; break;
     };
-  //fxmessage("%d %d %d\n",hh,mm,ss);
   d=(hh*3600)+(mm*60)+ss;
-#ifdef DEBUG
-  if (d==0)
-    fxmessage("[rss] ignoring 0 duration: \"%s\"\n",value.text());
-#endif
-
   }
 
 
@@ -200,6 +202,14 @@ struct RssItem {
     time=0;
     date=0;
     }
+
+  FXString guid() const {
+    if (!id.empty())
+      return id;
+    else
+      return url;
+    }
+
   };
 
 struct RssFeed {
@@ -222,6 +232,7 @@ public:
       }
     }
 
+#ifdef DEBUG
   void debug() {
     fxmessage("      title: %s\n",title.text());
     fxmessage("description: %s\n",description.text());
@@ -238,6 +249,8 @@ public:
       fxmessage("        date: %s\n",FXSystem::universalTime(items[i].date).text());
       }
     }
+#endif
+
   };
 
 
@@ -314,7 +327,6 @@ protected:
       }
     }
   void end(const FXchar*) {
-    //fxmessage("e %d: %s\n",node(),element);
     switch(node()){
       case Elem_Item:
         feed.items.append(item);
@@ -418,7 +430,6 @@ public:
     }
 
   void insert_feed() {
-    //printf("%s\n",feed.text());
     FXint feed=0;
 
     get_feed.set(0,url);
@@ -428,7 +439,6 @@ public:
     rss.feed.trim();
 
     FXString feed_dir = make_podcast_feed_directory(rss.feed.title);
-
 
     db->begin();
     FXint tag=0;
@@ -467,8 +477,6 @@ public:
     db->commit();
     }
 
-
-
   long onThreadLeave(FXObject*,FXSelector,void*) {
     FXint code=0;
     if (thread->join(code) && code==0) {
@@ -478,8 +486,6 @@ public:
     else {
       GM_DEBUG_PRINT("No feed found code %d\n",code);
       }
-
-
     delete this;
     return 1;
     }
@@ -509,8 +515,6 @@ public:
     }
 
 
-
-#ifdef HAVE_EXPAT
   FXbool findFeedLink(const FXString & html,FXArray<FeedLink> & links) {
     FXRex link("<link[^>]*>",FXRex::IgnoreCase|FXRex::Normal);
     FXRex attr("\\s+(\\l\\w*)(?:\\s*=\\s*(?:([\'\"])(.*?)\\2|([^\\s\"\'>]+)))?",FXRex::Capture);
@@ -522,7 +526,6 @@ public:
       FeedLink feed;
       FXString mimetype;
       FXString mlink = html.mid(b[0],e[0]-b[0]);
-
 
       FXint ff=0;
       while(attr.match(mlink,b,e,FXRex::Forward,5,ff)){
@@ -549,7 +552,6 @@ public:
       }
     return (links.no()>0);
     }
-#endif
 
 
   FXint run() {
@@ -565,28 +567,14 @@ public:
       if (!client.getContentType(media))
         break;
 
-      if (comparecase(media.mime,"application/rss+xml")==0 || 
-          comparecase(media.mime,"text/xml")==0 ||
-          comparecase(media.mime,"application/xml")==0) {
-        rss.parse(client.body());
-        return 0;
+      GM_DEBUG_PRINT("[rss] media.mime %s\n",media.mime.text());
+      if (gm_is_feed(media.mime)) {
+        if (rss.parse(client.body(),media.parameters["charset"]))
+          return 0;
+        else
+          return 1;
         }
       else if (comparecase(media.mime,"text/html")==0) {
-#ifndef HAVE_EXPAT
-        HtmlFeedParser html;
-        html.parse(client.body());
-        client.close();
-        if (html.links.no()) {
-          FXint index = select_feed(html.links);
-          if (index==-1) return 1;
-          FXString uri = html.links[index].url;
-          if (uri[0]=='/') {
-            uri = FXURL::scheme(url) + "://" +FXURL::host(url) + uri;
-            }
-          url=uri;
-          continue;
-          }
-#else
         FXArray<FeedLink> links;
         if (findFeedLink(client.body(),links)) {
           FXint index = select_feed(links);
@@ -598,7 +586,6 @@ public:
           url=uri;
           continue;
           }
-#endif
         }
       break;
       }
@@ -834,27 +821,6 @@ FXDEFMAP(GMPodcastDownloader) GMPodcastDownloaderMap[]={
 FXIMPLEMENT(GMPodcastDownloader,GMDownloader,GMPodcastDownloaderMap,ARRAYNUMBER(GMPodcastDownloaderMap));
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class GMPodcastUpdater : public GMTask {
 protected:
   GMTrackDatabase * db;
@@ -924,107 +890,128 @@ FXbool gm_download_cover(const FXString & url,FXString path) {
 
 
 FXint GMPodcastUpdater::run() {
-  GMQuery all_feeds(db,"SELECT id,url,local,date FROM feeds;");
-  GMQuery all_items(db,"SELECT id,guid FROM feed_items WHERE feed = ?;");
-  GMQuery del_items(db,"DELETE FROM feed_items WHERE id == ? AND NOT (flags&2);");
-  GMQuery get_item(db,"SELECT id FROM feed_items WHERE feed == ? AND guid == ?;");
-  GMQuery set_feed(db,"UPDATE feeds SET date = ? WHERE id = ?;");
-  GMQuery fix_time(db,"UPDATE feed_items SET time = ? WHERE feed = ? AND guid = ?;");
-  GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, ?)");
+  try {
+
+    GMQuery all_feeds(db,"SELECT id,url,local,date FROM feeds;");
+    GMQuery all_items(db,"SELECT id,guid FROM feed_items WHERE feed = ?;");
+    GMQuery del_items(db,"DELETE FROM feed_items WHERE id == ? AND NOT (flags&2);");
+    GMQuery get_item(db,"SELECT id FROM feed_items WHERE feed == ? AND guid == ?;");
+    GMQuery set_feed(db,"UPDATE feeds SET date = ? WHERE id = ?;");
+    GMQuery fix_time(db,"UPDATE feed_items SET time = ? WHERE feed = ? AND guid = ?;");
+    GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, ?)");
 
 
-  taskmanager->setStatus("Syncing Podcasts...");
-  db->beginTask();
+    taskmanager->setStatus("Syncing Podcasts...");
+    db->beginTask();
 
-  FXTime date;
-  FXString url;
-  FXString guid;
-  FXString feed_dir;
-  FXint id,item_id;
-  FXuint flags=0;
+    FXTime date;
+    FXString url;
+    FXString guid;
+    FXString feed_dir;
+    FXint id,item_id;
+    FXuint flags=0;
 
-  if (autodownload)
-    flags|=ITEM_QUEUE;
+    if (autodownload)
+      flags|=ITEM_QUEUE;
 
-  while(all_feeds.row() && processing) {
-    all_feeds.get(0,id);
-    all_feeds.get(1,url);
-    all_feeds.get(2,feed_dir);
-    all_feeds.get(3,date);
+    while(all_feeds.row() && processing) {
+      all_feeds.get(0,id);
+      all_feeds.get(1,url);
+      all_feeds.get(2,feed_dir);
+      all_feeds.get(3,date);
 
-    HttpClient http;
+      HttpClient    http;
+      HttpMediaType media;
 
-    if (!http.basic("GET",url))
-      continue;
+      if (!http.basic("GET",url))
+        continue;
 
-    FXString feed = http.body();
-    RssParser rss;
-
-    rss.parse(feed);
-    rss.feed.trim();
-
-    gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
-
-    GM_DEBUG_PRINT("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
-    if (!rss.feed.image.empty()) {
-      gm_download_cover(rss.feed.image,GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir);
-      }
-
-    FXDictionary guids;
-    for (int i=0;i<rss.feed.items.no();i++)
-        guids.insert(rss.feed.items[i].id.text(),(void*)(FXival)1);
-
-    all_items.set(0,id);
-    while(all_items.row()){
-      all_items.get(0,item_id);
-      all_items.get(1,guid);
-      if (guids.has(guid)==false){
-        del_items.set(0,item_id);
-        del_items.execute();
+      if (!http.getContentType(media)) {
+        continue;
         }
-      }
-    all_items.reset();
 
-    for (int i=0;i<rss.feed.items.no();i++){
-      item_id=0;
-      get_item.set(0,id);
-      get_item.set(1,rss.feed.items[i].id);
-      get_item.execute(item_id);
-      if (item_id==0) {
-        //fxmessage("adding %s with date %ld\n",rss.feed.items[i].id.text(),rss.feed.items[i].date);
-        add_feed_item.set(0,id);
-        add_feed_item.set(1,rss.feed.items[i].id);
-        add_feed_item.set(2,rss.feed.items[i].url);
-        add_feed_item.set(3,rss.feed.items[i].title);
-        add_feed_item.set(4,rss.feed.items[i].description);
-        add_feed_item.set(5,rss.feed.items[i].length);
-        add_feed_item.set(6,rss.feed.items[i].time);
-        add_feed_item.set(7,rss.feed.items[i].date);
-        add_feed_item.set(8,flags);
-        add_feed_item.execute();
+      if (!gm_is_feed(media.mime)) {
+        GM_DEBUG_PRINT("[rss] \"%s\" not a feed: %s\n",url.text(),media.mime.text());
+        continue;
         }
-      else {
-        if (rss.feed.items[i].time) {
-          fix_time.set(0,rss.feed.items[i].time);
-          fix_time.set(1,id);
-          fix_time.set(2,rss.feed.items[i].id);
-          fix_time.execute();
+
+      FXString feed = http.body();
+      RssParser rss;
+
+      if (rss.parse(feed,media.parameters["charset"])) {
+
+        rss.feed.trim();
+
+        gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
+
+        GM_DEBUG_PRINT("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
+        if (!rss.feed.image.empty()) {
+          GM_DEBUG_PRINT("[rss] cover %s\n",rss.feed.image.text());
+          gm_download_cover(rss.feed.image,GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir);
+          }
+
+        FXDictionary guids;
+        for (int i=0;i<rss.feed.items.no();i++){
+          guids.insert(rss.feed.items[i].guid().text(),(void*)(FXival)1);
+          }
+
+        all_items.set(0,id);
+        while(all_items.row()){
+          all_items.get(0,item_id);
+          all_items.get(1,guid);
+          if (guid.empty() || guids.has(guid)==false){
+            del_items.set(0,item_id);
+            del_items.execute();
+            }
+          }
+        all_items.reset();
+
+        for (int i=0;i<rss.feed.items.no();i++){
+          item_id=0;
+          get_item.set(0,id);
+          get_item.set(1,rss.feed.items[i].guid());
+          get_item.execute(item_id);
+          if (item_id==0) {
+            add_feed_item.set(0,id);
+            add_feed_item.set(1,rss.feed.items[i].guid());
+            add_feed_item.set(2,rss.feed.items[i].url);
+            add_feed_item.set(3,rss.feed.items[i].title);
+            add_feed_item.set(4,rss.feed.items[i].description);
+            add_feed_item.set(5,rss.feed.items[i].length);
+            add_feed_item.set(6,rss.feed.items[i].time);
+            add_feed_item.set(7,rss.feed.items[i].date);
+            add_feed_item.set(8,flags);
+            add_feed_item.execute();
+            }
+          else {
+            if (rss.feed.items[i].time) {
+              fix_time.set(0,rss.feed.items[i].time);
+              fix_time.set(1,id);
+              fix_time.set(2,rss.feed.items[i].guid());
+              fix_time.execute();
+              }
+            }
+          }
+        GM_DEBUG_PRINT("[rss] Update date to %s\n",FXSystem::universalTime(rss.feed.date).text());
+        set_feed.set(0,rss.feed.date);
+        set_feed.set(1,id);
+        if (rss.feed.date>date) {
+          GM_DEBUG_PRINT("[rss] feed needs updating %s - %s\n",FXSystem::universalTime(rss.feed.date).text(),FXSystem::localTime(rss.feed.date).text());
+          }
+        else {
+          GM_DEBUG_PRINT("[rss] feed is up to date\n");
           }
         }
+      else {
+        GM_DEBUG_PRINT("[rss] failed to parse feed\n");
+        }
       }
-
-    GM_DEBUG_PRINT("[rss] Update date to %s\n",FXSystem::universalTime(rss.feed.date).text());
-    set_feed.set(0,rss.feed.date);
-    set_feed.set(1,id);
-    if (rss.feed.date>date) {
-      GM_DEBUG_PRINT("[rss] feed needs updating %s - %s\n",FXSystem::universalTime(rss.feed.date).text(),FXSystem::localTime(rss.feed.date).text());
-      }
-    else {
-      GM_DEBUG_PRINT("[rss] feed is up to date\n");
-      }
+    db->commitTask();
     }
-
-  db->commitTask();
+  catch(GMDatabaseException&) {
+    db->rollbackTask();
+    return 1;
+    }
   return 0;
   }
 
