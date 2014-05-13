@@ -8,6 +8,11 @@ To do / wishlist..
  * filename template should perhaps support: alphabet index?
  * fix the playqueue (don't make it crash)
 
+
+0.13.2
+  - Improved memory consumption for cover cache.
+  
+
 0.13.1
   - Add sample accurate seeking to most formats (flac,vorbis,opus,mp4).
   - Add menu option to schedule stop after track finishes.
