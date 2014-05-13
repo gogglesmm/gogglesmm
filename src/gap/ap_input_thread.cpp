@@ -66,7 +66,7 @@ FXbool InputThread::init() {
   if (!EngineThread::init())
     return false;
 
-  if (!packetpool.init(8192,40))
+  if (!packetpool.init(8192,20))
     return false;
 
   return true;
