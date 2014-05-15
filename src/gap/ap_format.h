@@ -52,6 +52,38 @@ namespace Codec {
   extern const FXchar * name(FXuchar codec);
   }
 
+
+namespace Channel {
+  enum {
+    None       =  0,
+    Mono       =  1,
+    FrontLeft  =  2,
+    FrontRight =  3,
+    Center     =  4,
+    BackLeft   =  5,
+    BackRight  =  6,
+    SideLeft   =  7,
+    SideRight  =  8,
+    LFE        =  9,
+    Reserved   = 15, // Max 4 bits
+
+
+    // Shifts for channel
+    One   =  0,
+    Two   =  4,
+    Three =  8,
+    Four  = 12,
+    Five  = 16,
+    Six   = 20,
+    Seven = 24,
+    Eight = 28  
+    };
+  }
+
+
+
+
+
 namespace Format {
 
 enum {
@@ -151,6 +183,32 @@ enum {
   AP_FORMAT_S32         = ( Format::Signed   | Format::Native | Format::Bits_32 | Format::Pack_4 ),
   AP_FORMAT_S32_LE      = ( Format::Signed   | Format::Little | Format::Bits_32 | Format::Pack_4 ),
   AP_FORMAT_S32_BE      = ( Format::Signed   | Format::Big    | Format::Bits_32 | Format::Pack_4 ),
+
+
+  AP_CHANNELMAP_MONO    = ( Channel::Mono ),
+
+  // Stereo
+  AP_CHANNELMAP_STEREO  = ( Channel::FrontLeft  << Channel::One | 
+                            Channel::FrontRight << Channel::Two ),
+
+  // ac3 ordering
+  AP_CHANNELMAP_AC3_51  = ( Channel::FrontLeft  << Channel::One   | 
+                            Channel::FrontRight << Channel::Two   | 
+                            Channel::Center     << Channel::Three | 
+                            Channel::BackLeft   << Channel::Four  | 
+                            Channel::BackRight  << Channel::Five  | 
+                            Channel::LFE        << Channel::Six),
+
+  // smpte/itu-r
+  AP_CHANNELMAP_51      = ( Channel::FrontLeft  << Channel::One   | 
+                            Channel::FrontRight << Channel::Two   | 
+                            Channel::Center     << Channel::Three | 
+                            Channel::LFE        << Channel::Four  |
+                            Channel::BackLeft   << Channel::Five  | 
+                            Channel::BackRight  << Channel::Six ), 
+
+
+
   };
 
 
@@ -163,6 +221,7 @@ public:
   FXuint   rate;
   FXushort format;
   FXuchar  channels;
+  FXuint   channelmap;  // up to 8 channels
 public:
   AudioFormat();
   AudioFormat(const AudioFormat &);
@@ -174,6 +233,8 @@ public:
   FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
 
   FXbool set() const { return (rate!=0) && (format!=0) && (channels!=0); }
+
+  FXuchar channeltype(FXuint c) const { return (FXuchar)((channelmap>>(c<<2))&0xF); }
 
   FXuchar byteorder() const {
     return (format>>Format::Order_Shift)&Format::Order_Mask;
@@ -194,7 +255,6 @@ public:
   FXint framesize() const {
     return (FXint)channels * (FXint)packing();
     }
-
 
   /* Swap byte order. Return true if succesfull */
   FXbool swap();

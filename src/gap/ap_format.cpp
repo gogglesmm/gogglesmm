@@ -21,6 +21,10 @@
 
 namespace ap {
 
+static const FXchar * const channelnames[]={
+  "NA","MONO","FL","FR","CENTER","BL","BR","SL","SR","LFE"
+  };
+
 static const FXchar * const codecs[]={
   "Invalid",
   "PCM",
@@ -55,32 +59,45 @@ const FXchar * Codec::name(FXuchar c){
 
 
 
-AudioFormat::AudioFormat() : rate(0),format(0),channels(0) {
+AudioFormat::AudioFormat() : rate(0),format(0),channels(0),channelmap(0) {
   }
 
 
 AudioFormat::AudioFormat(const AudioFormat & af) {
-  format  =af.format;
-  rate    =af.rate;
-  channels=af.channels;
+  format    =af.format;
+  rate      =af.rate;
+  channels  =af.channels;
+  channelmap=af.channelmap;
   }
 
 void AudioFormat::reset() {
   format=0;
   rate=0;
   channels=0;
+  channelmap=0;
   }
 
 void AudioFormat::set(FXushort dt,FXushort bits,FXushort pack,FXuint r,FXuchar nc) {
   format=dt|((bits-1)<<Format::Bits_Shift)|((pack-1)<<Format::Pack_Shift);
   rate=r;
   channels=nc;
+  switch(channels) {
+    case  0: channelmap = 0; break;
+    case  1: channelmap = AP_CHANNELMAP_MONO;   break;
+    case  2: channelmap = AP_CHANNELMAP_STEREO; break;
+    default: FXASSERT(0); break;
+    };
   }
 
 void AudioFormat::set(FXushort fmt,FXuint r,FXuchar nc) {
   format=fmt;
   rate=r;
   channels=nc;
+  switch(channels) {
+    case  1: channelmap = AP_CHANNELMAP_MONO;   break;
+    case  2: channelmap = AP_CHANNELMAP_STEREO; break;
+    default: FXASSERT(0); break;
+    };
   }
 
 
@@ -121,14 +138,25 @@ FXString AudioFormat::debug_format() const {
   }
 
 void AudioFormat::debug() const {
-  fxmessage("format: %6dHz, %dch, %s%2d%s%d\n",rate,channels,formats[datatype()],bps(),byteorders[byteorder()],packing());
+  fxmessage("format: %6dHz, %dch, %s%2d%s%d",rate,channels,formats[datatype()],bps(),byteorders[byteorder()],packing());
+  if (channels) {
+    fxmessage(", (%s",channelnames[channeltype(0)]);
+    for (FXuint i=1;i<channels;i++) {
+      fxmessage(",%s",channelnames[channeltype(i)]);
+      }
+    fxmessage(")\n");
+    }
+  else {
+    fxmessage("\n");
+    }
   }
 
 
 FXbool operator!=(const AudioFormat& af1,const AudioFormat& af2){
   if ( (af1.format!=af2.format) ||
        (af1.rate!=af2.rate) ||
-       (af1.channels!=af2.channels) )
+       (af1.channels!=af2.channels) ||
+       (af1.channelmap!=af2.channelmap) )
     return true;
   else
     return false;
@@ -137,7 +165,8 @@ FXbool operator!=(const AudioFormat& af1,const AudioFormat& af2){
 FXbool operator==(const AudioFormat& af1,const AudioFormat& af2){
   if ( (af1.format!=af2.format) ||
        (af1.rate!=af2.rate) ||
-       (af1.channels!=af2.channels) )
+       (af1.channels!=af2.channels) ||
+       (af1.channelmap!=af2.channelmap) )
     return false;
   else
     return true;
