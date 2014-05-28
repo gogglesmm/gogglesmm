@@ -401,6 +401,57 @@ ap_parse_opus_header(const FXuchar * buffer, FXint len,opus_header & header) {
 
 
 
+#if defined(HAVE_OPUS_PLUGIN) || defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+
+// http://www.xiph.org/vorbis/doc/Vorbis_I_spec.html
+static const FXuint vorbis_channel_map[]={
+  AP_CHANNELMAP_MONO,
+
+  AP_CHANNELMAP_STEREO,
+
+  AP_CMAP3(Channel::FrontLeft,
+           Channel::FrontCenter,           
+           Channel::FrontRight),
+
+  AP_CMAP4(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP5(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,           
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP6(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight,
+           Channel::LFE),
+
+  AP_CMAP7(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackCenter, 
+           Channel::LFE),
+
+  AP_CMAP8(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackLeft,
+           Channel::BackRight,  
+           Channel::LFE)
+  };
+
+#endif
+
+
 #ifdef HAVE_OPUS_PLUGIN
 
 extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
@@ -442,6 +493,7 @@ ReadStatus OggReader::parse_opus_stream() {
 #endif
 
 #if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+
 ReadStatus OggReader::parse_vorbis_stream() {
   if (op.packet[0]==1) {
 
@@ -451,11 +503,15 @@ ReadStatus OggReader::parse_vorbis_stream() {
     if (vorbis_synthesis_headerin(&vi,&vc,&op)<0)
       goto error;
 
+    // Make sure channel count is supported
+    if (vi.channels<1 || vi.channels>8)
+      goto error;  
+
     codec=Codec::Vorbis;
 #ifdef HAVE_VORBIS_PLUGIN
-    af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels);
+    af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels,vorbis_channel_map[vi.channels]);
 #else // HAVE_TREMOR_PLUGIN
-    af.set(AP_FORMAT_S16,vi.rate,vi.channels);
+    af.set(AP_FORMAT_S16,vi.rate,vi.channels,vorbis_channel_map[vi.channels]);
 #endif
 
     flags|=FLAG_VORBIS_HEADER_INFO;
