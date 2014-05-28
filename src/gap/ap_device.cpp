@@ -28,7 +28,7 @@ DeviceConfig:: DeviceConfig() {
 DeviceConfig::~DeviceConfig(){
   }
 
-static const FXchar * plugin_names[DeviceLast]={
+static const FXchar * const plugin_names[DeviceLast]={
   "none",
   "alsa",
   "oss",
