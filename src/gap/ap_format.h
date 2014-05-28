@@ -54,21 +54,21 @@ namespace Codec {
 
 
 namespace Channel {
+  const FXuint None        =  0u;
+  const FXuint Mono        =  1u;
+  const FXuint FrontLeft   =  2u;
+  const FXuint FrontRight  =  3u;
+  const FXuint FrontCenter =  4u;
+  const FXuint BackLeft    =  5u;
+  const FXuint BackRight   =  6u;
+  const FXuint BackCenter  =  7u;
+  const FXuint SideLeft    =  8u;
+  const FXuint SideRight   =  9u;
+  const FXuint LFE         = 10u;
+  const FXuint Reserved    = 15u; // Max 4 bits
+
+  // Shifts for channel
   enum {
-    None       =  0,
-    Mono       =  1,
-    FrontLeft  =  2,
-    FrontRight =  3,
-    Center     =  4,
-    BackLeft   =  5,
-    BackRight  =  6,
-    SideLeft   =  7,
-    SideRight  =  8,
-    LFE        =  9,
-    Reserved   = 15, // Max 4 bits
-
-
-    // Shifts for channel
     One   =  0,
     Two   =  4,
     Three =  8,
@@ -76,9 +76,20 @@ namespace Channel {
     Five  = 16,
     Six   = 20,
     Seven = 24,
-    Eight = 28  
+    Eight = 28,
     };
   }
+
+
+
+#define AP_CMAP1(c1)                      (c1)
+#define AP_CMAP2(c1,c2)                   (c1|(c2<<4))
+#define AP_CMAP3(c1,c2,c3)                (c1|(c2<<4)|(c3<<8))
+#define AP_CMAP4(c1,c2,c3,c4)             (c1|(c2<<4)|(c3<<8)|(c4<<12))  
+#define AP_CMAP5(c1,c2,c3,c4,c5)          (c1|(c2<<4)|(c3<<8)|(c4<<12)|(c5<<16)) 
+#define AP_CMAP6(c1,c2,c3,c4,c5,c6)       (c1|(c2<<4)|(c3<<8)|(c4<<12)|(c5<<16)|(c6<<20)) 
+#define AP_CMAP7(c1,c2,c3,c4,c5,c6,c7)    (c1|(c2<<4)|(c3<<8)|(c4<<12)|(c5<<16)|(c6<<20)|(c7<<24))
+#define AP_CMAP8(c1,c2,c3,c4,c5,c6,c7,c8) (c1|(c2<<4)|(c3<<8)|(c4<<12)|(c5<<16)|(c6<<20)|(c7<<24)|(c8<<28))
 
 
 
@@ -186,29 +197,7 @@ enum {
 
 
   AP_CHANNELMAP_MONO    = ( Channel::Mono ),
-
-  // Stereo
-  AP_CHANNELMAP_STEREO  = ( Channel::FrontLeft  << Channel::One | 
-                            Channel::FrontRight << Channel::Two ),
-
-  // ac3 ordering
-  AP_CHANNELMAP_AC3_51  = ( Channel::FrontLeft  << Channel::One   | 
-                            Channel::FrontRight << Channel::Two   | 
-                            Channel::Center     << Channel::Three | 
-                            Channel::BackLeft   << Channel::Four  | 
-                            Channel::BackRight  << Channel::Five  | 
-                            Channel::LFE        << Channel::Six),
-
-  // smpte/itu-r
-  AP_CHANNELMAP_51      = ( Channel::FrontLeft  << Channel::One   | 
-                            Channel::FrontRight << Channel::Two   | 
-                            Channel::Center     << Channel::Three | 
-                            Channel::LFE        << Channel::Four  |
-                            Channel::BackLeft   << Channel::Five  | 
-                            Channel::BackRight  << Channel::Six ), 
-
-
-
+  AP_CHANNELMAP_STEREO  = AP_CMAP2(Channel::FrontLeft,Channel::FrontRight)
   };
 
 
@@ -226,9 +215,9 @@ public:
   AudioFormat();
   AudioFormat(const AudioFormat &);
 
-  void set(FXushort datatype,FXushort bps,FXushort pack,FXuint rate,FXuchar channels);
+  void set(FXushort datatype,FXushort bps,FXushort pack,FXuint rate,FXuchar channels,FXuint map=0);
 
-  void set(FXushort format,FXuint rate,FXuchar channels);
+  void set(FXushort format,FXuint rate,FXuchar channels,FXuint map=0);
 
   FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
 

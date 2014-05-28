@@ -77,27 +77,32 @@ void AudioFormat::reset() {
   channelmap=0;
   }
 
-void AudioFormat::set(FXushort dt,FXushort bits,FXushort pack,FXuint r,FXuchar nc) {
+void AudioFormat::set(FXushort dt,FXushort bits,FXushort pack,FXuint r,FXuchar nc,FXuint map) {
   format=dt|((bits-1)<<Format::Bits_Shift)|((pack-1)<<Format::Pack_Shift);
   rate=r;
   channels=nc;
-  switch(channels) {
-    case  0: channelmap = 0; break;
-    case  1: channelmap = AP_CHANNELMAP_MONO;   break;
-    case  2: channelmap = AP_CHANNELMAP_STEREO; break;
-    default: FXASSERT(0); break;
-    };
+  channelmap=map;
+  if (channelmap==0) {
+    switch(channels) {
+      case  1: channelmap = AP_CHANNELMAP_MONO;   break;
+      case  2: channelmap = AP_CHANNELMAP_STEREO; break;
+      default: FXASSERT(0); break;
+      };
+    }
   }
 
-void AudioFormat::set(FXushort fmt,FXuint r,FXuchar nc) {
+void AudioFormat::set(FXushort fmt,FXuint r,FXuchar nc,FXuint map) {
   format=fmt;
   rate=r;
   channels=nc;
-  switch(channels) {
-    case  1: channelmap = AP_CHANNELMAP_MONO;   break;
-    case  2: channelmap = AP_CHANNELMAP_STEREO; break;
-    default: FXASSERT(0); break;
-    };
+  channelmap=map;
+  if (channelmap==0) {
+    switch(channels) {
+      case  1: channelmap = AP_CHANNELMAP_MONO;   break;
+      case  2: channelmap = AP_CHANNELMAP_STEREO; break;
+      default: FXASSERT(0); break;
+      };
+    }
   }
 
 
