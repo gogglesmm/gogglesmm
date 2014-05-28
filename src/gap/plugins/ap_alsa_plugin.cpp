@@ -440,6 +440,35 @@ protected:
     return true;
     }
 
+#if 0
+static void print_channels(const snd_pcm_chmap_t *map)
+{
+	char tmp[128];
+	if (snd_pcm_chmap_print(map, sizeof(tmp), tmp) > 0)
+		printf("  %s\n", tmp);
+}
+
+static int query_chmaps(snd_pcm_t *pcm)
+{
+	snd_pcm_chmap_query_t **maps = snd_pcm_query_chmaps(pcm);
+	snd_pcm_chmap_query_t **p, *v;
+
+	if (!maps) {
+		printf("Cannot query maps %d\n",snd_pcm_state(pcm)==SND_PCM_STATE_PREPARED);
+		return 1;
+	}
+	for (p = maps; (v = *p) != NULL; p++) {
+		printf("Type = %s, Channels = %d\n",
+		       snd_pcm_chmap_type_name(v->type),
+		       v->map.channels);
+		print_channels(&v->map);
+	}
+	snd_pcm_free_chmaps(maps);
+	return 0;
+}
+
+#endif
+
   FXbool setupHardware() {
     int result;
 /*
@@ -463,9 +492,48 @@ protected:
       GM_DEBUG_PRINT("[alsa] failed to retrieve hardware paramaters. Reason: %s\n",snd_strerror(result));
       return false;
       }
-
     return getHardware();
     }
+
+
+
+  FXbool setupChannelMap(const AudioFormat & format) {
+    if (format.channels) {
+      snd_pcm_chmap_t * map = NULL;
+
+      if (!fxmalloc((void**)map,sizeof(snd_pcm_chmap_t) + format.channels*sizeof(unsigned int)))
+        return false;
+      
+      map->channels = format.channels;
+
+      for (FXint i=0;i<format.channels;i++) {
+        switch(format.channeltype(i)) {
+          case Channel::None        : map->pos[i] = SND_CHMAP_NA;    break;     
+          case Channel::Mono        : map->pos[i] = SND_CHMAP_MONO;  break;
+          case Channel::FrontLeft   : map->pos[i] = SND_CHMAP_FL;    break;
+          case Channel::FrontRight  : map->pos[i] = SND_CHMAP_FR;    break;
+          case Channel::FrontCenter : map->pos[i] = SND_CHMAP_FC;    break;
+          case Channel::BackLeft    : map->pos[i] = SND_CHMAP_RL;    break;
+          case Channel::BackRight   : map->pos[i] = SND_CHMAP_RR;    break;
+          case Channel::BackCenter  : map->pos[i] = SND_CHMAP_RC;    break;
+          case Channel::SideLeft    : map->pos[i] = SND_CHMAP_SL;    break;
+          case Channel::SideRight   : map->pos[i] = SND_CHMAP_SR;    break;
+          case Channel::LFE         : map->pos[i] = SND_CHMAP_LFE;   break;
+          default: return false;
+          }
+        }      
+      if (snd_pcm_set_chmap(pcm,map)==0) {
+        fxfree((void**)map);
+        return true;
+        }
+      else {
+        fxfree((void**)map);
+        return false;
+        }
+      }
+    return false;
+    }
+
 
   FXbool getHardware() {
     int dir=0;
@@ -538,6 +606,9 @@ public:
     /// Configure Device
     if (!alsa.setupHardware())
       return false;
+
+    /// Configure the channel map
+    alsa.setupChannelMap(in);
 
     /// Set the software parameters
     if (!alsa.setupSoftware())
