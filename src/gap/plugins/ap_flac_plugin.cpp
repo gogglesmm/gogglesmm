@@ -379,14 +379,65 @@ FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDeco
 
 
 
+static const FXuint flac_channel_map[]={
+  AP_CHANNELMAP_MONO,
+
+  AP_CHANNELMAP_STEREO,
+
+  AP_CMAP3(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::FrontCenter),
+
+  AP_CMAP4(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP5(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::FrontCenter,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP6(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::FrontCenter,
+           Channel::LFE,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP7(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::FrontCenter,
+           Channel::LFE,
+           Channel::BackCenter, 
+           Channel::SideLeft,
+           Channel::SideRight),
+
+  AP_CMAP8(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::FrontCenter,
+           Channel::LFE,
+           Channel::BackLeft,
+           Channel::BackRight,  
+           Channel::SideLeft,
+           Channel::SideRight),
+  };
+
+
 void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
   FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
   switch(metadata->type) {
-    case FLAC__METADATA_TYPE_STREAMINFO :
+    case FLAC__METADATA_TYPE_STREAMINFO:
+
+      if (metadata->data.stream_info.channels<1 || metadata->data.stream_info.channels>8)
+        break;
+
       plugin->af.set(Format::Signed|Format::Little,metadata->data.stream_info.bits_per_sample,
                                                    metadata->data.stream_info.bits_per_sample>> 3,
                                                    metadata->data.stream_info.sample_rate,
-                                                   metadata->data.stream_info.channels);
+                                                   metadata->data.stream_info.channels,
+                                                   flac_channel_map[metadata->data.stream_info.channels]);
 
       plugin->stream_length=metadata->data.stream_info.total_samples;
       break;
