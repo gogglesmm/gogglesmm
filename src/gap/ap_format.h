@@ -66,18 +66,6 @@ namespace Channel {
   const FXuint SideRight   =  9u;
   const FXuint LFE         = 10u;
   const FXuint Reserved    = 15u; // Max 4 bits
-
-  // Shifts for channel
-  enum {
-    One   =  0,
-    Two   =  4,
-    Three =  8,
-    Four  = 12,
-    Five  = 16,
-    Six   = 20,
-    Seven = 24,
-    Eight = 28,
-    };
   }
 
 
