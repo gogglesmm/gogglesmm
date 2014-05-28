@@ -501,7 +501,7 @@ static int query_chmaps(snd_pcm_t *pcm)
     if (format.channels) {
       snd_pcm_chmap_t * map = NULL;
 
-      if (!fxmalloc((void**)map,sizeof(snd_pcm_chmap_t) + format.channels*sizeof(unsigned int)))
+      if (!fxmalloc((void**)&map,sizeof(snd_pcm_chmap_t) + format.channels*sizeof(unsigned int)))
         return false;
       
       map->channels = format.channels;
@@ -523,11 +523,11 @@ static int query_chmaps(snd_pcm_t *pcm)
           }
         }      
       if (snd_pcm_set_chmap(pcm,map)==0) {
-        fxfree((void**)map);
+        fxfree((void**)&map);
         return true;
         }
       else {
-        fxfree((void**)map);
+        fxfree((void**)&map);
         return false;
         }
       }
