@@ -437,7 +437,7 @@ void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const F
                                                    metadata->data.stream_info.bits_per_sample>> 3,
                                                    metadata->data.stream_info.sample_rate,
                                                    metadata->data.stream_info.channels,
-                                                   flac_channel_map[metadata->data.stream_info.channels]);
+                                                   flac_channel_map[metadata->data.stream_info.channels-1]);
 
       plugin->stream_length=metadata->data.stream_info.total_samples;
       break;

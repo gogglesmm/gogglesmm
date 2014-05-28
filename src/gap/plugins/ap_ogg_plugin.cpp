@@ -509,9 +509,9 @@ ReadStatus OggReader::parse_vorbis_stream() {
 
     codec=Codec::Vorbis;
 #ifdef HAVE_VORBIS_PLUGIN
-    af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels,vorbis_channel_map[vi.channels]);
+    af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels,vorbis_channel_map[vi.channels-1]);
 #else // HAVE_TREMOR_PLUGIN
-    af.set(AP_FORMAT_S16,vi.rate,vi.channels,vorbis_channel_map[vi.channels]);
+    af.set(AP_FORMAT_S16,vi.rate,vi.channels,vorbis_channel_map[vi.channels-1]);
 #endif
 
     flags|=FLAG_VORBIS_HEADER_INFO;
