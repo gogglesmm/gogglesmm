@@ -22,7 +22,7 @@
 namespace ap {
 
 static const FXchar * const channelnames[]={
-  "NA","MONO","FL","FR","CENTER","BL","BR","SL","SR","LFE"
+  "NA","MONO","FL","FR","FC","BL","BR","BC","SL","SR","LFE"
   };
 
 static const FXchar * const codecs[]={
