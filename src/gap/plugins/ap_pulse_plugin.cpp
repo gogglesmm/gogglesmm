@@ -506,6 +506,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
     }
 
   pa_sample_spec spec;
+  pa_channel_map cmap;
 
   if (!to_pulse_format(fmt,spec.format))
     goto failed;
@@ -513,7 +514,29 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   spec.rate     = fmt.rate;
   spec.channels = fmt.channels;
 
-  stream = pa_stream_new(context,"Goggles Music Manager",&spec,NULL);
+
+  // setup channel map  
+  pa_channel_map_init(&cmap);
+  cmap.channels = fmt.channels;
+  for (FXint i=0;i<fmt.channels;i++) {
+    switch(fmt.channeltype(i)) {
+      case Channel::None        : cmap.map[i] = PA_CHANNEL_POSITION_INVALID;      break;     
+      case Channel::Mono        : cmap.map[i] = PA_CHANNEL_POSITION_MONO;         break;
+      case Channel::FrontLeft   : cmap.map[i] = PA_CHANNEL_POSITION_FRONT_LEFT;   break;
+      case Channel::FrontRight  : cmap.map[i] = PA_CHANNEL_POSITION_FRONT_RIGHT;  break;
+      case Channel::FrontCenter : cmap.map[i] = PA_CHANNEL_POSITION_FRONT_CENTER; break;
+      case Channel::BackLeft    : cmap.map[i] = PA_CHANNEL_POSITION_REAR_LEFT;    break;
+      case Channel::BackRight   : cmap.map[i] = PA_CHANNEL_POSITION_REAR_RIGHT;   break;
+      case Channel::BackCenter  : cmap.map[i] = PA_CHANNEL_POSITION_REAR_CENTER;  break;
+      case Channel::SideLeft    : cmap.map[i] = PA_CHANNEL_POSITION_SIDE_LEFT;    break;
+      case Channel::SideRight   : cmap.map[i] = PA_CHANNEL_POSITION_SIDE_RIGHT;   break;
+      case Channel::LFE         : cmap.map[i] = PA_CHANNEL_POSITION_LFE;          break;
+      default: goto failed;
+      }
+    }
+
+  stream = pa_stream_new(context,"Goggles Music Manager",&spec,&cmap);
+
 #ifdef DEBUG
   pa_stream_set_state_callback(stream,stream_state_callback,this);
 #endif
@@ -537,6 +560,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
     goto failed;
   af.channels=config->channels;
   af.rate=config->rate;
+  af.channelmap=fmt.channelmap;
 
   /// Get Current Volume
   operation = pa_context_get_sink_input_info(context,pa_stream_get_index(stream),sink_info_callback,this);
