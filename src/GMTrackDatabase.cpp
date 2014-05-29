@@ -1486,7 +1486,7 @@ FXbool GMTrackDatabase::listArtists(FXComboBox * list){
     }
   catch(GMDatabaseException & e){
     list->clearItems();
-    return FALSE;
+    return false;
     }
   return true;
   }
@@ -1597,7 +1597,7 @@ FXbool GMTrackDatabase::updateAlbum(FXint & result,const GMTrack & track,FXint a
     }
   catch (GMDatabaseException & e){
     result=-1;
-    return FALSE;
+    return false;
     }
   return true;
   }

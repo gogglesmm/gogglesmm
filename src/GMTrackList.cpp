@@ -224,14 +224,14 @@ FXbool GMTrackList::canFocus() const { return true; }
 // Into focus chain
 void GMTrackList::setFocus(){
   FXScrollArea::setFocus();
-  setDefault(TRUE);
+  setDefault(true);
   }
 
 
 // Out of focus chain
 void GMTrackList::killFocus(){
   FXScrollArea::killFocus();
-  setDefault(MAYBE);
+  setDefault(maybe);
   }
 
 

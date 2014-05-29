@@ -821,7 +821,7 @@ long GMPreferencesDialog::onCmdReplayGain(FXObject*,FXSelector,void*){
 
 
 long GMPreferencesDialog::onCmdAccept(FXObject*,FXSelector,void*) {
-  getApp()->stopModal(this,TRUE);
+  getApp()->stopModal(this,true);
   hide();
 
   FXlong update_interval = 0;

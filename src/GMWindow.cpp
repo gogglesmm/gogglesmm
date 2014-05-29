@@ -566,9 +566,9 @@ FXbool GMWindow::question(const FXString & title,const FXString & labeltext,cons
   new GMButton(closebox,accept,NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
   new GMButton(closebox,cancel,NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
   if (dialog.execute()) {
-    return TRUE;
+    return true;
     }
-  return FALSE;
+  return false;
   }
 
 

@@ -442,14 +442,14 @@ FXbool GMAlbumList::canFocus() const { return true; }
 // Into focus chain
 void GMAlbumList::setFocus(){
   FXScrollArea::setFocus();
-  setDefault(TRUE);
+  setDefault(true);
   }
 
 
 // Out of focus chain
 void GMAlbumList::killFocus(){
   FXScrollArea::killFocus();
-  setDefault(MAYBE);
+  setDefault(maybe);
   }
 
 

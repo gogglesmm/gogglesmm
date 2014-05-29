@@ -306,7 +306,7 @@ public:
   ///=======================================================================================
 
   /// List Tags
-  FXbool listTags(FXComboBox * list,FXbool insert_default=TRUE);
+  FXbool listTags(FXComboBox * list,FXbool insert_default=true);
 
   /// List Artists
   FXbool listArtists(FXComboBox * list);
