@@ -185,6 +185,14 @@ FXbool OggReader::seek(FXlong target){
     ogg_sync_reset(&sync);
     ogg_stream_reset(&stream);
 
+
+    /*
+      When seeking within an Ogg Opus stream, the decoder should start decoding (and discarding the output) at least 3840 samples (80 ms) 
+      prior to the seek point in order to ensure that the output audio is correct at the seek point.
+    */
+    if (codec==Codec::Opus)
+      target = FXMAX(0,target-3840);
+
     FXlong offset  = input->size() * (target/stream_length);
     FXlong lastpos = -1;
 
