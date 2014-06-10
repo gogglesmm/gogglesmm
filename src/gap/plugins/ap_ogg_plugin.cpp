@@ -373,42 +373,6 @@ extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * c
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
 
-struct opus_header {
-  FXuchar  channels;
-  FXushort preskip;
-  FXuchar  cmf;
-  };
-#if 0
-ap_parse_opus_header(const FXuchar * buffer, FXint len,opus_header & header) {
-
-  FXuchar version = buffer[8];
-  if (version!=1) return false;
-
-  header.channels = buffer[9];
-  if (header.channels==0) return false;
-
-  header.preskip = (buffer[10] | buffer[11]<<8);
-
-  header.channel_mapping_family = buffer[18];
-
-  if (he
-
-
-
-
-
-
-
-
-
-
-  }
-
-#endif
-
-
-
-
 #if defined(HAVE_OPUS_PLUGIN) || defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
 
 // http://www.xiph.org/vorbis/doc/Vorbis_I_spec.html
@@ -482,7 +446,6 @@ ReadStatus OggReader::parse_opus_stream() {
       // Send Meta Info
       engine->decoder->post(meta);
 
-
       flags|=FLAG_PARSED;
 
       check_opus_length();
@@ -505,7 +468,7 @@ ReadStatus OggReader::parse_opus_stream() {
       // vorbis mapping family
       case  1:  if (op.packet[9]<1 || op.packet[9]>8)
                   return ReadError;
-                af.set(AP_FORMAT_FLOAT,48000,op.packet[9],vorbis_channel_map[op.packet[9]]);
+                af.set(AP_FORMAT_FLOAT,48000,op.packet[9],vorbis_channel_map[op.packet[9]-1]);
                 break;
 
       // Undefined, most players shouldn't play this
