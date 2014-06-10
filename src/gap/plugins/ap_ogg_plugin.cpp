@@ -485,8 +485,24 @@ ReadStatus OggReader::parse_opus_stream() {
   else {
     flags|=FLAG_OGG_OPUS;
     stream_offset_start = (op.packet[10] | op.packet[11]<<8);
-    GM_DEBUG_PRINT("offset start %hu\n",stream_offset_start);
-    af.set(AP_FORMAT_FLOAT,48000,op.packet[9]);
+    GM_DEBUG_PRINT("[ogg] offset start %hu\n",stream_offset_start);
+
+    // channel mapping family
+    switch(op.packet[18]) {
+
+      // RTP mapping
+      case  0:  af.set(AP_FORMAT_FLOAT,48000,op.packet[9]);
+                break;
+
+      // vorbis mapping family
+      case  1:  if (op.packet[9]<1 || op.packet[9]>8)
+                  return ReadError;
+                af.set(AP_FORMAT_FLOAT,48000,op.packet[9],vorbis_channel_map[op.packet[9]]);
+                break;
+
+      // Undefined, most players shouldn't play this
+      default:  return ReadError;
+      }
     }
   return ReadOk;
   }
