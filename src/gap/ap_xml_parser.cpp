@@ -77,7 +77,7 @@ static void element_data(void*ptr,const FXchar * data,FXint len) {
 
 static int unknown_encoding(void*,const XML_Char * name,XML_Encoding * info){
   GM_DEBUG_PRINT("expat unknown_encoding \"%s\"\n",name);
-  FXTextCodec * codec = ap_get_textcodec(name);
+  const FXTextCodec * codec = ap_get_textcodec(name);
   if (codec) {
     /* Only works for single byte codecs */
     FXwchar w;FXuchar c;
@@ -88,7 +88,6 @@ static int unknown_encoding(void*,const XML_Char * name,XML_Encoding * info){
       info->convert = NULL;
       info->release = NULL;
       }
-    delete codec;
     return XML_STATUS_OK;
     }
   return XML_STATUS_ERROR;

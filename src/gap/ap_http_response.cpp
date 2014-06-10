@@ -564,11 +564,8 @@ FXString HttpResponse::textBody() {
   HttpMediaType media;
 
   if (getContentType(media) && media.parameters.has("charset")) {
-    FXAutoPtr<FXTextCodec> codec;
-
-    codec = ap_get_textcodec(media.parameters["charset"]);
-    if (codec) 
-      return codec->mb2utf(body());
+    const FXTextCodec * codec = ap_get_textcodec(media.parameters["charset"]);
+    if (codec) return codec->mb2utf(body());
 
     discard();
     }

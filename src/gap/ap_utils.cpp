@@ -125,86 +125,115 @@ FXbool ap_set_closeonexec(FXInputHandle fd) {
   }
 
 
-extern GMAPI FXTextCodec * ap_get_textcodec(const FXString & name) {
+//----------------------------------------------------
+static const FXUTF8Codec   codec_utf8;
+static const FXUTF16Codec  codec_utf16;
+static const FXUTF32Codec  codec_utf32;
+static const FX88591Codec  codec_88591;
+static const FX88592Codec  codec_88592;
+static const FX88593Codec  codec_88593;
+static const FX88594Codec  codec_88594;
+static const FX88595Codec  codec_88595;
+static const FX88596Codec  codec_88596;
+static const FX88597Codec  codec_88597;
+static const FX88598Codec  codec_88598;
+static const FX88599Codec  codec_88599;
+static const FX885910Codec codec_885910;
+static const FX885911Codec codec_885911;
+static const FX885913Codec codec_885913;
+static const FX885914Codec codec_885914;
+static const FX885915Codec codec_885915;
+static const FX885916Codec codec_885916;
+static const FXCP437Codec  codec_437;
+static const FXCP850Codec  codec_859;
+static const FXCP852Codec  codec_852;
+static const FXCP855Codec  codec_855;
+static const FXCP856Codec  codec_856;
+static const FXCP857Codec  codec_857;
+static const FXCP860Codec  codec_860;
+static const FXCP861Codec  codec_861;
+static const FXCP862Codec  codec_862;
+static const FXCP863Codec  codec_863;
+static const FXCP864Codec  codec_864;
+static const FXCP865Codec  codec_865;
+static const FXCP866Codec  codec_866;
+static const FXCP869Codec  codec_869;
+static const FXCP874Codec  codec_874;
+static const FXCP1250Codec codec_1250;
+static const FXCP1251Codec codec_1251;
+static const FXCP1252Codec codec_1252;
+static const FXCP1253Codec codec_1253;
+static const FXCP1254Codec codec_1254;
+static const FXCP1255Codec codec_1255;
+static const FXCP1256Codec codec_1256;
+static const FXCP1257Codec codec_1257;
+static const FXCP1258Codec codec_1258;
+static const FXKOI8RCodec  codec_koi8r;
 
-  FXObjectListOf<FXTextCodec> codecs;
+const FXTextCodec * const codec_list[]={
+  &codec_utf8,
+  &codec_utf16,
+  &codec_utf32,
+  &codec_88591,
+  &codec_88592,
+  &codec_88593,
+  &codec_88594,
+  &codec_88595,
+  &codec_88596,
+  &codec_88597,
+  &codec_88598,
+  &codec_88599,
+  &codec_885910,
+  &codec_885911,
+  &codec_885913,
+  &codec_885914,
+  &codec_885915,
+  &codec_885916,
+  &codec_437,
+  &codec_859,
+  &codec_852,
+  &codec_855,
+  &codec_856,
+  &codec_857,
+  &codec_860,
+  &codec_861,
+  &codec_862,
+  &codec_863,
+  &codec_864,
+  &codec_865,
+  &codec_866,
+  &codec_869,
+  &codec_874,
+  &codec_1250,
+  &codec_1251,
+  &codec_1252,
+  &codec_1253,
+  &codec_1254,
+  &codec_1255,
+  &codec_1256,
+  &codec_1257,
+  &codec_1258,
+  &codec_koi8r,
+  NULL
+  };
 
-  codecs.append(new FXUTF8Codec);
-  codecs.append(new FXUTF16Codec);
-  codecs.append(new FXUTF32Codec);
-  codecs.append(new FX88591Codec);
-  codecs.append(new FX88592Codec);
-  codecs.append(new FX88593Codec);
-  codecs.append(new FX88594Codec);
-  codecs.append(new FX88595Codec);
-  codecs.append(new FX88596Codec);
-  codecs.append(new FX88597Codec);
-  codecs.append(new FX88598Codec);
-  codecs.append(new FX88599Codec);
-  codecs.append(new FX885910Codec);
-  codecs.append(new FX885911Codec);
-  codecs.append(new FX885913Codec);
-  codecs.append(new FX885914Codec);
-  codecs.append(new FX885915Codec);
-  codecs.append(new FX885916Codec);
-  codecs.append(new FXCP437Codec);
-  codecs.append(new FXCP850Codec);
-  codecs.append(new FXCP852Codec);
-  codecs.append(new FXCP855Codec);
-  codecs.append(new FXCP856Codec);
-  codecs.append(new FXCP857Codec);
-  codecs.append(new FXCP860Codec);
-  codecs.append(new FXCP861Codec);
-  codecs.append(new FXCP862Codec);
-  codecs.append(new FXCP863Codec);
-  codecs.append(new FXCP864Codec);
-  codecs.append(new FXCP865Codec);
-  codecs.append(new FXCP866Codec);
-  codecs.append(new FXCP869Codec);
-  codecs.append(new FXCP874Codec);
-  codecs.append(new FXCP1250Codec);
-  codecs.append(new FXCP1251Codec);
-  codecs.append(new FXCP1252Codec);
-  codecs.append(new FXCP1253Codec);
-  codecs.append(new FXCP1254Codec);
-  codecs.append(new FXCP1255Codec);
-  codecs.append(new FXCP1256Codec);
-  codecs.append(new FXCP1257Codec);
-  codecs.append(new FXCP1258Codec);
-  codecs.append(new FXKOI8RCodec);
- 
-  FXTextCodec * found = NULL;
 
+extern GMAPI const FXTextCodec * ap_get_textcodec(const FXString & encoding) {
   // Check if any of the codecs match
-  for (FXint i=0;i<codecs.no();i++) {
-    if (comparecase(codecs[i]->name(),name)==0) {
-      found = codecs[i];
-      codecs.erase(i);
-      goto done;
+  for (FXint i=0;codec_list[i];i++) {
+    if (comparecase(codec_list[i]->name(),encoding)==0) {
+      return codec_list[i];
       }
-    const FXchar * const * alias = codecs[i]->aliases();
+    const FXchar * const * alias = codec_list[i]->aliases();
     for (FXint j=0;alias[j]!=NULL;j++) { 
-      if (comparecase(alias[j],name)==0) {
-        found = codecs[i];
-        codecs.erase(i);
-        goto done;
+      if (comparecase(alias[j],encoding)==0) {
+        return codec_list[i];
         }
       }
     }
-done:
-  for (FXint i=0;i<codecs.no();i++) {
-    delete codecs[i];
-    }
-#ifdef DEBUG
-  if (found) {
-    GM_DEBUG_PRINT("Using codec %s for %s\n",found->name(),name.text()); 
-    }
-  else {
-    GM_DEBUG_PRINT("No codec found for %s\n",name.text()); 
-    }
-#endif
-  return found;  
+  return NULL;
   }
+
 
 // PRIVATE API
 //----------------------------------------------------
