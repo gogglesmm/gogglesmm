@@ -577,9 +577,8 @@ FXbool MP4Reader::atom_parse_asc(const FXuchar * data,FXuint length) {
     objtype = 32 + bit.read(6);
   
   FXuint index = bit.read(4);
-  FXuint rate;
   if (index == 15)
-    rate = bit.read(24);
+    bit.read(24);
 
   FXuint channelconfig = bit.read(4);
   if (channelconfig>0 && channelconfig<8) {
