@@ -87,7 +87,8 @@ void Reactor::dispatch() {
     if (t->time>0 && t->time<=now) {
       t->time=0;
       t->onExpired();
-      t = timers; // so onExpired can remove itself from the list...
+      if (timers==NULL) break;
+      t = timers; // so onExpired can remove itself from the list...      
       }
     }
 #endif
