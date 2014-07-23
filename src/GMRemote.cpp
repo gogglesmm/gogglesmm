@@ -285,7 +285,7 @@ void GMRemote::create(){
   gm_set_application_icon(this);
   }
 
-bool GMRemote::doesOverrideRedirect() const { return FALSE; }
+bool GMRemote::doesOverrideRedirect() const { return false; }
 
 
 long GMRemote::onCmdVolume(FXObject*,FXSelector,void*ptr){
