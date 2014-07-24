@@ -8,6 +8,12 @@ To do / wishlist..
  * filename template should perhaps support: alphabet index?
  * fix the playqueue (don't make it crash)
 
+0.13.2
+  - Fix overflow/truncation of timer calculation on 32 bit systems.
+  - Fix potential null pointer dereference.
+  - Fix incorrect syncs in mp3.
+  - FOX-1.7.48 compatibility fixes.
+
 0.13.1
   - Add sample accurate seeking to most formats (flac,vorbis,opus,mp4).
   - Add menu option to schedule stop after track finishes.

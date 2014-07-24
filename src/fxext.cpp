@@ -1070,7 +1070,7 @@ long GMCheckButton::onPaint(FXObject*,FXSelector,void* ptr){
   dc.fillRectangle(ev->rect.x,ev->rect.y,ev->rect.w,ev->rect.h);
 
   // Check background
-  if(check==MAYBE || !isEnabled())
+  if(check==maybe || !isEnabled())
     dc.setForeground(baseColor);
   else
     dc.setForeground(boxColor);
@@ -1087,14 +1087,14 @@ long GMCheckButton::onPaint(FXObject*,FXSelector,void* ptr){
     }
 
   // Check color
-  if(check==MAYBE || !isEnabled())
+  if(check==maybe || !isEnabled())
     dc.setForeground(shadowColor);
   else
     dc.setForeground(checkColor);
 
   // Show as +
   if(options&CHECKBUTTON_PLUS){
-    if(check!=TRUE){
+    if(check!=true){
       dc.fillRectangle(ix+6,iy+4,1,5);
       }
     dc.fillRectangle(ix+4,iy+6,5,1);
@@ -1102,7 +1102,7 @@ long GMCheckButton::onPaint(FXObject*,FXSelector,void* ptr){
 
   // Show as v
   else{
-    if(check!=FALSE){
+    if(check!=false){
       FXSegment seg[6];
 #ifndef WIN32
       seg[0].x1=3+ix; seg[0].y1=5+iy; seg[0].x2=5+ix; seg[0].y2=7+iy;

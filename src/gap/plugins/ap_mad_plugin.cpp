@@ -210,7 +210,7 @@ public:
     if ((!sync()) ||
         (version()==Invalid) ||
         (layer()==Invalid) ||
-        (bitrate()<0) ||
+        (bitrate()<=0) || // fixme free bitrate support
         (samplerate()==-1)
         ) {
       return false;
@@ -1168,11 +1168,12 @@ ReadStatus MadReader::process(Packet*packet) {
     if (frame.validate(buffer)) {
       lostsync=false;
       if (frame.size()>packet->space()) goto done;
+      FXASSERT(frame.size()>0);
 
       memcpy(packet->ptr(),buffer,4);
       nread = input->read(packet->ptr()+4,frame.size()-4);
       if (nread!=(frame.size()-4)) {
-        GM_DEBUG_PRINT("[mad_reader] truncated frame\n");
+        GM_DEBUG_PRINT("[mad_reader] truncated frame (read %d expected %d)\n",nread,frame.size()-4);
 #ifdef DEBUG
         frame.debug();
 #endif
