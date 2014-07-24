@@ -133,7 +133,7 @@ public:
     }
 
   static pa_time_event * create(pa_mainloop_api*,const struct timeval *tv, pa_time_event_cb_t cb, void *userdata) {
-    FXTime time = (tv->tv_sec*1000000000) + (tv->tv_usec*1000); 
+    FXTime time = (((FXTime)tv->tv_sec)*1000000000) + (((FXTime)tv->tv_usec)*1000); 
     pa_time_event * event;
     if (recycle) {
       event   = recycle;
@@ -159,7 +159,7 @@ public:
     }
 
   static void restart(pa_time_event* event, const struct timeval *tv){
-    FXTime time = (tv->tv_sec*1000000000) + (tv->tv_usec*1000); 
+    FXTime time = (((FXTime)tv->tv_sec)*1000000000) + (((FXTime)tv->tv_usec)*1000); 
     PulseOutput::instance->output->getReactor().removeTimer(event);
     PulseOutput::instance->output->getReactor().addTimer(event,time);
     }    
