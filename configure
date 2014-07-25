@@ -95,6 +95,9 @@ for arg in $@; do
     --prefix=*)
       PREFIX=${arg#*=}
       ;;
+    --lib32)
+      LIB=lib32
+      ;;
     --lib64)
       LIB=lib64
       ;;
