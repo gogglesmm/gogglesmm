@@ -29,7 +29,8 @@
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2015  /* Fix empty tags and add foreign reference to feeds table*/
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2016  /* add autodownload to feed table*/
+#define GOGGLESMM_DATABASE_SCHEMA_V13     2015  /* Fix empty tags and add foreign reference to feeds table*/
 #define GOGGLESMM_DATABASE_SCHEMA_DEV4    2014  /* Foreign Keys Fix*/
 #define GOGGLESMM_DATABASE_SCHEMA_DEV3    2013  /* Foreign Keys */
 #define GOGGLESMM_DATABASE_SCHEMA_DEV2    2012  /* Feed Tables */
@@ -48,6 +49,7 @@ const FXchar create_feed[]=           "CREATE TABLE IF NOT EXISTS feeds ("
                                           "date INTEGER,"
                                           "http_etag TEXT,"
                                           "http_modified INTEGER,"
+                                          "autodownload INTEGER,"
                                           "PRIMARY KEY (id) );";
 
 const FXchar create_feed_items[] =    "CREATE TABLE IF NOT EXISTS feed_items ("
@@ -223,7 +225,17 @@ FXbool GMTrackDatabase::init_database() {
       case GOGGLESMM_DATABASE_SCHEMA_VERSION: 
         break;
 
+      case GOGGLESMM_DATABASE_SCHEMA_V13    :
+        // add autodownload column
+        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
+        execute("UPDATE feeds SET autodownload = 0");
+        break;
+
       case GOGGLESMM_DATABASE_SCHEMA_DEV4  :
+
+        // add autodownload column
+        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
+        execute("UPDATE feeds SET autodownload = 0");
 
         // foreign key fixes
         recreate_table("feeds",create_feed);
@@ -232,6 +244,10 @@ FXbool GMTrackDatabase::init_database() {
         break;
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
+        // add autodownload column
+        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
+        execute("UPDATE feeds SET autodownload = 0");
+
         recreate_table("playlist_tracks",create_playlist_tracks);
         recreate_table("feeds",create_feed);
         fix_empty_tags();
@@ -239,6 +255,9 @@ FXbool GMTrackDatabase::init_database() {
         break;
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
+        // add autodownload column
+        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
+        execute("UPDATE feeds SET autodownload = 0");
 
         // foreign key fixes
         recreate_table("tracks",create_tracks);

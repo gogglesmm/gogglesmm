@@ -99,10 +99,6 @@ public:
 
   FXlong getUpdateInterval() const;
 
-  void setAutoDownload(FXbool b);
-
-  FXbool getAutoDownload() const;
-
   void configure(GMColumnList&);
 
   FXbool hasCurrentTrack(GMSource * ) const;

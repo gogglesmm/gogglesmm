@@ -426,7 +426,7 @@ public:
     get_feed = db->compile("SELECT id FROM feeds WHERE url == ?;");
     get_tag  = db->compile("SELECT id FROM tags WHERE name == ?;");
     add_tag  = db->compile("INSERT INTO tags VALUES ( NULL, ? );");
-    add_feed = db->compile("INSERT INTO feeds VALUES ( NULL,?,?,?,?,?,?,NULL,NULL);");
+    add_feed = db->compile("INSERT INTO feeds VALUES ( NULL,?,?,?,?,?,?,NULL,NULL,0);");
     }
 
   void insert_feed() {
@@ -824,17 +824,16 @@ FXIMPLEMENT(GMPodcastDownloader,GMDownloader,GMPodcastDownloaderMap,ARRAYNUMBER(
 class GMPodcastUpdater : public GMTask {
 protected:
   GMTrackDatabase * db;
-  FXbool            autodownload;
 protected:
   virtual FXint run();
 public:
-  GMPodcastUpdater(FXbool dl,FXObject*tgt,FXSelector sel);
+  GMPodcastUpdater(FXObject*tgt,FXSelector sel);
   virtual ~GMPodcastUpdater();
   };
 
 
 
-GMPodcastUpdater::GMPodcastUpdater(FXbool dl,FXObject*tgt,FXSelector sel) : GMTask(tgt,sel), autodownload(dl) {
+GMPodcastUpdater::GMPodcastUpdater(FXObject*tgt,FXSelector sel) : GMTask(tgt,sel) {
   db = GMPlayerManager::instance()->getTrackDatabase();
   }
 
@@ -892,7 +891,7 @@ FXbool gm_download_cover(const FXString & url,FXString path) {
 FXint GMPodcastUpdater::run() {
   try {
 
-    GMQuery all_feeds(db,"SELECT id,url,local,date FROM feeds;");
+    GMQuery all_feeds(db,"SELECT id,url,local,date,autodownload FROM feeds;");
     GMQuery all_items(db,"SELECT id,guid FROM feed_items WHERE feed = ?;");
     GMQuery del_items(db,"DELETE FROM feed_items WHERE id == ? AND NOT (flags&2);");
     GMQuery get_item(db,"SELECT id FROM feed_items WHERE feed == ? AND guid == ?;");
@@ -908,17 +907,21 @@ FXint GMPodcastUpdater::run() {
     FXString url;
     FXString guid;
     FXString feed_dir;
-    FXint id,item_id;
+    FXint id,item_id,autodownload;
     FXuint flags=0;
 
-    if (autodownload)
-      flags|=ITEM_QUEUE;
 
     while(all_feeds.row() && processing) {
       all_feeds.get(0,id);
       all_feeds.get(1,url);
       all_feeds.get(2,feed_dir);
       all_feeds.get(3,date);
+      all_feeds.get(4,autodownload);
+    
+      if (autodownload)
+        flags|=ITEM_QUEUE;
+      else
+        flags=0;
 
       HttpClient    http;
       HttpMediaType media;
@@ -1210,17 +1213,6 @@ void GMPodcastSource::scheduleUpdate() {
   }
 
 
-FXbool GMPodcastSource::getAutoDownload() const {
-  return GMApp::instance()->reg().readBoolEntry(settingKey(),"auto-download",false);
-  }
- 
-void GMPodcastSource::setAutoDownload(FXbool value) {
-  GMApp::instance()->reg().writeBoolEntry(settingKey(),"auto-download",value);
-  } 
-
-
-
-
 
 FXString GMPodcastSource::getName() const {
   if (navailable)
@@ -1428,7 +1420,7 @@ long GMPodcastSource::onCmdRefreshFeed(FXObject*,FXSelector,void*){
   db->execute("SELECT COUNT(*) FROM feeds;",num_feeds);
   if (num_feeds) {
     GM_DEBUG_PRINT("Found %d feeds. Running Podcast Updater\n",num_feeds);
-    GMPlayerManager::instance()->runTask(new GMPodcastUpdater(getAutoDownload(),this,ID_FEED_UPDATER));
+    GMPlayerManager::instance()->runTask(new GMPodcastUpdater(this,ID_FEED_UPDATER));
     }
   return 1;
   }
