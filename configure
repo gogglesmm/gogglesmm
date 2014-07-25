@@ -233,6 +233,7 @@ for arg in $@; do
       echo "Install Directories: "
       echo "   --prefix=<p>                	   Install prefix (/usr)"
       echo "   --lib64                         Install in lib64 instead of lib"
+      echo "   --lib32                         Install in lib32 instead of lib"
       echo " "
       exit 0
       ;;
