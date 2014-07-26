@@ -6,8 +6,10 @@
 
 
 ALSA_VERSION="1.0"
-FOX_VERSION="1.7.46"
+FOX_VERSION="1.7.48"
 PULSE_VERSION="0.9.21"
+TAGLIB_VERSION="1.9.0"
+SQLITE_VERSION="3.6.19"
 
 # Settings
 #---------------------------
