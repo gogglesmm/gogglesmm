@@ -222,13 +222,14 @@ FXbool GMTrackDatabase::init_database() {
     switch(getVersion()) {
 
       // All's well.
-      case GOGGLESMM_DATABASE_SCHEMA_VERSION: 
+      case GOGGLESMM_DATABASE_SCHEMA_VERSION:
         break;
 
       case GOGGLESMM_DATABASE_SCHEMA_V13    :
         // add autodownload column
         execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
         execute("UPDATE feeds SET autodownload = 0");
+        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV4  :
@@ -241,6 +242,7 @@ FXbool GMTrackDatabase::init_database() {
         recreate_table("feeds",create_feed);
 
         fix_empty_tags();
+        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
