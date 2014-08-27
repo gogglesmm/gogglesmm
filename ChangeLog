@@ -8,6 +8,9 @@ To do / wishlist..
  * filename template should perhaps support: alphabet index?
  * fix the playqueue (don't make it crash)
 
+0.13.3
+  - Fix various bsd porting issues
+
 0.13.2
   - Fix overflow/truncation of timer calculation on 32 bit systems.
   - Fix potential null pointer dereference.
