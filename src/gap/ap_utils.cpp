@@ -80,7 +80,15 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#if defined(__linux__) 
+#define HAVE_PPOLL // On Linux we have ppoll
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <signal.h>
+#endif
 #include <poll.h>
+#include <errno.h>
 #endif
 
 
@@ -393,7 +401,6 @@ void Base64Encoder::encode(const FXuchar * in,FXint len) {
   }
 
 
-
 FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode){
 #ifndef WIN32
   FXint n,nfds=1;
@@ -406,17 +413,27 @@ FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode)
     nfds=2;
     }
   if (timeout) {
+#ifdef HAVE_PPOLL
     struct timespec ts;
-    ts.tv_sec  = (timeout / 1000000000);
-    ts.tv_nsec = (timeout % 1000000000);
+    ts.tv_sec  = timeout / 1000000000;
+    ts.tv_nsec = timeout % 1000000000;
+#endif
     do {
-      n=ppoll(fds,nfds,&ts,NULL);
+#ifdef HAVE_PPOLL
+      n = ppoll(fds,nfds,&ts,NULL);
+#else
+      n = poll(fds,nfds,(timeout/1000000));
+#endif
       }
     while(n==-1 && (errno==EAGAIN || errno==EINTR));
     }
   else {
     do {
-      n=ppoll(fds,nfds,NULL,NULL);
+#ifdef HAVE_PPOLL
+      n = ppoll(fds,nfds,NULL,NULL);
+#else
+      n = poll(fds,nfds,-1);
+#endif
       }
     while(n==-1 && (errno==EAGAIN || errno==EINTR));
     }

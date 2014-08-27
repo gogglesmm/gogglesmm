@@ -1697,7 +1697,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
     if (playlist)
       getPlaylistName(playlist,title);
 
-    query = "SELECT pathlist.name || '" PATHSEPSTRING "' || url,title,artists.name,albums.name,no,time,tracks.year "
+    query = "SELECT pathlist.name || '" PATHSEPSTRING "' || mrl,title,artists.name,albums.name,no,time,tracks.year "
             "FROM tracks,pathlist, albums, artists";
 
     if (playlist)

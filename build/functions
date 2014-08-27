@@ -127,7 +127,7 @@ add_required_package()
   if [ "$?" -eq "0" ] ; then
     exit -1
   fi
-  PACKAGES="$PACKAGES $1 "
+  GMM_PACKAGES="$GMM_PACKAGES $1 "
   add_config "$2"
   return 1
 }
@@ -138,7 +138,7 @@ add_package()
   if [ "$?" -eq "0" ] ; then
     return 0
   fi
-  PACKAGES="$PACKAGES $1 "
+  GMM_PACKAGES="$GMM_PACKAGES $1 "
   add_config "$2"
   return 1
 }
@@ -515,7 +515,7 @@ check_gogglesmm()
   # Set Icon Path
   add_config_string "DEFAULT_ICON_PATH" "${PREFIX}/share/icons"
 
-  pkgconfig_package_flags "$PACKAGES"
+  pkgconfig_package_flags "$GMM_PACKAGES"
   echo "GMM_CFLAGS=$PKG_CFLAGS"       >> config.make
   echo "GMM_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
 }
@@ -523,7 +523,7 @@ check_gogglesmm()
 
 check_all()
 {
-   pkgconfig_package_flags "$PACKAGES $GAP_PACKAGES"
+   pkgconfig_package_flags "$GMM_PACKAGES $GAP_PACKAGES"
    echo "ALL_LDFLAGS=-Wl,--export-dynamic $PKG_LDFLAGS"       >> config.make
    echo "ALL_LIBS=$PKG_LIBS $EXTRA_LIBS"                      >> config.make
 }
