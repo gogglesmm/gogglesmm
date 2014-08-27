@@ -9,7 +9,8 @@ To do / wishlist..
  * fix the playqueue (don't make it crash)
 
 0.13.3
-  - Fix various bsd porting issues
+  - Fix various bsd porting issues.
+  - Fix crash on playlist export.
 
 0.13.2
   - Fix overflow/truncation of timer calculation on 32 bit systems.
