@@ -20,6 +20,14 @@
 #include "ap_reactor.h"
 
 #ifndef WIN32
+
+#if defined(__linux__) 
+#define HAVE_PPOLL // On Linux we have ppoll
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <signal.h>
+#endif
 #include <poll.h>
 #include <errno.h>
 #endif
@@ -99,17 +107,27 @@ void Reactor::wait(FXTime timeout) {
 #ifndef WIN32
   FXint n;
   if (timeout>=0) {
+#ifdef HAVE_PPOLL
     struct timespec ts;
     ts.tv_sec  = timeout / 1000000000;
     ts.tv_nsec = timeout % 1000000000;
+#endif
     do {
+#ifdef HAVE_PPOLL
       n = ppoll(pfds,nfds,&ts,NULL);
+#else
+      n = poll(pfds,nfds,(timeout/1000000));
+#endif
       }
     while(n==-1 && errno==EINTR);
     }
   else {
     do {
+#ifdef HAVE_PPOLL
       n = ppoll(pfds,nfds,NULL,NULL);
+#else
+      n = poll(pfds,nfds,-1);
+#endif
       }
     while(n==-1 && errno==EINTR);
     }    
