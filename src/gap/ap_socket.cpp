@@ -18,6 +18,7 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_socket.h"
+#include "ap_utils.h"
 
 
 #ifndef WIN32
