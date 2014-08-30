@@ -949,8 +949,11 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
   else
     allocElms(silence,period_size*af.framesize());
 
+  // this should never fail.
   snd_pcm_format_t format;
-  to_alsa_format(af,format);
+  if (__unlikely(!to_alsa_format(af,format)))
+    return false;
+
 	snd_pcm_format_set_silence(format,silence,period_size*af.channels);
   return true;
   }
