@@ -941,6 +941,7 @@ FXbool MP4Reader::atom_parse(FXlong size) {
                  break; 
 
       case TRAK: ok=atom_parse_trak(atom_size); // intentionally no break
+                 if(!ok) return false;
       case MDIA:
       case MINF: 
       case STBL:
