@@ -165,7 +165,7 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
 
   // parse the field name
   if (opts&ParseFieldName)
-    s=p=str.find(':')+1;
+    p=str.find(':')+1;
 
   // white space
   while(str[p]==' '||str[p]=='\t') p++;
@@ -234,7 +234,7 @@ FXbool HttpContentRange::parse(const FXString & str,FXuint opts) {
 
   // parse the field name
   if (opts&ParseFieldName)
-    s=p=str.find(':')+1;
+    p=str.find(':')+1;
 
   // white space
   while(str[p]==' '||str[p]=='\t') p++;
