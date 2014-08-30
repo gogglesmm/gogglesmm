@@ -129,9 +129,9 @@ FXival HttpInput::read(void * data,FXival count) {
 
   // Regular Read
   if (icy_interval)
-    n=icy_read(data,count);
+    n=icy_read(p,count);
   else
-    n=client.readBody(data,count);
+    n=client.readBody(p,count);
 
   if (n>0) {
     content_position+=n;
