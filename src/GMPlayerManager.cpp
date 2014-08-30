@@ -1537,12 +1537,17 @@ void GMPlayerManager::show_message(const FXchar * title,const FXchar * msg){
     FXMessageBox::error(application->getActiveWindow(),MBOX_OK,title,"%s",msg);
     }
   else {
-    if (mainwindow && mainwindow->shown())
-      FXMessageBox::error(mainwindow,MBOX_OK,title,"%s",msg);
-    else if (mainwindow->getRemote())
-      FXMessageBox::error(mainwindow->getRemote(),MBOX_OK,title,"%s",msg);
-    else
+    if (mainwindow) {
+      if (mainwindow->shown())
+        FXMessageBox::error(mainwindow,MBOX_OK,title,"%s",msg);
+      else if (mainwindow->getRemote())
+        FXMessageBox::error(mainwindow->getRemote(),MBOX_OK,title,"%s",msg);
+      else
+        FXMessageBox::error(application,MBOX_OK,title,"%s",msg);
+      }
+    else {
       FXMessageBox::error(application,MBOX_OK,title,"%s",msg);
+      }
     }
   }
 
