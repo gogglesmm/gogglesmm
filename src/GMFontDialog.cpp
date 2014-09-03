@@ -341,7 +341,7 @@ long GMFontDialog::onCmdSize(FXObject*,FXSelector,void*ptr){
   return 1;
   }
 long GMFontDialog::onCmdSizeText(FXObject*,FXSelector,void*){
-  selected.size=(FXuint)(10.0*sizefield->getText().toFloat());
+  selected.size=(FXuint)(10.0f*sizefield->getText().toFloat());
   if(selected.size<60) selected.size=60;
   if(selected.size>2400) selected.size=2400;
   previewFont();
