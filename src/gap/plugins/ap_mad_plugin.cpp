@@ -154,13 +154,14 @@ static const FXint samplerates[]={
   11025,12000, 8000,-1  /// v2.5
   };
 
+#ifdef DEBUG
 static const FXchar * const channels[]={
   "Stereo",
   "Joint",
   "Dual",
   "Single"
   };
-
+#endif
 
 
 
@@ -913,7 +914,7 @@ FXbool MadReader::parse_id3v2() {
   FXuchar info[6];
 
   if (input->read(info,6)!=6)
-    return NULL;
+    return false;
 
   const FXuchar & id3v2_flags = info[1];
   FXint tagsize = ID3_SYNCSAFE_INT32(info+2);
@@ -929,7 +930,7 @@ FXbool MadReader::parse_id3v2() {
 
   if (input->read(tagbuffer+10,tagsize-10)!=tagsize-10){
     freeElms(tagbuffer);
-    return NULL;
+    return false;
     }
 
   memcpy(tagbuffer,buffer,4);
@@ -977,7 +978,7 @@ FXbool MadReader::parse_lyrics() {
       for (i=0;i<10;i++)
         buf[i]=buf[i+1];
 
-      if (!input->read(&buf[10],1)!=1)
+      if (input->read(&buf[10],1)!=1)
         return false;
 
       nb++;
