@@ -33,7 +33,6 @@ const char section_sync[]   = "sync";
 const char key_import_default_field[]="default-user-title";
 const char key_import_track_from_filelist[]="track-from-filelist";
 const char key_import_replace_underscores[]="replace-underscores";
-const char key_import_parse_filename_only[]="parse-filename-only";
 const char key_import_id3v1_encoding[]="id3v1-encoding";
 
 const char key_import_filename_template[]="filename-template";
