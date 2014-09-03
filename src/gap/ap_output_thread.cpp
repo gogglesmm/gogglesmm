@@ -132,9 +132,9 @@ public:
 
 
 class EOSTimer : public FrameTimer {
-  FXint stream;
+  //FXint stream;
 public:
-  EOSTimer(FXint s,FXint n) : FrameTimer(n),stream(s){}
+  EOSTimer(/*FXint s,*/FXint n) : FrameTimer(n)/*,stream(s)*/{}
   void execute(AudioEngine* engine) {
     engine->input->post(new Event(AP_EOS));
     }
@@ -885,7 +885,7 @@ FXint OutputThread::run(){
             if (wait<=rate)
               engine->input->post(new Event(AP_EOS));
             else
-              timers.append(new EOSTimer(event->stream,wait-rate));
+              timers.append(new EOSTimer(/*event->stream,*/wait-rate));
 
             draining=true;
             }
