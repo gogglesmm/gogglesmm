@@ -43,7 +43,7 @@ using namespace ap;
 
 
 
-class pa_io_event : public Reactor::Input {
+struct pa_io_event : public Reactor::Input {
 public:
   static pa_io_event*      recycle;
   pa_io_event_cb_t         callback;
@@ -116,7 +116,7 @@ public:
 
 
 
-class pa_time_event : public Reactor::Timer {
+struct pa_time_event : public Reactor::Timer {
 public:
   static pa_time_event*       recycle;
   pa_time_event_cb_t          callback;
@@ -176,7 +176,7 @@ public:
 
 
 
-class pa_defer_event : public Reactor::Deferred {  
+struct pa_defer_event : public Reactor::Deferred {  
 public:
   static pa_defer_event*      recycle;
   pa_defer_event_cb_t         callback;

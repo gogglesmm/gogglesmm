@@ -31,9 +31,9 @@ class PulseOutput : public OutputPlugin {
 protected:
   static PulseOutput* instance;
 protected:
-  friend class ::pa_io_event;
-  friend class ::pa_time_event;
-  friend class ::pa_defer_event;
+  friend struct ::pa_io_event;
+  friend struct ::pa_time_event;
+  friend struct ::pa_defer_event;
 protected:
   pa_mainloop_api  api;
   pa_context     * context;
