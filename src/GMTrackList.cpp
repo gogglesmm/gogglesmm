@@ -319,8 +319,8 @@ long GMTrackList::onChgHeader(FXObject*,FXSelector,void*){
 // we want to set the width of the header column
 // to that of the widest item.
 long GMTrackList::onClkHeader(FXObject*,FXSelector,void* ptr){
-  register FXint hi=(FXint)(FXival)ptr;
-  register FXint i,tw,w,nw=0,type;
+  FXint hi=(FXint)(FXival)ptr;
+  FXint i,tw,w,nw=0,type;
   FXuint justify;
   FXint max;
   const FXString * textptr;
@@ -506,8 +506,8 @@ FXbool GMTrackList::isItemCurrent(FXint index) const {
 
 // True if item (partially) visible
 FXbool GMTrackList::isItemVisible(FXint index) const {
-  register FXbool vis=false;
-  register FXint y,hh;
+  FXbool vis=false;
+  FXint y,hh;
   if(index<0 || items.no()<=index){ fxerror("%s::isItemVisible: index out of range.\n",getClassName()); }
   hh=header->getDefaultHeight();
   y=pos_y+hh+index*lineHeight;
@@ -551,7 +551,7 @@ void GMTrackList::makeItemVisible(FXint index){
 
 // Get item at position x,y
 FXint GMTrackList::getItemAt(FXint x,FXint y) const {
-  register FXint index;
+  FXint index;
   y-=pos_y;
   x-=pos_x;
   y-=header->getDefaultHeight();
@@ -675,8 +675,8 @@ FXbool GMTrackList::toggleItem(FXint index,FXbool notify){
 
 // Select items in rectangle
 FXbool GMTrackList::selectInRectangle(FXint x,FXint y,FXint w,FXint h,FXbool notify){
-  register FXint index;
-  register FXbool changed=false;
+  FXint index;
+  FXbool changed=false;
   for(index=0; index<items.no(); index++){
     if(hitItem(index,x,y,w,h)){
       changed|=selectItem(index,notify);
@@ -688,7 +688,7 @@ FXbool GMTrackList::selectInRectangle(FXint x,FXint y,FXint w,FXint h,FXbool not
 
 // Extend selection
 FXbool GMTrackList::extendSelection(FXint index,FXbool notify){
-  register FXbool changes=false;
+  FXbool changes=false;
   FXint i1,i2,i3,i;
   if(0<=index && 0<=anchor && 0<=extent){
 
@@ -759,8 +759,8 @@ FXbool GMTrackList::extendSelection(FXint index,FXbool notify){
 
 // Kill selection
 FXbool GMTrackList::killSelection(FXbool notify){
-  register FXbool changes=false;
-  register FXint i;
+  FXbool changes=false;
+  FXint i;
   for(i=0; i<items.no(); i++){
     if(items[i]->isSelected()){
       items[i]->setSelected(false);
@@ -884,7 +884,7 @@ long GMTrackList::onFocusOut(FXObject* sender,FXSelector sel,void* ptr){
 
 // Draw item list
 long GMTrackList::onPaint(FXObject*,FXSelector,void* ptr){
-  register FXint rlo,rhi,dw,index,vw,y;
+  FXint rlo,rhi,dw,index,vw,y;
   FXEvent* event=(FXEvent*)ptr;
   FXDCWindow dc(this,event);
 
@@ -951,7 +951,7 @@ long GMTrackList::onPaint(FXObject*,FXSelector,void* ptr){
 
 
 void GMTrackList::draw(FXDC& dc,FXEvent *,FXint index,FXint x,FXint y,FXint w,FXint h,FXint dw) const {
-  register FXint iw,ih,tw=0,th=0,yt,hi,drw,space,used,xx,type,offset;
+  FXint iw,ih,tw=0,th=0,yt,hi,drw,space,used,xx,type,offset;
   FXString text;
   const FXString * textptr;
   FXint max=50;
@@ -1095,9 +1095,9 @@ long GMTrackList::onCmdSelectInverse(FXObject*,FXSelector,void*){
 
 // Sort the items based on the sort function
 void GMTrackList::sortItems(){
-  register GMTrackItem *v,*c=0;
-  register FXbool exch=false;
-  register FXint i,j,h;
+  GMTrackItem *v,*c=0;
+  FXbool exch=false;
+  FXint i,j,h;
   if(sortfunc){
     if(0<=current){
       c=items[current];
@@ -1679,7 +1679,7 @@ FXint GMTrackList::setItem(FXint index,GMTrackItem* item,FXbool notify){
 
 // Insert item
 FXint GMTrackList::insertItem(FXint index,GMTrackItem* item,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Must have item
   if(!item){ fxerror("%s::insertItem: item is NULL.\n",getClassName()); }
@@ -1735,7 +1735,7 @@ FXint GMTrackList::prependItem(GMTrackItem* item,FXbool notify){
 
 // Move item from oldindex to newindex
 FXint GMTrackList::moveItem(FXint newindex,FXint oldindex,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
   GMTrackItem *item;
 
   // Must be in range
@@ -1785,8 +1785,8 @@ FXint GMTrackList::moveItem(FXint newindex,FXint oldindex,FXbool notify){
 
 // Extract node from list
 GMTrackItem* GMTrackList::extractItem(FXint index,FXbool notify){
-  register GMTrackItem *result;
-  register FXint old=current;
+  GMTrackItem *result;
+  FXint old=current;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::extractItem: index out of range.\n",getClassName()); }
@@ -1831,7 +1831,7 @@ GMTrackItem* GMTrackList::extractItem(FXint index,FXbool notify){
 
 // Remove node from list
 void GMTrackList::removeItem(FXint index,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::removeItem: index out of range.\n",getClassName()); }
@@ -1873,7 +1873,7 @@ void GMTrackList::removeItem(FXint index,FXbool notify){
 
 // Remove all items
 void GMTrackList::clearItems(FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Delete items
   for(FXint index=items.no()-1; 0<=index; index--){

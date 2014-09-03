@@ -34,7 +34,7 @@ static inline FXbool begins_with_keyword(const FXString & t){
 
 
 FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
-  register FXint a=0,b=0;
+  FXint a=0,b=0;
   if (GMTrackView::album_by_year) {
     if (pa->getYear()>pb->getYear()) return 1;
     else if (pa->getYear()<pb->getYear()) return -1;
@@ -45,7 +45,7 @@ FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
   }
 
 FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
-  register FXint a=0,b=0;
+  FXint a=0,b=0;
   if (GMTrackView::album_by_year) {
     if (pa->getYear()>pb->getYear()) return -1;
     else if (pa->getYear()<pb->getYear()) return 1;
@@ -63,9 +63,9 @@ FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* p
 FXIMPLEMENT(GMAlbumListItem,FXObject,NULL,0)
 
 static void drawTextLimited(FXDC & dc,FXFont * font,FXint x,FXint y,FXint space,const FXString & text) {
-  register FXint dw,len=text.length();
-  register FXint tw = font->getTextWidth(text.text(),text.length());
-  register FXint th = font->getFontHeight();
+  FXint dw,len=text.length();
+  FXint tw = font->getTextWidth(text.text(),text.length());
+  FXint th = font->getFontHeight();
   if (tw>space) {
     dw = font->getTextWidth("...",3);
     while((tw=font->getTextWidth(text.text(),len))+dw>space && len>1) len=text.dec(len);
@@ -187,11 +187,11 @@ void GMAlbumListItem::draw(GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FX
 
 // See if item got hit and where: 0 is outside, 1 is icon, 2 is text
 FXint GMAlbumListItem::hitItem(const GMAlbumList* list,FXint rx,FXint ry,FXint rw,FXint rh) const {
-  register FXFont *font=list->getCoverBaseFont();
-  register FXFont *cfont=list->getCoverHeadFont();
+  FXFont *font=list->getCoverBaseFont();
+  FXFont *cfont=list->getCoverHeadFont();
 
   //register FXuint options=list->getListStyle();
-  register FXint tw=0,th=0,ix,iy,tx,ty;
+  FXint tw=0,th=0,ix,iy,tx,ty;
 
   FXint h1=cfont->getFontHeight();
   FXint h2=font->getFontHeight();
@@ -513,7 +513,7 @@ void GMAlbumList::recompute(){
     itemHeight=covers.getSize()+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
     }
   else {
-    register FXint w;
+    FXint w;
     FXint ih=(listicon) ? listicon->getHeight() : 0;
     itemWidth=1;
     itemHeight=LIST_LINE_SPACING+FXMAX3(listtailfont->getFontHeight(),listbasefont->getFontHeight(),ih);
@@ -617,8 +617,8 @@ FXbool GMAlbumList::isItemCurrent(FXint index) const {
 
 // True if item (partially) visible
 FXbool GMAlbumList::isItemVisible(FXint index) const {
-  register FXbool vis=false;
-  register FXint x,y;
+  FXbool vis=false;
+  FXint x,y;
   if(index<0 || items.no()<=index){ fxerror("%s::isItemVisible: index out of range.\n",getClassName()); }
   if(options&(ALBUMLIST_BROWSER)){
     if(options&ALBUMLIST_COLUMNS){
@@ -697,8 +697,8 @@ void GMAlbumList::makeItemVisible(FXint index){
 
 // Get item at position x,y
 FXint GMAlbumList::getItemAt(FXint x,FXint y) const {
-  register FXint ix,iy;
-  register FXint r,c,index;
+  FXint ix,iy;
+  FXint r,c,index;
   y-=pos_y;
   x-=pos_x;
   if(options&(ALBUMLIST_BROWSER)){
@@ -856,8 +856,8 @@ FXbool GMAlbumList::toggleItem(FXint index,FXbool notify){
 
 // Select items in rectangle
 FXbool GMAlbumList::selectInRectangle(FXint x,FXint y,FXint w,FXint h,FXbool notify){
-  register FXint r,c,index;
-  register FXbool changed=false;
+  FXint r,c,index;
+  FXbool changed=false;
   if(options&ALBUMLIST_BROWSER){
     for(r=0; r<nrows; r++){
       for(c=0; c<ncols; c++){
@@ -883,7 +883,7 @@ FXbool GMAlbumList::selectInRectangle(FXint x,FXint y,FXint w,FXint h,FXbool not
 
 // Extend selection
 FXbool GMAlbumList::extendSelection(FXint index,FXbool notify){
-  register FXbool changes=false;
+  FXbool changes=false;
   FXint i1,i2,i3,i;
   if(0<=index && 0<=anchor && 0<=extent){
 
@@ -954,8 +954,8 @@ FXbool GMAlbumList::extendSelection(FXint index,FXbool notify){
 
 // Kill selection
 FXbool GMAlbumList::killSelection(FXbool notify){
-  register FXbool changes=false;
-  register FXint i;
+  FXbool changes=false;
+  FXint i;
   for(i=0; i<items.no(); i++){
     if(items[i]->isSelected()){
       items[i]->setSelected(false);
@@ -970,7 +970,7 @@ FXbool GMAlbumList::killSelection(FXbool notify){
 
 // Lasso changed, so select/unselect items based on difference between new and old lasso box
 void GMAlbumList::lassoChanged(FXint ox,FXint oy,FXint ow,FXint oh,FXint nx,FXint ny,FXint nw,FXint nh,FXbool notify){
-  register FXint r,c;
+  FXint r,c;
   FXint ohit,nhit,index;
   if(options&ALBUMLIST_BROWSER){
     for(r=0; r<nrows; r++){
@@ -1100,7 +1100,7 @@ long GMAlbumList::onFocusOut(FXObject* sender,FXSelector sel,void* ptr){
 
 // Draw item list
 long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
-  register FXint rlo,rhi,clo,chi,x,y,w,h,r,c,index;
+  FXint rlo,rhi,clo,chi,x,y,w,h,r,c,index;
   FXEvent* event=(FXEvent*)ptr;
   FXDCWindow dc(this,event);
 
@@ -1351,9 +1351,9 @@ long GMAlbumList::onCmdSelectInverse(FXObject*,FXSelector,void*){
 
 // Sort the items based on the sort function
 void GMAlbumList::sortItems(){
-  register GMAlbumListItem *v,*c=0;
-  register FXbool exch=false;
-  register FXint i,j,h;
+  GMAlbumListItem *v,*c=0;
+  FXbool exch=false;
+  FXint i,j,h;
   if(sortfunc){
     if(0<=current){
       c=items[current];
@@ -1958,7 +1958,7 @@ FXint GMAlbumList::setItem(FXint index,GMAlbumListItem* item,FXbool notify){
 
 // Insert item
 FXint GMAlbumList::insertItem(FXint index,GMAlbumListItem* item,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Must have item
   if(!item){ fxerror("%s::insertItem: item is NULL.\n",getClassName()); }
@@ -2014,8 +2014,8 @@ FXint GMAlbumList::prependItem(GMAlbumListItem* item,FXbool notify){
 
 // Move item from oldindex to newindex
 FXint GMAlbumList::moveItem(FXint newindex,FXint oldindex,FXbool notify){
-  register FXint old=current;
-  register GMAlbumListItem *item;
+  FXint old=current;
+  GMAlbumListItem *item;
 
   // Must be in range
   if(newindex<0 || oldindex<0 || items.no()<=newindex || items.no()<=oldindex){ fxerror("%s::moveItem: index out of range.\n",getClassName()); }
@@ -2064,8 +2064,8 @@ FXint GMAlbumList::moveItem(FXint newindex,FXint oldindex,FXbool notify){
 
 // Extract node from list
 GMAlbumListItem* GMAlbumList::extractItem(FXint index,FXbool notify){
-  register GMAlbumListItem *result;
-  register FXint old=current;
+  GMAlbumListItem *result;
+  FXint old=current;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::extractItem: index out of range.\n",getClassName()); }
@@ -2110,7 +2110,7 @@ GMAlbumListItem* GMAlbumList::extractItem(FXint index,FXbool notify){
 
 // Remove node from list
 void GMAlbumList::removeItem(FXint index,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::removeItem: index out of range.\n",getClassName()); }
@@ -2152,7 +2152,7 @@ void GMAlbumList::removeItem(FXint index,FXbool notify){
 
 // Remove all items
 void GMAlbumList::clearItems(FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Delete items
   for(FXint index=items.no()-1; 0<=index; index--){
@@ -2180,7 +2180,7 @@ void GMAlbumList::clearItems(FXbool notify){
 
 // Get item by data
 FXint GMAlbumList::findItemById(const FXint id,FXint start,FXuint flgs) const {
-  register FXint index;
+  FXint index;
   if(0<items.no()){
     if(flgs&SEARCH_BACKWARD){
       if(start<0) start=items.no()-1;

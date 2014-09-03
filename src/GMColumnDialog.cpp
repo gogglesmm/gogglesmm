@@ -56,8 +56,8 @@ FXIMPLEMENT(FXCheckListItem,FXListItem,NULL,0);
 
 void FXCheckListItem::draw(const GMList* list,FXDC& dc,FXint xx,FXint yy,FXint ww,FXint hh) const {
 //#endif
-  register FXFont *font=list->getFont();
-  register FXint ih=0,th=0;
+  FXFont *font=list->getFont();
+  FXint ih=0,th=0;
   if(icon) ih=icon->getHeight();
   if(!label.empty()) th=font->getFontHeight();
   if(isSelected())
@@ -121,8 +121,8 @@ void FXCheckListItem::draw(const GMList* list,FXDC& dc,FXint xx,FXint yy,FXint w
 
 // See if item got hit, and where: 0 is outside, 1 is icon, 2 is text
 FXint FXCheckListItem::hitItem(const FXList* list,FXint xx,FXint yy) const {
-  register FXFont *font=list->getFont();
-  register FXint iw=0,ih=0,tw=0,th=0,cx,ix,iy,tx,ty,h;
+  FXFont *font=list->getFont();
+  FXint iw=0,ih=0,tw=0,th=0,cx,ix,iy,tx,ty,h;
   if(icon){
     iw=icon->getWidth();
     ih=icon->getHeight();
@@ -153,8 +153,8 @@ FXint FXCheckListItem::hitItem(const FXList* list,FXint xx,FXint yy) const {
 
 // Get width of item
 FXint FXCheckListItem::getWidth(const FXList* list) const {
-  register FXFont *font=list->getFont();
-  register FXint w=9;
+  FXFont *font=list->getFont();
+  FXint w=9;
   if(icon){
     w=icon->getWidth()+ICON_SPACING;
     }
@@ -168,8 +168,8 @@ FXint FXCheckListItem::getWidth(const FXList* list) const {
 
 // Get height of item
 FXint FXCheckListItem::getHeight(const FXList* list) const {
-  register FXFont *font=list->getFont();
-  register FXint th=0,ih=0;
+  FXFont *font=list->getFont();
+  FXint th=0,ih=0;
   if(icon){
     ih=icon->getHeight();
     }

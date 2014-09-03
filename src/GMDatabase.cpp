@@ -68,7 +68,7 @@ void GMQuery::fatal() const {
 /// Next row
 FXbool GMQuery::row() {
   FXASSERT(statement);
-  register FXint result;
+  FXint result;
   do {
     result = sqlite3_step(statement);
     switch(result) {
@@ -85,7 +85,7 @@ FXbool GMQuery::row() {
 /// Run
 void GMQuery::execute() {
   FXASSERT(statement);
-  register FXint result;
+  FXint result;
   do {
     result = sqlite3_step(statement);
     switch(result) {
@@ -302,7 +302,7 @@ void GMDatabase::fatal(const FXchar * query) const {
 
 sqlite3_stmt * GMDatabase::compile(const FXchar * query){
   FXASSERT(db);
-  register FXint result;
+  FXint result;
   sqlite3_stmt * statement=NULL;
   do {
     result = sqlite3_prepare_v2(db,query,-1,&statement,NULL);

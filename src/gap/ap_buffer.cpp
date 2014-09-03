@@ -43,7 +43,7 @@ void BufferBase::clear() {
 FXbool BufferBase::resize(FXival n) {
   FXASSERT(n>0);
   if(begptr+n!=endptr){
-    register FXuchar *oldbegptr=begptr;
+    FXuchar *oldbegptr=begptr;
 
     // Resize the buffer
     if(!resizeElms(begptr,ROUNDUP(n))) return false;

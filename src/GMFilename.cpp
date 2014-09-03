@@ -235,7 +235,7 @@ FXString filter(const FXString & input,const FXString & forbidden,FXuint options
 
 /* convert UTF8 to given 8 bit codec. decompose if necessary */
 static FXString convert_and_decompose(const FXString & input,FXTextCodec * codec) {
-  register FXint i=0,j=0;
+  FXint i=0,j=0;
   FXint len;
   FXString result;
   FXString input_decompose;
@@ -262,7 +262,7 @@ static FXString convert_and_decompose(const FXString & input,FXTextCodec * codec
 
 /* convert UTF8 to given 7 bit assci */
 static FXString convert_and_decompose(const FXString & input) {
-  register FXint i=0;
+  FXint i=0;
   FXString result;
   FXString in = decompose(input,DecomposeCanonical);
   for (i=0;i<in.length();i=in.inc(i)){

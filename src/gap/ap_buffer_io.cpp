@@ -41,7 +41,7 @@ void BufferIO::attach(FXIO * stream) {
 
 // Read at least count bytes into the buffer
 FXuval BufferIO::readBuffer(){
-  register FXival m,n;
+  FXival m,n;
   if(dir==DirWrite) {fxerror("BufferIO::readBuffer: wrong io direction.\n");}
   FXASSERT(begptr<=rdptr);
   FXASSERT(rdptr<=wrptr);
@@ -60,7 +60,7 @@ FXuval BufferIO::readBuffer(){
 
 // Write at least count bytes from the buffer
 FXuval BufferIO::writeBuffer(){
-  register FXival m,n;
+  FXival m,n;
   if(dir==DirRead) {fxerror("BufferIO::writeBuffer: wrong io direction.\n");}
   FXASSERT(begptr<=rdptr);
   FXASSERT(rdptr<=wrptr);

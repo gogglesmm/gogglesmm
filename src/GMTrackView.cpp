@@ -578,7 +578,7 @@ void GMTrackView::showCurrent() {
   }
 
 FXint GMTrackView::getPreviousPlayable(FXint from,FXbool wrap) const {
-  register FXint i;
+  FXint i;
   for (i=from;i>=0;i--){
     if (tracklist->isItemPlayable(i)) {
       if (tracklist->getActiveItem()!=i)
@@ -601,7 +601,7 @@ FXint GMTrackView::getPreviousPlayable(FXint from,FXbool wrap) const {
   }
 
 FXint GMTrackView::getNextPlayable(FXint from,FXbool wrap) const {
-  register FXint i;
+  FXint i;
   for (i=from;i<tracklist->getNumItems();i++){
     if (tracklist->isItemPlayable(i)) {
       if (tracklist->getActiveItem()!=i)
@@ -676,8 +676,8 @@ void GMTrackView::getTracks(FXIntList & tracks) const{
 
 // Function to sort by name, weight, slant, and size
 static int compareindex(const void *a,const void *b){
-  register FXint * aa = (FXint*)a;
-  register FXint * bb = (FXint*)b;
+  FXint * aa = (FXint*)a;
+  FXint * bb = (FXint*)b;
   if ((*aa) > (*bb)) return 1;
   else if ((*aa) < (*bb)) return -1;
   return 0;
@@ -718,7 +718,7 @@ void GMTrackView::getSelectedArtists(FXIntList & artists) const{
 
 
 void GMTrackView::getSelectedAlbums(FXIntList & albums) const{
-  register FXint i=0;
+  FXint i=0;
   if (albumlist->getNumItems()) {
     if (albumlist->getItemId(0)==-1) {
       if (albumlist->isItemSelected(0)){

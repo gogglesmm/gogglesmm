@@ -174,7 +174,7 @@ FXint GMRenameTask::run() {
 
 
 static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
-  register FXint i=0;
+  FXint i=0;
   FXint numchanges=0;
   FXString url;
   GMTrack trackinfo;

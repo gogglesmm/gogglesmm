@@ -117,8 +117,8 @@ FXuint gm_desktop_session() {
 
 // Encode url string
 FXString gm_url_encode(const FXString& url){
-  register FXint p=0;
-  register FXint c;
+  FXint p=0;
+  FXint c;
   FXString result;
   while(p<url.length()){
     c=url[p++];

@@ -1100,7 +1100,7 @@ long GMPreferencesDialog::onUpdColorTheme(FXObject*sender,FXSelector,void*) {
 
 
 void GMPreferencesDialog::updateColors(){
-  register FXWindow *w=FXApp::instance()->getRootWindow();
+  FXWindow *w=FXApp::instance()->getRootWindow();
 
   FX7Segment * sevensegment;
   FXTextField * gmtextfield;
@@ -1405,7 +1405,7 @@ void GMPreferencesDialog::updateColors(){
 
 
 void GMPreferencesDialog::redraw(){
-  register FXWindow *w=GMPlayerManager::instance()->getMainWindow();
+  FXWindow *w=GMPlayerManager::instance()->getMainWindow();
   while(w){
     w->recalc();
     w->update();

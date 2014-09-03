@@ -98,14 +98,14 @@ void GMAnimImage::create() {
 
 // Get default width
 FXint GMAnimImage::getDefaultWidth(){
-  register FXint w=0;
+  FXint w=0;
   if(image) w=base;
   return w+padleft+padright+(border<<1);
   }
 
 // Get default height
 FXint GMAnimImage::getDefaultHeight(){
-  register FXint h=0;
+  FXint h=0;
   if(image) h=base;
   return h+padtop+padbottom+(border<<1);
   }
