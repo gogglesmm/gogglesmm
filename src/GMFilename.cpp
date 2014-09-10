@@ -482,7 +482,6 @@ FXbool create(FXString & result,const GMTrack & track, const FXString & format,c
 void parse(GMTrack & track,const FXString & mask,FXuint options) {
   FXint nsep=0,i,j;
   FXString input,field;
-  FXString dir;
   FXchar sep,item;
   FXint beg=0,end=0;
 

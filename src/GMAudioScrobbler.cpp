@@ -273,11 +273,11 @@ FXint ServiceResponse::begin(const FXchar * element,const FXchar ** attributes){
   }
 
 
-void ServiceResponse::data(const FXchar* data,FXint len){
+void ServiceResponse::data(const FXchar* d,FXint len){
   switch(node()) {
-    case Elem_LastFM_Error: message.assign(data,len); break;
-    case Elem_LastFM_Session_Key: key.assign(data,len); break;
-    case Elem_LastFM_Token: token.assign(data,len); break;
+    case Elem_LastFM_Error: message.assign(d,len); break;
+    case Elem_LastFM_Session_Key: key.assign(d,len); break;
+    case Elem_LastFM_Token: token.assign(d,len); break;
     }
   }
 
@@ -286,13 +286,13 @@ void ServiceResponse::end(const FXchar*) {
 
 
 
-FXbool GMAudioScrobbler::post_request(const FXString & url,const FXString & message,FXString & output) {
-  FXTRACE((60,"post_request %s - %s\n",url.text(),message.text()));
+FXbool GMAudioScrobbler::post_request(const FXString & url,const FXString & msg,FXString & output) {
+  FXTRACE((60,"post_request %s - %s\n",url.text(),msg.text()));
   HttpClient client;
   if (client.basic("POST",url,
                    "Content-Type: application/x-www-form-urlencoded\r\n"
                    "Connection: close\r\n",
-                   message)) {
+                   msg)) {
     output = client.textBody();
     return true;
     }
@@ -672,7 +672,7 @@ FXbool GMAudioScrobbler::waitForTask() {
   FXTRACE((60,"GMAudioScrobbler::waitForTask\n"));
   if (timeout>0) {
     FXlong wakeuptime = ((FXlong)timeout*1000000000LL); // relative time
-    FXlong start      = FXThread::time();
+    FXlong starttime  = FXThread::time();
     while(1) {
       FXTRACE((60,"GMAudioScrobbler::waitForTask => %lld\n",wakeuptime/1000000000LL));
       mutex_task.lock();
@@ -693,8 +693,8 @@ FXbool GMAudioScrobbler::waitForTask() {
           }
 
         FXlong now  = FXThread::time();
-        wakeuptime -= (now - start);
-        start       = now;
+        wakeuptime -= (now - starttime);
+        starttime   = now;
 
         /// Done waiting
         if (wakeuptime<=0)
@@ -838,10 +838,10 @@ void GMAudioScrobbler::create_token_request(FXString & request) {
 void GMAudioScrobbler::process_token_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
-  ServiceResponse service;
+  ServiceResponse sr;
   FXTRACE((60,"GMAudioScrobbler::process_token_response\n%s\n",response.text()));
-  if (service.parse(response) && service.getStatus()) {
-    token=service.getToken();
+  if (sr.parse(response) && sr.getStatus()) {
+    token=sr.getToken();
     FXTRACE((60,"GMAudioScrobbler::process_token_response => token=%s\n",token.text()));
     FXString url="http://www.last.fm/api/auth/?api_key=" CLIENT_KEY "&token="+token;
     feedback.message(target,FXSEL(SEL_OPENED,message),url.text(),url.length());
@@ -883,10 +883,10 @@ void GMAudioScrobbler::process_handshake_response(const FXString & response){
   if (flags&FLAG_LOGIN_CHANGED) return;
   FXTRACE((60,"GMAudioScrobbler::process_handshake_response\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
-    ServiceResponse service;
-    if (!service.parse(response) || !service.getStatus()){
-      FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
-      switch(service.getErrorCode()) {
+    ServiceResponse sr;
+    if (!sr.parse(response) || !sr.getStatus()){
+      FXTRACE((60,"last.fm service failed with code %d: %s\n",sr.getErrorCode(),sr.getErrorMessage().text()));
+      switch(sr.getErrorCode()) {
         case LASTFM_ERROR_TOKEN_EXPIRED     : token.clear();        break;
         case LASTFM_ERROR_TOKEN_UNAUTHORIZED:
         case LASTFM_ERROR_OFFLINE           :
@@ -895,7 +895,7 @@ void GMAudioScrobbler::process_handshake_response(const FXString & response){
         }
       }
     else {
-      session=service.getSessionKey();
+      session=sr.getSessionKey();
       nowplaying_url=handshake_url;
       submit_url=handshake_url;
       flags&=~FLAG_BADAUTH;
@@ -1055,11 +1055,11 @@ void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
   if (flags&FLAG_LOGIN_CHANGED) return;
   FXTRACE((60,"GMAudioScrobbler::process_nowplaying_response:\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
-    ServiceResponse service;
-    if (!service.parse(response) || !service.getStatus()) {
+    ServiceResponse sr;
+    if (!sr.parse(response) || !sr.getStatus()) {
       FXASSERT(0);
-      FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
-      switch(service.getErrorCode()) {
+      FXTRACE((60,"last.fm service failed with code %d: %s\n",sr.getErrorCode(),sr.getErrorMessage().text()));
+      switch(sr.getErrorCode()) {
         case LASTFM_ERROR_UNKNOWN      :
         case LASTFM_ERROR_OFFLINE      :
         case LASTFM_ERROR_UNAVAILABLE  : set_timeout();           break;
@@ -1071,7 +1071,6 @@ void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
       }
     }
   else {
-    FXString response;
     FXString code=response.section('\n',0);
     FXTRACE((70,"Now Playing Response: %s\n\n",response.text()));
     if (compare(code,"BADSESSION",10)==0) {
@@ -1261,11 +1260,11 @@ void GMAudioScrobbler::process_submit_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::process_submit_response\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
-    ServiceResponse service;
-    if (!service.parse(response) || !service.getStatus()) {
+    ServiceResponse sr;
+    if (!sr.parse(response) || !sr.getStatus()) {
       FXASSERT(0);
-      FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
-      switch(service.getErrorCode()) {
+      FXTRACE((60,"last.fm service failed with code %d: %s\n",sr.getErrorCode(),sr.getErrorMessage().text()));
+      switch(sr.getErrorCode()) {
         case LASTFM_ERROR_UNKNOWN      :
         case LASTFM_ERROR_OFFLINE      :
         case LASTFM_ERROR_UNAVAILABLE  : set_timeout();           break;
@@ -1343,9 +1342,9 @@ void GMAudioScrobbler::create_loveban_request(FXString & request){
 void GMAudioScrobbler::process_loveban_response(const FXString & response){
   FXMutexLock lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::process_loveban_response\n%s\n",response.text()));
-  ServiceResponse service;
-  if (!service.parse(response) || !service.getStatus()) {
+  ServiceResponse sr;
+  if (!sr.parse(response) || !sr.getStatus()) {
     session.clear();
-    FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
+    FXTRACE((60,"last.fm service failed with code %d: %s\n",sr.getErrorCode(),sr.getErrorMessage().text()));
     }
   }

@@ -360,12 +360,12 @@ long GMTrackList::onHeaderRightBtnRelease(FXObject*,FXSelector,void*ptr){
   };
 
 long GMTrackList::onCmdHeader(FXObject*,FXSelector,void*ptr){
-  GMColumn * data = getHeaderData((FXuint)(FXival)ptr);
-  if (data) {
-    if (data->type==sortMethod)
-      GMPlayerManager::instance()->getTrackView()->setSortMethod(data->type,(sortfunc==data->ascending));
+  GMColumn * column = getHeaderData((FXuint)(FXival)ptr);
+  if (column) {
+    if (column->type==sortMethod)
+      GMPlayerManager::instance()->getTrackView()->setSortMethod(column->type,(sortfunc==column->ascending));
     else
-      GMPlayerManager::instance()->getTrackView()->setSortMethod(data->type);
+      GMPlayerManager::instance()->getTrackView()->setSortMethod(column->type);
 
     if (sortfunc)
       GMPlayerManager::instance()->getTrackView()->sortTracks();
@@ -374,11 +374,11 @@ long GMTrackList::onCmdHeader(FXObject*,FXSelector,void*ptr){
   }
 
 long GMTrackList::onUpdHeader(FXObject*,FXSelector,void*){
-  GMColumn * data;
+  GMColumn * column;
   for (FXint i=0;i<header->getNumItems();i++){
-    data = getHeaderData(i);
-    if (data && sortMethod==data->type) {
-      if (sortfunc==data->ascending)
+    column = getHeaderData(i);
+    if (column && sortMethod==column->type) {
+      if (sortfunc==column->ascending)
         header->setArrowDir(i,FXHeaderItem::ARROW_DOWN);
       else
         header->setArrowDir(i,FXHeaderItem::ARROW_UP);
@@ -433,16 +433,16 @@ long GMTrackList::onWheelTimeout(FXObject*,FXSelector,void*) {
   return 1;
   }
 
-void GMTrackList::appendHeader(const FXString & label,FXint size,GMColumn * data){
+void GMTrackList::appendHeader(const FXString & label,FXint size,GMColumn * column){
   GMColumn * c;
   for (FXint i=0;i<header->getNumItems();i++){
     c = getHeaderData(i);
-    if (data->index < c->index){
-      header->insertItem(i,label,NULL,size,data);
+    if (column->index < c->index){
+      header->insertItem(i,label,NULL,size,column);
       return;
       }
     }
-  header->appendItem(label,NULL,size,data);
+  header->appendItem(label,NULL,size,column);
   }
 
 

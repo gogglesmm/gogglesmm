@@ -388,7 +388,7 @@ Event * OutputThread::wait_pause() {
     // FIXME maybe split into wait & dispatch so we can give higher priority to fifo.
     reactor.runOnce();
     if (fifoinput->readable()){      
-      Event * event = fifo.pop_if_not(Buffer,Configure);
+      event = fifo.pop_if_not(Buffer,Configure);
       if (event) return event;
       }
     }

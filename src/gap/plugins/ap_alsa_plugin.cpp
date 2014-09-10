@@ -497,17 +497,17 @@ static int query_chmaps(snd_pcm_t *pcm)
 
 
 
-  FXbool setupChannelMap(const AudioFormat & format) {
-    if (format.channels) {
+  FXbool setupChannelMap(const AudioFormat & af) {
+    if (af.channels) {
       snd_pcm_chmap_t * map = NULL;
 
-      if (!fxmalloc((void**)&map,sizeof(snd_pcm_chmap_t) + format.channels*sizeof(unsigned int)))
+      if (!fxmalloc((void**)&map,sizeof(snd_pcm_chmap_t) + af.channels*sizeof(unsigned int)))
         return false;
       
-      map->channels = format.channels;
+      map->channels = af.channels;
 
-      for (FXint i=0;i<format.channels;i++) {
-        switch(format.channeltype(i)) {
+      for (FXint i=0;i<af.channels;i++) {
+        switch(af.channeltype(i)) {
           case Channel::None        : map->pos[i] = SND_CHMAP_NA;    break;     
           case Channel::Mono        : map->pos[i] = SND_CHMAP_MONO;  break;
           case Channel::FrontLeft   : map->pos[i] = SND_CHMAP_FL;    break;
@@ -638,7 +638,7 @@ protected:
     }
 public:
   void updateVolume() {
-    FXfloat volume=0.0f;
+    FXfloat vol=0.0f;
     long min,max;
     long value;
     int nvalues=0;
@@ -652,11 +652,11 @@ public:
         if (snd_mixer_selem_get_playback_volume	(element,(snd_mixer_selem_channel_id_t)c,&value)==0) {
           GM_DEBUG_PRINT("\tchannel %d volume %ld\n",c,value);
           nvalues++;
-          volume+=value;
+          vol+=value;
           }
         }
       }
-    output->notify_volume(volume/(nvalues*(max-min)));
+    output->notify_volume(vol/(nvalues*(max-min)));
     }
 
 

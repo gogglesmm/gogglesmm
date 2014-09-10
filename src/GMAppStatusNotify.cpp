@@ -312,13 +312,13 @@ long GMAppStatusNotify::onSignal(FXObject*,FXSelector,void*) {
 
 void GMAppStatusNotify::show() {
   DBusMessage * msg;
-  FXuint serial;
+  FXuint serialid;
   if (dbus_bus_name_has_owner(SESSIONBUS,APPLICATION_STATUS_NAME,NULL)) {
     if ((msg = method("RegisterStatusNotifierItem"))!=NULL){
       const FXchar * cname = name.text();
       dbus_message_set_no_reply(msg,true);
       dbus_message_append_args(msg,DBUS_TYPE_STRING,&cname,DBUS_TYPE_INVALID);
-      dbus_connection_send(SESSIONBUS,msg,&serial);
+      dbus_connection_send(SESSIONBUS,msg,&serialid);
       dbus_message_unref(msg);
       }
     }

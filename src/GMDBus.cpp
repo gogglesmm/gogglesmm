@@ -573,12 +573,12 @@ void GMDBusProxy::send(DBusMessage*msg,FXObject * obj,FXSelector m) {
 
 
 
-DBusMessage * GMDBusProxy::method(const FXchar * method){
-  return dbus_message_new_method_call(name.text(),path.text(),interface.text(),method);
+DBusMessage * GMDBusProxy::method(const FXchar * methodcall){
+  return dbus_message_new_method_call(name.text(),path.text(),interface.text(),methodcall);
   }
 
-DBusMessage * GMDBusProxy::signal(const FXchar * name){
-  return dbus_message_new_signal(path.text(),interface.text(),name);
+DBusMessage * GMDBusProxy::signal(const FXchar * sname){
+  return dbus_message_new_signal(path.text(),interface.text(),sname);
   }
 
 

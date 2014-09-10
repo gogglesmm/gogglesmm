@@ -65,7 +65,7 @@ public:
   GMQuery query_path;                   /// Query unique artist
   GMQuery query_filename;               /// Query filename
   GMQuery query_path_name;
-  GMQuery query_album;                  /// Query unique album from artist
+//  GMQuery query_album;                  /// Query unique album from artist
   GMQuery query_track;                  /// Query track
   GMQuery query_track_tags;             /// Query track tags
   //GMQuery query_playlist_queue;         /// Get the max playlist queue
@@ -91,7 +91,7 @@ protected:
   FXbool reorderPlaylist(FXint pl);
   FXbool reorderQueue();
 protected:
-  FXbool updateAlbum(FXint &album,const GMTrack&,FXint artist);
+  //FXbool updateAlbum(FXint &album,const GMTrack&,FXint artist);
 
   void setup_path_lookup();
   void clear_path_lookup();

@@ -148,12 +148,12 @@ long GMNotifyDaemon::onMethod(FXObject*,FXSelector,void*){
 
 long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
-  const FXchar * name=NULL;
+  const FXchar * daemonname=NULL;
   const FXchar * vendor=NULL;
   const FXchar * version=NULL;
   const FXchar * spec=NULL;
 
-  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&name,DBUS_TYPE_STRING,&vendor,DBUS_TYPE_STRING,&version,DBUS_TYPE_STRING,&spec,DBUS_TYPE_INVALID)) {
+  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&daemonname,DBUS_TYPE_STRING,&vendor,DBUS_TYPE_STRING,&version,DBUS_TYPE_STRING,&spec,DBUS_TYPE_INVALID)) {
 
     if (compareversion(spec,"1.1")==0) {
       icondata="image_data";

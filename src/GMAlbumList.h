@@ -107,7 +107,7 @@ public:
   FXint getYear() const { return year; }
 
   /// Append id
-  void append(FXint id) { ids.append(id); }
+  void append(FXint albumid) { ids.append(albumid); }
 
   /// Append ids to list
   void getIds(FXIntList & list) const;

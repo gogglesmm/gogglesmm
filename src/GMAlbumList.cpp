@@ -1196,7 +1196,7 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
     }
   }
   else {
-  FXint i,y,h;
+  FXint i;
 
   // Set font
 //  dc.setFont(font);
@@ -2179,27 +2179,27 @@ void GMAlbumList::clearItems(FXbool notify){
   }
 
 // Get item by data
-FXint GMAlbumList::findItemById(const FXint id,FXint start,FXuint flgs) const {
+FXint GMAlbumList::findItemById(const FXint needle,FXint start,FXuint flgs) const {
   FXint index;
   if(0<items.no()){
     if(flgs&SEARCH_BACKWARD){
       if(start<0) start=items.no()-1;
       for(index=start; 0<=index; index--){
-        if(items[index]->getId()==id) return index;
+        if(items[index]->getId()==needle) return index;
         }
       if(!(flgs&SEARCH_WRAP)) return -1;
       for(index=items.no()-1; start<index; index--){
-        if(items[index]->getId()==id) return index;
+        if(items[index]->getId()==needle) return index;
         }
       }
     else{
       if(start<0) start=0;
       for(index=start; index<items.no(); index++){
-        if(items[index]->getId()==id) return index;
+        if(items[index]->getId()==needle) return index;
         }
       if(!(flgs&SEARCH_WRAP)) return -1;
       for(index=0; index<start; index++){
-        if(items[index]->getId()==id) return index;
+        if(items[index]->getId()==needle) return index;
         }
       }
     }

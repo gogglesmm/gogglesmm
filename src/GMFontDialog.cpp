@@ -36,12 +36,12 @@ FXIMPLEMENT(GMFontDialog,FXDialogBox,GMFontDialogMap,ARRAYNUMBER(GMFontDialogMap
 GMFontDialog::GMFontDialog() {
   }
 
-GMFontDialog::GMFontDialog(FXApp * app,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h) :
-  FXDialogBox(app,name,opts,x,y,w,h,3,3,3,3) , previewfont(NULL) {
+GMFontDialog::GMFontDialog(FXApp * a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h) :
+  FXDialogBox(a,name,opts,x,y,w,h,3,3,3,3) , previewfont(NULL) {
   }
 
-GMFontDialog::GMFontDialog(FXWindow* owner,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h) :
-  FXDialogBox(owner,name,opts,x,y,w,h,4,4,4,4),previewfont(NULL) {
+GMFontDialog::GMFontDialog(FXWindow* o,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h) :
+  FXDialogBox(o,name,opts,x,y,w,h,4,4,4,4),previewfont(NULL) {
   GMScrollFrame *sunken;
 //  FXVerticalFrame * frm;
 
@@ -54,9 +54,9 @@ GMFontDialog::GMFontDialog(FXWindow* owner,const FXString& name,FXuint opts,FXin
   sunken=new GMScrollFrame(main);
   sunken->setLayoutHints(LAYOUT_BOTTOM|LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
-  FXScrollWindow *scroll=new FXScrollWindow(sunken,LAYOUT_FILL_X|LAYOUT_FILL_Y);
-  GMScrollArea::replaceScrollbars(scroll);
-  preview=new FXLabel(scroll,"ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789",NULL,LAYOUT_CENTER_X|LAYOUT_CENTER_Y);
+  FXScrollWindow *scrollwindow=new FXScrollWindow(sunken,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  GMScrollArea::replaceScrollbars(scrollwindow);
+  preview=new FXLabel(scrollwindow,"ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789",NULL,LAYOUT_CENTER_X|LAYOUT_CENTER_Y);
   preview->setBackColor(getApp()->getBackColor());
 //  new FXLabel(main,"Preview:",NULL,LAYOUT_BOTTOM);
 
@@ -145,19 +145,19 @@ void GMFontDialog::previewFont(){
 void GMFontDialog::listFontFamily(){
   FXFontDesc * fonts=NULL;
   FXuint numfonts,f;
-  FXint last=-1,selindex=-1;
+  FXint lastitem=-1,selindex=-1;
   FXString face,family,pfamily;
 
   familylist->clearItems();
   if (FXFont::listFonts(fonts,numfonts,FXString::null,0,0,0,selected.encoding,selected.flags)) {
     for(f=0;f<numfonts;f++){
       family=FXString(fonts[f].face).before('[').trimEnd();
-      if (pfamily==family && last>=0) {
-        familylist->setItemText(last,fonts[f-1].face);
-        last=familylist->appendItem(fonts[f].face,NULL,(void*)(FXuval)fonts[f].flags);
+      if (pfamily==family && lastitem>=0) {
+        familylist->setItemText(lastitem,fonts[f-1].face);
+        lastitem=familylist->appendItem(fonts[f].face,NULL,(void*)(FXuval)fonts[f].flags);
         }
       else {
-        last=familylist->appendItem(family,NULL,(void*)(FXuval)fonts[f].flags);
+        lastitem=familylist->appendItem(family,NULL,(void*)(FXuval)fonts[f].flags);
         }
       pfamily.adopt(family);
       if(compare(selected.face,fonts[f].face)==0) selindex=f;

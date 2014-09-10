@@ -188,11 +188,11 @@ void GMImageView::setImage(FXImage * image) {
   }
 
 
-FXint GMImageView::getDefaultWidth() const {
+FXint GMImageView::getDefaultWidth() {
   return 256;
   }
 
-FXint GMImageView::getDefaultHeight() const {
+FXint GMImageView::getDefaultHeight() {
   return 256;
   }
 

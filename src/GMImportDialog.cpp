@@ -367,8 +367,8 @@ void GMFileSelector::getSelectedFiles(FXStringList & files) {
 FXIMPLEMENT(GMFileDialog,FXFileDialog,NULL,0);
 
 // Construct file fialog box
-GMFileDialog::GMFileDialog(FXWindow* owner,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h):
-  FXFileDialog(owner,name,opts,x,y,w,h){
+GMFileDialog::GMFileDialog(FXWindow* o,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h):
+  FXFileDialog(o,name,opts,x,y,w,h){
   delete filebox;
   filebox=new GMFileSelector(this,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
   filebox->acceptButton()->setTarget(this);
@@ -393,8 +393,8 @@ GMFileDialog::GMFileDialog(FXApp* a,const FXString& name,FXuint opts,FXint x,FXi
 FXIMPLEMENT(GMExportDialog,GMFileDialog,NULL,0);
 
 // Construct file fialog box
-GMExportDialog::GMExportDialog(FXWindow* owner,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h):
-  GMFileDialog(owner,name,opts,x,y,w,h){
+GMExportDialog::GMExportDialog(FXWindow* o,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h):
+  GMFileDialog(o,name,opts,x,y,w,h){
   GMFileSelector * fileselector = dynamic_cast<GMFileSelector*>(filebox);
   FXMatrix * entryblock = fileselector->optionFrame();
   new FXLabel(entryblock,tr("&Options:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
@@ -633,28 +633,28 @@ long GMImportDialog::onCmdSync(FXObject*,FXSelector sel,void*ptr){
 
 
 long GMImportDialog::onUpdSync(FXObject*sender,FXSelector sel,void*){
-  FXbool enable=true;
+  FXbool enabled=true;
   FXbool check=false;
   switch(FXSELID(sel)){
     case ID_SYNC_NEW            : check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false : GMPlayerManager::instance()->getPreferences().sync.import_new;
-                                  enable=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
+                                  enabled=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
                                   break;
     case ID_SYNC_REMOVE_MISSING : check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false : GMPlayerManager::instance()->getPreferences().sync.remove_missing;
-                                  enable=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
+                                  enabled=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
                                   break;
     case ID_SYNC_UPDATE         : check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false : GMPlayerManager::instance()->getPreferences().sync.update;
-                                  enable=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
+                                  enabled=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
                                   break;
     case ID_SYNC_UPDATE_ALL     : check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false :  GMPlayerManager::instance()->getPreferences().sync.update_always;
-                                  enable=(!GMPlayerManager::instance()->getPreferences().sync.remove_all && GMPlayerManager::instance()->getPreferences().sync.update);
+                                  enabled=(!GMPlayerManager::instance()->getPreferences().sync.remove_all && GMPlayerManager::instance()->getPreferences().sync.update);
                                   break;
     case ID_SYNC_UPDATE_MODIFIED: check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false : !GMPlayerManager::instance()->getPreferences().sync.update_always;
-                                  enable=(!GMPlayerManager::instance()->getPreferences().sync.remove_all && GMPlayerManager::instance()->getPreferences().sync.update);
+                                  enabled=(!GMPlayerManager::instance()->getPreferences().sync.remove_all && GMPlayerManager::instance()->getPreferences().sync.update);
                                   break;
     case ID_SYNC_REMOVE_ALL     : check=GMPlayerManager::instance()->getPreferences().sync.remove_all;
                                   break;
     }
-  if (enable)
+  if (enabled)
     sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
   else
     sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);

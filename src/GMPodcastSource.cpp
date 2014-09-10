@@ -312,18 +312,18 @@ protected:
     return 0;
     }
 
-  void data(const FXchar * data,FXint len){
+  void data(const FXchar * ptr,FXint len){
     switch(node()) {
-      case Elem_Item_Title         : item.title.append(data,len); break;
-      case Elem_Item_Description   : item.description.append(data,len); break;
-      case Elem_Item_Guid          : item.id.append(data,len); break;
-      case Elem_Item_Date          : value.append(data,len); break;
-      case Elem_Item_Duration      : value.append(data,len); break;
-      case Elem_Channel_Title      : feed.title.append(data,len); break;
-      case Elem_Channel_Description: feed.description.append(data,len); break;
-      case Elem_Channel_Category   : feed.category.append(data,len); break;
-      case Elem_Channel_Date       : value.append(data,len); break;
-      case Elem_Channel_Image_Url  : feed.image.append(data,len); break;
+      case Elem_Item_Title         : item.title.append(ptr,len); break;
+      case Elem_Item_Description   : item.description.append(ptr,len); break;
+      case Elem_Item_Guid          : item.id.append(ptr,len); break;
+      case Elem_Item_Date          : value.append(ptr,len); break;
+      case Elem_Item_Duration      : value.append(ptr,len); break;
+      case Elem_Channel_Title      : feed.title.append(ptr,len); break;
+      case Elem_Channel_Description: feed.description.append(ptr,len); break;
+      case Elem_Channel_Category   : feed.category.append(ptr,len); break;
+      case Elem_Channel_Date       : value.append(ptr,len); break;
+      case Elem_Channel_Image_Url  : feed.image.append(ptr,len); break;
       }
     }
   void end(const FXchar*) {

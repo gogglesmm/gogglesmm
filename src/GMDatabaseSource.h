@@ -47,7 +47,6 @@ protected:
 protected:
   GMTrackDatabase   * db;
   FXint               playlist;
-  FXIntList           clipboard;
   FXString            filter;
   FXuint              filtermask;
   FXbool              hasfilter;

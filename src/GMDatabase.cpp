@@ -485,9 +485,9 @@ void GMDatabase::setVersion(FXint v){
   }
 
 FXint GMDatabase::getVersion(){
-  FXint version=0;
-  execute("PRAGMA user_version;",version);
-  return version;
+  FXint v=0;
+  execute("PRAGMA user_version;",v);
+  return v;
   }
 
 FXbool GMDatabase::threadsafe() {

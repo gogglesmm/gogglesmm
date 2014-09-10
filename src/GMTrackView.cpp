@@ -565,12 +565,12 @@ void GMTrackView::clear() {
 // FIXME get rid of show parameter, we only call this function with false when
 // notify_playback_finished() is called. When  show==false we delay the marking of the active
 // track until BOS event is fired from the player.
-void GMTrackView::setActive(FXint item,FXbool show/*=true*/) {
+void GMTrackView::setActive(FXint item,FXbool showactive/*=true*/) {
   if (source && item>=0){
     source->markCurrent(tracklist->getItem(item));
-    if (show) tracklist->setCurrentItem(item);
+    if (showactive) tracklist->setCurrentItem(item);
     }
-  if (show) tracklist->setActiveItem(item);
+  if (showactive) tracklist->setActiveItem(item);
   }
 
 void GMTrackView::showCurrent() {
@@ -879,10 +879,10 @@ void GMTrackView::saveSelection(GMAlbumList * list,const char * key,const FXStri
 void GMTrackView::initSelection(GMList * list,const FXchar * key,const FXString & section){
   FXint i=0,x=0,nselected=0;
   FXString part;
-  FXString view = getApp()->reg().readStringEntry(section.text(),key,"");
-  if (!view.empty()){
+  FXString selection = getApp()->reg().readStringEntry(section.text(),key,"");
+  if (!selection.empty()){
     list->killSelection(false);
-    part=view.section(';',i);
+    part=selection.section(';',i);
     while(!part.empty()){
       x = part.toInt();
       if (x>=0 && x<list->getNumItems()){
@@ -890,7 +890,7 @@ void GMTrackView::initSelection(GMList * list,const FXchar * key,const FXString 
         list->selectItem(x);
         if (i==0) list->makeItemVisible(x);
         }
-      part=view.section(';',++i);
+      part=selection.section(';',++i);
       }
     if (nselected==0 && list->getNumItems()){
       list->selectItem(0);
@@ -902,10 +902,10 @@ void GMTrackView::initSelection(GMList * list,const FXchar * key,const FXString 
 void GMTrackView::initSelection(GMAlbumList * list,const FXchar * key,const FXString & section){
   FXint i=0,x=0,nselected=0;
   FXString part;
-  FXString view = getApp()->reg().readStringEntry(section.text(),key,"");
-  if (!view.empty()){
+  FXString selection = getApp()->reg().readStringEntry(section.text(),key,"");
+  if (!selection.empty()){
     list->killSelection(false);
-    part=view.section(';',i);
+    part=selection.section(';',i);
     while(!part.empty()){
       x = part.toInt();
       if (x>=0 && x<list->getNumItems()){
@@ -913,7 +913,7 @@ void GMTrackView::initSelection(GMAlbumList * list,const FXchar * key,const FXSt
         list->selectItem(x);
         if (i==0) list->makeItemVisible(x);
         }
-      part=view.section(';',++i);
+      part=selection.section(';',++i);
       }
     if (nselected==0 && list->getNumItems()){
       list->selectItem(0);
@@ -1139,8 +1139,8 @@ void GMTrackView::sortTags() const{
   taglist->sortItems();
 
   /// Make sure "All" is on top.
-  FXint data=-1;
-  FXint all = taglist->findItemByData((void*)(FXival)(FXint)data);
+  FXint alltags=-1;
+  FXint all = taglist->findItemByData((void*)(FXival)(FXint)alltags);
   if (all>0) {
     taglist->moveItem(0,all);
     }
@@ -1150,8 +1150,8 @@ void GMTrackView::sortArtists() const{
   artistlist->sortItems();
 
   /// Make sure "All" is on top.
-  FXint data=-1;
-  FXint all = artistlist->findItemByData((void*)(FXival)(FXint)data);
+  FXint allartists=-1;
+  FXint all = artistlist->findItemByData((void*)(FXival)(FXint)allartists);
   if (all>0) {
     artistlist->moveItem(0,all);
     }
@@ -1161,8 +1161,8 @@ void GMTrackView::sortAlbums() const {
   albumlist->sortItems();
 
   /// Make sure "All" is on top.
-  FXint data=-1;
-  FXint all = albumlist->findItemById(data);
+  FXint allalbums=-1;
+  FXint all = albumlist->findItemById(allalbums);
   if (all>0) {
     albumlist->moveItem(0,all);
     }
@@ -1221,7 +1221,7 @@ FXbool GMTrackView::getSortReverse() const {
 
 
 void GMTrackView::loadSettings(const FXString & key) {
-  FXbool sort_reverse,shown;
+  FXbool sort_reverse,showui;
   FXint split,nvw=0;
 
   sort_reverse = getApp()->reg().readBoolEntry(key.text(),"genre-list-sort-reverse",false);
@@ -1283,8 +1283,8 @@ void GMTrackView::loadSettings(const FXString & key) {
   if (getApp()->reg().readBoolEntry(key.text(),"genre-list",source->defaultTags()))
     nvw|=VIEW_BROWSER_LEFT;
 
-  shown = getApp()->reg().readBoolEntry(key.text(),"browser",source->defaultBrowse());
-  if (shown && source->canBrowse())
+  showui = getApp()->reg().readBoolEntry(key.text(),"browser",source->defaultBrowse());
+  if (showui && source->canBrowse())
     nvw|=VIEW_BROWSER;
 
   if (source->hasArtistList())
@@ -1307,8 +1307,8 @@ void GMTrackView::loadSettings(const FXString & key) {
   tracklist_posx = getApp()->reg().readIntEntry(key.text(),"track-list-posx",0);
   tracklist_posy = getApp()->reg().readIntEntry(key.text(),"track-list-posy",0);
 
-  shown = getApp()->reg().readBoolEntry(key.text(),"filter",true);
-  if (shown && source && source->canFilter())
+  showui = getApp()->reg().readBoolEntry(key.text(),"filter",true);
+  if (showui && source && source->canFilter())
     filterframe->show();
   else
     filterframe->hide();

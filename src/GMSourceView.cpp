@@ -184,9 +184,9 @@ void GMSourceView::resort() {
 FXbool GMSourceView::listsources() {
   GMTreeItem * item=NULL;
   for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++){
-    GMSource * source = GMPlayerManager::instance()->getSource(i);
-    FXIcon * icon=icon_for_sourcetype(source->getType());
-    item = new GMTreeItem(source->getName(),icon,icon,source);
+    GMSource * src = GMPlayerManager::instance()->getSource(i);
+    FXIcon * icon=icon_for_sourcetype(src->getType());
+    item = new GMTreeItem(src->getName(),icon,icon,src);
     sourcelist->appendItem(NULL,item);
     }
   sourcelist->sortItems();
@@ -207,7 +207,7 @@ void GMSourceView::sortSources() const{
 
 
 void GMSourceView::loadSettings(const FXString & key) {
-  FXbool sort_reverse,shown;
+  FXbool sort_reverse,view;
 
   sort_reverse = getApp()->reg().readBoolEntry(key.text(),"source-list-sort-reverse",false);
   if (sort_reverse)
@@ -215,8 +215,8 @@ void GMSourceView::loadSettings(const FXString & key) {
   else
     sourcelist->setSortFunc(source_list_sort);
 
-  shown = getApp()->reg().readBoolEntry(key.text(),"source-list",true);
-  if (shown)
+  view = getApp()->reg().readBoolEntry(key.text(),"source-list",true);
+  if (view)
     getParent()->show();
   else
     getParent()->hide();
@@ -276,20 +276,20 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
   if (event->moved) return 0;
   GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   GMMenuPane pane(this);
-  GMSource * source = item ? reinterpret_cast<GMSource*>(item->getData()) : NULL;
+  GMSource * src = item ? reinterpret_cast<GMSource*>(item->getData()) : NULL;
   FXbool src_items = false;
   
-  if (source) 
-    src_items = source->source_context_menu(&pane);
+  if (src) 
+    src_items = src->source_context_menu(&pane);
       
-  if (source && source->canBrowse()) { 
+  if (src && src->canBrowse()) { 
     if (src_items) new FXMenuSeparator(&pane);
     new GMMenuCheck(&pane,tr("Show Browser\tCtrl-B\tShow Browser"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_BROWSER);
     new GMMenuCheck(&pane,tr("Show Tags\tCtrl-T\tShow Tags"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_TAGS);    
     }
 
   // Install Source Items (Group by source)
-  if (source==NULL || src_items==false) {
+  if (src==NULL || src_items==false) {
     FXint nadded=(&pane)->numChildren();
     FXint nlast=(&pane)->numChildren();
     for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++) {
@@ -325,11 +325,11 @@ long GMSourceView::onDndSourceMotion(FXObject*,FXSelector,void*ptr){
   FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
   GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   if (item) {
-    GMSource * source = reinterpret_cast<GMSource *>(item->getData());
+    GMSource * src = reinterpret_cast<GMSource *>(item->getData());
     FXDragType*types;
     FXuint     ntypes;
     if (sourcelist->inquireDNDTypes(FROM_DRAGNDROP,types,ntypes)){
-      if (source->dnd_accepts(types,ntypes)){
+      if (src->dnd_accepts(types,ntypes)){
         sourcedrop=source;
         sourcelist->acceptDrop(DRAG_ACCEPT);
         freeElms(types);
@@ -353,9 +353,9 @@ long GMSourceView::onDndSourceDrop(FXObject*,FXSelector,void*ptr){
 
 long GMSourceView::onCmdNewStation(FXObject*sender,FXSelector,void*ptr){
   for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++){
-    GMSource * source = GMPlayerManager::instance()->getSource(i);
-    if (source->getType()==SOURCE_INTERNET_RADIO)
-      return source->handle(sender,FXSEL(SEL_COMMAND,GMStreamSource::ID_NEW_STATION),ptr);
+    GMSource * src = GMPlayerManager::instance()->getSource(i);
+    if (src->getType()==SOURCE_INTERNET_RADIO)
+      return src->handle(sender,FXSEL(SEL_COMMAND,GMStreamSource::ID_NEW_STATION),ptr);
     }
   return 0;
   }

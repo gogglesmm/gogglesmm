@@ -52,12 +52,12 @@ void FXIntMap::save(FXStream & store) const {
   }
 
 void FXIntMap::load(FXStream & store) {
-  FXint key,value,n;
+  FXint k,v,n;
   store >> n;
   for (FXint i=0;i<n;i++){
-    store >> key;
-    store >> value;
-    insert(key,value);
+    store >> k;
+    store >> v;
+    insert(k,v);
     }
   }
 
@@ -298,9 +298,9 @@ static FXbool gm_launch_program(const FXchar * const * programs,const FXString &
     if (!exec.empty()) {
       pid_t pid = fork();
       if (pid==0) {
-        int i = sysconf(_SC_OPEN_MAX);
-        while (--i >= 3) {
-          close(i);
+        int fd = sysconf(_SC_OPEN_MAX);
+        while (--fd >= 3) {
+          close(fd);
           }
         execl(exec.text(),programs[i],url.text(),NULL);
         exit(EXIT_FAILURE);

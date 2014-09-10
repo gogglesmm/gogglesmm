@@ -438,7 +438,7 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
   if (filtermask) {
 
     // get search words from string
-    FXString word,match_query,keyword_query,query;
+    FXString word;
     FXbool quotes=false;
     FXint i;
     for (i=0;i<text.length();i++){

@@ -29,7 +29,7 @@ namespace ap {
 HttpIO::HttpIO() : BufferIO(4096) {
   }
 
-HttpIO::HttpIO(FXIO * io) : BufferIO(io,4096) {
+HttpIO::HttpIO(FXIO * dev) : BufferIO(dev,4096) {
   }
 
 HttpIO::~HttpIO() {

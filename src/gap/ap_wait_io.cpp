@@ -72,8 +72,8 @@ FXival WaitIO::readBlock(void*data,FXival count) {
   }
 
 
-FXlong WaitIO::truncate(FXlong size) {
-  return io->truncate(size);
+FXlong WaitIO::truncate(FXlong sz) {
+  return io->truncate(sz);
   }
 
 FXbool WaitIO::flush() {
@@ -98,18 +98,18 @@ FXbool WaitIO::close() {
   }
 
 
-FXuint WaitIO::wait(FXuchar mode) {
-  return ap_wait(io->handle(),watch,timeout,mode);
+FXuint WaitIO::wait(FXuchar m) {
+  return ap_wait(io->handle(),watch,timeout,m);
   }
 
-ThreadIO::ThreadIO(FXIODevice * io,ThreadQueue*queue,FXTime timeout) : WaitIO(io,queue->handle(),timeout), fifo(queue) {
+ThreadIO::ThreadIO(FXIODevice * dev,ThreadQueue*queue,FXTime tm) : WaitIO(dev,queue->handle(),tm), fifo(queue) {
   }
 
 
-FXuint ThreadIO::wait(FXuchar mode) {
+FXuint ThreadIO::wait(FXuchar m) {
   FXuint w;
   do {
-    w =  ap_wait(io->handle(),watch,timeout,mode);
+    w =  ap_wait(io->handle(),watch,timeout,m);
     }
   while(w==WaitHasInterrupt && !fifo->checkAbort());
   return w;

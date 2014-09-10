@@ -61,7 +61,7 @@ public:
   virtual ~WavOutput();
   };
 
-WavOutput::WavOutput(OutputThread * output) : OutputPlugin(output){
+WavOutput::WavOutput(OutputThread * out) : OutputPlugin(out){
   }
 
 WavOutput::~WavOutput() {

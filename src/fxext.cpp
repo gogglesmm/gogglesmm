@@ -474,7 +474,7 @@ GMMenuCascade::GMMenuCascade(FXComposite* p,const FXString& text,FXIcon* ic,FXPo
 
 FXIMPLEMENT(GMMenuPane,FXMenuPane,NULL,0)
 
-GMMenuPane::GMMenuPane(FXWindow* owner,FXuint opts) : FXMenuPane(owner,opts) {
+GMMenuPane::GMMenuPane(FXWindow* o,FXuint opts) : FXMenuPane(o,opts) {
   borderColor=getApp()->getShadowColor();
   setFrameStyle(FRAME_LINE);
   }

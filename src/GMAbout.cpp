@@ -41,11 +41,11 @@ FXDEFMAP(GMAboutDialog) GMAboutDialogMap[]={
 FXIMPLEMENT(GMAboutDialog,FXDialogBox,GMAboutDialogMap,ARRAYNUMBER(GMAboutDialogMap))
 
 
-GMAboutDialog::GMAboutDialog(FXApp * app) : FXDialogBox(app,FXString::null,DECOR_ALL,0,0,0,0,0,0,0,0,0,0) {
+GMAboutDialog::GMAboutDialog(FXApp * a) : FXDialogBox(a,FXString::null,DECOR_ALL,0,0,0,0,0,0,0,0,0,0) {
   setup();
   }
 
-GMAboutDialog::GMAboutDialog(FXWindow* owner) : FXDialogBox(owner,FXString::null,DECOR_TITLE|DECOR_BORDER|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0) {
+GMAboutDialog::GMAboutDialog(FXWindow* o) : FXDialogBox(o,FXString::null,DECOR_TITLE|DECOR_BORDER|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0) {
   setup();
   }
 

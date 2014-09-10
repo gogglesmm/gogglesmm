@@ -143,20 +143,20 @@ GMTrackDatabase::~GMTrackDatabase() {
   }
 
 FXbool GMTrackDatabase::init(const FXString & database) {
-  FXint version = 0;
+  FXint dbversion = 0;
 
   if (!open(database))
     goto error;
 
-  version = getVersion();
+  dbversion = getVersion();
 
-  if ( version > GOGGLESMM_DATABASE_SCHEMA_VERSION) {
+  if ( dbversion > GOGGLESMM_DATABASE_SCHEMA_VERSION) {
     if (FXMessageBox::question(FXApp::instance(),MBOX_OK_CANCEL,fxtr("Database Error"),fxtr("An incompatible (future) version of the database was found.\nThis usually happens when you try to downgrade to a older version of GMM\nPress OK to continue and reset the database (all information will be lost!).\nPress Cancel to quit now and leave the database as is."))==MBOX_CLICKED_CANCEL)
       return false;
     }
 
   // Warn if there's no upgrade path
-  if ( version>0 && version<GOGGLESMM_DATABASE_SCHEMA_DEV1) {
+  if ( dbversion>0 && dbversion<GOGGLESMM_DATABASE_SCHEMA_DEV1) {
     if (FXMessageBox::question(FXApp::instance(),MBOX_OK_CANCEL,fxtr("Database Error"),fxtr("An incompatible (older) version of the database was found.\nPress OK to continue and reset the database (all information will be lost!).\nPress Cancel to quit now and leave the database as is."))==MBOX_CLICKED_CANCEL)
       return false;
     }
@@ -330,7 +330,6 @@ FXbool GMTrackDatabase::init_queries() {
     insert_path                         = compile("INSERT OR IGNORE INTO pathlist VALUES ( NULL , ? );");
     insert_artist                       = compile("INSERT OR IGNORE INTO artists VALUES ( NULL , ? );");
     insert_album                        = compile("INSERT OR IGNORE INTO albums SELECT NULL, ?, (SELECT id FROM artists WHERE name == ?), ?;");
-
     insert_playlist_track_by_id         = compile("INSERT INTO playlist_tracks VALUES (?,?,?);");
 
     query_filename                      = compile("SELECT id FROM tracks WHERE path == ? AND mrl == ?;");
@@ -1593,7 +1592,7 @@ void GMTrackDatabase::initArtistLookup() {
   setup_artist_lookup();
   }
 
-
+#if 0
 FXbool GMTrackDatabase::updateAlbum(FXint & result,const GMTrack & track,FXint artist){
   DEBUG_DB_SET();
   result=0;
@@ -1622,7 +1621,7 @@ FXbool GMTrackDatabase::updateAlbum(FXint & result,const GMTrack & track,FXint a
     }
   return true;
   }
-
+#endif
 
 
 
@@ -1721,7 +1720,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
 
     list = compile(query);
 
-    FILE * fp = fopen(filename.text(),"w");
+    fp = fopen(filename.text(),"w");
     if (!fp) return false;
 
     if (filetype==PLAYLIST_XSPF) {

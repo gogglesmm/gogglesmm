@@ -596,7 +596,7 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
   FXlong   nbytes = size;
   FXuint   version;
   FXushort esid;
-  FXuchar  flags;
+  FXuchar  esflags;
   FXuint   length;
   FXuint   l;
 
@@ -620,7 +620,7 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
     if (!input->read_uint16_be(esid))
       return false;  
 
-    if (!input->read(&flags,1))
+    if (!input->read(&esflags,1))
       return false; 
     
     nbytes-=(length);
@@ -871,8 +871,8 @@ FXbool MP4Reader::atom_parse_stts(FXlong /*size*/) {
 
 
 FXbool MP4Reader::atom_parse_stsz(FXlong /*size*/) {
-  FXuint   version;
-  FXuint   nsamples;      
+  FXuint version;
+  FXuint samplecount;      
 
   if (track==NULL)
     return false;
@@ -883,12 +883,12 @@ FXbool MP4Reader::atom_parse_stsz(FXlong /*size*/) {
   if (!input->read_uint32_be(track->fixed_sample_size))
     return false;
 
-  if (!input->read_uint32_be(nsamples))
+  if (!input->read_uint32_be(samplecount))
     return false;
 
   if (track->fixed_sample_size==0 && nsamples>0) {
-    track->stsz.no(nsamples);    
-    for (FXuint i=0;i<nsamples;i++) {
+    track->stsz.no(samplecount);    
+    for (FXuint i=0;i<samplecount;i++) {
       input->read_uint32_be(track->stsz[i]);
       }
     }
