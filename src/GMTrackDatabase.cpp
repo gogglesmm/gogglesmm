@@ -1126,6 +1126,7 @@ FXbool GMTrackDatabase::getTrackAssociation(FXint id,FXint & artist,FXint & albu
 
 
 ///FIXME
+#if 0
 FXbool GMTrackDatabase::removeGenre(FXint/* id*/) {
   DEBUG_DB_SET();
   GMQuery remove_genre;
@@ -1145,7 +1146,7 @@ FXbool GMTrackDatabase::removeGenre(FXint/* id*/) {
     }
   return true;
   }
-
+#endif
 
 FXbool GMTrackDatabase::removeArtist(FXint artist) {
   DEBUG_DB_SET();
@@ -1591,38 +1592,6 @@ void GMTrackDatabase::initArtistLookup() {
   clear_artist_lookup();
   setup_artist_lookup();
   }
-
-#if 0
-FXbool GMTrackDatabase::updateAlbum(FXint & result,const GMTrack & track,FXint artist){
-  DEBUG_DB_SET();
-  result=0;
-  update_album = compile("UPDATE albums SET year = ? WHERE id == ?;");
-  try {
-    query_album.set(0,track.album);
-    query_album.set(1,artist);
-    query_album.execute(result);
-
-    if (!result) {
-      insert_album.set(0,track.album);
-      insert_album.set(1,artist);
-      insert_album.set(2,track.year);
-      insert_album.execute();
-      result = rowid();
-      }
-    else {
-      update_album.set(0,track.year);
-      update_album.set(1,result);
-      update_album.execute();
-      }
-    }
-  catch (GMDatabaseException & e){
-    result=-1;
-    return false;
-    }
-  return true;
-  }
-#endif
-
 
 
 FXbool GMTrackDatabase::vacuum() {

@@ -92,7 +92,7 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
 
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_TRACK,GMDatabaseSource::onCmdEditTrack),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_RATING,GMDatabaseSource::onCmdEditRating),
-  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_DELETE_TAG,GMDatabaseSource::onCmdDelete),
+  //FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_DELETE_TAG,GMDatabaseSource::onCmdDelete),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_DELETE_ARTIST,GMDatabaseSource::onCmdDelete),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_DELETE_ALBUM,GMDatabaseSource::onCmdDelete),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_DELETE_TRACK,GMDatabaseSource::onCmdDelete),
@@ -160,7 +160,7 @@ void GMDatabaseSource::loadCovers() {
 
 void GMDatabaseSource::updateCovers() {
   if (covercache) {
-    GMCoverPathList list;    
+    GMCoverPathList list;
     if (db->listAlbumPaths(list)) {
       GMCoverLoader * loader = new GMCoverLoader(covercache->getTempFilename(),list,GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size,GMPlayerManager::instance()->getDatabaseSource(),ID_LOAD_COVERS);
       GMPlayerManager::instance()->runTask(loader);
@@ -292,7 +292,7 @@ FXbool GMDatabaseSource::findCurrentAlbum(GMAlbumList * list,GMSource * src) {
 
 
 FXbool GMDatabaseSource::hasTrack(const FXString & mrl,FXint & id) {
-  FXint pid = db->hasPath(FXPath::directory(mrl));  
+  FXint pid = db->hasPath(FXPath::directory(mrl));
   id = 0;
   if (pid) {
     id = db->hasTrack(mrl,pid);
@@ -312,12 +312,12 @@ FXbool GMDatabaseSource::getTrack(GMTrack & info) const{
   return db->getTrack(current_track,info);
   }
 
-FXbool GMDatabaseSource::genre_context_menu(FXMenuPane * pane) {
+FXbool GMDatabaseSource::genre_context_menu(FXMenuPane * /*pane*/) {
   //new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Genre."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_GENRE);
 //  new GMMenuCommand(pane,"Export" … "\t\tCopy associated tracks to destination.",GMIconTheme::instance()->icon_export,this,ID_EXPORT_GENRE);
 //  new FXMenuSeparator(pane);
-  new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove Tag from Library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_TAG);
-  return true;
+  //new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove Tag from Library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_TAG);
+  return false;
   }
 
 FXbool GMDatabaseSource::artist_context_menu(FXMenuPane * pane){
@@ -426,7 +426,7 @@ FXbool GMDatabaseSource::dnd_accepts(FXDragType*types,FXuint ntypes){
 FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
 
   // don't do anything if nothing changed
-  if (filtermask==mask && filter==text && filterowner==this) 
+  if (filtermask==mask && filter==text && filterowner==this)
     return false;
 
   filter=text;
@@ -477,7 +477,7 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
     if (playlist) {
       query+="tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + ") AND ";
       }
-    for (int i=0;i<keywords.no();i++){      
+    for (int i=0;i<keywords.no();i++){
       if (filtermask&FILTER_ARTIST) {
         if (!match_query.empty()) match_query+=" OR ";
         match_query+=FXString::value("(composers.name %s OR conductors.name %s OR track_artist.name %s OR album_artist.name %s)",keywords[i],keywords[i],keywords[i],keywords[i]);
@@ -511,7 +511,7 @@ FXbool GMDatabaseSource::setFilter(const FXString & text,FXuint mask){
     }
 
   for (FXint i=0;i<keywords.no();i++){
-    sqlite3_free(keywords[i]);  
+    sqlite3_free(keywords[i]);
     }
 
   filterowner=this;
@@ -1430,11 +1430,13 @@ long GMDatabaseSource::onCmdDelete(FXObject*,FXSelector sel,void*){
   FXString subtitle;
 
   switch(FXSELID(sel)){
+/*
     case ID_DELETE_TAG   : title=fxtr("Remove Genre?");
                           subtitle=fxtr("Remove tracks with genre from library?");
                           GMPlayerManager::instance()->getTrackView()->getSelectedTags(selected);
                           if (selected.no()==0) return 1;
                           break;
+*/
     case ID_DELETE_ARTIST:title=fxtr("Remove Artist?");
                           subtitle=fxtr("Remove tracks from artist from library?");
                           GMPlayerManager::instance()->getTrackView()->getSelectedArtists(selected);
@@ -1473,10 +1475,12 @@ long GMDatabaseSource::onCmdDelete(FXObject*,FXSelector sel,void*){
 
 
     switch(FXSELID(sel)){
+/*
       case ID_DELETE_TAG:
         if (!db->removeGenre(selected[0]))
           FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Library Error"),fxtr("Unable to remove genre from the library"));
         break;
+*/
       case ID_DELETE_ARTIST:
         if (!db->removeArtist(selected[0]))
           FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Library Error"),fxtr("Unable to remove artist from the library"));
@@ -1686,7 +1690,7 @@ long GMDatabaseSource::onCmdPaste(FXObject*,FXSelector,void*){
   return 0;
   }
 
- 
+
 
 long GMDatabaseSource::onUpdPaste(FXObject*,FXSelector,void*){
   return 1;
