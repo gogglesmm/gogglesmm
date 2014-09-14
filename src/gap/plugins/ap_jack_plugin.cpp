@@ -46,6 +46,9 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
 
+FXuint GMAPI ap_version = AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL);
+
+
 namespace ap {
 
 JackOutput::JackOutput(OutputThread * output) : OutputPlugin(output) {

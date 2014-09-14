@@ -350,7 +350,7 @@ void OutputThread::wait_plugin_events() {
 
 
 Event * OutputThread::get_next_event() {
-  if (draining) 
+  if (draining)
     return wait_drain();
   else if (pausing)
     return wait_pause();
@@ -387,7 +387,7 @@ Event * OutputThread::wait_pause() {
   do {
     // FIXME maybe split into wait & dispatch so we can give higher priority to fifo.
     reactor.runOnce();
-    if (fifoinput->readable()){      
+    if (fifoinput->readable()){
       event = fifo.pop_if_not(Buffer,Configure);
       if (event) return event;
       }
@@ -402,7 +402,7 @@ Event * OutputThread::wait_drain() {
   FXTime wakeup = now + interval;
 
   FXint delay=plugin->delay();
-  FXint offset=delay;  
+  FXint offset=delay;
   FXint threshold=(FXint)(plugin->af.rate>>2);
   do {
 
@@ -419,11 +419,11 @@ Event * OutputThread::wait_drain() {
     if (fifoinput->readable()){
       return fifo.pop();
       }
-    
+
     // handle position updates
     if (FXThread::time()>=wakeup) {
       delay = plugin->delay();
-      if (delay<threshold) {  
+      if (delay<threshold) {
         plugin->drain();
         update_timers(0,0); /// make sure timers get fired
         close_plugin();
@@ -475,14 +475,32 @@ void OutputThread::load_plugin() {
     }
 
   if (!dll.loaded() && !dll.load(plugin_name)) {
+    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nReason: %s",plugin_name.text(),dll.error().text())));
     GM_DEBUG_PRINT("[output] unable to load %s\nreason: %s\n",plugin_name.text(),dll.error().text());
+    return;
+    }
+
+  FXuint * plugin_version = static_cast<FXuint*>(dll.address("ap_version"));
+  if (plugin_version==NULL) {
+    GM_DEBUG_PRINT("[output] incompatible plugin: no ap_version found\n");
+    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
+    dll.unload();
+    return;
+    }
+
+  if (*plugin_version!=AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL)) {
+    GM_DEBUG_PRINT("[output] incompatible plugin: version mismatch.\n");
+    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
+    dll.unload();
     return;
     }
 
   ap_load_plugin_t ap_load_plugin = (ap_load_plugin_t) dll.address("ap_load_plugin");
   if (ap_load_plugin==NULL || (plugin=ap_load_plugin(this))==NULL) {
     GM_DEBUG_PRINT("[output] incompatible plugin\n");
+    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
     dll.unload();
+    return;    
     }
 
   /// Set Device Config

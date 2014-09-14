@@ -48,7 +48,7 @@ public:
   static pa_io_event*      recycle;
   pa_io_event_cb_t         callback;
   pa_io_event_destroy_cb_t destroy_callback;
-  void *                   userdata;   
+  void *                   userdata;
 protected:
 
   /// Convert mode flags to pulseaudio flags
@@ -62,7 +62,7 @@ protected:
 
   /// Convert pulseaudio flags to mode flags
   static FXuchar fromPulse(pa_io_event_flags_t flags) {
-    return (((flags&PA_IO_EVENT_INPUT)  ? Reactor::Input::Readable  : 0) | 
+    return (((flags&PA_IO_EVENT_INPUT)  ? Reactor::Input::Readable  : 0) |
             ((flags&PA_IO_EVENT_OUTPUT) ? Reactor::Input::Writable  : 0) |
             ((flags&PA_IO_EVENT_ERROR)  ? Reactor::Input::Exception : 0) |
             ((flags&PA_IO_EVENT_HANGUP) ? Reactor::Input::Exception : 0));
@@ -97,7 +97,7 @@ public:
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
     PulseOutput::instance->output->getReactor().removeInput(event);
-    if (recycle==NULL) 
+    if (recycle==NULL)
       recycle=event;
     else
       delete event;
@@ -133,11 +133,11 @@ public:
     }
 
   static pa_time_event * create(pa_mainloop_api*,const struct timeval *tv, pa_time_event_cb_t cb, void *userdata) {
-    FXTime time = (((FXTime)tv->tv_sec)*1000000000) + (((FXTime)tv->tv_usec)*1000); 
+    FXTime time = (((FXTime)tv->tv_sec)*1000000000) + (((FXTime)tv->tv_usec)*1000);
     pa_time_event * event;
     if (recycle) {
       event   = recycle;
-      recycle = NULL; 
+      recycle = NULL;
       }
     else {
       event = new pa_time_event();
@@ -159,10 +159,10 @@ public:
     }
 
   static void restart(pa_time_event* event, const struct timeval *tv){
-    FXTime time = (((FXTime)tv->tv_sec)*1000000000) + (((FXTime)tv->tv_usec)*1000); 
+    FXTime time = (((FXTime)tv->tv_sec)*1000000000) + (((FXTime)tv->tv_usec)*1000);
     PulseOutput::instance->output->getReactor().removeTimer(event);
     PulseOutput::instance->output->getReactor().addTimer(event,time);
-    }    
+    }
 
   static void set_destroy(pa_time_event *event, pa_time_event_destroy_cb_t cb){
     event->destroy_callback=cb;
@@ -176,7 +176,7 @@ public:
 
 
 
-struct pa_defer_event : public Reactor::Deferred {  
+struct pa_defer_event : public Reactor::Deferred {
 public:
   static pa_defer_event*      recycle;
   pa_defer_event_cb_t         callback;
@@ -184,11 +184,11 @@ public:
   void*                       userdata;
 public:
   pa_defer_event() {}
-    
+
   virtual void run() {
     callback(&PulseOutput::instance->api,this,userdata);
     }
-    
+
   static pa_defer_event* create(pa_mainloop_api*, pa_defer_event_cb_t cb, void *userdata){
     pa_defer_event * event;
     if (recycle) {
@@ -197,10 +197,10 @@ public:
       }
     else  {
       event = new pa_defer_event();
-      } 
+      }
     event->callback         = cb;
     event->userdata         = userdata;
-    event->destroy_callback = NULL;    
+    event->destroy_callback = NULL;
 
     PulseOutput::instance->output->getReactor().addDeferred(event);
     return event;
@@ -235,7 +235,7 @@ pa_io_event    * pa_io_event::recycle;
 pa_time_event  * pa_time_event::recycle;
 pa_defer_event * pa_defer_event::recycle;
 
-void pulse_quit(pa_mainloop_api*,int){  
+void pulse_quit(pa_mainloop_api*,int){
   GM_DEBUG_PRINT("pulse_quit\n");
   }
 
@@ -247,6 +247,12 @@ extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
+
+
+FXuint GMAPI ap_version = AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL);
+
+
+
 
 namespace ap {
 
@@ -338,7 +344,7 @@ static void stream_state_callback(pa_stream *s,void*){
 //  }
 
 void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * info,int /*eol*/,void*userdata){
-  PulseOutput * out = reinterpret_cast<PulseOutput*>(userdata);
+  PulseOutput * out = static_cast<PulseOutput*>(userdata);
   if (info) {
     pa_volume_t value = pa_cvolume_avg(&info->volume);
     if (out->pulsevolume!=value) {
@@ -348,7 +354,7 @@ void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * inf
   }
 
 void PulseOutput::context_subscribe_callback(pa_context * context, pa_subscription_event_type_t type, uint32_t index, void *userdata){
-  PulseOutput * out = reinterpret_cast<PulseOutput*>(userdata);
+  PulseOutput * out = static_cast<PulseOutput*>(userdata);
 
   if (out->stream==NULL)
     return;
@@ -359,7 +365,7 @@ void PulseOutput::context_subscribe_callback(pa_context * context, pa_subscripti
   if ((type&PA_SUBSCRIPTION_EVENT_FACILITY_MASK)!=PA_SUBSCRIPTION_EVENT_SINK_INPUT)
     return;
 
-  if ((type&PA_SUBSCRIPTION_EVENT_TYPE_MASK)==PA_SUBSCRIPTION_EVENT_CHANGE || 
+  if ((type&PA_SUBSCRIPTION_EVENT_TYPE_MASK)==PA_SUBSCRIPTION_EVENT_CHANGE ||
       (type&PA_SUBSCRIPTION_EVENT_TYPE_MASK)==PA_SUBSCRIPTION_EVENT_NEW) {
     pa_operation *operation = pa_context_get_sink_input_info(context,index,sink_info_callback,userdata);
     if (operation) pa_operation_unref(operation);
@@ -415,7 +421,7 @@ FXbool PulseOutput::open() {
 
 void PulseOutput::close() {
 #ifdef DEBUG
-  output->getReactor().debug();    
+  output->getReactor().debug();
 #endif
 
   if (stream) {
@@ -432,7 +438,7 @@ void PulseOutput::close() {
     context=NULL;
     }
 #ifdef DEBUG
-  output->getReactor().debug();    
+  output->getReactor().debug();
 #endif
 
   delete pa_io_event::recycle;
@@ -515,12 +521,12 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   spec.channels = fmt.channels;
 
 
-  // setup channel map  
+  // setup channel map
   pa_channel_map_init(&cmap);
   cmap.channels = fmt.channels;
   for (FXint i=0;i<fmt.channels;i++) {
     switch(fmt.channeltype(i)) {
-      case Channel::None        : cmap.map[i] = PA_CHANNEL_POSITION_INVALID;      break;     
+      case Channel::None        : cmap.map[i] = PA_CHANNEL_POSITION_INVALID;      break;
       case Channel::Mono        : cmap.map[i] = PA_CHANNEL_POSITION_MONO;         break;
       case Channel::FrontLeft   : cmap.map[i] = PA_CHANNEL_POSITION_FRONT_LEFT;   break;
       case Channel::FrontRight  : cmap.map[i] = PA_CHANNEL_POSITION_FRONT_RIGHT;  break;
@@ -552,7 +558,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
       goto failed;
       }
     output->wait_plugin_events();
-    } 
+    }
 
   /// Get Actual Format
   config = pa_stream_get_sample_spec(stream);

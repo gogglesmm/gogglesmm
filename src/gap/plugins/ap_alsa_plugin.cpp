@@ -52,6 +52,8 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
 
+FXuint GMAPI ap_version = AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL);
+
 namespace ap {
 
 
@@ -68,8 +70,8 @@ static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_form
     case AP_FORMAT_S32_BE    : alsa_format=SND_PCM_FORMAT_S32_BE;   break;
     case AP_FORMAT_FLOAT_LE  : alsa_format=SND_PCM_FORMAT_FLOAT_LE; break;
     case AP_FORMAT_FLOAT_BE  : alsa_format=SND_PCM_FORMAT_FLOAT_BE; break;
-    default                  : GM_DEBUG_PRINT("[alsa] No alsa format specified for %s\n",af.debug_format().text()); 
-                               return false; 
+    default                  : GM_DEBUG_PRINT("[alsa] No alsa format specified for %s\n",af.debug_format().text());
+                               return false;
                                break;
     }
   return true;
@@ -503,12 +505,12 @@ static int query_chmaps(snd_pcm_t *pcm)
 
       if (!fxmalloc((void**)&map,sizeof(snd_pcm_chmap_t) + af.channels*sizeof(unsigned int)))
         return false;
-      
+
       map->channels = af.channels;
 
       for (FXint i=0;i<af.channels;i++) {
         switch(af.channeltype(i)) {
-          case Channel::None        : map->pos[i] = SND_CHMAP_NA;    break;     
+          case Channel::None        : map->pos[i] = SND_CHMAP_NA;    break;
           case Channel::Mono        : map->pos[i] = SND_CHMAP_MONO;  break;
           case Channel::FrontLeft   : map->pos[i] = SND_CHMAP_FL;    break;
           case Channel::FrontRight  : map->pos[i] = SND_CHMAP_FR;    break;
@@ -521,7 +523,7 @@ static int query_chmaps(snd_pcm_t *pcm)
           case Channel::LFE         : map->pos[i] = SND_CHMAP_LFE;   break;
           default: return false;
           }
-        }      
+        }
       if (snd_pcm_set_chmap(pcm,map)==0) {
         fxfree((void**)&map);
         return true;
@@ -642,9 +644,9 @@ public:
     long min,max;
     long value;
     int nvalues=0;
-    
+
     if (snd_mixer_selem_get_playback_volume_range(element,&min,&max)<0)
-      return;  
+      return;
 
     GM_DEBUG_PRINT("Volume for channels:\n");
     for (int c = SND_MIXER_SCHN_FRONT_LEFT;c<SND_MIXER_SCHN_LAST;c++){
@@ -671,9 +673,9 @@ public:
   virtual FXint no() { return nhandles; }
 
   virtual void prepare(struct pollfd * pfds){
-    snd_mixer_poll_descriptors(mixer,pfds,nhandles); 
+    snd_mixer_poll_descriptors(mixer,pfds,nhandles);
     }
-  
+
   virtual void dispatch(struct pollfd*) {
     if (snd_mixer_handle_events(mixer)>0) {
       updateVolume();
@@ -723,7 +725,7 @@ public:
     FXint result;
 
     snd_pcm_info_alloca(&info);
-  
+
     if (snd_pcm_info(handle,info)<0)
       return NULL;
 
@@ -734,16 +736,16 @@ public:
 
     if ((result=snd_mixer_attach(mixer,device.text()))<0) {
       GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));
-     
+
       // get card info
       if ((result=snd_pcm_info_get_card(info))<0) {
         GM_DEBUG_PRINT("Unable to query card: %s\n",snd_strerror(result));
         goto fail;
-        }      
+        }
 
       // try with hw name
       device.format("hw:%d",snd_pcm_info_get_card(info));
-      if ((result=snd_mixer_attach(mixer,device.text()))<0) {  
+      if ((result=snd_mixer_attach(mixer,device.text()))<0) {
         GM_DEBUG_PRINT("Unable to attach mixer: %s\n",snd_strerror(result));
         goto fail;
         }
@@ -779,7 +781,7 @@ fail:
     if (mixer) snd_mixer_close(mixer);
     return NULL;
     }
-    
+
 
   };
 
@@ -858,11 +860,11 @@ void AlsaOutput::drop() {
   if (__likely(handle)) {
 
     if ((result=snd_pcm_reset(handle))<0){
-      GM_DEBUG_PRINT("[alsa] failed to reset. Reason: %s\n",snd_strerror(result));    
+      GM_DEBUG_PRINT("[alsa] failed to reset. Reason: %s\n",snd_strerror(result));
       }
 
     if ((result=snd_pcm_drop(handle))<0){
-      GM_DEBUG_PRINT("[alsa] failed to drop. Reason: %s\n",snd_strerror(result));    
+      GM_DEBUG_PRINT("[alsa] failed to drop. Reason: %s\n",snd_strerror(result));
       }
 
     period_written = 0;
@@ -874,12 +876,12 @@ void AlsaOutput::drain() {
     int result;
     if (snd_pcm_state(handle)==SND_PCM_STATE_RUNNING) {
 
-      // snd_pcm_drain works with periods, not samples. So 
-      // make sure we have at least period_size of data. 
+      // snd_pcm_drain works with periods, not samples. So
+      // make sure we have at least period_size of data.
       // pad with silence if needed.
       if (period_written) {
         write(silence,period_size-period_written);
-        } 
+        }
 
       // Turn on blocking
       if ((result=snd_pcm_nonblock(handle,0))<0) {
@@ -893,7 +895,7 @@ void AlsaOutput::drain() {
       if (result==-EAGAIN) { // Handle non-blocking
         GM_DEBUG_PRINT("[alsa] waiting for drain\n");
         while(snd_pcm_state(handle)==SND_PCM_STATE_DRAINING){
-          FXThread::sleep(500000000); // 50ms        
+          FXThread::sleep(500000000); // 50ms
           }
         GM_DEBUG_PRINT("[alsa] drain complete. State: %s\n",snd_pcm_state_name(snd_pcm_state(handle)));
         }
@@ -944,7 +946,7 @@ FXbool AlsaOutput::configure(const AudioFormat & fmt){
     return false;
     }
 
-  if (silence)    
+  if (silence)
     resizeElms(silence,period_size*af.framesize());
   else
     allocElms(silence,period_size*af.framesize());
