@@ -25,6 +25,7 @@
   #define GMAPI
 #endif
 
+#define AP_VERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
 
 #include "fox.h"
 
