@@ -553,7 +553,6 @@ void GMTrackList::makeItemVisible(FXint index){
 FXint GMTrackList::getItemAt(FXint x,FXint y) const {
   FXint index;
   y-=pos_y;
-  x-=pos_x;
   y-=header->getDefaultHeight();
   index=y/lineHeight;
   if(index<0 || index>=items.no()) return -1;
@@ -575,7 +574,7 @@ FXint GMTrackList::hitItem(FXint index,FXint /*x*/,FXint /*y*/,FXint /*ww*/,FXin
     iy=lineHeight*r;
     hit=2; //FIXME items[index]->hitItem(this,x-ix,y-iy,ww,hh);
 */
-    hit=2;    
+    hit=2;
     }
   return hit;
   }

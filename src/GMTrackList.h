@@ -281,10 +281,10 @@ public:
   FXHeader* getHeader() const { return header; }
 
   /// Return the header data.
-  GMColumn * getHeaderData(FXint i) const { return reinterpret_cast<GMColumn*>(header->getItemData(i)); }
+  GMColumn * getHeaderData(FXint i) const { return static_cast<GMColumn*>(header->getItemData(i)); }
 
   /// Return the header type
-  FXuint getHeaderType(FXint i) const { return ( (i>=0 && i<header->getNumItems()) ? ((reinterpret_cast<GMColumn*>(header->getItemData(i)))->type) : -1); }
+  FXuint getHeaderType(FXint i) const { return ( (i>=0 && i<header->getNumItems()) ? ((static_cast<GMColumn*>(header->getItemData(i)))->type) : -1); }
 
   /// Append header with given text, size and column data
   void appendHeader(const FXString & label,FXint size,GMColumn * data);

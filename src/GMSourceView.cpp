@@ -272,20 +272,20 @@ long GMSourceView::onSourceTipText(FXObject*sender,FXSelector,void*ptr){
   }
 
 long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event =static_cast<FXEvent*>(ptr);
   if (event->moved) return 0;
   GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   GMMenuPane pane(this);
-  GMSource * src = item ? reinterpret_cast<GMSource*>(item->getData()) : NULL;
+  GMSource * src = item ? static_cast<GMSource*>(item->getData()) : NULL;
   FXbool src_items = false;
-  
-  if (src) 
+
+  if (src)
     src_items = src->source_context_menu(&pane);
-      
-  if (src && src->canBrowse()) { 
+
+  if (src && src->canBrowse()) {
     if (src_items) new FXMenuSeparator(&pane);
     new GMMenuCheck(&pane,tr("Show Browser\tCtrl-B\tShow Browser"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_BROWSER);
-    new GMMenuCheck(&pane,tr("Show Tags\tCtrl-T\tShow Tags"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_TAGS);    
+    new GMMenuCheck(&pane,tr("Show Tags\tCtrl-T\tShow Tags"),GMPlayerManager::instance()->getTrackView(),GMTrackView::ID_TOGGLE_TAGS);
     }
 
   // Install Source Items (Group by source)
@@ -298,8 +298,8 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
         nadded=0;
         nlast+=1;
         }
-      if (GMPlayerManager::instance()->getSource(i)->source_menu(&pane)){            
-        FXint n = (&pane)->numChildren();          
+      if (GMPlayerManager::instance()->getSource(i)->source_menu(&pane)){
+        FXint n = (&pane)->numChildren();
         nadded = n - nlast;
         nlast  = n;
         }
@@ -322,10 +322,10 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
 
 
 long GMSourceView::onDndSourceMotion(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   if (item) {
-    GMSource * src = reinterpret_cast<GMSource *>(item->getData());
+    GMSource * src = static_cast<GMSource *>(item->getData());
     FXDragType*types;
     FXuint     ntypes;
     if (sourcelist->inquireDNDTypes(FROM_DRAGNDROP,types,ntypes)){

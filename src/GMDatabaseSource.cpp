@@ -170,7 +170,7 @@ void GMDatabaseSource::updateCovers() {
 
 
 long GMDatabaseSource::onCmdLoadCovers(FXObject*,FXSelector sel,void*ptr) {
-  GMCoverLoader * loader = *reinterpret_cast<GMCoverLoader**>(ptr);
+  GMCoverLoader * loader = *static_cast<GMCoverLoader**>(ptr);
   if (FXSELTYPE(sel)==SEL_TASK_COMPLETED) {
     covercache->load(loader->getCacheWriter());
     GMPlayerManager::instance()->getTrackView()->redrawAlbumList();

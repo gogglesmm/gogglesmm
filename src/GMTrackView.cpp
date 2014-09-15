@@ -1743,7 +1743,7 @@ long GMTrackView::onCmdAlbumSelected(FXObject*,FXSelector sel,void*ptr){
 
 
 long GMTrackView::onTagContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   if (source && !event->moved) {
     FXint item = taglist->getItemAt(event->win_x,event->win_y);
     if (item>=0 && getTag(item)!=-1) {
@@ -1762,7 +1762,7 @@ long GMTrackView::onTagContextMenu(FXObject*,FXSelector,void*ptr){
   }
 
 long GMTrackView::onArtistContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   if (source && !event->moved) {
     FXint item = artistlist->getItemAt(event->win_x,event->win_y);
     if (item>=0 && getArtist(item)!=-1) {
@@ -1783,7 +1783,7 @@ long GMTrackView::onArtistContextMenu(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   FXbool old        = album_by_year;
   FXbool old_merge  = GMPlayerManager::instance()->getPreferences().gui_merge_albums;
   FXint  old_size   = GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
@@ -1838,7 +1838,7 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
       }
 
     if (old_size!=GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size){
-      source->updateCovers();  
+      source->updateCovers();
       }
     return 1;
     }
@@ -1847,7 +1847,7 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
 
 
 long GMTrackView::onTrackContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   if (source && !event->moved) {
     FXint item = tracklist->getItemAt(event->win_x,event->win_y);
     GMMenuPane pane(this);
@@ -1865,7 +1865,7 @@ long GMTrackView::onTrackContextMenu(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onTrackHeaderContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   if (source && !event->moved) {
     columnmenu->create();
     ewmh_change_window_type(columnmenu,WINDOWTYPE_POPUP_MENU);
@@ -1878,7 +1878,7 @@ long GMTrackView::onTrackHeaderContextMenu(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onCmdTagKeyPress(FXObject*,FXSelector,void*ptr){
-  FXEvent* event=reinterpret_cast<FXEvent*>(ptr);
+  FXEvent* event=static_cast<FXEvent*>(ptr);
   if (event->state&(CONTROLMASK) && (event->code==KEY_A || event->code==KEY_a)) {
     if (taglist->getNumItems()) {
       selectTagItem(0);
@@ -1902,7 +1902,7 @@ long GMTrackView::onCmdTagKeyPress(FXObject*,FXSelector,void*ptr){
   }
 
 long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
-  FXEvent* event=reinterpret_cast<FXEvent*>(ptr);
+  FXEvent* event=static_cast<FXEvent*>(ptr);
   if (event->state&(CONTROLMASK) && (event->code==KEY_A || event->code==KEY_a)) {
     if (artistlist->getNumItems()) {
       selectArtistItem(0);
@@ -1958,7 +1958,7 @@ long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onCmdAlbumKeyPress(FXObject*,FXSelector,void*ptr){
-  FXEvent* event=reinterpret_cast<FXEvent*>(ptr);
+  FXEvent* event=static_cast<FXEvent*>(ptr);
   if (event->state&(CONTROLMASK) && (event->code==KEY_A || event->code==KEY_a)) {
     if (albumlist->getNumItems()) {
       selectAlbumItem(0);
@@ -1999,7 +1999,7 @@ long GMTrackView::onCmdAlbumKeyPress(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
-  FXEvent* event=reinterpret_cast<FXEvent*>(ptr);
+  FXEvent* event=static_cast<FXEvent*>(ptr);
   if (event->state&(CONTROLMASK) ) {
     if (event->code==KEY_A || event->code==KEY_a) {
       if (tracklist->getNumItems()){

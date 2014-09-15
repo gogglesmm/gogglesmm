@@ -1131,7 +1131,7 @@ void GMPlayerManager::cleanSourceSettings() {
   FXint s;
   FXStringList keys;
 
-  for (s=0;s<application->reg().no();s++){    
+  for (s=0;s<application->reg().no();s++){
     if (!application->reg().empty(s) && comparecase(application->reg().key(s),"database",8)==0){
       if (!hasSourceWithKey(application->reg().key(s))) {
         keys.append(application->reg().key(s));
@@ -1553,7 +1553,7 @@ void GMPlayerManager::show_message(const FXchar * title,const FXchar * msg){
 
 
 long GMPlayerManager::onCmdCloseWindow(FXObject*sender,FXSelector,void*){
-  FXWindow * window = reinterpret_cast<FXWindow*>(sender);
+  FXWindow * window = dynamic_cast<FXWindow*>(sender);
   if (getPreferences().gui_hide_player_when_close && !getPreferences().gui_tray_icon_disabled) {
     window->hide();
     }
@@ -1595,10 +1595,10 @@ long GMPlayerManager::onScrobblerOpen(FXObject*,FXSelector,void*ptr){
 
 
 long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector sel,void*ptr){
-  GMTask * task = *reinterpret_cast<GMTask**>(ptr);
+  GMTask * task = *static_cast<GMTask**>(ptr);
   if (FXSELTYPE(sel)==SEL_TASK_COMPLETED) {
     database->initArtistLookup();
-    getDatabaseSource()->updateCovers();  
+    getDatabaseSource()->updateCovers();
     GMSource * src = getTrackView()->getSource();
     if (src) {
       switch(src->getType()){
@@ -1608,7 +1608,7 @@ long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector sel,void*ptr){
         }
       }
     }
-  delete task;  
+  delete task;
   return 0;
   }
 
@@ -1962,7 +1962,7 @@ long GMPlayerManager::onPlayerEOS(FXObject*,FXSelector,void*){
 
 
 long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
-  const PlaybackTime * tm = reinterpret_cast<const PlaybackTime*>(ptr);
+  const PlaybackTime * tm = static_cast<const PlaybackTime*>(ptr);
 
   TrackTime tm_progress;
   TrackTime tm_remaining;

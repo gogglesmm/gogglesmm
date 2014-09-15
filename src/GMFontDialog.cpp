@@ -287,7 +287,6 @@ void GMFontDialog::listFontSize(){
         string.format("%g",0.1*s);
         sizelist->appendItem(string,NULL,(void*)(FXuval)s);
         if(selected.size == s) selindex=sizelist->getNumItems()-1;
-        lasts=s;
         }
       }
     else{

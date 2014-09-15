@@ -1068,7 +1068,7 @@ long GMPreferencesDialog::onUpdElementColor(FXObject*sender,FXSelector sel,void*
   }
 long GMPreferencesDialog::onCmdColorTheme(FXObject*,FXSelector,void*ptr) {
   theme=(FXint)(FXival)ptr;
-  ColorTheme *theme_selected=reinterpret_cast<ColorTheme*>(colorpresets->getItemData(theme));
+  ColorTheme *theme_selected=static_cast<ColorTheme*>(colorpresets->getItemData(theme));
 
   selected.base = theme_selected->base;
   selected.border = theme_selected->border;

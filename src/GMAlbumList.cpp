@@ -174,8 +174,8 @@ void GMAlbumListItem::draw(GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FX
   if(!artist.empty() && ids.no()==0){
     dc.setFont(cfont);
     drawTextLimited(dc,cfont,xx,yy,is,artist);
-    yy+=h1;  
-    }  
+    yy+=h1;
+    }
   if(!title.empty() && id!=-1){
     dc.setFont(font);
     drawTextLimited(dc,font,xx,yy,is,title);
@@ -712,7 +712,6 @@ FXint GMAlbumList::getItemAt(FXint x,FXint y) const {
     if(items[index]->hitItem(this,x-ix,y-iy)==0) return -1;
     }
   else{
-    c=0;
     index=y/itemHeight;
     if(index<0 || index>=items.no()) return -1;
     }
@@ -1123,9 +1122,9 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
 
   covers.reset();
   for(r=rlo; r<=rhi; r++){
-    y=pos_y+r*itemHeight;
+    //y=pos_y+r*itemHeight;
     for(c=clo; c<=chi; c++){
-      x=pos_x+c*itemWidth;
+      //x=pos_x+c*itemWidth;
       index=(options&ALBUMLIST_COLUMNS) ? ncols*r+c : nrows*c+r;
       if(index<items.no()){
         items[index]->prepare(this);

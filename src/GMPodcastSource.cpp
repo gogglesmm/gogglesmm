@@ -64,7 +64,7 @@ FXString gm_rfc1123(FXTime time) {
 
 
 static FXbool gm_is_feed(const FXString & mime) {
-  if ( comparecase(mime,"application/rss+xml")==0 || 
+  if ( comparecase(mime,"application/rss+xml")==0 ||
        comparecase(mime,"text/xml")==0 ||
        comparecase(mime,"application/xml")==0 ) {
     return true;
@@ -282,7 +282,7 @@ protected:
         else if (comparecase(element,"itunes:category")==0)
           parse_itunes_category(attributes);
         else if (comparecase(element,"itunes:image")==0 && feed.image.empty())
-          parse_itunes_image(attributes);        
+          parse_itunes_image(attributes);
         else if (comparecase(element,"image")==0 && feed.image.empty())
           return Elem_Channel_Image;
         else if (comparecase(element,"pubdate")==0)
@@ -306,7 +306,7 @@ protected:
         break;
       case Elem_Channel_Image:
         if (comparecase(element,"url")==0)
-          return Elem_Channel_Image_Url;        
+          return Elem_Channel_Image_Url;
       default: break;
       }
     return 0;
@@ -348,7 +348,7 @@ protected:
       }
     }
 
-  void parse_itunes_image(const FXchar** attributes) {      
+  void parse_itunes_image(const FXchar** attributes) {
     for (FXint i=0;attributes[i];i+=2) {
       if (comparecase(attributes[i],"href")==0){
         feed.image = attributes[i+1];
@@ -714,7 +714,7 @@ protected:
       GM_DEBUG_PRINT("[download] Finished %ld / %ld\n",ncontent,ntotal);
     else
       GM_DEBUG_PRINT("[download] Finished %ld\n",ncontent);
-    
+
     return true;
     }
 
@@ -871,17 +871,17 @@ FXbool gm_download_cover(const FXString & url,FXString path) {
         filename=path+PATHSEPSTRING+"cover.jpg";
       else if (media.mime=="image/png")
         filename=path+PATHSEPSTRING+"cover.png";
-            
+
       FXFile file;
       if (!file.open(filename,FXIO::Writing))
-        return false;  
+        return false;
 
       if (!gm_transfer_file(http,file)) {
         file.close();
         FXFile::remove(filename);
         }
       file.close();
-      return true;        
+      return true;
       }
     }
   return false;
@@ -917,7 +917,7 @@ FXint GMPodcastUpdater::run() {
       all_feeds.get(2,feed_dir);
       all_feeds.get(3,date);
       all_feeds.get(4,autodownload);
-    
+
       if (autodownload)
         flags|=ITEM_QUEUE;
       else
@@ -1096,7 +1096,7 @@ GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(da
   scheduleUpdate();
   }
 
- 
+
 GMPodcastSource::~GMPodcastSource(){
   GMApp::instance()->removeTimeout(this,ID_REFRESH_FEED);
   if (downloader) {
@@ -1108,12 +1108,12 @@ GMPodcastSource::~GMPodcastSource(){
 
 void GMPodcastSource::getLocalFiles(const FXIntList & ids,FXStringList & files) {
   GMQuery get_local(db,"SELECT (? || '/' || feeds.local || '/' || feed_items.local)  FROM feed_items,feeds WHERE feeds.id == feed_items.feed AND feed_items.id == ? AND feed_items.flags&2;");
-  for (FXint i=0;i<ids.no();i++) {  
+  for (FXint i=0;i<ids.no();i++) {
     get_local.set(0,GMApp::instance()->getPodcastDirectory());
     get_local.set(1,ids[i]);
     if (get_local.row()) {
       files.no(files.no()+1);
-      get_local.get(0,files[files.no()-1]);   
+      get_local.get(0,files[files.no()-1]);
       }
     get_local.reset();
     }
@@ -1140,14 +1140,14 @@ void GMPodcastSource::updateCovers() {
     GMCoverPathList list;
     FXString feed_dir;
     FXint feed,n=0;
-    FXint nfeeds;  
+    FXint nfeeds;
     db->execute("SELECT COUNT(*) FROM feeds",nfeeds);
     if (nfeeds) {
       list.no(nfeeds);
       GMQuery all_feeds(db,"SELECT id,local FROM feeds");
       while(all_feeds.row()){
         all_feeds.get(0,feed);
-        all_feeds.get(1,feed_dir);    
+        all_feeds.get(1,feed_dir);
         list[n].path = GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir;
         list[n].id   = feed;
         n++;
@@ -1162,7 +1162,7 @@ void GMPodcastSource::updateCovers() {
 
 
 long GMPodcastSource::onCmdLoadCovers(FXObject*,FXSelector sel,void*ptr) {
-  GMCoverLoader * loader = *reinterpret_cast<GMCoverLoader**>(ptr);
+  GMCoverLoader * loader = *static_cast<GMCoverLoader**>(ptr);
   if (FXSELTYPE(sel)==SEL_TASK_COMPLETED) {
     covercache->load(loader->getCacheWriter());
     GMPlayerManager::instance()->getTrackView()->redrawAlbumList();
@@ -1180,15 +1180,15 @@ void GMPodcastSource::updateAvailable() {
 
 
 #define SECONDS 1000000000LL
-                
+
 
 FXlong GMPodcastSource::getUpdateInterval() const {
-  return GMApp::instance()->reg().readLongEntry(settingKey(),"update-interval",0);    
+  return GMApp::instance()->reg().readLongEntry(settingKey(),"update-interval",0);
   }
 
 void GMPodcastSource::setUpdateInterval(FXlong interval) {
   GMApp::instance()->reg().writeLongEntry(settingKey(),"update-interval",interval);
-  scheduleUpdate(); 
+  scheduleUpdate();
   }
 
 void GMPodcastSource::setLastUpdate() {
@@ -1198,11 +1198,11 @@ void GMPodcastSource::setLastUpdate() {
 
 void GMPodcastSource::scheduleUpdate() {
   FXlong interval   = getUpdateInterval();
-  FXTime lastupdate = FXThread::time() - GMApp::instance()->reg().readLongEntry(settingKey(),"last-update",0);    
+  FXTime lastupdate = FXThread::time() - GMApp::instance()->reg().readLongEntry(settingKey(),"last-update",0);
   if (interval) {
     FXlong next = interval - lastupdate;
-    GM_DEBUG_PRINT("Podcast schedule %ld %ld %ld\n",interval/SECONDS,lastupdate/SECONDS,next/SECONDS); 
-    if (next<=(10*SECONDS)) 
+    GM_DEBUG_PRINT("Podcast schedule %ld %ld %ld\n",interval/SECONDS,lastupdate/SECONDS,next/SECONDS);
+    if (next<=(10*SECONDS))
       GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,1*SECONDS);
     else
       GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,next);
@@ -1437,7 +1437,7 @@ void GMPodcastSource::setItemFlags(FXuint add,FXuint remove,FXuint condition){
 
 
 long GMPodcastSource::onCmdFeedUpdated(FXObject*,FXSelector,void*ptr){
-  GMTask * task = *reinterpret_cast<GMTask**>(ptr);
+  GMTask * task = *static_cast<GMTask**>(ptr);
   db->execute("SELECT count(id) FROM feed_items WHERE (flags&4)==0",navailable);
 
   // Retry any failed downloads
@@ -1447,7 +1447,7 @@ long GMPodcastSource::onCmdFeedUpdated(FXObject*,FXSelector,void*ptr){
     FXint n;
     db->execute("SELECT count(id) FROM feed_items WHERE flags&1",n);
     if (n)  {
-      GM_DEBUG_PRINT("Found %d queued. Start fetching\n",n);  
+      GM_DEBUG_PRINT("Found %d queued. Start fetching\n",n);
       downloader = new GMPodcastDownloader(FXApp::instance(),this);
       downloader->start();
       }
@@ -1456,7 +1456,7 @@ long GMPodcastSource::onCmdFeedUpdated(FXObject*,FXSelector,void*ptr){
   GMPlayerManager::instance()->getSourceView()->refresh(this);
   setLastUpdate();
   delete task;
-  return 0;  
+  return 0;
   }
 
 long GMPodcastSource::onCmdDownloadFeed(FXObject*,FXSelector,void*){
@@ -1486,7 +1486,7 @@ long GMPodcastSource::onCmdDeleteLocal(FXObject*,FXSelector,void*){
   FXString localdir;
   for (FXint i=0;i<tracks.no();i++) {
     get_local.set(0,GMApp::getPodcastDirectory());
-    get_local.set(1,tracks[i]);    
+    get_local.set(1,tracks[i]);
     if (get_local.row()) {
       get_local.get(0,local);
       GM_DEBUG_PRINT("delete local: %s\n",local.text());

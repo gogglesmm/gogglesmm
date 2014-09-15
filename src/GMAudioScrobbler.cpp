@@ -849,7 +849,7 @@ void GMAudioScrobbler::process_token_response(const FXString & response){
     set_timeout();   /// Let's wait at least 60s
     }
   else {
-    FXTRACE((60,"last.fm service failed with code %d: %s\n",service.getErrorCode(),service.getErrorMessage().text()));
+    FXTRACE((60,"last.fm service failed with code %d: %s\n",sr.getErrorCode(),sr.getErrorMessage().text()));
     flags|=FLAG_BADAUTH;
     }
   }

@@ -103,7 +103,7 @@ GMNotifyDaemon::GMNotifyDaemon(GMDBus * b) : GMDBusProxy(b,GALAGO_NOTIFY_NAME,GA
   }
 
 long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   FXuint id,reason;
   FXchar * action;
   if (dbus_message_is_signal(msg,GALAGO_NOTIFY_INTERFACE,"NotificationClosed")){
@@ -147,7 +147,7 @@ long GMNotifyDaemon::onMethod(FXObject*,FXSelector,void*){
   }
 
 long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   const FXchar * daemonname=NULL;
   const FXchar * vendor=NULL;
   const FXchar * version=NULL;
@@ -177,7 +177,7 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
         }
       }
 #ifdef DEBUG
-    fxmessage("name: %s\n",name);
+    fxmessage("name: %s\n",daemonname);
     fxmessage("vendor: %s\n",vendor);
     fxmessage("version: %s\n",version);
     fxmessage("spec: %s\n",spec);
@@ -191,7 +191,7 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
   }
 
 long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   FXchar ** caps = NULL;
   int ncaps;
   if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&caps,&ncaps,DBUS_TYPE_INVALID)) {
@@ -224,7 +224,7 @@ long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
 
 
 long GMNotifyDaemon::onNotifyReply(FXObject*,FXSelector,void*ptr){
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   FXASSERT(msg);
   if (dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) {
     dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&msgid,DBUS_TYPE_INVALID);

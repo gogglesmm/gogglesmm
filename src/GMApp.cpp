@@ -24,9 +24,6 @@
 
 #include <fxkeys.h>
 
-
-
-
 #include <xincs.h>
 #include "gmutils.h"
 #include "GMApp.h"
@@ -298,7 +295,7 @@ void GMApp::initOpenGL() {
     glimage->create();
 
     if (glcontext->begin(glimage)) {
-      if (glewInit()!=GLEW_OK) {   
+      if (glewInit()!=GLEW_OK) {
         fxwarning("failed to initialize opengl extensions");
         }
       glcontext->end();
