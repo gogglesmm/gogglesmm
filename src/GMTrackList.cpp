@@ -550,7 +550,7 @@ void GMTrackList::makeItemVisible(FXint index){
 
 
 // Get item at position x,y
-FXint GMTrackList::getItemAt(FXint x,FXint y) const {
+FXint GMTrackList::getItemAt(FXint /*x*/,FXint y) const {
   FXint index;
   y-=pos_y;
   y-=header->getDefaultHeight();
