@@ -411,18 +411,18 @@ void InputThread::ctrl_open_input(const FXString & uri) {
   /// Open Input
   input=open_input(uri);
   if (input==NULL) {
-    engine->post(new ErrorMessage(FXString::value("Unable to open %s",uri.text())));
+    engine->post(new ErrorMessage(FXString::value("Unable to open %s.",uri.text())));
     goto failed;
     }
 
   reader = open_reader();
   if (reader==NULL) {
-    engine->post(new ErrorMessage(FXString::value("No input plugin available for %s",uri.text())));
+    engine->post(new ErrorMessage(FXString::value("No reader available for %s format.",ap_format_name(input->plugin()))));
     goto failed;
     }
 
   if (!reader->init(input)) {
-    engine->post(new ErrorMessage(FXString::value("Failed to initialize plugin")));
+    engine->post(new ErrorMessage(FXString::value("Failed to initialize reader")));
     goto failed;
     }
 

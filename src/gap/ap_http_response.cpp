@@ -238,7 +238,6 @@ FXbool HttpContentRange::parse(const FXString & str,FXuint opts) {
 
   // white space
   while(str[p]==' '||str[p]=='\t') p++;
-  s=p;
 
   // Make sure ranges are in bytes
   if (str[p]!='b' || str[p+1]!='y' || str[p+2]!='t' || str[p+3]!='e' || str[p+4]!='s' || str[p+5]!=' ')
@@ -282,25 +281,6 @@ failed:
   length=first=last=-1;
   return false;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

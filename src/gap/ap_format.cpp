@@ -53,6 +53,26 @@ static const FXchar * const formats[]={
   };
 
 
+static const FXchar * const formatnames[]={
+  "unknown",
+  "wav",
+  "ogg",
+  "flac",
+  "mp3",
+  "mp4",
+  "aac",
+  "musepack",
+  "wavpack",
+  "cdda",
+  "m3u",
+  "pls",
+  "xspf",
+  "asf",
+  "asx",
+  "asf/asx"
+  };
+
+
 const FXchar * Codec::name(FXuchar c){
   return codecs[c];
   }
@@ -254,6 +274,9 @@ extern FXuint ap_format_from_buffer(const FXchar * buffer,FXival size) {
     return Format::Unknown;
   }
 
+extern const FXchar * ap_format_name(FXuint format){
+  return formatnames[format];
+  }
 
 
 }

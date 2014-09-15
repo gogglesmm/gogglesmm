@@ -19,10 +19,6 @@
 #ifndef AP_HTTP_RESPONSE_H
 #define AP_HTTP_RESPONSE_H
 
-#ifndef GMAPI
-#define GMAPI
-#endif
-
 namespace ap {
 
 enum {
@@ -108,25 +104,25 @@ private:
   HttpIO(const HttpIO&);
   HttpIO &operator=(const HttpIO&);
 public:
-	HttpIO();
-	HttpIO(FXIO * io);
+  HttpIO();
+  HttpIO(FXIO * io);
 
-	// Read single or multiline header
-	FXbool readHeader(FXString & header,FXbool single=false);
+  // Read single or multiline header
+  FXbool readHeader(FXString & header,FXbool single=false);
 
-	// Send request
-	FXbool write(const FXString & request);
+  // Send request
+  FXbool write(const FXString & request);
 
-	// Read and append n bytes to str
-	FXival read(FXString & str,FXival n);
+  // Read and append n bytes to str
+  FXival read(FXString & str,FXival n);
 
-	// Destructor
-	~HttpIO();
-	};
+  // Destructor
+  ~HttpIO();
+  };
 
 
 /* Http Status */
-struct GMAPI HttpStatus {
+struct HttpStatus {
   FXint major;
   FXint minor;
   FXint code;
@@ -134,7 +130,7 @@ struct GMAPI HttpStatus {
   };
 
 
-class GMAPI HttpHeader {
+class HttpHeader {
 public:
   enum {
     ParseFieldName = 0x1,
@@ -145,7 +141,7 @@ protected:
   };
 
 
-class GMAPI HttpMediaType : public HttpHeader {
+class HttpMediaType : public HttpHeader {
 public:
   FXString           mime;
   FXStringDictionary parameters;
@@ -156,7 +152,7 @@ public:
   };
 
 
-class GMAPI HttpContentRange : public HttpHeader {
+class HttpContentRange : public HttpHeader {
 public:
   FXlong first;
   FXlong last;
@@ -169,7 +165,7 @@ public:
 
 
 /* Http Response Parser */
-class GMAPI HttpResponse {
+class HttpResponse {
 protected:
 	HttpIO       io;								// IO Stream
   FXint        content_length;    // Content Length from header
@@ -242,7 +238,7 @@ public:
   // Return the complete message body as string
   FXString body();
 
-  // Return the complete message body as string. 
+  // Return the complete message body as string.
   FXString textBody();
 
   /// Read partial body

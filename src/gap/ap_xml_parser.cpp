@@ -61,17 +61,17 @@ void XmlParser::element_data(const FXchar * d,FXint len) {
 
 
 static void element_start(void*ptr,const FXchar*element,const FXchar**attributes){
-  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
+  XmlParser * parser = static_cast<XmlParser*>(ptr);
   parser->element_start((const FXchar*)element,(const FXchar**)attributes);
   }
 
 static void element_end(void*ptr,const FXchar * element) {
-  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
+  XmlParser * parser = static_cast<XmlParser*>(ptr);
   parser->element_end((const FXchar*)element);
   }
 
 static void element_data(void*ptr,const FXchar * data,FXint len) {
-  XmlParser * parser = reinterpret_cast<XmlParser*>(ptr);
+  XmlParser * parser = static_cast<XmlParser*>(ptr);
   parser->element_data((const FXchar*)data,len);
   }
 
@@ -82,7 +82,7 @@ static int unknown_encoding(void*,const XML_Char * name,XML_Encoding * info){
     /* Only works for single byte codecs */
     FXwchar w;FXuchar c;
     for (FXint i=0;i<256;i++) {
-      c=i;  
+      c=i;
       codec->mb2wc(w,(const FXchar*)&c,1);
       info->map[i]  = w;
       info->convert = NULL;
@@ -96,7 +96,7 @@ static int unknown_encoding(void*,const XML_Char * name,XML_Encoding * info){
 
 FXbool XmlParser::parse(const FXString & buffer,const FXString & encoding) {
   if (!encoding.empty())
-    GM_DEBUG_PRINT("XmlParser::parse with encoding %s\n",encoding.text()); 
+    GM_DEBUG_PRINT("XmlParser::parse with encoding %s\n",encoding.text());
 
   XML_Parser parser;
 

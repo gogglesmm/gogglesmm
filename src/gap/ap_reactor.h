@@ -23,7 +23,7 @@ struct pollfd;
 
 namespace ap {
 
-class Reactor {
+class GMAPI Reactor {
 private:
 #ifndef WIN32
   struct pollfd * pfds;
@@ -37,13 +37,13 @@ public:
   public:
     // Number of inputs
     virtual FXint no(){ return 0;};
-    
+
     // Prepare inputs
     virtual void prepare(struct pollfd*){};
 
     // Dispatch inputs
     virtual void dispatch(struct pollfd*){};
-  
+
     virtual ~Native(){}
     };
 #endif
@@ -59,8 +59,8 @@ public:
         Exception   = (1<<2),
         IsReadable  = (1<<3),
         IsWritable  = (1<<4),
-        IsException = (1<<5),      
-        Disabled    = (1<<6)   
+        IsException = (1<<5),
+        Disabled    = (1<<6)
         };
     public:
       virtual void onSignal() {}
@@ -88,12 +88,12 @@ public:
       virtual ~Timer() {}
     };
 
-  class Deferred {  
+  class Deferred {
     public:
       FXuchar mode;
     public:
       enum {
-        Disabled  = 0x1,   
+        Disabled  = 0x1,
         };
     public:
       Deferred() : mode(0) {}
@@ -101,7 +101,7 @@ public:
       void disable() { mode|=Disabled; }
 
       void enable()  { mode&=~Disabled; }
-  
+
       virtual void run() {}
       virtual ~Deferred() {}
     };
@@ -122,7 +122,7 @@ public:
 
   void addNative(Native*);
 
-  void removeNative(Native*);  
+  void removeNative(Native*);
 
   // Add a deferred call
   void addDeferred(Deferred*);
@@ -153,7 +153,7 @@ public:
 
 #ifdef DEBUG
   // Debug Objects
-  void debug();  
+  void debug();
 #endif
 
   ~Reactor();

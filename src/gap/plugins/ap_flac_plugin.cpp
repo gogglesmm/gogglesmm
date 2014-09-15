@@ -298,7 +298,7 @@ ReadStatus FlacReader::parse() {
 
 
 FLAC__StreamDecoderSeekStatus FlacReader::flac_input_seek(const FLAC__StreamDecoder */*decoder*/,FLAC__uint64 absolute_byte_offset, void *client_data){
-  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
+  FlacReader * plugin = static_cast<FlacReader*>(client_data);
 //  fxmessage("seek\n");
 // FIXME
 //  if (inputflac->input->io->isSerial())
@@ -314,7 +314,7 @@ FLAC__StreamDecoderSeekStatus FlacReader::flac_input_seek(const FLAC__StreamDeco
 
 
 FLAC__StreamDecoderTellStatus FlacReader::flac_input_tell(const FLAC__StreamDecoder */*decoder*/, FLAC__uint64 *absolute_byte_offset, void *client_data){
-  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
+  FlacReader * plugin = static_cast<FlacReader*>(client_data);
 //  fxmessage("tell\n");
 // FIXME
 //  if (inputflac->input->io->isSerial())
@@ -330,7 +330,7 @@ FLAC__StreamDecoderTellStatus FlacReader::flac_input_tell(const FLAC__StreamDeco
 
 
 FLAC__StreamDecoderLengthStatus FlacReader::flac_input_length(const FLAC__StreamDecoder */*decoder*/, FLAC__uint64 *stream_length, void *client_data){
-  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
+  FlacReader * plugin = static_cast<FlacReader*>(client_data);
 
 ///  if (plugin->engine->input->isSerial())
  //   return FLAC__STREAM_DECODER_LENGTH_STATUS_UNSUPPORTED;
@@ -344,7 +344,7 @@ FLAC__StreamDecoderLengthStatus FlacReader::flac_input_length(const FLAC__Stream
   }
 
 FLAC__bool FlacReader::flac_input_eof(const FLAC__StreamDecoder */*decoder*/, void *client_data){
-  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
+  FlacReader * plugin = static_cast<FlacReader*>(client_data);
   return plugin->input->eof();
   }
 
@@ -356,7 +356,7 @@ FLAC__StreamDecoderWriteStatus FlacReader::flac_input_write(const FLAC__StreamDe
 
 
 FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDecoder */*decoder*/, FLAC__byte buffer[], size_t *bytes, void *client_data) {
-  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
+  FlacReader * plugin = static_cast<FlacReader*>(client_data);
   FXASSERT(bytes);
 
   if ((*bytes)<=0)
@@ -410,7 +410,7 @@ static const FXuint flac_channel_map[]={
            Channel::FrontRight,
            Channel::FrontCenter,
            Channel::LFE,
-           Channel::BackCenter, 
+           Channel::BackCenter,
            Channel::SideLeft,
            Channel::SideRight),
 
@@ -419,14 +419,14 @@ static const FXuint flac_channel_map[]={
            Channel::FrontCenter,
            Channel::LFE,
            Channel::BackLeft,
-           Channel::BackRight,  
+           Channel::BackRight,
            Channel::SideLeft,
            Channel::SideRight),
   };
 
 
 void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
-  FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
+  FlacReader * plugin = static_cast<FlacReader*>(client_data);
   switch(metadata->type) {
     case FLAC__METADATA_TYPE_STREAMINFO:
 
@@ -485,7 +485,7 @@ void FlacReader::flac_input_error(const FLAC__StreamDecoder */*decoder*/, FLAC__
 
 
 FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame *frame, const FLAC__int32 *const buffer[], void *client_data) {
-  FlacDecoder * plugin = reinterpret_cast<FlacDecoder*>(client_data);
+  FlacDecoder * plugin = static_cast<FlacDecoder*>(client_data);
   FXASSERT(frame);
   FXASSERT(buffer);
   FXint s,c,p=0;
@@ -506,16 +506,16 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
   Packet * packet = plugin->out;
   if (packet) {
     FXASSERT(packet->stream_position+packet->numFrames()==stream_position);
-    if (packet->numFrames()==0) 
-      packet->stream_position = stream_position;  
+    if (packet->numFrames()==0)
+      packet->stream_position = stream_position;
     }
 
   if (stream_position<plugin->stream_decode_offset) {
     FXlong offset = FXMIN(nframes,plugin->stream_decode_offset-stream_position);
-    GM_DEBUG_PRINT("[flac] stream decode offset %ld. Skipping %ld of %ld \n",plugin->stream_decode_offset,offset,plugin->stream_decode_offset-stream_position); 
-    nframes-=offset;  
+    GM_DEBUG_PRINT("[flac] stream decode offset %ld. Skipping %ld of %ld \n",plugin->stream_decode_offset,offset,plugin->stream_decode_offset-stream_position);
+    nframes-=offset;
     stream_position+=offset;
-    sample+=offset;    
+    sample+=offset;
     }
 
 
@@ -581,7 +581,7 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
 
 
 FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamDecoder */*decoder*/, FLAC__byte buffer[], size_t *bytes, void *client_data) {
-  FlacDecoder * plugin = reinterpret_cast<FlacDecoder*>(client_data);
+  FlacDecoder * plugin = static_cast<FlacDecoder*>(client_data);
   FXASSERT(plugin);
   FXASSERT(bytes && ((*bytes)>0));
 

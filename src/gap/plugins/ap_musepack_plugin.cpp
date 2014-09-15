@@ -73,13 +73,13 @@ public:
 
 
 mpc_int32_t MusepackReader::mpc_input_read(void *t, void *ptr, mpc_int32_t size){
-  InputThread * input = reinterpret_cast<InputThread*>(t);
+  InputThread * input = static_cast<InputThread*>(t);
   FXASSERT(input);
   return input->read(ptr,size);
   }
 
 mpc_bool_t MusepackReader::mpc_input_seek(void *t, mpc_int32_t offset){
-  InputThread * input = reinterpret_cast<InputThread*>(t);
+  InputThread * input = static_cast<InputThread*>(t);
   FXASSERT(input);
   FXlong pos=input->position((FXlong)offset,FXIO::Begin);
   if (pos!=offset)
@@ -89,19 +89,19 @@ mpc_bool_t MusepackReader::mpc_input_seek(void *t, mpc_int32_t offset){
   }
 
 mpc_int32_t MusepackReader::mpc_input_tell(void *t){
-  InputThread * input = reinterpret_cast<InputThread*>(t);
+  InputThread * input = static_cast<InputThread*>(t);
   FXASSERT(input);
   return (FXint) input->position();
   }
 
 mpc_int32_t  MusepackReader::mpc_input_size(void *t){
-  InputThread * input = reinterpret_cast<InputThread*>(t);
+  InputThread * input = static_cast<InputThread*>(t);
   FXASSERT(input);
   return  input->size();
   }
 
 mpc_bool_t MusepackReader::mpc_input_canseek(void*t){
-  InputThread * input = reinterpret_cast<InputThread*>(t);
+  InputThread * input = static_cast<InputThread*>(t);
   FXASSERT(input);
   return !input->serial();
   }

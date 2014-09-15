@@ -80,7 +80,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#if defined(__linux__) 
+#if defined(__linux__)
 #define HAVE_PPOLL // On Linux we have ppoll
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -226,14 +226,14 @@ const FXTextCodec * const codec_list[]={
   };
 
 
-extern GMAPI const FXTextCodec * ap_get_textcodec(const FXString & encoding) {
+extern const FXTextCodec * ap_get_textcodec(const FXString & encoding) {
   // Check if any of the codecs match
   for (FXint i=0;codec_list[i];i++) {
     if (comparecase(codec_list[i]->name(),encoding)==0) {
       return codec_list[i];
       }
     const FXchar * const * alias = codec_list[i]->aliases();
-    for (FXint j=0;alias[j]!=NULL;j++) { 
+    for (FXint j=0;alias[j]!=NULL;j++) {
       if (comparecase(alias[j],encoding)==0) {
         return codec_list[i];
         }

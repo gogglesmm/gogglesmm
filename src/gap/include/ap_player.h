@@ -25,9 +25,7 @@ class AudioEngine;
 class EventQueue;
 class Event;
 
-
-
-class GMAPI AudioPlayer : public FXObject {
+class AudioPlayer : public FXObject {
 FXDECLARE(AudioPlayer)
 private:
   AudioEngine * engine;
