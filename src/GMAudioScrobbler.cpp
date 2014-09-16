@@ -1228,7 +1228,7 @@ void GMAudioScrobbler::create_submit_request(FXString & request) {
                               i,submitqueue[i].no,
                               i,submitqueue[i].duration);
       }
-    request+=FXString::value("&api_key=" CLIENT_KEY" &api_sig=%s&sk=%s",signature.text(),session.text());
+    request+=FXString::value("&api_key=" CLIENT_KEY "&api_sig=%s&sk=%s",signature.text(),session.text());
     }
   else {
     request+="s=";
