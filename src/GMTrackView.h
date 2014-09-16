@@ -24,6 +24,7 @@ class GMTrackList;
 class GMSource;
 class GMTrackItem;
 class GMAlbumList;
+class GMAlbumListItem;
 
 
 class GMTrackView : public FXPacker {
@@ -229,6 +230,8 @@ public:
   GMTrackItem * getTrackItem(FXint i) const;
 
   GMTrackItem * getCurrentTrackItem() const;
+
+  GMAlbumListItem * getCurrentAlbumItem() const;
 
   FXbool isTrackItemSelected(FXint i) const;
 

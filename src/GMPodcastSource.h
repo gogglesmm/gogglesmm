@@ -67,9 +67,11 @@ public:
     ID_FEED_UPDATER,
     ID_LOAD_COVERS,
     ID_DELETE_LOCAL,
+    ID_AUTO_DOWNLOAD,
     ID_LAST
     };
 public:
+  long onCmdAutoDownload(FXObject*,FXSelector,void*);
   long onCmdAddFeed(FXObject*,FXSelector,void*);
   long onCmdRefreshFeed(FXObject*,FXSelector,void*);
   long onCmdDownloadFeed(FXObject*,FXSelector,void*);
@@ -126,7 +128,7 @@ public:
   FXbool hasArtistList() const { return false; }
 
   FXbool defaultBrowse() const { return true; }
-  
+
   FXbool defaultTags() const { return true; }
 
   FXbool autoPlay() const { return false; }

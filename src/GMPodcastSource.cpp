@@ -1020,13 +1020,27 @@ FXint GMPodcastUpdater::run() {
 
 /*--------------------------------------------------------------------------------------------*/
 
+class GMPodcastFeed : public GMAlbumListItem {
+  FXDECLARE(GMPodcastFeed)
+protected:
+  GMPodcastFeed() {}
+public:
+  enum {
+    AUTODOWNLOAD = 8
+    };
 
+public:
+  GMPodcastFeed(const FXString & feed,FXbool ad,FXint id) : GMAlbumListItem(FXString::null,feed,0,id) {
+    if (ad) state|=AUTODOWNLOAD;
+    }
 
+  FXbool isAutoDownload() const { return (state&AUTODOWNLOAD)!=0; }
 
+  void setAutoDownload(FXbool download) { state^=((0-download)^state)&AUTODOWNLOAD; }
 
+  };
 
-
-
+FXIMPLEMENT(GMPodcastFeed,GMAlbumListItem,NULL,0);
 
 
 class GMPodcastClipboardData : public GMClipboardData {
@@ -1074,6 +1088,7 @@ FXDEFMAP(GMPodcastSource) GMPodcastSourceMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_MARK_NEW,GMPodcastSource::onCmdMarkNew),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_MARK_PLAYED,GMPodcastSource::onCmdMarkPlayed),
   FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_DELETE_LOCAL,GMPodcastSource::onCmdDeleteLocal),
+  FXMAPFUNC(SEL_COMMAND,GMPodcastSource::ID_AUTO_DOWNLOAD,GMPodcastSource::onCmdAutoDownload),
   FXMAPFUNC(SEL_TASK_COMPLETED,GMPodcastSource::ID_FEED_UPDATER,GMPodcastSource::onCmdFeedUpdated),
   FXMAPFUNC(SEL_TASK_CANCELLED,GMPodcastSource::ID_FEED_UPDATER,GMPodcastSource::onCmdFeedUpdated),
   FXMAPFUNC(SEL_TIMEOUT,GMPodcastSource::ID_TRACK_PLAYED,GMPodcastSource::onCmdTrackPlayed),
@@ -1325,6 +1340,12 @@ FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMPodcastSource::album_context_menu(FXMenuPane * pane){
+  GMPodcastFeed * item = dynamic_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
+  fxmessage("got %s\n",item->getTitle().text());
+  GMMenuCheck * autodownload = new GMMenuCheck(pane,fxtr("Auto Download"),this,ID_AUTO_DOWNLOAD);
+  if (item->isAutoDownload())
+    autodownload->setCheck(true);
+  new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove Podcast"),NULL,this,ID_REMOVE_FEED);
   return true;
   }
@@ -1350,7 +1371,7 @@ FXbool GMPodcastSource::listTags(GMList * list,FXIcon * icon){
   }
 
 FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXIntList & taglist){
-  FXString q = "SELECT id,title FROM feeds";
+  FXString q = "SELECT id,title,autodownload FROM feeds";
   if (taglist.no()) {
     FXString tagselection;
     GMQuery::makeSelection(taglist,tagselection);
@@ -1361,19 +1382,20 @@ FXbool GMPodcastSource::listAlbums(GMAlbumList *list,const FXIntList &,const FXI
   query = db->compile(q);
 
   const FXchar * c_title;
-  FXint id;
-  GMAlbumListItem* item;
+  FXint id,autodownload;
+  GMPodcastFeed* item;
   while(query.row()){
       query.get(0,id);
       c_title = query.get(1);
-      item = new GMAlbumListItem(FXString::null,c_title,0,id);
+      query.get(2,autodownload);
+      item = new GMPodcastFeed(c_title,autodownload,id);
       list->appendItem(item);
       }
 
   list->sortItems();
   if (list->getNumItems()>1){
     FXString all = FXString::value(fxtrformat("All %d Feeds"),list->getNumItems());
-    list->prependItem(new GMAlbumListItem(all,all,0,-1));
+    list->prependItem(new GMPodcastFeed(all,false,-1));
     }
   return true;
   }
@@ -1503,6 +1525,19 @@ long GMPodcastSource::onCmdDeleteLocal(FXObject*,FXSelector,void*){
     }
   return 1;
   }
+
+long GMPodcastSource::onCmdAutoDownload(FXObject*,FXSelector,void*){
+  GMPodcastFeed * item = dynamic_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
+  GMQuery update_feed(db,"UPDATE feeds SET autodownload = ? WHERE id == ?;");
+  db->begin();
+  update_feed.set(0,!item->isAutoDownload());
+  update_feed.set(1,item->getId());
+  update_feed.execute();
+  db->commit();
+  item->setAutoDownload(!item->isAutoDownload());
+  return 1;
+  }
+
 
 
 

@@ -1796,8 +1796,10 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
 
     if (FXSELID(sel)==ID_ALBUM_LIST) {
       FXint item = albumlist->getItemAt(event->win_x,event->win_y);
-      if (item>=0 && getAlbum(item)!=-1 && source->album_context_menu(&pane))
+      if (item>=0 && getAlbum(item)!=-1) {
         selectAlbumItem(item);
+        source->album_context_menu(&pane);
+        }
       }
     /*
       FIXME Dirty Hack. We need to get this info from the source really.
@@ -2569,6 +2571,11 @@ FXbool GMTrackView::isTrackItemSelected(FXint i) const {
 FXint GMTrackView::getNumTracks() const {
   return tracklist->getNumItems() ;
   }
+
+GMAlbumListItem * GMTrackView::getCurrentAlbumItem() const {
+  FXASSERT(tracklist->getCurrentItem()>=0); return (GMAlbumListItem*)albumlist->getItem(albumlist->getCurrentItem());
+  }
+
 
 
 FXint GMTrackView::getTag(FXint index) const { return (FXint)(FXival)taglist->getItemData(index); }
