@@ -226,6 +226,57 @@ const FXTextCodec * const codec_list[]={
   };
 
 
+const FXTextCodec * const codec_user_list[]={
+  NULL, //ascii
+  &codec_utf8,
+  &codec_88591,
+  &codec_88592,
+  &codec_88593,
+  &codec_88594,
+  &codec_88595,
+  &codec_88596,
+  &codec_88597,
+  &codec_88598,
+  &codec_88599,
+  &codec_885910,
+  &codec_885911,
+  &codec_885913,
+  &codec_885914,
+  &codec_885915,
+  &codec_885916,
+  &codec_437,
+  &codec_859,
+  &codec_852,
+  &codec_855,
+  &codec_856,
+  &codec_857,
+  &codec_860,
+  &codec_861,
+  &codec_862,
+  &codec_863,
+  &codec_864,
+  &codec_865,
+  &codec_866,
+  &codec_869,
+  &codec_874,
+  &codec_1250,
+  &codec_1251,
+  &codec_1252,
+  &codec_1253,
+  &codec_1254,
+  &codec_1255,
+  &codec_1256,
+  &codec_1257,
+  &codec_1258,
+  &codec_koi8r,
+  };
+
+
+extern const FXTextCodec * ap_get_usercodec(FXuint encoding) {
+  return codec_user_list[encoding];
+  }
+
+
 extern const FXTextCodec * ap_get_textcodec(const FXString & encoding) {
   // Check if any of the codecs match
   for (FXint i=0;codec_list[i];i++) {

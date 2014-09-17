@@ -25,6 +25,7 @@
 #include "GMTrackDatabase.h"
 #include "GMFilename.h"
 #include "GMPlayerManager.h"
+#include "GMAudioPlayer.h"
 #include "GMScanner.h"
 #include "GMTag.h"
 
@@ -90,7 +91,7 @@ void GMDBTracks::init(GMTrackDatabase*db) {
                                                                   "no = ?,"
                                                                   "year = ?,"
                                                                   "bitrate = ?,"
-                                                                  "album =  ?," 
+                                                                  "album =  ?,"
                                                                   "artist = ?," // artist
                                                                   "composer = ?," // composer
                                                                   "conductor = ?," // conductor
@@ -141,7 +142,7 @@ void GMDBTracks::insertTags(FXint track,const FXStringList & tags){
   for (int i=0;i<tags.no();i++) {
     ids[i]=0;
     query_tag.execute(tags[i],ids[i]);
-    if (ids[i]==0) 
+    if (ids[i]==0)
       ids[i] = insert_tag.insert(tags[i]);
     }
 
@@ -507,7 +508,7 @@ FXint GMImportTask::run() {
 
     // Set codec for id3v1
     if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
-      FXTextCodec * codec = GMFilename::findcodec(options.id3v1_encoding);
+      const FXTextCodec * codec = ap_get_usercodec(options.id3v1_encoding);
       if (codec) {
         GMTag::setID3v1Encoding(codec);
         }
@@ -624,7 +625,7 @@ FXint GMSyncTask::run() {
 
     // Set codec for id3v1
     if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
-      FXTextCodec * codec = GMFilename::findcodec(options.id3v1_encoding);
+      const FXTextCodec * codec = ap_get_usercodec(options.id3v1_encoding);
       if (codec) {
         GMTag::setID3v1Encoding(codec);
         }

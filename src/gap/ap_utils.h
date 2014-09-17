@@ -24,7 +24,7 @@
 namespace ap {
 
 
-/* Get textcodec for given mime or name */
+// Get textcodec for given mime or name
 extern const FXTextCodec * ap_get_textcodec(const FXString &);
 
 extern FXString ap_get_environment(const FXchar * key,const FXchar * def=NULL);

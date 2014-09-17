@@ -550,7 +550,7 @@ void GMFileTag::setComposer(const FXString & composer) {
   if (xiph)
     xiph_update_field("COMPOSER",composer);
   if (id3v2)
-    id3v2_update_field("TCOM",composer);  
+    id3v2_update_field("TCOM",composer);
   if (mp4)
     mp4_update_field("\251wrt",composer);
   if (ape)
@@ -1110,12 +1110,12 @@ class GMStringHandler : public TagLib::ID3v1::StringHandler {
   public:
     static GMStringHandler * instance;
   protected:
-    FXTextCodec * codec;
+    const FXTextCodec * codec;
   public:
-    GMStringHandler(FXTextCodec *c) : codec(c) {
+    GMStringHandler(const FXTextCodec *c) : codec(c) {
       FXASSERT(codec!=NULL);
       FXASSERT(instance==NULL);
-      GM_DEBUG_PRINT("[tag] id3v1 string handler: %s\n",codec->name()); 
+      GM_DEBUG_PRINT("[tag] id3v1 string handler: %s\n",codec->name());
       instance=this;
       }
 
@@ -1124,7 +1124,7 @@ class GMStringHandler : public TagLib::ID3v1::StringHandler {
        * \a data is an ISO-8859-1 (Latin1) character array.
        */
     virtual TagLib::String parse(const TagLib::ByteVector &in) const {
-       TagLib::ByteVector utf;      
+       TagLib::ByteVector utf;
        FXint n = codec->mb2utflen(in.data(),in.size());
        utf.resize(n);
        codec->mb2utf(utf.data(),utf.size(),in.data(),in.size());
@@ -1143,8 +1143,6 @@ class GMStringHandler : public TagLib::ID3v1::StringHandler {
       //virtual ByteVector render(const String &s) const;
 
     virtual ~GMStringHandler() {
-      delete codec;
-      codec=NULL;
       instance=NULL;
       }
     };
@@ -1161,7 +1159,7 @@ void init(){
   TagLib::setDebugListener(&debuglistener);
   }
 
-void setID3v1Encoding(FXTextCodec * codec){
+void setID3v1Encoding(const FXTextCodec * codec){
   if (codec) {
     FXASSERT(GMStringHandler::instance==NULL);
     TagLib::ID3v1::Tag::setStringHandler(new GMStringHandler(codec));
@@ -1172,7 +1170,7 @@ void setID3v1Encoding(FXTextCodec * codec){
       delete GMStringHandler::instance;
       }
     }
-  }        
+  }
 
 
 FXbool length(GMTrack & info) {

@@ -40,6 +40,7 @@
 #include "GMTaskManager.h"
 #include "GMTrackEditor.h"
 #include "GMWindow.h"
+#include "GMAudioPlayer.h"
 
 
 #include "FXPNGIcon.h"
@@ -186,7 +187,7 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
     return false;
     }
 
-  FXTextCodec * codec = GMFilename::findcodec(GMPlayerManager::instance()->getPreferences().export_encoding);
+  const FXTextCodec * const codec = ap_get_usercodec(GMPlayerManager::instance()->getPreferences().export_encoding);
   FXuint options=0;
 
   if (GMPlayerManager::instance()->getPreferences().export_lowercase)
@@ -220,7 +221,6 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
 
   if (numchanges==0){
     FXMessageBox::information(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("No changes"),fxtr("Filenames did not require any changes"));
-    delete codec;
     return false;
     }
 
@@ -248,7 +248,6 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
     GMPlayerManager::instance()->runTask(task);
     return true;
     }
-  delete codec;
   return false;
   }
 

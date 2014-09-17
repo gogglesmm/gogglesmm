@@ -17,49 +17,6 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
-#include "FXTextCodec.h"
-#include <FX88591Codec.h>
-#include <FX88592Codec.h>
-#include <FX88593Codec.h>
-#include <FX88594Codec.h>
-#include <FX88595Codec.h>
-#include <FX88596Codec.h>
-#include <FX88597Codec.h>
-#include <FX88598Codec.h>
-#include <FX88599Codec.h>
-#include <FX885910Codec.h>
-#include <FX885911Codec.h>
-#include <FX885913Codec.h>
-#include <FX885914Codec.h>
-#include <FX885915Codec.h>
-#include <FX885916Codec.h>
-#include <FXCP437Codec.h>
-#include <FXCP850Codec.h>
-#include <FXCP852Codec.h>
-#include <FXCP855Codec.h>
-#include <FXCP856Codec.h>
-#include <FXCP857Codec.h>
-#include <FXCP860Codec.h>
-#include <FXCP861Codec.h>
-#include <FXCP862Codec.h>
-#include <FXCP863Codec.h>
-#include <FXCP864Codec.h>
-#include <FXCP865Codec.h>
-#include <FXCP866Codec.h>
-#include <FXCP869Codec.h>
-#include <FXCP874Codec.h>
-#include <FXCP1250Codec.h>
-#include <FXCP1251Codec.h>
-#include <FXCP1252Codec.h>
-#include <FXCP1253Codec.h>
-#include <FXCP1254Codec.h>
-#include <FXCP1255Codec.h>
-#include <FXCP1256Codec.h>
-#include <FXCP1257Codec.h>
-#include <FXCP1258Codec.h>
-#include <FXKOI8RCodec.h>
-#include <FXUTF8Codec.h>
-
 #include "GMTrack.h"
 #include "GMFilename.h"
 
@@ -85,6 +42,8 @@
 
 
 */
+
+
 
 const char * gmcodecnames[]={
   "7-bit Ascii",
@@ -137,57 +96,6 @@ using namespace GMFilename;
 
 namespace GMFilename {
 
-
-FXTextCodec * findcodec(const FXuint & codec) {
-  switch(codec)	{
-    case ENCODING_ASCII   : return NULL; break;
-    case ENCODING_UTF8    : return new FXUTF8Codec; break;
-    case ENCODING_8859_1  : return new FX88591Codec; break;
-    case ENCODING_8859_2  : return new FX88592Codec; break;
-    case ENCODING_8859_3  : return new FX88593Codec; break;
-    case ENCODING_8859_4  : return new FX88594Codec; break;
-    case ENCODING_8859_5  : return new FX88595Codec; break;
-    case ENCODING_8859_6  : return new FX88596Codec; break;
-    case ENCODING_8859_7  : return new FX88597Codec; break;
-    case ENCODING_8859_8  : return new FX88598Codec; break;
-    case ENCODING_8859_9  : return new FX88599Codec; break;
-    case ENCODING_8859_10 : return new FX885910Codec; break;
-    case ENCODING_8859_11 : return new FX885911Codec; break;
-    case ENCODING_8859_13 : return new FX885913Codec; break;
-    case ENCODING_8859_14 : return new FX885914Codec; break;
-    case ENCODING_8859_15 : return new FX885915Codec; break;
-    case ENCODING_8859_16 : return new FX885916Codec; break;
-    case ENCODING_CP437   : return new FXCP437Codec; break;
-    case ENCODING_CP850   : return new FXCP850Codec; break;
-    case ENCODING_CP852   : return new FXCP852Codec; break;
-    case ENCODING_CP855   : return new FXCP855Codec; break;
-    case ENCODING_CP856   : return new FXCP856Codec; break;
-    case ENCODING_CP857   : return new FXCP857Codec; break;
-    case ENCODING_CP860   : return new FXCP860Codec; break;
-    case ENCODING_CP861   : return new FXCP861Codec; break;
-    case ENCODING_CP862   : return new FXCP862Codec; break;
-    case ENCODING_CP863   : return new FXCP863Codec; break;
-    case ENCODING_CP864   : return new FXCP864Codec; break;
-    case ENCODING_CP865   : return new FXCP865Codec; break;
-    case ENCODING_CP866   : return new FXCP866Codec; break;
-    case ENCODING_CP869   : return new FXCP869Codec; break;
-    case ENCODING_CP874   : return new FXCP874Codec; break;
-    case ENCODING_CP1250  : return new FXCP1250Codec; break;
-    case ENCODING_CP1251  : return new FXCP1251Codec; break;
-    case ENCODING_CP1252  : return new FXCP1252Codec; break;
-    case ENCODING_CP1253  : return new FXCP1253Codec; break;
-    case ENCODING_CP1254  : return new FXCP1254Codec; break;
-    case ENCODING_CP1255  : return new FXCP1255Codec; break;
-    case ENCODING_CP1256  : return new FXCP1256Codec; break;
-    case ENCODING_CP1257  : return new FXCP1257Codec; break;
-    case ENCODING_CP1258  : return new FXCP1258Codec; break;
-    case ENCODING_KOIR8   : return new FXKOI8RCodec; break;
-    default               : return NULL;
-    }
-  return NULL;
-  }
-
-
 /*
     0) trim white spaces
     1) only want printable characters
@@ -234,7 +142,7 @@ FXString filter(const FXString & input,const FXString & forbidden,FXuint options
 
 
 /* convert UTF8 to given 8 bit codec. decompose if necessary */
-static FXString convert_and_decompose(const FXString & input,FXTextCodec * codec) {
+static FXString convert_and_decompose(const FXString & input,const FXTextCodec * codec) {
   FXint i=0,j=0;
   FXint len;
   FXString result;
@@ -274,7 +182,7 @@ static FXString convert_and_decompose(const FXString & input) {
   }
 
 
-static FXString to_8bit_codec(const FXString & input,FXTextCodec * codec,const FXString & forbidden,FXuint opts) {
+static FXString to_8bit_codec(const FXString & input,const FXTextCodec * codec,const FXString & forbidden,FXuint opts) {
   FXString result;
 
   /// Filter the input
@@ -284,7 +192,7 @@ static FXString to_8bit_codec(const FXString & input,FXTextCodec * codec,const F
   result = compose(result,DecomposeCompat);
 
   /// convert to given codec.
-  if (dynamic_cast<FXUTF8Codec*>(codec)==NULL)
+  if (codec->mibEnum()!=106) // not utf8
     result = convert_and_decompose(result,codec);
 
   return result;
@@ -307,28 +215,16 @@ static FXString to_8bit_ascii(const FXString & input,const FXString & forbidden,
   return result;
   }
 
-#if 0
-static FXString to_utf8(const FXString & input,const FXString & forbidden,FXuint opts) {
-  FXString result;
 
-  /// Filter the input
-  result = filter(input,forbidden,opts);
-
-  /// Make sure it is properly composed. Should we do this?
-  result = compose(result,DecCompat);
-
-  return result;
-  }
-#endif
-
-static FXString convert(const FXString & input,FXTextCodec * codec,const FXString & forbidden,FXuint opts) {
+static FXString convert(const FXString & input,const FXTextCodec * codec,const FXString & forbidden,FXuint opts) {
   if (codec)
     return to_8bit_codec(input,codec,forbidden,opts);
   else
     return to_8bit_ascii(input,forbidden,opts);
   }
 
-static FXString get_field(FXchar field,const GMTrack & track,FXTextCodec * codec,const FXString & forbidden,FXuint opts){
+
+static FXString get_field(FXchar field,const GMTrack & track,const FXTextCodec * codec,const FXString & forbidden,FXuint opts){
   switch(field) {
     case 'T': return convert(track.title,codec,forbidden,opts); break;
     case 'A': return convert(track.album,codec,forbidden,opts); break;
@@ -346,7 +242,7 @@ static FXString get_field(FXchar field,const GMTrack & track,FXTextCodec * codec
   }
 
 
-static FXbool eval_field(FXchar field,const GMTrack & track,FXTextCodec * codec,const FXString & forbidden,FXuint opts){
+static FXbool eval_field(FXchar field,const GMTrack & track,const FXTextCodec * codec,const FXString & forbidden,FXuint opts){
   switch(field) {
     case 'T': return !convert(track.title,codec,forbidden,opts).empty(); break;
     case 'A': return !convert(track.album,codec,forbidden,opts).empty(); break;
@@ -365,7 +261,7 @@ static FXbool eval_field(FXchar field,const GMTrack & track,FXTextCodec * codec,
 
 
 
-FXString format_track(const GMTrack & track,const FXString & path,const FXString & forbidden,const FXuint & options,FXTextCodec * textcodec){
+FXString format_track(const GMTrack & track,const FXString & path,const FXString & forbidden,const FXuint & options,const FXTextCodec * textcodec){
   FXString field;
   FXwchar w;
 
@@ -452,7 +348,7 @@ FXString format_track(const GMTrack & track,const FXString & path,const FXString
 
 
 
-FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,FXTextCodec * textcodec) {
+FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,const FXTextCodec * textcodec) {
   FXString path;
 
   /// Expand Environment Variables and such...

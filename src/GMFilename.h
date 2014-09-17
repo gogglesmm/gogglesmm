@@ -78,14 +78,10 @@ namespace GMFilename {
   /// Filter a string
   FXString filter(const FXString & input,const FXString & forbidden,FXuint options);
 
-  /// Return FXTextCodec for given codec number
-  FXTextCodec * findcodec(const FXuint & codec);
-
   /// Create Filename based on Track Information and Format String
-  FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,FXTextCodec * codec=NULL);
+  FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,const FXTextCodec * codec=NULL);
 
-
-  FXString format_track(const GMTrack & track,const FXString & path,const FXString & forbidden,const FXuint & options,FXTextCodec * textcodec);
+  FXString format_track(const GMTrack & track,const FXString & path,const FXString & forbidden,const FXuint & options,const FXTextCodec * textcodec);
 
   enum {
     REPLACE_UNDERSCORE = 0x1,
