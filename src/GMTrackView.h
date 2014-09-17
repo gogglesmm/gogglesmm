@@ -205,6 +205,8 @@ public:
 
   void updateIcons();
 
+  void updateTrackItem(FXint index);
+
   FXMenuPane * getColumnMenu() const { return columnmenu; }
 
   FXMenuPane * getSortMenu() const { return sortmenu; }
@@ -226,6 +228,8 @@ public:
   void getSelectedTracks(FXIntList & tracks) const;
 
   void getTracks(FXIntList & tracks) const;
+
+  FXint findTrackIndexById(FXint id) const;
 
   GMTrackItem * getTrackItem(FXint i) const;
 

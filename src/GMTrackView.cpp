@@ -553,6 +553,10 @@ void GMTrackView::updateIcons(){
 */
   }
 
+void GMTrackView::updateTrackItem(FXint index) {
+  tracklist->updateItem(index);
+  }
+
 
 void GMTrackView::clear() {
   taglist->clearItems();
@@ -2555,6 +2559,10 @@ long GMTrackView::onCmdConfigureColumns(FXObject*,FXSelector,void*){
   return 1;
   }
 
+
+FXint GMTrackView::findTrackIndexById(FXint id) const {
+  return tracklist->findItemById(id);
+  }
 
 GMTrackItem * GMTrackView::getTrackItem(FXint i) const {
   return (GMTrackItem*)tracklist->getItem(i);

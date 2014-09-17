@@ -229,6 +229,9 @@ public:
   /// Construct icon list with no items in it initially
   GMTrackList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TRACKLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
+  /// Find Item by Id
+  FXint findItemById(FXint id) const;
+
   /// Get the unique item id
   FXint getItemId(FXint index) const { return items[index]->id; }
 

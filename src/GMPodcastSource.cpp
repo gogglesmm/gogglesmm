@@ -779,6 +779,21 @@ public:
     update_feed.set(3,id);
     update_feed.execute();
 
+    GMTrackView * view = GMPlayerManager::instance()->getTrackView();
+    if (view->getSource()==src) {
+      FXint item = view->findTrackIndexById(id);
+      if (item>=0) {
+        GMFeedItem * feeditem = dynamic_cast<GMFeedItem*>(view->getTrackItem(item));
+        FXuint f = feeditem->getFlags();
+        f&=~(1<<ITEM_FLAG_QUEUE);
+        if (!local.empty())
+          f|=(1<<ITEM_FLAG_LOCAL);
+        else
+          f|=(1<<ITEM_FLAG_DOWNLOAD_FAILED);
+        feeditem->setFlags(f);
+        view->updateTrackItem(item);
+        }
+      }
     next_task();
     condition.signal();
     mutex.unlock();

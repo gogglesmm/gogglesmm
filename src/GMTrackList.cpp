@@ -548,6 +548,14 @@ void GMTrackList::makeItemVisible(FXint index){
     }
   }
 
+/// Find Item by Id
+FXint GMTrackList::findItemById(FXint id) const{
+  for (FXint i=0;i<items.no();i++){
+    if (items[i]->id==id) return i;
+    }
+  return -1;
+  }
+
 
 // Get item at position x,y
 FXint GMTrackList::getItemAt(FXint /*x*/,FXint y) const {

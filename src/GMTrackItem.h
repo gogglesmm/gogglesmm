@@ -215,6 +215,10 @@ protected:
 public:
   GMFeedItem(FXint id,const FXchar* feed,const FXchar* title,FXTime date,FXuint time,FXuint flags);
 
+  FXuint getFlags() const { return flags; }
+
+  void setFlags(FXuint f) { flags=f; }
+
   virtual ~GMFeedItem() {}
   };
 
