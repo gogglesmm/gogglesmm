@@ -1508,6 +1508,7 @@ long GMDatabaseSource::onCmdDelete(FXObject*,FXSelector sel,void*){
 
     FXApp::instance()->reg().writeBoolEntry("delete dialog","from-disk",from_disk->getCheck());
 
+    GMPlayerManager::instance()->getSourceView()->refresh();
     GMPlayerManager::instance()->getTrackView()->refresh();
     }
   return 1;
@@ -1626,6 +1627,9 @@ FXuint gm_parse_dragtypes(FXDragType*types,FXuint ntypes){
 
 
 
+void GMDatabaseSource::addTracks(GMSource * src,const FXIntList & tracks) {
+  db->insertPlaylistTracks(playlist,tracks);
+  }
 
 long GMDatabaseSource::onCmdDrop(FXObject*sender,FXSelector,void*){
   FXWindow*    window=dynamic_cast<FXWindow*>(sender);
@@ -1633,6 +1637,7 @@ long GMDatabaseSource::onCmdDrop(FXObject*sender,FXSelector,void*){
   FXDragType * types=NULL;
   if (window->inquireDNDTypes(FROM_DRAGNDROP,types,ntypes)){
     from = gm_parse_dragtypes(types,ntypes);
+
     if (!playlist && from&(DND_TRACKS_SELECTED|DND_TRACKS_ALL|DND_TRACKS_ID) )
       return 0;
 
@@ -1642,7 +1647,8 @@ long GMDatabaseSource::onCmdDrop(FXObject*sender,FXSelector,void*){
         GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
       else
         GMPlayerManager::instance()->getTrackView()->getTracks(tracks);
-      if (tracks.no()) db->insertPlaylistTracks(playlist,tracks);
+
+      if (tracks.no()) addTracks(GMPlayerManager::instance()->getTrackView()->getSource(),tracks);
       }
     else if ((from&DND_URI) && window->getDNDData(FROM_DRAGNDROP,FXWindow::urilistType,dndfiles)) {
       FXApp::instance()->addChore(this,ID_IMPORT_FILES,&dndfiles);

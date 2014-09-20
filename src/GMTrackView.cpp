@@ -632,7 +632,15 @@ FXint GMTrackView::getActive() const{
   }
 
 FXint GMTrackView::getCurrent() const{
-  return tracklist->getCurrentItem();
+  if (GMPlayerManager::instance()->getPlayQueue()) {
+    FXIntList tracks;
+    tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
+    GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
+    return GMPlayerManager::instance()->getPlayQueue()->getCurrent();
+    }
+  else {
+    return tracklist->getCurrentItem();
+    }
   }
 
 //generates a psuedo-random integer between min and max
@@ -987,6 +995,11 @@ void GMTrackView::redrawAlbumList() {
   if (source) albumlist->setCoverCache(source->getCoverCache());
   albumlist->update();
   }
+
+void GMTrackView::redrawTrackList() {
+  tracklist->update();
+  }
+
 
 void GMTrackView::refreshUpdate() {
   if (source) {

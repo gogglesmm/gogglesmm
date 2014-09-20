@@ -1205,7 +1205,11 @@ void GMPlayerManager::playItem(FXuint whence) {
 #ifdef HAVE_PLAYQUEUE
   if (queue) {
     switch(whence) {
-      case TRACK_CURRENT : track = queue->getCurrent(); break;
+      case TRACK_CURRENT :  track = queue->getCurrent();
+                            if (track==-1 && queue->canPlaySource(getTrackView()->getSource())) {
+                              track = getTrackView()->getCurrent();
+                              }
+                           break;
       case TRACK_NEXT    : track = queue->getNext(); break;
       case TRACK_PREVIOUS: track = queue->getPrev(); break;
       default            : FXASSERT(0); break;
@@ -1214,6 +1218,7 @@ void GMPlayerManager::playItem(FXuint whence) {
       source = queue;
       }
     }
+  else {
 #endif
 
   if (track==-1) {
@@ -1225,11 +1230,12 @@ void GMPlayerManager::playItem(FXuint whence) {
       };
     if (track!=-1) {
       source = getTrackView()->getSource();
+      getTrackView()->setActive(track);
       }
     }
+  }
 
   if (source) {
-    getTrackView()->setActive(track);
     trackinfoset = source->getTrack(trackinfo);
     player->open(trackinfo.url,true);
     }
@@ -1484,7 +1490,8 @@ FXbool GMPlayerManager::can_stop() const {
 
 FXbool GMPlayerManager::can_play() const {
 #ifdef HAVE_PLAYQUEUE
-  return (!player->playing() && ((queue && queue->getNumTracks()>0) ||  getTrackView()->hasTracks()));
+   return !player->playing() && ((queue==NULL && getTrackView()->hasTracks()) ||
+                                (queue && (queue->getNumTracks() ||  (getTrackView()->hasTracks() && getPlayQueue()->canPlaySource(getTrackView()->getSource())))));
 #else
    return (!player->playing() &&  getTrackView()->hasTracks());
 #endif
@@ -1505,7 +1512,7 @@ FXbool GMPlayerManager::can_unpause() const {
 FXbool GMPlayerManager::can_next() const {
   if (player->playing() && !player->pausing()) {
 #ifdef HAVE_PLAYQUEUE
-    if (( queue && queue->getNumTracks()>1) || getTrackView()->getNumTracks()>1)
+    if (( queue && queue->getNumTracks()>0) || getTrackView()->getNumTracks()>1)
       return true;
 #else
     return (getTrackView()->getNumTracks()>1);
@@ -1515,7 +1522,7 @@ FXbool GMPlayerManager::can_next() const {
   }
 
 FXbool GMPlayerManager::can_prev() const {
-  if (player->playing() && !player->pausing()) {
+  if (player->playing() && !player->pausing() && queue==NULL) {
     return (getTrackView()->getNumTracks()>1);
     }
   return false;

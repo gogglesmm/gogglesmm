@@ -22,6 +22,7 @@
 ********************************************************************************/
 #include <limits.h>
 #include "gmdefs.h"
+#include "gmutils.h"
 #include <fxkeys.h>
 #include <FXPNGIcon.h>
 #include "GMTrack.h"

@@ -122,6 +122,8 @@ public:
 
   void shutdown();
 
+  virtual void addTracks(GMSource * src,const FXIntList & tracks);
+
   virtual GMCoverCache* getCoverCache() const { return covercache; }
 
   virtual void loadCovers();

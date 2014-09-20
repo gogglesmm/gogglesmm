@@ -25,7 +25,7 @@ class GMPlayListSource;
 class GMPlayQueue : public GMPlayListSource {
 FXDECLARE(GMPlayQueue)
 protected:
-  FXHash tracks;
+  FXIntMap tracks;
   FXint  ntracks;
 protected:
   GMPlayQueue(){}
@@ -35,9 +35,18 @@ private:
   GMPlayQueue& operator=(const GMPlayQueue&);
 public:
   long onCmdRemoveInPlaylist(FXObject*,FXSelector,void*);
-
+  long onCmdClear(FXObject*,FXSelector,void*);
+public:
+  enum {
+    ID_CLEAR = GMPlayListSource::ID_LAST,
+    ID_LAST
+    };
 public:
   GMPlayQueue(GMTrackDatabase * db);
+
+  void configure(GMColumnList& list);
+
+  FXbool canPlaySource(GMSource * src) const;
 
   virtual FXint getNumTracks() const;
 
@@ -51,7 +60,7 @@ public:
 
   void addTracks(GMSource * src,const FXIntList & tracks);
 
-  FXbool hasTrack(FXint id);
+  FXbool hasTrack(FXint id) const;
 
   FXint getCurrent();
 

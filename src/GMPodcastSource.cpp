@@ -1646,8 +1646,7 @@ long GMPodcastSource::onCmdRemoveFeed(FXObject*,FXSelector,void*){
 FXuint GMPodcastSource::dnd_provides(FXDragType types[]){
   types[0]=GMClipboard::kdeclipboard;
   types[1]=GMClipboard::urilistType;
-  types[2]=GMClipboard::selectedtracks;
-  return 3;
+  return 2;
   }
 
 long GMPodcastSource::onCmdCopyTrack(FXObject*,FXSelector,void*){

@@ -301,6 +301,8 @@ public:
 
   void redrawAlbumList();
 
+  void redrawTrackList();
+
   void setActive(FXint item,FXbool show=true);
 
   void showCurrent();

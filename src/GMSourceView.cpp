@@ -330,7 +330,7 @@ long GMSourceView::onDndSourceMotion(FXObject*,FXSelector,void*ptr){
     FXuint     ntypes;
     if (sourcelist->inquireDNDTypes(FROM_DRAGNDROP,types,ntypes)){
       if (src->dnd_accepts(types,ntypes)){
-        sourcedrop=source;
+        sourcedrop=src;
         sourcelist->acceptDrop(DRAG_ACCEPT);
         freeElms(types);
         return 1;

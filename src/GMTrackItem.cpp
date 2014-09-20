@@ -18,6 +18,7 @@
 ********************************************************************************/
 #include <limits.h>
 #include "gmdefs.h"
+#include "gmutils.h"
 #include <FXPNGIcon.h>
 #include "GMTrack.h"
 #include "GMTrackList.h"
@@ -33,8 +34,8 @@
 #include "GMTrackDatabase.h"
 #include "GMIconTheme.h"
 
-#define VALUE_SORT_ASC(a,b) (a>b) ? 1 : ((a<b) ? -1 : 0); 
-#define VALUE_SORT_DSC(a,b) (a>b) ? -1 : ((a<b) ? 1 : 0); 
+#define VALUE_SORT_ASC(a,b) (a>b) ? 1 : ((a<b) ? -1 : 0);
+#define VALUE_SORT_DSC(a,b) (a>b) ? -1 : ((a<b) ? 1 : 0);
 
 #define GET_ARTIST_STRING(x)  GMPlayerManager::instance()->getTrackDatabase()->getArtist(x)
 
@@ -132,7 +133,7 @@ GMDBTrackItem::~GMDBTrackItem(){
 
 FXIcon * GMDBTrackItem::getIcon() const {
 #ifdef HAVE_PLAYQUEUE
-  if (GMPlayerManager::instance()->getPlayQueue() && GMPlayerManager::instance()->getPlayQueue()->hasTrack(id))
+  if (GMPlayerManager::instance()->getPlayQueue() && GMPlayerManager::instance()->getTrackView()->getSource()!=GMPlayerManager::instance()->getPlayQueue() && GMPlayerManager::instance()->getPlayQueue()->hasTrack(id))
     return GMIconTheme::instance()->icon_playqueue;
   else
 #endif
@@ -828,12 +829,12 @@ FXint GMLocalTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackIt
 GMFeedItem::GMFeedItem(FXint i,const FXchar * tf,const FXchar * t, FXTime d,FXuint tm,FXuint f) : GMTrackItem(i),feed(tf),title(t),date(d),time(tm),flags(f) {
   if (flags&(1<<ITEM_FLAG_PLAYED))
     state|=SHADED;
-  state|=GMTrackItem::DRAGGABLE; 
+  state|=GMTrackItem::DRAGGABLE;
  }
 
 
 FXIcon* GMFeedItem::getIcon() const {
-  if (flags&(1<<ITEM_FLAG_LOCAL)) {   
+  if (flags&(1<<ITEM_FLAG_LOCAL)) {
     return GMIconTheme::instance()->icon_localcopy;
     }
   else if (flags&(1<<ITEM_FLAG_QUEUE)){
@@ -843,7 +844,7 @@ FXIcon* GMFeedItem::getIcon() const {
     return GMIconTheme::instance()->icon_error;
     }
   else {
-    return NULL;    
+    return NULL;
     }
   }
 
