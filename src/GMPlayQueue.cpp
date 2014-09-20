@@ -50,6 +50,7 @@ FXIMPLEMENT(GMPlayQueue,GMPlayListSource,GMPlayQueueMap,ARRAYNUMBER(GMPlayQueueM
 GMPlayQueue::GMPlayQueue(GMTrackDatabase * database) : GMPlayListSource(database,database->getPlayQueue())  {
   updateTrackHash();
   ntracks=0;
+  poptrack=false;
   GMQuery q(db,"SELECT count(track) FROM playlist_tracks WHERE playlist==?");
   q.execute(playlist,ntracks);
   }
@@ -149,6 +150,7 @@ long GMPlayQueue::onCmdClear(FXObject*,FXSelector,void*){
   db->executeFormat("DELETE FROM playlist_tracks WHERE playlist == %d",playlist);
   updateTrackHash();
   ntracks=0;
+  poptrack=false;
   GMPlayerManager::instance()->getSourceView()->refresh(this);
   GMPlayerManager::instance()->getTrackView()->refresh();
   return 1;
@@ -186,8 +188,11 @@ FXbool GMPlayQueue::hasTrack(FXint id) const{
 
 
 FXint GMPlayQueue::getNext() {
-  current_track = getCurrent();
-  if (current_track>0) {
+  GMQuery q(db,"SELECT track FROM playlist_tracks WHERE playlist == ? ORDER BY queue ASC LIMIT 1");
+
+  current_track=-1;
+  q.execute(playlist,current_track);
+  if (current_track>0 && poptrack) {
 
     FXint cnt = tracks.find(current_track) - 1;
     if (cnt>0)
@@ -198,8 +203,12 @@ FXint GMPlayQueue::getNext() {
     if (ntracks) ntracks--;
 
     db->executeFormat("DELETE FROM playlist_tracks WHERE playlist == %d AND queue == (SELECT MIN(queue) FROM playlist_tracks WHERE playlist == %d);",playlist,playlist);
+
+    current_track=-1;
+    q.execute(playlist,current_track);
     }
-  return getCurrent();
+  poptrack=true;
+  return current_track;
   }
 
 
@@ -208,6 +217,7 @@ FXint GMPlayQueue::getCurrent() {
   try {
     GMQuery q(db,"SELECT track FROM playlist_tracks WHERE playlist == ? ORDER BY queue ASC LIMIT 1");
     q.execute(playlist,current_track);
+    poptrack=true;
     }
   catch(GMDatabaseException & e){
     return -1;
