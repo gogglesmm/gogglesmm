@@ -8,11 +8,28 @@ To do / wishlist..
  * filename template should perhaps support: alphabet index?
  * fix the playqueue (don't make it crash)
 
-0.13.x  
+0.13.x
   - Improved memory consumption for cover cache.
-  - Support rss feeds not encoded in UTF-8 or UTF-16
-  - Added channelmap support for multichannel playback.
+  - Configurable cover display size in album list.
+  - Support multichannel playback.
+  - Added appdata file to distribution
+
+  - Support rss feeds not encoded in UTF-8 or UTF-16.
+  - Automatically download podcasts when feeds get updated.
+  - Download status icons in podcastmanager show which podcasts are local, queued or failed.
+  - Added cover support to podcastmanager.
+  - Add DND support to podcastmanager.
+  - Add played status to podcastmanager and add option to mark podcasts as new or played.
+ 
+  - Removed libxml2 support. Only expat is supported now.  
+  - Added version info to output plugins to allow checking version during runtime.
+  - Compiler warning cleanups. 
   
+  - Fix: if pulse stream becomes unready write() should return false
+  - Fix: use correct line separator for x-special/gnome-copied-files
+  - Fix: don't parse empty timestamp strings in rss feeds
+ 
+
 0.13.3
   - Fix various bsd porting issues.
   - Fix crash on playlist export.
