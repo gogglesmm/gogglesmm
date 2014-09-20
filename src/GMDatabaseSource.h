@@ -76,9 +76,6 @@ public:
     ID_COLUMN_GENRE,
     ID_COLUMN_TIME,
     ID_LOAD_ALBUM_ICONS,
-    ID_QUEUE_TRACK,
-    ID_QUEUE_ALBUM,
-    ID_QUEUE_ARTIST,
     ID_OPEN_FOLDER,
     ID_EDIT_RATING,
     ID_ADD_COVER,
@@ -88,7 +85,6 @@ public:
     ID_LAST
     };
 public:
-  long onCmdQueue(FXObject*,FXSelector,void*);
   long onCmdEditTrack(FXObject*,FXSelector,void*);
   long onCmdDelete(FXObject*,FXSelector,void*);
   long onCmdCopyArtistAlbum(FXObject*,FXSelector,void*);
