@@ -122,9 +122,7 @@ protected:
   struct lirc_config*    lirc_config;
 #endif
 protected:
-#ifdef HAVE_PLAYQUEUE
   GMPlayQueue          * queue;
-#endif
   GMSource             * source;
   GMPodcastSource      * podcast;
   GMTrackDatabase      * database;
@@ -244,9 +242,7 @@ public:
 
   GMSource * getSource() const { return source; }
 
-#ifdef HAVE_PLAYQUEUE
   GMPlayQueue * getPlayQueue() const { return queue; }
-#endif
 
   GMPodcastSource * getPodcastSource() const { return podcast; }
 
@@ -362,10 +358,8 @@ public:
   void cmd_focus_previous();
   void cmd_raise();
 
-
-#ifdef HAVE_PLAYQUEUE
   void setPlayQueue(FXbool enable);
-#endif
+
   FXint createPlaylist(const FXString & name);
 
   ~GMPlayerManager();

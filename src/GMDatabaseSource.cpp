@@ -85,9 +85,7 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
 //  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_GENRE,GMDatabaseSource::onCmdEditGenre),
 //  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_ARTIST,GMDatabaseSource::onCmdEditArtist),
 //  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_ALBUM,GMDatabaseSource::onCmdEditAlbum),
-#ifdef HAVE_PLAYQUEUE
   FXMAPFUNCS(SEL_COMMAND,GMDatabaseSource::ID_QUEUE_TRACK,GMDatabaseSource::ID_QUEUE_ARTIST,GMDatabaseSource::onCmdQueue),
-#endif
   FXMAPFUNCS(SEL_COMMAND,GMDatabaseSource::ID_SEARCH_COVER,GMDatabaseSource::ID_SEARCH_COVER_ALBUM,GMDatabaseSource::onCmdSearchCover),
 
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_EDIT_TRACK,GMDatabaseSource::onCmdEditTrack),
@@ -321,11 +319,9 @@ FXbool GMDatabaseSource::genre_context_menu(FXMenuPane * /*pane*/) {
   }
 
 FXbool GMDatabaseSource::artist_context_menu(FXMenuPane * pane){
-#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ARTIST);
     }
-#endif
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ARTIST);
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove associated tracks from library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_ARTIST);
@@ -333,11 +329,9 @@ FXbool GMDatabaseSource::artist_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMDatabaseSource::album_context_menu(FXMenuPane * pane){
-#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_ALBUM);
     }
-#endif
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ALBUM);
   new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),NULL,this,ID_SEARCH_COVER_ALBUM);
   new FXMenuSeparator(pane);
@@ -346,12 +340,10 @@ FXbool GMDatabaseSource::album_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMDatabaseSource::track_context_menu(FXMenuPane * pane){
-#ifdef HAVE_PLAYQUEUE
   if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
     new GMMenuCommand(pane,fxtr("Add to Play Queue…"),GMIconTheme::instance()->icon_playqueue,this,GMDatabaseSource::ID_QUEUE_TRACK);
     new FXMenuSeparator(pane);
     }
-#endif
   new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Track Information."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_TRACK);
   new GMMenuCommand(pane,fxtr("Set Cover…\t\t"),NULL,this,GMDatabaseSource::ID_ADD_COVER);
 
@@ -1043,7 +1035,6 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
   }
 
 
-#ifdef HAVE_PLAYQUEUE
 long GMDatabaseSource::onCmdQueue(FXObject*,FXSelector sel,void*){
   FXIntList tracks;
 
@@ -1055,7 +1046,6 @@ long GMDatabaseSource::onCmdQueue(FXObject*,FXSelector sel,void*){
   GMPlayerManager::instance()->getPlayQueue()->addTracks(this,tracks);
   return 1;
   }
-#endif
 
 long GMDatabaseSource::onCmdEditTrack(FXObject*,FXSelector,void*){
   GMEditTrackDialog dialog(GMPlayerManager::instance()->getMainWindow(),db);

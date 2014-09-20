@@ -128,10 +128,8 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SLEEP,					    GMWindow::onCmdSleepTimer),
 
-#ifdef HAVE_PLAYQUEUE
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_PLAYQUEUE,					GMWindow::onCmdPlayQueue),
   FXMAPFUNC(SEL_UPDATE,						  GMWindow::ID_PLAYQUEUE,					GMWindow::onUpdPlayQueue),
-#endif
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_NEXT_FOCUS,		    GMWindow::onCmdNextFocus),
   FXMAPFUNC(SEL_CONFIGURE,          GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
@@ -222,9 +220,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   /// Media Controls
   menu_media   = new GMMenuPane(this);
-#ifdef HAVE_PLAYQUEUE
   new GMMenuCheck(menu_media,tr("Queue Play\t\tPlay tracks from queue."),this,ID_PLAYQUEUE);
-#endif
   new GMMenuCheck(menu_media,tr("Shuffle Play\tAlt-R\tPlay tracks in random order."),this,ID_SHUFFLE);
   new FXMenuSeparator(menu_media);
   new GMMenuRadio(menu_media,tr("Repeat Off\tCtrl-,\tRepeat current track."),this,ID_REPEAT_OFF);
@@ -371,8 +367,8 @@ void GMWindow::create(){
       nadded=0;
       nlast+=1;
       }
-    if (GMPlayerManager::instance()->getSource(i)->source_menu(menu_library)){            
-      FXint n = menu_library->numChildren();          
+    if (GMPlayerManager::instance()->getSource(i)->source_menu(menu_library)){
+      FXint n = menu_library->numChildren();
       nadded = n - nlast;
       nlast  = n;
       }
@@ -705,7 +701,7 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   volumebutton->setMenu(NULL);
   delete volumecontrol;
 
-  clearCover();  
+  clearCover();
 
 #ifdef HAVE_OPENGL
   if (coverview_gl) {
@@ -1376,8 +1372,6 @@ long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
   return 1;
   }
 
-
-#ifdef HAVE_PLAYQUEUE
 long GMWindow::onCmdPlayQueue(FXObject*,FXSelector,void*){
   GMPlayerManager::instance()->setPlayQueue(GMPlayerManager::instance()->getPlayQueue()==NULL);
   return 1;
@@ -1390,7 +1384,6 @@ long GMWindow::onUpdPlayQueue(FXObject*sender,FXSelector,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
   return 1;
   }
-#endif
 
 void GMWindow::setStatus(const FXString & msg){
   if (!msg.empty()) {

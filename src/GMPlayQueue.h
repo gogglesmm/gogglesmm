@@ -19,7 +19,6 @@
 #ifndef GMPLAYQUEUE_H
 #define GMPLAYQUEUE_H
 
-#ifdef HAVE_PLAYQUEUE
 class GMPlayListSource;
 
 class GMPlayQueue : public GMPlayListSource {
@@ -66,11 +65,8 @@ public:
 
   FXint getNext();
 
-  FXint getPrev();
-
   virtual FXint getType() const { return SOURCE_PLAYQUEUE; }
 
   virtual ~GMPlayQueue();
   };
-#endif
 #endif
