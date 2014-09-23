@@ -119,7 +119,12 @@ void GMSourceView::clear() {
 
 void GMSourceView::refresh() {
   clear();
-  listSources();
+  listsources();
+  GMTreeItem * item = (GMTreeItem*)sourcelist->findItemByData(source);
+  if (item)
+    sourcelist->setCurrentItem(item,false);
+  else
+    setSource((GMSource*)sourcelist->getItemData(sourcelist->getCurrentItem()),false);
   }
 
 
