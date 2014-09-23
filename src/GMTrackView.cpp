@@ -2066,11 +2066,18 @@ long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
 long GMTrackView::onCmdPlayTrack(FXObject*,FXSelector,void*){
   if (!source->track_double_click()) {
     if (GMPlayerManager::instance()->getPlayQueue()) {
-      FXIntList tracks;
-      tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
-      GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
-      if (GMPlayerManager::instance()->can_play())
-        GMPlayerManager::instance()->playItem(TRACK_CURRENT);
+      if (GMPlayerManager::instance()->getPlayQueue()->canPlaySource(source)) {
+        FXIntList tracks;
+        tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
+        GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
+        if (GMPlayerManager::instance()->can_play())
+          GMPlayerManager::instance()->playItem(TRACK_CURRENT);
+        }
+      else {
+        GMPlayerManager::instance()->setPlayQueue(false);
+        if (GMPlayerManager::instance()->can_play())
+          GMPlayerManager::instance()->playItem(TRACK_CURRENT);
+        }
       }
     else {
       GMPlayerManager::instance()->playItem(TRACK_CURRENT);
