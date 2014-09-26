@@ -1330,7 +1330,9 @@ void GMPlayerManager::notify_playback_finished() {
      //reset_track_display();
      return;
      }
-
+    else {
+      source = queue;
+      }
     trackinfoset = queue->getTrack(trackinfo);
     }
   else {
