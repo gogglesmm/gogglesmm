@@ -135,11 +135,11 @@ FXbool GMPlayQueue::track_context_menu(FXMenuPane * pane){
 
 
 FXbool GMPlayQueue::canPlaySource(GMSource * src) const {
-  return (src && (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_PLAYLIST));
+  return (src && (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_PLAYLIST || src->getType()==SOURCE_PLAYQUEUE));
   }
 
 void GMPlayQueue::addTracks(GMSource * src,const FXIntList & tracks) {
-  if (canPlaySource(src) && tracks.no() && db->insertPlaylistTracks(playlist,tracks)) {
+  if (src!=this && canPlaySource(src) && tracks.no() && db->insertPlaylistTracks(playlist,tracks)) {
     ntracks+=tracks.no();
     updateTrackHash();
     GMPlayerManager::instance()->getSourceView()->refresh(this);
