@@ -19,10 +19,6 @@
 #ifndef AP_HTTP_CLIENT_H
 #define AP_HTTP_CLIENT_H
 
-#ifndef GMAPI
-#define GMAPI
-#endif
-
 namespace ap {
 
 class HttpHost {
@@ -43,9 +39,9 @@ public:
 
 class ConnectionFactory;
 
-class GMAPI HttpClient : public HttpResponse {
+class HttpClient : public HttpResponse {
 protected:
-	ConnectionFactory* connection;
+  ConnectionFactory* connection;
   HttpHost      		 server;
   HttpHost      		 proxy;
   FXuchar       		 options;
@@ -59,16 +55,16 @@ protected:
 public:
   HttpClient(ConnectionFactory * c=NULL);
 
-	/// Change the Connection Factory
-	void setConnectionFactory(ConnectionFactory*);
+  /// Change the Connection Factory
+  void setConnectionFactory(ConnectionFactory*);
 
-	// Close Connection
+  // Close Connection
   void close();
 
-	// Discard response
+  // Discard response
   void discard();
 
-	// Send a request. Response can be
+  // Send a request. Response can be
   FXbool request(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);
 
   // Perform basic request and handles some basic HTTP features

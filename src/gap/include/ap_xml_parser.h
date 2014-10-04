@@ -21,7 +21,7 @@
 
 namespace ap {
 
-class GMAPI XmlParser {
+class XmlParser {
 private:
   FXint* nodes;
   FXint  nnodes;
@@ -43,20 +43,12 @@ public:
     };
 public:
   XmlParser();
-  virtual FXbool parseBuffer(const FXchar * buffer,FXint length);
-  FXbool parse(const FXString & buffer);
+
+  // Parse buffer with optional encoding
+  FXbool parse(const FXString & text,const FXString & encoding=FXString::null);
+
   virtual ~XmlParser();
   };
-
-
-class GMAPI HtmlParser : public XmlParser {
-public:
-  HtmlParser();
-  virtual FXbool parseBuffer(const FXchar * buffer,FXint length);
-  virtual ~HtmlParser();
-  };
-
-
 }
 #endif
 

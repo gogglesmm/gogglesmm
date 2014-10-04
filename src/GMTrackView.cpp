@@ -22,6 +22,7 @@
 #include "GMTrack.h"
 #include "GMApp.h"
 #include "GMList.h"
+#include "GMCoverCache.h"
 #include "GMAlbumList.h"
 #include "GMTrackList.h"
 #include "GMTrackView.h"
@@ -175,7 +176,7 @@ FXDEFMAP(GMTrackView) GMTrackViewMap[]={
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_ALBUM_LIST,GMTrackView::onAlbumContextMenu),
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_TRACK_LIST,GMTrackView::onTrackContextMenu),
   FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_TRACK_LIST_HEADER,GMTrackView::onTrackHeaderContextMenu),
-  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_ALBUM_LIST_HEADER,GMTrackView::onAlbumHeaderContextMenu),
+  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMTrackView::ID_ALBUM_LIST_HEADER,GMTrackView::onAlbumContextMenu),
 
 
   FXMAPFUNC(SEL_KEYPRESS,GMTrackView::ID_TAG_LIST,GMTrackView::onCmdTagKeyPress),
@@ -231,6 +232,15 @@ FXDEFMAP(GMTrackView) GMTrackViewMap[]={
   FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_ALBUMS_VIEW_BROWSER,GMTrackView::onCmdAlbumListView),
   FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_ALBUMS_VIEW_LIST,GMTrackView::onUpdAlbumListView),
   FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_ALBUMS_VIEW_BROWSER,GMTrackView::onUpdAlbumListView),
+
+  FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_COVERSIZE_SMALL,GMTrackView::onCmdCoverSize),
+  FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_COVERSIZE_MEDIUM,GMTrackView::onCmdCoverSize),
+  FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_COVERSIZE_BIG,GMTrackView::onCmdCoverSize),
+  FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_COVERSIZE_SMALL,GMTrackView::onUpdCoverSize),
+  FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_COVERSIZE_MEDIUM,GMTrackView::onUpdCoverSize),
+  FXMAPFUNC(SEL_UPDATE,GMTrackView::ID_COVERSIZE_BIG,GMTrackView::onUpdCoverSize),
+
+
 
   FXMAPFUNC(SEL_COMMAND,GMTrackView::ID_CONFIGURE_COLUMNS,GMTrackView::onCmdConfigureColumns),
   };
@@ -308,9 +318,6 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   artistlist->setThickFont(font_listhead);
   albumlist->setListHeadFont(font_listhead);
   tracklist->setActiveFont(font_listhead);
-
-  albumlist->setListIcon(GMIconTheme::instance()->icon_album);
-  albumlist->setCoverCache(GMPlayerManager::instance()->getCoverCache());
 
   taglist->dropEnable();
   artistlist->dropEnable();
@@ -546,6 +553,10 @@ void GMTrackView::updateIcons(){
 */
   }
 
+void GMTrackView::updateTrackItem(FXint index) {
+  tracklist->updateItem(index);
+  }
+
 
 void GMTrackView::clear() {
   taglist->clearItems();
@@ -558,12 +569,12 @@ void GMTrackView::clear() {
 // FIXME get rid of show parameter, we only call this function with false when
 // notify_playback_finished() is called. When  show==false we delay the marking of the active
 // track until BOS event is fired from the player.
-void GMTrackView::setActive(FXint item,FXbool show/*=true*/) {
+void GMTrackView::setActive(FXint item,FXbool showactive/*=true*/) {
   if (source && item>=0){
     source->markCurrent(tracklist->getItem(item));
-    if (show) tracklist->setCurrentItem(item);
+    if (showactive) tracklist->setCurrentItem(item);
     }
-  if (show) tracklist->setActiveItem(item);
+  if (showactive) tracklist->setActiveItem(item);
   }
 
 void GMTrackView::showCurrent() {
@@ -571,7 +582,7 @@ void GMTrackView::showCurrent() {
   }
 
 FXint GMTrackView::getPreviousPlayable(FXint from,FXbool wrap) const {
-  register FXint i;
+  FXint i;
   for (i=from;i>=0;i--){
     if (tracklist->isItemPlayable(i)) {
       if (tracklist->getActiveItem()!=i)
@@ -594,7 +605,7 @@ FXint GMTrackView::getPreviousPlayable(FXint from,FXbool wrap) const {
   }
 
 FXint GMTrackView::getNextPlayable(FXint from,FXbool wrap) const {
-  register FXint i;
+  FXint i;
   for (i=from;i<tracklist->getNumItems();i++){
     if (tracklist->isItemPlayable(i)) {
       if (tracklist->getActiveItem()!=i)
@@ -621,7 +632,15 @@ FXint GMTrackView::getActive() const{
   }
 
 FXint GMTrackView::getCurrent() const{
-  return tracklist->getCurrentItem();
+  if (GMPlayerManager::instance()->getPlayQueue()) {
+    FXIntList tracks;
+    tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
+    GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
+    return GMPlayerManager::instance()->getPlayQueue()->getCurrent();
+    }
+  else {
+    return tracklist->getCurrentItem();
+    }
   }
 
 //generates a psuedo-random integer between min and max
@@ -669,8 +688,8 @@ void GMTrackView::getTracks(FXIntList & tracks) const{
 
 // Function to sort by name, weight, slant, and size
 static int compareindex(const void *a,const void *b){
-  register FXint * aa = (FXint*)a;
-  register FXint * bb = (FXint*)b;
+  FXint * aa = (FXint*)a;
+  FXint * bb = (FXint*)b;
   if ((*aa) > (*bb)) return 1;
   else if ((*aa) < (*bb)) return -1;
   return 0;
@@ -711,7 +730,7 @@ void GMTrackView::getSelectedArtists(FXIntList & artists) const{
 
 
 void GMTrackView::getSelectedAlbums(FXIntList & albums) const{
-  register FXint i=0;
+  FXint i=0;
   if (albumlist->getNumItems()) {
     if (albumlist->getItemId(0)==-1) {
       if (albumlist->isItemSelected(0)){
@@ -872,10 +891,10 @@ void GMTrackView::saveSelection(GMAlbumList * list,const char * key,const FXStri
 void GMTrackView::initSelection(GMList * list,const FXchar * key,const FXString & section){
   FXint i=0,x=0,nselected=0;
   FXString part;
-  FXString view = getApp()->reg().readStringEntry(section.text(),key,"");
-  if (!view.empty()){
+  FXString selection = getApp()->reg().readStringEntry(section.text(),key,"");
+  if (!selection.empty()){
     list->killSelection(false);
-    part=view.section(';',i);
+    part=selection.section(';',i);
     while(!part.empty()){
       x = part.toInt();
       if (x>=0 && x<list->getNumItems()){
@@ -883,7 +902,7 @@ void GMTrackView::initSelection(GMList * list,const FXchar * key,const FXString 
         list->selectItem(x);
         if (i==0) list->makeItemVisible(x);
         }
-      part=view.section(';',++i);
+      part=selection.section(';',++i);
       }
     if (nselected==0 && list->getNumItems()){
       list->selectItem(0);
@@ -895,10 +914,10 @@ void GMTrackView::initSelection(GMList * list,const FXchar * key,const FXString 
 void GMTrackView::initSelection(GMAlbumList * list,const FXchar * key,const FXString & section){
   FXint i=0,x=0,nselected=0;
   FXString part;
-  FXString view = getApp()->reg().readStringEntry(section.text(),key,"");
-  if (!view.empty()){
+  FXString selection = getApp()->reg().readStringEntry(section.text(),key,"");
+  if (!selection.empty()){
     list->killSelection(false);
-    part=view.section(';',i);
+    part=selection.section(';',i);
     while(!part.empty()){
       x = part.toInt();
       if (x>=0 && x<list->getNumItems()){
@@ -906,7 +925,7 @@ void GMTrackView::initSelection(GMAlbumList * list,const FXchar * key,const FXSt
         list->selectItem(x);
         if (i==0) list->makeItemVisible(x);
         }
-      part=view.section(';',++i);
+      part=selection.section(';',++i);
       }
     if (nselected==0 && list->getNumItems()){
       list->selectItem(0);
@@ -973,8 +992,14 @@ void GMTrackView::saveView() const {
 
 
 void GMTrackView::redrawAlbumList() {
+  if (source) albumlist->setCoverCache(source->getCoverCache());
   albumlist->update();
   }
+
+void GMTrackView::redrawTrackList() {
+  tracklist->update();
+  }
+
 
 void GMTrackView::refreshUpdate() {
   if (source) {
@@ -1131,8 +1156,8 @@ void GMTrackView::sortTags() const{
   taglist->sortItems();
 
   /// Make sure "All" is on top.
-  FXint data=-1;
-  FXint all = taglist->findItemByData((void*)(FXival)(FXint)data);
+  FXint alltags=-1;
+  FXint all = taglist->findItemByData((void*)(FXival)(FXint)alltags);
   if (all>0) {
     taglist->moveItem(0,all);
     }
@@ -1142,8 +1167,8 @@ void GMTrackView::sortArtists() const{
   artistlist->sortItems();
 
   /// Make sure "All" is on top.
-  FXint data=-1;
-  FXint all = artistlist->findItemByData((void*)(FXival)(FXint)data);
+  FXint allartists=-1;
+  FXint all = artistlist->findItemByData((void*)(FXival)(FXint)allartists);
   if (all>0) {
     artistlist->moveItem(0,all);
     }
@@ -1153,8 +1178,8 @@ void GMTrackView::sortAlbums() const {
   albumlist->sortItems();
 
   /// Make sure "All" is on top.
-  FXint data=-1;
-  FXint all = albumlist->findItemById(data);
+  FXint allalbums=-1;
+  FXint all = albumlist->findItemById(allalbums);
   if (all>0) {
     albumlist->moveItem(0,all);
     }
@@ -1213,7 +1238,7 @@ FXbool GMTrackView::getSortReverse() const {
 
 
 void GMTrackView::loadSettings(const FXString & key) {
-  FXbool sort_reverse,shown;
+  FXbool sort_reverse,showui;
   FXint split,nvw=0;
 
   sort_reverse = getApp()->reg().readBoolEntry(key.text(),"genre-list-sort-reverse",false);
@@ -1239,12 +1264,15 @@ void GMTrackView::loadSettings(const FXString & key) {
   if (getApp()->reg().readBoolEntry(key.text(),"album-list-browser",false)){
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
-    GMPlayerManager::instance()->load_album_covers();
+    source->loadCovers();
     }
   else {
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts&~ALBUMLIST_BROWSER);
     }
+
+  albumlist->setListIcon(source->getAlbumIcon());
+  albumlist->setCoverCache(source->getCoverCache());
 
   if (getApp()->reg().readBoolEntry(key.text(),"album-list-show-year",true)){
     FXuint opts=albumlist->getListStyle();
@@ -1272,8 +1300,8 @@ void GMTrackView::loadSettings(const FXString & key) {
   if (getApp()->reg().readBoolEntry(key.text(),"genre-list",source->defaultTags()))
     nvw|=VIEW_BROWSER_LEFT;
 
-  shown = getApp()->reg().readBoolEntry(key.text(),"browser",source->defaultBrowse());
-  if (shown && source->canBrowse())
+  showui = getApp()->reg().readBoolEntry(key.text(),"browser",source->defaultBrowse());
+  if (showui && source->canBrowse())
     nvw|=VIEW_BROWSER;
 
   if (source->hasArtistList())
@@ -1296,8 +1324,8 @@ void GMTrackView::loadSettings(const FXString & key) {
   tracklist_posx = getApp()->reg().readIntEntry(key.text(),"track-list-posx",0);
   tracklist_posy = getApp()->reg().readIntEntry(key.text(),"track-list-posy",0);
 
-  shown = getApp()->reg().readBoolEntry(key.text(),"filter",true);
-  if (shown && source && source->canFilter())
+  showui = getApp()->reg().readBoolEntry(key.text(),"filter",true);
+  if (showui && source && source->canFilter())
     filterframe->show();
   else
     filterframe->hide();
@@ -1638,13 +1666,11 @@ long GMTrackView::onCmdTagSelected(FXObject*,FXSelector sel,void*ptr){
 
 long GMTrackView::onCmdArtistSelected(FXObject*,FXSelector sel,void*ptr){
   if ( FXSELTYPE(sel)==SEL_DOUBLECLICKED) {
-#ifdef HAVE_PLAYQUEUE
     if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
       FXIntList tracks;
       getTracks(tracks);
       GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
       }
-#endif
     if (GMPlayerManager::instance()->can_play())
       GMPlayerManager::instance()->playItem(TRACK_CURRENT);
     }
@@ -1691,13 +1717,11 @@ long GMTrackView::onCmdArtistSelected(FXObject*,FXSelector sel,void*ptr){
 
 long GMTrackView::onCmdAlbumSelected(FXObject*,FXSelector sel,void*ptr){
   if ( FXSELTYPE(sel)==SEL_DOUBLECLICKED) {
-#ifdef HAVE_PLAYQUEUE
     if (GMPlayerManager::instance()->getPreferences().play_from_queue) {
       FXIntList tracks;
       getTracks(tracks);
       GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
       }
-#endif
     if (GMPlayerManager::instance()->can_play())
       GMPlayerManager::instance()->playItem(TRACK_CURRENT);
     }
@@ -1732,7 +1756,7 @@ long GMTrackView::onCmdAlbumSelected(FXObject*,FXSelector sel,void*ptr){
 
 
 long GMTrackView::onTagContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   if (source && !event->moved) {
     FXint item = taglist->getItemAt(event->win_x,event->win_y);
     if (item>=0 && getTag(item)!=-1) {
@@ -1751,7 +1775,7 @@ long GMTrackView::onTagContextMenu(FXObject*,FXSelector,void*ptr){
   }
 
 long GMTrackView::onArtistContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   if (source && !event->moved) {
     FXint item = artistlist->getItemAt(event->win_x,event->win_y);
     if (item>=0 && getArtist(item)!=-1) {
@@ -1771,31 +1795,52 @@ long GMTrackView::onArtistContextMenu(FXObject*,FXSelector,void*ptr){
   }
 
 
-long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   FXbool old        = album_by_year;
   FXbool old_merge  = GMPlayerManager::instance()->getPreferences().gui_merge_albums;
+  FXint  old_size   = GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
+
   FXDataTarget target_yearsort(album_by_year);
   FXDataTarget target_merge(GMPlayerManager::instance()->getPreferences().gui_merge_albums);
   if (source && !event->moved) {
     GMMenuPane pane(this);
-    FXint item = albumlist->getItemAt(event->win_x,event->win_y);
-    if (item>=0 && getAlbum(item)!=-1 && source->album_context_menu(&pane))
-      selectAlbumItem(item);
+    GMMenuPane viewpane(this);
 
-    new GMMenuCheck(&pane,fxtr("Show Album Year"),albumlist,GMAlbumList::ID_YEAR);
-    new GMMenuCheck(&pane,fxtr("Sort by Album Year"),&target_yearsort,FXDataTarget::ID_VALUE);
-    new GMMenuCheck(&pane,fxtr("Merge Albums"),&target_merge,FXDataTarget::ID_VALUE);
-    new FXMenuSeparator(&pane),
-    new GMMenuRadio(&pane,fxtr("List View"),this,ID_ALBUMS_VIEW_LIST);
-    new GMMenuRadio(&pane,fxtr("Cover View"),this,ID_ALBUMS_VIEW_BROWSER);
-    new GMMenuRadio(&pane,fxtr("Arrange By Rows"),albumlist,GMAlbumList::ID_ARRANGE_BY_ROWS);
-    new GMMenuRadio(&pane,fxtr("Arrange By COlumns"),albumlist,GMAlbumList::ID_ARRANGE_BY_COLUMNS);
+    if (FXSELID(sel)==ID_ALBUM_LIST) {
+      FXint item = albumlist->getItemAt(event->win_x,event->win_y);
+      if (item>=0 && getAlbum(item)!=-1) {
+        selectAlbumItem(item);
+        source->album_context_menu(&pane);
+        }
+      }
+    /*
+      FIXME Dirty Hack. We need to get this info from the source really.
+    */
+    if (dynamic_cast<GMDatabaseSource*>(source)!=NULL) {
+      new GMMenuCheck(&pane,fxtr("Show Album Year"),albumlist,GMAlbumList::ID_YEAR);
+      new GMMenuCheck(&pane,fxtr("Sort by Album Year"),&target_yearsort,FXDataTarget::ID_VALUE);
+      new GMMenuCheck(&pane,fxtr("Merge Albums"),&target_merge,FXDataTarget::ID_VALUE);
+      new FXMenuSeparator(&pane);
+      }
 
+    new GMMenuCascade(&pane,fxtr("View"),NULL,&viewpane);
+    new GMMenuRadio(&viewpane,fxtr("List View"),this,ID_ALBUMS_VIEW_LIST);
+    new GMMenuRadio(&viewpane,fxtr("Cover View"),this,ID_ALBUMS_VIEW_BROWSER);
+    if (albumlist->getListStyle()&ALBUMLIST_BROWSER) {
+      new FXMenuSeparator(&viewpane),
+      new GMMenuRadio(&viewpane,fxtr("Small Cover"), this,ID_COVERSIZE_SMALL),
+      new GMMenuRadio(&viewpane,fxtr("Medium Cover"), this,ID_COVERSIZE_MEDIUM),
+      new GMMenuRadio(&viewpane,fxtr("Big Cover"),this,ID_COVERSIZE_BIG),
+      new FXMenuSeparator(&viewpane),
+      new GMMenuRadio(&viewpane,fxtr("Arrange By Rows"),albumlist,GMAlbumList::ID_ARRANGE_BY_ROWS);
+      new GMMenuRadio(&viewpane,fxtr("Arrange By Columns"),albumlist,GMAlbumList::ID_ARRANGE_BY_COLUMNS);
+      }
 
     pane.create();
     pane.forceRefresh();
     ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
+    ewmh_change_window_type(&viewpane,WINDOWTYPE_POPUP_MENU);
     pane.popup(NULL,event->root_x+3,event->root_y+3);
     getApp()->runPopup(&pane);
 
@@ -1806,28 +1851,9 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector,void*ptr){
       sortAlbums();
       sortTracks();
       }
-    return 1;
-    }
-  return 0;
-  }
 
-long GMTrackView::onAlbumHeaderContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
-  FXbool old = album_by_year;
-  FXDataTarget target_yearsort(album_by_year);
-
-  if (source && !event->moved) {
-    GMMenuPane pane(this);
-    new GMMenuCheck(&pane,fxtr("Sort by Album Year"),&target_yearsort,FXDataTarget::ID_VALUE);
-    pane.create();
-    pane.forceRefresh();
-    ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-    pane.popup(NULL,event->root_x+3,event->root_y+3);
-    getApp()->runPopup(&pane);
-
-    if (old!=album_by_year){
-      sortAlbums();
-      sortTracks();
+    if (old_size!=GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size){
+      source->updateCovers();
       }
     return 1;
     }
@@ -1835,11 +1861,8 @@ long GMTrackView::onAlbumHeaderContextMenu(FXObject*,FXSelector,void*ptr){
   }
 
 
-
-
-
 long GMTrackView::onTrackContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   if (source && !event->moved) {
     FXint item = tracklist->getItemAt(event->win_x,event->win_y);
     GMMenuPane pane(this);
@@ -1857,7 +1880,7 @@ long GMTrackView::onTrackContextMenu(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onTrackHeaderContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = reinterpret_cast<FXEvent*>(ptr);
+  FXEvent * event = static_cast<FXEvent*>(ptr);
   if (source && !event->moved) {
     columnmenu->create();
     ewmh_change_window_type(columnmenu,WINDOWTYPE_POPUP_MENU);
@@ -1870,7 +1893,7 @@ long GMTrackView::onTrackHeaderContextMenu(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onCmdTagKeyPress(FXObject*,FXSelector,void*ptr){
-  FXEvent* event=reinterpret_cast<FXEvent*>(ptr);
+  FXEvent* event=static_cast<FXEvent*>(ptr);
   if (event->state&(CONTROLMASK) && (event->code==KEY_A || event->code==KEY_a)) {
     if (taglist->getNumItems()) {
       selectTagItem(0);
@@ -1894,7 +1917,7 @@ long GMTrackView::onCmdTagKeyPress(FXObject*,FXSelector,void*ptr){
   }
 
 long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
-  FXEvent* event=reinterpret_cast<FXEvent*>(ptr);
+  FXEvent* event=static_cast<FXEvent*>(ptr);
   if (event->state&(CONTROLMASK) && (event->code==KEY_A || event->code==KEY_a)) {
     if (artistlist->getNumItems()) {
       selectArtistItem(0);
@@ -1950,7 +1973,7 @@ long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onCmdAlbumKeyPress(FXObject*,FXSelector,void*ptr){
-  FXEvent* event=reinterpret_cast<FXEvent*>(ptr);
+  FXEvent* event=static_cast<FXEvent*>(ptr);
   if (event->state&(CONTROLMASK) && (event->code==KEY_A || event->code==KEY_a)) {
     if (albumlist->getNumItems()) {
       selectAlbumItem(0);
@@ -1991,7 +2014,7 @@ long GMTrackView::onCmdAlbumKeyPress(FXObject*,FXSelector,void*ptr){
 
 
 long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
-  FXEvent* event=reinterpret_cast<FXEvent*>(ptr);
+  FXEvent* event=static_cast<FXEvent*>(ptr);
   if (event->state&(CONTROLMASK) ) {
     if (event->code==KEY_A || event->code==KEY_a) {
       if (tracklist->getNumItems()){
@@ -2042,21 +2065,24 @@ long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
 
 long GMTrackView::onCmdPlayTrack(FXObject*,FXSelector,void*){
   if (!source->track_double_click()) {
-#ifdef HAVE_PLAYQUEUE
     if (GMPlayerManager::instance()->getPlayQueue()) {
-      FXIntList tracks;
-      tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
-      GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
-      if (GMPlayerManager::instance()->can_play())
-        GMPlayerManager::instance()->playItem(TRACK_CURRENT);
+      if (GMPlayerManager::instance()->getPlayQueue()->canPlaySource(source)) {
+        FXIntList tracks;
+        tracks.append(tracklist->getItemId(tracklist->getCurrentItem()));
+        GMPlayerManager::instance()->getPlayQueue()->addTracks(source,tracks);
+        if (GMPlayerManager::instance()->can_play())
+          GMPlayerManager::instance()->playItem(TRACK_CURRENT);
+        }
+      else {
+        GMPlayerManager::instance()->setPlayQueue(false);
+        if (GMPlayerManager::instance()->can_play())
+          GMPlayerManager::instance()->playItem(TRACK_CURRENT);
+        }
       }
     else {
-#endif
       GMPlayerManager::instance()->playItem(TRACK_CURRENT);
       tracklist->deselectItem(tracklist->getCurrentItem());
-#ifdef HAVE_PLAYQUEUE
       }
-#endif
     }
   return 1;
   }
@@ -2480,7 +2506,7 @@ long GMTrackView::onCmdAlbumListView(FXObject*,FXSelector sel,void*){
   else {
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
-    GMPlayerManager::instance()->load_album_covers();
+    if (source) source->loadCovers();
     }
   return 1;
   }
@@ -2502,6 +2528,32 @@ long GMTrackView::onUpdAlbumListView(FXObject*sender,FXSelector sel,void*){
   return 1;
   }
 
+
+long GMTrackView::onCmdCoverSize(FXObject*,FXSelector sel,void*){
+  switch(FXSELID(sel)){
+    case ID_COVERSIZE_SMALL   : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size = 128; break;
+    case ID_COVERSIZE_MEDIUM  : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size = 160; break;
+    case ID_COVERSIZE_BIG     : GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size = 256; break;
+    }
+  return 1;
+  }
+
+long GMTrackView::onUpdCoverSize(FXObject*sender,FXSelector sel,void*){
+  FXbool check=false;
+  const FXint size = GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
+  switch(FXSELID(sel)){
+    case ID_COVERSIZE_SMALL  : if (size <= 128) check = true; break;
+    case ID_COVERSIZE_MEDIUM : if (size>128 && size<=160) check = true; break;
+    case ID_COVERSIZE_BIG    : if (size>160 && size<=256) check = true; break;
+    }
+  if (check)
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  else
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  return 1;
+  }
+
+
 long GMTrackView::onCmdConfigureColumns(FXObject*,FXSelector,void*){
   GMColumnDialog dialog(getShell(),columns);
   if (dialog.execute()) {
@@ -2520,6 +2572,10 @@ long GMTrackView::onCmdConfigureColumns(FXObject*,FXSelector,void*){
   }
 
 
+FXint GMTrackView::findTrackIndexById(FXint id) const {
+  return tracklist->findItemById(id);
+  }
+
 GMTrackItem * GMTrackView::getTrackItem(FXint i) const {
   return (GMTrackItem*)tracklist->getItem(i);
   }
@@ -2535,6 +2591,11 @@ FXbool GMTrackView::isTrackItemSelected(FXint i) const {
 FXint GMTrackView::getNumTracks() const {
   return tracklist->getNumItems() ;
   }
+
+GMAlbumListItem * GMTrackView::getCurrentAlbumItem() const {
+  FXASSERT(tracklist->getCurrentItem()>=0); return (GMAlbumListItem*)albumlist->getItem(albumlist->getCurrentItem());
+  }
+
 
 
 FXint GMTrackView::getTag(FXint index) const { return (FXint)(FXival)taglist->getItemData(index); }

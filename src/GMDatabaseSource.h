@@ -43,10 +43,10 @@ class GMDatabaseSource : public GMSource {
 FXDECLARE(GMDatabaseSource)
 protected:
   static GMDatabaseSource * filterowner;
+  static GMCoverCache     * covercache;
 protected:
   GMTrackDatabase   * db;
   FXint               playlist;
-  FXIntList           clipboard;
   FXString            filter;
   FXuint              filtermask;
   FXbool              hasfilter;
@@ -76,20 +76,15 @@ public:
     ID_COLUMN_GENRE,
     ID_COLUMN_TIME,
     ID_LOAD_ALBUM_ICONS,
-    ID_QUEUE_TRACK,
-    ID_QUEUE_ALBUM,
-    ID_QUEUE_ARTIST,
     ID_OPEN_FOLDER,
     ID_EDIT_RATING,
     ID_ADD_COVER,
     ID_SEARCH_COVER,
     ID_SEARCH_COVER_ALBUM,
+    ID_LOAD_COVERS,
     ID_LAST
     };
 public:
-#ifdef HAVE_PLAYQUEUE
-  long onCmdQueue(FXObject*,FXSelector,void*);
-#endif
   long onCmdEditTrack(FXObject*,FXSelector,void*);
   long onCmdDelete(FXObject*,FXSelector,void*);
   long onCmdCopyArtistAlbum(FXObject*,FXSelector,void*);
@@ -115,8 +110,19 @@ public:
   long onCmdAddCover(FXObject*,FXSelector,void*);
   long onCmdSearchCover(FXObject*,FXSelector,void*);
   long onCmdMainWindow(FXObject*,FXSelector,void*);
+  long onCmdLoadCovers(FXObject*,FXSelector,void*);
 public:
   GMDatabaseSource(GMTrackDatabase * db);
+
+  void shutdown();
+
+  virtual void addTracks(GMSource * src,const FXIntList & tracks);
+
+  virtual GMCoverCache* getCoverCache() const { return covercache; }
+
+  virtual void loadCovers();
+
+  virtual void updateCovers();
 
   virtual FXbool canFilter() const { return true; }
 

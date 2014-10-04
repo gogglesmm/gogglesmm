@@ -54,7 +54,7 @@ public:
 
   GMDBus * find(DBusConnection* dc) {
     FXMutexLock lock(mutex);
-    return reinterpret_cast<GMDBus*>(connections.find(dc));
+    return static_cast<GMDBus*>(connections.find(dc));
     }
 
   void setuphooks() {
@@ -76,7 +76,7 @@ public:
     }
 
   GMDBusTimeout * find(DBusTimeout*t) {
-    return reinterpret_cast<GMDBusTimeout*>(tm.find(t));
+    return static_cast<GMDBusTimeout*>(tm.find(t));
     }
 
   void insert(DBusTimeout*t,GMDBusTimeout*f) {
@@ -211,7 +211,7 @@ long GMDBusTimeout::onTimeout(FXObject*,FXSelector,void*){
 
 static dbus_bool_t fxdbus_addwatch(DBusWatch *watch,void * data) {
   FXTRACE((35,"fxdbus_addwatch()\n"));
-  GMDBus * dc = reinterpret_cast<GMDBus*>(data);
+  GMDBus * dc = static_cast<GMDBus*>(data);
   FXuint mode  = INPUT_EXCEPT;
   FXuint flags = dbus_watch_get_flags(watch);
 
@@ -406,20 +406,20 @@ void GMDBus::send(DBusMessage * msg,FXuint & serial){
 /*******************************************************************************************************/
 
 long GMDBus::onHandleRead(FXObject*,FXSelector,void*ptr){
-  DBusWatch * watch = reinterpret_cast<DBusWatch*>(ptr);
+  DBusWatch * watch = static_cast<DBusWatch*>(ptr);
   dbus_watch_handle(watch,DBUS_WATCH_READABLE);
   FXApp::instance()->addChore(this,ID_DISPATCH);
   return 0;
   }
 
 long GMDBus::onHandleWrite(FXObject*,FXSelector,void*ptr){
-  DBusWatch * watch = reinterpret_cast<DBusWatch*>(ptr);
+  DBusWatch * watch = static_cast<DBusWatch*>(ptr);
   dbus_watch_handle(watch,DBUS_WATCH_WRITABLE);
   return 0;
   }
 
 long GMDBus::onHandleExcept(FXObject*,FXSelector,void*ptr){
-  DBusWatch * watch = reinterpret_cast<DBusWatch*>(ptr);
+  DBusWatch * watch = static_cast<DBusWatch*>(ptr);
   dbus_watch_handle(watch,DBUS_WATCH_ERROR|DBUS_WATCH_HANGUP);
   return 0;
   }
@@ -459,7 +459,7 @@ void GMDBus::setup_event_loop() {
 
 
 static DBusHandlerResult dbus_proxy_filter(DBusConnection *,DBusMessage * msg,void * ptr){
-  GMDBusProxy * proxy = reinterpret_cast<GMDBusProxy*>(ptr);
+  GMDBusProxy * proxy = static_cast<GMDBusProxy*>(ptr);
   FXASSERT(proxy);
   FXuint type = dbus_message_get_type(msg);
 
@@ -535,7 +535,7 @@ GMDBusProxy::~GMDBusProxy()  {
   /// remove any pending proxy replies;
   for (FXint i=0;i<serial.no();i++) {
     if (!serial.empty(i)) {
-      GMDBusProxyReply * reply = reinterpret_cast<GMDBusProxyReply*>(serial.value(i));
+      GMDBusProxyReply * reply = static_cast<GMDBusProxyReply*>(serial.value(i));
       delete reply;
       }
     }
@@ -553,7 +553,7 @@ FXbool GMDBusProxy::matchSerial(DBusMessage * msg) {
   void * ptr;
   FXuint s=dbus_message_get_reply_serial(msg);
   if (s && (ptr=serial.find((void*)(FXuval)s))!=NULL) {
-    GMDBusProxyReply * reply = reinterpret_cast<GMDBusProxyReply*>(ptr);
+    GMDBusProxyReply * reply = static_cast<GMDBusProxyReply*>(ptr);
     if (reply->target) reply->target->handle(this,FXSEL(SEL_COMMAND,reply->message),msg);
     serial.remove((void*)(FXuval)dbus_message_get_reply_serial(msg));
     delete reply;
@@ -573,12 +573,12 @@ void GMDBusProxy::send(DBusMessage*msg,FXObject * obj,FXSelector m) {
 
 
 
-DBusMessage * GMDBusProxy::method(const FXchar * method){
-  return dbus_message_new_method_call(name.text(),path.text(),interface.text(),method);
+DBusMessage * GMDBusProxy::method(const FXchar * methodcall){
+  return dbus_message_new_method_call(name.text(),path.text(),interface.text(),methodcall);
   }
 
-DBusMessage * GMDBusProxy::signal(const FXchar * name){
-  return dbus_message_new_signal(path.text(),interface.text(),name);
+DBusMessage * GMDBusProxy::signal(const FXchar * sname){
+  return dbus_message_new_signal(path.text(),interface.text(),sname);
   }
 
 

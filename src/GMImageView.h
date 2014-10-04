@@ -51,9 +51,9 @@ private:
 public:
   GMImageView(FXComposite* p,FXGLContext *ctx,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
-  FXint getDefaultWidth() const;
+  FXint getDefaultWidth();
 
-  FXint getDefaultHeight() const;
+  FXint getDefaultHeight();
 
   void setImage(FXImage * img);
 

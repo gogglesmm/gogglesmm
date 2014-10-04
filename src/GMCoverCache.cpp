@@ -29,248 +29,324 @@
 #include "GMPlayerManager.h"
 #include "GMIconTheme.h"
 #include "GMCoverCache.h"
+#include "GMCoverLoader.h"
 
+#define COVERCACHE_FILE_VERSION 20140400
+#define COVERCACHE_JPG  1
+#define COVERCACHE_WEBP 2
+#define COVERCACHE_PNG  3
+#define COVERCACHE_BMP  4
 
-class GMCompressedImage {
-public:
-  FXuchar * buffer;
-  FXuint    len;
-public:
-  GMCompressedImage() : buffer(NULL),len(0) {}
-public:
-  GMCompressedImage(const FXuchar * b,FXuint l) : buffer(NULL), len(l) {
-    allocElms(buffer,len);
-    memcpy(buffer,b,len);
-    }
-
-  void make(FXImage * img) {
-    FXASSERT(buffer);
-    FXASSERT(len);
-    if (buffer && len) {
-      FXint ww,hh,dd;
-      FXColor * data=NULL;
-      FXMemoryStream ms(FXStreamLoad,buffer,len,false);
-      if (fxloadJPG(ms,data,ww,hh,dd)) {
-        img->setData(data,IMAGE_OWNED);
-        img->render();
-        }
-      ms.close();
-      FXASSERT(ww==128);
-      FXASSERT(hh==128);
-      }
-    }
-
-  ~GMCompressedImage() {
-    freeElms(buffer);
-    }
-
-  void load(FXStream & store) {
-    store >> len;
-    allocElms(buffer,len);
-    store.load(buffer,len);
-    }
-
-  void save(FXStream & store) const {
-    store << len;
-    store.save(buffer,len);
-    }
-
-  };
-
-
-
-
-class CoverLoader: public GMTask {
-protected:
-  FXuchar * compress_buffer;
-  FXuval    compress_buffer_length;
-public:
-  GMAlbumPathList albums;
-  GMCoverCache    cache;
-protected:
-  GMCompressedImage*  compress(FXColor*,FXint,FXint);
-  GMCompressedImage*  compress(FXImage*);
-  GMCompressedImage*  compress_fit(FXImage*);
-  FXint run();
-public:
-  CoverLoader(GMAlbumPathList & l,FXint sz,FXObject *tgt=NULL,FXSelector sel=0);
-  ~CoverLoader();
-  };
-
-
-
-
-CoverLoader::CoverLoader(GMAlbumPathList & list,FXint sz,FXObject * tgt,FXSelector sel)
-  : GMTask(tgt,sel), cache(sz) {
-  albums.adopt(list);
-  compress_buffer=NULL;
-  compress_buffer_length=0;
+void GMCacheInfo::adopt(GMCacheInfo & info) {
+  index.adopt(info.index);
+  map.adopt(info.map);
+  size=info.size;
+  format=info.format;
   }
 
-CoverLoader::~CoverLoader(){
-  freeElms(compress_buffer);
+void GMCacheInfo::insert(FXint id,FXlong position,FXint length) {
+  index.append(FileIndex(position,length));
+  map.insert(id,index.no());
+  }
+
+void GMCacheInfo::clear(FXint sz){
+  index.clear();
+  map.clear();
+  size=sz;
+  format=0;
+  }
+
+void GMCacheInfo::save(FXStream & store) const {
+  map.save(store);
+  for (FXint i=0;i<index.no();i++) { 
+    store << index[i].position;
+    store << index[i].length;
+    }
+  FXint n = index.no();
+  store << n;
+  }
+
+void GMCacheInfo::load(FXStream & store) {
+  FXint n;
+
+  // read number of covers from the end of file
+  store.position(-4,FXFromEnd);
+  store >> n;
+
+  // load map and index
+  store.position(-((20*n)+8),FXFromEnd);
+  map.load(store);
+  index.no(n);
+  for (FXint i=0;i<n;i++) {
+    store >> index[i].position;
+    store >> index[i].length;
+    }
   }
 
 
-FXint CoverLoader::run() {
-  FXdouble fraction;
-  GMCover * cover=NULL;
-  for (FXint i=0;i<albums.no() && processing;i++){
-    fraction = (i+1) / ((double)albums.no());
-    taskmanager->setStatus(FXString::value("Loading Covers %d%%",(FXint)(100.0*fraction)));
-    cover = GMCover::fromTag(albums[i].path);
-    if (cover==NULL)
-      cover = GMCover::fromPath(FXPath::directory(albums[i].path));
+GMCoverCacheWriter::GMCoverCacheWriter(FXint sz) : info(sz),pixels(NULL) {
+  if (FXWEBPImage::supported)
+    info.format = COVERCACHE_WEBP;
+  else if (FXJPGImage::supported)
+    info.format = COVERCACHE_JPG;
+  else if (FXPNGImage::supported)
+    info.format = COVERCACHE_PNG;
+  else
+    info.format = COVERCACHE_BMP; // Getting real desperate here...
+  }
 
-    cache.insertCover(albums[i].id,compress(GMCover::toImage(cover,cache.getCoverSize(),1)));
-    }
-  if (processing) cache.save();
-  return 0;
+GMCoverCacheWriter::~GMCoverCacheWriter() {
+  freeElms(pixels);
   }
 
 
-GMCompressedImage * CoverLoader::compress_fit(FXImage*img) {
-  FXint size = cache.getCoverSize();
-
-  FXColor * pix=NULL;
-  allocElms(pix,size*size);
-
-
-  memset(pix,255,4*size*size);
-
-  FXuchar * dst = (FXuchar*)pix;
-  FXuchar * src = (FXuchar*)img->getData();
-  FXint sw=img->getWidth()*4;
-  FXint sh=img->getHeight();
+FXbool GMCoverCacheWriter::open(const FXString & filename) {
+  const FXuint version = COVERCACHE_FILE_VERSION;
+  if ((info.format>0) && store.open(filename,FXStreamSave)) {
+    store << version;
+    store << info.size;
+    store << info.format;
+    return true;
+    }
+  return false;  
+  }
 
 
-  if (img->getHeight()<size)
-    dst+=(size*4)*((size-img->getHeight())>>1);
+FXlong GMCoverCacheWriter::save(FXColor * buffer){
+  FXlong offset = store.position();
+  switch(info.format){
+    case COVERCACHE_JPG : fxsaveJPG(store,buffer,info.size,info.size,75); break;
+    case COVERCACHE_WEBP: fxsaveWEBP(store,buffer,info.size,info.size,75.0f); break;
+    case COVERCACHE_PNG : fxsavePNG(store,buffer,info.size,info.size); break;
+    case COVERCACHE_BMP : fxsaveBMP(store,buffer,info.size,info.size); break;
+    }
+  return store.position()-offset;
+  }
 
-  if (img->getWidth()<cache.getCoverSize())
-    dst+=4*((size-img->getWidth())>>1);
+
+FXlong GMCoverCacheWriter::fit(FXImage * image){
+  if (pixels==NULL) allocElms(pixels,info.size*info.size);
+  memset(pixels,255,4*info.size*info.size);
+
+  FXuchar * dst = (FXuchar*)pixels;
+  FXuchar * src = (FXuchar*)image->getData();
+  FXint sw=image->getWidth()*4;
+  FXint sh=image->getHeight();
+
+  if (image->getHeight()<info.size)
+    dst+=(info.size*4)*((info.size-image->getHeight())>>1);
+
+  if (image->getWidth()<info.size)
+    dst+=4*((info.size-image->getWidth())>>1);
 
   do {
     memcpy(dst,src,sw);
-    dst+=size*4;
+    dst+=info.size*4;
     src+=sw;
     }
   while(--sh);
 
-  GMCompressedImage * c = compress(pix,size,size);
-  freeElms(pix);
-  return c;
-  }
-
-GMCompressedImage * CoverLoader::compress(FXColor*pix,FXint width,FXint height){
-  FXMemoryStream ms(FXStreamSave,compress_buffer,compress_buffer_length,true);
-  fxsaveJPG(ms,pix,width,height,75);
-  ms.takeBuffer(compress_buffer,compress_buffer_length);
-  ms.close();
-  return new GMCompressedImage(compress_buffer,ms.position());
+  return save(pixels);
   }
 
 
-GMCompressedImage * CoverLoader::compress(FXImage * img) {
-  if (img) {
-    GMCompressedImage * cimage = NULL;
-    if (img->getWidth()!=cache.getCoverSize() || img->getHeight()!=cache.getCoverSize()) {
-      cimage = compress_fit(img);
+FXbool GMCoverCacheWriter::insert(FXint id,GMCover * cover) {
+  FXint length;
+  FXImage * image = GMCover::toImage(cover,info.size,1);
+  if (image && store.eof()==false) {
+   
+    if (image->getWidth()!=info.size || image->getHeight()!=info.size)
+      length=fit(image);
+    else
+      length=save(image->getData());
+        
+    info.insert(id,store.position()-length,length);
+    delete image;
+    return true;
+    }
+  return false;
+  }
+
+
+FXbool GMCoverCacheWriter::finish() {
+  info.save(store);
+  return true;
+  }
+
+FXbool GMCoverCacheWriter::close() {
+  store.close();
+  return true;
+  }
+
+
+
+
+GMCoverCache::GMCoverCache(const FXString & name,FXint sz) : info(sz) {
+  filename = GMApp::instance()->getCacheDirectory()+PATHSEPSTRING+name+".cache";
+  }
+
+GMCoverCache::~GMCoverCache(){
+  }
+
+FXbool GMCoverCache::contains(FXint id) {
+  return (info.map.find(id)>0);
+  }
+
+FXbool GMCoverCache::render(FXint id,FXImage * image) {
+  FXColor * pixels=NULL;
+  FXbool result;
+  FXint ww,hh,dd;
+  FXint i = info.map.find(id) - 1;
+  FXASSERT(i>=0);
+  if (data.base()) {
+    FXMemoryStream store(FXStreamLoad,((FXuchar*)data.base())+info.index[i].position,info.index[i].length);
+    switch(info.format) {
+      case COVERCACHE_JPG : result = fxloadJPG(store,pixels,ww,hh,dd); break;
+      case COVERCACHE_WEBP: result = fxloadWEBP(store,pixels,ww,hh); break;
+      case COVERCACHE_PNG : result = fxloadPNG(store,pixels,ww,hh); break;
+      case COVERCACHE_BMP : result = fxloadBMP(store,pixels,ww,hh); break;
+      default             : result = false; break;
+      }
+    if (result) {
+      image->setData(pixels,IMAGE_OWNED);
+      image->render();
+      return true;
+      }
+    }
+  return false;
+  }
+
+void GMCoverCache::clear(FXint sz) {
+  info.clear(sz);
+  data.close();
+  }
+
+
+void GMCoverCache::load(GMCoverCacheWriter & writer) {
+  if (data.base()) 
+    data.close();
+
+  FXFile::rename(getTempFilename(),getFilename());
+
+  if (data.openMap(getFilename()))
+    info.adopt(writer.info);
+  else 
+    info.clear(writer.info.size);
+  }
+
+
+FXbool GMCoverCache::load() {
+  FXFileStream store;
+  FXuint version;
+  FXint  filesize;
+  FXbool status=true;
+  if (store.open(filename,FXStreamLoad)) {
+    
+    // check version
+    store >> version;
+    if (version!=COVERCACHE_FILE_VERSION)
+      return false;
+
+    // check cover size stored in this file
+    store >> filesize;
+
+    // if size doesn't match, indicate we need to generate covers again.
+    if (filesize!=info.size)
+      status=false;
+
+    // use the cover size stored in the file
+    info.size=filesize;
+
+    // image format
+    store >> info.format;
+
+    // load info structure
+    info.load(store);
+
+    // Open memory map
+    if (data.openMap(filename)==NULL) 
+      return false;
+
+    return status;
+    }
+  return false;
+  }
+
+
+GMCoverLoader::GMCoverLoader(const FXString & file,GMCoverPathList & pathlist,FXint size,FXObject* tgt,FXSelector sel) : GMTask(tgt,sel), writer(size), filename(file),folderonly(false) {
+  list.adopt(pathlist);
+  }
+
+FXint GMCoverLoader::run() {
+  GMCover * cover;
+  FXint percentage=0,p=-1;
+  if (writer.open(filename)) {
+    for (FXint i=0;i<list.no() && processing;i++){
+      percentage = (FXint)(100.0f*((float)(i+1)/(float)list.no()));
+      if (p!=percentage)
+        taskmanager->setStatus(FXString::value("Loading Covers %d%%",percentage));
+      if (__likely(folderonly==false)) {
+        cover = GMCover::fromTag(list[i].path);
+        if (cover==NULL) cover = GMCover::fromPath(FXPath::directory(list[i].path));
+        }
+      else {
+        cover = GMCover::fromPath(list[i].path);
+        }
+       if (cover) writer.insert(list[i].id,cover);
+      }
+    if (processing) {  
+      writer.finish();
+      writer.close();
+      return 0; 
       }
     else {
-      cimage = compress(img->getData(),cache.getCoverSize(),cache.getCoverSize());
+      writer.close(); 
+      FXFile::remove(filename);
+      return 1;
       }
-    delete img;
-    return cimage;
-    }
-  else {
-    return NULL;
-    }
+    }    
+  return 1;
   }
 
 
-
-FXDEFMAP(GMCoverCache) GMCoverCacheMap[]={
-  FXMAPFUNC(SEL_TASK_COMPLETED,GMCoverCache::ID_COVER_LOADER,GMCoverCache::onCmdCoversLoaded),
-  };
-
-FXIMPLEMENT(GMCoverCache,FXObject,GMCoverCacheMap,ARRAYNUMBER(GMCoverCacheMap));
-
-
-
-
-GMCoverCache::GMCoverCache(FXint size) : basesize(size),initialized(false) {
+GMCoverRender::GMCoverRender() : cache(NULL) {
   }
 
-
-GMCoverCache::~GMCoverCache() {
-  for (FXint i=0;i<covers.no();i++) {
-    delete covers[i];
-    }
+GMCoverRender::~GMCoverRender() {
   for (FXint i=0;i<buffers.no();i++) {
     delete buffers[i];
     }
-  }
-
-void GMCoverCache::clear() {
-  for (FXint i=0;i<covers.no();i++) {
-    delete covers[i];
-    }
-  covers.clear();
+  cache=NULL;
   }
 
 
-FXString GMCoverCache::getCacheFile() const {
-  return GMApp::getCacheDirectory()+PATHSEPSTRING+"albumcovers.cache";
-  }
-
-void GMCoverCache::adopt(GMCoverCache & src) {
-
-  // To force reloading of cover art, set user data to 0
-  // We can't use reset() here since cover art will be reused in the next onPaint
-  // by the calls reset / markCover.
-  for (FXint i=0;i<buffers.no();i++){
-    buffers[i]->setUserData((void*)(FXival)0);
-    }
-
-  // Clear Covers
-  clear();
-
-  // Adopt Covers
-  covers.adopt(src.covers);
-
-  // Adopt Map
-  map.adopt(src.map);
+FXint GMCoverRender::getSize() const {
+  if (cache)
+    return cache->getSize();
+  else
+    return GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
   }
 
 
-
-void GMCoverCache::drawCover(FXint id,FXDC & dc,FXint x,FXint y){
-  FXint index = map.find(id);
-  if (index>0) {
-    FXImage * image = getCoverImage(id);
-    dc.drawImage(image,x,y);
-    return;
+void GMCoverRender::setCache(GMCoverCache * c){
+  if (c && buffers.no() && buffers[0]->getWidth()!=c->getSize()) {
+    for (FXint i=0;i<buffers.no();i++) {
+      delete buffers[i];
+      }
+    buffers.clear();
     }
   else {
-    FXIcon * ic = GMIconTheme::instance()->icon_nocover;
-    if (ic->getHeight()<basesize)
-      y+=(basesize-ic->getHeight())>>1;
-    if (ic->getWidth()<basesize)
-      x+=(basesize-ic->getWidth())>>1;
-    dc.drawIcon(ic,x,y);
+    // To force reloading of cover art, set user data to 0
+    // We can't use reset() here since cover art will be reused in the next onPaint
+    // by the calls reset / markCover.
+    for (FXint i=0;i<buffers.no();i++){
+      buffers[i]->setUserData((void*)(FXival)0);
+      }
     }
+  cache=c;
   }
 
-
-void GMCoverCache::insertCover(FXint id,GMCompressedImage * image) {
-  if (image) {
-    covers.append(image);
-    map.insert(id,covers.no());
-    }
-  }
-
-void GMCoverCache::markCover(FXint id) {
+void GMCoverRender::markCover(FXint id) {
   for (FXint i=0,index;i<buffers.no();i++){
     index=(FXint)(FXival)buffers[i]->getUserData();
     if (index==-id) {
@@ -280,15 +356,31 @@ void GMCoverCache::markCover(FXint id) {
     }
   }
 
-
-void GMCoverCache::reset() {
+void GMCoverRender::reset() {
   for (FXint i=0,index;i<buffers.no();i++){
     index=(FXint)(FXival)buffers[i]->getUserData();
     if (index>0) buffers[i]->setUserData((void*)(FXival)(-index));
     }
   }
 
-FXImage* GMCoverCache::getCoverImage(FXint id) {
+
+void GMCoverRender::drawCover(FXint id,FXDC & dc,FXint x,FXint y) {
+  FXImage * image;
+  if (cache && cache->contains(id) && (image=getImage(id))!=NULL) {
+    dc.drawImage(image,x,y);
+    }
+  else {
+    FXIcon * ic = GMIconTheme::instance()->icon_nocover;
+    if (ic->getHeight()<getSize())
+      y+=(getSize()-ic->getHeight())>>1;
+    if (ic->getWidth()<getSize())
+      x+=(getSize()-ic->getWidth())>>1;
+    dc.drawIcon(ic,x,y);
+    }
+  }
+
+
+FXImage* GMCoverRender::getImage(FXint id) {
   FXint i,index;
   FXImage * image=NULL;
 
@@ -310,94 +402,18 @@ FXImage* GMCoverCache::getCoverImage(FXint id) {
 
   /// Create new one
   if (image==NULL) {
-    image = new FXImage(FXApp::instance(),NULL,0,basesize,basesize);
+    image = new FXImage(FXApp::instance(),NULL,0,getSize(),getSize());
     image->setUserData((void*)(FXival)id);
     image->create();
     buffers.append(image);
     }
 
-  index = map.find(id);
-  covers[index-1]->make(image);
-  return image;
-  }
-
-
-void GMCoverCache::init(GMTrackDatabase * database){
-  if (!initialized && !load()) {
-    refresh(database);
+  // Render Image
+  if (!cache->render(id,image)) {
+    image->setUserData(0);
+    return NULL;
     }
+
+  return image;  
   }
-
-void GMCoverCache::refresh(GMTrackDatabase * database){
-
-  /// Remove the cache file.
-  if (FXStat::exists(getCacheFile()))
-    FXFile::remove(getCacheFile());
-
-  /// Only scan for covers if needed
-  if (initialized) {
-    GMAlbumPathList list;
-    database->listAlbumPaths(list);
-    if (list.no()){
-      CoverLoader * task = new CoverLoader(list,basesize,this,ID_COVER_LOADER);
-      GMPlayerManager::instance()->runTask(task);
-      }
-    }
-  }
-
-#define COVERTHUMBS_CACHE_FILE_VERSION 20120824
-
-void GMCoverCache::save() const {
-  const FXuint version=COVERTHUMBS_CACHE_FILE_VERSION;
-  FXFileStream store;
-  if (store.open(getCacheFile(),FXStreamSave)){
-    store << version;
-    store << basesize;
-    map.save(store);
-    FXint n = covers.no();
-    store << n;
-    for (FXint i=0;i<covers.no();i++){
-      covers[i]->save(store);
-      }
-    }
-  }
-
-FXbool GMCoverCache::load() {
-  GM_TICKS_START();
-  initialized=true;
-  FXFileStream store;
-  if (store.open(getCacheFile(),FXStreamLoad)) {
-    FXint no,size;
-    FXuint version;
-
-    store >> version;
-    if (version!=COVERTHUMBS_CACHE_FILE_VERSION)
-      return false;
-
-    store >> size;
-    if (basesize!=size)
-      return false;
-
-    map.load(store);
-    store >> no;
-    for (FXint i=0;i<no;i++) {
-      GMCompressedImage * cover=new GMCompressedImage();
-      cover->load(store);
-      covers.append(cover);
-      }
-    return true;
-    }
-  GM_TICKS_END();
-  return false;
-  }
-
-
-long GMCoverCache::onCmdCoversLoaded(FXObject*,FXSelector,void*ptr){
-  CoverLoader * task = reinterpret_cast<CoverLoader*>(*((void**)ptr));
-  adopt(task->cache);
-  delete task;
-  GMPlayerManager::instance()->getTrackView()->redrawAlbumList();
-  return 1;
-  }
-
 

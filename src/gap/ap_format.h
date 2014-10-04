@@ -52,6 +52,37 @@ namespace Codec {
   extern const FXchar * name(FXuchar codec);
   }
 
+
+namespace Channel {
+  const FXuint None        =  0u;
+  const FXuint Mono        =  1u;
+  const FXuint FrontLeft   =  2u;
+  const FXuint FrontRight  =  3u;
+  const FXuint FrontCenter =  4u;
+  const FXuint BackLeft    =  5u;
+  const FXuint BackRight   =  6u;
+  const FXuint BackCenter  =  7u;
+  const FXuint SideLeft    =  8u;
+  const FXuint SideRight   =  9u;
+  const FXuint LFE         = 10u;
+  const FXuint Reserved    = 15u; // Max 4 bits
+  }
+
+
+
+#define AP_CMAP1(c1)                      (c1)
+#define AP_CMAP2(c1,c2)                   (c1|(c2<<4))
+#define AP_CMAP3(c1,c2,c3)                (c1|(c2<<4)|(c3<<8))
+#define AP_CMAP4(c1,c2,c3,c4)             (c1|(c2<<4)|(c3<<8)|(c4<<12))
+#define AP_CMAP5(c1,c2,c3,c4,c5)          (c1|(c2<<4)|(c3<<8)|(c4<<12)|(c5<<16))
+#define AP_CMAP6(c1,c2,c3,c4,c5,c6)       (c1|(c2<<4)|(c3<<8)|(c4<<12)|(c5<<16)|(c6<<20))
+#define AP_CMAP7(c1,c2,c3,c4,c5,c6,c7)    (c1|(c2<<4)|(c3<<8)|(c4<<12)|(c5<<16)|(c6<<20)|(c7<<24))
+#define AP_CMAP8(c1,c2,c3,c4,c5,c6,c7,c8) (c1|(c2<<4)|(c3<<8)|(c4<<12)|(c5<<16)|(c6<<20)|(c7<<24)|(c8<<28))
+
+
+
+
+
 namespace Format {
 
 enum {
@@ -120,7 +151,7 @@ enum {
   XSPF              = 12,
   ASF               = 13,
   ASX               = 14,
-  ASFX              = 15, // either ASX or ASF  
+  ASFX              = 15, // either ASX or ASF
   };
 
 }
@@ -151,29 +182,38 @@ enum {
   AP_FORMAT_S32         = ( Format::Signed   | Format::Native | Format::Bits_32 | Format::Pack_4 ),
   AP_FORMAT_S32_LE      = ( Format::Signed   | Format::Little | Format::Bits_32 | Format::Pack_4 ),
   AP_FORMAT_S32_BE      = ( Format::Signed   | Format::Big    | Format::Bits_32 | Format::Pack_4 ),
+
+
+  AP_CHANNELMAP_MONO    = ( Channel::Mono ),
+  AP_CHANNELMAP_STEREO  = AP_CMAP2(Channel::FrontLeft,Channel::FrontRight)
   };
 
 
 extern FXuint ap_format_from_extension(const FXString & extension);
 extern FXuint ap_format_from_mime(const FXString & mime);
 extern FXuint ap_format_from_buffer(const FXchar * buffer,FXival size);
+extern const FXchar * ap_format_name(FXuint name);
+
 
 class GMAPI AudioFormat {
 public:
   FXuint   rate;
   FXushort format;
   FXuchar  channels;
+  FXuint   channelmap;  // up to 8 channels
 public:
   AudioFormat();
   AudioFormat(const AudioFormat &);
 
-  void set(FXushort datatype,FXushort bps,FXushort pack,FXuint rate,FXuchar channels);
+  void set(FXushort datatype,FXushort bps,FXushort pack,FXuint rate,FXuchar channels,FXuint map=0);
 
-  void set(FXushort format,FXuint rate,FXuchar channels);
+  void set(FXushort format,FXuint rate,FXuchar channels,FXuint map=0);
 
   FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
 
   FXbool set() const { return (rate!=0) && (format!=0) && (channels!=0); }
+
+  FXuchar channeltype(FXuint c) const { return (FXuchar)((channelmap>>(c<<2))&0xF); }
 
   FXuchar byteorder() const {
     return (format>>Format::Order_Shift)&Format::Order_Mask;
@@ -194,7 +234,6 @@ public:
   FXint framesize() const {
     return (FXint)channels * (FXint)packing();
     }
-
 
   /* Swap byte order. Return true if succesfull */
   FXbool swap();

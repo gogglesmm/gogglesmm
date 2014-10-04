@@ -130,10 +130,9 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
   FXMAPFUNC(SEL_TIMEOUT,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN,GMPlayerManager::onTaskManagerShutdown),
 
   FXMAPFUNC(SEL_TASK_COMPLETED,GMPlayerManager::ID_IMPORT_TASK,GMPlayerManager::onImportTaskCompleted),
+  FXMAPFUNC(SEL_TASK_CANCELLED,GMPlayerManager::ID_IMPORT_TASK,GMPlayerManager::onImportTaskCompleted),
 
   FXMAPFUNC(SEL_SESSION_CLOSED,GMPlayerManager::ID_SESSION_MANAGER,GMPlayerManager::onCmdQuit)
-
-//  FXMAPFUNC(SEL_COMMAND,GMPlayerManager::ID_COVERS_LOADED,GMPlayerManager::onCoversLoaded)
   };
 
 FXIMPLEMENT(GMPlayerManager,FXObject,GMPlayerManagerMap,ARRAYNUMBER(GMPlayerManagerMap))
@@ -452,12 +451,9 @@ GMPlayerManager::GMPlayerManager() :
   player(NULL),
   trayicon(NULL),
   scrobbler(NULL),
-#ifdef HAVE_PLAYQUEUE
   queue(NULL),
-#endif
   source(NULL),
   database(NULL),
-  covercache(NULL),
   covermanager(NULL) {
   FXASSERT(myself==NULL);
   myself=this;
@@ -576,7 +572,6 @@ FXbool GMPlayerManager::init_sources() {
 
   // Main Database
   database      = new GMTrackDatabase;
-  covercache    = new GMCoverCache;
   covermanager  = new GMCoverManager;
 
   // Make sure we can open it.
@@ -595,13 +590,11 @@ FXbool GMPlayerManager::init_sources() {
       }
     }
 
-#ifdef HAVE_PLAYQUEUE
   /// Init Play Queue
   if (preferences.play_from_queue) {
     queue = new GMPlayQueue(database);
     sources.append(queue);
     }
-#endif
 
   /// Internet Streams
   sources.append(new GMStreamSource(database));
@@ -609,7 +602,9 @@ FXbool GMPlayerManager::init_sources() {
   /// File System
   sources.append(new GMLocalSource());
 
-  sources.append(new GMPodcastSource(database));
+  /// Podcast Source
+  podcast = new GMPodcastSource(database);
+  sources.append(podcast);
 
   /// Load Settings
   for (FXint i=0;i<sources.no();i++) {
@@ -624,7 +619,8 @@ GMDatabaseSource * GMPlayerManager::getDatabaseSource() const {
   return dynamic_cast<GMDatabaseSource*>(sources[0]);
   }
 
-#ifdef HAVE_PLAYQUEUE
+
+
 void GMPlayerManager::setPlayQueue(FXbool enable) {
   preferences.play_from_queue=enable;
   if (enable) {
@@ -641,7 +637,6 @@ void GMPlayerManager::setPlayQueue(FXbool enable) {
       }
     }
   }
-#endif
 
 
 void GMPlayerManager::removeSource(GMSource * src) {
@@ -1040,13 +1035,14 @@ void GMPlayerManager::exit() {
     }
 #endif
 
+  // Destroy shared datastructures between playlists
+  getDatabaseSource()->shutdown();
+
   /// Delete Sources
   for (FXint i=0;i<sources.no();i++)
     delete sources[i];
 
-
   delete covermanager;
-  delete covercache;
 
   application->exit(0);
   }
@@ -1089,9 +1085,6 @@ void GMPlayerManager::update_tray_icon() {
     }
   }
 
-void GMPlayerManager::load_album_covers() {
-  covercache->init(database);
-  }
 
 GMTrackView * GMPlayerManager::getTrackView() const {
   return mainwindow->trackview;
@@ -1132,7 +1125,7 @@ void GMPlayerManager::cleanSourceSettings() {
   FXint s;
   FXStringList keys;
 
-  for (s=0;s<application->reg().no();s++){    
+  for (s=0;s<application->reg().no();s++){
     if (!application->reg().empty(s) && comparecase(application->reg().key(s),"database",8)==0){
       if (!hasSourceWithKey(application->reg().key(s))) {
         keys.append(application->reg().key(s));
@@ -1203,34 +1196,36 @@ void GMPlayerManager::playItem(FXuint whence) {
     source=NULL;
     }
 
-#ifdef HAVE_PLAYQUEUE
   if (queue) {
     switch(whence) {
-      case TRACK_CURRENT : track = queue->getCurrent(); break;
+      case TRACK_CURRENT :  track = queue->getCurrent();
+                            if (track==-1 && queue->canPlaySource(getTrackView()->getSource())) {
+                              track = getTrackView()->getCurrent();
+                              }
+                           break;
       case TRACK_NEXT    : track = queue->getNext(); break;
-      case TRACK_PREVIOUS: track = queue->getPrev(); break;
       default            : FXASSERT(0); break;
       };
     if (track!=-1) {
       source = queue;
       }
     }
-#endif
-
-  if (track==-1) {
-    switch(whence) {
-      case TRACK_CURRENT : track = getTrackView()->getCurrent(); break;
-      case TRACK_NEXT    : track = getTrackView()->getNext(true); break;
-      case TRACK_PREVIOUS: track = getTrackView()->getPrevious(); break;
-      default            : FXASSERT(0); break;
-      };
-    if (track!=-1) {
-      source = getTrackView()->getSource();
+  else {
+    if (track==-1) {
+      switch(whence) {
+        case TRACK_CURRENT : track = getTrackView()->getCurrent(); break;
+        case TRACK_NEXT    : track = getTrackView()->getNext(true); break;
+        case TRACK_PREVIOUS: track = getTrackView()->getPrevious(); break;
+        default            : FXASSERT(0); break;
+        };
+      if (track!=-1) {
+        source = getTrackView()->getSource();
+        getTrackView()->setActive(track);
+        }
       }
     }
 
   if (source) {
-    getTrackView()->setActive(track);
     trackinfoset = source->getTrack(trackinfo);
     player->open(trackinfo.url,true);
     }
@@ -1316,7 +1311,6 @@ void GMPlayerManager::notify_playback_finished() {
   FXbool stop_playback = scheduled_stop;
   scheduled_stop=false;
 
-#ifdef HAVE_PLAYQUEUE
   if (queue) {
 
     /// Reset Source
@@ -1324,6 +1318,10 @@ void GMPlayerManager::notify_playback_finished() {
      source->resetCurrent();
      source=NULL;
      }
+
+    /// Nothing else to do  
+    if (stop_playback)
+      return;
 
     //FIXME handle stop_playback
     track = queue->getNext();
@@ -1336,11 +1334,12 @@ void GMPlayerManager::notify_playback_finished() {
      //reset_track_display();
      return;
      }
-
+    else {
+      source = queue;
+      }
     trackinfoset = queue->getTrack(trackinfo);
     }
   else {
-#endif
 
     /// Don't play anything if we didn't play anything from the library
     if (source==NULL)
@@ -1379,9 +1378,7 @@ void GMPlayerManager::notify_playback_finished() {
 
     source = getTrackView()->getSource();
     trackinfoset = source->getTrack(trackinfo);
-#ifdef HAVE_PLAYQUEUE
     }
-#endif
   player->open(trackinfo.url,false);
   }
 
@@ -1412,7 +1409,6 @@ void GMPlayerManager::reset_track_display() {
     notifydaemon->reset();
 #endif
 
-#ifdef HAVE_PLAYQUEUE
   /// Update View in queue play.
   if (queue) {
     getSourceView()->refresh(queue);
@@ -1420,7 +1416,6 @@ void GMPlayerManager::reset_track_display() {
       getTrackView()->refresh();
       }
     }
-#endif
 
   /// Schedule a GUI update
   application->refresh();
@@ -1458,15 +1453,12 @@ void GMPlayerManager::update_track_display(FXbool notify) {
 
   if (notify) application->addTimeout(this,ID_PLAY_NOTIFY,TIME_MSEC(500));
 
-#ifdef HAVE_PLAYQUEUE
   if (queue) {
     getSourceView()->refresh(queue);
     if (getTrackView()->getSource()==queue)
       getTrackView()->refresh();
     getTrackView()->showCurrent();
     }
-#endif
-
   }
 
 
@@ -1484,11 +1476,8 @@ FXbool GMPlayerManager::can_stop() const {
   }
 
 FXbool GMPlayerManager::can_play() const {
-#ifdef HAVE_PLAYQUEUE
-  return (!player->playing() && ((queue && queue->getNumTracks()>0) ||  getTrackView()->hasTracks()));
-#else
-   return (!player->playing() &&  getTrackView()->hasTracks());
-#endif
+   return !player->playing() && ((queue==NULL && getTrackView()->hasTracks()) ||
+                                (queue && (queue->getNumTracks() ||  (getTrackView()->hasTracks() && getPlayQueue()->canPlaySource(getTrackView()->getSource())))));
   }
 
 FXbool GMPlayerManager::can_pause() const {
@@ -1505,18 +1494,14 @@ FXbool GMPlayerManager::can_unpause() const {
 
 FXbool GMPlayerManager::can_next() const {
   if (player->playing() && !player->pausing()) {
-#ifdef HAVE_PLAYQUEUE
-    if (( queue && queue->getNumTracks()>1) || getTrackView()->getNumTracks()>1)
+    if (( queue && queue->getNumTracks()>0) || getTrackView()->getNumTracks()>1)
       return true;
-#else
-    return (getTrackView()->getNumTracks()>1);
-#endif
     }
   return false;
   }
 
 FXbool GMPlayerManager::can_prev() const {
-  if (player->playing() && !player->pausing()) {
+  if (player->playing() && !player->pausing() && queue==NULL) {
     return (getTrackView()->getNumTracks()>1);
     }
   return false;
@@ -1538,18 +1523,23 @@ void GMPlayerManager::show_message(const FXchar * title,const FXchar * msg){
     FXMessageBox::error(application->getActiveWindow(),MBOX_OK,title,"%s",msg);
     }
   else {
-    if (mainwindow && mainwindow->shown())
-      FXMessageBox::error(mainwindow,MBOX_OK,title,"%s",msg);
-    else if (mainwindow->getRemote())
-      FXMessageBox::error(mainwindow->getRemote(),MBOX_OK,title,"%s",msg);
-    else
+    if (mainwindow) {
+      if (mainwindow->shown())
+        FXMessageBox::error(mainwindow,MBOX_OK,title,"%s",msg);
+      else if (mainwindow->getRemote())
+        FXMessageBox::error(mainwindow->getRemote(),MBOX_OK,title,"%s",msg);
+      else
+        FXMessageBox::error(application,MBOX_OK,title,"%s",msg);
+      }
+    else {
       FXMessageBox::error(application,MBOX_OK,title,"%s",msg);
+      }
     }
   }
 
 
 long GMPlayerManager::onCmdCloseWindow(FXObject*sender,FXSelector,void*){
-  FXWindow * window = reinterpret_cast<FXWindow*>(sender);
+  FXWindow * window = dynamic_cast<FXWindow*>(sender);
   if (getPreferences().gui_hide_player_when_close && !getPreferences().gui_tray_icon_disabled) {
     window->hide();
     }
@@ -1590,18 +1580,21 @@ long GMPlayerManager::onScrobblerOpen(FXObject*,FXSelector,void*ptr){
 
 
 
-long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector,void*ptr){
-
-  {
-    GMTask * task = *((GMTask**)ptr);
-    delete task;
-  }
-
-  database->initArtistLookup();
-  covercache->refresh(database);
-
-  //FIXME  only refresh when we have the music database open.
-  getTrackView()->refresh();
+long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector sel,void*ptr){
+  GMTask * task = *static_cast<GMTask**>(ptr);
+  if (FXSELTYPE(sel)==SEL_TASK_COMPLETED) {
+    database->initArtistLookup();
+    getDatabaseSource()->updateCovers();
+    GMSource * src = getTrackView()->getSource();
+    if (src) {
+      switch(src->getType()){
+        case SOURCE_DATABASE:
+        case SOURCE_DATABASE_PLAYLIST: getTrackView()->refresh(); break;
+        default: break;
+        }
+      }
+    }
+  delete task;
   return 0;
   }
 
@@ -1955,7 +1948,7 @@ long GMPlayerManager::onPlayerEOS(FXObject*,FXSelector,void*){
 
 
 long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
-  const PlaybackTime * tm = reinterpret_cast<const PlaybackTime*>(ptr);
+  const PlaybackTime * tm = static_cast<const PlaybackTime*>(ptr);
 
   TrackTime tm_progress;
   TrackTime tm_remaining;

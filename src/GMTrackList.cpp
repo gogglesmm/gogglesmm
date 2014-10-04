@@ -22,6 +22,7 @@
 ********************************************************************************/
 #include <limits.h>
 #include "gmdefs.h"
+#include "gmutils.h"
 #include <fxkeys.h>
 #include <FXPNGIcon.h>
 #include "GMTrack.h"
@@ -179,6 +180,7 @@ GMTrackList::GMTrackList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   textColor=getApp()->getForeColor();
   selbackColor=getApp()->getSelbackColor();
   seltextColor=getApp()->getSelforeColor();
+  shadowColor=getApp()->getShadowColor();
   rowColor=backColor;
   activeColor=backColor;
   activeTextColor=textColor;
@@ -195,18 +197,7 @@ GMTrackList::GMTrackList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   state=false;
   sortMethod=HEADER_DEFAULT;
 
-
   GMScrollArea::replaceScrollbars(this);
-
-/*
-  delete vertical;
-  delete horizontal;
-  delete corner;
-
-  vertical=new GMScrollBar(this,this,FXWindow::ID_VSCROLLED,SCROLLBAR_VERTICAL);
-  horizontal=new GMScrollBar(this,this,FXWindow::ID_HSCROLLED,SCROLLBAR_HORIZONTAL);
-  corner=new GMScrollCorner(this);
-*/
   }
 
 // Create window
@@ -329,8 +320,8 @@ long GMTrackList::onChgHeader(FXObject*,FXSelector,void*){
 // we want to set the width of the header column
 // to that of the widest item.
 long GMTrackList::onClkHeader(FXObject*,FXSelector,void* ptr){
-  register FXint hi=(FXint)(FXival)ptr;
-  register FXint i,tw,w,nw=0,type;
+  FXint hi=(FXint)(FXival)ptr;
+  FXint i,tw,w,nw=0,type;
   FXuint justify;
   FXint max;
   const FXString * textptr;
@@ -370,41 +361,25 @@ long GMTrackList::onHeaderRightBtnRelease(FXObject*,FXSelector,void*ptr){
   };
 
 long GMTrackList::onCmdHeader(FXObject*,FXSelector,void*ptr){
-  GMColumn * data = getHeaderData((FXuint)(FXival)ptr);
-  if (data) {
-    if (data->type==sortMethod)
-      GMPlayerManager::instance()->getTrackView()->setSortMethod(data->type,(sortfunc==data->ascending));
+  GMColumn * column = getHeaderData((FXuint)(FXival)ptr);
+  if (column) {
+    if (column->type==sortMethod)
+      GMPlayerManager::instance()->getTrackView()->setSortMethod(column->type,(sortfunc==column->ascending));
     else
-      GMPlayerManager::instance()->getTrackView()->setSortMethod(data->type);
+      GMPlayerManager::instance()->getTrackView()->setSortMethod(column->type);
 
     if (sortfunc)
       GMPlayerManager::instance()->getTrackView()->sortTracks();
     }
-  /*
-
-
-      if (sortfunc==data->ascending)
-        sortfunc=data->descending;
-      else
-        sortfunc=data->ascending;
-      }
-    else {
-      sortMethod=data->type;
-      sortfunc=data->ascending;
-      }
-    if (sortfunc)
-      GMPlayerManager::instance()->getTrackView()->sortTracks();
-    }
-*/
   return 1;
   }
 
 long GMTrackList::onUpdHeader(FXObject*,FXSelector,void*){
-  GMColumn * data;
+  GMColumn * column;
   for (FXint i=0;i<header->getNumItems();i++){
-    data = getHeaderData(i);
-    if (data && sortMethod==data->type) {
-      if (sortfunc==data->ascending)
+    column = getHeaderData(i);
+    if (column && sortMethod==column->type) {
+      if (sortfunc==column->ascending)
         header->setArrowDir(i,FXHeaderItem::ARROW_DOWN);
       else
         header->setArrowDir(i,FXHeaderItem::ARROW_UP);
@@ -459,16 +434,16 @@ long GMTrackList::onWheelTimeout(FXObject*,FXSelector,void*) {
   return 1;
   }
 
-void GMTrackList::appendHeader(const FXString & label,FXint size,GMColumn * data){
+void GMTrackList::appendHeader(const FXString & label,FXint size,GMColumn * column){
   GMColumn * c;
   for (FXint i=0;i<header->getNumItems();i++){
     c = getHeaderData(i);
-    if (data->index < c->index){
-      header->insertItem(i,label,NULL,size,data);
+    if (column->index < c->index){
+      header->insertItem(i,label,NULL,size,column);
       return;
       }
     }
-  header->appendItem(label,NULL,size,data);
+  header->appendItem(label,NULL,size,column);
   }
 
 
@@ -532,8 +507,8 @@ FXbool GMTrackList::isItemCurrent(FXint index) const {
 
 // True if item (partially) visible
 FXbool GMTrackList::isItemVisible(FXint index) const {
-  register FXbool vis=false;
-  register FXint y,hh;
+  FXbool vis=false;
+  FXint y,hh;
   if(index<0 || items.no()<=index){ fxerror("%s::isItemVisible: index out of range.\n",getClassName()); }
   hh=header->getDefaultHeight();
   y=pos_y+hh+index*lineHeight;
@@ -574,12 +549,19 @@ void GMTrackList::makeItemVisible(FXint index){
     }
   }
 
+/// Find Item by Id
+FXint GMTrackList::findItemById(FXint id) const{
+  for (FXint i=0;i<items.no();i++){
+    if (items[i]->id==id) return i;
+    }
+  return -1;
+  }
+
 
 // Get item at position x,y
-FXint GMTrackList::getItemAt(FXint x,FXint y) const {
-  register FXint index;
+FXint GMTrackList::getItemAt(FXint /*x*/,FXint y) const {
+  FXint index;
   y-=pos_y;
-  x-=pos_x;
   y-=header->getDefaultHeight();
   index=y/lineHeight;
   if(index<0 || index>=items.no()) return -1;
@@ -601,7 +583,7 @@ FXint GMTrackList::hitItem(FXint index,FXint /*x*/,FXint /*y*/,FXint /*ww*/,FXin
     iy=lineHeight*r;
     hit=2; //FIXME items[index]->hitItem(this,x-ix,y-iy,ww,hh);
 */
-    hit=2;    
+    hit=2;
     }
   return hit;
   }
@@ -701,8 +683,8 @@ FXbool GMTrackList::toggleItem(FXint index,FXbool notify){
 
 // Select items in rectangle
 FXbool GMTrackList::selectInRectangle(FXint x,FXint y,FXint w,FXint h,FXbool notify){
-  register FXint index;
-  register FXbool changed=false;
+  FXint index;
+  FXbool changed=false;
   for(index=0; index<items.no(); index++){
     if(hitItem(index,x,y,w,h)){
       changed|=selectItem(index,notify);
@@ -714,7 +696,7 @@ FXbool GMTrackList::selectInRectangle(FXint x,FXint y,FXint w,FXint h,FXbool not
 
 // Extend selection
 FXbool GMTrackList::extendSelection(FXint index,FXbool notify){
-  register FXbool changes=false;
+  FXbool changes=false;
   FXint i1,i2,i3,i;
   if(0<=index && 0<=anchor && 0<=extent){
 
@@ -785,8 +767,8 @@ FXbool GMTrackList::extendSelection(FXint index,FXbool notify){
 
 // Kill selection
 FXbool GMTrackList::killSelection(FXbool notify){
-  register FXbool changes=false;
-  register FXint i;
+  FXbool changes=false;
+  FXint i;
   for(i=0; i<items.no(); i++){
     if(items[i]->isSelected()){
       items[i]->setSelected(false);
@@ -910,7 +892,7 @@ long GMTrackList::onFocusOut(FXObject* sender,FXSelector sel,void* ptr){
 
 // Draw item list
 long GMTrackList::onPaint(FXObject*,FXSelector,void* ptr){
-  register FXint rlo,rhi,dw,index,vw,y;
+  FXint rlo,rhi,dw,index,vw,y;
   FXEvent* event=(FXEvent*)ptr;
   FXDCWindow dc(this,event);
 
@@ -977,7 +959,7 @@ long GMTrackList::onPaint(FXObject*,FXSelector,void* ptr){
 
 
 void GMTrackList::draw(FXDC& dc,FXEvent *,FXint index,FXint x,FXint y,FXint w,FXint h,FXint dw) const {
-  register FXint iw,ih,tw=0,th=0,yt,hi,drw,space,used,xx,type,offset;
+  FXint iw,ih,tw=0,th=0,yt,hi,drw,space,used,xx,type,offset;
   FXString text;
   const FXString * textptr;
   FXint max=50;
@@ -1022,6 +1004,8 @@ void GMTrackList::draw(FXDC& dc,FXEvent *,FXint index,FXint x,FXint y,FXint w,FX
     dc.setForeground(getSelTextColor());
   else if (active==index)
     dc.setForeground(getActiveTextColor());
+  else if (items[index]->isShaded())
+    dc.setForeground(getShadowColor());
   else
     dc.setForeground(getTextColor());
 
@@ -1119,9 +1103,9 @@ long GMTrackList::onCmdSelectInverse(FXObject*,FXSelector,void*){
 
 // Sort the items based on the sort function
 void GMTrackList::sortItems(){
-  register GMTrackItem *v,*c=0;
-  register FXbool exch=false;
-  register FXint i,j,h;
+  GMTrackItem *v,*c=0;
+  FXbool exch=false;
+  FXint i,j,h;
   if(sortfunc){
     if(0<=current){
       c=items[current];
@@ -1703,7 +1687,7 @@ FXint GMTrackList::setItem(FXint index,GMTrackItem* item,FXbool notify){
 
 // Insert item
 FXint GMTrackList::insertItem(FXint index,GMTrackItem* item,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Must have item
   if(!item){ fxerror("%s::insertItem: item is NULL.\n",getClassName()); }
@@ -1759,7 +1743,7 @@ FXint GMTrackList::prependItem(GMTrackItem* item,FXbool notify){
 
 // Move item from oldindex to newindex
 FXint GMTrackList::moveItem(FXint newindex,FXint oldindex,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
   GMTrackItem *item;
 
   // Must be in range
@@ -1809,8 +1793,8 @@ FXint GMTrackList::moveItem(FXint newindex,FXint oldindex,FXbool notify){
 
 // Extract node from list
 GMTrackItem* GMTrackList::extractItem(FXint index,FXbool notify){
-  register GMTrackItem *result;
-  register FXint old=current;
+  GMTrackItem *result;
+  FXint old=current;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::extractItem: index out of range.\n",getClassName()); }
@@ -1855,7 +1839,7 @@ GMTrackItem* GMTrackList::extractItem(FXint index,FXbool notify){
 
 // Remove node from list
 void GMTrackList::removeItem(FXint index,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::removeItem: index out of range.\n",getClassName()); }
@@ -1897,7 +1881,7 @@ void GMTrackList::removeItem(FXint index,FXbool notify){
 
 // Remove all items
 void GMTrackList::clearItems(FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Delete items
   for(FXint index=items.no()-1; 0<=index; index--){
@@ -1988,6 +1972,13 @@ void GMTrackList::setActiveColor(FXColor clr){
     }
   }
 
+// Change the active color
+void GMTrackList::setShadowColor(FXColor clr){
+  if(clr!=shadowColor){
+    shadowColor=clr;
+    update();
+    }
+  }
 
 // Change the active text color
 void GMTrackList::setActiveTextColor(FXColor clr){

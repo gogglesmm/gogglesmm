@@ -22,10 +22,10 @@
 
 namespace ap {
 
-BufferIO::BufferIO(FXuval size) : BufferBase(size),io(NULL),dir(DirNone) {
+BufferIO::BufferIO(FXuval sz) : BufferBase(sz),io(NULL),dir(DirNone) {
 	}
 
-BufferIO::BufferIO(FXIO * stream,FXuval size) : FXIO(stream->mode()),BufferBase(size),io(stream),dir(DirNone) {
+BufferIO::BufferIO(FXIO * stream,FXuval sz) : FXIO(stream->mode()),BufferBase(sz),io(stream),dir(DirNone) {
 	}
 
 BufferIO::~BufferIO() {
@@ -41,7 +41,7 @@ void BufferIO::attach(FXIO * stream) {
 
 // Read at least count bytes into the buffer
 FXuval BufferIO::readBuffer(){
-  register FXival m,n;
+  FXival m,n;
   if(dir==DirWrite) {fxerror("BufferIO::readBuffer: wrong io direction.\n");}
   FXASSERT(begptr<=rdptr);
   FXASSERT(rdptr<=wrptr);
@@ -60,7 +60,7 @@ FXuval BufferIO::readBuffer(){
 
 // Write at least count bytes from the buffer
 FXuval BufferIO::writeBuffer(){
-  register FXival m,n;
+  FXival m,n;
   if(dir==DirRead) {fxerror("BufferIO::writeBuffer: wrong io direction.\n");}
   FXASSERT(begptr<=rdptr);
   FXASSERT(rdptr<=wrptr);
@@ -220,11 +220,11 @@ FXival BufferIO::writeBlock(const void* data,FXival n) {
 
 
 /// Truncate file
-FXlong BufferIO::truncate(FXlong size) {
+FXlong BufferIO::truncate(FXlong sz) {
 	FXASSERT(wrptr);
 	FXASSERT(rdptr);
 	flushBuffer();
-	return io->truncate(size);
+	return io->truncate(sz);
 	}
 
 FXbool BufferIO::flush() {

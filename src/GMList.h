@@ -38,6 +38,10 @@ private:
   GMListItem& operator=(const GMListItem&);
 protected:
   GMListItem() {}
+
+  // unhide to keep compiler happy over hiding virtual
+  using FXListItem::draw;  
+
   virtual void draw(const GMList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
 public:
   /// Construct new item with given text, icon, and user-data

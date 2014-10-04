@@ -1,12 +1,31 @@
 To do / wishlist..
  * add gzip compression support to http
- * auto-refresh the podcast manager every x hours
  * GMButton needs to having drawing mode for BUTTON_DEFAULT"
  * lirc support
  * Finish up mpris support.
  * New keyboard shortcuts to skip 10s or 1min in a track.
  * filename template should perhaps support: alphabet index?
- * fix the playqueue (don't make it crash)
+
+0.14.0
+  - Added playqueue mode.
+  - Support multichannel playback.
+  - Configurable cover display size in album list.
+  - Improvements to the podcast manager:    
+    o Support for rss feeds not encoded in UTF-8 or UTF-16.
+    o Configurable update interval for podcasts.
+    o Automatically download podcasts when feeds get updated.
+    o Download status icons in podcastmanager show which podcasts are local, queued or failed.
+    o Added cover support to podcastmanager.
+    o Add DND support to podcastmanager.
+    o Add played status to podcastmanager and add option to mark podcasts as new or played.
+  - Improved memory consumption for cover cache.
+  - Added appdata file to distribution
+  - Removed libxml2 support. Only expat is supported now.
+  - Added version info to output plugins to allow checking version during runtime.
+  - Compiler warning cleanups.
+  - Fix: if pulse stream becomes unready write() should return false
+  - Fix: use correct line separator for x-special/gnome-copied-files
+  - Fix: don't parse empty timestamp strings in rss feeds
 
 0.13.3
   - Fix various bsd porting issues.
@@ -499,6 +518,34 @@ To do / wishlist..
   - Misc: Build system is now more like autoconf/automake.
   - Misc: Disable default title/album/artist if options above are selected.
 
+0.8.5 (svn)
+  - Fix: Paste from gtk applications failed if it contained line feeds.
+
+0.8.4
+  - Fix: Support modified fox-config on Gentoo which prevented GMM from building.
+  - Fix: Close all fd on fork in order to keep playing while opening the webbrowser.
+
+0.8.3
+  - Fix: Buffer overflow in track list sorting.
+
+0.8.2
+  - New: genre, artist and album may now also be horizontally resized.
+  - Fix: Typo in edit artist dialog.
+  - Fix: define MPEG4IP_VERSION in case it's not defined.
+  - Fix: chase api changes in FOX 1.7.12.
+  - Fix: Removed some warnings.
+  - Fix: Removed some dirty coding.
+
+0.8.1
+  - New: Each source now remembers scroll position of the tracklist.
+  - New: Added option to close audio device when paused.
+  - Fix: Bug in filename renaming feature was fixed.
+  - Fix: Don't show filename renaming confirmation dialog if not required.
+  - Fix: Improved shuffle. Also added keyboard shortcut Ctrl-R.
+  - Fix: Compilation bug with FOX-1.7.11.
+  - Fix: Disable volume button when xine is not opened.
+  - Fix: Workaround for older SQLite versions regarding index creation.
+
 0.8.0
   - New: Support creating custom playlists.
   - New: Don't show duplicate albums names when multiple artists are selected.
@@ -531,6 +578,10 @@ To do / wishlist..
   - Fix: sleeptimer now works properly in FOX 1.6.
   - Fix: Write xine configuration file on exit.
   - Fix: Don't recurse into directories that are symbolic links.
+
+0.7.6 (svn)
+  - Fix: resolved issue preventing filenames with '#' characters from playing.
+  - Fix: sleep timer with FOX 1.6 didn't work.
 
 0.7.5
   - Fix: Possible crash in empty track list due uninitialized variables.

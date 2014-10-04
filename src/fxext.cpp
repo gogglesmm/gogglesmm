@@ -144,7 +144,7 @@ static FXColor gm_make_shadow_color(FXColor clr){
 
 // Fill vertical gradient rectangle
 void fillVerticalGradient(FXDCWindow & dc,FXint x,FXint y,FXint w,FXint h,FXColor top,FXColor bottom){
-  register FXint rr,gg,bb,dr,dg,db,r1,g1,b1,r2,g2,b2,yl,yh,yy,dy,n,t;
+  FXint rr,gg,bb,dr,dg,db,r1,g1,b1,r2,g2,b2,yl,yh,yy,dy,n,t;
   if(0<w && 0<h){
     r1=FXREDVAL(top);
     r2=FXREDVAL(bottom);
@@ -185,7 +185,7 @@ void fillVerticalGradient(FXDCWindow & dc,FXint x,FXint y,FXint w,FXint h,FXColo
 
 // Fill horizontal gradient rectangle
 void fillHorizontalGradient(FXDCWindow & dc,FXint x,FXint y,FXint w,FXint h,FXColor left,FXColor right){
-  register FXint rr,gg,bb,dr,dg,db,r1,g1,b1,r2,g2,b2,xl,xh,xx,dx,n,t;
+  FXint rr,gg,bb,dr,dg,db,r1,g1,b1,r2,g2,b2,xl,xh,xx,dx,n,t;
   if(0<w && 0<h){
     r1=FXREDVAL(left);
     r2=FXREDVAL(right);
@@ -280,7 +280,7 @@ GMHeader::GMHeader(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint
 long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
   FXEvent *ev=(FXEvent*)ptr;
   FXDCWindow dc(this,ev);
-  register FXint x,y,w,h,i,ilo,ihi;
+  FXint x,y,w,h,i,ilo,ihi;
 
   // Set font
   dc.setFont(font);
@@ -474,7 +474,7 @@ GMMenuCascade::GMMenuCascade(FXComposite* p,const FXString& text,FXIcon* ic,FXPo
 
 FXIMPLEMENT(GMMenuPane,FXMenuPane,NULL,0)
 
-GMMenuPane::GMMenuPane(FXWindow* owner,FXuint opts) : FXMenuPane(owner,opts) {
+GMMenuPane::GMMenuPane(FXWindow* o,FXuint opts) : FXMenuPane(o,opts) {
   borderColor=getApp()->getShadowColor();
   setFrameStyle(FRAME_LINE);
   }
@@ -492,7 +492,7 @@ GMTextField::GMTextField(FXComposite* p,FXint ncols,FXObject* tgt,FXSelector sel
   }
 
 FXbool GMTextField::extendWordSelection(FXint pos,FXbool /*notify*/) {
-  register FXint sp,ep;
+  FXint sp,ep;
   pos=contents.validate(FXCLAMP(0,pos,contents.length()));
   if(pos<=anchor){
     sp=wordStart(pos);
@@ -1742,8 +1742,8 @@ void GMScrollBar::drawThumb(FXDCWindow& dc,FXint x,FXint y,FXint w,FXint h){
 
 // Handle repaint
 long GMScrollBar::onPaint(FXObject*,FXSelector,void* ptr){
-  register FXEvent *ev=(FXEvent*)ptr;
-  register int total;
+  FXEvent *ev=(FXEvent*)ptr;
+  int total;
   FXDCWindow dc(this,ev);
   if(options&SCROLLBAR_HORIZONTAL){
     total=width-height-height;
@@ -2099,7 +2099,7 @@ GMTrackProgressBar::GMTrackProgressBar(FXComposite *p,FXObject* tgt,FXSelector s
 // Moving
 long GMTrackProgressBar::onMotion(FXObject*,FXSelector,void*){
 //  register FXEvent *event=(FXEvent*)ptr;
-  register FXuint /*xx,yy,ww,hh,lo,hi,*/p=0/*,h,travel*/;
+  FXuint /*xx,yy,ww,hh,lo,hi,*/p=0/*,h,travel*/;
   if(!isEnabled()) return 0;
   if(flags&FLAG_PRESSED){
 /*
@@ -2211,7 +2211,7 @@ long GMTrackProgressBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released Left button
 long GMTrackProgressBar::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
 //  register FXuint flgs=flags;
   if(isEnabled()){
     ungrab();

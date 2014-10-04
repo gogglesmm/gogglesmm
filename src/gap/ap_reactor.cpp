@@ -149,7 +149,7 @@ FXTime Reactor::prepare() {
       resizeElms(pfds,mfds);
     }
 
-  for (FXint i=0;i<inputs.no();i++) {
+  for (i=0;i<inputs.no();i++) {
     if ((inputs[i]->mode&Input::Disabled) || (inputs[i]->mode&(Input::Readable|Input::Writable|Input::Exception))==0) {
       pfds[i].fd       = -inputs[i]->handle;
       pfds[i].events   = 0;

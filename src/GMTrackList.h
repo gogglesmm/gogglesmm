@@ -54,10 +54,11 @@ protected:
   virtual FXIcon * getIcon() const { return NULL; }
 public:
   enum {
-    SELECTED      = 1,  /// Selected
-    FOCUS         = 2,  /// Focus
-    DRAGGABLE     = 4,  /// Draggable
-    DONOTPLAY     = 8,  /// Playable
+    SELECTED      = 0x01,  /// Selected
+    FOCUS         = 0x02,  /// Focus
+    DRAGGABLE     = 0x04,  /// Draggable
+    DONOTPLAY     = 0x08,  /// Playable
+    SHADED        = 0x10   /// Shaded
     };
 public:
   GMTrackItem() : state(0) {}
@@ -86,6 +87,9 @@ public:
 
   /// Return true if this item is playable
   FXbool canPlay() const { return (state&DONOTPLAY)==0; }
+
+  /// Return true if this item is shaded
+  FXbool isShaded() const { return (state&SHADED)!=0; }
 
   /// Destructor
   virtual ~GMTrackItem() {}
@@ -141,6 +145,7 @@ protected:
   FXColor            rowColor;
   FXColor            activeColor;
   FXColor            activeTextColor;
+  FXColor            shadowColor;
   FXint              lineHeight;        // Item height
   FXint              anchorx;           // Rectangular selection
   FXint              anchory;
@@ -224,6 +229,9 @@ public:
   /// Construct icon list with no items in it initially
   GMTrackList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TRACKLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
+  /// Find Item by Id
+  FXint findItemById(FXint id) const;
+
   /// Get the unique item id
   FXint getItemId(FXint index) const { return items[index]->id; }
 
@@ -276,10 +284,10 @@ public:
   FXHeader* getHeader() const { return header; }
 
   /// Return the header data.
-  GMColumn * getHeaderData(FXint i) const { return reinterpret_cast<GMColumn*>(header->getItemData(i)); }
+  GMColumn * getHeaderData(FXint i) const { return static_cast<GMColumn*>(header->getItemData(i)); }
 
   /// Return the header type
-  FXuint getHeaderType(FXint i) const { return ( (i>=0 && i<header->getNumItems()) ? ((reinterpret_cast<GMColumn*>(header->getItemData(i)))->type) : -1); }
+  FXuint getHeaderType(FXint i) const { return ( (i>=0 && i<header->getNumItems()) ? ((static_cast<GMColumn*>(header->getItemData(i)))->type) : -1); }
 
   /// Append header with given text, size and column data
   void appendHeader(const FXString & label,FXint size,GMColumn * data);
@@ -451,6 +459,12 @@ public:
 
   /// Change the active color
   void setActiveColor(FXColor clr);
+
+  /// Change shadow color
+  void setShadowColor(FXColor clr);
+
+  /// Get shadow color
+  FXColor getShadowColor() const { return shadowColor; }
 
   /// Get the current icon list style
   FXuint getListStyle() const;

@@ -52,12 +52,12 @@ void FXIntMap::save(FXStream & store) const {
   }
 
 void FXIntMap::load(FXStream & store) {
-  FXint key,value,n;
+  FXint k,v,n;
   store >> n;
   for (FXint i=0;i<n;i++){
-    store >> key;
-    store >> value;
-    insert(key,value);
+    store >> k;
+    store >> v;
+    insert(k,v);
     }
   }
 
@@ -117,8 +117,8 @@ FXuint gm_desktop_session() {
 
 // Encode url string
 FXString gm_url_encode(const FXString& url){
-  register FXint p=0;
-  register FXint c;
+  FXint p=0;
+  FXint c;
   FXString result;
   while(p<url.length()){
     c=url[p++];
@@ -243,7 +243,7 @@ void gm_convert_filenames_to_gnomeclipboard(const FXStringList & filenames,FXStr
   if (filenames.no()) {
     uri="copy\n" + FXURL::fileToURL(filenames[0]);
     for (FXint i=1;i<filenames.no();i++){
-      uri+="\r\n";
+      uri+="\n";
       uri+=FXURL::fileToURL(filenames[i]);
       }
     }
@@ -298,9 +298,9 @@ static FXbool gm_launch_program(const FXchar * const * programs,const FXString &
     if (!exec.empty()) {
       pid_t pid = fork();
       if (pid==0) {
-        int i = sysconf(_SC_OPEN_MAX);
-        while (--i >= 3) {
-          close(i);
+        int fd = sysconf(_SC_OPEN_MAX);
+        while (--fd >= 3) {
+          close(fd);
           }
         execl(exec.text(),programs[i],url.text(),NULL);
         exit(EXIT_FAILURE);
@@ -531,6 +531,7 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
                                       (FXString::digit2Value[(const FXuchar)d4])
 
 FXbool gm_parse_datetime(const FXString & str,FXTime & timestamp) {
+  if (str.empty()) return false;
 
   // Fields
   enum {

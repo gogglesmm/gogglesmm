@@ -36,7 +36,6 @@ protected:
 private:
   InputPlugin(const InputPlugin&);
   InputPlugin &operator=(const InputPlugin&);
-protected:
 public:
   InputPlugin(InputThread*);
 

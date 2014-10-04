@@ -640,7 +640,10 @@ void GMIconTheme::loadInternal() {
   loadResource(icon_folder_open_small,x16_folder_open_png,backcolor);
   loadResource(icon_folder_small,x16_folder_png,backcolor);
   loadResource(icon_folder_big,x22_folder_png,backcolor);
-
+  loadResource(icon_localcopy,x16_stock_attach_png,backcolor);
+  loadResource(icon_download,x16_go_bottom_png,backcolor);
+  loadResource(icon_error,x16_status_error_png,backcolor);
+  loadResource(icon_podcast,x16_application_rss_xml_png,backcolor);
 
   loadResource(icon_home,x16_go_home_png,basecolor);
   loadResource(icon_playqueue,x16_x_office_presentation_png,basecolor);
@@ -678,7 +681,7 @@ void GMIconTheme::loadInternal() {
   loadResource(icon_source_playlist,x22_folder_png,backcolor);
   loadResource(icon_source_playqueue,x22_x_office_presentation_png,backcolor);
   loadResource(icon_source_local,x22_drive_harddisk_png,backcolor);
-  loadResource(icon_source_podcast,x22_applications_rss_xml_png,basecolor);
+  loadResource(icon_source_podcast,x22_applications_rss_xml_png,backcolor);
 
   loadResource(icon_nocover,x48_media_optical_png,backcolor);
   loadResource(icon_applogo,gogglesmm_32_png,basecolor);
@@ -719,7 +722,12 @@ void GMIconTheme::loadExternal() {
   //loadSmall(icon_homepage,"applications-internet",basecolor);
   loadSmall(icon_info,"help-browser",basecolor);
 
+  loadSmall(icon_podcast,"application-rss+xml",backcolor);
+
   loadSmall(icon_home,"go-home",basecolor);
+  loadSmall(icon_download,"go-bottom",backcolor);
+  loadSmall(icon_error,"error",backcolor);
+  loadSmall(icon_localcopy,"stock_attach",backcolor);
 
   loadMedium(icon_source_library,"user-home",backcolor);
   loadMedium(icon_source_internetradio,"applications-internet",backcolor);

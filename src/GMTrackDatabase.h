@@ -65,7 +65,6 @@ public:
   GMQuery query_path;                   /// Query unique artist
   GMQuery query_filename;               /// Query filename
   GMQuery query_path_name;
-  GMQuery query_album;                  /// Query unique album from artist
   GMQuery query_track;                  /// Query track
   GMQuery query_track_tags;             /// Query track tags
   //GMQuery query_playlist_queue;         /// Get the max playlist queue
@@ -73,14 +72,12 @@ public:
   GMQuery query_album_artists;          /// Query artist and album for track
   GMQuery update_track_playcount;       /// Update Track as played
   GMQuery update_track_importdate;      /// Update Track as played
-  GMQuery update_track_filename;  		  /// Update track filename
+  GMQuery update_track_filename;  		/// Update track filename
 
-  GMQuery delete_track;						      /// Delete Track
+  GMQuery delete_track;					/// Delete Track
   GMQuery delete_playlist_track;
   GMQuery delete_tag_track;
-  GMQuery update_album;           /// Update Album
-  GMQuery update_track_rating;    /// Update track rating
-
+  GMQuery update_track_rating;          /// Update track rating
 private: /// Called from init()
   FXbool init_database();
   FXbool init_queries();
@@ -91,8 +88,6 @@ protected:
   FXbool reorderPlaylist(FXint pl);
   FXbool reorderQueue();
 protected:
-  FXbool updateAlbum(FXint &album,const GMTrack&,FXint artist);
-
   void setup_path_lookup();
   void clear_path_lookup();
   void setup_artist_lookup();
@@ -210,7 +205,7 @@ public:
   FXbool removeArtist(FXint id);
 
   /// Remove Genre from database
-  FXbool removeGenre(FXint id);
+  //FXbool removeGenre(FXint id);
 
   /// Remove Playlist from database
   FXbool removePlaylist(FXint id);
@@ -318,7 +313,7 @@ public:
   FXbool listPlaylists(FXIntList & ids);
 
   /// List Album Paths
-  FXbool listAlbumPaths(GMAlbumPathList & list);
+  FXbool listAlbumPaths(GMCoverPathList & list);
 
   FXbool exportList(const FXString & filename,FXint playlist,FXuint format,FXuint opts=0);
 

@@ -103,7 +103,7 @@ GMNotifyDaemon::GMNotifyDaemon(GMDBus * b) : GMDBusProxy(b,GALAGO_NOTIFY_NAME,GA
   }
 
 long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   FXuint id,reason;
   FXchar * action;
   if (dbus_message_is_signal(msg,GALAGO_NOTIFY_INTERFACE,"NotificationClosed")){
@@ -133,7 +133,7 @@ long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
         GMPlayerManager::instance()->cmd_stop();
         }
       else {
-        fxmessage("unhandled action: %s\n",action);
+        GM_DEBUG_PRINT("unhandled action: %s\n",action);
         }
       return 1;
       }
@@ -147,13 +147,13 @@ long GMNotifyDaemon::onMethod(FXObject*,FXSelector,void*){
   }
 
 long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
-  const FXchar * name=NULL;
+  DBusMessage * msg = static_cast<DBusMessage*>(ptr);
+  const FXchar * dname=NULL;
   const FXchar * vendor=NULL;
   const FXchar * version=NULL;
   const FXchar * spec=NULL;
 
-  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&name,DBUS_TYPE_STRING,&vendor,DBUS_TYPE_STRING,&version,DBUS_TYPE_STRING,&spec,DBUS_TYPE_INVALID)) {
+  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&dname,DBUS_TYPE_STRING,&vendor,DBUS_TYPE_STRING,&version,DBUS_TYPE_STRING,&spec,DBUS_TYPE_INVALID)) {
 
     if (compareversion(spec,"1.1")==0) {
       icondata="image_data";
@@ -165,11 +165,11 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
       icondata="icon_data";
       }
 
-    if (comparecase(vendor,"xfce")==0 && comparecase(name,"xfce notify daemon")==0) {
+    if (comparecase(vendor,"xfce")==0 && comparecase(dname,"xfce notify daemon")==0) {
       flags|=IMAGE_WITHOUT_APPICON;
       }
 
-    if (comparecase(name,"gnome-shell")==0 && comparecase(vendor,"gnome")==0) {
+    if (comparecase(dname,"gnome-shell")==0 && comparecase(vendor,"gnome")==0) {
       GMPlayerManager::instance()->getPreferences().gui_tray_icon_disabled=true;
       flags|=ACTION_ITEMS;
       if (compareversion(version,"3.2.0")<0){
@@ -177,7 +177,7 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
         }
       }
 #ifdef DEBUG
-    fxmessage("name: %s\n",name);
+    fxmessage("name: %s\n",dname);
     fxmessage("vendor: %s\n",vendor);
     fxmessage("version: %s\n",version);
     fxmessage("spec: %s\n",spec);
@@ -191,7 +191,7 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
   }
 
 long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   FXchar ** caps = NULL;
   int ncaps;
   if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&caps,&ncaps,DBUS_TYPE_INVALID)) {
@@ -224,7 +224,7 @@ long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
 
 
 long GMNotifyDaemon::onNotifyReply(FXObject*,FXSelector,void*ptr){
-  DBusMessage * msg = reinterpret_cast<DBusMessage*>(ptr);
+  DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   FXASSERT(msg);
   if (dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) {
     dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&msgid,DBUS_TYPE_INVALID);

@@ -211,8 +211,13 @@ protected:
   GMFeedItem(){}
 protected:
   virtual const FXString * getColumnData(FXint i,FXString & t,FXuint &justify,FXint & max) const;
+  virtual FXIcon* getIcon() const;
 public:
   GMFeedItem(FXint id,const FXchar* feed,const FXchar* title,FXTime date,FXuint time,FXuint flags);
+
+  FXuint getFlags() const { return flags; }
+
+  void setFlags(FXuint f) { flags=f; }
 
   virtual ~GMFeedItem() {}
   };

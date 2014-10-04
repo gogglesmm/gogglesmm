@@ -159,7 +159,7 @@ namespace GMTag {
 
 void init();
 
-void setID3v1Encoding(FXTextCodec * codec);
+void setID3v1Encoding(const FXTextCodec * codec);
 
 FXbool length(GMTrack & info);
 

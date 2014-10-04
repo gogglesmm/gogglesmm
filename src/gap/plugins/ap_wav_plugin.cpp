@@ -61,9 +61,16 @@ public:
 
 
 enum {
-  WAV_FORMAT_PCM = 1,
+  WAV_FORMAT_PCM        = 1,
   WAV_FORMAT_EXTENSIBLE = 0xFFFE
   };
+
+
+
+typedef FXuchar ap_guid_t[16];
+
+const ap_guid_t guid_wav_format_pcm={0x01,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0xaa,0x00,0x38,0x9b,0x71};
+
 
 WavReader::WavReader(AudioEngine*e) : ReaderPlugin(e) {
   }
@@ -133,6 +140,71 @@ ReadStatus WavReader::process(Packet*packet) {
   return ReadOk;
   }
 
+
+static FXuint get_channel_order(const FXuint wavmask,const FXuint channels){
+/*
+#define SPEAKER_FRONT_LEFT             0x1
+#define SPEAKER_FRONT_RIGHT            0x2
+#define SPEAKER_FRONT_CENTER           0x4
+#define SPEAKER_LOW_FREQUENCY          0x8
+#define SPEAKER_BACK_LEFT              0x10
+#define SPEAKER_BACK_RIGHT             0x20
+#define SPEAKER_FRONT_LEFT_OF_CENTER   0x40
+#define SPEAKER_FRONT_RIGHT_OF_CENTER  0x80
+#define SPEAKER_BACK_CENTER            0x100
+#define SPEAKER_SIDE_LEFT              0x200
+#define SPEAKER_SIDE_RIGHT             0x400
+#define SPEAKER_TOP_CENTER             0x800
+#define SPEAKER_TOP_FRONT_LEFT         0x1000
+#define SPEAKER_TOP_FRONT_CENTER       0x2000
+#define SPEAKER_TOP_FRONT_RIGHT        0x4000
+#define SPEAKER_TOP_BACK_LEFT          0x8000
+#define SPEAKER_TOP_BACK_CENTER        0x10000
+#define SPEAKER_TOP_BACK_RIGHT         0x20000
+#define SPEAKER_RESERVED               0x80000000
+*/
+
+  static const FXuint wav_channel_order[]={
+    Channel::FrontLeft,
+    Channel::FrontRight,
+    Channel::FrontCenter,
+    Channel::LFE,
+    Channel::BackLeft,
+    Channel::BackRight,
+    Channel::None,
+    Channel::None,
+    Channel::BackCenter,
+    Channel::SideLeft,
+    Channel::SideRight
+    };
+ 
+  if (channels<1 || channels>8)
+    return 0;
+
+  if (wavmask==0) {
+    if (channels==1)
+      return AP_CMAP1(Channel::Mono);
+    else if (channels==2)
+      return AP_CMAP2(Channel::FrontLeft,Channel::FrontRight);
+    else
+      return 0;
+    }
+
+  FXuint order=0,cpos=0,cbit=0;
+  while(cpos<channels && cbit<11) {
+    if ((wavmask>>cbit)&0x1) {
+      // unsupported channel
+      if (wav_channel_order[cbit]==Channel::None)
+        return 0;
+      order|=wav_channel_order[cbit]<<(cpos<<2);
+      cpos++;
+      }
+    cbit++;
+    }
+  return (cpos==channels) ? order : 0;
+  }
+
+
 ReadStatus WavReader::parse() {
   FXuchar chunkid[4];
   FXuint  chunksize;
@@ -143,9 +215,10 @@ ReadStatus WavReader::parse() {
   FXushort samplesize;
   FXushort block;
 
-  FXushort subconfig;
+  ap_guid_t  subconfig;
   FXushort validbitspersample;
-  FXuint   channelmask;
+  FXuint   channelmask  = 0;
+  FXuint   channelorder = 0;
 
   GM_DEBUG_PRINT("parsing wav header\n");
 
@@ -196,43 +269,14 @@ ReadStatus WavReader::parse() {
 
   chunksize-=16;
 
-/*
-
-
-12        4   Subchunk1ID      Contains the letters "fmt "
-                               (0x666d7420 big-endian form).
-16        4   Subchunk1Size    16 for PCM.  This is the size of the
-                               rest of the Subchunk which follows this number.
-
-
-
-20        2   AudioFormat      PCM = 1 (i.e. Linear quantization)
-                               Values other than 1 indicate some
-                               form of compression.
-22        2   NumChannels      Mono = 1, Stereo = 2, etc.
-24        4   SampleRate       8000, 44100, etc.
-28        4   ByteRate         == SampleRate * NumChannels * BitsPerSample/8
-32        2   BlockAlign       == NumChannels * BitsPerSample/8
-                               The number of bytes for one sample including
-                               all channels. I wonder what happens when
-                               this number isn't an integer?
-34        2   BitsPerSample    8 bits = 8, 16 bits = 16, etc.
-
-
-*/
-
-
-
-
-
+  // Require channelmask for channels>2
+  if (channels>2 && wconfig!=WAV_FORMAT_EXTENSIBLE)
+    return ReadError;
 
   if (wconfig==WAV_FORMAT_EXTENSIBLE) {
 
     if (input->read(&validbitspersample,2)!=2)
       return ReadError;
-
-      GM_DEBUG_PRINT("subsize: %d\n",validbitspersample);
-
 
     if (input->read(&validbitspersample,2)!=2)
       return ReadError;
@@ -240,16 +284,21 @@ ReadStatus WavReader::parse() {
     if (input->read(&channelmask,4)!=4)
       return ReadError;
 
-    if (input->read(&subconfig,2)!=2)
+    if (input->read(&subconfig,16)!=16)
       return ReadError;
 
-    chunksize-=10;
-
-
-    GM_DEBUG_PRINT("validbitspersample: %d\n",validbitspersample);
-    GM_DEBUG_PRINT("channelmask: %x\n",channelmask);
-
+    // Make sure it's PCM
+    if (memcmp(subconfig,guid_wav_format_pcm,16)!=0)
+      return ReadError;
+  
+    chunksize-=24;
     }
+
+  // Get the channel order
+  channelorder = get_channel_order(channelmask,channels);
+  if (channelorder==Channel::None)
+    return ReadError;
+
 
   GM_DEBUG_PRINT("chunksize left: %d\n",chunksize);
   input->position(chunksize,FXIO::Current);
@@ -264,18 +313,16 @@ ReadStatus WavReader::parse() {
 
   input_start = input->position();
 
-  if (wconfig==WAV_FORMAT_EXTENSIBLE) {
-    af.set(Format::Signed|Format::Little,validbitspersample,samplesize>>3,rate,channels);
-    }
-  else {
-    af.set(Format::Signed|Format::Little,samplesize,samplesize>>3,rate,channels);
-    }
+  if (wconfig==WAV_FORMAT_EXTENSIBLE)
+    af.set(Format::Signed|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
+  else
+    af.set(Format::Signed|Format::Little,samplesize,samplesize>>3,rate,channels,channelorder);
 
+#ifdef DEBUG
   af.debug();
-
   if (block!=af.framesize())
     GM_DEBUG_PRINT("warning: blockalign not the same as framesize\n");
-
+#endif
 
   flags|=FLAG_PARSED;
 

@@ -21,7 +21,7 @@
 
 namespace ap {
 
-class GMAPI BufferBase {
+class BufferBase {
 protected:
   FXuchar * begptr;  // Begin of buffer
   FXuchar * endptr;  // End of buffer

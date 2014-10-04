@@ -16,71 +16,23 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifndef GMANIMIMAGE_H
-#define GMANIMIMAGE_H
+#ifndef GMCOVERLOADER_H
+#define GMCOVERLOADER_H
 
-#if 0
-class GMAnimation : public FXObject {
-FXDECLARE(GMAnimation)
+class GMCoverLoader : public GMTask {
 protected:
-  FXImage * image;
-  FXuint    index;
-  FXuint    base;
-protected:
-  GMAnimation(){}
-private:
-  GMAnimation(const GMAnimation&);
-  GMAnimation& operator=(const GMAnimation&);
+  GMCoverCacheWriter writer;
+  GMCoverPathList    list;
+  FXString           filename;
+  FXbool             folderonly;       
 public:
-  GMAnimation(FXImage * img,FXuint base);
+  FXint run();
+public:
+  GMCoverLoader(const FXString & filename,GMCoverPathList & pathlist,FXint size,FXObject* tgt=NULL,FXSelector sel=0);
 
-  FXint getWidth() const { return base; }
+  void setFolderOnly(FXbool b) { folderonly=b; }
 
-  FXint getHeight() const { return base; }
-
-  void advance();
-
-  void draw(FXDC & dc,FXint x,FXint y); 
+  GMCoverCacheWriter & getCacheWriter() { return writer; }
   };
-#endif
-
-class GMAnimImage : public FXImageFrame {
-FXDECLARE(GMAnimImage)
-protected:
-  FXuint index;
-  FXuint base;
-protected:
-  GMAnimImage();
-private:
-  GMAnimImage(const GMAnimImage&);
-  GMAnimImage& operator=(const GMAnimImage&);
-public:
-  enum {
-    ID_TIMER = FXImageFrame::ID_LAST,
-    ID_LAST
-    };
-public:
-  long onPaint(FXObject*,FXSelector,void*);
-  long onTimer(FXObject*,FXSelector,void*);
-public:
-  /// Construct image frame and pass it an image
-  GMAnimImage(FXComposite* p,FXImage *img,FXint base,FXuint opts=FRAME_SUNKEN|FRAME_THICK,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=0,FXint pr=0,FXint pt=0,FXint pb=0);
-
-  virtual void hide();
-  
-  virtual void show();
-
-  virtual void create();
-
-  /// Get default width
-  virtual FXint getDefaultWidth();
-
-  /// Get default height
-  virtual FXint getDefaultHeight();
-
-  ~GMAnimImage();
-  };
-
-
 
 #endif

@@ -44,7 +44,7 @@ GMClipboard * GMClipboard::instance(){
 GMClipboard::GMClipboard() {
   }
 
-GMClipboard::GMClipboard(FXApp * app) : FXShell(app,0,0,0,0,0), clipdata(NULL), clipowner(NULL) {
+GMClipboard::GMClipboard(FXApp * a) : FXShell(a,0,0,0,0,0), clipdata(NULL), clipowner(NULL) {
   me=this;
   }
 
@@ -73,10 +73,10 @@ bool GMClipboard::doesOverrideRedirect() const {
   return true;
   }
 
-FXbool GMClipboard::acquire(FXObject * owner,const FXDragType * types,FXuint num_types,GMClipboardData * data){
+FXbool GMClipboard::acquire(FXObject * o,const FXDragType * types,FXuint num_types,GMClipboardData * d){
   if (acquireClipboard(types,num_types)){
-    clipowner=owner;
-    clipdata=data;
+    clipowner=o;
+    clipdata=d;
     return true;
     }
   return false;

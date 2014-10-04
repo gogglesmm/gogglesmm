@@ -33,7 +33,6 @@ const char section_sync[]   = "sync";
 const char key_import_default_field[]="default-user-title";
 const char key_import_track_from_filelist[]="track-from-filelist";
 const char key_import_replace_underscores[]="replace-underscores";
-const char key_import_parse_filename_only[]="parse-filename-only";
 const char key_import_id3v1_encoding[]="id3v1-encoding";
 
 const char key_import_filename_template[]="filename-template";
@@ -70,7 +69,7 @@ const char key_gui_sourceselect_color[]="source-select-color";
 const char key_gui_sourceselecttext_color[]="source-selecttext-color";
 const char key_gui_menu_base_color[]="menu-base-color";
 const char key_gui_tray_color[]="tray-back-color";
-const char key_gui_coverdisplay_size[]="cover-display-size";
+const char key_gui_coverdisplay_size[]="cover-size";
 
 const char key_play_repeat[]="repeat-mode";
 const char key_play_replaygain[]="replay-gain";
@@ -167,7 +166,7 @@ GMPreferences::GMPreferences() :
   gui_tray_icon_disabled(false),
   gui_show_playing_titlebar(false),
   gui_use_opengl(true),
-  gui_coverdisplay_size(256),
+  gui_coverdisplay_size(128),
 
   play_replaygain(REPLAYGAIN_OFF),
   play_repeat(REPEAT_ALL),
@@ -186,7 +185,6 @@ GMPreferences::GMPreferences() :
   dbus_mpris1(true),
   dbus_mpris2(true){
   resetColors();
-
   }
 
 void GMPreferences::save(FXSettings & reg) const {
@@ -248,7 +246,6 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
   reg.writeBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
   reg.writeBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
-
   }
 
 

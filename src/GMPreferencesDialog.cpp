@@ -25,6 +25,7 @@
 
 #include "GMTrack.h"
 #include "GMApp.h"
+#include "GMCoverCache.h"
 #include "GMAudioPlayer.h"
 #include "GMAlbumList.h"
 #include "GMTrackList.h"
@@ -34,6 +35,7 @@
 #include "GMWindow.h"
 #include "GMRemote.h"
 #include "GMDatabaseSource.h"
+#include "GMPodcastSource.h"
 #include "GMTrackView.h"
 #include "GMSourceView.h"
 #ifdef HAVE_OPENGL
@@ -44,6 +46,9 @@
 #include "GMFontDialog.h"
 #include "GMPreferencesDialog.h"
 #include "GMTrayIcon.h"
+
+
+#define MINUTES 60000000000LL
 
 
 enum {
@@ -574,9 +579,13 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (AP_HAS_PLUGIN(devices,DeviceWav))
     driverlist->appendItem("Wave File Output",NULL,(void*)DeviceWav);
 
-  driverlist->setCurrentItem(driverlist->findItemByData((void*)(FXival)config.device));
-  driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
-
+  if (driverlist->getNumItems()) {
+    driverlist->setCurrentItem(driverlist->findItemByData((void*)(FXival)config.device));
+    driverlist->setNumVisible(FXMIN(9,driverlist->getNumItems()));
+    }
+  else {
+    driverlist->disable();
+    }
   /// Alsa
   alsa_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
   alsa_device = new GMTextField(matrix,20);
@@ -621,9 +630,46 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   gainlist->setNumVisible(3);
 
 
+  // Podcast Settings
+  new GMTabItem(tabbook,tr("&Podcasts"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+  vframe = new GMTabFrame(tabbook);
+
+  grpbox =  new FXGroupBox(vframe,tr("Updates"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+  grpbox->setFont(GMApp::instance()->getThickFont());
+
+  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0);
+  new FXLabel(matrix,tr("Update Interval"),NULL,labelstyle);
+  interval  = new GMListBox(matrix);
+  interval->appendItem(tr("Disabled"));
+  interval->appendItem(tr("10 minutes"));
+  interval->appendItem(tr("20 minutes"));
+  interval->appendItem(tr("30 minutes"));
+  interval->appendItem(tr("1 hour"));
+  interval->appendItem(tr("2 hours"));
+  interval->appendItem(tr("6 hours"));
+  interval->appendItem(tr("12 hours"));
+  interval->setNumVisible(FXMIN(interval->getNumItems(),9));
+
+  FXlong update_interval =  GMPlayerManager::instance()->getPodcastSource()->getUpdateInterval();
+  if (update_interval<=0)
+    interval->setCurrentItem(0);
+  else if (update_interval<=10*MINUTES)
+    interval->setCurrentItem(1);
+  else if (update_interval<=20*MINUTES)
+    interval->setCurrentItem(2);
+  else if (update_interval<=30*MINUTES)
+    interval->setCurrentItem(3);
+  else if (update_interval<=60*MINUTES)
+    interval->setCurrentItem(4);
+  else if (update_interval<=120*MINUTES)
+    interval->setCurrentItem(5);
+  else if (update_interval<=360*MINUTES)
+    interval->setCurrentItem(6);
+  else
+    interval->setCurrentItem(7);
+
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
   new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
-
   }
 
 GMPreferencesDialog::~GMPreferencesDialog(){
@@ -770,11 +816,23 @@ long GMPreferencesDialog::onCmdReplayGain(FXObject*,FXSelector,void*){
   }
 
 
-
 long GMPreferencesDialog::onCmdAccept(FXObject*,FXSelector,void*) {
   getApp()->stopModal(this,true);
   hide();
 
+  FXlong update_interval = 0;
+  switch(interval->getCurrentItem()){
+    case 0: update_interval = 0;             break;
+    case 1: update_interval = 10  * MINUTES; break;
+    case 2: update_interval = 20  * MINUTES; break;
+    case 3: update_interval = 30  * MINUTES; break;
+    case 4: update_interval = 60  * MINUTES; break;
+    case 5: update_interval = 120 * MINUTES; break;
+    case 6: update_interval = 360 * MINUTES; break;
+    case 7: update_interval = 720 * MINUTES; break;
+    default: break;
+    }
+  GMPlayerManager::instance()->getPodcastSource()->setUpdateInterval(update_interval);
 
   GMWindow * mainwindow = GMPlayerManager::instance()->getMainWindow();
 
@@ -804,7 +862,6 @@ long GMPreferencesDialog::onCmdAccept(FXObject*,FXSelector,void*) {
 #ifdef HAVE_DBUS
   GMPlayerManager::instance()->update_mpris();
 #endif
-
 
   // Key Words may have changed.
   mainwindow->getTrackView()->resort();
@@ -1011,7 +1068,7 @@ long GMPreferencesDialog::onUpdElementColor(FXObject*sender,FXSelector sel,void*
   }
 long GMPreferencesDialog::onCmdColorTheme(FXObject*,FXSelector,void*ptr) {
   theme=(FXint)(FXival)ptr;
-  ColorTheme *theme_selected=reinterpret_cast<ColorTheme*>(colorpresets->getItemData(theme));
+  ColorTheme *theme_selected=static_cast<ColorTheme*>(colorpresets->getItemData(theme));
 
   selected.base = theme_selected->base;
   selected.border = theme_selected->border;
@@ -1043,7 +1100,7 @@ long GMPreferencesDialog::onUpdColorTheme(FXObject*sender,FXSelector,void*) {
 
 
 void GMPreferencesDialog::updateColors(){
-  register FXWindow *w=FXApp::instance()->getRootWindow();
+  FXWindow *w=FXApp::instance()->getRootWindow();
 
   FX7Segment * sevensegment;
   FXTextField * gmtextfield;
@@ -1348,7 +1405,7 @@ void GMPreferencesDialog::updateColors(){
 
 
 void GMPreferencesDialog::redraw(){
-  register FXWindow *w=GMPlayerManager::instance()->getMainWindow();
+  FXWindow *w=GMPlayerManager::instance()->getMainWindow();
   while(w){
     w->recalc();
     w->update();

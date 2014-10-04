@@ -159,12 +159,10 @@ long GMPresenter::onAnimation(FXObject*,FXSelector,void*){
 long GMPresenter::onCanvasPaint(FXObject*,FXSelector,void*){
   const FXfloat aspect=getWidth()/(float)getHeight();
   FXVec4f background=colorToVec4f(FXRGBA(0,0,0,0));
-
   if (glcanvas->makeCurrent()) {
     glViewport(0,0,getWidth(),getHeight());
-    glClearColor(0.0f,0.0f,0.0f,0.0f);
+    glClearColor(background.x,background.y,background.z,background.w);
     glClear(GL_COLOR_BUFFER_BIT);
-
     if (effect) {
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();

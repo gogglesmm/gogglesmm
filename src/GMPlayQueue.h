@@ -19,14 +19,14 @@
 #ifndef GMPLAYQUEUE_H
 #define GMPLAYQUEUE_H
 
-#ifdef HAVE_PLAYQUEUE
 class GMPlayListSource;
 
 class GMPlayQueue : public GMPlayListSource {
 FXDECLARE(GMPlayQueue)
 protected:
-  FXHash tracks;
-  FXint  ntracks;
+  FXIntMap tracks;
+  FXint   ntracks;
+  FXbool  poptrack;
 protected:
   GMPlayQueue(){}
   void updateTrackHash();
@@ -35,9 +35,18 @@ private:
   GMPlayQueue& operator=(const GMPlayQueue&);
 public:
   long onCmdRemoveInPlaylist(FXObject*,FXSelector,void*);
-
+  long onCmdClear(FXObject*,FXSelector,void*);
+public:
+  enum {
+    ID_CLEAR = GMPlayListSource::ID_LAST,
+    ID_LAST
+    };
 public:
   GMPlayQueue(GMTrackDatabase * db);
+
+  void configure(GMColumnList& list);
+
+  FXbool canPlaySource(GMSource * src) const;
 
   virtual FXint getNumTracks() const;
 
@@ -51,17 +60,16 @@ public:
 
   void addTracks(GMSource * src,const FXIntList & tracks);
 
-  FXbool hasTrack(FXint id);
+  using GMSource::hasTrack;
+
+  FXbool hasTrack(FXint id) const;
 
   FXint getCurrent();
 
   FXint getNext();
 
-  FXint getPrev();
-
   virtual FXint getType() const { return SOURCE_PLAYQUEUE; }
 
   virtual ~GMPlayQueue();
   };
-#endif
 #endif

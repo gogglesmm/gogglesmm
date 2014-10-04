@@ -16,8 +16,8 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifdef HAVE_PLAYQUEUE
 #include "gmdefs.h"
+#include "gmutils.h"
 #include "GMList.h"
 #include "GMTrack.h"
 #include "GMDatabase.h"
@@ -40,7 +40,8 @@ extern void getSelectedTrackQueues(FXIntList & list);
 
 
 FXDEFMAP(GMPlayQueue) GMPlayQueueMap[]={
-  FXMAPFUNC(SEL_COMMAND,GMPlayQueue::ID_DELETE_TRACK,GMPlayQueue::onCmdRemoveInPlaylist)
+  FXMAPFUNC(SEL_COMMAND,GMPlayQueue::ID_DELETE_TRACK,GMPlayQueue::onCmdRemoveInPlaylist),
+  FXMAPFUNC(SEL_COMMAND,GMPlayQueue::ID_CLEAR,GMPlayQueue::onCmdClear)
   };
 
 FXIMPLEMENT(GMPlayQueue,GMPlayListSource,GMPlayQueueMap,ARRAYNUMBER(GMPlayQueueMap));
@@ -49,12 +50,43 @@ FXIMPLEMENT(GMPlayQueue,GMPlayListSource,GMPlayQueueMap,ARRAYNUMBER(GMPlayQueueM
 GMPlayQueue::GMPlayQueue(GMTrackDatabase * database) : GMPlayListSource(database,database->getPlayQueue())  {
   updateTrackHash();
   ntracks=0;
+  poptrack=false;
   GMQuery q(db,"SELECT count(track) FROM playlist_tracks WHERE playlist==?");
   q.execute(playlist,ntracks);
   }
 
 GMPlayQueue::~GMPlayQueue() {
   }
+
+
+
+
+void GMPlayQueue::configure(GMColumnList& list) {
+  list.no(17);
+  FXint i=0;
+  list[i++]=GMColumn(notr("No"),HEADER_TRACK,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,43,false ,false,0);
+  list[i++]=GMColumn(notr("Queue"),HEADER_QUEUE,GMDBTrackItem::ascendingQueue,GMDBTrackItem::descendingQueue,70,true,true,1);
+  list[i++]=GMColumn(notr("Artist"),HEADER_ARTIST,GMDBTrackItem::ascendingArtist,GMDBTrackItem::descendingArtist,200,true,true,2);
+  list[i++]=GMColumn(notr("Title"),HEADER_TITLE,GMDBTrackItem::ascendingTitle,GMDBTrackItem::descendingTitle,300,true,true,3);
+  list[i++]=GMColumn(notr("Album"),HEADER_ALBUM,GMDBTrackItem::ascendingAlbum,GMDBTrackItem::descendingAlbum,200,true,true,4);
+  list[i++]=GMColumn(notr("Year"),HEADER_YEAR,GMDBTrackItem::ascendingYear,GMDBTrackItem::descendingYear,60,false,false,5);
+  list[i++]=GMColumn(notr("Album Artist"),HEADER_ALBUM_ARTIST,GMDBTrackItem::ascendingAlbumArtist,GMDBTrackItem::descendingAlbumArtist,200,false,false,6);
+  list[i++]=GMColumn(notr("Disc"),HEADER_DISC,GMDBTrackItem::ascendingDisc,GMDBTrackItem::descendingDisc,43,false,false,7);
+  list[i++]=GMColumn(notr("Time"),HEADER_TIME,GMDBTrackItem::ascendingTime,GMDBTrackItem::descendingTime,60,true,true,8);
+  list[i++]=GMColumn(notr("Play Count"),HEADER_PLAYCOUNT,GMDBTrackItem::ascendingPlaycount,GMDBTrackItem::descendingPlaycount,60,false,false,9);
+  list[i++]=GMColumn(notr("Play Date"),HEADER_PLAYDATE,GMDBTrackItem::ascendingPlaydate,GMDBTrackItem::descendingPlaydate,60,false,false,10);
+  list[i++]=GMColumn(notr("File Name"),HEADER_FILENAME,GMDBTrackItem::ascendingFilename,GMDBTrackItem::descendingFilename,400,false,false,11);
+  list[i++]=GMColumn(notr("File Type"),HEADER_FILETYPE,GMDBTrackItem::ascendingFiletype,GMDBTrackItem::descendingFiletype,30,false,false,12);
+  list[i++]=GMColumn(notr("Bitrate"),HEADER_BITRATE,GMDBTrackItem::ascendingBitrate,GMDBTrackItem::descendingBitrate,400,false,false,13);
+  list[i++]=GMColumn(notr("Composer"),HEADER_COMPOSER,GMDBTrackItem::ascendingComposer,GMDBTrackItem::descendingComposer,30,false,false,14);
+  list[i++]=GMColumn(notr("Conductor"),HEADER_CONDUCTOR,GMDBTrackItem::ascendingConductor,GMDBTrackItem::descendingConductor,400,false,false,15);
+  list[i++]=GMColumn(notr("Rating"),HEADER_RATING,GMDBTrackItem::ascendingRating,GMDBTrackItem::descendingRating,30,false,false,17,this,ID_EDIT_RATING);
+  }
+
+
+
+
+
 
 FXint GMPlayQueue::getNumTracks() const {
   return ntracks;
@@ -65,8 +97,9 @@ FXString GMPlayQueue::getName() const {
   return FXString::value("Play Queue (%d)",ntracks);
   }
 
-FXbool GMPlayQueue::source_context_menu(FXMenuPane * /*pane*/) {
-  return false;
+FXbool GMPlayQueue::source_context_menu(FXMenuPane * pane) {
+  new GMMenuCommand(pane,fxtr("Clear"),GMIconTheme::instance()->icon_delete,this,ID_CLEAR);
+  return true;
   }
 
 
@@ -81,7 +114,7 @@ void GMPlayQueue::updateTrackHash() {
     while(q.row()) {
       q.get(0,track);
       q.get(1,count);
-      tracks.insert((void*)(FXival)track,(void*)(FXival)count);
+      tracks.insert(track,count);
       }
     }
   catch(GMDatabaseException & e){
@@ -100,93 +133,81 @@ FXbool GMPlayQueue::track_context_menu(FXMenuPane * pane){
   return true;
   }
 
+
+FXbool GMPlayQueue::canPlaySource(GMSource * src) const {
+  return (src && (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_PLAYLIST || src->getType()==SOURCE_PLAYQUEUE));
+  }
+
 void GMPlayQueue::addTracks(GMSource * src,const FXIntList & tracks) {
-  if (src!=this && src->getType()!=SOURCE_INTERNET_RADIO && tracks.no() && db->insertPlaylistTracks(playlist,tracks)) {
+  if (src!=this && canPlaySource(src) && tracks.no() && db->insertPlaylistTracks(playlist,tracks)) {
     ntracks+=tracks.no();
     updateTrackHash();
     GMPlayerManager::instance()->getSourceView()->refresh(this);
     }
   }
 
+long GMPlayQueue::onCmdClear(FXObject*,FXSelector,void*){
+  db->executeFormat("DELETE FROM playlist_tracks WHERE playlist == %d",playlist);
+  updateTrackHash();
+  ntracks=0;
+  poptrack=false;
+  GMPlayerManager::instance()->getSourceView()->refresh(this);
+  GMPlayerManager::instance()->getTrackView()->refresh();
+  return 1;
+  }
 
 
 long GMPlayQueue::onCmdRemoveInPlaylist(FXObject*,FXSelector,void*){
   FXIntList queue;
   FXIntList tracks;
   getSelectedTrackQueues(queue);
-///  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
-  if (queue.no()==0) return 1;
-
-  try {
-    db->begin();
-    db->removePlaylistTracks(playlist,queue);
-    db->commit();
+  if (queue.no()) {
+    try {
+      db->begin();
+      db->removePlaylistQueue(playlist,queue);
+      db->commit();
+      ntracks-=queue.no();
+      updateTrackHash();
+      }
+    catch(GMDatabaseException&){
+      db->rollback();
+      return 1;
+      }
+    GMPlayerManager::instance()->getTrackView()->refresh();
+    GMPlayerManager::instance()->getSourceView()->refresh(this);
     }
-  catch(GMDatabaseException&){
-    db->rollback();
-    return 1;
-    }
-
-
-  GMPlayerManager::instance()->getTrackView()->refresh();
-  ntracks-=queue.no();
-  updateTrackHash();
-
   return 1;
   }
 
 
 
-FXbool GMPlayQueue::hasTrack(FXint id) {
-  GM_TICKS_START();
-  if (tracks.find((void*)(FXival)id)) {
-    GM_TICKS_END();
-    return true;
-    }
-  else {
-    GM_TICKS_END();
-    return false;
-    }
+FXbool GMPlayQueue::hasTrack(FXint id) const{
+  return tracks.find(id)>0;
   }
 
 
 
 FXint GMPlayQueue::getNext() {
+  GMQuery q(db,"SELECT track FROM playlist_tracks WHERE playlist == ? ORDER BY queue ASC LIMIT 1");
+
   current_track=-1;
-  try {
-    GMQuery q(db,"SELECT track FROM playlist_tracks WHERE playlist == ? ORDER BY queue ASC LIMIT 1");
-    q.execute(playlist,current_track);
+  q.execute(playlist,current_track);
+  if (current_track>0 && poptrack) {
+
+    FXint cnt = tracks.find(current_track) - 1;
+    if (cnt>0)
+      tracks.insert(current_track,cnt);
+    else
+      tracks.remove(current_track);
+
+    if (ntracks) ntracks--;
+
     db->executeFormat("DELETE FROM playlist_tracks WHERE playlist == %d AND queue == (SELECT MIN(queue) FROM playlist_tracks WHERE playlist == %d);",playlist,playlist);
-    }
-  catch(GMDatabaseException & e){
-    return -1;
-    }
-  ntracks--;
-  return current_track;
-  }
 
-
-
-FXint GMPlayQueue::getPrev() {
-#if 0
-  current_track=-1;
-  play_queue-=1;
-  try {
-    GMQuery q(db,"SELECT track FROM playlist_tracks WHERE playlist == ? AND queue == ?;");
-    q.set(0,playlist);
-    q.set(1,play_queue);
-    q.execute();
-    q.get(0,current_track);
-    //fxmessage("check %d %d %d\n",playlist,current_queue,current_track);
-    q.reset();
+    current_track=-1;
+    q.execute(playlist,current_track);
     }
-  catch(FXCompileException & e){
-    return -1;
-    }
-  catch(FXExecuteException & e){
-    return -1;
-    }
- #endif
+  poptrack=true;
   return current_track;
   }
 
@@ -196,10 +217,10 @@ FXint GMPlayQueue::getCurrent() {
   try {
     GMQuery q(db,"SELECT track FROM playlist_tracks WHERE playlist == ? ORDER BY queue ASC LIMIT 1");
     q.execute(playlist,current_track);
+    poptrack=true;
     }
   catch(GMDatabaseException & e){
     return -1;
     }
   return current_track;
   }
-#endif

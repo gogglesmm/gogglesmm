@@ -80,6 +80,7 @@ public:
   GMListBox     * driverlist;
   GMListBox     * themelist;
   GMListBox     * lastfm_service;
+  GMListBox     * interval;
   FXbool password_set;
   FXFont * selectedfont;
   FXint theme;

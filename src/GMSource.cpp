@@ -77,4 +77,8 @@ FXbool GMSource::getTrack(GMTrack &) const{
   return false;
   }
 
+FXIcon* GMSource::getAlbumIcon() const {
+  return GMIconTheme::instance()->icon_album;
+  }
+
 

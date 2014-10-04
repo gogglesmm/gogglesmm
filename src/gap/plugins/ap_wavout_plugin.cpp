@@ -61,7 +61,7 @@ public:
   virtual ~WavOutput();
   };
 
-WavOutput::WavOutput(OutputThread * output) : OutputPlugin(output){
+WavOutput::WavOutput(OutputThread * out) : OutputPlugin(out){
   }
 
 WavOutput::~WavOutput() {
@@ -107,6 +107,7 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
     file.writeBlock(&chunksize,4);
     return true;
     }
+  GM_DEBUG_PRINT("[wav] failed to open output file: %s\n",path.text());
   return false;
   }
 
@@ -115,7 +116,7 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
 FXbool WavOutput::write(const void * data,FXuint nframes) {
   FXlong duration = ((FXlong)nframes*1000000000)/af.rate;
   FXThread::sleep(duration);
-  if (file.writeBlock(data,af.framesize()*nframes)!=af.framesize()*nframes)
+  if (!file.isOpen() || file.writeBlock(data,af.framesize()*nframes)!=af.framesize()*nframes)
     return false;
   else
     return true;
@@ -140,6 +141,7 @@ void WavOutput::close() {
       }
     file.close();
     }
+  af.reset();  
   }
 
 }
@@ -152,3 +154,6 @@ extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
 extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
+
+FXuint GMAPI ap_version = AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL);
+

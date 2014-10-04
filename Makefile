@@ -58,6 +58,7 @@ install: $(GMM_NAME) $(GAP_ALL_PLUGINS)
 
 	@echo "    Installing $(sharedir)/applications/gogglesmm.desktop"
 	@$(INSTALL) -D -m 644 extra/gogglesmm.desktop $(sharedir)/applications/gogglesmm.desktop
+	@$(INSTALL) -D -m 644 extra/gogglesmm.appdata.xml $(sharedir)/appdata/gogglesmm.appdata.xml
 
 	@echo "    Installing $(sharedir)/gogglesmm/utils"
 	@$(INSTALL) -D -m 644 extra/import_banshee_stats.py $(sharedir)/gogglesmm/utils/import_banshee_stats.py

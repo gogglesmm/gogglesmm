@@ -155,10 +155,8 @@ public: /// Message Handlers
   long onCmdJoinGMMLastFM(FXObject*,FXSelector,void*);
 
   long onCmdResetColors(FXObject*,FXSelector,void*);
-#ifdef HAVE_PLAYQUEUE
   long onCmdPlayQueue(FXObject*,FXSelector,void*);
   long onUpdPlayQueue(FXObject*,FXSelector,void*);
-#endif
 
   long onConfigureCoverView(FXObject*,FXSelector,void*);
 
@@ -229,9 +227,7 @@ public:
     ID_COVERSIZE_MEDIUM,
     ID_COVERSIZE_LARGE,
     ID_COVERSIZE_EXTRALARGE,
-#ifdef HAVE_PLAYQUEUE
     ID_PLAYQUEUE,
-#endif
 
 
     ID_NEXT_FOCUS,

@@ -55,6 +55,9 @@ extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
   delete plugin;
   }
 
+FXuint GMAPI ap_version = AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL);
+
+
 namespace ap {
 
 
@@ -92,7 +95,7 @@ static FXbool to_oss_format(const AudioFormat & af,FXint & oss_format){
 
 
 
-OSSOutput::OSSOutput(OutputThread * output) : OutputPlugin(output), handle(BadHandle) {
+OSSOutput::OSSOutput(OutputThread * out) : OutputPlugin(out), handle(BadHandle) {
   }
 
 OSSOutput::~OSSOutput() {

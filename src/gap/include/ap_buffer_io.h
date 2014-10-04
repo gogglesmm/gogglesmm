@@ -23,27 +23,27 @@ namespace ap {
 
 class BufferIO : public FXIO, public BufferBase  {
 protected:
-	FXIO    * io;      // IO
-	FXuchar   dir;		 // buffer direction
+  FXIO    * io;     // IO
+  FXuchar   dir;    // buffer direction
 protected:
-	enum { // Buffer Direction
-		DirNone  = 0,
-		DirWrite = 1,
-		DirRead  = 2,
-		};
+  enum { // Buffer Direction
+    DirNone  = 0,
+    DirWrite = 1,
+    DirRead  = 2,
+    };
 protected:
-	FXuval writeBuffer();
-	FXuval readBuffer();
-	FXbool flushBuffer();
+  FXuval writeBuffer();
+  FXuval readBuffer();
+  FXbool flushBuffer();
 private:
   BufferIO(const BufferIO&);
   BufferIO &operator=(const BufferIO&);
 public:
-	BufferIO(FXuval size=8192UL);
-	BufferIO(FXIO * io,FXuval size=8192UL);
+  BufferIO(FXuval size=8192UL);
+  BufferIO(FXIO * io,FXuval size=8192UL);
 
-	/// Attach an IO
-	void attach(FXIO * io);
+  /// Attach an IO
+  void attach(FXIO * io);
 
   /// Return true if open
   virtual FXbool isOpen() const;
@@ -57,8 +57,8 @@ public:
   /// Change file position, returning new position from start
   virtual FXlong position(FXlong offset,FXuint from=FXIO::Begin);
 
-	/// Peek block of bytes, return number of bytes peeked
-	virtual FXival peekBlock(void* data,FXival count);
+  /// Peek block of bytes, return number of bytes peeked
+  virtual FXival peekBlock(void* data,FXival count);
 
   /// Read block of bytes, returning number of bytes read
   virtual FXival readBlock(void* data,FXival count);

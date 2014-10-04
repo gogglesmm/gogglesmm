@@ -185,6 +185,14 @@ FXbool OggReader::seek(FXlong target){
     ogg_sync_reset(&sync);
     ogg_stream_reset(&stream);
 
+
+    /*
+      When seeking within an Ogg Opus stream, the decoder should start decoding (and discarding the output) at least 3840 samples (80 ms) 
+      prior to the seek point in order to ensure that the output audio is correct at the seek point.
+    */
+    if (codec==Codec::Opus)
+      target = FXMAX(0,target-3840);
+
     FXlong offset  = input->size() * (target/stream_length);
     FXlong lastpos = -1;
 
@@ -365,40 +373,55 @@ extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * c
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
 
-struct opus_header {
-  FXuchar  channels;
-  FXushort preskip;
-  FXuchar  cmf;
+#if defined(HAVE_OPUS_PLUGIN) || defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+
+// http://www.xiph.org/vorbis/doc/Vorbis_I_spec.html
+static const FXuint vorbis_channel_map[]={
+  AP_CHANNELMAP_MONO,
+
+  AP_CHANNELMAP_STEREO,
+
+  AP_CMAP3(Channel::FrontLeft,
+           Channel::FrontCenter,           
+           Channel::FrontRight),
+
+  AP_CMAP4(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP5(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,           
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP6(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight,
+           Channel::LFE),
+
+  AP_CMAP7(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackCenter, 
+           Channel::LFE),
+
+  AP_CMAP8(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackLeft,
+           Channel::BackRight,  
+           Channel::LFE)
   };
-#if 0
-ap_parse_opus_header(const FXuchar * buffer, FXint len,opus_header & header) {
-
-  FXuchar version = buffer[8];
-  if (version!=1) return false;
-
-  header.channels = buffer[9];
-  if (header.channels==0) return false;
-
-  header.preskip = (buffer[10] | buffer[11]<<8);
-
-  header.channel_mapping_family = buffer[18];
-
-  if (he
-
-
-
-
-
-
-
-
-
-
-  }
 
 #endif
-
-
 
 
 #ifdef HAVE_OPUS_PLUGIN
@@ -423,7 +446,6 @@ ReadStatus OggReader::parse_opus_stream() {
       // Send Meta Info
       engine->decoder->post(meta);
 
-
       flags|=FLAG_PARSED;
 
       check_opus_length();
@@ -434,14 +456,31 @@ ReadStatus OggReader::parse_opus_stream() {
   else {
     flags|=FLAG_OGG_OPUS;
     stream_offset_start = (op.packet[10] | op.packet[11]<<8);
-    GM_DEBUG_PRINT("offset start %hu\n",stream_offset_start);
-    af.set(AP_FORMAT_FLOAT,48000,op.packet[9]);
+    GM_DEBUG_PRINT("[ogg] offset start %hu\n",stream_offset_start);
+
+    // channel mapping family
+    switch(op.packet[18]) {
+
+      // RTP mapping
+      case  0:  af.set(AP_FORMAT_FLOAT,48000,op.packet[9]);
+                break;
+
+      // vorbis mapping family
+      case  1:  if (op.packet[9]<1 || op.packet[9]>8)
+                  return ReadError;
+                af.set(AP_FORMAT_FLOAT,48000,op.packet[9],vorbis_channel_map[op.packet[9]-1]);
+                break;
+
+      // Undefined, most players shouldn't play this
+      default:  return ReadError;
+      }
     }
   return ReadOk;
   }
 #endif
 
 #if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+
 ReadStatus OggReader::parse_vorbis_stream() {
   if (op.packet[0]==1) {
 
@@ -451,11 +490,15 @@ ReadStatus OggReader::parse_vorbis_stream() {
     if (vorbis_synthesis_headerin(&vi,&vc,&op)<0)
       goto error;
 
+    // Make sure channel count is supported
+    if (vi.channels<1 || vi.channels>8)
+      goto error;  
+
     codec=Codec::Vorbis;
 #ifdef HAVE_VORBIS_PLUGIN
-    af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels);
+    af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels,vorbis_channel_map[vi.channels-1]);
 #else // HAVE_TREMOR_PLUGIN
-    af.set(AP_FORMAT_S16,vi.rate,vi.channels);
+    af.set(AP_FORMAT_S16,vi.rate,vi.channels,vorbis_channel_map[vi.channels-1]);
 #endif
 
     flags|=FLAG_VORBIS_HEADER_INFO;

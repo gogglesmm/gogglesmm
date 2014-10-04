@@ -50,14 +50,14 @@ FXint genre_list_sort_reverse(const FXListItem* pa,const FXListItem* pb){
 
 
 FXint generic_name_sort(const FXListItem* pa,const FXListItem* pb){
-  register FXint a=0,b=0;
+  FXint a=0,b=0;
   if (begins_with_keyword(pa->getText())) a=FXMIN(pa->getText().length()-1,pa->getText().find(' ')+1);
   if (begins_with_keyword(pb->getText())) b=FXMIN(pb->getText().length()-1,pb->getText().find(' ')+1);
   return comparecase(&pa->getText()[a],&pb->getText()[b]);
   }
 
 FXint generic_name_sort_reverse(const FXListItem* pa,const FXListItem* pb){
-  register FXint a=0,b=0;
+  FXint a=0,b=0;
   if (begins_with_keyword(pa->getText())) a=FXMIN(pa->getText().length()-1,pa->getText().find(' ')+1);
   if (begins_with_keyword(pb->getText())) b=FXMIN(pb->getText().length()-1,pb->getText().find(' ')+1);
   return comparecase(&pb->getText()[b],&pa->getText()[a]);
@@ -68,7 +68,7 @@ FXint source_list_sort(const FXTreeItem* pa,const FXTreeItem* pb){
   const GMSource * const sb = (const GMSource*)pb->getData();
   if (sa->getType()>sb->getType()) return 1;
   else if (sa->getType()<sb->getType()) return -1;
-  register FXint a=0,b=0;
+  FXint a=0,b=0;
   if (begins_with_keyword(pa->getText())) a=FXMIN(pa->getText().length()-1,pa->getText().find(' ')+1);
   if (begins_with_keyword(pb->getText())) b=FXMIN(pb->getText().length()-1,pb->getText().find(' ')+1);
   return compareversion(&pa->getText()[a],&pb->getText()[b]);
@@ -79,7 +79,7 @@ FXint source_list_sort_reverse(const FXTreeItem* pa,const FXTreeItem* pb){
   const GMSource * const sb = (const GMSource*)pb->getData();
   if (sa->getType()>sb->getType()) return 1;
   else if (sa->getType()<sb->getType()) return -1;
-  register FXint a=0,b=0;
+  FXint a=0,b=0;
   if (begins_with_keyword(pa->getText())) a=FXMIN(pa->getText().length()-1,pa->getText().find(' ')+1);
   if (begins_with_keyword(pb->getText())) b=FXMIN(pb->getText().length()-1,pb->getText().find(' ')+1);
   return -compareversion(&pa->getText()[a],&pb->getText()[b]);
@@ -94,8 +94,8 @@ FXIMPLEMENT(GMListItem,FXListItem,NULL,0)
 
 // Draw item
 void GMListItem::draw(const GMList* list,FXDC& dc,FXint xx,FXint yy,FXint ww,FXint hh) const {
-  register FXFont *font=list->getFont();
-  register FXint ih=0,th=0;
+  FXFont *font=list->getFont();
+  FXint ih=0,th=0;
   if(icon) ih=icon->getHeight();
   if(!label.empty()) th=font->getFontHeight();
   if(isSelected())
@@ -205,8 +205,8 @@ GMTreeItem::GMTreeItem(){
 
 // Get item height
 FXint GMTreeItem::getHeight(const FXTreeList* list) const {
-  register FXFont *font=list->getFont();
-  register FXint th=0,oih=0,cih=0;
+  FXFont *font=list->getFont();
+  FXint th=0,oih=0,cih=0;
   if(openIcon) oih=openIcon->getHeight();
   if(closedIcon) cih=closedIcon->getHeight();
   if(!label.empty()) th=font->getFontHeight();
@@ -218,9 +218,9 @@ FXint GMTreeItem::getHeight(const FXTreeList* list) const {
 
 // Draw item
 void GMTreeItem::draw(const FXTreeList* list,FXDC& dc,FXint xx,FXint yy,FXint /* ww*/,FXint hh) const {
-  register FXIcon *icon=(state&OPENED)?openIcon:closedIcon;
-  register FXFont *font=list->getFont();
-  register FXint th=0,tw=0,ih=0,iw=0;//ox=xx,oy=yy;
+  FXIcon *icon=(state&OPENED)?openIcon:closedIcon;
+  FXFont *font=list->getFont();
+  FXint th=0,tw=0,ih=0,iw=0;//ox=xx,oy=yy;
   xx+=SIDE_SPACING/2;
   if(icon){
     iw=icon->getWidth();

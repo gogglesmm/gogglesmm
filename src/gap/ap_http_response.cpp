@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_utils.h"
 #include "ap_buffer_base.h"
 #include "ap_buffer_io.h"
 #include "ap_http_response.h"
@@ -28,7 +29,7 @@ namespace ap {
 HttpIO::HttpIO() : BufferIO(4096) {
   }
 
-HttpIO::HttpIO(FXIO * io) : BufferIO(io,4096) {
+HttpIO::HttpIO(FXIO * dev) : BufferIO(dev,4096) {
   }
 
 HttpIO::~HttpIO() {
@@ -164,7 +165,7 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
 
   // parse the field name
   if (opts&ParseFieldName)
-    s=p=str.find(':')+1;
+    p=str.find(':')+1;
 
   // white space
   while(str[p]==' '||str[p]=='\t') p++;
@@ -233,11 +234,10 @@ FXbool HttpContentRange::parse(const FXString & str,FXuint opts) {
 
   // parse the field name
   if (opts&ParseFieldName)
-    s=p=str.find(':')+1;
+    p=str.find(':')+1;
 
   // white space
   while(str[p]==' '||str[p]=='\t') p++;
-  s=p;
 
   // Make sure ranges are in bytes
   if (str[p]!='b' || str[p+1]!='y' || str[p+2]!='t' || str[p+3]!='e' || str[p+4]!='s' || str[p+5]!=' ')
@@ -285,25 +285,6 @@ failed:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 HttpResponse::HttpResponse() :
   content_length(-1),
   content_remaining(-1),
@@ -316,7 +297,6 @@ HttpResponse::~HttpResponse() {
   }
 
 void HttpResponse::clear() {
-  GM_DEBUG_PRINT("HttpResponse::clear()\n");
   flags=0;
   content_length=-1;
   content_remaining=-1;
@@ -559,6 +539,22 @@ FXString HttpResponse::body() {
   else
     return read_body();
   }
+
+FXString HttpResponse::textBody() {
+  HttpMediaType media;
+
+  if (getContentType(media) && media.parameters.has("charset")) {
+    const FXTextCodec * codec = ap_get_textcodec(media.parameters["charset"]);
+    if (codec) return codec->mb2utf(body());
+
+    discard();
+    }
+  else {
+    return body();
+    }
+  return FXString::null;
+  }
+
 
 FXival HttpResponse::readBody(void * ptr,FXival len) {
   if (flags&HeadRequest)

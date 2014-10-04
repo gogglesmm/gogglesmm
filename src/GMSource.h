@@ -25,6 +25,8 @@
 
 class GMList;
 class GMAlbumList;
+class GMCoverCache;
+
 /*
 enum {
   FLAG_CAN_AUTOPLAY	 =0x1,
@@ -181,6 +183,14 @@ public:
 
   virtual const FXchar * getAlbumName() const { return fxtr("Albums"); }
 
+  virtual FXIcon* getAlbumIcon() const;
+
+  virtual GMCoverCache * getCoverCache() const { return NULL; }
+
+  virtual void loadCovers() {}
+
+  virtual void updateCovers() {}
+
   /// Items have been dragged around.
   virtual void dragged(GMTrackList*);
 
@@ -188,6 +198,10 @@ public:
   virtual void sorted(GMTrackList*,FXint) {}
 
   virtual FXString settingKey() const { return "nokey"; }
+
+  // unhide to keep compiler happy over hiding virtual
+  using FXObject::load;
+  using FXObject::save;
 
   virtual void load(FXSettings&) {}
 

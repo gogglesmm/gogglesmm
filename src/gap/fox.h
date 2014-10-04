@@ -74,10 +74,12 @@
 #include <FXHash.h>
 #include <FXStream.h>
 #include <FXObject.h>
+#include <FXObjectList.h>
 #include <FXDictionary.h>
 #include <FXStringDictionary.h>
 #include <FXSettings.h>
 #include <FXMessageChannel.h>
+#include <FXTextCodec.h>
 
 #include <FXRex.h>
 

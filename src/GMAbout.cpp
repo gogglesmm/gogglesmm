@@ -41,11 +41,11 @@ FXDEFMAP(GMAboutDialog) GMAboutDialogMap[]={
 FXIMPLEMENT(GMAboutDialog,FXDialogBox,GMAboutDialogMap,ARRAYNUMBER(GMAboutDialogMap))
 
 
-GMAboutDialog::GMAboutDialog(FXApp * app) : FXDialogBox(app,FXString::null,DECOR_ALL,0,0,0,0,0,0,0,0,0,0) {
+GMAboutDialog::GMAboutDialog(FXApp * a) : FXDialogBox(a,FXString::null,DECOR_ALL,0,0,0,0,0,0,0,0,0,0) {
   setup();
   }
 
-GMAboutDialog::GMAboutDialog(FXWindow* owner) : FXDialogBox(owner,FXString::null,DECOR_TITLE|DECOR_BORDER|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0) {
+GMAboutDialog::GMAboutDialog(FXWindow* o) : FXDialogBox(o,FXString::null,DECOR_TITLE|DECOR_BORDER|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0) {
   setup();
   }
 
@@ -85,7 +85,7 @@ void GMAboutDialog::setup(){
                  "either version 3 of the License, or (at your\n"
                  "option) any later version.";
 
-  label = new FXLabel(this,"v"APPLICATION_VERSION_STRING,NULL,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,5);
+  label = new FXLabel(this,"v" APPLICATION_VERSION_STRING,NULL,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,5);
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
 

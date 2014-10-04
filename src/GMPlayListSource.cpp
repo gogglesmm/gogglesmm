@@ -85,6 +85,8 @@ GMPlayListSource::~GMPlayListSource() {
   }
 
 
+
+
 void GMPlayListSource::save(GMTrackList* tracklist) {
   if (orderchanged) {
     GMPlayListItemList items;
@@ -187,7 +189,6 @@ FXbool GMPlayListSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Remove Playlist"),GMIconTheme::instance()->icon_delete,this,GMPlayListSource::ID_REMOVE);
   return true;
   }
-
 
 
 FXbool GMPlayListSource::dnd_accepts(FXDragType*types,FXuint ntypes){

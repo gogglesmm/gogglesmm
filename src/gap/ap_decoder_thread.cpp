@@ -77,7 +77,7 @@ void DecoderThread::configure(ConfigureEvent * event) {
     }
   else {
     engine->input->post(new ControlEvent(Ctrl_Close));
-    engine->post(new ErrorMessage(FXString::value("No decoder plugin available for %s",Codec::name(event->codec))));
+    engine->post(new ErrorMessage(FXString::value("No decoder available for %s.",Codec::name(event->codec))));
     event->unref();
     return;
     }
@@ -106,7 +106,7 @@ FXint DecoderThread::run(){
                       if (plugin) {
                         FlushEvent * f = dynamic_cast<FlushEvent*>(event);
                         plugin->flush(f->offset);
-                        }  
+                        }
                       engine->output->post(event,EventQueue::Flush);
                       continue;
                       break;

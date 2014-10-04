@@ -200,7 +200,7 @@ void GMRemote::reset(){
   layout();
   }
 
-void GMRemote::update_time(const TrackTime & c,const TrackTime & r,FXint position,FXbool playing,FXbool seekable){
+void GMRemote::update_time(const TrackTime & c,const TrackTime & r,FXint progress,FXbool playing,FXbool seekable){
   if (playing) {
     if (is_remaining == false) {
       if (c.hours>0)
@@ -216,7 +216,7 @@ void GMRemote::update_time(const TrackTime & c,const TrackTime & r,FXint positio
       }
     if (seekable) {
       if (!trackslider->grabbed()){
-        trackslider->setProgress(position);
+        trackslider->setProgress(progress);
         }
       trackslider->enable();
       }

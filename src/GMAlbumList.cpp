@@ -8,6 +8,7 @@
 #include "GMSource.h"
 #include "GMPlayerManager.h"
 #include "GMTrackView.h"
+
 #include "GMCoverCache.h"
 #include "GMAlbumList.h"
 
@@ -33,7 +34,7 @@ static inline FXbool begins_with_keyword(const FXString & t){
 
 
 FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
-  register FXint a=0,b=0;
+  FXint a=0,b=0;
   if (GMTrackView::album_by_year) {
     if (pa->getYear()>pb->getYear()) return 1;
     else if (pa->getYear()<pb->getYear()) return -1;
@@ -44,7 +45,7 @@ FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
   }
 
 FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
-  register FXint a=0,b=0;
+  FXint a=0,b=0;
   if (GMTrackView::album_by_year) {
     if (pa->getYear()>pb->getYear()) return -1;
     else if (pa->getYear()<pb->getYear()) return 1;
@@ -62,9 +63,9 @@ FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* p
 FXIMPLEMENT(GMAlbumListItem,FXObject,NULL,0)
 
 static void drawTextLimited(FXDC & dc,FXFont * font,FXint x,FXint y,FXint space,const FXString & text) {
-  register FXint dw,len=text.length();
-  register FXint tw = font->getTextWidth(text.text(),text.length());
-  register FXint th = font->getFontHeight();
+  FXint dw,len=text.length();
+  FXint tw = font->getTextWidth(text.text(),text.length());
+  FXint th = font->getFontHeight();
   if (tw>space) {
     dw = font->getTextWidth("...",3);
     while((tw=font->getTextWidth(text.text(),len))+dw>space && len>1) len=text.dec(len);
@@ -78,8 +79,8 @@ static void drawTextLimited(FXDC & dc,FXFont * font,FXint x,FXint y,FXint space,
     }
   }
 
-void GMAlbumListItem::prepare(const GMAlbumList * list) const {
-  list->getCoverCache()->markCover(id);
+void GMAlbumListItem::prepare(GMAlbumList * list) {
+  list->getCoverRender().markCover(id);
   }
 
 void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint yy,FXint ww,FXint hh) const {
@@ -133,25 +134,22 @@ void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint y
 
 
 // Draw item
-void GMAlbumListItem::draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const {
+void GMAlbumListItem::draw(GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const {
   if(isSelected())
     dc.setForeground(list->getSelBackColor());
   dc.fillRectangle(x,y,w,h);
-
-  if (!list->getCoverCache())
-    return;
 
   FXFont *font=list->getCoverBaseFont();
   FXFont *cfont=list->getCoverHeadFont();
   const FXint h1=cfont->getFontHeight();
   const FXint xx=x+SIDE_SPACING;
-  const FXint is=list->getCoverCache()->getCoverSize();
+  const FXint is=list->getCoverRender().getSize();
   FXint yy=y+SIDE_SPACING;
 
   if (ids.no())
-    list->getCoverCache()->drawCover(0,dc,xx,yy);
+    list->getCoverRender().drawCover(0,dc,xx,yy);
   else
-    list->getCoverCache()->drawCover(id,dc,xx,yy);
+    list->getCoverRender().drawCover(id,dc,xx,yy);
 
   if(isSelected())
     dc.setForeground(list->getSelTextColor());
@@ -176,8 +174,8 @@ void GMAlbumListItem::draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXin
   if(!artist.empty() && ids.no()==0){
     dc.setFont(cfont);
     drawTextLimited(dc,cfont,xx,yy,is,artist);
+    yy+=h1;
     }
-  yy+=h1;
   if(!title.empty() && id!=-1){
     dc.setFont(font);
     drawTextLimited(dc,font,xx,yy,is,title);
@@ -189,17 +187,17 @@ void GMAlbumListItem::draw(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXin
 
 // See if item got hit and where: 0 is outside, 1 is icon, 2 is text
 FXint GMAlbumListItem::hitItem(const GMAlbumList* list,FXint rx,FXint ry,FXint rw,FXint rh) const {
-  register FXFont *font=list->getCoverBaseFont();
-  register FXFont *cfont=list->getCoverHeadFont();
+  FXFont *font=list->getCoverBaseFont();
+  FXFont *cfont=list->getCoverHeadFont();
 
   //register FXuint options=list->getListStyle();
-  register FXint tw=0,th=0,ix,iy,tx,ty;
+  FXint tw=0,th=0,ix,iy,tx,ty;
 
   FXint h1=cfont->getFontHeight();
   FXint h2=font->getFontHeight();
 
   FXint iw,ih;
-  iw=ih=list->getCoverCache()->getCoverSize();
+  iw=ih=list->getCoverRender().getSize();
 
 
   ix=SIDE_SPACING;
@@ -347,7 +345,6 @@ FXIMPLEMENT(GMAlbumList,FXScrollArea,GMAlbumListMap,ARRAYNUMBER(GMAlbumListMap))
 // Serialization
 GMAlbumList::GMAlbumList(){
   flags|=FLAG_ENABLED;
-  covers=NULL;
   nrows=1;
   ncols=1;
   anchor=-1;
@@ -374,9 +371,6 @@ GMAlbumList::GMAlbumList(){
 // Icon List
 GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXScrollArea(p,opts,x,y,w,h){
   GMScrollArea::replaceScrollbars(this);
-
-  covers=NULL;
-
   flags|=FLAG_ENABLED;
   target=tgt;
   message=sel;
@@ -411,6 +405,12 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   coverbasefont=((GMApp*)(getApp()))->getCoverBaseFont();
 
   altbackColor=GMPlayerManager::instance()->getPreferences().gui_row_color;
+  }
+
+
+void GMAlbumList::setCoverCache(GMCoverCache* cache){
+  covers.setCache(cache);
+  recalc();
   }
 
 
@@ -509,19 +509,11 @@ void GMAlbumList::getrowscols(FXint& nr,FXint& nc,FXint w,FXint h) const {
 // Recompute interior
 void GMAlbumList::recompute(){
   if (options&ALBUMLIST_BROWSER) {
-    if (covers) {
-      itemWidth=covers->getCoverSize()+SIDE_SPACING+SIDE_SPACING;
-      itemHeight=covers->getCoverSize()+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
-      }
-    else {
-#define COVER_SIZE 128
-      /// Fixed width/height
-      itemWidth=COVER_SIZE+SIDE_SPACING+SIDE_SPACING;
-      itemHeight=COVER_SIZE+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
-      }
+    itemWidth=covers.getSize()+SIDE_SPACING+SIDE_SPACING;
+    itemHeight=covers.getSize()+SIDE_SPACING+SIDE_SPACING+coverheadfont->getFontHeight()+coverbasefont->getFontHeight()+COVER_TEXT_SPACING;
     }
   else {
-    register FXint w;
+    FXint w;
     FXint ih=(listicon) ? listicon->getHeight() : 0;
     itemWidth=1;
     itemHeight=LIST_LINE_SPACING+FXMAX3(listtailfont->getFontHeight(),listbasefont->getFontHeight(),ih);
@@ -625,8 +617,8 @@ FXbool GMAlbumList::isItemCurrent(FXint index) const {
 
 // True if item (partially) visible
 FXbool GMAlbumList::isItemVisible(FXint index) const {
-  register FXbool vis=false;
-  register FXint x,y;
+  FXbool vis=false;
+  FXint x,y;
   if(index<0 || items.no()<=index){ fxerror("%s::isItemVisible: index out of range.\n",getClassName()); }
   if(options&(ALBUMLIST_BROWSER)){
     if(options&ALBUMLIST_COLUMNS){
@@ -705,8 +697,8 @@ void GMAlbumList::makeItemVisible(FXint index){
 
 // Get item at position x,y
 FXint GMAlbumList::getItemAt(FXint x,FXint y) const {
-  register FXint ix,iy;
-  register FXint r,c,index;
+  FXint ix,iy;
+  FXint r,c,index;
   y-=pos_y;
   x-=pos_x;
   if(options&(ALBUMLIST_BROWSER)){
@@ -720,7 +712,6 @@ FXint GMAlbumList::getItemAt(FXint x,FXint y) const {
     if(items[index]->hitItem(this,x-ix,y-iy)==0) return -1;
     }
   else{
-    c=0;
     index=y/itemHeight;
     if(index<0 || index>=items.no()) return -1;
     }
@@ -864,8 +855,8 @@ FXbool GMAlbumList::toggleItem(FXint index,FXbool notify){
 
 // Select items in rectangle
 FXbool GMAlbumList::selectInRectangle(FXint x,FXint y,FXint w,FXint h,FXbool notify){
-  register FXint r,c,index;
-  register FXbool changed=false;
+  FXint r,c,index;
+  FXbool changed=false;
   if(options&ALBUMLIST_BROWSER){
     for(r=0; r<nrows; r++){
       for(c=0; c<ncols; c++){
@@ -891,7 +882,7 @@ FXbool GMAlbumList::selectInRectangle(FXint x,FXint y,FXint w,FXint h,FXbool not
 
 // Extend selection
 FXbool GMAlbumList::extendSelection(FXint index,FXbool notify){
-  register FXbool changes=false;
+  FXbool changes=false;
   FXint i1,i2,i3,i;
   if(0<=index && 0<=anchor && 0<=extent){
 
@@ -962,8 +953,8 @@ FXbool GMAlbumList::extendSelection(FXint index,FXbool notify){
 
 // Kill selection
 FXbool GMAlbumList::killSelection(FXbool notify){
-  register FXbool changes=false;
-  register FXint i;
+  FXbool changes=false;
+  FXint i;
   for(i=0; i<items.no(); i++){
     if(items[i]->isSelected()){
       items[i]->setSelected(false);
@@ -978,7 +969,7 @@ FXbool GMAlbumList::killSelection(FXbool notify){
 
 // Lasso changed, so select/unselect items based on difference between new and old lasso box
 void GMAlbumList::lassoChanged(FXint ox,FXint oy,FXint ow,FXint oh,FXint nx,FXint ny,FXint nw,FXint nh,FXbool notify){
-  register FXint r,c;
+  FXint r,c;
   FXint ohit,nhit,index;
   if(options&ALBUMLIST_BROWSER){
     for(r=0; r<nrows; r++){
@@ -1108,7 +1099,7 @@ long GMAlbumList::onFocusOut(FXObject* sender,FXSelector sel,void* ptr){
 
 // Draw item list
 long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
-  register FXint rlo,rhi,clo,chi,x,y,w,h,r,c,index;
+  FXint rlo,rhi,clo,chi,x,y,w,h,r,c,index;
   FXEvent* event=(FXEvent*)ptr;
   FXDCWindow dc(this,event);
 
@@ -1129,22 +1120,17 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
   if(clo<0) clo=0;
   if(chi>=ncols) chi=ncols-1;
 
-  covers->reset();
+  covers.reset();
   for(r=rlo; r<=rhi; r++){
-    y=pos_y+r*itemHeight;
+    //y=pos_y+r*itemHeight;
     for(c=clo; c<=chi; c++){
-      x=pos_x+c*itemWidth;
+      //x=pos_x+c*itemWidth;
       index=(options&ALBUMLIST_COLUMNS) ? ncols*r+c : nrows*c+r;
       if(index<items.no()){
         items[index]->prepare(this);
         }
       }
     }
-
-
-
-
-
 
   // Exposed rows
   rlo=(event->rect.y-pos_y)/itemHeight;
@@ -1209,7 +1195,7 @@ long GMAlbumList::onPaint(FXObject*,FXSelector,void* ptr){
     }
   }
   else {
-  FXint i,y,h;
+  FXint i;
 
   // Set font
 //  dc.setFont(font);
@@ -1364,9 +1350,9 @@ long GMAlbumList::onCmdSelectInverse(FXObject*,FXSelector,void*){
 
 // Sort the items based on the sort function
 void GMAlbumList::sortItems(){
-  register GMAlbumListItem *v,*c=0;
-  register FXbool exch=false;
-  register FXint i,j,h;
+  GMAlbumListItem *v,*c=0;
+  FXbool exch=false;
+  FXint i,j,h;
   if(sortfunc){
     if(0<=current){
       c=items[current];
@@ -1971,7 +1957,7 @@ FXint GMAlbumList::setItem(FXint index,GMAlbumListItem* item,FXbool notify){
 
 // Insert item
 FXint GMAlbumList::insertItem(FXint index,GMAlbumListItem* item,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Must have item
   if(!item){ fxerror("%s::insertItem: item is NULL.\n",getClassName()); }
@@ -2027,8 +2013,8 @@ FXint GMAlbumList::prependItem(GMAlbumListItem* item,FXbool notify){
 
 // Move item from oldindex to newindex
 FXint GMAlbumList::moveItem(FXint newindex,FXint oldindex,FXbool notify){
-  register FXint old=current;
-  register GMAlbumListItem *item;
+  FXint old=current;
+  GMAlbumListItem *item;
 
   // Must be in range
   if(newindex<0 || oldindex<0 || items.no()<=newindex || items.no()<=oldindex){ fxerror("%s::moveItem: index out of range.\n",getClassName()); }
@@ -2077,8 +2063,8 @@ FXint GMAlbumList::moveItem(FXint newindex,FXint oldindex,FXbool notify){
 
 // Extract node from list
 GMAlbumListItem* GMAlbumList::extractItem(FXint index,FXbool notify){
-  register GMAlbumListItem *result;
-  register FXint old=current;
+  GMAlbumListItem *result;
+  FXint old=current;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::extractItem: index out of range.\n",getClassName()); }
@@ -2123,7 +2109,7 @@ GMAlbumListItem* GMAlbumList::extractItem(FXint index,FXbool notify){
 
 // Remove node from list
 void GMAlbumList::removeItem(FXint index,FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::removeItem: index out of range.\n",getClassName()); }
@@ -2165,7 +2151,7 @@ void GMAlbumList::removeItem(FXint index,FXbool notify){
 
 // Remove all items
 void GMAlbumList::clearItems(FXbool notify){
-  register FXint old=current;
+  FXint old=current;
 
   // Delete items
   for(FXint index=items.no()-1; 0<=index; index--){
@@ -2192,27 +2178,27 @@ void GMAlbumList::clearItems(FXbool notify){
   }
 
 // Get item by data
-FXint GMAlbumList::findItemById(const FXint id,FXint start,FXuint flgs) const {
-  register FXint index;
+FXint GMAlbumList::findItemById(const FXint needle,FXint start,FXuint flgs) const {
+  FXint index;
   if(0<items.no()){
     if(flgs&SEARCH_BACKWARD){
       if(start<0) start=items.no()-1;
       for(index=start; 0<=index; index--){
-        if(items[index]->getId()==id) return index;
+        if(items[index]->getId()==needle) return index;
         }
       if(!(flgs&SEARCH_WRAP)) return -1;
       for(index=items.no()-1; start<index; index--){
-        if(items[index]->getId()==id) return index;
+        if(items[index]->getId()==needle) return index;
         }
       }
     else{
       if(start<0) start=0;
       for(index=start; index<items.no(); index++){
-        if(items[index]->getId()==id) return index;
+        if(items[index]->getId()==needle) return index;
         }
       if(!(flgs&SEARCH_WRAP)) return -1;
       for(index=0; index<start; index++){
-        if(items[index]->getId()==id) return index;
+        if(items[index]->getId()==needle) return index;
         }
       }
     }

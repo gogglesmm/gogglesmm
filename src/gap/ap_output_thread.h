@@ -26,9 +26,6 @@ class OutputPlugin;
 class Packet;
 class FrameTimer;
 
-
-
-
 struct ReplayGainConfig {
   ReplayGainMode  mode;
   ReplayGain      value;
@@ -106,14 +103,14 @@ public:
   void getSamples(const void*&,FXuint &);
 
 
-  void notify_disable_volume();
-  void notify_volume(FXfloat value);
+  void notify_disable_volume() GMAPI;
+  void notify_volume(FXfloat value) GMAPI;
 
-  
+
   Reactor & getReactor() { return reactor; }
 
 
-  void wait_plugin_events();
+  void wait_plugin_events() GMAPI;
 
 
 

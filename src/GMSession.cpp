@@ -128,8 +128,8 @@ public:
     }
 
   FXbool init(int argc,const FXchar * const argv[]) {
-    FXString session = FXSystem::getEnvironment("SESSION_MANAGER");
-    if (!session.empty()) {
+    FXString session_manager = FXSystem::getEnvironment("SESSION_MANAGER");
+    if (!session_manager.empty()) {
 
       SmcCallbacks cb;
 

@@ -24,6 +24,7 @@ class GMTrackList;
 class GMSource;
 class GMTrackItem;
 class GMAlbumList;
+class GMAlbumListItem;
 
 
 class GMTrackView : public FXPacker {
@@ -112,6 +113,9 @@ public:
     ID_FILTER_LAST = ID_FILTER_TAG,
     ID_ALBUMS_VIEW_LIST,
     ID_ALBUMS_VIEW_BROWSER,
+    ID_COVERSIZE_SMALL,
+    ID_COVERSIZE_MEDIUM,
+    ID_COVERSIZE_BIG,
     ID_LAST,
     };
 public:
@@ -126,7 +130,6 @@ public:
   long onTagContextMenu(FXObject*,FXSelector,void*);
   long onArtistContextMenu(FXObject*,FXSelector,void*);
   long onAlbumContextMenu(FXObject*,FXSelector,void*);
-  long onAlbumHeaderContextMenu(FXObject*,FXSelector,void*);
   long onTrackContextMenu(FXObject*,FXSelector,void*);
   long onTrackHeaderContextMenu(FXObject*,FXSelector,void*);
 
@@ -189,6 +192,9 @@ public:
   long onCmdAlbumListView(FXObject*,FXSelector,void*);
   long onUpdAlbumListView(FXObject*,FXSelector,void*);
 
+  long onCmdCoverSize(FXObject*,FXSelector,void*);
+  long onUpdCoverSize(FXObject*,FXSelector,void*);
+
   long onCmdConfigureColumns(FXObject*,FXSelector,void*);
 public:
   GMTrackView(FXComposite* p);
@@ -198,6 +204,8 @@ public:
   void updateColors();
 
   void updateIcons();
+
+  void updateTrackItem(FXint index);
 
   FXMenuPane * getColumnMenu() const { return columnmenu; }
 
@@ -221,9 +229,13 @@ public:
 
   void getTracks(FXIntList & tracks) const;
 
+  FXint findTrackIndexById(FXint id) const;
+
   GMTrackItem * getTrackItem(FXint i) const;
 
   GMTrackItem * getCurrentTrackItem() const;
+
+  GMAlbumListItem * getCurrentAlbumItem() const;
 
   FXbool isTrackItemSelected(FXint i) const;
 
@@ -288,6 +300,8 @@ public:
   void clear();
 
   void redrawAlbumList();
+
+  void redrawTrackList();
 
   void setActive(FXint item,FXbool show=true);
 

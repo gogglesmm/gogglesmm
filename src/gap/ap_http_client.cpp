@@ -59,25 +59,25 @@ HttpClient::HttpClient(ConnectionFactory * c) :  connection(c), options(0) {
   }
 
 void HttpClient::setConnectionFactory(ConnectionFactory * c) {
-	if (connection) {
-		delete connection;
-		connection = NULL;
-		}
-	connection=c;
-	}
+    if (connection) {
+        delete connection;
+        connection = NULL;
+        }
+    connection=c;
+    }
 
 HttpClient::~HttpClient() {
   close();
-	delete connection;
+    delete connection;
   }
 
 void HttpClient::close() {
-	GM_DEBUG_PRINT("HttpClient::close()\n");
-	io.close();
+    GM_DEBUG_PRINT("HttpClient::close()\n");
+    io.close();
   }
 
 void HttpClient::discard() {
-	GM_DEBUG_PRINT("HttpClient::discard()\n");
+    GM_DEBUG_PRINT("HttpClient::discard()\n");
   if (flags&ConnectionClose) {
     close();
     }
@@ -87,38 +87,35 @@ void HttpClient::discard() {
   }
 
 FXbool HttpClient::open_connection() {
-	GM_DEBUG_PRINT("HttpClient::open_connection()\n");
-	FXIO * stream = NULL;
+  GM_DEBUG_PRINT("HttpClient::open_connection()\n");
+  FXIO * stream = NULL;
 
-	if (connection==NULL)
-		connection = new ConnectionFactory();
+  if (connection==NULL)
+    connection = new ConnectionFactory();
 
-	if (options&UseProxy)
-		stream = connection->open(proxy.name.text(),proxy.port);
-	else
-		stream = connection->open(server.name.text(),server.port);
+  if (options&UseProxy)
+    stream = connection->open(proxy.name.text(),proxy.port);
+  else
+    stream = connection->open(server.name.text(),server.port);
 
-	if (stream) {
-		io.attach(stream);
-		return true;
-		}
-	return false;
-	}
+  if (stream) {
+    io.attach(stream);
+    return true;
+    }
+  return false;
+  }
 
 void HttpClient::reset(FXbool forceclose){
-	GM_DEBUG_PRINT("HttpClient::reset(%d)\n", forceclose ? 1 : 0);
-
   if (forceclose)
     close();
   else
     discard();
-
   clear();
   }
 
 
 FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXString & header,const FXString & message) {
-	GM_DEBUG_PRINT("HttpClient::request(\"%s\",\"%s\")\n",method,url.text());
+    GM_DEBUG_PRINT("HttpClient::request(\"%s\",\"%s\")\n",method,url.text());
   FXString command,path,query;
 
   // Set Server Host
@@ -247,7 +244,7 @@ FXbool HttpClient::basic(const FXchar*    method,
 
         case HTTP_RESPONSE_FAILED:  /* something went wrong */
           {
-						GM_DEBUG_PRINT("HttpClient::basic() failed\n");
+            GM_DEBUG_PRINT("HttpClient::basic() failed\n");
             return false;
             break;
           }

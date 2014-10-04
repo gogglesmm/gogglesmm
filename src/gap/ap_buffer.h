@@ -26,7 +26,7 @@
 namespace ap {
 
 
-class GMAPI MemoryBuffer : public BufferBase {
+class MemoryBuffer : public BufferBase {
 public:
   // Constructor
   MemoryBuffer(FXival cap=4096);

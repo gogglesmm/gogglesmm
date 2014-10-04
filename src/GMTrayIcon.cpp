@@ -65,7 +65,7 @@ GMTrayIcon::GMTrayIcon(){
   flags|=FLAG_ENABLED;
   }
 
-GMTrayIcon::GMTrayIcon(FXApp * app) : GMPlug(app), xtraywindow(0), xtrayopcode(0),icon(NULL), opaque(false) {
+GMTrayIcon::GMTrayIcon(FXApp * a) : GMPlug(a), xtraywindow(0), xtrayopcode(0),icon(NULL), opaque(false) {
   flags|=FLAG_ENABLED;
   }
 
@@ -232,9 +232,9 @@ void GMTrayIcon::create(){
 
 void GMTrayIcon::dock() {
   if (findSystemTray()){
-    FXuint id = getTrayVisual();
-    if (id) {
-      if (id!=XVisualIDFromVisual((Visual*)getVisual()->getVisual()))
+    FXuint trayid = getTrayVisual();
+    if (trayid) {
+      if (trayid!=XVisualIDFromVisual((Visual*)getVisual()->getVisual()))
         opaque=true;
       else
         opaque=false;

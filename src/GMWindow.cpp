@@ -128,10 +128,8 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SLEEP,					    GMWindow::onCmdSleepTimer),
 
-#ifdef HAVE_PLAYQUEUE
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_PLAYQUEUE,					GMWindow::onCmdPlayQueue),
   FXMAPFUNC(SEL_UPDATE,						  GMWindow::ID_PLAYQUEUE,					GMWindow::onUpdPlayQueue),
-#endif
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_NEXT_FOCUS,		    GMWindow::onCmdNextFocus),
   FXMAPFUNC(SEL_CONFIGURE,          GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
@@ -222,9 +220,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   /// Media Controls
   menu_media   = new GMMenuPane(this);
-#ifdef HAVE_PLAYQUEUE
   new GMMenuCheck(menu_media,tr("Queue Play\t\tPlay tracks from queue."),this,ID_PLAYQUEUE);
-#endif
   new GMMenuCheck(menu_media,tr("Shuffle Play\tAlt-R\tPlay tracks in random order."),this,ID_SHUFFLE);
   new FXMenuSeparator(menu_media);
   new GMMenuRadio(menu_media,tr("Repeat Off\tCtrl-,\tRepeat current track."),this,ID_REPEAT_OFF);
@@ -371,8 +367,8 @@ void GMWindow::create(){
       nadded=0;
       nlast+=1;
       }
-    if (GMPlayerManager::instance()->getSource(i)->source_menu(menu_library)){            
-      FXint n = menu_library->numChildren();          
+    if (GMPlayerManager::instance()->getSource(i)->source_menu(menu_library)){
+      FXint n = menu_library->numChildren();
       nadded = n - nlast;
       nlast  = n;
       }
@@ -472,8 +468,8 @@ void GMWindow::hideRemote(){
   }
 
 
-void GMWindow::setFullScreen(FXbool show){
-  if (show) {
+void GMWindow::setFullScreen(FXbool showwindow){
+  if (showwindow) {
     if (isMaximized()) restore();
     getApp()->reg().writeIntEntry("window","x",getX());
     getApp()->reg().writeIntEntry("window","y",getY());
@@ -559,9 +555,9 @@ void GMWindow::toggleShown() {
 
 
 
-FXbool GMWindow::question(const FXString & title,const FXString & labeltext,const FXString & accept,const FXString & cancel){
+FXbool GMWindow::question(const FXString & dialogtitle,const FXString & labeltext,const FXString & accept,const FXString & cancel){
   FXDialogBox dialog(this,title,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,400,0,0,0,0,0,0,0);
-  create_dialog_header(&dialog,title,labeltext,NULL);
+  create_dialog_header(&dialog,dialogtitle,labeltext,NULL);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_BOTTOM|LAYOUT_FILL_X,0,0,0,0);
   new GMButton(closebox,accept,NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
   new GMButton(closebox,cancel,NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
@@ -595,15 +591,15 @@ void GMWindow::reset() {
 
 void GMWindow::display(const GMTrack& info){
   FXUTF8Codec codec;
-  FXString title = GMFilename::format_track(info,GMPlayerManager::instance()->getPreferences().gui_format_title,FXString::null,0,&codec);
+  FXString track = GMFilename::format_track(info,GMPlayerManager::instance()->getPreferences().gui_format_title,FXString::null,0,&codec);
 
   // Escape & for FXLabel
-  title.substitute("&","&&");
+  track.substitute("&","&&");
 
-  label_nowplaying->setText(title);
+  label_nowplaying->setText(track);
 
   if (GMPlayerManager::instance()->getPreferences().gui_show_playing_titlebar){
-    setTitle(FXString::value("%s ~ Goggles Music Manager",title.text()));
+    setTitle(FXString::value("%s ~ Goggles Music Manager",track.text()));
     }
   else {
     setTitle("Goggles Music Manager");
@@ -636,14 +632,14 @@ void GMWindow::update_volume_display(FXint level) {
   if (remote) remote->update_volume_display(level);
   }
 
-void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint position,FXbool playing,FXbool seekable) {
+void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint progress,FXbool playing,FXbool seekable) {
   if (playing) {
     if (c.hours>0)
       time_progress->setText(FXString::value("%d:%.2d:%.2d",c.hours,c.minutes,c.seconds));
     else
       time_progress->setText(FXString::value("%.2d:%.2d",c.minutes,c.seconds));
 
-    if (position) {
+    if (progress) {
       if (r.hours>0)
         time_remaining->setText(FXString::value("-%d:%.2d:%.2d",r.hours,r.minutes,r.seconds));
       else
@@ -652,7 +648,7 @@ void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint positio
 
     if (seekable) {
       if (!trackslider->grabbed()){
-        trackslider->setProgress(position);
+        trackslider->setProgress(progress);
         }
       trackslider->enable();
       }
@@ -666,7 +662,7 @@ void GMWindow::update_time(const TrackTime & c,const TrackTime & r,FXint positio
     trackslider->disable();
     trackslider->setProgress(0);
     }
-  if (remote) remote->update_time(c,r,position,playing,seekable);
+  if (remote) remote->update_time(c,r,progress,playing,seekable);
   }
 
 long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
@@ -705,7 +701,7 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   volumebutton->setMenu(NULL);
   delete volumecontrol;
 
-  clearCover();  
+  clearCover();
 
 #ifdef HAVE_OPENGL
   if (coverview_gl) {
@@ -774,8 +770,8 @@ long GMWindow::onCmdPreferences(FXObject *,FXSelector,void*){
 
 
 
-void GMWindow::configureStatusbar(FXbool show){
-  if (show) {
+void GMWindow::configureStatusbar(FXbool showstatusbar){
+  if (showstatusbar) {
     statusbar->show();
     //controlstatusseparator->hide();
     controldragcorner->hide();
@@ -789,15 +785,15 @@ void GMWindow::configureStatusbar(FXbool show){
       }
     ///ticker->setSpeed(0);
     }
-  GMPlayerManager::instance()->getPreferences().gui_show_status_bar=show;
+  GMPlayerManager::instance()->getPreferences().gui_show_status_bar=showstatusbar;
   recalc();
   toolbar->recalc();
   }
 
 
 
-void GMWindow::configureToolbar(FXbool docktop,FXbool init/*=false*/){
-  if ((docktop != GMPlayerManager::instance()->getPreferences().gui_toolbar_docktop) || init) {
+void GMWindow::configureToolbar(FXbool docktop,FXbool initial/*=false*/){
+  if ((docktop != GMPlayerManager::instance()->getPreferences().gui_toolbar_docktop) || initial) {
     if (docktop) {
       toolbar->setLayoutHints(LAYOUT_FILL_X|LAYOUT_SIDE_TOP);
       controldragcorner->hide();
@@ -1376,8 +1372,6 @@ long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
   return 1;
   }
 
-
-#ifdef HAVE_PLAYQUEUE
 long GMWindow::onCmdPlayQueue(FXObject*,FXSelector,void*){
   GMPlayerManager::instance()->setPlayQueue(GMPlayerManager::instance()->getPlayQueue()==NULL);
   return 1;
@@ -1390,7 +1384,6 @@ long GMWindow::onUpdPlayQueue(FXObject*sender,FXSelector,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
   return 1;
   }
-#endif
 
 void GMWindow::setStatus(const FXString & msg){
   if (!msg.empty()) {
@@ -1409,13 +1402,13 @@ void GMWindow::setStatus(const FXString & msg){
 
 
 
-void GMWindow::create_dialog_header(FXDialogBox * dialog,const FXString & title,const FXString & subtitle,FXIcon * icon) {
+void GMWindow::create_dialog_header(FXDialogBox * dialog,const FXString & dialogtitle,const FXString & subtitle,FXIcon * dialogicon) {
   FXHorizontalFrame * header = new FXHorizontalFrame(dialog,LAYOUT_FILL_X,0,0,0,0,0,0,0,0,0,0);
   header->setBackColor(getApp()->getBackColor());
-  FXLabel * label = new FXLabel(header,FXString::null,icon,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0,10,0,0,0);
+  FXLabel * label = new FXLabel(header,FXString::null,dialogicon,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0,10,0,0,0);
   label->setBackColor(getApp()->getBackColor());
   FXVerticalFrame * frame = new FXVerticalFrame(header,LAYOUT_FILL_X,0,0,0,0,0,0,0,0,0,0);
-  label = new FXLabel(frame,title,NULL,LAYOUT_FILL_X|JUSTIFY_LEFT|TEXT_AFTER_ICON,0,0,0,0,10,10,10,0);
+  label = new FXLabel(frame,dialogtitle,NULL,LAYOUT_FILL_X|JUSTIFY_LEFT|TEXT_AFTER_ICON,0,0,0,0,10,10,10,0);
   label->setBackColor(getApp()->getBackColor());
   label->setFont(GMApp::instance()->getThickFont());
   label = new FXLabel(frame,subtitle,NULL,LAYOUT_FILL_X|JUSTIFY_LEFT|TEXT_AFTER_ICON,0,0,0,0,10+30,10,0,10);

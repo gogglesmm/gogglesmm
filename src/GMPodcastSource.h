@@ -26,51 +26,96 @@ enum {
   ITEM_FLAG_LOCAL  = 1,
   ITEM_FLAG_PLAYED = 2,
   ITEM_FLAG_DOWNLOAD_FAILED = 3,
+
+  ITEM_QUEUE  = (1<<ITEM_FLAG_QUEUE),
+  ITEM_LOCAL  = (1<<ITEM_FLAG_LOCAL),
+  ITEM_PLAYED = (1<<ITEM_FLAG_PLAYED),
+  ITEM_FAILED = (1<<ITEM_FLAG_DOWNLOAD_FAILED),
   };
 
 class GMSource;
 class GMPodcastDownloader;
+
+
+
 
 class GMPodcastSource : public GMSource {
 friend class GMPodcastDownloader;
 FXDECLARE(GMPodcastSource)
 protected:
   GMTrackDatabase     * db;
+  GMCoverCache        * covercache;
   GMPodcastDownloader * downloader;
+  FXint                 navailable;
 protected:
   GMPodcastSource();
 private:
   GMPodcastSource(const GMPodcastSource&);
   GMPodcastSource& operator=(const GMPodcastSource&);
+protected:
+  void scheduleUpdate();
+  void updateAvailable();
+  void setItemFlags(FXuint add,FXuint remove,FXuint condition);
 public:
   enum {
     ID_ADD_FEED = GMSource::ID_LAST,
     ID_REFRESH_FEED,
     ID_DOWNLOAD_FEED,
     ID_REMOVE_FEED,
+    ID_MARK_PLAYED,
+    ID_MARK_NEW,
+    ID_FEED_UPDATER,
+    ID_LOAD_COVERS,
+    ID_DELETE_LOCAL,
+    ID_AUTO_DOWNLOAD,
     ID_LAST
     };
 public:
+  long onCmdAutoDownload(FXObject*,FXSelector,void*);
   long onCmdAddFeed(FXObject*,FXSelector,void*);
   long onCmdRefreshFeed(FXObject*,FXSelector,void*);
   long onCmdDownloadFeed(FXObject*,FXSelector,void*);
   long onCmdRemoveFeed(FXObject*,FXSelector,void*);
+  long onCmdMarkPlayed(FXObject*,FXSelector,void*);
+  long onCmdMarkNew(FXObject*,FXSelector,void*);
+  long onCmdFeedUpdated(FXObject*,FXSelector,void*);
+  long onCmdTrackPlayed(FXObject*,FXSelector,void*);
+  long onCmdLoadCovers(FXObject*,FXSelector,void*);
+  long onCmdDeleteLocal(FXObject*,FXSelector,void*);
+  long onCmdCopyTrack(FXObject*,FXSelector,void*);
+  long onCmdRequestTrack(FXObject*,FXSelector,void*);
 protected:
   void removeFeeds(const FXIntList&);
 public:
   GMPodcastSource(GMTrackDatabase * db);
 
-  virtual void configure(GMColumnList&);
+  void getLocalFiles(const FXIntList & ids,FXStringList&);
+
+  void loadCovers();
+
+  void updateCovers();
+
+  void setLastUpdate();
+
+  void setUpdateInterval(FXlong);
+
+  FXlong getUpdateInterval() const;
+
+  void configure(GMColumnList&);
 
   FXbool hasCurrentTrack(GMSource * ) const;
 
-  virtual FXbool getTrack(GMTrack & info) const;
+  FXbool getTrack(GMTrack & info) const;
 
-  virtual FXbool setTrack(GMTrack & info) const;
+  FXbool setTrack(GMTrack & info) const;
 
-  FXString getName() const { return fxtr("Podcasts"); }
+  FXString getName() const;
 
-  virtual const FXchar * getAlbumName() const { return fxtr("Feeds"); }
+  const FXchar * getAlbumName() const { return fxtr("Feeds"); }
+
+  FXIcon* getAlbumIcon() const;
+
+  GMCoverCache * getCoverCache() const { return covercache; }
 
   FXint getType() const { return SOURCE_PODCAST; }
 
@@ -83,7 +128,7 @@ public:
   FXbool hasArtistList() const { return false; }
 
   FXbool defaultBrowse() const { return true; }
-  
+
   FXbool defaultTags() const { return true; }
 
   FXbool autoPlay() const { return false; }
@@ -96,13 +141,15 @@ public:
 
   FXbool track_context_menu(FXMenuPane * pane);
 
-  virtual FXbool listTags(GMList *,FXIcon *);
+  FXbool listTags(GMList *,FXIcon *);
 
-  virtual FXbool listArtists(GMList *,FXIcon *,const FXIntList &) { return true; }
+  FXbool listArtists(GMList *,FXIcon *,const FXIntList &) { return true; }
 
-  virtual FXbool listAlbums(GMAlbumList *,const FXIntList &,const FXIntList &);
+  FXbool listAlbums(GMAlbumList *,const FXIntList &,const FXIntList &);
 
   FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & genrelist);
+
+  FXuint dnd_provides(FXDragType types[]);
 
   virtual ~GMPodcastSource();
   };
