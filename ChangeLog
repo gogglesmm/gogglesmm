@@ -1,34 +1,31 @@
 To do / wishlist..
  * add gzip compression support to http
- * auto-refresh the podcast manager every x hours
  * GMButton needs to having drawing mode for BUTTON_DEFAULT"
  * lirc support
  * Finish up mpris support.
  * New keyboard shortcuts to skip 10s or 1min in a track.
  * filename template should perhaps support: alphabet index?
- * fix the playqueue (don't make it crash)
 
-0.13.x
-  - Improved memory consumption for cover cache.
-  - Configurable cover display size in album list.
+0.14.0
+  - Added playqueue mode.
   - Support multichannel playback.
+  - Configurable cover display size in album list.
+  - Improvements to the podcast manager:    
+    o Support for rss feeds not encoded in UTF-8 or UTF-16.
+    o Configurable update interval for podcasts.
+    o Automatically download podcasts when feeds get updated.
+    o Download status icons in podcastmanager show which podcasts are local, queued or failed.
+    o Added cover support to podcastmanager.
+    o Add DND support to podcastmanager.
+    o Add played status to podcastmanager and add option to mark podcasts as new or played.
+  - Improved memory consumption for cover cache.
   - Added appdata file to distribution
-
-  - Support rss feeds not encoded in UTF-8 or UTF-16.
-  - Automatically download podcasts when feeds get updated.
-  - Download status icons in podcastmanager show which podcasts are local, queued or failed.
-  - Added cover support to podcastmanager.
-  - Add DND support to podcastmanager.
-  - Add played status to podcastmanager and add option to mark podcasts as new or played.
- 
-  - Removed libxml2 support. Only expat is supported now.  
+  - Removed libxml2 support. Only expat is supported now.
   - Added version info to output plugins to allow checking version during runtime.
-  - Compiler warning cleanups. 
-  
+  - Compiler warning cleanups.
   - Fix: if pulse stream becomes unready write() should return false
   - Fix: use correct line separator for x-special/gnome-copied-files
   - Fix: don't parse empty timestamp strings in rss feeds
- 
 
 0.13.3
   - Fix various bsd porting issues.
