@@ -60,6 +60,8 @@ public:
 
   void addTracks(GMSource * src,const FXIntList & tracks);
 
+  using GMSource::hasTrack;
+
   FXbool hasTrack(FXint id) const;
 
   FXint getCurrent();

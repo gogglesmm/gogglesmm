@@ -133,7 +133,7 @@ long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
         GMPlayerManager::instance()->cmd_stop();
         }
       else {
-        fxmessage("unhandled action: %s\n",action);
+        GM_DEBUG_PRINT("unhandled action: %s\n",action);
         }
       return 1;
       }

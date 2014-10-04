@@ -82,78 +82,7 @@ struct FeedLink {
   FXString url;
   };
 
-#if 0
-class HtmlFeedParser : public HtmlParser{
-public:
-  enum {
-    Elem_Html = XmlParser::Elem_Last,
-    Elem_Head,
-    Elem_Meta,
-    };
-protected:
-  FXint begin(const FXchar * element,const FXchar** attributes) {
-    //fxmessage("s %d: %s\n",node(),element);
-    switch(node()) {
-      case Elem_None:
-        if (comparecase(element,"html")==0)
-          return Elem_Html;
-        break;
-      case Elem_Html:
-        if (comparecase(element,"head")==0)
-          return Elem_Head;
-        break;
-      case Elem_Head:
-        if (comparecase(element,"link")==0)
-          parse_link(attributes);
-        break;
-      };
-    return Elem_Skip;
-    }
-  //void data(const FXuchar*,FXint){
-  //  }
-
-  //void end(const FXchar*) {
-  //  fxmessage("e %d: %s\n",node(),element);
-  //  }
-
-protected:
-  void parse_link(const FXchar ** attributes) {
-    if (attributes) {
-      FXbool valid=false;
-      FeedLink feed;
-      for (FXint i=0;attributes[i];i+=2) {
-        //GM_DEBUG_PRINT("%s=%s\n",attributes[i],attributes[i+1]);
-        if (comparecase(attributes[i],"href")==0)
-          feed.url = attributes[i+1];
-        else if (comparecase(attributes[i],"type")==0)
-          if (comparecase(attributes[i+1],"application/rss+xml")==0)
-            valid=true;
-          else
-            return;
-        else if (comparecase(attributes[i],"title")==0)
-          feed.description = attributes[i+1];
-        }
-      if (valid) {
-        links.append(feed);
-        GM_DEBUG_PRINT("%s\n%s\n",feed.description.text(),feed.url.text());
-        }
-      }
-    }
-public:
-  FXArray<FeedLink> links;
-public:
-  HtmlFeedParser() {
-    }
-  ~HtmlFeedParser() {
-    }
-  };
-#endif
-
 //-----------------------------------------------------------------------------
-
-
-
-
 
 
 static void unescape_html(FXString & value) {
@@ -1356,7 +1285,6 @@ FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
 
 FXbool GMPodcastSource::album_context_menu(FXMenuPane * pane){
   GMPodcastFeed * item = dynamic_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
-  fxmessage("got %s\n",item->getTitle().text());
   GMMenuCheck * autodownload = new GMMenuCheck(pane,fxtr("Auto Download"),this,ID_AUTO_DOWNLOAD);
   if (item->isAutoDownload())
     autodownload->setCheck(true);

@@ -199,6 +199,10 @@ public:
 
   virtual FXString settingKey() const { return "nokey"; }
 
+  // unhide to keep compiler happy over hiding virtual
+  using FXObject::load;
+  using FXObject::save;
+
   virtual void load(FXSettings&) {}
 
   virtual void save(FXSettings&) const {}
