@@ -136,6 +136,8 @@ extern ReaderPlugin * ap_xspf_reader(AudioEngine*);
 extern ReaderPlugin * ap_asx_reader(AudioEngine*);
 
 extern ReaderPlugin * ap_wav_reader(AudioEngine*);
+extern ReaderPlugin * ap_aiff_reader(AudioEngine*);
+
 
 #ifdef HAVE_FLAC_PLUGIN
 extern ReaderPlugin * ap_flac_reader(AudioEngine*);
@@ -229,7 +231,7 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
                             }
 
 #endif
-
+    case Format::AIFF      : return ap_aiff_reader(engine); break;
 
 
 

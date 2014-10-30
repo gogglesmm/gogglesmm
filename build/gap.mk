@@ -32,6 +32,7 @@ src/gap/plugins/ap_m3u_plugin.cpp \
 src/gap/plugins/ap_pls_plugin.cpp \
 src/gap/plugins/ap_xspf_plugin.cpp \
 src/gap/plugins/ap_wav_plugin.cpp \
+src/gap/plugins/ap_aiff_plugin.cpp \
 src/gap/plugins/ap_pcm_plugin.cpp \
 src/gap/plugins/ap_file_plugin.cpp \
 src/gap/plugins/ap_http_plugin.cpp \
