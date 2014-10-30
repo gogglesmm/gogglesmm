@@ -154,8 +154,8 @@ public:
   FXbool export_lowercase_extension;
   FXbool export_underscore;
 
-  FXbool dbus_notify_daemon;
 #ifdef HAVE_DBUS
+  FXbool dbus_notify_daemon;
   FXbool dbus_mpris1;
   FXbool dbus_mpris2;
 #endif
