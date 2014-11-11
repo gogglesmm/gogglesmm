@@ -448,8 +448,14 @@ public:
     FXRex link("<link[^>]*>",FXRex::IgnoreCase|FXRex::Normal);
     FXRex attr("\\s+(\\l\\w*)(?:\\s*=\\s*(?:([\'\"])(.*?)\\2|([^\\s\"\'>]+)))?",FXRex::Capture);
 
+// FXint search(const FXchar* string,FXint len,FXint fm,FXint to,FXint mode=Normal,FXint* beg=NULL,FXint* end=NULL,FXint npar=0) const;
+ // FXint search(const FXString& string,FXint fm,FXint to,FXint mode=Normal,FXint* beg=NULL,FXint* end=NULL,FXint npar=0) const;
+  /// Search for match in a string
+ // FXbool match(const FXString& string,FXint* beg=NULL,FXint* end=NULL,FXint mode=Forward,FXint npar=1,FXint fm=0,FXint to=2147483647) const;
+
+
     FXint b[5],e[5],f=0;
-    while(link.match(html,b,e,FXRex::Forward,1,f)){
+    while(link.search(html,f,html.length()-f-1,FXRex::Normal,b,e,1)){
       f=e[0];
 
       FeedLink feed;
@@ -457,7 +463,7 @@ public:
       FXString mlink = html.mid(b[0],e[0]-b[0]);
 
       FXint ff=0;
-      while(attr.match(mlink,b,e,FXRex::Forward,5,ff)){
+      while(attr.search(mlink,ff,mlink.length()-ff-1,FXRex::Normal,b,e,5)){
         if (b[1]>=0) {
           if (e[1]-b[1]==4) {
             if (comparecase(&mlink[b[1]],"type",4)==0) {

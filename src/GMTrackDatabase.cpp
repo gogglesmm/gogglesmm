@@ -971,7 +971,7 @@ FXbool GMTrackDatabase::getAlbumTrack(FXint id,FXString & path) {
 
 /// Return the track path;
 const FXchar * GMTrackDatabase::getTrackPath(FXint pid) const {
-  const void * ptr = pathdict.find((void*)(FXival)pid);
+  const void * ptr = pathdict.at((void*)(FXival)pid);
   if (ptr) return (const FXchar*)ptr;
   return "";
   }
@@ -979,10 +979,10 @@ const FXchar * GMTrackDatabase::getTrackPath(FXint pid) const {
 /// Return artist;
 const FXString * GMTrackDatabase::getArtist(FXint aid) {
   if (__likely(aid>0)) {
-    const void * ptr = artistdict.find((void*)(FXival)aid);
+    const void * ptr = artistdict.at((void*)(FXival)aid);
     if (__likely(ptr)) return (const FXString*)ptr;
     initArtistLookup();
-    ptr = artistdict.find((void*)(FXival)aid);
+    ptr = artistdict.at((void*)(FXival)aid);
     if (__likely(ptr)) return (const FXString*)ptr;
     }
   return &empty;
@@ -1864,7 +1864,7 @@ void GMTrackDatabase::updateAlbumYear(const FXIntList & tracks) {
     album=0;
     query_album.execute(tracks[i],album);
     FXASSERT(album);
-    if (album && albums.find(album)==0) {
+    if (album && albums.at(album)==0) {
       update_album_year.set(0,album);
       update_album_year.set(1,album);
       update_album_year.execute();

@@ -182,7 +182,7 @@ long GMPlayQueue::onCmdRemoveInPlaylist(FXObject*,FXSelector,void*){
 
 
 FXbool GMPlayQueue::hasTrack(FXint id) const{
-  return tracks.find(id)>0;
+  return tracks.at(id)>0;
   }
 
 
@@ -194,7 +194,7 @@ FXint GMPlayQueue::getNext() {
   q.execute(playlist,current_track);
   if (current_track>0 && poptrack) {
 
-    FXint cnt = tracks.find(current_track) - 1;
+    FXint cnt = tracks.at(current_track) - 1;
     if (cnt>0)
       tracks.insert(current_track,cnt);
     else
