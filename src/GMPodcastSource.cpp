@@ -449,24 +449,25 @@ public:
     FXRex attr("\\s+(\\l\\w*)(?:\\s*=\\s*(?:([\'\"])(.*?)\\2|([^\\s\"\'>]+)))?",FXRex::Capture);
 
     FXint b[5],e[5],f=0;
-    while(link.search(html,f,html.length()-f-1,FXRex::Normal,b,e,1)){
+    while(link.search(html,f,html.length()-1,FXRex::Normal,b,e,1)>=0){
       f=e[0];
 
       FeedLink feed;
       FXString mimetype;
       FXString mlink = html.mid(b[0],e[0]-b[0]);
+      GM_DEBUG_PRINT("Link: %s\n",mlink.text());
 
       FXint ff=0;
-      while(attr.search(mlink,ff,mlink.length()-ff-1,FXRex::Normal,b,e,5)){
+      while(attr.search(mlink,ff,mlink.length()-1,FXRex::Normal,b,e,5)>=0){
         if (b[1]>=0) {
           if (e[1]-b[1]==4) {
             if (comparecase(&mlink[b[1]],"type",4)==0) {
               mimetype = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
-              GM_DEBUG_PRINT("mimetype=%s\n",mimetype.text());
+              GM_DEBUG_PRINT("\tmimetype=%s\n",mimetype.text());
               }
             else if (comparecase(&mlink[b[1]],"href",4)==0) {
               feed.url = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
-              GM_DEBUG_PRINT("href=%s\n",feed.url.text());
+              GM_DEBUG_PRINT("\thref=%s\n",feed.url.text());
               }
             }
           else if (e[1]-b[1]==5 && comparecase(&mlink[b[1]],"title",5)==0) {
