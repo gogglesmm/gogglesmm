@@ -6,11 +6,16 @@ To do / wishlist..
  * New keyboard shortcuts to skip 10s or 1min in a track.
  * filename template should perhaps support: alphabet index?
 
+0.14.1
+  - FOX-1.7.50 compatibility fixes. Also previous versions are no longer supported.
+  - Fix building without dbus
+  - Fix crash when updating podcasts with empty guids.
+
 0.14.0
   - Added playqueue mode.
   - Support multichannel playback.
   - Configurable cover display size in album list.
-  - Improvements to the podcast manager:    
+  - Improvements to the podcast manager:
     o Support for rss feeds not encoded in UTF-8 or UTF-16.
     o Configurable update interval for podcasts.
     o Automatically download podcasts when feeds get updated.
