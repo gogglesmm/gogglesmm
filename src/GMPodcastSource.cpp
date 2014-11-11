@@ -900,6 +900,7 @@ FXint GMPodcastUpdater::run() {
 
         FXDictionary guids;
         for (int i=0;i<rss.feed.items.no();i++){
+          if (rss.feed.items[i].guid().empty()) continue;
           guids.insert(rss.feed.items[i].guid().text(),(void*)(FXival)1);
           }
 
