@@ -448,12 +448,6 @@ public:
     FXRex link("<link[^>]*>",FXRex::IgnoreCase|FXRex::Normal);
     FXRex attr("\\s+(\\l\\w*)(?:\\s*=\\s*(?:([\'\"])(.*?)\\2|([^\\s\"\'>]+)))?",FXRex::Capture);
 
-// FXint search(const FXchar* string,FXint len,FXint fm,FXint to,FXint mode=Normal,FXint* beg=NULL,FXint* end=NULL,FXint npar=0) const;
- // FXint search(const FXString& string,FXint fm,FXint to,FXint mode=Normal,FXint* beg=NULL,FXint* end=NULL,FXint npar=0) const;
-  /// Search for match in a string
- // FXbool match(const FXString& string,FXint* beg=NULL,FXint* end=NULL,FXint mode=Forward,FXint npar=1,FXint fm=0,FXint to=2147483647) const;
-
-
     FXint b[5],e[5],f=0;
     while(link.search(html,f,html.length()-f-1,FXRex::Normal,b,e,1)){
       f=e[0];
