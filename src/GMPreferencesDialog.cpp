@@ -591,12 +591,13 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   alsa_device = new GMTextField(matrix,20);
   alsa_device->setText(config.alsa.device);
 
-  alsa_mixer_label = new FXLabel(matrix,tr("Mixer:"),NULL,labelstyle);
-  alsa_mixer = new GMTextField(matrix,20);
-  alsa_mixer->setText(config.alsa.mixer);
+  //alsa_mixer_label = new FXLabel(matrix,tr("Mixer:"),NULL,labelstyle);
+ // alsa_mixer = new GMTextField(matrix,20);
+  //alsa_mixer->setText(config.alsa.mixer);
 
   alsa_hardware_only_frame = new FXFrame(matrix,FRAME_NONE);
   alsa_hardware_only = new GMCheckButton(matrix,"No resampling");
+  alsa_hardware_only->setCheck(config.alsa.flags&AlsaConfig::DeviceNoResample);
 
   /// OSS
   oss_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
@@ -700,8 +701,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device->show();
         alsa_hardware_only->show();
         alsa_hardware_only_frame->show();
-        alsa_mixer_label->show();
-        alsa_mixer->show();
         oss_device->hide();
         oss_device_label->hide();
         pulse_device->hide();
@@ -716,8 +715,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device->hide();
         alsa_hardware_only->hide();
         alsa_hardware_only_frame->hide();
-        alsa_mixer_label->hide();
-        alsa_mixer->hide();
         oss_device->show();
         oss_device_label->show();
         pulse_device->hide();
@@ -732,8 +729,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device->hide();
         alsa_hardware_only->hide();
         alsa_hardware_only_frame->hide();
-        alsa_mixer_label->hide();
-        alsa_mixer->hide();
         oss_device->hide();
         oss_device_label->hide();
         pulse_device->hide();
@@ -748,8 +743,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device->hide();
         alsa_hardware_only->hide();
         alsa_hardware_only_frame->hide();
-        alsa_mixer_label->hide();
-        alsa_mixer->hide();
         oss_device->hide();
         oss_device_label->hide();
         pulse_device->hide();
@@ -763,8 +756,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device->hide();
         alsa_hardware_only->hide();
         alsa_hardware_only_frame->hide();
-        alsa_mixer_label->hide();
-        alsa_mixer->hide();
         oss_device->hide();
         oss_device_label->hide();
         pulse_device->hide();
@@ -775,6 +766,7 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
 
     }
 
+  alsa_device_label->getParent()->recalc();
   }
 
 
@@ -787,7 +779,6 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
 
   /// Alsa Settings
   config.alsa.device = alsa_device->getText();
-  config.alsa.mixer  = alsa_mixer->getText();
 
   if (alsa_hardware_only->getCheck())
     config.alsa.flags|=AlsaConfig::DeviceNoResample;
@@ -803,6 +794,8 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
 long GMPreferencesDialog::onCmdAudioDriver(FXObject*,FXSelector,void*){
   FXuchar device=(FXuchar)(FXival)driverlist->getItemData(driverlist->getCurrentItem());
   showDriverSettings(device);
+//  layout();
+//  forceRefresh();
   return 1;
   }
 

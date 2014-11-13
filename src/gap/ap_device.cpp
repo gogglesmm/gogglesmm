@@ -59,12 +59,22 @@ AlsaConfig::~AlsaConfig(){
 
 void AlsaConfig::load(FXSettings & settings) {
   device=settings.readStringEntry("alsa","device",device.text());
-  mixer=settings.readStringEntry("alsa","mixer",mixer.text());
+
+  if (settings.readBoolEntry("alsa","use-mmap",false))
+    flags|=DeviceMMap;
+  else
+    flags&=~DeviceMMap;
+
+  if (settings.readBoolEntry("alsa","no-resample",false))
+    flags|=DeviceNoResample;
+  else
+    flags&=~DeviceNoResample;
   }
 
 void AlsaConfig::save(FXSettings & settings) const {
   settings.writeStringEntry("alsa","device",device.text());
-  settings.writeStringEntry("alsa","mixer",mixer.text());
+  settings.writeBoolEntry("alsa","use-mmap",flags&DeviceMMap);
+  settings.writeBoolEntry("alsa","no-resample",flags&DeviceNoResample);
   }
 
 OSSConfig::OSSConfig() : device("/dev/dsp"), flags(0) {
