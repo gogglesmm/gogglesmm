@@ -6,6 +6,11 @@ To do / wishlist..
  * New keyboard shortcuts to skip 10s or 1min in a track.
  * filename template should perhaps support: alphabet index?
 
+0.14.x
+  - Fix: support older ogg vorbis files whose file headers may exceed the gap buffer size.
+  - Fix: allow sort keywords to be unset
+  - alsa: Remove mixer setting and store missing flags in settings
+
 0.14.1
   - FOX-1.7.50 compatibility fixes. Also previous versions are no longer supported.
   - Fix building without dbus
