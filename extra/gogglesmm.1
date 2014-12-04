@@ -76,7 +76,7 @@ Import files from given directory.
 .B "Ctrl-J"
 Jump to playing song in track list.
 .TP
-.B "Ctrl-F" or "/"
+.BR "Ctrl-F" " or " "/"
 Find
 .TP
 .B "Ctrl-S"
@@ -85,8 +85,11 @@ Show source browser
 .B "Ctrl-P"
 Start / Pause playback.
 .TP
-.B "Ctrl-\"
+.B "Ctrl-\[rs]"
 Stop playback.
+.TP
+.B "Ctrl-Shift-\[rs]"
+Stop playback at the end of track.
 .TP
 .B "Ctrl-["
 Play previous track.
@@ -109,7 +112,7 @@ Select All in lists.
 .B "Ctrl-W"
 Close Window
 .TP
-.B "F11" or "Ctrl-M"
+.BR "F11" " or " "Ctrl-M"
 Toggle between mini player and browser.
 .TP
 .B "F12"
@@ -119,7 +122,22 @@ Show Full Screen.
 Edit selected track, album, artist or tag.
 .TP
 .B "Del"
-Delete selected track, album, artist or tah.
+Delete selected track, album, artist or tag.
+.SH MULTIMEDIA KEYS
+.TP
+Multimedia keys are supported using the GNOME Settings Daemon (requires dbus) or directly registered with the Xorg Display Server. The latter may not always work if multiple running applications are registering the same key. For both cases the following operations are permitted:
+.TP
+.BR 'play' " or " 'pause' " / " XF86AudioPlay " or " XF86AudioPause
+Start / Pause playback.
+.TP
+.BR 'stop' " / " XF86AudioStop
+Stop playback.
+.TP
+.BR 'next' " / " XF86AudioNext
+Play previous track.
+.TP
+.BR 'prev' " / " XF86AudioPrev
+Play next track.
 .SH UTILITIES
 .TP
 .I /usr/share/gogglesmm/utils/import_gogglesmm12.py
@@ -136,7 +154,7 @@ Import banshee play statistics (count,date and rating). This should be run after
 Music Database
 .TP
 .I $(XDG_DATA_HOME)/gogglesmm/podcasts
-Downloaded Podcasts 
+Downloaded Podcasts
 .TP
 .I $(XDG_CONFIG_HOME)/gogglesmm/settings.rc
 settings
