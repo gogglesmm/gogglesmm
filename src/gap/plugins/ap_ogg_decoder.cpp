@@ -39,7 +39,7 @@
 
 namespace ap {
 
-OggDecoder::OggDecoder(AudioEngine*e) : DecoderPlugin(e), 
+OggDecoder::OggDecoder(AudioEngine*e) : DecoderPlugin(e),
   buffer(32768),
   packet_start_ptr(NULL),
   out(NULL),
@@ -56,7 +56,7 @@ OggDecoder::~OggDecoder() {
 FXbool OggDecoder::init(ConfigureEvent*event){
   DecoderPlugin::init(event);
   buffer.clear();
-  stream_position=-1; 
+  stream_position=-1;
   return true;
   }
 

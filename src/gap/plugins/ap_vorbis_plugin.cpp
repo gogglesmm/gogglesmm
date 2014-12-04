@@ -60,6 +60,7 @@ protected:
   FXbool            has_dsp;
 protected:
   FXbool init_decoder();
+  void   init_info();
   void   reset_decoder();
   FXbool find_stream_position();
 public:
@@ -96,16 +97,6 @@ FXbool VorbisDecoder::init(ConfigureEvent*event) {
   af=event->af;
 
   reset_decoder();
-
-  if (has_info) {
-    vorbis_info_clear(&info);
-    has_info=false;
-    }
-
-  /// Init
-  vorbis_info_init(&info);
-  has_info=true;
-
   return true;
   }
 
@@ -131,6 +122,13 @@ static ogg_int32_t CLIP_TO_15(ogg_int32_t x) {
   }
 #endif
 
+void VorbisDecoder::init_info() {
+  if (has_info) {
+    vorbis_info_clear(&info);
+    }
+  vorbis_info_init(&info);    
+  has_info=true;
+  }
 
 void VorbisDecoder::reset_decoder() {
   if (has_dsp) {
@@ -142,6 +140,10 @@ void VorbisDecoder::reset_decoder() {
 
 FXbool VorbisDecoder::init_decoder() {
   const FXuchar * data_ptr = get_packet_offset();
+
+  // Initialize Info
+  init_info();
+
   while(get_next_packet()) {
     if (is_vorbis_header()) {
       if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
@@ -149,7 +151,7 @@ FXbool VorbisDecoder::init_decoder() {
         return false;
         }
       }
-    else {
+    else { // First non header
 
       if (vorbis_synthesis_init(&dsp,&info)<0)
         return false;
@@ -164,6 +166,9 @@ FXbool VorbisDecoder::init_decoder() {
       return true;
       }
     }
+
+  vorbis_info_clear(&info);
+
   set_packet_offset(data_ptr);
   return true;
   }
