@@ -59,25 +59,25 @@ HttpClient::HttpClient(ConnectionFactory * c) :  connection(c), options(0) {
   }
 
 void HttpClient::setConnectionFactory(ConnectionFactory * c) {
-    if (connection) {
-        delete connection;
-        connection = NULL;
-        }
-    connection=c;
-    }
+  if (connection) {
+      delete connection;
+      connection = NULL;
+      }
+  connection=c;
+  }
 
 HttpClient::~HttpClient() {
   close();
-    delete connection;
+  delete connection;
   }
 
 void HttpClient::close() {
-    GM_DEBUG_PRINT("HttpClient::close()\n");
-    io.close();
+  GM_DEBUG_PRINT("[http] close()\n");
+  io.close();
   }
 
 void HttpClient::discard() {
-    GM_DEBUG_PRINT("HttpClient::discard()\n");
+  GM_DEBUG_PRINT("[http] discard()\n");
   if (flags&ConnectionClose) {
     close();
     }
@@ -87,7 +87,7 @@ void HttpClient::discard() {
   }
 
 FXbool HttpClient::open_connection() {
-  GM_DEBUG_PRINT("HttpClient::open_connection()\n");
+  GM_DEBUG_PRINT("[http] open_connection()\n");
   FXIO * stream = NULL;
 
   if (connection==NULL)
@@ -115,7 +115,7 @@ void HttpClient::reset(FXbool forceclose){
 
 
 FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXString & header,const FXString & message) {
-    GM_DEBUG_PRINT("HttpClient::request(\"%s\",\"%s\")\n",method,url.text());
+  GM_DEBUG_PRINT("[http] request(\"%s\",\"%s\")\n",method,url.text());
   FXString command,path,query;
 
   // Set Server Host
@@ -244,7 +244,7 @@ FXbool HttpClient::basic(const FXchar*    method,
 
         case HTTP_RESPONSE_FAILED:  /* something went wrong */
           {
-            GM_DEBUG_PRINT("HttpClient::basic() failed\n");
+            GM_DEBUG_PRINT("[http] response failed\n");
             return false;
             break;
           }

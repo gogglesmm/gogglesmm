@@ -21,7 +21,7 @@
 
 #ifndef WIN32
 
-#if defined(__linux__) 
+#if defined(__linux__)
 #define HAVE_PPOLL // On Linux we have ppoll
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -41,7 +41,7 @@ Reactor::~Reactor() {
 #ifndef WIN32
   freeElms(pfds);
 #endif
-  
+
   /// Delete all inputs
   for (FXint i=0;i<inputs.no();i++){
     delete inputs[i];
@@ -67,7 +67,7 @@ Reactor::~Reactor() {
 void Reactor::debug() {
   int ntimers = 0;
   for (Timer * t=timers;t;t=t->next) ntimers++;
-  fxmessage("Reactor timers=%d inputs=%d deferred=%d\n",ntimers,inputs.no(),deferred.no());
+  fxmessage("[reactor] timers=%d inputs=%d deferred=%d\n",ntimers,inputs.no(),deferred.no());
   }
 #endif
 
@@ -76,14 +76,14 @@ void Reactor::dispatch() {
   FXint i;
 
   for (i=inputs.no()-1;i>=0;i--) {
-    if (pfds[i].revents) { 
+    if (pfds[i].revents) {
       inputs[i]->mode|=((pfds[i].revents&POLLIN )          ? Input::IsReadable : 0);
       inputs[i]->mode|=((pfds[i].revents&POLLOUT)          ? Input::IsWritable : 0);
       inputs[i]->mode|=((pfds[i].revents&(POLLERR|POLLHUP))? Input::IsException: 0);
       inputs[i]->onSignal();
       }
     }
-  
+
   FXint offset=inputs.no();
   for (i=0;i<native.no();i++){
     native[i]->dispatch(pfds+offset);
@@ -96,7 +96,7 @@ void Reactor::dispatch() {
       t->time=0;
       t->onExpired();
       if (timers==NULL) break;
-      t = timers; // so onExpired can remove itself from the list...      
+      t = timers; // so onExpired can remove itself from the list...
       }
     }
 #endif
@@ -130,7 +130,7 @@ void Reactor::wait(FXTime timeout) {
 #endif
       }
     while(n==-1 && errno==EINTR);
-    }    
+    }
 #endif
   }
 
@@ -141,7 +141,7 @@ FXTime Reactor::prepare() {
   nfds = inputs.no();
   for (i=0;i<native.no();i++) nfds+=native[i]->no();
 
-  if (nfds>mfds) {  
+  if (nfds>mfds) {
     mfds=nfds;
     if (pfds==NULL)
       allocElms(pfds,mfds);
@@ -175,12 +175,12 @@ FXTime Reactor::prepare() {
   FXTime now = FXThread::time();
   Timer * t = timers;
   while(t && t->time<now) t=t->next;
-  if (t) 
-    timeout = t->time - now;   
+  if (t)
+    timeout = t->time - now;
   else
     timeout = -1;
 
-  return timeout;    
+  return timeout;
 #endif
   }
 
@@ -236,7 +236,7 @@ FXbool Reactor::dispatchDeferred() {
   FXbool done=false;
   for (FXint i=deferred.no()-1;i>=0;i--){
     if ((deferred[i]->mode&Deferred::Disabled)==0) {
-      deferred[i]->run(); 
+      deferred[i]->run();
       done=true;
       }
     }
@@ -256,7 +256,7 @@ void Reactor::runOnce() {
     FXTime timeout = prepare();
     wait(timeout);
     dispatch();
-    } 
+    }
   }
 
 void Reactor::runOnce(FXTime wakeup) {
@@ -266,7 +266,7 @@ void Reactor::runOnce(FXTime wakeup) {
       timeout = wakeup;
     wait(timeout);
     dispatch();
-    } 
+    }
   }
 
 

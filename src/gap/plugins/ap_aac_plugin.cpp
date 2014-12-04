@@ -66,13 +66,13 @@ ReaderPlugin * ap_aac_reader(AudioEngine * engine) {
 
 ReadStatus AACReader::process(Packet*packet) {
   if (!(flags&FLAG_PARSED)) {
-    GM_DEBUG_PRINT("finding sync\n");
+    GM_DEBUG_PRINT("[aac] finding sync\n");
     FXuchar buffer[2];
     if (input->read(buffer,2)!=2)
       return ReadError;
     do {
       if ((buffer[0]==0xFF) && (buffer[1]&0xf0)==0xf0) {
-        GM_DEBUG_PRINT("found sync\n");
+        GM_DEBUG_PRINT("[aac] found sync\n");
         engine->decoder->post(new ConfigureEvent(af,Codec::AAC));
         flags|=FLAG_PARSED;
         packet->append(buffer,2);
@@ -180,8 +180,8 @@ DecoderStatus AacDecoder::process(Packet*packet){
     if (handle==NULL) {
       handle = NeAACDecOpen();
       long n = NeAACDecInit(handle,buffer.data(),buffer.size(),&samplerate,&channels);
-      if (n<0) { 
-        buffer.clear(); 
+      if (n<0) {
+        buffer.clear();
         return DecoderError;
         }
       else if (n>0) buffer.readBytes(n);
@@ -228,7 +228,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
           out->wroteFrames(nframes);
           out->trimBegin(af.framesize()*(stream_decode_offset-stream_position));
           out->stream_position = stream_decode_offset;
-          stream_position+=nframes;	  		
+          stream_position+=nframes;
           }
         }
       else {
