@@ -54,12 +54,11 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
       case AP_STATE_PAUSING    : state=PLAYER_PAUSING; if (target) target->handle(this,FXSEL(SEL_PLAYER_STATE,message),(void*)(FXival)state);break;
       case AP_TIMESTAMP        :
         {
-          if (target) {
-            PlaybackTime tm;
-            tm.position = ((TimeUpdate*)event)->position;
-            tm.length   = ((TimeUpdate*)event)->length;
-            target->handle(this,FXSEL(SEL_PLAYER_TIME,message),&tm);
-            }
+            time.position = ((TimeUpdate*)event)->position;
+            time.length   = ((TimeUpdate*)event)->length;
+            if (target) {
+              target->handle(this,FXSEL(SEL_PLAYER_TIME,message),&time);
+              }
         } break;
 
       case AP_ERROR                  :
@@ -80,7 +79,7 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
 
           target->handle(this,FXSEL(SEL_PLAYER_META,message),&track);
         } break;
-      case AP_VOLUME_NOTIFY          :  
+      case AP_VOLUME_NOTIFY          :
         {
             VolumeNotify * info = dynamic_cast<VolumeNotify*>(event);
             FXint value;

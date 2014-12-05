@@ -25,6 +25,7 @@
 #include "GMPlayerManager.h"
 #include "GMWindow.h"
 #include "GMCoverManager.h"
+#include "GMAudioPlayer.h"
 
 #include "mpris1_xml.h"
 #include "mpris2_xml.h"
@@ -229,7 +230,7 @@ DBusHandlerResult  GMMediaPlayerService1::player_filter(DBusConnection *connecti
     return gm_dbus_reply_int(connection,msg,caps);
     }
   else if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"PositionGet")) {
-    return gm_dbus_reply_int(connection,msg,0);
+    return gm_dbus_reply_int(connection,msg,p->getPlayer()->getPosition()*1000);
     }
   else if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"VolumeSet")) {
     return gm_dbus_reply_if_needed(connection,msg);
@@ -413,6 +414,18 @@ GMMediaPlayerService2::~GMMediaPlayerService2(){
     }
   }
 
+void GMMediaPlayerService2::notify_seek(FXuint position){
+  if (published) {
+    DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,MPRIS2_PLAYER,"Seeked");
+    if (msg) {
+      FXlong p = 1000000 * (FXlong)position;
+      dbus_message_append_args(msg,DBUS_TYPE_INT64,&p,DBUS_TYPE_INVALID);
+      bus->send(msg);
+      }
+    }
+  }
+
+
 void GMMediaPlayerService2::notify_track_change(const GMTrack & track){
   if (published) {
     DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,DBUS_PROPERTIES,"PropertiesChanged");
@@ -520,7 +533,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
       gm_dbus_dict_append_bool(&dict,"Shuffle",false);
       gm_dbus_dict_append_track(&dict,"Metadata",track);
       gm_dbus_dict_append_double(&dict,"Volume",0.0);
-      gm_dbus_dict_append_long(&dict,"Position",0);
+      gm_dbus_dict_append_long(&dict,"Position",((FXlong)p->getPlayer()->getPosition())*1000000);
       gm_dbus_dict_append_double(&dict,"Rate",1.0);
       gm_dbus_dict_append_double(&dict,"MinimumRate",1.0);
       gm_dbus_dict_append_double(&dict,"MaximumRate",1.0);
@@ -552,7 +565,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
   else if (compare(prop,"LoopStatus")==0)     return gm_dbus_reply_string(c,msg,"None");
   else if (compare(prop,"Shuffle")==0)        return gm_dbus_reply_bool(c,msg,false);
   else if (compare(prop,"Volume")==0)         return gm_dbus_reply_double(c,msg,0.0);
-  else if (compare(prop,"Position")==0)       return gm_dbus_reply_long(c,msg,0);
+  else if (compare(prop,"Position")==0)       return gm_dbus_reply_long(c,msg,((FXlong)p->getPlayer()->getPosition())*1000000);
   else if (compare(prop,"Rate")==0)           return gm_dbus_reply_double(c,msg,1.0);
   else if (compare(prop,"MinimumRate")==0)    return gm_dbus_reply_double(c,msg,1.0);
   else if (compare(prop,"MaximumRate")==0)    return gm_dbus_reply_double(c,msg,1.0);
