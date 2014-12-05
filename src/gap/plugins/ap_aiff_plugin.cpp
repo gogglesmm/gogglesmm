@@ -45,11 +45,9 @@ namespace ap {
 
 class AIFFReader : public ReaderPlugin {
 protected:
-  FXuint datasize;    // size of the data section
   FXlong input_start;
 protected:
   ReadStatus parse();
-
 public:
   enum Chunk {
     FORM = DEFINE_CHUNK('F','O','R','M'),
@@ -91,7 +89,7 @@ FXbool AIFFReader::can_seek() const {
 
 FXbool AIFFReader::seek(FXlong pos){
 //  if (af.codec==Codec::PCM) {
-  FXlong offset=input_start + FXCLAMP(0,pos*af.framesize(),datasize);
+  FXlong offset=input_start + (FXCLAMP(0,pos,stream_length) * af.framesize());
   input->position(offset,FXIO::Begin);
 
 /*
@@ -142,9 +140,17 @@ ReadStatus AIFFReader::process(Packet*packet) {
 
 
 
-
-
-FXbool parse_extended(FXuint & val,const FXuchar buf[10])
+/* Kindly borrowed from FLAC
+ *
+ * flac - Command-line FLAC encoder/decoder
+ * Copyright (C) 2000-2009  Josh Coalson
+ * Copyright (C) 2011-2013  Xiph.Org Foundation
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+*/
+static FXbool parse_extended(FXuint & val,const FXuchar buf[10])
 	/* Read an IEEE 754 80-bit (aka SANE) extended floating point value from 'f',
 	 * convert it into an integral value and store in 'val'.  Return false if only
 	 * between 1 and 9 bytes remain in 'f', if 0 bytes remain in 'f', or if the
@@ -159,7 +165,6 @@ FXbool parse_extended(FXuint & val,const FXuchar buf[10])
   val = 0;
 
 	e = ((FXushort)(buf[0])<<8 | (FXushort)(buf[1]))-0x3FFF;
-  fxmessage("e: %hu",e);
 	shift = 63-e;
 	if((buf[0]>>7)==1U || e<0 || e>63) {
 		return false;
@@ -168,10 +173,7 @@ FXbool parse_extended(FXuint & val,const FXuchar buf[10])
 	for(i = 0; i < 8; ++i)
 		p |= (FXulong)(buf[i+2])<<(56U-i*8);
 
-  fxmessage("p: %lu\n",p);
-
   val = (FXuint)((p>>shift)+(p>>(shift-1) & 0x1));
-
 	return true;
 }
 
