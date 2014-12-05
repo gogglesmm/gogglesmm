@@ -58,7 +58,7 @@ void GMCacheInfo::clear(FXint sz){
 
 void GMCacheInfo::save(FXStream & store) const {
   map.save(store);
-  for (FXint i=0;i<index.no();i++) { 
+  for (FXint i=0;i<index.no();i++) {
     store << index[i].position;
     store << index[i].length;
     }
@@ -108,7 +108,7 @@ FXbool GMCoverCacheWriter::open(const FXString & filename) {
     store << info.format;
     return true;
     }
-  return false;  
+  return false;
   }
 
 
@@ -154,12 +154,12 @@ FXbool GMCoverCacheWriter::insert(FXint id,GMCover * cover) {
   FXint length;
   FXImage * image = GMCover::toImage(cover,info.size,1);
   if (image && store.eof()==false) {
-   
+
     if (image->getWidth()!=info.size || image->getHeight()!=info.size)
       length=fit(image);
     else
       length=save(image->getData());
-        
+
     info.insert(id,store.position()-length,length);
     delete image;
     return true;
@@ -189,14 +189,14 @@ GMCoverCache::~GMCoverCache(){
   }
 
 FXbool GMCoverCache::contains(FXint id) {
-  return (info.map.find(id)>0);
+  return (info.map.at(id)>0);
   }
 
 FXbool GMCoverCache::render(FXint id,FXImage * image) {
   FXColor * pixels=NULL;
   FXbool result;
   FXint ww,hh,dd;
-  FXint i = info.map.find(id) - 1;
+  FXint i = info.map.at(id) - 1;
   FXASSERT(i>=0);
   if (data.base()) {
     FXMemoryStream store(FXStreamLoad,((FXuchar*)data.base())+info.index[i].position,info.index[i].length);
@@ -223,14 +223,14 @@ void GMCoverCache::clear(FXint sz) {
 
 
 void GMCoverCache::load(GMCoverCacheWriter & writer) {
-  if (data.base()) 
+  if (data.base())
     data.close();
 
   FXFile::rename(getTempFilename(),getFilename());
 
   if (data.openMap(getFilename()))
     info.adopt(writer.info);
-  else 
+  else
     info.clear(writer.info.size);
   }
 
@@ -241,7 +241,7 @@ FXbool GMCoverCache::load() {
   FXint  filesize;
   FXbool status=true;
   if (store.open(filename,FXStreamLoad)) {
-    
+
     // check version
     store >> version;
     if (version!=COVERCACHE_FILE_VERSION)
@@ -264,7 +264,7 @@ FXbool GMCoverCache::load() {
     info.load(store);
 
     // Open memory map
-    if (data.openMap(filename)==NULL) 
+    if (data.openMap(filename)==NULL)
       return false;
 
     return status;
@@ -294,17 +294,17 @@ FXint GMCoverLoader::run() {
         }
        if (cover) writer.insert(list[i].id,cover);
       }
-    if (processing) {  
+    if (processing) {
       writer.finish();
       writer.close();
-      return 0; 
+      return 0;
       }
     else {
-      writer.close(); 
+      writer.close();
       FXFile::remove(filename);
       return 1;
       }
-    }    
+    }
   return 1;
   }
 
@@ -414,6 +414,6 @@ FXImage* GMCoverRender::getImage(FXint id) {
     return NULL;
     }
 
-  return image;  
+  return image;
   }
 

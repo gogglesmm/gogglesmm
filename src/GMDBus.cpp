@@ -54,7 +54,7 @@ public:
 
   GMDBus * find(DBusConnection* dc) {
     FXMutexLock lock(mutex);
-    return static_cast<GMDBus*>(connections.find(dc));
+    return static_cast<GMDBus*>(connections.at(dc));
     }
 
   void setuphooks() {
@@ -76,7 +76,7 @@ public:
     }
 
   GMDBusTimeout * find(DBusTimeout*t) {
-    return static_cast<GMDBusTimeout*>(tm.find(t));
+    return static_cast<GMDBusTimeout*>(tm.at(t));
     }
 
   void insert(DBusTimeout*t,GMDBusTimeout*f) {
@@ -552,7 +552,7 @@ GMDBusProxy::GMDBusProxy(GMDBus *c,const FXchar * n,const FXchar * p,const FXcha
 FXbool GMDBusProxy::matchSerial(DBusMessage * msg) {
   void * ptr;
   FXuint s=dbus_message_get_reply_serial(msg);
-  if (s && (ptr=serial.find((void*)(FXuval)s))!=NULL) {
+  if (s && (ptr=serial.at((void*)(FXuval)s))!=NULL) {
     GMDBusProxyReply * reply = static_cast<GMDBusProxyReply*>(ptr);
     if (reply->target) reply->target->handle(this,FXSEL(SEL_COMMAND,reply->message),msg);
     serial.remove((void*)(FXuval)dbus_message_get_reply_serial(msg));

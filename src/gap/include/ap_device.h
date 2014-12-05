@@ -50,7 +50,6 @@ public:
     };
 public:
   FXString device;
-  FXString mixer;
   FXuint   flags;
 public:
   AlsaConfig();

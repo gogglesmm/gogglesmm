@@ -435,6 +435,7 @@ GMPlayerManager* GMPlayerManager::instance() {
 GMPlayerManager::GMPlayerManager() :
   count_track_remaining(0),
   scheduled_stop(false),
+  has_seeked(false),
   taskmanager(NULL),
 #ifdef HAVE_DBUS
   sessionbus(NULL),
@@ -1260,6 +1261,7 @@ void GMPlayerManager::stop(FXbool /*force_close*/) {
 void GMPlayerManager::seek(FXdouble pos) {
   application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
   player->seek(pos);
+  has_seeked=true;
   }
 
 
@@ -1319,7 +1321,7 @@ void GMPlayerManager::notify_playback_finished() {
      source=NULL;
      }
 
-    /// Nothing else to do  
+    /// Nothing else to do
     if (stop_playback)
       return;
 
@@ -1977,6 +1979,13 @@ long GMPlayerManager::onPlayerTime(FXObject*,FXSelector,void* ptr){
     }
 
   mainwindow->update_time(tm_progress,tm_remaining,pos,true,true);
+
+#ifdef HAVE_DBUS
+  if (has_seeked) {
+    if (mpris2) mpris2->notify_seek(tm->position);
+    has_seeked=false;
+    }
+#endif
   return 1;
   }
 

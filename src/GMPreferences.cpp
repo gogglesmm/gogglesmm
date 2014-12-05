@@ -79,9 +79,11 @@ const char key_play_gapless[]="gapless-playback";
 const char key_play_shuffle[]="shuffle";
 const char key_play_from_queue[]="play-from-queue";
 
+#ifdef HAVE_DBUS
 const char key_dbus_notify_daemon[]="notification-daemon";
 const char key_dbus_mpris1[]="mpris";
 const char key_dbus_mpris2[]="mpris-2";
+#endif
 
 const char key_sync_import_new[]="import-new";
 const char key_sync_remove_missing[]="remove-missing";
@@ -179,11 +181,14 @@ GMPreferences::GMPreferences() :
   export_encoding(GMFilename::ENCODING_ASCII),
   export_lowercase(false),
   export_lowercase_extension(true),
-  export_underscore(false),
+  export_underscore(false)
 
-  dbus_notify_daemon(true),
+#ifdef HAVE_DBUS
+  ,dbus_notify_daemon(true),
   dbus_mpris1(true),
-  dbus_mpris2(true){
+  dbus_mpris2(true)
+#endif
+  {
   resetColors();
   }
 
@@ -242,10 +247,12 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_player,key_play_shuffle,play_shuffle);
   reg.writeBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
+#ifdef HAVE_DBUS
   /// Dbus
   reg.writeBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
   reg.writeBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
   reg.writeBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
+#endif
   }
 
 
@@ -297,7 +304,15 @@ void GMPreferences::load(FXSettings & reg) {
   gui_toolbar_showlabels        = reg.readBoolEntry(section_window,key_gui_toolbar_showlabels,gui_toolbar_showlabels);
   gui_toolbar_labelsabove       = reg.readBoolEntry(section_window,key_gui_toolbar_labelsabove,gui_toolbar_labelsabove);
   gui_show_browser_icons        = reg.readBoolEntry(section_window,key_gui_show_browser_icons,gui_show_browser_icons);
-  keywords                      = reg.readStringEntry(section_window,key_gui_keywords,keywords.text());
+
+  // Workaround to read empty string from registry. Fix hopefully in FOX 1.7.51
+  if (reg.at(section_window).has(key_gui_keywords)) {
+    keywords = reg.at(section_window).at(key_gui_keywords);
+    }
+  else {
+    keywords = reg.readStringEntry(section_window,key_gui_keywords,keywords.text());
+    }  
+
   gui_show_playing_albumcover   = reg.readBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
   gui_tray_icon                 = reg.readBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   gui_show_playing_titlebar     = reg.readBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
@@ -315,10 +330,11 @@ void GMPreferences::load(FXSettings & reg) {
   play_from_queue               = reg.readBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
   /// Dbus
+#ifdef HAVE_DBUS
   dbus_notify_daemon            = reg.readBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
   dbus_mpris1                   = reg.readBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
   dbus_mpris2                   = reg.readBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
-
+#endif
   setKeyWords(keywords);
   }
 

@@ -39,6 +39,7 @@ private:
   FXSelector     message;
 protected:
   PlayerState    state;
+  PlaybackTime   time;
 protected:
   GMAudioPlayer(){}
 private:
@@ -52,6 +53,9 @@ public:
     };
 public:
   GMAudioPlayer(FXApp * app,FXObject * tgt,FXSelector sel);
+
+
+  FXuint getPosition() const { return time.position; }
 
   void stop() { close(); }
 

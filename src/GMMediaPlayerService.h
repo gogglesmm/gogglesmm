@@ -66,6 +66,8 @@ private:
 public:
   GMMediaPlayerService2(GMDBus*);
 
+  void notify_seek(FXuint position);
+
   void notify_track_change(const GMTrack &);
 
   void notify_status_change();

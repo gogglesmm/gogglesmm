@@ -24,7 +24,8 @@ class FXIntMap : public FXHash {
 public:
   FXint insert(FXint name,FXint val) { return (FXint)(FXival)FXHash::insert((void*)(FXival)name,(void*)(FXival)val); }
   FXint remove(FXint name) {  return (FXint)(FXival)FXHash::remove((void*)(FXival)name); }
-  FXint find(FXint name) const { return (FXint)(FXival)FXHash::find((void*)(FXival)name); }
+  //FXint find(FXint name) const { return (FXint)(FXival)FXHash::find((void*)(FXival)name); }
+  FXint at(FXint name) const { return (FXint)(FXival)FXHash::at((void*)(FXival)name); }
   FXint key(FXuint pos) const { return (FXint)(FXival)table[pos].name; }
   FXint value(FXuint pos) const { return (FXint)(FXival)table[pos].data; }
   void adopt(FXIntMap &);
