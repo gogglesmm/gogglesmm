@@ -67,7 +67,7 @@ Reactor::~Reactor() {
 void Reactor::debug() {
   int ntimers = 0;
   for (Timer * t=timers;t;t=t->next) ntimers++;
-  fxmessage("[reactor] timers=%d inputs=%d deferred=%d\n",ntimers,inputs.no(),deferred.no());
+  fxmessage("[reactor] timers=%d inputs=%ld deferred=%ld\n",ntimers,inputs.no(),deferred.no());
   }
 #endif
 
