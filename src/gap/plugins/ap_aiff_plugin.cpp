@@ -77,7 +77,6 @@ AIFFReader::~AIFFReader(){
 
 FXbool AIFFReader::init(InputPlugin*plugin) {
   ReaderPlugin::init(plugin);
-  datasize=0;
   input_start=0;
   return true;
   }
