@@ -76,7 +76,7 @@ static void element_data(void*ptr,const FXchar * data,FXint len) {
   }
 
 static int unknown_encoding(void*,const XML_Char * name,XML_Encoding * info){
-  GM_DEBUG_PRINT("expat unknown_encoding \"%s\"\n",name);
+  GM_DEBUG_PRINT("[xml] unknown_encoding \"%s\"\n",name);
   const FXTextCodec * codec = ap_get_textcodec(name);
   if (codec) {
     /* Only works for single byte codecs */
@@ -96,7 +96,7 @@ static int unknown_encoding(void*,const XML_Char * name,XML_Encoding * info){
 
 FXbool XmlParser::parse(const FXString & buffer,const FXString & encoding) {
   if (!encoding.empty())
-    GM_DEBUG_PRINT("XmlParser::parse with encoding %s\n",encoding.text());
+    GM_DEBUG_PRINT("[xml] parse with encoding %s\n",encoding.text());
 
   XML_Parser parser;
 

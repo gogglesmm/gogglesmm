@@ -58,7 +58,7 @@ void GMLocalSource::configure(GMColumnList& list){
 
 void GMLocalSource::markCurrent(const GMTrackItem* item) {
   GMSource::markCurrent(item);
-  if (current_track!=-1) {  
+  if (current_track!=-1) {
     current_path = path + PATHSEPSTRING + (dynamic_cast<const GMLocalTrackItem*>(item))->getFilename();
     }
   }
@@ -192,7 +192,7 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
 
       if (stat.isFile()) {
         ext = FXPath::extension(name);
-        if (ext!="ogg" && ext!="opus" && ext!="flac" && ext!="mp3" && ext!="oga" && ext!="mpc" && ext!="wav" && ext!="m4a")
+        if (ext!="ogg" && ext!="opus" && ext!="flac" && ext!="mp3" && ext!="oga" && ext!="mpc" && ext!="wav" && ext!="m4a" && ext!="aiff")
           continue;
         }
 

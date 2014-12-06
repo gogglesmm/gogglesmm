@@ -355,7 +355,7 @@ FXbool HttpResponse::read_chunk_header(FXint & chunksize) {
   // We've read a previous chunk
   if (chunksize==0) {
     if (io.readBlock(clrf,2)!=2 || clrf[0]!='\r' || clrf[1]!='\n') {
-      GM_DEBUG_PRINT("http: missing line feed: %c%c\n",clrf[0],clrf[1]);
+      GM_DEBUG_PRINT("[http] missing line feed: %c%c\n",clrf[0],clrf[1]);
       return false;
       }
     }
@@ -382,7 +382,7 @@ FXbool HttpResponse::read_status() {
       return true;
       }
     else {
-      GM_DEBUG_PRINT("HttpResponse::read_status() - Failed to parse http header: %s\n",header.text());
+      GM_DEBUG_PRINT("[http] Failed to parse http header: %s\n",header.text());
       }
     }
   return false;
@@ -426,7 +426,7 @@ FXString HttpResponse::read_body_chunked() {
     while(chunksize) {
 
       if (io.read(content,chunksize)!=chunksize) {
-        GM_DEBUG_PRINT("HttpResponse::read_body_chunked() - failed reading chunksize %d\n",chunksize);
+        GM_DEBUG_PRINT("[http] read_body_chunked() - failed reading chunksize %d\n",chunksize);
         goto fail;
         }
 
@@ -438,7 +438,7 @@ FXString HttpResponse::read_body_chunked() {
         goto fail;
       }
 
-    GM_DEBUG_PRINT("done with chunks...\n");
+    GM_DEBUG_PRINT("[http] done with chunks...\n");
 
     // Trailing Headers
     while(io.readHeader(header)) {

@@ -187,7 +187,7 @@ GMPreferences::GMPreferences() :
   ,dbus_notify_daemon(true),
   dbus_mpris1(true),
   dbus_mpris2(true)
-#endif 
+#endif
   {
   resetColors();
   }
@@ -304,7 +304,15 @@ void GMPreferences::load(FXSettings & reg) {
   gui_toolbar_showlabels        = reg.readBoolEntry(section_window,key_gui_toolbar_showlabels,gui_toolbar_showlabels);
   gui_toolbar_labelsabove       = reg.readBoolEntry(section_window,key_gui_toolbar_labelsabove,gui_toolbar_labelsabove);
   gui_show_browser_icons        = reg.readBoolEntry(section_window,key_gui_show_browser_icons,gui_show_browser_icons);
-  keywords                      = reg.readStringEntry(section_window,key_gui_keywords,keywords.text());
+
+  // Workaround to read empty string from registry. Fix hopefully in FOX 1.7.51
+  if (reg.at(section_window).has(key_gui_keywords)) {
+    keywords = reg.at(section_window).at(key_gui_keywords);
+    }
+  else {
+    keywords = reg.readStringEntry(section_window,key_gui_keywords,keywords.text());
+    }  
+
   gui_show_playing_albumcover   = reg.readBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
   gui_tray_icon                 = reg.readBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   gui_show_playing_titlebar     = reg.readBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);

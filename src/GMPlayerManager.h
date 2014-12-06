@@ -99,6 +99,7 @@ protected:
   FXFile        fifo;
   FXlong        count_track_remaining;
   FXbool        scheduled_stop;
+  FXbool        has_seeked;
   GMTaskManager        * taskmanager;
 protected:
 

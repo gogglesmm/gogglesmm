@@ -69,7 +69,8 @@ static const FXchar * const formatnames[]={
   "xspf",
   "asf",
   "asx",
-  "asf/asx"
+  "asf/asx",
+  "aiff"
   };
 
 
@@ -227,6 +228,10 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
   else if (comparecase(mime,"audio/x-ms-wax")==0) {
     return Format::ASX;
     }
+  else if (comparecase(mime,"audio/x-aiff")==0 ||
+           comparecase(mime,"audio/aiff")==0) {
+    return Format::AIFF;
+    }
   else {
     return Format::Unknown;
     }
@@ -250,6 +255,8 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::MP4;
   else if (comparecase(extension,"aac")==0)
     return Format::AAC;
+  else if (comparecase(extension,"aiff")==0 || comparecase(extension,"aif")==0)
+    return Format::AIFF;
   else if (comparecase(extension,"wv")==0)
     return Format::WavPack;
   else if (comparecase(extension,"m3u")==0)
