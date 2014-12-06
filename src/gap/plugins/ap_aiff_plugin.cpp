@@ -87,19 +87,8 @@ FXbool AIFFReader::can_seek() const {
 
 
 FXbool AIFFReader::seek(FXlong pos){
-//  if (af.codec==Codec::PCM) {
   FXlong offset=input_start + (FXCLAMP(0,pos,stream_length) * af.framesize());
   input->position(offset,FXIO::Begin);
-
-/*
-    FXlong b = (FXlong)(((FXdouble)datasize)*pos);
-    FXlong offset=FXCLAMP(0,((b / af.framesize()) * af.framesize()),datasize);
-    GM_DEBUG_PRINT("seek to %ld\n",offset);
-
-    offset+=input_start;
-    input->position(offset,FXIO::Begin);
-*/
-//    }
   return true;
   }
 
