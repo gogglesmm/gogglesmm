@@ -1304,17 +1304,19 @@ void GMWindow::updateCover() {
       size = 0;
 
     FXImage * image = GMCover::copyToImage(cover,size);
-    if (coverview_x11) {
-      image->create();
-      coverview_x11->setImage(image);
-      }
+    if (image) {
+      if (coverview_x11) {
+        image->create();
+        coverview_x11->setImage(image);
+        }
 #ifdef HAVE_OPENGL
-    else {
-      coverview_gl->setImage(image);
-      if (presenter) presenter->setImage(image);
-      delete image;
-      }
+      else {
+        coverview_gl->setImage(image);
+        if (presenter) presenter->setImage(image);
+        delete image;
+        }
 #endif
+      }
     }
   }
 
