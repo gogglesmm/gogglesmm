@@ -337,7 +337,7 @@ void GMImportTask::parse(const FXString & filename,FXint n,GMTrack & info){
     case GMImportOptions::PARSE_TAG      : info.loadTag(filename);
                                            break;
     case GMImportOptions::PARSE_FILENAME : GMFilename::parse(info,options.filename_template,(options.replace_underscores ? (GMFilename::OVERWRITE|GMFilename::REPLACE_UNDERSCORE) : (GMFilename::OVERWRITE)));
-                                           GMTag::length(info);
+                                           info.loadProperties(filename); 
                                            break;
     case GMImportOptions::PARSE_BOTH     : info.loadTag(filename);
                                            if (info.title.empty() ||
