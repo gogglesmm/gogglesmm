@@ -49,6 +49,9 @@ public:
   FXint		      time;
   FXint         bitrate;
   FXuint        rating;
+  FXuchar       channels;
+  FXuchar       sampleformat;
+  FXint         samplerate;
 public:
   GMTrack();
 
@@ -71,9 +74,12 @@ public:
   FXushort getDiscNumber() const { return (FXushort)(no>>16); }
 
   void setTagsFromString(const FXString &);
-  
+
   /// Load from tag in given filename. Note that mrl is not set
   FXbool loadTag(const FXString & filename);
+
+  /// Load properties from given filename
+  FXbool loadProperties(const FXString & filename);
 
   /// Save to tag in given filename. Note that mrl is not set
   FXbool saveTag(const FXString & filename,FXuint opts=0);
