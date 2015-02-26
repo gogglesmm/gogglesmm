@@ -67,7 +67,7 @@ icons/x22_text_x_generic.png \
 icons/x22_user_bookmarks.png \
 icons/x22_user_home.png \
 icons/x22_x_office_presentation.png \
-icons/x48_media_optical.png
+icons/x128_media_optical.png
 
 GMM_SRC := src/GMAbout.cpp \
 src/GMAnimImage.cpp \
