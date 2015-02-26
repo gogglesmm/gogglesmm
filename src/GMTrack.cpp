@@ -147,6 +147,8 @@ FXbool GMTrack::loadTag(const FXString & filename) {
   sampleformat = filetags.getSampleSize();
   samplerate   = filetags.getSampleRate();
   channels     = filetags.getChannels();
+  filetype     = filetags.getFileType();
+
 
   setDiscNumber(filetags.getDiscNumber());
 //  GM_TICKS_END();
@@ -167,5 +169,6 @@ FXbool GMTrack::loadProperties(const FXString & filename) {
   sampleformat = filetags.getSampleSize();
   samplerate   = filetags.getSampleRate();
   channels     = filetags.getChannels();
+  filetype     = filetags.getFileType();
   return true;
   }

@@ -34,6 +34,25 @@ enum {
   TAG_STRIP_APE   = 0x4,
   };
 
+/// Used in Database, keep values constant
+enum {
+  FILETYPE_UNKNOWN    = 0,
+  FILETYPE_OGG_VORBIS = 1,
+  FILETYPE_OGG_OPUS   = 2,
+  FILETYPE_OGG_SPEEX  = 3,
+  FILETYPE_OGG_FLAC   = 4,
+  FILETYPE_FLAC       = 5,
+  FILETYPE_MP3        = 6,
+  FILETYPE_MP4_AAC    = 7,
+  FILETYPE_MP4_ALAC   = 8,
+
+  FILETYPE_PNG        = 1,
+  FILETYPE_JPG        = 2,
+  FILETYPE_BMP        = 3,
+  FILETYPE_GIF        = 4
+  };
+
+
 class GMTrack{
 public:
   FXString      url;
@@ -52,6 +71,7 @@ public:
   FXuchar       channels;
   FXuchar       sampleformat;
   FXint         samplerate;
+  FXuchar       filetype;
 public:
   GMTrack();
 
