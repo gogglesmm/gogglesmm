@@ -153,6 +153,9 @@ void GMDatabaseSource::loadCovers() {
       updateCovers();
       }
     }
+  else if (covercache->getSize()!=GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size){
+    updateCovers();
+    }
   }
 
 void GMDatabaseSource::updateCovers() {
@@ -227,9 +230,9 @@ void GMDatabaseSource::configure(GMColumnList& list) {
   list[i++]=GMColumn(notr("Time"),HEADER_TIME,GMDBTrackItem::ascendingTime,GMDBTrackItem::descendingTime,60,true,true,9);
   list[i++]=GMColumn(notr("Play Count"),HEADER_PLAYCOUNT,GMDBTrackItem::ascendingPlaycount,GMDBTrackItem::descendingPlaycount,60,false,false,10);
   list[i++]=GMColumn(notr("Play Date"),HEADER_PLAYDATE,GMDBTrackItem::ascendingPlaydate,GMDBTrackItem::descendingPlaydate,60,false,false,11);
-  list[i++]=GMColumn(notr("File Name"),HEADER_FILENAME,GMDBTrackItem::ascendingFilename,GMDBTrackItem::descendingFilename,400,false,false,12);
-  list[i++]=GMColumn(notr("File Type"),HEADER_FILETYPE,GMDBTrackItem::ascendingFiletype,GMDBTrackItem::descendingFiletype,30,false,false,13);
-  list[i++]=GMColumn(notr("Bitrate"),HEADER_BITRATE,GMDBTrackItem::ascendingBitrate,GMDBTrackItem::descendingBitrate,400,false,false,14);
+  list[i++]=GMColumn(notr("Filename"),HEADER_FILENAME,GMDBTrackItem::ascendingFilename,GMDBTrackItem::descendingFilename,400,false,false,12);
+  list[i++]=GMColumn(notr("Filetype"),HEADER_FILETYPE,GMDBTrackItem::ascendingFiletype,GMDBTrackItem::descendingFiletype,30,false,false,13);
+  list[i++]=GMColumn(notr("Format"),HEADER_AUDIOFORMAT,GMDBTrackItem::ascendingFormat,GMDBTrackItem::descendingFormat,400,false,false,14);
   list[i++]=GMColumn(notr("Composer"),HEADER_COMPOSER,GMDBTrackItem::ascendingComposer,GMDBTrackItem::descendingComposer,30,false,false,15);
   list[i++]=GMColumn(notr("Conductor"),HEADER_CONDUCTOR,GMDBTrackItem::ascendingConductor,GMDBTrackItem::descendingConductor,400,false,false,16);
   list[i++]=GMColumn(notr("Rating"),HEADER_RATING,GMDBTrackItem::ascendingRating,GMDBTrackItem::descendingRating,30,false,false,17,this,ID_EDIT_RATING);
@@ -660,9 +663,12 @@ FXbool GMDatabaseSource::listArtists(GMList * list,FXIcon * icon,const FXIntList
 
 FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistlist,const FXIntList & taglist){
   const FXchar * c_name=NULL;
-  const FXchar * c_artist=NULL;
   FXint id;
   FXint year;
+  FXint audio_channels;
+  FXint audio_rate;
+  FXint audio_format;
+  FXint artist;
   FXString query;
 
   FXString tagselection;
@@ -671,14 +677,13 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
   GMQuery::makeSelection(taglist,tagselection);
   GMQuery::makeSelection(artistlist,artistselection);
 
-
   GM_TICKS_START();
 
   GMAlbumListItem * item=NULL;
   GMQuery q;
   try {
     if (hasFilter()){
-      query = "SELECT albums.id,albums.name,albums.year,artists.name FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM filtered";
+      query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM filtered";
       if (taglist.no())
         query+=" JOIN track_tags ON track_tags.track == filtered.track WHERE tag " + tagselection;
       query+=" )";
@@ -690,22 +695,22 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
     else {
       if (playlist) {
         if (taglist.no()) {
-          query = "SELECT DISTINCT(albums.id),albums.name,albums.year,artists.name FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM tracks WHERE id IN (SELECT track FROM playlist_tracks WHERE playlist == "+ FXString::value(playlist) +" INTERSECT SELECT track FROM track_tags WHERE tag " + tagselection + ")) ";
+          query = "SELECT DISTINCT(albums.id),albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM tracks WHERE id IN (SELECT track FROM playlist_tracks WHERE playlist == "+ FXString::value(playlist) +" INTERSECT SELECT track FROM track_tags WHERE tag " + tagselection + ")) ";
           }
         else {
-          query = "SELECT DISTINCT(albums.id),albums.name,albums.year,artists.name FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM playlist_tracks JOIN tracks ON playlist_tracks.track == tracks.id AND playlist_tracks.playlist == "+ FXString::value(playlist) +")";
+          query = "SELECT DISTINCT(albums.id),albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM playlist_tracks JOIN tracks ON playlist_tracks.track == tracks.id AND playlist_tracks.playlist == "+ FXString::value(playlist) +")";
           }
         if (artistlist.no())
           query+=" AND artist " + artistselection;
         }
       else {
         if (taglist.no()) {
-          query = "SELECT albums.id,albums.name,albums.year,artists.name FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT DISTINCT(album) FROM tracks WHERE id IN (SELECT DISTINCT(track) FROM track_tags WHERE tag " + tagselection + ")) ";
+          query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT DISTINCT(album) FROM tracks WHERE id IN (SELECT DISTINCT(track) FROM track_tags WHERE tag " + tagselection + ")) ";
           if (artistlist.no())
             query+=" AND albums.artist " + artistselection;
           }
         else {
-          query = "SELECT albums.id,albums.name,albums.year,artists.name FROM albums,artists";
+          query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists";
           if (artistlist.no()) {
             query+=" WHERE artist " + artistselection;
             query+=" AND artists.id == albums.artist";
@@ -719,33 +724,35 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
 
     q = db->compile(query);
 
-//    db->begin();
-    if (GMPlayerManager::instance()->getPreferences().gui_merge_albums) {
-      while(q.row()){
-        q.get(0,id);
-        c_name = q.get(1);
-        q.get(2,year);
-        c_artist = q.get(3);
-        if (c_name!=NULL && item && item->getTitle()==c_name) {
-          item->append(id);
-          }
-        else {
-          item = new GMAlbumListItem(c_artist,c_name,year,id);
-          list->appendItem(item);
-          }
+    while(q.row()){
+      q.get(0,id);
+      c_name = q.get(1);
+      q.get(2,year);
+      q.get(3,artist);
+      q.get(4,audio_channels);
+      q.get(5,audio_rate);
+      q.get(6,audio_format);
+
+      FXString property;
+
+      if (audio_channels>2)
+        property+=FXString::value("%dch ",audio_channels);
+      if (audio_format>16 && audio_rate>44100)
+        property+=FXString::value("%d/%d",audio_format,audio_rate/1000);
+      else if (audio_rate>44100)
+        property+=FXString::value("%dkHz",audio_rate/1000);
+
+      if (artistlist.no()!=1 && c_name!=NULL && item && item->getTitle()==c_name) {
+        item->setShowArtist(true);
+        item = new GMAlbumListItem(artist,c_name,property,year,id);
+        list->appendItem(item);
+        item->setShowArtist(true);
         }
-      }
-    else {
-      while(q.row()){
-        q.get(0,id);
-        c_name = q.get(1);
-        q.get(2,year);
-        c_artist = q.get(3);
-        item = new GMAlbumListItem(c_artist,c_name,year,id);
+      else {
+        item = new GMAlbumListItem(artist,c_name,property,year,id);
         list->appendItem(item);
         }
       }
-//    db->commit();
     }
   catch(GMDatabaseException & e){
     list->clearItems();
@@ -756,11 +763,11 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
   list->sortItems();
   if (list->getNumItems()>1){
     FXString all = FXString::value(fxtrformat("All %d Albums"),list->getNumItems());
-    list->prependItem(new GMAlbumListItem(all,all,0,-1));
+    if (artistlist.no()==1)
+      list->prependItem(new GMAlbumListItem(artist,all,0,-1));
+    else
+      list->prependItem(new GMAlbumListItem(-1,all,0,-1));
     }
-
-
-
   GM_TICKS_END();
   return true;
   }
@@ -783,7 +790,7 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
   FXint track_year;
   FXint playcount;
   FXlong playdate;
-  FXint bitrate;
+  FXint bitrate,samplerate,channels,filetype;
   FXint rating;
 
   FXint artist,composer,conductor,albumartist;
@@ -817,6 +824,9 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
                    "albums.artist,albums.name,albums.year,"
                    "tracks.playcount,"
                    "tracks.bitrate,"
+                   "tracks.samplerate,"
+                   "tracks.channels,"
+                   "tracks.filetype,"
                    "tracks.playdate, "
                    "tracks.rating ";
 
@@ -859,11 +869,7 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
     else
       query+=";";
 
-
-    //fxmessage("query: %s\n",query.text());
     q = db->compile(query);
-
- //   db->begin();
 
     while(q.row()){
       q.get(0,id);
@@ -886,14 +892,20 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
       q.get(12,album_year);
       q.get(13,playcount);
       q.get(14,bitrate);
-      q.get(15,playdate);
-      q.get(16,rating);
+      q.get(15,samplerate);
+      q.get(16,channels);
+      q.get(17,filetype);
+      q.get(18,playdate);
+      q.get(19,rating);
 
       GMDBTrackItem::max_trackno=FXMAX(GMDBTrackItem::max_digits(GMTRACKNO(no)),GMDBTrackItem::max_trackno);
       GMDBTrackItem::max_queue=FXMAX(GMDBTrackItem::max_digits(queue),GMDBTrackItem::max_queue);
 
       /// To 0 - 5 stars
       rating/=51;
+
+      if (bitrate<0)
+        bitrate *= -(samplerate*channels);
 
       item = new GMDBTrackItem(id,
                                path,
@@ -910,7 +922,10 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
                                (FXushort)track_year,
                                (FXushort)album_year,
                                (FXushort)playcount,
+                               filetype,
                                bitrate,
+                               samplerate,
+                               channels,
                                playdate,
                                (FXushort)rating);
 
