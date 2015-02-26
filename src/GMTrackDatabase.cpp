@@ -21,7 +21,12 @@
 #include "GMTrackDatabase.h"
 #include "GMTrackList.h"
 #include "GMSource.h"
+#include "GMTag.h"
 #include "gmutils.h"
+
+
+
+
 
 /// For listing default genres
 #include <id3v1genres.h>
@@ -29,7 +34,9 @@
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2016  /* add autodownload to feed table*/
+
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2017  /* Album Audio Quality*/
+#define GOGGLESMM_DATABASE_SCHEMA_V14     2016  /* add autodownload to feed table*/
 #define GOGGLESMM_DATABASE_SCHEMA_V13     2015  /* Fix empty tags and add foreign reference to feeds table*/
 #define GOGGLESMM_DATABASE_SCHEMA_DEV4    2014  /* Foreign Keys Fix*/
 #define GOGGLESMM_DATABASE_SCHEMA_DEV3    2013  /* Foreign Keys */
@@ -93,6 +100,9 @@ const FXchar create_tracks[]=         "CREATE TABLE tracks ( "
                                           "playdate INTEGER,"
                                           "importdate INTEGER,"
                                           "rating INTEGER,"
+                                          "samplerate INTEGER,"
+                                          "channels INTEGER,"
+                                          "filetype INTEGER,"
                                           "PRIMARY KEY (id) );";
 
 const FXchar create_tags[]=           "CREATE TABLE tags ("
@@ -110,8 +120,11 @@ const FXchar create_albums[]=         "CREATE TABLE albums ("
                                           "name TEXT NOT NULL,"
                                           "artist INTEGER NOT NULL REFERENCES artists (id),"
                                           "year INTEGER,"
+                                          "audio_channels INTEGER,"  /* 2,4,6*/
+                                          "audio_rate INTEGER,"      /* 44100, 48000, 96 */
+                                          "audio_format INTEGER,"    /* 16 / 24 */  //
                                           "PRIMARY KEY (id),"
-                                          "UNIQUE(name,artist));";
+                                          "UNIQUE(name,artist,audio_channels,audio_rate,audio_format));";
 
 const FXchar create_artists[]=        "CREATE TABLE artists ("
                                           "id INTEGER NOT NULL,"
@@ -217,85 +230,101 @@ void GMTrackDatabase::fix_empty_tags(){
   execute("DELETE FROM tags WHERE name == ''");
   }
 
+
+void GMTrackDatabase::init_album_properties() {
+  GMAudioProperties props;
+  GMCoverPathList   albums;
+  GMQuery update_album(this,"UPDATE albums SET audio_channels = ?, audio_rate = ?, audio_format = ? WHERE id = ?");
+
+  if (listAlbumPaths(albums)) {
+    for (FXint i=0;i<albums.no();i++){
+      if (props.load(albums[i].path)) {
+        update_album.set(0,props.channels);
+        update_album.set(1,props.samplerate);
+        update_album.set(2,props.samplesize);
+        }
+      else {
+        update_album.set(0,2);
+        update_album.set(1,44100);
+        update_album.set(2,0);
+        }
+      update_album.set(3,albums[i].id);
+      update_album.execute();
+      }
+    }
+  }
+
+
 FXbool GMTrackDatabase::init_database() {
   try {
+
     switch(getVersion()) {
 
       // All's well.
       case GOGGLESMM_DATABASE_SCHEMA_VERSION:
         break;
 
-      case GOGGLESMM_DATABASE_SCHEMA_V13    :
-        // add autodownload column
-        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
-        execute("UPDATE feeds SET autodownload = 0");
-        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
-        break;
-
-      case GOGGLESMM_DATABASE_SCHEMA_DEV4  :
-
-        // add autodownload column
-        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
-        execute("UPDATE feeds SET autodownload = 0");
-
-        // foreign key fixes
-        recreate_table("feeds",create_feed);
-
-        fix_empty_tags();
-        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
-        break;
-
-      case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
-        // add autodownload column
-        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
-        execute("UPDATE feeds SET autodownload = 0");
-
-        recreate_table("playlist_tracks",create_playlist_tracks);
-        recreate_table("feeds",create_feed);
-        fix_empty_tags();
-        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
-        break;
-
-      case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
-        // add autodownload column
-        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
-        execute("UPDATE feeds SET autodownload = 0");
-
-        // foreign key fixes
-        recreate_table("tracks",create_tracks);
-        recreate_table("streams",create_streams);
-        recreate_table("playlist_tracks",create_playlist_tracks);
-        recreate_table("feeds",create_feed);
-        recreate_table("feed_items",create_feed_items);
-
-        fix_empty_tags();
-
-        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
+      // These should never be encountered
+      case GOGGLESMM_DATABASE_SCHEMA_V10    :
+      case GOGGLESMM_DATABASE_SCHEMA_V12    :
+        FXASSERT(0);
+        return false;
         break;
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV1 :
 
-        // foreign key fixes
-        recreate_table("tracks",create_tracks);
-        recreate_table("streams",create_streams);
-        recreate_table("playlist_tracks",create_playlist_tracks);
-
+        // Create the feeds table
         execute(create_feed);
         execute(create_feed_items);
 
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
+
+        recreate_table("tracks",create_tracks);
+        recreate_table("streams",create_streams);
+        recreate_table("feeds",create_feed);
+        recreate_table("feed_items",create_feed_items);
+
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
+
+        recreate_table("playlist_tracks",create_playlist_tracks);
+
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_DEV4 :
+
+        recreate_table("feeds",create_feed);
         fix_empty_tags();
+
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_V13  :
+
+        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
+        execute("UPDATE feeds SET autodownload = 0");
+
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_V14  :
+
+        execute("ALTER TABLE albums ADD COLUMN audio_channels INTEGER");
+        execute("ALTER TABLE albums ADD COLUMN audio_rate INTEGER");
+        execute("ALTER TABLE albums ADD COLUMN audio_format INTEGER");
+        execute("ALTER TABLE tracks ADD COLUMN samplerate INTEGER");
+        execute("ALTER TABLE tracks ADD COLUMN channels INTEGER");
+        execute("ALTER TABLE tracks ADD COLUMN filetype INTEGER");
+
+        init_album_properties();
+        recreate_table("albums",create_albums); // fixup constraints
 
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
-      case GOGGLESMM_DATABASE_SCHEMA_V10    :
-      case GOGGLESMM_DATABASE_SCHEMA_V12    :
-        /// don't touch old database.
-        FXASSERT(0);
-        break;
-
+      // Unknown/Uninitialized database. Start from scratch
       default                               :
-        /// Some unknown database. Let's start from scratch
         reset();
         execute(create_tracks);
         execute(create_tags);
@@ -329,7 +358,6 @@ FXbool GMTrackDatabase::init_queries() {
   try {
     insert_path                         = compile("INSERT OR IGNORE INTO pathlist VALUES ( NULL , ? );");
     insert_artist                       = compile("INSERT OR IGNORE INTO artists VALUES ( NULL , ? );");
-    insert_album                        = compile("INSERT OR IGNORE INTO albums SELECT NULL, ?, (SELECT id FROM artists WHERE name == ?), ?;");
     insert_playlist_track_by_id         = compile("INSERT INTO playlist_tracks VALUES (?,?,?);");
 
     query_filename                      = compile("SELECT id FROM tracks WHERE path == ? AND mrl == ?;");
@@ -352,9 +380,6 @@ FXbool GMTrackDatabase::init_queries() {
     query_track_filename                = compile("SELECT name ||'" PATHSEPSTRING "' || mrl FROM tracks,pathlist WHERE tracks.path == pathlist.id AND tracks.id == ?;");
 
     query_album_artists                 = compile("SELECT albums.artist,album FROM tracks,albums WHERE albums.id ==tracks.album AND tracks.id == ?;");
-
-
-
 
     //query_playlist_queue                = compile("SELECT MAX(queue) FROM playlist_tracks WHERE playlist == ?;");
     update_track_rating                 = compile("UPDATE tracks SET rating = ? WHERE id == ?;");
