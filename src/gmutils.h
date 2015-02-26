@@ -84,6 +84,9 @@ extern void gm_bgra_to_rgba(FXColor * in,FXColor * out,FXint len);
 extern FXImage * gm_load_image_from_data(const void * data,FXuval size,FXint scale,FXint crop=0);
 extern FXImage * gm_load_image_from_file(const FXString & filename,FXint scale,FXint crop=0);
 
+extern void gm_scale_crop(FXImage * image,FXint scale,FXint crop=0);
+
+
 extern FXbool gm_decode_base64(FXuchar * buffer,FXint & len);
 
 extern void gm_print_time(FXint nseconds,FXString & result);

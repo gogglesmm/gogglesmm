@@ -333,7 +333,7 @@ FXbool gm_image_search(const FXString & s) {
 
 /******************************************************************************/
 
-static void gm_scale_crop(FXImage * image,FXint scale,FXint crop){
+void gm_scale_crop(FXImage * image,FXint scale,FXint crop){
   FXint ww=image->getWidth();
   FXint hh=image->getHeight();
   if (crop) {
