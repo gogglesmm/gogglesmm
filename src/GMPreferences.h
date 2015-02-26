@@ -73,6 +73,7 @@ public:
   FXbool   track_from_filelist;
   FXbool   replace_underscores;
   FXbool   fix_album_artist;
+  FXbool   albums_by_year;
 public:
   enum {
     PARSE_TAG = 0,
@@ -126,7 +127,6 @@ public:
   FXbool gui_toolbar_labelsabove;
   FXbool gui_show_browser_icons;
   FXbool gui_show_playing_albumcover;
-  FXbool gui_merge_albums;
   FXbool gui_tray_icon;
   FXbool gui_tray_icon_disabled;
   FXbool gui_show_playing_titlebar;

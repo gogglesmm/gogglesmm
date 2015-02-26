@@ -39,6 +39,7 @@ const char key_import_filename_template[]="filename-template";
 const char key_import_parse_method[]="parse-method";
 const char key_import_exclude_folder[]="exclude-folder";
 const char key_import_exclude_file[]="exclude-file";
+const char key_import_albums_by_year[]="albums-by-year";
 
 const char key_export_format_template[]="format-template";
 const char key_export_character_filter[]="character-filter";
@@ -56,7 +57,6 @@ const char key_gui_toolbar_labelsabove[]="toolbar-labels-above";
 const char key_gui_show_browser_icons[]="browser-icons";
 const char key_gui_keywords[]="sort-keywords";
 const char key_gui_show_playing_albumcover[]="show-playing-albumcover";
-const char key_gui_merge_albums[]="merge-album-names";
 const char key_gui_show_opengl_coverview[]="show-opengl-coverview";
 const char key_gui_tray_icon[]="tray-icon";
 const char key_gui_show_playing_titlebar[]="show-playing-titlebar";
@@ -99,7 +99,8 @@ GMImportOptions::GMImportOptions() :
   id3v1_encoding(GMFilename::ENCODING_8859_1),
   track_from_filelist(false),
   replace_underscores(true),
-  fix_album_artist(false) {
+  fix_album_artist(false),
+  albums_by_year(false) {
   }
 
 void GMImportOptions::save(FXSettings & reg) const {
@@ -111,6 +112,7 @@ void GMImportOptions::save(FXSettings & reg) const {
   reg.writeStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   reg.writeUIntEntry(section_import,key_import_parse_method,parse_method);
   reg.writeUIntEntry(section_export,key_import_id3v1_encoding,id3v1_encoding);
+  reg.writeBoolEntry(section_import,key_import_albums_by_year,albums_by_year);
   }
 
 void GMImportOptions::load(FXSettings & reg) {
@@ -122,6 +124,7 @@ void GMImportOptions::load(FXSettings & reg) {
   exclude_file           = reg.readStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   parse_method           = FXMIN(reg.readUIntEntry(section_import,key_import_parse_method,parse_method),(FXuint)PARSE_BOTH);
   id3v1_encoding         = FXMIN(GMFilename::ENCODING_LAST-1,reg.readUIntEntry(section_import,key_import_id3v1_encoding,id3v1_encoding));
+  albums_by_year         = reg.readBoolEntry(section_import,key_import_albums_by_year,albums_by_year);
   }
 
 
@@ -163,7 +166,6 @@ GMPreferences::GMPreferences() :
   gui_toolbar_labelsabove(true),
   gui_show_browser_icons(true),
   gui_show_playing_albumcover(true),
-  gui_merge_albums(true),
   gui_tray_icon(false),
   gui_tray_icon_disabled(false),
   gui_show_playing_titlebar(false),
@@ -231,7 +233,6 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_window,key_gui_show_browser_icons,gui_show_browser_icons);
   reg.writeStringEntry(section_window,key_gui_keywords,keywords.text());
   reg.writeBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
-  reg.writeBoolEntry(section_window,key_gui_merge_albums,gui_merge_albums);
   reg.writeBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   reg.writeBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
   reg.writeBoolEntry(section_window,key_gui_show_opengl_coverview,gui_use_opengl);
@@ -311,7 +312,7 @@ void GMPreferences::load(FXSettings & reg) {
     }
   else {
     keywords = reg.readStringEntry(section_window,key_gui_keywords,keywords.text());
-    }  
+    }
 
   gui_show_playing_albumcover   = reg.readBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
   gui_tray_icon                 = reg.readBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
@@ -395,15 +396,3 @@ void GMPreferences::parseCommandLine(int argc,char **argv){
       }
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
