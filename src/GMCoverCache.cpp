@@ -150,6 +150,8 @@ FXlong GMCoverCacheWriter::fit(FXImage * image){
   }
 
 
+
+
 FXbool GMCoverCacheWriter::insert(FXint id,GMCover * cover) {
   FXint length;
   FXImage * image = GMCover::toImage(cover,info.size,1);
@@ -370,6 +372,8 @@ void GMCoverRender::drawCover(FXint id,FXDC & dc,FXint x,FXint y) {
     dc.drawImage(image,x,y);
     }
   else {
+    dc.setForeground(FXApp::instance()->getBaseColor());
+    dc.fillRectangle(x,y,getSize(),getSize());
     FXIcon * ic = GMIconTheme::instance()->icon_nocover;
     if (ic->getHeight()<getSize())
       y+=(getSize()-ic->getHeight())>>1;
