@@ -2495,7 +2495,10 @@ long GMTrackView::onCmdAlbumListView(FXObject*,FXSelector sel,void*){
   else {
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
-    if (source) source->loadCovers();
+    if (source) {
+      source->loadCovers();
+      GMPlayerManager::instance()->getTrackView()->redrawAlbumList();
+      }
     }
   return 1;
   }
