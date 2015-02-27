@@ -1999,33 +1999,50 @@ void GMTrackDatabase::setTrackConductor(const FXIntList & tracks,const FXString 
 
 
 /// Set Track Album
-void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & name,FXbool sameartist){
+void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & name,FXbool sameartist,FXbool group_by_year){
   DEBUG_DB_SET();
 
-  GMQuery query_album_by_same_artist(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id JOIN albums AS a2 ON a1.artist==a2.artist AND a1.id!=a2.id WHERE tracks.id == ? AND a2.name == ?;");
-  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
-                          "SELECT ?,"
-                                "artist,"
-                                "year "
+  GMQuery query_existing;
+  if (group_by_year) {
+    query_existing = compile("SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
+                                                            "JOIN albums AS a2 ON a1.artist==a2.artist AND a1.audio_channels==a2.audio_channels "
+                                                                                                      "AND a1.audio_rate==a2.audio_rate "
+                                                                                                      "AND a1.audio_format==a2.audio_format "
+                                                                                                      "AND a1.year==a2.year "
+                                                                                                      "AND a1.id!=a2.id "
+                                                            "WHERE tracks.id == ? AND a2.name == ?;");
+    }
+  else {
+    query_existing = compile("SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
+                                                            "JOIN albums AS a2 ON a1.artist==a2.artist AND a1.audio_channels==a2.audio_channels "
+                                                                                                      "AND a1.audio_rate==a2.audio_rate "
+                                                                                                      "AND a1.audio_format==a2.audio_format "
+                                                                                                      "AND a1.id!=a2.id "
+                                                            "WHERE tracks.id == ? AND a2.name == ?;");
+    }
+
+
+
+  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,audio_channels,audio_rate,audio_format) "
+                          "SELECT ?,artist,year,audio_channels,audio_rate,audio_format"
                           "FROM albums "
                           "WHERE id = (SELECT album FROM tracks WHERE id == ?);");
+
+
   GMQuery update_track_album(this,"UPDATE tracks SET album = ? WHERE id == ?;");
 
   FXint album=0;
   if (sameartist) {
-    query_album_by_same_artist.set(0,tracks[0]);
-    query_album_by_same_artist.set(1,name);
-    query_album_by_same_artist.execute(album);
-
+    query_existing.set(0,tracks[0]);
+    query_existing.set(1,name);
+    query_existing.execute(album);
     if (!album) {
       copy_album.set(0,name);
       copy_album.set(1,tracks[0]);
       copy_album.execute();
-
-      query_album_by_same_artist.set(0,tracks[0]);
-      query_album_by_same_artist.set(1,name);
-      query_album_by_same_artist.execute(album);
-
+      query_existing.set(0,tracks[0]);
+      query_existing.set(1,name);
+      query_existing.execute(album);
       FXASSERT(album);
       if (!album) throw GMDatabaseException();
       }
@@ -2038,17 +2055,18 @@ void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & na
   else {
     for (FXint i=0;i<tracks.no();i++) {
       album=0;
-      query_album_by_same_artist.set(0,tracks[i]);
-      query_album_by_same_artist.set(1,name);
-      query_album_by_same_artist.execute(album);
+      query_existing.set(0,tracks[0]);
+      query_existing.set(1,name);
+      query_existing.execute(album);
       if (!album) {
         copy_album.set(0,name);
         copy_album.set(1,tracks[i]);
         copy_album.execute();
-        query_album_by_same_artist.set(0,tracks[i]);
-        query_album_by_same_artist.set(1,name);
-        query_album_by_same_artist.execute(album);
+        query_existing.set(0,tracks[i]);
+        query_existing.set(1,name);
+        query_existing.execute(album);
         FXASSERT(album);
+        if (!album) throw GMDatabaseException();
         }
       update_track_album.set(0,album);
       update_track_album.set(1,tracks[i]);
@@ -2068,7 +2086,10 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
   GMQuery query_album(this,"SELECT id FROM albums WHERE name == ? AND artist == (SELECT id FROM artists WHERE name == ?);");
 
   /// Don't do "a1.id!=a2.id" since the album entry may already exists.
-  GMQuery query_album_by_same_name(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id JOIN albums AS a2 ON a1.name == a2.name JOIN artists ON a2.artist == artists.id WHERE tracks.id == ? AND artists.name == ?;");
+  GMQuery query_album_by_same_name(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
+                                                                       "JOIN albums AS a2 ON a1.name == a2.name "
+                                                                       "JOIN artists ON a2.artist == artists.id "
+                                        "WHERE tracks.id == ? AND artists.name == ?;");
   GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
                           "SELECT name,"
                                 "(SELECT id FROM artists WHERE name == ?),"

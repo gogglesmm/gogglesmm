@@ -243,7 +243,7 @@ public:
   void setTrackTitle(FXint id,const FXString & name);
 
   /// Set Track Album
-  void setTrackAlbum(const FXIntList & ids,const FXString & name,FXbool sameartist);
+  void setTrackAlbum(const FXIntList & ids,const FXString & name,FXbool sameartist,FXbool group_by_year);
 
   /// Set Track Album Artist
   void setTrackAlbumArtist(const FXIntList & ids,const FXString & name,const FXString & album_title);

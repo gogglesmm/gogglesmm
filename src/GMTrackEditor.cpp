@@ -813,7 +813,7 @@ FXbool GMEditTrackDialog::saveTracks() {
     else if (( !altfield.empty()) && (
              ( tracks.no()>1 && ( (!(samemask&SAME_ALBUM)) || altfield!=info.album )) ||
              ( tracks.no()==1 && info.album!=altfield ) )) {
-      db->setTrackAlbum(tracks,altfield,(samemask&SAME_ALBUMARTIST));
+      db->setTrackAlbum(tracks,altfield,(samemask&SAME_ALBUMARTIST),GMPlayerManager::instance()->getPreferences().import.albums_by_year);
       changed=true;
       sync=true;
       }
