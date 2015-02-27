@@ -146,7 +146,7 @@ void GMApp::create() {
 
 
   fontdescription = getNormalFont()->getFontDesc();
-  fontdescription.size    -= 30;
+  fontdescription.size    -= 20;
   fontdescription.setwidth = FXFont::SemiCondensed;
   fontdescription.slant    = FXFont::Italic;
   fontdescription.weight   = FXFont::Light;

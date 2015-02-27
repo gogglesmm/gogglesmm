@@ -119,7 +119,7 @@ public:
       bindings[imagetypes[i]]=assoc;
       }
     }
-   
+
   FXFileAssoc* findFileBinding(const FXString& pathname){
     FXString ext = FXPath::extension(pathname);
     if (!ext.empty()) {
@@ -128,7 +128,7 @@ public:
       if ((record = bindings[ext.lower()])!=NULL) return record;
       }
     return bindings[defaultFileBinding];
-    }  
+    }
 
   FXFileAssoc* findDirBinding(const FXString&){
     return bindings[defaultDirBinding];
@@ -176,7 +176,7 @@ GMDirSelector::GMDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
   GMScrollArea::replaceScrollbars(dirbox);
   ((FXVerticalFrame*)dirbox->getParent())->setFrameStyle(FRAME_LINE);
 
-  GMFileAssociations * assoc = new GMFileAssociations(getApp());    
+  GMFileAssociations * assoc = new GMFileAssociations(getApp());
   dirbox->setAssociations(assoc,true);
 /*
   getFirst()->hide();
@@ -544,7 +544,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   new FXLabel(matrix,tr("Default value:"),NULL,labelstyle);
   new GMTextField(matrix,10,&target_default_field,FXDataTarget::ID_VALUE,textfieldstyle|LAYOUT_FILL_COLUMN);
 
-  new FXLabel(matrix,tr("ID3v1 Encoding:\tTestTEsttEs"),NULL,labelstyle);
+  new FXLabel(matrix,tr("ID3v1 Encoding:"),NULL,labelstyle);
   id3v1_listbox = new GMListBox(matrix,&target_id3v1_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
   for (int i=0;gmcodecnames[i]!=NULL;i++)
     id3v1_listbox->appendItem(gmcodecnames[i]);
@@ -553,7 +553,6 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   if (GMPlayerManager::instance()->getPreferences().import.parse_method==GMImportOptions::PARSE_FILENAME) {
     id3v1_listbox->disable();
     }
-
 
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);

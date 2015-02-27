@@ -127,6 +127,7 @@ public:
   FXint getSampleRate() const;
   FXint getSampleSize() const;
 
+  FXuchar getFileType() const;
 
   GMCover * getFrontCover() const;
   FXint getCovers(GMCoverList &) const;
@@ -147,6 +148,7 @@ public:
   FXint    samplerate;
   FXint    channels;
   FXint    samplesize;
+  FXuchar  filetype;
 public:
   GMAudioProperties();
 

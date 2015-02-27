@@ -106,7 +106,7 @@ FXint GMDBTrackItem::max_digits(FXint num){
   }
 
 
-GMDBTrackItem::GMDBTrackItem(FXint track_id,FXint track_path,const FXchar * track_mrl,const FXchar * track_title,FXint track_artist,FXint track_album_artist,FXint track_composer,FXint track_conductor,const FXchar * track_album,FXint track_time,FXuint track_no,FXint track_queue,FXushort track_year,FXushort track_album_year,FXushort track_playcount,FXint track_bitrate,FXlong track_playdate,FXuchar track_rating) :
+GMDBTrackItem::GMDBTrackItem(FXint track_id,FXint track_path,const FXchar * track_mrl,const FXchar * track_title,FXint track_artist,FXint track_album_artist,FXint track_composer,FXint track_conductor,const FXchar * track_album,FXint track_time,FXuint track_no,FXint track_queue,FXushort track_year,FXushort track_album_year,FXushort track_playcount,FXuchar track_filetype,FXint track_bitrate,FXint track_samplerate,FXuchar track_channels,FXlong track_playdate,FXuchar track_rating) :
   GMTrackItem(track_id), mrl(track_mrl),
                  title(track_title),
                  album(track_album),
@@ -119,6 +119,9 @@ GMDBTrackItem::GMDBTrackItem(FXint track_id,FXint track_path,const FXchar * trac
                  queue(track_queue),
                  path(track_path),
                  bitrate(track_bitrate),
+                 samplerate(track_samplerate),
+                 channels(track_channels),
+                 filetype(track_filetype),
                  year(track_year),
                  album_year(track_album_year),
                  playcount(track_playcount),
@@ -137,6 +140,19 @@ FXIcon * GMDBTrackItem::getIcon() const {
   else
     return NULL;
   }
+
+
+const FXchar * const filetypes[] = {
+  "",
+  "vorbis",
+  "opus",
+  "speex",
+  "ogg flac",
+  "flac",
+  "mp3",
+  "aac",
+  "alac"
+  };
 
 
 const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint & justify,FXint & max) const{
@@ -168,19 +184,18 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
                                   textptr=NULL;
                                   }
                                 break;
-
+    case HEADER_FILETYPE      : text=filetypes[filetype];
+                                textptr = &text;
+                                break;
     case HEADER_TITLE         : textptr = &title;  			break;
     case HEADER_FILENAME      : text.format("%s/%s",GMPlayerManager::instance()->getTrackDatabase()->getTrackPath(path),mrl.text());
                                 textptr=&text;
                                 break;
-    case HEADER_FILETYPE      : text=FXPath::extension(mrl).lower();
-                                textptr=&text; break;
     case HEADER_ALBUM         : textptr = &album;  			break;
     case HEADER_ARTIST        : textptr = GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist);       break;
     case HEADER_ALBUM_ARTIST  : textptr = GMPlayerManager::instance()->getTrackDatabase()->getArtist(albumartist);  break;
     case HEADER_COMPOSER      : textptr = GMPlayerManager::instance()->getTrackDatabase()->getArtist(composer);     break;
     case HEADER_CONDUCTOR     : textptr = GMPlayerManager::instance()->getTrackDatabase()->getArtist(conductor);    break;
-//    case HEADER_GENRE         : textptr = &genre;    	  break;
     case HEADER_YEAR          : justify=COLUMN_JUSTIFY_RIGHT; //justify=COLUMN_JUSTIFY_CENTER_RIGHT_ALIGNED;
                                 //max=9999;
                                 if (year>0) {text.format("%d",year); textptr=&text; } else textptr=NULL; break;
@@ -204,10 +219,37 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
                                 justify=COLUMN_JUSTIFY_CENTER_RIGHT_ALIGNED;
                                 max=GMDBTrackItem::max_time;
                                 break;
-    case HEADER_BITRATE       : text.format("%d kbps",bitrate/*(bitrate / 1024.0)*/);
+    case HEADER_BITRATE       :
+                                if (bitrate < 0)
+                                  text.format("%d bit",-bitrate);
+                                else
+                                  text.format("%d kbps",bitrate);
                                 textptr=&text;
                                 justify=COLUMN_JUSTIFY_RIGHT;
                                 break;
+    case HEADER_AUDIOFORMAT   :
+                                if (channels>2) {
+                                  if (bitrate>samplerate)
+                                    text.format("%s %dch %d bit %g kHz",filetypes[filetype],channels,bitrate/(samplerate*channels),(float)samplerate/1000.0f);
+                                  else if (bitrate>0)
+                                    text.format("%s %dch %d kbps %g kHz",filetypes[filetype],channels,bitrate,(float)samplerate/1000.0f);
+                                  else
+                                    text.format("%s %dch %g kHz",filetypes[filetype],channels,(float)samplerate/1000.0f);
+                                  }
+                                else {
+                                  if (bitrate>samplerate)
+                                    text.format("%s %d bit %g kHz",filetypes[filetype],bitrate/(samplerate*channels),(float)samplerate/1000.0f);
+                                  else if (bitrate>0)
+                                    text.format("%s %d kbps %g kHz",filetypes[filetype],bitrate,(float)samplerate/1000.0f);
+                                  else
+                                    text.format("%s %g kHz",filetypes[filetype],(float)samplerate/1000.0f);
+                                  }
+                                textptr=&text;
+                                justify=COLUMN_JUSTIFY_RIGHT;
+                                break;
+
+
+
     case HEADER_RATING        : //textptr = ratingStrings + ((rating <= sizeof(GMDBTrackItem::ratingStrings)/sizeof(FXString))?rating:0);
                                 textptr=NULL;
                                 max=rating;
@@ -407,6 +449,20 @@ FXint GMDBTrackItem::descendingBitrate(const GMTrackItem* pa,const GMTrackItem* 
   const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->bitrate;
   return VALUE_SORT_DSC(a,b);
   }
+
+FXint GMDBTrackItem::ascendingFormat(const GMTrackItem* pa,const GMTrackItem* pb){
+  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->bitrate;
+  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->bitrate;
+  return VALUE_SORT_ASC(a,b);
+  }
+
+
+FXint GMDBTrackItem::descendingFormat(const GMTrackItem* pa,const GMTrackItem* pb){
+  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->bitrate;
+  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->bitrate;
+  return VALUE_SORT_DSC(a,b);
+  }
+
 
 
 FXint GMDBTrackItem::ascendingAlbum(const GMTrackItem* pa,const GMTrackItem* pb){

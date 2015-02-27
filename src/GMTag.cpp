@@ -43,9 +43,13 @@
 #include <apetag.h>
 #include <textidentificationframe.h>
 #include <attachedpictureframe.h>
-#include "mp4file.h"
-#include "mp4tag.h"
-#include "mp4coverart.h"
+#include <vorbisproperties.h>
+#include <flacproperties.h>
+#include <mp4file.h>
+#include <mp4tag.h>
+#include <mp4coverart.h>
+#include <mp4properties.h>
+
 
 #include "FXPNGImage.h"
 #include "FXJPGImage.h"
@@ -300,8 +304,42 @@ FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
   return true;
   }
 
+
 FXbool GMFileTag::save() {
   return file->save();
+  }
+
+
+FXuchar GMFileTag::getFileType() const {
+  TagLib::MP4::File       * mp4file    = NULL;
+  TagLib::AudioProperties * properties = file->audioProperties();
+  if (properties) {
+    if ((dynamic_cast<TagLib::Ogg::Vorbis::File*>(file))) {
+      if (dynamic_cast<TagLib::Vorbis::Properties*>(properties)) {
+        return FILETYPE_OGG_VORBIS;
+        }
+      else if (dynamic_cast<TagLib::Ogg::Opus::Properties*>(properties))
+        return FILETYPE_OGG_OPUS;
+      }
+    else if (dynamic_cast<TagLib::FLAC::File*>(file)){
+      if (dynamic_cast<TagLib::FLAC::Properties*>(properties))
+        return FILETYPE_FLAC;
+      }
+    else if (dynamic_cast<TagLib::MPEG::File*>(file)){
+      return FILETYPE_MP3;
+      }
+    else if ((mp4file = dynamic_cast<TagLib::MP4::File*>(file))){
+      TagLib::MP4::Properties * mp4prop = dynamic_cast<TagLib::MP4::Properties*>(properties);
+      if (mp4prop) {
+        switch(mp4prop->codec()) {
+          case TagLib::MP4::Properties::AAC : return FILETYPE_MP4_AAC; break;
+          case TagLib::MP4::Properties::ALAC: return FILETYPE_MP4_ALAC; break;
+          default: break;
+          }
+        }
+      }
+    }
+  return FILETYPE_UNKNOWN;
   }
 
 
@@ -1082,6 +1120,7 @@ FXbool GMAudioProperties::load(const FXString & filename){
     samplerate = tags.getSampleRate();
     channels   = tags.getChannels();
     samplesize = tags.getSampleSize();
+    filetype   = tags.getFileType();
     return true;
     }
   return false;

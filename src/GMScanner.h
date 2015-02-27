@@ -38,6 +38,7 @@ protected:
   GMQuery insert_track_tag;
   GMQuery update_track;
   GMQuery query_album;
+  GMQuery query_album_by_year;
   GMQuery query_artist;
   GMQuery query_tag;
   GMQuery delete_track;

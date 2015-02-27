@@ -139,13 +139,36 @@ FXbool GMTrack::loadTag(const FXString & filename) {
   filetags.getConductor(conductor);
   filetags.getTags(tags);
 
-  year    = filetags.getYear();
-  no      = filetags.getTrackNumber();
-  time    = filetags.getTime();
-  bitrate = filetags.getBitRate();
+  year         = filetags.getYear();
+  no           = filetags.getTrackNumber();
+
+  time         = filetags.getTime();
+  bitrate      = filetags.getBitRate();
+  sampleformat = filetags.getSampleSize();
+  samplerate   = filetags.getSampleRate();
+  channels     = filetags.getChannels();
+  filetype     = filetags.getFileType();
+
 
   setDiscNumber(filetags.getDiscNumber());
 //  GM_TICKS_END();
   return true;
   }
 
+
+FXbool GMTrack::loadProperties(const FXString & filename) {
+  GMFileTag filetags;
+
+  if (!filetags.open(filename,FILETAG_AUDIOPROPERTIES))
+    return false;
+
+  url          = filename;
+
+  time         = filetags.getTime();
+  bitrate      = filetags.getBitRate();
+  sampleformat = filetags.getSampleSize();
+  samplerate   = filetags.getSampleRate();
+  channels     = filetags.getChannels();
+  filetype     = filetags.getFileType();
+  return true;
+  }

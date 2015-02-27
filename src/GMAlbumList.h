@@ -47,12 +47,15 @@ class FXAPI GMAlbumListItem : public FXObject {
   FXDECLARE(GMAlbumListItem)
   friend class GMAlbumList;
 protected:
-  FXString  artist;
   FXString  title;
+  FXString  audioproperty;
+  FXint     artist;
   FXint     year;
   FXint     id;
-  FXIntList ids;
   FXuint    state;      // State flags
+public:
+  static FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
+  static FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
 private:
   GMAlbumListItem(const GMAlbumListItem&);
   GMAlbumListItem& operator=(const GMAlbumListItem&);
@@ -68,10 +71,13 @@ public:
     SELECTED      = 1,  /// Selected
     FOCUS         = 2,  /// Focus
     DRAGGABLE     = 4,  /// Draggable
+    SHOW_ARTIST   = 8
     };
 public:
+  GMAlbumListItem(const FXint a,const FXString & t,FXint y,FXint i): title(t),artist(a),year(y),id(i),state(DRAGGABLE){}
+
   /// Construct new item with given text, icons, and user-data
-  GMAlbumListItem(const FXString& a,const FXString & t,FXint y,FXint i):artist(a),title(t),year(y),id(i),state(DRAGGABLE){}
+  GMAlbumListItem(const FXint a,const FXString & t,FXString & p,FXint y,FXint i):title(t),audioproperty(p),artist(a),year(y),id(i),state(DRAGGABLE){}
 
   /// Return item's id
   FXint getId() const { return id; }
@@ -94,23 +100,17 @@ public:
   /// Return true if this item is draggable
   FXbool isDraggable() const { return (state&DRAGGABLE)!=0; }
 
+  /// Show Artist
+  void setShowArtist(FXbool);
+
   /// Return width of this item
   FXint getWidth(const GMAlbumList* list);
 
   /// Return tip text
   FXString getTipText() const;
 
-  /// Return Title
-  FXString getTitle() const { return title; }
-
-  /// Return Year
-  FXint getYear() const { return year; }
-
-  /// Append id
-  void append(FXint albumid) { ids.append(albumid); }
-
-  /// Append ids to list
-  void getIds(FXIntList & list) const;
+  /// Get Title
+  const FXString & getTitle() const { return title; }
 
   /// Destroy item and free icons if owned
   virtual ~GMAlbumListItem();
@@ -121,8 +121,6 @@ public:
 typedef FXint (*GMAlbumListSortFunc)(const GMAlbumListItem*,const GMAlbumListItem*);
 
 
-extern FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
-extern FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
 
 /// List of GMAlbumListItem's
 typedef FXObjectListOf<GMAlbumListItem> GMAlbumListItemList;
@@ -131,7 +129,7 @@ typedef FXObjectListOf<GMAlbumListItem> GMAlbumListItemList;
 class FXAPI GMAlbumList : public FXScrollArea {
   FXDECLARE(GMAlbumList)
 protected:
-  GMCoverRender      covers; 
+  GMCoverRender      covers;
   GMAlbumListItemList items;		// Item list
   FXint              nrows;             // Number of rows
   FXint              ncols;             // Number of columns
@@ -231,7 +229,6 @@ public:
 
   /// Get Thumbs
   const GMCoverRender & getCoverRender() const { return covers; }
-
 
   /// Set thumbs
   void setCoverCache(GMCoverCache* t);

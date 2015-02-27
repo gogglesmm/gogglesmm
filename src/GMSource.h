@@ -83,6 +83,7 @@ enum {
   HEADER_CONDUCTOR,
   HEADER_DATE,
   HEADER_STATUS,
+  HEADER_AUDIOFORMAT,
   HEADER_NONE
   };
 
@@ -142,7 +143,7 @@ public:
   void setCurrentTrack(FXint t) { current_track=t; }
 
   FXint getCurrentTrack() const { return current_track; }
-  
+
   virtual FXbool hasCurrentTrack(GMSource * ) const { return false; }
 
   virtual FXbool hasTrack(const FXString &,FXint &) { return false; }

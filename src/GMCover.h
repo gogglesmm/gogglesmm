@@ -33,13 +33,6 @@ struct GMImageInfo {
   GMImageInfo() : width(0),height(0),bps(0),colors(0) {}
   };
 
-enum {
-  FILETYPE_UNKNOWN = 0,
-  FILETYPE_PNG     = 1,
-  FILETYPE_JPG     = 2,
-  FILETYPE_BMP     = 3,
-  FILETYPE_GIF     = 4
-  };
 
 
 class GMCover {

@@ -33,7 +33,7 @@
 //#define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac,mpc,wma,asf"
 //#define FILE_PATTERNS "*.(" FILE_EXTENSIONS ")"
 
-// Just the once we can playback at the moment.
+// Just the ones we can playback at the moment.
 #define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac"
 #define FILE_PATTERNS "*.(" FILE_EXTENSIONS ")"
 
@@ -64,7 +64,7 @@ void GMDBTracks::init(GMTrackDatabase*db) {
                                                                            "?," // time
                                                                            "?," // no
                                                                            "?," // year
-                                                                           "?,"  // bitrate
+                                                                           "?," // bitrate
                                                                            "?," // album
                                                                            "?," // artist
                                                                            "?," // composer
@@ -72,11 +72,14 @@ void GMDBTracks::init(GMTrackDatabase*db) {
                                                                            "0," // playcount
                                                                            "0," // playdate
                                                                            "?," // importdate
+                                                                           "?," // samplerate
+                                                                           "?," // channels
+                                                                           "?," // filetype
                                                                            "0);"); // rating
 
   insert_tag                          = database->compile("INSERT INTO tags VALUES ( NULL , ?  );");
   insert_artist                       = database->compile("INSERT INTO artists VALUES ( NULL , ?  );");
-  insert_album                        = database->compile("INSERT INTO albums VALUES (NULL, ?, ?, ?);");
+  insert_album                        = database->compile("INSERT INTO albums VALUES (NULL, ?, ?, ?, ?, ?, ?);");
 
 
   insert_path                         = database->compile("INSERT OR IGNORE INTO pathlist VALUES (NULL,?);");
@@ -91,13 +94,19 @@ void GMDBTracks::init(GMTrackDatabase*db) {
                                                                   "no = ?,"
                                                                   "year = ?,"
                                                                   "bitrate = ?,"
+                                                                  "samplerate = ?,"
+                                                                  "channels = ?,"
+                                                                  "filetype = ?,"
                                                                   "album =  ?,"
                                                                   "artist = ?," // artist
                                                                   "composer = ?," // composer
                                                                   "conductor = ?," // conductor
                                                                   "importdate = ? WHERE id == ?;");
 
-  query_album                         = database->compile("SELECT id FROM albums WHERE artist == ? AND name == ?;");
+
+
+  query_album                         = database->compile("SELECT id FROM albums WHERE artist == ? AND name == ? AND audio_channels == ? AND audio_rate == ? AND audio_format == ?;");
+
   query_artist                        = database->compile("SELECT id FROM artists WHERE name == ?;");
   query_tag                           = database->compile("SELECT id FROM tags WHERE name == ?;");
 
@@ -198,14 +207,20 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
   if (!track.conductor.empty())
     conductor_id=insertArtist(track.conductor);
 
-  /// Album
   query_album.set(0,album_artist_id);
   query_album.set(1,track.album);
+  query_album.set(2,track.channels);
+  query_album.set(3,track.samplerate);
+  query_album.set(4,track.sampleformat);
   query_album.execute(album_id);
+
   if (!album_id) {
     insert_album.set(0,track.album);
     insert_album.set(1,album_artist_id);
     insert_album.set(2,track.year);
+    insert_album.set(3,track.channels);
+    insert_album.set(4,track.samplerate);
+    insert_album.set(5,track.sampleformat);
     album_id = insert_album.insert();
     }
 
@@ -219,12 +234,15 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
   insert_track.set(3,track.time);
   insert_track.set(4,track.no);
   insert_track.set(5,track.year);
-  insert_track.set(6,track.bitrate);
+  insert_track.set(6,(track.sampleformat) ? -track.sampleformat : track.bitrate);
   insert_track.set(7,album_id);
   insert_track.set(8,artist_id);
   insert_track.set_null(9,composer_id);
   insert_track.set_null(10,conductor_id);
   insert_track.set(11,FXThread::time());
+  insert_track.set(12,track.samplerate);
+  insert_track.set(13,track.channels);
+  insert_track.set(14,track.filetype);
   track_id = insert_track.insert();
 
   /// Add to playlist
@@ -266,11 +284,18 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   /// Album
   query_album.set(0,album_artist_id);
   query_album.set(1,track.album);
+  query_album.set(2,track.channels);
+  query_album.set(3,track.samplerate);
+  query_album.set(4,track.sampleformat);
   query_album.execute(album_id);
+
   if (!album_id) {
     insert_album.set(0,track.album);
     insert_album.set(1,album_artist_id);
     insert_album.set(2,track.year);
+    insert_album.set(3,track.channels);
+    insert_album.set(4,track.samplerate);
+    insert_album.set(5,track.sampleformat);
     album_id = insert_album.insert();
     }
 
@@ -279,13 +304,16 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   update_track.set(1,track.time);
   update_track.set(2,track.no);
   update_track.set(3,track.year);
-  update_track.set(4,track.bitrate);
-  update_track.set(5,album_id);
-  update_track.set(6,artist_id);
-  update_track.set_null(7,composer_id);
-  update_track.set_null(8,conductor_id);
-  update_track.set(9,FXThread::time());
-  update_track.set(10,id);
+  update_track.set(4,(track.sampleformat) ? -track.sampleformat : track.bitrate);
+  update_track.set(5,track.samplerate);
+  update_track.set(6,track.channels);
+  update_track.set(7,track.filetype);
+  update_track.set(8,album_id);
+  update_track.set(9,artist_id);
+  update_track.set_null(10,composer_id);
+  update_track.set_null(11,conductor_id);
+  update_track.set(12,FXThread::time());
+  update_track.set(13,id);
   update_track.execute();
 
   /// Update Tags
@@ -337,7 +365,7 @@ void GMImportTask::parse(const FXString & filename,FXint n,GMTrack & info){
     case GMImportOptions::PARSE_TAG      : info.loadTag(filename);
                                            break;
     case GMImportOptions::PARSE_FILENAME : GMFilename::parse(info,options.filename_template,(options.replace_underscores ? (GMFilename::OVERWRITE|GMFilename::REPLACE_UNDERSCORE) : (GMFilename::OVERWRITE)));
-                                           GMTag::length(info);
+                                           info.loadProperties(filename);
                                            break;
     case GMImportOptions::PARSE_BOTH     : info.loadTag(filename);
                                            if (info.title.empty() ||
