@@ -1803,7 +1803,6 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
   FXDataTarget target_yearsort(album_by_year);
   if (source && !event->moved) {
     GMMenuPane pane(this);
-    GMMenuPane viewpane(this);
 
     if (FXSELID(sel)==ID_ALBUM_LIST) {
       FXint item = albumlist->getItemAt(event->win_x,event->win_y);
@@ -1834,7 +1833,6 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
     pane.create();
     pane.forceRefresh();
     ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-    ewmh_change_window_type(&viewpane,WINDOWTYPE_POPUP_MENU);
     pane.popup(NULL,event->root_x+3,event->root_y+3);
     getApp()->runPopup(&pane);
 
