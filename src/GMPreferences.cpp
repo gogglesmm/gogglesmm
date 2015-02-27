@@ -39,7 +39,6 @@ const char key_import_filename_template[]="filename-template";
 const char key_import_parse_method[]="parse-method";
 const char key_import_exclude_folder[]="exclude-folder";
 const char key_import_exclude_file[]="exclude-file";
-const char key_import_albums_by_year[]="albums-by-year";
 
 const char key_export_format_template[]="format-template";
 const char key_export_character_filter[]="character-filter";
@@ -99,8 +98,7 @@ GMImportOptions::GMImportOptions() :
   id3v1_encoding(GMFilename::ENCODING_8859_1),
   track_from_filelist(false),
   replace_underscores(true),
-  fix_album_artist(false),
-  albums_by_year(false) {
+  fix_album_artist(false){
   }
 
 void GMImportOptions::save(FXSettings & reg) const {
@@ -112,7 +110,6 @@ void GMImportOptions::save(FXSettings & reg) const {
   reg.writeStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   reg.writeUIntEntry(section_import,key_import_parse_method,parse_method);
   reg.writeUIntEntry(section_export,key_import_id3v1_encoding,id3v1_encoding);
-  reg.writeBoolEntry(section_import,key_import_albums_by_year,albums_by_year);
   }
 
 void GMImportOptions::load(FXSettings & reg) {
@@ -124,7 +121,6 @@ void GMImportOptions::load(FXSettings & reg) {
   exclude_file           = reg.readStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   parse_method           = FXMIN(reg.readUIntEntry(section_import,key_import_parse_method,parse_method),(FXuint)PARSE_BOTH);
   id3v1_encoding         = FXMIN(GMFilename::ENCODING_LAST-1,reg.readUIntEntry(section_import,key_import_id3v1_encoding,id3v1_encoding));
-  albums_by_year         = reg.readBoolEntry(section_import,key_import_albums_by_year,albums_by_year);
   }
 
 

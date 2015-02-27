@@ -55,13 +55,13 @@ public:
 
   void init(GMTrackDatabase*);
 
-  void add(const FXString & filename,const GMTrack & track,const GMImportOptions & opts,FXint & pid,FXint playlist,FXint queue);
+  void add(const FXString & filename,const GMTrack & track,FXint & pid,FXint playlist,FXint queue);
 
   void add2playlist(FXint playlist,FXint track,FXint queue);
 
   FXint hasPath(const FXString & filename);
 
-  void update(FXint id,const GMTrack & info,const GMImportOptions & opts);
+  void update(FXint id,const GMTrack & info);
 
   void remove(FXint id);
 

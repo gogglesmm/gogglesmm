@@ -451,7 +451,6 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   target_exclude_dir.connect(GMPlayerManager::instance()->getPreferences().import.exclude_folder);
   target_exclude_file.connect(GMPlayerManager::instance()->getPreferences().import.exclude_file);
   target_id3v1_encoding.connect(GMPlayerManager::instance()->getPreferences().import.id3v1_encoding);
-  target_albums_by_year.connect(GMPlayerManager::instance()->getPreferences().import.albums_by_year);
 
   const FXuint labelstyle=LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT;
   const FXuint textfieldstyle=TEXTFIELD_ENTER_ONLY|LAYOUT_FILL_X|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN;
@@ -557,9 +556,6 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
 
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
-
-  new FXFrame(matrix,FRAME_NONE);
-  new GMCheckButton(matrix,tr("Group albums by year"),&target_albums_by_year,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
   template_grpbox =  new FXGroupBox(vframe,tr("Filename Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   template_grpbox->setFont(GMApp::instance()->getThickFont());

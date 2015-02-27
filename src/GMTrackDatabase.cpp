@@ -124,7 +124,7 @@ const FXchar create_albums[]=         "CREATE TABLE albums ("
                                           "audio_rate INTEGER,"      /* 44100, 48000, 96 */
                                           "audio_format INTEGER,"    /* 16 / 24 */  //
                                           "PRIMARY KEY (id),"
-                                          "UNIQUE(name,artist,audio_channels,audio_rate,audio_format));";
+                                          "UNIQUE(name,artist,year,audio_channels,audio_rate,audio_format));";
 
 const FXchar create_artists[]=        "CREATE TABLE artists ("
                                           "id INTEGER NOT NULL,"
@@ -1999,29 +1999,16 @@ void GMTrackDatabase::setTrackConductor(const FXIntList & tracks,const FXString 
 
 
 /// Set Track Album
-void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & name,FXbool sameartist,FXbool group_by_year){
+void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & name,FXbool sameartist){
   DEBUG_DB_SET();
 
-  GMQuery query_existing;
-  if (group_by_year) {
-    query_existing = compile("SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
-                                                            "JOIN albums AS a2 ON a1.artist==a2.artist AND a1.audio_channels==a2.audio_channels "
-                                                                                                      "AND a1.audio_rate==a2.audio_rate "
-                                                                                                      "AND a1.audio_format==a2.audio_format "
-                                                                                                      "AND a1.year==a2.year "
-                                                                                                      "AND a1.id!=a2.id "
-                                                            "WHERE tracks.id == ? AND a2.name == ?;");
-    }
-  else {
-    query_existing = compile("SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
-                                                            "JOIN albums AS a2 ON a1.artist==a2.artist AND a1.audio_channels==a2.audio_channels "
-                                                                                                      "AND a1.audio_rate==a2.audio_rate "
-                                                                                                      "AND a1.audio_format==a2.audio_format "
-                                                                                                      "AND a1.id!=a2.id "
-                                                            "WHERE tracks.id == ? AND a2.name == ?;");
-    }
-
-
+  // Warning don't add "a1.id!=a2.id" since the track may already be assigned to the correct album.
+  // This can happen when you do a batch update of tracks and some of them already are set to the correct album entry.
+  GMQuery query_existing(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
+                                                             "JOIN albums AS a2 ON a1.artist==a2.artist AND a1.audio_channels==a2.audio_channels "
+                                                                                                       "AND a1.audio_rate==a2.audio_rate "
+                                                                                                       "AND a1.audio_format==a2.audio_format "
+                                                             "WHERE tracks.id == ? AND a2.name == ?;");
 
   GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,audio_channels,audio_rate,audio_format) "
                           "SELECT ?,artist,year,audio_channels,audio_rate,audio_format"
@@ -2086,8 +2073,10 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
   GMQuery query_album(this,"SELECT id FROM albums WHERE name == ? AND artist == (SELECT id FROM artists WHERE name == ?);");
 
   /// Don't do "a1.id!=a2.id" since the album entry may already exists.
-  GMQuery query_album_by_same_name(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
+  GMQuery query_existing(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
                                                                        "JOIN albums AS a2 ON a1.name == a2.name "
+                                                                                        "AND a1.audio_rate==a2.audio_rate "
+                                                                                        "AND a1.audio_format==a2.audio_format "
                                                                        "JOIN artists ON a2.artist == artists.id "
                                         "WHERE tracks.id == ? AND artists.name == ?;");
   GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
@@ -2111,18 +2100,18 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
 
     for (FXint i=0;i<tracks.no();i++){
       album=0;
-      query_album_by_same_name.set(0,tracks[i]);
-      query_album_by_same_name.set(1,name);
-      query_album_by_same_name.execute(album);
+      query_existing.set(0,tracks[i]);
+      query_existing.set(1,name);
+      query_existing.execute(album);
 
       if (!album) {
         copy_album.set(0,name);
         copy_album.set(1,tracks[i]);
         copy_album.execute();
 
-        query_album_by_same_name.set(0,tracks[i]);
-        query_album_by_same_name.set(1,name);
-        query_album_by_same_name.execute(album);
+        query_existing.set(0,tracks[i]);
+        query_existing.set(1,name);
+        query_existing.execute(album);
         }
       FXASSERT(album);
       update_track_album.set(0,album);
@@ -2180,7 +2169,7 @@ void GMTrackDatabase::sync_tracks_removed() {
 void GMTrackDatabase::sync_album_year() {
   DEBUG_DB_SET();
   GM_TICKS_START();
-  execute("UPDATE albums SET year = (SELECT ifnull(MIN(year),0) FROM tracks WHERE album = albums.id AND year > 0);");
+  execute("UPDATE albums SET year = (SELECT ifnull(MAX(year),0) FROM tracks WHERE album = albums.id AND year > 0);");
   GM_TICKS_END();
   }
 

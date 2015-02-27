@@ -106,7 +106,6 @@ void GMDBTracks::init(GMTrackDatabase*db) {
 
 
   query_album                         = database->compile("SELECT id FROM albums WHERE artist == ? AND name == ? AND audio_channels == ? AND audio_rate == ? AND audio_format == ?;");
-  query_album_by_year                 = database->compile("SELECT id FROM albums WHERE artist == ? AND name == ? AND year == ? AND audio_channels == ? AND audio_rate == ? AND audio_format == ?;");
 
   query_artist                        = database->compile("SELECT id FROM artists WHERE name == ?;");
   query_tag                           = database->compile("SELECT id FROM tags WHERE name == ?;");
@@ -173,7 +172,7 @@ void GMDBTracks::updateTags(FXint track,const FXStringList & tags){
   }
 
 
-void GMDBTracks::add(const FXString & filename,const GMTrack & track,const GMImportOptions & options,FXint & pid,FXint playlist,FXint queue){
+void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid,FXint playlist,FXint queue){
 //  GM_TICKS_START();
 
   FXASSERT(!track.album_artist.empty());
@@ -208,24 +207,12 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,const GMImp
   if (!track.conductor.empty())
     conductor_id=insertArtist(track.conductor);
 
-  /// Album
-  if (options.albums_by_year) {
-    query_album_by_year.set(0,album_artist_id);
-    query_album_by_year.set(1,track.album);
-    query_album_by_year.set(2,track.year);
-    query_album_by_year.set(3,track.channels);
-    query_album_by_year.set(4,track.samplerate);
-    query_album_by_year.set(5,track.sampleformat);
-    query_album_by_year.execute(album_id);
-    }
-  else {
-    query_album.set(0,album_artist_id);
-    query_album.set(1,track.album);
-    query_album.set(2,track.channels);
-    query_album.set(3,track.samplerate);
-    query_album.set(4,track.sampleformat);
-    query_album.execute(album_id);
-    }
+  query_album.set(0,album_artist_id);
+  query_album.set(1,track.album);
+  query_album.set(2,track.channels);
+  query_album.set(3,track.samplerate);
+  query_album.set(4,track.sampleformat);
+  query_album.execute(album_id);
 
   if (!album_id) {
     insert_album.set(0,track.album);
@@ -280,7 +267,7 @@ void GMDBTracks::add2playlist(FXint playlist,FXint track,FXint queue) {
   insert_playlist_track_by_id.execute();
   }
 
-void GMDBTracks::update(FXint id,const GMTrack & track,const GMImportOptions & options){
+void GMDBTracks::update(FXint id,const GMTrack & track){
   /// Artist
   FXint composer_id     = 0;
   FXint conductor_id    = 0;
@@ -295,23 +282,12 @@ void GMDBTracks::update(FXint id,const GMTrack & track,const GMImportOptions & o
   if (!track.conductor.empty()) conductor_id=insertArtist(track.conductor);
 
   /// Album
-  if (options.albums_by_year) {
-    query_album_by_year.set(0,album_artist_id);
-    query_album_by_year.set(1,track.album);
-    query_album_by_year.set(2,track.year);
-    query_album_by_year.set(3,track.channels);
-    query_album_by_year.set(4,track.samplerate);
-    query_album_by_year.set(5,track.sampleformat);
-    query_album_by_year.execute(album_id);
-    }
-  else {
-    query_album.set(0,album_artist_id);
-    query_album.set(1,track.album);
-    query_album.set(2,track.channels);
-    query_album.set(3,track.samplerate);
-    query_album.set(4,track.sampleformat);
-    query_album.execute(album_id);
-    }
+  query_album.set(0,album_artist_id);
+  query_album.set(1,track.album);
+  query_album.set(2,track.channels);
+  query_album.set(3,track.samplerate);
+  query_album.set(4,track.sampleformat);
+  query_album.execute(album_id);
 
   if (!album_id) {
     insert_album.set(0,track.album);
@@ -340,7 +316,6 @@ void GMDBTracks::update(FXint id,const GMTrack & track,const GMImportOptions & o
   update_track.set(13,id);
   update_track.execute();
 
-  fxmessage("%s - %d\n",track.url.text(),track.bitrate);
   /// Update Tags
   updateTags(id,track.tags);
   }
@@ -479,7 +454,7 @@ void GMImportTask::import() {
         else {
           if (FXStat::isReadable(files[i])) {
             parse(files[i],i,info);
-            dbtracks.add(filename,info,options,pid,playlist,queue++);
+            dbtracks.add(filename,info,pid,playlist,queue++);
             }
           }
         }
@@ -542,7 +517,7 @@ void GMImportTask::listDirectory(const FXString & path) {
           dbtracks.add2playlist(playlist,tids[i],queue++);
         }
       else {
-        dbtracks.add(items[i],tracks[i],options,pid,playlist,queue++);
+        dbtracks.add(items[i],tracks[i],pid,playlist,queue++);
         count++;
         if (0==(count%100)) {
           taskmanager->setStatus(FXString::value("Importing %d",count));
@@ -629,7 +604,7 @@ void GMSyncTask::syncDirectory(const FXString & path) {
         }
       else if (options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
         parse(list[i].filename,-1,info);
-        dbtracks.update(list[i].id,info,options);
+        dbtracks.update(list[i].id,info);
         nchanged++;
         }
       }
@@ -647,7 +622,7 @@ void GMSyncTask::syncDirectory(const FXString & path) {
 
       if (FXStat::statFile(list[i].filename,stat) && options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
         parse(list[i].filename,-1,info);
-        dbtracks.update(list[i].id,info,options);
+        dbtracks.update(list[i].id,info);
         nchanged++;
         }
       }

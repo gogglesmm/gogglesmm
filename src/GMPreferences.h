@@ -73,7 +73,6 @@ public:
   FXbool   track_from_filelist;
   FXbool   replace_underscores;
   FXbool   fix_album_artist;
-  FXbool   albums_by_year;
 public:
   enum {
     PARSE_TAG = 0,
