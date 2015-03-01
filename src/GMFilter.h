@@ -19,12 +19,15 @@
 #ifndef GMFILTER_H
 #define GMFILTER_H
 
-struct Rule {
+/*
+  Rule: filter specific column with operator for specific value.
+*/
+class Rule {
 public:
-  FXint column;
-  FXint opcode;
-  FXint value;
-  FXString text;
+  FXint column;   // Column to filter on
+  FXint opcode;   // Operator
+  FXint value;    // Integer Value
+  FXString text;  // String Value
 public:
   enum {
     ColumnTitle         = 0,
@@ -50,66 +53,84 @@ public:
     ColumnSampleSize    = 20
     };
   enum {
-    OperatorLike        = 0,
-    OperatorNotLike     = 1,
-    OperatorEquals      = 2,
-    OperatorNotEqual    = 3,
-    OperatorPrefix      = 4,
-    OperatorSuffix      = 5,
-    OperatorGreater     = 6,
-    OperatorLess        = 7,
-    OperatorMatch       = 8  // FXRex
+    OperatorLike        = 0, // LIKE
+    OperatorNotLike     = 1, // NOT LIKE
+    OperatorEquals      = 2, // ==
+    OperatorNotEqual    = 3, // !=
+    OperatorPrefix      = 4, // prefix%
+    OperatorSuffix      = 5, // %suffix
+    OperatorGreater     = 6, // >=
+    OperatorLess        = 7, // <=
+    OperatorMatch       = 8  // Regular Expression Matcher using FXRex
     };
 public:
+  // Default Constructor
   Rule() : column(ColumnTitle),opcode(OperatorLike) {}
+
+  // Initialize Rule for integer input
   Rule(FXint c,FXint o,FXint v) : column(c),opcode(o),value(v) {}
 
+  // Get sql match string
   FXString getMatch() const;
 
+  // Load from stream
   void load(FXStream &);
+
+  // ave to stream
   void save(FXStream &) const;
   };
 
 
+/*
+  SortLimit: Column and sort order information for limit queries
+*/
 class SortLimit {
 public:
-  FXint  column;
-  FXbool ascending;
+  FXint  column;      // column to sort by
+  FXbool ascending;   // ASC or DESC
 public:
   SortLimit() : column(Rule::ColumnArtist), ascending(true) {}
 
+  // Get sql match string
   FXString getMatch() const;
 
+  // Load from stream
   void load(FXStream &);
 
+  // Save to stream
   void save(FXStream &) const;
   };
 
 
 class GMFilter {
 public:
-  static FXint nextid;
+  static FXint nextid;      // Generator for unique id
 public:
-  FXint              id;
-  FXString           name;
-  FXArray<Rule>      rules;
-  FXArray<SortLimit> order;
-  FXint              limit;
-  FXint              match;
+  FXint              id;    // unique filter id
+  FXString           name;  // filter name
+  FXArray<Rule>      rules; // list of filter rules
+  FXArray<SortLimit> order; // list of columns to order by
+  FXint              limit; // Maximum row limit
+  FXint              match; // Match mode AND or OR.
 public:
   enum {
-    MatchAll = 0,
-    MatchAny = 1,
+    MatchAll = 0,  // Filter matches all rules (AND)
+    MatchAny = 1,  // Filter matches any rules (OR)
     };
 public:
+  // Default Filter
   GMFilter();
 
+  // Construct integer input filter with name, column, opcode and value
   GMFilter(const FXString & name,FXint column,FXint opcode,FXint value);
 
+  // Get sql match string
   FXString getMatch() const;
 
+  // Load from stream
   void load(FXStream &);
 
+  // Save to stream
   void save(FXStream &) const;
   };
 

@@ -18,31 +18,31 @@
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
-#include "GMFilter.h"
-#include "GMApp.h"
 #include "GMTrack.h"
-#include "GMList.h"
+#include "GMFilter.h"
 #include "GMDatabase.h"
 #include "GMTrackDatabase.h"
+#include "GMSource.h"
+#include "GMDatabaseSource.h"
+#include "GMFilterSource.h"
+#include "GMFilterEditor.h"
+#include "GMApp.h"
+#include "GMIconTheme.h"
+#include "GMTrackView.h"
+#include "GMSourceView.h"
+#include "GMPlayerManager.h"
+#include "GMWindow.h"
+
+/*
+
+#include "GMList.h"
 #include "GMCover.h"
 #include "GMCoverCache.h"
 #include "GMTrackList.h"
 #include "GMTrackItem.h"
-#include "GMTrackView.h"
 #include "GMTaskManager.h"
-#include "GMSource.h"
-#include "GMSourceView.h"
 #include "GMClipboard.h"
-#include "GMDatabaseSource.h"
-#include "GMFilterSource.h"
-#include "GMPlayerManager.h"
-#include "GMWindow.h"
-#include "GMIconTheme.h"
-#include "GMFilename.h"
-#include "GMAlbumList.h"
-#include "GMAudioPlayer.h"
-#include "GMCoverLoader.h"
-#include "GMFilterEditor.h"
+*/
 
 #define FILTER_DB_V1 2015
 

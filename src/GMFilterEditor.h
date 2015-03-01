@@ -19,6 +19,9 @@
 #ifndef GMFILTEREDITOR_H
 #define GMFILTEREDITOR_H
 
+/*
+  GMRulerEditor: Implements UI for one rule
+*/
 class GMRuleEditor : public FXObject {
   FXDECLARE(GMRuleEditor)
 public:
@@ -35,25 +38,50 @@ public:
   GMSpinner   * time_seconds;
 public:
   enum {
-    ID_COLUMN = 1,
-    ID_DELETE,
-    ID_TEXT,
-    ID_OPERATOR,
+    ID_COLUMN = 1,  // Column List
+    ID_DELETE,      // Delete Button
+    ID_TEXT,        // Text Input
+    ID_OPERATOR,    // Operator List
     ID_LAST,
     };
 protected:
+  // Create UI
   void create(FXMatrix *,FXWindow * before);
-  void setInputType(FXint);
-  void setColumn(FXint);
-  FXint getColumn() const;
-  void setOperator(FXint);
-  FXint getOperator() const;
-  FXint getPeriodMultiplier() const;
-  void setPeriodMultiplier(FXint);
+
+  // Validate Text Input
   FXbool validateText();
+
+  // Set Input Type
+  void setInputType(FXint);
+
+  // Set Column
+  void setColumn(FXint);
+
+  // Get Column
+  FXint getColumn() const;
+
+  // Set Operator
+  void setOperator(FXint);
+
+  // Get Operator
+  FXint getOperator() const;
+
+  // Get Time Period Multiplier used by date input
+  FXint getPeriodMultiplier() const;
+
+  // Set Time Period Multiplier used by date input
+  void setPeriodMultiplier(FXint);
+
+  // Get Option Value
   FXint getOptionValue() const;
+
+  // Set Option Value
   void setOptionValue(FXint);
+
+  // Set Time Value
   void setTimeValue(FXint);
+
+  // Get Time Value
   FXint getTimeValue() const;
 public:
   long onCmdDelete(FXObject*,FXSelector,void*);
@@ -62,7 +90,10 @@ public:
 public:
   GMRuleEditor(){}
 public:
+  // Construct Editor for new rule
   GMRuleEditor(FXMatrix * rules,FXWindow * lastrow);
+
+  // Construct Editor for existing rule
   GMRuleEditor(FXMatrix * rules,FXWindow * lastrow,const Rule &);
 
   // Set Rule
@@ -74,10 +105,15 @@ public:
   // Clear any timers
   void clearTimeout();
 
+  // Destructor
   ~GMRuleEditor();
   };
 
 
+
+/*
+  GMSortLimitEditor: Implements UI for one sort colun
+*/
 class GMSortLimitEditor : public FXObject {
   FXDECLARE(GMSortLimitEditor)
 public:
@@ -88,32 +124,50 @@ public:
   FXFrame     * filler2;
 public:
   enum {
-    ID_COLUMN = 1,
-    ID_DELETE,
+    ID_COLUMN = 1,    // Column List
+    ID_DELETE,        // Delete Button
     ID_LAST,
     };
 protected:
+  // Create UI
   void create(FXMatrix *,FXWindow * before);
+
+  // Set Column
   void setColumn(FXint);
+
+  // Get Column
   FXint getColumn() const;
+
+  // Set Sort Order
   void setOrder(FXbool);
+
+  // Get Sort Order
   FXbool getOrder() const;
 public:
   long onCmdDelete(FXObject*,FXSelector,void*);
 public:
   GMSortLimitEditor(){}
 public:
+  // Construct Editor for new column
   GMSortLimitEditor(FXMatrix * rules,FXWindow * lastrow);
+
+  // Construct Editor for existing column
   GMSortLimitEditor(FXMatrix * rules,FXWindow * lastrow,const SortLimit&);
 
+  // Set Sort Limit
   void setSortLimit(const SortLimit &);
 
+  // Get Sort Limit
   void getSortLimit(SortLimit &);
 
+  // Destructor
   ~GMSortLimitEditor();
   };
 
 
+/*
+  GMFilterEditor: Implements full filter editor
+*/
 class GMFilterEditor : public FXDialogBox {
 FXDECLARE(GMFilterEditor)
 protected:
@@ -124,49 +178,55 @@ protected:
   FXTextField * namefield;
   FXSpinner   * limitspinner;
   FXComboBox  * match;
-  FXButton    * addremovelimit;
 protected:
   GMFilterEditor(){}
 private:
   GMFilterEditor(const GMFilterEditor&);
   GMFilterEditor &operator=(const GMFilterEditor&);
+protected:
+  // Get Rule Editor for given index
+  GMRuleEditor * getRuleEditor(FXint index) const;
+
+  // Get Sort Limit Editor for given index
+  GMSortLimitEditor * getSortLimitEditor(FXint index) const;
+
+  // Get Number of Rules
+  FXint getNumRules() const;
+
+  // Get Number of Sort Limits
+  FXint getNumSortLimits() const;
+
+  // Set Match Mode
+  void setMatch(FXint);
+
+  // Get Match Mode
+  FXint getMatch() const;
 public:
   enum {
-    ID_ADD_RULE = FXDialogBox::ID_LAST,
-    ID_ADD_LIMIT,
-    ID_LIMIT,
-    ID_MATCH,
+    ID_ADD_RULE = FXDialogBox::ID_LAST, // Add Rule Button
+    ID_ADD_LIMIT,                       // Add Limit Button
+    ID_LIMIT,                           // Limit Input
+    ID_MATCH,                           // Match Input
     };
 public:
-  long onCmdAccept(FXObject*,FXSelector,void*);
-  long onUpdAccept(FXObject*,FXSelector,void*);
   long onCmdAddRule(FXObject*,FXSelector,void*);
   long onCmdAddLimit(FXObject*,FXSelector,void*);
   long onUpdLimit(FXObject*,FXSelector,void*);
   long onUpdMatch(FXObject*,FXSelector,void*);
 public:
-  GMFilterEditor(FXWindow * p,const GMFilter & query);
+  // Construct Filter Editor for given filter
+  GMFilterEditor(FXWindow * p,const GMFilter & filter);
 
+  // Show Editor Dialog
   void show(FXuint placement);
 
+  // Set Filter
   void setFilter(const GMFilter &);
 
+  // Get Filter
   void getFilter(GMFilter & query) const;
 
-  GMRuleEditor * getRuleEditor(FXint index) const;
-
-  GMSortLimitEditor * getSortLimitEditor(FXint index) const;
-
-  FXint getNumRules() const;
-
-  FXint getNumSortLimits() const;
-
-  void setMatch(FXint);
-
-  FXint getMatch() const;
-
-  void createRule();
-
+  // Destructor
   virtual ~GMFilterEditor();
   };
 

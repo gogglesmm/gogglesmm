@@ -19,10 +19,13 @@
 #ifndef GMDATABASEQUERYSOURCE_H
 #define GMDATABASEQUERYSOURCE_H
 
+/*
+  GMFilterSource: A filter source
+*/
 class GMFilterSource : public GMDatabaseSource {
 FXDECLARE(GMFilterSource)
 protected:
-  static GMSourceList sources;
+  static GMSourceList sources;  // global list of all filters
 public:
   // Initialize Filter Database
   static void init(GMTrackDatabase * database,GMSourceList &);
@@ -33,7 +36,7 @@ public:
   // Create New Filter
   static void create(GMTrackDatabase * database);
 protected:
-  GMFilter match;
+  GMFilter match; // the actual filter
 protected:
   GMFilterSource(){}
 private:
@@ -41,36 +44,46 @@ private:
   GMFilterSource& operator=(const GMFilterSource&);
 public:
   enum {
-    ID_EDIT_NAME = GMDatabaseSource::ID_LAST,
-    ID_EDIT,
-    ID_REMOVE,
+    ID_EDIT = GMDatabaseSource::ID_LAST, // Edit Filter
+    ID_REMOVE,                           // Remove Filter   
     ID_LAST
     };
 public:
   long onCmdEdit(FXObject*,FXSelector,void*);
   long onCmdRemove(FXObject*,FXSelector,void*);
 public:
+  // Construct Filter Source
   GMFilterSource(GMTrackDatabase * db);
+
+  // Construct Filter Source
   GMFilterSource(GMTrackDatabase * db,const GMFilter & query);
 
+  // Update View
   void updateView();
 
+  // Configure
   virtual void configure(GMColumnList&);
 
+  // Source Name
   virtual FXString getName() const;
 
+  // Source Type
   virtual FXint getType() const { return SOURCE_DATABASE_FILTER; }
 
+  // Default Browsing
   virtual FXbool defaultBrowse() const { return true; }
 
+  // Setting Key
   virtual FXString settingKey() const;
 
+  // Source Menu
   virtual FXbool source_menu(FXMenuPane*) {return false;}
 
+  // Source Context Menu
   virtual FXbool source_context_menu(FXMenuPane*);
 
+  // Destructor
   virtual ~GMFilterSource();
   };
-
 
 #endif

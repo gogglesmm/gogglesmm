@@ -22,12 +22,7 @@
 #include "GMFilter.h"
 #include "GMFilterEditor.h"
 
-#define add_column(str,column) columns->appendItem(str,(void*)(FXival)column)
-#define add_period(str,period) periods->appendItem(str,(void*)(FXival)(period))
-#define add_limit_column(str,column) limitcolumn->appendItem(str,NULL,(void*)(FXival)(column))
-#define add_operator(str,opcode) operators->appendItem(str,(void*)(FXival)opcode)
 #define add(list,str,column) list->appendItem(str,(void*)(FXival)column)
-
 
 #define PERIOD_MINUTES (60)
 #define PERIOD_HOURS (60*60)
@@ -41,28 +36,30 @@ struct ColumnDefintion {
   };
 
 
+// Column titles and order of display
 static const ColumnDefintion column_types[]={
-  { Rule::ColumnTitle,"Title" },
-  { Rule::ColumnAlbum,"Album"},
-  { Rule::ColumnAlbumArtist,"Album Artist"},
-  { Rule::ColumnArtist,"Artist"},
-  { Rule::ColumnComposer,"Composer"},
-  { Rule::ColumnConductor, "Conductor"},
-  { Rule::ColumnYear,"Year"},
-  { Rule::ColumnTime,"Duration"},
-  { Rule::ColumnTrackNumber,"Track Number"},
-  { Rule::ColumnDiscNumber,"Disc Number"},
-  { Rule::ColumnPlayCount,"Play Count"},
-  { Rule::ColumnPlayDate,"Last Played"},
-  { Rule::ColumnImportDate,"Last Updated"},
-  { Rule::ColumnFileType,"File Type"},
-  { Rule::ColumnChannels,"Channels"},
-  { Rule::ColumnBitRate,"Bit Rate"},
-  { Rule::ColumnSampleRate,"Sample Rate"},
-  { Rule::ColumnSampleSize,"Sample Size"},
+  { Rule::ColumnTitle,notr("Title")},
+  { Rule::ColumnAlbum,notr("Album")},
+  { Rule::ColumnAlbumArtist,notr("Album Artist")},
+  { Rule::ColumnArtist,notr("Artist")},
+  { Rule::ColumnComposer,notr("Composer")},
+  { Rule::ColumnConductor, notr("Conductor")},
+  { Rule::ColumnYear,notr("Year")},
+  { Rule::ColumnTime,notr("Time")},
+  { Rule::ColumnTrackNumber,notr("Track Number")},
+  { Rule::ColumnDiscNumber,notr("Disc Number")},
+  { Rule::ColumnPlayCount,notr("Play Count")},
+  { Rule::ColumnPlayDate,notr("Last Played")},
+  { Rule::ColumnImportDate,notr("Last Updated")},
+  { Rule::ColumnFileType,notr("File Type")},
+  { Rule::ColumnChannels,notr("Channels")},
+  { Rule::ColumnBitRate,notr("Bit Rate")},
+  { Rule::ColumnSampleRate,notr("Sample Rate")},
+  { Rule::ColumnSampleSize,notr("Sample Size")},
   };
 
 
+// Input Types
 enum {
   InputText    = 1,
   InputYear    = 2,
@@ -73,6 +70,7 @@ enum {
   };
 
 
+// Input Type for each column
 // Keep this in sync with GMFilter::Column* order.
 static const FXint column_input_map[]{
   InputText,    /* ColumnTitle */
@@ -99,13 +97,16 @@ static const FXint column_input_map[]{
   };
 
 
+// Fill Column List
 static void fillColumns(GMComboBox * combobox) {
   for (FXuint i=0;i<ARRAYNUMBER(column_types);i++){
-    combobox->appendItem(column_types[i].name,(void*)(FXival)column_types[i].column);
+    add(combobox,fxtr(column_types[i].name),column_types[i].column);
     }
   combobox->setNumVisible(FXMIN(9,combobox->getNumItems()));
   }
 
+
+// Fill Option List
 static void fillOptions(GMComboBox * c,FXint column) {
   c->clearItems();
   switch(column) {
@@ -125,6 +126,8 @@ static void fillOptions(GMComboBox * c,FXint column) {
   }
 
 
+
+
 FXDEFMAP(GMRuleEditor) GMRuleEditorMap[]={
   FXMAPFUNC(SEL_COMMAND,GMRuleEditor::ID_COLUMN,GMRuleEditor::onCmdColumn),
   FXMAPFUNC(SEL_COMMAND,GMRuleEditor::ID_OPERATOR,GMRuleEditor::onCmdText),
@@ -137,17 +140,20 @@ FXDEFMAP(GMRuleEditor) GMRuleEditorMap[]={
 FXIMPLEMENT(GMRuleEditor,FXObject,GMRuleEditorMap,ARRAYNUMBER(GMRuleEditorMap))
 
 
+// Construct rule editor for new rule
+GMRuleEditor::GMRuleEditor(FXMatrix * parent,FXWindow * before) {
+  create(parent,before);
+  }
+
+
+// Construct rule editor for existing rule
 GMRuleEditor::GMRuleEditor(FXMatrix * parent,FXWindow * before,const Rule & rule) {
   create(parent,before);
   setRule(rule);
   }
 
 
-GMRuleEditor::GMRuleEditor(FXMatrix * parent,FXWindow * before) {
-  create(parent,before);
-  }
-
-
+// Destructor
 GMRuleEditor::~GMRuleEditor(){
   delete valueswitcher;
   delete operators;
@@ -156,12 +162,15 @@ GMRuleEditor::~GMRuleEditor(){
   }
 
 
+// Clear Timeout
+// This needs to be called by the filter editor before it deletes itself
 void GMRuleEditor::clearTimeout() {
   text->getApp()->removeTimeout(this,ID_TEXT);
   }
 
 
-void GMRuleEditor::create(FXMatrix * rules,FXWindow * lastrow) {
+// Create UI
+void GMRuleEditor::create(FXMatrix * rules,FXWindow * before) {
 
   // List of Columns
   columns = new GMComboBox(rules,10,this,ID_COLUMN,LAYOUT_FILL_X|COMBOBOX_STATIC);
@@ -178,49 +187,50 @@ void GMRuleEditor::create(FXMatrix * rules,FXWindow * lastrow) {
   // Delete button
   closebutton = new GMButton(rules,fxtr("\tRemove Rule\tRemove Rule"),GMIconTheme::instance()->icon_remove,this,ID_DELETE,BUTTON_TOOLBAR|FRAME_RAISED);
 
-  // #0 Simple Text Input
-  text = new GMTextField(valueswitcher,20,this,ID_TEXT,LAYOUT_FILL_X);
+    // #0 Simple Text Input
+    text = new GMTextField(valueswitcher,20,this,ID_TEXT,LAYOUT_FILL_X);
 
-  // #1 Year Input / #3 Number
-  FXHorizontalFrame * spinnerframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-  spinner = new GMSpinner(spinnerframe,6,NULL,0);
-  spinner->setRange(0,2020);
-  spinner->setValue(2015);
+    // #1 Year Input / #3 Number
+    FXHorizontalFrame * spinnerframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
+    spinner = new GMSpinner(spinnerframe,6,NULL,0);
+    spinner->setRange(0,2020);
+    spinner->setValue(2015);
 
-  // #2 Date Input
-  FXHorizontalFrame * dateframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-  datetimespinner = new GMSpinner(dateframe,6,NULL,0);
-  periods = new GMComboBox(dateframe,0,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
-  add_period("Minutes",PERIOD_MINUTES);
-  add_period("Hours",PERIOD_HOURS);
-  add_period("Days",PERIOD_DAYS);
-  add_period("Weeks",PERIOD_WEEKS);
-  periods->setNumVisible(FXMIN(9,periods->getNumItems()));
+    // #2 Date Input
+    FXHorizontalFrame * dateframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
+    datetimespinner = new GMSpinner(dateframe,6,NULL,0);
+    periods = new GMComboBox(dateframe,0,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
+    add(periods,fxtr("Minutes"),PERIOD_MINUTES);
+    add(periods,fxtr("Hours"),PERIOD_HOURS);
+    add(periods,fxtr("Days"),PERIOD_DAYS);
+    add(periods,fxtr("Weeks"),PERIOD_WEEKS);
+    periods->setNumVisible(FXMIN(9,periods->getNumItems()));
 
-  // #3 Filetypes
-  FXHorizontalFrame * optionframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-  options = new GMComboBox(optionframe,0,NULL,0,COMBOBOX_STATIC);
+    // #3 Filetypes
+    FXHorizontalFrame * optionframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
+    options = new GMComboBox(optionframe,0,NULL,0,COMBOBOX_STATIC);
 
-  // #4 Time
-  FXHorizontalFrame * timeframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-  time_minutes = new GMSpinner(timeframe,3,NULL,0);
-  time_minutes->setRange(0,24*60);
-  new FXLabel(timeframe,":");
-  time_seconds = new GMSpinner(timeframe,3,NULL,0);
-  time_seconds->setRange(0,59);
+    // #4 Time
+    FXHorizontalFrame * timeframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
+    time_minutes = new GMSpinner(timeframe,3,NULL,0);
+    time_minutes->setRange(0,24*60);
+    new FXLabel(timeframe,":");
+    time_seconds = new GMSpinner(timeframe,3,NULL,0);
+    time_seconds->setRange(0,59);
 
   // Put into correct position of the matrix
   if (rules->id()) rules->create();
-  columns->reparent(rules,lastrow);
-  operators->reparent(rules,lastrow);
-  valueswitcher->reparent(rules,lastrow);
-  closebutton->reparent(rules,lastrow);
+  columns->reparent(rules,before);
+  operators->reparent(rules,before);
+  valueswitcher->reparent(rules,before);
+  closebutton->reparent(rules,before);
 
   // Initialize all fields
   setInputType(column_input_map[getColumn()]);
   }
 
 
+// Set Rule
 void GMRuleEditor::setRule(const Rule & rule) {
   setColumn(rule.column);
   setOperator(rule.opcode);
@@ -260,6 +270,7 @@ void GMRuleEditor::setRule(const Rule & rule) {
   }
 
 
+// Get rule
 void GMRuleEditor::getRule(Rule & rule) {
   rule.column = getColumn();
   rule.opcode = getOperator();
@@ -290,6 +301,7 @@ void GMRuleEditor::getRule(Rule & rule) {
   }
 
 
+// Set Column
 void GMRuleEditor::setColumn(FXint column) {
   FXint item = columns->findItemByData((void*)(FXival)column);
   FXASSERT(item>=0);
@@ -297,11 +309,13 @@ void GMRuleEditor::setColumn(FXint column) {
   }
 
 
+// Get Column
 FXint GMRuleEditor::getColumn() const {
   return (FXint)(FXival)columns->getItemData(columns->getCurrentItem());
   }
 
 
+// Set Operator
 void GMRuleEditor::setOperator(FXint opcode) {
   FXint item = operators->findItemByData((void*)(FXival)opcode);
   FXASSERT(item>=0);
@@ -309,11 +323,13 @@ void GMRuleEditor::setOperator(FXint opcode) {
   }
 
 
+// Get Operator
 FXint GMRuleEditor::getOperator() const {
   return (FXint)(FXival)operators->getItemData(operators->getCurrentItem());
   }
 
 
+// Set Option Value
 void GMRuleEditor::setOptionValue(FXint option) {
   FXint item = options->findItemByData((void*)(FXival)option);
   FXASSERT(item>=0);
@@ -321,11 +337,13 @@ void GMRuleEditor::setOptionValue(FXint option) {
   }
 
 
+// Get Option Value
 FXint GMRuleEditor::getOptionValue() const {
   return (FXint)(FXival)options->getItemData(options->getCurrentItem());
   }
 
 
+// Set Time Value
 void GMRuleEditor::setTimeValue(FXint value){
   FXint minutes = value / 60;
   FXint seconds = value % 60;
@@ -333,63 +351,69 @@ void GMRuleEditor::setTimeValue(FXint value){
   time_seconds->setValue(seconds);
   }
 
+
+// Get Time Value
 FXint GMRuleEditor::getTimeValue() const {
   return (time_minutes->getValue()*60)+(time_seconds->getValue());
   }
 
 
+// Set Time Period Multiplier for date inputs
 void GMRuleEditor::setPeriodMultiplier(FXint value){
   FXint item = periods->findItemByData((void*)(FXival)value);
   periods->setCurrentItem(item,true);
   }
 
 
+// Get Time Period Multiplier for date inputs
 FXint GMRuleEditor::getPeriodMultiplier() const {
   return (FXint)(FXival)periods->getItemData(periods->getCurrentItem());
   }
 
+
+// Set the Input Type
 void GMRuleEditor::setInputType(FXint type) {
   FXint current = (FXint)(FXival)operators->getUserData();
   if (current!=type) {
     operators->clearItems();
     switch(type) {
       case InputText:
-        add_operator("contains",Rule::OperatorLike);
-        add_operator("does not contain",Rule::OperatorNotLike);
-        add_operator("equals",Rule::OperatorEquals);
-        add_operator("not equal to",Rule::OperatorNotEqual);
-        add_operator("starts with",Rule::OperatorPrefix);
-        add_operator("ends with",Rule::OperatorSuffix);
-        add_operator("matches",Rule::OperatorMatch);
+        add(operators,fxtr("contains"),Rule::OperatorLike);
+        add(operators,fxtr("does not contain"),Rule::OperatorNotLike);
+        add(operators,fxtr("equals"),Rule::OperatorEquals);
+        add(operators,fxtr("not equal to"),Rule::OperatorNotEqual);
+        add(operators,fxtr("starts with"),Rule::OperatorPrefix);
+        add(operators,fxtr("ends with"),Rule::OperatorSuffix);
+        add(operators,fxtr("matches"),Rule::OperatorMatch);
         validateText();
         valueswitcher->setCurrent(0);
         break;
       case InputYear:
-        add_operator("in",Rule::OperatorEquals);
-        add_operator("not in",Rule::OperatorNotEqual);
-        add_operator("before",Rule::OperatorLess);
-        add_operator("after",Rule::OperatorGreater);
+        add(operators,fxtr("in"),Rule::OperatorEquals);
+        add(operators,fxtr("not in"),Rule::OperatorNotEqual);
+        add(operators,fxtr("before"),Rule::OperatorLess);
+        add(operators,fxtr("after"),Rule::OperatorGreater);
         valueswitcher->setCurrent(1);
         break;
       case InputDate:
-        add_operator("in the last",Rule::OperatorGreater);
-        add_operator("not in the last",Rule::OperatorLess);
+        add(operators,fxtr("in the last"),Rule::OperatorGreater);
+        add(operators,fxtr("not in the last"),Rule::OperatorLess);
         valueswitcher->setCurrent(2);
         break;
       case InputInteger:
       case InputTime:
-        add_operator("equals",Rule::OperatorEquals);
-        add_operator("not equal to",Rule::OperatorNotEqual);
-        add_operator("at least",Rule::OperatorGreater);
-        add_operator("at most",Rule::OperatorLess);
+        add(operators,fxtr("equals"),Rule::OperatorEquals);
+        add(operators,fxtr("not equal to"),Rule::OperatorNotEqual);
+        add(operators,fxtr("at least"),Rule::OperatorGreater);
+        add(operators,fxtr("at most"),Rule::OperatorLess);
         if (type==InputTime)
           valueswitcher->setCurrent(4);
         else
           valueswitcher->setCurrent(1);
         break;
       case InputOption:
-        add_operator("equals",Rule::OperatorEquals);
-        add_operator("not equal to",Rule::OperatorNotEqual);
+        add(operators,fxtr("equals"),Rule::OperatorEquals);
+        add(operators,fxtr("not equal to"),Rule::OperatorNotEqual);
         valueswitcher->setCurrent(3);
         fillOptions(options,getColumn());
         break;
@@ -428,18 +452,21 @@ void GMRuleEditor::setInputType(FXint type) {
   }
 
 
+// Column Changed
 long GMRuleEditor::onCmdColumn(FXObject*,FXSelector,void*) {
   setInputType(column_input_map[getColumn()]);
   return 1;
   }
 
 
+// Rule Deleted
 long GMRuleEditor::onCmdDelete(FXObject*,FXSelector,void*) {
   delete this;
   return 1;
   }
 
 
+// Validate Text Input
 FXbool GMRuleEditor::validateText(){
   if (getOperator()==Rule::OperatorMatch) {
     if (!text->getText().empty()){
@@ -458,6 +485,7 @@ FXbool GMRuleEditor::validateText(){
   }
 
 
+// Text Changed
 long GMRuleEditor::onCmdText(FXObject*,FXSelector sel,void*) {
   if (getOperator()==Rule::OperatorMatch) {
     if (FXSELTYPE(sel)==SEL_CHANGED) {
@@ -470,6 +498,8 @@ long GMRuleEditor::onCmdText(FXObject*,FXSelector sel,void*) {
   }
 
 
+
+
 FXDEFMAP(GMSortLimitEditor) GMSortLimitEditorMap[]={
   FXMAPFUNC(SEL_COMMAND,GMSortLimitEditor::ID_DELETE,GMSortLimitEditor::onCmdDelete),
   };
@@ -477,17 +507,20 @@ FXDEFMAP(GMSortLimitEditor) GMSortLimitEditorMap[]={
 FXIMPLEMENT(GMSortLimitEditor,FXObject,GMSortLimitEditorMap,ARRAYNUMBER(GMSortLimitEditorMap))
 
 
+// Construct Editor for new sort limit
+GMSortLimitEditor::GMSortLimitEditor(FXMatrix * parent,FXWindow * before) {
+  create(parent,before);
+  }
+
+
+// Construct Editor for existing sort limit
 GMSortLimitEditor::GMSortLimitEditor(FXMatrix * parent,FXWindow * before,const SortLimit & limit) {
   create(parent,before);
   setSortLimit(limit);
   }
 
 
-GMSortLimitEditor::GMSortLimitEditor(FXMatrix * parent,FXWindow * before) {
-  create(parent,before);
-  }
-
-
+// Destructor
 GMSortLimitEditor::~GMSortLimitEditor(){
   delete order;
   delete columns;
@@ -497,6 +530,7 @@ GMSortLimitEditor::~GMSortLimitEditor(){
   }
 
 
+// Set Column
 void GMSortLimitEditor::setColumn(FXint column) {
   FXint item = columns->findItemByData((void*)(FXival)column);
   FXASSERT(item>=0);
@@ -504,11 +538,13 @@ void GMSortLimitEditor::setColumn(FXint column) {
   }
 
 
+// Get Column
 FXint GMSortLimitEditor::getColumn() const {
   return (FXint)(FXival)columns->getItemData(columns->getCurrentItem());
   }
 
 
+// Set Order
 void GMSortLimitEditor::setOrder(FXbool ascending) {
   if (ascending)
     order->setCurrentItem(0);
@@ -517,11 +553,13 @@ void GMSortLimitEditor::setOrder(FXbool ascending) {
   }
 
 
+// Get Order
 FXbool GMSortLimitEditor::getOrder() const {
   return order->getCurrentItem()==0;
   }
 
 
+// Set Sort Limit
 void GMSortLimitEditor::setSortLimit(const SortLimit & limit) {
   setColumn(limit.column);
   if (limit.ascending)
@@ -531,21 +569,23 @@ void GMSortLimitEditor::setSortLimit(const SortLimit & limit) {
   }
 
 
+// Get Sort Limit
 void GMSortLimitEditor::getSortLimit(SortLimit & limit){
   limit.column = getColumn();
   limit.ascending = getOrder();
   }
 
 
-void GMSortLimitEditor::create(FXMatrix * rules,FXWindow * lastrow) {
+// Create UI
+void GMSortLimitEditor::create(FXMatrix * rules,FXWindow * before) {
   // List of Columns
   columns = new GMComboBox(rules,12,this,ID_COLUMN,LAYOUT_FILL_X|COMBOBOX_STATIC);
   columns->setUserData(this);
   fillColumns(columns);
 
   order = new GMComboBox(rules,10,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
-  order->appendItem("Ascending");
-  order->appendItem("Descending");
+  order->appendItem(fxtr("Ascending"));
+  order->appendItem(fxtr("Descending"));
   order->setNumVisible(2);
 
   closebutton = new GMButton(rules,fxtr("\tRemove Column\tRemove Column"),GMIconTheme::instance()->icon_remove,this,ID_DELETE,BUTTON_TOOLBAR|FRAME_RAISED);
@@ -554,24 +594,26 @@ void GMSortLimitEditor::create(FXMatrix * rules,FXWindow * lastrow) {
   filler2 = new FXFrame(rules,FRAME_NONE);
 
   if (rules->id()) rules->create();
-  columns->reparent(rules,lastrow);
-  order->reparent(rules,lastrow);
-  closebutton->reparent(rules,lastrow);
-  filler1->reparent(rules,lastrow);
-  filler2->reparent(rules,lastrow);
+  columns->reparent(rules,before);
+  order->reparent(rules,before);
+  closebutton->reparent(rules,before);
+  filler1->reparent(rules,before);
+  filler2->reparent(rules,before);
 
   columns->setUserData(this);
   }
 
 
+// Limit Deleted
 long GMSortLimitEditor::onCmdDelete(FXObject*,FXSelector,void*) {
   delete this;
   return 1;
   }
 
 
+
+
 FXDEFMAP(GMFilterEditor) GMFilterEditorMap[]={
-  FXMAPFUNC(SEL_UPDATE,FXDialogBox::ID_ACCEPT,GMFilterEditor::onUpdAccept),
   FXMAPFUNC(SEL_UPDATE,GMFilterEditor::ID_LIMIT,GMFilterEditor::onUpdLimit),
   FXMAPFUNC(SEL_UPDATE,GMFilterEditor::ID_MATCH,GMFilterEditor::onUpdMatch),
   FXMAPFUNC(SEL_COMMAND,GMFilterEditor::ID_ADD_RULE,GMFilterEditor::onCmdAddRule),
@@ -581,6 +623,7 @@ FXDEFMAP(GMFilterEditor) GMFilterEditorMap[]={
 FXIMPLEMENT(GMFilterEditor,FXDialogBox,GMFilterEditorMap,ARRAYNUMBER(GMFilterEditorMap))
 
 
+// Construct Filter Editor
 GMFilterEditor::GMFilterEditor(FXWindow *p,const GMFilter & query) : FXDialogBox(p,"Edit Filter",DECOR_BORDER|DECOR_TITLE|DECOR_STRETCHABLE,0,0,600,250,0,0,0,0,0,0) {
 
   FXWindow * filler;
@@ -594,47 +637,47 @@ GMFilterEditor::GMFilterEditor(FXWindow *p,const GMFilter & query) : FXDialogBox
 
   // Filter Name
   FXMatrix  * header = new FXMatrix(main,2,LAYOUT_FILL|MATRIX_BY_COLUMNS);
-  new FXLabel(header,"Name:",NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  new FXLabel(header,tr("Name:"),NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   namefield = new GMTextField(header,30,NULL,0,LAYOUT_FILL_COLUMN);
 
   // Match All or Any
-  new FXLabel(header,"Match:",NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  new FXLabel(header,tr("Match:"),NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   match = new GMComboBox(header,3,this,ID_MATCH,LAYOUT_FILL_COLUMN|COMBOBOX_STATIC);
-  match->appendItem("All",(void*)(FXival)GMFilter::MatchAll);
-  match->appendItem("Any",(void*)(FXival)GMFilter::MatchAny);
+  add(match,tr("All"),GMFilter::MatchAll);
+  add(match,tr("Any"),GMFilter::MatchAny);
   match->setNumVisible(2);
 
   // Filter Rules
-  new FXLabel(header,"Filter:",NULL,LAYOUT_RIGHT);
+  new FXLabel(header,tr("Filter:"),NULL,LAYOUT_RIGHT);
   rules = new FXMatrix(header,4,LAYOUT_FILL|MATRIX_BY_COLUMNS|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-
   filler = new GMComboBox(rules,12,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   filler->disable();
   rules_offset = filler;
-
   filler = new GMComboBox(rules,12,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   filler->disable();
   filler = new GMTextField(rules,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
   filler->disable();
-  new GMButton(rules,fxtr("\tAdd Filter\tAdd Filter"),GMIconTheme::instance()->icon_add,this,ID_ADD_RULE,BUTTON_TOOLBAR|FRAME_RAISED);
+  new GMButton(rules,tr("\tAdd Filter\tAdd Filter"),GMIconTheme::instance()->icon_add,this,ID_ADD_RULE,BUTTON_TOOLBAR|FRAME_RAISED);
 
   // Limits
-  new FXLabel(header,"Limit:",NULL,LAYOUT_RIGHT);
+  new FXLabel(header,tr("Limit:"),NULL,LAYOUT_RIGHT);
   limits = new FXMatrix(header,5,LAYOUT_FILL|MATRIX_BY_COLUMNS|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
   limitspinner = new GMSpinner(limits,6,this,ID_LIMIT,SPIN_NOMAX);
   limitspinner->setRange(0,0);
-  new FXLabel(limits,"songs sorted by:",NULL,LAYOUT_CENTER_Y);
+  new FXLabel(limits,tr("tracks sorted by:"),NULL,LAYOUT_CENTER_Y);
   limitspinner->disable();
   filler = new GMComboBox(limits,12,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   filler->disable();
   limits_offset = filler;
   filler = new GMComboBox(limits,10,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   filler->disable();
-  new GMButton(limits,fxtr("\tAdd Column\tAdd Column"),GMIconTheme::instance()->icon_add,this,ID_ADD_LIMIT,BUTTON_TOOLBAR|FRAME_RAISED);
+  new GMButton(limits,tr("\tAdd Column\tAdd Column"),GMIconTheme::instance()->icon_add,this,ID_ADD_LIMIT,BUTTON_TOOLBAR|FRAME_RAISED);
 
   setFilter(query);
   }
 
+
+// Destructor
 GMFilterEditor::~GMFilterEditor(){
   for (FXint i=0;i<getNumRules();i++){
     getRuleEditor(i)->clearTimeout();
@@ -642,12 +685,14 @@ GMFilterEditor::~GMFilterEditor(){
   }
 
 
+// Show Editor
 void GMFilterEditor::show(FXuint placement){
   resize(getWidth(),getDefaultHeight());
   FXDialogBox::show(placement);
   }
 
 
+// Set Match Mode
 void GMFilterEditor::setMatch(FXint matchrule) {
   if (matchrule==GMFilter::MatchAll)
     match->setCurrentItem(0);
@@ -656,31 +701,37 @@ void GMFilterEditor::setMatch(FXint matchrule) {
   }
 
 
+// Get Match Mode
 FXint GMFilterEditor::getMatch() const {
   return (FXint)(FXival)match->getItemData(match->getCurrentItem());
   }
 
 
+// Get Number of Rules
 FXint GMFilterEditor::getNumRules() const {
   return (rules->numChildren() / 4) - 1;
   }
 
 
+// Get Number of Limits
 FXint GMFilterEditor::getNumSortLimits() const {
   return (limits->numChildren() / 5) - 1;
   }
 
 
+// Get Editor at index
 GMRuleEditor * GMFilterEditor::getRuleEditor(FXint index) const {
   return static_cast<GMRuleEditor*>(rules->childAtIndex((index*4))->getUserData());
   }
 
 
+// Get Editor at index
 GMSortLimitEditor * GMFilterEditor::getSortLimitEditor(FXint index) const {
   return static_cast<GMSortLimitEditor*>(limits->childAtIndex((index*5)+2)->getUserData());
   }
 
 
+// Set Filter
 void GMFilterEditor::setFilter(const GMFilter & query) {
   namefield->setText(query.name);
 
@@ -699,6 +750,7 @@ void GMFilterEditor::setFilter(const GMFilter & query) {
   }
 
 
+// Get Filter
 void GMFilterEditor::getFilter(GMFilter & query) const {
   query.name  = namefield->getText();
   query.limit = limitspinner->getValue();
@@ -716,6 +768,7 @@ void GMFilterEditor::getFilter(GMFilter & query) const {
   }
 
 
+// Add a new rule
 long GMFilterEditor::onCmdAddRule(FXObject*,FXSelector,void*){
   new GMRuleEditor(rules,rules_offset);
   resize(getWidth(),FXMAX(getHeight(),getDefaultHeight()));
@@ -723,6 +776,7 @@ long GMFilterEditor::onCmdAddRule(FXObject*,FXSelector,void*){
   }
 
 
+// Add a new limit
 long GMFilterEditor::onCmdAddLimit(FXObject*,FXSelector,void*){
   new GMSortLimitEditor(limits,limits_offset);
   resize(getWidth(),FXMAX(getHeight(),getDefaultHeight()));
@@ -730,17 +784,7 @@ long GMFilterEditor::onCmdAddLimit(FXObject*,FXSelector,void*){
   }
 
 
-long GMFilterEditor::onCmdAccept(FXObject*sender,FXSelector sel,void*ptr){
-  return FXDialogBox::onCmdAccept(sender,sel,ptr);
-  }
-
-
-long GMFilterEditor::onUpdAccept(FXObject*sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  return 1;
-  }
-
-
+// Update handler for limit
 long GMFilterEditor::onUpdLimit(FXObject*sender,FXSelector,void*){
   if (limits->numChildren()>5) {
     limitspinner->setRange(1,99999);
@@ -754,6 +798,7 @@ long GMFilterEditor::onUpdLimit(FXObject*sender,FXSelector,void*){
   }
 
 
+// Update handler for match mode
 long GMFilterEditor::onUpdMatch(FXObject*sender,FXSelector,void*){
   if (getNumRules()>1) {
     sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);

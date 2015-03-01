@@ -22,21 +22,7 @@
 #include "GMFilterEditor.h"
 
 
-void Rule::load(FXStream & store){
-  store >> column;
-  store >> opcode;
-  store >> value;
-  store >> text;
-  }
-
-void Rule::save(FXStream & store) const {
-  store << column;
-  store << opcode;
-  store << value;
-  store << text;
-  }
-
-
+// Column Lookup Table
 static const FXchar * const column_lookup[]={
   "tracks.title",
   "track_artist.name",
@@ -61,7 +47,7 @@ static const FXchar * const column_lookup[]={
   "-tracks.bitrate",
   };
 
-
+// Operator Lookup Table
 static const FXchar * const operator_lookup[]={
   "LIKE",
   "NOT LIKE",
@@ -75,14 +61,17 @@ static const FXchar * const operator_lookup[]={
   };
 
 
+
+
+// Get sql match string
 FXString Rule::getMatch() const {
   switch(column) {
     case ColumnTitle:
     case ColumnArtist:
-    case ColumnAlbum:
     case ColumnAlbumArtist:
-    case ColumnConductor:
     case ColumnComposer:
+    case ColumnConductor:
+    case ColumnAlbum:
     case ColumnPath:
       {
         switch(opcode) {
@@ -98,14 +87,14 @@ FXString Rule::getMatch() const {
           }
       } break;
     case ColumnYear:
-    case ColumnPlayCount:
-    case ColumnChannels:
-    case ColumnSampleRate:
     case ColumnTime:
-    case ColumnSampleSize:
-    case ColumnBitRate:
     case ColumnTrackNumber:
     case ColumnDiscNumber:
+    case ColumnPlayCount:
+    case ColumnChannels:
+    case ColumnBitRate:
+    case ColumnSampleRate:
+    case ColumnSampleSize:
       {
         switch(opcode) {
           case OperatorEquals     :
@@ -135,25 +124,53 @@ FXString Rule::getMatch() const {
   }
 
 
+// Load from stream
+void Rule::load(FXStream & store){
+  store >> column;
+  store >> opcode;
+  store >> value;
+  store >> text;
+  }
+
+
+// Save to stream
+void Rule::save(FXStream & store) const {
+  store << column;
+  store << opcode;
+  store << value;
+  store << text;
+  }
+
+
+
+
+// Get sql match string
 FXString SortLimit::getMatch() const {
   return FXString::value("%s %s",column_lookup[column],ascending ? "ASC" : "DESC");
   }
 
 
+// Load from stream
 void SortLimit::load(FXStream & store){
   store >> column;
   store >> ascending;
   }
 
+
+// Save to stream
 void SortLimit::save(FXStream & store) const {
   store << column;
   store << ascending;
   }
 
 
+
+
+// Generator for unique id
 FXint GMFilter::nextid = 0;
 
 
+// Default Filter
 GMFilter::GMFilter() :
   id(nextid++),
   name("Untitled"),
@@ -162,6 +179,8 @@ GMFilter::GMFilter() :
   match(MatchAll){
   }
 
+
+// Construct integer input filter with name, column, opcode and value
 GMFilter::GMFilter(const FXString & n,FXint column,FXint opcode,FXint value) :
   id(nextid++),
   name(n),
@@ -170,6 +189,8 @@ GMFilter::GMFilter(const FXString & n,FXint column,FXint opcode,FXint value) :
   rules.append(Rule(column,opcode,value));
   }
 
+
+// Get sql match string
 FXString GMFilter::getMatch() const {
   FXString query;
   FXString rule = (match == MatchAll) ? " AND " : " OR ";
@@ -194,6 +215,8 @@ FXString GMFilter::getMatch() const {
   return query;
   }
 
+
+// Load from stream
 void GMFilter::load(FXStream & store) {
   FXint nitems=0;
   store >> id;
@@ -218,6 +241,8 @@ void GMFilter::load(FXStream & store) {
   store >> match;
   }
 
+
+// Save to stream
 void GMFilter::save(FXStream & store) const {
   FXint nitems;
   store << id;

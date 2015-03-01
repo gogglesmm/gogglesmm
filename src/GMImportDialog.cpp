@@ -164,7 +164,7 @@ GMDirSelector::GMDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
 //  accept=new FXButton(buttons,tr("&OK"),NULL,NULL,0,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
 //  cancel=new FXButton(buttons,tr("&Cancel"),NULL,NULL,0,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
   FXHorizontalFrame *field=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
-  new FXLabel(field,tr("&Directory:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
+  new FXLabel(field,tr("&Folder:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
   dirname=new GMTextField(field,25,this,ID_DIRNAME,LAYOUT_FILL_X|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK);
 
   GMScrollFrame *frame=new GMScrollFrame(this);
@@ -488,7 +488,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     fileselector->cancelButton()->setSelector(FXDialogBox::ID_CANCEL);
     }
   else if (mode&IMPORT_FROMDIR) {
-    new GMTabItem(tabbook,tr("&Directory"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+    new GMTabItem(tabbook,tr("&Folder"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
     vframe = new GMTabFrame(tabbook);
 
     GMCheckButton * excludetoggle = new GMCheckButton(vframe,tr("Exclude Filter\tFilter out directories and/or files based on pattern"),NULL,0,CHECKBUTTON_NORMAL|CHECKBUTTON_PLUS);
@@ -538,7 +538,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
 
   hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
   new GMRadioButton(hframe,tr("Tag"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_TAG,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
-  new GMRadioButton(hframe,tr("Filename"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_FILENAME,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
+  new GMRadioButton(hframe,tr("Path"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_FILENAME,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
   new GMRadioButton(hframe,tr("Both"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_BOTH,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
 
   new FXLabel(matrix,tr("Default value:"),NULL,labelstyle);
@@ -557,7 +557,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
-  template_grpbox =  new FXGroupBox(vframe,tr("Filename Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+  template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   template_grpbox->setFont(GMApp::instance()->getThickFont());
 
   FXLabel * label = new FXLabel(template_grpbox,tr("%T - title              %A - album name\n"
