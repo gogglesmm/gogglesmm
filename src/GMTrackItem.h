@@ -38,6 +38,7 @@ protected:
   FXint    albumartist;   /* 4 - 4 */ //FIXME pointer to FXString instead?
   FXint    composer;      /* 4 - 4 */ //FIXME pointer to FXString instead?
   FXint    conductor;     /* 4 - 4 */ //FIXME pointer to FXString instead?
+  FXint    albumid;       /* 4 - 4 */
   FXint    time;          /* 4 - 4 */
   FXuint   no;            /* 4 - 4 */
   FXint    queue;         /* 4 - 4 */
@@ -102,6 +103,7 @@ public:
                 FXint albumartist,
                 FXint composer,
                 FXint conductor,
+                FXint albumid,
                 const FXchar * album,
                 FXint time,
                 FXuint no,

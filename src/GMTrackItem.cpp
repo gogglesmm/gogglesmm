@@ -106,7 +106,7 @@ FXint GMDBTrackItem::max_digits(FXint num){
   }
 
 
-GMDBTrackItem::GMDBTrackItem(FXint track_id,FXint track_path,const FXchar * track_mrl,const FXchar * track_title,FXint track_artist,FXint track_album_artist,FXint track_composer,FXint track_conductor,const FXchar * track_album,FXint track_time,FXuint track_no,FXint track_queue,FXushort track_year,FXushort track_album_year,FXushort track_playcount,FXuchar track_filetype,FXint track_bitrate,FXint track_samplerate,FXuchar track_channels,FXlong track_playdate,FXuchar track_rating) :
+GMDBTrackItem::GMDBTrackItem(FXint track_id,FXint track_path,const FXchar * track_mrl,const FXchar * track_title,FXint track_artist,FXint track_album_artist,FXint track_composer,FXint track_conductor,FXint album_id,const FXchar * track_album,FXint track_time,FXuint track_no,FXint track_queue,FXushort track_year,FXushort track_album_year,FXushort track_playcount,FXuchar track_filetype,FXint track_bitrate,FXint track_samplerate,FXuchar track_channels,FXlong track_playdate,FXuchar track_rating) :
   GMTrackItem(track_id), mrl(track_mrl),
                  title(track_title),
                  album(track_album),
@@ -114,6 +114,7 @@ GMDBTrackItem::GMDBTrackItem(FXint track_id,FXint track_path,const FXchar * trac
                  artist(track_artist),
                  albumartist(track_album_artist),
                  composer(track_composer),conductor(track_conductor),
+                 albumid(album_id),
                  time(track_time),
                  no(track_no),
                  queue(track_queue),
@@ -281,9 +282,13 @@ FXint GMDBTrackItem::browseSort(const GMTrackItem * pa,const GMTrackItem * pb){
   x = keywordcompare(GET_ARTIST_STRING(ta->albumartist),GET_ARTIST_STRING(tb->albumartist));
   if (x!=0) return (GMTrackView::reverse_artist) ? -x : x;
 
+  if (ta->albumid>tb->albumid) return 1;
+  else if (ta->albumid<tb->albumid) return -1;
+
   /// Track & Disc
   if (ta->no>tb->no) return 1;
   else if (ta->no<tb->no) return -1;
+
   return 0;
   }
 
@@ -472,6 +477,9 @@ FXint GMDBTrackItem::ascendingAlbum(const GMTrackItem* pa,const GMTrackItem* pb)
   FXint x = keywordcompare(ta->album,tb->album);
   if (x!=0) return x;
 
+  if (ta->albumid>tb->albumid) return 1;
+  else if (ta->albumid<tb->albumid) return -1;
+
   /// Track & Disc
   return VALUE_SORT_ASC(ta->no,tb->no);
   }
@@ -483,6 +491,9 @@ FXint GMDBTrackItem::descendingAlbum(const GMTrackItem* pa,const GMTrackItem* pb
 
   FXint x = keywordcompare(tb->album,ta->album);
   if (x!=0) return x;
+
+  if (ta->albumid>tb->albumid) return -1;
+  else if (ta->albumid<tb->albumid) return 1;
 
   /// Track & Disc (keep track order ascending)
   return VALUE_SORT_ASC(ta->no,tb->no);
@@ -500,6 +511,9 @@ FXint GMDBTrackItem::ascendingArtist(const GMTrackItem* pa,const GMTrackItem* pb
   x = keywordcompare(ta->album,tb->album);
   if (x!=0) return x;
 
+  if (ta->albumid>tb->albumid) return 1;
+  else if (ta->albumid<tb->albumid) return -1;
+
   /// Track & Disc
   return VALUE_SORT_ASC(ta->no,tb->no);
   }
@@ -515,6 +529,9 @@ FXint GMDBTrackItem::descendingArtist(const GMTrackItem* pa,const GMTrackItem* p
 
   x = keywordcompare(ta->album,tb->album);
   if (x!=0) return x;
+
+  if (ta->albumid>tb->albumid) return -1;
+  else if (ta->albumid<tb->albumid) return 1;
 
   /// Track & Disc (keep track order ascending)
   return VALUE_SORT_ASC(ta->no,tb->no);
@@ -533,6 +550,10 @@ FXint GMDBTrackItem::ascendingAlbumArtist(const GMTrackItem* pa,const GMTrackIte
   x = keywordcompare(ta->album,tb->album);
   if (x!=0) return x;
 
+  if (ta->albumid>tb->albumid) return 1;
+  else if (ta->albumid<tb->albumid) return -1;
+
+
   /// Track & Disc
   return VALUE_SORT_ASC(ta->no,tb->no);
   }
@@ -550,6 +571,10 @@ FXint GMDBTrackItem::descendingAlbumArtist(const GMTrackItem* pa,const GMTrackIt
   x = keywordcompare(ta->album,tb->album);
   if (x!=0) return x;
 
+  if (ta->albumid>tb->albumid) return -1;
+  else if (ta->albumid<tb->albumid) return 1;
+
+
   /// Track & Disc (keep track order ascending)
   return VALUE_SORT_ASC(ta->no,tb->no);
   }
@@ -559,17 +584,16 @@ FXint GMDBTrackItem::ascendingComposer(const GMTrackItem* pa,const GMTrackItem* 
   const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
 
-  FXint a=0,b=0,x;
+  FXint x;
 
   x = keywordcompare(GET_ARTIST_STRING(ta->composer),GET_ARTIST_STRING(tb->composer));
   if (x!=0) return x;
 
-  a=b=0;
-  if (begins_with_keyword(ta->album)) a=FXMIN(ta->album.length()-1,ta->album.find(' ')+1);
-  if (begins_with_keyword(tb->album)) b=FXMIN(tb->album.length()-1,tb->album.find(' ')+1);
-  x = comparecase(&ta->album[a],&tb->album[b]);
-
+  x = keywordcompare(ta->album,tb->album);
   if (x!=0) return x;
+
+  if (ta->albumid>tb->albumid) return 1;
+  else if (ta->albumid<tb->albumid) return -1;
 
   /// Track & Disc
   return VALUE_SORT_ASC(ta->no,tb->no);
@@ -580,17 +604,16 @@ FXint GMDBTrackItem::descendingComposer(const GMTrackItem* pa,const GMTrackItem*
   const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
 
-  FXint a=0,b=0,x;
+  FXint x;
 
   x = keywordcompare(GET_ARTIST_STRING(tb->composer),GET_ARTIST_STRING(ta->composer));
   if (x!=0) return x;
 
-  a=b=0;
-  if (begins_with_keyword(ta->album)) a=FXMIN(ta->album.length()-1,ta->album.find(' ')+1);
-  if (begins_with_keyword(tb->album)) b=FXMIN(tb->album.length()-1,tb->album.find(' ')+1);
-  x = comparecase(&ta->album[a],&tb->album[b]);
-
+  x = keywordcompare(tb->album,ta->album);
   if (x!=0) return x;
+
+  if (ta->albumid>tb->albumid) return -1;
+  else if (ta->albumid<tb->albumid) return 1;
 
   /// Track & Disc (keep track order ascending)
   return VALUE_SORT_ASC(ta->no,tb->no);
@@ -601,17 +624,16 @@ FXint GMDBTrackItem::ascendingConductor(const GMTrackItem* pa,const GMTrackItem*
   const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
 
-  FXint a=0,b=0,x;
+  FXint x;
 
   x = keywordcompare(GET_ARTIST_STRING(ta->composer),GET_ARTIST_STRING(tb->composer));
   if (x!=0) return x;
 
-  a=b=0;
-  if (begins_with_keyword(ta->album)) a=FXMIN(ta->album.length()-1,ta->album.find(' ')+1);
-  if (begins_with_keyword(tb->album)) b=FXMIN(tb->album.length()-1,tb->album.find(' ')+1);
-  x = comparecase(&ta->album[a],&tb->album[b]);
-
+  x = keywordcompare(ta->album,tb->album);
   if (x!=0) return x;
+
+  if (ta->albumid>tb->albumid) return 1;
+  else if (ta->albumid<tb->albumid) return -1;
 
   /// Track & Disc
   return VALUE_SORT_ASC(ta->no,tb->no);
@@ -622,17 +644,17 @@ FXint GMDBTrackItem::descendingConductor(const GMTrackItem* pa,const GMTrackItem
   const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
 
-  FXint a=0,b=0,x;
+  FXint x;
 
   x = keywordcompare(GET_ARTIST_STRING(tb->composer),GET_ARTIST_STRING(ta->composer));
   if (x!=0) return x;
 
-  a=b=0;
-  if (begins_with_keyword(ta->album)) a=FXMIN(ta->album.length()-1,ta->album.find(' ')+1);
-  if (begins_with_keyword(tb->album)) b=FXMIN(tb->album.length()-1,tb->album.find(' ')+1);
-  x = comparecase(&ta->album[a],&tb->album[b]);
-
+  x = keywordcompare(tb->album,ta->album);
   if (x!=0) return x;
+
+  if (ta->albumid>tb->albumid) return -1;
+  else if (ta->albumid<tb->albumid) return 1;
+
 
   /// Track & Disc (keep track order ascending)
   return VALUE_SORT_ASC(ta->no,tb->no);
@@ -651,67 +673,6 @@ FXint GMDBTrackItem::descendingRating(const GMTrackItem* pa,const GMTrackItem* p
   const FXuchar b=dynamic_cast<const GMDBTrackItem*>(pb)->rating;
   return VALUE_SORT_DSC(a,b);
   }
-
-
-
-#if 0
-FXint GMDBTrackItem::ascendingGenre(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = (GMDBTrackItem*)pa;
-  const GMDBTrackItem * const tb = (GMDBTrackItem*)pb;
-/*
-  register FXint a=0,b=0,x;
-
-  x = comparecase(ta->genre,tb->genre);
-  if (x!=0) return x;
-
-  if (begins_with_keyword(ta->artist)) a=FXMIN(ta->artist.length()-1,ta->artist.find(' ')+1);
-  if (begins_with_keyword(tb->artist)) b=FXMIN(tb->artist.length()-1,tb->artist.find(' ')+1);
-  x = comparecase(&ta->artist[a],&tb->artist[b]);
-  if (x!=0) return x;
-
-  a=b=0;
-  if (begins_with_keyword(ta->album)) a=FXMIN(ta->album.length()-1,ta->album.find(' ')+1);
-  if (begins_with_keyword(tb->album)) b=FXMIN(tb->album.length()-1,tb->album.find(' ')+1);
-  x = comparecase(&ta->album[a],&tb->album[b]);
-
-  if (x!=0) return x;
-*/
-  /// Track & Disc
-  if (ta->no>tb->no) return 1;
-  else if (ta->no<tb->no) return -1;
-  return 0;
-  }
-
-FXint GMDBTrackItem::descendingGenre(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = (GMDBTrackItem*)pa;
-  const GMDBTrackItem * const tb = (GMDBTrackItem*)pb;
-/*
-  register FXint a=0,b=0,x;
-
-  x = comparecase(tb->genre,ta->genre);
-  if (x!=0) return x;
-
-  if (begins_with_keyword(ta->artist)) a=FXMIN(ta->artist.length()-1,ta->artist.find(' ')+1);
-  if (begins_with_keyword(tb->artist)) b=FXMIN(tb->artist.length()-1,tb->artist.find(' ')+1);
-  x = comparecase(&ta->artist[a],&tb->artist[b]);
-  if (x!=0) return x;
-
-  a=b=0;
-  if (begins_with_keyword(ta->album)) a=FXMIN(ta->album.length()-1,ta->album.find(' ')+1);
-  if (begins_with_keyword(tb->album)) b=FXMIN(tb->album.length()-1,tb->album.find(' ')+1);
-  x = comparecase(&ta->album[a],&tb->album[b]);
-
-  if (x!=0) return x;
-*/
-
-  /// Track & Disc
-  if (ta->no>tb->no) return 1;
-  else if (ta->no<tb->no) return -1;
-  return 0;
-  }
-
-#endif
-
 
 
 FXint GMStreamTrackItem::max_trackno=0;
