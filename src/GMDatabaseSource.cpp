@@ -517,8 +517,11 @@ FXbool GMDatabaseSource::listTags(GMList * list,FXIcon * icon) {
 
   GM_TICKS_START();
   try {
-    if (hasFilter()) {
-      query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track IN (SELECT track FROM filtered));";
+    if (hasFilter() || hasview) {
+      if (hasFilter())
+        query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track IN (SELECT track FROM filtered));";
+      else
+        query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track IN (SELECT track FROM query_view));";
       }
     else {
       if (playlist)
@@ -700,8 +703,12 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
       else
         query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM query_view";
 
-      if (taglist.no())
-        query+=" JOIN track_tags ON track_tags.track == filtered.track WHERE tag " + tagselection;
+      if (taglist.no()) {
+        if (hasFilter())
+          query+=" JOIN track_tags ON track_tags.track == filtered.track WHERE tag " + tagselection;
+        else
+          query+=" JOIN track_tags ON track_tags.track == query_view.track WHERE tag " + tagselection;
+        }
       query+=" )";
       if (artistlist.no()) {
         query+=" AND artist " + artistselection;
@@ -809,7 +816,7 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
   FXint bitrate,samplerate,channels,filetype;
   FXint rating;
 
-  FXint artist,composer,conductor,albumartist;
+  FXint album,artist,composer,conductor,albumartist;
 
   FXString tagselection;
   FXString albumselection;
@@ -837,7 +844,7 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
                    "tracks.artist, "
                    "tracks.composer, "
                    "tracks.conductor, "
-                   "albums.artist,albums.name,albums.year,"
+                   "albums.artist,albums.name,albums.year,albums.id, "
                    "tracks.playcount,"
                    "tracks.bitrate,"
                    "tracks.samplerate,"
@@ -915,13 +922,14 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
       c_albumname = q.get(11);
 
       q.get(12,album_year);
-      q.get(13,playcount);
-      q.get(14,bitrate);
-      q.get(15,samplerate);
-      q.get(16,channels);
-      q.get(17,filetype);
-      q.get(18,playdate);
-      q.get(19,rating);
+      q.get(13,album);
+      q.get(14,playcount);
+      q.get(15,bitrate);
+      q.get(16,samplerate);
+      q.get(17,channels);
+      q.get(18,filetype);
+      q.get(19,playdate);
+      q.get(20,rating);
 
       GMDBTrackItem::max_trackno=FXMAX(GMDBTrackItem::max_digits(GMTRACKNO(no)),GMDBTrackItem::max_trackno);
       GMDBTrackItem::max_queue=FXMAX(GMDBTrackItem::max_digits(queue),GMDBTrackItem::max_queue);
@@ -940,6 +948,7 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
                                albumartist,
                                composer,
                                conductor,
+                               album,
                                c_albumname,
                                time,
                                no,
