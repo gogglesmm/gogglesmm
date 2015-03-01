@@ -121,6 +121,8 @@ public:
   FXIconPtr icon_localcopy;
   FXIconPtr icon_download;
   FXIconPtr icon_error;
+  FXIconPtr icon_add;
+  FXIconPtr icon_remove;
 public:
   FXCursorPtr cursor_hand;
 private:

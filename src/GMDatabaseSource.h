@@ -50,6 +50,7 @@ protected:
   FXString            filter;
   FXuint              filtermask;
   FXbool              hasfilter;
+  FXbool              hasview;
   FXString            dndfiles;
 protected:
   GMDatabaseSource(){}
@@ -82,6 +83,7 @@ public:
     ID_SEARCH_COVER,
     ID_SEARCH_COVER_ALBUM,
     ID_LOAD_COVERS,
+    ID_NEW_FILTER,
     ID_LAST
     };
 public:
@@ -111,6 +113,7 @@ public:
   long onCmdSearchCover(FXObject*,FXSelector,void*);
   long onCmdMainWindow(FXObject*,FXSelector,void*);
   long onCmdLoadCovers(FXObject*,FXSelector,void*);
+  long onCmdNewFilter(FXObject*,FXSelector,void*);
 public:
   GMDatabaseSource(GMTrackDatabase * db);
 

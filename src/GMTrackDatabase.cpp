@@ -147,13 +147,16 @@ const FXchar create_pathlist[]=       "CREATE TABLE pathlist ("
                                           "PRIMARY KEY (id));";
 
 
+
 GMTrackDatabase::GMTrackDatabase()  {
   }
+
 
 GMTrackDatabase::~GMTrackDatabase() {
   clear_path_lookup();
   clear_artist_lookup();
   }
+
 
 FXbool GMTrackDatabase::init(const FXString & database) {
   FXint dbversion = 0;
