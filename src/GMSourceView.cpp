@@ -88,7 +88,7 @@ void GMSourceView::updateSource(GMSource * src){
       item->setText(tr(src->getName().text()));
       break;
       }
-    item=item->getNext();
+    item=item->getBelow();
     }
   resort();
   }
@@ -159,13 +159,13 @@ void GMSourceView::init() {
   FXString key = getApp()->reg().readStringEntry("window","source-list-current","");
   if (!key.empty()){
     FXTreeItem * item = sourcelist->getFirstItem();
-    while(item) {
+    while(item){
       GMSource * src = (GMSource*)item->getData();
       if (src->settingKey()==key) {
         sourcelist->setCurrentItem(item);
         break;
         }
-      item=item->getNext();
+      item=item->getBelow();
       }
     }
 
