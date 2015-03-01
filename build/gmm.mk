@@ -28,6 +28,8 @@ icons/x16_go_bottom.png \
 icons/x16_go_home.png \
 icons/x16_help_browser.png \
 icons/x16_image_x_generic.png \
+icons/x16_list_add.png \
+icons/x16_list_remove.png \
 icons/x16_media_optical.png \
 icons/x16_media_playback_pause.png \
 icons/x16_media_playback_start.png \
@@ -83,6 +85,9 @@ src/GMCoverManager.cpp \
 src/GMDatabase.cpp \
 src/GMDatabaseSource.cpp \
 src/GMFilename.cpp \
+src/GMFilter.cpp \
+src/GMFilterEditor.cpp \
+src/GMFilterSource.cpp \
 src/GMFontDialog.cpp \
 src/GMIconTheme.cpp \
 src/GMImportDialog.cpp \

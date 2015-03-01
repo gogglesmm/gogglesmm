@@ -49,6 +49,9 @@
 #include "GMScanner.h"
 #include "GMCoverLoader.h"
 
+#include "GMFilter.h"
+#include "GMFilterSource.h"
+
 #include <sqlite3.h>
 
 
@@ -111,6 +114,8 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_NEW_PLAYLIST,GMDatabaseSource::onCmdNewPlayList),
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_IMPORT_PLAYLIST,GMDatabaseSource::onCmdImportPlayList),
 
+  FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_NEW_FILTER,GMDatabaseSource::onCmdNewFilter),
+
   FXMAPFUNC(SEL_COMMAND,GMDatabaseSource::ID_CLEAR,GMDatabaseSource::onCmdClear),
   FXMAPFUNC(SEL_DND_DROP,GMDatabaseSource::ID_DROP,GMDatabaseSource::onCmdDrop),
 
@@ -133,7 +138,8 @@ GMDatabaseSource::GMDatabaseSource(GMTrackDatabase * database) :
   db(database),
   playlist(0),
   filtermask(FILTER_DEFAULT),
-  hasfilter(false) {
+  hasfilter(false),
+  hasview(false) {
   FXASSERT(db);
   sort_browse=GMDBTrackItem::browseSort;
   }
@@ -380,6 +386,7 @@ FXbool GMDatabaseSource::source_menu(FXMenuPane * pane){
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Play File or Stream…\t\tPlay File or Stream"),NULL,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_OPEN);
   new FXMenuSeparator(pane);
+  new GMMenuCommand(pane,fxtr("New Filter…\t\tCreate a new filter"),NULL,this,GMDatabaseSource::ID_NEW_FILTER);
   new GMMenuCommand(pane,fxtr("New Playlist…\t\tCreate a new playlist"),NULL,this,GMDatabaseSource::ID_NEW_PLAYLIST);
   new GMMenuCommand(pane,fxtr("Import Playlist…\t\tImport existing playlist"),GMIconTheme::instance()->icon_import,this,GMDatabaseSource::ID_IMPORT_PLAYLIST);
   return true;
@@ -616,8 +623,13 @@ FXbool GMDatabaseSource::listArtists(GMList * list,FXIcon * icon,const FXIntList
 
   GM_TICKS_START();
   try {
-    if (hasFilter()) {
-      query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums WHERE id IN (SELECT DISTINCT(album) FROM filtered";
+    if (hasFilter() || hasview) {
+
+      if (hasFilter())
+        query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums WHERE id IN (SELECT DISTINCT(album) FROM filtered";
+      else
+        query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums WHERE id IN (SELECT DISTINCT(album) FROM query_view";
+
       if (taglist.no()) {
         query += " WHERE track IN ( SELECT track FROM track_tags WHERE tag " + tagselection + ")";
         }
@@ -682,8 +694,12 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
   GMAlbumListItem * item=NULL;
   GMQuery q;
   try {
-    if (hasFilter()){
-      query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM filtered";
+    if (hasFilter() || hasview){
+      if (hasFilter())
+        query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM filtered";
+      else
+        query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM query_view";
+
       if (taglist.no())
         query+=" JOIN track_tags ON track_tags.track == filtered.track WHERE tag " + tagselection;
       query+=" )";
@@ -846,6 +862,8 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
 
       if (hasFilter())
         query+=" AND tracks.id IN (SELECT track FROM filtered) ";
+      else if (hasview)
+        query+=" AND tracks.id IN (SELECT track FROM query_view) ";
 
       if (playlist && browse_mode)
         query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
@@ -854,6 +872,8 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
       query+=" WHERE tracks.album " + albumselection;
       if (hasFilter())
         query+=" AND tracks.id IN (SELECT track FROM filtered) ";
+      else if (hasview)
+        query+=" AND tracks.id IN (SELECT track FROM query_view) ";
 
       if (playlist && browse_mode)
         query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
@@ -863,6 +883,11 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
       if (playlist && browse_mode)
         query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
+    else if (hasview)
+      query+=" AND tracks.id IN (SELECT track FROM query_view) ";
+      if (playlist && browse_mode)
+        query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
+
 
     if (playlist && browse_mode==false)
       query+=" ORDER BY playlist_tracks.queue;";
@@ -1829,7 +1854,6 @@ long GMDatabaseSource::onCmdSearchCover(FXObject*,FXSelector sel,void*){
   }
 
 
-
 long GMDatabaseSource::onDndImportFiles(FXObject*,FXSelector,void*){
   FXStringList filelist;
   gm_convert_uri_to_filenames(dndfiles,filelist);
@@ -1840,3 +1864,8 @@ long GMDatabaseSource::onDndImportFiles(FXObject*,FXSelector,void*){
   return 0;
   }
 
+
+long GMDatabaseSource::onCmdNewFilter(FXObject*,FXSelector,void*){
+  GMFilterSource::create(db);
+  return 1;
+  }

@@ -98,14 +98,8 @@ void GMSourceView::setSource(GMSource * src,FXbool makecurrent/*=true*/){
   if (src!=source) {
     source=src;
     if (makecurrent) {
-      FXTreeItem * item = sourcelist->getFirstItem();
-      while(item) {
-        if (item->getData()==src) {
-          sourcelist->setCurrentItem(item,false);
-          break;
-          }
-        item=item->getNext();
-        }
+      FXTreeItem * item = sourcelist->findItemByData(source);
+      sourcelist->setCurrentItem(item,false);
       }
     GMPlayerManager::instance()->getTrackView()->setSource(source);
     }
@@ -132,6 +126,7 @@ void GMSourceView::refresh() {
 static FXIcon * icon_for_sourcetype(FXint type) {
   switch(type){
     case SOURCE_DATABASE          : return GMIconTheme::instance()->icon_source_library; break;
+    case SOURCE_DATABASE_FILTER   : return GMIconTheme::instance()->icon_find; break;
     case SOURCE_INTERNET_RADIO    : return GMIconTheme::instance()->icon_source_internetradio; break;
     case SOURCE_DATABASE_PLAYLIST : return GMIconTheme::instance()->icon_source_playlist; break;
     case SOURCE_PLAYQUEUE         : return GMIconTheme::instance()->icon_source_playqueue; break;
@@ -151,6 +146,7 @@ void GMSourceView::refresh(GMSource * src) {
     sourcelist->setItemOpenIcon(item,icon);
     sourcelist->setItemClosedIcon(item,icon);
     }
+  sourcelist->sortItems();
   }
 
 
@@ -188,11 +184,18 @@ void GMSourceView::resort() {
 
 FXbool GMSourceView::listsources() {
   GMTreeItem * item=NULL;
+  GMTreeItem * dbitem=NULL;
   for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++){
     GMSource * src = GMPlayerManager::instance()->getSource(i);
     FXIcon * icon=icon_for_sourcetype(src->getType());
     item = new GMTreeItem(src->getName(),icon,icon,src);
-    sourcelist->appendItem(NULL,item);
+    if (src->getType()==SOURCE_DATABASE_FILTER) {
+      sourcelist->appendItem(dbitem,item);
+      dbitem->setExpanded(true);
+      }
+    else
+      sourcelist->appendItem(NULL,item);
+    if (src->getType()==SOURCE_DATABASE) dbitem=item;
     }
   sourcelist->sortItems();
   return true;

@@ -66,6 +66,10 @@
 #include "GMPlayListSource.h"
 #include "GMPodcastSource.h"
 
+#include "GMFilter.h"
+#include "GMFilterSource.h"
+
+
 #include "GMPlayQueue.h"
 #include "GMLocalSource.h"
 
@@ -582,6 +586,9 @@ FXbool GMPlayerManager::init_sources() {
 
   /// Create the main database source
   sources.append(new GMDatabaseSource(database));
+
+  /// Load User Queries
+  GMFilterSource::init(database,sources);
 
   /// Create Play List Sources
   FXIntList playlists;

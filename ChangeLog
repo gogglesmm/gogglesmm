@@ -6,6 +6,10 @@ To do / wishlist..
  * New keyboard shortcuts to skip 10s or 1min in a track.
  * filename template should perhaps support: alphabet index?
 
+0.x.x
+  - During import albums now get automatically grouped by samplerate/channels/samplesize.
+  - Support added for filters.
+
 0.14.2
   - Fix: support older ogg vorbis files whose file headers may exceed the gap buffer size.
   - Fix: mp4 playback.

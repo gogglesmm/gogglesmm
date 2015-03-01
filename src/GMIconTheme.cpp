@@ -654,6 +654,9 @@ void GMIconTheme::loadInternal() {
   loadResource(icon_edit,x16_accessories_text_editor_png,basecolor);
   loadResource(icon_sort,x16_view_sort_descending_png,basecolor);
 
+  loadResource(icon_add,x16_list_add_png,basecolor);
+  loadResource(icon_remove,x16_list_remove_png,basecolor);
+
   // Play Back Icons
   loadResource(icon_play,         x16_media_playback_start_png,basecolor);
   loadResource(icon_pause,        x16_media_playback_pause_png,basecolor);
@@ -737,7 +740,7 @@ void GMIconTheme::loadExternal() {
   loadMedium(icon_source_playlist,"user-bookmarks",backcolor);
   loadMedium(icon_source_playqueue,"x-office-presentation",backcolor);
   loadMedium(icon_source_local,"drive-harddisk",backcolor);
-  loadMedium(icon_source_podcast,"application-rss+xml",basecolor);
+  loadMedium(icon_source_podcast,"application-rss+xml",backcolor);
 
   //loadSmall(icon_playlist,"user-bookmarks",basecolor);
   loadSmall(icon_playqueue,"x-office-presentation",basecolor);

@@ -1202,11 +1202,13 @@ void GMPreferencesDialog::updateColors(){
         gmimageframe->setBackColor(selected.back); /// fixme, only for coverframe in mainwindow
         }
      else if ((gmprogressbar=dynamic_cast<GMProgressBar*>(w))) {
+        gmprogressbar->setBarBGColor(selected.back);
         gmprogressbar->setBorderColor(selected.shadow);
         gmprogressbar->setBarColor(selected.selback);
         gmprogressbar->setTextAltColor(selected.selfore);
         }
      else if ((gmtrackprogressbar=dynamic_cast<GMTrackProgressBar*>(w))) {
+        gmtrackprogressbar->setBarBGColor(selected.back);
         gmtrackprogressbar->setBorderColor(selected.shadow);
         gmtrackprogressbar->setBarColor(selected.selback);
         gmtrackprogressbar->setTextAltColor(selected.selfore);
