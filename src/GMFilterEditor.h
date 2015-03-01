@@ -25,6 +25,7 @@ public:
   GMComboBox  * columns;
   GMComboBox  * operators;
   GMComboBox  * periods;
+  GMComboBox  * options;
   FXSwitcher  * valueswitcher;
   GMTextField * text;
   GMSpinner   * spinner;
@@ -48,6 +49,8 @@ protected:
   FXint getPeriodMultiplier() const;
   void setPeriodMultiplier(FXint);
   FXbool validateText();
+  FXint getOptionValue() const;
+  void setOptionValue(FXint);
 public:
   long onCmdDelete(FXObject*,FXSelector,void*);
   long onCmdColumn(FXObject*,FXSelector,void*);
@@ -110,17 +113,14 @@ public:
 class GMFilterEditor : public FXDialogBox {
 FXDECLARE(GMFilterEditor)
 protected:
-  FXMatrix * rules;
-  FXWindow * rules_offset;
-  FXMatrix * limits;
-  FXWindow * limits_offset;
-
-  FXWindow * lastrow;
+  FXMatrix    * rules;
+  FXWindow    * rules_offset;
+  FXMatrix    * limits;
+  FXWindow    * limits_offset;
   FXTextField * namefield;
   FXSpinner   * limitspinner;
   FXComboBox  * match;
-  FXWindow * dummylimit;
-  FXButton * addremovelimit;
+  FXButton    * addremovelimit;
 protected:
   GMFilterEditor(){}
 private:

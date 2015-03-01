@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+#include "GMTrack.h"
 #include "GMIconTheme.h"
 #include "GMFilter.h"
 #include "GMFilterEditor.h"
@@ -25,6 +26,8 @@
 #define add_period(str,period) periods->appendItem(str,(void*)(FXival)(period))
 #define add_limit_column(str,column) limitcolumn->appendItem(str,NULL,(void*)(FXival)(column))
 #define add_operator(str,opcode) operators->appendItem(str,(void*)(FXival)opcode)
+#define add(list,str,column) list->appendItem(str,(void*)(FXival)column)
+
 
 #define PERIOD_MINUTES (60)
 #define PERIOD_HOURS (60*60)
@@ -53,6 +56,7 @@ static const ColumnDefintion column_types[]={
   { Rule::ColumnImportdate,"Last Updated"},
   { Rule::ColumnAudioChannels,"Audio Channels"},
   { Rule::ColumnAudioRate,"Audio Samplerate"},
+  { Rule::ColumnFiletype,"Filetype"},
   };
 
 
@@ -60,7 +64,8 @@ enum {
   InputText    = 1,
   InputYear    = 2,
   InputDate    = 3,
-  InputInteger = 4
+  InputInteger = 4,
+  InputOption  = 5
   };
 
 static const FXint column_input_map[]{
@@ -79,10 +84,8 @@ static const FXint column_input_map[]{
   InputInteger, /* ColumnAudioRate */
   InputInteger, /* ColumnTrackNumber */
   InputInteger, /* ColumnDiscNumber */
+  InputOption,  /* ColumnFiletype */
   };
-
-
-
 
 
 static void fillColumns(GMComboBox * combobox) {
@@ -90,6 +93,24 @@ static void fillColumns(GMComboBox * combobox) {
     combobox->appendItem(column_types[i].name,(void*)(FXival)column_types[i].column);
     }
   combobox->setNumVisible(FXMIN(9,combobox->getNumItems()));
+  }
+
+static void fillOptions(GMComboBox * c,FXint column) {
+  c->clearItems();
+  switch(column) {
+    case Rule::ColumnFiletype:
+      add(c,"flac",FILETYPE_FLAC);
+      add(c,"vorbis",FILETYPE_OGG_VORBIS);
+      add(c,"opus",FILETYPE_OGG_OPUS);
+      add(c,"ogg flac",FILETYPE_OGG_FLAC);
+      add(c,"mp3",FILETYPE_MP3);
+      add(c,"aac",FILETYPE_MP4_AAC);
+      add(c,"alac",FILETYPE_MP4_ALAC);
+      add(c,"speex",FILETYPE_OGG_SPEEX);
+      add(c,"unknown",FILETYPE_UNKNOWN);
+      break;
+    }
+  c->setNumVisible(FXMIN(9,c->getNumItems()));
   }
 
 
@@ -165,7 +186,11 @@ void GMRuleEditor::create(FXMatrix * rules,FXWindow * lastrow) {
   add_period("Weeks",PERIOD_WEEKS);
   periods->setNumVisible(FXMIN(9,periods->getNumItems()));
 
-  // Put into correct position of the matrxi
+  // #3 Filetypes
+  FXHorizontalFrame * optionframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
+  options = new GMComboBox(optionframe,0,NULL,0,COMBOBOX_STATIC);
+
+  // Put into correct position of the matrix
   if (rules->id()) rules->create();
   columns->reparent(rules,lastrow);
   operators->reparent(rules,lastrow);
@@ -206,6 +231,9 @@ void GMRuleEditor::setRule(const Rule & rule) {
         datetimespinner->setValue(rule.value/PERIOD_MINUTES);
         }
       break;
+    case InputOption:
+      setOptionValue(rule.value);
+      break;
     }
   }
 
@@ -225,6 +253,10 @@ void GMRuleEditor::getRule(Rule & rule) {
       break;
     case InputDate:
       rule.value = datetimespinner->getValue() * getPeriodMultiplier();
+      rule.text.clear();
+      break;
+    case InputOption:
+      rule.value = getOptionValue();
       rule.text.clear();
       break;
     default: FXASSERT(0); break;
@@ -253,6 +285,18 @@ void GMRuleEditor::setOperator(FXint opcode) {
 
 FXint GMRuleEditor::getOperator() const {
   return (FXint)(FXival)operators->getItemData(operators->getCurrentItem());
+  }
+
+
+void GMRuleEditor::setOptionValue(FXint option) {
+  FXint item = options->findItemByData((void*)(FXival)option);
+  FXASSERT(item>=0);
+  options->setCurrentItem(item,true);
+  }
+
+
+FXint GMRuleEditor::getOptionValue() const {
+  return (FXint)(FXival)options->getItemData(options->getCurrentItem());
   }
 
 
@@ -300,6 +344,12 @@ void GMRuleEditor::setInputType(FXint type) {
         add_operator("at least",Rule::OperatorGreater);
         add_operator("at most",Rule::OperatorLess);
         valueswitcher->setCurrent(1);
+        break;
+      case InputOption:
+        add_operator("equals",Rule::OperatorEquals);
+        add_operator("not equal to",Rule::OperatorNotEqual);
+        valueswitcher->setCurrent(3);
+        fillOptions(options,getColumn());
         break;
       }
     operators->setUserData((void*)(FXival)type);

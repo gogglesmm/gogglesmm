@@ -51,7 +51,8 @@ static const FXchar * const column_lookup[]={
   "tracks.channels",
   "tracks.samplerate",
   "tracks.no",
-  "tracks.no"
+  "tracks.no",
+  "tracks.filetype"
   };
 
 static const FXchar * const operator_lookup[]={
@@ -124,6 +125,13 @@ FXString Rule::getMatch() const {
         switch(opcode) {
           case OperatorLess       :
           case OperatorGreater    : return FXString::value("datetime(%s/1000000000,'unixepoch') %s datetime('now','-%d seconds')",column_lookup[column],operator_lookup[opcode],value); break;
+          }
+      } break;
+    case ColumnFiletype:
+      {
+        switch(opcode) {
+          case OperatorEquals     :
+          case OperatorNotEqual   : return FXString::value("%s %s %d",column_lookup[column],operator_lookup[opcode],value); break;
           }
       } break;
     default: FXASSERT(0); break;

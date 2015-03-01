@@ -41,7 +41,8 @@ public:
     ColumnAudioChannels = 11,
     ColumnAudioRate     = 12,
     ColumnTrackNumber   = 13,
-    ColumnDiscNumber    = 14
+    ColumnDiscNumber    = 14,
+    ColumnFiletype      = 15
     };
   enum {
     OperatorLike        = 0,
