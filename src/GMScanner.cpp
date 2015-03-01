@@ -72,10 +72,11 @@ void GMDBTracks::init(GMTrackDatabase*db) {
                                                                            "0," // playcount
                                                                            "0," // playdate
                                                                            "?," // importdate
+                                                                           "0," // rating
                                                                            "?," // samplerate
                                                                            "?," // channels
-                                                                           "?," // filetype
-                                                                           "0);"); // rating
+                                                                           "?);"); // filetype
+
 
   insert_tag                          = database->compile("INSERT INTO tags VALUES ( NULL , ?  );");
   insert_artist                       = database->compile("INSERT INTO artists VALUES ( NULL , ?  );");
