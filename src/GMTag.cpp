@@ -1110,8 +1110,11 @@ void GMFileTag::appendCover(GMCover* cover){
 GMAudioProperties::GMAudioProperties() :
   bitrate(0),
   samplerate(0),
-  channels(0) {
+  channels(0),
+  samplesize(0),
+  filetype(FILETYPE_UNKNOWN) {
   }
+
 
 FXbool GMAudioProperties::load(const FXString & filename){
   GMFileTag tags;
