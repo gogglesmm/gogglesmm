@@ -61,7 +61,7 @@ public:
 
   virtual FXint getType() const { return SOURCE_DATABASE_FILTER; }
 
-  virtual FXbool defaultBrowse() const { return false; }
+  virtual FXbool defaultBrowse() const { return true; }
 
   virtual FXString settingKey() const;
 

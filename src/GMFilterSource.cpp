@@ -149,6 +149,7 @@ void GMFilterSource::updateView() {
                 "SELECT tracks.id as track, tracks.album as album FROM tracks JOIN albums ON tracks.album == albums.id "
                                                                              "JOIN artists AS album_artist ON (albums.artist == album_artist.id) "
                                                                              "JOIN artists AS track_artist ON (tracks.artist == track_artist.id) "
+                                                                             "JOIN pathlist ON (tracks.path == pathlist.id) "
                                                                              "LEFT JOIN artists AS composers ON (tracks.composer == composers.id) "
                                                                              "LEFT JOIN artists AS conductors ON (tracks.conductor == conductors.id) " + query);
     hasview=true;

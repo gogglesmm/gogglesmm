@@ -52,7 +52,8 @@ static const FXchar * const column_lookup[]={
   "tracks.samplerate",
   "tracks.no",
   "tracks.no",
-  "tracks.filetype"
+  "tracks.filetype",
+  "pathlist.name || '" PATHSEPSTRING "' || tracks.mrl",
   };
 
 static const FXchar * const operator_lookup[]={
@@ -76,6 +77,7 @@ FXString Rule::getMatch() const {
     case ColumnAlbumArtist:
     case ColumnConductor:
     case ColumnComposer:
+    case ColumnPath:
       {
         switch(opcode) {
           case OperatorLike     :

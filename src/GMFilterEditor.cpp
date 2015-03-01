@@ -52,6 +52,7 @@ static const ColumnDefintion column_types[]={
   { Rule::ColumnTime,"Time"},
   { Rule::ColumnTrackNumber,"Track Number"},
   { Rule::ColumnDiscNumber,"Disc Number"},
+  { Rule::ColumnPath,"Path"},
   { Rule::ColumnPlaycount,"Play Count"},
   { Rule::ColumnPlaydate,"Last Played"},
   { Rule::ColumnImportdate,"Last Updated"},
@@ -87,6 +88,7 @@ static const FXint column_input_map[]{
   InputInteger, /* ColumnTrackNumber */
   InputInteger, /* ColumnDiscNumber */
   InputOption,  /* ColumnFiletype */
+  InputText,  /* ColumnPath */
   };
 
 
