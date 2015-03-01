@@ -47,8 +47,25 @@ static const FXchar * const column_lookup[]={
   "tracks.time",
   "tracks.playdate",
   "tracks.importdate",
-  "tracks.playcount"
+  "tracks.playcount",
+  "tracks.channels",
+  "tracks.samplerate",
+  "tracks.no",
+  "tracks.no"
   };
+
+static const FXchar * const operator_lookup[]={
+  "LIKE",
+  "NOT LIKE",
+  "==",
+  "!=",
+  "LIKE",
+  "LIKE",
+  ">=",
+  "<=",
+  "REGEXP"
+  };
+
 
 FXString Rule::getMatch() const {
   switch(column) {
@@ -60,34 +77,56 @@ FXString Rule::getMatch() const {
     case ColumnComposer:
       {
         switch(opcode) {
-          case OperatorLike     : return FXString::value("%s LIKE '%%%s%%'",column_lookup[column],text.text()); break;
-          case OperatorNotLike  : return FXString::value("%s NOT LIKE '%%%s%%'",column_lookup[column],text.text()); break;
-          case OperatorPrefix   : return FXString::value("%s LIKE '%s%%'",column_lookup[column],text.text()); break;
-          case OperatorSuffix   : return FXString::value("%s LIKE '%%%s'",column_lookup[column],text.text()); break;
-          case OperatorEquals   : return FXString::value("%s ==  '%s'",column_lookup[column],text.text()); break;
-          case OperatorNotEqual : return FXString::value("%s !=  '%s'",column_lookup[column],text.text()); break;
-          case OperatorMatch    : return FXString::value("%s REGEXP '%s'",column_lookup[column],text.text()); break;
+          case OperatorLike     :
+          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%'",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorPrefix   : return FXString::value("%s %s '%s%%'",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorSuffix   : return FXString::value("%s %s '%%%s'",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorEquals   :
+          case OperatorNotEqual :
+          case OperatorLess     :
+          case OperatorGreater  :
+          case OperatorMatch    : return FXString::value("%s %s '%s'",column_lookup[column],operator_lookup[opcode],text.text()); break;
           }
-      }
+      } break;
     case ColumnYear:
     case ColumnPlaycount:
+    case ColumnAudioChannels:
+    case ColumnAudioRate:
       {
         switch(opcode) {
-          case OperatorEquals     : return FXString::value("%s ==  %d",column_lookup[column],value); break;
-          case OperatorNotEqual   : return FXString::value("%s !=  %d",column_lookup[column],value); break;
-          case OperatorLess       : return FXString::value("%s <=  %d",column_lookup[column],value); break;
-          case OperatorGreater    : return FXString::value("%s >=  %d",column_lookup[column],value); break;
+          case OperatorEquals     :
+          case OperatorNotEqual   :
+          case OperatorLess       :
+          case OperatorGreater    : return FXString::value("%s %s %d",column_lookup[column],operator_lookup[opcode],value); break;
           }
-      }
-
+      } break;
+    case ColumnTrackNumber:
+      {
+        switch(opcode) {
+          case OperatorEquals     :
+          case OperatorNotEqual   :
+          case OperatorLess       :
+          case OperatorGreater    : return FXString::value("(%s&65535) %s %d",column_lookup[column],operator_lookup[opcode],value); break;
+          }
+      } break;
+    case ColumnDiscNumber:
+      {
+        switch(opcode) {
+          case OperatorEquals     :
+          case OperatorNotEqual   :
+          case OperatorLess       :
+          case OperatorGreater    : return FXString::value("(%s>>16) %s %d",column_lookup[column],operator_lookup[opcode],value); break;
+          }
+      } break;
     case ColumnPlaydate:
     case ColumnImportdate:
       {
         switch(opcode) {
-          case OperatorLess       : return FXString::value("datetime(%s/1000000000,'unixepoch') <= datetime('now','-%d seconds')",column_lookup[column],value); break;
-          case OperatorGreater    : return FXString::value("datetime(%s/1000000000,'unixepoch') >= datetime('now','-%d seconds')",column_lookup[column],value); break;
+          case OperatorLess       :
+          case OperatorGreater    : return FXString::value("datetime(%s/1000000000,'unixepoch') %s datetime('now','-%d seconds')",column_lookup[column],operator_lookup[opcode],value); break;
           }
-      }
+      } break;
+    default: FXASSERT(0); break;
     }
   return FXString::null;
   }

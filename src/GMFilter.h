@@ -38,6 +38,10 @@ public:
     ColumnPlaydate      = 8,
     ColumnImportdate    = 9,
     ColumnPlaycount     = 10,
+    ColumnAudioChannels = 11,
+    ColumnAudioRate     = 12,
+    ColumnTrackNumber   = 13,
+    ColumnDiscNumber    = 14
     };
   enum {
     OperatorLike        = 0,

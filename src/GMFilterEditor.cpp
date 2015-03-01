@@ -31,43 +31,63 @@
 #define PERIOD_DAYS (60*60*24)
 #define PERIOD_WEEKS (60*60*24*7)
 
-static const FXint column_types[]={
-  Rule::ColumnTitle,
-  Rule::ColumnArtist,
-  Rule::ColumnAlbumArtist,
-  Rule::ColumnComposer,
-  Rule::ColumnConductor,
-  Rule::ColumnAlbum,
-  Rule::ColumnYear,
-  Rule::ColumnPlaycount,
-  Rule::ColumnPlaydate,
-  Rule::ColumnImportdate
+
+struct ColumnDefintion {
+  FXint column;
+  const FXchar * const name;
   };
 
-static const FXchar * const column_names[]={
-  "Title",
-  "Artist",
-  "Album Artist",
-  "Composer",
-  "Conductor",
-  "Album",
-  "Year",
-  "Play Count",
-  "Last Played",
-  "Last Updated"
+
+static const ColumnDefintion column_types[]={
+  { Rule::ColumnTitle,"Title" },
+  { Rule::ColumnArtist,"Artist"},
+  { Rule::ColumnAlbumArtist,"Album Artist"},
+  { Rule::ColumnComposer,"Composer"},
+  { Rule::ColumnConductor, "Conductor"},
+  { Rule::ColumnAlbum,"Album"},
+  { Rule::ColumnYear,"Year"},
+  { Rule::ColumnTrackNumber,"Track Number"},
+  { Rule::ColumnDiscNumber,"Disc Number"},
+  { Rule::ColumnPlaycount,"Play Count"},
+  { Rule::ColumnPlaydate,"Last Played"},
+  { Rule::ColumnImportdate,"Last Updated"},
+  { Rule::ColumnAudioChannels,"Audio Channels"},
+  { Rule::ColumnAudioRate,"Audio Samplerate"},
   };
+
 
 enum {
   InputText    = 1,
   InputYear    = 2,
   InputDate    = 3,
-  InputInteger = 4,
+  InputInteger = 4
   };
 
+static const FXint column_input_map[]{
+  InputText,    /* ColumnTitle */
+  InputText,    /* ColumnArtist */
+  InputText,    /* ColumnAlbumArtist */
+  InputText,    /* ColumnComposer */
+  InputText,    /* ColumnConductor */
+  InputText,    /* ColumnAlbum */
+  InputYear,    /* ColumnYear */
+  InputText,    /* ColumnTime */
+  InputDate,    /* ColumnPlaydate */
+  InputDate,    /* ColumnImportdate */
+  InputInteger, /* ColumnPlaycount  */
+  InputInteger, /* ColumnAudioChannels */
+  InputInteger, /* ColumnAudioRate */
+  InputInteger, /* ColumnTrackNumber */
+  InputInteger, /* ColumnDiscNumber */
+  };
+
+
+
+
+
 static void fillColumns(GMComboBox * combobox) {
-  FXASSERT(ARRAYNUMBER(column_types)==ARRAYNUMBER(column_names));
   for (FXuint i=0;i<ARRAYNUMBER(column_types);i++){
-    combobox->appendItem(column_names[i],(void*)(FXival)column_types[i]);
+    combobox->appendItem(column_types[i].name,(void*)(FXival)column_types[i].column);
     }
   combobox->setNumVisible(FXMIN(9,combobox->getNumItems()));
   }
@@ -153,27 +173,22 @@ void GMRuleEditor::create(FXMatrix * rules,FXWindow * lastrow) {
   closebutton->reparent(rules,lastrow);
 
   // Initialize all fields
-  updateColumn();
+  setInputType(column_input_map[getColumn()]);
   }
 
 
 void GMRuleEditor::setRule(const Rule & rule) {
   setColumn(rule.column);
   setOperator(rule.opcode);
-  switch(rule.column) {
-    case Rule::ColumnTitle  :
-    case Rule::ColumnArtist :
-    case Rule::ColumnAlbum  :
-    case Rule::ColumnAlbumArtist  :
-    case Rule::ColumnComposer  :
-    case Rule::ColumnConductor  :
+  switch(column_input_map[rule.column]){
+    case InputText:
       text->setText(rule.text,true);
       break;
-    case Rule::ColumnYear   :
+    case InputYear:
+    case InputInteger:
       spinner->setValue(rule.value);
       break;
-    case Rule::ColumnPlaydate :
-    case Rule::ColumnImportdate :
+    case InputDate:
       if (rule.value>=PERIOD_WEEKS) {
         setPeriodMultiplier(PERIOD_WEEKS);
         datetimespinner->setValue(rule.value/PERIOD_WEEKS);
@@ -198,22 +213,17 @@ void GMRuleEditor::setRule(const Rule & rule) {
 void GMRuleEditor::getRule(Rule & rule) {
   rule.column = getColumn();
   rule.opcode = getOperator();
-  switch(getColumn()) {
-    case Rule::ColumnTitle  :
-    case Rule::ColumnArtist :
-    case Rule::ColumnAlbum  :
-    case Rule::ColumnAlbumArtist  :
-    case Rule::ColumnComposer  :
-    case Rule::ColumnConductor  :
+  switch(column_input_map[getColumn()]){
+    case InputText:
       rule.text = text->getText();
       rule.value = 0;
       break;
-    case Rule::ColumnYear   :
+    case InputInteger:
+    case InputYear:
       rule.value = spinner->getValue();
       rule.text.clear();
       break;
-    case Rule::ColumnPlaydate:
-    case Rule::ColumnImportdate:
+    case InputDate:
       rule.value = datetimespinner->getValue() * getPeriodMultiplier();
       rule.text.clear();
       break;
@@ -256,13 +266,12 @@ FXint GMRuleEditor::getPeriodMultiplier() const {
   return (FXint)(FXival)periods->getItemData(periods->getCurrentItem());
   }
 
-
 void GMRuleEditor::setInputType(FXint type) {
   FXint current = (FXint)(FXival)operators->getUserData();
   if (current!=type) {
+    operators->clearItems();
     switch(type) {
       case InputText:
-        operators->clearItems();
         add_operator("contains",Rule::OperatorLike);
         add_operator("does not contain",Rule::OperatorNotLike);
         add_operator("equals",Rule::OperatorEquals);
@@ -274,16 +283,13 @@ void GMRuleEditor::setInputType(FXint type) {
         valueswitcher->setCurrent(0);
         break;
       case InputYear:
-        operators->clearItems();
         add_operator("in",Rule::OperatorEquals);
         add_operator("not in",Rule::OperatorNotEqual);
         add_operator("before",Rule::OperatorLess);
         add_operator("after",Rule::OperatorGreater);
         valueswitcher->setCurrent(1);
-        spinner->setRange(0,2100);
         break;
       case InputDate:
-        operators->clearItems();
         add_operator("in the last",Rule::OperatorGreater);
         add_operator("not in the last",Rule::OperatorLess);
         valueswitcher->setCurrent(2);
@@ -294,41 +300,32 @@ void GMRuleEditor::setInputType(FXint type) {
         add_operator("at least",Rule::OperatorGreater);
         add_operator("at most",Rule::OperatorLess);
         valueswitcher->setCurrent(1);
-        spinner->setRange(0,9999);
         break;
       }
     operators->setUserData((void*)(FXival)type);
     operators->setNumVisible(FXMIN(9,operators->getNumItems()));
     }
-  }
 
-
-void GMRuleEditor::updateColumn() {
+  // Set default values
   switch(getColumn()) {
-    case Rule::ColumnTitle        :
-    case Rule::ColumnArtist       :
-    case Rule::ColumnAlbum        :
-    case Rule::ColumnAlbumArtist  :
-    case Rule::ColumnComposer     :
-    case Rule::ColumnConductor    :
-      setInputType(InputText);
-      break;
-    case Rule::ColumnYear:
-      setInputType(InputYear);
-      break;
-    case Rule::ColumnPlaydate:
-    case Rule::ColumnImportdate:
-      setInputType(InputDate);
-      break;
-    case Rule::ColumnPlaycount:
-      setInputType(InputInteger);
-      break;
+    case Rule::ColumnYear         : spinner->setRange(0,2100);
+                                    spinner->setValue(FXDate::localDate().year());
+                                    break;
+    case Rule::ColumnAudioRate    : spinner->setRange(0,192000);
+                                    spinner->setValue(44100);
+                                    break;
+    case Rule::ColumnAudioChannels: spinner->setRange(0,8);
+                                    spinner->setValue(2);
+                                    break;
+    default                       : spinner->setRange(0,2147483647);
+                                    spinner->setValue(0);
+                                    break;
     }
   }
 
 
 long GMRuleEditor::onCmdColumn(FXObject*,FXSelector,void*) {
-  updateColumn();
+  setInputType(column_input_map[getColumn()]);
   return 1;
   }
 

@@ -41,7 +41,6 @@ public:
 protected:
   void create(FXMatrix *,FXWindow * before);
   void setInputType(FXint);
-  void updateColumn();
   void setColumn(FXint);
   FXint getColumn() const;
   void setOperator(FXint);
