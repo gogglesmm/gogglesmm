@@ -70,8 +70,8 @@ void GMFilterSource::init(GMTrackDatabase * database,GMSourceList & list){
     }
 
   // Initialize Default Ones
-  sources.append(new GMFilterSource(database,GMFilter("Recently Played",Rule::ColumnPlaydate,Rule::OperatorGreater,60*60*24*7)));
-  sources.append(new GMFilterSource(database,GMFilter("Recently Added",Rule::ColumnImportdate,Rule::OperatorGreater,60*60*24*7)));
+  sources.append(new GMFilterSource(database,GMFilter("Recently Played",Rule::ColumnPlayDate,Rule::OperatorGreater,60*60*24*7)));
+  sources.append(new GMFilterSource(database,GMFilter("Recently Added",Rule::ColumnImportDate,Rule::OperatorGreater,60*60*24*7)));
   list.append(sources);
 
   // Save to disk

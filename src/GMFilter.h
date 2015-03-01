@@ -33,17 +33,21 @@ public:
     ColumnComposer      = 3,
     ColumnConductor     = 4,
     ColumnAlbum         = 5,
-    ColumnYear          = 6,
-    ColumnTime          = 7,
-    ColumnPlaydate      = 8,
-    ColumnImportdate    = 9,
-    ColumnPlaycount     = 10,
-    ColumnAudioChannels = 11,
-    ColumnAudioRate     = 12,
-    ColumnTrackNumber   = 13,
-    ColumnDiscNumber    = 14,
-    ColumnFiletype      = 15,
-    ColumnPath          = 16
+    ColumnPath          = 6,
+    ColumnTag           = 7, // todo
+    ColumnYear          = 8,
+    ColumnTime          = 9,
+    ColumnTrackNumber   = 10,
+    ColumnDiscNumber    = 11,
+    ColumnRating        = 12, // todo
+    ColumnPlayCount     = 13,
+    ColumnPlayDate      = 14,
+    ColumnImportDate    = 15,
+    ColumnFileType      = 16,
+    ColumnChannels      = 17,
+    ColumnBitRate       = 18,
+    ColumnSampleRate    = 19,
+    ColumnSampleSize    = 20
     };
   enum {
     OperatorLike        = 0,

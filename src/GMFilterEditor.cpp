@@ -43,22 +43,23 @@ struct ColumnDefintion {
 
 static const ColumnDefintion column_types[]={
   { Rule::ColumnTitle,"Title" },
-  { Rule::ColumnArtist,"Artist"},
+  { Rule::ColumnAlbum,"Album"},
   { Rule::ColumnAlbumArtist,"Album Artist"},
+  { Rule::ColumnArtist,"Artist"},
   { Rule::ColumnComposer,"Composer"},
   { Rule::ColumnConductor, "Conductor"},
-  { Rule::ColumnAlbum,"Album"},
   { Rule::ColumnYear,"Year"},
-  { Rule::ColumnTime,"Time"},
+  { Rule::ColumnTime,"Duration"},
   { Rule::ColumnTrackNumber,"Track Number"},
   { Rule::ColumnDiscNumber,"Disc Number"},
-  { Rule::ColumnPath,"Path"},
-  { Rule::ColumnPlaycount,"Play Count"},
-  { Rule::ColumnPlaydate,"Last Played"},
-  { Rule::ColumnImportdate,"Last Updated"},
-  { Rule::ColumnAudioChannels,"Channels"},
-  { Rule::ColumnAudioRate,"Samplerate"},
-  { Rule::ColumnFiletype,"Filetype"},
+  { Rule::ColumnPlayCount,"Play Count"},
+  { Rule::ColumnPlayDate,"Last Played"},
+  { Rule::ColumnImportDate,"Last Updated"},
+  { Rule::ColumnFileType,"File Type"},
+  { Rule::ColumnChannels,"Channels"},
+  { Rule::ColumnBitRate,"Bit Rate"},
+  { Rule::ColumnSampleRate,"Sample Rate"},
+  { Rule::ColumnSampleSize,"Sample Size"},
   };
 
 
@@ -71,6 +72,8 @@ enum {
   InputTime    = 6
   };
 
+
+// Keep this in sync with GMFilter::Column* order.
 static const FXint column_input_map[]{
   InputText,    /* ColumnTitle */
   InputText,    /* ColumnArtist */
@@ -78,17 +81,21 @@ static const FXint column_input_map[]{
   InputText,    /* ColumnComposer */
   InputText,    /* ColumnConductor */
   InputText,    /* ColumnAlbum */
+  InputText,    /* ColumnPath */
+  InputText,    /* ColumnTag */
   InputYear,    /* ColumnYear */
   InputTime,    /* ColumnTime */
-  InputDate,    /* ColumnPlaydate */
-  InputDate,    /* ColumnImportdate */
-  InputInteger, /* ColumnPlaycount  */
-  InputInteger, /* ColumnAudioChannels */
-  InputInteger, /* ColumnAudioRate */
   InputInteger, /* ColumnTrackNumber */
   InputInteger, /* ColumnDiscNumber */
-  InputOption,  /* ColumnFiletype */
-  InputText,  /* ColumnPath */
+  InputInteger, /* ColumnRating */
+  InputInteger, /* ColumnPlayCount  */
+  InputDate,    /* ColumnPlaydate */
+  InputDate,    /* ColumnImportdate */
+  InputOption,  /* ColumnFileType */
+  InputInteger, /* ColumnChannels */
+  InputInteger, /* ColumnBitRate */
+  InputInteger, /* ColumnSampleRate */
+  InputInteger, /* ColumnSampleSize */
   };
 
 
@@ -102,7 +109,7 @@ static void fillColumns(GMComboBox * combobox) {
 static void fillOptions(GMComboBox * c,FXint column) {
   c->clearItems();
   switch(column) {
-    case Rule::ColumnFiletype:
+    case Rule::ColumnFileType:
       add(c,"flac",FILETYPE_FLAC);
       add(c,"vorbis",FILETYPE_OGG_VORBIS);
       add(c,"opus",FILETYPE_OGG_OPUS);
@@ -393,18 +400,30 @@ void GMRuleEditor::setInputType(FXint type) {
 
   // Set default values
   switch(getColumn()) {
-    case Rule::ColumnYear         : spinner->setRange(0,2100);
-                                    spinner->setValue(FXDate::localDate().year());
-                                    break;
-    case Rule::ColumnAudioRate    : spinner->setRange(0,192000);
-                                    spinner->setValue(44100);
-                                    break;
-    case Rule::ColumnAudioChannels: spinner->setRange(0,8);
-                                    spinner->setValue(2);
-                                    break;
-    default                       : spinner->setRange(0,2147483647);
-                                    spinner->setValue(0);
-                                    break;
+    case Rule::ColumnYear      : spinner->setRange(0,2100);
+                                 spinner->setValue(FXDate::localDate().year());
+                                 spinner->setIncrement(1);
+                                 break;
+    case Rule::ColumnChannels  : spinner->setRange(0,8);
+                                 spinner->setValue(2);
+                                 spinner->setIncrement(1);
+                                 break;
+    case Rule::ColumnBitRate   : spinner->setRange(0,1000);
+                                 spinner->setValue(320);
+                                 spinner->setIncrement(1);
+                                 break;
+    case Rule::ColumnSampleRate: spinner->setRange(0,192000);
+                                 spinner->setValue(44100);
+                                 spinner->setIncrement(1);
+                                 break;
+    case Rule::ColumnSampleSize: spinner->setRange(0,32);
+                                 spinner->setValue(16);
+                                 spinner->setIncrement(8);
+                                 break;
+    default                    : spinner->setRange(0,2147483647);
+                                 spinner->setValue(0);
+                                 spinner->setIncrement(1);
+                                 break;
     }
   }
 

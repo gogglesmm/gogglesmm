@@ -36,6 +36,7 @@ void Rule::save(FXStream & store) const {
   store << text;
   }
 
+
 static const FXchar * const column_lookup[]={
   "tracks.title",
   "track_artist.name",
@@ -43,18 +44,23 @@ static const FXchar * const column_lookup[]={
   "composers.name",
   "conductors.name",
   "albums.name",
+  "pathlist.name || '" PATHSEPSTRING "' || tracks.mrl",
+  "", // todo tag
   "tracks.year",
   "tracks.time",
+  "(tracks.no&65535)",
+  "(tracks.no>>16)",
+  "tracks.rating",
+  "tracks.playcount",
   "tracks.playdate",
   "tracks.importdate",
-  "tracks.playcount",
-  "tracks.channels",
-  "tracks.samplerate",
-  "tracks.no",
-  "tracks.no",
   "tracks.filetype",
-  "pathlist.name || '" PATHSEPSTRING "' || tracks.mrl",
+  "tracks.channels",
+  "tracks.bitrate",
+  "tracks.samplerate",
+  "-tracks.bitrate",
   };
+
 
 static const FXchar * const operator_lookup[]={
   "LIKE",
@@ -92,10 +98,14 @@ FXString Rule::getMatch() const {
           }
       } break;
     case ColumnYear:
-    case ColumnPlaycount:
-    case ColumnAudioChannels:
-    case ColumnAudioRate:
+    case ColumnPlayCount:
+    case ColumnChannels:
+    case ColumnSampleRate:
     case ColumnTime:
+    case ColumnSampleSize:
+    case ColumnBitRate:
+    case ColumnTrackNumber:
+    case ColumnDiscNumber:
       {
         switch(opcode) {
           case OperatorEquals     :
@@ -104,33 +114,15 @@ FXString Rule::getMatch() const {
           case OperatorGreater    : return FXString::value("%s %s %d",column_lookup[column],operator_lookup[opcode],value); break;
           }
       } break;
-    case ColumnTrackNumber:
-      {
-        switch(opcode) {
-          case OperatorEquals     :
-          case OperatorNotEqual   :
-          case OperatorLess       :
-          case OperatorGreater    : return FXString::value("(%s&65535) %s %d",column_lookup[column],operator_lookup[opcode],value); break;
-          }
-      } break;
-    case ColumnDiscNumber:
-      {
-        switch(opcode) {
-          case OperatorEquals     :
-          case OperatorNotEqual   :
-          case OperatorLess       :
-          case OperatorGreater    : return FXString::value("(%s>>16) %s %d",column_lookup[column],operator_lookup[opcode],value); break;
-          }
-      } break;
-    case ColumnPlaydate:
-    case ColumnImportdate:
+    case ColumnPlayDate:
+    case ColumnImportDate:
       {
         switch(opcode) {
           case OperatorLess       :
           case OperatorGreater    : return FXString::value("datetime(%s/1000000000,'unixepoch') %s datetime('now','-%d seconds')",column_lookup[column],operator_lookup[opcode],value); break;
           }
       } break;
-    case ColumnFiletype:
+    case ColumnFileType:
       {
         switch(opcode) {
           case OperatorEquals     :
