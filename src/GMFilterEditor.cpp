@@ -49,13 +49,14 @@ static const ColumnDefintion column_types[]={
   { Rule::ColumnConductor, "Conductor"},
   { Rule::ColumnAlbum,"Album"},
   { Rule::ColumnYear,"Year"},
+  { Rule::ColumnTime,"Time"},
   { Rule::ColumnTrackNumber,"Track Number"},
   { Rule::ColumnDiscNumber,"Disc Number"},
   { Rule::ColumnPlaycount,"Play Count"},
   { Rule::ColumnPlaydate,"Last Played"},
   { Rule::ColumnImportdate,"Last Updated"},
-  { Rule::ColumnAudioChannels,"Audio Channels"},
-  { Rule::ColumnAudioRate,"Audio Samplerate"},
+  { Rule::ColumnAudioChannels,"Channels"},
+  { Rule::ColumnAudioRate,"Samplerate"},
   { Rule::ColumnFiletype,"Filetype"},
   };
 
@@ -65,7 +66,8 @@ enum {
   InputYear    = 2,
   InputDate    = 3,
   InputInteger = 4,
-  InputOption  = 5
+  InputOption  = 5,
+  InputTime    = 6
   };
 
 static const FXint column_input_map[]{
@@ -76,7 +78,7 @@ static const FXint column_input_map[]{
   InputText,    /* ColumnConductor */
   InputText,    /* ColumnAlbum */
   InputYear,    /* ColumnYear */
-  InputText,    /* ColumnTime */
+  InputTime,    /* ColumnTime */
   InputDate,    /* ColumnPlaydate */
   InputDate,    /* ColumnImportdate */
   InputInteger, /* ColumnPlaycount  */
@@ -190,6 +192,14 @@ void GMRuleEditor::create(FXMatrix * rules,FXWindow * lastrow) {
   FXHorizontalFrame * optionframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
   options = new GMComboBox(optionframe,0,NULL,0,COMBOBOX_STATIC);
 
+  // #4 Time
+  FXHorizontalFrame * timeframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
+  time_minutes = new GMSpinner(timeframe,3,NULL,0);
+  time_minutes->setRange(0,24*60);
+  new FXLabel(timeframe,":");
+  time_seconds = new GMSpinner(timeframe,3,NULL,0);
+  time_seconds->setRange(0,59);
+
   // Put into correct position of the matrix
   if (rules->id()) rules->create();
   columns->reparent(rules,lastrow);
@@ -234,6 +244,9 @@ void GMRuleEditor::setRule(const Rule & rule) {
     case InputOption:
       setOptionValue(rule.value);
       break;
+    case InputTime:
+      setTimeValue(rule.value);
+      break;
     }
   }
 
@@ -257,6 +270,10 @@ void GMRuleEditor::getRule(Rule & rule) {
       break;
     case InputOption:
       rule.value = getOptionValue();
+      rule.text.clear();
+      break;
+    case InputTime:
+      rule.value = getTimeValue();
       rule.text.clear();
       break;
     default: FXASSERT(0); break;
@@ -300,6 +317,18 @@ FXint GMRuleEditor::getOptionValue() const {
   }
 
 
+void GMRuleEditor::setTimeValue(FXint value){
+  FXint minutes = value / 60;
+  FXint seconds = value % 60;
+  time_minutes->setValue(minutes);
+  time_seconds->setValue(seconds);
+  }
+
+FXint GMRuleEditor::getTimeValue() const {
+  return (time_minutes->getValue()*60)+(time_seconds->getValue());
+  }
+
+
 void GMRuleEditor::setPeriodMultiplier(FXint value){
   FXint item = periods->findItemByData((void*)(FXival)value);
   periods->setCurrentItem(item,true);
@@ -339,11 +368,15 @@ void GMRuleEditor::setInputType(FXint type) {
         valueswitcher->setCurrent(2);
         break;
       case InputInteger:
+      case InputTime:
         add_operator("equals",Rule::OperatorEquals);
         add_operator("not equal to",Rule::OperatorNotEqual);
         add_operator("at least",Rule::OperatorGreater);
         add_operator("at most",Rule::OperatorLess);
-        valueswitcher->setCurrent(1);
+        if (type==InputTime)
+          valueswitcher->setCurrent(4);
+        else
+          valueswitcher->setCurrent(1);
         break;
       case InputOption:
         add_operator("equals",Rule::OperatorEquals);

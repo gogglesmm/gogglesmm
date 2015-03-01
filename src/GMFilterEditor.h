@@ -31,6 +31,8 @@ public:
   GMSpinner   * spinner;
   GMSpinner   * datetimespinner;
   GMButton    * closebutton;
+  GMSpinner   * time_minutes;
+  GMSpinner   * time_seconds;
 public:
   enum {
     ID_COLUMN = 1,
@@ -51,6 +53,8 @@ protected:
   FXbool validateText();
   FXint getOptionValue() const;
   void setOptionValue(FXint);
+  void setTimeValue(FXint);
+  FXint getTimeValue() const;
 public:
   long onCmdDelete(FXObject*,FXSelector,void*);
   long onCmdColumn(FXObject*,FXSelector,void*);

@@ -93,6 +93,7 @@ FXString Rule::getMatch() const {
     case ColumnPlaycount:
     case ColumnAudioChannels:
     case ColumnAudioRate:
+    case ColumnTime:
       {
         switch(opcode) {
           case OperatorEquals     :
