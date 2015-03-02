@@ -7,8 +7,19 @@ To do / wishlist..
  * filename template should perhaps support: alphabet index?
 
 0.x.x
+  - Added support for filters. Similar to automatic/smart playlists found in other music players
   - During import albums now get automatically grouped by samplerate/channels/samplesize.
-  - Support added for filters.
+  - Added file type and format information to tracklist, combining all audio properties. Lossless files should now be better distinguished
+    from lossy files. Also removes the now redundant bit rate column.
+  - Removed "merge albums" option from album list. The artist name is now automatically added
+    when multiple albums with same name are displayed.
+  - Increase italic font size used in the album list a bit.
+  - Increase fallback cover image to 128x128 pixels.
+  - Added audio format indicator to album list.
+  - Fix: scale down icons if needed if only larger ones are available. 
+  - Fix: force redraw of cover list when switching from list view
+  - Fix: force update covers if size has been changed
+  - Fix: prevent crash when cover image fails to load
 
 0.14.2
   - Fix: support older ogg vorbis files whose file headers may exceed the gap buffer size.
