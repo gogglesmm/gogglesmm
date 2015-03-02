@@ -71,7 +71,7 @@ SO_CFLAGS="-fPIC"
 SO_LDFLAGS="-shared -fPIC"
 
 # Default CFLAGS that generally should always be used.
-GOGGLESMM_CFLAGS=${GOGGLESMM_CFLAGS:--fvisibility=hidden}
+GOGGLESMM_CFLAGS=${GOGGLESMM_CFLAGS:--fvisibility=hidden -std=c++11}
 
 # Overriding Compiler Flags
 # Either override GEN_CFLAGS, OPT_CFLAGS and DEBUG_CFLAGS individually
