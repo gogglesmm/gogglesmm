@@ -601,23 +601,23 @@ void GMAudioScrobbler::enable() {
 
 
 FXString GMAudioScrobbler::getUsername() {
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   return username;
   }
 
 FXbool GMAudioScrobbler::hasPassword(){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   return !password.empty();
   }
 
 
 FXbool GMAudioScrobbler::isBanned(){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   return (flags&FLAG_BANNED);
   }
 
 FXbool GMAudioScrobbler::isEnabled(){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   return !(flags&FLAG_DISABLED);
   }
 
@@ -682,7 +682,7 @@ FXbool GMAudioScrobbler::waitForTask() {
         }
       else  {
         mutex_task.unlock();
-        FXMutexLock lock(mutex_data);
+        FXScopedMutex lock(mutex_data);
 
         if (flags&FLAG_SHUTDOWN)
           return false;
@@ -713,7 +713,7 @@ FXbool GMAudioScrobbler::waitForTask() {
 
 FXuchar GMAudioScrobbler::getNextTask() {
   FXTRACE((60,"GMAudioScrobbler::getNextTask\n"));
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
 
   if (flags&FLAG_SHUTDOWN){
     flags&=~FLAG_SHUTDOWN;
@@ -826,7 +826,7 @@ void GMAudioScrobbler::set_submit_failed() {
 
 
 void GMAudioScrobbler::create_token_request(FXString & request) {
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_token_request\n"));
   FXString signature="api_key" CLIENT_KEY "methodauth.getToken" CLIENT_SECRET;
   checksum(signature);
@@ -836,7 +836,7 @@ void GMAudioScrobbler::create_token_request(FXString & request) {
 
 
 void GMAudioScrobbler::process_token_response(const FXString & response){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
   ServiceResponse sr;
   FXTRACE((60,"GMAudioScrobbler::process_token_response\n%s\n",response.text()));
@@ -857,7 +857,7 @@ void GMAudioScrobbler::process_token_response(const FXString & response){
 
 
 FXuint GMAudioScrobbler::create_handshake_request(FXString & request) {
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_handshake_request\n"));
   if (mode==SERVICE_LASTFM) {
     FXString signature=FXString::value("api_key%smethodauth.getSessiontoken%s%s",CLIENT_KEY,token.text(),CLIENT_SECRET);
@@ -879,7 +879,7 @@ FXuint GMAudioScrobbler::create_handshake_request(FXString & request) {
 
 
 void GMAudioScrobbler::process_handshake_response(const FXString & response){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
   FXTRACE((60,"GMAudioScrobbler::process_handshake_response\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
@@ -1000,7 +1000,7 @@ void GMAudioScrobbler::loveban() {
 
 
 void GMAudioScrobbler::create_nowplaying_request(FXString & request) {
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_nowplaying_request\n"));
   if (mode==SERVICE_LASTFM) {
     FXString signature=FXString::value("album%s"
@@ -1051,7 +1051,7 @@ void GMAudioScrobbler::create_nowplaying_request(FXString & request) {
 
 
 void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   if (flags&FLAG_LOGIN_CHANGED) return;
   FXTRACE((60,"GMAudioScrobbler::process_nowplaying_response:\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
@@ -1081,7 +1081,7 @@ void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
 
 
 void GMAudioScrobbler::create_submit_request(FXString & request) {
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_submit_request\n"));
   FXint i,s;
   FXint ntracks = FXMIN(50,submitqueue.no());
@@ -1257,7 +1257,7 @@ void GMAudioScrobbler::create_submit_request(FXString & request) {
   }
 
 void GMAudioScrobbler::process_submit_response(const FXString & response){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::process_submit_response\n%s\n",response.text()));
   if (mode==SERVICE_LASTFM) {
     ServiceResponse sr;
@@ -1311,7 +1311,7 @@ void GMAudioScrobbler::process_submit_response(const FXString & response){
 
 /* LastFM */
 void GMAudioScrobbler::create_loveban_request(FXString & request){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_loveban_request\n"));
   FXASSERT(mode==SERVICE_LASTFM);
 
@@ -1340,7 +1340,7 @@ void GMAudioScrobbler::create_loveban_request(FXString & request){
   }
 
 void GMAudioScrobbler::process_loveban_response(const FXString & response){
-  FXMutexLock lock(mutex_data);
+  FXScopedMutex lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::process_loveban_response\n%s\n",response.text()));
   ServiceResponse sr;
   if (!sr.parse(response) || !sr.getStatus()) {

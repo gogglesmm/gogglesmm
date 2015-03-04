@@ -154,7 +154,7 @@ FXint GMTaskManager::run() {
   }
 
 void GMTaskManager::cancelTask() {
-  FXMutexLock lock(mutex);
+  FXScopedMutex lock(mutex);
   if (active) active->processing=false;
   }
 

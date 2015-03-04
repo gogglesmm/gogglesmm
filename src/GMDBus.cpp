@@ -53,7 +53,7 @@ public:
     }
 
   GMDBus * find(DBusConnection* dc) {
-    FXMutexLock lock(mutex);
+    FXScopedMutex lock(mutex);
     return static_cast<GMDBus*>(connections.at(dc));
     }
 
@@ -66,12 +66,12 @@ public:
     }
 
   void insert(DBusConnection * dc,GMDBus * fxdc) {
-    FXMutexLock lock(mutex);
+    FXScopedMutex lock(mutex);
     connections.insert(dc,fxdc);
     }
 
   void remove(DBusConnection * dc) {
-    FXMutexLock lock(mutex);
+    FXScopedMutex lock(mutex);
     connections.remove(dc);
     }
 
