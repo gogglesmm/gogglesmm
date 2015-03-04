@@ -518,10 +518,17 @@ FXbool GMDatabaseSource::listTags(GMList * list,FXIcon * icon) {
   GM_TICKS_START();
   try {
     if (hasFilter() || hasview) {
-      if (hasFilter())
+      if (hasview && hasFilter())
+        query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track IN (SELECT track FROM query_view) AND track in (SELECT track FROM filtered));";    
+      else if (hasFilter())
         query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track IN (SELECT track FROM filtered));";
       else
         query = "SELECT DISTINCT(id),name FROM tags WHERE id IN (SELECT tag FROM track_tags WHERE track IN (SELECT track FROM query_view));";
+
+
+
+
+
       }
     else {
       if (playlist)
@@ -627,16 +634,25 @@ FXbool GMDatabaseSource::listArtists(GMList * list,FXIcon * icon,const FXIntList
   GM_TICKS_START();
   try {
     if (hasFilter() || hasview) {
+      query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums WHERE";
 
-      if (hasFilter())
-        query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums WHERE id IN (SELECT DISTINCT(album) FROM filtered";
-      else
-        query = "SELECT id,name FROM artists WHERE id IN (SELECT DISTINCT(artist) FROM albums WHERE id IN (SELECT DISTINCT(album) FROM query_view";
-
-      if (taglist.no()) {
-        query += " WHERE track IN ( SELECT track FROM track_tags WHERE tag " + tagselection + ")";
+      if (hasview) {
+        query += " id IN (SELECT DISTINCT(album) FROM query_view";
+        if (taglist.no()) {
+          query += " WHERE track IN ( SELECT track FROM track_tags WHERE tag " + tagselection + ")";
+          }
+        query+=")";
         }
-      query+="));";
+
+      if (hasFilter()) {
+        if (hasview) query+=" AND";
+        query += " id IN (SELECT DISTINCT(album) FROM filtered";
+        if (taglist.no()) {
+          query += " WHERE track IN ( SELECT track FROM track_tags WHERE tag " + tagselection + ")";
+          }
+        query+=")";
+        }
+      query+=");";
       }
     else {
       if (taglist.no()==0) {
@@ -698,18 +714,23 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
   GMQuery q;
   try {
     if (hasFilter() || hasview){
-      if (hasFilter())
-        query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM filtered";
-      else
-        query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist AND albums.id IN (SELECT album FROM query_view";
+      query = "SELECT albums.id,albums.name,albums.year,artists.id,albums.audio_channels,albums.audio_rate,albums.audio_format FROM albums,artists WHERE artists.id == albums.artist";
 
-      if (taglist.no()) {
-        if (hasFilter())
-          query+=" JOIN track_tags ON track_tags.track == filtered.track WHERE tag " + tagselection;
-        else
+      if (hasview) {
+        query += " AND albums.id IN (SELECT album FROM query_view";
+        if (taglist.no()) {
           query+=" JOIN track_tags ON track_tags.track == query_view.track WHERE tag " + tagselection;
+          }
+        query+=" )";
         }
-      query+=" )";
+
+      if (hasFilter()) {
+        query += " AND albums.id IN (SELECT album FROM filtered";
+        if (taglist.no()) {
+          query+=" JOIN track_tags ON track_tags.track == filtered.track WHERE tag " + tagselection;
+          }
+        query+=" )";
+        }
       if (artistlist.no()) {
         query+=" AND artist " + artistselection;
         }
@@ -867,10 +888,11 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
       if (albumlist.no())
         query+=" AND tracks.album " + albumselection;
 
+      if (hasview)
+        query+=" AND tracks.id IN (SELECT track FROM query_view) ";
+
       if (hasFilter())
         query+=" AND tracks.id IN (SELECT track FROM filtered) ";
-      else if (hasview)
-        query+=" AND tracks.id IN (SELECT track FROM query_view) ";
 
       if (playlist && browse_mode)
         query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
@@ -879,22 +901,26 @@ FXbool GMDatabaseSource::listTracks(GMTrackList * tracklist,const FXIntList & al
       query+=" WHERE tracks.album " + albumselection;
       if (hasFilter())
         query+=" AND tracks.id IN (SELECT track FROM filtered) ";
-      else if (hasview)
+      if (hasview)
         query+=" AND tracks.id IN (SELECT track FROM query_view) ";
 
       if (playlist && browse_mode)
         query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
     else if (hasFilter()) {
-      query+=" WHERE tracks.id IN (SELECT track FROM filtered) ";
+      if (hasview)
+        query+=" WHERE tracks.id IN (SELECT track FROM query_view) AND tracks.id IN (SELECT track FROM filtered)";
+      else
+        query+=" WHERE tracks.id IN (SELECT track FROM filtered)";
+
       if (playlist && browse_mode)
         query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
       }
-    else if (hasview)
+    else if (hasview) {
       query+=" AND tracks.id IN (SELECT track FROM query_view) ";
       if (playlist && browse_mode)
         query+=" AND tracks.id IN (SELECT track FROM playlist_tracks WHERE playlist ==  " + FXString::value(playlist) + ")";
-
+      }
 
     if (playlist && browse_mode==false)
       query+=" ORDER BY playlist_tracks.queue;";
