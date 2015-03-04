@@ -25,9 +25,6 @@
 #include "gmutils.h"
 
 
-
-
-
 /// For listing default genres
 #include <id3v1genres.h>
 
@@ -556,157 +553,6 @@ FXbool GMTrackDatabase::insertPlaylistTracks(FXint playlist,const FXIntList & tr
   return true;
   }
 
-#if 0
-/// Insert Track in Playlist
-FXbool GMTrackDatabase::insertTrackInPlaylist(FXint playlist,FXint & track) {
-  FXint queue=0;
-  try {
-
-    GMQuery queu_query("SELECT MAX(queue) FROM playlist_tracks WHERE playlist == ?;");
-    queu_query.set(0,playlist);
-    queu_query.execute_with_result(queue);
-
-    // Increment
-    queue++;
-
-    GMQuery insert_query("INSERT INTO playlist_tracks VALUES ( ? , ? , ?);");
-    insert_query.set(0,playlist);
-    insert_query.set(1,track);
-    insert_query.set(2,queue);
-    insert_query.execute();
-
-
-/*
-    GMQuery insert_query("INSERT INTO playlist_tracks SELECT ?, ?, MAX(ifnull(queue,1))+1 FROM playlist_tracks WHERE playlist == ?;");
-    insert_query.set(0,playlist);
-    insert_query.set(1,track);
-    insert_query.set(2,playlist);
-    insert_query.execute();
-  */
-
-    }
-  catch (GMDatabaseException & e){
-    return false;
-    }
-  return true;
-  }
-
-
-/// Insert Track in Playlist
-FXbool GMTrackDatabase::insertTrackInPlaylist(FXint playlist,const FXIntList & tracks) {
-  FXint queue=0;
-
-  query_playlist_queue.set(0,playlist);
-  query_playlist_queue.execute_with_result(queue);
-
-    // Increment
-    queue++;
-
-  GM_TICKS_START();
-
-  begin();
-  for (int i=0;i<tracks.no();i++){
-    insert_track_playlist.set(0,playlist);
-    insert_track_playlist.set(1,tracks[i]);
-    insert_track_playlist.set(2,queue++);
-    insert_track_playlist.execute();
-    }
-  commit();
-
-  GM_TICKS_END();
-  return true;
-  }
-
-FXbool GMTrackDatabase::clearQueue(){
-  try {
-    execute("DELETE FROM playqueue;");
-    }
-  catch (GMDatabaseException & e){
-    return false;
-    }
-  return true;
-  }
-
-FXbool GMTrackDatabase::reorderQueue() {
-
-  execute("CREATE TEMP TABLE neworder AS SELECT COUNT(b.queue) AS newq,a.queue AS oldq FROM playqueue a JOIN playqueue b ON a.queue >= b.queue GROUP BY a.queue ORDER BY a.queue ASC;");
-
-  execute("UPDATE playqueue SET queue == (SELECT newq FROM neworder WHERE oldq == queue);");
-
-  execute("DROP TABLE neworder;");
-  return true;
-  }
-
-
-
-FXbool GMTrackDatabase::queueTracks(const FXIntList & tracks){
-  FXint queue=1;
-  try {
-    GMQuery max_query("SELECT MAX(queue)+1 FROM playqueue;");
-    max_query.execute_with_result(queue);
-
-    queue=FXMAX(1,queue);
-
-    GMQuery insert_query("INSERT INTO playqueue VALUES (?,?) ;");
-    begin();
-    for (int i=0;i<tracks.no();i++,queue++){
-      insert_query.set(0,queue);
-      insert_query.set(1,tracks[i]);
-      insert_query.execute();
-      }
-    commit();
-    }
-  catch (GMDatabaseException & e){
-    return false;
-    }
-  return true;
-  }
-
-
-FXbool GMTrackDatabase::removeQueueTracks(const FXIntList & queue){
-  FXString query;
-
-  begin();
-
-  if (queue.no()==1) {
-
-    query.format("DELETE FROM playqueue WHERE queue == %d;",queue[0]);
-    execute(query);
-
-
-    // Renumber queue following removed queue
-    query.format("UPDATE playqueue SET queue = queue - 1 WHERE queue > %d;",queue[0]);
-    execute(query);
-
-    }
-  else {
-
-    query.format("DELETE FROM playqueue WHERE queue IN ( %d",queue[0]);
-    for (FXint i=1;i<queue.no();i++){
-      query+=",";
-      query+=FXString::value(queue[i]);
-      }
-    query+=");";
-
-    execute(query);
-
-    if (!reorderQueue())
-      goto error;
-
-    }
-  commit();
-  return true;
-error:
-  rollback();
-  return false;
-  }
-
-
-#endif
-
-
-
-
 
 ///FIXME Insert Track in Playlist
 FXbool GMTrackDatabase::updateTrackPlaylists(FXint playlist,FXIntList & tracks) {
@@ -1153,29 +999,6 @@ FXbool GMTrackDatabase::getTrackAssociation(FXint id,FXint & artist,FXint & albu
 
 
 
-///FIXME
-#if 0
-FXbool GMTrackDatabase::removeGenre(FXint/* id*/) {
-  DEBUG_DB_SET();
-  GMQuery remove_genre;
-  try {
-    begin();
-
-/*
-    remove_genre = compile("DELETE FROM tracks WHERE genre == ?;");
-    remove_genre.execute_simple(id);
-
-*/
-    commit();
-    }
-  catch (GMDatabaseException & e){
-    rollback();
-    return false;
-    }
-  return true;
-  }
-#endif
-
 FXbool GMTrackDatabase::removeArtist(FXint artist) {
   DEBUG_DB_SET();
 
@@ -1433,54 +1256,6 @@ FXbool GMTrackDatabase::setPlaylistName(FXint playlist,const FXString & name) {
   return true;
   }
 
-
-#if 0
-/// Move Track in playlist
-FXbool GMTrackDatabase::moveTrack(FXint playlist,FXint oldq,FXint newq){
-  FXString query;
-  FXint row=0;
-  if (oldq==newq) return true;
-
-  query = "SELECT ROWID FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + " AND queue == " + FXString::value(oldq) + ";";
-  execute_simple(query.text(),row);
-
-  if (oldq<newq)
-    query = "UPDATE playlist_tracks SET queue = queue - 1 WHERE playlist == "+ FXString::value(playlist) +" AND queue > " +FXString::value(oldq) + " AND queue <= " + FXString::value(newq) + ";";
-  else
-    query = "UPDATE playlist_tracks SET queue = queue + 1 WHERE playlist == "+ FXString::value(playlist) +" AND queue < " +FXString::value(oldq) + " AND queue >= " + FXString::value(newq) + ";";
-
-  execute(query);
-
-  query = "UPDATE playlist_tracks SET queue = " + FXString::value(newq) + " WHERE playlist == " + FXString::value(playlist) + " AND ROWID == " + FXString::value(row) + ";";
-  execute(query);
-
-  return true;
-  }
-#endif
-
-#if 0
-/// Move Track in playlist
-FXbool GMTrackDatabase::moveQueueTrack(FXint oldq,FXint newq){
-  FXString query;
-  if (oldq==newq) return true;
-
-  query = "UPDATE playqueue SET queue = 0 WHERE queue == " +FXString::value(oldq) + ";";
-  execute(query);
-
-  if (oldq<newq)
-    query = "UPDATE playqueue SET queue = queue - 1 WHERE queue > " +FXString::value(oldq) + " AND queue <= " + FXString::value(newq) + ";";
-  else
-    query = "UPDATE playqueue SET queue = queue + 1 WHERE queue < " +FXString::value(oldq) + " AND queue >= " + FXString::value(newq) + ";";
-
-  execute(query);
-
-  query = "UPDATE playqueue SET queue = " + FXString::value(newq) + " WHERE queue == 0;";
-  execute(query);
-
-  return true;
-  }
-
-#endif
 
 FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
   DEBUG_DB_GET();

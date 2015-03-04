@@ -65,10 +65,6 @@ public:
     ID_NEW_PLAYLIST = GMSource::ID_LAST,
     ID_IMPORT_PLAYLIST,
     ID_IMPORT_FILES,
-    ID_EXPORT_GENRE,
-    ID_EXPORT_ARTIST,
-    ID_EXPORT_ALBUM,
-    ID_EXPORT_TRACK,
     ID_CLEAR,
     ID_COLUMN_TRACK,
     ID_COLUMN_QUEUE,
@@ -95,7 +91,6 @@ public:
   long onCmdRequestTrack(FXObject*,FXSelector,void*);
   long onCmdExport(FXObject*,FXSelector,void*);
   long onUpdExport(FXObject*,FXSelector,void*);
-  long onCmdExportTracks(FXObject*,FXSelector,void*);
   long onCmdDrop(FXObject*,FXSelector,void*);
   long onCmdPaste(FXObject*,FXSelector,void*);
   long onUpdPaste(FXObject*,FXSelector,void*);

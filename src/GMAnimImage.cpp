@@ -21,42 +21,6 @@
 
 #include "GMAnimImage.h"
 
-#if 0
-
-FXIMPLEMENT(GMAnimation,FXObject,NULL,0)
-
-
-GMAnimation::GMAnimation(FXImage * img,FXuint b) : image(img), index(0),base(b) { }
-
-
-void GMAnimation::advance() {
-  FXuint nrow=image->getHeight() / base;
-  FXuint ncol=image->getWidth() / base;
-  FXuint n = ((nrow*ncol)-1);
-  if (n==0) 
-    index=0;
-  else if (index==n)
-    index=1;
-  else
-    index++;
-  }
-
-void GMAnimation::draw(FXDC & dc,FXint x, FXint y) {
-  if(image && image->getWidth()>=(FXint)base){
-    FXint nrow=image->getWidth()/base;
-    dc.drawArea(image,(index%nrow)*base,(index/nrow)*base,base,base,x,y);
-    }
-  }
-#endif
-
-
-
-
-
-
-
-
-
 FXDEFMAP(GMAnimImage) GMAnimImageMap[]={
   FXMAPFUNC(SEL_PAINT,0,GMAnimImage::onPaint),
   FXMAPFUNC(SEL_TIMEOUT,GMAnimImage::ID_TIMER,GMAnimImage::onTimer)
@@ -115,7 +79,7 @@ long GMAnimImage::onTimer(FXObject*,FXSelector,void*){
     FXuint nrow=image->getHeight() / base;
     FXuint ncol=image->getWidth() / base;
     FXuint n = ((nrow*ncol)-1);
-    if (n==0) 
+    if (n==0)
       index=0;
     else if (index==n)
       index=1;

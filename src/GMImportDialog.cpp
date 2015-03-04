@@ -323,20 +323,6 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   fileassoc->initFileBindings();
   filebox->setAssociations(fileassoc,false);
   dirbox->setAssociations(fileassoc,false);
-/*
-  entryblock->childAtIndex(2)->hide();
-  cancel->hide();
-  entryblock->setPadLeft(0);
-  entryblock->setPadRight(0);
-  entryblock->setPadTop(0);
-  entryblock->setPadBottom(0);
-
-  navbuttons->setPadLeft(0);
-  navbuttons->setPadRight(0);
-  navbuttons->setPadTop(0);
-  navbuttons->setPadBottom(0);
-
-*/
   }
 
 GMFileSelector::~GMFileSelector(){

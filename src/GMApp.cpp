@@ -87,12 +87,6 @@ extern const FXchar * fxtr(const FXchar *x){
   }
 
 
-
-
-
-
-
-
 FXIMPLEMENT(GMApp,FXApp,NULL,0)
 
 GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
