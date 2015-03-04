@@ -8,6 +8,7 @@ Installation Instructions
       * taglib >= 1.9.0
       * expat
 
+
    2. Install optional dependencies:
 
       * dbus 1.0.x (optional)
