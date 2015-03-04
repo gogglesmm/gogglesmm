@@ -226,13 +226,13 @@ void GMDatabaseSource::configure(GMColumnList& list) {
   FXint i=0;
   list[i++]=GMColumn(notr("No"),HEADER_TRACK,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,43,(!playlist) ,true,0);
   list[i++]=GMColumn(notr("Queue"),HEADER_QUEUE,GMDBTrackItem::ascendingQueue,GMDBTrackItem::descendingQueue,60,(playlist),false,1);
+  list[i++]=GMColumn(notr("Artist"),HEADER_ARTIST,GMDBTrackItem::ascendingArtist,GMDBTrackItem::descendingArtist,400,true,true,3);
   list[i++]=GMColumn(notr("Title"),HEADER_TITLE,GMDBTrackItem::ascendingTitle,GMDBTrackItem::descendingTitle,360,true,true,2);
-  list[i++]=GMColumn(notr("Artist"),HEADER_ARTIST,GMDBTrackItem::ascendingArtist,GMDBTrackItem::descendingArtist,400,true,false,3);
   list[i++]=GMColumn(notr("Album Artist"),HEADER_ALBUM_ARTIST,GMDBTrackItem::ascendingAlbumArtist,GMDBTrackItem::descendingAlbumArtist,200,true,false,4);
   list[i++]=GMColumn(notr("Album"),HEADER_ALBUM,GMDBTrackItem::ascendingAlbum,GMDBTrackItem::descendingAlbum,200,true,false,5);
   list[i++]=GMColumn(notr("Disc"),HEADER_DISC,GMDBTrackItem::ascendingDisc,GMDBTrackItem::descendingDisc,43,false,false,6);
 //  list[i++]=GMColumn(notr("Tags"),HEADER_TAG,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,200,true,false,7);
-  list[i++]=GMColumn(notr("Year"),HEADER_YEAR,GMDBTrackItem::ascendingYear,GMDBTrackItem::descendingYear,60,true,true,8);
+  list[i++]=GMColumn(notr("Year"),HEADER_YEAR,GMDBTrackItem::ascendingYear,GMDBTrackItem::descendingYear,60,true,false,8);
   list[i++]=GMColumn(notr("Time"),HEADER_TIME,GMDBTrackItem::ascendingTime,GMDBTrackItem::descendingTime,60,true,true,9);
   list[i++]=GMColumn(notr("Play Count"),HEADER_PLAYCOUNT,GMDBTrackItem::ascendingPlaycount,GMDBTrackItem::descendingPlaycount,60,false,false,10);
   list[i++]=GMColumn(notr("Play Date"),HEADER_PLAYDATE,GMDBTrackItem::ascendingPlaydate,GMDBTrackItem::descendingPlaydate,60,false,false,11);
@@ -246,7 +246,7 @@ void GMDatabaseSource::configure(GMColumnList& list) {
 
 
 FXbool GMDatabaseSource::hasCurrentTrack(GMSource * src) const {
-  if (src==this) return true;
+  if (src==this || (src->getType()>=SOURCE_PLAYQUEUE && src->getType()<=SOURCE_DATABASE_PLAYLIST)) return true;
   return false;
   }
 
@@ -1645,7 +1645,7 @@ FXuint gm_parse_dragtypes(FXDragType*types,FXuint ntypes){
 
 
 void GMDatabaseSource::addTracks(GMSource * src,const FXIntList & tracks) {
-  if (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_PLAYLIST)
+  if (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_PLAYLIST || src->getType()==SOURCE_DATABASE_FILTER || src->getType()==SOURCE_PLAYQUEUE)
     db->insertPlaylistTracks(playlist,tracks);
   }
 

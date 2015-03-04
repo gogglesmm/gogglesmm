@@ -48,6 +48,8 @@ public:
 
   FXbool canPlaySource(GMSource * src) const;
 
+  FXbool findCurrent(GMTrackList * tracklist,GMSource * src);
+
   virtual FXint getNumTracks() const;
 
   virtual FXbool canBrowse() const { return false; }

@@ -85,6 +85,19 @@ void GMPlayQueue::configure(GMColumnList& list) {
 
 
 
+FXbool GMPlayQueue::findCurrent(GMTrackList * list,GMSource * src) {
+  if (src->getCurrentTrack()==-1) return false;
+  if (src==this) {
+    for (FXint i=0;i<list->getNumItems();i++){
+      if (list->getItemId(i)==current_track && ((GMDBTrackItem*)list->getItem(i))->getTrackQueue()==1) {
+        list->setActiveItem(i);
+        list->setCurrentItem(i);
+        return true;
+        }
+      }
+    }
+  return false;
+  }
 
 
 
@@ -135,7 +148,7 @@ FXbool GMPlayQueue::track_context_menu(FXMenuPane * pane){
 
 
 FXbool GMPlayQueue::canPlaySource(GMSource * src) const {
-  return (src && (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_PLAYLIST || src->getType()==SOURCE_PLAYQUEUE));
+  return (src && (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_FILTER || src->getType()==SOURCE_DATABASE_PLAYLIST || src->getType()==SOURCE_PLAYQUEUE));
   }
 
 void GMPlayQueue::addTracks(GMSource * src,const FXIntList & tracks) {
