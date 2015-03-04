@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2007-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2007-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -52,7 +52,7 @@ GMLocalSource::~GMLocalSource(){
 
 void GMLocalSource::configure(GMColumnList& list){
   list.no(1);
-  list[0]=GMColumn(notr("Filename"),HEADER_FILENAME,GMLocalTrackItem::ascendingFilename,GMLocalTrackItem::descendingFilename,600,true,true,0);
+  list[0]=GMColumn(notr("Path"),HEADER_FILENAME,GMLocalTrackItem::ascendingFilename,GMLocalTrackItem::descendingFilename,600,true,true,0);
   }
 
 

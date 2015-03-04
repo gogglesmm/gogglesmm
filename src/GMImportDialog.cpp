@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -119,7 +119,7 @@ public:
       bindings[imagetypes[i]]=assoc;
       }
     }
-   
+
   FXFileAssoc* findFileBinding(const FXString& pathname){
     FXString ext = FXPath::extension(pathname);
     if (!ext.empty()) {
@@ -128,7 +128,7 @@ public:
       if ((record = bindings[ext.lower()])!=NULL) return record;
       }
     return bindings[defaultFileBinding];
-    }  
+    }
 
   FXFileAssoc* findDirBinding(const FXString&){
     return bindings[defaultDirBinding];
@@ -164,7 +164,7 @@ GMDirSelector::GMDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
 //  accept=new FXButton(buttons,tr("&OK"),NULL,NULL,0,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
 //  cancel=new FXButton(buttons,tr("&Cancel"),NULL,NULL,0,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
   FXHorizontalFrame *field=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
-  new FXLabel(field,tr("&Directory:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
+  new FXLabel(field,tr("&Folder:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
   dirname=new GMTextField(field,25,this,ID_DIRNAME,LAYOUT_FILL_X|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK);
 
   GMScrollFrame *frame=new GMScrollFrame(this);
@@ -176,7 +176,7 @@ GMDirSelector::GMDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
   GMScrollArea::replaceScrollbars(dirbox);
   ((FXVerticalFrame*)dirbox->getParent())->setFrameStyle(FRAME_LINE);
 
-  GMFileAssociations * assoc = new GMFileAssociations(getApp());    
+  GMFileAssociations * assoc = new GMFileAssociations(getApp());
   dirbox->setAssociations(assoc,true);
 /*
   getFirst()->hide();
@@ -323,20 +323,6 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   fileassoc->initFileBindings();
   filebox->setAssociations(fileassoc,false);
   dirbox->setAssociations(fileassoc,false);
-/*
-  entryblock->childAtIndex(2)->hide();
-  cancel->hide();
-  entryblock->setPadLeft(0);
-  entryblock->setPadRight(0);
-  entryblock->setPadTop(0);
-  entryblock->setPadBottom(0);
-
-  navbuttons->setPadLeft(0);
-  navbuttons->setPadRight(0);
-  navbuttons->setPadTop(0);
-  navbuttons->setPadBottom(0);
-
-*/
   }
 
 GMFileSelector::~GMFileSelector(){
@@ -488,7 +474,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     fileselector->cancelButton()->setSelector(FXDialogBox::ID_CANCEL);
     }
   else if (mode&IMPORT_FROMDIR) {
-    new GMTabItem(tabbook,tr("&Directory"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+    new GMTabItem(tabbook,tr("&Folder"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
     vframe = new GMTabFrame(tabbook);
 
     GMCheckButton * excludetoggle = new GMCheckButton(vframe,tr("Exclude Filter\tFilter out directories and/or files based on pattern"),NULL,0,CHECKBUTTON_NORMAL|CHECKBUTTON_PLUS);
@@ -538,13 +524,13 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
 
   hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
   new GMRadioButton(hframe,tr("Tag"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_TAG,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
-  new GMRadioButton(hframe,tr("Filename"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_FILENAME,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
+  new GMRadioButton(hframe,tr("Path"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_FILENAME,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
   new GMRadioButton(hframe,tr("Both"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_BOTH,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
 
   new FXLabel(matrix,tr("Default value:"),NULL,labelstyle);
   new GMTextField(matrix,10,&target_default_field,FXDataTarget::ID_VALUE,textfieldstyle|LAYOUT_FILL_COLUMN);
 
-  new FXLabel(matrix,tr("ID3v1 Encoding:\tTestTEsttEs"),NULL,labelstyle);
+  new FXLabel(matrix,tr("ID3v1 Encoding:"),NULL,labelstyle);
   id3v1_listbox = new GMListBox(matrix,&target_id3v1_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
   for (int i=0;gmcodecnames[i]!=NULL;i++)
     id3v1_listbox->appendItem(gmcodecnames[i]);
@@ -554,11 +540,10 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     id3v1_listbox->disable();
     }
 
-
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
-  template_grpbox =  new FXGroupBox(vframe,tr("Filename Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+  template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   template_grpbox->setFont(GMApp::instance()->getThickFont());
 
   FXLabel * label = new FXLabel(template_grpbox,tr("%T - title              %A - album name\n"

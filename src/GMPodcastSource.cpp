@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2007-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2007-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -972,11 +972,11 @@ protected:
   GMPodcastFeed() {}
 public:
   enum {
-    AUTODOWNLOAD = 8
+    AUTODOWNLOAD = 16
     };
 
 public:
-  GMPodcastFeed(const FXString & feed,FXbool ad,FXint id) : GMAlbumListItem(FXString::null,feed,0,id) {
+  GMPodcastFeed(const FXString & feed,FXbool ad,FXint id) : GMAlbumListItem(0,feed,0,id) {
     if (ad) state|=AUTODOWNLOAD;
     }
 
@@ -1093,6 +1093,9 @@ void GMPodcastSource::loadCovers() {
     if (!covercache->load()) {
       updateCovers();
       }
+    }
+  else if (covercache->getSize()!=GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size){
+    updateCovers();
     }
   }
 

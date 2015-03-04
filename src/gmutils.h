@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -83,6 +83,9 @@ extern void gm_bgra_to_rgba(FXColor * in,FXColor * out,FXint len);
 
 extern FXImage * gm_load_image_from_data(const void * data,FXuval size,FXint scale,FXint crop=0);
 extern FXImage * gm_load_image_from_file(const FXString & filename,FXint scale,FXint crop=0);
+
+extern void gm_scale_crop(FXImage * image,FXint scale,FXint crop=0);
+
 
 extern FXbool gm_decode_base64(FXuchar * buffer,FXint & len);
 

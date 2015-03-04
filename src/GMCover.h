@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2010-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -33,13 +33,6 @@ struct GMImageInfo {
   GMImageInfo() : width(0),height(0),bps(0),colors(0) {}
   };
 
-enum {
-  FILETYPE_UNKNOWN = 0,
-  FILETYPE_PNG     = 1,
-  FILETYPE_JPG     = 2,
-  FILETYPE_BMP     = 3,
-  FILETYPE_GIF     = 4
-  };
 
 
 class GMCover {

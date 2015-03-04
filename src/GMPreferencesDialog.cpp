@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -1202,11 +1202,13 @@ void GMPreferencesDialog::updateColors(){
         gmimageframe->setBackColor(selected.back); /// fixme, only for coverframe in mainwindow
         }
      else if ((gmprogressbar=dynamic_cast<GMProgressBar*>(w))) {
+        gmprogressbar->setBarBGColor(selected.back);
         gmprogressbar->setBorderColor(selected.shadow);
         gmprogressbar->setBarColor(selected.selback);
         gmprogressbar->setTextAltColor(selected.selfore);
         }
      else if ((gmtrackprogressbar=dynamic_cast<GMTrackProgressBar*>(w))) {
+        gmtrackprogressbar->setBarBGColor(selected.back);
         gmtrackprogressbar->setBorderColor(selected.shadow);
         gmtrackprogressbar->setBarColor(selected.selback);
         gmtrackprogressbar->setTextAltColor(selected.selfore);

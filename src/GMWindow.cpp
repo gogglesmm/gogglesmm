@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -1304,17 +1304,19 @@ void GMWindow::updateCover() {
       size = 0;
 
     FXImage * image = GMCover::copyToImage(cover,size);
-    if (coverview_x11) {
-      image->create();
-      coverview_x11->setImage(image);
-      }
+    if (image) {
+      if (coverview_x11) {
+        image->create();
+        coverview_x11->setImage(image);
+        }
 #ifdef HAVE_OPENGL
-    else {
-      coverview_gl->setImage(image);
-      if (presenter) presenter->setImage(image);
-      delete image;
-      }
+      else {
+        coverview_gl->setImage(image);
+        if (presenter) presenter->setImage(image);
+        delete image;
+        }
 #endif
+      }
     }
   }
 

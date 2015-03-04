@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -18,31 +18,6 @@
 ********************************************************************************/
 #ifndef GMANIMIMAGE_H
 #define GMANIMIMAGE_H
-
-#if 0
-class GMAnimation : public FXObject {
-FXDECLARE(GMAnimation)
-protected:
-  FXImage * image;
-  FXuint    index;
-  FXuint    base;
-protected:
-  GMAnimation(){}
-private:
-  GMAnimation(const GMAnimation&);
-  GMAnimation& operator=(const GMAnimation&);
-public:
-  GMAnimation(FXImage * img,FXuint base);
-
-  FXint getWidth() const { return base; }
-
-  FXint getHeight() const { return base; }
-
-  void advance();
-
-  void draw(FXDC & dc,FXint x,FXint y); 
-  };
-#endif
 
 class GMAnimImage : public FXImageFrame {
 FXDECLARE(GMAnimImage)
@@ -67,7 +42,7 @@ public:
   GMAnimImage(FXComposite* p,FXImage *img,FXint base,FXuint opts=FRAME_SUNKEN|FRAME_THICK,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=0,FXint pr=0,FXint pt=0,FXint pb=0);
 
   virtual void hide();
-  
+
   virtual void show();
 
   virtual void create();

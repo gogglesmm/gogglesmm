@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -21,6 +21,9 @@
 
 struct sqlite3_stmt;
 struct sqlite3;
+typedef struct Mem sqlite3_value;
+struct sqlite3_context;
+
 
 class GMDatabaseException {
   };
@@ -105,6 +108,8 @@ private:
   static FXMutex     mutex;
   static FXCondition condition;
 public:
+  static void perform_regex_match(sqlite3_context *,int,sqlite3_value**);
+public:
   static volatile FXbool interrupt;
 private:
   void lock();
@@ -125,6 +130,9 @@ public:
 
   /// Clear the whole database
   void reset();
+
+  /// Initialize Regular Expressions
+  void init_regex();
 
   /// Compile Query
   sqlite3_stmt * compile(const FXchar * statement);

@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -121,6 +121,8 @@ public:
   FXIconPtr icon_localcopy;
   FXIconPtr icon_download;
   FXIconPtr icon_error;
+  FXIconPtr icon_add;
+  FXIconPtr icon_remove;
 public:
   FXCursorPtr cursor_hand;
 private:

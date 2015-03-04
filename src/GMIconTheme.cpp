@@ -29,7 +29,7 @@
 
 #define SMALL_SIZE 16
 #define MEDIUM_SIZE 22
-#define LARGE_SIZE 48
+#define LARGE_SIZE 128
 
 void GMIconSet::save(FXStream & store) {
   store << name;
@@ -309,7 +309,7 @@ void GMIconTheme::build() {
 
     /// Parse Index Files
     for (i=0,j=0;i<themedict.no();i++){
-      if (!themedict.empty(i)){        
+      if (!themedict.empty(i)){
         index[j++].parseFile(themedict.data(i),true);
         indexmap.insert(themedict.key(i),(void*)(FXival)(j-1));
         }
@@ -536,6 +536,9 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
 
 
   if (icon) {
+
+    gm_scale_crop(ic,size);
+
     icon->destroy();
     icon->setData(ic->getData(),ic->getOptions(),ic->getWidth(),ic->getHeight());
 
@@ -651,6 +654,9 @@ void GMIconTheme::loadInternal() {
   loadResource(icon_edit,x16_accessories_text_editor_png,basecolor);
   loadResource(icon_sort,x16_view_sort_descending_png,basecolor);
 
+  loadResource(icon_add,x16_list_add_png,basecolor);
+  loadResource(icon_remove,x16_list_remove_png,basecolor);
+
   // Play Back Icons
   loadResource(icon_play,         x16_media_playback_start_png,basecolor);
   loadResource(icon_pause,        x16_media_playback_pause_png,basecolor);
@@ -683,7 +689,7 @@ void GMIconTheme::loadInternal() {
   loadResource(icon_source_local,x22_drive_harddisk_png,backcolor);
   loadResource(icon_source_podcast,x22_applications_rss_xml_png,backcolor);
 
-  loadResource(icon_nocover,x48_media_optical_png,backcolor);
+  loadResource(icon_nocover,x128_media_optical_png,basecolor);
   loadResource(icon_applogo,gogglesmm_32_png,basecolor);
   loadResource(icon_applogo_small,gogglesmm_16_png,basecolor);
   loadResource(icon_progress,x16_process_working_png,basecolor);
@@ -734,7 +740,7 @@ void GMIconTheme::loadExternal() {
   loadMedium(icon_source_playlist,"user-bookmarks",backcolor);
   loadMedium(icon_source_playqueue,"x-office-presentation",backcolor);
   loadMedium(icon_source_local,"drive-harddisk",backcolor);
-  loadMedium(icon_source_podcast,"application-rss+xml",basecolor);
+  loadMedium(icon_source_podcast,"application-rss+xml",backcolor);
 
   //loadSmall(icon_playlist,"user-bookmarks",basecolor);
   loadSmall(icon_playqueue,"x-office-presentation",basecolor);
@@ -745,7 +751,7 @@ void GMIconTheme::loadExternal() {
   loadResource(icon_applogo,gogglesmm_32_png,basecolor);
   loadResource(icon_applogo_small,gogglesmm_16_png,basecolor);
 
-  loadLarge(icon_nocover,"media-optical",backcolor);
+  loadLarge(icon_nocover,"media-optical",basecolor);
 
   loadMedium(icon_volume_high_toolbar,"audio-volume-high",basecolor);
   loadMedium(icon_volume_medium_toolbar,"audio-volume-medium",basecolor);

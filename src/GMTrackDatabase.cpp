@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -21,7 +21,9 @@
 #include "GMTrackDatabase.h"
 #include "GMTrackList.h"
 #include "GMSource.h"
+#include "GMTag.h"
 #include "gmutils.h"
+
 
 /// For listing default genres
 #include <id3v1genres.h>
@@ -29,7 +31,9 @@
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2016  /* add autodownload to feed table*/
+
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2017  /* Album Audio Quality*/
+#define GOGGLESMM_DATABASE_SCHEMA_V14     2016  /* add autodownload to feed table*/
 #define GOGGLESMM_DATABASE_SCHEMA_V13     2015  /* Fix empty tags and add foreign reference to feeds table*/
 #define GOGGLESMM_DATABASE_SCHEMA_DEV4    2014  /* Foreign Keys Fix*/
 #define GOGGLESMM_DATABASE_SCHEMA_DEV3    2013  /* Foreign Keys */
@@ -93,6 +97,9 @@ const FXchar create_tracks[]=         "CREATE TABLE tracks ( "
                                           "playdate INTEGER,"
                                           "importdate INTEGER,"
                                           "rating INTEGER,"
+                                          "samplerate INTEGER,"
+                                          "channels INTEGER,"
+                                          "filetype INTEGER,"
                                           "PRIMARY KEY (id) );";
 
 const FXchar create_tags[]=           "CREATE TABLE tags ("
@@ -110,8 +117,11 @@ const FXchar create_albums[]=         "CREATE TABLE albums ("
                                           "name TEXT NOT NULL,"
                                           "artist INTEGER NOT NULL REFERENCES artists (id),"
                                           "year INTEGER,"
+                                          "audio_channels INTEGER,"  /* 2,4,6*/
+                                          "audio_rate INTEGER,"      /* 44100, 48000, 96 */
+                                          "audio_format INTEGER,"    /* 16 / 24 */  //
                                           "PRIMARY KEY (id),"
-                                          "UNIQUE(name,artist));";
+                                          "UNIQUE(name,artist,year,audio_channels,audio_rate,audio_format));";
 
 const FXchar create_artists[]=        "CREATE TABLE artists ("
                                           "id INTEGER NOT NULL,"
@@ -134,13 +144,16 @@ const FXchar create_pathlist[]=       "CREATE TABLE pathlist ("
                                           "PRIMARY KEY (id));";
 
 
+
 GMTrackDatabase::GMTrackDatabase()  {
   }
+
 
 GMTrackDatabase::~GMTrackDatabase() {
   clear_path_lookup();
   clear_artist_lookup();
   }
+
 
 FXbool GMTrackDatabase::init(const FXString & database) {
   FXint dbversion = 0;
@@ -217,85 +230,101 @@ void GMTrackDatabase::fix_empty_tags(){
   execute("DELETE FROM tags WHERE name == ''");
   }
 
+
+void GMTrackDatabase::init_album_properties() {
+  GMAudioProperties props;
+  GMCoverPathList   albums;
+  GMQuery update_album(this,"UPDATE albums SET audio_channels = ?, audio_rate = ?, audio_format = ? WHERE id = ?");
+
+  if (listAlbumPaths(albums)) {
+    for (FXint i=0;i<albums.no();i++){
+      if (props.load(albums[i].path)) {
+        update_album.set(0,props.channels);
+        update_album.set(1,props.samplerate);
+        update_album.set(2,props.samplesize);
+        }
+      else {
+        update_album.set(0,2);
+        update_album.set(1,44100);
+        update_album.set(2,0);
+        }
+      update_album.set(3,albums[i].id);
+      update_album.execute();
+      }
+    }
+  }
+
+
 FXbool GMTrackDatabase::init_database() {
   try {
+
     switch(getVersion()) {
 
       // All's well.
       case GOGGLESMM_DATABASE_SCHEMA_VERSION:
         break;
 
-      case GOGGLESMM_DATABASE_SCHEMA_V13    :
-        // add autodownload column
-        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
-        execute("UPDATE feeds SET autodownload = 0");
-        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
-        break;
-
-      case GOGGLESMM_DATABASE_SCHEMA_DEV4  :
-
-        // add autodownload column
-        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
-        execute("UPDATE feeds SET autodownload = 0");
-
-        // foreign key fixes
-        recreate_table("feeds",create_feed);
-
-        fix_empty_tags();
-        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
-        break;
-
-      case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
-        // add autodownload column
-        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
-        execute("UPDATE feeds SET autodownload = 0");
-
-        recreate_table("playlist_tracks",create_playlist_tracks);
-        recreate_table("feeds",create_feed);
-        fix_empty_tags();
-        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
-        break;
-
-      case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
-        // add autodownload column
-        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
-        execute("UPDATE feeds SET autodownload = 0");
-
-        // foreign key fixes
-        recreate_table("tracks",create_tracks);
-        recreate_table("streams",create_streams);
-        recreate_table("playlist_tracks",create_playlist_tracks);
-        recreate_table("feeds",create_feed);
-        recreate_table("feed_items",create_feed_items);
-
-        fix_empty_tags();
-
-        setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
+      // These should never be encountered
+      case GOGGLESMM_DATABASE_SCHEMA_V10    :
+      case GOGGLESMM_DATABASE_SCHEMA_V12    :
+        FXASSERT(0);
+        return false;
         break;
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV1 :
 
-        // foreign key fixes
-        recreate_table("tracks",create_tracks);
-        recreate_table("streams",create_streams);
-        recreate_table("playlist_tracks",create_playlist_tracks);
-
+        // Create the feeds table
         execute(create_feed);
         execute(create_feed_items);
 
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
+
+        recreate_table("tracks",create_tracks);
+        recreate_table("streams",create_streams);
+        recreate_table("feeds",create_feed);
+        recreate_table("feed_items",create_feed_items);
+
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
+
+        recreate_table("playlist_tracks",create_playlist_tracks);
+
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_DEV4 :
+
+        recreate_table("feeds",create_feed);
         fix_empty_tags();
+
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_V13  :
+
+        execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
+        execute("UPDATE feeds SET autodownload = 0");
+
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_V14  :
+
+        execute("ALTER TABLE albums ADD COLUMN audio_channels INTEGER");
+        execute("ALTER TABLE albums ADD COLUMN audio_rate INTEGER");
+        execute("ALTER TABLE albums ADD COLUMN audio_format INTEGER");
+        execute("ALTER TABLE tracks ADD COLUMN samplerate INTEGER");
+        execute("ALTER TABLE tracks ADD COLUMN channels INTEGER");
+        execute("ALTER TABLE tracks ADD COLUMN filetype INTEGER");
+
+        init_album_properties();
+        recreate_table("albums",create_albums); // fixup constraints
 
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
-      case GOGGLESMM_DATABASE_SCHEMA_V10    :
-      case GOGGLESMM_DATABASE_SCHEMA_V12    :
-        /// don't touch old database.
-        FXASSERT(0);
-        break;
-
+      // Unknown/Uninitialized database. Start from scratch
       default                               :
-        /// Some unknown database. Let's start from scratch
         reset();
         execute(create_tracks);
         execute(create_tags);
@@ -329,7 +358,6 @@ FXbool GMTrackDatabase::init_queries() {
   try {
     insert_path                         = compile("INSERT OR IGNORE INTO pathlist VALUES ( NULL , ? );");
     insert_artist                       = compile("INSERT OR IGNORE INTO artists VALUES ( NULL , ? );");
-    insert_album                        = compile("INSERT OR IGNORE INTO albums SELECT NULL, ?, (SELECT id FROM artists WHERE name == ?), ?;");
     insert_playlist_track_by_id         = compile("INSERT INTO playlist_tracks VALUES (?,?,?);");
 
     query_filename                      = compile("SELECT id FROM tracks WHERE path == ? AND mrl == ?;");
@@ -352,9 +380,6 @@ FXbool GMTrackDatabase::init_queries() {
     query_track_filename                = compile("SELECT name ||'" PATHSEPSTRING "' || mrl FROM tracks,pathlist WHERE tracks.path == pathlist.id AND tracks.id == ?;");
 
     query_album_artists                 = compile("SELECT albums.artist,album FROM tracks,albums WHERE albums.id ==tracks.album AND tracks.id == ?;");
-
-
-
 
     //query_playlist_queue                = compile("SELECT MAX(queue) FROM playlist_tracks WHERE playlist == ?;");
     update_track_rating                 = compile("UPDATE tracks SET rating = ? WHERE id == ?;");
@@ -527,157 +552,6 @@ FXbool GMTrackDatabase::insertPlaylistTracks(FXint playlist,const FXIntList & tr
   GM_TICKS_END();
   return true;
   }
-
-#if 0
-/// Insert Track in Playlist
-FXbool GMTrackDatabase::insertTrackInPlaylist(FXint playlist,FXint & track) {
-  FXint queue=0;
-  try {
-
-    GMQuery queu_query("SELECT MAX(queue) FROM playlist_tracks WHERE playlist == ?;");
-    queu_query.set(0,playlist);
-    queu_query.execute_with_result(queue);
-
-    // Increment
-    queue++;
-
-    GMQuery insert_query("INSERT INTO playlist_tracks VALUES ( ? , ? , ?);");
-    insert_query.set(0,playlist);
-    insert_query.set(1,track);
-    insert_query.set(2,queue);
-    insert_query.execute();
-
-
-/*
-    GMQuery insert_query("INSERT INTO playlist_tracks SELECT ?, ?, MAX(ifnull(queue,1))+1 FROM playlist_tracks WHERE playlist == ?;");
-    insert_query.set(0,playlist);
-    insert_query.set(1,track);
-    insert_query.set(2,playlist);
-    insert_query.execute();
-  */
-
-    }
-  catch (GMDatabaseException & e){
-    return false;
-    }
-  return true;
-  }
-
-
-/// Insert Track in Playlist
-FXbool GMTrackDatabase::insertTrackInPlaylist(FXint playlist,const FXIntList & tracks) {
-  FXint queue=0;
-
-  query_playlist_queue.set(0,playlist);
-  query_playlist_queue.execute_with_result(queue);
-
-    // Increment
-    queue++;
-
-  GM_TICKS_START();
-
-  begin();
-  for (int i=0;i<tracks.no();i++){
-    insert_track_playlist.set(0,playlist);
-    insert_track_playlist.set(1,tracks[i]);
-    insert_track_playlist.set(2,queue++);
-    insert_track_playlist.execute();
-    }
-  commit();
-
-  GM_TICKS_END();
-  return true;
-  }
-
-FXbool GMTrackDatabase::clearQueue(){
-  try {
-    execute("DELETE FROM playqueue;");
-    }
-  catch (GMDatabaseException & e){
-    return false;
-    }
-  return true;
-  }
-
-FXbool GMTrackDatabase::reorderQueue() {
-
-  execute("CREATE TEMP TABLE neworder AS SELECT COUNT(b.queue) AS newq,a.queue AS oldq FROM playqueue a JOIN playqueue b ON a.queue >= b.queue GROUP BY a.queue ORDER BY a.queue ASC;");
-
-  execute("UPDATE playqueue SET queue == (SELECT newq FROM neworder WHERE oldq == queue);");
-
-  execute("DROP TABLE neworder;");
-  return true;
-  }
-
-
-
-FXbool GMTrackDatabase::queueTracks(const FXIntList & tracks){
-  FXint queue=1;
-  try {
-    GMQuery max_query("SELECT MAX(queue)+1 FROM playqueue;");
-    max_query.execute_with_result(queue);
-
-    queue=FXMAX(1,queue);
-
-    GMQuery insert_query("INSERT INTO playqueue VALUES (?,?) ;");
-    begin();
-    for (int i=0;i<tracks.no();i++,queue++){
-      insert_query.set(0,queue);
-      insert_query.set(1,tracks[i]);
-      insert_query.execute();
-      }
-    commit();
-    }
-  catch (GMDatabaseException & e){
-    return false;
-    }
-  return true;
-  }
-
-
-FXbool GMTrackDatabase::removeQueueTracks(const FXIntList & queue){
-  FXString query;
-
-  begin();
-
-  if (queue.no()==1) {
-
-    query.format("DELETE FROM playqueue WHERE queue == %d;",queue[0]);
-    execute(query);
-
-
-    // Renumber queue following removed queue
-    query.format("UPDATE playqueue SET queue = queue - 1 WHERE queue > %d;",queue[0]);
-    execute(query);
-
-    }
-  else {
-
-    query.format("DELETE FROM playqueue WHERE queue IN ( %d",queue[0]);
-    for (FXint i=1;i<queue.no();i++){
-      query+=",";
-      query+=FXString::value(queue[i]);
-      }
-    query+=");";
-
-    execute(query);
-
-    if (!reorderQueue())
-      goto error;
-
-    }
-  commit();
-  return true;
-error:
-  rollback();
-  return false;
-  }
-
-
-#endif
-
-
-
 
 
 ///FIXME Insert Track in Playlist
@@ -1125,29 +999,6 @@ FXbool GMTrackDatabase::getTrackAssociation(FXint id,FXint & artist,FXint & albu
 
 
 
-///FIXME
-#if 0
-FXbool GMTrackDatabase::removeGenre(FXint/* id*/) {
-  DEBUG_DB_SET();
-  GMQuery remove_genre;
-  try {
-    begin();
-
-/*
-    remove_genre = compile("DELETE FROM tracks WHERE genre == ?;");
-    remove_genre.execute_simple(id);
-
-*/
-    commit();
-    }
-  catch (GMDatabaseException & e){
-    rollback();
-    return false;
-    }
-  return true;
-  }
-#endif
-
 FXbool GMTrackDatabase::removeArtist(FXint artist) {
   DEBUG_DB_SET();
 
@@ -1405,54 +1256,6 @@ FXbool GMTrackDatabase::setPlaylistName(FXint playlist,const FXString & name) {
   return true;
   }
 
-
-#if 0
-/// Move Track in playlist
-FXbool GMTrackDatabase::moveTrack(FXint playlist,FXint oldq,FXint newq){
-  FXString query;
-  FXint row=0;
-  if (oldq==newq) return true;
-
-  query = "SELECT ROWID FROM playlist_tracks WHERE playlist == " + FXString::value(playlist) + " AND queue == " + FXString::value(oldq) + ";";
-  execute_simple(query.text(),row);
-
-  if (oldq<newq)
-    query = "UPDATE playlist_tracks SET queue = queue - 1 WHERE playlist == "+ FXString::value(playlist) +" AND queue > " +FXString::value(oldq) + " AND queue <= " + FXString::value(newq) + ";";
-  else
-    query = "UPDATE playlist_tracks SET queue = queue + 1 WHERE playlist == "+ FXString::value(playlist) +" AND queue < " +FXString::value(oldq) + " AND queue >= " + FXString::value(newq) + ";";
-
-  execute(query);
-
-  query = "UPDATE playlist_tracks SET queue = " + FXString::value(newq) + " WHERE playlist == " + FXString::value(playlist) + " AND ROWID == " + FXString::value(row) + ";";
-  execute(query);
-
-  return true;
-  }
-#endif
-
-#if 0
-/// Move Track in playlist
-FXbool GMTrackDatabase::moveQueueTrack(FXint oldq,FXint newq){
-  FXString query;
-  if (oldq==newq) return true;
-
-  query = "UPDATE playqueue SET queue = 0 WHERE queue == " +FXString::value(oldq) + ";";
-  execute(query);
-
-  if (oldq<newq)
-    query = "UPDATE playqueue SET queue = queue - 1 WHERE queue > " +FXString::value(oldq) + " AND queue <= " + FXString::value(newq) + ";";
-  else
-    query = "UPDATE playqueue SET queue = queue + 1 WHERE queue < " +FXString::value(oldq) + " AND queue >= " + FXString::value(newq) + ";";
-
-  execute(query);
-
-  query = "UPDATE playqueue SET queue = " + FXString::value(newq) + " WHERE queue == 0;";
-  execute(query);
-
-  return true;
-  }
-
-#endif
 
 FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
   DEBUG_DB_GET();
@@ -1977,30 +1780,34 @@ void GMTrackDatabase::setTrackConductor(const FXIntList & tracks,const FXString 
 void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & name,FXbool sameartist){
   DEBUG_DB_SET();
 
-  GMQuery query_album_by_same_artist(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id JOIN albums AS a2 ON a1.artist==a2.artist AND a1.id!=a2.id WHERE tracks.id == ? AND a2.name == ?;");
-  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
-                          "SELECT ?,"
-                                "artist,"
-                                "year "
+  // Warning don't add "a1.id!=a2.id" since the track may already be assigned to the correct album.
+  // This can happen when you do a batch update of tracks and some of them already are set to the correct album entry.
+  GMQuery query_existing(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
+                                                             "JOIN albums AS a2 ON a1.artist==a2.artist AND a1.audio_channels==a2.audio_channels "
+                                                                                                       "AND a1.audio_rate==a2.audio_rate "
+                                                                                                       "AND a1.audio_format==a2.audio_format "
+                                                             "WHERE tracks.id == ? AND a2.name == ?;");
+
+  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,audio_channels,audio_rate,audio_format) "
+                          "SELECT ?,artist,year,audio_channels,audio_rate,audio_format"
                           "FROM albums "
                           "WHERE id = (SELECT album FROM tracks WHERE id == ?);");
+
+
   GMQuery update_track_album(this,"UPDATE tracks SET album = ? WHERE id == ?;");
 
   FXint album=0;
   if (sameartist) {
-    query_album_by_same_artist.set(0,tracks[0]);
-    query_album_by_same_artist.set(1,name);
-    query_album_by_same_artist.execute(album);
-
+    query_existing.set(0,tracks[0]);
+    query_existing.set(1,name);
+    query_existing.execute(album);
     if (!album) {
       copy_album.set(0,name);
       copy_album.set(1,tracks[0]);
       copy_album.execute();
-
-      query_album_by_same_artist.set(0,tracks[0]);
-      query_album_by_same_artist.set(1,name);
-      query_album_by_same_artist.execute(album);
-
+      query_existing.set(0,tracks[0]);
+      query_existing.set(1,name);
+      query_existing.execute(album);
       FXASSERT(album);
       if (!album) throw GMDatabaseException();
       }
@@ -2013,17 +1820,18 @@ void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & na
   else {
     for (FXint i=0;i<tracks.no();i++) {
       album=0;
-      query_album_by_same_artist.set(0,tracks[i]);
-      query_album_by_same_artist.set(1,name);
-      query_album_by_same_artist.execute(album);
+      query_existing.set(0,tracks[0]);
+      query_existing.set(1,name);
+      query_existing.execute(album);
       if (!album) {
         copy_album.set(0,name);
         copy_album.set(1,tracks[i]);
         copy_album.execute();
-        query_album_by_same_artist.set(0,tracks[i]);
-        query_album_by_same_artist.set(1,name);
-        query_album_by_same_artist.execute(album);
+        query_existing.set(0,tracks[i]);
+        query_existing.set(1,name);
+        query_existing.execute(album);
         FXASSERT(album);
+        if (!album) throw GMDatabaseException();
         }
       update_track_album.set(0,album);
       update_track_album.set(1,tracks[i]);
@@ -2043,7 +1851,12 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
   GMQuery query_album(this,"SELECT id FROM albums WHERE name == ? AND artist == (SELECT id FROM artists WHERE name == ?);");
 
   /// Don't do "a1.id!=a2.id" since the album entry may already exists.
-  GMQuery query_album_by_same_name(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id JOIN albums AS a2 ON a1.name == a2.name JOIN artists ON a2.artist == artists.id WHERE tracks.id == ? AND artists.name == ?;");
+  GMQuery query_existing(this,"SELECT a2.id FROM albums AS a1 JOIN tracks ON tracks.album == a1.id "
+                                                                       "JOIN albums AS a2 ON a1.name == a2.name "
+                                                                                        "AND a1.audio_rate==a2.audio_rate "
+                                                                                        "AND a1.audio_format==a2.audio_format "
+                                                                       "JOIN artists ON a2.artist == artists.id "
+                                        "WHERE tracks.id == ? AND artists.name == ?;");
   GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
                           "SELECT name,"
                                 "(SELECT id FROM artists WHERE name == ?),"
@@ -2065,18 +1878,18 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
 
     for (FXint i=0;i<tracks.no();i++){
       album=0;
-      query_album_by_same_name.set(0,tracks[i]);
-      query_album_by_same_name.set(1,name);
-      query_album_by_same_name.execute(album);
+      query_existing.set(0,tracks[i]);
+      query_existing.set(1,name);
+      query_existing.execute(album);
 
       if (!album) {
         copy_album.set(0,name);
         copy_album.set(1,tracks[i]);
         copy_album.execute();
 
-        query_album_by_same_name.set(0,tracks[i]);
-        query_album_by_same_name.set(1,name);
-        query_album_by_same_name.execute(album);
+        query_existing.set(0,tracks[i]);
+        query_existing.set(1,name);
+        query_existing.execute(album);
         }
       FXASSERT(album);
       update_track_album.set(0,album);
@@ -2134,7 +1947,7 @@ void GMTrackDatabase::sync_tracks_removed() {
 void GMTrackDatabase::sync_album_year() {
   DEBUG_DB_SET();
   GM_TICKS_START();
-  execute("UPDATE albums SET year = (SELECT ifnull(MIN(year),0) FROM tracks WHERE album = albums.id AND year > 0);");
+  execute("UPDATE albums SET year = (SELECT ifnull(MAX(year),0) FROM tracks WHERE album = albums.id AND year > 0);");
   GM_TICKS_END();
   }
 

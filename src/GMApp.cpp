@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -87,12 +87,6 @@ extern const FXchar * fxtr(const FXchar *x){
   }
 
 
-
-
-
-
-
-
 FXIMPLEMENT(GMApp,FXApp,NULL,0)
 
 GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
@@ -146,7 +140,7 @@ void GMApp::create() {
 
 
   fontdescription = getNormalFont()->getFontDesc();
-  fontdescription.size    -= 30;
+  fontdescription.size    -= 20;
   fontdescription.setwidth = FXFont::SemiCondensed;
   fontdescription.slant    = FXFont::Italic;
   fontdescription.weight   = FXFont::Light;

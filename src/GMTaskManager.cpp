@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -154,7 +154,7 @@ FXint GMTaskManager::run() {
   }
 
 void GMTaskManager::cancelTask() {
-  FXMutexLock lock(mutex);
+  FXScopedMutex lock(mutex);
   if (active) active->processing=false;
   }
 

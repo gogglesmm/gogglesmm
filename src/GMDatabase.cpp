@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -324,8 +324,31 @@ FXbool GMDatabase::open(const FXString & filename){
     db=NULL;
     return false;
     }
+  init_regex();
   return true;
   }
+
+
+void GMDatabase::perform_regex_match(sqlite3_context *context, int argc, sqlite3_value **argv){
+  if (argc==2) {
+    FXRex reg;
+    const FXchar * pattern = (const FXchar*)sqlite3_value_text(argv[0]);
+    const FXchar * value   = (const FXchar*)sqlite3_value_text(argv[1]);
+    if (reg.parse(pattern)==0  && reg.amatch(value,strlen(value))) {
+      sqlite3_result_int(context,1);
+      return;
+      }
+    }
+  sqlite3_result_int(context,0);
+  }
+
+
+void GMDatabase::init_regex() {
+  if (sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8|SQLITE_DETERMINISTIC,this,perform_regex_match,NULL,NULL)!=SQLITE_OK){
+    fxwarning("failed to register regular expression callback\n");
+    }
+  }
+
 
 
 void GMDatabase::reset() {

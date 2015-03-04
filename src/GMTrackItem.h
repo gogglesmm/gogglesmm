@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -38,11 +38,15 @@ protected:
   FXint    albumartist;   /* 4 - 4 */ //FIXME pointer to FXString instead?
   FXint    composer;      /* 4 - 4 */ //FIXME pointer to FXString instead?
   FXint    conductor;     /* 4 - 4 */ //FIXME pointer to FXString instead?
+  FXint    albumid;       /* 4 - 4 */
   FXint    time;          /* 4 - 4 */
   FXuint   no;            /* 4 - 4 */
   FXint    queue;         /* 4 - 4 */
   FXint    path;          /* 4 - 4 */ //FIXME pointer to FXString instead?
   FXint    bitrate;       /* 4 - 4 */
+  FXint    samplerate;    /* 4 - 4 */
+  FXuchar  channels;      /* 1 - 1 */
+  FXuchar  filetype;      /* 1 - 1 */
   FXushort year;          /* 2 - 2 */
   FXushort album_year;    /* 2 - 2 */
   FXushort playcount;     /* 2 - 2 */
@@ -83,6 +87,8 @@ public:
   static FXint descendingConductor(const GMTrackItem*,const GMTrackItem*);
   static FXint ascendingRating(const GMTrackItem*,const GMTrackItem*);
   static FXint descendingRating(const GMTrackItem*,const GMTrackItem*);
+  static FXint ascendingFormat(const GMTrackItem*,const GMTrackItem*);
+  static FXint descendingFormat(const GMTrackItem*,const GMTrackItem*);
 protected:
   GMDBTrackItem(){}
 protected:
@@ -97,6 +103,7 @@ public:
                 FXint albumartist,
                 FXint composer,
                 FXint conductor,
+                FXint albumid,
                 const FXchar * album,
                 FXint time,
                 FXuint no,
@@ -104,7 +111,10 @@ public:
                 FXushort track_year,
                 FXushort album_year,
                 FXushort aplaycount,
+                FXuchar filetype,
                 FXint bitrate,
+                FXint samplerate,
+                FXuchar channels,
                 FXlong aplaydate,
                 FXuchar track_rating);
 

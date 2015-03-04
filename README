@@ -8,10 +8,10 @@ Installation
 
   Read the INSTALL file on how to build and install Goggles Music Manager on your machine.
 
-Upgrading
----------
+Upgrading from 0.12.x
+---------------------
 
-  If you're upgrading you will have to re-import your music due to changes in the database. 
+  If you're upgrading you will have to re-import your music due to changes in the database.
 
   Use the import_gogglesmm12.py script to copy the radio streams into the new database. It will also export all
   the playlists into m3u files, which may be used to recreate the playlists in the new database.

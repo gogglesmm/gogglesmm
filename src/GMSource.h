@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -50,6 +50,7 @@ enum {
   SOURCE_INVALID  = -1,
   SOURCE_PLAYQUEUE,
   SOURCE_DATABASE,
+  SOURCE_DATABASE_FILTER,
   SOURCE_DATABASE_PLAYLIST,
   SOURCE_FILESYSTEM,
   SOURCE_INTERNET_RADIO,
@@ -83,6 +84,7 @@ enum {
   HEADER_CONDUCTOR,
   HEADER_DATE,
   HEADER_STATUS,
+  HEADER_AUDIOFORMAT,
   HEADER_NONE
   };
 
@@ -142,7 +144,7 @@ public:
   void setCurrentTrack(FXint t) { current_track=t; }
 
   FXint getCurrentTrack() const { return current_track; }
-  
+
   virtual FXbool hasCurrentTrack(GMSource * ) const { return false; }
 
   virtual FXbool hasTrack(const FXString &,FXint &) { return false; }

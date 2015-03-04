@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2007-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2007-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -326,7 +326,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
 
   taglist->setSortFunc(genre_list_sort);
   artistlist->setSortFunc(generic_name_sort);
-  albumlist->setSortFunc(album_list_sort);
+  albumlist->setSortFunc(GMAlbumListItem::album_list_sort);
 
   taglistheader->setArrowState(ARROW_DOWN);
   artistlistheader->setArrowState(ARROW_DOWN);
@@ -735,13 +735,13 @@ void GMTrackView::getSelectedAlbums(FXIntList & albums) const{
     if (albumlist->getItemId(0)==-1) {
       if (albumlist->isItemSelected(0)){
         for (i=1;i<albumlist->getNumItems();i++){
-          albumlist->getItem(i)->getIds(albums);
+          albums.append(albumlist->getItem(i)->getId());
           }
         }
       else {
         for (i=1;i<albumlist->getNumItems();i++){
           if (albumlist->isItemSelected(i)) {
-            albumlist->getItem(i)->getIds(albums);
+            albums.append(albumlist->getItem(i)->getId());
             }
           }
         }
@@ -749,7 +749,7 @@ void GMTrackView::getSelectedAlbums(FXIntList & albums) const{
     else {
       for (i=0;i<albumlist->getNumItems();i++){
         if (albumlist->isItemSelected(i)) {
-          albumlist->getItem(i)->getIds(albums);
+          albums.append(albumlist->getItem(i)->getId());
           }
         }
       }
@@ -1286,11 +1286,11 @@ void GMTrackView::loadSettings(const FXString & key) {
   album_by_year = getApp()->reg().readBoolEntry(key.text(),"album-list-sort-by-year",false);
   reverse_album = getApp()->reg().readBoolEntry(key.text(),"album-list-sort-reverse",false);
   if (reverse_album) {
-    albumlist->setSortFunc(album_list_sort_reverse);
+    albumlist->setSortFunc(GMAlbumListItem::album_list_sort_reverse);
     albumlistheader->setArrowState(ARROW_UP);
     }
   else {
-    albumlist->setSortFunc(album_list_sort);
+    albumlist->setSortFunc(GMAlbumListItem::album_list_sort);
     albumlistheader->setArrowState(ARROW_DOWN);
     }
   albumlistheader->setText(source->getAlbumName());
@@ -1381,7 +1381,7 @@ void GMTrackView::loadTrackSettings(const FXString & key) {
 void GMTrackView::saveSettings(const FXString & key) const {
   getApp()->reg().writeBoolEntry(key.text(),"genre-list-sort-reverse",taglist->getSortFunc()==genre_list_sort_reverse);
   getApp()->reg().writeBoolEntry(key.text(),"artist-list-sort-reverse",artistlist->getSortFunc()==generic_name_sort_reverse);
-  getApp()->reg().writeBoolEntry(key.text(),"album-list-sort-reverse",albumlist->getSortFunc()==album_list_sort_reverse);
+  getApp()->reg().writeBoolEntry(key.text(),"album-list-sort-reverse",albumlist->getSortFunc()==GMAlbumListItem::album_list_sort_reverse);
   getApp()->reg().writeBoolEntry(key.text(),"album-list-sort-by-year",album_by_year);
   getApp()->reg().writeBoolEntry(key.text(),"album-list-browser",(albumlist->getListStyle()&ALBUMLIST_BROWSER));
   getApp()->reg().writeBoolEntry(key.text(),"album-list-show-year",(albumlist->getListStyle()&ALBUMLIST_YEAR));
@@ -1602,13 +1602,13 @@ long GMTrackView::onCmdSortArtistList(FXObject*,FXSelector,void*){
 
 
 long GMTrackView::onCmdSortAlbumList(FXObject*,FXSelector,void*){
-  if (albumlist->getSortFunc()==album_list_sort) {
-    albumlist->setSortFunc(album_list_sort_reverse);
+  if (albumlist->getSortFunc()==GMAlbumListItem::album_list_sort) {
+    albumlist->setSortFunc(GMAlbumListItem::album_list_sort_reverse);
     reverse_album=true;
     albumlistheader->setArrowState(ARROW_UP);
     }
   else {
-    albumlist->setSortFunc(album_list_sort);
+    albumlist->setSortFunc(GMAlbumListItem::album_list_sort);
     reverse_album=false;
     albumlistheader->setArrowState(ARROW_DOWN);
     }
@@ -1798,14 +1798,11 @@ long GMTrackView::onArtistContextMenu(FXObject*,FXSelector,void*ptr){
 long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
   FXEvent * event = static_cast<FXEvent*>(ptr);
   FXbool old        = album_by_year;
-  FXbool old_merge  = GMPlayerManager::instance()->getPreferences().gui_merge_albums;
   FXint  old_size   = GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
 
   FXDataTarget target_yearsort(album_by_year);
-  FXDataTarget target_merge(GMPlayerManager::instance()->getPreferences().gui_merge_albums);
   if (source && !event->moved) {
     GMMenuPane pane(this);
-    GMMenuPane viewpane(this);
 
     if (FXSELID(sel)==ID_ALBUM_LIST) {
       FXint item = albumlist->getItemAt(event->win_x,event->win_y);
@@ -1820,34 +1817,26 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
     if (dynamic_cast<GMDatabaseSource*>(source)!=NULL) {
       new GMMenuCheck(&pane,fxtr("Show Album Year"),albumlist,GMAlbumList::ID_YEAR);
       new GMMenuCheck(&pane,fxtr("Sort by Album Year"),&target_yearsort,FXDataTarget::ID_VALUE);
-      new GMMenuCheck(&pane,fxtr("Merge Albums"),&target_merge,FXDataTarget::ID_VALUE);
       new FXMenuSeparator(&pane);
       }
-
-    new GMMenuCascade(&pane,fxtr("View"),NULL,&viewpane);
-    new GMMenuRadio(&viewpane,fxtr("List View"),this,ID_ALBUMS_VIEW_LIST);
-    new GMMenuRadio(&viewpane,fxtr("Cover View"),this,ID_ALBUMS_VIEW_BROWSER);
+    new GMMenuRadio(&pane,fxtr("List View"),this,ID_ALBUMS_VIEW_LIST);
+    new GMMenuRadio(&pane,fxtr("Cover View"),this,ID_ALBUMS_VIEW_BROWSER);
     if (albumlist->getListStyle()&ALBUMLIST_BROWSER) {
-      new FXMenuSeparator(&viewpane),
-      new GMMenuRadio(&viewpane,fxtr("Small Cover"), this,ID_COVERSIZE_SMALL),
-      new GMMenuRadio(&viewpane,fxtr("Medium Cover"), this,ID_COVERSIZE_MEDIUM),
-      new GMMenuRadio(&viewpane,fxtr("Big Cover"),this,ID_COVERSIZE_BIG),
-      new FXMenuSeparator(&viewpane),
-      new GMMenuRadio(&viewpane,fxtr("Arrange By Rows"),albumlist,GMAlbumList::ID_ARRANGE_BY_ROWS);
-      new GMMenuRadio(&viewpane,fxtr("Arrange By Columns"),albumlist,GMAlbumList::ID_ARRANGE_BY_COLUMNS);
+      new FXMenuSeparator(&pane),
+      new GMMenuRadio(&pane,fxtr("Small Cover"), this,ID_COVERSIZE_SMALL),
+      new GMMenuRadio(&pane,fxtr("Medium Cover"), this,ID_COVERSIZE_MEDIUM),
+      new GMMenuRadio(&pane,fxtr("Big Cover"),this,ID_COVERSIZE_BIG),
+      new FXMenuSeparator(&pane),
+      new GMMenuRadio(&pane,fxtr("Arrange By Rows"),albumlist,GMAlbumList::ID_ARRANGE_BY_ROWS);
+      new GMMenuRadio(&pane,fxtr("Arrange By Columns"),albumlist,GMAlbumList::ID_ARRANGE_BY_COLUMNS);
       }
-
     pane.create();
     pane.forceRefresh();
     ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-    ewmh_change_window_type(&viewpane,WINDOWTYPE_POPUP_MENU);
     pane.popup(NULL,event->root_x+3,event->root_y+3);
     getApp()->runPopup(&pane);
 
-    if (old_merge!=GMPlayerManager::instance()->getPreferences().gui_merge_albums){
-      refresh();
-      }
-    else if (old!=album_by_year){
+    if (old!=album_by_year){
       sortAlbums();
       sortTracks();
       }
@@ -2506,7 +2495,10 @@ long GMTrackView::onCmdAlbumListView(FXObject*,FXSelector sel,void*){
   else {
     FXuint opts=albumlist->getListStyle();
     albumlist->setListStyle(opts|ALBUMLIST_BROWSER);
-    if (source) source->loadCovers();
+    if (source) {
+      source->loadCovers();
+      GMPlayerManager::instance()->getTrackView()->redrawAlbumList();
+      }
     }
   return 1;
   }

@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -38,6 +38,7 @@ protected:
   GMQuery insert_track_tag;
   GMQuery update_track;
   GMQuery query_album;
+  GMQuery query_album_by_year;
   GMQuery query_artist;
   GMQuery query_tag;
   GMQuery delete_track;

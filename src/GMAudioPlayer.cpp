@@ -34,7 +34,6 @@ void GMAudioPlayer::saveSettings() {
 
 void GMAudioPlayer::loadSettings() {
   OutputConfig config;
-//  getOutputConfig(config);
   FXSettings settings;
   if (settings.parseFile(GMApp::getConfigDirectory()+PATHSEPSTRING+"gap.conf")){
     config.load(settings);
@@ -64,7 +63,6 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
       case AP_ERROR                  :
         {
           ErrorMessage * err = dynamic_cast<ErrorMessage*>(event);
-          //fxmessage("[ERROR] %s\n",err->msg.text());
           if (target) target->handle(this,FXSEL(SEL_PLAYER_ERROR,message),(void*)&err->msg);
         } break;
       case AP_META_INFO              :

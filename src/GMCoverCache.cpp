@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -148,6 +148,8 @@ FXlong GMCoverCacheWriter::fit(FXImage * image){
 
   return save(pixels);
   }
+
+
 
 
 FXbool GMCoverCacheWriter::insert(FXint id,GMCover * cover) {
@@ -370,6 +372,8 @@ void GMCoverRender::drawCover(FXint id,FXDC & dc,FXint x,FXint y) {
     dc.drawImage(image,x,y);
     }
   else {
+    dc.setForeground(FXApp::instance()->getBaseColor());
+    dc.fillRectangle(x,y,getSize(),getSize());
     FXIcon * ic = GMIconTheme::instance()->icon_nocover;
     if (ic->getHeight()<getSize())
       y+=(getSize()-ic->getHeight())>>1;

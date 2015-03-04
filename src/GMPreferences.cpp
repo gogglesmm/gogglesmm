@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -56,7 +56,6 @@ const char key_gui_toolbar_labelsabove[]="toolbar-labels-above";
 const char key_gui_show_browser_icons[]="browser-icons";
 const char key_gui_keywords[]="sort-keywords";
 const char key_gui_show_playing_albumcover[]="show-playing-albumcover";
-const char key_gui_merge_albums[]="merge-album-names";
 const char key_gui_show_opengl_coverview[]="show-opengl-coverview";
 const char key_gui_tray_icon[]="tray-icon";
 const char key_gui_show_playing_titlebar[]="show-playing-titlebar";
@@ -99,7 +98,7 @@ GMImportOptions::GMImportOptions() :
   id3v1_encoding(GMFilename::ENCODING_8859_1),
   track_from_filelist(false),
   replace_underscores(true),
-  fix_album_artist(false) {
+  fix_album_artist(false){
   }
 
 void GMImportOptions::save(FXSettings & reg) const {
@@ -163,7 +162,6 @@ GMPreferences::GMPreferences() :
   gui_toolbar_labelsabove(true),
   gui_show_browser_icons(true),
   gui_show_playing_albumcover(true),
-  gui_merge_albums(true),
   gui_tray_icon(false),
   gui_tray_icon_disabled(false),
   gui_show_playing_titlebar(false),
@@ -231,7 +229,6 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_window,key_gui_show_browser_icons,gui_show_browser_icons);
   reg.writeStringEntry(section_window,key_gui_keywords,keywords.text());
   reg.writeBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
-  reg.writeBoolEntry(section_window,key_gui_merge_albums,gui_merge_albums);
   reg.writeBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   reg.writeBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
   reg.writeBoolEntry(section_window,key_gui_show_opengl_coverview,gui_use_opengl);
@@ -311,7 +308,7 @@ void GMPreferences::load(FXSettings & reg) {
     }
   else {
     keywords = reg.readStringEntry(section_window,key_gui_keywords,keywords.text());
-    }  
+    }
 
   gui_show_playing_albumcover   = reg.readBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
   gui_tray_icon                 = reg.readBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
@@ -395,15 +392,3 @@ void GMPreferences::parseCommandLine(int argc,char **argv){
       }
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-

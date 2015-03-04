@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2007-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2007-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -53,7 +53,7 @@ public:
     }
 
   GMDBus * find(DBusConnection* dc) {
-    FXMutexLock lock(mutex);
+    FXScopedMutex lock(mutex);
     return static_cast<GMDBus*>(connections.at(dc));
     }
 
@@ -66,12 +66,12 @@ public:
     }
 
   void insert(DBusConnection * dc,GMDBus * fxdc) {
-    FXMutexLock lock(mutex);
+    FXScopedMutex lock(mutex);
     connections.insert(dc,fxdc);
     }
 
   void remove(DBusConnection * dc) {
-    FXMutexLock lock(mutex);
+    FXScopedMutex lock(mutex);
     connections.remove(dc);
     }
 

@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -75,9 +75,9 @@ void GMPlayQueue::configure(GMColumnList& list) {
   list[i++]=GMColumn(notr("Time"),HEADER_TIME,GMDBTrackItem::ascendingTime,GMDBTrackItem::descendingTime,60,true,true,8);
   list[i++]=GMColumn(notr("Play Count"),HEADER_PLAYCOUNT,GMDBTrackItem::ascendingPlaycount,GMDBTrackItem::descendingPlaycount,60,false,false,9);
   list[i++]=GMColumn(notr("Play Date"),HEADER_PLAYDATE,GMDBTrackItem::ascendingPlaydate,GMDBTrackItem::descendingPlaydate,60,false,false,10);
-  list[i++]=GMColumn(notr("File Name"),HEADER_FILENAME,GMDBTrackItem::ascendingFilename,GMDBTrackItem::descendingFilename,400,false,false,11);
+  list[i++]=GMColumn(notr("Path"),HEADER_FILENAME,GMDBTrackItem::ascendingFilename,GMDBTrackItem::descendingFilename,400,false,false,11);
   list[i++]=GMColumn(notr("File Type"),HEADER_FILETYPE,GMDBTrackItem::ascendingFiletype,GMDBTrackItem::descendingFiletype,30,false,false,12);
-  list[i++]=GMColumn(notr("Bitrate"),HEADER_BITRATE,GMDBTrackItem::ascendingBitrate,GMDBTrackItem::descendingBitrate,400,false,false,13);
+  list[i++]=GMColumn(notr("Format"),HEADER_AUDIOFORMAT,GMDBTrackItem::ascendingFormat,GMDBTrackItem::descendingFormat,400,false,false,14);
   list[i++]=GMColumn(notr("Composer"),HEADER_COMPOSER,GMDBTrackItem::ascendingComposer,GMDBTrackItem::descendingComposer,30,false,false,14);
   list[i++]=GMColumn(notr("Conductor"),HEADER_CONDUCTOR,GMDBTrackItem::ascendingConductor,GMDBTrackItem::descendingConductor,400,false,false,15);
   list[i++]=GMColumn(notr("Rating"),HEADER_RATING,GMDBTrackItem::ascendingRating,GMDBTrackItem::descendingRating,30,false,false,17,this,ID_EDIT_RATING);
@@ -85,6 +85,19 @@ void GMPlayQueue::configure(GMColumnList& list) {
 
 
 
+FXbool GMPlayQueue::findCurrent(GMTrackList * list,GMSource * src) {
+  if (src->getCurrentTrack()==-1) return false;
+  if (src==this) {
+    for (FXint i=0;i<list->getNumItems();i++){
+      if (list->getItemId(i)==current_track && ((GMDBTrackItem*)list->getItem(i))->getTrackQueue()==1) {
+        list->setActiveItem(i);
+        list->setCurrentItem(i);
+        return true;
+        }
+      }
+    }
+  return false;
+  }
 
 
 
@@ -135,7 +148,7 @@ FXbool GMPlayQueue::track_context_menu(FXMenuPane * pane){
 
 
 FXbool GMPlayQueue::canPlaySource(GMSource * src) const {
-  return (src && (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_PLAYLIST || src->getType()==SOURCE_PLAYQUEUE));
+  return (src && (src->getType()==SOURCE_DATABASE || src->getType()==SOURCE_DATABASE_FILTER || src->getType()==SOURCE_DATABASE_PLAYLIST || src->getType()==SOURCE_PLAYQUEUE));
   }
 
 void GMPlayQueue::addTracks(GMSource * src,const FXIntList & tracks) {

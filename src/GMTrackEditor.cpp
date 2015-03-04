@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -407,7 +407,7 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
 
     matrix = new FXMatrix(tabframe,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS,0,0,0,0,10,10,10,10);
 
-    new FXLabel(matrix,tr("Filename"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    new FXLabel(matrix,tr("Path"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     filenamefield = new GMTextField(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
     new FXLabel(matrix,tr("Type"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
@@ -656,7 +656,7 @@ void GMEditTrackDialog::displayTracks() {
       bitratefield->setText(FXString::value("%dbit",properties.samplesize));
       }
     else {
-      bitratelabel->setText(tr("Bitrate"));
+      bitratelabel->setText(tr("Bit Rate"));
       bitratefield->setText(FXString::value("%dkbs",properties.bitrate));
       }
     sampleratefield->setText(FXString::value("%dHz",properties.samplerate));

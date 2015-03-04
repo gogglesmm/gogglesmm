@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -333,7 +333,7 @@ FXbool gm_image_search(const FXString & s) {
 
 /******************************************************************************/
 
-static void gm_scale_crop(FXImage * image,FXint scale,FXint crop){
+void gm_scale_crop(FXImage * image,FXint scale,FXint crop){
   FXint ww=image->getWidth();
   FXint hh=image->getHeight();
   if (crop) {

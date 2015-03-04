@@ -1,11 +1,11 @@
 #-------------------------------------------------------------------------------
 # Make template
 #-------------------------------------------------------------------------------
-FOXDIR=../../Downloads/fox-1.7.49
+FOXDIR=../../Downloads/fox-1.7.50
 
 
 INPUT="src/*.cpp src/*.h"
-xgettext -C  --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com --package-name=gogglesmm --package-version=0.14.0 --copyright-holder="Sander Jansen" --keyword=tr:1 --keyword=fxtr:1 --keyword=notr:1 --keyword=fxtrformat:1 --flag=fxtrformat:1:c-format -o po/gogglesmm.pot $INPUT
+xgettext -C  --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com --package-name=gogglesmm --package-version=1.0.0 --copyright-holder="Sander Jansen" --keyword=tr:1 --keyword=fxtr:1 --keyword=notr:1 --keyword=fxtrformat:1 --flag=fxtrformat:1:c-format -o po/gogglesmm.pot $INPUT
 
 # FOX files
 INPUT="$FOXDIR/lib/FXMessageBox.cpp \
@@ -17,12 +17,12 @@ $FOXDIR/lib/FXReplaceDialog.cpp \
 $FOXDIR/lib/FXSearchDialog.cpp \
 $FOXDIR/lib/FXStatusLine.cpp"
 
-xgettext -C -j --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=0.14.0 --copyright-holder="Sander Jansen" --keyword=tr:1 -o po/gogglesmm.pot $INPUT
+xgettext -C -j --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=1.0.0 --copyright-holder="Sander Jansen" --keyword=tr:1 -o po/gogglesmm.pot $INPUT
 
 
 # Additional non tr ones
 #INPUT="$FOXDIR/src/FXColorNames.cpp"
-#xgettext -C -j -a --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=0.13.0 --copyright-holder="Sander Jansen" -o po/gogglesmm.pot $INPUT
+#xgettext -C -j -a --from-code=UTF-8 --msgid-bugs-address=s.jansen@gmail.com  --package-name=gogglesmm --package-version=1.0.0 --copyright-holder="Sander Jansen" -o po/gogglesmm.pot $INPUT
 
 
 for i in po/*.po

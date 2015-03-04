@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2014 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -59,7 +59,6 @@ protected:
 public:
   GMQuery insert_path;                  /// Insert Path
   GMQuery insert_artist;                /// Insert Artist;
-  GMQuery insert_album;                 /// Insert Album;
   GMQuery insert_playlist_track_by_id;  /// Insert Track in Playlist
   GMQuery query_artist;                 /// Query unique artist
   GMQuery query_path;                   /// Query unique artist
@@ -83,6 +82,7 @@ private: /// Called from init()
   FXbool init_queries();
   void   init_index();
   void   fix_empty_tags();
+  void   init_album_properties();
 protected:
   FXbool reorderPlaylists();
   FXbool reorderPlaylist(FXint pl);

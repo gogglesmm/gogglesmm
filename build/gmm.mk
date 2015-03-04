@@ -28,6 +28,8 @@ icons/x16_go_bottom.png \
 icons/x16_go_home.png \
 icons/x16_help_browser.png \
 icons/x16_image_x_generic.png \
+icons/x16_list_add.png \
+icons/x16_list_remove.png \
 icons/x16_media_optical.png \
 icons/x16_media_playback_pause.png \
 icons/x16_media_playback_start.png \
@@ -67,7 +69,7 @@ icons/x22_text_x_generic.png \
 icons/x22_user_bookmarks.png \
 icons/x22_user_home.png \
 icons/x22_x_office_presentation.png \
-icons/x48_media_optical.png
+icons/x128_media_optical.png
 
 GMM_SRC := src/GMAbout.cpp \
 src/GMAnimImage.cpp \
@@ -83,6 +85,9 @@ src/GMCoverManager.cpp \
 src/GMDatabase.cpp \
 src/GMDatabaseSource.cpp \
 src/GMFilename.cpp \
+src/GMFilter.cpp \
+src/GMFilterEditor.cpp \
+src/GMFilterSource.cpp \
 src/GMFontDialog.cpp \
 src/GMIconTheme.cpp \
 src/GMImportDialog.cpp \

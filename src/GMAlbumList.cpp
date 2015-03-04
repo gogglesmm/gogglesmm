@@ -7,6 +7,7 @@
 #include "GMTrackList.h"
 #include "GMSource.h"
 #include "GMPlayerManager.h"
+#include "GMTrackDatabase.h"
 #include "GMTrackView.h"
 
 #include "GMCoverCache.h"
@@ -33,26 +34,26 @@ static inline FXbool begins_with_keyword(const FXString & t){
   }
 
 
-FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
+FXint GMAlbumListItem::album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
   FXint a=0,b=0;
   if (GMTrackView::album_by_year) {
-    if (pa->getYear()>pb->getYear()) return 1;
-    else if (pa->getYear()<pb->getYear()) return -1;
+    if (pa->year>pb->year) return 1;
+    else if (pa->year<pb->year) return -1;
     }
-  if (begins_with_keyword(pa->getTitle())) a=FXMIN(pa->getTitle().length()-1,pa->getTitle().find(' ')+1);
-  if (begins_with_keyword(pb->getTitle())) b=FXMIN(pb->getTitle().length()-1,pb->getTitle().find(' ')+1);
-  return comparecase(&pa->getTitle()[a],&pb->getTitle()[b]);
+  if (begins_with_keyword(pa->title)) a=FXMIN(pa->title.length()-1,pa->title.find(' ')+1);
+  if (begins_with_keyword(pb->title)) b=FXMIN(pb->title.length()-1,pb->title.find(' ')+1);
+  return comparecase(&pa->title[a],&pb->title[b]);
   }
 
-FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
+FXint GMAlbumListItem::album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
   FXint a=0,b=0;
   if (GMTrackView::album_by_year) {
-    if (pa->getYear()>pb->getYear()) return -1;
-    else if (pa->getYear()<pb->getYear()) return 1;
+    if (pa->year>pb->year) return -1;
+    else if (pa->year<pb->year) return 1;
     }
-  if (begins_with_keyword(pa->getTitle())) a=FXMIN(pa->getTitle().length()-1,pa->getTitle().find(' ')+1);
-  if (begins_with_keyword(pb->getTitle())) b=FXMIN(pb->getTitle().length()-1,pb->getTitle().find(' ')+1);
-  return -comparecase(&pa->getTitle()[a],&pb->getTitle()[b]);
+  if (begins_with_keyword(pa->title)) a=FXMIN(pa->title.length()-1,pa->title.find(' ')+1);
+  if (begins_with_keyword(pb->title)) b=FXMIN(pb->title.length()-1,pb->title.find(' ')+1);
+  return -comparecase(&pa->title[a],&pb->title[b]);
   }
 
 
@@ -93,16 +94,15 @@ void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint y
   const FXint hi=tailfont->getFontHeight();
   FXint baseline=yy;
 
+  FXint displayyear = 0;
+  if (list->getListStyle()&ALBUMLIST_YEAR)
+    displayyear = year;
+
+
   if (hb>=hi)
     baseline+=basefont->getFontAscent()+(hh-hb)/2;
   else
     baseline+=tailfont->getFontAscent()+(hi-hb)/2;
-
-
-//  register FXint th=0;
-
-//  if(!title.empty())
-//    th=basefont->getFontHeight();
 
   if(isSelected())
     dc.setForeground(list->getSelBackColor());
@@ -124,10 +124,35 @@ void GMAlbumListItem::drawList(const GMAlbumList* list,FXDC& dc,FXint xx,FXint y
 
     dc.setFont(basefont);
     dc.drawText(xx,baseline,title);
-    if (year && list->getListStyle()&ALBUMLIST_YEAR) {
+
+    if (displayyear || audioproperty.length() || state&SHOW_ARTIST) {
       FXint len=basefont->getTextWidth(title.text(),title.length());
       dc.setFont(tailfont);
-      dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%d)",year));
+      if (state&SHOW_ARTIST){
+        if (displayyear) {
+          if (audioproperty.length())
+            dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%s %d %s)",GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist)->text(),displayyear,audioproperty.text()));
+          else
+            dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%s %d)",GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist)->text(),year));
+          }
+        else {
+          if (audioproperty.length())
+            dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%s %s)",GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist)->text(),audioproperty.text()));
+          else
+            dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%s)",GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist)->text()));
+          }
+        }
+      else {
+        if (displayyear) {
+          if (audioproperty.length())
+            dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%d %s)",displayyear,audioproperty.text()));
+          else
+            dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%d)",displayyear));
+          }
+        else {
+          dc.drawText(xx+len+LIST_SIDE_SPACING,baseline,FXString::value("(%s)",audioproperty.text()));
+          }
+        }
       }
     }
   }
@@ -146,17 +171,25 @@ void GMAlbumListItem::draw(GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FX
   const FXint is=list->getCoverRender().getSize();
   FXint yy=y+SIDE_SPACING;
 
-  if (ids.no())
-    list->getCoverRender().drawCover(0,dc,xx,yy);
-  else
-    list->getCoverRender().drawCover(id,dc,xx,yy);
+  list->getCoverRender().drawCover(id,dc,xx,yy);
+
+  if (audioproperty.length()){
+    FXint fudge = 4;
+    FXint ql = cfont->getTextWidth(audioproperty);
+    dc.setForeground(FXRGB(0,200,0));
+    dc.fillRectangle(xx+is-ql-fudge-1,yy+is-h1-fudge-1,ql+fudge,h1+fudge);
+    dc.setFont(cfont);
+    dc.setForeground(list->getSelTextColor());
+    dc.drawText(xx+is-ql-(fudge>>1)-1,yy+is+cfont->getFontAscent()-h1-(fudge>>1)-1,audioproperty.text(),audioproperty.length());
+    }
 
   if(isSelected())
     dc.setForeground(list->getSelTextColor());
   else
-    dc.setForeground(list->getTextColor());
+    dc.setForeground(list->getApp()->getShadowColor());
 
   dc.drawRectangle(xx,yy,is-1,is-1);
+
 
   if(isSelected())
     dc.setForeground(list->getSelTextColor());
@@ -171,13 +204,15 @@ void GMAlbumListItem::draw(GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FX
   else
     dc.setForeground(list->getTextColor());
 
-  if(!artist.empty() && ids.no()==0){
+  const FXString * str = GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist);
+  if (!str->empty()) {
     dc.setFont(cfont);
-    drawTextLimited(dc,cfont,xx,yy,is,artist);
-    yy+=h1;
-    }
-  if(!title.empty() && id!=-1){
+    drawTextLimited(dc,cfont,xx,yy,is,*str);
     dc.setFont(font);
+    drawTextLimited(dc,font,xx,yy+h1,is,title);
+    }
+  else {
+    dc.setFont(cfont);
     drawTextLimited(dc,font,xx,yy,is,title);
     }
   }
@@ -208,35 +243,6 @@ FXint GMAlbumListItem::hitItem(const GMAlbumList* list,FXint rx,FXint ry,FXint r
   tw=iw;
   th=h1+h2;
 
-
-
-
-
-#if 0
-  w=list->getItemWidth();
-  h=list->getItemHeight();
-  sp=w-SIDE_SPACING;
-  if(!label.empty()){
-    tw=4+font->getTextWidth(label.text(),tlen);
-    th=4+font->getFontHeight();
-    if(tw>sp) tw=sp;
-    if (thumbs) ss=thumbs->size();
-    //if(bigIcon) ss=BIG_TEXT_SPACING;
-    }
-    if (thumbs) iw=ih=thumbs->size();
-#if 0
-  if(bigIcon){
-    iw=bigIcon->getWidth();
-    ih=bigIcon->getHeight();
-    }
-#endif
-  ty=h-th-th-BIG_LINE_SPACING/2;
-  iy=BIG_LINE_SPACING/2+(h-th-th-BIG_LINE_SPACING-ss-ih)/2;
-  ix=(w-iw)/2;
-  tx=(w-tw)/2;
-
-
-#endif
   // In icon?
   if(ix<=rx+rw && iy<=ry+rh && rx<ix+iw && ry<iy+ih) return 1;
 
@@ -263,6 +269,12 @@ void GMAlbumListItem::setDraggable(FXbool draggable){
   state^=((0-draggable)^state)&DRAGGABLE;
   }
 
+// Icon is draggable
+void GMAlbumListItem::setShowArtist(FXbool showartist){
+  state^=((0-showartist)^state)&SHOW_ARTIST;
+  }
+
+
 FXint GMAlbumListItem::getWidth(const GMAlbumList * list){
   FXint w=0;
 
@@ -281,13 +293,7 @@ FXint GMAlbumListItem::getWidth(const GMAlbumList * list){
   }
 
 FXString GMAlbumListItem::getTipText() const {
-  return artist+"\n"+title;
-  }
-
-
-void GMAlbumListItem::getIds(FXIntList & list) const {
-  list.append(id);
-  list.append(ids);
+  return *GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist)+"\n"+title+"\n"+FXString::value(year);
   }
 
 // Delete icons if owned
