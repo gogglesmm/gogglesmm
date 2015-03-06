@@ -17,12 +17,19 @@ GMAudioPlayer::GMAudioPlayer(FXApp * app,FXObject * tgt,FXSelector sel) {
   target=tgt;
   message=sel;
   state=PLAYER_STOPPED;
+  vvolume=-1;
   }
 
 GMAudioPlayer::~GMAudioPlayer() {
   delete fifo;
   }
 
+
+void GMAudioPlayer::setPosition(FXuint position) {
+  if (time.length>0) {
+    seek(FXMIN(1.0,(position/(double)time.length)));
+    }
+  }
 
 void GMAudioPlayer::saveSettings() {
   OutputConfig config;
@@ -80,13 +87,12 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
       case AP_VOLUME_NOTIFY          :
         {
             VolumeNotify * info = dynamic_cast<VolumeNotify*>(event);
-            FXint value;
             if (info->volume.enabled)
-              value = (FXint)(info->volume.value * 100.0f);
+              vvolume = (FXint)(info->volume.value * 100.0f);
             else
-              value = -1;
+              vvolume = -1;
 
-            target->handle(this,FXSEL(SEL_PLAYER_VOLUME,message),(void*)(FXival)value);
+            target->handle(this,FXSEL(SEL_PLAYER_VOLUME,message),(void*)(FXival)vvolume);
             break;
         }
       default: break;

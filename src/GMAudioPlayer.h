@@ -40,6 +40,7 @@ private:
 protected:
   PlayerState    state;
   PlaybackTime   time;
+  FXint          vvolume;
 protected:
   GMAudioPlayer(){}
 private:
@@ -54,8 +55,11 @@ public:
 public:
   GMAudioPlayer(FXApp * app,FXObject * tgt,FXSelector sel);
 
+  void setPosition(FXuint pos);
 
   FXuint getPosition() const { return time.position; }
+
+  FXint getVolume() const { return vvolume; }
 
   void stop() { close(); }
 
