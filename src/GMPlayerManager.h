@@ -312,6 +312,7 @@ public:
   FXint volume() const;
 
   void seek(FXdouble pos);
+  void seekTime(FXint);
 
   FXbool playlist_empty();
 
