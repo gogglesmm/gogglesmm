@@ -164,7 +164,7 @@ public:
   FXbool matchSerial(DBusMessage * msg);
 
   DBusMessage * method(const FXchar * method);
-  
+
   DBusMessage * signal(const FXchar * name);
 
   void send(DBusMessage*,FXObject*,FXSelector);
@@ -208,6 +208,14 @@ extern void gm_dbus_dict_append_path(DBusMessageIter * dict,const FXchar * key,c
 extern void gm_dbus_dict_append_bool(DBusMessageIter * dict,const FXchar * key,const dbus_bool_t value);
 extern void gm_dbus_dict_append_string_list(DBusMessageIter * dict,const FXchar * key,const FXchar * data[]);
 extern void gm_dbus_dict_append_string_list(DBusMessageIter * dict,const FXchar * key,const FXStringList &);
+
+
+extern DBusHandlerResult gm_dbus_property_string(DBusConnection*,DBusMessage*,const FXchar * xml);
+extern DBusHandlerResult gm_dbus_property_string_list(DBusConnection*,DBusMessage *,const FXchar * data[]);
+extern DBusHandlerResult gm_dbus_property_bool(DBusConnection*,DBusMessage*,const dbus_bool_t);
+extern DBusHandlerResult gm_dbus_property_double(DBusConnection*,DBusMessage*,const FXdouble);
+extern DBusHandlerResult gm_dbus_property_long(DBusConnection*,DBusMessage*,const FXlong);
+
 
 extern DBusHandlerResult gm_dbus_reply_string(DBusConnection * connection,DBusMessage * msg,const FXchar * xml);
 extern DBusHandlerResult gm_dbus_reply_uint_string(DBusConnection * connection,DBusMessage * msg,const FXuint val,const FXchar * xml);
