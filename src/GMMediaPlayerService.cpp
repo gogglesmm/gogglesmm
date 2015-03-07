@@ -344,12 +344,14 @@ DBusHandlerResult  GMMediaPlayerService1::tracklist_filter(DBusConnection *conne
 static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track) {
   DBusMessageIter array;
   dbus_message_iter_open_container(iter,DBUS_TYPE_ARRAY,"{sv}",&array);
+  gm_dbus_dict_append_long(&array,"mpris:length",track.time*1000000);
   gm_dbus_dict_append_string(&array,"xesam:title",track.title);
   gm_dbus_dict_append_string_list(&array,"xesam:artist",FXStringList(track.artist,1));
   if (!track.album_artist.empty())
     gm_dbus_dict_append_string_list(&array,"xesam:albumArtist",FXStringList(track.album_artist,1));
   gm_dbus_dict_append_string(&array,"xesam:album",track.album);
-  gm_dbus_dict_append_string_list(&array,"xesam:composer",FXStringList(track.composer,1));
+  if (!track.composer.empty())
+    gm_dbus_dict_append_string_list(&array,"xesam:composer",FXStringList(track.composer,1));
   gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.url));
   const FXString & arturl = GMPlayerManager::instance()->getCoverManager()->getShareFilename();
   if (!arturl.empty())
@@ -453,6 +455,10 @@ void GMMediaPlayerService2::notify_status_change(){
       gm_dbus_append_string(&iter,MPRIS2_PLAYER);
       dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
       gm_dbus_dict_append_string(&dict,"PlaybackStatus",mpris_play_status(p));
+      gm_dbus_dict_append_bool(&dict,"CanGoNext",p->can_next());
+      gm_dbus_dict_append_bool(&dict,"CanGoPrevious",p->can_prev());
+      gm_dbus_dict_append_bool(&dict,"CanPlay",p->can_play());
+      gm_dbus_dict_append_bool(&dict,"CanPause",p->can_pause());
       dbus_message_iter_close_container(&iter,&dict);
       dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"s",&array);
       dbus_message_iter_close_container(&iter,&array);
@@ -462,7 +468,24 @@ void GMMediaPlayerService2::notify_status_change(){
   }
 
 void GMMediaPlayerService2::notify_caps_change(){
-  /// TODO
+
+  }
+
+void GMMediaPlayerService2::notify_volume(FXint volume){
+  if (published && volume>=0) {
+    DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,DBUS_PROPERTIES,"PropertiesChanged");
+    if (msg) {
+      DBusMessageIter iter,dict,array;
+      dbus_message_iter_init_append(msg,&iter);
+      gm_dbus_append_string(&iter,MPRIS2_PLAYER);
+      dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
+      gm_dbus_dict_append_double(&dict,"Volume",volume/100.0f);
+      dbus_message_iter_close_container(&iter,&dict);
+      dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"s",&array);
+      dbus_message_iter_close_container(&iter,&array);
+      bus->send(msg);
+      }
+    }
   }
 
 static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBusMessage * msg,const FXchar * prop){
@@ -491,29 +514,30 @@ static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBus
       }
     return DBUS_HANDLER_RESULT_HANDLED;
     }
-  else if (compare(prop,"Identity")==0)             return gm_dbus_reply_string(connection,msg,prop_identity);
-  else if (compare(prop,"DesktopEntry")==0)         return gm_dbus_reply_string(connection,msg,prop_desktopentry);
-  else if (compare(prop,"CanQuit")==0)              return gm_dbus_reply_bool(connection,msg,true);
-  else if (compare(prop,"CanRaise")==0)             return gm_dbus_reply_bool(connection,msg,true);
-  else if (compare(prop,"HasTrackList")==0)         return gm_dbus_reply_bool(connection,msg,false);
-  else if (compare(prop,"SupportedUriSchemes")==0)  return gm_dbus_reply_string_list(connection,msg,schemes);
-  else if (compare(prop,"SupportedMimeTypes")==0)   return gm_dbus_reply_string_list(connection,msg,mimetypes);
+  else if (compare(prop,"Identity")==0)             return gm_dbus_property_string(connection,msg,prop_identity);
+  else if (compare(prop,"DesktopEntry")==0)         return gm_dbus_property_string(connection,msg,prop_desktopentry);
+  else if (compare(prop,"CanQuit")==0)              return gm_dbus_property_bool(connection,msg,true);
+  else if (compare(prop,"CanRaise")==0)             return gm_dbus_property_bool(connection,msg,true);
+  else if (compare(prop,"HasTrackList")==0)         return gm_dbus_property_bool(connection,msg,false);
+  else if (compare(prop,"SupportedUriSchemes")==0)  return gm_dbus_property_string_list(connection,msg,schemes);
+  else if (compare(prop,"SupportedMimeTypes")==0)   return gm_dbus_property_string_list(connection,msg,mimetypes);
   else return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
-
-
-
-static DBusHandlerResult mpris_player_property_set(DBusMessageIter*,const FXchar * prop) {
+static void mpris_player_property_set(const FXchar * prop,FXVariant & value) {
   if (compare(prop,"LoopStatus")==0) {
     }
   else if (compare(prop,"Rate")==0){
     }
   else if (compare(prop,"Shuffle")==0){
     }
-  else if (compare(prop,"Volume")==0){
+  else if (compare(prop,"Position")==0){
+    GMPlayerManager::instance()->seekTime((FXint)(value.asLong()/1000000));
     }
-  return DBUS_HANDLER_RESULT_HANDLED;
+  else if (compare(prop,"Volume")==0){
+    GMPlayerManager::instance()->volume(FXCLAMP(0,(FXint)(value.asDouble()*100),100));
+    }
+  return;
   }
 
 static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage * msg,const FXchar * prop){
@@ -532,7 +556,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
       gm_dbus_dict_append_string(&dict,"LoopStatus","None"); /// None, Track, Playlist
       gm_dbus_dict_append_bool(&dict,"Shuffle",false);
       gm_dbus_dict_append_track(&dict,"Metadata",track);
-      gm_dbus_dict_append_double(&dict,"Volume",0.0);
+      gm_dbus_dict_append_double(&dict,"Volume",p->volume()>=0 ? (p->volume()/100.0f) : 0.0f);
       gm_dbus_dict_append_long(&dict,"Position",((FXlong)p->getPlayer()->getPosition())*1000000);
       gm_dbus_dict_append_double(&dict,"Rate",1.0);
       gm_dbus_dict_append_double(&dict,"MinimumRate",1.0);
@@ -541,7 +565,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
       gm_dbus_dict_append_bool(&dict,"CanGoPrevious",p->can_prev());
       gm_dbus_dict_append_bool(&dict,"CanPlay",p->can_play());
       gm_dbus_dict_append_bool(&dict,"CanPause",p->can_pause());
-      gm_dbus_dict_append_bool(&dict,"CanSeek",false);
+      gm_dbus_dict_append_bool(&dict,"CanSeek",true);
       gm_dbus_dict_append_bool(&dict,"CanControl",true);
       dbus_message_iter_close_container(&iter,&dict);
       dbus_connection_send(c,reply,&serial);
@@ -552,35 +576,60 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
     DBusMessage * reply;
     if ((reply=dbus_message_new_method_return(msg))!=NULL) {
       DBusMessageIter iter;
+      DBusMessageIter container;
+      dbus_message_iter_init_append(reply,&iter);
+
+      dbus_message_iter_open_container(&iter,DBUS_TYPE_VARIANT,"a{sv}",&container);
       GMTrack track;
       p->getTrackInformation(track);
-      dbus_message_iter_init_append(reply,&iter);
-      gm_mpris2_track_to_dict(&iter,track);
+
+      gm_mpris2_track_to_dict(&container,track);
+      dbus_message_iter_close_container(&iter,&container);
       dbus_connection_send(c,reply,&serial);
       dbus_message_unref(reply);
       }
     return DBUS_HANDLER_RESULT_HANDLED;
     }
-  else if (compare(prop,"PlaybackStatus")==0) return gm_dbus_reply_string(c,msg,mpris_play_status(p));
-  else if (compare(prop,"LoopStatus")==0)     return gm_dbus_reply_string(c,msg,"None");
-  else if (compare(prop,"Shuffle")==0)        return gm_dbus_reply_bool(c,msg,false);
-  else if (compare(prop,"Volume")==0)         return gm_dbus_reply_double(c,msg,0.0);
-  else if (compare(prop,"Position")==0)       return gm_dbus_reply_long(c,msg,((FXlong)p->getPlayer()->getPosition())*1000000);
-  else if (compare(prop,"Rate")==0)           return gm_dbus_reply_double(c,msg,1.0);
-  else if (compare(prop,"MinimumRate")==0)    return gm_dbus_reply_double(c,msg,1.0);
-  else if (compare(prop,"MaximumRate")==0)    return gm_dbus_reply_double(c,msg,1.0);
-  else if (compare(prop,"CanGoNext")==0)      return gm_dbus_reply_bool(c,msg,p->can_next());
-  else if (compare(prop,"CanGoPrevious")==0)  return gm_dbus_reply_bool(c,msg,p->can_prev());
-  else if (compare(prop,"CanPlay")==0)        return gm_dbus_reply_bool(c,msg,p->can_play());
-  else if (compare(prop,"CanPause")==0)       return gm_dbus_reply_bool(c,msg,p->can_pause());
-  else if (compare(prop,"CanControl")==0)     return gm_dbus_reply_bool(c,msg,true);
+  else if (compare(prop,"PlaybackStatus")==0) return gm_dbus_property_string(c,msg,mpris_play_status(p));
+  else if (compare(prop,"LoopStatus")==0)     return gm_dbus_property_string(c,msg,"None");
+  else if (compare(prop,"Shuffle")==0)        return gm_dbus_property_bool(c,msg,false);
+  else if (compare(prop,"Volume")==0)         return gm_dbus_property_double(c,msg,p->volume()>=0 ? (p->volume()/100.0f) : 0.0f);
+  else if (compare(prop,"Position")==0)       return gm_dbus_property_long(c,msg,((FXlong)p->getPlayer()->getPosition())*1000000);
+  else if (compare(prop,"Rate")==0)           return gm_dbus_property_double(c,msg,1.0);
+  else if (compare(prop,"MinimumRate")==0)    return gm_dbus_property_double(c,msg,1.0);
+  else if (compare(prop,"MaximumRate")==0)    return gm_dbus_property_double(c,msg,1.0);
+  else if (compare(prop,"CanGoNext")==0)      return gm_dbus_property_bool(c,msg,p->can_next());
+  else if (compare(prop,"CanGoPrevious")==0)  return gm_dbus_property_bool(c,msg,p->can_prev());
+  else if (compare(prop,"CanPlay")==0)        return gm_dbus_property_bool(c,msg,p->can_play());
+  else if (compare(prop,"CanPause")==0)       return gm_dbus_property_bool(c,msg,p->can_pause());
+  else if (compare(prop,"CanControl")==0)     return gm_dbus_property_bool(c,msg,true);
+  else if (compare(prop,"CanSeek")==0)        return gm_dbus_property_bool(c,msg,true);
   return DBUS_HANDLER_RESULT_HANDLED;
   }
 
 
 
+static FXVariant get_property(DBusMessageIter * iter) {
+  DBusMessageIter subiter;
+  dbus_message_iter_recurse(iter,&subiter);
+  switch(dbus_message_iter_get_arg_type(&subiter)){
+    case DBUS_TYPE_INT64:
+      FXlong value;
+      dbus_message_iter_get_basic(&subiter,&value);
+      return FXVariant(value);
+      break;
+    case DBUS_TYPE_DOUBLE:
+      FXdouble volume;
+      dbus_message_iter_get_basic(&subiter,&volume);
+      return FXVariant(volume);
+      }
+  return FXVariant();
+  }
+
+
 DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMessage * msg,void*){
   GMPlayerManager * p = GMPlayerManager::instance();
+
   if (dbus_message_has_interface(msg,DBUS_INTROSPECTABLE)) {
     if (dbus_message_is_method_call(msg,DBUS_INTROSPECTABLE,"Introspect")){
       return gm_dbus_reply_string(c,msg,mpris2_xml);
@@ -622,12 +671,16 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
         dbus_message_iter_get_basic	(&iter,&interface);
         if (dbus_message_iter_next(&iter) && dbus_message_iter_get_arg_type(&iter)==DBUS_TYPE_STRING) {
           dbus_message_iter_get_basic	(&iter,&property);
-          if (compare(interface,MPRIS2_PLAYER)==0) {
-            return mpris_player_property_set(&iter,property);
-            }
+          dbus_message_iter_next(&iter);
+          if (dbus_message_iter_get_arg_type(&iter)==DBUS_TYPE_VARIANT) {
+             if (compare(interface,MPRIS2_PLAYER)==0) {
+              FXVariant v = get_property(&iter);
+              mpris_player_property_set(property,v);
+              }
+             }
           }
         }
-      return DBUS_HANDLER_RESULT_HANDLED;
+      return gm_dbus_reply_if_needed(c,msg);
       }
     }
   else if (dbus_message_has_interface(msg,MPRIS2_ROOT)) {
@@ -669,7 +722,7 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
     else if (dbus_message_is_method_call(msg,MPRIS2_PLAYER,"Seek")) {
       FXlong offset=0;
       if (dbus_message_get_args(msg,NULL,DBUS_TYPE_INT64,&offset,DBUS_TYPE_INVALID)) {
-        FXASSERT(0);
+        p->seekTime(p->getPlayer()->getPosition()+(FXuint)(offset/1000000));
         }
       return gm_dbus_reply_if_needed(c,msg);
       }
@@ -679,6 +732,7 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
       if (dbus_message_get_args(msg,NULL,DBUS_TYPE_OBJECT_PATH,&trackid,DBUS_TYPE_INT64,&position,DBUS_TYPE_INVALID)) {
         FXASSERT(0);
         }
+      p->seekTime((FXuint)position/1000000);
       return gm_dbus_reply_if_needed(c,msg);
       }
     else if (dbus_message_is_method_call(msg,MPRIS2_PLAYER,"OpenUri")) {
