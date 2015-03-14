@@ -74,6 +74,8 @@ public:
 
   void notify_caps_change();
 
+  void notify_volume(FXint volume);
+
   virtual ~GMMediaPlayerService2();
   };
 

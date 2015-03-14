@@ -780,6 +780,76 @@ void gm_dbus_dict_append_string_list(DBusMessageIter * iter,const FXchar * key,c
   dbus_message_iter_close_container(iter,&container);
   }
 
+
+DBusHandlerResult gm_dbus_property_string(DBusConnection * connection,DBusMessage * msg,const FXchar * data) {
+  FXuint serial;
+  DBusMessage * reply = dbus_message_new_method_return(msg);
+  if (reply) {
+    DBusMessageIter iter;
+    dbus_message_iter_init_append(reply,&iter);
+    gm_dbus_variant_append_string(&iter,data);
+    dbus_connection_send(connection,reply,&serial);
+    dbus_message_unref(reply);
+    }
+  return DBUS_HANDLER_RESULT_HANDLED;
+  }
+
+DBusHandlerResult gm_dbus_property_string_list(DBusConnection * connection,DBusMessage * msg,const FXchar * data[]) {
+  FXuint serial;
+  DBusMessage * reply = dbus_message_new_method_return(msg);
+  if (reply) {
+    DBusMessageIter iter;
+    dbus_message_iter_init_append(reply,&iter);
+    gm_dbus_variant_append_string_list(&iter,data);
+    dbus_connection_send(connection,reply,&serial);
+    dbus_message_unref(reply);
+    }
+  return DBUS_HANDLER_RESULT_HANDLED;
+  }
+
+
+DBusHandlerResult gm_dbus_property_bool(DBusConnection * connection,DBusMessage * msg,const dbus_bool_t data) {
+  FXuint serial;
+  DBusMessage * reply = dbus_message_new_method_return(msg);
+  if (reply) {
+    DBusMessageIter iter;
+    dbus_message_iter_init_append(reply,&iter);
+    gm_dbus_variant_append_bool(&iter,data);
+    dbus_connection_send(connection,reply,&serial);
+    dbus_message_unref(reply);
+    }
+  return DBUS_HANDLER_RESULT_HANDLED;
+  }
+
+DBusHandlerResult gm_dbus_property_long(DBusConnection * connection,DBusMessage * msg,const FXlong data) {
+  FXuint serial;
+  DBusMessage * reply = dbus_message_new_method_return(msg);
+  if (reply) {
+    DBusMessageIter iter;
+    dbus_message_iter_init_append(reply,&iter);
+    gm_dbus_variant_append_long(&iter,data);
+    dbus_connection_send(connection,reply,&serial);
+    dbus_message_unref(reply);
+    }
+  return DBUS_HANDLER_RESULT_HANDLED;
+  }
+
+
+DBusHandlerResult gm_dbus_property_double(DBusConnection * connection,DBusMessage * msg,const FXdouble data) {
+  FXuint serial;
+  DBusMessage * reply = dbus_message_new_method_return(msg);
+  if (reply) {
+    DBusMessageIter iter;
+    dbus_message_iter_init_append(reply,&iter);
+    gm_dbus_variant_append_double(&iter,data);
+    dbus_connection_send(connection,reply,&serial);
+    dbus_message_unref(reply);
+    }
+  return DBUS_HANDLER_RESULT_HANDLED;
+  }
+
+
+
 DBusHandlerResult gm_dbus_reply_string(DBusConnection * connection,DBusMessage * msg,const FXchar * data) {
   FXuint serial;
   DBusMessage * reply = dbus_message_new_method_return(msg);

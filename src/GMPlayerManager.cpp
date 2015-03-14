@@ -1265,6 +1265,12 @@ void GMPlayerManager::stop(FXbool /*force_close*/) {
 
 
 
+void GMPlayerManager::seekTime(FXint time) {
+  application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
+  player->setPosition(time);
+  has_seeked=true;
+  }
+
 void GMPlayerManager::seek(FXdouble pos) {
   application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
   player->seek(pos);
@@ -1472,7 +1478,7 @@ void GMPlayerManager::update_track_display(FXbool notify) {
 
 
 FXint GMPlayerManager::volume() const{
-  return 0;
+  return player->getVolume();
   }
 
 void GMPlayerManager::volume(FXint l) {
@@ -1779,11 +1785,9 @@ long GMPlayerManager::onCmdLirc(FXObject*,FXSelector,void*){
       else if (comparecase(action,"next")==0)
         cmd_next();
       else if (comparecase(action,"volup")==0){
-        fxmessage("vol %d\n",volume());
         volume(FXMIN(volume()+1,100));
         }
       else if (comparecase(action,"voldown")==0){
-        fxmessage("vol %d\n",volume());
         volume(FXMAX(volume()-1,0));
         }
       else if (comparecase(action,"mute")==0){
@@ -2013,6 +2017,9 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
 
 long GMPlayerManager::onPlayerVolume(FXObject*,FXSelector,void* ptr){
   getMainWindow()->update_volume_display((FXint)(FXival)ptr);
+#ifdef HAVE_DBUS
+  if (mpris2) mpris2->notify_volume((FXint)(FXival)ptr);
+#endif
   return 1;
   }
 
