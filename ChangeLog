@@ -1,3 +1,6 @@
+1.0.1
+  - Fix: mpris v2 dbus properties interface 
+
 1.0.0
   - Added support for filters. Similar to automatic/smart playlists found in other music players
   - During import albums now get automatically grouped by samplerate/channels/samplesize.
