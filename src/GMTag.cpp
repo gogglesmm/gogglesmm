@@ -188,7 +188,8 @@ static GMCover * xiph_load_cover(const TagLib::ByteVector & bytevector) {
 static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame) {
   FXString mime = frame->mimeType().toCString(true);
   /// Skip File Icon
-  if (frame->type()==TagLib::ID3v2::AttachedPictureFrame::FileIcon ||
+  if (frame->picture().size()==0 ||
+      frame->type()==TagLib::ID3v2::AttachedPictureFrame::FileIcon ||
       frame->type()==TagLib::ID3v2::AttachedPictureFrame::OtherFileIcon ||
       frame->type()==TagLib::ID3v2::AttachedPictureFrame::ColouredFish) {
     return NULL;
@@ -205,7 +206,7 @@ static FXbool id3v2_is_front_cover(TagLib::ID3v2::AttachedPictureFrame * frame){
 
 
 GMCover* flac_load_cover_from_taglib(const TagLib::FLAC::Picture * picture) {
-  if (picture) {
+  if (picture && picture->data().size()>0) {
     if (picture->type()==TagLib::FLAC::Picture::FileIcon ||
         picture->type()==TagLib::FLAC::Picture::OtherFileIcon ||
         picture->type()==TagLib::FLAC::Picture::ColouredFish) {
@@ -217,7 +218,7 @@ GMCover* flac_load_cover_from_taglib(const TagLib::FLAC::Picture * picture) {
   }
 
 GMCover* flac_load_frontcover_from_taglib(const TagLib::FLAC::Picture * picture) {
-  if (picture && picture->type()==TagLib::FLAC::Picture::FrontCover) {
+  if (picture && picture->type()==TagLib::FLAC::Picture::FrontCover && picture->data().size()>0) {
     return new GMCover(picture->data().data(),picture->data().size(),picture->type(),picture->description().toCString(true));
     }
   return NULL;
@@ -905,7 +906,8 @@ GMCover * GMFileTag::getFrontCover() const {
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        return new GMCover(it->data().data(),it->data().size());
+        if (it->data().size())
+          return new GMCover(it->data().data(),it->data().size());
         }
       }
     }
@@ -949,7 +951,8 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        covers.append(new GMCover(it->data().data(),it->data().size(),0));
+        if (it->data().size())
+          covers.append(new GMCover(it->data().data(),it->data().size(),0));
         }
       }
     }

@@ -396,28 +396,27 @@ FXbool GMCover::getImageInfo(GMImageInfo & ii) {
 
 
 FXuint GMCover::fileType() const {
-  if (     data[0]==137 &&
-           data[1]==80  &&
-           data[2]==78  &&
-           data[3]==71  &&
-           data[4]==13  &&
-           data[5]==10  &&
-           data[6]==26  &&
-           data[7]==10) {
-
+  if (size>8 && data[0]==137 &&
+                data[1]==80  &&
+                data[2]==78  &&
+                data[3]==71  &&
+                data[4]==13  &&
+                data[5]==10  &&
+                data[6]==26  &&
+                data[7]==10) {
     return FILETYPE_PNG;
     }
-  else if (data[0]==0xFF &&
-           data[1]==0xD8){
+  else if (size>2 && data[0]==0xFF &&
+                     data[1]==0xD8){
     return FILETYPE_JPG;
     }
-  else if (data[0]=='B' &&
-           data[1]=='M'){
+  else if (size>2 && data[0]=='B' &&
+                      data[1]=='M'){
     return FILETYPE_BMP;
     }
-  else if (data[0]==0x47 &&
-           data[1]==0x49 &&
-           data[2]==0x46){
+  else if (size>3 && data[0]==0x47 &&
+                     data[1]==0x49 &&
+                     data[2]==0x46){
     return FILETYPE_GIF;
     }
   else
@@ -470,7 +469,7 @@ GMCover * GMCover::fromTag(const FXString & mrl) {
     return tags.getFrontCover();
     }
   return NULL;
-  } 
+  }
 
 GMCover * GMCover::fromFile(const FXString & filename) {
   FXFile file(filename,FXIO::Reading);
