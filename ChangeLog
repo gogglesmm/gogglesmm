@@ -1,5 +1,8 @@
+1.0.2
+  - Fix: don't crash when loading invalid or empty covers from taglib
+
 1.0.1
-  - Fix: mpris v2 dbus properties interface 
+  - Fix: mpris v2 dbus properties interface
 
 1.0.0
   - Added support for filters. Similar to automatic/smart playlists found in other music players
