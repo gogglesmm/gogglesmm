@@ -28,7 +28,7 @@
 
 namespace ap {
 
-PacketPool::PacketPool() : list(NULL) {
+PacketPool::PacketPool() : list(nullptr) {
   }
 
 FXbool PacketPool::init(FXival sz,FXival n) {
@@ -55,22 +55,22 @@ PacketPool::~PacketPool() {
 
 
 void PacketPool::fetchEvents() {
-  Event * event = NULL;
-  while((event=ppool.pop())!=NULL){
+  Event * event = nullptr;
+  while((event=ppool.pop())!=nullptr){
     event->next = list;
     list = event;
     }
   }
 
 Packet * PacketPool::pop() {
-  Event * event = NULL;
+  Event * event = nullptr;
   if (!list)
     fetchEvents();
 
   if (list) {
     event = list;
     list = event->next;
-    event->next = NULL;
+    event->next = nullptr;
     }
   return dynamic_cast<Packet*>(event);
   }

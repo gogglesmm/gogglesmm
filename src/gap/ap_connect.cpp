@@ -55,7 +55,7 @@ FXIO* ConnectionFactory::create(FXint domain,FXint type,FXint protocol){
     s->setSendTimeout(10000000000);
     return s;
     }
-  return NULL;
+  return nullptr;
   }
 
 FXuint ConnectionFactory::connect(FXIO * socket,const struct sockaddr * address,FXint address_len) {
@@ -68,8 +68,8 @@ FXuint ConnectionFactory::connect(FXIO * socket,const struct sockaddr * address,
 
 FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
   struct addrinfo   hints;
-  struct addrinfo * list=NULL;
-  struct addrinfo * item=NULL;
+  struct addrinfo * list=nullptr;
+  struct addrinfo * item=nullptr;
   FXint result;
 
   memset(&hints,0,sizeof(struct addrinfo));
@@ -78,24 +78,24 @@ FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
   hints.ai_flags|=(AI_NUMERICSERV|AI_ADDRCONFIG);
 
   result=getaddrinfo(hostname.text(),FXString::value(port).text(),&hints,&list);
-  if (result) return NULL;
+  if (result) return nullptr;
 
   for (item=list;item;item=item->ai_next){
     FXIO * io = create(item->ai_family,item->ai_socktype,item->ai_protocol);
-    if (io==NULL)
+    if (io==nullptr)
       continue;
 
     switch(connect(io,item->ai_addr,item->ai_addrlen)){
       case Connected : freeaddrinfo(list); return io; break;
       case Error		 : delete io; break;
-      default				 : delete io; freeaddrinfo(list); return NULL; break;
+      default				 : delete io; freeaddrinfo(list); return nullptr; break;
       }
     }
 
   if (list) {
     freeaddrinfo(list);
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -110,7 +110,7 @@ FXIO * NBConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
     s->setSendTimeout(10000000000);
     return new WaitIO(s,watch,10000000000);
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -144,6 +144,6 @@ FXIO * ThreadConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
     s->setSendTimeout(10000000000);
     return new ThreadIO(s,fifo,10000000000);
     }
-  return NULL;
+  return nullptr;
   }
 }

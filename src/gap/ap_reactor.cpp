@@ -34,7 +34,7 @@
 
 namespace ap {
 
-Reactor::Reactor() : pfds(NULL),nfds(0),mfds(0), timers(NULL) {
+Reactor::Reactor() : pfds(nullptr),nfds(0),mfds(0), timers(nullptr) {
   }
 
 Reactor::~Reactor() {
@@ -95,7 +95,7 @@ void Reactor::dispatch() {
     if (t->time>0 && t->time<=now) {
       t->time=0;
       t->onExpired();
-      if (timers==NULL) break;
+      if (timers==nullptr) break;
       t = timers; // so onExpired can remove itself from the list...
       }
     }
@@ -114,7 +114,7 @@ void Reactor::wait(FXTime timeout) {
 #endif
     do {
 #ifdef HAVE_PPOLL
-      n = ppoll(pfds,nfds,&ts,NULL);
+      n = ppoll(pfds,nfds,&ts,nullptr);
 #else
       n = poll(pfds,nfds,(timeout/1000000));
 #endif
@@ -124,7 +124,7 @@ void Reactor::wait(FXTime timeout) {
   else {
     do {
 #ifdef HAVE_PPOLL
-      n = ppoll(pfds,nfds,NULL,NULL);
+      n = ppoll(pfds,nfds,nullptr,nullptr);
 #else
       n = poll(pfds,nfds,-1);
 #endif
@@ -143,7 +143,7 @@ FXTime Reactor::prepare() {
 
   if (nfds>mfds) {
     mfds=nfds;
-    if (pfds==NULL)
+    if (pfds==nullptr)
       allocElms(pfds,mfds);
     else
       resizeElms(pfds,mfds);

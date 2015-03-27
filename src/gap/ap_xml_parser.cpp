@@ -85,8 +85,8 @@ static int unknown_encoding(void*,const XML_Char * name,XML_Encoding * info){
       c=i;
       codec->mb2wc(w,(const FXchar*)&c,1);
       info->map[i]  = w;
-      info->convert = NULL;
-      info->release = NULL;
+      info->convert = nullptr;
+      info->release = nullptr;
       }
     return XML_STATUS_OK;
     }
@@ -101,7 +101,7 @@ FXbool XmlParser::parse(const FXString & buffer,const FXString & encoding) {
   XML_Parser parser;
 
   if (encoding.empty())
-    parser = XML_ParserCreate(NULL);
+    parser = XML_ParserCreate(nullptr);
   else
     parser = XML_ParserCreate(encoding.text());
 

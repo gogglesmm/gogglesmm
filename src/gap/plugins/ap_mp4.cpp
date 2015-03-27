@@ -66,7 +66,7 @@ public:
   FXuchar*            decoder_specific_info;        // decoder specific info
   FXuint              decoder_specific_info_length; // decoder specific length
 public:
-  Track() : codec(Codec::Invalid),decoder_specific_info(NULL),decoder_specific_info_length(0) {}
+  Track() : codec(Codec::Invalid),decoder_specific_info(nullptr),decoder_specific_info_length(0) {}
   ~Track() { freeElms(decoder_specific_info); }
 
 public:
@@ -229,7 +229,7 @@ ReaderPlugin * ap_mp4_reader(AudioEngine * engine) {
 
 
 
-MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e),track(NULL),meta(NULL) {
+MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e),track(nullptr),meta(nullptr) {
   }
 
 MP4Reader::~MP4Reader(){
@@ -247,7 +247,7 @@ FXbool MP4Reader::init(InputPlugin*plugin) {
   sample=0;
   if (meta) {
     meta->unref();
-    meta=NULL;
+    meta=nullptr;
     }
   return true;
   }
@@ -283,7 +283,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
     if (size<0 || size>packet->capacity()) return ReadError;
     if (size>packet->space()){
       engine->decoder->post(packet);
-      packet=NULL;
+      packet=nullptr;
       return ReadOk;
       }
     FXlong offset = track->getSampleOffset(sample);
@@ -297,7 +297,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
     if (sample==nsamples-1) {
       packet->flags|=FLAG_EOS;
       engine->decoder->post(packet);
-      packet=NULL;
+      packet=nullptr;
       return ReadDone;
       }
     }
@@ -311,12 +311,12 @@ void MP4Reader::clear_tracks(){
       delete tracks[i];
   tracks.clear();
   delete track;
-  track = NULL;
+  track = nullptr;
   }
 
 
 FXbool MP4Reader::select_track() {
-  Track* selected = NULL;
+  Track* selected = nullptr;
   for (FXint i=0;i<tracks.no();i++) {
     if (tracks[i]->codec!=Codec::Invalid) {
       selected = tracks[i];
@@ -328,7 +328,7 @@ FXbool MP4Reader::select_track() {
     }
   tracks.clear();
   track = selected;
-  return (track!=NULL);
+  return (track!=nullptr);
   }
 
 
@@ -352,11 +352,11 @@ ReadStatus MP4Reader::parse(Packet * packet) {
 
     if (meta->title.length()) {
       engine->decoder->post(meta);
-      meta = NULL;
+      meta = nullptr;
       }
     else {
       meta->unref();
-      meta = NULL;
+      meta = nullptr;
       }
 
     packet->append(track->decoder_specific_info,track->decoder_specific_info_length);
@@ -367,7 +367,7 @@ ReadStatus MP4Reader::parse(Packet * packet) {
     }
   packet->unref();
   meta->unref();
-  meta=NULL;
+  meta=nullptr;
   return ReadError;
   }
 
@@ -438,7 +438,7 @@ FXbool MP4Reader::atom_parse_mp4a(FXlong size) {
 
   FXlong nbytes = size;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (input->read(&mp4a_reserved,6)!=6)
@@ -569,7 +569,7 @@ static const FXuint mp4_channel_map[]={
 FXbool MP4Reader::atom_parse_asc(const FXuchar * data,FXuint length) {
   BitReader bit(data,length);
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   FXuint objtype = bit.read(5);
@@ -603,7 +603,7 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
 
   FXlong start = input->position();
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (!input->read_uint32_be(version))
@@ -688,7 +688,7 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
 FXbool MP4Reader::atom_parse_meta(FXlong size) {
   FXuint   version;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (!input->read_uint32_be(version))
@@ -777,7 +777,7 @@ FXbool MP4Reader::atom_parse_stsd(FXlong size) {
   FXuint   version;
   FXuint   nentries;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (!input->read_uint32_be(version))
@@ -797,7 +797,7 @@ FXbool MP4Reader::atom_parse_stsc(FXlong /*size*/) {
   FXuint version;
   FXuint nentries;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (!input->read_uint32_be(version))
@@ -827,7 +827,7 @@ FXbool MP4Reader::atom_parse_stco(FXlong/*size*/) {
   FXuint   version;
   FXuint   nchunks;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (input->read(&version,4)!=4)
@@ -850,7 +850,7 @@ FXbool MP4Reader::atom_parse_stts(FXlong /*size*/) {
   FXuint   version;
   FXuint   nsize;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (input->read(&version,4)!=4)
@@ -875,7 +875,7 @@ FXbool MP4Reader::atom_parse_stsz(FXlong /*size*/) {
   FXuint version;
   FXuint samplecount;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (input->read(&version,4)!=4)

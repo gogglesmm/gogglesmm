@@ -65,14 +65,14 @@ public:
   };
 
 
-OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(NULL),pcm(NULL) {
+OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(nullptr),pcm(nullptr) {
   }
 
 OpusDecoderPlugin::~OpusDecoderPlugin(){
   freeElms(pcm);
   if (opus) {
     opus_decoder_destroy(opus);
-    opus=NULL;
+    opus=nullptr;
     }
   }
 
@@ -102,7 +102,7 @@ FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
 
 
 FXbool OpusDecoderPlugin::flush(FXlong offset) {
-  OggDecoder::flush(offset); 
+  OggDecoder::flush(offset);
   //if (opus) opus_decoder_ctl(opus,OPUS_RESET_STATE);
   return true;
   }
@@ -182,9 +182,9 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
 
     while(nsamples>0) {
       /// Get new buffer
-      if (out==NULL) {
+      if (out==nullptr) {
         out = engine->decoder->get_output_packet();
-        if (out==NULL) return DecoderInterrupted;
+        if (out==nullptr) return DecoderInterrupted;
         out->stream_position=stream_position - stream_offset_start;
         out->stream_length=stream_length;
         out->af=af;
@@ -202,7 +202,7 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
       if (out->availableFrames()==0) {
         //fxmessage("posting\n");
         engine->output->post(out);
-        out=NULL;
+        out=nullptr;
         }
       }
     }
@@ -210,7 +210,7 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
   if (eos) {
     if (out && out->numFrames())  {
       engine->output->post(out);
-      out=NULL;
+      out=nullptr;
       }
     engine->output->post(new ControlEvent(End,id));
     }

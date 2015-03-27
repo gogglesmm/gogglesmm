@@ -41,20 +41,20 @@
 namespace ap {
 
 
-  CDDAInput::CDDAInput(InputThread * i) : InputPlugin(i),drive(NULL) {
+  CDDAInput::CDDAInput(InputThread * i) : InputPlugin(i),drive(nullptr) {
     }
 
   FXbool CDDAInput::open(const FXString & cdrom) {
 
     if (!cdrom.empty()) {
-      drive=cdio_cddap_identify(cdrom.text(),0,NULL);
-      if (drive==NULL) {
+      drive=cdio_cddap_identify(cdrom.text(),0,nullptr);
+      if (drive==nullptr) {
         return false;
         }
       }
     else {
-      drive = cdio_cddap_find_a_cdrom(0,NULL);
-      if (drive==NULL) {
+      drive = cdio_cddap_find_a_cdrom(0,nullptr);
+      if (drive==nullptr) {
         return false;
         }
       }

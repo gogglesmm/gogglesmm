@@ -146,7 +146,7 @@ public:
 
 
 
-OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e),packet(NULL),headers(NULL),ogg_packet_written(-1),codec(Codec::Invalid) {
+OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e),packet(nullptr),headers(nullptr),ogg_packet_written(-1),codec(Codec::Invalid) {
   ogg_sync_init(&sync);
   }
 
@@ -177,7 +177,7 @@ FXbool OggReader::seek(FXlong target){
 
     if (packet) {
       packet->unref();
-      packet=NULL;
+      packet=nullptr;
       }
 
     state.has_eos=false;
@@ -695,7 +695,7 @@ ReadStatus OggReader::parse() {
 
 void OggReader::add_header(Packet * p) {
   Event * h = headers;
-  p->next = NULL;
+  p->next = nullptr;
   if (h) {
     while(h->next) h=h->next;
     h->next = p;
@@ -709,7 +709,7 @@ void OggReader::send_headers() {
   while(headers) {
     Packet * p = dynamic_cast<Packet*>(headers);
     headers    = headers->next;
-    p->next    = NULL;
+    p->next    = nullptr;
     engine->decoder->post(p);
     }
   }
@@ -744,7 +744,7 @@ void OggReader::submit_ogg_packet(FXbool post) {
           engine->decoder->post(packet);
         else
           add_header(packet);
-        packet=NULL;
+        packet=nullptr;
         return;
         }
       }
@@ -773,7 +773,7 @@ void OggReader::submit_ogg_packet(FXbool post) {
       engine->decoder->post(packet);
     else
       add_header(packet);
-    packet=NULL;
+    packet=nullptr;
     }
   }
 
@@ -798,7 +798,7 @@ FXbool OggReader::fetch_next_page() {
       }
     else if (result==0) { /// Need more bytes
       FXchar * buffer = ogg_sync_buffer(&sync,BUFFERSIZE);
-      if (buffer==NULL) return false;
+      if (buffer==nullptr) return false;
       FXival nbytes = input->read(buffer,BUFFERSIZE);
       if (nbytes<=0) return false;
       ogg_sync_wrote(&sync,nbytes);

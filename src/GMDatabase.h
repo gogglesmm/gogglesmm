@@ -114,7 +114,7 @@ public:
 private:
   void lock();
   void unlock();
-  void fatal(const FXchar * q=NULL) const;
+  void fatal(const FXchar * q=nullptr) const;
 protected:
   GMDatabase(const GMDatabase&);
   GMDatabase& operator=(const GMDatabase&);

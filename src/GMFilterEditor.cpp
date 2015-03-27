@@ -192,14 +192,14 @@ void GMRuleEditor::create(FXMatrix * rules,FXWindow * before) {
 
     // #1 Year Input / #3 Number
     FXHorizontalFrame * spinnerframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-    spinner = new GMSpinner(spinnerframe,6,NULL,0);
+    spinner = new GMSpinner(spinnerframe,6,nullptr,0);
     spinner->setRange(0,2020);
     spinner->setValue(2015);
 
     // #2 Date Input
     FXHorizontalFrame * dateframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-    datetimespinner = new GMSpinner(dateframe,6,NULL,0);
-    periods = new GMComboBox(dateframe,0,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
+    datetimespinner = new GMSpinner(dateframe,6,nullptr,0);
+    periods = new GMComboBox(dateframe,0,nullptr,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
     add(periods,fxtr("Minutes"),PERIOD_MINUTES);
     add(periods,fxtr("Hours"),PERIOD_HOURS);
     add(periods,fxtr("Days"),PERIOD_DAYS);
@@ -208,14 +208,14 @@ void GMRuleEditor::create(FXMatrix * rules,FXWindow * before) {
 
     // #3 Filetypes
     FXHorizontalFrame * optionframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-    options = new GMComboBox(optionframe,0,NULL,0,COMBOBOX_STATIC);
+    options = new GMComboBox(optionframe,0,nullptr,0,COMBOBOX_STATIC);
 
     // #4 Time
     FXHorizontalFrame * timeframe = new FXHorizontalFrame(valueswitcher,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-    time_minutes = new GMSpinner(timeframe,3,NULL,0);
+    time_minutes = new GMSpinner(timeframe,3,nullptr,0);
     time_minutes->setRange(0,24*60);
     new FXLabel(timeframe,":");
-    time_seconds = new GMSpinner(timeframe,3,NULL,0);
+    time_seconds = new GMSpinner(timeframe,3,nullptr,0);
     time_seconds->setRange(0,59);
 
   // Put into correct position of the matrix
@@ -583,7 +583,7 @@ void GMSortLimitEditor::create(FXMatrix * rules,FXWindow * before) {
   columns->setUserData(this);
   fillColumns(columns);
 
-  order = new GMComboBox(rules,10,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
+  order = new GMComboBox(rules,10,nullptr,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   order->appendItem(fxtr("Ascending"));
   order->appendItem(fxtr("Descending"));
   order->setNumVisible(2);
@@ -629,47 +629,47 @@ GMFilterEditor::GMFilterEditor(FXWindow *p,const GMFilter & query) : FXDialogBox
   FXWindow * filler;
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,tr("&Update"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
-  new GMButton(closebox,tr("&Cancel"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
+  new GMButton(closebox,tr("&Update"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
+  new GMButton(closebox,tr("&Cancel"),nullptr,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
   new FXSeparator(this,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
 
   FXVerticalFrame * main=new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
   // Filter Name
   FXMatrix  * header = new FXMatrix(main,2,LAYOUT_FILL|MATRIX_BY_COLUMNS);
-  new FXLabel(header,tr("Name:"),NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  namefield = new GMTextField(header,30,NULL,0,LAYOUT_FILL_COLUMN);
+  new FXLabel(header,tr("Name:"),nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  namefield = new GMTextField(header,30,nullptr,0,LAYOUT_FILL_COLUMN);
 
   // Match All or Any
-  new FXLabel(header,tr("Match:"),NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  new FXLabel(header,tr("Match:"),nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   match = new GMComboBox(header,3,this,ID_MATCH,LAYOUT_FILL_COLUMN|COMBOBOX_STATIC);
   add(match,tr("All"),GMFilter::MatchAll);
   add(match,tr("Any"),GMFilter::MatchAny);
   match->setNumVisible(2);
 
   // Filter Rules
-  new FXLabel(header,tr("Filter:"),NULL,LAYOUT_RIGHT);
+  new FXLabel(header,tr("Filter:"),nullptr,LAYOUT_RIGHT);
   rules = new FXMatrix(header,4,LAYOUT_FILL|MATRIX_BY_COLUMNS|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-  filler = new GMComboBox(rules,12,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
+  filler = new GMComboBox(rules,12,nullptr,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   filler->disable();
   rules_offset = filler;
-  filler = new GMComboBox(rules,12,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
+  filler = new GMComboBox(rules,12,nullptr,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   filler->disable();
-  filler = new GMTextField(rules,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
+  filler = new GMTextField(rules,20,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
   filler->disable();
   new GMButton(rules,tr("\tAdd Filter\tAdd Filter"),GMIconTheme::instance()->icon_add,this,ID_ADD_RULE,BUTTON_TOOLBAR|FRAME_RAISED);
 
   // Limits
-  new FXLabel(header,tr("Limit:"),NULL,LAYOUT_RIGHT);
+  new FXLabel(header,tr("Limit:"),nullptr,LAYOUT_RIGHT);
   limits = new FXMatrix(header,5,LAYOUT_FILL|MATRIX_BY_COLUMNS|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
   limitspinner = new GMSpinner(limits,6,this,ID_LIMIT,SPIN_NOMAX);
   limitspinner->setRange(0,0);
-  new FXLabel(limits,tr("tracks sorted by:"),NULL,LAYOUT_CENTER_Y);
+  new FXLabel(limits,tr("tracks sorted by:"),nullptr,LAYOUT_CENTER_Y);
   limitspinner->disable();
-  filler = new GMComboBox(limits,12,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
+  filler = new GMComboBox(limits,12,nullptr,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   filler->disable();
   limits_offset = filler;
-  filler = new GMComboBox(limits,10,NULL,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
+  filler = new GMComboBox(limits,10,nullptr,0,LAYOUT_FILL_X|COMBOBOX_STATIC);
   filler->disable();
   new GMButton(limits,tr("\tAdd Column\tAdd Column"),GMIconTheme::instance()->icon_add,this,ID_ADD_LIMIT,BUTTON_TOOLBAR|FRAME_RAISED);
 
@@ -788,11 +788,11 @@ long GMFilterEditor::onCmdAddLimit(FXObject*,FXSelector,void*){
 long GMFilterEditor::onUpdLimit(FXObject*sender,FXSelector,void*){
   if (limits->numChildren()>5) {
     limitspinner->setRange(1,99999);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     }
   else {
     limitspinner->setRange(0,0);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
     }
   return 1;
   }
@@ -801,11 +801,11 @@ long GMFilterEditor::onUpdLimit(FXObject*sender,FXSelector,void*){
 // Update handler for match mode
 long GMFilterEditor::onUpdMatch(FXObject*sender,FXSelector,void*){
   if (getNumRules()>1) {
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     }
   else {
     match->setCurrentItem(0);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
     }
   return 1;
   }

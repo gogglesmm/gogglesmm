@@ -319,7 +319,7 @@ protected:
     }
 
 protected:
-  AlsaSetup(snd_pcm_t*p) : pcm(p),hw(NULL),sw(NULL) {
+  AlsaSetup(snd_pcm_t*p) : pcm(p),hw(nullptr),sw(nullptr) {
     }
 
   ~AlsaSetup() {
@@ -459,7 +459,7 @@ static int query_chmaps(snd_pcm_t *pcm)
 		printf("Cannot query maps %d\n",snd_pcm_state(pcm)==SND_PCM_STATE_PREPARED);
 		return 1;
 	}
-	for (p = maps; (v = *p) != NULL; p++) {
+	for (p = maps; (v = *p) != nullptr; p++) {
 		printf("Type = %s, Channels = %d\n",
 		       snd_pcm_chmap_type_name(v->type),
 		       v->map.channels);
@@ -501,7 +501,7 @@ static int query_chmaps(snd_pcm_t *pcm)
 
   FXbool setupChannelMap(const AudioFormat & af) {
     if (af.channels) {
-      snd_pcm_chmap_t * map = NULL;
+      snd_pcm_chmap_t * map = nullptr;
 
       if (!fxmalloc((void**)&map,sizeof(snd_pcm_chmap_t) + af.channels*sizeof(unsigned int)))
         return false;
@@ -704,7 +704,7 @@ protected:
         }
 
       /* If we don't know what we're looking for, return first one found */
-      if (name==NULL)
+      if (name==nullptr)
         return element;
 
       /* Check if this is the one we want */
@@ -712,25 +712,25 @@ protected:
         return element;
 
       }
-    return NULL;
+    return nullptr;
     }
 
 
 public:
   static AlsaMixer * open(OutputThread * output,snd_pcm_t * handle) {
     FXString device;
-    snd_mixer_t*        mixer   = NULL;
-    snd_mixer_elem_t*   element = NULL;
-    snd_pcm_info_t*     info    = NULL;
+    snd_mixer_t*        mixer   = nullptr;
+    snd_mixer_elem_t*   element = nullptr;
+    snd_pcm_info_t*     info    = nullptr;
     FXint result;
 
     snd_pcm_info_alloca(&info);
 
     if (snd_pcm_info(handle,info)<0)
-      return NULL;
+      return nullptr;
 
     if (snd_mixer_open(&mixer,0)<0)
-      return NULL;
+      return nullptr;
 
     device = snd_pcm_name(handle);
 
@@ -752,7 +752,7 @@ public:
       }
 
     // register mixer
-    if ((result=snd_mixer_selem_register(mixer,NULL,NULL))<0){
+    if ((result=snd_mixer_selem_register(mixer,nullptr,nullptr))<0){
       GM_DEBUG_PRINT("Unable to register simple mixer: %s\n",snd_strerror(result));
       goto fail;
       }
@@ -765,10 +765,10 @@ public:
 
     /* Yay... let's guess what mixer we want */
     element = find_mixer_element_by_name(mixer,"PCM");
-    if (element==NULL) {
+    if (element==nullptr) {
       element = find_mixer_element_by_name(mixer,"MASTER");
-      if (element==NULL) {
-        element = find_mixer_element_by_name(mixer,NULL);
+      if (element==nullptr) {
+        element = find_mixer_element_by_name(mixer,nullptr);
         }
       }
 
@@ -779,7 +779,7 @@ public:
 fail:
     output->notify_disable_volume();
     if (mixer) snd_mixer_close(mixer);
-    return NULL;
+    return nullptr;
     }
 
 
@@ -788,7 +788,7 @@ fail:
 
 
 
-AlsaOutput::AlsaOutput(OutputThread * o) : OutputPlugin(o), handle(NULL),period_size(0),period_written(0),silence(NULL),mixer(NULL),can_pause(false),can_resume(false) {
+AlsaOutput::AlsaOutput(OutputThread * o) : OutputPlugin(o), handle(nullptr),period_size(0),period_written(0),silence(nullptr),mixer(nullptr),can_pause(false),can_resume(false) {
   }
 
 AlsaOutput::~AlsaOutput() {
@@ -798,7 +798,7 @@ AlsaOutput::~AlsaOutput() {
 
 FXbool AlsaOutput::open() {
   FXint result;
-  if (handle==NULL) {
+  if (handle==nullptr) {
 
     if ((result=snd_pcm_open(&handle,config.device.text(),SND_PCM_STREAM_PLAYBACK,0))<0) {
       GM_DEBUG_PRINT("[alsa] Unable to open device \"%s\": %s\n",config.device.text(),snd_strerror(result));
@@ -820,11 +820,11 @@ void AlsaOutput::close() {
     if (mixer) {
       output->getReactor().removeNative(mixer);
       delete mixer;
-      mixer=NULL;
+      mixer=nullptr;
       }
 
     snd_pcm_close(handle);
-    handle=NULL;
+    handle=nullptr;
     }
   af.reset();
   }
@@ -930,7 +930,7 @@ void AlsaOutput::pause(FXbool p) {
 
 
 FXbool AlsaOutput::configure(const AudioFormat & fmt){
-  if (__unlikely(handle==NULL)) {
+  if (__unlikely(handle==nullptr)) {
     if (!open()) {
       return false;
       }
@@ -968,7 +968,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
   snd_pcm_state_t   state;
   const FXchar * buf = (const FXchar*)buffer;
 
-  if (__unlikely(handle==NULL))
+  if (__unlikely(handle==nullptr))
     return false;
 
   while(nframes>0) {

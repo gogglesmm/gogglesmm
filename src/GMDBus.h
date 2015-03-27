@@ -69,7 +69,7 @@ public:
   FXbool open(DBusBusType bustype=DBUS_BUS_SESSION);
 
   /**
-  * Return FXDBusConnection for given DBusConnection. Return NULL if not found.
+  * Return FXDBusConnection for given DBusConnection. Return nullptr if not found.
   */
   static GMDBus * find(DBusConnection * dc);
 

@@ -53,7 +53,7 @@ protected:
   FXbool open_connection();
   void reset(FXbool forceclose);
 public:
-  HttpClient(ConnectionFactory * c=NULL);
+  HttpClient(ConnectionFactory * c=nullptr);
 
   /// Change the Connection Factory
   void setConnectionFactory(ConnectionFactory*);

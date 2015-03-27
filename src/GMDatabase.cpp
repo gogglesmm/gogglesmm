@@ -23,13 +23,13 @@
 /// 100ms
 #define DATABASE_SLEEP 100000000
 
-GMQuery::GMQuery() : statement(NULL) {
+GMQuery::GMQuery() : statement(nullptr) {
   }
 
 GMQuery::GMQuery(sqlite3_stmt * s) : statement(s) {
   }
 
-GMQuery::GMQuery(GMDatabase * database,const FXchar *query) : statement(NULL) {
+GMQuery::GMQuery(GMDatabase * database,const FXchar *query) : statement(nullptr) {
   FXASSERT(database);
   statement=database->compile(query);
   }
@@ -51,7 +51,7 @@ void GMQuery::reset() {
 
 void GMQuery::clear(){
   sqlite3_finalize(statement);
-  statement=NULL;
+  statement=nullptr;
   }
 
 void GMQuery::fatal() const {
@@ -261,7 +261,7 @@ FXCondition     GMDatabase::condition;
 volatile FXbool GMDatabase::interrupt = false;
 
 
-GMDatabase::GMDatabase() : db(NULL) {
+GMDatabase::GMDatabase() : db(nullptr) {
   }
 
 GMDatabase::~GMDatabase(){
@@ -270,7 +270,7 @@ GMDatabase::~GMDatabase(){
 
 void GMDatabase::close(){
   sqlite3_close(db);
-  db=NULL;
+  db=nullptr;
   }
 
 void GMDatabase::fatal(const FXchar * query) const {
@@ -303,9 +303,9 @@ void GMDatabase::fatal(const FXchar * query) const {
 sqlite3_stmt * GMDatabase::compile(const FXchar * query){
   FXASSERT(db);
   FXint result;
-  sqlite3_stmt * statement=NULL;
+  sqlite3_stmt * statement=nullptr;
   do {
-    result = sqlite3_prepare_v2(db,query,-1,&statement,NULL);
+    result = sqlite3_prepare_v2(db,query,-1,&statement,nullptr);
     if (__likely(result==SQLITE_OK))
       return statement;
     else if (result==SQLITE_BUSY)
@@ -319,9 +319,9 @@ sqlite3_stmt * GMDatabase::compile(const FXchar * query){
 
 FXbool GMDatabase::open(const FXString & filename){
   GM_DEBUG_PRINT("Open Database %s\n",filename.text());
-  if (sqlite3_open_v2(filename.text(),&db,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FULLMUTEX,NULL)!=SQLITE_OK){
+  if (sqlite3_open_v2(filename.text(),&db,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FULLMUTEX,nullptr)!=SQLITE_OK){
     sqlite3_close(db);
-    db=NULL;
+    db=nullptr;
     return false;
     }
   init_regex();
@@ -344,7 +344,7 @@ void GMDatabase::perform_regex_match(sqlite3_context *context, int argc, sqlite3
 
 
 void GMDatabase::init_regex() {
-  if (sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8|SQLITE_DETERMINISTIC,this,perform_regex_match,NULL,NULL)!=SQLITE_OK){
+  if (sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8|SQLITE_DETERMINISTIC,this,perform_regex_match,nullptr,nullptr)!=SQLITE_OK){
     fxwarning("failed to register regular expression callback\n");
     }
   }
@@ -457,8 +457,8 @@ void GMDatabase::waitTask() {
   }
 
 void GMDatabase::lock() {
-//  fxmessage("lock %d %d\n",FXThread::self()==NULL,mutex.locked());
-  if (FXThread::self()==NULL) {
+//  fxmessage("lock %d %d\n",FXThread::self()==nullptr,mutex.locked());
+  if (FXThread::self()==nullptr) {
 //    fxmessage("trylock %d\n",mutex.locked());
     if (!mutex.trylock()) {
       GM_DEBUG_PRINT("Failed to lock mutex\n");
@@ -469,8 +469,8 @@ void GMDatabase::lock() {
   }
 
 void GMDatabase::unlock() {
-//  fxmessage("unlock %d\n",FXThread::self()==NULL);
-  if (FXThread::self()==NULL) {
+//  fxmessage("unlock %d\n",FXThread::self()==nullptr);
+  if (FXThread::self()==nullptr) {
     if (interrupt) {
       interrupt=false;
       condition.signal();

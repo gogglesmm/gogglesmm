@@ -39,7 +39,7 @@ public:
     };
 public:
   /// Construct new item with given text, icon, and user-data
-  FXCheckListItem(const FXString& text,FXbool check=true,void* ptr=NULL):GMListItem(text,NULL,ptr) {if (check) state|=CHECKED; }
+  FXCheckListItem(const FXString& text,FXbool check=true,void* ptr=nullptr):GMListItem(text,nullptr,ptr) {if (check) state|=CHECKED; }
 
   /// Return width of item as drawn in list
   virtual FXint getWidth(const FXList* list) const;
@@ -52,7 +52,7 @@ public:
   void toggle() { if (state&CHECKED) state&=~CHECKED; else state|=CHECKED; }
   };
 
-FXIMPLEMENT(FXCheckListItem,FXListItem,NULL,0);
+FXIMPLEMENT(FXCheckListItem,FXListItem,nullptr,0);
 
 void FXCheckListItem::draw(const GMList* list,FXDC& dc,FXint xx,FXint yy,FXint ww,FXint hh) const {
 //#endif
@@ -199,19 +199,19 @@ GMColumnDialog::GMColumnDialog(FXWindow *window,GMColumnList & cols) : FXDialogB
   setTitle(tr("Configure Columns"));
 
   FXHorizontalFrame * buttonframe = new FXHorizontalFrame(this,LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM,0,0,0,0,0,0,0,0);
-  new GMButton(buttonframe,tr("&Accept"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
-  new GMButton(buttonframe,tr("&Cancel"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
+  new GMButton(buttonframe,tr("&Accept"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
+  new GMButton(buttonframe,tr("&Cancel"),nullptr,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
 
   new FXSeparator(this,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
 
-  new FXLabel(this,tr("Choose the order of information to appear\nin the track list."),NULL,LAYOUT_SIDE_TOP|JUSTIFY_LEFT);
+  new FXLabel(this,tr("Choose the order of information to appear\nin the track list."),nullptr,LAYOUT_SIDE_TOP|JUSTIFY_LEFT);
 
 
   FXHorizontalFrame * main = new FXHorizontalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
 
   FXVerticalFrame * control = new FXVerticalFrame(main,LAYOUT_FILL_Y|LAYOUT_RIGHT|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0);
-  new GMButton(control,tr("Move Up"),NULL,this,ID_MOVE_UP);
-  new GMButton(control,tr("Move Down"),NULL,this,ID_MOVE_DOWN);
+  new GMButton(control,tr("Move Up"),nullptr,this,ID_MOVE_UP);
+  new GMButton(control,tr("Move Down"),nullptr,this,ID_MOVE_DOWN);
 
   GMScrollFrame * sunken = new GMScrollFrame(main);
   list = new GMList(sunken,this,ID_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|LIST_BROWSESELECT);
@@ -258,9 +258,9 @@ long GMColumnDialog::onCmdMoveUp(FXObject*,FXSelector,void*){
 
 long GMColumnDialog::onUpdMoveUp(FXObject*sender,FXSelector,void*){
   if (list->getCurrentItem()>0)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -271,8 +271,8 @@ long GMColumnDialog::onCmdMoveDown(FXObject*,FXSelector,void*){
 
 long GMColumnDialog::onUpdMoveDown(FXObject*sender,FXSelector,void*){
   if (list->getCurrentItem()<list->getNumItems()-1)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }

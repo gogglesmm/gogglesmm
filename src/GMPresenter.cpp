@@ -82,8 +82,8 @@ FXDEFMAP(GMPresenter) GMPresenterMap[]={
 FXIMPLEMENT(GMPresenter,FXDialogBox,GMPresenterMap,ARRAYNUMBER(GMPresenterMap))
 
 GMPresenter::GMPresenter(FXApp* a,FXGLContext * ctx,FXObject * /*tgt*/,FXSelector /*msg*/):FXDialogBox(a,FXString::null,DECOR_TITLE|DECOR_RESIZE,0,0,400,300,0,0,0,0,0,0){
-  texture=NULL;
-  effect=NULL;
+  texture=nullptr;
+  effect=nullptr;
   glcanvas = new FXGLCanvas(this,ctx,this,ID_CANVAS,LAYOUT_FILL);
   }
 
@@ -91,7 +91,7 @@ GMPresenter::GMPresenter(FXApp* a,FXGLContext * ctx,FXObject * /*tgt*/,FXSelecto
 GMPresenter::~GMPresenter(){
   if (texture) {
     glcanvas->makeCurrent();
-    texture->setImage(NULL);
+    texture->setImage(nullptr);
     glcanvas->makeNonCurrent();
     delete texture;
     }
@@ -108,10 +108,10 @@ void GMPresenter::create() {
 void GMPresenter::setImage(FXImage * image) {
   if (glcanvas->makeCurrent()) {
     if (image) {
-      if (texture==NULL) {
+      if (texture==nullptr) {
         texture = new GMImageTexture();
         }
-      if (effect==NULL) {
+      if (effect==nullptr) {
         effect  = new GMBouncingImage(texture);
         }
       else {
@@ -121,9 +121,9 @@ void GMPresenter::setImage(FXImage * image) {
       }
     else {
       if (texture) {
-        texture->setImage(NULL);
+        texture->setImage(nullptr);
         delete texture;
-        texture=NULL;
+        texture=nullptr;
         }
       }
     glcanvas->makeNonCurrent();

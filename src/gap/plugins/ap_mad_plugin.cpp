@@ -343,7 +343,7 @@ public:
   ~VBRIHeader();
   };
 
-VBRIHeader::VBRIHeader(const FXuchar * buffer,FXival) : toc(NULL) {
+VBRIHeader::VBRIHeader(const FXuchar * buffer,FXival) : toc(nullptr) {
   version           = INT16_BE(buffer+4);
   delay             = INT16_BE(buffer+6);
   quality           = INT16_BE(buffer+8);
@@ -654,12 +654,12 @@ ApeTag::ApeTag(const FXchar * buffer,FXint len) {
 
 MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
   sync(false),
-  xing(NULL),
-  vbri(NULL),
-  lame(NULL),
-  id3v1(NULL),
-  id3v2(NULL) {
-  //apetag(NULL) {
+  xing(nullptr),
+  vbri(nullptr),
+  lame(nullptr),
+  id3v1(nullptr),
+  id3v2(nullptr) {
+  //apetag(nullptr) {
   }
 
 MadReader::~MadReader() {
@@ -670,16 +670,16 @@ MadReader::~MadReader() {
 void MadReader::clear_tags() {
   if (id3v1) {
     delete id3v1;
-    id3v1=NULL;
+    id3v1=nullptr;
     }
   if (id3v2) {
     delete id3v2;
-    id3v2=NULL;
+    id3v2=nullptr;
     }
 /*
   if (apetag){
     delete apetag;
-    apetag=NULL;
+    apetag=nullptr;
     }
 */
   }
@@ -687,15 +687,15 @@ void MadReader::clear_tags() {
 void MadReader::clear_headers() {
   if (xing) {
     delete xing;
-    xing=NULL;
+    xing=nullptr;
     }
   if (vbri) {
     delete vbri;
-    vbri=NULL;
+    vbri=nullptr;
     }
   if (lame) {
     delete lame;
-    lame=NULL;
+    lame=nullptr;
     }
   }
 
@@ -850,7 +850,7 @@ FXbool MadReader::parse_ape() {
     FXint ape_size     = INT32_LE(buf+12);
     FXint ape_flags    = INT32_LE(buf+20);
 
-    FXuchar * ape_buffer=NULL;
+    FXuchar * ape_buffer=nullptr;
     allocElms(ape_buffer,ape_size);
 
     if (input->read(ape_buffer+32,ape_size)!=ape_size) {
@@ -926,7 +926,7 @@ FXbool MadReader::parse_id3v2() {
     tagsize+=10;
     }
 
-  FXuchar * tagbuffer=NULL;
+  FXuchar * tagbuffer=nullptr;
   allocElms(tagbuffer,tagsize);
 
   if (input->read(tagbuffer+10,tagsize-10)!=tagsize-10){
@@ -1248,7 +1248,7 @@ done:
     engine->decoder->post(packet);
   else {
     packet->unref();
-    packet=NULL;
+    packet=nullptr;
     }
   return status;
   }
@@ -1277,13 +1277,13 @@ done:
 
 
 MadDecoder::MadDecoder(AudioEngine *e) : DecoderPlugin(e), buffer(MAD_BUFFER_MDLEN),flags(0) {
-  out=NULL;
+  out=nullptr;
   }
 
 MadDecoder::~MadDecoder(){
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
   if (flags&FLAG_INIT) {
     mad_synth_finish(&synth);
@@ -1297,7 +1297,7 @@ MadDecoder::~MadDecoder(){
 
 FXbool MadDecoder::init(ConfigureEvent* event){
   DecoderPlugin::init(event);
-  FXASSERT(out==NULL);
+  FXASSERT(out==nullptr);
   af=event->af;
   stream_offset_start=event->stream_offset_start;
   stream_offset_end=event->stream_offset_end;
@@ -1305,7 +1305,7 @@ FXbool MadDecoder::init(ConfigureEvent* event){
 
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
 
   if (flags&FLAG_INIT) {
@@ -1440,7 +1440,7 @@ DecoderStatus MadDecoder::process(Packet*in){
   if (in->size() || eos){
     if (in->size()) {
       if (buffer.size()) {
-        if (stream.next_frame!=NULL) {
+        if (stream.next_frame!=nullptr) {
           buffer.setReadPosition(stream.next_frame);
           }
         }
@@ -1529,9 +1529,9 @@ DecoderStatus MadDecoder::process(Packet*in){
     while(nframes>0) {
 
       // Get new buffer
-      if (out==NULL) {
+      if (out==nullptr) {
         out = engine->decoder->get_output_packet();
-        if (out==NULL) return DecoderInterrupted; // FIXME
+        if (out==nullptr) return DecoderInterrupted; // FIXME
         out->af=af;
         out->stream_position=stream_position-stream_offset_start;
         out->stream_length=stream_length-stream_offset_start-stream_offset_end;
@@ -1572,7 +1572,7 @@ DecoderStatus MadDecoder::process(Packet*in){
 
       if (out->availableFrames()==0) {
         engine->output->post(out);
-        out=NULL;
+        out=nullptr;
         }
       }
     max_samples-=synth.pcm.length;
@@ -1583,7 +1583,7 @@ done:
   if (eos) {
     if (out) {
       engine->output->post(out);
-      out=NULL;
+      out=nullptr;
       }
     GM_DEBUG_PRINT("[mad_decoder] end of stream %d\n",streamid);
     engine->output->post(new ControlEvent(End,streamid));
@@ -1595,7 +1595,7 @@ FXbool MadDecoder::flush(FXlong offset){
   DecoderPlugin::flush(offset);
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
   buffer.clear();
   if (flags&FLAG_INIT) {

@@ -39,12 +39,12 @@ FXint GMWorkerThread::run() {
 
 
 
-FXIMPLEMENT(GMWorker,FXObject,NULL,0);
+FXIMPLEMENT(GMWorker,FXObject,nullptr,0);
 
 GMWorker::GMWorker(){
   }
 
-GMWorker::GMWorker(FXApp * app) : thread(NULL),processing(true) {
+GMWorker::GMWorker(FXApp * app) : thread(nullptr),processing(true) {
   thread  = new GMWorkerThread(this);
   channel = new FXMessageChannel(app);
   }
@@ -72,13 +72,13 @@ FXbool GMWorker::send(FXSelector msg,const void* data,FXint size){
 
 
 
-GMTask::GMTask(FXObject*tgt,FXSelector sel) : taskmanager(NULL),mc(NULL),processing(true),target(tgt),message(sel) {
+GMTask::GMTask(FXObject*tgt,FXSelector sel) : taskmanager(nullptr),mc(nullptr),processing(true),target(tgt),message(sel) {
   }
 
 GMTask::~GMTask() {
   }
 
-GMTaskManager::GMTaskManager(FXObject*tgt,FXSelector sel) : processing(false),started(false),active(NULL),target(tgt),message(sel),mc(FXApp::instance())  {
+GMTaskManager::GMTaskManager(FXObject*tgt,FXSelector sel) : processing(false),started(false),active(nullptr),target(tgt),message(sel),mc(FXApp::instance())  {
   }
 
 GMTaskManager::~GMTaskManager() {
@@ -112,15 +112,15 @@ FXbool GMTaskManager::next() {
     tasks.erase(0);
     }
   else {
-    active=NULL;
+    active=nullptr;
     }
   mutex.unlock();
-  return ((active!=NULL) && processing);
+  return ((active!=nullptr) && processing);
   }
 
 FXbool GMTaskManager::wait() {
   if (processing) {
-    if (target) mc.message(target,FXSEL(SEL_TASK_IDLE,message),NULL,0);
+    if (target) mc.message(target,FXSEL(SEL_TASK_IDLE,message),nullptr,0);
     mutex.lock();
     condition_task.wait(mutex);
     mutex.unlock();
@@ -132,7 +132,7 @@ FXint GMTaskManager::run() {
   ap_set_thread_name("gm_taskmanager");
   do {
     while(next()) {
-      if (target) mc.message(target,FXSEL(SEL_TASK_RUNNING,message),NULL,0);
+      if (target) mc.message(target,FXSEL(SEL_TASK_RUNNING,message),nullptr,0);
       FXint code = active->run();
       mutex.lock();
       if (active->target) {
@@ -140,11 +140,11 @@ FXint GMTaskManager::run() {
           mc.message(active->target,FXSEL(SEL_TASK_CANCELLED,active->message),&active,sizeof(GMTask*));
         else
           mc.message(active->target,FXSEL(SEL_TASK_COMPLETED,active->message),&active,sizeof(GMTask*));
-        active=NULL;
+        active=nullptr;
         }
       else {
         delete active;
-        active=NULL;
+        active=nullptr;
         }
       mutex.unlock();
       }

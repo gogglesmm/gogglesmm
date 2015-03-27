@@ -92,7 +92,7 @@ FXbool WaitIO::close() {
   if (io) {
     io->close();
     delete io;
-    io=NULL;
+    io=nullptr;
     }
   return true;
   }

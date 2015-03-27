@@ -81,12 +81,12 @@ FXbool GMImageTexture::setImage(FXImage* image) {
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
 
-    FXbool use_mipmap = (glGenerateMipmap!=NULL || GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap );
+    FXbool use_mipmap = (glGenerateMipmap!=nullptr || GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap );
 
     if (use_mipmap) {
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-      if (glGenerateMipmap==NULL){
+      if (glGenerateMipmap==nullptr){
         glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
         glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP,GL_TRUE);
         }
@@ -101,7 +101,7 @@ FXbool GMImageTexture::setImage(FXImage* image) {
       cw=ch=1.0f;
       }
     else {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,NULL);
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,nullptr);
       glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
       cw = (1.0f / (FXfloat)(texture_width))  * image_width;
       ch = (1.0f / (FXfloat)(texture_height)) * image_height;
@@ -164,11 +164,11 @@ FXIMPLEMENT(GMImageView,FXGLCanvas,GMImageViewMap,ARRAYNUMBER(GMImageViewMap));
 
 
 GMImageView::GMImageView(){
-  texture=NULL;
+  texture=nullptr;
   }
 
-GMImageView::GMImageView(FXComposite* p,FXGLContext *ctx,FXuint opts,FXint x,FXint y,FXint w,FXint h) : FXGLCanvas(p,ctx,NULL,0,opts,x,y,w,h){
-  texture=NULL;
+GMImageView::GMImageView(FXComposite* p,FXGLContext *ctx,FXuint opts,FXint x,FXint y,FXint w,FXint h) : FXGLCanvas(p,ctx,nullptr,0,opts,x,y,w,h){
+  texture=nullptr;
   }
 
 GMImageView::~GMImageView(){
@@ -177,7 +177,7 @@ GMImageView::~GMImageView(){
 
 void GMImageView::setImage(FXImage * image) {
   if (makeCurrent()) {
-    if (texture==NULL && image) {
+    if (texture==nullptr && image) {
       texture = new GMImageTexture();
       }
     if (texture) texture->setImage(image);

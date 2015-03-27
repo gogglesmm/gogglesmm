@@ -22,7 +22,7 @@
 
 namespace ap {
 
-BufferIO::BufferIO(FXuval sz) : BufferBase(sz),io(NULL),dir(DirNone) {
+BufferIO::BufferIO(FXuval sz) : BufferBase(sz),io(nullptr),dir(DirNone) {
 	}
 
 BufferIO::BufferIO(FXIO * stream,FXuval sz) : FXIO(stream->mode()),BufferBase(sz),io(stream),dir(DirNone) {
@@ -261,7 +261,7 @@ FXbool BufferIO::close() {
 		dir=DirNone;
 		io->close();
 		delete io;
-		io=NULL;
+		io=nullptr;
 		return true;
 		}
 	return true;

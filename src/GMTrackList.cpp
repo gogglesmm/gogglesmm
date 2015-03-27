@@ -140,7 +140,7 @@ GMTrackList::GMTrackList(){
   active=-1;
   font=(FXFont*)-1L;
   activeFont=(FXFont*)-1L;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   textColor=0;
   selbackColor=0;
   seltextColor=0;
@@ -176,7 +176,7 @@ GMTrackList::GMTrackList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   active=-1;
   font=getApp()->getNormalFont();
   activeFont=font;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   textColor=getApp()->getForeColor();
   selbackColor=getApp()->getSelbackColor();
   seltextColor=getApp()->getSelforeColor();
@@ -209,7 +209,7 @@ void GMTrackList::create(){
 
 void GMTrackList::markUnsorted() {
   sortMethod=HEADER_DEFAULT;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   }
 
 // Detach window
@@ -439,11 +439,11 @@ void GMTrackList::appendHeader(const FXString & label,FXint size,GMColumn * colu
   for (FXint i=0;i<header->getNumItems();i++){
     c = getHeaderData(i);
     if (column->index < c->index){
-      header->insertItem(i,label,NULL,size,column);
+      header->insertItem(i,label,nullptr,size,column);
       return;
       }
     }
-  header->appendItem(label,NULL,size,column);
+  header->appendItem(label,nullptr,size,column);
   }
 
 
@@ -475,7 +475,7 @@ void GMTrackList::clearHeaders() {
 
 /// Save header configuration
 void GMTrackList::saveHeaders() {
-  GMColumn * column = NULL;
+  GMColumn * column = nullptr;
   for (FXint i=0;i<header->getNumItems();i++){
     column = getHeaderData(i);
     FXASSERT(column);
@@ -964,7 +964,7 @@ void GMTrackList::draw(FXDC& dc,FXEvent *,FXint index,FXint x,FXint y,FXint w,FX
   const FXString * textptr;
   FXint max=50;
   FXuint justify;
-  FXIcon * icon=NULL;
+  FXIcon * icon=nullptr;
 
   iw=ih=GMIconTheme::instance()->getSmallSize();
 
@@ -1663,7 +1663,7 @@ GMTrackItem *GMTrackList::getItem(FXint index) const {
 FXint GMTrackList::setItem(FXint index,GMTrackItem* item,FXbool notify){
 
   // Must have item
-  if(!item){ fxerror("%s::setItem: item is NULL.\n",getClassName()); }
+  if(!item){ fxerror("%s::setItem: item is nullptr.\n",getClassName()); }
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::setItem: index out of range.\n",getClassName()); }
@@ -1690,7 +1690,7 @@ FXint GMTrackList::insertItem(FXint index,GMTrackItem* item,FXbool notify){
   FXint old=current;
 
   // Must have item
-  if(!item){ fxerror("%s::insertItem: item is NULL.\n",getClassName()); }
+  if(!item){ fxerror("%s::insertItem: item is nullptr.\n",getClassName()); }
 
   // Must be in range
   if(index<0 || items.no()<index){ fxerror("%s::insertItem: index out of range.\n",getClassName()); }
@@ -1910,7 +1910,7 @@ void GMTrackList::clearItems(FXbool notify){
 
 // Change the font
 void GMTrackList::setFont(FXFont* fnt){
-  if(!fnt){ fxerror("%s::setFont: NULL font specified.\n",getClassName()); }
+  if(!fnt){ fxerror("%s::setFont: nullptr font specified.\n",getClassName()); }
   if(font!=fnt){
     font=fnt;
     recalc();
@@ -1920,7 +1920,7 @@ void GMTrackList::setFont(FXFont* fnt){
 
 // Change the font
 void GMTrackList::setActiveFont(FXFont* fnt){
-  if(!fnt){ fxerror("%s::setFont: NULL font specified.\n",getClassName()); }
+  if(!fnt){ fxerror("%s::setFont: nullptr font specified.\n",getClassName()); }
   if(activeFont!=fnt){
     activeFont=fnt;
     recalc();

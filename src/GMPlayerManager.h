@@ -267,7 +267,7 @@ public:
 #ifdef HAVE_DBUS
   GMNotifyDaemon * getNotify() { return notifydaemon; }
 
-  FXbool hasSessionBus() const { return (sessionbus!=NULL) ; }
+  FXbool hasSessionBus() const { return (sessionbus!=nullptr) ; }
 
   void update_mpris();
 #endif

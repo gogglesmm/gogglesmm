@@ -222,7 +222,7 @@ public:
 public:
 
   /// Construct icon list with no items in it initially
-  GMAlbumList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=ICONLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  GMAlbumList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=ICONLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Get Thumbs
   GMCoverRender & getCoverRender() { return covers; }

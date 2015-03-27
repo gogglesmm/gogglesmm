@@ -222,12 +222,12 @@ const FXTextCodec * const codec_list[]={
   &codec_1257,
   &codec_1258,
   &codec_koi8r,
-  NULL
+  nullptr
   };
 
 
 const FXTextCodec * const codec_user_list[]={
-  NULL, //ascii
+  nullptr, //ascii
   &codec_utf8,
   &codec_88591,
   &codec_88592,
@@ -284,13 +284,13 @@ extern const FXTextCodec * ap_get_textcodec(const FXString & encoding) {
       return codec_list[i];
       }
     const FXchar * const * alias = codec_list[i]->aliases();
-    for (FXint j=0;alias[j]!=NULL;j++) {
+    for (FXint j=0;alias[j]!=nullptr;j++) {
       if (comparecase(alias[j],encoding)==0) {
         return codec_list[i];
         }
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -471,7 +471,7 @@ FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode)
 #endif
     do {
 #ifdef HAVE_PPOLL
-      n = ppoll(fds,nfds,&ts,NULL);
+      n = ppoll(fds,nfds,&ts,nullptr);
 #else
       n = poll(fds,nfds,(timeout/1000000));
 #endif
@@ -481,7 +481,7 @@ FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode)
   else {
     do {
 #ifdef HAVE_PPOLL
-      n = ppoll(fds,nfds,NULL,NULL);
+      n = ppoll(fds,nfds,nullptr,nullptr);
 #else
       n = poll(fds,nfds,-1);
 #endif

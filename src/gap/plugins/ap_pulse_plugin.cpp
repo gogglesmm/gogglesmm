@@ -81,14 +81,14 @@ public:
       event         = recycle;
       event->handle = fd;
       event->mode   = fromPulse(events);
-      recycle       = NULL;
+      recycle       = nullptr;
       }
     else {
       event = new pa_io_event(fd,fromPulse(events));
       }
     event->callback         = cb;
     event->userdata         = userdata;
-    event->destroy_callback = NULL;
+    event->destroy_callback = nullptr;
     PulseOutput::instance->output->getReactor().addInput(event);
     return event;
     }
@@ -97,7 +97,7 @@ public:
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
     PulseOutput::instance->output->getReactor().removeInput(event);
-    if (recycle==NULL)
+    if (recycle==nullptr)
       recycle=event;
     else
       delete event;
@@ -123,7 +123,7 @@ public:
   pa_time_event_destroy_cb_t  destroy_callback;
   void*                       userdata;
 public:
-  pa_time_event() : callback(NULL),destroy_callback(NULL),userdata(NULL) {}
+  pa_time_event() : callback(nullptr),destroy_callback(nullptr),userdata(nullptr) {}
 
   virtual void onExpired() {
     struct timeval tv;
@@ -137,7 +137,7 @@ public:
     pa_time_event * event;
     if (recycle) {
       event   = recycle;
-      recycle = NULL;
+      recycle = nullptr;
       }
     else {
       event = new pa_time_event();
@@ -152,7 +152,7 @@ public:
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
     PulseOutput::instance->output->getReactor().removeTimer(event);
-    if (recycle==NULL)
+    if (recycle==nullptr)
       recycle=event;
     else
       delete event;
@@ -193,14 +193,14 @@ public:
     pa_defer_event * event;
     if (recycle) {
       event   = recycle;
-      recycle = NULL;
+      recycle = nullptr;
       }
     else  {
       event = new pa_defer_event();
       }
     event->callback         = cb;
     event->userdata         = userdata;
-    event->destroy_callback = NULL;
+    event->destroy_callback = nullptr;
 
     PulseOutput::instance->output->getReactor().addDeferred(event);
     return event;
@@ -219,7 +219,7 @@ public:
 
     PulseOutput::instance->output->getReactor().removeDeferred(event);
 
-    if (recycle==NULL)
+    if (recycle==nullptr)
       recycle = event;
     else
       delete event;
@@ -257,10 +257,10 @@ FXuint GMAPI ap_version = AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICA
 namespace ap {
 
 
-PulseOutput * PulseOutput::instance = NULL;
+PulseOutput * PulseOutput::instance = nullptr;
 
-PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(NULL),stream(NULL),pulsevolume(PA_VOLUME_MUTED) {
-  FXASSERT(instance==NULL);
+PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(nullptr),stream(nullptr),pulsevolume(PA_VOLUME_MUTED) {
+  FXASSERT(instance==nullptr);
   instance                = this;
   api.userdata            = this;
   api.io_new              = pa_io_event::create; //pulse_io_new;
@@ -276,14 +276,14 @@ PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(N
   api.time_free           = pa_time_event::destroy; //pulse_time_free;
   api.time_set_destroy    = pa_time_event::set_destroy; //pulse_time_set_destroy;
   api.quit                = pulse_quit;
-  pa_io_event::recycle    = NULL;
-  pa_time_event::recycle  = NULL;
-  pa_defer_event::recycle = NULL;
+  pa_io_event::recycle    = nullptr;
+  pa_time_event::recycle  = nullptr;
+  pa_defer_event::recycle = nullptr;
   }
 
 PulseOutput::~PulseOutput() {
   close();
-  instance=NULL;
+  instance=nullptr;
   }
 
 static FXbool to_pulse_format(const AudioFormat & af,pa_sample_format & pulse_format){
@@ -356,7 +356,7 @@ void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * inf
 void PulseOutput::context_subscribe_callback(pa_context * context, pa_subscription_event_type_t type, uint32_t index, void *userdata){
   PulseOutput * out = static_cast<PulseOutput*>(userdata);
 
-  if (out->stream==NULL)
+  if (out->stream==nullptr)
     return;
 
   if (pa_stream_get_index(out->stream)!=index)
@@ -378,12 +378,12 @@ void PulseOutput::context_subscribe_callback(pa_context * context, pa_subscripti
 FXbool PulseOutput::open() {
 
   /// Start the mainloop
-  //if (eventloop==NULL) {
+  //if (eventloop==nullptr) {
    // eventloop = new PulseReactor();
    // }
 
   /// Get a context
-  if (context==NULL) {
+  if (context==nullptr) {
     context = pa_context_new(&api,"Goggles Music Manager");
 #ifdef DEBUG
     pa_context_set_state_callback(context,context_state_callback,this);
@@ -394,7 +394,7 @@ FXbool PulseOutput::open() {
   /// Try connecting
   GM_DEBUG_PRINT("pa_context_connect()\n");
   if (pa_context_get_state(context)==PA_CONTEXT_UNCONNECTED) {
-    if (pa_context_connect(context,NULL,PA_CONTEXT_NOFLAGS,NULL)<0) {
+    if (pa_context_connect(context,nullptr,PA_CONTEXT_NOFLAGS,nullptr)<0) {
       GM_DEBUG_PRINT("pa_context_connect failed\n");
       return false;
       }
@@ -411,7 +411,7 @@ FXbool PulseOutput::open() {
     output->wait_plugin_events();
     }
 
-  pa_operation* operation = pa_context_subscribe(context,PA_SUBSCRIPTION_MASK_SINK_INPUT,NULL,this);
+  pa_operation* operation = pa_context_subscribe(context,PA_SUBSCRIPTION_MASK_SINK_INPUT,nullptr,this);
   if (operation) pa_operation_unref(operation);
 
 
@@ -428,14 +428,14 @@ void PulseOutput::close() {
     GM_DEBUG_PRINT("disconnecting stream\n");
     pa_stream_disconnect(stream);
     pa_stream_unref(stream);
-    stream=NULL;
+    stream=nullptr;
     }
 
   if (context) {
     GM_DEBUG_PRINT("disconnecting context\n");
     pa_context_disconnect(context);
     pa_context_unref(context);
-    context=NULL;
+    context=nullptr;
     }
 #ifdef DEBUG
   output->getReactor().debug();
@@ -444,9 +444,9 @@ void PulseOutput::close() {
   delete pa_io_event::recycle;
   delete pa_time_event::recycle;
   delete pa_defer_event::recycle;
-  pa_io_event::recycle    = NULL;
-  pa_time_event::recycle  = NULL;
-  pa_defer_event::recycle = NULL;
+  pa_io_event::recycle    = nullptr;
+  pa_time_event::recycle  = nullptr;
+  pa_defer_event::recycle = nullptr;
   pulsevolume             = PA_VOLUME_MUTED;
   af.reset();
   }
@@ -459,7 +459,7 @@ void PulseOutput::volume(FXfloat v) {
     pulsevolume = (pa_volume_t)(v*PA_VOLUME_NORM);
     pa_cvolume cvol;
     pa_cvolume_set(&cvol,af.channels,pulsevolume);
-    pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&cvol,NULL,NULL);
+    pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&cvol,nullptr,nullptr);
     pa_operation_unref(operation);
     }
   }
@@ -478,14 +478,14 @@ FXint PulseOutput::delay() {
 
 void PulseOutput::drop() {
   if (stream) {
-    pa_operation* operation = pa_stream_flush(stream,NULL,0);
+    pa_operation* operation = pa_stream_flush(stream,nullptr,0);
     pa_operation_unref(operation);
     }
   }
 
 void PulseOutput::drain() {
   if (stream) {
-    pa_operation * operation = pa_stream_drain(stream,NULL,NULL);
+    pa_operation * operation = pa_stream_drain(stream,nullptr,nullptr);
     while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
       output->wait_plugin_events();
     pa_operation_unref(operation);
@@ -496,8 +496,8 @@ void PulseOutput::pause(FXbool) {
   }
 
 FXbool PulseOutput::configure(const AudioFormat & fmt){
-  const pa_sample_spec * config=NULL;
-  pa_operation *operation=NULL;
+  const pa_sample_spec * config=nullptr;
+  pa_operation *operation=nullptr;
 
   if (!open())
     return false;
@@ -508,7 +508,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   if (stream) {
     pa_stream_disconnect(stream);
     pa_stream_unref(stream);
-    stream=NULL;
+    stream=nullptr;
     }
 
   pa_sample_spec spec;
@@ -548,7 +548,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
 #endif
   //pa_stream_set_write_callback(stream,stream_write_callback,this);
 
-  if (pa_stream_connect_playback(stream,NULL,NULL,PA_STREAM_NOFLAGS,NULL,NULL)<0)
+  if (pa_stream_connect_playback(stream,nullptr,nullptr,PA_STREAM_NOFLAGS,nullptr,nullptr)<0)
     goto failed;
 
   /// Wait until stream is ready
@@ -595,7 +595,7 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
       output->wait_plugin_events();
       continue;
       }
-    pa_stream_write(stream,buffer,n,NULL,0,PA_SEEK_RELATIVE);
+    pa_stream_write(stream,buffer,n,nullptr,0,PA_SEEK_RELATIVE);
     total-=n;
     buffer+=n;
     }

@@ -48,11 +48,11 @@ FXDEFMAP(GMSourceView) GMSourceViewMap[]={
 
 FXIMPLEMENT(GMSourceView,GMScrollFrame,GMSourceViewMap,ARRAYNUMBER(GMSourceViewMap))
 
-GMSourceView::GMSourceView() : source(NULL) {
+GMSourceView::GMSourceView() : source(nullptr) {
   }
 
-GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) , source(NULL) {
-  sourcelistheader = new GMHeaderButton(this,tr("Sources\tPress to change sorting order\tPress to change sorting order"),NULL,this,ID_SOURCE_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
+GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) , source(nullptr) {
+  sourcelistheader = new GMHeaderButton(this,tr("Sources\tPress to change sorting order\tPress to change sorting order"),nullptr,this,ID_SOURCE_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
   sourcelist       = new GMTreeList(this,this,ID_SOURCE_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|TREELIST_BROWSESELECT);
 
   sourcelist->dropEnable();
@@ -134,7 +134,7 @@ static FXIcon * icon_for_sourcetype(FXint type) {
     case SOURCE_PODCAST           : return GMIconTheme::instance()->icon_source_podcast; break;
     default                       : break;
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -169,7 +169,7 @@ void GMSourceView::init() {
       }
     }
 
-  if (sourcelist->getCurrentItem()==NULL && sourcelist->getFirstItem())
+  if (sourcelist->getCurrentItem()==nullptr && sourcelist->getFirstItem())
     sourcelist->setCurrentItem(sourcelist->getFirstItem());
 
   source=(GMSource*)sourcelist->getItemData(sourcelist->getCurrentItem());
@@ -183,8 +183,8 @@ void GMSourceView::resort() {
 
 
 FXbool GMSourceView::listsources() {
-  GMTreeItem * item=NULL;
-  GMTreeItem * dbitem=NULL;
+  GMTreeItem * item=nullptr;
+  GMTreeItem * dbitem=nullptr;
   for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++){
     GMSource * src = GMPlayerManager::instance()->getSource(i);
     FXIcon * icon=icon_for_sourcetype(src->getType());
@@ -194,7 +194,7 @@ FXbool GMSourceView::listsources() {
       dbitem->setExpanded(true);
       }
     else
-      sourcelist->appendItem(NULL,item);
+      sourcelist->appendItem(nullptr,item);
     if (src->getType()==SOURCE_DATABASE) dbitem=item;
     }
   sourcelist->sortItems();
@@ -284,7 +284,7 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
   if (event->moved) return 0;
   GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   GMMenuPane pane(this);
-  GMSource * src = item ? static_cast<GMSource*>(item->getData()) : NULL;
+  GMSource * src = item ? static_cast<GMSource*>(item->getData()) : nullptr;
   FXbool src_items = false;
 
   if (src)
@@ -297,7 +297,7 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
     }
 
   // Install Source Items (Group by source)
-  if (src==NULL || src_items==false) {
+  if (src==nullptr || src_items==false) {
     FXint nadded=(&pane)->numChildren();
     FXint nlast=(&pane)->numChildren();
     for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++) {
@@ -316,13 +316,13 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
 
   if (item) {
     sourcelist->setCurrentItem(item);
-    onCmdSourceSelected(NULL,0,NULL); // Simulate SEL_COMMAND
+    onCmdSourceSelected(nullptr,0,nullptr); // Simulate SEL_COMMAND
     }
 
   if (pane.getFirst()){
     pane.create();
     ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-    pane.popup(NULL,event->root_x,event->root_y);
+    pane.popup(nullptr,event->root_x,event->root_y);
     getApp()->runPopup(&pane);
     }
   return 1;
@@ -346,14 +346,14 @@ long GMSourceView::onDndSourceMotion(FXObject*,FXSelector,void*ptr){
       freeElms(types);
       }
     }
-  sourcedrop=NULL;
+  sourcedrop=nullptr;
   return 0;
   }
 
 long GMSourceView::onDndSourceDrop(FXObject*,FXSelector,void*ptr){
   if (sourcedrop) {
     long code =  sourcedrop->handle(this,FXSEL(SEL_DND_DROP,GMSource::ID_DROP),ptr);
-    sourcedrop=NULL;
+    sourcedrop=nullptr;
     return code;
     }
   return 0;

@@ -28,8 +28,8 @@ ThreadQueue::ThreadQueue() : EventQueue() {
   }
 
 ThreadQueue::~ThreadQueue() {
-  FXASSERT(head==NULL);
-  FXASSERT(tail==NULL);
+  FXASSERT(head==nullptr);
+  FXASSERT(tail==nullptr);
   }
 
 FXbool ThreadQueue::init() {
@@ -38,8 +38,8 @@ FXbool ThreadQueue::init() {
 
 void ThreadQueue::free() {
   flush();
-  FXASSERT(head==NULL);
-  FXASSERT(tail==NULL);
+  FXASSERT(head==nullptr);
+  FXASSERT(tail==nullptr);
   pfifo.close();
   }
 
@@ -51,7 +51,7 @@ void ThreadQueue::post(Event*event,FXint where) {
   if (where==Flush) {
     mfifo.lock();
       Event * h = head;
-      event->next=NULL;
+      event->next=nullptr;
       head = tail = event;
       pfifo.signal();
     mfifo.unlock();
@@ -60,7 +60,7 @@ void ThreadQueue::post(Event*event,FXint where) {
     while(h) {
       event = h;
       h = h->next;
-      event->next = NULL;
+      event->next = nullptr;
       Event::unref(event);
       }
     }
@@ -68,9 +68,9 @@ void ThreadQueue::post(Event*event,FXint where) {
     mfifo.lock();
 
     if (tail) tail->next = event;
-    event->next=NULL;
+    event->next=nullptr;
     tail = event;
-    if (head==NULL) {
+    if (head==nullptr) {
       head=tail;
       pfifo.signal();
       }
@@ -82,7 +82,7 @@ void ThreadQueue::post(Event*event,FXint where) {
     event->next=head;
     head=event;
     pfifo.signal();
-    if (tail==NULL) {
+    if (tail==nullptr) {
       tail=head;
       }
     mfifo.unlock();
@@ -90,14 +90,14 @@ void ThreadQueue::post(Event*event,FXint where) {
   }
 
 Event * ThreadQueue::pop() {
-  Event * event=NULL;
+  Event * event=nullptr;
   mfifo.lock();
   if (head) {
     event=head;
     head=head->next;
-    event->next=NULL;
-    if (head==NULL) {
-      tail=NULL;
+    event->next=nullptr;
+    if (head==nullptr) {
+      tail=nullptr;
       pfifo.clear();
       }
     }
@@ -119,16 +119,16 @@ FXbool ThreadQueue::checkAbort() {
 
 
 void ThreadQueue::flush() {
-  Event * event = NULL;
+  Event * event = nullptr;
   mfifo.lock();
   Event * h = head;
-  head=tail=NULL;
+  head=tail=nullptr;
   pfifo.clear();
   mfifo.unlock();
   while(h) {
     event = h;
     h = h->next;
-    event->next = NULL;
+    event->next = nullptr;
     Event::unref(event);
     }
   }
@@ -147,15 +147,15 @@ FXuchar ThreadQueue::peek() {
 
 /// Pop typed event
 Event * ThreadQueue::pop_if(FXuchar requested,FXbool & other){
-  Event * event = NULL;
+  Event * event = nullptr;
   mfifo.lock();
   pfifo.clear();
   if (head) {
     if (head->type==requested) {
       event = head;
       head = head->next;
-      event->next = NULL;
-      if (head==NULL) tail=NULL;
+      event->next = nullptr;
+      if (head==nullptr) tail=nullptr;
       other=false;
       }
     else {
@@ -168,15 +168,15 @@ Event * ThreadQueue::pop_if(FXuchar requested,FXbool & other){
 
 /// Pop typed event
 Event * ThreadQueue::pop_if_not(FXuchar r1,FXuchar r2){
-  Event * event = NULL;
+  Event * event = nullptr;
   mfifo.lock();
   pfifo.clear();
   if (head) {
     if ((head->type!=r1) && (head->type!=r2)) {
       event = head;
       head = head->next;
-      event->next = NULL;
-      if (head==NULL) tail=NULL;
+      event->next = nullptr;
+      if (head==nullptr) tail=nullptr;
       }
     }
   mfifo.unlock();

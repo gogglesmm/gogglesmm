@@ -22,7 +22,7 @@
 #include "GMCover.h"
 #include "GMCoverManager.h"
 
-GMCoverManager::GMCoverManager() : cover(NULL){
+GMCoverManager::GMCoverManager() : cover(nullptr){
   }
 
 GMCoverManager::~GMCoverManager(){
@@ -32,7 +32,7 @@ GMCoverManager::~GMCoverManager(){
 void GMCoverManager::clear() {
   if (cover) {
     delete cover;
-    cover = NULL;
+    cover = nullptr;
     }
 
   if (!share.empty()){
@@ -57,7 +57,7 @@ FXbool GMCoverManager::load(const FXString & filename) {
 
     // Load
     cover = GMCover::fromTag(filename);
-    if (cover==NULL) {
+    if (cover==nullptr) {
       cover = GMCover::fromPath(path);
       if (cover) source=path;
       }

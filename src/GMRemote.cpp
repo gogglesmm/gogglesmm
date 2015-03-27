@@ -44,9 +44,9 @@ FXDEFMAP(GMRemote) GMRemoteMap[]={
 // Implementation
 FXIMPLEMENT(GMRemote,FXMainWindow,GMRemoteMap,ARRAYNUMBER(GMRemoteMap))
 
-GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggles Music Manager",NULL,NULL,DECOR_BORDER|DECOR_TITLE|DECOR_CLOSE|DECOR_STRETCHABLE,0,0,0,0,3,3,3,3,3,3){
+GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggles Music Manager",nullptr,nullptr,DECOR_BORDER|DECOR_TITLE|DECOR_CLOSE|DECOR_STRETCHABLE,0,0,0,0,3,3,3,3,3,3){
   flags|=FLAG_ENABLED;
-  cover=NULL;
+  cover=nullptr;
 
   setTarget(tgt);
   setSelector(msg);
@@ -90,19 +90,19 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   time_label->setTarget(this);
   time_label->setSelector(ID_TIME_LABEL);
   new FXVerticalSeparator(buttons,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
-  volumebutton = new FXMenuButton(buttons,tr("\tAdjust Volume\tAdjust Volume"),NULL,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y);
+  volumebutton = new FXMenuButton(buttons,tr("\tAdjust Volume\tAdjust Volume"),nullptr,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y);
   volumebutton->setTarget(this);
   volumebutton->setSelector(ID_VOLUME_BUTTON);
 
   FXVerticalFrame * info = new FXVerticalFrame(this,LAYOUT_CENTER_Y|FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,2,2,2,2,0,0);
-  title_label = new FXTextField(info,20,NULL,0,FRAME_NONE|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
+  title_label = new FXTextField(info,20,nullptr,0,FRAME_NONE|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
   title_label->setBackColor(getApp()->getBaseColor());
   title_label->setFont(font_title);
   title_label->setDefaultCursor(getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
   title_label->setDragCursor(getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
   title_label->disable();
 
-  artistalbum_label = new FXTextField(info,30,NULL,0,FRAME_NONE|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
+  artistalbum_label = new FXTextField(info,30,nullptr,0,FRAME_NONE|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
   artistalbum_label->setBackColor(getApp()->getBaseColor());
   artistalbum_label->setDefaultCursor(getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
@@ -126,13 +126,13 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
 
 // Destroy main window
 GMRemote::~GMRemote(){
-  volumeslider->setTarget(NULL);
+  volumeslider->setTarget(nullptr);
   volumeslider->setSelector(0);
-  volumebutton->setMenu(NULL);
+  volumebutton->setMenu(nullptr);
 
   if (cover) {
     delete cover;
-    cover=NULL;
+    cover=nullptr;
     }
   updateCover();
   }
@@ -148,7 +148,7 @@ void GMRemote::writeRegistry(){
   }
 
 void GMRemote::updateCover() {
-  if (cover==NULL) {
+  if (cover==nullptr) {
     cover_label->setImage(img_default);
     }
   else {
@@ -192,7 +192,7 @@ void GMRemote::reset(){
 
   if (cover) {
     delete cover;
-    cover=NULL;
+    cover=nullptr;
     }
   updateCover();
 
@@ -256,7 +256,7 @@ void GMRemote::update_volume_display(FXint level) {
 void GMRemote::update_cover_display() {
   if (cover) {
     delete cover;
-    cover=NULL;
+    cover=nullptr;
     }
   cover = GMCover::copyToImage(GMPlayerManager::instance()->getCoverManager()->getCover(),64);
   updateCover();

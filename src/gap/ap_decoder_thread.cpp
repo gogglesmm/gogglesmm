@@ -38,7 +38,7 @@
 
 namespace ap {
 
-DecoderThread::DecoderThread(AudioEngine*e) : EngineThread(e),plugin(NULL) {
+DecoderThread::DecoderThread(AudioEngine*e) : EngineThread(e),plugin(nullptr) {
   }
 
 DecoderThread::~DecoderThread() {
@@ -69,7 +69,7 @@ void DecoderThread::configure(ConfigureEvent * event) {
       goto forward;
       }
     delete plugin;
-    plugin=NULL;
+    plugin=nullptr;
     }
   plugin = DecoderPlugin::open(engine,event->codec);
   if (plugin) {
@@ -95,7 +95,7 @@ forward:
 
 
 FXint DecoderThread::run(){
-  Event * event=NULL;
+  Event * event=nullptr;
 
   ap_set_thread_name("ap_decoder");
 
@@ -114,7 +114,7 @@ FXint DecoderThread::run(){
       case Ctrl_Quit: GM_DEBUG_PRINT("[decoder] quit\n");
                       if (plugin) {
                         delete plugin;
-                        plugin=NULL;
+                        plugin=nullptr;
                         }
                       /// forward to output thread
                       engine->output->post(event,EventQueue::Flush);
@@ -136,7 +136,7 @@ FXint DecoderThread::run(){
                         switch(plugin->process(dynamic_cast<Packet*>(event))){
                           case DecoderError:
                                                            delete plugin;
-                                                           plugin=NULL;
+                                                           plugin=nullptr;
                                                            GM_DEBUG_PRINT("[decoder] fatal error");
                                                            engine->input->post(new ControlEvent(Ctrl_Close));
                                                            engine->post(new ErrorMessage("Fatal decoder error"));
@@ -155,7 +155,7 @@ FXint DecoderThread::run(){
 
 Event * DecoderThread::wait_for_packet() {
   Event * event = fifo.pop();
-  if (event==NULL) {
+  if (event==nullptr) {
     ap_wait(fifo.handle());
     event = fifo.pop();
     }
@@ -164,23 +164,23 @@ Event * DecoderThread::wait_for_packet() {
   }
 
 Packet * DecoderThread::get_decoder_packet() {
-  Event * event = NULL;
+  Event * event = nullptr;
   FXbool other=false;
   do {
     event = fifo.pop_if(Buffer,other);
     if (event)  {
-      FXASSERT(event->next==NULL);
+      FXASSERT(event->next==nullptr);
       return dynamic_cast<Packet*>(event);
       }
 
-    if (other) return NULL;
+    if (other) return nullptr;
     ap_wait(fifo.handle());
 
 /*
     type = fifo.peek();
 
     if (type==Ctrl_Quit || type==Configure || type==Flush) {
-      return NULL;
+      return nullptr;
       }
 
     if (type!=Invalid) {
@@ -191,17 +191,17 @@ Packet * DecoderThread::get_decoder_packet() {
     */
     }
   while(1);
-  return NULL;
+  return nullptr;
   }
 
 Packet * DecoderThread::get_output_packet() {
-//  Event * event = NULL;
+//  Event * event = nullptr;
   FXuchar type;
   do {
     type = fifo.peek();
 
     if (type!=Buffer && type!=AP_INVALID)
-      return NULL;
+      return nullptr;
 
     Packet * packet = packetpool.pop();
     if (packet) {
@@ -219,7 +219,7 @@ Packet * DecoderThread::get_output_packet() {
     ap_wait(packetpool.handle(),fifo.handle());
     }
   while(1);
-  return NULL;
+  return nullptr;
   }
 
 }

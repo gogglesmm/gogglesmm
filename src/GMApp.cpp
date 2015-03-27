@@ -63,12 +63,12 @@ public:
     textdomain(PACKAGE);
     GM_DEBUG_PRINT("localedir: %s\n",LOCALEDIR);
     };
-  virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=NULL,FXint count=-1) const;
+  virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=nullptr,FXint count=-1) const;
   ~GMTranslator() {}
 
   };
 
-FXIMPLEMENT(GMTranslator,FXTranslator,NULL,0)
+FXIMPLEMENT(GMTranslator,FXTranslator,nullptr,0)
 
 
 const FXchar* GMTranslator::tr(const FXchar*,const FXchar* message,const FXchar*,FXint) const {
@@ -80,21 +80,21 @@ const FXchar* GMTranslator::tr(const FXchar*,const FXchar* message,const FXchar*
 
 extern const FXchar * fxtr(const FXchar *x){
 #ifdef HAVE_NLS
-  return FXApp::instance()->getTranslator()->tr(NULL,x);
+  return FXApp::instance()->getTranslator()->tr(nullptr,x);
 #else
   return x;
 #endif
   }
 
 
-FXIMPLEMENT(GMApp,FXApp,NULL,0)
+FXIMPLEMENT(GMApp,FXApp,nullptr,0)
 
 GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
   clipboard = new GMClipboard(this);
   xembed=0;
 #ifdef HAVE_OPENGL
-  glvisual=NULL;
-  glcontext=NULL;
+  glvisual=nullptr;
+  glcontext=nullptr;
 #endif
   }
 
@@ -280,7 +280,7 @@ FXbool GMApp::hasOpenGL() {
 
 
 void GMApp::initOpenGL() {
-  if (glcontext == NULL) {
+  if (glcontext == nullptr) {
     glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
     glcontext = new FXGLContext(this,glvisual);
 
@@ -302,11 +302,11 @@ void GMApp::initOpenGL() {
 void GMApp::releaseOpenGL() {
   if (glcontext) {
     delete glcontext;
-    glcontext=NULL;
+    glcontext=nullptr;
     }
   if (glvisual) {
     delete glvisual;
-    glvisual=NULL;
+    glvisual=nullptr;
     }
   }
 
@@ -332,7 +332,7 @@ enum {
 static FXuint keysym(FXRawEvent& event){
   KeySym sym=KEY_VoidSymbol;
   char buffer[40];
-  XLookupString(&event.xkey,buffer,sizeof(buffer),&sym,NULL);
+  XLookupString(&event.xkey,buffer,sizeof(buffer),&sym,nullptr);
   return sym;
   }
 
@@ -359,8 +359,8 @@ FXbool GMApp::dispatchEvent(FXRawEvent & ev) {
   if (window && ev.xany.type==ClientMessage && ev.xclient.message_type==xembed) {
     switch(ev.xclient.data.l[1]) {
       case XEMBED_EMBEDDED_NOTIFY: window->tryHandle(this,FXSEL(SEL_EMBED_NOTIFY,0),(void*)(FXival)ev.xclient.data.l[3]); break;
-      case XEMBED_MODALITY_ON    : window->tryHandle(this,FXSEL(SEL_EMBED_MODAL_ON,0),NULL); break;
-      case XEMBED_MODALITY_OFF   : window->tryHandle(this,FXSEL(SEL_EMBED_MODAL_OFF,0),NULL); break;
+      case XEMBED_MODALITY_ON    : window->tryHandle(this,FXSEL(SEL_EMBED_MODAL_ON,0),nullptr); break;
+      case XEMBED_MODALITY_OFF   : window->tryHandle(this,FXSEL(SEL_EMBED_MODAL_OFF,0),nullptr); break;
       default                    : /*fxmessage("Missed a message %d\n",ev.xclient.data.l[1]);*/ break;
       }
     return true;
@@ -378,7 +378,7 @@ FXIMPLEMENT(GMPlug,FXTopWindow,GMPlugMap,ARRAYNUMBER(GMPlugMap));
 GMPlug::GMPlug(){
   }
 
-GMPlug::GMPlug(FXApp * a) : FXTopWindow(a,"gogglesmm",NULL,NULL,DECOR_NONE,0,0,1,1,0,0,0,0,0,0) , socket(0) {
+GMPlug::GMPlug(FXApp * a) : FXTopWindow(a,"gogglesmm",nullptr,nullptr,DECOR_NONE,0,0,1,1,0,0,0,0,0,0) , socket(0) {
   }
 
 GMPlug::~GMPlug(){
@@ -447,7 +447,7 @@ void ewmh_set_window_icon(const FXWindow * window,FXImage * icon) {
 #ifndef WIN32
   Atom net_wm_icon = XInternAtom((Display*)window->getApp()->getDisplay(),"_NET_WM_ICON",False);
 
-  unsigned long * data=NULL;
+  unsigned long * data=nullptr;
   int nelems=2+(icon->getWidth()*icon->getHeight());
 
   allocElms(data,nelems);

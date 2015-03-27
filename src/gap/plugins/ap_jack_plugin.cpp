@@ -59,8 +59,8 @@ JackOutput::~JackOutput() {
   }
 
 FXbool JackOutput::open() {
-  jack = jack_client_open("gap",JackNoStartServer,NULL);
-  if (jack==NULL) {
+  jack = jack_client_open("gap",JackNoStartServer,nullptr);
+  if (jack==nullptr) {
     return false;
     }
   return false;
@@ -69,7 +69,7 @@ FXbool JackOutput::open() {
 void JackOutput::close() {
   if (jack) {
     jack_client_close(jack);
-    jack=NULL;
+    jack=nullptr;
     }
   af.reset();
   }

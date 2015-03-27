@@ -41,15 +41,15 @@ namespace ap {
 
 OggDecoder::OggDecoder(AudioEngine*e) : DecoderPlugin(e),
   buffer(32768),
-  packet_start_ptr(NULL),
-  out(NULL),
+  packet_start_ptr(nullptr),
+  out(nullptr),
   stream_position(-1) {
   }
 
 OggDecoder::~OggDecoder() {
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
   }
 
@@ -66,7 +66,7 @@ FXbool OggDecoder::flush(FXlong offset) {
   stream_position=-1;
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
   return true;
   }
@@ -96,7 +96,7 @@ void OggDecoder::set_packet_offset(const FXuchar * offset) {
 void OggDecoder::push_back_packet() {
   if (packet_start_ptr) {
     buffer.setReadPosition(packet_start_ptr);
-    packet_start_ptr=NULL;
+    packet_start_ptr=nullptr;
     }
   }
 

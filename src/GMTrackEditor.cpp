@@ -230,13 +230,13 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
   GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Renaming Audio Files…"),fxtr("The following audio files are going to be renamed"));
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("&Rename"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Rename"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
 
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
   GMScrollFrame * sunken = new GMScrollFrame(main);
-  GMList * list = new GMList(sunken,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  GMList * list = new GMList(sunken,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
   for (i=0;i<tracks.no();i++) {
     if (!newurls[i].empty()) {
@@ -292,39 +292,39 @@ GMFilenameTemplateDialog::GMFilenameTemplateDialog(FXWindow*p) : FXDialogBox(p,F
 
   FXVerticalFrame * main=new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
-  new FXLabel(main,tr("Template may contain absolute or relative path, environment variables\nand ~. Relative paths are based on the location of the original file. The\nfile extension gets automatically added. The following macros\nmay be used:"),NULL,JUSTIFY_LEFT);
+  new FXLabel(main,tr("Template may contain absolute or relative path, environment variables\nand ~. Relative paths are based on the location of the original file. The\nfile extension gets automatically added. The following macros\nmay be used:"),nullptr,JUSTIFY_LEFT);
   FXLabel * label = new FXLabel(main,tr("%T - title                   %A - album name\n"
                                         "%P - album artist name       %p - track artist name\n"
                                         "%w - composer                %c - conductor\n"
                                         "%y - year                    %d - disc number\n"
-                                        "%N - track number (2 digits) %n - track number      \n%G - genre"),NULL,JUSTIFY_LEFT,0,0,0,0,30);
+                                        "%N - track number (2 digits) %n - track number      \n%G - genre"),nullptr,JUSTIFY_LEFT,0,0,0,0,30);
   label->setFont(font_fixed);
 
-  new FXLabel(main,tr("Conditions may be used as well:"),NULL,JUSTIFY_LEFT);
+  new FXLabel(main,tr("Conditions may be used as well:"),nullptr,JUSTIFY_LEFT);
   label = new FXLabel(main,tr("?c<a|b> - display a if c is not empty else display b.\n"
                                         "?c      - display c if not empty\n"
-                                        ),NULL,JUSTIFY_LEFT,0,0,0,0,30);
+                                        ),nullptr,JUSTIFY_LEFT,0,0,0,0,30);
   label->setFont(font_fixed);
 
 
   new FXSeparator(main,SEPARATOR_GROOVE|LAYOUT_FILL_X);
 
   FXMatrix * matrix = new FXMatrix(main,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,0,0,4,0);
-  new FXLabel(matrix,tr("Template:"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Template:"),nullptr,labelstyle);
   GMTextField * textfield = new GMTextField(matrix,20,&target_format_template,FXDataTarget::ID_VALUE,LAYOUT_FILL_X|TEXTFIELD_ENTER_ONLY|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
   textfield->setFont(font_fixed);
 
-  new FXLabel(matrix,tr("Encoding:"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Encoding:"),nullptr,labelstyle);
   GMListBox * list_codecs = new GMListBox(matrix,&target_export_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
-  for (int i=0;gmcodecnames[i]!=NULL;i++)
+  for (int i=0;gmcodecnames[i]!=nullptr;i++)
     list_codecs->appendItem(gmcodecnames[i]);
   list_codecs->setNumVisible(9);
 
-  new FXLabel(matrix,tr("Exclude:"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Exclude:"),nullptr,labelstyle);
   textfield = new GMTextField(matrix,15,&target_export_filter,FXDataTarget::ID_VALUE,LAYOUT_FILL_X|TEXTFIELD_ENTER_ONLY|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
   textfield->setFont(font_fixed);
 
-  new FXLabel(matrix,tr("Options:"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Options:"),nullptr,labelstyle);
   new GMCheckButton(matrix,tr("Replace spaces with underscores"),&target_export_underscore,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,fxtr("Lower case"),&target_export_lowercase,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
@@ -333,7 +333,7 @@ GMFilenameTemplateDialog::GMFilenameTemplateDialog(FXWindow*p) : FXDialogBox(p,F
   new FXSeparator(main,SEPARATOR_GROOVE|LAYOUT_FILL_X);
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
-  new GMButton(closebox,fxtr("&Close"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
+  new GMButton(closebox,fxtr("&Close"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
   }
 
 GMFilenameTemplateDialog::~GMFilenameTemplateDialog(){
@@ -358,15 +358,15 @@ static const FXchar update_tags_key[] = "track-update-tags";
 static const FXchar update_filenames_key[] = "track-update-filenames";
 
 GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogBox(p,FXString::null,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0), db(d) {
-  FXPacker * main=NULL;
-  FXHorizontalFrame * hframe = NULL;
-  GMTabBook * tabbook = NULL;
-  FXMatrix * matrix = NULL;
-  GMTabFrame * tabframe = NULL;
+  FXPacker * main=nullptr;
+  FXHorizontalFrame * hframe = nullptr;
+  GMTabBook * tabbook = nullptr;
+  FXMatrix * matrix = nullptr;
+  GMTabFrame * tabframe = nullptr;
 
-  titlefield=NULL;
-  discfield=NULL;
-  discspinner=NULL;
+  titlefield=nullptr;
+  discfield=nullptr;
+  discspinner=nullptr;
 
   GMTrack other;
 
@@ -375,14 +375,14 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
   setTitle(tr("Edit Track Information"));
   FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|PACK_UNIFORM_WIDTH|LAYOUT_FILL_X,0,0,0,0);
   if (tracks.no()==1) { /* only show spinner when one track is selected */
-    new GMButton(closebox,tr("&Previous"),NULL,this,ID_PREV_TRACK,BUTTON_DEFAULT|LAYOUT_LEFT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    new GMButton(closebox,tr("&Next"),NULL,this,ID_NEXT_TRACK,BUTTON_INITIAL|LAYOUT_LEFT|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    new GMButton(closebox,tr("&Save"),NULL,this,ID_ACCEPT,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Previous"),nullptr,this,ID_PREV_TRACK,BUTTON_DEFAULT|LAYOUT_LEFT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Next"),nullptr,this,ID_NEXT_TRACK,BUTTON_INITIAL|LAYOUT_LEFT|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Save"),nullptr,this,ID_ACCEPT,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Close"),nullptr,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
     }
   else {
-    new GMButton(closebox,tr("&Save"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|LAYOUT_RIGHT|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Save"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|LAYOUT_RIGHT|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Close"),nullptr,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
     }
 
   if (tracks.no()==1) { /* only show spinner when one track is selected */
@@ -395,115 +395,115 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
 
   if (tracks.no()==1) { /* only show spinner when one track is selected */
 
-    tabbook = new GMTabBook(main,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+    tabbook = new GMTabBook(main,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
-    new GMTabItem(tabbook,tr("&Tag"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+    new GMTabItem(tabbook,tr("&Tag"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
     tabframe = new GMTabFrame(tabbook);
 
     FXMatrix * tagmatrix = new FXMatrix(tabframe,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS,0,0,0,0,10,10,10,10);
 
-    new GMTabItem(tabbook,tr("&Properties"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+    new GMTabItem(tabbook,tr("&Properties"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
     tabframe = new GMTabFrame(tabbook);
 
     matrix = new FXMatrix(tabframe,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS,0,0,0,0,10,10,10,10);
 
-    new FXLabel(matrix,tr("Path"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    filenamefield = new GMTextField(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
+    new FXLabel(matrix,tr("Path"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    filenamefield = new GMTextField(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    new FXLabel(matrix,tr("Type"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    typefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
+    new FXLabel(matrix,tr("Type"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    typefield = new GMTextField(matrix,20,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    new FXLabel(matrix,tr("Size"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    sizefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
+    new FXLabel(matrix,tr("Size"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    sizefield = new GMTextField(matrix,20,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    bitratelabel = new FXLabel(matrix,FXString::null,NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    bitratefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
+    bitratelabel = new FXLabel(matrix,FXString::null,nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    bitratefield = new GMTextField(matrix,20,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    new FXLabel(matrix,tr("Sample Rate"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    sampleratefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
+    new FXLabel(matrix,tr("Sample Rate"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    sampleratefield = new GMTextField(matrix,20,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
-    new FXLabel(matrix,tr("Channels"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    channelfield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
+    new FXLabel(matrix,tr("Channels"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    channelfield = new GMTextField(matrix,20,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_READONLY);
 
 #if 0
     if (tracks.no()==1){
-      covertab = new GMTabItem(tabbook,tr("Co&ver"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+      covertab = new GMTabItem(tabbook,tr("Co&ver"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
       tabframe = new GMTabFrame(tabbook);
 
       GMScrollFrame * scrollframe = new GMScrollFrame(tabframe);
-      coverview = new FXImageView(scrollframe,NULL,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+      coverview = new FXImageView(scrollframe,nullptr,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
       GMScrollArea::replaceScrollbars(coverview);
       }
 #endif
 
     matrix = tagmatrix;
 
-    new FXLabel(matrix,tr("Trac&k"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    new FXLabel(matrix,tr("Trac&k"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
     hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
 
-    trackspinner = new GMSpinner(hframe,4,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
+    trackspinner = new GMSpinner(hframe,4,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
     trackspinner->setRange(0,1000);
 
-    new FXLabel(hframe,tr("&Disc"),NULL,LABEL_NORMAL|LAYOUT_LEFT|LAYOUT_CENTER_Y);
-    discspinner = new GMSpinner(hframe,3,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
+    new FXLabel(hframe,tr("&Disc"),nullptr,LABEL_NORMAL|LAYOUT_LEFT|LAYOUT_CENTER_Y);
+    discspinner = new GMSpinner(hframe,3,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
     discspinner->setRange(0,100);
 
-    yearfield = new GMTextField(hframe,4,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_RIGHT|TEXTFIELD_INTEGER|TEXTFIELD_LIMITED);
-    new FXLabel(hframe,tr("Y&ear"),NULL,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    yearfield = new GMTextField(hframe,4,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_RIGHT|TEXTFIELD_INTEGER|TEXTFIELD_LIMITED);
+    new FXLabel(hframe,tr("Y&ear"),nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
 
     }
   else {
     matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS,0,0,0,0,0,0,0,0);
 
     if (samemask&SAME_DISC) {
-      new FXLabel(matrix,tr("&Disc"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+      new FXLabel(matrix,tr("&Disc"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
       hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-      discspinner = new GMSpinner(hframe,3,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
+      discspinner = new GMSpinner(hframe,3,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
       discspinner->setRange(0,100);
       }
     else {
-      new FXLabel(matrix,tr("&Disc"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+      new FXLabel(matrix,tr("&Disc"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
       hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-      discfield = new GMTextField(hframe,3,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT|TEXTFIELD_INTEGER|TEXTFIELD_LIMITED|JUSTIFY_RIGHT);
+      discfield = new GMTextField(hframe,3,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT|TEXTFIELD_INTEGER|TEXTFIELD_LIMITED|JUSTIFY_RIGHT);
       }
 
-    yearfield = new GMTextField(hframe,4,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_RIGHT|TEXTFIELD_INTEGER|TEXTFIELD_LIMITED|JUSTIFY_RIGHT);
-    new FXLabel(hframe,tr("Y&ear"),NULL,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    yearfield = new GMTextField(hframe,4,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_RIGHT|TEXTFIELD_INTEGER|TEXTFIELD_LIMITED|JUSTIFY_RIGHT);
+    new FXLabel(hframe,tr("Y&ear"),nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     }
 
   if (tracks.no()==1) {
-    new FXLabel(matrix,tr("T&itle"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    titlefield = new GMTextField(matrix,20,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
+    new FXLabel(matrix,tr("T&itle"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    titlefield = new GMTextField(matrix,20,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
     }
 
-  new FXLabel(matrix,tr("&Artist"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  trackartistbox = new GMComboBox(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
+  new FXLabel(matrix,tr("&Artist"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  trackartistbox = new GMComboBox(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
 
-  new FXLabel(matrix,tr("Album A&rtist"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  albumartistbox = new GMComboBox(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
+  new FXLabel(matrix,tr("Album A&rtist"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  albumartistbox = new GMComboBox(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
 
-  new FXLabel(matrix,tr("A&lbum"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  albumbox = new GMComboBox(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
+  new FXLabel(matrix,tr("A&lbum"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  albumbox = new GMComboBox(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
 
-  new FXLabel(matrix,tr("C&omposer"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  composerbox = new GMComboBox(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
+  new FXLabel(matrix,tr("C&omposer"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  composerbox = new GMComboBox(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
 
-  new FXLabel(matrix,tr("Cond&uctor"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  conductorbox = new GMComboBox(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
+  new FXLabel(matrix,tr("Cond&uctor"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  conductorbox = new GMComboBox(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
 
-  new FXLabel(matrix,tr("Ta&gs"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  tagsfield = new GMTextField(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
+  new FXLabel(matrix,tr("Ta&gs"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  tagsfield = new GMTextField(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_LINE);
 
 
-//  new FXLabel(matrix,tr("&Genre"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+//  new FXLabel(matrix,tr("&Genre"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
 //  hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-//  genrebox = new GMComboBox(hframe,20,NULL,0,LAYOUT_FILL_X|FRAME_LINE);
+//  genrebox = new GMComboBox(hframe,20,nullptr,0,LAYOUT_FILL_X|FRAME_LINE);
 
   if (tracks.no()>1 && tracks.no()<=0xFFFF) {
     new FXFrame(matrix,FRAME_NONE);
     hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-    autonumber = new GMCheckButton(hframe,tr("Auto track number. Offset:"),NULL,0,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL|LAYOUT_CENTER_Y);
-    autonumberoffset = new GMSpinner(hframe,2,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
+    autonumber = new GMCheckButton(hframe,tr("Auto track number. Offset:"),nullptr,0,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL|LAYOUT_CENTER_Y);
+    autonumberoffset = new GMSpinner(hframe,2,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
     autonumber->setTarget(autonumberoffset);
     autonumber->setSelector(FXWindow::ID_TOGGLEENABLED);
     autonumberoffset->disable();
@@ -511,13 +511,13 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     }
 
   new FXFrame(matrix,FRAME_NONE);
-  updatetags = new GMCheckButton(matrix,tr("Update Tag in File"),NULL,0,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+  updatetags = new GMCheckButton(matrix,tr("Update Tag in File"),nullptr,0,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
   new FXFrame(matrix,FRAME_NONE);
 
   hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
 
-  updatefilename = new GMCheckButton(hframe,fxtr("Update Filename"),NULL,0,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL|LAYOUT_CENTER_Y);
-  new GMButton(hframe,tr("Set export template…") ,NULL,this,ID_FILENAME_TEMPLATE,FRAME_RAISED,0,0,0,0);
+  updatefilename = new GMCheckButton(hframe,fxtr("Update Filename"),nullptr,0,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL|LAYOUT_CENTER_Y);
+  new GMButton(hframe,tr("Set export template…") ,nullptr,this,ID_FILENAME_TEMPLATE,FRAME_RAISED,0,0,0,0);
 
   updatetags->setCheck(getApp()->reg().readBoolEntry(defaults_section,update_tags_key,false));
   updatefilename->setCheck(getApp()->reg().readBoolEntry(defaults_section,update_filenames_key,false));

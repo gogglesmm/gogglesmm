@@ -70,7 +70,7 @@ Socket * Socket::create(int domain,int type,int protocol,FXuint mode) {
   if (handle!=BadHandle) {
     return new Socket(handle,mode);
     }
-  return NULL;
+  return nullptr;
   }
 
 

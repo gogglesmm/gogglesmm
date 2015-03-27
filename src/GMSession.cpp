@@ -58,7 +58,7 @@ public:
 public:
   long onConnection(FXObject*,FXSelector,void*ptr) {
     IceConn connection = (IceConn)ptr;
-    IceProcessMessagesStatus status = IceProcessMessages(connection,NULL,NULL);
+    IceProcessMessagesStatus status = IceProcessMessages(connection,nullptr,nullptr);
     if (status==IceProcessMessagesIOError) {
       application->removeInput(IceConnectionNumber(connection),INPUT_READ);
       IceCloseConnection(connection);
@@ -94,7 +94,7 @@ static FXchar * gm_session_from_command(FXint argc,const FXchar * const argv[]){
       return (FXchar*)(argv[i]+10);
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -115,15 +115,15 @@ public:
 
   static void sm_die(SmcConn conn,SmPointer ptr){
     SMClient * client = (SMClient*)ptr;
-    SmcCloseConnection(conn,0,NULL);
-    client->connection = NULL;
+    SmcCloseConnection(conn,0,nullptr);
+    client->connection = nullptr;
     client->session->quit();
     }
 
   static void sm_shutdown_cancelled(SmcConn,SmPointer) {}
   static void sm_save_complete(SmcConn,SmPointer) {}
 public:
-  SMClient(FXApp*app,GMSession * s) : connection(NULL),session(s) {
+  SMClient(FXApp*app,GMSession * s) : connection(nullptr),session(s) {
     icehook = new IceHook(app);
     }
 
@@ -143,10 +143,10 @@ public:
       cb.shutdown_cancelled.client_data = this;
 
       char * previd   = gm_session_from_command(argc,argv);
-      char * clientid = NULL;
+      char * clientid = nullptr;
 
-      connection = SmcOpenConnection(NULL,
-                                     NULL,
+      connection = SmcOpenConnection(nullptr,
+                                     nullptr,
                                      SmProtoMajor,
                                      SmProtoMinor,
                                      SmcSaveYourselfProcMask|SmcDieProcMask|SmcSaveCompleteProcMask|SmcShutdownCancelledProcMask,
@@ -154,7 +154,7 @@ public:
                                      previd,
                                      &clientid,
                                      0,
-                                     NULL);
+                                     nullptr);
       if (connection) {
         //setProperty(SmCurrentDirectory,FXSystem::getCurrentDirectory().text());
         setProperty(SmProcessID,FXString::value(FXProcess::current()).text());
@@ -230,7 +230,7 @@ public:
     }
   };
 
-FXIMPLEMENT(SMClient,FXObject,NULL,0)
+FXIMPLEMENT(SMClient,FXObject,nullptr,0)
 
 
 
@@ -238,7 +238,7 @@ FXIMPLEMENT(SMClient,FXObject,NULL,0)
 
 
 
-FXIMPLEMENT(GMSession,FXObject,NULL,0);
+FXIMPLEMENT(GMSession,FXObject,nullptr,0);
 
 
 GMSession::GMSession(FXApp*app,FXObject*tgt,FXSelector sel) : target(tgt),message(sel) {
@@ -256,7 +256,7 @@ FXbool GMSession::init(FXint argc,const FXchar * const argv[]){
 #if defined(HAVE_SM) && defined(HAVE_ICE)
   if (!smclient->init(argc,argv)){
     delete smclient;
-    smclient=NULL;
+    smclient=nullptr;
     return false;
     }
 #endif
@@ -266,5 +266,5 @@ FXbool GMSession::init(FXint argc,const FXchar * const argv[]){
 
 void GMSession::quit() {
   if (target)
-    target->handle(this,FXSEL(SEL_SESSION_CLOSED,message),NULL);
+    target->handle(this,FXSEL(SEL_SESSION_CLOSED,message),nullptr);
   }

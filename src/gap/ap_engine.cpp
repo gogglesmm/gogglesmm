@@ -35,7 +35,7 @@
 
 namespace ap {
 
-AudioEngine::AudioEngine() : fifo(NULL) {
+AudioEngine::AudioEngine() : fifo(nullptr) {
   input   = new InputThread(this);
   decoder = new DecoderThread(this);
   output  = new OutputThread(this);

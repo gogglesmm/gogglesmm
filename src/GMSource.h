@@ -187,7 +187,7 @@ public:
 
   virtual FXIcon* getAlbumIcon() const;
 
-  virtual GMCoverCache * getCoverCache() const { return NULL; }
+  virtual GMCoverCache * getCoverCache() const { return nullptr; }
 
   virtual void loadCovers() {}
 

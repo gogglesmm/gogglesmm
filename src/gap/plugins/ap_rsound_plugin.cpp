@@ -75,7 +75,7 @@ static FXbool to_rsd_format(const AudioFormat & af,FXint & rsd){
   return true;
   }
 
-RSoundOutput::RSoundOutput(OutputThread * output) : OutputPlugin(output), rsd(NULL) {
+RSoundOutput::RSoundOutput(OutputThread * output) : OutputPlugin(output), rsd(nullptr) {
   }
 
 RSoundOutput::~RSoundOutput() {
@@ -91,7 +91,7 @@ FXbool RSoundOutput::open() {
 void RSoundOutput::close() {
   if (rsd) {
     rsd_free(rsd);
-    rsd=NULL;
+    rsd=nullptr;
     }
   af.reset();
   }
@@ -121,7 +121,7 @@ FXbool RSoundOutput::configure(const AudioFormat & fmt){
   int rsd_rate      = fmt.rate;
   int rsd_channels  = fmt.channels;
 
-  if (__unlikely(rsd==NULL) && !open()) {
+  if (__unlikely(rsd==nullptr) && !open()) {
     goto failed;
     }
 

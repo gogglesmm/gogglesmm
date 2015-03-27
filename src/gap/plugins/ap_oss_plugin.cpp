@@ -161,34 +161,34 @@ FXint OSSOutput::delay() {
 void OSSOutput::drop() {
   if (__likely(handle!=BadHandle)) {
 #ifndef SNDCTL_DSP_SKIP
-    ioctl(handle,SNDCTL_DSP_RESET,NULL);
+    ioctl(handle,SNDCTL_DSP_RESET,nullptr);
 #else
-    ioctl(handle,SNDCTL_DSP_SKIP,NULL);
+    ioctl(handle,SNDCTL_DSP_SKIP,nullptr);
 #endif
     }
   }
 
 void OSSOutput::drain() {
   if (__likely(handle)) {
-    ioctl(handle,SNDCTL_DSP_SYNC,NULL);
+    ioctl(handle,SNDCTL_DSP_SYNC,nullptr);
     }
   }
 
 void OSSOutput::pause(FXbool p) {
   if (p) {
 #if defined(SNDCTL_DSP_SILENCE)
-    ioctl(handle,SNDCTL_DSP_SILENCE,NULL);
+    ioctl(handle,SNDCTL_DSP_SILENCE,nullptr);
 #else
   #ifndef SNDCTL_DSP_SKIP
-    ioctl(handle,SNDCTL_DSP_RESET,NULL);
+    ioctl(handle,SNDCTL_DSP_RESET,nullptr);
   #else
-    ioctl(handle,SNDCTL_DSP_SKIP,NULL);
+    ioctl(handle,SNDCTL_DSP_SKIP,nullptr);
   #endif
 #endif
     }
   else {
 #if defined(SNDCTL_DSP_SILENCE) && defined(SNDCTL_DSP_SKIP)
-    ioctl(handle,SNDCTL_DSP_SKIP,NULL);
+    ioctl(handle,SNDCTL_DSP_SKIP,nullptr);
 #endif
     }
   }

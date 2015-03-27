@@ -50,8 +50,8 @@ protected:
   FXint   id;
   FXuchar state;
 protected:
-  virtual const FXString * getColumnData(FXint,FXString &,FXuint &,FXint &) const { return NULL; }
-  virtual FXIcon * getIcon() const { return NULL; }
+  virtual const FXString * getColumnData(FXint,FXString &,FXuint &,FXint &) const { return nullptr; }
+  virtual FXIcon * getIcon() const { return nullptr; }
 public:
   enum {
     SELECTED      = 0x01,  /// Selected
@@ -114,8 +114,8 @@ class GMColumn {
   FXbool              default_browser_show;
   FXObject*           target;
   FXSelector          message;
-  GMColumn() : size(60),index(0),show(false),target(NULL),message(0)  {}
-  GMColumn(const FXchar * n,FXuint t,GMTrackListSortFunc a,GMTrackListSortFunc b,FXint sz=60,FXbool def_show=true,FXbool def_browser_show=true,FXint idx=0,FXObject* tgt=NULL,FXSelector sel=0) : name(n),type(t),size(sz),index(idx),ascending(a),descending(b),show(true),default_show(def_show),default_browser_show(def_browser_show),target(tgt),message(sel) {}
+  GMColumn() : size(60),index(0),show(false),target(nullptr),message(0)  {}
+  GMColumn(const FXchar * n,FXuint t,GMTrackListSortFunc a,GMTrackListSortFunc b,FXint sz=60,FXbool def_show=true,FXbool def_browser_show=true,FXint idx=0,FXObject* tgt=nullptr,FXSelector sel=0) : name(n),type(t),size(sz),index(idx),ascending(a),descending(b),show(true),default_show(def_show),default_browser_show(def_browser_show),target(tgt),message(sel) {}
   };
 
 typedef FXArray<GMColumn> GMColumnList;
@@ -227,7 +227,7 @@ public:
     };
 public:
   /// Construct icon list with no items in it initially
-  GMTrackList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TRACKLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  GMTrackList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TRACKLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Find Item by Id
   FXint findItemById(FXint id) const;

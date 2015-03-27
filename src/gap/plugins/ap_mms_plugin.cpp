@@ -32,14 +32,14 @@ using namespace ap;
 namespace ap {
 
 
-MMSInput::MMSInput(InputThread* i) : InputPlugin(i),mms(NULL) {
+MMSInput::MMSInput(InputThread* i) : InputPlugin(i),mms(nullptr) {
   }
 
 MMSInput::~MMSInput() {
   }
 
 FXbool MMSInput::open(const FXString & uri) {
-  mms=mms_connect(NULL,NULL,uri.text(),128*1024);
+  mms=mms_connect(nullptr,nullptr,uri.text(),128*1024);
   if (!mms) {
     GM_DEBUG_PRINT("failed to connect\n");
     return false;
@@ -49,7 +49,7 @@ FXbool MMSInput::open(const FXString & uri) {
   }
 
 FXival MMSInput::io_read(void*data,FXival ncount) {
-  FXint result = mms_read(NULL,(mms_t*)mms,(FXchar*)data,ncount);
+  FXint result = mms_read(nullptr,(mms_t*)mms,(FXchar*)data,ncount);
   if (result<0) return -1;
   return result;
   }

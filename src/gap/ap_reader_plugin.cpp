@@ -36,7 +36,7 @@ using namespace ap;
 
 namespace ap {
 
-ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e),input(NULL),flags(0),stream_length(-1) {
+ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e),input(nullptr),flags(0),stream_length(-1) {
   }
 
 ReaderPlugin::~ReaderPlugin() {
@@ -239,9 +239,9 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 
 
 //    case Format::MP3      : return ap_avf_reader(engine); break;
-    default               : return NULL; break;
+    default               : return nullptr; break;
     }
-  return NULL;
+  return nullptr;
   }
 }
 

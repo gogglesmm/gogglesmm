@@ -39,9 +39,9 @@ using namespace ap;
 namespace ap {
 
 
-FXIMPLEMENT(AudioPlayer,FXObject,NULL,0);
+FXIMPLEMENT(AudioPlayer,FXObject,nullptr,0);
 
-AudioPlayer::AudioPlayer() : engine(NULL) {
+AudioPlayer::AudioPlayer() : engine(nullptr) {
   engine = new AudioEngine();
   }
 
@@ -56,7 +56,7 @@ void AudioPlayer::setEventQueue(EventQueue* fifo) {
 FXbool AudioPlayer::init() {
   FXASSERT(engine->fifo);
 
-  if (engine->fifo==NULL)
+  if (engine->fifo==nullptr)
     return false;
 
   return engine->init();

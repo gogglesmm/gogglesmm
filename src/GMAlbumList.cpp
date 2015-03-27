@@ -61,7 +61,7 @@ FXint GMAlbumListItem::album_list_sort_reverse(const GMAlbumListItem* pa,const G
 
 
 // Object implementation
-FXIMPLEMENT(GMAlbumListItem,FXObject,NULL,0)
+FXIMPLEMENT(GMAlbumListItem,FXObject,nullptr,0)
 
 static void drawTextLimited(FXDC & dc,FXFont * font,FXint x,FXint y,FXint space,const FXString & text) {
   FXint dw,len=text.length();
@@ -358,7 +358,7 @@ GMAlbumList::GMAlbumList(){
   extent=-1;
   cursor=-1;
   viewable=-1;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   textColor=0;
   selbackColor=0;
   seltextColor=0;
@@ -387,7 +387,7 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   extent=-1;
   cursor=-1;
   viewable=-1;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   textColor=getApp()->getForeColor();
   selbackColor=getApp()->getSelbackColor();
   seltextColor=getApp()->getSelforeColor();
@@ -402,7 +402,7 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   state=false;
 
 
-  listicon=NULL;
+  listicon=nullptr;
 
   listbasefont=getApp()->getNormalFont();
   listheadfont=getApp()->getNormalFont();
@@ -1296,8 +1296,8 @@ long GMAlbumList::onCmdShowYear(FXObject*,FXSelector,void*){
 
 // Update sender
 long GMAlbumList::onUpdShowYear(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(options&ALBUMLIST_YEAR)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
-  sender->handle(this,(options&ALBUMLIST_BROWSER)?FXSEL(SEL_COMMAND,ID_HIDE):FXSEL(SEL_COMMAND,ID_SHOW),NULL);
+  sender->handle(this,(options&ALBUMLIST_YEAR)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(options&ALBUMLIST_BROWSER)?FXSEL(SEL_COMMAND,ID_HIDE):FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   return 1;
   }
 
@@ -1311,8 +1311,8 @@ long GMAlbumList::onCmdArrangeByRows(FXObject*,FXSelector,void*){
 
 // Update sender
 long GMAlbumList::onUpdArrangeByRows(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(options&ALBUMLIST_COLUMNS)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-  sender->handle(this,(options&ALBUMLIST_BROWSER)?FXSEL(SEL_COMMAND,ID_SHOW):FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+  sender->handle(this,(options&ALBUMLIST_COLUMNS)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
+  sender->handle(this,(options&ALBUMLIST_BROWSER)?FXSEL(SEL_COMMAND,ID_SHOW):FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -1327,8 +1327,8 @@ long GMAlbumList::onCmdArrangeByColumns(FXObject*,FXSelector,void*){
 
 // Update sender
 long GMAlbumList::onUpdArrangeByColumns(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(options&ALBUMLIST_COLUMNS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
-  sender->handle(this,(options&ALBUMLIST_BROWSER)?FXSEL(SEL_COMMAND,ID_SHOW):FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+  sender->handle(this,(options&ALBUMLIST_COLUMNS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(options&ALBUMLIST_BROWSER)?FXSEL(SEL_COMMAND,ID_SHOW):FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -1937,7 +1937,7 @@ GMAlbumListItem *GMAlbumList::getItem(FXint index) const {
 FXint GMAlbumList::setItem(FXint index,GMAlbumListItem* item,FXbool notify){
 
   // Must have item
-  if(!item){ fxerror("%s::setItem: item is NULL.\n",getClassName()); }
+  if(!item){ fxerror("%s::setItem: item is nullptr.\n",getClassName()); }
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::setItem: index out of range.\n",getClassName()); }
@@ -1966,7 +1966,7 @@ FXint GMAlbumList::insertItem(FXint index,GMAlbumListItem* item,FXbool notify){
   FXint old=current;
 
   // Must have item
-  if(!item){ fxerror("%s::insertItem: item is NULL.\n",getClassName()); }
+  if(!item){ fxerror("%s::insertItem: item is nullptr.\n",getClassName()); }
 
   // Must be in range
   if(index<0 || items.no()<index){ fxerror("%s::insertItem: index out of range.\n",getClassName()); }
@@ -2222,7 +2222,7 @@ void GMAlbumList::setListIcon(FXIcon*ico) {
   }
 
 void GMAlbumList::setListBaseFont(FXFont* fnt){
-  if(!fnt){ fxerror("%s::setFont: NULL font specified.\n",getClassName()); }
+  if(!fnt){ fxerror("%s::setFont: nullptr font specified.\n",getClassName()); }
   if(listbasefont!=fnt){
     listbasefont=fnt;
     recalc();
@@ -2231,7 +2231,7 @@ void GMAlbumList::setListBaseFont(FXFont* fnt){
   }
 
 void GMAlbumList::setListHeadFont(FXFont* fnt){
-  if(!fnt){ fxerror("%s::setFont: NULL font specified.\n",getClassName()); }
+  if(!fnt){ fxerror("%s::setFont: nullptr font specified.\n",getClassName()); }
   if(listheadfont!=fnt){
     listheadfont=fnt;
     recalc();
@@ -2240,7 +2240,7 @@ void GMAlbumList::setListHeadFont(FXFont* fnt){
   }
 
 void GMAlbumList::setListTailFont(FXFont* fnt){
-  if(!fnt){ fxerror("%s::setFont: NULL font specified.\n",getClassName()); }
+  if(!fnt){ fxerror("%s::setFont: nullptr font specified.\n",getClassName()); }
   if(listtailfont!=fnt){
     listtailfont=fnt;
     recalc();
@@ -2250,7 +2250,7 @@ void GMAlbumList::setListTailFont(FXFont* fnt){
 
 
 void GMAlbumList::setCoverBaseFont(FXFont* fnt){
-  if(!fnt){ fxerror("%s::setFont: NULL font specified.\n",getClassName()); }
+  if(!fnt){ fxerror("%s::setFont: nullptr font specified.\n",getClassName()); }
   if(coverbasefont!=fnt){
     coverbasefont=fnt;
     recalc();
@@ -2259,7 +2259,7 @@ void GMAlbumList::setCoverBaseFont(FXFont* fnt){
   }
 
 void GMAlbumList::setCoverHeadFont(FXFont* fnt){
-  if(!fnt){ fxerror("%s::setFont: NULL font specified.\n",getClassName()); }
+  if(!fnt){ fxerror("%s::setFont: nullptr font specified.\n",getClassName()); }
   if(coverheadfont!=fnt){
     coverheadfont=fnt;
     recalc();

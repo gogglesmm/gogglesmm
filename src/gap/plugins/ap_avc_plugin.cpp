@@ -125,9 +125,9 @@ AVReader::~AVReader(){
 
 FXbool AVReader::init(){
   AVFormatParameters av_format_params;
-  av_format=NULL;
-  av_format_context=NULL;
-  av_io_context=NULL;
+  av_format=nullptr;
+  av_format_context=nullptr;
+  av_io_context=nullptr;
 
 
   av_format=av_find_input_format("mp3");
@@ -191,14 +191,14 @@ ReaderPlugin * ap_avf_reader(AudioEngine * engine) {
 
     if(av_open_input_stream(&avfc, &priv->pb, mp_filename, priv->avif, &ap)<0){
         mp_msg(MSGT_HEADER,MSGL_ERR,"LAVF_header: av_open_input_stream() failed\n");
-        return NULL;
+        return nullptr;
     }
 
     priv->avfc= avfc;
 
     if(av_find_stream_info(avfc) < 0){
         mp_msg(MSGT_HEADER,MSGL_ERR,"LAVF_header: av_find_stream_info() failed\n");
-        return NULL;
+        return nullptr;
     }
 
     if(avfc->title    [0]) demux_info_add(demuxer, "name"     , avfc->title    );
@@ -347,7 +347,7 @@ ReaderPlugin * ap_avf_reader(AudioEngine * engine) {
     if(!priv->video_streams){
         if(!priv->audio_streams){
             mp_msg(MSGT_HEADER,MSGL_ERR,"LAVF: no audio or video headers found - broken file?\n");
-            return NULL;
+            return nullptr;
         }
         demuxer->video->id=-2; // audio-only
     } //else if (best_video > 0 && demuxer->video->id == -1) demuxer->video->id = best_video;
@@ -403,9 +403,9 @@ FXbool AVReader::init(InputPlugin*plugin){
   ReaderPlugin::init(plugin);
 
   AVFormatParameters av_format_params;
-  av_input_format=NULL;
-  av_format_context=NULL;
-  av_io_context=NULL;
+  av_input_format=nullptr;
+  av_format_context=nullptr;
+  av_io_context=nullptr;
 
   av_input_format=av_find_input_format("mp3");
 
@@ -535,7 +535,7 @@ public:
 
 
 
-AVDecoder::AVDecoder(AudioEngine * e) : DecoderPlugin(e), ctx(NULL),outbuf(AVCODEC_MAX_AUDIO_FRAME_SIZE),out(NULL) {
+AVDecoder::AVDecoder(AudioEngine * e) : DecoderPlugin(e), ctx(nullptr),outbuf(AVCODEC_MAX_AUDIO_FRAME_SIZE),out(nullptr) {
 
   avcodec_init();
   avcodec_register_all();
@@ -570,7 +570,7 @@ FXbool AVDecoder::init(ConfigureEvent*event) {
 FXbool AVDecoder::flush() {
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
   return true;
   }
@@ -607,9 +607,9 @@ DecoderStatus AVDecoder::process(Packet*in) {
 
   if (out_size) {
     /// Get new buffer
-    if (out==NULL) {
+    if (out==nullptr) {
       out = engine->decoder->get_output_packet();
-      if (out==NULL) return DecoderInterrupted; // FIXME
+      if (out==nullptr) return DecoderInterrupted; // FIXME
       out->af=af;
       }
 
@@ -617,7 +617,7 @@ DecoderStatus AVDecoder::process(Packet*in) {
     out->append(outbuf.data(),out_size);
     if (out->availableFrames()==0) {
       engine->output->post(out);
-      out=NULL;
+      out=nullptr;
       }
     }
   fxmessage("success\n");

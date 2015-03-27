@@ -36,7 +36,7 @@ private:
   EventQueue& operator=(const EventQueue&);
 public:
   /// Constructor
-  EventQueue() : head(NULL), tail(NULL) {}
+  EventQueue() : head(nullptr), tail(nullptr) {}
 
   /// Post event.
   virtual void post(Event*,FXint where=Back)=0;

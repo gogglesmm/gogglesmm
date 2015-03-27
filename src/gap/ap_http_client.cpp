@@ -61,7 +61,7 @@ HttpClient::HttpClient(ConnectionFactory * c) :  connection(c), options(0) {
 void HttpClient::setConnectionFactory(ConnectionFactory * c) {
   if (connection) {
       delete connection;
-      connection = NULL;
+      connection = nullptr;
       }
   connection=c;
   }
@@ -88,9 +88,9 @@ void HttpClient::discard() {
 
 FXbool HttpClient::open_connection() {
   GM_DEBUG_PRINT("[http] open_connection()\n");
-  FXIO * stream = NULL;
+  FXIO * stream = nullptr;
 
-  if (connection==NULL)
+  if (connection==nullptr)
     connection = new ConnectionFactory();
 
   if (options&UseProxy)

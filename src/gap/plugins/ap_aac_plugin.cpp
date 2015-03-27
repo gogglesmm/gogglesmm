@@ -115,14 +115,14 @@ public:
 
 
 
-AacDecoder::AacDecoder(AudioEngine * e) : DecoderPlugin(e),handle(NULL),stream_position(-1),out(NULL) {
+AacDecoder::AacDecoder(AudioEngine * e) : DecoderPlugin(e),handle(nullptr),stream_position(-1),out(nullptr) {
   }
 
 AacDecoder::~AacDecoder() {
   flush();
   if (handle) {
     NeAACDecClose(handle);
-    handle=NULL;
+    handle=nullptr;
     }
   }
 
@@ -132,7 +132,7 @@ FXbool AacDecoder::init(ConfigureEvent*event) {
   af=event->af;
   if (handle) {
     NeAACDecClose(handle);
-    handle=NULL;
+    handle=nullptr;
     }
   stream_position=-1;
   return true;
@@ -143,7 +143,7 @@ FXbool AacDecoder::flush(FXlong offset) {
   buffer.clear();
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
   stream_position=-1;
   return true;
@@ -162,22 +162,22 @@ DecoderStatus AacDecoder::process(Packet*packet){
   NeAACDecFrameInfo frame;
 
   if (packet->flags&AAC_FLAG_CONFIG) {
-    FXASSERT(handle==NULL);
+    FXASSERT(handle==nullptr);
     handle = NeAACDecOpen();
     if (NeAACDecInit2(handle,packet->data(),packet->size(),&samplerate,&channels)<0){
       packet->unref();
-      packet=NULL;
+      packet=nullptr;
       return DecoderError;
       }
     packet->unref();
-    packet=NULL;
+    packet=nullptr;
     return DecoderOk;
     }
   else {
     buffer.append(packet->data(),packet->size());
     packet->unref();
-    packet=NULL;
-    if (handle==NULL) {
+    packet=nullptr;
+    if (handle==nullptr) {
       handle = NeAACDecOpen();
       long n = NeAACDecInit(handle,buffer.data(),buffer.size(),&samplerate,&channels);
       if (n<0) {
@@ -197,9 +197,9 @@ DecoderStatus AacDecoder::process(Packet*packet){
 
   do {
 
-    if (out==NULL){
+    if (out==nullptr){
       out = engine->decoder->get_output_packet();
-      if (out==NULL) return DecoderInterrupted;
+      if (out==nullptr) return DecoderInterrupted;
       out->af              = af;
       out->stream          = stream_id;
       out->stream_position = stream_position;
@@ -237,7 +237,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
         }
       if (out->availableFrames()==0) {
         engine->output->post(out);
-        out=NULL;
+        out=nullptr;
         }
       }
     }
@@ -246,7 +246,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
   if (eos) {
     if (out) {
       engine->output->post(out);
-      out=NULL;
+      out=nullptr;
       }
     engine->output->post(new ControlEvent(End,stream_id));
     }

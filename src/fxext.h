@@ -82,7 +82,7 @@ private:
   GMListBox(const GMListBox&);
   GMListBox& operator=(const GMListBox&);
 public:
-  GMListBox(FXComposite*,FXObject*tgt=NULL,FXSelector sel=0,FXuint opts=FRAME_SUNKEN|FRAME_THICK|LISTBOX_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMListBox(FXComposite*,FXObject*tgt=nullptr,FXSelector sel=0,FXuint opts=FRAME_SUNKEN|FRAME_THICK|LISTBOX_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   virtual void create();
   };
 
@@ -94,7 +94,7 @@ private:
   GMComboBox(const GMComboBox&);
   GMComboBox& operator=(const GMComboBox&);
 public:
-  GMComboBox(FXComposite *p,FXint cols,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=COMBOBOX_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMComboBox(FXComposite *p,FXint cols,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=COMBOBOX_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   virtual void create();
   };
 
@@ -131,7 +131,7 @@ private:
   GMTabBook(const GMTabBook&);
   GMTabBook& operator=(const GMTabBook&);
 public:
-  GMTabBook(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TABBOOK_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_SPACING,FXint pr=DEFAULT_SPACING,FXint pt=DEFAULT_SPACING,FXint pb=DEFAULT_SPACING);
+  GMTabBook(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TABBOOK_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_SPACING,FXint pr=DEFAULT_SPACING,FXint pt=DEFAULT_SPACING,FXint pb=DEFAULT_SPACING);
 	virtual void setCurrent(FXint panel,FXbool notify=false);
 	};
 
@@ -161,7 +161,7 @@ protected:
   GMHeaderItem(){}
 public:
   /// Construct new item with given text, icon, size, and user-data
-  GMHeaderItem(const FXString& text,FXIcon* ic=NULL,FXint s=0,void* ptr=NULL): FXHeaderItem(text,ic,s,ptr) {}
+  GMHeaderItem(const FXString& text,FXIcon* ic=nullptr,FXint s=0,void* ptr=nullptr): FXHeaderItem(text,ic,s,ptr) {}
   };
 
 class FXAPI GMHeader : public FXHeader {
@@ -174,7 +174,7 @@ private:
 public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
-  GMHeader(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=HEADER_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMHeader(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=HEADER_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   };
 
 
@@ -191,7 +191,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Construct button with text and icon
-  GMHeaderButton(FXComposite* p,const FXString& text,FXIcon* ic=NULL,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=BUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMHeaderButton(FXComposite* p,const FXString& text,FXIcon* ic=nullptr,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=BUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
 
 	void setArrowState(FXuint s);
 
@@ -209,7 +209,7 @@ private:
   GMMenuCommand(const GMMenuCommand&);
   GMMenuCommand& operator=(const GMMenuCommand&);
 public:
-  GMMenuCommand(FXComposite* p,const FXString& text,FXIcon* ic=NULL,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=0);
+  GMMenuCommand(FXComposite* p,const FXString& text,FXIcon* ic=nullptr,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=0);
   };
 
 
@@ -221,7 +221,7 @@ private:
   GMMenuCheck(const GMMenuCheck&);
   GMMenuCheck& operator=(const GMMenuCheck&);
 public:
-  GMMenuCheck(FXComposite* p,const FXString& text,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=0);
+  GMMenuCheck(FXComposite* p,const FXString& text,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=0);
   };
 
 
@@ -233,7 +233,7 @@ private:
   GMMenuRadio(const GMMenuRadio&);
   GMMenuRadio& operator=(const GMMenuRadio&);
 public:
-  GMMenuRadio(FXComposite* p,const FXString& text,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=0);
+  GMMenuRadio(FXComposite* p,const FXString& text,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=0);
   };
 
 
@@ -245,7 +245,7 @@ private:
   GMMenuCascade(const GMMenuCascade&);
   GMMenuCascade& operator=(const GMMenuCascade&);
 public:
-  GMMenuCascade(FXComposite* p,const FXString& text,FXIcon* ic=NULL,FXPopup* pup=NULL,FXuint opts=0);
+  GMMenuCascade(FXComposite* p,const FXString& text,FXIcon* ic=nullptr,FXPopup* pup=nullptr,FXuint opts=0);
   };
 
 
@@ -261,7 +261,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
   long onCmdPost(FXObject*,FXSelector,void*);
 public:
-  GMMenuTitle(FXComposite* p,const FXString& text,FXIcon* ic=NULL,FXPopup* pup=NULL,FXuint opts=0);
+  GMMenuTitle(FXComposite* p,const FXString& text,FXIcon* ic=nullptr,FXPopup* pup=nullptr,FXuint opts=0);
   };
 
 
@@ -289,7 +289,7 @@ private:
 public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
-  GMButton(FXComposite* p,const FXString& text,FXIcon* ic=NULL,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=BUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMButton(FXComposite* p,const FXString& text,FXIcon* ic=nullptr,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=BUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   };
 
 
@@ -303,7 +303,7 @@ private:
 public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
-  GMToggleButton(FXComposite* p,const FXString& text1,const FXString& text2,FXIcon* icon1=NULL,FXIcon* icon2=NULL,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TOGGLEBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMToggleButton(FXComposite* p,const FXString& text1,const FXString& text2,FXIcon* icon1=nullptr,FXIcon* icon2=nullptr,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TOGGLEBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   };
 
 class GMRadioButton : public FXRadioButton {
@@ -314,7 +314,7 @@ private:
   GMRadioButton(const GMRadioButton&);
   GMRadioButton& operator=(const GMRadioButton&);
 public:
-  GMRadioButton(FXComposite* p,const FXString& text,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=RADIOBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMRadioButton(FXComposite* p,const FXString& text,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=RADIOBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   };
 
 class GMCheckButton : public FXCheckButton {
@@ -327,7 +327,7 @@ private:
 public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
-  GMCheckButton(FXComposite* p,const FXString& text,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=CHECKBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMCheckButton(FXComposite* p,const FXString& text,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=CHECKBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   };
 
 class GMMenuButton : public FXMenuButton {
@@ -340,7 +340,7 @@ private:
 public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
-  GMMenuButton(FXComposite* p,const FXString& text,FXIcon* ic=NULL,FXPopup* pup=NULL,FXuint opts=JUSTIFY_NORMAL|ICON_BEFORE_TEXT|MENUBUTTON_DOWN,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMMenuButton(FXComposite* p,const FXString& text,FXIcon* ic=nullptr,FXPopup* pup=nullptr,FXuint opts=JUSTIFY_NORMAL|ICON_BEFORE_TEXT|MENUBUTTON_DOWN,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
 
   virtual FXint getDefaultWidth();
   virtual FXint getDefaultHeight();
@@ -357,7 +357,7 @@ private:
 public:
   long onLeftBtnPress(FXObject*,FXSelector,void*);
 public:
-  GMTextField(FXComposite* p,FXint ncols,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TEXTFIELD_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMTextField(FXComposite* p,FXint ncols,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TEXTFIELD_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
 
   FXbool extendWordSelection(FXint p,FXbool notify=false);
   };
@@ -435,7 +435,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Construct scroll bar
-  GMScrollBar(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=SCROLLBAR_VERTICAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  GMScrollBar(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=SCROLLBAR_VERTICAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
   };
 
 class GMScrollCorner : public FXScrollCorner {
@@ -461,7 +461,7 @@ private:
   GMSpinner(const GMSpinner&);
   GMSpinner& operator=(const GMSpinner&);
 public:
-  GMSpinner(FXComposite* p,FXint ncols,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=SPIN_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMSpinner(FXComposite* p,FXint ncols,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=SPIN_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   };
 
 
@@ -474,7 +474,7 @@ private:
   GMProgressBar &operator=(const GMProgressBar&);
 public:
   /// Construct progress bar
-  GMProgressBar(FXComposite* p,FXObject* target=NULL,FXSelector sel=0,FXuint opts=PROGRESSBAR_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMProgressBar(FXComposite* p,FXObject* target=nullptr,FXSelector sel=0,FXuint opts=PROGRESSBAR_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   };
 
 
@@ -491,7 +491,7 @@ public:
   long onLeftBtnRelease(FXObject*,FXSelector,void*);
 public:
   /// Construct progress bar
-  GMTrackProgressBar(FXComposite* p,FXObject* target=NULL,FXSelector sel=0,FXuint opts=PROGRESSBAR_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  GMTrackProgressBar(FXComposite* p,FXObject* target=nullptr,FXSelector sel=0,FXuint opts=PROGRESSBAR_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
   };
 
 

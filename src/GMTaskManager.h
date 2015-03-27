@@ -59,7 +59,7 @@ public:
 
   void stop();
 
-  FXbool send(FXSelector msg,const void* data=NULL,FXint size=0);
+  FXbool send(FXSelector msg,const void* data=nullptr,FXint size=0);
 
   virtual ~GMWorker();
   };
@@ -82,7 +82,7 @@ protected:
   FXObject * target;
   FXSelector message;
 public:
-  GMTask(FXObject*tgt=NULL,FXSelector sel=0);
+  GMTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
   void setTarget(FXObject * tgt) { target=tgt; }
 
@@ -113,7 +113,7 @@ protected:
 protected:
   FXint run();
 public:
-  GMTaskManager(FXObject*tgt=NULL,FXSelector sel=0);
+  GMTaskManager(FXObject*tgt=nullptr,FXSelector sel=0);
 
   void run(GMTask*);
   void shutdown();

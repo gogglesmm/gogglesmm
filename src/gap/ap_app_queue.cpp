@@ -23,7 +23,7 @@
 
 namespace ap {
 
-FXAppQueue::FXAppQueue() : channel(NULL),target(NULL),message(0) {
+FXAppQueue::FXAppQueue() : channel(nullptr),target(nullptr),message(0) {
   }
 
 FXAppQueue::FXAppQueue(FXApp * app,FXObject * tgt,FXSelector sel) : target(tgt),message(sel) {
@@ -32,8 +32,8 @@ FXAppQueue::FXAppQueue(FXApp * app,FXObject * tgt,FXSelector sel) : target(tgt),
 
 FXAppQueue::~FXAppQueue() {
   flush();
-  FXASSERT(head==NULL);
-  FXASSERT(tail==NULL);
+  FXASSERT(head==nullptr);
+  FXASSERT(tail==nullptr);
   delete channel;
   }
 
@@ -41,22 +41,22 @@ void FXAppQueue::post(Event*event,FXint where) {
   mfifo.lock();
   if (where==Back) {
     if (tail) tail->next = event;
-    event->next=NULL;
+    event->next=nullptr;
     tail = event;
-    if (head==NULL) {
+    if (head==nullptr) {
       head=tail;
       mfifo.unlock();
-      channel->message(target,FXSEL(SEL_CHANGED,message),NULL);
+      channel->message(target,FXSEL(SEL_CHANGED,message),nullptr);
       return;
       }
     }
   else {
     event->next=head;
     head=event;
-    if (tail==NULL) {
+    if (tail==nullptr) {
       tail=head;
       mfifo.unlock();
-      channel->message(target,FXSEL(SEL_CHANGED,message),NULL);
+      channel->message(target,FXSEL(SEL_CHANGED,message),nullptr);
       return;
       }
     }
@@ -64,14 +64,14 @@ void FXAppQueue::post(Event*event,FXint where) {
   }
 
 Event * FXAppQueue::pop() {
-  Event * event=NULL;
+  Event * event=nullptr;
   mfifo.lock();
 //  event = atomicSet(head,head->next);
   if (head) {
     event=head;
     head=head->next;
-    event->next=NULL;
-    if (head==NULL) tail=NULL;
+    event->next=nullptr;
+    if (head==nullptr) tail=nullptr;
     }
   mfifo.unlock();
   return event;
@@ -79,15 +79,15 @@ Event * FXAppQueue::pop() {
 
 void FXAppQueue::flush() {
   mfifo.lock();
-  Event * event = NULL;
+  Event * event = nullptr;
   Event * h = head;
-  head=tail=NULL;
+  head=tail=nullptr;
   mfifo.unlock();
 
   while(h) {
     event = h;
     h = h->next;
-    event->next = NULL;
+    event->next = nullptr;
     Event::unref(event);
     }
   }

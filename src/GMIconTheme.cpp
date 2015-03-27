@@ -88,7 +88,7 @@ static void init_basedirs(FXStringList & basedirs) {
   }
 
 static void init_themedict(FXStringList & basedirs,FXStringDictionary & themedict){
-  FXString * dirs=NULL;
+  FXString * dirs=nullptr;
   for (FXint i=0;i<basedirs.no();i++) {
     FXint no = FXDir::listFiles(dirs,basedirs[i],"*",FXDir::AllDirs|FXDir::NoParent|FXDir::NoFiles);
     if (no) {
@@ -101,7 +101,7 @@ static void init_themedict(FXStringList & basedirs,FXStringDictionary & themedic
           }
         }
       delete [] dirs;
-      dirs=NULL;
+      dirs=nullptr;
       }
     }
 #ifdef DEBUG
@@ -237,10 +237,10 @@ static debug_iconsets(const GMIconSetList & iconsets){
 #endif
 
 
-GMIconTheme * GMIconTheme::me=NULL;
+GMIconTheme * GMIconTheme::me=nullptr;
 
 GMIconTheme::GMIconTheme(FXApp * application) : app(application), set(-1),rsvg(false) {
-  FXASSERT(me==NULL);
+  FXASSERT(me==nullptr);
   me=this;
 
   smallsize  = app->reg().readIntEntry("user-interface","icon-theme-small-size",SMALL_SIZE);
@@ -324,7 +324,7 @@ void GMIconTheme::build() {
       if (index[x].readBoolEntry("Icon Theme","Hidden",false))
         continue;
 
-      themedirs = index[x].readStringEntry("Icon Theme","Directories",NULL);
+      themedirs = index[x].readStringEntry("Icon Theme","Directories",nullptr);
       if (themedirs.empty())
         continue;
 
@@ -335,7 +335,7 @@ void GMIconTheme::build() {
 
       base = themedir;
       for(xx=x;xx>=0;) {
-        themedirs = index[xx].readStringEntry("Icon Theme","Directories",NULL);
+        themedirs = index[xx].readStringEntry("Icon Theme","Directories",nullptr);
         parents   = index[xx].readStringEntry("Icon Theme","Inherits","hicolor");
 
         inherits[x].insert(base,(void*)(FXival)1);
@@ -416,7 +416,7 @@ FXString GMIconTheme::get_svg_cache() {
   }
 
 FXImage * GMIconTheme::loadImage(const FXString & filename) {
-  FXImage * img=NULL;
+  FXImage * img=nullptr;
   const FXString ext = FXPath::extension(filename);
   FXFileStream store;
   if(store.open(filename,FXStreamLoad,65536)){
@@ -433,20 +433,20 @@ FXImage * GMIconTheme::loadImage(const FXString & filename) {
       img=new FXGIFImage(app);
       }
     else {
-      img=NULL;
+      img=nullptr;
       }
     if(img){
       if(img->loadPixels(store)) return img;
       delete img;
-      img=NULL;
+      img=nullptr;
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
 FXIcon * GMIconTheme::loadIcon(const FXString & filename) {
-  FXIcon * icon=NULL;
+  FXIcon * icon=nullptr;
   const FXString ext = FXPath::extension(filename);
   FXFileStream store;
   if(store.open(filename,FXStreamLoad,65536)){
@@ -466,21 +466,21 @@ FXIcon * GMIconTheme::loadIcon(const FXString & filename) {
       icon=new FXICOIcon(app);
       }
     else {
-      icon=NULL;
+      icon=nullptr;
       }
     if(icon){
       icon->setOptions(IMAGE_SHMI|IMAGE_SHMP);
       if(icon->loadPixels(store)) return icon;
       delete icon;
-      icon=NULL;
+      icon=nullptr;
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
 void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size,const FXchar * value,const FXColor blendcolor) {
-  FXIcon * ic=NULL;
+  FXIcon * ic=nullptr;
   FXString name,path,item;
   FXint beg,end;
 
@@ -525,9 +525,9 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
   if (!name.empty())
     ic=loadIcon(name);
 
-  if (ic==NULL) {
+  if (ic==nullptr) {
     //fxmessage("%s\n",value);
-    ic = new FXIcon(app,NULL,0,IMAGE_OWNED,size,size);
+    ic = new FXIcon(app,nullptr,0,IMAGE_OWNED,size,size);
     ic->fill(blendcolor);
     }
 //  else {
@@ -592,7 +592,7 @@ void GMIconTheme::loadResource(FXIconPtr & icon,const void * data,const FXColor 
   }
 
 FXImage* GMIconTheme::loadSmall(const char * value) {
-  FXImage * image = NULL;
+  FXImage * image = nullptr;
   if (iconsets.no()) {
     FXString name = FXPath::search(iconsets[set].small,value);
     if (!name.empty())

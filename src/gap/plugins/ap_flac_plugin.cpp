@@ -181,23 +181,23 @@ FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & af,FXlong & nf
 
 
 
-FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(NULL),meta(NULL) {
+FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(nullptr),meta(nullptr) {
   }
 
 FlacReader::~FlacReader(){
   if (flac) {
     FLAC__stream_decoder_finish(flac);
     FLAC__stream_decoder_delete(flac);
-    flac = NULL;
+    flac = nullptr;
     }
   }
 
 FXbool FlacReader::init(InputPlugin*plugin) {
   ReaderPlugin::init(plugin);
-  if (flac == NULL) {
+  if (flac == nullptr) {
 
     flac =  FLAC__stream_decoder_new();
-    if ( flac == NULL)
+    if ( flac == nullptr)
       return false;
 
 
@@ -220,7 +220,7 @@ FXbool FlacReader::init(InputPlugin*plugin) {
   gain.reset();
   if (meta) {
     meta->unref();
-    meta=NULL;
+    meta=nullptr;
     }
   flags&=~FLAG_PARSED;
   return true;
@@ -275,7 +275,7 @@ ReadStatus FlacReader::parse() {
 
     if (meta) {
       engine->decoder->post(meta);
-      meta=NULL;
+      meta=nullptr;
       }
     return ReadOk;
     }
@@ -524,7 +524,7 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
     /// get a fresh packet
     if (!packet) {
       packet=plugin->engine->decoder->get_output_packet();
-      if (packet==NULL) {
+      if (packet==nullptr) {
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
       packet->af=plugin->af;
@@ -571,9 +571,9 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
     stream_position+=ncopy;
     packet->wroteFrames(ncopy);
     if (packet->availableFrames()==0) {
-      plugin->out=NULL;
+      plugin->out=nullptr;
       plugin->engine->output->post(packet);
-      packet=NULL;
+      packet=nullptr;
       }
     }
   return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
@@ -590,19 +590,19 @@ FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamD
   FXival ncopy;
 
   Packet * packet = plugin->in;
-  plugin->in=NULL;
+  plugin->in=nullptr;
   do {
 
-    if (packet==NULL) {
+    if (packet==nullptr) {
       Event * event = plugin->engine->decoder->get_decoder_packet();
-      if (event==NULL) {
+      if (event==nullptr) {
         return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
         }
       packet = dynamic_cast<Packet*>(event);
       }
 
     FXASSERT(packet);
-    FXASSERT(packet->next==NULL);
+    FXASSERT(packet->next==nullptr);
 
     /* Check for a end of stream packet */
     if (packet->size()==0 && packet->flags&FLAG_EOS) {
@@ -612,7 +612,7 @@ FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamD
         return FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
         }
       else {
-        plugin->in = NULL;
+        plugin->in = nullptr;
         packet->unref();
         return FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
         }
@@ -629,10 +629,10 @@ FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamD
 
     /* release packet if we consumed all its data */
     if (packet->size()==0) {
-      plugin->in=NULL;
+      plugin->in=nullptr;
       packet->unref();
-      packet=NULL;
-      FXASSERT(packet==NULL);
+      packet=nullptr;
+      FXASSERT(packet==nullptr);
       }
     else {  /* move left over data to front, for next run */
 //      memmove(packet->data,&packet->data[ncopy],packet->size);
@@ -657,7 +657,7 @@ void FlacDecoder::flac_decoder_error(const FLAC__StreamDecoder */*decoder*/, FLA
 #endif
   }
 
-FlacDecoder::FlacDecoder(AudioEngine * e) : DecoderPlugin(e), flac(NULL),in(NULL),out(NULL) {
+FlacDecoder::FlacDecoder(AudioEngine * e) : DecoderPlugin(e), flac(nullptr),in(nullptr),out(nullptr) {
   }
 
 FlacDecoder::~FlacDecoder() {
@@ -665,22 +665,22 @@ FlacDecoder::~FlacDecoder() {
   if (flac) {
     FLAC__stream_decoder_finish(flac);
     FLAC__stream_decoder_delete(flac);
-    flac = NULL;
+    flac = nullptr;
     }
   }
 
 FXbool FlacDecoder::init(ConfigureEvent*event) {
   DecoderPlugin::init(event);
-  if (flac == NULL) {
+  if (flac == nullptr) {
     flac =  FLAC__stream_decoder_new();
 
-    if ( flac == NULL)
+    if ( flac == nullptr)
       return false;
 
     FLAC__stream_decoder_set_md5_checking(flac,false);
 
-    if (FLAC__stream_decoder_init_stream(flac,flac_decoder_read,NULL,NULL,NULL,NULL,
-                                            flac_decoder_write,NULL,
+    if (FLAC__stream_decoder_init_stream(flac,flac_decoder_read,nullptr,nullptr,nullptr,nullptr,
+                                            flac_decoder_write,nullptr,
                                             flac_decoder_error,
                                             this)!=FLAC__STREAM_DECODER_INIT_STATUS_OK){
       return false;
@@ -702,43 +702,43 @@ FXbool FlacDecoder::flush(FXlong offset) {
   FLAC__stream_decoder_flush(flac);
   if (in) {
     in->unref();
-    in=NULL;
+    in=nullptr;
     }
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
   return true;
   }
 
 DecoderStatus FlacDecoder::process(Packet*packet){
   if (flac) {
-    FXASSERT(in==NULL);
-    FXASSERT(out==NULL);
+    FXASSERT(in==nullptr);
+    FXASSERT(out==nullptr);
 
     in=packet;
     FXuint stream=in->stream;
 
     FXASSERT(in);
-    FXASSERT(in->next==NULL);
+    FXASSERT(in->next==nullptr);
     FXbool result = FLAC__stream_decoder_process_until_end_of_stream(flac);
 
     FLAC__stream_decoder_flush(flac);
     if (result) {
       if (out) {
         engine->output->post(out);
-        out=NULL;
+        out=nullptr;
         }
       }
 
     if (in) {
       in->unref();
-      in=NULL;
+      in=nullptr;
       }
 
     if (out) {
       out->unref();
-      out=NULL;
+      out=nullptr;
       }
     engine->output->post(new ControlEvent(End,stream));
     return DecoderOk;

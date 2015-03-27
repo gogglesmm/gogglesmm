@@ -61,11 +61,11 @@ FXDEFMAP(GMTrayIcon) GMTrayIconMap[]={
 FXIMPLEMENT(GMTrayIcon,GMPlug,GMTrayIconMap,ARRAYNUMBER(GMTrayIconMap));
 
 GMTrayIcon::GMTrayIcon(){
-  icon=NULL;
+  icon=nullptr;
   flags|=FLAG_ENABLED;
   }
 
-GMTrayIcon::GMTrayIcon(FXApp * a) : GMPlug(a), xtraywindow(0), xtrayopcode(0),icon(NULL), opaque(false) {
+GMTrayIcon::GMTrayIcon(FXApp * a) : GMPlug(a), xtraywindow(0), xtrayopcode(0),icon(nullptr), opaque(false) {
   flags|=FLAG_ENABLED;
   }
 
@@ -79,7 +79,7 @@ void GMTrayIcon::updateIcon() {
 
     /// Delete the old
     delete icon;
-    icon=NULL;
+    icon=nullptr;
 
     /// Update
     if (size<=16) {
@@ -142,7 +142,7 @@ FXuint GMTrayIcon::getTrayOrientation(){
     int returnformat;
     unsigned long nitems;
     unsigned long nbytes;
-    long * bytes=NULL;
+    long * bytes=nullptr;
 
     if (xtrayorientation && (XGetWindowProperty((Display*)getApp()->getDisplay(),xtraywindow,xtrayorientation,0,2,False,XA_CARDINAL,&returntype,&returnformat,&nitems,&nbytes,(unsigned char**)&bytes)==Success) && returntype==XA_CARDINAL){
       orientation=*(long*)bytes;
@@ -150,9 +150,9 @@ FXuint GMTrayIcon::getTrayOrientation(){
       return orientation;
       }
 
-    if (bytes!=NULL) {
+    if (bytes!=nullptr) {
       XFree(bytes);
-      bytes=NULL;
+      bytes=nullptr;
       }
 
     if (xtrayxfceorientation && (XGetWindowProperty((Display*)getApp()->getDisplay(),xtraywindow,xtrayxfceorientation,0,2,False,XA_CARDINAL,&returntype,&returnformat,&nitems,&nbytes,(unsigned char**)&bytes)==Success) && returntype==XA_CARDINAL){
@@ -161,9 +161,9 @@ FXuint GMTrayIcon::getTrayOrientation(){
       return orientation;
       }
 
-    if (bytes!=NULL)  {
+    if (bytes!=nullptr)  {
       XFree(bytes);
-      bytes=NULL;
+      bytes=nullptr;
       }
     }
   return SYSTEM_TRAY_UNKNOWN;
@@ -177,7 +177,7 @@ FXuint GMTrayIcon::getTrayVisual(){
     int returnformat;
     unsigned long nitems;
     unsigned long nbytes;
-    long * bytes=NULL;
+    long * bytes=nullptr;
 
     if (xtrayvisual && (XGetWindowProperty((Display*)getApp()->getDisplay(),xtraywindow,xtrayvisual,0,2,False,XA_VISUALID,&returntype,&returnformat,&nitems,&nbytes,(unsigned char**)&bytes)==Success) && returntype==XA_VISUALID){
       visualid=*(long*)bytes;
@@ -185,9 +185,9 @@ FXuint GMTrayIcon::getTrayVisual(){
       return visualid;
       }
 
-    if (bytes!=NULL) {
+    if (bytes!=nullptr) {
       XFree(bytes);
-      bytes=NULL;
+      bytes=nullptr;
       }
     }
   return 0;
@@ -273,10 +273,10 @@ long GMTrayIcon::onConfigure(FXObject*,FXSelector,void*ptr){
 
   if (icon && icon->getWidth()!=size) {
     delete icon;
-    icon=NULL;
+    icon=nullptr;
     }
 
-  if (icon==NULL) {
+  if (icon==nullptr) {
     if (size<=16) {
       icon = new FXPNGIcon(getApp(),gogglesmm_16_png,0,opaque ? IMAGE_OPAQUE : 0);
       icon->setVisual(getVisual());

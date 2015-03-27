@@ -189,7 +189,7 @@ ReadStatus MusepackReader::process(Packet * packet){
         FXint stream = packet->stream;
         if (packet->size()) {
           engine->decoder->post(packet);
-          packet=NULL;
+          packet=nullptr;
           }
         else {
           packet->unref();
@@ -205,7 +205,7 @@ ReadStatus MusepackReader::process(Packet * packet){
     stream_position+=ncopy;
     if (packet->space()<af.framesize()) {
       engine->decoder->post(packet);
-      packet=NULL;
+      packet=nullptr;
       }
     }
   return ReadOk;

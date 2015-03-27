@@ -85,15 +85,15 @@ void GMAboutDialog::setup(){
                  "either version 3 of the License, or (at your\n"
                  "option) any later version.";
 
-  label = new FXLabel(this,"v" APPLICATION_VERSION_STRING,NULL,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,5);
+  label = new FXLabel(this,"v" APPLICATION_VERSION_STRING,nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,5);
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
 
-  label = new FXLabel(this,"Copyright " UTF8_COPYRIGHT_SIGN " 2004-2015 Sander Jansen",NULL,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,0);
+  label = new FXLabel(this,"Copyright " UTF8_COPYRIGHT_SIGN " 2004-2015 Sander Jansen",nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,0);
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
 
-  label = new FXLabel(this,gpl,NULL,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,5,0);
+  label = new FXLabel(this,gpl,nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,5,0);
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
   label->setFont(licensefont);
@@ -107,16 +107,16 @@ void GMAboutDialog::setup(){
   libraries.format("Build with FOX %d.%d.%d\nSQLite %s and Taglib.",fxversion[0],fxversion[1],fxversion[2],sqlite3_libversion());
 #endif
 
-  label = new FXLabel(this,libraries,NULL,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,5,5);
+  label = new FXLabel(this,libraries,nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,5,5);
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
   label->setFont(licensefont);
 
   new FXSeparator(this,SEPARATOR_GROOVE|LAYOUT_FILL_X);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,tr("&Homepage"),NULL,this,ID_HOMEPAGE,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
-  new GMButton(closebox,tr("&Report Issue"),NULL,this,ID_REPORT_ISSUE,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
-  new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
+  new GMButton(closebox,tr("&Homepage"),nullptr,this,ID_HOMEPAGE,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
+  new GMButton(closebox,tr("&Report Issue"),nullptr,this,ID_REPORT_ISSUE,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,5,5);
+  new GMButton(closebox,tr("&Close"),nullptr,this,FXDialogBox::ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_CENTER_X|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
   }
 
 

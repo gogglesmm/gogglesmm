@@ -126,7 +126,7 @@ void VorbisDecoder::init_info() {
   if (has_info) {
     vorbis_info_clear(&info);
     }
-  vorbis_info_init(&info);    
+  vorbis_info_init(&info);
   has_info=true;
   }
 
@@ -228,11 +228,11 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
   FXASSERT(packet);
 
 #ifdef HAVE_VORBIS_PLUGIN
-  FXfloat ** pcm=NULL;
-  FXfloat * buf32=NULL;
+  FXfloat ** pcm=nullptr;
+  FXfloat * buf32=nullptr;
 #else // HAVE_TREMOR_PLUGIN
-  FXint ** pcm=NULL;
-  FXshort * buf32=NULL;
+  FXint ** pcm=nullptr;
+  FXshort * buf32=nullptr;
 #endif
 
   FXint p,navail=0;
@@ -294,9 +294,9 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
       for (ntotalsamples=ngiven;ntotalsamples>0;) {
 
         /// Get new buffer
-        if (out==NULL) {
+        if (out==nullptr) {
           out = engine->decoder->get_output_packet();
-          if (out==NULL) return DecoderInterrupted;
+          if (out==nullptr) return DecoderInterrupted;
           out->stream_position=stream_position;
           out->stream_length=len;
           out->af=af;
@@ -332,7 +332,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         ///FIXME handle EOS.
         if (navail==0) {
           engine->output->post(out);
-          out=NULL;
+          out=nullptr;
           }
         }
       vorbis_synthesis_read(&dsp,ngiven);
@@ -342,7 +342,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
   if (eos) {
     if (out && out->numFrames())  {
       engine->output->post(out);
-      out=NULL;
+      out=nullptr;
       }
     engine->output->post(new ControlEvent(End,id));
     }

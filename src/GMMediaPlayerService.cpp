@@ -99,7 +99,7 @@ static void gm_mpris_get_status(DBusMessageIter * iter,GMPlayerManager * p) {
     playstatus=MPRIS_STATUS_STOPPED;
 
   DBusMessageIter str;
-  dbus_message_iter_open_container(iter,DBUS_TYPE_STRUCT,NULL,&str);
+  dbus_message_iter_open_container(iter,DBUS_TYPE_STRUCT,nullptr,&str);
   dbus_message_iter_append_basic(&str,DBUS_TYPE_INT32,&playstatus);
   dbus_message_iter_append_basic(&str,DBUS_TYPE_INT32,&playmode);
   dbus_message_iter_append_basic(&str,DBUS_TYPE_INT32,&playnext);
@@ -107,7 +107,7 @@ static void gm_mpris_get_status(DBusMessageIter * iter,GMPlayerManager * p) {
   dbus_message_iter_close_container(iter,&str);
   }
 
-FXIMPLEMENT(GMMediaPlayerService1,FXObject,NULL,0)
+FXIMPLEMENT(GMMediaPlayerService1,FXObject,nullptr,0)
 
 GMMediaPlayerService1::GMMediaPlayerService1(GMDBus * b) : bus(b),published(false){
 
@@ -118,7 +118,7 @@ GMMediaPlayerService1::GMMediaPlayerService1(GMDBus * b) : bus(b),published(fals
   memset(&tracklist_vtable,0,sizeof(DBusObjectPathVTable));
   tracklist_vtable.message_function=&tracklist_filter;
 
-  int result = dbus_bus_request_name(bus->connection(),MPRIS_DBUS_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,NULL);
+  int result = dbus_bus_request_name(bus->connection(),MPRIS_DBUS_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,nullptr);
   if (result == DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ) {
     dbus_connection_register_object_path(bus->connection(),MPRIS_DBUS_ROOT,&root_vtable,this);
     dbus_connection_register_object_path(bus->connection(),MPRIS_DBUS_PLAYER,&player_vtable,this);
@@ -133,7 +133,7 @@ GMMediaPlayerService1::~GMMediaPlayerService1(){
     dbus_connection_unregister_object_path(bus->connection(),MPRIS_DBUS_PLAYER);
     dbus_connection_unregister_object_path(bus->connection(),MPRIS_DBUS_TRACKLIST);
     published=false;
-    dbus_bus_release_name(bus->connection(),MPRIS_DBUS_NAME,NULL);
+    dbus_bus_release_name(bus->connection(),MPRIS_DBUS_NAME,nullptr);
     }
   }
 
@@ -173,14 +173,14 @@ void GMMediaPlayerService1::notify_caps_change() {
 
 DBusHandlerResult GMMediaPlayerService1::root_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
   DEBUG_DBUS_MESSAGE(msg);
-  DBusMessage * reply=NULL;
+  DBusMessage * reply=nullptr;
   FXuint serial;
   GMPlayerManager      * p     = GMPlayerManager::instance();
   if (dbus_message_is_method_call(msg,"org.freedesktop.DBus.Introspectable","Introspect")){
     FXString xml(mpris_xml);
-    char ** children=NULL;
+    char ** children=nullptr;
     if (dbus_connection_list_registered(connection,"/",&children)) {
-      for (FXint i=0;children[i]!=NULL;i++) {
+      for (FXint i=0;children[i]!=nullptr;i++) {
         xml+=FXString::value("\t<node name=\"%s\"/>\n",children[i]);
         }
       dbus_free_string_array(children);
@@ -198,7 +198,7 @@ DBusHandlerResult GMMediaPlayerService1::root_filter(DBusConnection *connection,
       DBusMessageIter iter;
       DBusMessageIter str;
       dbus_message_iter_init_append(reply,&iter);
-      dbus_message_iter_open_container(&iter,DBUS_TYPE_STRUCT,NULL,&str);
+      dbus_message_iter_open_container(&iter,DBUS_TYPE_STRUCT,nullptr,&str);
       dbus_message_iter_append_basic(&str,DBUS_TYPE_UINT16,&major);
       dbus_message_iter_append_basic(&str,DBUS_TYPE_UINT16,&minor);
       dbus_message_iter_close_container(&iter,&str);
@@ -209,7 +209,7 @@ DBusHandlerResult GMMediaPlayerService1::root_filter(DBusConnection *connection,
     }
   if (dbus_message_is_method_call(msg,MPRIS_DBUS_INTERFACE,"Quit")) {
     gm_dbus_reply_if_needed(connection,msg);
-    if (p->getMainWindow()) p->getMainWindow()->handle(p,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),NULL);
+    if (p->getMainWindow()) p->getMainWindow()->handle(p,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),nullptr);
     return DBUS_HANDLER_RESULT_HANDLED;
     }
   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
@@ -218,7 +218,7 @@ DBusHandlerResult GMMediaPlayerService1::root_filter(DBusConnection *connection,
 
 DBusHandlerResult  GMMediaPlayerService1::player_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
   DEBUG_DBUS_MESSAGE(msg);
-  DBusMessage * reply=NULL;
+  DBusMessage * reply=nullptr;
   FXuint serial;
   GMPlayerManager      * p     = GMPlayerManager::instance();
 
@@ -293,7 +293,7 @@ DBusHandlerResult  GMMediaPlayerService1::player_filter(DBusConnection *connecti
 
 DBusHandlerResult  GMMediaPlayerService1::tracklist_filter(DBusConnection *connection,DBusMessage * msg,void * /*ptr*/){
   DEBUG_DBUS_MESSAGE(msg);
-  DBusMessage * reply=NULL;
+  DBusMessage * reply=nullptr;
   FXuint serial;
   GMPlayerManager      * p     = GMPlayerManager::instance();
 
@@ -396,12 +396,12 @@ static const FXchar * mpris_play_status(GMPlayerManager * p){
 
 
 
-FXIMPLEMENT(GMMediaPlayerService2,FXObject,NULL,0)
+FXIMPLEMENT(GMMediaPlayerService2,FXObject,nullptr,0)
 
 GMMediaPlayerService2::GMMediaPlayerService2(GMDBus * b) : bus(b),published(false){
   memset(&mpris_vtable,0,sizeof(DBusObjectPathVTable));
   mpris_vtable.message_function=&mpris_filter;
-  int result = dbus_bus_request_name(bus->connection(),MPRIS2_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,NULL);
+  int result = dbus_bus_request_name(bus->connection(),MPRIS2_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,nullptr);
   if (result == DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ) {
     dbus_connection_register_object_path(bus->connection(),MPRIS2_PATH,&mpris_vtable,this);
     published=true;
@@ -412,7 +412,7 @@ GMMediaPlayerService2::~GMMediaPlayerService2(){
   if (published) {
     dbus_connection_unregister_object_path(bus->connection(),MPRIS2_PATH);
     published=false;
-    dbus_bus_release_name(bus->connection(),MPRIS2_NAME,NULL);
+    dbus_bus_release_name(bus->connection(),MPRIS2_NAME,nullptr);
     }
   }
 
@@ -489,16 +489,16 @@ void GMMediaPlayerService2::notify_volume(FXint volume){
   }
 
 static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBusMessage * msg,const FXchar * prop){
-  static const FXchar * schemes[]={"file","http",NULL};
-  static const FXchar * mimetypes[]={"audio/flac","audio/ogg","audio/opus","audio/mpeg","audio/mp4a-latm","audio/x-musepack",NULL};
+  static const FXchar * schemes[]={"file","http",nullptr};
+  static const FXchar * mimetypes[]={"audio/flac","audio/ogg","audio/opus","audio/mpeg","audio/mp4a-latm","audio/x-musepack",nullptr};
   static const FXchar prop_identity[]="Goggles Music Manager";
   static const FXchar prop_desktopentry[]="gogglesmm";
-  if (prop==NULL) {
+  if (prop==nullptr) {
     FXuint serial;
     DBusMessage *   reply;
     DBusMessageIter iter;
     DBusMessageIter dict;
-    if ((reply=dbus_message_new_method_return(msg))!=NULL) {
+    if ((reply=dbus_message_new_method_return(msg))!=nullptr) {
       dbus_message_iter_init_append(reply,&iter);
       dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
       gm_dbus_dict_append_string(&dict,"Identity",prop_identity);
@@ -543,11 +543,11 @@ static void mpris_player_property_set(const FXchar * prop,FXVariant & value) {
 static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage * msg,const FXchar * prop){
   FXuint serial;
   GMPlayerManager * p = GMPlayerManager::instance();
-  if (prop==NULL) {
+  if (prop==nullptr) {
     DBusMessage *   reply;
     DBusMessageIter iter;
     DBusMessageIter dict;
-    if ((reply=dbus_message_new_method_return(msg))!=NULL) {
+    if ((reply=dbus_message_new_method_return(msg))!=nullptr) {
       GMTrack track;
       p->getTrackInformation(track);
       dbus_message_iter_init_append(reply,&iter);
@@ -574,7 +574,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
     }
   else if (compare(prop,"Metadata")==0) {
     DBusMessage * reply;
-    if ((reply=dbus_message_new_method_return(msg))!=NULL) {
+    if ((reply=dbus_message_new_method_return(msg))!=nullptr) {
       DBusMessageIter iter;
       DBusMessageIter container;
       dbus_message_iter_init_append(reply,&iter);
@@ -638,9 +638,9 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
     }
   else if (dbus_message_has_interface(msg,DBUS_PROPERTIES)) {
     if (dbus_message_is_method_call(msg,DBUS_PROPERTIES,"Get")){
-      const FXchar * interface=NULL;
-      const FXchar * property=NULL;
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&interface,DBUS_TYPE_STRING,&property,DBUS_TYPE_INVALID)) {
+      const FXchar * interface=nullptr;
+      const FXchar * property=nullptr;
+      if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&interface,DBUS_TYPE_STRING,&property,DBUS_TYPE_INVALID)) {
         if (compare(interface,MPRIS2_ROOT)==0) {
           return mpris_root_property_get(c,msg,property);
           }
@@ -651,20 +651,20 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
       return DBUS_HANDLER_RESULT_HANDLED;
       }
     else if (dbus_message_is_method_call(msg,DBUS_PROPERTIES,"GetAll")){
-      const FXchar * interface=NULL;
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&interface,DBUS_TYPE_INVALID)) {
+      const FXchar * interface=nullptr;
+      if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&interface,DBUS_TYPE_INVALID)) {
         if (compare(interface,MPRIS2_ROOT)==0) {
-          return mpris_root_property_get(c,msg,NULL);
+          return mpris_root_property_get(c,msg,nullptr);
           }
         else if (compare(interface,MPRIS2_PLAYER)==0) {
-          return mpris_player_property_get(c,msg,NULL);
+          return mpris_player_property_get(c,msg,nullptr);
           }
         }
       return DBUS_HANDLER_RESULT_HANDLED;
       }
     else if (dbus_message_is_method_call(msg,DBUS_PROPERTIES,"Set")){
-      const FXchar * interface=NULL;
-      const FXchar * property=NULL;
+      const FXchar * interface=nullptr;
+      const FXchar * property=nullptr;
       DBusMessageIter iter;
       dbus_message_iter_init(msg,&iter);
       if (dbus_message_iter_get_arg_type(&iter)==DBUS_TYPE_STRING) {
@@ -721,23 +721,23 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
       }
     else if (dbus_message_is_method_call(msg,MPRIS2_PLAYER,"Seek")) {
       FXlong offset=0;
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_INT64,&offset,DBUS_TYPE_INVALID)) {
+      if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_INT64,&offset,DBUS_TYPE_INVALID)) {
         p->seekTime(p->getPlayer()->getPosition()+(FXuint)(offset/1000000));
         }
       return gm_dbus_reply_if_needed(c,msg);
       }
     else if (dbus_message_is_method_call(msg,MPRIS2_PLAYER,"SetPosition")) {
-      const FXchar * trackid=NULL;
+      const FXchar * trackid=nullptr;
       FXlong position=0;
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_OBJECT_PATH,&trackid,DBUS_TYPE_INT64,&position,DBUS_TYPE_INVALID)) {
+      if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_OBJECT_PATH,&trackid,DBUS_TYPE_INT64,&position,DBUS_TYPE_INVALID)) {
         FXASSERT(0);
         }
       p->seekTime((FXuint)position/1000000);
       return gm_dbus_reply_if_needed(c,msg);
       }
     else if (dbus_message_is_method_call(msg,MPRIS2_PLAYER,"OpenUri")) {
-      const FXchar * uri=NULL;
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&uri,DBUS_TYPE_INVALID)) {
+      const FXchar * uri=nullptr;
+      if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&uri,DBUS_TYPE_INVALID)) {
         FXASSERT(0);
         }
       return gm_dbus_reply_if_needed(c,msg);

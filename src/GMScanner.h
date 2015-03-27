@@ -87,7 +87,7 @@ protected:
   void import();
   void listDirectory(const FXString &);
 public:
-  GMImportTask(FXObject*tgt=NULL,FXSelector sel=0);
+  GMImportTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
   void setOptions(const GMImportOptions & o) { options=o; }
 
@@ -107,7 +107,7 @@ protected:
   void sync();
   void syncDirectory(const FXString &);
 public:
-  GMSyncTask(FXObject*tgt=NULL,FXSelector sel=0);
+  GMSyncTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
   void setSyncOptions(const GMSyncOptions & o) { options_sync=o; }
 

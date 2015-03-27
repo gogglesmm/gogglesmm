@@ -88,7 +88,7 @@ FXint source_list_sort_reverse(const FXTreeItem* pa,const FXTreeItem* pb){
 
 
 // Object implementation
-FXIMPLEMENT(GMListItem,FXListItem,NULL,0)
+FXIMPLEMENT(GMListItem,FXListItem,nullptr,0)
 
 
 
@@ -198,7 +198,7 @@ long GMList::onPaint(FXObject*,FXSelector,void* ptr){
 
 
 // Object implementation
-FXIMPLEMENT(GMTreeItem,FXTreeItem,NULL,0)
+FXIMPLEMENT(GMTreeItem,FXTreeItem,nullptr,0)
 
 GMTreeItem::GMTreeItem(){
   }

@@ -151,11 +151,11 @@ FXIMPLEMENT(GMWindow,FXMainWindow,GMWindowMap,ARRAYNUMBER(GMWindowMap))
 //----------------------------------------------------------------------------------
 // Constructor
 //----------------------------------------------------------------------------------
-GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggles Music Manager",NULL,NULL,DECOR_ALL,5,5,700,580) {
+GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggles Music Manager",nullptr,nullptr,DECOR_ALL,5,5,700,580) {
   flags|=FLAG_ENABLED;
 
-  remote=NULL;
-  presenter=NULL;
+  remote=nullptr;
+  presenter=nullptr;
 
   icontheme = new GMIconTheme(getApp());
   icontheme->load();
@@ -183,7 +183,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   progressbar_animation = new GMAnimImage(progressbar,GMIconTheme::instance()->icon_progress,GMIconTheme::instance()->getSmallSize(),FRAME_NONE|LAYOUT_CENTER_Y);
   progressbar_animation->setBackColor(getApp()->getBaseColor());
-  progressbar_label = new FXLabel(progressbar,FXString::null,NULL,LAYOUT_CENTER_Y|JUSTIFY_CENTER_Y);
+  progressbar_label = new FXLabel(progressbar,FXString::null,nullptr,LAYOUT_CENTER_Y|JUSTIFY_CENTER_Y);
   new GMButton(progressbar,tr("\tCancel Task\tCancel Task"),GMIconTheme::instance()->icon_close,GMPlayerManager::instance(),GMPlayerManager::ID_CANCEL_TASK,BUTTON_TOOLBAR|FRAME_RAISED);
   new FXSeparator(progressbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
 
@@ -203,9 +203,9 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   coverframe->setBackColor(getApp()->getBackColor());
   coverframe->setBorderColor(getApp()->getShadowColor());
   coverframe->hide();
-  coverview_x11=NULL;
+  coverview_x11=nullptr;
 #ifdef HAVE_OPENGL
-  coverview_gl=NULL;
+  coverview_gl=nullptr;
 #endif
 
   updateCoverView();
@@ -240,7 +240,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new GMMenuCheck(menu_gmm,tr("Show Mini Player\tCtrl-M\tToggle Mini Player."),this,ID_SHOW_MINIPLAYER);
 #ifdef HAVE_OPENGL
   if (GMApp::instance()->hasOpenGL())
-    new GMMenuCommand(menu_gmm,tr("Show Presenter\t\tShow Presenter."),NULL,this,ID_SHOW_PRESENTER);
+    new GMMenuCommand(menu_gmm,tr("Show Presenter\t\tShow Presenter."),nullptr,this,ID_SHOW_PRESENTER);
 #endif
 
   new FXMenuSeparator(menu_gmm);
@@ -274,12 +274,12 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   new FXVerticalSeparator(toolbar,LAYOUT_FILL_Y|SEPARATOR_GROOVE);
 
   FXVerticalFrame * timeframe = new FXVerticalFrame(toolbar,LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0,0,1);
-  label_nowplaying = new FXLabel(timeframe," ",NULL,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_CENTER_X,0,0,0,0,0,0,0,0);
-//  new FXLabel(timeframe," ",NULL,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0);
+  label_nowplaying = new FXLabel(timeframe," ",nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_CENTER_X,0,0,0,0,0,0,0,0);
+//  new FXLabel(timeframe," ",nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0);
 
   FXHorizontalFrame *timelabelframe = new FXHorizontalFrame(timeframe,LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
-  time_progress   = new FXTextField(timelabelframe,8,NULL,0,LAYOUT_LEFT|LAYOUT_CENTER_Y|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
-  time_remaining  = new FXTextField(timelabelframe,8,NULL,0,LAYOUT_RIGHT|LAYOUT_CENTER_Y|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
+  time_progress   = new FXTextField(timelabelframe,8,nullptr,0,LAYOUT_LEFT|LAYOUT_CENTER_Y|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
+  time_remaining  = new FXTextField(timelabelframe,8,nullptr,0,LAYOUT_RIGHT|LAYOUT_CENTER_Y|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
   time_progress->disable();
   time_remaining->disable();
   time_progress->setJustify(JUSTIFY_CENTER_X);
@@ -334,7 +334,7 @@ void GMWindow::init(FXuint mode) {
   switch(mode) {
     case SHOW_TRAY  : break;
     case SHOW_WIZARD: toggleShown();
-                      handle(this,FXSEL(SEL_COMMAND,GMWindow::ID_IMPORT_DIRS),NULL);
+                      handle(this,FXSEL(SEL_COMMAND,GMWindow::ID_IMPORT_DIRS),nullptr);
                       break;
     default         : if (getApp()->reg().readBoolEntry("window","window-show",true)){
                         toggleShown();
@@ -429,7 +429,7 @@ void GMWindow::showPresenter(){
     presenter=&p;
     updateCover();
     p.execute();
-    presenter=NULL;
+    presenter=nullptr;
     }
 #endif
   }
@@ -438,7 +438,7 @@ void GMWindow::hidePresenter(){
 #ifdef HAVE_OPENGL
   if (presenter) {
     delete presenter;
-    presenter=NULL;
+    presenter=nullptr;
     }
 #endif
   }
@@ -462,7 +462,7 @@ void GMWindow::hideRemote(){
   if (remote) {
     remote->writeRegistry();
     delete remote;
-    remote = NULL;
+    remote = nullptr;
     }
   show();
   }
@@ -557,10 +557,10 @@ void GMWindow::toggleShown() {
 
 FXbool GMWindow::question(const FXString & dialogtitle,const FXString & labeltext,const FXString & accept,const FXString & cancel){
   FXDialogBox dialog(this,title,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,400,0,0,0,0,0,0,0);
-  create_dialog_header(&dialog,dialogtitle,labeltext,NULL);
+  create_dialog_header(&dialog,dialogtitle,labeltext,nullptr);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_BOTTOM|LAYOUT_FILL_X,0,0,0,0);
-  new GMButton(closebox,accept,NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
-  new GMButton(closebox,cancel,NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
+  new GMButton(closebox,accept,nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
+  new GMButton(closebox,cancel,nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
   if (dialog.execute()) {
     return true;
     }
@@ -672,7 +672,7 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   trackview->saveView();
 
   /// Save the Window State
-  getApp()->reg().writeBoolEntry("window","remote",(remote==NULL) ? false : true);
+  getApp()->reg().writeBoolEntry("window","remote",(remote==nullptr) ? false : true);
   if (remote)
     getApp()->reg().writeBoolEntry("window","window-show",remote->shown());
   else
@@ -693,12 +693,12 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   if (remote) {
     remote->writeRegistry();
     delete remote;
-    remote = NULL;
+    remote = nullptr;
     }
 
-  volumeslider->setTarget(NULL);
+  volumeslider->setTarget(nullptr);
   volumeslider->setSelector(0);
-  volumebutton->setMenu(NULL);
+  volumebutton->setMenu(nullptr);
   delete volumecontrol;
 
   clearCover();
@@ -751,9 +751,9 @@ long GMWindow::onCmdShowMiniPlayer(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdShowMiniPlayer(FXObject*sender,FXSelector,void*){
   if (remote)
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -865,15 +865,15 @@ long GMWindow::onCmdPlayPause(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdPlayPause(FXObject*sender,FXSelector,void*){
   if ( GMPlayerManager::instance()->can_play() || GMPlayerManager::instance()->can_unpause() || GMPlayerManager::instance()->can_pause()){
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
     if (GMPlayerManager::instance()->can_play() || GMPlayerManager::instance()->can_unpause())
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
     else
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),nullptr);
     }
   else {
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
     }
   return 1;
   }
@@ -936,9 +936,9 @@ long GMWindow::onCmdPause(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdPause(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->can_pause())
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),nullptr);
   return 1;
   }
 
@@ -954,22 +954,22 @@ long GMWindow::onCmdStop(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdStop(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->can_stop())
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 
 long GMWindow::onUpdScheduleStop(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->can_stop())
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
 
   if (GMPlayerManager::instance()->has_scheduled_stop())
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -981,9 +981,9 @@ long GMWindow::onCmdNext(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdNext(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->can_next())
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -994,9 +994,9 @@ long GMWindow::onCmdPrev(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdPrev(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->can_prev())
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -1058,9 +1058,9 @@ long GMWindow::onCmdRepeatOff(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdRepeatOff(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_OFF)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1071,9 +1071,9 @@ long GMWindow::onCmdRepeat(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdRepeat(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_TRACK)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1085,9 +1085,9 @@ long GMWindow::onCmdRepeatAll(FXObject*,FXSelector,void*){
 
 long GMWindow::onUpdRepeatAll(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_ALL)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1099,9 +1099,9 @@ long GMWindow::onCmdShuffle(FXObject*,FXSelector,void*ptr){
 
 long GMWindow::onUpdShuffle(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->getPreferences().play_shuffle)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1154,17 +1154,17 @@ FXIMPLEMENT(GMOpenDialog,FXDialogBox,GMOpenDialogMap,ARRAYNUMBER(GMOpenDialogMap
 
 GMOpenDialog::GMOpenDialog(FXWindow*p) : FXDialogBox(p,fxtr("Play File or Stream"),DECOR_TITLE|DECOR_BORDER,0,0,0,0,4,4,4,4) {
   FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
-  new GMButton(closebox,tr("&Play"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,tr("&Cancel"),NULL,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,tr("&Play"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,tr("&Cancel"),nullptr,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(this,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
 
   FXVerticalFrame * vframe = new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
-  new FXLabel(vframe,tr("Please specify a file or url to play:"),NULL);
+  new FXLabel(vframe,tr("Please specify a file or url to play:"),nullptr);
 
   FXHorizontalFrame *inputframe=new FXHorizontalFrame(vframe,LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
-  input = new GMTextField(inputframe,40,NULL,0,TEXTFIELD_NORMAL|LAYOUT_FILL_X|LAYOUT_CENTER_Y);
-  new GMButton(inputframe,tr("…"),NULL,this,ID_BROWSE);
-  input->setText(getApp()->reg().readStringEntry("GMOpenDialog","url",NULL));
+  input = new GMTextField(inputframe,40,nullptr,0,TEXTFIELD_NORMAL|LAYOUT_FILL_X|LAYOUT_CENTER_Y);
+  new GMButton(inputframe,tr("…"),nullptr,this,ID_BROWSE);
+  input->setText(getApp()->reg().readStringEntry("GMOpenDialog","url",nullptr));
   }
 
 
@@ -1200,18 +1200,18 @@ long GMWindow::onCmdOpen(FXObject*,FXSelector,void*){
 long GMWindow::onCmdSleepTimer(FXObject*,FXSelector,void*ptr){
   if (((FXint)(FXival)ptr)==1) {
     FXDialogBox dialog(this,tr("Sleep Timer"),DECOR_TITLE|DECOR_BORDER,0,0,0,0,0,0,0,0,0,0);
-    create_dialog_header(&dialog,tr("Setup sleep timer"),tr("Stop playback within a certain time"),NULL);
+    create_dialog_header(&dialog,tr("Setup sleep timer"),tr("Stop playback within a certain time"),nullptr);
     FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0);
-    new GMButton(closebox,tr("&Start Timer"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    new GMButton(closebox,tr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Start Timer"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,tr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
     new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
 
     FXHorizontalFrame * main = new FXHorizontalFrame(&dialog,LAYOUT_FILL_X,0,0,0,0,40,40,10,10);
-    new FXLabel(main,tr("Sleep in"),NULL,LABEL_NORMAL|LAYOUT_CENTER_Y);
-    FXSpinner* hours = new FXSpinner(main,2,NULL,0,FRAME_SUNKEN|FRAME_THICK);
-    new FXLabel(main,tr("hours and"),NULL,LABEL_NORMAL|LAYOUT_CENTER_Y);
-    FXSpinner* minutes = new FXSpinner(main,2,NULL,0,FRAME_SUNKEN|FRAME_THICK);
-    new FXLabel(main,tr("minutes."),NULL,LABEL_NORMAL|LAYOUT_CENTER_Y);
+    new FXLabel(main,tr("Sleep in"),nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y);
+    FXSpinner* hours = new FXSpinner(main,2,nullptr,0,FRAME_SUNKEN|FRAME_THICK);
+    new FXLabel(main,tr("hours and"),nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y);
+    FXSpinner* minutes = new FXSpinner(main,2,nullptr,0,FRAME_SUNKEN|FRAME_THICK);
+    new FXLabel(main,tr("minutes."),nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y);
     minutes->setRange(0,59);
     hours->setRange(0,24);
 
@@ -1231,9 +1231,9 @@ long GMWindow::onCmdSleepTimer(FXObject*,FXSelector,void*ptr){
   }
 long GMWindow::onUpdSleepTimer(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->hasSleepTimer())
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1241,14 +1241,14 @@ long GMWindow::onUpdSleepTimer(FXObject*sender,FXSelector,void*){
 void GMWindow::clearCover() {
   if (coverview_x11 && coverview_x11->getImage()) {
     delete coverview_x11->getImage();
-    coverview_x11->setImage(NULL);
+    coverview_x11->setImage(nullptr);
     }
 #ifdef HAVE_OPENGL
   else if (coverview_gl) {
-    coverview_gl->setImage(NULL);
+    coverview_gl->setImage(nullptr);
     }
   if (presenter)
-    presenter->setImage(NULL);
+    presenter->setImage(nullptr);
 #endif
   }
 
@@ -1258,7 +1258,7 @@ void GMWindow::update_cover_display() {
   if (cover) {
     if (!coverframe->shown()) {
       if (coverview_x11) {
-          coverview_x11->setTarget(NULL);
+          coverview_x11->setTarget(nullptr);
           }
 
       coverframe->show();
@@ -1326,7 +1326,7 @@ void GMWindow::updateCoverView() {
     if (coverview_x11) {
       clearCover();
       delete coverview_x11;
-      coverview_x11=NULL;
+      coverview_x11=nullptr;
       }
 
     if (!coverview_gl) {
@@ -1344,12 +1344,12 @@ void GMWindow::updateCoverView() {
     if (coverview_gl) {
       clearCover();
       delete coverview_gl;
-      coverview_gl=NULL;
+      coverview_gl=nullptr;
       //GMApp::instance()->releaseOpenGL();
       }
 #endif
     if (!coverview_x11) {
-      coverview_x11 = new GMImageFrame(coverframe,NULL,FRAME_NONE|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
+      coverview_x11 = new GMImageFrame(coverframe,nullptr,FRAME_NONE|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
       coverview_x11->setBackColor(getApp()->getBackColor());
       coverview_x11->setTarget(this);
       coverview_x11->setSelector(ID_COVERVIEW);
@@ -1363,7 +1363,7 @@ void GMWindow::updateCoverView() {
 
 long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
   if (coverview_x11 && GMPlayerManager::instance()->playing()) {
-    if (FXSELID(sel)==ID_COVERVIEW && coverview_x11->getUserData()==NULL) {
+    if (FXSELID(sel)==ID_COVERVIEW && coverview_x11->getUserData()==nullptr) {
       getApp()->addTimeout(this,ID_REFRESH_COVERVIEW,TIME_MSEC(50));
       }
     else {
@@ -1375,15 +1375,15 @@ long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
   }
 
 long GMWindow::onCmdPlayQueue(FXObject*,FXSelector,void*){
-  GMPlayerManager::instance()->setPlayQueue(GMPlayerManager::instance()->getPlayQueue()==NULL);
+  GMPlayerManager::instance()->setPlayQueue(GMPlayerManager::instance()->getPlayQueue()==nullptr);
   return 1;
   }
 
 long GMWindow::onUpdPlayQueue(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->getPlayQueue())
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1410,10 +1410,10 @@ void GMWindow::create_dialog_header(FXDialogBox * dialog,const FXString & dialog
   FXLabel * label = new FXLabel(header,FXString::null,dialogicon,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0,10,0,0,0);
   label->setBackColor(getApp()->getBackColor());
   FXVerticalFrame * frame = new FXVerticalFrame(header,LAYOUT_FILL_X,0,0,0,0,0,0,0,0,0,0);
-  label = new FXLabel(frame,dialogtitle,NULL,LAYOUT_FILL_X|JUSTIFY_LEFT|TEXT_AFTER_ICON,0,0,0,0,10,10,10,0);
+  label = new FXLabel(frame,dialogtitle,nullptr,LAYOUT_FILL_X|JUSTIFY_LEFT|TEXT_AFTER_ICON,0,0,0,0,10,10,10,0);
   label->setBackColor(getApp()->getBackColor());
   label->setFont(GMApp::instance()->getThickFont());
-  label = new FXLabel(frame,subtitle,NULL,LAYOUT_FILL_X|JUSTIFY_LEFT|TEXT_AFTER_ICON,0,0,0,0,10+30,10,0,10);
+  label = new FXLabel(frame,subtitle,nullptr,LAYOUT_FILL_X|JUSTIFY_LEFT|TEXT_AFTER_ICON,0,0,0,0,10+30,10,0,10);
   label->setBackColor(getApp()->getBackColor());
   new FXSeparator(dialog,LAYOUT_FILL_X|SEPARATOR_GROOVE|LAYOUT_SIDE_TOP);
   }
@@ -1434,9 +1434,9 @@ long GMWindow::onCmdShowSources(FXObject*,FXSelector,void*){
 long GMWindow::onUpdShowSources(FXObject*sender,FXSelector,void*){
   FXuint exp = mainsplitter->getExpanded();
   if (exp==SHOWSOURCES || exp==SHOWSOURCES_COVER)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 

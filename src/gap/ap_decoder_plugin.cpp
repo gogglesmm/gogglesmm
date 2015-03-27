@@ -82,7 +82,7 @@ DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
 
     default             : break;
     }
-  return NULL;
+  return nullptr;
   }
 
 }

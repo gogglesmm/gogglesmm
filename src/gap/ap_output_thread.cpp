@@ -126,7 +126,7 @@ public:
 
   void execute(AudioEngine* engine) {
     engine->post(meta);
-    meta=NULL;
+    meta=nullptr;
     }
   };
 
@@ -140,13 +140,13 @@ public:
     }
   };
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(NULL),plugin(NULL),draining(false) {
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),plugin(nullptr),draining(false) {
   stream=-1;
   stream_remaining=0;
   stream_written=0;
   stream_position=0;
   timestamp=-1;
-  packet_queue=NULL;
+  packet_queue=nullptr;
   }
 
 FXbool OutputThread::init() {
@@ -160,7 +160,7 @@ FXbool OutputThread::init() {
 
 
 OutputThread::~OutputThread() {
-  FXASSERT(plugin==NULL);
+  FXASSERT(plugin==nullptr);
   reactor.removeInput(fifoinput);
   delete fifoinput;
   clear_timers();
@@ -444,7 +444,7 @@ Event * OutputThread::wait_drain() {
     now = FXThread::time();
     }
   while(1);
-  return NULL;
+  return nullptr;
   }
 
 
@@ -481,7 +481,7 @@ void OutputThread::load_plugin() {
     }
 
   FXuint * plugin_version = static_cast<FXuint*>(dll.address("ap_version"));
-  if (plugin_version==NULL) {
+  if (plugin_version==nullptr) {
     GM_DEBUG_PRINT("[output] incompatible plugin: no ap_version found\n");
     engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
     dll.unload();
@@ -496,11 +496,11 @@ void OutputThread::load_plugin() {
     }
 
   ap_load_plugin_t ap_load_plugin = (ap_load_plugin_t) dll.address("ap_load_plugin");
-  if (ap_load_plugin==NULL || (plugin=ap_load_plugin(this))==NULL) {
+  if (ap_load_plugin==nullptr || (plugin=ap_load_plugin(this))==nullptr) {
     GM_DEBUG_PRINT("[output] incompatible plugin\n");
     engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
     dll.unload();
-    return;    
+    return;
     }
 
   /// Set Device Config
@@ -513,15 +513,15 @@ void OutputThread::unload_plugin() {
   if (plugin) {
     FXASSERT(dll.loaded());
     ap_free_plugin_t ap_free_plugin = (ap_free_plugin_t) dll.address("ap_free_plugin");
-    FXASSERT(ap_free_plugin!=NULL);
-    if (ap_free_plugin==NULL) {
+    FXASSERT(ap_free_plugin!=nullptr);
+    if (ap_free_plugin==nullptr) {
       fxwarning("[output] no 'ap_free_plugin' defined\n");
       delete plugin;
-      plugin=NULL;
+      plugin=nullptr;
       }
     else {
       ap_free_plugin(plugin);
-      plugin=NULL;
+      plugin=nullptr;
       }
     dll.unload();
     }
@@ -540,7 +540,7 @@ void OutputThread::close_plugin() {
 
 
 void OutputThread::configure(const AudioFormat & fmt) {
-  if (plugin==NULL) {
+  if (plugin==nullptr) {
     load_plugin();
     if (!plugin) {
       engine->input->post(new ControlEvent(Ctrl_Close));
@@ -662,7 +662,7 @@ static FXbool convert_to_float(OutputPacket * packet,MemoryBuffer & output) {
 /*
 void OutputThread::convert_and_resample(OutputPacket * packet) {
 
-  if (src_state==NULL) {
+  if (src_state==nullptr) {
     int error;
     src_state = src_new(SRC_SINC_BEST_QUALITY,packet->af.channels,&error);
     }
@@ -686,12 +686,12 @@ void OutputThread::convert_and_resample(OutputPacket * packet) {
 
 #ifdef HAVE_SAMPLERATE_PLUGIN
 void OutputThread::resample(Packet * packet,FXint & nframes) {
-  static SRC_STATE * src_state = NULL;
+  static SRC_STATE * src_state = nullptr;
   SRC_DATA srcdata;
 
   FXint framesize = packet->af.framesize();
 
-  if (src_state==NULL) {
+  if (src_state==nullptr) {
     int error;
     src_state = src_new(SRC_SINC_BEST_QUALITY,packet->af.channels,&error);
     }

@@ -50,8 +50,8 @@
 namespace ap {
 
 InputThread::InputThread(AudioEngine*e) : EngineThread(e),
-  input(NULL),
-  reader(NULL),
+  input(nullptr),
+  reader(nullptr),
   streamid(0),
   use_mmap(false),
   state(StateIdle) {
@@ -79,7 +79,7 @@ void InputThread::free() {
 
 /*
 Event * InputThread::wait_for_io() {
-  Event * event=NULL;
+  Event * event=nullptr;
   do {
     event=fifo.pop();
     if (event) return event;
@@ -87,7 +87,7 @@ Event * InputThread::wait_for_io() {
     ap_wait(io.handle(),fifo.handle());
     }
   while(1);
-  return NULL;
+  return nullptr;
   }
 */
 
@@ -100,7 +100,7 @@ FXbool InputThread::aborted() {
 
 Event * InputThread::wait_for_event() {
   Event * event = fifo.pop();
-  if (event==NULL) {
+  if (event==nullptr) {
     ap_wait(fifo.handle());
     event = fifo.pop();
     }
@@ -109,7 +109,7 @@ Event * InputThread::wait_for_event() {
   }
 
 Event * InputThread::wait_for_packet() {
-  Event * event=NULL;
+  Event * event=nullptr;
   do {
     event=fifo.pop();
     if (event) return event;
@@ -120,7 +120,7 @@ Event * InputThread::wait_for_packet() {
     ap_wait(fifo.handle(),packetpool.handle());
     }
   while(1);
-  return NULL;
+  return nullptr;
   }
 
 
@@ -153,7 +153,7 @@ Event * InputThread::wait_for_packet() {
     ap_wait(DecoderPacket::handle(),fifo.handle());
     }
   while(1);
-  return NULL;
+  return nullptr;
   }
 */
 
@@ -163,7 +163,7 @@ Packet * InputThread::get_packet() {
     type = fifo.peek();
 
     if (type!=Buffer && type!=AP_INVALID){
-      return NULL;
+      return nullptr;
       }
 
     Packet * packet = packetpool.pop();
@@ -172,13 +172,13 @@ Packet * InputThread::get_packet() {
     ap_wait(packetpool.handle(),fifo.handle());
     }
   while(1);
-  return NULL;
+  return nullptr;
   }
 
 
 #if 0
 Event* InputThread::get_packet() {
-  Event * event=NULL;
+  Event * event=nullptr;
 
 
   event = DecoderPacket::get();
@@ -186,7 +186,7 @@ Event* InputThread::get_packet() {
 
 
 
-  if (fifo.peek()!=Invalid) return NULL;
+  if (fifo.peek()!=Invalid) return nullptr;
 
   FXint result = ap_wait(DecoderPacket::handle(),fifo.handle());
   //fxmessage("get packet result==%d\n",result);
@@ -305,14 +305,14 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
 
   if (input) {
     delete input;
-    input=NULL;
+    input=nullptr;
     }
 
   if (scheme=="file" || scheme.empty()) {
     FileInput * file = new FileInput(this);
     if (!file->open(uri)){
       delete file;
-      return NULL;
+      return nullptr;
       }
     url=uri;
     return file;
@@ -321,7 +321,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     HttpInput * http = new HttpInput(this);
     if (!http->open(uri)){
       delete http;
-      return NULL;
+      return nullptr;
       }
     url=uri;
     return http;
@@ -331,7 +331,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     MMSInput * mms = new MMSInput(this);
     if (!mms->open(uri)){
       delete mms;
-      return NULL;
+      return nullptr;
       }
     url=uri;
     return mms;
@@ -342,7 +342,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     CDDAInput * cdda = new CDDAInput(this);
     if (!cdda->open(uri)) {
       delete cdda;
-      return NULL;
+      return nullptr;
       }
     url=uri;
     return cdda;
@@ -353,14 +353,14 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     SMBInput * smb = new SMBInput(this);
     if (!smb->open(uri)) {
       delete smb;
-      return NULL;
+      return nullptr;
       }
     url=uri;
     return smb;
     }
 #endif
   else {
-    return NULL;
+    return nullptr;
     }
   }
 
@@ -368,7 +368,7 @@ ReaderPlugin* InputThread::open_reader() {
   /// FIXME try to reuse existing plugin
   if (reader) {
     delete reader;
-    reader=NULL;
+    reader=nullptr;
     }
   return ReaderPlugin::open(engine,input->plugin());
   }
@@ -381,14 +381,14 @@ void InputThread::ctrl_open_inputs(const FXStringList & urls){
 
     /// Open Input
     input=open_input(urls[i]);
-    if (input==NULL) {
+    if (input==nullptr) {
       if (aborted()) break;
       continue;
       }
 
     /// Open Reader
     reader = open_reader();
-    if (reader==NULL) continue;
+    if (reader==nullptr) continue;
 
     if (!reader->init(input))
       continue;
@@ -410,13 +410,13 @@ void InputThread::ctrl_open_input(const FXString & uri) {
 
   /// Open Input
   input=open_input(uri);
-  if (input==NULL) {
+  if (input==nullptr) {
     engine->post(new ErrorMessage(FXString::value("Unable to open %s.",uri.text())));
     goto failed;
     }
 
   reader = open_reader();
-  if (reader==NULL) {
+  if (reader==nullptr) {
     engine->post(new ErrorMessage(FXString::value("No reader available for %s format.",ap_format_name(input->plugin()))));
     goto failed;
     }
@@ -462,12 +462,12 @@ void InputThread::ctrl_close_input(FXbool notify) {
   GM_DEBUG_PRINT("[input] close input %d\n",notify);
   if (input) {
     delete input;
-    input=NULL;
+    input=nullptr;
     url.clear();
     }
   if (reader) {
     delete reader;
-    reader=NULL;
+    reader=nullptr;
     }
   set_state(StateIdle,notify);
   }

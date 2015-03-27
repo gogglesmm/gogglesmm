@@ -328,7 +328,7 @@ void GMDBTracks::remove(FXint track) {
   }
 
 
-GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel),database(NULL),playlist(0),count(0) {
+GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel),database(nullptr),playlist(0),count(0) {
   database = GMPlayerManager::instance()->getTrackDatabase();
   }
 
@@ -472,7 +472,7 @@ void GMImportTask::listDirectory(const FXString & path) {
   FXIntList     tids;
   GMTrack       info;
 
-  FXString * items=NULL;
+  FXString * items=nullptr;
   FXint pid,i;
 
   const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
@@ -487,7 +487,7 @@ void GMImportTask::listDirectory(const FXString & path) {
       }
 
     delete [] items;
-    items=NULL;
+    items=nullptr;
     }
 
   if (!processing) return;
@@ -526,7 +526,7 @@ void GMImportTask::listDirectory(const FXString & path) {
         }
       }
     delete [] items;
-    items=NULL;
+    items=nullptr;
     }
   }
 
@@ -544,7 +544,7 @@ FXint GMImportTask::run() {
       }
     import();
 
-    GMTag::setID3v1Encoding(NULL);
+    GMTag::setID3v1Encoding(nullptr);
     }
   catch(GMDatabaseException&) {
     database->rollbackTask();
@@ -664,7 +664,7 @@ FXint GMSyncTask::run() {
     if (options_sync.import_new && !options_sync.remove_all)
       import();
 
-    GMTag::setID3v1Encoding(NULL);
+    GMTag::setID3v1Encoding(nullptr);
     }
   catch(GMDatabaseException&) {
     database->rollbackTask();

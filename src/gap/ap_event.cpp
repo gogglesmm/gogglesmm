@@ -24,15 +24,15 @@
 
 namespace ap {
 
-Event::Event() : next(NULL), type(AP_INVALID),stream(0) {
+Event::Event() : next(nullptr), type(AP_INVALID),stream(0) {
   }
 
-Event::Event(FXuchar t) : next(NULL), type(t),stream(0) {
+Event::Event(FXuchar t) : next(nullptr), type(t),stream(0) {
   FXASSERT(type!=AP_INVALID);
   }
 
 Event::~Event() {
-  next=NULL;
+  next=nullptr;
   }
 
 void Event::unref() {
@@ -41,7 +41,7 @@ void Event::unref() {
 
 void Event::unref(Event*& event) {
   event->unref();
-  event=NULL;
+  event=nullptr;
   }
 
 
@@ -110,7 +110,7 @@ ConfigureEvent::ConfigureEvent(const AudioFormat & fmt,FXuchar c,FXint n) : Even
   af(fmt),
   codec(c),
   stream_length(n),
-  data(NULL),
+  data(nullptr),
   stream_offset_start(0),
   stream_offset_end(0){
   }

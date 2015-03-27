@@ -50,11 +50,11 @@ void GMAudioPlayer::loadSettings() {
 
 
 long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
-  Event * event=NULL;
-  while((event=pop())!=NULL) {
+  Event * event=nullptr;
+  while((event=pop())!=nullptr) {
     switch(event->type) {
-      case AP_EOS              : if (target) target->handle(this,FXSEL(SEL_PLAYER_EOS,message),NULL); break;
-      case AP_BOS              : if (target) target->handle(this,FXSEL(SEL_PLAYER_BOS,message),NULL); break;
+      case AP_EOS              : if (target) target->handle(this,FXSEL(SEL_PLAYER_EOS,message),nullptr); break;
+      case AP_BOS              : if (target) target->handle(this,FXSEL(SEL_PLAYER_BOS,message),nullptr); break;
       case AP_STATE_READY      : state=PLAYER_STOPPED; if (target) target->handle(this,FXSEL(SEL_PLAYER_STATE,message),(void*)(FXival)state);break;
       case AP_STATE_PLAYING    : state=PLAYER_PLAYING; if (target) target->handle(this,FXSEL(SEL_PLAYER_STATE,message),(void*)(FXival)state);break;
       case AP_STATE_PAUSING    : state=PLAYER_PAUSING; if (target) target->handle(this,FXSEL(SEL_PLAYER_STATE,message),(void*)(FXival)state);break;
