@@ -149,10 +149,7 @@ enum {
   M3U               = 10,
   PLS               = 11,
   XSPF              = 12,
-  ASF               = 13,
-  ASX               = 14,
-  ASFX              = 15, // either ASX or ASF
-  AIFF              = 16 
+  AIFF              = 13
   };
 
 }

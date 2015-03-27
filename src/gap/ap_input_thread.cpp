@@ -40,7 +40,6 @@
 #include "plugins/ap_file_plugin.h"
 #include "plugins/ap_http_plugin.h"
 #include "plugins/ap_cdda_plugin.h"
-#include "plugins/ap_mms_plugin.h"
 #include "plugins/ap_smb_plugin.h"
 
 #ifndef WIN32
@@ -326,17 +325,6 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     url=uri;
     return http;
     }
-#ifdef HAVE_MMS_PLUGIN
-  else if (scheme=="mms") {
-    MMSInput * mms = new MMSInput(this);
-    if (!mms->open(uri)){
-      delete mms;
-      return nullptr;
-      }
-    url=uri;
-    return mms;
-    }
-#endif
 #ifdef HAVE_CDDA_PLUGIN
   else if (scheme=="cdda") {
     CDDAInput * cdda = new CDDAInput(this);

@@ -69,17 +69,12 @@ DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
 #ifdef HAVE_MAD_PLUGIN
     case Codec::MPEG    : return ap_mad_decoder(engine); break;
 #endif
-//#ifdef HAVE_AVCODEC_PLUGIN
-//    case Codec::MPEG    : return new AVDecoder(engine); break;
-//#endif
 #ifdef HAVE_AAC_PLUGIN
     case Codec::AAC     : return ap_aac_decoder(engine); break;
 #endif
-
 #ifdef HAVE_OPUS_PLUGIN
     case Codec::Opus    : return ap_opus_decoder(engine); break;
 #endif
-
     default             : break;
     }
   return nullptr;

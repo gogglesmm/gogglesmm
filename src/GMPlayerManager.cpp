@@ -46,10 +46,6 @@
 #include "GMAppStatusNotify.h"
 #endif
 
-#ifdef HAVE_LIRC
-#include "lirc_client.h"
-#endif
-
 #include <FXPNGIcon.h>
 #include "GMApp.h"
 #include "GMTrackList.h"
@@ -113,9 +109,6 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
 
 #ifdef HAVE_DBUS
   FXMAPFUNC(SEL_KEYPRESS,GMPlayerManager::ID_GNOME_SETTINGS_DAEMON,GMPlayerManager::onCmdSettingsDaemon),
-#endif
-#ifdef HAVE_LIRC
-  FXMAPFUNC(SEL_IO_READ,GMPlayerManager::ID_LIRC,GMPlayerManager::onCmdLirc),
 #endif
   FXMAPFUNC(SEL_PLAYER_BOS,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerBOS),
   FXMAPFUNC(SEL_PLAYER_EOS,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerEOS),
@@ -752,26 +745,6 @@ void GMPlayerManager::init_configuration() {
   }
 
 
-#ifdef HAVE_LIRC
-
-void GMPlayerManager::init_lirc() {
-
-//#ifdef DEBUG
-  lirc_fd  = lirc_init("gogglesmm",1);
-//#else
-//  lirc_fd  = lirc_init("gogglesmm",0);
-//#endif
-  if (lirc_fd) {
-    ap_set_nonblocking(lirc_fd);
-
-    if (lirc_readconfig(nullptr,&lirc_config,nullptr))
-      fxmessage("oops\n");
-
-    application->addInput(this,ID_LIRC,lirc_fd,INPUT_READ);
-    }
-
-  }
-#endif
 
 #ifdef HAVE_DBUS
 FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
@@ -946,10 +919,6 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     /// Integrate Dbus into FOX Event Loop
     GMDBus::initEventLoop();
     }
-#endif
-
-#ifdef HAVE_LIRC
-  init_lirc();
 #endif
 
   /// Start Services
@@ -1766,83 +1735,6 @@ long GMPlayerManager::onCmdSettingsDaemon(FXObject*,FXSelector,void*ptr){
   }
 #endif
 
-
-#ifdef HAVE_LIRC
-long GMPlayerManager::onCmdLirc(FXObject*,FXSelector,void*){
-  FXchar * code=nullptr;
-  FXchar * action=nullptr;
-  FXint result;
-  while(lirc_nextcode(&code)==0 && code) {
-//    fxmessage("code: %s\n",code);
-    while((result=lirc_code2char(lirc_config,code,&action))==0 && action) {
-      fxmessage("Action: %s\n",action);
-      if (comparecase(action,"play")==0)
-        cmd_play();
-      else if (comparecase(action,"pause")==0)
-        cmd_pause();
-      else if (comparecase(action,"prev")==0)
-        cmd_prev();
-      else if (comparecase(action,"next")==0)
-        cmd_next();
-      else if (comparecase(action,"volup")==0){
-        volume(FXMIN(volume()+1,100));
-        }
-      else if (comparecase(action,"voldown")==0){
-        volume(FXMAX(volume()-1,0));
-        }
-      else if (comparecase(action,"mute")==0){
-        volume(0);
-        }
-      else if (comparecase(action,"left")==0){
-        cmd_focus_previous();
-        }
-      else if (comparecase(action,"right")==0){
-        cmd_focus_next();
-        }
-      else if (comparecase(action,"ok")==0){
-        FXWindow * window = application->getFocusWindow();
-        if (window) {
-          GMTrackList * tracklist;
-          if ((tracklist=dynamic_cast<GMTrackList*>(window))!=nullptr) {
-            play();
-            }
-          }
-        }
-      else if (comparecase(action,"down")==0 || comparecase(action,"up")==0){
-        FXWindow * window = application->getFocusWindow();
-        if (window) {
-          GMTrackList * tracklist;
-          if ((tracklist=dynamic_cast<GMTrackList*>(window))!=nullptr) {
-            FXint index=tracklist->getCurrentItem();
-            if (comparecase(action,"down")==0) {
-              if (index<tracklist->getNumItems()-1)
-                index++;
-              else
-                index=0;
-              }
-            else {
-             if (index>0)
-                index--;
-              else
-                index=tracklist->getNumItems()-1;
-              }
-            tracklist->setCurrentItem(index,false);
-            tracklist->makeItemVisible(index);
-            tracklist->killSelection(false);
-            tracklist->selectItem(index,false);
-            tracklist->setAnchorItem(index);
-            }
-          }
-        }
-
-
-      }
-    free(code);
-    if (result==-1) return 0;
-    }
-  return 1;
-  }
-#endif
 
 // Perhaps should do something else...
 static int xregisterhotkeys(Display* dpy,XErrorEvent* eev){

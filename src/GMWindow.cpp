@@ -105,7 +105,6 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_NEXT,              GMWindow::onCmdNext),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_PREV,              GMWindow::onCmdPrev),
-//  FXMAPFUNCS(SEL_COMMAND,GMWindow::ID_SEEK_FORWARD_10SEC,GMWindow::ID_SEEK_BACKWARD_1MIN,GMWindow::onCmdSeek),
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SHOW_FULLSCREEN,		GMWindow::onCmdShowFullScreen),
   FXMAPFUNC(SEL_COMMAND,        		GMWindow::ID_SHOW_MINIPLAYER,   GMWindow::onCmdShowMiniPlayer),
@@ -258,7 +257,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   controldragcorner = new FXDragCorner(toolbar);
 
   menubutton_library = new GMMenuButton(toolbar,"\tManage Music Database",icontheme->icon_create,menu_library,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|ICON_AFTER_TEXT);
-  //menubutton_view    = new GMMenuButton(toolbar,"\tEdit View",icontheme->icon_document,menu_view,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT);
   menubutton_gmm     = new GMMenuButton(toolbar,"\tCustomize and Control GMM",icontheme->icon_customize,menu_gmm,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|MENUBUTTON_DOWN|ICON_AFTER_TEXT|LAYOUT_RIGHT);
   menubutton_media   = new GMMenuButton(toolbar,"\tMedia Control",icontheme->icon_media,menu_media,MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_RIGHT|LAYOUT_CENTER_Y|ICON_AFTER_TEXT);
   volumebutton       = new GMMenuButton(toolbar,"\tAdjust Volume\tAdjust Volume",icontheme->icon_volume_muted_toolbar,volumecontrol,MENUBUTTON_NOARROWS|MENUBUTTON_ATTACH_LEFT|MENUBUTTON_UP|MENUBUTTON_TOOLBAR|FRAME_RAISED|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
@@ -275,7 +273,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
 
   FXVerticalFrame * timeframe = new FXVerticalFrame(toolbar,LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0,0,1);
   label_nowplaying = new FXLabel(timeframe," ",nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_CENTER_X,0,0,0,0,0,0,0,0);
-//  new FXLabel(timeframe," ",nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0,0,0,0,0);
 
   FXHorizontalFrame *timelabelframe = new FXHorizontalFrame(timeframe,LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
   time_progress   = new FXTextField(timelabelframe,8,nullptr,0,LAYOUT_LEFT|LAYOUT_CENTER_Y|TEXTFIELD_READONLY,0,0,0,0,0,0,0,0);
@@ -313,7 +310,6 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   getAccelTable()->addAccel(parseAccel("Ctrl-X"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_CUT));
   getAccelTable()->addAccel(parseAccel("Ctrl-V"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_PASTE));
   getAccelTable()->addAccel(parseAccel("Ctrl-J"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_SHOW_CURRENT));
-  //getAccelTable()->addAccel(parseAccel("Ctrl-F"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
   getAccelTable()->addAccel(parseAccel("Ctrl-B"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_BROWSER));
   getAccelTable()->addAccel(parseAccel("Ctrl-T"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_TAGS));
   }
@@ -798,11 +794,9 @@ void GMWindow::configureToolbar(FXbool docktop,FXbool initial/*=false*/){
       toolbar->setLayoutHints(LAYOUT_FILL_X|LAYOUT_SIDE_TOP);
       controldragcorner->hide();
       menubutton_library->setAttachment(MENUBUTTON_ATTACH_LEFT);
-      //menubutton_view->setAttachment(MENUBUTTON_ATTACH_LEFT);
       menubutton_gmm->setAttachment(MENUBUTTON_ATTACH_RIGHT);
       menubutton_media->setAttachment(MENUBUTTON_ATTACH_RIGHT);
       menubutton_library->setPopupStyle(MENUBUTTON_DOWN);
-      //menubutton_view->setPopupStyle(MENUBUTTON_DOWN);
       menubutton_gmm->setPopupStyle(MENUBUTTON_DOWN);
       menubutton_media->setPopupStyle(MENUBUTTON_DOWN);
       }
@@ -810,11 +804,9 @@ void GMWindow::configureToolbar(FXbool docktop,FXbool initial/*=false*/){
       toolbar->setLayoutHints(LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
       if (!statusbar->shown()) controldragcorner->show();
       menubutton_library->setAttachment(MENUBUTTON_ATTACH_LEFT);
-      //menubutton_view->setAttachment(MENUBUTTON_ATTACH_LEFT);
       menubutton_gmm->setAttachment(MENUBUTTON_ATTACH_RIGHT);
       menubutton_media->setAttachment(MENUBUTTON_ATTACH_RIGHT);
       menubutton_library->setPopupStyle(MENUBUTTON_UP);
-      //menubutton_view->setPopupStyle(MENUBUTTON_UP);
       menubutton_gmm->setPopupStyle(MENUBUTTON_UP);
       menubutton_media->setPopupStyle(MENUBUTTON_UP);
       }
@@ -1000,26 +992,6 @@ long GMWindow::onUpdPrev(FXObject*sender,FXSelector,void*){
   return 1;
   }
 
-
-long GMWindow::onCmdSeek(FXObject*,FXSelector,void*){
-#if 0
-#ifdef HAVE_XINE_LIB
-  if (GMPlayerManager::instance()->getPlayer()->playing() && GMPlayerManager::instance()->getPlayer()->seekable()){
-    FXint pos=GMPlayerManager::instance()->getPlayer()->getPositionMS();
-    switch(FXSELID(sel)) {
-      case ID_SEEK_FORWARD_10SEC  : pos+=10000; break;
-      case ID_SEEK_FORWARD_1MIN   : pos+=60000; break;
-      case ID_SEEK_BACKWARD_10SEC : pos-=10000; break;
-      case ID_SEEK_BACKWARD_1MIN  : pos-=60000; break;
-      }
-    pos = pos / (double) (GMPlayerManager::instance()->getPlayer()->getTotalTime() / (double) 0xFFFF);
-    pos = FXCLAMP(0,pos,0xFFFF);
-    GMPlayerManager::instance()->seek(pos);
-    }
-#endif
-#endif
-  return 1;
-  }
 
 
 long GMWindow::onCmdTimeSlider(FXObject*,FXSelector,void*ptr){
@@ -1449,16 +1421,6 @@ FXbool GMWindow::showSources() const {
   else
     return false;
   }
-
-
-/*
-  sourcelist
-  genrelist
-  artistlist
-  albumlist
-  tracklist
-*/
-
 
 long GMWindow::onCmdNextFocus(FXObject*,FXSelector,void*){
   focusNext();

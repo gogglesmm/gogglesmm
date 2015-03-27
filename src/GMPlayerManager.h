@@ -118,10 +118,6 @@ protected:
   GMAudioPlayer        * player;
   GMTrayIcon           * trayicon;
   GMAudioScrobbler     * scrobbler;
-#ifdef HAVE_LIRC
-  FXint                  lirc_fd;
-  struct lirc_config*    lirc_config;
-#endif
 protected:
   GMPlayQueue          * queue;
   GMSource             * source;
@@ -148,9 +144,6 @@ public:
     ID_WINDOW,
     ID_EQUALIZER,
     ID_SCROBBLER,
-#ifdef HAVE_LIRC
-    ID_LIRC,
-#endif
 #ifdef HAVE_DBUS
     ID_GNOME_SETTINGS_DAEMON,
 #endif
@@ -182,9 +175,6 @@ public:
   long onTaskManagerShutdown(FXObject*,FXSelector,void*);
   long onCancelTask(FXObject*,FXSelector,void*);
   long onCmdQuit(FXObject*,FXSelector,void*);
-#ifdef HAVE_LIRC
-  long onCmdLirc(FXObject*,FXSelector,void*);
-#endif
 #ifdef HAVE_DBUS
   long onCmdSettingsDaemon(FXObject*,FXSelector,void*);
 #endif
@@ -204,9 +194,6 @@ protected:
   void   init_configuration();
 #ifdef HAVE_DBUS
   FXbool init_dbus(int & argc,char**argv);
-#endif
-#ifdef HAVE_LIRC
-  void   init_lirc();
 #endif
 public:
   GMPlayerManager();

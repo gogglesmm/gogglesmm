@@ -28,7 +28,6 @@ OPTION_GAP_TREMOR=0
 OPTION_GAP_OPUS=1
 OPTION_GAP_FLAC=1
 OPTION_GAP_FAAD=1
-OPTION_GAP_WAVPACK=0
 OPTION_GAP_FORCE_FAAD=0
 OPTION_GAP_MUSEPACK=0
 OPTION_GAP_SAMPLERATE=0
@@ -37,17 +36,13 @@ OPTION_GAP_ALSA=1
 OPTION_GAP_OSS=1
 OPTION_GAP_PULSE=1
 OPTION_GAP_JACK=0
-OPTION_GAP_RSOUND=0
-OPTION_GAP_AVCODEC=0 # disabled for now
 OPTION_GAP_CDDA=0
-OPTION_GAP_MMS=0 # disabled for now
 OPTION_GAP_SMB=0
 #OPTION_GAP_PROXY=1
 
 OPTION_GMM_DBUS=1
 OPTION_GMM_NLS=1
 OPTION_GMM_MD5=gcrypt
-OPTION_GMM_LIRC=0
 OPTION_GMM_OPENGL=1
 
 # Default Compiler Settings
@@ -130,9 +125,6 @@ for arg in $@; do
     --with-musepack)
       OPTION_GAP_MUSEPACK=1
       ;;
-    --without-wavpack)
-      OPTION_GAP_WAVPACK=0
-      ;;
     --without-samplerate)
       OPTION_GAP_SAMPLERATE=0
       ;;
@@ -151,17 +143,8 @@ for arg in $@; do
     --without-pulse)
       OPTION_GAP_PULSE=0
       ;;
-    --without-rsound)
-      OPTION_GAP_RSOUND=0
-      ;;
     --without-jack)
       OPTION_GAP_JACK=0
-      ;;
-    --without-avcodec)
-      OPTION_GAP_AVCODEC=0
-      ;;
-    --without-mms)
-      OPTION_GAP_MMS=0
       ;;
     --with-mad)
       OPTION_GAP_FORCE_MAD=1
@@ -210,7 +193,6 @@ for arg in $@; do
       echo "   --without-ogg                   Compile without ogg support"
       echo "   --without-flac                  Compile without flac support"
       echo "   --without-faad                  Compile without faad support"
-      echo "   --without-wavepack              Compile without wavpack support"
       echo "   --without-samplerate            Compile without samplerate support"
       echo "   --without-cdda                  Compile without cdda support"
       echo "   --without-smb                   Compile without smb support"
@@ -218,8 +200,6 @@ for arg in $@; do
       echo "   --without-oss                   Compile without oss support"
       echo "   --without-pulse                 Compile without pulseaudio support"
       echo "   --without-jack                  Compile without jack support"
-      echo "   --without-rsound                Compile without rsound support"
-      echo "   --without-avcodec               Compile without avcodec support"
       echo " "
       echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use. default: gcrypt"
       echo "   --without-dbus                  Compile without dbus support"
@@ -240,6 +220,9 @@ for arg in $@; do
       echo "   --lib32                         Install in lib32 instead of lib"
       echo " "
       exit 0
+      ;;
+    *)
+      echo "Warning: \"$arg\" not supported or recognized. Ignoring."
       ;;
   esac
 done
@@ -372,13 +355,6 @@ if [ $OPTION_GMM_OPENGL -eq 0 ] ; then
   echo "  OpenGL Support: no"
 else
   echo "  OpenGL Support: yes"
-fi
-
-
-if [ $OPTION_GMM_LIRC -eq 0 ] ; then
-  echo "  LIRC Support  : no"
-else
-  echo "  LIRC Support  : yes"
 fi
 
 if [ $OPTION_GMM_NLS -eq 0 ] ; then

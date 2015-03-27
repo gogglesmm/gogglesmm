@@ -64,10 +64,6 @@ GAP_SRC+=src/gap/plugins/ap_mad_plugin.cpp
 src/gap/plugins/ap_mad_plugin$(OBJEXT): CPPFLAGS+=$(MAD_CPPFLAGS)
 endif
 
-ifneq (,$(findstring wavpack,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_wavpack_plugin.cpp
-endif
-
 ifneq (,$(findstring flac,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_flac_plugin.cpp
 src/gap/plugins/ap_flac_plugin$(OBJEXT): CPPFLAGS+=$(FLAC_CPPFLAGS)
@@ -86,16 +82,8 @@ ifneq (,$(findstring cdda,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_cdda_plugin.cpp
 endif
 
-ifneq (,$(findstring mms,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_mms_plugin.cpp
-endif
-
 ifneq (,$(findstring smb,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_smb_plugin.cpp
-endif
-
-ifneq (,$(findstring avcodec,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_avc_plugin.cpp src/plugins/ap_asf_plugin.cpp src/plugins/ap_asx_plugin.cpp
 endif
 
 #----------------------------------------------------------
@@ -129,11 +117,6 @@ $(GAP_JACK_PLUGIN): CFLAGS+=$(SO_CFLAGS) $(JACK_CFLAGS)
 $(GAP_JACK_PLUGIN): LDFLAGS+=$(SO_LDFLAGS) $(JACK_LDFLAGS)
 $(GAP_JACK_PLUGIN): LIBS+=$(JACK_LIBS)
 
-$(GAP_RSOUND_PLUGIN): CPPFLAGS+=$(GAP_INCS) $(RSOUND_CPPFLAGS)
-$(GAP_RSOUND_PLUGIN): CFLAGS+=$(SO_CFLAGS) $(RSOUND_CFLAGS)
-$(GAP_RSOUND_PLUGIN): LDFLAGS+=$(SO_LDFLAGS) $(RSOUND_LDFLAGS)
-$(GAP_RSOUND_PLUGIN): LIBS+=$(RSOUND_LIBS)
-
 $(GAP_WAV_PLUGIN): CPPFLAGS+=$(GAP_INCS) $(WAV_CPPFLAGS)
 $(GAP_WAV_PLUGIN): CFLAGS+=$(SO_CFLAGS) $(WAV_CFLAGS)
 $(GAP_WAV_PLUGIN): LDFLAGS+=$(SO_LDFLAGS)
@@ -149,7 +132,6 @@ $(GAP_ALSA_PLUGIN): $(ALSA_SRC:.cpp=$(OBJEXT))
 $(GAP_OSS_PLUGIN): $(OSS_SRC:.cpp=$(OBJEXT))
 $(GAP_PULSE_PLUGIN): $(PULSE_SRC:.cpp=$(OBJEXT))
 $(GAP_JACK_PLUGIN): $(JACK_SRC:.cpp=$(OBJEXT))
-$(GAP_RSOUND_PLUGIN): $(RSOUND_SRC:.cpp=$(OBJEXT))
 $(GAP_WAV_PLUGIN): $(WAV_SRC:.cpp=$(OBJEXT))
 
 # Link Libraries

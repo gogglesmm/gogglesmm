@@ -160,7 +160,6 @@ public: /// Message Handlers
 
   long onConfigureCoverView(FXObject*,FXSelector,void*);
 
-  long onCmdSeek(FXObject*,FXSelector,void*);
   long onCmdNextFocus(FXObject*,FXSelector,void*);
 
 public:

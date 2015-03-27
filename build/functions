@@ -321,16 +321,6 @@ check_gap_plugins()
     fi
   fi
 
-  if [ $OPTION_GAP_RSOUND -eq 1 ] ; then
-    pkgconfig_query_package "rsound" rsound
-    if [ $? -eq 1 ] ; then
-      add_gap_config rsound
-      echo "RSOUND_CFLAGS=$FOX_CFLAGS $PKG_CFLAGS"       >> config.make
-      echo "RSOUND_CPPFLAGS=$FOX_CPPFLAGS $PKG_CPPFLAGS" >> config.make
-      echo "RSOUND_LDFLAGS=$PKG_LDFLAGS"                 >> config.make
-      echo "RSOUND_LIBS=$PKG_LIBS"                       >> config.make
-    fi
-  fi
 
   echo "WAV_CPPFLAGS=$FOX_CPPFLAGS" >> config.make
   echo "WAV_CFLAGS=$FOX_CFLAGS" >> config.make
@@ -386,25 +376,12 @@ check_gap_packages()
     fi
   fi
 
-  if [ $OPTION_GAP_WAVPACK -eq 1 ] ; then
-    add_gap_package "wavpack >= 4.60" "wavpack"
-  fi
-
   if [ $OPTION_GAP_SAMPLERATE -eq 1 ] ; then
     add_gap_package "samplerate >= 0.1" "samplerate"
   fi
 
-  if [ $OPTION_GAP_AVCODEC -eq 1 ] ; then
-    add_gap_package "libavcodec" "avcodec"
-    add_gap_package "libavformat" "avformat"
-  fi
-
   if [ $OPTION_GAP_CDDA -eq 1 ] ; then
     add_gap_package "libcdio_cdda" "cdda"
-  fi
-
-  if [ $OPTION_GAP_MMS -eq 1 ] ; then
-    add_gap_package "libmms" "mms"
   fi
 
   if [ $OPTION_GAP_FAAD -eq 1 ] ; then
@@ -500,14 +477,6 @@ check_gogglesmm()
     add_config "nls"
     add_config_string "LOCALEDIR" ${NLSDIR}
   fi
-
-  # LIRC
-  if [ $OPTION_GMM_LIRC -eq 1 ] ; then
-    add_config "lirc"
-    INCFLAGS="$INCFLAGS -I/usr/include/lirc"
-    #LIBS="$LIBS -llirc_client "
-  fi
-
 
   add_config "mpris1"
   add_config "mpris2"
