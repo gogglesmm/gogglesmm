@@ -71,7 +71,6 @@ protected:
   //ApeTag     * apetag;
 protected:
   FXbool parse_id3v1();
-  FXbool parse_id3v2();
   FXbool parse_ape();
   FXbool parse_lyrics();
 protected:
@@ -911,37 +910,6 @@ FXbool MadReader::parse_ape() {
 
 
 
-FXbool MadReader::parse_id3v2() {
-  FXuchar info[6];
-
-  if (input->read(info,6)!=6)
-    return false;
-
-  const FXuchar & id3v2_flags = info[1];
-  FXint tagsize = ID3_SYNCSAFE_INT32(info+2);
-
-
-  tagsize+=10;
-  if (id3v2_flags&ID3V2::HAS_FOOTER) {
-    tagsize+=10;
-    }
-
-  FXuchar * tagbuffer=nullptr;
-  allocElms(tagbuffer,tagsize);
-
-  if (input->read(tagbuffer+10,tagsize-10)!=tagsize-10){
-    freeElms(tagbuffer);
-    return false;
-    }
-
-  memcpy(tagbuffer,buffer,4);
-  memcpy(tagbuffer+4,info,6);
-
-  id3v2 = new ID3V2(tagbuffer,tagsize);
-
-  freeElms(tagbuffer);
-  return true;
-  }
 
 FXbool MadReader::parse_lyrics() {
   FXchar buf[11];
@@ -1134,8 +1102,8 @@ ReadStatus MadReader::parse(Packet * packet) {
 
 
     if (buffer[0]=='I' && buffer[1]=='D' && buffer[2]=='3') {
-      if (!parse_id3v2())
-        return ReadError;
+      id3v2 = ID3V2::parse(input,buffer);
+      if (id3v2 == nullptr) return ReadError;
       sync=false;
       continue;
       }
