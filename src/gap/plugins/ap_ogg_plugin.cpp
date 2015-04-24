@@ -433,9 +433,9 @@ extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & 
 
 
 ReadStatus OggReader::parse_opus_stream() {
+  FXASSERT(state.has_packet==false);
   if (flags&FLAG_OGG_OPUS)  {
     if (compare((FXchar*)op.packet,"OpusTags",8)==0) {
-      codec=Codec::Opus;
 
       ConfigureEvent * config = new ConfigureEvent(af,codec);
       MetaInfo       * meta   = new MetaInfo();
@@ -449,17 +449,35 @@ ReadStatus OggReader::parse_opus_stream() {
       // Send Meta Info
       engine->decoder->post(meta);
 
+      // Send all headers
+      send_headers();
+
+      // find out stream length
+      check_opus_length();
+
       flags|=FLAG_PARSED;
 
-      check_opus_length();
       return ReadOk;
       }
     return ReadError;
     }
   else {
     flags|=FLAG_OGG_OPUS;
+
+    codec=Codec::Opus;
+
+#if FOX_BIGENDIAN == 0
     stream_offset_start = (op.packet[10] | op.packet[11]<<8);
+#else
+    stream_offset_start = (op.packet[10]<<8 | op.packet[11]);
+#endif
+
     GM_DEBUG_PRINT("[ogg] offset start %hu\n",stream_offset_start);
+
+    if (op.bytes<19) {
+      GM_DEBUG_PRINT("[ogg] packet size too small for opushead\n");
+      return ReadError;
+      }
 
     // channel mapping family
     switch(op.packet[18]) {
@@ -469,14 +487,23 @@ ReadStatus OggReader::parse_opus_stream() {
                 break;
 
       // vorbis mapping family
-      case  1:  if (op.packet[9]<1 || op.packet[9]>8)
+      case  1:
+                // Support 1-8 channels
+                if (op.packet[9]<1 || op.packet[9]>8)
                   return ReadError;
+
                 af.set(AP_FORMAT_FLOAT,48000,op.packet[9],vorbis_channel_map[op.packet[9]-1]);
+
+                // Make sure stream map is correct
+                if (af.channels!=op.bytes-21)
+                  return ReadError;
                 break;
 
       // Undefined, most players shouldn't play this
       default:  return ReadError;
       }
+    // Need first packet to initialize opus decoder
+    submit_ogg_packet(false);
     }
   return ReadOk;
   }
