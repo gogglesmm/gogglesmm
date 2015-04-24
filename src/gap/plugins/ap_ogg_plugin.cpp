@@ -602,7 +602,7 @@ error:
 #ifdef HAVE_FLAC_PLUGIN
 
 extern void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
-extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
+extern FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_length);
 
 ReadStatus OggReader::parse_flac_stream() {
   if (flags&FLAG_OGG_FLAC)  {
@@ -626,18 +626,36 @@ ReadStatus OggReader::parse_flac_stream() {
     flags|=FLAG_PARSED;
     }
   else {
-    /// Make sure we have enough bytes
-    if (op.bytes<51)
+
+    // First packet with StreamInfo
+    if (op.bytes!=51)
       return ReadError;
 
-    /// Check Mapping Version
+    // Packet Type
+    if (op.packet[0]!=0x7f)
+      return ReadError;
+
+    // Check Ogg Flac mapping version
     if (op.packet[5]!=0x01 || op.packet[6]!=0x00)
       return ReadError;
 
-    /// Parse the stream info block.
-    /// FIXME stream_length may not be set.
-    if (!flac_parse_streaminfo(op.packet+13,af,stream_length))
+    // FLAC Signature
+    if (op.packet[9]!='f' || op.packet[10]!='L' || op.packet[11]!='a' || op.packet[12]!='C')
       return ReadError;
+    
+    // Check for Metadata Block
+    if ((op.packet[13]&0x7f)!=0)
+      return ReadError;
+
+    // Check metablock size
+    if (34!=((FXuint)op.packet[14] | ((FXuint)op.packet[15]<<8) | ((FXuint)op.packet[16]<<16)))
+      return ReadError;
+
+    // Get audio format from header
+    if (!flac_audioformat(op.packet+27,af,stream_length))     
+      return ReadError;
+
+    FXASSERT(stream_length>0);    
 
     flags|=FLAG_OGG_FLAC;
     submit_ogg_packet(false);
@@ -671,7 +689,7 @@ ReadStatus OggReader::parse() {
 #endif
 
 #ifdef HAVE_FLAC_PLUGIN
-    if ((flags&FLAG_OGG_FLAC) || compare((const FXchar*)&op.packet[1],"FLAC",4)==0) {
+    if ((flags&FLAG_OGG_FLAC) || compare((const FXchar*)op.packet,"\x7f""FLAC",5)==0) {
       if (parse_flac_stream()!=ReadOk)
         return ReadError;
       continue;

@@ -20,6 +20,7 @@
 #include "ap_config.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
+#include "ap_id3v2.h"
 #include "ap_device.h"
 #include "ap_event.h"
 #include "ap_reactor.h"
@@ -38,49 +39,56 @@
 #include "ap_output_thread.h"
 
 
-#if FOX_BIGENDIAN == 0
-#define FLAC_LAST_BLOCK       0x80
-#define FLAC_BLOCK_TYPE_MASK  0x7f
-
-#define FLAC_BLOCK_TYPE(h) (h&0x7f)
-#define FLAC_BLOCK_SIZE(h) ( ((h&0xFF00)<<8) | ((h&0xFF0000)>>8) | ((h&0xFF000000)>>24) )
-
-#define FLAC_BLOCK_SET_TYPE(h,type) (h|=(type&FLAC_BLOCK_TYPE_MASK))
-#define FLAC_BLOCK_SET_SIZE(h,size) (h|=(((size&0xFF)<<24) | ((size&0xFF0000)>>16) | ((size&0xFF00)<<8)))
-
-#define FLAC_INFO_MIN_BLOCK_SIZE(x)   (INT16_BE(x+0))
-#define FLAC_INFO_MAX_BLOCK_SIZE(x)   (INT16_BE(x+2))
-#define FLAC_INFO_MIN_FRAME_SIZE(x)   (INT24_BE(x+4))
-#define FLAC_INFO_MAX_FRAME_SIZE(x)   (INT24_BE(x+7))
-#define FLAC_INFO_SAMPLE_RATE(x)     ( ((*(x+10))<<12) | ((*(x+11))<<4) | (((*(x+12))>>4)&0xF) )
-#define FLAC_INFO_CHANNELS(x)  (1 + (((*(x+12))>>1)&0x7))
-#define FLAC_INFO_BPS(x)       (1 + ((((*(x+12))&0x1)<<4) | (((*(x+13))>>4)&0xF) ))
-#define FLAC_INFO_NSAMPLES(x)  ( (((FXlong)(*(x+13))&0xF)<<32) | ((*(x+14))<<24) | ((*(x+15))<<16) | ((*(x+16))<<8) | (*(x+17) ) )
-
-#else
-#error "BUG: FLAC  macros not defined for Big Endian Architecture"
-#endif
-
 #include <FLAC/stream_decoder.h>
 
 namespace ap {
 
 
+static const FXuchar crc8_lookup[256] = {
+  0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15, 0x38, 0x3f, 0x36, 0x31, 0x24, 0x23, 0x2a, 0x2d,
+  0x70, 0x77, 0x7e, 0x79, 0x6c, 0x6b, 0x62, 0x65, 0x48, 0x4f, 0x46, 0x41, 0x54, 0x53, 0x5a, 0x5d,
+  0xe0, 0xe7, 0xee, 0xe9, 0xfc, 0xfb, 0xf2, 0xf5, 0xd8, 0xdf, 0xd6, 0xd1, 0xc4, 0xc3, 0xca, 0xcd,
+  0x90, 0x97, 0x9e, 0x99, 0x8c, 0x8b, 0x82, 0x85, 0xa8, 0xaf, 0xa6, 0xa1, 0xb4, 0xb3, 0xba, 0xbd,
+  0xc7, 0xc0, 0xc9, 0xce, 0xdb, 0xdc, 0xd5, 0xd2, 0xff, 0xf8, 0xf1, 0xf6, 0xe3, 0xe4, 0xed, 0xea,
+  0xb7, 0xb0, 0xb9, 0xbe, 0xab, 0xac, 0xa5, 0xa2, 0x8f, 0x88, 0x81, 0x86, 0x93, 0x94, 0x9d, 0x9a,
+  0x27, 0x20, 0x29, 0x2e, 0x3b, 0x3c, 0x35, 0x32, 0x1f, 0x18, 0x11, 0x16, 0x03, 0x04, 0x0d, 0x0a,
+  0x57, 0x50, 0x59, 0x5e, 0x4b, 0x4c, 0x45, 0x42, 0x6f, 0x68, 0x61, 0x66, 0x73, 0x74, 0x7d, 0x7a,
+  0x89, 0x8e, 0x87, 0x80, 0x95, 0x92, 0x9b, 0x9c, 0xb1, 0xb6, 0xbf, 0xb8, 0xad, 0xaa, 0xa3, 0xa4,
+  0xf9, 0xfe, 0xf7, 0xf0, 0xe5, 0xe2, 0xeb, 0xec, 0xc1, 0xc6, 0xcf, 0xc8, 0xdd, 0xda, 0xd3, 0xd4,
+  0x69, 0x6e, 0x67, 0x60, 0x75, 0x72, 0x7b, 0x7c, 0x51, 0x56, 0x5f, 0x58, 0x4d, 0x4a, 0x43, 0x44,
+  0x19, 0x1e, 0x17, 0x10, 0x05, 0x02, 0x0b, 0x0c, 0x21, 0x26, 0x2f, 0x28, 0x3d, 0x3a, 0x33, 0x34,
+  0x4e, 0x49, 0x40, 0x47, 0x52, 0x55, 0x5c, 0x5b, 0x76, 0x71, 0x78, 0x7f, 0x6a, 0x6d, 0x64, 0x63,
+  0x3e, 0x39, 0x30, 0x37, 0x22, 0x25, 0x2c, 0x2b, 0x06, 0x01, 0x08, 0x0f, 0x1a, 0x1d, 0x14, 0x13,
+  0xae, 0xa9, 0xa0, 0xa7, 0xb2, 0xb5, 0xbc, 0xbb, 0x96, 0x91, 0x98, 0x9f, 0x8a, 0x8d, 0x84, 0x83,
+  0xde, 0xd9, 0xd0, 0xd7, 0xc2, 0xc5, 0xcc, 0xcb, 0xe6, 0xe1, 0xe8, 0xef, 0xfa, 0xfd, 0xf4, 0xf3
+};
+
+
+
 class FlacReader : public ReaderPlugin {
 protected:
-  FLAC__StreamDecoder * flac;
-  ReplayGain            gain;
-  MetaInfo            * meta;
-  FXlong                lastseek;
+  FXlong   stream_start;
+  FXushort minblocksize;
+  FXushort maxblocksize;
+  FXuint   minframesize;
+  FXuint   maxframesize;
+  struct SeekPoint {
+    FXulong   sample;
+    FXlong    offset;
+    FXushort nsamples;
+    };
+  FXArray<SeekPoint> seektable;
 protected:
-  static FLAC__StreamDecoderSeekStatus    flac_input_seek(const FLAC__StreamDecoder*,FLAC__uint64,void*);
-  static FLAC__StreamDecoderTellStatus    flac_input_tell(const FLAC__StreamDecoder*,FLAC__uint64*,void*);
-  static FLAC__StreamDecoderLengthStatus  flac_input_length(const FLAC__StreamDecoder*,FLAC__uint64*,void*);
-  static FLAC__StreamDecoderWriteStatus   flac_input_write(const FLAC__StreamDecoder*,const FLAC__Frame*,const FLAC__int32*const[],void*);
-  static FLAC__StreamDecoderReadStatus    flac_input_read(const FLAC__StreamDecoder*,FLAC__byte buffer[],size_t*,void*);
-  static FLAC__bool                       flac_input_eof(const FLAC__StreamDecoder*,void*);
-  static void                             flac_input_meta(const FLAC__StreamDecoder*,const FLAC__StreamMetadata*,void*);
-  static void                             flac_input_error(const FLAC__StreamDecoder *, FLAC__StreamDecoderErrorStatus, void *);
+  ReplayGain gain;
+  MetaInfo*  meta;
+protected:
+  FXbool parse_blockheader(FXuchar & blocktype,FXuint & blocksize,FXbool & last);
+  FXbool parse_streaminfo();
+  FXbool parse_seektable(FXuint blocksize);
+  FXbool parse_vorbiscomment(FXuint blocksize);
+  FXint  parse_utf_value(const FXuchar * buffer,FXuint & value);
+  FXint  parse_utf_value(const FXuchar * buffer,FXlong & value);
+  FXbool sync(FXlong & offset,FXlong & sample,FXuint & blocksize);
 protected:
   ReadStatus parse();
 public:
@@ -93,7 +101,6 @@ public:
   ~FlacReader();
   };
 
-class OutputPacket;
 
 class FlacDecoder : public DecoderPlugin {
 protected:
@@ -101,7 +108,7 @@ protected:
   FXint stream_length;
 protected:
   Packet * in;
-  Packet  * out;
+  Packet * out;
 protected:
   static FLAC__StreamDecoderWriteStatus   flac_decoder_write(const FLAC__StreamDecoder*,const FLAC__Frame*,const FLAC__int32*const[],void*);
   static FLAC__StreamDecoderReadStatus    flac_decoder_read(const FLAC__StreamDecoder*,FLAC__byte buffer[],size_t*,void*);
@@ -116,28 +123,16 @@ public:
   };
 
 
-
-
-
-
-
-
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
-
-enum {
-  FLAC_BLOCK_STREAMINFO     = 0,
-  FLAC_BLOCK_VORBISCOMMENT  = 4
-  };
-
 
 void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
   FXString comment;
   const FXchar * end = buffer+len;
 
-  FXuint header=((const FXuint*)buffer)[0];
-  if (FLAC_BLOCK_TYPE(header)!=FLAC_BLOCK_VORBISCOMMENT)
+  // Check this is a VorbisComment.
+  if ((buffer[0]&0x7f)!=4)
     return;
 
   /// skip the metaheader block
@@ -148,76 +143,17 @@ void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,
   }
 
 
-FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & af,FXlong & nframes) {
-  FXuint header=((const FXuint*)buffer)[0];
 
-  if (FLAC_BLOCK_TYPE(header)!=FLAC_BLOCK_STREAMINFO || FLAC_BLOCK_SIZE(header)!=34)
-    return false;
-
-  const FXuchar * const info = buffer + 4;
-
-//  FXushort min_block_size;
-//  FXushort max_block_size;
-//  FXuint   min_frame_size;
-//  FXuint   max_frame_size;
-  FXuint   sample_rate;
-  FXchar   channels;
-  FXchar   bps;
-
-//  min_block_size = FLAC_INFO_MIN_BLOCK_SIZE(info);
-//  max_block_size = FLAC_INFO_MAX_BLOCK_SIZE(info);
-//  min_frame_size = FLAC_INFO_MIN_FRAME_SIZE(info);
-//  max_frame_size = FLAC_INFO_MAX_FRAME_SIZE(info);
-  sample_rate    = FLAC_INFO_SAMPLE_RATE(info);
-  channels       = FLAC_INFO_CHANNELS(info);
-  bps            = FLAC_INFO_BPS(info);
-  nframes        = FLAC_INFO_NSAMPLES(info);
-
-  af.set(Format::Signed|Format::Little,bps,bps>>3,sample_rate,channels);
-  af.debug();
-  return true;
-  }
-
-
-
-
-FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(nullptr),meta(nullptr) {
+FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e),meta(nullptr) {
   }
 
 FlacReader::~FlacReader(){
-  if (flac) {
-    FLAC__stream_decoder_finish(flac);
-    FLAC__stream_decoder_delete(flac);
-    flac = nullptr;
-    }
   }
 
 FXbool FlacReader::init(InputPlugin*plugin) {
   ReaderPlugin::init(plugin);
-  if (flac == nullptr) {
-
-    flac =  FLAC__stream_decoder_new();
-    if ( flac == nullptr)
-      return false;
-
-
-    FLAC__stream_decoder_set_metadata_respond(flac,FLAC__METADATA_TYPE_VORBIS_COMMENT);
-
-    /// Init Stream
-    if (FLAC__stream_decoder_init_stream(flac,flac_input_read,
-                                              flac_input_seek,
-                                              flac_input_tell,
-                                              flac_input_length,
-                                              flac_input_eof,
-                                              flac_input_write,
-                                              flac_input_meta,
-                                              flac_input_error,
-                                               this)!=FLAC__STREAM_DECODER_INIT_STATUS_OK){
-      FXASSERT(0);
-      return false;
-      }
-    }
   gain.reset();
+  seektable.clear();
   if (meta) {
     meta->unref();
     meta=nullptr;
@@ -230,14 +166,261 @@ FXbool FlacReader::can_seek() const {
   return stream_length>0;
   }
 
-FXbool FlacReader::seek(FXlong offset) {
-  FXASSERT(stream_length>0);
-  GM_DEBUG_PRINT("[flac_reader] seek to %ld / %ld\n",offset,stream_length);
-  FLAC__stream_decoder_flush(flac);
-  if (FLAC__stream_decoder_seek_absolute(flac,offset)) {
-    input->position(lastseek,FXIO::Begin);
-    return true;
+
+FXint FlacReader::parse_utf_value(const FXuchar * buffer,FXlong & value) {
+  FXint p=0;
+  value = buffer[p++];
+  if(0xC0<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x3080;
+  if(0x800<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x20080;
+  if(0x10000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x400080;
+  if(0x100000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x8000080;
+  if(0x4000000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x100000080;
+  if(0x80000000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x2000000080;}}}}}}
+  return p;
+  }
+
+
+FXint FlacReader::parse_utf_value(const FXuchar * buffer,FXuint & value) {
+  FXint p=0;
+  value = buffer[p++];
+  if(0xC0<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x3080;
+  if(0x800<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x20080;
+  if(0x10000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x400080;
+  if(0x100000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x8000080;
+  if(0x4000000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x100000080;}}}}}
+  return p;
+  }
+
+
+#define match_frame_header(ptr,blocking) ((ptr)[0])==0xff &&\
+                                         ((ptr)[1])==blocking &&\
+                                         ((ptr)[2]&0xf0)!=0 &&\
+                                         ((ptr)[2]&0xf)!=0xf &&\
+                                         ((ptr)[3])<0xb0 &&\
+                                         ((ptr)[3]&0x1)==0 &&\
+                                         ((ptr)[3]&0x6)!=0x6
+
+FXbool FlacReader::sync(FXlong & offset,FXlong & sample,FXuint & blocksize) {
+  const FXuchar blocking_strategy = (minblocksize==maxblocksize) ? 0xf8 : 0xf9;
+  FXuchar samplesize;
+  FXuint  samplerate;
+  FXuint  framenumber;
+  FXuchar crc;
+  FXuchar bytes[20];
+  FXint p,h;
+
+  if (input->read(&bytes,20)!=20)
+    return false;
+
+  do {
+
+    // Find start of frame header in bytes
+    for (p=0;p<16;p++) {
+
+      // Match frame header start
+      if (match_frame_header(bytes+p,blocking_strategy)) {
+
+        h=p;
+
+        // Match samplesize (invalid values were already filtered out)
+        switch(bytes[h+3]&0xf){
+          case  2: samplesize =  8; break;
+          case  4: samplesize = 12; break;
+          case  8: samplesize = 16; break;
+          case 10: samplesize = 20; break;
+          case 12: samplesize = 24; break;
+          default: samplesize = af.bps(); break;
+          }
+        if (samplesize!=af.bps()) continue;
+
+        // Match samplerate
+        const FXuchar sr = bytes[h+2]&0xf;
+        switch(sr){
+          case  0: samplerate=af.rate; break;
+          case  1: samplerate=88200;   break;
+          case  2: samplerate=176400;  break;
+          case  3: samplerate=192000;  break;
+          case  4: samplerate=8000;    break;
+          case  5: samplerate=16000;   break;
+          case  6: samplerate=22050;   break;
+          case  7: samplerate=24000;   break;
+          case  8: samplerate=32000;   break;
+          case  9: samplerate=44100;   break;
+          case 10: samplerate=48000;   break;
+          case 11: samplerate=96000;   break;
+          default: samplerate=0;       break;
+          }
+        if (samplerate && samplerate!=af.rate) continue;
+
+        // Match blocksize [for fixed blocksize streams]
+        const FXuchar bs = bytes[h+2]>>4;
+        if (minblocksize==maxblocksize && bs!=6 && bs!=7) {
+          if (bs==1)
+            blocksize=192;
+          else if (bs>=8)
+            blocksize=256<<(bs-8);
+          else
+            blocksize=576<<(bs-2);
+          if (blocksize!=minblocksize) continue;
+          }
+
+        // Match Channel Count
+        const FXuchar ch = bytes[h+3]>>4;
+        if (ch<0x7) {
+          if (af.channels!=(ch+1)) continue;
+          }
+        else if (af.channels!=2) continue;
+
+        // Get remaining bytes
+        memmove(bytes,bytes+p,20-p);
+        if (input->read(bytes+20-p,p)!=p)
+          return false;
+        p=0;h=4;
+
+
+        // read frame or sample
+        if (minblocksize==maxblocksize) {
+          FXint n = parse_utf_value(bytes+h,framenumber);
+          if (n==0) continue;
+          h+=n;
+          sample=minblocksize*framenumber;
+          }
+        else {
+          FXint n = parse_utf_value(bytes+h,sample);
+          if (n==0) continue;
+          h+=n;
+          }
+
+        // Check sample number
+        if (sample<0 || sample>stream_length) continue;
+
+        if (bs==6) { // read 8-bit blocksize
+          blocksize = 1 + bytes[h++];
+          if (minblocksize==maxblocksize && blocksize!=minblocksize) continue;
+          }
+        else if (bs==7) { // read 16-bit blocksize
+#if FOX_BIGENDIAN == 0
+          blocksize = 1 + ((bytes[h]<<8) | (bytes[h+1]));
+#else
+          blocksize = 1 + ((bytes[h]) | (bytes[h+1]<<8));
+#endif
+          h+=2;
+          if (minblocksize==maxblocksize && blocksize!=minblocksize) continue;
+          }
+
+        if (sr==12) { // read 8-bit samplerate
+          samplerate = bytes[h++]*1000;
+          if (samplerate!=af.rate) continue;
+          }
+        else if (sr>=13) { // read 16-bit samplerate
+#if FOX_BIGENDIAN == 0
+          samplerate = (bytes[h]<<8) | (bytes[h+1]);
+#else
+          samplerate = (bytes[h]) | (bytes[h+1]<<8);
+#endif
+          h+=2;
+          if (sr==14) samplerate *= 10;
+          if (samplerate!=af.rate) continue;
+          }
+
+        crc = 0;
+        for (FXuchar c=0;c<h;c++){
+          crc = crc8_lookup[crc ^ bytes[c]];
+          }
+        if (crc!=bytes[h++]){
+          continue;
+          }
+
+        offset=input->position()-20;
+        return true;
+        }
+      }
+    FXASSERT(p==16);
+    memmove(bytes,bytes+16,4);
+    if (input->read(bytes+4,16)!=16)
+      return false;
     }
+  while(1);
+  }
+
+
+
+
+FXbool FlacReader::seek(FXlong target) {
+  const FXulong placeholder = 0xFFFFFFFFFFFFFFFF;
+
+  FXlong min_offset=stream_start;
+  FXlong max_offset=input->size();
+  FXlong min_sample=0;
+  FXlong max_sample=stream_length;
+  FXlong sample;
+  FXuint blocksize;
+  FXuint framesize = ((minframesize+maxframesize) / 2) + 1;
+  FXint count=0;
+
+
+  // Use seektable to reduce search range
+  for (FXint i=0;i<seektable.no();i++) {
+    if ((seektable[i].sample!=placeholder) && seektable[i].nsamples && seektable[i].sample > (FXulong)target && seektable[i].offset+stream_start<max_offset){
+      max_offset = stream_start+seektable[i].offset;
+      max_sample = seektable[i].sample;
+      }
+    if ((seektable[i].sample!=placeholder) && seektable[i].nsamples && seektable[i].sample < (FXulong)target && seektable[i].offset+stream_start>min_offset){
+      min_offset = stream_start+seektable[i].offset;
+      min_sample = seektable[i].sample;
+      }
+    }
+
+
+  do {
+
+    if (min_offset>=max_offset) {
+      GM_DEBUG_PRINT("[flac] seek failed! min_offset>=max_offset %ld >= %ld",min_offset,max_offset);
+      return false;
+      }
+
+    FXlong position = min_offset + (((FXdouble)(target-min_sample)/(FXdouble)(max_sample-min_sample))*(max_offset-min_offset)) - framesize;
+
+
+    if (position<min_offset) position=min_offset;
+
+    FXASSERT(position<max_offset);
+    FXASSERT(position>=min_offset);
+
+    input->position(position,FXIO::Begin);
+
+    if (sync(position,sample,blocksize)) {
+
+      if (target<sample) {
+        max_sample=sample+blocksize;
+        max_offset=position;
+        }
+      else if (target>=(sample+blocksize)){
+        if (minframesize){
+          position+=minframesize;
+          input->position(position,FXIO::Begin);
+          }
+        if (!sync(position,sample,blocksize)) {
+          return false;
+          }
+        if (target>=sample && target<sample+blocksize){
+          input->position(position,FXIO::Begin);
+          return true;
+          }
+        min_sample=sample;
+        min_offset=position;
+        }
+      else {
+        input->position(position,FXIO::Begin);
+        return true;
+        }
+      count++;
+      continue;
+      }
+    return false;
+    }
+  while(count<10);
+
   return false;
   }
 
@@ -255,126 +438,23 @@ ReadStatus FlacReader::process(Packet*p) {
 
 
 
-ReadStatus FlacReader::parse() {
-  FXASSERT(flac);
-  FLAC__uint64 pos;
-  stream_length=0;
 
-  if (FLAC__stream_decoder_process_until_end_of_metadata(flac)){
+FXbool FlacReader::parse_blockheader(FXuchar & type,FXuint & size,FXbool & last) {
+  FXuchar header[4];
 
-    if (FLAC__stream_decoder_get_decode_position(flac,&pos))
-      input->position(pos,FXIO::Begin);
-    else
-      input->position(0,FXIO::Begin);
+  if (input->read(header,4)!=4)
+    return false;
 
-
-    ConfigureEvent * config = new ConfigureEvent(af,Codec::FLAC,stream_length);
-    config->replaygain=gain;
-    engine->decoder->post(config);
-    flags|=FLAG_PARSED;
-
-    if (meta) {
-      engine->decoder->post(meta);
-      meta=nullptr;
-      }
-    return ReadOk;
-    }
-
-/*  switch(FLAC__stream_decoder_get_state(flac)){
-    case FLAC__STREAM_DECODER_SEARCH_FOR_METADATA: fxmessage("FLAC__STREAM_DECODER_SEARCH_FOR_METADATA"); break;
-    case FLAC__STREAM_DECODER_READ_METADATA: fxmessage("FLAC__STREAM_DECODER_READ_METADATA"); break;
-    case FLAC__STREAM_DECODER_SEARCH_FOR_FRAME_SYNC: fxmessage("FLAC__STREAM_DECODER_SEARCH_FOR_FRAME_SYNC"); break;
-    case FLAC__STREAM_DECODER_READ_FRAME: fxmessage("FLAC__STREAM_DECODER_READ_FRAME"); break;
-    case FLAC__STREAM_DECODER_END_OF_STREAM: fxmessage("FLAC__STREAM_DECODER_END_OF_STREAM"); break;
-    case FLAC__STREAM_DECODER_OGG_ERROR: fxmessage("FLAC__STREAM_DECODER_OGG_ERROR"); break;
-    case FLAC__STREAM_DECODER_SEEK_ERROR: fxmessage("FLAC__STREAM_DECODER_SEEK_ERROR"); break;
-    case FLAC__STREAM_DECODER_ABORTED: fxmessage("FLAC__STREAM_DECODER_ABORTED"); break;
-    case FLAC__STREAM_DECODER_MEMORY_ALLOCATION_ERROR: fxmessage("FLAC__STREAM_DECODER_MEMORY_ALLOCATION_ERROR"); break;
-    case FLAC__STREAM_DECODER_UNINITIALIZED: fxmessage("FLAC__STREAM_DECODER_UNINITIALIZED"); break;
-    }
-*/
-  return ReadError;
-  }
-
-
-FLAC__StreamDecoderSeekStatus FlacReader::flac_input_seek(const FLAC__StreamDecoder */*decoder*/,FLAC__uint64 absolute_byte_offset, void *client_data){
-  FlacReader * plugin = static_cast<FlacReader*>(client_data);
-//  fxmessage("seek\n");
-// FIXME
-//  if (inputflac->input->io->isSerial())
-//    return FLAC__STREAM_DECODER_SEEK_STATUS_UNSUPPORTED;
-  FXlong pos = plugin->input->position(absolute_byte_offset,FXIO::Begin);
-  plugin->lastseek = pos;
-
-  if (pos<0 || ((FXulong)pos)!=absolute_byte_offset)
-    return FLAC__STREAM_DECODER_SEEK_STATUS_ERROR;
-  else
-    return FLAC__STREAM_DECODER_SEEK_STATUS_OK;
-  }
-
-
-FLAC__StreamDecoderTellStatus FlacReader::flac_input_tell(const FLAC__StreamDecoder */*decoder*/, FLAC__uint64 *absolute_byte_offset, void *client_data){
-  FlacReader * plugin = static_cast<FlacReader*>(client_data);
-//  fxmessage("tell\n");
-// FIXME
-//  if (inputflac->input->io->isSerial())
-//    return FLAC__STREAM_DECODER_TELL_STATUS_UNSUPPORTED;
-
-  FXlong pos = plugin->input->position();
-  if (pos<0)
-    return FLAC__STREAM_DECODER_TELL_STATUS_ERROR;
-
-  (*absolute_byte_offset)=pos;
-  return FLAC__STREAM_DECODER_TELL_STATUS_OK;
-  }
-
-
-FLAC__StreamDecoderLengthStatus FlacReader::flac_input_length(const FLAC__StreamDecoder */*decoder*/, FLAC__uint64 *stream_length, void *client_data){
-  FlacReader * plugin = static_cast<FlacReader*>(client_data);
-
-///  if (plugin->engine->input->isSerial())
- //   return FLAC__STREAM_DECODER_LENGTH_STATUS_UNSUPPORTED;
-
-  FXlong length = plugin->input->size();
-  if (length<0)
-    return FLAC__STREAM_DECODER_LENGTH_STATUS_ERROR;
-
-  (*stream_length)=length;
-  return FLAC__STREAM_DECODER_LENGTH_STATUS_OK;
-  }
-
-FLAC__bool FlacReader::flac_input_eof(const FLAC__StreamDecoder */*decoder*/, void *client_data){
-  FlacReader * plugin = static_cast<FlacReader*>(client_data);
-  return plugin->input->eof();
-  }
-
-
-FLAC__StreamDecoderWriteStatus FlacReader::flac_input_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame */*frame*/, const FLAC__int32 *const /*buffer*/[], void */*client_data*/) {
-//  FXASSERT(0);
-  return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;//FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
-  }
-
-
-FLAC__StreamDecoderReadStatus FlacReader::flac_input_read(const FLAC__StreamDecoder */*decoder*/, FLAC__byte buffer[], size_t *bytes, void *client_data) {
-  FlacReader * plugin = static_cast<FlacReader*>(client_data);
-  FXASSERT(bytes);
-
-  if ((*bytes)<=0)
-    return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
-
-  FXival nbytes = plugin->input->read(buffer,(*bytes));
-
-  if (nbytes<0) {
-    return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
-    }
-  else if (nbytes==0) {
-    (*bytes)=nbytes;
-    return FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
-    }
-  else {
-    (*bytes)=nbytes;
-    return FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
-    }
+  last = header[0]&0x80;
+  type = header[0]&0x7f;
+#if FOX_BIGENDIAN == 0
+  size = (header[3]) | (header[2]<<8) | (header[1]<<16);
+#else
+  size = (header[3]<<16) | (header[2]<<8) | (header[1]);
+#endif
+  if (type==127)
+    return false;
+  return true;
   }
 
 
@@ -425,45 +505,209 @@ static const FXuint flac_channel_map[]={
   };
 
 
-void FlacReader::flac_input_meta(const FLAC__StreamDecoder */*decoder*/, const FLAC__StreamMetadata *metadata, void *client_data) {
-  FlacReader * plugin = static_cast<FlacReader*>(client_data);
-  switch(metadata->type) {
-    case FLAC__METADATA_TYPE_STREAMINFO:
 
-      if (metadata->data.stream_info.channels<1 || metadata->data.stream_info.channels>8)
-        break;
 
-      plugin->af.set(Format::Signed|Format::Little,metadata->data.stream_info.bits_per_sample,
-                                                   metadata->data.stream_info.bits_per_sample>> 3,
-                                                   metadata->data.stream_info.sample_rate,
-                                                   metadata->data.stream_info.channels,
-                                                   flac_channel_map[metadata->data.stream_info.channels-1]);
+FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_length){
+  FXuint   samplerate;
+  FXuchar  samplesize;
+  FXuchar  channels;
 
-      plugin->stream_length=metadata->data.stream_info.total_samples;
-      break;
-    case FLAC__METADATA_TYPE_VORBIS_COMMENT:
-      for (FXuint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {
-        ap_replaygain_from_vorbis_comment(plugin->gain,(const FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
-        }
+  samplerate    = ((FXuint)info[0]<<12 )| ((FXuint)info[1]<<4) | ((((FXuint)info[2])>>4)&0xf);
+  samplesize    = 1+(((((FXuint)info[2])&0x1)<<4) | ((info[3]>>4)&0xf));
+  channels      = 1+ ((info[2]>>1)&0x7);
+  stream_length = ((info[3]&0xf0)<<28) | (info[4]<<24) | (info[5]<<16) | (info[6]<<8) | (info[7]);
 
-      plugin->meta = new MetaInfo;
-      for (FXuint i=0;i<metadata->data.vorbis_comment.num_comments;i++) {
-        ap_meta_from_vorbis_comment(plugin->meta,(const FXchar*)metadata->data.vorbis_comment.comments[i].entry,metadata->data.vorbis_comment.comments[i].length);
-        }
-      break;
-    default: break;
-    }
- }
+  if (channels<1 || channels>8)
+    return false;
 
-void FlacReader::flac_input_error(const FLAC__StreamDecoder */*decoder*/, FLAC__StreamDecoderErrorStatus status, void */*client_data*/) {
-  //FlacReader * plugin = reinterpret_cast<FlacReader*>(client_data);
-  switch(status) {
-    case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC          : fxmessage("flac_decoder_error: An error in the stream caused the decoder to lose synchronization."); break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER         : fxmessage("flac_decoder_error: The decoder encountered a corrupted frame header."); break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH : fxmessage("flac_decoder_error: The frame's data did not match the CRC in the footer."); break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM : fxmessage("flac_decoder_error: The decoder encountered reserved fields in use in the stream. "); break;
-    }
+  af.set(Format::Signed|Format::Little,samplesize,
+                                       samplesize>>3,
+                                       samplerate,
+                                       channels,
+                                       flac_channel_map[channels-1]);
+  return true;
   }
+
+
+
+
+
+
+
+FXbool FlacReader::parse_streaminfo() {
+  if (!input->read_uint16_be(minblocksize))
+    return false;
+
+  if (!input->read_uint16_be(maxblocksize))
+    return false;
+
+  if (!input->read_uint24_be(minframesize))
+    return false;
+
+  if (!input->read_uint24_be(maxframesize))
+    return false;
+
+  FXuchar info[8];
+
+  if (input->read(&info,8)!=8)
+    return false;
+
+  if (!flac_audioformat(info,af,stream_length))
+    return false;
+
+  input->position(16,FXIO::Current);
+  return true;
+  }
+
+
+FXbool FlacReader::parse_seektable(FXuint blocksize) {
+  if (blocksize%18==0 && seektable.no()==0) {
+    FXint npoints = blocksize / 18;
+    seektable.no(npoints);
+    for (FXint i=0;i<npoints;i++) {
+      input->read_uint64_be(seektable[i].sample);
+      input->read_int64_be(seektable[i].offset);
+      input->read_uint16_be(seektable[i].nsamples);
+      }
+    return true;
+    }
+  return false;
+  }
+
+FXbool FlacReader::parse_vorbiscomment(FXuint blocksize) {
+  FXuint    length;
+  FXuint    ncomments;
+  FXuchar * data=nullptr;
+  FXuint    datalength=0;
+
+  if (blocksize>8) {
+
+    meta = new MetaInfo;
+
+    if (!input->read_uint32_le(length))
+      return false;
+
+    if (4+length>blocksize)
+      return false;
+
+    input->position(length,FXIO::Current);
+
+    if (!input->read_uint32_le(ncomments))
+      return false;
+
+    for (FXuint c=0;c<ncomments;c++) {
+
+      // Length of comment
+      if (!input->read_uint32_le(length))
+        return false;
+
+      if (datalength<length){
+        resizeElms(data,length);
+        datalength=length;
+        }
+
+      if (input->read(data,length)!=length)
+        return false;
+
+      ap_replaygain_from_vorbis_comment(gain,(const FXchar*)data,length);
+      ap_meta_from_vorbis_comment(meta,(const FXchar*)data,length);
+      }
+    }
+  return true;
+  }
+
+
+
+ReadStatus FlacReader::parse() {
+  enum {
+    StreamInfo    = 0,
+    Padding       = 1,
+    Application   = 2,
+    Seektable     = 3,
+    VorbisComment = 4,
+    Cuesheet      = 5,
+    Picture       = 6
+    };
+
+  stream_length=0;
+
+  FXuchar id[4];
+
+  if (input->read(&id,4)!=4)
+    return ReadError;
+
+  // Handle flac files starting with id3v2
+  if (id[0]=='I' && id[1]=='D' && id[2]=='3') {
+
+    if (!ID3V2::skip(input,id))
+      return ReadError;
+
+    if (input->read(&id,4)!=4)
+      return ReadError;
+    }
+
+  if (id[0]!='f' || id[1]!='L' || id[2]!='a' || id[3]!='C'){
+    return ReadError;
+    }
+
+  FXuchar blocktype;
+  FXuint  blocksize;
+  FXbool  last;
+
+  if (!parse_blockheader(blocktype,blocksize,last))
+    return ReadError;
+
+  if (blocktype!=StreamInfo || blocksize!=34)
+    return ReadError;
+
+  if (!parse_streaminfo())
+    return ReadError;
+
+  while(parse_blockheader(blocktype,blocksize,last)) {
+    switch(blocktype) {
+      case StreamInfo   : return ReadError; break;
+      case Seektable    : if (!parse_seektable(blocksize))
+                            return ReadError;
+                          break;
+      case VorbisComment: if (!parse_vorbiscomment(blocksize))
+                            return ReadError;
+                          break;
+      case Application  :
+      case Cuesheet     :
+      case Picture      :
+      case Padding      :
+      default           : if (blocksize>0)
+                            input->position(blocksize,FXIO::Current);
+                          break;
+      }
+    if (last) {
+      stream_start  = input->position();
+
+      flags|=FLAG_PARSED;
+
+      ConfigureEvent * config = new ConfigureEvent(af,Codec::FLAC,stream_length);
+      config->replaygain=gain;
+      engine->decoder->post(config);
+
+      if (meta) {
+        engine->decoder->post(meta);
+        meta=nullptr;
+        }
+      return ReadOk;
+      }
+    }
+  return ReadError;
+  }
+
+
+
+
+
+
+
+
+
+
 
 
 
