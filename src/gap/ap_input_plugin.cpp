@@ -46,17 +46,59 @@ InputPlugin::InputPlugin(InputThread * i) : input(i){
 InputPlugin::~InputPlugin() {
   }
 
-FXbool InputPlugin::read_uint32_be(FXuint & value) {
-  if (read(&value,4)==4) {
-    value = swap32(value);
+
+FXbool InputPlugin::read_uint24_be(FXuint & value) {
+  FXuchar v[3];
+  if (read(&v,3)==3) {
+#if FOX_BIGENDIAN == 0
+    value = (v[0]<<16) | (v[1]<<8) | v[2];
+#else
+    value = v[0] | (v[1]<<8) | (v[2]<<16);
+#endif
     return true;
     }
   return false;
   }
 
+
+FXbool InputPlugin::read_uint32_le(FXuint & value) {
+  if (read(&value,4)==4) {
+#if FOX_BIGENDIAN == 1
+    value = swap32(value);
+#endif
+    return true;
+    }
+  return false;
+  }
+
+
+FXbool InputPlugin::read_uint32_be(FXuint & value) {
+  if (read(&value,4)==4) {
+#if FOX_BIGENDIAN == 0
+    value = swap32(value);
+#endif
+    return true;
+    }
+  return false;
+  }
+
+
+FXbool InputPlugin::read_uint64_be(FXulong & value) {
+  if (read(&value,8)==8) {
+#if FOX_BIGENDIAN == 0
+    value = swap64(value);
+#endif
+    return true;
+    }
+  return false;
+  }
+
+
 FXbool InputPlugin::read_int64_be(FXlong & value) {
   if (read(&value,8)==8) {
+#if FOX_BIGENDIAN == 0
     value = swap64(value);
+#endif
     return true;
     }
   return false;
@@ -64,7 +106,9 @@ FXbool InputPlugin::read_int64_be(FXlong & value) {
 
 FXbool InputPlugin::read_int32_be(FXint & value) {
   if (read(&value,4)==4) {
+#if FOX_BIGENDIAN == 0
     value = swap32(value);
+#endif
     return true;
     }
   return false;
@@ -74,7 +118,9 @@ FXbool InputPlugin::read_int32_be(FXint & value) {
 
 FXbool InputPlugin::read_uint16_be(FXushort & value) {
   if (read(&value,2)==2) {
+#if FOX_BIGENDIAN == 0
     value = swap16(value);
+#endif
     return true;
     }
   return false;
@@ -82,7 +128,9 @@ FXbool InputPlugin::read_uint16_be(FXushort & value) {
 
 FXbool InputPlugin::read_int16_be(FXshort & value) {
   if (read(&value,2)==2) {
+#if FOX_BIGENDIAN == 0
     value = swap16(value);
+#endif
     return true;
     }
   return false;
