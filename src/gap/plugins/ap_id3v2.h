@@ -27,6 +27,8 @@ namespace ap {
 #define DEFINE_FRAME(b1,b2,b3,b4) ((b4<<24) | (b3<<16) | (b2<<8) | (b1))
 #define DEFINE_FRAME_V2(b1,b2,b3) ((b3<<16) | (b2<<8) | (b1))
 
+class InputPlugin;
+
 class ID3V2 {
 private:
   FXuchar * buffer;
@@ -83,6 +85,12 @@ public:
 public:
   ID3V2(FXuchar * b,FXint len);
   ~ID3V2();
+
+
+  static ID3V2 * parse(InputPlugin*,const FXuchar * id);
+
+  static FXbool skip(InputPlugin*,const FXuchar * id);
+
 
   FXbool empty() const;
 

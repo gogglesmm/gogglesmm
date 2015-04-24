@@ -20,12 +20,74 @@
 #include "ap_config.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
+#include "ap_input_plugin.h"
 #include "ap_id3v2.h"
 
 #include <FXUTF16Codec.h>
 #include <FX88591Codec.h>
 
 namespace ap {
+
+
+ID3V2 * ID3V2::parse(InputPlugin * input,const FXuchar * id) {
+  FXuchar info[6];
+
+  if (input->read(info,6)!=6)
+    return nullptr;
+
+  const FXuchar & id3v2_flags = info[1];
+  FXint tagsize = ID3_SYNCSAFE_INT32(info+2);
+
+  tagsize+=10;
+  if (id3v2_flags&ID3V2::HAS_FOOTER) {
+    tagsize+=10;
+    }
+
+  FXuchar * tagbuffer=nullptr;
+  allocElms(tagbuffer,tagsize);
+
+  if (input->read(tagbuffer+10,tagsize-10)!=tagsize-10){
+    freeElms(tagbuffer);
+    return nullptr;
+    }
+
+  memcpy(tagbuffer,id,4);
+  memcpy(tagbuffer+4,info,6);
+
+  ID3V2 * id3v2 = new ID3V2(tagbuffer,tagsize);
+
+  freeElms(tagbuffer);
+
+  return id3v2;
+  }
+
+
+FXbool ID3V2::skip(InputPlugin * input,const FXuchar * id) {
+  FXuchar info[6];
+
+  if (input->read(info,6)!=6)
+    return nullptr;
+
+  const FXuchar & id3v2_flags = info[1];
+  FXint tagsize = ID3_SYNCSAFE_INT32(info+2);
+
+  tagsize+=10;
+  if (id3v2_flags&ID3V2::HAS_FOOTER) {
+    tagsize+=10;
+    }
+
+  // fast forward past id3v2 tag
+  input->position(tagsize-10,FXIO::Current);
+
+  return true;
+  }
+
+
+
+
+
+
+
 
 
 ID3V2::ID3V2(FXuchar *b,FXint len) : buffer(b),size(len),p(0) {
