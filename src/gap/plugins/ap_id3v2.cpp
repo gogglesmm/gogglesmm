@@ -62,7 +62,7 @@ ID3V2 * ID3V2::parse(InputPlugin * input,const FXuchar * id) {
   }
 
 
-FXbool ID3V2::skip(InputPlugin * input,const FXuchar * id) {
+FXbool ID3V2::skip(InputPlugin * input,const FXuchar * /*id*/) {
   FXuchar info[6];
 
   if (input->read(info,6)!=6)
