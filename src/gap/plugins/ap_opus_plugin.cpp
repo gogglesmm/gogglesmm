@@ -37,7 +37,7 @@
 #include "ap_output_thread.h"
 #include "ap_ogg_decoder.h"
 
-#include <opus/opus.h>
+#include <opus/opus_multistream.h>
 
 
 namespace ap {
@@ -45,10 +45,12 @@ namespace ap {
 
 class OpusDecoderPlugin : public OggDecoder{
 protected:
-  OpusDecoder*  opus;
-  FXfloat    *  pcm;
-  FXushort      stream_offset_start;
+  OpusMSDecoder* opus;
+  FXfloat      * pcm;
+  FXfloat        gain;
+  FXushort       stream_offset_start;
 protected:
+  FXbool init_decoder();
   FXbool find_stream_position();
   FXlong find_stream_length();
 protected:
@@ -65,14 +67,14 @@ public:
   };
 
 
-OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(NULL),pcm(NULL) {
+OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(nullptr),pcm(NULL),gain(0.0f) {
   }
 
 OpusDecoderPlugin::~OpusDecoderPlugin(){
   freeElms(pcm);
   if (opus) {
-    opus_decoder_destroy(opus);
-    opus=NULL;
+    opus_multistream_decoder_destroy(opus);
+    opus=nullptr;
     }
   }
 
@@ -81,15 +83,12 @@ OpusDecoderPlugin::~OpusDecoderPlugin(){
 FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
   OggDecoder::init(event);
   af=event->af;
-  int error;
+
   if (opus) {
-    opus_decoder_destroy(opus);
+    opus_multistream_decoder_destroy(opus);
+    opus=nullptr;
+    gain=0.0f;
     }
-
-
-  opus = opus_decoder_create(af.rate,af.channels,&error);
-  if (error!=OPUS_OK)
-    return false;
 
   if (pcm)
     resizeElms(pcm,MAX_FRAME_SIZE*af.channels*2);
@@ -102,7 +101,7 @@ FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
 
 
 FXbool OpusDecoderPlugin::flush(FXlong offset) {
-  OggDecoder::flush(offset); 
+  OggDecoder::flush(offset);
   //if (opus) opus_decoder_ctl(opus,OPUS_RESET_STATE);
   return true;
   }
@@ -138,6 +137,61 @@ FXlong OpusDecoderPlugin::find_stream_length() {
 
 
 
+FXbool OpusDecoderPlugin::init_decoder() {
+  FXASSERT(opus==nullptr);
+  FXint error;
+
+  if (get_next_packet() && op.bytes>=19) {
+
+    // Extra check to make sure the reader gave us the header packet
+    if (compare((const FXchar*)op.packet,"OpusHead",8))
+      return false;
+
+    if (op.packet[18]!=0) {
+
+      // Validate stream map size
+      if (af.channels!=op.bytes-21)
+        return false;
+
+      // Validate stream map
+      const FXuchar nstreams=op.packet[19];
+      const FXuchar ncoupled=op.packet[20];
+      for (FXint i=0;i<af.channels;i++) {
+        if (op.packet[21+i]>nstreams+ncoupled && op.packet[21+i]!=255)
+          return false;
+        }
+      opus = opus_multistream_decoder_create(48000,af.channels,nstreams,ncoupled,op.packet+21,&error);
+      }
+    else {
+      const FXuchar stream_map[2] = {0,1};
+      opus = opus_multistream_decoder_create(48000,af.channels,1,af.channels>1,stream_map,&error);
+      }
+
+    if (error!=OPUS_OK)
+      return false;    
+
+
+    // Apply any gain
+#if FOX_BIGENDIAN == 0
+    FXshort output_gain = op.packet[16] | op.packet[17]<<8;
+#else
+    FXshort output_gain = op.packet[16]<<8 | op.packet[17];
+#endif
+
+#ifdef OPUS_SET_GAIN
+    error=opus_multistream_decoder_ctl(opus,OPUS_SET_GAIN(output_gain));
+    if(error==OPUS_UNIMPLEMENTED)
+      gain = pow(10,output_gain/(20.0*256));
+    else
+      gain = 0.0f;
+#else
+    gain = pow(10,output_gain/(20.0*256));
+#endif
+    return true;
+    }
+  return false;
+  }
+
 
 DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
   const FXlong stream_begin  = FXMAX(stream_offset_start,stream_decode_offset);
@@ -148,6 +202,9 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
 
   OggDecoder::process(packet);
 
+  if (opus==nullptr && !init_decoder())
+    return DecoderError;
+
   if (stream_position==-1 && !find_stream_position())
     return DecoderOk;
 
@@ -157,11 +214,16 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
     }
 
   while(get_next_packet()) {
-    FXint nsamples = opus_decode_float(opus,(unsigned char*)op.packet,op.bytes,pcm,MAX_FRAME_SIZE,0);
+    FXint nsamples = opus_multistream_decode_float(opus,(unsigned char*)op.packet,op.bytes,pcm,MAX_FRAME_SIZE,0);
 
     const FXuchar * pcmi = (const FXuchar*)pcm;
 
-
+    // apply output gain
+    if (gain!=0.0f) {
+      for (FXint i=0;i<nsamples*af.channels;i++) {
+        pcm[i]*=gain;
+        }
+      }
     // Adjust for beginning of stream
     if (stream_position<stream_begin) {
       FXlong offset = FXMIN(nsamples,stream_begin - stream_position);
