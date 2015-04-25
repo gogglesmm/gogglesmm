@@ -39,17 +39,14 @@ private:
 public:
   InputPlugin(InputThread*);
 
-  FXbool read_uint32_le(FXuint &);
-  FXbool read_uint32_be(FXuint &);
-  FXbool read_int32_be(FXint &);
-  FXbool read_int64_be(FXlong &);
-  FXbool read_uint64_be(FXulong &);
-
-  FXbool read_uint24_be(FXuint&);
-
   FXbool read_int16_be(FXshort&);
   FXbool read_uint16_be(FXushort&);
-
+  FXbool read_uint24_be(FXuint&);
+  FXbool read_int32_be(FXint &);
+  FXbool read_uint32_le(FXuint &);
+  FXbool read_uint32_be(FXuint &);
+  FXbool read_int64_be(FXlong &);
+  FXbool read_uint64_be(FXulong &);
 
   /// Read ncount bytes, returns -1 for error, -2 for interrupted
   virtual FXival read(void*data,FXival ncount) = 0;
