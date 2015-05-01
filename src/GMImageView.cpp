@@ -19,7 +19,7 @@
 #include "gmdefs.h"
 #ifdef HAVE_OPENGL
 #include "GMImageView.h"
-#include <GL/glew.h>
+#include <GL/glu.h>
 
 GMImageTexture::GMImageTexture() :
   id(0),
@@ -57,8 +57,9 @@ FXbool GMImageTexture::setImage(FXImage* image) {
     // aspect ratio
     aspect = image->getWidth() / (FXfloat) image->getHeight();
 
+
     /// Get a nice texture size
-    if (GLEW_ARB_texture_non_power_of_two) {
+    if (epoxy_has_gl_extension("GL_ARB_texture_non_power_of_two")) {
       texture_width=image_width;
       texture_height=image_height;
       }
@@ -81,15 +82,11 @@ FXbool GMImageTexture::setImage(FXImage* image) {
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
 
-    FXbool use_mipmap = (glGenerateMipmap!=nullptr || GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap );
+    FXbool use_mipmap = (epoxy_gl_version()>=30);
 
     if (use_mipmap) {
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-      if (glGenerateMipmap==nullptr){
-        glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
-        glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP,GL_TRUE);
-        }
       }
     else {
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -106,10 +103,8 @@ FXbool GMImageTexture::setImage(FXImage* image) {
       cw = (1.0f / (FXfloat)(texture_width))  * image_width;
       ch = (1.0f / (FXfloat)(texture_height)) * image_height;
       }
-
-    if (glGenerateMipmap)
+    if (use_mipmap)
       glGenerateMipmap(GL_TEXTURE_2D);
-
     }
   else {
     if (id) {
