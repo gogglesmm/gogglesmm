@@ -454,9 +454,8 @@ check_gogglesmm()
     if [ $? -eq 0 ] ; then
       EXTRA_LIBS="$EXTRA_LIBS -lGLU"
     fi
-
-    # Also add glew
-    add_required_package "glew" "glew"
+    
+    add_required_package "epoxy" "epoxy"
   fi
 
   # Session Management

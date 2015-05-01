@@ -18,10 +18,6 @@
 ********************************************************************************/
 #include "gmdefs.h"
 
-#ifdef HAVE_OPENGL
-#include <GL/glew.h>
-#endif
-
 #include <fxkeys.h>
 
 #include <xincs.h>
@@ -283,19 +279,6 @@ void GMApp::initOpenGL() {
   if (glcontext == nullptr) {
     glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
     glcontext = new FXGLContext(this,glvisual);
-
-    FXImage * glimage = new FXImage(this);
-    glimage->setVisual(glvisual);
-    glimage->create();
-
-    if (glcontext->begin(glimage)) {
-      if (glewInit()!=GLEW_OK) {
-        fxwarning("failed to initialize opengl extensions");
-        }
-      glcontext->end();
-      }
-
-    delete glimage;
     }
   }
 

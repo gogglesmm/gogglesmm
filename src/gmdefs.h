@@ -27,7 +27,12 @@
 #define FOXVERSION ((FOX_LEVEL) + (FOX_MINOR*1000) + (FOX_MAJOR*100000))
 #define FXVERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
 
+#ifdef HAVE_OPENGL
+#include <epoxy/gl.h>
+#include <epoxy/glx.h>
 #include <fx3d.h>
+#endif
+
 #include <FXArray.h>
 #include <FXTextCodec.h>
 #include <FXAutoPtr.h>

@@ -31,7 +31,7 @@
 #include "GMIconTheme.h"
 #include "GMImageView.h"
 
-#include <GL/glew.h>
+#include <GL/glu.h>
 
 
 
