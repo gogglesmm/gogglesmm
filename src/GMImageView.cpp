@@ -119,19 +119,20 @@ FXbool GMImageTexture::setImage(FXImage* image) {
 void GMImageTexture::drawQuad(FXfloat x,FXfloat y,FXfloat width,FXfloat height,FXColor background) {
   const FXfloat coordinates[8] = { x,y,
                                    x,y+height,
-                                   x+width,y+height,
-                                   x+width,y };
+                                   x+width,y,
+                                   x+width,y+height
+                                   };
 
   const FXfloat tex[8] = { 0.0f,ch,
                            0.0f,0.0f,
-                           cw,0.0f,
-                           cw,ch };
+                           cw,ch,
+                           cw,0.0f
+                            };
 
   const FXuchar colors[16] = { FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
                                FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
                                FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
                                FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background) };
-
 
 
   glEnable(GL_TEXTURE_2D);
@@ -143,7 +144,7 @@ void GMImageTexture::drawQuad(FXfloat x,FXfloat y,FXfloat width,FXfloat height,F
   glColorPointer(3,GL_UNSIGNED_BYTE,0,colors);
   glVertexPointer(2,GL_FLOAT,0,coordinates);
   glTexCoordPointer(2,GL_FLOAT,0,tex);
-  glDrawArrays(GL_QUADS,0,4);
+  glDrawArrays(GL_TRIANGLE_STRIP,0,4);
   glDisableClientState(GL_COLOR_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
