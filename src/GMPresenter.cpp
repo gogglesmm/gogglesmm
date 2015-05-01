@@ -162,7 +162,7 @@ long GMPresenter::onCanvasPaint(FXObject*,FXSelector,void*){
   if (glcanvas->makeCurrent()) {
     glViewport(0,0,getWidth(),getHeight());
     glClearColor(background.x,background.y,background.z,background.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
     if (effect) {
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();

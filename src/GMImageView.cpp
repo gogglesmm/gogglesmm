@@ -203,7 +203,7 @@ long GMImageView::onPaint(FXObject*,FXSelector,void*){
   if(makeCurrent()){
     glViewport(0,0,getWidth(),getHeight());
     glClearColor(background.x,background.y,background.z,background.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
     if (texture && texture->id) {
       glMatrixMode(GL_MODELVIEW);
