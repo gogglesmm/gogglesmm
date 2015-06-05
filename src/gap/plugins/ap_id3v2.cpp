@@ -66,7 +66,7 @@ FXbool ID3V2::skip(InputPlugin * input,const FXuchar * /*id*/) {
   FXuchar info[6];
 
   if (input->read(info,6)!=6)
-    return nullptr;
+    return false;
 
   const FXuchar & id3v2_flags = info[1];
   FXint tagsize = ID3_SYNCSAFE_INT32(info+2);
