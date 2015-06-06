@@ -60,19 +60,19 @@ extern DecoderPlugin * ap_opus_decoder(AudioEngine*);
 DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
   switch(codec) {
     case Codec::PCM     : return ap_pcm_decoder(engine); break;
-#if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
     case Codec::Vorbis  : return ap_vorbis_decoder(engine); break;
 #endif
-#ifdef HAVE_FLAC_PLUGIN
+#ifdef HAVE_FLAC
     case Codec::FLAC    : return ap_flac_decoder(engine); break;
 #endif
-#ifdef HAVE_MAD_PLUGIN
+#ifdef HAVE_MAD
     case Codec::MPEG    : return ap_mad_decoder(engine); break;
 #endif
-#ifdef HAVE_AAC_PLUGIN
+#ifdef HAVE_FAAD
     case Codec::AAC     : return ap_aac_decoder(engine); break;
 #endif
-#ifdef HAVE_OPUS_PLUGIN
+#ifdef HAVE_OPUS
     case Codec::Opus    : return ap_opus_decoder(engine); break;
 #endif
     default             : break;

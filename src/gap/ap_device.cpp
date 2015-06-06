@@ -98,17 +98,17 @@ void OSSConfig::save(FXSettings & settings) const {
 
 
 OutputConfig::OutputConfig() {
-#if defined(__linux__) && defined(HAVE_ALSA_PLUGIN)
+#if defined(__linux__) && defined(HAVE_ALSA)
   device=DeviceAlsa;
-#elif defined(HAVE_OSS_PLUGIN)
+#elif defined(HAVE_OSS)
   device=DeviceOSS;
-#elif defined(HAVE_ALSA_PLUGIN)
+#elif defined(HAVE_ALSA)
   device=DeviceAlsa;
-#elif defined(HAVE_PULSE_PLUGIN)
+#elif defined(HAVE_PULSE)
   device=DevicePulse;
-#elif defined(HAVE_JACK_PLUGIN)
+#elif defined(HAVE_JACK)
   device=DeviceJack;
-#elif defined(HAVE_RSOUND_PLUGIN)
+#elif defined(HAVE_RSOUND)
   device=DeviceRSound;
 #else
   device=DeviceWav;
@@ -121,23 +121,23 @@ OutputConfig::OutputConfig() {
 
 FXuint OutputConfig::devices() {
   FXuint plugins=0;
-#ifdef HAVE_ALSA_PLUGIN
+#ifdef HAVE_ALSA
   if (ap_has_plugin(DeviceAlsa))
     AP_ENABLE_PLUGIN(plugins,DeviceAlsa);
 #endif
-#ifdef HAVE_OSS_PLUGIN
+#ifdef HAVE_OSS
   if (ap_has_plugin(DeviceOSS))
     AP_ENABLE_PLUGIN(plugins,DeviceOSS);
 #endif
-#ifdef HAVE_PULSE_PLUGIN
+#ifdef HAVE_PULSE
   if (ap_has_plugin(DevicePulse))
     AP_ENABLE_PLUGIN(plugins,DevicePulse);
 #endif
-#ifdef HAVE_RSOUND_PLUGIN
+#ifdef HAVE_RSOUND
   if (ap_has_plugin(DeviceRSound))
     AP_ENABLE_PLUGIN(plugins,DeviceRSound);
 #endif
-#ifdef HAVE_JACK_PLUGIN
+#ifdef HAVE_JACK
   if (ap_has_plugin(DeviceJack))
     AP_ENABLE_PLUGIN(plugins,DeviceJack);
 #endif

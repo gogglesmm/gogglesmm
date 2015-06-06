@@ -195,9 +195,9 @@ void GMPreferences::save(FXSettings & reg) const {
   getKeyWords(keywords);
 
   /// Write out version information
-  reg.writeIntEntry(section_app,"major-version",APPLICATION_MAJOR);
-  reg.writeIntEntry(section_app,"minor-version",APPLICATION_MINOR);
-  reg.writeIntEntry(section_app,"level-version",APPLICATION_LEVEL);
+  reg.writeIntEntry(section_app,"major-version",GOGGLESMM_VERSION_MAJOR);
+  reg.writeIntEntry(section_app,"minor-version",GOGGLESMM_VERSION_MINOR);
+  reg.writeIntEntry(section_app,"level-version",GOGGLESMM_VERSION_PATCH);
 
   import.save(reg);
   sync.save(reg);
@@ -268,9 +268,9 @@ void GMPreferences::load(FXSettings & reg) {
     }
 
   /// Write out version information
-  reg.writeIntEntry(section_app,"major-version",APPLICATION_MAJOR);
-  reg.writeIntEntry(section_app,"minor-version",APPLICATION_MINOR);
-  reg.writeIntEntry(section_app,"level-version",APPLICATION_LEVEL);
+  reg.writeIntEntry(section_app,"major-version",GOGGLESMM_VERSION_MAJOR);
+  reg.writeIntEntry(section_app,"minor-version",GOGGLESMM_VERSION_MINOR);
+  reg.writeIntEntry(section_app,"level-version",GOGGLESMM_VERSION_PATCH);
 
 
   import.load(reg);

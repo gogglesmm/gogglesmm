@@ -135,31 +135,31 @@ extern ReaderPlugin * ap_xspf_reader(AudioEngine*);
 extern ReaderPlugin * ap_wav_reader(AudioEngine*);
 extern ReaderPlugin * ap_aiff_reader(AudioEngine*);
 
-#ifdef HAVE_FLAC_PLUGIN
+#ifdef HAVE_FLAC
 extern ReaderPlugin * ap_flac_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_OGG_PLUGIN
+#ifdef HAVE_OGG
 extern ReaderPlugin * ap_ogg_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_MUSEPACK_PLUGIN
+#ifdef HAVE_MUSEPACK
 extern ReaderPlugin * ap_musepack_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_MAD_PLUGIN
+#ifdef HAVE_MAD
 extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_AAC_PLUGIN
+#ifdef HAVE_AAC
 extern ReaderPlugin * ap_aac_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_MP4_PLUGIN
+#ifdef HAVE_MP4
 extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_CDDA_PLUGIN
+#ifdef HAVE_CDDA
 extern ReaderPlugin * ap_cdda_reader(AudioEngine*);
 #endif
 
@@ -168,25 +168,25 @@ extern ReaderPlugin * ap_cdda_reader(AudioEngine*);
 ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
   switch(type){
     case Format::WAV      : return ap_wav_reader(engine); break;
-#ifdef HAVE_OGG_PLUGIN
+#ifdef HAVE_OGG
     case Format::OGG      : return ap_ogg_reader(engine); break;
 #endif
-#ifdef HAVE_FLAC_PLUGIN
+#ifdef HAVE_FLAC
     case Format::FLAC     : return ap_flac_reader(engine); break;
 #endif
-#ifdef HAVE_MAD_PLUGIN
+#ifdef HAVE_MAD
     case Format::MP3      : return ap_mad_reader(engine); break;
 #endif
-#ifdef HAVE_AAC_PLUGIN
+#ifdef HAVE_AAC
     case Format::AAC      : return ap_aac_reader(engine); break;
 #endif
-#ifdef HAVE_MP4_PLUGIN
+#ifdef HAVE_MP4
     case Format::MP4      : return ap_mp4_reader(engine); break;
 #endif
-#ifdef HAVE_MUSEPACK_PLUGIN
+#ifdef HAVE_MUSEPACK
     case Format::Musepack : return ap_musepack_reader(engine); break;
 #endif
-#ifdef HAVE_CDDA_PLUGIN
+#ifdef HAVE_CDDA
     case Format::CDDA     : return ap_cdda_reader(engine); break;
 #endif
     case Format::M3U      : return ap_m3u_reader(engine); break;

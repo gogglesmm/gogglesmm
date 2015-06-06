@@ -56,7 +56,7 @@ static bool gm_display_help(int argc,char * argv[]) {
       return true;
       }
     else if ( (comparecase(argv[i],"--version")==0) || (comparecase(argv[i],"-v")==0) ) {
-      fxmessage("Goggles Music Manager %s\n",APPLICATION_VERSION_STRING);
+      fxmessage("Goggles Music Manager %s\n",GOGGLESMM_VERSION_STRING);
       return true;
       }
     }

@@ -16,7 +16,7 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifdef HAVE_ALSA_PLUGIN
+#ifdef HAVE_ALSA
 #ifndef ALSA_PLUGIN_H
 #define ALSA_PLUGIN_H
 
@@ -33,13 +33,13 @@ protected:
   snd_pcm_uframes_t period_size;
   snd_pcm_uframes_t period_written;
   FXuchar*          silence;
-  
+
 
   AlsaMixer * mixer;
 protected:
   AlsaConfig config;
   FXbool   can_pause;
-  FXbool   can_resume;  
+  FXbool   can_resume;
 protected:
   FXbool open();
 public:

@@ -16,7 +16,7 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifdef HAVE_PULSE_PLUGIN
+#ifdef HAVE_PULSE
 #ifndef PULSE_PLUGIN_H
 #define PULSE_PLUGIN_H
 
@@ -38,7 +38,7 @@ protected:
   pa_mainloop_api  api;
   pa_context     * context;
   pa_stream      * stream;
-  pa_volume_t      pulsevolume; 
+  pa_volume_t      pulsevolume;
 protected:
   static void sink_info_callback(pa_context*, const pa_sink_input_info *,int eol,void*);
   static void context_subscribe_callback(pa_context *c,pa_subscription_event_type_t, uint32_t,void*);

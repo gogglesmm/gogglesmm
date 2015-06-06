@@ -16,7 +16,7 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifdef HAVE_JACK_PLUGIN
+#ifdef HAVE_JACK
 #ifndef JACK_PLUGIN_H
 #define JACK_PLUGIN_H
 

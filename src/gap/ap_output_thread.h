@@ -85,7 +85,7 @@ protected:
   void process(Packet*);
 
 
-#ifdef HAVE_SAMPLERATE_PLUGIN
+#ifdef HAVE_SAMPLERATE
   void resample(Packet*,FXint & nframes);
 #endif
   void drain(FXbool flush=true);

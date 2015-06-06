@@ -16,9 +16,9 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifdef HAVE_CDDA_PLUGIN
+#ifdef HAVE_CDDA
 #include <cdio/cdio.h>
-#include <cdio/cdda.h>
+//#include <cdio/cdda.h>
 
 namespace ap {
 

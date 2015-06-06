@@ -1,0 +1,16 @@
+#cmakedefine HAVE_FLAC
+#cmakedefine HAVE_VORBIS
+#cmakedefine HAVE_OGG
+#cmakedefine HAVE_OPUS
+#cmakedefine HAVE_MAD
+#cmakedefine HAVE_FAAD
+#cmakedefine HAVE_ALSA
+#cmakedefine HAVE_PULSE
+#cmakedefine HAVE_SAMPLERATE
+#cmakedefine HAVE_CDDA
+#define AP_PLUGIN_PATH "${AP_PLUGIN_PATH}"
+
+#define GAP_VERSION_STRING "${GAP_VERSION}"
+#define GAP_VERSION_MAJOR ${GAP_VERSION_MAJOR}
+#define GAP_VERSION_MINOR ${GAP_VERSION_MINOR}
+#define GAP_VERSION_PATCH ${GAP_VERSION_PATCH}

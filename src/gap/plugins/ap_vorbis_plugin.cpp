@@ -38,9 +38,9 @@
 #include "ap_ogg_decoder.h"
 
 
-#if defined(HAVE_VORBIS_PLUGIN)
+#if defined(HAVE_VORBIS)
 #include <vorbis/codec.h>
-#elif defined(HAVE_TREMOR_PLUGIN)
+#elif defined(HAVE_TREMOR)
 #include <tremor/ivorbiscodec.h>
 #else
 #error "No vorbis decoder library specified"
@@ -113,7 +113,7 @@ FXbool VorbisDecoder::is_vorbis_header() {
   return (op.bytes>6 && ((op.packet[0]==1) || (op.packet[0]==3) || (op.packet[0]==5)) && (compare((const FXchar*)&op.packet[1],"vorbis",6)==0));
   }
 
-#ifdef HAVE_TREMOR_PLUGIN
+#ifdef HAVE_TREMOR
 static ogg_int32_t CLIP_TO_15(ogg_int32_t x) {
   int ret=x;
   ret-= ((x<=32767)-1)&(x-32767);
@@ -227,12 +227,14 @@ reset:
 DecoderStatus VorbisDecoder::process(Packet * packet) {
   FXASSERT(packet);
 
-#ifdef HAVE_VORBIS_PLUGIN
+#if defined(HAVE_VORBIS)
   FXfloat ** pcm=nullptr;
   FXfloat * buf32=nullptr;
-#else // HAVE_TREMOR_PLUGIN
+#elif defined(HAVE_TREMOR)
   FXint ** pcm=nullptr;
   FXshort * buf32=nullptr;
+#else
+#error "No vorbis decoder library specified"
 #endif
 
   FXint p,navail=0;
@@ -303,19 +305,23 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
           navail = out->availableFrames();
           }
 
-#ifdef HAVE_VORBIS_PLUGIN
+#if defined(HAVE_VORBIS)
         buf32 = out->flt();
-#else // HAVE_TREMOR_PLUGIN
+#elif defined(HAVE_TREMOR)
         buf32 = out->s16();
+#else
+#error "No vorbis decoder library specified"
 #endif
         /// Copy Samples
         nsamples = FXMIN(ntotalsamples,navail);
         for (p=0,s=sample;s<(nsamples+sample);s++){
           for (c=0;c<info.channels;c++,p++) {
-#ifdef HAVE_VORBIS_PLUGIN
+#if defined(HAVE_VORBIS)
             buf32[p]=pcm[c][s];
-#else
+#elif defined(HAVE_TREMOR)
             buf32[p]=CLIP_TO_15(pcm[c][s]>>9);
+#else
+#error "No vorbis decoder library specified"
 #endif
             }
           }

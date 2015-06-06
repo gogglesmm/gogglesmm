@@ -2,6 +2,10 @@ cmake_policy(VERSION 3.2)
 
 project(GAP VERSION 1.0.0)
 
+set(CMAKE_VERBOSE_MAKEFILE 1)
+
+SET(CMAKE_BUILD_TYPE MinSizeRel CACHE STRING "Set the buildtype")
+
 # Update whenever ABI changes
 set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added, removed or changed.
 set(GAP_SOVERSION_REVISION 0)   # Always increase the revision value. Reset to 0 when Current changes.
@@ -14,6 +18,10 @@ include(FindEXPAT)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
+
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat=2")
 
 
 # Expat is Required
@@ -29,6 +37,8 @@ pkg_check_modules(FLAC flac)
 pkg_check_modules(VORBIS vorbis)
 pkg_check_modules(OGG ogg)
 pkg_check_modules(OPUS opus)
+pkg_check_modules(SAMPLERATE samplerate)
+#pkg_check_modules(CDDA libcdio_cdda)
 
 # Check for libmad
 check_include_files(mad.h HAVE_MAD_H)
@@ -41,7 +51,7 @@ if (LIBMAD_HEADERS_FOUND)
 endif (LIBMAD_HEADERS_FOUND)
 if (MAD_LIBRARIES)
    set(MAD_FOUND TRUE)
-   message(STATUS "Libmad found: ${MAD_LIBRARIES}")
+   message(STATUS "libmad found: ${MAD_LIBRARIES}")
 endif()
 
 # Check for faad
@@ -55,14 +65,11 @@ if (LIBFAAD_HEADERS_FOUND)
 endif (LIBFAAD_HEADERS_FOUND)
 if (FAAD_LIBRARIES)
    set(FAAD_FOUND TRUE)
-   message(STATUS "Libfaad found: ${FAAD_LIBRARIES}")
+   message(STATUS "libfaad found: ${FAAD_LIBRARIES}")
 endif()
 
 
-
-
-#
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
 
 
 set(SOURCES ap_app_queue.cpp
@@ -141,6 +148,17 @@ if (FAAD_FOUND)
   set(HAVE_FAAD 1)
 endif()
 
+if (CDDA_FOUND)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_cdda_plugin.cpp)
+  LIST(APPEND LIBRARIES ${CDDA_LIBRARIES})
+  set(HAVE_CDDA 1)
+endif()
+
+if (SAMPLERATE_FOUND)
+  LIST(APPEND LIBRARIES ${SAMPLERATE_LIBRARIES})
+  set(HAVE_SAMPLERATE 1)
+endif()
+
 add_library(gap_plugins OBJECT ${PLUGIN_SOURCES})
 target_include_directories(gap_plugins BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 if(BUILD_SHARED_LIBS)
@@ -153,6 +171,7 @@ if (ALSA_FOUND)
   target_link_libraries(gap_alsa ${ALSA_LIBRARIES})
   target_include_directories(gap_alsa BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
   install(TARGETS gap_alsa LIBRARY DESTINATION lib/gogglesmm)
+  set(HAVE_ALSA 1)
 endif()
 
 if (PULSE_FOUND)
@@ -160,16 +179,18 @@ if (PULSE_FOUND)
   target_link_libraries(gap_pulse ${PULSE_LIBRARIES})
   target_include_directories(gap_pulse BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
   install(TARGETS gap_pulse LIBRARY DESTINATION lib/gogglesmm)
+  set(HAVE_PULSE 1)
+  set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/lib/gogglesmm)
 endif()
 
 
-configure_file("${PROJECT_SOURCE_DIR}/ap_test_config.h.in" "${PROJECT_BINARY_DIR}/ap_test_config.h")
+configure_file("${PROJECT_SOURCE_DIR}/ap_config.h.in" "${PROJECT_BINARY_DIR}/ap_config.h")
 
 add_library(gap ${SOURCES} $<TARGET_OBJECTS:gap_plugins>)
 target_link_libraries(gap ${LIBRARIES})
 
 
-#set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
+set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
 
 
 if(BUILD_SHARED_LIBS)

@@ -325,7 +325,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     url=uri;
     return http;
     }
-#ifdef HAVE_CDDA_PLUGIN
+#ifdef HAVE_CDDA
   else if (scheme=="cdda") {
     CDDAInput * cdda = new CDDAInput(this);
     if (!cdda->open(uri)) {
@@ -336,7 +336,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     return cdda;
     }
 #endif
-#ifdef HAVE_SMB_PLUGIN
+#ifdef HAVE_SMB
   else if (scheme=="smb") {
     SMBInput * smb = new SMBInput(this);
     if (!smb->open(uri)) {

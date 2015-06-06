@@ -1,18 +1,45 @@
-cmake_minimum_required(VERSION 2.8)
-project(GOGGLESMM)
+cmake_policy(VERSION 3.2)
+cmake_minimum_required(VERSION 3.2)
 
-# We need C++ 11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
+set(CMAKE_VERBOSE_MAKEFILE 1)
+set(CMAKE_BUILD_TYPE MinSizeRel CACHE STRING "Set the buildtype")
 
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
+project(GOGGLESMM VERSION 1.0.4)
 
+# Allow building without opengl
+option(WITH_OPENGL "Enable OpenGL Features" ON)
+option(WITH_DBUS "Enable DBUS Features" ON)
+option(WITH_NLS "Enable Native Language Support" ON)
 
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-  add_definitions(-DDEBUG)
+find_package(PkgConfig)
+
+pkg_check_modules(FOX fox17>=1.7.48 REQUIRED)
+pkg_check_modules(TAGLIB taglib REQUIRED)
+pkg_check_modules(SQLITE sqlite3 REQUIRED)
+
+pkg_check_modules(SM sm)
+pkg_check_modules(ICE ice)
+pkg_check_modules(X11 x11)
+
+if(WITH_DBUS)
+    pkg_check_modules(DBUS dbus-1)
 endif()
 
+if(WITH_OPENGL)
+    pkg_check_modules(EPOXY epoxy REQUIRED)
+    pkg_check_modules(GLU glu REQUIRED)
+    set(HAVE_OPENGL 1)
+endif()
 
+if(WITH_NLS)
+    set(HAVE_NLS 1)
+endif()
+
+if(SM_FOUND AND ICE_FOUND)
+    set(HAVE_SESSION 1)
+endif()
+
+# libgrypt
 include(CheckIncludeFiles)
 check_include_files(gcrypt.h HAVE_GCRYPT_H)
 if (HAVE_GCRYPT_H)
@@ -24,30 +51,40 @@ if (LIBGCRYPT_HEADERS_FOUND)
 endif (LIBGCRYPT_HEADERS_FOUND)
 if (LIBGCRYPT_LIBRARIES)
    set(LIBGCRYPT_FOUND TRUE)
-   message(STATUS "Libgcrypt found: ${LIBGCRYPT_LIBRARIES}")
+   set(HAVE_GCRYPT true)
+   message(STATUS "libgcrypt found: ${LIBGCRYPT_LIBRARIES}")
 endif()
 
 
-#pkg_check_modules(FOX fox17>1.7.48)
-find_package(PkgConfig)
+#------------------------------------------------------------------------------
 
-#pkg_check_modules(GCRYPT gcrypt REQUIRED)
+# We need C++ 11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat=2")
 
-pkg_check_modules(FOX fox17>=1.7.48)
-pkg_check_modules(DBUS dbus-1)
-pkg_check_modules(TAGLIB taglib)
-pkg_check_modules(SQLITE sqlite3)
-pkg_check_modules(SM sm)
-pkg_check_modules(ICE ice )
-pkg_check_modules(X11 x11 )
-pkg_check_modules(GLU glu )
-pkg_check_modules(EPOXY epoxy)
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
+
+if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+  add_definitions(-DDEBUG)
+endif()
 
 
+# Translation Files to share/locale
+set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
 
+# Don't use CMAKE_INSTALL_PREFIX since most icons won't be installed anywhere but /usr
+set(ICON_PATH /usr/share/icons)
 
-#include_directories(src/gap/include ${FOX_INCLUDE_DIRS} ${DBUS_INCLUDE_DIRS} ${TAGLIB_INCLUDE_DIRS})
+# Write src/gmconfig.h
+configure_file("src/gmconfig.h.in" "src/gmconfig.h")
+
+#------------------------------------------------------------------------------
+
+add_subdirectory(src/gap)
+
+#------------------------------------------------------------------------------
 
 set(SOURCES
   src/GMAbout.cpp
@@ -104,20 +141,43 @@ set(SOURCES
 
 if (DBUS_FOUND)
   LIST(APPEND SOURCES src/GMDBus.cpp src/GMSettingsDaemon.cpp src/GMMediaPlayerService.cpp src/GMNotifyDaemon.cpp src/GMAppStatusNotify.cpp)
+  set(HAVE_DBUS 1)
 endif()
 
 
-add_subdirectory(src/gap)
-
+# Goggles Music Manager
 add_executable(gogglesmm ${SOURCES})
-target_include_directories(gogglesmm PUBLIC ${PROJECT_SOURCE_DIR}/src/gap/include ${FOX_INCLUDE_DIRS} ${TAGLIB_INCLUDE_DIRS} ${DBUS_INCLUDE_DIRS} )
-target_link_libraries(gogglesmm  PUBLIC gap ${FOX_LIBRARIES} ${SQLITE_LIBRARIES} ${TAGLIB_LIBRARIES} ${DBUS_LIBRARIES} ${GLU_LIBRARIES}
-${EPOXY_LIBRARIES} ${X11_LIBRARIES} ${SM_LIBRARIES} ${ICE_LIBRARIES} ${LIBGCRYPT_LIBRARIES})
 
+
+set_target_properties(gogglesmm PROPERTIES ENABLE_EXPORTS 1)
+
+
+# Include Directories
+target_include_directories(gogglesmm PUBLIC
+                           ${PROJECT_SOURCE_DIR}/src/gap/include
+                           ${FOX_INCLUDE_DIRS}
+                           ${TAGLIB_INCLUDE_DIRS}
+                           ${DBUS_INCLUDE_DIRS})
+
+# Libraries
+target_link_libraries(gogglesmm  PUBLIC gap
+                      ${FOX_LIBRARIES}
+                      ${SQLITE_LIBRARIES}
+                      ${TAGLIB_LIBRARIES}
+                      ${DBUS_LIBRARIES}
+                      ${GLU_LIBRARIES}
+                      ${EPOXY_LIBRARIES}
+                      ${X11_LIBRARIES}
+                      ${SM_LIBRARIES}
+                      ${ICE_LIBRARIES}
+                      ${LIBGCRYPT_LIBRARIES})
 
 install(TARGETS gogglesmm
         RUNTIME DESTINATION bin)
-#add_dependencies(gogglesmm gap)
 
-#
+
+
+
+
+
 

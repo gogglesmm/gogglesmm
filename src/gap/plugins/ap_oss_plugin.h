@@ -16,7 +16,7 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifdef HAVE_OSS_PLUGIN
+#ifdef HAVE_OSS
 #ifndef OSS_PLUGIN_H
 #define OSS_PLUGIN_H
 

@@ -37,13 +37,13 @@
 
 #include <ogg/ogg.h>
 
-#if defined(HAVE_VORBIS_PLUGIN)
+#if defined(HAVE_VORBIS)
 #include <vorbis/codec.h>
-#elif defined(HAVE_TREMOR_PLUGIN)
+#elif defined(HAVE_TREMOR)
 #include <tremor/ivorbiscodec.h>
 #endif
 
-#ifdef HAVE_OPUS_PLUGIN
+#ifdef HAVE_OPUS
 #include <opus/opus.h>
 #endif
 
@@ -83,7 +83,7 @@ protected:
   ogg_page         page;
   ogg_packet       op;
 protected:
-#if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
   vorbis_info      vi;
   vorbis_comment   vc;
 #endif
@@ -110,14 +110,14 @@ protected:
   FXlong find_lastpage_position();
 
   ReadStatus parse();
-#if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
   ReadStatus parse_vorbis_stream();
   void check_vorbis_length(vorbis_info*);
 #endif
-#ifdef HAVE_FLAC_PLUGIN
+#ifdef HAVE_FLAC
   ReadStatus parse_flac_stream();
 #endif
-#ifdef HAVE_OPUS_PLUGIN
+#ifdef HAVE_OPUS
   ReadStatus parse_opus_stream();
   void check_opus_length();
 #endif
@@ -307,7 +307,7 @@ FXlong OggReader::find_lastpage_position() {
   }
 
 
-#ifdef HAVE_OPUS_PLUGIN
+#ifdef HAVE_OPUS
 void OggReader::check_opus_length() {
   stream_length=0;
   stream_start=0;
@@ -339,7 +339,7 @@ void OggReader::check_opus_length() {
   }
 #endif
 
-#if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
 void OggReader::check_vorbis_length(vorbis_info * info) {
   stream_length=-1;
   stream_start=0;
@@ -376,7 +376,7 @@ extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * c
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
 
 
-#if defined(HAVE_OPUS_PLUGIN) || defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+#if defined(HAVE_OPUS) || defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
 
 // http://www.xiph.org/vorbis/doc/Vorbis_I_spec.html
 static const FXuint vorbis_channel_map[]={
@@ -427,7 +427,7 @@ static const FXuint vorbis_channel_map[]={
 #endif
 
 
-#ifdef HAVE_OPUS_PLUGIN
+#ifdef HAVE_OPUS
 
 extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 
@@ -509,7 +509,7 @@ ReadStatus OggReader::parse_opus_stream() {
   }
 #endif
 
-#if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
 
 ReadStatus OggReader::parse_vorbis_stream() {
 
@@ -537,9 +537,9 @@ ReadStatus OggReader::parse_vorbis_stream() {
           goto error;
 
         codec=Codec::Vorbis;
-  #ifdef HAVE_VORBIS_PLUGIN
+  #ifdef HAVE_VORBIS
         af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels,vorbis_channel_map[vi.channels-1]);
-  #else // HAVE_TREMOR_PLUGIN
+  #else // HAVE_TREMOR
         af.set(AP_FORMAT_S16,vi.rate,vi.channels,vorbis_channel_map[vi.channels-1]);
   #endif
         flags|=(FLAG_VORBIS_INFO|FLAG_OGG_VORBIS);
@@ -626,7 +626,7 @@ error:
 
 #endif
 
-#ifdef HAVE_FLAC_PLUGIN
+#ifdef HAVE_FLAC
 
 extern void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 extern FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_length);
@@ -669,7 +669,7 @@ ReadStatus OggReader::parse_flac_stream() {
     // FLAC Signature
     if (op.packet[9]!='f' || op.packet[10]!='L' || op.packet[11]!='a' || op.packet[12]!='C')
       return ReadError;
-    
+
     // Check for Metadata Block
     if ((op.packet[13]&0x7f)!=0)
       return ReadError;
@@ -679,10 +679,10 @@ ReadStatus OggReader::parse_flac_stream() {
       return ReadError;
 
     // Get audio format from header
-    if (!flac_audioformat(op.packet+27,af,stream_length))     
+    if (!flac_audioformat(op.packet+27,af,stream_length))
       return ReadError;
 
-    FXASSERT(stream_length>0);    
+    FXASSERT(stream_length>0);
 
     flags|=FLAG_OGG_FLAC;
     submit_ogg_packet(false);
@@ -706,7 +706,7 @@ ReadStatus OggReader::parse() {
       return ReadError;
       }
 
-#if defined(HAVE_VORBIS_PLUGIN) || defined(HAVE_TREMOR_PLUGIN)
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
     if ((flags&FLAG_OGG_VORBIS) ||compare((const FXchar*)&op.packet[1],"vorbis",6)==0){
       if (parse_vorbis_stream()!=ReadOk){
         return ReadError;
@@ -715,7 +715,7 @@ ReadStatus OggReader::parse() {
       }
 #endif
 
-#ifdef HAVE_FLAC_PLUGIN
+#ifdef HAVE_FLAC
     if ((flags&FLAG_OGG_FLAC) || compare((const FXchar*)op.packet,"\x7f""FLAC",5)==0) {
       if (parse_flac_stream()!=ReadOk)
         return ReadError;
@@ -723,7 +723,7 @@ ReadStatus OggReader::parse() {
       }
 #endif
 
-#ifdef HAVE_OPUS_PLUGIN
+#ifdef HAVE_OPUS
     if ((flags&FLAG_OGG_OPUS) || compare((const FXchar*)&op.packet[0],"OpusHead",8)==0){
       if (parse_opus_stream()!=ReadOk)
         return ReadError;

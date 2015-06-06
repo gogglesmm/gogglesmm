@@ -47,7 +47,7 @@
 #error "AP_PLUGIN_PATH PATH not defined"
 #endif
 
-#ifdef HAVE_SAMPLERATE_PLUGIN
+#ifdef HAVE_SAMPLERATE
 #include <samplerate.h>
 #endif
 
@@ -488,7 +488,7 @@ void OutputThread::load_plugin() {
     return;
     }
 
-  if (*plugin_version!=AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL)) {
+  if (*plugin_version!=AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH)) {
     GM_DEBUG_PRINT("[output] incompatible plugin: version mismatch.\n");
     engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
     dll.unload();
@@ -684,7 +684,7 @@ void OutputThread::convert_and_resample(OutputPacket * packet) {
 
 */
 
-#ifdef HAVE_SAMPLERATE_PLUGIN
+#ifdef HAVE_SAMPLERATE
 void OutputThread::resample(Packet * packet,FXint & nframes) {
   static SRC_STATE * src_state = nullptr;
   SRC_DATA srcdata;
