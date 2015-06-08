@@ -7,7 +7,7 @@ Installation Instructions
       * sqlite >= 3.6.19
       * taglib >= 1.9.0
       * expat
-
+      * cmake 3.2.0
 
    2. Install optional dependencies:
 
@@ -20,20 +20,27 @@ Installation Instructions
       * faad2
       * pulse
 
-   3. Run the configure script:
+   3. Run cmake:
 
-      > ./configure
+      > cmake [options] .
+
+      Options:
+
+        -DWITH_DBUS=False               - Build without DBUS support
+        -DWITH_NLS=False                - Build without Native Language Support
+        -DWITH_OPENGL=False             - Build without OpenGL Support
+        -DCMAKE_INSTALL_PREFIX=prefix   - Set installation prefix. Default is /usr
+        -DCMAKE_BUILD_TYPE=type         - Set the build type. Available types: Release, Debug, RelWithDebInfo and MinSizeRel (default).
+        -DCMAKE_INSTALL_LIBDIR=lib      - Set the name of the directory where libraries are installed (typically lib / lib32 / lib64). Default is lib.
 
    4. Compile
 
       > make
 
-   5. If everything compiled fine, you are ready to install Goggles Music Manager in its final location.
-      By default this will be in /usr. Using the --prefix option on the configure command line you may
-      change this to something else (eg. ./configure --prefix=/usr/local )
+   5. Install
 
       > sudo make install
 
-   5. Run the software
+   6. Run the software
 
       > gogglesmm

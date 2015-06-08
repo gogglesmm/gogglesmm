@@ -19,7 +19,7 @@
 #include "gmdefs.h"
 #include "GMSession.h"
 
-#if defined(HAVE_SM) && defined(HAVE_ICE)
+#ifdef HAVE_SESSION
 
 #include <xincs.h>
 #include <X11/ICE/ICElib.h>
@@ -242,18 +242,20 @@ FXIMPLEMENT(GMSession,FXObject,nullptr,0);
 
 
 GMSession::GMSession(FXApp*app,FXObject*tgt,FXSelector sel) : target(tgt),message(sel) {
-#if defined(HAVE_SM) && defined(HAVE_ICE)
+#ifdef HAVE_SESSION
   smclient = new SMClient(app,this);
 #endif
   }
 
 GMSession::~GMSession() {
+#ifdef HAVE_SESSION
   delete smclient;
+#endif
   }
 
 
 FXbool GMSession::init(FXint argc,const FXchar * const argv[]){
-#if defined(HAVE_SM) && defined(HAVE_ICE)
+#ifdef HAVE_SESSION
   if (!smclient->init(argc,argv)){
     delete smclient;
     smclient=nullptr;

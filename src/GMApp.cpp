@@ -37,8 +37,8 @@
 
 #define PACKAGE "gogglesmm"
 
-#ifndef LOCALEDIR
-#error LOCALEDIR needs to be defined!!
+#ifndef LOCALE_PATH
+#error LOCALE_PATH needs to be defined!!
 #endif
 
 #include <libintl.h>
@@ -54,10 +54,10 @@ private:
 public:
   GMTranslator(){
     setlocale(LC_ALL,"");
-    bindtextdomain(PACKAGE,LOCALEDIR);
+    bindtextdomain(PACKAGE,LOCALE_PATH);
     bind_textdomain_codeset(PACKAGE,"UTF-8");
     textdomain(PACKAGE);
-    GM_DEBUG_PRINT("localedir: %s\n",LOCALEDIR);
+    GM_DEBUG_PRINT("localedir: %s\n",LOCALE_PATH);
     };
   virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=nullptr,FXint count=-1) const;
   ~GMTranslator() {}
