@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 include(TestBigEndian)
 include(CheckIncludeFiles)
 
-
 project(GOGGLESMM VERSION 1.1.0)
 
 option(WITH_OPENGL "Enable OpenGL Features" ON)

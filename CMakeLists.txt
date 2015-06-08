@@ -2,12 +2,12 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 # Enable for cmake debugging
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
+# set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 # libdir name to allow overriding to lib32 / lib64
-set(CMAKE_INSTALL_LIBDIR 
-    "lib" 
-    CACHE STRING 
+set(CMAKE_INSTALL_LIBDIR
+    "lib"
+    CACHE STRING
     "Specify the name of the directory where libraries are meant to be installed")
 
 # Display the build type
@@ -15,8 +15,8 @@ message(STATUS "Using build type: ${CMAKE_BUILD_TYPE}")
 
 # Override default build type
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE MinSizeRel 
-        CACHE STRING 
+    set(CMAKE_BUILD_TYPE MinSizeRel
+        CACHE STRING
         "Specify the desired build type." FORCE)
 endif()
 
@@ -74,10 +74,10 @@ add_subdirectory(src)
 #-------------------------------------------------------------------------------
 
 # Extra Installation Files
-install(PROGRAMS extra/import_banshee_stats.py 
-                 extra/import_gogglesmm12.py 
-                 extra/import_gogglesmm12_stats.py 
-        DESTINATION 
+install(PROGRAMS extra/import_banshee_stats.py
+                 extra/import_gogglesmm12.py
+                 extra/import_gogglesmm12_stats.py
+        DESTINATION
                  share/gogglesmm)
 
 install(FILES icons/gogglesmm_16.png DESTINATION share/icons/hicolor/16x16/apps RENAME gogglesmm.png)
