@@ -50,7 +50,6 @@
 #include <mp4coverart.h>
 #include <mp4properties.h>
 
-
 #include "FXPNGImage.h"
 #include "FXJPGImage.h"
 
@@ -226,6 +225,78 @@ GMCover* flac_load_frontcover_from_taglib(const TagLib::FLAC::Picture * picture)
 
 
 
+// For conversion from UTF16 to UTF32
+static const FXint SURROGATE_OFFSET=0x10000-(0xD800<<10)-0xDC00;
+
+
+void gm_taglib_string(const TagLib::String & src,FXString & dst) {
+  // Method 1 - Uses 1 extra buffer
+  // const TagLib::ByteVector b = src.data(TagLib::String::UTF8);
+  // dst.assign(b.data(),b.size());
+  // dst.trim();
+
+  // Method 2 - Use 2 extra buffers (ByteVector -> std::string -> c_str)
+  // dst = src.toCString(true);
+  // dst.trim();
+
+  // Method 3 - Use FOX's utf16->utf8 and copy directly into FXString
+  const int slen = src.size();
+
+  /* Determine Number of Bytes Needed */
+  register FXint p=0;
+  register FXint q=0;
+  register FXwchar w;
+
+  while(q<slen){
+    w=src[q++];
+    if(__likely(w<0x80)){ p+=1; continue; }
+    if(__likely(w<0x800)){ p+=2; continue; }
+    if(__likely(!FXISSEQUTF16(w))){ p+=3; continue; }
+    if(__likely(FXISLEADUTF16(w) && q<slen && FXISFOLLOWUTF16(src[q++]))){ p+=4; continue; }
+    break;
+    }
+
+  dst.length(p);
+  const FXint dlen = dst.length();
+
+  /* Copy Bytes */
+  p=q=0;
+  while(q<slen){
+    w=src[q++];
+    if(__likely(w<0x80)){
+      if(__unlikely(p>=dlen)) break;
+      dst[p++]=w;
+      continue;
+      }
+    if(__likely(w<0x800)){
+      if(__unlikely(p+1>=dlen)) break;
+      dst[p++]=(w>>6)|0xC0;
+      dst[p++]=(w&0x3F)|0x80;
+      continue;
+      }
+    if(__likely(!FXISSEQUTF16(w))){
+      if(__unlikely(p+2>=dlen)) break;
+      dst[p++]=(w>>12)|0xE0;
+      dst[p++]=((w>>6)&0x3F)|0x80;
+      dst[p++]=(w&0x3F)|0x80;
+      continue;
+      }
+    if(__likely(FXISLEADUTF16(w) && q<slen && FXISFOLLOWUTF16(src[q]))){
+      if(__unlikely(p+3>=dlen)) break;
+      w=SURROGATE_OFFSET+(w<<10)+src[q++];
+      dst[p++]=(w>>18)|0xF0;
+      dst[p++]=((w>>12)&0x3F)|0x80;
+      dst[p++]=((w>>6)&0x3F)|0x80;
+      dst[p++]=(w&0x3F)|0x80;
+      continue;
+      }
+    break;
+    }
+  dst.trim();
+  }
+
+
+
 
 
  #if 0
@@ -384,8 +455,7 @@ void  GMFileTag::xiph_get_field(const FXchar * field,FXString & value) const {
   FXASSERT(field);
   FXASSERT(xiph);
   if (xiph->contains(field)) {
-    value=xiph->fieldListMap()[field].front().toCString(true);
-    value.trim();
+    gm_taglib_string(xiph->fieldListMap()[field].front(),value);
     }
   else {
     value.clear();
@@ -397,8 +467,10 @@ void GMFileTag::xiph_get_field(const FXchar * field,FXStringList & list)  const{
   FXASSERT(xiph);
   if (xiph->contains(field)) {
     const TagLib::StringList & fieldlist = xiph->fieldListMap()[field];
+    list.no(fieldlist.size());
+    FXint item=0;
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
-      list.append(it->toCString(true));
+      gm_taglib_string(*it,list[item++]);
       }
     trimList(list);
     }
@@ -411,8 +483,7 @@ void GMFileTag::ape_get_field(const FXchar * field,FXString & value)  const{
   FXASSERT(field);
   FXASSERT(ape);
   if (ape->itemListMap().contains(field) && !ape->itemListMap()[field].isEmpty()){
-    value=ape->itemListMap()[field].toString().toCString(true);
-    value.trim();
+    gm_taglib_string(ape->itemListMap()[field].toString(),value);
     }
   else {
     value.clear();
@@ -423,9 +494,11 @@ void GMFileTag::ape_get_field(const FXchar * field,FXStringList & list)  const{
   FXASSERT(field);
   FXASSERT(ape);
   if (ape->itemListMap().contains(field)) {
-    TagLib::StringList fieldlist = ape->itemListMap()[field].toStringList();
+    const TagLib::StringList fieldlist = ape->itemListMap()[field].toStringList();
+    list.no(fieldlist.size());
+    FXint item=0;
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
-      list.append(it->toCString(true));
+      gm_taglib_string(*it,list[item++]);
       }
     trimList(list);
     }
@@ -503,8 +576,7 @@ void  GMFileTag::id3v2_get_field(const FXchar * field,FXString & value) const{
   FXASSERT(field);
   FXASSERT(id3v2);
   if (id3v2->frameListMap().contains(field) && !id3v2->frameListMap()[field].isEmpty() ){
-    value=id3v2->frameListMap()[field].front()->toString().toCString(true);
-    value.trim();
+    gm_taglib_string(id3v2->frameListMap()[field].front()->toString(),value);
     }
   else {
     value.clear();
@@ -516,9 +588,11 @@ void  GMFileTag::id3v2_get_field(const FXchar * field,FXStringList & list) const
   FXASSERT(id3v2);
   if (id3v2->frameListMap().contains(field) && !id3v2->frameListMap()[field].isEmpty() ) {
     TagLib::ID3v2::TextIdentificationFrame * frame = dynamic_cast<TagLib::ID3v2::TextIdentificationFrame*>(id3v2->frameListMap()[field].front());
-    TagLib::StringList fieldlist = frame->fieldList();
+    const TagLib::StringList fieldlist = frame->fieldList();
+    list.no(fieldlist.size());
+    FXint item=0;
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
-      list.append(it->toCString(true));
+      gm_taglib_string(*it,list[item++]);
       }
     trimList(list);
     }
@@ -571,9 +645,11 @@ void GMFileTag::mp4_get_field(const FXchar * field,FXStringList & list) const{
   FXASSERT(field);
   FXASSERT(mp4);
   if (mp4->itemListMap().contains(field)) {
-    TagLib::StringList fieldlist = mp4->itemListMap()[field].toStringList();
+    const TagLib::StringList fieldlist = mp4->itemListMap()[field].toStringList();
+    list.no(fieldlist.size());
+    FXint item=0;
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
-      list.append(it->toCString(true));
+      gm_taglib_string(*it,list[item++]);
       }
     trimList(list);
     }
@@ -702,18 +778,15 @@ void GMFileTag::setArtist(const FXString & value){
   }
 
 void GMFileTag::getArtist(FXString& value) const{
-  value=tag->artist().toCString(true);
-  value.trim();
+  gm_taglib_string(tag->artist(),value);
   }
-
 
 void GMFileTag::setAlbum(const FXString & value){
   tag->setAlbum(TagLib::String(value.text(),TagLib::String::UTF8));
   }
 
 void GMFileTag::getAlbum(FXString& value) const{
-  value=tag->album().toCString(true);
-  value.trim();
+  gm_taglib_string(tag->album(),value);
   }
 
 void GMFileTag::setTitle(const FXString & value){
@@ -734,8 +807,7 @@ void GMFileTag::getTitle(FXString& value) const {
       }
     }
   else {
-    value=tag->title().toCString(true);
-    value.trim();
+    gm_taglib_string(tag->title(),value);
     }
   }
 
@@ -894,7 +966,7 @@ GMCover * GMFileTag::getFrontCover() const {
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::UTF8);
+        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::Latin1);
         if (xiph_check_cover(bytevector)==GMCover::FrontCover){
           GMCover* cover = xiph_load_cover(bytevector);
           if (cover) return cover;
@@ -928,10 +1000,10 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
-        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::UTF8);
+        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::Latin1);
         FXint type = xiph_check_cover(bytevector);
         if (type>=0 && type!=GMCover::FileIcon && type!=GMCover::OtherFileIcon && type!=GMCover::Fish){
-          GMCover * cover = xiph_load_cover((*it).data(TagLib::String::UTF8));
+          GMCover * cover = xiph_load_cover((*it).data(TagLib::String::Latin1));
           if (cover) covers.append(cover);
           }
         }
@@ -986,7 +1058,7 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
       TagLib::StringList & coverlist = const_cast<TagLib::StringList&>(xiph->fieldListMap()["METADATA_BLOCK_PICTURE"]);
       TagLib::StringList::Iterator it = coverlist.begin();
       while(it!=coverlist.end()){
-        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::UTF8);
+        const TagLib::ByteVector & bytevector = (*it).data(TagLib::String::Latin1);
         FXint type = xiph_check_cover(bytevector);
         if (type==cover->type)
           it=coverlist.erase(it);
