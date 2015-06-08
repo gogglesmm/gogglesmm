@@ -34,9 +34,6 @@
 #include "ap_decoder_plugin.h"
 #include "ap_decoder_thread.h"
 
-#include "ap_oss_plugin.h"
-#include "ap_oss_defs.h"
-
 /// For Open
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -44,21 +41,56 @@
 #include <ioctl.h>
 #include <unistd.h>
 
-using namespace ap;
+#include <soundcard.h>
 
+#include "ap_oss_defs.h"
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new OSSOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
 
 
 namespace ap {
+
+class OSSOutput : public OutputPlugin {
+protected:
+  FXInputHandle handle;
+protected:
+  OSSConfig config;
+  FXbool   can_pause;
+  FXbool   can_resume;
+protected:
+  FXbool open();
+public:
+  OSSOutput(OutputThread * output);
+
+  /// Configure
+  FXbool configure(const AudioFormat &);
+
+  /// Write frames to playback buffer
+  FXbool write(const void*, FXuint);
+
+  /// Return delay in no. of frames
+  FXint delay();
+
+  /// Empty Playback Buffer Immediately
+  void drop();
+
+  /// Wait until playback buffer is emtpy.
+  void drain();
+
+  /// Pause Playback
+  void pause(FXbool t);
+
+  /// Close Output
+  void close();
+
+  /// Get Device Type
+  FXchar type() const { return DeviceOSS; }
+
+  /// Set Device Configuration
+  FXbool setOutputConfig(const OutputConfig &);
+
+  /// Destructor
+  virtual ~OSSOutput();
+  };
 
 
 static FXbool to_gap_format(const FXint oss,AudioFormat & af) {
@@ -264,3 +296,19 @@ FXbool OSSOutput::write(const void * buffer,FXuint nframes){
   }
 
 }
+
+
+using namespace ap;
+
+FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
+
+extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
+  return new OSSOutput(output);
+  }
+
+extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
+  delete plugin;
+  }
+
+
+

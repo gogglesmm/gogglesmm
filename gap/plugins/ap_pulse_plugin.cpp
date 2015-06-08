@@ -35,11 +35,79 @@
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
 
-#include "ap_pulse_plugin.h"
+//#include "ap_pulse_plugin.h"
 #include <poll.h>
 
+extern "C" {
+#include <pulse/pulseaudio.h>
+}
 
 using namespace ap;
+
+void pulse_quit(pa_mainloop_api*,int){
+  GM_DEBUG_PRINT("pulse_quit\n");
+  }
+
+
+namespace ap {
+
+
+class PulseOutput : public OutputPlugin {
+protected:
+  static PulseOutput* instance;
+protected:
+  friend struct ::pa_io_event;
+  friend struct ::pa_time_event;
+  friend struct ::pa_defer_event;
+protected:
+  pa_mainloop_api  api;
+  pa_context     * context;
+  pa_stream      * stream;
+  pa_volume_t      pulsevolume;
+protected:
+  static void sink_info_callback(pa_context*, const pa_sink_input_info *,int eol,void*);
+  static void context_subscribe_callback(pa_context *c,pa_subscription_event_type_t, uint32_t,void*);
+protected:
+  FXbool open();
+public:
+  PulseOutput(OutputThread*);
+
+  /// Configure
+  FXbool configure(const AudioFormat &);
+
+  /// Write frames to playback buffer
+  FXbool write(const void*, FXuint);
+
+  /// Return delay in no. of frames
+  FXint delay();
+
+  /// Empty Playback Buffer Immediately
+  void drop();
+
+  /// Wait until playback buffer is emtpy.
+  void drain();
+
+  /// Pause
+  void pause(FXbool);
+
+  /// Change Volume
+  void volume(FXfloat);
+
+  /// Close Output
+  void close();
+
+  /// Get Device Type
+  FXchar type() const { return DevicePulse; }
+
+  /// Destructor
+  virtual ~PulseOutput();
+  };
+
+
+}
+
+
+
 
 
 
@@ -235,26 +303,30 @@ pa_io_event    * pa_io_event::recycle;
 pa_time_event  * pa_time_event::recycle;
 pa_defer_event * pa_defer_event::recycle;
 
-void pulse_quit(pa_mainloop_api*,int){
-  GM_DEBUG_PRINT("pulse_quit\n");
-  }
 
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new PulseOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
 
 
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
+
+
+
+
+
 
 
 
 
 namespace ap {
+
+
+
+
+
+
+
+
+
+
 
 
 PulseOutput * PulseOutput::instance = nullptr;
@@ -606,3 +678,16 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
 
 
 }
+
+
+
+extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
+  return new PulseOutput(output);
+  }
+
+extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
+  delete plugin;
+  }
+
+FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
+

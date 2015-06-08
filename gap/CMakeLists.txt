@@ -43,6 +43,7 @@ pkg_check_modules(VORBIS vorbis)
 pkg_check_modules(OGG ogg)
 pkg_check_modules(OPUS opus)
 pkg_check_modules(SAMPLERATE samplerate)
+#pkg_check_modules(JACK jack)
 #pkg_check_modules(CDDA libcdio_cdda)
 
 # Check for libmad
@@ -188,6 +189,14 @@ if (PULSE_FOUND)
   set(HAVE_PULSE 1)
 endif()
 
+# Jack Output
+if (JACK_FOUND)
+  add_library(gap_jack MODULE plugins/ap_jack_plugin.cpp)
+  target_link_libraries(gap_jack ${PULSE_LIBRARIES})
+  target_include_directories(gap_jack BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+  install(TARGETS gap_jack LIBRARY DESTINATION lib/gogglesmm)
+  set(HAVE_JACK 1)
+endif()
 
 # Wav File output
 add_library(gap_wav MODULE plugins/ap_wavout_plugin.cpp)

@@ -35,7 +35,9 @@
 #include "ap_decoder_plugin.h"
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
-#include "ap_alsa_plugin.h"
+
+#include <alsa/asoundlib.h>
+
 
 #define ALSA_VERSION(major,minor,patch) ((major<<16)|(minor<<8)|patch)
 
@@ -43,18 +45,66 @@
 
 using namespace ap;
 
-
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new AlsaOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
-
 namespace ap {
+
+
+class AlsaMixer;
+
+class AlsaOutput : public OutputPlugin {
+protected:
+  snd_pcm_t*        handle;
+  snd_pcm_uframes_t period_size;
+  snd_pcm_uframes_t period_written;
+  FXuchar*          silence;
+
+
+  AlsaMixer * mixer;
+protected:
+  AlsaConfig config;
+  FXbool   can_pause;
+  FXbool   can_resume;
+protected:
+  FXbool open();
+public:
+  AlsaOutput(OutputThread*);
+
+  /// Configure
+  FXbool configure(const AudioFormat &);
+
+  /// Write frames to playback buffer
+  FXbool write(const void*, FXuint);
+
+  /// Return delay in no. of frames
+  FXint delay();
+
+  /// Empty Playback Buffer Immediately
+  void drop();
+
+  /// Wait until playback buffer is emtpy.
+  void drain();
+
+  /// Pause Playback
+  void pause(FXbool t);
+
+  /// Change Volume
+  void volume(FXfloat);
+
+  /// Close Output
+  void close();
+
+  /// Get Device Type
+  FXchar type() const { return DeviceAlsa; }
+
+  /// Set Device Configuration
+  FXbool setOutputConfig(const OutputConfig &);
+
+  /// Destructor
+  virtual ~AlsaOutput();
+  };
+
+
+
+
 
 
 static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_format) {
@@ -1077,3 +1127,14 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
   }
 
 }
+
+extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
+  return new AlsaOutput(output);
+  }
+
+extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
+  delete plugin;
+  }
+
+FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
+

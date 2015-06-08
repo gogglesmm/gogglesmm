@@ -33,23 +33,52 @@
 #include "ap_output_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_decoder_thread.h"
-#include "ap_jack_plugin.h"
+
+#include <jack/jack.h>
 
 using namespace ap;
 
-
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new JackOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(APPLICATION_MAJOR,APPLICATION_MINOR,APPLICATION_LEVEL);
-
-
 namespace ap {
+
+class JackOutput : public OutputPlugin {
+protected:
+  jack_client_t * jack;
+protected:
+  FXbool open();
+public:
+  JackOutput(OutputThread * output);
+
+  /// Configure
+  FXbool configure(const AudioFormat &);
+
+  /// Write frames to playback buffer
+  FXbool write(const void*, FXuint);
+
+  /// Return delay in no. of frames
+  FXint delay();
+
+  /// Empty Playback Buffer Immediately
+  void drop();
+
+  /// Wait until playback buffer is emtpy.
+  void drain();
+
+  /// Pause
+  void pause(FXbool);
+
+  /// Change Volume
+  void volume(FXfloat);
+
+  /// Close Output
+  void close();
+
+  /// Get Device Type
+  FXchar type() const { return DeviceJack; }
+
+  /// Destructor
+  virtual ~JackOutput();
+  };
+
 
 JackOutput::JackOutput(OutputThread * output) : OutputPlugin(output) {
   }
@@ -103,3 +132,13 @@ FXbool JackOutput::write(const void *,FXuint){
   }
 }
 
+
+extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
+  return new JackOutput(output);
+  }
+
+extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
+  delete plugin;
+  }
+
+FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
