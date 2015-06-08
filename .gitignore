@@ -8,3 +8,5 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
+src/gmconfig.h
+gap/ap_config.h
