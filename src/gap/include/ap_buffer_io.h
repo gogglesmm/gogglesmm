@@ -21,7 +21,7 @@
 
 namespace ap {
 
-class BufferIO : public FXIO, public BufferBase  {
+class GMAPI BufferIO : public FXIO, public BufferBase  {
 protected:
   FXIO    * io;     // IO
   FXuchar   dir;    // buffer direction

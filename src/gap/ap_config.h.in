@@ -4,10 +4,11 @@
 #cmakedefine HAVE_OPUS
 #cmakedefine HAVE_MAD
 #cmakedefine HAVE_FAAD
-#cmakedefine HAVE_ALSA
-#cmakedefine HAVE_PULSE
 #cmakedefine HAVE_SAMPLERATE
 #cmakedefine HAVE_CDDA
+#cmakedefine HAVE_ALSA
+#cmakedefine HAVE_PULSE
+#cmakedefine HAVE_OSS
 #define AP_PLUGIN_PATH "${AP_PLUGIN_PATH}"
 
 #define GAP_VERSION_STRING "${GAP_VERSION}"

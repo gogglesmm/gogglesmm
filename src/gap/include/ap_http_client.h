@@ -21,7 +21,7 @@
 
 namespace ap {
 
-class HttpHost {
+class GMAPI HttpHost {
 public:
   FXString name;
   FXint    port;
@@ -39,7 +39,7 @@ public:
 
 class ConnectionFactory;
 
-class HttpClient : public HttpResponse {
+class GMAPI HttpClient : public HttpResponse {
 protected:
   ConnectionFactory* connection;
   HttpHost      		 server;

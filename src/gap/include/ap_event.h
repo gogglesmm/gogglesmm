@@ -41,7 +41,7 @@ enum ReplayGainMode {
   ReplayGainAlbum   = 2,
   };
 
-class Volume {
+class GMAPI Volume {
 public:
   FXfloat value;
   FXuchar enabled;
@@ -54,7 +54,7 @@ public:
 
 class Event;
 
-class Event {
+class GMAPI Event {
 public:
   Event     * next;       /// used by pool and queue to   (8)
   FXuchar     type;       /// type of event               (1)
@@ -69,7 +69,7 @@ public:
   static void unref(Event*&);
   };
 
-class ErrorMessage : public Event {
+class GMAPI ErrorMessage : public Event {
 public:
   FXString msg;
 protected:
@@ -78,7 +78,7 @@ public:
   ErrorMessage(const FXString & t=FXString::null);
   };
 
-class TimeUpdate : public Event {
+class GMAPI TimeUpdate : public Event {
 public:
   FXuint position;
   FXuint length;
@@ -88,7 +88,7 @@ public:
   TimeUpdate(FXuint p,FXuint l);
   };
 
-class MetaInfo : public Event {
+class GMAPI MetaInfo : public Event {
 public:
   FXString title;
   FXString artist;
@@ -99,7 +99,7 @@ public:
   MetaInfo();
   };
 
-class VolumeNotify : public Event{
+class GMAPI VolumeNotify : public Event{
 public:
   Volume volume;
 protected:

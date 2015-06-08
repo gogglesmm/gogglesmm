@@ -21,7 +21,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat=2")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat=2")
 
 
 # Expat is Required
@@ -166,6 +166,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 
+# Alsa Output
 if (ALSA_FOUND)
   add_library(gap_alsa MODULE plugins/ap_alsa_plugin.cpp)
   target_link_libraries(gap_alsa ${ALSA_LIBRARIES})
@@ -174,14 +175,33 @@ if (ALSA_FOUND)
   set(HAVE_ALSA 1)
 endif()
 
+# Pulse Output
 if (PULSE_FOUND)
   add_library(gap_pulse MODULE plugins/ap_pulse_plugin.cpp)
   target_link_libraries(gap_pulse ${PULSE_LIBRARIES})
   target_include_directories(gap_pulse BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
   install(TARGETS gap_pulse LIBRARY DESTINATION lib/gogglesmm)
   set(HAVE_PULSE 1)
-  set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/lib/gogglesmm)
 endif()
+
+
+# Wav File output
+add_library(gap_wav MODULE plugins/ap_wavout_plugin.cpp)
+target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+install(TARGETS gap_wav LIBRARY DESTINATION lib/gogglesmm)
+
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
+    target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
+    target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+    install(TARGETS gap_oss LIBRARY DESTINATION lib/gogglesmm)
+    set(HAVE_OSS 1)
+endif()
+
+
+set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/lib/gogglesmm)
+
 
 
 configure_file("${PROJECT_SOURCE_DIR}/ap_config.h.in" "${PROJECT_BINARY_DIR}/ap_config.h")
