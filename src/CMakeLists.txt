@@ -1,36 +1,17 @@
 cmake_policy(VERSION 3.2)
 cmake_minimum_required(VERSION 3.2)
 
+include(TestBigEndian)
+
+
 project(GOGGLESMM VERSION 1.1.0)
 
-# Allow building without opengl
 option(WITH_OPENGL "Enable OpenGL Features" ON)
 option(WITH_DBUS "Enable DBUS Features" ON)
 option(WITH_NLS "Enable Native Language Support" ON)
 
 
-
-
-# Detects reswrap version
-find_program(RESWRAP reswrap)
-
-if(RESWRAP)
-    execute_process(COMMAND ${RESWRAP} -v OUTPUT_VARIABLE RESWRAP_OUTPUT)
-    string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]" RESWRAP_VERSION "${RESWRAP_OUTPUT}")
-    if(RESWRAP_VERSION VERSION_LESS "5.0")
-        set(RESWRAP_H "${RESWRAP} -i -k")
-        set(RESWRAP_CPP "${RESWRAP} -e -k")
-        set(RESWRAP_TEXT "${RESWRAP} -t -k")
-    else()
-        set(RESWRAP_H ${RESWRAP} --keep-ext --header)
-        set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
-        set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
-    endif()
-    #message(STATUS "${RESWRAP_CPP}")
-else()
-message(FATAL_ERROR "Unable to find reswrap")
-endif()
-
+TEST_BIG_ENDIAN(GOGGLESMM_BIGENDIAN)
 
 
 find_package(PkgConfig)
@@ -78,6 +59,31 @@ if (LIBGCRYPT_LIBRARIES)
 endif()
 
 
+# Detects reswrap version
+find_program(RESWRAP reswrap)
+
+if(RESWRAP)
+    execute_process(COMMAND ${RESWRAP} -v OUTPUT_VARIABLE RESWRAP_OUTPUT)
+    string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]" RESWRAP_VERSION "${RESWRAP_OUTPUT}")
+    if(RESWRAP_VERSION VERSION_LESS "5.0")
+        set(RESWRAP_H "${RESWRAP} -i -k")
+        set(RESWRAP_CPP "${RESWRAP} -e -k")
+        set(RESWRAP_TEXT "${RESWRAP} -t -k")
+    else()
+        set(RESWRAP_H ${RESWRAP} --keep-ext --header)
+        set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
+        set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
+    endif()
+    #message(STATUS "${RESWRAP_CPP}")
+else()
+message(FATAL_ERROR "Unable to find reswrap")
+endif()
+
+
+
+
+
+
 #------------------------------------------------------------------------------
 
 # We need C++ 11
@@ -94,8 +100,6 @@ set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
 # Don't use CMAKE_INSTALL_PREFIX since most icons won't be installed anywhere but /usr
 set(ICON_PATH /usr/share/icons)
 
-# Write gmconfig.h
-configure_file("gmconfig.h.in" "gmconfig.h")
 
 #------------------------------------------------------------------------------
 
@@ -152,6 +156,7 @@ set(SOURCES
   GMWindow.cpp
   main.cpp
   icons.cpp
+  icons.h
   fxext.cpp
   gmutils.cpp
   )
@@ -238,20 +243,39 @@ ADD_CUSTOM_COMMAND(
     COMMAND ${RESWRAP_CPP} -o icons.cpp ${ICONS}
     )
 
-
-#ADD_CUSTOM_TARGET(icons DEPENDS icons.cpp icons.h)
-
-
 if (DBUS_FOUND)
-  LIST(APPEND SOURCES GMDBus.cpp GMSettingsDaemon.cpp GMMediaPlayerService.cpp GMNotifyDaemon.cpp GMAppStatusNotify.cpp)
-  set(HAVE_DBUS 1)
+
+    LIST(APPEND SOURCES GMDBus.cpp
+                        GMSettingsDaemon.cpp
+                        GMMediaPlayerService.cpp
+                        GMNotifyDaemon.cpp
+                        GMAppStatusNotify.cpp
+                        gogglesmm_xml.h
+                        appstatus_xml.h
+                        mpris1_xml.h
+                        mpris2_xml.h)
+
+    set_source_files_properties(gogglesmm_xml.h PROPERTIES GENERATED 1)
+    set_source_files_properties(appstatus_xml.h PROPERTIES GENERATED 1)
+    set_source_files_properties(mpris1_xml.h PROPERTIES GENERATED 1)
+    set_source_files_properties(mpris2_xml.h PROPERTIES GENERATED 1)
+
+    ADD_CUSTOM_COMMAND(
+        OUTPUT gogglesmm_xml.h appstatus_xml.h mpris1_xml.h mpris2_xml.h
+        COMMAND ${RESWRAP_TEXT} -o gogglesmm_xml.h gogglesmm.xml
+        COMMAND ${RESWRAP_TEXT} -o appstatus_xml.h appstatus.xml dbusmenu.xml
+        COMMAND ${RESWRAP_TEXT} -o mpris1_xml.h mpris.xml mpris_player.xml mpris_tracklist.xml
+        COMMAND ${RESWRAP_TEXT} -o mpris2_xml.h mpris2.xml
+        )
+
+    set(HAVE_DBUS 1)
 endif()
 
+# Write gmconfig.h
+configure_file("gmconfig.h.in" "gmconfig.h")
 
 # Goggles Music Manager
-add_executable(gogglesmm ${SOURCES} icons.h)
-
-
+add_executable(gogglesmm ${SOURCES})
 
 # Always turn on Warnings
 target_compile_options(gogglesmm PRIVATE -Wall -Wextra -Wformat=2)

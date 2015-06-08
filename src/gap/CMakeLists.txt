@@ -1,20 +1,24 @@
 cmake_policy(VERSION 3.2)
 
+include(TestBigEndian)
+include(CheckIncludeFiles)
+include(FindEXPAT)
+
 project(GAP VERSION 1.0.0)
 
-set(CMAKE_VERBOSE_MAKEFILE 1)
+# Endiannes
+TEST_BIG_ENDIAN(GAP_BIGENDIAN)
 
-SET(CMAKE_BUILD_TYPE MinSizeRel CACHE STRING "Set the buildtype")
+
+# libdir name to allow overriding to lib32 / lib64
+set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Specify the name of the directory where libraries are meant to be installed")
+
 
 # Update whenever ABI changes
 set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added, removed or changed.
 set(GAP_SOVERSION_REVISION 0)   # Always increase the revision value. Reset to 0 when Current changes.
 set(GAP_SOVERSION_AGE 0)        # Increase the age value only if the changes made to the ABI are backward compatible.
 
-include(CheckIncludeFiles)
-#include(GNUInstallDirs)
-
-include(FindEXPAT)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
@@ -191,7 +195,7 @@ target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 install(TARGETS gap_wav LIBRARY DESTINATION lib/gogglesmm)
 
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
     target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
     target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
@@ -200,7 +204,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 
-set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/lib/gogglesmm)
+set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/gogglesmm)
 
 
 
@@ -215,7 +219,7 @@ set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
 
 if(BUILD_SHARED_LIBS)
   #set_target_properties(gap PROPERTIES VERSION ${GAP_VERSION} SOVERSION ${GAP_SOVERSION})
-  install(TARGETS gap LIBRARY DESTINATION lib)
+  install(TARGETS gap LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
   install(FILES include/ap.h
                 include/ap_app_queue.h
                 include/ap_buffer_base.h
