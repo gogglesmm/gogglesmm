@@ -1,4 +1,4 @@
-cmake_policy(VERSION 3.2)
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)
@@ -25,8 +25,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat=2")
 
+
+find_package(PkgConfig)
 
 # Expat is Required
 find_package(EXPAT REQUIRED)
@@ -74,7 +75,6 @@ endif()
 
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
-
 
 set(SOURCES ap_app_queue.cpp
             ap_buffer.cpp
@@ -216,6 +216,7 @@ target_link_libraries(gap ${LIBRARIES})
 
 set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
 
+target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if(BUILD_SHARED_LIBS)
   #set_target_properties(gap PROPERTIES VERSION ${GAP_VERSION} SOVERSION ${GAP_SOVERSION})

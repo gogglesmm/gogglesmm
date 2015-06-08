@@ -1,7 +1,7 @@
-cmake_policy(VERSION 3.2)
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 include(TestBigEndian)
+include(CheckIncludeFiles)
 
 
 project(GOGGLESMM VERSION 1.1.0)
@@ -12,7 +12,6 @@ option(WITH_NLS "Enable Native Language Support" ON)
 
 
 TEST_BIG_ENDIAN(GOGGLESMM_BIGENDIAN)
-
 
 find_package(PkgConfig)
 
@@ -43,7 +42,6 @@ if(SM_FOUND AND ICE_FOUND)
 endif()
 
 # libgrypt
-include(CheckIncludeFiles)
 check_include_files(gcrypt.h HAVE_GCRYPT_H)
 if (HAVE_GCRYPT_H)
    set(LIBGCRYPT_HEADERS_FOUND TRUE)
@@ -74,7 +72,6 @@ if(RESWRAP)
         set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
         set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
     endif()
-    #message(STATUS "${RESWRAP_CPP}")
 else()
 message(FATAL_ERROR "Unable to find reswrap")
 endif()
@@ -90,7 +87,6 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
-
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
@@ -99,11 +95,6 @@ set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
 
 # Don't use CMAKE_INSTALL_PREFIX since most icons won't be installed anywhere but /usr
 set(ICON_PATH /usr/share/icons)
-
-
-#------------------------------------------------------------------------------
-
-add_subdirectory(gap)
 
 #------------------------------------------------------------------------------
 
@@ -236,7 +227,6 @@ set(ICONS ../icons/cursor_hand.gif
 set_source_files_properties(icons.cpp PROPERTIES GENERATED 1)
 set_source_files_properties(icons.h PROPERTIES GENERATED 1)
 
-
 ADD_CUSTOM_COMMAND(
     OUTPUT icons.h icons.cpp
     COMMAND ${RESWRAP_H} -o icons.h ${ICONS}
@@ -274,19 +264,12 @@ endif()
 # Write gmconfig.h
 configure_file("gmconfig.h.in" "gmconfig.h")
 
+
+
 # Goggles Music Manager
 add_executable(gogglesmm ${SOURCES})
 
-# Always turn on Warnings
-target_compile_options(gogglesmm PRIVATE -Wall -Wextra -Wformat=2)
 
-
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-  target_compile_definitions(gogglesmm PRIVATE -DDEBUG)
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.7)
-        target_compile_options(gogglesmm PRIVATE -Og)
-    endif()
-endif()
 
 
 # Export Symbols if GAP is not build as a shared library
@@ -296,7 +279,6 @@ endif()
 
 # Include Directories
 target_include_directories(gogglesmm PRIVATE
-                           ${PROJECT_SOURCE_DIR}/gap/include
                            ${FOX_INCLUDE_DIRS}
                            ${TAGLIB_INCLUDE_DIRS}
                            ${DBUS_INCLUDE_DIRS})
