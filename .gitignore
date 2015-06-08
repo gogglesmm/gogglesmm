@@ -10,3 +10,10 @@ cmake_install.cmake
 install_manifest.txt
 src/gmconfig.h
 gap/ap_config.h
+src/gogglesmm_xml.h
+src/mpris1_xml.h
+src/mpris2_xml.h
+src/appstatus_xml.h
+src/icons.cpp
+src/icons.h
+src/gogglesmm
