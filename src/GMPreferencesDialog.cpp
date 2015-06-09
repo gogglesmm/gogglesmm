@@ -573,9 +573,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (AP_HAS_PLUGIN(devices,DeviceJack))
     driverlist->appendItem("Jack",nullptr,(void*)DeviceJack);
 
-  if (AP_HAS_PLUGIN(devices,DeviceRSound))
-    driverlist->appendItem("RSound",nullptr,(void*)DeviceRSound);
-
   if (AP_HAS_PLUGIN(devices,DeviceWav))
     driverlist->appendItem("Wave File Output",nullptr,(void*)DeviceWav);
 
