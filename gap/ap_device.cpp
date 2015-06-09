@@ -33,7 +33,6 @@ static const FXchar * const plugin_names[DeviceLast]={
   "alsa",
   "oss",
   "pulse",
-  "rsound",
   "jack",
   "wav"
   };
@@ -102,14 +101,10 @@ OutputConfig::OutputConfig() {
   device=DeviceAlsa;
 #elif defined(HAVE_OSS)
   device=DeviceOSS;
-#elif defined(HAVE_ALSA)
-  device=DeviceAlsa;
 #elif defined(HAVE_PULSE)
   device=DevicePulse;
 #elif defined(HAVE_JACK)
   device=DeviceJack;
-#elif defined(HAVE_RSOUND)
-  device=DeviceRSound;
 #else
   device=DeviceWav;
 #endif
@@ -132,10 +127,6 @@ FXuint OutputConfig::devices() {
 #ifdef HAVE_PULSE
   if (ap_has_plugin(DevicePulse))
     AP_ENABLE_PLUGIN(plugins,DevicePulse);
-#endif
-#ifdef HAVE_RSOUND
-  if (ap_has_plugin(DeviceRSound))
-    AP_ENABLE_PLUGIN(plugins,DeviceRSound);
 #endif
 #ifdef HAVE_JACK
   if (ap_has_plugin(DeviceJack))
