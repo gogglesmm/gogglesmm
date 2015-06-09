@@ -21,8 +21,12 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Override default install to /usr
-set(CMAKE_INSTALL_PREFIX /usr CACHE STRING "Installation prefix used by install.")
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX /usr CACHE STRING "Installation prefix used by install." FORCE)
+endif()
 
+# Display the build type
+message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 #-------------------------------------------------------------------------------
 
