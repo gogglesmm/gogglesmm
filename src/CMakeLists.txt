@@ -58,6 +58,9 @@ endif()
 
 # Detects reswrap version
 find_program(RESWRAP reswrap)
+if(NOT RESWRAP)
+    find_program(RESWRAP reswrap-1.7)
+endif()
 
 if(RESWRAP)
     execute_process(COMMAND ${RESWRAP} -v OUTPUT_VARIABLE RESWRAP_OUTPUT)
