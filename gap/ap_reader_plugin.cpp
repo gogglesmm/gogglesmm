@@ -151,7 +151,7 @@ extern ReaderPlugin * ap_musepack_reader(AudioEngine*);
 extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_AAC
+#ifdef HAVE_FAAD
 extern ReaderPlugin * ap_aac_reader(AudioEngine*);
 #endif
 
@@ -177,7 +177,7 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #ifdef HAVE_MAD
     case Format::MP3      : return ap_mad_reader(engine); break;
 #endif
-#ifdef HAVE_AAC
+#ifdef HAVE_FAAD
     case Format::AAC      : return ap_aac_reader(engine); break;
 #endif
 #ifdef HAVE_MP4
