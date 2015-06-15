@@ -1,3 +1,6 @@
+1.0.3
+  - opus: implement multichannel playback support and correctly apply output gain.
+
 1.0.2
   - Fix: don't crash when loading invalid or empty covers from taglib
 
