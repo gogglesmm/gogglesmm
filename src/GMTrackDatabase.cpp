@@ -1789,7 +1789,7 @@ void GMTrackDatabase::setTrackAlbum(const FXIntList & tracks,const FXString & na
                                                              "WHERE tracks.id == ? AND a2.name == ?;");
 
   GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,audio_channels,audio_rate,audio_format) "
-                          "SELECT ?,artist,year,audio_channels,audio_rate,audio_format"
+                          "SELECT ?,artist,year,audio_channels,audio_rate,audio_format "
                           "FROM albums "
                           "WHERE id = (SELECT album FROM tracks WHERE id == ?);");
 
