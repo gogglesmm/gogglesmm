@@ -344,9 +344,15 @@ void GMDatabase::perform_regex_match(sqlite3_context *context, int argc, sqlite3
 
 
 void GMDatabase::init_regex() {
+#ifdef SQLITE_DETERMINISTIC // SQLITE 3.8.3
   if (sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8|SQLITE_DETERMINISTIC,this,perform_regex_match,NULL,NULL)!=SQLITE_OK){
     fxwarning("failed to register regular expression callback\n");
     }
+#else
+  if (sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8,this,perform_regex_match,NULL,NULL)!=SQLITE_OK){
+    fxwarning("failed to register regular expression callback\n");
+    }
+#endif
   }
 
 
