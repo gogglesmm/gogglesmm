@@ -1,39 +1,103 @@
 Installation Instructions
 -------------------------
 
-   1. Install all required dependencies:
+    1. Install all required dependencies:
 
-      * FOX >= 1.7.50
-      * sqlite >= 3.6.19
-      * taglib >= 1.9.0
-      * expat
+       * FOX >= 1.7.50
+       * sqlite >= 3.6.19
+       * taglib >= 1.9.0
+       * expat
 
 
-   2. Install optional dependencies:
+    2. Install optional dependencies:
 
-      * dbus 1.0.x (optional)
-      * flac
-      * mad
-      * vorbis
-      * ogg
-      * opus
-      * faad2
-      * pulse
+       * dbus 1.0.x (optional)
+       * flac
+       * mad
+       * vorbis
+       * ogg
+       * opus
+       * faad2
+       * pulse
 
-   3. Run the configure script:
+    3. Run the configure script:
 
-      > ./configure
+       > ./configure
 
-   4. Compile
+    4. Compile
 
-      > make
+       > make
 
-   5. If everything compiled fine, you are ready to install Goggles Music Manager in its final location.
-      By default this will be in /usr. Using the --prefix option on the configure command line you may
-      change this to something else (eg. ./configure --prefix=/usr/local )
+    5. If everything compiled fine, you are ready to install Goggles Music Manager in its final location.
+       By default this will be in /usr. Using the --prefix option on the configure command line you may
+       change this to something else (eg. ./configure --prefix=/usr/local )
 
-      > sudo make install
+       > sudo make install
 
-   5. Run the software
+    5. Run the software
 
-      > gogglesmm
+       > gogglesmm
+
+
+Building Goggles Music Manager on Ubuntu 14.04 LTS
+--------------------------------------------------
+
+    1. Install build tools and header files for FOX
+
+       > sudo apt-get install build-essential
+       > sudo apt-get install libxrandr-dev libxfixes-dev libxft-dev libxrender-dev libxcursor-dev libxi-dev libglu-dev libice-dev libsm-dev
+       > sudo apt-get install libtiff-dev
+       > sudo apt-get install libjpeg-dev
+       > sudo apt-get install libpng-dev
+       > sudo apt-get install libbz2-dev
+       > sudo apt-get install libwebp-dev
+       > sudo apt-get install libopenjpeg-dev
+
+    2. Download, Build and Install FOX
+
+       > wget ftp://ftp.fox-toolkit.org/pub/fox-1.7.51.tar.gz
+       > tar xvf fox-1.7.51.tar.gz
+       > cd fox-1.7.51/
+
+       for 32 bit:
+       > ./configure --enable-release --disable-static --enable-native --enable-opengl --enable-webp --enable-jp2 --prefix=/usr --libdir=/usr/lib/i386-linux-gnu
+
+       for 64 bit:
+       > ./configure --enable-release --disable-static --enable-native --enable-opengl --enable-webp --enable-jp2 --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
+
+       > make -j 4
+       > sudo make install
+
+    3. Install build dependencies for gogglesmm
+
+       > sudo apt-get install libasound2-dev
+       > sudo apt-get install libpulse-dev
+       > sudo apt-get install libogg-dev
+       > sudo apt-get install libvorbis-dev
+       > sudo apt-get install libopus-dev
+       > sudo apt-get install libflac-dev
+       > sudo apt-get install libmad0-dev
+       > sudo apt-get install libfaad-dev
+       > sudo apt-get install libsqlite3-dev
+       > sudo apt-get install libtag1-dev
+       > sudo apt-get install libglew-dev
+       > sudo apt-get install libgcrypt11-dev
+
+    4. Download, Build and Install gogglesmm (adjust version if necessary)
+
+       > wget https://github.com/gogglesmm/gogglesmm/archive/1.0.4.tar.gz
+       > tar xvf gogglesmm-1.0.4.tar.gz
+       > cd gogglesmm-1.0.4
+
+       for 32 bit:
+       > ./configure --with-faad --without-oss --libdir=/usr/lib/i386-linux-gnu
+
+       for 64 bit:
+       > ./configure --with-faad --without-oss --libdir=/usr/lib/x86_64-linux-gnu
+
+       > make
+       > sudo make install
+
+    5. Run
+
+       > gogglesmm

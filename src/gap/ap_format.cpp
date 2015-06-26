@@ -208,7 +208,8 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
            comparecase(mime,"audio/opus")==0){
     return Format::OGG;
     }
-  else if (comparecase(mime,"audio/aacp")==0){
+  else if (comparecase(mime,"audio/aacp")==0 ||
+           comparecase(mime,"audio/aac")==0) {
     return Format::AAC;
     }
   else if (comparecase(mime,"audio/x-mpegurl")==0 ||

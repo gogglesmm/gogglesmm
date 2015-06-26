@@ -89,6 +89,11 @@ GEN_LDFLAGS=${GEN_LDFLAGS:--Wl,--as-needed -flto}
 OPT_LDFLAGS=${OPT_LDFLAGS:--s}
 DEBUG_LDFLAGS=${DEBUG_LDFLAGS:-}
 
+
+# Setup libdir
+LIBDIR="${PREFIX}/$LIB"
+
+
 # Parse Command Line Arguments
 #-----------------------------
 for arg in $@; do
@@ -101,9 +106,14 @@ for arg in $@; do
       ;;
     --lib32)
       LIB=lib32
+      LIBDIR="${PREFIX}/$LIB"
       ;;
     --lib64)
       LIB=lib64
+      LIBDIR="${PREFIX}/$LIB"
+      ;;
+    --libdir=*)
+      LIBDIR="${arg#*=}"
       ;;
     --without-mad)
       OPTION_GAP_MAD=0
@@ -245,8 +255,6 @@ for arg in $@; do
 done
 
 
-# Setup libdir
-LIBDIR="${PREFIX}/$LIB"
 
 # Debug / Release Mode
 if [ $DEBUG -eq 1 ] ; then
