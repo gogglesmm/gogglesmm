@@ -153,8 +153,14 @@ check_reswrap()
   echo "Check for reswrap ... "
   COMMAND=${RESWRAP:-${PKG_PREFIX}/bin/reswrap}
   if [ ! -x $COMMAND ] ; then
-    echo "Missing reswrap"
-    exit 1
+    COMMAND=${RESWRAP:-${PKG_PREFIX}/bin/reswrap-1.7}
+    if [ ! -x $COMMAND ] ; then
+      COMMAND=${RESWRAP:-${PKG_PREFIX}/bin/reswrap-1.6}
+      if [ ! -x $COMMAND ] ; then
+        echo "Missing reswrap"
+        exit 1
+      fi
+    fi
   fi
   RESCMD=$(${COMMAND} -v 2>&1)
   RESVERSION=$(echo ${RESCMD} | cut -d" " -f2)
