@@ -930,19 +930,19 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
 
   try {
     query = "SELECT "
-                 "tracks.path, "
-                 "tracks.mrl, "
-                 "tracks.title, "
-                 "tracks.time,"
+                 "tracks.path,"
+                 "tracks.mrl,"
+                 "tracks.title," 
+                 "tracks.time," 
                  "tracks.no,"
                  "tracks.year,"
-                 "tracks.artist, "
-                 "tracks.composer, "
-                 "tracks.conductor, "
+                 "tracks.artist,"
+                 "tracks.composer,"
+                 "tracks.conductor,"
                  "albums.artist,albums.name,albums.year,"
                  "tracks.playcount,"
                  "tracks.bitrate,"
-                 "tracks.playdate, "
+                 "tracks.playdate," 
                  "tracks.rating "
            "FROM tracks JOIN albums ON tracks.album == albums.id WHERE tracks.id == ?;";
 
@@ -985,7 +985,7 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
         item->year        = track_year;
         item->album_year  = album_year;
         item->playcount   = playcount;
-        item->rating      = rating;
+        item->rating      = rating / 51;
 
         q.reset();
         tracklist->updateItem(i);
