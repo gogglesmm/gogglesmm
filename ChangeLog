@@ -1,3 +1,10 @@
+1.0.4
+  - Improvements to the taglib interface
+  - Fix build issue when forcing faad
+  - Fix compilation with sqlite < 3.8.3
+  - Fix missing space in sql statement
+  - Support audio/aac mimetype used on certain streams
+
 1.0.3
   - opus: implement multichannel playback support and correctly apply output gain.
 
