@@ -424,6 +424,24 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   new FXLabel(matrix,tr("Title Format:"),nullptr,labelstyle);
   new GMTextField(matrix,20,&target_gui_format_title,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|LAYOUT_FILL_X);
 
+
+  /// Create a fixed font, about the same size as the normal font
+  FXint size = FXApp::instance()->getNormalFont()->getSize();
+  font_fixed = new FXFont(FXApp::instance(),"mono",(int)size/10,FXFont::Normal,FXFont::Straight,FONTENCODING_UNICODE,FXFont::NonExpanded,FXFont::Modern|FXFont::Fixed);
+
+  FXLabel * label = new FXLabel(grpbox,tr("%T - title                   %A - album name\n"
+                                        "%P - album artist name       %p - track artist name\n"
+                                        "%w - composer                %c - conductor\n"
+                                        "%y - year                    %d - disc number\n"
+                                        "%N - track number (2 digits) %n - track number      \n%G - genre"),NULL,FRAME_LINE|JUSTIFY_LEFT,0,0,0,0,30);
+
+  label->setFont(font_fixed);
+  label->setBackColor(getApp()->getTipbackColor());
+  label->setBorderColor(getApp()->getShadowColor());
+
+
+
+
   if (GMPlayerManager::instance()->getPreferences().gui_toolbar_docktop)
     toolbar_docktop->setCurrentItem(0);
   else
