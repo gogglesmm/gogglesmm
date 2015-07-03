@@ -83,13 +83,6 @@ FXbool ID3V2::skip(InputPlugin * input,const FXuchar * /*id*/) {
   }
 
 
-
-
-
-
-
-
-
 ID3V2::ID3V2(FXuchar *b,FXint len) : buffer(b),size(len),p(0),padstart(0),padend(0),length(-1) {
   const FXchar & flags = buffer[5];
 
