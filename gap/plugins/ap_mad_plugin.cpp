@@ -803,7 +803,7 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
     //  }
 
     }
-  else {
+  else if (stream_length==-1) {
     bitrate = frame.bitrate();
     if (bitrate>0 && input_end>input_start) {
       stream_length =  (FXlong)frame.samplerate() * ((input_end-input_start) / (bitrate / 8) );
@@ -1036,6 +1036,11 @@ ReadStatus MadReader::parse(Packet * packet) {
           cfg->stream_offset_start = lame->padstart;
           cfg->stream_offset_end   = lame->padend;
           }
+        else if (id3v2) {
+          cfg->stream_offset_start = id3v2->padstart;
+          cfg->stream_offset_end   = id3v2->padend;
+          }
+
         engine->decoder->post(cfg);
 
         /// Send Meta Data if any
@@ -1104,6 +1109,10 @@ ReadStatus MadReader::parse(Packet * packet) {
     if (buffer[0]=='I' && buffer[1]=='D' && buffer[2]=='3') {
       id3v2 = ID3V2::parse(input,buffer);
       if (id3v2 == nullptr) return ReadError;
+      if (id3v2->length>0) {
+        stream_length = id3v2->length;
+        GM_DEBUG_PRINT("[mad_reader] id3v2 stream length %ld\n",stream_length);
+        }
       sync=false;
       continue;
       }
