@@ -28,7 +28,7 @@
 namespace ap {
 
 
-ID3V2::ID3V2(FXuchar *b,FXint len) : buffer(b),size(len),p(0) {
+ID3V2::ID3V2(FXuchar *b,FXint len) : buffer(b),size(len),p(0),padstart(0),padend(0),length(-1) {
   const FXchar & flags = buffer[5];
 
   version = buffer[3];
@@ -122,6 +122,61 @@ void ID3V2::parse_rva2_frame(FXint framesize) {
       p+=4+nbytes;
       framesize-=4+nbytes;
       }
+    }
+  }
+
+void ID3V2::parse_comment_frame(FXint framesize) {
+  FXString text;
+  const FXuchar & encoding = buffer[p];
+  const FXchar* textstart  = (const FXchar*)(buffer+p+4);
+  const FXint   textlength = framesize - 4;
+
+  switch(encoding) {
+    case ISO_8859_1 :
+      {
+        FX88591Codec codec;
+        FXint n = codec.mb2utflen(textstart,textlength);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),textstart,textlength);
+          }
+      } break;
+    case UTF16_BOM  :
+      {
+        FXUTF16Codec codec;
+        FXint n = codec.mb2utflen(textstart,textlength);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),textstart,textlength);
+          }
+      } break;
+    case UTF16      :
+      {
+        FXUTF16BECodec codec;
+        FXint n = codec.mb2utflen(textstart,textlength);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),textstart,textlength);
+          }
+      } break;
+    case UTF8       : text.assign(textstart,textlength); break;
+    default         : return; break;
+    };
+
+  FXString comment = text.after('\0');
+  if (comparecase(comment,"iTunSMPB",8)==0) {
+
+    FXint value = comment.section(' ',2).toInt(16);
+    if (value<0xFFFF)
+      padstart = value;
+
+    value = comment.section(' ',3).toInt(16);
+    if (value<0xFFFF)
+      padend = value;
+
+    length = comment.section(' ',4).toLong(16);
+
+    GM_DEBUG_PRINT("[id3v2] found iTunSMPB (padding %d %d, length %ld)\n",padstart,padend,length);
     }
   }
 
@@ -229,6 +284,7 @@ void ID3V2::parse_frame() {
       case TIT2 : parse_text_frame(frameid,framesize); break;
       case RVA2 : parse_rva2_frame(framesize); break;
       case PRIV : parse_priv_frame(framesize); break;
+      case COMM : parse_comment_frame(framesize); break;
       case 0    : p=size; return; break;
       default   : break;
       };

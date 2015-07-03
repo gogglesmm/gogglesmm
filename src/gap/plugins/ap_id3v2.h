@@ -36,6 +36,7 @@ private:
 protected:
   void unsync(FXuchar * buffer,FXint & len);
   void parse_frame();
+  void parse_comment_frame(FXint framesize);
   void parse_text_frame(FXuint frameid,FXint framesize);
   void parse_rva2_frame(FXint framesize);
   void parse_priv_frame(FXint framesize);
@@ -55,6 +56,7 @@ public:
     TAL = DEFINE_FRAME_V2('T','A','L'),
 
     /// Version 3 / 4 frames
+    COMM = DEFINE_FRAME('C','O','M','M'),
     TPE1 = DEFINE_FRAME('T','P','E','1'),
     TCOM = DEFINE_FRAME('T','C','O','M'),
     TALB = DEFINE_FRAME('T','A','L','B'),
@@ -80,6 +82,9 @@ public:
   FXString    album;
   FXString    title;
   ReplayGain  replaygain;
+  FXushort    padstart;
+  FXushort    padend;
+  FXlong      length;
 public:
   ID3V2(FXuchar * b,FXint len);
   ~ID3V2();
