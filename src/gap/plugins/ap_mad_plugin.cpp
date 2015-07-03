@@ -493,14 +493,10 @@ LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), 
   replaygain.track      = parse_replay_gain(buffer+15);
   replaygain.album      = parse_replay_gain(buffer+17);
 
-//   FXuchar bitrate = (*(buffer+21));
 
-  padstart = ((FXuint)*(buffer+22))<<4 | (((FXuint)*(buffer+23))>>4);
-  padend   = ((FXuint)*(buffer+23)&0xf)<<8 | ((FXuint)*(buffer+24));
+  padstart = ((FXuint)*(buffer+21))<<4 | (((FXuint)*(buffer+22))>>4);
+  padend   = ((FXuint)*(buffer+22)&0xf)<<8 | ((FXuint)*(buffer+23));
 
-
-//   FXuchar mp3gain = (*(buffer+25));
-//   FXushort surround = INT16_BE(buffer+26);
   length = INT32_BE(buffer+28);
 
 #ifdef DEBUG
