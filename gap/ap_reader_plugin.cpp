@@ -155,7 +155,7 @@ extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 extern ReaderPlugin * ap_aac_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_MP4
+#ifdef HAVE_FAAD
 extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
 #endif
 
@@ -180,7 +180,7 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #ifdef HAVE_FAAD
     case Format::AAC      : return ap_aac_reader(engine); break;
 #endif
-#ifdef HAVE_MP4
+#ifdef HAVE_FAAD
     case Format::MP4      : return ap_mp4_reader(engine); break;
 #endif
 #ifdef HAVE_MUSEPACK
