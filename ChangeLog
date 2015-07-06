@@ -1,3 +1,10 @@
+1.0.5
+  - Fix gapless playback for mp3 audio. (Applies decoder delay and fix reading encoder settings) 
+  - Support iTunes specific gapless playback tags for mp3 audio (iTuneSMPB).
+  - Fix toolbar to be on top of statusbar when docked on the bottom.
+  - Fix rating display after editing track.
+  - Show available parameters for Window Title Format.
+
 1.0.4
   - Improvements to the taglib interface
   - Fix build issue when forcing faad
