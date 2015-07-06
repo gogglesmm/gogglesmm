@@ -61,6 +61,8 @@ protected:
 protected:
   void showDriverSettings(FXuchar driver);
 public:
+  FXFontPtr     font_fixed;
+
   FXTextField * lastfm_username;
   FXTextField * lastfm_password;
   FXLabel * lastfm_password_label;

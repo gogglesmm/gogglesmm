@@ -174,9 +174,9 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   volumeslider->setRange(0,100);
   volumeslider->setIncrement(10);
 
-  toolbar   = new FXHorizontalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X,0,0,0,0,3,3,3,0);
   statusbar = new FXStatusBar(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|STATUSBAR_WITH_DRAGCORNER,0,0,0,0,3,3,2,2,3);
   statusbar->getStatusLine()->setFrameStyle(FRAME_NONE);
+  toolbar   = new FXHorizontalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X,0,0,0,0,3,3,3,0);
 
 
   progressbar = new FXHorizontalFrame(statusbar,LAYOUT_LEFT|FRAME_NONE,0,0,0,0,3,3,0,0);
