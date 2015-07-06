@@ -43,6 +43,8 @@
 #include <FX88591Codec.h>
 
 
+#define MAD_DECODER_DELAY 529
+
 namespace ap {
 
 class XingHeader;
@@ -713,8 +715,12 @@ FXbool MadReader::can_seek() const{
   }
 
 FXlong MadReader::seek_offset(FXdouble pos) const{
+  // FIXME Decoder delay?
   if (lame) {
     return lame->padstart+((stream_length-lame->padstart-lame->padend)*pos);
+    }
+  else if (id3v2 && (id3v2->padstart || id3v2->padend)) {
+    return id3v2->padstart+((stream_length-id3v2->padstart-id3v2->padend)*pos);
     }
   else {
     return stream_length*pos;
@@ -727,14 +733,15 @@ FXbool MadReader::seek(FXlong pos) {
     FXlong offset = 0;
     if (xing) {
       offset = xing->seek((pos /(double)stream_length),(input_end - input_start));
-      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",(double)(pos / stream_length),offset);
+      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",(double)((double)pos / (double)stream_length),offset);
       if (offset==-1) return false;
-      stream_position = offset; //getSeekOffset(pos);
+      stream_position = pos;
       }
     else if (vbri) {
+      // fixme
       }
     else {
-      stream_position = offset;
+      stream_position = pos;
       offset = (input_end - input_start) * ((double)pos/(double)stream_length);
       }
     input->position(input_start+offset,FXIO::Begin);
@@ -793,12 +800,6 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
     else {
       GM_DEBUG_PRINT("[mad_reader] only lame header found\n");
       }
-
-    //if (lame) {
-    //  GM_DEBUG_PRINT("[mad_reader] lame adjusting stream length by -%d frames \n",(lame->padstart + lame->padend));
-    //  stream_length -= (lame->padstart + lame->padend);
-    //  }
-
     }
   else if (stream_length==-1) {
     bitrate = frame.bitrate();
@@ -1047,7 +1048,6 @@ ReadStatus MadReader::parse(Packet * packet) {
 
     if (frame.validate(buffer)) {
 
-
       /// Success if we're able to fill up the packet!
       if (frame.size()>packet->space()) {
         if (!found) return ReadError;
@@ -1111,13 +1111,18 @@ ReadStatus MadReader::parse(Packet * packet) {
           if (!parse_lyrics())
             return ReadError;
 
-          input->position(input_start,FXIO::Begin);
+          // continue where we left off
+          input->position(input_start+frame.size(),FXIO::Begin);
           }
+
+        // Parse xing / vbri / lame headers
         parseFrame(packet,frame);
+
         if (xing||vbri||lame)
           packet->clear();
         else
           nsamples+=frame.nsamples();
+
         found=true;
         }
       else {
@@ -1304,8 +1309,11 @@ FXbool MadDecoder::init(ConfigureEvent* event){
   DecoderPlugin::init(event);
   FXASSERT(out==NULL);
   af=event->af;
-  stream_offset_start=event->stream_offset_start;
-  stream_offset_end=event->stream_offset_end;
+
+  // offset should include decoder delay
+  stream_offset_start = MAD_DECODER_DELAY + event->stream_offset_start;
+  stream_offset_end   = FXMAX(0,event->stream_offset_end - MAD_DECODER_DELAY);
+
   buffer.clear();
 
   if (out) {
@@ -1433,8 +1441,6 @@ DecoderStatus MadDecoder::process(Packet*in){
   FXint max_frames=0;   // maximum frames to decode
   FXint total_frames=0; // frames in buffer
 
-
-
   FXint nframes;
   FXuint streamid=in->stream;
   FXlong stream_length=in->stream_length;
@@ -1512,7 +1518,7 @@ DecoderStatus MadDecoder::process(Packet*in){
 
     // Not sure what to do here...
     if (frame.header.samplerate!=af.rate) {
-      GM_DEBUG_PRINT("[mad_decoder] sample rate changed: %d->%d \n",af.rate,frame.header.samplerate);
+      GM_DEBUG_PRINT("[mad_decoder] sample rate changed: %d->%d ???\n",af.rate,frame.header.samplerate);
       }
 
     // Prevent from writing to many samples..
@@ -1522,7 +1528,7 @@ DecoderStatus MadDecoder::process(Packet*in){
 
     // Adjust for beginning of stream
     if (stream_position<stream_begin) {
-      FXlong offset = stream_begin - stream_position;
+      FXlong offset = FXMIN(nframes,(stream_begin - stream_position));
       GM_DEBUG_PRINT("[mad_decoder] stream offset start %ld. Skip %ld at %ld\n",stream_begin,offset,stream_position);
       nframes-=offset;
       left+=offset;
