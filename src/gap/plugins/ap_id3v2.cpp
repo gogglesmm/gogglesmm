@@ -22,6 +22,7 @@
 #include "ap_format.h"
 #include "ap_id3v2.h"
 
+#include <FXUTF8Codec.h>
 #include <FXUTF16Codec.h>
 #include <FX88591Codec.h>
 
@@ -125,97 +126,103 @@ void ID3V2::parse_rva2_frame(FXint framesize) {
     }
   }
 
+
+static FXint strwlen(const FXchar * str,FXint len) {
+  const FXnchar * wstr = (const FXnchar*)str;
+
+  for (FXint i=0;i<(len/2);i++){
+    if (wstr[i]==0) return i*2;
+    }
+  return len;
+  }
+
+
+FXbool ID3V2::parse_text(FXint encoding,const FXchar * buffer,FXint length,FXString & text){
+  switch(encoding) {
+
+    case ISO_8859_1 :
+      {
+        FX88591Codec codec;
+        FXint n = codec.mb2utflen(buffer,length);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),buffer,length);
+          }
+      } break;
+
+    case UTF16_BOM  :
+      {
+        FXUTF16Codec codec;
+        FXint n = codec.mb2utflen(buffer,length);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),buffer,length);
+          }
+      } break;
+
+    case UTF16      :
+      {
+        FXUTF16BECodec codec;
+        FXint n = codec.mb2utflen(buffer,length);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),buffer,length);
+          }
+
+      } break;
+
+    case UTF8      :
+      {
+        FXUTF8Codec codec;
+        FXint n = codec.mb2utflen(buffer,length);
+        if (n>0) {
+          text.length(n);
+          codec.mb2utf(text.text(),text.length(),buffer,length);
+          }
+
+      } break;
+    default: return false;
+    }
+  return true;
+  }
+
+
+
+
+
 void ID3V2::parse_comment_frame(FXint framesize) {
-  FXString text;
+  FXString key,field;
+
   const FXuchar & encoding = buffer[p];
   const FXchar* textstart  = (const FXchar*)(buffer+p+4);
   const FXint   textlength = framesize - 4;
 
-  switch(encoding) {
-    case ISO_8859_1 :
-      {
-        FX88591Codec codec;
-        FXint n = codec.mb2utflen(textstart,textlength);
-        if (n>0) {
-          text.length(n);
-          codec.mb2utf(text.text(),text.length(),textstart,textlength);
-          }
-      } break;
-    case UTF16_BOM  :
-      {
-        FXUTF16Codec codec;
-        FXint n = codec.mb2utflen(textstart,textlength);
-        if (n>0) {
-          text.length(n);
-          codec.mb2utf(text.text(),text.length(),textstart,textlength);
-          }
-      } break;
-    case UTF16      :
-      {
-        FXUTF16BECodec codec;
-        FXint n = codec.mb2utflen(textstart,textlength);
-        if (n>0) {
-          text.length(n);
-          codec.mb2utf(text.text(),text.length(),textstart,textlength);
-          }
-      } break;
-    case UTF8       : text.assign(textstart,textlength); break;
-    default         : return; break;
-    };
+  if (encoding==UTF16_BOM || encoding==UTF16) {
+    FXint ksize = strwlen(textstart,textlength);
+    FXint vsize = strwlen(textstart+ksize+2,textlength-ksize-2);
+    parse_text(encoding,textstart,ksize,key);
+    parse_text(encoding,textstart+ksize+2,vsize,field);
+    }
+  else {
+    FXint ksize = strnlen(textstart,textlength);
+    FXint vsize = strnlen(textstart+ksize+1,textlength-ksize-1);
+    parse_text(encoding,textstart,ksize,key);
+    parse_text(encoding,textstart+ksize+1,vsize,field);
+    }
 
-  FXString comment = text.after('\0');
-  if (comparecase(comment,"iTunSMPB",8)==0) {
-
-    FXint value = comment.section(' ',2).toInt(16);
-    if (value<0xFFFF)
-      padstart = value;
-
-    value = comment.section(' ',3).toInt(16);
-    if (value<0xFFFF)
-      padend = value;
-
-    length = comment.section(' ',4).toLong(16);
-
+  FXString comment = key + " " + field;
+  if (comment.find("iTunSMPB")>=0) {
+    comment.simplify().scan("iTunSMPB %*x %hx %hx %lx",&padstart,&padend,&length);
     GM_DEBUG_PRINT("[id3v2] found iTunSMPB (padding %d %d, length %ld)\n",padstart,padend,length);
     }
   }
+
 
 void ID3V2::parse_text_frame(FXuint frameid,FXint framesize) {
   FXString text;
   const FXuchar & encoding = buffer[p];
 
-  switch(encoding) {
-    case ISO_8859_1 :
-      {
-        FX88591Codec codec;
-        FXint n = codec.mb2utflen((const FXchar*)(buffer+p+1),framesize-1);
-        if (n>0) {
-          text.length(n);
-          codec.mb2utf(text.text(),text.length(),(const FXchar*)(buffer+p+1),framesize-1);
-          }
-      } break;
-    case UTF16_BOM  :
-      {
-        FXUTF16Codec codec;
-        FXint n = codec.mb2utflen((const FXchar*)(buffer+p+1),framesize-1);
-        if (n>0) {
-          text.length(n);
-          codec.mb2utf(text.text(),text.length(),(const FXchar*)(buffer+p+1),framesize-1);
-          }
-      } break;
-    case UTF16      :
-      {
-        FXUTF16BECodec codec;
-        FXint n = codec.mb2utflen((const FXchar*)(buffer+p+1),framesize-1);
-        if (n>0) {
-          text.length(n);
-          codec.mb2utf(text.text(),text.length(),(const FXchar*)(buffer+p+1),framesize-1);
-          }
-
-      } break;
-    case UTF8       : text.assign((FXchar*)(buffer+p+1),framesize-1); break;
-    default         : return; break;
-    };
+  parse_text(encoding,(const FXchar*)buffer+p+1,framesize-1,text);
 
   GM_DEBUG_PRINT("[id3v2] text: \"%s\"\n",text.text());
 
