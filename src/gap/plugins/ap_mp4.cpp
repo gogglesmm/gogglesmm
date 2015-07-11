@@ -708,10 +708,11 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
 
   nbytes -= read_descriptor_length(track->decoder_specific_info_length);
 
-  if (track->decoder_specific_info_length) {
+  if (track->decoder_specific_info_length > 0) {
+
     allocElms(track->decoder_specific_info,track->decoder_specific_info_length);
 
-    if (input->read(track->decoder_specific_info,l)!=l)
+    if (input->read(track->decoder_specific_info,track->decoder_specific_info_length)!=track->decoder_specific_info_length)
       return false;
 
     if (!atom_parse_asc(track->decoder_specific_info,track->decoder_specific_info_length))
@@ -826,6 +827,7 @@ FXbool MP4Reader::atom_parse_meta_free(FXlong size) {
     size-=atom_size;
     }
 
+  GM_DEBUG_PRINT("%s.%s = %s\n",mean.text(),name.text(),data.text());
   if (name=="iTunSMPB") {
     FXlong duration;
     data.simplify().scan("%*x %hx %hx %lx",&padstart,&padend,&duration);
