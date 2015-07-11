@@ -146,6 +146,7 @@ FXbool AacDecoder::flush(FXlong offset) {
     out=nullptr;
     }
   stream_position=-1;
+  if (handle) NeAACDecPostSeekReset(handle,-1);
   return true;
   }
 
@@ -154,8 +155,9 @@ DecoderStatus AacDecoder::process(Packet*packet){
   const FXlong stream_length = packet->stream_length;
   const FXuint stream_id = packet->stream;
 
-  if (stream_position==-1 && buffer.size()==0)
+  if (stream_position==-1 && buffer.size()==0) {
     stream_position = packet->stream_position;
+    }
 
   long unsigned int samplerate;
   FXuchar           channels;
@@ -191,10 +193,11 @@ DecoderStatus AacDecoder::process(Packet*packet){
       }
     }
 
-  if (buffer.size()<FAAD_MIN_STREAMSIZE*2) {
+  if ((buffer.size()<FAAD_MIN_STREAMSIZE*2) && eos==false) {
     return DecoderOk;
     }
 
+  FXlong stream_begin = stream_decode_offset;
   do {
 
     if (out==nullptr){
@@ -207,27 +210,32 @@ DecoderStatus AacDecoder::process(Packet*packet){
       }
 
     void * outbuffer = out->ptr();
+
+    // Looks like the decoder already takes care of stripping any encoder delay. So first call will return 0 samples.
     NeAACDecDecode2(handle,&frame,buffer.data(),buffer.size(),&outbuffer,out->availableFrames()*out->af.framesize());
     if (frame.bytesconsumed>0) {
       buffer.readBytes(frame.bytesconsumed);
       }
 
     if (frame.error > 0) {
-      GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));//
+      GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));
+      return DecoderError;
       }
 
-    if (frame.samples) {
-      const FXint nframes = frame.samples / frame.channels;
-      if (__unlikely(stream_position<stream_decode_offset)) {
-        if ((nframes+stream_position)<stream_decode_offset) {
-          GM_DEBUG_PRINT("[aac] stream decode offset %ld. Full skip %d\n",stream_decode_offset,nframes);
+    if (frame.samples>0) {
+
+      const FXint nframes = FXMIN((FXlong)(frame.samples / frame.channels),(stream_length-stream_position));
+
+      if (__unlikely(stream_position<stream_begin)) {
+        if ((nframes+stream_position)<stream_begin) {
+          GM_DEBUG_PRINT("[aac] stream decode offset %ld. Full skip %d\n",stream_begin,nframes);
           stream_position+=nframes;
           }
         else {
-          GM_DEBUG_PRINT("[aac] stream decode offset %ld. Partial skip %ld\n",stream_decode_offset,(stream_decode_offset-stream_position));
+          GM_DEBUG_PRINT("[aac] stream decode offset %ld. Partial skip %ld\n",stream_begin,(stream_begin-stream_position));
           out->wroteFrames(nframes);
-          out->trimBegin(af.framesize()*(stream_decode_offset-stream_position));
-          out->stream_position = stream_decode_offset;
+          out->trimBegin(af.framesize()*(stream_begin-stream_position));
+          out->stream_position = stream_begin;
           stream_position+=nframes;
           }
         }
@@ -235,15 +243,17 @@ DecoderStatus AacDecoder::process(Packet*packet){
         stream_position+=nframes;
         out->wroteFrames(nframes);
         }
-      if (out->availableFrames()==0) {
+
+      if (out->availableFrames()<1024) {
         engine->output->post(out);
         out=nullptr;
         }
       }
     }
-  while(buffer.size()>(2*FAAD_MIN_STREAMSIZE) && frame.bytesconsumed);
+  while(buffer.size() && frame.bytesconsumed);
 
   if (eos) {
+    FXASSERT(stream_position==stream_length);
     if (out) {
       engine->output->post(out);
       out=nullptr;
