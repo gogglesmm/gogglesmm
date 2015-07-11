@@ -42,7 +42,9 @@ static void gm_mpris_track_to_dict(DBusMessageIter * iter,const GMTrack & track)
   gm_dbus_dict_append_uint32(&array,"year",track.year);
   if (track.tags.no())
     gm_dbus_dict_append_string(&array,"genre",track.tags[0]);
-  gm_dbus_dict_append_string(&array,"location",gm_make_url(track.url));
+
+  if (dbus_validate_utf8(track.url.text(),NULL))
+    gm_dbus_dict_append_string(&array,"location",gm_make_url(track.url));
 
   const FXString & arturl = GMPlayerManager::instance()->getCoverManager()->getShareFilename();
   if (!arturl.empty())
@@ -352,7 +354,10 @@ static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track
   gm_dbus_dict_append_string(&array,"xesam:album",track.album);
   if (!track.composer.empty())
     gm_dbus_dict_append_string_list(&array,"xesam:composer",FXStringList(track.composer,1));
-  gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.url));
+
+  if (dbus_validate_utf8(track.url.text(),NULL))
+    gm_dbus_dict_append_string(&array,"xesam:url",gm_make_url(track.url));
+
   const FXString & arturl = GMPlayerManager::instance()->getCoverManager()->getShareFilename();
   if (!arturl.empty())
     gm_dbus_dict_append_string(&array,"mpris:artUrl",FXURL::fileToURL(arturl));
