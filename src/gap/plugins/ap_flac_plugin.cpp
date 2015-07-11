@@ -98,7 +98,7 @@ class OutputPacket;
 class FlacDecoder : public DecoderPlugin {
 protected:
   FLAC__StreamDecoder * flac;
-  FXint stream_length;
+  FXlong stream_length;
 protected:
   Packet * in;
   Packet  * out;
@@ -267,6 +267,7 @@ ReadStatus FlacReader::parse() {
     else
       input->position(0,FXIO::Begin);
 
+    GM_DEBUG_PRINT("[flac_reader] stream_length %ld\n",stream_length);
 
     ConfigureEvent * config = new ConfigureEvent(af,Codec::FLAC,stream_length);
     config->replaygain=gain;
