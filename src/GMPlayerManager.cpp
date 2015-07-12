@@ -904,6 +904,13 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   player->init();
   player->loadSettings();
 
+  /// FIXME move to player->loadSettings
+  switch(preferences.play_replaygain){
+    case 0: player->setReplayGain(ReplayGainOff); break;
+    case 1: player->setReplayGain(ReplayGainTrack); break;
+    case 2: player->setReplayGain(ReplayGainAlbum); break;
+    }
+
   /// Receive events from fifo
   if (fifo.isOpen()) {
     application->addInput(this,GMPlayerManager::ID_DDE_MESSAGE,fifo.handle(),INPUT_READ);
