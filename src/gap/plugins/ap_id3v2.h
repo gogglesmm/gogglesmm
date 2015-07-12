@@ -40,6 +40,7 @@ protected:
   void parse_text_frame(FXuint frameid,FXint framesize);
   void parse_rva2_frame(FXint framesize);
   void parse_priv_frame(FXint framesize);
+  FXbool parse_text(FXint encoding,const FXchar * buffer,FXint length,FXString & text);
 public:
   enum Encoding {
     ISO_8859_1     = 0,

@@ -94,7 +94,7 @@ FXbool WavReader::seek(FXlong pos){
 //  if (af.codec==Codec::PCM) {
   FXlong offset=input_start + FXCLAMP(0,pos*af.framesize(),datasize);
   input->position(offset,FXIO::Begin);
-  
+
 /*
     FXlong b = (FXlong)(((FXdouble)datasize)*pos);
     FXlong offset=FXCLAMP(0,((b / af.framesize()) * af.framesize()),datasize);
@@ -177,7 +177,7 @@ static FXuint get_channel_order(const FXuint wavmask,const FXuint channels){
     Channel::SideLeft,
     Channel::SideRight
     };
- 
+
   if (channels<1 || channels>8)
     return 0;
 
@@ -290,7 +290,7 @@ ReadStatus WavReader::parse() {
     // Make sure it's PCM
     if (memcmp(subconfig,guid_wav_format_pcm,16)!=0)
       return ReadError;
-  
+
     chunksize-=24;
     }
 
@@ -331,6 +331,7 @@ ReadStatus WavReader::parse() {
     stream_length = (input->size() - input_start) / af.framesize();
     }
 
+  GM_DEBUG_PRINT("[wav_reader] stream_length %ld\n",stream_length);
   engine->decoder->post(new ConfigureEvent(af,Codec::PCM));
   return ReadOk;
   }
