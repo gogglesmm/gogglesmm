@@ -25,7 +25,7 @@
 
 namespace ap {
 
-EngineThread::EngineThread(AudioEngine * e) : engine(e){
+EngineThread::EngineThread(AudioEngine * e) : engine(e),stream(0){
   }
 
 EngineThread::~EngineThread() {

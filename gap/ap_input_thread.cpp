@@ -48,7 +48,6 @@ namespace ap {
 InputThread::InputThread(AudioEngine*e) : EngineThread(e),
   input(nullptr),
   reader(nullptr),
-  streamid(0),
   state(StateIdle) {
   }
 
@@ -131,7 +130,7 @@ FXint InputThread::run(){
                             break;
       case Ctrl_Seek      : ctrl_seek(((CtrlSeekEvent*)event)->pos);
                             break;
-      case End            : if (event->stream==streamid) {
+      case End            : if (event->stream==stream) {
                               ctrl_eos();
                               }
                             break;
@@ -149,7 +148,7 @@ FXint InputThread::run(){
           Packet * packet = dynamic_cast<Packet*>(event);
           FXASSERT(reader);
           FXASSERT(packet);
-          packet->stream = streamid;
+          packet->stream = stream;
           FXuint status = reader->process(packet);
           switch(status) {
             case ReadError    : GM_DEBUG_PRINT("[input] error\n");
@@ -235,7 +234,7 @@ void InputThread::ctrl_open_inputs(const FXStringList & urls){
     if (!reader->init(input))
       continue;
 
-    streamid++;
+    stream++;
     set_state(StateProcessing,true);
     return;
     }
@@ -269,7 +268,7 @@ void InputThread::ctrl_open_input(const FXString & url) {
     goto failed;
     }
 
-  streamid++;
+  stream++;
   set_state(StateProcessing,true);
   return;
 failed:

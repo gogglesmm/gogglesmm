@@ -31,8 +31,6 @@ protected:
   PacketPool      packetpool;
   DecoderPlugin * plugin;
 protected:
-  FXuint stream;
-protected:
   void configure(ConfigureEvent*);
 public:
   DecoderThread(AudioEngine*);

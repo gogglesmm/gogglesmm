@@ -90,7 +90,7 @@ protected:
 #endif
   void drain(FXbool flush=true);
 
-  void update_position(FXint stream,FXint position,FXint nframes,FXint length);
+  void update_position(FXuint stream,FXint position,FXint nframes,FXint length);
   void notify_position();
   void reset_position();
 

@@ -30,13 +30,12 @@ protected:
   PacketPool     packetpool;
   InputPlugin  * input;
   ReaderPlugin * reader;
-  FXuint         streamid;
   FXuchar        state;
 protected:
   enum {
     StateIdle       = 0, // doing nothing, waiting for events
     StateProcessing = 1, // processing events and reading input
-    StateError      = 2  
+    StateError      = 2
     };
   void set_state(FXuchar s,FXbool notify=false);
 protected:

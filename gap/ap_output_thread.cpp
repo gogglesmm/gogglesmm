@@ -141,7 +141,6 @@ public:
   };
 
 OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),plugin(nullptr),draining(false) {
-  stream=-1;
   stream_remaining=0;
   stream_written=0;
   stream_position=0;
@@ -215,7 +214,7 @@ void OutputThread::update_timers(FXint delay,FXint nframes) {
 
 
 
-void OutputThread::update_position(FXint sid,FXint position,FXint nframes,FXint length) {
+void OutputThread::update_position(FXuint sid,FXint position,FXint nframes,FXint length) {
   FXint delay = plugin->delay();
   FXASSERT(position>=0);
 

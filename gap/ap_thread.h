@@ -25,9 +25,11 @@ class AudioEngine;
 
 class EngineThread : public FXThread {
 protected:
-  ThreadQueue  fifo;
+  ThreadQueue   fifo;
 public:
   AudioEngine * engine;
+protected:
+  FXuint        stream;
 public:
   /// Constructor
   EngineThread(AudioEngine * engine);
