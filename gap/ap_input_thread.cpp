@@ -37,16 +37,23 @@
 #include "ap_reader_plugin.h"
 #include "ap_decoder_thread.h"
 
-#include "plugins/ap_file_plugin.h"
-#include "plugins/ap_http_plugin.h"
-#include "plugins/ap_cdda_plugin.h"
-#include "plugins/ap_smb_plugin.h"
 
 #ifndef WIN32
 #include <errno.h>
 #endif
 
 namespace ap {
+
+
+extern InputPlugin * ap_file_plugin(InputThread*);
+extern InputPlugin * ap_http_plugin(InputThread*);
+#ifdef HAVE_SMB
+extern InputPlugin * ap_smb_plugin(InputThread*);
+#endif
+#ifdef HAVE_CDDA
+extern InputPlugin * ap_cdda_plugin(InputThread*);
+#endif
+
 
 InputThread::InputThread(AudioEngine*e) : EngineThread(e),
   input(nullptr),
@@ -308,7 +315,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     }
 
   if (scheme=="file" || scheme.empty()) {
-    FileInput * file = new FileInput(this);
+    InputPlugin * file = ap_file_plugin(this);
     if (!file->open(uri)){
       delete file;
       return nullptr;
@@ -317,7 +324,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     return file;
     }
   else if (scheme=="http") {
-    HttpInput * http = new HttpInput(this);
+    InputPlugin * http = ap_http_plugin(this);
     if (!http->open(uri)){
       delete http;
       return nullptr;
@@ -327,7 +334,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     }
 #ifdef HAVE_CDDA
   else if (scheme=="cdda") {
-    CDDAInput * cdda = new CDDAInput(this);
+    InputPlugin * cdda = ap_cdda_plugin(this);
     if (!cdda->open(uri)) {
       delete cdda;
       return nullptr;
@@ -338,7 +345,7 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
 #endif
 #ifdef HAVE_SMB
   else if (scheme=="smb") {
-    SMBInput * smb = new SMBInput(this);
+    InputPlugin * smb = ap_smb_plugin(this);
     if (!smb->open(uri)) {
       delete smb;
       return nullptr;

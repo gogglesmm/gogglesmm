@@ -45,6 +45,8 @@ pkg_check_modules(OPUS opus)
 pkg_check_modules(SAMPLERATE samplerate)
 #pkg_check_modules(JACK jack)
 #pkg_check_modules(CDDA libcdio_cdda)
+#pkg_check_modules(SMB smbclient)
+
 
 # Check for libmad
 check_include_files(mad.h HAVE_MAD_H)
@@ -106,57 +108,63 @@ set(SOURCES ap_app_queue.cpp
             ap_xml_parser.cpp
             )
 
-set(PLUGIN_SOURCES plugins/ap_aiff_plugin.cpp
-                   plugins/ap_file_plugin.cpp
-                   plugins/ap_http_plugin.cpp
+set(PLUGIN_SOURCES plugins/ap_aiff.cpp
+                   plugins/ap_file.cpp
+                   plugins/ap_http.cpp
                    plugins/ap_id3v2.cpp
-                   plugins/ap_m3u_plugin.cpp
-                   plugins/ap_pcm_plugin.cpp
-                   plugins/ap_pls_plugin.cpp
-                   plugins/ap_wav_plugin.cpp
-                   plugins/ap_xspf_plugin.cpp
+                   plugins/ap_m3u.cpp
+                   plugins/ap_pcm.cpp
+                   plugins/ap_pls.cpp
+                   plugins/ap_wav.cpp
+                   plugins/ap_xspf.cpp
                    )
 
 if (FLAC_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_flac_plugin.cpp)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_flac.cpp)
   LIST(APPEND LIBRARIES ${FLAC_LIBRARIES})
   set(HAVE_FLAC 1)
 endif()
 
 if (VORBIS_FOUND AND OGG_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis_plugin.cpp)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
   LIST(APPEND LIBRARIES ${VORBIS_LIBRARIES})
   set(HAVE_VORBIS 1)
 endif()
 
 if (OGG_FOUND AND (FLAC_FOUND OR OPUS_FOUND OR VORBIS_FOUND))
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg_plugin.cpp plugins/ap_ogg_decoder.cpp)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg.cpp plugins/ap_ogg_decoder.cpp)
   LIST(APPEND LIBRARIES ${OGG_LIBRARIES})
   set(HAVE_OGG 1)
 endif()
 
 if (OPUS_FOUND AND OGG_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_opus_plugin.cpp)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_opus.cpp)
   LIST(APPEND LIBRARIES ${OPUS_LIBRARIES})
   set(HAVE_OPUS 1)
 endif()
 
 if (MAD_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_mad_plugin.cpp)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_mad.cpp)
   LIST(APPEND LIBRARIES ${MAD_LIBRARIES})
   set(HAVE_MAD 1)
 endif()
 
 if (FAAD_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_aac_plugin.cpp plugins/ap_mp4.cpp)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_aac.cpp plugins/ap_mp4.cpp)
   LIST(APPEND LIBRARIES ${FAAD_LIBRARIES})
   set(HAVE_FAAD 1)
 endif()
 
 if (CDDA_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_cdda_plugin.cpp)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_cdda.cpp)
   LIST(APPEND LIBRARIES ${CDDA_LIBRARIES})
   set(HAVE_CDDA 1)
+endif()
+
+if (SMB_FOUND)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_smb.cpp)
+  LIST(APPEND LIBRARIES ${SMB_LIBRARIES})
+  set(HAVE_SMB 1)
 endif()
 
 if (SAMPLERATE_FOUND)
@@ -173,7 +181,7 @@ endif()
 
 # Alsa Output
 if (ALSA_FOUND)
-  add_library(gap_alsa MODULE plugins/ap_alsa_plugin.cpp)
+  add_library(gap_alsa MODULE plugins/ap_alsa.cpp)
   target_link_libraries(gap_alsa ${ALSA_LIBRARIES})
   target_include_directories(gap_alsa BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
   install(TARGETS gap_alsa LIBRARY DESTINATION lib/gogglesmm)
@@ -182,7 +190,7 @@ endif()
 
 # Pulse Output
 if (PULSE_FOUND)
-  add_library(gap_pulse MODULE plugins/ap_pulse_plugin.cpp)
+  add_library(gap_pulse MODULE plugins/ap_pulse.cpp)
   target_link_libraries(gap_pulse ${PULSE_LIBRARIES})
   target_include_directories(gap_pulse BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
   install(TARGETS gap_pulse LIBRARY DESTINATION lib/gogglesmm)
@@ -191,7 +199,7 @@ endif()
 
 # Jack Output
 if (JACK_FOUND)
-  add_library(gap_jack MODULE plugins/ap_jack_plugin.cpp)
+  add_library(gap_jack MODULE plugins/ap_jack.cpp)
   target_link_libraries(gap_jack ${PULSE_LIBRARIES})
   target_include_directories(gap_jack BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
   install(TARGETS gap_jack LIBRARY DESTINATION lib/gogglesmm)
@@ -199,7 +207,7 @@ if (JACK_FOUND)
 endif()
 
 # Wav File output
-add_library(gap_wav MODULE plugins/ap_wavout_plugin.cpp)
+add_library(gap_wav MODULE plugins/ap_wavout.cpp)
 target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 install(TARGETS gap_wav LIBRARY DESTINATION lib/gogglesmm)
 

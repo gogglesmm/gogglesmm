@@ -9,6 +9,7 @@
 #cmakedefine HAVE_ALSA
 #cmakedefine HAVE_PULSE
 #cmakedefine HAVE_OSS
+#cmakedefine HAVE_SMB
 #define AP_PLUGIN_PATH "${AP_PLUGIN_PATH}"
 #define GAP_VERSION_STRING "${GAP_VERSION}"
 #define GAP_VERSION_MAJOR ${GAP_VERSION_MAJOR}

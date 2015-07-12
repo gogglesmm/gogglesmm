@@ -32,13 +32,81 @@
 #include "ap_input_thread.h"
 #include "ap_connect.h"
 #include "ap_http.h"
-#include "ap_http_plugin.h"
-
 
 namespace ap {
 
+
+
+class HttpInput : public InputPlugin {
+protected:
+  HttpClient client;
+	FXlong 		 content_position;
+	FXuint		 content_type;
+  FXint 		 icy_interval;
+  FXint      icy_count;
+  MemoryBuffer preview_buffer;
+private:
+  HttpInput(const HttpInput&);
+  HttpInput &operator=(const HttpInput&);
+protected:
+	void check_headers();
+	FXival icy_read(void*,FXival);
+	void icy_parse(const FXString&);
+public:
+  /// Constructor
+  HttpInput(InputThread*);
+
+  FXbool open(const FXString & uri);
+
+	/// Read
+	FXival read(void*,FXival);
+
+	/// Preview
+	FXival preview(void*,FXival);
+
+  /// Set Position
+  FXlong position(FXlong offset,FXuint from);
+
+  /// Get Position
+  FXlong position() const;
+
+  /// Size
+  FXlong size();
+
+  /// End of Input
+  FXbool eof();
+
+  /// Serial
+  FXbool serial() const;
+
+  /// Get plugin type
+  FXuint plugin() const;
+
+  /// Destructor
+  virtual ~HttpInput();
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #define HTTP_TOKEN "[\\w!#$%&'*+-.^`|~]+"
 #define HTTP_MEDIA_TYPE HTTP_TOKEN "/" HTTP_TOKEN
+
 
 
 HttpInput::HttpInput(InputThread * i) : InputPlugin(i),
@@ -229,6 +297,11 @@ FXival HttpInput::icy_read(void*ptr,FXival count){
       }
     }
   return nread;
+  }
+
+
+InputPlugin * ap_http_plugin(InputThread* input) {
+  return new HttpInput(input);
   }
 
 }

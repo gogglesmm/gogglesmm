@@ -39,6 +39,8 @@ private:
 public:
   InputPlugin(InputThread*);
 
+  virtual FXbool open(const FXString & uri) = 0;
+
   FXbool read_int16_be(FXshort&);
   FXbool read_uint16_be(FXushort&);
   FXbool read_uint24_be(FXuint&);

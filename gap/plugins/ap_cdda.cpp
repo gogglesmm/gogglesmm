@@ -16,29 +16,77 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#include "ap_config.h"
 #include "ap_defs.h"
 #include "ap_pipe.h"
 #include "ap_format.h"
 #include "ap_device.h"
 #include "ap_event.h"
+#include "ap_reactor.h"
 #include "ap_event_private.h"
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_buffer.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
-#include "ap_reader_plugin.h"
+#include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_thread.h"
 #include "ap_input_thread.h"
 #include "ap_buffer.h"
 #include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
-#include "ap_input_plugin.h"
-#include "ap_cdda_plugin.h"
+#include "ap_reader_plugin.h"
+
+
+#include <cdio/paranoia/cdda.h>
 
 namespace ap {
+
+
+class CDDAInput : public InputPlugin {
+private:
+  CDDAInput(const CDDAInput&);
+  CDDAInput &operator=(const CDDAInput&);
+protected:
+  cdrom_drive_t * drive;
+  lsn_t           sector;
+  track_t         track;
+  track_t         ntracks;
+protected:
+  FXival io_read(void*,FXival);
+public:
+  CDDAInput(InputThread*);
+
+  FXbool open(const FXString & uri);
+
+  /// Set Position
+  FXlong position(FXlong offset,FXuint from);
+
+  /// Get Position
+  FXlong position() const;
+
+	/// Read
+	FXival read(void*,FXival);
+
+	/// Preview
+	FXival preview(void*,FXival);
+
+  /// Size
+  FXlong size();
+
+  /// End of Input
+  FXbool eof();
+
+  /// Serial
+  FXbool serial() const;
+
+  /// Get plugin type
+  FXuint plugin() const;
+
+  void setTrack(FXint n);
+  ~CDDAInput();
+  };
+
 
 
   CDDAInput::CDDAInput(InputThread * i) : InputPlugin(i),drive(nullptr) {
@@ -93,7 +141,7 @@ namespace ap {
     return 0;
     }
 
-  FXival CDDAInput::io_read(void* data,FXival count) {
+  FXival CDDAInput::read(void* data,FXival count) {
 
     if (sector>cdio_cddap_track_lastsector(drive,track))
       return 0;
@@ -108,6 +156,11 @@ namespace ap {
 //    if (n!=1) { fxmessage("NNN==%d\n",n); }
     sector+=n;
     return count;
+    }
+
+  FXival CDDAInput::preview(void* data,FXival count) {
+    return read(data,count);
+
     }
 
   FXlong CDDAInput::size() {
@@ -134,6 +187,13 @@ namespace ap {
 FXuint CDDAInput::plugin() const {
   return Format::CDDA;
   }
+
+
+InputPlugin* ap_cdda_plugin(InputThread * input) {
+  return new CDDAInput(input);
+  }
+
+
 
 
 class CDDAReader : public ReaderPlugin {

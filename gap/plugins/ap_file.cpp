@@ -16,10 +16,18 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifndef INPUT_FILE_DEVICE_H
-#define INPUT_FILE_DEVICE_H
+#include "ap_defs.h"
+#include "ap_utils.h"
+#include "ap_event.h"
+#include "ap_pipe.h"
+#include "ap_format.h"
+#include "ap_buffer.h"
+#include "ap_input_plugin.h"
+
+using namespace ap;
 
 namespace ap {
+
 
 class FileInput : public InputPlugin {
 protected:
@@ -65,5 +73,61 @@ public:
   virtual ~FileInput();
   };
 
+
+FileInput::FileInput(InputThread * i) : InputPlugin(i) {
+  }
+
+FileInput::~FileInput() {
+  }
+
+FXbool FileInput::open(const FXString & uri) {
+  if (file.open(uri,FXIO::Reading)){
+    filename=uri;
+    return true;
+    }
+  return false;
+  }
+
+FXival FileInput::preview(void*data,FXival count) {
+	FXlong pos = file.position();
+	FXival n = file.readBlock(data,count);
+	file.position(pos,FXIO::Begin);
+	return n;
+  }
+
+FXival FileInput::read(void*data,FXival ncount) {
+  return file.readBlock(data,ncount);
+  }
+
+FXlong FileInput::position(FXlong offset,FXuint from) {
+  return file.position(offset,from);
+  }
+
+FXlong FileInput::position() const {
+  return file.position();
+  }
+
+FXlong FileInput::size() {
+  return file.size();
+  }
+
+FXbool FileInput::eof()  {
+  return file.eof();
+  }
+
+FXbool FileInput::serial() const {
+  return file.isSerial();
+  }
+
+FXuint FileInput::plugin() const {
+  FXString extension=FXPath::extension(filename);
+  return ap_format_from_extension(extension);
+  }
+
+
+InputPlugin * ap_file_plugin(InputThread * input) {
+  return new FileInput(input);
+  }
+
+
 }
-#endif
