@@ -41,9 +41,9 @@ public:
   virtual FXbool init();
   virtual void free();
 
-  Event * wait_for_packet();
   Packet * get_output_packet();
   Packet * get_decoder_packet();
+
   virtual ~DecoderThread();
   };
 

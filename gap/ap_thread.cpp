@@ -22,25 +22,42 @@
 #include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_thread.h"
+#include "ap_utils.h"
 
 namespace ap {
 
 EngineThread::EngineThread(AudioEngine * e) : engine(e),stream(0){
   }
 
+
 EngineThread::~EngineThread() {
   }
+
 
 FXbool EngineThread::init() {
   return fifo.init();
   }
 
+
 void EngineThread::free() {
   fifo.free();
   }
 
+
 void EngineThread::post(Event * event,FXint where) {
   fifo.post(event,where);
   }
+
+
+Event * EngineThread::wait_for_event() {
+  Event * event = fifo.pop();
+  if (event==nullptr) {
+    ap_wait(fifo.handle());
+    event = fifo.pop();
+    }
+  FXASSERT(event);
+  return event;
+  }
+
 
 }

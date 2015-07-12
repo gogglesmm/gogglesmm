@@ -39,7 +39,6 @@ protected:
     };
   void set_state(FXuchar s,FXbool notify=false);
 protected:
-  Event * wait_for_event();
   Event * wait_for_packet();
   FXbool  aborted();
 protected:

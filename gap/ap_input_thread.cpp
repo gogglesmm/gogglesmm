@@ -77,17 +77,6 @@ FXbool InputThread::aborted() {
   }
 
 
-Event * InputThread::wait_for_event() {
-  Event * event = fifo.pop();
-  if (event==nullptr) {
-    ap_wait(fifo.handle());
-    event = fifo.pop();
-    }
-  FXASSERT(event);
-  return event;
-  }
-
-
 Event * InputThread::wait_for_packet() {
   Event * event=nullptr;
   do {

@@ -100,7 +100,7 @@ FXint DecoderThread::run(){
   ap_set_thread_name("ap_decoder");
 
   for(;;) {
-    event = wait_for_packet();
+    event = wait_for_event();
     switch(event->type) {
       case Flush    : GM_DEBUG_PRINT("[decoder] flush\n");
                       if (plugin) {
@@ -152,16 +152,6 @@ FXint DecoderThread::run(){
   return 0;
   }
 
-
-Event * DecoderThread::wait_for_packet() {
-  Event * event = fifo.pop();
-  if (event==nullptr) {
-    ap_wait(fifo.handle());
-    event = fifo.pop();
-    }
-  FXASSERT(event);
-  return event;
-  }
 
 Packet * DecoderThread::get_decoder_packet() {
   Event * event = nullptr;

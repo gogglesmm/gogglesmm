@@ -67,12 +67,11 @@ protected:
   FXbool draining;
   FXbool pausing;
 protected:
-  FXint     stream;
-  FXint     stream_length;
-  FXint     stream_remaining;
-  FXint     stream_written;
-  FXint     stream_position;
-  FXint     timestamp;
+  FXint stream_length;
+  FXint stream_remaining;
+  FXint stream_written;
+  FXint stream_position;
+  FXint timestamp;
 protected:
   FXPtrListOf<FrameTimer> timers;
   void update_timers(FXint delay,FXint nframes);
