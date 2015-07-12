@@ -19,20 +19,6 @@
 #ifndef OUTPUT_PLUGIN_H
 #define OUTPUT_PLUGIN_H
 
-/* 
-
-output plugin api: 
-
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) 
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin)
-FXuint GMAPI ap_version
-
-
-
-*/
-
-struct pollfd;
-
 namespace ap {
 
 class GMAPI OutputPlugin {

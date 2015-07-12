@@ -700,34 +700,6 @@ ReadStatus FlacReader::parse() {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__StreamDecoder */*decoder*/, const FLAC__Frame *frame, const FLAC__int32 *const buffer[], void *client_data) {
   FlacDecoder * plugin = static_cast<FlacDecoder*>(client_data);
   FXASSERT(frame);

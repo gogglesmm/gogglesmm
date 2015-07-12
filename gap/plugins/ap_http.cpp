@@ -36,7 +36,6 @@
 namespace ap {
 
 
-
 class HttpInput : public InputPlugin {
 protected:
   HttpClient client;
@@ -87,26 +86,8 @@ public:
   };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #define HTTP_TOKEN "[\\w!#$%&'*+-.^`|~]+"
 #define HTTP_MEDIA_TYPE HTTP_TOKEN "/" HTTP_TOKEN
-
 
 
 HttpInput::HttpInput(InputThread * i) : InputPlugin(i),
