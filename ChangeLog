@@ -1,5 +1,13 @@
+1.0.6
+  - Implement vbri seeking
+  - Fix loading replaygain settings on startup
+  - Pathnames may not be valid utf-8 so prevent dbus library from crashing by only passing valid utf8 encoded pathnames
+  - mp4: fix potential buffer overflow when reading decoder specific configuration
+  - mp4/aac: implement gapless playback (mostly tested with FAAC encoded files)
+  - id3v2: fix parsing comment string
+
 1.0.5
-  - Fix gapless playback for mp3 audio. (Applies decoder delay and fix reading encoder settings) 
+  - Fix gapless playback for mp3 audio. (Applies decoder delay and fix reading encoder settings)
   - Support iTunes specific gapless playback tags for mp3 audio (iTuneSMPB).
   - Fix toolbar to be on top of statusbar when docked on the bottom.
   - Fix rating display after editing track.
