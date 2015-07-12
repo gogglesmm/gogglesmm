@@ -29,8 +29,6 @@ enum EventTypePrivate {
   Ctrl_Open       = 0x83,
   Ctrl_Open_Flush = 0x84,
 
-
-
   Ctrl_Seek       = AP_LAST,
   Ctrl_Pause,
   Ctrl_Set_Output_Config,
@@ -38,7 +36,6 @@ enum EventTypePrivate {
   Ctrl_Set_Replay_Gain,
   Ctrl_Get_Replay_Gain,
   Ctrl_Volume,
-
 
   Buffer,
   Configure,
@@ -74,7 +71,7 @@ public:
   FXlong offset;
   FXbool close;
 public:
-  FlushEvent(FXbool c=false); 
+  FlushEvent(FXbool c=false);
   FlushEvent(FXlong offset);
   };
 

@@ -49,7 +49,6 @@ InputThread::InputThread(AudioEngine*e) : EngineThread(e),
   input(nullptr),
   reader(nullptr),
   streamid(0),
-  use_mmap(false),
   state(StateIdle) {
   }
 
@@ -73,26 +72,11 @@ void InputThread::free() {
   EngineThread::free();
   }
 
-/*
-Event * InputThread::wait_for_io() {
-  Event * event=nullptr;
-  do {
-    event=fifo.pop();
-    if (event) return event;
-
-    ap_wait(io.handle(),fifo.handle());
-    }
-  while(1);
-  return nullptr;
-  }
-*/
-
-
-
 
 FXbool InputThread::aborted() {
   return fifo.checkAbort();
   }
+
 
 Event * InputThread::wait_for_event() {
   Event * event = fifo.pop();
@@ -103,6 +87,7 @@ Event * InputThread::wait_for_event() {
   FXASSERT(event);
   return event;
   }
+
 
 Event * InputThread::wait_for_packet() {
   Event * event=nullptr;
@@ -118,88 +103,6 @@ Event * InputThread::wait_for_packet() {
   while(1);
   return nullptr;
   }
-
-
-
-/*
-   event=fifo.pop();
-  if (event) return event;
-
-
-
-
-
-  do {
-    event = fifo.pop();
-    if (event)
-
-
-
-    if (event) {
-      ap_pipe_read_one(fifo.handle());
-      return event;
-      }
-
-    event = DecoderPacket::get();
-    if (event) {
-      ap_pipe_read_one(DecoderPacket::handle());
-      return event;
-      }
-
-    ap_wait(DecoderPacket::handle(),fifo.handle());
-    }
-  while(1);
-  return nullptr;
-  }
-*/
-
-Packet * InputThread::get_packet() {
-  FXuchar type;
-  do {
-    type = fifo.peek();
-
-    if (type!=Buffer && type!=AP_INVALID){
-      return nullptr;
-      }
-
-    Packet * packet = packetpool.pop();
-    if (packet) return packet;
-
-    ap_wait(packetpool.handle(),fifo.handle());
-    }
-  while(1);
-  return nullptr;
-  }
-
-
-#if 0
-Event* InputThread::get_packet() {
-  Event * event=nullptr;
-
-
-  event = DecoderPacket::get();
-  if (event) return event;
-
-
-
-  if (fifo.peek()!=Invalid) return nullptr;
-
-  FXint result = ap_wait(DecoderPacket::handle(),fifo.handle());
-  //fxmessage("get packet result==%d\n",result);
-  if (result==1) {
-    event=DecoderPacket::get();
-    }
-  return event;
-  }
-
-
-
-#endif
-
-
-
-
-
 
 
 FXint InputThread::run(){
@@ -278,7 +181,6 @@ FXint InputThread::run(){
 void InputThread::ctrl_eos() {
   GM_DEBUG_PRINT("[input] end of stream reached\n");
   if (state!=StateProcessing) {
-    //ctrl_flush(true);
     ctrl_close_input(true);
     }
   }
@@ -296,26 +198,16 @@ void InputThread::ctrl_seek(FXdouble pos) {
 
 
 
-InputPlugin* InputThread::open_input(const FXString & uri) {
-  FXString scheme = FXURL::scheme(uri);
 
+InputPlugin* InputThread::open_input(const FXString & url) {
   if (input) {
     delete input;
     input=nullptr;
     }
-
-  input = InputPlugin::open(this,uri);
-  if (input) {
-    url = uri;
-    return input;
-    }
-
-  return nullptr;
+  return InputPlugin::open(this,url);
   }
 
-
 ReaderPlugin* InputThread::open_reader() {
-  /// FIXME try to reuse existing plugin
   if (reader) {
     delete reader;
     reader=nullptr;
@@ -351,20 +243,21 @@ void InputThread::ctrl_open_inputs(const FXStringList & urls){
   set_state(StateIdle,true);
   }
 
-void InputThread::ctrl_open_input(const FXString & uri) {
-  GM_DEBUG_PRINT("[input] ctrl_open_input %s\n",uri.text());
+void InputThread::ctrl_open_input(const FXString & url) {
+  GM_DEBUG_PRINT("[input] ctrl_open_input %s\n",url.text());
 
-  if (uri.empty()) {
+  if (url.empty()) {
     goto failed;
     }
 
   /// Open Input
-  input=open_input(uri);
+  input=open_input(url);
   if (input==nullptr) {
-    engine->post(new ErrorMessage(FXString::value("Unable to open %s.",uri.text())));
+    engine->post(new ErrorMessage(FXString::value("Unable to open %s.",url.text())));
     goto failed;
     }
 
+  /// Open Reader
   reader = open_reader();
   if (reader==nullptr) {
     engine->post(new ErrorMessage(FXString::value("No reader available for %s format.",ap_format_name(input->plugin()))));
@@ -413,7 +306,6 @@ void InputThread::ctrl_close_input(FXbool notify) {
   if (input) {
     delete input;
     input=nullptr;
-    url.clear();
     }
   if (reader) {
     delete reader;

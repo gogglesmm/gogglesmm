@@ -25,48 +25,52 @@ class AudioEngine;
 class ReaderPlugin;
 class InputPlugin;
 
-
-
 class InputThread : public EngineThread {
 protected:
-  InputPlugin*  input;
-  ReaderPlugin* reader;
-  FXString      url;
-  FXuint        streamid;
-  PacketPool    packetpool;
-  FXbool        use_mmap;
+  PacketPool     packetpool;
+  InputPlugin  * input;
+  ReaderPlugin * reader;
+  FXuint         streamid;
+  FXuchar        state;
+protected:
+  enum {
+    StateIdle       = 0, // doing nothing, waiting for events
+    StateProcessing = 1, // processing events and reading input
+    StateError      = 2  
+    };
+  void set_state(FXuchar s,FXbool notify=false);
+protected:
+  Event * wait_for_event();
+  Event * wait_for_packet();
+  FXbool  aborted();
 protected:
   InputPlugin  * open_input(const FXString & uri);
   ReaderPlugin * open_reader();
 protected:
-  enum {
-    StateIdle       = 0,
-    StateProcessing = 1,
-    StateError      = 2
-    };
-  FXuchar state;
-  void set_state(FXuchar s,FXbool notify=false);
+
+  void ctrl_open_inputs(const FXStringList & url);
+
+  void ctrl_open_input(const FXString & url);
+
+  void ctrl_close_input(FXbool notify=false);
+
+  void ctrl_seek_flush(FXlong offset);
+
+  void ctrl_flush(FXbool close=false);
+
+  void ctrl_seek(FXdouble pos);
+
+  void ctrl_eos();
+
 public:
   /// Constructor
   InputThread(AudioEngine*);
+
   virtual FXint run();
+
   virtual FXbool init();
+
   virtual void free();
-
-  Event * wait_for_event();
-  Event * wait_for_packet();
-  Packet * get_packet();
-
-  FXbool aborted();
-
-  void ctrl_open_inputs(const FXStringList & url);
-  void ctrl_open_input(const FXString & url);
-  void ctrl_close_input(FXbool notify=false);
-  void ctrl_seek_flush(FXlong offset);
-  void ctrl_flush(FXbool close=false);
-  void ctrl_seek(FXdouble pos);
-  void ctrl_eos();
-
 
   /// Destructor
   virtual ~InputThread();
