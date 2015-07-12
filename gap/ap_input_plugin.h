@@ -74,6 +74,9 @@ public:
   /// Get plugin type
   virtual FXuint plugin() const { return Format::Unknown; }
 
+  /// Open plugin for given url
+  static InputPlugin* open(InputThread * input,const FXString & url);
+
   /// Destructor
   virtual ~InputPlugin();
   };

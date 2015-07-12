@@ -45,16 +45,6 @@
 namespace ap {
 
 
-extern InputPlugin * ap_file_plugin(InputThread*);
-extern InputPlugin * ap_http_plugin(InputThread*);
-#ifdef HAVE_SMB
-extern InputPlugin * ap_smb_plugin(InputThread*);
-#endif
-#ifdef HAVE_CDDA
-extern InputPlugin * ap_cdda_plugin(InputThread*);
-#endif
-
-
 InputThread::InputThread(AudioEngine*e) : EngineThread(e),
   input(nullptr),
   reader(nullptr),
@@ -314,50 +304,15 @@ InputPlugin* InputThread::open_input(const FXString & uri) {
     input=nullptr;
     }
 
-  if (scheme=="file" || scheme.empty()) {
-    InputPlugin * file = ap_file_plugin(this);
-    if (!file->open(uri)){
-      delete file;
-      return nullptr;
-      }
-    url=uri;
-    return file;
+  input = InputPlugin::open(this,uri);
+  if (input) {
+    url = uri;
+    return input;
     }
-  else if (scheme=="http") {
-    InputPlugin * http = ap_http_plugin(this);
-    if (!http->open(uri)){
-      delete http;
-      return nullptr;
-      }
-    url=uri;
-    return http;
-    }
-#ifdef HAVE_CDDA
-  else if (scheme=="cdda") {
-    InputPlugin * cdda = ap_cdda_plugin(this);
-    if (!cdda->open(uri)) {
-      delete cdda;
-      return nullptr;
-      }
-    url=uri;
-    return cdda;
-    }
-#endif
-#ifdef HAVE_SMB
-  else if (scheme=="smb") {
-    InputPlugin * smb = ap_smb_plugin(this);
-    if (!smb->open(uri)) {
-      delete smb;
-      return nullptr;
-      }
-    url=uri;
-    return smb;
-    }
-#endif
-  else {
-    return nullptr;
-    }
+
+  return nullptr;
   }
+
 
 ReaderPlugin* InputThread::open_reader() {
   /// FIXME try to reuse existing plugin
