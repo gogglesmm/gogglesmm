@@ -35,13 +35,14 @@ protected:
 public:
   DecoderThread(AudioEngine*);
 
-  FXuchar codec() const { return Codec::Invalid; }
-
   virtual FXint run();
+
   virtual FXbool init();
+
   virtual void free();
 
   Packet * get_output_packet();
+
   Packet * get_decoder_packet();
 
   virtual ~DecoderThread();

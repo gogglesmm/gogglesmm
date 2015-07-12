@@ -99,21 +99,16 @@ public:
 
   virtual FXbool init();
 
-  void getSamples(const void*&,FXuint &);
-
+  virtual FXint run();
 
   void notify_disable_volume() GMAPI;
+
   void notify_volume(FXfloat value) GMAPI;
-
-
-  Reactor & getReactor() { return reactor; }
-
 
   void wait_plugin_events() GMAPI;
 
+  Reactor & getReactor() { return reactor; }
 
-
-  virtual FXint run();
   virtual ~OutputThread();
   };
 
