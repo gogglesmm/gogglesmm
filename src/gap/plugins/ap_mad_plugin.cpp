@@ -342,6 +342,9 @@ public:
   FXuint*  toc;
 public:
   VBRIHeader(const FXuchar * buffer,FXival nbytes);
+
+  FXlong seek(FXlong & pos,FXlong length);
+
   ~VBRIHeader();
   };
 
@@ -389,6 +392,25 @@ VBRIHeader::VBRIHeader(const FXuchar * buffer,FXival) : toc(NULL) {
 VBRIHeader::~VBRIHeader(){
   if (toc) freeElms(toc);
   }
+
+FXlong VBRIHeader::seek(FXlong & target,FXlong length) {
+  FXlong toc_samples = length / ntoc;
+  FXlong pos = 0;
+  FXint t=0;
+  FXlong offset=0;
+
+  while(pos+toc_samples<target && t<ntoc){
+    offset+=toc[t++];
+    pos+=toc_samples;
+    }
+
+  GM_DEBUG_PRINT("[vbri] seek %ld got %ld  (diff=%ld)\n",target,pos,target-pos);
+
+  target = pos;
+  
+  return offset;
+  }
+
 
 #define XING_HEADER_SIZE 120
 
@@ -738,7 +760,8 @@ FXbool MadReader::seek(FXlong pos) {
       stream_position = pos;
       }
     else if (vbri) {
-      // fixme
+      offset = vbri->seek(pos,stream_length);
+      stream_position = pos;
       }
     else {
       stream_position = pos;
