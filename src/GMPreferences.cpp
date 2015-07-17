@@ -253,6 +253,8 @@ void GMPreferences::save(FXSettings & reg) const {
   }
 
 
+extern void init_default_colortheme(); 
+
 void GMPreferences::load(FXSettings & reg) {
   FXString keywords="a;an;the";
 
@@ -266,6 +268,12 @@ void GMPreferences::load(FXSettings & reg) {
         }
       }
     }
+
+  // Override any default FOX provided colors
+  if (reg.existingEntry(section_app,"major-version")==false) {
+    init_default_colortheme();
+    }
+
 
   /// Write out version information
   reg.writeIntEntry(section_app,"major-version",APPLICATION_MAJOR);
