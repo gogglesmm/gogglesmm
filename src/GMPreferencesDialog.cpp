@@ -240,6 +240,13 @@ const ColorTheme ColorThemes[]={
   };
 
 
+void init_default_colortheme() {
+  // Set default to clear looks
+  ColorThemes[1].save();
+  }
+
+
+
 
 FXDEFMAP(GMPreferencesDialog) GMPreferencesDialogMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_LASTFM_SCROBBLE,GMPreferencesDialog::onCmdLastFMScrobble),
