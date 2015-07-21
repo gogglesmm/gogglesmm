@@ -406,9 +406,9 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
 
   listbasefont=getApp()->getNormalFont();
   listheadfont=getApp()->getNormalFont();
-  listtailfont=((GMApp*)(getApp()))->getListTailFont();
-  coverheadfont=((GMApp*)(getApp()))->getCoverHeadFont();
-  coverbasefont=((GMApp*)(getApp()))->getCoverBaseFont();
+  listtailfont=GMApp::instance()->getListTailFont();
+  coverheadfont=GMApp::instance()->getCoverHeadFont();
+  coverbasefont=GMApp::instance()->getCoverBaseFont();
 
   altbackColor=GMPlayerManager::instance()->getPreferences().gui_row_color;
   }

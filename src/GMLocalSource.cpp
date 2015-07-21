@@ -95,7 +95,7 @@ FXbool GMLocalSource::getTrack(GMTrack & track) const {
   }
 
 FXbool GMLocalSource::track_double_click() {
-  GMLocalTrackItem * item = (GMLocalTrackItem*)GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem();
+  GMLocalTrackItem * item = dynamic_cast<GMLocalTrackItem*>(GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem());
   if (item->getFilename()=="..") {
     path=FXPath::upLevel(path);
     GMPlayerManager::instance()->getTrackView()->refresh();
@@ -192,18 +192,18 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
 
       if (stat.isFile()) {
         ext = FXPath::extension(name);
-        if (ext!="ogg"  && 
-            ext!="opus" && 
-            ext!="flac" && 
-            ext!="mp3"  && 
-            ext!="oga"  && 
-            ext!="mpc"  && 
-            ext!="wav"  && 
-            ext!="m4a"  && 
-            ext!="m4p"  && 
+        if (ext!="ogg"  &&
+            ext!="opus" &&
+            ext!="flac" &&
+            ext!="mp3"  &&
+            ext!="oga"  &&
+            ext!="mpc"  &&
+            ext!="wav"  &&
+            ext!="m4a"  &&
+            ext!="m4p"  &&
             ext!="m4b"  &&
-            ext!="mp4"  && 
-            ext!="aac"  && 
+            ext!="mp4"  &&
+            ext!="aac"  &&
             ext!="aiff" &&
             ext!="aif")
           continue;
@@ -261,7 +261,7 @@ long GMLocalSource::onCmdCopyTrack(FXObject*,FXSelector,void*){
     GMTrackView * view = GMPlayerManager::instance()->getTrackView();
     for (FXint i=0;i<view->getNumTracks();i++){
       if (view->isTrackItemSelected(i)) {
-        data->files.append(path+PATHSEPSTRING+((GMLocalTrackItem*)view->getTrackItem(i))->getFilename());
+        data->files.append(path+PATHSEPSTRING+dynamic_cast<GMLocalTrackItem*>(view->getTrackItem(i))->getFilename());
         GM_DEBUG_PRINT("%s\n",data->files[data->files.no()-1].text());
         }
       }
@@ -288,7 +288,7 @@ long GMLocalSource::onCmdRequestTrack(FXObject*sender,FXSelector,void*ptr){
 
     for (FXint i=0;i<view->getNumTracks();i++){
       if (view->isTrackItemSelected(i)) {
-        filenames.append(path+PATHSEPSTRING+((GMLocalTrackItem*)view->getTrackItem(i))->getFilename());
+        filenames.append(path+PATHSEPSTRING+dynamic_cast<GMLocalTrackItem*>(view->getTrackItem(i))->getFilename());
         GM_DEBUG_PRINT("%s\n",filenames[filenames.no()-1].text());
         }
       }

@@ -911,7 +911,7 @@ void GMPreferencesDialog::updateColorThemes() {
   theme=-1;
 
   for (FXint i=0;i<colorpresets->getNumItems();i++){
-    if (selected==*(ColorTheme*)colorpresets->getItemData(i)){
+    if (selected==*static_cast<ColorTheme*>(colorpresets->getItemData(i))){
       theme=i;
       return;
       }

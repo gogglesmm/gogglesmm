@@ -334,7 +334,7 @@ long GMTrackList::onClkHeader(FXObject*,FXSelector,void* ptr){
   else {
     for(i=0;i<items.no();i++){
       w=0;
-      textptr=((GMTrackItem*)items[i])->getColumnData(type,text,justify,max);
+      textptr=items[i]->getColumnData(type,text,justify,max);
       if (textptr && !textptr->empty()){
         tw=font->getTextWidth(*textptr);
         w=tw+SIDE_SPACING+2;

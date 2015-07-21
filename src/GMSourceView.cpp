@@ -114,11 +114,11 @@ void GMSourceView::clear() {
 void GMSourceView::refresh() {
   clear();
   listsources();
-  GMTreeItem * item = (GMTreeItem*)sourcelist->findItemByData(source);
+  GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->findItemByData(source));
   if (item)
     sourcelist->setCurrentItem(item,false);
   else
-    setSource((GMSource*)sourcelist->getItemData(sourcelist->getCurrentItem()),false);
+    setSource(static_cast<GMSource*>(sourcelist->getItemData(sourcelist->getCurrentItem())),false);
   }
 
 
@@ -139,7 +139,7 @@ static FXIcon * icon_for_sourcetype(FXint type) {
 
 
 void GMSourceView::refresh(GMSource * src) {
-  GMTreeItem * item = (GMTreeItem*)sourcelist->findItemByData(src);
+  GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->findItemByData(src));
   if (item) {
     FXIcon * icon=icon_for_sourcetype(src->getType());
     sourcelist->setItemText(item,src->getName());
@@ -160,7 +160,7 @@ void GMSourceView::init() {
   if (!key.empty()){
     FXTreeItem * item = sourcelist->getFirstItem();
     while(item){
-      GMSource * src = (GMSource*)item->getData();
+      GMSource * src = static_cast<GMSource*>(item->getData());
       if (src->settingKey()==key) {
         sourcelist->setCurrentItem(item);
         break;
@@ -172,7 +172,7 @@ void GMSourceView::init() {
   if (sourcelist->getCurrentItem()==nullptr && sourcelist->getFirstItem())
     sourcelist->setCurrentItem(sourcelist->getFirstItem());
 
-  source=(GMSource*)sourcelist->getItemData(sourcelist->getCurrentItem());
+  source=static_cast<GMSource*>(sourcelist->getItemData(sourcelist->getCurrentItem()));
   GMPlayerManager::instance()->getTrackView()->init(source);
   }
 
@@ -204,7 +204,7 @@ FXbool GMSourceView::listsources() {
 
 FXbool GMSourceView::listSources() {
   listsources();
-  setSource((GMSource*)sourcelist->getItemData(sourcelist->getCurrentItem()),false);
+  setSource(static_cast<GMSource*>(sourcelist->getItemData(sourcelist->getCurrentItem())),false);
   return true;
   }
 
@@ -249,7 +249,7 @@ void GMSourceView::saveView() const {
 long GMSourceView::onCmdSourceSelected(FXObject*,FXSelector,void*){
   FXTreeItem * item = sourcelist->getCurrentItem();
   if (item) {
-    setSource((GMSource*)item->getData(),false);
+    setSource(static_cast<GMSource*>(item->getData()),false);
     }
   return 1;
   }
@@ -273,7 +273,7 @@ long GMSourceView::onSourceTipText(FXObject*sender,FXSelector,void*ptr){
   sourcelist->getCursorPosition(x,y,buttons);
   FXTreeItem * item = sourcelist->getItemAt(x,y);
   if (item && item->getData()) {
-    GMSource * src = (GMSource*)item->getData();
+    GMSource * src = static_cast<GMSource*>(item->getData());
     return src->handle(sender,FXSEL(SEL_QUERY_TIP,0),ptr);
     }
   return 0;

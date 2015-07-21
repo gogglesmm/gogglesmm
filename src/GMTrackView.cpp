@@ -2569,11 +2569,11 @@ FXint GMTrackView::findTrackIndexById(FXint id) const {
   }
 
 GMTrackItem * GMTrackView::getTrackItem(FXint i) const {
-  return (GMTrackItem*)tracklist->getItem(i);
+  return tracklist->getItem(i);
   }
 
 GMTrackItem * GMTrackView::getCurrentTrackItem() const {
-  FXASSERT(tracklist->getCurrentItem()>=0); return (GMTrackItem*)tracklist->getItem(tracklist->getCurrentItem());
+  FXASSERT(tracklist->getCurrentItem()>=0); return tracklist->getItem(tracklist->getCurrentItem());
   }
 
 FXbool GMTrackView::isTrackItemSelected(FXint i) const {
@@ -2585,7 +2585,7 @@ FXint GMTrackView::getNumTracks() const {
   }
 
 GMAlbumListItem * GMTrackView::getCurrentAlbumItem() const {
-  FXASSERT(tracklist->getCurrentItem()>=0); return (GMAlbumListItem*)albumlist->getItem(albumlist->getCurrentItem());
+  FXASSERT(tracklist->getCurrentItem()>=0); return dynamic_cast<GMAlbumListItem*>(albumlist->getItem(albumlist->getCurrentItem()));
   }
 
 

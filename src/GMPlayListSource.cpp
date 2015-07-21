@@ -43,7 +43,7 @@ void getSelectedTrackQueues(FXIntList & list) {
   FXint nitems = GMPlayerManager::instance()->getTrackView()->getNumTracks();
   for (FXint i=0;i<nitems;i++){
     if (GMPlayerManager::instance()->getTrackView()->isTrackItemSelected(i))
-      list.append(((GMDBTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(i))->getTrackQueue());
+      list.append(dynamic_cast<GMDBTrackItem*>(GMPlayerManager::instance()->getTrackView()->getTrackItem(i))->getTrackQueue());
     }
   }
 
@@ -51,7 +51,7 @@ void getTrackQueues(FXIntList & list) {
   FXint nitems = GMPlayerManager::instance()->getTrackView()->getNumTracks();
   list.no(nitems);
   for (FXint i=0;i<nitems;i++){
-    list[i]=((GMDBTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(i))->getTrackQueue();
+    list[i]=dynamic_cast<GMDBTrackItem*>(GMPlayerManager::instance()->getTrackView()->getTrackItem(i))->getTrackQueue();
     }
   }
 
@@ -131,12 +131,12 @@ void GMPlayListSource::dragged(GMTrackList*tracklist){
   if (tracklist->getSortMethod()==HEADER_QUEUE){
     if (tracklist->getSortFunc()==GMDBTrackItem::descendingQueue) {
       for (FXint i=0;i<nitems;i++){
-        ((GMDBTrackItem*)tracklist->getItem(i))->setTrackQueue(nitems-i);
+        dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i))->setTrackQueue(nitems-i);
         }
       }
     else {
       for (FXint i=0;i<nitems;i++){
-        ((GMDBTrackItem*)tracklist->getItem(i))->setTrackQueue(i+1);
+        dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i))->setTrackQueue(i+1);
         }
       }
     }
@@ -150,7 +150,7 @@ FXbool GMPlayListSource::findCurrent(GMTrackList * list,GMSource * src) {
   if (src->getCurrentTrack()==-1) return false;
   if (src==this) {
     for (FXint i=0;i<list->getNumItems();i++){
-      if (list->getItemId(i)==current_track && ((GMDBTrackItem*)list->getItem(i))->getTrackQueue()==current_queue) {
+      if (list->getItemId(i)==current_track && dynamic_cast<GMDBTrackItem*>(list->getItem(i))->getTrackQueue()==current_queue) {
         list->setActiveItem(i);
         list->setCurrentItem(i);
         return true;

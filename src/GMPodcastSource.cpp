@@ -1379,7 +1379,7 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
       q.get(4,date);
       q.get(5,flags);
       GMFeedItem* item = new GMFeedItem(id,c_feed,c_title,date,time,flags);
-      tracklist->appendItem((GMTrackItem*)item);
+      tracklist->appendItem(item);
       }
   return true;
   }

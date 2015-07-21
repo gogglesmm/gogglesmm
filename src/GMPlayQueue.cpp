@@ -89,7 +89,7 @@ FXbool GMPlayQueue::findCurrent(GMTrackList * list,GMSource * src) {
   if (src->getCurrentTrack()==-1) return false;
   if (src==this) {
     for (FXint i=0;i<list->getNumItems();i++){
-      if (list->getItemId(i)==current_track && ((GMDBTrackItem*)list->getItem(i))->getTrackQueue()==1) {
+      if (list->getItemId(i)==current_track && dynamic_cast<GMDBTrackItem*>(list->getItem(i))->getTrackQueue()==1) {
         list->setActiveItem(i);
         list->setCurrentItem(i);
         return true;

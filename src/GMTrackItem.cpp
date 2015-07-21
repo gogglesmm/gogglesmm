@@ -265,8 +265,8 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
 
 
 FXint GMDBTrackItem::browseSort(const GMTrackItem * pa,const GMTrackItem * pb){
-  const GMDBTrackItem * const ta = (GMDBTrackItem*)pa;
-  const GMDBTrackItem * const tb = (GMDBTrackItem*)pb;
+  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
   FXint x;
 
   if (GMTrackView::album_by_year) {

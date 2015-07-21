@@ -220,7 +220,7 @@ GMColumnDialog::GMColumnDialog(FXWindow *window,GMColumnList & cols) : FXDialogB
   for (FXint i=0;i<cols.no();i++){
     insert=false;
     for (FXint j=0;j<list->getNumItems();j++) {
-      if (cols[i].index < ((GMColumn*)list->getItemData(j))->index) {
+      if (cols[i].index < static_cast<GMColumn*>(list->getItemData(j))->index) {
         list->insertItem(j,new FXCheckListItem(cols[i].name,cols[i].show,&cols[i]));
         insert=true;
         break;
@@ -233,9 +233,9 @@ GMColumnDialog::GMColumnDialog(FXWindow *window,GMColumnList & cols) : FXDialogB
 
 void GMColumnDialog::saveIndex() {
   for (FXint i=0;i<list->getNumItems();i++){
-    GMColumn * c = (GMColumn*)list->getItemData(i);
+    GMColumn * c = static_cast<GMColumn*>(list->getItemData(i));
     c->index = i;
-    c->show  = ((FXCheckListItem*)list->getItem(i))->checked();
+    c->show  = dynamic_cast<FXCheckListItem*>(list->getItem(i))->checked();
     }
   }
 
@@ -245,7 +245,7 @@ long GMColumnDialog::onListLeftBtnPress(FXObject*,FXSelector,void*ptr){
   index=list->getItemAt(event->win_x,event->win_y);
   if (index>=0) {
     code=list->hitItem(index,event->win_x,event->win_y);
-    if (code==3) { ((FXCheckListItem*)list->getItem(index))->toggle(); list->updateItem(index); }
+    if (code==3) { dynamic_cast<FXCheckListItem*>(list->getItem(index))->toggle(); list->updateItem(index); }
     }
   return 0;
   }

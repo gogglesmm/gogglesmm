@@ -132,7 +132,7 @@ FXbool GMStreamSource::listTracks(GMTrackList * tracklist,const FXIntList &/* al
       q.get(2,bitrate);
       c_genre = q.get(3);
       GMStreamTrackItem * item = new GMStreamTrackItem(id,c_title,c_genre,queue++,bitrate);
-      tracklist->appendItem((GMTrackItem*)item);
+      tracklist->appendItem(item);
       }
     GMStreamTrackItem::max_trackno = tracklist->getFont()->getTextWidth(FXString('8',GMDBTrackItem::max_digits(queue)));
     }

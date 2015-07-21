@@ -346,7 +346,7 @@ long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
         else if(options&FRAME_RAISED)
           drawRaisedRectangle(dc,0,y,width,h);
         }
-      ((GMHeaderItem*)items[i])->draw(this,dc,0,y,width,h);
+      dynamic_cast<GMHeaderItem*>(items[i])->draw(this,dc,0,y,width,h);
       }
     }
 
@@ -437,7 +437,7 @@ long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
 
          */
         }
-      ((GMHeaderItem*)items[i])->draw(this,dc,x,0,w,height);
+      dynamic_cast<GMHeaderItem*>(items[i])->draw(this,dc,x,0,w,height);
       }
     }
   return 1;
@@ -1654,7 +1654,7 @@ long GMHeaderButton::onPaint(FXObject*,FXSelector,void*ptr){
 FXIMPLEMENT(GMScrollArea,FXScrollArea,nullptr,0)
 
 void GMScrollArea::replaceScrollbars(FXScrollArea *fs) {
-  GMScrollArea * s = (GMScrollArea*)(fs);
+  GMScrollArea * s = dynamic_cast<GMScrollArea*>(fs);
   delete s->vertical;
   delete s->horizontal;
   delete s->corner;
@@ -1668,7 +1668,7 @@ void GMScrollArea::replaceScrollbars(FXScrollArea *fs) {
 FXIMPLEMENT(GMTreeListBox,FXTreeListBox,nullptr,0)
 
 void GMTreeListBox::replace(FXTreeListBox *fs) {
-  GMTreeListBox * s = (GMTreeListBox*)(fs);
+  GMTreeListBox * s = dynamic_cast<GMTreeListBox*>(fs);
   GMScrollArea::replaceScrollbars(s->tree);
 
   s->borderColor=s->getApp()->getShadowColor();

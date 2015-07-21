@@ -60,7 +60,7 @@ public:
   void setuphooks() {
     for (FXint i=0;i<connections.no();i++) {
       if (!connections.empty(i)) {
-        ((GMDBus*)connections.value(i))->setup_event_loop();
+        static_cast<GMDBus*>(connections.value(i))->setup_event_loop();
         }
       }
     }
@@ -353,7 +353,7 @@ struct CallTarget{
 static void fxdbus_pendingcallfree(void *memory){
   //fxmessage("fxdbuspendingcallfree\n");
   if (memory){
-    CallTarget * call = (CallTarget*)memory;
+    CallTarget * call = static_cast<CallTarget*>(memory);
     delete call;
     }
   }
@@ -361,7 +361,7 @@ static void fxdbus_pendingcallfree(void *memory){
 static void fxdbus_pendingcallnotify(DBusPendingCall*pending,void*data){
   DBusMessage * msg = dbus_pending_call_steal_reply(pending);
   if (msg) {
-    CallTarget * call = (CallTarget*)data;
+    CallTarget * call = static_cast<CallTarget*>(data);
     if (call && call->target && call->message) {
       call->target->handle(nullptr,FXSEL(SEL_COMMAND,call->message),msg);
       }

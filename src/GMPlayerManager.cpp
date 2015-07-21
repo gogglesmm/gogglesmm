@@ -153,7 +153,7 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
   FXTRACE((80,"interface: %s\n",dbus_message_get_interface(msg)));
   FXTRACE((80,"sender: %s\n",dbus_message_get_sender(msg)));
 
-  GMPlayerManager * p = (GMPlayerManager*)data;
+  GMPlayerManager * p = static_cast<GMPlayerManager*>(data);
   if (dbus_message_has_path(msg,"/org/freedesktop/NetworkManager")){
     if (dbus_message_is_signal(msg,"org.freedesktop.NetworkManager","StateChanged") ||
         dbus_message_is_signal(msg,"org.freedesktop.NetworkManager","StateChange")) {
@@ -199,7 +199,7 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
 
 DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessage * msg,void * data){
   FXchar * url;
-  GMPlayerManager * p = (GMPlayerManager*)data;
+  GMPlayerManager * p = static_cast<GMPlayerManager*>(data);
   if (dbus_message_has_path(msg,GOGGLESMM_DBUS_PATH)){
     if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"play")){
       p->cmd_play();
@@ -1923,7 +1923,7 @@ long GMPlayerManager::onPlayerVolume(FXObject*,FXSelector,void* ptr){
   }
 
 long GMPlayerManager::onPlayerMeta(FXObject*,FXSelector,void* ptr){
-  GMTrack * track = (GMTrack*)ptr;
+  GMTrack * track = static_cast<GMTrack*>(ptr);
   GM_DEBUG_PRINT("[player] meta\n");
   if (trackinfoset==false) {
     trackinfo.title.adopt(track->title);

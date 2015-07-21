@@ -38,7 +38,7 @@ protected:
     }
 
   static void IceWatch(IceConn c,IcePointer data,Bool opening,IcePointer*){
-    IceHook * hook = (IceHook*)data;
+    IceHook * hook = static_cast<IceHook*>(data);
     if (opening) {
       fcntl(IceConnectionNumber(c),F_SETFD,FD_CLOEXEC);
       hook->application->addInput(hook,ID_CONNECTION,IceConnectionNumber(c),INPUT_READ,c);
@@ -114,7 +114,7 @@ public:
     }
 
   static void sm_die(SmcConn conn,SmPointer ptr){
-    SMClient * client = (SMClient*)ptr;
+    SMClient * client = static_cast<SMClient*>(ptr);
     SmcCloseConnection(conn,0,nullptr);
     client->connection = nullptr;
     client->session->quit();

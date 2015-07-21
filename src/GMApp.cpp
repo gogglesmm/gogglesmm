@@ -378,7 +378,7 @@ void GMPlug::setFocus(){
     memset(&ev, 0, sizeof(ev));
     ev.xclient.type = ClientMessage;
     ev.xclient.window = socket;
-    ev.xclient.message_type = ((GMApp*)getApp())->xembed;
+    ev.xclient.message_type = GMApp::instance()->xembed;
     ev.xclient.format = 32;
     ev.xclient.data.l[0] = CurrentTime;
     ev.xclient.data.l[1] = XEMBED_REQUEST_FOCUS;
