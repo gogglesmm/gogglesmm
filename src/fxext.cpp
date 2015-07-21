@@ -437,7 +437,7 @@ long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
 
          */
         }
-      dynamic_cast<GMHeaderItem*>(items[i])->draw(this,dc,x,0,w,height);
+      static_cast<GMHeaderItem*>(items[i])->draw(this,dc,x,0,w,height);
       }
     }
   return 1;
@@ -1654,7 +1654,7 @@ long GMHeaderButton::onPaint(FXObject*,FXSelector,void*ptr){
 FXIMPLEMENT(GMScrollArea,FXScrollArea,nullptr,0)
 
 void GMScrollArea::replaceScrollbars(FXScrollArea *fs) {
-  GMScrollArea * s = dynamic_cast<GMScrollArea*>(fs);
+  GMScrollArea * s = static_cast<GMScrollArea*>(fs);
   delete s->vertical;
   delete s->horizontal;
   delete s->corner;
@@ -1668,7 +1668,7 @@ void GMScrollArea::replaceScrollbars(FXScrollArea *fs) {
 FXIMPLEMENT(GMTreeListBox,FXTreeListBox,nullptr,0)
 
 void GMTreeListBox::replace(FXTreeListBox *fs) {
-  GMTreeListBox * s = dynamic_cast<GMTreeListBox*>(fs);
+  GMTreeListBox * s = static_cast<GMTreeListBox*>(fs);
   GMScrollArea::replaceScrollbars(s->tree);
 
   s->borderColor=s->getApp()->getShadowColor();
