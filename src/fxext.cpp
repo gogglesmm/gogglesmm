@@ -346,7 +346,7 @@ long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
         else if(options&FRAME_RAISED)
           drawRaisedRectangle(dc,0,y,width,h);
         }
-      dynamic_cast<GMHeaderItem*>(items[i])->draw(this,dc,0,y,width,h);
+      static_cast<GMHeaderItem*>(items[i])->draw(this,dc,0,y,width,h);
       }
     }
 
