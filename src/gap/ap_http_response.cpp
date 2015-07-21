@@ -342,7 +342,7 @@ void HttpResponse::check_headers() {
       flags|=ConnectionClose;
     }
   else {
-    if (headers["connection"].lower().contains("keep-alive"))
+    if (!headers["connection"].lower().contains("keep-alive"))
       flags|=ConnectionClose;
     }
   }
