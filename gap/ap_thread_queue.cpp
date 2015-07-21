@@ -119,14 +119,13 @@ FXbool ThreadQueue::checkAbort() {
 
 
 void ThreadQueue::flush() {
-  Event * event = nullptr;
   mfifo.lock();
   Event * h = head;
   head=tail=nullptr;
   pfifo.clear();
   mfifo.unlock();
   while(h) {
-    event = h;
+    Event * event = h;
     h = h->next;
     event->next = nullptr;
     Event::unref(event);

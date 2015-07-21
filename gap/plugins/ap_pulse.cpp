@@ -662,7 +662,7 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
 
     size_t nbytes = pa_stream_writable_size(stream);
     size_t n = FXMIN(total,nbytes);
-    if (n<=0) {
+    if (n==0) {
       //fxmessage("size %ld\n",nbytes);
       output->wait_plugin_events();
       continue;

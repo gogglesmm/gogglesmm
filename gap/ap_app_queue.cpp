@@ -79,13 +79,12 @@ Event * FXAppQueue::pop() {
 
 void FXAppQueue::flush() {
   mfifo.lock();
-  Event * event = nullptr;
   Event * h = head;
   head=tail=nullptr;
   mfifo.unlock();
 
   while(h) {
-    event = h;
+    Event * event = h;
     h = h->next;
     event->next = nullptr;
     Event::unref(event);

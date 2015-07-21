@@ -78,9 +78,8 @@ FXbool InputThread::aborted() {
 
 
 Event * InputThread::wait_for_packet() {
-  Event * event=nullptr;
   do {
-    event=fifo.pop();
+    Event * event=fifo.pop();
     if (event) return event;
 
     Packet * packet = packetpool.pop();

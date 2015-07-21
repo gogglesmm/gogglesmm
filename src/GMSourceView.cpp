@@ -60,6 +60,8 @@ GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) , source(nullptr) 
 
   sourcelistheader->setArrowState(ARROW_DOWN);
 
+  sourcedrop = nullptr;
+
   updateColors();
   }
 

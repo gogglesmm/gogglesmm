@@ -154,10 +154,9 @@ FXint DecoderThread::run(){
 
 
 Packet * DecoderThread::get_decoder_packet() {
-  Event * event = nullptr;
   FXbool other=false;
   do {
-    event = fifo.pop_if(Buffer,other);
+    Event * event = fifo.pop_if(Buffer,other);
     if (event)  {
       FXASSERT(event->next==nullptr);
       return dynamic_cast<Packet*>(event);

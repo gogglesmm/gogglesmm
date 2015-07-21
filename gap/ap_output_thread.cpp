@@ -843,13 +843,12 @@ mismatch:
 
 
 FXint OutputThread::run(){
-  Event * event;
   pausing=false;
   draining=false;
   ap_set_thread_name("ap_output");
 
   for (;;){
-    event = get_next_event();
+    Event * event = get_next_event();
     FXASSERT(event);
 
     switch(event->type) {

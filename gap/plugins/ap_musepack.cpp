@@ -106,7 +106,7 @@ mpc_bool_t MusepackReader::mpc_input_canseek(void*t){
   return !input->serial();
   }
 
-MusepackReader::MusepackReader(AudioEngine *e) : ReaderPlugin(e), stream_position(0) {
+MusepackReader::MusepackReader(AudioEngine *e) : ReaderPlugin(e), stream_position(0), packet(nullptr) {
   reader.read     = mpc_input_read;
   reader.seek     = mpc_input_seek;
   reader.tell     = mpc_input_tell;

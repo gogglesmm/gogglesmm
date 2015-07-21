@@ -1123,11 +1123,10 @@ void GMPlayerManager::cleanSourceSettings() {
   }
 
 void GMPlayerManager::removePlayListSources(){
-  GMSource * src;
   for (FXint i=sources.no()-1;i>=0;i--){
-    src=sources[i];
-    if (src->getType()==SOURCE_DATABASE_PLAYLIST) {
+    if (sources[i]->getType()==SOURCE_DATABASE_PLAYLIST) {
       FXApp::instance()->reg().deleteSection(sources[i]->settingKey().text());
+      GMSource * src = sources[i];
       sources.erase(i);
       delete src;
       }

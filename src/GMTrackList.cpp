@@ -324,7 +324,6 @@ long GMTrackList::onClkHeader(FXObject*,FXSelector,void* ptr){
   FXint i,tw,w,nw=0,type;
   FXuint justify;
   FXint max;
-  const FXString * textptr;
   FXString text;
 
   type=getHeaderData(hi)->type;
@@ -334,7 +333,7 @@ long GMTrackList::onClkHeader(FXObject*,FXSelector,void* ptr){
   else {
     for(i=0;i<items.no();i++){
       w=0;
-      textptr=items[i]->getColumnData(type,text,justify,max);
+      const FXString * textptr=items[i]->getColumnData(type,text,justify,max);
       if (textptr && !textptr->empty()){
         tw=font->getTextWidth(*textptr);
         w=tw+SIDE_SPACING+2;
@@ -375,9 +374,8 @@ long GMTrackList::onCmdHeader(FXObject*,FXSelector,void*ptr){
   }
 
 long GMTrackList::onUpdHeader(FXObject*,FXSelector,void*){
-  GMColumn * column;
   for (FXint i=0;i<header->getNumItems();i++){
-    column = getHeaderData(i);
+    GMColumn * column = getHeaderData(i);
     if (column && sortMethod==column->type) {
       if (sortfunc==column->ascending)
         header->setArrowDir(i,FXHeaderItem::ARROW_DOWN);
