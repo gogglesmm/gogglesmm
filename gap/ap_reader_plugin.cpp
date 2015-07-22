@@ -116,7 +116,6 @@ ReadStatus TextReader::process(Packet*packet) {
 
 }
 
-#include "ap_config.h"
 
 namespace ap {
 
