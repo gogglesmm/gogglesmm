@@ -37,6 +37,7 @@
 #include "GMWindow.h"
 #include "GMIconTheme.h"
 #include "GMFilename.h"
+#include "GMTag.h"
 #include "GMAlbumList.h"
 #include "GMAudioPlayer.h"
 #include "GMCoverLoader.h"
@@ -664,7 +665,7 @@ protected:
   FXMutex          mutex;
   FXCondition      condition;
 
-
+  FXint            length;
   FXint            id;
   FXString         url;
   FXString         local;
@@ -697,16 +698,18 @@ public:
 
   long onDownloadComplete(FXObject*,FXSelector,void*) {
     mutex.lock();
-    GMQuery update_feed(db,"UPDATE feed_items SET local = ?, flags = ((flags&~(1<<?))|(1<<?)) WHERE id == ?;");
+
+    GMQuery update_feed(db,"UPDATE feed_items SET local = ?, time = CASE WHEN time != 0 THEN time ELSE ? END, flags = ((flags&~(1<<?))|(1<<?)) WHERE id == ?;");
 
     update_feed.set(0,local);
-    update_feed.set(1,ITEM_FLAG_QUEUE);
+    update_feed.set(1,length);
+    update_feed.set(2,ITEM_FLAG_QUEUE);
     if (!local.empty())
-      update_feed.set(2,ITEM_FLAG_LOCAL);
+      update_feed.set(3,ITEM_FLAG_LOCAL);
     else
-      update_feed.set(2,ITEM_FLAG_DOWNLOAD_FAILED);
+      update_feed.set(3,ITEM_FLAG_DOWNLOAD_FAILED);
 
-    update_feed.set(3,id);
+    update_feed.set(4,id);
     update_feed.execute();
 
     GMTrackView * view = GMPlayerManager::instance()->getTrackView();
@@ -741,10 +744,23 @@ public:
 
 
   void downloadNext() {
-    local = FXPath::name(FXURL::path(url));
+    local  = FXPath::name(FXURL::path(url));
+    length = 0;
     FXDir::createDirectories(GMApp::getPodcastDirectory()+PATHSEPSTRING+localdir);
-    if (!download(url,GMApp::getPodcastDirectory()+PATHSEPSTRING+localdir+PATHSEPSTRING+local,true))
-      local.clear();
+
+    // Download file
+    if (download(url,GMApp::getPodcastDirectory()+PATHSEPSTRING+localdir+PATHSEPSTRING+local,true)){
+
+      // Get duration from file
+      GMFileTag tags;
+      if (tags.open(GMApp::getPodcastDirectory()+PATHSEPSTRING+localdir+PATHSEPSTRING+local,FILETAG_AUDIOPROPERTIES)){
+        length = tags.getTime();
+        }
+
+      }
+    else {
+      local.clear();      
+      }
     }
 
   FXint run() {
