@@ -44,6 +44,7 @@ static const ColumnDefintion column_types[]={
   { Rule::ColumnArtist,notr("Artist")},
   { Rule::ColumnComposer,notr("Composer")},
   { Rule::ColumnConductor, notr("Conductor")},
+  { Rule::ColumnTag, notr("Tag")},
   { Rule::ColumnYear,notr("Year")},
   { Rule::ColumnTime,notr("Time")},
   { Rule::ColumnTrackNumber,notr("Track Number")},
