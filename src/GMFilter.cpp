@@ -31,7 +31,7 @@ static const FXchar * const column_lookup[]={
   "conductors.name",
   "albums.name",
   "pathlist.name || '" PATHSEPSTRING "' || tracks.mrl",
-  "", // todo tag
+  "tracks.id IN ( SELECT track FROM track_tags JOIN tags ON track_tags.tag == tags.id WHERE tags.name ",
   "tracks.year",
   "tracks.time",
   "(tracks.no&65535)",
@@ -84,6 +84,20 @@ FXString Rule::getMatch() const {
           case OperatorLess     :
           case OperatorGreater  :
           case OperatorMatch    : return FXString::value("%s %s '%s'",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          }
+      } break;
+    case ColumnTag:
+      {
+        switch(opcode) {
+          case OperatorLike     :
+          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%')",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorPrefix   : return FXString::value("%s %s '%s%%')",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorSuffix   : return FXString::value("%s %s '%%%s')",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorEquals   :
+          case OperatorNotEqual :
+          case OperatorLess     :
+          case OperatorGreater  :
+          case OperatorMatch    : return FXString::value("%s %s '%s')",column_lookup[column],operator_lookup[opcode],text.text()); break;
           }
       } break;
     case ColumnYear:
