@@ -18,8 +18,8 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_event.h"
-#include "ap_event_queue.h"
 #include "ap_app_queue.h"
+
 
 namespace ap {
 

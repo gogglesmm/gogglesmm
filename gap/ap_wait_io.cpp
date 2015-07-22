@@ -18,8 +18,6 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_utils.h"
-#include "ap_pipe.h"
-#include "ap_event_queue.h"
 #include "ap_thread_queue.h"
 #include "ap_wait_io.h"
 

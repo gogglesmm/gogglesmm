@@ -52,6 +52,9 @@
 #endif
 
 
+#include "ap_config.h"
+
+
 
 enum {
   FLAG_EOS = 0x1

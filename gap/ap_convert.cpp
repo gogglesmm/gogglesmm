@@ -17,7 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_buffer.h"
+#include "ap_convert.h"
 
 #define INT8_MIN (-128)
 #define INT8_MAX (127)

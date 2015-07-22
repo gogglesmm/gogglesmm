@@ -19,6 +19,11 @@
 #ifndef MEM_PACKET_H
 #define MEM_PACKET_H
 
+#include "ap_buffer.h"
+#include "ap_event.h"
+#include "ap_pipe.h"
+#include "ap_format.h"
+
 namespace ap {
 
 class Packet;

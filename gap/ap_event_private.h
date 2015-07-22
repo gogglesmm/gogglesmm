@@ -19,6 +19,10 @@
 #ifndef AP_EVENT_PRIVATE_H
 #define AP_EVENT_PRIVATE_H
 
+#include "ap_event.h"
+#include "ap_device.h"
+#include "ap_format.h"
+
 namespace ap {
 
 enum EventTypePrivate {

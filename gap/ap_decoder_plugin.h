@@ -19,10 +19,14 @@
 #ifndef DECODER_PLUGIN_H
 #define DECODER_PLUGIN_H
 
+#include "ap_format.h"
+
 namespace ap {
 
 class ConfigureEvent;
 class DecoderPacket;
+class AudioEngine;
+class Packet;
 
 enum DecoderStatus {
   DecoderError,

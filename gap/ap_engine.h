@@ -25,6 +25,7 @@ class InputThread;
 class DecoderThread;
 class OutputThread;
 class EventQueue;
+class Event;
 
 class AudioEngine {
 public:

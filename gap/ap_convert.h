@@ -18,6 +18,9 @@
 ********************************************************************************/
 #ifndef CONVERT_H
 #define CONVERT_H
+
+#include "ap_buffer.h"
+
 namespace ap {
 
 extern void s24le3_to_s16(FXuchar * buffer,FXuint nsamples);

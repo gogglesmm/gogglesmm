@@ -17,25 +17,15 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_config.h"
 #include "ap_utils.h"
-#include "ap_pipe.h"
-#include "ap_event.h"
-#include "ap_format.h"
-#include "ap_device.h"
-#include "ap_reactor.h"
-#include "ap_event_private.h"
-#include "ap_event_queue.h"
-#include "ap_thread_queue.h"
-#include "ap_buffer.h"
 #include "ap_convert.h"
-#include "ap_packet.h"
 #include "ap_engine.h"
-#include "ap_thread.h"
-#include "ap_thread_queue.h"
 #include "ap_input_thread.h"
 #include "ap_output_plugin.h"
 #include "ap_output_thread.h"
+
+
+
 
 #ifndef WIN32
 #include <poll.h>

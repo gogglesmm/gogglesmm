@@ -19,6 +19,8 @@
 #ifndef INPUT_PLUGIN_H
 #define INPUT_PLUGIN_H
 
+#include "ap_format.h"
+
 namespace ap {
 
 class InputThread;

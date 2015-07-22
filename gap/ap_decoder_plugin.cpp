@@ -17,15 +17,8 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_event.h"
-#include "ap_event_queue.h"
-
-#include "ap_format.h"
-#include "ap_buffer.h"
-#include "ap_engine.h"
-
-#include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
+
 
 namespace ap {
 

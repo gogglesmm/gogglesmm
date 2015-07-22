@@ -37,6 +37,7 @@ include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG(-Wall       HAS_CXX_WALL)
 CHECK_CXX_COMPILER_FLAG(-Wextra     HAS_CXX_WEXTRA)
 CHECK_CXX_COMPILER_FLAG(-Wformat=2  HAS_CXX_WFORMAT)
+CHECK_CXX_COMPILER_FLAG(-Wfatal-errors  HAS_CXX_WFATAL)
 CHECK_CXX_COMPILER_FLAG(-Og         HAS_CXX_OPTIMIZE_DEBUG)
 CHECK_CXX_COMPILER_FLAG(-flto       HAS_CXX_OPTIMIZE_LINKTIME)
 
@@ -51,6 +52,11 @@ endif()
 if(HAS_CXX_WFORMAT)
     add_compile_options(-Wformat=2)
 endif()
+
+if(HAS_CXX_WFATAL)
+    add_compile_options(-Wfatal-errors)
+endif()
+
 
 if(HAS_CXX_OPTIMIZE_DEBUG AND CMAKE_BUILD_TYPE MATCHES Debug)
     add_compile_options(-Og)

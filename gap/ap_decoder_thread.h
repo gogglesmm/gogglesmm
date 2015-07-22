@@ -19,6 +19,9 @@
 #ifndef DECODER_H
 #define DECODER_H
 
+#include "ap_thread.h"
+#include "ap_packet.h"
+
 namespace ap {
 
 class AudioEngine;

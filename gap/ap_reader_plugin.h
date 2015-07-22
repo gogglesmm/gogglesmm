@@ -19,14 +19,17 @@
 #ifndef READER_PLUGIN_H
 #define READER_PLUGIN_H
 
+#include "ap_format.h"
+
 namespace ap {
 
 class Packet;
 class InputPlugin;
+class AudioEngine;
 
 enum ReadStatus {
   ReadError,    /* Error Occurred */
-  ReadOk,       
+  ReadOk,
   ReadDone,
 //  ReadInterrupted,
   ReadRedirect

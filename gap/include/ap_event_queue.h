@@ -21,6 +21,8 @@
 
 namespace ap {
 
+class Event;
+
 class GMAPI EventQueue {
 protected:
   Event* head;

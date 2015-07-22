@@ -19,7 +19,11 @@
 #ifndef APPLICATION_QUEUE_H
 #define APPLICATION_QUEUE_H
 
+#include "ap_event_queue.h"
+
 namespace ap {
+
+class Event;
 
 class GMAPI FXAppQueue : public EventQueue {
 protected:

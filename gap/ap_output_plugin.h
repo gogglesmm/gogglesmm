@@ -19,7 +19,12 @@
 #ifndef OUTPUT_PLUGIN_H
 #define OUTPUT_PLUGIN_H
 
+#include "ap_event_private.h"
+#include "ap_format.h"
+
 namespace ap {
+
+class OutputThread;
 
 class GMAPI OutputPlugin {
 public:

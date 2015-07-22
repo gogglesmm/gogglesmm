@@ -19,7 +19,12 @@
 #ifndef THREAD_QUEUE_H
 #define THREAD_QUEUE_H
 
+#include "ap_event_queue.h"
+#include "ap_pipe.h"
+
 namespace ap {
+
+class Event;
 
 class ThreadQueue : public EventQueue {
 protected:

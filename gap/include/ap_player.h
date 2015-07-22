@@ -19,6 +19,9 @@
 #ifndef AP_PLAYER_H
 #define AP_PLAYER_H
 
+#include "ap_event.h"
+#include "ap_device.h"
+
 namespace ap {
 
 class AudioEngine;

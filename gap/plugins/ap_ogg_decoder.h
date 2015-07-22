@@ -19,9 +19,14 @@
 #ifndef OGG_DECODER_PLUGIN_H
 #define OGG_DECODER_PLUGIN_H
 
+#include "ap_buffer.h"
+#include "ap_decoder_plugin.h"
 #include <ogg/ogg.h>
 
+
 namespace ap {
+
+class Packet;
 
 class OggDecoder : public DecoderPlugin {
 private:
@@ -30,7 +35,7 @@ private:
 protected:
   ogg_packet op;
   Packet*    out;
-  FXlong     stream_position;   
+  FXlong     stream_position;
 protected:
   FXbool get_next_packet();
   void   push_back_packet();

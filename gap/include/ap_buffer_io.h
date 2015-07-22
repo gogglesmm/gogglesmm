@@ -19,6 +19,8 @@
 #ifndef AP_BUFFER_IO_H
 #define AP_BUFFER_IO_H
 
+#include "ap_buffer_base.h"
+
 namespace ap {
 
 class GMAPI BufferIO : public FXIO, public BufferBase  {

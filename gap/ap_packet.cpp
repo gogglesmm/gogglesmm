@@ -17,13 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_utils.h"
-#include "ap_pipe.h"
-#include "ap_format.h"
-#include "ap_device.h"
-#include "ap_event.h"
 #include "ap_event_private.h"
-#include "ap_buffer.h"
 #include "ap_packet.h"
 
 namespace ap {

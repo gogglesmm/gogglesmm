@@ -19,6 +19,12 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+#include "ap_thread.h"
+#include "ap_event_private.h"
+#include "ap_reactor.h"
+#include "ap_buffer.h"
+
+
 namespace ap {
 
 class AudioEngine;

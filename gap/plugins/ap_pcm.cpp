@@ -17,24 +17,10 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_pipe.h"
-#include "ap_format.h"
-#include "ap_device.h"
-#include "ap_event.h"
-#include "ap_reactor.h"
-#include "ap_event_private.h"
-#include "ap_event_queue.h"
-#include "ap_thread_queue.h"
-#include "ap_buffer.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
-#include "ap_input_plugin.h"
-#include "ap_decoder_plugin.h"
-#include "ap_thread.h"
-#include "ap_input_thread.h"
-#include "ap_buffer.h"
-#include "ap_decoder_thread.h"
 #include "ap_output_thread.h"
+#include "ap_decoder_plugin.h"
 
 namespace ap {
 

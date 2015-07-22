@@ -17,9 +17,8 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_pipe.h"
-#include "ap_event_queue.h"
 #include "ap_thread_queue.h"
+
 
 #ifndef WIN32
 #include <unistd.h> // for close()

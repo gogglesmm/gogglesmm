@@ -19,9 +19,7 @@
 #ifndef AP_MEMORY_BUFFER_H
 #define AP_MEMORY_BUFFER_H
 
-#ifndef AP_BUFFER_BASE_H
 #include "ap_buffer_base.h"
-#endif
 
 namespace ap {
 

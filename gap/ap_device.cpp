@@ -16,7 +16,6 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#include "ap_config.h"
 #include "ap_defs.h"
 #include "ap_device.h"
 #include "ap_utils.h"

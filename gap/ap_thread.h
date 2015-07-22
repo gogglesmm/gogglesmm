@@ -19,9 +19,14 @@
 #ifndef ENGINE_THREAD_H
 #define ENGINE_THREAD_H
 
+
+#include "ap_thread_queue.h"
+
+
 namespace ap {
 
 class AudioEngine;
+class Event;
 
 class EngineThread : public FXThread {
 protected:

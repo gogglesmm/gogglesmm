@@ -17,9 +17,6 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_config.h"
-#include "ap_pipe.h"
-#include "ap_format.h"
 #include "ap_input_plugin.h"
 #include "ap_id3v2.h"
 
