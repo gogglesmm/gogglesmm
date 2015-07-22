@@ -21,7 +21,6 @@
 #include "ap_output_plugin.h"
 #include "ap_output_thread.h"
 
-
 #include <alsa/asoundlib.h>
 
 

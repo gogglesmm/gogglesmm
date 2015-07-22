@@ -25,8 +25,6 @@
 #include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_decoder_thread.h"
-#include "ap_output_thread.h"
-
 
 #include <FLAC/stream_decoder.h>
 

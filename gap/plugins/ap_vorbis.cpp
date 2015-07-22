@@ -22,9 +22,6 @@
 #include "ap_engine.h"
 #include "ap_ogg_decoder.h"
 #include "ap_decoder_thread.h"
-#include "ap_output_thread.h"
-
-
 
 #if defined(HAVE_VORBIS)
 #include <vorbis/codec.h>

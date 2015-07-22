@@ -26,7 +26,6 @@
 #include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
 #include "ap_decoder_thread.h"
-#include "ap_output_thread.h"
 
 #include <mad.h>
 

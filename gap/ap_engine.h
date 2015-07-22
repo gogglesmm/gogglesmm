@@ -24,15 +24,16 @@ namespace ap {
 class InputThread;
 class DecoderThread;
 class OutputThread;
+class EngineThread;
 class EventQueue;
 class Event;
 
 class AudioEngine {
 public:
   EventQueue    * fifo;
-  InputThread   * input;
+  EngineThread  * input;
   DecoderThread * decoder;
-  OutputThread  * output;
+  EngineThread  * output;
 public:
   AudioEngine();
 
