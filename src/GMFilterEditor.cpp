@@ -47,6 +47,7 @@ static const ColumnDefintion column_types[]={
   { Rule::ColumnTag, notr("Tag")},
   { Rule::ColumnYear,notr("Year")},
   { Rule::ColumnTime,notr("Time")},
+  { Rule::ColumnRating,notr("Rating")},
   { Rule::ColumnTrackNumber,notr("Track Number")},
   { Rule::ColumnDiscNumber,notr("Disc Number")},
   { Rule::ColumnPlayCount,notr("Play Count")},
@@ -425,6 +426,10 @@ void GMRuleEditor::setInputType(FXint type) {
 
   // Set default values
   switch(getColumn()) {
+    case Rule::ColumnRating    : spinner->setRange(0,5);
+                                 spinner->setValue(0);
+                                 spinner->setIncrement(1);
+                                 break;
     case Rule::ColumnYear      : spinner->setRange(0,2100);
                                  spinner->setValue(FXDate::localDate().year());
                                  spinner->setIncrement(1);

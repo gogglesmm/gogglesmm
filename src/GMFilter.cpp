@@ -36,7 +36,7 @@ static const FXchar * const column_lookup[]={
   "tracks.time",
   "(tracks.no&65535)",
   "(tracks.no>>16)",
-  "tracks.rating",
+  "(tracks.rating/51)",
   "tracks.playcount",
   "tracks.playdate",
   "tracks.importdate",
@@ -102,6 +102,7 @@ FXString Rule::getMatch() const {
       } break;
     case ColumnYear:
     case ColumnTime:
+    case ColumnRating:
     case ColumnTrackNumber:
     case ColumnDiscNumber:
     case ColumnPlayCount:
