@@ -37,12 +37,12 @@ public:
     ColumnConductor     = 4,
     ColumnAlbum         = 5,
     ColumnPath          = 6,
-    ColumnTag           = 7, // todo
+    ColumnTag           = 7,
     ColumnYear          = 8,
     ColumnTime          = 9,
     ColumnTrackNumber   = 10,
     ColumnDiscNumber    = 11,
-    ColumnRating        = 12, // todo
+    ColumnRating        = 12,
     ColumnPlayCount     = 13,
     ColumnPlayDate      = 14,
     ColumnImportDate    = 15,
