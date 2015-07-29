@@ -259,9 +259,9 @@ public:
 
   FXbool listTags();
 
-  FXbool listArtists();
+  FXbool listArtists(FXbool showplaying=true);
 
-  FXbool listAlbums();
+  FXbool listAlbums(FXbool showplaying=true);
 
   FXbool listTracks();
 
@@ -295,7 +295,7 @@ public:
 
   void refreshUpdate();
 
-  void refresh();
+  void refresh(FXbool showplaying=true);
 
   void clear();
 
