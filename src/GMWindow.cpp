@@ -1057,10 +1057,16 @@ long GMWindow::onCmdRepeatOff(FXObject*,FXSelector,void*){
   }
 
 long GMWindow::onUpdRepeatOff(FXObject*sender,FXSelector,void*){
-  if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_OFF)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-  else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  if (GMPlayerManager::instance()->getPlayQueue()==nullptr) {
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_OFF)
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    else
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    }
+  else {
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    }
   return 1;
   }
 
@@ -1070,10 +1076,16 @@ long GMWindow::onCmdRepeat(FXObject*,FXSelector,void*){
   }
 
 long GMWindow::onUpdRepeat(FXObject*sender,FXSelector,void*){
-  if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_TRACK)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-  else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  if (GMPlayerManager::instance()->getPlayQueue()==nullptr) {
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_TRACK)
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    else
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    }
+  else {
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    }
   return 1;
   }
 
@@ -1084,10 +1096,16 @@ long GMWindow::onCmdRepeatAll(FXObject*,FXSelector,void*){
   }
 
 long GMWindow::onUpdRepeatAll(FXObject*sender,FXSelector,void*){
-  if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_ALL)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-  else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  if (GMPlayerManager::instance()->getPlayQueue()==nullptr) {
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    if (GMPlayerManager::instance()->getPreferences().play_repeat==REPEAT_ALL)
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    else
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    }
+  else {
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    }
   return 1;
   }
 
@@ -1098,10 +1116,16 @@ long GMWindow::onCmdShuffle(FXObject*,FXSelector,void*ptr){
   }
 
 long GMWindow::onUpdShuffle(FXObject*sender,FXSelector,void*){
-  if (GMPlayerManager::instance()->getPreferences().play_shuffle)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-  else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  if (GMPlayerManager::instance()->getPlayQueue()==nullptr) {
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    if (GMPlayerManager::instance()->getPreferences().play_shuffle)
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    else
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    }
+  else {
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    }  
   return 1;
   }
 
