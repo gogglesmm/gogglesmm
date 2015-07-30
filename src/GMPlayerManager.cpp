@@ -1341,9 +1341,11 @@ void GMPlayerManager::notify_playback_finished() {
      source=NULL;
      }
 
-    /// Nothing else to do
-    if (stop_playback)
+    /// Nothing else to do, mark current as played
+    if (stop_playback) {      
+      queue->getNext();
       return;
+      }
 
     //FIXME handle stop_playback
     track = queue->getNext();
