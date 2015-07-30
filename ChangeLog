@@ -3,7 +3,6 @@
   - Change default color scheme to Clearlooks.
   - Read duration from downloaded podcasts if feed didn't contain this information
   - Close connection for http 1.0 connections if keep-alive is not specified.
-  - Add support for ratings and tags to filters.
   - Fix repeating same track when stop after track has been used.
   - Disable shuffle/repeat menu items when play queue is active.
   - Do not auto-select current playing artist/album when using search (issue #20).
