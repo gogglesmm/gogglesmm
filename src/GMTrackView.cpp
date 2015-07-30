@@ -1007,17 +1007,17 @@ void GMTrackView::refreshUpdate() {
     }
   }
 
-void GMTrackView::refresh() {
+void GMTrackView::refresh(FXbool showplaying/*=true*/) {
   clear();
 
   if (source) {
     if (hasBrowser()) {
-      GM_DEBUG_PRINT("begin refresh()\n");
+      //GM_DEBUG_PRINT("begin refresh()\n");
       listTags();
-      listArtists();
-      listAlbums();
+      listArtists(showplaying);
+      listAlbums(showplaying);
       listTracks();
-      GM_DEBUG_PRINT("done\n");
+      //GM_DEBUG_PRINT("done\n");
       }
     else {
       listTracks();
@@ -1054,7 +1054,7 @@ FXbool GMTrackView::listTags() {
   }
 
 
-FXbool GMTrackView::listArtists(){
+FXbool GMTrackView::listArtists(FXbool showplaying/*=true*/){
   if (source) {
 
     FXIntList tagselection;
@@ -1069,7 +1069,7 @@ FXbool GMTrackView::listArtists(){
       artistlist->prependItem(FXString::value(fxtrformat("All %d Artists"),artistlist->getNumItems()),GMIconTheme::instance()->icon_artist,(void*)(FXival)-1);
       }
 
-    if (GMPlayerManager::instance()->playing() && GMPlayerManager::instance()->getSource()) {
+    if (showplaying && GMPlayerManager::instance()->playing() && GMPlayerManager::instance()->getSource()) {
       if (source->findCurrentArtist(artistlist,GMPlayerManager::instance()->getSource())) {
         return true;
         }
@@ -1084,7 +1084,7 @@ FXbool GMTrackView::listArtists(){
   }
 
 
-FXbool GMTrackView::listAlbums(){
+FXbool GMTrackView::listAlbums(FXbool showplaying/*=true*/){
   if (source) {
 
     FXIntList tagselection;
@@ -1105,7 +1105,7 @@ FXbool GMTrackView::listAlbums(){
 */
 
 
-    if (GMPlayerManager::instance()->playing() && GMPlayerManager::instance()->getSource()) {
+    if (showplaying && GMPlayerManager::instance()->playing() && GMPlayerManager::instance()->getSource()) {
       if (source->findCurrentAlbum(albumlist,GMPlayerManager::instance()->getSource())) {
         return true;
         }
@@ -2135,7 +2135,7 @@ long GMTrackView::onCmdFilter(FXObject*,FXSelector sel,void*){
     getApp()->removeTimeout(this,ID_FILTER);
     }
   if (source->setFilter(filterfield->getText().trim().simplify(),filtermask))
-    refresh();
+    refresh(false);
   return 1;
   }
 
@@ -2464,15 +2464,17 @@ long GMTrackView::onCmdToggleFilter(FXObject*,FXSelector sel,void*){
     filterframe->hide();
     if (!filterfield->getText().empty()){
       source->setFilter(FXString::null,filtermask);
-      refresh();
+      refresh(false);
       }
     recalc();
     }
   else {
     filterframe->show();
     filterfield->setFocus();
-    if (!filterfield->getText().empty())
+    if (!filterfield->getText().empty()){
       filterfield->setSelection(0,filterfield->getText().length());
+      getApp()->addTimeout(this,ID_FILTER,TIME_MSEC(500));
+      }
     recalc();
     }
   return 1;
