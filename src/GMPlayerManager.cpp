@@ -1309,9 +1309,11 @@ void GMPlayerManager::notify_playback_finished() {
      source=nullptr;
      }
 
-    /// Nothing else to do
-    if (stop_playback)
+    /// Nothing else to do, mark current as played
+    if (stop_playback) {
+      queue->getNext();
       return;
+      }
 
     //FIXME handle stop_playback
     track = queue->getNext();
@@ -1340,13 +1342,16 @@ void GMPlayerManager::notify_playback_finished() {
 
       /// Reset Source
       if (source) {
-         source->resetCurrent();
-         source=nullptr;
-         }
+        source->resetCurrent();
+        source=nullptr;
+        }
 
-       //reset_track_display();
-       return;
-       }
+      if(preferences.play_repeat!=REPEAT_TRACK) {
+        track = getTrackView()->getNext();
+        if (track!=-1) getTrackView()->setCurrent(track);
+        }
+      return;
+      }
 
     if (source) {
       source->resetCurrent();

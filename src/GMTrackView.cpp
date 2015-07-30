@@ -577,6 +577,10 @@ void GMTrackView::setActive(FXint item,FXbool showactive/*=true*/) {
   if (showactive) tracklist->setActiveItem(item);
   }
 
+void GMTrackView::setCurrent(FXint item) {
+  tracklist->setCurrentItem(item);
+  }
+
 void GMTrackView::showCurrent() {
   source->findCurrent(tracklist,GMPlayerManager::instance()->getSource());
   }
