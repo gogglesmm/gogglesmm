@@ -305,6 +305,8 @@ public:
 
   void setActive(FXint item,FXbool show=true);
 
+  void setCurrent(FXint item);
+
   void showCurrent();
 
   void setSortMethod(FXint hdr,FXbool reverse=false);
