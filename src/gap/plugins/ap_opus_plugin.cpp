@@ -67,7 +67,7 @@ public:
   };
 
 
-OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(nullptr),pcm(NULL),gain(0.0f) {
+OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(nullptr),pcm(NULL),gain(0.0f),stream_offset_start(0) {
   }
 
 OpusDecoderPlugin::~OpusDecoderPlugin(){
@@ -168,7 +168,7 @@ FXbool OpusDecoderPlugin::init_decoder() {
       }
 
     if (error!=OPUS_OK)
-      return false;    
+      return false;
 
 
     // Apply any gain
