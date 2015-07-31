@@ -94,7 +94,6 @@ class GMPlug : public FXTopWindow {
 FXDECLARE(GMPlug)
 protected:
   FXID         socket;
-  FXuchar      xembedflags;
 protected:
   virtual FXbool doesOverrideRedirect() const;
 private:
