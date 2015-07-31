@@ -458,8 +458,10 @@ GMPlayerManager::GMPlayerManager() :
   scrobbler(NULL),
   queue(NULL),
   source(NULL),
+  podcast(NULL),
   database(NULL),
-  covermanager(NULL) {
+  covermanager(NULL),
+  trackinfoset(false) {
   FXASSERT(myself==NULL);
   myself=this;
   }
