@@ -69,7 +69,7 @@ public:
   };
 
 
-AIFFReader::AIFFReader(AudioEngine*e) : ReaderPlugin(e) {
+AIFFReader::AIFFReader(AudioEngine*e) : ReaderPlugin(e), input_start(0) {
   }
 
 AIFFReader::~AIFFReader(){
