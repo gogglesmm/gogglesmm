@@ -265,8 +265,8 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
 
 
 FXint GMDBTrackItem::browseSort(const GMTrackItem * pa,const GMTrackItem * pb){
-  const GMDBTrackItem * const ta = (GMDBTrackItem*)pa;
-  const GMDBTrackItem * const tb = (GMDBTrackItem*)pb;
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   FXint x;
 
   if (GMTrackView::album_by_year) {
@@ -294,8 +294,8 @@ FXint GMDBTrackItem::browseSort(const GMTrackItem * pa,const GMTrackItem * pb){
 
 
 FXint GMDBTrackItem::ascendingFilename(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   if (ta->path!=tb->path) {
     const GMTrackDatabase* const db = GMPlayerManager::instance()->getTrackDatabase();
     FXint x = comparecase(db->getTrackPath(ta->path),db->getTrackPath(tb->path));
@@ -306,8 +306,8 @@ FXint GMDBTrackItem::ascendingFilename(const GMTrackItem* pa,const GMTrackItem* 
 
 
 FXint GMDBTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   if (ta->path!=tb->path) {
     const GMTrackDatabase* const db = GMPlayerManager::instance()->getTrackDatabase();
     FXint x = comparecase(db->getTrackPath(ta->path),db->getTrackPath(tb->path));
@@ -318,161 +318,161 @@ FXint GMDBTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackItem*
 
 
 FXint GMDBTrackItem::ascendingFiletype(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   return comparecase(FXPath::extension(ta->mrl),FXPath::extension(tb->mrl));
   }
 
 
 FXint GMDBTrackItem::descendingFiletype(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   return -comparecase(FXPath::extension(ta->mrl),FXPath::extension(tb->mrl));
   }
 
 
 FXint GMDBTrackItem::ascendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   return keywordcompare(ta->title,tb->title);
   }
 
 
 FXint GMDBTrackItem::descendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   return keywordcompare(tb->title,ta->title);
   }
 
 
 FXint GMDBTrackItem::ascendingTrack(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXuint a=GMTRACKNO(dynamic_cast<const GMDBTrackItem*>(pa)->no);
-  const FXuint b=GMTRACKNO(dynamic_cast<const GMDBTrackItem*>(pb)->no);
+  const FXuint a=GMTRACKNO(static_cast<const GMDBTrackItem*>(pa)->no);
+  const FXuint b=GMTRACKNO(static_cast<const GMDBTrackItem*>(pb)->no);
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingTrack(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXuint a=GMTRACKNO(dynamic_cast<const GMDBTrackItem*>(pa)->no);
-  const FXuint b=GMTRACKNO(dynamic_cast<const GMDBTrackItem*>(pb)->no);
+  const FXuint a=GMTRACKNO(static_cast<const GMDBTrackItem*>(pa)->no);
+  const FXuint b=GMTRACKNO(static_cast<const GMDBTrackItem*>(pb)->no);
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMDBTrackItem::ascendingDisc(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXuint a=GMDISCNO(dynamic_cast<const GMDBTrackItem*>(pa)->no);
-  const FXuint b=GMDISCNO(dynamic_cast<const GMDBTrackItem*>(pb)->no);
+  const FXuint a=GMDISCNO(static_cast<const GMDBTrackItem*>(pa)->no);
+  const FXuint b=GMDISCNO(static_cast<const GMDBTrackItem*>(pb)->no);
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingDisc(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXuint a=GMDISCNO(dynamic_cast<const GMDBTrackItem*>(pa)->no);
-  const FXuint b=GMDISCNO(dynamic_cast<const GMDBTrackItem*>(pb)->no);
+  const FXuint a=GMDISCNO(static_cast<const GMDBTrackItem*>(pa)->no);
+  const FXuint b=GMDISCNO(static_cast<const GMDBTrackItem*>(pb)->no);
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMDBTrackItem::ascendingQueue(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->queue;
-  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->queue;
+  const FXint a=static_cast<const GMDBTrackItem*>(pa)->queue;
+  const FXint b=static_cast<const GMDBTrackItem*>(pb)->queue;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingQueue(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->queue;
-  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->queue;
+  const FXint a=static_cast<const GMDBTrackItem*>(pa)->queue;
+  const FXint b=static_cast<const GMDBTrackItem*>(pb)->queue;
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMDBTrackItem::ascendingPlaycount(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXushort a=dynamic_cast<const GMDBTrackItem*>(pa)->playcount;
-  const FXushort b=dynamic_cast<const GMDBTrackItem*>(pb)->playcount;
+  const FXushort a=static_cast<const GMDBTrackItem*>(pa)->playcount;
+  const FXushort b=static_cast<const GMDBTrackItem*>(pb)->playcount;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingPlaycount(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXushort a=dynamic_cast<const GMDBTrackItem*>(pa)->playcount;
-  const FXushort b=dynamic_cast<const GMDBTrackItem*>(pb)->playcount;
+  const FXushort a=static_cast<const GMDBTrackItem*>(pa)->playcount;
+  const FXushort b=static_cast<const GMDBTrackItem*>(pb)->playcount;
   return VALUE_SORT_DSC(a,b);
   }
 
 FXint GMDBTrackItem::ascendingPlaydate(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXlong a=dynamic_cast<const GMDBTrackItem*>(pa)->playdate;
-  const FXlong b=dynamic_cast<const GMDBTrackItem*>(pb)->playdate;
+  const FXlong a=static_cast<const GMDBTrackItem*>(pa)->playdate;
+  const FXlong b=static_cast<const GMDBTrackItem*>(pb)->playdate;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingPlaydate(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXlong a=dynamic_cast<const GMDBTrackItem*>(pa)->playdate;
-  const FXlong b=dynamic_cast<const GMDBTrackItem*>(pb)->playdate;
+  const FXlong a=static_cast<const GMDBTrackItem*>(pa)->playdate;
+  const FXlong b=static_cast<const GMDBTrackItem*>(pb)->playdate;
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMDBTrackItem::ascendingYear(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXushort a=dynamic_cast<const GMDBTrackItem*>(pa)->year;
-  const FXushort b=dynamic_cast<const GMDBTrackItem*>(pb)->year;
+  const FXushort a=static_cast<const GMDBTrackItem*>(pa)->year;
+  const FXushort b=static_cast<const GMDBTrackItem*>(pb)->year;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingYear(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXushort a=dynamic_cast<const GMDBTrackItem*>(pa)->year;
-  const FXushort b=dynamic_cast<const GMDBTrackItem*>(pb)->year;
+  const FXushort a=static_cast<const GMDBTrackItem*>(pa)->year;
+  const FXushort b=static_cast<const GMDBTrackItem*>(pb)->year;
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMDBTrackItem::ascendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->time;
-  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->time;
+  const FXint a=static_cast<const GMDBTrackItem*>(pa)->time;
+  const FXint b=static_cast<const GMDBTrackItem*>(pb)->time;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->time;
-  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->time;
+  const FXint a=static_cast<const GMDBTrackItem*>(pa)->time;
+  const FXint b=static_cast<const GMDBTrackItem*>(pb)->time;
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMDBTrackItem::ascendingBitrate(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->bitrate;
-  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->bitrate;
+  const FXint a=static_cast<const GMDBTrackItem*>(pa)->bitrate;
+  const FXint b=static_cast<const GMDBTrackItem*>(pb)->bitrate;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingBitrate(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->bitrate;
-  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->bitrate;
+  const FXint a=static_cast<const GMDBTrackItem*>(pa)->bitrate;
+  const FXint b=static_cast<const GMDBTrackItem*>(pb)->bitrate;
   return VALUE_SORT_DSC(a,b);
   }
 
 FXint GMDBTrackItem::ascendingFormat(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->bitrate;
-  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->bitrate;
+  const FXint a=static_cast<const GMDBTrackItem*>(pa)->bitrate;
+  const FXint b=static_cast<const GMDBTrackItem*>(pb)->bitrate;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingFormat(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMDBTrackItem*>(pa)->bitrate;
-  const FXint b=dynamic_cast<const GMDBTrackItem*>(pb)->bitrate;
+  const FXint a=static_cast<const GMDBTrackItem*>(pa)->bitrate;
+  const FXint b=static_cast<const GMDBTrackItem*>(pb)->bitrate;
   return VALUE_SORT_DSC(a,b);
   }
 
 
 
 FXint GMDBTrackItem::ascendingAlbum(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
 
   FXint x = keywordcompare(ta->album,tb->album);
   if (x!=0) return x;
@@ -486,8 +486,8 @@ FXint GMDBTrackItem::ascendingAlbum(const GMTrackItem* pa,const GMTrackItem* pb)
 
 
 FXint GMDBTrackItem::descendingAlbum(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
 
   FXint x = keywordcompare(tb->album,ta->album);
   if (x!=0) return x;
@@ -501,8 +501,8 @@ FXint GMDBTrackItem::descendingAlbum(const GMTrackItem* pa,const GMTrackItem* pb
 
 
 FXint GMDBTrackItem::ascendingArtist(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   FXint x;
 
   x = keywordcompare(GET_ARTIST_STRING(ta->artist),GET_ARTIST_STRING(tb->artist));
@@ -520,8 +520,8 @@ FXint GMDBTrackItem::ascendingArtist(const GMTrackItem* pa,const GMTrackItem* pb
 
 
 FXint GMDBTrackItem::descendingArtist(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   FXint x;
 
   x = keywordcompare(GET_ARTIST_STRING(tb->artist),GET_ARTIST_STRING(ta->artist));
@@ -539,8 +539,8 @@ FXint GMDBTrackItem::descendingArtist(const GMTrackItem* pa,const GMTrackItem* p
 
 
 FXint GMDBTrackItem::ascendingAlbumArtist(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
 
   FXint x;
 
@@ -560,8 +560,8 @@ FXint GMDBTrackItem::ascendingAlbumArtist(const GMTrackItem* pa,const GMTrackIte
 
 
 FXint GMDBTrackItem::descendingAlbumArtist(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
 
   FXint x;
 
@@ -581,8 +581,8 @@ FXint GMDBTrackItem::descendingAlbumArtist(const GMTrackItem* pa,const GMTrackIt
 
 
 FXint GMDBTrackItem::ascendingComposer(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
 
   FXint x;
 
@@ -601,8 +601,8 @@ FXint GMDBTrackItem::ascendingComposer(const GMTrackItem* pa,const GMTrackItem* 
 
 
 FXint GMDBTrackItem::descendingComposer(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
 
   FXint x;
 
@@ -621,8 +621,8 @@ FXint GMDBTrackItem::descendingComposer(const GMTrackItem* pa,const GMTrackItem*
 
 
 FXint GMDBTrackItem::ascendingConductor(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
 
   FXint x;
 
@@ -641,8 +641,8 @@ FXint GMDBTrackItem::ascendingConductor(const GMTrackItem* pa,const GMTrackItem*
 
 
 FXint GMDBTrackItem::descendingConductor(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMDBTrackItem * const ta = dynamic_cast<const GMDBTrackItem*>(pa);
-  const GMDBTrackItem * const tb = dynamic_cast<const GMDBTrackItem*>(pb);
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
 
   FXint x;
 
@@ -662,15 +662,15 @@ FXint GMDBTrackItem::descendingConductor(const GMTrackItem* pa,const GMTrackItem
 
 
 FXint GMDBTrackItem::ascendingRating(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXuchar a=dynamic_cast<const GMDBTrackItem*>(pa)->rating;
-  const FXuchar b=dynamic_cast<const GMDBTrackItem*>(pb)->rating;
+  const FXuchar a=static_cast<const GMDBTrackItem*>(pa)->rating;
+  const FXuchar b=static_cast<const GMDBTrackItem*>(pb)->rating;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMDBTrackItem::descendingRating(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXuchar a=dynamic_cast<const GMDBTrackItem*>(pa)->rating;
-  const FXuchar b=dynamic_cast<const GMDBTrackItem*>(pb)->rating;
+  const FXuchar a=static_cast<const GMDBTrackItem*>(pa)->rating;
+  const FXuchar b=static_cast<const GMDBTrackItem*>(pb)->rating;
   return VALUE_SORT_DSC(a,b);
   }
 
@@ -715,22 +715,22 @@ const FXString * GMStreamTrackItem::getColumnData(FXint type,FXString &text,FXui
 
 
 FXint GMStreamTrackItem::ascendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMStreamTrackItem*>(pa)->bitrate;
-  const FXint b=dynamic_cast<const GMStreamTrackItem*>(pb)->bitrate;
+  const FXint a=static_cast<const GMStreamTrackItem*>(pa)->bitrate;
+  const FXint b=static_cast<const GMStreamTrackItem*>(pb)->bitrate;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMStreamTrackItem::descendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMStreamTrackItem*>(pa)->bitrate;
-  const FXint b=dynamic_cast<const GMStreamTrackItem*>(pb)->bitrate;
+  const FXint a=static_cast<const GMStreamTrackItem*>(pa)->bitrate;
+  const FXint b=static_cast<const GMStreamTrackItem*>(pb)->bitrate;
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMStreamTrackItem::ascendingGenre(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMStreamTrackItem * const ta = dynamic_cast<const GMStreamTrackItem*>(pa);
-  const GMStreamTrackItem * const tb = dynamic_cast<const GMStreamTrackItem*>(pb);
+  const GMStreamTrackItem * const ta = static_cast<const GMStreamTrackItem*>(pa);
+  const GMStreamTrackItem * const tb = static_cast<const GMStreamTrackItem*>(pb);
   FXint x;
   x = comparecase(ta->genre,tb->genre);
   if (x!=0) return x;
@@ -739,8 +739,8 @@ FXint GMStreamTrackItem::ascendingGenre(const GMTrackItem* pa,const GMTrackItem*
 
 
 FXint GMStreamTrackItem::descendingGenre(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMStreamTrackItem * const ta = dynamic_cast<const GMStreamTrackItem*>(pa);
-  const GMStreamTrackItem * const tb = dynamic_cast<const GMStreamTrackItem*>(pb);
+  const GMStreamTrackItem * const ta = static_cast<const GMStreamTrackItem*>(pa);
+  const GMStreamTrackItem * const tb = static_cast<const GMStreamTrackItem*>(pb);
   FXint x;
   x = comparecase(tb->genre,ta->genre);
   if (x!=0) return x;
@@ -749,21 +749,21 @@ FXint GMStreamTrackItem::descendingGenre(const GMTrackItem* pa,const GMTrackItem
 
 
 FXint GMStreamTrackItem::ascendingTrack(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMStreamTrackItem*>(pa)->no;
-  const FXint b=dynamic_cast<const GMStreamTrackItem*>(pb)->no;
+  const FXint a=static_cast<const GMStreamTrackItem*>(pa)->no;
+  const FXint b=static_cast<const GMStreamTrackItem*>(pb)->no;
   return VALUE_SORT_ASC(a,b);
   }
 
 FXint GMStreamTrackItem::descendingTrack(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMStreamTrackItem*>(pa)->no;
-  const FXint b=dynamic_cast<const GMStreamTrackItem*>(pb)->no;
+  const FXint a=static_cast<const GMStreamTrackItem*>(pa)->no;
+  const FXint b=static_cast<const GMStreamTrackItem*>(pb)->no;
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMStreamTrackItem::ascendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMStreamTrackItem * const ta = dynamic_cast<const GMStreamTrackItem*>(pa);
-  const GMStreamTrackItem * const tb = dynamic_cast<const GMStreamTrackItem*>(pb);
+  const GMStreamTrackItem * const ta = static_cast<const GMStreamTrackItem*>(pa);
+  const GMStreamTrackItem * const tb = static_cast<const GMStreamTrackItem*>(pb);
   FXint a=0,b=0;
   if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
   if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
@@ -772,8 +772,8 @@ FXint GMStreamTrackItem::ascendingTitle(const GMTrackItem* pa,const GMTrackItem*
 
 
 FXint GMStreamTrackItem::descendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMStreamTrackItem * const ta = dynamic_cast<const GMStreamTrackItem*>(pa);
-  const GMStreamTrackItem * const tb = dynamic_cast<const GMStreamTrackItem*>(pb);
+  const GMStreamTrackItem * const ta = static_cast<const GMStreamTrackItem*>(pa);
+  const GMStreamTrackItem * const tb = static_cast<const GMStreamTrackItem*>(pb);
   FXint a=0,b=0;
   if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
   if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
@@ -821,8 +821,8 @@ const FXString * GMLocalTrackItem::getColumnData(FXint type,FXString&,FXuint & j
 
 
 FXint GMLocalTrackItem::ascendingFilename(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMLocalTrackItem * const ta = dynamic_cast<const GMLocalTrackItem*>(pa);
-  const GMLocalTrackItem * const tb = dynamic_cast<const GMLocalTrackItem*>(pb);
+  const GMLocalTrackItem * const ta = static_cast<const GMLocalTrackItem*>(pa);
+  const GMLocalTrackItem * const tb = static_cast<const GMLocalTrackItem*>(pb);
   FXint diff = (tb->state&FOLDER)-(ta->state&FOLDER);
   if (diff==0) return comparecase(ta->filename,tb->filename);;
   return diff;
@@ -830,8 +830,8 @@ FXint GMLocalTrackItem::ascendingFilename(const GMTrackItem* pa,const GMTrackIte
 
 
 FXint GMLocalTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMLocalTrackItem * const ta = dynamic_cast<const GMLocalTrackItem*>(pa);
-  const GMLocalTrackItem * const tb = dynamic_cast<const GMLocalTrackItem*>(pb);
+  const GMLocalTrackItem * const ta = static_cast<const GMLocalTrackItem*>(pa);
+  const GMLocalTrackItem * const tb = static_cast<const GMLocalTrackItem*>(pb);
   FXint diff = (ta->state&FOLDER)-(tb->state&FOLDER);
   if (diff==0) return -comparecase(ta->filename,tb->filename);
   return diff;
@@ -904,36 +904,36 @@ const FXString * GMFeedItem::getColumnData(FXint type,FXString&text,FXuint & jus
 
 
 FXint GMFeedItem::ascendingDate(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMFeedItem * const ta = dynamic_cast<const GMFeedItem*>(pa);
-  const GMFeedItem * const tb = dynamic_cast<const GMFeedItem*>(pb);
+  const GMFeedItem * const ta = static_cast<const GMFeedItem*>(pa);
+  const GMFeedItem * const tb = static_cast<const GMFeedItem*>(pb);
   return VALUE_SORT_ASC(ta->date,tb->date);
   }
 
 
 FXint GMFeedItem::descendingDate(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMFeedItem * const ta = dynamic_cast<const GMFeedItem*>(pa);
-  const GMFeedItem * const tb = dynamic_cast<const GMFeedItem*>(pb);
+  const GMFeedItem * const ta = static_cast<const GMFeedItem*>(pa);
+  const GMFeedItem * const tb = static_cast<const GMFeedItem*>(pb);
   return VALUE_SORT_DSC(ta->date,tb->date);
   }
 
 
 FXint GMFeedItem::ascendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMFeedItem*>(pa)->time;
-  const FXint b=dynamic_cast<const GMFeedItem*>(pb)->time;
+  const FXint a=static_cast<const GMFeedItem*>(pa)->time;
+  const FXint b=static_cast<const GMFeedItem*>(pb)->time;
   return VALUE_SORT_ASC(a,b);
   }
 
 
 FXint GMFeedItem::descendingTime(const GMTrackItem* pa,const GMTrackItem* pb){
-  const FXint a=dynamic_cast<const GMFeedItem*>(pa)->time;
-  const FXint b=dynamic_cast<const GMFeedItem*>(pb)->time;
+  const FXint a=static_cast<const GMFeedItem*>(pa)->time;
+  const FXint b=static_cast<const GMFeedItem*>(pb)->time;
   return VALUE_SORT_DSC(a,b);
   }
 
 
 FXint GMFeedItem::ascendingFeed(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMFeedItem * const ta = dynamic_cast<const GMFeedItem*>(pa);
-  const GMFeedItem * const tb = dynamic_cast<const GMFeedItem*>(pb);
+  const GMFeedItem * const ta = static_cast<const GMFeedItem*>(pa);
+  const GMFeedItem * const tb = static_cast<const GMFeedItem*>(pb);
 
   FXint x = keywordcompare(ta->feed,tb->feed);
   if (x!=0) return x;
@@ -943,8 +943,8 @@ FXint GMFeedItem::ascendingFeed(const GMTrackItem* pa,const GMTrackItem* pb){
 
 
 FXint GMFeedItem::descendingFeed(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMFeedItem * const ta = dynamic_cast<const GMFeedItem*>(pa);
-  const GMFeedItem * const tb = dynamic_cast<const GMFeedItem*>(pb);
+  const GMFeedItem * const ta = static_cast<const GMFeedItem*>(pa);
+  const GMFeedItem * const tb = static_cast<const GMFeedItem*>(pb);
 
   FXint x = keywordcompare(tb->feed,ta->feed);
   if (x!=0) return x;
@@ -955,8 +955,8 @@ FXint GMFeedItem::descendingFeed(const GMTrackItem* pa,const GMTrackItem* pb){
 
 
 FXint GMFeedItem::ascendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMFeedItem * const ta = dynamic_cast<const GMFeedItem*>(pa);
-  const GMFeedItem * const tb = dynamic_cast<const GMFeedItem*>(pb);
+  const GMFeedItem * const ta = static_cast<const GMFeedItem*>(pa);
+  const GMFeedItem * const tb = static_cast<const GMFeedItem*>(pb);
   FXint a=0,b=0;
   if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
   if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
@@ -965,8 +965,8 @@ FXint GMFeedItem::ascendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
 
 
 FXint GMFeedItem::descendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
-  const GMFeedItem * const ta = dynamic_cast<const GMFeedItem*>(pa);
-  const GMFeedItem * const tb = dynamic_cast<const GMFeedItem*>(pb);
+  const GMFeedItem * const ta = static_cast<const GMFeedItem*>(pa);
+  const GMFeedItem * const tb = static_cast<const GMFeedItem*>(pb);
   FXint a=0,b=0;
   if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
   if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
