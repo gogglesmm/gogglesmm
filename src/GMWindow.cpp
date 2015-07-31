@@ -889,7 +889,7 @@ long GMWindow::onUpdPlayPauseMenu(FXObject*sender,FXSelector,void*){
         button->setHelpText(tr("Start playback."));
         button->setIcon(GMIconTheme::instance()->icon_play);
         }
-      else {
+      else if (menucommand) {
         menucommand->enable();
         menucommand->setText(tr("Play"));
         menucommand->setHelpText(tr("Start playback"));
@@ -904,7 +904,7 @@ long GMWindow::onUpdPlayPauseMenu(FXObject*sender,FXSelector,void*){
         button->setTipText(tr("Pause playback"));
         button->setIcon(GMIconTheme::instance()->icon_pause);
         }
-      else {
+      else if (menucommand) {
         menucommand->enable();
         menucommand->setText(tr("Pause"));
         menucommand->setHelpText(tr("Pause playback."));
@@ -918,7 +918,7 @@ long GMWindow::onUpdPlayPauseMenu(FXObject*sender,FXSelector,void*){
       button->setIcon(GMIconTheme::instance()->icon_play);
       button->disable();
       }
-    else {
+    else if (menucommand) {
       menucommand->setText(tr("Play"));
       menucommand->setHelpText(tr("Start playback."));
       menucommand->setIcon(GMIconTheme::instance()->icon_play);
@@ -1125,7 +1125,7 @@ long GMWindow::onUpdShuffle(FXObject*sender,FXSelector,void*){
     }
   else {
     sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
-    }  
+    }
   return 1;
   }
 
