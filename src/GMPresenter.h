@@ -30,7 +30,6 @@ protected:
   GMImageTexture  * texture;
   GMBouncingImage * effect;
 protected:
-  FXGLVisual * glvisual;
   FXGLCanvas * glcanvas;
 public:
   enum {

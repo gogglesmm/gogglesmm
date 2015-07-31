@@ -29,8 +29,6 @@ protected:
   FXInputHandle handle;
 protected:
   OSSConfig config;
-  FXbool   can_pause;
-  FXbool   can_resume;
 protected:
   FXbool open();
 public:
