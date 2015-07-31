@@ -51,7 +51,7 @@ private:
   FXMutex           mutex_task;
   FXMutex           mutex_data;
   FXCondition       condition_task;
-  FXuchar           flags;
+  FXushort          flags;
   FXMessageChannel  feedback;
   FXObject*         target;
   FXSelector        message;
