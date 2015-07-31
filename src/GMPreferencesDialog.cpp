@@ -1510,7 +1510,7 @@ long GMPreferencesDialog::onCmdChangeFont(FXObject*,FXSelector,void*){
   FXFont * font = FXApp::instance()->getNormalFont();
   FXFontDesc fontdescription;
   fontdescription =  font->getActualFontDesc();
-  strncpy(fontdescription.face,font->getActualName().text(),sizeof(fontdescription.face));
+  fxstrlcpy(fontdescription.face,font->getActualName().text(),sizeof(fontdescription.face));
   dialog.setFontDesc(fontdescription);
   if(dialog.execute(PLACEMENT_SCREEN)){
     GMApp::instance()->setFont(dialog.getFontDesc());
