@@ -74,7 +74,7 @@ public:
   FXlong offset;
   FXbool close;
 public:
-  FlushEvent(FXbool c=false); 
+  FlushEvent(FXbool c=false);
   FlushEvent(FXlong offset);
   };
 
@@ -154,7 +154,7 @@ class GetReplayGain : public SyncEvent {
 public:
   ReplayGainMode mode;
 public:
-  GetReplayGain() : SyncEvent(Ctrl_Get_Replay_Gain) {}
+  GetReplayGain() : SyncEvent(Ctrl_Get_Replay_Gain), mode(ReplayGainOff) {}
   virtual ~GetReplayGain() {}
   };
 
