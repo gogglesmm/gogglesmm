@@ -359,10 +359,12 @@ long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
 
     // Fragment below first item
     if(ilo<0){
+/*
       x=pos;
       if(0<items.no()){
         x=pos+items[0]->getPos();
         }
+*/
 /*
       if(0<x){
         if(options&FRAME_THICK)
