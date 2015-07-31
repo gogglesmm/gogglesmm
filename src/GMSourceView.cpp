@@ -51,7 +51,7 @@ FXIMPLEMENT(GMSourceView,GMScrollFrame,GMSourceViewMap,ARRAYNUMBER(GMSourceViewM
 GMSourceView::GMSourceView() : source(NULL) {
   }
 
-GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) , source(NULL) {
+GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) , source(NULL), sourcedrop(NULL) {
   sourcelistheader = new GMHeaderButton(this,tr("Sources\tPress to change sorting order\tPress to change sorting order"),NULL,this,ID_SOURCE_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
   sourcelist       = new GMTreeList(this,this,ID_SOURCE_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|TREELIST_BROWSESELECT);
 
