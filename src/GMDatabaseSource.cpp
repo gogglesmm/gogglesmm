@@ -932,8 +932,8 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
     query = "SELECT "
                  "tracks.path,"
                  "tracks.mrl,"
-                 "tracks.title," 
-                 "tracks.time," 
+                 "tracks.title,"
+                 "tracks.time,"
                  "tracks.no,"
                  "tracks.year,"
                  "tracks.artist,"
@@ -942,7 +942,7 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
                  "albums.artist,albums.name,albums.year,"
                  "tracks.playcount,"
                  "tracks.bitrate,"
-                 "tracks.playdate," 
+                 "tracks.playdate,"
                  "tracks.rating "
            "FROM tracks JOIN albums ON tracks.album == albums.id WHERE tracks.id == ?;";
 
@@ -1009,8 +1009,7 @@ long GMDatabaseSource::onCmdEditTrack(FXObject*,FXSelector,void*){
 
 long GMDatabaseSource::onCmdEditRating(FXObject*,FXSelector,void* ptr){
   FXuchar rating = (FXuchar)(FXuval)ptr;
-  GMDBTrackItem * item = dynamic_cast<GMDBTrackItem*>(GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem());
-  FXASSERT(item);
+  GMDBTrackItem * item = static_cast<GMDBTrackItem*>(GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem());
   item->setRating(rating);
   db->setTrackRating(item->getId(),rating*51);
   return 1;
