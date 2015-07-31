@@ -950,8 +950,7 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
 
     for (FXint i=0;i<tracklist->getNumItems();i++) {
       if (tracklist->isItemSelected(i)) {
-        GMDBTrackItem * item = dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i));
-        FXASSERT(item);
+        GMDBTrackItem * item = static_cast<GMDBTrackItem*>(tracklist->getItem(i));
         q.set(0,item->id);
         q.row();
         q.get(0,path);
