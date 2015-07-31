@@ -759,7 +759,7 @@ public:
 
       }
     else {
-      local.clear();      
+      local.clear();
       }
     }
 
@@ -1305,7 +1305,7 @@ FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
   }
 
 FXbool GMPodcastSource::album_context_menu(FXMenuPane * pane){
-  GMPodcastFeed * item = dynamic_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
+  GMPodcastFeed * item = static_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
   GMMenuCheck * autodownload = new GMMenuCheck(pane,fxtr("Auto Download"),this,ID_AUTO_DOWNLOAD);
   if (item->isAutoDownload())
     autodownload->setCheck(true);
@@ -1491,7 +1491,7 @@ long GMPodcastSource::onCmdDeleteLocal(FXObject*,FXSelector,void*){
   }
 
 long GMPodcastSource::onCmdAutoDownload(FXObject*,FXSelector,void*){
-  GMPodcastFeed * item = dynamic_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
+  GMPodcastFeed * item = static_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
   GMQuery update_feed(db,"UPDATE feeds SET autodownload = ? WHERE id == ?;");
   db->begin();
   update_feed.set(0,!item->isAutoDownload());
