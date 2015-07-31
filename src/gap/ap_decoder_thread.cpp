@@ -104,7 +104,7 @@ FXint DecoderThread::run(){
     switch(event->type) {
       case Flush    : GM_DEBUG_PRINT("[decoder] flush\n");
                       if (plugin) {
-                        FlushEvent * f = dynamic_cast<FlushEvent*>(event);
+                        FlushEvent * f = static_cast<FlushEvent*>(event);
                         plugin->flush(f->offset);
                         }
                       engine->output->post(event,EventQueue::Flush);
@@ -121,7 +121,7 @@ FXint DecoderThread::run(){
                       return 0;
                       break;
 
-      case Configure: configure(dynamic_cast<ConfigureEvent*>(event));
+      case Configure: configure(static<ConfigureEvent*>(event));
                       continue;
                       break;
 
