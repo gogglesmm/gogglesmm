@@ -121,7 +121,7 @@ FXint DecoderThread::run(){
                       return 0;
                       break;
 
-      case Configure: configure(static<ConfigureEvent*>(event));
+      case Configure: configure(static_cast<ConfigureEvent*>(event));
                       continue;
                       break;
 
