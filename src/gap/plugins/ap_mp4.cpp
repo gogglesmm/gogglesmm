@@ -753,7 +753,6 @@ FXbool MP4Reader::atom_parse_meta_free(FXlong size) {
   FXuint atom_type;
   FXlong atom_size;
   FXint length;
-  FXbool ok=false;
 
   FXint   type;
   FXshort county;
@@ -777,7 +776,6 @@ FXbool MP4Reader::atom_parse_meta_free(FXlong size) {
           if (input->read(mean.text(),atom_size-4)!=atom_size-4)
             return false;
 
-          ok=true;
           break;
 
       case NAME:
@@ -792,7 +790,6 @@ FXbool MP4Reader::atom_parse_meta_free(FXlong size) {
           if (input->read(name.text(),atom_size-4)!=atom_size-4)
             return false;
 
-          ok=true;
           break;
 
       case DATA:
@@ -815,15 +812,13 @@ FXbool MP4Reader::atom_parse_meta_free(FXlong size) {
              // }
             }
           else {
-            input->position(atom_size-4,FXIO::Current); ok=true;
+            input->position(atom_size-4,FXIO::Current);
             }
-          ok=true;
           break;
 
-      default : input->position(atom_size,FXIO::Current); ok=true;
+      default : input->position(atom_size,FXIO::Current);
                 break;
       }
-    if (!ok) return false;
     size-=atom_size;
     }
 
