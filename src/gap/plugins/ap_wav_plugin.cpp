@@ -72,7 +72,7 @@ typedef FXuchar ap_guid_t[16];
 const ap_guid_t guid_wav_format_pcm={0x01,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0xaa,0x00,0x38,0x9b,0x71};
 
 
-WavReader::WavReader(AudioEngine*e) : ReaderPlugin(e) {
+WavReader::WavReader(AudioEngine*e) : ReaderPlugin(e),datasize(0),input_start(0) {
   }
 
 WavReader::~WavReader(){
