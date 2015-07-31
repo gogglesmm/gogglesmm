@@ -190,11 +190,13 @@ FXbool GMSourceView::listsources() {
     FXIcon * icon=icon_for_sourcetype(src->getType());
     item = new GMTreeItem(src->getName(),icon,icon,src);
     if (src->getType()==SOURCE_DATABASE_FILTER) {
+      FXASSERT(dbitem);
       sourcelist->appendItem(dbitem,item);
       dbitem->setExpanded(true);
       }
-    else
+    else {
       sourcelist->appendItem(NULL,item);
+      }
     if (src->getType()==SOURCE_DATABASE) dbitem=item;
     }
   sourcelist->sortItems();
