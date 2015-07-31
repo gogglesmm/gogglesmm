@@ -28,11 +28,7 @@
 static bool gm_display_help(int argc,char * argv[]) {
   for (int i=1;i<argc;i++){
     if ( (comparecase(argv[i],"--help")==0) || (comparecase(argv[i],"-h")==0) ) {
-      if (argc>0)
-        fxmessage("Usage: %s [options]\n\n",FXPath::name(argv[0]).text());
-      else
-        fxmessage("Usage: gogglesmm [options]\n\n");
-
+      fxmessage("Usage: %s [options]\n\n",FXPath::name(argv[0]).text());
       fxmessage("General options:\n"
                 " -h, --help            Display this help page\n"
                 " -v, --version         Display version information\n"
