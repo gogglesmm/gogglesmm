@@ -37,7 +37,7 @@
 #define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac"
 #define FILE_PATTERNS "*.(" FILE_EXTENSIONS ")"
 
-GMDBTracks::GMDBTracks() {
+GMDBTracks::GMDBTracks() : database(nullptr) {
   }
 
 GMDBTracks::~GMDBTracks(){
