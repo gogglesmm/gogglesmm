@@ -952,27 +952,25 @@ void GMTrackView::init(GMSource * src) {
 
   clear();
 
-  if (source) {
-    if (hasBrowser()) {
-      listTags();
-      initSelection(taglist,"genre-list-selection",source->settingKey());
-      listArtists();
-      initSelection(artistlist,"artist-list-selection",source->settingKey());
-      listAlbums();
-      initSelection(albumlist,"album-list-selection",source->settingKey());
-      listTracks();
-      }
-    else {
-      listTracks();
-      }
-
-    FXint active =  getApp()->reg().readIntEntry("window","track-list-current",-1);
-    if (active>=0 && active<tracklist->getNumItems()) {
-      tracklist->setCurrentItem(active);
-      tracklist->selectItem(active);
-      }
-    tracklist->setPosition(tracklist_posx,tracklist_posy);
+  if (hasBrowser()) {
+    listTags();
+    initSelection(taglist,"genre-list-selection",source->settingKey());
+    listArtists();
+    initSelection(artistlist,"artist-list-selection",source->settingKey());
+    listAlbums();
+    initSelection(albumlist,"album-list-selection",source->settingKey());
+    listTracks();
     }
+  else {
+    listTracks();
+    }
+
+  FXint active =  getApp()->reg().readIntEntry("window","track-list-current",-1);
+  if (active>=0 && active<tracklist->getNumItems()) {
+    tracklist->setCurrentItem(active);
+    tracklist->selectItem(active);
+    }
+  tracklist->setPosition(tracklist_posx,tracklist_posy);
   }
 
 
