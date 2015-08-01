@@ -328,7 +328,7 @@ void GMDBTracks::remove(FXint track) {
   }
 
 
-GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel),database(NULL),playlist(0),count(0) {
+GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel),database(NULL),playlist(0),queue(0),count(0) {
   database = GMPlayerManager::instance()->getTrackDatabase();
   }
 
