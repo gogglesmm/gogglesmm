@@ -128,7 +128,7 @@ struct HttpStatus {
   FXint code;
   FXint type() const;
 
-  HttpStatus() : major(0), minor(0), code(0) {}
+  HttpStatus();
   };
 
 
