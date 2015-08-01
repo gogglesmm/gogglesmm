@@ -62,9 +62,7 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
         {
             time.position = static_cast<TimeUpdate*>(event)->position;
             time.length   = static_cast<TimeUpdate*>(event)->length;
-            if (target) {
-              target->handle(this,FXSEL(SEL_PLAYER_TIME,message),&time);
-              }
+            if (target) target->handle(this,FXSEL(SEL_PLAYER_TIME,message),&time);
         } break;
 
       case AP_ERROR                  :
@@ -82,7 +80,7 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
           track.artist.adopt(info->artist);
           track.album.adopt(info->album);
 
-          target->handle(this,FXSEL(SEL_PLAYER_META,message),&track);
+          if (target) target->handle(this,FXSEL(SEL_PLAYER_META,message),&track);
         } break;
       case AP_VOLUME_NOTIFY          :
         {
@@ -92,7 +90,7 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
             else
               vvolume = -1;
 
-            target->handle(this,FXSEL(SEL_PLAYER_VOLUME,message),(void*)(FXival)vvolume);
+            if (target) target->handle(this,FXSEL(SEL_PLAYER_VOLUME,message),(void*)(FXival)vvolume);
             break;
         }
       default: break;
