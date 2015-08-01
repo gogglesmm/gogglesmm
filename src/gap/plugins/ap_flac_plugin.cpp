@@ -595,11 +595,10 @@ FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamD
   do {
 
     if (packet==NULL) {
-      Event * event = plugin->engine->decoder->get_decoder_packet();
-      if (event==NULL) {
+      packet = plugin->engine->decoder->get_decoder_packet();
+      if (packet==NULL) {
         return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
         }
-      packet = dynamic_cast<Packet*>(event);
       }
 
     FXASSERT(packet);
