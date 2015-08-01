@@ -173,7 +173,7 @@ FXbool GMPlayListSource::hasCurrentTrack(GMSource * src) const {
 void GMPlayListSource::markCurrent(const GMTrackItem*item) {
   if (item) {
     current_track = item->getId();
-    current_queue = dynamic_cast<const GMDBTrackItem*>(item)->getTrackQueue();
+    current_queue = static_cast<const GMDBTrackItem*>(item)->getTrackQueue();
     }
   else {
     current_track = -1;

@@ -716,7 +716,7 @@ public:
     if (view->getSource()==src) {
       FXint item = view->findTrackIndexById(id);
       if (item>=0) {
-        GMFeedItem * feeditem = dynamic_cast<GMFeedItem*>(view->getTrackItem(item));
+        GMFeedItem * feeditem = static_cast<GMFeedItem*>(view->getTrackItem(item));
         FXuint f = feeditem->getFlags();
         f&=~(1<<ITEM_FLAG_QUEUE);
         if (!local.empty())
