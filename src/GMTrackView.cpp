@@ -1329,7 +1329,7 @@ void GMTrackView::loadSettings(const FXString & key) {
   tracklist_posy = getApp()->reg().readIntEntry(key.text(),"track-list-posy",0);
 
   showui = getApp()->reg().readBoolEntry(key.text(),"filter",true);
-  if (showui && source && source->canFilter())
+  if (showui && source->canFilter())
     filterframe->show();
   else
     filterframe->hide();
