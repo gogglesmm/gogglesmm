@@ -62,6 +62,7 @@ enum {
 
 
 ColorTheme::ColorTheme() {
+  name      = nullptr;
   base      = FXApp::instance()->getBaseColor();
   border    = FXApp::instance()->getBorderColor();
   back      = FXApp::instance()->getBackColor();
