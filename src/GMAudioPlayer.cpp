@@ -60,8 +60,8 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
       case AP_STATE_PAUSING    : state=PLAYER_PAUSING; if (target) target->handle(this,FXSEL(SEL_PLAYER_STATE,message),(void*)(FXival)state);break;
       case AP_TIMESTAMP        :
         {
-            time.position = ((TimeUpdate*)event)->position;
-            time.length   = ((TimeUpdate*)event)->length;
+            time.position = static_cast<TimeUpdate*>(event)->position;
+            time.length   = static_cast<TimeUpdate*>(event)->length;
             if (target) {
               target->handle(this,FXSEL(SEL_PLAYER_TIME,message),&time);
               }
@@ -69,13 +69,13 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
 
       case AP_ERROR                  :
         {
-          ErrorMessage * err = dynamic_cast<ErrorMessage*>(event);
+          ErrorMessage * err = static_cast<ErrorMessage*>(event);
           if (target) target->handle(this,FXSEL(SEL_PLAYER_ERROR,message),(void*)&err->msg);
         } break;
       case AP_META_INFO              :
         {
           GMTrack track;
-          MetaInfo * info = dynamic_cast<MetaInfo*>(event);
+          MetaInfo * info = static_cast<MetaInfo*>(event);
 
           /// get data
           track.title.adopt(info->title);
@@ -86,7 +86,7 @@ long GMAudioPlayer::onEngineEvents(FXObject*,FXSelector,void*){
         } break;
       case AP_VOLUME_NOTIFY          :
         {
-            VolumeNotify * info = dynamic_cast<VolumeNotify*>(event);
+            VolumeNotify * info = static_cast<VolumeNotify*>(event);
             if (info->volume.enabled)
               vvolume = (FXint)(info->volume.value * 100.0f);
             else

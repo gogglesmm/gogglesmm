@@ -247,7 +247,7 @@ FXint InputThread::run(){
                             break;
       case Buffer         :
         {
-          Packet * packet = dynamic_cast<Packet*>(event);
+          Packet * packet = static_cast<Packet*>(event);
           FXASSERT(reader);
           FXASSERT(packet);
           packet->stream = streamid;
