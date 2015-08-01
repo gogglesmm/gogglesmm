@@ -73,7 +73,7 @@ public:
   FXuchar*            decoder_specific_info;        // decoder specific info
   FXuint              decoder_specific_info_length; // decoder specific length
 public:
-  Track() : codec(Codec::Invalid),decoder_specific_info(NULL),decoder_specific_info_length(0) {}
+  Track() : codec(Codec::Invalid),fixed_sample_size(0),decoder_specific_info(NULL),decoder_specific_info_length(0) {}
   ~Track() { freeElms(decoder_specific_info); }
 
 public:
