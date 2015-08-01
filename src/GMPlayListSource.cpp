@@ -94,14 +94,14 @@ void GMPlayListSource::save(GMTrackList* tracklist) {
       items.no(tracklist->getNumItems());
       if (tracklist->getSortMethod()==HEADER_QUEUE){
         for (FXint i=0;i<tracklist->getNumItems();i++){
-          const GMDBTrackItem * trk = dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i));
+          const GMDBTrackItem * trk = static_cast<const GMDBTrackItem*>(tracklist->getItem(i));
           items[i].queue = trk->getTrackQueue();
           items[i].track = trk->getId();
           }
         }
       else {
         for (FXint i=0;i<tracklist->getNumItems();i++){
-          const GMDBTrackItem * trk = dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i));
+          const GMDBTrackItem * trk = static_cast<const GMDBTrackItem*>(tracklist->getItem(i));
           items[i].queue = i+1;
           items[i].track = trk->getId();
           }
