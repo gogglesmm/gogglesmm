@@ -140,14 +140,16 @@ public:
     }
   };
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(NULL),plugin(NULL),draining(false) {
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(NULL),plugin(NULL),draining(false),pausing(false) {
   stream=-1;
+  stream_length=0;
   stream_remaining=0;
   stream_written=0;
   stream_position=0;
   timestamp=-1;
   packet_queue=NULL;
   }
+
 
 FXbool OutputThread::init() {
   if (EngineThread::init()) {
