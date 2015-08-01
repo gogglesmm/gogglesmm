@@ -115,7 +115,7 @@ FXIO * NBConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
 
 
 FXuint NBConnectionFactory::connect(FXIO * io,const struct sockaddr * address,FXint address_len) {
-  WaitIO * wio = dynamic_cast<WaitIO*>(io);
+  WaitIO * wio = static_cast<WaitIO*>(io);
   FXASSERT(wio);
   Socket * sio = dynamic_cast<Socket*>(wio->getDevice());
   if (::connect(sio->handle(),address,address_len)==0) {
