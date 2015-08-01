@@ -222,7 +222,7 @@ FXint InputThread::run(){
                             ctrl_close_input(true);
                             break;
 
-      case Ctrl_Open_Flush: ctrl_flush();
+      case Ctrl_Open_Flush: ctrl_flush(); // intentional no break
       case Ctrl_Open      : ctrl_open_input(((ControlEvent*)event)->text);
                             break;
 
