@@ -65,7 +65,7 @@ GMTrayIcon::GMTrayIcon(){
   flags|=FLAG_ENABLED;
   }
 
-GMTrayIcon::GMTrayIcon(FXApp * a) : GMPlug(a), xtraywindow(0), xtrayopcode(0),icon(NULL), opaque(false) {
+GMTrayIcon::GMTrayIcon(FXApp * a) : GMPlug(a), xtraywindow(0), xtrayopcode(0),xtrayorientation(0),xtrayxfceorientation(0),xtrayvisual(0),icon(NULL), opaque(false) {
   flags|=FLAG_ENABLED;
   }
 
