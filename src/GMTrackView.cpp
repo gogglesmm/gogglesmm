@@ -1242,6 +1242,8 @@ FXbool GMTrackView::getSortReverse() const {
 
 
 void GMTrackView::loadSettings(const FXString & key) {
+  FXASSERT(source);
+
   FXbool sort_reverse,showui;
   FXint split,nvw=0;
 
@@ -1351,8 +1353,7 @@ void GMTrackView::loadSettings(const FXString & key) {
     filtermask = getApp()->reg().readUIntEntry(key.text(),"filter-mask",FILTER_DEFAULT);
     }
 
-  if (source) source->setFilter(filterfield->getText().trim().simplify(),filtermask);
-
+  source->setFilter(filterfield->getText().trim().simplify(),filtermask);
 
   loadTrackSettings(key);
   }
