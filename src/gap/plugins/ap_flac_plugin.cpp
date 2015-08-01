@@ -181,7 +181,7 @@ FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & af,FXlong & nf
 
 
 
-FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(NULL),meta(NULL) {
+FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(NULL),meta(NULL), lastseek(0) {
   }
 
 FlacReader::~FlacReader(){
