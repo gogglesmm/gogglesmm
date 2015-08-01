@@ -68,7 +68,7 @@ protected:
             ((flags&PA_IO_EVENT_HANGUP) ? Reactor::Input::Exception : 0));
     }
 public:
-  pa_io_event(FXInputHandle h,FXuchar m) : Reactor::Input(h,m) {
+  pa_io_event(FXInputHandle h,FXuchar m) : Reactor::Input(h,m),callback(nullptr),destroy_callback(nullptr),userdata(nullptr) {
     }
 
   virtual void onSignal() {
