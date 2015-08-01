@@ -41,10 +41,10 @@ FXint GMWorkerThread::run() {
 
 FXIMPLEMENT(GMWorker,FXObject,NULL,0);
 
-GMWorker::GMWorker(){
+GMWorker::GMWorker() : thread(nullptr), channel(nullptr), processing(true) {
   }
 
-GMWorker::GMWorker(FXApp * app) : thread(NULL),processing(true) {
+GMWorker::GMWorker(FXApp * app) : processing(true) {
   thread  = new GMWorkerThread(this);
   channel = new FXMessageChannel(app);
   }
