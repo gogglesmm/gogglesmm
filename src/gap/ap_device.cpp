@@ -80,7 +80,7 @@ void AlsaConfig::save(FXSettings & settings) const {
 OSSConfig::OSSConfig() : device("/dev/dsp"), flags(0) {
   }
 
-OSSConfig::OSSConfig(const FXString & d): device(d) {
+OSSConfig::OSSConfig(const FXString & d): device(d), flags(0) {
   }
 
 OSSConfig::~OSSConfig(){
