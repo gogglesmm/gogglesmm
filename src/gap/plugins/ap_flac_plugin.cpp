@@ -55,7 +55,12 @@
 #define FLAC_INFO_SAMPLE_RATE(x)     ( ((*(x+10))<<12) | ((*(x+11))<<4) | (((*(x+12))>>4)&0xF) )
 #define FLAC_INFO_CHANNELS(x)  (1 + (((*(x+12))>>1)&0x7))
 #define FLAC_INFO_BPS(x)       (1 + ((((*(x+12))&0x1)<<4) | (((*(x+13))>>4)&0xF) ))
-#define FLAC_INFO_NSAMPLES(x)  ( (((FXlong)(*(x+13))&0xF)<<32) | ((*(x+14))<<24) | ((*(x+15))<<16) | ((*(x+16))<<8) | (*(x+17) ) )
+#define FLAC_INFO_NSAMPLES(x) (static_cast<FXlong>(*(x+13))<<32 |\
+                               static_cast<FXlong>(*(x+14))<<24 |\
+                               static_cast<FXlong>(*(x+15))<<16 |\
+                               static_cast<FXlong>(*(x+16))<<8 |\
+                               static_cast<FXlong>(*(x+17)))
+
 
 #else
 #error "BUG: FLAC  macros not defined for Big Endian Architecture"
