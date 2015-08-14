@@ -952,42 +952,42 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
       if (tracklist->isItemSelected(i)) {
         GMDBTrackItem * item = static_cast<GMDBTrackItem*>(tracklist->getItem(i));
         q.set(0,item->id);
-        q.row();
-        q.get(0,path);
-        c_mrl   = q.get(1);
-        c_title = q.get(2);
-        q.get(3,time);
-        q.get(4,no);
-        q.get(5,track_year);
-        q.get(6,artist);
-        q.get(7,composer);
-        q.get(8,conductor);
-        q.get(9,albumartist);
-        c_albumname = q.get(10);
-        q.get(11,album_year);
-        q.get(12,playcount);
-        q.get(13,bitrate);
-        q.get(14,playdate);
-        q.get(15,rating);
+        if (__likely(q.row())) {
+          q.get(0,path);
+          c_mrl   = q.get(1);
+          c_title = q.get(2);
+          q.get(3,time);
+          q.get(4,no);
+          q.get(5,track_year);
+          q.get(6,artist);
+          q.get(7,composer);
+          q.get(8,conductor);
+          q.get(9,albumartist);
+          c_albumname = q.get(10);
+          q.get(11,album_year);
+          q.get(12,playcount);
+          q.get(13,bitrate);
+          q.get(14,playdate);
+          q.get(15,rating);
 
-        item->mrl         = c_mrl;
-        item->title       = c_title;
-        item->album       = c_albumname;
-        item->playdate    = playdate;
-        item->artist      = artist;
-        item->albumartist = albumartist;
-        item->composer    = composer;
-        item->conductor   = conductor;
-        item->time        = time;
-        item->no          = no;
-        item->path        = path;
-        item->year        = track_year;
-        item->album_year  = album_year;
-        item->playcount   = playcount;
-        item->rating      = rating / 51;
-
+          item->mrl         = c_mrl;
+          item->title       = c_title;
+          item->album       = c_albumname;
+          item->playdate    = playdate;
+          item->artist      = artist;
+          item->albumartist = albumartist;
+          item->composer    = composer;
+          item->conductor   = conductor;
+          item->time        = time;
+          item->no          = no;
+          item->path        = path;
+          item->year        = track_year;
+          item->album_year  = album_year;
+          item->playcount   = playcount;
+          item->rating      = rating / 51;
+          tracklist->updateItem(i);
+          }
         q.reset();
-        tracklist->updateItem(i);
         }
       }
     }
