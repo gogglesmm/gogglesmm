@@ -942,7 +942,8 @@ FXbool MP4Reader::atom_parse_stco(FXlong/*size*/) {
   if (nchunks>0) {
     track->stco.no(nchunks);
     for (FXuint i=0;i<nchunks;i++) {
-      input->read_uint32_be(track->stco[i]);
+      if (!input->read_uint32_be(track->stco[i]))
+        return false;
       }
     }
   //FXASSERT(size==((nchunks*4)+8));
@@ -1024,7 +1025,8 @@ FXbool MP4Reader::atom_parse_stsz(FXlong /*size*/) {
   if (track->fixed_sample_size==0 && samplecount>0) {
     track->stsz.no(samplecount);
     for (FXuint i=0;i<samplecount;i++) {
-      input->read_uint32_be(track->stsz[i]);
+      if (!input->read_uint32_be(track->stsz[i]))
+        return false;
       }
     }
   //FXASSERT(size==((nsamples*4)+12));
