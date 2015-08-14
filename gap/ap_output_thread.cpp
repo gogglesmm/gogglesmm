@@ -130,13 +130,16 @@ public:
     }
   };
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),plugin(nullptr),draining(false) {
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),plugin(nullptr),draining(false),pausing(false) {
+  stream=-1;
+  stream_length=0;
   stream_remaining=0;
   stream_written=0;
   stream_position=0;
   timestamp=-1;
   packet_queue=nullptr;
   }
+
 
 FXbool OutputThread::init() {
   if (EngineThread::init()) {
@@ -845,14 +848,14 @@ FXint OutputThread::run(){
       case Buffer     :
         {
           if (__likely(af.set())) {
-            process(dynamic_cast<Packet*>(event));
+            process(static_cast<Packet*>(event));
             }
         } break;
 
 
       case Flush      :
         {
-          FlushEvent * flush = dynamic_cast<FlushEvent*>(event);
+          FlushEvent * flush = static_cast<FlushEvent*>(event);
           GM_DEBUG_PRINT("[output] flush %d\n",flush->close);
           if (plugin) {
             plugin->drop();
@@ -876,7 +879,7 @@ FXint OutputThread::run(){
 
       case Configure  :
         {
-          ConfigureEvent * cfg = dynamic_cast<ConfigureEvent*>(event);
+          ConfigureEvent * cfg = static_cast<ConfigureEvent*>(event);
           configure(cfg->af);
           replaygain.value = cfg->replaygain;
         } break;
@@ -900,7 +903,7 @@ FXint OutputThread::run(){
 
       case Ctrl_Volume:
         {
-					FXfloat volume=(dynamic_cast<CtrlVolumeEvent*>(event))->vol;
+					FXfloat volume=(static_cast<CtrlVolumeEvent*>(event))->vol;
           if (plugin) plugin->volume(volume);
         } break;
 
@@ -927,21 +930,21 @@ FXint OutputThread::run(){
 
       case Ctrl_Set_Replay_Gain:
         {
-          SetReplayGain * g = dynamic_cast<SetReplayGain*>(event);
+          SetReplayGain * g = static_cast<SetReplayGain*>(event);
           GM_DEBUG_PRINT("[output] set replay gain mode %d\n",g->mode);
           replaygain.mode = g->mode;
         } break;
 
       case Ctrl_Get_Replay_Gain:
         {
-          GetReplayGain * g = dynamic_cast<GetReplayGain*>(event);
+          GetReplayGain * g = static_cast<GetReplayGain*>(event);
           GM_DEBUG_PRINT("[output] get replay gain mode\n");
           g->mode = replaygain.mode;
         } break;
 
       case Ctrl_Get_Output_Config:
         {
-          GetOutputConfig * out = dynamic_cast<GetOutputConfig*>(event);
+          GetOutputConfig * out = static_cast<GetOutputConfig*>(event);
           FXASSERT(out);
           out->config = output_config;
           GM_DEBUG_PRINT("[output] get output config\n");
@@ -951,7 +954,7 @@ FXint OutputThread::run(){
       case Ctrl_Set_Output_Config:
         {
           GM_DEBUG_PRINT("[output] set output config");
-          SetOutputConfig * out = dynamic_cast<SetOutputConfig*>(event);
+          SetOutputConfig * out = static_cast<SetOutputConfig*>(event);
           output_config = out->config;
           if (plugin) {
             if (plugin->type()==output_config.device) {

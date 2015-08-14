@@ -54,7 +54,7 @@ public:
   };
 
 
-OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(nullptr),pcm(nullptr),gain(0.0f) {
+OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(nullptr),pcm(nullptr),gain(0.0f),stream_offset_start(0) {
   }
 
 OpusDecoderPlugin::~OpusDecoderPlugin(){

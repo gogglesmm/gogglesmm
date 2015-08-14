@@ -29,6 +29,8 @@ enum PlayerState {
 struct PlaybackTime {
   FXuint position;
   FXuint length;
+
+  PlaybackTime() : position(0),length(0) {}
   };
 
 class GMAudioPlayer : public AudioPlayer {

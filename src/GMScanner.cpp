@@ -37,7 +37,7 @@
 #define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac"
 #define FILE_PATTERNS "*.(" FILE_EXTENSIONS ")"
 
-GMDBTracks::GMDBTracks() {
+GMDBTracks::GMDBTracks() : database(nullptr) {
   }
 
 GMDBTracks::~GMDBTracks(){
@@ -328,7 +328,7 @@ void GMDBTracks::remove(FXint track) {
   }
 
 
-GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel),database(nullptr),playlist(0),count(0) {
+GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel),database(nullptr),playlist(0),queue(0),count(0) {
   database = GMPlayerManager::instance()->getTrackDatabase();
   }
 

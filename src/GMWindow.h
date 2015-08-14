@@ -60,13 +60,11 @@ private:
   FXMenuPtr         menu_gmm;
   GMMenuButton    * menubutton_library;
   GMMenuButton    * menubutton_media;
-  GMMenuButton    * menubutton_view;
   GMMenuButton    * menubutton_gmm;
 
   GMIconTheme       * icontheme;
   GMTrackView       * trackview;
   GMSourceView      * sourceview;
-  FXHorizontalFrame * statusframe;
   GMCoverFrame      * coverframe;
 #ifdef HAVE_OPENGL
   GMImageView       * coverview_gl;
@@ -78,17 +76,13 @@ private:
   FXButton          * prevbutton;
   FXLabel           * label_nowplaying;
   FXMenuCheck       * fullscreencheck;
-  FXSeparator       * controlseparator;
   FXDragCorner 			* controldragcorner;
-  FXSeparator  			* controlstatusseparator;
   FXTextField       * time_progress;
   FXTextField      	* time_remaining;
   GMTrackProgressBar* trackslider;
   FX4Splitter       * mainsplitter;
-  FXTextField       * nowplaying;
   FXHorizontalFrame * progressbar;
   FXLabel           * progressbar_label;
-  FXHorizontalFrame * progressbar_cancelbutton;
   GMAnimImage       * progressbar_animation;
   GMRemote          * remote;
   GMPresenter       * presenter;

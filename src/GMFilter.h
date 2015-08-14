@@ -65,7 +65,7 @@ public:
     };
 public:
   // Default Constructor
-  Rule() : column(ColumnTitle),opcode(OperatorLike) {}
+  Rule() : column(ColumnTitle),opcode(OperatorLike), value(0) {}
 
   // Initialize Rule for integer input
   Rule(FXint c,FXint o,FXint v) : column(c),opcode(o),value(v) {}

@@ -92,15 +92,15 @@ FXint InputThread::run(){
                             ctrl_close_input(true);
                             break;
 
-      case Ctrl_Open_Flush: ctrl_flush();
-      case Ctrl_Open      : ctrl_open_input(dynamic_cast<ControlEvent*>(event)->text);
+      case Ctrl_Open_Flush: ctrl_flush(); // intentional no break
+      case Ctrl_Open      : ctrl_open_input(static_cast<ControlEvent*>(event)->text);
                             break;
 
       case Ctrl_Quit      : ctrl_close_input(true);
                             engine->decoder->post(event,EventQueue::Flush);
                             return 0;
                             break;
-      case Ctrl_Seek      : ctrl_seek(dynamic_cast<CtrlSeekEvent*>(event)->pos);
+      case Ctrl_Seek      : ctrl_seek(static_cast<CtrlSeekEvent*>(event)->pos);
                             break;
       case End            : if (event->stream==stream) {
                               ctrl_eos();
@@ -117,7 +117,7 @@ FXint InputThread::run(){
                             break;
       case Buffer         :
         {
-          Packet * packet = dynamic_cast<Packet*>(event);
+          Packet * packet = static_cast<Packet*>(event);
           FXASSERT(reader);
           FXASSERT(packet);
           packet->stream = stream;

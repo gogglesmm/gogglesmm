@@ -88,7 +88,6 @@ public:
   AlsaConfig  alsa;
   OSSConfig   oss;
   FXuchar     device;
-  FXuchar     replaygain;
 public:
   OutputConfig();
 

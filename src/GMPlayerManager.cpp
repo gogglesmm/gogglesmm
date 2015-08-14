@@ -451,8 +451,10 @@ GMPlayerManager::GMPlayerManager() :
   scrobbler(nullptr),
   queue(nullptr),
   source(nullptr),
+  podcast(nullptr),
   database(nullptr),
-  covermanager(nullptr) {
+  covermanager(nullptr),
+  trackinfoset(false) {
   FXASSERT(myself==nullptr);
   myself=this;
   }
@@ -1534,7 +1536,7 @@ void GMPlayerManager::show_message(const FXchar * title,const FXchar * msg){
 
 
 long GMPlayerManager::onCmdCloseWindow(FXObject*sender,FXSelector,void*){
-  FXWindow * window = dynamic_cast<FXWindow*>(sender);
+  FXWindow * window = static_cast<FXWindow*>(sender);
   if (getPreferences().gui_hide_player_when_close && !getPreferences().gui_tray_icon_disabled) {
     window->hide();
     }

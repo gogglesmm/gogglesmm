@@ -155,7 +155,7 @@ class GetReplayGain : public SyncEvent {
 public:
   ReplayGainMode mode;
 public:
-  GetReplayGain() : SyncEvent(Ctrl_Get_Replay_Gain) {}
+  GetReplayGain() : SyncEvent(Ctrl_Get_Replay_Gain), mode(ReplayGainOff) {}
   virtual ~GetReplayGain() {}
   };
 

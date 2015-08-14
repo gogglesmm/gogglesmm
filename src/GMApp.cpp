@@ -88,6 +88,8 @@ FXIMPLEMENT(GMApp,FXApp,nullptr,0)
 GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
   clipboard = new GMClipboard(this);
   xembed=0;
+  xsystemtray=0;
+  xmanager=0;
 #ifdef HAVE_OPENGL
   glvisual=nullptr;
   glcontext=nullptr;

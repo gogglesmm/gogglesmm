@@ -381,7 +381,7 @@ FXIMPLEMENT(GMExportDialog,GMFileDialog,nullptr,0);
 // Construct file fialog box
 GMExportDialog::GMExportDialog(FXWindow* o,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h):
   GMFileDialog(o,name,opts,x,y,w,h){
-  GMFileSelector * fileselector = dynamic_cast<GMFileSelector*>(filebox);
+  GMFileSelector * fileselector = static_cast<GMFileSelector*>(filebox);
   FXMatrix * entryblock = fileselector->optionFrame();
   new FXLabel(entryblock,tr("&Options:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
   check_relative=new GMCheckButton(entryblock,"Relative Paths",nullptr,0,CHECKBUTTON_NORMAL|LAYOUT_FILL_COLUMN);
@@ -391,7 +391,7 @@ GMExportDialog::GMExportDialog(FXWindow* o,const FXString& name,FXuint opts,FXin
 // Construct free-floating file dialog box
 GMExportDialog::GMExportDialog(FXApp* a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h):
   GMFileDialog(a,name,opts,x,y,w,h){
-  GMFileSelector * fileselector = dynamic_cast<GMFileSelector*>(filebox);
+  GMFileSelector * fileselector = static_cast<GMFileSelector*>(filebox);
   FXMatrix * entryblock = fileselector->optionFrame();
   new FXLabel(entryblock,tr("&Options:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
   check_relative=new GMCheckButton(entryblock,"Relative Paths",nullptr,0,CHECKBUTTON_NORMAL|LAYOUT_FILL_COLUMN);

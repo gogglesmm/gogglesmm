@@ -166,7 +166,7 @@ void GMFontDialog::listFontFamily(){
     if(0<familylist->getNumItems()){
       familylist->setCurrentItem(selindex);
       familylist->makeItemVisible(selindex);
-      strncpy(selected.face,familylist->getItemText(selindex).text(),sizeof(selected.face));
+      fxstrlcpy(selected.face,familylist->getItemText(selindex).text(),sizeof(selected.face));
       }
     FXFREE(&fonts);
     }
@@ -316,7 +316,7 @@ void GMFontDialog::listFontSize(){
   }
 
 long GMFontDialog::onCmdFamily(FXObject*,FXSelector,void* ptr){
-  strncpy(selected.face,familylist->getItemText((FXint)(FXival)ptr).text(),sizeof(selected.face));
+  fxstrlcpy(selected.face,familylist->getItemText((FXint)(FXival)ptr).text(),sizeof(selected.face));
   listFontStyle();
   listFontSize();
   previewFont();

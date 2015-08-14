@@ -46,7 +46,7 @@
 
 #define FILTER_DB_V1 2015
 
-GMSourceList GMFilterSource::sources;
+FXObjectListOf<GMFilterSource> GMFilterSource::sources;
 
 
 void GMFilterSource::init(GMTrackDatabase * database,GMSourceList & list){
@@ -88,7 +88,7 @@ void GMFilterSource::save() {
     store << version;
     store << nitems;
     for (FXint i=0;i<sources.no();i++){
-      dynamic_cast<GMFilterSource*>(sources[i])->match.save(store);
+      sources[i]->match.save(store);
       }
     }
   }

@@ -26,6 +26,14 @@ using namespace ap;
 
 namespace ap {
 
+
+// apparently defined as macros by glibc/gcc.
+#undef major
+#undef minor
+
+HttpStatus::HttpStatus() : major(0), minor(0), code(0) {}
+
+
 HttpIO::HttpIO() : BufferIO(4096) {
   }
 

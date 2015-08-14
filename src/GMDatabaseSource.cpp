@@ -932,8 +932,8 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
     query = "SELECT "
                  "tracks.path,"
                  "tracks.mrl,"
-                 "tracks.title," 
-                 "tracks.time," 
+                 "tracks.title,"
+                 "tracks.time,"
                  "tracks.no,"
                  "tracks.year,"
                  "tracks.artist,"
@@ -942,7 +942,7 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
                  "albums.artist,albums.name,albums.year,"
                  "tracks.playcount,"
                  "tracks.bitrate,"
-                 "tracks.playdate," 
+                 "tracks.playdate,"
                  "tracks.rating "
            "FROM tracks JOIN albums ON tracks.album == albums.id WHERE tracks.id == ?;";
 
@@ -950,45 +950,44 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
 
     for (FXint i=0;i<tracklist->getNumItems();i++) {
       if (tracklist->isItemSelected(i)) {
-        GMDBTrackItem * item = dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i));
-        FXASSERT(item);
+        GMDBTrackItem * item = static_cast<GMDBTrackItem*>(tracklist->getItem(i));
         q.set(0,item->id);
-        q.row();
-        q.get(0,path);
-        c_mrl   = q.get(1);
-        c_title = q.get(2);
-        q.get(3,time);
-        q.get(4,no);
-        q.get(5,track_year);
-        q.get(6,artist);
-        q.get(7,composer);
-        q.get(8,conductor);
-        q.get(9,albumartist);
-        c_albumname = q.get(10);
-        q.get(11,album_year);
-        q.get(12,playcount);
-        q.get(13,bitrate);
-        q.get(14,playdate);
-        q.get(15,rating);
+        if (__likely(q.row())) {
+          q.get(0,path);
+          c_mrl   = q.get(1);
+          c_title = q.get(2);
+          q.get(3,time);
+          q.get(4,no);
+          q.get(5,track_year);
+          q.get(6,artist);
+          q.get(7,composer);
+          q.get(8,conductor);
+          q.get(9,albumartist);
+          c_albumname = q.get(10);
+          q.get(11,album_year);
+          q.get(12,playcount);
+          q.get(13,bitrate);
+          q.get(14,playdate);
+          q.get(15,rating);
 
-        item->mrl         = c_mrl;
-        item->title       = c_title;
-        item->album       = c_albumname;
-        item->playdate    = playdate;
-        item->artist      = artist;
-        item->albumartist = albumartist;
-        item->composer    = composer;
-        item->conductor   = conductor;
-        item->time        = time;
-        item->no          = no;
-        item->path        = path;
-        item->year        = track_year;
-        item->album_year  = album_year;
-        item->playcount   = playcount;
-        item->rating      = rating / 51;
-
+          item->mrl         = c_mrl;
+          item->title       = c_title;
+          item->album       = c_albumname;
+          item->playdate    = playdate;
+          item->artist      = artist;
+          item->albumartist = albumartist;
+          item->composer    = composer;
+          item->conductor   = conductor;
+          item->time        = time;
+          item->no          = no;
+          item->path        = path;
+          item->year        = track_year;
+          item->album_year  = album_year;
+          item->playcount   = playcount;
+          item->rating      = rating / 51;
+          tracklist->updateItem(i);
+          }
         q.reset();
-        tracklist->updateItem(i);
         }
       }
     }
@@ -1009,8 +1008,7 @@ long GMDatabaseSource::onCmdEditTrack(FXObject*,FXSelector,void*){
 
 long GMDatabaseSource::onCmdEditRating(FXObject*,FXSelector,void* ptr){
   FXuchar rating = (FXuchar)(FXuval)ptr;
-  GMDBTrackItem * item = dynamic_cast<GMDBTrackItem*>(GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem());
-  FXASSERT(item);
+  GMDBTrackItem * item = static_cast<GMDBTrackItem*>(GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem());
   item->setRating(rating);
   db->setTrackRating(item->getId(),rating*51);
   return 1;

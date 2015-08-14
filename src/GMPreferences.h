@@ -46,8 +46,6 @@ struct ColorTheme {
   FXColor menuback;
   FXColor menufore;
   FXColor menubase;
-  FXColor sourcefore;
-  FXColor sourceback;
   FXColor playfore;
   FXColor playback;
   FXColor hilite;

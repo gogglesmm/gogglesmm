@@ -25,7 +25,7 @@
 class GMFilterSource : public GMDatabaseSource {
 FXDECLARE(GMFilterSource)
 protected:
-  static GMSourceList sources;  // global list of all filters
+  static FXObjectListOf<GMFilterSource> sources;  // global list of all filters
 public:
   // Initialize Filter Database
   static void init(GMTrackDatabase * database,GMSourceList &);
@@ -45,7 +45,7 @@ private:
 public:
   enum {
     ID_EDIT = GMDatabaseSource::ID_LAST, // Edit Filter
-    ID_REMOVE,                           // Remove Filter   
+    ID_REMOVE,                           // Remove Filter
     ID_LAST
     };
 public:

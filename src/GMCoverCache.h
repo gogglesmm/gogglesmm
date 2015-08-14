@@ -29,7 +29,7 @@ public:
   struct FileIndex {
     FXlong position;
     FXint  length;
-    FileIndex(){}
+    FileIndex() : position(0), length(0) {}
     FileIndex(FXlong pos,FXint len) : position(pos),length(len) {}
     };
 public:
@@ -57,8 +57,8 @@ public:
 class GMCoverCacheWriter {
   friend class GMCoverCache;
 private:
-  FXFileStream store;  
-  GMCacheInfo  info;          
+  FXFileStream store;
+  GMCacheInfo  info;
   FXColor*     pixels;
 private:
   FXlong fit(FXImage* image);
@@ -67,7 +67,7 @@ public:
   GMCoverCacheWriter(FXint size);
 
   FXbool open(const FXString & filename);
-  
+
   FXbool insert(FXint id,GMCover*);
 
   FXbool finish();
@@ -81,7 +81,7 @@ public:
 class GMCoverCache {
 protected:
   FXString    filename;
-  GMCacheInfo info;          
+  GMCacheInfo info;
   FXMemMap    data;
 public:
   GMCoverCache(const FXString & name,FXint size=128);
@@ -94,7 +94,7 @@ public:
 
   // Check if cover is contained in cache
   FXbool contains(FXint id);
- 
+
   // Load cache from file
   FXbool load();
 
@@ -139,7 +139,7 @@ public:
 
   // Reset
   void reset();
-  
+
   ~GMCoverRender();
   };
 

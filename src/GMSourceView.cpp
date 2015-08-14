@@ -51,7 +51,7 @@ FXIMPLEMENT(GMSourceView,GMScrollFrame,GMSourceViewMap,ARRAYNUMBER(GMSourceViewM
 GMSourceView::GMSourceView() : source(nullptr) {
   }
 
-GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) , source(nullptr) {
+GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) , source(nullptr), sourcedrop(nullptr) {
   sourcelistheader = new GMHeaderButton(this,tr("Sources\tPress to change sorting order\tPress to change sorting order"),nullptr,this,ID_SOURCE_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
   sourcelist       = new GMTreeList(this,this,ID_SOURCE_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|TREELIST_BROWSESELECT);
 
@@ -192,11 +192,13 @@ FXbool GMSourceView::listsources() {
     FXIcon * icon=icon_for_sourcetype(src->getType());
     item = new GMTreeItem(src->getName(),icon,icon,src);
     if (src->getType()==SOURCE_DATABASE_FILTER) {
+      FXASSERT(dbitem);
       sourcelist->appendItem(dbitem,item);
       dbitem->setExpanded(true);
       }
-    else
+    else {
       sourcelist->appendItem(nullptr,item);
+      }
     if (src->getType()==SOURCE_DATABASE) dbitem=item;
     }
   sourcelist->sortItems();

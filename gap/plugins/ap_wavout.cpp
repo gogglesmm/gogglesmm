@@ -27,7 +27,6 @@ namespace ap {
 class WavOutput : public OutputPlugin {
 protected:
   FXFile file;
-  FXlong header_pos;
   FXlong data_pos;
 public:
   WavOutput(OutputThread * output);
@@ -47,7 +46,7 @@ public:
   virtual ~WavOutput();
   };
 
-WavOutput::WavOutput(OutputThread * out) : OutputPlugin(out){
+WavOutput::WavOutput(OutputThread * out) : OutputPlugin(out),data_pos(0){
   }
 
 WavOutput::~WavOutput() {
