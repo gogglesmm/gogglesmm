@@ -89,12 +89,7 @@ GMPresenter::GMPresenter(FXApp* a,FXGLContext * ctx,FXObject * /*tgt*/,FXSelecto
 
 // Destroy main window
 GMPresenter::~GMPresenter(){
-  if (texture) {
-    glcanvas->makeCurrent();
-    texture->setImage(NULL);
-    glcanvas->makeNonCurrent();
-    delete texture;
-    }
+  setImage(nullptr);
   if (effect)
     delete effect;
   getApp()->removeTimeout(this,ID_ANIMATION);
