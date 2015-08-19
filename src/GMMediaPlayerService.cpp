@@ -111,7 +111,7 @@ static void gm_mpris_get_status(DBusMessageIter * iter,GMPlayerManager * p) {
 
 FXIMPLEMENT(GMMediaPlayerService1,FXObject,NULL,0)
 
-GMMediaPlayerService1::GMMediaPlayerService1(GMDBus * b) : bus(b),published(false){
+GMMediaPlayerService1::GMMediaPlayerService1(GMDBus * b) : bus(b){
 
   memset(&root_vtable,0,sizeof(DBusObjectPathVTable));
   root_vtable.message_function=&root_filter;
@@ -403,7 +403,7 @@ static const FXchar * mpris_play_status(GMPlayerManager * p){
 
 FXIMPLEMENT(GMMediaPlayerService2,FXObject,NULL,0)
 
-GMMediaPlayerService2::GMMediaPlayerService2(GMDBus * b) : bus(b),published(false){
+GMMediaPlayerService2::GMMediaPlayerService2(GMDBus * b) : bus(b){
   memset(&mpris_vtable,0,sizeof(DBusObjectPathVTable));
   mpris_vtable.message_function=&mpris_filter;
   int result = dbus_bus_request_name(bus->connection(),MPRIS2_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,NULL);

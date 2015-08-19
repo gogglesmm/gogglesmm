@@ -24,18 +24,18 @@ class GMWindow;
 class GMRemote : public FXMainWindow {
 FXDECLARE(GMRemote)
 private:
-  FXTextField * title_label;
-  FXTextField * artistalbum_label;
-  FX7Segment  * time_label;
-  FXImageFrame* cover_label;
+  FXTextField * title_label = nullptr;
+  FXTextField * artistalbum_label = nullptr;
+  FX7Segment  * time_label = nullptr;
+  FXImageFrame* cover_label = nullptr;
   FXPopupPtr    volumecontrol;
-  FXMenuButton* volumebutton;
-  FXSlider    * volumeslider;
+  FXMenuButton* volumebutton = nullptr;
+  FXSlider    * volumeslider = nullptr;
   FXFontPtr     font_title;
   FXImagePtr    img_default;
-  FXImage*      cover;
-  GMTrackProgressBar* trackslider;
-  bool          is_remaining;
+  FXImage*      cover = nullptr;
+  GMTrackProgressBar* trackslider = nullptr;
+  bool          is_remaining = false;
 protected:
   virtual bool doesOverrideRedirect() const;
   GMRemote() {}

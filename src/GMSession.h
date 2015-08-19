@@ -27,10 +27,10 @@ FXDECLARE(GMSession)
 private:
   friend class SMClient;
 private:
-  SMClient * smclient;
+  SMClient * smclient = nullptr;
 protected:
-  FXObject * target;
-  FXSelector message;
+  FXObject * target = nullptr;
+  FXSelector message = 0;
 protected:
   void quit();
 protected:

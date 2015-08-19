@@ -36,19 +36,16 @@ enum {
 class GMSource;
 class GMPodcastDownloader;
 
-
-
-
 class GMPodcastSource : public GMSource {
 friend class GMPodcastDownloader;
 FXDECLARE(GMPodcastSource)
 protected:
-  GMTrackDatabase     * db;
-  GMCoverCache        * covercache;
-  GMPodcastDownloader * downloader;
-  FXint                 navailable;
+  GMTrackDatabase     * db         = nullptr;
+  GMCoverCache        * covercache = nullptr;
+  GMPodcastDownloader * downloader = nullptr;
+  FXint                 navailable = 0;
 protected:
-  GMPodcastSource();
+  GMPodcastSource(){}
 private:
   GMPodcastSource(const GMPodcastSource&);
   GMPodcastSource& operator=(const GMPodcastSource&);

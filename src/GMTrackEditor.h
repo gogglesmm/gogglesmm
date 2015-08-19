@@ -22,36 +22,36 @@
 class GMEditTrackDialog : public FXDialogBox {
 FXDECLARE(GMEditTrackDialog)
 protected:
-  GMTrackDatabase * db;
-  FXuint samemask;
+  GMTrackDatabase * db = nullptr;
+  FXuint samemask = 0;
   FXIntList tracks;
   GMTrack           info;
   FXString          infotags;
   GMAudioProperties properties;
 public:
-  GMComboBox    * trackartistbox;
-  GMComboBox    * albumartistbox;
-  GMComboBox    * composerbox;
-  GMComboBox    * conductorbox;
-  GMComboBox    * genrebox;
-  GMComboBox    * albumbox;
-  GMTextField   * yearfield;
-  GMSpinner     * discspinner;
-  GMTextField   * discfield;
-  GMTextField   * titlefield;
-  GMTextField   * tagsfield;
-  GMCheckButton * updatetags;
-  GMCheckButton * updatefilename;
-  GMCheckButton * autonumber;
-  GMSpinner     * autonumberoffset;
-  GMSpinner     * trackspinner;
-  GMTextField   * bitratefield;
-  GMTextField   * sampleratefield;
-  GMTextField   * channelfield;
-  GMTextField   * sizefield;
-  GMTextField   * filenamefield;
-  GMTextField   * typefield;
-  FXLabel       * bitratelabel;
+  GMComboBox    * trackartistbox   = nullptr;
+  GMComboBox    * albumartistbox   = nullptr;
+  GMComboBox    * composerbox      = nullptr;
+  GMComboBox    * conductorbox     = nullptr;
+  GMComboBox    * genrebox         = nullptr;
+  GMComboBox    * albumbox         = nullptr;
+  GMTextField   * yearfield        = nullptr;
+  GMSpinner     * discspinner      = nullptr;
+  GMTextField   * discfield        = nullptr;
+  GMTextField   * titlefield       = nullptr;
+  GMTextField   * tagsfield        = nullptr;
+  GMCheckButton * updatetags       = nullptr;
+  GMCheckButton * updatefilename   = nullptr;
+  GMCheckButton * autonumber       = nullptr;
+  GMSpinner     * autonumberoffset = nullptr;
+  GMSpinner     * trackspinner     = nullptr;
+  GMTextField   * bitratefield     = nullptr;
+  GMTextField   * sampleratefield  = nullptr;
+  GMTextField   * channelfield     = nullptr;
+  GMTextField   * sizefield        = nullptr;
+  GMTextField   * filenamefield    = nullptr;
+  GMTextField   * typefield        = nullptr;
+  FXLabel       * bitratelabel     = nullptr;
 protected:
   GMEditTrackDialog(){}
   void getTrackSelection();

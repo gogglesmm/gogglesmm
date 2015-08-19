@@ -123,12 +123,10 @@ public:
 
 /* Http Status */
 struct HttpStatus {
-  FXint major;
-  FXint minor;
-  FXint code;
+  FXint major = 0;
+  FXint minor = 0;
+  FXint code  = 0;
   FXint type() const;
-
-  HttpStatus();
   };
 
 
@@ -156,15 +154,14 @@ public:
 
 class HttpContentRange : public HttpHeader {
 public:
-  FXlong first;
-  FXlong last;
-  FXlong length;
+  FXlong first  = -1;
+  FXlong last   = -1;
+  FXlong length = -1;
 public:
-  HttpContentRange();
+  HttpContentRange(){}
   HttpContentRange(const FXString & str,FXuint opts=0);
   FXbool parse(const FXString & str,FXuint opts=0);
   };
-
 
 /* Http Response Parser */
 class HttpResponse {

@@ -189,13 +189,13 @@ public:
 class MP4Reader : public ReaderPlugin {
 protected:
 #ifdef DEBUG
-  FXint indent;
+  FXint indent = 0;
 #endif
   FXPtrListOf<Track> tracks;
-  Track*             track;
-  MetaInfo*          meta;
-  FXushort           padstart;
-  FXushort           padend;
+  Track*             track = nullptr;
+  MetaInfo*          meta = nullptr;
+  FXushort           padstart = 0;
+  FXushort           padend = 0;
 protected:
   FXuint read_descriptor_length(FXuint&);
   FXbool atom_parse_asc(const FXuchar*,FXuint size);
@@ -216,8 +216,8 @@ protected:
   FXbool atom_parse_header(FXuint & atom_type,FXlong & atom_size,FXlong & container);
   FXbool atom_parse(FXlong size);
 protected:
-  FXuint   sample;      // current sample
-  FXuint   nsamples;    // number of samples
+  FXuint   sample = 0;      // current sample
+  FXuint   nsamples = 0;    // number of samples
 protected:
   ReadStatus parse(Packet * p);
   FXbool select_track();

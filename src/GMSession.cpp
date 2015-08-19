@@ -21,6 +21,12 @@
 
 #if defined(HAVE_SM) && defined(HAVE_ICE)
 
+namespace ap {
+extern FXbool ap_set_closeonexec(FXInputHandle fd);
+}
+
+
+
 #include <xincs.h>
 #include <X11/ICE/ICElib.h>
 #include <X11/SM/SMlib.h>
@@ -28,7 +34,7 @@
 class IceHook : public FXObject {
 FXDECLARE(IceHook)
 protected:
-  FXApp * application;
+  FXApp * application = nullptr;
 protected:
 
   static void IceError(IceConn,Bool,int,unsigned long,int,int,IcePointer) {
@@ -40,7 +46,8 @@ protected:
   static void IceWatch(IceConn c,IcePointer data,Bool opening,IcePointer*){
     IceHook * hook = (IceHook*)data;
     if (opening) {
-      fcntl(IceConnectionNumber(c),F_SETFD,FD_CLOEXEC);
+      ap::ap_set_closeonexec(IceConnectionNumber(c));
+      //fcntl(IceConnectionNumber(c),F_SETFD,FD_CLOEXEC);
       hook->application->addInput(hook,ID_CONNECTION,IceConnectionNumber(c),INPUT_READ,c);
       }
     else
@@ -101,9 +108,9 @@ static FXchar * gm_session_from_command(FXint argc,const FXchar * const argv[]){
 class SMClient : public FXObject {
 FXDECLARE(SMClient)
 protected:
-  SmcConn   connection;
-  GMSession* session;
-  IceHook*   icehook;
+  SmcConn   connection = nullptr;
+  GMSession* session   = nullptr;
+  IceHook*   icehook   = nullptr;
 protected:
   SMClient(){}
 public:
@@ -123,7 +130,7 @@ public:
   static void sm_shutdown_cancelled(SmcConn,SmPointer) {}
   static void sm_save_complete(SmcConn,SmPointer) {}
 public:
-  SMClient(FXApp*app,GMSession * s) : connection(NULL),session(s) {
+  SMClient(FXApp*app,GMSession * s) : session(s) {
     icehook = new IceHook(app);
     }
 

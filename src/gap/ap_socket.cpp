@@ -74,9 +74,11 @@ Socket * Socket::create(int domain,int type,int protocol,FXuint mode) {
   }
 
 
-void Socket::setKeepAlive(FXbool enable) {
+FXbool Socket::setKeepAlive(FXbool enable) {
   int value = (enable) ? 1 : 0;
-  setsockopt(device,SOL_SOCKET,SO_KEEPALIVE,&value,sizeof(int));
+  if (setsockopt(device,SOL_SOCKET,SO_KEEPALIVE,&value,sizeof(int))!=0)
+    return false;
+  return true;
   }
 
 FXbool Socket::getKeepAlive() const {
@@ -88,9 +90,11 @@ FXbool Socket::getKeepAlive() const {
     return false;
   }
 
-void Socket::setReuseAddress(FXbool enable) {
+FXbool Socket::setReuseAddress(FXbool enable) {
   int value = (enable) ? 1 : 0;
-  setsockopt(device,SOL_SOCKET,SO_REUSEADDR,&value,sizeof(int));
+  if (setsockopt(device,SOL_SOCKET,SO_REUSEADDR,&value,sizeof(int))!=0)
+    return false;
+  return true;
   }
 
 FXbool Socket::getReuseAddress() const {
@@ -102,11 +106,13 @@ FXbool Socket::getReuseAddress() const {
     return false;
   }
 
-void Socket::setLinger(FXTime tm) {
+FXbool Socket::setLinger(FXTime tm) {
   struct linger l;
   l.l_onoff  = (tm>0) ? 1 : 0;
   l.l_linger = tm;
-  setsockopt(device,SOL_SOCKET,SO_LINGER,&l,sizeof(struct linger));
+  if (setsockopt(device,SOL_SOCKET,SO_LINGER,&l,sizeof(struct linger))!=0)
+    return false;
+  return true;
   }
 
 FXTime Socket::getLinger() const {
@@ -118,18 +124,22 @@ FXTime Socket::getLinger() const {
   return 0;
   }
 
-void Socket::setReceiveTimeout(FXTime tm) {
+FXbool Socket::setReceiveTimeout(FXTime tm) {
   struct timeval tv;
   tv.tv_sec  = tm / 1000000000;
   tv.tv_usec = (tm % 1000000000) / 1000;
-  setsockopt(device,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(struct timeval));
+  if (setsockopt(device,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(struct timeval))!=0)
+    return false;
+  return true;
   }
 
-void Socket::setSendTimeout(FXTime tm) {
+FXbool Socket::setSendTimeout(FXTime tm) {
   struct timeval tv;
   tv.tv_sec  = tm / 1000000000;
   tv.tv_usec = (tm % 1000000000) / 1000;
-  setsockopt(device,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(struct timeval));
+  if (setsockopt(device,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(struct timeval))!=0)
+    return false;
+  return true;
   }
 
 FXint Socket::getError() const {

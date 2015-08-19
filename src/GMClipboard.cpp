@@ -44,7 +44,7 @@ GMClipboard * GMClipboard::instance(){
 GMClipboard::GMClipboard() {
   }
 
-GMClipboard::GMClipboard(FXApp * a) : FXShell(a,0,0,0,0,0), clipdata(NULL), clipowner(NULL) {
+GMClipboard::GMClipboard(FXApp * a) : FXShell(a,0,0,0,0,0) {
   me=this;
   }
 

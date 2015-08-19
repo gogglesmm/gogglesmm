@@ -39,7 +39,7 @@ class FXAPI GMThreadDialog : public FXTopWindow {
 protected:
   FXMutex     mutex;
   FXCondition condition;
-  FXuint      code;
+  FXuint      code = 0;
 protected:
   GMThreadDialog(){}
 private:
@@ -441,7 +441,7 @@ public:
 class GMScrollCorner : public FXScrollCorner {
   FXDECLARE(GMScrollCorner)
 protected:
-  FXColor shadowColor;
+  FXColor shadowColor = 0;
 protected:
   GMScrollCorner() {}
 private:

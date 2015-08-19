@@ -74,18 +74,14 @@ FXDEFMAP(GMPlayListSource) GMPlayListSourceMap[]={
 FXIMPLEMENT(GMPlayListSource,GMDatabaseSource,GMPlayListSourceMap,ARRAYNUMBER(GMPlayListSourceMap));
 
 
-GMPlayListSource::GMPlayListSource(GMTrackDatabase * database,FXint pl) : GMDatabaseSource(database),current_queue(-1) {
+GMPlayListSource::GMPlayListSource(GMTrackDatabase * database,FXint pl) : GMDatabaseSource(database) {
   FXASSERT(pl);
   playlist=pl;
   db->getPlaylistName(playlist,name);
-  orderchanged=false;
   }
 
 GMPlayListSource::~GMPlayListSource() {
   }
-
-
-
 
 void GMPlayListSource::save(GMTrackList* tracklist) {
   if (orderchanged) {
@@ -206,7 +202,7 @@ FXbool GMPlayListSource::dnd_accepts(FXDragType*types,FXuint ntypes){
 class FromDiskTarget : public FXObject {
 FXDECLARE(FromDiskTarget)
 protected:
-  FXCheckButton * from_library;
+  FXCheckButton * from_library = nullptr;
 protected:
   FromDiskTarget(){}
 private:

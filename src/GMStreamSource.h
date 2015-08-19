@@ -23,9 +23,9 @@ class GMSource;
 
 class GMStreamSource : public GMSource {
 FXDECLARE(GMStreamSource)
-  GMTrackDatabase * db;
+  GMTrackDatabase * db = nullptr;
 protected:
-  GMStreamSource();
+  GMStreamSource(){}
 private:
   GMStreamSource(const GMStreamSource&);
   GMStreamSource& operator=(const GMStreamSource&);

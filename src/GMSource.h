@@ -100,8 +100,8 @@ typedef FXint (*GMTrackListSortFunc)(const GMTrackItem*,const GMTrackItem*);
 class GMSource : public FXObject {
 FXDECLARE(GMSource)
 protected:
-  FXint               current_track;
-  GMTrackListSortFunc sort_browse;
+  FXint               current_track = -1;
+  GMTrackListSortFunc sort_browse   = nullptr;
 private:
   GMSource(const GMSource&);
   GMSource& operator=(const GMSource&);

@@ -93,14 +93,14 @@ public:
 class GMPlug : public FXTopWindow {
 FXDECLARE(GMPlug)
 protected:
-  FXID         socket;
+  FXID         socket = 0;
 protected:
   virtual FXbool doesOverrideRedirect() const;
 private:
   GMPlug(const GMPlug*);
   GMPlug& operator=(const GMPlug&);
 protected:
-  GMPlug();
+  GMPlug(){}
 public:
   long onEmbedded(FXObject*,FXSelector,void*);
 public:

@@ -144,14 +144,14 @@ static void debug_hw_minmax(int s1,int s2,int mindir,int maxdir,snd_pcm_uframes_
 
 class AlsaSetup {
 protected:
-  snd_pcm_t           * pcm;
-  snd_pcm_hw_params_t * hw;
-  snd_pcm_sw_params_t * sw;
-  snd_pcm_format_t      format;
-  snd_pcm_uframes_t     buffer_size;
-  snd_pcm_uframes_t     period_size;
-  unsigned int          channels;
-  unsigned int          rate;
+  snd_pcm_t           * pcm = nullptr;
+  snd_pcm_hw_params_t * hw = nullptr;
+  snd_pcm_sw_params_t * sw = nullptr;
+  snd_pcm_format_t      format = {};
+  snd_pcm_uframes_t     buffer_size = 0;
+  snd_pcm_uframes_t     period_size = 0;
+  unsigned int          channels = 0;
+  unsigned int          rate = 0;
 protected:
 
   void debug_hw_caps(){
@@ -319,7 +319,7 @@ protected:
     }
 
 protected:
-  AlsaSetup(snd_pcm_t*p) : pcm(p),hw(NULL),sw(NULL) {
+  AlsaSetup(snd_pcm_t*p) : pcm(p) {
     }
 
   ~AlsaSetup() {

@@ -247,16 +247,12 @@ FXDEFMAP(GMTrackView) GMTrackViewMap[]={
 
 FXIMPLEMENT(GMTrackView,FXPacker,GMTrackViewMap,ARRAYNUMBER(GMTrackViewMap))
 
-GMTrackView::GMTrackView() {
-  source = NULL;
-  }
 
-GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0) , source(NULL) {
+GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0), 
+  shuffle_seed((FXuint)FXThread::time()), 
+  filtermask(FILTER_DEFAULT) {
+
   GMScrollFrame * sunkenframe;
-
-  shuffle_seed = (FXuint)FXThread::time();
-
-  filtermask=FILTER_DEFAULT;
 
   updateFont();
 

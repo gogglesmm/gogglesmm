@@ -93,10 +93,8 @@ FXDEFMAP(GMNotifyDaemon) GMNotifyDaemonMap[]={
 
 FXIMPLEMENT(GMNotifyDaemon,GMDBusProxy,GMNotifyDaemonMap,ARRAYNUMBER(GMNotifyDaemonMap));
 
-GMNotifyDaemon::GMNotifyDaemon(){
-  }
 
-GMNotifyDaemon::GMNotifyDaemon(GMDBus * b) : GMDBusProxy(b,GALAGO_NOTIFY_NAME,GALAGO_NOTIFY_PATH,GALAGO_NOTIFY_INTERFACE),flags(0),msgid(0),persistent(false){
+GMNotifyDaemon::GMNotifyDaemon(GMDBus * b) : GMDBusProxy(b,GALAGO_NOTIFY_NAME,GALAGO_NOTIFY_PATH,GALAGO_NOTIFY_INTERFACE){
   appicon="gogglesmm";
   appname="gogglesmm";
   icondata="icon_data";

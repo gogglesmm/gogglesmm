@@ -28,14 +28,14 @@ enum {
 class GMNotifyDaemon : public GMDBusProxy {
 FXDECLARE(GMNotifyDaemon)
 protected:
-  FXuint   flags;
+  FXuint   flags    = 0;
   FXString appname;
   FXString appicon;
   FXString icondata;
-  FXuint msgid;
-  FXbool persistent;
+  FXuint msgid      = 0;
+  FXbool persistent = false;
 protected:
-  GMNotifyDaemon();
+  GMNotifyDaemon() {}
 private:
   GMNotifyDaemon(const GMNotifyDaemon&);
   GMNotifyDaemon& operator=(const GMNotifyDaemon&);

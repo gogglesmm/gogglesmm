@@ -22,10 +22,10 @@
 class GMAnimImage : public FXImageFrame {
 FXDECLARE(GMAnimImage)
 protected:
-  FXuint index;
-  FXuint base;
+  FXuint index = 1;
+  FXuint base  = 16;
 protected:
-  GMAnimImage();
+  GMAnimImage(){}
 private:
   GMAnimImage(const GMAnimImage&);
   GMAnimImage& operator=(const GMAnimImage&);

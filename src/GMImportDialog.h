@@ -45,7 +45,7 @@ public:
 class GMExportDialog : public GMFileDialog {
 FXDECLARE(GMExportDialog)
 protected:
-  GMCheckButton * check_relative;
+  GMCheckButton * check_relative = nullptr;
 protected:
   GMExportDialog(){}
 private:
@@ -63,7 +63,7 @@ public:
 class GMImportDialog : public FXDialogBox {
 FXDECLARE(GMImportDialog)
 protected:
-  FXuint mode;
+  FXuint mode = IMPORT_FROMDIR;
 protected:
   FXDataTarget target_track_from_filelist;
   FXDataTarget target_replace_underscores;
@@ -74,10 +74,10 @@ protected:
   FXDataTarget target_filename_template;
   FXDataTarget target_id3v1_encoding;
 protected:
-  GMFileSelector  * fileselector;
-  GMDirSelector   * dirselector;
-  FXGroupBox      * template_grpbox;
-  FXListBox       * id3v1_listbox;
+  GMFileSelector  * fileselector = nullptr;
+  GMDirSelector   * dirselector = nullptr;
+  FXGroupBox      * template_grpbox = nullptr;
+  FXListBox       * id3v1_listbox = nullptr;
 protected:
   FXFontPtr         font_fixed;
 protected:

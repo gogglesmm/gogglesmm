@@ -22,9 +22,9 @@
 class GMColumnDialog : public FXDialogBox {
 FXDECLARE(GMColumnDialog)
 protected:
-  GMList * list;
+  GMList * list = nullptr;
 protected:
-  GMColumnDialog();
+  GMColumnDialog() {}
 private:
   GMColumnDialog(const GMColumnDialog&);
   GMColumnDialog& operator=(const GMColumnDialog&);

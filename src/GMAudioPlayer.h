@@ -27,22 +27,20 @@ enum PlayerState {
 
 
 struct PlaybackTime {
-  FXuint position;
-  FXuint length;
-
-  PlaybackTime() : position(0),length(0) {}
+  FXuint position = 0;
+  FXuint length = 0;
   };
 
 class GMAudioPlayer : public AudioPlayer {
   FXDECLARE(GMAudioPlayer);
 private:
-  FXAppQueue   * fifo;
-  FXObject     * target;
-  FXSelector     message;
+  FXAppQueue   * fifo    = nullptr;
+  FXObject     * target  = nullptr;
+  FXSelector     message = 0;
 protected:
-  PlayerState    state;
+  PlayerState    state = PLAYER_STOPPED;
   PlaybackTime   time;
-  FXint          vvolume;
+  FXint          vvolume = -1;
 protected:
   GMAudioPlayer(){}
 private:

@@ -32,7 +32,7 @@
 
 FXIMPLEMENT(GMSource,FXObject,NULL,0);
 
-GMSource::GMSource() : current_track(-1), sort_browse(NULL) {
+GMSource::GMSource() {
   }
 
 GMSource::~GMSource() {

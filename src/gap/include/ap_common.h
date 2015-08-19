@@ -32,6 +32,9 @@ extern void ap_parse_xspf(const FXString & data,FXStringList & mrl,FXString & ti
 
 extern FXbool ap_set_nonblocking(FXInputHandle fd);
 
+extern FXbool ap_set_closeonexec(FXInputHandle fd);
+
+
 extern void ap_set_thread_name(const FXchar *);
 
 

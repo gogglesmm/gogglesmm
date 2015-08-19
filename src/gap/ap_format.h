@@ -23,12 +23,10 @@ namespace ap {
 
 
 struct ReplayGain{
-  FXdouble album;
-  FXdouble album_peak;
-  FXdouble track;
-  FXdouble track_peak;
-
-  ReplayGain() : album(NAN), album_peak(NAN), track(NAN), track_peak(NAN) {}
+  FXdouble album      = NAN;
+  FXdouble album_peak = NAN;
+  FXdouble track      = NAN;
+  FXdouble track_peak = NAN;
 
   FXbool empty() const { return isnan(album) && isnan(track); }
 
@@ -152,7 +150,7 @@ enum {
   ASF               = 13,
   ASX               = 14,
   ASFX              = 15, // either ASX or ASF
-  AIFF              = 16 
+  AIFF              = 16
   };
 
 }
@@ -198,10 +196,10 @@ extern const FXchar * ap_format_name(FXuint name);
 
 class GMAPI AudioFormat {
 public:
-  FXuint   rate;
-  FXushort format;
-  FXuchar  channels;
-  FXuint   channelmap;  // up to 8 channels
+  FXuint   rate       = 0;
+  FXushort format     = 0;
+  FXuchar  channels   = 0;
+  FXuint   channelmap = 0;  // up to 8 channels
 public:
   AudioFormat();
   AudioFormat(const AudioFormat &);

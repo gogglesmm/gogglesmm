@@ -23,8 +23,8 @@ class GMPlayListSource : public GMDatabaseSource {
 FXDECLARE(GMPlayListSource)
 protected:
   FXString name;
-  FXint    current_queue;
-  FXbool   orderchanged;
+  FXint    current_queue = -1;
+  FXbool   orderchanged  = false;
 protected:
   GMPlayListSource(){}
 private:

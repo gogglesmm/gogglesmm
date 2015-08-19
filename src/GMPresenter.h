@@ -27,10 +27,10 @@ class GMBouncingImage;
 class GMPresenter : public FXDialogBox {
 FXDECLARE(GMPresenter)
 protected:
-  GMImageTexture  * texture;
-  GMBouncingImage * effect;
+  GMImageTexture  * texture = nullptr;
+  GMBouncingImage * effect = nullptr;
 protected:
-  FXGLCanvas * glcanvas;
+  FXGLCanvas * glcanvas = nullptr;
 public:
   enum {
     ID_CANVAS = FXMainWindow::ID_LAST,

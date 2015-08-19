@@ -20,16 +20,7 @@
 #include "GMTrack.h"
 #include "GMTag.h"
 
-GMTrack::GMTrack() :
-  year(0),
-  no(0),
-  time(0),
-  bitrate(0),
-  rating(0),
-  channels(0),
-  sampleformat(0),
-  samplerate(0),
-  filetype(FILETYPE_UNKNOWN){
+GMTrack::GMTrack() {
   }
 
 void GMTrack::adopt(GMTrack & t) {

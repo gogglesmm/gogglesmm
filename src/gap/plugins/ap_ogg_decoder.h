@@ -28,9 +28,9 @@ private:
   MemoryBuffer  buffer;
   FXuchar*      packet_start_ptr;
 protected:
-  ogg_packet op;
+  ogg_packet op = {};
   Packet*    out;
-  FXlong     stream_position;   
+  FXlong     stream_position;
 protected:
   FXbool get_next_packet();
   void   push_back_packet();

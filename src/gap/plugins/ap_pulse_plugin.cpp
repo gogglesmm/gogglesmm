@@ -46,9 +46,9 @@ using namespace ap;
 struct pa_io_event : public Reactor::Input {
 public:
   static pa_io_event*      recycle;
-  pa_io_event_cb_t         callback;
-  pa_io_event_destroy_cb_t destroy_callback;
-  void *                   userdata;
+  pa_io_event_cb_t         callback         = nullptr;
+  pa_io_event_destroy_cb_t destroy_callback = nullptr;
+  void *                   userdata         = nullptr;
 protected:
 
   /// Convert mode flags to pulseaudio flags
@@ -119,11 +119,11 @@ public:
 struct pa_time_event : public Reactor::Timer {
 public:
   static pa_time_event*       recycle;
-  pa_time_event_cb_t          callback;
-  pa_time_event_destroy_cb_t  destroy_callback;
-  void*                       userdata;
+  pa_time_event_cb_t          callback = nullptr;
+  pa_time_event_destroy_cb_t  destroy_callback  = nullptr;
+  void*                       userdata = nullptr;
 public:
-  pa_time_event() : callback(NULL),destroy_callback(NULL),userdata(NULL) {}
+  pa_time_event() {}
 
   virtual void onExpired() {
     struct timeval tv;
@@ -179,9 +179,9 @@ public:
 struct pa_defer_event : public Reactor::Deferred {
 public:
   static pa_defer_event*      recycle;
-  pa_defer_event_cb_t         callback;
-  pa_defer_event_destroy_cb_t destroy_callback;
-  void*                       userdata;
+  pa_defer_event_cb_t         callback = nullptr;
+  pa_defer_event_destroy_cb_t destroy_callback = nullptr;
+  void*                       userdata = nullptr;
 public:
   pa_defer_event() {}
 

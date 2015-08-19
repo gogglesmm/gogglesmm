@@ -47,8 +47,8 @@ class GMColumn;
 class GMTrackItem {
   friend class GMTrackList;
 protected:
-  FXint   id;
-  FXuchar state;
+  FXint   id = 0;
+  FXuchar state = 0;
 protected:
   virtual const FXString * getColumnData(FXint,FXString &,FXuint &,FXint &) const { return NULL; }
   virtual FXIcon * getIcon() const { return NULL; }
@@ -61,7 +61,7 @@ public:
     SHADED        = 0x10   /// Shaded
     };
 public:
-  GMTrackItem() : state(0) {}
+  GMTrackItem() {}
   GMTrackItem(FXint tid) : id(tid),state(0) {}
 
   /// Return track item id
@@ -104,17 +104,17 @@ typedef FXint (*GMTrackListSortFunc)(const GMTrackItem*,const GMTrackItem*);
 class GMColumn {
   public:
   FXString            name;
-  FXint               type;
-  FXint               size;
-  FXint               index;
-  GMTrackListSortFunc ascending;
-  GMTrackListSortFunc descending;
-  FXbool              show;
-  FXbool              default_show;
-  FXbool              default_browser_show;
-  FXObject*           target;
-  FXSelector          message;
-  GMColumn() : size(60),index(0),show(false),target(NULL),message(0)  {}
+  FXint               type  = 0;
+  FXint               size  = 60;
+  FXint               index = 0;
+  GMTrackListSortFunc ascending = nullptr;
+  GMTrackListSortFunc descending = nullptr;
+  FXbool              show = false;
+  FXbool              default_show = false;
+  FXbool              default_browser_show = false;
+  FXObject*           target = nullptr;
+  FXSelector          message = 0;
+  GMColumn() {}
   GMColumn(const FXchar * n,FXuint t,GMTrackListSortFunc a,GMTrackListSortFunc b,FXint sz=60,FXbool def_show=true,FXbool def_browser_show=true,FXint idx=0,FXObject* tgt=NULL,FXSelector sel=0) : name(n),type(t),size(sz),index(idx),ascending(a),descending(b),show(true),default_show(def_show),default_browser_show(def_browser_show),target(tgt),message(sel) {}
   };
 

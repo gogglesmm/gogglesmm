@@ -33,19 +33,19 @@ public:
 public:
   static Socket* create(int domain,int type,int protocol,FXuint mode);
 
-  void setKeepAlive(FXbool);
+  FXbool setKeepAlive(FXbool);
 
   FXbool getKeepAlive() const;
 
-  void setReuseAddress(FXbool);
+  FXbool setReuseAddress(FXbool);
 
   FXbool getReuseAddress() const;
 
-  void setReceiveTimeout(FXTime);
+  FXbool setReceiveTimeout(FXTime);
 
-  void setSendTimeout(FXTime);
+  FXbool setSendTimeout(FXTime);
 
-  void setLinger(FXTime);
+  FXbool setLinger(FXTime);
 
   FXTime getLinger() const;
 

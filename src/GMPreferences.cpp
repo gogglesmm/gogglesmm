@@ -18,7 +18,6 @@
 ********************************************************************************/
 #include "gmdefs.h"
 #include "GMTrack.h"
-#include "GMFilename.h"
 #include "GMPreferences.h"
 
 const char section_window[] = "window";
@@ -91,14 +90,7 @@ const char key_sync_update[]="update";
 const char key_sync_update_always[]="update-always";
 
 
-GMImportOptions::GMImportOptions() :
-  default_field("Untitled"),
-  filename_template("%P/%A/%N %T"),
-  parse_method(PARSE_BOTH),
-  id3v1_encoding(GMFilename::ENCODING_8859_1),
-  track_from_filelist(false),
-  replace_underscores(true),
-  fix_album_artist(false){
+GMImportOptions::GMImportOptions() {
   }
 
 void GMImportOptions::save(FXSettings & reg) const {
@@ -124,13 +116,7 @@ void GMImportOptions::load(FXSettings & reg) {
   }
 
 
-GMSyncOptions::GMSyncOptions() :
-  import_new(true),
-  remove_missing(true),
-  remove_all(false),
-  update(false),
-  update_always(false) {
-  }
+GMSyncOptions::GMSyncOptions() {}
 
 void GMSyncOptions::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_sync,key_sync_import_new,import_new);
@@ -149,44 +135,7 @@ void GMSyncOptions::load(FXSettings & reg) {
   }
 
 
-GMPreferences::GMPreferences() :
-  export_format_template("%N %T"),
-  export_character_filter("\'\\#~!\"$&();<>|`^*?[]/.:"),
-  gui_format_title("%P - %T"),
-
-  gui_show_status_bar(true),
-  gui_hide_player_when_close(false),
-  gui_toolbar_bigicons(true),
-  gui_toolbar_docktop(true),
-  gui_toolbar_showlabels(true),
-  gui_toolbar_labelsabove(true),
-  gui_show_browser_icons(true),
-  gui_show_playing_albumcover(true),
-  gui_tray_icon(false),
-  gui_tray_icon_disabled(false),
-  gui_show_playing_titlebar(false),
-  gui_use_opengl(true),
-  gui_coverdisplay_size(128),
-
-  play_replaygain(REPLAYGAIN_OFF),
-  play_repeat(REPEAT_ALL),
-  play_close_stream(false),
-  play_pause_close_device(false),
-  play_gapless(true),
-  play_shuffle(false),
-  play_from_queue(false),
-
-  export_encoding(GMFilename::ENCODING_ASCII),
-  export_lowercase(false),
-  export_lowercase_extension(true),
-  export_underscore(false)
-
-#ifdef HAVE_DBUS
-  ,dbus_notify_daemon(true),
-  dbus_mpris1(true),
-  dbus_mpris2(true)
-#endif
-  {
+GMPreferences::GMPreferences() {
   resetColors();
   }
 
@@ -253,7 +202,7 @@ void GMPreferences::save(FXSettings & reg) const {
   }
 
 
-extern void init_default_colortheme(); 
+extern void init_default_colortheme();
 
 void GMPreferences::load(FXSettings & reg) {
   FXString keywords="a;an;the";

@@ -49,10 +49,10 @@ class FXAPI GMAlbumListItem : public FXObject {
 protected:
   FXString  title;
   FXString  audioproperty;
-  FXint     artist;
-  FXint     year;
-  FXint     id;
-  FXuint    state;      // State flags
+  FXint     artist = 0;
+  FXint     year   = 0;
+  FXint     id     = 0;
+  FXuint    state  = 0;  // State flags
 public:
   static FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
   static FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
@@ -60,7 +60,7 @@ private:
   GMAlbumListItem(const GMAlbumListItem&);
   GMAlbumListItem& operator=(const GMAlbumListItem&);
 protected:
-  GMAlbumListItem(): state(0){}
+  GMAlbumListItem(){}
   void prepare(GMAlbumList*);
   virtual void draw(GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
   virtual void drawList(const GMAlbumList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
@@ -131,36 +131,36 @@ class FXAPI GMAlbumList : public FXScrollArea {
 protected:
   GMCoverRender      covers;
   GMAlbumListItemList items;		// Item list
-  FXint              nrows;             // Number of rows
-  FXint              ncols;             // Number of columns
-  FXint              anchor;            // Anchor item
-  FXint              current;           // Current item
-  FXint              extent;            // Extent item
-  FXint              cursor;            // Cursor item
-  FXint              viewable;          // Visible item
+  FXint              nrows=1;             // Number of rows
+  FXint              ncols=1;             // Number of columns
+  FXint              anchor=-1;            // Anchor item
+  FXint              current=-1;           // Current item
+  FXint              extent=-1;            // Extent item
+  FXint              cursor=-1;            // Cursor item
+  FXint              viewable=-1;          // Visible item
 
-  FXIcon            *listicon;          // list icon
-  FXFont            *listbasefont;      // list base font
-  FXFont            *listheadfont;      // list head font
-  FXFont            *listtailfont;      // list tail font
-  FXFont            *coverheadfont;     // cover head font
-  FXFont            *coverbasefont;     // cover base font
-  GMAlbumListSortFunc sortfunc;          // Item sort function
-  FXColor            textColor;         // Text color
-  FXColor            selbackColor;      // Selected back color
-  FXColor            seltextColor;      // Selected text color
-  FXColor            altbackColor;      // Alternative Back Color
-  FXint              itemWidth;         // Item width
-  FXint              itemHeight;        // Item height
-  FXint              anchorx;           // Rectangular selection
-  FXint              anchory;
-  FXint              currentx;
-  FXint              currenty;
-  FXint              grabx;             // Grab point x
-  FXint              graby;             // Grab point y
+  FXIcon            *listicon=nullptr;          // list icon
+  FXFont            *listbasefont=nullptr;      // list base font
+  FXFont            *listheadfont=nullptr;      // list head font
+  FXFont            *listtailfont=nullptr;     // list tail font
+  FXFont            *coverheadfont=nullptr;     // cover head font
+  FXFont            *coverbasefont=nullptr;     // cover base font
+  GMAlbumListSortFunc sortfunc=nullptr;          // Item sort function
+  FXColor            textColor=0;         // Text color
+  FXColor            selbackColor=0;      // Selected back color
+  FXColor            seltextColor=0;      // Selected text color
+  FXColor            altbackColor=0;      // Alternative Back Color
+  FXint              itemWidth=1;         // Item width
+  FXint              itemHeight=1;        // Item height
+  FXint              anchorx=0;           // Rectangular selection
+  FXint              anchory=0;
+  FXint              currentx=0;
+  FXint              currenty=0;
+  FXint              grabx=0;             // Grab point x
+  FXint              graby=0;             // Grab point y
   FXString           lookup;            // Lookup string
   FXString           help;              // Help text
-  FXbool             state;             // State of item
+  FXbool             state=false;             // State of item
 protected:
   GMAlbumList();
   void recompute();

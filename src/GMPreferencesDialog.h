@@ -42,49 +42,49 @@ protected:
 protected:
   FXString keywords;
 protected:
-  FXSwitcher  * driverswitcher;
+  FXSwitcher  * driverswitcher = nullptr;
 
-  FXLabel     * alsa_device_label;
-  FXTextField * alsa_device;
+  FXLabel     * alsa_device_label = nullptr;
+  FXTextField * alsa_device = nullptr;
 
-  FXCheckButton* alsa_hardware_only;
-  FXFrame * alsa_hardware_only_frame;
+  FXCheckButton* alsa_hardware_only = nullptr;
+  FXFrame * alsa_hardware_only_frame = nullptr;
 
-  FXLabel     * oss_device_label;
-  FXTextField * oss_device;
+  FXLabel     * oss_device_label = nullptr;
+  FXTextField * oss_device = nullptr;
 
-  FXLabel     * pulse_device_label;
-  FXTextField * pulse_device;
+  FXLabel     * pulse_device_label = nullptr;
+  FXTextField * pulse_device = nullptr;
 
-  FXLabel     * jack_device_label;
-  FXTextField * jack_device;
+  FXLabel     * jack_device_label = nullptr;
+  FXTextField * jack_device = nullptr;
 protected:
   void showDriverSettings(FXuchar driver);
 public:
   FXFontPtr     font_fixed;
 
-  FXTextField * lastfm_username;
-  FXTextField * lastfm_password;
-  FXLabel * lastfm_password_label;
-  FXLabel * lastfm_username_label;
+  FXTextField * lastfm_username = nullptr;
+  FXTextField * lastfm_password = nullptr;
+  FXLabel * lastfm_password_label = nullptr;
+  FXLabel * lastfm_username_label = nullptr;
 
-  FXCheckButton * lastfm_scrobble;
-  FXButton      * lastfm_join;
+  FXCheckButton * lastfm_scrobble = nullptr;
+  FXButton      * lastfm_join = nullptr;
 
-  FXTextField * iconthemedir;
-  FXCheckButton * check_audio_normalization;
-  FXCheckButton * statusbarbutton;
-  FXTextField   * title_format;
-  GMList        * colorpresets;
-  GMListBox     * toolbar_docktop;
-  GMListBox     * driverlist;
-  GMListBox     * themelist;
-  GMListBox     * lastfm_service;
-  GMListBox     * interval;
-  FXbool password_set;
-  FXFont * selectedfont;
-  FXint theme;
-  FXint dpi;
+  FXTextField * iconthemedir = nullptr;
+  FXCheckButton * check_audio_normalization = nullptr;
+  FXCheckButton * statusbarbutton = nullptr;
+  FXTextField   * title_format = nullptr;
+  GMList        * colorpresets = nullptr;
+  GMListBox     * toolbar_docktop = nullptr;
+  GMListBox     * driverlist = nullptr;
+  GMListBox     * themelist = nullptr;
+  GMListBox     * lastfm_service = nullptr;
+  GMListBox     * interval = nullptr;
+  FXbool password_set = false;
+  FXFont * selectedfont = nullptr;
+  FXint theme = 0;
+  FXint dpi = 96;
   ColorTheme current;
   ColorTheme selected;
 public:

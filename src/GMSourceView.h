@@ -26,13 +26,13 @@ class GMScrollFrame;
 class GMSourceView : public GMScrollFrame {
 FXDECLARE(GMSourceView)
 protected:
-  GMTreeList        * sourcelist;
-  GMHeaderButton    * sourcelistheader;
+  GMTreeList        * sourcelist = nullptr;
+  GMHeaderButton    * sourcelistheader = nullptr;
 protected:
-  GMSource          * source;
-  GMSource          * sourcedrop;
+  GMSource          * source = nullptr;
+  GMSource          * sourcedrop = nullptr;
 protected:
-  GMSourceView();
+  GMSourceView() {}
   FXbool listsources();
 private:
   GMSourceView(const GMSourceView&);
@@ -89,7 +89,7 @@ public:
   GMTreeList * getSourceList() const { return sourcelist; }
 
   FXbool focusNext();
-  
+
   FXbool focusPrevious();
 
   virtual ~GMSourceView();

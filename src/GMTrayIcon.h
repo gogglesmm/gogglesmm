@@ -22,20 +22,20 @@
 class GMTrayIcon : public GMPlug {
 FXDECLARE(GMTrayIcon)
 protected:
-  FXID    xtraywindow;
-  FXID    xtrayopcode;
-  FXID    xtrayorientation;
-  FXID    xtrayxfceorientation;
-  FXID    xtrayvisual;
+  FXID    xtraywindow = 0;
+  FXID    xtrayopcode = 0;
+  FXID    xtrayorientation = 0;
+  FXID    xtrayxfceorientation = 0;
+  FXID    xtrayvisual = 0;
 protected:
-  FXIcon * icon;
-  FXbool   opaque;
+  FXIcon * icon = nullptr;
+  FXbool   opaque = false;
   FXString tip;
 private:
   GMTrayIcon(const GMTrayIcon*);
   GMTrayIcon& operator=(const GMTrayIcon&);
 protected:
-  GMTrayIcon();
+  GMTrayIcon() {}
   FXbool findSystemTray();
   void requestDock();
   FXuint getTrayOrientation();

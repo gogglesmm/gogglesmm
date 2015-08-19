@@ -73,10 +73,10 @@ namespace ap {
 
 class FlacReader : public ReaderPlugin {
 protected:
-  FLAC__StreamDecoder * flac;
+  FLAC__StreamDecoder * flac = nullptr;
   ReplayGain            gain;
-  MetaInfo            * meta;
-  FXlong                lastseek;
+  MetaInfo            * meta = nullptr;
+  FXlong                lastseek = 0;
 protected:
   static FLAC__StreamDecoderSeekStatus    flac_input_seek(const FLAC__StreamDecoder*,FLAC__uint64,void*);
   static FLAC__StreamDecoderTellStatus    flac_input_tell(const FLAC__StreamDecoder*,FLAC__uint64*,void*);
@@ -102,11 +102,11 @@ class OutputPacket;
 
 class FlacDecoder : public DecoderPlugin {
 protected:
-  FLAC__StreamDecoder * flac;
-  FXlong stream_length;
+  FLAC__StreamDecoder * flac  = nullptr;
+  FXlong stream_length = 0;
 protected:
-  Packet * in;
-  Packet  * out;
+  Packet * in = nullptr;
+  Packet  * out = nullptr;
 protected:
   static FLAC__StreamDecoderWriteStatus   flac_decoder_write(const FLAC__StreamDecoder*,const FLAC__Frame*,const FLAC__int32*const[],void*);
   static FLAC__StreamDecoderReadStatus    flac_decoder_read(const FLAC__StreamDecoder*,FLAC__byte buffer[],size_t*,void*);
@@ -186,7 +186,7 @@ FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & af,FXlong & nf
 
 
 
-FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e), flac(NULL),meta(NULL), lastseek(0) {
+FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e) {
   }
 
 FlacReader::~FlacReader(){
@@ -662,7 +662,7 @@ void FlacDecoder::flac_decoder_error(const FLAC__StreamDecoder */*decoder*/, FLA
 #endif
   }
 
-FlacDecoder::FlacDecoder(AudioEngine * e) : DecoderPlugin(e), flac(NULL),in(NULL),out(NULL) {
+FlacDecoder::FlacDecoder(AudioEngine * e) : DecoderPlugin(e) {
   }
 
 FlacDecoder::~FlacDecoder() {
