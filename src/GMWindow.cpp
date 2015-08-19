@@ -199,16 +199,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   coverframe->setBackColor(getApp()->getBackColor());
   coverframe->setBorderColor(getApp()->getShadowColor());
   coverframe->hide();
-<<<<<<< HEAD
-  coverview_x11=nullptr;
-#ifdef HAVE_OPENGL
-  coverview_gl=nullptr;
-#endif
-=======
->>>>>>> cpp11-class-member-initialization
-
   updateCoverView();
-
 
 
   /****************************************************************************/
