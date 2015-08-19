@@ -53,10 +53,10 @@ public:
 class GMList : public FXList {
   FXDECLARE(GMList)
 protected:
-  FXFont * thickfont;
-  FXColor rowcolor;
+  FXFont * thickfont = nullptr;
+  FXColor rowcolor = 0;
 protected:
-  GMList();
+  GMList(){}
   void recompute();
   virtual FXListItem *createItem(const FXString& text,FXIcon* icon,void* ptr);
 private:
@@ -99,9 +99,9 @@ public:
 class GMTreeList : public FXTreeList {
   FXDECLARE(GMTreeList)
 protected:
-  FXColor rowcolor;
+  FXColor rowcolor = 0;
 protected:
-  GMTreeList();
+  GMTreeList() {}
   virtual FXTreeItem* createItem(const FXString& text,FXIcon* oi,FXIcon* ci,void* ptr);
 private:
   GMTreeList(const GMTreeList&);

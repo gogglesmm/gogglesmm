@@ -43,13 +43,13 @@ class AudioEngine;
 
 
 struct OggReaderState {
-  FXbool has_stream;
-  FXbool has_eos;
-  FXbool has_page;
-  FXbool has_packet;
-  FXbool header_written;
-  FXuint bytes_written;
-  OggReaderState() : has_stream(false),has_eos(false),has_page(false),has_packet(false),header_written(false),bytes_written(0) {}
+  FXbool has_stream     = false;
+  FXbool has_eos        = false;
+  FXbool has_page       = false;
+  FXbool has_packet     = false;
+  FXbool header_written = false;
+  FXuint bytes_written  = 0;
+  OggReaderState() {}
   void reset() {has_stream=false;has_eos=false;has_page=false; has_packet=false; header_written=false;bytes_written=0; }
   };
 
@@ -67,25 +67,25 @@ protected:
     };
 protected:
   OggReaderState    state;
-  ogg_stream_state stream;
-  ogg_sync_state   sync;
-  ogg_page         page;
-  ogg_packet       op;
+  ogg_stream_state stream = {};
+  ogg_sync_state   sync = {};
+  ogg_page         page = {};
+  ogg_packet       op = {};
 protected:
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
-  vorbis_info      vi;
-  vorbis_comment   vc;
+  vorbis_info      vi = {};
+  vorbis_comment   vc = {};
 #endif
 protected:
-  Packet *        packet;
-  Event  *        headers;
-  FXint           ogg_packet_written;
-  ReadStatus      status;
-  FXuchar         codec;
-  FXlong          stream_start;
-  FXlong          input_position;
-  FXushort        stream_offset_start;
-  FXushort        stream_offset_end;
+  Packet *        packet = nullptr;
+  Event  *        headers = nullptr;
+  FXint           ogg_packet_written = -1;
+  ReadStatus      status = ReadError;
+  FXuchar         codec = Codec::Invalid;
+  FXlong          stream_start = 0;
+  FXlong          input_position = -1;
+  FXushort        stream_offset_start = 0;
+  FXushort        stream_offset_end = 0;
 protected:
   FXbool match_page();
   FXbool fetch_next_page();
@@ -135,7 +135,7 @@ public:
 
 
 
-OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e),packet(nullptr),headers(nullptr),ogg_packet_written(-1),codec(Codec::Invalid) {
+OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e) {
   ogg_sync_init(&sync);
   }
 

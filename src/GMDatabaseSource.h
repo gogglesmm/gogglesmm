@@ -39,18 +39,20 @@ public:
   };
 
 
+
+
 class GMDatabaseSource : public GMSource {
 FXDECLARE(GMDatabaseSource)
 protected:
   static GMDatabaseSource * filterowner;
   static GMCoverCache     * covercache;
 protected:
-  GMTrackDatabase   * db;
-  FXint               playlist;
+  GMTrackDatabase   * db         = nullptr;
+  FXint               playlist   = 0;
   FXString            filter;
-  FXuint              filtermask;
-  FXbool              hasfilter;
-  FXbool              hasview;
+  FXuint              filtermask = FILTER_DEFAULT;
+  FXbool              hasfilter  = false;
+  FXbool              hasview    = false;
   FXString            dndfiles;
 protected:
   GMDatabaseSource(){}

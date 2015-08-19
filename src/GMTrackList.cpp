@@ -147,6 +147,7 @@ GMTrackList::GMTrackList(){
   rowColor=0;
   activeColor=0;
   activeTextColor=0;
+  shadowColor=0;
   lineHeight=1;
   anchorx=0;
   anchory=0;
@@ -1610,7 +1611,7 @@ long GMTrackList::onRightBtnRelease(FXObject*,FXSelector,void* ptr){
     ungrab();
     flags&=~FLAG_SCROLLING;
     flags|=FLAG_UPDATE;
-    if(target && target->tryHandle(this,FXSEL(SEL_RIGHTBUTTONRELEASE,message),ptr)) return 1;
+    if(target) target->tryHandle(this,FXSEL(SEL_RIGHTBUTTONRELEASE,message),ptr);
     return 1;
     }
   return 0;

@@ -32,7 +32,9 @@ class ConfigureEvent;
 class DecoderThread : public EngineThread {
 protected:
   PacketPool      packetpool;
-  DecoderPlugin * plugin;
+  DecoderPlugin * plugin = nullptr;
+protected:
+  FXuint stream = 0;
 protected:
   void configure(ConfigureEvent*);
 public:

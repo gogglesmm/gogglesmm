@@ -129,12 +129,7 @@ FXIMPLEMENT(GMDatabaseSource,GMSource,GMDatabaseSourceMap,ARRAYNUMBER(GMDatabase
 GMDatabaseSource* GMDatabaseSource::filterowner=nullptr;
 GMCoverCache* GMDatabaseSource::covercache=nullptr;
 
-GMDatabaseSource::GMDatabaseSource(GMTrackDatabase * database) :
-  db(database),
-  playlist(0),
-  filtermask(FILTER_DEFAULT),
-  hasfilter(false),
-  hasview(false) {
+GMDatabaseSource::GMDatabaseSource(GMTrackDatabase * database) : db(database) {
   FXASSERT(db);
   sort_browse=GMDBTrackItem::browseSort;
   }

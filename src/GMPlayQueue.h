@@ -25,8 +25,8 @@ class GMPlayQueue : public GMPlayListSource {
 FXDECLARE(GMPlayQueue)
 protected:
   FXIntMap tracks;
-  FXint   ntracks;
-  FXbool  poptrack;
+  FXint   ntracks  = 0;
+  FXbool  poptrack = false;
 protected:
   GMPlayQueue(){}
   void updateTrackHash();

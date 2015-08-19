@@ -24,10 +24,10 @@
 */
 class Rule {
 public:
-  FXint column;   // Column to filter on
-  FXint opcode;   // Operator
-  FXint value;    // Integer Value
-  FXString text;  // String Value
+  FXint column  = ColumnTitle;    // Column to filter on
+  FXint opcode  = OperatorLike;   // Operator
+  FXint value   = 0;              // Integer Value
+  FXString text;                  // String Value
 public:
   enum {
     ColumnTitle         = 0,
@@ -65,8 +65,8 @@ public:
     };
 public:
   // Default Constructor
-  Rule() : column(ColumnTitle),opcode(OperatorLike), value(0) {}
-
+  Rule() {} 
+ 
   // Initialize Rule for integer input
   Rule(FXint c,FXint o,FXint v) : column(c),opcode(o),value(v) {}
 
@@ -86,11 +86,9 @@ public:
 */
 class SortLimit {
 public:
-  FXint  column;      // column to sort by
-  FXbool ascending;   // ASC or DESC
+  FXint  column    = Rule::ColumnArtist; // column to sort by
+  FXbool ascending = true;               // ASC or DESC
 public:
-  SortLimit() : column(Rule::ColumnArtist), ascending(true) {}
-
   // Get sql match string
   FXString getMatch() const;
 
@@ -104,14 +102,14 @@ public:
 
 class GMFilter {
 public:
-  static FXint nextid;      // Generator for unique id
+  static FXint nextid;                 // Generator for unique id
 public:
-  FXint              id;    // unique filter id
-  FXString           name;  // filter name
-  FXArray<Rule>      rules; // list of filter rules
-  FXArray<SortLimit> order; // list of columns to order by
-  FXint              limit; // Maximum row limit
-  FXint              match; // Match mode AND or OR.
+  FXint              id    = 0;        // unique filter id
+  FXString           name;             // filter name
+  FXArray<Rule>      rules;            // list of filter rules
+  FXArray<SortLimit> order;            // list of columns to order by
+  FXint              limit = 0;        // Maximum row limit
+  FXint              match = MatchAll; // Match mode AND or OR.
 public:
   enum {
     MatchAll = 0,  // Filter matches all rules (AND)

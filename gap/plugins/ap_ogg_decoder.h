@@ -33,7 +33,7 @@ private:
   MemoryBuffer  buffer;
   FXuchar*      packet_start_ptr;
 protected:
-  ogg_packet op;
+  ogg_packet op = {};
   Packet*    out;
   FXlong     stream_position;
 protected:

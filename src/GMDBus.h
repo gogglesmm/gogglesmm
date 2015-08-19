@@ -41,7 +41,7 @@ class GMDBusManager;
 class GMDBus : public FXObject {
 FXDECLARE(GMDBus)
 private:
-  DBusConnection * dc;
+  DBusConnection * dc = nullptr;
 private:
   GMDBus(const GMDBus &);
   GMDBus &operator=(const GMDBus&);
@@ -131,14 +131,14 @@ public:
 class GMDBusProxy : public FXObject {
 FXDECLARE(GMDBusProxy)
 protected:
-  GMDBus           * bus;         /// Bus
-  FXString           name;        /// Name
-  FXString           path;        /// Path
-  FXString           interface;   /// Interface
+  GMDBus           * bus        = nullptr;  /// Bus
+  FXString           name;                  /// Name
+  FXString           path;                  /// Path
+  FXString           interface;             /// Interface
 protected:
-  FXbool             associated;  /// Are we associated
-  FXObject         * target;      /// Target object
-  FXSelector         message;     /// Message ID
+  FXbool             associated = false;    /// Are we associated
+  FXObject         * target     = nullptr;  /// Target object
+  FXSelector         message    = 0;        /// Message ID
 protected:
   FXHash             serial;
 protected:

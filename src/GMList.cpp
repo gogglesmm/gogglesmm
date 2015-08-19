@@ -133,10 +133,6 @@ FXDEFMAP(GMList) GMListMap[]={
 // Object implementation
 FXIMPLEMENT(GMList,FXList,GMListMap,ARRAYNUMBER(GMListMap))
 
-// List
-GMList::GMList(){
-  rowcolor=GMPlayerManager::instance()->getPreferences().gui_row_color;
-  }
 
 GMList::GMList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h) : FXList(p,tgt,sel,opts,x,y,w,h) {
   rowcolor=GMPlayerManager::instance()->getPreferences().gui_row_color;
@@ -266,9 +262,8 @@ FXDEFMAP(GMTreeList) GMTreeListMap[]={
 // Object implementation
 FXIMPLEMENT(GMTreeList,FXTreeList,GMTreeListMap,ARRAYNUMBER(GMTreeListMap))
 
-GMTreeList::GMTreeList(){
-  }
-  /// Construct a new, initially empty tree list
+
+/// Construct a new, initially empty tree list
 GMTreeList::GMTreeList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h) : FXTreeList(p,tgt,sel,opts,x,y,w,h) {
   rowcolor=GMPlayerManager::instance()->getPreferences().gui_row_color;
   GMScrollArea::replaceScrollbars(this);

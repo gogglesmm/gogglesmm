@@ -191,8 +191,6 @@ FXDEFMAP(GMColumnDialog) GMColumnDialogMap[]={
 
 FXIMPLEMENT(GMColumnDialog,FXDialogBox,GMColumnDialogMap,ARRAYNUMBER(GMColumnDialogMap));
 
-GMColumnDialog::GMColumnDialog(){
-  }
 
 GMColumnDialog::GMColumnDialog(FXWindow *window,GMColumnList & cols) : FXDialogBox(window,FXString::null,DECOR_ALL,0,0,0,0,3,3,3,3) {
 

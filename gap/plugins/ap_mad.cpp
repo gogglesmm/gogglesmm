@@ -45,20 +45,20 @@ struct mpeg_frame;
 
 class MadReader : public ReaderPlugin {
 protected:
-  FXuchar      buffer[4];
-  FXbool       sync;
-  FXint        bitrate;
+  FXuchar      buffer[4] = {};
+  FXbool       sync = false;
+  FXint        bitrate = 0;
 protected:
-  FXlong       input_start;
-  FXlong       input_end;
-  FXlong       stream_position;
+  FXlong       input_start = 0;
+  FXlong       input_end = 0;
+  FXlong       stream_position = 0;
 protected:
-  XingHeader * xing;
-  VBRIHeader * vbri;
-  LameHeader * lame;
+  XingHeader * xing = nullptr;
+  VBRIHeader * vbri = nullptr;
+  LameHeader * lame = nullptr;
 protected:
-  ID3V1      * id3v1;
-  ID3V2      * id3v2;
+  ID3V1      * id3v1 = nullptr;
+  ID3V2      * id3v2 = nullptr;
   //ApeTag     * apetag;
 protected:
   FXbool parse_id3v1();
@@ -95,17 +95,17 @@ public:
 class MadDecoder : public DecoderPlugin {
 protected:
   MemoryBuffer buffer;
-  Packet * out;
+  Packet * out = nullptr;
 protected:
-  mad_synth synth;
-  mad_stream stream;
-  mad_frame frame;
+  mad_synth synth = {};
+  mad_stream stream = {};
+  mad_frame frame = {};
 protected:
-  FXuchar flags;
-  FXlong  stream_position;
-  FXshort stream_offset_start;
-  FXshort stream_offset_end;
-  FXint   frame_counter;
+  FXuchar flags = 0;
+  FXlong  stream_position = 0;
+  FXshort stream_offset_start = 0;
+  FXshort stream_offset_end = 0;
+  FXint   frame_counter = 0;
 
 protected:
   enum {

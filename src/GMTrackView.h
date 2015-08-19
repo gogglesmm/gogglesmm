@@ -30,18 +30,18 @@ class GMAlbumListItem;
 class GMTrackView : public FXPacker {
 FXDECLARE(GMTrackView)
 protected:
-  FX4Splitter       * browsersplit;
-  FX4Splitter       * tagsplit;
-  FXVerticalFrame   * taglistframe;
-  FXHorizontalFrame * filterframe;
-  GMTextField       * filterfield;
-  GMTrackList       * tracklist;
-  GMList            * taglist;
-  GMList            * artistlist;
-  GMAlbumList       * albumlist;
-  GMHeaderButton    * taglistheader;
-  GMHeaderButton    * artistlistheader;
-  GMHeaderButton    * albumlistheader;
+  FX4Splitter       * browsersplit      = nullptr;
+  FX4Splitter       * tagsplit          = nullptr;
+  FXVerticalFrame   * taglistframe      = nullptr;
+  FXHorizontalFrame * filterframe       = nullptr;
+  GMTextField       * filterfield       = nullptr;
+  GMTrackList       * tracklist         = nullptr;
+  GMList            * taglist           = nullptr;
+  GMList            * artistlist        = nullptr;
+  GMAlbumList       * albumlist         = nullptr;
+  GMHeaderButton    * taglistheader     = nullptr;
+  GMHeaderButton    * artistlistheader  = nullptr;
+  GMHeaderButton    * albumlistheader   = nullptr;
   FXMenuPtr           columnmenu;
   FXMenuPtr           sortmenu;
   FXMenuPtr           filtermenu;
@@ -49,24 +49,24 @@ protected:
   FXFontPtr           font_listhead;
 protected:
   GMColumnList        columns;
-  GMSource          * source;
-  FXuint              sort_seed;
-  FXuint              shuffle_seed;
-  FXuint              filtermask;
-  FXuint              view;
+  GMSource          * source = nullptr;
+  FXuint              sort_seed = 0;
+  FXuint              shuffle_seed = 0;
+  FXuint              filtermask = 0;
+  FXuint              view = 0;
 public:
   static FXbool reverse_artist;
   static FXbool reverse_album;
   static FXbool album_by_year;
 protected:
-  FXint tracklist_dragging;
-  FXint tracklist_lastline;
-  FXint tracklist_lastposy;
-  FXint tracklist_dropitem;
-  FXint tracklist_posx;
-  FXint tracklist_posy;
+  FXint tracklist_dragging = 0;
+  FXint tracklist_lastline = 0;
+  FXint tracklist_lastposy = 0;
+  FXint tracklist_dropitem = 0;
+  FXint tracklist_posx     = 0;
+  FXint tracklist_posy     = 0;
 protected:
-  GMTrackView();
+  GMTrackView(){}
   void initSelection(GMList * list,const FXchar *,const FXString & section="window");
   void initSelection(GMAlbumList * list,const FXchar *,const FXString & section="window");
   void saveSelection(GMList * list,const FXchar *,const FXString & section="window") const;

@@ -25,17 +25,17 @@
 class GMRuleEditor : public FXObject {
   FXDECLARE(GMRuleEditor)
 public:
-  GMComboBox  * columns;
-  GMComboBox  * operators;
-  GMComboBox  * periods;
-  GMComboBox  * options;
-  FXSwitcher  * valueswitcher;
-  GMTextField * text;
-  GMSpinner   * spinner;
-  GMSpinner   * datetimespinner;
-  GMButton    * closebutton;
-  GMSpinner   * time_minutes;
-  GMSpinner   * time_seconds;
+  GMComboBox  * columns         = nullptr;
+  GMComboBox  * operators       = nullptr;
+  GMComboBox  * periods         = nullptr;
+  GMComboBox  * options         = nullptr;
+  FXSwitcher  * valueswitcher   = nullptr;
+  GMTextField * text            = nullptr;
+  GMSpinner   * spinner         = nullptr;
+  GMSpinner   * datetimespinner = nullptr;
+  GMButton    * closebutton     = nullptr;
+  GMSpinner   * time_minutes    = nullptr;
+  GMSpinner   * time_seconds    = nullptr;
 public:
   enum {
     ID_COLUMN = 1,  // Column List
@@ -117,11 +117,11 @@ public:
 class GMSortLimitEditor : public FXObject {
   FXDECLARE(GMSortLimitEditor)
 public:
-  GMComboBox  * columns;
-  GMComboBox  * order;
-  GMButton    * closebutton;
-  FXFrame     * filler1;
-  FXFrame     * filler2;
+  GMComboBox  * columns     = nullptr;
+  GMComboBox  * order       = nullptr;
+  GMButton    * closebutton = nullptr;
+  FXFrame     * filler1     = nullptr;
+  FXFrame     * filler2     = nullptr;
 public:
   enum {
     ID_COLUMN = 1,    // Column List
@@ -171,13 +171,13 @@ public:
 class GMFilterEditor : public FXDialogBox {
 FXDECLARE(GMFilterEditor)
 protected:
-  FXMatrix    * rules;
-  FXWindow    * rules_offset;
-  FXMatrix    * limits;
-  FXWindow    * limits_offset;
-  FXTextField * namefield;
-  FXSpinner   * limitspinner;
-  FXComboBox  * match;
+  FXMatrix    * rules         = nullptr;
+  FXWindow    * rules_offset  = nullptr;
+  FXMatrix    * limits        = nullptr;
+  FXWindow    * limits_offset = nullptr;
+  FXTextField * namefield     = nullptr;
+  FXSpinner   * limitspinner  = nullptr;
+  FXComboBox  * match         = nullptr;
 protected:
   GMFilterEditor(){}
 private:

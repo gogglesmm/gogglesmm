@@ -82,8 +82,6 @@ FXDEFMAP(GMPresenter) GMPresenterMap[]={
 FXIMPLEMENT(GMPresenter,FXDialogBox,GMPresenterMap,ARRAYNUMBER(GMPresenterMap))
 
 GMPresenter::GMPresenter(FXApp* a,FXGLContext * ctx,FXObject * /*tgt*/,FXSelector /*msg*/):FXDialogBox(a,FXString::null,DECOR_TITLE|DECOR_RESIZE,0,0,400,300,0,0,0,0,0,0){
-  texture=nullptr;
-  effect=nullptr;
   glcanvas = new FXGLCanvas(this,ctx,this,ID_CANVAS,LAYOUT_FILL);
   }
 

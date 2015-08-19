@@ -22,17 +22,17 @@
 class GMFontDialog : public FXDialogBox {
 FXDECLARE(GMFontDialog)
 protected:
-  FXFontDesc    selected;
-  GMList      * familylist;
-  GMList      * stylelist;
-  GMList      * sizelist;
-  GMListBox   * pitchlist;
-  GMListBox   * scalelist;
-  GMTextField * sizefield;
-  FXLabel     * preview;
-  FXFont      * previewfont;
+  FXFontDesc    selected    = {};
+  GMList      * familylist  = nullptr;
+  GMList      * stylelist   = nullptr;
+  GMList      * sizelist    = nullptr;
+  GMListBox   * pitchlist   = nullptr;
+  GMListBox   * scalelist   = nullptr;
+  GMTextField * sizefield   = nullptr;
+  FXLabel     * preview     = nullptr;
+  FXFont      * previewfont = nullptr;
 protected:
-  GMFontDialog();
+  GMFontDialog(){}
 private:
   GMFontDialog(const GMFontDialog&);
   GMFontDialog &operator=(const GMFontDialog&);

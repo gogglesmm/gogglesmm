@@ -360,10 +360,8 @@ FXDEFMAP(GMPlug) GMPlugMap[]={
 
 FXIMPLEMENT(GMPlug,FXTopWindow,GMPlugMap,ARRAYNUMBER(GMPlugMap));
 
-GMPlug::GMPlug(){
-  }
 
-GMPlug::GMPlug(FXApp * a) : FXTopWindow(a,"gogglesmm",nullptr,nullptr,DECOR_NONE,0,0,1,1,0,0,0,0,0,0) , socket(0) {
+GMPlug::GMPlug(FXApp * a) : FXTopWindow(a,"gogglesmm",NULL,NULL,DECOR_NONE,0,0,1,1,0,0,0,0,0,0) {
   }
 
 GMPlug::~GMPlug(){

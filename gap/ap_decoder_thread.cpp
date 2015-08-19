@@ -28,7 +28,7 @@
 
 namespace ap {
 
-DecoderThread::DecoderThread(AudioEngine*e) : EngineThread(e),plugin(nullptr) {
+DecoderThread::DecoderThread(AudioEngine*e) : EngineThread(e) {
   }
 
 DecoderThread::~DecoderThread() {

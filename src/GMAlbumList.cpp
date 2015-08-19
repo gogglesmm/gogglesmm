@@ -351,26 +351,6 @@ FXIMPLEMENT(GMAlbumList,FXScrollArea,GMAlbumListMap,ARRAYNUMBER(GMAlbumListMap))
 // Serialization
 GMAlbumList::GMAlbumList(){
   flags|=FLAG_ENABLED;
-  nrows=1;
-  ncols=1;
-  anchor=-1;
-  current=-1;
-  extent=-1;
-  cursor=-1;
-  viewable=-1;
-  sortfunc=nullptr;
-  textColor=0;
-  selbackColor=0;
-  seltextColor=0;
-  itemWidth=1;
-  itemHeight=1;
-  anchorx=0;
-  anchory=0;
-  currentx=0;
-  currenty=0;
-  grabx=0;
-  graby=0;
-  state=false;
   }
 
 
@@ -380,36 +360,14 @@ GMAlbumList::GMAlbumList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts
   flags|=FLAG_ENABLED;
   target=tgt;
   message=sel;
-  nrows=1;
-  ncols=1;
-  anchor=-1;
-  current=-1;
-  extent=-1;
-  cursor=-1;
-  viewable=-1;
-  sortfunc=nullptr;
   textColor=getApp()->getForeColor();
   selbackColor=getApp()->getSelbackColor();
   seltextColor=getApp()->getSelforeColor();
-  itemWidth=1;
-  itemHeight=1;
-  anchorx=0;
-  anchory=0;
-  currentx=0;
-  currenty=0;
-  grabx=0;
-  graby=0;
-  state=false;
-
-
-  listicon=nullptr;
-
   listbasefont=getApp()->getNormalFont();
   listheadfont=getApp()->getNormalFont();
-  listtailfont=GMApp::instance()->getListTailFont();
-  coverheadfont=GMApp::instance()->getCoverHeadFont();
-  coverbasefont=GMApp::instance()->getCoverBaseFont();
-
+  listtailfont=((GMApp*)(getApp()))->getListTailFont();
+  coverheadfont=((GMApp*)(getApp()))->getCoverHeadFont();
+  coverbasefont=((GMApp*)(getApp()))->getCoverBaseFont();
   altbackColor=GMPlayerManager::instance()->getPreferences().gui_row_color;
   }
 
@@ -1886,7 +1844,7 @@ long GMAlbumList::onRightBtnRelease(FXObject*,FXSelector,void* ptr){
     ungrab();
     flags&=~FLAG_SCROLLING;
     flags|=FLAG_UPDATE;
-    if(target && target->tryHandle(this,FXSEL(SEL_RIGHTBUTTONRELEASE,message),ptr)) return 1;
+    if(target) target->tryHandle(this,FXSEL(SEL_RIGHTBUTTONRELEASE,message),ptr);
     return 1;
     }
   return 0;

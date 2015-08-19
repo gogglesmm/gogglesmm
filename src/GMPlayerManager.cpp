@@ -427,35 +427,9 @@ GMPlayerManager* GMPlayerManager::instance() {
   }
 
 
-
 /// Constructor
-GMPlayerManager::GMPlayerManager() :
-  count_track_remaining(0),
-  scheduled_stop(false),
-  has_seeked(false),
-  taskmanager(nullptr),
-#ifdef HAVE_DBUS
-  sessionbus(nullptr),
-  systembus(nullptr),
-  notifydaemon(nullptr),
-  appstatus(nullptr),
-  gsd(nullptr),
-  mpris1(nullptr),
-  mpris2(nullptr),
-#endif
-  application(nullptr),
-  session(nullptr),
-  mainwindow(nullptr),
-  player(nullptr),
-  trayicon(nullptr),
-  scrobbler(nullptr),
-  queue(nullptr),
-  source(nullptr),
-  podcast(nullptr),
-  database(nullptr),
-  covermanager(nullptr),
-  trackinfoset(false) {
-  FXASSERT(myself==nullptr);
+GMPlayerManager::GMPlayerManager() {
+  FXASSERT(myself==NULL);
   myself=this;
   }
 
@@ -555,7 +529,8 @@ FXint GMPlayerManager::init_fifo(int& argc,char** argv){
 
   /// Close fifo on execute or remove fifo if we couldn't open it...
   if (fifo.isOpen()) {
-    fcntl(fifo.handle(),F_SETFD,FD_CLOEXEC);
+    ap_set_closeonexec(fifo.handle());
+    //fcntl(fifo.handle(),F_SETFD,FD_CLOEXEC);
     }
   else {
     FXFile::remove(fifofilename);

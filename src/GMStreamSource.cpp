@@ -45,9 +45,6 @@ FXDEFMAP(GMStreamSource) GMStreamSourceMap[]={
 FXIMPLEMENT(GMStreamSource,GMSource,GMStreamSourceMap,ARRAYNUMBER(GMStreamSourceMap));
 
 
-GMStreamSource::GMStreamSource() : db(nullptr) {
-  }
-
 GMStreamSource::GMStreamSource(GMTrackDatabase * database) : db(database)  {
   FXASSERT(db);
   }

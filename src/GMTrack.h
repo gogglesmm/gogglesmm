@@ -63,15 +63,15 @@ public:
   FXString      composer;
   FXString      conductor;
   FXStringList  tags;
-  FXint         year;
-  FXint 	      no;
-  FXint		      time;
-  FXint         bitrate;
-  FXuint        rating;
-  FXuchar       channels;
-  FXuchar       sampleformat;
-  FXint         samplerate;
-  FXuchar       filetype;
+  FXint         year          = 0;
+  FXint 	      no            = 0;
+  FXint		      time          = 0;
+  FXint         bitrate       = 0;
+  FXuint        rating        = 0;
+  FXuchar       channels      = 0;
+  FXuchar       sampleformat  = 0;
+  FXint         samplerate    = 0;
+  FXuchar       filetype      = FILETYPE_UNKNOWN;
 public:
   GMTrack();
 

@@ -41,8 +41,8 @@ public:
   static FXDragType selectedtracks;
   static FXDragType alltracks;
 protected:
-  GMClipboardData * clipdata;
-  FXObject        * clipowner;
+  GMClipboardData * clipdata = nullptr;
+  FXObject        * clipowner = nullptr;
 protected:
   GMClipboard();
   virtual bool doesOverrideRedirect() const;

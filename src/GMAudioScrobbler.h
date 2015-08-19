@@ -23,10 +23,10 @@ struct GMAudioScrobblerTrack {
   FXString artist;
   FXString album;
   FXString title;
-  FXuint   duration;
-  FXint    no;
-  FXlong   timestamp;
-  FXint    loveban;
+  FXuint   duration = 0;
+  FXint    no = 0;
+  FXlong   timestamp = 0;
+  FXint    loveban = 0;
   GMAudioScrobblerTrack(){}
   GMAudioScrobblerTrack(FXlong time,GMTrack & t,FXint lb) : artist(t.artist),album(t.album),title(t.title),duration(t.time),no(t.no),timestamp(time)/* LastFM */,loveban(lb)/* LastFM End */{}
 
@@ -51,13 +51,13 @@ private:
   FXMutex           mutex_task;
   FXMutex           mutex_data;
   FXCondition       condition_task;
-  FXushort          flags;
+  FXushort          flags = FLAG_NONE;
   FXMessageChannel  feedback;
-  FXObject*         target;
-  FXSelector        message;
-  FXbool            started;
+  FXObject*         target = nullptr;
+  FXSelector        message = 0;
+  FXbool            started = false;
 private:
-  FXuint            mode;
+  FXuint            mode = SERVICE_LASTFM;
   FXString          handshake_url;
   FXString          nowplaying_url;
   FXString          submit_url;
@@ -66,13 +66,13 @@ private:
   FXString          session;
   FXString          token;
 protected:
-  FXlong            timeout;
+  FXlong            timeout = 0;
 private:
   enum {
     TASK_NONE         = 0x0,
     TASK_LOGIN 	      = 0x1,
     TASK_NOWPLAYING   = 0x2,
-    TASK_SUBMIT 	  = 0x4,
+    TASK_SUBMIT 	    = 0x4,
     TASK_SHUTDOWN     = 0x8,
     TASK_AUTHENTICATE = 0x10,
     };

@@ -82,9 +82,9 @@ enum {
 
 
 struct TrackTime {
-  FXint hours;
-  FXint minutes;
-  FXint seconds;
+  FXint hours   = 0;
+  FXint minutes = 0;
+  FXint seconds = 0;
   };
 
 
@@ -97,35 +97,39 @@ protected:
   GMSourceList  sources;
   FXString      fifofilename;
   FXFile        fifo;
-  FXlong        count_track_remaining;
-  FXbool        scheduled_stop;
-  FXbool        has_seeked;
-  GMTaskManager        * taskmanager;
+  FXlong        count_track_remaining = 0;
+  FXbool        scheduled_stop        = false;
+  FXbool        has_seeked            = false;
+  GMTaskManager        * taskmanager  = nullptr;
 protected:
 
 #ifdef HAVE_DBUS
-  GMDBus               * sessionbus;
-  GMDBus               * systembus;
-  GMNotifyDaemon       * notifydaemon;
-  GMAppStatusNotify    * appstatus;
-  GMSettingsDaemon     * gsd;
-  GMMediaPlayerService1* mpris1;
-  GMMediaPlayerService2* mpris2;
+  GMDBus               * sessionbus   = nullptr;
+  GMDBus               * systembus    = nullptr;
+  GMNotifyDaemon       * notifydaemon = nullptr;
+  GMAppStatusNotify    * appstatus    = nullptr;
+  GMSettingsDaemon     * gsd          = nullptr;
+  GMMediaPlayerService1* mpris1       = nullptr;
+  GMMediaPlayerService2* mpris2       = nullptr;
 #endif
-  FXApp 	 				     * application;
-  GMSession            * session;
-  GMWindow 				     * mainwindow;
-  GMAudioPlayer        * player;
-  GMTrayIcon           * trayicon;
-  GMAudioScrobbler     * scrobbler;
+  FXApp 	 				     * application  = nullptr;
+  GMSession            * session      = nullptr;
+  GMWindow 				     * mainwindow   = nullptr;
+  GMAudioPlayer        * player       = nullptr;
+  GMTrayIcon           * trayicon     = nullptr;
+  GMAudioScrobbler     * scrobbler    = nullptr;
+#ifdef HAVE_LIRC
+  FXint                  lirc_fd;
+  struct lirc_config*    lirc_config;
+#endif
 protected:
-  GMPlayQueue          * queue;
-  GMSource             * source;
-  GMPodcastSource      * podcast;
-  GMTrackDatabase      * database;
-  GMCoverManager       * covermanager;
-  GMTrack    trackinfo;
-  FXbool     trackinfoset;
+  GMPlayQueue          * queue        = nullptr;
+  GMSource             * source       = nullptr;
+  GMPodcastSource      * podcast      = nullptr;
+  GMTrackDatabase      * database     = nullptr;
+  GMCoverManager       * covermanager = nullptr;
+  GMTrack                trackinfo;
+  FXbool                 trackinfoset = false;
 protected:
   FXbool hasSourceWithKey(const FXString & key) const;
   void cleanSourceSettings();

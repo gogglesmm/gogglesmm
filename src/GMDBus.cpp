@@ -93,10 +93,10 @@ static GMDBusGlobal fxdbus;
 class GMDBusTimeout : public FXObject {
 FXDECLARE(GMDBusTimeout);
 protected:
-  DBusTimeout* timeout;
-  FXuchar      flags;
+  DBusTimeout* timeout = nullptr;
+  FXuchar      flags = 0;
 protected:
-  GMDBusTimeout();
+  GMDBusTimeout(){}
 private:
   GMDBusTimeout(const GMDBusTimeout*);
   GMDBusTimeout& operator=(const GMDBusTimeout&);
@@ -125,10 +125,7 @@ FXIMPLEMENT(GMDBusTimeout,FXObject,GMDBusTimeoutMap,ARRAYNUMBER(GMDBusTimeoutMap
 
 
 
-GMDBusTimeout::GMDBusTimeout() {
-  }
-
-GMDBusTimeout::GMDBusTimeout(DBusTimeout *t) : timeout(t),flags(0) {
+GMDBusTimeout::GMDBusTimeout(DBusTimeout *t) : timeout(t){
   fxdbus.insert(timeout,this);
   }
 
@@ -279,7 +276,7 @@ FXDEFMAP(GMDBus) GMDBusMap[]={
 
 FXIMPLEMENT(GMDBus,FXObject,GMDBusMap,ARRAYNUMBER(GMDBusMap));
 
-GMDBus::GMDBus() : dc(nullptr) {
+GMDBus::GMDBus() {
   }
 
 GMDBus::~GMDBus(){
@@ -524,7 +521,7 @@ FXDEFMAP(GMDBusProxy) GMDBusProxyMap[]={
 FXIMPLEMENT(GMDBusProxy,FXObject,GMDBusProxyMap,ARRAYNUMBER(GMDBusProxyMap));
 
 
-GMDBusProxy::GMDBusProxy() : target(nullptr) {
+GMDBusProxy::GMDBusProxy() {
   }
 
 GMDBusProxy::~GMDBusProxy()  {

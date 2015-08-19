@@ -153,9 +153,6 @@ FXIMPLEMENT(GMWindow,FXMainWindow,GMWindowMap,ARRAYNUMBER(GMWindowMap))
 GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggles Music Manager",nullptr,nullptr,DECOR_ALL,5,5,700,580) {
   flags|=FLAG_ENABLED;
 
-  remote=nullptr;
-  presenter=nullptr;
-
   icontheme = new GMIconTheme(getApp());
   icontheme->load();
 
@@ -202,10 +199,13 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   coverframe->setBackColor(getApp()->getBackColor());
   coverframe->setBorderColor(getApp()->getShadowColor());
   coverframe->hide();
+<<<<<<< HEAD
   coverview_x11=nullptr;
 #ifdef HAVE_OPENGL
   coverview_gl=nullptr;
 #endif
+=======
+>>>>>>> cpp11-class-member-initialization
 
   updateCoverView();
 
@@ -1120,7 +1120,7 @@ extern const FXchar gmfilepatterns[];
 class GMOpenDialog : public FXDialogBox {
 FXDECLARE(GMOpenDialog)
 protected:
-  GMTextField * input;
+  GMTextField * input = nullptr;
 protected:
   GMOpenDialog(){}
 private:

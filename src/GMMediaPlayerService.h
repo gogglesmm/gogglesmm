@@ -22,12 +22,12 @@
 class GMMediaPlayerService1 : public FXObject {
 FXDECLARE(GMMediaPlayerService1)
 protected:
-  GMDBus * bus;
-  FXbool   published;
+  GMDBus * bus = nullptr;
+  FXbool   published = false;
 protected:
-  DBusObjectPathVTable root_vtable;
-  DBusObjectPathVTable player_vtable;
-  DBusObjectPathVTable tracklist_vtable;
+  DBusObjectPathVTable root_vtable = {};
+  DBusObjectPathVTable player_vtable = {};
+  DBusObjectPathVTable tracklist_vtable = {};
 protected:
   static DBusHandlerResult root_filter(DBusConnection*,DBusMessage*,void *);
   static DBusHandlerResult player_filter(DBusConnection*,DBusMessage*,void *);
@@ -52,10 +52,10 @@ public:
 class GMMediaPlayerService2 : public FXObject {
 FXDECLARE(GMMediaPlayerService2)
 protected:
-  GMDBus * bus;
-  FXbool   published;
+  GMDBus * bus = nullptr;
+  FXbool   published = false;
 protected:
-  DBusObjectPathVTable mpris_vtable;
+  DBusObjectPathVTable mpris_vtable = {};
 protected:
   static DBusHandlerResult mpris_filter(DBusConnection*,DBusMessage*,void *);
 protected:

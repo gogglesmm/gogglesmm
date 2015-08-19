@@ -29,14 +29,8 @@ FXDEFMAP(GMAnimImage) GMAnimImageMap[]={
 FXIMPLEMENT(GMAnimImage,FXImageFrame,GMAnimImageMap,ARRAYNUMBER(GMAnimImageMap))
 
 
-GMAnimImage::GMAnimImage(){
-  index=1;
-  base=16;
-  }
-
 // Construct it
 GMAnimImage::GMAnimImage(FXComposite* p,FXImage *img,FXint bs,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXImageFrame(p,img,opts,x,y,w,h,pl,pr,pt,pb),base(bs){
-  index=1;
   }
 
 GMAnimImage::~GMAnimImage(){

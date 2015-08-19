@@ -33,15 +33,13 @@ FXDEFMAP(GMFontDialog) GMFontDialogMap[]={
 
 FXIMPLEMENT(GMFontDialog,FXDialogBox,GMFontDialogMap,ARRAYNUMBER(GMFontDialogMap))
 
-GMFontDialog::GMFontDialog() {
-  }
 
 GMFontDialog::GMFontDialog(FXApp * a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h) :
-  FXDialogBox(a,name,opts,x,y,w,h,3,3,3,3) , previewfont(nullptr) {
+  FXDialogBox(a,name,opts,x,y,w,h,3,3,3,3) {
   }
 
 GMFontDialog::GMFontDialog(FXWindow* o,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h) :
-  FXDialogBox(o,name,opts,x,y,w,h,4,4,4,4),previewfont(nullptr) {
+  FXDialogBox(o,name,opts,x,y,w,h,4,4,4,4) {
   GMScrollFrame *sunken;
 //  FXVerticalFrame * frm;
 

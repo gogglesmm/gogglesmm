@@ -77,7 +77,7 @@ const FXchar * Codec::name(FXuchar c){
 
 
 
-AudioFormat::AudioFormat() : rate(0),format(0),channels(0),channelmap(0) {
+AudioFormat::AudioFormat() {
   }
 
 

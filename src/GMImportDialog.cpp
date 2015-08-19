@@ -198,7 +198,7 @@ GMDirSelector::~GMDirSelector(){
 class GMFileSelector : public FXFileSelector {
 FXDECLARE(GMFileSelector)
 protected:
-  GMFileAssociations * fileassoc;
+  GMFileAssociations * fileassoc = nullptr;
 protected:
   GMFileSelector(){}
 private:
@@ -424,9 +424,6 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   /// Create a fixed font, about the same size as the normal font
   FXint size = FXApp::instance()->getNormalFont()->getSize();
   font_fixed = new FXFont(FXApp::instance(),"mono",(int)size/10,FXFont::Normal,FXFont::Straight,FONTENCODING_UNICODE,FXFont::NonExpanded,FXFont::Modern|FXFont::Fixed);
-
-  dirselector=nullptr;
-  fileselector=nullptr;
 
   target_track_from_filelist.connect(GMPlayerManager::instance()->getPreferences().import.track_from_filelist);
   target_replace_underscores.connect(GMPlayerManager::instance()->getPreferences().import.replace_underscores);

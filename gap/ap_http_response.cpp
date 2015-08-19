@@ -31,7 +31,6 @@ namespace ap {
 #undef major
 #undef minor
 
-HttpStatus::HttpStatus() : major(0), minor(0), code(0) {}
 
 
 HttpIO::HttpIO() : BufferIO(4096) {
@@ -232,7 +231,6 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
   }
 
 
-HttpContentRange::HttpContentRange() : first(-1),last(-1),length(-1) {}
 HttpContentRange::HttpContentRange(const FXString & str,FXuint opts) : first(-1),last(-1),length(-1) {
   parse(str,opts);
   }

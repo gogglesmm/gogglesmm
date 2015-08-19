@@ -110,11 +110,11 @@ struct RssItem {
   FXString url;
   FXString title;
   FXString description;
-  FXint    length;
-  FXuint   time;
-  FXTime   date;
+  FXint    length = 0;
+  FXuint   time = 0;
+  FXTime   date = 0;
 
-  RssItem() { clear(); }
+  RssItem() {}
 
 
   void trim() {
@@ -148,10 +148,10 @@ public:
   FXString         description;
   FXString         category;
   FXString         image;
-  FXTime           date;
+  FXTime           date = 0;
   FXArray<RssItem> items;
 public:
-  RssFeed() : date(0) {}
+  RssFeed() {}
 
   void trim() {
     title.trim();
@@ -343,7 +343,7 @@ FXDECLARE(GMImportPodcast)
 protected:
   FXString         url;
   RssParser        rss;
-  GMTrackDatabase* db;
+  GMTrackDatabase* db = nullptr;
   GMQuery          get_feed;
   GMQuery          get_tag;
   GMQuery          add_tag;
@@ -665,14 +665,14 @@ protected:
   FXMutex          mutex;
   FXCondition      condition;
 
-  FXint            length;
-  FXint            id;
+  FXint            length = 0;
+  FXint            id     = 0;
   FXString         url;
   FXString         local;
   FXString         localdir;
 
-  GMPodcastSource* src;
-  GMTrackDatabase* db;
+  GMPodcastSource* src = nullptr;
+  GMTrackDatabase* db  = nullptr;
 protected:
   GMPodcastDownloader(){}
 public:
@@ -1064,10 +1064,7 @@ FXDEFMAP(GMPodcastSource) GMPodcastSourceMap[]={
 FXIMPLEMENT(GMPodcastSource,GMSource,GMPodcastSourceMap,ARRAYNUMBER(GMPodcastSourceMap));
 
 
-GMPodcastSource::GMPodcastSource() : db(nullptr) {
-  }
-
-GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(database),covercache(nullptr),downloader(nullptr) {
+GMPodcastSource::GMPodcastSource(GMTrackDatabase * database) : GMSource(), db(database) {
   FXASSERT(db);
   db->execute("SELECT count(id) FROM feed_items WHERE (flags&4)==0",navailable);
   scheduleUpdate();

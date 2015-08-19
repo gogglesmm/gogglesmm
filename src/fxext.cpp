@@ -35,12 +35,10 @@ FXDEFMAP(GMThreadDialog) GMThreadDialogMap[]={
 // Object implementation
 FXIMPLEMENT(GMThreadDialog,FXTopWindow,GMThreadDialogMap,ARRAYNUMBER(GMThreadDialogMap))
 
-GMThreadDialog::GMThreadDialog(FXApp* a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(a,name,nullptr,nullptr,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
-  code=0;
+GMThreadDialog::GMThreadDialog(FXApp* a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(a,name,NULL,NULL,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
   }
 
-GMThreadDialog::GMThreadDialog(FXWindow* own,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(own,name,nullptr,nullptr,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
-  code=0;
+GMThreadDialog::GMThreadDialog(FXWindow* own,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(own,name,NULL,NULL,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
   }
 
 long GMThreadDialog::onThreadExec(FXObject*,FXSelector,void*){
