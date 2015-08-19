@@ -1,5 +1,5 @@
 # Using cmake 3.2
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 # Enable for cmake debugging
 # set(CMAKE_VERBOSE_MAKEFILE TRUE)
