@@ -8,7 +8,7 @@ os:
   - linux
 
 before_script:
-  - cmake
+  - cmake .
 
 script: make
 
