@@ -158,7 +158,7 @@ public:
   FXlong getLength() const {
     FXlong length=0;
     for (int i=0;i<stts.no();i++){
-      length+=stts[i].delta*stts[i].nsamples;
+      length+=static_cast<FXlong>(stts[i].delta)*static_cast<FXlong>(stts[i].nsamples);
       }
     return length;
     }
