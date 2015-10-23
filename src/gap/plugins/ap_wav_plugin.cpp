@@ -41,7 +41,7 @@ namespace ap {
 
 class WavReader : public ReaderPlugin {
 protected:
-  FXuint datasize;    // size of the data section
+  FXlong datasize;    // size of the data section
   FXlong input_start;
 protected:
   ReadStatus parse();
@@ -61,7 +61,8 @@ public:
 
 
 enum {
-  WAV_FORMAT_PCM        = 1,
+  WAV_FORMAT_PCM        = 0x0001,
+  WAV_FORMAT_FLOAT      = 0x0003,
   WAV_FORMAT_EXTENSIBLE = 0xFFFE
   };
 
@@ -70,6 +71,7 @@ enum {
 typedef FXuchar ap_guid_t[16];
 
 const ap_guid_t guid_wav_format_pcm={0x01,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0xaa,0x00,0x38,0x9b,0x71};
+const ap_guid_t guid_wav_format_float={0x03,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0xaa,0x00,0x38,0x9b,0x71};
 
 
 WavReader::WavReader(AudioEngine*e) : ReaderPlugin(e),datasize(0),input_start(0) {
@@ -86,24 +88,13 @@ FXbool WavReader::init(InputPlugin*plugin) {
   }
 
 FXbool WavReader::can_seek() const {
-  return true;
+  return (datasize>0);
   }
 
 
 FXbool WavReader::seek(FXlong pos){
-//  if (af.codec==Codec::PCM) {
   FXlong offset=input_start + FXCLAMP(0,pos*af.framesize(),datasize);
   input->position(offset,FXIO::Begin);
-
-/*
-    FXlong b = (FXlong)(((FXdouble)datasize)*pos);
-    FXlong offset=FXCLAMP(0,((b / af.framesize()) * af.framesize()),datasize);
-    GM_DEBUG_PRINT("seek to %ld\n",offset);
-
-    offset+=input_start;
-    input->position(offset,FXIO::Begin);
-*/
-//    }
   return true;
   }
 
@@ -206,7 +197,7 @@ static FXuint get_channel_order(const FXuint wavmask,const FXuint channels){
 
 
 ReadStatus WavReader::parse() {
-  FXuchar chunkid[4];
+  FXchar  chunkid[4];
   FXuint  chunksize;
   FXushort wconfig;
   FXushort channels;
@@ -220,120 +211,134 @@ ReadStatus WavReader::parse() {
   FXuint   channelmask  = 0;
   FXuint   channelorder = 0;
 
+  FXbool has_fmt=false;
+
   GM_DEBUG_PRINT("parsing wav header\n");
 
-  if (input->read(&chunkid,4)!=4 || chunkid[0]!='R' || chunkid[1]!='I' || chunkid[2]!='F' || chunkid[3]!='F'){
-    GM_DEBUG_PRINT("no RIFF tag found\n");
+  if (input->read(&chunkid,4)!=4)
     return ReadError;
-    }
-
-  if (input->read(&chunksize,4)!=4){
-    return ReadError;
-    }
-
-  if (input->read(&chunkid,4)!=4 || chunkid[0]!='W' || chunkid[1]!='A' || chunkid[2]!='V' || chunkid[3]!='E'){
-    GM_DEBUG_PRINT("no WAVE tag found\n");
-    return ReadError;
-    }
-
-  if (input->read(&chunkid,4)!=4 || chunkid[0]!='f' || chunkid[1]!='m' || chunkid[2]!='t' || chunkid[3]!=' '){
-    GM_DEBUG_PRINT("no fmt tag found\n");
-    return ReadError;
-    }
-
+ 
   if (input->read(&chunksize,4)!=4)
     return ReadError;
 
-  GM_DEBUG_PRINT("chunksize=%d\n",chunksize);
+  if (compare(chunkid,"RIFF",4)==0 || compare(chunkid,"RF64",4)==0) { 
 
-  if (input->read(&wconfig,2)!=2 || !(wconfig==WAV_FORMAT_PCM || wconfig==WAV_FORMAT_EXTENSIBLE) ) {
-    GM_DEBUG_PRINT("WAV not in PCM config: %x\n",wconfig);
-    return ReadError;
-    }
-
-  if (input->read(&channels,2)!=2)
-    return ReadError;
-
-  if (input->read(&rate,4)!=4)
-    return ReadError;
-
-  if (input->read(&byterate,4)!=4)
-    return ReadError;
-
-  if (input->read(&block,2)!=2)
-    return ReadError;
-
-  if (input->read(&samplesize,2)!=2)
-    return ReadError;
-
-
-  chunksize-=16;
-
-  // Require channelmask for channels>2
-  if (channels>2 && wconfig!=WAV_FORMAT_EXTENSIBLE)
-    return ReadError;
-
-  if (wconfig==WAV_FORMAT_EXTENSIBLE) {
-
-    if (input->read(&validbitspersample,2)!=2)
+    if (input->read(&chunkid,4)!=4 || compare(chunkid,"WAVE",4)) 
       return ReadError;
 
-    if (input->read(&validbitspersample,2)!=2)
-      return ReadError;
+    while(1) {
 
-    if (input->read(&channelmask,4)!=4)
-      return ReadError;
+      if (input->read(&chunkid,4)!=4)
+        return ReadError;
+        
+      if (input->read(&chunksize,4)!=4)
+        return ReadError;
 
-    if (input->read(&subconfig,16)!=16)
-      return ReadError;
+      if (compare(chunkid,"data",4)==0) {
 
-    // Make sure it's PCM
-    if (memcmp(subconfig,guid_wav_format_pcm,16)!=0)
-      return ReadError;
+        if (has_fmt==false)
+          return ReadError;
 
-    chunksize-=24;
-    }
+        input_start = input->position();
 
-  // Get the channel order
-  channelorder = get_channel_order(channelmask,channels);
-  if (channelorder==Channel::None)
-    return ReadError;
-
-
-  GM_DEBUG_PRINT("chunksize left: %d\n",chunksize);
-  input->position(chunksize,FXIO::Current);
-
-  if (input->read(&chunkid,4)!=4 || chunkid[0]!='d' || chunkid[1]!='a' || chunkid[2]!='t' || chunkid[3]!='a'){
-    GM_DEBUG_PRINT("data tag not found: %c%c%c%c\n",chunkid[0],chunkid[1],chunkid[2],chunkid[3]);
-    return ReadError;
-    }
-
-  if (input->read(&datasize,4)!=4)
-    return ReadError;
-
-  input_start = input->position();
-
-  if (wconfig==WAV_FORMAT_EXTENSIBLE)
-    af.set(Format::Signed|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
-  else
-    af.set(Format::Signed|Format::Little,samplesize,samplesize>>3,rate,channels,channelorder);
-
+        if (wconfig==WAV_FORMAT_PCM){
+          af.set(Format::Signed|Format::Little,samplesize,samplesize>>3,rate,channels,channelorder);
+          }
+        else if (wconfig==WAV_FORMAT_FLOAT) {
+          af.set(Format::Float|Format::Little,samplesize,samplesize>>3,rate,channels,channelorder);
+          }
+        else if (wconfig==WAV_FORMAT_EXTENSIBLE) {
+          if (memcmp(subconfig,guid_wav_format_pcm,16)!=0)
+            af.set(Format::Signed|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
+          else if (memcmp(subconfig,guid_wav_format_float,16)!=0)
+            af.set(Format::Float|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
+          }
+        else 
+          return ReadError;
+        
 #ifdef DEBUG
-  af.debug();
-  if (block!=af.framesize())
-    GM_DEBUG_PRINT("warning: blockalign not the same as framesize\n");
+         af.debug();
+         if (block!=af.framesize())
+           GM_DEBUG_PRINT("warning: blockalign not the same as framesize\n");
 #endif
+        flags|=FLAG_PARSED;
+        stream_length=-1;
+        if (!input->serial()) {
+          stream_length = (input->size() - input_start) / af.framesize();
+          datasize = input->size() - input_start;
+          }
+        GM_DEBUG_PRINT("[wav_reader] stream_length %ld\n",stream_length);
+        engine->decoder->post(new ConfigureEvent(af,Codec::PCM));
+        return ReadOk;
+        }
+      else if (compare(chunkid,"ds64",4)==0) {
+        input->position(chunksize,FXIO::Current);
+        }
+      else if (compare(chunkid,"fmt ",4)==0) {
 
-  flags|=FLAG_PARSED;
+        if (input->read(&wconfig,2)!=2 || !(wconfig==WAV_FORMAT_PCM || wconfig==WAV_FORMAT_FLOAT || wconfig==WAV_FORMAT_EXTENSIBLE) ) {
+          GM_DEBUG_PRINT("WAV not in PCM config: %x\n",wconfig);
+          return ReadError;
+          }
 
-  stream_length=-1;
-  if (!input->serial()) {
-    stream_length = (input->size() - input_start) / af.framesize();
+        if (input->read(&channels,2)!=2)
+          return ReadError;
+
+        if (input->read(&rate,4)!=4)
+          return ReadError;
+
+        if (input->read(&byterate,4)!=4)
+          return ReadError;
+
+        if (input->read(&block,2)!=2)
+          return ReadError;
+
+        if (input->read(&samplesize,2)!=2)
+          return ReadError;
+
+        chunksize-=16;
+
+        // Require channelmask for channels>2
+        if (channels>2 && wconfig!=WAV_FORMAT_EXTENSIBLE)
+          return ReadError;
+
+        if (wconfig==WAV_FORMAT_EXTENSIBLE) {
+
+          if (input->read(&validbitspersample,2)!=2)
+            return ReadError;
+
+          if (input->read(&validbitspersample,2)!=2)
+            return ReadError;
+
+          if (input->read(&channelmask,4)!=4)
+            return ReadError;
+
+          if (input->read(&subconfig,16)!=16)
+            return ReadError;
+
+          // Make sure it's PCM
+          if (memcmp(subconfig,guid_wav_format_pcm,16)!=0)
+            return ReadError;
+
+          chunksize-=24;
+          }
+
+        GM_DEBUG_PRINT("chunksize left: %d\n",chunksize);
+        input->position(chunksize,FXIO::Current);
+
+        // Get the channel order
+        channelorder = get_channel_order(channelmask,channels);
+        if (channelorder==Channel::None)
+          return ReadError;
+
+        has_fmt=true;
+        }
+      else {
+        input->position(chunksize,FXIO::Current);
+        }
+      }
     }
-
-  GM_DEBUG_PRINT("[wav_reader] stream_length %ld\n",stream_length);
-  engine->decoder->post(new ConfigureEvent(af,Codec::PCM));
-  return ReadOk;
+  return ReadError;
   }
 
 
