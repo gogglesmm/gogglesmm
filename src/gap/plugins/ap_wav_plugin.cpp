@@ -316,8 +316,8 @@ ReadStatus WavReader::parse() {
           if (input->read(&subconfig,16)!=16)
             return ReadError;
 
-          // Make sure it's PCM
-          if (memcmp(subconfig,guid_wav_format_pcm,16)!=0)
+          // Make sure it's PCM or Float
+          if (memcmp(subconfig,guid_wav_format_pcm,16)!=0 && memcmp(subconfig,guid_wav_format_float,16)!=0)
             return ReadError;
 
           chunksize-=24;
