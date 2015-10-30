@@ -68,15 +68,38 @@ WavOutput::~WavOutput() {
   }
 
 
+enum {
+  WAV_FORMAT_PCM        = 0x0001,
+  WAV_FORMAT_FLOAT      = 0x0003,
+  //WAV_FORMAT_EXTENSIBLE = 0xFFFE
+  };
+
+
 ///FIXME perhaps support extensible wav format
 FXbool WavOutput::configure(const AudioFormat & fmt) {
+  FXushort format;
+
+  // Can't handle big endian yet, neither does the output thread handle byteorder swaps
+  if (fmt.byteorder() != Format::Little)
+    return false;
+
+  // Extensible Wav Format not yet supported
+  if (fmt.channels>2)
+    return false;
+
+  // Determine format
+  switch(fmt.datatype()) {
+    case Format::Signed: format = WAV_FORMAT_PCM;  break;
+    case Format::Float : format = WAV_FORMAT_FLOAT; break;
+    default            : return false; break;
+    }
+
   FXString path=FXPath::unique("gap.wav");
   if (file.open(path,FXIO::Writing)) {
     GM_DEBUG_PRINT("[wav] opened output file: %s\n",path.text());
     af=fmt;
     FXuint chunksize=0;
     FXlong ldata=0; 
-    FXushort format=1;
 
     /// riff chunk
     file.writeBlock("RIFF",4);
