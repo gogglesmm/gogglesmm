@@ -278,9 +278,19 @@ FXbool GMApp::hasOpenGL() {
 
 
 void GMApp::initOpenGL() {
-  if (glcontext == nullptr) {
-    glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
-    glcontext = new FXGLContext(this,glvisual);
+  if (glcontext == NULL) {
+    try {
+      glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
+      glcontext = new FXGLContext(this,glvisual);
+      glcontext->create();
+      }
+    catch(FXWindowException &) {
+      fxwarning("Failed to create OpenGL context\n");
+      delete glcontext;
+      delete glvisual;
+      glcontext=nullptr;
+      glvisual=nullptr;
+      }
     }
   }
 
