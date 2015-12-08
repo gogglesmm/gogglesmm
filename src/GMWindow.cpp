@@ -418,12 +418,14 @@ void GMWindow::showPresenter(){
 #ifdef HAVE_OPENGL
   if (!presenter) {
     GMApp::instance()->initOpenGL();
-    GMPresenter p(getApp(),GMApp::instance()->getGLContext(),target,message);
-    p.create();
-    presenter=&p;
-    updateCover();
-    p.execute();
-    presenter=NULL;
+    if (GMApp::instance()->getGLContext()) {
+      GMPresenter p(getApp(),GMApp::instance()->getGLContext(),target,message);
+      p.create();
+      presenter=&p;
+      updateCover();
+      p.execute();
+      presenter=NULL;
+      }
     }
 #endif
   }
@@ -1341,42 +1343,40 @@ void GMWindow::updateCover() {
 void GMWindow::updateCoverView() {
 #ifdef HAVE_OPENGL
   if (GMApp::instance()->hasOpenGL()) {
-    if (coverview_x11) {
-      clearCover();
-      delete coverview_x11;
-      coverview_x11=NULL;
-      }
+    GMApp::instance()->initOpenGL();
+    if (GMApp::instance()->getGLContext()) {
+      if (coverview_x11) {
+        clearCover();
+        delete coverview_x11;
+        coverview_x11=NULL;
+        }
 
-    if (!coverview_gl) {
-      GMApp::instance()->initOpenGL();
-      coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLContext(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
-      coverview_gl->setTarget(this);
-      coverview_gl->setSelector(ID_COVERVIEW);
-      coverview_gl->enable();
-      if (coverframe->id()) coverview_gl->create();
+      if (!coverview_gl) {
+        GMApp::instance()->initOpenGL();
+        coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLContext(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
+        coverview_gl->setTarget(this);
+        coverview_gl->setSelector(ID_COVERVIEW);
+        coverview_gl->enable();
+        if (coverframe->id()) coverview_gl->create();
+        }
+      return;
       }
-
     }
-  else {
 
-    if (coverview_gl) {
-      clearCover();
-      delete coverview_gl;
-      coverview_gl=NULL;
-      //GMApp::instance()->releaseOpenGL();
-      }
-#endif
-    if (!coverview_x11) {
-      coverview_x11 = new GMImageFrame(coverframe,NULL,FRAME_NONE|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
-      coverview_x11->setBackColor(getApp()->getBackColor());
-      coverview_x11->setTarget(this);
-      coverview_x11->setSelector(ID_COVERVIEW);
-      coverview_x11->enable();
-      if (coverframe->id()) coverview_x11->create();
-      }
-#ifdef HAVE_OPENGL
+  if (coverview_gl) {
+    clearCover();
+    delete coverview_gl;
+    coverview_gl=NULL;
     }
 #endif
+  if (!coverview_x11) {
+    coverview_x11 = new GMImageFrame(coverframe,NULL,FRAME_NONE|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
+    coverview_x11->setBackColor(getApp()->getBackColor());
+    coverview_x11->setTarget(this);
+    coverview_x11->setSelector(ID_COVERVIEW);
+    coverview_x11->enable();
+    if (coverframe->id()) coverview_x11->create();
+    }	
   }
 
 long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){

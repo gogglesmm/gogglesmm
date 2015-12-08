@@ -283,21 +283,35 @@ FXbool GMApp::hasOpenGL() {
 
 void GMApp::initOpenGL() {
   if (glcontext == NULL) {
-    glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
-    glcontext = new FXGLContext(this,glvisual);
-
     FXImage * glimage = new FXImage(this);
-    glimage->setVisual(glvisual);
-    glimage->create();
+    try {
+      glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
+      glcontext = new FXGLContext(this,glvisual);
+      glcontext->create();
 
-    if (glcontext->begin(glimage)) {
-      if (glewInit()!=GLEW_OK) {
-        fxwarning("failed to initialize opengl extensions");
+      glimage->setVisual(glvisual);
+      glimage->create();
+
+      if (glcontext->begin(glimage)) {
+        if (glewInit()!=GLEW_OK) {
+          fxwarning("Failed to initialize opengl extensions\n");
+          glcontext->end();
+          releaseOpenGL();
+          delete glimage;
+          return;
+          }
+        glcontext->end();
         }
-      glcontext->end();
+      delete glimage;
       }
-
-    delete glimage;
+    catch(FXWindowException &) {
+      fxwarning("Failed to create OpenGL context\n");
+      delete glcontext;
+      delete glvisual;
+      delete glimage;
+      glcontext=nullptr;
+      glvisual=nullptr;
+      }
     }
   }
 
