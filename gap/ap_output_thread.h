@@ -73,11 +73,12 @@ protected:
   FXbool draining;
   FXbool pausing;
 protected:
-  FXint stream_length;
-  FXint stream_remaining;
-  FXint stream_written;
-  FXint stream_position;
-  FXint timestamp;
+  FXint     stream;
+  FXlong    stream_length;
+  FXint     stream_remaining;
+  FXint     stream_written;
+  FXlong    stream_position;
+  FXint     timestamp;
 protected:
   FXPtrListOf<FrameTimer> timers;
   void update_timers(FXint delay,FXint nframes);
@@ -95,7 +96,7 @@ protected:
 #endif
   void drain(FXbool flush=true);
 
-  void update_position(FXuint stream,FXint position,FXint nframes,FXint length);
+  void update_position(FXint stream,FXlong position,FXint nframes,FXlong length);
   void notify_position();
   void reset_position();
 
