@@ -117,6 +117,7 @@ set(PLUGIN_SOURCES plugins/ap_aiff.cpp
                    plugins/ap_pls.cpp
                    plugins/ap_wav.cpp
                    plugins/ap_xspf.cpp
+                   plugins/ap_matroska.cpp
                    )
 
 if (FLAC_FOUND)

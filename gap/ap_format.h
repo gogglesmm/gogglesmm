@@ -147,7 +147,8 @@ enum {
   M3U               = 10,
   PLS               = 11,
   XSPF              = 12,
-  AIFF              = 13
+  AIFF              = 13,
+  Matroska          = 14
   };
 
 }

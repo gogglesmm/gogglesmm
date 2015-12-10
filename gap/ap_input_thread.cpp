@@ -239,7 +239,6 @@ void InputThread::ctrl_open_input(const FXString & url) {
     engine->post(new ErrorMessage(FXString::value("Failed to initialize reader")));
     goto failed;
     }
-
   stream++;
   set_state(StateProcessing,true);
   return;

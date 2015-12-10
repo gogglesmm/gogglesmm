@@ -180,4 +180,25 @@ FXbool InputPlugin::read_int16_be(FXshort & value) {
   return false;
   }
 
+
+FXbool InputPlugin::read_float_be(FXfloat & value) {
+  
+  if (read(&value,4)==4) {
+#if FOX_BIGENDIAN == 0
+    value = swap16(value);
+#endif
+    return true;
+    }
+  return false;
+  }
+
+
+
+
+
+
+
+
+
+
 }

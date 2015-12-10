@@ -51,6 +51,8 @@ public:
   FXbool read_uint32_be(FXuint &);
   FXbool read_int64_be(FXlong &);
   FXbool read_uint64_be(FXulong &);
+  FXbool read_float_be(FXfloat&);
+  FXbool read_double_be(FXdouble&);
 
   /// Read ncount bytes, returns -1 for error, -2 for interrupted
   virtual FXival read(void*data,FXival ncount) = 0;
