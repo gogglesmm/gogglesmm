@@ -856,7 +856,7 @@ FXint GMPodcastUpdater::run() {
     GMQuery all_items(db,"SELECT id,guid FROM feed_items WHERE feed = ?;");
     GMQuery del_items(db,"DELETE FROM feed_items WHERE id == ? AND NOT (flags&2);");
     GMQuery get_item(db,"SELECT id FROM feed_items WHERE feed == ? AND guid == ?;");
-    GMQuery set_feed(db,"UPDATE feeds SET date = ? WHERE id = ?;");
+    GMQuery set_feed(db,"UPDATE feeds SET url = ?, date = ? WHERE id = ?;");
     GMQuery fix_time(db,"UPDATE feed_items SET time = ? WHERE feed = ? AND guid = ?;");
     GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, ?)");
 
@@ -886,8 +886,9 @@ FXint GMPodcastUpdater::run() {
 
       HttpClient    http;
       HttpMediaType media;
+      FXString      moved;
 
-      if (!http.basic("GET",url))
+      if (!http.basic("GET",url,FXString::null,FXString::null,&moved))
         continue;
 
       if (!http.getContentType(media)) {
@@ -899,69 +900,78 @@ FXint GMPodcastUpdater::run() {
         continue;
         }
 
+
       FXString feed = http.body();
       RssParser rss;
 
       if (rss.parse(feed,media.parameters["charset"])) {
+        if (rss.feed.date!=date) {
+          GM_DEBUG_PRINT("[rss] feed needs updating %s - %s\n",FXSystem::universalTime(rss.feed.date).text(),FXSystem::localTime(rss.feed.date).text());
 
-        rss.feed.trim();
+          rss.feed.trim();
 
-        gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
+          gm_dump_file(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir+PATHSEPSTRING"feed.rss",feed);
 
-        GM_DEBUG_PRINT("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
-        if (!rss.feed.image.empty()) {
-          GM_DEBUG_PRINT("[rss] cover %s\n",rss.feed.image.text());
-          gm_download_cover(rss.feed.image,GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir);
-          }
-
-        FXDictionary guids;
-        for (int i=0;i<rss.feed.items.no();i++){
-          if (rss.feed.items[i].guid().empty()) continue;
-          guids.insert(rss.feed.items[i].guid().text(),(void*)(FXival)1);
-          }
-
-        all_items.set(0,id);
-        while(all_items.row()){
-          all_items.get(0,item_id);
-          all_items.get(1,guid);
-          if (guid.empty() || guids.has(guid)==false){
-            del_items.set(0,item_id);
-            del_items.execute();
+          GM_DEBUG_PRINT("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
+          if (!rss.feed.image.empty()) {
+            GM_DEBUG_PRINT("[rss] cover %s\n",rss.feed.image.text());
+            gm_download_cover(rss.feed.image,GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir);
             }
-          }
-        all_items.reset();
 
-        for (int i=0;i<rss.feed.items.no();i++){
-          item_id=0;
-          get_item.set(0,id);
-          get_item.set(1,rss.feed.items[i].guid());
-          get_item.execute(item_id);
-          if (item_id==0) {
-            add_feed_item.set(0,id);
-            add_feed_item.set(1,rss.feed.items[i].guid());
-            add_feed_item.set(2,rss.feed.items[i].url);
-            add_feed_item.set(3,rss.feed.items[i].title);
-            add_feed_item.set(4,rss.feed.items[i].description);
-            add_feed_item.set(5,rss.feed.items[i].length);
-            add_feed_item.set(6,rss.feed.items[i].time);
-            add_feed_item.set(7,rss.feed.items[i].date);
-            add_feed_item.set(8,flags);
-            add_feed_item.execute();
+          FXDictionary guids;
+          for (int i=0;i<rss.feed.items.no();i++){
+            if (rss.feed.items[i].guid().empty()) continue;
+            guids.insert(rss.feed.items[i].guid().text(),(void*)(FXival)1);
             }
-          else {
-            if (rss.feed.items[i].time) {
-              fix_time.set(0,rss.feed.items[i].time);
-              fix_time.set(1,id);
-              fix_time.set(2,rss.feed.items[i].guid());
-              fix_time.execute();
+
+          all_items.set(0,id);
+          while(all_items.row()){
+            all_items.get(0,item_id);
+            all_items.get(1,guid);
+            if (guid.empty() || guids.has(guid)==false){
+              del_items.set(0,item_id);
+              del_items.execute();
               }
             }
-          }
-        GM_DEBUG_PRINT("[rss] Update date to %s\n",FXSystem::universalTime(rss.feed.date).text());
-        set_feed.set(0,rss.feed.date);
-        set_feed.set(1,id);
-        if (rss.feed.date>date) {
-          GM_DEBUG_PRINT("[rss] feed needs updating %s - %s\n",FXSystem::universalTime(rss.feed.date).text(),FXSystem::localTime(rss.feed.date).text());
+          all_items.reset();
+
+          for (int i=0;i<rss.feed.items.no();i++){
+            item_id=0;
+            get_item.set(0,id);
+            get_item.set(1,rss.feed.items[i].guid());
+            get_item.execute(item_id);
+            if (item_id==0) {
+              add_feed_item.set(0,id);
+              add_feed_item.set(1,rss.feed.items[i].guid());
+              add_feed_item.set(2,rss.feed.items[i].url);
+              add_feed_item.set(3,rss.feed.items[i].title);
+              add_feed_item.set(4,rss.feed.items[i].description);
+              add_feed_item.set(5,rss.feed.items[i].length);
+              add_feed_item.set(6,rss.feed.items[i].time);
+              add_feed_item.set(7,rss.feed.items[i].date);
+              add_feed_item.set(8,flags);
+              add_feed_item.execute();
+              }
+            else {
+              if (rss.feed.items[i].time) {
+                fix_time.set(0,rss.feed.items[i].time);
+                fix_time.set(1,id);
+                fix_time.set(2,rss.feed.items[i].guid());
+                fix_time.execute();
+                }
+              }
+            }
+          GM_DEBUG_PRINT("[rss] Update date to %s\n",FXSystem::universalTime(rss.feed.date).text());
+          if (!moved.empty()) {
+            GM_DEBUG_PRINT("[rss] feed was moved:\n      from: \"%s\"\n        to: \"%s\"\n",url.text(),moved.text());    
+            set_feed.set(0,moved);
+            }
+          else {
+            set_feed.set(0,url);
+            }
+          set_feed.set(1,rss.feed.date);
+          set_feed.set(2,id);
+          set_feed.execute();
           }
         else {
           GM_DEBUG_PRINT("[rss] feed is up to date\n");

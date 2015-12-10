@@ -71,8 +71,8 @@ public:
   FXbool basic(const FXchar *   method,
                FXString         url,
                const FXString & headers=FXString::null,
-               const FXString & body=FXString::null);
-
+               const FXString & body=FXString::null,
+               FXString*        moved=nullptr);
   ~HttpClient();
   };
 
