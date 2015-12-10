@@ -89,9 +89,10 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
 
   // Determine format
   switch(fmt.datatype()) {
-    case Format::Signed: format = WAV_FORMAT_PCM;  break;
-    case Format::Float : format = WAV_FORMAT_FLOAT; break;
-    default            : return false; break;
+    case Format::Unsigned : 
+    case Format::Signed   : format = WAV_FORMAT_PCM;  break;
+    case Format::Float    : format = WAV_FORMAT_FLOAT; break;
+    default               : return false; break;
     }
 
   FXString path=FXPath::unique("gap.wav");
