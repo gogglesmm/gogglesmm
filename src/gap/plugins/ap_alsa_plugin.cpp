@@ -60,6 +60,7 @@ namespace ap {
 static FXbool to_alsa_format(const AudioFormat & af,snd_pcm_format_t & alsa_format) {
   switch(af.format){
     case AP_FORMAT_S8        : alsa_format=SND_PCM_FORMAT_S8;       break;
+    case AP_FORMAT_U8        : alsa_format=SND_PCM_FORMAT_U8;       break;
     case AP_FORMAT_S16_LE    : alsa_format=SND_PCM_FORMAT_S16_LE;   break;
     case AP_FORMAT_S16_BE    : alsa_format=SND_PCM_FORMAT_S16_BE;   break;
     case AP_FORMAT_S24_LE    : alsa_format=SND_PCM_FORMAT_S24_LE;   break;
