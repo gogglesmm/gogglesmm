@@ -964,11 +964,11 @@ FXint GMPodcastUpdater::run() {
           GM_DEBUG_PRINT("[rss] Update date to %s\n",FXSystem::universalTime(rss.feed.date).text());
           if (!moved.empty()) {
             GM_DEBUG_PRINT("[rss] feed was moved:\n      from: \"%s\"\n        to: \"%s\"\n",url.text(),moved.text());    
-            }
-          if (!moved.empty())
             set_feed.set(0,moved);
-          else
+            }
+          else {
             set_feed.set(0,url);
+            }
           set_feed.set(1,rss.feed.date);
           set_feed.set(2,id);
           set_feed.execute();
