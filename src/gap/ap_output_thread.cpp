@@ -217,7 +217,7 @@ void OutputThread::update_timers(FXint delay,FXint nframes) {
 
 
 
-void OutputThread::update_position(FXint sid,FXint position,FXint nframes,FXint length) {
+void OutputThread::update_position(FXint sid,FXlong position,FXint nframes,FXlong length) {
   FXint delay = plugin->delay();
   FXASSERT(position>=0);
 
