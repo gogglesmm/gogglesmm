@@ -243,9 +243,9 @@ void gm_taglib_string(const TagLib::String & src,FXString & dst) {
   const int slen = src.size();
 
   /* Determine Number of Bytes Needed */
-  register FXint p=0;
-  register FXint q=0;
-  register FXwchar w;
+  FXint p=0;
+  FXint q=0;
+  FXwchar w;
 
   while(q<slen){
     w=src[q++];

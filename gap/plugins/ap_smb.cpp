@@ -125,7 +125,7 @@ FXlong SMBInput::size() {
 
 FXbool SMBInput::eof()  {
   if(fd>=SMBC_BASE_FD){
-    register FXival pos=position();
+    FXival pos=position();
     return 0<=pos && size()<=pos;
     }
   return true;
