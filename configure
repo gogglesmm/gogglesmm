@@ -78,14 +78,14 @@ GOGGLESMM_CFLAGS=${GOGGLESMM_CFLAGS:--fvisibility=hidden -std=c++11}
 # or set CFLAGS which overrides all them
 #-------------------------------------------------------
 GEN_CFLAGS=${GEN_CFLAGS:--Wall -Wextra -Wformat=2 -pipe}
-OPT_CFLAGS=${OPT_CFLAGS:--Os -march=native -flto}
+OPT_CFLAGS=${OPT_CFLAGS:--Os -march=native}
 DEBUG_CFLAGS=${DEBUG_CFLAGS:--g -Og}
 
 # Overriding Linker Flags
 # Either override GEN_LDFLAGS, OPT_LDFLAGS and DEBUG_LDFLAGS individually
 # or set LDFLAGS which overrides all them
 #-------------------------------------------------------
-GEN_LDFLAGS=${GEN_LDFLAGS:--Wl,--as-needed -flto}
+GEN_LDFLAGS=${GEN_LDFLAGS:--Wl,--as-needed}
 OPT_LDFLAGS=${OPT_LDFLAGS:--s}
 DEBUG_LDFLAGS=${DEBUG_LDFLAGS:-}
 
