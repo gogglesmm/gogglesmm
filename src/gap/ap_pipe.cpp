@@ -198,7 +198,6 @@ void NotifyPipe::clear() {
 #elif defined(HAVE_EVENTFD)
   FXlong value;
   while(read(h[0],&value,sizeof(FXlong))>0);
-//  read(h[0],&value,sizeof(FXlong));
 #else
   FXchar buf[16];
   FXint result;
@@ -211,7 +210,8 @@ void NotifyPipe::signal() {
   SetEvent(h[0]);
 #elif defined(HAVE_EVENTFD)
   const FXlong value=1;
-  write(h[0],&value,sizeof(FXlong));
+  if (write(h[0],&value,sizeof(FXlong))!=sizeof(FXlong))
+    fxwarning("gogglesmm: NotifyPipe::signal failed\n");
 #else
   const FXchar buf=1;
   if (write(h[1],&buf,1)!=1)
