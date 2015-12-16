@@ -1,8 +1,8 @@
 # Using cmake 3.2
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
 # Enable for cmake debugging
-# set(CMAKE_VERBOSE_MAKEFILE TRUE)
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 # libdir name to allow overriding to lib32 / lib64
 set(CMAKE_INSTALL_LIBDIR
