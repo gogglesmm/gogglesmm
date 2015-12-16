@@ -19,6 +19,8 @@
 #ifndef GMTRAYICON_H
 #define GMTRAYICON_H
 
+#ifndef _WIN32
+
 class GMTrayIcon : public GMPlug {
 FXDECLARE(GMTrayIcon)
 protected:
@@ -65,5 +67,5 @@ public:
 
   virtual ~GMTrayIcon();
   };
-
+#endif
 #endif

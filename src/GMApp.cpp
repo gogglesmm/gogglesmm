@@ -106,16 +106,19 @@ GMApp* GMApp::instance() {
 
 
 void GMApp::create() {
-
+#ifndef _WIN32
   FXString systemtray = FXString::value("_NET_SYSTEM_TRAY_S%d",DefaultScreen((Display*)getDisplay()));
 
   xembed      = (FXID)XInternAtom((Display*)getDisplay(),"_XEMBED",False);
   xmanager    = (FXID)XInternAtom((Display*)getDisplay(),"MANAGER",True);
   xsystemtray = XInternAtom((Display*)getDisplay(),systemtray.text(),True);
+#endif
 
   FXApp::create();
 
+#ifndef _WIN32
   XSelectInput((Display*)getDisplay(),getRootWindow()->id(),KeyPressMask|KeyReleaseMask|StructureNotifyMask);
+#endif
 
   FXFontDesc fontdescription = getNormalFont()->getFontDesc();
   fontdescription.weight = FXFont::Bold;
@@ -313,7 +316,7 @@ void GMApp::releaseOpenGL() {
 
 
 
-
+#ifndef _WIN32
 
 enum {
   XEMBED_EMBEDDED_NOTIFY = 0,
@@ -362,8 +365,10 @@ FXbool GMApp::dispatchEvent(FXRawEvent & ev) {
     }
   return FXApp::dispatchEvent(ev);
   }
+#endif
 
 
+#ifndef _WIN32
 FXDEFMAP(GMPlug) GMPlugMap[]={
   FXMAPFUNC(SEL_EMBED_NOTIFY,0,GMPlug::onEmbedded)
   };
@@ -413,7 +418,7 @@ long GMPlug::onEmbedded(FXObject*,FXSelector,void*ptr){
   socket=(FXID)(FXival)ptr;
   return 1;
   }
-
+#endif
 
 
 void fix_wm_properties(const FXWindow * window) {
