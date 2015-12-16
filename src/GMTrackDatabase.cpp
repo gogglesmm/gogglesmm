@@ -28,8 +28,13 @@
 /// For listing default genres
 #include <id3v1genres.h>
 
+#ifdef __GNUC__
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
+#else
+#define DEBUG_DB_GET() FXTRACE((51,"%s\n",__function__))
+#define DEBUG_DB_SET() FXTRACE((52,"%s\n",__function__))
+#endif
 
 
 #define GOGGLESMM_DATABASE_SCHEMA_VERSION 2017  /* Album Audio Quality*/

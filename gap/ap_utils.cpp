@@ -76,7 +76,7 @@
 #endif
 
 // for fcntl
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -114,7 +114,7 @@ FXString ap_get_environment(const FXchar * key,const FXchar * def) {
 
 
 FXbool ap_set_nonblocking(FXInputHandle fd) {
-#ifndef WIN32
+#ifndef _WIN32
   FXint flags = fcntl(fd,F_GETFL);
   if (flags==-1 || fcntl(fd,F_SETFL,(flags|O_NONBLOCK))==-1)
     return false;
@@ -123,7 +123,7 @@ FXbool ap_set_nonblocking(FXInputHandle fd) {
   }
 
 FXbool ap_set_closeonexec(FXInputHandle fd) {
-#ifndef WIN32
+#ifndef _WIN32
   FXint flags;
   flags = fcntl(fd,F_GETFD);
   if (flags==-1 || fcntl(fd,F_SETFD,(flags|FD_CLOEXEC))==-1)
@@ -453,7 +453,7 @@ void Base64Encoder::encode(const FXuchar * in,FXint len) {
 
 
 FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode){
-#ifndef WIN32
+#ifndef _WIN32
   FXint n,nfds=1;
   struct pollfd fds[2];
   fds[0].fd    	= io;

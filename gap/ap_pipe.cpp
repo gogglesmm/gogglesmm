@@ -29,7 +29,7 @@
 #include <fcntl.h>
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #include <errno.h>
 #endif
@@ -58,7 +58,7 @@ Pipe::~Pipe() {
   }
 
 FXbool Pipe::create() {
-#ifdef WIN32
+#ifdef _WIN32
   if (CreatePipe(&h[0],&h[1],nullptr,0)==0)
     return false;
 #else
@@ -101,7 +101,7 @@ FXbool Pipe::create() {
 
 
 void Pipe::close() {
-#ifdef WIN32
+#ifdef _WIN32
   if (h[0]!=BadHandle) CloseHandle(h[0]);
   if (h[1]!=BadHandle) CloseHandle(h[1]);
   h[0]=h[1]=BadHandle;
@@ -122,7 +122,7 @@ EventPipe::~EventPipe() {
   }
 
 void EventPipe::push(Event *ptr) {
-#ifdef WIN32
+#ifdef _WIN32
   DWORD nw;
   WriteFile(device,&ptr,(DWORD)sizeof(Event*),&nw,nullptr);
 #else
@@ -132,7 +132,7 @@ void EventPipe::push(Event *ptr) {
   }
 
 Event * EventPipe::pop() {
-#ifdef WIN32
+#ifdef _WIN32
   Event * ptr = nullptr;
   DWORD nr;
   if(::ReadFile(device,&ptr,(DWORD)sizeof(Event*),&nr,nullptr)!=0 && nr==sizeof(Event*)){
@@ -156,7 +156,7 @@ NotifyPipe::~NotifyPipe() {
   }
 
 FXbool NotifyPipe::create() {
-#if defined(WIN32)
+#if defined(_WIN32)
   h[0]=CreateEvent(nullptr,TRUE,FALSE,nullptr);
   if (h[0]==BadHandle)
     return false;
@@ -192,7 +192,7 @@ FXbool NotifyPipe::create() {
   }
 
 void NotifyPipe::clear() {
-#if defined(WIN32)
+#if defined(_WIN32)
   ResetEvent(h[0]);
 #elif defined(HAVE_EVENTFD)
   FXlong value;
@@ -206,7 +206,7 @@ void NotifyPipe::clear() {
   }
 
 void NotifyPipe::signal() {
-#if defined(WIN32)
+#if defined(_WIN32)
   SetEvent(h[0]);
 #elif defined(HAVE_EVENTFD)
   const FXlong value=1;
