@@ -19,7 +19,7 @@
 #include "ap_defs.h"
 #include "ap_reactor.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 
 #if defined(__linux__)
 #define HAVE_PPOLL // On Linux we have ppoll
@@ -34,11 +34,16 @@
 
 namespace ap {
 
+#ifdef _WIN32
+Reactor::Reactor() : timers(nullptr) {
+  }
+#else
 Reactor::Reactor() : pfds(nullptr),nfds(0),mfds(0), timers(nullptr) {
   }
+#endif
 
 Reactor::~Reactor() {
-#ifndef WIN32
+#ifndef _WIN32
   freeElms(pfds);
 #endif
 
@@ -72,7 +77,7 @@ void Reactor::debug() {
 #endif
 
 void Reactor::dispatch() {
-#ifndef WIN32
+#ifndef _WIN32
   FXint i;
 
   for (i=inputs.no()-1;i>=0;i--) {
@@ -104,7 +109,7 @@ void Reactor::dispatch() {
 
 
 void Reactor::wait(FXTime timeout) {
-#ifndef WIN32
+#ifndef _WIN32
   FXint n;
   if (timeout>=0) {
 #ifdef HAVE_PPOLL
@@ -137,7 +142,7 @@ void Reactor::wait(FXTime timeout) {
 FXTime Reactor::prepare() {
   FXTime timeout;
   FXint i;
-#ifndef WIN32
+#ifndef _WIN32
   nfds = inputs.no();
   for (i=0;i<native.no();i++) nfds+=native[i]->no();
 

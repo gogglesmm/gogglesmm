@@ -264,7 +264,7 @@ void gm_convert_gnomeclipboard_to_filenames(FXString & files,FXStringList & file
   }
 
 void gm_make_absolute_path(const FXString & path,FXStringList & urls) {
-#ifndef WIN32
+#ifndef _WIN32
   for (FXint i=0;i<urls.no();i++) {
     if (!urls[i].empty()) {
       if (urls[i][0]!='/') {

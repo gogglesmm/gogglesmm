@@ -52,11 +52,11 @@
 #if defined DEBUG && !defined(NO_FXGETTICKS)
 #define GM_TICKS_START() FXTime end,start = fxgetticks();
 #define GM_TICKS_END()  end = fxgetticks(); fxmessage("%20s:%20s:%15ld ticks.\n",__FILE__,__func__,end-start)
-#define GM_DEBUG_PRINT(format, args...) fxmessage (format , ##args)
+#define GM_DEBUG_PRINT(format, ...) fxmessage (format ,__VAR_ARGS__)
 #else
 #define GM_TICKS_START() ((void)0)
 #define GM_TICKS_END() ((void)0)
-#define GM_DEBUG_PRINT(arguments, args...) ((void)0)
+#define GM_DEBUG_PRINT(arguments, ...) ((void)0)
 #endif
 
 
@@ -70,7 +70,7 @@ typedef FXAutoPtr<FXMenuPane> FXMenuPtr;
 typedef FXAutoPtr<FXFont>     FXFontPtr;
 typedef FXAutoPtr<FXPopup>    FXPopupPtr;
 
-extern const FXchar * fxtr(const FXchar *) __attribute__ ((format_arg(1)));
+extern const FXchar * fxtr(const FXchar *) FX_FORMAT(1);
 
 #define notr(x) x
 #define fxtrformat(x) fxtr(x)

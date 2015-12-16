@@ -86,7 +86,7 @@
 using namespace FX;
 
 #ifndef BadHandle
-#ifdef WIN32
+#ifdef _WIN32
 #define BadHandle INVALID_HANDLE_VALUE
 #else
 #define BadHandle -1
@@ -100,11 +100,11 @@ typedef FXArray<FXString> FXStringList;
 #ifdef DEBUG
 #define GM_TICKS_START() FXTime end,start = fxgetticks();
 #define GM_TICKS_END()  end = fxgetticks(); fxmessage("%20s:%15ld ticks.\n",__func__,end-start)
-#define GM_DEBUG_PRINT(format, args...) fxmessage (format , ##args)
+#define GM_DEBUG_PRINT(format,...) fxmessage (format , __VAR_ARGS__)
 #else
 #define GM_TICKS_START() ((void)0)
 #define GM_TICKS_END() ((void)0)
-#define GM_DEBUG_PRINT(arguments, args...) ((void)0)
+#define GM_DEBUG_PRINT(arguments,...) ((void)0)
 #endif
 
 #define TIME_MSEC(ms) (1000000LL*ms)

@@ -25,14 +25,16 @@ namespace ap {
 
 class GMAPI Reactor {
 private:
-#ifndef WIN32
+#ifndef _WIN32
   struct pollfd * pfds;
   FXint nfds;
   FXint mfds;
 #endif
 public:
 
-#ifndef WIN32
+#ifdef _WIN32 
+  class Native {};
+#else
   class Native {
   public:
     // Number of inputs

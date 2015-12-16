@@ -21,7 +21,7 @@
 #include "ap_thread_queue.h"
 #include "ap_wait_io.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <errno.h>
 #endif
 

@@ -21,7 +21,7 @@
 #include "ap_utils.h"
 
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h> // for close()
 #include <fcntl.h>
 #include <errno.h>

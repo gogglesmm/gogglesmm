@@ -19,7 +19,7 @@
 #ifndef AP_DEFS_H
 #define AP_DEFS_H
 
-#if __GNUC__ >= 4
+#if defined(__GNUC__) && __GNUC__ >= 4
   #define GMAPI __attribute__ ((visibility("default")))
 #else
   #define GMAPI
