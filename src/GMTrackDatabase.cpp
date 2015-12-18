@@ -1525,7 +1525,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
 
       if (filetype==PLAYLIST_XSPF) {
         fprintf(fp,"\t\t<track>\n");
-        fprintf(fp,"\t\t\t<location>%s</location>\n",FXURL::fileToURL(gm_url_encode(file)).text());
+        fprintf(fp,"\t\t\t<location>%s</location>\n",FXURL::fileToURL(file).text());
         fprintf(fp,"\t\t\t<creator>%s</creator>\n",c_artist);
         fprintf(fp,"\t\t\t<album>%s</album>\n",c_album);
         fprintf(fp,"\t\t\t<title>%s</title>\n",c_title);
