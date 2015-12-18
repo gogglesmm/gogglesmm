@@ -1564,12 +1564,27 @@ long GMDatabaseSource::onCmdImportPlayList(FXObject*,FXSelector,void*){
       FXString title;
       FXString extension = FXPath::extension(dialog.getFilename());
 
-      if (comparecase(extension,"m3u")==0)
+      if (comparecase(extension,"m3u")==0){
         ap_parse_m3u(buffer,urls);
-      else if (comparecase(extension,"pls")==0)
+        }
+      else if (comparecase(extension,"pls")==0){
         ap_parse_pls(buffer,urls);
-      else
+        }
+      else {
         ap_parse_xspf(buffer,urls,title);
+
+        // Previous versions of gogglesmm linked with FOX-1.7.17 and later double encoded urls in xspf:
+        //   FXURL::fileToURL(gm_url_encode(file))
+        // Resulting in urls starting with file://%252F. Decoding this results in file://%2F, 
+        // which FXURL::fileFromURL can't decode because the first %2f is probably not legal in an url.
+        // So just double decode it ourselves here.
+        for (FXint i=0;i<urls.no();i++) {
+          if (comparecase(urls[i].text(),"file://%252F",12)==0) {
+            urls[i]=FXURL::decode(FXURL::decode(urls[i]));
+            }
+          }
+        }
+
 
       if (urls.no()) {
 
