@@ -61,12 +61,17 @@ FXbool Pipe::create() {
 #ifdef _WIN32
   if (CreatePipe(&h[0],&h[1],nullptr,0)==0)
     return false;
+
+  // Set the read end non-blocking
+  DWORD mode = PIPE_NOWAIT;
+  if (SetNamedPipeHandleState(h[0],&mode,nullptr,nullptr)==0)
+    return false;
 #else
 
 #ifdef HAVE_PIPE2
   if (pipe2(h,O_CLOEXEC)==0) {
 
-    /// Set the read end non-blocking
+    // Set the read end non-blocking
     if (!ap_set_nonblocking(h[0])){
       close();
       return false;
@@ -124,7 +129,8 @@ EventPipe::~EventPipe() {
 void EventPipe::push(Event *ptr) {
 #ifdef _WIN32
   DWORD nw;
-  WriteFile(device,&ptr,(DWORD)sizeof(Event*),&nw,nullptr);
+  if (WriteFile(h[1],&ptr,sizeof(Event*),&nw,nullptr)==FALSE)
+    fxwarning("gogglesmm: EventPipe::push failed\n");
 #else
   if (write(h[1],&ptr,sizeof(Event*))!=sizeof(Event*))
     fxwarning("gogglesmm: EventPipe::push failed\n");
@@ -135,7 +141,7 @@ Event * EventPipe::pop() {
 #ifdef _WIN32
   Event * ptr = nullptr;
   DWORD nr;
-  if(::ReadFile(device,&ptr,(DWORD)sizeof(Event*),&nr,nullptr)!=0 && nr==sizeof(Event*)){
+  if(::ReadFile(h[0],&ptr,(DWORD)sizeof(Event*),&nr,nullptr) && nr==sizeof(Event*)){
     return ptr;
     }
   return nullptr;
