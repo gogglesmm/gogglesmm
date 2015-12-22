@@ -16,6 +16,10 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
+
+/// For listing default genres
+#include <id3v1genres.h>
+
 #include "gmdefs.h"
 #include "GMTrack.h"
 #include "GMTrackDatabase.h"
@@ -24,16 +28,12 @@
 #include "GMTag.h"
 #include "gmutils.h"
 
-
-/// For listing default genres
-#include <id3v1genres.h>
-
 #ifdef __GNUC__
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
 #else
-#define DEBUG_DB_GET() FXTRACE((51,"%s\n",__function__))
-#define DEBUG_DB_SET() FXTRACE((52,"%s\n",__function__))
+#define DEBUG_DB_GET() FXTRACE((51,"%s\n",__func__))
+#define DEBUG_DB_SET() FXTRACE((52,"%s\n",__func__))
 #endif
 
 
