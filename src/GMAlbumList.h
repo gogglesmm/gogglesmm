@@ -43,7 +43,7 @@ class GMCoverCache;
 
 
 /// Icon item
-class FXAPI GMAlbumListItem : public FXObject {
+class GMAlbumListItem : public FXObject {
   FXDECLARE(GMAlbumListItem)
   friend class GMAlbumList;
 protected:
@@ -126,7 +126,7 @@ typedef FXint (*GMAlbumListSortFunc)(const GMAlbumListItem*,const GMAlbumListIte
 typedef FXObjectListOf<GMAlbumListItem> GMAlbumListItemList;
 
 
-class FXAPI GMAlbumList : public FXScrollArea {
+class GMAlbumList : public FXScrollArea {
   FXDECLARE(GMAlbumList)
 protected:
   GMCoverRender      covers;

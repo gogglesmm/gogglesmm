@@ -34,7 +34,7 @@ extern void ewmh_activate_window(const FXWindow*);
 extern void fix_wm_properties(const FXWindow*);
 
 
-class FXAPI GMThreadDialog : public FXTopWindow {
+class GMThreadDialog : public FXTopWindow {
   FXDECLARE(GMThreadDialog)
 protected:
   FXMutex     mutex;
@@ -136,7 +136,7 @@ public:
 	};
 
 
-class FXAPI GMTabItem : public FXTabItem {
+class GMTabItem : public FXTabItem {
   FXDECLARE(GMTabItem)
 protected:
   GMTabItem(){}
@@ -164,7 +164,7 @@ public:
   GMHeaderItem(const FXString& text,FXIcon* ic=nullptr,FXint s=0,void* ptr=nullptr): FXHeaderItem(text,ic,s,ptr) {}
   };
 
-class FXAPI GMHeader : public FXHeader {
+class GMHeader : public FXHeader {
   FXDECLARE(GMHeader)
 protected:
   GMHeader();
