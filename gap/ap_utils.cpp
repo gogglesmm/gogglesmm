@@ -70,6 +70,11 @@
 #include "ap_event.h"
 
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+
 // for prctl
 #ifdef __linux__
 #include <sys/prctl.h>
@@ -453,7 +458,28 @@ void Base64Encoder::encode(const FXuchar * in,FXint len) {
 
 
 FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode){
-#ifndef _WIN32
+#ifdef _WIN32
+  HANDLE fds[2];
+  FXint nfds=1;
+  fds[0] = io;
+  if (watch!=BadHandle) {
+    fds[1] = watch;
+    nfds=2;
+    }
+  FXuint result = WaitForMultipleObjects(nfds,fds,false,(timeout>0) ? (timeout / 1000000) : INFINITE);
+  if (result == WAIT_TIMEOUT) {
+    return WaitHasTimeout;
+    }
+  else if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + nfds)) {
+    if (watch!=BadHandle && ((result == WAIT_OBJECT_0 + 1) ||  WaitForSingleObject(watch,0)))
+      return WaitHasInterrupt;
+    else
+      return WaitHasIO;
+    }
+  else {
+    return WaitHasError;
+    }
+#else
   FXint n,nfds=1;
   struct pollfd fds[2];
   fds[0].fd    	= io;
