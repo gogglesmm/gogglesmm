@@ -17,9 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_reactor.h"
 #include "ap_output_plugin.h"
-#include "ap_output_thread.h"
 
 #include <alsa/asoundlib.h>
 
@@ -51,7 +49,7 @@ protected:
 protected:
   FXbool open();
 public:
-  AlsaOutput(OutputThread*);
+  AlsaOutput(Output*);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -665,12 +663,12 @@ public:
 
 class AlsaMixer : public Reactor::Native {
 private:
-  OutputThread      * output;
+  Output            * output;
   snd_mixer_t       * mixer;
   snd_mixer_elem_t  * element;
   FXint               nhandles;
 protected:
-  AlsaMixer(OutputThread * o,snd_mixer_t * m,snd_mixer_elem_t * e) : output(o),mixer(m),element(e) {
+  AlsaMixer(Output * o,snd_mixer_t * m,snd_mixer_elem_t * e) : output(o),mixer(m),element(e) {
     updateVolume();
     nhandles=snd_mixer_poll_descriptors_count(mixer);
     }
@@ -753,7 +751,7 @@ protected:
 
 
 public:
-  static AlsaMixer * open(OutputThread * output,snd_pcm_t * handle) {
+  static AlsaMixer * open(Output * output,snd_pcm_t * handle) {
     FXString device;
     snd_mixer_t*        mixer   = nullptr;
     snd_mixer_elem_t*   element = nullptr;
@@ -824,7 +822,7 @@ fail:
 
 
 
-AlsaOutput::AlsaOutput(OutputThread * o) : OutputPlugin(o), handle(nullptr),period_size(0),period_written(0),silence(nullptr),mixer(nullptr),can_pause(false),can_resume(false) {
+AlsaOutput::AlsaOutput(Output * o) : OutputPlugin(o), handle(nullptr),period_size(0),period_written(0),silence(nullptr),mixer(nullptr),can_pause(false),can_resume(false) {
   }
 
 AlsaOutput::~AlsaOutput() {
@@ -1114,13 +1112,5 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
 
 }
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new AlsaOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
+AP_IMPLEMENT_PLUGIN(AlsaOutput);
 

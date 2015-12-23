@@ -21,14 +21,13 @@
 
 #include "ap_thread.h"
 #include "ap_event_private.h"
-#include "ap_reactor.h"
 #include "ap_buffer.h"
+#include "ap_output_plugin.h"
 
 
 namespace ap {
 
 class AudioEngine;
-class OutputPlugin;
 class Packet;
 class FrameTimer;
 
@@ -42,7 +41,7 @@ struct ReplayGainConfig {
   FXdouble peak() const { return (mode==ReplayGainAlbum) ? value.album_peak : value.track_peak; }
   };
 
-class OutputThread : public EngineThread {
+class OutputThread : public EngineThread, public Output {
 protected:
   OutputConfig   output_config;
 protected:
@@ -108,13 +107,13 @@ public:
 
   virtual FXint run();
 
-  void notify_disable_volume() GMAPI;
+  virtual void notify_disable_volume();
 
-  void notify_volume(FXfloat value) GMAPI;
+  virtual void notify_volume(FXfloat value);
 
-  void wait_plugin_events() GMAPI;
+  virtual void wait_plugin_events();
 
-  Reactor & getReactor() { return reactor; }
+  virtual Reactor & getReactor() { return reactor; }
 
   virtual ~OutputThread();
   };

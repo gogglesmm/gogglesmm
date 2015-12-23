@@ -29,7 +29,7 @@ protected:
   FXFile file;
   FXlong data_pos;
 public:
-  WavOutput(OutputThread * output);
+  WavOutput(Output * output);
 
   FXchar type() const { return DeviceWav; }
 
@@ -46,7 +46,7 @@ public:
   virtual ~WavOutput();
   };
 
-WavOutput::WavOutput(OutputThread * out) : OutputPlugin(out),data_pos(0){
+WavOutput::WavOutput(Output * out) : OutputPlugin(out),data_pos(0){
   }
 
 WavOutput::~WavOutput() {
@@ -191,13 +191,5 @@ void WavOutput::close() {
 }
 
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new WavOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
+AP_IMPLEMENT_PLUGIN(WavOutput);
 

@@ -17,12 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_reactor.h"
 #include "ap_output_plugin.h"
-#include "ap_output_thread.h"
-
-
-#include <poll.h>
 
 extern "C" {
 #include <pulse/pulseaudio.h>
@@ -56,7 +51,7 @@ protected:
 protected:
   FXbool open();
 public:
-  PulseOutput(OutputThread*);
+  PulseOutput(Output*);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -317,7 +312,7 @@ namespace ap {
 
 PulseOutput * PulseOutput::instance = nullptr;
 
-PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(nullptr),stream(nullptr),pulsevolume(PA_VOLUME_MUTED) {
+PulseOutput::PulseOutput(Output * output) : OutputPlugin(output),context(nullptr),stream(nullptr),pulsevolume(PA_VOLUME_MUTED) {
   FXASSERT(instance==nullptr);
   instance                = this;
   api.userdata            = this;
@@ -671,14 +666,4 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
 }
 
 
-
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new PulseOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
-
+AP_IMPLEMENT_PLUGIN(PulseOutput);
