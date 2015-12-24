@@ -1,3 +1,6 @@
+1.0.9
+  - Fix reading title from flac/ogg/opus files that contain id3 tags and an empty xiph comment.
+ 
 1.0.8  
   - wav: a-law / μ-law decoding
   - pulse: signed 32-bit format support
