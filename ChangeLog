@@ -1,3 +1,17 @@
+1.0.8  
+  - wav: a-law / μ-law decoding
+  - pulse: signed 32-bit format support
+  - wav_out: large file and float support
+  - mp4: fix track length for large files.
+  - Fix position tracking for large files.
+  - Fix crash when opengl fails to initialize.
+  - Fix scrobbler flags not fitting in datatype.
+  - Fix incorrect bitshifting in flac reader.
+  - Use fxstrlcpy instead of strncpy in font handling.
+  - Use cpp11 member initializers.
+  - Podcasts: update url in database for permanent redirects
+  - Fix xspf playlists: don't double encode urls and add workaround to read back faulty urls.
+   
 1.0.7
   - Add support for ratings and tags to filters.
   - Change default color scheme to Clearlooks.
