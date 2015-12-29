@@ -45,8 +45,14 @@ public:
   /// Get next event.
   Event * pop();
 
-  /// Pop typed event
-  Event * pop_if(FXuchar t,FXbool & other);
+  /// Wait for next event
+  Event * wait();
+
+  // Pop typed event from queue if available. return true if queue is not empty
+  FXbool pop_if(FXuchar t,Event *& event);
+
+  // Check if typed event is in front of the queue
+  FXbool peek_if_not(FXuchar t);
 
   /// Pop typed event
   Event * pop_if_not(FXuchar t2,FXuchar t1);
@@ -60,8 +66,10 @@ public:
   /// Check for abort
   FXbool checkAbort();
 
+  const NotifyPipe & notifier() const { return pfifo; }
+
   /// Returns the wait fd.
-  FXInputHandle handle() const;
+  FXInputHandle handle() const { return pfifo.handle(); }
 
   ~ThreadQueue();
   };

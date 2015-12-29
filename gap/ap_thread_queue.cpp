@@ -41,9 +41,6 @@ void ThreadQueue::free() {
   pfifo.close();
   }
 
-FXInputHandle ThreadQueue::handle() const {
-  return pfifo.handle();
-  }
 
 void ThreadQueue::post(Event*event,FXint where) {
   if (where==Flush) {
@@ -106,6 +103,17 @@ Event * ThreadQueue::pop() {
   return event;
   }
 
+Event * ThreadQueue::wait() {
+  Event * event = pop();
+  if (event==nullptr) {
+    pfifo.wait();
+    event = pop();
+    FXASSERT(event);
+    }
+  return event;
+  }
+
+
 FXbool ThreadQueue::checkAbort() {
   FXScopedMutex lock(mfifo);
   if (head && (head->type&0x80))
@@ -142,26 +150,37 @@ FXuchar ThreadQueue::peek() {
   return type;
   }
 
-/// Pop typed event
-Event * ThreadQueue::pop_if(FXuchar requested,FXbool & other){
-  Event * event = nullptr;
+
+FXbool ThreadQueue::peek_if_not(FXuchar requested) {
+  FXbool match;
   mfifo.lock();
   pfifo.clear();
+  if (head && head->type!=requested)
+    match=true;
+  else
+    match=false;
+  mfifo.unlock();
+  return match;
+  }
+
+
+FXbool ThreadQueue::pop_if(FXuchar requested,Event *& event){
+  mfifo.lock();
+  pfifo.clear();
+  FXbool has_events = false;
   if (head) {
+    has_events=true;
     if (head->type==requested) {
       event = head;
       head = head->next;
       event->next = nullptr;
-      if (head==nullptr) tail=nullptr;
-      other=false;
-      }
-    else {
-      other=true;
+      if (head==nullptr) tail=nullptr;      
       }
     }
   mfifo.unlock();
-  return event;
+  return has_events;
   }
+
 
 /// Pop typed event
 Event * ThreadQueue::pop_if_not(FXuchar r1,FXuchar r2){
