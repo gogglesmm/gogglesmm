@@ -19,8 +19,9 @@
 #include "ap_defs.h"
 #include "ap_reactor.h"
 
-#ifndef _WIN32
-
+#ifdef _WIN32
+#include <windows.h>
+#else
 #if defined(__linux__)
 #define HAVE_PPOLL // On Linux we have ppoll
 #ifndef _GNU_SOURCE
@@ -34,18 +35,11 @@
 
 namespace ap {
 
-#ifdef _WIN32
-Reactor::Reactor() : timers(nullptr) {
-  }
-#else
 Reactor::Reactor() : pfds(nullptr),nfds(0),mfds(0), timers(nullptr) {
   }
-#endif
 
 Reactor::~Reactor() {
-#ifndef _WIN32
   freeElms(pfds);
-#endif
 
   /// Delete all inputs
   for (FXint i=0;i<inputs.no();i++){
@@ -77,7 +71,23 @@ void Reactor::debug() {
 #endif
 
 void Reactor::dispatch() {
-#ifndef _WIN32
+#ifdef _WIN32
+  if (result>=WAIT_OBJECT_0 && result<(WAIT_OBJECT_0+nfds)) {
+    FXint obj = 0;
+    for (FXint i=0;i<inputs.no();i++) {    
+      if ((inputs[i]->mode&Input::Disabled) || (inputs[i]->mode&(Input::Readable|Input::Writable|Input::Exception))==0) {
+        continue;
+        }
+      if (obj>=(result-WAIT_OBJECT_0) {
+        if (WaitForSingleObject(pfds[obj],0)==WAIT_OBJECT_0) {
+          inputs[obj]->mode|=Input::IsReadable|Input::Writable;
+          inputs[obj]->onSignal();
+          }
+        }
+      obj++;
+      }
+    }
+#else
   FXint i;
 
   for (i=inputs.no()-1;i>=0;i--) {
@@ -94,7 +104,7 @@ void Reactor::dispatch() {
     native[i]->dispatch(pfds+offset);
     offset+=native[i]->no();
     }
-
+#endif
   FXTime now = FXThread::time();
   for (Timer * t = timers;t;t=t->next) {
     if (t->time>0 && t->time<=now) {
@@ -104,12 +114,13 @@ void Reactor::dispatch() {
       t = timers; // so onExpired can remove itself from the list...
       }
     }
-#endif
   }
 
 
 void Reactor::wait(FXTime timeout) {
-#ifndef _WIN32
+#ifdef _WIN32
+  result = WaitForMultipleObjects(nfds,pfds,false,(timeout>0) ? timeout / 1000000 : FINITE);
+#else
   FXint n;
   if (timeout>=0) {
 #ifdef HAVE_PPOLL
@@ -142,7 +153,24 @@ void Reactor::wait(FXTime timeout) {
 FXTime Reactor::prepare() {
   FXTime timeout;
   FXint i;
-#ifndef _WIN32
+#ifdef _WIN32
+  nfds = inputs.no();
+  if (nfds>mfds) {
+    mfds=nfds;
+    if (pfds==nullptr)
+      allocElms(pfds,mfds);
+    else
+      resizeElms(pfds,mfds);
+    }
+
+  for (i=0;i<inputs.no();i++) {
+    if ((inputs[i]->mode&Input::Disabled) || (inputs[i]->mode&(Input::Readable|Input::Writable|Input::Exception))==0) {
+      continue;
+      }
+    pfds[i] = inputs[i]->handle;
+    inputs[i]->mode&=~(Input::IsReadable|Input::IsWritable|Input::IsException);
+    } 
+#else
   nfds = inputs.no();
   for (i=0;i<native.no();i++) nfds+=native[i]->no();
 
@@ -176,7 +204,7 @@ FXTime Reactor::prepare() {
     native[i]->prepare(pfds+offset);
     offset+=native[i]->no();
     }
-
+#endif
   FXTime now = FXThread::time();
   Timer * t = timers;
   while(t && t->time<now) t=t->next;
@@ -186,7 +214,6 @@ FXTime Reactor::prepare() {
     timeout = -1;
 
   return timeout;
-#endif
   }
 
 
