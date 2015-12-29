@@ -45,16 +45,4 @@ void EngineThread::post(Event * event,FXint where) {
   fifo.post(event,where);
   }
 
-
-Event * EngineThread::wait_for_event() {
-  Event * event = fifo.pop();
-  if (event==nullptr) {
-    ap_wait(fifo.handle());
-    event = fifo.pop();
-    }
-  FXASSERT(event);
-  return event;
-  }
-
-
 }

@@ -90,7 +90,9 @@ FXint DecoderThread::run(){
   ap_set_thread_name("ap_decoder");
 
   for(;;) {
-    event = wait_for_event();
+
+    event = fifo.wait();
+
     switch(event->type) {
       case Flush    : GM_DEBUG_PRINT("[decoder] flush\n");
                       if (plugin) {
@@ -144,61 +146,29 @@ FXint DecoderThread::run(){
 
 
 Packet * DecoderThread::get_decoder_packet() {
-  FXbool other=false;
   do {
-    Event * event = fifo.pop_if(Buffer,other);
-    if (event)  {
-      FXASSERT(event->next==nullptr);
-      return dynamic_cast<Packet*>(event);
-      }
-
-    if (other) return nullptr;
-    ap_wait(fifo.handle());
-
-/*
-    type = fifo.peek();
-
-    if (type==Ctrl_Quit || type==Configure || type==Flush) {
-      return nullptr;
-      }
-
-    if (type!=Invalid) {
-      event = fifo.pop();
-      if (event) return event;
-      }
-    ap_wait(fifo.handle());
-    */
-    }
+    Event * event = nullptr;
+    if (fifo.pop_if(Buffer,event))
+      return dynamic_cast<Packet*>(event);    
+    fifo.wait();
+    }      
   while(1);
-  return nullptr;
   }
 
 Packet * DecoderThread::get_output_packet() {
-//  Event * event = nullptr;
-  FXuchar type;
   do {
-    type = fifo.peek();
-
-    if (type!=Buffer && type!=AP_INVALID)
+    // Bail out if there's a non-buffer event
+    if (fifo.peek_if_not(Buffer))
       return nullptr;
-
-    Packet * packet = packetpool.pop();
+        
+    // Wait for output packet
+    Packet * packet = packetpool.wait(fifo.notifier());
     if (packet) {
       packet->stream=stream;
       return packet;
       }
-
-/*
-    event = OutputPacket::get();
-    if (event) {
-      event->stream=stream;
-      return dynamic_cast<OutputPacket*>(event);
-      }
-*/
-    ap_wait(packetpool.handle(),fifo.handle());
     }
   while(1);
-  return nullptr;
   }
 
 }

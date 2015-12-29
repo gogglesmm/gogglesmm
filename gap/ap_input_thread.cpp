@@ -66,10 +66,8 @@ Event * InputThread::wait_for_packet() {
     Event * event=fifo.pop();
     if (event) return event;
 
-    Packet * packet = packetpool.pop();
+    Packet * packet = packetpool.wait(fifo.notifier());
     if (packet) return packet;
-
-    ap_wait(fifo.handle(),packetpool.handle());
     }
   while(1);
   return nullptr;
@@ -85,7 +83,7 @@ FXint InputThread::run(){
     if (reader && state==StateProcessing)
       event = wait_for_packet();
     else
-      event = wait_for_event();
+      event = fifo.wait();
 
     switch(event->type) {
       case Ctrl_Close     : ctrl_flush(true);

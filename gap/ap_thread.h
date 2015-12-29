@@ -35,12 +35,6 @@ public:
   AudioEngine * engine;
 protected:
   FXuint        stream;
-protected:
-  /// Return Fifo Handle
-  FXInputHandle getFifoHandle() const { return fifo.handle(); }
-
-  /// Return Event from fifo
-  Event * wait_for_event();
 public:
   /// Constructor
   EngineThread(AudioEngine * engine);
