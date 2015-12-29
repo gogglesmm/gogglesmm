@@ -22,14 +22,22 @@
 
 /// On Linux we want to use pipe2
 #if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 9))
-#define HAVE_PIPE2
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#include <fcntl.h>
+  #define HAVE_PIPE2
+  #ifndef _GNU_SOURCE
+  #define _GNU_SOURCE
+  #endif
+  #include <fcntl.h>
 #endif
 
 #ifndef _WIN32
+#if defined(__linux__)
+  #define HAVE_PPOLL // On Linux we have ppoll
+  #ifndef _GNU_SOURCE
+    #define _GNU_SOURCE
+  #endif
+#endif
+#include <signal.h>
+#include <poll.h>
 #include <unistd.h>
 #include <errno.h>
 #endif
@@ -41,6 +49,10 @@
 
 #ifdef HAVE_EVENTFD
 #include <sys/eventfd.h>
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
 #endif
 
 
@@ -154,6 +166,40 @@ Event * EventPipe::pop() {
 #endif
   }
 
+FXbool EventPipe::wait(const NotifyPipe & interrupt) {
+#ifdef _WIN32
+  HANDLE fds[2] = {interrupt.handle(),h[0]};
+  const FXint nfds=2;
+  FXuint result = WaitForMultipleObjects(nfds,fds,false,INFINITE);
+  if (result == WAIT_OBJECT_0 + 1) {
+    return true;
+    }
+  return false;
+#else
+  struct pollfd fds[2];
+  const FXint nfds=2;
+  FXint n;
+  fds[0].fd     = interrupt.handle();
+  fds[0].events = POLLIN;
+  fds[1].fd     = h[0];
+  fds[1].events = POLLIN;
+  do {
+#ifdef HAVE_PPOLL
+    n = ppoll(fds,nfds,nullptr,nullptr);
+#else
+    n = poll(fds,nfds,-1);
+#endif
+    }
+  while(n==-1 && (errno==EAGAIN || errno==EINTR));
+  if (0<n && fds[0].revents==0) {
+    FXASSERT(fds[1].revents!=0);
+    return true;
+    }
+  return false;
+#endif
+  }
+
+
 
 NotifyPipe::NotifyPipe() {
   }
@@ -221,6 +267,29 @@ void NotifyPipe::signal() {
   const FXchar buf=1;
   if (write(h[1],&buf,1)!=1)
     fxwarning("gogglesmm: NotifyPipe::signal failed\n");
+#endif
+  }
+
+
+void NotifyPipe::wait() {
+#ifdef _WIN32
+  if (WaitForSingleObject(h[0],INFINITE)!=WAIT_OBJECT_0){
+    fxwarning("gogglesmm: NotifyPipe::wait failed\n");
+    }
+#else
+  FXint nfds=1,n;
+  struct pollfd fds;
+  fds.fd     = h[0];
+  fds.events = POLLIN;
+  do {
+#ifdef HAVE_PPOLL
+    n = ppoll(&fds,nfds,nullptr,nullptr);
+#else
+    n = poll(&fds,nfds,-1);
+#endif
+    }
+  while(n==-1 && (errno==EAGAIN || errno==EINTR));
+  if(n!=1) fxwarning("gogglesmm: NotifyPipe::wait failed\n");
 #endif
   }
 

@@ -45,24 +45,6 @@ public:
   virtual ~Pipe();
   };
 
-class EventPipe : public Pipe {
-private:
-  EventPipe(const EventPipe&);
-  EventPipe& operator=(const EventPipe&);
-public:
-  /// Constructor
-  EventPipe();
-
-  /// Push Event
-  void push(Event*);
-
-  /// Pop Event
-  Event* pop();
-
-  /// Destructor
-  virtual ~EventPipe();
-  };
-
 
 class NotifyPipe : public Pipe {
 private:
@@ -81,9 +63,37 @@ public:
   /// Signal
   void signal();
 
+  /// Wait until signalled
+  void wait();
+
   /// Destructor
   virtual ~NotifyPipe();
   };
+
+
+
+class EventPipe : public Pipe {
+private:
+  EventPipe(const EventPipe&);
+  EventPipe& operator=(const EventPipe&);
+public:
+  /// Constructor
+  EventPipe();
+
+  /// Push Event
+  void push(Event*);
+
+  /// Pop Event
+  Event* pop();
+
+  /// Wait for Event or return nullptr if interrupt was signalled
+  FXbool wait(const NotifyPipe & interrupt);
+
+  /// Destructor
+  virtual ~EventPipe();
+  };
+
+
 
 }
 #endif
