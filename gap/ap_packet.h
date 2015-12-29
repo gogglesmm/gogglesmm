@@ -59,7 +59,10 @@ public:
   void push(Packet*);
 
   /// Get a handle to the pool
-  FXInputHandle handle() const;
+  const EventPipe & notifier() const { return ppool; }
+
+  /// Wait for next packet or return nullptr if notify was signalled.
+  Packet * wait(const NotifyPipe & notify);
 
   /// Destructor
   ~PacketPool();

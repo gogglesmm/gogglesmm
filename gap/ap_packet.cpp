@@ -73,10 +73,14 @@ void PacketPool::push(Packet * packet) {
   ppool.push(packet);
   }
 
-FXInputHandle PacketPool::handle() const {
-  return ppool.handle();
-  }
 
+Packet * PacketPool::wait(const NotifyPipe & notify) {
+  Packet * packet = pop();
+  if (packet==nullptr && ppool.wait(notify))
+    return pop();
+  else
+    return packet;
+  }
 
 
 
