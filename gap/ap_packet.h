@@ -38,10 +38,8 @@ class Stream {
 
 class PacketPool {
 protected:
-  EventPipe ppool;
-  Event*    list;
-protected:
-  void fetchEvents();
+  FXLFQueueOf<Packet> packets;
+  Semaphore           semaphore; 
 public:
   /// Constructor
   PacketPool();
@@ -52,17 +50,11 @@ public:
   /// free pool
   void free();
 
-  /// Get packet out of pool [if any]
-  Packet * pop();
+  /// Block until packet is available or signal is set
+  Packet * wait(const Signal &); 
 
   /// Put event back into pool
   void push(Packet*);
-
-  /// Get a handle to the pool
-  const EventPipe & notifier() const { return ppool; }
-
-  /// Wait for next packet or return nullptr if notify was signalled.
-  Packet * wait(const NotifyPipe & notify);
 
   /// Destructor
   ~PacketPool();

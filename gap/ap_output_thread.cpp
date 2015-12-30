@@ -142,7 +142,7 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),
 
 FXbool OutputThread::init() {
   if (EngineThread::init()) {
-    fifoinput=new Reactor::Input(fifo.handle(),Reactor::Input::Readable);
+    fifoinput=new Reactor::Input(fifo.signal().handle(),Reactor::Input::Readable);
     reactor.addInput(fifoinput);
     return true;
     }

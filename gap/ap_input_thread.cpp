@@ -66,7 +66,7 @@ Event * InputThread::wait_for_packet() {
     Event * event=fifo.pop();
     if (event) return event;
 
-    Packet * packet = packetpool.wait(fifo.notifier());
+    Packet * packet = packetpool.wait(fifo.signal());
     if (packet) return packet;
     }
   while(1);

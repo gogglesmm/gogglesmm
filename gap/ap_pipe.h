@@ -21,77 +21,78 @@
 
 namespace ap {
 
-class Event;
+//#define GAP_NO_EVENTFD 1
 
-class Pipe {
+/// Using eventfd requires Linux 2.6.30. 
+#ifndef GAP_NO_EVENTFD
+#if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 8))
+#define HAVE_EVENTFD
+#endif
+#endif
+
+
+/// A signal that can either be set or unset and can be waited on using select/poll/WaitFor
+class Signal {
+private:
+#if !defined(_WIN32) && !defined(HAVE_EVENTFD) 
+  FXInputHandle wrptr;
+#endif
 protected:
-  FXInputHandle h[2];
+  FXInputHandle device;
 private:
-  Pipe(const Pipe&);
-  Pipe& operator=(const Pipe&);
+  Signal(const Signal&);
+  Signal& operator=(const Signal&);
 public:
-  /// Constructor
-  Pipe();
+  Signal();
 
-  /// Create Pipe
-  virtual FXbool create();
-
-  /// Close Pipe
-  void close();
-
-  /// Return read handle
-  FXInputHandle handle() const { return h[0]; }
-
-  virtual ~Pipe();
-  };
-
-
-class NotifyPipe : public Pipe {
-private:
-  NotifyPipe(const NotifyPipe&);
-  NotifyPipe& operator=(const NotifyPipe&);
-public:
-  /// Constructor
-  NotifyPipe();
-
-  /// Create Pipe
   FXbool create();
 
-  /// Clear Pipe
   void clear();
 
-  /// Signal
-  void signal();
+  void set();
 
-  /// Wait until signalled
+  void close();
+
   void wait();
 
-  /// Destructor
-  virtual ~NotifyPipe();
+  FXInputHandle handle() const { return device; }
   };
 
 
-
-class EventPipe : public Pipe {
+/// A semaphore that can be waited on using select/poll/WaitFor*
+class Semaphore {
 private:
-  EventPipe(const EventPipe&);
-  EventPipe& operator=(const EventPipe&);
+// For them BSDs we use a pipe
+#if !defined(_WIN32) && !defined(HAVE_EVENTFD) 
+  FXInputHandle wrptr;
+#endif
+protected:
+  FXInputHandle device;
+private:
+  Semaphore(const Semaphore&);
+  Semaphore& operator=(const Semaphore&);
 public:
-  /// Constructor
-  EventPipe();
+  Semaphore();
 
-  /// Push Event
-  void push(Event*);
+  // Create Semaphore with initial count
+  FXbool create(FXint count);
 
-  /// Pop Event
-  Event* pop();
+  // Release semaphore
+  void release();
 
-  /// Wait for Event or return nullptr if interrupt was signalled
-  FXbool wait(const NotifyPipe & interrupt);
+  // Block until semaphore is acquired or input is signalled
+  FXbool wait(const Signal & input);
 
-  /// Destructor
-  virtual ~EventPipe();
+  // Close
+  void close();
   };
+
+
+
+
+
+
+
 
 
 

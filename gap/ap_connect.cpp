@@ -132,7 +132,7 @@ FXuint NBConnectionFactory::connect(FXIO * io,const struct sockaddr * address,FX
   return Error;
   }
 
-ThreadConnectionFactory::ThreadConnectionFactory(ThreadQueue * q) : NBConnectionFactory(q->handle()), fifo(q){
+ThreadConnectionFactory::ThreadConnectionFactory(ThreadQueue * q) : NBConnectionFactory(q->signal().handle()), fifo(q){
   }
 
 

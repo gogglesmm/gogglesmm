@@ -162,7 +162,7 @@ Packet * DecoderThread::get_output_packet() {
       return nullptr;
         
     // Wait for output packet
-    Packet * packet = packetpool.wait(fifo.notifier());
+    Packet * packet = packetpool.wait(fifo.signal());
     if (packet) {
       packet->stream=stream;
       return packet;

@@ -22,64 +22,41 @@
 
 namespace ap {
 
-PacketPool::PacketPool() : list(nullptr) {
+PacketPool::PacketPool() {
   }
 
 FXbool PacketPool::init(FXival sz,FXival n) {
+  if (n>64) fxerror("fixme");
+  packets.setSize(64); //
   for (FXint i=0;i<n;i++) {
-    Packet * packet = new Packet(this,sz);
-    packet->next = list;
-    list = packet;
+    packets.push(new Packet(this,sz));
     }
-  return ppool.create();
+  return semaphore.create(n);
   }
 
 void PacketPool::free() {
-  fetchEvents();
-  while(list) {
-    Packet * p = dynamic_cast<Packet*>(list);
-    list=list->next;
-    delete p;
-    }
-  ppool.close();
+  Packet * packet = nullptr;
+  while(packets.pop(packet)) delete packet;
+  semaphore.close();
   }
 
 PacketPool::~PacketPool() {
   }
 
 
-void PacketPool::fetchEvents() {
-  Event * event = nullptr;
-  while((event=ppool.pop())!=nullptr){
-    event->next = list;
-    list = event;
-    }
-  }
-
-Packet * PacketPool::pop() {
-  Event * event = nullptr;
-  if (!list)
-    fetchEvents();
-
-  if (list) {
-    event = list;
-    list = event->next;
-    event->next = nullptr;
-    }
-  return dynamic_cast<Packet*>(event);
-  }
-
 void PacketPool::push(Packet * packet) {
-  ppool.push(packet);
+  packets.push(packet);
+  semaphore.release();
   }
 
 
-Packet * PacketPool::wait(const NotifyPipe & notify) {
-  Packet * packet = pop();
-  if (packet==nullptr && ppool.wait(notify))
-    return pop();
-  else
+Packet * PacketPool::wait(const Signal & signal) {
+  if (semaphore.wait(signal)){
+    Packet * packet = nullptr;
+    packets.pop(packet);
     return packet;
+    } 
+  return nullptr;
   }
 
 

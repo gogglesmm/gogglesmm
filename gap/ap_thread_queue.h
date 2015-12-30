@@ -28,8 +28,8 @@ class Event;
 
 class ThreadQueue : public EventQueue {
 protected:
-  FXMutex      mfifo;
-  NotifyPipe   pfifo;
+  FXMutex mfifo;
+  Signal  sfifo;
 public:
   ThreadQueue();
 
@@ -60,16 +60,11 @@ public:
   /// Flush all events.
   void flush();
 
-  /// Peek Event
-  FXuchar peek();
-
   /// Check for abort
   FXbool checkAbort();
 
-  const NotifyPipe & notifier() const { return pfifo; }
-
-  /// Returns the wait fd.
-  FXInputHandle handle() const { return pfifo.handle(); }
+  /// Return signal object for this Queue
+  const Signal & signal() const { return sfifo; }
 
   ~ThreadQueue();
   };

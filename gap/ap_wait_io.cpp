@@ -100,7 +100,7 @@ FXuint WaitIO::wait(FXuchar m) {
   return ap_wait(io->handle(),watch,timeout,m);
   }
 
-ThreadIO::ThreadIO(FXIODevice * dev,ThreadQueue*queue,FXTime tm) : WaitIO(dev,queue->handle(),tm), fifo(queue) {
+ThreadIO::ThreadIO(FXIODevice * dev,ThreadQueue*queue,FXTime tm) : WaitIO(dev,queue->signal().handle(),tm), fifo(queue) {
   }
 
 
