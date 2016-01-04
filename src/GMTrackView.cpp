@@ -257,7 +257,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   updateFont();
 
 
-  filtermenu       = new GMMenuPane(getShell());
+  filtermenu       = new GMMenuPane(getShell(),POPUP_SHRINKWRAP);
                      new GMStaticMenuCheck(filtermenu,tr("Title"),this,ID_FILTER_TRACK);
                      new GMStaticMenuCheck(filtermenu,tr("Artist"),this,ID_FILTER_ARTIST);
                      new GMStaticMenuCheck(filtermenu,tr("Album"),this,ID_FILTER_ALBUM);
@@ -286,7 +286,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   sunkenframe      = new GMScrollFrame(browsersplit);
   tracklist        = new GMTrackList(sunkenframe,this,ID_TRACK_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|TRACKLIST_EXTENDEDSELECT);
 
-  sortmenu         = new GMMenuPane(getShell());
+  sortmenu         = new GMMenuPane(getShell(),POPUP_SHRINKWRAP);
                      new GMMenuRadio(sortmenu,tr("Browse"),this,ID_SORT_BROWSE);
                      new GMMenuRadio(sortmenu,tr("Shuffle\tCtrl-R"),this,ID_SORT_SHUFFLE);
                      new FXMenuSeparator(sortmenu);
@@ -298,7 +298,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
                      new GMMenuCheck(sortmenu,tr("Reverse"),this,ID_SORT_REVERSE);
 
 
-  columnmenu       = new GMMenuPane(getShell());
+  columnmenu       = new GMMenuPane(getShell(),POPUP_SHRINKWRAP);
                      new GMMenuCommand(columnmenu,tr("&Configure Columns…") ,NULL,this,ID_CONFIGURE_COLUMNS);
                      new GMMenuCascade(columnmenu,tr("&Sort\t\tChange Sorting."),GMIconTheme::instance()->icon_sort,sortmenu);
 

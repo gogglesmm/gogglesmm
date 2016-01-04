@@ -210,10 +210,10 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   /****************************************************************************/
 
   /// Library Menu
-  menu_library = new GMMenuPane(this);
+  menu_library = new GMMenuPane(this,POPUP_SHRINKWRAP);
 
   /// Media Controls
-  menu_media   = new GMMenuPane(this);
+  menu_media   = new GMMenuPane(this,POPUP_SHRINKWRAP);
   new GMMenuCheck(menu_media,tr("Queue Play\t\tPlay tracks from queue."),this,ID_PLAYQUEUE);
   new GMMenuCheck(menu_media,tr("Shuffle Play\tAlt-R\tPlay tracks in random order."),this,ID_SHUFFLE);
   new FXMenuSeparator(menu_media);
@@ -228,7 +228,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   gm_set_window_cursor(menu_media,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
   /// Program Menu
-  menu_gmm     = new GMMenuPane(this);
+  menu_gmm     = new GMMenuPane(this,POPUP_SHRINKWRAP);
   new GMMenuCheck(menu_gmm,tr("Show &Sources\tCtrl-S\tShow source browser "),this,ID_SHOW_SOURCES);
   fullscreencheck = new GMMenuCheck(menu_gmm,tr("Show Full Screen\tF12\tToggle fullscreen mode."),this,ID_SHOW_FULLSCREEN);
   new GMMenuCheck(menu_gmm,tr("Show Mini Player\tCtrl-M\tToggle Mini Player."),this,ID_SHOW_MINIPLAYER);
