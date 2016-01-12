@@ -655,7 +655,7 @@ void GMPlayerManager::init_window(FXbool wizard) {
   application->addSignal(SIGPIPE,mainwindow,GMWindow::ID_QUIT);
 
   /// Create Tooltip Window
-  FXToolTip * tooltip = new FXToolTip(application);
+  FXToolTip * tooltip = new FXToolTip(application,TOOLTIP_VARIABLE);
   tooltip->create();
   ewmh_change_window_type(tooltip,WINDOWTYPE_TOOLTIP);
 

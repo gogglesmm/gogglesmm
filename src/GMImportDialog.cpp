@@ -430,6 +430,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   target_default_field.connect(GMPlayerManager::instance()->getPreferences().import.default_field);
   target_parse_method.connect(GMPlayerManager::instance()->getPreferences().import.parse_method,this,ID_PARSE_METHOD);
   target_filename_template.connect(GMPlayerManager::instance()->getPreferences().import.filename_template);
+  target_album_format_grouping.connect(GMPlayerManager::instance()->getPreferences().import.album_format_grouping);
 
   target_exclude_dir.connect(GMPlayerManager::instance()->getPreferences().import.exclude_folder);
   target_exclude_file.connect(GMPlayerManager::instance()->getPreferences().import.exclude_file);
@@ -539,6 +540,9 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
 
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+  new FXFrame(matrix,FRAME_NONE);
+  new GMCheckButton(matrix,tr("Group albums by audio format.\tImported tracks that differ in audio format will be grouped in separate albums."),&target_album_format_grouping,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+
 
   template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   template_grpbox->setFont(GMApp::instance()->getThickFont());

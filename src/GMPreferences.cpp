@@ -33,6 +33,7 @@ const char key_import_default_field[]="default-user-title";
 const char key_import_track_from_filelist[]="track-from-filelist";
 const char key_import_replace_underscores[]="replace-underscores";
 const char key_import_id3v1_encoding[]="id3v1-encoding";
+const char key_import_album_format_grouping[]="album-format-grouping";
 
 const char key_import_filename_template[]="filename-template";
 const char key_import_parse_method[]="parse-method";
@@ -102,6 +103,7 @@ void GMImportOptions::save(FXSettings & reg) const {
   reg.writeStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   reg.writeUIntEntry(section_import,key_import_parse_method,parse_method);
   reg.writeUIntEntry(section_export,key_import_id3v1_encoding,id3v1_encoding);
+  reg.writeBoolEntry(section_import,key_import_album_format_grouping,album_format_grouping);
   }
 
 void GMImportOptions::load(FXSettings & reg) {
@@ -113,6 +115,7 @@ void GMImportOptions::load(FXSettings & reg) {
   exclude_file           = reg.readStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   parse_method           = FXMIN(reg.readUIntEntry(section_import,key_import_parse_method,parse_method),(FXuint)PARSE_BOTH);
   id3v1_encoding         = FXMIN(GMFilename::ENCODING_LAST-1,reg.readUIntEntry(section_import,key_import_id3v1_encoding,id3v1_encoding));
+  album_format_grouping  = reg.readBoolEntry(section_import,key_import_album_format_grouping,album_format_grouping);
   }
 
 

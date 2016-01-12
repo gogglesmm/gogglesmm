@@ -27,6 +27,7 @@ protected:
   GMTrackDatabase * database;
 protected:
   FXDictionary pathdict;
+  FXbool album_format_grouping = true;
 protected:
   GMQuery insert_artist;
   GMQuery insert_album;
@@ -53,7 +54,7 @@ protected:
 public:
   GMDBTracks();
 
-  void init(GMTrackDatabase*);
+  void init(GMTrackDatabase*,FXbool album_format_grouping);
 
   void add(const FXString & filename,const GMTrack & track,FXint & pid,FXint playlist,FXint queue);
 

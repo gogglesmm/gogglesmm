@@ -54,7 +54,8 @@ void GMDBTracks::initPathDict(GMTrackDatabase * db) {
     }
   }
 
-void GMDBTracks::init(GMTrackDatabase*db) {
+void GMDBTracks::init(GMTrackDatabase*db,FXbool afg) {
+  album_format_grouping = afg;
   database=db;
   insert_track                        = database->compile("INSERT INTO tracks VALUES( NULL, " // id
                                                                            "1,"    // collection
@@ -210,18 +211,32 @@ void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid
 
   query_album.set(0,album_artist_id);
   query_album.set(1,track.album);
-  query_album.set(2,track.channels);
-  query_album.set(3,track.samplerate);
-  query_album.set(4,track.sampleformat);
+  if (album_format_grouping) {
+    query_album.set(2,track.channels);
+    query_album.set(3,track.samplerate);
+    query_album.set(4,track.sampleformat);
+    }
+  else {
+    query_album.set(2,0);
+    query_album.set(3,0);
+    query_album.set(4,0);
+    }
   query_album.execute(album_id);
 
   if (!album_id) {
     insert_album.set(0,track.album);
     insert_album.set(1,album_artist_id);
     insert_album.set(2,track.year);
-    insert_album.set(3,track.channels);
-    insert_album.set(4,track.samplerate);
-    insert_album.set(5,track.sampleformat);
+    if (album_format_grouping) {
+      insert_album.set(3,track.channels);
+      insert_album.set(4,track.samplerate);
+      insert_album.set(5,track.sampleformat);
+      }
+    else {
+      insert_album.set(3,0);
+      insert_album.set(4,0);
+      insert_album.set(5,0);
+      }
     album_id = insert_album.insert();
     }
 
@@ -285,18 +300,32 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   /// Album
   query_album.set(0,album_artist_id);
   query_album.set(1,track.album);
-  query_album.set(2,track.channels);
-  query_album.set(3,track.samplerate);
-  query_album.set(4,track.sampleformat);
+  if (album_format_grouping) {
+    query_album.set(2,track.channels);
+    query_album.set(3,track.samplerate);
+    query_album.set(4,track.sampleformat);
+    }
+  else {
+    query_album.set(2,0);
+    query_album.set(3,0);
+    query_album.set(4,0);
+    }
   query_album.execute(album_id);
 
   if (!album_id) {
     insert_album.set(0,track.album);
     insert_album.set(1,album_artist_id);
     insert_album.set(2,track.year);
-    insert_album.set(3,track.channels);
-    insert_album.set(4,track.samplerate);
-    insert_album.set(5,track.sampleformat);
+    if (album_format_grouping) {
+      insert_album.set(3,track.channels);
+      insert_album.set(4,track.samplerate);
+      insert_album.set(5,track.sampleformat);
+      }
+    else {
+      insert_album.set(3,0);
+      insert_album.set(4,0);
+      insert_album.set(5,0);
+      }
     album_id = insert_album.insert();
     }
 
@@ -533,7 +562,7 @@ void GMImportTask::listDirectory(const FXString & path) {
 FXint GMImportTask::run() {
   FXASSERT(database);
   try {
-    dbtracks.init(database);
+    dbtracks.init(database,options.album_format_grouping);
 
     // Set codec for id3v1
     if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
@@ -650,7 +679,7 @@ void GMSyncTask::sync(){
 FXint GMSyncTask::run() {
   FXASSERT(database);
   try {
-    dbtracks.init(database);
+    dbtracks.init(database,options.album_format_grouping);
 
     // Set codec for id3v1
     if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
