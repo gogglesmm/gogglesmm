@@ -73,6 +73,7 @@ protected:
   FXDataTarget target_parse_method;
   FXDataTarget target_filename_template;
   FXDataTarget target_id3v1_encoding;
+  FXDataTarget target_album_format_grouping;
 protected:
   GMFileSelector  * fileselector = nullptr;
   GMDirSelector   * dirselector = nullptr;

@@ -244,8 +244,8 @@ void GMTrackDatabase::init_album_properties() {
         update_album.set(2,props.samplesize);
         }
       else {
-        update_album.set(0,2);
-        update_album.set(1,44100);
+        update_album.set(0,0);
+        update_album.set(1,0);
         update_album.set(2,0);
         }
       update_album.set(3,albums[i].id);
@@ -1857,17 +1857,17 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
                                                                                         "AND a1.audio_format==a2.audio_format "
                                                                        "JOIN artists ON a2.artist == artists.id "
                                         "WHERE tracks.id == ? AND artists.name == ?;");
-  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
+  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,audio_channels,audio_rate,audio_format) "
                           "SELECT name,"
                                 "(SELECT id FROM artists WHERE name == ?),"
-                                "albums.year "
+                                "albums.year,albums.audio_channels,albums.audio_rate,albums.audio_format "
                           "FROM albums JOIN tracks ON albums.id == tracks.album "
                           "WHERE tracks.id = ?;");
 
-  GMQuery copy_album_with_title(this,"INSERT INTO albums (name,artist,year) "
+  GMQuery copy_album_with_title(this,"INSERT INTO albums (name,artist,year,audio_channels,audio_rate,audio_format) "
                           "SELECT ?,"
                                 "(SELECT id FROM artists WHERE name == ?),"
-                                "albums.year "
+                                "albums.year,albums.audio_channels,albums.audio_rate,albums.audio_format "
                           "FROM albums JOIN tracks ON albums.id == tracks.album "
                           "WHERE tracks.id = ?;");
 

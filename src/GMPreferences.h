@@ -64,15 +64,16 @@ struct ColorTheme {
 
 class GMImportOptions {
 public:
-  FXString default_field       = "Untitled";
+  FXString default_field         = "Untitled";
   FXString exclude_folder;
   FXString exclude_file;
-  FXString filename_template   = "%P/%A/%N %T";
-  FXuint   parse_method        = PARSE_BOTH;
-  FXuint   id3v1_encoding      = GMFilename::ENCODING_8859_1;
-  FXbool   track_from_filelist = false;
-  FXbool   replace_underscores = true;
-  FXbool   fix_album_artist    = false;
+  FXString filename_template     = "%P/%A/%N %T";
+  FXuint   parse_method          = PARSE_BOTH;
+  FXuint   id3v1_encoding        = GMFilename::ENCODING_8859_1;
+  FXbool   track_from_filelist   = false;
+  FXbool   replace_underscores   = true;
+  FXbool   fix_album_artist      = false;
+  FXbool   album_format_grouping = true;
 public:
   enum {
     PARSE_TAG = 0,
