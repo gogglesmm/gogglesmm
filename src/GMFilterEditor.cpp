@@ -54,6 +54,7 @@ static const ColumnDefintion column_types[]={
   { Rule::ColumnPlayDate,notr("Last Played")},
   { Rule::ColumnImportDate,notr("Last Updated")},
   { Rule::ColumnFileType,notr("File Type")},
+  { Rule::ColumnPath,notr("Path")},
   { Rule::ColumnChannels,notr("Channels")},
   { Rule::ColumnBitRate,notr("Bit Rate")},
   { Rule::ColumnSampleRate,notr("Sample Rate")},
