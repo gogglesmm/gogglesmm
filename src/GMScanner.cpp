@@ -590,10 +590,24 @@ GMSyncTask::GMSyncTask(FXObject *tgt,FXSelector sel) : GMImportTask(tgt,sel),nch
 GMSyncTask::~GMSyncTask() {
   }
 
+static FXbool filter_path(const FXString & exclude_folder,const FXString & base,const FXString & filename) {
+  const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
+  FXString path = FXPath::relative(base,FXPath::directory(filename));
+  while(!path.empty()){
+    if (FXPath::match(FXPath::name(path),exclude_folder,matchflags))
+      return true;
+    path=FXPath::upLevel(path);
+    }
+  return false;
+  }
+
+
 void GMSyncTask::syncDirectory(const FXString & path) {
   GMTrack info;
   GMTrackFilenameList list;
   FXStat stat;
+  const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
+
 
   database->getTrackFilenames(list,path);
 
@@ -612,6 +626,12 @@ void GMSyncTask::syncDirectory(const FXString & path) {
       if (database->interrupt)
         database->waitTask();
 
+      if (!options.exclude_file.empty() && FXPath::match(FXPath::name(list[i].filename),options.exclude_file,matchflags))
+        continue;
+
+      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path,list[i].filename))
+        continue;
+
       dbtracks.remove(list[i].id);
       nchanged++;
       }
@@ -627,6 +647,12 @@ void GMSyncTask::syncDirectory(const FXString & path) {
 
       if (database->interrupt)
         database->waitTask();
+
+      if (!options.exclude_file.empty() && FXPath::match(FXPath::name(list[i].filename),options.exclude_file,matchflags))
+        continue;
+
+      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path,list[i].filename))
+        continue;
 
       if (!FXStat::statFile(list[i].filename,stat)){
         dbtracks.remove(list[i].id);
@@ -649,6 +675,12 @@ void GMSyncTask::syncDirectory(const FXString & path) {
 
       if (database->interrupt)
         database->waitTask();
+
+      if (!options.exclude_file.empty() && FXPath::match(FXPath::name(list[i].filename),options.exclude_file,matchflags))
+        continue;
+
+      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path,list[i].filename))
+        continue;
 
       if (FXStat::statFile(list[i].filename,stat) && options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
         parse(list[i].filename,-1,info);
