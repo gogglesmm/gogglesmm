@@ -37,10 +37,12 @@
 #define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac"
 #define FILE_PATTERNS "*.(" FILE_EXTENSIONS ")"
 
-GMDBTracks::GMDBTracks() : database(nullptr) {
-  }
+const FXuint matchflags = FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
 
-GMDBTracks::~GMDBTracks(){
+
+GMDBTracks::GMDBTracks() {
+  default_artist = fxtr("Unknown Artist");
+  default_album = fxtr("Unknown Album");
   }
 
 void GMDBTracks::initPathDict(GMTrackDatabase * db) {
@@ -122,26 +124,62 @@ void GMDBTracks::init(GMTrackDatabase*db,FXbool afg) {
 
 
 FXint GMDBTracks::insertPath(const FXString & path) {
-  //GM_TICKS_START();
-  FXint pid = insert_path.insert(path);
-  pathdict.insert(path.text(),(void*)(FXival)pid);
-  //GM_TICKS_END();
+  FXint pid = (FXint)(FXival)pathdict[path];
+  if (pid==0) {
+    pid = insert_path.insert(path);
+    pathdict.insert(path.text(),(void*)(FXival)pid);
+    }
   return pid;
   }
 
+
 FXint GMDBTracks::hasPath(const FXString & path) {
-//  GM_TICKS_START();
-  FXint id = (FXint)(FXival)pathdict[path];
-//  GM_TICKS_END();
-  return id;
+  return (FXint)(FXival)pathdict[path];
   }
 
 
 FXint GMDBTracks::insertArtist(const FXString & artist){
   FXint id=0;
-  query_artist.execute(artist,id);
+  if (!artist.empty()) {
+    query_artist.execute(artist,id);
+    if (id==0) {
+      id = insert_artist.insert(artist);
+      }
+    }
+  return id;
+  }
+
+
+FXint GMDBTracks::insertAlbum(const GMTrack & track,FXint album_artist_id) {
+  FXint id=0;
+  query_album.set(0,album_artist_id);
+  query_album.set(1,track.album.empty() ? default_album : track.album);
+  if (album_format_grouping) {
+    query_album.set(2,track.channels);
+    query_album.set(3,track.samplerate);
+    query_album.set(4,track.sampleformat);
+    }
+  else {
+    query_album.set(2,0);
+    query_album.set(3,0);
+    query_album.set(4,0);
+    }
+  query_album.execute(id);
   if (id==0) {
-    id = insert_artist.insert(artist);
+    insert_album.set(0,track.album.empty() ? default_album : track.album);
+    insert_album.set(1,album_artist_id);
+    insert_album.set(2,track.year);
+    if (album_format_grouping) {
+      insert_album.set(3,track.channels);
+      insert_album.set(4,track.samplerate);
+      insert_album.set(5,track.sampleformat);
+      }
+    else {
+      insert_album.set(3,0);
+      insert_album.set(4,0);
+      insert_album.set(5,0);
+      }
+    id = insert_album.insert();
     }
   return id;
   }
@@ -164,6 +202,7 @@ void GMDBTracks::insertTags(FXint track,const FXStringList & tags){
     }
   }
 
+
 void GMDBTracks::updateTags(FXint track,const FXStringList & tags){
   /// Remove current tags
   delete_track_tags.update(track);
@@ -174,163 +213,78 @@ void GMDBTracks::updateTags(FXint track,const FXStringList & tags){
   }
 
 
-void GMDBTracks::add(const FXString & filename,const GMTrack & track,FXint & pid,FXint playlist,FXint queue){
-//  GM_TICKS_START();
+void GMDBTracks::insert(GMTrack & track) {
+  FXint path_index = 0;
+  insert(track,path_index);
+  }
 
-  FXASSERT(!track.album_artist.empty());
+void GMDBTracks::insert(GMTrack & track,FXint & path_index) {
+  if (__likely(track.index==0)) {
 
-  FXint artist_id;
-  FXint album_artist_id;
-  FXint composer_id=0;
-  FXint conductor_id=0;
-  FXint album_id=0;
-  FXint track_id;
+    FXASSERT(!track.url.empty());
+    FXASSERT(path_index>=0);
 
-
-  /// Path
-  if (!pid) {
-    pid = insertPath(FXPath::directory(track.url));
-    FXASSERT(pid);
-    if (!pid) fxwarning("pid==0 for %s\n",FXPath::directory(track.url).text());
-    }
-
-  /// Artist
-
-  album_artist_id = insertArtist(track.album_artist);
-
-  if (track.album_artist!=track.artist)
-    artist_id = insertArtist(track.artist);
-  else
-    artist_id = album_artist_id;
-
-  if (!track.composer.empty())
-    composer_id=insertArtist(track.composer);
-
-  if (!track.conductor.empty())
-    conductor_id=insertArtist(track.conductor);
-
-  query_album.set(0,album_artist_id);
-  query_album.set(1,track.album);
-  if (album_format_grouping) {
-    query_album.set(2,track.channels);
-    query_album.set(3,track.samplerate);
-    query_album.set(4,track.sampleformat);
-    }
-  else {
-    query_album.set(2,0);
-    query_album.set(3,0);
-    query_album.set(4,0);
-    }
-  query_album.execute(album_id);
-
-  if (!album_id) {
-    insert_album.set(0,track.album);
-    insert_album.set(1,album_artist_id);
-    insert_album.set(2,track.year);
-    if (album_format_grouping) {
-      insert_album.set(3,track.channels);
-      insert_album.set(4,track.samplerate);
-      insert_album.set(5,track.sampleformat);
+    if (path_index==0) {
+      path_index = insertPath(FXPath::directory(track.url));
+      FXASSERT(path_index);
+      if (!path_index) fxwarning("pid==0 for %s\n",FXPath::directory(track.url).text());
       }
-    else {
-      insert_album.set(3,0);
-      insert_album.set(4,0);
-      insert_album.set(5,0);
-      }
-    album_id = insert_album.insert();
+
+    /// Artist
+    FXint album_artist_id = insertArtist(track.getAlbumArtist(default_artist));
+    FXint artist_id       = insertArtist(track.getArtist(default_artist));
+    FXint composer_id     = insertArtist(track.composer);
+    FXint conductor_id    = insertArtist(track.conductor);
+    FXint album_id        = insertAlbum(track,album_artist_id);
+
+    FXASSERT(artist_id);
+    FXASSERT(album_id);
+
+    /// Insert Track
+    insert_track.set(0,path_index);
+    insert_track.set(1,path_index ? FXPath::name(track.url) : track.url);
+    insert_track.set(2,track.title.empty() ? FXPath::title(track.url) : track.title);
+    insert_track.set(3,track.time);
+    insert_track.set(4,track.no);
+    insert_track.set(5,track.year);
+    insert_track.set(6,(track.sampleformat) ? -track.sampleformat : track.bitrate);
+    insert_track.set(7,album_id);
+    insert_track.set(8,artist_id);
+    insert_track.set_null(9,composer_id);
+    insert_track.set_null(10,conductor_id);
+    insert_track.set(11,FXThread::time());
+    insert_track.set(12,track.samplerate);
+    insert_track.set(13,track.channels);
+    insert_track.set(14,track.filetype);
+
+
+    track.index = insert_track.insert();
+
+    /// Tags
+    if (track.tags.no())
+      insertTags(track.index,track.tags);
     }
-
-  FXASSERT(artist_id);
-  FXASSERT(album_id);
-
-  /// Insert Track
-  insert_track.set(0,pid);
-  insert_track.set(1,filename);
-  insert_track.set(2,track.title);
-  insert_track.set(3,track.time);
-  insert_track.set(4,track.no);
-  insert_track.set(5,track.year);
-  insert_track.set(6,(track.sampleformat) ? -track.sampleformat : track.bitrate);
-  insert_track.set(7,album_id);
-  insert_track.set(8,artist_id);
-  insert_track.set_null(9,composer_id);
-  insert_track.set_null(10,conductor_id);
-  insert_track.set(11,FXThread::time());
-  insert_track.set(12,track.samplerate);
-  insert_track.set(13,track.channels);
-  insert_track.set(14,track.filetype);
-  track_id = insert_track.insert();
 
   /// Add to playlist
   if (playlist) {
     insert_playlist_track_by_id.set(0,playlist);
-    insert_playlist_track_by_id.set(1,track_id);
-    insert_playlist_track_by_id.set(2,queue);
+    insert_playlist_track_by_id.set(1,track.index);
+    insert_playlist_track_by_id.set(2,playlist_queue);
     insert_playlist_track_by_id.execute();
     }
-
-  // Tags
-  if (track.tags.no())
-    insertTags(track_id,track.tags);
-//  GM_TICKS_END();
   }
 
+void GMDBTracks::update(GMTrack & track) {
 
-void GMDBTracks::add2playlist(FXint playlist,FXint track,FXint queue) {
-  insert_playlist_track_by_id.set(0,playlist);
-  insert_playlist_track_by_id.set(1,track);
-  insert_playlist_track_by_id.set(2,queue);
-  insert_playlist_track_by_id.execute();
-  }
-
-void GMDBTracks::update(FXint id,const GMTrack & track){
   /// Artist
-  FXint composer_id     = 0;
-  FXint conductor_id    = 0;
-  FXint album_artist_id = insertArtist(track.album_artist);
-  FXint artist_id       = album_artist_id;
-  FXint album_id        = 0;
-
-  if (track.album_artist!=track.artist)
-    artist_id = insertArtist(track.artist);
-
-  if (!track.composer.empty())  composer_id=insertArtist(track.composer);
-  if (!track.conductor.empty()) conductor_id=insertArtist(track.conductor);
-
-  /// Album
-  query_album.set(0,album_artist_id);
-  query_album.set(1,track.album);
-  if (album_format_grouping) {
-    query_album.set(2,track.channels);
-    query_album.set(3,track.samplerate);
-    query_album.set(4,track.sampleformat);
-    }
-  else {
-    query_album.set(2,0);
-    query_album.set(3,0);
-    query_album.set(4,0);
-    }
-  query_album.execute(album_id);
-
-  if (!album_id) {
-    insert_album.set(0,track.album);
-    insert_album.set(1,album_artist_id);
-    insert_album.set(2,track.year);
-    if (album_format_grouping) {
-      insert_album.set(3,track.channels);
-      insert_album.set(4,track.samplerate);
-      insert_album.set(5,track.sampleformat);
-      }
-    else {
-      insert_album.set(3,0);
-      insert_album.set(4,0);
-      insert_album.set(5,0);
-      }
-    album_id = insert_album.insert();
-    }
+  FXint album_artist_id = insertArtist(track.getAlbumArtist(default_artist));
+  FXint artist_id       = insertArtist(track.getArtist(default_artist));
+  FXint composer_id     = insertArtist(track.composer);
+  FXint conductor_id    = insertArtist(track.conductor);
+  FXint album_id        = insertAlbum(track,album_artist_id);
 
   /// Update Tracks
-  update_track.set(0,track.title);
+  update_track.set(0,track.title.empty() ? FXPath::title(track.url) : track.title);
   update_track.set(1,track.time);
   update_track.set(2,track.no);
   update_track.set(3,track.year);
@@ -343,12 +297,15 @@ void GMDBTracks::update(FXint id,const GMTrack & track){
   update_track.set_null(10,composer_id);
   update_track.set_null(11,conductor_id);
   update_track.set(12,FXThread::time());
-  update_track.set(13,id);
+  update_track.set(13,track.index);
   update_track.execute();
 
+    fxmessage("%d %d\n",track.sampleformat,track.bitrate);
+
   /// Update Tags
-  updateTags(id,track.tags);
+  updateTags(track.index,track.tags);
   }
+
 
 void GMDBTracks::remove(FXint track) {
   delete_track_playlists.update(track);
@@ -357,223 +314,27 @@ void GMDBTracks::remove(FXint track) {
   }
 
 
-GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel),database(NULL),playlist(0),queue(0),count(0) {
+
+
+GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel) {
   database = GMPlayerManager::instance()->getTrackDatabase();
   }
+
 
 GMImportTask::~GMImportTask() {
   }
 
-void GMImportTask::fixEmptyTags(GMTrack & track,FXint n) {
-  if (track.title.empty())
-    track.title=options.default_field;
-
-  if (track.album.empty())
-    track.album=options.default_field;
-
-  if (track.album_artist.empty()){
-    if (track.artist.empty()) {
-      track.album_artist=options.default_field;
-      track.artist=options.default_field;
-      }
-    else {
-      track.album_artist=track.artist;
-      }
-    }
-
-  if (track.artist.empty())
-    track.artist=track.album_artist;
-
-  if (options.track_from_filelist && n>=0)
-    track.no=n+1;
-  }
-
-
-void GMImportTask::parse(const FXString & filename,FXint n,GMTrack & info){
-  info.url=filename;
-  switch(options.parse_method) {
-    case GMImportOptions::PARSE_TAG      : info.loadTag(filename);
-                                           break;
-    case GMImportOptions::PARSE_FILENAME : GMFilename::parse(info,options.filename_template,(options.replace_underscores ? (GMFilename::OVERWRITE|GMFilename::REPLACE_UNDERSCORE) : (GMFilename::OVERWRITE)));
-                                           info.loadProperties(filename);
-                                           break;
-    case GMImportOptions::PARSE_BOTH     : info.loadTag(filename);
-                                           if (info.title.empty() ||
-                                               info.artist.empty() ||
-                                               info.album.empty() ||
-                                               info.album_artist.empty() //||
-                                               /*info.genre.empty()*/ ) {
-                                             GMFilename::parse(info,options.filename_template,(options.replace_underscores ? (GMFilename::REPLACE_UNDERSCORE) : (0)));
-                                             }
-                                           break;
-    }
-  fixEmptyTags(info,n);
-  }
-
-void GMImportTask::fixAlbumArtist(GMTrack * tracks,FXint no){
-  FXString albumname;
-  FXint i;
-
-  FXbool all_albumartist=true;
-
-  /// Tracks should all have the same album name
-  for (i=1;i<no;i++){
-    if (!tracks[i].url.empty()) {
-      if (tracks[i].album!=tracks[0].album) {
-        return;
-        }
-      if (tracks[i].album_artist!=tracks[0].album_artist) {
-        all_albumartist=false;
-        }
-      }
-    }
-
-  /// All tracks share the same album artist... we're ok
-  if (all_albumartist)
-    return;
-
-  /// All tracks should have album_artist==artist
-  for (i=0;i<no;i++){
-    if (!tracks[i].url.empty()) continue;
-    if (tracks[i].album_artist!=tracks[i].artist) {
-      return;
-      }
-    }
-
-  /// Fixit
-  for (i=0;i<no;i++){
-    tracks[i].album_artist="Various";
-    }
-  }
-
-
-
-
-void GMImportTask::import() {
-  GM_TICKS_START();
-  FXint tid,pid=0;
-  FXString filename,pathname;
-  GMTrack info;
-
-  database->beginTask();
-
-
-  if (playlist)
-    queue = database->getNextQueue(playlist);
-
-
-  taskmanager->setStatus("Importing...");
-
-  for (FXint i=0;(i<files.no()) && processing;i++){
-
-    if (database->interrupt){
-      database->waitTask();
-      queue = database->getNextQueue(playlist);
-      }
-
-    if (FXStat::isDirectory(files[i])){
-      listDirectory(files[i]);
-      }
-    else if (FXStat::isFile(files[i])) {
-      if (strstr(FILE_EXTENSIONS,FXPath::extension(files[i]).lower().text())) {
-        filename = FXPath::name(files[i]);
-        pathname = FXPath::directory(files[i]);
-        if ( (pid=dbtracks.hasPath(pathname)) && (tid=database->hasTrack(filename,pid))) {
-          if (playlist) dbtracks.add2playlist(playlist,tid,queue++);
-          }
-        else {
-          if (FXStat::isReadable(files[i])) {
-            parse(files[i],i,info);
-            dbtracks.add(filename,info,pid,playlist,queue++);
-            }
-          }
-        }
-      }
-    }
-  database->sync_album_year();
-  database->commitTask();
-  GM_TICKS_END();
-  }
-
-
-void GMImportTask::listDirectory(const FXString & path) {
-  GMTrackArray  tracks;
-  FXIntList     tids;
-  GMTrack       info;
-
-  FXString * items=NULL;
-  FXint pid,i;
-
-  const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
-
-
-
-  FXint no = FXDir::listFiles(items,path,"*",FXDir::AllDirs|FXDir::NoParent|FXDir::NoFiles);
-  if (no) {
-    for (i=0;(i<no)&&processing;i++){
-      if (!FXStat::isLink(path+PATHSEPSTRING+items[i]) && (options.exclude_folder.empty() || !FXPath::match(items[i],options.exclude_folder,matchflags)))
-        listDirectory(path+PATHSEPSTRING+items[i]);
-      }
-
-    delete [] items;
-    items=NULL;
-    }
-
-  if (!processing) return;
-
-  no=FXDir::listFiles(items,path,FILE_PATTERNS,FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold);
-  if (no) {
-    pid=dbtracks.hasPath(path);
-    tracks.no(no);
-    tids.no(no);
-    tids.assign(0,tids.no());
-
-    for (i=0;i<no;i++){
-      if (!options.exclude_file.empty() && FXPath::match(items[i],options.exclude_file,matchflags))
-        continue;
-      if (pid==0 || (tids[i]=database->hasTrack(items[i],pid))==0)
-        parse(path+PATHSEPSTRING+items[i],i,tracks[i]);
-      }
-
-
-    //fixAlbumArtist(tracks,no);
-    for (i=0;i<no;i++){
-
-      if (database->interrupt)
-        database->waitTask();
-
-      if (tracks[i].url.empty()) {
-        if (playlist && tids[i])
-          dbtracks.add2playlist(playlist,tids[i],queue++);
-        }
-      else {
-        dbtracks.add(items[i],tracks[i],pid,playlist,queue++);
-        count++;
-        if (0==(count%100)) {
-          taskmanager->setStatus(FXString::value("Importing %d",count));
-          }
-        }
-      }
-    delete [] items;
-    items=NULL;
-    }
-  }
 
 FXint GMImportTask::run() {
   FXASSERT(database);
   try {
     dbtracks.init(database,options.album_format_grouping);
 
-    // Set codec for id3v1
-    if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
-      const FXTextCodec * codec = ap_get_usercodec(options.id3v1_encoding);
-      if (codec) {
-        GMTag::setID3v1Encoding(codec);
-        }
-      }
+    setID3v1Encoding();
+
     import();
 
-    GMTag::setID3v1Encoding(NULL);
+    GMTag::setID3v1Encoding(nullptr);
     }
   catch(GMDatabaseException&) {
     database->rollbackTask();
@@ -583,16 +344,275 @@ FXint GMImportTask::run() {
   }
 
 
-
-GMSyncTask::GMSyncTask(FXObject *tgt,FXSelector sel) : GMImportTask(tgt,sel),nchanged(0) {
+void GMImportTask::load_track(const FXString & filename) {
+  GMTrack & track = tracks[ntracks];
+  track.url = filename;
+  switch(options.parse_method) {
+    case GMImportOptions::PARSE_TAG:
+      track.loadTag(track.url);
+      break;
+    case GMImportOptions::PARSE_FILENAME:
+      GMFilename::parse(track,options.filename_template,(options.replace_underscores ? (GMFilename::OVERWRITE|GMFilename::REPLACE_UNDERSCORE) : (GMFilename::OVERWRITE)));
+      break;
+    case GMImportOptions::PARSE_BOTH:
+      track.loadTag(track.url);
+      if (track.hasMissingData()) {
+        GMFilename::parse(track,options.filename_template,(options.replace_underscores ? (GMFilename::REPLACE_UNDERSCORE) : 0));
+        }
+      break;
+    }
   }
 
-GMSyncTask::~GMSyncTask() {
+
+struct Seen {
+  Seen * next;
+  FXlong node;
+  };
+
+
+void GMImportTask::import() {
+  FXStat   data;
+  FXString name;
+  FXint    dircount=0;
+
+  database->beginTask();
+
+  if (dbtracks.playlist)
+    dbtracks.playlist_queue = database->getNextQueue(dbtracks.playlist);
+
+  // Run through all directories
+  for (FXint i=0;i<files.no() && processing;i++) {
+    if (FXStat::statLink(files[i],data)) {
+      if (data.isDirectory()) {
+        if(!(name[0]=='.' && (name[1]==0 || (name[1]=='.' && name[2]==0)))) {
+          if(files[i].tail()==PATHSEP)
+            scan(files[i].rafter(PATHSEP),nullptr,data.index());
+          else
+            scan(files[i],nullptr,data.index());
+          }
+        dircount++;
+        }
+      }
+    }
+
+  // Scan remaining files
+  if (dircount<files.no()) {
+    for (FXint i=0;i<files.no() && processing;i++) {
+      if (FXStat::statFile(files[i],data)) {
+        if (!data.isDirectory() && data.isReadable()) {
+          const FXString path = FXPath::directory(files[i]);
+          const FXString name = FXPath::name(files[i]);
+          if (FXPath::match(name,FILE_PATTERNS,matchflags)){
+            FXint path_index = dbtracks.hasPath(path);
+            parse(path,name,path_index);
+            }
+          }
+        }
+      }
+    import_tracks();
+    }
+  database->sync_album_year();
+  database->commitTask();
   }
 
-static FXbool filter_path(const FXString & exclude_folder,const FXString & base,const FXString & filename) {
+
+void GMImportTask::scan(const FXString & path,Seen * seen,FXlong index) {
+  FXDir    directory;
+  FXStat   data;
+  FXString name;
+
+  // Location
+  Seen here={seen,index};
+
+  // First scan subfolders
+  if (directory.open(path)) {
+    while(directory.next(name) && processing) {
+      if (FXStat::statLink(path+PATHSEPSTRING+name,data)) {
+        if (data.isDirectory()) {
+          if(!(name[0]=='.' && (name[1]==0 || (name[1]=='.' && name[2]==0)))){
+            for(Seen *s=seen; s; s=s->next){
+              if(data.index()==s->node) goto next_dir;
+              }
+            if (options.exclude_folder.empty() || !FXPath::match(name,options.exclude_folder,matchflags))
+              scan(path+PATHSEPSTRING+name,&here,data.index());
+            }
+          }
+        }
+next_dir:;
+      }
+    directory.close();
+    }
+
+  // Scan files in current folder
+  if(directory.open(path) && processing) {
+    FXint path_index = dbtracks.hasPath(path);
+    while(directory.next(name) && processing) {
+      if (FXStat::statFile(path+PATHSEPSTRING+name,data)) {
+        if (!data.isDirectory() && data.isReadable()) {
+          if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
+            if (FXPath::match(name,FILE_PATTERNS,matchflags)) {
+              parse(path,name,path_index);
+              }
+            }
+          }
+        }
+      }
+    if (processing) import_tracks(path_index);
+    }
+  }
+
+
+void GMImportTask::parse(const FXString & path,const FXString & filename,FXint path_index) {
+
+  if(ntracks>=tracks.no()) {
+    tracks.no(tracks.no()+25);
+    }
+
+  GMTrack & track = tracks[ntracks];
+
+  if(path_index) {
+    FXTime modified;
+    track.index = database->hasTrack(filename,path_index,modified);
+    }
+
+  if(track.index==0) {
+    load_track(path+PATHSEPSTRING+filename);
+    ntracks++;
+    }
+  else {
+    if (dbtracks.playlist) ntracks++;
+    track.url.clear();
+    }
+  }
+
+
+void GMImportTask::detect_compilation() {
+  if (ntracks) {
+    FXbool same_artists=true;
+
+    // Up to 10 discs and 255 tracks
+    FXuchar position[10][255]={{0}};
+
+    for (FXint i=0;i<ntracks;i++) {
+
+      // Check to make sure album_artist isn't explicity set.
+      // url is empty if loaded from database.
+      if (!tracks[i].album_artist.empty() && tracks[i].url.empty()) {
+        GM_DEBUG_PRINT("detect_compilation: album_artist explicitely set.\n");
+        return;
+        }
+
+      const FXushort & disc = tracks[i].getDiscNumber();
+      const FXushort & no   = tracks[i].getTrackNumber();
+
+      // Check for duplicate track/disc numbers
+      if (disc<10 && no>0 && no<256) {
+        if (position[disc][no]>0) {
+          GM_DEBUG_PRINT("detect_compilation: found multiple albums (track number already in use)\n");
+          return;
+          }
+        position[disc][no]=1;
+        }
+      }
+
+    // Check if albums are all the same and use the same artist
+    for (FXint i=1;i<ntracks;i++) {
+
+      if (tracks[0].album!=tracks[i].album) {
+        GM_DEBUG_PRINT("detect_compilation: found multiple albums\n");
+        return;
+        }
+
+      if (same_artists && tracks[0].getAlbumArtist(dbtracks.default_artist)!=tracks[i].getAlbumArtist(dbtracks.default_artist))
+        same_artists=false;
+      }
+
+    // Bail out if we already use the same artist
+    if (same_artists) {
+      GM_DEBUG_PRINT("detect_compilation: same artist on all tracks\n");
+      return;
+      }
+
+    // Compilation Album detected
+    GM_DEBUG_PRINT("detect_compilation: found compilation album\n");
+
+    // Default value for album_artist to use
+    FXString album_artist_default = fxtr("Various Artists");
+
+    // Use artist_album from database in case user already overwrote Various Artists
+    for (FXint i=0;i<ntracks;i++) {
+      if (tracks[i].url.empty()) {
+        GM_DEBUG_PRINT("detect_compilation: using album_artist from database \"%s\"\n",tracks[i].album_artist.text());
+        album_artist_default = tracks[i].album_artist;
+        break;
+        }
+      }
+
+    // Update Album Artist
+    for (FXint i=0;i<ntracks;i++) {
+      tracks[i].album_artist = album_artist_default;
+      }
+
+    }
+  }
+
+
+void GMImportTask::import_tracks(FXint path_index) {
+  if (ntracks) {
+
+    // Set track number based on import order
+    if (options.track_from_filelist) {
+      for (FXint i=0;i<ntracks;i++) {
+        tracks[i].no=i+1;
+        }
+      }
+
+    // Look for compilations
+    if (options.detect_compilation)
+      detect_compilation();
+
+    // Store tracks into database
+    for (FXint i=0;i<ntracks;i++) {
+
+      // Check for interrupts
+      if (database->interrupt) {
+        database->waitTask();
+        dbtracks.playlist_queue = database->getNextQueue(dbtracks.playlist);
+        }
+
+      // Insert Track
+      if (path_index>=0)
+        dbtracks.insert(tracks[i],path_index);
+      else
+        dbtracks.insert(tracks[i]);
+
+      // Update Progress
+      count++;
+      if (0==(count%100)) {
+        taskmanager->setStatus(FXString::value("Importing %d",count));
+        }
+      }
+    ntracks=0;
+    }
+  }
+
+
+
+void GMImportTask::setID3v1Encoding() {
+  if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
+    const FXTextCodec * codec = ap_get_usercodec(options.id3v1_encoding);
+    if (codec) {
+      GMTag::setID3v1Encoding(codec);
+      }
+    }
+  }
+
+
+
+
+
+static FXbool filter_path(const FXString & exclude_folder,FXString path) {
   const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
-  FXString path = FXPath::relative(base,FXPath::directory(filename));
   while(!path.empty()){
     if (FXPath::match(FXPath::name(path),exclude_folder,matchflags))
       return true;
@@ -602,110 +622,12 @@ static FXbool filter_path(const FXString & exclude_folder,const FXString & base,
   }
 
 
-void GMSyncTask::syncDirectory(const FXString & path) {
-  GMTrack info;
-  GMTrackFilenameList list;
-  FXStat stat;
-  const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
-
-
-  database->getTrackFilenames(list,path);
-
-  FXint progress = -1;
-  FXdouble fraction = 0;
-
-
-  if (options_sync.remove_all) {
-    for (FXint i=0;i<list.no() && processing ;i++){
-      fraction = 100.0 * ((i+1) / (FXdouble)(list.no()));
-      if (progress!=(FXint)fraction){
-        progress=(FXint)fraction;
-        taskmanager->setStatus(FXString::value("Syncing Files %d%%",progress));
-        }
-
-      if (database->interrupt)
-        database->waitTask();
-
-      if (!options.exclude_file.empty() && FXPath::match(FXPath::name(list[i].filename),options.exclude_file,matchflags))
-        continue;
-
-      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path,list[i].filename))
-        continue;
-
-      dbtracks.remove(list[i].id);
-      nchanged++;
-      }
-    }
-  else if (options_sync.remove_missing) {
-    for (FXint i=0;i<list.no() && processing ;i++){
-
-      fraction = 100.0 * ((i+1) / (FXdouble)(list.no()));
-      if (progress!=(FXint)fraction){
-        progress=(FXint)fraction;
-        taskmanager->setStatus(FXString::value("Syncing Files %d%%",progress));
-        }
-
-      if (database->interrupt)
-        database->waitTask();
-
-      if (!options.exclude_file.empty() && FXPath::match(FXPath::name(list[i].filename),options.exclude_file,matchflags))
-        continue;
-
-      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path,list[i].filename))
-        continue;
-
-      if (!FXStat::statFile(list[i].filename,stat)){
-        dbtracks.remove(list[i].id);
-        nchanged++;
-        }
-      else if (options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
-        parse(list[i].filename,-1,info);
-        dbtracks.update(list[i].id,info);
-        nchanged++;
-        }
-      }
-    }
-  else {
-    for (FXint i=0;i<list.no() && processing ;i++){
-      fraction = 100.0 * ((i+1) / (FXdouble)(list.no()));
-      if (progress!=(FXint)fraction){
-        progress=(FXint)fraction;
-        taskmanager->setStatus(FXString::value("Syncing Files %d%%",progress));
-        }
-
-      if (database->interrupt)
-        database->waitTask();
-
-      if (!options.exclude_file.empty() && FXPath::match(FXPath::name(list[i].filename),options.exclude_file,matchflags))
-        continue;
-
-      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path,list[i].filename))
-        continue;
-
-      if (FXStat::statFile(list[i].filename,stat) && options_sync.update && (options_sync.update_always || stat.modified() > list[i].date)) {
-        parse(list[i].filename,-1,info);
-        dbtracks.update(list[i].id,info);
-        nchanged++;
-        }
-      }
-    }
+GMSyncTask::GMSyncTask(FXObject *tgt,FXSelector sel) : GMImportTask(tgt,sel) {
   }
 
-void GMSyncTask::sync(){
-  database->beginTask();
-  if (files.no()) {
-    taskmanager->setStatus("Syncing Files...");
-    for (FXint i=0;(i<files.no()) && processing;i++){
-      syncDirectory(files[i]);
-      }
-    if (nchanged) {
-      database->sync_tracks_removed();
-      database->sync_album_year();
-      }
-    }
-  database->commitTask();
-  }
 
+GMSyncTask::~GMSyncTask() {
+  }
 
 
 FXint GMSyncTask::run() {
@@ -713,23 +635,291 @@ FXint GMSyncTask::run() {
   try {
     dbtracks.init(database,options.album_format_grouping);
 
-    // Set codec for id3v1
-    if (options.id3v1_encoding!=GMFilename::ENCODING_8859_1) {
-      const FXTextCodec * codec = ap_get_usercodec(options.id3v1_encoding);
-      if (codec) {
-        GMTag::setID3v1Encoding(codec);
-        }
+    setID3v1Encoding();
+
+    if (options_sync.remove_all) {
+      remove_missing();
+      }
+    else if (options_sync.import_new) {
+
+      if (options_sync.update)
+        import_and_update();
+      else
+        import();
+
+      if (options_sync.remove_missing)
+        remove_missing();
+      }
+    else if (options_sync.update) {
+      update();
+
+      if (options_sync.remove_missing)
+        remove_missing();
+      }
+    else if (options_sync.remove_missing) {
+      remove_missing();
       }
 
-    sync();
-    if (options_sync.import_new && !options_sync.remove_all)
-      import();
-
-    GMTag::setID3v1Encoding(NULL);
+    GMTag::setID3v1Encoding(nullptr);
     }
   catch(GMDatabaseException&) {
     database->rollbackTask();
     return 1;
     }
   return 0;
+  }
+
+
+void GMSyncTask::import_and_update(){
+  FXStat   data;
+  FXString name;
+
+  database->beginTask();
+
+  taskmanager->setStatus("Syncing Files..");
+
+  for (FXint i=0;i<files.no() && processing;i++) {
+    if (FXStat::statLink(files[i],data)) {
+      if (data.isDirectory()) {
+        if(!(name[0]=='.' && (name[1]==0 || (name[1]=='.' && name[2]==0)))) {
+          if(files[i].tail()==PATHSEP)
+            traverse(files[i].rafter(PATHSEP),nullptr,data.index());
+          else
+            traverse(files[i],nullptr,data.index());
+          }
+        }
+      }
+    }
+  if (changed) {
+    database->sync_album_year();
+    database->sync_tracks_removed();
+    }
+  database->commitTask();
+  }
+
+
+void GMSyncTask::update() {
+  GMTrackFilenameList tracklist;
+  FXStringList        pathlist;
+  FXStat              data;
+
+  database->beginTask();
+
+  taskmanager->setStatus("Updating Files..");
+
+  for (FXint i=0;i<files.no() && processing;i++) {
+
+    database->getPathList(files[i],pathlist);
+
+    for (FXint p=0;p<pathlist.no() && processing;p++) {
+
+      const FXString & path  = pathlist[p];
+
+      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path))
+        continue;
+
+      const FXint path_index = dbtracks.hasPath(path);
+
+      database->getFileList(path,tracklist);
+
+      for (FXint t=0;t<tracklist.no() && processing;t++) {
+
+        const FXString & name = tracklist[t].filename;
+
+        if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
+          if (FXStat::statFile(path+PATHSEPSTRING+name,data)) {
+            if (data.isReadable())
+              parse_update(path,name,options_sync.update_always ? forever : data.modified(),path_index);
+            else
+              parse_update(path,name,0,path_index);
+            }
+          else if (options_sync.remove_missing) {
+            dbtracks.remove(tracklist[t].id);
+            changed=true;
+            }
+          }
+        }
+      if (processing) update_tracks(path_index);
+      }
+    }
+  if (changed) {
+    database->sync_album_year();
+    database->sync_tracks_removed();
+    }
+  database->commitTask();
+  }
+
+
+
+
+void GMSyncTask::remove_missing() {
+  FXStringList        pathlist;
+  GMTrackFilenameList tracklist;
+
+  database->beginTask();
+
+  taskmanager->setStatus("Clearing Files..");
+
+  for (FXint i=0;i<files.no() && processing;i++) {
+
+    database->getPathList(files[i],pathlist);
+
+    for (FXint p=0;p<pathlist.no() && processing;p++) {
+
+      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,pathlist[p]))
+        continue;
+
+      database->getFileList(pathlist[p],tracklist);
+
+      for (FXint t=0;t<tracklist.no() && processing;t++) {
+
+        const FXString & name = tracklist[t].filename;
+
+        if (database->interrupt)
+          database->waitTask();
+
+        if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
+          if (options_sync.remove_all || !FXStat::exists(pathlist[p]+PATHSEPSTRING+name)){
+            dbtracks.remove(tracklist[t].id);
+            changed=true;
+            }
+          }
+        }
+      }
+    }
+  if (changed) database->sync_tracks_removed();
+  database->commitTask();
+  }
+
+
+void GMSyncTask::parse_update(const FXString & path,const FXString & filename,FXTime modified,FXint pathindex) {
+  FXTime tracktime=0;
+
+  // Allocate tracks
+  if (ntracks>=tracks.no()) {
+    tracks.no(tracks.no()+25);
+    }
+
+  // Current Track
+  GMTrack & track = tracks[ntracks];
+
+  // Check existing
+  if (pathindex) {
+    track.index = database->hasTrack(filename,pathindex,tracktime);
+    }
+
+  // Load Track if new or updated
+  if (track.index==0 || modified>tracktime) {
+    load_track(path+PATHSEPSTRING+filename);
+    }
+  else {
+    track.url.clear();
+    }
+
+  ntracks++;
+  }
+
+
+void GMSyncTask::traverse(const FXString & path,Seen * seen,FXlong index) {
+  FXDir    directory;
+  FXStat   data;
+  FXString name;
+
+  // Location
+  Seen here={seen,index};
+
+  // First scan subfolders
+  if (directory.open(path)) {
+    while(directory.next(name) && processing) {
+      if (FXStat::statLink(path+PATHSEPSTRING+name,data)) {
+        if (data.isDirectory()) {
+          if(!(name[0]=='.' && (name[1]==0 || (name[1]=='.' && name[2]==0)))){
+            for(Seen *s=seen; s; s=s->next){
+              if(data.index()==s->node) goto next_dir;
+              }
+            if (options.exclude_folder.empty() || !FXPath::match(name,options.exclude_folder,matchflags))
+              traverse(path+PATHSEPSTRING+name,&here,data.index());
+            }
+          }
+        }
+next_dir:;
+      }
+    directory.close();
+    }
+
+  // Scan files in current folder
+  if(directory.open(path) && processing) {
+    FXint path_index = dbtracks.hasPath(path);
+    while(directory.next(name) && processing) {
+      if (FXStat::statFile(path+PATHSEPSTRING+name,data)) {
+        if (!data.isDirectory() && data.isReadable()) {
+          if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
+            if (FXPath::match(name,FILE_PATTERNS,matchflags)) {
+              parse_update(path,name,options_sync.update_always ? forever : data.modified(),path_index);
+              }
+            }
+          }
+        }
+      }
+    if (processing) update_tracks(path_index);
+    }
+  }
+
+
+void GMSyncTask::update_tracks(FXint pathindex) {
+  FXint nchanged=0;
+
+  for (FXint i=0;i<ntracks;i++) {
+    if (!tracks[i].url.empty()) nchanged++;
+    }
+
+  if (nchanged) {
+
+    // Load existing tracks from database
+    for (FXint i=0;i<ntracks;i++) {
+      if (tracks[i].url.empty()) {
+        database->getTrack(tracks[i].index,tracks[i]);
+        tracks[i].url.clear();
+        }
+      }
+
+    // Set track number based on import order
+    if (options.track_from_filelist) {
+      for (FXint i=0;i<ntracks;i++) {
+        tracks[i].no=i+1;
+        }
+      }
+
+    // Look for compilations
+    if (options.detect_compilation)
+      detect_compilation();
+
+
+    // Update Database
+    for (FXint i=0;i<ntracks;i++) {
+
+      // Check for interrupts
+      if (database->interrupt) {
+        database->waitTask();
+        }
+
+      // Update or Insert
+      if (tracks[i].index){
+        fxmessage("update %d %s\n",tracks[i].index,tracks[i].url.text());
+        dbtracks.update(tracks[i]);
+        }
+      else {
+        fxmessage("insert %d %s\n",tracks[i].index,tracks[i].url.text());
+        dbtracks.insert(tracks[i],pathindex);
+        }
+
+      // Update Progress
+      count++;
+      if (0==(count%100)) {
+        taskmanager->setStatus(FXString::value("Syncing %d",count));
+        }
+      }
+    changed=true;
+    }
+  ntracks=0;
   }
