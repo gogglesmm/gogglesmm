@@ -365,7 +365,7 @@ FXbool GMTrackDatabase::init_queries() {
     query_artist                        = compile("SELECT id FROM artists WHERE name == ?;");
     query_path_name                     = compile("SELECT name FROM pathlist WHERE id == ?;");
 
-    query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating, tracks.samplerate, tracks.channels "
+    query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating, tracks.samplerate, tracks.channels, tracks.filetype, tracks.bitrate "
                                                   "FROM tracks LEFT JOIN artists AS composer_artist ON tracks.composer == composer_artist.id LEFT JOIN artists AS conductor_artist ON tracks.conductor == conductor_artist.id,pathlist, albums, artists AS a1, artists AS a2 "
                                                   "WHERE tracks.path == pathlist.id "
                                                     "AND albums.id == tracks.album "
@@ -918,6 +918,7 @@ FXbool GMTrackDatabase::getStream(FXint id,GMStream & stream){
 FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
   DEBUG_DB_GET();
   FXbool ok=false;
+  FXint  value;
   try {
     //begin();
     query_track.set(0,tid);
@@ -934,9 +935,23 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
       query_track.get( 9,track.year);
       query_track.get(10,track.rating);
       query_track.get(11,track.samplerate);
-      FXint channels;
-      query_track.get(12,channels);
-      track.channels=channels;
+
+      query_track.get(12,value);
+      track.channels=value;
+
+      query_track.get(13,value);
+      track.filetype=value;
+
+      query_track.get(14,value);
+      if (value<0) {
+        track.sampleformat = -value;
+        track.bitrate = 0;
+        }
+      else {
+        track.bitrate = value;
+        track.sampleformat = 0;
+        }
+
       ok=true;
       }
     query_track.reset();
