@@ -450,6 +450,7 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
           case 'n' :
           case 'N' : if (options&OVERWRITE) track.setTrackNumber(field.toInt()); break;
           case 'd' : if (options&OVERWRITE) track.setDiscNumber(field.toInt()); break;
+          case 'y' : if (options&OVERWRITE || track.year == 0) track.year = field.toInt(); break;
           default  : break;
           }
         //fxmessage("%%%c=\"%s\"\n",item,field.text());
