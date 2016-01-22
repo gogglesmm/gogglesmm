@@ -963,7 +963,7 @@ FXint GMPodcastUpdater::run() {
             }
           GM_DEBUG_PRINT("[rss] Update date to %s\n",FXSystem::universalTime(rss.feed.date).text());
           if (!moved.empty()) {
-            GM_DEBUG_PRINT("[rss] feed was moved:\n      from: \"%s\"\n        to: \"%s\"\n",url.text(),moved.text());    
+            GM_DEBUG_PRINT("[rss] feed was moved:\n      from: \"%s\"\n        to: \"%s\"\n",url.text(),moved.text());
             set_feed.set(0,moved);
             }
           else {
@@ -1180,7 +1180,7 @@ void GMPodcastSource::setUpdateInterval(FXlong interval) {
 
 void GMPodcastSource::setLastUpdate() {
   GMApp::instance()->reg().writeLongEntry(settingKey(),"last-update",FXThread::time());
-  GMApp::instance()->addTimeout(this,GMPodcastSource::ID_REFRESH_FEED,getUpdateInterval());
+  scheduleUpdate();
   }
 
 void GMPodcastSource::scheduleUpdate() {
