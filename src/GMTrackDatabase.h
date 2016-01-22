@@ -122,8 +122,11 @@ public:
   /// Return filename for track
   FXString getTrackFilename(FXint id);
 
-  /// Return a list of filenames
-  void getTrackFilenames(GMTrackFilenameList & list,const FXString & root=FXString::null);
+  /// Return a list of paths for given base
+  void getPathList(const FXString & base,FXStringList & paths);
+
+  /// Return a list of filenames for given path
+  void getFileList(const FXString & path,GMTrackFilenameList & list);
 
   /// Return list of filenames
   void getTrackFilenames(const FXIntList & tracks,FXStringList & filenames);
@@ -176,7 +179,7 @@ public:
 
   FXint hasPath(const FXString & path);
 
-  FXint hasTrack(const FXString &,FXint path);
+  FXint hasTrack(const FXString &,FXint path,FXTime & modified);
 
 
   FXbool insertPlaylistTracks(FXint playlist,const FXIntList & tracks);

@@ -288,10 +288,11 @@ FXbool GMDatabaseSource::findCurrentAlbum(GMAlbumList * list,GMSource * src) {
 
 
 FXbool GMDatabaseSource::hasTrack(const FXString & mrl,FXint & id) {
+  FXTime modified;
   FXint pid = db->hasPath(FXPath::directory(mrl));
   id = 0;
   if (pid) {
-    id = db->hasTrack(mrl,pid);
+    id = db->hasTrack(mrl,pid,modified);
     }
   return id;
   }

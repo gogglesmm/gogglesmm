@@ -427,10 +427,10 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
 
   target_track_from_filelist.connect(GMPlayerManager::instance()->getPreferences().import.track_from_filelist);
   target_replace_underscores.connect(GMPlayerManager::instance()->getPreferences().import.replace_underscores);
-  target_default_field.connect(GMPlayerManager::instance()->getPreferences().import.default_field);
   target_parse_method.connect(GMPlayerManager::instance()->getPreferences().import.parse_method,this,ID_PARSE_METHOD);
   target_filename_template.connect(GMPlayerManager::instance()->getPreferences().import.filename_template);
   target_album_format_grouping.connect(GMPlayerManager::instance()->getPreferences().import.album_format_grouping);
+  target_detect_compilation.connect(GMPlayerManager::instance()->getPreferences().import.detect_compilation);
 
   target_exclude_dir.connect(GMPlayerManager::instance()->getPreferences().import.exclude_folder);
   target_exclude_file.connect(GMPlayerManager::instance()->getPreferences().import.exclude_file);
@@ -525,10 +525,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   new GMRadioButton(hframe,tr("Path"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_FILENAME,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
   new GMRadioButton(hframe,tr("Both"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_BOTH,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
 
-  new FXLabel(matrix,tr("Default value:"),nullptr,labelstyle);
-  new GMTextField(matrix,10,&target_default_field,FXDataTarget::ID_VALUE,textfieldstyle|LAYOUT_FILL_COLUMN);
-
-  new FXLabel(matrix,tr("ID3v1 Encoding:"),nullptr,labelstyle);
+  new FXLabel(matrix,tr("ID3v1 Encoding:"),NULL,labelstyle);
   id3v1_listbox = new GMListBox(matrix,&target_id3v1_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
   for (int i=0;gmcodecnames[i]!=nullptr;i++)
     id3v1_listbox->appendItem(gmcodecnames[i]);
@@ -540,8 +537,12 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
 
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+
   new FXFrame(matrix,FRAME_NONE);
   new GMCheckButton(matrix,tr("Group albums by audio format.\tImported tracks that differ in audio format will be grouped in separate albums."),&target_album_format_grouping,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+
+  new FXFrame(matrix,FRAME_NONE);
+  new GMCheckButton(matrix,tr("Detect compilations by folder.\tGroup tracks from the same folder."),&target_detect_compilation,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
 
   template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
@@ -550,7 +551,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   FXLabel * label = new FXLabel(template_grpbox,tr("%T - title              %A - album name\n"
                                                    "%P - album artist name  %p - track artist name \n"
                                                    "%N - track number       %d - disc number\n"
-                                                   "%G - genre"),nullptr,FRAME_LINE|JUSTIFY_LEFT,0,0,0,0,30);
+                                                   "%y - year"),NULL,FRAME_LINE|JUSTIFY_LEFT,0,0,0,0,30);
 
   label->setFont(font_fixed);
   label->setBackColor(getApp()->getTipbackColor());

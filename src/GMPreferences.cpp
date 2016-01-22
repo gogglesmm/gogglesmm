@@ -29,11 +29,11 @@ const char section_dbus[]   = "dbus";
 const char section_app[]    = "application";
 const char section_sync[]   = "sync";
 
-const char key_import_default_field[]="default-user-title";
 const char key_import_track_from_filelist[]="track-from-filelist";
 const char key_import_replace_underscores[]="replace-underscores";
 const char key_import_id3v1_encoding[]="id3v1-encoding";
 const char key_import_album_format_grouping[]="album-format-grouping";
+const char key_import_detect_compilation[]="detect-compilation";
 
 const char key_import_filename_template[]="filename-template";
 const char key_import_parse_method[]="parse-method";
@@ -97,25 +97,25 @@ GMImportOptions::GMImportOptions() {
 void GMImportOptions::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_import,key_import_track_from_filelist,track_from_filelist);
   reg.writeBoolEntry(section_import,key_import_replace_underscores,replace_underscores);
-  reg.writeStringEntry(section_import,key_import_default_field,default_field.text());
   reg.writeStringEntry(section_import,key_import_filename_template,filename_template.text());
   reg.writeStringEntry(section_import,key_import_exclude_folder,exclude_folder.text());
   reg.writeStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   reg.writeUIntEntry(section_import,key_import_parse_method,parse_method);
   reg.writeUIntEntry(section_export,key_import_id3v1_encoding,id3v1_encoding);
   reg.writeBoolEntry(section_import,key_import_album_format_grouping,album_format_grouping);
+  reg.writeBoolEntry(section_import,key_import_detect_compilation,detect_compilation);
   }
 
 void GMImportOptions::load(FXSettings & reg) {
   track_from_filelist    = reg.readBoolEntry(section_import,key_import_track_from_filelist,track_from_filelist);
   replace_underscores    = reg.readBoolEntry(section_import,key_import_replace_underscores,replace_underscores);
-  default_field          = reg.readStringEntry(section_import,key_import_default_field,default_field.text());
   filename_template      = reg.readStringEntry(section_import,key_import_filename_template,filename_template.text());
   exclude_folder         = reg.readStringEntry(section_import,key_import_exclude_folder,exclude_folder.text());
   exclude_file           = reg.readStringEntry(section_import,key_import_exclude_file,exclude_file.text());
   parse_method           = FXMIN(reg.readUIntEntry(section_import,key_import_parse_method,parse_method),(FXuint)PARSE_BOTH);
   id3v1_encoding         = FXMIN(GMFilename::ENCODING_LAST-1,reg.readUIntEntry(section_import,key_import_id3v1_encoding,id3v1_encoding));
   album_format_grouping  = reg.readBoolEntry(section_import,key_import_album_format_grouping,album_format_grouping);
+  detect_compilation     = reg.readBoolEntry(section_import,key_import_detect_compilation,detect_compilation);
   }
 
 

@@ -67,13 +67,13 @@ protected:
 protected:
   FXDataTarget target_track_from_filelist;
   FXDataTarget target_replace_underscores;
-  FXDataTarget target_default_field;
   FXDataTarget target_exclude_dir;
   FXDataTarget target_exclude_file;
   FXDataTarget target_parse_method;
   FXDataTarget target_filename_template;
   FXDataTarget target_id3v1_encoding;
   FXDataTarget target_album_format_grouping;
+  FXDataTarget target_detect_compilation;
 protected:
   GMFileSelector  * fileselector = nullptr;
   GMDirSelector   * dirselector = nullptr;
