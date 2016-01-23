@@ -474,6 +474,9 @@ void GMImportTask::parse(const FXString & path,const FXString & filename,FXint p
     FXTime modified;
     track.index = database->hasTrack(filename,path_index,modified);
     }
+  else {
+    track.index = 0;
+    }
 
   if(track.index==0) {
     load_track(path+PATHSEPSTRING+filename);
@@ -483,6 +486,22 @@ void GMImportTask::parse(const FXString & path,const FXString & filename,FXint p
     if (dbtracks.playlist) ntracks++;
     track.url.clear();
     }
+  }
+
+
+FXbool GMImportTask::has_same_composer() const {
+  if (ntracks==0)
+    return false;
+
+  if (tracks[0].composer.empty())
+    return false;
+
+  for (FXint i=1;i<ntracks;i++) {
+    if (tracks[0].composer!=tracks[i].composer)
+      return false;
+    }
+
+  return true;
   }
 
 
@@ -538,6 +557,10 @@ void GMImportTask::detect_compilation() {
 
     // Default value for album_artist to use
     FXString album_artist_default = fxtr("Various Artists");
+
+    // Check if composer is set and are all the same
+    if (has_same_composer())
+      album_artist_default = tracks[0].composer;
 
     // Use artist_album from database in case user already overwrote Various Artists
     for (FXint i=0;i<ntracks;i++) {
@@ -806,6 +829,9 @@ void GMSyncTask::parse_update(const FXString & path,const FXString & filename,FX
   // Check existing
   if (pathindex) {
     track.index = database->hasTrack(filename,pathindex,tracktime);
+    }
+  else {
+    track.index = 0;
     }
 
   // Load Track if new or updated
