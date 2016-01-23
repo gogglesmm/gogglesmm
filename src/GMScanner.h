@@ -92,12 +92,13 @@ protected:
   FXStringList      files;
   FXint             count = 0;
 protected:
-  void parse(const FXString & filename,FXint n,GMTrack &);
-protected:
   virtual FXint run();
 protected:
   GMTrackArray  tracks;
   FXint        ntracks=0;
+protected:
+  // Return true if same composer is set on all tracks
+  FXbool has_same_composer() const;
 protected:
   // Import files and directories
   void import();

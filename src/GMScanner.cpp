@@ -351,7 +351,7 @@ void GMImportTask::load_track(const FXString & filename) {
     case GMImportOptions::PARSE_TAG:
       track.loadTag(track.url);
       break;
-    case GMImportOptions::PARSE_FILENAME:      
+    case GMImportOptions::PARSE_FILENAME:
       GMFilename::parse(track,options.filename_template,(options.replace_underscores ? (GMFilename::OVERWRITE|GMFilename::REPLACE_UNDERSCORE) : (GMFilename::OVERWRITE)));
       break;
     case GMImportOptions::PARSE_BOTH:
@@ -489,6 +489,22 @@ void GMImportTask::parse(const FXString & path,const FXString & filename,FXint p
   }
 
 
+FXbool GMImportTask::has_same_composer() const {
+  if (ntracks==0)
+    return false;
+
+  if (tracks[0].composer.empty())
+    return false;
+
+  for (FXint i=1;i<ntracks;i++) {
+    if (tracks[0].composer!=tracks[i].composer)
+      return false;
+    }
+
+  return true;
+  }
+
+
 void GMImportTask::detect_compilation() {
   if (ntracks) {
     FXbool same_artists=true;
@@ -541,6 +557,10 @@ void GMImportTask::detect_compilation() {
 
     // Default value for album_artist to use
     FXString album_artist_default = fxtr("Various Artists");
+
+    // Check if composer is set and are all the same
+    if (has_same_composer())
+      album_artist_default = tracks[0].composer;
 
     // Use artist_album from database in case user already overwrote Various Artists
     for (FXint i=0;i<ntracks;i++) {
