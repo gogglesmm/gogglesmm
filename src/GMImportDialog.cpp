@@ -542,7 +542,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   new GMCheckButton(matrix,tr("Group albums by audio format.\tImported tracks that differ in audio format will be grouped in separate albums."),&target_album_format_grouping,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
   new FXFrame(matrix,FRAME_NONE);
-  new GMCheckButton(matrix,tr("Detect compilations by folder.\tGroup tracks from the same folder."),&target_detect_compilation,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+  new GMCheckButton(matrix,tr("Detect compilations by folder.\tGroup tracks from the same folder without specific compilation/albumartist tags."),&target_detect_compilation,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
 
   template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
