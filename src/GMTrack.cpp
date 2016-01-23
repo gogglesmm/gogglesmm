@@ -50,7 +50,10 @@ void GMTrack::clear() {
   no=0;
   time=0;
   bitrate=0;
-  index=0;
+  channels=0;
+  sampleformat=0;
+  samplerate=0;
+  filetype=FILETYPE_UNKNOWN;
   }
 
 const FXString & GMTrack::getArtist(const FXString & def) const {

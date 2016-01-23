@@ -351,7 +351,7 @@ void GMImportTask::load_track(const FXString & filename) {
     case GMImportOptions::PARSE_TAG:
       track.loadTag(track.url);
       break;
-    case GMImportOptions::PARSE_FILENAME:
+    case GMImportOptions::PARSE_FILENAME:      
       GMFilename::parse(track,options.filename_template,(options.replace_underscores ? (GMFilename::OVERWRITE|GMFilename::REPLACE_UNDERSCORE) : (GMFilename::OVERWRITE)));
       break;
     case GMImportOptions::PARSE_BOTH:
@@ -473,6 +473,9 @@ void GMImportTask::parse(const FXString & path,const FXString & filename,FXint p
   if(path_index) {
     FXTime modified;
     track.index = database->hasTrack(filename,path_index,modified);
+    }
+  else {
+    track.index = 0;
     }
 
   if(track.index==0) {
@@ -806,6 +809,9 @@ void GMSyncTask::parse_update(const FXString & path,const FXString & filename,FX
   // Check existing
   if (pathindex) {
     track.index = database->hasTrack(filename,pathindex,tracktime);
+    }
+  else {
+    track.index = 0;
     }
 
   // Load Track if new or updated
