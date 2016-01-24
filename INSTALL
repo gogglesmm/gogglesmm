@@ -92,9 +92,9 @@ Building Goggles Music Manager on Ubuntu 14.04 LTS
 
     4. Download, Build and Install gogglesmm (adjust version if necessary)
 
-       > wget https://github.com/gogglesmm/gogglesmm/archive/1.0.10.tar.gz
-       > tar xvf gogglesmm-1.0.10.tar.gz
-       > cd gogglesmm-1.0.10
+       > wget https://github.com/gogglesmm/gogglesmm/archive/1.0.12.tar.gz
+       > tar xvf gogglesmm-1.0.12.tar.gz
+       > cd gogglesmm-1.0.12
 
        for 32 bit:
        > ./configure --with-faad --without-oss --libdir=/usr/lib/i386-linux-gnu

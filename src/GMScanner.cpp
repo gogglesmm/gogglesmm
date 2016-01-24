@@ -636,7 +636,7 @@ void GMImportTask::setID3v1Encoding() {
 
 static FXbool filter_path(const FXString & exclude_folder,FXString path) {
   const FXuint matchflags=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
-  while(!path.empty()){
+  while(!FXPath::isTopDirectory(path)){
     if (FXPath::match(FXPath::name(path),exclude_folder,matchflags))
       return true;
     path=FXPath::upLevel(path);
@@ -783,7 +783,6 @@ void GMSyncTask::remove_missing() {
   for (FXint i=0;i<files.no() && processing;i++) {
 
     database->getPathList(files[i],pathlist);
-    ;
 
     for (FXint p=0;p<pathlist.no() && processing;p++) {
 
