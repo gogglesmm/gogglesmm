@@ -675,9 +675,6 @@ FXint GMSyncTask::run() {
       }
     else if (options_sync.update) {
       update();
-
-      if (options_sync.remove_missing)
-        remove_missing();
       }
     else if (options_sync.remove_missing) {
       remove_missing();
@@ -786,6 +783,7 @@ void GMSyncTask::remove_missing() {
   for (FXint i=0;i<files.no() && processing;i++) {
 
     database->getPathList(files[i],pathlist);
+    ;
 
     for (FXint p=0;p<pathlist.no() && processing;p++) {
 
