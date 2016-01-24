@@ -689,6 +689,7 @@ FXString GMTrackDatabase::getTrackFilename(FXint track) {
 void GMTrackDatabase::getPathList(const FXString & path,FXStringList & result) {
   DEBUG_DB_GET();
   GMQuery list;
+  result.clear();
   list = compile("SELECT pathlist.name FROM pathlist WHERE pathlist.name == ? OR pathlist.name LIKE ? ORDER BY pathlist.name;");
   list.set(0,path);
   list.set(1,path+PATHSEPSTRING+'%');
@@ -702,7 +703,8 @@ void GMTrackDatabase::getPathList(const FXString & path,FXStringList & result) {
 void GMTrackDatabase::getFileList(const FXString & path,GMTrackFilenameList & result) {
   DEBUG_DB_GET();
   GMQuery list;
-  list = compile("SELECT tracks.id, mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id AND (pathlist.name == ?)");
+  result.clear();
+  list = compile("SELECT tracks.id, mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id AND pathlist.name == ?");
   list.set(0,path);
   while(list.row()){
     result.no(result.no()+1);
