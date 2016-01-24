@@ -1,6 +1,10 @@
+1.0.11
+  - Fix incorrect parameter passing to sqlite (braking scanner in certain cases)
+  - Fix sync incorrectly updating/removing files.
+
 1.0.10
   - During import symlinks to directories are now followed.
-  - Removed default field input from import options. This is now automatically substituted with Unknown Artist, Unknown Album 
+  - Removed default field input from import options. This is now automatically substituted with Unknown Artist, Unknown Album
     and the name of the filename in case of a missing title.
   - New import option for detection of compilation albums for files without albumartist or compilation tags.
   - New import option to disable grouping albums by audio format. Useful in case taglib fails to read the audioproperties correctly.
