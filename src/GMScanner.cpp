@@ -670,7 +670,7 @@ FXint GMSyncTask::run() {
       else
         import();
 
-      if (options_sync.remove_missing)
+      if (options_sync.remove_missing || !options.exclude_folder.empty() || !options.exclude_file.empty())
         remove_missing();
       }
     else if (options_sync.update) {
@@ -735,16 +735,30 @@ void GMSyncTask::update() {
 
       const FXString & path  = pathlist[p];
 
-      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path))
-        continue;
-
       const FXint path_index = dbtracks.hasPath(path);
 
       database->getFileList(path,tracklist);
 
+      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,path)) {
+
+        for (FXint t=0;t<tracklist.no();t++) {
+
+          if (database->interrupt)
+            database->waitTask();
+
+          dbtracks.remove(tracklist[t].id);
+          }
+
+        changed=true;
+        continue;
+        }
+
       for (FXint t=0;t<tracklist.no() && processing;t++) {
 
         const FXString & name = tracklist[t].filename;
+
+        if (database->interrupt)
+          database->waitTask();
 
         if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
           if (FXStat::statFile(path+PATHSEPSTRING+name,data)) {
@@ -757,6 +771,10 @@ void GMSyncTask::update() {
             dbtracks.remove(tracklist[t].id);
             changed=true;
             }
+          }
+        else {
+          dbtracks.remove(tracklist[t].id);
+          changed=true;
           }
         }
       if (processing) update_tracks(path_index);
@@ -786,10 +804,19 @@ void GMSyncTask::remove_missing() {
 
     for (FXint p=0;p<pathlist.no() && processing;p++) {
 
-      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,pathlist[p]))
-        continue;
-
       database->getFileList(pathlist[p],tracklist);
+
+      if (!options.exclude_folder.empty() && filter_path(options.exclude_folder,pathlist[p])){
+        for (FXint t=0;t<tracklist.no() && processing;t++) {
+
+          if (database->interrupt)
+            database->waitTask();
+
+          dbtracks.remove(tracklist[t].id);
+          }
+        changed=true;
+        continue;
+        }
 
       for (FXint t=0;t<tracklist.no() && processing;t++) {
 
@@ -798,11 +825,10 @@ void GMSyncTask::remove_missing() {
         if (database->interrupt)
           database->waitTask();
 
-        if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
-          if (options_sync.remove_all || !FXStat::exists(pathlist[p]+PATHSEPSTRING+name)){
-            dbtracks.remove(tracklist[t].id);
-            changed=true;
-            }
+        if (options_sync.remove_all || (options_sync.remove_missing && !FXStat::exists(pathlist[p]+PATHSEPSTRING+name)) 
+                                    || (!options.exclude_file.empty() && FXPath::match(name,options.exclude_file,matchflags))){
+          dbtracks.remove(tracklist[t].id);
+          changed=true;
           }
         }
       }
