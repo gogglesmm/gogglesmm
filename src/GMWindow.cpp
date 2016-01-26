@@ -84,6 +84,8 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_IMPORT_DIRS,				GMWindow::onCmdImport),
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_IMPORT_FILES,		  GMWindow::onCmdImport),
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SYNC_DIRS,		      GMWindow::onCmdImport),
+  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_REMOVE_FOLDER,		  GMWindow::onCmdImport),
+
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_OPEN,							GMWindow::onCmdOpen),
 
@@ -822,10 +824,13 @@ void GMWindow::configureToolbar(FXbool docktop,FXbool initial/*=false*/){
 long GMWindow::onCmdImport(FXObject *,FXSelector sel,void*){
 
 
-  FXuint mode=(FXSELID(sel)==ID_IMPORT_DIRS || FXSELID(sel)==ID_SYNC_DIRS) ? IMPORT_FROMDIR : IMPORT_FROMFILE;
+  FXuint mode=(FXSELID(sel)==ID_IMPORT_DIRS || FXSELID(sel)==ID_SYNC_DIRS || FXSELID(sel)==ID_REMOVE_FOLDER) ? IMPORT_FROMDIR : IMPORT_FROMFILE;
 
   if (FXSELID(sel)==ID_SYNC_DIRS)
     mode|=IMPORT_SYNC;
+
+  if (FXSELID(sel)==ID_REMOVE_FOLDER)
+    mode|=REMOVE_FOLDER;
 
   GMImportDialog dialog(this,mode);
   if (dialog.execute()) {
@@ -836,6 +841,11 @@ long GMWindow::onCmdImport(FXObject *,FXSelector sel,void*){
       GMSyncTask * task = new GMSyncTask(GMPlayerManager::instance(),GMPlayerManager::ID_IMPORT_TASK);
       task->setOptions(GMPlayerManager::instance()->getPreferences().import);
       task->setSyncOptions(GMPlayerManager::instance()->getPreferences().sync);
+      task->setInput(files);
+      GMPlayerManager::instance()->runTask(task);
+      }
+    else if (FXSELID(sel)==ID_REMOVE_FOLDER) {
+      GMRemoveTask * task = new GMRemoveTask(GMPlayerManager::instance(),GMPlayerManager::ID_IMPORT_TASK);
       task->setInput(files);
       GMPlayerManager::instance()->runTask(task);
       }
@@ -1376,7 +1386,7 @@ void GMWindow::updateCoverView() {
     coverview_x11->setSelector(ID_COVERVIEW);
     coverview_x11->enable();
     if (coverframe->id()) coverview_x11->create();
-    }	
+    }
   }
 
 long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){

@@ -61,7 +61,7 @@ public:
   GMDBTracks();
 
   // Init
-  void init(GMTrackDatabase*,FXbool album_format_grouping);
+  void init(GMTrackDatabase*,FXbool album_format_grouping=true);
 
   // Check for path
   FXint hasPath(const FXString & filename);
@@ -166,6 +166,23 @@ public:
   virtual ~GMSyncTask();
   };
 
+class GMRemoveTask : public GMTask {
+protected:
+  GMDBTracks        dbtracks;
+  GMTrackDatabase * database = nullptr;
+  FXStringList      files;
+  FXbool            changed = false;
+protected:
+  virtual FXint run();
+public:
+  GMRemoveTask(FXObject*tgt=NULL,FXSelector sel=0);
+
+  void setInput(const FXStringList & input) { files=input; }
+
+  void remove();
+
+  virtual ~GMRemoveTask();
+  };
 
 
 #endif

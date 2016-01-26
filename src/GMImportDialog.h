@@ -27,7 +27,8 @@ enum {
   IMPORT_FROMFILE  = 0x1,
   IMPORT_FROMDIR   = 0x2,
   IMPORT_SYNC      = 0x4,
-  IMPORT_PLAYLIST  = 0x8
+  IMPORT_PLAYLIST  = 0x8,
+  REMOVE_FOLDER    = 0x10,
   };
 
 class GMFileDialog : public FXFileDialog {
@@ -94,7 +95,6 @@ public:
     ID_SYNC_UPDATE,
     ID_SYNC_UPDATE_ALL,
     ID_SYNC_UPDATE_MODIFIED,
-    ID_SYNC_REMOVE_ALL,
     ID_PARSE_METHOD
     };
 public:

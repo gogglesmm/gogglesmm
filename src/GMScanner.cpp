@@ -660,10 +660,7 @@ FXint GMSyncTask::run() {
 
     setID3v1Encoding();
 
-    if (options_sync.remove_all) {
-      remove_missing();
-      }
-    else if (options_sync.import_new) {
+    if (options_sync.import_new) {
 
       if (options_sync.update)
         import_and_update();
@@ -825,8 +822,8 @@ void GMSyncTask::remove_missing() {
         if (database->interrupt)
           database->waitTask();
 
-        if (options_sync.remove_all || (options_sync.remove_missing && !FXStat::exists(pathlist[p]+PATHSEPSTRING+name)) 
-                                    || (!options.exclude_file.empty() && FXPath::match(name,options.exclude_file,matchflags))){
+        if ((options_sync.remove_missing && !FXStat::exists(pathlist[p]+PATHSEPSTRING+name)) ||
+            (!options.exclude_file.empty() && FXPath::match(name,options.exclude_file,matchflags))){
           dbtracks.remove(tracklist[t].id);
           changed=true;
           }
@@ -972,3 +969,60 @@ void GMSyncTask::update_tracks(FXint pathindex) {
     }
   ntracks=0;
   }
+
+
+
+
+GMRemoveTask::GMRemoveTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel) {
+  database = GMPlayerManager::instance()->getTrackDatabase();
+  }
+
+
+GMRemoveTask::~GMRemoveTask() {
+  }
+
+
+FXint GMRemoveTask::run() {
+  FXASSERT(database);
+  try {
+    dbtracks.init(database);
+    remove();
+    }
+  catch(GMDatabaseException&) {
+    database->rollbackTask();
+    return 1;
+    }
+  return 0;
+  }
+
+
+void GMRemoveTask::remove() {
+  FXStringList        pathlist;
+  GMTrackFilenameList tracklist;
+
+  database->beginTask();
+
+  taskmanager->setStatus("Clearing Files..");
+
+  for (FXint i=0;i<files.no() && processing;i++) {
+
+    database->getPathList(files[i],pathlist);
+
+    for (FXint p=0;p<pathlist.no() && processing;p++) {
+
+      database->getFileList(pathlist[p],tracklist);
+
+      for (FXint t=0;t<tracklist.no() && processing;t++) {
+
+        if (database->interrupt)
+          database->waitTask();
+
+        dbtracks.remove(tracklist[t].id);
+        changed=true;
+        }
+      }
+    }
+  if (changed) database->sync_tracks_removed();
+  database->commitTask();
+  }
+
