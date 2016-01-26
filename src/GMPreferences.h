@@ -97,7 +97,6 @@ class GMSyncOptions {
 public:
   FXbool import_new     = true;
   FXbool remove_missing = false;
-  FXbool remove_all     = false;
   FXbool update         = false;
   FXbool update_always  = false;
 public:

@@ -402,8 +402,8 @@ GMExportDialog::GMExportDialog(FXApp* a,const FXString& name,FXuint opts,FXint x
 
 FXDEFMAP(GMImportDialog) GMImportDialogMap[]={
   FXMAPFUNC(SEL_UPDATE,FXDialogBox::ID_ACCEPT,GMImportDialog::onUpdAccept),
-  FXMAPFUNCS(SEL_UPDATE,GMImportDialog::ID_SYNC_NEW,GMImportDialog::ID_SYNC_REMOVE_ALL,GMImportDialog::onUpdSync),
-  FXMAPFUNCS(SEL_COMMAND,GMImportDialog::ID_SYNC_NEW,GMImportDialog::ID_SYNC_REMOVE_ALL,GMImportDialog::onCmdSync),
+  FXMAPFUNCS(SEL_UPDATE,GMImportDialog::ID_SYNC_NEW,GMImportDialog::ID_SYNC_UPDATE_MODIFIED,GMImportDialog::onUpdSync),
+  FXMAPFUNCS(SEL_COMMAND,GMImportDialog::ID_SYNC_NEW,GMImportDialog::ID_SYNC_UPDATE_MODIFIED,GMImportDialog::onCmdSync),
   FXMAPFUNC(SEL_COMMAND,GMImportDialog::ID_PARSE_METHOD,GMImportDialog::onCmdParseMethod)
 
   };
@@ -412,8 +412,9 @@ FXIMPLEMENT(GMImportDialog,FXDialogBox,GMImportDialogMap,ARRAYNUMBER(GMImportDia
 
 GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::null,DECOR_BORDER|DECOR_TITLE|DECOR_RESIZE,0,0,500,400,0,0,0,0,0,0), mode(m) {
 
-
-  if (mode&IMPORT_SYNC)
+  if (mode&REMOVE_FOLDER)
+    setTitle(tr("Remove Folder"));
+  else if (mode&IMPORT_SYNC)
     setTitle(tr("Synchronize Folder"));
   else if (mode&IMPORT_PLAYLIST)
     setTitle(tr("Import Playlist"));
@@ -475,19 +476,22 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     new GMTabItem(tabbook,tr("&Folder"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
     vframe = new GMTabFrame(tabbook);
 
-    GMCheckButton * excludetoggle = new GMCheckButton(vframe,tr("Exclude Filter\tFilter out directories and/or files based on pattern"),nullptr,0,CHECKBUTTON_NORMAL|CHECKBUTTON_PLUS);
+    if (0==(mode&REMOVE_FOLDER)) {
+      GMCheckButton * excludetoggle = new GMCheckButton(vframe,tr("Exclude Filter\tFilter out directories and/or files based on pattern"),nullptr,0,CHECKBUTTON_NORMAL|CHECKBUTTON_PLUS);
 
-    matrix = new FXMatrix(vframe,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,16,4,0,0);
-    new FXLabel(matrix,tr("Folders:"),nullptr,labelstyle);
-    new GMTextField(matrix,20,&target_exclude_dir,FXDataTarget::ID_VALUE,textfieldstyle);
-    new FXLabel(matrix,tr("Files:"),nullptr,labelstyle);
-    new GMTextField(matrix,20,&target_exclude_file,FXDataTarget::ID_VALUE,textfieldstyle);
+      matrix = new FXMatrix(vframe,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,16,4,0,0);
+      new FXLabel(matrix,tr("Folders:"),nullptr,labelstyle);
+      new GMTextField(matrix,20,&target_exclude_dir,FXDataTarget::ID_VALUE,textfieldstyle);
+      new FXLabel(matrix,tr("Files:"),nullptr,labelstyle);
+      new GMTextField(matrix,20,&target_exclude_file,FXDataTarget::ID_VALUE,textfieldstyle);
 
-    excludetoggle->setTarget(matrix);
-    excludetoggle->setSelector(FXWindow::ID_TOGGLESHOWN);
+      excludetoggle->setTarget(matrix);
+      excludetoggle->setSelector(FXWindow::ID_TOGGLESHOWN);
 
-    if (GMPlayerManager::instance()->getPreferences().import.exclude_folder.empty() && GMPlayerManager::instance()->getPreferences().import.exclude_file.empty())
-      matrix->hide();
+      if (GMPlayerManager::instance()->getPreferences().import.exclude_folder.empty() && GMPlayerManager::instance()->getPreferences().import.exclude_file.empty())
+        matrix->hide();
+      }
+
 
     dirselector = new GMDirSelector(vframe,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
     FXString searchdir = getApp()->reg().readStringEntry("directories","last-import-dirs",nullptr);
@@ -508,72 +512,76 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     new FXRadioButton(matrix,tr("Modified since last import\tOnly reread the tag when the file has been modified."),this,ID_SYNC_UPDATE_MODIFIED,RADIOBUTTON_NORMAL|LAYOUT_CENTER_Y|LAYOUT_LEFT,0,0,0,0);
     new FXFrame(matrix,FRAME_NONE);
     new FXRadioButton(matrix,tr("All\tAlways read the tags"),this,ID_SYNC_UPDATE_ALL,RADIOBUTTON_NORMAL|LAYOUT_CENTER_Y|LAYOUT_LEFT,0,0,0,0);
-    new GMCheckButton(grpbox,tr("Remove tracks found in folder from database"),this,ID_SYNC_REMOVE_ALL);
     }
 
-  new GMTabItem(tabbook,tr("&Track"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
-  vframe = new GMTabFrame(tabbook);
+  if ((mode&REMOVE_FOLDER)==0) {
+    new GMTabItem(tabbook,tr("&Track"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
+    vframe = new GMTabFrame(tabbook);
 
-  grpbox = new FXGroupBox(vframe,tr("Parse Settings"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
-  grpbox->setFont(GMApp::instance()->getThickFont());
+    grpbox = new FXGroupBox(vframe,tr("Parse Settings"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+    grpbox->setFont(GMApp::instance()->getThickFont());
 
-  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X);
-  new FXLabel(matrix,tr("Parse info from:"),nullptr,labelstyle);
+    matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X);
+    new FXLabel(matrix,tr("Parse info from:"),nullptr,labelstyle);
 
-  hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
-  new GMRadioButton(hframe,tr("Tag"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_TAG,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
-  new GMRadioButton(hframe,tr("Path"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_FILENAME,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
-  new GMRadioButton(hframe,tr("Both"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_BOTH,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
+    hframe = new FXHorizontalFrame(matrix,LAYOUT_FILL_COLUMN,0,0,0,0,0,0,0,0);
+    new GMRadioButton(hframe,tr("Tag"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_TAG,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
+    new GMRadioButton(hframe,tr("Path"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_FILENAME,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
+    new GMRadioButton(hframe,tr("Both"),&target_parse_method,FXDataTarget::ID_OPTION+GMImportOptions::PARSE_BOTH,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_CENTER_Y);
 
-  new FXLabel(matrix,tr("ID3v1 Encoding:"),NULL,labelstyle);
-  id3v1_listbox = new GMListBox(matrix,&target_id3v1_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
-  for (int i=0;gmcodecnames[i]!=nullptr;i++)
-    id3v1_listbox->appendItem(gmcodecnames[i]);
-  id3v1_listbox->setNumVisible(9);
+    new FXLabel(matrix,tr("ID3v1 Encoding:"),nullptr,labelstyle);
+    id3v1_listbox = new GMListBox(matrix,&target_id3v1_encoding,FXDataTarget::ID_VALUE,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+    for (int i=0;gmcodecnames[i]!=nullptr;i++)
+      id3v1_listbox->appendItem(gmcodecnames[i]);
+    id3v1_listbox->setNumVisible(9);
 
-  if (GMPlayerManager::instance()->getPreferences().import.parse_method==GMImportOptions::PARSE_FILENAME) {
-    id3v1_listbox->disable();
+    if (GMPlayerManager::instance()->getPreferences().import.parse_method==GMImportOptions::PARSE_FILENAME) {
+      id3v1_listbox->disable();
+      }
+
+    new FXFrame(matrix,FRAME_NONE);
+    new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+
+    new FXFrame(matrix,FRAME_NONE);
+    new GMCheckButton(matrix,tr("Group albums by audio format.\tImported tracks that differ in audio format will be grouped in separate albums."),&target_album_format_grouping,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+
+    new FXFrame(matrix,FRAME_NONE);
+    new GMCheckButton(matrix,tr("Detect compilations by folder.\tGroup tracks from the same folder without specific compilation/albumartist tags."),&target_detect_compilation,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+
+
+    template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+    template_grpbox->setFont(GMApp::instance()->getThickFont());
+
+    FXLabel * label = new FXLabel(template_grpbox,tr("%T - title              %A - album name\n"
+                                                     "%P - album artist name  %p - track artist name \n"
+                                                     "%N - track number       %d - disc number\n"
+                                                     "%y - year"),nullptr,FRAME_LINE|JUSTIFY_LEFT,0,0,0,0,30);
+
+    label->setFont(font_fixed);
+    label->setBackColor(getApp()->getTipbackColor());
+    label->setBorderColor(getApp()->getShadowColor());
+
+    new FXSeparator(template_grpbox,SEPARATOR_GROOVE|LAYOUT_FILL_X);
+    matrix = new FXMatrix(template_grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X);
+    new FXLabel(matrix,tr("Template:"),nullptr,labelstyle);
+    new GMTextField(matrix,10,&target_filename_template,FXDataTarget::ID_VALUE,textfieldstyle);
+    new FXFrame(matrix,FRAME_NONE);
+    new GMCheckButton(matrix,tr("Replace underscores with spaces"),&target_replace_underscores,FXDataTarget::ID_VALUE,CHECKBUTTON_NORMAL|LAYOUT_FILL_COLUMN);
+
+    if (GMPlayerManager::instance()->getPreferences().import.parse_method==GMImportOptions::PARSE_TAG) {
+      template_grpbox->hide();
+      }
+    else {
+      template_grpbox->show();
+      }
     }
 
-  new FXFrame(matrix,FRAME_NONE);
-  new GMCheckButton(matrix,tr("Set track number based on scan order."),&target_track_from_filelist,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
-
-  new FXFrame(matrix,FRAME_NONE);
-  new GMCheckButton(matrix,tr("Group albums by audio format.\tImported tracks that differ in audio format will be grouped in separate albums."),&target_album_format_grouping,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
-
-  new FXFrame(matrix,FRAME_NONE);
-  new GMCheckButton(matrix,tr("Detect compilations by folder.\tGroup tracks from the same folder without specific compilation/albumartist tags."),&target_detect_compilation,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
-
-
-  template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
-  template_grpbox->setFont(GMApp::instance()->getThickFont());
-
-  FXLabel * label = new FXLabel(template_grpbox,tr("%T - title              %A - album name\n"
-                                                   "%P - album artist name  %p - track artist name \n"
-                                                   "%N - track number       %d - disc number\n"
-                                                   "%y - year"),NULL,FRAME_LINE|JUSTIFY_LEFT,0,0,0,0,30);
-
-  label->setFont(font_fixed);
-  label->setBackColor(getApp()->getTipbackColor());
-  label->setBorderColor(getApp()->getShadowColor());
-
-  new FXSeparator(template_grpbox,SEPARATOR_GROOVE|LAYOUT_FILL_X);
-  matrix = new FXMatrix(template_grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X);
-  new FXLabel(matrix,tr("Template:"),nullptr,labelstyle);
-  new GMTextField(matrix,10,&target_filename_template,FXDataTarget::ID_VALUE,textfieldstyle);
-  new FXFrame(matrix,FRAME_NONE);
-  new GMCheckButton(matrix,tr("Replace underscores with spaces"),&target_replace_underscores,FXDataTarget::ID_VALUE,CHECKBUTTON_NORMAL|LAYOUT_FILL_COLUMN);
-
-  if (GMPlayerManager::instance()->getPreferences().import.parse_method==GMImportOptions::PARSE_TAG) {
-    template_grpbox->hide();
-    }
-  else {
-    template_grpbox->show();
-    }
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
   if (mode&IMPORT_SYNC)
     new GMButton(closebox,tr("&Sync"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
+  else if(mode&REMOVE_FOLDER)
+    new GMButton(closebox,tr("&Remove"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
   else
     new GMButton(closebox,tr("&Import"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
   new GMButton(closebox,tr("&Cancel"),nullptr,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
@@ -587,8 +595,7 @@ long GMImportDialog::onUpdAccept(FXObject*sender,FXSelector,void*){
   if (mode&IMPORT_SYNC) {
     if (GMPlayerManager::instance()->getPreferences().sync.import_new ||
         GMPlayerManager::instance()->getPreferences().sync.remove_missing ||
-        GMPlayerManager::instance()->getPreferences().sync.update ||
-        GMPlayerManager::instance()->getPreferences().sync.remove_all)
+        GMPlayerManager::instance()->getPreferences().sync.update)
       sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     else
       sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
@@ -612,8 +619,6 @@ long GMImportDialog::onCmdSync(FXObject*,FXSelector sel,void*ptr){
                                   break;
     case ID_SYNC_UPDATE_MODIFIED: GMPlayerManager::instance()->getPreferences().sync.update_always=!check;
                                   break;
-    case ID_SYNC_REMOVE_ALL     : GMPlayerManager::instance()->getPreferences().sync.remove_all=check;
-                                  break;
     }
   return 1;
   }
@@ -623,22 +628,17 @@ long GMImportDialog::onUpdSync(FXObject*sender,FXSelector sel,void*){
   FXbool enabled=true;
   FXbool check=false;
   switch(FXSELID(sel)){
-    case ID_SYNC_NEW            : check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false : GMPlayerManager::instance()->getPreferences().sync.import_new;
-                                  enabled=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
+    case ID_SYNC_NEW            : check=GMPlayerManager::instance()->getPreferences().sync.import_new;
                                   break;
-    case ID_SYNC_REMOVE_MISSING : check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false : GMPlayerManager::instance()->getPreferences().sync.remove_missing;
-                                  enabled=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
+    case ID_SYNC_REMOVE_MISSING : check=GMPlayerManager::instance()->getPreferences().sync.remove_missing;
                                   break;
-    case ID_SYNC_UPDATE         : check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false : GMPlayerManager::instance()->getPreferences().sync.update;
-                                  enabled=!GMPlayerManager::instance()->getPreferences().sync.remove_all;
+    case ID_SYNC_UPDATE         : check=GMPlayerManager::instance()->getPreferences().sync.update;
                                   break;
-    case ID_SYNC_UPDATE_ALL     : check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false :  GMPlayerManager::instance()->getPreferences().sync.update_always;
-                                  enabled=(!GMPlayerManager::instance()->getPreferences().sync.remove_all && GMPlayerManager::instance()->getPreferences().sync.update);
+    case ID_SYNC_UPDATE_ALL     : check=GMPlayerManager::instance()->getPreferences().sync.update_always;
+                                  enabled=(GMPlayerManager::instance()->getPreferences().sync.update);
                                   break;
-    case ID_SYNC_UPDATE_MODIFIED: check= (GMPlayerManager::instance()->getPreferences().sync.remove_all) ?  false : !GMPlayerManager::instance()->getPreferences().sync.update_always;
-                                  enabled=(!GMPlayerManager::instance()->getPreferences().sync.remove_all && GMPlayerManager::instance()->getPreferences().sync.update);
-                                  break;
-    case ID_SYNC_REMOVE_ALL     : check=GMPlayerManager::instance()->getPreferences().sync.remove_all;
+    case ID_SYNC_UPDATE_MODIFIED: check=!GMPlayerManager::instance()->getPreferences().sync.update_always;
+                                  enabled=(GMPlayerManager::instance()->getPreferences().sync.update);
                                   break;
     }
   if (enabled)

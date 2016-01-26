@@ -86,7 +86,6 @@ const char key_dbus_mpris2[]="mpris-2";
 
 const char key_sync_import_new[]="import-new";
 const char key_sync_remove_missing[]="remove-missing";
-const char key_sync_remove_all[]="remove-all";
 const char key_sync_update[]="update";
 const char key_sync_update_always[]="update-always";
 
@@ -124,7 +123,6 @@ GMSyncOptions::GMSyncOptions() {}
 void GMSyncOptions::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_sync,key_sync_import_new,import_new);
   reg.writeBoolEntry(section_sync,key_sync_remove_missing,remove_missing);
-  reg.writeBoolEntry(section_sync,key_sync_remove_all,remove_all);
   reg.writeBoolEntry(section_sync,key_sync_update,update);
   reg.writeBoolEntry(section_sync,key_sync_update_always,update_always);
   }
@@ -132,7 +130,6 @@ void GMSyncOptions::save(FXSettings & reg) const {
 void GMSyncOptions::load(FXSettings & reg) {
   import_new     = reg.readBoolEntry(section_sync,key_sync_import_new,import_new);
   remove_missing = reg.readBoolEntry(section_sync,key_sync_remove_missing,remove_missing);
-  remove_all     = reg.readBoolEntry(section_sync,key_sync_remove_all,remove_all);
   update         = reg.readBoolEntry(section_sync,key_sync_update,update);
   update_always  = reg.readBoolEntry(section_sync,key_sync_update_always,update_always);
   }
