@@ -1593,6 +1593,7 @@ long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector sel,void*ptr){
     if (src) {
       switch(src->getType()){
         case SOURCE_DATABASE:
+        case SOURCE_DATABASE_FILTER:
         case SOURCE_DATABASE_PLAYLIST: getTrackView()->refresh(); break;
         default: break;
         }
