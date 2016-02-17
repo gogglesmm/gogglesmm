@@ -20,8 +20,9 @@
 #include "ap_socket.h"
 #include "ap_utils.h"
 
-
-#ifndef _WIN32
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <unistd.h> // for close()
 #include <fcntl.h>
 #include <errno.h>
