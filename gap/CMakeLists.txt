@@ -6,6 +6,19 @@ include(FindEXPAT)
 
 project(GAP VERSION 1.0.0)
 
+
+# Optional flags to turn on/off compilation of specific modules
+if(UNIX)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    option(WITH_OSS "OSS Output Support" OFF)
+    option(WITH_ALSA "ALSA Output Support" ON)
+  else()
+    option(WITH_OSS "OSS Output Support" ON)
+    option(WITH_ALSA "ALSA Output Support" OFF)
+  endif()
+endif()
+
+
 # Endiannes
 TEST_BIG_ENDIAN(GAP_BIGENDIAN)
 
@@ -22,7 +35,6 @@ set(GAP_SOVERSION_AGE 0)        # Increase the age value only if the changes mad
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
-
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
@@ -122,6 +134,47 @@ set(SOURCES ap_app_queue.cpp
             ap_xml_parser.cpp
             )
 
+set(HEADERS ap_buffer.h
+            ap_config.h
+            ap_connect.h
+            ap_convert.h
+            ap_decoder_plugin.h
+            ap_decoder_thread.h
+            ap_defs.h
+            ap_engine.h
+            ap_event_private.h
+            ap_format.h
+            ap_input_plugin.h
+            ap_input_thread.h
+            ap_output_plugin.h
+            ap_output_thread.h
+            ap_packet.h
+            ap_pipe.h
+            ap_reactor.h
+            ap_reader_plugin.h
+            ap_socket.h
+            ap_thread.h
+            ap_thread_queue.h
+            ap_utils.h
+            ap_wait_io.h
+            )
+
+set(PUBLIC_HEADERS include/ap.h
+                   include/ap_app_queue.h
+                   include/ap_buffer_base.h
+                   include/ap_buffer_io.h
+                   include/ap_common.h
+                   include/ap_device.h
+                   include/ap_event.h
+                   include/ap_event_queue.h
+                   include/ap_http.h
+                   include/ap_http_client.h
+                   include/ap_http_response.h
+                   include/ap_player.h
+                   include/ap_xml_parser.h
+                   )
+
+
 set(PLUGIN_SOURCES plugins/ap_aiff.cpp
                    plugins/ap_file.cpp
                    plugins/ap_http.cpp
@@ -199,10 +252,17 @@ target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 install(TARGETS gap_wav LIBRARY DESTINATION lib/gogglesmm)
 
 
+# Depend on symbols in main executable
+if(MSVC)
+target_link_libraries(gap_wav ${FOX_LIBRARIES} gogglesmm)
+endif()
+
+
+
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows") 
 
   # Alsa Output
-  if (ALSA_FOUND)
+  if (ALSA_FOUND AND WITH_ALSA)
     add_library(gap_alsa MODULE plugins/ap_alsa.cpp)
     target_link_libraries(gap_alsa ${ALSA_LIBRARIES})
     target_include_directories(gap_alsa BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
@@ -231,8 +291,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 
-# Don't build OSS for Windows or Linux
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(UNIX AND WITH_OSS)
     add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
     target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
     target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
@@ -247,7 +306,7 @@ set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/gogglesmm)
 
 configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
 
-add_library(gap ${SOURCES} $<TARGET_OBJECTS:gap_plugins>)
+add_library(gap ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins>)
 target_link_libraries(gap ${LIBRARIES})
 
 
