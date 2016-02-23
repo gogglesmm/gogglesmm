@@ -24,6 +24,9 @@
 #include "ap_input_plugin.h"
 #include "ap_decoder_thread.h"
 
+#ifdef HAVE_OGG
+#include <ogg/ogg.h>
+#endif
 
 enum {
   EBML                        = 0x1a45dfa3,
@@ -42,38 +45,135 @@ enum {
   TRACK                       = 0x1654ae6b,
   TRACK_ENTRY                 = 0xae,
   TRACK_TYPE                  = 0x83,
+  TRACK_NUMBER                = 0xd7,
   CODEC_ID                    = 0x86,
+  CODEC_PRIVATE               = 0x63a2,
   AUDIO                       = 0xe1,
   AUDIO_SAMPLE_RATE           = 0xb5,
   AUDIO_CHANNELS              = 0x9f,
+  AUDIO_BITDEPTH              = 0x6264,
+  CLUSTER                     = 0x1f43b675,
+  CLUSTER_PREVSIZE            = 0xab,
+  CLUSTER_POSITION            = 0xa7,
+  BLOCKGROUP                  = 0xa0,
+  BLOCK                       = 0xa1,
+  REFERENCE_BLOCK             = 0xfb,
+  SIMPLEBLOCK                 = 0xa3,
+  TIMECODE                    = 0xe7,
+  SEGMENT_INFO                = 0x1549a966,
+  SEGMENT_INFO_TIMECODE_SCALE = 0x2ad7b1,
+  SEGMENT_INFO_DURATION       = 0x4489,
+  VOID                        = 0xec,
   };
 
 
 namespace ap {
 
+
+struct Element {
+  FXuint type   = 0;
+  FXlong size   = 0;
+  FXlong offset = 0;
+
+  Element(){}
+  Element(FXlong sz) : size(sz) {}
+
+  void debug(const FXchar * section) const { fxmessage("%s: %x (%ld bytes)\n",section,type,size); }
+  };
+
+struct Block {
+  FXlong position;
+  FXuint frames[16]={0};
+  FXuint nframes = 0;
+  inline FXuint next() {
+    return frames[--nframes];
+    }
+  };
+
+
+class Track {
+public:
+  AudioFormat af;
+  FXuchar     codec  = Codec::Invalid;
+  FXulong     number = 0;
+  };
+
+/* Layout
+
+  Clusters -> Block -> Frame
+
+
+
+*/
+
+
 class MatroskaReader : public ReaderPlugin {
 protected:
-#ifdef DEBUG
-  FXint indent = 0;
-#endif
+  FXPtrListOf<Track> tracks;
+  Track*             track=nullptr;
+protected:
+  Block   block;   // current block
+  Element cluster; // current cluster
+  Element group;   // current group
+protected:
+  MemoryBuffer data;
+protected:
+
+
+
+
+
+  FXlong stream_position = 0;
+  FXulong timecode_scale = 1000000;
+  FXulong duration;
+
+  FXlong  first_cluster  = 0;
+  FXlong  cluster_size = 0;
+  FXuint  frame_size = 0;
+  FXlong  packetno = 0;
+
+
+
+
+
 protected:
   ReadStatus parse(Packet * p);
 
 
+  FXuchar parse_ebml_uint64(FXlong & value);
+  FXbool  parse_element_uint64(Element & container,FXlong & element);
+  FXbool  parse_element_int64(Element & container,FXlong & element);
+  FXbool  parse_element_id(Element & container,Element & element);
+
+  FXbool parse_element(Element & element);
+  FXbool parse_element(Element & parent,Element & element);
+
+  FXbool parse_ebml(Element&);
+  FXbool parse_segment(Element &);
+  FXbool parse_segment_info(Element &);
+  FXbool parse_seekhead(Element&);
+  FXbool parse_seek(Element&);
+  FXbool parse_track(Element&);
+  FXbool parse_track_entry(Element&);
+  FXbool parse_track_audio(Element&);
+  FXbool parse_track_codec(Element&);
 
 
-  FXbool parse_element(FXuint & id,FXlong & size);
-  FXbool parse_element(FXlong & container,FXuint & id,FXlong & size);
-  FXbool parse_element_size(FXlong & container,FXlong & value);
-  FXbool parse_element_id(FXlong & container,FXuint & value);
+  FXbool parse_uint8(FXuchar & value,const FXlong size);
+  FXbool parse_uint64(FXulong & value,const FXlong size);
+  FXbool parse_unsigned_int(FXulong & value,const FXlong size);
+  FXbool parse_float_as_uint32(FXuint & value,const FXlong size);
 
-  FXbool parse_ebml(FXlong size);
-  FXbool parse_segment(FXlong size);
-  FXbool parse_seekhead(FXlong size);
-  FXbool parse_seek(FXlong size);
-  FXbool parse_track(FXlong size);
-  FXbool parse_track_entry(FXlong size);
-  FXbool parse_track_audio(FXlong size);
+
+  FXbool parse_xiph_lace(Element &, FXuint & framesize);
+  FXbool get_next_frame(FXuint & framesize);
+  FXbool parse_block_group(Element&);
+  FXbool parse_simpleblock(Element&);
+
+public:
+  enum {
+    OGG_WROTE_HEADER = 0x2,
+    };
 public:
   MatroskaReader(AudioEngine*);
 
@@ -112,9 +212,8 @@ MatroskaReader::~MatroskaReader(){
 FXbool MatroskaReader::init(InputPlugin*plugin) {
   ReaderPlugin::init(plugin);
   flags&=~FLAG_PARSED;
-#ifdef DEBUG
-  indent=0;
-#endif
+  frame_size=0;
+  stream_position=-1;
   return true;
   }
 
@@ -127,30 +226,136 @@ FXbool MatroskaReader::seek(FXlong offset){
   }
 
 ReadStatus MatroskaReader::process(Packet*packet) {
-  packet->stream_position=-1;
-  packet->stream_length=stream_length;
 
   if (!(flags&FLAG_PARSED)) {
     return parse(packet);
     }
-  return ReadError;
+
+  //packet->stream_position=stream_position;
+  packet->stream_length=stream_length;
+
+  FXuint element_type;
+
+  packet->af=af;
+
+  while(packet->space()) {
+
+    if (frame_size) {
+
+      switch(track->codec) {
+        case Codec::PCM:
+          {
+            FXint n = FXMIN(frame_size,packet->availableFrames()*af.framesize());
+            if (input->read(packet->ptr(),n)!=n)
+              return ReadError;
+            packet->wroteBytes(n);
+            frame_size-=n;
+            break;
+          }
+
+        case Codec::Vorbis:
+        case Codec::Opus:
+          {
+            if (0==(flags&OGG_WROTE_HEADER)) {
+
+              if (sizeof(ogg_packet) > packet->space()) 
+                break;
+
+              ogg_packet op;
+              op.packet = nullptr;
+              op.bytes = frame_size;
+              op.e_o_s = 0;
+              op.b_o_s = 0;
+              op.packetno = packetno++;
+              op.granulepos = -1;
+              packet->append(&op,sizeof(ogg_packet));
+              flags|=OGG_WROTE_HEADER;
+              }
+
+            // intentional no break        
+          }
+        default:
+          {
+            FXint n = FXMIN(frame_size,packet->space());
+            if (input->read(packet->ptr(),n)!=n)
+              return ReadError;
+            packet->wroteBytes(n);
+            frame_size-=n;
+            break;
+          }
+        }
+
+      // Still bytes left so pass packet to decoder
+      if (frame_size) {
+        engine->decoder->post(packet);
+        return ReadOk;
+        }
+      }
+
+    FXASSERT(frame_size==0);
+
+    if (!get_next_frame(frame_size)) {
+      return ReadError;
+      }
+
+    flags&=~OGG_WROTE_HEADER;
+
+    if (frame_size==0) {
+      return ReadDone;
+      }
+    }
+  return ReadOk;
   }
 
-ReadStatus MatroskaReader::parse(Packet * packet) {
-  FXuint element_type;
-  FXlong element_size;
 
-  if (!parse_element(element_type,element_size))
+
+
+ReadStatus MatroskaReader::parse(Packet * packet) {
+  Element element;
+
+  // Get first element
+  if (!parse_element(element))
     return ReadError;
 
-  if (element_type!=EBML || !parse_ebml(element_size))
-    return ReadError;    
+  // Make sure it is a matroska file
+  if (element.type!=EBML || !parse_ebml(element))
+    return ReadError;
 
-  while(parse_element(element_type,element_size)) {
-    fxmessage("element type root %x of %ld bytes\n",element_type,element_size);    
-    switch(element_type) {   
-      case SEGMENT: if (!parse_segment(element_size)) return ReadError; break;
-      default     : input->position(element_size,FXIO::Current); break;
+  // Find First Segment
+  while(parse_element(element)) {
+    if (element.type==SEGMENT) {
+      if (!parse_segment(element))
+        return ReadError;
+      break;
+      }
+    input->position(element.size,FXIO::Current);
+    }
+
+  if (tracks.no()) {
+    track=nullptr;
+
+    for (FXint i=0;i<tracks.no();i++) {
+      if (tracks[i]->codec) {
+        if (track==nullptr) track=tracks[i];
+        }
+      }
+
+    if (track) {
+      fxmessage("Codec: %s\n",Codec::name(track->codec));
+      track->af.debug();
+      input->position(first_cluster,FXIO::Begin);
+      af=track->af;
+      ConfigureEvent * cfg = new ConfigureEvent(track->af,track->codec);
+      engine->decoder->post(cfg);
+      stream_length = (duration * timecode_scale * track->af.rate )  / 1000000000;
+      flags|=FLAG_PARSED;
+      if (data.size()) {
+        packet->af=af;
+        packet->append(data.data(),data.size());
+        engine->decoder->post(packet);
+        data.clear();
+        }
+      return ReadOk;
       }
     }
   return ReadError;
@@ -158,159 +363,721 @@ ReadStatus MatroskaReader::parse(Packet * packet) {
 
 
 
-FXbool MatroskaReader::parse_track_audio(FXlong container) {
-  FXuint element_type;
-  FXlong element_size;
-  while(parse_element(container,element_type,element_size)) {
-    fxmessage("element type track audio %x of %ld bytes\n",element_type,element_size);    
-    switch(element_type) {
-      case AUDIO_SAMPLE_RATE: break;
-      case AUDIO_CHANNELS   : break;
-      default       : input->position(element_size,FXIO::Current); break;
+
+FXbool MatroskaReader::parse_block_group(Element & parent) {
+  Element element;
+  while(parse_element(parent,element)) {
+    switch(element.type) {
+      case REFERENCE_BLOCK:
+        {
+          input->position(element.size,FXIO::Current);
+          break;
+        }
+      case BLOCK:
+        {
+          if (!parse_simpleblock(element))
+            return false;
+
+          if (block.nframes)
+            return true;
+
+        } break;
+      default               :
+        element.debug("Cluster.BlockGroup");
+        input->position(element.size,FXIO::Current);
+        break;
       }
-    container-=element_size;
     }
   return true;
   }
 
-FXbool MatroskaReader::parse_track_entry(FXlong container) {
-  FXuint element_type;
-  FXlong element_size;
-  while(parse_element(container,element_type,element_size)) {
-    fxmessage("element type track entry %x of %ld bytes\n",element_type,element_size);    
-    switch(element_type) {
-      case TRACK_TYPE : 
-        {
-          FXuchar track_type;
-          input->read(&track_type,1);
-          fxmessage("track_type %hhd\n",track_type);
+
+
+FXbool MatroskaReader::parse_simpleblock(Element & element) {
+  FXshort timecode;
+  FXuchar flags;
+  FXlong  tracknumber;
+
+  if (!parse_element_uint64(element,tracknumber)) {
+    return false;
+    }
+
+  if (track->number != tracknumber) {
+    block.nframes=0;
+    input->position(element.size,FXIO::Current);
+    return true;
+    }
+
+  if (!input->read_int16_be(timecode)){
+    return false;
+    }
+
+  block.position += timecode;
+
+  if (input->read(&flags,1)!=1){
+    return false;
+    }
+
+  switch((flags>>1)&0x3) {
+
+    case 0: // No lacing
+      {
+        block.nframes   = 1;
+        block.frames[0] = element.size-3;
+        break;
+      }
+
+    case 1:
+      {
+        FXuint total=0;
+
+        // total frames - 1
+        if (input->read(&block.nframes,1)!=1)
+          return false;
+
+        // Adjust frame count
+        block.nframes+=1;
+
+        // Read frame sizes
+        for (FXint i=block.nframes-1;i>0;i--) {
+          if (!parse_xiph_lace(element,block.frames[i]))
+            return false;
+          total+=block.frames[i];
+          }
+        block.frames[0] = element.size - total - 4;
+        break;
+      }
+
+    case 2: // fixed
+      {
+        // total frames - 1
+        if (input->read(&block.nframes,1)!=1)
+          return false;
+
+        // Adjust frame count
+        block.nframes+=1;
+
+        // size per frame
+        const FXuint size = (element.size-4) / block.nframes;
+        for (FXint i=block.nframes-1;i>=0;i--) {
+          block.frames[i] = size;
+          }
+        block.frames[0] += ((element.size-4) % size);
+        break;
+      }
+
+    case 3: // ebml
+      {
+        // total frames - 1
+        if (input->read(&block.nframes,1)!=1)
+          return false;
+
+        // Adjust frame count
+        block.nframes+=1;
+
+        FXlong size,total=0;
+
+        // first frame size
+        if (!parse_element_uint64(element,size)) {
+          return false;
+          }
+
+        // read remaining
+        block.frames[block.nframes-1] = total = size;
+        for (FXint i=block.nframes-2;i>0;i--) {
+          if (!parse_element_int64(element,size))
+            return false;
+          block.frames[i]=block.frames[i+1] + size;
+          total+=block.frames[i];
+          }
+        block.frames[0] = (element.size-4) - total;
+        break;
+      }
+    default: return false; break;
+    }
+/*
+  fxmessage("simpleblock\n");
+  for(FXint i=block.nframes-1;i>=0;i--) {
+    fxmessage("frame[%d]=%u\n",block.nframes-i-1,block.frames[i]);
+    }
+*/
+  return true;
+  }
+
+FXbool MatroskaReader::get_next_frame(FXuint & framesize) {
+
+  framesize = 0;
+
+  // First check for any frames left in current block
+  if (block.nframes) {
+    framesize = block.next();
+    return true;
+    }
+
+  // Get next block from Block Group [if any]
+  if (group.size) {
+
+    if (!parse_block_group(group))
+      return false;
+
+    if (block.nframes) {
+      framesize = block.next();
+      return true;
+      }
+    }
+
+  // Get next block from cluster
+  do {
+
+    Element element;
+
+    // Get next block or simple block
+    while(parse_element(cluster,element)) {
+
+      switch(element.type) {
+        case CLUSTER_PREVSIZE:
+        case CLUSTER_POSITION:
+          {
+            input->position(element.size,FXIO::Current);
+            break;
+          }
+        case TIMECODE:
+          {
+            FXulong timecode=0;
+            if (!parse_unsigned_int(timecode,element.size)) return false;
+            fxmessage("timecode %ld = %ld seconds\n",timecode*timecode_scale,(timecode*timecode_scale) / 1000000000);
+            block.position = (timecode*timecode_scale*track->af.rate) / 1000000000;
+            break;
+          }
+        case SIMPLEBLOCK:
+          {
+
+            if (!parse_simpleblock(element))
+              return false;
+
+            if (block.nframes) {
+              framesize = block.next();
+              return true;
+              }
+
+          } break;
+
+        case BLOCKGROUP:
+          {
+            group=element; // store for next iteration
+
+            if (!parse_block_group(group))
+              return false;
+
+            if (block.nframes) {
+              framesize = block.next();
+              return true;
+              }
+
+          } break;
+        default:
+          element.debug("Cluster");
+          input->position(element.size,FXIO::Current);
           break;
         }
+      }
+
+    // Get the next cluster
+    while(parse_element(cluster))  {
+
+      if (cluster.type==CLUSTER) {
+        break;
+        }
+      else if (cluster.type==SEGMENT) {
+
+        return true;
+        }
+      input->position(cluster.size,FXIO::Current);
+      }
+
+    if (cluster.size<=0) {
+      return true;
+      }
+
+    }
+  while(1);
+  return true;
+  }
+
+
+
+FXbool MatroskaReader::parse_track_audio(Element & container) {
+  FXASSERT(track);
+  Element element;
+  while(parse_element(container,element)) {
+    switch(element.type) {
+
+      case AUDIO_CHANNELS   :
+        {
+          FXuchar channels;
+          if (!parse_uint8(channels,element.size))
+            return false;
+          track->af.setChannels(channels);
+        } break;
+
+      case AUDIO_BITDEPTH   :
+        {
+          FXuchar bitdepth;
+          if (!parse_uint8(bitdepth,element.size))
+            return false;
+          track->af.setBits(bitdepth);
+        } break;
+
+      case AUDIO_SAMPLE_RATE:
+        {
+          if (!parse_float_as_uint32(track->af.rate,element.size))
+            return false;
+          fxmessage("Track.Audio.Rate %u\n",track->af.rate);
+        } break;
+
+      default:
+        {
+          element.debug("Track.Audio");
+          input->position(element.size,FXIO::Current);
+          break;
+        }
+      }
+    }
+  return true;
+  }
+
+
+FXbool MatroskaReader::parse_xiph_lace(Element & container,FXuint & value) {
+  FXuchar byte;
+  value=0;
+  do {
+    if (input->read(&byte,1)!=1)
+      return false;
+    value+=byte;
+    container.size-=1;
+    if (byte<255)
+      return true;
+    }
+  while(1);
+  }
+
+
+FXbool MatroskaReader::parse_track_codec(Element & element) {
+
+  switch(track->codec) {
+
+    case Codec::Opus:
+      {
+        if (element.size<19)
+          return false;
+
+        // Copy OpusHead
+        data.resize(element.size+sizeof(ogg_packet));
+        ogg_packet op;
+        op.bytes = element.size;
+        op.e_o_s = 0;
+        op.b_o_s = 1;
+        op.packetno = 0;
+        op.granulepos = -1;
+        data.append(&op,sizeof(ogg_packet));
+        if (input->read(data.ptr(),element.size)!=element.size)
+          return false;
+        data.wroteBytes(element.size);
+        break;
+      }
+
+    case Codec::Vorbis:
+      {
+        FXuchar npackets=0;
+        FXuint frames[3];
+
+        if (input->read(&npackets,1)!=1)
+          return false;
+
+        if ((npackets+1)!=3)
+          return false;
+
+        if (!parse_xiph_lace(element,frames[0]))
+          return false;
+
+        if (!parse_xiph_lace(element,frames[1]))
+          return false;
+
+        frames[2]=element.size - frames[0] - frames[1] - 1;
+
+        //fxmessage("data size %u %u %u | %u %u\n",frames[0],frames[1],frames[2],frames[0]+frames[1]+frames[2],element.size);
+
+        data.resize(frames[0]+frames[2]+sizeof(ogg_packet)+sizeof(ogg_packet));
+
+        ogg_packet op;
+        op.bytes = frames[0];
+        op.e_o_s = 0;
+        op.b_o_s = 1;
+        op.packetno = 0;
+        op.granulepos = -1;
+
+        data.append(&op,sizeof(ogg_packet));
+        if (input->read(data.ptr(),frames[0])!=frames[0])
+          return false;
+        data.wroteBytes(frames[0]);
+
+        op.b_o_s = 0;
+        op.packetno = 1;
+        op.bytes = frames[2];
+
+        input->position(frames[1],FXIO::Current);
+        data.append(&op,sizeof(ogg_packet));
+        if (input->read(data.ptr(),frames[2])!=frames[2])
+          return false;
+        data.wroteBytes(frames[2]);
+        break;
+      }
+    case Codec::Invalid:
+      {
+        input->position(element.size,FXIO::Current);
+        break;
+      }
+    default:
+      {
+        element.debug("Track.Codec");
+        input->position(element.size,FXIO::Current);
+        break;
+      }
+    }
+  return true;
+  }
+
+FXbool MatroskaReader::parse_track_entry(Element & container) {
+  Element element;
+
+  track = new Track();
+
+  while(parse_element(container,element)) {
+
+    switch(element.type) {
+
+      case TRACK_NUMBER:
+        {
+
+          if (!parse_uint64(track->number,element.size)){
+            delete track;
+            track=nullptr;
+            return false;
+            }
+
+          // Ignore invalid tracks
+          if (track->number==0) {
+            delete track;
+            track=nullptr;
+            return true;
+            }
+
+          break;
+        }
+
+      case TRACK_TYPE :
+        {
+          FXuchar track_type=0;
+
+          if (input->read(&track_type,1)!=1) {
+            delete track;
+            track=nullptr;
+            return false;
+            }
+
+          // Skip rest of container if this is a non audio track
+          if (track_type!=2) {
+            input->position(container.size,FXIO::Current);
+            delete track;
+            track=nullptr;
+            return true;
+            }
+          break;
+        }
+
       case CODEC_ID :
         {
           FXString codec;
-          codec.length(element_size);
-          input->read(codec.text(),element_size);
-          fxmessage("track codec %s\n",codec.text());
+          codec.length(element.size);
+          input->read(codec.text(),element.size);
+
+          fxmessage("found codec: '%s'\n",codec.text());
+
+          if (comparecase(codec,"A_PCM/INT/LIT")==0) {
+            track->codec   = Codec::PCM;
+            track->af.format |= (Format::Signed|Format::Little);
+            }
+          else if (comparecase(codec,"A_PCM/INT/BIG")==0) {
+            track->codec   = Codec::PCM;
+            track->af.format |= (Format::Signed|Format::Big);
+            }
+          else if (comparecase(codec,"A_PCM/FLOAT/IEEE")==0) {
+            track->codec   = Codec::PCM;
+            track->af.format |= (Format::Float|Format::Little);
+            }
+          else if (comparecase(codec,"A_DTS")==0) {
+            track->codec      = Codec::DCA;
+            track->af.format |= (Format::Float|Format::Little);
+            track->af.setBits(32);
+            }
+          else if (comparecase(codec,"A_AC3")==0) {
+            track->codec      = Codec::A52;
+            track->af.format |= (Format::Float|Format::Little);
+            track->af.setBits(32);
+            }
+          else if (comparecase(codec,"A_MPEG/L3")==0) {
+            track->codec      = Codec::MPEG;
+            track->af.format |= (Format::Signed|Format::Little);
+            track->af.setBits(16);
+            }
+#ifdef HAVE_OGG
+          else if (comparecase(codec,"A_VORBIS")==0) {
+            track->codec      = Codec::Vorbis;
+            track->af.format |= (Format::Float|Format::Little);
+            track->af.setBits(32);
+            }
+          else if (comparecase(codec,"A_OPUS")==0) {
+            track->codec      = Codec::Opus;
+            track->af.format |= (Format::Float|Format::Little);
+            track->af.setBits(32);
+            }
+#endif
+          else if (comparecase(codec,"A_FLAC")==0) {
+            track->codec      = Codec::FLAC;
+            track->af.format |= (Format::Signed|Format::Little);
+            //track->af.setBits(16);
+            }
           break;
         }
-      case AUDIO    : parse_track_audio(element_size); break;
-      default       : input->position(element_size,FXIO::Current); break;
+      case CODEC_PRIVATE:
+        {
+          if (!parse_track_codec(element)) {
+            delete track;
+            track=nullptr;
+            return false;
+            }
+          break;
+        }
+      case AUDIO:
+        {
+          if (!parse_track_audio(element)){
+            delete track;
+            track=nullptr;
+            return false;
+            }
+        } break;
+      default:
+        {
+          element.debug("Track");
+          input->position(element.size,FXIO::Current);
+          break;
+        }
       }
-    container-=element_size;
+    }
+
+  // Fixup channel maps
+  if (track->codec == Codec::DCA) {
+    if (track->af.channels==6)
+      track->af.channelmap = AP_CMAP6(Channel::FrontCenter,Channel::FrontLeft,Channel::FrontRight,Channel::BackLeft,Channel::BackRight,Channel::LFE);
+    }
+  else if (track->codec == Codec::A52) {
+    if (track->af.channels==6)
+      track->af.channelmap = AP_CMAP6(Channel::LFE,Channel::FrontLeft,Channel::FrontCenter,Channel::FrontRight,Channel::BackLeft,Channel::BackRight);
+    }
+  else if (track->codec == Codec::Opus){
+    track->af.rate = 48000;
+    }
+  tracks.append(track);
+  return true;
+  }
+
+
+FXbool MatroskaReader::parse_track(Element & container) {
+  Element element;
+  while(parse_element(container,element)) {
+    switch(element.type) {
+      case TRACK_ENTRY:
+        {
+          if (!parse_track_entry(element))
+            return false;
+          break;
+        }
+      default:
+        {
+          element.debug("TrackList");
+          input->position(element.size,FXIO::Current);
+          break;
+        }
+      }
     }
   return true;
   }
 
 
-FXbool MatroskaReader::parse_track(FXlong container) {
-  FXuint element_type;
-  FXlong element_size;
-  while(parse_element(container,element_type,element_size)) {
-    fxmessage("element type track %x of %ld bytes\n",element_type,element_size);    
-    switch(element_type) {
-      case TRACK_ENTRY: parse_track_entry(element_size); break;
-      default       : input->position(element_size,FXIO::Current); break;
+FXbool MatroskaReader::parse_segment_info(Element & container) {
+  Element element;
+  while(parse_element(container,element)) {
+    switch(element.type) {
+
+      case SEGMENT_INFO_DURATION:
+        {
+          if (element.size==4) {
+            FXfloat value;
+            input->read_float_be(value);
+            duration=lrintf(value);
+            }
+          else if (element.size==8) {
+            FXdouble value;
+            input->read_double_be(value);
+            duration=lrint(value);
+            }
+          break;
+        }
+
+      case SEGMENT_INFO_TIMECODE_SCALE:
+        {
+
+          if (!parse_unsigned_int(timecode_scale,element.size))
+            return false;
+
+          fxmessage("timecode scale %ld\n",timecode_scale);
+          break;
+        }
+      default:
+        {
+          element.debug("Segment.Info");
+          input->position(element.size,FXIO::Current);
+          break;
+        }
       }
-    container-=element_size;
+    }
+  return true;
+  }
+
+
+FXbool MatroskaReader::parse_segment(Element & container) {
+  Element element;
+
+  while(parse_element(container,element)) {
+    switch(element.type) {
+
+      case SEGMENT_INFO:
+        {
+          if (!parse_segment_info(element))
+            return false;
+          break;
+        }
+
+      case SEEK_HEAD:
+        {
+          if (!parse_seekhead(element))
+            return false;
+          break;
+        }
+
+      case TRACK    :
+        {
+
+          if (!parse_track(element))
+            return false;
+
+          if (tracks.no()==0)
+            return true;
+
+        } break;
+
+      case CLUSTER  :
+        {
+
+          if (first_cluster==0)
+            first_cluster=element.offset;
+
+          if (input->serial())
+            return true;
+
+          input->position(element.size,FXIO::Current);
+
+        } break;
+
+      default       :
+        element.debug("Segment");
+        input->position(element.size,FXIO::Current);
+        break;
+      }
+    }
+  return true;
+  }
+
+
+FXbool MatroskaReader::parse_seekhead(Element & container) {
+  Element element;
+  while(parse_element(container,element)) {
+    switch(element.type) {
+      case SEEK   :
+        parse_seek(element);
+        break;
+      default     :
+        element.debug("Seek");
+        input->position(element.size,FXIO::Current);
+        break;
+      }
+    }
+  return true;
+  }
+
+FXbool MatroskaReader::parse_seek(Element & container) {
+  Element element;
+  while(parse_element(container,element)) {
+    switch(element.type) {
+      case SEEK_ID:
+        input->position(element.size,FXIO::Current);
+        break;
+      case SEEK_POSITION:
+        input->position(element.size,FXIO::Current);
+        break;
+      default:
+        element.debug("Seek.Entry");
+        input->position(element.size,FXIO::Current);
+        break;
+      }
     }
   return true;
   }
 
 
 
-FXbool MatroskaReader::parse_segment(FXlong container) {
-  FXuint element_type;
-  FXlong element_size;
-  fxmessage("segment size %ld\n",container);
-  while(parse_element(container,element_type,element_size)) {
-    fxmessage("element type segment %x of %ld bytes\n",element_type,element_size);    
-    switch(element_type) {
-      case SEEK_HEAD: parse_seekhead(element_size); break;
-      case TRACK    : parse_track(element_size); break;   
-      default       : input->position(element_size,FXIO::Current); break;
-      }
-    container-=element_size;
-    fxmessage("segment bytes left %ld\n",container);
-    }
-  return true;
-  }
-
-
-FXbool MatroskaReader::parse_seekhead(FXlong container) {
-  FXuint element_type;
-  FXlong element_size;
-  while(parse_element(container,element_type,element_size)) {
-    fxmessage("element type seekhead %x of %ld bytes\n",element_type,element_size);    
-    switch(element_type) {
-      case SEEK   : parse_seek(element_size); break;   
-      default     : input->position(element_size,FXIO::Current); break;
-      }
-    container-=element_size;
-    }
-  return true;
-  }
-
-FXbool MatroskaReader::parse_seek(FXlong container) {
-  FXuint element_type;
-  FXlong element_size;
-  FXuchar id[4];
-  FXuint pos;
-
-  while(parse_element(container,element_type,element_size)) {
-    fxmessage("element type seek %x of %ld bytes\n",element_type,element_size);    
-    switch(element_type) {
-      case SEEK_ID      : input->read(&id,element_size); fxmessage("seek id: %hhx%hhx%hhx%hhx\n",id[0],id[1],id[2],id[3]); break;
-      case SEEK_POSITION: 
-          {
-            if (element_size==2) {
-              FXushort v;
-              input->read_uint16_be(v);
-              pos=v;  
-              }
-            else if (element_size==4) {
-              input->read_uint32_be(pos);
-              }
-            else {
-              input->position(element_size,FXIO::Current);
-              //return false;
-              }            
-            //fxmessage("seek pos: %u\n",pos);
-          } break;
-      default           : input->position(element_size,FXIO::Current); break;
-      }
-    container-=element_size;
-    }
-  return true;
-  }
 
 
 
 
 
+FXbool MatroskaReader::parse_element(Element & element) {
+  Element container(12);
 
+  element.offset = input->position();
 
-
-FXbool MatroskaReader::parse_element(FXuint & id,FXlong & size) {
-  FXlong container = 12;
-
-  if (!parse_element_id(container,id))
+  if (!parse_element_id(container,element))
     return false;
 
-  if (!parse_element_size(container,size))
+  if (!parse_element_uint64(container,element.size))
     return false;
 
   return true;
   }
 
-FXbool MatroskaReader::parse_element(FXlong & container,FXuint & id,FXlong & size) {
-  if (container > 2) {
+FXbool MatroskaReader::parse_element(Element & container,Element & element) {
+  if (container.size > 2) {
 
-    if (!parse_element_id(container,id))
+    element.offset = input->position();
+
+    if (!parse_element_id(container,element))
       return false;
 
-    if (!parse_element_size(container,size))
+    if (!parse_element_uint64(container,element.size))
       return false;
+
+    if (element.size>0)
+      container.size-=element.size;
 
     return true;
     }
@@ -318,27 +1085,30 @@ FXbool MatroskaReader::parse_element(FXlong & container,FXuint & id,FXlong & siz
   }
 
 
-FXbool MatroskaReader::parse_ebml(FXlong container) {
-  FXuint element_type;
-  FXlong element_size;
-
+FXbool MatroskaReader::parse_ebml(Element & container) {
+  Element  element;
   FXString doctype;
 
-  while(parse_element(container,element_type,element_size)) {   
-    fxmessage("element type %x\n",element_type);  
-    switch(element_type) {
-      case EBML_DOC_TYPE             : doctype.length(element_size); 
-                                       input->read(doctype.text(),element_size);
-                                       break; 
-      case EBML_VERSION              :
-      case EBML_READ_VERSION         :
-      case EBML_MAX_ID_LENGTH        :
-      case EBML_MAX_SIZE_LENGTH      : 
-      case EBML_DOC_TYPE_VERSION     :
+  while(parse_element(container,element)) {
+    switch(element.type) {
+      case EBML_DOC_TYPE:
+        doctype.length(element.size);
+        input->read(doctype.text(),element.size);
+        break;
+
+      case EBML_VERSION:
+      case EBML_READ_VERSION:
+      case EBML_MAX_ID_LENGTH:
+      case EBML_MAX_SIZE_LENGTH:
+      case EBML_DOC_TYPE_VERSION:
       case EBML_DOC_TYPE_READ_VERSION:
-      default: input->position(element_size,FXIO::Current); break;
+        input->position(element.size,FXIO::Current);
+        break;
+      default:
+        element.debug("ebml");
+        input->position(element.size,FXIO::Current);
+        break;
       }
-    container-=element_size;
     }
 
   if (doctype!="matroska")
@@ -352,130 +1122,137 @@ FXbool MatroskaReader::parse_ebml(FXlong container) {
 
 
 
-FXbool MatroskaReader::parse_element_id(FXlong & container,FXuint & value) {
-  FXuchar buffer[4];
-  if (input->read(&buffer[0],1)!=1) return false;
-  if (buffer[0]>=0x80) {
-    value = buffer[0];
-    container-=1;
-    }
-  else if (buffer[0]>=0x40) {
-    if (input->read(&buffer[1],1)!=1) return false;
-    value = (static_cast<FXuint>(buffer[0])<<8) | static_cast<FXuint>(buffer[1]);
-    container-=2;
-    }
-  else if (buffer[0]>=0x20) {
-    if (input->read(&buffer[1],2)!=2) return false;
-    value = (static_cast<FXuint>(buffer[0])<<16) | (static_cast<FXuint>(buffer[1])<<8) | static_cast<FXuint>(buffer[2]);
-    container-=3;
-    }
-  else if (buffer[0]>=0x10) {
-    if (input->read(&buffer[1],3)!=3) return false;
-    container-=4;
-    value = (static_cast<FXuint>(buffer[0])<<24) | 
-            (static_cast<FXuint>(buffer[1])<<16) | 
-            (static_cast<FXuint>(buffer[2])<<8) | 
-            (static_cast<FXuint>(buffer[3]));
-    }
-  else {
-    fxmessage("ooops got %x\n",buffer[0]);
+FXbool MatroskaReader::parse_element_id(Element & container,Element & element) {
+  FXuchar buffer[3];
+  FXuchar size;
+
+  // Read first byte
+  if (input->read(buffer,1)!=1 || (buffer[0]<=0x7))
     return false;
+
+  element.type=buffer[0];
+
+  // Get size of id
+  size=clz32(element.type)-24;
+
+  // Read remaining bytes
+  if (size) {
+
+    if (input->read(buffer,size)!=size)
+      return false;
+
+    for (FXint i=0;i<size;i++) {
+      element.type=(element.type<<8)|static_cast<FXuint>(buffer[i]);
+      }
     }
-  //fxmessage("raw element %hhx %hhx %hhx %hhx\n",buffer[0],buffer[1],buffer[2],buffer[3]);
+  container.size-=(size+1);
   return true;
   }
 
+FXbool MatroskaReader::parse_element_uint64(Element & container,FXlong & value) {
+  FXuchar n = parse_ebml_uint64(value);
+  if (n==0) return false;
+  container.size-=n;
+  return true;
+  }
 
-FXbool MatroskaReader::parse_element_size(FXlong & container,FXlong & value) {
-  FXuchar buffer[8];
-  if (input->read(&buffer[0],1)!=1) return false;
-  if (buffer[0]>=0x80) {
-    value = buffer[0]&0x7f;
-    container-=1;
-    }
-  else if (buffer[0]>=0x40) {
-    if (input->read(&buffer[1],1)!=1) return false;
-    value = (static_cast<FXulong>(buffer[0]&0x3F)<<8) | 
-            (static_cast<FXulong>(buffer[1]));
-    container-=2;
-    }
-  else if (buffer[0]>=0x20) {
-
-    if (input->read(&buffer[1],2)!=2) return false;
-    value = (static_cast<FXulong>(buffer[0]&0x1F)<<16) | 
-            (static_cast<FXulong>(buffer[1])<<8) |
-            (static_cast<FXulong>(buffer[2]));
-    container-=3;
-    }
-  else if (buffer[0]>=0x10) {
-    if (input->read(&buffer[1],3)!=3) return false;
-    value = (static_cast<FXulong>(buffer[0]&0xF)<<24) | 
-            (static_cast<FXulong>(buffer[1])<<16) | 
-            (static_cast<FXulong>(buffer[2])<<8) | 
-            (static_cast<FXulong>(buffer[3]));
-    container-=4;
-    }
-  else if (buffer[0]>=0x8) {
-
-    if (input->read(&buffer[1],4)!=4) return false;
-    value = (static_cast<FXulong>(buffer[0]&0x7)<<32) | 
-            (static_cast<FXulong>(buffer[1])<<24) | 
-            (static_cast<FXulong>(buffer[2])<<16) | 
-            (static_cast<FXulong>(buffer[3])<<8) | 
-            (static_cast<FXulong>(buffer[4]));
-    container-=5;
-    }
-  else if (buffer[0]>=0x4) {
-    fxmessage("check %hhx\n",buffer[0]);
-
-    if (input->read(&buffer[1],5)!=5) return false;
-    value = (static_cast<FXulong>(buffer[0]&0x3)<<40) | 
-            (static_cast<FXulong>(buffer[1])<<32) | 
-            (static_cast<FXulong>(buffer[2])<<24) | 
-            (static_cast<FXulong>(buffer[3])<<16) | 
-            (static_cast<FXulong>(buffer[4])<<8) | 
-            (static_cast<FXulong>(buffer[5]));
-    fxmessage("value %lu\n",value);
-
-    container-=6;
-    }
-  else if (buffer[0]>=0x2) {
-    if (input->read(&buffer[1],6)!=6) return false;
-    value = (static_cast<FXulong>(buffer[0]&0x1)<<48) | 
-            (static_cast<FXulong>(buffer[1])<<40) | 
-            (static_cast<FXulong>(buffer[2])<<32) | 
-            (static_cast<FXulong>(buffer[3])<<24) | 
-            (static_cast<FXulong>(buffer[4])<<16) | 
-            (static_cast<FXulong>(buffer[5])<<8) | 
-            (static_cast<FXulong>(buffer[6]));
-    container-=7;
-    }
-  else if (buffer[0]>=0x1) {
-    if (input->read(&buffer[1],7)!=7) return false;
-    value = (static_cast<FXulong>(buffer[1])<<48) | 
-            (static_cast<FXulong>(buffer[2])<<40) | 
-            (static_cast<FXulong>(buffer[3])<<32) | 
-            (static_cast<FXulong>(buffer[4])<<24) | 
-            (static_cast<FXulong>(buffer[5])<<16) | 
-            (static_cast<FXulong>(buffer[6])<<8) | 
-            (static_cast<FXulong>(buffer[7]));
-    container-=8;
-    }
-  else {
-    return false;
-    }
+FXbool MatroskaReader::parse_element_int64(Element & container,FXlong & value) {
+  FXuchar n = parse_ebml_uint64(value);
+  if (n==0) return false;
+  value = value - ((FXULONG(1)<<((7*n)-1))-1);
+  container.size-=n;
   return true;
   }
 
 
 
 
+FXuchar MatroskaReader::parse_ebml_uint64(FXlong & value) {
+  FXuchar buffer[7];
+  FXuchar n;
+
+  // Read first byte
+  if (input->read(buffer,1)!=1 || (buffer[0]==0))
+    return 0;
+
+  // Store first byte value
+  value=buffer[0];
+
+  // Get size of id
+  n=clz32(value)-24;
+
+  // Apply mask
+  value=value&((1<<(7-n))-1);
+
+  // Read remaining bytes
+  if (n) {
+
+    if (input->read(buffer,n)!=n)
+      return 0;
+
+    for (FXint i=0;i<n;i++) {
+      value=(value<<8)|static_cast<FXlong>(buffer[i]);
+      }
+    }
+
+  // Check for unknown sizes
+  if (value == ((FXULONG(1)<<((7-n)+(n*8)))-1)) {
+    fxwarning("matroska: unknown element size not supported");
+    value=-1;
+    }
+
+  return (n+1);
+  }
 
 
 
-  
 
 
+FXbool MatroskaReader::parse_uint8(FXuchar & value,const FXlong size) {
+  if (size==1 && input->read(&value,1)==1)
+    return true;
+  else
+    return false;
+  }
+
+FXbool MatroskaReader::parse_uint64(FXulong & value,const FXlong size) {
+  FXuchar byte;
+  value = 0;
+  for (FXlong i=0;i<size;i++) {
+    if (input->read(&byte,1)!=1) return false;
+    value = value<<8 | static_cast<FXulong>(byte);
+    }
+  return true;
+  }
+
+
+
+FXbool MatroskaReader::parse_unsigned_int(FXulong & value,const FXlong size) {
+  FXuchar byte;
+  value = 0;
+  for (FXlong i=0;i<size;i++) {
+    if (input->read(&byte,1)!=1) return false;
+    value = value<<8 | static_cast<FXulong>(byte);
+    }
+  return true;
+  }
+
+FXbool MatroskaReader::parse_float_as_uint32(FXuint & value,const FXlong size) {
+  if (size==4) {
+    FXfloat val;
+    if (!input->read_float_be(val)) return false;
+    value = lrintf(val);
+    }
+  else if (size==8) {
+    FXdouble val;
+    if (!input->read_double_be(val)) return false;
+    value = rintf(val);
+    }
+  else {
+    return false;
+    }
+  return true;
+  }
 
 }
 
