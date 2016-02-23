@@ -182,16 +182,41 @@ FXbool InputPlugin::read_int16_be(FXshort & value) {
 
 
 FXbool InputPlugin::read_float_be(FXfloat & value) {
-  
-  if (read(&value,4)==4) {
+  FXuchar v[4];
+  if (read(&v,4)==4) {
 #if FOX_BIGENDIAN == 0
-    value = swap16(value);
+    reinterpret_cast<FXuchar*>(&value)[0] = v[3];
+    reinterpret_cast<FXuchar*>(&value)[1] = v[2];
+    reinterpret_cast<FXuchar*>(&value)[2] = v[1];
+    reinterpret_cast<FXuchar*>(&value)[3] = v[0];
+#else
+    value = 0;
 #endif
     return true;
     }
   return false;
   }
 
+
+FXbool InputPlugin::read_double_be(FXdouble & value) {
+  FXuchar v[8];
+  if (read(&v,8)==8) {
+#if FOX_BIGENDIAN == 0
+    reinterpret_cast<FXuchar*>(&value)[0] = v[7];
+    reinterpret_cast<FXuchar*>(&value)[1] = v[6];
+    reinterpret_cast<FXuchar*>(&value)[2] = v[5];
+    reinterpret_cast<FXuchar*>(&value)[3] = v[4];
+    reinterpret_cast<FXuchar*>(&value)[4] = v[3];
+    reinterpret_cast<FXuchar*>(&value)[5] = v[2];
+    reinterpret_cast<FXuchar*>(&value)[6] = v[1];
+    reinterpret_cast<FXuchar*>(&value)[7] = v[0];
+#else
+    value = 0;
+#endif
+    return true;
+    }
+  return false;
+  }
 
 
 
