@@ -86,6 +86,9 @@ void OggDecoder::push_back_packet() {
 DecoderStatus OggDecoder::process(Packet* packet){
   buffer.append(packet->data(),packet->size());
   packet->unref();
+
+  if (stream_position==-1 && packet->stream_position>=0)
+    stream_position=packet->stream_position;
   return DecoderOk;
   }
 
