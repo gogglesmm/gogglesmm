@@ -600,6 +600,8 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
     }
 
   stream = pa_stream_new(context,"Goggles Music Manager",&spec,&cmap);
+  if (stream == nullptr)
+    goto failed;
 
 #ifdef DEBUG
   pa_stream_set_state_callback(stream,stream_state_callback,this);
@@ -633,7 +635,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   return true;
 failed:
   GM_DEBUG_PRINT("Unsupported pulse configuration:\n");
-  af.debug();
+  fmt.debug();
   return false;
   }
 
