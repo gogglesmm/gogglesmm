@@ -34,6 +34,7 @@ static const FXchar * const codecs[]={
   "MPEG",
   "AAC",
   "Opus",
+  "DCA",
   };
 
 static const FXchar * const byteorders[]={
@@ -94,6 +95,24 @@ void AudioFormat::reset() {
   channels=0;
   channelmap=0;
   }
+
+void AudioFormat::setBits(FXushort bits) {
+  if (bits>0 && bits<=32) {
+    format|=(bits-1)<<Format::Bits_Shift|(((bits/8)-1)<<Format::Pack_Shift);    
+    }
+  }
+
+void AudioFormat::setChannels(FXuchar ch) {
+  if (ch>0 && ch<=8) {
+    channels=ch;
+    switch(channels) {
+      case  1: channelmap = AP_CHANNELMAP_MONO;   break;
+      case  2: channelmap = AP_CHANNELMAP_STEREO; break;
+      default: break;
+      }
+    }
+  }
+
 
 void AudioFormat::set(FXushort dt,FXushort bits,FXushort pack,FXuint r,FXuchar nc,FXuint map) {
   format=dt|((bits-1)<<Format::Bits_Shift)|((pack-1)<<Format::Pack_Shift);

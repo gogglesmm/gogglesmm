@@ -44,7 +44,9 @@ namespace Codec {
     Musepack  = 4,
     MPEG      = 5,
     AAC       = 6,
-    Opus      = 7
+    Opus      = 7,
+    DCA       = 8,
+    A52       = 9
     };
 
   extern const FXchar * name(FXuchar codec);
@@ -201,6 +203,11 @@ public:
 public:
   AudioFormat();
   AudioFormat(const AudioFormat &);
+
+
+  void setBits(FXushort bps);
+
+  void setChannels(FXuchar channels);
 
   void set(FXushort datatype,FXushort bps,FXushort pack,FXuint rate,FXuchar channels,FXuint map=0);
 
