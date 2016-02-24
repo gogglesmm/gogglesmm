@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -63,6 +63,7 @@ public:
   FXString      composer;
   FXString      conductor;
   FXStringList  tags;
+  FXuint        index         = 0;
   FXint         year          = 0;
   FXint 	      no            = 0;
   FXint		      time          = 0;
@@ -74,6 +75,8 @@ public:
   FXuchar       filetype      = FILETYPE_UNKNOWN;
 public:
   GMTrack();
+
+  FXbool hasMissingData() const;
 
   /// Clear the track
   void clear();
@@ -92,6 +95,14 @@ public:
 
   /// Get disc number
   FXushort getDiscNumber() const { return (FXushort)(no>>16); }
+
+  /// Get Album Artist
+  const FXString & getAlbumArtist(const FXString & def) const;
+
+  /// Get Artist
+  const FXString & getArtist(const FXString & def) const;
+
+
 
   void setTagsFromString(const FXString &);
 

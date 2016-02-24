@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -1104,7 +1104,7 @@ long GMCheckButton::onPaint(FXObject*,FXSelector,void* ptr){
   else{
     if(check!=false){
       FXSegment seg[6];
-#ifndef WIN32
+#ifndef _WIN32
       seg[0].x1=3+ix; seg[0].y1=5+iy; seg[0].x2=5+ix; seg[0].y2=7+iy;
       seg[1].x1=3+ix; seg[1].y1=6+iy; seg[1].x2=5+ix; seg[1].y2=8+iy;
       seg[2].x1=3+ix; seg[2].y1=7+iy; seg[2].x2=5+ix; seg[2].y2=9+iy;

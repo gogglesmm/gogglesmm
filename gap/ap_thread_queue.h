@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -28,8 +28,8 @@ class Event;
 
 class ThreadQueue : public EventQueue {
 protected:
-  FXMutex      mfifo;
-  NotifyPipe   pfifo;
+  FXMutex mfifo;
+  Signal  sfifo;
 public:
   ThreadQueue();
 
@@ -45,8 +45,14 @@ public:
   /// Get next event.
   Event * pop();
 
-  /// Pop typed event
-  Event * pop_if(FXuchar t,FXbool & other);
+  /// Wait for next event
+  Event * wait();
+
+  // Pop typed event from queue if available. return true if queue is not empty
+  FXbool pop_if(FXuchar t,Event *& event);
+
+  // Check if typed event is in front of the queue
+  FXbool peek_if_not(FXuchar t);
 
   /// Pop typed event
   Event * pop_if_not(FXuchar t2,FXuchar t1);
@@ -54,14 +60,11 @@ public:
   /// Flush all events.
   void flush();
 
-  /// Peek Event
-  FXuchar peek();
-
   /// Check for abort
   FXbool checkAbort();
 
-  /// Returns the wait fd.
-  FXInputHandle handle() const;
+  /// Return signal object for this Queue
+  const Signal & signal() const { return sfifo; }
 
   ~ThreadQueue();
   };

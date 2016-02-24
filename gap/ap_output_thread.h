@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -21,14 +21,13 @@
 
 #include "ap_thread.h"
 #include "ap_event_private.h"
-#include "ap_reactor.h"
 #include "ap_buffer.h"
+#include "ap_output_plugin.h"
 
 
 namespace ap {
 
 class AudioEngine;
-class OutputPlugin;
 class Packet;
 class FrameTimer;
 
@@ -42,7 +41,7 @@ struct ReplayGainConfig {
   FXdouble peak() const { return (mode==ReplayGainAlbum) ? value.album_peak : value.track_peak; }
   };
 
-class OutputThread : public EngineThread {
+class OutputThread : public EngineThread, public Output {
 protected:
   OutputConfig   output_config;
 protected:
@@ -73,11 +72,12 @@ protected:
   FXbool draining;
   FXbool pausing;
 protected:
-  FXint stream_length;
-  FXint stream_remaining;
-  FXint stream_written;
-  FXint stream_position;
-  FXint timestamp;
+  FXint     stream;
+  FXlong    stream_length;
+  FXint     stream_remaining;
+  FXint     stream_written;
+  FXlong    stream_position;
+  FXint     timestamp;
 protected:
   FXPtrListOf<FrameTimer> timers;
   void update_timers(FXint delay,FXint nframes);
@@ -95,7 +95,7 @@ protected:
 #endif
   void drain(FXbool flush=true);
 
-  void update_position(FXuint stream,FXint position,FXint nframes,FXint length);
+  void update_position(FXint stream,FXlong position,FXint nframes,FXlong length);
   void notify_position();
   void reset_position();
 
@@ -107,13 +107,13 @@ public:
 
   virtual FXint run();
 
-  void notify_disable_volume() GMAPI;
+  virtual void notify_disable_volume();
 
-  void notify_volume(FXfloat value) GMAPI;
+  virtual void notify_volume(FXfloat value);
 
-  void wait_plugin_events() GMAPI;
+  virtual void wait_plugin_events();
 
-  Reactor & getReactor() { return reactor; }
+  virtual Reactor & getReactor() { return reactor; }
 
   virtual ~OutputThread();
   };

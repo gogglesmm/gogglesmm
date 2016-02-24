@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -17,12 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_reactor.h"
 #include "ap_output_plugin.h"
-#include "ap_output_thread.h"
-
-
-#include <poll.h>
 
 extern "C" {
 #include <pulse/pulseaudio.h>
@@ -56,7 +51,7 @@ protected:
 protected:
   FXbool open();
 public:
-  PulseOutput(OutputThread*);
+  PulseOutput(Output*);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -317,7 +312,7 @@ namespace ap {
 
 PulseOutput * PulseOutput::instance = nullptr;
 
-PulseOutput::PulseOutput(OutputThread * thread) : OutputPlugin(thread),context(nullptr),stream(nullptr),pulsevolume(PA_VOLUME_MUTED) {
+PulseOutput::PulseOutput(Output * output) : OutputPlugin(output),context(nullptr),stream(nullptr),pulsevolume(PA_VOLUME_MUTED) {
   FXASSERT(instance==nullptr);
   instance                = this;
   api.userdata            = this;
@@ -346,12 +341,15 @@ PulseOutput::~PulseOutput() {
 
 static FXbool to_pulse_format(const AudioFormat & af,pa_sample_format & pulse_format){
   switch(af.format) {
+    case AP_FORMAT_U8       : pulse_format=PA_SAMPLE_U8;    break;
     case AP_FORMAT_S16_LE   : pulse_format=PA_SAMPLE_S16LE; break;
     case AP_FORMAT_S16_BE   : pulse_format=PA_SAMPLE_S16BE; break;
     case AP_FORMAT_S24_LE   : pulse_format=PA_SAMPLE_S24_32LE;  break;
     case AP_FORMAT_S24_BE   : pulse_format=PA_SAMPLE_S24_32BE;  break;
     case AP_FORMAT_S24_3LE  : pulse_format=PA_SAMPLE_S24LE;  break;
     case AP_FORMAT_S24_3BE  : pulse_format=PA_SAMPLE_S24BE;  break;
+    case AP_FORMAT_S32_LE   : pulse_format=PA_SAMPLE_S32LE;  break;
+    case AP_FORMAT_S32_BE   : pulse_format=PA_SAMPLE_S32BE;  break;
     case AP_FORMAT_FLOAT_LE : pulse_format=PA_SAMPLE_FLOAT32LE;  break;
     case AP_FORMAT_FLOAT_BE : pulse_format=PA_SAMPLE_FLOAT32BE;  break;
     default                 : return false; break;
@@ -369,6 +367,8 @@ static FXbool to_gap_format(pa_sample_format pulse_format,AudioFormat & af){
     case PA_SAMPLE_S24BE    : af.format = AP_FORMAT_S24_3BE;   break;
     case PA_SAMPLE_S24_32LE : af.format = AP_FORMAT_S24_LE;  break;
     case PA_SAMPLE_S24_32BE : af.format = AP_FORMAT_S24_BE;  break;
+    case PA_SAMPLE_S32LE    : af.format = AP_FORMAT_S32_LE;   break;
+    case PA_SAMPLE_S32BE    : af.format = AP_FORMAT_S32_BE;   break;
     case PA_SAMPLE_FLOAT32LE: af.format = AP_FORMAT_FLOAT_LE; break;
     case PA_SAMPLE_FLOAT32BE: af.format = AP_FORMAT_FLOAT_BE; break;
     default                 : return false;
@@ -668,14 +668,4 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
 }
 
 
-
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new PulseOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
-
+AP_IMPLEMENT_PLUGIN(PulseOutput);

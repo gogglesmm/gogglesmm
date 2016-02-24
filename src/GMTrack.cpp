@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -50,7 +50,36 @@ void GMTrack::clear() {
   no=0;
   time=0;
   bitrate=0;
+  channels=0;
+  sampleformat=0;
+  samplerate=0;
+  filetype=FILETYPE_UNKNOWN;
   }
+
+const FXString & GMTrack::getArtist(const FXString & def) const {
+  if (!artist.empty())
+    return artist;
+  else if (!album_artist.empty())
+    return album_artist;
+  else if (!composer.empty())
+    return composer;
+  else
+    return def;
+  }
+
+
+const FXString & GMTrack::getAlbumArtist(const FXString & def) const {
+  if (!album_artist.empty())
+    return album_artist;
+  else if (!artist.empty())
+    return artist;
+  else if (!composer.empty())
+    return composer;
+  else
+    return def;
+  }
+
+
 
 
 static void gmsplit(const FXString & in,FXStringList & output) {
@@ -86,6 +115,10 @@ static void gmsplit(const FXString & in,FXStringList & output) {
 void GMTrack::setTagsFromString(const FXString & str){
   tags.clear();
   gmsplit(str,tags);
+  }
+
+FXbool GMTrack::hasMissingData() const {
+  return (title.empty() || artist.empty() || album_artist.empty() || album.empty() || year==0);
   }
 
 

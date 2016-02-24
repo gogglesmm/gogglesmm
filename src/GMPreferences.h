@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -64,15 +64,16 @@ struct ColorTheme {
 
 class GMImportOptions {
 public:
-  FXString default_field       = "Untitled";
   FXString exclude_folder;
   FXString exclude_file;
-  FXString filename_template   = "%P/%A/%N %T";
-  FXuint   parse_method        = PARSE_BOTH;
-  FXuint   id3v1_encoding      = GMFilename::ENCODING_8859_1;
-  FXbool   track_from_filelist = false;
-  FXbool   replace_underscores = true;
-  FXbool   fix_album_artist    = false;
+  FXString filename_template     = "%P/%A/%N %T";
+  FXuint   parse_method          = PARSE_BOTH;
+  FXuint   id3v1_encoding        = GMFilename::ENCODING_8859_1;
+  FXbool   track_from_filelist   = false;
+  FXbool   replace_underscores   = true;
+  FXbool   fix_album_artist      = false;
+  FXbool   album_format_grouping = true;
+  FXbool   detect_compilation    = false;
 public:
   enum {
     PARSE_TAG = 0,
@@ -96,7 +97,6 @@ class GMSyncOptions {
 public:
   FXbool import_new     = true;
   FXbool remove_missing = false;
-  FXbool remove_all     = false;
   FXbool update         = false;
   FXbool update_always  = false;
 public:

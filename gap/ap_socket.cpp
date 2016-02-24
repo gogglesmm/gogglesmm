@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2013-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2013-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -20,8 +20,9 @@
 #include "ap_socket.h"
 #include "ap_utils.h"
 
-
-#ifndef WIN32
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <unistd.h> // for close()
 #include <fcntl.h>
 #include <errno.h>

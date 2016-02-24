@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -21,13 +21,12 @@
 #include "ap_convert.h"
 #include "ap_engine.h"
 #include "ap_input_thread.h"
-#include "ap_output_plugin.h"
 #include "ap_output_thread.h"
 
 
 
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <poll.h>
 #include <errno.h>
 #endif
@@ -143,7 +142,7 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),
 
 FXbool OutputThread::init() {
   if (EngineThread::init()) {
-    fifoinput=new Reactor::Input(fifo.handle(),Reactor::Input::Readable);
+    fifoinput=new Reactor::Input(fifo.signal().handle(),Reactor::Input::Readable);
     reactor.addInput(fifoinput);
     return true;
     }
@@ -207,7 +206,7 @@ void OutputThread::update_timers(FXint delay,FXint nframes) {
 
 
 
-void OutputThread::update_position(FXuint sid,FXint position,FXint nframes,FXint length) {
+void OutputThread::update_position(FXint sid,FXlong position,FXint nframes,FXlong length) {
   FXint delay = plugin->delay();
   FXASSERT(position>=0);
 
@@ -442,7 +441,6 @@ Event * OutputThread::wait_drain() {
 
 
 void OutputThread::load_plugin() {
-  typedef OutputPlugin*  (*ap_load_plugin_t)(OutputThread*);
 
   if (output_config.device==DeviceNone) {
     GM_DEBUG_PRINT("[output] no output plugin defined\n");
@@ -475,14 +473,14 @@ void OutputThread::load_plugin() {
   FXuint * plugin_version = static_cast<FXuint*>(dll.address("ap_version"));
   if (plugin_version==nullptr) {
     GM_DEBUG_PRINT("[output] incompatible plugin: no ap_version found\n");
-    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
+    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nRequired symbol \'ap_version\' not found.",plugin_name.text())));
     dll.unload();
     return;
     }
 
   if (*plugin_version!=AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH)) {
     GM_DEBUG_PRINT("[output] incompatible plugin: version mismatch.\n");
-    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
+    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version (%u) of gogglesmm.",plugin_name.text(),*plugin_version)));
     dll.unload();
     return;
     }
@@ -490,7 +488,7 @@ void OutputThread::load_plugin() {
   ap_load_plugin_t ap_load_plugin = (ap_load_plugin_t) dll.address("ap_load_plugin");
   if (ap_load_plugin==nullptr || (plugin=ap_load_plugin(this))==nullptr) {
     GM_DEBUG_PRINT("[output] incompatible plugin\n");
-    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nThis plugin was build for a different version of gogglesmm.",plugin_name.text())));
+    engine->post(new ErrorMessage(FXString::value("Failed to load output plugin: %s.\nRequired symbol \'ap_load_plugin\' not found.",plugin_name.text())));
     dll.unload();
     return;
     }
@@ -501,7 +499,6 @@ void OutputThread::load_plugin() {
   }
 
 void OutputThread::unload_plugin() {
-  typedef void (*ap_free_plugin_t)(OutputPlugin*);
   if (plugin) {
     FXASSERT(dll.loaded());
     ap_free_plugin_t ap_free_plugin = (ap_free_plugin_t) dll.address("ap_free_plugin");

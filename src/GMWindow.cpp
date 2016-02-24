@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -84,6 +84,8 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_IMPORT_DIRS,				GMWindow::onCmdImport),
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_IMPORT_FILES,		  GMWindow::onCmdImport),
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_SYNC_DIRS,		      GMWindow::onCmdImport),
+  FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_REMOVE_FOLDER,		  GMWindow::onCmdImport),
+
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_OPEN,							GMWindow::onCmdOpen),
 
@@ -206,10 +208,10 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   /****************************************************************************/
 
   /// Library Menu
-  menu_library = new GMMenuPane(this);
+  menu_library = new GMMenuPane(this,POPUP_SHRINKWRAP);
 
   /// Media Controls
-  menu_media   = new GMMenuPane(this);
+  menu_media   = new GMMenuPane(this,POPUP_SHRINKWRAP);
   new GMMenuCheck(menu_media,tr("Queue Play\t\tPlay tracks from queue."),this,ID_PLAYQUEUE);
   new GMMenuCheck(menu_media,tr("Shuffle Play\tAlt-R\tPlay tracks in random order."),this,ID_SHUFFLE);
   new FXMenuSeparator(menu_media);
@@ -224,7 +226,7 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   gm_set_window_cursor(menu_media,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
   /// Program Menu
-  menu_gmm     = new GMMenuPane(this);
+  menu_gmm     = new GMMenuPane(this,POPUP_SHRINKWRAP);
   new GMMenuCheck(menu_gmm,tr("Show &Sources\tCtrl-S\tShow source browser "),this,ID_SHOW_SOURCES);
   fullscreencheck = new GMMenuCheck(menu_gmm,tr("Show Full Screen\tF12\tToggle fullscreen mode."),this,ID_SHOW_FULLSCREEN);
   new GMMenuCheck(menu_gmm,tr("Show Mini Player\tCtrl-M\tToggle Mini Player."),this,ID_SHOW_MINIPLAYER);
@@ -411,12 +413,14 @@ void GMWindow::showPresenter(){
 #ifdef HAVE_OPENGL
   if (!presenter) {
     GMApp::instance()->initOpenGL();
-    GMPresenter p(getApp(),GMApp::instance()->getGLContext(),target,message);
-    p.create();
-    presenter=&p;
-    updateCover();
-    p.execute();
-    presenter=nullptr;
+    if (GMApp::instance()->getGLContext()) {
+      GMPresenter p(getApp(),GMApp::instance()->getGLContext(),target,message);
+      p.create();
+      presenter=&p;
+      updateCover();
+      p.execute();
+      presenter=nullptr;
+      }
     }
 #endif
   }
@@ -809,10 +813,13 @@ void GMWindow::configureToolbar(FXbool docktop,FXbool initial/*=false*/){
 long GMWindow::onCmdImport(FXObject *,FXSelector sel,void*){
 
 
-  FXuint mode=(FXSELID(sel)==ID_IMPORT_DIRS || FXSELID(sel)==ID_SYNC_DIRS) ? IMPORT_FROMDIR : IMPORT_FROMFILE;
+  FXuint mode=(FXSELID(sel)==ID_IMPORT_DIRS || FXSELID(sel)==ID_SYNC_DIRS || FXSELID(sel)==ID_REMOVE_FOLDER) ? IMPORT_FROMDIR : IMPORT_FROMFILE;
 
   if (FXSELID(sel)==ID_SYNC_DIRS)
     mode|=IMPORT_SYNC;
+
+  if (FXSELID(sel)==ID_REMOVE_FOLDER)
+    mode|=REMOVE_FOLDER;
 
   GMImportDialog dialog(this,mode);
   if (dialog.execute()) {
@@ -823,6 +830,11 @@ long GMWindow::onCmdImport(FXObject *,FXSelector sel,void*){
       GMSyncTask * task = new GMSyncTask(GMPlayerManager::instance(),GMPlayerManager::ID_IMPORT_TASK);
       task->setOptions(GMPlayerManager::instance()->getPreferences().import);
       task->setSyncOptions(GMPlayerManager::instance()->getPreferences().sync);
+      task->setInput(files);
+      GMPlayerManager::instance()->runTask(task);
+      }
+    else if (FXSELID(sel)==ID_REMOVE_FOLDER) {
+      GMRemoveTask * task = new GMRemoveTask(GMPlayerManager::instance(),GMPlayerManager::ID_IMPORT_TASK);
       task->setInput(files);
       GMPlayerManager::instance()->runTask(task);
       }
@@ -1310,42 +1322,41 @@ void GMWindow::updateCover() {
 void GMWindow::updateCoverView() {
 #ifdef HAVE_OPENGL
   if (GMApp::instance()->hasOpenGL()) {
-    if (coverview_x11) {
-      clearCover();
-      delete coverview_x11;
-      coverview_x11=nullptr;
-      }
+    GMApp::instance()->initOpenGL();
+    if (GMApp::instance()->getGLContext()) {
+      if (coverview_x11) {
+        clearCover();
+        delete coverview_x11;
+        coverview_x11=nullptr;
+        }
 
-    if (!coverview_gl) {
-      GMApp::instance()->initOpenGL();
-      coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLContext(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
-      coverview_gl->setTarget(this);
-      coverview_gl->setSelector(ID_COVERVIEW);
-      coverview_gl->enable();
-      if (coverframe->id()) coverview_gl->create();
+      if (!coverview_gl) {
+        GMApp::instance()->initOpenGL();
+        coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLContext(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
+        coverview_gl->setTarget(this);
+        coverview_gl->setSelector(ID_COVERVIEW);
+        coverview_gl->enable();
+        if (coverframe->id()) coverview_gl->create();
+        }
+      return;
       }
-
     }
-  else {
 
-    if (coverview_gl) {
-      clearCover();
-      delete coverview_gl;
-      coverview_gl=nullptr;
-      //GMApp::instance()->releaseOpenGL();
-      }
-#endif
-    if (!coverview_x11) {
-      coverview_x11 = new GMImageFrame(coverframe,nullptr,FRAME_NONE|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
-      coverview_x11->setBackColor(getApp()->getBackColor());
-      coverview_x11->setTarget(this);
-      coverview_x11->setSelector(ID_COVERVIEW);
-      coverview_x11->enable();
-      if (coverframe->id()) coverview_x11->create();
-      }
-#ifdef HAVE_OPENGL
+  if (coverview_gl) {
+    clearCover();
+    delete coverview_gl;
+    coverview_gl=nullptr;
     }
 #endif
+
+  if (!coverview_x11) {
+    coverview_x11 = new GMImageFrame(coverframe,NULL,FRAME_NONE|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
+    coverview_x11->setBackColor(getApp()->getBackColor());
+    coverview_x11->setTarget(this);
+    coverview_x11->setSelector(ID_COVERVIEW);
+    coverview_x11->enable();
+    if (coverframe->id()) coverview_x11->create();
+    }
   }
 
 long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){

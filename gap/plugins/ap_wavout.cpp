@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -29,7 +29,7 @@ protected:
   FXFile file;
   FXlong data_pos;
 public:
-  WavOutput(OutputThread * output);
+  WavOutput(Output * output);
 
   FXchar type() const { return DeviceWav; }
 
@@ -46,7 +46,7 @@ public:
   virtual ~WavOutput();
   };
 
-WavOutput::WavOutput(OutputThread * out) : OutputPlugin(out),data_pos(0){
+WavOutput::WavOutput(Output * out) : OutputPlugin(out),data_pos(0){
   }
 
 WavOutput::~WavOutput() {
@@ -54,19 +54,54 @@ WavOutput::~WavOutput() {
   }
 
 
+enum {
+  WAV_FORMAT_PCM        = 0x0001,
+  WAV_FORMAT_FLOAT      = 0x0003,
+  //WAV_FORMAT_EXTENSIBLE = 0xFFFE
+  };
+
+
 ///FIXME perhaps support extensible wav format
 FXbool WavOutput::configure(const AudioFormat & fmt) {
+  FXushort format;
+
+  // Can't handle big endian yet, neither does the output thread handle byteorder swaps
+  if (fmt.byteorder() != Format::Little)
+    return false;
+
+  // Extensible Wav Format not yet supported
+  if (fmt.channels>2)
+    return false;
+
+  // Determine format
+  switch(fmt.datatype()) {
+    case Format::Unsigned : 
+    case Format::Signed   : format = WAV_FORMAT_PCM;  break;
+    case Format::Float    : format = WAV_FORMAT_FLOAT; break;
+    default               : return false; break;
+    }
+
   FXString path=FXPath::unique("gap.wav");
   if (file.open(path,FXIO::Writing)) {
     GM_DEBUG_PRINT("[wav] opened output file: %s\n",path.text());
     af=fmt;
     FXuint chunksize=0;
-    FXushort format=1;
+    FXlong ldata=0; 
 
     /// riff chunk
     file.writeBlock("RIFF",4);
     file.writeBlock(&chunksize,4); // empty for now
     file.writeBlock("WAVE",4);
+
+    /// junk chunk
+    chunksize=28;
+    file.writeBlock("JUNK",4);
+    file.writeBlock(&chunksize,4);
+    file.writeBlock(&ldata,8);
+    file.writeBlock(&ldata,8);
+    file.writeBlock(&ldata,8);
+    chunksize=0;
+    file.writeBlock(&chunksize,4);
 
     /// fmt
     file.writeBlock("fmt ",4);
@@ -87,7 +122,7 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
     file.writeBlock(&bitspersample,2);
 
     file.writeBlock("data",4);
-    chunksize=0;
+    chunksize=0xFFFFFFFF;
     data_pos=file.position();
     file.writeBlock(&chunksize,4);
     return true;
@@ -97,7 +132,6 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
   }
 
 
-//FIXME make sure data fits within 4GB.
 FXbool WavOutput::write(const void * data,FXuint nframes) {
   FXlong duration = ((FXlong)nframes*1000000000)/af.rate;
   FXThread::sleep(duration);
@@ -110,19 +144,44 @@ FXbool WavOutput::write(const void * data,FXuint nframes) {
 void WavOutput::close() {
   if (file.isOpen()) {
     GM_DEBUG_PRINT("[wav] closed output\n");
-    FXuint end=file.position();
-    FXuint size;
+    FXulong end=file.position();
+    FXulong size;
+    FXuint size32=0xFFFFFFFF;
 
-    /// RIFF chunksize
-    file.position(4);
     size=end-8;
-    file.writeBlock(&size,4);
+    if (end>0xFFFFFFFF) {
 
-    /// data chunksize
-    if (data_pos) {
-      file.position(data_pos);
-      size=end-data_pos-4;
-      file.writeBlock(&size,4);
+      // RIFF Chunk
+      file.position(0);
+      file.writeBlock("RF64",4);
+      file.writeBlock(&size32,4);
+
+      // DS64 Chunk
+      file.position(12);
+      file.writeBlock("ds64",4);
+      file.position(20);
+      file.writeBlock(&size,8); 
+      // Data Chunk
+      if (data_pos) {
+        size=end-data_pos-4;
+        file.writeBlock(&size,8);
+        size=0;
+        file.writeBlock(&size,8);
+        }
+      }
+    else {
+
+      /// RIFF chunksize
+      size32=size;
+      file.position(4); 
+      file.writeBlock(&size32,4);
+
+      // Data Chunksize
+      if (data_pos) {
+        file.position(data_pos);
+        size=end-data_pos-4;
+        file.writeBlock(&size,4);
+        }
       }
     file.close();
     }
@@ -132,13 +191,5 @@ void WavOutput::close() {
 }
 
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new WavOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
+AP_IMPLEMENT_PLUGIN(WavOutput);
 

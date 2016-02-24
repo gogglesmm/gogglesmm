@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -61,30 +61,30 @@ protected:
   TagLib::ID3v2::Tag        * id3v2;
   TagLib::APE::Tag          * ape;
 protected:
-  void id3v2_get_field(const FXchar * field,FXString &) const;
-  void id3v2_get_field(const FXchar * field,FXStringList &) const;
+  FXbool id3v2_get_field(const FXchar * field,FXString &) const;
+  FXbool id3v2_get_field(const FXchar * field,FXStringList &) const;
   void id3v2_update_field(const FXchar * field,const FXString & value);
   void id3v2_update_field(const FXchar * field,const FXStringList & value);
 
-  void xiph_get_field(const FXchar * field,FXString &) const;
-  void xiph_get_field(const FXchar * field,FXStringList &) const;
+  FXbool xiph_get_field(const FXchar * field,FXString &) const;
+  FXbool xiph_get_field(const FXchar * field,FXStringList &) const;
   void xiph_update_field(const FXchar * field,const FXString & value);
   void xiph_update_field(const FXchar * field,const FXStringList & value);
   void xiph_add_field(const FXchar * field,const FXString & value);
 
-  void mp4_get_field(const FXchar * field,FXString &) const;
-  void mp4_get_field(const FXchar * field,FXStringList &) const;
+  FXbool mp4_get_field(const FXchar * field,FXString &) const;
+  FXbool mp4_get_field(const FXchar * field,FXStringList &) const;
   void mp4_update_field(const FXchar * field,const FXString & value);
   void mp4_update_field(const FXchar * field,const FXStringList & value);
 
-  void ape_get_field(const FXchar * field,FXString &) const;
-  void ape_get_field(const FXchar * field,FXStringList &) const;
+  FXbool ape_get_field(const FXchar * field,FXString &) const;
+  FXbool ape_get_field(const FXchar * field,FXStringList &) const;
   void ape_update_field(const FXchar * field,const FXString & value);
   void ape_update_field(const FXchar * field,const FXStringList & value);
 
   void parse_tagids(FXStringList&) const;
 
-  void trimList(FXStringList & value) const;
+  FXbool trimList(FXStringList & value) const;
 public:
   GMFileTag();
 

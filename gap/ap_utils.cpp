@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -70,13 +70,18 @@
 #include "ap_event.h"
 
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+
 // for prctl
 #ifdef __linux__
 #include <sys/prctl.h>
 #endif
 
 // for fcntl
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -114,7 +119,7 @@ FXString ap_get_environment(const FXchar * key,const FXchar * def) {
 
 
 FXbool ap_set_nonblocking(FXInputHandle fd) {
-#ifndef WIN32
+#ifndef _WIN32
   FXint flags = fcntl(fd,F_GETFL);
   if (flags==-1 || fcntl(fd,F_SETFL,(flags|O_NONBLOCK))==-1)
     return false;
@@ -123,7 +128,7 @@ FXbool ap_set_nonblocking(FXInputHandle fd) {
   }
 
 FXbool ap_set_closeonexec(FXInputHandle fd) {
-#ifndef WIN32
+#ifndef _WIN32
   FXint flags;
   flags = fcntl(fd,F_GETFD);
   if (flags==-1 || fcntl(fd,F_SETFD,(flags|FD_CLOEXEC))==-1)
@@ -453,7 +458,28 @@ void Base64Encoder::encode(const FXuchar * in,FXint len) {
 
 
 FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode){
-#ifndef WIN32
+#ifdef _WIN32
+  HANDLE fds[2];
+  FXint nfds=1;
+  fds[0] = io;
+  if (watch!=BadHandle) {
+    fds[1] = watch;
+    nfds=2;
+    }
+  FXuint result = WaitForMultipleObjects(nfds,fds,false,(timeout>0) ? (timeout / 1000000) : INFINITE);
+  if (result == WAIT_TIMEOUT) {
+    return WaitHasTimeout;
+    }
+  else if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + nfds)) {
+    if (watch!=BadHandle && ((result == WAIT_OBJECT_0 + 1) ||  WaitForSingleObject(watch,0)))
+      return WaitHasInterrupt;
+    else
+      return WaitHasIO;
+    }
+  else {
+    return WaitHasError;
+    }
+#else
   FXint n,nfds=1;
   struct pollfd fds[2];
   fds[0].fd    	= io;

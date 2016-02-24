@@ -1,3 +1,39 @@
+1.0.12
+  - Fix infinite loop in directory filter during sync.
+
+1.0.11
+  - Fix incorrect parameter passing to sqlite (braking scanner in certain cases)
+  - Fix sync incorrectly updating/removing files.
+
+1.0.10
+  - During import symlinks to directories are now followed.
+  - Removed default field input from import options. This is now automatically substituted with Unknown Artist, Unknown Album
+    and the name of the filename in case of a missing title.
+  - New import option for detection of compilation albums for files without albumartist or compilation tags.
+  - New import option to disable grouping albums by audio format. Useful in case taglib fails to read the audioproperties correctly.
+  - Exclude filters are now also used by all Sync operations (previously only used during import)
+  - Add year field option to filename parser.
+  - Add path to filters.
+  - Fix menus not resizing when font was changed.
+  - Fix infinite loop updating podcasts when auto-update was turned off and a manual refresh was actived.
+
+1.0.9
+  - Fix reading title from flac/ogg/opus files that contain id3 tags and an empty xiph comment.
+
+1.0.8
+  - wav: a-law / μ-law decoding
+  - pulse: signed 32-bit format support
+  - wav_out: large file and float support
+  - mp4: fix track length for large files.
+  - Fix position tracking for large files.
+  - Fix crash when opengl fails to initialize.
+  - Fix scrobbler flags not fitting in datatype.
+  - Fix incorrect bitshifting in flac reader.
+  - Use fxstrlcpy instead of strncpy in font handling.
+  - Use cpp11 member initializers.
+  - Podcasts: update url in database for permanent redirects
+  - Fix xspf playlists: don't double encode urls and add workaround to read back faulty urls.
+
 1.0.7
   - Add support for ratings and tags to filters.
   - Change default color scheme to Clearlooks.
@@ -429,7 +465,7 @@
   - Fix: fix crash showing dialogbox when audio device open fails on startup.
 
 0.9.16
-	- Fix: Track-less songs should not be 0 (#62)
+  - Fix: Track-less songs should not be 0 (#62)
   - Fix: disable default key press processing in tracklist.
   - Fix: Update GUI when done playing.
   - Fix: incorrect tracklist state when using search filter.
@@ -442,9 +478,9 @@
   - New: Play file from the commandline.
 
 0.9.15
-	- Fix: Prevent crash by checking if session and system bus are available.
-	- Fix: don't show tray icon option if gmm-tray is not in $PATH.
-	- Fix: compile issue when building with old remote.
+  - Fix: Prevent crash by checking if session and system bus are available.
+  - Fix: don't show tray icon option if gmm-tray is not in $PATH.
+  - Fix: compile issue when building with old remote.
 
 0.9.14
   - New: Threaded scrobbler submitter which should prevent locking the GUI during DNS lookups.

@@ -1,10 +1,23 @@
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FindEXPAT)
 
 project(GAP VERSION 1.0.0)
+
+
+# Optional flags to turn on/off compilation of specific modules
+if(UNIX)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    option(WITH_OSS "OSS Output Support" OFF)
+    option(WITH_ALSA "ALSA Output Support" ON)
+  else()
+    option(WITH_OSS "OSS Output Support" ON)
+    option(WITH_ALSA "ALSA Output Support" OFF)
+  endif()
+endif()
+
 
 # Endiannes
 TEST_BIG_ENDIAN(GAP_BIGENDIAN)
@@ -22,32 +35,45 @@ set(GAP_SOVERSION_AGE 0)        # Increase the age value only if the changes mad
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
-
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 
-find_package(PkgConfig)
-
-# Expat is Required
+# Expat
 find_package(EXPAT REQUIRED)
 LIST(APPEND LIBRARIES ${EXPAT_LIBRARIES})
 
-# We need
-pkg_check_modules(FOX fox17>=1.7.48 REQUIRED)
 
-pkg_check_modules(ALSA alsa)
-pkg_check_modules(PULSE libpulse)
-pkg_check_modules(FLAC flac)
-pkg_check_modules(VORBIS vorbis)
-pkg_check_modules(OGG ogg)
-pkg_check_modules(OPUS opus)
-pkg_check_modules(SAMPLERATE samplerate)
-pkg_check_modules(DCA libdca)
-#pkg_check_modules(JACK jack)
-#pkg_check_modules(CDDA libcdio_cdda)
-#pkg_check_modules(SMB smbclient)
+# Third Party Libraries
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
+  # FOX
+  find_library(FOX_LIBRARIES NAMES FOX-1.7)
+  find_path(FOX_INCLUDE_DIRS NAME fx.h PATH_SUFFIXES fox-1.7)
+
+else()
+
+  find_package(PkgConfig)
+  pkg_check_modules(FOX fox17>=1.7.48 REQUIRED)
+  pkg_check_modules(ALSA alsa)
+  pkg_check_modules(PULSE libpulse)
+  pkg_check_modules(FLAC flac)
+  pkg_check_modules(VORBIS vorbis)
+  pkg_check_modules(OGG ogg)
+  pkg_check_modules(OPUS opus)
+  pkg_check_modules(SAMPLERATE samplerate)
+  pkg_check_modules(DCA libdca)
+
+  
+  # We need
+  #pkg_check_modules(JACK jack)
+  #pkg_check_modules(CDDA libcdio_cdda)
+  #pkg_check_modules(SMB smbclient)
+
+
+
+
+endif()
 
 # Check for libmad
 check_include_files(mad.h HAVE_MAD_H)
@@ -88,7 +114,7 @@ if (HAVE_A52_H)
     endif()
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
 
 set(SOURCES ap_app_queue.cpp
             ap_buffer.cpp
@@ -118,6 +144,47 @@ set(SOURCES ap_app_queue.cpp
             ap_wait_io.cpp
             ap_xml_parser.cpp
             )
+
+set(HEADERS ap_buffer.h
+            ap_config.h
+            ap_connect.h
+            ap_convert.h
+            ap_decoder_plugin.h
+            ap_decoder_thread.h
+            ap_defs.h
+            ap_engine.h
+            ap_event_private.h
+            ap_format.h
+            ap_input_plugin.h
+            ap_input_thread.h
+            ap_output_plugin.h
+            ap_output_thread.h
+            ap_packet.h
+            ap_pipe.h
+            ap_reactor.h
+            ap_reader_plugin.h
+            ap_socket.h
+            ap_thread.h
+            ap_thread_queue.h
+            ap_utils.h
+            ap_wait_io.h
+            )
+
+set(PUBLIC_HEADERS include/ap.h
+                   include/ap_app_queue.h
+                   include/ap_buffer_base.h
+                   include/ap_buffer_io.h
+                   include/ap_common.h
+                   include/ap_device.h
+                   include/ap_event.h
+                   include/ap_event_queue.h
+                   include/ap_http.h
+                   include/ap_http_client.h
+                   include/ap_http_response.h
+                   include/ap_player.h
+                   include/ap_xml_parser.h
+                   )
+
 
 set(PLUGIN_SOURCES plugins/ap_aiff.cpp
                    plugins/ap_file.cpp
@@ -204,40 +271,52 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 
-# Alsa Output
-if (ALSA_FOUND)
-  add_library(gap_alsa MODULE plugins/ap_alsa.cpp)
-  target_link_libraries(gap_alsa ${ALSA_LIBRARIES})
-  target_include_directories(gap_alsa BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-  install(TARGETS gap_alsa LIBRARY DESTINATION lib/gogglesmm)
-  set(HAVE_ALSA 1)
-endif()
-
-# Pulse Output
-if (PULSE_FOUND)
-  add_library(gap_pulse MODULE plugins/ap_pulse.cpp)
-  target_link_libraries(gap_pulse ${PULSE_LIBRARIES})
-  target_include_directories(gap_pulse BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-  install(TARGETS gap_pulse LIBRARY DESTINATION lib/gogglesmm)
-  set(HAVE_PULSE 1)
-endif()
-
-# Jack Output
-if (JACK_FOUND)
-  add_library(gap_jack MODULE plugins/ap_jack.cpp)
-  target_link_libraries(gap_jack ${PULSE_LIBRARIES})
-  target_include_directories(gap_jack BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-  install(TARGETS gap_jack LIBRARY DESTINATION lib/gogglesmm)
-  set(HAVE_JACK 1)
-endif()
-
 # Wav File output
 add_library(gap_wav MODULE plugins/ap_wavout.cpp)
 target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 install(TARGETS gap_wav LIBRARY DESTINATION lib/gogglesmm)
 
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+# Depend on symbols in main executable
+if(MSVC)
+target_link_libraries(gap_wav ${FOX_LIBRARIES} gogglesmm)
+endif()
+
+
+
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows") 
+
+  # Alsa Output
+  if (ALSA_FOUND AND WITH_ALSA)
+    add_library(gap_alsa MODULE plugins/ap_alsa.cpp)
+    target_link_libraries(gap_alsa ${ALSA_LIBRARIES})
+    target_include_directories(gap_alsa BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+    install(TARGETS gap_alsa LIBRARY DESTINATION lib/gogglesmm)
+    set(HAVE_ALSA 1)
+  endif()
+
+  # Pulse Output
+  if (PULSE_FOUND)
+    add_library(gap_pulse MODULE plugins/ap_pulse.cpp)
+    target_link_libraries(gap_pulse ${PULSE_LIBRARIES})
+    target_include_directories(gap_pulse BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+    install(TARGETS gap_pulse LIBRARY DESTINATION lib/gogglesmm)
+    set(HAVE_PULSE 1)
+  endif()
+
+  # Jack Output
+  if (JACK_FOUND)
+    add_library(gap_jack MODULE plugins/ap_jack.cpp)
+    target_link_libraries(gap_jack ${PULSE_LIBRARIES})
+    target_include_directories(gap_jack BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+    install(TARGETS gap_jack LIBRARY DESTINATION lib/gogglesmm)
+    set(HAVE_JACK 1)
+  endif()
+
+endif()
+
+
+if(UNIX AND WITH_OSS)
     add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
     target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
     target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
@@ -250,9 +329,9 @@ set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/gogglesmm)
 
 
 
-configure_file("${PROJECT_SOURCE_DIR}/ap_config.h.in" "${PROJECT_BINARY_DIR}/ap_config.h")
+configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
 
-add_library(gap ${SOURCES} $<TARGET_OBJECTS:gap_plugins>)
+add_library(gap ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins>)
 target_link_libraries(gap ${LIBRARIES})
 
 

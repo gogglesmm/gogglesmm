@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -31,19 +31,16 @@ ThreadQueue::~ThreadQueue() {
   }
 
 FXbool ThreadQueue::init() {
-  return pfifo.create();
+  return sfifo.create();
   }
 
 void ThreadQueue::free() {
   flush();
   FXASSERT(head==nullptr);
   FXASSERT(tail==nullptr);
-  pfifo.close();
+  sfifo.close();
   }
 
-FXInputHandle ThreadQueue::handle() const {
-  return pfifo.handle();
-  }
 
 void ThreadQueue::post(Event*event,FXint where) {
   if (where==Flush) {
@@ -51,7 +48,7 @@ void ThreadQueue::post(Event*event,FXint where) {
       Event * h = head;
       event->next=nullptr;
       head = tail = event;
-      pfifo.signal();
+      sfifo.set();
     mfifo.unlock();
 
     /// cleanup outside the fifo lock!
@@ -70,7 +67,7 @@ void ThreadQueue::post(Event*event,FXint where) {
     tail = event;
     if (head==nullptr) {
       head=tail;
-      pfifo.signal();
+      sfifo.set();
       }
     mfifo.unlock();
     }
@@ -79,7 +76,7 @@ void ThreadQueue::post(Event*event,FXint where) {
     mfifo.lock();
     event->next=head;
     head=event;
-    pfifo.signal();
+    sfifo.set();
     if (tail==nullptr) {
       tail=head;
       }
@@ -96,22 +93,33 @@ Event * ThreadQueue::pop() {
     event->next=nullptr;
     if (head==nullptr) {
       tail=nullptr;
-      pfifo.clear();
+      sfifo.clear();
       }
     }
   else {
-    pfifo.clear();
+    sfifo.clear();
     }
   mfifo.unlock();
   return event;
   }
+
+Event * ThreadQueue::wait() {
+  Event * event = pop();
+  if (event==nullptr) {
+    sfifo.wait();
+    event = pop();
+    FXASSERT(event);
+    }
+  return event;
+  }
+
 
 FXbool ThreadQueue::checkAbort() {
   FXScopedMutex lock(mfifo);
   if (head && (head->type&0x80))
     return true;
 
-  pfifo.clear();
+  sfifo.clear();
   return false;
   }
 
@@ -120,7 +128,7 @@ void ThreadQueue::flush() {
   mfifo.lock();
   Event * h = head;
   head=tail=nullptr;
-  pfifo.clear();
+  sfifo.clear();
   mfifo.unlock();
   while(h) {
     Event * event = h;
@@ -130,44 +138,42 @@ void ThreadQueue::flush() {
     }
   }
 
-FXuchar ThreadQueue::peek() {
-  FXuchar type=AP_INVALID;
+FXbool ThreadQueue::peek_if_not(FXuchar requested) {
+  FXbool match;
   mfifo.lock();
-  pfifo.clear();
-
-  if (head)
-    type=head->type;
-
+  sfifo.clear();
+  if (head && head->type!=requested)
+    match=true;
+  else
+    match=false;
   mfifo.unlock();
-  return type;
+  return match;
   }
 
-/// Pop typed event
-Event * ThreadQueue::pop_if(FXuchar requested,FXbool & other){
-  Event * event = nullptr;
+
+FXbool ThreadQueue::pop_if(FXuchar requested,Event *& event){
   mfifo.lock();
-  pfifo.clear();
+  sfifo.clear();
+  FXbool has_events = false;
   if (head) {
+    has_events=true;
     if (head->type==requested) {
       event = head;
       head = head->next;
       event->next = nullptr;
-      if (head==nullptr) tail=nullptr;
-      other=false;
-      }
-    else {
-      other=true;
+      if (head==nullptr) tail=nullptr;      
       }
     }
   mfifo.unlock();
-  return event;
+  return has_events;
   }
+
 
 /// Pop typed event
 Event * ThreadQueue::pop_if_not(FXuchar r1,FXuchar r2){
   Event * event = nullptr;
   mfifo.lock();
-  pfifo.clear();
+  sfifo.clear();
   if (head) {
     if ((head->type!=r1) && (head->type!=r2)) {
       event = head;

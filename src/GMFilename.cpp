@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -450,6 +450,7 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
           case 'n' :
           case 'N' : if (options&OVERWRITE) track.setTrackNumber(field.toInt()); break;
           case 'd' : if (options&OVERWRITE) track.setDiscNumber(field.toInt()); break;
+          case 'y' : if (options&OVERWRITE || track.year == 0) track.year = field.toInt(); break;
           default  : break;
           }
         //fxmessage("%%%c=\"%s\"\n",item,field.text());

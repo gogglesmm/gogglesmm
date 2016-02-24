@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -264,7 +264,7 @@ void gm_convert_gnomeclipboard_to_filenames(FXString & files,FXStringList & file
   }
 
 void gm_make_absolute_path(const FXString & path,FXStringList & urls) {
-#ifndef WIN32
+#ifndef _WIN32
   for (FXint i=0;i<urls.no();i++) {
     if (!urls[i].empty()) {
       if (urls[i][0]!='/') {

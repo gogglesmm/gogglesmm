@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -19,20 +19,29 @@
 #ifndef EVENT_LOOP_H
 #define EVENT_LOOP_H
 
+#ifndef _WIN32 
 struct pollfd;
+#endif
 
 namespace ap {
 
 class GMAPI Reactor {
 private:
-#ifndef WIN32
+#ifdef _WIN32
+  HANDLE * pfds;
+  FXint    nfds;
+  FXint    mfds;
+  FXuint   result;
+#else
   struct pollfd * pfds;
   FXint nfds;
   FXint mfds;
 #endif
 public:
 
-#ifndef WIN32
+#ifdef _WIN32 
+  class Native {};
+#else
   class Native {
   public:
     // Number of inputs

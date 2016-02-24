@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -66,10 +66,8 @@ Event * InputThread::wait_for_packet() {
     Event * event=fifo.pop();
     if (event) return event;
 
-    Packet * packet = packetpool.pop();
+    Packet * packet = packetpool.wait(fifo.signal());
     if (packet) return packet;
-
-    ap_wait(fifo.handle(),packetpool.handle());
     }
   while(1);
   return nullptr;
@@ -85,7 +83,7 @@ FXint InputThread::run(){
     if (reader && state==StateProcessing)
       event = wait_for_packet();
     else
-      event = wait_for_event();
+      event = fifo.wait();
 
     switch(event->type) {
       case Ctrl_Close     : ctrl_flush(true);

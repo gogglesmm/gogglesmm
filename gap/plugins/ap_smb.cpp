@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -125,7 +125,7 @@ FXlong SMBInput::size() {
 
 FXbool SMBInput::eof()  {
   if(fd>=SMBC_BASE_FD){
-    register FXival pos=position();
+    FXival pos=position();
     return 0<=pos && size()<=pos;
     }
   return true;

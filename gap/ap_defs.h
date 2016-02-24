@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -19,7 +19,7 @@
 #ifndef AP_DEFS_H
 #define AP_DEFS_H
 
-#if __GNUC__ >= 4
+#if defined(__GNUC__) && __GNUC__ >= 4
   #define GMAPI __attribute__ ((visibility("default")))
 #else
   #define GMAPI

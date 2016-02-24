@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2013-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2013-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -21,7 +21,7 @@
 #include "ap_thread_queue.h"
 #include "ap_wait_io.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <errno.h>
 #endif
 
@@ -100,7 +100,7 @@ FXuint WaitIO::wait(FXuchar m) {
   return ap_wait(io->handle(),watch,timeout,m);
   }
 
-ThreadIO::ThreadIO(FXIODevice * dev,ThreadQueue*queue,FXTime tm) : WaitIO(dev,queue->handle(),tm), fifo(queue) {
+ThreadIO::ThreadIO(FXIODevice * dev,ThreadQueue*queue,FXTime tm) : WaitIO(dev,queue->signal().handle(),tm), fifo(queue) {
   }
 
 

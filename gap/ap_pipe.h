@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -21,69 +21,80 @@
 
 namespace ap {
 
-class Event;
+//#define GAP_NO_EVENTFD 1
 
-class Pipe {
+/// Using eventfd requires Linux 2.6.30. 
+#ifndef GAP_NO_EVENTFD
+#if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 8))
+#define HAVE_EVENTFD
+#endif
+#endif
+
+
+/// A signal that can either be set or unset and can be waited on using select/poll/WaitFor
+class Signal {
+private:
+#if !defined(_WIN32) && !defined(HAVE_EVENTFD) 
+  FXInputHandle wrptr;
+#endif
 protected:
-  FXInputHandle h[2];
+  FXInputHandle device;
 private:
-  Pipe(const Pipe&);
-  Pipe& operator=(const Pipe&);
+  Signal(const Signal&);
+  Signal& operator=(const Signal&);
 public:
-  /// Constructor
-  Pipe();
+  Signal();
 
-  /// Create Pipe
-  virtual FXbool create();
-
-  /// Close Pipe
-  void close();
-
-  /// Return read handle
-  FXInputHandle handle() const { return h[0]; }
-
-  virtual ~Pipe();
-  };
-
-class EventPipe : public Pipe {
-private:
-  EventPipe(const EventPipe&);
-  EventPipe& operator=(const EventPipe&);
-public:
-  /// Constructor
-  EventPipe();
-
-  /// Push Event
-  void push(Event*);
-
-  /// Pop Event
-  Event* pop();
-
-  /// Destructor
-  virtual ~EventPipe();
-  };
-
-
-class NotifyPipe : public Pipe {
-private:
-  NotifyPipe(const NotifyPipe&);
-  NotifyPipe& operator=(const NotifyPipe&);
-public:
-  /// Constructor
-  NotifyPipe();
-
-  /// Create Pipe
   FXbool create();
 
-  /// Clear Pipe
   void clear();
 
-  /// Signal
-  void signal();
+  void set();
 
-  /// Destructor
-  virtual ~NotifyPipe();
+  void close();
+
+  void wait();
+
+  FXInputHandle handle() const { return device; }
   };
+
+
+/// A semaphore that can be waited on using select/poll/WaitFor*
+class Semaphore {
+private:
+// For them BSDs we use a pipe
+#if !defined(_WIN32) && !defined(HAVE_EVENTFD) 
+  FXInputHandle wrptr;
+#endif
+protected:
+  FXInputHandle device;
+private:
+  Semaphore(const Semaphore&);
+  Semaphore& operator=(const Semaphore&);
+public:
+  Semaphore();
+
+  // Create Semaphore with initial count
+  FXbool create(FXint count);
+
+  // Release semaphore
+  void release();
+
+  // Block until semaphore is acquired or input is signalled
+  FXbool wait(const Signal & input);
+
+  // Close
+  void close();
+  };
+
+
+
+
+
+
+
+
+
 
 }
 #endif

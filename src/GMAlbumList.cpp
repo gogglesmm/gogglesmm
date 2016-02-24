@@ -1221,11 +1221,11 @@ void GMAlbumList::updateLasso(FXint cx,FXint cy){
   currentx=cx;
   currenty=cy;
   update(pos_x+lx,pos_y+sly-1,hx-lx,shy-sly+2);
-#ifdef WIN32
+#ifdef _WIN32
   repaint(pos_x+lx,pos_y+sly-1,hx-lx,shy-sly+2);
 #endif
   update(pos_x+slx-1,pos_y+ly,shx-slx+2,hy-ly);
-#ifdef WIN32
+#ifdef _WIN32
   repaint(pos_x+slx-1,pos_y+ly,shx-slx+2,hy-ly);
 #endif
   }

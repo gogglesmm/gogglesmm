@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -180,7 +180,10 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
 FXbool HttpClient::basic(const FXchar*    method,
                          FXString         url,
                          const FXString & header,
-                         const FXString & content) {
+                         const FXString & content,
+                         FXString*        moved/*=nullptr*/) {
+
+  int redirect = 0;
 
   if (request(method,url,header,content)) {
     do {
@@ -206,6 +209,14 @@ FXbool HttpClient::basic(const FXchar*    method,
             if (url.empty())
               return false;
 
+            // Prevent infinite redirects
+            if (redirect>10)
+              return false;      
+
+            // Save moved url (only on first permanent redirect)
+            if (status.code==HTTP_MOVED_PERMANENTLY && redirect==0 && moved) {
+              *moved=url;
+              }
             // Don't do automatic redirections for non GET/HEAD requests
             if (comparecase(method,"GET") && comparecase(method,"HEAD"))
               return true;
@@ -213,6 +224,7 @@ FXbool HttpClient::basic(const FXchar*    method,
             if (!request(method,url,header,content)) {
               return false;
               }
+            redirect++;
             continue;
             break;
           }

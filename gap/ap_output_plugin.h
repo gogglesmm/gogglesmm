@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -19,22 +19,47 @@
 #ifndef OUTPUT_PLUGIN_H
 #define OUTPUT_PLUGIN_H
 
-#include "ap_event_private.h"
-#include "ap_format.h"
+#include "ap_device.h"  // for OutputConfig
+#include "ap_format.h"  // for AudioFormat
+#include "ap_reactor.h" // for Reactor
 
 namespace ap {
 
-class OutputThread;
+
+#define AP_IMPLEMENT_PLUGIN(PluginName)\
+ extern "C" {\
+  GMAPI OutputPlugin * ap_load_plugin(Output* output) {\
+    return new PluginName(output);\
+    }\
+  GMAPI void ap_free_plugin(OutputPlugin * plugin) {\
+    delete plugin;\
+    plugin=nullptr;\
+    }\
+  FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);\
+  }
+
+/* Interface to OutputThread */
+class GMAPI Output {
+public:
+  virtual void notify_disable_volume()=0;
+
+  virtual void notify_volume(FXfloat value)=0;
+
+  virtual void wait_plugin_events()=0;
+
+  virtual Reactor & getReactor()=0;
+  };
+
 
 class GMAPI OutputPlugin {
 public:
-  OutputThread* output;
+  Output*       output;
   AudioFormat   af;
 private:
   OutputPlugin(){}
 public:
   /// Constructor
-  OutputPlugin(OutputThread * o) : output(o) {}
+  OutputPlugin(Output * o) : output(o) {}
 
   /// Output Plugin Type
   virtual FXchar type() const=0;
@@ -76,6 +101,11 @@ public:
   /// Destructor
   virtual ~OutputPlugin() {}
   };
+
+
+// Plugin API
+typedef OutputPlugin*  (*ap_load_plugin_t)(Output*);
+typedef void           (*ap_free_plugin_t)(OutputPlugin*);
 
 }
 #endif

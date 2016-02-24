@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2015-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2015-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -54,6 +54,7 @@ static const ColumnDefintion column_types[]={
   { Rule::ColumnPlayDate,notr("Last Played")},
   { Rule::ColumnImportDate,notr("Last Updated")},
   { Rule::ColumnFileType,notr("File Type")},
+  { Rule::ColumnPath,notr("Path")},
   { Rule::ColumnChannels,notr("Channels")},
   { Rule::ColumnBitRate,notr("Bit Rate")},
   { Rule::ColumnSampleRate,notr("Sample Rate")},

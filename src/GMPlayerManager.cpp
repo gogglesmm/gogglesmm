@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -655,7 +655,7 @@ void GMPlayerManager::init_window(FXbool wizard) {
   application->addSignal(SIGPIPE,mainwindow,GMWindow::ID_QUIT);
 
   /// Create Tooltip Window
-  FXToolTip * tooltip = new FXToolTip(application);
+  FXToolTip * tooltip = new FXToolTip(application,TOOLTIP_VARIABLE);
   tooltip->create();
   ewmh_change_window_type(tooltip,WINDOWTYPE_TOOLTIP);
 
@@ -1561,6 +1561,7 @@ long GMPlayerManager::onImportTaskCompleted(FXObject*,FXSelector sel,void*ptr){
     if (src) {
       switch(src->getType()){
         case SOURCE_DATABASE:
+        case SOURCE_DATABASE_FILTER:
         case SOURCE_DATABASE_PLAYLIST: getTrackView()->refresh(); break;
         default: break;
         }

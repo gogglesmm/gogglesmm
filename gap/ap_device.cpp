@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -37,8 +37,12 @@ static const FXchar * const plugin_names[DeviceLast]={
   };
 
 static FXbool ap_has_plugin(FXuchar device) {
+#ifdef _WIN32
+  FXString path = FXPath::directory(FXSystem::getExecFilename()) + PATHSEPSTRING + FXSystem::dllName(FXString::value("gap_%s",plugin_names[device]));
+#else
   FXString path = FXPath::search(ap_get_environment("GOGGLESMM_PLUGIN_PATH",AP_PLUGIN_PATH),FXSystem::dllName(FXString::value("gap_%s",plugin_names[device])));
-  if (FXStat::exists(path) /*|| FXStat::exists(name)*/)
+#endif
+  if (FXStat::exists(path) )
     return true;
   return false;
   }

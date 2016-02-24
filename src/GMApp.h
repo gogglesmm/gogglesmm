@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -50,7 +50,9 @@ protected:
   FXGLContext*  glcontext;
 #endif
 protected:
+#ifndef _WIN32
   virtual FXbool dispatchEvent(FXRawEvent & event);
+#endif
 public:
   static GMApp * instance();
 public:
@@ -89,7 +91,7 @@ public:
   virtual ~GMApp();
   };
 
-
+#ifndef _WIN32
 class GMPlug : public FXTopWindow {
 FXDECLARE(GMPlug)
 protected:
@@ -113,13 +115,5 @@ public:
 
   virtual ~GMPlug();
   };
-
-
-
-
 #endif
-
-
-
-
-
+#endif

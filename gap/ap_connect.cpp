@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2013-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2013-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -20,7 +20,7 @@
 #include "ap_thread_queue.h"
 
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h> // for close()
 #include <fcntl.h>
 #include <errno.h>
@@ -132,7 +132,7 @@ FXuint NBConnectionFactory::connect(FXIO * io,const struct sockaddr * address,FX
   return Error;
   }
 
-ThreadConnectionFactory::ThreadConnectionFactory(ThreadQueue * q) : NBConnectionFactory(q->handle()), fifo(q){
+ThreadConnectionFactory::ThreadConnectionFactory(ThreadQueue * q) : NBConnectionFactory(q->signal().handle()), fifo(q){
   }
 
 

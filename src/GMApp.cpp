@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -106,16 +106,19 @@ GMApp* GMApp::instance() {
 
 
 void GMApp::create() {
-
+#ifndef _WIN32
   FXString systemtray = FXString::value("_NET_SYSTEM_TRAY_S%d",DefaultScreen((Display*)getDisplay()));
 
   xembed      = (FXID)XInternAtom((Display*)getDisplay(),"_XEMBED",False);
   xmanager    = (FXID)XInternAtom((Display*)getDisplay(),"MANAGER",True);
   xsystemtray = XInternAtom((Display*)getDisplay(),systemtray.text(),True);
+#endif
 
   FXApp::create();
 
+#ifndef _WIN32
   XSelectInput((Display*)getDisplay(),getRootWindow()->id(),KeyPressMask|KeyReleaseMask|StructureNotifyMask);
+#endif
 
   FXFontDesc fontdescription = getNormalFont()->getFontDesc();
   fontdescription.weight = FXFont::Bold;
@@ -278,9 +281,19 @@ FXbool GMApp::hasOpenGL() {
 
 
 void GMApp::initOpenGL() {
-  if (glcontext == nullptr) {
-    glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
-    glcontext = new FXGLContext(this,glvisual);
+  if (glcontext == NULL) {
+    try {
+      glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
+      glcontext = new FXGLContext(this,glvisual);
+      glcontext->create();
+      }
+    catch(FXWindowException &) {
+      fxwarning("Failed to create OpenGL context\n");
+      delete glcontext;
+      delete glvisual;
+      glcontext=nullptr;
+      glvisual=nullptr;
+      }
     }
   }
 
@@ -303,7 +316,7 @@ void GMApp::releaseOpenGL() {
 
 
 
-
+#ifndef _WIN32
 
 enum {
   XEMBED_EMBEDDED_NOTIFY = 0,
@@ -352,8 +365,10 @@ FXbool GMApp::dispatchEvent(FXRawEvent & ev) {
     }
   return FXApp::dispatchEvent(ev);
   }
+#endif
 
 
+#ifndef _WIN32
 FXDEFMAP(GMPlug) GMPlugMap[]={
   FXMAPFUNC(SEL_EMBED_NOTIFY,0,GMPlug::onEmbedded)
   };
@@ -403,11 +418,11 @@ long GMPlug::onEmbedded(FXObject*,FXSelector,void*ptr){
   socket=(FXID)(FXival)ptr;
   return 1;
   }
-
+#endif
 
 
 void fix_wm_properties(const FXWindow * window) {
-#ifndef WIN32
+#ifndef _WIN32
   XTextProperty textprop;
 
   FXString host=FXSystem::getHostName();
@@ -427,7 +442,7 @@ void fix_wm_properties(const FXWindow * window) {
   }
 
 void ewmh_set_window_icon(const FXWindow * window,FXImage * icon) {
-#ifndef WIN32
+#ifndef _WIN32
   Atom net_wm_icon = XInternAtom((Display*)window->getApp()->getDisplay(),"_NET_WM_ICON",False);
 
   unsigned long * data=nullptr;
@@ -450,7 +465,7 @@ void ewmh_set_window_icon(const FXWindow * window,FXImage * icon) {
 
 
 void ewmh_activate_window(const FXWindow * window) {
-#ifndef WIN32
+#ifndef _WIN32
 
   FXASSERT(window->getApp());
   FXASSERT(window->getApp()->getDisplay());
@@ -480,7 +495,7 @@ void ewmh_activate_window(const FXWindow * window) {
 
 
 void ewmh_change_window_type(const FXWindow * window,FXuint kind) {
-#ifndef WIN32
+#ifndef _WIN32
   static Atom net_wm_window_type               = None;
   static Atom net_wm_window_type_menu          = None;
   static Atom net_wm_window_type_dropdown_menu = None;

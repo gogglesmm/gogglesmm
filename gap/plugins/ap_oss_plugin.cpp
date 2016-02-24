@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -17,22 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_config.h"
-#include "ap_utils.h"
-#include "ap_pipe.h"
-#include "ap_format.h"
-#include "ap_device.h"
-#include "ap_event.h"
-#include "ap_buffer.h"
-#include "ap_packet.h"
-#include "ap_event_queue.h"
-#include "ap_thread_queue.h"
-#include "ap_engine.h"
-#include "ap_thread.h"
-#include "ap_input_plugin.h"
 #include "ap_output_plugin.h"
-#include "ap_decoder_plugin.h"
-#include "ap_decoder_thread.h"
 
 /// For Open
 #include <sys/stat.h>
@@ -46,6 +31,7 @@
 #include "ap_oss_defs.h"
 
 
+using namespace ap;
 
 namespace ap {
 
@@ -59,7 +45,7 @@ protected:
 protected:
   FXbool open();
 public:
-  OSSOutput(OutputThread * output);
+  OSSOutput(Output * output);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -127,7 +113,7 @@ static FXbool to_oss_format(const AudioFormat & af,FXint & oss_format){
 
 
 
-OSSOutput::OSSOutput(OutputThread * out) : OutputPlugin(out), handle(BadHandle) {
+OSSOutput::OSSOutput(Output * out) : OutputPlugin(out), handle(BadHandle) {
   }
 
 OSSOutput::~OSSOutput() {
@@ -298,17 +284,6 @@ FXbool OSSOutput::write(const void * buffer,FXuint nframes){
 }
 
 
-using namespace ap;
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
-
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new OSSOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
+AP_IMPLEMENT_PLUGIN(OSSOutput);
 
 

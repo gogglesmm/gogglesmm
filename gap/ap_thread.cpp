@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2015 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -44,17 +44,5 @@ void EngineThread::free() {
 void EngineThread::post(Event * event,FXint where) {
   fifo.post(event,where);
   }
-
-
-Event * EngineThread::wait_for_event() {
-  Event * event = fifo.pop();
-  if (event==nullptr) {
-    ap_wait(fifo.handle());
-    event = fifo.pop();
-    }
-  FXASSERT(event);
-  return event;
-  }
-
 
 }
