@@ -24,10 +24,15 @@ class GMTask;
 
 class GMDBTracks {
 protected:
-  GMTrackDatabase * database;
+  GMTrackDatabase * database = nullptr;
 protected:
   FXDictionary pathdict;
-  FXbool album_format_grouping = true;
+  FXbool   album_format_grouping = true;
+public:
+  FXint    playlist       = 0;
+  FXint    playlist_queue = 0;
+  FXString default_artist;
+  FXString default_album;
 protected:
   GMQuery insert_artist;
   GMQuery insert_album;
@@ -48,45 +53,73 @@ protected:
 protected:
   FXint insertPath(const FXString & path);
   FXint insertArtist(const FXString & name);
+  FXint insertAlbum(const GMTrack & ,FXint album_artist_id);
   void insertTags(FXint,const FXStringList&);
   void updateTags(FXint,const FXStringList&);
   void initPathDict(GMTrackDatabase*);
 public:
   GMDBTracks();
 
-  void init(GMTrackDatabase*,FXbool album_format_grouping);
+  // Init
+  void init(GMTrackDatabase*,FXbool album_format_grouping=true);
 
-  void add(const FXString & filename,const GMTrack & track,FXint & pid,FXint playlist,FXint queue);
-
-  void add2playlist(FXint playlist,FXint track,FXint queue);
-
+  // Check for path
   FXint hasPath(const FXString & filename);
 
-  void update(FXint id,const GMTrack & info);
-
+  // Remove Track
   void remove(FXint id);
 
-  ~GMDBTracks();
+  // Insert Track
+  void insert(GMTrack & track);
+
+  // Insert Track
+  void insert(GMTrack & track,FXint & path_index);
+
+  // Update Track
+  void update(GMTrack & track);
+
+  ~GMDBTracks(){}
   };
 
 
+struct Seen;
+
 class GMImportTask : public GMTask {
 protected:
-  GMTrackDatabase * database;
+  GMTrackDatabase * database = nullptr;
   GMDBTracks        dbtracks;
   GMImportOptions   options;
   FXStringList      files;
-  FXint             playlist;
-  FXint             queue;
-  FXint             count;
-protected:
-  void parse(const FXString & filename,FXint n,GMTrack &);
-  void fixEmptyTags(GMTrack&,FXint n=-1);
-  void fixAlbumArtist(GMTrack*,FXint ntracks);
+  FXint             count = 0;
 protected:
   virtual FXint run();
+protected:
+  GMTrackArray  tracks;
+  FXint        ntracks=0;
+protected:
+  // Return true if same composer is set on all tracks
+  FXbool has_same_composer() const;
+protected:
+  // Import files and directories
   void import();
-  void listDirectory(const FXString &);
+
+  // Parse track information
+  void parse(const FXString & path,const FXString & file,FXint path_index);
+
+  // Save scanned tracks. Pass path_index>=0 if from same folder.
+  void import_tracks(FXint path_index=-1);
+
+  // Scan path for files
+  void scan(const FXString & path,Seen*,FXlong index);
+
+  // Detect compilation from tracks found
+  void detect_compilation();
+
+  // Load track information from file or filename
+  void load_track(const FXString & filename);
+
+  // Initialize i3v1 encoding
+  void setID3v1Encoding();
 public:
   GMImportTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
@@ -94,7 +127,7 @@ public:
 
   void setInput(const FXStringList & input) { files=input; }
 
-  void setPlaylist(FXint p ) { playlist=p; }
+  void setPlaylist(FXint p ) { dbtracks.playlist=p; }
 
   virtual ~GMImportTask();
   };
@@ -102,11 +135,29 @@ public:
 class GMSyncTask : public GMImportTask {
 protected:
   GMSyncOptions  options_sync;
-  FXint nchanged;
+  FXbool         changed=false;
 protected:
   virtual FXint run();
-  void sync();
-  void syncDirectory(const FXString &);
+protected:
+
+  // Insert or Update tracks
+  void update_tracks(FXint pathindex);
+
+  // Scan path for files
+  void traverse(const FXString & path,Seen*,FXlong index);
+
+  // Parse track information
+  void parse_update(const FXString & path,const FXString & filename,FXTime modified,FXint pathindex);
+
+  // Remove missing files from database
+  void remove_missing();
+
+  // Update files in database and import new ones
+  void import_and_update();
+
+  // Update files in database
+  void update();
+
 public:
   GMSyncTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
@@ -115,6 +166,23 @@ public:
   virtual ~GMSyncTask();
   };
 
+class GMRemoveTask : public GMTask {
+protected:
+  GMDBTracks        dbtracks;
+  GMTrackDatabase * database = nullptr;
+  FXStringList      files;
+  FXbool            changed = false;
+protected:
+  virtual FXint run();
+public:
+  GMRemoveTask(FXObject*tgt=NULL,FXSelector sel=0);
+
+  void setInput(const FXStringList & input) { files=input; }
+
+  void remove();
+
+  virtual ~GMRemoveTask();
+  };
 
 
 #endif

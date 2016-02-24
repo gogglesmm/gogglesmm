@@ -742,7 +742,7 @@ void GMFileTag::getAlbumArtist(FXString & albumartist) const{
   else if (mp4 && mp4_get_field("aART",albumartist))
     return;
   else
-    getArtist(albumartist); // fallback to Artist
+    albumartist.clear();
   }
 
 void GMFileTag::setTags(const FXStringList & tags){

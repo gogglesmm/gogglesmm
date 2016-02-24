@@ -64,7 +64,6 @@ struct ColorTheme {
 
 class GMImportOptions {
 public:
-  FXString default_field         = "Untitled";
   FXString exclude_folder;
   FXString exclude_file;
   FXString filename_template     = "%P/%A/%N %T";
@@ -74,6 +73,7 @@ public:
   FXbool   replace_underscores   = true;
   FXbool   fix_album_artist      = false;
   FXbool   album_format_grouping = true;
+  FXbool   detect_compilation    = false;
 public:
   enum {
     PARSE_TAG = 0,
@@ -97,7 +97,6 @@ class GMSyncOptions {
 public:
   FXbool import_new     = true;
   FXbool remove_missing = false;
-  FXbool remove_all     = false;
   FXbool update         = false;
   FXbool update_always  = false;
 public:

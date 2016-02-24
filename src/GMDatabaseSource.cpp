@@ -288,10 +288,11 @@ FXbool GMDatabaseSource::findCurrentAlbum(GMAlbumList * list,GMSource * src) {
 
 
 FXbool GMDatabaseSource::hasTrack(const FXString & mrl,FXint & id) {
+  FXTime modified;
   FXint pid = db->hasPath(FXPath::directory(mrl));
   id = 0;
   if (pid) {
-    id = db->hasTrack(mrl,pid);
+    id = db->hasTrack(mrl,pid,modified);
     }
   return id;
   }
@@ -344,6 +345,8 @@ FXbool GMDatabaseSource::track_context_menu(FXMenuPane * pane){
 
 FXbool GMDatabaseSource::source_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Export As…"),GMIconTheme::instance()->icon_export,this,GMDatabaseSource::ID_EXPORT);
+  new FXMenuSeparator(pane);
+  new GMMenuCommand(pane,fxtr("Remove Folder…\t\tRemove tracks in folder from library"),nullptr,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_REMOVE_FOLDER);
   new GMMenuCommand(pane,fxtr("Remove All Tracks\t\tRemove all tracks from the library"),GMIconTheme::instance()->icon_delete,this,GMDatabaseSource::ID_CLEAR);
   return true;
   }
@@ -1575,7 +1578,7 @@ long GMDatabaseSource::onCmdImportPlayList(FXObject*,FXSelector,void*){
 
         // Previous versions of gogglesmm linked with FOX-1.7.17 and later double encoded urls in xspf:
         //   FXURL::fileToURL(gm_url_encode(file))
-        // Resulting in urls starting with file://%252F. Decoding this results in file://%2F, 
+        // Resulting in urls starting with file://%252F. Decoding this results in file://%2F,
         // which FXURL::fileFromURL can't decode because the first %2f is probably not legal in an url.
         // So just double decode it ourselves here.
         for (FXint i=0;i<urls.no();i++) {

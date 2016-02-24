@@ -27,7 +27,8 @@ enum {
   IMPORT_FROMFILE  = 0x1,
   IMPORT_FROMDIR   = 0x2,
   IMPORT_SYNC      = 0x4,
-  IMPORT_PLAYLIST  = 0x8
+  IMPORT_PLAYLIST  = 0x8,
+  REMOVE_FOLDER    = 0x10,
   };
 
 class GMFileDialog : public FXFileDialog {
@@ -67,13 +68,13 @@ protected:
 protected:
   FXDataTarget target_track_from_filelist;
   FXDataTarget target_replace_underscores;
-  FXDataTarget target_default_field;
   FXDataTarget target_exclude_dir;
   FXDataTarget target_exclude_file;
   FXDataTarget target_parse_method;
   FXDataTarget target_filename_template;
   FXDataTarget target_id3v1_encoding;
   FXDataTarget target_album_format_grouping;
+  FXDataTarget target_detect_compilation;
 protected:
   GMFileSelector  * fileselector = nullptr;
   GMDirSelector   * dirselector = nullptr;
@@ -94,7 +95,6 @@ public:
     ID_SYNC_UPDATE,
     ID_SYNC_UPDATE_ALL,
     ID_SYNC_UPDATE_MODIFIED,
-    ID_SYNC_REMOVE_ALL,
     ID_PARSE_METHOD
     };
 public:
