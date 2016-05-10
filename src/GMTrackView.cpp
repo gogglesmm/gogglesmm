@@ -291,8 +291,9 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
                      new GMMenuRadio(sortmenu,tr("Shuffle\tCtrl-R"),this,ID_SORT_SHUFFLE);
                      new FXMenuSeparator(sortmenu);
 
-                  for (FXint i=ID_SORT_FIRST;i<ID_SORT_LAST;i++)
-                     new GMMenuRadio(sortmenu,FXString::null,this,i);
+                     for (FXint i=ID_SORT_FIRST;i<ID_SORT_LAST;i++) {
+                       new GMMenuRadio(sortmenu,FXString::null,this,i);
+                       }
 
                      new FXMenuSeparator(sortmenu);
                      new GMMenuCheck(sortmenu,tr("Reverse"),this,ID_SORT_REVERSE);
