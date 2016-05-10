@@ -46,6 +46,9 @@ include build/gmm.mk
 TRANSLATIONS:=$(basename $(notdir $(wildcard po/*.mo)))
 LINGUAS?=$(TRANSLATIONS)
 
+# How to update the icon cache
+UPDATE_ICON_CACHE:=$(shell command -v xdg-icon-resource 2> /dev/null)
+
 # Install Variables
 
 # Install
@@ -80,7 +83,18 @@ endif
 	@$(INSTALL) -m 644 -D icons/gogglesmm_32.png $(icondir)/hicolor/32x32/apps/gogglesmm.png
 	@$(INSTALL) -m 644 -D extra/gogglesmm_48.png $(icondir)/hicolor/48x48/apps/gogglesmm.png
 	@$(INSTALL) -m 644 -D extra/gogglesmm.svg $(icondir)/hicolor/scalable/apps/gogglesmm.svg
+
+# Update the icon cache if we can, but only if destdir is not defined.
+ifndef DESTDIR
+ifdef UPDATE_ICON_CACHE
+	@echo "    Updating Icon Cache"
+	@xdg-icon-resource forceupdate --theme hicolor
+else
+	@echo "    Cannot Update Icon Cache: xdg-icon-resource not found"
+endif
+endif
 	@echo "    Done."
+
 
 svg2png:
 	rsvg-convert -w 22  extra/gogglesmm.svg -o extra/gogglesmm_22.png
