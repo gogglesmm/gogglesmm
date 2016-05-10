@@ -1,3 +1,10 @@
+1.0.13
+  - Sync now remove files from the database that match exclude filter.
+  - Removed 'Remove Folder' functionality from Sync Folder. Now available as separate functionality under Music Library.
+  - Support for new taglib 1.11 xiph cover art api.
+  - Refresh filters after import or sync.
+  - Update icon cache on make install
+
 1.0.12
   - Fix infinite loop in directory filter during sync.
 
