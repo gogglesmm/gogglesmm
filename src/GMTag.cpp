@@ -448,14 +448,22 @@ void GMFileTag::xiph_update_field(const FXchar * field,const FXString & value) {
   if (!value.empty())
     xiph->addField(field,TagLib::String(value.text(),TagLib::String::UTF8),true);
   else
-    xiph->removeField(field);
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+    xiph->removeFields(field);
+#else
+    xiph->removeField(field); // deprecated
+#endif
   }
 
 
 void GMFileTag::xiph_update_field(const FXchar * field,const FXStringList & list) {
   FXASSERT(field);
   FXASSERT(xiph);
-  xiph->removeField(field);
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+  xiph->removeFields(field);
+#else
+  xiph->removeField(field); // deprecated
+#endif
   for (FXint i=0;i<list.no();i++) {
     xiph->addField(field,TagLib::String(list[i].text(),TagLib::String::UTF8),false);
     }
