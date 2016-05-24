@@ -8,10 +8,10 @@ Installation Instructions
        * taglib >= 1.9.0
        * expat
 
-
     2. Install optional dependencies:
 
-       * dbus 1.0.x (optional)
+       * cmake >= 3.4
+       * dbus 1.0.x
        * flac
        * mad
        * vorbis
@@ -23,6 +23,10 @@ Installation Instructions
     3. Run the configure script:
 
        > ./configure
+
+       or if using cmake:
+
+       > cmake .
 
     4. Compile
 
