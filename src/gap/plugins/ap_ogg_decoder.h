@@ -39,11 +39,11 @@ protected:
 public:
   OggDecoder(AudioEngine*);
 
-  FXbool init(ConfigureEvent*);
+  FXbool init(ConfigureEvent*) override;
 
-  FXbool flush(FXlong);
+  FXbool flush(FXlong) override;
 
-  DecoderStatus process(Packet*);
+  DecoderStatus process(Packet*) override;
 
   ~OggDecoder();
   };

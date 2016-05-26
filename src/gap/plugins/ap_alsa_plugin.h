@@ -46,34 +46,34 @@ public:
   AlsaOutput(OutputThread*);
 
   /// Configure
-  FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &) override;
 
   /// Write frames to playback buffer
-  FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint) override;
 
   /// Return delay in no. of frames
-  FXint delay();
+  FXint delay() override;
 
   /// Empty Playback Buffer Immediately
-  void drop();
+  void drop() override;
 
   /// Wait until playback buffer is emtpy.
-  void drain();
+  void drain() override;
 
   /// Pause Playback
-  void pause(FXbool t);
+  void pause(FXbool t) override;
 
   /// Change Volume
-  void volume(FXfloat);
+  void volume(FXfloat) override;
 
   /// Close Output
-  void close();
+  void close() override;
 
   /// Get Device Type
-  FXchar type() const { return DeviceAlsa; }
+  FXchar type() const override { return DeviceAlsa; }
 
   /// Set Device Configuration
-  FXbool setOutputConfig(const OutputConfig &);
+  FXbool setOutputConfig(const OutputConfig &) override;
 
   /// Destructor
   virtual ~AlsaOutput();

@@ -58,13 +58,13 @@ public:
 
 public:
   AIFFReader(AudioEngine*);
-  FXbool init(InputPlugin*);
-  ReadStatus process(Packet*);
+  FXbool init(InputPlugin*) override;
+  ReadStatus process(Packet*) override;
 
-  FXuchar format() const { return Format::AIFF; };
+  FXuchar format() const override { return Format::AIFF; };
 
-  FXbool can_seek() const;
-  FXbool seek(FXlong);
+  FXbool can_seek() const override;
+  FXbool seek(FXlong) override;
   virtual ~AIFFReader();
   };
 

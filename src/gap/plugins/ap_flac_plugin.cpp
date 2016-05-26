@@ -90,11 +90,11 @@ protected:
   ReadStatus parse();
 public:
   FlacReader(AudioEngine*);
-  FXuchar format() const { return Format::FLAC; };
-  FXbool init(InputPlugin*);
-  FXbool seek(FXlong offset);
-  FXbool can_seek() const;
-  ReadStatus process(Packet*);
+  FXuchar format() const override { return Format::FLAC; };
+  FXbool init(InputPlugin*) override;
+  FXbool seek(FXlong offset) override;
+  FXbool can_seek() const override;
+  ReadStatus process(Packet*) override;
   ~FlacReader();
   };
 
@@ -113,10 +113,10 @@ protected:
   static void                             flac_decoder_error(const FLAC__StreamDecoder *, FLAC__StreamDecoderErrorStatus, void *);
 public:
   FlacDecoder(AudioEngine*);
-  FXuchar codec() const { return Codec::FLAC; }
-  FXbool flush(FXlong offset=0);
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
+  FXuchar codec() const override { return Codec::FLAC; }
+  FXbool flush(FXlong offset=0) override;
+  FXbool init(ConfigureEvent*) override;
+  DecoderStatus process(Packet*) override;
   ~FlacDecoder();
   };
 

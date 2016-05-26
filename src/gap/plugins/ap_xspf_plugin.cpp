@@ -46,9 +46,9 @@ public:
 protected:
   FXint        elem;
 protected:
-  FXint begin(const FXchar *,const FXchar**);
-  void data(const FXchar *,FXint len);
-  void end(const FXchar *);
+  FXint begin(const FXchar *,const FXchar**) override;
+  void data(const FXchar *,FXint len) override;
+  void end(const FXchar *) override;
 public:
   enum {
     Elem_Playlist = Elem_Last,
@@ -129,10 +129,10 @@ protected:
   FXStringList uri;
 public:
   XSPFReader(AudioEngine*);
-  ReadStatus process(Packet*);
-  FXbool init(InputPlugin*);
-  FXuchar format() const { return Format::XSPF; };
-  FXbool redirect(FXStringList & u) { u=uri; return true; }
+  ReadStatus process(Packet*) override;
+  FXbool init(InputPlugin*) override;
+  FXuchar format() const override { return Format::XSPF; };
+  FXbool redirect(FXStringList & u) override { u=uri; return true; }
   virtual ~XSPFReader();
   };
 

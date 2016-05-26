@@ -42,13 +42,13 @@ public:
   WavPackReader(AudioEngine*);
 
   /// Init plugin
-  FXbool init(InputPlugin*);
+  FXbool init(InputPlugin*) override;
 
   /// Format type
-  FXuchar format() const { return Format::WavPack; }
+  FXuchar format() const override { return Format::WavPack; }
 
   /// Process Input
-  ReadStatus process(Packet*);
+  ReadStatus process(Packet*) override;
 
   /// Destructor
   virtual ~WavPackReader();

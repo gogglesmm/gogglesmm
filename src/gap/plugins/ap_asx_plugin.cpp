@@ -126,10 +126,10 @@ protected:
   FXStringList uri;
 public:
   ASXReader(AudioEngine*);
-  ReadStatus process(Packet*);
-  FXbool init(InputPlugin);
-  FXuchar format() const { return Format::ASX; };
-  FXbool redirect(FXStringList & u) { u=uri; return true; }
+  ReadStatus process(Packet*) override;
+  FXbool init(InputPlugin) override;
+  FXuchar format() const override { return Format::ASX; };
+  FXbool redirect(FXStringList & u) override { u=uri; return true; }
   virtual ~ASXReader();
   };
 

@@ -383,10 +383,10 @@ protected:
   AVCodecContext*  av_codec_context;
 public:
   AVReader(AudioEngine*);
-  FXbool init(InputPlugin*);
-  ReadStatus process(Packet*);
+  FXbool init(InputPlugin*) override;
+  ReadStatus process(Packet*) override;
 
-  FXuchar format() const { return Format::Unknown; };
+  FXuchar format() const override { return Format::Unknown; };
   virtual ~AVReader();
   };
 
@@ -524,10 +524,10 @@ protected:
   Packet * out;
 public:
   AVDecoder(AudioEngine*);
-  FXuchar codec() const { return Codec::PCM; }
-  FXbool flush();
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
+  FXuchar codec() const override { return Codec::PCM; }
+  FXbool flush() override;
+  FXbool init(ConfigureEvent*) override;
+  DecoderStatus process(Packet*) override;
   virtual ~AVDecoder();
   };
 
