@@ -92,14 +92,14 @@ public:
   FXlong getSeekOffset(FXdouble);
 
 
-  FXuchar format() const { return Format::MP3; };
+  FXuchar format() const override { return Format::MP3; };
 
-  FXbool init(InputPlugin*);
-  FXbool can_seek() const;
-  FXbool seek(FXlong);
+  FXbool init(InputPlugin*) override;
+  FXbool can_seek() const override;
+  FXbool seek(FXlong) override;
   FXlong seek_offset(FXdouble) const;
 
-  ReadStatus process(Packet*);
+  ReadStatus process(Packet*) override;
   virtual ~MadReader();
   };
 
@@ -125,10 +125,10 @@ protected:
     };
 public:
   MadDecoder(AudioEngine*);
-  FXuchar codec() const { return Codec::MPEG; }
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
-  FXbool flush(FXlong);
+  FXuchar codec() const override { return Codec::MPEG; }
+  FXbool init(ConfigureEvent*) override;
+  DecoderStatus process(Packet*) override;
+  FXbool flush(FXlong) override;
   virtual ~MadDecoder();
   };
 

@@ -41,9 +41,9 @@ namespace ap {
 class PCMDecoder : public DecoderPlugin {
 public:
   PCMDecoder(AudioEngine*);
-  FXuchar codec() const { return Codec::PCM; }
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
+  FXuchar codec() const override { return Codec::PCM; }
+  FXbool init(ConfigureEvent*) override;
+  DecoderStatus process(Packet*) override;
   virtual ~PCMDecoder();
   };
 

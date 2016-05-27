@@ -180,10 +180,10 @@ protected:
   ReadStatus parse_data(Packet*);
 public:
   ASFReader(AudioEngine*);
-  FXbool init(InputPlugin*);
-  ReadStatus process(Packet*);
+  FXbool init(InputPlugin*) override;
+  ReadStatus process(Packet*) override;
 
-  FXuchar format() const { return Format::ASF; };
+  FXuchar format() const override { return Format::ASF; };
   virtual ~ASFReader();
   };
 

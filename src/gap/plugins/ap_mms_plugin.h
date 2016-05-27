@@ -36,22 +36,22 @@ public:
   FXbool open(const FXString & uri);
 
   /// Set Position
-  FXlong position(FXlong offset,FXuint from);
+  FXlong position(FXlong offset,FXuint from) override;
 
   /// Get Position
-  FXlong position() const;
+  FXlong position() const override;
 
   /// Size
-  FXlong size();
+  FXlong size() override;
 
   /// End of Input
-  FXbool eof();
+  FXbool eof() override;
 
   /// Serial
-  FXbool serial() const;
+  FXbool serial() const override;
 
   /// Get plugin type
-  FXuint plugin() const;
+  FXuint plugin() const override;
 
   /// Destructor
   virtual ~MMSInput();

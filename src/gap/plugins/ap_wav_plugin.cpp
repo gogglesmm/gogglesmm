@@ -81,13 +81,13 @@ protected:
   ReadStatus parse();
 public:
   WavReader(AudioEngine*);
-  FXbool init(InputPlugin*);
-  ReadStatus process(Packet*);
+  FXbool init(InputPlugin*) override;
+  ReadStatus process(Packet*) override;
 
-  FXuchar format() const { return Format::WAV; };
+  FXuchar format() const override { return Format::WAV; };
 
-  FXbool can_seek() const;
-  FXbool seek(FXlong);
+  FXbool can_seek() const override;
+  FXbool seek(FXlong) override;
   virtual ~WavReader();
   };
 

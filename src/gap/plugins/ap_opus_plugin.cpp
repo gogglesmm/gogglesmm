@@ -57,10 +57,10 @@ protected:
 public:
   OpusDecoderPlugin(AudioEngine*);
 
-  FXuchar codec() const { return Codec::Opus; }
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
-  FXbool flush(FXlong);
+  FXuchar codec() const override { return Codec::Opus; }
+  FXbool init(ConfigureEvent*) override;
+  DecoderStatus process(Packet*) override;
+  FXbool flush(FXlong) override;
 
 
   virtual ~OpusDecoderPlugin();
