@@ -231,21 +231,6 @@ check_fox()
 }
 
 
-
-
-check_libxml2()
-{
-  add_gap_package "libxml-2.0" "libxml"
-  if [ $? -eq 0 ] ; then
-    exit 1
-  fi
-  echo "XML_CFLAGS=$PKG_CFLAGS"     >> config.make
-  echo "XML_CPPFLAGS=$PKG_CPPFLAGS" >> config.make
-}
-
-
-
-
 check_forced_mad()
 {
   if [ $OPTION_GAP_MAD -eq 1 ] && [ $OPTION_GAP_FORCE_MAD -eq 1 ] && [ "$PLUGINS" != *mad* ] ; then

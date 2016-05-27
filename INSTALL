@@ -6,11 +6,11 @@ Installation Instructions
        * FOX >= 1.7.50
        * sqlite >= 3.6.19
        * taglib >= 1.9.0
+       * cmake >= 3.4 
        * expat
 
     2. Install optional dependencies:
 
-       * cmake >= 3.4
        * dbus 1.0.x
        * flac
        * mad
@@ -20,21 +20,20 @@ Installation Instructions
        * faad2
        * pulse
 
-    3. Run the configure script:
-
-       > ./configure
-
-       or if using cmake:
+    3. Run cmake:
 
        > cmake .
+
+       or using deprecated build system:
+
+       > ./configure
 
     4. Compile
 
        > make
 
     5. If everything compiled fine, you are ready to install Goggles Music Manager in its final location.
-       By default this will be in /usr. Using the --prefix option on the configure command line you may
-       change this to something else (eg. ./configure --prefix=/usr/local )
+       By default this will be in /usr. 
 
        > sudo make install
 
