@@ -354,13 +354,13 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
   endif()
 
   # Jack Output
-  if (JACK_FOUND)
-    add_library(gap_jack MODULE plugins/ap_jack_plugin.cpp)
-    target_link_libraries(gap_jack ${PULSE_LIBRARIES})
-    target_include_directories(gap_jack BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-    install(TARGETS gap_jack LIBRARY DESTINATION lib/gogglesmm)
-    set(HAVE_JACK_PLUGIN 1)
-  endif()
+  #if (JACK_FOUND)
+  #  add_library(gap_jack MODULE plugins/ap_jack_plugin.cpp)
+  #  target_link_libraries(gap_jack ${PULSE_LIBRARIES})
+  #  target_include_directories(gap_jack BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+  #  install(TARGETS gap_jack LIBRARY DESTINATION lib/gogglesmm)
+  #  set(HAVE_JACK_PLUGIN 1)
+  #endif()
 
 endif()
 

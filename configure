@@ -36,8 +36,6 @@ OPTION_GAP_OGG=1
 OPTION_GAP_ALSA=1
 OPTION_GAP_OSS=1
 OPTION_GAP_PULSE=1
-OPTION_GAP_JACK=0
-OPTION_GAP_RSOUND=0
 OPTION_GAP_AVCODEC=0 # disabled for now
 OPTION_GAP_CDDA=0
 OPTION_GAP_MMS=0 # disabled for now
@@ -161,12 +159,6 @@ for arg in $@; do
     --without-pulse)
       OPTION_GAP_PULSE=0
       ;;
-    --without-rsound)
-      OPTION_GAP_RSOUND=0
-      ;;
-    --without-jack)
-      OPTION_GAP_JACK=0
-      ;;
     --without-avcodec)
       OPTION_GAP_AVCODEC=0
       ;;
@@ -227,8 +219,6 @@ for arg in $@; do
       echo "   --without-alsa                  Compile without alsa support"
       echo "   --without-oss                   Compile without oss support"
       echo "   --without-pulse                 Compile without pulseaudio support"
-      echo "   --without-jack                  Compile without jack support"
-      echo "   --without-rsound                Compile without rsound support"
       echo "   --without-avcodec               Compile without avcodec support"
       echo " "
       echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use. default: gcrypt"

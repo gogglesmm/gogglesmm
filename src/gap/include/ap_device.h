@@ -26,9 +26,7 @@ enum {
   DeviceAlsa    = 1,
   DeviceOSS     = 2,
   DevicePulse   = 3,
-  DeviceRSound  = 4,
-  DeviceJack    = 5,
-  DeviceWav     = 6,
+  DeviceWav     = 4,
   DeviceLast,
   };
 

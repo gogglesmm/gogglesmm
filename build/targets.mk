@@ -19,18 +19,6 @@ GAP_PULSE_NAME=libgap_pulse.so
 GAP_PULSE_PLUGIN=src/$(GAP_PULSE_NAME)
 endif
 
-# Jack Output Plugin
-ifneq (,$(findstring jack,$(GAP_PLUGINS)))
-GAP_JACK_NAME=libgap_jack.so
-GAP_JACK_PLUGIN=src/$(GAP_JACK_NAME)
-endif
-
-# RSound Output Plugin
-ifneq (,$(findstring rsound,$(GAP_PLUGINS)))
-GAP_RSOUND_NAME=libgap_rsound.so
-GAP_RSOUND_PLUGIN=src/$(GAP_RSOUND_NAME)
-endif
-
 # WAV Output Plugin
 GAP_WAV_NAME=libgap_wav.so
 GAP_WAV_PLUGIN=src/$(GAP_WAV_NAME)

@@ -316,28 +316,6 @@ check_gap_plugins()
     add_gap_config oss
   fi
 
-  if [ $OPTION_GAP_JACK -eq 1 ] ; then
-    pkgconfig_query_package "jack >= 0.118" jack
-    if [ $? -eq 1 ] ; then
-      add_gap_config jack
-      echo "JACK_CFLAGS=$FOX_CFLAGS $PKG_CFLAGS"       >> config.make
-      echo "JACK_CPPFLAGS=$FOX_CPPFLAGS $PKG_CPPFLAGS" >> config.make
-      echo "JACK_LDFLAGS=$PKG_LDFLAGS"                 >> config.make
-      echo "JACK_LIBS=$PKG_LIBS"                       >> config.make
-    fi
-  fi
-
-  if [ $OPTION_GAP_RSOUND -eq 1 ] ; then
-    pkgconfig_query_package "rsound" rsound
-    if [ $? -eq 1 ] ; then
-      add_gap_config rsound
-      echo "RSOUND_CFLAGS=$FOX_CFLAGS $PKG_CFLAGS"       >> config.make
-      echo "RSOUND_CPPFLAGS=$FOX_CPPFLAGS $PKG_CPPFLAGS" >> config.make
-      echo "RSOUND_LDFLAGS=$PKG_LDFLAGS"                 >> config.make
-      echo "RSOUND_LIBS=$PKG_LIBS"                       >> config.make
-    fi
-  fi
-
   echo "WAV_CPPFLAGS=$FOX_CPPFLAGS" >> config.make
   echo "WAV_CFLAGS=$FOX_CFLAGS" >> config.make
 }

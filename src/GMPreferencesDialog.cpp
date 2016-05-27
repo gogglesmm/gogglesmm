@@ -596,12 +596,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (AP_HAS_PLUGIN(devices,DevicePulse))
     driverlist->appendItem("PulseAudio",NULL,(void*)DevicePulse);
 
-  if (AP_HAS_PLUGIN(devices,DeviceJack))
-    driverlist->appendItem("Jack",NULL,(void*)DeviceJack);
-
-  if (AP_HAS_PLUGIN(devices,DeviceRSound))
-    driverlist->appendItem("RSound",NULL,(void*)DeviceRSound);
-
   if (AP_HAS_PLUGIN(devices,DeviceWav))
     driverlist->appendItem("Wave File Output",NULL,(void*)DeviceWav);
 
@@ -633,10 +627,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   /// Pulse
   pulse_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
   pulse_device = new GMTextField(matrix,20);
-
-  /// Jack
-  jack_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
-  jack_device = new GMTextField(matrix,20);
 
   showDriverSettings(config.device);
 
@@ -731,8 +721,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         oss_device_label->hide();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     case DeviceOSS:
@@ -745,8 +733,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         oss_device_label->show();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     case DevicePulse:
@@ -759,23 +745,8 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         oss_device_label->hide();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
-    case DeviceJack:
-      {
-        alsa_device_label->hide();
-        alsa_device->hide();
-        alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();
-        oss_device->hide();
-        oss_device_label->hide();
-        pulse_device->hide();
-        pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
-      } break;
     default:
       {
         alsa_device_label->hide();
@@ -786,8 +757,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         oss_device_label->hide();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     }
