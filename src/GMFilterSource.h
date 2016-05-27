@@ -62,25 +62,25 @@ public:
   void updateView();
 
   // Configure
-  virtual void configure(GMColumnList&);
+  void configure(GMColumnList&) override;
 
   // Source Name
-  virtual FXString getName() const;
+  FXString getName() const override;
 
   // Source Type
-  virtual FXint getType() const { return SOURCE_DATABASE_FILTER; }
+  FXint getType() const override { return SOURCE_DATABASE_FILTER; }
 
   // Default Browsing
-  virtual FXbool defaultBrowse() const { return true; }
+  FXbool defaultBrowse() const override { return true; }
 
   // Setting Key
-  virtual FXString settingKey() const;
+  FXString settingKey() const override;
 
   // Source Menu
-  virtual FXbool source_menu(FXMenuPane*) {return false;}
+  FXbool source_menu(FXMenuPane*) override {return false;}
 
   // Source Context Menu
-  virtual FXbool source_context_menu(FXMenuPane*);
+  FXbool source_context_menu(FXMenuPane*) override;
 
   // Destructor
   virtual ~GMFilterSource();

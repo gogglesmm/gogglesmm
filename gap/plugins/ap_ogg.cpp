@@ -112,12 +112,12 @@ protected:
 #endif
 public:
   OggReader(AudioEngine *);
-  FXuchar format() const { return Format::OGG; };
-  FXbool init(InputPlugin*);
+  FXuchar format() const override { return Format::OGG; };
+  FXbool init(InputPlugin*) override;
   FXlong seek_offset(FXdouble) const;
-  FXbool seek(FXlong offset);
-  FXbool can_seek() const;
-  ReadStatus process(Packet*);
+  FXbool seek(FXlong offset) override;
+  FXbool can_seek() const override;
+  ReadStatus process(Packet*) override;
   virtual ~OggReader();
   };
 

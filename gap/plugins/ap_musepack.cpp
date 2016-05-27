@@ -64,11 +64,11 @@ protected:
   static mpc_bool_t   mpc_input_canseek(void*);
 public:
   MusepackReader(AudioEngine*);
-  FXuchar format() const { return Format::Musepack; };
-  FXbool init(InputPlugin*);
-  FXbool can_seek() const;
-  FXbool seek(FXdouble);
-  ReadStatus process(Packet*);
+  FXuchar format() const override{ return Format::Musepack; };
+  FXbool init(InputPlugin*) override;
+  FXbool can_seek() const override;
+  FXbool seek(FXdouble) override;
+  ReadStatus process(Packet*) override;
   };
 
 

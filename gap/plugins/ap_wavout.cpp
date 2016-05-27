@@ -31,17 +31,17 @@ protected:
 public:
   WavOutput(Output * output);
 
-  FXchar type() const { return DeviceWav; }
+  FXchar type() const override { return DeviceWav; }
 
-  FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &) override;
 
-  FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint) override;
 
-  void drop(){}
-  void drain(){}
-  void pause(FXbool) {}
+  void drop() override {}
+  void drain() override {}
+  void pause(FXbool) override {}
 
-  void close();
+  void close() override;
 
   virtual ~WavOutput();
   };

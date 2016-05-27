@@ -118,67 +118,65 @@ public:
 
   virtual void addTracks(GMSource * src,const FXIntList & tracks);
 
-  virtual GMCoverCache* getCoverCache() const { return covercache; }
+  GMCoverCache* getCoverCache() const override { return covercache; }
 
-  virtual void loadCovers();
+  void loadCovers() override;
 
-  virtual void updateCovers();
+  void updateCovers() override;
 
-  virtual FXbool canFilter() const { return true; }
+  FXbool canFilter() const override { return true; }
 
-  virtual void shuffle(GMTrackList*,FXuint) const;
+  void shuffle(GMTrackList*,FXuint) const override;
 
-  virtual void configure(GMColumnList&);
+  void configure(GMColumnList&) override;
 
-  virtual FXbool hasCurrentTrack(GMSource * ) const;
+  FXbool hasCurrentTrack(GMSource * ) const override;
 
-  virtual FXbool hasTrack(const FXString & mrl,FXint & id);
+  FXbool hasTrack(const FXString & mrl,FXint & id) override;
 
-  virtual FXbool findCurrent(GMTrackList * tracklist,GMSource * src);
+  FXbool findCurrent(GMTrackList * tracklist,GMSource * src) override;
 
-  virtual FXbool findCurrentArtist(GMList * tracklist,GMSource * src);
+  FXbool findCurrentArtist(GMList * tracklist,GMSource * src) override;
 
-  virtual FXbool findCurrentAlbum(GMAlbumList *,GMSource * src);
+  FXbool findCurrentAlbum(GMAlbumList *,GMSource * src) override;
 
-  virtual FXString getName() const { return fxtr("Music Library"); }
+  FXString getName() const override { return fxtr("Music Library"); }
 
-  virtual FXint getNumTracks() const;
+  FXint getNumTracks() const override;
 
-  virtual FXbool getTrack(GMTrack & info) const;
+  FXbool getTrack(GMTrack & info) const override;
 
-  virtual FXint getType() const { return SOURCE_DATABASE; }
+  FXint getType() const override { return SOURCE_DATABASE; }
 
-  virtual FXString settingKey() const { return "database"; }
+  FXString settingKey() const override { return "database"; }
 
-  virtual FXbool setFilter(const FXString&,FXuint);
+  FXbool setFilter(const FXString&,FXuint) override;
 
-  virtual FXbool listTags(GMList * taglist,FXIcon * icon);
+  FXbool listTags(GMList * taglist,FXIcon * icon);
 
-//  virtual FXbool listComposers(GMList * composerlist,FXIcon * icon,const FXIntList & taglist);
+  FXbool listArtists(GMList * artistlist,FXIcon * icon,const FXIntList & taglist) override;
 
-  virtual FXbool listArtists(GMList * artistlist,FXIcon * icon,const FXIntList & taglist);
+  FXbool listAlbums(GMAlbumList *,const FXIntList &,const FXIntList &) override;
 
-  virtual FXbool listAlbums(GMAlbumList *,const FXIntList &,const FXIntList &);
+  FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & taglist) override;
 
-  virtual FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & taglist);
+  FXbool updateSelectedTracks(GMTrackList*) override;
 
-  virtual FXbool updateSelectedTracks(GMTrackList*);
+  FXbool genre_context_menu(FXMenuPane * pane) override;
 
-  virtual FXbool genre_context_menu(FXMenuPane * pane);
+  FXbool artist_context_menu(FXMenuPane * pane) override;
 
-  virtual FXbool artist_context_menu(FXMenuPane * pane);
+  FXbool album_context_menu(FXMenuPane * pane) override;
 
-  virtual FXbool album_context_menu(FXMenuPane * pane);
+  FXbool track_context_menu(FXMenuPane * pane) override;
 
-  virtual FXbool track_context_menu(FXMenuPane * pane);
+  FXbool source_context_menu(FXMenuPane * pane) override;
 
-  virtual FXbool source_context_menu(FXMenuPane * pane);
+  FXbool source_menu(FXMenuPane * pane) override;
 
-  virtual FXbool source_menu(FXMenuPane * pane);
+  FXbool dnd_accepts(FXDragType*,FXuint) override;
 
-  virtual FXbool dnd_accepts(FXDragType*,FXuint);
-
-  virtual FXuint dnd_provides(FXDragType types[]);
+  FXuint dnd_provides(FXDragType types[]) override;
 
   virtual ~GMDatabaseSource();
   };

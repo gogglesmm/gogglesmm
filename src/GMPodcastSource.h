@@ -88,9 +88,9 @@ public:
 
   void getLocalFiles(const FXIntList & ids,FXStringList&);
 
-  void loadCovers();
+  void loadCovers() override;
 
-  void updateCovers();
+  void updateCovers() override;
 
   void setLastUpdate();
 
@@ -98,55 +98,55 @@ public:
 
   FXlong getUpdateInterval() const;
 
-  void configure(GMColumnList&);
+  void configure(GMColumnList&) override;
 
-  FXbool hasCurrentTrack(GMSource * ) const;
+  FXbool hasCurrentTrack(GMSource * ) const override;
 
-  FXbool getTrack(GMTrack & info) const;
+  FXbool getTrack(GMTrack & info) const override;
 
-  FXbool setTrack(GMTrack & info) const;
+  FXbool setTrack(GMTrack & info) const override;
 
-  FXString getName() const;
+  FXString getName() const override;
 
-  const FXchar * getAlbumName() const { return fxtr("Feeds"); }
+  const FXchar * getAlbumName() const override { return fxtr("Feeds"); }
 
-  FXIcon* getAlbumIcon() const;
+  FXIcon* getAlbumIcon() const override;
 
-  GMCoverCache * getCoverCache() const { return covercache; }
+  GMCoverCache * getCoverCache() const override { return covercache; }
 
-  FXint getType() const { return SOURCE_PODCAST; }
+  FXint getType() const override { return SOURCE_PODCAST; }
 
   FXString settingKey() const { return "podcast"; }
 
   FXint getSortColumn(FXbool) const { return HEADER_TRACK; }
 
-  FXbool canBrowse() const { return true; }
+  FXbool canBrowse() const override { return true; }
 
-  FXbool hasArtistList() const { return false; }
+  FXbool hasArtistList() const override { return false; }
 
-  FXbool defaultBrowse() const { return true; }
+  FXbool defaultBrowse() const override { return true; }
 
-  FXbool defaultTags() const { return true; }
+  FXbool defaultTags() const override { return true; }
 
-  FXbool autoPlay() const { return false; }
+  FXbool autoPlay() const override { return false; }
 
-  FXbool source_menu(FXMenuPane * pane);
+  FXbool source_menu(FXMenuPane * pane) override;
 
-  FXbool source_context_menu(FXMenuPane * pane);
+  FXbool source_context_menu(FXMenuPane * pane) override;
 
-  FXbool album_context_menu(FXMenuPane * pane);
+  FXbool album_context_menu(FXMenuPane * pane) override;
 
-  FXbool track_context_menu(FXMenuPane * pane);
+  FXbool track_context_menu(FXMenuPane * pane) override;
 
-  FXbool listTags(GMList *,FXIcon *);
+  FXbool listTags(GMList *,FXIcon *) override;
 
-  FXbool listArtists(GMList *,FXIcon *,const FXIntList &) { return true; }
+  FXbool listArtists(GMList *,FXIcon *,const FXIntList &) override { return true; }
 
-  FXbool listAlbums(GMAlbumList *,const FXIntList &,const FXIntList &);
+  FXbool listAlbums(GMAlbumList *,const FXIntList &,const FXIntList &) override;
 
-  FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & genrelist);
+  FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & genrelist) override;
 
-  FXuint dnd_provides(FXDragType types[]);
+  FXuint dnd_provides(FXDragType types[]) override;
 
   virtual ~GMPodcastSource();
   };

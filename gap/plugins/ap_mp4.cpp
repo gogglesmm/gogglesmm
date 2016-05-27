@@ -214,19 +214,19 @@ public:
   MP4Reader(AudioEngine*);
 
   // Format
-  FXuchar format() const { return Format::MP4; };
+  FXuchar format() const override { return Format::MP4; };
 
   // Init
-  FXbool init(InputPlugin*);
+  FXbool init(InputPlugin*) override;
 
   // Seekable
-  FXbool can_seek() const;
+  FXbool can_seek() const override;
 
   // Seek
-  FXbool seek(FXlong );
+  FXbool seek(FXlong) override;
 
   // Process Packet
-  ReadStatus process(Packet*);
+  ReadStatus process(Packet*) override;
 
   // Destroy
   ~MP4Reader();

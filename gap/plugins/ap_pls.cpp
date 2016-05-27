@@ -58,10 +58,10 @@ protected:
   FXStringList uri;
 public:
   PLSReader(AudioEngine*);
-  ReadStatus process(Packet*);
-  FXbool init(InputPlugin*);
-  FXuchar format() const { return Format::PLS; };
-  FXbool redirect(FXStringList & u) { u=uri; return true; }
+  ReadStatus process(Packet*) override;
+  FXbool init(InputPlugin*) override;
+  FXuchar format() const override { return Format::PLS; };
+  FXbool redirect(FXStringList & u) override { u=uri; return true; }
   virtual ~PLSReader();
   };
 

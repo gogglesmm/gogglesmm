@@ -45,37 +45,37 @@ public:
 public:
   GMPlayListSource(GMTrackDatabase * db,FXint playlist);
 
-  virtual FXbool hasCurrentTrack(GMSource * ) const;
+  FXbool hasCurrentTrack(GMSource * ) const override;
 
-  virtual FXbool findCurrent(GMTrackList * tracklist,GMSource * src);
+  FXbool findCurrent(GMTrackList * tracklist,GMSource * src) override;
 
-  virtual void resetCurrent() { current_track=-1; current_queue=-1; }
+  void resetCurrent() override { current_track=-1; current_queue=-1; }
 
-  virtual void markCurrent(const GMTrackItem*item);
+  void markCurrent(const GMTrackItem*item) override;
 
-  virtual FXString getName() const { return name.text(); }
+  FXString getName() const override { return name.text(); }
 
-  virtual FXint getType() const { return SOURCE_DATABASE_PLAYLIST; }
+  FXint getType() const override { return SOURCE_DATABASE_PLAYLIST; }
 
-  virtual FXint getSortColumn(FXbool browse) const { if (browse) return HEADER_BROWSE; else return HEADER_QUEUE; }
+  FXint getSortColumn(FXbool browse) const override { if (browse) return HEADER_BROWSE; else return HEADER_QUEUE; }
 
-  virtual FXbool getQueueColumn(FXbool browse) const { if (browse) return false; else return true; }
+  FXbool getQueueColumn(FXbool browse) const override { if (browse) return false; else return true; }
 
-  virtual FXbool defaultBrowse() const { return false; }
+  FXbool defaultBrowse() const override { return false; }
 
-  virtual FXString settingKey() const { return "database_playlist_" + FXString::value(playlist); }
+  FXString settingKey() const override { return "database_playlist_" + FXString::value(playlist); }
 
-  virtual void save(GMTrackList*);
+  void save(GMTrackList*) override;
 
-  virtual void dragged(GMTrackList*);
+  void dragged(GMTrackList*) override;
 
-  virtual void sorted(GMTrackList*,FXint method);
+  void sorted(GMTrackList*,FXint method) override;
 
-  virtual FXbool source_menu(FXMenuPane*) { return false; }
+  FXbool source_menu(FXMenuPane*) override { return false; }
 
-  virtual FXbool source_context_menu(FXMenuPane * pane);
+  FXbool source_context_menu(FXMenuPane * pane) override;
 
-  virtual FXbool dnd_accepts(FXDragType*,FXuint);
+  FXbool dnd_accepts(FXDragType*,FXuint) override;
 
   virtual ~GMPlayListSource();
   };
