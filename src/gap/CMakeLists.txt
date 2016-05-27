@@ -3,8 +3,69 @@ cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FindEXPAT)
+include(FeatureSummary)
 
 project(GAP VERSION 1.0.14)
+
+
+set_package_properties(FOX PROPERTIES
+                           URL "http://www.fox-toolkit.org"
+                           PURPOSE "\tportability library"
+                           TYPE REQUIRED)
+
+set_package_properties(expat PROPERTIES
+                            PURPOSE "\txml parser"
+                            TYPE REQUIRED)
+
+
+set_package_properties(flac PROPERTIES
+                            URL "https://xiph.org/flac"
+                            PURPOSE "\tflac playback support"
+                            TYPE RECOMMENDED)
+
+set_package_properties(ogg PROPERTIES
+                            URL "https://www.xiph.org/ogg/"
+                            PURPOSE "\togg container support (used by vorbis, opus and flac codecs)"
+                            TYPE RECOMMENDED)
+
+set_package_properties(vorbis PROPERTIES
+                            URL "http://www.vorbis.com/"
+                            PURPOSE "\togg vorbis playback support"
+                            TYPE RECOMMENDED)
+
+set_package_properties(opus PROPERTIES
+                            URL "http://www.opus-codec.org/"
+                            PURPOSE "\topus playback support"
+                            TYPE RECOMMENDED)
+
+set_package_properties(mad PROPERTIES
+                            URL "http://www.underbit.com/products/mad/"
+                            PURPOSE "\tmp3 playback support"
+                            TYPE OPTIONAL)
+
+set_package_properties(faad PROPERTIES
+                            URL "http://www.audiocoding.com/faad2.html"
+                            PURPOSE "\tmp4 / aac playback support"
+                            TYPE OPTIONAL)
+
+set_package_properties(tremor PROPERTIES
+                            URL "https://xiph.org/vorbis/"
+                            PURPOSE "\togg vorbis playback support"
+                            TYPE OPTIONAL)
+
+set_package_properties(alsa PROPERTIES
+                            URL "http://www.alsa-project.org/"
+                            PURPOSE "\talsa output support"
+                            TYPE OPTIONAL)
+
+set_package_properties(pulse PROPERTIES
+                            URL "https://www.freedesktop.org/wiki/Software/PulseAudio"
+                            PURPOSE "\tpulseaudio output support"
+                            TYPE OPTIONAL)
+
+set_package_properties(oss PROPERTIES
+                            PURPOSE "\toss output support"
+                            TYPE OPTIONAL)
 
 # Optional flags to turn on/off compilation of specific modules
 if(UNIX)
@@ -15,6 +76,7 @@ if(UNIX)
     option(WITH_OSS "OSS Output Support" ON)
     option(WITH_ALSA "ALSA Output Support" OFF)
   endif()
+  option(WITH_TREMOR "Tremor Support" OFF)
 endif()
 
 
@@ -25,12 +87,10 @@ TEST_BIG_ENDIAN(GAP_BIGENDIAN)
 # libdir name to allow overriding to lib32 / lib64
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Specify the name of the directory where libraries are meant to be installed")
 
-
 # Update whenever ABI changes
 set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added, removed or changed.
 set(GAP_SOVERSION_REVISION 0)   # Always increase the revision value. Reset to 0 when Current changes.
 set(GAP_SOVERSION_AGE 0)        # Increase the age value only if the changes made to the ABI are backward compatible.
-
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
@@ -52,23 +112,21 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
 else()
 
-  find_package(PkgConfig)
+  find_package(PkgConfig REQUIRED QUIET)
   pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
   pkg_check_modules(ALSA alsa>=1.0)
   pkg_check_modules(PULSE libpulse>=0.9.21)
   pkg_check_modules(FLAC flac)
-  pkg_check_modules(VORBIS vorbis)
-  pkg_check_modules(OGG ogg)
+  pkg_check_modules(VORBIS vorbis>=1.2)
+  pkg_check_modules(OGG ogg>=1.0)
   pkg_check_modules(OPUS opus)
+  pkg_check_modules(TREMOR vorbisidec>=1.2)
   
   # We need
   #pkg_check_modules(JACK jack)
   #pkg_check_modules(CDDA libcdio_cdda)
   #pkg_check_modules(SMB smbclient)
   #pkg_check_modules(SAMPLERATE samplerate)
-
-
-
 
 endif()
 
@@ -83,7 +141,6 @@ if (LIBMAD_HEADERS_FOUND)
 endif (LIBMAD_HEADERS_FOUND)
 if (MAD_LIBRARIES)
    set(MAD_FOUND TRUE)
-   message(STATUS "libmad found: ${MAD_LIBRARIES}")
 endif()
 
 # Check for faad
@@ -97,19 +154,8 @@ if (LIBFAAD_HEADERS_FOUND)
 endif (LIBFAAD_HEADERS_FOUND)
 if (FAAD_LIBRARIES)
    set(FAAD_FOUND TRUE)
-   message(STATUS "libfaad found: ${FAAD_LIBRARIES}")
 endif()
 
-
-# Check for a52
-find_path(HAVE_A52_H a52dec/a52.h)
-if (HAVE_A52_H)
-    find_library(A52_LIBRARIES NAMES a52)
-    if (A52_LIBRARIES)
-        set(A52_FOUND TRUE)
-        message(STATUS "liba52dec found ${A52_LIBRARIES}")
-    endif()
-endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
 
@@ -194,28 +240,46 @@ set(PLUGIN_SOURCES plugins/ap_aiff_plugin.cpp
                    plugins/ap_xspf_plugin.cpp
                    )
 
+add_feature_info(flac FLAC_FOUND "Free Lossless Audio Codec")
+add_feature_info(mad MAD_FOUND "MPEG audio decoder")
+add_feature_info(faad FAAD_FOUND "MPEG-4 and MPEG-2 AAC decoder")
+
+
 if (FLAC_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_flac_plugin.cpp)
   LIST(APPEND LIBRARIES ${FLAC_LIBRARIES})
   set(HAVE_FLAC_PLUGIN 1)
 endif()
 
-if (VORBIS_FOUND AND OGG_FOUND)
+if (TREMOR_FOUND AND OGG_FOUND AND WITH_TREMOR)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis_plugin.cpp)
+  LIST(APPEND LIBRARIES ${TREMOR_LIBRARIES})
+  set(HAVE_TREMOR_PLUGIN 1)
+  add_feature_info(tremor ON "Vorbis Decoder")
+  add_feature_info(vorbis OFF "Vorbis Decoder")
+
+endif()
+
+if (VORBIS_FOUND AND OGG_FOUND AND NOT WITH_TREMOR)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis_plugin.cpp)
   LIST(APPEND LIBRARIES ${VORBIS_LIBRARIES})
   set(HAVE_VORBIS_PLUGIN 1)
+  add_feature_info(vorbis ON "Vorbis Decoder")
+  add_feature_info(tremor OFF "Vorbis Decoder")
 endif()
 
-if (OGG_FOUND AND (FLAC_FOUND OR OPUS_FOUND OR VORBIS_FOUND))
+if (OGG_FOUND AND (FLAC_FOUND OR OPUS_FOUND OR VORBIS_FOUND OR TREMOR_FOUND))
   LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg_plugin.cpp plugins/ap_ogg_decoder.cpp)
   LIST(APPEND LIBRARIES ${OGG_LIBRARIES})
   set(HAVE_OGG_PLUGIN 1)
+  add_feature_info(ogg ON "Ogg Parser")
 endif()
 
 if (OPUS_FOUND AND OGG_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_opus_plugin.cpp)
   LIST(APPEND LIBRARIES ${OPUS_LIBRARIES})
   set(HAVE_OPUS_PLUGIN 1)
+  add_feature_info(opus ON "Opus Decoder")
 endif()
 
 if (MAD_FOUND)
@@ -276,6 +340,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_include_directories(gap_alsa BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
     install(TARGETS gap_alsa LIBRARY DESTINATION lib/gogglesmm)
     set(HAVE_ALSA_PLUGIN 1)
+    add_feature_info(alsa ON "Advanced Linux Sound Architecture")
   endif()
 
   # Pulse Output
@@ -285,6 +350,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_include_directories(gap_pulse BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
     install(TARGETS gap_pulse LIBRARY DESTINATION lib/gogglesmm)
     set(HAVE_PULSE_PLUGIN 1)
+    add_feature_info(pulse ON "PulseAudio")
   endif()
 
   # Jack Output
@@ -305,11 +371,11 @@ if(UNIX AND WITH_OSS)
     target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
     install(TARGETS gap_oss LIBRARY DESTINATION lib/gogglesmm)
     set(HAVE_OSS_PLUGIN 1)
+    add_feature_info(oss ON "OSS Output")
 endif()
 
 
 set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/gogglesmm)
-
 
 
 configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
@@ -341,3 +407,4 @@ if(BUILD_SHARED_LIBS)
                 include/ap_xml_parser.h DESTINATION include/gap)
 endif()
 
+#feature_summary(WHAT ENABLED_FEATURES DESCRIPTION "Goggles Audio Player Features:\n")

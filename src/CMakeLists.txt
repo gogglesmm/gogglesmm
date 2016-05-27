@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)
+include(FeatureSummary)
+
 
 project(GOGGLESMM VERSION 1.0.14)
 
@@ -54,7 +56,6 @@ endif (LIBGCRYPT_HEADERS_FOUND)
 if (LIBGCRYPT_LIBRARIES)
    set(LIBGCRYPT_FOUND TRUE)
    set(HAVE_GCRYPT true)
-   message(STATUS "libgcrypt found: ${LIBGCRYPT_LIBRARIES}")
 endif()
 
 
@@ -81,10 +82,6 @@ message(FATAL_ERROR "Unable to find reswrap")
 endif()
 
 
-
-
-
-
 #------------------------------------------------------------------------------
 
 # We need C++ 11
@@ -99,6 +96,10 @@ set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
 
 # Don't use CMAKE_INSTALL_PREFIX since most icons won't be installed anywhere but /usr
 set(ICON_PATH /usr/share/icons)
+
+# Display the build type
+message(STATUS "Icon Path: ${ICON_PATH}")
+message(STATUS "Locale Path: ${LOCALE_PATH}")
 
 #------------------------------------------------------------------------------
 
@@ -264,7 +265,18 @@ if (DBUS_FOUND)
         )
 
     set(HAVE_DBUS 1)
+
+
 endif()
+
+
+# Features
+add_feature_info(dbus HAVE_DBUS "DBus")
+add_feature_info(NLS WITH_NLS "Native Language Support")
+add_feature_info(grcypt LIBGCRYPT_FOUND "libgcrypt")
+add_feature_info(opengl HAVE_OPENGL "OpenGL Rendering")
+add_feature_info(session HAVE_SESSION "X11 Session Management")
+
 
 # Write gmconfig.h
 configure_file(gmconfig.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gmconfig.h)

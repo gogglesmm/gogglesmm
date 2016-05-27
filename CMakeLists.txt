@@ -1,6 +1,9 @@
 # Using cmake 3.2
 cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
+# Need FeaureSummary
+include(FeatureSummary)
+
 # Enable for cmake debugging
 # set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
@@ -122,5 +125,7 @@ if(WITH_NLS)
     endforeach()
 endif()
 
+
+feature_summary(WHAT ENABLED_FEATURES DESCRIPTION "Features:\n")
 
 

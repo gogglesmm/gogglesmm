@@ -1,5 +1,6 @@
 #cmakedefine HAVE_FLAC_PLUGIN
 #cmakedefine HAVE_VORBIS_PLUGIN
+#cmakedefine HAVE_TREMOR_PLUGIN
 #cmakedefine HAVE_OGG_PLUGIN
 #cmakedefine HAVE_OPUS_PLUGIN
 #cmakedefine HAVE_MAD_PLUGIN

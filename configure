@@ -405,5 +405,7 @@ fi
 echo ""
 echo "Done."
 echo "Please run \"make\" and \"make install\" to compile and install GMM."
+echo ""
+echo "NOTE: THIS CONFIGURE SCRIPT IS DEPRECATED. PLEASE UPGRADE TO USING CMAKE 3.4 INSTEAD!"
 exit 0
 
