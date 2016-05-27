@@ -28,17 +28,12 @@ OPTION_GAP_TREMOR=0
 OPTION_GAP_OPUS=1
 OPTION_GAP_FLAC=1
 OPTION_GAP_FAAD=1
-OPTION_GAP_WAVPACK=0
 OPTION_GAP_FORCE_FAAD=0
-OPTION_GAP_MUSEPACK=0
 OPTION_GAP_SAMPLERATE=0
 OPTION_GAP_OGG=1
 OPTION_GAP_ALSA=1
 OPTION_GAP_OSS=1
 OPTION_GAP_PULSE=1
-OPTION_GAP_AVCODEC=0 # disabled for now
-OPTION_GAP_CDDA=0
-OPTION_GAP_MMS=0 # disabled for now
 OPTION_GAP_SMB=0
 #OPTION_GAP_PROXY=1
 
@@ -135,17 +130,8 @@ for arg in $@; do
     --without-faad)
       OPTION_GAP_FAAD=0
       ;;
-    --with-musepack)
-      OPTION_GAP_MUSEPACK=1
-      ;;
-    --without-wavpack)
-      OPTION_GAP_WAVPACK=0
-      ;;
     --without-samplerate)
       OPTION_GAP_SAMPLERATE=0
-      ;;
-    --without-cdda)
-      OPTION_GAP_CDDA=0
       ;;
     --without-smb)
       OPTION_GAP_SMB=0
@@ -159,12 +145,6 @@ for arg in $@; do
     --without-pulse)
       OPTION_GAP_PULSE=0
       ;;
-    --without-avcodec)
-      OPTION_GAP_AVCODEC=0
-      ;;
-    --without-mms)
-      OPTION_GAP_MMS=0
-      ;;
     --with-mad)
       OPTION_GAP_FORCE_MAD=1
       ;;
@@ -174,9 +154,6 @@ for arg in $@; do
     --mad-prefix=*)
       MAD_PREFIX=${arg#*=}
       pkgconfig_add_path $MAD_PREFX
-      ;;
-    --musepack-prefix=*)
-      MUSEPACK_PREFIX=${arg#*=}
       ;;
     --faad-prefix=*)
       FAAD_PREFIX=${arg#*=}
@@ -212,25 +189,19 @@ for arg in $@; do
       echo "   --without-ogg                   Compile without ogg support"
       echo "   --without-flac                  Compile without flac support"
       echo "   --without-faad                  Compile without faad support"
-      echo "   --without-wavepack              Compile without wavpack support"
       echo "   --without-samplerate            Compile without samplerate support"
-      echo "   --without-cdda                  Compile without cdda support"
       echo "   --without-smb                   Compile without smb support"
       echo "   --without-alsa                  Compile without alsa support"
       echo "   --without-oss                   Compile without oss support"
       echo "   --without-pulse                 Compile without pulseaudio support"
-      echo "   --without-avcodec               Compile without avcodec support"
       echo " "
       echo "   --with-md5=gcrypt,internal      Select which md5 implementation to use. default: gcrypt"
       echo "   --without-dbus                  Compile without dbus support"
       echo "   --without-nls                   Compile without locale support"
       echo "   --without-opengl                Compile without OpenGL support"
       echo " "
-      echo "   --with-musepack                 Compile with musepack (sv7) support. "
-      echo " "
       echo "   --fox-prefix=<p>                FOX prefix path"
       echo "   --mad-prefix=<p>                mad prefix path"
-      echo "   --musepack-prefix=<p>           musepack prefix path"
       echo "   --faad-prefix=<p>               faad prefix path"
       echo "   --smb-prefix=<p>                smb prefix path"
       echo " "

@@ -38,10 +38,6 @@ src/gap/plugins/ap_file_plugin.cpp \
 src/gap/plugins/ap_http_plugin.cpp \
 src/gap/plugins/ap_id3v2.cpp
 
-ifneq (,$(findstring musepack,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_musepack_plugin.cpp
-endif
-
 ifneq (,$(findstring vorbis,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_vorbis_plugin.cpp
 endif
@@ -64,10 +60,6 @@ GAP_SRC+=src/gap/plugins/ap_mad_plugin.cpp
 src/gap/plugins/ap_mad_plugin$(OBJEXT): CPPFLAGS+=$(MAD_CPPFLAGS)
 endif
 
-ifneq (,$(findstring wavpack,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_wavpack_plugin.cpp
-endif
-
 ifneq (,$(findstring flac,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_flac_plugin.cpp
 src/gap/plugins/ap_flac_plugin$(OBJEXT): CPPFLAGS+=$(FLAC_CPPFLAGS)
@@ -82,20 +74,8 @@ ifneq (,$(findstring aac,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_aac_plugin.cpp
 endif
 
-ifneq (,$(findstring cdda,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_cdda_plugin.cpp
-endif
-
-ifneq (,$(findstring mms,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_mms_plugin.cpp
-endif
-
 ifneq (,$(findstring smb,$(GAP_PLUGINS)))
 GAP_SRC+=src/gap/plugins/ap_smb_plugin.cpp
-endif
-
-ifneq (,$(findstring avcodec,$(GAP_PLUGINS)))
-GAP_SRC+=src/gap/plugins/ap_avc_plugin.cpp src/plugins/ap_asf_plugin.cpp src/plugins/ap_asx_plugin.cpp
 endif
 
 #----------------------------------------------------------

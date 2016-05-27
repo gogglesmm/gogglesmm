@@ -61,15 +61,9 @@ static const FXchar * const formatnames[]={
   "mp3",
   "mp4",
   "aac",
-  "musepack",
-  "wavpack",
-  "cdda",
   "m3u",
   "pls",
   "xspf",
-  "asf",
-  "asx",
-  "asf/asx",
   "aiff"
   };
 
@@ -223,12 +217,6 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
   else if (comparecase(mime,"application/xspf+xml")==0){
     return Format::XSPF;
     }
-  else if (comparecase(mime,"video/x-ms-asf")==0) { /// Either ASF or ASX...
-    return Format::ASFX;
-    }
-  else if (comparecase(mime,"audio/x-ms-wax")==0) {
-    return Format::ASX;
-    }
   else if (comparecase(mime,"audio/x-aiff")==0 ||
            comparecase(mime,"audio/aiff")==0) {
     return Format::AIFF;
@@ -247,8 +235,6 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::OGG;
   else if (comparecase(extension,"mp3")==0)
     return Format::MP3;
-  else if (comparecase(extension,"mpc")==0)
-    return Format::Musepack;
   else if (comparecase(extension,"mp4")==0 ||
            comparecase(extension,"m4a")==0 ||
            comparecase(extension,"m4p")==0 ||
@@ -258,28 +244,22 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::AAC;
   else if (comparecase(extension,"aiff")==0 || comparecase(extension,"aif")==0)
     return Format::AIFF;
-  else if (comparecase(extension,"wv")==0)
-    return Format::WavPack;
   else if (comparecase(extension,"m3u")==0)
     return Format::M3U;
   else if (comparecase(extension,"pls")==0)
     return Format::PLS;
   else if (comparecase(extension,"xspf")==0)
     return Format::XSPF;
-  else if (comparecase(extension,"asx")==0)
-    return Format::ASX;
-  else if (comparecase(extension,"asf")==0)
-    return Format::ASF;
   else
     return Format::Unknown;
   }
 
 
-extern FXuint ap_format_from_buffer(const FXchar * buffer,FXival size) {
-  if (size>=4 && comparecase(buffer,"<ASX",4)==0)
-    return Format::ASX;
-  else
-    return Format::Unknown;
+extern FXuint ap_format_from_buffer(const FXchar * /*buffer*/,FXival /*size*/) {
+  //if (size>=4 && comparecase(buffer,"<ASX",4)==0)
+  //  return Format::ASX;
+  //else
+  return Format::Unknown;
   }
 
 extern const FXchar * ap_format_name(FXuint format){

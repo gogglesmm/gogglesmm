@@ -147,10 +147,6 @@ extern ReaderPlugin * ap_flac_reader(AudioEngine*);
 extern ReaderPlugin * ap_ogg_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_MUSEPACK_PLUGIN
-extern ReaderPlugin * ap_musepack_reader(AudioEngine*);
-#endif
-
 #ifdef HAVE_MAD_PLUGIN
 extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 #endif
@@ -162,22 +158,6 @@ extern ReaderPlugin * ap_aac_reader(AudioEngine*);
 #ifdef HAVE_MP4_PLUGIN
 extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
 #endif
-
-#ifdef HAVE_CDDA_PLUGIN
-extern ReaderPlugin * ap_cdda_reader(AudioEngine*);
-#endif
-
-#ifdef HAVE_AVC_PLUGIN
-extern ReaderPlugin * ap_asf_reader(AudioEngine*);
-extern ReaderPlugin * ap_avf_reader(AudioEngine*);
-extern ReaderPlugin * ap_asx_reader(AudioEngine*);
-#endif
-
-#ifdef HAVE_WAVPACK_PLUGIN
-extern ReaderPlugin * ap_wavpack_reader(AudioEngine*);
-#endif
-
-
 
 
 ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
@@ -198,47 +178,10 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #ifdef HAVE_MP4_PLUGIN
     case Format::MP4      : return ap_mp4_reader(engine); break;
 #endif
-#ifdef HAVE_MUSEPACK_PLUGIN
-    case Format::Musepack : return ap_musepack_reader(engine); break;
-#endif
-#ifdef HAVE_WAVPACK_PLUGIN
-    case Format::WavPack  : return ap_wavpack_reader(engine); break;
-#endif
-#ifdef HAVE_CDDA_PLUGIN
-    case Format::CDDA     : return ap_cdda_reader(engine); break;
-#endif
     case Format::M3U      : return ap_m3u_reader(engine); break;
     case Format::PLS      : return ap_pls_reader(engine); break;
     case Format::XSPF     : return ap_xspf_reader(engine); break;
-
-#ifdef HAVE_AVC_PLUGIN
-    case Format::ASX      : return ap_asx_reader(engine); break;
-    case Format::ASF      : return ap_asf_reader(engine); break;
-    case Format::ASFX     : {
-
-    FXchar buffer[1024];
-    FXival nbuffer=0;
-    nbuffer=engine->input->preview(buffer,1024);
-    if (nbuffer>0) {
-//      fxmessage("got preview buffer of %d\n",nbuffer);
-//      fxmessage("%s\n",buffer);
-      if (comparecase(buffer,"<ASX",4)==0)
-        return ap_asx_reader(engine);
-      else
-        return ap_asf_reader(engine);
-      }
-
-                            }
-
-#endif
-    case Format::AIFF      : return ap_aiff_reader(engine); break;
-
-
-
-
-
-
-//    case Format::MP3      : return ap_avf_reader(engine); break;
+    case Format::AIFF     : return ap_aiff_reader(engine); break;
     default               : return NULL; break;
     }
   return NULL;

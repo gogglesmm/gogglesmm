@@ -245,18 +245,6 @@ check_libxml2()
 
 
 
-check_musepack()
-{
-  if [ $OPTION_GAP_MUSEPACK -eq 1 ] ; then
-    echo "Search for musepack"
-    if [ -e $MUSEPACK_PREFIX/$LIB/libmpcdec.so ] ; then
-      echo "  Found musepack"
-      PLUGIN_LIBS="$PLUGIN_LIBS -lmpcdec "
-      add_gap_config musepack
-    fi
-    echo " "
-  fi
-}
 
 check_forced_mad()
 {
@@ -370,25 +358,8 @@ check_gap_packages()
     fi
   fi
 
-  if [ $OPTION_GAP_WAVPACK -eq 1 ] ; then
-    add_gap_package "wavpack >= 4.60" "wavpack"
-  fi
-
   if [ $OPTION_GAP_SAMPLERATE -eq 1 ] ; then
     add_gap_package "samplerate >= 0.1" "samplerate"
-  fi
-
-  if [ $OPTION_GAP_AVCODEC -eq 1 ] ; then
-    add_gap_package "libavcodec" "avcodec"
-    add_gap_package "libavformat" "avformat"
-  fi
-
-  if [ $OPTION_GAP_CDDA -eq 1 ] ; then
-    add_gap_package "libcdio_cdda" "cdda"
-  fi
-
-  if [ $OPTION_GAP_MMS -eq 1 ] ; then
-    add_gap_package "libmms" "mms"
   fi
 
   if [ $OPTION_GAP_FAAD -eq 1 ] ; then
@@ -413,16 +384,6 @@ check_gap_packages()
       echo "  Found smbclient: $SMB_PREFIX/$LIB/libsmbclient${LIBEXT}"
       EXTRA_LIBS="$EXTRA_LIBS -lsmbclient"
       add_gap_config smb
-    fi
-    echo " "
-  fi
-
-  if [ $OPTION_GAP_MUSEPACK -eq 1 ] ; then
-    echo "Search for musepack"
-    if [ -e $MUSEPACK_PREFIX/$LIB/libmpcdec.so ] ; then
-      echo "  Found musepack"
-      EXTRA_LIBS="$EXTRA_LIBS -lmpcdec "
-      add_gap_config musepack
     fi
     echo " "
   fi

@@ -294,12 +294,6 @@ if (FAAD_FOUND)
   set(HAVE_FAAD_PLUGIN 1)
 endif()
 
-if (CDDA_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_cdda_plugin.cpp)
-  LIST(APPEND LIBRARIES ${CDDA_LIBRARIES})
-  set(HAVE_CDDA_PLUGIN 1)
-endif()
-
 if (SMB_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_smb_plugin.cpp)
   LIST(APPEND LIBRARIES ${SMB_LIBRARIES})
