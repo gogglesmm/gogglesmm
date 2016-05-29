@@ -48,40 +48,40 @@ public:
   void attach(FXIO * io);
 
   /// Return true if open
-  virtual FXbool isOpen() const;
+  FXbool isOpen() const override;
 
   /// Return true if serial access only
-  virtual FXbool isSerial() const;
+  FXbool isSerial() const override;
 
   /// Get current file position
-  virtual FXlong position() const;
+  FXlong position() const override;
 
   /// Change file position, returning new position from start
-  virtual FXlong position(FXlong offset,FXuint from=FXIO::Begin);
+  FXlong position(FXlong offset,FXuint from=FXIO::Begin) override;
 
   /// Peek block of bytes, return number of bytes peeked
   virtual FXival peekBlock(void* data,FXival count);
 
   /// Read block of bytes, returning number of bytes read
-  virtual FXival readBlock(void* data,FXival count);
+  FXival readBlock(void* data,FXival count) override;
 
   /// Write block of bytes, returning number of bytes written
-  virtual FXival writeBlock(const void* data,FXival count);
+  FXival writeBlock(const void* data,FXival count) override;
 
   /// Truncate file
-  virtual FXlong truncate(FXlong size);
+  FXlong truncate(FXlong size) override;
 
   /// Flush
-  virtual FXbool flush();
+  FXbool flush() override;
 
   /// Test if we're at the end
-  virtual FXint eof();
+  FXint eof() override;
 
   /// Return size of i/o device
-  virtual FXlong size();
+  FXlong size() override;
 
   /// Close handle
-  virtual FXbool close();
+  FXbool close() override;
 
   /// Destroy and close
   virtual ~BufferIO();

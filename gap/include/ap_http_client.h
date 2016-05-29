@@ -62,7 +62,7 @@ public:
   void close();
 
   // Discard response
-  void discard();
+  void discard() override;
 
   // Send a request. Response can be
   FXbool request(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);

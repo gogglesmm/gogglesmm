@@ -46,8 +46,8 @@ class NBConnectionFactory : public ConnectionFactory {
 protected:
 	FXInputHandle watch;
 protected:
-	virtual FXIO * create(FXint domain,FXint type,FXint protocol);
-	virtual FXuint connect(FXIO * io,const struct sockaddr * address,FXint address_len);
+	FXIO * create(FXint domain,FXint type,FXint protocol) override;
+	FXuint connect(FXIO * io,const struct sockaddr * address,FXint address_len) override;
 public:
 	NBConnectionFactory(FXInputHandle);
 	};
@@ -59,7 +59,7 @@ class ThreadConnectionFactory  : public NBConnectionFactory {
 protected:
 	ThreadQueue*fifo;
 protected:
-	virtual FXIO * create(FXint domain,FXint type,FXint protocol);
+	FXIO * create(FXint domain,FXint type,FXint protocol) override;
 public:
 	ThreadConnectionFactory(ThreadQueue*);
   };

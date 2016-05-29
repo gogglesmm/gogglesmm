@@ -27,7 +27,7 @@ using namespace ap;
 
 namespace ap {
 
-ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e),input(nullptr),flags(0),stream_length(-1) {
+ReaderPlugin::ReaderPlugin(AudioEngine * audioengine) : engine(audioengine){
   }
 
 ReaderPlugin::~ReaderPlugin() {
@@ -188,23 +188,4 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
   return nullptr;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
