@@ -24,9 +24,24 @@ Installation Instructions
 
        > cmake .
 
-       or using deprecated build system:
 
-       > ./configure
+       The following options are available:
+
+          CMAKE_INSTALL_PREFIX => Installation Directory (default: /usr)
+          CMAKE_BUILD_TYPE     => Set the build type (default: MinSizeRel)
+          CMAKE_INSTALL_LIBDIR => Name of directory where libraries are meant to be installed (default: lib)
+
+          WITH_OSS             => Enables building the OSS Output plugin (default: OFF on Linux, ON on UNIX)
+          WITH_ALSA            => Enables building the ALSA Ouput plugin (default: ON on Linux, OFF on UNIX)
+          WITH_TREMOR          => Enables building the Tremor based Vorbis decoder (default: OFF)
+
+          WITH_OPENGL          => Eanbles OpenGL based features (default: ON)
+          WITH_DBUS            => Enables DBUS based features (default: ON)
+          WITH_NLS             => Enables Native Language Support (default: ON)
+
+       These can be passed on the command line using:
+
+          > cmake -Doption=value .
 
     4. Compile
 

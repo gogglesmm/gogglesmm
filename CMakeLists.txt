@@ -13,8 +13,6 @@ set(CMAKE_INSTALL_LIBDIR
     CACHE STRING
     "Specify the name of the directory where libraries are meant to be installed")
 
-# Display the build type
-message(STATUS "Using build type: ${CMAKE_BUILD_TYPE}")
 
 # Override default build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -22,6 +20,10 @@ if(NOT CMAKE_BUILD_TYPE)
         CACHE STRING
         "Specify the desired build type." FORCE)
 endif()
+
+# Display the build type
+message(STATUS "Using build type: ${CMAKE_BUILD_TYPE}")
+
 
 # Override default install to /usr
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -42,7 +44,8 @@ CHECK_CXX_COMPILER_FLAG(-Wextra     HAS_CXX_WEXTRA)
 CHECK_CXX_COMPILER_FLAG(-Wformat=2  HAS_CXX_WFORMAT)
 CHECK_CXX_COMPILER_FLAG(-Wfatal-errors  HAS_CXX_WFATAL)
 CHECK_CXX_COMPILER_FLAG(-Og         HAS_CXX_OPTIMIZE_DEBUG)
-CHECK_CXX_COMPILER_FLAG(-flto       HAS_CXX_OPTIMIZE_LINKTIME)
+# FIXME Doesn't work on all platforms.
+#CHECK_CXX_COMPILER_FLAG(-flto       HAS_CXX_OPTIMIZE_LINKTIME)
 
 if(HAS_CXX_WALL)
     add_compile_options(-Wall)

@@ -1,6 +1,6 @@
 1.0.14
   - Fix filters not properly escaping single quotes.
-  - Add cmake 3.4 build system. 'configure' is now deprecated and will be removed in future release.
+  - Add cmake 3.4 build system. 'configure' is now deprecated and will be removed in a future release.
   - Remove various unimplemented and/or unsupported plugins.
   - Various c++11 improvements
 
