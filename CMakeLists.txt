@@ -1,6 +1,9 @@
 # Using cmake 3.2
 cmake_minimum_required(VERSION 3.3.1 FATAL_ERROR)
 
+# Honor CMAKE_EXE_LINKER_FLAGS during tests
+cmake_policy(SET CMP0056 NEW)
+
 # Need FeaureSummary
 include(FeatureSummary)
 
