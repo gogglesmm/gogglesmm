@@ -233,7 +233,7 @@ void gm_convert_uri_to_filenames(FXString & files,FXStringList & filelist){
   for(begin=0;begin<files.length();begin=end+2){
     end=files.find_first_of("\r\n",begin);
     if (end<0) end = files.length();
-    file = FXURL::decode(FXURL::fileFromURL(files.mid(begin,end-begin)));
+    file = FXURL::fileFromURL(files.mid(begin,end-begin));
     if (!file.empty()) filelist.append(file);
     }
   }
@@ -257,7 +257,7 @@ void gm_convert_gnomeclipboard_to_filenames(FXString & files,FXStringList & file
     end=files.find_first_of("\r\n",begin);
     if (end<0) end = files.length();
     if (begin) {
-      file = FXURL::decode(FXURL::fileFromURL(files.mid(begin,end-begin)));
+      file = FXURL::fileFromURL(files.mid(begin,end-begin));
       if (!file.empty()) filelist.append(file);
       }
     }

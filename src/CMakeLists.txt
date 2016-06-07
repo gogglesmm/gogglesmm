@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3.1 FATAL_ERROR)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)
+include(FeatureSummary)
+
 
 project(GOGGLESMM VERSION 1.1.0)
 
@@ -14,9 +16,9 @@ TEST_BIG_ENDIAN(GOGGLESMM_BIGENDIAN)
 
 find_package(PkgConfig)
 
-pkg_check_modules(FOX fox17>=1.7.48 REQUIRED)
-pkg_check_modules(TAGLIB taglib REQUIRED)
-pkg_check_modules(SQLITE sqlite3 REQUIRED)
+pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
+pkg_check_modules(TAGLIB taglib>=1.9.0 REQUIRED)
+pkg_check_modules(SQLITE sqlite3>=3.6.19 REQUIRED)
 
 pkg_check_modules(SM sm)
 pkg_check_modules(ICE ice)
@@ -38,6 +40,8 @@ endif()
 
 if(SM_FOUND AND ICE_FOUND)
     set(HAVE_SESSION 1)
+    set(HAVE_SM 1)
+    set(HAVE_ICE 1)
 endif()
 
 # libgrypt
@@ -52,7 +56,6 @@ endif (LIBGCRYPT_HEADERS_FOUND)
 if (LIBGCRYPT_LIBRARIES)
    set(LIBGCRYPT_FOUND TRUE)
    set(HAVE_GCRYPT true)
-   message(STATUS "libgcrypt found: ${LIBGCRYPT_LIBRARIES}")
 endif()
 
 
@@ -79,10 +82,6 @@ message(FATAL_ERROR "Unable to find reswrap")
 endif()
 
 
-
-
-
-
 #------------------------------------------------------------------------------
 
 # We need C++ 11
@@ -97,6 +96,10 @@ set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
 
 # Don't use CMAKE_INSTALL_PREFIX since most icons won't be installed anywhere but /usr
 set(ICON_PATH /usr/share/icons)
+
+# Display the build type
+message(STATUS "Icon Path: ${ICON_PATH}")
+message(STATUS "Locale Path: ${LOCALE_PATH}")
 
 #------------------------------------------------------------------------------
 
@@ -262,7 +265,18 @@ if (DBUS_FOUND)
         )
 
     set(HAVE_DBUS 1)
+
+
 endif()
+
+
+# Features
+add_feature_info(dbus HAVE_DBUS "DBus")
+add_feature_info(NLS WITH_NLS "Native Language Support")
+add_feature_info(grcypt LIBGCRYPT_FOUND "libgcrypt")
+add_feature_info(opengl HAVE_OPENGL "OpenGL Rendering")
+add_feature_info(session HAVE_SESSION "X11 Session Management")
+
 
 # Write gmconfig.h
 configure_file(gmconfig.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gmconfig.h)

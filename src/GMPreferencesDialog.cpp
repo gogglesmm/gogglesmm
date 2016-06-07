@@ -728,8 +728,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         oss_device_label->hide();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     case DeviceOSS:
@@ -742,8 +740,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         oss_device_label->show();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     case DevicePulse:
@@ -756,23 +752,8 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         oss_device_label->hide();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
-    case DeviceJack:
-      {
-        alsa_device_label->hide();
-        alsa_device->hide();
-        alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();
-        oss_device->hide();
-        oss_device_label->hide();
-        pulse_device->hide();
-        pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
-      } break;
     default:
       {
         alsa_device_label->hide();
@@ -783,8 +764,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         oss_device_label->hide();
         pulse_device->hide();
         pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     }
