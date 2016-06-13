@@ -130,7 +130,7 @@ struct HttpStatus {
   };
 
 
-class HttpHeader {
+class GMAPI HttpHeader {
 public:
   enum {
     ParseFieldName = 0x1,
@@ -141,7 +141,7 @@ protected:
   };
 
 
-class HttpMediaType : public HttpHeader {
+class GMAPI HttpMediaType : public HttpHeader {
 public:
   FXString           mime;
   FXStringDictionary parameters;
@@ -152,7 +152,7 @@ public:
   };
 
 
-class HttpContentRange : public HttpHeader {
+class GMAPI HttpContentRange : public HttpHeader {
 public:
   FXlong first  = -1;
   FXlong last   = -1;
@@ -164,7 +164,7 @@ public:
   };
 
 /* Http Response Parser */
-class HttpResponse {
+class GMAPI HttpResponse {
 protected:
 	HttpIO       io;								// IO Stream
   FXint        content_length;    // Content Length from header

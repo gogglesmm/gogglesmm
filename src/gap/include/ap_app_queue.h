@@ -21,7 +21,7 @@
 
 namespace ap {
 
-class FXAppQueue : public EventQueue {
+class GMAPI FXAppQueue : public EventQueue {
 protected:
   FXMutex            mfifo;
   FXMessageChannel * channel;

@@ -22,23 +22,23 @@
 namespace ap {
 
 // Get user codec compatible with GMFilename
-extern const FXTextCodec * ap_get_usercodec(FXuint codec);
+extern GMAPI const FXTextCodec * ap_get_usercodec(FXuint codec);
 
-extern void ap_parse_pls(const FXString & data,FXStringList & mrl);
+extern GMAPI void ap_parse_pls(const FXString & data,FXStringList & mrl);
 
-extern void ap_parse_m3u(const FXString & data,FXStringList & mrl);
+extern GMAPI void ap_parse_m3u(const FXString & data,FXStringList & mrl);
 
-extern void ap_parse_xspf(const FXString & data,FXStringList & mrl,FXString & title);
+extern GMAPI void ap_parse_xspf(const FXString & data,FXStringList & mrl,FXString & title);
 
-extern FXbool ap_set_nonblocking(FXInputHandle fd);
+extern GMAPI FXbool ap_set_nonblocking(FXInputHandle fd);
 
-extern FXbool ap_set_closeonexec(FXInputHandle fd);
-
-
-extern void ap_set_thread_name(const FXchar *);
+extern GMAPI FXbool ap_set_closeonexec(FXInputHandle fd);
 
 
-class Base64Encoder {
+extern GMAPI void ap_set_thread_name(const FXchar *);
+
+
+class GMAPI Base64Encoder {
 private:
   static const FXchar base64[];
 private:

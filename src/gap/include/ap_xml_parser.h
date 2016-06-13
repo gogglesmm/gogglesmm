@@ -21,7 +21,7 @@
 
 namespace ap {
 
-class XmlParser {
+class GMAPI XmlParser {
 private:
   FXint* nodes;
   FXint  nnodes;
