@@ -104,6 +104,7 @@ install(FILES extra/gogglesmm_22.png DESTINATION share/icons/hicolor/22x22/apps 
 install(FILES extra/gogglesmm_24.png DESTINATION share/icons/hicolor/24x24/apps RENAME gogglesmm.png)
 install(FILES icons/gogglesmm_32.png DESTINATION share/icons/hicolor/32x32/apps RENAME gogglesmm.png)
 install(FILES extra/gogglesmm_48.png DESTINATION share/icons/hicolor/48x48/apps RENAME gogglesmm.png)
+install(FILES extra/gogglesmm_64.png DESTINATION share/icons/hicolor/64x64/apps RENAME gogglesmm.png)
 install(FILES extra/gogglesmm.svg DESTINATION share/icons/hicolor/scalable/apps RENAME gogglesmm.svg)
 install(FILES extra/gogglesmm.appdata.xml DESTINATION share/appdata)
 install(FILES extra/gogglesmm.desktop DESTINATION share/applications)
@@ -130,6 +131,9 @@ if(WITH_NLS)
         install(FILES po/${lang}.mo DESTINATION share/locale/${lang}/LC_MESSAGES RENAME gogglesmm.mo)
     endforeach()
 endif()
+
+
+install(SCRIPT build/update_icons.cmake)
 
 
 feature_summary(WHAT ENABLED_FEATURES DESCRIPTION "Features:\n")
