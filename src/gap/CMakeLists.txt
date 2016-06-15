@@ -67,12 +67,12 @@ set_package_properties(oss PROPERTIES
                             PURPOSE "\toss output support"
                             TYPE OPTIONAL)
 
+# Allow GAP to be build as a shared library.
 if(MSVC)
-  set(BUILD_GAP_SHARED_LIB ON)
+  set(BUILD_GAP_SHARED_LIB ON CACHE BOOL "Build libgap as a shared library" FORCE)
 else()
-  set(BUILD_GAP_SHARED_LIB OFF)
+  set(BUILD_GAP_SHARED_LIB OFF CACHE BOOL "Build libgap as a shared library")
 endif()
-
 
 
 # Optional flags to turn on/off compilation of specific modules
@@ -151,27 +151,19 @@ endif()
 # Check for libmad
 check_include_files(mad.h HAVE_MAD_H)
 if (HAVE_MAD_H)
-   set(LIBMAD_HEADERS_FOUND TRUE)
-endif (HAVE_MAD_H)
-
-if (LIBMAD_HEADERS_FOUND)
-   find_library(MAD_LIBRARIES NAMES mad )
-endif (LIBMAD_HEADERS_FOUND)
-if (MAD_LIBRARIES)
-   set(MAD_FOUND TRUE)
+  find_library(MAD_LIBRARIES NAMES mad )
+  if (MAD_LIBRARIES)
+    set(MAD_FOUND TRUE)
+  endif()
 endif()
 
 # Check for faad
 check_include_files(faad.h HAVE_FAAD_H)
 if (HAVE_FAAD_H)
-   set(LIBFAAD_HEADERS_FOUND TRUE)
-endif (HAVE_FAAD_H)
-
-if (LIBFAAD_HEADERS_FOUND)
-   find_library(FAAD_LIBRARIES NAMES faad )
-endif (LIBFAAD_HEADERS_FOUND)
-if (FAAD_LIBRARIES)
-   set(FAAD_FOUND TRUE)
+  find_library(FAAD_LIBRARIES NAMES faad )
+  if (FAAD_LIBRARIES)
+    set(FAAD_FOUND TRUE)
+  endif()
 endif()
 
 
