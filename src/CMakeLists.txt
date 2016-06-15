@@ -5,7 +5,7 @@ include(CheckIncludeFiles)
 include(FeatureSummary)
 
 
-project(GOGGLESMM VERSION 1.0.14)
+project(GOGGLESMM VERSION 1.0.15)
 
 option(WITH_OPENGL "Enable OpenGL Features" ON)
 option(WITH_DBUS "Enable DBUS Features" ON)

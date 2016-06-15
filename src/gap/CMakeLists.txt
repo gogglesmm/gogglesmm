@@ -2,10 +2,9 @@ cmake_minimum_required(VERSION 3.3.1 FATAL_ERROR)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)
-include(FindEXPAT)
 include(FeatureSummary)
 
-project(GAP VERSION 1.0.14)
+project(GAP VERSION 1.0.15)
 
 
 set_package_properties(FOX PROPERTIES
