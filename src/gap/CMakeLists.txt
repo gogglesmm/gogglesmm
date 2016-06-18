@@ -4,7 +4,7 @@ include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
 
-project(GAP VERSION 1.0.15)
+project(GAP VERSION 1.0.16)
 
 
 set_package_properties(FOX PROPERTIES
