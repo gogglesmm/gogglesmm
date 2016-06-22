@@ -29,6 +29,7 @@ if(WITH_DBUS)
 endif()
 
 if(WITH_OPENGL)
+  find_package(OpenGL REQUIRED)
   pkg_check_modules(GLEW glew REQUIRED)
   pkg_check_modules(GLU glu REQUIRED)
   set(HAVE_OPENGL 1)
@@ -305,6 +306,7 @@ target_link_libraries(gogglesmm PRIVATE gap
                       ${SQLITE_LIBRARIES}
                       ${TAGLIB_LIBRARIES}
                       ${DBUS_LIBRARIES}
+                      ${OPENGL_gl_LIBRARY}
                       ${GLU_LIBRARIES}
                       ${GLEW_LIBRARIES}
                       ${X11_LIBRARIES}
