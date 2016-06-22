@@ -48,7 +48,7 @@ endif()
 check_include_files(gcrypt.h HAVE_GCRYPT_H)
 if (HAVE_GCRYPT_H)
   find_library(LIBGCRYPT_LIBRARIES NAMES gcrypt )
-  if (FAAD_LIBRARIES)
+  if (LIBGCRYPT_LIBRARIES)
     set(HAVE_GCRYPT TRUE)
   endif()
 endif()
@@ -148,6 +148,12 @@ set(SOURCES
   fxext.cpp
   gmutils.cpp
   )
+
+# Link to private md5
+if(NOT HAVE_GCRYPT)
+    LIST(APPEND SOURCES md5.cpp)
+endif()
+
 
 set(ICONS ${CMAKE_SOURCE_DIR}/icons/cursor_hand.gif
 ${CMAKE_SOURCE_DIR}/icons/about.png
