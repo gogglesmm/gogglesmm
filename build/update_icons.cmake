@@ -1,4 +1,4 @@
-if(DEFINED ENV{DESTDIR})
+if(NOT DEFINED ENV{DESTDIR})
   find_program(XDG_ICON_RESOURCE xdg-icon-resource)
   if (XDG_ICON_RESOURCE)
     message(STATUS "Updating icon cache")
