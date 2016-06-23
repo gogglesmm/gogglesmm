@@ -1,3 +1,6 @@
+1.0.17
+  - cmake: fix libgcrypt detection and link to internal md5 if no gcrypt is available
+
 1.0.16
   - cmake: fix gogglesmm not using BUILD_GAP_SHARED_LIB variable
 
