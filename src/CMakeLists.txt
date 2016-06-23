@@ -152,7 +152,7 @@ set(SOURCES
 
 # Link to private md5
 if(NOT HAVE_GCRYPT)
-    LIST(APPEND SOURCES md5.cpp)
+    list(APPEND SOURCES md5.cpp)
 endif()
 
 
@@ -240,7 +240,7 @@ ADD_CUSTOM_COMMAND(
 
 if (DBUS_FOUND)
 
-    LIST(APPEND SOURCES GMDBus.cpp
+    list(APPEND SOURCES GMDBus.cpp
                         GMSettingsDaemon.cpp
                         GMMediaPlayerService.cpp
                         GMNotifyDaemon.cpp
@@ -306,7 +306,6 @@ target_link_libraries(gogglesmm PRIVATE gap
                       ${SQLITE_LIBRARIES}
                       ${TAGLIB_LIBRARIES}
                       ${DBUS_LIBRARIES}
-                      ${OPENGL_gl_LIBRARY}
                       ${GLU_LIBRARIES}
                       ${GLEW_LIBRARIES}
                       ${X11_LIBRARIES}
