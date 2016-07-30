@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import sqlite3
 import urlparse
 import urllib
