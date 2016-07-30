@@ -94,7 +94,6 @@ TEST_BIG_ENDIAN(GAP_BIGENDIAN)
 # libdir name to allow overriding to lib32 / lib64
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Specify the name of the directory where libraries are meant to be installed")
 
-
 # Make CMAKE_INSTALL_LIBDIR relative to CMAKE_INSTALL_PREFIX
 if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
   set(CMAKE_INSTALL_FULL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
@@ -307,6 +306,7 @@ if (FAAD_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_aac_plugin.cpp plugins/ap_mp4.cpp)
   LIST(APPEND LIBRARIES ${FAAD_LIBRARIES})
   set(HAVE_FAAD_PLUGIN 1)
+  set(HAVE_MP4_PLUGIN 1)
 endif()
 
 if (SMB_FOUND)
