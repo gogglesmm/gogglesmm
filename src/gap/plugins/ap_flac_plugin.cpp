@@ -129,7 +129,7 @@ public:
 
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
-extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+extern void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 
 enum {
   FLAC_BLOCK_STREAMINFO     = 0,
@@ -137,9 +137,9 @@ enum {
   };
 
 
-void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
+void flac_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
   FXString comment;
-  const FXchar * end = buffer+len;
+  const FXuchar * end = buffer+len;
 
   FXuint header=((const FXuint*)buffer)[0];
   if (FLAC_BLOCK_TYPE(header)!=FLAC_BLOCK_VORBISCOMMENT)

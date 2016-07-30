@@ -429,7 +429,7 @@ static const FXuint vorbis_channel_map[]={
 
 #ifdef HAVE_OPUS_PLUGIN
 
-extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+extern void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 
 
 ReadStatus OggReader::parse_opus_stream() {
@@ -439,7 +439,7 @@ ReadStatus OggReader::parse_opus_stream() {
 
       ConfigureEvent * config = new ConfigureEvent(af,codec);
       MetaInfo       * meta   = new MetaInfo();
-      ap_parse_vorbiscomment((FXchar*)op.packet+8,op.bytes-8,config->replaygain,meta);
+      ap_parse_vorbiscomment(op.packet+8,op.bytes-8,config->replaygain,meta);
 
       config->stream_offset_start = stream_offset_start;
 
@@ -628,7 +628,7 @@ error:
 
 #ifdef HAVE_FLAC_PLUGIN
 
-extern void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+extern void flac_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
 
 ReadStatus OggReader::parse_flac_stream() {
@@ -639,7 +639,7 @@ ReadStatus OggReader::parse_flac_stream() {
     ConfigureEvent * config = new ConfigureEvent(af,codec,stream_length);
     MetaInfo * meta         = new MetaInfo;
 
-    flac_parse_vorbiscomment((const FXchar*)op.packet,op.bytes,config->replaygain,meta);
+    flac_parse_vorbiscomment(op.packet,op.bytes,config->replaygain,meta);
 
     /// Now we are ready to init the decoder
     engine->decoder->post(config);
