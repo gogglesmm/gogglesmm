@@ -619,6 +619,7 @@ error:
 
 extern void flac_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
+extern FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_length);
 
 ReadStatus OggReader::parse_flac_stream() {
   if (flags&FLAG_OGG_FLAC)  {
