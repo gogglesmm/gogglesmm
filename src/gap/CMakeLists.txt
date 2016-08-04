@@ -2,10 +2,13 @@ cmake_minimum_required(VERSION 3.3.1 FATAL_ERROR)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)
-include(FindEXPAT)
 include(FeatureSummary)
 
-project(GAP VERSION 1.0.14)
+# Third Party Modules
+add_subdirectory(lib/alac)
+
+
+project(GAP VERSION 1.0.17)
 
 
 set_package_properties(FOX PROPERTIES
@@ -67,6 +70,14 @@ set_package_properties(oss PROPERTIES
                             PURPOSE "\toss output support"
                             TYPE OPTIONAL)
 
+# Allow GAP to be build as a shared library.
+if(MSVC)
+  set(BUILD_GAP_SHARED_LIB ON CACHE BOOL "Build libgap as a shared library" FORCE)
+else()
+  set(BUILD_GAP_SHARED_LIB OFF CACHE BOOL "Build libgap as a shared library")
+endif()
+
+
 # Optional flags to turn on/off compilation of specific modules
 if(UNIX)
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -86,6 +97,15 @@ TEST_BIG_ENDIAN(GAP_BIGENDIAN)
 
 # libdir name to allow overriding to lib32 / lib64
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Specify the name of the directory where libraries are meant to be installed")
+
+# Make CMAKE_INSTALL_LIBDIR relative to CMAKE_INSTALL_PREFIX
+if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
+  set(CMAKE_INSTALL_FULL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+  file(RELATIVE_PATH CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_LIBDIR})
+else()
+  set(CMAKE_INSTALL_FULL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+endif()
+
 
 # Update whenever ABI changes
 set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added, removed or changed.
@@ -121,7 +141,7 @@ else()
   pkg_check_modules(OGG ogg>=1.0)
   pkg_check_modules(OPUS opus)
   pkg_check_modules(TREMOR vorbisidec>=1.2)
-  
+
   # We need
   #pkg_check_modules(JACK jack)
   #pkg_check_modules(CDDA libcdio_cdda)
@@ -133,31 +153,24 @@ endif()
 # Check for libmad
 check_include_files(mad.h HAVE_MAD_H)
 if (HAVE_MAD_H)
-   set(LIBMAD_HEADERS_FOUND TRUE)
-endif (HAVE_MAD_H)
-
-if (LIBMAD_HEADERS_FOUND)
-   find_library(MAD_LIBRARIES NAMES mad )
-endif (LIBMAD_HEADERS_FOUND)
-if (MAD_LIBRARIES)
-   set(MAD_FOUND TRUE)
+  find_library(MAD_LIBRARIES NAMES mad )
+  if (MAD_LIBRARIES)
+    set(MAD_FOUND TRUE)
+  endif()
 endif()
 
 # Check for faad
 check_include_files(faad.h HAVE_FAAD_H)
 if (HAVE_FAAD_H)
-   set(LIBFAAD_HEADERS_FOUND TRUE)
-endif (HAVE_FAAD_H)
-
-if (LIBFAAD_HEADERS_FOUND)
-   find_library(FAAD_LIBRARIES NAMES faad )
-endif (LIBFAAD_HEADERS_FOUND)
-if (FAAD_LIBRARIES)
-   set(FAAD_FOUND TRUE)
+  find_library(FAAD_LIBRARIES NAMES faad )
+  if (FAAD_LIBRARIES)
+    set(FAAD_FOUND TRUE)
+  endif()
 endif()
 
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/lib/alac ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
+
 
 set(SOURCES ap_app_queue.cpp
             ap_buffer.cpp
@@ -188,6 +201,7 @@ set(SOURCES ap_app_queue.cpp
             ap_xml_parser.cpp
             )
 
+
 set(HEADERS ap_buffer.h
             ap_config.h
             ap_connect.h
@@ -212,6 +226,7 @@ set(HEADERS ap_buffer.h
             ap_utils.h
             ap_wait_io.h
             )
+
 
 set(PUBLIC_HEADERS include/ap.h
                    include/ap_app_queue.h
@@ -244,6 +259,10 @@ add_feature_info(flac FLAC_FOUND "Free Lossless Audio Codec")
 add_feature_info(mad MAD_FOUND "MPEG audio decoder")
 add_feature_info(faad FAAD_FOUND "MPEG-4 and MPEG-2 AAC decoder")
 
+# Link to FOX during shared library build
+if (BUILD_GAP_SHARED_LIB)
+  LIST(APPEND LIBRARIES ${FOX_LIBRARIES})
+endif()
 
 if (FLAC_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_flac_plugin.cpp)
@@ -257,7 +276,6 @@ if (TREMOR_FOUND AND OGG_FOUND AND WITH_TREMOR)
   set(HAVE_TREMOR_PLUGIN 1)
   add_feature_info(tremor ON "Vorbis Decoder")
   add_feature_info(vorbis OFF "Vorbis Decoder")
-
 endif()
 
 if (VORBIS_FOUND AND OGG_FOUND AND NOT WITH_TREMOR)
@@ -305,9 +323,17 @@ if (SAMPLERATE_FOUND)
   set(HAVE_SAMPLERATE_PLUGIN 1)
 endif()
 
+# ALAC Support
+LIST(APPEND PLUGIN_SOURCES plugins/ap_alac.cpp)
+LIST(APPEND LIBRARIES gap_alac)
+set(HAVE_ALAC_PLUGIN 1)
+set(HAVE_MP4_PLUGIN 1)
+
+
 add_library(gap_plugins OBJECT ${PLUGIN_SOURCES})
+
 target_include_directories(gap_plugins BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-if(BUILD_SHARED_LIBS)
+if(BUILD_GAP_SHARED_LIB)
   set_property(TARGET gap_plugins PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 endif()
 
@@ -315,7 +341,7 @@ endif()
 # Wav File output
 add_library(gap_wav MODULE plugins/ap_wavout_plugin.cpp)
 target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-install(TARGETS gap_wav LIBRARY DESTINATION lib/gogglesmm)
+install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
 
 
 # Depend on symbols in main executable
@@ -325,14 +351,14 @@ endif()
 
 
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows") 
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
   # Alsa Output
   if (ALSA_FOUND AND WITH_ALSA)
     add_library(gap_alsa MODULE plugins/ap_alsa_plugin.cpp)
     target_link_libraries(gap_alsa ${ALSA_LIBRARIES})
     target_include_directories(gap_alsa BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-    install(TARGETS gap_alsa LIBRARY DESTINATION lib/gogglesmm)
+    install(TARGETS gap_alsa LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
     set(HAVE_ALSA_PLUGIN 1)
     add_feature_info(alsa ON "Advanced Linux Sound Architecture")
   endif()
@@ -342,7 +368,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
     add_library(gap_pulse MODULE plugins/ap_pulse_plugin.cpp)
     target_link_libraries(gap_pulse ${PULSE_LIBRARIES})
     target_include_directories(gap_pulse BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-    install(TARGETS gap_pulse LIBRARY DESTINATION lib/gogglesmm)
+    install(TARGETS gap_pulse LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
     set(HAVE_PULSE_PLUGIN 1)
     add_feature_info(pulse ON "PulseAudio")
   endif()
@@ -363,26 +389,28 @@ if(UNIX AND WITH_OSS)
     add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
     target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
     target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-    install(TARGETS gap_oss LIBRARY DESTINATION lib/gogglesmm)
+    install(TARGETS gap_oss LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
     set(HAVE_OSS_PLUGIN 1)
     add_feature_info(oss ON "OSS Output")
 endif()
 
 
-set(AP_PLUGIN_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/gogglesmm)
-
+set(AP_PLUGIN_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/gogglesmm)
 
 configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
 
-add_library(gap ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins>)
+# Gap Library
+if(BUILD_GAP_SHARED_LIB)
+  add_library(gap SHARED ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins>)
+else()
+  add_library(gap STATIC ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins>)
+endif()
+
 target_link_libraries(gap ${LIBRARIES})
-
-
 set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
-
 target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-if(BUILD_SHARED_LIBS)
+if(BUILD_GAP_SHARED_LIB)
   #set_target_properties(gap PROPERTIES VERSION ${GAP_VERSION} SOVERSION ${GAP_SOVERSION})
   install(TARGETS gap LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
   install(FILES include/ap.h
@@ -391,7 +419,6 @@ if(BUILD_SHARED_LIBS)
                 include/ap_buffer_io.h
                 include/ap_common.h
                 include/ap_device.h
-                include/ap_dsp.h
                 include/ap_event.h
                 include/ap_event_queue.h
                 include/ap_http.h

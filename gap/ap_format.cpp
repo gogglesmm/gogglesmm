@@ -33,6 +33,7 @@ static const FXchar * const codecs[]={
   "MPEG",
   "AAC",
   "Opus",
+  "ALAC",
   };
 
 static const FXchar * const byteorders[]={

@@ -83,7 +83,11 @@ void GMAboutDialog::setup(){
                  "terms of the GNU General Public License\n"
                  "as published by the Free Software Foundation,\n"
                  "either version 3 of the License, or (at your\n"
-                 "option) any later version.";
+                 "option) any later version.\n\n"
+                 "ALAC (Apple Lossless Audio Codec) decoder\n"
+                 "Copyright " UTF8_COPYRIGHT_SIGN " 2005 David Hammerton\n"
+                 "All rights reserved.\n";
+
 
   label = new FXLabel(this,"v" GOGGLESMM_VERSION_STRING,nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,5);
   label->setBackColor(FXRGB(255,255,255));

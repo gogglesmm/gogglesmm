@@ -396,10 +396,9 @@ FXuchar GMFileTag::getFileType() const {
   TagLib::MP4::File       * mp4file    = nullptr;
   TagLib::AudioProperties * properties = file->audioProperties();
   if (properties) {
-    if ((dynamic_cast<TagLib::Ogg::Vorbis::File*>(file))) {
-      if (dynamic_cast<TagLib::Vorbis::Properties*>(properties)) {
+    if ((dynamic_cast<TagLib::Ogg::File*>(file))) {
+      if (dynamic_cast<TagLib::Vorbis::Properties*>(properties))
         return FILETYPE_OGG_VORBIS;
-        }
       else if (dynamic_cast<TagLib::Ogg::Opus::Properties*>(properties))
         return FILETYPE_OGG_OPUS;
       }

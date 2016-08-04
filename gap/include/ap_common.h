@@ -22,7 +22,7 @@
 namespace ap {
 
 // Get user codec compatible with GMFilename
-extern GMAPI const FXTextCodec *  ap_get_usercodec(FXuint codec);
+extern GMAPI const FXTextCodec * ap_get_usercodec(FXuint codec);
 
 extern GMAPI void ap_parse_pls(const FXString & data,FXStringList & mrl);
 

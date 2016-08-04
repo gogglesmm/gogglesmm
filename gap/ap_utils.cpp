@@ -341,27 +341,28 @@ void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,
   }
 
 
-void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
+void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
   FXString comment;
   FXint size=0;
   FXint ncomments=0;
-  const FXchar * end = buffer+len;
+  const FXuchar * end = buffer + len;
 
-  /// Vendor string
+  // Vendor string
   size = INT32_LE(buffer);
-  if (size) buffer+=4+size;
-  if (buffer>=end) return;
-
-  /// Number of user comments
+  if (size<0 || ((end-buffer-4)>size)) return;
+  buffer+=4;
+  
+  // Number of user comments
   ncomments = INT32_LE(buffer);
+  if (ncomments<0) return; 
   buffer+=4;
 
-  for (FXint i=0;i<ncomments && (buffer<=end);i++) {
+  // Read each comment
+  for (FXint i=0;(i<ncomments) && (end-buffer>4);i++) {
     size = INT32_LE(buffer);
-    if (buffer+size+4>end)
-      return;
-    ap_replaygain_from_vorbis_comment(gain,buffer+4,size);
-    ap_meta_from_vorbis_comment(meta,buffer+4,size);
+    if(size<0 || ((end-buffer)>size)) return;
+    ap_replaygain_from_vorbis_comment(gain,reinterpret_cast<const FXchar*>(buffer+4),size);
+    ap_meta_from_vorbis_comment(meta,reinterpret_cast<const FXchar*>(buffer+4),size);
     buffer+=4+size;
     }
   }
