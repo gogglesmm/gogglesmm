@@ -4,6 +4,7 @@
 #cmakedefine HAVE_OPUS
 #cmakedefine HAVE_MAD
 #cmakedefine HAVE_FAAD
+#cmakedefine HAVE_ALAC
 #cmakedefine HAVE_SAMPLERATE
 #cmakedefine HAVE_CDDA
 #cmakedefine HAVE_ALSA

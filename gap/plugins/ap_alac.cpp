@@ -49,7 +49,7 @@ enum {
   AAC_FLAG_FRAME  = 0x4
   };
 
-#ifdef HAVE_ALAC_PLUGIN
+#ifdef HAVE_ALAC
 
 class AlacDecoder : public DecoderPlugin {
 protected:
@@ -114,7 +114,7 @@ FXbool AlacDecoder::flush(FXlong offset) {
 FXbool AlacDecoder::getNextFrame(Packet *& packet,FXuchar *& ptr,FXuint & framesize) {
   framesize=0;
 
-  // data in local cache  
+  // data in local cache
   if (buffer.size()) {
 
     // read next framesize
@@ -125,7 +125,7 @@ FXbool AlacDecoder::getNextFrame(Packet *& packet,FXuchar *& ptr,FXuint & frames
       buffer.readBytes(4);
       ptr=buffer.data();
       buffer.readBytes(framesize);
-      return true;  
+      return true;
       }
 
     // see if packet contains additional data
@@ -142,7 +142,7 @@ FXbool AlacDecoder::getNextFrame(Packet *& packet,FXuchar *& ptr,FXuint & frames
         if (packet->size()==0) {
           packet->unref();
           packet=nullptr;
-          }   
+          }
         return true;
         }
 
@@ -160,7 +160,7 @@ FXbool AlacDecoder::getNextFrame(Packet *& packet,FXuchar *& ptr,FXuint & frames
 
       // read next framesize
       memcpy(&framesize,packet->data(),4);
-      
+
       // get frame from packet
       if (framesize+4<=packet->size()){
         packet->readBytes(4);
@@ -170,7 +170,7 @@ FXbool AlacDecoder::getNextFrame(Packet *& packet,FXuchar *& ptr,FXuint & frames
           packet->unref();
           packet=nullptr;
           }
-        return true;  
+        return true;
         }
       }
 
@@ -204,7 +204,7 @@ DecoderStatus AlacDecoder::process(Packet*packet){
 
     while(getNextFrame(packet,inputdata,framesize)) {
       FXint nframes=outbuf.space();
-      decode_frame(handle,inputdata,outbuf.ptr(),&nframes);      
+      decode_frame(handle,inputdata,outbuf.ptr(),&nframes);
       outbuf.wroteBytes(nframes);
       nframes /= af.framesize();
 
