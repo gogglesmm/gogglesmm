@@ -43,7 +43,8 @@ namespace Codec {
     Vorbis    = 3,
     MPEG      = 4,
     AAC       = 5,
-    Opus      = 6
+    Opus      = 6,
+    ALAC      = 7
     };
 
   extern const FXchar * name(FXuchar codec);

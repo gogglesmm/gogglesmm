@@ -47,7 +47,7 @@ enum {
   AAC_FLAG_FRAME  = 0x4
   };
 
-#ifdef HAVE_AAC_PLUGIN
+#ifdef HAVE_FAAD_PLUGIN
 
 class AACReader : public ReaderPlugin {
 public:

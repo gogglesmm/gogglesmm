@@ -4,6 +4,10 @@ include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
 
+# Third Party Modules
+add_subdirectory(lib/alac)
+
+
 project(GAP VERSION 1.0.17)
 
 
@@ -137,7 +141,7 @@ else()
   pkg_check_modules(OGG ogg>=1.0)
   pkg_check_modules(OPUS opus)
   pkg_check_modules(TREMOR vorbisidec>=1.2)
-  
+
   # We need
   #pkg_check_modules(JACK jack)
   #pkg_check_modules(CDDA libcdio_cdda)
@@ -165,7 +169,7 @@ if (HAVE_FAAD_H)
 endif()
 
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/lib/alac ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS})
 
 
 set(SOURCES ap_app_queue.cpp
@@ -306,7 +310,6 @@ if (FAAD_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_aac_plugin.cpp plugins/ap_mp4.cpp)
   LIST(APPEND LIBRARIES ${FAAD_LIBRARIES})
   set(HAVE_FAAD_PLUGIN 1)
-  set(HAVE_MP4_PLUGIN 1)
 endif()
 
 if (SMB_FOUND)
@@ -320,7 +323,15 @@ if (SAMPLERATE_FOUND)
   set(HAVE_SAMPLERATE_PLUGIN 1)
 endif()
 
+# ALAC Support
+LIST(APPEND PLUGIN_SOURCES plugins/ap_alac.cpp)
+LIST(APPEND LIBRARIES gap_alac)
+set(HAVE_ALAC_PLUGIN 1)
+set(HAVE_MP4_PLUGIN 1)
+
+
 add_library(gap_plugins OBJECT ${PLUGIN_SOURCES})
+
 target_include_directories(gap_plugins BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 if(BUILD_GAP_SHARED_LIB)
   set_property(TARGET gap_plugins PROPERTY POSITION_INDEPENDENT_CODE TRUE)
@@ -340,7 +351,7 @@ endif()
 
 
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows") 
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
   # Alsa Output
   if (ALSA_FOUND AND WITH_ALSA)

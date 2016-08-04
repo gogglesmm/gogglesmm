@@ -357,7 +357,7 @@ check_gap_packages()
     elif [ $OPTION_GAP_FORCE_FAAD -eq 1 ] ; then
       echo "  Adding faad"
       EXTRA_LIBS="$EXTRA_LIBS -lfaad"
-      add_gap_config aac
+      add_gap_config faad
       add_gap_config mp4
     fi
     echo " "

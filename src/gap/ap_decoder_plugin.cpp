@@ -55,6 +55,7 @@ extern DecoderPlugin * ap_pcm_decoder(AudioEngine*);
 extern DecoderPlugin * ap_vorbis_decoder(AudioEngine*);
 extern DecoderPlugin * ap_mad_decoder(AudioEngine*);
 extern DecoderPlugin * ap_aac_decoder(AudioEngine*);
+extern DecoderPlugin * ap_alac_decoder(AudioEngine*);
 extern DecoderPlugin * ap_opus_decoder(AudioEngine*);
 
 DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
@@ -72,8 +73,12 @@ DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
 //#ifdef HAVE_AVCODEC_PLUGIN
 //    case Codec::MPEG    : return new AVDecoder(engine); break;
 //#endif
-#ifdef HAVE_AAC_PLUGIN
+#ifdef HAVE_FAAD_PLUGIN
     case Codec::AAC     : return ap_aac_decoder(engine); break;
+#endif
+
+#ifdef HAVE_ALAC_PLUGIN
+    case Codec::ALAC    : return ap_alac_decoder(engine); break;
 #endif
 
 #ifdef HAVE_OPUS_PLUGIN

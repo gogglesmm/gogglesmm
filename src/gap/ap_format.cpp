@@ -30,10 +30,10 @@ static const FXchar * const codecs[]={
   "PCM",
   "FLAC",
   "Vorbis",
-  "Musepack",
   "MPEG",
   "AAC",
   "Opus",
+  "ALAC",
   };
 
 static const FXchar * const byteorders[]={

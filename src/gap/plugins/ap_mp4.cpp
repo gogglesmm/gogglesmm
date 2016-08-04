@@ -196,11 +196,13 @@ protected:
   MetaInfo*          meta = nullptr;
   FXushort           padstart = 0;
   FXushort           padend = 0;
+  FXlong             framesize = 0;
 protected:
   FXuint read_descriptor_length(FXuint&);
   FXbool atom_parse_asc(const FXuchar*,FXuint size);
   FXbool atom_parse_esds(FXlong size);
   FXbool atom_parse_mp4a(FXlong size);
+  FXbool atom_parse_alac(FXlong size);
   FXbool atom_parse_stsd(FXlong size);
   FXbool atom_parse_stco(FXlong size);
   FXbool atom_parse_stsc(FXlong size);
@@ -267,6 +269,7 @@ FXbool MP4Reader::init(InputPlugin*plugin) {
   clear_tracks();
   nsamples=0;
   sample=0;
+  framesize=0;
   if (meta) {
     meta->unref();
     meta=NULL;
@@ -285,6 +288,7 @@ FXbool MP4Reader::seek(FXlong offset){
     FXint s = track->getSample(offset);
     if (s>=0) {
       sample = s;
+      framesize = 0;
       return true;
       }
     }
@@ -300,30 +304,75 @@ ReadStatus MP4Reader::process(Packet*packet) {
     return parse(packet);
     }
 
-  packet->stream_position = track->getSamplePosition(sample);
-
-  for (;sample<nsamples;sample++) {
-    FXlong size = track->getSampleSize(sample);
-    if (size<0 || size>packet->capacity()) return ReadError;
-    if (size>packet->space()){
+  // Remaining data from sample
+  if (framesize) {
+    FXlong n = FXMIN(framesize,packet->space());
+    if (input->read(packet->ptr(),n)!=n)
+      return ReadError;
+    packet->wroteBytes(n);
+    framesize-=n;
+    if (framesize) {
       engine->decoder->post(packet);
       packet=NULL;
       return ReadOk;
       }
+    sample++;
+    }
+  else {
+    packet->stream_position = track->getSamplePosition(sample);
+    }
+
+  for (;sample<nsamples;sample++) {
+
+    // Framesize for this sample
+    framesize = track->getSampleSize(sample);
+
+    // Gracefully handle unknown framesizes
+    if (__unlikely(framesize<0 || (track->codec==Codec::AAC && framesize>packet->capacity())))
+      return ReadError;
+
+    // Check if packet is full and we should continue at the next packet
+    // AAC decoder can't handle partial frames so only send full frames over
+    if (packet->space()<8 || (track->codec==Codec::AAC && framesize>packet->space())){
+      framesize = 0; // no remaining data to be read next time
+      engine->decoder->post(packet);
+      packet=NULL;
+      return ReadOk;
+      }
+
+    // Locate sample
     FXlong offset = track->getSampleOffset(sample);
     input->position(offset,FXIO::Begin);
-    if (input->read(packet->ptr(),size)!=size){
+
+    // ALAC decoder needs framesize to handle partial frames.
+    if (track->codec==Codec::ALAC) {
+      FXuint size32=framesize; // perhaps bounce check?
+      memcpy(packet->ptr(),&size32,4);
+      packet->wroteBytes(4);
+      }
+
+    FXlong n = FXMIN(framesize,packet->space());
+    if (input->read(packet->ptr(),n)!=n){
       packet->unref();
       return ReadError;
       }
-    packet->wroteBytes(size);
+    packet->wroteBytes(n);
+    framesize-=n;
 
-    if (sample==nsamples-1) {
-      packet->flags|=FLAG_EOS;
+    /// If framesize remaining, assume packet is full
+    if(framesize) {
       engine->decoder->post(packet);
-      packet=NULL;
-      return ReadDone;
+      packet=nullptr;
+      return ReadOk;
       }
+    }
+
+  if (packet) {
+    FXASSERT(sample>=nsamples-1);
+    packet->flags|=FLAG_EOS;
+    engine->decoder->post(packet);
+    packet=nullptr;
+    return ReadDone;
     }
   return ReadOk;
   }
@@ -377,16 +426,26 @@ ReadStatus MP4Reader::parse(Packet * packet) {
     ConfigureEvent * cfg = new ConfigureEvent(af,track->codec);
 
 
-    if (track->codec==Codec::AAC) {
-      /* FAAD seem to handle the encoder delay just fine, so all we need to do
-         is adjust the stream length to account for the encoder delay. The offset end
-         is already taken care of by the track->getLength() call. */
-      if (padstart || padend) {
-        stream_length -= padstart;
-        }
-      else if (stream_length && track->stts.no() && track->ctts.no()) {
-        stream_length -= track->getCompositionOffset(0);
-        }
+    switch(track->codec) {
+
+      case Codec::AAC:
+
+        // FAAD seem to handle the encoder delay just fine, so all we need to do
+        // is adjust the stream length to account for the encoder delay. The offset end
+        // is already taken care of by the track->getLength() call.
+        if (padstart || padend) {
+          stream_length -= padstart;
+          }
+        else if (stream_length && track->stts.no() && track->ctts.no()) {
+          stream_length -= track->getCompositionOffset(0);
+          }
+
+        break;
+
+      case Codec::ALAC:
+        // FIXME encoder delays
+        break;
+
       }
 
     engine->decoder->post(cfg);
@@ -471,6 +530,71 @@ FXbool MP4Reader::atom_parse_trak(FXlong /*size*/) {
   }
 
 
+FXbool MP4Reader::atom_parse_alac(FXlong size) {
+  FXuchar  alac_reserved[16];
+  FXushort index;
+  FXushort version;
+  FXushort channels;
+  FXushort samplesize;
+  FXuint   samplerate;
+
+  if (track==NULL)
+    return false;
+
+  if (input->read(&alac_reserved,6)!=6)
+    return false;
+
+  if (!input->read_uint16_be(index)) // data reference index
+    return false;
+
+  if (!input->read_uint16_be(version))
+    return false;
+
+  if (input->read(&alac_reserved,6)!=6)
+    return false;
+
+  if (!input->read_uint16_be(channels))
+    return false;
+
+  if (!input->read_uint16_be(samplesize))
+    return false;
+
+  if (input->read(&alac_reserved,4)!=4)
+    return false;
+
+  if (!input->read_uint32_be(samplerate))
+    return false;
+
+  samplerate = samplerate >> 16;
+  track->af.set(Format::Signed,samplesize,samplesize>>3,samplerate,channels);
+  track->codec = Codec::ALAC;
+
+  // ALAC specifc info
+  if (input->read(&alac_reserved,12)!=12)
+    return false;
+
+  // Skip ALAC cookie
+  if (size-40==24 || size-40==48) {
+
+    if (track->decoder_specific_info) {
+      GM_DEBUG_PRINT("decoder_specific_info already set?");
+      return false;
+      }
+
+    track->decoder_specific_info_length=size-40;
+
+    allocElms(track->decoder_specific_info,track->decoder_specific_info_length);
+    if (input->read(track->decoder_specific_info,track->decoder_specific_info_length)!=track->decoder_specific_info_length)
+      return false;
+    }
+  else {
+    return false;
+    }
+  return true;
+  }
+
+
+
 FXbool MP4Reader::atom_parse_mp4a(FXlong size) {
   FXuchar  mp4a_reserved[16];
   FXushort index;
@@ -509,9 +633,7 @@ FXbool MP4Reader::atom_parse_mp4a(FXlong size) {
     return false;
 
   samplerate = samplerate >> 16;
-
   track->af.set(AP_FORMAT_S16,samplerate,channels);
-  track->codec = Codec::AAC;
 
   if (version==1) {
     if (input->read(&mp4a_reserved,16)!=16)
@@ -607,6 +729,9 @@ static const FXuint mp4_channel_map[]={
            Channel::BackRight,
            Channel::LFE)
   };
+
+
+
 
 
 FXbool MP4Reader::atom_parse_asc(const FXuchar * data,FXuint length) {
@@ -867,7 +992,7 @@ FXbool MP4Reader::atom_parse_meta_text(FXlong size,FXString & field) {
     if (input->read(&field[0],(length-16))!=(length-16))
       return false;
 #ifdef DEBUG
-    fxmessage("%s\n",field.text());
+    printf("%s\n",field.text());
 #endif
     }
   else {
@@ -888,6 +1013,8 @@ FXbool MP4Reader::atom_parse_stsd(FXlong size) {
 
   if (!input->read_uint32_be(nentries))
     return false;
+
+  FXASSERT(nentries==1);
 
   if (!atom_parse(size-8))
     return false;
@@ -968,7 +1095,7 @@ FXbool MP4Reader::atom_parse_stts(FXlong /*size*/) {
     for (FXuint i=0;i<nsize;i++) {
       if (!input->read_uint32_be(track->stts[i].nsamples)) return false;
       if (!input->read_uint32_be(track->stts[i].delta)) return false;
-      GM_DEBUG_PRINT("stts %d: %d %d\n",i,track->stts[i].nsamples,track->stts[i].delta);
+      //GM_DEBUG_PRINT("stts %d: %d %d\n",i,track->stts[i].nsamples,track->stts[i].delta);
       }
 
     }
@@ -997,7 +1124,7 @@ FXbool MP4Reader::atom_parse_ctts(FXlong /*size*/) {
         return false;
       if (!input->read_int32_be(track->ctts[i].offset))
         return false;
-      GM_DEBUG_PRINT("ctts %d: %d %d\n",i,track->ctts[i].nsamples,track->ctts[i].offset);
+      //GM_DEBUG_PRINT("ctts %d: %d %d\n",i,track->ctts[i].nsamples,track->ctts[i].offset);
       }
     }
   //FXASSERT(size==((nentries*12)+8));
@@ -1053,8 +1180,8 @@ FXbool MP4Reader::atom_parse_header(FXuint & type,FXlong & size,FXlong & contain
     container -= 8;
     }
 #ifdef DEBUG
-  for (int i=0;i<indent;i++) fxmessage("  ");
-  fxmessage("%d-%c%c%c%c-%ld\n",indent,(type)&0xFF,(type>>8)&0xFF,(type>>16)&0xFF,(type>>24),size);
+  for (int i=0;i<indent;i++) printf("  ");
+  printf("%d-%c%c%c%c-%ld\n",indent,(type)&0xFF,(type>>8)&0xFF,(type>>16)&0xFF,(type>>24),size);
 #endif
   return true;
   }
@@ -1077,8 +1204,9 @@ FXbool MP4Reader::atom_parse(FXlong size) {
                  input->position(atom_size,FXIO::Current); ok=true;
                  break;
 
-      case TRAK: ok=atom_parse_trak(atom_size); // intentionally no break
+      case TRAK: ok=atom_parse_trak(atom_size);
                  if(!ok) return false;
+                 // intentionally no break
       case MDIA:
       case MINF:
       case STBL:
@@ -1094,6 +1222,7 @@ FXbool MP4Reader::atom_parse(FXlong size) {
       case STTS: ok=atom_parse_stts(atom_size); break;
       case CTTS: ok=atom_parse_ctts(atom_size); break;
       case MP4A: ok=atom_parse_mp4a(atom_size); break;
+      case ALAC: ok=atom_parse_alac(atom_size); break;
       case ESDS: ok=atom_parse_esds(atom_size); break;
       case DDDD: ok=atom_parse_meta_free(atom_size); break;
       case CART: ok=atom_parse_meta_text(atom_size,meta->artist); break;
