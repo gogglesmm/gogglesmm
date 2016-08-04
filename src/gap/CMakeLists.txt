@@ -307,7 +307,7 @@ if (MAD_FOUND)
 endif()
 
 if (FAAD_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_aac_plugin.cpp plugins/ap_mp4.cpp)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_aac_plugin.cpp)
   LIST(APPEND LIBRARIES ${FAAD_LIBRARIES})
   set(HAVE_FAAD_PLUGIN 1)
 endif()
@@ -324,7 +324,7 @@ if (SAMPLERATE_FOUND)
 endif()
 
 # ALAC Support
-LIST(APPEND PLUGIN_SOURCES plugins/ap_alac.cpp)
+LIST(APPEND PLUGIN_SOURCES plugins/ap_mp4.cpp plugins/ap_alac.cpp)
 LIST(APPEND LIBRARIES gap_alac)
 set(HAVE_ALAC_PLUGIN 1)
 set(HAVE_MP4_PLUGIN 1)
