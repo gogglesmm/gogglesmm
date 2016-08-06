@@ -1,3 +1,12 @@
+1.0.18
+  - ALAC codec support.
+  - add hashbang to installed python scripts
+  - fix vorbis comment parsing
+  - fix opus filetype detection during import.
+  - remove debug statements during release builds.
+  - cmake: fix reverse check for DESTDIR  
+  - cmake: build mp4 reader when faad is enabled
+
 1.0.17
   - cmake: fix libgcrypt detection and link to internal md5 if no gcrypt is available
 
