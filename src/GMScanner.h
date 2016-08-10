@@ -121,7 +121,7 @@ protected:
   // Initialize i3v1 encoding
   void setID3v1Encoding();
 public:
-  GMImportTask(FXObject*tgt=NULL,FXSelector sel=0);
+  GMImportTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
   void setOptions(const GMImportOptions & o) { options=o; }
 
@@ -159,7 +159,7 @@ protected:
   void update();
 
 public:
-  GMSyncTask(FXObject*tgt=NULL,FXSelector sel=0);
+  GMSyncTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
   void setSyncOptions(const GMSyncOptions & o) { options_sync=o; }
 

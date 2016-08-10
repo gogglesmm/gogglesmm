@@ -79,7 +79,7 @@ public:
   long onButtonRelease(FXObject*,FXSelector,void*);
   long onKeyRelease(FXObject*,FXSelector,void*);
 public:
-  GMStaticMenuCheck(FXComposite* p,const FXString& text,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=0);
+  GMStaticMenuCheck(FXComposite* p,const FXString& text,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=0);
   virtual ~GMStaticMenuCheck();
   };
 
@@ -248,8 +248,8 @@ FXDEFMAP(GMTrackView) GMTrackViewMap[]={
 FXIMPLEMENT(GMTrackView,FXPacker,GMTrackViewMap,ARRAYNUMBER(GMTrackViewMap))
 
 
-GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0), 
-  shuffle_seed((FXuint)FXThread::time()), 
+GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0),
+  shuffle_seed((FXuint)FXThread::time()),
   filtermask(FILTER_DEFAULT) {
 
   GMScrollFrame * sunkenframe;
@@ -272,15 +272,15 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
   browsersplit     = new FX4Splitter(this,LAYOUT_FILL_X|LAYOUT_FILL_Y|FOURSPLITTER_TRACKING);
   tagsplit         = new FX4Splitter(browsersplit,FOURSPLITTER_TRACKING);
   taglistframe     = new GMScrollFrame(tagsplit);
-  taglistheader    = new GMHeaderButton(taglistframe,tr("Tags\tPress to change sorting order\tPress to change sorting order"),NULL,this,GMTrackView::ID_TAG_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
+  taglistheader    = new GMHeaderButton(taglistframe,tr("Tags\tPress to change sorting order\tPress to change sorting order"),nullptr,this,GMTrackView::ID_TAG_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
   taglist          = new GMList(taglistframe,this,ID_TAG_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|LIST_EXTENDEDSELECT);
 
   sunkenframe      = new GMScrollFrame(tagsplit);
-  artistlistheader = new GMHeaderButton(sunkenframe,tr("Artists\tPress to change sorting order\tPress to change sorting order"),NULL,this,GMTrackView::ID_ARTIST_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
+  artistlistheader = new GMHeaderButton(sunkenframe,tr("Artists\tPress to change sorting order\tPress to change sorting order"),nullptr,this,GMTrackView::ID_ARTIST_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
   artistlist       = new GMList(sunkenframe,this,ID_ARTIST_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|LIST_EXTENDEDSELECT);
 
   sunkenframe      = new GMScrollFrame(browsersplit);
-  albumlistheader  = new GMHeaderButton(sunkenframe,tr("\tPress to change sorting order\tPress to change sorting order"),NULL,this,GMTrackView::ID_ALBUM_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
+  albumlistheader  = new GMHeaderButton(sunkenframe,tr("\tPress to change sorting order\tPress to change sorting order"),nullptr,this,GMTrackView::ID_ALBUM_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
   albumlist        = new GMAlbumList(sunkenframe,this,ID_ALBUM_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|ALBUMLIST_EXTENDEDSELECT|ALBUMLIST_COLUMNS);
 
   sunkenframe      = new GMScrollFrame(browsersplit);
@@ -300,7 +300,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
 
 
   columnmenu       = new GMMenuPane(getShell(),POPUP_SHRINKWRAP);
-                     new GMMenuCommand(columnmenu,tr("&Configure Columns…") ,NULL,this,ID_CONFIGURE_COLUMNS);
+                     new GMMenuCommand(columnmenu,tr("&Configure Columns…") ,nullptr,this,ID_CONFIGURE_COLUMNS);
                      new GMMenuCascade(columnmenu,tr("&Sort\t\tChange Sorting."),GMIconTheme::instance()->icon_sort,sortmenu);
 
 
@@ -489,7 +489,7 @@ void GMTrackView::selectPrevious() {
 void GMTrackView::init_track_context_menu(FXMenuPane * pane,FXbool selected){
   if (selected && source->track_context_menu(pane))
     new FXMenuSeparator(pane);
-  new GMMenuCommand(pane,tr("&Configure Columns""…"),NULL,this,GMTrackView::ID_CONFIGURE_COLUMNS);
+  new GMMenuCommand(pane,tr("&Configure Columns""…"),nullptr,this,GMTrackView::ID_CONFIGURE_COLUMNS);
   new GMMenuCascade(pane,tr("&Sort\t\tChange Sorting."),GMIconTheme::instance()->icon_sort,sortmenu);
   pane->create();
   ewmh_change_window_type(sortmenu,WINDOWTYPE_DROPDOWN_MENU);
@@ -526,9 +526,9 @@ void GMTrackView::updateColors(){
 void GMTrackView::updateIcons(){
 /*
   FXint i=0;
-  FXIcon * icon_genre = NULL;
-  FXIcon * icon_artist = NULL;
-  FXIcon * icon_album = NULL;
+  FXIcon * icon_genre = nullptr;
+  FXIcon * icon_artist = nullptr;
+  FXIcon * icon_album = nullptr;
 
   if (GMPlayerManager::instance()->getPreferences().gui_show_browser_icons) {
     icon_genre = GMIconTheme::instance()->icon_genre;
@@ -936,7 +936,7 @@ void GMTrackView::initSelection(GMAlbumList * list,const FXchar * key,const FXSt
 
 
 void GMTrackView::init(GMSource * src) {
-  FXASSERT(source==NULL);
+  FXASSERT(source==nullptr);
   FXASSERT(src);
 
   source=src;
@@ -1206,10 +1206,10 @@ void GMTrackView::setSortMethod(FXint def,FXbool reverse) {
     }
   else if (def==HEADER_SHUFFLE) {
     tracklist->setSortMethod(HEADER_SHUFFLE);
-    tracklist->setSortFunc(NULL);
+    tracklist->setSortFunc(nullptr);
     }
   else {
-    tracklist->setSortFunc(NULL);
+    tracklist->setSortFunc(nullptr);
     for (FXint i=0;i<columns.no();i++){
       if (columns[i].type==def) {
         tracklist->setSortMethod(columns[i].type);
@@ -1450,16 +1450,16 @@ long GMTrackView::onUpdShowColumn(FXObject*sender,FXSelector sel,void*){
       if (columns[i].index==no) {
         FXString column = fxtr(columns[i].name.text());
         sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),&column);
-        sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),NULL);
+        sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),nullptr);
         if (columns[i].show)
-          sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+          sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),nullptr);
         else
-          sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+          sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
         return 1;
         }
       }
     }
-  sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),nullptr);
   return 1;
   }
 
@@ -1484,18 +1484,18 @@ long GMTrackView::onUpdSort(FXObject*sender,FXSelector sel,void*){
       else
         cmd->setAccelText(FXString::null);
 
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),nullptr);
       if (tracklist->getSortMethod()==columns[no].type)
-        sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+        sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),nullptr);
       else
-        sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+        sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
       }
     else {
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),nullptr);
       }
     }
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),nullptr);
   return 1;
   }
 
@@ -1503,15 +1503,15 @@ long GMTrackView::onUpdSort(FXObject*sender,FXSelector sel,void*){
 long GMTrackView::onUpdSortReverse(FXObject*sender,FXSelector,void*){
   for (FXint i=0;i<columns.no();i++){
     if (tracklist->getSortMethod()==columns[i].type) {
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
       if (tracklist->getSortFunc()==columns[i].descending)
-        sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+        sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
       else
-        sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+        sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
       return 1;
       }
     }
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -1531,11 +1531,11 @@ long GMTrackView::onCmdSortBrowse(FXObject*,FXSelector,void*){
 
 long GMTrackView::onUpdSortBrowse(FXObject*sender,FXSelector,void*){
   if ((hasBrowser()) && source && source->getSortBrowse()) {
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
     if (tracklist->getSortMethod()==HEADER_BROWSE)
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
     else
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
 
     FXMenuCommand * cmd = dynamic_cast<FXMenuCommand*>(sender);
     FXASSERT(cmd);
@@ -1546,7 +1546,7 @@ long GMTrackView::onUpdSortBrowse(FXObject*sender,FXSelector,void*){
 
     }
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -1561,9 +1561,9 @@ long GMTrackView::onCmdSortShuffle(FXObject*,FXSelector,void*){
 
 long GMTrackView::onUpdSortShuffle(FXObject*sender,FXSelector,void*){
   if (tracklist->getSortMethod()==HEADER_SHUFFLE)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1765,7 +1765,7 @@ long GMTrackView::onTagContextMenu(FXObject*,FXSelector,void*ptr){
         selectTagItem(item);
         pane.create();
         ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-        pane.popup(NULL,event->root_x+3,event->root_y+3);
+        pane.popup(nullptr,event->root_x+3,event->root_y+3);
         getApp()->runPopup(&pane);
         }
       }
@@ -1785,7 +1785,7 @@ long GMTrackView::onArtistContextMenu(FXObject*,FXSelector,void*ptr){
         selectAlbumItem(0);
         pane.create();
         ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-        pane.popup(NULL,event->root_x+3,event->root_y+3);
+        pane.popup(nullptr,event->root_x+3,event->root_y+3);
         getApp()->runPopup(&pane);
         }
       }
@@ -1814,7 +1814,7 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
     /*
       FIXME Dirty Hack. We need to get this info from the source really.
     */
-    if (dynamic_cast<GMDatabaseSource*>(source)!=NULL) {
+    if (dynamic_cast<GMDatabaseSource*>(source)!=nullptr) {
       new GMMenuCheck(&pane,fxtr("Show Album Year"),albumlist,GMAlbumList::ID_YEAR);
       new GMMenuCheck(&pane,fxtr("Sort by Album Year"),&target_yearsort,FXDataTarget::ID_VALUE);
       new FXMenuSeparator(&pane);
@@ -1833,7 +1833,7 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
     pane.create();
     pane.forceRefresh();
     ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-    pane.popup(NULL,event->root_x+3,event->root_y+3);
+    pane.popup(nullptr,event->root_x+3,event->root_y+3);
     getApp()->runPopup(&pane);
 
     if (old!=album_by_year){
@@ -1873,7 +1873,7 @@ long GMTrackView::onTrackHeaderContextMenu(FXObject*,FXSelector,void*ptr){
   if (source && !event->moved) {
     columnmenu->create();
     ewmh_change_window_type(columnmenu,WINDOWTYPE_POPUP_MENU);
-    columnmenu->popup(NULL,event->root_x+3,event->root_y+3);
+    columnmenu->popup(nullptr,event->root_x+3,event->root_y+3);
     getApp()->runPopup(columnmenu);
     return 1;
     }
@@ -1892,13 +1892,13 @@ long GMTrackView::onCmdTagKeyPress(FXObject*,FXSelector,void*ptr){
     }
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && taglist->getNumItems()) {
-      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TAG),NULL);
+      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TAG),nullptr);
       }
     return 1;
     }
 //  else if (event->code==KEY_F2) {
 //    if (source && genrelist->getNumItems()) {
-//      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_EDIT_TAGS),NULL);
+//      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_EDIT_TAGS),nullptr);
 //      }
 //    return 1;
 //    }
@@ -1917,9 +1917,9 @@ long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && artistlist->getNumItems()) {
       if (event->state&(SHIFTMASK))
-        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST_ADV),NULL);
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST_ADV),nullptr);
       else
-        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST),NULL);
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ARTIST),nullptr);
       }
     return 1;
     }
@@ -1937,7 +1937,7 @@ long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
 
 //  else if (event->code==KEY_F2) {
 //    if (source && artistlist->getNumItems()) {
-//      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_EDIT_ARTIST),NULL);
+//      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_EDIT_ARTIST),nullptr);
 //      }
 //    return 1;
 //    }
@@ -1973,9 +1973,9 @@ long GMTrackView::onCmdAlbumKeyPress(FXObject*,FXSelector,void*ptr){
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && albumlist->getNumItems()) {
       if (event->state&(SHIFTMASK))
-        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM_ADV),NULL);
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM_ADV),nullptr);
       else
-        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM),NULL);
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_ALBUM),nullptr);
       }
     return 1;
     }
@@ -1994,7 +1994,7 @@ long GMTrackView::onCmdAlbumKeyPress(FXObject*,FXSelector,void*ptr){
 
 //  else if (event->code==KEY_F2) {
 //    if (source && albumlist->getNumItems()) {
-//      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_EDIT_ALBUM),NULL);
+//      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_EDIT_ALBUM),nullptr);
 //      }
 //    return 1;
 //    }
@@ -2015,7 +2015,7 @@ long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
       }
     else if (event->code==KEY_C || event->code==KEY_c) {
       if (source && numTrackSelected() ) {
-        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_COPY_TRACK),NULL);
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_COPY_TRACK),nullptr);
         }
       return 1;
       }
@@ -2023,15 +2023,15 @@ long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
   else if (event->code==KEY_Delete || event->code==KEY_KP_Delete) {
     if (source && numTrackSelected() ) {
       if (event->state&(SHIFTMASK))
-        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK_ADV),NULL);
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK_ADV),nullptr);
       else
-        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK),NULL);
+        source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_DELETE_TRACK),nullptr);
       }
     return 1;
     }
   else if (event->code==KEY_F2) {
     if (source && numTrackSelected()) {
-      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_EDIT_TRACK),NULL);
+      source->handle(this,FXSEL(SEL_COMMAND,GMSource::ID_EDIT_TRACK),nullptr);
       }
     return 1;
     }
@@ -2046,7 +2046,7 @@ long GMTrackView::onCmdTrackKeyPress(FXObject*,FXSelector,void*ptr){
 
   else {
     // toggle filter and send keystroke to textfield
-    //handle(this,FXSEL(SEL_COMMAND,ID_TOGGLE_FILTER),NULL);
+    //handle(this,FXSEL(SEL_COMMAND,ID_TOGGLE_FILTER),nullptr);
     }
   return 0;
   }
@@ -2095,9 +2095,9 @@ long GMTrackView::onCmdShowCurrent(FXObject*,FXSelector,void*){
 
 long GMTrackView::onUpdShowCurrent(FXObject*sender,FXSelector,void*){
   if (GMPlayerManager::instance()->playing() && GMPlayerManager::instance()->getSource())
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -2117,9 +2117,9 @@ long GMTrackView::onCmdCopy(FXObject*sender,FXSelector,void*ptr){
 
 long GMTrackView::onUpdCopy(FXObject*sender,FXSelector,void*){
   if (trackSelected() && source)
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -2160,9 +2160,9 @@ long GMTrackView::onUpdFilterMask(FXObject*sender,FXSelector sel,void*){
     case ID_FILTER_TAG   : check = (filtermask&FILTER_TAG)!=0; break;
     }
   if (check)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2301,7 +2301,7 @@ long GMTrackView::onDndTrackMotion(FXObject*,FXSelector,void*ptr){
       return 1;
       }
     }
-  else if (getApp()->getDragWindow()==NULL) {
+  else if (getApp()->getDragWindow()==nullptr) {
     FXDragType * types;
     FXuint ntypes;
     if (tracklist->inquireDNDTypes(FROM_DRAGNDROP,types,ntypes)){
@@ -2356,7 +2356,7 @@ long GMTrackView::onDndTrackDrop(FXObject*sender,FXSelector,void*ptr){
 
     return 1;
     }
-  else if (source && getApp()->getDragWindow()==NULL) {
+  else if (source && getApp()->getDragWindow()==nullptr) {
     return source->handle(sender,FXSEL(SEL_DND_DROP,GMSource::ID_DROP),ptr);
     }
   return 0;
@@ -2364,7 +2364,7 @@ long GMTrackView::onDndTrackDrop(FXObject*sender,FXSelector,void*ptr){
 
 
 long GMTrackView::onDndMotion(FXObject*,FXSelector,void*){
-  if (getApp()->getDragWindow()==NULL && source) {
+  if (getApp()->getDragWindow()==nullptr && source) {
     FXDragType * types;
     FXuint ntypes;
     if (tracklist->inquireDNDTypes(FROM_DRAGNDROP,types,ntypes)){
@@ -2380,7 +2380,7 @@ long GMTrackView::onDndMotion(FXObject*,FXSelector,void*){
   }
 
 long GMTrackView::onDndDrop(FXObject*sender,FXSelector,void*ptr){
-  if (getApp()->getDragWindow()==NULL && source) {
+  if (getApp()->getDragWindow()==nullptr && source) {
     return source->handle(sender,FXSEL(SEL_DND_DROP,GMSource::ID_DROP),ptr);
     }
   return 0;
@@ -2415,15 +2415,15 @@ long GMTrackView::onCmdToggleBrowser(FXObject*,FXSelector,void*){
 
 long GMTrackView::onUpdToggleBrowser(FXObject*sender,FXSelector,void*){
   if (source && source->canBrowse()) {
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
     if (hasBrowser())
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),nullptr);
     else
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
     }
   else {
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
     }
   return 1;
   }
@@ -2446,15 +2446,15 @@ long GMTrackView::onCmdToggleTags(FXObject*,FXSelector,void*){
 
 long GMTrackView::onUpdToggleTags(FXObject*sender,FXSelector,void*){
   if (source && source->canBrowse() && hasBrowser()) {
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
     if (taglistframe->shown())
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),nullptr);
     else
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
     }
   else {
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
     }
   return 1;
   }
@@ -2482,9 +2482,9 @@ long GMTrackView::onCmdToggleFilter(FXObject*,FXSelector sel,void*){
 
 long GMTrackView::onUpdToggleFilter(FXObject*sender,FXSelector,void*){
   if (source && source->canFilter())
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -2508,16 +2508,16 @@ long GMTrackView::onUpdAlbumListView(FXObject*sender,FXSelector sel,void*){
   if (FXSELID(sel)==ID_ALBUMS_VIEW_LIST) {
     FXuint opts=albumlist->getListStyle();
     if (opts&ALBUMLIST_BROWSER)
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
     else
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
     }
   else {
     FXuint opts=albumlist->getListStyle();
     if (opts&ALBUMLIST_BROWSER)
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
     else
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
     }
   return 1;
   }
@@ -2541,9 +2541,9 @@ long GMTrackView::onUpdCoverSize(FXObject*sender,FXSelector sel,void*){
     case ID_COVERSIZE_BIG    : if (size>160 && size<=256) check = true; break;
     }
   if (check)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2571,11 +2571,11 @@ FXint GMTrackView::findTrackIndexById(FXint id) const {
   }
 
 GMTrackItem * GMTrackView::getTrackItem(FXint i) const {
-  return (GMTrackItem*)tracklist->getItem(i);
+  return tracklist->getItem(i);
   }
 
 GMTrackItem * GMTrackView::getCurrentTrackItem() const {
-  FXASSERT(tracklist->getCurrentItem()>=0); return (GMTrackItem*)tracklist->getItem(tracklist->getCurrentItem());
+  FXASSERT(tracklist->getCurrentItem()>=0); return tracklist->getItem(tracklist->getCurrentItem());
   }
 
 FXbool GMTrackView::isTrackItemSelected(FXint i) const {
@@ -2587,7 +2587,7 @@ FXint GMTrackView::getNumTracks() const {
   }
 
 GMAlbumListItem * GMTrackView::getCurrentAlbumItem() const {
-  FXASSERT(tracklist->getCurrentItem()>=0); return (GMAlbumListItem*)albumlist->getItem(albumlist->getCurrentItem());
+  FXASSERT(tracklist->getCurrentItem()>=0); return dynamic_cast<GMAlbumListItem*>(albumlist->getItem(albumlist->getCurrentItem()));
   }
 
 

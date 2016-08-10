@@ -338,8 +338,8 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
   nsubmitted(0),
   nfailed(0) {
 
-  username=FXApp::instance()->reg().readStringEntry("LastFM","username",NULL);
-  password=FXApp::instance()->reg().readStringEntry("LastFM","password",NULL);
+  username=FXApp::instance()->reg().readStringEntry("LastFM","username",nullptr);
+  password=FXApp::instance()->reg().readStringEntry("LastFM","password",nullptr);
 
   FXString uri = FXApp::instance()->reg().readStringEntry("LastFM","handshake-url",LASTFM_URL);
   if (uri==LASTFM_OLD_URL) {
@@ -354,7 +354,7 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
 
   /// Get last session
   if (mode==SERVICE_LASTFM) {
-    session=FXApp::instance()->reg().readStringEntry("LastFM","session",NULL);
+    session=FXApp::instance()->reg().readStringEntry("LastFM","session",nullptr);
     if (!session.empty()) {
       FXTRACE((60,"GMAudioScrobbler::GMAudioScrobbler - Session: %s\n",session.text()));
       nowplaying_url=handshake_url;

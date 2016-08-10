@@ -30,7 +30,7 @@
 #include "GMClipboard.h"
 
 
-FXIMPLEMENT(GMSource,FXObject,NULL,0);
+FXIMPLEMENT(GMSource,FXObject,nullptr,0);
 
 GMSource::GMSource() {
   }
@@ -39,7 +39,7 @@ GMSource::~GMSource() {
   }
 
 FXbool GMSource::findCurrent(GMTrackList * list,GMSource * src) {
-  if (src==NULL || src->current_track==-1) return false;
+  if (src==nullptr || src->current_track==-1) return false;
   for (FXint i=0;i<list->getNumItems();i++){
     if (list->getItemId(i)==src->current_track) {
       list->setActiveItem(i);

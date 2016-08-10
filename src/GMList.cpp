@@ -64,8 +64,8 @@ FXint generic_name_sort_reverse(const FXListItem* pa,const FXListItem* pb){
   }
 
 FXint source_list_sort(const FXTreeItem* pa,const FXTreeItem* pb){
-  const GMSource * const sa = (const GMSource*)pa->getData();
-  const GMSource * const sb = (const GMSource*)pb->getData();
+  const GMSource * const sa = static_cast<const GMSource*>(pa->getData());
+  const GMSource * const sb = static_cast<const GMSource*>(pb->getData());
   if (sa->getType()>sb->getType()) return 1;
   else if (sa->getType()<sb->getType()) return -1;
   FXint a=0,b=0;
@@ -75,8 +75,8 @@ FXint source_list_sort(const FXTreeItem* pa,const FXTreeItem* pb){
   }
 
 FXint source_list_sort_reverse(const FXTreeItem* pa,const FXTreeItem* pb){
-  const GMSource * const sa = (const GMSource*)pa->getData();
-  const GMSource * const sb = (const GMSource*)pb->getData();
+  const GMSource * const sa = static_cast<const GMSource*>(pa->getData());
+  const GMSource * const sb = static_cast<const GMSource*>(pb->getData());
   if (sa->getType()>sb->getType()) return 1;
   else if (sa->getType()<sb->getType()) return -1;
   FXint a=0,b=0;
@@ -88,7 +88,7 @@ FXint source_list_sort_reverse(const FXTreeItem* pa,const FXTreeItem* pb){
 
 
 // Object implementation
-FXIMPLEMENT(GMListItem,FXListItem,NULL,0)
+FXIMPLEMENT(GMListItem,FXListItem,nullptr,0)
 
 
 
@@ -179,7 +179,7 @@ long GMList::onPaint(FXObject*,FXSelector,void* ptr){
         dc.setFont(thickfont);
       else
         dc.setFont(font);
-      ((GMListItem*)items[i])->draw(this,dc,pos_x,y,FXMAX(listWidth,getVisibleWidth()),h);
+      dynamic_cast<GMListItem*>(items[i])->draw(this,dc,pos_x,y,FXMAX(listWidth,getVisibleWidth()),h);
       }
     y+=h;
     }
@@ -194,7 +194,7 @@ long GMList::onPaint(FXObject*,FXSelector,void* ptr){
 
 
 // Object implementation
-FXIMPLEMENT(GMTreeItem,FXTreeItem,NULL,0)
+FXIMPLEMENT(GMTreeItem,FXTreeItem,nullptr,0)
 
 GMTreeItem::GMTreeItem(){
   }
@@ -317,7 +317,7 @@ long GMTreeList::onPaint(FXObject*,FXSelector,void* ptr){
         dc.fillRectangle(x,y,width-x,h);
         }
 
-      ((GMTreeItem*)item)->draw(this,dc,x,y,w,h);
+      dynamic_cast<GMTreeItem*>(item)->draw(this,dc,x,y,w,h);
 
 
       // Show other paraphernalia such as dotted lines and expand-boxes

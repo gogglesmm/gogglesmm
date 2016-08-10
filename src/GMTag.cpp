@@ -60,7 +60,7 @@
 
 
 static FXbool to_int(const FXString & str,FXint & val){
-  char * endptr=NULL;
+  char * endptr=nullptr;
   errno=0;
   val=strtol(str.text(),&endptr,10);
   if (errno==0) {
@@ -165,7 +165,7 @@ static FXbool xiph_decode_picture(const FXuchar * buffer,FXint len,FlacPictureBl
 static FXint xiph_check_cover(const TagLib::ByteVector & bytevector){
   FlacPictureBlock picture;
   FXint     covertype = -1;
-  FXuchar * buffer = NULL;
+  FXuchar * buffer = nullptr;
   FXint     length = 8; // decode only 8 bytes
   if (xiph_decode_bytevector(bytevector,buffer,length)) {
     if (xiph_decode_picture(buffer,length,picture,false)) {
@@ -178,8 +178,8 @@ static FXint xiph_check_cover(const TagLib::ByteVector & bytevector){
 
 static GMCover * xiph_load_cover(const TagLib::ByteVector & bytevector) {
   FlacPictureBlock picture;
-  GMCover * cover  = NULL;
-  FXuchar * buffer = NULL;
+  GMCover * cover  = nullptr;
+  FXuchar * buffer = nullptr;
   FXint     length = 0;
   if (xiph_decode_bytevector(bytevector,buffer,length)){
     if (xiph_decode_picture(buffer,length,picture)) {
@@ -199,7 +199,7 @@ static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame) {
       frame->type()==TagLib::ID3v2::AttachedPictureFrame::FileIcon ||
       frame->type()==TagLib::ID3v2::AttachedPictureFrame::OtherFileIcon ||
       frame->type()==TagLib::ID3v2::AttachedPictureFrame::ColouredFish) {
-    return NULL;
+    return nullptr;
     }
   return new GMCover(frame->picture().data(),frame->picture().size(),frame->type());
   }
@@ -217,18 +217,18 @@ GMCover* flac_load_cover_from_taglib(const TagLib::FLAC::Picture * picture) {
     if (picture->type()==TagLib::FLAC::Picture::FileIcon ||
         picture->type()==TagLib::FLAC::Picture::OtherFileIcon ||
         picture->type()==TagLib::FLAC::Picture::ColouredFish) {
-        return NULL;
+        return nullptr;
         }
     return new GMCover(picture->data().data(),picture->data().size(),picture->type(),picture->description().toCString(true));
     }
-  return NULL;
+  return nullptr;
   }
 
 GMCover* flac_load_frontcover_from_taglib(const TagLib::FLAC::Picture * picture) {
   if (picture && picture->type()==TagLib::FLAC::Picture::FrontCover && picture->data().size()>0) {
     return new GMCover(picture->data().data(),picture->data().size(),picture->type(),picture->description().toCString(true));
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -333,12 +333,12 @@ static void gm_strip_tags(TagLib::File * file,FXuint opts) {
 /******************************************************************************/
 
 GMFileTag::GMFileTag() :
-    file(NULL),
-    tag(NULL),
-    mp4(NULL),
-    xiph(NULL),
-    id3v2(NULL),
-    ape(NULL) {
+    file(nullptr),
+    tag(nullptr),
+    mp4(nullptr),
+    xiph(nullptr),
+    id3v2(nullptr),
+    ape(nullptr) {
   /// TODO
   }
 
@@ -350,19 +350,19 @@ GMFileTag::~GMFileTag() {
 FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
 
   file = TagLib::FileRef::create(filename.text(),(opts&FILETAG_AUDIOPROPERTIES));
-  if (file==NULL || !file->isValid() || file->tag()==NULL) {
+  if (file==nullptr || !file->isValid() || file->tag()==nullptr) {
     if (file) {
       delete file;
-      file=NULL;
+      file=nullptr;
       }
     return false;
     }
 
-  TagLib::MPEG::File        * mpgfile   = NULL;
-  TagLib::Ogg::Vorbis::File * oggfile   = NULL;
-  TagLib::Ogg::Opus::File   * opusfile  = NULL;
-  TagLib::FLAC::File        * flacfile  = NULL;
-  TagLib::MP4::File         * mp4file   = NULL;
+  TagLib::MPEG::File        * mpgfile   = nullptr;
+  TagLib::Ogg::Vorbis::File * oggfile   = nullptr;
+  TagLib::Ogg::Opus::File   * opusfile  = nullptr;
+  TagLib::FLAC::File        * flacfile  = nullptr;
+  TagLib::MP4::File         * mp4file   = nullptr;
 
   tag = file->tag();
 
@@ -393,7 +393,7 @@ FXbool GMFileTag::save() {
 
 
 FXuchar GMFileTag::getFileType() const {
-  TagLib::MP4::File       * mp4file    = NULL;
+  TagLib::MP4::File       * mp4file    = nullptr;
   TagLib::AudioProperties * properties = file->audioProperties();
   if (properties) {
     if ((dynamic_cast<TagLib::Ogg::File*>(file))) {
@@ -576,7 +576,7 @@ void GMFileTag::id3v2_update_field(const FXchar * field,const FXStringList & lis
     id3v2->removeFrames(field);
     }
   else {
-    TagLib::ID3v2::TextIdentificationFrame * frame = NULL;
+    TagLib::ID3v2::TextIdentificationFrame * frame = nullptr;
     if (id3v2->frameListMap().contains(field) && !id3v2->frameListMap()[field].isEmpty()) {
       frame = dynamic_cast<TagLib::ID3v2::TextIdentificationFrame*>(id3v2->frameListMap()[field].front());
       }
@@ -770,7 +770,7 @@ void GMFileTag::setTags(const FXStringList & tags){
   if (ape)
     ape_update_field("GENRE",tags);
 
-  if (xiph==NULL && id3v2==NULL && mp4==NULL && ape==NULL) {
+  if (xiph==nullptr && id3v2==nullptr && mp4==nullptr && ape==nullptr) {
     if (tags.no())
       tag->setGenre(TagLib::String(tags[0].text(),TagLib::String::UTF8));
     else
@@ -1011,7 +1011,7 @@ GMCover * GMFileTag::getFrontCover() const {
         }
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 FXint GMFileTag::getCovers(GMCoverList & covers) const {
@@ -1292,8 +1292,8 @@ class GMStringHandler : public TagLib::ID3v1::StringHandler {
     const FXTextCodec * codec;
   public:
     GMStringHandler(const FXTextCodec *c) : codec(c) {
-      FXASSERT(codec!=NULL);
-      FXASSERT(instance==NULL);
+      FXASSERT(codec!=nullptr);
+      FXASSERT(instance==nullptr);
       GM_DEBUG_PRINT("[tag] id3v1 string handler: %s\n",codec->name());
       instance=this;
       }
@@ -1322,14 +1322,14 @@ class GMStringHandler : public TagLib::ID3v1::StringHandler {
       //virtual ByteVector render(const String &s) const;
 
     virtual ~GMStringHandler() {
-      instance=NULL;
+      instance=nullptr;
       }
     };
 
 
 
 static GMTagLibDebugListener debuglistener;
-GMStringHandler* GMStringHandler::instance = NULL;
+GMStringHandler* GMStringHandler::instance = nullptr;
 
 namespace GMTag {
 
@@ -1340,11 +1340,11 @@ void init(){
 
 void setID3v1Encoding(const FXTextCodec * codec){
   if (codec) {
-    FXASSERT(GMStringHandler::instance==NULL);
+    FXASSERT(GMStringHandler::instance==nullptr);
     TagLib::ID3v1::Tag::setStringHandler(new GMStringHandler(codec));
     }
   else {
-    TagLib::ID3v1::Tag::setStringHandler(NULL);
+    TagLib::ID3v1::Tag::setStringHandler(nullptr);
     if (GMStringHandler::instance) {
       delete GMStringHandler::instance;
       }

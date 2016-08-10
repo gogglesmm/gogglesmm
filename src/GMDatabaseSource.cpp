@@ -126,8 +126,8 @@ FXDEFMAP(GMDatabaseSource) GMDatabaseSourceMap[]={
 
 FXIMPLEMENT(GMDatabaseSource,GMSource,GMDatabaseSourceMap,ARRAYNUMBER(GMDatabaseSourceMap));
 
-GMDatabaseSource* GMDatabaseSource::filterowner=NULL;
-GMCoverCache* GMDatabaseSource::covercache=NULL;
+GMDatabaseSource* GMDatabaseSource::filterowner=nullptr;
+GMCoverCache* GMDatabaseSource::covercache=nullptr;
 
 GMDatabaseSource::GMDatabaseSource(GMTrackDatabase * database) : db(database) {
   FXASSERT(db);
@@ -139,11 +139,11 @@ GMDatabaseSource::~GMDatabaseSource() {
 
 void GMDatabaseSource::shutdown() {
   delete covercache;
-  covercache=NULL;
+  covercache=nullptr;
   }
 
 void GMDatabaseSource::loadCovers() {
-  if (covercache==NULL) {
+  if (covercache==nullptr) {
     covercache = new GMCoverCache("albumcovers",GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size);
     if (!covercache->load()) {
       updateCovers();
@@ -194,7 +194,7 @@ int randint(int min, int max,unsigned int * random_seed)
 void GMDatabaseSource::shuffle(GMTrackList*list,FXuint sort_seed) const {
   list->setSortFunc(GMDBTrackItem::ascendingAlbum);
   list->sortItems();
-  list->setSortFunc(NULL);
+  list->setSortFunc(nullptr);
 
   /// Initial Value comes from sort_seed (read from registry and such...)
   FXuint random_seed = sort_seed;
@@ -269,7 +269,7 @@ FXbool GMDatabaseSource::findCurrentAlbum(GMAlbumList * list,GMSource * src) {
   GMDatabaseSource * dbs = dynamic_cast<GMDatabaseSource*>(src);
   if (dbs && dbs->getCurrentTrack()!=-1 ){
     FXint artist=-1,album=-1,i;
-    GMAlbumListItem * item=NULL;
+    GMAlbumListItem * item=nullptr;
     db->getTrackAssociation(dbs->getCurrentTrack(),artist,album);
     if (album==-1) return false;
     for (i=0;i<list->getNumItems();i++){
@@ -319,7 +319,7 @@ FXbool GMDatabaseSource::artist_context_menu(FXMenuPane * pane){
 
 FXbool GMDatabaseSource::album_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy associated tracks to the clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_ALBUM);
-  new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),NULL,this,ID_SEARCH_COVER_ALBUM);
+  new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),nullptr,this,ID_SEARCH_COVER_ALBUM);
   new FXMenuSeparator(pane);
   new GMMenuCommand(pane,fxtr("Remove…\tDel\tRemove associated tracks from library."),GMIconTheme::instance()->icon_delete,this,GMSource::ID_DELETE_ALBUM);
   return true;
@@ -327,14 +327,14 @@ FXbool GMDatabaseSource::album_context_menu(FXMenuPane * pane){
 
 FXbool GMDatabaseSource::track_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Edit…\tF2\tEdit Track Information."),GMIconTheme::instance()->icon_edit,this,GMDatabaseSource::ID_EDIT_TRACK);
-  new GMMenuCommand(pane,fxtr("Set Cover…\t\t"),NULL,this,GMDatabaseSource::ID_ADD_COVER);
+  new GMMenuCommand(pane,fxtr("Set Cover…\t\t"),nullptr,this,GMDatabaseSource::ID_ADD_COVER);
 
   new GMMenuCommand(pane,fxtr("Copy\tCtrl-C\tCopy track(s) to clipboard."),GMIconTheme::instance()->icon_copy,this,ID_COPY_TRACK);
   new FXMenuSeparator(pane);
 
   if (GMPlayerManager::instance()->getTrackView()->numTrackSelected()==1){
-    new GMMenuCommand(pane,"Open Folder Location\t\tOpen Folder Location.",NULL,this,ID_OPEN_FOLDER);
-    new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),NULL,this,ID_SEARCH_COVER);
+    new GMMenuCommand(pane,"Open Folder Location\t\tOpen Folder Location.",nullptr,this,ID_OPEN_FOLDER);
+    new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),nullptr,this,ID_SEARCH_COVER);
     new FXMenuSeparator(pane);
     }
 
@@ -356,10 +356,10 @@ FXbool GMDatabaseSource::source_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Import Folder…\tCtrl-O\tImport Music from folder into Library"),GMIconTheme::instance()->icon_import,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_IMPORT_DIRS);
   new GMMenuCommand(pane,fxtr("Sync Folder…\t\tSynchronize Folder with Music in Library"),GMIconTheme::instance()->icon_sync,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_SYNC_DIRS);
   new FXMenuSeparator(pane);
-  new GMMenuCommand(pane,fxtr("Play File or Stream…\t\tPlay File or Stream"),NULL,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_OPEN);
+  new GMMenuCommand(pane,fxtr("Play File or Stream…\t\tPlay File or Stream"),nullptr,GMPlayerManager::instance()->getMainWindow(),GMWindow::ID_OPEN);
   new FXMenuSeparator(pane);
-  new GMMenuCommand(pane,fxtr("New Filter…\t\tCreate a new filter"),NULL,this,GMDatabaseSource::ID_NEW_FILTER);
-  new GMMenuCommand(pane,fxtr("New Playlist…\t\tCreate a new playlist"),NULL,this,GMDatabaseSource::ID_NEW_PLAYLIST);
+  new GMMenuCommand(pane,fxtr("New Filter…\t\tCreate a new filter"),nullptr,this,GMDatabaseSource::ID_NEW_FILTER);
+  new GMMenuCommand(pane,fxtr("New Playlist…\t\tCreate a new playlist"),nullptr,this,GMDatabaseSource::ID_NEW_PLAYLIST);
   new GMMenuCommand(pane,fxtr("Import Playlist…\t\tImport existing playlist"),GMIconTheme::instance()->icon_import,this,GMDatabaseSource::ID_IMPORT_PLAYLIST);
   return true;
   }
@@ -592,7 +592,7 @@ FXbool GMDatabaseSource::listArtists(GMList * list,FXIcon * icon,const FXIntList
   }
 
 FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistlist,const FXIntList & taglist){
-  const FXchar * c_name=NULL;
+  const FXchar * c_name=nullptr;
   FXint id;
   FXint year;
   FXint audio_channels;
@@ -609,7 +609,7 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
 
   GM_TICKS_START();
 
-  GMAlbumListItem * item=NULL;
+  GMAlbumListItem * item=nullptr;
   GMQuery q;
   try {
     if (hasFilter() || hasview){
@@ -685,7 +685,7 @@ FXbool GMDatabaseSource::listAlbums(GMAlbumList * list,const FXIntList & artistl
       else if (audio_rate>44100)
         property+=FXString::value("%dkHz",audio_rate/1000);
 
-      if (artistlist.no()!=1 && c_name!=NULL && item && item->getTitle()==c_name) {
+      if (artistlist.no()!=1 && c_name!=nullptr && item && item->getTitle()==c_name) {
         item->setShowArtist(true);
         item = new GMAlbumListItem(artist,c_name,property,year,id);
         list->appendItem(item);
@@ -1018,13 +1018,13 @@ void GMDatabaseSource::removeFiles(const FXStringList & files) {
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Remove Audio Files?"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,600,400,0,0,0,0,0,0);
   GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Remove Audio Files..."),fxtr("The following audio files are going to be removed"));
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("&Remove"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Remove"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
 
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y);
   FXVerticalFrame * sunken = new FXVerticalFrame(main,LAYOUT_FILL_X|LAYOUT_FILL_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0,0,0,0,0);
-  FXList * list = new FXList(sunken,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  FXList * list = new FXList(sunken,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
   for (int i=0;i<files.no();i++) {
     list->appendItem(files[i]);
@@ -1083,7 +1083,7 @@ long GMDatabaseSource::onCmdExport(FXObject*,FXSelector,void*){
   }
 
 long GMDatabaseSource::onUpdExport(FXObject*sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
   return 1;
   }
 
@@ -1191,8 +1191,8 @@ long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector,void*){
     if (cover && cover->getImageInfo(info)) {
       FXDialogBox confirmdialog(GMPlayerManager::instance()->getMainWindow(),"Add Album Cover",DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
       FXHorizontalFrame *closebox=new FXHorizontalFrame(&confirmdialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-      new GMButton(closebox,fxtr("&OK"),NULL,&confirmdialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-      new GMButton(closebox,fxtr("&Cancel"),NULL,&confirmdialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+      new GMButton(closebox,fxtr("&OK"),nullptr,&confirmdialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+      new GMButton(closebox,fxtr("&Cancel"),nullptr,&confirmdialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
       new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
    //   FXHorizontalFrame * main = new FXHorizontalFrame(&confirmdialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,10,10,10);
       FXVerticalFrame * main = new FXVerticalFrame(&confirmdialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,10,10,10);
@@ -1204,28 +1204,28 @@ long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector,void*){
 
       FXMatrix * matrix = new FXMatrix(main,2,MATRIX_BY_COLUMNS|LAYOUT_FILL,0,0,0,0,0,0,4,0);
 
-      new FXLabel(matrix,fxtr("Dimensions:"),NULL,labelstyle);
-      new FXLabel(matrix,FXString::value("%d x %d",info.width,info.height),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
+      new FXLabel(matrix,fxtr("Dimensions:"),nullptr,labelstyle);
+      new FXLabel(matrix,FXString::value("%d x %d",info.width,info.height),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
 
-      new FXLabel(matrix,fxtr("Size:"),NULL,labelstyle);
-      new FXLabel(matrix,FXString::value("%d",cover->size),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
+      new FXLabel(matrix,fxtr("Size:"),nullptr,labelstyle);
+      new FXLabel(matrix,FXString::value("%d",cover->size),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_COLUMN);
 
-      new FXLabel(matrix,fxtr("Cover Type:"),NULL,labelstyle);
-      GMListBox * list_types = new GMListBox(matrix,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+      new FXLabel(matrix,fxtr("Cover Type:"),nullptr,labelstyle);
+      GMListBox * list_types = new GMListBox(matrix,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
       for (FXuint i=0;i<ARRAYNUMBER(covertypes);i++)
-        list_types->appendItem(covertypes[i],NULL,(void*)(FXival)i);
+        list_types->appendItem(covertypes[i],nullptr,(void*)(FXival)i);
 
       list_types->setNumVisible(9);
       list_types->setCurrentItem(list_types->findItem("Front"));
 
-      new FXLabel(matrix,fxtr("Description:"),NULL,labelstyle|LAYOUT_FILL_ROW);
-      GMTextField * label = new GMTextField(matrix,20,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN|LAYOUT_FILL);
+      new FXLabel(matrix,fxtr("Description:"),nullptr,labelstyle|LAYOUT_FILL_ROW);
+      GMTextField * label = new GMTextField(matrix,20,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN|LAYOUT_FILL);
 
-      new FXLabel(matrix,fxtr("Tag Mode:"),NULL,labelstyle);
-      GMListBox * list_tag = new GMListBox(matrix,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
-      list_tag->appendItem("Append",NULL,(void*)(FXival)GMCoverTask::ModeAppend);
-      list_tag->appendItem("Replace",NULL,(void*)(FXival)GMCoverTask::ModeReplace);
-      list_tag->appendItem("Replace All",NULL,(void*)(FXival)GMCoverTask::ModeReplaceAll);
+      new FXLabel(matrix,fxtr("Tag Mode:"),nullptr,labelstyle);
+      GMListBox * list_tag = new GMListBox(matrix,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+      list_tag->appendItem("Append",nullptr,(void*)(FXival)GMCoverTask::ModeAppend);
+      list_tag->appendItem("Replace",nullptr,(void*)(FXival)GMCoverTask::ModeReplace);
+      list_tag->appendItem("Replace All",nullptr,(void*)(FXival)GMCoverTask::ModeReplaceAll);
       list_tag->setNumVisible(3);
 
       if (confirmdialog.execute()) {
@@ -1291,10 +1291,10 @@ long GMDatabaseSource::onCmdDelete(FXObject*,FXSelector sel,void*){
 
 
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),title,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
-  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,NULL);
+  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,nullptr);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("&Remove"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Remove"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,30,20,10,10);
   GMCheckButton * from_disk = new GMCheckButton(main,fxtr("Remove tracks from disk"));
@@ -1461,7 +1461,7 @@ void GMDatabaseSource::addTracks(GMSource * src,const FXIntList & tracks) {
 long GMDatabaseSource::onCmdDrop(FXObject*sender,FXSelector,void*){
   FXWindow*    window=dynamic_cast<FXWindow*>(sender);
   FXuint       from,ntypes;
-  FXDragType * types=NULL;
+  FXDragType * types=nullptr;
   if (window->inquireDNDTypes(FROM_DRAGNDROP,types,ntypes)){
     from = gm_parse_dragtypes(types,ntypes);
 
@@ -1532,14 +1532,14 @@ long GMDatabaseSource::onUpdPaste(FXObject*,FXSelector,void*){
 
 long GMDatabaseSource::onCmdNewPlayList(FXObject*,FXSelector,void*){
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Create Playlist"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
-  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Create Playlist"),fxtr("Specify name of the new playlist"),NULL);
+  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Create Playlist"),fxtr("Specify name of the new playlist"),nullptr);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("&Create"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Create"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,30,20,10,10);
   FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
-  new FXLabel(matrix,fxtr("Name"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  new FXLabel(matrix,fxtr("Name"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   GMTextField * name_field = new GMTextField(matrix,20,&dialog,FXDialogBox::ID_ACCEPT,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_ENTER_ONLY);
   name_field->setText(fxtr("New Playlist"));
   dialog.create();
@@ -1613,10 +1613,10 @@ long GMDatabaseSource::onCmdImportPlayList(FXObject*,FXSelector,void*){
 
 long GMDatabaseSource::onCmdClear(FXObject*,FXSelector,void*){
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Clear Music Library?"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
-  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Clear Music Library?"),fxtr("Remove all tracks from the music library?"),NULL);
+  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Clear Music Library?"),fxtr("Remove all tracks from the music library?"),nullptr);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("&Remove All"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Remove All"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,30,20,10,10);
   GMCheckButton * playlist_check = new GMCheckButton(main,fxtr("Keep play lists"));

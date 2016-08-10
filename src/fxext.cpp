@@ -49,7 +49,7 @@ long GMThreadDialog::onThreadExec(FXObject*,FXSelector,void*){
 
 FXuint GMThreadDialog::execute(FXMessageChannel* channel) {
   mutex.lock();
-  channel->message(this,FXSEL(SEL_COMMAND,ID_THREAD_EXEC),NULL,0);
+  channel->message(this,FXSEL(SEL_COMMAND,ID_THREAD_EXEC),nullptr,0);
   condition.wait(mutex);
   mutex.unlock();
   return code;
@@ -81,7 +81,7 @@ long GMThreadDialog::onCmdCancel(FXObject*,FXSelector,void*){
 long GMThreadDialog::onKeyPress(FXObject* sender,FXSelector sel,void* ptr){
   if(FXTopWindow::onKeyPress(sender,sel,ptr)) return 1;
   if(((FXEvent*)ptr)->code==KEY_Escape){
-    handle(this,FXSEL(SEL_COMMAND,ID_CANCEL),NULL);
+    handle(this,FXSEL(SEL_COMMAND,ID_CANCEL),nullptr);
     return 1;
     }
   return 0;
@@ -222,7 +222,7 @@ void fillHorizontalGradient(FXDCWindow & dc,FXint x,FXint y,FXint w,FXint h,FXCo
     }
   }
 
-FXIMPLEMENT(GMScrollFrame,FXVerticalFrame,NULL,0)
+FXIMPLEMENT(GMScrollFrame,FXVerticalFrame,nullptr,0)
 
 GMScrollFrame::GMScrollFrame(){
   }
@@ -232,7 +232,7 @@ GMScrollFrame::GMScrollFrame(FXComposite*p):FXVerticalFrame(p,LAYOUT_FILL_X|LAYO
   }
 
 
-FXIMPLEMENT(GMScrollHFrame,FXHorizontalFrame,NULL,0)
+FXIMPLEMENT(GMScrollHFrame,FXHorizontalFrame,nullptr,0)
 
 GMScrollHFrame::GMScrollHFrame(){
   }
@@ -242,7 +242,7 @@ GMScrollHFrame::GMScrollHFrame(FXComposite*p):FXHorizontalFrame(p,LAYOUT_FILL_X|
   }
 
 
-FXIMPLEMENT(GMTabFrame,FXVerticalFrame,NULL,0)
+FXIMPLEMENT(GMTabFrame,FXVerticalFrame,nullptr,0)
 
 GMTabFrame::GMTabFrame(){
   }
@@ -252,7 +252,7 @@ GMTabFrame::GMTabFrame(FXComposite*p):FXVerticalFrame(p,LAYOUT_FILL_X|LAYOUT_FIL
   }
 
 
-FXIMPLEMENT(GMHeaderItem,FXHeaderItem,NULL,0)
+FXIMPLEMENT(GMHeaderItem,FXHeaderItem,nullptr,0)
 
 
 // Map
@@ -344,7 +344,7 @@ long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
         else if(options&FRAME_RAISED)
           drawRaisedRectangle(dc,0,y,width,h);
         }
-      ((GMHeaderItem*)items[i])->draw(this,dc,0,y,width,h);
+      static_cast<GMHeaderItem*>(items[i])->draw(this,dc,0,y,width,h);
       }
     }
 
@@ -437,7 +437,7 @@ long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
 
          */
         }
-      ((GMHeaderItem*)items[i])->draw(this,dc,x,0,w,height);
+      static_cast<GMHeaderItem*>(items[i])->draw(this,dc,x,0,w,height);
       }
     }
   return 1;
@@ -445,34 +445,34 @@ long GMHeader::onPaint(FXObject*,FXSelector,void* ptr){
 
 
 
-FXIMPLEMENT(GMMenuCommand,FXMenuCommand,NULL,0)
+FXIMPLEMENT(GMMenuCommand,FXMenuCommand,nullptr,0)
 
 GMMenuCommand::GMMenuCommand(FXComposite* p,const FXString& text,FXIcon* ic,FXObject* tgt,FXSelector sel,FXuint opts) : FXMenuCommand(p,text,ic,tgt,sel,opts){
   backColor=getApp()->getBackColor();
   }
 
 
-FXIMPLEMENT(GMMenuCheck,FXMenuCheck,NULL,0)
+FXIMPLEMENT(GMMenuCheck,FXMenuCheck,nullptr,0)
 
 GMMenuCheck::GMMenuCheck(FXComposite* p,const FXString& text,FXObject* tgt,FXSelector sel,FXuint opts) : FXMenuCheck(p,text,tgt,sel,opts){
   backColor=getApp()->getBackColor();
   }
 
 
-FXIMPLEMENT(GMMenuRadio,FXMenuRadio,NULL,0)
+FXIMPLEMENT(GMMenuRadio,FXMenuRadio,nullptr,0)
 
 GMMenuRadio::GMMenuRadio(FXComposite* p,const FXString& text,FXObject* tgt,FXSelector sel,FXuint opts) : FXMenuRadio(p,text,tgt,sel,opts){
   backColor=getApp()->getBackColor();
   }
 
 
-FXIMPLEMENT(GMMenuCascade,FXMenuCascade,NULL,0)
+FXIMPLEMENT(GMMenuCascade,FXMenuCascade,nullptr,0)
 
 GMMenuCascade::GMMenuCascade(FXComposite* p,const FXString& text,FXIcon* ic,FXPopup* pup,FXuint opts) : FXMenuCascade(p,text,ic,pup,opts){
   backColor=getApp()->getBackColor();
   }
 
-FXIMPLEMENT(GMMenuPane,FXMenuPane,NULL,0)
+FXIMPLEMENT(GMMenuPane,FXMenuPane,nullptr,0)
 
 GMMenuPane::GMMenuPane(FXWindow* o,FXuint opts) : FXMenuPane(o,opts) {
   borderColor=getApp()->getShadowColor();
@@ -548,7 +548,7 @@ long GMTextField::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
   }
 
 
-FXIMPLEMENT(GMSpinner,FXSpinner,NULL,0)
+FXIMPLEMENT(GMSpinner,FXSpinner,nullptr,0)
 
 GMSpinner::GMSpinner(FXComposite* p,FXint ncols,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb) : FXSpinner(p,ncols,tgt,sel,opts,x,y,w,h,pl,pr,pt,pb){
   borderColor=getApp()->getShadowColor();
@@ -1021,7 +1021,7 @@ long GMToggleButton::onPaint(FXObject*,FXSelector,void* ptr){
 
 
 
-FXIMPLEMENT(GMRadioButton,FXRadioButton,NULL,0)
+FXIMPLEMENT(GMRadioButton,FXRadioButton,nullptr,0)
 
 
 GMRadioButton::GMRadioButton(){
@@ -1104,7 +1104,7 @@ long GMCheckButton::onPaint(FXObject*,FXSelector,void* ptr){
   else{
     if(check!=false){
       FXSegment seg[6];
-#ifndef WIN32
+#ifndef _WIN32
       seg[0].x1=3+ix; seg[0].y1=5+iy; seg[0].x2=5+ix; seg[0].y2=7+iy;
       seg[1].x1=3+ix; seg[1].y1=6+iy; seg[1].x2=5+ix; seg[1].y2=8+iy;
       seg[2].x1=3+ix; seg[2].y1=7+iy; seg[2].x2=5+ix; seg[2].y2=9+iy;
@@ -1651,10 +1651,10 @@ long GMHeaderButton::onPaint(FXObject*,FXSelector,void*ptr){
   }
 
 
-FXIMPLEMENT(GMScrollArea,FXScrollArea,NULL,0)
+FXIMPLEMENT(GMScrollArea,FXScrollArea,nullptr,0)
 
 void GMScrollArea::replaceScrollbars(FXScrollArea *fs) {
-  GMScrollArea * s = (GMScrollArea*)(fs);
+  GMScrollArea * s = static_cast<GMScrollArea*>(fs);
   delete s->vertical;
   delete s->horizontal;
   delete s->corner;
@@ -1665,10 +1665,10 @@ void GMScrollArea::replaceScrollbars(FXScrollArea *fs) {
 
 
 
-FXIMPLEMENT(GMTreeListBox,FXTreeListBox,NULL,0)
+FXIMPLEMENT(GMTreeListBox,FXTreeListBox,nullptr,0)
 
 void GMTreeListBox::replace(FXTreeListBox *fs) {
-  GMTreeListBox * s = (GMTreeListBox*)(fs);
+  GMTreeListBox * s = static_cast<GMTreeListBox*>(fs);
   GMScrollArea::replaceScrollbars(s->tree);
 
   s->borderColor=s->getApp()->getShadowColor();
@@ -1840,7 +1840,7 @@ long GMScrollCorner::onPaint(FXObject*,FXSelector,void* ptr){
 
 
 
-FXIMPLEMENT(GMTabBook,FXTabBook,NULL,0)
+FXIMPLEMENT(GMTabBook,FXTabBook,nullptr,0)
 
 GMTabBook::GMTabBook(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb) :
 	FXTabBook(p,tgt,sel,opts,x,y,w,h,pl,pr,pt,pb) {
@@ -1980,7 +1980,7 @@ long GMTabItem::onPaint(FXObject*,FXSelector,void*){
 
 
 
-FXIMPLEMENT(GMListBox,FXListBox,NULL,0);
+FXIMPLEMENT(GMListBox,FXListBox,nullptr,0);
 
 GMListBox::GMListBox(){
   }
@@ -2008,7 +2008,7 @@ void GMListBox::create(){
 
 
 
-FXIMPLEMENT(GMComboBox,FXComboBox,NULL,0);
+FXIMPLEMENT(GMComboBox,FXComboBox,nullptr,0);
 
 GMComboBox::GMComboBox(){
   }
@@ -2033,7 +2033,7 @@ void GMComboBox::create(){
   }
 
 
-FXIMPLEMENT(GMImageFrame,FXImageFrame,NULL,0);
+FXIMPLEMENT(GMImageFrame,FXImageFrame,nullptr,0);
 
 GMImageFrame::GMImageFrame(){
   }
@@ -2046,7 +2046,7 @@ GMImageFrame::GMImageFrame(FXComposite *p,FXImage * img,FXuint opts,FXint x,FXin
 
 
 
-FXIMPLEMENT(GMCoverFrame,FXVerticalFrame,NULL,0);
+FXIMPLEMENT(GMCoverFrame,FXVerticalFrame,nullptr,0);
 
 GMCoverFrame::GMCoverFrame(){
   }
@@ -2058,7 +2058,7 @@ GMCoverFrame::GMCoverFrame(FXComposite *p)
   }
 
 
-FXIMPLEMENT(GMProgressBar,FXProgressBar,NULL,0);
+FXIMPLEMENT(GMProgressBar,FXProgressBar,nullptr,0);
 
 GMProgressBar::GMProgressBar(){
   }

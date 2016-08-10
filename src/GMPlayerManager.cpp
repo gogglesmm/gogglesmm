@@ -46,10 +46,6 @@
 #include "GMAppStatusNotify.h"
 #endif
 
-#ifdef HAVE_LIRC
-#include "lirc_client.h"
-#endif
-
 #include <FXPNGIcon.h>
 #include "GMApp.h"
 #include "GMTrackList.h"
@@ -114,9 +110,6 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
 #ifdef HAVE_DBUS
   FXMAPFUNC(SEL_KEYPRESS,GMPlayerManager::ID_GNOME_SETTINGS_DAEMON,GMPlayerManager::onCmdSettingsDaemon),
 #endif
-#ifdef HAVE_LIRC
-  FXMAPFUNC(SEL_IO_READ,GMPlayerManager::ID_LIRC,GMPlayerManager::onCmdLirc),
-#endif
   FXMAPFUNC(SEL_PLAYER_BOS,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerBOS),
   FXMAPFUNC(SEL_PLAYER_EOS,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerEOS),
   FXMAPFUNC(SEL_PLAYER_TIME,GMPlayerManager::ID_AUDIO_PLAYER,GMPlayerManager::onPlayerTime),
@@ -160,7 +153,7 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
   FXTRACE((80,"interface: %s\n",dbus_message_get_interface(msg)));
   FXTRACE((80,"sender: %s\n",dbus_message_get_sender(msg)));
 
-  GMPlayerManager * p = (GMPlayerManager*)data;
+  GMPlayerManager * p = static_cast<GMPlayerManager*>(data);
   if (dbus_message_has_path(msg,"/org/freedesktop/NetworkManager")){
     if (dbus_message_is_signal(msg,"org.freedesktop.NetworkManager","StateChanged") ||
         dbus_message_is_signal(msg,"org.freedesktop.NetworkManager","StateChange")) {
@@ -191,7 +184,7 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
         NM9_STATE_CONNECTED_GLOBAL = 70,
         };
 
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&state,DBUS_TYPE_INVALID)) {
+      if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_UINT32,&state,DBUS_TYPE_INVALID)) {
         if (p->getAudioScrobbler() && (state==NM7_STATE_CONNECTED ||
                                        state==NM9_STATE_CONNECTED_GLOBAL))
           p->getAudioScrobbler()->nudge();
@@ -206,7 +199,7 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
 
 DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessage * msg,void * data){
   FXchar * url;
-  GMPlayerManager * p = (GMPlayerManager*)data;
+  GMPlayerManager * p = static_cast<GMPlayerManager*>(data);
   if (dbus_message_has_path(msg,GOGGLESMM_DBUS_PATH)){
     if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"play")){
       p->cmd_play();
@@ -233,7 +226,7 @@ DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessa
       return gm_dbus_reply_if_needed(connection,msg);
       }
     else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"open")){
-      if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&url,DBUS_TYPE_INVALID)) {
+      if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&url,DBUS_TYPE_INVALID)) {
         p->open(url);
         }
       return gm_dbus_reply_if_needed(connection,msg);
@@ -278,7 +271,7 @@ DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessa
       }
     else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"exit")){
       gm_dbus_reply_if_needed(connection,msg);
-      if (p->getMainWindow()) p->getMainWindow()->handle(p,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),NULL);
+      if (p->getMainWindow()) p->getMainWindow()->handle(p,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),nullptr);
       return DBUS_HANDLER_RESULT_HANDLED;
       }
     else if (dbus_message_is_method_call(msg,"org.freedesktop.DBus.Introspectable","Introspect")){
@@ -290,12 +283,12 @@ DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessa
 
 
 static DBusObjectPathVTable org_fifthplanet_gogglesmm={
-  NULL,
+  nullptr,
   &dbus_playermanager_filter,
-  NULL,
-  NULL,
-  NULL,
-  NULL
+  nullptr,
+  nullptr,
+  nullptr,
+  nullptr
   };
 
 
@@ -311,7 +304,7 @@ static void dbus_send_to_self(DBusConnection * connection,const FXchar * signal,
       dbus_message_append_args(msg,DBUS_TYPE_STRING,&arg,DBUS_TYPE_INVALID);
       }
     dbus_message_set_no_reply(msg,true);
-    dbus_connection_send(connection,msg,NULL);
+    dbus_connection_send(connection,msg,nullptr);
     dbus_connection_flush(connection);
 //    if (reply) dbus_message_unref(reply);
     dbus_message_unref(msg);
@@ -427,7 +420,7 @@ long GMPlayerManager::onDDEMessage(FXObject*,FXSelector,void*){
 
 
 
-GMPlayerManager * GMPlayerManager::myself = NULL;
+GMPlayerManager * GMPlayerManager::myself = nullptr;
 
 GMPlayerManager* GMPlayerManager::instance() {
   return myself;
@@ -470,7 +463,7 @@ GMPlayerManager::~GMPlayerManager() {
   delete player;
   delete taskmanager;
 
-  myself=NULL;
+  myself=nullptr;
 
   delete session;
   delete application;
@@ -618,7 +611,7 @@ void GMPlayerManager::setPlayQueue(FXbool enable) {
   else {
     if (queue) {
       removeSource(queue);
-      queue=NULL;
+      queue=nullptr;
       }
     }
   }
@@ -635,7 +628,7 @@ void GMPlayerManager::removeSource(GMSource * src) {
 
   if (src==source) {
     source->resetCurrent();
-    source=NULL;
+    source=nullptr;
     }
 
   delete src;
@@ -729,26 +722,6 @@ void GMPlayerManager::init_configuration() {
   }
 
 
-#ifdef HAVE_LIRC
-
-void GMPlayerManager::init_lirc() {
-
-//#ifdef DEBUG
-  lirc_fd  = lirc_init("gogglesmm",1);
-//#else
-//  lirc_fd  = lirc_init("gogglesmm",0);
-//#endif
-  if (lirc_fd) {
-    ap_set_nonblocking(lirc_fd);
-
-    if (lirc_readconfig(NULL,&lirc_config,NULL))
-      fxmessage("oops\n");
-
-    application->addInput(this,ID_LIRC,lirc_fd,INPUT_READ);
-    }
-
-  }
-#endif
 
 #ifdef HAVE_DBUS
 FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
@@ -762,17 +735,17 @@ FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
   if (!sessionbus->open(DBUS_BUS_SESSION) || !sessionbus->connected()) {
     FXMessageBox::warning(application,MBOX_OK,"Goggles Music Manager",fxtr("Session bus not available. All features requiring dbus are disabled."));
     delete sessionbus;
-    sessionbus=NULL;
+    sessionbus=nullptr;
     }
   else {
-    FXint result = dbus_bus_request_name(sessionbus->connection(),GOGGLESMM_DBUS_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,NULL);
+    FXint result = dbus_bus_request_name(sessionbus->connection(),GOGGLESMM_DBUS_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,nullptr);
     switch(result) {
       case DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER:
         {
           if (!dbus_connection_register_object_path(sessionbus->connection(),"/org/fifthplanet/gogglesmm",&org_fifthplanet_gogglesmm,this)){
             FXMessageBox::warning(application,MBOX_OK,"Goggles Music Manager",fxtr("A DBus error occurred. All features requiring sessionbus are disabled."));
             delete sessionbus;
-            sessionbus=NULL;
+            sessionbus=nullptr;
             return true;
             }
         }
@@ -784,19 +757,19 @@ FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
       default:
         FXMessageBox::warning(application,MBOX_OK,"Goggles Music Manager",fxtr("Session Bus not available. All features requiring sessionbus are disabled."));
         delete sessionbus;
-        sessionbus=NULL;
+        sessionbus=nullptr;
         return true;
         break;
       }
 
     if (!systembus->open(DBUS_BUS_SYSTEM) || !systembus->connected()) {
       delete systembus;
-      systembus=NULL;
+      systembus=nullptr;
       }
 
-    if (systembus && !dbus_connection_add_filter(systembus->connection(),dbus_systembus_filter,this,NULL)){
+    if (systembus && !dbus_connection_add_filter(systembus->connection(),dbus_systembus_filter,this,nullptr)){
       delete systembus;
-      systembus=NULL;
+      systembus=nullptr;
       }
 
     if (systembus) {
@@ -806,7 +779,7 @@ FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
       if (dbus_error_is_set(&error)) {
         dbus_error_free(&error);
         delete systembus;
-        systembus=NULL;
+        systembus=nullptr;
         }
       }
 
@@ -817,7 +790,7 @@ FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
       if (dbus_error_is_set(&error)) {
         dbus_error_free(&error);
         delete systembus;
-        systembus=NULL;
+        systembus=nullptr;
         }
       }
     }
@@ -874,7 +847,7 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     return 0;
 
   /// Fallback to fifo method to check for existing instance
-  if (sessionbus==NULL) {
+  if (sessionbus==nullptr) {
     result = init_fifo(argc,argv);
     if (result==FIFO_STATUS_ERROR)
       return 1;
@@ -930,10 +903,6 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     /// Integrate Dbus into FOX Event Loop
     GMDBus::initEventLoop();
     }
-#endif
-
-#ifdef HAVE_LIRC
-  init_lirc();
 #endif
 
   /// Start Services
@@ -1007,12 +976,12 @@ void GMPlayerManager::exit() {
 
     gsd->ReleaseMediaPlayerKeys("gogglesmm");
     delete gsd;
-    gsd=NULL;
+    gsd=nullptr;
 
     if (notifydaemon) {
       notifydaemon->close();
       delete notifydaemon;
-      notifydaemon=NULL;
+      notifydaemon=nullptr;
       }
 
     dbus_connection_unregister_object_path(sessionbus->connection(),"/org/fifthplanet/gogglesmm");
@@ -1044,11 +1013,11 @@ void GMPlayerManager::update_mpris() {
   if (mpris1 || mpris2) {
     if (!sessionbus || !preferences.dbus_mpris1){
       delete mpris1;
-      mpris1=NULL;
+      mpris1=nullptr;
       }
     if (!sessionbus || !preferences.dbus_mpris2){
       delete mpris2;
-      mpris2=NULL;
+      mpris2=nullptr;
       }
     }
 
@@ -1066,7 +1035,7 @@ void GMPlayerManager::update_tray_icon() {
   if (trayicon){
     if (!preferences.gui_tray_icon || preferences.gui_tray_icon_disabled) {
       delete trayicon;
-      trayicon=NULL;
+      trayicon=nullptr;
       }
     }
   else {
@@ -1131,11 +1100,10 @@ void GMPlayerManager::cleanSourceSettings() {
   }
 
 void GMPlayerManager::removePlayListSources(){
-  GMSource * src;
   for (FXint i=sources.no()-1;i>=0;i--){
-    src=sources[i];
-    if (src->getType()==SOURCE_DATABASE_PLAYLIST) {
+    if (sources[i]->getType()==SOURCE_DATABASE_PLAYLIST) {
       FXApp::instance()->reg().deleteSection(sources[i]->settingKey().text());
+      GMSource * src = sources[i];
       sources.erase(i);
       delete src;
       }
@@ -1156,7 +1124,7 @@ void GMPlayerManager::open(const FXString & url) {
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
     source->resetCurrent();
-    source=NULL;
+    source=nullptr;
     }
 
   trackinfo.url = url;
@@ -1185,7 +1153,7 @@ void GMPlayerManager::playItem(FXuint whence) {
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
     source->resetCurrent();
-    source=NULL;
+    source=nullptr;
     }
 
   if (queue) {
@@ -1238,7 +1206,7 @@ void GMPlayerManager::stop(FXbool /*force_close*/) {
   if (source) {
     application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
     source->resetCurrent();
-    source=NULL;
+    source=nullptr;
     }
 
   player->stop();
@@ -1315,7 +1283,7 @@ void GMPlayerManager::notify_playback_finished() {
     /// Reset Source
     if (source!=queue) {
      source->resetCurrent();
-     source=NULL;
+     source=nullptr;
      }
 
     /// Nothing else to do, mark current as played
@@ -1327,7 +1295,7 @@ void GMPlayerManager::notify_playback_finished() {
     //FIXME handle stop_playback
     track = queue->getNext();
     if (track==-1) {
-      source = NULL;
+      source = nullptr;
 
       if (getTrackView()->getSource()==queue)
         getTrackView()->refresh();
@@ -1343,7 +1311,7 @@ void GMPlayerManager::notify_playback_finished() {
   else {
 
     /// Don't play anything if we didn't play anything from the library
-    if (source==NULL)
+    if (source==nullptr)
       return;
 
     /// Can we just start playback without user interaction
@@ -1352,7 +1320,7 @@ void GMPlayerManager::notify_playback_finished() {
       /// Reset Source
       if (source) {
         source->resetCurrent();
-        source=NULL;
+        source=nullptr;
         }
 
       if(preferences.play_repeat!=REPEAT_TRACK) {
@@ -1364,7 +1332,7 @@ void GMPlayerManager::notify_playback_finished() {
 
     if (source) {
       source->resetCurrent();
-      source=NULL;
+      source=nullptr;
       }
 
     if (preferences.play_repeat==REPEAT_TRACK)
@@ -1445,7 +1413,7 @@ void GMPlayerManager::update_track_display(FXbool notify) {
     FXint time = (FXint) (((double)trackinfo.time) * 0.80);
     if (time <= 5) {
       application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
-      source->handle(this,FXSEL(SEL_TIMEOUT,GMSource::ID_TRACK_PLAYED),NULL);
+      source->handle(this,FXSEL(SEL_TIMEOUT,GMSource::ID_TRACK_PLAYED),nullptr);
       }
     else {
       count_track_remaining=0;
@@ -1480,7 +1448,7 @@ FXbool GMPlayerManager::can_stop() const {
   }
 
 FXbool GMPlayerManager::can_play() const {
-   return !player->playing() && ((queue==NULL && getTrackView()->hasTracks()) ||
+   return !player->playing() && ((queue==nullptr && getTrackView()->hasTracks()) ||
                                 (queue && (queue->getNumTracks() ||  (getTrackView()->hasTracks() && getPlayQueue()->canPlaySource(getTrackView()->getSource())))));
   }
 
@@ -1505,7 +1473,7 @@ FXbool GMPlayerManager::can_next() const {
   }
 
 FXbool GMPlayerManager::can_prev() const {
-  if (player->playing() && !player->pausing() && queue==NULL) {
+  if (player->playing() && !player->pausing() && queue==nullptr) {
     return (getTrackView()->getNumTracks()>1);
     }
   return false;
@@ -1548,13 +1516,13 @@ long GMPlayerManager::onCmdCloseWindow(FXObject*sender,FXSelector,void*){
     window->hide();
     }
   else {
-    getMainWindow()->handle(this,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),NULL);
+    getMainWindow()->handle(this,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),nullptr);
     }
   return 1;
   }
 
 long GMPlayerManager::onCmdQuit(FXObject*,FXSelector,void*){
-  getMainWindow()->handle(this,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),NULL);
+  getMainWindow()->handle(this,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),nullptr);
   return 1;
   }
 
@@ -1757,83 +1725,6 @@ long GMPlayerManager::onCmdSettingsDaemon(FXObject*,FXSelector,void*ptr){
 #endif
 
 
-#ifdef HAVE_LIRC
-long GMPlayerManager::onCmdLirc(FXObject*,FXSelector,void*){
-  FXchar * code=NULL;
-  FXchar * action=NULL;
-  FXint result;
-  while(lirc_nextcode(&code)==0 && code) {
-//    fxmessage("code: %s\n",code);
-    while((result=lirc_code2char(lirc_config,code,&action))==0 && action) {
-      fxmessage("Action: %s\n",action);
-      if (comparecase(action,"play")==0)
-        cmd_play();
-      else if (comparecase(action,"pause")==0)
-        cmd_pause();
-      else if (comparecase(action,"prev")==0)
-        cmd_prev();
-      else if (comparecase(action,"next")==0)
-        cmd_next();
-      else if (comparecase(action,"volup")==0){
-        volume(FXMIN(volume()+1,100));
-        }
-      else if (comparecase(action,"voldown")==0){
-        volume(FXMAX(volume()-1,0));
-        }
-      else if (comparecase(action,"mute")==0){
-        volume(0);
-        }
-      else if (comparecase(action,"left")==0){
-        cmd_focus_previous();
-        }
-      else if (comparecase(action,"right")==0){
-        cmd_focus_next();
-        }
-      else if (comparecase(action,"ok")==0){
-        FXWindow * window = application->getFocusWindow();
-        if (window) {
-          GMTrackList * tracklist;
-          if ((tracklist=dynamic_cast<GMTrackList*>(window))!=NULL) {
-            play();
-            }
-          }
-        }
-      else if (comparecase(action,"down")==0 || comparecase(action,"up")==0){
-        FXWindow * window = application->getFocusWindow();
-        if (window) {
-          GMTrackList * tracklist;
-          if ((tracklist=dynamic_cast<GMTrackList*>(window))!=NULL) {
-            FXint index=tracklist->getCurrentItem();
-            if (comparecase(action,"down")==0) {
-              if (index<tracklist->getNumItems()-1)
-                index++;
-              else
-                index=0;
-              }
-            else {
-             if (index>0)
-                index--;
-              else
-                index=tracklist->getNumItems()-1;
-              }
-            tracklist->setCurrentItem(index,false);
-            tracklist->makeItemVisible(index);
-            tracklist->killSelection(false);
-            tracklist->selectItem(index,false);
-            tracklist->setAnchorItem(index);
-            }
-          }
-        }
-
-
-      }
-    free(code);
-    if (result==-1) return 0;
-    }
-  return 1;
-  }
-#endif
-
 // Perhaps should do something else...
 static int xregisterhotkeys(Display* dpy,XErrorEvent* eev){
   char buf[256];
@@ -2014,7 +1905,7 @@ long GMPlayerManager::onPlayerVolume(FXObject*,FXSelector,void* ptr){
   }
 
 long GMPlayerManager::onPlayerMeta(FXObject*,FXSelector,void* ptr){
-  GMTrack * track = (GMTrack*)ptr;
+  GMTrack * track = static_cast<GMTrack*>(ptr);
   GM_DEBUG_PRINT("[player] meta\n");
   if (trackinfoset==false) {
     trackinfo.title.adopt(track->title);

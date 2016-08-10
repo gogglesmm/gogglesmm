@@ -19,7 +19,7 @@
 #include "gmdefs.h"
 #ifdef HAVE_OPENGL
 #include "GMImageView.h"
-#include <GL/glew.h>
+#include <GL/glu.h>
 
 GMImageTexture::GMImageTexture() :
   id(0),
@@ -57,8 +57,9 @@ FXbool GMImageTexture::setImage(FXImage* image) {
     // aspect ratio
     aspect = image->getWidth() / (FXfloat) image->getHeight();
 
+
     /// Get a nice texture size
-    if (GLEW_ARB_texture_non_power_of_two) {
+    if (epoxy_has_gl_extension("GL_ARB_texture_non_power_of_two")) {
       texture_width=image_width;
       texture_height=image_height;
       }
@@ -78,18 +79,14 @@ FXbool GMImageTexture::setImage(FXImage* image) {
       }
 
     glBindTexture(GL_TEXTURE_2D,id);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 
-    FXbool use_mipmap = (glGenerateMipmap!=NULL || GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap );
+    FXbool use_mipmap = (epoxy_gl_version()>=30);
 
     if (use_mipmap) {
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-      if (glGenerateMipmap==NULL){
-        glHint(GL_GENERATE_MIPMAP_HINT,GL_NICEST);
-        glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP,GL_TRUE);
-        }
       }
     else {
       glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -101,15 +98,13 @@ FXbool GMImageTexture::setImage(FXImage* image) {
       cw=ch=1.0f;
       }
     else {
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,NULL);
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,texture_width,texture_height,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,nullptr);
       glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV,image->getData());
       cw = (1.0f / (FXfloat)(texture_width))  * image_width;
       ch = (1.0f / (FXfloat)(texture_height)) * image_height;
       }
-
-    if (glGenerateMipmap)
+    if (use_mipmap)
       glGenerateMipmap(GL_TEXTURE_2D);
-
     }
   else {
     if (id) {
@@ -124,19 +119,20 @@ FXbool GMImageTexture::setImage(FXImage* image) {
 void GMImageTexture::drawQuad(FXfloat x,FXfloat y,FXfloat width,FXfloat height,FXColor background) {
   const FXfloat coordinates[8] = { x,y,
                                    x,y+height,
-                                   x+width,y+height,
-                                   x+width,y };
+                                   x+width,y,
+                                   x+width,y+height
+                                   };
 
   const FXfloat tex[8] = { 0.0f,ch,
                            0.0f,0.0f,
-                           cw,0.0f,
-                           cw,ch };
+                           cw,ch,
+                           cw,0.0f
+                            };
 
   const FXuchar colors[16] = { FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
                                FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
                                FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background),
                                FXREDVAL(background),FXBLUEVAL(background),FXGREENVAL(background) };
-
 
 
   glEnable(GL_TEXTURE_2D);
@@ -148,7 +144,7 @@ void GMImageTexture::drawQuad(FXfloat x,FXfloat y,FXfloat width,FXfloat height,F
   glColorPointer(3,GL_UNSIGNED_BYTE,0,colors);
   glVertexPointer(2,GL_FLOAT,0,coordinates);
   glTexCoordPointer(2,GL_FLOAT,0,tex);
-  glDrawArrays(GL_QUADS,0,4);
+  glDrawArrays(GL_TRIANGLE_STRIP,0,4);
   glDisableClientState(GL_COLOR_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
@@ -164,11 +160,11 @@ FXIMPLEMENT(GMImageView,FXGLCanvas,GMImageViewMap,ARRAYNUMBER(GMImageViewMap));
 
 
 GMImageView::GMImageView(){
-  texture=NULL;
+  texture=nullptr;
   }
 
-GMImageView::GMImageView(FXComposite* p,FXGLContext *ctx,FXuint opts,FXint x,FXint y,FXint w,FXint h) : FXGLCanvas(p,ctx,NULL,0,opts,x,y,w,h){
-  texture=NULL;
+GMImageView::GMImageView(FXComposite* p,FXGLContext *ctx,FXuint opts,FXint x,FXint y,FXint w,FXint h) : FXGLCanvas(p,ctx,nullptr,0,opts,x,y,w,h){
+  texture=nullptr;
   }
 
 GMImageView::~GMImageView(){
@@ -177,7 +173,7 @@ GMImageView::~GMImageView(){
 
 void GMImageView::setImage(FXImage * image) {
   if (makeCurrent()) {
-    if (texture==NULL && image) {
+    if (texture==nullptr && image) {
       texture = new GMImageTexture();
       }
     if (texture) texture->setImage(image);
@@ -208,7 +204,7 @@ long GMImageView::onPaint(FXObject*,FXSelector,void*){
   if(makeCurrent()){
     glViewport(0,0,getWidth(),getHeight());
     glClearColor(background.x,background.y,background.z,background.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
     if (texture && texture->id) {
       glMatrixMode(GL_MODELVIEW);

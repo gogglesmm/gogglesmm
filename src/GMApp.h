@@ -50,7 +50,9 @@ protected:
   FXGLContext*  glcontext;
 #endif
 protected:
+#ifndef _WIN32
   virtual FXbool dispatchEvent(FXRawEvent & event);
+#endif
 public:
   static GMApp * instance();
 public:
@@ -89,7 +91,7 @@ public:
   virtual ~GMApp();
   };
 
-
+#ifndef _WIN32
 class GMPlug : public FXTopWindow {
 FXDECLARE(GMPlug)
 protected:
@@ -113,13 +115,5 @@ public:
 
   virtual ~GMPlug();
   };
-
-
-
-
 #endif
-
-
-
-
-
+#endif

@@ -348,11 +348,11 @@ FXbool gm_meta_gif(const FXuchar * data,FXival size,GMImageInfo & info) {
   }
 
 
-GMCover::GMCover() : data(NULL),size(0),type(0) {
+GMCover::GMCover() : data(nullptr),size(0),type(0) {
   }
 
 GMCover::GMCover(const void * ptr,FXuint len,FXuint t,const FXString & label,FXbool owned) :
-  data(NULL),
+  data(nullptr),
   size(len),
   description(label),
   type(t) {
@@ -468,28 +468,28 @@ GMCover * GMCover::fromTag(const FXString & mrl) {
   if (tags.open(mrl,FILETAG_TAGS)) {
     return tags.getFrontCover();
     }
-  return NULL;
+  return nullptr;
   }
 
 GMCover * GMCover::fromFile(const FXString & filename) {
   FXFile file(filename,FXIO::Reading);
   FXuval size = file.size();
   if (file.isOpen() && size) {
-    FXchar * data=NULL;
+    FXchar * data=nullptr;
     allocElms(data,size);
     if (file.readBlock(data,size)==(FXival)size) {
       return new GMCover(data,size,GMCover::Other,FXString::null,true);
       }
     freeElms(data);
     }
-  return NULL;
+  return nullptr;
   }
 
 GMCover * GMCover::fromPath(const FXString & path) {
-  static const FXchar * const covernames[]={"cover","album","front","albumart",".folder","folder",NULL};
-  FXString * files=NULL;
-  FXString * names=NULL;
-  GMCover  * cover=NULL;
+  static const FXchar * const covernames[]={"cover","album","front","albumart",".folder","folder",nullptr};
+  FXString * files=nullptr;
+  FXString * names=nullptr;
+  GMCover  * cover=nullptr;
 
   FXint nfiles = FXDir::listFiles(files,path,"*.(png,jpg,jpeg,bmp,gif)",FXDir::NoDirs|FXDir::NoParent|FXDir::CaseFold|FXDir::HiddenFiles);
   if (nfiles) {
@@ -497,7 +497,7 @@ GMCover * GMCover::fromPath(const FXString & path) {
     for (FXint i=0;i<nfiles;i++)
       names[i]=FXPath::title(files[i]);
 
-    for (FXint c=0;covernames[c]!=NULL;c++) {
+    for (FXint c=0;covernames[c]!=nullptr;c++) {
       for (FXint i=0;i<nfiles;i++){
         if (comparecase(names[i],covernames[c])==0) {
           cover = GMCover::fromFile(path+PATHSEPSTRING+files[i]);
@@ -523,7 +523,7 @@ FXImage * GMCover::copyToImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*
   if (cover) {
     return gm_load_image_from_data(cover->data,cover->size,scale,crop);
     }
-  return NULL;
+  return nullptr;
   }
 
 FXImage * GMCover::toImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
@@ -532,5 +532,5 @@ FXImage * GMCover::toImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
     delete cover;
     return image;
     }
-  return NULL;
+  return nullptr;
   }

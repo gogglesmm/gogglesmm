@@ -154,7 +154,6 @@ public: /// Message Handlers
 
   long onConfigureCoverView(FXObject*,FXSelector,void*);
 
-  long onCmdSeek(FXObject*,FXSelector,void*);
   long onCmdNextFocus(FXObject*,FXSelector,void*);
 
 public:
@@ -238,7 +237,7 @@ public:
 
   void updateCoverView();
 
-  void create_dialog_header(FXDialogBox * dialog,const FXString & title,const FXString & label,FXIcon * icon=NULL);
+  void create_dialog_header(FXDialogBox * dialog,const FXString & title,const FXString & label,FXIcon * icon=nullptr);
 
   FXbool question(const FXString & title,const FXString & label,const FXString & accept,const FXString & cancel);
 

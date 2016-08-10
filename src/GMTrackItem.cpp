@@ -139,7 +139,7 @@ FXIcon * GMDBTrackItem::getIcon() const {
   if (GMPlayerManager::instance()->getPlayQueue() && GMPlayerManager::instance()->getTrackView()->getSource()!=GMPlayerManager::instance()->getPlayQueue() && GMPlayerManager::instance()->getPlayQueue()->hasTrack(id))
     return GMIconTheme::instance()->icon_playqueue;
   else
-    return NULL;
+    return nullptr;
   }
 
 
@@ -173,7 +173,7 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
                                   max=GMDBTrackItem::max_trackno;
                                   }
                                 else {
-                                  textptr=NULL;
+                                  textptr=nullptr;
                                   }
                                 break;
 
@@ -182,7 +182,7 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
                                   textptr=&text;
                                   }
                                 else {
-                                  textptr=NULL;
+                                  textptr=nullptr;
                                   }
                                 break;
     case HEADER_FILETYPE      : text=filetypes[filetype];
@@ -199,18 +199,18 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
     case HEADER_CONDUCTOR     : textptr = GMPlayerManager::instance()->getTrackDatabase()->getArtist(conductor);    break;
     case HEADER_YEAR          : justify=COLUMN_JUSTIFY_RIGHT; //justify=COLUMN_JUSTIFY_CENTER_RIGHT_ALIGNED;
                                 //max=9999;
-                                if (year>0) {text.format("%d",year); textptr=&text; } else textptr=NULL; break;
+                                if (year>0) {text.format("%d",year); textptr=&text; } else textptr=nullptr; break;
 
     case HEADER_PLAYCOUNT     : justify=COLUMN_JUSTIFY_CENTER_RIGHT_ALIGNED;
                                 //max=9999;
-                                if (playcount>0) {text.format("%d",playcount); textptr=&text; } else textptr=NULL; break;
+                                if (playcount>0) {text.format("%d",playcount); textptr=&text; } else textptr=nullptr; break;
 
     case HEADER_PLAYDATE      : if (playdate>0) {
                                 text=FXSystem::localTime(playdate);
                                 textptr=&text;
                                 }
                                 else {
-                                textptr=NULL;
+                                textptr=nullptr;
                                 }
                                 break;
 
@@ -252,10 +252,10 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
 
 
     case HEADER_RATING        : //textptr = ratingStrings + ((rating <= sizeof(GMDBTrackItem::ratingStrings)/sizeof(FXString))?rating:0);
-                                textptr=NULL;
+                                textptr=nullptr;
                                 max=rating;
                                 break;
-    default							      : textptr=NULL;			 			break;
+    default							      : textptr=nullptr;			 			break;
     }
   return textptr;
   }
@@ -708,7 +708,7 @@ const FXString * GMStreamTrackItem::getColumnData(FXint type,FXString &text,FXui
     case HEADER_BITRATE : text.format("%d kbps",bitrate / 1024);
                           textptr=&text;
                           break;
-    default							: textptr=NULL;			 			break;
+    default							: textptr=nullptr;			 			break;
     }
   return textptr;
   }
@@ -814,7 +814,7 @@ const FXString * GMLocalTrackItem::getColumnData(FXint type,FXString&,FXuint & j
   justify=COLUMN_JUSTIFY_NORMAL;
   switch(type){
     case HEADER_FILENAME: textptr = &filename;  			break;
-    default							: textptr = NULL;			 			  break;
+    default							: textptr = nullptr;			 			  break;
     }
   return textptr;
   }
@@ -859,7 +859,7 @@ FXIcon* GMFeedItem::getIcon() const {
     return GMIconTheme::instance()->icon_error;
     }
   else {
-    return NULL;
+    return nullptr;
     }
   }
 
@@ -892,12 +892,12 @@ const FXString * GMFeedItem::getColumnData(FXint type,FXString&text,FXuint & jus
                             justify=COLUMN_JUSTIFY_CENTER_RIGHT_ALIGNED;
                             }
                           else {
-                            textptr = NULL;
+                            textptr = nullptr;
                             }
                           //max=GMDBTrackItem::max_time;
                           break;
 
-    default							: textptr = NULL;			 			  break;
+    default							: textptr = nullptr;			 			  break;
     }
   return textptr;
   }

@@ -31,7 +31,7 @@
 #include "GMIconTheme.h"
 #include "GMImageView.h"
 
-#include <GL/glew.h>
+#include <GL/glu.h>
 
 
 
@@ -101,10 +101,10 @@ void GMPresenter::create() {
 void GMPresenter::setImage(FXImage * image) {
   if (glcanvas->makeCurrent()) {
     if (image) {
-      if (texture==NULL) {
+      if (texture==nullptr) {
         texture = new GMImageTexture();
         }
-      if (effect==NULL) {
+      if (effect==nullptr) {
         effect  = new GMBouncingImage(texture);
         }
       else {
@@ -114,9 +114,9 @@ void GMPresenter::setImage(FXImage * image) {
       }
     else {
       if (texture) {
-        texture->setImage(NULL);
+        texture->setImage(nullptr);
         delete texture;
-        texture=NULL;
+        texture=nullptr;
         }
       }
     glcanvas->makeNonCurrent();
@@ -155,7 +155,7 @@ long GMPresenter::onCanvasPaint(FXObject*,FXSelector,void*){
   if (glcanvas->makeCurrent()) {
     glViewport(0,0,getWidth(),getHeight());
     glClearColor(background.x,background.y,background.z,background.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
     if (effect) {
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();

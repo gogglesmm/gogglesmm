@@ -34,7 +34,7 @@ public:
   FXbool request(FXDragType target,GMClipboard * clipboard);
 
   ~GMDatabaseClipboardData() {
-    db=NULL;
+    db=nullptr;
     }
   };
 

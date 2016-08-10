@@ -50,8 +50,8 @@ protected:
   FXint   id = 0;
   FXuchar state = 0;
 protected:
-  virtual const FXString * getColumnData(FXint,FXString &,FXuint &,FXint &) const { return NULL; }
-  virtual FXIcon * getIcon() const { return NULL; }
+  virtual const FXString * getColumnData(FXint,FXString &,FXuint &,FXint &) const { return nullptr; }
+  virtual FXIcon * getIcon() const { return nullptr; }
 public:
   enum {
     SELECTED      = 0x01,  /// Selected
@@ -227,7 +227,7 @@ public:
     };
 public:
   /// Construct icon list with no items in it initially
-  GMTrackList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TRACKLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  GMTrackList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TRACKLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Find Item by Id
   FXint findItemById(FXint id) const;

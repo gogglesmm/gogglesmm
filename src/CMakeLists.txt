@@ -4,8 +4,7 @@ include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
 
-
-project(GOGGLESMM VERSION 1.0.18)
+project(GOGGLESMM VERSION 1.1.0)
 
 option(WITH_OPENGL "Enable OpenGL Features" ON)
 option(WITH_DBUS "Enable DBUS Features" ON)
@@ -29,8 +28,7 @@ if(WITH_DBUS)
 endif()
 
 if(WITH_OPENGL)
-  find_package(OpenGL REQUIRED)
-  pkg_check_modules(GLEW glew REQUIRED)
+  pkg_check_modules(EPOXY epoxy REQUIRED)
   pkg_check_modules(GLU glu REQUIRED)
   set(HAVE_OPENGL 1)
 endif()
@@ -307,7 +305,7 @@ target_link_libraries(gogglesmm PRIVATE gap
                       ${TAGLIB_LIBRARIES}
                       ${DBUS_LIBRARIES}
                       ${GLU_LIBRARIES}
-                      ${GLEW_LIBRARIES}
+                      ${EPOXY_LIBRARIES}
                       ${X11_LIBRARIES}
                       ${SM_LIBRARIES}
                       ${ICE_LIBRARIES}

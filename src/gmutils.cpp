@@ -180,7 +180,7 @@ void gm_run_popup_menu(FXMenuPane*pane,FXint rx,FXint ry) {
   pane->forceRefresh();
   pane->show();
   pane->grabKeyboard();
-  pane->popup(NULL,rx,ry);
+  pane->popup(nullptr,rx,ry);
   FXApp::instance()->runPopup(pane);
   pane->ungrabKeyboard();
   }
@@ -264,7 +264,7 @@ void gm_convert_gnomeclipboard_to_filenames(FXString & files,FXStringList & file
   }
 
 void gm_make_absolute_path(const FXString & path,FXStringList & urls) {
-#ifndef WIN32
+#ifndef _WIN32
   for (FXint i=0;i<urls.no();i++) {
     if (!urls[i].empty()) {
       if (urls[i][0]!='/') {
@@ -293,7 +293,7 @@ void gm_make_absolute_path(const FXString & path,FXStringList & urls) {
 static FXbool gm_launch_program(const FXchar * const * programs,const FXString & url) {
   FXString path = FXSystem::getExecPath();
   FXString exec;
-  for (int i=0;programs[i]!=NULL;i++){
+  for (int i=0;programs[i]!=nullptr;i++){
     exec = FXPath::search(path,programs[i]);
     if (!exec.empty()) {
       pid_t pid = fork();
@@ -302,7 +302,7 @@ static FXbool gm_launch_program(const FXchar * const * programs,const FXString &
         while (--fd >= 3) {
           close(fd);
           }
-        execl(exec.text(),programs[i],url.text(),NULL);
+        execl(exec.text(),programs[i],url.text(),nullptr);
         exit(EXIT_FAILURE);
         }
       else if (pid==-1)
@@ -314,12 +314,12 @@ static FXbool gm_launch_program(const FXchar * const * programs,const FXString &
   }
 
 FXbool gm_open_browser(const FXString & url) {
-  static const char * const programs[]={"xdg-open","chromium","firefox","konqueror","opera","netscape",NULL};
+  static const char * const programs[]={"xdg-open","chromium","firefox","konqueror","opera","netscape",nullptr};
   return gm_launch_program(programs,url);
   }
 
 FXbool gm_open_folder(const FXString & folder) {
-  static const char * const programs[]={"xdg-open","thunar","dolphin","konqueror","nautilus",NULL};
+  static const char * const programs[]={"xdg-open","thunar","dolphin","konqueror","nautilus",nullptr};
   return gm_launch_program(programs,folder);
   }
 
@@ -361,8 +361,8 @@ void gm_scale_crop(FXImage * image,FXint scale,FXint crop){
   }
 
 static FXImage * gm_load_pixels(FXStream & store,FXint scale,FXint crop){
-  FXImage * image = NULL;
-  FXColor * data = NULL;
+  FXImage * image = nullptr;
+  FXColor * data = nullptr;
   FXint     width,height,extra;
 
   if (fxcheckJPG(store)) {
@@ -400,7 +400,7 @@ FXImage * gm_load_image_from_file(const FXString & filename,FXint scale,FXint cr
   if (store.open(filename,FXStreamLoad)) {
     return gm_load_pixels(store,scale,crop);
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -409,7 +409,7 @@ FXImage * gm_load_image_from_data(const void * data,FXuval size,FXint scale,FXin
   if (store.open(FXStreamLoad,(FXuchar*)data,size)) {
     return gm_load_pixels(store,scale,crop);
     }
-  return NULL;
+  return nullptr;
   }
 
 

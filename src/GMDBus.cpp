@@ -60,7 +60,7 @@ public:
   void setuphooks() {
     for (FXint i=0;i<connections.no();i++) {
       if (!connections.empty(i)) {
-        ((GMDBus*)connections.value(i))->setup_event_loop();
+        static_cast<GMDBus*>(connections.value(i))->setup_event_loop();
         }
       }
     }
@@ -151,7 +151,7 @@ void GMDBusTimeout::remove() {
 static dbus_bool_t fxdbus_addtimeout(DBusTimeout *timeout,void *) {
   //fxmessage("fxdbus_addtimeout %p\n",timeout);
   GMDBusTimeout * tm = fxdbus.find(timeout);
-  if (tm==NULL)
+  if (tm==nullptr)
     tm = new GMDBusTimeout(timeout);
 
   tm->add();
@@ -283,7 +283,7 @@ GMDBus::~GMDBus(){
   if (dc) {
     fxdbus.remove(dc);
     dbus_connection_unref(dc);
-    dc=NULL;
+    dc=nullptr;
     FXApp::instance()->removeChore(this,ID_DISPATCH);
     }
   }
@@ -299,12 +299,12 @@ void GMDBus::initEventLoop() {
 
 
 FXbool GMDBus::open(DBusBusType bustype/*=DBUS_BUS_SESSION*/){
-  FXASSERT(dc==NULL);
-  dc = dbus_bus_get(bustype,NULL);
-  if (dc==NULL) return false;
+  FXASSERT(dc==nullptr);
+  dc = dbus_bus_get(bustype,nullptr);
+  if (dc==nullptr) return false;
   if (fxdbus.find(dc)) {
     dbus_connection_unref(dc);
-    dc=NULL;
+    dc=nullptr;
     return false;
     }
   fxdbus.insert(dc,this);
@@ -350,7 +350,7 @@ struct CallTarget{
 static void fxdbus_pendingcallfree(void *memory){
   //fxmessage("fxdbuspendingcallfree\n");
   if (memory){
-    CallTarget * call = (CallTarget*)memory;
+    CallTarget * call = static_cast<CallTarget*>(memory);
     delete call;
     }
   }
@@ -358,9 +358,9 @@ static void fxdbus_pendingcallfree(void *memory){
 static void fxdbus_pendingcallnotify(DBusPendingCall*pending,void*data){
   DBusMessage * msg = dbus_pending_call_steal_reply(pending);
   if (msg) {
-    CallTarget * call = (CallTarget*)data;
+    CallTarget * call = static_cast<CallTarget*>(data);
     if (call && call->target && call->message) {
-      call->target->handle(NULL,FXSEL(SEL_COMMAND,call->message),msg);
+      call->target->handle(nullptr,FXSEL(SEL_COMMAND,call->message),msg);
       }
     dbus_message_unref(msg);
     }
@@ -369,7 +369,7 @@ static void fxdbus_pendingcallnotify(DBusPendingCall*pending,void*data){
 
 FXbool GMDBus::sendWithReply(DBusMessage * msg,FXint timeout,FXObject*tgt,FXSelector sel){
   FXASSERT(msg);
-  DBusPendingCall * pending = NULL;
+  DBusPendingCall * pending = nullptr;
   if (dbus_connection_send_with_reply(dc,msg,&pending,timeout)) {
     if (pending) {
       CallTarget * call = new CallTarget;
@@ -440,15 +440,15 @@ void GMDBus::setup_event_loop() {
                                       fxdbus_addwatch,
                                       fxdbus_removewatch,
                                       fxdbus_togglewatch,
-                                      this,NULL);
+                                      this,nullptr);
 
   dbus_connection_set_timeout_functions(dc,
                                         fxdbus_addtimeout,
                                         fxdbus_removetimeout,
                                         fxdbus_toggletimeout,
-                                        this,NULL);
+                                        this,nullptr);
 
-  dbus_connection_set_wakeup_main_function(dc,fxdbus_wakeup,NULL,NULL);
+  dbus_connection_set_wakeup_main_function(dc,fxdbus_wakeup,nullptr,nullptr);
   }
 
 
@@ -474,19 +474,19 @@ static DBusHandlerResult dbus_proxy_filter(DBusConnection *,DBusMessage * msg,vo
 
     if (dbus_message_has_path(msg,DBUS_PATH_DBUS)) {
       if (dbus_message_is_signal(msg,DBUS_INTERFACE_DBUS,"NameOwnerChanged")) {
-        const FXchar * dbus_name=NULL;
-        const FXchar * new_owner=NULL;
-        const FXchar * old_owner=NULL;
-        if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&dbus_name,DBUS_TYPE_STRING,&old_owner,DBUS_TYPE_STRING,&new_owner,DBUS_TYPE_INVALID)) {
+        const FXchar * dbus_name=nullptr;
+        const FXchar * new_owner=nullptr;
+        const FXchar * old_owner=nullptr;
+        if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&dbus_name,DBUS_TYPE_STRING,&old_owner,DBUS_TYPE_STRING,&new_owner,DBUS_TYPE_INVALID)) {
           if (compare(proxy->getName(),dbus_name)==0) {
-            if (new_owner==NULL || compare(new_owner,"")==0) {
-              proxy->handle(proxy,FXSEL(SEL_DESTROY,0),NULL);
+            if (new_owner==nullptr || compare(new_owner,"")==0) {
+              proxy->handle(proxy,FXSEL(SEL_DESTROY,0),nullptr);
               }
-            else if (old_owner==NULL || compare(old_owner,"")==0){
-              proxy->handle(proxy,FXSEL(SEL_CREATE,0),NULL);
+            else if (old_owner==nullptr || compare(old_owner,"")==0){
+              proxy->handle(proxy,FXSEL(SEL_CREATE,0),nullptr);
               }
             else {
-              proxy->handle(proxy,FXSEL(SEL_REPLACED,0),NULL);
+              proxy->handle(proxy,FXSEL(SEL_REPLACED,0),nullptr);
               }
             return DBUS_HANDLER_RESULT_HANDLED;
             }
@@ -526,7 +526,7 @@ GMDBusProxy::GMDBusProxy() {
 
 GMDBusProxy::~GMDBusProxy()  {
   FXString rule = "type='signal',sender='"+ name +"',path='" + path +"',interface='"+interface+"'";
-  dbus_bus_remove_match(bus->connection(),rule.text(),NULL);
+  dbus_bus_remove_match(bus->connection(),rule.text(),nullptr);
   dbus_connection_remove_filter(bus->connection(),dbus_proxy_filter,this);
 
   /// remove any pending proxy replies;
@@ -539,17 +539,17 @@ GMDBusProxy::~GMDBusProxy()  {
   serial.clear();
   }
 
-GMDBusProxy::GMDBusProxy(GMDBus *c,const FXchar * n,const FXchar * p,const FXchar * i) : bus(c),name(n),path(p),interface(i),associated(true),target(NULL) {
+GMDBusProxy::GMDBusProxy(GMDBus *c,const FXchar * n,const FXchar * p,const FXchar * i) : bus(c),name(n),path(p),interface(i),associated(true),target(nullptr) {
   FXString rule = "type='signal',sender='"+ name +"',path='" + path +"',interface='"+interface+"'";
-  dbus_bus_add_match(bus->connection(),rule.text(),NULL);
-  dbus_connection_add_filter(bus->connection(),dbus_proxy_filter,this,NULL);
+  dbus_bus_add_match(bus->connection(),rule.text(),nullptr);
+  dbus_connection_add_filter(bus->connection(),dbus_proxy_filter,this,nullptr);
   }
 
 
 FXbool GMDBusProxy::matchSerial(DBusMessage * msg) {
   void * ptr;
   FXuint s=dbus_message_get_reply_serial(msg);
-  if (s && (ptr=serial.at((void*)(FXuval)s))!=NULL) {
+  if (s && (ptr=serial.at((void*)(FXuval)s))!=nullptr) {
     GMDBusProxyReply * reply = static_cast<GMDBusProxyReply*>(ptr);
     if (reply->target) reply->target->handle(this,FXSEL(SEL_COMMAND,reply->message),msg);
     serial.remove((void*)(FXuval)dbus_message_get_reply_serial(msg));
@@ -959,5 +959,5 @@ DBusHandlerResult gm_dbus_reply_if_needed(DBusConnection * connection,DBusMessag
 
 void gm_dbus_match_signal(DBusConnection*connection,const FXchar * path,const FXchar * interface,const FXchar * member){
   FXString rule = FXString::value("type='signal',path='%s',interface='%s',member='%s'",path,interface,member);
-  dbus_bus_add_match(connection,rule.text(),NULL);
+  dbus_bus_add_match(connection,rule.text(),nullptr);
   }

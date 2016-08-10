@@ -60,9 +60,9 @@ void GMSettingsDaemon::ReleaseMediaPlayerKeys(const FXchar * pl) {
 long GMSettingsDaemon::onSignal(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   if (dbus_message_is_signal(msg,GNOME_SETTINGS_DAEMON_INTERFACE,"MediaPlayerKeyPressed")){
-    const FXchar * pl=NULL;
-    const FXchar * cmd=NULL;
-    if (dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&pl,DBUS_TYPE_STRING,&cmd,DBUS_TYPE_INVALID)) {
+    const FXchar * pl=nullptr;
+    const FXchar * cmd=nullptr;
+    if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&pl,DBUS_TYPE_STRING,&cmd,DBUS_TYPE_INVALID)) {
       if (compare(pl,player)==0 && target && cmd) {
         target->handle(this,FXSEL(SEL_KEYPRESS,message),(void*)cmd);
         }

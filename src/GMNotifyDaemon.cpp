@@ -105,8 +105,8 @@ long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
   FXuint id,reason;
   FXchar * action;
   if (dbus_message_is_signal(msg,GALAGO_NOTIFY_INTERFACE,"NotificationClosed")){
-    if ((dbus_message_has_signature(msg,"u") && dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&id,DBUS_TYPE_INVALID)) ||
-        (dbus_message_has_signature(msg,"uu") && dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&id,DBUS_TYPE_UINT32,&reason,DBUS_TYPE_INVALID))) {
+    if ((dbus_message_has_signature(msg,"u") && dbus_message_get_args(msg,nullptr,DBUS_TYPE_UINT32,&id,DBUS_TYPE_INVALID)) ||
+        (dbus_message_has_signature(msg,"uu") && dbus_message_get_args(msg,nullptr,DBUS_TYPE_UINT32,&id,DBUS_TYPE_UINT32,&reason,DBUS_TYPE_INVALID))) {
       if (id==msgid) {
         msgid=0;
         }
@@ -114,7 +114,7 @@ long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
     return 1;
     }
   else if (dbus_message_is_signal(msg,GALAGO_NOTIFY_INTERFACE,"ActionInvoked")){
-    if (dbus_message_has_signature(msg,"us") && dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&id,DBUS_TYPE_STRING,&action,DBUS_TYPE_INVALID)) {
+    if (dbus_message_has_signature(msg,"us") && dbus_message_get_args(msg,nullptr,DBUS_TYPE_UINT32,&id,DBUS_TYPE_STRING,&action,DBUS_TYPE_INVALID)) {
       if (compare(action,"media-skip-backward")==0) {
         GMPlayerManager::instance()->cmd_prev();
         }
@@ -146,12 +146,12 @@ long GMNotifyDaemon::onMethod(FXObject*,FXSelector,void*){
 
 long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = static_cast<DBusMessage*>(ptr);
-  const FXchar * dname=NULL;
-  const FXchar * vendor=NULL;
-  const FXchar * version=NULL;
-  const FXchar * spec=NULL;
+  const FXchar * dname=nullptr;
+  const FXchar * vendor=nullptr;
+  const FXchar * version=nullptr;
+  const FXchar * spec=nullptr;
 
-  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_STRING,&dname,DBUS_TYPE_STRING,&vendor,DBUS_TYPE_STRING,&version,DBUS_TYPE_STRING,&spec,DBUS_TYPE_INVALID)) {
+  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&dname,DBUS_TYPE_STRING,&vendor,DBUS_TYPE_STRING,&version,DBUS_TYPE_STRING,&spec,DBUS_TYPE_INVALID)) {
 
     if (compareversion(spec,"1.1")==0) {
       icondata="image_data";
@@ -190,9 +190,9 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
 
 long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = static_cast<DBusMessage*>(ptr);
-  FXchar ** caps = NULL;
+  FXchar ** caps = nullptr;
   int ncaps;
-  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,NULL,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&caps,&ncaps,DBUS_TYPE_INVALID)) {
+  if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,nullptr,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&caps,&ncaps,DBUS_TYPE_INVALID)) {
     FXbool has_action_icons=false;
     FXbool has_actions=false;
     FXbool has_persistence=false;
@@ -225,7 +225,7 @@ long GMNotifyDaemon::onNotifyReply(FXObject*,FXSelector,void*ptr){
   DBusMessage * msg = static_cast<DBusMessage*>(ptr);
   FXASSERT(msg);
   if (dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) {
-    dbus_message_get_args(msg,NULL,DBUS_TYPE_UINT32,&msgid,DBUS_TYPE_INVALID);
+    dbus_message_get_args(msg,nullptr,DBUS_TYPE_UINT32,&msgid,DBUS_TYPE_INVALID);
     }
   return 1;
   }
@@ -233,7 +233,7 @@ long GMNotifyDaemon::onNotifyReply(FXObject*,FXSelector,void*ptr){
 
 void GMNotifyDaemon::reset() {
   if (persistent) {
-    notify("Goggles Music Manager","",-1,NULL);
+    notify("Goggles Music Manager","",-1,nullptr);
     }
   else {
     close();
@@ -289,7 +289,7 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
   FXint iw,ih,is,ibps,ichannels,isize;
   dbus_bool_t ialpha;
 
-  const FXchar * idata=NULL;
+  const FXchar * idata=nullptr;
 
   DBusMessage * msg = method("Notify");
   if (msg){
@@ -345,7 +345,7 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
           ichannels = 4;
           isize     = iw*ih*4;
 
-          FXColor * bgra = NULL;
+          FXColor * bgra = nullptr;
           allocElms(bgra,(iw*ih));
           gm_bgra_to_rgba(image->getData(),bgra,(iw*ih));
 
@@ -354,7 +354,7 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
           dbus_message_iter_open_container(&array,DBUS_TYPE_DICT_ENTRY,0,&dict);
             gm_dbus_append_string(&dict,icondata);
             dbus_message_iter_open_container(&dict,DBUS_TYPE_VARIANT,"(iiibiiay)",&variant);
-              dbus_message_iter_open_container(&variant,DBUS_TYPE_STRUCT,NULL,&value);
+              dbus_message_iter_open_container(&variant,DBUS_TYPE_STRUCT,nullptr,&value);
                 dbus_message_iter_append_basic(&value,DBUS_TYPE_INT32,&iw);
                 dbus_message_iter_append_basic(&value,DBUS_TYPE_INT32,&ih);
                 dbus_message_iter_append_basic(&value,DBUS_TYPE_INT32,&is);

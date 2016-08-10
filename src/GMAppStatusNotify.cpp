@@ -79,7 +79,7 @@ DBusHandlerResult dbus_status_item_filter(DBusConnection *connection,DBusMessage
       else if (dbus_message_is_method_call(msg,APPLICATION_STATUS_ITEM_INTERFACE,"Scroll")){
         FXint delta;
         const FXchar * orientation;
-        if (dbus_message_get_args(msg,NULL,DBUS_TYPE_INT32,&delta,DBUS_TYPE_STRING,&orientation,DBUS_TYPE_INVALID)) {
+        if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_INT32,&delta,DBUS_TYPE_STRING,&orientation,DBUS_TYPE_INVALID)) {
 
           //FIXME
           FXint level = GMPlayerManager::instance()->volume();
@@ -99,7 +99,7 @@ DBusHandlerResult dbus_status_item_filter(DBusConnection *connection,DBusMessage
         GM_DEBUG_PRINT("get\n");
         }
       else if (dbus_message_is_method_call(msg,DBUS_INTERFACE_PROPERTIES,"GetAll")){
-        if ((reply=dbus_message_new_method_return(msg))!=NULL) {
+        if ((reply=dbus_message_new_method_return(msg))!=nullptr) {
           dbus_message_iter_init_append(reply,&iter);
           dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
             gm_dbus_dict_append_path(&dict,"Menu",APPLICATION_STATUS_ITEM_MENU_PATH);
@@ -122,9 +122,9 @@ DBusHandlerResult dbus_status_item_filter(DBusConnection *connection,DBusMessage
   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
-void gm_begin_menu(DBusMessageIter * root,DBusMessageIter * item,FXint id,const FXchar * label,const FXchar * icon=NULL,FXbool enabled=true) {
+void gm_begin_menu(DBusMessageIter * root,DBusMessageIter * item,FXint id,const FXchar * label,const FXchar * icon=nullptr,FXbool enabled=true) {
   DBusMessageIter dict;
-  dbus_message_iter_open_container(root,DBUS_TYPE_STRUCT,NULL,item);
+  dbus_message_iter_open_container(root,DBUS_TYPE_STRUCT,nullptr,item);
     dbus_message_iter_append_basic(item,DBUS_TYPE_INT32,&id);
       dbus_message_iter_open_container(item,DBUS_TYPE_ARRAY,"{sv}",&dict);
         gm_dbus_dict_append_string(&dict,"label",label);
@@ -199,10 +199,10 @@ DBusHandlerResult dbus_dbusmenu_filter(DBusConnection *connection,DBusMessage * 
     else if (dbus_message_has_interface(msg,DBUS_MENU_INTERFACE)) {
       if (dbus_message_is_method_call(msg,DBUS_MENU_INTERFACE,"GetLayout")){
         FXint parent,depth;
-        FXchar ** properties=NULL;
+        FXchar ** properties=nullptr;
         FXint nprops;
-        if (dbus_message_get_args(msg,NULL,DBUS_TYPE_INT32,&parent,DBUS_TYPE_INT32,&depth,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&properties,&nprops,DBUS_TYPE_INVALID)) {
-          if ((reply=dbus_message_new_method_return(msg))!=NULL) {
+        if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_INT32,&parent,DBUS_TYPE_INT32,&depth,DBUS_TYPE_ARRAY,DBUS_TYPE_STRING,&properties,&nprops,DBUS_TYPE_INVALID)) {
+          if ((reply=dbus_message_new_method_return(msg))!=nullptr) {
             FXuint revision=1;
 
             dbus_message_iter_init_append(reply,&iter);
@@ -229,15 +229,15 @@ DBusHandlerResult dbus_dbusmenu_filter(DBusConnection *connection,DBusMessage * 
         }
       else if (dbus_message_is_method_call(msg,DBUS_MENU_INTERFACE,"AboutToShow")) {
         FXint event_id;
-        if (dbus_message_get_args(msg,NULL,DBUS_TYPE_INT32,&event_id,DBUS_TYPE_INVALID)) {
+        if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_INT32,&event_id,DBUS_TYPE_INVALID)) {
           gm_dbus_reply_bool(connection,msg,false);
           }
         return DBUS_HANDLER_RESULT_HANDLED;
         }
       else if (dbus_message_is_method_call(msg,DBUS_MENU_INTERFACE,"Event")) {
         FXint event_id;
-        const FXchar * event_type=NULL;
-        if (dbus_message_get_args(msg,NULL,DBUS_TYPE_INT32,&event_id,DBUS_TYPE_STRING,&event_type,DBUS_TYPE_INVALID)) {
+        const FXchar * event_type=nullptr;
+        if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_INT32,&event_id,DBUS_TYPE_STRING,&event_type,DBUS_TYPE_INVALID)) {
           if (compare(event_type,"clicked")==0) {
             switch(event_id) {
               case ID_PLAY    : GMPlayerManager::instance()->cmd_play(); break;
@@ -262,21 +262,21 @@ DBusHandlerResult dbus_dbusmenu_filter(DBusConnection *connection,DBusMessage * 
 
 
 static DBusObjectPathVTable org_freedesktop_statusnotifieritem={
-  NULL,
+  nullptr,
   &dbus_status_item_filter,
-  NULL,
-  NULL,
-  NULL,
-  NULL
+  nullptr,
+  nullptr,
+  nullptr,
+  nullptr
   };
 
 static DBusObjectPathVTable org_freedesktop_dbusmenu={
-  NULL,
+  nullptr,
   &dbus_dbusmenu_filter,
-  NULL,
-  NULL,
-  NULL,
-  NULL
+  nullptr,
+  nullptr,
+  nullptr,
+  nullptr
   };
 
 
@@ -291,7 +291,7 @@ GMAppStatusNotify::GMAppStatusNotify(){
 
 GMAppStatusNotify::GMAppStatusNotify(GMDBus * b) : GMDBusProxy(b,APPLICATION_STATUS_NAME,APPLICATION_STATUS_PATH,APPLICATION_STATUS_INTERFACE)  {
   name = "org.kde.StatusNotifierItem-" + FXString::value(FXProcess::current()) + "-1";
-  int result = dbus_bus_request_name(SESSIONBUS,name.text(),DBUS_NAME_FLAG_DO_NOT_QUEUE,NULL);
+  int result = dbus_bus_request_name(SESSIONBUS,name.text(),DBUS_NAME_FLAG_DO_NOT_QUEUE,nullptr);
   if (result == DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ) {
     dbus_connection_register_object_path(SESSIONBUS,APPLICATION_STATUS_ITEM_PATH,&org_freedesktop_statusnotifieritem,this);
     dbus_connection_register_object_path(SESSIONBUS,APPLICATION_STATUS_ITEM_MENU_PATH,&org_freedesktop_dbusmenu,this);
@@ -313,8 +313,8 @@ long GMAppStatusNotify::onSignal(FXObject*,FXSelector,void*) {
 void GMAppStatusNotify::show() {
   DBusMessage * msg;
   FXuint serialid;
-  if (dbus_bus_name_has_owner(SESSIONBUS,APPLICATION_STATUS_NAME,NULL)) {
-    if ((msg = method("RegisterStatusNotifierItem"))!=NULL){
+  if (dbus_bus_name_has_owner(SESSIONBUS,APPLICATION_STATUS_NAME,nullptr)) {
+    if ((msg = method("RegisterStatusNotifierItem"))!=nullptr){
       const FXchar * cname = name.text();
       dbus_message_set_no_reply(msg,true);
       dbus_message_append_args(msg,DBUS_TYPE_STRING,&cname,DBUS_TYPE_INVALID);
@@ -330,7 +330,7 @@ void GMAppStatusNotify::show() {
 void gm_enable_menu_item(DBusMessageIter * list,FXint id,FXbool enabled) {
   DBusMessageIter dict;
   DBusMessageIter item;
-  dbus_message_iter_open_container(list,DBUS_TYPE_STRUCT,NULL,&item);
+  dbus_message_iter_open_container(list,DBUS_TYPE_STRUCT,nullptr,&item);
     dbus_message_iter_append_basic(&item,DBUS_TYPE_INT32,&id);
     dbus_message_iter_open_container(&item,DBUS_TYPE_ARRAY,"{sv}",&dict);
       gm_dbus_dict_append_bool(&dict,"enabled",enabled);

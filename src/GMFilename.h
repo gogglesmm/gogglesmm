@@ -79,7 +79,7 @@ namespace GMFilename {
   FXString filter(const FXString & input,const FXString & forbidden,FXuint options);
 
   /// Create Filename based on Track Information and Format String
-  FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,const FXTextCodec * codec=NULL);
+  FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,const FXTextCodec * codec=nullptr);
 
   FXString format_track(const GMTrack & track,const FXString & path,const FXString & forbidden,const FXuint & options,const FXTextCodec * textcodec);
 

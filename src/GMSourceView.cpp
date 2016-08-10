@@ -58,6 +58,8 @@ GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) {
 
   sourcelistheader->setArrowState(ARROW_DOWN);
 
+  sourcedrop = nullptr;
+
   updateColors();
   }
 
@@ -112,11 +114,11 @@ void GMSourceView::clear() {
 void GMSourceView::refresh() {
   clear();
   listsources();
-  GMTreeItem * item = (GMTreeItem*)sourcelist->findItemByData(source);
+  GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->findItemByData(source));
   if (item)
     sourcelist->setCurrentItem(item,false);
   else
-    setSource((GMSource*)sourcelist->getItemData(sourcelist->getCurrentItem()),false);
+    setSource(static_cast<GMSource*>(sourcelist->getItemData(sourcelist->getCurrentItem())),false);
   }
 
 
@@ -132,12 +134,12 @@ static FXIcon * icon_for_sourcetype(FXint type) {
     case SOURCE_PODCAST           : return GMIconTheme::instance()->icon_source_podcast; break;
     default                       : break;
     }
-  return NULL;
+  return nullptr;
   }
 
 
 void GMSourceView::refresh(GMSource * src) {
-  GMTreeItem * item = (GMTreeItem*)sourcelist->findItemByData(src);
+  GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->findItemByData(src));
   if (item) {
     FXIcon * icon=icon_for_sourcetype(src->getType());
     sourcelist->setItemText(item,src->getName());
@@ -158,7 +160,7 @@ void GMSourceView::init() {
   if (!key.empty()){
     FXTreeItem * item = sourcelist->getFirstItem();
     while(item){
-      GMSource * src = (GMSource*)item->getData();
+      GMSource * src = static_cast<GMSource*>(item->getData());
       if (src->settingKey()==key) {
         sourcelist->setCurrentItem(item);
         break;
@@ -167,10 +169,10 @@ void GMSourceView::init() {
       }
     }
 
-  if (sourcelist->getCurrentItem()==NULL && sourcelist->getFirstItem())
+  if (sourcelist->getCurrentItem()==nullptr && sourcelist->getFirstItem())
     sourcelist->setCurrentItem(sourcelist->getFirstItem());
 
-  source=(GMSource*)sourcelist->getItemData(sourcelist->getCurrentItem());
+  source=static_cast<GMSource*>(sourcelist->getItemData(sourcelist->getCurrentItem()));
   GMPlayerManager::instance()->getTrackView()->init(source);
   }
 
@@ -181,8 +183,8 @@ void GMSourceView::resort() {
 
 
 FXbool GMSourceView::listsources() {
-  GMTreeItem * item=NULL;
-  GMTreeItem * dbitem=NULL;
+  GMTreeItem * item=nullptr;
+  GMTreeItem * dbitem=nullptr;
   for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++){
     GMSource * src = GMPlayerManager::instance()->getSource(i);
     FXIcon * icon=icon_for_sourcetype(src->getType());
@@ -193,7 +195,7 @@ FXbool GMSourceView::listsources() {
       dbitem->setExpanded(true);
       }
     else {
-      sourcelist->appendItem(NULL,item);
+      sourcelist->appendItem(nullptr,item);
       }
     if (src->getType()==SOURCE_DATABASE) dbitem=item;
     }
@@ -204,7 +206,7 @@ FXbool GMSourceView::listsources() {
 
 FXbool GMSourceView::listSources() {
   listsources();
-  setSource((GMSource*)sourcelist->getItemData(sourcelist->getCurrentItem()),false);
+  setSource(static_cast<GMSource*>(sourcelist->getItemData(sourcelist->getCurrentItem())),false);
   return true;
   }
 
@@ -249,7 +251,7 @@ void GMSourceView::saveView() const {
 long GMSourceView::onCmdSourceSelected(FXObject*,FXSelector,void*){
   FXTreeItem * item = sourcelist->getCurrentItem();
   if (item) {
-    setSource((GMSource*)item->getData(),false);
+    setSource(static_cast<GMSource*>(item->getData()),false);
     }
   return 1;
   }
@@ -273,7 +275,7 @@ long GMSourceView::onSourceTipText(FXObject*sender,FXSelector,void*ptr){
   sourcelist->getCursorPosition(x,y,buttons);
   FXTreeItem * item = sourcelist->getItemAt(x,y);
   if (item && item->getData()) {
-    GMSource * src = (GMSource*)item->getData();
+    GMSource * src = static_cast<GMSource*>(item->getData());
     return src->handle(sender,FXSEL(SEL_QUERY_TIP,0),ptr);
     }
   return 0;
@@ -284,7 +286,7 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
   if (event->moved) return 0;
   GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   GMMenuPane pane(this);
-  GMSource * src = item ? static_cast<GMSource*>(item->getData()) : NULL;
+  GMSource * src = item ? static_cast<GMSource*>(item->getData()) : nullptr;
   FXbool src_items = false;
 
   if (src)
@@ -297,7 +299,7 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
     }
 
   // Install Source Items (Group by source)
-  if (src==NULL || src_items==false) {
+  if (src==nullptr || src_items==false) {
     FXint nadded=(&pane)->numChildren();
     FXint nlast=(&pane)->numChildren();
     for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++) {
@@ -316,13 +318,13 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
 
   if (item) {
     sourcelist->setCurrentItem(item);
-    onCmdSourceSelected(NULL,0,NULL); // Simulate SEL_COMMAND
+    onCmdSourceSelected(nullptr,0,nullptr); // Simulate SEL_COMMAND
     }
 
   if (pane.getFirst()){
     pane.create();
     ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
-    pane.popup(NULL,event->root_x,event->root_y);
+    pane.popup(nullptr,event->root_x,event->root_y);
     getApp()->runPopup(&pane);
     }
   return 1;
@@ -346,14 +348,14 @@ long GMSourceView::onDndSourceMotion(FXObject*,FXSelector,void*ptr){
       freeElms(types);
       }
     }
-  sourcedrop=NULL;
+  sourcedrop=nullptr;
   return 0;
   }
 
 long GMSourceView::onDndSourceDrop(FXObject*,FXSelector,void*ptr){
   if (sourcedrop) {
     long code =  sourcedrop->handle(this,FXSEL(SEL_DND_DROP,GMSource::ID_DROP),ptr);
-    sourcedrop=NULL;
+    sourcedrop=nullptr;
     return code;
     }
   return 0;

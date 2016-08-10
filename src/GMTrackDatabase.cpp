@@ -16,6 +16,10 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
+
+/// For listing default genres
+#include <id3v1genres.h>
+
 #include "gmdefs.h"
 #include "GMTrack.h"
 #include "GMTrackDatabase.h"
@@ -24,12 +28,13 @@
 #include "GMTag.h"
 #include "gmutils.h"
 
-
-/// For listing default genres
-#include <id3v1genres.h>
-
+#ifdef __GNUC__
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))
+#else
+#define DEBUG_DB_GET() FXTRACE((51,"%s\n",__func__))
+#define DEBUG_DB_SET() FXTRACE((52,"%s\n",__func__))
+#endif
 
 
 #define GOGGLESMM_DATABASE_SCHEMA_VERSION 2017  /* Album Audio Quality*/
@@ -1373,7 +1378,7 @@ FXbool GMTrackDatabase::listAlbums(FXComboBox * list,FXint track){
 void GMTrackDatabase::clear_path_lookup() {
   DEBUG_DB_GET();
   for (FXint i=0;i<pathdict.no();i++) {
-    if (!pathdict.empty(i) && pathdict.value(i)!=NULL) {
+    if (!pathdict.empty(i) && pathdict.value(i)!=nullptr) {
       free(pathdict.value(i));
       }
     }
@@ -1418,7 +1423,7 @@ void GMTrackDatabase::setup_artist_lookup() {
 void GMTrackDatabase::clear_artist_lookup() {
   DEBUG_DB_GET();
   for (FXint i=0;i<artistdict.no();i++) {
-    if (!artistdict.empty(i) && artistdict.value(i)!=NULL) {
+    if (!artistdict.empty(i) && artistdict.value(i)!=nullptr) {
       FXString * a = (FXString*)artistdict.value(i);
       delete a;
       }
@@ -1494,7 +1499,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
   FXint no;
   FXint cnt=1;
   FXint year;
-  FILE * fp = NULL;
+  FILE * fp = nullptr;
   FXString query;
   FXString title;
   FXString file;
@@ -1594,7 +1599,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
       fprintf(fp,"NumberOfEntries=%d",cnt-1);
       }
     fclose(fp);
-    fp=NULL;
+    fp=nullptr;
     }
   catch (GMDatabaseException & e){
     if (fp) fclose(fp);

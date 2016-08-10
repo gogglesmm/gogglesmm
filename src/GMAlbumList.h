@@ -43,7 +43,7 @@ class GMCoverCache;
 
 
 /// Icon item
-class FXAPI GMAlbumListItem : public FXObject {
+class GMAlbumListItem : public FXObject {
   FXDECLARE(GMAlbumListItem)
   friend class GMAlbumList;
 protected:
@@ -126,7 +126,7 @@ typedef FXint (*GMAlbumListSortFunc)(const GMAlbumListItem*,const GMAlbumListIte
 typedef FXObjectListOf<GMAlbumListItem> GMAlbumListItemList;
 
 
-class FXAPI GMAlbumList : public FXScrollArea {
+class GMAlbumList : public FXScrollArea {
   FXDECLARE(GMAlbumList)
 protected:
   GMCoverRender      covers;
@@ -222,7 +222,7 @@ public:
 public:
 
   /// Construct icon list with no items in it initially
-  GMAlbumList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=ICONLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  GMAlbumList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=ICONLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Get Thumbs
   GMCoverRender & getCoverRender() { return covers; }

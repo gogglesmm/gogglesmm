@@ -88,7 +88,7 @@ const char * gmcodecnames[]={
   "CP-1257",
   "CP-1258",
   "KOI8-R",
-  NULL,
+  nullptr,
   };
 
 

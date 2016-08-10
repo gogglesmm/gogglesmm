@@ -18,10 +18,6 @@
 ********************************************************************************/
 #include "gmdefs.h"
 
-#ifdef HAVE_OPENGL
-#include <GL/glew.h>
-#endif
-
 #include <fxkeys.h>
 
 #include <xincs.h>
@@ -41,8 +37,8 @@
 
 #define PACKAGE "gogglesmm"
 
-#ifndef LOCALEDIR
-#error LOCALEDIR needs to be defined!!
+#ifndef LOCALE_PATH
+#error LOCALE_PATH needs to be defined!!
 #endif
 
 #include <libintl.h>
@@ -58,17 +54,17 @@ private:
 public:
   GMTranslator(){
     setlocale(LC_ALL,"");
-    bindtextdomain(PACKAGE,LOCALEDIR);
+    bindtextdomain(PACKAGE,LOCALE_PATH);
     bind_textdomain_codeset(PACKAGE,"UTF-8");
     textdomain(PACKAGE);
-    GM_DEBUG_PRINT("localedir: %s\n",LOCALEDIR);
+    GM_DEBUG_PRINT("localedir: %s\n",LOCALE_PATH);
     };
-  virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=NULL,FXint count=-1) const;
+  virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=nullptr,FXint count=-1) const;
   ~GMTranslator() {}
 
   };
 
-FXIMPLEMENT(GMTranslator,FXTranslator,NULL,0)
+FXIMPLEMENT(GMTranslator,FXTranslator,nullptr,0)
 
 
 const FXchar* GMTranslator::tr(const FXchar*,const FXchar* message,const FXchar*,FXint) const {
@@ -80,14 +76,14 @@ const FXchar* GMTranslator::tr(const FXchar*,const FXchar* message,const FXchar*
 
 extern const FXchar * fxtr(const FXchar *x){
 #ifdef HAVE_NLS
-  return FXApp::instance()->getTranslator()->tr(NULL,x);
+  return FXApp::instance()->getTranslator()->tr(nullptr,x);
 #else
   return x;
 #endif
   }
 
 
-FXIMPLEMENT(GMApp,FXApp,NULL,0)
+FXIMPLEMENT(GMApp,FXApp,nullptr,0)
 
 GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
   clipboard = new GMClipboard(this);
@@ -95,8 +91,8 @@ GMApp::GMApp() : FXApp("gogglesmm","gogglesmm"){
   xsystemtray=0;
   xmanager=0;
 #ifdef HAVE_OPENGL
-  glvisual=NULL;
-  glcontext=NULL;
+  glvisual=nullptr;
+  glcontext=nullptr;
 #endif
   }
 
@@ -110,16 +106,19 @@ GMApp* GMApp::instance() {
 
 
 void GMApp::create() {
-
+#ifndef _WIN32
   FXString systemtray = FXString::value("_NET_SYSTEM_TRAY_S%d",DefaultScreen((Display*)getDisplay()));
 
   xembed      = (FXID)XInternAtom((Display*)getDisplay(),"_XEMBED",False);
   xmanager    = (FXID)XInternAtom((Display*)getDisplay(),"MANAGER",True);
   xsystemtray = XInternAtom((Display*)getDisplay(),systemtray.text(),True);
+#endif
 
   FXApp::create();
 
+#ifndef _WIN32
   XSelectInput((Display*)getDisplay(),getRootWindow()->id(),KeyPressMask|KeyReleaseMask|StructureNotifyMask);
+#endif
 
   FXFontDesc fontdescription = getNormalFont()->getFontDesc();
   fontdescription.weight = FXFont::Bold;
@@ -283,32 +282,15 @@ FXbool GMApp::hasOpenGL() {
 
 void GMApp::initOpenGL() {
   if (glcontext == NULL) {
-    FXImage * glimage = new FXImage(this);
     try {
       glvisual  = new FXGLVisual(this,VISUAL_DOUBLE_BUFFER);
       glcontext = new FXGLContext(this,glvisual);
       glcontext->create();
-
-      glimage->setVisual(glvisual);
-      glimage->create();
-
-      if (glcontext->begin(glimage)) {
-        if (glewInit()!=GLEW_OK) {
-          fxwarning("Failed to initialize opengl extensions\n");
-          glcontext->end();
-          releaseOpenGL();
-          delete glimage;
-          return;
-          }
-        glcontext->end();
-        }
-      delete glimage;
       }
     catch(FXWindowException &) {
       fxwarning("Failed to create OpenGL context\n");
       delete glcontext;
       delete glvisual;
-      delete glimage;
       glcontext=nullptr;
       glvisual=nullptr;
       }
@@ -318,11 +300,11 @@ void GMApp::initOpenGL() {
 void GMApp::releaseOpenGL() {
   if (glcontext) {
     delete glcontext;
-    glcontext=NULL;
+    glcontext=nullptr;
     }
   if (glvisual) {
     delete glvisual;
-    glvisual=NULL;
+    glvisual=nullptr;
     }
   }
 
@@ -334,7 +316,7 @@ void GMApp::releaseOpenGL() {
 
 
 
-
+#ifndef _WIN32
 
 enum {
   XEMBED_EMBEDDED_NOTIFY = 0,
@@ -348,7 +330,7 @@ enum {
 static FXuint keysym(FXRawEvent& event){
   KeySym sym=KEY_VoidSymbol;
   char buffer[40];
-  XLookupString(&event.xkey,buffer,sizeof(buffer),&sym,NULL);
+  XLookupString(&event.xkey,buffer,sizeof(buffer),&sym,nullptr);
   return sym;
   }
 
@@ -375,16 +357,18 @@ FXbool GMApp::dispatchEvent(FXRawEvent & ev) {
   if (window && ev.xany.type==ClientMessage && ev.xclient.message_type==xembed) {
     switch(ev.xclient.data.l[1]) {
       case XEMBED_EMBEDDED_NOTIFY: window->tryHandle(this,FXSEL(SEL_EMBED_NOTIFY,0),(void*)(FXival)ev.xclient.data.l[3]); break;
-      case XEMBED_MODALITY_ON    : window->tryHandle(this,FXSEL(SEL_EMBED_MODAL_ON,0),NULL); break;
-      case XEMBED_MODALITY_OFF   : window->tryHandle(this,FXSEL(SEL_EMBED_MODAL_OFF,0),NULL); break;
+      case XEMBED_MODALITY_ON    : window->tryHandle(this,FXSEL(SEL_EMBED_MODAL_ON,0),nullptr); break;
+      case XEMBED_MODALITY_OFF   : window->tryHandle(this,FXSEL(SEL_EMBED_MODAL_OFF,0),nullptr); break;
       default                    : /*fxmessage("Missed a message %d\n",ev.xclient.data.l[1]);*/ break;
       }
     return true;
     }
   return FXApp::dispatchEvent(ev);
   }
+#endif
 
 
+#ifndef _WIN32
 FXDEFMAP(GMPlug) GMPlugMap[]={
   FXMAPFUNC(SEL_EMBED_NOTIFY,0,GMPlug::onEmbedded)
   };
@@ -409,7 +393,7 @@ void GMPlug::setFocus(){
     memset(&ev, 0, sizeof(ev));
     ev.xclient.type = ClientMessage;
     ev.xclient.window = socket;
-    ev.xclient.message_type = ((GMApp*)getApp())->xembed;
+    ev.xclient.message_type = GMApp::instance()->xembed;
     ev.xclient.format = 32;
     ev.xclient.data.l[0] = CurrentTime;
     ev.xclient.data.l[1] = XEMBED_REQUEST_FOCUS;
@@ -434,11 +418,11 @@ long GMPlug::onEmbedded(FXObject*,FXSelector,void*ptr){
   socket=(FXID)(FXival)ptr;
   return 1;
   }
-
+#endif
 
 
 void fix_wm_properties(const FXWindow * window) {
-#ifndef WIN32
+#ifndef _WIN32
   XTextProperty textprop;
 
   FXString host=FXSystem::getHostName();
@@ -458,10 +442,10 @@ void fix_wm_properties(const FXWindow * window) {
   }
 
 void ewmh_set_window_icon(const FXWindow * window,FXImage * icon) {
-#ifndef WIN32
+#ifndef _WIN32
   Atom net_wm_icon = XInternAtom((Display*)window->getApp()->getDisplay(),"_NET_WM_ICON",False);
 
-  unsigned long * data=NULL;
+  unsigned long * data=nullptr;
   int nelems=2+(icon->getWidth()*icon->getHeight());
 
   allocElms(data,nelems);
@@ -481,7 +465,7 @@ void ewmh_set_window_icon(const FXWindow * window,FXImage * icon) {
 
 
 void ewmh_activate_window(const FXWindow * window) {
-#ifndef WIN32
+#ifndef _WIN32
 
   FXASSERT(window->getApp());
   FXASSERT(window->getApp()->getDisplay());
@@ -511,7 +495,7 @@ void ewmh_activate_window(const FXWindow * window) {
 
 
 void ewmh_change_window_type(const FXWindow * window,FXuint kind) {
-#ifndef WIN32
+#ifndef _WIN32
   static Atom net_wm_window_type               = None;
   static Atom net_wm_window_type_menu          = None;
   static Atom net_wm_window_type_dropdown_menu = None;

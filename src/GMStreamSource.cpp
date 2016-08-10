@@ -87,18 +87,18 @@ FXbool GMStreamSource::getTrack(GMTrack & info) const {
   }
 
 FXbool GMStreamSource::source_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Add Radio Station…"),NULL,this,ID_NEW_STATION);
+  new GMMenuCommand(pane,fxtr("Add Radio Station…"),nullptr,this,ID_NEW_STATION);
   return true;
   }
 
 FXbool GMStreamSource::source_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Add Radio Station…"),NULL,this,ID_NEW_STATION);
+  new GMMenuCommand(pane,fxtr("Add Radio Station…"),nullptr,this,ID_NEW_STATION);
   return true;
   }
 
 FXbool GMStreamSource::track_context_menu(FXMenuPane * pane){
   new GMMenuCommand(pane,fxtr("Edit…"),GMIconTheme::instance()->icon_edit,this,ID_EDIT_STATION);
-  new GMMenuCommand(pane,fxtr("Add Radio Station…"),NULL,this,ID_NEW_STATION);
+  new GMMenuCommand(pane,fxtr("Add Radio Station…"),nullptr,this,ID_NEW_STATION);
   new GMMenuCommand(pane,fxtr("Remove\t\tRemove."),GMIconTheme::instance()->icon_delete,this,ID_DELETE_STATION);
   return true;
   }
@@ -129,7 +129,7 @@ FXbool GMStreamSource::listTracks(GMTrackList * tracklist,const FXIntList &/* al
       q.get(2,bitrate);
       c_genre = q.get(3);
       GMStreamTrackItem * item = new GMStreamTrackItem(id,c_title,c_genre,queue++,bitrate);
-      tracklist->appendItem((GMTrackItem*)item);
+      tracklist->appendItem(item);
       }
     GMStreamTrackItem::max_trackno = tracklist->getFont()->getTextWidth(FXString('8',GMDBTrackItem::max_digits(queue)));
     }
@@ -142,19 +142,19 @@ FXbool GMStreamSource::listTracks(GMTrackList * tracklist,const FXIntList &/* al
 
 long GMStreamSource::onCmdNewStation(FXObject*,FXSelector,void*){
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("New Internet Radio Station"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
-  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("New Internet Radio Station"),fxtr("Specify url and description of new station"),NULL);
+  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("New Internet Radio Station"),fxtr("Specify url and description of new station"),nullptr);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("C&reate"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("C&reate"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,5,10,10);
   FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
-  new FXLabel(matrix,fxtr("Location"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  GMTextField * location_field = new GMTextField(matrix,40,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
-  new FXLabel(matrix,fxtr("Description"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  GMTextField * description_field = new GMTextField(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
-  new FXLabel(matrix,fxtr("Tag"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  GMComboBox * tagbox = new GMComboBox(matrix,20,NULL,0,LAYOUT_FILL_X|FRAME_LINE);
+  new FXLabel(matrix,fxtr("Location"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  GMTextField * location_field = new GMTextField(matrix,40,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
+  new FXLabel(matrix,fxtr("Description"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  GMTextField * description_field = new GMTextField(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
+  new FXLabel(matrix,fxtr("Tag"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  GMComboBox * tagbox = new GMComboBox(matrix,20,nullptr,0,LAYOUT_FILL_X|FRAME_LINE);
   db->listTags(tagbox);
   tagbox->setSortFunc(genre_list_sort);
   tagbox->setNumVisible(FXMIN(10,tagbox->getNumItems()));
@@ -175,25 +175,25 @@ long GMStreamSource::onCmdNewStation(FXObject*,FXSelector,void*){
 
 
 long GMStreamSource::onCmdEditStation(FXObject*,FXSelector,void*){
-  GMTextField * location_field=NULL;
+  GMTextField * location_field=nullptr;
   FXIntList tracks;
   GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Edit Internet Radio Station"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
-  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Edit Internet Radio Station"),fxtr("Update url and description of station"),NULL);
+  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Edit Internet Radio Station"),fxtr("Update url and description of station"),nullptr);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("&Save"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Save"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,5,10,10);
   FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
   if (tracks.no()==1) {
-    new FXLabel(matrix,fxtr("Location"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-    location_field = new GMTextField(matrix,40,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
+    new FXLabel(matrix,fxtr("Location"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    location_field = new GMTextField(matrix,40,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
     }
-  new FXLabel(matrix,fxtr("Description"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  GMTextField * description_field = new GMTextField(matrix,30,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
-  new FXLabel(matrix,fxtr("Genre"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  GMComboBox * tagbox = new GMComboBox(matrix,20,NULL,0,LAYOUT_FILL_X|FRAME_LINE);
+  new FXLabel(matrix,fxtr("Description"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  GMTextField * description_field = new GMTextField(matrix,30,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
+  new FXLabel(matrix,fxtr("Genre"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  GMComboBox * tagbox = new GMComboBox(matrix,20,nullptr,0,LAYOUT_FILL_X|FRAME_LINE);
   db->listTags(tagbox);
   tagbox->setSortFunc(genre_list_sort);
   tagbox->setCurrentItem(-1);
@@ -240,10 +240,10 @@ long GMStreamSource::onCmdDeleteStation(FXObject*,FXSelector,void*){
   const FXString title=fxtr("Remove Internet Radio Station(s)?");
   const FXString subtitle=fxtr("Remove Internet Radio Station(s) from library?");
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),title,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
-  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,NULL);
+  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,nullptr);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("&Remove"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Remove"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
 //  new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
   if (dialog.execute()){
     FXIntList tracks;
@@ -264,7 +264,7 @@ long GMStreamSource::onCmdDeleteStation(FXObject*,FXSelector,void*){
 
 
 long GMStreamSource::onUpdExport(FXObject*sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 

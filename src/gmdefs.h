@@ -27,7 +27,12 @@
 #define FOXVERSION ((FOX_LEVEL) + (FOX_MINOR*1000) + (FOX_MAJOR*100000))
 #define FXVERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
 
+#ifdef HAVE_OPENGL
+#include <epoxy/gl.h>
+#include <epoxy/glx.h>
 #include <fx3d.h>
+#endif
+
 #include <FXArray.h>
 #include <FXTextCodec.h>
 #include <FXAutoPtr.h>
@@ -47,11 +52,11 @@
 #if defined DEBUG && !defined(NO_FXGETTICKS)
 #define GM_TICKS_START() FXTime end,start = fxgetticks();
 #define GM_TICKS_END()  end = fxgetticks(); fxmessage("%20s:%20s:%15ld ticks.\n",__FILE__,__func__,end-start)
-#define GM_DEBUG_PRINT(format, args...) fxmessage (format , ##args)
+#define GM_DEBUG_PRINT(format, ...) fxmessage (format ,##__VA_ARGS__)
 #else
 #define GM_TICKS_START() ((void)0)
 #define GM_TICKS_END() ((void)0)
-#define GM_DEBUG_PRINT(arguments, args...) ((void)0)
+#define GM_DEBUG_PRINT(arguments, ...) ((void)0)
 #endif
 
 
@@ -65,7 +70,7 @@ typedef FXAutoPtr<FXMenuPane> FXMenuPtr;
 typedef FXAutoPtr<FXFont>     FXFontPtr;
 typedef FXAutoPtr<FXPopup>    FXPopupPtr;
 
-extern const FXchar * fxtr(const FXchar *) __attribute__ ((format_arg(1)));
+extern const FXchar * fxtr(const FXchar *) FX_FORMAT(1);
 
 #define notr(x) x
 #define fxtrformat(x) fxtr(x)

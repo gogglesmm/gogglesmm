@@ -28,7 +28,7 @@ FXDEFMAP(GMClipboard) GMClipboardMap[]={
 
 FXIMPLEMENT(GMClipboard,FXShell,GMClipboardMap,ARRAYNUMBER(GMClipboardMap))
 
-GMClipboard * GMClipboard::me=NULL;
+GMClipboard * GMClipboard::me=nullptr;
 
 FXDragType GMClipboard::kdeclipboard=0;
 FXDragType GMClipboard::gnomeclipboard=0;
@@ -65,8 +65,8 @@ void GMClipboard::create(){
 
 GMClipboard::~GMClipboard(){
   if (clipdata) delete clipdata;
-  clipdata=NULL;
-  clipowner=NULL;
+  clipdata=nullptr;
+  clipowner=nullptr;
   }
 
 bool GMClipboard::doesOverrideRedirect() const {
@@ -94,8 +94,8 @@ FXbool GMClipboard::release(){
 
 long GMClipboard::onClipboardLost(FXObject*,FXSelector,void*){
   if (clipdata) delete clipdata;
-  clipdata=NULL;
-  clipowner=NULL;
+  clipdata=nullptr;
+  clipowner=nullptr;
   return 1;
   }
 

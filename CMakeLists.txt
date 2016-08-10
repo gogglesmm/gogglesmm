@@ -84,7 +84,7 @@ endif()
 
 
 # Add Goggles Audio Player
-add_subdirectory(src/gap)
+add_subdirectory(gap)
 
 # Add Goggles Music Manager
 add_subdirectory(src)
@@ -137,5 +137,4 @@ install(SCRIPT build/update_icons.cmake)
 
 
 feature_summary(WHAT ENABLED_FEATURES DESCRIPTION "Features:\n")
-
 

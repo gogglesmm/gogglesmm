@@ -311,17 +311,17 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   FXVerticalFrame * vframe2;
 
   FXVerticalFrame * main=new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
-  GMTabBook * tabbook=new GMTabBook(main,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_RIGHT,0,0,0,0,0,0,0,0);
+  GMTabBook * tabbook=new GMTabBook(main,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_RIGHT,0,0,0,0,0,0,0,0);
 
 
-  new GMTabItem(tabbook,tr("&General"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+  new GMTabItem(tabbook,tr("&General"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
 
   grpbox =  new FXGroupBox(vframe,tr("Sort Options"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
   matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
-  new FXLabel(matrix,tr("Ignore leading words"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Ignore leading words"),nullptr,labelstyle);
   new GMTextField(matrix,10,&target_keywords,FXDataTarget::ID_VALUE,textfieldstyle);
 
   grpbox =  new FXGroupBox(vframe,tr("Album Covers"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
@@ -349,11 +349,11 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (GMPlayerManager::instance()->getAudioScrobbler()->isBanned()) {
     new FXLabel(grpbox,tr("This version of Goggles Music Manager is\n"
                        "not supported by Last-FM. Please upgrade\n"
-                       "to a newer version of GMM."),NULL,JUSTIFY_LEFT);
+                       "to a newer version of GMM."),nullptr,JUSTIFY_LEFT);
     }
   else {
     matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0);
-    new FXLabel(matrix,tr("Service:"),NULL,labelstyle);
+    new FXLabel(matrix,tr("Service:"),nullptr,labelstyle);
     FXHorizontalFrame * hframe = new FXHorizontalFrame(matrix,FRAME_NONE,0,0,0,0,0,0,0,0);
     FXuint current_service = GMPlayerManager::instance()->getAudioScrobbler()->getService();
 
@@ -370,15 +370,15 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
       }
     lastfm_service->setCurrentItem(current_service);
 
-    lastfm_join = new FXButton(hframe,tr("&Sign up…"),NULL,this,ID_LASTFM_JOIN,ICON_AFTER_TEXT|FRAME_RAISED|JUSTIFY_CENTER_Y|JUSTIFY_LEFT|BUTTON_TOOLBAR,0,0,0,0,7);
+    lastfm_join = new FXButton(hframe,tr("&Sign up…"),nullptr,this,ID_LASTFM_JOIN,ICON_AFTER_TEXT|FRAME_RAISED|JUSTIFY_CENTER_Y|JUSTIFY_LEFT|BUTTON_TOOLBAR,0,0,0,0,7);
     lastfm_join->setTextColor(FXRGB(0,0,255));
     lastfm_join->setDefaultCursor(GMIconTheme::instance()->cursor_hand);
     if (current_service==SERVICE_CUSTOM) lastfm_join->hide();
 
 
-    lastfm_username_label = new FXLabel(matrix,tr("Username:"),NULL,labelstyle);
+    lastfm_username_label = new FXLabel(matrix,tr("Username:"),nullptr,labelstyle);
     lastfm_username = new GMTextField(matrix,20,this,ID_LASTFM_USERNAME,FRAME_SUNKEN|FRAME_THICK);
-    lastfm_password_label = new FXLabel(matrix,tr("Password:"),NULL,labelstyle);
+    lastfm_password_label = new FXLabel(matrix,tr("Password:"),nullptr,labelstyle);
     lastfm_password = new GMTextField(matrix,20,this,ID_LASTFM_PASSWORD,FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_PASSWD);
 
     new FXFrame(matrix,FRAME_NONE);
@@ -406,14 +406,14 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
     }
 
-  new GMTabItem(tabbook,tr("&Window"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+  new GMTabItem(tabbook,tr("&Window"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
 
   grpbox =  new FXGroupBox(vframe,tr("Window"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
   if (!GMPlayerManager::instance()->getPreferences().gui_tray_icon_disabled)
     new GMCheckButton(grpbox,tr("Close button minimizes to tray"),&target_closeishide,FXDataTarget::ID_VALUE);
-  statusbarbutton = new GMCheckButton(grpbox,tr("Show Status Bar"),NULL,0);
+  statusbarbutton = new GMCheckButton(grpbox,tr("Show Status Bar"),nullptr,0);
   statusbarbutton->setCheck(GMPlayerManager::instance()->getPreferences().gui_show_status_bar);
 
   new GMCheckButton(grpbox,tr("Display playing track in title bar"),&target_gui_show_playing_titlebar,FXDataTarget::ID_VALUE);
@@ -423,13 +423,13 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   grpbox->setFont(GMApp::instance()->getThickFont());
 
   matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS);
-  new FXLabel(matrix,tr("Location:"),NULL,labelstyle);
-  toolbar_docktop = new GMListBox(matrix,NULL,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN|LAYOUT_FILL_X);
+  new FXLabel(matrix,tr("Location:"),nullptr,labelstyle);
+  toolbar_docktop = new GMListBox(matrix,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN|LAYOUT_FILL_X);
   toolbar_docktop->appendItem(tr("Top"));
   toolbar_docktop->appendItem(tr("Bottom"));
   toolbar_docktop->setNumVisible(2);
 
-  new FXLabel(matrix,tr("Title Format:"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Title Format:"),nullptr,labelstyle);
   new GMTextField(matrix,20,&target_gui_format_title,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|LAYOUT_FILL_X);
 
 
@@ -455,7 +455,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   else
     toolbar_docktop->setCurrentItem(1);
 
-  new GMTabItem(tabbook,tr("A&ppearance"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+  new GMTabItem(tabbook,tr("A&ppearance"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
   grpbox =  new FXGroupBox(vframe,tr("Colors"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,2,2,0,2);
   grpbox->setFont(GMApp::instance()->getThickFont());
@@ -463,9 +463,9 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   matrix = new FXMatrix(grpbox,6,MATRIX_BY_COLUMNS|LAYOUT_SIDE_LEFT,0,0,0,0,0,0,0,0,0,0);
 
   new FXFrame(matrix,FRAME_NONE);
-  new FXLabel(matrix,tr("fg\tForeground Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_CENTER_X);
-  new FXLabel(matrix,tr("bg\tBackground Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_CENTER_X);
-  new FXLabel(matrix,tr("alt bg\tAlternative Background Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_CENTER_X);
+  new FXLabel(matrix,tr("fg\tForeground Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_CENTER_X);
+  new FXLabel(matrix,tr("bg\tBackground Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_CENTER_X);
+  new FXLabel(matrix,tr("alt bg\tAlternative Background Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_CENTER_X);
   new FXFrame(matrix,FRAME_NONE);
   new FXFrame(matrix,FRAME_NONE);
 
@@ -476,48 +476,48 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   new FXFrame(matrix,FRAME_NONE);
   new FXFrame(matrix,FRAME_NONE);
 
-  new FXLabel(matrix,tr("Normal\tNormal Text Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Normal\tNormal Text Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_FORE_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXColorWell(matrix,0,this,ID_BACK_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXColorWell(matrix,0,this,ID_ALTERNATIVE_BACK_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
-  new FXLabel(matrix,tr("Base\tBase Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Base\tBase Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_BASE_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
 
-  new FXLabel(matrix,tr("Selected\tSelected Text Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Selected\tSelected Text Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_SEL_FORE_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXColorWell(matrix,0,this,ID_SEL_BACK_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXFrame(matrix,FRAME_NONE);
-  new FXLabel(matrix,tr("Menu\tMenu Base Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Menu\tMenu Base Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_MENU_BASE_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
 
 
-  new FXLabel(matrix,tr("Menu\tMenu Text Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Menu\tMenu Text Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_MENU_FORE_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXColorWell(matrix,0,this,ID_MENU_BACK_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXFrame(matrix,FRAME_NONE);
-  new FXLabel(matrix,tr("Border\tBorder Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Border\tBorder Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_BORDER_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
 
 
-  new FXLabel(matrix,tr("Tooltip\tTooltip Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Tooltip\tTooltip Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_TIP_FORE_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXColorWell(matrix,0,this,ID_TIP_BACK_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXFrame(matrix,FRAME_NONE);
-  new FXLabel(matrix,tr("Hilite\tHilite Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Hilite\tHilite Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_HILITE_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
 
   new FXFrame(matrix,FRAME_NONE);
   new FXFrame(matrix,FRAME_NONE);
   new FXFrame(matrix,FRAME_NONE);
   new FXFrame(matrix,FRAME_NONE);
-  new FXLabel(matrix,tr("Shadow\tShadow Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Shadow\tShadow Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_SHADOW_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
 
-  new FXLabel(matrix,tr("Playing\tPlaying Track Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Playing\tPlaying Track Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_PLAY_FORE_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXColorWell(matrix,0,this,ID_PLAY_BACK_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
   new FXFrame(matrix,FRAME_NONE);
-  new FXLabel(matrix,tr("Tray\tTray Background Color"),NULL,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
+  new FXLabel(matrix,tr("Tray\tTray Background Color"),nullptr,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT);
   new FXColorWell(matrix,0,this,ID_TRAY_COLOR,COLORWELL_OPAQUEONLY|FRAME_LINE|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y,0,0,40,24);
 
 
@@ -540,23 +540,23 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   matrix = new FXMatrix(grpbox,3,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,20);
 
-  new FXLabel(matrix,tr("Default Font"),NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  new FXLabel(matrix,tr("Default Font"),nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   new GMTextField(matrix,20,this,ID_FONT,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|TEXTFIELD_NORMAL|TEXTFIELD_READONLY);
-  new GMButton(matrix,tr("Change…"),NULL,this,ID_CHANGE_FONT,BUTTON_NORMAL|LAYOUT_CENTER_Y);
+  new GMButton(matrix,tr("Change…"),nullptr,this,ID_CHANGE_FONT,BUTTON_NORMAL|LAYOUT_CENTER_Y);
 
-  new FXLabel(matrix,tr("Display DPI"),NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  new FXLabel(matrix,tr("Display DPI"),nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   GMSpinner * dpi_spinner = new GMSpinner(matrix,4,this,ID_DISPLAY_DPI,LAYOUT_FILL_COLUMN);
   dpi_spinner->setValue(dpi);
   dpi_spinner->setRange(72,200);
   new FXFrame(matrix,FRAME_NONE);
 
 
-  new FXLabel(matrix,tr("Icons"),NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  new FXLabel(matrix,tr("Icons"),nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
 
   themelist = new GMListBox(matrix,this,ID_ICON_THEME,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN|LAYOUT_FILL_X);
-  themelist->appendItem("Standard",NULL,(void*)(FXival)-1);
+  themelist->appendItem("Standard",nullptr,(void*)(FXival)-1);
     for (FXint i=0;i<GMIconTheme::instance()->getNumThemes();i++) {
-      themelist->appendItem(GMIconTheme::instance()->getThemeName(i),NULL,(void*)(FXival)i);
+      themelist->appendItem(GMIconTheme::instance()->getThemeName(i),nullptr,(void*)(FXival)i);
       }
   themelist->setSortFunc(FXList::ascending);
   themelist->sortItems();
@@ -570,14 +570,14 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   new FXFrame(matrix,FRAME_NONE);
 
-  new GMTabItem(tabbook,tr("&Audio"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+  new GMTabItem(tabbook,tr("&Audio"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
 
   grpbox =  new FXGroupBox(vframe,tr("Output"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
   matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
-  new FXLabel(matrix,tr("Driver:"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Driver:"),nullptr,labelstyle);
 
   driverlist = new GMListBox(matrix,this,ID_AUDIO_DRIVER);
 
@@ -588,16 +588,19 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   FXuint devices=OutputConfig::devices();
 
   if (AP_HAS_PLUGIN(devices,DeviceAlsa))
-    driverlist->appendItem("Advanced Linux Sound Architecture",NULL,(void*)DeviceAlsa);
+    driverlist->appendItem("Advanced Linux Sound Architecture",nullptr,(void*)DeviceAlsa);
 
   if (AP_HAS_PLUGIN(devices,DeviceOSS))
-    driverlist->appendItem("Open Sound System",NULL,(void*)DeviceOSS);
+    driverlist->appendItem("Open Sound System",nullptr,(void*)DeviceOSS);
 
   if (AP_HAS_PLUGIN(devices,DevicePulse))
-    driverlist->appendItem("PulseAudio",NULL,(void*)DevicePulse);
+    driverlist->appendItem("PulseAudio",nullptr,(void*)DevicePulse);
+
+  if (AP_HAS_PLUGIN(devices,DeviceJack))
+    driverlist->appendItem("Jack",nullptr,(void*)DeviceJack);
 
   if (AP_HAS_PLUGIN(devices,DeviceWav))
-    driverlist->appendItem("Wave File Output",NULL,(void*)DeviceWav);
+    driverlist->appendItem("Wave File Output",nullptr,(void*)DeviceWav);
 
   if (driverlist->getNumItems()) {
     driverlist->setCurrentItem(driverlist->findItemByData((void*)(FXival)config.device));
@@ -607,11 +610,11 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
     driverlist->disable();
     }
   /// Alsa
-  alsa_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
+  alsa_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
   alsa_device = new GMTextField(matrix,20);
   alsa_device->setText(config.alsa.device);
 
-  //alsa_mixer_label = new FXLabel(matrix,tr("Mixer:"),NULL,labelstyle);
+  //alsa_mixer_label = new FXLabel(matrix,tr("Mixer:"),nullptr,labelstyle);
  // alsa_mixer = new GMTextField(matrix,20);
   //alsa_mixer->setText(config.alsa.mixer);
 
@@ -620,25 +623,29 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   alsa_hardware_only->setCheck(config.alsa.flags&AlsaConfig::DeviceNoResample);
 
   /// OSS
-  oss_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
+  oss_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
   oss_device = new GMTextField(matrix,20);
   oss_device->setText(config.oss.device);
 
   /// Pulse
-  pulse_device_label = new FXLabel(matrix,tr("Device:"),NULL,labelstyle);
+  pulse_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
   pulse_device = new GMTextField(matrix,20);
+
+  /// Jack
+  jack_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
+  jack_device = new GMTextField(matrix,20);
 
   showDriverSettings(config.device);
 
   new FXFrame(matrix,FRAME_NONE);
-  new GMButton(matrix,tr("Apply Changes"),NULL,this,ID_APPLY_AUDIO);
+  new GMButton(matrix,tr("Apply Changes"),nullptr,this,ID_APPLY_AUDIO);
 
   grpbox =  new FXGroupBox(vframe,tr("Playback"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
   matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
 
-  new FXLabel(matrix,tr("Replay Gain:"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Replay Gain:"),nullptr,labelstyle);
 
   GMListBox * gainlist = new GMListBox(matrix,&target_replaygain,FXDataTarget::ID_VALUE);
   gainlist->appendItem(tr("Off"));
@@ -648,14 +655,14 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
 
   // Podcast Settings
-  new GMTabItem(tabbook,tr("&Podcasts"),NULL,TAB_TOP_NORMAL,0,0,0,0,5,5);
+  new GMTabItem(tabbook,tr("&Podcasts"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
   vframe = new GMTabFrame(tabbook);
 
   grpbox =  new FXGroupBox(vframe,tr("Updates"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
   matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0);
-  new FXLabel(matrix,tr("Update Interval"),NULL,labelstyle);
+  new FXLabel(matrix,tr("Update Interval"),nullptr,labelstyle);
   interval  = new GMListBox(matrix);
   interval->appendItem(tr("Disabled"));
   interval->appendItem(tr("10 minutes"));
@@ -686,7 +693,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
     interval->setCurrentItem(7);
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(main,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
-  new GMButton(closebox,tr("&Close"),NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
+  new GMButton(closebox,tr("&Close"),nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 20,20);
   }
 
 GMPreferencesDialog::~GMPreferencesDialog(){
@@ -862,7 +869,7 @@ long GMPreferencesDialog::onCmdAccept(FXObject*,FXSelector,void*) {
 
 void GMPreferencesDialog::initColorThemes() {
   for(FXuint i=0;i<ARRAYNUMBER(ColorThemes);i++){
-    colorpresets->appendItem(ColorThemes[i].name,NULL,(void*)&ColorThemes[i]);
+    colorpresets->appendItem(ColorThemes[i].name,nullptr,(void*)&ColorThemes[i]);
     }
 
   theme=-1;
@@ -874,7 +881,7 @@ void GMPreferencesDialog::initColorThemes() {
     }
 
   if (theme==-1){
-    colorpresets->prependItem(tr("Current"),NULL,(void*)&current);
+    colorpresets->prependItem(tr("Current"),nullptr,(void*)&current);
     theme=0;
     }
   }
@@ -884,7 +891,7 @@ void GMPreferencesDialog::updateColorThemes() {
   theme=-1;
 
   for (FXint i=0;i<colorpresets->getNumItems();i++){
-    if (selected==*(ColorTheme*)colorpresets->getItemData(i)){
+    if (selected==*static_cast<ColorTheme*>(colorpresets->getItemData(i))){
       theme=i;
       return;
       }
@@ -892,7 +899,7 @@ void GMPreferencesDialog::updateColorThemes() {
 
   if (theme==-1) {
     theme=colorpresets->getNumItems();
-    colorpresets->appendItem(tr("Custom"),NULL,(void*)&selected);
+    colorpresets->appendItem(tr("Custom"),nullptr,(void*)&selected);
     }
   else if (theme<colorpresets->getNumItems()-1) {
     if (colorpresets->getItemData(colorpresets->getNumItems()-1)==&selected)
@@ -1415,7 +1422,7 @@ void GMPreferencesDialog::redraw(){
 
 static void fancyfontname(FXFont * font,FXString & name) {
   name = font->getActualName().before('[').trimEnd();
-  const FXchar *wgt=NULL,*slt=NULL,*wid=NULL;
+  const FXchar *wgt=nullptr,*slt=nullptr,*wid=nullptr;
   const FXint size=font->getActualSize()/10;
 
   switch(font->getActualSetWidth()){
@@ -1423,34 +1430,34 @@ static void fancyfontname(FXFont * font,FXString & name) {
      case FXFont::ExtraCondensed: wid="Extra Condensed"; break;
      case FXFont::Condensed:      wid="Condensed"; break;
      case FXFont::SemiCondensed:  wid="Semi Condensed"; break;
-     case FXFont::NonExpanded:    wid=NULL; break;
+     case FXFont::NonExpanded:    wid=nullptr; break;
      case FXFont::SemiExpanded:   wid="Semi Expanded"; break;
      case FXFont::Expanded:       wid="Expanded"; break;
      case FXFont::ExtraExpanded:  wid="Extra Expanded"; break;
      case FXFont::UltraExpanded:  wid="Ultra Expanded"; break;
-     default: wid=NULL; break;
+     default: wid=nullptr; break;
      }
 
   switch(font->getActualWeight()){
     case FXFont::Thin      : wgt=fxtr("Thin"); break;
     case FXFont::ExtraLight: wgt=fxtr("Extra Light"); break;
     case FXFont::Light     : wgt=fxtr("Light"); break;
-    case FXFont::Normal    : wgt=NULL; break;
+    case FXFont::Normal    : wgt=nullptr; break;
     case FXFont::Medium    : wgt=fxtr("Medium"); break;
     case FXFont::DemiBold  : wgt=fxtr("Demibold"); break;
     case FXFont::Bold      : wgt=fxtr("Bold"); break;
     case FXFont::ExtraBold : wgt=fxtr("Extra Bold"); break;
     case FXFont::Black     : wgt=fxtr("Heavy"); break;
-    default: wgt=NULL; break;
+    default: wgt=nullptr; break;
     }
 
   switch(font->getActualSlant()){
     case FXFont::ReverseOblique: slt="Reverse Oblique"; break;
     case FXFont::ReverseItalic: slt="Reverse Italic"; break;
-    case FXFont::Straight: slt=NULL; break;
+    case FXFont::Straight: slt=nullptr; break;
     case FXFont::Italic: slt="Italic"; break;
     case FXFont::Oblique: slt="Oblique"; break;
-    default: slt=NULL; break;
+    default: slt=nullptr; break;
     }
 
   if (wgt && slt && wid)
@@ -1504,9 +1511,9 @@ long GMPreferencesDialog::onCmdTitleFormat(FXObject*sender,FXSelector,void*){
 
 long GMPreferencesDialog::onUpdTitleFormat(FXObject*sender,FXSelector sel,void*){
   if (GMPlayerManager::instance()->getPreferences().gui_show_playing_titlebar)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
 
   if (FXSELID(sel)==ID_TITLE_FORMAT)
     sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),&GMPlayerManager::instance()->getPreferences().gui_format_title);

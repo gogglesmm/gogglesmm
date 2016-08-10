@@ -43,7 +43,7 @@ void getSelectedTrackQueues(FXIntList & list) {
   FXint nitems = GMPlayerManager::instance()->getTrackView()->getNumTracks();
   for (FXint i=0;i<nitems;i++){
     if (GMPlayerManager::instance()->getTrackView()->isTrackItemSelected(i))
-      list.append(((GMDBTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(i))->getTrackQueue());
+      list.append(dynamic_cast<GMDBTrackItem*>(GMPlayerManager::instance()->getTrackView()->getTrackItem(i))->getTrackQueue());
     }
   }
 
@@ -51,7 +51,7 @@ void getTrackQueues(FXIntList & list) {
   FXint nitems = GMPlayerManager::instance()->getTrackView()->getNumTracks();
   list.no(nitems);
   for (FXint i=0;i<nitems;i++){
-    list[i]=((GMDBTrackItem*)GMPlayerManager::instance()->getTrackView()->getTrackItem(i))->getTrackQueue();
+    list[i]=dynamic_cast<GMDBTrackItem*>(GMPlayerManager::instance()->getTrackView()->getTrackItem(i))->getTrackQueue();
     }
   }
 
@@ -127,12 +127,12 @@ void GMPlayListSource::dragged(GMTrackList*tracklist){
   if (tracklist->getSortMethod()==HEADER_QUEUE){
     if (tracklist->getSortFunc()==GMDBTrackItem::descendingQueue) {
       for (FXint i=0;i<nitems;i++){
-        ((GMDBTrackItem*)tracklist->getItem(i))->setTrackQueue(nitems-i);
+        dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i))->setTrackQueue(nitems-i);
         }
       }
     else {
       for (FXint i=0;i<nitems;i++){
-        ((GMDBTrackItem*)tracklist->getItem(i))->setTrackQueue(i+1);
+        dynamic_cast<GMDBTrackItem*>(tracklist->getItem(i))->setTrackQueue(i+1);
         }
       }
     }
@@ -146,7 +146,7 @@ FXbool GMPlayListSource::findCurrent(GMTrackList * list,GMSource * src) {
   if (src->getCurrentTrack()==-1) return false;
   if (src==this) {
     for (FXint i=0;i<list->getNumItems();i++){
-      if (list->getItemId(i)==current_track && ((GMDBTrackItem*)list->getItem(i))->getTrackQueue()==current_queue) {
+      if (list->getItemId(i)==current_track && dynamic_cast<GMDBTrackItem*>(list->getItem(i))->getTrackQueue()==current_queue) {
         list->setActiveItem(i);
         list->setCurrentItem(i);
         return true;
@@ -221,9 +221,9 @@ public:
 
   long onUpdFromDisk(FXObject*sender,FXSelector,void*) {
     if (from_library->getCheck())
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE),nullptr);
     else
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
     return 1;
     }
   };
@@ -278,10 +278,10 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
       }
 
     FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),title,DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0);
-    GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,NULL);
+    GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,title,subtitle,nullptr);
     FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-    new GMButton(closebox,fxtr("&Remove"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-    new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,fxtr("&Remove"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+    new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
     new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
     FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,30,20,10,10);
     FXCheckButton * library_check = new FXCheckButton(main,fxtr("Remove tracks from music library"));
@@ -362,12 +362,12 @@ long GMPlayListSource::onCmdEditName(FXObject*,FXSelector,void *){
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Edit Playlist"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
   GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Edit Playlist"),fxtr("Change playlist name"));
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("&Save"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Save"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,30,20,10,10);
   FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
-  new FXLabel(matrix,fxtr("Name"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  new FXLabel(matrix,fxtr("Name"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   GMTextField * name_field = new GMTextField(matrix,20,&dialog,FXDialogBox::ID_ACCEPT,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_ENTER_ONLY);
   name_field->setText(getName());
   dialog.create();

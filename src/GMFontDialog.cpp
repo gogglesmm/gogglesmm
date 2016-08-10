@@ -44,8 +44,8 @@ GMFontDialog::GMFontDialog(FXWindow* o,const FXString& name,FXuint opts,FXint x,
 //  FXVerticalFrame * frm;
 
   FXHorizontalFrame *closebox=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,2,2);
-  new GMButton(closebox," &Accept",NULL,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox," &Cancel ",NULL,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox," &Accept",nullptr,this,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox," &Cancel ",nullptr,this,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
 
   FXVerticalFrame * main = new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0,0,0);
 //frm=new FXVerticalFrame(main,LAYOUT_FILL_X|LAYOUT_FILL_Y|FRAME_SUNKEN|FRAME_THICK|LAYOUT_BOTTOM,0,0,0,0,0,0,0,0);
@@ -54,28 +54,28 @@ GMFontDialog::GMFontDialog(FXWindow* o,const FXString& name,FXuint opts,FXint x,
 
   FXScrollWindow *scrollwindow=new FXScrollWindow(sunken,LAYOUT_FILL_X|LAYOUT_FILL_Y);
   GMScrollArea::replaceScrollbars(scrollwindow);
-  preview=new FXLabel(scrollwindow,"ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789",NULL,LAYOUT_CENTER_X|LAYOUT_CENTER_Y);
+  preview=new FXLabel(scrollwindow,"ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789",nullptr,LAYOUT_CENTER_X|LAYOUT_CENTER_Y);
   preview->setBackColor(getApp()->getBackColor());
-//  new FXLabel(main,"Preview:",NULL,LAYOUT_BOTTOM);
+//  new FXLabel(main,"Preview:",nullptr,LAYOUT_BOTTOM);
 
   FXHorizontalFrame * filterframe = new FXHorizontalFrame(main,LAYOUT_FILL_X|LAYOUT_BOTTOM,0,0,0,0,0,0,3,3,0,0);
-  new FXLabel(filterframe,"Pitch:",NULL,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0);
+  new FXLabel(filterframe,"Pitch:",nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y,0,0,0,0);
   pitchlist = new GMListBox(filterframe,this,ID_PITCH);
   pitchlist->appendItem("Any");
-  pitchlist->appendItem("Fixed",NULL,(void*)(FXuval)FXFont::Fixed);
-  pitchlist->appendItem("Variable",NULL,(void*)(FXuval)FXFont::Variable);
+  pitchlist->appendItem("Fixed",nullptr,(void*)(FXuval)FXFont::Fixed);
+  pitchlist->appendItem("Variable",nullptr,(void*)(FXuval)FXFont::Variable);
   pitchlist->setNumVisible(3);
 
-  new FXLabel(filterframe,"  Type:",NULL,LABEL_NORMAL|LAYOUT_CENTER_Y);
+  new FXLabel(filterframe,"  Type:",nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y);
   scalelist = new GMListBox(filterframe,this,ID_SCALABLE);
   scalelist->appendItem("Any");
-  scalelist->appendItem("Scalable",NULL,(void*)(FXuval)FXFont::Scalable);
+  scalelist->appendItem("Scalable",nullptr,(void*)(FXuval)FXFont::Scalable);
   scalelist->setNumVisible(2);
 
   FXHorizontalFrame * input = new FXHorizontalFrame(main,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
 
   FXVerticalFrame * sizeframe = new FXVerticalFrame(input,LAYOUT_RIGHT|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0,0,0);
-  new FXLabel(sizeframe,"Size:",NULL,LABEL_NORMAL,0,0,0,0,0,0);
+  new FXLabel(sizeframe,"Size:",nullptr,LABEL_NORMAL,0,0,0,0,0,0);
 
   FXVerticalFrame * sizeinputframe = new FXVerticalFrame(sizeframe,LAYOUT_RIGHT|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
   sizefield=new GMTextField(sizeinputframe,3,this,ID_SIZE_TEXT,TEXTFIELD_NORMAL|TEXTFIELD_INTEGER|LAYOUT_FILL_X);
@@ -84,13 +84,13 @@ GMFontDialog::GMFontDialog(FXWindow* o,const FXString& name,FXuint opts,FXint x,
 
   FXHorizontalFrame * mainframe = new FXHorizontalFrame(input,LAYOUT_LEFT|LAYOUT_FILL_Y|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
   FXSpring * familyframe = new FXSpring(mainframe,LAYOUT_FILL_X|LAYOUT_FILL_Y,4,0,0,0,0,0,0,0,0,0,0,0);
-  new FXLabel(familyframe,"Family:",NULL,LABEL_NORMAL,0,0,0,0);
+  new FXLabel(familyframe,"Family:",nullptr,LABEL_NORMAL,0,0,0,0);
   sunken=new GMScrollFrame(familyframe);
   familylist = new GMList(sunken,this,ID_FAMILY,LAYOUT_FILL_Y|LAYOUT_FILL_X|LIST_BROWSESELECT);
   familylist->setSortFunc(FXList::ascending);
 
   FXSpring * styleframe  = new FXSpring(mainframe,LAYOUT_FILL_X|LAYOUT_FILL_Y,3,0,0,0,0,0,0,0,0,0,0,0);
-  new FXLabel(styleframe,"Style:",NULL,LABEL_NORMAL,0,0,0,0);
+  new FXLabel(styleframe,"Style:",nullptr,LABEL_NORMAL,0,0,0,0);
   sunken=new GMScrollFrame(styleframe);
   stylelist=new GMList(sunken,this,ID_STYLE,LAYOUT_FILL_Y|LAYOUT_FILL_X|LIST_BROWSESELECT);
   stylelist->setSortFunc(FXList::ascending);
@@ -141,7 +141,7 @@ void GMFontDialog::previewFont(){
 
 
 void GMFontDialog::listFontFamily(){
-  FXFontDesc * fonts=NULL;
+  FXFontDesc * fonts=nullptr;
   FXuint numfonts,f;
   FXint lastitem=-1,selindex=-1;
   FXString face,family,pfamily;
@@ -152,10 +152,10 @@ void GMFontDialog::listFontFamily(){
       family=FXString(fonts[f].face).before('[').trimEnd();
       if (pfamily==family && lastitem>=0) {
         familylist->setItemText(lastitem,fonts[f-1].face);
-        lastitem=familylist->appendItem(fonts[f].face,NULL,(void*)(FXuval)fonts[f].flags);
+        lastitem=familylist->appendItem(fonts[f].face,nullptr,(void*)(FXuval)fonts[f].flags);
         }
       else {
-        lastitem=familylist->appendItem(family,NULL,(void*)(FXuval)fonts[f].flags);
+        lastitem=familylist->appendItem(family,nullptr,(void*)(FXuval)fonts[f].flags);
         }
       pfamily.adopt(family);
       if(compare(selected.face,fonts[f].face)==0) selindex=f;
@@ -172,11 +172,11 @@ void GMFontDialog::listFontFamily(){
   }
 
 void GMFontDialog::listFontStyle(){
-  FXFontDesc * fonts=NULL;
+  FXFontDesc * fonts=nullptr;
   FXint selindex=-1;
   FXuint numfonts,f;
   FXushort wi,ww,lastwi=0,lastww=0,sl,lastsl=0;
-  const FXchar *wgt=NULL,*slt=NULL,*wid=NULL;
+  const FXchar *wgt=nullptr,*slt=nullptr,*wid=nullptr;
   stylelist->clearItems();
   if (FXFont::listFonts(fonts,numfonts,selected.face,0,0,0/*selected.weight,selected.slant,selected.setwidth*/,selected.encoding,selected.flags)) {
     for(f=0;f<numfonts;f++){
@@ -190,12 +190,12 @@ void GMFontDialog::listFontStyle(){
             case FXFont::ExtraCondensed : wid=tr("Extra Condensed"); break;
             case FXFont::Condensed      : wid=tr("Condensed"); break;
             case FXFont::SemiCondensed  : wid=tr("Semi Condensed"); break;
-            case FXFont::NonExpanded    : wid=NULL; break;
+            case FXFont::NonExpanded    : wid=nullptr; break;
             case FXFont::SemiExpanded   : wid=tr("Semi Expanded"); break;
             case FXFont::Expanded       : wid=tr("Expanded"); break;
             case FXFont::ExtraExpanded  : wid=tr("Extra Expanded"); break;
             case FXFont::UltraExpanded  : wid=tr("Ultra Expanded"); break;
-            default                     : wid=NULL; break;
+            default                     : wid=nullptr; break;
             }
           lastwi=wi;
           }
@@ -204,13 +204,13 @@ void GMFontDialog::listFontStyle(){
             case FXFont::Thin       : wgt=tr("Thin"); break;
             case FXFont::ExtraLight : wgt=tr("Extra Light"); break;
             case FXFont::Light      : wgt=tr("Light"); break;
-            case FXFont::Normal     : wgt=NULL; break;
+            case FXFont::Normal     : wgt=nullptr; break;
             case FXFont::Medium     : wgt=tr("Medium"); break;
             case FXFont::DemiBold   : wgt=tr("Demibold"); break;
             case FXFont::Bold       : wgt=tr("Bold"); break;
             case FXFont::ExtraBold  : wgt=tr("Extra Bold"); break;
             case FXFont::Black      : wgt=tr("Heavy"); break;
-            default                 : wgt=NULL; break;
+            default                 : wgt=nullptr; break;
             }
           lastww=ww;
           }
@@ -218,31 +218,31 @@ void GMFontDialog::listFontStyle(){
           switch(sl){
             case FXFont::ReverseOblique : slt=tr("Reverse Oblique"); break;
             case FXFont::ReverseItalic  : slt=tr("Reverse Italic"); break;
-            case FXFont::Straight       : slt=NULL; break;
+            case FXFont::Straight       : slt=nullptr; break;
             case FXFont::Italic         : slt=tr("Italic"); break;
             case FXFont::Oblique        : slt=tr("Oblique"); break;
-            default                     : slt=NULL; break;
+            default                     : slt=nullptr; break;
             }
           lastsl=sl;
           }
 
         FXuint style=FXRGB((FXuchar)ww,(FXuchar)sl,(FXuchar)wi);
         if (wgt && slt && wid)
-          stylelist->appendItem(FXString::value("%s %s %s",wgt,wid,slt),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(FXString::value("%s %s %s",wgt,wid,slt),nullptr,(void*)(FXuval)style);
         else if (wgt && slt)
-          stylelist->appendItem(FXString::value("%s %s",wgt,slt),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(FXString::value("%s %s",wgt,slt),nullptr,(void*)(FXuval)style);
         else if (wgt && wid)
-          stylelist->appendItem(FXString::value("%s %s",wgt,wid),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(FXString::value("%s %s",wgt,wid),nullptr,(void*)(FXuval)style);
         else if (wid && slt)
-          stylelist->appendItem(FXString::value("%s %s",wid,slt),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(FXString::value("%s %s",wid,slt),nullptr,(void*)(FXuval)style);
         else if (slt)
-          stylelist->appendItem(tr(slt),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(tr(slt),nullptr,(void*)(FXuval)style);
         else if (wgt)
-          stylelist->appendItem(tr(wgt),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(tr(wgt),nullptr,(void*)(FXuval)style);
         else if (wid)
-          stylelist->appendItem(tr(wid),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(tr(wid),nullptr,(void*)(FXuval)style);
         else
-          stylelist->appendItem(tr("Normal"),NULL,(void*)(FXuval)style);
+          stylelist->appendItem(tr("Normal"),nullptr,(void*)(FXuval)style);
 
         if (ww==selected.weight && sl==selected.slant && wi==selected.setwidth) {
           selindex=stylelist->getNumItems()-1;
@@ -283,7 +283,7 @@ void GMFontDialog::listFontSize(){
       for(f=0; f<ARRAYNUMBER(sizeint); f++){
         s=sizeint[f];
         string.format("%g",0.1*s);
-        sizelist->appendItem(string,NULL,(void*)(FXuval)s);
+        sizelist->appendItem(string,nullptr,(void*)(FXuval)s);
         if(selected.size == s) selindex=sizelist->getNumItems()-1;
         }
       }
@@ -296,7 +296,7 @@ void GMFontDialog::listFontSize(){
         s=fonts[f].size;
         if(s!=lasts){
           string.format("%.1f",0.1*s);
-          sizelist->appendItem(string,NULL,(void*)(FXuval)s);
+          sizelist->appendItem(string,nullptr,(void*)(FXuval)s);
           if(selected.size==s) selindex=sizelist->getNumItems()-1;
           lasts=s;
           }

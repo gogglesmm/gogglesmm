@@ -424,12 +424,12 @@ public:
     if (links.no()>1) {
       GMThreadDialog dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Select Feed"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
       FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-      new GMButton(closebox,fxtr("Subscribe"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-      new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+      new GMButton(closebox,fxtr("Subscribe"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+      new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
       FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,5,10,10);
       FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
-      new FXLabel(matrix,fxtr("Feed:"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-      GMListBox * feedbox = new GMListBox(matrix,NULL,0,LAYOUT_FILL_X|FRAME_LINE);
+      new FXLabel(matrix,fxtr("Feed:"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+      GMListBox * feedbox = new GMListBox(matrix,nullptr,0,LAYOUT_FILL_X|FRAME_LINE);
       for (int i=0;i<links.no();i++){
         feedbox->appendItem(links[i].description);
         }
@@ -653,7 +653,7 @@ protected:
   GMDownloader(FXApp*app) : GMWorker(app) {}
   };
 
-FXIMPLEMENT(GMDownloader,GMWorker,NULL,0);
+FXIMPLEMENT(GMDownloader,GMWorker,nullptr,0);
 
 
 
@@ -737,7 +737,7 @@ public:
     FXint code=0;
     if (thread->join(code) && code==0) {
       }
-    src->downloader = NULL;
+    src->downloader = nullptr;
     delete this;
     return 1;
     }
@@ -1012,7 +1012,7 @@ public:
 
   };
 
-FXIMPLEMENT(GMPodcastFeed,GMAlbumListItem,NULL,0);
+FXIMPLEMENT(GMPodcastFeed,GMAlbumListItem,nullptr,0);
 
 
 class GMPodcastClipboardData : public GMClipboardData {
@@ -1045,7 +1045,7 @@ public:
     }
 
   ~GMPodcastClipboardData() {
-    src=NULL;
+    src=nullptr;
     }
   };
 
@@ -1111,7 +1111,7 @@ FXIcon* GMPodcastSource::getAlbumIcon() const {
 
 
 void GMPodcastSource::loadCovers() {
-  if (covercache==NULL) {
+  if (covercache==nullptr) {
     covercache = new GMCoverCache("podcastcovers",GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size);
     if (!covercache->load()) {
       updateCovers();
@@ -1301,13 +1301,13 @@ FXbool GMPodcastSource::getTrack(GMTrack & info) const {
   }
 
 FXbool GMPodcastSource::source_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
+  new GMMenuCommand(pane,fxtr("Add Podcast…"),nullptr,this,ID_ADD_FEED);
   return true;
   }
 
 FXbool GMPodcastSource::source_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Refresh\t\t"),NULL,this,ID_REFRESH_FEED);
-  new GMMenuCommand(pane,fxtr("Add Podcast…"),NULL,this,ID_ADD_FEED);
+  new GMMenuCommand(pane,fxtr("Refresh\t\t"),nullptr,this,ID_REFRESH_FEED);
+  new GMMenuCommand(pane,fxtr("Add Podcast…"),nullptr,this,ID_ADD_FEED);
   return true;
   }
 
@@ -1317,15 +1317,15 @@ FXbool GMPodcastSource::album_context_menu(FXMenuPane * pane){
   if (item->isAutoDownload())
     autodownload->setCheck(true);
   new FXMenuSeparator(pane);
-  new GMMenuCommand(pane,fxtr("Remove Podcast"),NULL,this,ID_REMOVE_FEED);
+  new GMMenuCommand(pane,fxtr("Remove Podcast"),nullptr,this,ID_REMOVE_FEED);
   return true;
   }
 
 FXbool GMPodcastSource::track_context_menu(FXMenuPane * pane){
-  new GMMenuCommand(pane,fxtr("Download"),NULL,this,ID_DOWNLOAD_FEED);
-  new GMMenuCommand(pane,fxtr("Mark Played"),NULL,this,ID_MARK_PLAYED);
-  new GMMenuCommand(pane,fxtr("Mark New"),NULL,this,ID_MARK_NEW);
-  new GMMenuCommand(pane,fxtr("Remove Local"),NULL,this,ID_DELETE_LOCAL);
+  new GMMenuCommand(pane,fxtr("Download"),nullptr,this,ID_DOWNLOAD_FEED);
+  new GMMenuCommand(pane,fxtr("Mark Played"),nullptr,this,ID_MARK_PLAYED);
+  new GMMenuCommand(pane,fxtr("Mark New"),nullptr,this,ID_MARK_NEW);
+  new GMMenuCommand(pane,fxtr("Remove Local"),nullptr,this,ID_DELETE_LOCAL);
   return true;
   }
 
@@ -1402,7 +1402,7 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
       q.get(4,date);
       q.get(5,flags);
       GMFeedItem* item = new GMFeedItem(id,c_feed,c_title,date,time,flags);
-      tracklist->appendItem((GMTrackItem*)item);
+      tracklist->appendItem(item);
       }
   return true;
   }
@@ -1436,7 +1436,7 @@ long GMPodcastSource::onCmdFeedUpdated(FXObject*,FXSelector,void*ptr){
   // Retry any failed downloads
   setItemFlags(ITEM_QUEUE,ITEM_FAILED,ITEM_FAILED);
 
-  if (downloader==NULL) {
+  if (downloader==nullptr) {
     FXint n;
     db->execute("SELECT count(id) FROM feed_items WHERE flags&1",n);
     if (n)  {
@@ -1462,7 +1462,7 @@ long GMPodcastSource::onCmdDownloadFeed(FXObject*,FXSelector,void*){
     queue_tracks.execute();
     }
   db->commit();
-  if (downloader==NULL) {
+  if (downloader==nullptr) {
     downloader = new GMPodcastDownloader(FXApp::instance(),this);
     downloader->start();
     }
@@ -1570,15 +1570,15 @@ long GMPodcastSource::onCmdTrackPlayed(FXObject*,FXSelector,void*) {
 
 long GMPodcastSource::onCmdAddFeed(FXObject*,FXSelector,void*){
   FXDialogBox dialog(GMPlayerManager::instance()->getMainWindow(),fxtr("Subscribe to Podcast"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,0,0,0,0,0,0,0,0);
-  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Subscribe to Podcast"),fxtr("Specify url for the rss feed"),NULL);
+  GMPlayerManager::instance()->getMainWindow()->create_dialog_header(&dialog,fxtr("Subscribe to Podcast"),fxtr("Specify url for the rss feed"),nullptr);
   FXHorizontalFrame *closebox=new FXHorizontalFrame(&dialog,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0);
-  new GMButton(closebox,fxtr("Subscribe"),NULL,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
-  new GMButton(closebox,fxtr("&Cancel"),NULL,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("Subscribe"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
+  new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,5,10,10);
   FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
-  new FXLabel(matrix,fxtr("Location"),NULL,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
-  GMTextField * location_field = new GMTextField(matrix,40,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
+  new FXLabel(matrix,fxtr("Location"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  GMTextField * location_field = new GMTextField(matrix,40,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
   if (dialog.execute()) {
     FXString url=location_field->getText().trim();
     if (!url.empty()) {

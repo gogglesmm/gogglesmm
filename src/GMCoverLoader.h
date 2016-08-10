@@ -24,11 +24,11 @@ protected:
   GMCoverCacheWriter writer;
   GMCoverPathList    list;
   FXString           filename;
-  FXbool             folderonly;       
+  FXbool             folderonly;
 public:
   FXint run();
 public:
-  GMCoverLoader(const FXString & filename,GMCoverPathList & pathlist,FXint size,FXObject* tgt=NULL,FXSelector sel=0);
+  GMCoverLoader(const FXString & filename,GMCoverPathList & pathlist,FXint size,FXObject* tgt=nullptr,FXSelector sel=0);
 
   void setFolderOnly(FXbool b) { folderonly=b; }
 

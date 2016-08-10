@@ -3,11 +3,11 @@ Installation Instructions
 
     1. Install all required dependencies:
 
-       * FOX >= 1.7.50
-       * sqlite >= 3.6.19
-       * taglib >= 1.9.0
-       * cmake >= 3.4 
-       * expat
+      * FOX >= 1.7.50
+      * sqlite >= 3.6.19
+      * taglib >= 1.9.0
+      * expat
+      * cmake 3.3.1
 
     2. Install optional dependencies:
 
@@ -28,7 +28,7 @@ Installation Instructions
        The following options are available:
 
           CMAKE_INSTALL_PREFIX => Installation Directory (default: /usr)
-          CMAKE_BUILD_TYPE     => Set the build type (default: MinSizeRel)
+          CMAKE_BUILD_TYPE     => Set the build type. Available types: Release, Debug, RelWithDebInfo and MinSizeRel (default)
           CMAKE_INSTALL_LIBDIR => Name of directory where libraries are meant to be installed (default: lib)
 
           WITH_OSS             => Enables building the OSS Output plugin (default: OFF on Linux, ON on UNIX)
@@ -47,12 +47,11 @@ Installation Instructions
 
        > make
 
-    5. If everything compiled fine, you are ready to install Goggles Music Manager in its final location.
-       By default this will be in /usr. 
+   5. Install
 
        > sudo make install
 
-    5. Run the software
+   6. Run the software
 
        > gogglesmm
 

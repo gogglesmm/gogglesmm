@@ -84,7 +84,7 @@ void GMCacheInfo::load(FXStream & store) {
   }
 
 
-GMCoverCacheWriter::GMCoverCacheWriter(FXint sz) : info(sz),pixels(NULL) {
+GMCoverCacheWriter::GMCoverCacheWriter(FXint sz) : info(sz),pixels(nullptr) {
   if (FXWEBPImage::supported)
     info.format = COVERCACHE_WEBP;
   else if (FXJPGImage::supported)
@@ -125,7 +125,7 @@ FXlong GMCoverCacheWriter::save(FXColor * buffer){
 
 
 FXlong GMCoverCacheWriter::fit(FXImage * image){
-  if (pixels==NULL) allocElms(pixels,info.size*info.size);
+  if (pixels==nullptr) allocElms(pixels,info.size*info.size);
   memset(pixels,255,4*info.size*info.size);
 
   FXuchar * dst = (FXuchar*)pixels;
@@ -195,7 +195,7 @@ FXbool GMCoverCache::contains(FXint id) {
   }
 
 FXbool GMCoverCache::render(FXint id,FXImage * image) {
-  FXColor * pixels=NULL;
+  FXColor * pixels=nullptr;
   FXbool result;
   FXint ww,hh,dd;
   FXint i = info.map.at(id) - 1;
@@ -266,7 +266,7 @@ FXbool GMCoverCache::load() {
     info.load(store);
 
     // Open memory map
-    if (data.openMap(filename)==NULL)
+    if (data.openMap(filename)==nullptr)
       return false;
 
     return status;
@@ -289,7 +289,7 @@ FXint GMCoverLoader::run() {
         taskmanager->setStatus(FXString::value("Loading Covers %d%%",percentage));
       if (__likely(folderonly==false)) {
         cover = GMCover::fromTag(list[i].path);
-        if (cover==NULL) cover = GMCover::fromPath(FXPath::directory(list[i].path));
+        if (cover==nullptr) cover = GMCover::fromPath(FXPath::directory(list[i].path));
         }
       else {
         cover = GMCover::fromPath(list[i].path);
@@ -311,14 +311,14 @@ FXint GMCoverLoader::run() {
   }
 
 
-GMCoverRender::GMCoverRender() : cache(NULL) {
+GMCoverRender::GMCoverRender() : cache(nullptr) {
   }
 
 GMCoverRender::~GMCoverRender() {
   for (FXint i=0;i<buffers.no();i++) {
     delete buffers[i];
     }
-  cache=NULL;
+  cache=nullptr;
   }
 
 
@@ -368,7 +368,7 @@ void GMCoverRender::reset() {
 
 void GMCoverRender::drawCover(FXint id,FXDC & dc,FXint x,FXint y) {
   FXImage * image;
-  if (cache && cache->contains(id) && (image=getImage(id))!=NULL) {
+  if (cache && cache->contains(id) && (image=getImage(id))!=nullptr) {
     dc.drawImage(image,x,y);
     }
   else {
@@ -386,7 +386,7 @@ void GMCoverRender::drawCover(FXint id,FXDC & dc,FXint x,FXint y) {
 
 FXImage* GMCoverRender::getImage(FXint id) {
   FXint i,index;
-  FXImage * image=NULL;
+  FXImage * image=nullptr;
 
   /// existing
   for (i=0;i<buffers.no();i++){
@@ -405,8 +405,8 @@ FXImage* GMCoverRender::getImage(FXint id) {
     }
 
   /// Create new one
-  if (image==NULL) {
-    image = new FXImage(FXApp::instance(),NULL,0,getSize(),getSize());
+  if (image==nullptr) {
+    image = new FXImage(FXApp::instance(),nullptr,0,getSize(),getSize());
     image->setUserData((void*)(FXival)id);
     image->create();
     buffers.append(image);
@@ -415,7 +415,7 @@ FXImage* GMCoverRender::getImage(FXint id) {
   // Render Image
   if (!cache->render(id,image)) {
     image->setUserData(0);
-    return NULL;
+    return nullptr;
     }
 
   return image;

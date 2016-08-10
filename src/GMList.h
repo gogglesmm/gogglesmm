@@ -45,7 +45,7 @@ protected:
   virtual void draw(const GMList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
 public:
   /// Construct new item with given text, icon, and user-data
-  GMListItem(const FXString& text,FXIcon* ic=NULL,void* ptr=NULL): FXListItem(text,ic,ptr) { }
+  GMListItem(const FXString& text,FXIcon* ic=nullptr,void* ptr=nullptr): FXListItem(text,ic,ptr) { }
   };
 
 
@@ -66,7 +66,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Construct a list with initially no items in it
-  GMList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=LIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  GMList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=LIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   FXColor getRowColor() const { return rowcolor; }
 
@@ -90,7 +90,7 @@ protected:
   virtual void draw(const FXTreeList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
 public:
   /// Constructor
-  GMTreeItem(const FXString& text,FXIcon* oi=NULL,FXIcon* ci=NULL,void* ptr=NULL): FXTreeItem(text,oi,ci,ptr){}
+  GMTreeItem(const FXString& text,FXIcon* oi=nullptr,FXIcon* ci=nullptr,void* ptr=nullptr): FXTreeItem(text,oi,ci,ptr){}
 
   /// Return height of item as drawn in list
   virtual FXint getHeight(const FXTreeList* list) const;
@@ -110,7 +110,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Construct a new, initially empty tree list
-  GMTreeList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TREELIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  GMTreeList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TREELIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   void setRowColor(FXColor c) { rowcolor=c; update(); }
   };
