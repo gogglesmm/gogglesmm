@@ -274,7 +274,7 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::PLS;
   else if (comparecase(extension,"xspf")==0)
     return Format::XSPF;
-  else if (comparecase(extension,"mkv")==0)
+  else if (comparecase(extension,"mkv")==0 || comparecase(extension,"webm")==0)
     return Format::Matroska;
   else
     return Format::Unknown;
