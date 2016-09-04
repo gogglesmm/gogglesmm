@@ -38,10 +38,10 @@ enum {
 class AACReader : public ReaderPlugin {
 public:
   AACReader(AudioEngine*e) : ReaderPlugin(e) {}
-  FXbool init(InputPlugin*plugin) { ReaderPlugin::init(plugin); flags=0; return true; }
-  FXuchar format() const { return Format::AAC; }
+  FXbool init(InputPlugin*plugin) override { ReaderPlugin::init(plugin); flags=0; return true; }
+  FXuchar format() const override { return Format::AAC; }
 
-  ReadStatus process(Packet*p);
+  ReadStatus process(Packet*p) override;
 
   ~AACReader() {}
   };
@@ -92,10 +92,10 @@ protected:
   Packet * out;
 public:
   AacDecoder(AudioEngine*);
-  FXuchar codec() const { return Codec::AAC; }
-  FXbool flush(FXlong offset=0);
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
+  FXuchar codec() const override { return Codec::AAC; }
+  FXbool flush(FXlong offset=0) override;
+  FXbool init(ConfigureEvent*) override ;
+  DecoderStatus process(Packet*) override;
   ~AacDecoder();
   };
 

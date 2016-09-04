@@ -67,11 +67,11 @@ public:
   /// Constructor
   InputThread(AudioEngine*);
 
-  virtual FXint run();
+  FXint run() override;
 
-  virtual FXbool init();
+  FXbool init() override;
 
-  virtual void free();
+  void free() override;
 
   /// Destructor
   virtual ~InputThread();

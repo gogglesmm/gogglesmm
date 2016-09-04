@@ -52,13 +52,13 @@ public:
   FXint getError() const;
 
   /// Read block of bytes, returning number of bytes read
-  FXival readBlock(void* data,FXival count);
+  FXival readBlock(void* data,FXival count) override;
 
   /// Write block of bytes, returning number of bytes written
-  FXival writeBlock(const void* data,FXival count);
+  FXival writeBlock(const void* data,FXival count) override;
 
   /// Close Socket
-  FXbool close();
+  FXbool close() override;
 
   /// Handle eof
   FXint eof();

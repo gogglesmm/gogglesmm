@@ -1,3 +1,43 @@
+1.1.0
+  - flac: use new reader to parse flac files.
+  - gap: use more portable signal and semaphore primitives in engine.
+  - gap: refactor input_plugin.
+  - gap: add proper interface class to OutputThread.
+  - gap: simplify includes.
+  - remove old 'configure' based buildsystem.
+  - lirc: remove unused/unsupported lirc support
+  - c++11: NULL -> nullptr.
+  - replace glew with epoxy.
+
+1.0.18
+  - ALAC codec support.
+  - add hashbang to installed python scripts
+  - fix vorbis comment parsing
+  - fix opus filetype detection during import.
+  - remove debug statements during release builds.
+  - cmake: fix reverse check for DESTDIR
+  - cmake: build mp4 reader when faad is enabled
+
+1.0.17
+  - cmake: fix libgcrypt detection and link to internal md5 if no gcrypt is available
+
+1.0.16
+  - cmake: fix gogglesmm not using BUILD_GAP_SHARED_LIB variable
+
+1.0.15
+  - fix: remove FXURL::decode when using FXURL::fileFromURL since the latter already does the decode
+  - cmake: drop version requirement to 3.3.1
+  - cmake: add status output
+  - cmake: allow CMAKE_INSTALL_LIBDIR to be relative or absolute path.
+  - cmake: fix shared library build of libgap.
+  - cmake: disable lto build for now.
+
+1.0.14
+  - Fix filters not properly escaping single quotes.
+  - Add cmake 3.4 build system. 'configure' is now deprecated and will be removed in a future release.
+  - Remove various unimplemented and/or unsupported plugins.
+  - Various c++11 improvements
+
 1.0.13
   - Sync now remove files from the database that match exclude filter.
   - Removed 'Remove Folder' functionality from Sync Folder. Now available as separate functionality under Music Library.

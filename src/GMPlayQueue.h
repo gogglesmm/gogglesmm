@@ -44,23 +44,23 @@ public:
 public:
   GMPlayQueue(GMTrackDatabase * db);
 
-  void configure(GMColumnList& list);
+  void configure(GMColumnList& list) override;
 
   FXbool canPlaySource(GMSource * src) const;
 
-  FXbool findCurrent(GMTrackList * tracklist,GMSource * src);
+  FXbool findCurrent(GMTrackList * tracklist,GMSource * src) override;
 
-  virtual FXint getNumTracks() const;
+  FXint getNumTracks() const override;
 
-  virtual FXbool canBrowse() const { return false; }
+  FXbool canBrowse() const override { return false; }
 
-  virtual FXbool source_context_menu(FXMenuPane * pane);
+  FXbool source_context_menu(FXMenuPane * pane) override;
 
-  virtual FXbool track_context_menu(FXMenuPane * pane);
+  FXbool track_context_menu(FXMenuPane * pane) override;
 
-  FXString getName() const;
+  FXString getName() const override;
 
-  void addTracks(GMSource * src,const FXIntList & tracks);
+  void addTracks(GMSource * src,const FXIntList & tracks) override;
 
   using GMSource::hasTrack;
 
@@ -70,7 +70,7 @@ public:
 
   FXint getNext();
 
-  virtual FXint getType() const { return SOURCE_PLAYQUEUE; }
+  FXint getType() const override { return SOURCE_PLAYQUEUE; }
 
   virtual ~GMPlayQueue();
   };

@@ -30,11 +30,12 @@ static const FXchar * const codecs[]={
   "PCM",
   "FLAC",
   "Vorbis",
-  "Musepack",
   "MPEG",
   "AAC",
   "Opus",
+  "ALAC",
   "DCA",
+  "A52"
   };
 
 static const FXchar * const byteorders[]={
@@ -62,13 +63,11 @@ static const FXchar * const formatnames[]={
   "mp3",
   "mp4",
   "aac",
-  "musepack",
-  "wavpack",
-  "cdda",
   "m3u",
   "pls",
   "xspf",
-  "aiff"
+  "aiff",
+  "matroska"
   };
 
 
@@ -98,7 +97,7 @@ void AudioFormat::reset() {
 
 void AudioFormat::setBits(FXushort bits) {
   if (bits>0 && bits<=32) {
-    format|=(bits-1)<<Format::Bits_Shift|(((bits/8)-1)<<Format::Pack_Shift);    
+    format|=(bits-1)<<Format::Bits_Shift|(((bits/8)-1)<<Format::Pack_Shift);
     }
   }
 
@@ -257,8 +256,6 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::OGG;
   else if (comparecase(extension,"mp3")==0)
     return Format::MP3;
-  else if (comparecase(extension,"mpc")==0)
-    return Format::Musepack;
   else if (comparecase(extension,"mp4")==0 ||
            comparecase(extension,"m4a")==0 ||
            comparecase(extension,"m4p")==0 ||

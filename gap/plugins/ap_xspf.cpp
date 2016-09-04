@@ -17,10 +17,12 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_common.h"
 #include "ap_xml_parser.h"
 #include "ap_reader_plugin.h"
 
 namespace ap {
+
 
 
 class XSPFParser : public XmlParser{
@@ -30,9 +32,9 @@ public:
 protected:
   FXint        elem;
 protected:
-  FXint begin(const FXchar *,const FXchar**);
-  void data(const FXchar *,FXint len);
-  void end(const FXchar *);
+  FXint begin(const FXchar *,const FXchar**) override;
+  void data(const FXchar *,FXint len) override;
+  void end(const FXchar *) override;
 public:
   enum {
     Elem_Playlist = Elem_Last,
@@ -99,13 +101,6 @@ void XSPFParser::data(const FXchar* str,FXint len){
 void XSPFParser::end(const FXchar*) {
   }
 
-void ap_parse_xspf(const FXString & data,FXStringList & mrl,FXString & title) {
-  XSPFParser xspf;
-  if (xspf.parse(data)) {
-    mrl=xspf.files;
-    title=xspf.title;
-    }
-  }
 
 
 class XSPFReader : public TextReader {
@@ -113,10 +108,10 @@ protected:
   FXStringList uri;
 public:
   XSPFReader(AudioEngine*);
-  ReadStatus process(Packet*);
-  FXbool init(InputPlugin*);
-  FXuchar format() const { return Format::XSPF; };
-  FXbool redirect(FXStringList & u) { u=uri; return true; }
+  ReadStatus process(Packet*) override;
+  FXbool init(InputPlugin*) override;
+  FXuchar format() const override { return Format::XSPF; };
+  FXbool redirect(FXStringList & u) override { u=uri; return true; }
   virtual ~XSPFReader();
   };
 
@@ -147,6 +142,15 @@ ReadStatus XSPFReader::process(Packet*packet) {
 
 ReaderPlugin * ap_xspf_reader(AudioEngine * engine) {
   return new XSPFReader(engine);
+  }
+
+
+void ap_parse_xspf(const FXString & data,FXStringList & mrl,FXString & title) {
+  XSPFParser xspf;
+  if (xspf.parse(data)) {
+    mrl=xspf.files;
+    title=xspf.title;
+    }
   }
 
 

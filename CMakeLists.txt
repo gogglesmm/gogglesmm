@@ -1,74 +1,71 @@
 # Using cmake 3.2
-cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3.1 FATAL_ERROR)
+
+# Honor CMAKE_EXE_LINKER_FLAGS during tests
+cmake_policy(SET CMP0056 NEW)
+
+# Need FeaureSummary
+include(FeatureSummary)
 
 # Enable for cmake debugging
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
+# set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 # libdir name to allow overriding to lib32 / lib64
-set(CMAKE_INSTALL_LIBDIR
-    "lib"
-    CACHE STRING
-    "Specify the name of the directory where libraries are meant to be installed")
-
-# Display the build type
-message(STATUS "Using build type: ${CMAKE_BUILD_TYPE}")
-
-# Override default build type
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE MinSizeRel
-        CACHE STRING
-        "Specify the desired build type." FORCE)
-endif()
+# set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Specify the name of the directory where libraries are meant to be installed")
 
 # Override default install to /usr
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX /usr CACHE STRING "Installation prefix used by install." FORCE)
 endif()
 
-# Display the build type
+# Override default build type
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE MinSizeRel CACHE STRING "Specify the desired build type." FORCE)
+endif()
+
+# Status so far
+message(STATUS "Using build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 #-------------------------------------------------------------------------------
 
 include(CheckCXXCompilerFlag)
 
-
 # Additional compiler flags we like
-CHECK_CXX_COMPILER_FLAG(-Wall       HAS_CXX_WALL)
-CHECK_CXX_COMPILER_FLAG(-Wextra     HAS_CXX_WEXTRA)
-CHECK_CXX_COMPILER_FLAG(-Wformat=2  HAS_CXX_WFORMAT)
-CHECK_CXX_COMPILER_FLAG(-Wfatal-errors  HAS_CXX_WFATAL)
-CHECK_CXX_COMPILER_FLAG(-Og         HAS_CXX_OPTIMIZE_DEBUG)
-CHECK_CXX_COMPILER_FLAG(-flto       HAS_CXX_OPTIMIZE_LINKTIME)
-
+CHECK_CXX_COMPILER_FLAG(-Wall HAS_CXX_WALL)
 if(HAS_CXX_WALL)
-    add_compile_options(-Wall)
+  add_compile_options(-Wall)
 endif()
 
+CHECK_CXX_COMPILER_FLAG(-Wextra HAS_CXX_WEXTRA)
 if(HAS_CXX_WEXTRA)
-    add_compile_options(-Wextra)
+  add_compile_options(-Wextra)
 endif()
 
+CHECK_CXX_COMPILER_FLAG(-Wformat=2 HAS_CXX_WFORMAT)
 if(HAS_CXX_WFORMAT)
-    add_compile_options(-Wformat=2)
+  add_compile_options(-Wformat=2)
 endif()
 
+CHECK_CXX_COMPILER_FLAG(-Wfatal-errors HAS_CXX_WFATAL)
 if(HAS_CXX_WFATAL)
-    add_compile_options(-Wfatal-errors)
+  add_compile_options(-Wfatal-errors)
 endif()
 
-
+CHECK_CXX_COMPILER_FLAG(-Og HAS_CXX_OPTIMIZE_DEBUG)
 if(HAS_CXX_OPTIMIZE_DEBUG AND CMAKE_BUILD_TYPE MATCHES Debug)
-    add_compile_options(-Og)
+  add_compile_options(-Og)
 endif()
 
+# FIXME Doesn't work on all platforms.
+#CHECK_CXX_COMPILER_FLAG(-flto HAS_CXX_OPTIMIZE_LINKTIME)
 if(HAS_CXX_OPTIMIZE_LINKTIME AND NOT CMAKE_BUILD_TYPE MATCHES Debug)
-    add_compile_options(-flto)
-    link_libraries(-flto)
+  add_compile_options(-flto)
+  link_libraries(-flto)
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_definitions(-DDEBUG)
+  add_definitions(-DDEBUG)
 endif()
 
 #-------------------------------------------------------------------------------
@@ -95,6 +92,7 @@ install(FILES extra/gogglesmm_22.png DESTINATION share/icons/hicolor/22x22/apps 
 install(FILES extra/gogglesmm_24.png DESTINATION share/icons/hicolor/24x24/apps RENAME gogglesmm.png)
 install(FILES icons/gogglesmm_32.png DESTINATION share/icons/hicolor/32x32/apps RENAME gogglesmm.png)
 install(FILES extra/gogglesmm_48.png DESTINATION share/icons/hicolor/48x48/apps RENAME gogglesmm.png)
+install(FILES extra/gogglesmm_64.png DESTINATION share/icons/hicolor/64x64/apps RENAME gogglesmm.png)
 install(FILES extra/gogglesmm.svg DESTINATION share/icons/hicolor/scalable/apps RENAME gogglesmm.svg)
 install(FILES extra/gogglesmm.appdata.xml DESTINATION share/appdata)
 install(FILES extra/gogglesmm.desktop DESTINATION share/applications)
@@ -122,5 +120,9 @@ if(WITH_NLS)
     endforeach()
 endif()
 
+# Update the icon cache upon installation if needed
+install(SCRIPT build/update_icons.cmake)
 
+# Display Feature Summary
+feature_summary(WHAT ENABLED_FEATURES DESCRIPTION "Features:\n")
 

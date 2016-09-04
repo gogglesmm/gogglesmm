@@ -112,11 +112,11 @@ public:
 
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
-extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+extern void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 
-void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
+void flac_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta) {
   FXString comment;
-  const FXchar * end = buffer+len;
+  const FXuchar * end = buffer+len;
 
   // Check this is a VorbisComment.
   if ((buffer[0]&0x7f)!=4)

@@ -44,35 +44,35 @@ public:
 public:
   GMStreamSource(GMTrackDatabase * db);
 
-  virtual void configure(GMColumnList&);
+  void configure(GMColumnList&) override;
 
-  FXbool hasCurrentTrack(GMSource * ) const;
+  FXbool hasCurrentTrack(GMSource * ) const override;
 
-  virtual FXbool getTrack(GMTrack & info) const;
+  FXbool getTrack(GMTrack & info) const override;
 
-  virtual FXbool setTrack(GMTrack & info) const;
+  FXbool setTrack(GMTrack & info) const override;
 
-  FXString getName() const { return fxtr("Internet Radio"); }
+  FXString getName() const override { return fxtr("Internet Radio"); }
 
-  FXint getType() const { return SOURCE_INTERNET_RADIO; }
+  FXint getType() const override { return SOURCE_INTERNET_RADIO; }
 
-  FXString settingKey() const { return "internet-radio"; }
+  FXString settingKey() const override { return "internet-radio"; }
 
-  FXint getSortColumn(FXbool) const { return HEADER_TRACK; }
+  FXint getSortColumn(FXbool) const override { return HEADER_TRACK; }
 
-  FXbool canBrowse() const { return false; }
+  FXbool canBrowse() const override { return false; }
 
-  FXbool defaultBrowse() const { return false; }
+  FXbool defaultBrowse() const override { return false; }
 
-  FXbool autoPlay() const { return false; }
+  FXbool autoPlay() const override { return false; }
 
-  FXbool source_menu(FXMenuPane * pane);
+  FXbool source_menu(FXMenuPane * pane) override;
 
-  FXbool source_context_menu(FXMenuPane * pane);
+  FXbool source_context_menu(FXMenuPane * pane) override;
 
-  FXbool track_context_menu(FXMenuPane * pane);
+  FXbool track_context_menu(FXMenuPane * pane) override;
 
-  FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & genrelist);
+  FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & genrelist) override;
 
   virtual ~GMStreamSource();
   };

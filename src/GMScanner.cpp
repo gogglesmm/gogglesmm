@@ -300,8 +300,6 @@ void GMDBTracks::update(GMTrack & track) {
   update_track.set(13,track.index);
   update_track.execute();
 
-    fxmessage("%d %d\n",track.sampleformat,track.bitrate);
-
   /// Update Tags
   updateTags(track.index,track.tags);
   }
@@ -951,11 +949,9 @@ void GMSyncTask::update_tracks(FXint pathindex) {
 
       // Update or Insert
       if (tracks[i].index){
-        fxmessage("update %d %s\n",tracks[i].index,tracks[i].url.text());
         dbtracks.update(tracks[i]);
         }
       else {
-        fxmessage("insert %d %s\n",tracks[i].index,tracks[i].url.text());
         dbtracks.insert(tracks[i],pathindex);
         }
 

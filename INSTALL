@@ -7,11 +7,11 @@ Installation Instructions
       * sqlite >= 3.6.19
       * taglib >= 1.9.0
       * expat
-      * cmake 3.2.0
+      * cmake 3.3.1
 
     2. Install optional dependencies:
 
-       * dbus 1.0.x (optional)
+       * dbus 1.0.x
        * flac
        * mad
        * vorbis
@@ -20,18 +20,28 @@ Installation Instructions
        * faad2
        * pulse
 
-   3. Run cmake:
+    3. Run cmake:
 
-      > cmake [options] .
+       > cmake .
 
-      Options:
 
-        -DWITH_DBUS=False               - Build without DBUS support
-        -DWITH_NLS=False                - Build without Native Language Support
-        -DWITH_OPENGL=False             - Build without OpenGL Support
-        -DCMAKE_INSTALL_PREFIX=prefix   - Set installation prefix. Default is /usr
-        -DCMAKE_BUILD_TYPE=type         - Set the build type. Available types: Release, Debug, RelWithDebInfo and MinSizeRel (default).
-        -DCMAKE_INSTALL_LIBDIR=lib      - Set the name of the directory where libraries are installed (typically lib / lib32 / lib64). Default is lib.
+       The following options are available:
+
+          CMAKE_INSTALL_PREFIX => Installation Directory (default: /usr)
+          CMAKE_BUILD_TYPE     => Set the build type. Available types: Release, Debug, RelWithDebInfo and MinSizeRel (default)
+          CMAKE_INSTALL_LIBDIR => Name of directory where libraries are meant to be installed (default: lib)
+
+          WITH_OSS             => Enables building the OSS Output plugin (default: OFF on Linux, ON on UNIX)
+          WITH_ALSA            => Enables building the ALSA Ouput plugin (default: ON on Linux, OFF on UNIX)
+          WITH_TREMOR          => Enables building the Tremor based Vorbis decoder (default: OFF)
+
+          WITH_OPENGL          => Eanbles OpenGL based features (default: ON)
+          WITH_DBUS            => Enables DBUS based features (default: ON)
+          WITH_NLS             => Enables Native Language Support (default: ON)
+
+       These can be passed on the command line using:
+
+          > cmake -Doption=value .
 
     4. Compile
 

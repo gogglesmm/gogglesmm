@@ -48,6 +48,7 @@ extern DecoderPlugin * ap_pcm_decoder(AudioEngine*);
 extern DecoderPlugin * ap_vorbis_decoder(AudioEngine*);
 extern DecoderPlugin * ap_mad_decoder(AudioEngine*);
 extern DecoderPlugin * ap_aac_decoder(AudioEngine*);
+extern DecoderPlugin * ap_alac_decoder(AudioEngine*);
 extern DecoderPlugin * ap_opus_decoder(AudioEngine*);
 extern DecoderPlugin * ap_dca_decoder(AudioEngine*);
 extern DecoderPlugin * ap_a52_decoder(AudioEngine*);
@@ -67,6 +68,11 @@ DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
 #ifdef HAVE_FAAD
     case Codec::AAC     : return ap_aac_decoder(engine); break;
 #endif
+
+#ifdef HAVE_ALAC
+    case Codec::ALAC    : return ap_alac_decoder(engine); break;
+#endif
+
 #ifdef HAVE_OPUS
     case Codec::Opus    : return ap_opus_decoder(engine); break;
 #endif

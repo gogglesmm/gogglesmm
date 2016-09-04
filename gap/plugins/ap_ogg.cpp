@@ -257,12 +257,12 @@ protected:
 #endif
 public:
   OggReader(AudioEngine *);
-  FXuchar format() const { return Format::OGG; };
-  FXbool init(InputPlugin*);
+  FXuchar format() const override { return Format::OGG; };
+  FXbool init(InputPlugin*) override;
   FXlong seek_offset(FXdouble) const;
-  FXbool seek(FXlong offset);
-  FXbool can_seek() const;
-  ReadStatus process(Packet*);
+  FXbool seek(FXlong offset) override;
+  FXbool can_seek() const override;
+  ReadStatus process(Packet*) override;
   virtual ~OggReader();
   };
 
@@ -567,7 +567,7 @@ static const FXuint vorbis_channel_map[]={
 
 #ifdef HAVE_OPUS
 
-extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+extern void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 
 
 
@@ -654,7 +654,7 @@ ReadStatus OggReader::parse_opus_stream() {
 
       ConfigureEvent * config = new ConfigureEvent(af,codec);
       MetaInfo       * meta   = new MetaInfo();
-      ap_parse_vorbiscomment((FXchar*)op.packet+8,op.bytes-8,config->replaygain,meta);
+      ap_parse_vorbiscomment(op.packet+8,op.bytes-8,config->replaygain,meta);
 
       config->stream_offset_start = stream_offset_start;
 
@@ -828,7 +828,8 @@ ReadStatus OggReader::parse_vorbis_stream() {
 
 #ifdef HAVE_FLAC
 
-extern void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+extern void flac_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+extern FXbool flac_parse_streaminfo(const FXuchar * buffer,AudioFormat & config,FXlong & nframes);
 extern FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_length);
 
 
@@ -894,7 +895,7 @@ ReadStatus OggReader::parse_flac_stream() {
     ConfigureEvent * config = new ConfigureEvent(af,codec,stream_length);
     MetaInfo * meta         = new MetaInfo;
 
-    flac_parse_vorbiscomment((const FXchar*)op.packet,op.bytes,config->replaygain,meta);
+    flac_parse_vorbiscomment(op.packet,op.bytes,config->replaygain,meta);
 
     /// Now we are ready to init the decoder
     engine->decoder->post(config);

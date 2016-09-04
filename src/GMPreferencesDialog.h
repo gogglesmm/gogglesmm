@@ -53,11 +53,6 @@ protected:
   FXLabel     * oss_device_label = nullptr;
   FXTextField * oss_device = nullptr;
 
-  FXLabel     * pulse_device_label = nullptr;
-  FXTextField * pulse_device = nullptr;
-
-  FXLabel     * jack_device_label = nullptr;
-  FXTextField * jack_device = nullptr;
 protected:
   void showDriverSettings(FXuchar driver);
 public:

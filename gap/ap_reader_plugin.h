@@ -39,10 +39,10 @@ class ReaderPlugin {
 public:
   AudioEngine * engine;
   AudioFormat   af;
-  InputPlugin * input;
+  InputPlugin * input   = nullptr;
 protected:
-  FXuchar flags;
-  FXlong  stream_length;      /// Length of stream in samples
+  FXuchar flags         =  0;
+  FXlong  stream_length = -1;      /// Length of stream in samples
 protected:
   enum {
     FLAG_PARSED = 0x1,
@@ -56,7 +56,7 @@ public:
   /// Format type
   virtual FXuchar format() const=0;
 
-  /// Return redirect lsit
+  /// Return redirect list
   virtual FXbool redirect(FXStringList&) { return false; }
 
   /// Return whether plugin can seek
@@ -86,8 +86,8 @@ protected:
   FXString textbuffer;
 public:
   TextReader(AudioEngine*);
-  FXbool init(InputPlugin*);
-  ReadStatus process(Packet*);
+  FXbool init(InputPlugin*) override;
+  ReadStatus process(Packet*) override;
   virtual ~TextReader();
   };
 

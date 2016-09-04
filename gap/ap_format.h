@@ -41,10 +41,10 @@ namespace Codec {
     PCM       = 1,
     FLAC      = 2,
     Vorbis    = 3,
-    Musepack  = 4,
-    MPEG      = 5,
-    AAC       = 6,
-    Opus      = 7,
+    MPEG      = 4,
+    AAC       = 5,
+    Opus      = 6,
+    ALAC      = 7,
     DCA       = 8,
     A52       = 9
     };
@@ -143,14 +143,11 @@ enum {
   MP3               = 4,
   MP4               = 5,
   AAC               = 6,
-  Musepack          = 7,
-  WavPack           = 8,
-  CDDA              = 9,
-  M3U               = 10,
-  PLS               = 11,
-  XSPF              = 12,
-  AIFF              = 13,
-  Matroska          = 14
+  M3U               = 7,
+  PLS               = 8,
+  XSPF              = 9,
+  AIFF              = 10,
+  Matroska          = 11
   };
 
 }

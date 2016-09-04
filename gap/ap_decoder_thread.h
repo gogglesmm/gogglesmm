@@ -40,11 +40,11 @@ protected:
 public:
   DecoderThread(AudioEngine*);
 
-  virtual FXint run();
+  FXint run() override;
 
-  virtual FXbool init();
+  FXbool init() override;
 
-  virtual void free();
+  void free() override;
 
   Packet * get_output_packet();
 
