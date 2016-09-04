@@ -17,7 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_event_private.h"
+#include "ap_vorbis.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
 #include "ap_reader_plugin.h"
@@ -64,6 +64,13 @@ enum {
   SEGMENT_INFO_TIMECODE_SCALE = 0x2ad7b1,
   SEGMENT_INFO_DURATION       = 0x4489,
   VOID                        = 0xec,
+  CUES                        = 0x1c53bb6b,
+  CUE_POINT                   = 0xbb,
+  CUE_TIME                    = 0xb3,
+  CUE_TRACK_POSITIONS         = 0xb7,
+  CUE_TRACK                   = 0xf7,
+  CUE_CLUSTER_POSITION        = 0xf1,
+  CUE_RELATIVE_POSITION       = 0xf0,
   };
 
 
@@ -93,9 +100,34 @@ struct Block {
 
 class Track {
 public:
+
+
+  struct cue_entry {
+    FXlong position;
+    FXlong cluster;
+    };
+
+
+public:
   AudioFormat af;
+  DecoderConfig * dc = nullptr;
   FXuchar     codec  = Codec::Invalid;
   FXulong     number = 0;
+  FXArray<cue_entry> cues;
+  FXint             ncues=0;
+
+
+
+  void add_cue_entry(FXlong pos,FXlong cluster) {
+    if (cues.no()>=ncues) {
+      cues.no(cues.no()+256);      
+      }
+    cues[ncues].position = pos;
+    cues[ncues].cluster  = cluster;
+    ncues++;  
+    }
+
+
   };
 
 /* Layout
@@ -118,7 +150,7 @@ protected:
 protected:
   MemoryBuffer data;
 protected:
-
+  FXbool is_webm = false;
 
 
 
@@ -169,6 +201,11 @@ protected:
   FXbool get_next_frame(FXuint & framesize);
   FXbool parse_block_group(Element&);
   FXbool parse_simpleblock(Element&);
+
+
+  FXbool parse_cues(Element&);
+  FXbool parse_cue_point(Element&);
+  FXbool parse_cue_track(Element&,FXulong & track,FXulong & cluster);
 
 public:
   enum {
@@ -252,7 +289,16 @@ ReadStatus MatroskaReader::process(Packet*packet) {
             frame_size-=n;
             break;
           }
-
+        case Codec::AAC:
+          {
+            if(frame_size > packet->space())
+              break;
+            if (input->read(packet->ptr(),frame_size)!=frame_size)
+              return ReadError;
+            packet->wroteBytes(frame_size);
+            frame_size-=frame_size;
+            break;
+          }
         case Codec::Vorbis:
         case Codec::Opus:
           {
@@ -308,6 +354,10 @@ ReadStatus MatroskaReader::process(Packet*packet) {
   }
 
 
+enum {
+  AAC_FLAG_CONFIG = 0x2,
+  AAC_FLAG_FRAME  = 0x4
+  };
 
 
 ReadStatus MatroskaReader::parse(Packet * packet) {
@@ -346,15 +396,21 @@ ReadStatus MatroskaReader::parse(Packet * packet) {
       input->position(first_cluster,FXIO::Begin);
       af=track->af;
       ConfigureEvent * cfg = new ConfigureEvent(track->af,track->codec);
+      cfg->dc = track->dc;
       engine->decoder->post(cfg);
       stream_length = (duration * timecode_scale * track->af.rate )  / 1000000000;
       flags|=FLAG_PARSED;
+/*
       if (data.size()) {
+        if (track->codec==Codec::AAC) {
+          packet->flags|=AAC_FLAG_CONFIG|AAC_FLAG_FRAME;
+          }
         packet->af=af;
         packet->append(data.data(),data.size());
         engine->decoder->post(packet);
         data.clear();
         }
+*/
       return ReadOk;
       }
     }
@@ -705,33 +761,32 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
 
         frames[2]=element.size - frames[0] - frames[1] - 1;
 
-        //fxmessage("data size %u %u %u | %u %u\n",frames[0],frames[1],frames[2],frames[0]+frames[1]+frames[2],element.size);
 
-        data.resize(frames[0]+frames[2]+sizeof(ogg_packet)+sizeof(ogg_packet));
+        VorbisConfig * vc = new VorbisConfig();
 
-        ogg_packet op;
-        op.bytes = frames[0];
-        op.e_o_s = 0;
-        op.b_o_s = 1;
-        op.packetno = 0;
-        op.granulepos = -1;
-
-        data.append(&op,sizeof(ogg_packet));
-        if (input->read(data.ptr(),frames[0])!=frames[0])
+        vc->info_bytes = frames[0];
+        allocElms(vc->info,vc->info_bytes);   
+        if (input->read(vc->info,vc->info_bytes)!=vc->info_bytes)
           return false;
-        data.wroteBytes(frames[0]);
 
-        op.b_o_s = 0;
-        op.packetno = 1;
-        op.bytes = frames[2];
+        input->position(frames[1],FXIO::Current);        
 
-        input->position(frames[1],FXIO::Current);
-        data.append(&op,sizeof(ogg_packet));
-        if (input->read(data.ptr(),frames[2])!=frames[2])
+        vc->setup_bytes = frames[2];
+        allocElms(vc->setup,vc->setup_bytes);   
+        if (input->read(vc->setup,vc->setup_bytes)!=vc->setup_bytes)
           return false;
-        data.wroteBytes(frames[2]);
+
+        track->dc = vc;
         break;
       }
+    case Codec::AAC:
+      {
+        data.resize(element.size);
+        if (input->read(data.ptr(),element.size)!=element.size)
+          return false;
+        data.wroteBytes(element.size);  
+        break;
+      } 
     case Codec::Invalid:
       {
         input->position(element.size,FXIO::Current);
@@ -802,36 +857,8 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
           input->read(codec.text(),element.size);
 
           fxmessage("found codec: '%s'\n",codec.text());
-
-          if (comparecase(codec,"A_PCM/INT/LIT")==0) {
-            track->codec   = Codec::PCM;
-            track->af.format |= (Format::Signed|Format::Little);
-            }
-          else if (comparecase(codec,"A_PCM/INT/BIG")==0) {
-            track->codec   = Codec::PCM;
-            track->af.format |= (Format::Signed|Format::Big);
-            }
-          else if (comparecase(codec,"A_PCM/FLOAT/IEEE")==0) {
-            track->codec   = Codec::PCM;
-            track->af.format |= (Format::Float|Format::Little);
-            }
-          else if (comparecase(codec,"A_DTS")==0) {
-            track->codec      = Codec::DCA;
-            track->af.format |= (Format::Float|Format::Little);
-            track->af.setBits(32);
-            }
-          else if (comparecase(codec,"A_AC3")==0) {
-            track->codec      = Codec::A52;
-            track->af.format |= (Format::Float|Format::Little);
-            track->af.setBits(32);
-            }
-          else if (comparecase(codec,"A_MPEG/L3")==0) {
-            track->codec      = Codec::MPEG;
-            track->af.format |= (Format::Signed|Format::Little);
-            track->af.setBits(16);
-            }
 #ifdef HAVE_OGG
-          else if (comparecase(codec,"A_VORBIS")==0) {
+          if (comparecase(codec,"A_VORBIS")==0) {
             track->codec      = Codec::Vorbis;
             track->af.format |= (Format::Float|Format::Little);
             track->af.setBits(32);
@@ -842,10 +869,46 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
             track->af.setBits(32);
             }
 #endif
-          else if (comparecase(codec,"A_FLAC")==0) {
-            track->codec      = Codec::FLAC;
-            track->af.format |= (Format::Signed|Format::Little);
-            //track->af.setBits(16);
+          if (!is_webm) {
+              
+            if (comparecase(codec,"A_PCM/INT/LIT")==0) {
+              track->codec   = Codec::PCM;
+              track->af.format |= (Format::Signed|Format::Little);
+              }
+            else if (comparecase(codec,"A_PCM/INT/BIG")==0) {
+              track->codec   = Codec::PCM;
+              track->af.format |= (Format::Signed|Format::Big);
+              }
+            else if (comparecase(codec,"A_PCM/FLOAT/IEEE")==0) {
+              track->codec   = Codec::PCM;
+              track->af.format |= (Format::Float|Format::Little);
+              }
+            else if (comparecase(codec,"A_DTS")==0) {
+              track->codec      = Codec::DCA;
+              track->af.format |= (Format::Float|Format::Little);
+              track->af.setBits(32);
+              }
+            else if (comparecase(codec,"A_AC3")==0) {
+              track->codec      = Codec::A52;
+              track->af.format |= (Format::Float|Format::Little);
+              track->af.setBits(32);
+              }
+            else if (comparecase(codec,"A_MPEG/L3")==0) {
+              track->codec      = Codec::MPEG;
+              track->af.format |= (Format::Signed|Format::Little);
+              track->af.setBits(16);
+              }
+            else if (comparecase(codec,"A_FLAC")==0) {
+              track->codec      = Codec::FLAC;
+              track->af.format |= (Format::Signed|Format::Little);
+              //track->af.setBits(16);
+              }
+            else if (comparecase(codec,"A_AAC")==0) {
+              track->codec      = Codec::AAC;
+              track->af.format |= (Format::Signed|Format::Little);
+              track->af.setBits(16);
+              }
+
             }
           break;
         }
@@ -913,6 +976,104 @@ FXbool MatroskaReader::parse_track(Element & container) {
   return true;
   }
 
+
+FXbool MatroskaReader::parse_cue_track(Element & container,FXulong & cue_track,FXulong & cluster_position) {
+  cue_track=0;
+  cluster_position=0;
+  Element element;
+  while(parse_element(container,element)) {
+    switch(element.type) {
+      case CUE_TRACK:
+        {
+          if (!parse_uint64(cue_track,element.size))
+            return false;
+          break;
+        }
+      case CUE_CLUSTER_POSITION:
+        {
+          if (!parse_uint64(cluster_position,element.size))
+            return false;
+        } break;
+      case CUE_RELATIVE_POSITION:
+        {
+          input->position(element.size,FXIO::Current);
+          break;
+        }
+      
+      //  {
+      //    if (!parse_uint64(relative_position,element.size))
+      //      return false;
+      //  } break;
+      default:
+        {
+          element.debug("Cues.CuePoint.Track");
+          input->position(element.size,FXIO::Current);
+          break;
+        }
+      }
+    }
+  return true;
+  }
+
+
+FXbool MatroskaReader::parse_cue_point(Element & container) {
+  FXulong cuetime;
+  FXulong  cluster_position;
+  FXulong cuetrack;
+  
+  Element element;
+  while(parse_element(container,element)) {
+    switch(element.type) {
+      case CUE_TIME:
+        {
+          if (!parse_uint64(cuetime,element.size))
+            return false;
+          fxmessage("cuetime %ld\n",cuetime);
+          break;
+        }
+      case CUE_TRACK_POSITIONS:
+        {
+          if (!parse_cue_track(element,cuetrack,cluster_position))
+            return false;
+        } break;
+      default:
+        {
+          element.debug("Cues.CuePoint");
+          input->position(element.size,FXIO::Current);
+          break;
+        }
+      }
+    }
+  for (FXint i=0;i<tracks.no();i++) {
+    if (tracks[i]->number==cuetrack) {
+      tracks[i]->add_cue_entry(cuetime,cluster_position);
+      break;
+      }
+    }
+  return true;
+  }
+
+
+FXbool MatroskaReader::parse_cues(Element & container) {
+  Element element;
+  while(parse_element(container,element)) {
+    switch(element.type) {
+      case CUE_POINT:
+        {
+          if (!parse_cue_point(element))
+            return false;
+          break;
+        }
+      default:
+        {
+          element.debug("Cues");
+          input->position(element.size,FXIO::Current);
+          break;
+        }
+      }
+    }
+  return true;
+  }
 
 FXbool MatroskaReader::parse_segment_info(Element & container) {
   Element element;
@@ -999,6 +1160,13 @@ FXbool MatroskaReader::parse_segment(Element & container) {
 
         } break;
 
+      case CUES:
+        {
+          if (!parse_cues(element))
+            return false;
+
+          break;
+        }
       default       :
         element.debug("Segment");
         input->position(element.size,FXIO::Current);
@@ -1111,10 +1279,17 @@ FXbool MatroskaReader::parse_ebml(Element & container) {
       }
     }
 
-  if (doctype!="matroska")
-    return false;
-
-  return true;
+  if (doctype=="webm") {
+    is_webm = true;
+    return true;
+    }
+ 
+  if (doctype=="matroska"){
+    is_webm = false;
+    return true;
+    }
+    
+  return false;
   }
 
 
