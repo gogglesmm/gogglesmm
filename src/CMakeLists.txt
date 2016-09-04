@@ -6,10 +6,30 @@ include(FeatureSummary)
 
 project(GOGGLESMM VERSION 1.1.0)
 
+
 option(WITH_OPENGL "Enable OpenGL Features" ON)
 option(WITH_DBUS "Enable DBUS Features" ON)
 option(WITH_NLS "Enable Native Language Support" ON)
 
+# Translation Files to share/locale
+set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
+
+# Don't use CMAKE_INSTALL_PREFIX since most icons won't be installed anywhere but /usr
+set(ICON_PATH /usr/share/icons)
+
+# We need C++ 11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
+# Display the build type
+message(STATUS "Icon Path: ${ICON_PATH}")
+message(STATUS "Locale Path: ${LOCALE_PATH}")
+
+
+#------------------------------------------------------------------------------
 
 TEST_BIG_ENDIAN(GOGGLESMM_BIGENDIAN)
 
@@ -75,221 +95,254 @@ endif()
 
 #------------------------------------------------------------------------------
 
-# We need C++ 11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-
-# Translation Files to share/locale
-set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
-
-# Don't use CMAKE_INSTALL_PREFIX since most icons won't be installed anywhere but /usr
-set(ICON_PATH /usr/share/icons)
-
-# Display the build type
-message(STATUS "Icon Path: ${ICON_PATH}")
-message(STATUS "Locale Path: ${LOCALE_PATH}")
 
 #------------------------------------------------------------------------------
 
-set(SOURCES
-  GMAbout.cpp
-  GMAnimImage.cpp
-  GMApp.cpp
-  GMAudioPlayer.cpp
-  GMAudioScrobbler.cpp
-  GMAlbumList.cpp
-  GMClipboard.cpp
-  GMColumnDialog.cpp
-  GMCover.cpp
-  GMCoverCache.cpp
-  GMCoverManager.cpp
-  GMDatabase.cpp
-  GMDatabaseSource.cpp
-  GMFilename.cpp
-  GMFilter.cpp
-  GMFilterEditor.cpp
-  GMFilterSource.cpp
-  GMFontDialog.cpp
-  GMIconTheme.cpp
-  GMImportDialog.cpp
-  GMImageView.cpp
-  GMList.cpp
-  GMLocalSource.cpp
-  GMPlayerManager.cpp
-  GMPlayListSource.cpp
-  GMPlayQueue.cpp
-  GMPodcastSource.cpp
-  GMPreferences.cpp
-  GMPreferencesDialog.cpp
-  GMPresenter.cpp
-  GMRemote.cpp
-  GMSession.cpp
-  GMScanner.cpp
-  GMSource.cpp
-  GMSourceView.cpp
-  GMTag.cpp
-  GMTaskManager.cpp
-  GMTrack.cpp
-  GMTrackDatabase.cpp
-  GMTrackEditor.cpp
-  GMTrackList.cpp
-  GMTrackItem.cpp
-  GMTrackView.cpp
-  GMTrayIcon.cpp
-  GMStreamSource.cpp
-  GMWindow.cpp
-  main.cpp
-  icons.cpp
-  icons.h
-  fxext.cpp
-  gmutils.cpp
-  )
+set(SOURCES GMAbout.cpp
+            GMAnimImage.cpp
+            GMApp.cpp
+            GMAudioPlayer.cpp
+            GMAudioScrobbler.cpp
+            GMAlbumList.cpp
+            GMClipboard.cpp
+            GMColumnDialog.cpp
+            GMCover.cpp
+            GMCoverCache.cpp
+            GMCoverManager.cpp
+            GMDatabase.cpp
+            GMDatabaseSource.cpp
+            GMFilename.cpp
+            GMFilter.cpp
+            GMFilterEditor.cpp
+            GMFilterSource.cpp
+            GMFontDialog.cpp
+            GMIconTheme.cpp
+            GMImportDialog.cpp
+            GMImageView.cpp
+            GMList.cpp
+            GMLocalSource.cpp
+            GMPlayerManager.cpp
+            GMPlayListSource.cpp
+            GMPlayQueue.cpp
+            GMPodcastSource.cpp
+            GMPreferences.cpp
+            GMPreferencesDialog.cpp
+            GMPresenter.cpp
+            GMRemote.cpp
+            GMSession.cpp
+            GMScanner.cpp
+            GMSource.cpp
+            GMSourceView.cpp
+            GMTag.cpp
+            GMTaskManager.cpp
+            GMTrack.cpp
+            GMTrackDatabase.cpp
+            GMTrackEditor.cpp
+            GMTrackList.cpp
+            GMTrackItem.cpp
+            GMTrackView.cpp
+            GMTrayIcon.cpp
+            GMStreamSource.cpp
+            GMWindow.cpp
+            main.cpp
+            icons.cpp
+            fxext.cpp
+            gmutils.cpp)
+
+set(HEADERS GMAbout.h
+            GMAnimImage.h
+            GMApp.h
+            GMAudioPlayer.h
+            GMAudioScrobbler.h
+            GMAlbumList.h
+            GMClipboard.h
+            GMColumnDialog.h
+            GMCover.h
+            GMCoverCache.h
+            GMCoverManager.h
+            GMDatabase.h
+            GMDatabaseSource.h
+            GMFilename.h
+            GMFilter.h
+            GMFilterEditor.h
+            GMFilterSource.h
+            GMFontDialog.h
+            GMIconTheme.h
+            GMImportDialog.h
+            GMImageView.h
+            GMList.h
+            GMLocalSource.h
+            GMPlayerManager.h
+            GMPlayListSource.h
+            GMPlayQueue.h
+            GMPodcastSource.h
+            GMPreferences.h
+            GMPreferencesDialog.h
+            GMPresenter.h
+            GMRemote.h
+            GMSession.h
+            GMScanner.h
+            GMSource.h
+            GMSourceView.h
+            GMTag.h
+            GMTaskManager.h
+            GMTrack.h
+            GMTrackDatabase.h
+            GMTrackEditor.h
+            GMTrackList.h
+            GMTrackItem.h
+            GMTrackView.h
+            GMTrayIcon.h
+            GMStreamSource.h
+            GMWindow.h
+            icons.h
+            fxext.h
+            gmdefs.h
+            gmutils.h)
 
 # Link to private md5
 if(NOT HAVE_GCRYPT)
     list(APPEND SOURCES md5.cpp)
+    list(APPEND HEADERS md5.h)
 endif()
 
 
 set(ICONS ${CMAKE_SOURCE_DIR}/icons/cursor_hand.gif
-${CMAKE_SOURCE_DIR}/icons/about.png
-${CMAKE_SOURCE_DIR}/icons/gogglesmm_16.png
-${CMAKE_SOURCE_DIR}/icons/gogglesmm_32.png
-${CMAKE_SOURCE_DIR}/icons/x16_accessories_text_editor.png
-${CMAKE_SOURCE_DIR}/icons/x16_application_rss_xml.png
-${CMAKE_SOURCE_DIR}/icons/x16_applications_internet.png
-${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_high.png
-${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_low.png
-${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_medium.png
-${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_muted.png
-${CMAKE_SOURCE_DIR}/icons/x16_audio_x_generic.png
-${CMAKE_SOURCE_DIR}/icons/x16_bookmark_new.png
-${CMAKE_SOURCE_DIR}/icons/x16_document_open.png
-${CMAKE_SOURCE_DIR}/icons/x16_document_save.png
-${CMAKE_SOURCE_DIR}/icons/x16_edit_copy.png
-${CMAKE_SOURCE_DIR}/icons/x16_edit_cut.png
-${CMAKE_SOURCE_DIR}/icons/x16_edit_delete.png
-${CMAKE_SOURCE_DIR}/icons/x16_edit_find.png
-${CMAKE_SOURCE_DIR}/icons/x16_edit_paste.png
-${CMAKE_SOURCE_DIR}/icons/x16_edit_undo.png
-${CMAKE_SOURCE_DIR}/icons/x16_exit.png
-${CMAKE_SOURCE_DIR}/icons/x16_folder.png
-${CMAKE_SOURCE_DIR}/icons/x16_folder_open.png
-${CMAKE_SOURCE_DIR}/icons/x16_go_bottom.png
-${CMAKE_SOURCE_DIR}/icons/x16_go_home.png
-${CMAKE_SOURCE_DIR}/icons/x16_help_browser.png
-${CMAKE_SOURCE_DIR}/icons/x16_image_x_generic.png
-${CMAKE_SOURCE_DIR}/icons/x16_list_add.png
-${CMAKE_SOURCE_DIR}/icons/x16_list_remove.png
-${CMAKE_SOURCE_DIR}/icons/x16_media_optical.png
-${CMAKE_SOURCE_DIR}/icons/x16_media_playback_pause.png
-${CMAKE_SOURCE_DIR}/icons/x16_media_playback_start.png
-${CMAKE_SOURCE_DIR}/icons/x16_media_playback_stop.png
-${CMAKE_SOURCE_DIR}/icons/x16_media_skip_backward.png
-${CMAKE_SOURCE_DIR}/icons/x16_media_skip_forward.png
-${CMAKE_SOURCE_DIR}/icons/x16_preferences_desktop.png
-${CMAKE_SOURCE_DIR}/icons/x16_process_working.png
-${CMAKE_SOURCE_DIR}/icons/x16_stock_attach.png
-${CMAKE_SOURCE_DIR}/icons/x16_status_error.png
-${CMAKE_SOURCE_DIR}/icons/x16_system_users.png
-${CMAKE_SOURCE_DIR}/icons/x16_text_x_generic.png
-${CMAKE_SOURCE_DIR}/icons/x16_view_refresh.png
-${CMAKE_SOURCE_DIR}/icons/x16_view_sort_descending.png
-${CMAKE_SOURCE_DIR}/icons/x16_window_close.png
-${CMAKE_SOURCE_DIR}/icons/x16_x_office_presentation.png
-${CMAKE_SOURCE_DIR}/icons/x22_applications_internet.png
-${CMAKE_SOURCE_DIR}/icons/x22_applications_multimedia.png
-${CMAKE_SOURCE_DIR}/icons/x22_applications_rss_xml.png
-${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_high.png
-${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_low.png
-${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_medium.png
-${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_muted.png
-${CMAKE_SOURCE_DIR}/icons/x22_audio_x_generic.png
-${CMAKE_SOURCE_DIR}/icons/x22_document_open.png
-${CMAKE_SOURCE_DIR}/icons/x22_document_properties.png
-${CMAKE_SOURCE_DIR}/icons/x22_drive_harddisk.png
-${CMAKE_SOURCE_DIR}/icons/x22_folder.png
-${CMAKE_SOURCE_DIR}/icons/x22_image_x_generic.png
-${CMAKE_SOURCE_DIR}/icons/x22_media_playback_pause.png
-${CMAKE_SOURCE_DIR}/icons/x22_media_playback_start.png
-${CMAKE_SOURCE_DIR}/icons/x22_media_playback_stop.png
-${CMAKE_SOURCE_DIR}/icons/x22_media_skip_backward.png
-${CMAKE_SOURCE_DIR}/icons/x22_media_skip_forward.png
-${CMAKE_SOURCE_DIR}/icons/x22_preferences_system.png
-${CMAKE_SOURCE_DIR}/icons/x22_text_x_generic.png
-${CMAKE_SOURCE_DIR}/icons/x22_user_bookmarks.png
-${CMAKE_SOURCE_DIR}/icons/x22_user_home.png
-${CMAKE_SOURCE_DIR}/icons/x22_x_office_presentation.png
-${CMAKE_SOURCE_DIR}/icons/x128_media_optical.png
-)
+          ${CMAKE_SOURCE_DIR}/icons/about.png
+          ${CMAKE_SOURCE_DIR}/icons/gogglesmm_16.png
+          ${CMAKE_SOURCE_DIR}/icons/gogglesmm_32.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_accessories_text_editor.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_application_rss_xml.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_applications_internet.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_high.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_low.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_medium.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_muted.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_audio_x_generic.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_bookmark_new.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_document_open.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_document_save.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_edit_copy.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_edit_cut.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_edit_delete.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_edit_find.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_edit_paste.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_edit_undo.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_exit.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_folder.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_folder_open.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_go_bottom.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_go_home.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_help_browser.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_image_x_generic.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_list_add.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_list_remove.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_media_optical.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_media_playback_pause.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_media_playback_start.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_media_playback_stop.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_media_skip_backward.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_media_skip_forward.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_preferences_desktop.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_process_working.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_stock_attach.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_status_error.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_system_users.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_text_x_generic.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_view_refresh.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_view_sort_descending.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_window_close.png
+          ${CMAKE_SOURCE_DIR}/icons/x16_x_office_presentation.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_applications_internet.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_applications_multimedia.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_applications_rss_xml.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_high.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_low.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_medium.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_muted.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_audio_x_generic.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_document_open.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_document_properties.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_drive_harddisk.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_folder.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_image_x_generic.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_media_playback_pause.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_media_playback_start.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_media_playback_stop.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_media_skip_backward.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_media_skip_forward.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_preferences_system.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_text_x_generic.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_user_bookmarks.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_user_home.png
+          ${CMAKE_SOURCE_DIR}/icons/x22_x_office_presentation.png
+          ${CMAKE_SOURCE_DIR}/icons/x128_media_optical.png)
 
+
+# Generates icons.cpp / icons.h with reswrap
 set_source_files_properties(icons.cpp PROPERTIES GENERATED 1)
 set_source_files_properties(icons.h PROPERTIES GENERATED 1)
 
 ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp
-    COMMAND ${RESWRAP_H} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${ICONS}
-    COMMAND ${RESWRAP_CPP} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp ${ICONS}
-    VERBATIM
-    )
+  OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp
+  COMMAND ${RESWRAP_H} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${ICONS}
+  COMMAND ${RESWRAP_CPP} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp ${ICONS}
+  VERBATIM
+  )
 
+# Enable DBUS specific features
 if (DBUS_FOUND)
+  list(APPEND SOURCES GMDBus.cpp
+                      GMSettingsDaemon.cpp
+                      GMMediaPlayerService.cpp
+                      GMNotifyDaemon.cpp
+                      GMAppStatusNotify.cpp)
 
-    list(APPEND SOURCES GMDBus.cpp
-                        GMSettingsDaemon.cpp
-                        GMMediaPlayerService.cpp
-                        GMNotifyDaemon.cpp
-                        GMAppStatusNotify.cpp
-                        gogglesmm_xml.h
-                        appstatus_xml.h
-                        mpris1_xml.h
-                        mpris2_xml.h)
-
-    set_source_files_properties(gogglesmm_xml.h PROPERTIES GENERATED 1)
-    set_source_files_properties(appstatus_xml.h PROPERTIES GENERATED 1)
-    set_source_files_properties(mpris1_xml.h PROPERTIES GENERATED 1)
-    set_source_files_properties(mpris2_xml.h PROPERTIES GENERATED 1)
-
-    ADD_CUSTOM_COMMAND(
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/appstatus_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h
-        COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm.xml
-        COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/appstatus_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/appstatus.xml ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenu.xml
-        COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_player.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_tracklist.xml
-        COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2.xml
-        )
-
-    set(HAVE_DBUS 1)
+  list(APPEND HEADERS GMDBus.h
+                      GMSettingsDaemon.h
+                      GMMediaPlayerService.h
+                      GMNotifyDaemon.h
+                      GMAppStatusNotify.h
+                      gogglesmm_xml.h
+                      appstatus_xml.h
+                      mpris1_xml.h
+                      mpris2_xml.h)
 
 
+  set_source_files_properties(gogglesmm_xml.h PROPERTIES GENERATED 1)
+  set_source_files_properties(appstatus_xml.h PROPERTIES GENERATED 1)
+  set_source_files_properties(mpris1_xml.h PROPERTIES GENERATED 1)
+  set_source_files_properties(mpris2_xml.h PROPERTIES GENERATED 1)
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/appstatus_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h
+    COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm.xml
+    COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/appstatus_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/appstatus.xml ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenu.xml
+    COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_player.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_tracklist.xml
+    COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2.xml
+    )
+  set(HAVE_DBUS 1)
 endif()
 
 
 # Features
-add_feature_info(dbus HAVE_DBUS "DBus")
-add_feature_info(NLS WITH_NLS "Native Language Support")
-add_feature_info(grcypt HAVE_GCRYPT "libgcrypt")
+add_feature_info(dbus HAVE_DBUS "D-Bus")
+add_feature_info(nls WITH_NLS "Native Language Support")
+add_feature_info(gcrypt HAVE_GCRYPT "libgcrypt")
 add_feature_info(opengl HAVE_OPENGL "OpenGL Rendering")
 add_feature_info(session HAVE_SESSION "X11 Session Management")
-
 
 # Write gmconfig.h
 configure_file(gmconfig.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gmconfig.h)
 
-
-
 # Goggles Music Manager
-add_executable(gogglesmm ${SOURCES})
+add_executable(gogglesmm ${SOURCES} ${HEADERS})
 
-
-
-
-# Export Symbols if GAP is not build as a shared library
+# GAP outplut plugins need symbols from the gap library. If we build GAP as a static library,
+# gogglesmm needs to export those symbols instead.
 if(NOT BUILD_GAP_SHARED_LIB)
-    message(STATUS "gogglesmm: enable exports (libgap static library)")
-    set_target_properties(gogglesmm PROPERTIES ENABLE_EXPORTS 1)
+  message(STATUS "gogglesmm: enable exports (libgap static library)")
+  set_target_properties(gogglesmm PROPERTIES ENABLE_EXPORTS 1)
 endif()
 
 # Include Directories
@@ -311,12 +364,4 @@ target_link_libraries(gogglesmm PRIVATE gap
                       ${ICE_LIBRARIES}
                       ${LIBGCRYPT_LIBRARIES})
 
-install(TARGETS gogglesmm
-        RUNTIME DESTINATION bin)
-
-
-
-
-
-
-
+install(TARGETS gogglesmm RUNTIME DESTINATION bin)
