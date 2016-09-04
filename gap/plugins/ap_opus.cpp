@@ -17,7 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_event_private.h"
+#include "ap_opus.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
 #include "ap_ogg_decoder.h"
@@ -37,7 +37,7 @@ protected:
   FXfloat        gain;
   FXushort       stream_offset_start;
 protected:
-  FXbool init_decoder();
+  FXbool init_decoder(const FXuchar *,FXuint);
   FXbool find_stream_position();
   FXlong find_stream_length();
 protected:
@@ -75,6 +75,11 @@ FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
     opus_multistream_decoder_destroy(opus);
     opus=nullptr;
     gain=0.0f;
+    }
+
+  if (event->dc) {
+    OpusConfig * opc = dynamic_cast<OpusConfig*>(event->dc);
+    init_decoder(opc->info,opc->info_bytes);
     }
 
   if (pcm)
@@ -124,30 +129,30 @@ FXlong OpusDecoderPlugin::find_stream_length() {
 
 
 
-FXbool OpusDecoderPlugin::init_decoder() {
+FXbool OpusDecoderPlugin::init_decoder(const FXuchar * packet,const FXuint size) {
   FXASSERT(opus==nullptr);
   FXint error;
 
-  if (get_next_packet() && op.bytes>=19) {
+  if (size>=19) {
 
     // Extra check to make sure the reader gave us the header packet
-    if (compare((const FXchar*)op.packet,"OpusHead",8))
+    if (compare((const FXchar*)packet,"OpusHead",8))
       return false;
 
-    if (op.packet[18]!=0) {
+    if (packet[18]!=0) {
 
       // Validate stream map size
       if (af.channels!=op.bytes-21)
         return false;
 
       // Validate stream map
-      const FXuchar nstreams=op.packet[19];
-      const FXuchar ncoupled=op.packet[20];
+      const FXuchar nstreams=packet[19];
+      const FXuchar ncoupled=packet[20];
       for (FXint i=0;i<af.channels;i++) {
-        if (op.packet[21+i]>nstreams+ncoupled && op.packet[21+i]!=255)
+        if (packet[21+i]>nstreams+ncoupled && packet[21+i]!=255)
           return false;
         }
-      opus = opus_multistream_decoder_create(48000,af.channels,nstreams,ncoupled,op.packet+21,&error);
+      opus = opus_multistream_decoder_create(48000,af.channels,nstreams,ncoupled,packet+21,&error);
       }
     else {
       const FXuchar stream_map[2] = {0,1};
@@ -160,9 +165,9 @@ FXbool OpusDecoderPlugin::init_decoder() {
 
     // Apply any gain
 #if FOX_BIGENDIAN == 0
-    FXshort output_gain = op.packet[16] | op.packet[17]<<8;
+    FXshort output_gain = packet[16] | packet[17]<<8;
 #else
-    FXshort output_gain = op.packet[16]<<8 | op.packet[17];
+    FXshort output_gain = packet[16]<<8 | packet[17];
 #endif
 
 #ifdef OPUS_SET_GAIN
@@ -189,8 +194,8 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
 
   OggDecoder::process(packet);
 
-  if (opus==nullptr && !init_decoder())
-    return DecoderError;
+  //if (opus==nullptr && !init_decoder())
+  //  return DecoderError;
 
   if (stream_position==-1 && !find_stream_position())
     return DecoderOk;

@@ -17,7 +17,8 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_event_private.h"
+#include "ap_vorbis.h"
+#include "ap_opus.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
 #include "ap_reader_plugin.h"
@@ -39,6 +40,140 @@
 namespace ap {
 
 class AudioEngine;
+
+#ifdef HAVE_VORBIS
+
+class VorbisCodec {
+protected:
+  FXulong blockflag    = 0; // up to 64 flags for each mode
+  FXuchar modecount    = 0; // up to 64 entries
+  FXuchar modenbits    = 0; // number of bits needed to store modecount.
+  FXint   blocksize[2] = {0,0};
+public:
+  /// Parse Info Header for blocksize
+  FXbool parseInfo(const FXuchar * packet,FXuint size);
+
+  // Parse Setup Header
+  FXbool parseSetup(const FXuchar * packet,FXuint size);
+
+  // Given the packet data, return blocksize
+  FXint getBlockSize(const FXuchar * packet) const;
+
+  // Clear Codec
+  void clear();
+  };
+
+
+void VorbisCodec::clear() {
+  blockflag    = 0;
+  modecount    = 0;
+  modenbits    = 0;
+  blocksize[0] = 0;
+  blocksize[1] = 0;
+  }
+
+FXbool VorbisCodec::parseInfo(const FXuchar * packet,FXuint size) { 
+  if (size>=28) {
+    blocksize[0] = 1<<(packet[28]&0xF);
+    blocksize[1] = 1<<(packet[28]>>4);
+    return true;  
+    }
+  return false;
+  }
+
+
+FXbool VorbisCodec::parseSetup(const FXuchar * packet,FXuint size) {
+
+  // Minimum packet size 
+  const FXuint MIN_PACKET_SIZE = 7 + // header
+                                 1 + // number of codebooks
+                                 3 + // codebook sync bytes
+                                 5 + // codebook dims + entry counts
+                                 2 + // 1 vorbis_time_count value  (at least 1)
+                                 2 + // 1 vorbis_floor_types value (at least 1)
+                                 2 + // 1 vorbis_residue_types value (at least 1)
+                                 2 + // 1 vorbis_mapping_type value (at least 1)
+                                 3;  // 4 x 6 bits count fields: vorbis_time_count,vorbis_floor_count,vorbis_residue_count,vorbis_mapping_count
+  FXulong bits;
+  FXuchar nbits=0;
+  FXuchar found=0;
+  FXuint  p = size-1;
+
+  // Clear State
+  blockflag = 0;
+  modecount = 0;
+  modenbits = 0;
+
+  // Find the framing bit
+  while(nbits==0 && p>MIN_PACKET_SIZE) {
+    bits=packet[p--];
+    for (nbits=8; nbits && (bits&(1<<(nbits-1)))==0; nbits--);
+    }
+  if (nbits==0) return false;
+
+  nbits--;   
+      
+  // read mode entry: 
+  // vorbis_mode_blockflag:1
+  // vorbis_mode_windowtype:16 => should be 0
+  // vorbis_mode_transformtype:16 => should be 0
+  // vorbis_mode_mapping:8
+  // 
+  // also read potential vorbis_mode_count:6
+  for (;nbits<47;nbits+=8){
+    bits<<=8;
+    bits|=(static_cast<FXulong>(packet[p--]));
+    }
+
+  // scan backwards to start of modes section 
+  while(p>MIN_PACKET_SIZE && found<=64) {
+
+    const FXulong entry = (bits>>(nbits-41));
+
+    // expect 0s for window type and transform type
+    if (entry&0x1FFFFFFFELL) break;
+
+    // for now assume this is a valid entry
+    found++;
+
+    // Store block size flag
+    blockflag <<= 1;
+    blockflag  |= (entry&0x1);
+
+    // if this is the first entry, this is preceded by vorbis_mode_count
+    const FXuchar size = 1 + ((bits>>(nbits-47))&0x3f);
+    if (size==found) 
+      modecount = found;
+
+    // fill buffer with next entry
+    for (nbits-=41;nbits<47;nbits+=8) {
+      bits<<=8;
+      bits |= static_cast<FXulong>(packet[p--]);
+      }
+    }
+
+  // calculate modebits
+  if (modecount) {
+    for (FXint v = modecount-1; v>0; modenbits++) {
+      v>>=1;
+      }
+    return true;
+    }
+  return false;
+  }
+
+
+FXint VorbisCodec::getBlockSize(const FXuchar * packet) const {
+  const FXuchar mode = (packet[0]>>1)&modenbits;      
+  return blocksize[(blockflag>>mode)&0x1];
+  }
+
+
+
+#endif
+
+
+
 
 
 
@@ -73,13 +208,19 @@ protected:
   ogg_packet       op = {};
 protected:
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
-  vorbis_info      vi = {};
-  vorbis_comment   vc = {};
+  VorbisCodec      vorbis;
+
+
+//  vorbis_info      vi = {};
+//  vorbis_comment   vc = {};
+//  DecoderConfig*   decoder_config;
 #endif
 protected:
   Packet *        packet = nullptr;
+#if 0
   Event  *        headers = nullptr;
   FXint           ogg_packet_written = -1;
+#endif
   ReadStatus      status = ReadError;
   FXuchar         codec = Codec::Invalid;
   FXlong          stream_start = 0;
@@ -90,18 +231,22 @@ protected:
   FXbool match_page();
   FXbool fetch_next_page();
   FXbool fetch_next_packet();
-  void submit_ogg_packet(FXbool post=true);
+  void submit_ogg_packet();
 
+#if 0
   void add_header(Packet * p);
   void send_headers();
   void clear_headers();
+#endif
+
 
   FXlong find_lastpage_position();
 
   ReadStatus parse();
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
   ReadStatus parse_vorbis_stream();
-  void check_vorbis_length(vorbis_info*);
+  void check_vorbis_length();
+  FXbool parse_vorbis_setup();
 #endif
 #ifdef HAVE_FLAC
   ReadStatus parse_flac_stream();
@@ -141,7 +286,6 @@ OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e) {
 
 
 OggReader::~OggReader() {
-  clear_headers();
   ogg_sync_clear(&sync);
 
   if (state.has_stream) {
@@ -235,8 +379,6 @@ FXbool OggReader::init(InputPlugin*plugin) {
   flags&=~(FLAG_PARSED|FLAG_OGG_VORBIS|FLAG_OGG_FLAC|FLAG_OGG_OPUS|FLAG_VORBIS_MASK);
   status=ReadOk;
 
-  clear_headers();
-
   input_position=-1;
   stream_start=0;
   stream_offset_start=0;
@@ -329,16 +471,21 @@ void OggReader::check_opus_length() {
 #endif
 
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
-void OggReader::check_vorbis_length(vorbis_info * info) {
+
+
+void OggReader::check_vorbis_length() {
   stream_length=-1;
   stream_start=0;
+
   if (!input->serial()) {
     FXlong cpos = input_position;
 
     /// First Determine the pcm offset at the start of the stream
     FXint cb,lb=-1,tb=0;
     while(fetch_next_packet()) {
-      cb=vorbis_packet_blocksize(info,&op);
+      cb=vorbis.getBlockSize(op.packet);
+      fxmessage("packet %ld %ld %d\n",op.packetno,op.granulepos,cb);
+
       if (lb!=-1) tb+=(lb+cb)>>2;
       lb=cb;
       if (op.granulepos!=-1) {
@@ -360,6 +507,8 @@ void OggReader::check_vorbis_length(vorbis_info * info) {
     ogg_stream_reset(&stream);
     }
   }
+
+
 #endif
 extern void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len);
 extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len);
@@ -421,10 +570,87 @@ static const FXuint vorbis_channel_map[]={
 extern void ap_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 
 
+
+ReadStatus OggReader::parse_opus_stream() {
+  OpusConfig * opus_config = new OpusConfig;
+
+  if (op.bytes<19) {
+    GM_DEBUG_PRINT("[ogg] packet size too small for opushead\n");
+    return ReadError;
+    }
+
+#if FOX_BIGENDIAN == 0
+  stream_offset_start = (op.packet[10] | op.packet[11]<<8);
+#else
+  stream_offset_start = (op.packet[10]<<8 | op.packet[11]);
+#endif
+
+  // channel mapping family
+  switch(op.packet[18]) {
+
+    // RTP mapping
+    case  0:  af.set(AP_FORMAT_FLOAT,48000,op.packet[9]);
+              break;
+
+    // vorbis mapping family
+    case  1:
+              // Support 1-8 channels
+              if (op.packet[9]<1 || op.packet[9]>8)
+                return ReadError;
+
+              af.set(AP_FORMAT_FLOAT,48000,op.packet[9],vorbis_channel_map[op.packet[9]-1]);
+
+              // Make sure stream map is correct
+              if (af.channels!=op.bytes-21)
+                return ReadError;
+              break;
+
+    // Undefined, most players shouldn't play this
+    default:  return ReadError;
+    }
+
+  opus_config->setOpusInfo(op.packet,op.bytes);
+
+  // OpusTags
+  if (!fetch_next_packet())
+    return ReadError;
+
+  if (compare((const FXchar*)op.packet,"OpusTags",8))
+    return ReadError;
+
+
+  codec=Codec::Opus;
+
+  ConfigureEvent * config = new ConfigureEvent(af,codec);
+  MetaInfo       * meta   = new MetaInfo();
+  ap_parse_vorbiscomment((FXchar*)op.packet+8,op.bytes-8,config->replaygain,meta);
+
+  config->dc                  = opus_config;
+  config->stream_offset_start = stream_offset_start;
+
+  // Now we are ready to init the decoder
+  engine->decoder->post(config);
+
+  // Send Meta Info
+  engine->decoder->post(meta);
+
+  // find out stream length
+  check_opus_length();
+
+  // Success
+  flags|=FLAG_PARSED;
+
+  return ReadOk;
+  }
+
+
+
+#if 0
+
 ReadStatus OggReader::parse_opus_stream() {
   FXASSERT(state.has_packet==false);
   if (flags&FLAG_OGG_OPUS)  {
-    if (compare((FXchar*)op.packet,"OpusTags",8)==0) {
+    if (compare((const FXchar*)op.packet,"OpusTags",8)==0) {
 
       ConfigureEvent * config = new ConfigureEvent(af,codec);
       MetaInfo       * meta   = new MetaInfo();
@@ -497,120 +723,105 @@ ReadStatus OggReader::parse_opus_stream() {
   return ReadOk;
   }
 #endif
+#endif
 
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
 
 ReadStatus OggReader::parse_vorbis_stream() {
+  ReplayGain     gain;
 
-  // Check if previous packet hasn't been fully submitted
-  if (state.has_packet) {
-    submit_ogg_packet(false);
+  // Store Vorbis Config
+  VorbisConfig * vorbis_config = new VorbisConfig();
+
+  //FXASSERT(state.has_packet);
+  FXASSERT(op.packet[0]==1);
+
+  // Vorbis Info Packet 
+#ifdef FOX_BIGENDIAN
+  FXuint rate = (op.packet[15] << 24 | op.packet[14] << 16 | op.packet[13] << 8 | op.packet[12]);
+#else
+  FXuint rate = (op.packet[12] << 24 | op.packet[13] << 16 | op.packet[14] << 8 | op.packet[15]);
+#endif  
+  FXuchar channels = op.packet[11];
+
+  if (channels<1 || channels>8)
+    return ReadError;
+
+  if (!vorbis.parseInfo(op.packet,op.bytes))
+    return ReadError;
+
+  vorbis_config->setVorbisInfo(op.packet,op.bytes);
+
+#ifdef HAVE_VORBIS
+  af.set(AP_FORMAT_FLOAT,rate,channels,vorbis_channel_map[channels-1]);
+#else // HAVE_TREMOR
+  af.set(AP_FORMAT_S16,rate,channels,vorbis_channel_map[channels-1]);
+#endif
+
+  // Vorbis Comment Packet
+  if (!fetch_next_packet())
+    return ReadError;
+
+  // Check make sure its a comment packet
+  if (compare((const FXchar*)op.packet,"\x03""vorbis",7))
+    return ReadError;
+
+  // Parse the vorbis comments for useful information
+  MetaInfo * meta = new MetaInfo();
+  ap_parse_vorbiscomment((FXchar*)op.packet+8,op.bytes-8,gain,meta);
+
+  // Vorbis Setup Packet
+  if (!fetch_next_packet()) {
+    meta->unref();
+    return ReadError;
     }
-  else {
-    switch(op.packet[0]) {
-      case 1:
+  
+  // Check make sure its the correct packet
+  if (compare((const FXchar*)op.packet,"\x05""vorbis",7)) {
+    meta->unref();
+    return ReadError;
+    }      
 
-        if (flags&(FLAG_VORBIS_INFO|FLAG_VORBIS_COMMENT|FLAG_VORBIS_BLOCK))
-          goto error;
-
-        // Initialize info and comments
-        vorbis_info_init(&vi);
-        vorbis_comment_init(&vc);
-
-        // Pass in info packet
-        if (vorbis_synthesis_headerin(&vi,&vc,&op)<0)
-          goto error;
-
-        // Make sure channel count is supported
-        if (vi.channels<1 || vi.channels>8)
-          goto error;
-
-        codec=Codec::Vorbis;
-  #ifdef HAVE_VORBIS
-        af.set(AP_FORMAT_FLOAT,vi.rate,vi.channels,vorbis_channel_map[vi.channels-1]);
-  #else // HAVE_TREMOR
-        af.set(AP_FORMAT_S16,vi.rate,vi.channels,vorbis_channel_map[vi.channels-1]);
-  #endif
-        flags|=(FLAG_VORBIS_INFO|FLAG_OGG_VORBIS);
-        submit_ogg_packet(false);
-        break;
-
-      case 3:
-        if ((flags&FLAG_VORBIS_MASK)!=FLAG_VORBIS_INFO)
-          goto error;
-
-        // Pass in comment packet
-        if (vorbis_synthesis_headerin(&vi,&vc,&op)<0)
-          goto error;
-
-        flags|=FLAG_VORBIS_COMMENT;
-        // We don't send the comment packet to the decoder
-        break;
-
-      case 5:
-        if ((flags&FLAG_VORBIS_MASK)!=(FLAG_VORBIS_INFO|FLAG_VORBIS_COMMENT))
-          goto error;
-
-        // Pass in block packet
-        if (vorbis_synthesis_headerin(&vi,&vc,&op)<0)
-          goto error;
-
-        flags|=FLAG_VORBIS_BLOCK;
-        submit_ogg_packet(false);
-        break;
-      default:
-          goto error;
-          break;
-      }
+  // Parse Setup Packet
+  if (!vorbis.parseSetup(op.packet,op.bytes)) {
+    meta->unref();    
+    return ReadError;
     }
 
-  // Finalize
-  if ((flags&FLAG_VORBIS_MASK)==(FLAG_VORBIS_INFO|FLAG_VORBIS_COMMENT|FLAG_VORBIS_BLOCK)) {
+  vorbis_config->setVorbisSetup(op.packet,op.bytes);
 
-    // Make sure we've processed all packets
-    if (state.has_packet) {
-      GM_DEBUG_PRINT("[ogg] vorbis header too large for packet\n");
-      return ReadOk;
-      }
+  codec=Codec::Vorbis;
+  ConfigureEvent * config = new ConfigureEvent(af,codec);
 
-    // Mark as parsed
-    flags|=FLAG_PARSED;
+  config->dc         = vorbis_config;
+  config->replaygain = gain;
 
-    ConfigureEvent * config = new ConfigureEvent(af,codec);
+  // Initialize decode
+  engine->decoder->post(config);
 
-    // Get Replay Gain
-    for (int i=0;i<vc.comments;i++) {
-      ap_replaygain_from_vorbis_comment(config->replaygain,vc.user_comments[i],vc.comment_lengths[i]);
-      }
+  // Post meta information
+  engine->decoder->post(meta);
 
-    // Meta Info
-    MetaInfo * meta = new MetaInfo;
-    for (int i=0;i<vc.comments;i++){
-      ap_meta_from_vorbis_comment(meta,vc.user_comments[i],vc.comment_lengths[i]);
-      }
+  // Check vorbis length
+  check_vorbis_length();
 
-    // Now we are ready to init the decoder
-    engine->decoder->post(config);
-
-    // Send Meta Info
-    engine->decoder->post(meta);
-
-    // Send all headers
-    send_headers();
-
-    // Check length...
-    check_vorbis_length(&vi);
-
-    // Success
-    vorbis_info_clear(&vi);
-    vorbis_comment_clear(&vc);
-    }
+  // Success
+  flags|=FLAG_PARSED;
+  
   return ReadOk;
-error:
-  vorbis_info_clear(&vi);
-  vorbis_comment_clear(&vc);
-  return ReadError;
   }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #endif
@@ -620,7 +831,62 @@ error:
 extern void flac_parse_vorbiscomment(const FXchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
 extern FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_length);
 
+
+
 ReadStatus OggReader::parse_flac_stream() {
+
+  // First packet with StreamInfo
+  if (op.bytes!=51)
+    return ReadError;
+
+  // Packet Type
+  if (op.packet[0]!=0x7f)
+    return ReadError;
+
+  // Check Ogg Flac mapping version
+  if (op.packet[5]!=0x01 || op.packet[6]!=0x00)
+    return ReadError;
+
+  // FLAC Signature
+  if (op.packet[9]!='f' || op.packet[10]!='L' || op.packet[11]!='a' || op.packet[12]!='C')
+    return ReadError;
+
+  // Check for Metadata Block
+  if ((op.packet[13]&0x7f)!=0)
+    return ReadError;
+
+  // Check metablock size
+  if (34!=((FXuint)op.packet[14]<<16 | ((FXuint)op.packet[15]<<8) | ((FXuint)op.packet[16])))
+    return ReadError;
+
+  // Get audio format from header
+  if (!flac_audioformat(op.packet+27,af,stream_length))
+    return ReadError;
+
+  // Get VorbisComments
+  if (!fetch_next_packet())
+    return ReadError;
+
+  codec=Codec::FLAC;
+
+  ConfigureEvent * config = new ConfigureEvent(af,codec,stream_length);
+  MetaInfo * meta         = new MetaInfo;
+
+  flac_parse_vorbiscomment((const FXchar*)op.packet,op.bytes,config->replaygain,meta);
+
+  /// Now we are ready to init the decoder
+  engine->decoder->post(config);
+
+  //// Send Meta Info
+  engine->decoder->post(meta);
+
+  flags|=FLAG_PARSED;
+  return ReadOk;
+  }
+
+#if 0
+ReadStatus OggReader::parse_flac_stream() {
+
   if (flags&FLAG_OGG_FLAC)  {
 
     codec=Codec::FLAC;
@@ -637,7 +903,7 @@ ReadStatus OggReader::parse_flac_stream() {
     engine->decoder->post(meta);
 
     /// Send all headers
-    send_headers();
+    //send_headers();
 
     flags|=FLAG_PARSED;
     }
@@ -664,7 +930,7 @@ ReadStatus OggReader::parse_flac_stream() {
       return ReadError;
 
     // Check metablock size
-    if (34!=((FXuint)op.packet[14] | ((FXuint)op.packet[15]<<8) | ((FXuint)op.packet[16]<<16)))
+    if (34!=((FXuint)op.packet[14]<<16 | ((FXuint)op.packet[15]<<8) | ((FXuint)op.packet[16])))
       return ReadError;
 
     // Get audio format from header
@@ -674,12 +940,42 @@ ReadStatus OggReader::parse_flac_stream() {
     FXASSERT(stream_length>0);
 
     flags|=FLAG_OGG_FLAC;
-    submit_ogg_packet(false);
+    //submit_ogg_packet(false);
     }
   /// Success
   return ReadOk;
   }
 #endif
+#endif
+
+ReadStatus OggReader::parse() {
+  if (input_position==-1)
+    input_position = input->position();
+
+  if (!state.has_packet && !fetch_next_packet()){
+    return ReadError;
+    }
+
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
+  if (compare((const FXchar*)op.packet,"\x01""vorbis",7)==0) {
+    return parse_vorbis_stream();
+    }
+#endif
+#ifdef HAVE_OPUS
+  if (compare((const FXchar*)op.packet,"OpusHead",8)==0){
+    return parse_opus_stream();
+    }
+#endif
+#ifdef HAVE_FLAC
+  if (compare((const FXchar*)op.packet,"\x7f""FLAC",5)==0) {
+    return parse_flac_stream();
+    }
+#endif
+  return ReadError;
+  }
+
+
+#if 0
 
 ReadStatus OggReader::parse() {
   if (input_position==-1)
@@ -725,8 +1021,9 @@ ReadStatus OggReader::parse() {
   }
 
 
+#endif
 
-
+#if 0
 void OggReader::add_header(Packet * p) {
   Event * h = headers;
   p->next = nullptr;
@@ -755,9 +1052,9 @@ void OggReader::clear_headers() {
     p->unref();
     }
   }
+#endif
 
-
-void OggReader::submit_ogg_packet(FXbool post) {
+void OggReader::submit_ogg_packet() {
   FXASSERT(packet);
   FXASSERT((FXuval)packet->capacity()>sizeof(ogg_packet));
 
@@ -768,16 +1065,13 @@ void OggReader::submit_ogg_packet(FXbool post) {
       if (packet->space()>(FXival)sizeof(ogg_packet)) {
         packet->append(&op,sizeof(ogg_packet));
         state.header_written=true;
-        if (packet->stream_position==-1) {
-          packet->stream_position=op.granulepos;
-          }
+        //if (packet->stream_position==-1) {
+        //  packet->stream_position=op.granulepos;
+        //  }
         }
       else {
         packet->af=af;
-        if (post)
-          engine->decoder->post(packet);
-        else
-          add_header(packet);
+        engine->decoder->post(packet);
         packet=nullptr;
         return;
         }
@@ -803,10 +1097,7 @@ void OggReader::submit_ogg_packet(FXbool post) {
 
   if (packet->space()==0 || (packet->flags&FLAG_EOS)) {
     packet->af=af;
-    if (post)
-      engine->decoder->post(packet);
-    else
-      add_header(packet);
+    engine->decoder->post(packet);
     packet=nullptr;
     }
   }
@@ -884,7 +1175,6 @@ ReadStatus OggReader::process(Packet * p) {
 
     if (__unlikely((flags&FLAG_PARSED)==0))
       return ReadOk;
-
     }
 
   if (state.has_packet)

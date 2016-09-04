@@ -169,15 +169,22 @@ class StreamInfo {
   };
 */
 
+/* Decoder Specific Configuration */
+class DecoderConfig {
+public:
+  virtual ~DecoderConfig() {}
+  };
+
 class ConfigureEvent : public Event {
 public:
-  AudioFormat   af;
-  FXuchar       codec;
-  FXint         stream_length;
-  void*         data;
-  FXshort       stream_offset_start;
-  FXshort       stream_offset_end;
-  ReplayGain    replaygain;
+  AudioFormat    af;
+  DecoderConfig* dc                  = nullptr;
+  FXuchar        codec               = Codec::Invalid;
+  FXint          stream_length       = -1;
+  void*          data                = nullptr;
+  FXshort        stream_offset_start = 0;
+  FXshort        stream_offset_end   = 0;
+  ReplayGain     replaygain;
 protected:
   virtual ~ConfigureEvent();
 public:

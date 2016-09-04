@@ -113,6 +113,7 @@ ConfigureEvent::ConfigureEvent(const AudioFormat & fmt,FXuchar c,FXint n) : Even
   }
 
 ConfigureEvent::~ConfigureEvent(){
+  delete dc;
   }
 
 }

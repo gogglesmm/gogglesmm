@@ -62,6 +62,12 @@ FXbool OggDecoder::get_next_packet() {
       return false;
       }
     op.packet=(FXuchar*)buffer.data();
+
+    //op.packetno = 0;
+    //op.granulepos = -1;
+    //op.b_o_s = 0;
+    //op.e_o_s = 0;
+
     buffer.readBytes(op.bytes);
     return true;
     }
@@ -85,10 +91,14 @@ void OggDecoder::push_back_packet() {
 
 DecoderStatus OggDecoder::process(Packet* packet){
   buffer.append(packet->data(),packet->size());
+
+  if ((stream_position==-1) && packet->stream_position>=0) {
+    fxmessage("got stream position %ld\n",packet->stream_position);
+    stream_position=packet->stream_position;
+    }
+
   packet->unref();
 
-  if (stream_position==-1 && packet->stream_position>=0)
-    stream_position=packet->stream_position;
   return DecoderOk;
   }
 
