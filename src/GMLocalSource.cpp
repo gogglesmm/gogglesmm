@@ -206,7 +206,8 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
             ext!="aac"  &&
             ext!="aiff" &&
             ext!="aif" &&
-            ext!="mkv")
+            ext!="mkv" &&
+            ext!="webm" )
           continue;
         }
 
