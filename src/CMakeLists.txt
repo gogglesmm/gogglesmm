@@ -59,8 +59,6 @@ endif()
 
 if(SM_FOUND AND ICE_FOUND)
   set(HAVE_SESSION 1)
-  set(HAVE_SM 1)
-  set(HAVE_ICE 1)
 endif()
 
 # libgrypt

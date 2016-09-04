@@ -1,10 +1,21 @@
+1.1.0
+  - flac: use new reader to parse flac files.
+  - gap: use more portable signal and semaphore primitives in engine.
+  - gap: refactor input_plugin.
+  - gap: add proper interface class to OutputThread.
+  - gap: simplify includes.
+  - remove old 'configure' based buildsystem.
+  - lirc: remove unused/unsupported lirc support
+  - c++11: NULL -> nullptr.
+  - replace glew with epoxy.
+
 1.0.18
   - ALAC codec support.
   - add hashbang to installed python scripts
   - fix vorbis comment parsing
   - fix opus filetype detection during import.
   - remove debug statements during release builds.
-  - cmake: fix reverse check for DESTDIR  
+  - cmake: fix reverse check for DESTDIR
   - cmake: build mp4 reader when faad is enabled
 
 1.0.17
