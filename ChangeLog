@@ -4,10 +4,12 @@
   - gap: refactor input_plugin.
   - gap: add proper interface class to OutputThread.
   - gap: simplify includes.
+  - gap: fix build issue with mp4/m4a support.
   - remove old 'configure' based buildsystem.
   - lirc: remove unused/unsupported lirc support
   - c++11: NULL -> nullptr.
   - replace glew with epoxy.
+  - fix crash editing radio station. (issue 56)
 
 1.0.18
   - ALAC codec support.
