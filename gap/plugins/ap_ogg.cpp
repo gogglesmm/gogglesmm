@@ -72,11 +72,11 @@ void VorbisCodec::clear() {
   blocksize[1] = 0;
   }
 
-FXbool VorbisCodec::parseInfo(const FXuchar * packet,FXuint size) { 
+FXbool VorbisCodec::parseInfo(const FXuchar * packet,FXuint size) {
   if (size>=28) {
     blocksize[0] = 1<<(packet[28]&0xF);
     blocksize[1] = 1<<(packet[28]>>4);
-    return true;  
+    return true;
     }
   return false;
   }
@@ -84,7 +84,7 @@ FXbool VorbisCodec::parseInfo(const FXuchar * packet,FXuint size) {
 
 FXbool VorbisCodec::parseSetup(const FXuchar * packet,FXuint size) {
 
-  // Minimum packet size 
+  // Minimum packet size
   const FXuint MIN_PACKET_SIZE = 7 + // header
                                  1 + // number of codebooks
                                  3 + // codebook sync bytes
@@ -111,21 +111,21 @@ FXbool VorbisCodec::parseSetup(const FXuchar * packet,FXuint size) {
     }
   if (nbits==0) return false;
 
-  nbits--;   
-      
-  // read mode entry: 
+  nbits--;
+
+  // read mode entry:
   // vorbis_mode_blockflag:1
   // vorbis_mode_windowtype:16 => should be 0
   // vorbis_mode_transformtype:16 => should be 0
   // vorbis_mode_mapping:8
-  // 
+  //
   // also read potential vorbis_mode_count:6
   for (;nbits<47;nbits+=8){
     bits<<=8;
     bits|=(static_cast<FXulong>(packet[p--]));
     }
 
-  // scan backwards to start of modes section 
+  // scan backwards to start of modes section
   while(p>MIN_PACKET_SIZE && found<=64) {
 
     const FXulong entry = (bits>>(nbits-41));
@@ -142,7 +142,7 @@ FXbool VorbisCodec::parseSetup(const FXuchar * packet,FXuint size) {
 
     // if this is the first entry, this is preceded by vorbis_mode_count
     const FXuchar size = 1 + ((bits>>(nbits-47))&0x3f);
-    if (size==found) 
+    if (size==found)
       modecount = found;
 
     // fill buffer with next entry
@@ -164,7 +164,7 @@ FXbool VorbisCodec::parseSetup(const FXuchar * packet,FXuint size) {
 
 
 FXint VorbisCodec::getBlockSize(const FXuchar * packet) const {
-  const FXuchar mode = (packet[0]>>1)&modenbits;      
+  const FXuchar mode = (packet[0]>>1)&modenbits;
   return blocksize[(blockflag>>mode)&0x1];
   }
 
@@ -623,7 +623,7 @@ ReadStatus OggReader::parse_opus_stream() {
 
   ConfigureEvent * config = new ConfigureEvent(af,codec);
   MetaInfo       * meta   = new MetaInfo();
-  ap_parse_vorbiscomment((FXchar*)op.packet+8,op.bytes-8,config->replaygain,meta);
+  ap_parse_vorbiscomment(op.packet+8,op.bytes-8,config->replaygain,meta);
 
   config->dc                  = opus_config;
   config->stream_offset_start = stream_offset_start;
@@ -736,12 +736,12 @@ ReadStatus OggReader::parse_vorbis_stream() {
   //FXASSERT(state.has_packet);
   FXASSERT(op.packet[0]==1);
 
-  // Vorbis Info Packet 
+  // Vorbis Info Packet
 #ifdef FOX_BIGENDIAN
   FXuint rate = (op.packet[15] << 24 | op.packet[14] << 16 | op.packet[13] << 8 | op.packet[12]);
 #else
   FXuint rate = (op.packet[12] << 24 | op.packet[13] << 16 | op.packet[14] << 8 | op.packet[15]);
-#endif  
+#endif
   FXuchar channels = op.packet[11];
 
   if (channels<1 || channels>8)
@@ -768,23 +768,23 @@ ReadStatus OggReader::parse_vorbis_stream() {
 
   // Parse the vorbis comments for useful information
   MetaInfo * meta = new MetaInfo();
-  ap_parse_vorbiscomment((FXchar*)op.packet+8,op.bytes-8,gain,meta);
+  ap_parse_vorbiscomment(op.packet+8,op.bytes-8,gain,meta);
 
   // Vorbis Setup Packet
   if (!fetch_next_packet()) {
     meta->unref();
     return ReadError;
     }
-  
+
   // Check make sure its the correct packet
   if (compare((const FXchar*)op.packet,"\x05""vorbis",7)) {
     meta->unref();
     return ReadError;
-    }      
+    }
 
   // Parse Setup Packet
   if (!vorbis.parseSetup(op.packet,op.bytes)) {
-    meta->unref();    
+    meta->unref();
     return ReadError;
     }
 
@@ -807,7 +807,7 @@ ReadStatus OggReader::parse_vorbis_stream() {
 
   // Success
   flags|=FLAG_PARSED;
-  
+
   return ReadOk;
   }
 
@@ -873,7 +873,7 @@ ReadStatus OggReader::parse_flac_stream() {
   ConfigureEvent * config = new ConfigureEvent(af,codec,stream_length);
   MetaInfo * meta         = new MetaInfo;
 
-  flac_parse_vorbiscomment((const FXchar*)op.packet,op.bytes,config->replaygain,meta);
+  flac_parse_vorbiscomment(op.packet,op.bytes,config->replaygain,meta);
 
   /// Now we are ready to init the decoder
   engine->decoder->post(config);

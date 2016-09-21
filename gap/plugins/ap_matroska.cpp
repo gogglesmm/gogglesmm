@@ -76,6 +76,8 @@ enum {
 
 namespace ap {
 
+namespace matroska {
+
 
 struct Element {
   FXuint type   = 0;
@@ -120,11 +122,11 @@ public:
 
   void add_cue_entry(FXlong pos,FXlong cluster) {
     if (cues.no()>=ncues) {
-      cues.no(cues.no()+256);      
+      cues.no(cues.no()+256);
       }
     cues[ncues].position = pos;
     cues[ncues].cluster  = cluster;
-    ncues++;  
+    ncues++;
     }
 
 
@@ -234,12 +236,6 @@ public:
   };
 
 
-ReaderPlugin * ap_matroska_reader(AudioEngine * engine) {
-  return new MatroskaReader(engine);
-  }
-
-
-
 MatroskaReader::MatroskaReader(AudioEngine* e) : ReaderPlugin(e) {
   }
 
@@ -304,7 +300,7 @@ ReadStatus MatroskaReader::process(Packet*packet) {
           {
             if (0==(flags&OGG_WROTE_HEADER)) {
 
-              if (sizeof(ogg_packet) > packet->space()) 
+              if (sizeof(ogg_packet) > packet->space())
                 break;
 
               ogg_packet op;
@@ -318,7 +314,7 @@ ReadStatus MatroskaReader::process(Packet*packet) {
               flags|=OGG_WROTE_HEADER;
               }
 
-            // intentional no break        
+            // intentional no break
           }
         default:
           {
@@ -765,14 +761,14 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
         VorbisConfig * vc = new VorbisConfig();
 
         vc->info_bytes = frames[0];
-        allocElms(vc->info,vc->info_bytes);   
+        allocElms(vc->info,vc->info_bytes);
         if (input->read(vc->info,vc->info_bytes)!=vc->info_bytes)
           return false;
 
-        input->position(frames[1],FXIO::Current);        
+        input->position(frames[1],FXIO::Current);
 
         vc->setup_bytes = frames[2];
-        allocElms(vc->setup,vc->setup_bytes);   
+        allocElms(vc->setup,vc->setup_bytes);
         if (input->read(vc->setup,vc->setup_bytes)!=vc->setup_bytes)
           return false;
 
@@ -784,9 +780,9 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
         data.resize(element.size);
         if (input->read(data.ptr(),element.size)!=element.size)
           return false;
-        data.wroteBytes(element.size);  
+        data.wroteBytes(element.size);
         break;
-      } 
+      }
     case Codec::Invalid:
       {
         input->position(element.size,FXIO::Current);
@@ -870,7 +866,7 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
             }
 #endif
           if (!is_webm) {
-              
+
             if (comparecase(codec,"A_PCM/INT/LIT")==0) {
               track->codec   = Codec::PCM;
               track->af.format |= (Format::Signed|Format::Little);
@@ -999,7 +995,7 @@ FXbool MatroskaReader::parse_cue_track(Element & container,FXulong & cue_track,F
           input->position(element.size,FXIO::Current);
           break;
         }
-      
+
       //  {
       //    if (!parse_uint64(relative_position,element.size))
       //      return false;
@@ -1020,7 +1016,7 @@ FXbool MatroskaReader::parse_cue_point(Element & container) {
   FXulong cuetime;
   FXulong  cluster_position;
   FXulong cuetrack;
-  
+
   Element element;
   while(parse_element(container,element)) {
     switch(element.type) {
@@ -1283,12 +1279,12 @@ FXbool MatroskaReader::parse_ebml(Element & container) {
     is_webm = true;
     return true;
     }
- 
+
   if (doctype=="matroska"){
     is_webm = false;
     return true;
     }
-    
+
   return false;
   }
 
@@ -1427,6 +1423,13 @@ FXbool MatroskaReader::parse_float_as_uint32(FXuint & value,const FXlong size) {
     return false;
     }
   return true;
+  }
+
+}
+
+
+ReaderPlugin * ap_matroska_reader(AudioEngine * engine) {
+  return new matroska::MatroskaReader(engine);
   }
 
 }
