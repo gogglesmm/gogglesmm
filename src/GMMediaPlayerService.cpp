@@ -540,8 +540,30 @@ static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBus
   else return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
+
+static const FXchar * mpris_loop_status(GMPlayerManager * player) {
+  if (!player->getPlayQueue()) {
+    FXuint repeat = player->getPreferences().play_repeat;
+    if (repeat == REPEAT_TRACK)
+      return "Track";
+    else if (repeat == REPEAT_ALL)
+      return "Playlist";
+    }
+  return "None";
+  }
+
+
 static void mpris_player_property_set(const FXchar * prop,FXVariant & value) {
   if (compare(prop,"LoopStatus")==0) {
+    if (GMPlayerManager::instance()->getPlayQueue()) return;
+    if (!value.isString()) return;
+    FXString state = value.toString();
+    if (state=="None")
+      GMPlayerManager::instance()->getPreferences().play_repeat = REPEAT_OFF;
+    else if (state=="Track")
+      GMPlayerManager::instance()->getPreferences().play_repeat = REPEAT_TRACK;
+    else if (state=="Playlist")
+      GMPlayerManager::instance()->getPreferences().play_repeat = REPEAT_ALL;
     }
   else if (compare(prop,"Rate")==0){
     }
@@ -569,7 +591,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
       dbus_message_iter_init_append(reply,&iter);
       dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
       gm_dbus_dict_append_string(&dict,"PlaybackStatus",mpris_play_status(p));
-      gm_dbus_dict_append_string(&dict,"LoopStatus","None"); /// None, Track, Playlist
+      gm_dbus_dict_append_string(&dict,"LoopStatus",mpris_loop_status(p));
       gm_dbus_dict_append_bool(&dict,"Shuffle",false);
       gm_dbus_dict_append_track(&dict,"Metadata",track);
       gm_dbus_dict_append_double(&dict,"Volume",p->volume()>=0 ? (p->volume()/100.0f) : 0.0f);
@@ -607,7 +629,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
     return DBUS_HANDLER_RESULT_HANDLED;
     }
   else if (compare(prop,"PlaybackStatus")==0) return gm_dbus_property_string(c,msg,mpris_play_status(p));
-  else if (compare(prop,"LoopStatus")==0)     return gm_dbus_property_string(c,msg,"None");
+  else if (compare(prop,"LoopStatus")==0)     return gm_dbus_property_string(c,msg,mpris_loop_status(p));
   else if (compare(prop,"Shuffle")==0)        return gm_dbus_property_bool(c,msg,false);
   else if (compare(prop,"Volume")==0)         return gm_dbus_property_double(c,msg,p->volume()>=0 ? (p->volume()/100.0f) : 0.0f);
   else if (compare(prop,"Position")==0)       return gm_dbus_property_long(c,msg,((FXlong)p->getPlayer()->getPosition())*1000000);
@@ -648,6 +670,13 @@ static FXVariant get_property(DBusMessageIter * iter) {
         dbus_bool_t condition;
         dbus_message_iter_get_basic(&subiter,&condition);
         return FXVariant(static_cast<FXbool>(condition));
+      }
+      break;
+    case DBUS_TYPE_STRING:
+      {
+        const FXchar * value=nullptr;
+        dbus_message_iter_get_basic(&subiter,&value);
+        return FXVariant(value);
       }
       break;
     default: break;
