@@ -293,29 +293,24 @@ if (DBUS_FOUND)
   list(APPEND SOURCES GMDBus.cpp
                       GMSettingsDaemon.cpp
                       GMMediaPlayerService.cpp
-                      GMNotifyDaemon.cpp
-                      GMAppStatusNotify.cpp)
+                      GMNotifyDaemon.cpp)
 
   list(APPEND HEADERS GMDBus.h
                       GMSettingsDaemon.h
                       GMMediaPlayerService.h
                       GMNotifyDaemon.h
-                      GMAppStatusNotify.h
                       gogglesmm_xml.h
-                      appstatus_xml.h
                       mpris1_xml.h
                       mpris2_xml.h)
 
 
   set_source_files_properties(gogglesmm_xml.h PROPERTIES GENERATED 1)
-  set_source_files_properties(appstatus_xml.h PROPERTIES GENERATED 1)
   set_source_files_properties(mpris1_xml.h PROPERTIES GENERATED 1)
   set_source_files_properties(mpris2_xml.h PROPERTIES GENERATED 1)
 
   ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/appstatus_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h
     COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm.xml
-    COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/appstatus_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/appstatus.xml ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenu.xml
     COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_player.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_tracklist.xml
     COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2.xml
     )
