@@ -565,8 +565,6 @@ static void mpris_player_property_set(const FXchar * prop,FXVariant & value) {
     else if (state=="Playlist")
       GMPlayerManager::instance()->getPreferences().play_repeat = REPEAT_ALL;
     }
-  else if (compare(prop,"Rate")==0){
-    }
   else if (compare(prop,"Shuffle")==0){
     }
   else if (compare(prop,"Position")==0){
@@ -575,6 +573,12 @@ static void mpris_player_property_set(const FXchar * prop,FXVariant & value) {
   else if (compare(prop,"Volume")==0){
     GMPlayerManager::instance()->volume(FXCLAMP(0,(FXint)(value.asDouble()*100),100));
     }
+  /*
+    Not implemented:
+      Rate -> can not be changed, can only be 1.0. Will ignore it because spec is unclear what to do about 0.0:
+              The value must fall in the range described by MinimumRate and MaximumRate, and must not be 0.0
+              A value of 0.0 should not be set by the client. If it is, the media player should act as though Pause was called.
+  */
   return;
   }
 
