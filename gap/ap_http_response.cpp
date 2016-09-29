@@ -189,7 +189,7 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
     return false;
 
   // Get mime
-  mime = str.mid(s,p-s);
+  mime = str.mid(s,p-s).lower(); // mime is case insensitive, force lower case
 
   // Parameters
   while(p<str.length()) {
