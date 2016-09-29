@@ -145,7 +145,6 @@ public:
   FXint  play_replaygain                = REPLAYGAIN_OFF;
   FXuint play_repeat                    = REPEAT_ALL;
   FXbool play_close_stream              = false;
-  FXbool play_pause_close_device        = false;
   FXbool play_shuffle                   = false;
   FXbool play_from_queue                = false;
 

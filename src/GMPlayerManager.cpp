@@ -1218,14 +1218,6 @@ void GMPlayerManager::pause() {
   // Any scheduled stops should be cancelled
   scheduled_stop = false;
 
-/*
-  if (preferences.play_pause_close_device){
-    player->pause();
-    }
-  else {
-    player->pause();
-    }
-*/
   player->pause();
 
   if (application->hasTimeout(source,GMSource::ID_TRACK_PLAYED)) {
