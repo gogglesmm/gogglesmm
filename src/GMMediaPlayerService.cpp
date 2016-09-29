@@ -743,7 +743,7 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
     else if (dbus_message_is_method_call(msg,MPRIS2_PLAYER,"OpenUri")) {
       const FXchar * uri=nullptr;
       if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&uri,DBUS_TYPE_INVALID)) {
-        FXASSERT(0);
+        p->open(uri);
         }
       return gm_dbus_reply_if_needed(c,msg);
       }
