@@ -285,7 +285,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   target_closeishide.connect(GMPlayerManager::instance()->getPreferences().gui_hide_player_when_close);
   target_keywords.connect(keywords);
 
-  target_close_audio.connect(GMPlayerManager::instance()->getPreferences().play_close_stream);
   target_show_playing_albumcover.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover);
 
 #ifdef HAVE_DBUS
