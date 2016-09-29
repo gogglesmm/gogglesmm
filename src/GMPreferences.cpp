@@ -74,7 +74,6 @@ const char key_play_repeat[]="repeat-mode";
 const char key_play_replaygain[]="replay-gain";
 const char key_play_close_stream[]="close-audio-stream";
 const char key_play_pause_close_device[]="pause-close-device";
-const char key_play_gapless[]="gapless-playback";
 const char key_play_shuffle[]="shuffle";
 const char key_play_from_queue[]="play-from-queue";
 
@@ -189,7 +188,6 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeIntEntry(section_player,key_play_replaygain,play_replaygain);
   reg.writeBoolEntry(section_player,key_play_close_stream,play_close_stream);
   reg.writeBoolEntry(section_player,key_play_pause_close_device,play_pause_close_device);
-  reg.writeBoolEntry(section_player,key_play_gapless,play_gapless);
   reg.writeBoolEntry(section_player,key_play_shuffle,play_shuffle);
   reg.writeBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
@@ -279,7 +277,6 @@ void GMPreferences::load(FXSettings & reg) {
   play_replaygain               = reg.readIntEntry(section_player,key_play_replaygain,play_replaygain);
   play_close_stream             = reg.readBoolEntry(section_player,key_play_close_stream,play_close_stream);
   play_pause_close_device       = reg.readBoolEntry(section_player,key_play_pause_close_device,play_pause_close_device);
-  play_gapless                  = reg.readBoolEntry(section_player,key_play_gapless,play_gapless);
   play_shuffle                  = reg.readBoolEntry(section_player,key_play_shuffle,play_shuffle);
   play_from_queue               = reg.readBoolEntry(section_player,key_play_from_queue,play_from_queue);
 

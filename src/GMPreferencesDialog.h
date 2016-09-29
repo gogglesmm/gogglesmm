@@ -28,7 +28,6 @@ protected:
   FXDataTarget target_keywords;
   FXDataTarget target_close_audio;
   FXDataTarget target_pause_close_device;
-  FXDataTarget target_gapless;
   FXDataTarget target_replaygain;
   FXDataTarget target_show_playing_albumcover;
 #ifdef HAVE_DBUS

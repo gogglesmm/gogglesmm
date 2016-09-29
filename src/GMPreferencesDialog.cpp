@@ -287,7 +287,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   target_close_audio.connect(GMPlayerManager::instance()->getPreferences().play_close_stream);
   target_pause_close_device.connect(GMPlayerManager::instance()->getPreferences().play_pause_close_device);
-  target_gapless.connect(GMPlayerManager::instance()->getPreferences().play_gapless);
   target_show_playing_albumcover.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover);
 
 #ifdef HAVE_DBUS
