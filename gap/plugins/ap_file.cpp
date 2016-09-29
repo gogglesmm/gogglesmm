@@ -75,12 +75,19 @@ FileInput::FileInput(InputThread * i) : InputPlugin(i) {
 FileInput::~FileInput() {
   }
 
-FXbool FileInput::open(const FXString & uri) {
-  if (file.open(uri,FXIO::Reading)){
-    filename=uri;
-    return true;
+FXbool FileInput::open(const FXString & url) {
+
+  // Get filename
+  filename=FXURL::fileFromURL(url);
+  if (filename.empty()) filename=url;
+
+  // Open file
+  if (!file.open(filename,FXIO::Reading)){
+    filename.clear();
+    return false;
     }
-  return false;
+
+  return true;
   }
 
 FXival FileInput::preview(void*data,FXival count) {
