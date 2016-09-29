@@ -566,6 +566,8 @@ static void mpris_player_property_set(const FXchar * prop,FXVariant & value) {
       GMPlayerManager::instance()->getPreferences().play_repeat = REPEAT_ALL;
     }
   else if (compare(prop,"Shuffle")==0){
+    if (!value.isBool()) return;
+    GMPlayerManager::instance()->getPreferences().play_shuffle = value.toBool();
     }
   else if (compare(prop,"Position")==0){
     GMPlayerManager::instance()->seekTime((FXint)(value.asLong()/1000000));
@@ -596,7 +598,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
       dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
       gm_dbus_dict_append_string(&dict,"PlaybackStatus",mpris_play_status(p));
       gm_dbus_dict_append_string(&dict,"LoopStatus",mpris_loop_status(p));
-      gm_dbus_dict_append_bool(&dict,"Shuffle",false);
+      gm_dbus_dict_append_bool(&dict,"Shuffle",p->getPreferences().play_shuffle);
       gm_dbus_dict_append_track(&dict,"Metadata",track);
       gm_dbus_dict_append_double(&dict,"Volume",p->volume()>=0 ? (p->volume()/100.0f) : 0.0f);
       gm_dbus_dict_append_long(&dict,"Position",((FXlong)p->getPlayer()->getPosition())*1000000);
@@ -634,7 +636,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
     }
   else if (compare(prop,"PlaybackStatus")==0) return gm_dbus_property_string(c,msg,mpris_play_status(p));
   else if (compare(prop,"LoopStatus")==0)     return gm_dbus_property_string(c,msg,mpris_loop_status(p));
-  else if (compare(prop,"Shuffle")==0)        return gm_dbus_property_bool(c,msg,false);
+  else if (compare(prop,"Shuffle")==0)        return gm_dbus_property_bool(c,msg,p->getPreferences().play_shuffle);
   else if (compare(prop,"Volume")==0)         return gm_dbus_property_double(c,msg,p->volume()>=0 ? (p->volume()/100.0f) : 0.0f);
   else if (compare(prop,"Position")==0)       return gm_dbus_property_long(c,msg,((FXlong)p->getPlayer()->getPosition())*1000000);
   else if (compare(prop,"Rate")==0)           return gm_dbus_property_double(c,msg,1.0);
