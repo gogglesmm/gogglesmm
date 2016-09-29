@@ -10,8 +10,6 @@
     <method name="prev"/>
     <method name="raise"/>
     <method name="exit"/>
-    <method name="focusnext"/>
-    <method name="focusprevious"/>
     <method name="toggleshown"/>
 	  <method name="open">
 			<arg name="url" direction="in" type="s"/>

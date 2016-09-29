@@ -345,8 +345,6 @@ public:
   void cmd_next();
   void cmd_prev();
   void cmd_toggle_shown();
-  void cmd_focus_next();
-  void cmd_focus_previous();
   void cmd_raise();
 
   void setPlayQueue(FXbool enable);

@@ -242,14 +242,6 @@ DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessa
       p->cmd_toggle_shown();
       return gm_dbus_reply_if_needed(connection,msg);
       }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"focusprevious")){
-      p->cmd_focus_previous();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"focusnext")){
-      p->cmd_focus_next();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
     else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"getactions")){
       FXuint actions=0;
 
@@ -333,10 +325,6 @@ static FXint dbus_send_commands(DBusConnection * connection,int& argc,char** arg
       cmd="notify";
     else if (compare(argv[1],"--raise")==0)
       cmd="raise";
-    else if (compare(argv[1],"--focus-previous")==0)
-      cmd="focusprevious";
-    else if (compare(argv[1],"--focus-next")==0)
-      cmd="focusnext";
     else {
       cmd="open";
       url=argv[1];
@@ -1674,15 +1662,6 @@ void GMPlayerManager::cmd_raise() {
 void GMPlayerManager::cmd_toggle_shown(){
   getMainWindow()->toggleShown();
   }
-
-void GMPlayerManager::cmd_focus_previous(){
-  getMainWindow()->focusPrevious();
-  }
-
-void GMPlayerManager::cmd_focus_next(){
-  getMainWindow()->focusNext();
-  }
-
 
 void GMPlayerManager::display_track_notification() {
 #ifdef DEBUG

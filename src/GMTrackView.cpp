@@ -389,37 +389,6 @@ void GMTrackView::configureView(FXuint nvw) {
   }
 
 
-
-
-FXbool GMTrackView::focusPrevious() {
-  if (hasBrowser()) {
-    if (tracklist->hasFocus()){
-      albumlist->setFocus();
-      }
-    else if (albumlist->hasFocus()){
-      artistlist->setFocus();
-      }
-    else if (artistlist->hasFocus()) {
-      if (taglistframe->shown()) {
-        taglist->setFocus();
-        }
-      else {
-        tracklist->setFocus();
-        return false;
-        }
-      }
-    else {
-      tracklist->setFocus();
-      }
-    }
-  else {
-    tracklist->setFocus();
-    }
-  return true;
-  }
-
-
-
 FXbool GMTrackView::focusNext() {
   if (hasBrowser()) {
     if (taglistframe->shown() && taglist->hasFocus()){

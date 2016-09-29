@@ -325,8 +325,6 @@ public:
 
   FXbool focusNext();
 
-  FXbool focusPrevious();
-
   void selectNext();
 
   void selectPrevious();

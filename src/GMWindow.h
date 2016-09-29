@@ -268,8 +268,6 @@ public:
 
   void setStatus(const FXString& status);
 
-  void focusNext();
-  void focusPrevious();
   void raiseWindow();
 
 

@@ -1449,19 +1449,7 @@ FXbool GMWindow::showSources() const {
   }
 
 long GMWindow::onCmdNextFocus(FXObject*,FXSelector,void*){
-  focusNext();
-  return 1;
-  }
-
-void GMWindow::focusNext() {
   if (!trackview->focusNext() && showSources())
     sourceview->focusNext();
+  return 1;
   }
-
-void GMWindow::focusPrevious() {
-  if (!trackview->focusPrevious() && showSources())
-    sourceview->focusPrevious();
-  }
-
-
-
