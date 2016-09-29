@@ -43,7 +43,6 @@
 #include "GMNotifyDaemon.h"
 #include "GMSettingsDaemon.h"
 #include "GMMediaPlayerService.h"
-#include "GMAppStatusNotify.h"
 #endif
 
 #include <FXPNGIcon.h>
@@ -911,11 +910,9 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   if (sessionbus) {
     notifydaemon = new GMNotifyDaemon(sessionbus);
 
+    // KDE5 comes with mpris plugin on the toolbar, no need for
+    // tray icon
     if (gm_desktop_session()==DESKTOP_SESSION_KDE_PLASMA) {
-      appstatus    = new GMAppStatusNotify(sessionbus);
-      appstatus->show();
-
-      /// Disable trayicon
       preferences.gui_tray_icon_disabled=true;
       }
 
@@ -988,8 +985,6 @@ void GMPlayerManager::exit() {
 
     if (mpris1) delete mpris1;
     if (mpris2) delete mpris2;
-    if (appstatus) delete appstatus;
-
     }
   if (systembus) {
     dbus_connection_remove_filter(systembus->connection(),dbus_systembus_filter,this);
@@ -1703,7 +1698,6 @@ void GMPlayerManager::display_track_notification() {
       }
     if (mpris1) mpris1->notify_track_change(trackinfo);
     if (mpris2) mpris2->notify_track_change(trackinfo);
-    if (appstatus) appstatus->notify_track_change(trackinfo);
     }
 #endif
   }
@@ -1891,7 +1885,6 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
 #ifdef HAVE_DBUS
   if (mpris1) mpris1->notify_status_change();
   if (mpris2) mpris2->notify_status_change();
-  if (appstatus) appstatus->notify_status_change();
 #endif
   return 1;
   }

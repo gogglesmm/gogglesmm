@@ -39,7 +39,6 @@ class GMSource;
 class GMSourceView;
 #ifdef HAVE_DBUS
 class GMNotifyDaemon;
-class GMAppStatusNotify;
 class GMSettingsDaemon;
 class GMDBus;
 class GMMediaPlayerService1;
@@ -107,7 +106,6 @@ protected:
   GMDBus               * sessionbus   = nullptr;
   GMDBus               * systembus    = nullptr;
   GMNotifyDaemon       * notifydaemon = nullptr;
-  GMAppStatusNotify    * appstatus    = nullptr;
   GMSettingsDaemon     * gsd          = nullptr;
   GMMediaPlayerService1* mpris1       = nullptr;
   GMMediaPlayerService2* mpris2       = nullptr;
