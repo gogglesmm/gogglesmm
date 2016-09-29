@@ -473,7 +473,6 @@ void GMMediaPlayerService2::notify_status_change(){
   }
 
 void GMMediaPlayerService2::notify_caps_change(){
-
   }
 
 void GMMediaPlayerService2::notify_volume(FXint volume){
@@ -493,6 +492,14 @@ void GMMediaPlayerService2::notify_volume(FXint volume){
     }
   }
 
+
+static void mpris_root_property_set(const FXchar * prop,FXVariant & value) {
+  if (compare(prop,"Fullscreen")==0) {
+    if (value.isBool()) GMPlayerManager::instance()->getMainWindow()->setFullScreen(value.toBool());
+    }
+  }
+
+
 static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBusMessage * msg,const FXchar * prop){
   static const FXchar * schemes[]={"file","http",NULL};
   static const FXchar * mimetypes[]={"audio/flac","audio/ogg","audio/opus","audio/mpeg","audio/mp4a-latm",NULL};
@@ -509,6 +516,8 @@ static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBus
       gm_dbus_dict_append_string(&dict,"Identity",prop_identity);
       gm_dbus_dict_append_string(&dict,"DesktopEntry",prop_desktopentry);
       gm_dbus_dict_append_bool(&dict,"CanQuit",true);
+      gm_dbus_dict_append_bool(&dict,"Fullscreen",GMPlayerManager::instance()->getMainWindow()->isFullScreen());
+      gm_dbus_dict_append_bool(&dict,"CanSetFullscreen",true);
       gm_dbus_dict_append_bool(&dict,"CanRaise",true);
       gm_dbus_dict_append_bool(&dict,"HasTrackList",false);
       gm_dbus_dict_append_string_list(&dict,"SupportedUriSchemes",schemes);
@@ -522,6 +531,8 @@ static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBus
   else if (compare(prop,"Identity")==0)             return gm_dbus_property_string(connection,msg,prop_identity);
   else if (compare(prop,"DesktopEntry")==0)         return gm_dbus_property_string(connection,msg,prop_desktopentry);
   else if (compare(prop,"CanQuit")==0)              return gm_dbus_property_bool(connection,msg,true);
+  else if (compare(prop,"Fullscreen")==0)           return gm_dbus_property_bool(connection,msg,GMPlayerManager::instance()->getMainWindow()->isFullScreen());
+  else if (compare(prop,"CanSetFullscreen")==0)     return gm_dbus_property_bool(connection,msg,true);
   else if (compare(prop,"CanRaise")==0)             return gm_dbus_property_bool(connection,msg,true);
   else if (compare(prop,"HasTrackList")==0)         return gm_dbus_property_bool(connection,msg,false);
   else if (compare(prop,"SupportedUriSchemes")==0)  return gm_dbus_property_string_list(connection,msg,schemes);
@@ -619,15 +630,28 @@ static FXVariant get_property(DBusMessageIter * iter) {
   dbus_message_iter_recurse(iter,&subiter);
   switch(dbus_message_iter_get_arg_type(&subiter)){
     case DBUS_TYPE_INT64:
-      FXlong value;
-      dbus_message_iter_get_basic(&subiter,&value);
-      return FXVariant(value);
+      {
+        FXlong value;
+        dbus_message_iter_get_basic(&subiter,&value);
+        return FXVariant(value);
+      }
       break;
     case DBUS_TYPE_DOUBLE:
-      FXdouble volume;
-      dbus_message_iter_get_basic(&subiter,&volume);
-      return FXVariant(volume);
+      {
+        FXdouble volume;
+        dbus_message_iter_get_basic(&subiter,&volume);
+        return FXVariant(volume);
       }
+      break;
+    case DBUS_TYPE_BOOLEAN:
+      {
+        dbus_bool_t condition;
+        dbus_message_iter_get_basic(&subiter,&condition);
+        return FXVariant(static_cast<FXbool>(condition));
+      }
+      break;
+    default: break;
+    }
   return FXVariant();
   }
 
@@ -678,11 +702,15 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
           dbus_message_iter_get_basic	(&iter,&property);
           dbus_message_iter_next(&iter);
           if (dbus_message_iter_get_arg_type(&iter)==DBUS_TYPE_VARIANT) {
-             if (compare(interface,MPRIS2_PLAYER)==0) {
+            if (compare(interface,MPRIS2_PLAYER)==0) {
               FXVariant v = get_property(&iter);
               mpris_player_property_set(property,v);
               }
-             }
+            else if (compare(interface,MPRIS2_ROOT)==0) {
+              FXVariant v = get_property(&iter);
+              mpris_root_property_set(property,v);
+              }
+            }
           }
         }
       return gm_dbus_reply_if_needed(c,msg);
