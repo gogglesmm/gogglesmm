@@ -122,10 +122,12 @@ void Signal::set() {
   SetEvent(device);
 #elif defined(HAVE_EVENTFD)
   const FXlong value=1;
-  write(device,&value,sizeof(FXlong));
+  if (write(device,&value,sizeof(FXlong))!=sizeof(FXlong))
+    fxwarning("gogglesmm: Signal::set() failed\n");
 #else
   const FXuchar value=1;
-  write(wrptr,&value,sizeof(FXuchar));
+  if (write(wrptr,&value,sizeof(FXuchar))!=sizeof(FXuchar))
+    fxwarning("gogglesmm: Signal::set() failed\n");
 #endif
   }
 
@@ -134,7 +136,8 @@ void Signal::clear() {
   ResetEvent(device);
 #elif defined(HAVE_EVENTFD)
   FXlong value;
-  read(device,&value,sizeof(FXlong));
+  if (read(device,&value,sizeof(FXlong))!=sizeof(FXlong))
+    fxwarning("gogglesmm: Signal::clear() failed\n");
 #else  
   FXuchar value[16];
   while(read(device,value,16)>0);
@@ -197,10 +200,12 @@ void Semaphore::release() {
   ReleaseSemaphore(device,1,nullptr);
 #elif defined(HAVE_EVENTFD)
   const FXlong value=1;
-  write(device,&value,sizeof(FXlong));
+  if (write(device,&value,sizeof(FXlong))!=sizeof(FXlong))
+    fxwarning("gogglesmm: Semaphore::release() failed\n");
 #else  
   const FXuchar value=1;
-  write(wrptr,&value,sizeof(FXuchar));
+  if (write(wrptr,&value,sizeof(FXuchar))!=sizeof(FXuchar));
+    fxwarning("gogglesmm: Semaphore::release() failed\n");
 #endif
   }
 

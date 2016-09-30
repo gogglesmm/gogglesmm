@@ -924,13 +924,6 @@ void GMPlayerManager::removePlayListSources(){
     }
   }
 
-///FXbool GMPlayerManager::play(const FXString & filename,FXbool flush) {
-//  player->open(filename,flush);
-//  }
-
-
-
-
 
 void GMPlayerManager::open(const FXString & url) {
   FXint id;
