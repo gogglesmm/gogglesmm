@@ -406,69 +406,70 @@ FXIMPLEMENT(GMMediaPlayerService2,FXObject,nullptr,0)
 GMMediaPlayerService2::GMMediaPlayerService2(GMDBus * b) : bus(b){
   memset(&mpris_vtable,0,sizeof(DBusObjectPathVTable));
   mpris_vtable.message_function=&mpris_filter;
-  int result = dbus_bus_request_name(bus->connection(),MPRIS2_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,nullptr);
-  if (result == DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ) {
-    dbus_connection_register_object_path(bus->connection(),MPRIS2_PATH,&mpris_vtable,this);
-    published=true;
+  }
+
+FXint GMMediaPlayerService2::create() {
+  FXint result = dbus_bus_request_name(bus->connection(),MPRIS2_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,nullptr);
+  if (result == DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
+    if (!dbus_connection_register_object_path(bus->connection(),MPRIS2_PATH,&mpris_vtable,this)) {
+      // force disable dbus functionality
+      return -1;
+      }
+    registered=true;
     }
+  return result;
   }
 
 GMMediaPlayerService2::~GMMediaPlayerService2(){
-  if (published) {
+  if (registered) {
     dbus_connection_unregister_object_path(bus->connection(),MPRIS2_PATH);
-    published=false;
     dbus_bus_release_name(bus->connection(),MPRIS2_NAME,nullptr);
+    registered=false;
     }
   }
 
 void GMMediaPlayerService2::notify_seek(FXuint position){
-  if (published) {
-    DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,MPRIS2_PLAYER,"Seeked");
-    if (msg) {
-      FXlong p = 1000000 * (FXlong)position;
-      dbus_message_append_args(msg,DBUS_TYPE_INT64,&p,DBUS_TYPE_INVALID);
-      bus->send(msg);
-      }
+  DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,MPRIS2_PLAYER,"Seeked");
+  if (msg) {
+    FXlong p = 1000000 * (FXlong)position;
+    dbus_message_append_args(msg,DBUS_TYPE_INT64,&p,DBUS_TYPE_INVALID);
+    bus->send(msg);
     }
   }
 
 
 void GMMediaPlayerService2::notify_track_change(const GMTrack & track){
-  if (published) {
-    DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,DBUS_PROPERTIES,"PropertiesChanged");
-    if (msg) {
-      DBusMessageIter iter,dict,array;
-      dbus_message_iter_init_append(msg,&iter);
-      gm_dbus_append_string(&iter,MPRIS2_PLAYER);
-      dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
-      gm_dbus_dict_append_track(&dict,"Metadata",track);
-      dbus_message_iter_close_container(&iter,&dict);
-      dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"s",&array);
-      dbus_message_iter_close_container(&iter,&array);
-      bus->send(msg);
-      }
+  DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,DBUS_PROPERTIES,"PropertiesChanged");
+  if (msg) {
+    DBusMessageIter iter,dict,array;
+    dbus_message_iter_init_append(msg,&iter);
+    gm_dbus_append_string(&iter,MPRIS2_PLAYER);
+    dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
+    gm_dbus_dict_append_track(&dict,"Metadata",track);
+    dbus_message_iter_close_container(&iter,&dict);
+    dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"s",&array);
+    dbus_message_iter_close_container(&iter,&array);
+    bus->send(msg);
     }
   }
 
 void GMMediaPlayerService2::notify_status_change(){
-  if (published) {
-    DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,DBUS_PROPERTIES,"PropertiesChanged");
-    GMPlayerManager * p = GMPlayerManager::instance();
-    if (msg) {
-      DBusMessageIter iter,dict,array;
-      dbus_message_iter_init_append(msg,&iter);
-      gm_dbus_append_string(&iter,MPRIS2_PLAYER);
-      dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
-      gm_dbus_dict_append_string(&dict,"PlaybackStatus",mpris_play_status(p));
-      gm_dbus_dict_append_bool(&dict,"CanGoNext",p->can_next());
-      gm_dbus_dict_append_bool(&dict,"CanGoPrevious",p->can_prev());
-      gm_dbus_dict_append_bool(&dict,"CanPlay",p->can_play());
-      gm_dbus_dict_append_bool(&dict,"CanPause",p->can_pause());
-      dbus_message_iter_close_container(&iter,&dict);
-      dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"s",&array);
-      dbus_message_iter_close_container(&iter,&array);
-      bus->send(msg);
-      }
+  DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,DBUS_PROPERTIES,"PropertiesChanged");
+  GMPlayerManager * p = GMPlayerManager::instance();
+  if (msg) {
+    DBusMessageIter iter,dict,array;
+    dbus_message_iter_init_append(msg,&iter);
+    gm_dbus_append_string(&iter,MPRIS2_PLAYER);
+    dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"{sv}",&dict);
+    gm_dbus_dict_append_string(&dict,"PlaybackStatus",mpris_play_status(p));
+    gm_dbus_dict_append_bool(&dict,"CanGoNext",p->can_next());
+    gm_dbus_dict_append_bool(&dict,"CanGoPrevious",p->can_prev());
+    gm_dbus_dict_append_bool(&dict,"CanPlay",p->can_play());
+    gm_dbus_dict_append_bool(&dict,"CanPause",p->can_pause());
+    dbus_message_iter_close_container(&iter,&dict);
+    dbus_message_iter_open_container(&iter,DBUS_TYPE_ARRAY,"s",&array);
+    dbus_message_iter_close_container(&iter,&array);
+    bus->send(msg);
     }
   }
 
@@ -476,7 +477,7 @@ void GMMediaPlayerService2::notify_caps_change(){
   }
 
 void GMMediaPlayerService2::notify_volume(FXint volume){
-  if (published && volume>=0) {
+  if (volume>=0) {
     DBusMessage * msg = dbus_message_new_signal(MPRIS2_PATH,DBUS_PROPERTIES,"PropertiesChanged");
     if (msg) {
       DBusMessageIter iter,dict,array;
@@ -752,14 +753,29 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
       }
     }
   else if (dbus_message_has_interface(msg,MPRIS2_ROOT)) {
+
     if (dbus_message_is_method_call(msg,MPRIS2_ROOT,"Raise")) {
       p->cmd_raise();
       return gm_dbus_reply_if_needed(c,msg);
       }
     else if (dbus_message_is_method_call(msg,MPRIS2_ROOT,"Quit")) {
-      FXASSERT(0);
+      gm_dbus_reply_if_needed(c,msg);
+      if (p->getMainWindow()) p->getMainWindow()->handle(p,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),nullptr);
+      return DBUS_HANDLER_RESULT_HANDLED;
+      }
+
+    // Undocumented gogglesmm specific call
+    else if (dbus_message_is_method_call(msg,MPRIS2_ROOT,"Notify")) {
+      p->display_track_notification();
       return gm_dbus_reply_if_needed(c,msg);
       }
+
+    // Undocumented gogglesmm specific call
+    else if (dbus_message_is_method_call(msg,MPRIS2_ROOT,"ToggleShown")) {
+      p->cmd_toggle_shown();
+      return gm_dbus_reply_if_needed(c,msg);
+      }
+
     return DBUS_HANDLER_RESULT_HANDLED;
     }
   else if (dbus_message_has_interface(msg,MPRIS2_PLAYER)) {
@@ -813,4 +829,71 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
     return DBUS_HANDLER_RESULT_HANDLED;
     }
   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+  }
+
+
+void GMMediaPlayerService2::request(const FXchar * command) {
+  const FXchar * interface = nullptr;
+  const FXchar * method = nullptr;
+  FXString       argument;
+
+  if (compare(command,"--previous")==0) {
+    interface = MPRIS2_PLAYER;
+    method = "Previous";
+    }
+  else if (compare(command,"--play")==0) {
+    interface = MPRIS2_PLAYER;
+    method = "Play";
+    }
+  else if (compare(command,"--play-pause")==0) {
+    interface = MPRIS2_PLAYER;
+    method = "PlayPause";
+    }
+  else if (compare(command,"--pause")==0) {
+    interface = MPRIS2_PLAYER;
+    method = "Pause";
+    }
+  else if (compare(command,"--next")==0) {
+    interface = MPRIS2_PLAYER;
+    method = "Next";
+    }
+  else if (compare(command,"--stop")==0) {
+    interface = MPRIS2_PLAYER;
+    method = "Stop";
+    }
+  else if (compare(command,"--toggle-shown")==0) {
+    interface = MPRIS2_ROOT;
+    method = "ToggleShown";
+    }
+  else if (compare(command,"--now-playing")==0) {
+    interface = MPRIS2_ROOT;
+    method = "Notify";
+    }
+  else if (compare(command,"--raise")==0) {
+    interface = MPRIS2_ROOT;
+    method = "Raise";
+    }
+  else {
+    interface = MPRIS2_PLAYER;
+    method = "OpenUri";
+    argument = command;
+    if (gm_is_local_file(argument)) {
+      if (!FXPath::isAbsolute(argument))
+        argument=FXPath::absolute(argument);
+      }
+    }
+
+  if (interface && method) {
+    DBusMessage * msg;
+    msg = dbus_message_new_method_call(MPRIS2_NAME,MPRIS2_PATH,interface,method);
+    if (msg){
+      if (!argument.empty()){
+        const FXchar * arg=argument.text();
+        dbus_message_append_args(msg,DBUS_TYPE_STRING,&arg,DBUS_TYPE_INVALID);
+        }
+      dbus_message_set_no_reply(msg,true);
+      bus->send(msg);
+      bus->flush();
+      }
+    }
   }

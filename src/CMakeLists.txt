@@ -299,7 +299,6 @@ if (DBUS_FOUND)
                       GMSettingsDaemon.h
                       GMMediaPlayerService.h
                       GMNotifyDaemon.h
-                      gogglesmm_xml.h
                       mpris1_xml.h
                       mpris2_xml.h)
 
@@ -310,7 +309,6 @@ if (DBUS_FOUND)
 
   ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h
-    COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/gogglesmm.xml
     COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_player.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_tracklist.xml
     COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2.xml
     )

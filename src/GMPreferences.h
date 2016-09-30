@@ -155,7 +155,6 @@ public:
 #ifdef HAVE_DBUS
   FXbool dbus_notify_daemon             = true;
   FXbool dbus_mpris1                    = true;
-  FXbool dbus_mpris2                    = true;
 #endif
 public:
   /// Default Constructor

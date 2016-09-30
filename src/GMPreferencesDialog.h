@@ -31,7 +31,6 @@ protected:
 #ifdef HAVE_DBUS
   FXDataTarget target_dbus_notify_daemon;
   FXDataTarget target_dbus_mpris1;
-  FXDataTarget target_dbus_mpris2;
 #endif
   FXDataTarget target_gui_tray_icon;
   FXDataTarget target_gui_show_playing_titlebar;

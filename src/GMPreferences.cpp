@@ -78,7 +78,6 @@ const char key_play_from_queue[]="play-from-queue";
 #ifdef HAVE_DBUS
 const char key_dbus_notify_daemon[]="notification-daemon";
 const char key_dbus_mpris1[]="mpris";
-const char key_dbus_mpris2[]="mpris-2";
 #endif
 
 const char key_sync_import_new[]="import-new";
@@ -191,7 +190,6 @@ void GMPreferences::save(FXSettings & reg) const {
   /// Dbus
   reg.writeBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
   reg.writeBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
-  reg.writeBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
 #endif
   }
 
@@ -278,7 +276,6 @@ void GMPreferences::load(FXSettings & reg) {
 #ifdef HAVE_DBUS
   dbus_notify_daemon            = reg.readBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
   dbus_mpris1                   = reg.readBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
-  dbus_mpris2                   = reg.readBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
 #endif
   setKeyWords(keywords);
   }

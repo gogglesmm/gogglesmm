@@ -290,7 +290,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 #ifdef HAVE_DBUS
   target_dbus_notify_daemon.connect(GMPlayerManager::instance()->getPreferences().dbus_notify_daemon);
   target_dbus_mpris1.connect(GMPlayerManager::instance()->getPreferences().dbus_mpris1);
-  target_dbus_mpris2.connect(GMPlayerManager::instance()->getPreferences().dbus_mpris2);
 #endif
   target_gui_tray_icon.connect(GMPlayerManager::instance()->getPreferences().gui_tray_icon);
   target_replaygain.connect(GMPlayerManager::instance()->getPreferences().play_replaygain,this,ID_REPLAY_GAIN);
@@ -335,7 +334,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (GMPlayerManager::instance()->hasSessionBus()) {
     new GMCheckButton(grpbox,tr("Show Track Change Notifications\tInform notification daemon of track changes."),&target_dbus_notify_daemon,FXDataTarget::ID_VALUE);
     new GMCheckButton(grpbox,tr("MPRIS v1 Connectivity\tEnable MPRIS v1 connectivity"),&target_dbus_mpris1,FXDataTarget::ID_VALUE);
-    new GMCheckButton(grpbox,tr("MPRIS v2 Connectivity\tEnable MPRIS v2 connectivity"),&target_dbus_mpris2,FXDataTarget::ID_VALUE);
     }
 #endif
 
