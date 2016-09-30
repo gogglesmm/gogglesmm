@@ -1,3 +1,15 @@
+1.1.1
+  - Fix detection of newer kde desktop sessions.
+  - Replace gogglesmm native dbus interface with mpris v2.
+  - Implement missing functionality in mpris v2.
+  - gap: fix file input to handle file:// uri scheme
+  - rss: check for updated cover art image
+  - http: force mimetype to be lower case.
+  - http: reset dir on IO after reading last header in chunked response.
+  - Remove remaining lirc functionality.
+  - Remove (broken) AppStatus notification implementation.
+  - Remove unused settings.
+
 1.1.0
   - flac: use new reader to parse flac files.
   - gap: use more portable signal and semaphore primitives in engine.
