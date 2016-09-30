@@ -53,7 +53,7 @@ class GMMediaPlayerService2 : public FXObject {
 FXDECLARE(GMMediaPlayerService2)
 protected:
   GMDBus * bus = nullptr;
-  FXbool   published = false;
+  FXbool   registered = false;
 protected:
   DBusObjectPathVTable mpris_vtable = {};
 protected:
@@ -66,6 +66,8 @@ private:
 public:
   GMMediaPlayerService2(GMDBus*);
 
+  FXint create();
+
   void notify_seek(FXuint position);
 
   void notify_track_change(const GMTrack &);
@@ -75,6 +77,9 @@ public:
   void notify_caps_change();
 
   void notify_volume(FXint volume);
+
+  // Send to a request to Media Player Service
+  void request(const FXchar * command);
 
   virtual ~GMMediaPlayerService2();
   };

@@ -27,7 +27,7 @@ using namespace ap;
 
 namespace ap {
 
-ReaderPlugin::ReaderPlugin(AudioEngine *e) : engine(e),input(nullptr),flags(0),stream_length(-1) {
+ReaderPlugin::ReaderPlugin(AudioEngine * audioengine) : engine(audioengine){
   }
 
 ReaderPlugin::~ReaderPlugin() {
@@ -133,10 +133,6 @@ extern ReaderPlugin * ap_flac_reader(AudioEngine*);
 extern ReaderPlugin * ap_ogg_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_MUSEPACK
-extern ReaderPlugin * ap_musepack_reader(AudioEngine*);
-#endif
-
 #ifdef HAVE_MAD
 extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 #endif
@@ -148,12 +144,6 @@ extern ReaderPlugin * ap_aac_reader(AudioEngine*);
 #ifdef HAVE_FAAD
 extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
 #endif
-
-#ifdef HAVE_CDDA
-extern ReaderPlugin * ap_cdda_reader(AudioEngine*);
-#endif
-
-
 
 ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
   switch(type){
@@ -173,12 +163,6 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #ifdef HAVE_FAAD
     case Format::MP4      : return ap_mp4_reader(engine); break;
 #endif
-#ifdef HAVE_MUSEPACK
-    case Format::Musepack : return ap_musepack_reader(engine); break;
-#endif
-#ifdef HAVE_CDDA
-    case Format::CDDA     : return ap_cdda_reader(engine); break;
-#endif
     case Format::M3U      : return ap_m3u_reader(engine); break;
     case Format::PLS      : return ap_pls_reader(engine); break;
     case Format::XSPF     : return ap_xspf_reader(engine); break;
@@ -188,23 +172,4 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
   return nullptr;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

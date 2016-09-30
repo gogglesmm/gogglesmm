@@ -72,8 +72,10 @@ test_cnl:
         header.append((const FXchar*)rdptr,p-rdptr);
         rdptr=p+2;
 
-        if (single || header.length()==0)
+        if (single || header.length()==0) {
+          dir = (wrptr>rdptr) ? DirRead : DirNone;
           return true;
+          }
 
         cnl=true;
         if (wrptr>rdptr)
@@ -187,7 +189,7 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
     return false;
 
   // Get mime
-  mime = str.mid(s,p-s);
+  mime = str.mid(s,p-s).lower(); // mime is case insensitive, force lower case
 
   // Parameters
   while(p<str.length()) {
@@ -504,7 +506,6 @@ FXival HttpResponse::read_body_chunked(void * ptr,FXival len) {
 
           header.clear();
           }
-
         return nbytes;
         }
       }

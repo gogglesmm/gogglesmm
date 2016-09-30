@@ -250,8 +250,8 @@ void GMTrackDatabase::init_album_properties() {
         update_album.set(2,props.samplesize);
         }
       else {
-        update_album.set(0,2);
-        update_album.set(1,44100);
+        update_album.set(0,0);
+        update_album.set(1,0);
         update_album.set(2,0);
         }
       update_album.set(3,albums[i].id);
@@ -366,12 +366,12 @@ FXbool GMTrackDatabase::init_queries() {
     insert_artist                       = compile("INSERT OR IGNORE INTO artists VALUES ( NULL , ? );");
     insert_playlist_track_by_id         = compile("INSERT INTO playlist_tracks VALUES (?,?,?);");
 
-    query_filename                      = compile("SELECT id FROM tracks WHERE path == ? AND mrl == ?;");
+    query_filename                      = compile("SELECT id, importdate FROM tracks WHERE path == ? AND mrl == ?;");
     query_path                          = compile("SELECT id FROM pathlist WHERE name = ?;");
     query_artist                        = compile("SELECT id FROM artists WHERE name == ?;");
     query_path_name                     = compile("SELECT name FROM pathlist WHERE id == ?;");
 
-    query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating "
+    query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating, tracks.samplerate, tracks.channels, tracks.filetype, tracks.bitrate "
                                                   "FROM tracks LEFT JOIN artists AS composer_artist ON tracks.composer == composer_artist.id LEFT JOIN artists AS conductor_artist ON tracks.conductor == conductor_artist.id,pathlist, albums, artists AS a1, artists AS a2 "
                                                   "WHERE tracks.path == pathlist.id "
                                                     "AND albums.id == tracks.album "
@@ -461,14 +461,18 @@ FXint GMTrackDatabase::hasPath(const FXString & path){
   }
 
 
-FXint GMTrackDatabase::hasTrack(const FXString & filename,FXint pid) {
+FXint GMTrackDatabase::hasTrack(const FXString & filename,FXint pid,FXTime & modified) {
   DEBUG_DB_GET();
   FXASSERT(pid);
   GM_TICKS_START();
   FXint tid=0;
   query_filename.set(0,pid);
   query_filename.set(1,filename);
-  query_filename.execute(tid);
+  if (query_filename.row()){
+    query_filename.get(0,tid);
+    query_filename.get(1,modified);
+    }
+  query_filename.reset();
   GM_TICKS_END();
   return tid;
   }
@@ -688,15 +692,26 @@ FXString GMTrackDatabase::getTrackFilename(FXint track) {
   return filename;
   }
 
-void GMTrackDatabase::getTrackFilenames(GMTrackFilenameList & result,const FXString & root) {
+void GMTrackDatabase::getPathList(const FXString & path,FXStringList & result) {
   DEBUG_DB_GET();
   GMQuery list;
+  result.clear();
+  list = compile("SELECT pathlist.name FROM pathlist WHERE pathlist.name == ? OR pathlist.name LIKE ? ORDER BY pathlist.name;");
+  list.set(0,path);
+  list.set(1,path+PATHSEPSTRING+'%');
+  while(list.row()){
+    result.no(result.no()+1);
+    list.get(0,result[result.no()-1]);
+    }
+  }
 
-  if (!root.empty())
-    list = compile("SELECT tracks.id,pathlist.name || '" PATHSEPSTRING "' || mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id AND (pathlist.name == '" + root + "' OR pathlist.name LIKE '" + root + PATHSEPSTRING"%') ORDER BY path;");
-  else
-    list = compile("SELECT tracks.id,pathlist.name || '" PATHSEPSTRING "' || mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id ORDER BY path");
 
+void GMTrackDatabase::getFileList(const FXString & path,GMTrackFilenameList & result) {
+  DEBUG_DB_GET();
+  GMQuery list;
+  result.clear();
+  list = compile("SELECT tracks.id, mrl,importdate FROM tracks,pathlist WHERE tracks.path == pathlist.id AND pathlist.name == ?");
+  list.set(0,path);
   while(list.row()){
     result.no(result.no()+1);
     list.get(0,result[result.no()-1].id);
@@ -704,6 +719,7 @@ void GMTrackDatabase::getTrackFilenames(GMTrackFilenameList & result,const FXStr
     list.get(2,result[result.no()-1].date);
     }
   }
+
 
 /// Return list of filenames
 void GMTrackDatabase::getTrackFilenames(const FXIntList & tracks,FXStringList & filenames){
@@ -913,6 +929,7 @@ FXbool GMTrackDatabase::getStream(FXint id,GMStream & stream){
 FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
   DEBUG_DB_GET();
   FXbool ok=false;
+  FXint  value;
   try {
     //begin();
     query_track.set(0,tid);
@@ -928,6 +945,24 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
       query_track.get( 8,track.no);
       query_track.get( 9,track.year);
       query_track.get(10,track.rating);
+      query_track.get(11,track.samplerate);
+
+      query_track.get(12,value);
+      track.channels=value;
+
+      query_track.get(13,value);
+      track.filetype=value;
+
+      query_track.get(14,value);
+      if (value<0) {
+        track.sampleformat = -value;
+        track.bitrate = 0;
+        }
+      else {
+        track.bitrate = value;
+        track.sampleformat = 0;
+        }
+
       ok=true;
       }
     query_track.reset();
@@ -1273,7 +1308,7 @@ FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
     GMQuery list_tags(this,"SELECT id,name FROM tags WHERE id IN (SELECT DISTINCT(tag) FROM track_tags);");
 
     if (insert_default) {
-      for (i=0;!TagLib::ID3v1::genre(i).isNull();i++) {
+      for (i=0;!TagLib::ID3v1::genre(i).isEmpty();i++) {
         tags.insert(TagLib::ID3v1::genre(i).toCString(true),(void*)(FXival)1);
         list->appendItem(TagLib::ID3v1::genre(i).toCString(true));
         }
@@ -1863,17 +1898,17 @@ void GMTrackDatabase::setTrackAlbumArtist(const FXIntList & tracks,const FXStrin
                                                                                         "AND a1.audio_format==a2.audio_format "
                                                                        "JOIN artists ON a2.artist == artists.id "
                                         "WHERE tracks.id == ? AND artists.name == ?;");
-  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year) "
+  GMQuery copy_album(this,"INSERT INTO albums (name,artist,year,audio_channels,audio_rate,audio_format) "
                           "SELECT name,"
                                 "(SELECT id FROM artists WHERE name == ?),"
-                                "albums.year "
+                                "albums.year,albums.audio_channels,albums.audio_rate,albums.audio_format "
                           "FROM albums JOIN tracks ON albums.id == tracks.album "
                           "WHERE tracks.id = ?;");
 
-  GMQuery copy_album_with_title(this,"INSERT INTO albums (name,artist,year) "
+  GMQuery copy_album_with_title(this,"INSERT INTO albums (name,artist,year,audio_channels,audio_rate,audio_format) "
                           "SELECT ?,"
                                 "(SELECT id FROM artists WHERE name == ?),"
-                                "albums.year "
+                                "albums.year,albums.audio_channels,albums.audio_rate,albums.audio_format "
                           "FROM albums JOIN tracks ON albums.id == tracks.album "
                           "WHERE tracks.id = ?;");
 

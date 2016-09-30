@@ -38,10 +38,10 @@ enum {
 class AACReader : public ReaderPlugin {
 public:
   AACReader(AudioEngine*e) : ReaderPlugin(e) {}
-  FXbool init(InputPlugin*plugin) { ReaderPlugin::init(plugin); flags=0; return true; }
-  FXuchar format() const { return Format::AAC; }
+  FXbool init(InputPlugin*plugin) override { ReaderPlugin::init(plugin); flags=0; return true; }
+  FXuchar format() const override { return Format::AAC; }
 
-  ReadStatus process(Packet*p);
+  ReadStatus process(Packet*p) override;
 
   ~AACReader() {}
   };
@@ -92,10 +92,10 @@ protected:
   Packet * out;
 public:
   AacDecoder(AudioEngine*);
-  FXuchar codec() const { return Codec::AAC; }
-  FXbool flush(FXlong offset=0);
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
+  FXuchar codec() const override { return Codec::AAC; }
+  FXbool flush(FXlong offset=0) override;
+  FXbool init(ConfigureEvent*) override ;
+  DecoderStatus process(Packet*) override;
   ~AacDecoder();
   };
 
@@ -179,7 +179,9 @@ DecoderStatus AacDecoder::process(Packet*packet){
       }
     }
 
-  if ((buffer.size()<FAAD_MIN_STREAMSIZE*2) && eos==false) {
+  const FXuint bytes_needed = FAAD_MIN_STREAMSIZE*af.channels;
+
+  if (buffer.size()<bytes_needed && eos==false) {
     return DecoderOk;
     }
 
@@ -208,9 +210,13 @@ DecoderStatus AacDecoder::process(Packet*packet){
       return DecoderError;
       }
 
+
     if (frame.samples>0) {
 
-      const FXint nframes = FXMIN((FXlong)(frame.samples / frame.channels),(stream_length-stream_position));
+      FXint nframes = frame.samples / frame.channels;
+
+      if (stream_length>0)
+        nframes = FXMIN((FXlong)nframes,(stream_length-stream_position));
 
       if (__unlikely(stream_position<stream_begin)) {
         if ((nframes+stream_position)<stream_begin) {
@@ -236,7 +242,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
         }
       }
     }
-  while(buffer.size() && frame.bytesconsumed);
+  while(((buffer.size()>=bytes_needed) || eos) && frame.bytesconsumed);
 
   if (eos) {
     FXASSERT(stream_position==stream_length);

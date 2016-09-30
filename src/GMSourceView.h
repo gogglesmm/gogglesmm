@@ -90,8 +90,6 @@ public:
 
   FXbool focusNext();
 
-  FXbool focusPrevious();
-
   virtual ~GMSourceView();
   };
 

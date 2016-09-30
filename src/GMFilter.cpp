@@ -61,7 +61,9 @@ static const FXchar * const operator_lookup[]={
   };
 
 
-
+static FXString sql_escape(FXString value) {
+  return value.substitute("\'","\'\'");
+  }
 
 // Get sql match string
 FXString Rule::getMatch() const {
@@ -76,28 +78,28 @@ FXString Rule::getMatch() const {
       {
         switch(opcode) {
           case OperatorLike     :
-          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%'",column_lookup[column],operator_lookup[opcode],text.text()); break;
-          case OperatorPrefix   : return FXString::value("%s %s '%s%%'",column_lookup[column],operator_lookup[opcode],text.text()); break;
-          case OperatorSuffix   : return FXString::value("%s %s '%%%s'",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
+          case OperatorPrefix   : return FXString::value("%s %s '%s%%'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
+          case OperatorSuffix   : return FXString::value("%s %s '%%%s'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
           case OperatorEquals   :
           case OperatorNotEqual :
           case OperatorLess     :
           case OperatorGreater  :
-          case OperatorMatch    : return FXString::value("%s %s '%s'",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorMatch    : return FXString::value("%s %s '%s'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
           }
       } break;
     case ColumnTag:
       {
         switch(opcode) {
           case OperatorLike     :
-          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%')",column_lookup[column],operator_lookup[opcode],text.text()); break;
-          case OperatorPrefix   : return FXString::value("%s %s '%s%%')",column_lookup[column],operator_lookup[opcode],text.text()); break;
-          case OperatorSuffix   : return FXString::value("%s %s '%%%s')",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
+          case OperatorPrefix   : return FXString::value("%s %s '%s%%')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
+          case OperatorSuffix   : return FXString::value("%s %s '%%%s')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
           case OperatorEquals   :
           case OperatorNotEqual :
           case OperatorLess     :
           case OperatorGreater  :
-          case OperatorMatch    : return FXString::value("%s %s '%s')",column_lookup[column],operator_lookup[opcode],text.text()); break;
+          case OperatorMatch    : return FXString::value("%s %s '%s')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
           }
       } break;
     case ColumnYear:

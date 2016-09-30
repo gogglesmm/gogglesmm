@@ -103,17 +103,17 @@ protected:
 public:
   OutputThread(AudioEngine*);
 
-  virtual FXbool init();
+  FXbool init() override;
 
-  virtual FXint run();
+  FXint run() override;
 
-  virtual void notify_disable_volume();
+  void notify_disable_volume() override;
 
-  virtual void notify_volume(FXfloat value);
+  void notify_volume(FXfloat value) override;
 
-  virtual void wait_plugin_events();
+  void wait_plugin_events() override;
 
-  virtual Reactor & getReactor() { return reactor; }
+  Reactor & getReactor() override { return reactor; }
 
   virtual ~OutputThread();
   };

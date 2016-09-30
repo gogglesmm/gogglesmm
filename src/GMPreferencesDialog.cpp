@@ -285,15 +285,11 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   target_closeishide.connect(GMPlayerManager::instance()->getPreferences().gui_hide_player_when_close);
   target_keywords.connect(keywords);
 
-  target_close_audio.connect(GMPlayerManager::instance()->getPreferences().play_close_stream);
-  target_pause_close_device.connect(GMPlayerManager::instance()->getPreferences().play_pause_close_device);
-  target_gapless.connect(GMPlayerManager::instance()->getPreferences().play_gapless);
   target_show_playing_albumcover.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover);
 
 #ifdef HAVE_DBUS
   target_dbus_notify_daemon.connect(GMPlayerManager::instance()->getPreferences().dbus_notify_daemon);
   target_dbus_mpris1.connect(GMPlayerManager::instance()->getPreferences().dbus_mpris1);
-  target_dbus_mpris2.connect(GMPlayerManager::instance()->getPreferences().dbus_mpris2);
 #endif
   target_gui_tray_icon.connect(GMPlayerManager::instance()->getPreferences().gui_tray_icon);
   target_replaygain.connect(GMPlayerManager::instance()->getPreferences().play_replaygain,this,ID_REPLAY_GAIN);
@@ -338,7 +334,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (GMPlayerManager::instance()->hasSessionBus()) {
     new GMCheckButton(grpbox,tr("Show Track Change Notifications\tInform notification daemon of track changes."),&target_dbus_notify_daemon,FXDataTarget::ID_VALUE);
     new GMCheckButton(grpbox,tr("MPRIS v1 Connectivity\tEnable MPRIS v1 connectivity"),&target_dbus_mpris1,FXDataTarget::ID_VALUE);
-    new GMCheckButton(grpbox,tr("MPRIS v2 Connectivity\tEnable MPRIS v2 connectivity"),&target_dbus_mpris2,FXDataTarget::ID_VALUE);
     }
 #endif
 
@@ -576,10 +571,10 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   grpbox =  new FXGroupBox(vframe,tr("Output"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
-  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
+  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
   new FXLabel(matrix,tr("Driver:"),nullptr,labelstyle);
 
-  driverlist = new GMListBox(matrix,this,ID_AUDIO_DRIVER);
+  driverlist = new GMListBox(matrix,this,ID_AUDIO_DRIVER,LISTBOX_NORMAL|LAYOUT_FILL_COLUMN);
 
   OutputConfig config;
   GMPlayerManager::instance()->getPlayer()->getOutputConfig(config);
@@ -620,7 +615,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
     }
   /// Alsa
   alsa_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
-  alsa_device = new GMTextField(matrix,20);
+  alsa_device = new GMTextField(matrix,20,nullptr,0,TEXTFIELD_NORMAL|LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
   alsa_device->setText(config.alsa.device);
 
   //alsa_mixer_label = new FXLabel(matrix,tr("Mixer:"),nullptr,labelstyle);
@@ -628,26 +623,18 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   //alsa_mixer->setText(config.alsa.mixer);
 
   alsa_hardware_only_frame = new FXFrame(matrix,FRAME_NONE);
-  alsa_hardware_only = new GMCheckButton(matrix,"No resampling");
+  alsa_hardware_only = new GMCheckButton(matrix,"No resampling",nullptr,0,CHECKBUTTON_NORMAL|LAYOUT_FILL_COLUMN);
   alsa_hardware_only->setCheck(config.alsa.flags&AlsaConfig::DeviceNoResample);
 
   /// OSS
   oss_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
-  oss_device = new GMTextField(matrix,20);
+  oss_device = new GMTextField(matrix,20,nullptr,0,TEXTFIELD_NORMAL|LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
   oss_device->setText(config.oss.device);
-
-  /// Pulse
-  pulse_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
-  pulse_device = new GMTextField(matrix,20);
-
-  /// Jack
-  jack_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
-  jack_device = new GMTextField(matrix,20);
 
   showDriverSettings(config.device);
 
   new FXFrame(matrix,FRAME_NONE);
-  new GMButton(matrix,tr("Apply Changes"),nullptr,this,ID_APPLY_AUDIO);
+  new GMButton(matrix,tr("Apply Changes"),nullptr,this,ID_APPLY_AUDIO,BUTTON_NORMAL|LAYOUT_FILL_COLUMN);
 
   grpbox =  new FXGroupBox(vframe,tr("Playback"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
@@ -735,10 +722,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_hardware_only_frame->show();
         oss_device->hide();
         oss_device_label->hide();
-        pulse_device->hide();
-        pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     case DeviceOSS:
@@ -749,10 +732,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_hardware_only_frame->hide();
         oss_device->show();
         oss_device_label->show();
-        pulse_device->hide();
-        pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     case DevicePulse:
@@ -763,25 +742,8 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_hardware_only_frame->hide();
         oss_device->hide();
         oss_device_label->hide();
-        pulse_device->hide();
-        pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
-    case DeviceJack:
-      {
-        alsa_device_label->hide();
-        alsa_device->hide();
-        alsa_hardware_only->hide();
-        alsa_hardware_only_frame->hide();
-        oss_device->hide();
-        oss_device_label->hide();
-        pulse_device->hide();
-        pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
-      } break;
     default:
       {
         alsa_device_label->hide();
@@ -790,10 +752,6 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_hardware_only_frame->hide();
         oss_device->hide();
         oss_device_label->hide();
-        pulse_device->hide();
-        pulse_device_label->hide();
-        jack_device->hide();
-        jack_device_label->hide();
       } break;
 
     }

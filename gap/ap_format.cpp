@@ -30,10 +30,10 @@ static const FXchar * const codecs[]={
   "PCM",
   "FLAC",
   "Vorbis",
-  "Musepack",
   "MPEG",
   "AAC",
   "Opus",
+  "ALAC",
   };
 
 static const FXchar * const byteorders[]={
@@ -61,9 +61,6 @@ static const FXchar * const formatnames[]={
   "mp3",
   "mp4",
   "aac",
-  "musepack",
-  "wavpack",
-  "cdda",
   "m3u",
   "pls",
   "xspf",
@@ -238,8 +235,6 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::OGG;
   else if (comparecase(extension,"mp3")==0)
     return Format::MP3;
-  else if (comparecase(extension,"mpc")==0)
-    return Format::Musepack;
   else if (comparecase(extension,"mp4")==0 ||
            comparecase(extension,"m4a")==0 ||
            comparecase(extension,"m4p")==0 ||

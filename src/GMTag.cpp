@@ -54,6 +54,10 @@
 
 
 */
+#define TAGLIB_VERSION ((TAGLIB_PATCH_VERSION) + (TAGLIB_MINOR_VERSION*1000) + (TAGLIB_MAJOR_VERSION*100000))
+#define TAGVERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
+
+
 #include "FXPNGImage.h"
 #include "FXJPGImage.h"
 
@@ -83,6 +87,8 @@ struct FlacPictureBlock{
   FXuint      data_size;
   FXuchar*    data;
   };
+
+#if TAGLIB_VERSION < TAGVERSION(1,11,0)
 
 static FXbool gm_uint32_be(const FXuchar * block,FXuint & v) {
 #if FOX_BIGENDIAN == 0
@@ -187,6 +193,7 @@ static GMCover * xiph_load_cover(const TagLib::ByteVector & bytevector) {
   return cover;
   }
 
+#endif
 
 static GMCover * id3v2_load_cover(TagLib::ID3v2::AttachedPictureFrame * frame) {
   FXString mime = frame->mimeType().toCString(true);
@@ -392,10 +399,9 @@ FXuchar GMFileTag::getFileType() const {
   TagLib::MP4::File       * mp4file    = nullptr;
   TagLib::AudioProperties * properties = file->audioProperties();
   if (properties) {
-    if ((dynamic_cast<TagLib::Ogg::Vorbis::File*>(file))) {
-      if (dynamic_cast<TagLib::Vorbis::Properties*>(properties)) {
+    if ((dynamic_cast<TagLib::Ogg::File*>(file))) {
+      if (dynamic_cast<TagLib::Vorbis::Properties*>(properties))
         return FILETYPE_OGG_VORBIS;
-        }
       else if (dynamic_cast<TagLib::Ogg::Opus::Properties*>(properties))
         return FILETYPE_OGG_OPUS;
       }
@@ -444,14 +450,22 @@ void GMFileTag::xiph_update_field(const FXchar * field,const FXString & value) {
   if (!value.empty())
     xiph->addField(field,TagLib::String(value.text(),TagLib::String::UTF8),true);
   else
-    xiph->removeField(field);
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+    xiph->removeFields(field);
+#else
+    xiph->removeField(field); // deprecated
+#endif
   }
 
 
 void GMFileTag::xiph_update_field(const FXchar * field,const FXStringList & list) {
   FXASSERT(field);
   FXASSERT(xiph);
-  xiph->removeField(field);
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+  xiph->removeFields(field);
+#else
+  xiph->removeField(field); // deprecated
+#endif
   for (FXint i=0;i<list.no();i++) {
     xiph->addField(field,TagLib::String(list[i].text(),TagLib::String::UTF8),false);
     }
@@ -746,7 +760,7 @@ void GMFileTag::getAlbumArtist(FXString & albumartist) const{
   else if (mp4 && mp4_get_field("aART",albumartist))
     return;
   else
-    getArtist(albumartist); // fallback to Artist
+    albumartist.clear();
   }
 
 void GMFileTag::setTags(const FXStringList & tags){
@@ -972,6 +986,13 @@ GMCover * GMFileTag::getFrontCover() const {
       }
     }
   else if (xiph) {
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+    const TagLib::List<TagLib::FLAC::Picture*> picturelist = xiph->pictureList();
+    for(TagLib::List<TagLib::FLAC::Picture*>::ConstIterator it = picturelist.begin(); it != picturelist.end(); it++) {
+      GMCover * cover = flac_load_frontcover_from_taglib((*it));
+      if (cover) return cover;
+      }
+#else
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
@@ -982,6 +1003,7 @@ GMCover * GMFileTag::getFrontCover() const {
          }
         }
       }
+#endif
     }
   else if (mp4) { /// MP4
     if (mp4->itemListMap().contains("covr")) {
@@ -1006,6 +1028,13 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
     if (covers.no()) return covers.no();
     }
   else if (xiph) {
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+    const TagLib::List<TagLib::FLAC::Picture*> picturelist = xiph->pictureList();
+    for(TagLib::List<TagLib::FLAC::Picture*>::ConstIterator it = picturelist.begin(); it != picturelist.end(); it++) {
+      GMCover * cover = flac_load_cover_from_taglib((*it));
+      if (cover) covers.append(cover);
+      }
+#else
     if (xiph->contains("METADATA_BLOCK_PICTURE")) {
       const TagLib::StringList & coverlist = xiph->fieldListMap()["METADATA_BLOCK_PICTURE"];
       for(TagLib::StringList::ConstIterator it = coverlist.begin(); it != coverlist.end(); it++) {
@@ -1017,6 +1046,7 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
           }
         }
       }
+#endif
     }
   else if (id3v2) {
     TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["APIC"];
@@ -1064,6 +1094,14 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
         }
       }
     else if (xiph) {
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+      const TagLib::List<TagLib::FLAC::Picture*> picturelist = xiph->pictureList();
+      for(TagLib::List<TagLib::FLAC::Picture*>::ConstIterator it = picturelist.begin(); it != picturelist.end();it++){
+        if (cover->type==(*it)->type()) {
+          xiph->removePicture((*it));
+          }
+        }
+#else
       TagLib::StringList & coverlist = const_cast<TagLib::StringList&>(xiph->fieldListMap()["METADATA_BLOCK_PICTURE"]);
       TagLib::StringList::Iterator it = coverlist.begin();
       while(it!=coverlist.end()){
@@ -1074,6 +1112,7 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
         else
           it++;
         }
+#endif
       }
     else if (mp4) {
       // mp4 has no type information so we erase all
@@ -1095,7 +1134,11 @@ void GMFileTag::clearCovers() {
     id3v2->removeFrames("APIC");
     }
   else if (xiph) {
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+    xiph->removeAllPictures();
+#else
     xiph->removeField("METADATA_BLOCK_PICTURE");
+#endif
     }
   else if (mp4) {
     mp4->itemListMap().erase("covr");
@@ -1123,6 +1166,18 @@ void GMFileTag::appendCover(GMCover* cover){
     }
   else if (xiph) {
     if (cover->getImageInfo(info)) {
+#if TAGLIB_VERSION >= TAGVERSION(1,11,0)
+      TagLib::FLAC::Picture * picture = new TagLib::FLAC::Picture();
+      picture->setWidth(info.width);
+      picture->setHeight(info.height);
+      picture->setColorDepth(info.bps);
+      picture->setNumColors(info.colors);
+      picture->setMimeType(TagLib::String(cover->mimeType().text(),TagLib::String::UTF8));
+      picture->setDescription(TagLib::String(cover->description.text(),TagLib::String::UTF8));
+      picture->setType(static_cast<TagLib::FLAC::Picture::Type>(cover->type));
+      picture->setData(TagLib::ByteVector((const FXchar*)cover->data,cover->size));
+      xiph->addPicture(picture);
+#else
       FXString mimetype = cover->mimeType();
       FXint nbytes = 32 + cover->description.length() + mimetype.length() + cover->size;
       Base64Encoder base64(nbytes);
@@ -1152,6 +1207,7 @@ void GMFileTag::appendCover(GMCover* cover){
       base64.encode(cover->data,cover->size);
       base64.finish();
       xiph_add_field("METADATA_BLOCK_PICTURE",base64.getOutput());
+#endif
       }
     }
   else if (id3v2) {

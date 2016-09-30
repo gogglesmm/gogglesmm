@@ -51,10 +51,10 @@ protected:
 public:
   VorbisDecoder(AudioEngine*);
 
-  FXuchar codec() const { return Codec::Vorbis; }
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
-  FXbool flush(FXlong);
+  FXuchar codec() const override { return Codec::Vorbis; }
+  FXbool init(ConfigureEvent*) override;
+  DecoderStatus process(Packet*) override;
+  FXbool flush(FXlong) override;
 
   virtual ~VorbisDecoder();
   };

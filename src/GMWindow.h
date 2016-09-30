@@ -89,7 +89,6 @@ private:
 private:
   void configureToolbar(FXbool docktop,FXbool init=false);
   void configureStatusbar(FXbool show);
-  void setFullScreen(FXbool show);
   FXbool showSources() const;
   void updateCover();
   void clearCover();
@@ -195,6 +194,7 @@ public:
     ID_IMPORT_DIRS,
     ID_IMPORT_FILES,
     ID_SYNC_DIRS,
+    ID_REMOVE_FOLDER,
 
 
     ID_PREFERENCES,
@@ -267,10 +267,9 @@ public:
 
   void setStatus(const FXString& status);
 
-  void focusNext();
-  void focusPrevious();
   void raiseWindow();
 
+  void setFullScreen(FXbool show);
 
   /// Destructor
   virtual ~GMWindow();

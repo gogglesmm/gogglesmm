@@ -36,45 +36,43 @@ public:
 public:
   GMLocalSource();
 
-  virtual FXbool findCurrent(GMTrackList * list,GMSource * src);
+  FXbool findCurrent(GMTrackList * list,GMSource * src) override;
 
-  void markCurrent(const GMTrackItem*);
+  void markCurrent(const GMTrackItem*) override;
 
-  void configure(GMColumnList&);
+  void configure(GMColumnList&) override;
 
-  FXbool hasCurrentTrack(GMSource * ) const;
+  FXbool hasCurrentTrack(GMSource * ) const override;
 
-  virtual FXbool getTrack(GMTrack & info) const;
+  FXbool getTrack(GMTrack & info) const override;
 
-//  virtual FXbool setTrack(GMTrack & info) const;
+  FXString getName() const override { return fxtr("File System"); }
 
-  FXString getName() const { return fxtr("File System"); }
+  FXint getType() const override { return SOURCE_FILESYSTEM; }
 
-  FXint getType() const { return SOURCE_FILESYSTEM; }
+  FXString settingKey() const override { return "file-system"; }
 
-  FXString settingKey() const { return "file-system"; }
+  void load(FXSettings&) override;
 
-  void load(FXSettings&);
+  void save(FXSettings&) const override;
 
-  void save(FXSettings&) const;
+  FXint getSortColumn(FXbool) const override { return HEADER_FILENAME; }
 
-  FXint getSortColumn(FXbool) const { return HEADER_FILENAME; }
+  FXbool canBrowse() const override { return false; }
 
-  FXbool canBrowse() const { return false; }
+  FXbool defaultBrowse() const override { return false; }
 
-  FXbool defaultBrowse() const { return false; }
-
-  FXbool autoPlay() const { return true; }
+  FXbool autoPlay() const override { return true; }
 
 //  FXbool source_context_menu(FXMenuPane * pane);
 
 //  FXbool track_context_menu(FXMenuPane * pane);
 
-  FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & genrelist);
+  FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & genrelist) override;
 
-  FXbool track_double_click();
+  FXbool track_double_click() override;
 
-  virtual FXuint dnd_provides(FXDragType types[]);
+  FXuint dnd_provides(FXDragType types[]) override;
 
   virtual ~GMLocalSource();
   };

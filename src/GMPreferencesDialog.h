@@ -26,15 +26,11 @@ FXDECLARE(GMPreferencesDialog)
 protected:
   FXDataTarget target_closeishide;
   FXDataTarget target_keywords;
-  FXDataTarget target_close_audio;
-  FXDataTarget target_pause_close_device;
-  FXDataTarget target_gapless;
   FXDataTarget target_replaygain;
   FXDataTarget target_show_playing_albumcover;
 #ifdef HAVE_DBUS
   FXDataTarget target_dbus_notify_daemon;
   FXDataTarget target_dbus_mpris1;
-  FXDataTarget target_dbus_mpris2;
 #endif
   FXDataTarget target_gui_tray_icon;
   FXDataTarget target_gui_show_playing_titlebar;
@@ -53,11 +49,6 @@ protected:
   FXLabel     * oss_device_label = nullptr;
   FXTextField * oss_device = nullptr;
 
-  FXLabel     * pulse_device_label = nullptr;
-  FXTextField * pulse_device = nullptr;
-
-  FXLabel     * jack_device_label = nullptr;
-  FXTextField * jack_device = nullptr;
 protected:
   void showDriverSettings(FXuchar driver);
 public:

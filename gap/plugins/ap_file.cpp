@@ -41,28 +41,28 @@ public:
   FXbool open(const FXString & uri);
 
 	/// Read
-	FXival read(void*,FXival);
+	FXival read(void*,FXival) override;
 
 	/// Preview
-	FXival preview(void*,FXival);
+	FXival preview(void*,FXival) override;
 
   /// Set Position
-  FXlong position(FXlong offset,FXuint from);
+  FXlong position(FXlong offset,FXuint from) override;
 
   /// Get Position
-  FXlong position() const;
+  FXlong position() const override;
 
   /// Size
-  FXlong size();
+  FXlong size() override;
 
   /// End of Input
-  FXbool eof();
+  FXbool eof() override;
 
   /// Serial
-  FXbool serial() const;
+  FXbool serial() const override;
 
   /// Get plugin type
-  FXuint plugin() const;
+  FXuint plugin() const override;
 
   /// Destructor
   virtual ~FileInput();
@@ -75,12 +75,19 @@ FileInput::FileInput(InputThread * i) : InputPlugin(i) {
 FileInput::~FileInput() {
   }
 
-FXbool FileInput::open(const FXString & uri) {
-  if (file.open(uri,FXIO::Reading)){
-    filename=uri;
-    return true;
+FXbool FileInput::open(const FXString & url) {
+
+  // Get filename
+  filename=FXURL::fileFromURL(url);
+  if (filename.empty()) filename=url;
+
+  // Open file
+  if (!file.open(filename,FXIO::Reading)){
+    filename.clear();
+    return false;
     }
-  return false;
+
+  return true;
   }
 
 FXival FileInput::preview(void*data,FXival count) {
