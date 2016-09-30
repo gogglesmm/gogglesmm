@@ -16,19 +16,7 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#include <math.h>
-#include <errno.h>
-
-#include "gmdefs.h"
-#include "gmutils.h"
-#include "GMTrack.h"
-#include "GMCover.h"
-#include "GMTag.h"
-#include "GMAudioPlayer.h"
-
 /// TagLib
-
-
 #include <fileref.h>
 #include <tstring.h>
 #include <id3v1tag.h>
@@ -50,6 +38,22 @@
 #include <mp4coverart.h>
 #include <mp4properties.h>
 
+
+//#include <math.h>
+#include <errno.h>
+
+#include "gmdefs.h"
+#include "gmutils.h"
+#include "GMTrack.h"
+#include "GMCover.h"
+#include "GMTag.h"
+#include "GMAudioPlayer.h"
+
+
+/*
+
+
+*/
 #include "FXPNGImage.h"
 #include "FXJPGImage.h"
 

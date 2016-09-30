@@ -599,8 +599,17 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (AP_HAS_PLUGIN(devices,DeviceJack))
     driverlist->appendItem("Jack",nullptr,(void*)DeviceJack);
 
+#ifdef _WIN32
+  if (AP_HAS_PLUGIN(devices, DeviceWindowsMultimedia))
+	  driverlist->appendItem("Windows Multimedia", nullptr, (void*)DeviceWindowsMultimedia);
+  
+  if (AP_HAS_PLUGIN(devices, DeviceDirectSound))
+	  driverlist->appendItem("DirectSound", nullptr, (void*)DeviceDirectSound);
+#endif
+
   if (AP_HAS_PLUGIN(devices,DeviceWav))
     driverlist->appendItem("Wave File Output",nullptr,(void*)DeviceWav);
+
 
   if (driverlist->getNumItems()) {
     driverlist->setCurrentItem(driverlist->findItemByData((void*)(FXival)config.device));
@@ -1417,8 +1426,10 @@ void GMPreferencesDialog::updateColors(){
     }
   selected.save();
 
+#ifndef _WIN32
   if (GMPlayerManager::instance()->getTrayIcon())
     GMPlayerManager::instance()->getTrayIcon()->updateIcon();
+#endif
   }
 
 

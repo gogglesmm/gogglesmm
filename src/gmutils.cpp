@@ -27,13 +27,14 @@
 
 #include <errno.h>
 
+#ifndef _WIN32
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
-
+#endif
 
 
 
@@ -284,13 +285,14 @@ void gm_make_absolute_path(const FXString & path,FXStringList & urls) {
       }
     }
 #else
-#error "not yet implemented"
+//#error "not yet implemented"
 #endif
   }
 
 
 /******************************************************************************/
 static FXbool gm_launch_program(const FXchar * const * programs,const FXString & url) {
+#ifndef _WIN32
   FXString path = FXSystem::getExecPath();
   FXString exec;
   for (int i=0;programs[i]!=nullptr;i++){
@@ -310,6 +312,7 @@ static FXbool gm_launch_program(const FXchar * const * programs,const FXString &
       return true;
       }
     }
+#endif
   return false;
   }
 

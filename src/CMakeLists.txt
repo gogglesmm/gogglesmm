@@ -7,13 +7,17 @@ project(GOGGLESMM VERSION 1.1.0)
 
 option(WITH_OPENGL "Enable OpenGL Features" ON)
 option(WITH_DBUS "Enable DBUS Features" ON)
-option(WITH_NLS "Enable Native Language Support" ON)
+option(WITH_NLS "Enable Native Language Support" OFF)
+
+
+set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS $<$<OR:$<CONFIG:DEBUG>,$<CONFIG:RELWITHDEBINFO>>:DEBUG>)
 
 
 TEST_BIG_ENDIAN(GOGGLESMM_BIGENDIAN)
 
 find_package(PkgConfig)
 
+if (PkgConfig_FOUND)
 pkg_check_modules(FOX fox17>=1.7.48 REQUIRED)
 pkg_check_modules(TAGLIB taglib REQUIRED)
 pkg_check_modules(SQLITE sqlite3 REQUIRED)
@@ -30,6 +34,27 @@ if(WITH_OPENGL)
     pkg_check_modules(EPOXY epoxy REQUIRED)
     pkg_check_modules(GLU glu REQUIRED)
     set(HAVE_OPENGL 1)
+endif()
+else()
+find_library(FOX_LIBRARIES NAMES FOXDLL-1.7)
+find_path(FOX_INCLUDE_DIRS NAMES fx.h PATH_SUFFIXES fox-1.7) 
+find_path(SQLITE_INCLUDE_DIRS NAMES sqlite3.h)
+find_path(TAGLIB_INCLUDE_DIRS NAMES tag.h PATH_SUFFIXES taglib)
+add_definitions(-DTAGLIB_STATIC -DFOXDLL)
+
+list(APPEND LIBRARIES ${FOX_LIBRARIES})
+
+#find_library(PNG_LIB NAMES libpng16)
+find_library(ZLIB_LIB NAMES zlib)
+#find_library(JPEG_LIB NAMES jpeg-static)
+find_library(TAGLIB_LIB NAMES tag)
+find_library(SQLITE_LIB NAMES sqlite3)
+#find_library(EXPAT_LIB NAMES expat libexpat)
+
+list(APPEND LIBRARIES ${EXPAT_LIB} ${PNG_LIB} ${ZLIB_LIB} ${JPEG_LIB} ${TAGLIB_LIB} ${SQLITE_LIB} imm32.lib)
+
+
+
 endif()
 
 if(WITH_NLS)
@@ -64,6 +89,7 @@ endif()
 
 if(RESWRAP)
     execute_process(COMMAND ${RESWRAP} -v OUTPUT_VARIABLE RESWRAP_OUTPUT)
+    message(STATUS "Found Reswrap at ${RESWRAP} ${RESWRAP_OUTPUT}")
     string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]" RESWRAP_VERSION "${RESWRAP_OUTPUT}")
     if(RESWRAP_VERSION VERSION_LESS "5.0")
         set(RESWRAP_H ${RESWRAP} -i -k)
@@ -152,6 +178,7 @@ set(SOURCES
   icons.h
   fxext.cpp
   gmutils.cpp
+  gogglesmm.rc
   )
 
 set(ICONS ${CMAKE_SOURCE_DIR}/icons/cursor_hand.gif
@@ -273,22 +300,38 @@ configure_file(gmconfig.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gmconfig.h)
 add_executable(gogglesmm ${SOURCES})
 
 
+if(WIN32 AND MSVC)
 
+  set_target_properties(gogglesmm PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup" 
+                                             LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS" 
+				             LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS"
+				             LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
+				             LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
+
+endif()
 
 # Export Symbols if GAP is not build as a shared library
 if(NOT BUILD_SHARED_LIBS)
     set_target_properties(gogglesmm PROPERTIES ENABLE_EXPORTS 1)
 endif()
 
+
+if(WIN32)
+    string(REPLACE ".lib" ".dll" FOXDLL ${FOX_LIBRARIES})
+    add_custom_command(TARGET gogglesmm POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FOXDLL} $<TARGET_FILE_DIR:gogglesmm> VERBATIM)
+
+    install(FILES ${FOXDLL} DESTINATION bin)	
+endif()
+
 # Include Directories
 target_include_directories(gogglesmm PRIVATE
                            ${FOX_INCLUDE_DIRS}
                            ${TAGLIB_INCLUDE_DIRS}
-                           ${DBUS_INCLUDE_DIRS})
+                           ${DBUS_INCLUDE_DIRS} ${SQLITE_INCLUDE_DIRS})
 
 # Libraries
 target_link_libraries(gogglesmm PRIVATE gap
-                      ${FOX_LIBRARIES}
+                      ${LIBRARIES}
                       ${SQLITE_LIBRARIES}
                       ${TAGLIB_LIBRARIES}
                       ${DBUS_LIBRARIES}

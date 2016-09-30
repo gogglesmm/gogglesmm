@@ -122,7 +122,7 @@ public:
 
 
 /* Http Status */
-struct HttpStatus {
+struct GMAPI HttpStatus {
   FXint major = 0;
   FXint minor = 0;
   FXint code  = 0;

@@ -27,10 +27,12 @@ enum {
   DeviceOSS     = 2,
   DevicePulse   = 3,
   DeviceJack    = 4,
-  DeviceWav     = 5,
+  DeviceWindowsMultimedia = 5,
+  DeviceDirectSound = 6,
+  DeviceWav     = 7,
   DeviceLast,
   };
-
+#if 0
 class GMAPI DeviceConfig {
 public:
   DeviceConfig();
@@ -81,12 +83,39 @@ public:
   virtual ~OSSConfig();
   };
 
+#endif
 
-
-class GMAPI OutputConfig {
+class AlsaConfig {
 public:
-  AlsaConfig  alsa;
-  OSSConfig   oss;
+	enum {
+		DeviceMMap = 0x1,
+		DeviceNoResample = 0x2
+	};
+public:
+	FXString device = "default";
+	FXuint   flags = 0;
+};
+
+class OSSConfig {
+public:
+	enum {
+		DeviceNoResample = 0x2,
+	};
+public:
+	FXString device = "/dev/dsp";
+	FXuint   flags  = 0;
+};
+
+class IOutputConfig {
+public:
+	AlsaConfig alsa;
+	OSSConfig  oss;
+};
+
+
+
+class GMAPI OutputConfig : public IOutputConfig {
+public:
   FXuchar     device;
 public:
   OutputConfig();

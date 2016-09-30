@@ -174,12 +174,14 @@ ReadStatus WavReader::process(Packet*packet) {
   else {
     FXint nbytes = (packet->space() / af.framesize()) * af.framesize();
     FXint nread = input->read(packet->ptr(),nbytes);
-    if (nread<0) {
+	if (nread<0) {
       packet->unref();
       return ReadError;
       }
     else if (nread==0){
-      packet->unref();
+	  packet->flags = FLAG_EOS;
+	  engine->decoder->post(packet);
+      //packet->unref();
       return ReadDone;
       }
     packet->wroteBytes(nread);

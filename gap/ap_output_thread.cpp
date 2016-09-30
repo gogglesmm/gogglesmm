@@ -447,9 +447,12 @@ void OutputThread::load_plugin() {
     return;
     }
 
+#ifdef _WIN32
+  FXString plugin_name = FXPath::directory(FXSystem::getExecFilename()) + PATHSEPSTRING + FXSystem::dllName("gap_" + output_config.plugin());
+#else
   FXString plugin_name = ap_get_environment("GOGGLESMM_PLUGIN_PATH",AP_PLUGIN_PATH) + PATHSEPSTRING + FXSystem::dllName("gap_"+output_config.plugin());
-  GM_DEBUG_PRINT("[output] loading plugin: %s\n",plugin_name.text());
-
+#endif
+  GM_DEBUG_PRINT("[output] loading plugin: %s\n", plugin_name.text());
 
 //  FXString plugin_name = FXPath::search(FXPath::expand(AP_PLUGIN_PATH),FXSystem::dllName("gap_" + output_config.plugin()));
 //  fxmessage("plugin %s %s %s\n",FXPath::expand(AP_PLUGIN_PATH).text(),FXSystem::dllName("gap_" + output_config.plugin()).text(),plugin_name.text());
@@ -887,7 +890,7 @@ FXint OutputThread::run(){
           if (af.set()) {
             FXint wait = plugin->delay();
             FXint rate = plugin->af.rate;
-
+			GM_DEBUG_PRINT("End %d", wait);
             if (wait<=rate)
               engine->input->post(new Event(AP_EOS));
             else

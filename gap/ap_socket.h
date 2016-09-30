@@ -22,10 +22,18 @@
 namespace ap {
 
 class Socket : public FXIODevice {
+protected:
+#ifdef _WIN32
+  FXuint sockethandle;
+#endif
 private:
   Socket(const Socket&);
   Socket &operator=(const Socket&);
+#ifdef _WIN32
+  Socket(FXuint h, FXuint mode);
+#else
   Socket(FXInputHandle h,FXuint mode);
+#endif
 public:
   enum {
     EndOfStream = 2048

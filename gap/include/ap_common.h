@@ -34,7 +34,7 @@ extern GMAPI FXbool ap_set_nonblocking(FXInputHandle fd);
 
 extern GMAPI FXbool ap_set_closeonexec(FXInputHandle fd);
 
-extern GMAPI void GMAPI ap_set_thread_name(const FXchar *);
+extern GMAPI void ap_set_thread_name(const FXchar *);
 
 
 class GMAPI Base64Encoder {

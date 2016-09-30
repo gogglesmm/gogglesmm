@@ -21,20 +21,24 @@
 #include "ap_utils.h"
 
 namespace ap {
-
+#if 0
 DeviceConfig:: DeviceConfig() {
   }
 DeviceConfig::~DeviceConfig(){
   }
-
+#endif
 static const FXchar * const plugin_names[DeviceLast]={
   "none",
   "alsa",
   "oss",
   "pulse",
   "jack",
+  "wmm",
+  "directx",
   "wav"
   };
+
+ 
 
 static FXbool ap_has_plugin(FXuchar device) {
 #ifdef _WIN32
@@ -48,7 +52,7 @@ static FXbool ap_has_plugin(FXuchar device) {
   }
 
 
-
+#if 0
 
 AlsaConfig::AlsaConfig() : device("default"), flags(0) {
   }
@@ -96,7 +100,7 @@ void OSSConfig::save(FXSettings & settings) const {
   settings.writeStringEntry("oss","device",device.text());
   }
 
-
+#endif
 
 
 OutputConfig::OutputConfig() {
@@ -135,6 +139,13 @@ FXuint OutputConfig::devices() {
   if (ap_has_plugin(DeviceJack))
     AP_ENABLE_PLUGIN(plugins,DeviceJack);
 #endif
+#ifdef _WIN32
+  if (ap_has_plugin(DeviceWindowsMultimedia))
+	  AP_ENABLE_PLUGIN(plugins, DeviceWindowsMultimedia);  
+
+  if (ap_has_plugin(DeviceDirectSound))
+	  AP_ENABLE_PLUGIN(plugins, DeviceDirectSound);
+#endif
   if (ap_has_plugin(DeviceWav))
     AP_ENABLE_PLUGIN(plugins,DeviceWav);
   return plugins;
@@ -155,8 +166,25 @@ void OutputConfig::load(FXSettings & settings) {
       break;
       }
     }
-  alsa.load(settings);
-  oss.load(settings);
+
+  alsa.device = settings.readStringEntry("alsa", "device", alsa.device.text());
+
+  if (settings.readBoolEntry("alsa", "use-mmap", false))
+	  alsa.flags |= AlsaConfig::DeviceMMap;
+  else
+	  alsa.flags &= ~AlsaConfig::DeviceMMap;
+
+  if (settings.readBoolEntry("alsa", "no-resample", false))
+	  alsa.flags |= AlsaConfig::DeviceNoResample;
+  else
+	  alsa.flags &= ~AlsaConfig::DeviceNoResample;
+
+  oss.device = settings.readStringEntry("oss", "device", oss.device.text());
+
+
+
+  //alsa.load(settings);
+  //oss.load(settings);
   }
 
 void OutputConfig::save(FXSettings & settings) const {
@@ -172,8 +200,8 @@ void OutputConfig::save(FXSettings & settings) const {
   else
     settings.deleteEntry("engine","output");
 
-  alsa.save(settings);
-  oss.save(settings);
+  //alsa.save(settings);
+  //oss.save(settings);
   }
 
 

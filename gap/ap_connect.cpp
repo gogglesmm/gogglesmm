@@ -19,8 +19,9 @@
 #include "ap_defs.h"
 #include "ap_thread_queue.h"
 
-
-#ifndef _WIN32
+#ifdef _WIN32
+#include <WinSock2.h>
+#else
 #include <unistd.h> // for close()
 #include <fcntl.h>
 #include <errno.h>
@@ -58,14 +59,17 @@ FXIO* ConnectionFactory::create(FXint domain,FXint type,FXint protocol){
   }
 
 FXuint ConnectionFactory::connect(FXIO * socket,const struct sockaddr * address,FXint address_len) {
+#ifndef _WIN32
   FXIODevice * device  = static_cast<FXIODevice*>(socket);
   if (::connect(device->handle(),address,address_len)==0){
     return Connected;
     }
+#endif
   return Error;
   }
 
 FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
+#ifndef _WIN32
   struct addrinfo   hints;
   struct addrinfo * list=nullptr;
   struct addrinfo * item=nullptr;
@@ -94,6 +98,7 @@ FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
   if (list) {
     freeaddrinfo(list);
     }
+#endif
   return nullptr;
   }
 
@@ -103,17 +108,20 @@ NBConnectionFactory::NBConnectionFactory(FXInputHandle w) : watch(w) {
 
 
 FXIO * NBConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
+#ifndef _WIN32
   Socket * s = Socket::create(domain,type,protocol,FXIO::NonBlocking);
   if (s) {
     s->setReceiveTimeout(10000000000);
     s->setSendTimeout(10000000000);
     return new WaitIO(s,watch,10000000000);
     }
+#endif
   return nullptr;
   }
 
 
 FXuint NBConnectionFactory::connect(FXIO * io,const struct sockaddr * address,FXint address_len) {
+#ifndef _WIN32  
   WaitIO * wio = static_cast<WaitIO*>(io);
   FXASSERT(wio);
   Socket * sio = static_cast<Socket*>(wio->getDevice());
@@ -129,6 +137,7 @@ FXuint NBConnectionFactory::connect(FXIO * io,const struct sockaddr * address,FX
       return Abort;
       }
     }
+#endif
   return Error;
   }
 

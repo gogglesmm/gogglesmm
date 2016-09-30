@@ -1,6 +1,7 @@
 # Using cmake 3.2
 cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
+
 # Enable for cmake debugging
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
@@ -27,21 +28,20 @@ endif()
 
 # Display the build type
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
-
 #-------------------------------------------------------------------------------
 
 include(CheckCXXCompilerFlag)
 
 
 # Additional compiler flags we like
-CHECK_CXX_COMPILER_FLAG(-Wall       HAS_CXX_WALL)
-CHECK_CXX_COMPILER_FLAG(-Wextra     HAS_CXX_WEXTRA)
+#CHECK_CXX_COMPILER_FLAG(-Wall       HAS_CXX_WALL)
+#CHECK_CXX_COMPILER_FLAG(-Wextra     HAS_CXX_WEXTRA)
 CHECK_CXX_COMPILER_FLAG(-Wformat=2  HAS_CXX_WFORMAT)
 CHECK_CXX_COMPILER_FLAG(-Wfatal-errors  HAS_CXX_WFATAL)
 CHECK_CXX_COMPILER_FLAG(-Og         HAS_CXX_OPTIMIZE_DEBUG)
 CHECK_CXX_COMPILER_FLAG(-flto       HAS_CXX_OPTIMIZE_LINKTIME)
 
-if(HAS_CXX_WALL)
+if(HAS_CXX_WALL AND NOT MSVC)
     add_compile_options(-Wall)
 endif()
 
@@ -58,20 +58,28 @@ if(HAS_CXX_WFATAL)
 endif()
 
 
-if(HAS_CXX_OPTIMIZE_DEBUG AND CMAKE_BUILD_TYPE MATCHES Debug)
+if(HAS_CXX_OPTIMIZE_DEBUG AND CMAKE_BUILD_TYPE STREQUAL Debug)
     add_compile_options(-Og)
 endif()
 
-if(HAS_CXX_OPTIMIZE_LINKTIME AND NOT CMAKE_BUILD_TYPE MATCHES Debug)
+if(HAS_CXX_OPTIMIZE_LINKTIME AND NOT CMAKE_BUILD_TYPE STREQUAL Debug)
     add_compile_options(-flto)
     link_libraries(-flto)
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_definitions(-DDEBUG)
-endif()
+
 
 #-------------------------------------------------------------------------------
+
+
+# Make sure both gap and gogglesmm are build into the same directory
+# to make running them a lot easier.
+if(MSVC)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+endif()
+
+
 
 
 # Add Goggles Audio Player
@@ -81,7 +89,9 @@ add_subdirectory(gap)
 add_subdirectory(src)
 
 
+
 #-------------------------------------------------------------------------------
+if(NOT WIN32)
 
 # Extra Installation Files
 install(PROGRAMS extra/import_banshee_stats.py
@@ -99,6 +109,9 @@ install(FILES extra/gogglesmm.svg DESTINATION share/icons/hicolor/scalable/apps 
 install(FILES extra/gogglesmm.appdata.xml DESTINATION share/appdata)
 install(FILES extra/gogglesmm.desktop DESTINATION share/applications)
 install(FILES extra/gogglesmm.1 DESTINATION share/man/man1)
+
+endif()
+
 
 # Install translations when native language support has been enabled
 if(WITH_NLS)
@@ -122,5 +135,13 @@ if(WITH_NLS)
     endforeach()
 endif()
 
-
-
+set(CPACK_PACKAGE_NAME gogglesmm)
+set(CPACK_PACKAGE_VERSION_MAJOR 1)
+set(CPACK_PACKAGE_VERSION_MINOR 1)
+set(CPACK_PACKAGE_VERSION_PATCH 0)
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/COPYING)
+set(CPACK_NSIS_PACKAGE_NAME "Goggles Music Manager")
+set(CPACK_NSIS_DISPLAY_NAME "Goggles Music Manager")
+set(CPACK_NSIS_MUI_ICON ${CMAKE_SOURCE_DIR}/extra/gogglesmm.ico)
+set(CPACK_PACKAGE_EXECUTABLES "gogglesmm;Goggles Music Manager")
+include(CPack)

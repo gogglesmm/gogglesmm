@@ -245,7 +245,7 @@ public:
 
   GMSourceView * getSourceView() const;
 
-  FXuint getMainWindowId() const;
+  FXID getMainWindowId() const;
 
   GMAudioPlayer * getPlayer() const { return player; }
 

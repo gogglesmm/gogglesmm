@@ -35,7 +35,7 @@ namespace ap {
     delete plugin;\
     plugin=nullptr;\
     }\
-  FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);\
+  GMAPI FXuint ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);\
   }
 
 /* Interface to OutputThread */
@@ -51,7 +51,7 @@ public:
   };
 
 
-class GMAPI OutputPlugin {
+class OutputPlugin {
 public:
   Output*       output;
   AudioFormat   af;
@@ -65,7 +65,7 @@ public:
   virtual FXchar type() const=0;
 
   /// Set Device Configuration
-  virtual FXbool setOutputConfig(const OutputConfig &) { return false; }
+  virtual FXbool setOutputConfig(const IOutputConfig &) { return false; }
 
   /// Configure the device for the requested format. If requested
   /// format is not available it should return something similar. Only

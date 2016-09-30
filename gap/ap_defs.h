@@ -19,10 +19,17 @@
 #ifndef AP_DEFS_H
 #define AP_DEFS_H
 
-#if defined(__GNUC__) && __GNUC__ >= 4
-  #define GMAPI __attribute__ ((visibility("default")))
+#ifdef _WIN32
+#if defined(GAP_BUILD)
+#define GMAPI __declspec(dllexport)
 #else
-  #define GMAPI
+#define GMAPI
+//#define GMAPI __declspec(dllimport)
+#endif
+#elif defined(__GNUC__) && __GNUC__ >= 4
+#define GMAPI __attribute__ ((visibility("default")))
+#else
+#define GMAPI
 #endif
 
 #define AP_VERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
@@ -53,7 +60,6 @@
 
 
 #include "ap_config.h"
-
 
 
 enum {

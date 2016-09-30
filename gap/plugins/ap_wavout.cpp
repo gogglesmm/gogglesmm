@@ -20,6 +20,8 @@
 #include "ap_output_plugin.h"
 
 
+//extern GMAPI FXString FX::FXSystem::getHostName();
+
 using namespace ap;
 
 namespace ap {
@@ -134,7 +136,7 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
 
 FXbool WavOutput::write(const void * data,FXuint nframes) {
   FXlong duration = ((FXlong)nframes*1000000000)/af.rate;
-  FXThread::sleep(duration);
+  //FXThread::sleep(duration);
   if (!file.isOpen() || file.writeBlock(data,af.framesize()*nframes)!=af.framesize()*nframes)
     return false;
   else

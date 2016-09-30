@@ -25,6 +25,9 @@
 
 #ifdef HAVE_GCRYPT
 #include "gcrypt.h"
+#elif defined(_WIN32)
+#include <Windows.h>
+#include <wincrypt.h>
 #else
 #include "md5.h"
 #endif
@@ -122,6 +125,18 @@ static void checksum(FXString & io){
 #ifdef HAVE_GCRYPT
   FXuchar digest[16];
   gcry_md_hash_buffer(GCRY_MD_MD5,(void*)digest,(const void*)io.text(),io.length());
+#elif defined(_WIN32)
+  FXuchar digest[16];
+  HCRYPTPROV provider;
+  HCRYPTHASH hash;
+  DWORD hashlen = 16;
+
+  CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_SIG, CRYPT_VERIFYCONTEXT);
+  CryptCreateHash(provider, CALG_MD5, 0, 0, &hash);
+  CryptHashData(hash,reinterpret_cast<BYTE*>(io.text()), io.length(), 0);
+  CryptGetHashParam(hash, HP_HASHVAL, digest,&hashlen, 0);
+  CryptDestroyHash(hash);
+  CryptReleaseContext(provider, 0);
 #else
   md5_state_t pms;
   md5_byte_t digest[16];

@@ -20,6 +20,11 @@
 #include "ap_pipe.h"
 #include "ap_utils.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include <synchapi.h>
+#endif
+
 /// On Linux we want to use pipe2
 #if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 9))
   #define HAVE_PIPE2
@@ -52,6 +57,7 @@ namespace ap {
 #if !defined(_WIN32) && !defined(HAVE_EVENTFD)
 static FXbool create_pipe(FXInputHandle & rh,FXInputHandle & wh) {
   FXInputHandle h[2];  
+
 #ifdef HAVE_PIPE2
   if (pipe2(h,O_CLOEXEC)==0) {
 
@@ -207,8 +213,8 @@ void Semaphore::release() {
 
 FXbool Semaphore::wait(const Signal & input) {
 #if defined(_WIN32)
-  HANDLE handles[2]={device,input.handle()}
-  DWORD result=WaitForMultipleObjects(2,devices,false,INFINITE);
+  HANDLE handles[2] = { device,input.handle() };
+  DWORD result=WaitForMultipleObjects(2,handles,false,INFINITE);
   if(result==WAIT_OBJECT_0) {
     if (WaitForSingleObject(device,0)==WAIT_OBJECT_0){
       release();    

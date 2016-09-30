@@ -19,11 +19,19 @@
 #ifndef AP_H
 #define AP_H
 
-#if __GNUC__ >= 4
-  #define GMAPI __attribute__ ((visibility("default")))
+#ifdef _WIN32
+#if defined(GAP_BUILD)
+#define GMAPI __declspec(dllexport)
 #else
-  #define GMAPI
+#define GMAPI
+//#define GMAPI __declspec(dllimport)
 #endif
+#elif defined(__GNUC__) && __GNUC__ >= 4
+#define GMAPI __attribute__ ((visibility("default")))
+#else
+#define GMAPI
+#endif
+
 
 #include <ap_event.h>
 #include <ap_event_queue.h>

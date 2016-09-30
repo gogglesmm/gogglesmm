@@ -76,10 +76,10 @@ const FXchar * Codec::name(FXuchar c){
   }
 
 
-
+/*
 AudioFormat::AudioFormat() {
   }
-
+  */
 
 AudioFormat::AudioFormat(const AudioFormat & af) {
   format    =af.format;

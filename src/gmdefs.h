@@ -22,6 +22,7 @@
 #include "gmconfig.h"
 
 #include <new>
+#define _CRT_RAND_S
 #include <fx.h>
 
 #define FOXVERSION ((FOX_LEVEL) + (FOX_MINOR*1000) + (FOX_MAJOR*100000))

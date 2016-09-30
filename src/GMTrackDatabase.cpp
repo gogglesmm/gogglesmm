@@ -28,6 +28,7 @@
 #include "GMTag.h"
 #include "gmutils.h"
 
+
 #ifdef __GNUC__
 #define DEBUG_DB_GET() FXTRACE((51,"%s\n",__PRETTY_FUNCTION__))
 #define DEBUG_DB_SET() FXTRACE((52,"%s\n",__PRETTY_FUNCTION__))

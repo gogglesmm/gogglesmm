@@ -16,6 +16,9 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
+#define _CRT_RAND_S
+
+
 #include "gmdefs.h"
 #include "gmutils.h"
 #include "GMTrack.h"
@@ -54,6 +57,8 @@
 
 #include <sqlite3.h>
 
+
+#include <stdlib.h> // for rand_s
 
 FXbool GMDatabaseClipboardData::request(FXDragType target,GMClipboard * clipboard){
   if (target==GMClipboard::urilistType){
@@ -181,13 +186,14 @@ long GMDatabaseSource::onCmdLoadCovers(FXObject*,FXSelector sel,void*ptr) {
 
 
 
-
-#include <stdlib.h> // need this for rand()
-
 //generates a psuedo-random integer between min and max
 int randint(int min, int max,unsigned int * random_seed)
 {
+#ifdef _WIN32
+  return min + int(((double)(max - min + 1))*rand_s(random_seed) / (RAND_MAX + 1.0));
+#else
   return min+int( ((double)(max-min+1))*rand_r(random_seed)/(RAND_MAX+1.0));
+#endif
 }
 
 
@@ -198,7 +204,11 @@ void GMDatabaseSource::shuffle(GMTrackList*list,FXuint sort_seed) const {
 
   /// Initial Value comes from sort_seed (read from registry and such...)
   FXuint random_seed = sort_seed;
+#ifdef _WIN32
+  rand_s(&random_seed);
+#else
   rand_r(&random_seed);
+#endif
 
   FXint n;
   FXint nitems=list->getNumItems()-1;

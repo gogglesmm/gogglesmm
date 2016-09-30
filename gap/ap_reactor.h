@@ -28,7 +28,7 @@ namespace ap {
 class GMAPI Reactor {
 private:
 #ifdef _WIN32
-  HANDLE * pfds;
+  FXInputHandle * pfds;
   FXint    nfds;
   FXint    mfds;
   FXuint   result;
@@ -39,7 +39,7 @@ private:
 #endif
 public:
 
-#ifdef _WIN32 
+#ifdef _WIN32
   class Native {};
 #else
   class Native {

@@ -33,7 +33,7 @@
 #include "GMTrayIcon.h"
 
 
-#ifdef HAVE_NLS
+#if defined(HAVE_NLS)
 
 #define PACKAGE "gogglesmm"
 
@@ -206,6 +206,19 @@ FXString GMApp::getPodcastDirectory(FXbool create) {
   }
 
 FXString GMApp::getDataDirectory(FXbool create) {
+#ifdef _WIN32
+  FXString appdata = FXSystem::getEnvironment("APPDATA");
+
+  if (appdata.empty())
+	  appdata = FXSystem::getHomeDirectory();
+
+  appdata += PATHSEPSTRING "gogglesmm";
+
+  if (create)
+	  FXDir::createDirectories(appdata);
+
+  return appdata;  
+#else
   FXString xdg_data_home = FXSystem::getEnvironment("XDG_DATA_HOME");
 
   if (xdg_data_home.empty())
@@ -217,6 +230,7 @@ FXString GMApp::getDataDirectory(FXbool create) {
     FXDir::createDirectories(xdg_data_home);
 
   return xdg_data_home;
+#endif
   }
 
 

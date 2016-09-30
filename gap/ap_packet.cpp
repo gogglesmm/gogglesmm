@@ -22,8 +22,7 @@
 
 namespace ap {
 
-PacketPool::PacketPool() {
-  }
+PacketPool::PacketPool() {}
 
 FXbool PacketPool::init(FXival sz,FXival n) {
   if (n>64) fxerror("fixme");

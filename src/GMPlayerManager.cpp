@@ -16,6 +16,7 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
+#ifndef _WIN32
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -25,7 +26,7 @@
 
 #include <xincs.h>
 #include <X11/XF86keysym.h>
-
+#endif
 
 #include "gmdefs.h"
 #include "gmutils.h"
@@ -438,13 +439,14 @@ GMPlayerManager::GMPlayerManager() {
 GMPlayerManager::~GMPlayerManager() {
 
   /// Remove Signal Handlers
+#ifndef _WIN32
   application->removeSignal(SIGINT);
   application->removeSignal(SIGQUIT);
   application->removeSignal(SIGTERM);
   application->removeSignal(SIGHUP);
   application->removeSignal(SIGPIPE);
   application->removeSignal(SIGCHLD);
-
+#endif
   /// Cleanup fifo crap
   if (fifo.isOpen())
     fifo.close();
@@ -473,6 +475,7 @@ GMPlayerManager::~GMPlayerManager() {
 
 
 FXint GMPlayerManager::init_fifo(int& argc,char** argv){
+#ifndef _WIN32
   FXString fifodir = FXSystem::getHomeDirectory() + PATHSEPSTRING + ".goggles";
   FXStat info;
 
@@ -536,7 +539,7 @@ FXint GMPlayerManager::init_fifo(int& argc,char** argv){
     FXFile::remove(fifofilename);
     fifofilename=FXString::null;
     }
-
+#endif
   return FIFO_STATUS_OWNER;
   }
 
@@ -647,12 +650,14 @@ void GMPlayerManager::init_window(FXbool wizard) {
   // Register Global Hotkeys
   register_global_hotkeys();
 
+#ifndef _WIN32
   /// Handle interrupt to save stuff nicely
   application->addSignal(SIGINT,mainwindow,GMWindow::ID_QUIT);
   application->addSignal(SIGQUIT,mainwindow,GMWindow::ID_QUIT);
   application->addSignal(SIGTERM,mainwindow,GMWindow::ID_QUIT);
   application->addSignal(SIGHUP,mainwindow,GMWindow::ID_QUIT);
   application->addSignal(SIGPIPE,mainwindow,GMWindow::ID_QUIT);
+#endif
 
   /// Create Tooltip Window
   FXToolTip * tooltip = new FXToolTip(application);
@@ -819,7 +824,9 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   application->create();
 
   /// Keep track of child processes
+#ifndef _WIN32
   application->addSignal(SIGCHLD,this,GMPlayerManager::ID_CHILD);
+#endif
 
   /// Make sure we're threadsafe
   if (GMDatabase::threadsafe()==0) {
@@ -837,6 +844,7 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
       "In order to show all icons, Goggles Music Manager requires PNG\n"
       "support in the FOX library. If you've compiled FOX yourself, most\n"
       "likely the libpng header files were not installed on your system."));
+	return 1;
     }
 
   taskmanager = new GMTaskManager(this,ID_TASKMANAGER);
@@ -874,6 +882,7 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   if (!init_sources())
     return false;
 
+  
   /// Everything opened succesfully... now create the GUI
   player = new GMAudioPlayer(application,this,ID_AUDIO_PLAYER);
 
@@ -892,6 +901,7 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   if (fifo.isOpen()) {
     application->addInput(this,GMPlayerManager::ID_DDE_MESSAGE,fifo.handle(),INPUT_READ);
     }
+
 
   FXString url = get_cmdline_url(argc,argv);
 
@@ -1032,6 +1042,7 @@ void GMPlayerManager::update_mpris() {
 
 
 void GMPlayerManager::update_tray_icon() {
+#ifndef _WIN32
   if (trayicon){
     if (!preferences.gui_tray_icon || preferences.gui_tray_icon_disabled) {
       delete trayicon;
@@ -1044,6 +1055,7 @@ void GMPlayerManager::update_tray_icon() {
       trayicon->create();
       }
     }
+#endif
   }
 
 
@@ -1368,7 +1380,9 @@ void GMPlayerManager::reset_track_display() {
   /// Reset Main Window
   mainwindow->reset();
 
+#ifndef _WIN32
   if (trayicon) trayicon->reset();
+#endif
 
   /// Reset Active Track
   getTrackView()->setActive(-1);
@@ -1528,6 +1542,7 @@ long GMPlayerManager::onCmdQuit(FXObject*,FXSelector,void*){
 
 
 long GMPlayerManager::onCmdChild(FXObject*,FXSelector,void*){
+#ifndef _WIN32
   FXint pid;
   FXint status;
   while(1) {
@@ -1537,6 +1552,7 @@ long GMPlayerManager::onCmdChild(FXObject*,FXSelector,void*){
       }
     break;
     }
+#endif
   return 1;
   }
 
@@ -1723,7 +1739,7 @@ long GMPlayerManager::onCmdSettingsDaemon(FXObject*,FXSelector,void*ptr){
   }
 #endif
 
-
+#ifndef _WIN32
 // Perhaps should do something else...
 static int xregisterhotkeys(Display* dpy,XErrorEvent* eev){
   char buf[256];
@@ -1743,9 +1759,10 @@ static int xregisterhotkeys(Display* dpy,XErrorEvent* eev){
   fxwarning("gogglesmm X Error: code %d major %d minor %d: %s.\n",eev->error_code,eev->request_code,eev->minor_code,buf);
   return 1;
   }
-
+#endif
 
 void GMPlayerManager::register_global_hotkeys() {
+#ifndef _WIN32
   Window root   = application->getRootWindow()->id();
   Display * display = (Display*) application->getDisplay();
   KeyCode keycode;
@@ -1796,9 +1813,11 @@ void GMPlayerManager::register_global_hotkeys() {
 
   XSync (display,False);
   XSetErrorHandler(previous);
+#endif
   }
 
 FXbool GMPlayerManager::handle_global_hotkeys(FXuint code) {
+#ifndef _WIN32
   switch(code) {
 //    case XF86XK_AudioMute	        : break;
 //    case XF86XK_AudioRaiseVolume	: break;
@@ -1822,6 +1841,7 @@ FXbool GMPlayerManager::handle_global_hotkeys(FXuint code) {
 //    case XF86XK_AudioRandomPlay	  : break;
     default                       : return false; break;
     }
+#endif
   return true;
   }
 
@@ -1932,7 +1952,7 @@ FXint GMPlayerManager::createPlaylist(const FXString & name) {
   return playlist;
   }
 
-FXuint GMPlayerManager::getMainWindowId() const {
+FXID GMPlayerManager::getMainWindowId() const {
   return mainwindow->id();
   }
 

@@ -19,26 +19,32 @@ set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added,
 set(GAP_SOVERSION_REVISION 0)   # Always increase the revision value. Reset to 0 when Current changes.
 set(GAP_SOVERSION_AGE 0)        # Increase the age value only if the changes made to the ABI are backward compatible.
 
-
+# Compiler Features
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
-
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
+
+# Set Global Debug Flags
+set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS $<$<OR:$<CONFIG:DEBUG>,$<CONFIG:RELWITHDEBINFO>>:DEBUG>)
 
 
 # Expat
 find_package(EXPAT REQUIRED)
 LIST(APPEND LIBRARIES ${EXPAT_LIBRARIES})
 
-
 # Third Party Libraries
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(WIN32)
 
   # FOX
-  find_library(FOX_LIBRARIES NAMES FOX-1.7)
-  find_path(FOX_INCLUDE_DIRS NAME fx.h PATH_SUFFIXES fox-1.7)
+  find_library(FOX_LIBRARIES NAMES FOXDLL-1.7)
+  find_path(FOX_INCLUDE_DIRS NAMES fx.h PATH_SUFFIXES fox-1.7)
 
+  add_definitions(-DXML_STATIC -DFOXDLL -DGAP_BUILD)	
+
+
+  list(APPEND LIBRARIES ${FOX_LIBRARIES} ws2_32.lib)	
 else()
 
   find_package(PkgConfig)
@@ -57,19 +63,20 @@ else()
   #pkg_check_modules(CDDA libcdio_cdda)
   #pkg_check_modules(SMB smbclient)
 
-
-
-
 endif()
 
+
 # Check for libmad
-check_include_files(mad.h HAVE_MAD_H)
+find_path(HAVE_MAD_H NAMES mad.h)
+message(STATUS "mad.h ${HAVE_MAD_H}")
+#check_include_files(mad.h HAVE_MAD_H)
 if (HAVE_MAD_H)
+   message(STATUS "mad.h found")
    set(LIBMAD_HEADERS_FOUND TRUE)
 endif (HAVE_MAD_H)
 
 if (LIBMAD_HEADERS_FOUND)
-   find_library(MAD_LIBRARIES NAMES mad )
+   find_library(MAD_LIBRARIES NAMES mad libmad.lib)
 endif (LIBMAD_HEADERS_FOUND)
 if (MAD_LIBRARIES)
    set(MAD_FOUND TRUE)
@@ -193,13 +200,32 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 
+
+#add_executable(gogglesmm IMPORTED GLOBAL)
+#set_target_properties(gogglesmm PROPERTIES ENABLE_EXPORTS 1)
+
 # Wav File output
 add_library(gap_wav MODULE plugins/ap_wavout.cpp)
 target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(gap_wav PRIVATE ${FOX_LIBRARIES} gogglesmm)
 install(TARGETS gap_wav LIBRARY DESTINATION lib/gogglesmm)
 
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows") 
+if(WIN32)
+add_library(gap_directx MODULE plugins/ap_directx.cpp)
+target_include_directories(gap_directx BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(gap_directx PRIVATE ${FOX_LIBRARIES} dsound.lib dxguid.lib gogglesmm)
+install(TARGETS gap_directx LIBRARY DESTINATION bin)
+
+
+add_library(gap_wmm MODULE plugins/ap_wmm.cpp)
+target_include_directories(gap_wmm BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(gap_wmm PRIVATE ${FOX_LIBRARIES} winmm.lib gogglesmm)
+install(TARGETS gap_wmm LIBRARY DESTINATION bin)
+endif()
+
+
+if(NOT WIN32) 
 
   # Alsa Output
   if (ALSA_FOUND)
@@ -232,7 +258,7 @@ endif()
 
 
 # Don't build OSS for Windows or Linux
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND UNIX)
     add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
     target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
     target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
@@ -249,9 +275,12 @@ configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
 
 add_library(gap ${SOURCES} $<TARGET_OBJECTS:gap_plugins>)
 target_link_libraries(gap ${LIBRARIES})
-
+target_compile_definitions(gap PRIVATE -DGAP_BUILD)
 
 set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
+
+#add_custom_command(TARGET gap POST_BUILD COMMAND lib.exe /def /out:$<TARGET_FILE_DIR:gap>/gap_export.lib $<TARGET_OBJECTS:gap>)
+
 
 target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
