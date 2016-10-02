@@ -77,7 +77,7 @@ set_package_properties(oss PROPERTIES
 
 
 # Allow GAP to be build as a shared library.
-if(MSVC)
+if(WIN32 AND MSVC)
   set(BUILD_GAP_SHARED_LIB ON CACHE BOOL "Build libgap as a shared library" FORCE)
 else()
   set(BUILD_GAP_SHARED_LIB OFF CACHE BOOL "Build libgap as a shared library")
@@ -368,13 +368,13 @@ install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
 if(WIN32)
 add_library(gap_directx MODULE plugins/ap_directx.cpp)
 target_include_directories(gap_directx BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
-target_link_libraries(gap_directx PRIVATE ${FOX_LIBRARIES} dsound.lib dxguid.lib gap)
+target_link_libraries(gap_directx PRIVATE ${FOX_LIBRARIES} dsound.lib dxguid.lib ${GAP_PLUGIN_LINK_TARGET})
 install(TARGETS gap_directx LIBRARY DESTINATION bin)
 
 
 add_library(gap_wmm MODULE plugins/ap_wmm.cpp)
 target_include_directories(gap_wmm BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
-target_link_libraries(gap_wmm PRIVATE ${FOX_LIBRARIES} winmm.lib gap)
+target_link_libraries(gap_wmm PRIVATE ${FOX_LIBRARIES} winmm.lib ${GAP_PLUGIN_LINK_TARGET})
 install(TARGETS gap_wmm LIBRARY DESTINATION bin)
 endif()
 
@@ -451,8 +451,6 @@ else()
   add_library(gap STATIC ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins> $<TARGET_OBJECTS:gap_alac>)
 endif()
 set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
-
-#add_custom_command(TARGET gap POST_BUILD COMMAND lib.exe /def /out:$<TARGET_FILE_DIR:gap>/gap_export.lib $<TARGET_OBJECTS:gap>)
 
 
 target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS})

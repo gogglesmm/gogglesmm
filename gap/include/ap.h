@@ -20,8 +20,8 @@
 #define AP_H
 
 #ifdef _WIN32
-  #ifndef GAP_DLL
-    #define GMAPI __declspec(dllexport)
+  #ifdef GAP_DLL
+    #define GMAPI __declspec(dllimport)
   #else
     #define GMAPI
   #endif

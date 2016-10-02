@@ -28,7 +28,7 @@
   Plugin Modules should define GAP_PLUGIN before any other includes
 */
 #ifdef _WIN32
-  #ifndef GAP_DLL
+  #ifdef GAP_DLL
     #ifdef GAP_PLUGIN
       #define GMAPI __declspec(dllimport)
     #else
