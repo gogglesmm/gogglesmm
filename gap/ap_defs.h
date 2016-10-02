@@ -19,17 +19,33 @@
 #ifndef AP_DEFS_H
 #define AP_DEFS_H
 
+/*
+  When building the output plugins, we always need to export
+  their interface api (GMPLUGINAPI) and still need the ability
+  to import the api from the gap library (GMAPI) at the same time.
+  Hence the need for two separate macros.
+
+  Plugin Modules should define GAP_PLUGIN before any other includes
+*/
 #ifdef _WIN32
-#if defined(GAP_BUILD)
-#define GMAPI __declspec(dllexport)
+  #ifndef GAP_DLL
+    #ifdef GAP_PLUGIN
+      #define GMAPI __declspec(dllimport)
+    #else
+      #define GMAPI __declspec(dllexport)
+    #endif
+  #else
+    #define GMAPI
+  #endif
+  #define GMPLUGINAPI __declspec(dllexport)
 #else
-#define GMAPI
-//#define GMAPI __declspec(dllimport)
-#endif
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#define GMAPI __attribute__ ((visibility("default")))
-#else
-#define GMAPI
+  #if defined(__GNUC__) && __GNUC__ >= 4
+    #define GMAPI __attribute__ ((visibility("default")))
+    #define GMPLUGINAPI __attribute__ ((visibility("default")))
+  #else
+    #define GMAPI
+    #define GMPLUGINAPI
+  #endif
 #endif
 
 #define AP_VERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))

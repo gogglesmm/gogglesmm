@@ -20,16 +20,17 @@
 #define AP_H
 
 #ifdef _WIN32
-#if defined(GAP_BUILD)
-#define GMAPI __declspec(dllexport)
+  #ifndef GAP_DLL
+    #define GMAPI __declspec(dllexport)
+  #else
+    #define GMAPI
+  #endif
 #else
-#define GMAPI
-//#define GMAPI __declspec(dllimport)
-#endif
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#define GMAPI __attribute__ ((visibility("default")))
-#else
-#define GMAPI
+  #if __GNUC__ >= 4
+    #define GMAPI __attribute__ ((visibility("default")))
+  #else
+    #define GMAPI
+  #endif
 #endif
 
 

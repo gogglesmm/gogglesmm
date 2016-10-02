@@ -261,6 +261,15 @@ set(PLUGIN_SOURCES plugins/ap_aiff.cpp
 set(HAVE_ALAC 1)
 set(HAVE_MP4 1)
 
+#if(WIN32)
+  if(BUILD_GAP_SHARED_LIB)
+    add_definitions(-DGAP_DLL)
+    set(GAP_PLUGIN_LINK_TARGET gap)
+  else()
+    set(GAP_PLUGIN_LINK_TARGET gogglesmm)
+  endif()
+#endif()
+
 # Link to FOX during shared library build
 if(BUILD_GAP_SHARED_LIB)
   LIST(APPEND LIBRARIES ${FOX_LIBRARIES})
@@ -336,8 +345,6 @@ endif()
 add_library(gap_plugins OBJECT ${PLUGIN_SOURCES})
 target_include_directories(gap_plugins BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(gap_plugins PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/alac)
-
-
 if(BUILD_GAP_SHARED_LIB)
   set_property(TARGET gap_alac PROPERTY POSITION_INDEPENDENT_CODE TRUE)
   set_property(TARGET gap_plugins PROPERTY POSITION_INDEPENDENT_CODE TRUE)
@@ -353,11 +360,9 @@ target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_
 
 # Depend on symbls in main executable
 if(MSVC)
-target_link_libraries(gap_wav PRIVATE ${FOX_LIBRARIES} gogglesmm)
+  target_link_libraries(gap_wav ${FOX_LIBRARIES} ${GAP_PLUGIN_LINK_TARGET})
 endif()
-
 install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
-
 
 if(WIN32)
 add_library(gap_directx MODULE plugins/ap_directx.cpp)
@@ -375,8 +380,7 @@ endif()
 
 #-------------------------------------------------------------------------------
 
-
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(NOT WIN32)
 
   # Alsa Output
   if (ALSA_FOUND AND WITH_ALSA)
@@ -452,9 +456,15 @@ set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
 
 target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
 target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 target_link_libraries(gap PRIVATE ${LIBRARIES})
 
 if(BUILD_GAP_SHARED_LIB)
+
+  if(WIN32)
+    target_compile_definitions(gap INTERFACE -DGAP_DLL)
+  endif()
+
   #set_target_properties(gap PROPERTIES VERSION ${GAP_VERSION} SOVERSION ${GAP_SOVERSION})
   install(TARGETS gap LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
   install(FILES include/ap.h

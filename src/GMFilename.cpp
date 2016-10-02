@@ -20,31 +20,6 @@
 #include "GMTrack.h"
 #include "GMFilename.h"
 
-/*
-
-  Conditionals
-  ------------
-
-    ?c<a|b> => display a if c is not empty, display b if c is empty)
-    ?c      => display c if not empty
-
-    T => track title
-    A => album title
-    P => album artist name
-    p => track artist name
-    G => genre
-    N => 2 digit track number
-    n => track number
-    d => disc number
-    y => track year
-    w => composer
-    c => conductor
-
-
-*/
-
-
-
 const char * gmcodecnames[]={
   "7-bit Ascii",
   "UTF-8 Unicode",
@@ -92,188 +67,279 @@ const char * gmcodecnames[]={
   };
 
 
-using namespace GMFilename;
+using namespace gm;
 
-namespace GMFilename {
+namespace gm {
 
-/*
-    0) trim white spaces
-    1) only want printable characters
-    2) substitute spaces for underscores [optional]
-    3) make everything lowercase [optional]
-    4) do not use any of the shell dangerous character set \'\\#~!\"$&();<>|`^*?[]/
-*/
-FXString filter(const FXString & input,const FXString & forbidden,FXuint options){
-//  const FXString forbidden = "\'\\#~!\"$&();<>|`^*?[]/.:";  // Allowed  %+,-=@_{}
-  FXString result;
-  FXwchar w;
-  FXint i;
-  FXbool lastspace=false;
-  for (i=0;i<input.length();i=input.inc(i)){
-    w = input.wc(i);
-    if (Unicode::isPrint(w)) {
-      if (Unicode::isSpace(w)) {
-        if (!lastspace) {
-          if (options&NOSPACES)
-            result+="_";
-          else
-            result.append(&w,1);
-          lastspace=true;
-          }
-        }
-      else if (options&LOWERCASE && Unicode::isUpper(w)){
-        w = Unicode::toLower(w);
-        result.append(&w,1);
-        lastspace=false;
-        }
-      else if (Unicode::isAscii(w) && Ascii::isPunct(input[i])) {
-        if (forbidden.find(input[i])==-1)
-        result.append(&w,1);
-        lastspace=false;
-        }
-      else {
-        result.append(&w,1);
-        lastspace=false;
+
+
+// Apply filter rules without character encoding conversion
+FXString TextConverter::apply_filters(const FXString & src) const {
+  FXString dst;
+  FXint n=0;
+
+  // First measure destination string size
+  for (FXint i=0;i<src.length();i=src.inc(i)) {
+
+    if (Unicode::isSpace(src.wc(i))) {
+
+      // Simplify space
+      while(Unicode::isSpace(src.wc(src.inc(i))))
+        i=src.inc(i);
+
+      // No space at end or beginning
+      if (n>0 && src.inc(i)<src.length())
+        n+=1; // always use 0x20 or _
+      }
+    else if (Unicode::isAscii(src.wc(i))) {
+      if (Ascii::isPrint(src[i]) && forbidden.find(src[i])==-1) {
+        n+=1;
         }
       }
+    else if (Unicode::isPrint(src.wc(i))) {
+      if (modifiers&LOWERCASE)
+        n+=wc2utf(Unicode::toLower(src.wc(i)));
+      else if (modifiers&UPPERCASE)
+        n+=wc2utf(Unicode::toUpper(src.wc(i)));
+      else
+        n+=src.extent(i);
+      }
     }
-  return result.trim();
+
+  // Resize destination
+  dst.length(n);
+  n=0;
+
+  for (FXint i=0;i<src.length();i=src.inc(i)) {
+
+    if (Unicode::isSpace(src.wc(i))) {
+
+      // Simplify Space
+      while(Unicode::isSpace(src.wc(src.inc(i))))
+        i=src.inc(i);
+
+      // No space at end or beginning
+      if (n>0 && src.inc(i)<src.length()){
+        if (modifiers&NOSPACE)
+          dst[n++] = '_';
+        else
+          dst[n++] = ' ';
+        }
+
+      }
+    else if (Ascii::isAscii(src[i])) {
+
+      if (Ascii::isPrint(src[i]) && forbidden.find(src[i])==-1) {
+        if (modifiers&LOWERCASE)
+          dst[n++]=Ascii::toLower(src[i]);
+        else if (modifiers&UPPERCASE)
+          dst[n++]=Ascii::toUpper(src[i]);
+        else
+          dst[n++]=src[i];
+        }
+      }
+    else if (Unicode::isPrint(src.wc(i))) {
+      if (modifiers&LOWERCASE)
+        n+=wc2utf(&dst[n],Unicode::toLower(src.wc(i)));
+      else if (modifiers&UPPERCASE)
+        n+=wc2utf(&dst[n],Unicode::toUpper(src.wc(i)));
+      else
+        n+=wc2utf(&dst[n],src.wc(i));
+      }
+    }
+  return dst;
   }
 
 
-/* convert UTF8 to given 8 bit codec. decompose if necessary */
-static FXString convert_and_decompose(const FXString & input,const FXTextCodec * codec) {
-  FXint i=0,j=0;
-  FXint len;
-  FXString result;
-  FXString input_decompose;
+
+FXString TextConverter::apply_codec(const FXString & src) const {
+  const FXchar undefined_character = 0x1a;
+  FXString dst;
+  FXint n=0;
   FXchar c;
 
-  for (i=0;i<input.length();i=input.inc(i)){
-    len = codec->utf2mb(&c,1,&input[i],input.extent(i));
-    if (len>0 && c!=0x1A) {
-      result+=c;
+  // Measure
+  for (FXint i=0;i<src.length();i=src.inc(i)) {
+    if (Ascii::isAscii(src[i])) {
+      if (Ascii::isPrint(src[i]) || Ascii::isSpace(src[i]))
+        n++;
       }
-    else {
-      input_decompose.assign(&input[i],input.extent(i));
-      input_decompose = decompose(input_decompose,DecomposeCompat);
-      for (j=0;j<input_decompose.length();j=input_decompose.inc(j)){
-        len = codec->utf2mb(&c,1,&input_decompose[j],input_decompose.extent(j));
-        if (len>0 && c!=0x1A) {
-          result+=c;
+    else if (Unicode::isPrint(src.wc(i))) {
+      if (codec->wc2mb(&c,1,src.wc(i))==1) {
+        if (c==undefined_character) {
+          FXString dcm = decompose(src.mid(i,src.extent(i)),false);
+          for (FXint j=0;j<dcm.length();j+=dcm.inc(j)) {
+            if (Unicode::isPrint(dcm.wc(j)) && codec->wc2mb(&c,1,dcm.wc(j)) && c!=0x1a) {
+              n++;
+              }
+            }
+          }
+        else {
+          n++;
           }
         }
       }
     }
-  return result;
-  }
 
-/* convert UTF8 to given 7 bit assci */
-static FXString convert_and_decompose(const FXString & input) {
-  FXint i=0;
-  FXString result;
-  FXString in = decompose(input,DecomposeCanonical);
-  for (i=0;i<in.length();i=in.inc(i)){
-    if (Ascii::isAscii(in[i]) && Ascii::isPrint(in[i]) ) {
-      result+=in[i];
+  dst.length(n);
+  for (FXint i=0,n=0;i<src.length();i=src.inc(i)) {
+    if ((Ascii::isAscii(src[i]) && (Ascii::isPrint(src[i]) || Ascii::isSpace(src[i]))) ||
+        (Unicode::isPrint(src.wc(i)))) {
+      if (codec->wc2mb(&c,1,src.wc(i))==1) {
+
+        if (c==undefined_character) {
+          /* If codec didn't contain a mapping to the required character,
+             do a compatibility decomposition and try mapping those */
+          FXString dcm = decompose(src.mid(i,src.extent(i)),false);
+          for (FXint j=0;j<dcm.length();j+=dcm.inc(j)) {
+            if (Unicode::isPrint(dcm.wc(j)) && codec->wc2mb(&c,1,dcm.wc(j)) && c!=undefined_character) {
+              dst[n++]=c;
+              }
+            }
+          }
+        else {
+          dst[n++]=c;
+          }
+        }
       }
     }
-  return result;
+  return dst;
   }
 
 
-static FXString to_8bit_codec(const FXString & input,const FXTextCodec * codec,const FXString & forbidden,FXuint opts) {
-  FXString result;
+FXString TextConverter::convert_to_ascii(const FXString & input) const {
+  FXString src = decompose(input,false);
+  FXString dst;
+  FXint i,n=0;
 
-  /// Filter the input
-  result = filter(input,forbidden,opts);
+  for (i=0;i<src.length();i++) {
 
-  /// Make sure it is properly composed. Should we do this?
-  result = compose(result,DecomposeCompat);
+    if (Ascii::isSpace(src[i])) {
 
-  /// convert to given codec.
+      // simplify white space
+      while (Ascii::isSpace(src[i+1]))
+        i++;
+
+      // don't start or end with a space
+      if (n>0 && i+1<src.length())
+        n++;
+
+      }
+
+    // Allow only printable
+    else if (Ascii::isPrint(src[i]) && forbidden.find(src[i])==-1)
+      n++;
+    }
+
+  if (n) {
+    dst.length(n);
+    for (i=0,n=0;i<src.length();i++) {
+      if (Ascii::isSpace(src[i])) {
+
+        // simplify white space
+        while (Ascii::isSpace(src[i+1]))
+          i++;
+
+        // don't start or end with a space
+        if (n>0 && i+1<src.length()) {
+          if (modifiers&NOSPACE)
+            dst[n++] = '_';
+          else
+            dst[n++] = ' ';
+          }
+
+        }
+
+      // Allow only printable
+      else if (Ascii::isPrint(src[i]) && forbidden.find(src[i])==-1) {
+        if (modifiers&LOWERCASE)
+          dst[n++] = Ascii::toLower(src[i]);
+        else if (modifiers&UPPERCASE)
+          dst[n++] = Ascii::toUpper(src[i]);
+        else
+          dst[n++] = src[i];
+        }
+      }
+    }
+  return dst;
+  }
+
+FXString TextConverter::convert_to_codec(const FXString & input) const {
+  FXASSERT(codec);
+
+  FXString output = apply_filters(input);
+
   if (codec->mibEnum()!=106) // not utf8
-    result = convert_and_decompose(result,codec);
+    output = apply_codec(output);
 
-  return result;
+  return output;
   }
 
 
-static FXString to_8bit_ascii(const FXString & input,const FXString & forbidden,FXuint opts) {
-  FXString result;
-
-  /// Filter the input
-  result = filter(input,forbidden,opts);
-
-  /// Make sure it is properly composed. Should we do this?
-  result = compose(result,DecomposeCompat);
-
-  /// convert to given codec.
-  result = convert_and_decompose(result);
-
-  /// Return result
-  return result;
-  }
-
-
-static FXString convert(const FXString & input,const FXTextCodec * codec,const FXString & forbidden,FXuint opts) {
-  if (codec)
-    return to_8bit_codec(input,codec,forbidden,opts);
+FXString TextConverter::convert(const FXString & input) const {
+  if (codec==nullptr)
+    return convert_to_ascii(input);
   else
-    return to_8bit_ascii(input,forbidden,opts);
+    return convert_to_codec(input);
   }
 
 
-static FXString get_field(FXchar field,const GMTrack & track,const FXTextCodec * codec,const FXString & forbidden,FXuint opts){
+/*----------------------------------------------------------------------------*/
+
+
+const FXchar TrackFormatter::valid[]="TAPpGwcNndy";
+
+
+TrackFormatter::TrackFormatter(const FXString & msk,const FXTextCodec * c, const FXString & f, FXuint m)
+  : TextConverter(c,f,m), mask(msk) {
+  }
+
+TrackFormatter::TrackFormatter(const FXString & msk,const FXTextCodec * c)
+  : TextConverter(c,FXString::null,0), mask(msk) {
+  }
+
+
+FXString TrackFormatter::get_field(const FXchar field,const GMTrack & track) const {
   switch(field) {
-    case 'T': return convert(track.title,codec,forbidden,opts); break;
-    case 'A': return convert(track.album,codec,forbidden,opts); break;
-    case 'P': return convert(track.album_artist,codec,forbidden,opts); break;
-    case 'p': return convert(track.artist,codec,forbidden,opts); break;
-    case 'G': return convert(track.tags[0],codec,forbidden,opts); break;
-    case 'w': return convert(track.composer,codec,forbidden,opts); break;
-    case 'c': return convert(track.conductor,codec,forbidden,opts); break;
-    case 'N': return FXString::value("%.2d",GMTRACKNO(track.no)); break;
-    case 'n': return FXString::value(GMTRACKNO(track.no));  break;
-    case 'd': return FXString::value(GMDISCNO(track.no)); break;
+    case 'T': return convert(track.title); break;
+    case 'A': return convert(track.album); break;
+    case 'P': return convert(track.album_artist); break;
+    case 'p': return convert(track.artist); break;
+    case 'G': return convert(track.tags[0]); break;
+    case 'w': return convert(track.composer); break;
+    case 'c': return convert(track.conductor); break;
+    case 'N': return FXString::value("%.2d",track.getTrackNumber()); break;
+    case 'n': return FXString::value(track.getTrackNumber());  break;
+    case 'd': return FXString::value(track.getDiscNumber()); break;
     case 'y': return FXString::value(track.year); break;
     }
   return FXString::null;
   }
 
 
-static FXbool eval_field(FXchar field,const GMTrack & track,const FXTextCodec * codec,const FXString & forbidden,FXuint opts){
+FXbool TrackFormatter::has_field(const FXchar field,const GMTrack & track,FXString & value) const {
   switch(field) {
-    case 'T': return !convert(track.title,codec,forbidden,opts).empty(); break;
-    case 'A': return !convert(track.album,codec,forbidden,opts).empty(); break;
-    case 'P': return !convert(track.album_artist,codec,forbidden,opts).empty(); break;
-    case 'p': return !convert(track.artist,codec,forbidden,opts).empty(); break;
-    case 'G': return !convert(track.tags[0],codec,forbidden,opts).empty(); break;
-    case 'w': return !convert(track.composer,codec,forbidden,opts).empty(); break;
-    case 'c': return !convert(track.conductor,codec,forbidden,opts).empty(); break;
-    case 'N': return GMTRACKNO(track.no)!=0; break;
-    case 'n': return GMTRACKNO(track.no)!=0; break;
-    case 'd': return GMDISCNO(track.no)!=0; break;
-    case 'y': return track.year!=0; break;
-    }
-  return false;
+    case 'N':
+    case 'n': if (track.getTrackNumber()==0) return false; break;
+    case 'd': if (track.getDiscNumber()==0) return false; break;
+    case 'y': if (track.year==0) return false; break;
+    default : break;
+    };
+  value = get_field(field,track);
+  return !value.empty();
   }
 
 
-
-FXString format_track(const GMTrack & track,const FXString & path,const FXString & forbidden,const FXuint & options,const FXTextCodec * textcodec){
+FXString TrackFormatter::format_fields(const GMTrack & track,const FXString & path) const{
   FXString field;
+  FXString result;
   FXwchar w;
-
-  /// Valid field identifiers
-  const FXchar valid[]="TAPpGNndy";
 
   /// Condition Stack
   FXint depth=0;
   FXArray<FXbool> cs(1);
   cs[0]=true;
 
-  FXString result;
 
   /// Parse the field entries
   for (FXint i=0;i<path.length();i=path.inc(i)){
@@ -302,19 +368,15 @@ FXString format_track(const GMTrack & track,const FXString & path,const FXString
       /// Condition with if else clause
       if (path[i+2]=='<') {
         /// condition is true if eval_fied returns true and the parent condition is also true.
-        cs.append(cs[depth] && eval_field(path[i+1],track,textcodec,forbidden,options));
+        cs.append(cs[depth] && has_field(path[i+1],track,field));
         i+=2;
         depth++;
         continue;
         }
       /// Simplified condition just display if not empty
       else if (cs[depth]) {
-        if (eval_field(path[i+1],track,textcodec,forbidden,options)) {
-          field = get_field(path[i+1],track,textcodec,forbidden,options);
-          if (field.empty())
-            result.trim();
-          else
-            result+=field;
+        if (has_field(path[i+1],track,field)) {
+          result+=field;
           }
         i+=1;
         continue;
@@ -326,7 +388,7 @@ FXString format_track(const GMTrack & track,const FXString & path,const FXString
 
       /// get field
       if (path[i]=='%' && strchr(valid,path[i+1]) ) {
-        field = get_field(path[i+1],track,textcodec,forbidden,options);
+        field = get_field(path[i+1],track);
         if (field.empty())
           result.trim();
         else
@@ -341,39 +403,48 @@ FXString format_track(const GMTrack & track,const FXString & path,const FXString
       }
 
     }
-
   result.trim();
   return result;
   }
 
 
+FXString TrackFormatter::getPath(const GMTrack & track) const {
 
-FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,const FXTextCodec * textcodec) {
-  FXString path;
+  // Expand Environment Variables and such...
+  FXString path = FXPath::expand(mask);
 
-  /// Expand Environment Variables and such...
-  path = FXPath::expand(format);
-
-  /// Make absolute
+  // Make absolute
   if (!FXPath::isAbsolute(path)) {
     path = FXPath::absolute(FXPath::directory(track.url),path);
     }
 
-  /// Simplify things
+  // Simplify things
   path = FXPath::simplify(path);
 
-  /// Parse field entries
-  result = format_track(track,path,forbidden,options,textcodec);
+  // Format field entries
+  FXString result = format_fields(track,path);
 
-  /// Add extension
+  // Add extension
   result+=".";
-  if (options&LOWERCASE_EXTENSION || options&LOWERCASE)
+  if (modifiers&LOWERCASE_EXTENSION || modifiers&LOWERCASE)
     result.append(FXPath::extension(track.url).lower());
   else
     result.append(FXPath::extension(track.url));
-  return true;
+
+  return result;
   }
 
+
+FXString TrackFormatter::getName(const GMTrack & track) const {
+  return format_fields(track,mask);
+  }
+
+}
+
+
+using namespace GMFilename;
+
+namespace GMFilename {
 
 void parse(GMTrack & track,const FXString & mask,FXuint options) {
   FXint nsep=0,i,j;
@@ -463,9 +534,5 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
       beg++;
       }
     }
-
   }
-
-
-
 }

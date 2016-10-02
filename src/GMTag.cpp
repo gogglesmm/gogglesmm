@@ -369,21 +369,21 @@ FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
 
   tag = file->tag();
 
-  if ((oggfile = dynamic_cast<TagLib::Ogg::Vorbis::File*>(file))) {
+  if ((oggfile = dynamic_cast<TagLib::Ogg::Vorbis::File*>(file))!=nullptr) {
     xiph=oggfile->tag();
     }
-  else if ((flacfile = dynamic_cast<TagLib::FLAC::File*>(file))){
+  else if ((flacfile = dynamic_cast<TagLib::FLAC::File*>(file))!=nullptr){
     xiph=flacfile->xiphComment();
     id3v2=flacfile->ID3v2Tag();
     }
-  else if ((mpgfile = dynamic_cast<TagLib::MPEG::File*>(file))){
+  else if ((mpgfile = dynamic_cast<TagLib::MPEG::File*>(file))!=nullptr){
     id3v2=mpgfile->ID3v2Tag();
     ape=mpgfile->APETag();
     }
-  else if ((mp4file = dynamic_cast<TagLib::MP4::File*>(file))){
+  else if ((mp4file = dynamic_cast<TagLib::MP4::File*>(file))!=nullptr){
     mp4=mp4file->tag();
     }
-  else if ((opusfile = dynamic_cast<TagLib::Ogg::Opus::File*>(file))){
+  else if ((opusfile = dynamic_cast<TagLib::Ogg::Opus::File*>(file))!=nullptr){
     xiph=opusfile->tag();
     }
   return true;

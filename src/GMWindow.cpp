@@ -582,12 +582,9 @@ void GMWindow::reset() {
 
 void GMWindow::display(const GMTrack& info){
   FXUTF8Codec codec;
-  FXString track = GMFilename::format_track(info,GMPlayerManager::instance()->getPreferences().gui_format_title,FXString::null,0,&codec);
+  gm::TrackFormatter trackformatter(GMPlayerManager::instance()->getPreferences().gui_format_title,&codec);
 
-  // Escape & for FXLabel
-  track.substitute("&","&&");
-
-  label_nowplaying->setText(track);
+  FXString track = trackformatter.getName(info);
 
   if (GMPlayerManager::instance()->getPreferences().gui_show_playing_titlebar){
     setTitle(FXString::value("%s ~ Goggles Music Manager",track.text()));
@@ -595,6 +592,9 @@ void GMWindow::display(const GMTrack& info){
   else {
     setTitle("Goggles Music Manager");
     }
+
+  // Need to escape & for FXLabel
+  label_nowplaying->setText(track.substitute("&","&&"));
 
   if (remote) remote->display(info);
   }

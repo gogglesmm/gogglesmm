@@ -16,11 +16,12 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
+
+// Building a plugin
+#define GAP_PLUGIN 1
+
 #include "ap_defs.h"
 #include "ap_output_plugin.h"
-
-
-//extern GMAPI FXString FX::FXSystem::getHostName();
 
 using namespace ap;
 
