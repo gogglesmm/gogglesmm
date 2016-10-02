@@ -1148,7 +1148,7 @@ void GMPreferencesDialog::updateColors(){
       if ((label=dynamic_cast<FXLabel*>(w))!=nullptr) {
         label->setTextColor(selected.fore);
         if ((button=dynamic_cast<FXButton*>(w))!=nullptr) {
-          if (dynamic_cast<GMListBox*>(button->getParent())){
+          if (dynamic_cast<GMListBox*>(button->getParent())!=nullptr){
             w->setBackColor(selected.back);
             }
           else {

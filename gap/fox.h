@@ -19,6 +19,10 @@
 #ifndef FOX_H
 #define FOX_H
 
+#ifdef _WIN32
+#pragma warning(push, 0)
+#endif
+
 #include <new>
 
 // Basic includes
@@ -113,5 +117,9 @@ typedef FXArray<FXString> FXStringList;
 #define TIME_MIN(m) 	TIME_SEC(60*m)
 #define TIME_HOUR(h) 	TIME_MIN(60*h)
 
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 #endif
 

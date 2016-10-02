@@ -130,7 +130,7 @@ if(WIN32)
   find_library(FOX_LIBRARIES NAMES FOXDLL-1.7)
   find_path(FOX_INCLUDE_DIRS NAMES fx.h PATH_SUFFIXES fox-1.7)
 
-  add_definitions(-DXML_STATIC -DFOXDLL -DGAP_BUILD)	
+  add_definitions(-DXML_STATIC -DFOXDLL)	
 
 
   list(APPEND LIBRARIES ${FOX_LIBRARIES} ws2_32.lib)	
@@ -345,6 +345,7 @@ endif()
 add_library(gap_plugins OBJECT ${PLUGIN_SOURCES})
 target_include_directories(gap_plugins BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(gap_plugins PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/alac)
+
 if(BUILD_GAP_SHARED_LIB)
   set_property(TARGET gap_alac PROPERTY POSITION_INDEPENDENT_CODE TRUE)
   set_property(TARGET gap_plugins PROPERTY POSITION_INDEPENDENT_CODE TRUE)
@@ -366,14 +367,14 @@ install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
 
 if(WIN32)
 add_library(gap_directx MODULE plugins/ap_directx.cpp)
-target_include_directories(gap_directx BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(gap_directx PRIVATE ${FOX_LIBRARIES} dsound.lib dxguid.lib gogglesmm)
+target_include_directories(gap_directx BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
+target_link_libraries(gap_directx PRIVATE ${FOX_LIBRARIES} dsound.lib dxguid.lib gap)
 install(TARGETS gap_directx LIBRARY DESTINATION bin)
 
 
 add_library(gap_wmm MODULE plugins/ap_wmm.cpp)
-target_include_directories(gap_wmm BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(gap_wmm PRIVATE ${FOX_LIBRARIES} winmm.lib gogglesmm)
+target_include_directories(gap_wmm BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
+target_link_libraries(gap_wmm PRIVATE ${FOX_LIBRARIES} winmm.lib gap)
 install(TARGETS gap_wmm LIBRARY DESTINATION bin)
 endif()
 
@@ -454,10 +455,11 @@ set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
 #add_custom_command(TARGET gap POST_BUILD COMMAND lib.exe /def /out:$<TARGET_FILE_DIR:gap>/gap_export.lib $<TARGET_OBJECTS:gap>)
 
 
-target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
+target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS})
 target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(gap PRIVATE ${LIBRARIES})
+target_compile_definitions(gap PRIVATE GAP_BUILD)
 
 if(BUILD_GAP_SHARED_LIB)
 
@@ -466,7 +468,7 @@ if(BUILD_GAP_SHARED_LIB)
   endif()
 
   #set_target_properties(gap PROPERTIES VERSION ${GAP_VERSION} SOVERSION ${GAP_SOVERSION})
-  install(TARGETS gap LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS gap RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})
   install(FILES include/ap.h
                 include/ap_app_queue.h
                 include/ap_buffer_base.h

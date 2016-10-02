@@ -25,6 +25,8 @@ struct pollfd;
 
 namespace ap {
 
+
+
 class GMAPI Reactor {
 private:
 #ifdef _WIN32
@@ -57,7 +59,7 @@ public:
     };
 #endif
 
-  class Input {
+  class GMAPI Input {
     public:
       FXInputHandle handle;
       FXuchar       mode;
@@ -85,7 +87,7 @@ public:
       virtual ~Input(){}
     };
 
-  class Timer {
+  class GMAPI Timer {
     friend class Reactor;
     private:
       Timer * next;
@@ -97,7 +99,7 @@ public:
       virtual ~Timer() {}
     };
 
-  class Deferred {
+  class GMAPI Deferred {
     public:
       FXuchar mode;
     public:
@@ -116,8 +118,9 @@ public:
     };
 
 
+
 protected:
-  FXPtrListOf<Deferred> deferred; // run once every iteration
+  FXPtrListOf<Deferred>  deferred; // run once every iteration
   FXPtrListOf<Input>    inputs;
   FXPtrListOf<Native>   native;
   Timer *               timers;

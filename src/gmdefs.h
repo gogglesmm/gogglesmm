@@ -23,7 +23,12 @@
 
 #include <new>
 #define _CRT_RAND_S
+
+#ifdef _WIN32
+#pragma warning(push, 0)
+#endif
 #include <fx.h>
+
 
 #define FOXVERSION ((FOX_LEVEL) + (FOX_MINOR*1000) + (FOX_MAJOR*100000))
 #define FXVERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
@@ -78,6 +83,10 @@ extern const FXchar * fxtr(const FXchar *) FX_FORMAT(1);
 
 // Best Image Scaler in FXImage
 #define FOX_SCALE_BEST 2
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 #endif
 

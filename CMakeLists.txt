@@ -33,7 +33,7 @@ include(CheckCXXCompilerFlag)
 # Additional compiler flags we like
 CHECK_CXX_COMPILER_FLAG(-Wall HAS_CXX_WALL)
 if(HAS_CXX_WALL)
-  add_compile_options(-Wall)
+  add_compile_options(-W4)
 endif()
 
 CHECK_CXX_COMPILER_FLAG(-Wextra HAS_CXX_WEXTRA)
@@ -75,6 +75,19 @@ endif()
 if(MSVC)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+add_compile_options(-wd4514) #unreferenced inline function got removed
+add_compile_options(-wd4711) #selected for automatic inline expansion
+add_compile_options(-wd4668) #not defined as a preprocessor
+add_compile_options(-wd4710) #function not inlined
+add_compile_options(-wd4820) #padding bytes added
+add_compile_options(-wd4625) #copy constructor deleted
+add_compile_options(-wd4626) #assignment operator deleted
+add_compile_options(-wd5026) #move constructor deleted
+add_compile_options(-wd5027) #move assignment operator deleted
+add_compile_options(-wd4365) #int to unsigned char
+add_compile_options(-wd4244) #uint to ushort
+add_compile_options(-wd4242) #uint to uchar
 endif()
 
 
