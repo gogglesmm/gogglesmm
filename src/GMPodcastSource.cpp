@@ -330,7 +330,8 @@ public:
 
 
 FXString make_podcast_feed_directory(const FXString & title) {
-  FXString feed = GMFilename::filter(title,"\'\\#~!\"$&();<>|`^*?[]/.:",GMFilename::NOSPACES);
+  gm::TextConverter filter(gm::TextConverter::NOSPACE);
+  FXString feed = filter.convert(title);
   FXDir::createDirectories(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed);
   return feed;
   }

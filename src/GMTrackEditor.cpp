@@ -191,13 +191,18 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
   FXuint options=0;
 
   if (GMPlayerManager::instance()->getPreferences().export_lowercase)
-    options|=GMFilename::LOWERCASE;
+    options|=gm::TrackFormatter::LOWERCASE;
 
   if (GMPlayerManager::instance()->getPreferences().export_lowercase_extension)
-    options|=GMFilename::LOWERCASE_EXTENSION;
+    options|=gm::TrackFormatter::LOWERCASE_EXTENSION;
 
   if (GMPlayerManager::instance()->getPreferences().export_underscore)
-    options|=GMFilename::NOSPACES;
+    options|=gm::TrackFormatter::NOSPACE;
+
+  gm::TrackFormatter trackformat(GMPlayerManager::instance()->getPreferences().export_format_template,
+                                 codec,
+                                 GMPlayerManager::instance()->getPreferences().export_character_filter,
+                                 options);
 
   /// Create New Mrls.
   for (i=0;i<tracks.no();i++) {
@@ -208,7 +213,8 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
       return true;
       }
     db->commit();
-    if (GMFilename::create(url,trackinfo,GMPlayerManager::instance()->getPreferences().export_format_template,GMPlayerManager::instance()->getPreferences().export_character_filter,options,codec) && url!=trackinfo.url) {
+    url = trackformat.getPath(trackinfo);
+    if (!url.empty()) {
       newurls.append(url);
       oldurls.append(trackinfo.url);
       numchanges++;
@@ -240,7 +246,14 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
 
   for (i=0;i<tracks.no();i++) {
     if (!newurls[i].empty()) {
-      list->appendItem(newurls[i]);
+      if (codec && codec->mibEnum()!=106) {
+        // Not UTF8 or Ascii
+        // Translate back to UTF-8
+        list->appendItem(codec->mb2utf(newurls[i]));
+        }
+      else {
+        list->appendItem(newurls[i]);
+        }
       }
     }
   if (dialog.execute()) {
