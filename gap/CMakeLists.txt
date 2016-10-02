@@ -250,11 +250,14 @@ set(PLUGIN_SOURCES plugins/ap_aiff.cpp
 set(HAVE_ALAC 1)
 set(HAVE_MP4 1)
 
-if(WIN32)
+#if(WIN32)
   if(BUILD_GAP_SHARED_LIB)
     add_definitions(-DGAP_DLL)
+    set(GAP_PLUGIN_LINK_TARGET gap)
+  else()
+    SET(GAP_PLUGIN_LINK_TARGET gogglesmm)
   endif()
-endif()
+#endif()
 
 # Link to FOX during shared library build
 if(BUILD_GAP_SHARED_LIB)
@@ -344,17 +347,11 @@ endif()
 add_library(gap_wav MODULE plugins/ap_wavout.cpp)
 target_include_directories(gap_wav PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
 install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
-
-
-
-
-# Depend on symbols in main executable
 if(MSVC)
-  target_link_libraries(gap_wav ${FOX_LIBRARIES} gogglesmm)
+  target_link_libraries(gap_wav ${FOX_LIBRARIES} ${GAP_PLUGIN_LINK_TARGET})
 endif()
 
-
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(NOT WIN32)
 
   # Alsa Output
   if (ALSA_FOUND AND WITH_ALSA)
