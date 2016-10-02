@@ -28,14 +28,14 @@ namespace ap {
 
 #define AP_IMPLEMENT_PLUGIN(PluginName)\
  extern "C" {\
-  GMAPI OutputPlugin * ap_load_plugin(Output* output) {\
+  GMPLUGINAPI OutputPlugin * ap_load_plugin(Output* output) {\
     return new PluginName(output);\
     }\
-  GMAPI void ap_free_plugin(OutputPlugin * plugin) {\
+  GMPLUGINAPI void ap_free_plugin(OutputPlugin * plugin) {\
     delete plugin;\
     plugin=nullptr;\
     }\
-  FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);\
+  FXuint GMPLUGINAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);\
   }
 
 /* Interface to OutputThread */

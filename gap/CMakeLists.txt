@@ -250,6 +250,12 @@ set(PLUGIN_SOURCES plugins/ap_aiff.cpp
 set(HAVE_ALAC 1)
 set(HAVE_MP4 1)
 
+if(WIN32)
+  if(BUILD_GAP_SHARED_LIB)
+    add_definitions(-DGAP_DLL)
+  endif()
+endif()
+
 # Link to FOX during shared library build
 if(BUILD_GAP_SHARED_LIB)
   LIST(APPEND LIBRARIES ${FOX_LIBRARIES})
@@ -325,8 +331,6 @@ endif()
 add_library(gap_plugins OBJECT ${PLUGIN_SOURCES})
 target_include_directories(gap_plugins BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(gap_plugins PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/alac)
-
-
 if(BUILD_GAP_SHARED_LIB)
   set_property(TARGET gap_alac PROPERTY POSITION_INDEPENDENT_CODE TRUE)
   set_property(TARGET gap_plugins PROPERTY POSITION_INDEPENDENT_CODE TRUE)
@@ -340,6 +344,8 @@ endif()
 add_library(gap_wav MODULE plugins/ap_wavout.cpp)
 target_include_directories(gap_wav PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
 install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
+
+
 
 
 # Depend on symbols in main executable
@@ -421,9 +427,15 @@ endif()
 set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
 target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
 target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 target_link_libraries(gap PRIVATE ${LIBRARIES})
 
 if(BUILD_GAP_SHARED_LIB)
+
+  if(WIN32)
+    target_compile_definitions(gap INTERFACE -DGAP_DLL)
+  endif()
+
   #set_target_properties(gap PROPERTIES VERSION ${GAP_VERSION} SOVERSION ${GAP_SOVERSION})
   install(TARGETS gap LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
   install(FILES include/ap.h
