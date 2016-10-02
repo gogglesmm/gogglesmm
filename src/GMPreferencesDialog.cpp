@@ -247,6 +247,52 @@ void init_default_colortheme() {
   }
 
 
+static void gm_update_scaling(FXfloat scaling,FXfloat old=1.0f) {
+  FXWindow*     w = FXApp::instance()->getRootWindow();
+  FXFrame*  frame = nullptr;
+  FXPacker* packer = nullptr;
+  FXScrollBar * scrollbar = nullptr;
+  FXSplitter * splitter = nullptr;
+  FX4Splitter * foursplitter = nullptr;
+  while(w){
+    if ((frame=dynamic_cast<FXFrame*>(w))) {
+      frame->setPadTop(lrintf(((FXfloat)frame->getPadTop() / old) * scaling));
+      frame->setPadBottom(lrintf(((FXfloat)frame->getPadBottom() / old) * scaling));
+      frame->setPadLeft(lrintf(((FXfloat)frame->getPadLeft() / old) * scaling));
+      frame->setPadRight(lrintf(((FXfloat)frame->getPadRight() / old) * scaling));
+      }
+    else if ((packer=dynamic_cast<FXPacker*>(w))) {
+      packer->setPadTop(lrintf(((FXfloat)packer->getPadTop() / old) * scaling));
+      packer->setPadBottom(lrintf(((FXfloat)packer->getPadBottom() / old) * scaling));
+      packer->setPadLeft(lrintf(((FXfloat)packer->getPadLeft() / old) * scaling));
+      packer->setPadRight(lrintf(((FXfloat)packer->getPadRight() / old) * scaling));
+      packer->setHSpacing(lrintf(((FXfloat)packer->getHSpacing() / old) * scaling));
+      packer->setVSpacing(lrintf(((FXfloat)packer->getVSpacing() / old) * scaling));
+      }
+    else if ((scrollbar=dynamic_cast<FXScrollBar*>(w))) {
+      scrollbar->setBarSize(lrintf(((FXfloat)scrollbar->getBarSize() / old) * scaling));
+      }
+    else if ((splitter=dynamic_cast<FXSplitter*>(w))) {
+      splitter->setBarSize(lrintf(((FXfloat)splitter->getBarSize() / old) * scaling));
+      }
+    else if ((foursplitter=dynamic_cast<FX4Splitter*>(w))) {
+      foursplitter->setBarSize(lrintf(((FXfloat)foursplitter->getBarSize() / old) * scaling));
+      }
+
+
+    w->update();
+    if(w->getFirst()){
+      w=w->getFirst();
+      continue;
+      }
+    while(!w->getNext() && w->getParent()){
+      w=w->getParent();
+      }
+    w=w->getNext();
+    }
+  }
+
+
 
 
 FXDEFMAP(GMPreferencesDialog) GMPreferencesDialogMap[]={
@@ -540,6 +586,22 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   matrix = new FXMatrix(grpbox,3,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,20);
 
+  new FXLabel(matrix,tr("HiDPI Scaling"),nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  GMListBox * scalinglist = new GMListBox(matrix,nullptr,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN);
+  scalinglist->appendItem("Auto");
+  scalinglist->appendItem("1x");
+  scalinglist->appendItem("2x");
+  scalinglist->setNumVisible(FXMIN(9,scalinglist->getNumItems()));
+  new FXFrame(matrix,FRAME_NONE);
+
+
+  // Scaling Auto
+  // use dpi value to calculate scaling factor (based upon 96dpi)
+  // dpi needs to be initialized from DisplayServer
+
+
+
+
   new FXLabel(matrix,tr("Default Font"),nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   new GMTextField(matrix,20,this,ID_FONT,LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|TEXTFIELD_NORMAL|TEXTFIELD_READONLY);
   new GMButton(matrix,tr("Change…"),nullptr,this,ID_CHANGE_FONT,BUTTON_NORMAL|LAYOUT_CENTER_Y);
@@ -701,10 +763,18 @@ void GMPreferencesDialog::updateFonts() {
   }
 
 long GMPreferencesDialog::onCmdDisplayDPI(FXObject*,FXSelector,void*ptr){
+  FXint olddpi = getApp()->reg().readIntEntry("SETTINGS","screenres",dpi);
+
   dpi = (FXint)(FXival)ptr;
   getApp()->reg().writeIntEntry("SETTINGS","screenres",dpi);
   GMApp::instance()->updateFont();
+
+  FXfloat fold = roundf(olddpi / 24.0f) * 4.0f;
+  FXfloat fscaling = roundf(dpi / 24.0f) * 4.0f;
+  gm_update_scaling(fscaling,fold);
+
   updateFonts();
+
   return 1;
   }
 
@@ -1078,6 +1148,9 @@ long GMPreferencesDialog::onUpdColorTheme(FXObject*sender,FXSelector,void*) {
 
 
 
+
+
+
 void GMPreferencesDialog::updateColors(){
   FXWindow *w=FXApp::instance()->getRootWindow();
 
@@ -1109,6 +1182,8 @@ void GMPreferencesDialog::updateColors(){
   FXSlider * slider;
   FXStatusLine * statusline;
   FXDragCorner * dragcorner;
+  FXSplitter * splitter;
+  FX4Splitter * foursplitter;
   GMTreeList * gmtreelist;
   GMTrackList * gmtracklist;
   FXRadioButton * radiobutton;
@@ -1130,6 +1205,12 @@ void GMPreferencesDialog::updateColors(){
   GMTrackProgressBar * gmtrackprogressbar;
   GMSpinner 		* gmspinner;
   GMAlbumList   * gmalbumlist;
+
+  FXint dpi = getApp()->reg().readIntEntry("SETTINGS","screenres",96);
+  FXfloat fscale = FXfloat(dpi*4) / 4.0f;
+  printf("scale %g\n",fscale);
+
+  FXint scale = lrintf(dpi/96.0f);
 
   while(w){
     w->setBackColor(selected.base);
