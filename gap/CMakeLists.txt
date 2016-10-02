@@ -358,30 +358,22 @@ endif()
 # Wav File output
 add_library(gap_wav MODULE plugins/ap_wavout.cpp)
 target_include_directories(gap_wav BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
-
-# Depend on symbls in main executable
 if(MSVC)
   target_link_libraries(gap_wav ${FOX_LIBRARIES} ${GAP_PLUGIN_LINK_TARGET})
 endif()
 install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
 
 if(WIN32)
-add_library(gap_directx MODULE plugins/ap_directx.cpp)
-target_include_directories(gap_directx BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
-target_link_libraries(gap_directx PRIVATE ${FOX_LIBRARIES} dsound.lib dxguid.lib ${GAP_PLUGIN_LINK_TARGET})
-install(TARGETS gap_directx LIBRARY DESTINATION bin)
+  add_library(gap_directx MODULE plugins/ap_directx.cpp)
+  target_include_directories(gap_directx BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
+  target_link_libraries(gap_directx PRIVATE ${FOX_LIBRARIES} dsound.lib dxguid.lib ${GAP_PLUGIN_LINK_TARGET})
+  install(TARGETS gap_directx LIBRARY DESTINATION bin)
 
-
-add_library(gap_wmm MODULE plugins/ap_wmm.cpp)
-target_include_directories(gap_wmm BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
-target_link_libraries(gap_wmm PRIVATE ${FOX_LIBRARIES} winmm.lib ${GAP_PLUGIN_LINK_TARGET})
-install(TARGETS gap_wmm LIBRARY DESTINATION bin)
-endif()
-
-
-#-------------------------------------------------------------------------------
-
-if(NOT WIN32)
+  add_library(gap_wmm MODULE plugins/ap_wmm.cpp)
+  target_include_directories(gap_wmm BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
+  target_link_libraries(gap_wmm PRIVATE ${FOX_LIBRARIES} winmm.lib ${GAP_PLUGIN_LINK_TARGET})
+  install(TARGETS gap_wmm LIBRARY DESTINATION bin)
+else()
 
   # Alsa Output
   if (ALSA_FOUND AND WITH_ALSA)
@@ -410,17 +402,15 @@ if(NOT WIN32)
     set(HAVE_JACK 1)
   endif()
 
-endif()
-
-
-if(UNIX AND WITH_OSS)
+  if(UNIX AND WITH_OSS)
     add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
     target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
     target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
     install(TARGETS gap_oss LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
-    set(HAVE_OSS 1)
-endif()
+    set(HAVE_OSS 1) 
+  endif()
 
+endif()
 
 #-------------------------------------------------------------------------------
 
@@ -447,24 +437,9 @@ configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
 # Gap Library
 if(BUILD_GAP_SHARED_LIB)
   add_library(gap SHARED ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins> $<TARGET_OBJECTS:gap_alac>)
-else()
-  add_library(gap STATIC ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins> $<TARGET_OBJECTS:gap_alac>)
-endif()
-set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
-
-
-target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS})
-target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-target_link_libraries(gap PRIVATE ${LIBRARIES})
-target_compile_definitions(gap PRIVATE GAP_BUILD)
-
-if(BUILD_GAP_SHARED_LIB)
-
   if(WIN32)
     target_compile_definitions(gap INTERFACE -DGAP_DLL)
   endif()
-
   #set_target_properties(gap PROPERTIES VERSION ${GAP_VERSION} SOVERSION ${GAP_SOVERSION})
   install(TARGETS gap RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})
   install(FILES include/ap.h
@@ -480,5 +455,12 @@ if(BUILD_GAP_SHARED_LIB)
                 include/ap_http_response.h
                 include/ap_player.h
                 include/ap_xml_parser.h DESTINATION include/gap)
+else()
+  add_library(gap STATIC ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins> $<TARGET_OBJECTS:gap_alac>)
 endif()
+
+set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
+target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS})
+target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(gap PRIVATE ${LIBRARIES})
 

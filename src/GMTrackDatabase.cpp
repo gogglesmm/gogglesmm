@@ -501,7 +501,7 @@ FXbool GMTrackDatabase::insertStream(const FXString & url,const FXString & descr
     q.execute();
     commit();
     }
-  catch(GMDatabaseException & e){
+  catch(GMDatabaseException &){
     rollback();
     return false;
     }
@@ -518,7 +518,7 @@ FXbool GMTrackDatabase::insertPlaylist(const FXString & name,FXint & id) {
     id = query.insert(name);
     commit();
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     rollback();
     return false;
     }
@@ -577,7 +577,7 @@ FXbool GMTrackDatabase::updateTrackPlaylists(FXint playlist,FXIntList & tracks) 
       update_queue.execute();
       }
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return false;
     }
   return true;
@@ -595,7 +595,7 @@ FXbool GMTrackDatabase::listPlaylists(FXIntList & ids){
       ids.append(id);
       }
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     ids.clear();
     return false;
     }
@@ -811,7 +811,7 @@ FXint GMTrackDatabase::getPlayQueue() {
       playqueue = insert(create_playqueue);
       }
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return 0;
     }
   return playqueue;
@@ -826,7 +826,7 @@ FXbool GMTrackDatabase::trackInPlaylist(FXint track,FXint playlist) {
     query.set(1,playlist);
     query.execute(total);
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return false;
     }
   return (total>0);
@@ -851,7 +851,7 @@ FXbool GMTrackDatabase::listAlbumPaths(GMCoverPathList & list){
       }
     return false;
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return false;
     }
   return true;
@@ -978,7 +978,7 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
 
     //commit();
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     //rollback();
     return false;
     }
@@ -1014,7 +1014,7 @@ FXbool GMTrackDatabase::getTracks(const FXIntList & tids,GMTrackArray & tracks){
       query_track_tags.reset();
       }
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return false;
     }
   return true;
@@ -1032,7 +1032,7 @@ FXbool GMTrackDatabase::getTrackAssociation(FXint id,FXint & artist,FXint & albu
       return true;
       }
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return false;
     }
   return false;
@@ -1069,7 +1069,7 @@ FXbool GMTrackDatabase::removeArtist(FXint artist) {
     sync_tracks_removed();
     commit();
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     rollback();
     return false;
     }
@@ -1106,7 +1106,7 @@ FXbool GMTrackDatabase::removeAlbum(FXint album) {
 
     commit();
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     rollback();
     return false;
     }
@@ -1161,7 +1161,7 @@ FXbool GMTrackDatabase::reorderPlaylists(){
       q.execute();
       }
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return false;
     }
   GM_TICKS_END();
@@ -1214,7 +1214,7 @@ FXbool GMTrackDatabase::reorderPlaylist(FXint pl){
       q.execute();
       }
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return false;
     }
   GM_TICKS_END();
@@ -1243,7 +1243,7 @@ FXbool GMTrackDatabase::updatePlaylist(FXint playlist,const GMPlayListItemList &
       }
     commit();
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     rollback();
     return false;
     }
@@ -1267,7 +1267,7 @@ FXbool GMTrackDatabase::removePlaylist(FXint playlist){
 
     commit();
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     rollback();
     return false;
     }
@@ -1291,7 +1291,7 @@ FXbool GMTrackDatabase::setPlaylistName(FXint playlist,const FXString & name) {
     query.set(1,playlist);
     query.execute();
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     return false;
     }
   return true;
@@ -1328,7 +1328,7 @@ FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
       }
     list->sortItems();
     }
-  catch(GMDatabaseException & e){
+  catch(GMDatabaseException &){
     list->clearItems();
     return false;
     }
@@ -1349,7 +1349,7 @@ FXbool GMTrackDatabase::listArtists(FXComboBox * list){
       }
     list->sortItems();
     }
-  catch(GMDatabaseException & e){
+  catch(GMDatabaseException &){
     list->clearItems();
     return false;
     }
@@ -1365,7 +1365,7 @@ FXbool GMTrackDatabase::listAlbums(FXComboBox * list,FXint track){
       list->appendItem(list_albums_with_artist_from_track.get(0));
       }
     }
-  catch(GMDatabaseException & e){
+  catch(GMDatabaseException &){
     list->clearItems();
     return false;
     }
@@ -1396,10 +1396,10 @@ void GMTrackDatabase::setup_path_lookup() {
     q = compile("SELECT id,name FROM pathlist;");
     while(q.row()) {
       q.get(0,path);
-      pathdict.insert((void*)(FXival)path,strdup(q.get(1)));
+      pathdict.insert((void*)(FXival)path,fxstrdup(q.get(1)));
       }
     }
-  catch(GMDatabaseException & e){
+  catch(GMDatabaseException &){
     }
   GM_TICKS_END();
   }
@@ -1416,7 +1416,7 @@ void GMTrackDatabase::setup_artist_lookup() {
       artistdict.insert((void*)(FXival)id,new FXString(q.get(1)));
       }
     }
-  catch(GMDatabaseException & e){
+  catch(GMDatabaseException &){
     }
   GM_TICKS_END();
   }
@@ -1533,6 +1533,8 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
 
     list = compile(query);
 
+    //extern FXAPI FILE* ::fxopen(const FXchar*, const FXchar*);
+
     fp = fopen(filename.text(),"w");
     if (!fp) return false;
 
@@ -1602,7 +1604,7 @@ FXbool GMTrackDatabase::exportList(const FXString & filename,FXint playlist,FXui
     fclose(fp);
     fp=nullptr;
     }
-  catch (GMDatabaseException & e){
+  catch (GMDatabaseException &){
     if (fp) fclose(fp);
     return false;
     }
