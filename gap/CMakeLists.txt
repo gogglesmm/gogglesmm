@@ -255,7 +255,7 @@ set(HAVE_MP4 1)
     add_definitions(-DGAP_DLL)
     set(GAP_PLUGIN_LINK_TARGET gap)
   else()
-    SET(GAP_PLUGIN_LINK_TARGET gogglesmm)
+    set(GAP_PLUGIN_LINK_TARGET gogglesmm)
   endif()
 #endif()
 
