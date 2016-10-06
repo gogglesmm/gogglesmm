@@ -27,6 +27,7 @@ namespace ap {
 
 
 class Socket : public FXIODevice {
+protected:
 #ifdef _WIN32
   FXuint sockethandle = 0;
 #endif

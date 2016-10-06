@@ -175,7 +175,7 @@ void Signal::wait() {
 
 WaitEvent Signal::wait(FXInputHandle input,WaitMode mode,FXTime timeout/*=0*/) const{
 #ifdef _WIN32
-  HANDLE handles[2]={input,device}
+  HANDLE handles[2] = { input,device };
   DWORD result=WaitForMultipleObjects(2,handles,false,(timeout>0) ? (timeout / 1000000) : INFINITE);
   if (__likely(result>=WAIT_OBJECT_0)) {
     if (WaitForSingleObject(device,0)==WAIT_OBJECT_0)

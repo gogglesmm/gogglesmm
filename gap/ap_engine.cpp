@@ -22,15 +22,29 @@
 #include "ap_output_thread.h"
 #include "ap_engine.h"
 
+#ifdef _WIN32
+#include <WinSock2.h>
+#endif
+
 namespace ap {
 
 AudioEngine::AudioEngine() : fifo(nullptr) {
   input   = new InputThread(this);
   decoder = new DecoderThread(this);
   output  = new OutputThread(this);
+
+#ifdef _WIN32
+  WSAData wsdata;
+  WSAStartup(MAKEWORD(2, 2), &wsdata);
+#endif
+
   }
 
 AudioEngine::~AudioEngine() {
+#ifdef _WIN32
+  WSACleanup();
+#endif
+
   delete input;
   delete decoder;
   delete output;

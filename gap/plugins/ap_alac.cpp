@@ -18,7 +18,7 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_config.h"
-#include "ap_pipe.h"
+#include "ap_signal.h"
 #include "ap_format.h"
 #include "ap_device.h"
 #include "ap_event.h"

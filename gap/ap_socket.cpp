@@ -76,7 +76,20 @@ FXbool Socket::setSendTimeout(FXTime time) {
 
 
 FXint Socket::getError() const {
-#ifndef _WIN32
+#ifdef _WIN32
+  WSANETWORKEVENTS events;
+  if (WSAEnumNetworkEvents(sockethandle, device, &events) == 0) {
+    if (events.lNetworkEvents&FD_CONNECT)
+      return events.iErrorCode[FD_CONNECT_BIT];
+    else if (events.lNetworkEvents&FD_WRITE)
+      return events.iErrorCode[FD_WRITE_BIT];
+    else if (events.lNetworkEvents&FD_READ)
+      return events.iErrorCode[FD_READ_BIT];
+    else
+      return 0;
+    }
+  return -1;
+#else
   int value = 0;
   socklen_t length=sizeof(value);
   if (getsockopt(device,SOL_SOCKET,SO_ERROR,&value,&length)==0)
@@ -99,7 +112,7 @@ FXbool Socket::isOpen() const {
 FXbool Socket::close() {
 #ifdef _WIN32
   if (isOpen()) {
-    CloseSocket(sockethandle);
+    closesocket(sockethandle);
     sockethandle=0;
     return FXIODevice::close();
     }
@@ -128,16 +141,16 @@ FXbool Socket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
   if (mode&FXIO::NonBlocking) {
     u_long blocking = 1;
     if (ioctlsocket(sockethandle, FIONBIO, &blocking)!=0){
-      CloseSocket(sockethandle);
-      sockethandle==INVALID_SOCKET;
+      closesocket(sockethandle);
+      sockethandle=INVALID_SOCKET;
       return false;
       }
     access|=FXIO::NonBlocking;
     }
 
-  device = CreateEvent();
+  device = WSACreateEvent();
   if (device==BadHandle) {
-    CloseSocket(sockethandle);
+    closesocket(sockethandle);
     return false;
     }
 #else
@@ -222,9 +235,18 @@ FXint Socket::connect(const struct sockaddr * address,FXint address_length) {
 
 FXival Socket::writeBlock(const void* ptr,FXival count){
   if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
-#ifdef _WIN32
-#else
     FXival nwrote;
+#ifdef _WIN32
+    nwrote = ::send(sockethandle,static_cast<const char*>(ptr), count,0);
+    if (__unlikely(nwrote == SOCKET_ERROR)) {
+      if (WSAGetLastError() == WSAEWOULDBLOCK) {
+        return FXIO::Again;
+        }
+      access |= EndOfStream;
+      return FXIO::Error;
+      }
+#else
+    
 x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
     if(__unlikely(nwrote<0)){
       if(errno==EINTR) goto x;
@@ -245,9 +267,17 @@ x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
 
 FXival Socket::readBlock(void* ptr,FXival count){
   if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
-#ifdef _WIN32
-#else
     FXival nread;
+#ifdef _WIN32
+    nread = ::recv(sockethandle,static_cast<char*>(ptr), count,0);
+    if (__unlikely(nread == SOCKET_ERROR)) {
+      if (WSAGetLastError() == WSAEWOULDBLOCK) {
+        return FXIO::Again;
+        }
+      access |= EndOfStream;
+      return FXIO::Error;
+      }
+#else
 a:  nread=::recv(device,ptr,count,MSG_NOSIGNAL);
     if(__unlikely(nread<0)){
       if(errno==EINTR) goto a;
@@ -273,11 +303,11 @@ ThreadSocket::ThreadSocket(ThreadQueue * q) : fifo(q) {
 
 WaitEvent ThreadSocket::wait(WaitMode mode) {
 #ifdef _WIN32
-  if (mode==WaitRead)
+  if (mode==WaitMode::Read)
     WSAEventSelect(sockethandle,device,FD_READ);
-  else if (mode==WaitWrite)
+  else if (mode==WaitMode::Write)
     WSAEventSelect(sockethandle,device,FD_WRITE);
-  else if (mode==WaitConnect)
+  else if (mode==WaitMode::Connect)
     WSAEventSelect(sockethandle,device,FD_CONNECT);
 #endif
   return fifo->signal().wait(device,mode);

@@ -21,6 +21,7 @@
 
 #ifdef _WIN32
 #include <WinSock2.h>
+#include <Ws2tcpip.h>
 #else
 #include <unistd.h> // for close()
 #include <fcntl.h>
@@ -67,7 +68,6 @@ Socket * ConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
 
 
 FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
-#ifndef _WIN32
   struct addrinfo   hints;
   struct addrinfo * list=nullptr;
   struct addrinfo * item=nullptr;
