@@ -192,15 +192,14 @@ set(SOURCES ap_app_queue.cpp
             ap_input_thread.cpp
             ap_output_thread.cpp
             ap_packet.cpp
-            ap_pipe.cpp
             ap_player.cpp
             ap_reactor.cpp
             ap_reader_plugin.cpp
+            ap_signal.cpp
             ap_socket.cpp
             ap_thread.cpp
             ap_thread_queue.cpp
             ap_utils.cpp
-            ap_wait_io.cpp
             ap_xml_parser.cpp
             )
 
@@ -219,14 +218,13 @@ set(HEADERS ap_buffer.h
             ap_output_plugin.h
             ap_output_thread.h
             ap_packet.h
-            ap_pipe.h
             ap_reactor.h
             ap_reader_plugin.h
+            ap_signal.h
             ap_socket.h
             ap_thread.h
             ap_thread_queue.h
             ap_utils.h
-            ap_wait_io.h
             )
 
 set(PUBLIC_HEADERS include/ap.h

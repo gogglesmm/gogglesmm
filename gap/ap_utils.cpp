@@ -351,10 +351,10 @@ void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,M
   size = INT32_LE(buffer);
   if (size<0 || ((end-buffer-4)>size)) return;
   buffer+=4;
-  
+
   // Number of user comments
   ncomments = INT32_LE(buffer);
-  if (ncomments<0) return; 
+  if (ncomments<0) return;
   buffer+=4;
 
   // Read each comment
@@ -456,77 +456,4 @@ void Base64Encoder::encode(const FXuchar * in,FXint len) {
     nbuffer=r;
     }
   }
-
-
-FXuint ap_wait(FXInputHandle io,FXInputHandle watch,FXTime timeout,FXuchar mode){
-#ifdef _WIN32
-  HANDLE fds[2];
-  FXint nfds=1;
-  fds[0] = io;
-  if (watch!=BadHandle) {
-    fds[1] = watch;
-    nfds=2;
-    }
-  FXuint result = WaitForMultipleObjects(nfds,fds,false,(timeout>0) ? (timeout / 1000000) : INFINITE);
-  if (result == WAIT_TIMEOUT) {
-    return WaitHasTimeout;
-    }
-  else if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + nfds)) {
-    if (watch!=BadHandle && ((result == WAIT_OBJECT_0 + 1) ||  WaitForSingleObject(watch,0)))
-      return WaitHasInterrupt;
-    else
-      return WaitHasIO;
-    }
-  else {
-    return WaitHasError;
-    }
-#else
-  FXint n,nfds=1;
-  struct pollfd fds[2];
-  fds[0].fd    	= io;
-  fds[0].events = (mode==WaitReadable) ? POLLIN : POLLOUT;
-  if (watch!=BadHandle) {
-    fds[1].fd 	  = watch;
-    fds[1].events = POLLIN;
-    nfds=2;
-    }
-  if (timeout) {
-#ifdef HAVE_PPOLL
-    struct timespec ts;
-    ts.tv_sec  = timeout / 1000000000;
-    ts.tv_nsec = timeout % 1000000000;
-#endif
-    do {
-#ifdef HAVE_PPOLL
-      n = ppoll(fds,nfds,&ts,nullptr);
-#else
-      n = poll(fds,nfds,(timeout/1000000));
-#endif
-      }
-    while(n==-1 && (errno==EAGAIN || errno==EINTR));
-    }
-  else {
-    do {
-#ifdef HAVE_PPOLL
-      n = ppoll(fds,nfds,nullptr,nullptr);
-#else
-      n = poll(fds,nfds,-1);
-#endif
-      }
-    while(n==-1 && (errno==EAGAIN || errno==EINTR));
-    }
-  if (0<n) {
-    if (watch!=BadHandle && fds[1].revents)
-      return WaitHasInterrupt;
-    else
-      return WaitHasIO;
-    }
-  else if (n==0)
-    return WaitHasTimeout;
-  else
-    return WaitHasError;
-#endif
-  }
-
 }
-

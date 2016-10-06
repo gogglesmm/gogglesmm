@@ -16,8 +16,8 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifndef AP_PIPE_H
-#define AP_PIPE_H
+#ifndef AP_SIGNAL_H
+#define AP_SIGNAL_H
 
 namespace ap {
 
@@ -29,6 +29,24 @@ namespace ap {
 #define HAVE_EVENTFD
 #endif
 #endif
+
+
+enum class WaitEvent {
+  Input,
+  Signal,
+  Timeout,
+  Error
+  };
+
+enum class WaitMode {
+  Read,
+  Write,
+#ifdef _WIN32
+  Connect
+#else
+  Connect = Write
+#endif
+  };
 
 
 /// A signal that can either be set or unset and can be waited on using select/poll/WaitFor
@@ -54,6 +72,9 @@ public:
   void close();
 
   void wait();
+
+  // Wait for signal, input or timeout
+  WaitEvent wait(FXInputHandle input,WaitMode mode=WaitMode::Read,FXTime timeout=0) const;
 
   FXInputHandle handle() const { return device; }
   };
