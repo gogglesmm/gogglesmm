@@ -17,32 +17,32 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_pipe.h"
+#include "ap_signal.h"
 #include "ap_utils.h"
 
 /// On Linux we want to use pipe2
 #if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 9))
   #define HAVE_PIPE2
   #ifndef _GNU_SOURCE
-  #define _GNU_SOURCE
+    #define _GNU_SOURCE
   #endif
   #include <fcntl.h>
 #endif
 
 #ifndef _WIN32
-#include <signal.h>
-#include <poll.h>
-#include <unistd.h>
-#include <errno.h>
+  #include <signal.h>
+  #include <poll.h>
+  #include <unistd.h>
+  #include <errno.h>
 #endif
 
 
 #ifdef HAVE_EVENTFD
-#include <sys/eventfd.h>
+  #include <sys/eventfd.h>
 #endif
 
 #ifdef _WIN32
-#include <windows.h>
+  #include <windows.h>
 #endif
 
 
@@ -51,7 +51,7 @@ namespace ap {
 
 #if !defined(_WIN32) && !defined(HAVE_EVENTFD)
 static FXbool create_pipe(FXInputHandle & rh,FXInputHandle & wh) {
-  FXInputHandle h[2];  
+  FXInputHandle h[2];
 #ifdef HAVE_PIPE2
   if (pipe2(h,O_CLOEXEC)==0) {
 
@@ -98,7 +98,7 @@ static FXbool create_pipe(FXInputHandle & rh,FXInputHandle & wh) {
 
 
 
-#if !defined(_WIN32) && !defined(HAVE_EVENTFD) 
+#if !defined(_WIN32) && !defined(HAVE_EVENTFD)
 Signal::Signal() : wrptr(BadHandle), device(BadHandle) {}
 #else
 Signal::Signal() : device(BadHandle) {}
@@ -135,7 +135,7 @@ void Signal::clear() {
 #elif defined(HAVE_EVENTFD)
   FXlong value;
   read(device,&value,sizeof(FXlong));
-#else  
+#else
   FXuchar value[16];
   while(read(device,value,16)>0);
 #endif
@@ -167,11 +167,65 @@ void Signal::wait() {
 #endif
   }
 
+
+WaitEvent Signal::wait(FXInputHandle input,WaitMode mode,FXTime timeout/*=0*/) const{
+#ifdef _WIN32
+  HANDLE handles[2]={input,device}
+  DWORD result=WaitForMultipleObjects(2,handles,false,(timeout>0) ? (timeout / 1000000) : INFINITE);
+  if (__likely(result>=WAIT_OBJECT_0)) {
+    if (WaitForSingleObject(device,0)==WAIT_OBJECT_0)
+      return WaitEvent::Signal;
+    else
+      return WaitEvent::Input;
+    }
+  else if (result==WAIT_TIMEOUT) {
+    return WaitEvent::Timeout;
+    }
+  return WaitEvent::Error;
+#else
+  int n;
+  struct pollfd handles[2];
+  handles[0].fd=input;
+  handles[0].events = (mode==WaitMode::Read) ? POLLIN : POLLOUT;
+  handles[1].fd=device;
+  handles[1].events = POLLIN;
+#ifdef HAVE_PPOL
+  struct timespec ts;
+  if (timeout) {
+    ts.tv_sec  = timeout / 1000000000;
+    ts.tv_nsec = timeout % 1000000000;
+    }
+x:n=ppoll(handles,2,timeout ? &ts : nullptr,nullptr);
+  if (__unlikely(n<0)) {
+    if (errno==EAGAIN || errno==EINTR)
+      goto x;
+    return WaitEvent::Error;
+    }
+#else
+x:n=poll(handles,2,timeout ? (timeout/1000000) : -1);
+  if (__unlikely(n<0)) {
+    if (errno==EAGAIN || errno==EINTR)
+      goto x;
+    return WaitEvent::Error;
+    }
+#endif
+  if(__likely(n>0)) {
+    if (handles[1].revents)
+      return WaitEvent::Signal;
+    else
+      return WaitEvent::Input;
+    }
+  return WaitEvent::Timeout;
+#endif
+  }
+
+
+
 //---------------------------------------------------
 
 
 
-#if !defined(_WIN32) && !defined(HAVE_EVENTFD) 
+#if !defined(_WIN32) && !defined(HAVE_EVENTFD)
 Semaphore::Semaphore() : wrptr(BadHandle), device(BadHandle) {}
 #else
 Semaphore::Semaphore() : device(BadHandle) {}
@@ -198,7 +252,7 @@ void Semaphore::release() {
 #elif defined(HAVE_EVENTFD)
   const FXlong value=1;
   write(device,&value,sizeof(FXlong));
-#else  
+#else
   const FXuchar value=1;
   write(wrptr,&value,sizeof(FXuchar));
 #endif
@@ -211,7 +265,7 @@ FXbool Semaphore::wait(const Signal & input) {
   DWORD result=WaitForMultipleObjects(2,devices,false,INFINITE);
   if(result==WAIT_OBJECT_0) {
     if (WaitForSingleObject(device,0)==WAIT_OBJECT_0){
-      release();    
+      release();
       return false;
       }
     return true;
@@ -233,9 +287,9 @@ FXbool Semaphore::wait(const Signal & input) {
   while(n==-1 && (errno==EAGAIN || errno==EINTR));
   if (n>0) {
     if (fds[1].revents)
-      return false; 
- 
-    if (fds[0].revents) {    
+      return false;
+
+    if (fds[0].revents) {
 #ifdef HAVE_EVENTFD
       FXlong value;
       if (read(device,&value,sizeof(FXlong))==sizeof(FXlong)){
@@ -247,10 +301,10 @@ FXbool Semaphore::wait(const Signal & input) {
         return true;
         }
 #endif
-      // This shouldn't happen in a single consumer version     
+      // This shouldn't happen in a single consumer version
       FXASSERT(0);
       fxwarning("Fatal in Semaphore::wait");
-      }  
+      }
     }
   return false;
 #endif

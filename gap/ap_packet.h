@@ -21,7 +21,7 @@
 
 #include "ap_buffer.h"
 #include "ap_event.h"
-#include "ap_pipe.h"
+#include "ap_signal.h"
 #include "ap_format.h"
 
 namespace ap {

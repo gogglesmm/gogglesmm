@@ -20,7 +20,7 @@
 #define THREAD_QUEUE_H
 
 #include "ap_event_queue.h"
-#include "ap_pipe.h"
+#include "ap_signal.h"
 
 namespace ap {
 

@@ -19,37 +19,76 @@
 #ifndef AP_SOCKET_H
 #define AP_SOCKET_H
 
+#include "ap_signal.h"
+
+struct sockaddr;
+
 namespace ap {
 
+
 class Socket : public FXIODevice {
+#ifdef _WIN32
+  FXuint sockethandle = 0;
+#endif
 private:
   Socket(const Socket&);
   Socket &operator=(const Socket&);
-  Socket(FXInputHandle h,FXuint mode);
 public:
   enum {
     EndOfStream = 2048
     };
 public:
-  static Socket* create(int domain,int type,int protocol,FXuint mode);
-
-  FXbool setKeepAlive(FXbool);
-
-  FXbool getKeepAlive() const;
-
-  FXbool setReuseAddress(FXbool);
-
-  FXbool getReuseAddress() const;
-
+  Socket(){}
+public:
+  // Set Receive Timeout
   FXbool setReceiveTimeout(FXTime);
 
+  // Set Send Timeout
   FXbool setSendTimeout(FXTime);
 
-  FXbool setLinger(FXTime);
-
-  FXTime getLinger() const;
-
+  // Get Pending Error
   FXint getError() const;
+
+public:
+
+#ifdef _WIN32
+  FXbool isOpen() const;
+#endif
+
+  // Handle eof
+  FXint eof();
+
+  // Close Socket
+  FXbool close() override;
+
+  // Read block of bytes, returning number of bytes read
+  FXival readBlock(void* data,FXival count) override;
+
+  // Write block of bytes, returning number of bytes written
+  FXival writeBlock(const void* data,FXival count) override;
+
+  // Create specific socket type
+  virtual FXbool create(FXint domain,FXint type,FXint protocol,FXuint mode);
+
+  // Connect to address
+  virtual FXint connect(const struct sockaddr *,FXint sockaddr_length);
+  };
+
+
+class ThreadQueue;
+
+class ThreadSocket : public Socket {
+private:
+  ThreadQueue * fifo = nullptr;
+private:
+  ThreadSocket(const ThreadSocket&);
+  ThreadSocket &operator=(const ThreadSocket&);
+public:
+  enum {
+    Signalled = 1
+    };
+public:
+  ThreadSocket(ThreadQueue*);
 
   /// Read block of bytes, returning number of bytes read
   FXival readBlock(void* data,FXival count) override;
@@ -57,11 +96,11 @@ public:
   /// Write block of bytes, returning number of bytes written
   FXival writeBlock(const void* data,FXival count) override;
 
-  /// Close Socket
-  FXbool close() override;
+  // Connect to address
+  FXint connect(const struct sockaddr *,FXint sockaddr_length) override;
 
-  /// Handle eof
-  FXint eof();
+  // Wait for specified event
+  WaitEvent wait(WaitMode);
   };
 
 }

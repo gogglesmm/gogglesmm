@@ -21,17 +21,13 @@
 
 namespace ap {
 
+class Socket;
+class ThreadQueue;
+
 /* Connection Factory */
 class ConnectionFactory {
 protected:
-	enum {
-		Connected = 1,
-		Error = 2,
-	 	Abort	= 3
-		};
-protected:
-	virtual FXIO* create(FXint domain,FXint type,FXint protocol);
-	virtual FXuint connect(FXIO * socket,const struct sockaddr * address,FXint address_len);
+	virtual Socket * create(FXint domain,FXint type,FXint protocol);
 public:
 	ConnectionFactory();
 
@@ -41,29 +37,14 @@ public:
 	virtual ~ConnectionFactory();
 	};
 
-/* Non-Blocking Connection Factory */
-class NBConnectionFactory : public ConnectionFactory {
+class ThreadConnectionFactory : public ConnectionFactory {
 protected:
-	FXInputHandle watch;
+	ThreadQueue * fifo;
 protected:
-	FXIO * create(FXint domain,FXint type,FXint protocol) override;
-	FXuint connect(FXIO * io,const struct sockaddr * address,FXint address_len) override;
-public:
-	NBConnectionFactory(FXInputHandle);
-	};
-
-class ThreadQueue;
-
-/* InputThread Connection Factory */
-class ThreadConnectionFactory  : public NBConnectionFactory {
-protected:
-	ThreadQueue*fifo;
-protected:
-	FXIO * create(FXint domain,FXint type,FXint protocol) override;
+	Socket * create(FXint domain,FXint type,FXint protocol) override;
 public:
 	ThreadConnectionFactory(ThreadQueue*);
   };
-
 
 }
 #endif

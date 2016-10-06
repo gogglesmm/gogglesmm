@@ -31,23 +31,6 @@ extern FXString ap_get_environment(const FXchar * key,const FXchar * def=nullptr
 
 extern FXbool ap_set_closeonexec(FXInputHandle fd);
 
-
-enum {
-  WaitReadable = 0,
-  WaitWritable = 1,
-  };
-
-enum {
-  WaitHasIO        = 0,
-  WaitHasTimeout   = 1,
-  WaitHasError     = 2,
-  WaitHasInterrupt = 3,
-  };
-
-// Wait for IO
-extern FXuint ap_wait(FXInputHandle io,FXInputHandle watch=BadHandle,FXTime timeout=0,FXuchar mode=WaitReadable);
-
-
 }
 #endif
 
