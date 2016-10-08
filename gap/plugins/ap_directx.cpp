@@ -21,7 +21,10 @@
 #include "ap_defs.h"
 #include "ap_output_plugin.h"
 
-#include "dsound.h"
+#include <dsound.h>
+#include <mmreg.h>
+#include <ks.h>
+#include <ksmedia.h>
 
 using namespace ap;
 
