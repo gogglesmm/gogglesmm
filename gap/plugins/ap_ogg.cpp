@@ -198,7 +198,6 @@ protected:
     FLAG_VORBIS_COMMENT        = 0x20,
     FLAG_VORBIS_BLOCK          = 0x40,
     FLAG_VORBIS_MASK           = FLAG_VORBIS_INFO|FLAG_VORBIS_COMMENT|FLAG_VORBIS_BLOCK
-
     };
 protected:
   OggReaderState    state;
@@ -728,10 +727,12 @@ ReadStatus OggReader::parse_opus_stream() {
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
 
 ReadStatus OggReader::parse_vorbis_stream() {
-  ReplayGain     gain;
+  ReplayGain       gain;
+  MetaInfo       * meta          = nullptr;
+  ConfigureEvent * config        = nullptr;
 
   // Store Vorbis Config
-  VorbisConfig * vorbis_config = new VorbisConfig();
+  VorbisConfig   * vorbis_config = new VorbisConfig();
 
   //FXASSERT(state.has_packet);
   FXASSERT(op.packet[0]==1);
@@ -744,13 +745,46 @@ ReadStatus OggReader::parse_vorbis_stream() {
 #endif
   FXuchar channels = op.packet[11];
 
-  if (channels<1 || channels>8)
-    return ReadError;
+  if (channels<1 || channels>8) {
+    goto x;
+    }
 
-  if (!vorbis.parseInfo(op.packet,op.bytes))
-    return ReadError;
+  if (!vorbis.parseInfo(op.packet,op.bytes)) {
+    goto x;
+    }
 
   vorbis_config->setVorbisInfo(op.packet,op.bytes);
+
+  // Vorbis Comment Packet
+  if (!fetch_next_packet()) {
+    goto x;
+    }
+
+  // Check make sure its a comment packet
+  if (compare((const FXchar*)op.packet,"\x03""vorbis",7)) {
+    goto x;
+    }
+
+  // Parse the vorbis comments for useful information
+  meta = new MetaInfo();
+  ap_parse_vorbiscomment(op.packet+8,op.bytes-8,gain,meta);
+
+  // Vorbis Setup Packet
+  if (!fetch_next_packet()) {
+    goto x;
+    }
+
+  // Check make sure its the correct packet
+  if (compare((const FXchar*)op.packet,"\x05""vorbis",7)) {
+    goto x;
+    }
+
+  // Parse Setup Packet
+  if (!vorbis.parseSetup(op.packet,op.bytes)) {
+    goto x;
+    }
+
+  vorbis_config->setVorbisSetup(op.packet,op.bytes);
 
 #ifdef HAVE_VORBIS
   af.set(AP_FORMAT_FLOAT,rate,channels,vorbis_channel_map[channels-1]);
@@ -758,41 +792,9 @@ ReadStatus OggReader::parse_vorbis_stream() {
   af.set(AP_FORMAT_S16,rate,channels,vorbis_channel_map[channels-1]);
 #endif
 
-  // Vorbis Comment Packet
-  if (!fetch_next_packet())
-    return ReadError;
-
-  // Check make sure its a comment packet
-  if (compare((const FXchar*)op.packet,"\x03""vorbis",7))
-    return ReadError;
-
-  // Parse the vorbis comments for useful information
-  MetaInfo * meta = new MetaInfo();
-  ap_parse_vorbiscomment(op.packet+8,op.bytes-8,gain,meta);
-
-  // Vorbis Setup Packet
-  if (!fetch_next_packet()) {
-    meta->unref();
-    return ReadError;
-    }
-
-  // Check make sure its the correct packet
-  if (compare((const FXchar*)op.packet,"\x05""vorbis",7)) {
-    meta->unref();
-    return ReadError;
-    }
-
-  // Parse Setup Packet
-  if (!vorbis.parseSetup(op.packet,op.bytes)) {
-    meta->unref();
-    return ReadError;
-    }
-
-  vorbis_config->setVorbisSetup(op.packet,op.bytes);
-
   codec=Codec::Vorbis;
-  ConfigureEvent * config = new ConfigureEvent(af,codec);
 
+  config = new ConfigureEvent(af,codec);
   config->dc         = vorbis_config;
   config->replaygain = gain;
 
@@ -809,6 +811,12 @@ ReadStatus OggReader::parse_vorbis_stream() {
   flags|=FLAG_PARSED;
 
   return ReadOk;
+
+x:
+  vorbis.clear();
+  if (meta) meta->unref();
+  delete vorbis_config;
+  return ReadError;
   }
 
 

@@ -89,6 +89,7 @@ FXbool VorbisDecoder::init(ConfigureEvent*event) {
     init_info();
 
     VorbisConfig * vorbis_config = dynamic_cast<VorbisConfig*>(event->dc);
+    FXASSERT(vorbis_config);
 
     ogg_packet op;
 
@@ -97,7 +98,7 @@ FXbool VorbisDecoder::init(ConfigureEvent*event) {
     op.granulepos = -1;
     op.packet     = vorbis_config->info;
     op.bytes      = vorbis_config->info_bytes;
-       
+
     if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
       GM_DEBUG_PRINT("[vorbis] info header failed\n");
       return false;
@@ -386,7 +387,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
       }
     }
 
-  if (eos) {    
+  if (eos) {
     if (out && out->numFrames())  {
       fxmessage("last stream position %ld\n",stream_position);
       engine->output->post(out);
