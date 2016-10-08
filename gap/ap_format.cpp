@@ -221,6 +221,11 @@ FXuint AudioFormat::cmap_from_wavmask(const FXuint mask,const FXuchar channels) 
     if(pos!=channels) {
       return 0;
       }
+
+    // Workaround for Channel::FrontCenter that is used for Mono Audio.
+    if(channels==1 && channeltype(i)==Channel::FrontCenter)
+      channelmap=AP_CMAP1(Channel::Mono);
+
     }
   return channelmap;
   }
@@ -253,7 +258,7 @@ FXuint AudioFormat::wavmask() const {
   FXuint mask=0;
   for (FXint i=0;i<channels;i++) {
     switch(channeltype(i)) {
-      case Channel::Mono        : mask|=SPEAKER_FRONT_LEFT; break;
+      case Channel::Mono        : mask|=SPEAKER_FRONT_CENTER; break;
       case Channel::FrontLeft   : mask|=SPEAKER_FRONT_LEFT; break;
       case Channel::FrontRight  : mask|=SPEAKER_FRONT_RIGHT; break;
       case Channel::FrontCenter : mask|=SPEAKER_FRONT_CENTER; break;
