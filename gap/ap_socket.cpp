@@ -40,8 +40,11 @@ using namespace ap;
 
 namespace ap {
 
-
-
+#ifdef _WIN32
+Socket::Socket() : sockethandle(INVALID_SOCKET) {}
+#else
+Socket::Socket() {}
+#endif
 
 FXbool Socket::setReceiveTimeout(FXTime time) {
 #ifdef _WIN32

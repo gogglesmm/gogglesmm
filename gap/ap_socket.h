@@ -29,7 +29,7 @@ namespace ap {
 class Socket : public FXIODevice {
 protected:
 #ifdef _WIN32
-  FXuint sockethandle = INVALID_SOCKET;
+  FXuint sockethandle;
 #endif
 private:
   Socket(const Socket&);
@@ -39,7 +39,7 @@ public:
     EndOfStream = 2048
     };
 public:
-  Socket(){}
+  Socket();
 public:
   // Set Receive Timeout
   FXbool setReceiveTimeout(FXTime);
