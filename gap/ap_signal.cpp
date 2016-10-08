@@ -266,16 +266,18 @@ void Semaphore::release() {
 
 FXbool Semaphore::wait(const Signal & input) {
 #if defined(_WIN32)
-  HANDLE handles[2] = { device,input.handle() };
+  HANDLE handles[2] = { input.handle(), device };
   DWORD result=WaitForMultipleObjects(2,handles,false,INFINITE);
-  if(result==WAIT_OBJECT_0) {
-    if (WaitForSingleObject(device,0)==WAIT_OBJECT_0){
-      release();
+  switch(result) {
+    case WAIT_OBJECT_0: // Input
       return false;
-      }
-    return true;
+      break;
+    case WAIT_OBJECT_0+1: // Semaphore
+      return true;
+      break;
+    default:
+      break;
     }
-  return false;
 #else
 
   /// Maybe read first before calling poll??
@@ -311,8 +313,8 @@ FXbool Semaphore::wait(const Signal & input) {
       fxwarning("Fatal in Semaphore::wait");
       }
     }
-  return false;
 #endif
+  return false;
   }
 
 
