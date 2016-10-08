@@ -39,7 +39,6 @@ class GMSource;
 class GMSourceView;
 #ifdef HAVE_DBUS
 class GMNotifyDaemon;
-class GMAppStatusNotify;
 class GMSettingsDaemon;
 class GMDBus;
 class GMMediaPlayerService1;
@@ -107,7 +106,6 @@ protected:
   GMDBus               * sessionbus   = nullptr;
   GMDBus               * systembus    = nullptr;
   GMNotifyDaemon       * notifydaemon = nullptr;
-  GMAppStatusNotify    * appstatus    = nullptr;
   GMSettingsDaemon     * gsd          = nullptr;
   GMMediaPlayerService1* mpris1       = nullptr;
   GMMediaPlayerService2* mpris2       = nullptr;
@@ -347,8 +345,6 @@ public:
   void cmd_next();
   void cmd_prev();
   void cmd_toggle_shown();
-  void cmd_focus_next();
-  void cmd_focus_previous();
   void cmd_raise();
 
   void setPlayQueue(FXbool enable);

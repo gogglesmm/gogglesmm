@@ -41,29 +41,29 @@
 
 namespace ap {
 
+
+#define SOCKET_TIMEOUT 10000000000
+
+
 ConnectionFactory::ConnectionFactory(){
   }
+
 
 ConnectionFactory::~ConnectionFactory(){
   }
 
-FXIO* ConnectionFactory::create(FXint domain,FXint type,FXint protocol){
-  Socket * s = Socket::create(domain,type,protocol,0);
-  if (s) {
-    s->setReceiveTimeout(10000000000);
-    s->setSendTimeout(10000000000);
-    return s;
+
+Socket * ConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
+  Socket * io = new Socket();
+  if (io->create(domain,type,protocol,0)==false){
+    delete io;
+    return nullptr;
     }
-  return nullptr;
+  io->setSendTimeout(SOCKET_TIMEOUT);
+  io->setReceiveTimeout(SOCKET_TIMEOUT);
+  return io;
   }
 
-FXuint ConnectionFactory::connect(FXIO * socket,const struct sockaddr * address,FXint address_len) {
-  FXIODevice * device  = static_cast<FXIODevice*>(socket);
-  if (::connect(device->handle(),address,address_len)==0){
-    return Connected;
-    }
-  return Error;
-  }
 
 FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
   struct addrinfo   hints;
@@ -80,69 +80,46 @@ FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
   if (result) return nullptr;
 
   for (item=list;item;item=item->ai_next){
-    FXIO * io = create(item->ai_family,item->ai_socktype,item->ai_protocol);
+    Socket * io = create(item->ai_family,item->ai_socktype,item->ai_protocol);
     if (io==nullptr)
       continue;
 
-    switch(connect(io,item->ai_addr,item->ai_addrlen)){
-      case Connected : freeaddrinfo(list); return io; break;
-      case Error		 : delete io; break;
-      default				 : delete io; freeaddrinfo(list); return nullptr; break;
+    switch(io->connect((const struct sockaddr*)item->ai_addr,(FXint)item->ai_addrlen)){
+      case  0: // connected
+        freeaddrinfo(list);
+        return io;
+        break;
+
+      case -1: // try next
+        delete io;
+        break;
+
+      case ThreadSocket::Signalled:  // give up
+        delete io;
+        freeaddrinfo(list);
+        return nullptr;
+        break;
       }
     }
-
-  if (list) {
-    freeaddrinfo(list);
-    }
+  if (list) freeaddrinfo(list);
   return nullptr;
   }
 
+//------------------------------------------------------------------------------
 
-NBConnectionFactory::NBConnectionFactory(FXInputHandle w) : watch(w) {
+ThreadConnectionFactory::ThreadConnectionFactory(ThreadQueue * q) : fifo(q) {
   }
 
 
-FXIO * NBConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
-  Socket * s = Socket::create(domain,type,protocol,FXIO::NonBlocking);
-  if (s) {
-    s->setReceiveTimeout(10000000000);
-    s->setSendTimeout(10000000000);
-    return new WaitIO(s,watch,10000000000);
+Socket * ThreadConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
+  ThreadSocket * io = new ThreadSocket(fifo);
+  if (io->create(domain,type,protocol,FXIO::NonBlocking)==false){
+    delete io;
+    return nullptr;
     }
-  return nullptr;
+  io->setSendTimeout(SOCKET_TIMEOUT);
+  io->setReceiveTimeout(SOCKET_TIMEOUT);
+  return io;
   }
 
-
-FXuint NBConnectionFactory::connect(FXIO * io,const struct sockaddr * address,FXint address_len) {
-  WaitIO * wio = static_cast<WaitIO*>(io);
-  FXASSERT(wio);
-  Socket * sio = static_cast<Socket*>(wio->getDevice());
-  if (::connect(sio->handle(),address,address_len)==0) {
-    return Connected;
-    }
-  if (errno==EINPROGRESS || errno==EINTR || errno==EWOULDBLOCK) {
-    if (wio->wait(WaitIO::Writable)==0) {
-      if (sio->getError()==0)
-        return Connected;
-      }
-    else {
-      return Abort;
-      }
-    }
-  return Error;
-  }
-
-ThreadConnectionFactory::ThreadConnectionFactory(ThreadQueue * q) : NBConnectionFactory(q->signal().handle()), fifo(q){
-  }
-
-
-FXIO * ThreadConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
-  Socket * s = Socket::create(domain,type,protocol,FXIO::NonBlocking);
-  if (s) {
-    s->setReceiveTimeout(10000000000);
-    s->setSendTimeout(10000000000);
-    return new ThreadIO(s,fifo,10000000000);
-    }
-  return nullptr;
-  }
 }

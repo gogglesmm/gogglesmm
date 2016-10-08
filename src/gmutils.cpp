@@ -95,7 +95,8 @@ enum {
 
 FXuint gm_desktop_session() {
   FXString desktop = FXSystem::getEnvironment("DESKTOP_SESSION");
-  if (comparecase(desktop,"kde-plasma")==0)
+  if (comparecase(desktop,"kde-plasma")==0 ||
+      comparecase(desktop,"/usr/share/xsessions/plasma")==0)
     return DESKTOP_SESSION_KDE_PLASMA;
   else if (comparecase(desktop,"gnome")==0)
     return DESKTOP_SESSION_GNOME;

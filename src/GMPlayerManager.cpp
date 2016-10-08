@@ -43,7 +43,6 @@
 #include "GMNotifyDaemon.h"
 #include "GMSettingsDaemon.h"
 #include "GMMediaPlayerService.h"
-#include "GMAppStatusNotify.h"
 #endif
 
 #include <FXPNGIcon.h>
@@ -136,16 +135,6 @@ FXIMPLEMENT(GMPlayerManager,FXObject,GMPlayerManagerMap,ARRAYNUMBER(GMPlayerMana
 
 #ifdef HAVE_DBUS
 
-#include "gogglesmm_xml.h"
-
-
-#ifdef HAVE_DBUS
-#define GOGGLESMM_DBUS_NAME "org.fifthplanet.gogglesmm"
-#define GOGGLESMM_DBUS_PATH "/org/fifthplanet/gogglesmm"
-#define GOGGLESMM_DBUS_INTERFACE "org.fifthplanet.gogglesmm"
-#endif
-
-
 DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void * data){
   FXTRACE((80,"-----dbus_systembus_filter-------\n"));
   FXTRACE((80,"path: %s\n",dbus_message_get_path(msg)));
@@ -194,167 +183,6 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
     }
   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
-
-
-
-DBusHandlerResult dbus_playermanager_filter(DBusConnection *connection,DBusMessage * msg,void * data){
-  FXchar * url;
-  GMPlayerManager * p = static_cast<GMPlayerManager*>(data);
-  if (dbus_message_has_path(msg,GOGGLESMM_DBUS_PATH)){
-    if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"play")){
-      p->cmd_play();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"playpause")){
-      p->cmd_playpause();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"stop")){
-      p->cmd_stop();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"pause")){
-      p->cmd_pause();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"next")){
-      p->cmd_next();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"prev")){
-      p->cmd_prev();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"open")){
-      if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&url,DBUS_TYPE_INVALID)) {
-        p->open(url);
-        }
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"raise")){
-      p->cmd_raise();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"notify")){
-      p->display_track_notification();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"toggleshown")){
-      p->cmd_toggle_shown();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"focusprevious")){
-      p->cmd_focus_previous();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"focusnext")){
-      p->cmd_focus_next();
-      return gm_dbus_reply_if_needed(connection,msg);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"getactions")){
-      FXuint actions=0;
-
-      enum {
-        CAN_PLAY  		= 0x1,
-        CAN_PAUSE 		= 0x2,
-        CAN_STOP			= 0x4,
-        CAN_NEXT  		= 0x8,
-        CAN_PREV			= 0x10,
-        };
-
-      if (p->can_play() || p->can_unpause()) actions|=CAN_PLAY;
-      if (p->can_stop()) actions|=CAN_STOP;
-      if (p->can_pause()) actions|=CAN_PAUSE;
-      if (p->can_prev()) actions|=CAN_PREV;
-      if (p->can_next()) actions|=CAN_NEXT;
-      return gm_dbus_reply_unsigned_int(connection,msg,actions);
-      }
-    else if (dbus_message_is_method_call(msg,GOGGLESMM_DBUS_INTERFACE,"exit")){
-      gm_dbus_reply_if_needed(connection,msg);
-      if (p->getMainWindow()) p->getMainWindow()->handle(p,FXSEL(SEL_COMMAND,GMWindow::ID_QUIT),nullptr);
-      return DBUS_HANDLER_RESULT_HANDLED;
-      }
-    else if (dbus_message_is_method_call(msg,"org.freedesktop.DBus.Introspectable","Introspect")){
-      return gm_dbus_reply_string(connection,msg,gogglesmm_xml);
-      }
-    }
-  return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-  }
-
-
-static DBusObjectPathVTable org_fifthplanet_gogglesmm={
-  nullptr,
-  &dbus_playermanager_filter,
-  nullptr,
-  nullptr,
-  nullptr,
-  nullptr
-  };
-
-
-
-
-static void dbus_send_to_self(DBusConnection * connection,const FXchar * signal,FXString argument) {
-  DBusMessage * msg;
-//	FXuint serial=-1;
-  msg = dbus_message_new_method_call(GOGGLESMM_DBUS_NAME,GOGGLESMM_DBUS_PATH,GOGGLESMM_DBUS_INTERFACE,signal);
-  if (msg){
-    if (!argument.empty()) {
-      const FXchar * arg=argument.text();
-      dbus_message_append_args(msg,DBUS_TYPE_STRING,&arg,DBUS_TYPE_INVALID);
-      }
-    dbus_message_set_no_reply(msg,true);
-    dbus_connection_send(connection,msg,nullptr);
-    dbus_connection_flush(connection);
-//    if (reply) dbus_message_unref(reply);
-    dbus_message_unref(msg);
-    }
-  }
-
-
-static FXint dbus_send_commands(DBusConnection * connection,int& argc,char** argv){
-  FXString cmd="raise";
-  FXString url;
-  if (argc>1) {
-    if (compare(argv[1],"--previous")==0)
-      cmd="prev";
-    else if (compare(argv[1],"--play")==0)
-      cmd="play";
-    else if (compare(argv[1],"--play-pause")==0)
-      cmd="playpause";
-    else if (compare(argv[1],"--pause")==0)
-      cmd="pause";
-    else if (compare(argv[1],"--next")==0)
-      cmd="next";
-    else if (compare(argv[1],"--stop")==0)
-      cmd="stop";
-    else if (compare(argv[1],"--toggle-shown")==0)
-      cmd="toggleshown";
-    else if (compare(argv[1],"--now-playing")==0)
-      cmd="notify";
-    else if (compare(argv[1],"--raise")==0)
-      cmd="raise";
-    else if (compare(argv[1],"--focus-previous")==0)
-      cmd="focusprevious";
-    else if (compare(argv[1],"--focus-next")==0)
-      cmd="focusnext";
-    else {
-      cmd="open";
-      url=argv[1];
-      if (gm_is_local_file(url)) {
-        if (!FXPath::isAbsolute(url)) {
-          url=FXPath::absolute(url);
-          }
-        }
-      }
-    }
-  dbus_send_to_self(connection,cmd.text(),url);
-  return 1;
-  }
-
-
-
-
 #endif
 
 
@@ -738,24 +566,23 @@ FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
     sessionbus=nullptr;
     }
   else {
-    FXint result = dbus_bus_request_name(sessionbus->connection(),GOGGLESMM_DBUS_NAME,DBUS_NAME_FLAG_DO_NOT_QUEUE,nullptr);
+
+    mpris2=new GMMediaPlayerService2(sessionbus);
+    FXint result = mpris2->create();
     switch(result) {
       case DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER:
-        {
-          if (!dbus_connection_register_object_path(sessionbus->connection(),"/org/fifthplanet/gogglesmm",&org_fifthplanet_gogglesmm,this)){
-            FXMessageBox::warning(application,MBOX_OK,"Goggles Music Manager",fxtr("A DBus error occurred. All features requiring sessionbus are disabled."));
-            delete sessionbus;
-            sessionbus=nullptr;
-            return true;
-            }
-        }
+        // success
         break;
       case DBUS_REQUEST_NAME_REPLY_EXISTS:
-        dbus_send_commands(sessionbus->connection(),argc,argv);
+        if (argc>1 && strlen(argv[1])>0) 
+          mpris2->request(argv[1]);
+        delete mpris2;  
         return false;
         break;
       default:
         FXMessageBox::warning(application,MBOX_OK,"Goggles Music Manager",fxtr("Session Bus not available. All features requiring sessionbus are disabled."));
+        delete mpris2;
+        mpris2=nullptr;
         delete sessionbus;
         sessionbus=nullptr;
         return true;
@@ -911,11 +738,9 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   if (sessionbus) {
     notifydaemon = new GMNotifyDaemon(sessionbus);
 
+    // KDE5 comes with mpris plugin on the toolbar, no need for
+    // tray icon
     if (gm_desktop_session()==DESKTOP_SESSION_KDE_PLASMA) {
-      appstatus    = new GMAppStatusNotify(sessionbus);
-      appstatus->show();
-
-      /// Disable trayicon
       preferences.gui_tray_icon_disabled=true;
       }
 
@@ -984,12 +809,8 @@ void GMPlayerManager::exit() {
       notifydaemon=nullptr;
       }
 
-    dbus_connection_unregister_object_path(sessionbus->connection(),"/org/fifthplanet/gogglesmm");
-
     if (mpris1) delete mpris1;
     if (mpris2) delete mpris2;
-    if (appstatus) delete appstatus;
-
     }
   if (systembus) {
     dbus_connection_remove_filter(systembus->connection(),dbus_systembus_filter,this);
@@ -1010,22 +831,15 @@ void GMPlayerManager::exit() {
 
 #ifdef HAVE_DBUS
 void GMPlayerManager::update_mpris() {
-  if (mpris1 || mpris2) {
+  if (mpris1) {
     if (!sessionbus || !preferences.dbus_mpris1){
       delete mpris1;
       mpris1=nullptr;
-      }
-    if (!sessionbus || !preferences.dbus_mpris2){
-      delete mpris2;
-      mpris2=nullptr;
       }
     }
 
   if (!mpris1 && preferences.dbus_mpris1 && sessionbus)
     mpris1=new GMMediaPlayerService1(sessionbus);
-
-  if (!mpris2 && preferences.dbus_mpris2 && sessionbus)
-    mpris2=new GMMediaPlayerService2(sessionbus);
   }
 #endif
 
@@ -1109,13 +923,6 @@ void GMPlayerManager::removePlayListSources(){
       }
     }
   }
-
-///FXbool GMPlayerManager::play(const FXString & filename,FXbool flush) {
-//  player->open(filename,flush);
-//  }
-
-
-
 
 
 void GMPlayerManager::open(const FXString & url) {
@@ -1235,14 +1042,6 @@ void GMPlayerManager::pause() {
   // Any scheduled stops should be cancelled
   scheduled_stop = false;
 
-/*
-  if (preferences.play_pause_close_device){
-    player->pause();
-    }
-  else {
-    player->pause();
-    }
-*/
   player->pause();
 
   if (application->hasTimeout(source,GMSource::ID_TRACK_PLAYED)) {
@@ -1680,15 +1479,6 @@ void GMPlayerManager::cmd_toggle_shown(){
   getMainWindow()->toggleShown();
   }
 
-void GMPlayerManager::cmd_focus_previous(){
-  getMainWindow()->focusPrevious();
-  }
-
-void GMPlayerManager::cmd_focus_next(){
-  getMainWindow()->focusNext();
-  }
-
-
 void GMPlayerManager::display_track_notification() {
 #ifdef DEBUG
   fxmessage("Track Change Notification\n");
@@ -1703,7 +1493,6 @@ void GMPlayerManager::display_track_notification() {
       }
     if (mpris1) mpris1->notify_track_change(trackinfo);
     if (mpris2) mpris2->notify_track_change(trackinfo);
-    if (appstatus) appstatus->notify_track_change(trackinfo);
     }
 #endif
   }
@@ -1891,7 +1680,6 @@ long GMPlayerManager::onPlayerState(FXObject*,FXSelector,void* ptr){
 #ifdef HAVE_DBUS
   if (mpris1) mpris1->notify_status_change();
   if (mpris2) mpris2->notify_status_change();
-  if (appstatus) appstatus->notify_status_change();
 #endif
   return 1;
   }

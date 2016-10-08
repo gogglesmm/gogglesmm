@@ -285,15 +285,11 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   target_closeishide.connect(GMPlayerManager::instance()->getPreferences().gui_hide_player_when_close);
   target_keywords.connect(keywords);
 
-  target_close_audio.connect(GMPlayerManager::instance()->getPreferences().play_close_stream);
-  target_pause_close_device.connect(GMPlayerManager::instance()->getPreferences().play_pause_close_device);
-  target_gapless.connect(GMPlayerManager::instance()->getPreferences().play_gapless);
   target_show_playing_albumcover.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover);
 
 #ifdef HAVE_DBUS
   target_dbus_notify_daemon.connect(GMPlayerManager::instance()->getPreferences().dbus_notify_daemon);
   target_dbus_mpris1.connect(GMPlayerManager::instance()->getPreferences().dbus_mpris1);
-  target_dbus_mpris2.connect(GMPlayerManager::instance()->getPreferences().dbus_mpris2);
 #endif
   target_gui_tray_icon.connect(GMPlayerManager::instance()->getPreferences().gui_tray_icon);
   target_replaygain.connect(GMPlayerManager::instance()->getPreferences().play_replaygain,this,ID_REPLAY_GAIN);
@@ -338,7 +334,6 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (GMPlayerManager::instance()->hasSessionBus()) {
     new GMCheckButton(grpbox,tr("Show Track Change Notifications\tInform notification daemon of track changes."),&target_dbus_notify_daemon,FXDataTarget::ID_VALUE);
     new GMCheckButton(grpbox,tr("MPRIS v1 Connectivity\tEnable MPRIS v1 connectivity"),&target_dbus_mpris1,FXDataTarget::ID_VALUE);
-    new GMCheckButton(grpbox,tr("MPRIS v2 Connectivity\tEnable MPRIS v2 connectivity"),&target_dbus_mpris2,FXDataTarget::ID_VALUE);
     }
 #endif
 
@@ -1133,7 +1128,7 @@ void GMPreferencesDialog::updateColors(){
 
   while(w){
     w->setBackColor(selected.base);
-    if ((frame=dynamic_cast<FXFrame*>(w))) {
+    if ((frame=dynamic_cast<FXFrame*>(w))!=nullptr) {
 
       frame->setBaseColor(selected.base);
       frame->setBackColor(selected.base);
@@ -1141,9 +1136,9 @@ void GMPreferencesDialog::updateColors(){
       frame->setHiliteColor(selected.hilite);
       frame->setBorderColor(selected.border);
 
-      if ((label=dynamic_cast<FXLabel*>(w))) {
+      if ((label=dynamic_cast<FXLabel*>(w))!=nullptr) {
         label->setTextColor(selected.fore);
-        if ((button=dynamic_cast<FXButton*>(w))) {
+        if ((button=dynamic_cast<FXButton*>(w))!=nullptr) {
           if (dynamic_cast<GMListBox*>(button->getParent())){
             w->setBackColor(selected.back);
             }
@@ -1151,49 +1146,49 @@ void GMPreferencesDialog::updateColors(){
             w->setBackColor(selected.base);
             }
           }
-        else if ((checkbutton=dynamic_cast<GMCheckButton*>(w))) {
+        else if ((checkbutton=dynamic_cast<GMCheckButton*>(w))!=nullptr) {
           checkbutton->setCheckColor(selected.fore);
           checkbutton->setBoxColor(selected.back);
           }
-        else if ((radiobutton=dynamic_cast<FXRadioButton*>(w))) {
+        else if ((radiobutton=dynamic_cast<FXRadioButton*>(w))!=nullptr) {
           radiobutton->setRadioColor(selected.fore);
           radiobutton->setDiskColor(selected.back);
           }
         }
-      else if ((gmtextfield=dynamic_cast<FXTextField*>(w))) {
+      else if ((gmtextfield=dynamic_cast<FXTextField*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         gmtextfield->setTextColor(selected.fore);
         gmtextfield->setSelTextColor(selected.selfore);
         gmtextfield->setSelBackColor(selected.selback);
         gmtextfield->setBorderColor(selected.shadow);
         }
-      else if ((docktitle=dynamic_cast<FXDockTitle*>(w))) {
+      else if ((docktitle=dynamic_cast<FXDockTitle*>(w))!=nullptr) {
         docktitle->setCaptionColor(selected.selfore);
         docktitle->setBackColor(selected.selback);
         }
-      else if ((header=dynamic_cast<FXHeader*>(w))) {
+      else if ((header=dynamic_cast<FXHeader*>(w))!=nullptr) {
         header->setTextColor(selected.fore);
         }
-      else if ((statusline=dynamic_cast<FXStatusLine*>(w))) {
+      else if ((statusline=dynamic_cast<FXStatusLine*>(w))!=nullptr) {
         statusline->setTextColor(selected.fore);
         }
-      else if ((sevensegment=dynamic_cast<FX7Segment*>(w))) {
+      else if ((sevensegment=dynamic_cast<FX7Segment*>(w))!=nullptr) {
         sevensegment->setTextColor(selected.fore);
         }
-      else if ((slider=dynamic_cast<FXSlider*>(w))) {
+      else if ((slider=dynamic_cast<FXSlider*>(w))!=nullptr) {
         slider->setSlotColor(selected.back);
         }
-     else if ((gmimageframe=dynamic_cast<GMImageFrame*>(w))) {
+     else if ((gmimageframe=dynamic_cast<GMImageFrame*>(w))!=nullptr) {
         gmimageframe->setBorderColor(selected.shadow);
         gmimageframe->setBackColor(selected.back); /// fixme, only for coverframe in mainwindow
         }
-     else if ((gmprogressbar=dynamic_cast<GMProgressBar*>(w))) {
+     else if ((gmprogressbar=dynamic_cast<GMProgressBar*>(w))!=nullptr) {
         gmprogressbar->setBarBGColor(selected.back);
         gmprogressbar->setBorderColor(selected.shadow);
         gmprogressbar->setBarColor(selected.selback);
         gmprogressbar->setTextAltColor(selected.selfore);
         }
-     else if ((gmtrackprogressbar=dynamic_cast<GMTrackProgressBar*>(w))) {
+     else if ((gmtrackprogressbar=dynamic_cast<GMTrackProgressBar*>(w))!=nullptr) {
         gmtrackprogressbar->setBarBGColor(selected.back);
         gmtrackprogressbar->setBorderColor(selected.shadow);
         gmtrackprogressbar->setBarColor(selected.selback);
@@ -1201,50 +1196,50 @@ void GMPreferencesDialog::updateColors(){
         }
 
      }
-   else if ((packer=dynamic_cast<FXPacker*>(w))) {
+   else if ((packer=dynamic_cast<FXPacker*>(w))!=nullptr) {
       packer->setBaseColor(selected.base);
       packer->setBackColor(selected.base);
       packer->setShadowColor(selected.shadow);
       packer->setHiliteColor(selected.hilite);
       packer->setBorderColor(selected.border);
-      if ((gmscrollframe=dynamic_cast<GMScrollFrame*>(w))){
+      if ((gmscrollframe=dynamic_cast<GMScrollFrame*>(w))!=nullptr){
         gmscrollframe->setBorderColor(selected.shadow);
         }
-      else if ((gmtabframe=dynamic_cast<GMTabFrame*>(w))){
+      else if ((gmtabframe=dynamic_cast<GMTabFrame*>(w))!=nullptr){
         gmtabframe->setBorderColor(selected.shadow);
         }
-       else if ((gmcoverframe=dynamic_cast<GMCoverFrame*>(w))){
+       else if ((gmcoverframe=dynamic_cast<GMCoverFrame*>(w))!=nullptr){
         gmcoverframe->setBorderColor(selected.shadow);
         gmcoverframe->setBackColor(selected.back);
         }
-      else if ((combobox=dynamic_cast<FXComboBox*>(w))) {
+      else if ((combobox=dynamic_cast<FXComboBox*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         }
-      else if ((listbox=dynamic_cast<FXListBox*>(w))) {
+      else if ((listbox=dynamic_cast<FXListBox*>(w))!=nullptr) {
         //w->setBackColor(selected.back);
-        if ((gmlistbox=dynamic_cast<GMListBox*>(w))) {
+        if ((gmlistbox=dynamic_cast<GMListBox*>(w))!=nullptr) {
           gmlistbox->setBorderColor(selected.shadow);
           }
         }
-      else if ((groupbox=dynamic_cast<FXGroupBox*>(w))) {
+      else if ((groupbox=dynamic_cast<FXGroupBox*>(w))!=nullptr) {
         groupbox->setTextColor(selected.fore);
         }
-      else if ((gmspinner=dynamic_cast<GMSpinner*>(w))) {
+      else if ((gmspinner=dynamic_cast<GMSpinner*>(w))!=nullptr) {
         gmspinner->setBorderColor(selected.shadow);
         gmspinner->setUpArrowColor(selected.fore);
         gmspinner->setDownArrowColor(selected.fore);
         }
       }
-    else if ((popup=dynamic_cast<FXPopup*>(w))){
+    else if ((popup=dynamic_cast<FXPopup*>(w))!=nullptr){
       popup->setBaseColor(selected.base);
       popup->setShadowColor(selected.shadow);
       popup->setHiliteColor(selected.hilite);
       popup->setBorderColor(selected.border);
-      if ((gmmenupane=dynamic_cast<GMMenuPane*>(w)) || (gmlistbox=dynamic_cast<GMListBox*>(w->getParent())) ||  (gmcombobox=dynamic_cast<GMComboBox*>(w->getParent()))){
+      if ((gmmenupane=dynamic_cast<GMMenuPane*>(w))!=nullptr || (gmlistbox=dynamic_cast<GMListBox*>(w->getParent()))!=nullptr ||  (gmcombobox=dynamic_cast<GMComboBox*>(w->getParent()))!=nullptr){
         popup->setBorderColor(selected.shadow);
         }
       }
-    else if ((menucaption=dynamic_cast<FXMenuCaption*>(w))) {
+    else if ((menucaption=dynamic_cast<FXMenuCaption*>(w))!=nullptr) {
       w->setBackColor(selected.menubase);
       menucaption->setTextColor(selected.fore);
       menucaption->setSelTextColor(selected.menufore);
@@ -1252,13 +1247,13 @@ void GMPreferencesDialog::updateColors(){
       menucaption->setShadowColor(makeShadowColor(selected.menubase));
       menucaption->setHiliteColor(makeHiliteColor(selected.menubase));
 
-      if ((menucheck=dynamic_cast<FXMenuCheck*>(w))) {
+      if ((menucheck=dynamic_cast<FXMenuCheck*>(w))!=nullptr) {
         menucheck->setBoxColor(selected.back);
         }
-      else if ((menuradio=dynamic_cast<FXMenuRadio*>(w))) {
+      else if ((menuradio=dynamic_cast<FXMenuRadio*>(w))!=nullptr) {
         menuradio->setRadioColor(selected.back);
         }
-      else if ((menutitle=dynamic_cast<FXMenuTitle*>(w))) {
+      else if ((menutitle=dynamic_cast<FXMenuTitle*>(w))!=nullptr) {
         w->setBackColor(selected.base);
         menutitle->setTextColor(selected.fore);
         menutitle->setSelTextColor(selected.menufore);
@@ -1267,44 +1262,44 @@ void GMPreferencesDialog::updateColors(){
         menutitle->setHiliteColor(selected.hilite);
         }
       }
-    else if ((menuseparator=dynamic_cast<FXMenuSeparator*>(w))) {
+    else if ((menuseparator=dynamic_cast<FXMenuSeparator*>(w))!=nullptr) {
       menuseparator->setShadowColor(makeShadowColor(selected.menubase));
       menuseparator->setHiliteColor(makeHiliteColor(selected.menubase));
       }
-    else if ((scrollbar=dynamic_cast<FXScrollBar*>(w))) {
+    else if ((scrollbar=dynamic_cast<FXScrollBar*>(w))!=nullptr) {
       scrollbar->setShadowColor(selected.shadow);
       scrollbar->setHiliteColor(selected.hilite);
       scrollbar->setBorderColor(selected.border);
       scrollbar->setArrowColor(selected.fore);
       }
-    else if ((dragcorner=dynamic_cast<FXDragCorner*>(w))) {
+    else if ((dragcorner=dynamic_cast<FXDragCorner*>(w))!=nullptr) {
       dragcorner->setShadowColor(selected.shadow);
       dragcorner->setHiliteColor(selected.hilite);
       }
     else if (dynamic_cast<FXScrollArea*>(w)) {
-      if ((text=dynamic_cast<FXText*>(w))) {
+      if ((text=dynamic_cast<FXText*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         text->setTextColor(selected.fore);
         text->setSelTextColor(selected.selfore);
         text->setSelBackColor(selected.selback);
         }
-      else if ((list=dynamic_cast<FXList*>(w))) {
+      else if ((list=dynamic_cast<FXList*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         list->setTextColor(selected.fore);
         list->setSelTextColor(selected.selfore);
         list->setSelBackColor(selected.selback);
-        if ((gmlist=dynamic_cast<GMList*>(w))) {
+        if ((gmlist=dynamic_cast<GMList*>(w))!=nullptr) {
           gmlist->setRowColor(selected.altback);
          ((FXFrame*)gmlist->getParent())->setBorderColor(selected.shadow);
           }
         }
-      else if ((treelist=dynamic_cast<FXTreeList*>(w))) {
+      else if ((treelist=dynamic_cast<FXTreeList*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         treelist->setTextColor(selected.fore);
         treelist->setLineColor(selected.shadow);
         treelist->setSelTextColor(selected.selfore);
         treelist->setSelBackColor(selected.selback);
-        if ((gmtreelist=dynamic_cast<GMTreeList*>(w))) {
+        if ((gmtreelist=dynamic_cast<GMTreeList*>(w))!=nullptr) {
          gmtreelist->setRowColor(selected.altback);
          ((FXFrame*)gmtreelist->getParent())->setBorderColor(selected.shadow);
           }
@@ -1313,20 +1308,20 @@ void GMPreferencesDialog::updateColors(){
           treelist->setSelBackColor(selected.selback);
           }
         }
-      else if ((iconlist=dynamic_cast<FXIconList*>(w))) {
+      else if ((iconlist=dynamic_cast<FXIconList*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         iconlist->setTextColor(selected.fore);
         iconlist->setSelTextColor(selected.selfore);
         iconlist->setSelBackColor(selected.selback);
         }
-      else if ((gmalbumlist=dynamic_cast<GMAlbumList*>(w))) {
+      else if ((gmalbumlist=dynamic_cast<GMAlbumList*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         gmalbumlist->setTextColor(selected.fore);
         gmalbumlist->setSelTextColor(selected.selfore);
         gmalbumlist->setSelBackColor(selected.selback);
         gmalbumlist->setAltBackColor(selected.altback);
         }
-      else if ((gmtracklist=dynamic_cast<GMTrackList*>(w))) {
+      else if ((gmtracklist=dynamic_cast<GMTrackList*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         //((FXFrame*)gmtracklist->getParent())->setBorderColor(selected.shadow);
         gmtracklist->setTextColor(selected.fore);
@@ -1336,21 +1331,21 @@ void GMPreferencesDialog::updateColors(){
         gmtracklist->setActiveTextColor(selected.playfore);
         gmtracklist->setActiveColor(selected.playback);
         }
-      else if ((foldinglist=dynamic_cast<FXFoldingList*>(w))) {
+      else if ((foldinglist=dynamic_cast<FXFoldingList*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         foldinglist->setTextColor(selected.fore);
         foldinglist->setSelTextColor(selected.selfore);
         foldinglist->setSelBackColor(selected.selback);
         foldinglist->setLineColor(selected.shadow);
         }
-      else if ((table=dynamic_cast<FXTable*>(w))) {
+      else if ((table=dynamic_cast<FXTable*>(w))!=nullptr) {
         w->setBackColor(selected.back);
         table->setTextColor(selected.fore);
         table->setSelTextColor(selected.selfore);
         table->setSelBackColor(selected.selback);
         }
       }
-    else if ((mdichild=dynamic_cast<FXMDIChild*>(w))) {
+    else if ((mdichild=dynamic_cast<FXMDIChild*>(w))!=nullptr) {
       mdichild->setBackColor(selected.base);
       mdichild->setBaseColor(selected.base);
       mdichild->setShadowColor(selected.shadow);
@@ -1359,12 +1354,12 @@ void GMPreferencesDialog::updateColors(){
       mdichild->setTitleColor(selected.selfore);
       mdichild->setTitleBackColor(selected.selback);
       }
-    else if ((tooltip=dynamic_cast<FXToolTip*>(w))){
+    else if ((tooltip=dynamic_cast<FXToolTip*>(w))!=nullptr){
       tooltip->setTextColor(selected.tipfore);
       tooltip->setBackColor(selected.tipback);
       }
 #ifdef HAVE_OPENGL
-    else if ((gmimageview=dynamic_cast<GMImageView*>(w))){
+    else if ((gmimageview=dynamic_cast<GMImageView*>(w))!=nullptr){
       gmimageview->setBackColor(selected.back);
       }
 #endif

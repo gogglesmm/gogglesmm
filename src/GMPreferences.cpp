@@ -72,16 +72,12 @@ const char key_gui_coverdisplay_size[]="cover-size";
 
 const char key_play_repeat[]="repeat-mode";
 const char key_play_replaygain[]="replay-gain";
-const char key_play_close_stream[]="close-audio-stream";
-const char key_play_pause_close_device[]="pause-close-device";
-const char key_play_gapless[]="gapless-playback";
 const char key_play_shuffle[]="shuffle";
 const char key_play_from_queue[]="play-from-queue";
 
 #ifdef HAVE_DBUS
 const char key_dbus_notify_daemon[]="notification-daemon";
 const char key_dbus_mpris1[]="mpris";
-const char key_dbus_mpris2[]="mpris-2";
 #endif
 
 const char key_sync_import_new[]="import-new";
@@ -187,9 +183,6 @@ void GMPreferences::save(FXSettings & reg) const {
   /// Player
   reg.writeIntEntry(section_player,key_play_repeat,play_repeat);
   reg.writeIntEntry(section_player,key_play_replaygain,play_replaygain);
-  reg.writeBoolEntry(section_player,key_play_close_stream,play_close_stream);
-  reg.writeBoolEntry(section_player,key_play_pause_close_device,play_pause_close_device);
-  reg.writeBoolEntry(section_player,key_play_gapless,play_gapless);
   reg.writeBoolEntry(section_player,key_play_shuffle,play_shuffle);
   reg.writeBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
@@ -197,7 +190,6 @@ void GMPreferences::save(FXSettings & reg) const {
   /// Dbus
   reg.writeBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
   reg.writeBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
-  reg.writeBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
 #endif
   }
 
@@ -277,9 +269,6 @@ void GMPreferences::load(FXSettings & reg) {
   /// Player
   play_repeat                   = reg.readIntEntry(section_player,key_play_repeat,play_repeat);
   play_replaygain               = reg.readIntEntry(section_player,key_play_replaygain,play_replaygain);
-  play_close_stream             = reg.readBoolEntry(section_player,key_play_close_stream,play_close_stream);
-  play_pause_close_device       = reg.readBoolEntry(section_player,key_play_pause_close_device,play_pause_close_device);
-  play_gapless                  = reg.readBoolEntry(section_player,key_play_gapless,play_gapless);
   play_shuffle                  = reg.readBoolEntry(section_player,key_play_shuffle,play_shuffle);
   play_from_queue               = reg.readBoolEntry(section_player,key_play_from_queue,play_from_queue);
 
@@ -287,7 +276,6 @@ void GMPreferences::load(FXSettings & reg) {
 #ifdef HAVE_DBUS
   dbus_notify_daemon            = reg.readBoolEntry(section_dbus,key_dbus_notify_daemon,dbus_notify_daemon);
   dbus_mpris1                   = reg.readBoolEntry(section_dbus,key_dbus_mpris1,dbus_mpris1);
-  dbus_mpris2                   = reg.readBoolEntry(section_dbus,key_dbus_mpris2,dbus_mpris2);
 #endif
   setKeyWords(keywords);
   }

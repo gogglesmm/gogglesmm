@@ -144,9 +144,6 @@ public:
 
   FXint  play_replaygain                = REPLAYGAIN_OFF;
   FXuint play_repeat                    = REPEAT_ALL;
-  FXbool play_close_stream              = false;
-  FXbool play_pause_close_device        = false;
-  FXbool play_gapless                   = true;
   FXbool play_shuffle                   = false;
   FXbool play_from_queue                = false;
 
@@ -158,7 +155,6 @@ public:
 #ifdef HAVE_DBUS
   FXbool dbus_notify_daemon             = true;
   FXbool dbus_mpris1                    = true;
-  FXbool dbus_mpris2                    = true;
 #endif
 public:
   /// Default Constructor

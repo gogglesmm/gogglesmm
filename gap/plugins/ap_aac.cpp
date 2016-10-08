@@ -179,7 +179,9 @@ DecoderStatus AacDecoder::process(Packet*packet){
       }
     }
 
-  if ((buffer.size()<FAAD_MIN_STREAMSIZE*2) && eos==false) {
+  const FXuint bytes_needed = FAAD_MIN_STREAMSIZE*af.channels;
+
+  if (buffer.size()<bytes_needed && eos==false) {
     return DecoderOk;
     }
 
@@ -208,9 +210,13 @@ DecoderStatus AacDecoder::process(Packet*packet){
       return DecoderError;
       }
 
+
     if (frame.samples>0) {
 
-      const FXint nframes = FXMIN((FXlong)(frame.samples / frame.channels),(stream_length-stream_position));
+      FXint nframes = frame.samples / frame.channels;
+
+      if (stream_length>0)
+        nframes = FXMIN((FXlong)nframes,(stream_length-stream_position));
 
       if (__unlikely(stream_position<stream_begin)) {
         if ((nframes+stream_position)<stream_begin) {
@@ -236,7 +242,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
         }
       }
     }
-  while(buffer.size() && frame.bytesconsumed);
+  while(((buffer.size()>=bytes_needed) || eos) && frame.bytesconsumed);
 
   if (eos) {
     FXASSERT(stream_position==stream_length);

@@ -21,13 +21,88 @@
 
 extern const FXchar * gmcodecnames[];
 
-namespace GMFilename {
+namespace gm {
 
+// Convert and filter text suitable to be used in filenames
+class TextConverter {
+protected:
+  const FXTextCodec * codec     = nullptr;
+  FXString            forbidden = "\'\\#~!\"$&();<>|`^*?[]/.:";
+  FXuint              modifiers = 0;
+public:
   enum {
-    NOSPACES  						= 0x00000001,
-    LOWERCASE 						= 0x00000002,
-    LOWERCASE_EXTENSION	  = 0x00000004
+    NOSPACE   = 0x1,
+    LOWERCASE = 0x2,
+    UPPERCASE = 0x4,
     };
+protected:
+  FXString apply_filters(const FXString & src) const;
+  FXString apply_codec(const FXString & src) const;
+  FXString convert_to_ascii(const FXString & input) const;
+  FXString convert_to_codec(const FXString & input) const;
+public:
+  explicit TextConverter(FXuint m) : modifiers(m) {}
+
+  explicit TextConverter(const FXString & f,FXuint m) : forbidden(f), modifiers(m) {}
+
+  explicit TextConverter(const FXTextCodec * c,const FXString & f, FXuint m) : codec(c), forbidden(f), modifiers(m) {}
+
+  FXString convert(const FXString & input) const;
+  };
+
+
+/*
+ * Format Track according to pattern
+ * Syntax:
+ *
+ *    %T => track title
+ *    %A => album title
+ *    %P => album artist name
+ *    %p => track artist name
+ *    %G => genre
+ *    %N => 2 digit track number
+ *    %n => track number
+ *    %d => disc number
+ *    %y => track year
+ *    %w => composer
+ *    %c => conductor
+ *
+ *  Conditionals
+ *
+ *   ?c<a|b> => display a if c is not empty, display b if c is empty)
+ *   ?c      => display c if not empty
+ *
+ */
+class TrackFormatter : public TextConverter {
+private:
+  static const FXchar valid[];
+protected:
+  FXString mask;
+public:
+  enum {
+    LOWERCASE_EXTENSION = 0x08,
+    };
+protected:
+  FXString get_field(FXchar field, const GMTrack &) const;
+  FXbool   has_field(FXchar field, const GMTrack &, FXString & value) const;
+  FXString format_fields(const GMTrack & track, const FXString & path) const;
+public:
+  explicit TrackFormatter(const FXString &, const FXTextCodec *, const FXString &, FXuint);
+
+  // TrackFormatter without options or forbidden characters
+  explicit TrackFormatter(const FXString &, const FXTextCodec *);
+
+  // Format track to filename
+  FXString getPath(const GMTrack & track) const;
+
+  // Format track to simple name
+  FXString getName(const GMTrack & track) const;
+  };
+
+}
+
+
+namespace GMFilename {
 
   enum {
     ENCODING_ASCII=0,

@@ -1307,7 +1307,7 @@ FXbool GMTrackDatabase::listTags(FXComboBox * list,FXbool insert_default){
     GMQuery list_tags(this,"SELECT id,name FROM tags WHERE id IN (SELECT DISTINCT(tag) FROM track_tags);");
 
     if (insert_default) {
-      for (i=0;!TagLib::ID3v1::genre(i).isNull();i++) {
+      for (i=0;!TagLib::ID3v1::genre(i).isEmpty();i++) {
         tags.insert(TagLib::ID3v1::genre(i).toCString(true),(void*)(FXival)1);
         list->appendItem(TagLib::ID3v1::genre(i).toCString(true));
         }

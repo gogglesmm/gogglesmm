@@ -330,7 +330,8 @@ public:
 
 
 FXString make_podcast_feed_directory(const FXString & title) {
-  FXString feed = GMFilename::filter(title,"\'\\#~!\"$&();<>|`^*?[]/.:",GMFilename::NOSPACES);
+  gm::TextConverter filter(gm::TextConverter::NOSPACE);
+  FXString feed = filter.convert(title);
   FXDir::createDirectories(GMApp::getPodcastDirectory()+PATHSEPSTRING+feed);
   return feed;
   }
@@ -819,19 +820,42 @@ FXbool gm_download_cover(const FXString & url,FXString path) {
   FXString filename;
   HttpClient http;
   HttpMediaType media;
+  FXString headers;
+  FXString existing;
 
-  if (FXStat::exists(path+PATHSEPSTRING+"cover.png") ||
-      FXStat::exists(path+PATHSEPSTRING+"cover.jpg"))
-    return true;
+  GM_DEBUG_PRINT("[rss] check for updated cover %s\n",url.text());
 
-  if (http.basic("GET",url)) {
+  // we'll probably have an existing one
+  if (FXStat::exists(path+PATHSEPSTRING+"cover.jpg")) {
+    existing = path+PATHSEPSTRING+"cover.jpg";
+    }
+  else if (FXStat::exists(path+PATHSEPSTRING+"cover.png")) {
+    existing = path+PATHSEPSTRING+"cover.png";
+    }
+
+  // conditional request
+  if (!existing.empty())
+    headers=FXString::value("If-Modified-Since: %s\r\n",gm_rfc1123(FXStat::modified(existing)).text());
+
+  if (http.basic("GET",url,headers)) {
+
+    if (http.status.code == HTTP_NOT_MODIFIED) {
+      GM_DEBUG_PRINT("[rss] cover not modified\n");
+      return true;
+      }
+
     if (http.getContentType(media)) {
-      FXString ext = "jpg";
 
-      if (media.mime=="image/jpg" ||  media.mime=="image/jpeg")
+      if (media.mime=="image/jpg" ||  media.mime=="image/jpeg"){
         filename=path+PATHSEPSTRING+"cover.jpg";
-      else if (media.mime=="image/png")
+        }
+      else if (media.mime=="image/png") {
         filename=path+PATHSEPSTRING+"cover.png";
+        }
+      else {
+        GM_DEBUG_PRINT("[rss] cover unknown mimetype: %s\n",media.mime.text());
+        return false;
+        }
 
       FXFile file;
       if (!file.open(filename,FXIO::Writing))
@@ -842,6 +866,19 @@ FXbool gm_download_cover(const FXString & url,FXString path) {
         FXFile::remove(filename);
         }
       file.close();
+
+      // Set the modtime
+      FXTime modtime=0;
+      if (gm_parse_datetime(http.getHeader("last-modified"),modtime) && modtime!=0) {
+        FXStat::modified(filename,modtime);
+        }
+
+      // Remove previous cover
+      if (existing != filename) {
+        GM_DEBUG_PRINT("[rss] removing old cover %s\n",filename.text());
+        FXFile::remove(existing);
+        }
+
       return true;
       }
     }
@@ -914,7 +951,6 @@ FXint GMPodcastUpdater::run() {
 
           GM_DEBUG_PRINT("%s - %s\n",url.text(),FXSystem::universalTime(date).text());
           if (!rss.feed.image.empty()) {
-            GM_DEBUG_PRINT("[rss] cover %s\n",rss.feed.image.text());
             gm_download_cover(rss.feed.image,GMApp::getPodcastDirectory()+PATHSEPSTRING+feed_dir);
             }
 
