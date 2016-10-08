@@ -108,7 +108,7 @@ FXbool DirectSoundOutput::configure(const AudioFormat & fmt) {
   bufferdesc.guid3DAlgorithm = DS3DALG_DEFAULT;
 
   LPDIRECTSOUNDBUFFER sb;
-  if (handle->CreateSoundBuffer(&buffer_description, &sb, nullptr) != DS_OK) {
+  if (handle->CreateSoundBuffer(&bufferdesc, &sb, nullptr) != DS_OK) {
     GM_DEBUG_PRINT("directx: failed to create buffer\n");
     handle->Release();
     handle = nullptr;
