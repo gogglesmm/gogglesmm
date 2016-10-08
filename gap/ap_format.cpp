@@ -172,6 +172,104 @@ void AudioFormat::debug() const {
   }
 
 
+
+  // Set channelmap from given WAV channelmask
+FXuint AudioFormat::cmap_from_wavmask(const FXuint mask,const FXuchar channels) {
+
+  static const FXuint wav_channel_order[]={
+    Channel::FrontLeft,
+    Channel::FrontRight,
+    Channel::FrontCenter,
+    Channel::LFE,
+    Channel::BackLeft,
+    Channel::BackRight,
+    Channel::None,        // SPEAKER_FRONT_LEFT_OF_CENTER
+    Channel::None,        // SPEAKER_FRONT_RIGHT_OF_CENTER
+    Channel::BackCenter,
+    Channel::SideLeft,
+    Channel::SideRight
+/*
+    SPEAKER_TOP_CENTER
+    SPEAKER_TOP_FRONT_LEFT
+    SPEAKER_TOP_FRONT_CENTER
+    SPEAKER_TOP_FRONT_RIGHT
+    SPEAKER_TOP_BACK_LEFT
+    SPEAKER_TOP_BACK_CENTER
+    SPEAKER_TOP_BACK_RIGHT
+*/
+    };
+
+  FXuint channelmap=0;
+
+  if (mask==0) {
+    switch(channels) {
+      case  1: channelmap = AP_CMAP1(Channel::Mono); break;
+      case  2: channelmap = AP_CMAP2(Channel::FrontLeft,Channel::FrontRight); break;
+      default: return 0; break;
+      }
+    }
+  else {
+    FXint pos=0;
+    for (FXint bit=0;bit<32;bit++) {
+      if ((mask>>bit)&0x1) {
+        if (bit>11 || wav_channel_order[bit]==Channel::None)
+          return 0;
+        channelmap|=((wav_channel_order[bit])<<(pos<<2));
+        pos++;
+        }
+      }
+    if(pos!=channels) {
+      return 0;
+      }
+    }
+  return channelmap;
+  }
+
+
+
+  // Get wav channelmask from channelmap
+FXuint AudioFormat::wavmask() const {
+  enum {
+    SPEAKER_FRONT_LEFT            = 0x1,
+    SPEAKER_FRONT_RIGHT           = 0x2,
+    SPEAKER_FRONT_CENTER          = 0x4,
+    SPEAKER_LOW_FREQUENCY         = 0x8,
+    SPEAKER_BACK_LEFT             = 0x10,
+    SPEAKER_BACK_RIGHT            = 0x20,
+    SPEAKER_FRONT_LEFT_OF_CENTER  = 0x40,
+    SPEAKER_FRONT_RIGHT_OF_CENTER = 0x80,
+    SPEAKER_BACK_CENTER           = 0x100,
+    SPEAKER_SIDE_LEFT             = 0x200,
+    SPEAKER_SIDE_RIGHT            = 0x400,
+    SPEAKER_TOP_CENTER            = 0x800,
+    SPEAKER_TOP_FRONT_LEFT        = 0x1000,
+    SPEAKER_TOP_FRONT_CENTER      = 0x2000,
+    SPEAKER_TOP_FRONT_RIGHT       = 0x4000,
+    SPEAKER_TOP_BACK_LEFT         = 0x8000,
+    SPEAKER_TOP_BACK_CENTER       = 0x10000,
+    SPEAKER_TOP_BACK_RIGHT        = 0x20000,
+    };
+
+  FXuint mask=0;
+  for (FXint i=0;i<channels;i++) {
+    switch(channeltype(i)) {
+      case Channel::Mono        : mask|=SPEAKER_FRONT_LEFT; break;
+      case Channel::FrontLeft   : mask|=SPEAKER_FRONT_LEFT; break;
+      case Channel::FrontRight  : mask|=SPEAKER_FRONT_RIGHT; break;
+      case Channel::FrontCenter : mask|=SPEAKER_FRONT_CENTER; break;
+      case Channel::BackLeft    : mask|=SPEAKER_BACK_LEFT; break;
+      case Channel::BackRight   : mask|=SPEAKER_BACK_RIGHT; break;
+      case Channel::BackCenter  : mask|=SPEAKER_BACK_CENTER; break;
+      case Channel::SideLeft    : mask|=SPEAKER_SIDE_LEFT; break;
+      case Channel::SideRight   : mask|=SPEAKER_SIDE_RIGHT; break;
+      case Channel::LFE         : mask|=SPEAKER_LOW_FREQUENCY; break;
+      default: return 0; break;
+      }
+    }
+  return mask;
+  }
+
+
 FXbool operator!=(const AudioFormat& af1,const AudioFormat& af2){
   if ( (af1.format!=af2.format) ||
        (af1.rate!=af2.rate) ||

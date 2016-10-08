@@ -239,6 +239,12 @@ public:
   FXString debug_format() const;
 
   void reset();
+
+  // Set channelmap from given WAV channelmask
+  static FXuint cmap_from_wavmask(const FXuint mask,const FXuchar nchannels);
+
+  // Get wav channelmask from channelmap
+  FXuint wavmask() const;
   };
 
 extern GMAPI FXbool operator!=(const AudioFormat& s1,const AudioFormat& s2);

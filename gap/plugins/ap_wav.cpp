@@ -129,7 +129,7 @@ ReadStatus WavReader::process(Packet*packet) {
   packet->af              = af;
   packet->stream_position = static_cast<FXint>( (input->position()-input_start) / af.framesize());
   packet->stream_length   = stream_length;
-    
+
 
   if (wavformat == WAV_FORMAT_ALAW) {
     FXint nsamples = (packet->space() / af.framesize());
@@ -197,72 +197,6 @@ ReadStatus WavReader::process(Packet*packet) {
   }
 
 
-static FXuint get_channel_order(const FXuint wavmask,const FXuint channels){
-/*
-#define SPEAKER_FRONT_LEFT             0x1
-#define SPEAKER_FRONT_RIGHT            0x2
-#define SPEAKER_FRONT_CENTER           0x4
-#define SPEAKER_LOW_FREQUENCY          0x8
-#define SPEAKER_BACK_LEFT              0x10
-#define SPEAKER_BACK_RIGHT             0x20
-#define SPEAKER_FRONT_LEFT_OF_CENTER   0x40
-#define SPEAKER_FRONT_RIGHT_OF_CENTER  0x80
-#define SPEAKER_BACK_CENTER            0x100
-#define SPEAKER_SIDE_LEFT              0x200
-#define SPEAKER_SIDE_RIGHT             0x400
-#define SPEAKER_TOP_CENTER             0x800
-#define SPEAKER_TOP_FRONT_LEFT         0x1000
-#define SPEAKER_TOP_FRONT_CENTER       0x2000
-#define SPEAKER_TOP_FRONT_RIGHT        0x4000
-#define SPEAKER_TOP_BACK_LEFT          0x8000
-#define SPEAKER_TOP_BACK_CENTER        0x10000
-#define SPEAKER_TOP_BACK_RIGHT         0x20000
-#define SPEAKER_RESERVED               0x80000000
-*/
-
-  GM_DEBUG_PRINT("[wav_reader] channel mask %u\n",wavmask);
-
-  static const FXuint wav_channel_order[]={
-    Channel::FrontLeft,
-    Channel::FrontRight,
-    Channel::FrontCenter,
-    Channel::LFE,
-    Channel::BackLeft,
-    Channel::BackRight,
-    Channel::None,
-    Channel::None,
-    Channel::BackCenter,
-    Channel::SideLeft,
-    Channel::SideRight
-    };
-
-  if (channels<1 || channels>8)
-    return 0;
-
-  if (wavmask==0) {
-    if (channels==1)
-      return AP_CMAP1(Channel::Mono);
-    else if (channels==2)
-      return AP_CMAP2(Channel::FrontLeft,Channel::FrontRight);
-    else
-      return 0;
-    }
-
-  FXuint order=0,cpos=0,cbit=0;
-  while(cpos<channels && cbit<11) {
-    if ((wavmask>>cbit)&0x1) {
-      // unsupported channel
-      if (wav_channel_order[cbit]==Channel::None)
-        return 0;
-      order|=wav_channel_order[cbit]<<(cpos<<2);
-      cpos++;
-      }
-    cbit++;
-    }
-  return (cpos==channels) ? order : 0;
-  }
-
-
 ReadStatus WavReader::parse() {
   FXchar  chunkid[4];
   FXuint  chunksize;
@@ -275,7 +209,7 @@ ReadStatus WavReader::parse() {
   ap_guid_t  subconfig;
   FXushort validbitspersample;
   FXuint   channelmask  = 0;
-  FXuint   channelorder = 0;
+  FXuint   channelmap = 0;
 
   FXbool has_fmt=false;
 
@@ -283,14 +217,14 @@ ReadStatus WavReader::parse() {
 
   if (input->read(&chunkid,4)!=4)
     return ReadError;
- 
+
   if (input->read(&chunksize,4)!=4)
     return ReadError;
 
-  if (compare(chunkid,"RIFF",4) && compare(chunkid,"RF64",4)) 
+  if (compare(chunkid,"RIFF",4) && compare(chunkid,"RF64",4))
     return ReadError;
- 
-  if (input->read(&chunkid,4)!=4 || compare(chunkid,"WAVE",4)) 
+
+  if (input->read(&chunkid,4)!=4 || compare(chunkid,"WAVE",4))
     return ReadError;
 
   while(1) {
@@ -310,17 +244,17 @@ ReadStatus WavReader::parse() {
 
       switch(wavformat) {
         case WAV_FORMAT_ALAW:
-        case WAV_FORMAT_ULAW: 
+        case WAV_FORMAT_ULAW:
           {
-            af.set(AP_FORMAT_S16,rate,channels,channelorder);
+            af.set(AP_FORMAT_S16,rate,channels,channelmap);
           } break;
 
         case WAV_FORMAT_PCM :
           {
             if (samplesize>8)
-              af.set(Format::Signed|Format::Little,samplesize,samplesize>>3,rate,channels,channelorder);
+              af.set(Format::Signed|Format::Little,samplesize,samplesize>>3,rate,channels,channelmap);
             else
-              af.set(Format::Unsigned|Format::Little,samplesize,samplesize>>3,rate,channels,channelorder);
+              af.set(Format::Unsigned|Format::Little,samplesize,samplesize>>3,rate,channels,channelmap);
           } break;
 
         case WAV_FORMAT_FLOAT:
@@ -329,17 +263,17 @@ ReadStatus WavReader::parse() {
               GM_DEBUG_PRINT("unsupported float format with samplesize %d\n",samplesize);
               return ReadError;
               }
-            af.set(Format::Float|Format::Little,samplesize,samplesize>>3,rate,channels,channelorder);
+            af.set(Format::Float|Format::Little,samplesize,samplesize>>3,rate,channels,channelmap);
           } break;
 
-        case WAV_FORMAT_EXTENSIBLE: 
+        case WAV_FORMAT_EXTENSIBLE:
           {
             if (memcmp(subconfig,guid_wav_format_pcm,16)==0) {
               wavformat = WAV_FORMAT_PCM;
               if (samplesize>8)
-                af.set(Format::Signed|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
-              else  
-                af.set(Format::Unsigned|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
+                af.set(Format::Signed|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelmap);
+              else
+                af.set(Format::Unsigned|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelmap);
               }
             else if (memcmp(subconfig,guid_wav_format_float,16)==0) {
               wavformat = WAV_FORMAT_FLOAT;
@@ -347,7 +281,7 @@ ReadStatus WavReader::parse() {
                 GM_DEBUG_PRINT("unsupported float format with samplesize %d\n",samplesize);
                 return ReadError;
                 }
-              af.set(Format::Float|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
+              af.set(Format::Float|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelmap);
               }
             else
               return ReadError;
@@ -355,7 +289,7 @@ ReadStatus WavReader::parse() {
 
         default: return ReadError; break;
         }
- 
+
 #ifdef DEBUG
      af.debug();
      if (block!=af.framesize())
@@ -429,9 +363,9 @@ ReadStatus WavReader::parse() {
       input->position(chunksize,FXIO::Current);
 
       // Get the channel order
-      channelorder = get_channel_order(channelmask,channels);
-      if (channelorder==Channel::None) {
-        GM_DEBUG_PRINT("[wav_reader] unknown channel order\n");
+      channelmap = AudioFormat::cmap_from_wavmask(channelmask,channels);
+      if (channelmap==0) {
+        GM_DEBUG_PRINT("[wav_reader] unsupported channel order\n");
         return ReadError;
         }
 
