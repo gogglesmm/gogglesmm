@@ -83,7 +83,7 @@ FXbool DirectSoundOutput::configure(const AudioFormat & fmt) {
   wformat.Format.nChannels            = fmt.channels;
   wformat.Format.nSamplesPerSec       = fmt.rate;
   wformat.Format.nBlockAlign          = fmt.framesize();
-  wformat.Format.wBitsPerSample       = fmt.packing();    /* represents the container size */
+  wformat.Format.wBitsPerSample       = fmt.packing() * 8;    /* represents the container size */
   wformat.Format.nAvgBytesPerSec      = fmt.framesize() * fmt.rate();
   wformat.Format.cbSize               = 22;
   wformat.Samples.wValidBitsPerSample = fmt.bps();
