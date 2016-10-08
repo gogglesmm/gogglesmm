@@ -104,7 +104,7 @@ FXint Socket::getError() const {
 #ifdef _WIN32
 // Return true if open
 FXbool Socket::isOpen() const {
-  return sockethandle!=0;
+  return sockethandle!=INVALID_SOCKET;
   }
 #endif
 
@@ -113,7 +113,7 @@ FXbool Socket::close() {
 #ifdef _WIN32
   if (isOpen()) {
     closesocket(sockethandle);
-    sockethandle=0;
+    sockethandle=INVALID_SOCKET;
     return FXIODevice::close();
     }
 #else
@@ -246,7 +246,7 @@ FXival Socket::writeBlock(const void* ptr,FXival count){
       return FXIO::Error;
       }
 #else
-    
+
 x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
     if(__unlikely(nwrote<0)){
       if(errno==EINTR) goto x;

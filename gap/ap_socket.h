@@ -29,7 +29,7 @@ namespace ap {
 class Socket : public FXIODevice {
 protected:
 #ifdef _WIN32
-  FXuint sockethandle = 0;
+  FXuint sockethandle = INVALID_SOCKET;
 #endif
 private:
   Socket(const Socket&);
