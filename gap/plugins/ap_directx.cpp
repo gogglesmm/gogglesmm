@@ -31,30 +31,24 @@ class DirectSoundOutput : public OutputPlugin {
 protected:
   LPDIRECTSOUND8       handle = nullptr;
   LPDIRECTSOUNDBUFFER8 buffer = nullptr;
-
-  DWORD offset = 0;
-  DWORD buffersize = 0;
-
-
-
-  FXFile file;
-  FXlong data_pos;
+  DWORD                offset = 0;
+  DWORD                buffersize = 0;
 public:
   DirectSoundOutput(Output * output);
 
-  FXchar type() const { return DeviceDirectSound; }
+  FXchar type() const override { return DeviceDirectSound; }
 
-  FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &) override;
 
-  FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint) override;
 
-  FXint delay();
+  FXint delay() override;
 
-  void drop();
-  void drain();
+  void drop() override;
+  void drain() override;
   void pause(FXbool) {}
 
-  void close();
+  void close() override;
 
   virtual ~DirectSoundOutput();
   };
@@ -67,9 +61,8 @@ DirectSoundOutput::~DirectSoundOutput() {
   }
 
 
-///FIXME perhaps support extensible wav format
 FXbool DirectSoundOutput::configure(const AudioFormat & fmt) {
-  
+
   if (handle==nullptr) {
     if (DirectSoundCreate8(NULL, &handle, nullptr) != DS_OK) {
       GM_DEBUG_PRINT("directx: failed to create directsound\n");
@@ -79,49 +72,58 @@ FXbool DirectSoundOutput::configure(const AudioFormat & fmt) {
     if (handle->SetCooperativeLevel(GetDesktopWindow(), DSSCL_PRIORITY) != DS_OK) {
       GM_DEBUG_PRINT("directx: failed to set cooperativelevel\n");
       handle->Release();
+      handle = nullptr
       return false;
       }
     }
 
-  DSBUFFERDESC buffer_description;
-  WAVEFORMATEX waveformat;
-  GM_DEBUG_PRINT("FRAMESIZE: %d",fmt.bps());
+  WAVEFORMATEXTENSIBLE wformat;
+  memset(&wformat, 0, sizeof(WAVEFORMATEXTENSIBLE));
+  wformat.Format.wFormatTag           = WAVE_FORMAT_EXTENSIBLE;
+  wformat.Format.nChannels            = fmt.channels;
+  wformat.Format.nSamplesPerSec       = fmt.rate;
+  wformat.Format.nBlockAlign          = fmt.framesize();
+  wformat.Format.wBitsPerSample       = fmt.packing();    /* represents the container size */
+  wformat.Format.nAvgBytesPerSec      = fmt.framesize() * fmt.rate();
+  wformat.Format.cbSize               = 22;
+  wformat.Samples.wValidBitsPerSample = fmt.bps();
+  wformat.dwChannelMask               = fmt.wavmask();
+  switch(fmt.datatype()) {
+    case Format::Signed  :
+    case Format::Unsigned: wformat.SubFormat = KSDATAFORMAT_SUBTYPE_PCM; break;
+    case Format::Float   : wformat.SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT; break;
+    default              : return false; break;
+    }
 
   buffersize = 2 * fmt.framesize() * fmt.rate;
   offset = 0;
 
-  memset(&waveformat, 0, sizeof(WAVEFORMATEX)); 
-  waveformat.nChannels = fmt.channels;
-  waveformat.nSamplesPerSec = fmt.rate;
-  waveformat.nBlockAlign = fmt.framesize();
-  waveformat.wFormatTag = WAVE_FORMAT_PCM;
-  waveformat.wBitsPerSample = fmt.bps();
-  waveformat.nAvgBytesPerSec = waveformat.nBlockAlign * waveformat.nSamplesPerSec;
-
-  memset(&buffer_description, 0, sizeof(DSBUFFERDESC)); 
-  buffer_description.dwSize = sizeof(DSBUFFERDESC);
-  buffer_description.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLFREQUENCY;
-  buffer_description.dwReserved = 0;
-  buffer_description.dwBufferBytes = buffersize;
-  buffer_description.lpwfxFormat = &waveformat;
-  buffer_description.guid3DAlgorithm = DS3DALG_DEFAULT;
+  DSBUFFERDESC bufferdesc;
+  memset(&bufferdesc, 0, sizeof(DSBUFFERDESC));
+  bufferdesc.dwSize          = sizeof(DSBUFFERDESC);
+  bufferdesc.dwFlags         = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLFREQUENCY;
+  bufferdesc.dwReserved      = 0;
+  bufferdesc.dwBufferBytes   = buffersize;
+  bufferdesc.lpwfxFormat     = static_cast<LPWAVEFORMATEX>(&wformat);
+  bufferdesc.guid3DAlgorithm = DS3DALG_DEFAULT;
 
   LPDIRECTSOUNDBUFFER sb;
   if (handle->CreateSoundBuffer(&buffer_description, &sb, nullptr) != DS_OK) {
     GM_DEBUG_PRINT("directx: failed to create buffer\n");
     handle->Release();
-    handle = BadHandle;
+    handle = nullptr;
     return false;
     }
   if (sb->QueryInterface(IID_IDirectSoundBuffer8, (LPVOID*)&buffer) != DS_OK) {
     sb->Release();
     handle->Release();
+    handle = nullptr;
     return false;
     }
   sb->Release();
 
   af = fmt;
-
+  af.channelmap = AudioFormat::cmap_from_wavmask(wformat.dwChannelMask,fmt.channels);
   return true;
   }
 
@@ -206,7 +208,7 @@ FXbool DirectSoundOutput::write(const void * data, FXuint nframes) {
 
         if (buffer->Restore() != DS_OK)
           return false;
-        
+
         continue;
         }
 
@@ -225,7 +227,7 @@ FXbool DirectSoundOutput::write(const void * data, FXuint nframes) {
         src += size[1];
         offset += size[1];
         }
-      
+
       offset %= buffersize;
 
       buffer->Unlock(wptr[0], size[0], wptr[1], size[1]);
@@ -283,7 +285,7 @@ FXbool DirectSoundOutput::write(const void * data, FXuint nframes) {
         if (buffer->Restore() != DS_OK) {
           GM_DEBUG_PRINT("directx: failed to restore buffer\n");
           return false;
-          }            
+          }
         hresult = buffer->Lock(offset, len, (LPVOID*)&wrptr1, &wrsize1, (LPVOID*)&wrptr2, &wrsize2, 0);
         }
       if (hresult != DS_OK) {
@@ -333,7 +335,7 @@ FXbool DirectSoundOutput::write(const void * data, FXuint nframes) {
 
     }
 
-    
+
   //GM_DEBUG_PRINT("Write Succeeded\n");
   return true;
   }
