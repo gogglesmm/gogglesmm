@@ -27,6 +27,8 @@ DeviceConfig:: DeviceConfig() {
 DeviceConfig::~DeviceConfig(){
   }
 #endif
+
+
 static const FXchar * const plugin_names[DeviceLast]={
   "none",
   "alsa",
@@ -38,70 +40,17 @@ static const FXchar * const plugin_names[DeviceLast]={
   "wav"
   };
 
- 
+static FXString ap_plugin_path(const FXuchar device) {
+#ifdef _WIN32
+  return FXPath::directory(FXSystem::getExecFilename()) + PATHSEPSTRING + FXSystem::dllName(FXString::value("gap_%s",plugin_names[device]));
+#else
+  return FXPath::search(ap_get_environment("GOGGLESMM_PLUGIN_PATH",AP_PLUGIN_PATH),FXSystem::dllName(FXString::value("gap_%s",plugin_names[device])));
+#endif
+  }
 
 static FXbool ap_has_plugin(FXuchar device) {
-#ifdef _WIN32
-  FXString path = FXPath::directory(FXSystem::getExecFilename()) + PATHSEPSTRING + FXSystem::dllName(FXString::value("gap_%s",plugin_names[device]));
-#else
-  FXString path = FXPath::search(ap_get_environment("GOGGLESMM_PLUGIN_PATH",AP_PLUGIN_PATH),FXSystem::dllName(FXString::value("gap_%s",plugin_names[device])));
-#endif
-  if (FXStat::exists(path) )
-    return true;
-  return false;
+  return FXStat::exists(ap_plugin_path(device));
   }
-
-
-#if 0
-
-AlsaConfig::AlsaConfig() : device("default"), flags(0) {
-  }
-
-AlsaConfig::AlsaConfig(const FXString & d,FXuint f) : device(d),flags(f) {
-  }
-
-AlsaConfig::~AlsaConfig(){
-  }
-
-void AlsaConfig::load(FXSettings & settings) {
-  device=settings.readStringEntry("alsa","device",device.text());
-
-  if (settings.readBoolEntry("alsa","use-mmap",false))
-    flags|=DeviceMMap;
-  else
-    flags&=~DeviceMMap;
-
-  if (settings.readBoolEntry("alsa","no-resample",false))
-    flags|=DeviceNoResample;
-  else
-    flags&=~DeviceNoResample;
-  }
-
-void AlsaConfig::save(FXSettings & settings) const {
-  settings.writeStringEntry("alsa","device",device.text());
-  settings.writeBoolEntry("alsa","use-mmap",flags&DeviceMMap);
-  settings.writeBoolEntry("alsa","no-resample",flags&DeviceNoResample);
-  }
-
-OSSConfig::OSSConfig() : device("/dev/dsp"), flags(0) {
-  }
-
-OSSConfig::OSSConfig(const FXString & d): device(d), flags(0) {
-  }
-
-OSSConfig::~OSSConfig(){
-  }
-
-void OSSConfig::load(FXSettings & settings) {
-  device=settings.readStringEntry("oss","device",device.text());
-  }
-
-void OSSConfig::save(FXSettings & settings) const {
-  settings.writeStringEntry("oss","device",device.text());
-  }
-
-#endif
-
 
 OutputConfig::OutputConfig() {
 #if defined(__linux__) && defined(HAVE_ALSA)
@@ -141,7 +90,7 @@ FXuint OutputConfig::devices() {
 #endif
 #ifdef _WIN32
   if (ap_has_plugin(DeviceWindowsMultimedia))
-	  AP_ENABLE_PLUGIN(plugins, DeviceWindowsMultimedia);  
+	  AP_ENABLE_PLUGIN(plugins, DeviceWindowsMultimedia);
 
   if (ap_has_plugin(DeviceDirectSound))
 	  AP_ENABLE_PLUGIN(plugins, DeviceDirectSound);
@@ -153,10 +102,11 @@ FXuint OutputConfig::devices() {
 
 FXString OutputConfig::plugin() const {
   if (device>=DeviceAlsa && device<DeviceLast)
-    return plugin_names[device];
+    return ap_plugin_path(device);
   else
     return FXString::null;
   }
+
 
 void OutputConfig::load(FXSettings & settings) {
   FXString output=settings.readStringEntry("engine","output",plugin_names[device]);
@@ -180,11 +130,6 @@ void OutputConfig::load(FXSettings & settings) {
 	  alsa.flags &= ~AlsaConfig::DeviceNoResample;
 
   oss.device = settings.readStringEntry("oss", "device", oss.device.text());
-
-
-
-  //alsa.load(settings);
-  //oss.load(settings);
   }
 
 void OutputConfig::save(FXSettings & settings) const {
@@ -199,9 +144,6 @@ void OutputConfig::save(FXSettings & settings) const {
     settings.writeStringEntry("engine","output",plugin_names[device]);
   else
     settings.deleteEntry("engine","output");
-
-  //alsa.save(settings);
-  //oss.save(settings);
   }
 
 

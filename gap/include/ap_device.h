@@ -87,36 +87,36 @@ public:
 
 class AlsaConfig {
 public:
-	enum {
-		DeviceMMap = 0x1,
-		DeviceNoResample = 0x2
-	};
+  enum {
+    DeviceMMap = 0x1,
+    DeviceNoResample = 0x2
+  };
 public:
-	FXString device = "default";
-	FXuint   flags = 0;
+  FXString device = "default";
+  FXuint   flags = 0;
 };
 
 class OSSConfig {
 public:
-	enum {
-		DeviceNoResample = 0x2,
-	};
+  enum {
+    DeviceNoResample = 0x2,
+  };
 public:
-	FXString device = "/dev/dsp";
-	FXuint   flags  = 0;
+  FXString device = "/dev/dsp";
+  FXuint   flags  = 0;
 };
 
 class IOutputConfig {
 public:
-	AlsaConfig alsa;
-	OSSConfig  oss;
+  AlsaConfig alsa;
+  OSSConfig  oss;
 };
 
 
 
 class GMAPI OutputConfig : public IOutputConfig {
 public:
-  FXuchar     device;
+  FXuchar device;
 public:
   OutputConfig();
 
@@ -136,4 +136,3 @@ public:
 }
 
 #endif
-
