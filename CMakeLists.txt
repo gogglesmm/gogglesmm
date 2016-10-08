@@ -32,8 +32,15 @@ include(CheckCXXCompilerFlag)
 
 # Additional compiler flags we like
 CHECK_CXX_COMPILER_FLAG(-Wall HAS_CXX_WALL)
-if(HAS_CXX_WALL)
-  add_compile_options(-W4)
+if(HAS_CXX_WALL AND NOT MSVC)
+  add_compile_options(-Wall)
+endif()
+
+if(MSVC)
+  CHECK_CXX_COMPILER_FLAG(-W4 HAS_CXX_W4)
+  if(HAS_CXX_W4)
+    add_compile_options(-W4)
+  endif()
 endif()
 
 CHECK_CXX_COMPILER_FLAG(-Wextra HAS_CXX_WEXTRA)
