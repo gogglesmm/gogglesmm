@@ -17,12 +17,14 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_vorbis.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
 #include "ap_reader_plugin.h"
 #include "ap_input_plugin.h"
 #include "ap_decoder_thread.h"
+
+#include "ap_vorbis.h"
+#include "ap_opus.h"
 
 #ifdef HAVE_OGG
 #include <ogg/ogg.h>
@@ -276,6 +278,16 @@ ReadStatus MatroskaReader::process(Packet*packet) {
     if (frame_size) {
 
       switch(track->codec) {
+        case Codec::MPEG:
+          {
+            if(frame_size > packet->space())
+              break;
+            if (input->read(packet->ptr(),frame_size)!=frame_size)
+              return ReadError;
+            packet->wroteBytes(frame_size);
+            frame_size-=frame_size;
+            break;
+          }
         case Codec::PCM:
           {
             FXint n = FXMIN(frame_size,packet->availableFrames()*af.framesize());
@@ -343,6 +355,8 @@ ReadStatus MatroskaReader::process(Packet*packet) {
     flags&=~OGG_WROTE_HEADER;
 
     if (frame_size==0) {
+      packet->flags|=FLAG_EOS;
+      engine->decoder->post(packet);
       return ReadDone;
       }
     }
@@ -723,18 +737,16 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
         if (element.size<19)
           return false;
 
-        // Copy OpusHead
-        data.resize(element.size+sizeof(ogg_packet));
-        ogg_packet op;
-        op.bytes = element.size;
-        op.e_o_s = 0;
-        op.b_o_s = 1;
-        op.packetno = 0;
-        op.granulepos = -1;
-        data.append(&op,sizeof(ogg_packet));
-        if (input->read(data.ptr(),element.size)!=element.size)
+        OpusConfig * oc = new OpusConfig();
+
+        oc->info_bytes = element.size;
+        allocElms(oc->info,oc->info_bytes);
+        if (input->read(oc->info,oc->info_bytes)!=oc->info_bytes) {
+          delete oc;
           return false;
-        data.wroteBytes(element.size);
+          }
+
+        track->dc = oc;
         break;
       }
 
@@ -762,15 +774,19 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
 
         vc->info_bytes = frames[0];
         allocElms(vc->info,vc->info_bytes);
-        if (input->read(vc->info,vc->info_bytes)!=vc->info_bytes)
+        if (input->read(vc->info,vc->info_bytes)!=vc->info_bytes) {
+          delete vc;
           return false;
+          }
 
         input->position(frames[1],FXIO::Current);
 
         vc->setup_bytes = frames[2];
         allocElms(vc->setup,vc->setup_bytes);
-        if (input->read(vc->setup,vc->setup_bytes)!=vc->setup_bytes)
+        if (input->read(vc->setup,vc->setup_bytes)!=vc->setup_bytes){
+          delete vc;
           return false;
+          }
 
         track->dc = vc;
         break;
@@ -1219,6 +1235,7 @@ FXbool MatroskaReader::parse_element(Element & element) {
   Element container(12);
 
   element.offset = input->position();
+  element.size   = 0;
 
   if (!parse_element_id(container,element))
     return false;
@@ -1233,6 +1250,7 @@ FXbool MatroskaReader::parse_element(Element & container,Element & element) {
   if (container.size > 2) {
 
     element.offset = input->position();
+    element.size   = 0;
 
     if (!parse_element_id(container,element))
       return false;
@@ -1296,6 +1314,7 @@ FXbool MatroskaReader::parse_ebml(Element & container) {
 FXbool MatroskaReader::parse_element_id(Element & container,Element & element) {
   FXuchar buffer[3];
   FXuchar size;
+
 
   // Read first byte
   if (input->read(buffer,1)!=1 || (buffer[0]<=0x7))
