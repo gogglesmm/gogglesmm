@@ -89,6 +89,8 @@ struct Element {
   Element(){}
   Element(FXlong sz) : size(sz) {}
 
+  void reset() { type=0; size=0; offset=0; }
+
   void debug(const FXchar * section) const { fxmessage("%s: %x (%ld bytes)\n",section,type,size); }
   };
 
@@ -99,6 +101,7 @@ struct Block {
   inline FXuint next() {
     return frames[--nframes];
     }
+  void reset() { nframes=0; }
   };
 
 
@@ -120,8 +123,6 @@ public:
   FXArray<cue_entry> cues;
   FXint             ncues=0;
 
-
-
   void add_cue_entry(FXlong pos,FXlong cluster) {
     if (cues.no()>=ncues) {
       cues.no(cues.no()+256);
@@ -130,8 +131,6 @@ public:
     cues[ncues].cluster  = cluster;
     ncues++;
     }
-
-
   };
 
 /* Layout
@@ -159,14 +158,14 @@ protected:
 
 
 
-  FXlong stream_position = 0;
-  FXulong timecode_scale = 1000000;
-  FXulong duration;
+  FXlong  stream_position = 0;
+  FXulong timecode_scale  = 1000000;
+  FXulong duration        = 0;
 
-  FXlong  first_cluster  = 0;
+  FXlong  first_cluster = 0;
   FXlong  cluster_size = 0;
   FXuint  frame_size = 0;
-  FXlong  packetno = 0;
+  //FXlong  packetno = 0;
 
 
 
@@ -211,6 +210,8 @@ protected:
   FXbool parse_cue_point(Element&);
   FXbool parse_cue_track(Element&,FXulong & track,FXulong & cluster);
 
+protected:
+  void clear_tracks();
 public:
   enum {
     OGG_WROTE_HEADER = 0x2,
@@ -242,13 +243,33 @@ MatroskaReader::MatroskaReader(AudioEngine* e) : ReaderPlugin(e) {
   }
 
 MatroskaReader::~MatroskaReader(){
+  clear_tracks();
   }
+
+
+void MatroskaReader::clear_tracks(){
+  for (int i=0;i<tracks.no();i++)
+    if (tracks[i]!=track)
+      delete tracks[i];
+  tracks.clear();
+  delete track;
+  track = nullptr;
+  }
+
 
 FXbool MatroskaReader::init(InputPlugin*plugin) {
   ReaderPlugin::init(plugin);
   flags&=~FLAG_PARSED;
-  frame_size=0;
-  stream_position=-1;
+  clear_tracks();
+
+  timecode_scale  = 1000000;
+  first_cluster   = 0;
+  frame_size      = 0;
+  stream_position = 0;
+  duration        = 0;
+  cluster.reset();
+  block.reset();
+  group.reset();
   return true;
   }
 
@@ -257,7 +278,29 @@ FXbool MatroskaReader::can_seek() const {
   }
 
 FXbool MatroskaReader::seek(FXlong offset){
-  return false;
+  if (track->codec==Codec::Opus)
+    offset = FXMAX(0,offset-3840);
+
+  FXlong target  = (offset * 1000000000) /  af.rate;
+  FXlong lastpos = 0;
+  FXlong timestamp = 0;
+  for (FXint i=0;i<track->ncues;i++) {
+    fxmessage("target %ld vs %ld\n",target,track->cues[i].position*timecode_scale);
+    if (target<track->cues[i].position*timecode_scale) {
+      lastpos = track->cues[i].cluster;
+      timestamp = track->cues[i].position*timecode_scale;
+      continue;
+      }
+    break;
+    }
+  input->position(first_cluster+lastpos,FXIO::Begin);
+  stream_position = (timestamp * track->af.rate) / 1000000000;
+
+  frame_size=0;
+  cluster.reset();
+  block.reset();
+  group.reset();
+  return true;
   }
 
 ReadStatus MatroskaReader::process(Packet*packet) {
@@ -320,7 +363,7 @@ ReadStatus MatroskaReader::process(Packet*packet) {
               op.bytes = frame_size;
               op.e_o_s = 0;
               op.b_o_s = 0;
-              op.packetno = packetno++;
+              op.packetno = 0; //packetno++;
               op.granulepos = -1;
               packet->append(&op,sizeof(ogg_packet));
               flags|=OGG_WROTE_HEADER;
@@ -611,7 +654,7 @@ FXbool MatroskaReader::get_next_frame(FXuint & framesize) {
           {
             FXulong timecode=0;
             if (!parse_unsigned_int(timecode,element.size)) return false;
-            fxmessage("timecode %ld = %ld seconds\n",timecode*timecode_scale,(timecode*timecode_scale) / 1000000000);
+            fxmessage("timecode %ld = %ld seconds @ %ld\n",timecode*timecode_scale,(timecode*timecode_scale) / 1000000000,input->position());
             block.position = (timecode*timecode_scale*track->af.rate) / 1000000000;
             break;
           }
@@ -655,7 +698,6 @@ FXbool MatroskaReader::get_next_frame(FXuint & framesize) {
         break;
         }
       else if (cluster.type==SEGMENT) {
-
         return true;
         }
       input->position(cluster.size,FXIO::Current);
@@ -698,7 +740,6 @@ FXbool MatroskaReader::parse_track_audio(Element & container) {
         {
           if (!parse_float_as_uint32(track->af.rate,element.size))
             return false;
-          fxmessage("Track.Audio.Rate %u\n",track->af.rate);
         } break;
 
       default:
