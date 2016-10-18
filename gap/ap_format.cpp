@@ -242,6 +242,10 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
            comparecase(mime,"audio/aiff")==0) {
     return Format::AIFF;
     }
+  else if (comparecase(mime,"video/webm")==0){
+    return Format::Matroska;
+    }
+
   else {
     return Format::Unknown;
     }
