@@ -38,8 +38,8 @@ protected:
   FXushort       stream_offset_start;
 protected:
   FXbool init_decoder(const FXuchar *,FXuint);
-  FXbool find_stream_position();
-  FXlong find_stream_length();
+//  FXbool find_stream_position();
+//  FXlong find_stream_length();
 protected:
 public:
   OpusDecoderPlugin(AudioEngine*);
@@ -86,8 +86,6 @@ FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
     resizeElms(pcm,MAX_FRAME_SIZE*af.channels*2);
   else
     allocElms(pcm,MAX_FRAME_SIZE*af.channels*2);
-
-  stream_offset_start = event->stream_offset_start;
   return true;
   }
 
@@ -98,7 +96,7 @@ FXbool OpusDecoderPlugin::flush(FXlong offset) {
   return true;
   }
 
-
+#if 0
 FXbool OpusDecoderPlugin::find_stream_position() {
   const FXuchar * data_ptr = get_packet_offset();
   FXlong    nsamples = 0;
@@ -126,7 +124,7 @@ FXlong OpusDecoderPlugin::find_stream_length() {
   set_packet_offset(data_ptr);
   return nlast - stream_offset_start;
   }
-
+#endif
 
 
 FXbool OpusDecoderPlugin::init_decoder(const FXuchar * packet,const FXuint size) {
@@ -186,17 +184,19 @@ FXbool OpusDecoderPlugin::init_decoder(const FXuchar * packet,const FXuint size)
 
 
 DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
+  OggDecoder::process(packet);
+
   const FXlong stream_begin  = FXMAX(stream_offset_start,stream_decode_offset);
   const FXlong stream_length = packet->stream_length;
   const FXbool eos           = packet->flags&FLAG_EOS;
   FXuint id                  = packet->stream;
   FXlong stream_end          = stream_length;
 
-  OggDecoder::process(packet);
 
   //if (opus==nullptr && !init_decoder())
   //  return DecoderError;
 
+#if 0
   if (stream_position==-1 && !find_stream_position())
     return DecoderOk;
 
@@ -204,8 +204,9 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
     stream_end = find_stream_length();
     FXASSERT(stream_position-stream_offset_start<stream_end);
     }
+#endif
 
-  while(get_next_packet()) {
+  while(get_next_packet(packet)) {
     FXint nsamples = opus_multistream_decode_float(opus,(unsigned char*)op.packet,op.bytes,pcm,MAX_FRAME_SIZE,0);
 
     const FXuchar * pcmi = (const FXuchar*)pcm;

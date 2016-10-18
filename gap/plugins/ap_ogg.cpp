@@ -201,10 +201,13 @@ protected:
     };
 protected:
   OggReaderState    state;
-  ogg_stream_state stream = {};
-  ogg_sync_state   sync = {};
-  ogg_page         page = {};
-  ogg_packet       op = {};
+  ogg_stream_state  stream = {};
+  ogg_sync_state    sync = {};
+  ogg_page          page = {};
+  ogg_packet        op = {};
+protected:
+  MemoryBuffer      cached_packets;
+
 protected:
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
   VorbisCodec      vorbis;
@@ -226,11 +229,15 @@ protected:
   FXlong          input_position = -1;
   FXushort        stream_offset_start = 0;
   FXushort        stream_offset_end = 0;
+  FXlong          stream_position = -1;
 protected:
   FXbool match_page();
   FXbool fetch_next_page();
-  FXbool fetch_next_packet();
+  FXbool fetch_next_packet(FXbool nocache=false);
   void submit_ogg_packet();
+
+
+  void cache_ogg_packet();
 
 #if 0
   void add_header(Packet * p);
@@ -279,7 +286,7 @@ public:
 
 
 
-OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e) {
+OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e), cached_packets(0) {
   ogg_sync_init(&sync);
   }
 
@@ -355,6 +362,7 @@ FXbool OggReader::seek(FXlong target){
         }
       else {
         lastpos=input_position;
+        stream_position=ogg_page_granulepos(&page);
         }
       }
 
@@ -396,19 +404,45 @@ FXbool OggReader::init(InputPlugin*plugin) {
 
 FXbool OggReader::match_page() {
   if (state.has_stream) {
+
     if (ogg_page_serialno(&page)==stream.serialno)
       return true;
-    else
+
+    GM_DEBUG_PRINT("[ogg] page serial not matching\n");
+
+    if (input->serial() && state.has_eos) {
+
+      GM_DEBUG_PRINT("[ogg] serial input and eos was set\n");
+
+      ogg_stream_clear(&stream);
+      state.has_stream=false;
+
+      if (ogg_page_bos(&page)) {
+        FXint serial = ogg_page_serialno(&page);
+        GM_DEBUG_PRINT("[ogg] begin of new stream %d\n",serial);
+        ogg_stream_init(&stream,serial);
+        state.has_stream=true;
+        state.has_eos=false;
+        return true;
+        }
+      else {
+        GM_DEBUG_PRINT("[ogg] expected bos page not found\n");
+        }
+      }
+    else {
       GM_DEBUG_PRINT("non-matching page %d (expected %ld)\n",ogg_page_serialno(&page),stream.serialno);
+      }
     }
   else {
     if (ogg_page_bos(&page)) {
+      GM_DEBUG_PRINT("[ogg] beginning of stream\n");
       FXint serial = ogg_page_serialno(&page);
       ogg_stream_init(&stream,serial);
       state.has_stream=true;
       return true;
       }
     }
+  GM_DEBUG_PRINT("[ogg] failed to match page\n");
   return false;
   }
 
@@ -455,6 +489,8 @@ void OggReader::check_opus_length() {
         }
       }
 
+    FXASSERT(stream_start>=0);
+
     /// Find end of stream
     FXlong pos = find_lastpage_position();
     if (pos>0) {
@@ -466,6 +502,12 @@ void OggReader::check_opus_length() {
     ogg_sync_reset(&sync);
     ogg_stream_reset(&stream);
     }
+
+  // Mark beginning of stream
+  if (stream_start>0)
+    stream_position = stream_start;
+  else
+    stream_position = 0;
   }
 #endif
 
@@ -483,8 +525,6 @@ void OggReader::check_vorbis_length() {
     FXint cb,lb=-1,tb=0;
     while(fetch_next_packet()) {
       cb=vorbis.getBlockSize(op.packet);
-      fxmessage("packet %ld %ld %d\n",op.packetno,op.granulepos,cb);
-
       if (lb!=-1) tb+=(lb+cb)>>2;
       lb=cb;
       if (op.granulepos!=-1) {
@@ -494,17 +534,53 @@ void OggReader::check_vorbis_length() {
         }
       }
 
+    // handle negative offset
+    if (stream_start < 0) {
+      stream_offset_start = -stream_start;
+      }
+
     /// Find end of stream
     FXlong pos = find_lastpage_position();
     if (pos>0) {
       stream_length = pos - stream_start;
       GM_DEBUG_PRINT("[ogg] stream length = %ld\n",stream_length);
       }
-
     input->position(cpos,FXIO::Begin);
+
     ogg_sync_reset(&sync);
     ogg_stream_reset(&stream);
     }
+  else {
+
+
+    /// First Determine the pcm offset at the start of the stream
+    FXint cb,lb=-1,tb=0;
+    while(fetch_next_packet(true)) {
+
+      // cache this packet
+      cache_ogg_packet();
+
+      cb=vorbis.getBlockSize(op.packet);
+      if (lb!=-1) tb+=(lb+cb)>>2;
+      lb=cb;
+      if (op.granulepos!=-1) {
+        stream_start=op.granulepos-tb;
+        GM_DEBUG_PRINT("[ogg] stream offset=%ld %d %ld\n",op.granulepos,tb,stream_start);
+        break;
+        }
+      }
+
+    // handle negative offset
+    if (stream_start < 0) {
+      stream_offset_start = -stream_start;
+      }
+    }
+
+  // Mark beginning of stream
+  if (stream_start>0)
+    stream_position = stream_start;
+  else
+    stream_position = 0;
   }
 
 
@@ -798,14 +874,17 @@ ReadStatus OggReader::parse_vorbis_stream() {
   config->dc         = vorbis_config;
   config->replaygain = gain;
 
+  // Check vorbis length
+  check_vorbis_length();
+
+  config->stream_offset_start = stream_offset_start;
+  config->stream_offset_end = stream_offset_end;
+
   // Initialize decode
   engine->decoder->post(config);
 
   // Post meta information
   engine->decoder->post(meta);
-
-  // Check vorbis length
-  check_vorbis_length();
 
   // Success
   flags|=FLAG_PARSED;
@@ -813,6 +892,7 @@ ReadStatus OggReader::parse_vorbis_stream() {
   return ReadOk;
 
 x:
+  GM_DEBUG_PRINT("[ogg] failed to parse vorbis stream\n");
   vorbis.clear();
   if (meta) meta->unref();
   delete vorbis_config;
@@ -962,6 +1042,7 @@ ReadStatus OggReader::parse() {
     input_position = input->position();
 
   if (!state.has_packet && !fetch_next_packet()){
+    GM_DEBUG_PRINT("[ogg] parse failure\n");
     return ReadError;
     }
 
@@ -980,6 +1061,7 @@ ReadStatus OggReader::parse() {
     return parse_flac_stream();
     }
 #endif
+  GM_DEBUG_PRINT("[ogg] unknown ogg header %hhd -> %s\n",op.packet[0],(const FXchar*)&op.packet[1]);
   return ReadError;
   }
 
@@ -1063,6 +1145,71 @@ void OggReader::clear_headers() {
   }
 #endif
 
+void OggReader::cache_ogg_packet() {
+  FXuint nbytes = op.bytes;
+  cached_packets.append(&nbytes,4);
+  cached_packets.append(op.packet,op.bytes);
+  }
+
+
+void OggReader::submit_ogg_packet() {
+  FXuint nbytes;
+
+  state.has_packet=true;
+
+  if (packet->space()>4) {
+
+    // write packet size
+    if (state.header_written==false) {
+      if (codec==Codec::Vorbis || codec==Codec::Opus) {
+        nbytes = op.bytes;
+        packet->append(&nbytes,4);
+        state.header_written=true;
+        if (stream_position!=-1) {
+          packet->stream_position=stream_position;
+          stream_position=-1;
+          }
+        }
+      else {
+        // no
+        state.header_written=true;
+        }
+      }
+
+    // write packet data
+    nbytes = FXMIN((op.bytes-state.bytes_written),packet->space());
+    if (nbytes) {
+      packet->append(&op.packet[state.bytes_written],nbytes);
+      state.bytes_written+=nbytes;
+      }
+
+    // Check if we're done with the packet.
+    if (state.header_written && state.bytes_written==op.bytes) {
+      state.header_written=false;
+      state.bytes_written=0;
+      state.has_packet=false;
+      if (op.e_o_s) {
+        packet->flags|=FLAG_EOS;
+        state.has_eos=true;
+        }
+      }
+
+    if (packet->space()<=4 || (packet->flags&FLAG_EOS)) {
+      packet->af=af;
+      packet->stream_length=stream_length;
+      engine->decoder->post(packet);
+      packet=nullptr;
+      }
+    }
+  else {
+    packet->af=af;
+    packet->stream_length=stream_length;
+    engine->decoder->post(packet);
+    packet=nullptr;
+    }
+  }
+
+#if 0
 void OggReader::submit_ogg_packet() {
   FXASSERT(packet);
   FXASSERT((FXuval)packet->capacity()>sizeof(ogg_packet));
@@ -1074,8 +1221,12 @@ void OggReader::submit_ogg_packet() {
       if (packet->space()>(FXival)sizeof(ogg_packet)) {
         packet->append(&op,sizeof(ogg_packet));
         state.header_written=true;
+        if (stream_position!=-1) {
+          packet->stream_position=stream_position;
+          stream_position=-1;
+          }
         //if (packet->stream_position==-1) {
-        //  packet->stream_position=op.granulepos;
+        //  packet->stream_position=stream_position;
         //  }
         }
       else {
@@ -1112,7 +1263,7 @@ void OggReader::submit_ogg_packet() {
   }
 
 
-
+#endif
 
 
 
@@ -1145,9 +1296,22 @@ FXbool OggReader::fetch_next_page() {
   }
 
 
-FXbool OggReader::fetch_next_packet() {
+FXbool OggReader::fetch_next_packet(FXbool nocache/*=false*/) {
   FXint result;
   while(1) {
+
+    if (__unlikely(cached_packets.size() && nocache==false)) {
+      op.packetno   = 0;
+      op.granulepos = -1;
+      op.b_o_s      = 0;
+      op.e_o_s      = 0;
+      FXuint nbytes;
+      cached_packets.read(&nbytes,4);
+      op.bytes=nbytes;
+      cached_packets.read(op.packet,op.bytes);
+      return true;
+      }
+
     if (state.has_page==false) {
 
       if (!fetch_next_page()){
@@ -1157,11 +1321,17 @@ FXbool OggReader::fetch_next_packet() {
       if (ogg_stream_pagein(&stream,&page))
         return false;
 
+      // For streaming check for eos and determine stream_length)
+      if (stream_length==-1 && ogg_page_eos(&page)) {
+        stream_length = ogg_page_granulepos(&page);
+        }
+
       state.has_page=true;
       }
     do {
       result=ogg_stream_packetout(&stream,&op);
       if (result==1) {
+        if (op.e_o_s) state.has_eos=true;
         return true;
         }
       }
@@ -1173,9 +1343,8 @@ FXbool OggReader::fetch_next_packet() {
 
 
 ReadStatus OggReader::process(Packet * p) {
-  packet                  = p;
+  packet = p;
   packet->stream_position = -1;
-  packet->stream_length   = stream_length;
 
   if (__unlikely((flags&FLAG_PARSED)==0)) {
 
@@ -1199,6 +1368,18 @@ ReadStatus OggReader::process(Packet * p) {
       }
     submit_ogg_packet();
     }
+
+
+  if (input->serial() && state.has_eos && !input->eof()) {
+    flags&=~(FLAG_PARSED|FLAG_OGG_VORBIS|FLAG_OGG_FLAC|FLAG_OGG_OPUS|FLAG_VORBIS_MASK);
+    if (state.has_stream) {
+      ogg_stream_clear(&stream);
+      state.has_stream=false;
+      }
+    state.has_eos=false;
+    return ReadOk;
+    }
+
 
   if (state.has_eos)
     return ReadDone;

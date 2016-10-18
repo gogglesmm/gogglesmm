@@ -36,11 +36,12 @@ protected:
   ogg_packet op = {};
   Packet*    out;
   FXlong     stream_position;
+  FXushort   stream_offset_start;
 protected:
-  FXbool get_next_packet();
-  void   push_back_packet();
-  const FXuchar* get_packet_offset();
-  void set_packet_offset(const FXuchar*);
+  FXbool get_next_packet(Packet*);
+  //void   push_back_packet();
+  //const FXuchar* get_packet_offset();
+  //void set_packet_offset(const FXuchar*);
 public:
   OggDecoder(AudioEngine*);
 
