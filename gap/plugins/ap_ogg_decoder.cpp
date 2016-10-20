@@ -163,8 +163,6 @@ DecoderStatus OggDecoder::process(Packet* packet){
     stream_position=packet->stream_position;
     fxmessage("[ogg] new stream position %ld\n",packet->stream_position);
     }
-  //buffer.append(packet->data(),packet->size());
-  //packet->unref();
   return DecoderOk;
   }
 

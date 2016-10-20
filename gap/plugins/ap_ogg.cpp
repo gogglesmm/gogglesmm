@@ -1157,7 +1157,8 @@ void OggReader::submit_ogg_packet() {
 
   state.has_packet=true;
 
-  if (packet->space()>4) {
+  // Make sure data fits into packet or allow partial if it exceeds capacity
+  if (((packet->space()>=(op.bytes+4)) || ((op.bytes+4)>packet->capacity()))) {
 
     // write packet size
     if (state.header_written==false) {
@@ -1194,7 +1195,7 @@ void OggReader::submit_ogg_packet() {
         }
       }
 
-    if (packet->space()<=4 || (packet->flags&FLAG_EOS)) {
+    if (packet->flags&FLAG_EOS) {
       packet->af=af;
       packet->stream_length=stream_length;
       engine->decoder->post(packet);
@@ -1331,7 +1332,6 @@ FXbool OggReader::fetch_next_packet(FXbool nocache/*=false*/) {
     do {
       result=ogg_stream_packetout(&stream,&op);
       if (result==1) {
-        if (op.e_o_s) state.has_eos=true;
         return true;
         }
       }
