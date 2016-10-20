@@ -96,36 +96,6 @@ FXbool OpusDecoderPlugin::flush(FXlong offset) {
   return true;
   }
 
-#if 0
-FXbool OpusDecoderPlugin::find_stream_position() {
-  const FXuchar * data_ptr = get_packet_offset();
-  FXlong    nsamples = 0;
-  GM_DEBUG_PRINT("[opus] find stream position\n");
-  while(get_next_packet()) {
-    nsamples += opus_packet_get_nb_samples((unsigned char*)op.packet,op.bytes,48000);
-    if (op.granulepos>=0) {
-      GM_DEBUG_PRINT("[opus] found stream position: %ld\n",op.granulepos-nsamples);
-      stream_position=op.granulepos-nsamples;
-      set_packet_offset(data_ptr);
-      return true;
-      }
-    }
-  set_packet_offset(data_ptr);
-  return false;
-  }
-
-FXlong OpusDecoderPlugin::find_stream_length() {
-  const FXuchar * data_ptr = get_packet_offset();
-  FXlong    nlast = 0;
-  GM_DEBUG_PRINT("[opus] find stream length\n");
-  while(get_next_packet()) {
-    nlast = op.granulepos;
-    }
-  set_packet_offset(data_ptr);
-  return nlast - stream_offset_start;
-  }
-#endif
-
 
 FXbool OpusDecoderPlugin::init_decoder(const FXuchar * packet,const FXuint size) {
   FXASSERT(opus==nullptr);
@@ -192,20 +162,6 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
   FXuint id                  = packet->stream;
   FXlong stream_end          = stream_length;
 
-
-  //if (opus==nullptr && !init_decoder())
-  //  return DecoderError;
-
-#if 0
-  if (stream_position==-1 && !find_stream_position())
-    return DecoderOk;
-
-  if (eos && stream_end==-1) {
-    stream_end = find_stream_length();
-    FXASSERT(stream_position-stream_offset_start<stream_end);
-    }
-#endif
-
   while(get_next_packet(packet)) {
     FXint nsamples = opus_multistream_decode_float(opus,(unsigned char*)op.packet,op.bytes,pcm,MAX_FRAME_SIZE,0);
 
@@ -247,7 +203,6 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
 
       FXint nw = FXMIN(out->availableFrames(),nsamples);
       if (nw>0){
-        //fxmessage("add %d / %d / %d / %d\n",nw,nsamples,out->availableFrames(),af.framesize());
         out->appendFrames(pcmi,nw);
         pcmi+=(nw*af.framesize());
         nsamples-=nw;
@@ -255,7 +210,6 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
         }
 
       if (out->availableFrames()==0) {
-        //fxmessage("posting\n");
         engine->output->post(out);
         out=nullptr;
         }

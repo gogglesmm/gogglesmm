@@ -39,9 +39,6 @@ protected:
   FXushort   stream_offset_start;
 protected:
   FXbool get_next_packet(Packet*);
-  //void   push_back_packet();
-  //const FXuchar* get_packet_offset();
-  //void set_packet_offset(const FXuchar*);
 public:
   OggDecoder(AudioEngine*);
 
@@ -50,6 +47,7 @@ public:
   FXbool flush(FXlong) override;
 
   DecoderStatus process(Packet*) override;
+
 
   ~OggDecoder();
   };

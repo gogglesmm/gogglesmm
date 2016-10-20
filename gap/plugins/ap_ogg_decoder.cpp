@@ -119,43 +119,6 @@ FXbool OggDecoder::get_next_packet(Packet * packet) {
   return false;
   }
 
-#if 0
-FXbool OggDecoder::get_next_packet() {
-  if (buffer.size() && buffer.size()>=(FXival)sizeof(ogg_packet)) {
-    buffer.read((FXuchar*)&op,sizeof(ogg_packet));
-    if (buffer.size()<op.bytes) {
-      buffer.readBytes(-sizeof(ogg_packet));
-      return false;
-      }
-    op.packet=(FXuchar*)buffer.data();
-
-    op.packetno   = 0;
-    op.granulepos = -1;
-    op.b_o_s      = 0;
-    op.e_o_s      = 0;
-
-    buffer.readBytes(op.bytes);
-    return true;
-    }
-  return false;
-  }
-
-
-const FXuchar* OggDecoder::get_packet_offset() {
-  return buffer.data();
-  }
-
-void OggDecoder::set_packet_offset(const FXuchar * offset) {
-  buffer.setReadPosition(offset);
-  }
-
-void OggDecoder::push_back_packet() {
-  if (packet_start_ptr) {
-    buffer.setReadPosition(packet_start_ptr);
-    packet_start_ptr=nullptr;
-    }
-  }
-#endif
 
 DecoderStatus OggDecoder::process(Packet* packet){
   if (packet->stream_position>=0 && buffer.size()==0) {
