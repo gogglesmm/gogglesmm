@@ -214,10 +214,6 @@ protected:
 #endif
 protected:
   Packet *        packet = nullptr;
-#if 0
-  Event  *        headers = nullptr;
-  FXint           ogg_packet_written = -1;
-#endif
   ReadStatus      status = ReadError;
   FXuchar         codec = Codec::Invalid;
   FXlong          stream_start = 0;
@@ -910,7 +906,8 @@ void OggReader::submit_ogg_packet() {
   state.has_packet=true;
 
   // Make sure data fits into packet or allow partial if it exceeds capacity
-  if (((packet->space()>=(op.bytes+4)) || ((op.bytes+4)>packet->capacity()))) {
+  if ((packet->space()>=(op.bytes+4)) || 
+      ((packet->space()>=4) && ((op.bytes+4)>packet->capacity()))) {
 
     // write packet size
     if (state.header_written==false) {
