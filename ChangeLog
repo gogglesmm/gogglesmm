@@ -1,3 +1,6 @@
+1.1.2
+  - Fix missing option No Resample in alsa output plugin
+
 1.1.1
   - Fix detection of newer kde desktop sessions.
   - Replace gogglesmm native dbus interface with mpris v2.
