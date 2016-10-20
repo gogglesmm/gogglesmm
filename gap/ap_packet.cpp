@@ -55,14 +55,14 @@ Packet * PacketPool::wait(const Signal & signal) {
     Packet * packet = nullptr;
     packets.pop(packet);
     return packet;
-    } 
+    }
   return nullptr;
   }
 
 
 
 
-Packet::Packet(PacketPool *p,FXival sz) : Event(Buffer), MemoryBuffer(sz), pool(p),flags(0),stream_position(0),stream_length(0) {
+Packet::Packet(PacketPool *p,FXival sz) : Event(Buffer), MemoryBuffer(sz), pool(p),flags(0),stream_position(-1),stream_length(-1) {
   }
 
 Packet::~Packet() {
@@ -72,8 +72,8 @@ void Packet::reset() {
   MemoryBuffer::clear();
   flags=0;
   stream=0;
-  stream_position=0;
-  stream_length=0;
+  stream_position=-1;
+  stream_length=-1;
   }
 
 void Packet::unref() {
