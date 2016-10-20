@@ -91,7 +91,7 @@ struct Element {
 
   void reset() { type=0; size=0; offset=0; }
 
-  void debug(const FXchar * section) const { fxmessage("%s: %x (%ld bytes)\n",section,type,size); }
+  void debug(const FXchar * section) const { fxmessage("%s: 0x%x (%ld bytes)\n",section,type,size); }
   };
 
 struct Block {
@@ -181,7 +181,7 @@ protected:
   FXbool  parse_element_id(Element & container,Element & element);
 
   FXbool parse_element(Element & element);
-  FXbool parse_element(Element & parent,Element & element);
+  FXbool parse_element(Element & parent,Element & element,FXbool allow_unknown_size=false);
 
   FXbool parse_ebml(Element&);
   FXbool parse_segment(Element &);
@@ -353,7 +353,8 @@ ReadStatus MatroskaReader::process(Packet*packet) {
         case Codec::Vorbis:
         case Codec::Opus:
           {
-            if ((frame_size+4)<=packet->space() || (((frame_size+4)>packet->capacity()) && packet->space()>=4)) {
+            if ( ((frame_size+4)<=packet->space()) ||
+                 ((packet->space()>=4) && ((frame_size+4)>packet->capacity()))) {
 
               if (0==(flags&OGG_WROTE_HEADER)) {
                 packet->append(&frame_size,4);
@@ -418,14 +419,16 @@ ReadStatus MatroskaReader::parse(Packet * packet) {
     return ReadError;
 
   // Make sure it is a matroska file
-  if (element.type!=EBML || !parse_ebml(element))
+  if (element.type!=EBML || !parse_ebml(element)) {
     return ReadError;
+    }
 
   // Find First Segment
   while(parse_element(element)) {
     if (element.type==SEGMENT) {
-      if (!parse_segment(element))
+      if (!parse_segment(element)) {
         return ReadError;
+        }
       break;
       }
     input->position(element.size,FXIO::Current);
@@ -464,6 +467,7 @@ ReadStatus MatroskaReader::parse(Packet * packet) {
       return ReadOk;
       }
     }
+  GM_DEBUG_PRINT("[matroska] no supported tracks found\n");
   return ReadError;
   }
 
@@ -1169,7 +1173,7 @@ FXbool MatroskaReader::parse_segment_info(Element & container) {
 FXbool MatroskaReader::parse_segment(Element & container) {
   Element element;
 
-  while(parse_element(container,element)) {
+  while(parse_element(container,element,true)) {
     switch(element.type) {
 
       case SEGMENT_INFO:
@@ -1284,7 +1288,7 @@ FXbool MatroskaReader::parse_element(Element & element) {
   return true;
   }
 
-FXbool MatroskaReader::parse_element(Element & container,Element & element) {
+FXbool MatroskaReader::parse_element(Element & container,Element & element,FXbool allow_unknown_size) {
   if (container.size > 2) {
 
     element.offset = input->position();
@@ -1301,6 +1305,9 @@ FXbool MatroskaReader::parse_element(Element & container,Element & element) {
 
     return true;
     }
+  else if (container.size == -1 && allow_unknown_size) {
+    return parse_element(element);
+    }
   return false;
   }
 
@@ -1310,6 +1317,7 @@ FXbool MatroskaReader::parse_ebml(Element & container) {
   FXString doctype;
 
   while(parse_element(container,element)) {
+
     switch(element.type) {
       case EBML_DOC_TYPE:
         doctype.length(element.size);
@@ -1341,6 +1349,7 @@ FXbool MatroskaReader::parse_ebml(Element & container) {
     return true;
     }
 
+  GM_DEBUG_PRINT("[matroska] unknown doctype \"%s\"\n",doctype.text());
   return false;
   }
 
@@ -1350,13 +1359,14 @@ FXbool MatroskaReader::parse_ebml(Element & container) {
 
 
 FXbool MatroskaReader::parse_element_id(Element & container,Element & element) {
-  FXuchar buffer[3];
+  FXuchar buffer[3]={0};
   FXuchar size;
 
 
   // Read first byte
-  if (input->read(buffer,1)!=1 || (buffer[0]<=0x7))
+  if (input->read(buffer,1)!=1 || (buffer[0]<=0x7)) {
     return false;
+    }
 
   element.type=buffer[0];
 
@@ -1366,8 +1376,9 @@ FXbool MatroskaReader::parse_element_id(Element & container,Element & element) {
   // Read remaining bytes
   if (size) {
 
-    if (input->read(buffer,size)!=size)
+    if (input->read(buffer,size)!=size) {
       return false;
+      }
 
     for (FXint i=0;i<size;i++) {
       element.type=(element.type<<8)|static_cast<FXuint>(buffer[i]);
@@ -1400,8 +1411,9 @@ FXuchar MatroskaReader::parse_ebml_uint64(FXlong & value) {
   FXuchar n;
 
   // Read first byte
-  if (input->read(buffer,1)!=1 || (buffer[0]==0))
+  if (input->read(buffer,1)!=1 || (buffer[0]==0)) {
     return 0;
+    }
 
   // Store first byte value
   value=buffer[0];
@@ -1415,8 +1427,9 @@ FXuchar MatroskaReader::parse_ebml_uint64(FXlong & value) {
   // Read remaining bytes
   if (n) {
 
-    if (input->read(buffer,n)!=n)
+    if (input->read(buffer,n)!=n) {
       return 0;
+      }
 
     for (FXint i=0;i<n;i++) {
       value=(value<<8)|static_cast<FXlong>(buffer[i]);
@@ -1428,7 +1441,6 @@ FXuchar MatroskaReader::parse_ebml_uint64(FXlong & value) {
     fxwarning("matroska: unknown element size not supported");
     value=-1;
     }
-
   return (n+1);
   }
 
