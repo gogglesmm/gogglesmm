@@ -353,23 +353,20 @@ ReadStatus MatroskaReader::process(Packet*packet) {
         case Codec::Vorbis:
         case Codec::Opus:
           {
-            if (0==(flags&OGG_WROTE_HEADER)) {
+            if ((frame_size+4)<=packet->space() || (((frame_size+4)>packet->capacity()) && packet->space()>=4)) {
 
-              if (sizeof(ogg_packet) > packet->space())
-                break;
+              if (0==(flags&OGG_WROTE_HEADER)) {
+                packet->append(&frame_size,4);
+                flags|=OGG_WROTE_HEADER;
+                }
 
-              ogg_packet op;
-              op.packet = nullptr;
-              op.bytes = frame_size;
-              op.e_o_s = 0;
-              op.b_o_s = 0;
-              op.packetno = 0; //packetno++;
-              op.granulepos = -1;
-              packet->append(&op,sizeof(ogg_packet));
-              flags|=OGG_WROTE_HEADER;
+              FXint n = FXMIN(frame_size,packet->space());
+              if (input->read(packet->ptr(),n)!=n)
+                return ReadError;
+              packet->wroteBytes(n);
+              frame_size-=n;
               }
-
-            // intentional no break
+            break;
           }
         default:
           {
