@@ -892,9 +892,7 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
 
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
           if (comparecase(codec,"A_VORBIS")==0) {
-            track->codec      = Codec::Vorbis;
-            track->af.format |= (Format::Float|Format::Little);
-            track->af.setBits(32);
+            track->codec = Codec::Vorbis;
             break;
             }
 #endif

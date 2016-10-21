@@ -77,6 +77,73 @@ const FXchar * Codec::name(FXuchar c){
 
 
 
+
+#if defined(HAVE_OPUS) || defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
+
+// http://www.xiph.org/vorbis/doc/Vorbis_I_spec.html
+extern const FXuint vorbis_channel_map[]={
+  AP_CHANNELMAP_MONO,
+
+  AP_CHANNELMAP_STEREO,
+
+  AP_CMAP3(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight),
+
+  AP_CMAP4(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP5(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP6(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight,
+           Channel::LFE),
+
+  AP_CMAP7(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackCenter,
+           Channel::LFE),
+
+  AP_CMAP8(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackLeft,
+           Channel::BackRight,
+           Channel::LFE)
+  };
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 AudioFormat::AudioFormat() {
   }
 
@@ -107,7 +174,7 @@ void AudioFormat::setChannels(FXuchar ch) {
     switch(channels) {
       case  1: channelmap = AP_CHANNELMAP_MONO;   break;
       case  2: channelmap = AP_CHANNELMAP_STEREO; break;
-      default: break;
+      default: channelmap = 0;                    break;
       }
     }
   }
@@ -122,7 +189,7 @@ void AudioFormat::set(FXushort dt,FXushort bits,FXushort pack,FXuint r,FXuchar n
     switch(channels) {
       case  1: channelmap = AP_CHANNELMAP_MONO;   break;
       case  2: channelmap = AP_CHANNELMAP_STEREO; break;
-      default: FXASSERT(0); break;
+      default: channelmap = 0;                    break;
       };
     }
   }
@@ -136,7 +203,7 @@ void AudioFormat::set(FXushort fmt,FXuint r,FXuchar nc,FXuint map) {
     switch(channels) {
       case  1: channelmap = AP_CHANNELMAP_MONO;   break;
       case  2: channelmap = AP_CHANNELMAP_STEREO; break;
-      default: FXASSERT(0); break;
+      default: channelmap = 0;                    break;
       };
     }
   }

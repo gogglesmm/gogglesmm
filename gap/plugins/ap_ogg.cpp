@@ -41,7 +41,7 @@ namespace ap {
 
 class AudioEngine;
 
-#ifdef HAVE_VORBIS
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
 
 class VorbisCodec {
 protected:
@@ -572,51 +572,7 @@ extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,
 
 #if defined(HAVE_OPUS) || defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
 
-// http://www.xiph.org/vorbis/doc/Vorbis_I_spec.html
-static const FXuint vorbis_channel_map[]={
-  AP_CHANNELMAP_MONO,
-
-  AP_CHANNELMAP_STEREO,
-
-  AP_CMAP3(Channel::FrontLeft,
-           Channel::FrontCenter,
-           Channel::FrontRight),
-
-  AP_CMAP4(Channel::FrontLeft,
-           Channel::FrontRight,
-           Channel::BackLeft,
-           Channel::BackRight),
-
-  AP_CMAP5(Channel::FrontLeft,
-           Channel::FrontCenter,
-           Channel::FrontRight,
-           Channel::BackLeft,
-           Channel::BackRight),
-
-  AP_CMAP6(Channel::FrontLeft,
-           Channel::FrontCenter,
-           Channel::FrontRight,
-           Channel::BackLeft,
-           Channel::BackRight,
-           Channel::LFE),
-
-  AP_CMAP7(Channel::FrontLeft,
-           Channel::FrontCenter,
-           Channel::FrontRight,
-           Channel::SideLeft,
-           Channel::SideRight,
-           Channel::BackCenter,
-           Channel::LFE),
-
-  AP_CMAP8(Channel::FrontLeft,
-           Channel::FrontCenter,
-           Channel::FrontRight,
-           Channel::SideLeft,
-           Channel::SideRight,
-           Channel::BackLeft,
-           Channel::BackRight,
-           Channel::LFE)
-  };
+extern const FXuint vorbis_channel_map[];
 
 #endif
 
@@ -764,9 +720,9 @@ ReadStatus OggReader::parse_vorbis_stream() {
   vorbis_config->setVorbisSetup(op.packet,op.bytes);
 
 #ifdef HAVE_VORBIS
-  af.set(AP_FORMAT_FLOAT,rate,channels,vorbis_channel_map[channels-1]);
+  af.set(AP_FORMAT_FLOAT,rate,channels/*,vorbis_channel_map[channels-1]*/);
 #else // HAVE_TREMOR
-  af.set(AP_FORMAT_S16,rate,channels,vorbis_channel_map[channels-1]);
+  af.set(AP_FORMAT_S16,rate,channels/*,vorbis_channel_map[channels-1]*/);
 #endif
 
   codec=Codec::Vorbis;
@@ -906,7 +862,7 @@ void OggReader::submit_ogg_packet() {
   state.has_packet=true;
 
   // Make sure data fits into packet or allow partial if it exceeds capacity
-  if ((packet->space()>=(op.bytes+4)) || 
+  if ((packet->space()>=(op.bytes+4)) ||
       ((packet->space()>=4) && ((op.bytes+4)>packet->capacity()))) {
 
     // write packet size

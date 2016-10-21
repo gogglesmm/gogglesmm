@@ -45,10 +45,8 @@ protected:
   FXbool            has_info;
   FXbool            has_dsp;
 protected:
-  //FXbool init_decoder();
   void   init_info();
   void   reset_decoder();
-  //FXbool find_stream_position();
 public:
   VorbisDecoder(AudioEngine*);
 
@@ -76,9 +74,18 @@ VorbisDecoder::~VorbisDecoder(){
   }
 
 
+extern const FXuint vorbis_channel_map[];
+
 
 FXbool VorbisDecoder::init(ConfigureEvent*event) {
   OggDecoder::init(event);
+
+#ifdef HAVE_VORBIS
+  event->af.format = AP_FORMAT_FLOAT;
+#else // HAVE_TREMOR
+  event->af.format = AP_FORMAT_S16;
+#endif
+  event->af.channelmap = vorbis_channel_map[event->af.channels-1];
 
   stream_offset_start = event->stream_offset_start;
 
