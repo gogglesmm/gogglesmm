@@ -48,8 +48,8 @@ public:
   /// Wait for next event
   Event * wait();
 
-  // Pop typed event from queue if available. return true if queue is not empty
-  FXbool pop_if(FXuchar t,Event *& event);
+  /// Wait for specific event. Returns nullptr if other event occurred.
+  Event * wait_for(FXuchar t);
 
   // Check if typed event is in front of the queue
   FXbool peek_if_not(FXuchar t);

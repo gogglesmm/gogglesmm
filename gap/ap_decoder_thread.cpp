@@ -146,13 +146,7 @@ FXint DecoderThread::run(){
 
 
 Packet * DecoderThread::get_decoder_packet() {
-  do {
-    Event * event = nullptr;
-    if (fifo.pop_if(Buffer,event))
-      return dynamic_cast<Packet*>(event);    
-    fifo.wait();
-    }      
-  while(1);
+  return dynamic_cast<Packet*>(fifo.wait_for(Buffer));
   }
 
 Packet * DecoderThread::get_output_packet() {
@@ -160,7 +154,7 @@ Packet * DecoderThread::get_output_packet() {
     // Bail out if there's a non-buffer event
     if (fifo.peek_if_not(Buffer))
       return nullptr;
-        
+
     // Wait for output packet
     Packet * packet = packetpool.wait(fifo.signal());
     if (packet) {
