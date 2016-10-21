@@ -153,27 +153,15 @@ protected:
 protected:
   MemoryBuffer data;
 protected:
-  FXbool is_webm = false;
-
-
-
-
+  FXbool  is_webm         = false;
   FXlong  stream_position = 0;
   FXulong timecode_scale  = 1000000;
   FXulong duration        = 0;
-
-  FXlong  first_cluster = 0;
-  FXlong  cluster_size = 0;
-  FXuint  frame_size = 0;
-  //FXlong  packetno = 0;
-
-
-
-
-
+  FXlong  first_cluster   = 0;
+  FXlong  cluster_size    = 0;
+  FXuint  frame_size      = 0;
 protected:
-  ReadStatus parse(Packet * p);
-
+  ReadStatus parse();
 
   FXuchar parse_ebml_uint64(FXlong & value);
   FXbool  parse_element_uint64(Element & container,FXlong & element);
@@ -281,7 +269,7 @@ FXbool MatroskaReader::seek(FXlong offset){
   if (track->codec==Codec::Opus)
     offset = FXMAX(0,offset-3840);
 
-  FXlong target  = (offset * 1000000000) /  af.rate;
+  FXulong target  = (offset * 1000000000) /  af.rate;
   FXlong lastpos = 0;
   FXlong timestamp = 0;
   for (FXint i=0;i<track->ncues;i++) {
@@ -306,14 +294,11 @@ FXbool MatroskaReader::seek(FXlong offset){
 ReadStatus MatroskaReader::process(Packet*packet) {
 
   if (!(flags&FLAG_PARSED)) {
-    return parse(packet);
+    packet->unref();
+    return parse();
     }
 
-  //packet->stream_position=stream_position;
   packet->stream_length=stream_length;
-
-  FXuint element_type;
-
   packet->af=af;
 
   while(packet->space()) {
@@ -333,7 +318,7 @@ ReadStatus MatroskaReader::process(Packet*packet) {
           }
         case Codec::PCM:
           {
-            FXint n = FXMIN(frame_size,packet->availableFrames()*af.framesize());
+            FXuint n = FXMIN(frame_size,(FXuint)(packet->availableFrames()*af.framesize()));
             if (input->read(packet->ptr(),n)!=n)
               return ReadError;
             packet->wroteBytes(n);
@@ -411,7 +396,7 @@ enum {
   };
 
 
-ReadStatus MatroskaReader::parse(Packet * packet) {
+ReadStatus MatroskaReader::parse() {
   Element element;
 
   // Get first element
@@ -503,7 +488,7 @@ FXbool MatroskaReader::parse_simpleblock(Element & element) {
     return false;
     }
 
-  if (track->number != tracknumber) {
+  if (track->number != (FXulong)tracknumber) {
     block.nframes=0;
     input->position(element.size,FXIO::Current);
     return true;
@@ -904,55 +889,86 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
           GM_DEBUG_PRINT("found codec: '%s'\n",codec.text());
 
 #ifdef HAVE_OGG
+
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
           if (comparecase(codec,"A_VORBIS")==0) {
             track->codec      = Codec::Vorbis;
             track->af.format |= (Format::Float|Format::Little);
             track->af.setBits(32);
+            break;
             }
-          else if (comparecase(codec,"A_OPUS")==0) {
+#endif
+
+#ifdef HAVE_OPUS
+          if (comparecase(codec,"A_OPUS")==0) {
             track->codec      = Codec::Opus;
             track->af.format |= (Format::Float|Format::Little);
             track->af.setBits(32);
+            break;
             }
 #endif
+
+#endif
           if (!is_webm) {
+
 
             if (comparecase(codec,"A_PCM/INT/LIT")==0) {
               track->codec   = Codec::PCM;
               track->af.format |= (Format::Signed|Format::Little);
+              break;
               }
-            else if (comparecase(codec,"A_PCM/INT/BIG")==0) {
+
+            if (comparecase(codec,"A_PCM/INT/BIG")==0) {
               track->codec   = Codec::PCM;
               track->af.format |= (Format::Signed|Format::Big);
+              break;
               }
-            else if (comparecase(codec,"A_PCM/FLOAT/IEEE")==0) {
+
+            if (comparecase(codec,"A_PCM/FLOAT/IEEE")==0) {
               track->codec   = Codec::PCM;
               track->af.format |= (Format::Float|Format::Little);
+              break;
               }
-            else if (comparecase(codec,"A_DTS")==0) {
+
+            if (comparecase(codec,"A_DTS")==0) {
               track->codec      = Codec::DCA;
               track->af.format |= (Format::Float|Format::Little);
               track->af.setBits(32);
+              break;
               }
-            else if (comparecase(codec,"A_AC3")==0) {
+
+            if (comparecase(codec,"A_AC3")==0) {
               track->codec      = Codec::A52;
               track->af.format |= (Format::Float|Format::Little);
               track->af.setBits(32);
+              break;
               }
-            else if (comparecase(codec,"A_MPEG/L3")==0) {
+
+#ifdef HAVE_MAD
+            if (comparecase(codec,"A_MPEG/L3")==0) {
               track->codec      = Codec::MPEG;
               track->af.format |= (Format::Signed|Format::Little);
               track->af.setBits(16);
+              break;
               }
-            else if (comparecase(codec,"A_FLAC")==0) {
+#endif
+
+#ifdef HAVE_FLAC
+            if (comparecase(codec,"A_FLAC")==0) {
               track->codec      = Codec::FLAC;
               track->af.format |= (Format::Signed|Format::Little);
+              break;
               }
-            else if (comparecase(codec,"A_AAC")==0) {
+#endif
+
+#ifdef HAVE_FAAD
+            if (comparecase(codec,"A_AAC")==0) {
               track->codec      = Codec::AAC;
               track->af.format |= (Format::Signed|Format::Little);
               track->af.setBits(16);
+              break;
               }
+#endif
             }
           break;
         }
@@ -1062,7 +1078,7 @@ FXbool MatroskaReader::parse_cue_track(Element & container,FXulong & cue_track,F
 
 FXbool MatroskaReader::parse_cue_point(Element & container) {
   FXulong cuetime;
-  FXulong  cluster_position;
+  FXulong cluster_position;
   FXulong cuetrack;
 
   Element element;
@@ -1429,7 +1445,7 @@ FXuchar MatroskaReader::parse_ebml_uint64(FXlong & value) {
     }
 
   // Check for unknown sizes
-  if (value == ((FXULONG(1)<<((7-n)+(n*8)))-1)) {
+  if ((FXulong)value == ((FXULONG(1)<<((7-n)+(n*8)))-1)) {
     fxwarning("matroska: unknown element size not supported");
     value=-1;
     }
