@@ -444,26 +444,17 @@ ReadStatus MatroskaReader::parse(Packet * packet) {
       }
 
     if (track) {
-      fxmessage("Codec: %s\n",Codec::name(track->codec));
+      GM_DEBUG_PRINT("[matroska] select track with codec %s\n",Codec::name(track->codec));
       track->af.debug();
-      input->position(first_cluster,FXIO::Begin);
       af=track->af;
       ConfigureEvent * cfg = new ConfigureEvent(track->af,track->codec);
       cfg->dc = track->dc;
-      engine->decoder->post(cfg);
       stream_length = (duration * timecode_scale * track->af.rate )  / 1000000000;
+      cfg->stream_length = stream_length;
+      engine->decoder->post(cfg);
+
       flags|=FLAG_PARSED;
-/*
-      if (data.size()) {
-        if (track->codec==Codec::AAC) {
-          packet->flags|=AAC_FLAG_CONFIG|AAC_FLAG_FRAME;
-          }
-        packet->af=af;
-        packet->append(data.data(),data.size());
-        engine->decoder->post(packet);
-        data.clear();
-        }
-*/
+      input->position(first_cluster,FXIO::Begin);
       return ReadOk;
       }
     }
@@ -910,7 +901,8 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
           codec.length(element.size);
           input->read(codec.text(),element.size);
 
-          fxmessage("found codec: '%s'\n",codec.text());
+          GM_DEBUG_PRINT("found codec: '%s'\n",codec.text());
+
 #ifdef HAVE_OGG
           if (comparecase(codec,"A_VORBIS")==0) {
             track->codec      = Codec::Vorbis;
@@ -955,14 +947,12 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
             else if (comparecase(codec,"A_FLAC")==0) {
               track->codec      = Codec::FLAC;
               track->af.format |= (Format::Signed|Format::Little);
-              //track->af.setBits(16);
               }
             else if (comparecase(codec,"A_AAC")==0) {
               track->codec      = Codec::AAC;
               track->af.format |= (Format::Signed|Format::Little);
               track->af.setBits(16);
               }
-
             }
           break;
         }
@@ -1146,6 +1136,8 @@ FXbool MatroskaReader::parse_segment_info(Element & container) {
             input->read_double_be(value);
             duration=lrint(value);
             }
+
+          GM_DEBUG_PRINT("[matroska] duration %ld\n",duration);
           break;
         }
 
@@ -1155,7 +1147,7 @@ FXbool MatroskaReader::parse_segment_info(Element & container) {
           if (!parse_unsigned_int(timecode_scale,element.size))
             return false;
 
-          fxmessage("timecode scale %ld\n",timecode_scale);
+          GM_DEBUG_PRINT("[matroska] timecode scale %ld\n",timecode_scale);
           break;
         }
       default:
