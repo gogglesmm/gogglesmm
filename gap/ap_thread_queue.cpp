@@ -113,6 +113,28 @@ Event * ThreadQueue::wait() {
   return event;
   }
 
+Event * ThreadQueue::wait_for(FXuchar event_type) {
+  Event * event = nullptr;
+  do {
+    mfifo.lock();
+    sfifo.clear();
+    if (head) {
+      if (head->type == event_type) {
+        event = head;
+        head = head->next;
+        event->next = nullptr;
+        if (head==nullptr) tail=nullptr;
+        }
+      mfifo.unlock();
+      return event;
+      }
+    mfifo.unlock();
+    sfifo.wait();
+    }
+  while(1);
+  return nullptr;
+  }
+
 
 FXbool ThreadQueue::checkAbort() {
   FXScopedMutex lock(mfifo);
@@ -149,25 +171,6 @@ FXbool ThreadQueue::peek_if_not(FXuchar requested) {
   mfifo.unlock();
   return match;
   }
-
-
-FXbool ThreadQueue::pop_if(FXuchar requested,Event *& event){
-  mfifo.lock();
-  sfifo.clear();
-  FXbool has_events = false;
-  if (head) {
-    has_events=true;
-    if (head->type==requested) {
-      event = head;
-      head = head->next;
-      event->next = nullptr;
-      if (head==nullptr) tail=nullptr;      
-      }
-    }
-  mfifo.unlock();
-  return has_events;
-  }
-
 
 /// Pop typed event
 Event * ThreadQueue::pop_if_not(FXuchar r1,FXuchar r2){
