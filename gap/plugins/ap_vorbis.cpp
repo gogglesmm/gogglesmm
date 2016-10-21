@@ -45,14 +45,17 @@ protected:
   FXbool            has_info;
   FXbool            has_dsp;
 protected:
-  void   init_info();
-  void   reset_decoder();
+  void init_info();
+  void reset_decoder();
 public:
   VorbisDecoder(AudioEngine*);
 
   FXuchar codec() const override { return Codec::Vorbis; }
+
   FXbool init(ConfigureEvent*) override;
+
   DecoderStatus process(Packet*) override;
+
   FXbool flush(FXlong) override;
 
   virtual ~VorbisDecoder();
@@ -130,10 +133,9 @@ FXbool VorbisDecoder::init(ConfigureEvent*event) {
       return false;
       }
 
-    fxmessage("[vorbis] - setup success\n");
+    GM_DEBUG_PRINT("[vorbis] setup complete\n");
     stream_position = -1;
     has_dsp=true;
-
     return true;
     }
   return false;
@@ -176,94 +178,6 @@ void VorbisDecoder::reset_decoder() {
     has_dsp=false;
     }
   }
-#if 0
-FXbool VorbisDecoder::init_decoder() {
-  const FXuchar * data_ptr = get_packet_offset();
-
-  // Initialize Info
-  init_info();
-
-  while(get_next_packet()) {
-    if (is_vorbis_header()) {
-
-      if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
-        GM_DEBUG_PRINT("[vorbis] vorbis_synthesis_headerin failed\n");
-        return false;
-        }
-      }
-    else { // First non header
-
-      if (vorbis_synthesis_init(&dsp,&info)<0)
-        return false;
-
-      if (vorbis_block_init(&dsp,&block)<0) {
-        vorbis_dsp_clear(&dsp);
-        return false;
-        }
-
-      has_dsp=true;
-      push_back_packet();
-      return true;
-      }
-    }
-
-  vorbis_info_clear(&info);
-
-  set_packet_offset(data_ptr);
-  return true;
-  }
-#endif
-
-#if 0
-
-FXbool VorbisDecoder::find_stream_position() {
-  GM_DEBUG_PRINT("[vorbis] find_stream_position\n");
-  const FXuchar * data_ptr = get_packet_offset();
-  FXint cb,lb=-1,tb=0;
-  while(get_next_packet()) {
-    if (is_vorbis_header()){
-      reset_decoder();
-      goto reset;
-      }
-    cb=vorbis_packet_blocksize(&info,&op);
-    if (lb!=-1) tb+=(lb+cb)>>2;
-    lb=cb;
-    if (op.granulepos!=-1) {
-      stream_position=op.granulepos-tb;
-      set_packet_offset(data_ptr);
-      return true;
-      }
-    }
-reset:
-  set_packet_offset(data_ptr);
-  return false;
-  }
-
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 DecoderStatus VorbisDecoder::process(Packet * packet) {

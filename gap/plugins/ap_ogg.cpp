@@ -719,11 +719,7 @@ ReadStatus OggReader::parse_vorbis_stream() {
 
   vorbis_config->setVorbisSetup(op.packet,op.bytes);
 
-#ifdef HAVE_VORBIS
-  af.set(AP_FORMAT_FLOAT,rate,channels/*,vorbis_channel_map[channels-1]*/);
-#else // HAVE_TREMOR
-  af.set(AP_FORMAT_S16,rate,channels/*,vorbis_channel_map[channels-1]*/);
-#endif
+  af.set(AP_FORMAT_FLOAT,rate,channels,vorbis_channel_map[channels-1]);
 
   codec=Codec::Vorbis;
 
