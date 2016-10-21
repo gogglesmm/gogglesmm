@@ -615,7 +615,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
 
   alsa_hardware_only_frame = new FXFrame(matrix,FRAME_NONE);
   alsa_hardware_only = new GMCheckButton(matrix,"No resampling",nullptr,0,CHECKBUTTON_NORMAL|LAYOUT_FILL_COLUMN);
-  alsa_hardware_only->setCheck(config.alsa.flags&AlsaConfig::DeviceNoResample);
+  alsa_hardware_only->setCheck((config.alsa.flags&AlsaConfig::DeviceNoResample)==AlsaConfig::DeviceNoResample);
 
   /// OSS
   oss_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
