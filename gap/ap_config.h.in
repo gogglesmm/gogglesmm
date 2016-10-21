@@ -1,5 +1,6 @@
 #cmakedefine HAVE_FLAC
 #cmakedefine HAVE_VORBIS
+#cmakedefine HAVE_TREMOR
 #cmakedefine HAVE_OGG
 #cmakedefine HAVE_OPUS
 #cmakedefine HAVE_MAD
