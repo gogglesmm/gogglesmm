@@ -28,11 +28,6 @@
 
 namespace ap {
 
-enum {
-  AAC_FLAG_CONFIG = 0x2,
-  AAC_FLAG_FRAME  = 0x4
-  };
-
 #ifdef HAVE_FAAD
 
 class AACReader : public ReaderPlugin {
@@ -120,6 +115,18 @@ FXbool AacDecoder::init(ConfigureEvent*event) {
     NeAACDecClose(handle);
     handle=nullptr;
     }
+
+  DecoderSpecificConfig * ac = dynamic_cast<DecoderSpecificConfig*>(event->dc);
+  if (ac) {
+    long unsigned int samplerate;
+    FXuchar           channels;
+    handle = NeAACDecOpen();
+    if (NeAACDecInit2(handle,ac->config,ac->config_bytes,&samplerate,&channels)<0){
+      NeAACDecClose(handle);
+      handle=nullptr;
+      return false;
+      }
+    }
   stream_position=-1;
   return true;
   }
@@ -149,34 +156,20 @@ DecoderStatus AacDecoder::process(Packet*packet){
   FXuchar           channels;
   NeAACDecFrameInfo frame;
 
-  if (packet->flags&AAC_FLAG_CONFIG) {
-    FXASSERT(handle==nullptr);
+  buffer.append(packet->data(),packet->size());
+  packet->unref();
+  packet=nullptr;
+  if (handle==nullptr) {
     handle = NeAACDecOpen();
-    if (NeAACDecInit2(handle,packet->data(),packet->size(),&samplerate,&channels)<0){
-      packet->unref();
-      packet=nullptr;
+    long n = NeAACDecInit(handle,buffer.data(),buffer.size(),&samplerate,&channels);
+    if (n<0) {
+      buffer.clear();
       return DecoderError;
       }
-    packet->unref();
-    packet=nullptr;
-    return DecoderOk;
-    }
-  else {
-    buffer.append(packet->data(),packet->size());
-    packet->unref();
-    packet=nullptr;
-    if (handle==nullptr) {
-      handle = NeAACDecOpen();
-      long n = NeAACDecInit(handle,buffer.data(),buffer.size(),&samplerate,&channels);
-      if (n<0) {
-        buffer.clear();
-        return DecoderError;
-        }
-      else if (n>0) buffer.readBytes(n);
-      af.set(AP_FORMAT_S16,samplerate,channels);
-      engine->output->post(new ConfigureEvent(af,Codec::AAC));
-      stream_position=0;
-      }
+    else if (n>0) buffer.readBytes(n);
+    af.set(AP_FORMAT_S16,samplerate,channels);
+    engine->output->post(new ConfigureEvent(af,Codec::AAC));
+    stream_position=0;
     }
 
   const FXuint bytes_needed = FAAD_MIN_STREAMSIZE*af.channels;

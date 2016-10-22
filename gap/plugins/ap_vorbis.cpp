@@ -18,10 +18,11 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_packet.h"
-#include "ap_event_private.h"
+#include "ap_vorbis.h"
 #include "ap_engine.h"
 #include "ap_ogg_decoder.h"
 #include "ap_decoder_thread.h"
+
 
 #if defined(HAVE_VORBIS)
 #include <vorbis/codec.h>
@@ -44,16 +45,17 @@ protected:
   FXbool            has_info;
   FXbool            has_dsp;
 protected:
-  FXbool init_decoder();
-  void   init_info();
-  void   reset_decoder();
-  FXbool find_stream_position();
+  void init_info();
+  void reset_decoder();
 public:
   VorbisDecoder(AudioEngine*);
 
   FXuchar codec() const override { return Codec::Vorbis; }
+
   FXbool init(ConfigureEvent*) override;
+
   DecoderStatus process(Packet*) override;
+
   FXbool flush(FXlong) override;
 
   virtual ~VorbisDecoder();
@@ -75,14 +77,68 @@ VorbisDecoder::~VorbisDecoder(){
   }
 
 
+extern const FXuint vorbis_channel_map[];
+
 
 FXbool VorbisDecoder::init(ConfigureEvent*event) {
   OggDecoder::init(event);
 
+#ifdef HAVE_VORBIS
+  event->af.format = AP_FORMAT_FLOAT;
+#else // HAVE_TREMOR
+  event->af.format = AP_FORMAT_S16;
+#endif
+  event->af.channelmap = vorbis_channel_map[event->af.channels-1];
+
+  stream_offset_start = event->stream_offset_start;
+
   af=event->af;
 
   reset_decoder();
-  return true;
+
+  if (event->dc) {
+
+    init_info();
+
+    VorbisConfig * vorbis_config = dynamic_cast<VorbisConfig*>(event->dc);
+    FXASSERT(vorbis_config);
+
+    ogg_packet op;
+
+    op.b_o_s      = 1;
+    op.e_o_s      = 0;
+    op.granulepos = -1;
+    op.packet     = vorbis_config->info;
+    op.bytes      = vorbis_config->info_bytes;
+
+    if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
+      GM_DEBUG_PRINT("[vorbis] info header failed\n");
+      return false;
+      }
+
+    op.b_o_s  = 0;
+    op.packet = vorbis_config->setup;
+    op.bytes  = vorbis_config->setup_bytes;
+
+    if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
+      GM_DEBUG_PRINT("[vorbis] setup header failed\n");
+      return false;
+      }
+
+    if (vorbis_synthesis_init(&dsp,&info)<0)
+      return false;
+
+    if (vorbis_block_init(&dsp,&block)<0) {
+      vorbis_dsp_clear(&dsp);
+      return false;
+      }
+
+    GM_DEBUG_PRINT("[vorbis] setup complete\n");
+    stream_position = -1;
+    has_dsp=true;
+    return true;
+    }
+  return false;
   }
 
 
@@ -123,93 +179,10 @@ void VorbisDecoder::reset_decoder() {
     }
   }
 
-FXbool VorbisDecoder::init_decoder() {
-  const FXuchar * data_ptr = get_packet_offset();
-
-  // Initialize Info
-  init_info();
-
-  while(get_next_packet()) {
-    if (is_vorbis_header()) {
-      if (vorbis_synthesis_headerin(&info,&comment,&op)<0) {
-        GM_DEBUG_PRINT("[vorbis] vorbis_synthesis_headerin failed\n");
-        return false;
-        }
-      }
-    else { // First non header
-
-      if (vorbis_synthesis_init(&dsp,&info)<0)
-        return false;
-
-      if (vorbis_block_init(&dsp,&block)<0) {
-        vorbis_dsp_clear(&dsp);
-        return false;
-        }
-
-      has_dsp=true;
-      push_back_packet();
-      return true;
-      }
-    }
-
-  vorbis_info_clear(&info);
-
-  set_packet_offset(data_ptr);
-  return true;
-  }
-
-
-
-FXbool VorbisDecoder::find_stream_position() {
-  const FXuchar * data_ptr = get_packet_offset();
-  FXint cb,lb=-1,tb=0;
-  while(get_next_packet()) {
-    if (is_vorbis_header()){
-      reset_decoder();
-      goto reset;
-      }
-    cb=vorbis_packet_blocksize(&info,&op);
-    if (lb!=-1) tb+=(lb+cb)>>2;
-    lb=cb;
-    if (op.granulepos!=-1) {
-      stream_position=op.granulepos-tb;
-      set_packet_offset(data_ptr);
-      return true;
-      }
-    }
-reset:
-  set_packet_offset(data_ptr);
-  return false;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 DecoderStatus VorbisDecoder::process(Packet * packet) {
+  OggDecoder::process(packet);
+
   FXASSERT(packet);
 
 #if defined(HAVE_VORBIS)
@@ -228,46 +201,36 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
   FXbool  eos=packet->flags&FLAG_EOS;
   FXuint   id=packet->stream;
-  FXlong  len=packet->stream_length;
-
-
-  OggDecoder::process(packet);
-
-  /// Init Decoder
-  if (!has_dsp) {
-    if (!init_decoder())
-      return DecoderError;
-    if (!has_dsp)
-      return DecoderOk;
-    }
-
-  /// Find Stream Position
-  if (stream_position==-1 && !find_stream_position())
-    return DecoderOk;
-
+  const FXlong stream_length=packet->stream_length;
 
   if (out) {
     navail = out->availableFrames();
     }
 
-  while(get_next_packet()) {
+  while(get_next_packet(packet)) {
 
     if (__unlikely(is_vorbis_header())) {
       GM_DEBUG_PRINT("[vorbis] unexpected vorbis header found. Resetting decoder\n");
-      push_back_packet();
-      reset_decoder();
-      return DecoderOk;
+      return DecoderError;
       }
 
     if (vorbis_synthesis(&block,&op)==0)
       vorbis_synthesis_blockin(&dsp,&block);
 
     while((ngiven=vorbis_synthesis_pcmout(&dsp,&pcm))>0) {
-      if (len>0) FXASSERT(stream_position+ngiven<=len);
 
-      if (__unlikely(stream_position<stream_decode_offset)) {
-        FXlong offset = FXMIN(ngiven,stream_decode_offset - stream_position);
-        GM_DEBUG_PRINT("[vorbis] stream decode offset %ld. Skipping %ld of %ld \n",stream_decode_offset,offset,stream_decode_offset-stream_position);
+      const FXlong stream_begin = FXMAX(stream_offset_start,stream_decode_offset);
+
+      // don't go past the stream_length
+      if (stream_length>0 && stream_position+ngiven>stream_length) {
+        GM_DEBUG_PRINT("[vorbis] unexpected stream position > stream length: %ld > %ld (%ld)\n",stream_position+ngiven,stream_length,stream_position+ngiven-stream_length);
+        vorbis_synthesis_read(&dsp,stream_position+ngiven-stream_length);
+        ngiven = stream_length - stream_position;
+        }
+
+      if (__unlikely(stream_position<stream_begin)) {
+        FXlong offset = FXMIN(ngiven,stream_begin - stream_position);
+        GM_DEBUG_PRINT("[vorbis] stream decode offset %ld. Skipping %ld of %ld \n",stream_begin,offset,stream_begin-stream_position);
         ngiven-=offset;
         stream_position+=offset;
         sample=offset;
@@ -285,7 +248,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
           out = engine->decoder->get_output_packet();
           if (out==nullptr) return DecoderInterrupted;
           out->stream_position=stream_position;
-          out->stream_length=len;
+          out->stream_length=stream_length - stream_offset_start;
           out->af=af;
           navail = out->availableFrames();
           }
@@ -320,7 +283,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         stream_position+=nsamples;
 
         /// Send out packet if full
-        ///FIXME handle EOS.
         if (navail==0) {
           engine->output->post(out);
           out=nullptr;

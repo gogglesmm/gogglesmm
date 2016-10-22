@@ -34,6 +34,8 @@ static const FXchar * const codecs[]={
   "AAC",
   "Opus",
   "ALAC",
+  "DCA",
+  "A52"
   };
 
 static const FXchar * const byteorders[]={
@@ -64,13 +66,81 @@ static const FXchar * const formatnames[]={
   "m3u",
   "pls",
   "xspf",
-  "aiff"
+  "aiff",
+  "matroska"
   };
 
 
 const FXchar * Codec::name(FXuchar c){
   return codecs[c];
   }
+
+
+
+
+#if defined(HAVE_OPUS) || defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
+
+// http://www.xiph.org/vorbis/doc/Vorbis_I_spec.html
+extern const FXuint vorbis_channel_map[]={
+  AP_CHANNELMAP_MONO,
+
+  AP_CHANNELMAP_STEREO,
+
+  AP_CMAP3(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight),
+
+  AP_CMAP4(Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP5(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP6(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight,
+           Channel::LFE),
+
+  AP_CMAP7(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackCenter,
+           Channel::LFE),
+
+  AP_CMAP8(Channel::FrontLeft,
+           Channel::FrontCenter,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackLeft,
+           Channel::BackRight,
+           Channel::LFE)
+  };
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -92,6 +162,24 @@ void AudioFormat::reset() {
   channelmap=0;
   }
 
+void AudioFormat::setBits(FXushort bits) {
+  if (bits>0 && bits<=32) {
+    format|=(bits-1)<<Format::Bits_Shift|(((bits/8)-1)<<Format::Pack_Shift);
+    }
+  }
+
+void AudioFormat::setChannels(FXuchar ch) {
+  if (ch>0 && ch<=8) {
+    channels=ch;
+    switch(channels) {
+      case  1: channelmap = AP_CHANNELMAP_MONO;   break;
+      case  2: channelmap = AP_CHANNELMAP_STEREO; break;
+      default: channelmap = 0;                    break;
+      }
+    }
+  }
+
+
 void AudioFormat::set(FXushort dt,FXushort bits,FXushort pack,FXuint r,FXuchar nc,FXuint map) {
   format=dt|((bits-1)<<Format::Bits_Shift)|((pack-1)<<Format::Pack_Shift);
   rate=r;
@@ -101,7 +189,7 @@ void AudioFormat::set(FXushort dt,FXushort bits,FXushort pack,FXuint r,FXuchar n
     switch(channels) {
       case  1: channelmap = AP_CHANNELMAP_MONO;   break;
       case  2: channelmap = AP_CHANNELMAP_STEREO; break;
-      default: FXASSERT(0); break;
+      default: channelmap = 0;                    break;
       };
     }
   }
@@ -115,7 +203,7 @@ void AudioFormat::set(FXushort fmt,FXuint r,FXuchar nc,FXuint map) {
     switch(channels) {
       case  1: channelmap = AP_CHANNELMAP_MONO;   break;
       case  2: channelmap = AP_CHANNELMAP_STEREO; break;
-      default: FXASSERT(0); break;
+      default: channelmap = 0;                    break;
       };
     }
   }
@@ -221,6 +309,10 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
            comparecase(mime,"audio/aiff")==0) {
     return Format::AIFF;
     }
+  else if (comparecase(mime,"video/webm")==0){
+    return Format::Matroska;
+    }
+
   else {
     return Format::Unknown;
     }
@@ -250,6 +342,8 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
     return Format::PLS;
   else if (comparecase(extension,"xspf")==0)
     return Format::XSPF;
+  else if (comparecase(extension,"mkv")==0 || comparecase(extension,"webm")==0)
+    return Format::Matroska;
   else
     return Format::Unknown;
   }

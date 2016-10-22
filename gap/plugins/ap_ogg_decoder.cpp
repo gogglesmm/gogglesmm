@@ -17,13 +17,14 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_event_private.h"
 #include "ap_packet.h"
 #include "ap_ogg_decoder.h"
 
 namespace ap {
 
 OggDecoder::OggDecoder(AudioEngine*e) : DecoderPlugin(e),
-  buffer(32768),
+  buffer(0),
   packet_start_ptr(nullptr),
   out(nullptr),
   stream_position(-1) {
@@ -40,6 +41,7 @@ FXbool OggDecoder::init(ConfigureEvent*event){
   DecoderPlugin::init(event);
   buffer.clear();
   stream_position=-1;
+  stream_offset_start=event->stream_offset_start;
   return true;
   }
 
@@ -54,38 +56,76 @@ FXbool OggDecoder::flush(FXlong offset) {
   return true;
   }
 
-FXbool OggDecoder::get_next_packet() {
-  if (buffer.size() && buffer.size()>=(FXival)sizeof(ogg_packet)) {
-    buffer.read((FXuchar*)&op,sizeof(ogg_packet));
-    if (buffer.size()<op.bytes) {
-      buffer.readBytes(-sizeof(ogg_packet));
+
+FXbool OggDecoder::get_next_packet(Packet * packet) {
+  FXuint nbytes;
+
+  op.packetno   = 0;
+  op.granulepos = -1;
+  op.b_o_s      = 0;
+  op.e_o_s      = 0;
+
+  // Partial data from previous packet(s)
+  if (__unlikely(buffer.size())) {
+
+    FXASSERT(buffer.size()>=4);
+    buffer.read(&nbytes,4);
+    op.bytes = nbytes;
+
+    // data in buffer
+    if (op.bytes<=buffer.size()) {
+      op.packet = (FXuchar*)buffer.data();
+      buffer.readBytes(op.bytes);
+      return true;
+      }
+
+    // data partial in buffer and in packet
+    else if (buffer.size()+packet->size()>=op.bytes) {
+      nbytes = op.bytes - buffer.size();
+      FXASSERT(op.bytes>buffer.size());
+      buffer.append(packet->data(),nbytes);
+      packet->readBytes(nbytes);
+      op.packet = (FXuchar*)buffer.data();
+      buffer.readBytes(op.bytes);
+      return true;
+      }
+
+    // not enough data, buffer data from packet.
+    else {
+      buffer.readBytes(-4);
+      buffer.append(packet->data(),packet->size());
+      packet->unref();
       return false;
       }
-    op.packet=(FXuchar*)buffer.data();
-    buffer.readBytes(op.bytes);
-    return true;
     }
+
+  if (__likely(packet->size())) {
+    FXASSERT(packet->size()>=4);
+    packet->read(&nbytes,4);
+    op.bytes = nbytes;
+    if (op.bytes>packet->size()) {
+      packet->readBytes(-4);
+      buffer.append(packet->data(),packet->size());
+      packet->unref();
+      return false;
+      }
+    else {
+      op.packet = (FXuchar*)packet->data();
+      packet->readBytes(op.bytes);
+      return true;
+      }
+    }
+  packet->unref();
   return false;
   }
 
-const FXuchar* OggDecoder::get_packet_offset() {
-  return buffer.data();
-  }
-
-void OggDecoder::set_packet_offset(const FXuchar * offset) {
-  buffer.setReadPosition(offset);
-  }
-
-void OggDecoder::push_back_packet() {
-  if (packet_start_ptr) {
-    buffer.setReadPosition(packet_start_ptr);
-    packet_start_ptr=nullptr;
-    }
-  }
 
 DecoderStatus OggDecoder::process(Packet* packet){
-  buffer.append(packet->data(),packet->size());
-  packet->unref();
+  if (packet->stream_position>=0 && buffer.size()==0) {
+    FXASSERT(stream_position==-1);
+    stream_position=packet->stream_position;
+    fxmessage("[ogg] new stream position %ld\n",packet->stream_position);
+    }
   return DecoderOk;
   }
 

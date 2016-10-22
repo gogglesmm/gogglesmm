@@ -28,10 +28,6 @@
 
 namespace ap {
 
-enum {
-  AAC_FLAG_CONFIG = 0x2,
-  AAC_FLAG_FRAME  = 0x4
-  };
 
 #ifdef HAVE_ALAC
 
@@ -74,8 +70,23 @@ FXbool AlacDecoder::init(ConfigureEvent*event) {
     dispose_alac(handle);
     handle=nullptr;
     }
-  handle=create_alac(event->af.bps(),event->af.channels);
   af=event->af;
+
+  // Alac Decoder
+  handle=create_alac(event->af.bps(),event->af.channels);
+  if (handle==nullptr)
+    return false;
+
+  // Make sure we can init the decoder
+  DecoderSpecificConfig * dc = dynamic_cast<DecoderSpecificConfig*>(event->dc);
+  if (dc==nullptr && dc->config_bytes==0) {
+    dispose_alac(handle);
+    handle=nullptr;
+    return false;
+    }
+
+  alac_set_info(handle,(FXchar*)dc->config);
+  outbuf.resize(handle->setinfo_max_samples_per_frame*af.framesize());
   stream_position=-1;
   return true;
   }
@@ -176,57 +187,51 @@ DecoderStatus AlacDecoder::process(Packet*packet){
     stream_position = packet->stream_position;
     }
 
-  if (packet->flags&AAC_FLAG_CONFIG) {
-    alac_set_info(handle,(FXchar*)packet->data());
-    outbuf.resize(handle->setinfo_max_samples_per_frame*af.framesize());
-    packet->unref();
-    packet=nullptr;
-    }
-  else {
-    FXuchar * inputdata=nullptr;
-    FXuint    framesize=0;
+  FXuchar * inputdata=nullptr;
+  FXuint    framesize=0;
 
-    while(getNextFrame(packet,inputdata,framesize)) {
-      FXint nframes=outbuf.space();
-      decode_frame(handle,inputdata,outbuf.ptr(),&nframes);
-      outbuf.wroteBytes(nframes);
-      nframes /= af.framesize();
+  while(getNextFrame(packet,inputdata,framesize)) {
+    FXint nframes=outbuf.space();
+    decode_frame(handle,inputdata,outbuf.ptr(),&nframes);
+    outbuf.wroteBytes(nframes);
+    nframes /= af.framesize();
 
-      while(nframes) {
+    while(nframes) {
 
-        // Get output packet
-        if (out==NULL){
-          out = engine->decoder->get_output_packet();
-          if (out==nullptr) return DecoderInterrupted;
-          out->af              = af;
-          out->stream          = stream_id;
-          out->stream_position = stream_position;
-          out->stream_length   = stream_length;
-          }
-
-        // copy max frames
-        FXuint ncopy = FXMIN(out->availableFrames(),nframes);
-        out->appendFrames(outbuf.data(),ncopy);
-        outbuf.readBytes(ncopy*af.framesize());
-        nframes-=ncopy;
-        stream_position+=ncopy;
-
-        // Send to
-        if (out->availableFrames()==0) {
-          engine->output->post(out);
-          out=NULL;
-          }
+      // Get output packet
+      if (out==NULL){
+        out = engine->decoder->get_output_packet();
+        if (out==nullptr) return DecoderInterrupted;
+        out->af              = af;
+        out->stream          = stream_id;
+        out->stream_position = stream_position;
+        out->stream_length   = stream_length;
         }
-      outbuf.clear();
-      }
-    if (eos) {
-      if (out) {
+
+      // copy max frames
+      FXuint ncopy = FXMIN(out->availableFrames(),nframes);
+      out->appendFrames(outbuf.data(),ncopy);
+      outbuf.readBytes(ncopy*af.framesize());
+      nframes-=ncopy;
+      stream_position+=ncopy;
+
+      // Send to
+      if (out->availableFrames()==0) {
         engine->output->post(out);
         out=NULL;
         }
-      engine->output->post(new ControlEvent(End,stream_id));
       }
+    outbuf.clear();
     }
+
+  if (eos) {
+    if (out) {
+      engine->output->post(out);
+      out=NULL;
+      }
+    engine->output->post(new ControlEvent(End,stream_id));
+    }
+
   return DecoderOk;
   }
 
