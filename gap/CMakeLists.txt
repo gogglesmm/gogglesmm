@@ -258,6 +258,8 @@ set(PLUGIN_SOURCES plugins/ap_aiff.cpp
                    plugins/ap_matroska.cpp
                    )
 
+set(PLUGIN_HEADERS plugins/ap_id3v2.h)
+
 set(HAVE_ALAC 1)
 set(HAVE_MP4 1)
 
@@ -284,12 +286,14 @@ endif()
 
 if(TREMOR_FOUND AND OGG_FOUND AND WITH_TREMOR)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
   LIST(APPEND LIBRARIES ${TREMOR_LIBRARIES})
   set(HAVE_TREMOR 1)
 endif()
 
 if(VORBIS_FOUND AND OGG_FOUND AND NOT WITH_TREMOR)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
   LIST(APPEND LIBRARIES ${VORBIS_LIBRARIES})
   set(HAVE_VORBIS 1)
 endif()
@@ -297,6 +301,7 @@ endif()
 
 if(OGG_FOUND AND (FLAC_FOUND OR OPUS_FOUND OR VORBIS_FOUND OR TREMOR_FOUND))
   LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg.cpp plugins/ap_ogg_decoder.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_ogg_decoder.h)
   LIST(APPEND LIBRARIES ${OGG_LIBRARIES})
   set(HAVE_OGG 1)
 endif()
@@ -304,6 +309,7 @@ endif()
 
 if(OPUS_FOUND AND OGG_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_opus.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_opus.h)
   LIST(APPEND LIBRARIES ${OPUS_LIBRARIES})
   set(HAVE_OPUS 1)
 endif()
@@ -343,7 +349,7 @@ endif()
 #-------------------------------------------------------------------------------
 
 # GAP Plugins Library
-add_library(gap_plugins OBJECT ${PLUGIN_SOURCES})
+add_library(gap_plugins OBJECT ${PLUGIN_SOURCES} ${PLUGIN_HEADERS})
 target_include_directories(gap_plugins BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(gap_plugins PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/alac)
 if(BUILD_GAP_SHARED_LIB)
