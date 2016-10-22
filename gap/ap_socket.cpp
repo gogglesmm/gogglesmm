@@ -313,7 +313,7 @@ WaitEvent ThreadSocket::wait(WaitMode mode) {
   else if (mode==WaitMode::Connect)
     WSAEventSelect(sockethandle,device,FD_CONNECT);
 #endif
-  return fifo->signal().wait(device,mode);
+  return fifo->signal().wait(device,mode,5000000000);
   }
 
 

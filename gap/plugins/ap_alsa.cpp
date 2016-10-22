@@ -428,6 +428,21 @@ protected:
       return false;
       }
 
+    if (config.flags&AlsaConfig::DeviceNoResample) {
+      GM_DEBUG_PRINT("[alsa] disable rate resampling\n");
+      if ((result=snd_pcm_hw_params_set_rate_resample(pcm,hw,0))<0){
+        GM_DEBUG_PRINT("[alsa] failed to disable rate resample. Reason: %s\n",snd_strerror(result));
+        return false;
+        }
+      }
+    else {
+      GM_DEBUG_PRINT("[alsa] enable rate resampling\n");
+      if ((result=snd_pcm_hw_params_set_rate_resample(pcm,hw,1))<0){
+        GM_DEBUG_PRINT("[alsa] failed to enable rate resample. Reason: %s\n",snd_strerror(result));
+        return false;
+        }
+      }
+
     if ((result=snd_pcm_hw_params_set_rate_near(pcm,hw,&rate,&dir))<0){
       GM_DEBUG_PRINT("[alsa] failed to set rate %d. Reason: %s\n",rate,snd_strerror(result));
       return false;

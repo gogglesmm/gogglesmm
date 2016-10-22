@@ -8,7 +8,7 @@ include(FeatureSummary)
 add_subdirectory(lib/alac)
 
 # Goggles Audio Player
-project(GAP VERSION 1.1.1)
+project(GAP VERSION 1.1.3)
 
 # Update whenever ABI changes
 set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added, removed or changed.
@@ -143,6 +143,7 @@ else()
   pkg_check_modules(VORBIS vorbis>=1.2)
   pkg_check_modules(OGG ogg>=1.0)
   pkg_check_modules(OPUS opus)
+  #pkg_check_modules(DCA libdca)
   pkg_check_modules(TREMOR vorbisidec>=1.2)
   #pkg_check_modules(SAMPLERATE samplerate)
   # We need
@@ -171,6 +172,17 @@ if (HAVE_FAAD_H)
   if (FAAD_LIBRARIES)
     set(FAAD_FOUND TRUE)
   endif()
+endif()
+
+
+# Check for a52
+#find_path(HAVE_A52_H a52dec/a52.h)
+if (HAVE_A52_H)
+    find_library(A52_LIBRARIES NAMES a52)
+    if (A52_LIBRARIES)
+        set(A52_FOUND TRUE)
+        message(STATUS "liba52dec found ${A52_LIBRARIES}")
+    endif()
 endif()
 
 #-------------------------------------------------------------------------------
@@ -254,7 +266,10 @@ set(PLUGIN_SOURCES plugins/ap_aiff.cpp
                    plugins/ap_pls.cpp
                    plugins/ap_wav.cpp
                    plugins/ap_xspf.cpp
+                   plugins/ap_matroska.cpp
                    )
+
+set(PLUGIN_HEADERS plugins/ap_id3v2.h)
 
 set(HAVE_ALAC 1)
 set(HAVE_MP4 1)
@@ -282,12 +297,14 @@ endif()
 
 if(TREMOR_FOUND AND OGG_FOUND AND WITH_TREMOR)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
   LIST(APPEND LIBRARIES ${TREMOR_LIBRARIES})
   set(HAVE_TREMOR 1)
 endif()
 
 if(VORBIS_FOUND AND OGG_FOUND AND NOT WITH_TREMOR)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
   LIST(APPEND LIBRARIES ${VORBIS_LIBRARIES})
   set(HAVE_VORBIS 1)
 endif()
@@ -295,6 +312,7 @@ endif()
 
 if(OGG_FOUND AND (FLAC_FOUND OR OPUS_FOUND OR VORBIS_FOUND OR TREMOR_FOUND))
   LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg.cpp plugins/ap_ogg_decoder.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_ogg_decoder.h)
   LIST(APPEND LIBRARIES ${OGG_LIBRARIES})
   set(HAVE_OGG 1)
 endif()
@@ -302,6 +320,7 @@ endif()
 
 if(OPUS_FOUND AND OGG_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_opus.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_opus.h)
   LIST(APPEND LIBRARIES ${OPUS_LIBRARIES})
   set(HAVE_OPUS 1)
 endif()
@@ -319,16 +338,16 @@ if(FAAD_FOUND)
   set(HAVE_FAAD 1)
 endif()
 
-if(CDDA_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_cdda.cpp)
-  LIST(APPEND LIBRARIES ${CDDA_LIBRARIES})
-  set(HAVE_CDDA 1)
+if(DCA_FOUND)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_dca.cpp)
+  LIST(APPEND LIBRARIES ${DCA_LIBRARIES})
+  set(HAVE_DCA 1)
 endif()
 
-if(SMB_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_smb.cpp)
-  LIST(APPEND LIBRARIES ${SMB_LIBRARIES})
-  set(HAVE_SMB 1)
+if(A52_FOUND)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_a52.cpp)
+  LIST(APPEND LIBRARIES ${A52_LIBRARIES})
+  set(HAVE_A52 1)
 endif()
 
 if(SAMPLERATE_FOUND)
@@ -340,7 +359,7 @@ endif()
 #-------------------------------------------------------------------------------
 
 # GAP Plugins Library
-add_library(gap_plugins OBJECT ${PLUGIN_SOURCES})
+add_library(gap_plugins OBJECT ${PLUGIN_SOURCES} ${PLUGIN_HEADERS})
 target_include_directories(gap_plugins BEFORE PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(gap_plugins PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/alac)
 
@@ -426,6 +445,9 @@ add_feature_info(opus HAVE_OPUS "Opus Decoder")
 add_feature_info(alac HAVE_ALAC "ALAC Decoder")
 add_feature_info(mp4 HAVE_MP4 "MP4 Parser")
 add_feature_info(flac HAVE_FLAC "Free Lossless Audio Codec")
+add_feature_info(dca HAVE_DCA "DTS Coherent Acoustics deocder")
+add_feature_info(a52 HAVE_A52 "ATSC A/52 stream decoder")
+
 
 set(AP_PLUGIN_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/gogglesmm)
 

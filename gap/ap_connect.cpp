@@ -37,7 +37,6 @@
 #endif
 
 #include "ap_connect.h"
-#include "ap_wait_io.h"
 #include "ap_socket.h"
 
 

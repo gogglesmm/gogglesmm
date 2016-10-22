@@ -1426,7 +1426,6 @@ DecoderStatus MadDecoder::process(Packet*in){
   FXlong stream_length=in->stream_length;
   FXbool eos=(in->flags&FLAG_EOS);
 
-
   // Update the buffer
   if (in->size() || eos){
     if (in->size()) {
@@ -1445,6 +1444,7 @@ DecoderStatus MadDecoder::process(Packet*in){
     }
   in->unref();
 
+
   // Nothing to see here
   if (buffer.size()==0) {
     GM_DEBUG_PRINT("[mad_decoder] empty buffer, nothing to decode\n");
@@ -1456,6 +1456,7 @@ DecoderStatus MadDecoder::process(Packet*in){
   FXuchar * beg = buffer.data();
   FXuchar * end = beg + buffer.size();
   while(beg<end && mf.validate(beg)) {
+    if (beg+mf.size()>=end) break;
     beg+=mf.size();
     total_frames++;
     if (max_samples>stream_offset_end) max_frames++;

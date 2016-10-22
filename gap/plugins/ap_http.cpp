@@ -179,7 +179,14 @@ FXival HttpInput::read(void * data,FXival count) {
   return t;
   }
 
-FXlong HttpInput::position(FXlong /*offset*/,FXuint /*from*/) {
+FXlong HttpInput::position(FXlong offset,FXuint from) {
+  if (from==FXIO::Current) {
+    FXuchar b;
+    for (FXlong i=0;i<offset;i++) {
+      if (read(&b,1)!=1)
+        return -1;
+      }
+    }
   return -1;
   //return client->position(offset,from);
   }

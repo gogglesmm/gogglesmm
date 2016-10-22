@@ -50,6 +50,8 @@ extern DecoderPlugin * ap_mad_decoder(AudioEngine*);
 extern DecoderPlugin * ap_aac_decoder(AudioEngine*);
 extern DecoderPlugin * ap_alac_decoder(AudioEngine*);
 extern DecoderPlugin * ap_opus_decoder(AudioEngine*);
+extern DecoderPlugin * ap_dca_decoder(AudioEngine*);
+extern DecoderPlugin * ap_a52_decoder(AudioEngine*);
 
 DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
   switch(codec) {
@@ -73,6 +75,12 @@ DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
 
 #ifdef HAVE_OPUS
     case Codec::Opus    : return ap_opus_decoder(engine); break;
+#endif
+#ifdef HAVE_DCA
+    case Codec::DCA     : return ap_dca_decoder(engine); break;
+#endif
+#ifdef HAVE_A52
+    case Codec::A52     : return ap_a52_decoder(engine); break;
 #endif
     default             : break;
     }

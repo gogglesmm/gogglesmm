@@ -44,7 +44,9 @@ namespace Codec {
     MPEG      = 4,
     AAC       = 5,
     Opus      = 6,
-    ALAC      = 7
+    ALAC      = 7,
+    DCA       = 8,
+    A52       = 9
     };
 
   extern const FXchar * name(FXuchar codec);
@@ -144,7 +146,8 @@ enum {
   M3U               = 7,
   PLS               = 8,
   XSPF              = 9,
-  AIFF              = 10
+  AIFF              = 10,
+  Matroska          = 11
   };
 
 }
@@ -195,8 +198,13 @@ public:
   FXuchar  channels   = 0;
   FXuint   channelmap = 0;  // up to 8 channels
 public:
-  AudioFormat() {}
+  AudioFormat();
   AudioFormat(const AudioFormat &);
+
+
+  void setBits(FXushort bps);
+
+  void setChannels(FXuchar channels);
 
   void set(FXushort datatype,FXushort bps,FXushort pack,FXuint rate,FXuchar channels,FXuint map=0);
 

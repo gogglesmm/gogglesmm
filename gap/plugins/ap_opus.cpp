@@ -17,7 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
-#include "ap_event_private.h"
+#include "ap_opus.h"
 #include "ap_packet.h"
 #include "ap_engine.h"
 #include "ap_ogg_decoder.h"
@@ -37,9 +37,9 @@ protected:
   FXfloat        gain;
   FXushort       stream_offset_start;
 protected:
-  FXbool init_decoder();
-  FXbool find_stream_position();
-  FXlong find_stream_length();
+  FXbool init_decoder(const FXuchar *,FXuint);
+//  FXbool find_stream_position();
+//  FXlong find_stream_length();
 protected:
 public:
   OpusDecoderPlugin(AudioEngine*);
@@ -77,12 +77,15 @@ FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
     gain=0.0f;
     }
 
+  if (event->dc) {
+    OpusConfig * opc = dynamic_cast<OpusConfig*>(event->dc);
+    init_decoder(opc->info,opc->info_bytes);
+    }
+
   if (pcm)
     resizeElms(pcm,MAX_FRAME_SIZE*af.channels*2);
   else
     allocElms(pcm,MAX_FRAME_SIZE*af.channels*2);
-
-  stream_offset_start = event->stream_offset_start;
   return true;
   }
 
@@ -94,60 +97,30 @@ FXbool OpusDecoderPlugin::flush(FXlong offset) {
   }
 
 
-FXbool OpusDecoderPlugin::find_stream_position() {
-  const FXuchar * data_ptr = get_packet_offset();
-  FXlong    nsamples = 0;
-  GM_DEBUG_PRINT("[opus] find stream position\n");
-  while(get_next_packet()) {
-    nsamples += opus_packet_get_nb_samples((unsigned char*)op.packet,op.bytes,48000);
-    if (op.granulepos>=0) {
-      GM_DEBUG_PRINT("[opus] found stream position: %ld\n",op.granulepos-nsamples);
-      stream_position=op.granulepos-nsamples;
-      set_packet_offset(data_ptr);
-      return true;
-      }
-    }
-  set_packet_offset(data_ptr);
-  return false;
-  }
-
-FXlong OpusDecoderPlugin::find_stream_length() {
-  const FXuchar * data_ptr = get_packet_offset();
-  FXlong    nlast = 0;
-  GM_DEBUG_PRINT("[opus] find stream length\n");
-  while(get_next_packet()) {
-    nlast = op.granulepos;
-    }
-  set_packet_offset(data_ptr);
-  return nlast - stream_offset_start;
-  }
-
-
-
-FXbool OpusDecoderPlugin::init_decoder() {
+FXbool OpusDecoderPlugin::init_decoder(const FXuchar * packet,const FXuint size) {
   FXASSERT(opus==nullptr);
   FXint error;
 
-  if (get_next_packet() && op.bytes>=19) {
+  if (size>=19) {
 
     // Extra check to make sure the reader gave us the header packet
-    if (compare((const FXchar*)op.packet,"OpusHead",8))
+    if (compare((const FXchar*)packet,"OpusHead",8))
       return false;
 
-    if (op.packet[18]!=0) {
+    if (packet[18]!=0) {
 
       // Validate stream map size
       if (af.channels!=op.bytes-21)
         return false;
 
       // Validate stream map
-      const FXuchar nstreams=op.packet[19];
-      const FXuchar ncoupled=op.packet[20];
+      const FXuchar nstreams=packet[19];
+      const FXuchar ncoupled=packet[20];
       for (FXint i=0;i<af.channels;i++) {
-        if (op.packet[21+i]>nstreams+ncoupled && op.packet[21+i]!=255)
+        if (packet[21+i]>nstreams+ncoupled && packet[21+i]!=255)
           return false;
         }
-      opus = opus_multistream_decoder_create(48000,af.channels,nstreams,ncoupled,op.packet+21,&error);
+      opus = opus_multistream_decoder_create(48000,af.channels,nstreams,ncoupled,packet+21,&error);
       }
     else {
       const FXuchar stream_map[2] = {0,1};
@@ -160,9 +133,9 @@ FXbool OpusDecoderPlugin::init_decoder() {
 
     // Apply any gain
 #if FOX_BIGENDIAN == 0
-    FXshort output_gain = op.packet[16] | op.packet[17]<<8;
+    FXshort output_gain = packet[16] | packet[17]<<8;
 #else
-    FXshort output_gain = op.packet[16]<<8 | op.packet[17];
+    FXshort output_gain = packet[16]<<8 | packet[17];
 #endif
 
 #ifdef OPUS_SET_GAIN
@@ -181,26 +154,15 @@ FXbool OpusDecoderPlugin::init_decoder() {
 
 
 DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
+  OggDecoder::process(packet);
+
   const FXlong stream_begin  = FXMAX(stream_offset_start,stream_decode_offset);
   const FXlong stream_length = packet->stream_length;
   const FXbool eos           = packet->flags&FLAG_EOS;
   FXuint id                  = packet->stream;
   FXlong stream_end          = stream_length;
 
-  OggDecoder::process(packet);
-
-  if (opus==nullptr && !init_decoder())
-    return DecoderError;
-
-  if (stream_position==-1 && !find_stream_position())
-    return DecoderOk;
-
-  if (eos && stream_end==-1) {
-    stream_end = find_stream_length();
-    FXASSERT(stream_position-stream_offset_start<stream_end);
-    }
-
-  while(get_next_packet()) {
+  while(get_next_packet(packet)) {
     FXint nsamples = opus_multistream_decode_float(opus,(unsigned char*)op.packet,op.bytes,pcm,MAX_FRAME_SIZE,0);
 
     const FXuchar * pcmi = (const FXuchar*)pcm;
@@ -241,7 +203,6 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
 
       FXint nw = FXMIN(out->availableFrames(),nsamples);
       if (nw>0){
-        //fxmessage("add %d / %d / %d / %d\n",nw,nsamples,out->availableFrames(),af.framesize());
         out->appendFrames(pcmi,nw);
         pcmi+=(nw*af.framesize());
         nsamples-=nw;
@@ -249,7 +210,6 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
         }
 
       if (out->availableFrames()==0) {
-        //fxmessage("posting\n");
         engine->output->post(out);
         out=nullptr;
         }

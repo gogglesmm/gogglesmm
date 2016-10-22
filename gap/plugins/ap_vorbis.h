@@ -16,68 +16,43 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#include "ap_defs.h"
+#ifndef AP_VORBIS_H
+#define AP_VORBIS_H
+
 #include "ap_event_private.h"
-#include "ap_packet.h"
 
 namespace ap {
 
-PacketPool::PacketPool() {}
+class VorbisConfig : public DecoderConfig {
+public:
+  FXuchar * info        = nullptr;
+  FXuchar * setup       = nullptr;
+  FXuint    info_bytes  = 0;
+  FXuint    setup_bytes = 0;
+public:
 
-FXbool PacketPool::init(FXival sz,FXival n) {
-  if (n>64) fxerror("fixme");
-  packets.setSize(64); //
-  for (FXint i=0;i<n;i++) {
-    packets.push(new Packet(this,sz));
+  void setVorbisInfo(const FXuchar * data,FXuint len) {
+    if (len>0) {
+      info_bytes = len;
+      allocElms(info,info_bytes);
+      memcpy(info,data,info_bytes);
+      }
     }
-  return semaphore.create(n);
-  }
 
-void PacketPool::free() {
-  Packet * packet = nullptr;
-  while(packets.pop(packet)) delete packet;
-  semaphore.close();
-  }
-
-PacketPool::~PacketPool() {
-  }
-
-
-void PacketPool::push(Packet * packet) {
-  packets.push(packet);
-  semaphore.release();
-  }
-
-
-Packet * PacketPool::wait(const Signal & signal) {
-  if (semaphore.wait(signal)){
-    Packet * packet = nullptr;
-    packets.pop(packet);
-    return packet;
+  void setVorbisSetup(const FXuchar * data,FXuint len) {
+    if (len>0) {
+      setup_bytes = len;
+      allocElms(setup,setup_bytes);
+      memcpy(setup,data,setup_bytes);
+      }
     }
-  return nullptr;
-  }
 
-
-
-
-Packet::Packet(PacketPool *p,FXival sz) : Event(Buffer), MemoryBuffer(sz), pool(p),flags(0),stream_position(-1),stream_length(-1) {
-  }
-
-Packet::~Packet() {
-  }
-
-void Packet::reset() {
-  MemoryBuffer::clear();
-  flags=0;
-  stream=0;
-  stream_position=-1;
-  stream_length=-1;
-  }
-
-void Packet::unref() {
-  reset();
-  pool->push(this);
-  }
+  ~VorbisConfig() {
+    freeElms(info);
+    freeElms(setup);
+    }
+  };
 
 }
+#endif
+
