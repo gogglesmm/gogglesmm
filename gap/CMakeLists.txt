@@ -134,7 +134,7 @@ else()
   pkg_check_modules(VORBIS vorbis>=1.2)
   pkg_check_modules(OGG ogg>=1.0)
   pkg_check_modules(OPUS opus)
-  pkg_check_modules(DCA libdca)
+  #pkg_check_modules(DCA libdca)
   pkg_check_modules(TREMOR vorbisidec>=1.2)
   #pkg_check_modules(SAMPLERATE samplerate)
   # We need
@@ -165,7 +165,7 @@ endif()
 
 
 # Check for a52
-find_path(HAVE_A52_H a52dec/a52.h)
+#find_path(HAVE_A52_H a52dec/a52.h)
 if (HAVE_A52_H)
     find_library(A52_LIBRARIES NAMES a52)
     if (A52_LIBRARIES)
@@ -328,7 +328,6 @@ if(FAAD_FOUND)
 endif()
 
 if(DCA_FOUND)
-  message(STATUS "libdca found: ${DCA_LIBRARIES}")
   LIST(APPEND PLUGIN_SOURCES plugins/ap_dca.cpp)
   LIST(APPEND LIBRARIES ${DCA_LIBRARIES})
   set(HAVE_DCA 1)
@@ -426,6 +425,9 @@ add_feature_info(opus HAVE_OPUS "Opus Decoder")
 add_feature_info(alac HAVE_ALAC "ALAC Decoder")
 add_feature_info(mp4 HAVE_MP4 "MP4 Parser")
 add_feature_info(flac HAVE_FLAC "Free Lossless Audio Codec")
+add_feature_info(dca HAVE_DCA "DTS Coherent Acoustics deocder")
+add_feature_info(a52 HAVE_A52 "ATSC A/52 stream decoder")
+
 
 set(AP_PLUGIN_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/gogglesmm)
 
