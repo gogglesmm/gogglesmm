@@ -175,6 +175,21 @@ public:
   virtual ~DecoderConfig() {}
   };
 
+
+class DecoderSpecificConfig : public DecoderConfig {
+public:
+  FXuchar * config       = nullptr;
+  FXuint    config_bytes = 0;
+public:
+  ~DecoderSpecificConfig() {
+    freeElms(config);
+    }
+  };
+
+
+
+
+
 class ConfigureEvent : public Event {
 public:
   AudioFormat    af;

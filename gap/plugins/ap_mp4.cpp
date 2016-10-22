@@ -24,13 +24,7 @@
 #include "ap_input_plugin.h"
 #include "ap_decoder_thread.h"
 
-
 namespace ap {
-enum {
-  AAC_FLAG_CONFIG = 0x2,
-  AAC_FLAG_FRAME  = 0x4
-  };
-
 
 class Track {
   struct stts_entry {
@@ -50,20 +44,18 @@ class Track {
     };
 
 public:
-  AudioFormat         af;                           // Audio Format
-  FXuchar             codec;                        // Audio Codec
-  FXArray<FXuint>     stsz;                         // samples size lookup table (in bytes)
-  FXArray<FXuint>     stco;                         // chunk offset table
-  FXArray<stts_entry> stts;                         // time to sample number lookup table
-  FXArray<stsc_entry> stsc;                         // chunk-to-sample table
-  FXArray<ctts_entry> ctts;
-  FXuint              fixed_sample_size;            // used if all samples have the same size
-  FXuchar*            decoder_specific_info;        // decoder specific info
-  FXuint              decoder_specific_info_length; // decoder specific length
+  AudioFormat             af;                           // Audio Format
+  FXuchar                 codec = Codec::Invalid;       // Audio Codec
+  FXuint                  fixed_sample_size = 0;        // used if all samples have the same size
+  DecoderSpecificConfig * dc = nullptr;
+  FXArray<FXuint>         stsz;                         // samples size lookup table (in bytes)
+  FXArray<FXuint>         stco;                         // chunk offset table
+  FXArray<stts_entry>     stts;                         // time to sample number lookup table
+  FXArray<stsc_entry>     stsc;                         // chunk-to-sample table
+  FXArray<ctts_entry>     ctts;
 public:
-  Track() : codec(Codec::Invalid),fixed_sample_size(0),decoder_specific_info(nullptr),decoder_specific_info_length(0) {}
-  ~Track() { freeElms(decoder_specific_info); }
-
+  Track() {}
+  ~Track() { delete dc; }
 public:
   FXlong getChunkOffset(FXuint chunk,FXuint chunk_nsamples,FXuint sample) const {
     FXlong offset;
@@ -209,7 +201,7 @@ protected:
   FXuint   sample = 0;      // current sample
   FXuint   nsamples = 0;    // number of samples
 protected:
-  ReadStatus parse(Packet * p);
+  ReadStatus parse();
   FXbool select_track();
   void clear_tracks();
 public:
@@ -286,10 +278,9 @@ FXbool MP4Reader::seek(FXlong offset){
 ReadStatus MP4Reader::process(Packet*packet) {
   packet->stream_position=-1;
   packet->stream_length=stream_length;
-  packet->flags=AAC_FLAG_FRAME;
 
-  if (!(flags&FLAG_PARSED)) {
-    return parse(packet);
+  if (!(flags&FLAG_PARSED) && parse()==ReadError) {
+    packet->unref();
     }
 
   // Remaining data from sample
@@ -393,13 +384,12 @@ FXbool MP4Reader::select_track() {
   }
 
 
-ReadStatus MP4Reader::parse(Packet * packet) {
+ReadStatus MP4Reader::parse() {
   meta = new MetaInfo();
 
   if (atom_parse(input->size())) {
 
     if (!select_track()) {
-      packet->unref();
       return ReadError;
       }
 
@@ -412,6 +402,8 @@ ReadStatus MP4Reader::parse(Packet * packet) {
     af = track->af;
 
     ConfigureEvent * cfg = new ConfigureEvent(af,track->codec);
+    cfg->dc = track->dc;
+    track->dc = nullptr;
 
 
     switch(track->codec) {
@@ -447,13 +439,9 @@ ReadStatus MP4Reader::parse(Packet * packet) {
       meta = nullptr;
       }
 
-    packet->append(track->decoder_specific_info,track->decoder_specific_info_length);
-    packet->flags|=AAC_FLAG_CONFIG|AAC_FLAG_FRAME;
-    engine->decoder->post(packet);
     flags|=FLAG_PARSED;
     return ReadOk;
     }
-  packet->unref();
   meta->unref();
   meta=nullptr;
   return ReadError;
@@ -564,16 +552,21 @@ FXbool MP4Reader::atom_parse_alac(FXlong size) {
   // Skip ALAC cookie
   if (size-40==24 || size-40==48) {
 
-    if (track->decoder_specific_info) {
+    if (track->dc) {
       GM_DEBUG_PRINT("decoder_specific_info already set?");
       return false;
       }
 
-    track->decoder_specific_info_length=size-40;
+    DecoderSpecificConfig * dc = new DecoderSpecificConfig();
 
-    allocElms(track->decoder_specific_info,track->decoder_specific_info_length);
-    if (input->read(track->decoder_specific_info,track->decoder_specific_info_length)!=track->decoder_specific_info_length)
+    dc->config_bytes = size - 40;
+
+    allocElms(dc->config,dc->config_bytes);
+    if (input->read(dc->config,dc->config_bytes)!=dc->config_bytes) {
+      delete dc;
       return false;
+      }
+    track->dc = dc;
     }
   else {
     return false;
@@ -819,16 +812,23 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
   if (tag!=DecoderSpecificInfoTag)
     return false;
 
-  nbytes -= read_descriptor_length(track->decoder_specific_info_length);
 
-  if (track->decoder_specific_info_length > 0) {
+  DecoderSpecificConfig * dc = new DecoderSpecificConfig();
 
-    allocElms(track->decoder_specific_info,track->decoder_specific_info_length);
+  nbytes -= read_descriptor_length(dc->config_bytes);
 
-    if (input->read(track->decoder_specific_info,track->decoder_specific_info_length)!=track->decoder_specific_info_length)
+  if (dc->config_bytes) {
+
+    allocElms(dc->config,dc->config_bytes);
+
+    if (input->read(dc->config,dc->config_bytes)!=dc->config_bytes) {
+      delete dc;
       return false;
+      }
 
-    if (!atom_parse_asc(track->decoder_specific_info,track->decoder_specific_info_length))
+    track->dc = dc;
+
+    if (!atom_parse_asc(dc->config,dc->config_bytes))
       return false;
     }
 

@@ -26,10 +26,6 @@
 #include "ap_vorbis.h"
 #include "ap_opus.h"
 
-#ifdef HAVE_OGG
-#include <ogg/ogg.h>
-#endif
-
 enum {
   EBML                        = 0x1a45dfa3,
   EBML_VERSION                = 0x4286,
@@ -131,6 +127,10 @@ public:
     cues[ncues].cluster  = cluster;
     ncues++;
     }
+
+  ~Track() {
+    delete dc;
+    }
   };
 
 /* Layout
@@ -150,8 +150,6 @@ protected:
   Block   block;   // current block
   Element cluster; // current cluster
   Element group;   // current group
-protected:
-  MemoryBuffer data;
 protected:
   FXbool  is_webm         = false;
   FXlong  stream_position = 0;
@@ -434,6 +432,7 @@ ReadStatus MatroskaReader::parse() {
       af=track->af;
       ConfigureEvent * cfg = new ConfigureEvent(track->af,track->codec);
       cfg->dc = track->dc;
+      track->dc = nullptr;
       stream_length = (duration * timecode_scale * track->af.rate )  / 1000000000;
       cfg->stream_length = stream_length;
       engine->decoder->post(cfg);
@@ -811,10 +810,14 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
       }
     case Codec::AAC:
       {
-        data.resize(element.size);
-        if (input->read(data.ptr(),element.size)!=element.size)
+        DecoderSpecificConfig * ac = new DecoderSpecificConfig();
+        ac->config_bytes = element.size;
+        allocElms(ac->config,ac->config_bytes);
+        if (input->read(ac->config,ac->config_bytes)!=element.size) {
+          delete ac;
           return false;
-        data.wroteBytes(element.size);
+          }
+        track->dc = ac;
         break;
       }
     case Codec::Invalid:
