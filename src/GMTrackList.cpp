@@ -402,7 +402,7 @@ long GMTrackList::onMouseLeave(FXObject*sender,FXSelector sel,void*ptr) {
     }
 
   if (FXSELTYPE(sel)!=SEL_ENTER) {
-    getApp()->addTimeout(this,ID_WHEEL_TIMEOUT,TIME_MSEC(5));
+    getApp()->addTimeout(this,ID_WHEEL_TIMEOUT,5_ms);
     if (FXSELID(sel)==ID_HSCROLLED) {
       if (FXSELTYPE(sel)==SEL_COMMAND)
         return FXScrollArea::onHScrollerChanged(sender,sel,ptr);

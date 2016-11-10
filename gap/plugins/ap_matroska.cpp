@@ -267,11 +267,10 @@ FXbool MatroskaReader::seek(FXlong offset){
   if (track->codec==Codec::Opus)
     offset = FXMAX(0,offset-3840);
 
-  FXulong target  = (offset * 1000000000) /  af.rate;
+  FXulong target  = (offset * NANOSECONDS_PER_SECOND) /  af.rate;
   FXlong lastpos = 0;
   FXlong timestamp = 0;
   for (FXint i=0;i<track->ncues;i++) {
-    fxmessage("target %ld vs %ld\n",target,track->cues[i].position*timecode_scale);
     if (target<track->cues[i].position*timecode_scale) {
       lastpos = track->cues[i].cluster;
       timestamp = track->cues[i].position*timecode_scale;
@@ -280,7 +279,7 @@ FXbool MatroskaReader::seek(FXlong offset){
     break;
     }
   input->position(first_cluster+lastpos,FXIO::Begin);
-  stream_position = (timestamp * track->af.rate) / 1000000000;
+  stream_position = (timestamp * track->af.rate) / NANOSECONDS_PER_SECOND;
 
   frame_size=0;
   cluster.reset();
@@ -433,7 +432,7 @@ ReadStatus MatroskaReader::parse() {
       ConfigureEvent * cfg = new ConfigureEvent(track->af,track->codec);
       cfg->dc = track->dc;
       track->dc = nullptr;
-      stream_length = (duration * timecode_scale * track->af.rate )  / 1000000000;
+      stream_length = (duration * timecode_scale * track->af.rate )  / NANOSECONDS_PER_SECOND;
       cfg->stream_length = stream_length;
       engine->decoder->post(cfg);
 
@@ -630,8 +629,7 @@ FXbool MatroskaReader::get_next_frame(FXuint & framesize) {
           {
             FXulong timecode=0;
             if (!parse_unsigned_int(timecode,element.size)) return false;
-            fxmessage("timecode %ld = %ld seconds @ %ld\n",timecode*timecode_scale,(timecode*timecode_scale) / 1000000000,input->position());
-            block.position = (timecode*timecode_scale*track->af.rate) / 1000000000;
+            block.position = (timecode*timecode_scale*track->af.rate) / NANOSECONDS_PER_SECOND;
             break;
           }
         case SIMPLEBLOCK:

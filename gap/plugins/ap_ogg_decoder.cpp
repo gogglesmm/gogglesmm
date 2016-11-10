@@ -124,7 +124,7 @@ DecoderStatus OggDecoder::process(Packet* packet){
   if (packet->stream_position>=0 && buffer.size()==0) {
     FXASSERT(stream_position==-1);
     stream_position=packet->stream_position;
-    fxmessage("[ogg] new stream position %ld\n",packet->stream_position);
+    GM_DEBUG_PRINT("[ogg] new stream position %ld\n",packet->stream_position);
     }
   return DecoderOk;
   }

@@ -45,13 +45,13 @@ namespace ap {
 
 FXbool Socket::setReceiveTimeout(FXTime time) {
 #ifdef _WIN32
-  FXuint value = time / 1000000;
+  FXuint value = time / NANOSECONDS_PER_MILLISECOND;
   if (setsockopt(sockethandle, SOL_SOCKET, SO_RCVTIMEO, (char*)&value, sizeof(FXuint))!=0)
     return false;
 #else
   struct timeval tv;
-  tv.tv_sec  = time / 1000000000;
-  tv.tv_usec = (time % 1000000000) / 1000;
+  tv.tv_sec  = time / NANOSECONDS_PER_SECOND;
+  tv.tv_usec = (time % NANOSECONDS_PER_SECOND) / NANOSECONDS_PER_MICROSECOND;
   if (setsockopt(device, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval))!=0)
     return false;
 #endif
@@ -61,13 +61,13 @@ FXbool Socket::setReceiveTimeout(FXTime time) {
 
 FXbool Socket::setSendTimeout(FXTime time) {
 #ifdef _WIN32
-  FXuint value = time / 1000000;
+  FXuint value = time / NANOSECONDS_PER_MILLISECOND;
   if (setsockopt(sockethandle, SOL_SOCKET, SO_SNDTIMEO, (char*)&value, sizeof(FXuint))!=0)
     return false;
 #else
   struct timeval tv;
-  tv.tv_sec  = time / 1000000000;
-  tv.tv_usec = (time % 1000000000) / 1000;
+  tv.tv_sec  = time / NANOSECONDS_PER_SECOND;
+  tv.tv_usec = (time % NANOSECONDS_PER_SECOND) / NANOSECONDS_PER_MICROSECOND;
   if (setsockopt(device,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(struct timeval))!=0)
     return false;
 #endif
@@ -280,7 +280,7 @@ WaitEvent ThreadSocket::wait(WaitMode mode) {
   else if (mode==WaitConnect)
     WSAEventSelect(sockethandle,device,FD_CONNECT);
 #endif
-  return fifo->signal().wait(device,mode,5000000000);
+  return fifo->signal().wait(device,mode,10_s);
   }
 
 

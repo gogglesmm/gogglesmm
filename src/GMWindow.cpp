@@ -1362,7 +1362,7 @@ void GMWindow::updateCoverView() {
 long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
   if (coverview_x11 && GMPlayerManager::instance()->playing()) {
     if (FXSELID(sel)==ID_COVERVIEW && coverview_x11->getUserData()==nullptr) {
-      getApp()->addTimeout(this,ID_REFRESH_COVERVIEW,TIME_MSEC(50));
+      getApp()->addTimeout(this,ID_REFRESH_COVERVIEW,50_ms);
       }
     else {
       GM_DEBUG_PRINT("configure cover view %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());

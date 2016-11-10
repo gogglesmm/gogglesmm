@@ -41,9 +41,6 @@
 namespace ap {
 
 
-#define SOCKET_TIMEOUT 10000000000
-
-
 ConnectionFactory::ConnectionFactory(){
   }
 
@@ -58,8 +55,8 @@ Socket * ConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
     delete io;
     return nullptr;
     }
-  io->setSendTimeout(SOCKET_TIMEOUT);
-  io->setReceiveTimeout(SOCKET_TIMEOUT);
+  io->setSendTimeout(10_s);
+  io->setReceiveTimeout(10_s);
   return io;
   }
 
@@ -116,8 +113,8 @@ Socket * ThreadConnectionFactory::create(FXint domain,FXint type,FXint protocol)
     delete io;
     return nullptr;
     }
-  io->setSendTimeout(SOCKET_TIMEOUT);
-  io->setReceiveTimeout(SOCKET_TIMEOUT);
+  io->setSendTimeout(10_s);
+  io->setReceiveTimeout(10_s);
   return io;
   }
 

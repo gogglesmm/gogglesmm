@@ -574,9 +574,9 @@ FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
         // success
         break;
       case DBUS_REQUEST_NAME_REPLY_EXISTS:
-        if (argc>1 && strlen(argv[1])>0) 
+        if (argc>1 && strlen(argv[1])>0)
           mpris2->request(argv[1]);
-        delete mpris2;  
+        delete mpris2;
         return false;
         break;
       default:
@@ -1222,7 +1222,7 @@ void GMPlayerManager::update_track_display(FXbool notify) {
 
   mainwindow->display(trackinfo);
 
-  if (notify) application->addTimeout(this,ID_PLAY_NOTIFY,TIME_MSEC(500));
+  if (notify) application->addTimeout(this,ID_PLAY_NOTIFY,500_ms);
 
   if (queue) {
     getSourceView()->refresh(queue);
@@ -1380,7 +1380,7 @@ void GMPlayerManager::runTask(GMTask * task) {
 long GMPlayerManager::onTaskManagerIdle(FXObject*,FXSelector,void*){
   mainwindow->setStatus(FXString::null);
   GM_DEBUG_PRINT("Schedule taskmanager shutdown in 30s\n");
-  application->addTimeout(this,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN,TIME_SEC(30));
+  application->addTimeout(this,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN,30_s);
   return 0;
   }
 

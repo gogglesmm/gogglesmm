@@ -78,7 +78,7 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
 
   // Determine format
   switch(fmt.datatype()) {
-    case Format::Unsigned : 
+    case Format::Unsigned :
     case Format::Signed   : format = WAV_FORMAT_PCM;  break;
     case Format::Float    : format = WAV_FORMAT_FLOAT; break;
     default               : return false; break;
@@ -89,7 +89,7 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
     GM_DEBUG_PRINT("[wav] opened output file: %s\n",path.text());
     af=fmt;
     FXuint chunksize=0;
-    FXlong ldata=0; 
+    FXlong ldata=0;
 
     /// riff chunk
     file.writeBlock("RIFF",4);
@@ -136,7 +136,7 @@ FXbool WavOutput::configure(const AudioFormat & fmt) {
 
 
 FXbool WavOutput::write(const void * data,FXuint nframes) {
-  FXlong duration = ((FXlong)nframes*1000000000)/af.rate;
+  FXlong duration = (nframes*NANOSECONDS_PER_SECOND) / af.rate;
   FXThread::sleep(duration);
   if (!file.isOpen() || file.writeBlock(data,af.framesize()*nframes)!=af.framesize()*nframes)
     return false;
@@ -163,7 +163,7 @@ void WavOutput::close() {
       file.position(12);
       file.writeBlock("ds64",4);
       file.position(20);
-      file.writeBlock(&size,8); 
+      file.writeBlock(&size,8);
       // Data Chunk
       if (data_pos) {
         size=end-data_pos-4;
@@ -176,7 +176,7 @@ void WavOutput::close() {
 
       /// RIFF chunksize
       size32=size;
-      file.position(4); 
+      file.position(4);
       file.writeBlock(&size32,4);
 
       // Data Chunksize

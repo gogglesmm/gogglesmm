@@ -108,10 +108,19 @@ typedef FXArray<FXString> FXStringList;
 #define GM_DEBUG_PRINT(arguments,...) ((void)0)
 #endif
 
-#define TIME_MSEC(ms) (1000000LL*ms)
-#define TIME_SEC(s) 	(1000000000LL*s)
-#define TIME_MIN(m) 	TIME_SEC(60*m)
-#define TIME_HOUR(h) 	TIME_MIN(60*h)
+#define NANOSECONDS_PER_SECOND  1000000000LL
+#define NANOSECONDS_PER_MICROSECOND 1000LL
+#define NANOSECONDS_PER_MILLISECOND 1000000LL
+
+constexpr FXTime operator"" _s(unsigned long long int value)
+{
+  return value * NANOSECONDS_PER_SECOND;
+}
+
+constexpr FXTime operator"" _ms(unsigned long long int value)
+{
+  return value * NANOSECONDS_PER_MILLISECOND;
+}
 
 #endif
 

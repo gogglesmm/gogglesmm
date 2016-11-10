@@ -74,7 +74,7 @@ void Reactor::dispatch() {
 #ifdef _WIN32
   if (result>=WAIT_OBJECT_0 && result<(WAIT_OBJECT_0+nfds)) {
     FXint obj = 0;
-    for (FXint i=0;i<inputs.no();i++) {    
+    for (FXint i=0;i<inputs.no();i++) {
       if ((inputs[i]->mode&Input::Disabled) || (inputs[i]->mode&(Input::Readable|Input::Writable|Input::Exception))==0) {
         continue;
         }
@@ -119,20 +119,20 @@ void Reactor::dispatch() {
 
 void Reactor::wait(FXTime timeout) {
 #ifdef _WIN32
-  result = WaitForMultipleObjects(nfds,pfds,false,(timeout>0) ? timeout / 1000000 : FINITE);
+  result = WaitForMultipleObjects(nfds,pfds,false,(timeout>0) ? timeout / NANOSECONDS_PER_MILLISECOND : FINITE);
 #else
   FXint n;
   if (timeout>=0) {
 #ifdef HAVE_PPOLL
     struct timespec ts;
-    ts.tv_sec  = timeout / 1000000000;
-    ts.tv_nsec = timeout % 1000000000;
+    ts.tv_sec  = timeout / NANOSECONDS_PER_SECOND;
+    ts.tv_nsec = timeout % NANOSECONDS_PER_SECOND;
 #endif
     do {
 #ifdef HAVE_PPOLL
       n = ppoll(pfds,nfds,&ts,nullptr);
 #else
-      n = poll(pfds,nfds,(timeout/1000000));
+      n = poll(pfds,nfds,(timeout/NANOSECONDS_PER_MILLISECOND));
 #endif
       }
     while(n==-1 && errno==EINTR);
@@ -169,7 +169,7 @@ FXTime Reactor::prepare() {
       }
     pfds[i] = inputs[i]->handle;
     inputs[i]->mode&=~(Input::IsReadable|Input::IsWritable|Input::IsException);
-    } 
+    }
 #else
   nfds = inputs.no();
   for (i=0;i<native.no();i++) nfds+=native[i]->no();
