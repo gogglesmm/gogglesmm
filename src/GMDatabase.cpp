@@ -231,6 +231,14 @@ void GMQuery::get(FXint p,FXString & v){
   v = (const FXchar*)sqlite3_column_text(statement,p);
   }
 
+void GMQuery::get_null(FXint p,FXString & v) {
+  const FXchar * c = (const FXchar*)(sqlite3_column_text(statement,p));
+  if (c)
+    v = c;
+  else
+    v.assign("\0",1);
+  }
+
 const FXchar * GMQuery::get(FXint p){
   FXASSERT(sqlite3_data_count(statement));
   return (const FXchar *) sqlite3_column_text(statement,p);
@@ -334,7 +342,7 @@ void GMDatabase::perform_regex_match(sqlite3_context *context, int argc, sqlite3
     FXRex reg;
     const FXchar * pattern = (const FXchar*)sqlite3_value_text(argv[0]);
     const FXchar * value   = (const FXchar*)sqlite3_value_text(argv[1]);
-    if (reg.parse(pattern)==0  && reg.amatch(value,strlen(value))) {
+    if (value && reg.parse(pattern)==0  && reg.amatch(value,strlen(value))) {
       sqlite3_result_int(context,1);
       return;
       }
@@ -506,6 +514,17 @@ void GMDatabase::recreate_table(const FXchar * table,const FXchar * make_new_tab
   execute(make_new_table);
   execute(FXString::value("INSERT INTO %s SELECT * FROM old_%s",table,table));
   execute(FXString::value("DROP TABLE old_%s",table));
+  }
+
+
+FXbool GMDatabase::hasColumn(const FXchar * table, const FXchar * column) {
+  GMQuery q(this,FXString::value("PRAGMA table_info(%s)",table).text());
+  while(q.row()) {
+    const FXchar * existing = q.get(1);
+    if (compare(existing,column)==0)
+      return true;
+    }
+  return false;
   }
 
 
