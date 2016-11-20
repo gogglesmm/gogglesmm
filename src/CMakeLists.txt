@@ -119,6 +119,7 @@ set(SOURCES GMAbout.cpp
             GMImageView.cpp
             GMList.cpp
             GMLocalSource.cpp
+            GMLyrics.cpp
             GMPlayerManager.cpp
             GMPlayListSource.cpp
             GMPlayQueue.cpp
@@ -170,6 +171,7 @@ set(HEADERS GMAbout.h
             GMImageView.h
             GMList.h
             GMLocalSource.h
+            GMLyrics.h
             GMPlayerManager.h
             GMPlayListSource.h
             GMPlayQueue.h
