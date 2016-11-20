@@ -23,6 +23,28 @@
 GMTrack::GMTrack() {
   }
 
+GMTrack::GMTrack(const GMTrack & t) {
+  url=t.url;
+  title=t.title;
+  artist=t.artist;
+  }
+
+GMTrack::GMTrack(GMTrack & t) {
+  url=t.url;
+  title=t.title;
+  artist=t.artist;
+  }
+
+
+
+FXbool GMTrack::hasMissingLyrics() const {
+  if (!lyrics.empty() && compare(lyrics,"\0",1)==0)
+    return true;
+  else
+    return false;
+  }
+
+
 void GMTrack::adopt(GMTrack & t) {
   url.adopt(t.url);
   title.adopt(t.title);
@@ -46,6 +68,7 @@ void GMTrack::clear() {
   tags.clear();
   composer.clear();
   conductor.clear();
+  lyrics.clear();
   year=0;
   no=0;
   time=0;
@@ -145,6 +168,9 @@ FXbool GMTrack::saveTag(const FXString & filename,FXuint /*opts=0*/) {
   else
     filetags.setAlbumArtist(FXString::null);
 
+  if (!hasMissingLyrics()) {
+    filetags.setLyrics(lyrics);
+    }
   return filetags.save();
   }
 
@@ -167,6 +193,7 @@ FXbool GMTrack::loadTag(const FXString & filename) {
   filetags.getComposer(composer);
   filetags.getConductor(conductor);
   filetags.getTags(tags);
+  filetags.getLyrics(lyrics);
 
   year         = filetags.getYear();
   no           = filetags.getTrackNumber();

@@ -21,6 +21,7 @@
 #include "GMCover.h"
 #include "GMTrack.h"
 #include "GMTag.h"
+#include "GMLyrics.h"
 #include "GMList.h"
 #include "GMDatabase.h"
 #include "GMTrackDatabase.h"
@@ -46,6 +47,53 @@
 #include "FXPNGIcon.h"
 #include "icons.h"
 
+
+
+
+
+
+class GMFetchLyrics : public GMWorker {
+FXDECLARE(GMFetchLyrics);
+public:
+  GMTrack         track;
+  static GMEditTrackDialog * editor;
+protected:
+  GMFetchLyrics(){}
+public:
+  GMFetchLyrics(const FXString & url,const FXString & artist, const FXString & title) : GMWorker(FXApp::instance()) {
+    track.url = url;
+    track.title = title;
+    track.artist = artist;
+    }
+
+  FXint run() {
+    Lyrics lyrics;
+    lyrics.fetch(track);
+    return 0;
+    }
+
+  long onThreadLeave(FXObject*,FXSelector,void*){
+    thread->join();
+    if (editor) editor->setLyrics(track);
+    delete this;
+    return 1;
+    }
+  };
+
+
+
+FXDEFMAP(GMFetchLyrics) GMFetchLyricsMap[]={
+  FXMAPFUNC(SEL_COMMAND,GMFetchLyrics::ID_THREAD_LEAVE,GMFetchLyrics::onThreadLeave),
+  };
+FXIMPLEMENT(GMFetchLyrics,GMWorker,GMFetchLyricsMap,ARRAYNUMBER(GMFetchLyricsMap));
+
+
+GMEditTrackDialog * GMFetchLyrics::editor = nullptr;
+
+
+
+
+
 class GMTagUpdateTask : public GMTask {
 protected:
   GMTrackDatabase * database;
@@ -56,7 +104,7 @@ public:
   GMTagUpdateTask(GMTrackDatabase * db,const FXIntList & t);
   };
 
-GMTagUpdateTask::GMTagUpdateTask(GMTrackDatabase * db,const FXIntList & t) : database(db),tracks(t){
+GMTagUpdateTask::GMTagUpdateTask(GMTrackDatabase * db,const FXIntList & t) : database(db),tracks(t) {
   }
 
 FXint GMTagUpdateTask::run() {
@@ -361,7 +409,8 @@ FXDEFMAP(GMEditTrackDialog) GMEditTrackDialogMap[]={
   FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_FILENAME_TEMPLATE,GMEditTrackDialog::onCmdFilenameTemplate),
   FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_ACCEPT,GMEditTrackDialog::onCmdAccept),
   FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_RESET,GMEditTrackDialog::onCmdResetTrack),
-  FXMAPFUNCS(SEL_COMMAND,GMEditTrackDialog::ID_NEXT_TRACK,GMEditTrackDialog::ID_PREV_TRACK,GMEditTrackDialog::onCmdSwitchTrack)
+  FXMAPFUNCS(SEL_COMMAND,GMEditTrackDialog::ID_NEXT_TRACK,GMEditTrackDialog::ID_PREV_TRACK,GMEditTrackDialog::onCmdSwitchTrack),
+  FXMAPFUNC(SEL_COMMAND,GMEditTrackDialog::ID_FETCH_LYRICS,GMEditTrackDialog::onCmdFetchLyrics),
   };
 
 FXIMPLEMENT(GMEditTrackDialog,FXDialogBox,GMEditTrackDialogMap,ARRAYNUMBER(GMEditTrackDialogMap));
@@ -382,6 +431,8 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
   discspinner=nullptr;
 
   GMTrack other;
+
+  GMFetchLyrics::editor = this;
 
   getTrackSelection();
 
@@ -410,11 +461,33 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
 
     tabbook = new GMTabBook(main,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
 
+
+    // Tag Tab
     new GMTabItem(tabbook,tr("&Tag"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
     tabframe = new GMTabFrame(tabbook);
 
     FXMatrix * tagmatrix = new FXMatrix(tabframe,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS,0,0,0,0,10,10,10,10);
 
+
+    // Lyrics Tab
+    new GMTabItem(tabbook,tr("L&yrics"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
+    tabframe = new GMTabFrame(tabbook);
+
+    FXVerticalFrame * lyricsframe = new FXVerticalFrame(tabframe,LAYOUT_FILL,0,0,0,0,10,10,10,10,5,5);
+    GMScrollFrame * textframe = new GMScrollFrame(lyricsframe);
+    lyricsfield = new FXText(textframe,nullptr,0,LAYOUT_FILL);
+    GMScrollArea::replaceScrollbars(lyricsfield);
+
+    FXMatrix * lyricssearch = new FXMatrix(lyricsframe,3,LAYOUT_FILL_X|MATRIX_BY_COLUMNS,0,0,0,0,0,0,0,0);
+    new FXLabel(lyricssearch,"Title",nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    lyricstitle = new GMTextField(lyricssearch,10,nullptr,0,LAYOUT_FILL|LAYOUT_FILL_COLUMN);
+    lyricsfind = new GMButton(lyricssearch,tr("&Find"),GMIconTheme::instance()->icon_find,this,ID_FETCH_LYRICS);
+    new FXLabel(lyricssearch,"Artist",nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+    lyricsartist = new GMTextField(lyricssearch,10,nullptr,0,LAYOUT_FILL|LAYOUT_FILL_COLUMN);
+
+
+
+    // Properties
     new GMTabItem(tabbook,tr("&Properties"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
     tabframe = new GMTabFrame(tabbook);
 
@@ -461,9 +534,8 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
     discspinner = new GMSpinner(hframe,3,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_LEFT);
     discspinner->setRange(0,100);
 
-    yearfield = new GMTextField(hframe,4,nullptr,0,FRAME_SUNKEN|FRAME_THICK|LAYOUT_RIGHT|TEXTFIELD_INTEGER|TEXTFIELD_LIMITED);
-    new FXLabel(hframe,tr("Y&ear"),nullptr,LABEL_NORMAL|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
-
+    new FXLabel(hframe,tr("Y&ear"),nullptr,LAYOUT_CENTER_Y|JUSTIFY_RIGHT|LAYOUT_FILL_X);
+    yearfield = new GMTextField(hframe,4,nullptr,0,FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_INTEGER|TEXTFIELD_LIMITED);
     }
   else {
     matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS,0,0,0,0,0,0,0,0);
@@ -565,6 +637,7 @@ GMEditTrackDialog::GMEditTrackDialog(FXWindow*p,GMTrackDatabase * d) : FXDialogB
 
 
 GMEditTrackDialog::~GMEditTrackDialog() {
+  GMFetchLyrics::editor = nullptr;
   }
 
 long GMEditTrackDialog::onCmdFilenameTemplate(FXObject*,FXSelector,void*){
@@ -608,7 +681,26 @@ void GMEditTrackDialog::getTrackSelection() {
 
   if (tracks.no()==1) {
     properties.load(info.url);
+
+    if (info.hasMissingLyrics()) {
+      GM_DEBUG_PRINT("[editor] missing lyrics: retrieving from file\n");
+
+      FXString content;
+      GMFileTag filetag;
+      filetag.open(info.url,FILETAG_TAGS);
+      filetag.getLyrics(content);
+      try {
+        db->begin();
+        db->setTrackLyrics(tracks[0],content);
+        db->commit();
+        info.lyrics=content;
+        }
+      catch(GMDatabaseException&) {
+        db->rollback();
+        }
+      }
     }
+
 
   samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR|SAME_TAGS;
   if (tracks.no()>1) {
@@ -629,6 +721,9 @@ void GMEditTrackDialog::getTrackSelection() {
     }
   }
 
+
+
+
 void GMEditTrackDialog::displayTracks() {
 
   albumbox->clearItems();
@@ -639,6 +734,7 @@ void GMEditTrackDialog::displayTracks() {
   albumbox->setCurrentItem(-1);
 
   if (tracks.no()==1) {
+
     trackspinner->setValue(GMTRACKNO(info.no));
     albumbox->setCurrentItem(albumbox->findItem(info.album));
     albumbox->setText(info.album);
@@ -676,6 +772,14 @@ void GMEditTrackDialog::displayTracks() {
     channelfield->setText(FXString::value("%d",properties.channels));
     tagsfield->setText(list_concat(info.tags));
 
+    if (info.hasMissingLyrics())
+      lyricsfield->setText(FXString::null);
+    else
+      lyricsfield->setText(info.lyrics);
+
+    lyricsartist->setText(info.artist);
+    lyricstitle->setText(info.title);
+    lyricsfind->enable();
     }
   else {
     if (samemask&SAME_ALBUM) albumbox->setCurrentItem(albumbox->findItem(info.album));
@@ -706,6 +810,23 @@ long GMEditTrackDialog::onCmdResetTrack(FXObject*,FXSelector,void*){
   return 1;
   }
 
+long GMEditTrackDialog::onCmdFetchLyrics(FXObject*,FXSelector,void*){
+  GMFetchLyrics * fetcher = new GMFetchLyrics(info.url,lyricsartist->getText(),lyricstitle->getText());
+  fetcher->start();
+  lyricsfind->disable();
+  return 1;
+  }
+
+
+void GMEditTrackDialog::setLyrics(const GMTrack & track) {
+  if (track.url==info.url) {
+    if (info.hasMissingLyrics() || !track.lyrics.empty()) {
+      lyricsfield->setText(track.lyrics);
+      lyricsfield->setModified(true);
+      }
+    }
+  lyricsfind->enable();
+  }
 
 
 FXbool GMEditTrackDialog::saveTracks() {
@@ -723,6 +844,13 @@ FXbool GMEditTrackDialog::saveTracks() {
       field=titlefield->getText().trim().simplify();
       if (!field.empty() && info.title!=field){
         db->setTrackTitle(tracks[0],field);
+        changed=true;
+        }
+
+      if (lyricsfield->isModified()) {
+        GM_DEBUG_PRINT("[editor] lyrics modified\n");
+        field = lyricsfield->getText().trim();
+        db->setTrackLyrics(tracks[0],field);
         changed=true;
         }
       }
@@ -851,6 +979,7 @@ FXbool GMEditTrackDialog::saveTracks() {
     db->rollback();
     return false;
     }
+
 
   if (updatetags->getCheck()) {
     if (changed || (FXMessageBox::question(GMPlayerManager::instance()->getMainWindow(),MBOX_YES_NO,fxtr("Update Tags?"),fxtr("No tracks were updated.\nWould you still like to write the tags for the selected tracks?"))==MBOX_CLICKED_YES)) {

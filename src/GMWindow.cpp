@@ -134,9 +134,10 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
 
   FXMAPFUNC(SEL_COMMAND,						GMWindow::ID_NEXT_FOCUS,		    GMWindow::onCmdNextFocus),
   FXMAPFUNC(SEL_CONFIGURE,          GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
-  //FXMAPFUNC(SEL_MAP,                GMWindow::ID_COVERVIEW,       GMWindow::onConfigureCoverView),
-
   FXMAPFUNC(SEL_TIMEOUT,            GMWindow::ID_REFRESH_COVERVIEW, GMWindow::onConfigureCoverView),
+
+  FXMAPFUNC(SEL_LEFTBUTTONRELEASE,         GMWindow::ID_LYRICVIEW,         GMWindow::onCmdLyricView),
+  FXMAPFUNC(SEL_LEFTBUTTONRELEASE,         GMWindow::ID_COVERVIEW,         GMWindow::onCmdCoverView),
 
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,      GMWindow::onUpdShowSources),
   FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,      GMWindow::onCmdShowSources),
@@ -194,13 +195,28 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   mainsplitter    = new FX4Splitter(mainframe,LAYOUT_FILL_X|LAYOUT_FILL_Y|FOURSPLITTER_VERTICAL|FOURSPLITTER_TRACKING);
   sourceview      = new GMSourceView(mainsplitter);
   trackview       = new GMTrackView(mainsplitter);
-  coverframe      = new GMCoverFrame(mainsplitter);
+  metaview        = new FXSwitcher(mainsplitter,LAYOUT_FILL,0,0,0,0,0,0,0,0);
+
+  // Cover View
+  coverframe = new GMCoverFrame(metaview);
+  coverframe->setBackColor(getApp()->getBackColor());
+  coverframe->setBorderColor(getApp()->getShadowColor());
+
+  // Lyrics View
+  GMScrollFrame * scrollframe = new GMScrollFrame(metaview);
+  FXScrollWindow * scrollwindow = new FXScrollWindow(scrollframe,LAYOUT_FILL);
+
+  GMScrollArea::replaceScrollbars(scrollwindow);
+  lyricsview = new FXLabel(scrollwindow,FXString::null,nullptr,LAYOUT_FILL);
+  lyricsview->enable();
+  lyricsview->setBackColor(getApp()->getBackColor());
+  lyricsview->setTarget(this);
+  lyricsview->setSelector(ID_LYRICVIEW);
+
 
   mainsplitter->setBarSize(7);
 
-  coverframe->setBackColor(getApp()->getBackColor());
-  coverframe->setBorderColor(getApp()->getShadowColor());
-  coverframe->hide();
+  metaview->hide();
   updateCoverView();
 
 
@@ -573,11 +589,41 @@ void GMWindow::reset() {
   /// Reset Status Text
   statusbar->getStatusLine()->setNormalText("Ready.");
 
-  /// Clear Cover
+  // Clear Cover
   update_cover_display();
+
+  // Clear Lyrics
+  lyricsview->setText(FXString::null);
+
+  // Hide Meta
+  update_meta_display();
 
   /// Reset Title
   setTitle("Goggles Music Manager");
+  }
+
+
+void GMWindow::update_meta_display() {
+  if (!lyricsview->getText().empty() || GMPlayerManager::instance()->getCoverManager()->getCover()){
+
+    if (lyricsview->getText().empty()) {
+      metaview->setCurrent(0);
+      }
+    else if (GMPlayerManager::instance()->getCoverManager()->getCover()==nullptr) {
+      metaview->setCurrent(1);
+      }
+
+    if (!metaview->shown()) {
+      metaview->show();
+      metaview->recalc();
+      }
+    }
+  else {
+    if (metaview->shown()) {
+      metaview->hide();
+      metaview->recalc();
+      }
+    }
   }
 
 void GMWindow::display(const GMTrack& info){
@@ -597,6 +643,18 @@ void GMWindow::display(const GMTrack& info){
   label_nowplaying->setText(track.substitute("&","&&"));
 
   if (remote) remote->display(info);
+
+  // Update Lyrics
+  if (info.hasMissingLyrics())
+    lyricsview->setText(FXString::null);
+  else
+    lyricsview->setText(info.lyrics);
+
+  // Show Cover and/or Lyrics
+  update_meta_display();
+
+  // Update Cover
+  update_cover_display();
   }
 
 void GMWindow::update_volume_display(FXint level) {
@@ -1255,31 +1313,18 @@ void GMWindow::clearCover() {
 void GMWindow::update_cover_display() {
   GMCover * cover = GMPlayerManager::instance()->getCoverManager()->getCover();
   if (cover) {
-    if (!coverframe->shown()) {
-      if (coverview_x11) {
-          coverview_x11->setTarget(nullptr);
-          }
-
-      coverframe->show();
-      coverframe->recalc();
-
-      layout();
-      updateCover();// gets called by SEL_CONFIGURE event
-
-      if (coverview_x11) {
-          coverview_x11->setTarget(this);
-          }
+    if (coverview_x11) {
+      coverview_x11->setTarget(nullptr);
       }
-    else {
-      updateCover();
+    coverframe->recalc();
+    layout();
+    updateCover();// gets called by SEL_CONFIGURE event
+    if (coverview_x11) {
+      coverview_x11->setTarget(this);
       }
     }
   else {
     clearCover();
-    if (coverframe->shown()) {
-      coverframe->hide();
-      coverframe->recalc();
-      }
     }
 
   if (remote)
@@ -1332,7 +1377,7 @@ void GMWindow::updateCoverView() {
 
       if (!coverview_gl) {
         GMApp::instance()->initOpenGL();
-        coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLContext(),LAYOUT_FILL_X|LAYOUT_FILL_Y);
+        coverview_gl = new GMImageView(coverframe,GMApp::instance()->getGLContext(),LAYOUT_FILL);
         coverview_gl->setTarget(this);
         coverview_gl->setSelector(ID_COVERVIEW);
         coverview_gl->enable();
@@ -1368,6 +1413,23 @@ long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
       GM_DEBUG_PRINT("configure cover view %d %d\n",coverview_x11->getWidth(),coverview_x11->getHeight());
       updateCover();
       }
+    }
+  return 1;
+  }
+
+
+long GMWindow::onCmdLyricView(FXObject*,FXSelector,void*ptr) {
+  FXEvent* event=(FXEvent*)ptr;
+  if (GMPlayerManager::instance()->getCoverManager()->getCover() && event->click_count==2) {
+    metaview->setCurrent(0);
+    }
+  return 1;
+  }
+
+long GMWindow::onCmdCoverView(FXObject*,FXSelector,void*ptr) {
+  FXEvent* event=(FXEvent*)ptr;
+  if (!lyricsview->getText().empty() && event->click_count==2) {
+    metaview->setCurrent(1);
     }
   return 1;
   }

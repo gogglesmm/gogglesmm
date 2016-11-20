@@ -112,6 +112,9 @@ public:
   void setTags(const FXStringList & value);
   void getTags(FXStringList&) const;
 
+  void setLyrics(const FXString &);
+  void getLyrics(FXString &) const;
+
   void setDiscNumber(FXushort disc);
   FXushort getDiscNumber() const;
 

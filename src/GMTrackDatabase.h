@@ -245,6 +245,9 @@ public:
   /// Set Track Title
   void setTrackTitle(FXint id,const FXString & name);
 
+  /// Set Track Lyrics
+  void setTrackLyrics(FXint id,const FXString & lyrics);
+
   /// Set Track Album
   void setTrackAlbum(const FXIntList & ids,const FXString & name,FXbool sameartist);
 
@@ -259,6 +262,8 @@ public:
 
   /// Set Track Conductor
   void setTrackConductor(const FXIntList & ids,const FXString & name);
+
+
 
   /// Set Track Year
   void setTrackYear(const FXIntList & ids,FXuint year);

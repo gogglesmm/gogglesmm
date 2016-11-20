@@ -83,6 +83,7 @@ public:
 
 
 struct Seen;
+class Lyrics;
 
 class GMImportTask : public GMTask {
 protected:
@@ -90,6 +91,7 @@ protected:
   GMDBTracks        dbtracks;
   GMImportOptions   options;
   FXStringList      files;
+  Lyrics*           lyrics = nullptr;
   FXint             count = 0;
 protected:
   virtual FXint run();

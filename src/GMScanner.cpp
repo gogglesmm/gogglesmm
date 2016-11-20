@@ -28,6 +28,7 @@
 #include "GMAudioPlayer.h"
 #include "GMScanner.h"
 #include "GMTag.h"
+#include "GMLyrics.h"
 
 // ALL patterns
 //#define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac,mpc,wma,asf"
@@ -72,6 +73,7 @@ void GMDBTracks::init(GMTrackDatabase*db,FXbool afg) {
                                                                            "?," // artist
                                                                            "?," // composer
                                                                            "?," // conductor
+                                                                           "?," // lyrics
                                                                            "0," // playcount
                                                                            "0," // playdate
                                                                            "?," // importdate
@@ -102,9 +104,10 @@ void GMDBTracks::init(GMTrackDatabase*db,FXbool afg) {
                                                                   "channels = ?,"
                                                                   "filetype = ?,"
                                                                   "album =  ?,"
-                                                                  "artist = ?," // artist
-                                                                  "composer = ?," // composer
-                                                                  "conductor = ?," // conductor
+                                                                  "artist = ?,"
+                                                                  "composer = ?,"
+                                                                  "conductor = ?,"
+                                                                  "lyrics = ?,"
                                                                   "importdate = ? WHERE id == ?;");
 
 
@@ -252,11 +255,11 @@ void GMDBTracks::insert(GMTrack & track,FXint & path_index) {
     insert_track.set(8,artist_id);
     insert_track.set_null(9,composer_id);
     insert_track.set_null(10,conductor_id);
-    insert_track.set(11,FXThread::time());
-    insert_track.set(12,track.samplerate);
-    insert_track.set(13,track.channels);
-    insert_track.set(14,track.filetype);
-
+    insert_track.set(11,track.lyrics);
+    insert_track.set(12,FXThread::time());
+    insert_track.set(13,track.samplerate);
+    insert_track.set(14,track.channels);
+    insert_track.set(15,track.filetype);
 
     track.index = insert_track.insert();
 
@@ -296,8 +299,9 @@ void GMDBTracks::update(GMTrack & track) {
   update_track.set(9,artist_id);
   update_track.set_null(10,composer_id);
   update_track.set_null(11,conductor_id);
-  update_track.set(12,FXThread::time());
-  update_track.set(13,track.index);
+  update_track.set(12,track.lyrics);
+  update_track.set(13,FXThread::time());
+  update_track.set(14,track.index);
   update_track.execute();
 
   /// Update Tags
@@ -316,10 +320,14 @@ void GMDBTracks::remove(FXint track) {
 
 GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel) {
   database = GMPlayerManager::instance()->getTrackDatabase();
+  if (options.fetch_lyrics) {
+    lyrics = new Lyrics();
+    }
   }
 
 
 GMImportTask::~GMImportTask() {
+  delete lyrics;
   }
 
 
@@ -358,6 +366,10 @@ void GMImportTask::load_track(const FXString & filename) {
         GMFilename::parse(track,options.filename_template,(options.replace_underscores ? (GMFilename::REPLACE_UNDERSCORE) : 0));
         }
       break;
+    }
+
+  if (lyrics && track.lyrics.empty()) {
+    lyrics->fetch(track);
     }
   }
 
