@@ -57,7 +57,7 @@ FXbool OggDecoder::flush(FXlong offset) {
   }
 
 
-FXbool OggDecoder::get_next_packet(Packet * packet) {
+FXbool OggDecoder::get_next_packet(Packet *& packet) {
   FXuint nbytes;
 
   op.packetno   = 0;
@@ -95,6 +95,7 @@ FXbool OggDecoder::get_next_packet(Packet * packet) {
       buffer.readBytes(-4);
       buffer.append(packet->data(),packet->size());
       packet->unref();
+      packet=nullptr;
       return false;
       }
     }
@@ -107,6 +108,7 @@ FXbool OggDecoder::get_next_packet(Packet * packet) {
       packet->readBytes(-4);
       buffer.append(packet->data(),packet->size());
       packet->unref();
+      packet=nullptr;
       return false;
       }
     else {
@@ -116,6 +118,7 @@ FXbool OggDecoder::get_next_packet(Packet * packet) {
       }
     }
   packet->unref();
+  packet=nullptr;
   return false;
   }
 

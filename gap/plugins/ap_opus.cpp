@@ -195,7 +195,10 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
       /// Get new buffer
       if (out==nullptr) {
         out = engine->decoder->get_output_packet();
-        if (out==nullptr) return DecoderInterrupted;
+        if (out==nullptr) {
+          if (packet) packet->unref();
+          return DecoderInterrupted;
+          }
         out->stream_position=stream_position - stream_offset_start;
         out->stream_length=stream_length;
         out->af=af;

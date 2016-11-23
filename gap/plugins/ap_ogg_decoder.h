@@ -38,7 +38,7 @@ protected:
   FXlong     stream_position;
   FXushort   stream_offset_start;
 protected:
-  FXbool get_next_packet(Packet*);
+  FXbool get_next_packet(Packet*&);
 public:
   OggDecoder(AudioEngine*);
 
