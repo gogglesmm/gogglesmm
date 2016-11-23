@@ -330,10 +330,10 @@ void HttpResponse::clear_headers() {
 
 void HttpResponse::check_headers() {
 #ifdef DEBUG
-  fxmessage("Headers:\n");
+  fxmessage("[http] Headers:\n");
   for (FXint pos=0;pos<headers.no();pos++) {
     if (!headers.key(pos).empty())
-      fxmessage("\t%s: %s\n",headers.key(pos).text(),headers.data(pos).text());
+      fxmessage("       %s: %s\n",headers.key(pos).text(),headers.data(pos).text());
     }
 #endif
   FXint p;
