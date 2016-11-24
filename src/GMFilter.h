@@ -50,7 +50,8 @@ public:
     ColumnChannels      = 17,
     ColumnBitRate       = 18,
     ColumnSampleRate    = 19,
-    ColumnSampleSize    = 20
+    ColumnSampleSize    = 20,
+    ColumnLyrics        = 21
     };
   enum {
     OperatorLike        = 0, // LIKE
@@ -65,8 +66,8 @@ public:
     };
 public:
   // Default Constructor
-  Rule() {} 
- 
+  Rule() {}
+
   // Initialize Rule for integer input
   Rule(FXint c,FXint o,FXint v) : column(c),opcode(o),value(v) {}
 

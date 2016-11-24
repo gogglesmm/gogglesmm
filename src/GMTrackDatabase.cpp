@@ -37,7 +37,8 @@
 #endif
 
 
-#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2017  /* Album Audio Quality*/
+#define GOGGLESMM_DATABASE_SCHEMA_VERSION 2018  /* Lyrics */
+#define GOGGLESMM_DATABASE_SCHEMA_V15     2017  /* Album Audio Quality*/
 #define GOGGLESMM_DATABASE_SCHEMA_V14     2016  /* add autodownload to feed table*/
 #define GOGGLESMM_DATABASE_SCHEMA_V13     2015  /* Fix empty tags and add foreign reference to feeds table*/
 #define GOGGLESMM_DATABASE_SCHEMA_DEV4    2014  /* Foreign Keys Fix*/
@@ -325,6 +326,14 @@ FXbool GMTrackDatabase::init_database() {
         init_album_properties();
         recreate_table("albums",create_albums); // fixup constraints
 
+        // intentionally no break
+
+      case GOGGLESMM_DATABASE_SCHEMA_V15  :
+
+        if (!hasColumn("tracks","lyrics")) {
+          execute("ALTER TABLE tracks ADD COLUMN lyrics TEXT");
+          }
+
         setVersion(GOGGLESMM_DATABASE_SCHEMA_VERSION);
         break;
 
@@ -370,7 +379,7 @@ FXbool GMTrackDatabase::init_queries() {
     query_artist                        = compile("SELECT id FROM artists WHERE name == ?;");
     query_path_name                     = compile("SELECT name FROM pathlist WHERE id == ?;");
 
-    query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating, tracks.samplerate, tracks.channels, tracks.filetype, tracks.bitrate "
+    query_track                         = compile("SELECT pathlist.name || '" PATHSEPSTRING "' || mrl, albums.name, a1.name, a2.name, composer_artist.name, conductor_artist.name,title, time, no, tracks.year, tracks.rating, tracks.samplerate, tracks.channels, tracks.filetype, tracks.bitrate, tracks.lyrics "
                                                   "FROM tracks LEFT JOIN artists AS composer_artist ON tracks.composer == composer_artist.id LEFT JOIN artists AS conductor_artist ON tracks.conductor == conductor_artist.id,pathlist, albums, artists AS a1, artists AS a2 "
                                                   "WHERE tracks.path == pathlist.id "
                                                     "AND albums.id == tracks.album "
@@ -961,6 +970,8 @@ FXbool GMTrackDatabase::getTrack(FXint tid,GMTrack & track){
         track.bitrate = value;
         track.sampleformat = 0;
         }
+
+      query_track.get_null(15,track.lyrics);
 
       ok=true;
       }
@@ -1695,6 +1706,16 @@ void GMTrackDatabase::setTrackYear(const FXIntList & tracks,FXuint year){
     update_track_year.execute();
     }
   }
+
+/// Set the name of a track
+void GMTrackDatabase::setTrackLyrics(FXint track,const FXString & lyrics){
+  DEBUG_DB_SET();
+  GMQuery update_track_lyrics(this,"UPDATE tracks SET lyrics = ? WHERE id == ?;");
+  update_track_lyrics.set(0,lyrics);
+  update_track_lyrics.set(1,track);
+  update_track_lyrics.execute();
+  }
+
 
 void GMTrackDatabase::updateAlbumYear(const FXIntList & tracks) {
   DEBUG_DB_SET();

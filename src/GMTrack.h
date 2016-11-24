@@ -63,6 +63,7 @@ public:
   FXString      composer;
   FXString      conductor;
   FXStringList  tags;
+  FXString      lyrics;
   FXuint        index         = 0;
   FXint         year          = 0;
   FXint 	      no            = 0;
@@ -75,6 +76,12 @@ public:
   FXuchar       filetype      = FILETYPE_UNKNOWN;
 public:
   GMTrack();
+
+  GMTrack(const GMTrack &);
+  GMTrack(GMTrack &);
+
+
+  FXbool hasMissingLyrics() const;
 
   FXbool hasMissingData() const;
 

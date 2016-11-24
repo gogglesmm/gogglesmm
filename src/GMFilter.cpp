@@ -45,6 +45,7 @@ static const FXchar * const column_lookup[]={
   "tracks.bitrate",
   "tracks.samplerate",
   "-tracks.bitrate",
+  "tracks.lyrics"
   };
 
 // Operator Lookup Table
@@ -75,6 +76,7 @@ FXString Rule::getMatch() const {
     case ColumnConductor:
     case ColumnAlbum:
     case ColumnPath:
+    case ColumnLyrics:
       {
         switch(opcode) {
           case OperatorLike     :

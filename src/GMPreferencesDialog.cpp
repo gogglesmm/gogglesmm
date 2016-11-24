@@ -824,13 +824,8 @@ long GMPreferencesDialog::onCmdAccept(FXObject*,FXSelector,void*) {
   mainwindow->configureToolbar((toolbar_docktop->getCurrentItem()==0));
   mainwindow->configureStatusbar(statusbarbutton->getCheck());
 
-  if (GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover) {
-    if (GMPlayerManager::instance()->playing())
-      GMPlayerManager::instance()->update_cover_display();
-    }
-  else {
-    mainwindow->clearCover();
-    }
+
+  GMPlayerManager::instance()->update_cover_display();
 
   GMPlayerManager::instance()->update_tray_icon();
 #ifdef HAVE_DBUS

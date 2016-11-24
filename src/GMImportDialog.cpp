@@ -437,6 +437,8 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   target_exclude_file.connect(GMPlayerManager::instance()->getPreferences().import.exclude_file);
   target_id3v1_encoding.connect(GMPlayerManager::instance()->getPreferences().import.id3v1_encoding);
 
+  target_fetch_lyrics.connect(GMPlayerManager::instance()->getPreferences().import.fetch_lyrics);
+
   const FXuint labelstyle=LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT;
   const FXuint textfieldstyle=TEXTFIELD_ENTER_ONLY|LAYOUT_FILL_X|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN;
 
@@ -548,6 +550,8 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     new FXFrame(matrix,FRAME_NONE);
     new GMCheckButton(matrix,tr("Detect compilations by folder.\tGroup tracks from the same folder without specific compilation/albumartist tags."),&target_detect_compilation,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
+    new FXFrame(matrix,FRAME_NONE);
+    new GMCheckButton(matrix,tr("Download Lyrics.\tDownload Lyrics"),&target_fetch_lyrics,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
     template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
     template_grpbox->setFont(GMApp::instance()->getThickFont());

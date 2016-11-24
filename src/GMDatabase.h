@@ -71,6 +71,7 @@ public: /// Parameter / Column retrieval
   void get(FXint p,FXdouble &);
   void get(FXint p,FXuchar *&,FXuval&);
   void get(FXint p,FXString&);
+  void get_null(FXint p,FXString&);
   const FXchar * get(FXint p);
 public:
   /// Reset query for another exection
@@ -118,7 +119,6 @@ private:
 protected:
   GMDatabase(const GMDatabase&);
   GMDatabase& operator=(const GMDatabase&);
-protected:
 public:
   GMDatabase();
 
@@ -176,6 +176,8 @@ public:
   /// Get Version
   FXint getVersion();
 
+  // Check if table has column
+  FXbool hasColumn(const FXchar * table,const FXchar * column);
 
   static FXbool threadsafe();
   static const FXchar * version();

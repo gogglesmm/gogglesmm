@@ -189,8 +189,6 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
 
 long GMPlayerManager::onPlayNotify(FXObject*,FXSelector,void*){
 
-  update_cover_display();
-
   if (!trackinfo.title.empty() && !trackinfo.artist.empty()) {
 
     display_track_notification();
@@ -1198,11 +1196,26 @@ void GMPlayerManager::setStatus(const FXString & text){
   }
 
 void GMPlayerManager::update_cover_display() {
-  if (preferences.gui_show_playing_albumcover && covermanager->load(trackinfo.url)) {
-    mainwindow->update_cover_display();
+  if (playing()) {
+
+    if (preferences.gui_show_playing_albumcover && covermanager->getCover()==nullptr) {
+
+      covermanager->load(trackinfo.url);
+
+      mainwindow->update_meta_display();
+
+      mainwindow->update_cover_display();
+      }
+    else if (covermanager->getCover()) {
+
+      covermanager->clear();
+
+      mainwindow->update_meta_display();
+
+      mainwindow->update_cover_display();
+      }
     }
   }
-
 
 void GMPlayerManager::update_track_display(FXbool notify) {
   FXTRACE((51,"GMPlayerManager::update_track_display()\n"));
@@ -1219,6 +1232,9 @@ void GMPlayerManager::update_track_display(FXbool notify) {
       application->addTimeout(source,GMSource::ID_TRACK_PLAYED,TIME_SEC(time));
       }
     }
+
+  if (preferences.gui_show_playing_albumcover)
+    covermanager->load(trackinfo.url);
 
   mainwindow->display(trackinfo);
 

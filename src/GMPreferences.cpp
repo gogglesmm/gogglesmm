@@ -34,6 +34,7 @@ const char key_import_replace_underscores[]="replace-underscores";
 const char key_import_id3v1_encoding[]="id3v1-encoding";
 const char key_import_album_format_grouping[]="album-format-grouping";
 const char key_import_detect_compilation[]="detect-compilation";
+const char key_import_fetch_lyrics[]="fetch-lyrics";
 
 const char key_import_filename_template[]="filename-template";
 const char key_import_parse_method[]="parse-method";
@@ -99,6 +100,7 @@ void GMImportOptions::save(FXSettings & reg) const {
   reg.writeUIntEntry(section_export,key_import_id3v1_encoding,id3v1_encoding);
   reg.writeBoolEntry(section_import,key_import_album_format_grouping,album_format_grouping);
   reg.writeBoolEntry(section_import,key_import_detect_compilation,detect_compilation);
+  reg.writeBoolEntry(section_import,key_import_fetch_lyrics,fetch_lyrics);
   }
 
 void GMImportOptions::load(FXSettings & reg) {
@@ -111,6 +113,7 @@ void GMImportOptions::load(FXSettings & reg) {
   id3v1_encoding         = FXMIN(GMFilename::ENCODING_LAST-1,reg.readUIntEntry(section_import,key_import_id3v1_encoding,id3v1_encoding));
   album_format_grouping  = reg.readBoolEntry(section_import,key_import_album_format_grouping,album_format_grouping);
   detect_compilation     = reg.readBoolEntry(section_import,key_import_detect_compilation,detect_compilation);
+  fetch_lyrics           = reg.readBoolEntry(section_import,key_import_fetch_lyrics,fetch_lyrics);
   }
 
 
