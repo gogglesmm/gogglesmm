@@ -21,6 +21,167 @@
 #include "GMTrack.h"
 #include "GMLyrics.h"
 
+#if FOXVERSION < FXVERSION(1,7,55)
+
+// From FOX-1.7.55
+// Copyright (C) 2016 by Jeroen van der Zijp.
+
+enum {
+  CRLF = 0x0001,      /// CRLF, LFCR, CR, LF map to LF
+  REFS = 0x0002,      /// Character references processed
+  };
+
+
+// Decode escaped special characters from XML stream
+static FXbool xml_decode(FXString& dst,const FXString& src,FXuint flags=CRLF|REFS){
+  register FXival p,q;
+  register FXwchar wc;
+
+  // Measure the resulting string first
+  p=q=0;
+  while(q<src.length()){
+    wc=src[q++];
+    if(wc=='\r' && (flags&CRLF)){               // CR, CRLF -> LF
+      if(src[q]=='\n'){ q++; }
+      p++;
+      continue;
+      }
+    if(wc=='\n' && (flags&CRLF)){               // LF, LFCR -> LF
+      if(src[q]=='\r'){ q++; }
+      p++;
+      continue;
+      }
+    if(wc=='&' && (flags&REFS)){
+      if(src[q]=='#'){
+        if(src[q+1]=='x'){                      // &#xXXXX;
+          q+=2;
+          if(!Ascii::isHexDigit(src[q])) return false;  // Expected at least one hex digit
+          wc=FXString::digit2Value[(FXuchar)src[q++]];
+          while(Ascii::isHexDigit(src[q])){
+            wc=wc*16+FXString::digit2Value[(FXuchar)src[q++]];
+            }
+          if(src[q++]!=';') return false;       // Expected semicolon
+          }
+        else{                                   // &#DDDD;
+          q+=1;
+          if(!Ascii::isDigit(src[q])) return false;     // Expected at least one digit
+          wc=src[q++]-'0';
+          while(Ascii::isDigit(src[q])){
+            wc=wc*10+(src[q++]-'0');
+            }
+          if(src[q++]!=';') return false;       // Expected semicolon
+          }
+        p+=wc2utf(wc);
+        continue;
+        }
+      if(src[q]=='q' && src[q+1]=='u' && src[q+2]=='o' && src[q+3]=='t' && src[q+4]==';'){      // &quot;
+        q+=5;
+        p++;
+        continue;
+        }
+      if(src[q]=='a' && src[q+1]=='p' && src[q+2]=='o' && src[q+3]=='s' && src[q+4]==';'){      // &apos;
+        q+=5;
+        p++;
+        continue;
+        }
+      if(src[q]=='a' && src[q+1]=='m' && src[q+2]=='p' && src[q+3]==';'){       // &amp;
+        q+=4;
+        p++;
+        continue;
+        }
+      if(src[q]=='l' && src[q+1]=='t' && src[q+2]==';'){        // &lt;
+        q+=3;
+        p++;
+        continue;
+        }
+      if(src[q]=='g' && src[q+1]=='t' && src[q+2]==';'){        // &gt;
+        q+=3;
+        p++;
+        continue;
+        }
+      return false;                             // Unknown reference
+      }
+    p++;
+    }
+
+  // Now allocate space
+  dst.length(p);
+
+  // Now produce the result string
+  p=q=0;
+  while(q<src.length()){
+    wc=src[q++];
+    if(wc=='\r' && (flags&CRLF)){               // CR, CRLF -> LF
+      if(src[q]=='\n'){ q++; }
+      dst[p++]='\n';
+      continue;
+      }
+    if(wc=='\n' && (flags&CRLF)){               // LF, LFCR -> LF
+      if(src[q]=='\r'){ q++; }
+      dst[p++]='\n';
+      continue;
+      }
+    if(wc=='&' && (flags&REFS)){
+      if(src[q]=='#'){
+        if(src[q+1]=='x'){                      // &#xXXXX;
+          q+=2;
+          FXASSERT(Ascii::isHexDigit(src[q]));  // Expected at least one hex digit
+          wc=FXString::digit2Value[(FXuchar)src[q++]];
+          while(Ascii::isHexDigit(src[q])){
+            wc=wc*16+FXString::digit2Value[(FXuchar)src[q++]];
+            }
+          FXASSERT(src[q]==';');                // Expected semicolon
+          q++;
+          }
+        else{                                   // &#DDDD;
+          q+=1;
+          FXASSERT(Ascii::isDigit(src[q]));     // Expected at least one digit
+          wc=src[q++]-'0';
+          while(Ascii::isDigit(src[q])){
+            wc=wc*10+(src[q++]-'0');
+            }
+          FXASSERT(src[q]==';');                // Expected semicolon
+          q++;
+          }
+        p+=wc2utf(&dst[p],wc);
+        continue;
+        }
+      if(src[q]=='q' && src[q+1]=='u' && src[q+2]=='o' && src[q+3]=='t' && src[q+4]==';'){      // &quot;
+        q+=5;
+        dst[p++]='\"';
+        continue;
+        }
+      if(src[q]=='a' && src[q+1]=='p' && src[q+2]=='o' && src[q+3]=='s' && src[q+4]==';'){      // &apos;
+        q+=5;
+        dst[p++]='\'';
+        continue;
+        }
+      if(src[q]=='a' && src[q+1]=='m' && src[q+2]=='p' && src[q+3]==';'){       // &amp;
+        q+=4;
+        dst[p++]='&';
+        continue;
+        }
+      if(src[q]=='l' && src[q+1]=='t' && src[q+2]==';'){        // &lt;
+        q+=3;
+        dst[p++]='<';
+        continue;
+        }
+      if(src[q]=='g' && src[q+1]=='t' && src[q+2]==';'){        // &gt;
+        q+=3;
+        dst[p++]='>';
+        continue;
+        }
+      }
+    dst[p++]=wc;
+    }
+  FXASSERT(p<=dst.length());
+  return true;
+  }
+#endif
+
+
+
+
 class LyricsSource {
 public:
   virtual FXbool fetch(GMTrack & track) = 0;
@@ -68,7 +229,13 @@ public:
 
 
     FXString result;
+
+#if FOXVERSION < FXVERSION(1,7,55)
+    xml_decode(result,src);
+#else
     FXXML::decode(result,src);
+#endif
+
     src = result.trim();
     }
   };
