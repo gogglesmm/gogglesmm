@@ -320,8 +320,20 @@ void GMDBTracks::remove(FXint track) {
 
 GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel) {
   database = GMPlayerManager::instance()->getTrackDatabase();
+  }
+
+
+void GMImportTask::setOptions(const GMImportOptions & o) {
+  options=o;
   if (options.fetch_lyrics) {
-    lyrics = new Lyrics();
+    if (lyrics==nullptr)
+      lyrics = new Lyrics();
+    }
+  else {
+    if (lyrics) {
+      delete lyrics;
+      lyrics=nullptr;
+      }
     }
   }
 

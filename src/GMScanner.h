@@ -125,7 +125,7 @@ protected:
 public:
   GMImportTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
-  void setOptions(const GMImportOptions & o) { options=o; }
+  void setOptions(const GMImportOptions & o);
 
   void setInput(const FXStringList & input) { files=input; }
 
