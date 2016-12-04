@@ -228,7 +228,11 @@ void GMCoverCache::load(GMCoverCacheWriter & writer) {
   if (data.base())
     data.close();
 
+#if FOXVERSION >= FXVERSION(1,7,57)
+  FXFile::move(getTempFilename(),getFilename());
+#else
   FXFile::rename(getTempFilename(),getFilename());
+#endif
 
   if (data.openMap(getFilename()))
     info.adopt(writer.info);

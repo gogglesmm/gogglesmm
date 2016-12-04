@@ -64,7 +64,14 @@ void GMFilterSource::init(GMTrackDatabase * database,GMSourceList & list){
         src->match.load(store);
         sources.append(src);
         }
+
+#if FOXVERSION >= FXVERSION(1,7,57)
+      for (FXint i=0;i<sources.no();i++) {
+        list.append(sources[i]);
+        }
+#else
       list.append(sources);
+#endif
       return;
       }
     }
@@ -72,7 +79,14 @@ void GMFilterSource::init(GMTrackDatabase * database,GMSourceList & list){
   // Initialize Default Ones
   sources.append(new GMFilterSource(database,GMFilter("Recently Played",Rule::ColumnPlayDate,Rule::OperatorGreater,60*60*24*7)));
   sources.append(new GMFilterSource(database,GMFilter("Recently Added",Rule::ColumnImportDate,Rule::OperatorGreater,60*60*24*7)));
+
+#if FOXVERSION >= FXVERSION(1,7,57)
+  for (FXint i=0;i<sources.no();i++) {
+    list.append(sources[i]);
+    }
+#else
   list.append(sources);
+#endif
 
   // Save to disk
   GMFilterSource::save();
