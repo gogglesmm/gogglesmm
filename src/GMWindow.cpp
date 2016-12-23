@@ -136,13 +136,11 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_CONFIGURE,          GMWindow::ID_COVERVIEW,         GMWindow::onConfigureCoverView),
   FXMAPFUNC(SEL_TIMEOUT,            GMWindow::ID_REFRESH_COVERVIEW, GMWindow::onConfigureCoverView),
 
-  FXMAPFUNC(SEL_LEFTBUTTONRELEASE,         GMWindow::ID_LYRICVIEW,         GMWindow::onCmdLyricView),
-  FXMAPFUNC(SEL_LEFTBUTTONRELEASE,         GMWindow::ID_COVERVIEW,         GMWindow::onCmdCoverView),
+  FXMAPFUNC(SEL_LEFTBUTTONRELEASE,  GMWindow::ID_LYRICVIEW,         GMWindow::onCmdLyricView),
+  FXMAPFUNC(SEL_LEFTBUTTONRELEASE,  GMWindow::ID_COVERVIEW,         GMWindow::onCmdCoverView),
 
-
-  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMWindow::ID_COVERVIEW,GMWindow::onMetaContextMenu),
-  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMWindow::ID_LYRICVIEW,GMWindow::onMetaContextMenu),
-
+  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE, GMWindow::ID_COVERVIEW,         GMWindow::onMetaContextMenu),
+  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE, GMWindow::ID_LYRICVIEW,         GMWindow::onMetaContextMenu),
 
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,      GMWindow::onUpdShowSources),
   FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,      GMWindow::onCmdShowSources),
