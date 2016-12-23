@@ -44,7 +44,6 @@
 #include <textidentificationframe.h>
 #include <attachedpictureframe.h>
 #include <unsynchronizedlyricsframe.h>
-#include <synchronizedlyricsframe.h>
 #include <vorbisproperties.h>
 #include <flacproperties.h>
 #include <mp4file.h>
@@ -55,6 +54,11 @@
 
 #define TAGLIB_VERSION ((TAGLIB_PATCH_VERSION) + (TAGLIB_MINOR_VERSION*1000) + (TAGLIB_MAJOR_VERSION*100000))
 #define TAGVERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
+
+#if TAGLIB_VERSION >= TAGVERSION(1,10,0)
+#include <synchronizedlyricsframe.h>
+#endif
+
 
 
 #include "FXPNGImage.h"
@@ -799,7 +803,7 @@ void GMFileTag::getLyrics(FXString & lyrics) const{
         if (!lyrics.empty()) return;
         }
     }
-
+#if TAGLIB_VERSION >= TAGVERSION(1,10,0)
     {
       const TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["SYLT"];
       for(auto it = framelist.begin(); it != framelist.end(); it++) {
@@ -815,7 +819,7 @@ void GMFileTag::getLyrics(FXString & lyrics) const{
           }
         }
     }
-
+#endif
 
     }
   else if (mp4 && mp4_get_field("\251lyr",lyrics)) {
