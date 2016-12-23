@@ -17,6 +17,7 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+#include "gmutils.h"
 #include "ap.h"
 #include "GMTrack.h"
 #include "GMLyrics.h"
@@ -188,6 +189,83 @@ public:
   virtual ~LyricsSource() {};
   };
 
+
+
+class LrcSource : public LyricsSource {
+protected:
+  FXRex wordtags;
+public:
+  LrcSource() {
+    wordtags.parse("<\\d\\d:\\d\\d.\\d\\d>",FXRex::Normal);
+    }
+
+  virtual FXbool fetch(GMTrack & track) override {
+
+    FXString filename = track.url;
+    if (!FXPath::isAbsolute(track.url)) {
+      filename = FXURL::fileFromURL(track.url);
+      if (filename.empty()) return false;
+      }
+    filename = FXPath::stripExtension(filename) + ".lrc";
+    if (!FXStat::exists(filename)) return false;
+    FXString data;
+    FXString lyrics;
+    if (!gm_buffer_file(filename,data)) return false;
+
+
+    // Parse each line
+    FXint start=0,end=0,next=0;
+    for (FXint i=0;i<data.length();i++) {
+      if (data[i]=='\n') {
+        end=i;
+        next=i+1;
+
+        /// Skip white space
+        while(start<end && Ascii::isSpace(data[start])) start++;
+
+        /// Skip white space
+        while(end>start && Ascii::isSpace(data[end])) end--;
+
+        /// Skip
+        if (data[start]=='[') {
+          while(start<end && data[start]!=']') start++;
+          start+=1;
+          if ((end-start>2) && (data[start]=='D' || data[start]=='M' || data[start]=='F') && data[start+1]==':')
+            start+=2;
+          }
+
+        /// New Line
+        if (!lyrics.empty()) lyrics+='\n';
+
+        /// Parse the actual line.
+        if ((end-start)) {
+          lyrics+=data.mid(start,1+end-start);
+          }
+        start=next;
+        }
+      }
+
+    // Remove any wordtags
+    FXint bb[2],ee[2],ff=0;
+    while(wordtags.search(lyrics,ff,lyrics.length()-1,FXRex::Normal,bb,ee,1)>=0) {
+      GM_DEBUG_PRINT("[lyrics] found <tags>: %s\n",lyrics.mid(bb[0],ee[0]-bb[0]).text());
+      lyrics.erase(bb[0],ee[0]-bb[0]);
+      ff=bb[0];
+      }
+
+    // Finalize
+    lyrics.trim();
+    if (!lyrics.empty()) {
+      track.lyrics.adopt(lyrics);
+      }
+    return true;
+    }
+};
+
+
+
+
+
 class HtmlSource : public LyricsSource {
 protected:
   FXRex linebreaks;
@@ -274,21 +352,22 @@ public:
   };
 
 
-
-
-
 Lyrics::Lyrics() {
-  source = new LyricsWikiaSource;
+  source[0] = new LrcSource;
+  source[1] = new LyricsWikiaSource;
   }
 
 Lyrics::~Lyrics() {
-  delete source;
+  delete source[0];
+  delete source[1];
   }
 
 FXbool Lyrics::fetch(GMTrack & track) const {
-  if (source->fetch(track)) {
-    GM_DEBUG_PRINT("Found lyrics for %s\n",track.url.text());
-    return true;
+  for (FXint i=0;i<2;i++) {
+    if (source[i]->fetch(track)) {
+      GM_DEBUG_PRINT("Found lyrics for %s from src %d\n",track.url.text(),i);
+      return true;
+      }
     }
   return false;
   }

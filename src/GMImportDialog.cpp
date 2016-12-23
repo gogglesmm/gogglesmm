@@ -551,7 +551,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     new GMCheckButton(matrix,tr("Detect compilations by folder.\tGroup tracks from the same folder without specific compilation/albumartist tags."),&target_detect_compilation,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
     new FXFrame(matrix,FRAME_NONE);
-    new GMCheckButton(matrix,tr("Download Lyrics.\tDownload Lyrics"),&target_fetch_lyrics,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+    new GMCheckButton(matrix,tr("Fetch Lyrics.\tFetch Lyrics"),&target_fetch_lyrics,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
 
     template_grpbox =  new FXGroupBox(vframe,tr("Path Template"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
     template_grpbox->setFont(GMApp::instance()->getThickFont());
