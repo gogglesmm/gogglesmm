@@ -1205,15 +1205,30 @@ void GMPlayerManager::update_cover_display() {
       mainwindow->update_meta_display();
 
       mainwindow->update_cover_display();
+
       }
-    else if (covermanager->getCover()) {
+
+    else if (preferences.gui_show_playing_albumcover==false && covermanager->getCover()) {
 
       covermanager->clear();
 
       mainwindow->update_meta_display();
 
       mainwindow->update_cover_display();
+
       }
+
+    else {
+      mainwindow->update_meta_display();
+      }
+    }
+  else if (covermanager->getCover()) {
+
+    covermanager->clear();
+
+    mainwindow->update_meta_display();
+
+    mainwindow->update_cover_display();
     }
   }
 

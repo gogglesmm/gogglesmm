@@ -28,6 +28,7 @@ protected:
   FXDataTarget target_keywords;
   FXDataTarget target_replaygain;
   FXDataTarget target_show_playing_albumcover;
+  FXDataTarget target_show_playing_lyrics;
 #ifdef HAVE_DBUS
   FXDataTarget target_dbus_notify_daemon;
   FXDataTarget target_dbus_mpris1;

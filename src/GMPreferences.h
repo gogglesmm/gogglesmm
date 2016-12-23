@@ -129,6 +129,7 @@ public:
   FXbool gui_toolbar_labelsabove        = true;
   FXbool gui_show_browser_icons         = true;
   FXbool gui_show_playing_albumcover    = true;
+  FXbool gui_show_playing_lyrics        = true;
   FXbool gui_tray_icon                  = false;
   FXbool gui_tray_icon_disabled         = false;
   FXbool gui_show_playing_titlebar      = false;

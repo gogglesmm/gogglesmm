@@ -160,6 +160,8 @@ public: /// Message Handlers
 
   long onCmdLyricView(FXObject*,FXSelector,void*);
   long onCmdCoverView(FXObject*,FXSelector,void*);
+
+  long onMetaContextMenu(FXObject*,FXSelector,void*);
 public:
   enum{
     ID_ABOUT=FXMainWindow::ID_LAST,

@@ -286,6 +286,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   target_keywords.connect(keywords);
 
   target_show_playing_albumcover.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_albumcover);
+  target_show_playing_lyrics.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_lyrics);
 
 #ifdef HAVE_DBUS
   target_dbus_notify_daemon.connect(GMPlayerManager::instance()->getPreferences().dbus_notify_daemon);
@@ -320,10 +321,12 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   new FXLabel(matrix,tr("Ignore leading words"),nullptr,labelstyle);
   new GMTextField(matrix,10,&target_keywords,FXDataTarget::ID_VALUE,textfieldstyle);
 
-  grpbox =  new FXGroupBox(vframe,tr("Album Covers"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+  grpbox =  new FXGroupBox(vframe,tr("Additional Track Information"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
-  new GMCheckButton(grpbox,tr("Show album cover of playing track\tShow album cover of playing track"),&target_show_playing_albumcover,FXDataTarget::ID_VALUE);
+  new GMCheckButton(grpbox,tr("Show Album Cover\tShow album cover of playing track"),&target_show_playing_albumcover,FXDataTarget::ID_VALUE);
+  new GMCheckButton(grpbox,tr("Show Lyrics\tShow lyrics of playing track"),&target_show_playing_lyrics,FXDataTarget::ID_VALUE);
+
 
   grpbox =  new FXGroupBox(vframe,tr("System Tray"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());

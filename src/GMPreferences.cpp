@@ -57,6 +57,7 @@ const char key_gui_toolbar_labelsabove[]="toolbar-labels-above";
 const char key_gui_show_browser_icons[]="browser-icons";
 const char key_gui_keywords[]="sort-keywords";
 const char key_gui_show_playing_albumcover[]="show-playing-albumcover";
+const char key_gui_show_playing_lyrics[]="show-playing-lyrics";
 const char key_gui_show_opengl_coverview[]="show-opengl-coverview";
 const char key_gui_tray_icon[]="tray-icon";
 const char key_gui_show_playing_titlebar[]="show-playing-titlebar";
@@ -177,6 +178,7 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeBoolEntry(section_window,key_gui_show_browser_icons,gui_show_browser_icons);
   reg.writeStringEntry(section_window,key_gui_keywords,keywords.text());
   reg.writeBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
+  reg.writeBoolEntry(section_window,key_gui_show_playing_lyrics,gui_show_playing_lyrics);
   reg.writeBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   reg.writeBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
   reg.writeBoolEntry(section_window,key_gui_show_opengl_coverview,gui_use_opengl);
@@ -263,6 +265,7 @@ void GMPreferences::load(FXSettings & reg) {
     }
 
   gui_show_playing_albumcover   = reg.readBoolEntry(section_window,key_gui_show_playing_albumcover,gui_show_playing_albumcover);
+  gui_show_playing_lyrics       = reg.readBoolEntry(section_window,key_gui_show_playing_lyrics,gui_show_playing_lyrics);
   gui_tray_icon                 = reg.readBoolEntry(section_window,key_gui_tray_icon,gui_tray_icon);
   gui_show_playing_titlebar     = reg.readBoolEntry(section_window,key_gui_show_playing_titlebar,gui_show_playing_titlebar);
   gui_format_title              = reg.readStringEntry(section_window,key_gui_format_title,gui_format_title.text());

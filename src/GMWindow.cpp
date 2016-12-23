@@ -139,6 +139,11 @@ FXDEFMAP(GMWindow) GMWindowMap[]={
   FXMAPFUNC(SEL_LEFTBUTTONRELEASE,         GMWindow::ID_LYRICVIEW,         GMWindow::onCmdLyricView),
   FXMAPFUNC(SEL_LEFTBUTTONRELEASE,         GMWindow::ID_COVERVIEW,         GMWindow::onCmdCoverView),
 
+
+  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMWindow::ID_COVERVIEW,GMWindow::onMetaContextMenu),
+  FXMAPFUNC(SEL_RIGHTBUTTONRELEASE,GMWindow::ID_LYRICVIEW,GMWindow::onMetaContextMenu),
+
+
   FXMAPFUNC(SEL_UPDATE,         		GMWindow::ID_SHOW_SOURCES,      GMWindow::onUpdShowSources),
   FXMAPFUNC(SEL_COMMAND,         		GMWindow::ID_SHOW_SOURCES,      GMWindow::onCmdShowSources),
   };
@@ -604,9 +609,9 @@ void GMWindow::reset() {
 
 
 void GMWindow::update_meta_display() {
-  if (!lyricsview->getText().empty() || GMPlayerManager::instance()->getCoverManager()->getCover()){
+  if ((GMPlayerManager::instance()->getPreferences().gui_show_playing_lyrics && !lyricsview->getText().empty()) || GMPlayerManager::instance()->getCoverManager()->getCover()){
 
-    if (lyricsview->getText().empty()) {
+    if (!GMPlayerManager::instance()->getPreferences().gui_show_playing_lyrics || lyricsview->getText().empty()) {
       metaview->setCurrent(0);
       }
     else if (GMPlayerManager::instance()->getCoverManager()->getCover()==nullptr) {
@@ -1418,6 +1423,28 @@ long GMWindow::onConfigureCoverView(FXObject*,FXSelector sel,void*){
   }
 
 
+long GMWindow::onMetaContextMenu(FXObject*,FXSelector,void*ptr) {
+  FXEvent* event=(FXEvent*)ptr;
+  FXint option=metaview->getCurrent();
+
+  FXDataTarget target_display(option);
+
+  GMMenuPane pane(this);
+  GMMenuRadio * option_cover = new GMMenuRadio(&pane,tr("Show Album Cover"),&target_display,FXDataTarget::ID_OPTION+0);
+  GMMenuRadio * option_lyrics = new GMMenuRadio(&pane,tr("Show Lyrics"),&target_display,FXDataTarget::ID_OPTION+1);
+
+  if (!GMPlayerManager::instance()->getCoverManager()->getCover()) option_cover->disable();
+  if (!GMPlayerManager::instance()->getPreferences().gui_show_playing_lyrics || lyricsview->getText().empty()) option_lyrics->disable();
+
+  pane.create();
+  ewmh_change_window_type(&pane,WINDOWTYPE_POPUP_MENU);
+  pane.popup(nullptr,event->root_x,event->root_y);
+  getApp()->runPopup(&pane);
+
+  metaview->setCurrent(option);
+  return 1;
+  }
+
 long GMWindow::onCmdLyricView(FXObject*,FXSelector,void*ptr) {
   FXEvent* event=(FXEvent*)ptr;
   if (GMPlayerManager::instance()->getCoverManager()->getCover() && event->click_count==2) {
@@ -1428,7 +1455,7 @@ long GMWindow::onCmdLyricView(FXObject*,FXSelector,void*ptr) {
 
 long GMWindow::onCmdCoverView(FXObject*,FXSelector,void*ptr) {
   FXEvent* event=(FXEvent*)ptr;
-  if (!lyricsview->getText().empty() && event->click_count==2) {
+  if (GMPlayerManager::instance()->getPreferences().gui_show_playing_lyrics && !lyricsview->getText().empty() && event->click_count==2) {
     metaview->setCurrent(1);
     }
   return 1;
