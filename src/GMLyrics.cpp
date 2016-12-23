@@ -181,6 +181,14 @@ static FXbool xml_decode(FXString& dst,const FXString& src,FXuint flags=CRLF|REF
 #endif
 
 
+FXbool ap_xml_decode(FXString & dst,const FXString & src) {
+#if FOXVERSION < FXVERSION(1,7,55)
+  return xml_decode(dst,src,CRLF|REFS);
+#else
+  return FXXML::decode(dst,src,FXXML::CRLF|FXXML::REFS);
+#endif
+  }
+
 
 
 class LyricsSource {
@@ -304,16 +312,8 @@ public:
       src.erase(bb[0],ee[0]-bb[0]);
       ff=bb[0];
       }
-
-
     FXString result;
-
-#if FOXVERSION < FXVERSION(1,7,55)
-    xml_decode(result,src);
-#else
-    FXXML::decode(result,src);
-#endif
-
+    ap_xml_decode(result,src);
     src = result.trim();
     }
   };
