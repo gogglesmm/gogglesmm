@@ -1080,6 +1080,9 @@ FXbool MatroskaReader::parse_cue_point(Element & container) {
   FXulong cluster_position;
   FXulong cuetrack;
 
+  FXbool has_cuetime=false;
+  FXbool has_cuetrack=false;
+
   Element element;
   while(parse_element(container,element)) {
     switch(element.type) {
@@ -1087,12 +1090,16 @@ FXbool MatroskaReader::parse_cue_point(Element & container) {
         {
           if (!parse_uint64(cuetime,element.size))
             return false;
+
+          has_cuetime=true;
           break;
         }
       case CUE_TRACK_POSITIONS:
         {
           if (!parse_cue_track(element,cuetrack,cluster_position))
             return false;
+
+          has_cuetrack=true;
         } break;
       default:
         {
@@ -1102,10 +1109,13 @@ FXbool MatroskaReader::parse_cue_point(Element & container) {
         }
       }
     }
-  for (FXint i=0;i<tracks.no();i++) {
-    if (tracks[i]->number==cuetrack) {
-      tracks[i]->add_cue_entry(cuetime,cluster_position);
-      break;
+
+  if (has_cuetrack && has_cuetime) {
+    for (FXint i=0;i<tracks.no();i++) {
+      if (tracks[i]->number==cuetrack) {
+        tracks[i]->add_cue_entry(cuetime,cluster_position);
+        break;
+        }
       }
     }
   return true;
