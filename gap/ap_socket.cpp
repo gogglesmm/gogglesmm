@@ -485,6 +485,8 @@ FXbool SecureSocket::create(FXint domain,FXint type,FXint protocol,FXuint mode) 
 
 #if defined(HAVE_OPENSSL)
 
+    GM_DEBUG_PRINT("[ssl] using openssl\n");
+
     // Create BIO for socket
     BIO * bio = BIO_new_socket(device, BIO_NOCLOSE);
     if (bio==nullptr) {
@@ -503,6 +505,9 @@ FXbool SecureSocket::create(FXint domain,FXint type,FXint protocol,FXuint mode) 
     SSL_set_bio(ssl,bio,bio);
 
 #elif defined(HAVE_GNUTLS)
+
+    GM_DEBUG_PRINT("[ssl] using gnutls\n");
+
     if (gnutls_init(&session, GNUTLS_CLIENT)!=GNUTLS_E_SUCCESS)
       return false;
 
@@ -518,7 +523,7 @@ FXbool SecureSocket::create(FXint domain,FXint type,FXint protocol,FXuint mode) 
 
     return true;
     }
-  GM_DEBUG_PRINT("[socket] failed to create secure socket\n");
+  GM_DEBUG_PRINT("[ssl] failed to create socket\n");
   return false;
   }
 
@@ -546,10 +551,9 @@ x:status = gnutls_handshake(session);
     return (event==WaitEvent::Signal) ? 1 : FXIO::Error;
     }
   else if (!gnutls_error_is_fatal(status)){
-    GM_DEBUG_PRINT("ssl: non fatal status, trying again\n");
     goto x; // try again
     }
-  GM_DEBUG_PRINT("ssl: handshake failed\n");
+  GM_DEBUG_PRINT("[ssl] handshake failed with code %d\n",status);
   return FXIO::Error;
   }
 #endif
@@ -655,13 +659,24 @@ x:status = SSL_connect(ssl);
     // Check for peer certificate
     X509 * certificate = SSL_get_peer_certificate(ssl);
     if (certificate == nullptr) {
+      GM_DEBUG_PRINT("[ssl] no peer certificate\n");
       close();
       return FXIO::Error;
       }
     X509_free(certificate);
 
     // Verify certificate
-    if (SSL_get_verify_result(ssl)!=X509_V_OK) {
+    status = SSL_get_verify_result(ssl);
+    if (status!=X509_V_OK) {
+
+      // todo: have some way to handle self-signed certificates
+      switch(status) {
+        case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+        case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
+          GM_DEBUG_PRINT("[ssl] self-signed certificate\n");
+          break;
+        default: GM_DEBUG_PRINT("[ssl] verify certificate failed. code %d\n",status); break;
+        }
       close();
       return FXIO::Error;
       }
@@ -749,7 +764,6 @@ x:  n=gnutls_record_recv(session,data,count);
         return FXIO::Error;
         }
       else if (!gnutls_error_is_fatal(n)){
-        GM_DEBUG_PRINT("ssl: non fatal status, trying again\n");
         goto x; // try again
         }
       else {
@@ -822,7 +836,6 @@ x:  n=gnutls_record_send(session,data,count);
         return FXIO::Error;
         }
       else if (!gnutls_error_is_fatal(n)){
-        GM_DEBUG_PRINT("ssl: non fatal status, trying again\n");
         goto x; // try again
         }
       else {
