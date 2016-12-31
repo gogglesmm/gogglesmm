@@ -1076,9 +1076,9 @@ FXbool MatroskaReader::parse_cue_track(Element & container,FXulong & cue_track,F
 
 
 FXbool MatroskaReader::parse_cue_point(Element & container) {
-  FXulong cuetime;
-  FXulong cluster_position;
-  FXulong cuetrack;
+  FXulong cuetime = 0;
+  FXulong cluster_position = 0;
+  FXulong cuetrack = 0;
 
   FXbool has_cuetime=false;
   FXbool has_cuetrack=false;
