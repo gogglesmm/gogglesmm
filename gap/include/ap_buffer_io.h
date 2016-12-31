@@ -47,6 +47,9 @@ public:
   /// Attach an IO
   void attach(FXIO * io);
 
+  // Return attached io
+  FXIO * attached() const;
+
   /// Return true if open
   FXbool isOpen() const override;
 

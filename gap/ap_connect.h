@@ -26,6 +26,10 @@ class ThreadQueue;
 
 /* Connection Factory */
 class ConnectionFactory {
+#if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
+protected:
+  FXbool use_ssl = false;
+#endif
 protected:
 	virtual Socket * create(FXint domain,FXint type,FXint protocol);
 public:

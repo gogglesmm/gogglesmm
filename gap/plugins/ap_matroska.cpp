@@ -1087,7 +1087,6 @@ FXbool MatroskaReader::parse_cue_point(Element & container) {
         {
           if (!parse_uint64(cuetime,element.size))
             return false;
-          fxmessage("cuetime %ld\n",cuetime);
           break;
         }
       case CUE_TRACK_POSITIONS:

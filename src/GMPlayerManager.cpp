@@ -264,12 +264,14 @@ GMPlayerManager::GMPlayerManager() {
 GMPlayerManager::~GMPlayerManager() {
 
   /// Remove Signal Handlers
-  application->removeSignal(SIGINT);
-  application->removeSignal(SIGQUIT);
-  application->removeSignal(SIGTERM);
-  application->removeSignal(SIGHUP);
-  application->removeSignal(SIGPIPE);
-  application->removeSignal(SIGCHLD);
+  if (application) {
+    application->removeSignal(SIGINT);
+    application->removeSignal(SIGQUIT);
+    application->removeSignal(SIGTERM);
+    application->removeSignal(SIGHUP);
+    application->removeSignal(SIGPIPE);
+    application->removeSignal(SIGCHLD);
+    }
 
   /// Cleanup fifo crap
   if (fifo.isOpen())
@@ -632,8 +634,11 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   /// Initialize pre-thread libraries.
   GMTag::init();
 
-  if (!init_gcrypt())
+  // Initialize Crypto Support
+  if (!ap_init_crypto()) {
+    fxwarning("gogglesmm: failed to initialize ssl support\n");
     return 1;
+    }
 
   /// Setup and migrate old config files.
   init_configuration();
@@ -823,6 +828,8 @@ void GMPlayerManager::exit() {
     delete sources[i];
 
   delete covermanager;
+
+  ap_free_crypto();
 
   application->exit(0);
   }

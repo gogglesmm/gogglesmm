@@ -24,6 +24,7 @@
 #ifdef _WIN32
 #include <WinSock2.h>
 #else
+#include <poll.h>
 #include <unistd.h> // for close()
 #include <fcntl.h>
 #include <errno.h>
@@ -31,14 +32,127 @@
 #include <sys/socket.h>
 #endif
 
-
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
+#endif
+
+#ifdef HAVE_OPENSSL
+#include <openssl/ssl.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
+#define OPENSSL_THREAD_DEFINES
+#include <openssl/opensslconf.h>
+#ifndef OPENSSL_THREADS
+#error "gap: requires openssl with threads support"
+#endif
+#elif defined(HAVE_GNUTLS)
+#include <gnutls/gnutls.h>
+#elif defined(HAVE_GCRYPT)
+#include "gcrypt.h"
 #endif
 
 using namespace ap;
 
 namespace ap {
+
+#ifdef HAVE_OPENSSL
+static FXMutex * ssl_locks = nullptr;
+static SSL_CTX * ssl_context = nullptr;
+
+static void ap_ssl_locking_callback(int mode, int type, const char */*file*/, int /*line*/) {
+  //GM_DEBUG_PRINT("ssl %s at %s:%d\n",(mode&CRYPTO_LOCK) ? "lock" : "unlock",file,line);
+  if (mode&CRYPTO_LOCK)
+    ssl_locks[type].lock();
+  else
+    ssl_locks[type].unlock();
+  }
+
+
+static void ap_ssl_threadid_callback(CRYPTO_THREADID *tid) {
+#if defined(_WIN32)
+  CRYPTO_THREADID_set_pointer(tid,FXThread::current());
+#else
+  CRYPTO_THREADID_set_numeric(tid,FXThread::current());
+#endif
+  }
+
+#elif defined(HAVE_GNUTLS)
+static gnutls_certificate_credentials_t ssl_credentials = nullptr;
+#endif
+
+
+FXbool ap_init_crypto() {
+#ifdef HAVE_OPENSSL
+  if (ssl_locks == nullptr) {
+    ssl_locks = new FXMutex[CRYPTO_num_locks()];
+    CRYPTO_THREADID_set_callback(ap_ssl_threadid_callback);
+    CRYPTO_set_locking_callback(ap_ssl_locking_callback);
+
+    SSL_library_init();
+    SSL_load_error_strings();
+    OpenSSL_add_all_algorithms();
+
+    ssl_context = SSL_CTX_new(SSLv23_client_method());
+    SSL_CTX_set_options(ssl_context,SSL_OP_NO_SSLv3|SSL_OP_NO_SSLv2);
+    SSL_CTX_set_default_verify_paths(ssl_context);
+
+    }
+#elif defined(HAVE_GNUTLS)
+  if (ssl_credentials == nullptr) {
+    gnutls_certificate_allocate_credentials(&ssl_credentials);
+    gnutls_certificate_set_x509_system_trust(ssl_credentials);
+    }
+#elif defined(HAVE_GCRYPT)
+  if (!gcry_check_version(GCRYPT_VERSION)) {
+    fxwarning("gap: libgcrypt version mismatch");
+    return false;
+    }
+  gcry_control(GCRYCTL_DISABLE_SECMEM,0);
+  gcry_control(GCRYCTL_INITIALIZATION_FINISHED,0);
+#endif
+  return true;
+  }
+
+
+void ap_free_crypto() {
+#ifdef HAVE_OPENSSL
+  if (ssl_locks) {
+
+    SSL_CTX_free(ssl_context);
+    ssl_context = nullptr;
+
+    EVP_cleanup();
+
+    CRYPTO_set_locking_callback(nullptr);
+    CRYPTO_THREADID_set_callback(nullptr);
+
+    delete [] ssl_locks;
+    ssl_locks = nullptr;
+    }
+#elif defined(HAVE_GNUTLS)
+  if (ssl_credentials == nullptr) {
+    gnutls_certificate_free_credentials(ssl_credentials);
+    ssl_credentials = nullptr;
+    }
+#endif
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -105,7 +219,6 @@ FXbool Socket::close() {
     }
 #else
   if (isOpen()) {
-    shutdown(device,SHUT_RDWR);
     return FXIODevice::close();
     }
 #endif
@@ -117,6 +230,13 @@ FXint Socket::eof() {
   }
 
 
+FXbool Socket::shutdown() {
+  GM_DEBUG_PRINT("[socket] shutdown()\n");
+#ifndef _WIN32
+  access&=~FXIO::ReadWrite;
+  return ::shutdown(device,SHUT_RDWR)==0;
+#endif
+  }
 
 
 FXbool Socket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
@@ -196,24 +316,38 @@ FXint Socket::connect(const struct sockaddr * address,FXint address_length) {
     }
 
   if (WSAGetLastError()==WSAEWOULDBLOCK) {
-    access|=ReadWrite;
     pointer=0;
     return FXIO::Again;
     }
 
 #else
+
+  // Connect
   if (::connect(device,address,address_length)==0) {
-    access|=ReadWrite;
+    access|=FXIO::ReadWrite;
+    pointer=0;
     return 0;
     }
+
+  // Handle asynchronous completion or error
   switch(errno) {
-    case EINPROGRESS:
     case EINTR      :
-    case EWOULDBLOCK: access|=ReadWrite;
-                      pointer=0;
-                      return FXIO::Again;
-                      break;
-    default         : break;
+    case EINPROGRESS:
+    case EWOULDBLOCK:
+      {
+        switch(wait(WaitMode::Connect)) {
+          case WaitEvent::Input:
+            if (getError()==0) {
+              access|=FXIO::ReadWrite;
+              pointer=0;
+              return 0;
+              }
+            break;
+          case WaitEvent::Signal: return 1; break;
+          default:break;
+          }
+      }
+    default: break;
     }
 #endif
   return FXIO::Error;
@@ -227,16 +361,25 @@ FXival Socket::writeBlock(const void* ptr,FXival count){
     FXival nwrote;
 x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
     if(__unlikely(nwrote<0)){
-      if(errno==EINTR) goto x;
-      if(errno==EAGAIN) return FXIO::Again;
-      if(errno==EWOULDBLOCK) return FXIO::Again;
-      access|=EndOfStream;
-      return FXIO::Error;
-      }
+      switch(errno) {
+        case EINTR:
+          goto x;
+          break;
+        case EAGAIN:
+#if EAGAIN!=EWOULDBLOCK
+        case EWOULDBLOCK:
 #endif
+          if ((access&FXIO::NonBlocking) && wait(WaitMode::Write)==WaitEvent::Input)
+            goto x;
+        default:
+          access|=EndOfStream;
+          return FXIO::Error;
+          break;
+        }
+      }
     if (nwrote==0 && count>0)
       access|=EndOfStream;
-
+#endif
     return nwrote;
     }
   return FXIO::Error;
@@ -244,26 +387,60 @@ x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
 
 
 FXival Socket::readBlock(void* ptr,FXival count){
-  if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
+  if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
 #ifdef _WIN32
 #else
-    FXival nread;
-a:  nread=::recv(device,ptr,count,MSG_NOSIGNAL);
-    if(__unlikely(nread<0)){
-      if(errno==EINTR) goto a;
-      if(errno==EAGAIN) return FXIO::Again;
-      if(errno==EWOULDBLOCK) return FXIO::Again;
-      access|=EndOfStream;
-      return FXIO::Error;
-      }
-    pointer+=nread;
+    FXival nwrote;
+x:  nwrote=::recv(device,ptr,count,MSG_NOSIGNAL);
+    if(__unlikely(nwrote<0)){
+      switch(errno) {
+        case EINTR:
+          goto x;
+          break;
+        case EAGAIN:
+#if EAGAIN!=EWOULDBLOCK
+        case EWOULDBLOCK:
 #endif
-    if (nread==0 && count>0)
+          if ((access&FXIO::NonBlocking) && wait(WaitMode::Read)==WaitEvent::Input)
+            goto x;
+        default:
+          access|=EndOfStream;
+          return FXIO::Error;
+          break;
+        }
+      }
+    if (nwrote==0 && count>0)
       access|=EndOfStream;
-
-    return nread;
+#endif
+    return nwrote;
     }
   return FXIO::Error;
+  }
+
+
+WaitEvent Socket::wait(WaitMode mode) {
+#if defined(_WIN32)
+  if (mode==WaitRead)
+    WSAEventSelect(sockethandle,device,FD_READ);
+  else if (mode==WaitWrite)
+    WSAEventSelect(sockethandle,device,FD_WRITE);
+  else if (mode==WaitConnect)
+    WSAEventSelect(sockethandle,device,FD_CONNECT);
+  WaitForSingleObject(device,INFINITE);
+  return WaitEvent::Input;
+#else
+  FXint n;
+  struct pollfd handles;
+  handles.fd     = device;
+  handles.events = (mode==WaitMode::Read) ? POLLIN : POLLOUT;
+x:n=poll(&handles,1,-1);
+  if (__unlikely(n<0)) {
+    if (errno==EAGAIN || errno==EINTR)
+      goto x;
+    return WaitEvent::Error;
+    }
+  return WaitEvent::Input;
+#endif
   }
 
 
@@ -280,81 +457,417 @@ WaitEvent ThreadSocket::wait(WaitMode mode) {
   else if (mode==WaitConnect)
     WSAEventSelect(sockethandle,device,FD_CONNECT);
 #endif
-  return fifo->signal().wait(device,mode,10_s);
-  }
-
-
-FXival ThreadSocket::readBlock(void*ptr,FXival count) {
-  FXival nread;
-x:nread = Socket::readBlock(ptr,count);
-  if (nread==FXIO::Again) {
-    switch(wait(WaitMode::Read)) {
-
-      case WaitEvent::Signal:
-        if (fifo->checkAbort())
-          return FXIO::Error;
-        goto x;
-        break;
-
-      case WaitEvent::Input:
-        goto x;
-        break;
-
-      default:
-        return FXIO::Error;
-        break;
+  WaitEvent event;
+  do {
+    event = fifo->signal().wait(device,mode,10_s);
+    if (event==WaitEvent::Input) {
+      return event;
+      }
+    else if (event==WaitEvent::Signal) {
+      if (fifo->checkAbort()) return WaitEvent::Signal;
       }
     }
-  return nread;
+  while(event==WaitEvent::Signal);
+  return event;
   }
 
-FXival ThreadSocket::writeBlock(const void*ptr,FXival count) {
-  FXival nwrote;
-x:nwrote = Socket::writeBlock(ptr,count);
-  if (nwrote==FXIO::Again) {
-    switch(wait(WaitMode::Write)) {
 
-      case WaitEvent::Signal:
-        if (fifo->checkAbort())
-          return FXIO::Error;
-        goto x;
-        break;
 
-      case WaitEvent::Input:
-        goto x;
-        break;
+#if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
 
-      default:
-        return FXIO::Error;
-        break;
+
+SecureSocket::SecureSocket() {
+  }
+
+
+FXbool SecureSocket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
+  if (Socket::create(domain,type,protocol,mode)) {
+
+#if defined(HAVE_OPENSSL)
+
+    // Create BIO for socket
+    BIO * bio = BIO_new_socket(device, BIO_NOCLOSE);
+    if (bio==nullptr) {
+      close();
+      return false;
       }
+
+    // Create SSL Object
+    ssl = SSL_new(ssl_context);
+    if (ssl == nullptr) {
+      BIO_free(bio);
+      close();
+      return false;
+      }
+
+    SSL_set_bio(ssl,bio,bio);
+
+#elif defined(HAVE_GNUTLS)
+    if (gnutls_init(&session, GNUTLS_CLIENT)!=GNUTLS_E_SUCCESS)
+      return false;
+
+    if (gnutls_set_default_priority(session)!=GNUTLS_E_SUCCESS)
+      return false;
+
+    if (gnutls_credentials_set(session, GNUTLS_CRD_CERTIFICATE, ssl_credentials)!=GNUTLS_E_SUCCESS)
+      return false;
+
+    gnutls_session_set_verify_cert(session, nullptr, 0);
+    gnutls_transport_set_int(session,device);
+#endif
+
+    return true;
     }
-  return nwrote;
+  GM_DEBUG_PRINT("[socket] failed to create secure socket\n");
+  return false;
+  }
+
+#if defined(HAVE_GNUTLS)
+FXint SecureSocket::handshake() {
+  FXint status;
+
+x:status = gnutls_handshake(session);
+  if (status == GNUTLS_E_SUCCESS) {
+    return 0;
+    }
+  else if (status == GNUTLS_E_INTERRUPTED || status == GNUTLS_E_AGAIN) {
+
+    WaitMode mode;
+    WaitEvent event;
+
+    if (gnutls_record_get_direction(session)==0)
+      mode = WaitMode::Read;
+    else
+      mode = WaitMode::Write;
+
+    if ((event=wait(mode))==WaitEvent::Input)
+      goto x;
+
+    return (event==WaitEvent::Signal) ? 1 : FXIO::Error;
+    }
+  else if (!gnutls_error_is_fatal(status)){
+    GM_DEBUG_PRINT("ssl: non fatal status, trying again\n");
+    goto x; // try again
+    }
+  GM_DEBUG_PRINT("ssl: handshake failed\n");
+  return FXIO::Error;
+  }
+#endif
+
+
+
+FXbool SecureSocket::shutdown() {
+  GM_DEBUG_PRINT("[securesocket] shutdown()\n");
+  FXint status;
+#if defined(HAVE_OPENSSL)
+x:status = SSL_shutdown(ssl);
+  if (status == 1)
+    return Socket::shutdown();
+  else if (status == 0)
+    return Socket::shutdown();
+    //goto x; // wait for reply using SSL_shutdown
+  else if (status < 0) {
+
+    WaitMode  mode;
+    WaitEvent event;
+
+    switch(SSL_get_error(ssl,status)) {
+      case SSL_ERROR_WANT_READ :
+        mode = WaitMode::Read;
+        break;
+      case SSL_ERROR_WANT_WRITE:
+        mode = WaitMode::Write;
+        break;
+      default:
+        Socket::shutdown();
+        return false;
+      }
+
+    // Wait for input
+    do {
+      event=wait(mode);
+      if (event==WaitEvent::Input) goto x;
+      }
+    while(event==WaitEvent::Signal);
+    }
+#elif defined(HAVE_GNUTLS)
+x:status = gnutls_bye(session,GNUTLS_SHUT_WR);
+  if (status == GNUTLS_E_SUCCESS) {
+    return Socket::shutdown();
+    }
+  else if (status==GNUTLS_E_INTERRUPTED || status == GNUTLS_E_AGAIN) {
+
+    WaitMode mode;
+    WaitEvent event;
+
+    if (gnutls_record_get_direction(session)==0)
+      mode = WaitMode::Read;
+    else
+      mode = WaitMode::Write;
+
+    do {
+      event=wait(mode);
+      if (event==WaitEvent::Input) goto x;
+      }
+    while(event==WaitEvent::Signal);
+    }
+#endif
+  Socket::shutdown();
+  return false;
   }
 
 
-FXint ThreadSocket::connect(const struct sockaddr * address,FXint address_length) {
-  FXint x = Socket::connect(address,address_length);
-  if (x==FXIO::Again) {
-a:  switch(wait(WaitMode::Connect)) {
+FXbool SecureSocket::close() {
+#if defined(HAVE_OPENSSL)
+  if (isOpen()) {
+    if (ssl) {
+      SSL_free(ssl);
+      ssl=nullptr;
+      }
+    return Socket::close();
+    }
+#elif defined(HAVE_GNUTLS)
+  if (isOpen()) {
+    if (session) {
+      gnutls_deinit(session);
+      session=nullptr;
+      }
+    return Socket::close();
+    }
+#endif
+  return true;
+  }
 
-      case WaitEvent::Signal:
-        {
-          if (fifo->checkAbort()) return ThreadSocket::Signalled;
-          goto a;
-        } break;
 
-      case WaitEvent::Input:
-        {
-          if (getError()==0)
-            return 0;
+
+// Connect to address
+FXint SecureSocket::connect(const struct sockaddr * address,FXint address_length) {
+
+  // Establish Connection
+  FXint status = Socket::connect(address,address_length);
+  if (status<0) return status;
+
+#if defined(HAVE_OPENSSL)
+  // Negotiate SSL
+x:status = SSL_connect(ssl);
+  if (status == 1) {
+
+    // Check for peer certificate
+    X509 * certificate = SSL_get_peer_certificate(ssl);
+    if (certificate == nullptr) {
+      close();
+      return FXIO::Error;
+      }
+    X509_free(certificate);
+
+    // Verify certificate
+    if (SSL_get_verify_result(ssl)!=X509_V_OK) {
+      close();
+      return FXIO::Error;
+      }
+    return 0;
+    }
+  else if (status < 0) {
+    WaitMode mode;
+    switch(SSL_get_error(ssl,status)) {
+      case SSL_ERROR_WANT_READ :
+        mode = WaitMode::Read;
+        break;
+      case SSL_ERROR_WANT_WRITE:
+        mode = WaitMode::Write;
+        break;
+      default:
+        close();
+        return FXIO::Error;
+      }
+    if (wait(mode)==WaitEvent::Input)
+      goto x;
+    }
+#elif defined(HAVE_GNUTLS)
+  status = handshake();
+  if (status!=0) close();
+  return status;
+#endif
+  // Clean shutdown or error
+  close();
+  return FXIO::Error;
+  }
+
+
+
+
+// Read block of bytes, returning number of bytes read
+FXival SecureSocket::readBlock(void* data,FXival count) {
+  if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
+#if defined(HAVE_OPENSSL)
+    FXival n;
+x:  n=SSL_read(ssl,data,count);
+    if (__unlikely(n<0)) {
+      WaitMode mode;
+      switch(SSL_get_error(ssl,n)) {
+        case SSL_ERROR_WANT_READ :
+          mode = WaitMode::Read;
+          break;
+        case SSL_ERROR_WANT_WRITE:
+          mode = WaitMode::Write;
+          break;
+        default:
+          close();
+          return FXIO::Error;
         }
-      default: break;
+
+      if ((access&FXIO::NonBlocking) && wait(mode)==WaitEvent::Input) {
+        goto x;
+        }
+      return FXIO::Error;
       }
-    return FXIO::Error;
+
+    if (n==0 && count>0)
+      access|=EndOfStream;
+
+    pointer+=n;
+    return n;
+#elif defined(HAVE_GNUTLS)
+    FXival n;
+x:  n=gnutls_record_recv(session,data,count);
+    if(__unlikely(n<0)) {
+      if (n == GNUTLS_E_INTERRUPTED || n == GNUTLS_E_AGAIN) {
+        WaitMode mode;
+
+        if (gnutls_record_get_direction(session)==0)
+          mode = WaitMode::Read;
+        else
+          mode = WaitMode::Write;
+
+        if (wait(mode)==WaitEvent::Input)
+          goto x;
+        }
+      else if (n == GNUTLS_E_REHANDSHAKE) {
+        if (gnutls_safe_renegotiation_status(session) && handshake()==0) {
+          goto x;
+          }
+        return FXIO::Error;
+        }
+      else if (!gnutls_error_is_fatal(n)){
+        GM_DEBUG_PRINT("ssl: non fatal status, trying again\n");
+        goto x; // try again
+        }
+      else {
+        return FXIO::Error;
+        }
+      }
+
+    if (n==0 && count>0)
+      access|=EndOfStream;
+
+    pointer+=n;
+    return n;
+#endif
     }
-  return x;
+  return FXIO::Error;
   }
+
+
+
+// Read block of bytes, returning number of bytes read
+FXival SecureSocket::writeBlock(const void* data,FXival count) {
+  if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
+#if defined(HAVE_OPENSSL)
+    FXival n;
+x:  n=SSL_write(ssl,data,count);
+    if (__unlikely(n<0)) {
+      WaitMode mode;
+      switch(SSL_get_error(ssl,n)) {
+        case SSL_ERROR_WANT_READ :
+          mode = WaitMode::Read;
+          break;
+        case SSL_ERROR_WANT_WRITE:
+          mode = WaitMode::Write;
+          break;
+        default:
+          close();
+          return FXIO::Error;
+        }
+
+      if ((access&FXIO::NonBlocking) && wait(mode)==WaitEvent::Input) {
+        goto x;
+        }
+      return FXIO::Error;
+      }
+
+    if (n==0 && count>0)
+      access|=EndOfStream;
+
+    pointer+=n;
+    return n;
+#elif defined(HAVE_GNUTLS)
+    FXival n;
+x:  n=gnutls_record_send(session,data,count);
+    if(__unlikely(n<0)) {
+      if (n == GNUTLS_E_INTERRUPTED || n == GNUTLS_E_AGAIN) {
+        WaitMode mode;
+
+        if (gnutls_record_get_direction(session)==0)
+          mode = WaitMode::Read;
+        else
+          mode = WaitMode::Write;
+
+        if (wait(mode)==WaitEvent::Input)
+          goto x;
+        }
+      else if (n == GNUTLS_E_REHANDSHAKE) {
+        if (gnutls_safe_renegotiation_status(session) && handshake()==0) {
+          goto x;
+          }
+        return FXIO::Error;
+        }
+      else if (!gnutls_error_is_fatal(n)){
+        GM_DEBUG_PRINT("ssl: non fatal status, trying again\n");
+        goto x; // try again
+        }
+      else {
+        return FXIO::Error;
+        }
+      }
+
+    if (n==0 && count>0)
+      access|=EndOfStream;
+
+    pointer+=n;
+    return n;
+#endif
+    }
+  return FXIO::Error;
+  }
+
+
+ThreadSecureSocket::ThreadSecureSocket(ThreadQueue * q) : fifo(q) {
+  }
+
+WaitEvent ThreadSecureSocket::wait(WaitMode mode) {
+#ifdef _WIN32
+  if (mode==WaitRead)
+    WSAEventSelect(sockethandle,device,FD_READ);
+  else if (mode==WaitWrite)
+    WSAEventSelect(sockethandle,device,FD_WRITE);
+  else if (mode==WaitConnect)
+    WSAEventSelect(sockethandle,device,FD_CONNECT);
+#endif
+  WaitEvent event;
+  do {
+    event = fifo->signal().wait(device,mode,10_s);
+    if (event==WaitEvent::Input) {
+      return event;
+      }
+    else if (event==WaitEvent::Signal) {
+      if (fifo->checkAbort()) return WaitEvent::Signal;
+      }
+    }
+  while(event==WaitEvent::Signal);
+  return event;
+  }
+
+
+#endif
 
 }
-

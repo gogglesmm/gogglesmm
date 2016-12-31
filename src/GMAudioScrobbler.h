@@ -148,9 +148,6 @@ public:
   virtual ~GMAudioScrobbler();
   };
 
-extern FXbool init_gcrypt();
-
-
 #endif
 
 

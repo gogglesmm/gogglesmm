@@ -36,6 +36,11 @@ extern GMAPI FXbool ap_set_closeonexec(FXInputHandle fd);
 
 extern GMAPI void GMAPI ap_set_thread_name(const FXchar *);
 
+extern GMAPI FXbool ap_init_crypto();
+
+extern GMAPI void ap_free_crypto();
+
+extern GMAPI FXbool ap_md5_digest(FXString & io);
 
 class GMAPI Base64Encoder {
 private:

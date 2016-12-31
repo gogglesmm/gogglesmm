@@ -18,6 +18,7 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_common.h"
+#include "ap_socket.h"
 #include "ap_connect.h"
 #include "ap_buffer_base.h"
 #include "ap_buffer_io.h"
@@ -43,7 +44,11 @@ void HttpHost::clear() {
 
 FXbool HttpHost::set(const FXString & url) {
   FXString nn = FXURL::host(url);
+#if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
+  FXint    np = FXURL::port(url,(FXURL::scheme(url)=="https") ? 443 : 80);
+#else
   FXint    np = FXURL::port(url,80);
+#endif
   if (name!=nn || port!=np) {
     name.adopt(nn);
     port=np;
@@ -73,6 +78,11 @@ HttpClient::~HttpClient() {
 
 void HttpClient::close() {
   GM_DEBUG_PRINT("[http] close()\n");
+
+  // Shutdown communication
+  ap::Socket * s = dynamic_cast<ap::Socket*>(io.attached());
+  if (s) s->shutdown();
+
   io.close();
   }
 
@@ -87,7 +97,7 @@ void HttpClient::discard() {
   }
 
 FXbool HttpClient::open_connection() {
-  GM_DEBUG_PRINT("[http] open_connection()\n");
+  GM_DEBUG_PRINT("[http] open connection\n");
   FXIO * stream = nullptr;
 
   if (connection==nullptr)
@@ -99,9 +109,11 @@ FXbool HttpClient::open_connection() {
     stream = connection->open(server.name.text(),server.port);
 
   if (stream) {
+    GM_DEBUG_PRINT("[http] connected\n");
     io.attach(stream);
     return true;
     }
+  GM_DEBUG_PRINT("[http] connection failure\n");
   return false;
   }
 
@@ -211,7 +223,7 @@ FXbool HttpClient::basic(const FXchar*    method,
 
             // Prevent infinite redirects
             if (redirect>10)
-              return false;      
+              return false;
 
             // Save moved url (only on first permanent redirect)
             if (status.code==HTTP_MOVED_PERMANENTLY && redirect==0 && moved) {
