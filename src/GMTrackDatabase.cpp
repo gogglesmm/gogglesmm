@@ -106,6 +106,7 @@ const FXchar create_tracks[]=         "CREATE TABLE tracks ( "
                                           "samplerate INTEGER,"
                                           "channels INTEGER,"
                                           "filetype INTEGER,"
+                                          "lyrics TEXT,"
                                           "PRIMARY KEY (id) );";
 
 const FXchar create_tags[]=           "CREATE TABLE tags ("

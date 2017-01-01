@@ -73,14 +73,14 @@ void GMDBTracks::init(GMTrackDatabase*db,FXbool afg) {
                                                                            "?," // artist
                                                                            "?," // composer
                                                                            "?," // conductor
-                                                                           "?," // lyrics
                                                                            "0," // playcount
                                                                            "0," // playdate
                                                                            "?," // importdate
                                                                            "0," // rating
                                                                            "?," // samplerate
                                                                            "?," // channels
-                                                                           "?);"); // filetype
+                                                                           "?,"  // filetype
+                                                                           "?);"); // lyrics
 
 
   insert_tag                          = database->compile("INSERT INTO tags VALUES ( NULL , ?  );");
@@ -255,11 +255,11 @@ void GMDBTracks::insert(GMTrack & track,FXint & path_index) {
     insert_track.set(8,artist_id);
     insert_track.set_null(9,composer_id);
     insert_track.set_null(10,conductor_id);
-    insert_track.set(11,track.lyrics);
-    insert_track.set(12,FXThread::time());
-    insert_track.set(13,track.samplerate);
-    insert_track.set(14,track.channels);
-    insert_track.set(15,track.filetype);
+    insert_track.set(11,FXThread::time());
+    insert_track.set(12,track.samplerate);
+    insert_track.set(13,track.channels);
+    insert_track.set(14,track.filetype);
+    insert_track.set(15,track.lyrics);
 
     track.index = insert_track.insert();
 
