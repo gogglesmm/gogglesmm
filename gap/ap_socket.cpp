@@ -387,7 +387,7 @@ x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
 
 
 FXival Socket::readBlock(void* ptr,FXival count){
-  if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
+  if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
 #ifdef _WIN32
 #else
     FXival nwrote;
