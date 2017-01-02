@@ -267,11 +267,10 @@ FXbool MatroskaReader::seek(FXlong offset){
   if (track->codec==Codec::Opus)
     offset = FXMAX(0,offset-3840);
 
-  FXulong target  = (offset * 1000000000) /  af.rate;
+  FXulong target  = (offset * NANOSECONDS_PER_SECOND) /  af.rate;
   FXlong lastpos = 0;
   FXlong timestamp = 0;
   for (FXint i=0;i<track->ncues;i++) {
-    fxmessage("target %ld vs %ld\n",target,track->cues[i].position*timecode_scale);
     if (target<track->cues[i].position*timecode_scale) {
       lastpos = track->cues[i].cluster;
       timestamp = track->cues[i].position*timecode_scale;
@@ -280,7 +279,7 @@ FXbool MatroskaReader::seek(FXlong offset){
     break;
     }
   input->position(first_cluster+lastpos,FXIO::Begin);
-  stream_position = (timestamp * track->af.rate) / 1000000000;
+  stream_position = (timestamp * track->af.rate) / NANOSECONDS_PER_SECOND;
 
   frame_size=0;
   cluster.reset();
@@ -433,7 +432,7 @@ ReadStatus MatroskaReader::parse() {
       ConfigureEvent * cfg = new ConfigureEvent(track->af,track->codec);
       cfg->dc = track->dc;
       track->dc = nullptr;
-      stream_length = (duration * timecode_scale * track->af.rate )  / 1000000000;
+      stream_length = (duration * timecode_scale * track->af.rate )  / NANOSECONDS_PER_SECOND;
       cfg->stream_length = stream_length;
       engine->decoder->post(cfg);
 
@@ -630,8 +629,7 @@ FXbool MatroskaReader::get_next_frame(FXuint & framesize) {
           {
             FXulong timecode=0;
             if (!parse_unsigned_int(timecode,element.size)) return false;
-            fxmessage("timecode %ld = %ld seconds @ %ld\n",timecode*timecode_scale,(timecode*timecode_scale) / 1000000000,input->position());
-            block.position = (timecode*timecode_scale*track->af.rate) / 1000000000;
+            block.position = (timecode*timecode_scale*track->af.rate) / NANOSECONDS_PER_SECOND;
             break;
           }
         case SIMPLEBLOCK:
@@ -1078,9 +1076,12 @@ FXbool MatroskaReader::parse_cue_track(Element & container,FXulong & cue_track,F
 
 
 FXbool MatroskaReader::parse_cue_point(Element & container) {
-  FXulong cuetime;
-  FXulong cluster_position;
-  FXulong cuetrack;
+  FXulong cuetime = 0;
+  FXulong cluster_position = 0;
+  FXulong cuetrack = 0;
+
+  FXbool has_cuetime=false;
+  FXbool has_cuetrack=false;
 
   Element element;
   while(parse_element(container,element)) {
@@ -1089,13 +1090,16 @@ FXbool MatroskaReader::parse_cue_point(Element & container) {
         {
           if (!parse_uint64(cuetime,element.size))
             return false;
-          fxmessage("cuetime %ld\n",cuetime);
+
+          has_cuetime=true;
           break;
         }
       case CUE_TRACK_POSITIONS:
         {
           if (!parse_cue_track(element,cuetrack,cluster_position))
             return false;
+
+          has_cuetrack=true;
         } break;
       default:
         {
@@ -1105,10 +1109,13 @@ FXbool MatroskaReader::parse_cue_point(Element & container) {
         }
       }
     }
-  for (FXint i=0;i<tracks.no();i++) {
-    if (tracks[i]->number==cuetrack) {
-      tracks[i]->add_cue_entry(cuetime,cluster_position);
-      break;
+
+  if (has_cuetrack && has_cuetime) {
+    for (FXint i=0;i<tracks.no();i++) {
+      if (tracks[i]->number==cuetrack) {
+        tracks[i]->add_cue_entry(cuetime,cluster_position);
+        break;
+        }
       }
     }
   return true;

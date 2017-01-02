@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -112,10 +112,19 @@ typedef FXArray<FXString> FXStringList;
 #define GM_DEBUG_PRINT(arguments,...) ((void)0)
 #endif
 
-#define TIME_MSEC(ms) (1000000LL*ms)
-#define TIME_SEC(s) 	(1000000000LL*s)
-#define TIME_MIN(m) 	TIME_SEC(60*m)
-#define TIME_HOUR(h) 	TIME_MIN(60*h)
+#define NANOSECONDS_PER_SECOND  1000000000LL
+#define NANOSECONDS_PER_MICROSECOND 1000LL
+#define NANOSECONDS_PER_MILLISECOND 1000000LL
+
+constexpr FXTime operator"" _s(unsigned long long int value)
+{
+  return value * NANOSECONDS_PER_SECOND;
+}
+
+constexpr FXTime operator"" _ms(unsigned long long int value)
+{
+  return value * NANOSECONDS_PER_MILLISECOND;
+}
 
 
 #ifdef _WIN32

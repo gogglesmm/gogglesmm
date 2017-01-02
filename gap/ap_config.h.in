@@ -14,6 +14,9 @@
 #cmakedefine HAVE_PULSE
 #cmakedefine HAVE_OSS
 #cmakedefine HAVE_SMB
+#cmakedefine HAVE_OPENSSL
+#cmakedefine HAVE_GNUTLS
+#cmakedefine HAVE_GCRYPT
 #define AP_PLUGIN_PATH "${AP_PLUGIN_PATH}"
 #define GAP_VERSION_STRING "${GAP_VERSION}"
 #define GAP_VERSION_MAJOR ${GAP_VERSION_MAJOR}

@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2007-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2007-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -23,6 +23,7 @@
 #include "GMAudioScrobbler.h"
 #include "GMAudioPlayer.h"
 
+<<<<<<< HEAD
 #ifdef HAVE_GCRYPT
 #include "gcrypt.h"
 #elif defined(_WIN32)
@@ -33,6 +34,8 @@
 #endif
 
 
+=======
+>>>>>>> develop
 /******************************************************************************
  *
  * D E F I N E S
@@ -100,57 +103,6 @@ enum  {
 27 : Deprecated - This type of request is no longer supported
 */
 
-
-
-/******************************************************************************
- *
- * H E L P E R  F U N C T I O N S
- *
- ******************************************************************************/
-
-FXbool init_gcrypt() {
-#ifdef HAVE_GCRYPT
-  if (!gcry_check_version(GCRYPT_VERSION)) {
-    fxwarning("libgcrypt version mismatch");
-    return false;
-    }
-  gcry_control(GCRYCTL_DISABLE_SECMEM,0);
-  gcry_control(GCRYCTL_INITIALIZATION_FINISHED,0);
-#endif
-  return true;
-  }
-
-static void checksum(FXString & io){
-  if (io.empty()) return;
-#ifdef HAVE_GCRYPT
-  FXuchar digest[16];
-  gcry_md_hash_buffer(GCRY_MD_MD5,(void*)digest,(const void*)io.text(),io.length());
-#elif defined(_WIN32)
-  FXuchar digest[16];
-  HCRYPTPROV provider;
-  HCRYPTHASH hash;
-  DWORD hashlen = 16;
-
-  CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_SIG, CRYPT_VERIFYCONTEXT);
-  CryptCreateHash(provider, CALG_MD5, 0, 0, &hash);
-  CryptHashData(hash,reinterpret_cast<BYTE*>(io.text()), io.length(), 0);
-  CryptGetHashParam(hash, HP_HASHVAL, digest,&hashlen, 0);
-  CryptDestroyHash(hash);
-  CryptReleaseContext(provider, 0);
-#else
-  md5_state_t pms;
-  md5_byte_t digest[16];
-  md5_init(&pms);
-  md5_append(&pms,(const md5_byte_t*)io.text(),io.length());
-  md5_finish(&pms,digest);
-#endif
-
-  io.length(32);
-  for (FXint i=0,d=0;i<32;i+=2,d++) {
-    io[i]=Ascii::toLower(FXString::value2Digit[(digest[d]/16)%16]);
-    io[i+1]=Ascii::toLower(FXString::value2Digit[digest[d]%16]);
-    }
-  }
 
 
 #define URL_UNSAFE   "#$-_.+!*'><()\\,%\""          // Always Encode
@@ -469,7 +421,7 @@ void GMAudioScrobbler::login(const FXString & user,const FXString & pass) {
   else {
     if (mode==SERVICE_LIBREFM) {
       FXString newpass=pass;
-      checksum(newpass);
+      ap_md5_digest(newpass);
       if (user!=username || newpass!=password) {
         username=user;
         password=newpass;
@@ -844,7 +796,7 @@ void GMAudioScrobbler::create_token_request(FXString & request) {
   FXScopedMutex lock(mutex_data);
   FXTRACE((60,"GMAudioScrobbler::create_token_request\n"));
   FXString signature="api_key" CLIENT_KEY "methodauth.getToken" CLIENT_SECRET;
-  checksum(signature);
+  ap_md5_digest(signature);
   request=FXString::value("method=auth.getToken&api_key=" CLIENT_KEY "&api_sig=%s",signature.text());
   flags&=~(FLAG_LOGIN_CHANGED);
   }
@@ -876,14 +828,14 @@ FXuint GMAudioScrobbler::create_handshake_request(FXString & request) {
   FXTRACE((60,"GMAudioScrobbler::create_handshake_request\n"));
   if (mode==SERVICE_LASTFM) {
     FXString signature=FXString::value("api_key%smethodauth.getSessiontoken%s%s",CLIENT_KEY,token.text(),CLIENT_SECRET);
-    checksum(signature);
+    ap_md5_digest(signature);
     request=FXString::value("method=auth.getSession&api_key=%s&api_sig=%s&token=%s",CLIENT_KEY,signature.text(),token.text());
     }
   else {
     FXlong timestamp = FXThread::time()/1000000000;
     FXString timestamp_text = FXString::value(timestamp);
     FXString tk = password + timestamp_text;
-    checksum(tk);
+    ap_md5_digest(tk);
     request=FXString::value("/?hs=true&p=1.2&c=" CLIENT_ID "&v=" CLIENT_VERSION "&u=%s&t=%s&a=%s",username.text(),timestamp_text.text(),tk.text());
     }
   flags&=~(FLAG_LOGIN_CHANGED);
@@ -1034,7 +986,7 @@ void GMAudioScrobbler::create_nowplaying_request(FXString & request) {
                                       nowplayingtrack.title.text(),
                                       nowplayingtrack.no);
 
-    checksum(signature);
+    ap_md5_digest(signature);
 
     request=FXString::value("method=track.updateNowPlaying"
                            "&track=%s"
@@ -1226,7 +1178,7 @@ void GMAudioScrobbler::create_submit_request(FXString & request) {
       signature+=CLIENT_SECRET;
       }
 
-    checksum(signature);
+    ap_md5_digest(signature);
 
     request="method=track.scrobble";
     for (i=0;i<ntracks;i++) {
@@ -1340,7 +1292,7 @@ void GMAudioScrobbler::create_loveban_request(FXString & request){
                            session.text(),
                            submitqueue[0].title.text());
 
-  checksum(signature);
+  ap_md5_digest(signature);
 
   request=FXString::value("method=track.love" ////method=track.ban
                          "&track=%s"

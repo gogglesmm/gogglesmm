@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -36,6 +36,11 @@ extern GMAPI FXbool ap_set_closeonexec(FXInputHandle fd);
 
 extern GMAPI void ap_set_thread_name(const FXchar *);
 
+extern GMAPI FXbool ap_init_crypto();
+
+extern GMAPI void ap_free_crypto();
+
+extern GMAPI FXbool ap_md5_digest(FXString & io);
 
 class GMAPI Base64Encoder {
 private:

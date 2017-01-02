@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -57,7 +57,7 @@ FXbool OggDecoder::flush(FXlong offset) {
   }
 
 
-FXbool OggDecoder::get_next_packet(Packet * packet) {
+FXbool OggDecoder::get_next_packet(Packet *& packet) {
   FXuint nbytes;
 
   op.packetno   = 0;
@@ -95,6 +95,7 @@ FXbool OggDecoder::get_next_packet(Packet * packet) {
       buffer.readBytes(-4);
       buffer.append(packet->data(),packet->size());
       packet->unref();
+      packet=nullptr;
       return false;
       }
     }
@@ -107,6 +108,7 @@ FXbool OggDecoder::get_next_packet(Packet * packet) {
       packet->readBytes(-4);
       buffer.append(packet->data(),packet->size());
       packet->unref();
+      packet=nullptr;
       return false;
       }
     else {
@@ -116,6 +118,7 @@ FXbool OggDecoder::get_next_packet(Packet * packet) {
       }
     }
   packet->unref();
+  packet=nullptr;
   return false;
   }
 
@@ -124,7 +127,7 @@ DecoderStatus OggDecoder::process(Packet* packet){
   if (packet->stream_position>=0 && buffer.size()==0) {
     FXASSERT(stream_position==-1);
     stream_position=packet->stream_position;
-    fxmessage("[ogg] new stream position %ld\n",packet->stream_position);
+    GM_DEBUG_PRINT("[ogg] new stream position %ld\n",packet->stream_position);
     }
   return DecoderOk;
   }

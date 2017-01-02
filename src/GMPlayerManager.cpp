@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -190,8 +190,6 @@ DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void 
 
 long GMPlayerManager::onPlayNotify(FXObject*,FXSelector,void*){
 
-  update_cover_display();
-
   if (!trackinfo.title.empty() && !trackinfo.artist.empty()) {
 
     display_track_notification();
@@ -268,13 +266,16 @@ GMPlayerManager::~GMPlayerManager() {
 
   /// Remove Signal Handlers
 #ifndef _WIN32
-  application->removeSignal(SIGINT);
-  application->removeSignal(SIGQUIT);
-  application->removeSignal(SIGTERM);
-  application->removeSignal(SIGHUP);
-  application->removeSignal(SIGPIPE);
-  application->removeSignal(SIGCHLD);
+  if (application) {
+    application->removeSignal(SIGINT);
+    application->removeSignal(SIGQUIT);
+    application->removeSignal(SIGTERM);
+    application->removeSignal(SIGHUP);
+    application->removeSignal(SIGPIPE);
+    application->removeSignal(SIGCHLD);
+    }
 #endif
+
   /// Cleanup fifo crap
   if (fifo.isOpen())
     fifo.close();
@@ -579,9 +580,9 @@ FXbool GMPlayerManager::init_dbus(int & argc,char**argv) {
         // success
         break;
       case DBUS_REQUEST_NAME_REPLY_EXISTS:
-        if (argc>1 && strlen(argv[1])>0) 
+        if (argc>1 && strlen(argv[1])>0)
           mpris2->request(argv[1]);
-        delete mpris2;  
+        delete mpris2;
         return false;
         break;
       default:
@@ -639,8 +640,11 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   /// Initialize pre-thread libraries.
   GMTag::init();
 
-  if (!init_gcrypt())
+  // Initialize Crypto Support
+  if (!ap_init_crypto()) {
+    fxwarning("gogglesmm: failed to initialize ssl support\n");
     return 1;
+    }
 
   /// Setup and migrate old config files.
   init_configuration();
@@ -709,7 +713,7 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
   if (!init_sources())
     return false;
 
-  
+
   /// Everything opened succesfully... now create the GUI
   player = new GMAudioPlayer(application,this,ID_AUDIO_PLAYER);
 
@@ -835,6 +839,8 @@ void GMPlayerManager::exit() {
     delete sources[i];
 
   delete covermanager;
+
+  ap_free_crypto();
 
   application->exit(0);
   }
@@ -1212,11 +1218,41 @@ void GMPlayerManager::setStatus(const FXString & text){
   }
 
 void GMPlayerManager::update_cover_display() {
-  if (preferences.gui_show_playing_albumcover && covermanager->load(trackinfo.url)) {
+  if (playing()) {
+
+    if (preferences.gui_show_playing_albumcover && covermanager->getCover()==nullptr) {
+
+      covermanager->load(trackinfo.url);
+
+      mainwindow->update_meta_display();
+
+      mainwindow->update_cover_display();
+
+      }
+
+    else if (preferences.gui_show_playing_albumcover==false && covermanager->getCover()) {
+
+      covermanager->clear();
+
+      mainwindow->update_meta_display();
+
+      mainwindow->update_cover_display();
+
+      }
+
+    else {
+      mainwindow->update_meta_display();
+      }
+    }
+  else if (covermanager->getCover()) {
+
+    covermanager->clear();
+
+    mainwindow->update_meta_display();
+
     mainwindow->update_cover_display();
     }
   }
-
 
 void GMPlayerManager::update_track_display(FXbool notify) {
   FXTRACE((51,"GMPlayerManager::update_track_display()\n"));
@@ -1234,9 +1270,12 @@ void GMPlayerManager::update_track_display(FXbool notify) {
       }
     }
 
+  if (preferences.gui_show_playing_albumcover)
+    covermanager->load(trackinfo.url);
+
   mainwindow->display(trackinfo);
 
-  if (notify) application->addTimeout(this,ID_PLAY_NOTIFY,TIME_MSEC(500));
+  if (notify) application->addTimeout(this,ID_PLAY_NOTIFY,500_ms);
 
   if (queue) {
     getSourceView()->refresh(queue);
@@ -1396,7 +1435,7 @@ void GMPlayerManager::runTask(GMTask * task) {
 long GMPlayerManager::onTaskManagerIdle(FXObject*,FXSelector,void*){
   mainwindow->setStatus(FXString::null);
   GM_DEBUG_PRINT("Schedule taskmanager shutdown in 30s\n");
-  application->addTimeout(this,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN,TIME_SEC(30));
+  application->addTimeout(this,GMPlayerManager::ID_TASKMANAGER_SHUTDOWN,30_s);
   return 0;
   }
 

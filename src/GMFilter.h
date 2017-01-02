@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2015-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2015-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -50,7 +50,8 @@ public:
     ColumnChannels      = 17,
     ColumnBitRate       = 18,
     ColumnSampleRate    = 19,
-    ColumnSampleSize    = 20
+    ColumnSampleSize    = 20,
+    ColumnLyrics        = 21
     };
   enum {
     OperatorLike        = 0, // LIKE
@@ -65,8 +66,8 @@ public:
     };
 public:
   // Default Constructor
-  Rule() {} 
- 
+  Rule() {}
+
   // Initialize Rule for integer input
   Rule(FXint c,FXint o,FXint v) : column(c),opcode(o),value(v) {}
 

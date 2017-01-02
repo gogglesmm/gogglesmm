@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -246,7 +246,10 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
         /// Get new buffer
         if (out==nullptr) {
           out = engine->decoder->get_output_packet();
-          if (out==nullptr) return DecoderInterrupted;
+          if (out==nullptr) {
+            if (packet) packet->unref();
+            return DecoderInterrupted;
+            }
           out->stream_position=stream_position;
           out->stream_length=stream_length - stream_offset_start;
           out->af=af;

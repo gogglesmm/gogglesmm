@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -175,8 +175,8 @@ void Signal::wait() {
 
 WaitEvent Signal::wait(FXInputHandle input,WaitMode mode,FXTime timeout/*=0*/) const{
 #ifdef _WIN32
-  HANDLE handles[2] = { input,device };
-  DWORD result=WaitForMultipleObjects(2,handles,false,(timeout>0) ? (timeout / 1000000) : INFINITE);
+  HANDLE handles[2]={input,device}
+  DWORD result=WaitForMultipleObjects(2,handles,false,(timeout>0) ? (timeout / NANOSECONDS_PER_MILLISECOND) : INFINITE);
   if (__likely(result>=WAIT_OBJECT_0)) {
     if (WaitForSingleObject(device,0)==WAIT_OBJECT_0)
       return WaitEvent::Signal;
@@ -197,8 +197,8 @@ WaitEvent Signal::wait(FXInputHandle input,WaitMode mode,FXTime timeout/*=0*/) c
 #ifdef HAVE_PPOL
   struct timespec ts;
   if (timeout) {
-    ts.tv_sec  = timeout / 1000000000;
-    ts.tv_nsec = timeout % 1000000000;
+    ts.tv_sec  = timeout / NANOSECONDS_PER_SECOND;
+    ts.tv_nsec = timeout % NANOSECONDS_PER_SECOND;
     }
 x:n=ppoll(handles,2,timeout ? &ts : nullptr,nullptr);
   if (__unlikely(n<0)) {
@@ -207,7 +207,7 @@ x:n=ppoll(handles,2,timeout ? &ts : nullptr,nullptr);
     return WaitEvent::Error;
     }
 #else
-x:n=poll(handles,2,timeout ? (timeout/1000000) : -1);
+x:n=poll(handles,2,timeout ? (timeout/NANOSECONDS_PER_MILLISECOND) : -1);
   if (__unlikely(n<0)) {
     if (errno==EAGAIN || errno==EINTR)
       goto x;

@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -31,6 +31,7 @@
 #include <apetag.h>
 #include <textidentificationframe.h>
 #include <attachedpictureframe.h>
+#include <unsynchronizedlyricsframe.h>
 #include <vorbisproperties.h>
 #include <flacproperties.h>
 #include <mp4file.h>
@@ -56,6 +57,11 @@
 */
 #define TAGLIB_VERSION ((TAGLIB_PATCH_VERSION) + (TAGLIB_MINOR_VERSION*1000) + (TAGLIB_MAJOR_VERSION*100000))
 #define TAGVERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
+
+#if TAGLIB_VERSION >= TAGVERSION(1,10,0)
+#include <synchronizedlyricsframe.h>
+#endif
+
 
 
 #include "FXPNGImage.h"
@@ -762,6 +768,71 @@ void GMFileTag::getAlbumArtist(FXString & albumartist) const{
   else
     albumartist.clear();
   }
+
+
+void GMFileTag::setLyrics(const FXString & lyrics) {
+  if (xiph) {
+    xiph_update_field("LYRICS",lyrics);
+    }
+  else if (id3v2) {
+
+    // Always store as Unsynchronized Lyrics Frame
+    TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["USLT"];
+    if (!framelist.isEmpty()) {
+      framelist.front()->setText(TagLib::String(lyrics.text(),TagLib::String::UTF8));
+      }
+    else {
+      TagLib::ID3v2::UnsynchronizedLyricsFrame *frame = new TagLib::ID3v2::UnsynchronizedLyricsFrame(TagLib::ID3v2::FrameFactory::instance()->defaultTextEncoding());
+      frame->setText(TagLib::String(lyrics.text(),TagLib::String::UTF8));
+      id3v2->addFrame(frame);
+      }
+    }
+  else if (mp4) {
+    mp4_update_field("\251lyr",lyrics);
+    }
+  }
+
+
+void GMFileTag::getLyrics(FXString & lyrics) const{
+  if (xiph && xiph_get_field("LYRICS",lyrics))
+    return;
+  else if (id3v2) {
+
+    {
+      const TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["USLT"];
+      for(auto it = framelist.begin(); it != framelist.end(); it++) {
+        TagLib::ID3v2::UnsynchronizedLyricsFrame * frame = dynamic_cast<TagLib::ID3v2::UnsynchronizedLyricsFrame*>(*it);
+        gm_taglib_string(frame->text(),lyrics);
+        if (!lyrics.empty()) return;
+        }
+    }
+#if TAGLIB_VERSION >= TAGVERSION(1,10,0)
+    {
+      const TagLib::ID3v2::FrameList framelist = id3v2->frameListMap()["SYLT"];
+      for(auto it = framelist.begin(); it != framelist.end(); it++) {
+        TagLib::ID3v2::SynchronizedLyricsFrame * frame = dynamic_cast<TagLib::ID3v2::SynchronizedLyricsFrame*>(*it);
+        if (frame->type()==TagLib::ID3v2::SynchronizedLyricsFrame::Lyrics) {
+          auto textlist = frame->synchedText();
+          for(auto it = textlist.begin(); it != textlist.end(); it++) {
+            FXString line;
+            gm_taglib_string((*it).text,line);
+            lyrics.append(line);
+            }
+          if (!lyrics.empty()) return;
+          }
+        }
+    }
+#endif
+
+    }
+  else if (mp4 && mp4_get_field("\251lyr",lyrics)) {
+    return;
+    }
+  else
+    lyrics.clear();
+  }
+
+
 
 void GMFileTag::setTags(const FXStringList & tags){
   if (xiph)

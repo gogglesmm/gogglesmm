@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -448,8 +448,6 @@ void OutputThread::load_plugin() {
     }
 
   FXString plugin_name = output_config.plugin();
-
-  GM_DEBUG_PRINT("[output] loading plugin: %s\n", plugin_name.text());
 
   if (dll.loaded() && dll.name()!=plugin_name) {
     dll.unload();

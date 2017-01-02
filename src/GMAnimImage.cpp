@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -39,7 +39,7 @@ GMAnimImage::~GMAnimImage(){
 
 void GMAnimImage::show() {
   FXImageFrame::show();
-  getApp()->addTimeout(this,ID_TIMER,TIME_MSEC(100));
+  getApp()->addTimeout(this,ID_TIMER,100_ms);
   }
 
 void GMAnimImage::hide() {
@@ -51,7 +51,7 @@ void GMAnimImage::hide() {
 void GMAnimImage::create() {
   FXImageFrame::create();
   if (shown())
-    getApp()->addTimeout(this,ID_TIMER,TIME_MSEC(50));
+    getApp()->addTimeout(this,ID_TIMER,50_ms);
   }
 
 // Get default width
@@ -80,7 +80,7 @@ long GMAnimImage::onTimer(FXObject*,FXSelector,void*){
     else
       index++;
     update();
-    getApp()->addTimeout(this,ID_TIMER,TIME_MSEC(100));
+    getApp()->addTimeout(this,ID_TIMER,100_ms);
     }
   return 0;
   }

@@ -4,7 +4,7 @@ include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
 
-project(GOGGLESMM VERSION 1.1.3)
+project(GOGGLESMM VERSION 1.1.5)
 
 
 option(WITH_OPENGL "Enable OpenGL Features" ON)
@@ -86,15 +86,6 @@ if(SM_FOUND AND ICE_FOUND)
   set(HAVE_SESSION 1)
 endif()
 
-# libgrypt
-check_include_files(gcrypt.h HAVE_GCRYPT_H)
-if (HAVE_GCRYPT_H)
-  find_library(LIBGCRYPT_LIBRARIES NAMES gcrypt )
-  if (LIBGCRYPT_LIBRARIES)
-    set(HAVE_GCRYPT TRUE)
-  endif()
-endif()
-
 
 # Detects reswrap version
 find_program(RESWRAP NAMES reswrap-1.7 reswrap fox-reswrap)
@@ -144,6 +135,7 @@ set(SOURCES GMAbout.cpp
             GMImageView.cpp
             GMList.cpp
             GMLocalSource.cpp
+            GMLyrics.cpp
             GMPlayerManager.cpp
             GMPlayListSource.cpp
             GMPlayQueue.cpp
@@ -195,6 +187,7 @@ set(HEADERS GMAbout.h
             GMImageView.h
             GMList.h
             GMLocalSource.h
+            GMLyrics.h
             GMPlayerManager.h
             GMPlayListSource.h
             GMPlayQueue.h
@@ -222,13 +215,6 @@ set(HEADERS GMAbout.h
             fxext.h
             gmdefs.h
             gmutils.h)
-
-# Link to private md5
-if(NOT HAVE_GCRYPT)
-    list(APPEND SOURCES md5.cpp)
-    list(APPEND HEADERS md5.h)
-endif()
-
 
 set(ICONS ${CMAKE_SOURCE_DIR}/icons/cursor_hand.gif
           ${CMAKE_SOURCE_DIR}/icons/about.png
@@ -343,7 +329,6 @@ endif()
 # Features
 add_feature_info(dbus HAVE_DBUS "D-Bus")
 add_feature_info(nls WITH_NLS "Native Language Support")
-add_feature_info(gcrypt HAVE_GCRYPT "libgcrypt")
 add_feature_info(opengl HAVE_OPENGL "OpenGL Rendering")
 add_feature_info(session HAVE_SESSION "X11 Session Management")
 
@@ -395,7 +380,6 @@ target_link_libraries(gogglesmm PRIVATE gap
                       ${EPOXY_LIBRARIES}
                       ${X11_LIBRARIES}
                       ${SM_LIBRARIES}
-                      ${ICE_LIBRARIES}
-                      ${LIBGCRYPT_LIBRARIES})
+                      ${ICE_LIBRARIES})
 
 install(TARGETS gogglesmm RUNTIME DESTINATION bin)

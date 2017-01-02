@@ -8,7 +8,7 @@ include(FeatureSummary)
 add_subdirectory(lib/alac)
 
 # Goggles Audio Player
-project(GAP VERSION 1.1.3)
+project(GAP VERSION 1.1.5)
 
 # Update whenever ABI changes
 set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added, removed or changed.
@@ -76,6 +76,23 @@ set_package_properties(oss PROPERTIES
                             TYPE OPTIONAL)
 
 
+set_package_properties(openssl PROPERTIES
+                            URL "https://www.openssl.org"
+                            PURPOSE "\tSecure Connections"
+                            TYPE OPTIONAL)
+
+set_package_properties(gnutls PROPERTIES
+                            URL "https://www.gnutls.org"
+                            PURPOSE "\tSecure Connections"
+                            TYPE OPTIONAL)
+
+set_package_properties(gcrypt PROPERTIES
+                            URL "https://www.gnu.org/software/libgcrypt"
+                            PURPOSE "\tMD5 Hashing"
+                            TYPE OPTIONAL)
+
+
+
 # Allow GAP to be build as a shared library.
 if(WIN32 AND MSVC)
   set(BUILD_GAP_SHARED_LIB ON CACHE BOOL "Build libgap as a shared library" FORCE)
@@ -104,6 +121,9 @@ if(UNIX)
     option(WITH_ALSA "ALSA Output Support" OFF)
   endif()
   option(WITH_TREMOR "Tremor Support" OFF)
+  option(WITH_OPENSSL "OpenSSL Support" ON)
+  option(WITH_GNUTLS "GnuTLS Support" ON)
+  option(WITH_GCRYPT "libgcrypt Support" ON)
 endif()
 
 # Endiannes
@@ -130,10 +150,10 @@ if(WIN32)
   find_library(FOX_LIBRARIES NAMES FOXDLL-1.7)
   find_path(FOX_INCLUDE_DIRS NAMES fx.h PATH_SUFFIXES fox-1.7)
 
-  add_definitions(-DXML_STATIC -DFOXDLL)	
+  add_definitions(-DXML_STATIC -DFOXDLL)
 
 
-  list(APPEND LIBRARIES ${FOX_LIBRARIES} ws2_32.lib)	
+  list(APPEND LIBRARIES ${FOX_LIBRARIES} ws2_32.lib)
 else()
   find_package(PkgConfig REQUIRED QUIET)
   pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
@@ -150,6 +170,18 @@ else()
   #pkg_check_modules(JACK jack)
   #pkg_check_modules(CDDA libcdio_cdda)
   #pkg_check_modules(SMB smbclient)
+  pkg_check_modules(OPENSSL openssl>=1.0.2)
+  pkg_check_modules(GNUTLS gnutls>=3.4.0)
+endif()
+
+
+# Check for libgrypt
+check_include_files(gcrypt.h HAVE_GCRYPT_H)
+if (HAVE_GCRYPT_H)
+  find_library(LIBGCRYPT_LIBRARIES NAMES gcrypt )
+  if (LIBGCRYPT_LIBRARIES)
+    set(GCRYPT_FOUND TRUE)
+  endif()
 endif()
 
 
@@ -274,6 +306,10 @@ set(PLUGIN_HEADERS plugins/ap_id3v2.h)
 set(HAVE_ALAC 1)
 set(HAVE_MP4 1)
 
+
+# Add ALAC library
+LIST(APPEND GAP_TARGET_OBJECTS $<TARGET_OBJECTS:gap_alac>)
+
 #if(WIN32)
   if(BUILD_GAP_SHARED_LIB)
     add_definitions(-DGAP_DLL)
@@ -286,6 +322,30 @@ set(HAVE_MP4 1)
 # Link to FOX during shared library build
 if(BUILD_GAP_SHARED_LIB)
   LIST(APPEND LIBRARIES ${FOX_LIBRARIES})
+endif()
+
+
+
+if(WITH_OPENSSL AND OPENSSL_FOUND)
+  LIST(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
+  set(HAVE_OPENSSL 1)
+endif()
+
+if(WITH_GNUTLS AND GNUTLS_FOUND AND NOT HAVE_OPENSSL)
+  LIST(APPEND LIBRARIES ${GNUTLS_LIBRARIES})
+  set(HAVE_GNUTLS 1)
+endif()
+
+if(WITH_GCRYPT AND GCRYPT_FOUND AND NOT HAVE_OPENSSL AND NOT HAVE_GNUTLS)
+  LIST(APPEND LIBRARIES ${LIBGCRYPT_LIBRARIES})
+  set(HAVE_GCRYPT 1)
+endif()
+
+# Use Internal MD5 implementation in case there is no openssl/gnutls/libgcrypt
+if(NOT HAVE_GNUTLS AND NOT HAVE_OPENSSL AND NOT HAVE_GCRYPT)
+  add_subdirectory(lib/md5)
+  LIST(APPEND GAP_TARGET_OBJECTS $<TARGET_OBJECTS:gap_md5>)
+  set(MD5_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lib/md5)
 endif()
 
 
@@ -366,6 +426,7 @@ target_include_directories(gap_plugins PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/inclu
 if(BUILD_GAP_SHARED_LIB)
   set_property(TARGET gap_alac PROPERTY POSITION_INDEPENDENT_CODE TRUE)
   set_property(TARGET gap_plugins PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  set_property(TARGET gap_md5 PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 endif()
 
 
@@ -424,7 +485,7 @@ else()
     target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
     target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
     install(TARGETS gap_oss LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
-    set(HAVE_OSS 1) 
+    set(HAVE_OSS 1)
   endif()
 
 endif()
@@ -447,6 +508,9 @@ add_feature_info(mp4 HAVE_MP4 "MP4 Parser")
 add_feature_info(flac HAVE_FLAC "Free Lossless Audio Codec")
 add_feature_info(dca HAVE_DCA "DTS Coherent Acoustics deocder")
 add_feature_info(a52 HAVE_A52 "ATSC A/52 stream decoder")
+add_feature_info(openssl HAVE_OPENSSL "OpenSSL")
+add_feature_info(gnutls HAVE_GNUTLS "GnuTLS")
+add_feature_info(gcrypt HAVE_GCRYPT "libgcrypt")
 
 
 set(AP_PLUGIN_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/gogglesmm)
@@ -456,7 +520,18 @@ configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
 
 # Gap Library
 if(BUILD_GAP_SHARED_LIB)
-  add_library(gap SHARED ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins> $<TARGET_OBJECTS:gap_alac>)
+  add_library(gap SHARED ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins> ${GAP_TARGET_OBJECTS})
+else()
+  add_library(gap STATIC ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins> ${GAP_TARGET_OBJECTS})
+endif()
+set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
+target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${MD5_INCLUDE_DIRS})
+target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_link_libraries(gap PRIVATE ${LIBRARIES})
+
+if(BUILD_GAP_SHARED_LIB)
+
   if(WIN32)
     target_compile_definitions(gap INTERFACE -DGAP_DLL)
   endif()

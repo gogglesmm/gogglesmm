@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -67,11 +67,17 @@ test_cnl:
       }
 
     /* find end of line \r\n */
-    for (p=rdptr;p<(wrptr-1);p++) {
-      if (*p=='\r' && *(p+1)=='\n') {
-        header.append((const FXchar*)rdptr,p-rdptr);
-        rdptr=p+2;
+    for (p=rdptr;p<wrptr;p++) {
+      if (*p=='\n') {
 
+        if (*(p-1)=='\r')
+          header.append((const FXchar*)rdptr,p-rdptr-1);
+        else
+          header.append((const FXchar*)rdptr,p-rdptr);
+
+        rdptr=p+1;
+
+        /* HTTP status or end of header section */
         if (single || header.length()==0) {
           dir = (wrptr>rdptr) ? DirRead : DirNone;
           return true;
@@ -80,12 +86,19 @@ test_cnl:
         cnl=true;
         if (wrptr>rdptr)
           goto test_cnl;
+
         break;
         }
       }
+
     /* consume what we have so far */
     if (p>rdptr) {
-      header.append((const FXchar*)rdptr,p-rdptr);
+
+      if (*p=='\r')
+        header.append((const FXchar*)rdptr,p-rdptr-1);
+      else
+        header.append((const FXchar*)rdptr,p-rdptr);
+
       rdptr=p;
       }
     }
@@ -330,10 +343,10 @@ void HttpResponse::clear_headers() {
 
 void HttpResponse::check_headers() {
 #ifdef DEBUG
-  fxmessage("Headers:\n");
+  fxmessage("[http] Headers:\n");
   for (FXint pos=0;pos<headers.no();pos++) {
     if (!headers.key(pos).empty())
-      fxmessage("\t%s: %s\n",headers.key(pos).text(),headers.data(pos).text());
+      fxmessage("       %s: %s\n",headers.key(pos).text(),headers.data(pos).text());
     }
 #endif
   FXint p;
@@ -382,11 +395,11 @@ FXbool HttpResponse::read_status() {
   FXString header;
   if (io.readHeader(header,true)) {
     if (header.scan("HTTP/%d.%d %d",&status.major,&status.minor,&status.code)==3){
-      GM_DEBUG_PRINT("Code: %d \nVersion: %d.%d\n",status.code,status.major,status.minor);
+      GM_DEBUG_PRINT("[http] %d (version %d.%d)\n",status.code,status.major,status.minor);
       return true;
       }
     else if (header.scan("ICY %d",&status.code)==1){
-      GM_DEBUG_PRINT("Code: %d \nVersion: ICY\n",status.code);
+      GM_DEBUG_PRINT("[http] %d (icy)\n",status.code);
       return true;
       }
     else {

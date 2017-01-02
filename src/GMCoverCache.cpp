@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -228,7 +228,11 @@ void GMCoverCache::load(GMCoverCacheWriter & writer) {
   if (data.base())
     data.close();
 
+#if FOXVERSION >= FXVERSION(1,7,57)
+  FXFile::move(getTempFilename(),getFilename());
+#else
   FXFile::rename(getTempFilename(),getFilename());
+#endif
 
   if (data.openMap(getFilename()))
     info.adopt(writer.info);

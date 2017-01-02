@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2007-2017 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2015-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -16,35 +16,20 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifndef GMCOLUMNDIALOG_H
-#define GMCOLUMNDIALOG_H
+#ifndef GMLYRICS_H
+#define GMLYRICS_H
 
-class GMColumnDialog : public FXDialogBox {
-FXDECLARE(GMColumnDialog)
-protected:
-  GMList * list = nullptr;
-protected:
-  GMColumnDialog() {}
+class LyricsSource;
+
+class Lyrics {
 private:
-  GMColumnDialog(const GMColumnDialog&);
-  GMColumnDialog& operator=(const GMColumnDialog&);
+  LyricsSource * source[2] = {nullptr}; // Todo: allow multiple sources
 public:
-  enum {
-    ID_MOVE_UP = FXDialogBox::ID_LAST,
-    ID_MOVE_DOWN,
-    ID_LIST,
-    };
-public:
-  long onCmdMoveUp(FXObject*,FXSelector,void*);
-  long onUpdMoveUp(FXObject*,FXSelector,void*);
-  long onCmdMoveDown(FXObject*,FXSelector,void*);
-  long onUpdMoveDown(FXObject*,FXSelector,void*);
-  long onListLeftBtnPress(FXObject*,FXSelector,void*);
-public:
-  /// Construct button with text and icon
-  GMColumnDialog(FXWindow* p,GMColumnList & cols);
+  Lyrics();
 
-  void saveIndex();
+  FXbool fetch(GMTrack & track) const;
+
+  ~Lyrics();
   };
 
 #endif

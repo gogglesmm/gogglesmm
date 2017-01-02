@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -52,6 +52,10 @@ public:
   GMTextField   * filenamefield    = nullptr;
   GMTextField   * typefield        = nullptr;
   FXLabel       * bitratelabel     = nullptr;
+  FXText        * lyricsfield      = nullptr;
+  GMTextField   * lyricsartist     = nullptr;
+  GMTextField   * lyricstitle      = nullptr;
+  GMButton      * lyricsfind       = nullptr;
 protected:
   GMEditTrackDialog(){}
   void getTrackSelection();
@@ -65,7 +69,8 @@ public:
     ID_FILENAME_TEMPLATE=FXDialogBox::ID_LAST,
     ID_NEXT_TRACK,
     ID_PREV_TRACK,
-    ID_RESET
+    ID_RESET,
+    ID_FETCH_LYRICS,
     };
 protected:
   enum {
@@ -85,8 +90,11 @@ public:
   long onCmdFilenameTemplate(FXObject*,FXSelector,void*);
   long onCmdSwitchTrack(FXObject*,FXSelector,void*);
   long onCmdResetTrack(FXObject*,FXSelector,void*);
+  long onCmdFetchLyrics(FXObject*,FXSelector,void*);
 public:
   GMEditTrackDialog(FXWindow *,GMTrackDatabase*);
+
+  void setLyrics(const GMTrack & track);
   virtual ~GMEditTrackDialog();
   };
 

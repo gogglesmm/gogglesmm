@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -74,6 +74,7 @@ public:
   FXbool   fix_album_artist      = false;
   FXbool   album_format_grouping = true;
   FXbool   detect_compilation    = false;
+  FXbool   fetch_lyrics          = false;
 public:
   enum {
     PARSE_TAG = 0,
@@ -128,6 +129,7 @@ public:
   FXbool gui_toolbar_labelsabove        = true;
   FXbool gui_show_browser_icons         = true;
   FXbool gui_show_playing_albumcover    = true;
+  FXbool gui_show_playing_lyrics        = true;
   FXbool gui_tray_icon                  = false;
   FXbool gui_tray_icon_disabled         = false;
   FXbool gui_show_playing_titlebar      = false;

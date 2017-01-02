@@ -5,7 +5,7 @@
 *      Copyright (C) 1999,2010 by Jeroen van der Zijp. All Rights Reserved.    *
 *                               ---                                            *
 *                           Modifications                                      *
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -402,7 +402,7 @@ long GMTrackList::onMouseLeave(FXObject*sender,FXSelector sel,void*ptr) {
     }
 
   if (FXSELTYPE(sel)!=SEL_ENTER) {
-    getApp()->addTimeout(this,ID_WHEEL_TIMEOUT,TIME_MSEC(5));
+    getApp()->addTimeout(this,ID_WHEEL_TIMEOUT,5_ms);
     if (FXSELID(sel)==ID_HSCROLLED) {
       if (FXSELTYPE(sel)==SEL_COMMAND)
         return FXScrollArea::onHScrollerChanged(sender,sel,ptr);

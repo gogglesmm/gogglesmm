@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2009-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2009-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -75,6 +75,7 @@ protected:
   FXDataTarget target_id3v1_encoding;
   FXDataTarget target_album_format_grouping;
   FXDataTarget target_detect_compilation;
+  FXDataTarget target_fetch_lyrics;
 protected:
   GMFileSelector  * fileselector = nullptr;
   GMDirSelector   * dirselector = nullptr;

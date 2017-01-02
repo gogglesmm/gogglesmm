@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -96,6 +96,17 @@
 #include <errno.h>
 #endif
 
+// for digest
+#if defined(HAVE_OPENSSL)
+#include <openssl/evp.h>
+#elif defined(HAVE_GNUTLS)
+#include <gnutls/gnutls.h>
+#include <gnutls/crypto.h>
+#elif defined(HAVE_GCRYPT)
+#include "gcrypt.h"
+#else
+#include "md5.h"
+#endif
 
 namespace ap {
 
@@ -456,4 +467,54 @@ void Base64Encoder::encode(const FXuchar * in,FXint len) {
     nbuffer=r;
     }
   }
+
+
+FXbool ap_md5_digest(FXString & io) {
+  FXuchar digest[16];
+
+  if (io.empty()) return false;
+
+#if defined(HAVE_OPENSSL)
+
+  EVP_MD_CTX * ctx = EVP_MD_CTX_create();
+  if (ctx==nullptr) return false;
+
+  if (EVP_DigestInit(ctx,EVP_md5())!=1)
+    return false;
+
+  if (EVP_DigestUpdate(ctx,io.text(),io.length())!=1)
+    return false;
+
+  if (EVP_DigestFinal(ctx,digest,nullptr)!=1)
+    return false;
+
+  EVP_MD_CTX_destroy(ctx);
+
+#elif defined(HAVE_GNUTLS)
+
+  if (gnutls_hash_fast(GNUTLS_DIG_MD5,(const void*)io.text(),io.length(),(void*)digest)!=GNUTLS_E_SUCCESS)
+    return false;
+
+#elif defined(HAVE_GCRYPT)
+
+  gcry_md_hash_buffer(GCRY_MD_MD5,(void*)digest,(const void*)io.text(),io.length());
+
+#else
+
+  md5_state_t pms;
+  md5_init(&pms);
+  md5_append(&pms,(const md5_byte_t*)io.text(),io.length());
+  md5_finish(&pms,(md5_byte_t*)digest);
+
+#endif
+
+  io.length(32);
+  for (FXint i=0,d=0;i<32;i+=2,d++) {
+    io[i]=Ascii::toLower(FXString::value2Digit[(digest[d]/16)%16]);
+    io[i+1]=Ascii::toLower(FXString::value2Digit[digest[d]%16]);
+    }
+
+  return true;
+  }
+
 }

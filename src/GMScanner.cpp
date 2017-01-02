@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -28,6 +28,7 @@
 #include "GMAudioPlayer.h"
 #include "GMScanner.h"
 #include "GMTag.h"
+#include "GMLyrics.h"
 
 // ALL patterns
 //#define FILE_EXTENSIONS "ogg,flac,opus,oga,mp3,m4a,mp4,m4p,m4b,aac,mpc,wma,asf"
@@ -78,7 +79,8 @@ void GMDBTracks::init(GMTrackDatabase*db,FXbool afg) {
                                                                            "0," // rating
                                                                            "?," // samplerate
                                                                            "?," // channels
-                                                                           "?);"); // filetype
+                                                                           "?,"  // filetype
+                                                                           "?);"); // lyrics
 
 
   insert_tag                          = database->compile("INSERT INTO tags VALUES ( NULL , ?  );");
@@ -102,9 +104,10 @@ void GMDBTracks::init(GMTrackDatabase*db,FXbool afg) {
                                                                   "channels = ?,"
                                                                   "filetype = ?,"
                                                                   "album =  ?,"
-                                                                  "artist = ?," // artist
-                                                                  "composer = ?," // composer
-                                                                  "conductor = ?," // conductor
+                                                                  "artist = ?,"
+                                                                  "composer = ?,"
+                                                                  "conductor = ?,"
+                                                                  "lyrics = ?,"
                                                                   "importdate = ? WHERE id == ?;");
 
 
@@ -256,7 +259,7 @@ void GMDBTracks::insert(GMTrack & track,FXint & path_index) {
     insert_track.set(12,track.samplerate);
     insert_track.set(13,track.channels);
     insert_track.set(14,track.filetype);
-
+    insert_track.set(15,track.lyrics);
 
     track.index = insert_track.insert();
 
@@ -296,8 +299,9 @@ void GMDBTracks::update(GMTrack & track) {
   update_track.set(9,artist_id);
   update_track.set_null(10,composer_id);
   update_track.set_null(11,conductor_id);
-  update_track.set(12,FXThread::time());
-  update_track.set(13,track.index);
+  update_track.set(12,track.lyrics);
+  update_track.set(13,FXThread::time());
+  update_track.set(14,track.index);
   update_track.execute();
 
   /// Update Tags
@@ -319,7 +323,23 @@ GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel) {
   }
 
 
+void GMImportTask::setOptions(const GMImportOptions & o) {
+  options=o;
+  if (options.fetch_lyrics) {
+    if (lyrics==nullptr)
+      lyrics = new Lyrics();
+    }
+  else {
+    if (lyrics) {
+      delete lyrics;
+      lyrics=nullptr;
+      }
+    }
+  }
+
+
 GMImportTask::~GMImportTask() {
+  delete lyrics;
   }
 
 
@@ -358,6 +378,10 @@ void GMImportTask::load_track(const FXString & filename) {
         GMFilename::parse(track,options.filename_template,(options.replace_underscores ? (GMFilename::REPLACE_UNDERSCORE) : 0));
         }
       break;
+    }
+
+  if (lyrics && track.lyrics.empty()) {
+    lyrics->fetch(track);
     }
   }
 

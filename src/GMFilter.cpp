@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2015-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2015-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -45,6 +45,7 @@ static const FXchar * const column_lookup[]={
   "tracks.bitrate",
   "tracks.samplerate",
   "-tracks.bitrate",
+  "tracks.lyrics"
   };
 
 // Operator Lookup Table
@@ -75,6 +76,7 @@ FXString Rule::getMatch() const {
     case ColumnConductor:
     case ColumnAlbum:
     case ColumnPath:
+    case ColumnLyrics:
       {
         switch(opcode) {
           case OperatorLike     :

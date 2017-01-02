@@ -1,4 +1,3 @@
-#cmakedefine HAVE_GCRYPT
 #cmakedefine HAVE_DBUS
 #cmakedefine HAVE_OPENGL
 #cmakedefine HAVE_NLS

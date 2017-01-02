@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -86,6 +86,8 @@ private:
   GMAnimImage       * progressbar_animation = nullptr;
   GMRemote          * remote = nullptr;
   GMPresenter       * presenter = nullptr;
+  FXLabel           * lyricsview = nullptr;
+  FXSwitcher        * metaview = nullptr;
 private:
   void configureToolbar(FXbool docktop,FXbool init=false);
   void configureStatusbar(FXbool show);
@@ -155,6 +157,11 @@ public: /// Message Handlers
 
   long onCmdNextFocus(FXObject*,FXSelector,void*);
 
+
+  long onCmdLyricView(FXObject*,FXSelector,void*);
+  long onCmdCoverView(FXObject*,FXSelector,void*);
+
+  long onMetaContextMenu(FXObject*,FXSelector,void*);
 public:
   enum{
     ID_ABOUT=FXMainWindow::ID_LAST,
@@ -213,6 +220,7 @@ public:
     ID_DDE_MESSAGE,
     ID_SLEEP,
 
+    ID_LYRICVIEW,
     ID_COVERVIEW,
     ID_REFRESH_COVERVIEW,
     ID_CHANGE_COVERVIEW,
@@ -264,6 +272,8 @@ public:
   void update_time(const TrackTime & current,const TrackTime & remaining,FXint position,FXbool playing,FXbool seekable);
   void update_volume_display(FXint level);
   void update_cover_display();
+
+  void update_meta_display();
 
   void setStatus(const FXString& status);
 

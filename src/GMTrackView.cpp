@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2007-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2007-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -2097,7 +2097,7 @@ long GMTrackView::onCmdFilter(FXObject*,FXSelector sel,void*){
   if (FXSELID(sel)==ID_FILTER_MODE && filterfield->getText().empty())
     return 1;
   if (FXSELTYPE(sel)==SEL_CHANGED) {
-    getApp()->addTimeout(this,ID_FILTER,TIME_MSEC(500));
+    getApp()->addTimeout(this,ID_FILTER,500_ms);
     return 1;
     }
   if (FXSELTYPE(sel)==SEL_COMMAND){
@@ -2115,7 +2115,7 @@ long GMTrackView::onCmdFilterMask(FXObject*,FXSelector sel,void*){
     case ID_FILTER_ARTIST : filtermask ^= FILTER_ARTIST; break;
     case ID_FILTER_TAG    : filtermask ^= FILTER_TAG; break;
     }
-  getApp()->addTimeout(this,ID_FILTER,TIME_MSEC(500));
+  getApp()->addTimeout(this,ID_FILTER,500_ms);
   return 1;
   }
 
@@ -2442,7 +2442,7 @@ long GMTrackView::onCmdToggleFilter(FXObject*,FXSelector sel,void*){
     filterfield->setFocus();
     if (!filterfield->getText().empty()){
       filterfield->setSelection(0,filterfield->getText().length());
-      getApp()->addTimeout(this,ID_FILTER,TIME_MSEC(500));
+      getApp()->addTimeout(this,ID_FILTER,500_ms);
       }
     recalc();
     }

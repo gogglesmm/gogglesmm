@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -54,7 +54,9 @@ InputPlugin* InputPlugin::open(InputThread * input,const FXString & url) {
       }
     return file;
     }
-  else if (scheme=="http") {
+
+  // We do not support https yet, but hopefully we get a redirect
+  else if (scheme=="http" || scheme=="https") {
     InputPlugin * http = ap_http_plugin(input);
     if (!http->open(url)){
       delete http;

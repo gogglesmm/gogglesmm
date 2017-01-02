@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -83,6 +83,7 @@ public:
 
 
 struct Seen;
+class Lyrics;
 
 class GMImportTask : public GMTask {
 protected:
@@ -90,6 +91,7 @@ protected:
   GMDBTracks        dbtracks;
   GMImportOptions   options;
   FXStringList      files;
+  Lyrics*           lyrics = nullptr;
   FXint             count = 0;
 protected:
   virtual FXint run();
@@ -123,7 +125,7 @@ protected:
 public:
   GMImportTask(FXObject*tgt=nullptr,FXSelector sel=0);
 
-  void setOptions(const GMImportOptions & o) { options=o; }
+  void setOptions(const GMImportOptions & o);
 
   void setInput(const FXStringList & input) { files=input; }
 

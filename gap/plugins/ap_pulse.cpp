@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2016 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2017 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -176,13 +176,13 @@ public:
 
   virtual void onExpired() {
     struct timeval tv;
-    tv.tv_usec=(time/1000)%1000000;
-    tv.tv_sec=time/1000000000;
+    tv.tv_usec = ( time / NANOSECONDS_PER_MICROSECOND ) % 1000000;
+    tv.tv_sec  = time / NANOSECONDS_PER_SECOND;
     callback(&(PulseOutput::instance->api),this,&tv,userdata);
     }
 
   static pa_time_event * create(pa_mainloop_api*,const struct timeval *tv, pa_time_event_cb_t cb, void *userdata) {
-    FXTime time = (((FXTime)tv->tv_sec)*1000000000) + (((FXTime)tv->tv_usec)*1000);
+    FXTime time = (tv->tv_sec*NANOSECONDS_PER_SECOND) + (tv->tv_usec*NANOSECONDS_PER_MICROSECOND);
     pa_time_event * event;
     if (recycle) {
       event   = recycle;
@@ -208,7 +208,7 @@ public:
     }
 
   static void restart(pa_time_event* event, const struct timeval *tv){
-    FXTime time = (((FXTime)tv->tv_sec)*1000000000) + (((FXTime)tv->tv_usec)*1000);
+    FXTime time = (tv->tv_sec*NANOSECONDS_PER_SECOND) + (tv->tv_usec*NANOSECONDS_PER_MICROSECOND);
     PulseOutput::instance->output->getReactor().removeTimer(event);
     PulseOutput::instance->output->getReactor().addTimer(event,time);
     }
