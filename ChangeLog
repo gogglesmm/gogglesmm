@@ -1,3 +1,7 @@
+1.1.5
+  - Fix lyrics column not being created on first run.
+  - Fix import writing lyrics to the wrong column.
+
 1.1.4
   - Lyrics support
   - Matroska playback (only) support
