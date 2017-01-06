@@ -293,7 +293,19 @@ FXint GMAlbumListItem::getWidth(const GMAlbumList * list){
   }
 
 FXString GMAlbumListItem::getTipText() const {
-  return *GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist)+"\n"+title+"\n"+FXString::value(year);
+  const FXString * artistname = GMPlayerManager::instance()->getTrackDatabase()->getArtist(artist);
+  if (year>0) {
+    if (!artistname->empty())
+      return *artistname+"\n"+title+"\n"+FXString::value(year);
+    else
+      return title+"\n"+FXString::value(year);
+    }
+  else {
+    if (!artistname->empty())
+      return *artistname+"\n"+title;
+    else
+      return title;
+    }
   }
 
 // Delete icons if owned
