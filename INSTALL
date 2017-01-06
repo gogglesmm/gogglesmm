@@ -19,6 +19,8 @@ Installation Instructions
        * opus
        * faad2
        * pulse
+       * zlib
+       * openssl or gnutls
 
     3. Run cmake:
 

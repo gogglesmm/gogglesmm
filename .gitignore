@@ -10,6 +10,7 @@ cmake_install.cmake
 install_manifest.txt
 src/gmconfig.h
 gap/ap_config.h
+gap/test/gap_*
 src/gogglesmm_xml.h
 src/mpris1_xml.h
 src/mpris2_xml.h
