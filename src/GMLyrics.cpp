@@ -331,6 +331,8 @@ public:
   FXbool fetch(GMTrack & track) override {
     HttpClient http;
 
+    http.setAcceptEncoding(HttpClient::AcceptEncodingGZip);
+
     FXString artist = track.artist;
     FXString title  = track.title;
 
