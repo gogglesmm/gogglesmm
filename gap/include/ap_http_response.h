@@ -98,8 +98,13 @@ enum {
   HEADER_SINGLE_LINE    = 1
   };
 
+/* ZLIB */
+struct ZIO;
+
 /* HttpIO */
 class GMAPI HttpIO : public BufferIO {
+protected:
+  ZIO * z = nullptr;
 private:
   HttpIO(const HttpIO&);
   HttpIO &operator=(const HttpIO&);
@@ -115,6 +120,9 @@ public:
 
   // Read and append n bytes to str
   FXival read(FXString & str,FXival n);
+
+  // Read gzip'ed content of size bytes_available and append to str
+  FXival gzip_read(FXString & data,FXival & bytes_written,FXival bytes_available);
 
   // Destructor
   ~HttpIO();
@@ -178,10 +186,11 @@ protected:
 
   // Internal Parser Flags
   enum {
-    ChunkedResponse  = (1<<0),      // Chunked Response
-    ConnectionClose  = (1<<1),      // Connection Closes
-    ResponseComplete = (1<<2),
-    HeadRequest      = (1<<3),
+    ChunkedResponse     = (1<<0),      // Chunked Response
+    ConnectionClose     = (1<<1),      // Connection Closes
+    ResponseComplete    = (1<<2),
+    HeadRequest         = (1<<3),
+    ContentEncodingGZip = (1<<4),
     };
 
 private:
@@ -257,6 +266,9 @@ public:
 
   // Check end-of-response
   FXbool eof();
+
+  // Return whether zlib support is available
+  static FXbool has_zlib_support();
 
   // Destructor
   virtual ~HttpResponse();

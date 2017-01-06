@@ -4,6 +4,11 @@ include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
 
+# Test only in Debug mode for now
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+  add_subdirectory(test)
+endif()
+
 # Third Party Modules
 add_subdirectory(lib/alac)
 
@@ -91,6 +96,10 @@ set_package_properties(gcrypt PROPERTIES
                             PURPOSE "\tMD5 Hashing"
                             TYPE OPTIONAL)
 
+set_package_properties(zlib PROPERTIES
+                            URL "http://www.zlib.net/"
+                            PURPOSE "\tzlib decompression for http"
+                            TYPE OPTIONAL)
 
 
 # Allow GAP to be build as a shared library.
@@ -124,6 +133,7 @@ if(UNIX)
   option(WITH_OPENSSL "OpenSSL Support" ON)
   option(WITH_GNUTLS "GnuTLS Support" ON)
   option(WITH_GCRYPT "libgcrypt Support" ON)
+  option(WITH_ZLIB "zlib Support" ON)
 endif()
 
 # Endiannes
@@ -161,6 +171,7 @@ else()
   #pkg_check_modules(JACK jack)
   #pkg_check_modules(CDDA libcdio_cdda)
   #pkg_check_modules(SMB smbclient)
+  pkg_check_modules(ZLIB zlib)
   pkg_check_modules(OPENSSL openssl>=1.0.2)
   pkg_check_modules(GNUTLS gnutls>=3.4.0)
 endif()
@@ -314,6 +325,10 @@ if(BUILD_GAP_SHARED_LIB)
 endif()
 
 
+if(WITH_ZLIB AND ZLIB_FOUND)
+  LIST(APPEND LIBRARIES ${ZLIB_LIBRARIES})
+  set(HAVE_ZLIB 1)
+endif()
 
 if(WITH_OPENSSL AND OPENSSL_FOUND)
   LIST(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
@@ -506,10 +521,12 @@ else()
   add_library(gap STATIC ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS} $<TARGET_OBJECTS:gap_plugins> ${GAP_TARGET_OBJECTS})
 endif()
 set_target_properties(gap PROPERTIES ENABLE_EXPORTS 1)
-target_include_directories(gap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS} ${MD5_INCLUDE_DIRS})
-target_include_directories(gap INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(gap PRIVATE ${FOX_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include ${MD5_INCLUDE_DIRS})
+target_include_directories(gap INTERFACE ${FOX_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(gap PRIVATE ${LIBRARIES})
+target_link_libraries(gap INTERFACE ${FOX_LIBRARIES})
+
 
 if(BUILD_GAP_SHARED_LIB)
 

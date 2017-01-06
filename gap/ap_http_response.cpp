@@ -22,6 +22,11 @@
 #include "ap_buffer_io.h"
 #include "ap_http_response.h"
 
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+#endif
+
+
 using namespace ap;
 
 namespace ap {
@@ -31,15 +36,107 @@ namespace ap {
 #undef major
 #undef minor
 
+struct ZIO {
+  z_stream stream;
 
+  ZIO() {
+    memset(&stream,0,sizeof(stream));
+    }
+  };
 
-HttpIO::HttpIO() : BufferIO(4096) {
+HttpIO::HttpIO() : BufferIO(4096), z(nullptr) {
   }
 
-HttpIO::HttpIO(FXIO * dev) : BufferIO(dev,4096) {
+HttpIO::HttpIO(FXIO * dev) : BufferIO(dev,4096), z(nullptr) {
   }
 
 HttpIO::~HttpIO() {
+  if (z) {
+    inflateEnd(&z->stream);
+    delete z;
+    z=nullptr;
+    }
+  }
+
+
+FXival HttpIO::gzip_read(FXString & data,FXival & bytes_written,FXival bytes_available) {
+#ifdef HAVE_ZLIB
+  const FXint blocksize = 4096;
+
+  FXival bytes_consumed = 0;
+
+  if (dir!=DirWrite) {
+
+    // Initialize inflater on first call
+    if (z==nullptr) {
+      z = new ZIO;
+      if (inflateInit2(&z->stream,15+16)!=Z_OK) {
+        delete z;
+        return FXIO::Error;
+        }
+      bytes_written = 0;
+      data.length(blocksize);
+      }
+
+    // Read until we consumed all available bytes
+    while(bytes_available) {
+
+      // update buffers
+      z->stream.next_in   = rdptr;
+      z->stream.avail_in  = FXMIN(bytes_available,wrptr-rdptr);
+      z->stream.next_out  = (FXuchar*)&data[bytes_written];
+      z->stream.avail_out = data.length()-bytes_written;
+
+      // inflate
+      int zerror = inflate(&z->stream,Z_NO_FLUSH);
+
+      bytes_consumed  += (z->stream.next_in - rdptr);
+      bytes_available -= (z->stream.next_in - rdptr);
+      bytes_written   += ((data.length()-bytes_written) - z->stream.avail_out);
+
+      // update read ptr
+      rdptr = z->stream.next_in;
+
+      // check result of inflate
+      if (zerror!=Z_OK) {
+        if (zerror==Z_STREAM_END) {
+          inflateEnd(&z->stream);
+          data.length(bytes_written);
+          delete z;
+          z=nullptr;
+          return bytes_consumed;
+          }
+        else if (zerror==Z_BUF_ERROR) {
+
+          if (bytes_available==0)
+            return bytes_consumed;
+
+          if (z->stream.avail_out==0)
+            data.length(data.length()+blocksize);
+
+          const FXival bytes_in_buffer = wrptr-rdptr;
+          if (z->stream.avail_in==0 && (bytes_available>bytes_in_buffer)) {
+            if (readBuffer()<=(FXuval)bytes_in_buffer) {
+              inflateEnd(&z->stream);
+              delete z;
+              z=nullptr;
+              return FXIO::Error;
+              }
+            }
+
+          }
+        else {
+          inflateEnd(&z->stream);
+          delete z;
+          z=nullptr;
+          return FXIO::Error;
+          }
+        }
+      }
+    return bytes_consumed;
+    }
+#endif
+  return FXIO::Error;
   }
 
 FXival HttpIO::read(FXString & str,FXival n) {
@@ -354,6 +451,11 @@ void HttpResponse::check_headers() {
   p = headers.find("content-length");
   if (p!=-1) content_length = content_remaining = headers.data(p).toInt();
 
+
+  p = headers.find("content-encoding");
+  if ((p!=-1) && headers.data(p).contains("gzip"))
+    flags|=ContentEncodingGZip;
+
   p = headers.find("transfer-encoding");
   if (p!=-1 && headers.data(p).contains("chunked"))
     flags|=ChunkedResponse;
@@ -419,8 +521,15 @@ FXString HttpResponse::read_body() {
     }
   else if (content_length>0) {
     content_remaining=0;
-    if (io.read(content,content_length)!=content_length)
-      return FXString::null;
+    if (flags&ContentEncodingGZip) {
+      FXival bytes_written=0;
+      if (io.gzip_read(content,bytes_written,content_length)!=content_length)
+        return FXString::null;
+      }
+    else {
+      if (io.read(content,content_length)!=content_length)
+        return FXString::null;
+      }
     }
   else {
     FXival n,c=0;
@@ -437,6 +546,7 @@ FXString HttpResponse::read_body_chunked() {
   FXString header;
   FXString content;
   FXint    chunksize=-1;
+  FXival   bytes_written=0;
 
   // Reading all content
   if (content_remaining>0)
@@ -446,9 +556,17 @@ FXString HttpResponse::read_body_chunked() {
 
     while(chunksize) {
 
-      if (io.read(content,chunksize)!=chunksize) {
-        GM_DEBUG_PRINT("[http] read_body_chunked() - failed reading chunksize %d\n",chunksize);
-        goto fail;
+      if (flags&ContentEncodingGZip) {
+        if (io.gzip_read(content,bytes_written,chunksize)!=chunksize) {
+          GM_DEBUG_PRINT("[http] read_body_chunked() - failed reading chunksize %d\n",chunksize);
+          goto fail;
+          }
+        }
+      else {
+        if (io.read(content,chunksize)!=chunksize) {
+          GM_DEBUG_PRINT("[http] read_body_chunked() - failed reading chunksize %d\n",chunksize);
+          goto fail;
+          }
         }
 
       // Set to zero so read_chunk_header will check for crlf
@@ -619,6 +737,15 @@ FXbool HttpResponse::eof() {
     return io.eof();
   }
 
+
+// Return whether zlib support is available
+FXbool HttpResponse::has_zlib_support() {
+#ifdef HAVE_ZLIB
+  return true;
+#else
+  return false;
+#endif
+  }
 
 
 }

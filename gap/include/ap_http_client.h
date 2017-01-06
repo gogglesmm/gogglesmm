@@ -27,6 +27,8 @@ public:
   FXint    port;
 public:
   HttpHost();
+
+  // HttpHost from url
   HttpHost(const FXString & url);
 
   // Set from url. returns true if changed
@@ -47,11 +49,15 @@ protected:
   FXuchar       		 options;
 protected:
   enum {
-    UseProxy    = (1<<0),
+    UseProxy           = (1<<0),
     };
 protected:
   FXbool open_connection();
   void reset(FXbool forceclose);
+public:
+  enum {
+    AcceptEncodingGZip = (1<<1),
+    };
 public:
   HttpClient(ConnectionFactory * c=nullptr);
 
@@ -63,6 +69,9 @@ public:
 
   // Discard response
   void discard() override;
+
+  // Set Accept Encoding
+  void setAcceptEncoding(const FXuchar encodings);
 
   // Send a request. Response can be
   FXbool request(const FXchar * method,const FXString & url,const FXString & headers=FXString::null,const FXString & message=FXString::null);

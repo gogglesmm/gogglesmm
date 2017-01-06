@@ -328,7 +328,6 @@ target_include_directories(gogglesmm PRIVATE
 
 # Libraries
 target_link_libraries(gogglesmm PRIVATE gap
-                      ${FOX_LIBRARIES}
                       ${SQLITE_LIBRARIES}
                       ${TAGLIB_LIBRARIES}
                       ${DBUS_LIBRARIES}

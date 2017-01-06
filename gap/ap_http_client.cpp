@@ -76,6 +76,13 @@ HttpClient::~HttpClient() {
   delete connection;
   }
 
+void HttpClient::setAcceptEncoding(const FXuchar opts) {
+#ifdef HAVE_ZLIB
+  options = (options&~AcceptEncodingGZip) | (opts&AcceptEncodingGZip);
+#endif
+  }
+
+
 void HttpClient::close() {
   GM_DEBUG_PRINT("[http] close()\n");
 
@@ -172,7 +179,11 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
 
   // Add Content Length
   if (message.length())
-    command +=  "Content-Length: " + FXString::value(message.length()) + "\r\n";
+    command += "Content-Length: " + FXString::value(message.length()) + "\r\n";
+
+  // Add Accept Encoding
+  if (options&AcceptEncodingGZip)
+    command += "Accept-Encoding: gzip\r\n";
 
   // Additional headers
   command+=header;

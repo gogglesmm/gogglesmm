@@ -489,6 +489,8 @@ public:
   FXint run() {
     HttpClient client;
 
+    client.setAcceptEncoding(HttpClient::AcceptEncodingGZip);
+
     do {
 
       if (!client.basic("GET",url))
@@ -924,6 +926,8 @@ FXint GMPodcastUpdater::run() {
       HttpClient    http;
       HttpMediaType media;
       FXString      moved;
+
+      http.setAcceptEncoding(HttpClient::AcceptEncodingGZip);
 
       if (!http.basic("GET",url,FXString::null,FXString::null,&moved))
         continue;
