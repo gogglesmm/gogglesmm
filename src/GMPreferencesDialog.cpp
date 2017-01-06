@@ -265,6 +265,7 @@ FXDEFMAP(GMPreferencesDialog) GMPreferencesDialogMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_CHANGE_FONT,GMPreferencesDialog::onCmdChangeFont),
   FXMAPFUNC(SEL_COMMAND,FXDialogBox::ID_ACCEPT,GMPreferencesDialog::onCmdAccept),
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_AUDIO_DRIVER,GMPreferencesDialog::onCmdAudioDriver),
+  FXMAPFUNC(SEL_CHANGED,GMPreferencesDialog::ID_AUDIO_DRIVER,GMPreferencesDialog::onCmdAudioDriver),
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_REPLAY_GAIN,GMPreferencesDialog::onCmdReplayGain),
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_TITLE_FORMAT,GMPreferencesDialog::onCmdTitleFormat),
   FXMAPFUNC(SEL_UPDATE,GMPreferencesDialog::ID_TITLE_FORMAT,GMPreferencesDialog::onUpdTitleFormat),
