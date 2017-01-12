@@ -650,8 +650,12 @@ void GMWindow::display(const GMTrack& info){
   // Update Lyrics
   if (info.hasMissingLyrics())
     lyricsview->setText(FXString::null);
-  else
+  else {
     lyricsview->setText(info.lyrics);
+    FXScrollWindow * scrollwindow = dynamic_cast<FXScrollWindow*>(lyricsview->getParent());
+    FXASSERT(scrollwindow);
+    scrollwindow->setPosition(0,0);
+    }
 
   // Show Cover and/or Lyrics
   update_meta_display();
