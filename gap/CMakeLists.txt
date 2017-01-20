@@ -172,7 +172,7 @@ else()
   #pkg_check_modules(CDDA libcdio_cdda)
   #pkg_check_modules(SMB smbclient)
   pkg_check_modules(ZLIB zlib)
-  pkg_check_modules(OPENSSL openssl>=1.0.2)
+  pkg_check_modules(OPENSSL openssl>=1.0.1)
   pkg_check_modules(GNUTLS gnutls>=3.4.0)
 endif()
 
