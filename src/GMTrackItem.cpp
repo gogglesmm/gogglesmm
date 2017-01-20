@@ -297,7 +297,7 @@ FXint GMDBTrackItem::ascendingFilename(const GMTrackItem* pa,const GMTrackItem* 
   const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   if (ta->path!=tb->path) {
-    const GMTrackDatabase* const db = GMPlayerManager::instance()->getTrackDatabase();
+    GMTrackDatabase* const db = GMPlayerManager::instance()->getTrackDatabase();
     FXint x = comparecase(db->getTrackPath(ta->path),db->getTrackPath(tb->path));
     if (x!=0) return x;
     }
@@ -309,7 +309,7 @@ FXint GMDBTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackItem*
   const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   if (ta->path!=tb->path) {
-    const GMTrackDatabase* const db = GMPlayerManager::instance()->getTrackDatabase();
+    GMTrackDatabase* const db = GMPlayerManager::instance()->getTrackDatabase();
     FXint x = comparecase(db->getTrackPath(ta->path),db->getTrackPath(tb->path));
     if (x!=0) return -x;
     }

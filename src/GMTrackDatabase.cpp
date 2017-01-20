@@ -875,9 +875,12 @@ FXbool GMTrackDatabase::getAlbumTrack(FXint id,FXString & path) {
   }
 
 /// Return the track path;
-const FXchar * GMTrackDatabase::getTrackPath(FXint pid) const {
+const FXchar * GMTrackDatabase::getTrackPath(FXint pid) {
   const void * ptr = pathdict.at((void*)(FXival)pid);
-  if (ptr) return (const FXchar*)ptr;
+  if (__likely(ptr)) return (const FXchar*)ptr;
+  initPathLookup();
+  ptr = pathdict.at((void*)(FXival)pid);
+  if (__likely(ptr)) return (const FXchar*)ptr;
   return "";
   }
 
@@ -1414,6 +1417,13 @@ void GMTrackDatabase::setup_path_lookup() {
     }
   GM_TICKS_END();
   }
+
+void GMTrackDatabase::initPathLookup() {
+  clear_path_lookup();
+  setup_path_lookup();
+  }
+
+
 
 void GMTrackDatabase::setup_artist_lookup() {
   DEBUG_DB_GET();

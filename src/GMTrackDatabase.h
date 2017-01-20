@@ -138,7 +138,7 @@ public:
   void getTrackPath(FXint pid,FXString & path);
 
   /// Return the track path;
-  const FXchar * getTrackPath(FXint pid) const;
+  const FXchar * getTrackPath(FXint pid);
 
   /// Return the track path;
   const FXString * getArtist(FXint aid);
@@ -332,6 +332,7 @@ public:
   void sync_album_year();
 
   void initArtistLookup();
+  void initPathLookup();
 
   /// Destructor
   ~GMTrackDatabase();
