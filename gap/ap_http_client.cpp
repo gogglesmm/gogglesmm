@@ -76,11 +76,15 @@ HttpClient::~HttpClient() {
   delete connection;
   }
 
-void HttpClient::setAcceptEncoding(const FXuchar opts) {
 #ifdef HAVE_ZLIB
+void HttpClient::setAcceptEncoding(const FXuchar opts) {
   options = (options&~AcceptEncodingGZip) | (opts&AcceptEncodingGZip);
-#endif
   }
+#else
+void HttpClient::setAcceptEncoding(const FXuchar) {
+  options = (options&~AcceptEncodingGZip) // always turn off
+  }
+#endif
 
 
 void HttpClient::close() {
