@@ -397,7 +397,10 @@ void GMImportTask::import() {
   FXString name;
   FXint    dircount=0;
 
+
   database->beginTask();
+
+  taskmanager->setStatus("Importing...");
 
   if (dbtracks.playlist)
     dbtracks.playlist_queue = database->getNextQueue(dbtracks.playlist);
