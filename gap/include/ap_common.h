@@ -42,6 +42,9 @@ extern GMAPI void ap_free_crypto();
 
 extern GMAPI FXbool ap_md5_digest(FXString & io);
 
+extern GMAPI FXString ap_get_gogglesmm_supported_files();
+
+
 class GMAPI Base64Encoder {
 private:
   static const FXchar base64[];

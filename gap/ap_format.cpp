@@ -358,4 +358,41 @@ extern const FXchar * ap_format_name(FXuint format){
   }
 
 
+
+
+extern FXString ap_get_gogglesmm_supported_files() {
+  FXString pattern;
+  const FXchar * const supported = "*.("
+#if defined(HAVE_OPUS)
+  "opus,"
+#endif
+#if defined(HAVE_FLAC)
+  "flac,oga,"
+#endif
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
+  "ogg,"
+#endif
+#if defined(HAVE_MAD)
+  "mp3,"
+#endif
+#if defined(HAVE_MP4)
+  "mp4,m4a,m4b,m4p,"
+#endif
+#if defined(HAVE_FAAD)
+  "aac,"
+#endif
+  ;
+
+  if (strlen(supported)==3)
+    return FXString::null;
+
+  pattern = supported;
+  pattern.tail() = ')';
+  return pattern;
+  }
+
+
+
+
+
 }
