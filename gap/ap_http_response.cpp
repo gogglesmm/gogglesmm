@@ -36,6 +36,8 @@ namespace ap {
 #undef major
 #undef minor
 
+#ifdef HAVE_ZLIB
+
 struct ZIO {
   z_stream stream;
 
@@ -44,6 +46,9 @@ struct ZIO {
     }
   };
 
+#endif
+
+
 HttpIO::HttpIO() : BufferIO(4096), z(nullptr) {
   }
 
@@ -51,16 +56,19 @@ HttpIO::HttpIO(FXIO * dev) : BufferIO(dev,4096), z(nullptr) {
   }
 
 HttpIO::~HttpIO() {
+#ifdef HAVE_ZLIB
   if (z) {
     inflateEnd(&z->stream);
     delete z;
     z=nullptr;
     }
+#endif
   }
 
 
-FXival HttpIO::gzip_read(FXString & data,FXival & bytes_written,FXival bytes_available) {
+
 #ifdef HAVE_ZLIB
+FXival HttpIO::gzip_read(FXString & data,FXival & bytes_written,FXival bytes_available) {
   const FXint blocksize = 4096;
 
   FXival bytes_consumed = 0;
@@ -135,9 +143,16 @@ FXival HttpIO::gzip_read(FXString & data,FXival & bytes_written,FXival bytes_ava
       }
     return bytes_consumed;
     }
-#endif
   return FXIO::Error;
   }
+#else
+FXival HttpIO::gzip_read(FXString &,FXival &,FXival) {
+  return FXIO::Error;
+  }
+#endif
+
+
+
 
 FXival HttpIO::read(FXString & str,FXival n) {
   if (0<n) {
@@ -522,9 +537,13 @@ FXString HttpResponse::read_body() {
   else if (content_length>0) {
     content_remaining=0;
     if (flags&ContentEncodingGZip) {
+#ifdef HAVE_ZLIB
       FXival bytes_written=0;
       if (io.gzip_read(content,bytes_written,content_length)!=content_length)
         return FXString::null;
+#else
+        return FXString::null;
+#endif
       }
     else {
       if (io.read(content,content_length)!=content_length)
@@ -546,7 +565,9 @@ FXString HttpResponse::read_body_chunked() {
   FXString header;
   FXString content;
   FXint    chunksize=-1;
+#ifdef HAVE_ZLIB
   FXival   bytes_written=0;
+#endif
 
   // Reading all content
   if (content_remaining>0)
@@ -557,10 +578,14 @@ FXString HttpResponse::read_body_chunked() {
     while(chunksize) {
 
       if (flags&ContentEncodingGZip) {
+#ifdef HAVE_ZLIB
         if (io.gzip_read(content,bytes_written,chunksize)!=chunksize) {
           GM_DEBUG_PRINT("[http] read_body_chunked() - failed reading chunksize %d\n",chunksize);
           goto fail;
           }
+#else
+        goto fail;
+#endif
         }
       else {
         if (io.read(content,chunksize)!=chunksize) {

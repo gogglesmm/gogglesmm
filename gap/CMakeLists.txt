@@ -98,7 +98,7 @@ set_package_properties(gcrypt PROPERTIES
 
 set_package_properties(zlib PROPERTIES
                             URL "http://www.zlib.net/"
-                            PURPOSE "\tzlib decompression for http"
+                            PURPOSE "\tzlib decompression for http(s)"
                             TYPE OPTIONAL)
 
 
