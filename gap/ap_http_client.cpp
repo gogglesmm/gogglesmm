@@ -82,7 +82,7 @@ void HttpClient::setAcceptEncoding(const FXuchar opts) {
   }
 #else
 void HttpClient::setAcceptEncoding(const FXuchar) {
-  options = (options&~AcceptEncodingGZip) // always turn off
+  options = (options&~AcceptEncodingGZip); // always turn off
   }
 #endif
 

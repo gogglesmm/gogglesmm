@@ -574,13 +574,13 @@ extern void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,
 
 extern const FXuint vorbis_channel_map[];
 
+extern void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
+
 #endif
 
 
+
 #ifdef HAVE_OPUS
-
-extern void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,MetaInfo * meta);
-
 
 
 ReadStatus OggReader::parse_opus_stream() {

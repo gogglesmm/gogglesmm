@@ -129,11 +129,21 @@ if(UNIX)
     option(WITH_OSS "OSS Output Support" ON)
     option(WITH_ALSA "ALSA Output Support" OFF)
   endif()
+  option(WITH_PULSE "PulseAudio Output Support" ON)
+  option(WITH_JACK "Jack Output Support (currently not working)" OFF)
   option(WITH_TREMOR "Tremor Support" OFF)
   option(WITH_OPENSSL "OpenSSL Support" ON)
   option(WITH_GNUTLS "GnuTLS Support" ON)
   option(WITH_GCRYPT "libgcrypt Support" ON)
+  option(WITH_MATROSKA "Matroska Support" ON)
   option(WITH_ZLIB "zlib Support" ON)
+  option(WITH_MAD "mp3 Playback Support" ON)
+  option(WITH_ALAC "alac Playback Support" ON)
+  option(WITH_FAAD "aac Playback Support" ON)
+  option(WITH_OPUS "opus Playback Support" ON)
+  option(WITH_VORBIS "vorbis Playback Support" ON)
+  option(WITH_FLAC "vorbis Playback Support" ON)
+  option(WITH_A52 "a52 Playback Support" OFF)
 endif()
 
 # Endiannes
@@ -208,7 +218,7 @@ endif()
 
 
 # Check for a52
-#find_path(HAVE_A52_H a52dec/a52.h)
+find_path(HAVE_A52_H a52dec/a52.h)
 if (HAVE_A52_H)
     find_library(A52_LIBRARIES NAMES a52)
     if (A52_LIBRARIES)
@@ -288,28 +298,14 @@ set(PUBLIC_HEADERS include/ap.h
 
 
 set(PLUGIN_SOURCES plugins/ap_aiff.cpp
-                   plugins/ap_alac.cpp
                    plugins/ap_file.cpp
                    plugins/ap_http.cpp
-                   plugins/ap_id3v2.cpp
                    plugins/ap_m3u.cpp
-                   plugins/ap_mp4.cpp
                    plugins/ap_pcm.cpp
                    plugins/ap_pls.cpp
                    plugins/ap_wav.cpp
                    plugins/ap_xspf.cpp
-                   plugins/ap_matroska.cpp
                    )
-
-set(PLUGIN_HEADERS plugins/ap_id3v2.h)
-
-set(HAVE_ALAC 1)
-set(HAVE_MP4 1)
-
-
-# Add ALAC library
-LIST(APPEND GAP_TARGET_OBJECTS $<TARGET_OBJECTS:gap_alac>)
-
 #if(WIN32)
   if(BUILD_GAP_SHARED_LIB)
     add_definitions(-DGAP_DLL)
@@ -322,6 +318,19 @@ LIST(APPEND GAP_TARGET_OBJECTS $<TARGET_OBJECTS:gap_alac>)
 # Link to FOX during shared library build
 if(BUILD_GAP_SHARED_LIB)
   LIST(APPEND LIBRARIES ${FOX_LIBRARIES})
+endif()
+
+
+# Add Alac
+if(WITH_ALAC)
+  set(HAVE_ALAC 1)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_alac.cpp)
+  LIST(APPEND GAP_TARGET_OBJECTS $<TARGET_OBJECTS:gap_alac>)
+endif()
+
+if(WITH_MATROSKA)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_matroska.cpp)
+  set(HAVE_MATROSKA 1)
 endif()
 
 
@@ -353,70 +362,77 @@ if(NOT HAVE_GNUTLS AND NOT HAVE_OPENSSL AND NOT HAVE_GCRYPT)
 endif()
 
 
-if(FLAC_FOUND)
+if(WITH_FLAC AND FLAC_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_flac.cpp)
   LIST(APPEND LIBRARIES ${FLAC_LIBRARIES})
   set(HAVE_FLAC 1)
 endif()
 
-if(TREMOR_FOUND AND OGG_FOUND AND WITH_TREMOR)
+if(WITH_TREMOR AND TREMOR_FOUND AND OGG_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
   LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
   LIST(APPEND LIBRARIES ${TREMOR_LIBRARIES})
   set(HAVE_TREMOR 1)
 endif()
 
-if(VORBIS_FOUND AND OGG_FOUND AND NOT WITH_TREMOR)
+if(WITH_VORBIS AND VORBIS_FOUND AND OGG_FOUND AND NOT WITH_TREMOR)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
   LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
   LIST(APPEND LIBRARIES ${VORBIS_LIBRARIES})
   set(HAVE_VORBIS 1)
 endif()
 
-
-if(OGG_FOUND AND (FLAC_FOUND OR OPUS_FOUND OR VORBIS_FOUND OR TREMOR_FOUND))
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg.cpp plugins/ap_ogg_decoder.cpp)
-  LIST(APPEND PLUGIN_HEADERS plugins/ap_ogg_decoder.h)
-  LIST(APPEND LIBRARIES ${OGG_LIBRARIES})
-  set(HAVE_OGG 1)
-endif()
-
-
-if(OPUS_FOUND AND OGG_FOUND)
+if(WITH_OPUS AND OPUS_FOUND AND OGG_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_opus.cpp)
   LIST(APPEND PLUGIN_HEADERS plugins/ap_opus.h)
   LIST(APPEND LIBRARIES ${OPUS_LIBRARIES})
   set(HAVE_OPUS 1)
 endif()
 
-if(MAD_FOUND)
+if(OGG_FOUND AND (HAVE_VORBIS OR HAVE_FLAC OR HAVE_TREMOR OR HAVE_OPUS))
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg.cpp plugins/ap_ogg_decoder.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_ogg_decoder.h)
+  LIST(APPEND LIBRARIES ${OGG_LIBRARIES})
+  set(HAVE_OGG 1)
+endif()
+
+if(WITH_MAD AND MAD_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_mad.cpp)
   LIST(APPEND LIBRARIES ${MAD_LIBRARIES})
   set(HAVE_MAD 1)
 endif()
 
-
-if(FAAD_FOUND)
+if(WITH_FAAD AND FAAD_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_aac.cpp)
   LIST(APPEND LIBRARIES ${FAAD_LIBRARIES})
   set(HAVE_FAAD 1)
 endif()
 
-if(DCA_FOUND)
+if(WITH_DCA AND WITH_MATROSKA AND DCA_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_dca.cpp)
   LIST(APPEND LIBRARIES ${DCA_LIBRARIES})
   set(HAVE_DCA 1)
 endif()
 
-if(A52_FOUND)
+if(WITH_A51 AND WITH_MATROSKA AND A52_FOUND)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_a52.cpp)
   LIST(APPEND LIBRARIES ${A52_LIBRARIES})
   set(HAVE_A52 1)
 endif()
 
-if(SAMPLERATE_FOUND)
+if(WITH_SAMPLERATE AND SAMPLERATE_FOUND)
   LIST(APPEND LIBRARIES ${SAMPLERATE_LIBRARIES})
   set(HAVE_SAMPLERATE 1)
+endif()
+
+if(HAVE_FAAD OR HAVE_ALAC)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_mp4.cpp)
+  set(HAVE_MP4 1)
+endif()
+
+if(HAVE_FLAC OR HAVE_MAD)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_id3v2.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_id3v2.h)
 endif()
 
 
@@ -447,7 +463,7 @@ endif()
 if(NOT WIN32)
 
   # Alsa Output
-  if (ALSA_FOUND AND WITH_ALSA)
+  if (WITH_ALSA AND ALSA_FOUND)
     add_library(gap_alsa MODULE plugins/ap_alsa.cpp)
     target_link_libraries(gap_alsa ${ALSA_LIBRARIES})
     target_include_directories(gap_alsa PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
@@ -456,7 +472,7 @@ if(NOT WIN32)
   endif()
 
   # Pulse Output
-  if (PULSE_FOUND)
+  if (WITH_PULSE AND PULSE_FOUND)
     add_library(gap_pulse MODULE plugins/ap_pulse.cpp)
     target_link_libraries(gap_pulse ${PULSE_LIBRARIES})
     target_include_directories(gap_pulse PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
@@ -465,7 +481,7 @@ if(NOT WIN32)
   endif()
 
   # Jack Output
-  if (JACK_FOUND)
+  if (WITH_JACK AND JACK_FOUND)
     add_library(gap_jack MODULE plugins/ap_jack.cpp)
     target_link_libraries(gap_jack ${PULSE_LIBRARIES})
     target_include_directories(gap_jack PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})

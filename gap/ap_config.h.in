@@ -5,6 +5,7 @@
 #cmakedefine HAVE_OPUS
 #cmakedefine HAVE_MAD
 #cmakedefine HAVE_FAAD
+#cmakedefine HAVE_MP4
 #cmakedefine HAVE_DCA
 #cmakedefine HAVE_A52
 #cmakedefine HAVE_ALAC
@@ -18,6 +19,7 @@
 #cmakedefine HAVE_GNUTLS
 #cmakedefine HAVE_GCRYPT
 #cmakedefine HAVE_ZLIB
+#cmakedefine HAVE_MATROSKA
 #define AP_PLUGIN_PATH "${AP_PLUGIN_PATH}"
 #define GAP_VERSION_STRING "${GAP_VERSION}"
 #define GAP_VERSION_MAJOR ${GAP_VERSION_MAJOR}

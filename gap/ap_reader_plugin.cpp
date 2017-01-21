@@ -124,7 +124,10 @@ extern ReaderPlugin * ap_pls_reader(AudioEngine*);
 extern ReaderPlugin * ap_xspf_reader(AudioEngine*);
 extern ReaderPlugin * ap_wav_reader(AudioEngine*);
 extern ReaderPlugin * ap_aiff_reader(AudioEngine*);
+
+#ifdef HAVE_MATROSKA
 extern ReaderPlugin * ap_matroska_reader(AudioEngine*);
+#endif
 
 #ifdef HAVE_FLAC
 extern ReaderPlugin * ap_flac_reader(AudioEngine*);
@@ -142,7 +145,7 @@ extern ReaderPlugin * ap_mad_reader(AudioEngine*);
 extern ReaderPlugin * ap_aac_reader(AudioEngine*);
 #endif
 
-#ifdef HAVE_FAAD
+#ifdef HAVE_MP4
 extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
 #endif
 
@@ -161,14 +164,16 @@ ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
 #ifdef HAVE_FAAD
     case Format::AAC      : return ap_aac_reader(engine); break;
 #endif
-#ifdef HAVE_FAAD
+#ifdef HAVE_MP4
     case Format::MP4      : return ap_mp4_reader(engine); break;
 #endif
     case Format::M3U      : return ap_m3u_reader(engine); break;
     case Format::PLS      : return ap_pls_reader(engine); break;
     case Format::XSPF     : return ap_xspf_reader(engine); break;
     case Format::AIFF     : return ap_aiff_reader(engine); break;
+#ifdef HAVE_MATROSKA
     case Format::Matroska : return ap_matroska_reader(engine); break;
+#endif
     default               : return nullptr; break;
     }
   return nullptr;
