@@ -159,38 +159,21 @@ GMDirSelector::GMDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
   delete dirbox->getParent();
   delete dirname->getParent();
 
-
-//  FXHorizontalFrame *buttons=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH);
-//  accept=new FXButton(buttons,tr("&OK"),nullptr,nullptr,0,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
-//  cancel=new FXButton(buttons,tr("&Cancel"),nullptr,nullptr,0,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
-  FXHorizontalFrame *field=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
-  new FXLabel(field,tr("&Folder:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
-  dirname=new GMTextField(field,25,this,ID_DIRNAME,LAYOUT_FILL_X|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK);
+  FXHorizontalFrame * fields=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
+  new FXLabel(fields,tr("&Folder:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
+  dirname=new GMTextField(fields,25,this,ID_DIRNAME,LAYOUT_FILL_X|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK);
 
   GMScrollFrame *frame=new GMScrollFrame(this);
   dirbox=new FXDirList(frame,this,ID_DIRLIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_TOP|TREELIST_SHOWS_LINES|TREELIST_SHOWS_BOXES|TREELIST_BROWSESELECT);
-
-
-
 
   GMScrollArea::replaceScrollbars(dirbox);
   ((FXVerticalFrame*)dirbox->getParent())->setFrameStyle(FRAME_LINE);
 
   GMFileAssociations * assoc = new GMFileAssociations(getApp());
   dirbox->setAssociations(assoc,true);
-/*
-  getFirst()->hide();
-  FXFrame * frame=(FXFrame*)getFirst()->getNext();
-  frame->setPadLeft(0);
-  frame->setPadRight(0);
-  frame->setPadTop(0);
-  frame->setPadBottom(0);
-*/
   }
 
 GMDirSelector::~GMDirSelector(){
-//  delete fileassoc;
-//  delete filedict;
   }
 
 
@@ -438,6 +421,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
   target_id3v1_encoding.connect(GMPlayerManager::instance()->getPreferences().import.id3v1_encoding);
 
   target_fetch_lyrics.connect(GMPlayerManager::instance()->getPreferences().import.fetch_lyrics);
+  target_playback_only.connect(GMPlayerManager::instance()->getPreferences().import.playback_only);
 
   const FXuint labelstyle=LAYOUT_CENTER_Y|LABEL_NORMAL|LAYOUT_RIGHT;
   const FXuint textfieldstyle=TEXTFIELD_ENTER_ONLY|LAYOUT_FILL_X|FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_COLUMN;
@@ -478,23 +462,6 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     new GMTabItem(tabbook,tr("&Folder"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
     vframe = new GMTabFrame(tabbook);
 
-    if (0==(mode&REMOVE_FOLDER)) {
-      GMCheckButton * excludetoggle = new GMCheckButton(vframe,tr("Exclude Filter\tFilter out directories and/or files based on pattern"),nullptr,0,CHECKBUTTON_NORMAL|CHECKBUTTON_PLUS);
-
-      matrix = new FXMatrix(vframe,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,16,4,0,0);
-      new FXLabel(matrix,tr("Folders:"),nullptr,labelstyle);
-      new GMTextField(matrix,20,&target_exclude_dir,FXDataTarget::ID_VALUE,textfieldstyle);
-      new FXLabel(matrix,tr("Files:"),nullptr,labelstyle);
-      new GMTextField(matrix,20,&target_exclude_file,FXDataTarget::ID_VALUE,textfieldstyle);
-
-      excludetoggle->setTarget(matrix);
-      excludetoggle->setSelector(FXWindow::ID_TOGGLESHOWN);
-
-      if (GMPlayerManager::instance()->getPreferences().import.exclude_folder.empty() && GMPlayerManager::instance()->getPreferences().import.exclude_file.empty())
-        matrix->hide();
-      }
-
-
     dirselector = new GMDirSelector(vframe,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
     FXString searchdir = getApp()->reg().readStringEntry("directories","last-import-dirs",nullptr);
     if (searchdir.empty()) getDefaultSearchDirectory(searchdir);
@@ -517,6 +484,7 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     }
 
   if ((mode&REMOVE_FOLDER)==0) {
+
     new GMTabItem(tabbook,tr("&Track"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
     vframe = new GMTabFrame(tabbook);
 
@@ -578,6 +546,30 @@ GMImportDialog::GMImportDialog(FXWindow *p,FXuint m) : FXDialogBox(p,FXString::n
     else {
       template_grpbox->show();
       }
+
+
+    /// Filter Panel
+    new GMTabItem(tabbook,tr("&Filter"),nullptr,TAB_TOP_NORMAL,0,0,0,0,5,5);
+    vframe = new GMTabFrame(tabbook);
+
+    grpbox =  new FXGroupBox(vframe,tr("Exclude Files"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,36,4);
+    new GMCheckButton(grpbox,tr("Unsupported Playback Formats"),&target_playback_only,FXDataTarget::ID_VALUE,LAYOUT_FILL_COLUMN|CHECKBUTTON_NORMAL);
+
+    grpbox = new FXGroupBox(vframe,tr("Exclude by Pattern"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
+    //grpbox->setFont(GMApp::instance()->getThickFont());
+
+    matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X,0,0,0,0,16,4,0,0);
+    new FXLabel(matrix,tr("Folders:"),nullptr,labelstyle);
+    new GMTextField(matrix,20,&target_exclude_dir,FXDataTarget::ID_VALUE,textfieldstyle);
+    new FXLabel(matrix,tr("Files:"),nullptr,labelstyle);
+    new GMTextField(matrix,20,&target_exclude_file,FXDataTarget::ID_VALUE,textfieldstyle);
+    new FXFrame(matrix,FRAME_NONE);
+
+
+
+
+
+
     }
 
 

@@ -91,6 +91,7 @@ protected:
   GMDBTracks        dbtracks;
   GMImportOptions   options;
   FXStringList      files;
+  FXString          pattern;
   Lyrics*           lyrics = nullptr;
   FXint             count = 0;
 protected:

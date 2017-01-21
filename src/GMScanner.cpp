@@ -320,6 +320,7 @@ void GMDBTracks::remove(FXint track) {
 
 GMImportTask::GMImportTask(FXObject *tgt,FXSelector sel) : GMTask(tgt,sel) {
   database = GMPlayerManager::instance()->getTrackDatabase();
+  pattern = FILE_PATTERNS;
   }
 
 
@@ -335,6 +336,9 @@ void GMImportTask::setOptions(const GMImportOptions & o) {
       lyrics=nullptr;
       }
     }
+  if (options.playback_only) {
+    pattern = ap_get_gogglesmm_supported_files();
+    }
   }
 
 
@@ -346,6 +350,12 @@ GMImportTask::~GMImportTask() {
 FXint GMImportTask::run() {
   FXASSERT(database);
   try {
+
+    GM_DEBUG_PRINT("Using file pattern: %s\n",pattern.text());
+
+    // Make sure we have something to do
+    if (pattern.empty()) return 0;
+
     dbtracks.init(database,options.album_format_grouping);
 
     setID3v1Encoding();
@@ -427,7 +437,7 @@ void GMImportTask::import() {
         if (!data.isDirectory() && data.isReadable()) {
           const FXString path = FXPath::directory(files[i]);
           const FXString name = FXPath::name(files[i]);
-          if (FXPath::match(name,FILE_PATTERNS,matchflags)){
+          if (FXPath::match(name,pattern,matchflags)){
             FXint path_index = dbtracks.hasPath(path);
             parse(path,name,path_index);
             }
@@ -475,7 +485,7 @@ next_dir:;
       if (FXStat::statFile(path+PATHSEPSTRING+name,data)) {
         if (!data.isDirectory() && data.isReadable()) {
           if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
-            if (FXPath::match(name,FILE_PATTERNS,matchflags)) {
+            if (FXPath::match(name,pattern,matchflags)) {
               parse(path,name,path_index);
               }
             }
@@ -681,6 +691,9 @@ GMSyncTask::~GMSyncTask() {
 FXint GMSyncTask::run() {
   FXASSERT(database);
   try {
+
+    GM_DEBUG_PRINT("Using file pattern: %s\n",pattern.text());
+
     dbtracks.init(database,options.album_format_grouping);
 
     setID3v1Encoding();
@@ -925,7 +938,7 @@ next_dir:;
       if (FXStat::statFile(path+PATHSEPSTRING+name,data)) {
         if (!data.isDirectory() && data.isReadable()) {
           if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
-            if (FXPath::match(name,FILE_PATTERNS,matchflags)) {
+            if (FXPath::match(name,pattern,matchflags)) {
               parse_update(path,name,options_sync.update_always ? forever : data.modified(),path_index);
               }
             }

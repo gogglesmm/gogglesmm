@@ -76,6 +76,7 @@ protected:
   FXDataTarget target_album_format_grouping;
   FXDataTarget target_detect_compilation;
   FXDataTarget target_fetch_lyrics;
+  FXDataTarget target_playback_only;
 protected:
   GMFileSelector  * fileselector = nullptr;
   GMDirSelector   * dirselector = nullptr;

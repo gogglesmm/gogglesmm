@@ -75,6 +75,7 @@ public:
   FXbool   album_format_grouping = true;
   FXbool   detect_compilation    = false;
   FXbool   fetch_lyrics          = false;
+  FXbool   playback_only         = false;
 public:
   enum {
     PARSE_TAG = 0,
