@@ -47,6 +47,8 @@
 #include "GMPreferencesDialog.h"
 #include "FXUTF8Codec.h"
 
+#include "GMAudioPlayer.h"
+
 #ifdef HAVE_OPENGL
 #include "GMImageView.h"
 #endif
@@ -1234,9 +1236,21 @@ GMOpenDialog::GMOpenDialog(FXWindow*p) : FXDialogBox(p,fxtr("Play File or Stream
 
 long GMOpenDialog::onCmdBrowse(FXObject*,FXSelector,void*){
   GMFileDialog filedialog(this,tr("Select File"));
-  if (!input->getText().empty())
-    filedialog.setFilename(input->getText());
-  filedialog.setPatternList(gmfilepatterns);
+  if (!input->getText().empty()) {
+
+    FXString scheme = FXURL::scheme(input->getText());
+    if (scheme=="file") {
+      FXString filename = FXURL::fileFromURL(input->getText());
+      if (!filename.empty()) filedialog.setFilename(filename);
+      }
+    else if (scheme.empty()) {
+      filedialog.setFilename(input->getText());
+      }
+    else {
+      filedialog.setDirectory(FXSystem::getHomeDirectory());
+      }
+    }
+  filedialog.setPatternList(ap_get_gogglesmm_filepatterns());
   if (filedialog.execute())
     input->setText(filedialog.getFilename());
   return 1;
