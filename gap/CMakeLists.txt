@@ -144,6 +144,7 @@ if(UNIX)
   option(WITH_VORBIS "vorbis Playback Support" ON)
   option(WITH_FLAC "vorbis Playback Support" ON)
   option(WITH_A52 "a52 Playback Support" OFF)
+  option(WITH_WAVOUT "WAV Output Support" ON)
 endif()
 
 # Endiannes
@@ -463,11 +464,13 @@ endif()
 
 
 # Wav File output
-add_library(gap_wav MODULE plugins/ap_wavout.cpp)
-target_include_directories(gap_wav PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
-install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
-if(MSVC)
-  target_link_libraries(gap_wav ${FOX_LIBRARIES} ${GAP_PLUGIN_LINK_TARGET})
+if(WITH_WAVOUT)
+  add_library(gap_wav MODULE plugins/ap_wavout.cpp)
+  target_include_directories(gap_wav PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
+  install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
+  if(MSVC)
+    target_link_libraries(gap_wav ${FOX_LIBRARIES} ${GAP_PLUGIN_LINK_TARGET})
+  endif()
 endif()
 
 if(NOT WIN32)
@@ -513,25 +516,26 @@ endif()
 
 #-------------------------------------------------------------------------------
 
-add_feature_info(wav ON "Wav File Ouput")
+add_feature_info(wav WITH_WAVOUT "Wav File Ouput")
 add_feature_info(pulse HAVE_PULSE "PulseAudio")
 add_feature_info(alsa HAVE_ALSA "Advanced Linux Sound Architecture")
 add_feature_info(oss HAVE_OSS "OSS Output")
 add_feature_info(jack HAVE_JACK "Jack Output")
 add_feature_info(vorbis HAVE_VORBIS "Vorbis Decoder")
 add_feature_info(tremor HAVE_TREMOR "Vorbis Decoder")
-add_feature_info(ogg HAVE_OGG "Ogg Parser")
+add_feature_info(ogg HAVE_OGG "Ogg File Support")
 add_feature_info(faad HAVE_FAAD "MPEG-4 and MPEG-2 AAC decoder")
 add_feature_info(mad HAVE_MAD "MPEG audio decoder")
 add_feature_info(opus HAVE_OPUS "Opus Decoder")
 add_feature_info(alac HAVE_ALAC "ALAC Decoder")
-add_feature_info(mp4 HAVE_MP4 "MP4 Parser")
+add_feature_info(mp4 HAVE_MP4 "MP4 File Support")
 add_feature_info(flac HAVE_FLAC "Free Lossless Audio Codec")
 add_feature_info(dca HAVE_DCA "DTS Coherent Acoustics deocder")
 add_feature_info(a52 HAVE_A52 "ATSC A/52 stream decoder")
 add_feature_info(openssl HAVE_OPENSSL "OpenSSL")
 add_feature_info(gnutls HAVE_GNUTLS "GnuTLS")
 add_feature_info(gcrypt HAVE_GCRYPT "libgcrypt")
+add_feature_info(matroska HAVE_MATROSKA "Matroska File Support")
 
 
 set(AP_PLUGIN_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/gogglesmm)
