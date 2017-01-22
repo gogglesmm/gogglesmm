@@ -32,6 +32,7 @@
 #include "GMWindow.h"
 #include "GMIconTheme.h"
 #include "GMFilename.h"
+#include "GMAudioPlayer.h"
 
 
 FXDEFMAP(GMLocalSource) GMLocalSourceMap[]={
@@ -147,6 +148,7 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
   FXString  name;
   FXString  pathname;
   FXString  ext;
+  FXString  pattern = ap_get_gogglesmm_all_supported_files();
   FXint     id=1;
   FXuchar   flags;
 
@@ -190,25 +192,8 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
       islink=stat.isLink();
       if(islink && !FXStat::statFile(pathname,stat)) continue;
 
-      if (stat.isFile()) {
-        ext = FXPath::extension(name);
-        if (ext!="ogg"  &&
-            ext!="opus" &&
-            ext!="flac" &&
-            ext!="mp3"  &&
-            ext!="oga"  &&
-            ext!="mpc"  &&
-            ext!="wav"  &&
-            ext!="m4a"  &&
-            ext!="m4p"  &&
-            ext!="m4b"  &&
-            ext!="mp4"  &&
-            ext!="aac"  &&
-            ext!="aiff" &&
-            ext!="aif" &&
-            ext!="mkv" &&
-            ext!="webm" )
-          continue;
+      if (stat.isFile() && !FXPath::match(name,pattern,FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold)) {
+        continue;
         }
 
       if (stat.isDirectory())
