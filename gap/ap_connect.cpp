@@ -87,6 +87,11 @@ FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
 #if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
   use_ssl = (port==443);
   if (use_ssl) GM_DEBUG_PRINT("[connection] using SSL on port %d\n",port);
+#else
+  if (port==443) {
+    GM_DEBUG_PRINT("[connection] no support for SSL\n");
+    return nullptr;
+    }
 #endif
 
   result=getaddrinfo(hostname.text(),FXString::value(port).text(),&hints,&list);

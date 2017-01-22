@@ -44,11 +44,7 @@ void HttpHost::clear() {
 
 FXbool HttpHost::set(const FXString & url) {
   FXString nn = FXURL::host(url);
-#if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
   FXint    np = FXURL::port(url,(FXURL::scheme(url)=="https") ? 443 : 80);
-#else
-  FXint    np = FXURL::port(url,80);
-#endif
   if (name!=nn || port!=np) {
     name.adopt(nn);
     port=np;
