@@ -38,7 +38,7 @@ void check_lastversion() {
   }
 
 
-int main(int argc,char * argv[]) {
+int main(int /*argc*/,char ** /*argv*/) {
   ap_init_crypto();
   check_lastversion();
   ap_free_crypto();
