@@ -358,6 +358,33 @@ extern const FXchar * ap_format_name(FXuint format){
   }
 
 
+extern FXString ap_get_gogglesmm_all_supported_files() {
+  const FXchar * const supported = "*.("
+#if defined(HAVE_OPUS)
+  "opus,"
+#endif
+#if defined(HAVE_FLAC)
+  "flac,oga,"
+#endif
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
+  "ogg,"
+#endif
+#if defined(HAVE_MAD)
+  "mp3,"
+#endif
+#if defined(HAVE_MP4)
+  "mp4,m4a,m4b,m4p,"
+#endif
+#if defined(HAVE_FAAD)
+  "aac,"
+#endif
+#if defined(HAVE_MATROSKA)
+  "mkv,mka,webm,"
+#endif
+  "wav,aiff)"
+  ;
+  return supported;
+  }
 
 
 extern FXString ap_get_gogglesmm_supported_files() {
@@ -390,6 +417,88 @@ extern FXString ap_get_gogglesmm_supported_files() {
   pattern.tail() = ')';
   return pattern;
   }
+
+
+extern FXString ap_get_gogglesmm_filepatterns() {
+  const FXchar * const patterns =
+
+ "All Music ("
+#if defined(HAVE_OPUS)
+  "*.opus,"
+#endif
+#if defined(HAVE_FLAC)
+  "*.flac,*.oga,"
+#endif
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
+  "*.ogg,"
+#endif
+#if defined(HAVE_MAD)
+  "*.mp3,"
+#endif
+#if defined(HAVE_MP4)
+  "*.mp4,*.m4a,*.m4b,*.m4p,"
+#endif
+#if defined(HAVE_FAAD)
+  "*.aac,"
+#endif
+#if defined(HAVE_MATROSKA)
+  "*.mka,*.webm"
+#endif
+  "*.wav,*.aiff)\n"
+
+// All Media
+
+  "All Media ("
+#if defined(HAVE_OPUS)
+  "*.opus,"
+#endif
+#if defined(HAVE_FLAC)
+  "*.flac,*.oga,"
+#endif
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
+  "*.ogg,"
+#endif
+#if defined(HAVE_MAD)
+  "*.mp3,"
+#endif
+#if defined(HAVE_MP4)
+  "*.mp4,*.m4a,*.m4b,*.m4p,"
+#endif
+#if defined(HAVE_FAAD)
+  "*.aac,"
+#endif
+#if defined(HAVE_MATROSKA)
+  "*.mkv,*.mka,*.webm"
+#endif
+  "*.wav,*.aiff)\n"
+
+#if defined(HAVE_OPUS)
+  "Opus (*.opus)\n"
+#endif
+#if defined(HAVE_FLAC)
+  "Free Lossless Audio Codec (*.flac,*.oga)\n"
+#endif
+#if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
+  "Ogg Vorbis (*.ogg)\n"
+#endif
+#if defined(HAVE_MAD)
+  "MPEG-1 Audio Layer 3 (*.mp3)\n"
+#endif
+#if defined(HAVE_MP4)
+  "MPEG-4 Part 14 (*.mp4,*.m4a,*.m4p,*.m4b)\n"
+#endif
+#if defined(HAVE_FAAD)
+  "Advanced Audio Coding (*.aac)\n"
+#endif
+#if defined(HAVE_MATROSKA)
+  "Matroska (*.mka,*.webm)"
+#endif
+  "Wav (*.wav,*.aiff)\n";
+
+  return patterns;
+  }
+
+
 
 
 

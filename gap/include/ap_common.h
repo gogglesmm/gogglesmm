@@ -44,6 +44,12 @@ extern GMAPI FXbool ap_md5_digest(FXString & io);
 
 extern GMAPI FXString ap_get_gogglesmm_supported_files();
 
+extern GMAPI FXString ap_get_gogglesmm_all_supported_files();
+
+extern GMAPI FXString ap_get_gogglesmm_filepatterns();
+
+
+
 
 class GMAPI Base64Encoder {
 private:
