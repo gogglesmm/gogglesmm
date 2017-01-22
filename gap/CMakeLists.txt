@@ -33,62 +33,57 @@ set_package_properties(expat PROPERTIES
 
 set_package_properties(flac PROPERTIES
                             URL "https://xiph.org/flac"
-                            PURPOSE "\tflac playback support"
+                            PURPOSE "\tFLAC Codec"
                             TYPE RECOMMENDED)
 
 set_package_properties(ogg PROPERTIES
                             URL "https://www.xiph.org/ogg/"
-                            PURPOSE "\togg container support (used by vorbis, opus and flac codecs)"
+                            PURPOSE "\tOgg File Input"
                             TYPE RECOMMENDED)
 
 set_package_properties(vorbis PROPERTIES
                             URL "http://www.vorbis.com/"
-                            PURPOSE "\togg vorbis playback support"
+                            PURPOSE "\tVorbis Codec"
                             TYPE RECOMMENDED)
 
 set_package_properties(opus PROPERTIES
                             URL "http://www.opus-codec.org/"
-                            PURPOSE "\topus playback support"
+                            PURPOSE "\tOpus Codec"
                             TYPE RECOMMENDED)
 
 set_package_properties(mad PROPERTIES
                             URL "http://www.underbit.com/products/mad/"
-                            PURPOSE "\tmp3 playback support"
+                            PURPOSE "\tMP3 Codec"
                             TYPE OPTIONAL)
 
 set_package_properties(faad PROPERTIES
                             URL "http://www.audiocoding.com/faad2.html"
-                            PURPOSE "\tmp4 / aac playback support"
+                            PURPOSE "\tAAC Codec"
                             TYPE OPTIONAL)
 
 set_package_properties(tremor PROPERTIES
                             URL "https://xiph.org/vorbis/"
-                            PURPOSE "\togg vorbis playback support"
+                            PURPOSE "\tVorbis Codec"
                             TYPE OPTIONAL)
 
 set_package_properties(alsa PROPERTIES
                             URL "http://www.alsa-project.org/"
-                            PURPOSE "\talsa output support"
+                            PURPOSE "\tALSA Output"
                             TYPE OPTIONAL)
 
 set_package_properties(pulse PROPERTIES
                             URL "https://www.freedesktop.org/wiki/Software/PulseAudio"
-                            PURPOSE "\tpulseaudio output support"
+                            PURPOSE "\tPulseAudio Output"
                             TYPE OPTIONAL)
-
-set_package_properties(oss PROPERTIES
-                            PURPOSE "\toss output support"
-                            TYPE OPTIONAL)
-
 
 set_package_properties(openssl PROPERTIES
                             URL "https://www.openssl.org"
-                            PURPOSE "\tSecure Connections"
+                            PURPOSE "\tSecure HTTP"
                             TYPE OPTIONAL)
 
 set_package_properties(gnutls PROPERTIES
                             URL "https://www.gnutls.org"
-                            PURPOSE "\tSecure Connections"
+                            PURPOSE "\tSecure HTTP"
                             TYPE OPTIONAL)
 
 set_package_properties(gcrypt PROPERTIES
@@ -98,7 +93,7 @@ set_package_properties(gcrypt PROPERTIES
 
 set_package_properties(zlib PROPERTIES
                             URL "http://www.zlib.net/"
-                            PURPOSE "\tzlib decompression for http(s)"
+                            PURPOSE "\tZLIB decompression for http(s)"
                             TYPE OPTIONAL)
 
 
@@ -122,6 +117,8 @@ endif()
 
 # Optional flags to turn on/off compilation of specific modules
 if(UNIX)
+
+  # Output Plugins
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     option(WITH_OSS "OSS Output Support" OFF)
     option(WITH_ALSA "ALSA Output Support" ON)
@@ -131,20 +128,30 @@ if(UNIX)
   endif()
   option(WITH_PULSE "PulseAudio Output Support" ON)
   option(WITH_JACK "Jack Output Support (currently not working)" OFF)
-  option(WITH_TREMOR "Tremor Support" OFF)
+  option(WITH_WAVOUT "WAV Output Support" ON)
+
+  # Containers
+  option(WITH_OGG "Ogg File Support" ON)
+  option(WITH_MATROSKA "Matroska File Support" ON)
+  option(WITH_MP4 "MP4 File Support" ON)
+
+  # Codecs
+  option(WITH_VORBIS "Vorbis Codec Support" ON)
+  option(WITH_TREMOR "Vorbis Codec (using Tremor) Support" OFF)
+  option(WITH_FLAC "FLAC Codec Support" ON)
+  option(WITH_MAD "MP3 Codec Support" ON)
+  option(WITH_ALAC "ALAC Codec Support" ON)
+  option(WITH_FAAD "AAC Codec Support" ON)
+  option(WITH_OPUS "Opus Codec Support" ON)
+  option(WITH_A52 "A52 Codec Support" OFF)
+
+  # HTTP(s) + Zlib
   option(WITH_OPENSSL "OpenSSL Support" ON)
   option(WITH_GNUTLS "GnuTLS Support" ON)
   option(WITH_GCRYPT "libgcrypt Support" ON)
-  option(WITH_MATROSKA "Matroska Support" ON)
   option(WITH_ZLIB "zlib Support" ON)
-  option(WITH_MAD "mp3 Playback Support" ON)
-  option(WITH_ALAC "alac Playback Support" ON)
-  option(WITH_FAAD "aac Playback Support" ON)
-  option(WITH_OPUS "opus Playback Support" ON)
-  option(WITH_VORBIS "vorbis Playback Support" ON)
-  option(WITH_FLAC "vorbis Playback Support" ON)
-  option(WITH_A52 "a52 Playback Support" OFF)
-  option(WITH_WAVOUT "WAV Output Support" ON)
+
+
 endif()
 
 # Endiannes
@@ -169,63 +176,88 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 else()
   find_package(PkgConfig REQUIRED QUIET)
   pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
-  pkg_check_modules(ALSA alsa>=1.0)
-  pkg_check_modules(PULSE libpulse>=0.9.21)
-  pkg_check_modules(FLAC flac)
-  pkg_check_modules(VORBIS vorbis>=1.2)
-  pkg_check_modules(OGG ogg>=1.0)
-  pkg_check_modules(OPUS opus)
-  #pkg_check_modules(DCA libdca)
-  pkg_check_modules(TREMOR vorbisidec>=1.2)
-  #pkg_check_modules(SAMPLERATE samplerate)
-  # We need
-  #pkg_check_modules(JACK jack)
-  #pkg_check_modules(CDDA libcdio_cdda)
-  #pkg_check_modules(SMB smbclient)
-  pkg_check_modules(ZLIB zlib)
-  pkg_check_modules(OPENSSL openssl>=1.0.1)
-  pkg_check_modules(GNUTLS gnutls>=3.4.0)
-endif()
 
+  if(WITH_ALSA)
+    pkg_check_modules(ALSA alsa>=1.0)
+  endif()
 
-# Check for libgrypt
-check_include_files(gcrypt.h HAVE_GCRYPT_H)
-if (HAVE_GCRYPT_H)
-  find_library(LIBGCRYPT_LIBRARIES NAMES gcrypt )
-  if (LIBGCRYPT_LIBRARIES)
-    set(GCRYPT_FOUND TRUE)
+  if(WITH_PULSE)
+    pkg_check_modules(PULSE libpulse>=0.9.21)
+  endif()
+
+  if(WITH_FLAC)
+    pkg_check_modules(FLAC flac)
+  endif()
+
+  if(WITH_OGG)
+    pkg_check_modules(OGG ogg>=1.0)
+    if(WITH_TREMOR)
+      pkg_check_modules(TREMOR vorbisidec>=1.2)
+    elseif(WITH_VORBIS)
+      pkg_check_modules(VORBIS vorbis>=1.2)
+    endif()
+    if(WITH_OPUS)
+      pkg_check_modules(OPUS opus)
+    endif()
+  endif()
+
+  if(WITH_ZLIB)
+    pkg_check_modules(ZLIB zlib)
+  endif()
+
+  if(WITH_OPENSSL)
+    pkg_check_modules(OPENSSL openssl>=1.0.1)
+  elseif(WITH_GNUTLS)
+    pkg_check_modules(GNUTLS gnutls>=3.4.0)
+  elseif(WITH_GCRYPT)
+    check_include_files(gcrypt.h HAVE_GCRYPT_H)
+    if (HAVE_GCRYPT_H)
+      find_library(LIBGCRYPT_LIBRARIES NAMES gcrypt )
+      if (LIBGCRYPT_LIBRARIES)
+        set(GCRYPT_FOUND 1)
+      endif()
+    endif()
   endif()
 endif()
 
 
+# Check for libgrypt
+
+
 # Check for libmad
-check_include_files(mad.h HAVE_MAD_H)
-if (HAVE_MAD_H)
-  find_library(MAD_LIBRARIES NAMES mad )
-  if (MAD_LIBRARIES)
-    set(MAD_FOUND TRUE)
+if(WITH_MAD)
+  check_include_files(mad.h HAVE_MAD_H)
+  if (HAVE_MAD_H)
+    find_library(MAD_LIBRARIES NAMES mad )
+    if (MAD_LIBRARIES)
+      set(MAD_FOUND TRUE)
+    endif()
   endif()
 endif()
 
 
 # Check for faad
-check_include_files(faad.h HAVE_FAAD_H)
-if (HAVE_FAAD_H)
-  find_library(FAAD_LIBRARIES NAMES faad )
-  if (FAAD_LIBRARIES)
-    set(FAAD_FOUND TRUE)
+if(WITH_FAAD)
+  check_include_files(faad.h HAVE_FAAD_H)
+  if (HAVE_FAAD_H)
+    find_library(FAAD_LIBRARIES NAMES faad )
+    if (FAAD_LIBRARIES)
+      set(FAAD_FOUND TRUE)
+    endif()
   endif()
 endif()
 
 
 # Check for a52
-find_path(HAVE_A52_H a52dec/a52.h)
-if (HAVE_A52_H)
-    find_library(A52_LIBRARIES NAMES a52)
-    if (A52_LIBRARIES)
-        set(A52_FOUND TRUE)
-        message(STATUS "liba52dec found ${A52_LIBRARIES}")
-    endif()
+if(WITH_A52)
+  find_path(HAVE_A52_H a52dec/a52.h)
+  if (HAVE_A52_H)
+      find_library(A52_LIBRARIES NAMES a52)
+      if (A52_LIBRARIES)
+          set(A52_FOUND TRUE)
+          message(STATUS "liba52dec found ${A52_LIBRARIES}")
+      endif()
+  endif()
 endif()
 
 #-------------------------------------------------------------------------------
@@ -321,19 +353,91 @@ if(BUILD_GAP_SHARED_LIB)
   LIST(APPEND LIBRARIES ${FOX_LIBRARIES})
 endif()
 
-
-# Add Alac
-if(WITH_ALAC)
-  set(HAVE_ALAC 1)
+# Buildin Alac Decoder
+if(WITH_ALAC AND WITH_MP4)
   LIST(APPEND PLUGIN_SOURCES plugins/ap_alac.cpp)
   LIST(APPEND GAP_TARGET_OBJECTS $<TARGET_OBJECTS:gap_alac>)
+  set(HAVE_ALAC 1)
+endif()
+
+if(FLAC_FOUND)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_flac.cpp)
+  LIST(APPEND LIBRARIES ${FLAC_LIBRARIES})
+  set(HAVE_FLAC 1)
+endif()
+
+# Vorbis and Opus Decoders only with Ogg or Matroska.
+if(WITH_OGG AND OGG_FOUND)
+
+  if(WITH_TREMOR AND TREMOR_FOUND)
+    LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
+    LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
+    LIST(APPEND LIBRARIES ${TREMOR_LIBRARIES})
+    set(HAVE_TREMOR 1)
+  elseif(WITH_VORBIS AND VORBIS_FOUND)
+    LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
+    LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
+    LIST(APPEND LIBRARIES ${VORBIS_LIBRARIES})
+    set(HAVE_VORBIS 1)
+  endif()
+
+  if(WITH_OPUS AND OPUS_FOUND)
+    LIST(APPEND PLUGIN_SOURCES plugins/ap_opus.cpp)
+    LIST(APPEND PLUGIN_HEADERS plugins/ap_opus.h)
+    LIST(APPEND LIBRARIES ${OPUS_LIBRARIES})
+    set(HAVE_OPUS 1)
+  endif()
+
+  if((WITH_OGG AND OGG_FOUND) AND (HAVE_TREMOR OR HAVE_VORBIS OR HAVE_FLAC OR HAVE_OPUS))
+    LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg.cpp plugins/ap_ogg_decoder.cpp)
+    LIST(APPEND PLUGIN_HEADERS plugins/ap_ogg_decoder.h)
+    LIST(APPEND LIBRARIES ${OGG_LIBRARIES})
+    set(HAVE_OGG 1)
+  endif()
+endif()
+
+if(MAD_FOUND)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_mad.cpp)
+  LIST(APPEND LIBRARIES ${MAD_LIBRARIES})
+  set(HAVE_MAD 1)
+endif()
+
+if(FAAD_FOUND)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_aac.cpp)
+  LIST(APPEND LIBRARIES ${FAAD_LIBRARIES})
+  set(HAVE_FAAD 1)
+endif()
+
+# MP4 only supports AAC and ALAC
+if(WITH_MP4 AND HAVE_FAAD OR HAVE_ALAC)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_mp4.cpp)
+  set(HAVE_MP4 1)
 endif()
 
 if(WITH_MATROSKA)
+
+  # Buildin Matroska Reader: supports raw PCM, so always include.
   LIST(APPEND PLUGIN_SOURCES plugins/ap_matroska.cpp)
   set(HAVE_MATROSKA 1)
+
+  if(DCA_FOUND)
+    LIST(APPEND PLUGIN_SOURCES plugins/ap_dca.cpp)
+    LIST(APPEND LIBRARIES ${DCA_LIBRARIES})
+    set(HAVE_DCA 1)
+  endif()
+
+  if(A52_FOUND)
+    LIST(APPEND PLUGIN_SOURCES plugins/ap_a52.cpp)
+    LIST(APPEND LIBRARIES ${A52_LIBRARIES})
+    set(HAVE_A52 1)
+  endif()
+
 endif()
 
+if(HAVE_FLAC OR HAVE_MAD)
+  LIST(APPEND PLUGIN_SOURCES plugins/ap_id3v2.cpp)
+  LIST(APPEND PLUGIN_HEADERS plugins/ap_id3v2.h)
+endif()
 
 if(WITH_ZLIB AND ZLIB_FOUND)
   LIST(APPEND LIBRARIES ${ZLIB_LIBRARIES})
@@ -343,109 +447,17 @@ endif()
 if(WITH_OPENSSL AND OPENSSL_FOUND)
   LIST(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
   set(HAVE_OPENSSL 1)
-endif()
-
-if(WITH_GNUTLS AND GNUTLS_FOUND AND NOT HAVE_OPENSSL)
+elseif(WITH_GNUTLS AND GNUTLS_FOUND)
   LIST(APPEND LIBRARIES ${GNUTLS_LIBRARIES})
   set(HAVE_GNUTLS 1)
-endif()
-
-if(WITH_GCRYPT AND GCRYPT_FOUND AND NOT HAVE_OPENSSL AND NOT HAVE_GNUTLS)
+elseif(WITH_GCRYPT AND GCRYPT_FOUND)
   LIST(APPEND LIBRARIES ${LIBGCRYPT_LIBRARIES})
   set(HAVE_GCRYPT 1)
-endif()
-
-# Use Internal MD5 implementation in case there is no openssl/gnutls/libgcrypt
-if(NOT HAVE_GNUTLS AND NOT HAVE_OPENSSL AND NOT HAVE_GCRYPT)
+else()
   add_subdirectory(lib/md5)
   LIST(APPEND GAP_TARGET_OBJECTS $<TARGET_OBJECTS:gap_md5>)
   set(MD5_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lib/md5)
 endif()
-
-
-if(WITH_FLAC AND FLAC_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_flac.cpp)
-  LIST(APPEND LIBRARIES ${FLAC_LIBRARIES})
-  set(HAVE_FLAC 1)
-endif()
-
-
-# Tremor: Ogg or Matroska
-if(WITH_TREMOR AND TREMOR_FOUND AND (OGG_FOUND OR HAVE_MATROSKA))
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
-  LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
-  LIST(APPEND LIBRARIES ${TREMOR_LIBRARIES})
-  set(HAVE_TREMOR 1)
-endif()
-
-
-# Vorbis: Ogg or Matroska
-if(WITH_VORBIS AND VORBIS_FOUND AND (OGG_FOUND OR HAVE_MATROSKA) AND NOT WITH_TREMOR)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_vorbis.cpp)
-  LIST(APPEND PLUGIN_HEADERS plugins/ap_vorbis.h)
-  LIST(APPEND LIBRARIES ${VORBIS_LIBRARIES})
-  set(HAVE_VORBIS 1)
-endif()
-
-# Opus: Ogg or Matroska
-if(WITH_OPUS AND OPUS_FOUND AND (OGG_FOUND OR HAVE_MATROSKA))
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_opus.cpp)
-  LIST(APPEND PLUGIN_HEADERS plugins/ap_opus.h)
-  LIST(APPEND LIBRARIES ${OPUS_LIBRARIES})
-  set(HAVE_OPUS 1)
-endif()
-
-# Ogg: Vorbis Codec, Flac Codec, Opus Codec
-if(OGG_FOUND AND (HAVE_VORBIS OR HAVE_FLAC OR HAVE_TREMOR OR HAVE_OPUS))
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_ogg.cpp plugins/ap_ogg_decoder.cpp)
-  LIST(APPEND PLUGIN_HEADERS plugins/ap_ogg_decoder.h)
-  LIST(APPEND LIBRARIES ${OGG_LIBRARIES})
-  set(HAVE_OGG 1)
-endif()
-
-# MAD: Matroska or MP3
-if(WITH_MAD AND MAD_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_mad.cpp)
-  LIST(APPEND LIBRARIES ${MAD_LIBRARIES})
-  set(HAVE_MAD 1)
-endif()
-
-# FAAD: MP4 or Matroska
-if(WITH_FAAD AND FAAD_FOUND)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_aac.cpp)
-  LIST(APPEND LIBRARIES ${FAAD_LIBRARIES})
-  set(HAVE_FAAD 1)
-endif()
-
-# DCA: Matroska
-if(WITH_DCA AND DCA_FOUND AND HAVE_MATROSKA)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_dca.cpp)
-  LIST(APPEND LIBRARIES ${DCA_LIBRARIES})
-  set(HAVE_DCA 1)
-endif()
-
-# A52: Matroska
-if(WITH_A52 AND A52_FOUND AND HAVE_MATROSKA)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_a52.cpp)
-  LIST(APPEND LIBRARIES ${A52_LIBRARIES})
-  set(HAVE_A52 1)
-endif()
-
-if(WITH_SAMPLERATE AND SAMPLERATE_FOUND)
-  LIST(APPEND LIBRARIES ${SAMPLERATE_LIBRARIES})
-  set(HAVE_SAMPLERATE 1)
-endif()
-
-if(HAVE_FAAD OR HAVE_ALAC)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_mp4.cpp)
-  set(HAVE_MP4 1)
-endif()
-
-if(HAVE_FLAC OR HAVE_MAD)
-  LIST(APPEND PLUGIN_SOURCES plugins/ap_id3v2.cpp)
-  LIST(APPEND PLUGIN_HEADERS plugins/ap_id3v2.h)
-endif()
-
 
 #-------------------------------------------------------------------------------
 
@@ -516,26 +528,33 @@ endif()
 
 #-------------------------------------------------------------------------------
 
-add_feature_info(wav WITH_WAVOUT "Wav File Ouput")
-add_feature_info(pulse HAVE_PULSE "PulseAudio")
-add_feature_info(alsa HAVE_ALSA "Advanced Linux Sound Architecture")
+# Output Plugins
+add_feature_info(pulse HAVE_PULSE "${PULSE_VERSION}")
+add_feature_info(alsa HAVE_ALSA "${ALSA_VERSION}")
 add_feature_info(oss HAVE_OSS "OSS Output")
-add_feature_info(jack HAVE_JACK "Jack Output")
-add_feature_info(vorbis HAVE_VORBIS "Vorbis Decoder")
-add_feature_info(tremor HAVE_TREMOR "Vorbis Decoder")
-add_feature_info(ogg HAVE_OGG "Ogg File Support")
-add_feature_info(faad HAVE_FAAD "MPEG-4 and MPEG-2 AAC decoder")
-add_feature_info(mad HAVE_MAD "MPEG audio decoder")
-add_feature_info(opus HAVE_OPUS "Opus Decoder")
-add_feature_info(alac HAVE_ALAC "ALAC Decoder")
-add_feature_info(mp4 HAVE_MP4 "MP4 File Support")
-add_feature_info(flac HAVE_FLAC "Free Lossless Audio Codec")
-add_feature_info(dca HAVE_DCA "DTS Coherent Acoustics deocder")
-add_feature_info(a52 HAVE_A52 "ATSC A/52 stream decoder")
-add_feature_info(openssl HAVE_OPENSSL "OpenSSL")
-add_feature_info(gnutls HAVE_GNUTLS "GnuTLS")
-add_feature_info(gcrypt HAVE_GCRYPT "libgcrypt")
-add_feature_info(matroska HAVE_MATROSKA "Matroska File Support")
+add_feature_info(wav WITH_WAVOUT "WAV File Output")
+
+# Containers
+add_feature_info(ogg HAVE_OGG "${OGG_VERSION}")
+add_feature_info(mp4 HAVE_MP4 "MP4 File Input")
+add_feature_info(matroska HAVE_MATROSKA "Matroska File Input")
+
+# Codecs
+add_feature_info(vorbis HAVE_VORBIS "${VORBIS_VERSION}")
+add_feature_info(tremor HAVE_TREMOR "${TREMOR_VERSION}")
+add_feature_info(opus HAVE_OPUS "${OPUS_VERSION}")
+add_feature_info(mad HAVE_MAD "")
+add_feature_info(faad HAVE_FAAD "")
+add_feature_info(flac HAVE_FLAC "${FLAC_VERSION}")
+add_feature_info(alac HAVE_ALAC "ALAC Codec")
+add_feature_info(dca HAVE_DCA "DTS Coherent Acoustics codec")
+add_feature_info(a52 HAVE_A52 "ATSC A/52 stream codec")
+
+# Http
+add_feature_info(zlib HAVE_ZLIB "${ZLIB_VERSION}")
+add_feature_info(openssl HAVE_OPENSSL "${OPENSSL_VERSION}")
+add_feature_info(gnutls HAVE_GNUTLS "${GNUTLS_VERSION}")
+add_feature_info(gcrypt HAVE_GCRYPT "")
 
 
 set(AP_PLUGIN_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/gogglesmm)
