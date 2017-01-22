@@ -58,9 +58,6 @@ if(WITH_NLS)
   set(HAVE_NLS 1)
 endif()
 
-if(WITH_SESSION AND SM_FOUND AND ICE_FOUND)
-  set(HAVE_SESSION 1)
-endif()
 
 
 # Detects reswrap version
@@ -120,7 +117,6 @@ set(SOURCES GMAbout.cpp
             GMPreferencesDialog.cpp
             GMPresenter.cpp
             GMRemote.cpp
-            GMSession.cpp
             GMScanner.cpp
             GMSource.cpp
             GMSourceView.cpp
@@ -262,6 +258,13 @@ set(ICONS ${CMAKE_SOURCE_DIR}/icons/cursor_hand.gif
           ${CMAKE_SOURCE_DIR}/icons/x22_user_home.png
           ${CMAKE_SOURCE_DIR}/icons/x22_x_office_presentation.png
           ${CMAKE_SOURCE_DIR}/icons/x128_media_optical.png)
+
+
+
+if(WITH_SESSION AND SM_FOUND AND ICE_FOUND)
+  list(APPEND SOURCES GMSession.cpp)
+  set(HAVE_SESSION 1)
+endif()
 
 
 # Generates icons.cpp / icons.h with reswrap

@@ -19,13 +19,9 @@
 #include "gmdefs.h"
 #include "GMSession.h"
 
-#ifdef HAVE_SESSION
-
 namespace ap {
 extern FXbool ap_set_closeonexec(FXInputHandle fd);
 }
-
-
 
 #include <xincs.h>
 #include <X11/ICE/ICElib.h>
@@ -240,35 +236,24 @@ public:
 FXIMPLEMENT(SMClient,FXObject,nullptr,0)
 
 
-
-#endif
-
-
-
 FXIMPLEMENT(GMSession,FXObject,nullptr,0);
 
 
 GMSession::GMSession(FXApp*app,FXObject*tgt,FXSelector sel) : target(tgt),message(sel) {
-#ifdef HAVE_SESSION
   smclient = new SMClient(app,this);
-#endif
   }
 
 GMSession::~GMSession() {
-#ifdef HAVE_SESSION
   delete smclient;
-#endif
   }
 
 
 FXbool GMSession::init(FXint argc,const FXchar * const argv[]){
-#ifdef HAVE_SESSION
   if (!smclient->init(argc,argv)){
     delete smclient;
     smclient=nullptr;
     return false;
     }
-#endif
   return true;
   }
 

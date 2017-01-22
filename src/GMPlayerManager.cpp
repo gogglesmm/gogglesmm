@@ -127,8 +127,9 @@ FXDEFMAP(GMPlayerManager) GMPlayerManagerMap[]={
 
   FXMAPFUNC(SEL_TASK_COMPLETED,GMPlayerManager::ID_IMPORT_TASK,GMPlayerManager::onImportTaskCompleted),
   FXMAPFUNC(SEL_TASK_CANCELLED,GMPlayerManager::ID_IMPORT_TASK,GMPlayerManager::onImportTaskCompleted),
-
+#ifdef HAVE_SESSION
   FXMAPFUNC(SEL_SESSION_CLOSED,GMPlayerManager::ID_SESSION_MANAGER,GMPlayerManager::onCmdQuit)
+#endif
   };
 
 FXIMPLEMENT(GMPlayerManager,FXObject,GMPlayerManagerMap,ARRAYNUMBER(GMPlayerManagerMap))
@@ -293,7 +294,9 @@ GMPlayerManager::~GMPlayerManager() {
 
   myself=nullptr;
 
+#ifdef HAVE_SSSION
   delete session;
+#endif
   delete application;
   }
 
@@ -757,9 +760,11 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     }
 #endif
 
+#ifdef HAVE_SESSION
   /// Connect to the session manager
   session = new GMSession(application,this,GMPlayerManager::ID_SESSION_MANAGER);
   session->init(argc,argv);
+#endif
 
   /// Open url from command line
   if (!url.empty())

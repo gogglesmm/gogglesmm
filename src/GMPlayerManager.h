@@ -111,7 +111,9 @@ protected:
   GMMediaPlayerService2* mpris2       = nullptr;
 #endif
   FXApp 	 				     * application  = nullptr;
+#ifdef HAVE_SESSION
   GMSession            * session      = nullptr;
+#endif
   GMWindow 				     * mainwindow   = nullptr;
   GMAudioPlayer        * player       = nullptr;
   GMTrayIcon           * trayicon     = nullptr;
