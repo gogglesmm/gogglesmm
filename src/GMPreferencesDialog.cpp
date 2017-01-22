@@ -607,6 +607,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
     }
   else {
     driverlist->disable();
+    driverlist->appendItem("No Plugins Found",nullptr,nullptr);
     }
   /// Alsa
   alsa_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
