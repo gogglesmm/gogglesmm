@@ -10,6 +10,7 @@ project(GOGGLESMM VERSION 1.1.5)
 option(WITH_OPENGL "Enable OpenGL Features" ON)
 option(WITH_DBUS "Enable DBUS Features" ON)
 option(WITH_NLS "Enable Native Language Support" ON)
+option(WITH_SESSION "Enable X Session Support" ON)
 
 # Translation Files to share/locale
 set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
@@ -57,7 +58,7 @@ if(WITH_NLS)
   set(HAVE_NLS 1)
 endif()
 
-if(SM_FOUND AND ICE_FOUND)
+if(WITH_SESSION AND SM_FOUND AND ICE_FOUND)
   set(HAVE_SESSION 1)
 endif()
 
@@ -275,7 +276,7 @@ ADD_CUSTOM_COMMAND(
   )
 
 # Enable DBUS specific features
-if (DBUS_FOUND)
+if (WITH_DBUS AND DBUS_FOUND)
   list(APPEND SOURCES GMDBus.cpp
                       GMSettingsDaemon.cpp
                       GMMediaPlayerService.cpp
