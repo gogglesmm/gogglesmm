@@ -455,10 +455,17 @@ void HttpResponse::clear_headers() {
 
 void HttpResponse::check_headers() {
 #ifdef DEBUG
-  fxmessage("[http] Headers:\n");
+  FXbool firstline = true;
   for (FXint pos=0;pos<headers.no();pos++) {
-    if (!headers.key(pos).empty())
-      fxmessage("       %s: %s\n",headers.key(pos).text(),headers.data(pos).text());
+    if (!headers.key(pos).empty()) {
+      if (firstline) {
+        fxmessage("[http] %s: %s\n",headers.key(pos).text(),headers.data(pos).text());
+        firstline=false;
+        }
+      else {
+        fxmessage("       %s: %s\n",headers.key(pos).text(),headers.data(pos).text());
+        }
+      }
     }
 #endif
   FXint p;
@@ -512,11 +519,11 @@ FXbool HttpResponse::read_status() {
   FXString header;
   if (io.readHeader(header,true)) {
     if (header.scan("HTTP/%d.%d %d",&status.major,&status.minor,&status.code)==3){
-      GM_DEBUG_PRINT("[http] %d (version %d.%d)\n",status.code,status.major,status.minor);
+      GM_DEBUG_PRINT("[http] HTTP/%d.%d %d\n",status.major,status.minor,status.code);
       return true;
       }
     else if (header.scan("ICY %d",&status.code)==1){
-      GM_DEBUG_PRINT("[http] %d (icy)\n",status.code);
+      GM_DEBUG_PRINT("[http] ICY %d\n",status.code);
       return true;
       }
     else {
