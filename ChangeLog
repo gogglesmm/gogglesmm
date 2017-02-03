@@ -1,3 +1,16 @@
+1.1.6
+  - https support with OpenSSL or GnuTLS.
+  - http(s) gzip support.
+  - Local Source: only list playback supported formats
+  - New import option to exclude any files that cannot be played back.
+  - Moved exclude import filters to its own tab.
+  - cmake: added more options to enable/disable plugins during compilation
+  - Fix: refresh path lut if needed.
+  - Fix: reset scroll position when loading new lyrics
+  - Fix: show audio device options when using mousewheel or keys to change driver
+  - Fix: tiptext for album list items in case when information is missing
+  - Fix: incorrect access check in socket.
+
 1.1.5
   - Fix lyrics column not being created on first run.
   - Fix import writing lyrics to the wrong column.

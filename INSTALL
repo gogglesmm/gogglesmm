@@ -14,18 +14,18 @@ Installation Instructions
        * dbus 1.0.x
        * flac
        * mad
-       * vorbis
+       * vorbis (or tremor)
        * ogg
        * opus
        * faad2
        * pulse
+       * a52
        * zlib
        * openssl or gnutls
 
     3. Run cmake:
 
        > cmake .
-
 
        The following options are available:
 
@@ -35,11 +35,33 @@ Installation Instructions
 
           WITH_OSS             => Enables building the OSS Output plugin (default: OFF on Linux, ON on UNIX)
           WITH_ALSA            => Enables building the ALSA Ouput plugin (default: ON on Linux, OFF on UNIX)
-          WITH_TREMOR          => Enables building the Tremor based Vorbis decoder (default: OFF)
+          WITH_PULSE           => Enables building the PulseAudio Output Plugin
+          WITH_WAVOUT          => Enables building the Wav File Output Plugin
 
-          WITH_OPENGL          => Eanbles OpenGL based features (default: ON)
-          WITH_DBUS            => Enables DBUS based features (default: ON)
-          WITH_NLS             => Enables Native Language Support (default: ON)
+          WITH_MATROSKA        => Enables building the Matroska Input Plugin
+          WITH_MP4             => Enables building the MP4 Input Plugin
+
+          WITH_OGG             => Enables building with Ogg Library (required for Vorbis and Opus)
+          WITH_VORBIS          => Enables building with Vorbis Library
+          WITH_TREMOR          => Enables building with Tremor Library (Vorbis Alternative) (default: OFF)
+          WITH_FLAC            => Enables building with FLAC library
+          WITH_MAD             => Enables building with MAD library
+          WITH_ALAC            => Enables building with (buildin) ALAC library
+          WITH_FAAD            => Enables building with FAAD2 library
+          WITH_OPUS            => Enables building with Opus Library
+          WITH_A52             => Enables building with A52 Library (default: OFF)
+
+          WITH_OPENSSL         => Enables building with OpenSSL
+          WITH_GNUTLS          => Enables building with GnuTLS if OpenSSL is not found
+          WITH_GCRYPT          => Enables building with libgcrypt if neither OpenSSL or GnuTLS is included.
+          WITH_ZLIB            => Enables building with zlib
+
+          WITH_OPENGL          => Eanbles OpenGL based features
+          WITH_DBUS            => Enables DBUS based features
+          WITH_NLS             => Enables Native Language Support
+          WITH_SESSION         => Enabled X Session Support
+
+          Options are enabled by default unless otherwise noted.
 
        These can be passed on the command line using:
 
