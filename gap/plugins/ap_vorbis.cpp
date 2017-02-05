@@ -19,10 +19,7 @@
 #include "ap_defs.h"
 #include "ap_packet.h"
 #include "ap_vorbis.h"
-#include "ap_engine.h"
 #include "ap_ogg_decoder.h"
-#include "ap_decoder_thread.h"
-
 
 #if defined(HAVE_VORBIS)
 #include <vorbis/codec.h>
@@ -48,13 +45,13 @@ protected:
   void init_info();
   void reset_decoder();
 public:
-  VorbisDecoder(AudioEngine*);
+  VorbisDecoder(DecoderContext*);
 
   FXuchar codec() const override { return Codec::Vorbis; }
 
   FXbool init(ConfigureEvent*) override;
 
-  DecoderStatus process(Packet*) override;
+  FXbool process(Packet*) override;
 
   FXbool flush(FXlong) override;
 
@@ -62,7 +59,7 @@ public:
   };
 
 
-VorbisDecoder::VorbisDecoder(AudioEngine * e) : OggDecoder(e),has_info(false),has_dsp(false) {
+VorbisDecoder::VorbisDecoder(DecoderContext * e) : OggDecoder(e),has_info(false),has_dsp(false) {
   // Dummy comment structure. libvorbis will only check for a non-null vendor.
   vorbis_comment_init(&comment);
   comment.vendor = (FXchar*)"";
@@ -180,7 +177,7 @@ void VorbisDecoder::reset_decoder() {
   }
 
 
-DecoderStatus VorbisDecoder::process(Packet * packet) {
+FXbool VorbisDecoder::process(Packet * packet) {
   OggDecoder::process(packet);
 
   FXASSERT(packet);
@@ -200,7 +197,6 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
   FXint ngiven,ntotalsamples,nsamples,sample,c,s;
 
   FXbool  eos=packet->flags&FLAG_EOS;
-  FXuint   id=packet->stream;
   const FXlong stream_length=packet->stream_length;
 
   if (out) {
@@ -211,7 +207,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
     if (__unlikely(is_vorbis_header())) {
       GM_DEBUG_PRINT("[vorbis] unexpected vorbis header found. Resetting decoder\n");
-      return DecoderError;
+      return false;
       }
 
     if (vorbis_synthesis(&block,&op)==0)
@@ -245,10 +241,10 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
         /// Get new buffer
         if (out==nullptr) {
-          out = engine->decoder->get_output_packet();
+          out = context->get_output_packet();
           if (out==nullptr) {
             if (packet) packet->unref();
-            return DecoderInterrupted;
+            return true;
             }
           out->stream_position=stream_position;
           out->stream_length=stream_length - stream_offset_start;
@@ -287,8 +283,7 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
 
         /// Send out packet if full
         if (navail==0) {
-          engine->output->post(out);
-          out=nullptr;
+          context->post_output_packet(out);
           }
         }
       vorbis_synthesis_read(&dsp,ngiven);
@@ -296,18 +291,14 @@ DecoderStatus VorbisDecoder::process(Packet * packet) {
     }
 
   if (eos) {
-    if (out && out->numFrames())  {
-      engine->output->post(out);
-      out=nullptr;
-      }
-    engine->output->post(new ControlEvent(End,id));
+    context->post_output_packet(out,true);
     }
-  return DecoderOk;
+  return true;
   }
 
 
-DecoderPlugin * ap_vorbis_decoder(AudioEngine * engine) {
-  return new VorbisDecoder(engine);
+DecoderPlugin * ap_vorbis_decoder(DecoderContext * ctx) {
+  return new VorbisDecoder(ctx);
   }
 
 

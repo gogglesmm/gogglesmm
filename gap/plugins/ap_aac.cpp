@@ -86,17 +86,17 @@ protected:
 protected:
   Packet * out;
 public:
-  AacDecoder(AudioEngine*);
+  AacDecoder(DecoderContext*);
   FXuchar codec() const override { return Codec::AAC; }
   FXbool flush(FXlong offset=0) override;
   FXbool init(ConfigureEvent*) override ;
-  DecoderStatus process(Packet*) override;
+  FXbool process(Packet*) override;
   ~AacDecoder();
   };
 
 
 
-AacDecoder::AacDecoder(AudioEngine * e) : DecoderPlugin(e),handle(nullptr),stream_position(-1),out(nullptr) {
+AacDecoder::AacDecoder(DecoderContext * e) : DecoderPlugin(e),handle(nullptr),stream_position(-1),out(nullptr) {
   }
 
 AacDecoder::~AacDecoder() {
@@ -143,7 +143,7 @@ FXbool AacDecoder::flush(FXlong offset) {
   return true;
   }
 
-DecoderStatus AacDecoder::process(Packet*packet){
+FXbool AacDecoder::process(Packet*packet){
   const FXbool eos = packet->flags&FLAG_EOS;
   const FXlong stream_length = packet->stream_length;
   const FXuint stream_id = packet->stream;
@@ -164,26 +164,26 @@ DecoderStatus AacDecoder::process(Packet*packet){
     long n = NeAACDecInit(handle,buffer.data(),buffer.size(),&samplerate,&channels);
     if (n<0) {
       buffer.clear();
-      return DecoderError;
+      return false;
       }
     else if (n>0) buffer.readBytes(n);
     af.set(AP_FORMAT_S16,samplerate,channels);
-    engine->output->post(new ConfigureEvent(af,Codec::AAC));
+    context->post_configuration(new ConfigureEvent(af,Codec::AAC));
     stream_position=0;
     }
 
   const FXuint bytes_needed = FAAD_MIN_STREAMSIZE*af.channels;
 
   if (buffer.size()<bytes_needed && eos==false) {
-    return DecoderOk;
+    return true;
     }
 
   FXlong stream_begin = stream_decode_offset;
   do {
 
     if (out==nullptr){
-      out = engine->decoder->get_output_packet();
-      if (out==nullptr) return DecoderInterrupted;
+      out = context->get_output_packet();
+      if (out==nullptr) return true;
       out->af              = af;
       out->stream          = stream_id;
       out->stream_position = stream_position;
@@ -200,7 +200,7 @@ DecoderStatus AacDecoder::process(Packet*packet){
 
     if (frame.error > 0) {
       GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));
-      return DecoderError;
+      return false;
       }
 
 
@@ -230,30 +230,23 @@ DecoderStatus AacDecoder::process(Packet*packet){
         }
 
       if (out->availableFrames()<1024) {
-        engine->output->post(out);
-        out=nullptr;
+        context->post_output_packet(out);
         }
       }
     }
   while(((buffer.size()>=bytes_needed) || eos) && frame.bytesconsumed);
 
   if (eos) {
-    FXASSERT(stream_position==stream_length);
-    if (out) {
-      engine->output->post(out);
-      out=nullptr;
-      }
-    engine->output->post(new ControlEvent(End,stream_id));
+    context->post_output_packet(out,true);
     }
-
-  return DecoderOk;
+  return true;
   }
 
 
 
 
-DecoderPlugin * ap_aac_decoder(AudioEngine * engine) {
-  return new AacDecoder(engine);
+DecoderPlugin * ap_aac_decoder(DecoderContext * ctx) {
+  return new AacDecoder(ctx);
   }
 
 #endif

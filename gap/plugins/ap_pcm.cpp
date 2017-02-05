@@ -26,14 +26,14 @@ namespace ap {
 
 class PCMDecoder : public DecoderPlugin {
 public:
-  PCMDecoder(AudioEngine*);
+  PCMDecoder(DecoderContext*);
   FXuchar codec() const override { return Codec::PCM; }
   FXbool init(ConfigureEvent*) override;
-  DecoderStatus process(Packet*) override;
+  FXbool process(Packet*) override;
   virtual ~PCMDecoder();
   };
 
-PCMDecoder::PCMDecoder(AudioEngine * e) : DecoderPlugin(e) {
+PCMDecoder::PCMDecoder(DecoderContext * ctx) : DecoderPlugin(ctx) {
   }
 
 PCMDecoder::~PCMDecoder() {
@@ -45,21 +45,14 @@ FXbool PCMDecoder::init(ConfigureEvent*event) {
   }
 
 
-DecoderStatus PCMDecoder::process(Packet*in) {
-  FXbool eos    = (in->flags&FLAG_EOS);
-  FXint  stream = in->stream;
-
-  /// Simply Forward to output
-  engine->output->post(in);
-
-  if (eos) {
-    engine->output->post(new ControlEvent(End,stream));
-    }
-  return DecoderOk;
+FXbool PCMDecoder::process(Packet*in) {
+  const FXbool eos = (in->flags&FLAG_EOS);
+  context->post_output_packet(in,eos);
+  return true;
   }
 
-DecoderPlugin * ap_pcm_decoder(AudioEngine * engine) {
-  return new PCMDecoder(engine);
+DecoderPlugin * ap_pcm_decoder(DecoderContext * context) {
+  return new PCMDecoder(context);
   }
 
 }

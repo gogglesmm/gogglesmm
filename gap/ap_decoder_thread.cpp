@@ -61,7 +61,7 @@ void DecoderThread::configure(ConfigureEvent * event) {
     delete plugin;
     plugin=nullptr;
     }
-  plugin = DecoderPlugin::open(engine,event->codec);
+  plugin = DecoderPlugin::open(this,event->codec);
   if (plugin) {
     plugin->init(event);
     }
@@ -125,15 +125,12 @@ FXint DecoderThread::run(){
                       break;
       case Buffer   : if (plugin) {
                         stream=event->stream;
-                        switch(plugin->process(dynamic_cast<Packet*>(event))){
-                          case DecoderError:
-                                                           delete plugin;
-                                                           plugin=nullptr;
-                                                           GM_DEBUG_PRINT("[decoder] fatal error");
-                                                           engine->input->post(new ControlEvent(Ctrl_Close));
-                                                           engine->post(new ErrorMessage("Fatal decoder error"));
-                                                           break;
-                          default                        : break;
+                        if (plugin->process(dynamic_cast<Packet*>(event))==false) {
+                          delete plugin;
+                          plugin=nullptr;
+                          GM_DEBUG_PRINT("[decoder] fatal error");
+                          engine->input->post(new ControlEvent(Ctrl_Close));
+                          engine->post(new ErrorMessage("Fatal decoder error"));
                           }
                         continue;
                         }
@@ -145,7 +142,7 @@ FXint DecoderThread::run(){
   }
 
 
-Packet * DecoderThread::get_decoder_packet() {
+Packet * DecoderThread::get_input_packet() {
   return dynamic_cast<Packet*>(fifo.wait_for(Buffer));
   }
 
@@ -165,6 +162,26 @@ Packet * DecoderThread::get_output_packet() {
   while(1);
   }
 
+
+void DecoderThread::post_output_packet(Packet *& packet,FXbool eos/*=false*/) {
+  if (__likely(packet)) {
+
+    if (packet->numFrames())
+      engine->output->post(packet);
+    else
+      packet->unref();
+
+    packet = nullptr;
+    }
+
+  if (eos) {
+    engine->output->post(new ControlEvent(End,stream));
+    }
+  }
+
+void DecoderThread::post_configuration(ConfigureEvent * event) {
+  engine->output->post(event);
+  }
 }
 
 

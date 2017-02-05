@@ -17,10 +17,8 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_event_private.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
-#include "ap_output_thread.h"
-#include "ap_decoder_thread.h"
 #include "ap_decoder_plugin.h"
 
 extern "C" {
@@ -37,14 +35,14 @@ protected:
   Packet*       out    = nullptr;
   FXlong  stream_position=0;
 public:
-  A52Decoder(AudioEngine*);
-  FXuchar codec() const { return Codec::DCA; }
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
+  A52Decoder(DecoderContext*);
+  FXuchar codec() const override { return Codec::A52; }
+  FXbool init(ConfigureEvent*) override;
+  FXbool process(Packet*) override;
   virtual ~A52Decoder();
   };
 
-A52Decoder::A52Decoder(AudioEngine * e) : DecoderPlugin(e) {
+A52Decoder::A52Decoder(DecoderContext * e) : DecoderPlugin(e) {
   state = a52_init(0);
   }
 
@@ -54,14 +52,13 @@ A52Decoder::~A52Decoder() {
 FXbool A52Decoder::init(ConfigureEvent*event) {
   DecoderPlugin::init(event);
   event->af.setChannels(2);
-  af=event->af;  
+  af=event->af;
   return true;
   }
 
 
-DecoderStatus A52Decoder::process(Packet*in) {
+FXbool A52Decoder::process(Packet*in) {
   FXbool eos    = (in->flags&FLAG_EOS);
-  FXint  stream = in->stream;
   buffer.append(in->data(),in->size());
   in->unref();
 
@@ -71,10 +68,10 @@ DecoderStatus A52Decoder::process(Packet*in) {
     int bitrate;
     int length = a52_syncinfo(buffer.data(),&flags,&samplerate,&bitrate);
     if (length<=0) {
-      fxmessage("length returned %ld\n",length);
-      return DecoderError;
+      fxmessage("length returned %d\n",length);
+      return false;
       }
-    else if (buffer.size()<length) return DecoderOk;
+    else if (buffer.size()<length) return true;
 
     int dflags=A52_STEREO;
     sample_t level = 1.0f;
@@ -86,35 +83,34 @@ DecoderStatus A52Decoder::process(Packet*in) {
 
       /// Get new buffer
       if (out==nullptr) {
-        out = engine->decoder->get_output_packet();
-        if (out==nullptr) return DecoderInterrupted;
+        out = context->get_output_packet();
+        if (out==nullptr) return true;
         out->stream_position=stream_position;
         out->stream_length=0;
         out->af=af;
         }
 
       FXfloat * data = out->flt();
-      for (FXint i=0,d=0;i<256;i++) {  
+      for (FXint i=0,d=0;i<256;i++) {
         data[d++] = samples[i];
-        data[d++] = samples[256+i];        
+        data[d++] = samples[256+i];
         }
       out->wroteFrames(256);
       if (out->availableFrames()<256) {
-        engine->output->post(out);
-        out=nullptr;        
+        context->post_output_packet(out);
         }
       stream_position+=256;
       }
     buffer.readBytes(length);
     }
   if (eos) {
-    engine->output->post(new ControlEvent(End,stream));
+    context->post_output_packet(out,true);
     }
-  return DecoderOk;
+  return true;
   }
 
-DecoderPlugin * ap_a52_decoder(AudioEngine * engine) {
-  return new A52Decoder(engine);
+DecoderPlugin * ap_a52_decoder(DecoderContext * ctx) {
+  return new A52Decoder(ctx);
   }
 
 }
