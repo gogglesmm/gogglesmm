@@ -181,7 +181,7 @@ ReaderPlugin* InputThread::open_reader() {
     delete reader;
     reader=nullptr;
     }
-  return ReaderPlugin::open(engine,input->plugin());
+  return ReaderPlugin::open(this,input->plugin());
   }
 
 
@@ -290,6 +290,18 @@ void InputThread::ctrl_seek_flush(FXlong offset){
 void InputThread::ctrl_flush(FXbool close){
   GM_DEBUG_PRINT("[input] flush\n");
   engine->decoder->post(new FlushEvent(close),EventQueue::Flush);
+  }
+
+void InputThread::post_configuration(ConfigureEvent* event) {
+  engine->decoder->post(event);
+  }
+
+void InputThread::post_meta(MetaInfo* info) {
+  engine->decoder->post(info);
+  }
+
+void InputThread::post_packet(Packet* packet) {
+  engine->decoder->post(packet);
   }
 
 }

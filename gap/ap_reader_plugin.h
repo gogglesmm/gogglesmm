@@ -26,6 +26,8 @@ namespace ap {
 class Packet;
 class InputPlugin;
 class AudioEngine;
+class ConfigureEvent;
+class MetaInfo;
 
 enum ReadStatus {
   ReadError,    /* Error Occurred */
@@ -35,11 +37,21 @@ enum ReadStatus {
   ReadRedirect
   };
 
+
+class InputContext {
+public:
+  virtual void post_configuration(ConfigureEvent*)=0;
+
+  virtual void post_meta(MetaInfo*)=0;
+
+  virtual void post_packet(Packet*)=0;
+  };
+
 class ReaderPlugin {
 public:
-  AudioEngine * engine;
-  AudioFormat   af;
-  InputPlugin * input   = nullptr;
+  AudioFormat af;
+  InputContext * context = nullptr;
+  InputPlugin  * input   = nullptr;
 protected:
   FXuchar flags         =  0;
   FXlong  stream_length = -1;      /// Length of stream in samples
@@ -48,7 +60,7 @@ protected:
     FLAG_PARSED = 0x1,
     };
 public:
-  ReaderPlugin(AudioEngine*);
+  ReaderPlugin(InputContext*);
 
   /// Init plugin
   virtual FXbool init(InputPlugin*);
@@ -75,7 +87,7 @@ public:
   virtual ~ReaderPlugin();
 
   /// Open plugin for given format
-  static ReaderPlugin* open(AudioEngine * engine,FXuint format);
+  static ReaderPlugin* open(InputContext * ctx,FXuint format);
   };
 
 
@@ -85,7 +97,7 @@ class TextReader : public ReaderPlugin {
 protected:
   FXString textbuffer;
 public:
-  TextReader(AudioEngine*);
+  TextReader(InputContext*);
   FXbool init(InputPlugin*) override;
   ReadStatus process(Packet*) override;
   virtual ~TextReader();

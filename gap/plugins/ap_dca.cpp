@@ -17,10 +17,8 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_event_private.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
-#include "ap_output_thread.h"
-#include "ap_decoder_thread.h"
 #include "ap_decoder_plugin.h"
 
 extern "C" {
@@ -37,14 +35,14 @@ protected:
   Packet*       out    = nullptr;
   FXlong  stream_position=0;
 public:
-  DCADecoder(AudioEngine*);
-  FXuchar codec() const { return Codec::DCA; }
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
+  DCADecoder(DecoderContext*);
+  FXuchar codec() const override { return Codec::DCA; }
+  FXbool init(ConfigureEvent*) override;
+  FXbool process(Packet*) override;
   virtual ~DCADecoder();
   };
 
-DCADecoder::DCADecoder(AudioEngine * e) : DecoderPlugin(e) {
+DCADecoder::DCADecoder(DecoderContext * e) : DecoderPlugin(e) {
   state = dca_init(0);
   }
 
@@ -54,12 +52,12 @@ DCADecoder::~DCADecoder() {
 FXbool DCADecoder::init(ConfigureEvent*event) {
   DecoderPlugin::init(event);
   event->af.setChannels(2);
-  af=event->af;  
+  af=event->af;
   return true;
   }
 
 
-DecoderStatus DCADecoder::process(Packet*in) {
+FXbool DCADecoder::process(Packet*in) {
   FXbool eos    = (in->flags&FLAG_EOS);
   FXint  stream = in->stream;
   FXlong stream_length=in->stream_length;
@@ -74,9 +72,9 @@ DecoderStatus DCADecoder::process(Packet*in) {
     int length = dca_syncinfo(state,buffer.data(),&flags,&samplerate,&bitrate,&framelength);
     if (length<=0) {
       fxmessage("length returned %ld\n",length);
-      return DecoderError;
+      return false;
       }
-    else if (buffer.size()<length) return DecoderOk;
+    else if (buffer.size()<length) return true;
 
     int dflags=DCA_STEREO;
     level_t level = 1.0f;
@@ -89,35 +87,34 @@ DecoderStatus DCADecoder::process(Packet*in) {
 
       /// Get new buffer
       if (out==nullptr) {
-        out = engine->decoder->get_output_packet();
-        if (out==nullptr) return DecoderInterrupted;
+        out = context->get_output_packet();
+        if (out==nullptr) return true;
         out->stream_position=stream_position;
         out->stream_length=stream_length;
         out->af=af;
         }
 
       FXfloat * data = out->flt();
-      for (FXint i=0,d=0;i<256;i++) {  
+      for (FXint i=0,d=0;i<256;i++) {
         data[d++] = samples[i];
-        data[d++] = samples[256+i];        
+        data[d++] = samples[256+i];
         }
       out->wroteFrames(256);
       if (out->availableFrames()<256) {
-        engine->output->post(out);
-        out=nullptr;        
+        context->post_output_packet(out);
         }
       stream_position+=256;
       }
     buffer.readBytes(length);
     }
   if (eos) {
-    engine->output->post(new ControlEvent(End,stream));
+    context->post_output_packet(out,true);
     }
-  return DecoderOk;
+  return true;
   }
 
-DecoderPlugin * ap_dca_decoder(AudioEngine * engine) {
-  return new DCADecoder(engine);
+DecoderPlugin * ap_dca_decoder(DecoderContext * ctx) {
+  return new DCADecoder(ctx);
   }
 
 }

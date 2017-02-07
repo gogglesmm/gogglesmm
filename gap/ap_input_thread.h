@@ -21,14 +21,18 @@
 
 #include "ap_thread.h"
 #include "ap_packet.h"
+#include "ap_reader_plugin.h"
 
 namespace ap {
 
 class AudioEngine;
 class ReaderPlugin;
 class InputPlugin;
+class ConfigureEvent;
+class MetaInfo;
 
-class InputThread : public EngineThread {
+
+class InputThread : public EngineThread, public InputContext {
 protected:
   PacketPool     packetpool;
   InputPlugin  * input;
@@ -62,6 +66,15 @@ protected:
   void ctrl_seek(FXdouble pos);
 
   void ctrl_eos();
+
+
+public:
+
+  void post_configuration(ConfigureEvent*) override;
+
+  void post_meta(MetaInfo*) override;
+
+  void post_packet(Packet*) override;
 
 public:
   /// Constructor

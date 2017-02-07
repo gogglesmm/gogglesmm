@@ -19,8 +19,6 @@
 #include "ap_defs.h"
 #include "ap_event_private.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
-#include "ap_decoder_thread.h"
 #include "ap_input_plugin.h"
 #include "ap_reader_plugin.h"
 
@@ -45,7 +43,7 @@ public:
     };
 
 public:
-  AIFFReader(AudioEngine*);
+  AIFFReader(InputContext*);
   FXbool init(InputPlugin*) override;
   ReadStatus process(Packet*) override;
 
@@ -57,7 +55,7 @@ public:
   };
 
 
-AIFFReader::AIFFReader(AudioEngine*e) : ReaderPlugin(e), input_start(0) {
+AIFFReader::AIFFReader(InputContext * ctx) : ReaderPlugin(ctx), input_start(0) {
   }
 
 AIFFReader::~AIFFReader(){
@@ -107,8 +105,7 @@ ReadStatus AIFFReader::process(Packet*packet) {
   else
     packet->flags=0;
 
-  engine->decoder->post(packet);
-
+  context->post_packet(packet);
 
   return ReadOk;
   }
@@ -262,14 +259,14 @@ ReadStatus AIFFReader::parse() {
   if (got_ssnd && got_comm) {
     stream_length = nsamples;
     flags|=FLAG_PARSED;
-    engine->decoder->post(new ConfigureEvent(af,Codec::PCM));
+    context->post_configuration(new ConfigureEvent(af,Codec::PCM));
     return ReadOk;
     }
   return ReadError;
   }
 
 
-ReaderPlugin * ap_aiff_reader(AudioEngine * engine) {
-  return new AIFFReader(engine);
+ReaderPlugin * ap_aiff_reader(InputContext * ctx) {
+  return new AIFFReader(ctx);
   }
 }

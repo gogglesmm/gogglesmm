@@ -107,7 +107,7 @@ class XSPFReader : public TextReader {
 protected:
   FXStringList uri;
 public:
-  XSPFReader(AudioEngine*);
+  XSPFReader(InputContext*);
   ReadStatus process(Packet*) override;
   FXbool init(InputPlugin*) override;
   FXuchar format() const override { return Format::XSPF; };
@@ -116,7 +116,7 @@ public:
   };
 
 
-XSPFReader::XSPFReader(AudioEngine*e) : TextReader(e) {
+XSPFReader::XSPFReader(InputContext*ctx) : TextReader(ctx) {
   }
 
 XSPFReader::~XSPFReader(){
@@ -140,8 +140,8 @@ ReadStatus XSPFReader::process(Packet*packet) {
   return ReadError;
   }
 
-ReaderPlugin * ap_xspf_reader(AudioEngine * engine) {
-  return new XSPFReader(engine);
+ReaderPlugin * ap_xspf_reader(InputContext * ctx) {
+  return new XSPFReader(ctx);
   }
 
 

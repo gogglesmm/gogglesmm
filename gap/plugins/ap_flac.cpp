@@ -20,11 +20,9 @@
 #include "ap_event_private.h"
 #include "ap_packet.h"
 #include "ap_id3v2.h"
-#include "ap_engine.h"
 #include "ap_input_plugin.h"
 #include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
-#include "ap_decoder_thread.h"
 
 #include <FLAC/stream_decoder.h>
 
@@ -79,7 +77,7 @@ protected:
 protected:
   ReadStatus parse();
 public:
-  FlacReader(AudioEngine*);
+  FlacReader(InputContext*);
   FXuchar format() const { return Format::FLAC; };
   FXbool init(InputPlugin*);
   FXbool seek(FXlong offset);
@@ -101,11 +99,11 @@ protected:
   static FLAC__StreamDecoderReadStatus    flac_decoder_read(const FLAC__StreamDecoder*,FLAC__byte buffer[],size_t*,void*);
   static void                             flac_decoder_error(const FLAC__StreamDecoder *, FLAC__StreamDecoderErrorStatus, void *);
 public:
-  FlacDecoder(AudioEngine*);
-  FXuchar codec() const { return Codec::FLAC; }
-  FXbool flush(FXlong offset=0);
-  FXbool init(ConfigureEvent*);
-  DecoderStatus process(Packet*);
+  FlacDecoder(DecoderContext*);
+  FXuchar codec() const override { return Codec::FLAC; }
+  FXbool flush(FXlong offset=0) override;
+  FXbool init(ConfigureEvent*) override;
+  FXbool process(Packet*) override;
   ~FlacDecoder();
   };
 
@@ -131,7 +129,7 @@ void flac_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain
 
 
 
-FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e),meta(nullptr) {
+FlacReader::FlacReader(InputContext* ctx) : ReaderPlugin(ctx), meta(nullptr) {
   }
 
 FlacReader::~FlacReader(){
@@ -674,10 +672,9 @@ ReadStatus FlacReader::parse() {
 
       ConfigureEvent * config = new ConfigureEvent(af,Codec::FLAC,stream_length);
       config->replaygain=gain;
-      engine->decoder->post(config);
-
+      context->post_configuration(config);
       if (meta) {
-        engine->decoder->post(meta);
+        context->post_meta(meta);
         meta=nullptr;
         }
       return ReadOk;
@@ -726,7 +723,7 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
 
     /// get a fresh packet
     if (!packet) {
-      packet=plugin->engine->decoder->get_output_packet();
+      packet=plugin->context->get_output_packet();
       if (packet==nullptr) {
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
@@ -775,7 +772,7 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
     packet->wroteFrames(ncopy);
     if (packet->availableFrames()==0) {
       plugin->out=nullptr;
-      plugin->engine->output->post(packet);
+      plugin->context->post_output_packet(packet);
       packet=nullptr;
       }
     }
@@ -797,7 +794,7 @@ FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamD
   do {
 
     if (packet==nullptr) {
-      Event * event = plugin->engine->decoder->get_decoder_packet();
+      Event * event = plugin->context->get_input_packet();
       if (event==nullptr) {
         return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
         }
@@ -860,7 +857,7 @@ void FlacDecoder::flac_decoder_error(const FLAC__StreamDecoder */*decoder*/, FLA
 #endif
   }
 
-FlacDecoder::FlacDecoder(AudioEngine * e) : DecoderPlugin(e), flac(nullptr),in(nullptr),out(nullptr) {
+FlacDecoder::FlacDecoder(DecoderContext * e) : DecoderPlugin(e), flac(nullptr),in(nullptr),out(nullptr) {
   }
 
 FlacDecoder::~FlacDecoder() {
@@ -914,13 +911,12 @@ FXbool FlacDecoder::flush(FXlong offset) {
   return true;
   }
 
-DecoderStatus FlacDecoder::process(Packet*packet){
+FXbool FlacDecoder::process(Packet*packet){
   if (flac) {
     FXASSERT(in==nullptr);
     FXASSERT(out==nullptr);
 
     in=packet;
-    FXuint stream=in->stream;
 
     FXASSERT(in);
     FXASSERT(in->next==nullptr);
@@ -928,10 +924,7 @@ DecoderStatus FlacDecoder::process(Packet*packet){
 
     FLAC__stream_decoder_flush(flac);
     if (result) {
-      if (out) {
-        engine->output->post(out);
-        out=nullptr;
-        }
+      context->post_output_packet(out);
       }
 
     if (in) {
@@ -943,18 +936,22 @@ DecoderStatus FlacDecoder::process(Packet*packet){
       out->unref();
       out=nullptr;
       }
-    engine->output->post(new ControlEvent(End,stream));
-    return DecoderOk;
+
+    {
+      Packet * nullpacket = nullptr;
+      context->post_output_packet(nullpacket,true);
     }
-  return DecoderError;
+    return true;
+    }
+  return false;
   }
 
-ReaderPlugin * ap_flac_reader(AudioEngine * engine) {
-  return new FlacReader(engine);
+ReaderPlugin * ap_flac_reader(InputContext * ctx) {
+  return new FlacReader(ctx);
   }
 
-DecoderPlugin * ap_flac_decoder(AudioEngine * engine) {
-  return new FlacDecoder(engine);
+DecoderPlugin * ap_flac_decoder(DecoderContext * ctx) {
+  return new FlacDecoder(ctx);
   }
 
 

@@ -21,6 +21,7 @@
 
 #include "ap_thread.h"
 #include "ap_packet.h"
+#include "ap_decoder_plugin.h"
 
 namespace ap {
 
@@ -29,7 +30,7 @@ class DecoderPlugin;
 class Packet;
 class ConfigureEvent;
 
-class DecoderThread : public EngineThread {
+class DecoderThread : public EngineThread, public DecoderContext {
 protected:
   PacketPool      packetpool;
   DecoderPlugin * plugin = nullptr;
@@ -37,6 +38,17 @@ protected:
   FXuint stream = 0;
 protected:
   void configure(ConfigureEvent*);
+
+public: // DecoderContext Interface
+
+  Packet * get_output_packet() override;
+
+  Packet * get_input_packet() override;
+
+  void post_output_packet(Packet *&,FXbool eos) override;
+
+  void post_configuration(ConfigureEvent*) override;
+
 public:
   DecoderThread(AudioEngine*);
 
@@ -45,10 +57,6 @@ public:
   FXbool init() override;
 
   void free() override;
-
-  Packet * get_output_packet();
-
-  Packet * get_decoder_packet();
 
   virtual ~DecoderThread();
   };

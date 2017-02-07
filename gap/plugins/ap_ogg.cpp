@@ -20,10 +20,8 @@
 #include "ap_vorbis.h"
 #include "ap_opus.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
 #include "ap_reader_plugin.h"
 #include "ap_input_plugin.h"
-#include "ap_decoder_thread.h"
 
 #include <ogg/ogg.h>
 
@@ -243,7 +241,7 @@ protected:
   void check_opus_length();
 #endif
 public:
-  OggReader(AudioEngine *);
+  OggReader(InputContext *);
   FXuchar format() const override { return Format::OGG; };
   FXbool init(InputPlugin*) override;
   FXlong seek_offset(FXdouble) const;
@@ -267,7 +265,7 @@ public:
 
 
 
-OggReader::OggReader(AudioEngine * e) : ReaderPlugin(e), cached_packets(0) {
+OggReader::OggReader(InputContext * ctx) : ReaderPlugin(ctx), cached_packets(0) {
   ogg_sync_init(&sync);
   }
 
@@ -641,10 +639,10 @@ ReadStatus OggReader::parse_opus_stream() {
   config->stream_offset_start = stream_offset_start;
 
   // Now we are ready to init the decoder
-  engine->decoder->post(config);
+  context->post_configuration(config);
 
   // Send Meta Info
-  engine->decoder->post(meta);
+  context->post_meta(meta);
 
   // find out stream length
   check_opus_length();
@@ -734,10 +732,10 @@ ReadStatus OggReader::parse_vorbis_stream() {
   config->stream_offset_end = stream_offset_end;
 
   // Initialize decode
-  engine->decoder->post(config);
+  context->post_configuration(config);
 
   // Post meta information
-  engine->decoder->post(meta);
+  context->post_meta(meta);
 
   // Success
   flags|=FLAG_PARSED;
@@ -803,11 +801,11 @@ ReadStatus OggReader::parse_flac_stream() {
 
   flac_parse_vorbiscomment(op.packet,op.bytes,config->replaygain,meta);
 
-  /// Now we are ready to init the decoder
-  engine->decoder->post(config);
+  // Initialize decode
+  context->post_configuration(config);
 
-  //// Send Meta Info
-  engine->decoder->post(meta);
+  // Post meta information
+  context->post_meta(meta);
 
   flags|=FLAG_PARSED;
   return ReadOk;
@@ -899,14 +897,14 @@ void OggReader::submit_ogg_packet() {
     if (packet->flags&FLAG_EOS) {
       packet->af=af;
       packet->stream_length=stream_length;
-      engine->decoder->post(packet);
+      context->post_packet(packet);
       packet=nullptr;
       }
     }
   else {
     packet->af=af;
     packet->stream_length=stream_length;
-    engine->decoder->post(packet);
+    context->post_packet(packet);
     packet=nullptr;
     }
   }
@@ -1009,7 +1007,7 @@ ReadStatus OggReader::process(Packet * p) {
       GM_DEBUG_PRINT("[ogg] unexpected end of stream\n");
       packet->flags|=FLAG_EOS;
       state.has_eos=true;
-      engine->decoder->post(packet);
+      context->post_packet(packet);
       return ReadDone;
       }
     submit_ogg_packet();
@@ -1034,8 +1032,8 @@ ReadStatus OggReader::process(Packet * p) {
   }
 
 
-ReaderPlugin * ap_ogg_reader(AudioEngine * engine) {
-  return new OggReader(engine);
+ReaderPlugin * ap_ogg_reader(InputContext * ctx) {
+  return new OggReader(ctx);
   }
 
 

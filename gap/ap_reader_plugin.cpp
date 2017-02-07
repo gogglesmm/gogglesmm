@@ -27,7 +27,7 @@ using namespace ap;
 
 namespace ap {
 
-ReaderPlugin::ReaderPlugin(AudioEngine * audioengine) : engine(audioengine){
+ReaderPlugin::ReaderPlugin(InputContext * ctx) : context(ctx) {
   }
 
 ReaderPlugin::~ReaderPlugin() {
@@ -58,7 +58,7 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
     packet->stream_position  = -1;
     packet->stream_length    = 0;
     packet->flags = FLAG_EOS;
-    engine->decoder->post(packet);
+    context->post_packet(packet);
     return ReadDone;
     }
   else {
@@ -67,7 +67,7 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
     packet->flags = 0;
     packet->stream_position = -1;
     packet->stream_length   = 0;
-    engine->decoder->post(packet);
+    context->post_packet(packet);
     return ReadOk;
     }
   return ReadError;
@@ -75,7 +75,7 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
 
 
 
-TextReader::TextReader(AudioEngine*e) : ReaderPlugin(e) {
+TextReader::TextReader(InputContext*e) : ReaderPlugin(e) {
   }
 
 TextReader::~TextReader(){
@@ -119,60 +119,60 @@ ReadStatus TextReader::process(Packet*packet) {
 
 namespace ap {
 
-extern ReaderPlugin * ap_m3u_reader(AudioEngine*);
-extern ReaderPlugin * ap_pls_reader(AudioEngine*);
-extern ReaderPlugin * ap_xspf_reader(AudioEngine*);
-extern ReaderPlugin * ap_wav_reader(AudioEngine*);
-extern ReaderPlugin * ap_aiff_reader(AudioEngine*);
+extern ReaderPlugin * ap_m3u_reader(InputContext*);
+extern ReaderPlugin * ap_pls_reader(InputContext*);
+extern ReaderPlugin * ap_xspf_reader(InputContext*);
+extern ReaderPlugin * ap_wav_reader(InputContext*);
+extern ReaderPlugin * ap_aiff_reader(InputContext*);
 
 #ifdef HAVE_MATROSKA
-extern ReaderPlugin * ap_matroska_reader(AudioEngine*);
+extern ReaderPlugin * ap_matroska_reader(InputContext*);
 #endif
 
 #ifdef HAVE_FLAC
-extern ReaderPlugin * ap_flac_reader(AudioEngine*);
+extern ReaderPlugin * ap_flac_reader(InputContext*);
 #endif
 
 #ifdef HAVE_OGG
-extern ReaderPlugin * ap_ogg_reader(AudioEngine*);
+extern ReaderPlugin * ap_ogg_reader(InputContext*);
 #endif
 
 #ifdef HAVE_MAD
-extern ReaderPlugin * ap_mad_reader(AudioEngine*);
+extern ReaderPlugin * ap_mad_reader(InputContext*);
 #endif
 
 #ifdef HAVE_FAAD
-extern ReaderPlugin * ap_aac_reader(AudioEngine*);
+extern ReaderPlugin * ap_aac_reader(InputContext*);
 #endif
 
 #ifdef HAVE_MP4
-extern ReaderPlugin * ap_mp4_reader(AudioEngine*);
+extern ReaderPlugin * ap_mp4_reader(InputContext*);
 #endif
 
-ReaderPlugin* ReaderPlugin::open(AudioEngine * engine,FXuint type) {
+ReaderPlugin* ReaderPlugin::open(InputContext * ctx,FXuint type) {
   switch(type){
-    case Format::WAV      : return ap_wav_reader(engine); break;
+    case Format::WAV      : return ap_wav_reader(ctx); break;
 #ifdef HAVE_OGG
-    case Format::OGG      : return ap_ogg_reader(engine); break;
+    case Format::OGG      : return ap_ogg_reader(ctx); break;
 #endif
 #ifdef HAVE_FLAC
-    case Format::FLAC     : return ap_flac_reader(engine); break;
+    case Format::FLAC     : return ap_flac_reader(ctx); break;
 #endif
 #ifdef HAVE_MAD
-    case Format::MP3      : return ap_mad_reader(engine); break;
+    case Format::MP3      : return ap_mad_reader(ctx); break;
 #endif
 #ifdef HAVE_FAAD
-    case Format::AAC      : return ap_aac_reader(engine); break;
+    case Format::AAC      : return ap_aac_reader(ctx); break;
 #endif
 #ifdef HAVE_MP4
-    case Format::MP4      : return ap_mp4_reader(engine); break;
+    case Format::MP4      : return ap_mp4_reader(ctx); break;
 #endif
-    case Format::M3U      : return ap_m3u_reader(engine); break;
-    case Format::PLS      : return ap_pls_reader(engine); break;
-    case Format::XSPF     : return ap_xspf_reader(engine); break;
-    case Format::AIFF     : return ap_aiff_reader(engine); break;
+    case Format::M3U      : return ap_m3u_reader(ctx); break;
+    case Format::PLS      : return ap_pls_reader(ctx); break;
+    case Format::XSPF     : return ap_xspf_reader(ctx); break;
+    case Format::AIFF     : return ap_aiff_reader(ctx); break;
 #ifdef HAVE_MATROSKA
-    case Format::Matroska : return ap_matroska_reader(engine); break;
+    case Format::Matroska : return ap_matroska_reader(ctx); break;
 #endif
     default               : return nullptr; break;
     }

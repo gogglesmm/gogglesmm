@@ -21,11 +21,9 @@
 #include "ap_buffer.h"
 #include "ap_packet.h"
 #include "ap_id3v2.h"
-#include "ap_engine.h"
 #include "ap_reader_plugin.h"
 #include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
-#include "ap_decoder_thread.h"
 
 #include <mad.h>
 
@@ -69,25 +67,27 @@ protected:
   FXbool readFrame(Packet*,const mpeg_frame&);
   void parseFrame(Packet*,const mpeg_frame&);
 
-
   void set_replay_gain(ConfigureEvent*);
   void send_meta();
   void clear_headers();
   void clear_tags();
 public:
-  MadReader(AudioEngine*);
+  MadReader(InputContext*);
 
   FXlong getSeekOffset(FXdouble);
-
 
   FXuchar format() const override { return Format::MP3; };
 
   FXbool init(InputPlugin*) override;
+
   FXbool can_seek() const override;
+
   FXbool seek(FXlong) override;
+
   FXlong seek_offset(FXdouble) const;
 
   ReadStatus process(Packet*) override;
+
   virtual ~MadReader();
   };
 
@@ -112,10 +112,10 @@ protected:
     FLAG_INIT = 0x1,
     };
 public:
-  MadDecoder(AudioEngine*);
+  MadDecoder(DecoderContext*);
   FXuchar codec() const override { return Codec::MPEG; }
   FXbool init(ConfigureEvent*) override;
-  DecoderStatus process(Packet*) override;
+  FXbool process(Packet*) override;
   FXbool flush(FXlong) override;
   virtual ~MadDecoder();
   };
@@ -660,7 +660,7 @@ ApeTag::ApeTag(const FXchar * buffer,FXint len) {
 
 
 
-MadReader::MadReader(AudioEngine*e) : ReaderPlugin(e),
+MadReader::MadReader(InputContext * ctx) : ReaderPlugin(ctx),
   sync(false),
   xing(nullptr),
   vbri(nullptr),
@@ -988,7 +988,7 @@ void MadReader::send_meta() {
     meta->artist.adopt(id3v2->artist);
     meta->album.adopt(id3v2->album);
     meta->title.adopt(id3v2->title);
-    engine->decoder->post(meta);
+    context->post_meta(meta);
     }
   else if (id3v1 && !id3v1->empty()) {
     GM_DEBUG_PRINT("[mad_reader] meta from id3v1\n");
@@ -996,7 +996,7 @@ void MadReader::send_meta() {
     meta->artist.adopt(id3v1->artist);
     meta->album.adopt(id3v1->album);
     meta->title.adopt(id3v1->title);
-    engine->decoder->post(meta);
+    context->post_meta(meta);
     }
   }
 
@@ -1049,7 +1049,7 @@ ReadStatus MadReader::parse(Packet * packet) {
           cfg->stream_offset_end   = id3v2->padend;
           }
 
-        engine->decoder->post(cfg);
+        context->post_configuration(cfg);
 
         /// Send Meta Data if any
         send_meta();
@@ -1059,7 +1059,7 @@ ReadStatus MadReader::parse(Packet * packet) {
         packet->stream_position = stream_position;
         packet->stream_length   = stream_length;
         stream_position        += nsamples;
-        engine->decoder->post(packet);
+        context->post_packet(packet);
         return ReadOk;
         }
 
@@ -1235,7 +1235,7 @@ error_or_eos:
     }
 done:
   if (packet->size() || packet->flags&FLAG_EOS)
-    engine->decoder->post(packet);
+    context->post_packet(packet);
   else {
     packet->unref();
     packet=nullptr;
@@ -1244,29 +1244,7 @@ done:
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-MadDecoder::MadDecoder(AudioEngine *e) : DecoderPlugin(e), buffer(MAD_BUFFER_MDLEN),flags(0) {
+MadDecoder::MadDecoder(DecoderContext *e) : DecoderPlugin(e), buffer(MAD_BUFFER_MDLEN),flags(0) {
   out=nullptr;
   }
 
@@ -1413,7 +1391,7 @@ static FXshort madfixed_to_s16(mad_fixed_t Fixed)
 
 
 
-DecoderStatus MadDecoder::process(Packet*in){
+FXbool MadDecoder::process(Packet*in){
   FXASSERT(in);
 
   FXint p,s,n;
@@ -1422,7 +1400,6 @@ DecoderStatus MadDecoder::process(Packet*in){
   FXint total_frames=0; // frames in buffer
 
   FXint nframes;
-  FXuint streamid=in->stream;
   FXlong stream_length=in->stream_length;
   FXbool eos=(in->flags&FLAG_EOS);
 
@@ -1448,7 +1425,7 @@ DecoderStatus MadDecoder::process(Packet*in){
   // Nothing to see here
   if (buffer.size()==0) {
     GM_DEBUG_PRINT("[mad_decoder] empty buffer, nothing to decode\n");
-    return DecoderOk;
+    return true;
     }
 
   // Get sample and frame count
@@ -1484,11 +1461,11 @@ DecoderStatus MadDecoder::process(Packet*in){
           GM_DEBUG_PRINT("[mad_decoder] unexpected end of stream (max_frames %d and max_samples %d)\n",max_frames,max_samples);
           goto done;
           }
-        return DecoderOk;
+        return true;
         }
       else {
         GM_DEBUG_PRINT("[mad_decoder] %s\n",mad_stream_errorstr(&stream));
-        return DecoderError;
+        return false;
         }
       }
 
@@ -1522,8 +1499,8 @@ DecoderStatus MadDecoder::process(Packet*in){
 
       // Get new buffer
       if (out==nullptr) {
-        out = engine->decoder->get_output_packet();
-        if (out==nullptr) return DecoderInterrupted; // FIXME
+        out = context->get_output_packet();
+        if (out==nullptr) return true; // FIXME
         out->af=af;
         out->stream_position=stream_position-stream_offset_start;
         out->stream_length=stream_length-stream_offset_start-stream_offset_end;
@@ -1563,8 +1540,7 @@ DecoderStatus MadDecoder::process(Packet*in){
       stream_position+=n;
 
       if (out->availableFrames()==0) {
-        engine->output->post(out);
-        out=nullptr;
+        context->post_output_packet(out);
         }
       }
     max_samples-=synth.pcm.length;
@@ -1573,14 +1549,9 @@ DecoderStatus MadDecoder::process(Packet*in){
 
 done:
   if (eos) {
-    if (out) {
-      engine->output->post(out);
-      out=nullptr;
-      }
-    GM_DEBUG_PRINT("[mad_decoder] end of stream %d\n",streamid);
-    engine->output->post(new ControlEvent(End,streamid));
+    context->post_output_packet(out,true);
     }
-  return DecoderOk;
+  return true;
   }
 
 FXbool MadDecoder::flush(FXlong offset){
@@ -1604,26 +1575,12 @@ FXbool MadDecoder::flush(FXlong offset){
 
 
 
-ReaderPlugin * ap_mad_reader(AudioEngine * engine) {
-  return new MadReader(engine);
+ReaderPlugin * ap_mad_reader(InputContext * ctx) {
+  return new MadReader(ctx);
   }
 
-DecoderPlugin * ap_mad_decoder(AudioEngine * engine) {
-  return new MadDecoder(engine);
+DecoderPlugin * ap_mad_decoder(DecoderContext * ctx) {
+  return new MadDecoder(ctx);
   }
-
-
 
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -22,7 +22,7 @@
 
 namespace ap {
 
-DecoderPlugin::DecoderPlugin(AudioEngine *e) : engine(e),stream_decode_offset(0) {
+DecoderPlugin::DecoderPlugin(DecoderContext * ctx) : context(ctx),stream_decode_offset(0) {
   }
 
 FXbool DecoderPlugin::init(ConfigureEvent*){
@@ -43,44 +43,44 @@ FXbool DecoderPlugin::flush(FXlong offset) {
 
 namespace ap {
 
-extern DecoderPlugin * ap_flac_decoder(AudioEngine*);
-extern DecoderPlugin * ap_pcm_decoder(AudioEngine*);
-extern DecoderPlugin * ap_vorbis_decoder(AudioEngine*);
-extern DecoderPlugin * ap_mad_decoder(AudioEngine*);
-extern DecoderPlugin * ap_aac_decoder(AudioEngine*);
-extern DecoderPlugin * ap_alac_decoder(AudioEngine*);
-extern DecoderPlugin * ap_opus_decoder(AudioEngine*);
-extern DecoderPlugin * ap_dca_decoder(AudioEngine*);
-extern DecoderPlugin * ap_a52_decoder(AudioEngine*);
+extern DecoderPlugin * ap_flac_decoder(DecoderContext*);
+extern DecoderPlugin * ap_pcm_decoder(DecoderContext*);
+extern DecoderPlugin * ap_vorbis_decoder(DecoderContext*);
+extern DecoderPlugin * ap_mad_decoder(DecoderContext*);
+extern DecoderPlugin * ap_aac_decoder(DecoderContext*);
+extern DecoderPlugin * ap_alac_decoder(DecoderContext*);
+extern DecoderPlugin * ap_opus_decoder(DecoderContext*);
+extern DecoderPlugin * ap_dca_decoder(DecoderContext*);
+extern DecoderPlugin * ap_a52_decoder(DecoderContext*);
 
-DecoderPlugin* DecoderPlugin::open(AudioEngine * engine,FXuchar codec) {
+DecoderPlugin* DecoderPlugin::open(DecoderContext * ctx,FXuchar codec) {
   switch(codec) {
-    case Codec::PCM     : return ap_pcm_decoder(engine); break;
+    case Codec::PCM     : return ap_pcm_decoder(ctx); break;
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
-    case Codec::Vorbis  : return ap_vorbis_decoder(engine); break;
+    case Codec::Vorbis  : return ap_vorbis_decoder(ctx); break;
 #endif
 #ifdef HAVE_FLAC
-    case Codec::FLAC    : return ap_flac_decoder(engine); break;
+    case Codec::FLAC    : return ap_flac_decoder(ctx); break;
 #endif
 #ifdef HAVE_MAD
-    case Codec::MPEG    : return ap_mad_decoder(engine); break;
+    case Codec::MPEG    : return ap_mad_decoder(ctx); break;
 #endif
 #ifdef HAVE_FAAD
-    case Codec::AAC     : return ap_aac_decoder(engine); break;
+    case Codec::AAC     : return ap_aac_decoder(ctx); break;
 #endif
 
 #ifdef HAVE_ALAC
-    case Codec::ALAC    : return ap_alac_decoder(engine); break;
+    case Codec::ALAC    : return ap_alac_decoder(ctx); break;
 #endif
 
 #ifdef HAVE_OPUS
-    case Codec::Opus    : return ap_opus_decoder(engine); break;
+    case Codec::Opus    : return ap_opus_decoder(ctx); break;
 #endif
 #ifdef HAVE_DCA
-    case Codec::DCA     : return ap_dca_decoder(engine); break;
+    case Codec::DCA     : return ap_dca_decoder(ctx); break;
 #endif
 #ifdef HAVE_A52
-    case Codec::A52     : return ap_a52_decoder(engine); break;
+    case Codec::A52     : return ap_a52_decoder(ctx); break;
 #endif
     default             : break;
     }

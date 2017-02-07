@@ -144,6 +144,7 @@ if(UNIX)
   option(WITH_FAAD "AAC Codec Support" ON)
   option(WITH_OPUS "Opus Codec Support" ON)
   option(WITH_A52 "A52 Codec Support" OFF)
+  option(WITH_DCA "DCA Codec Support" OFF)
 
   # HTTP(s) + Zlib
   option(WITH_OPENSSL "OpenSSL Support" ON)
@@ -183,6 +184,10 @@ else()
 
   if(WITH_PULSE)
     pkg_check_modules(PULSE libpulse>=0.9.21)
+  endif()
+
+  if(WITH_JACK)
+    pkg_check_modules(JACK jack)
   endif()
 
   if(WITH_FLAC)
@@ -531,6 +536,7 @@ endif()
 # Output Plugins
 add_feature_info(pulse HAVE_PULSE "${PULSE_VERSION}")
 add_feature_info(alsa HAVE_ALSA "${ALSA_VERSION}")
+add_feature_info(jack HAVE_JACK "${JACK_VERSION}")
 add_feature_info(oss HAVE_OSS "OSS Output")
 add_feature_info(wav WITH_WAVOUT "WAV File Output")
 

@@ -58,7 +58,7 @@ class PLSReader : public TextReader {
 protected:
   FXStringList uri;
 public:
-  PLSReader(AudioEngine*);
+  PLSReader(InputContext*);
   ReadStatus process(Packet*) override;
   FXbool init(InputPlugin*) override;
   FXuchar format() const override { return Format::PLS; };
@@ -68,7 +68,7 @@ public:
 
 
 
-PLSReader::PLSReader(AudioEngine*e) : TextReader(e) {
+PLSReader::PLSReader(InputContext*ctx) : TextReader(ctx) {
   }
 
 PLSReader::~PLSReader(){
@@ -91,8 +91,8 @@ ReadStatus PLSReader::process(Packet*packet) {
   return ReadError;
   }
 
-ReaderPlugin * ap_pls_reader(AudioEngine * engine) {
-  return new PLSReader(engine);
+ReaderPlugin * ap_pls_reader(InputContext * ctx) {
+  return new PLSReader(ctx);
   }
 
 }

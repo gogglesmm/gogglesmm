@@ -23,7 +23,6 @@
 #include "ap_decoder_plugin.h"
 #include <ogg/ogg.h>
 
-
 namespace ap {
 
 class Packet;
@@ -40,13 +39,13 @@ protected:
 protected:
   FXbool get_next_packet(Packet*&);
 public:
-  OggDecoder(AudioEngine*);
+  OggDecoder(DecoderContext*);
 
   FXbool init(ConfigureEvent*) override;
 
   FXbool flush(FXlong) override;
 
-  DecoderStatus process(Packet*) override;
+  FXbool process(Packet*) override;
 
 
   ~OggDecoder();

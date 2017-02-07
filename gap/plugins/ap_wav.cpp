@@ -18,11 +18,9 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
 #include "ap_event_private.h"
 #include "ap_reader_plugin.h"
 #include "ap_input_plugin.h"
-#include "ap_decoder_thread.h"
 
 
 
@@ -68,7 +66,7 @@ protected:
 protected:
   ReadStatus parse();
 public:
-  WavReader(AudioEngine*);
+  WavReader(InputContext*);
   FXbool init(InputPlugin*) override;
   ReadStatus process(Packet*) override;
 
@@ -95,7 +93,7 @@ const ap_guid_t guid_wav_format_pcm={0x01,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x8
 const ap_guid_t guid_wav_format_float={0x03,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0xaa,0x00,0x38,0x9b,0x71};
 
 
-WavReader::WavReader(AudioEngine*e) : ReaderPlugin(e),datasize(0),input_start(0) {
+WavReader::WavReader(InputContext*ctx) : ReaderPlugin(ctx),datasize(0),input_start(0) {
   }
 
 WavReader::~WavReader(){
@@ -129,7 +127,7 @@ ReadStatus WavReader::process(Packet*packet) {
   packet->af              = af;
   packet->stream_position = static_cast<FXint>( (input->position()-input_start) / af.framesize());
   packet->stream_length   = stream_length;
-    
+
 
   if (wavformat == WAV_FORMAT_ALAW) {
     FXint nsamples = (packet->space() / af.framesize());
@@ -144,7 +142,7 @@ ReadStatus WavReader::process(Packet*packet) {
       else if (nread==0) {
         packet->wroteBytes(s*2);
         packet->flags=FLAG_EOS;
-        engine->decoder->post(packet);
+        context->post_packet(packet);
         return ReadDone;
         }
       data[s] = alaw2lpcm(value);
@@ -164,7 +162,7 @@ ReadStatus WavReader::process(Packet*packet) {
       else if (nread==0) {
         packet->wroteBytes(s*2);
         packet->flags=FLAG_EOS;
-        engine->decoder->post(packet);
+        context->post_packet(packet);
         return ReadDone;
         }
       data[s] = ulaw2lpcm(value);
@@ -190,7 +188,7 @@ ReadStatus WavReader::process(Packet*packet) {
     packet->flags=FLAG_EOS;
   else
     packet->flags=0;
-  engine->decoder->post(packet);
+  context->post_packet(packet);
   return ReadOk;
   }
 
@@ -281,14 +279,14 @@ ReadStatus WavReader::parse() {
 
   if (input->read(&chunkid,4)!=4)
     return ReadError;
- 
+
   if (input->read(&chunksize,4)!=4)
     return ReadError;
 
-  if (compare(chunkid,"RIFF",4) && compare(chunkid,"RF64",4)) 
+  if (compare(chunkid,"RIFF",4) && compare(chunkid,"RF64",4))
     return ReadError;
- 
-  if (input->read(&chunkid,4)!=4 || compare(chunkid,"WAVE",4)) 
+
+  if (input->read(&chunkid,4)!=4 || compare(chunkid,"WAVE",4))
     return ReadError;
 
   while(1) {
@@ -308,7 +306,7 @@ ReadStatus WavReader::parse() {
 
       switch(wavformat) {
         case WAV_FORMAT_ALAW:
-        case WAV_FORMAT_ULAW: 
+        case WAV_FORMAT_ULAW:
           {
             af.set(AP_FORMAT_S16,rate,channels,channelorder);
           } break;
@@ -330,13 +328,13 @@ ReadStatus WavReader::parse() {
             af.set(Format::Float|Format::Little,samplesize,samplesize>>3,rate,channels,channelorder);
           } break;
 
-        case WAV_FORMAT_EXTENSIBLE: 
+        case WAV_FORMAT_EXTENSIBLE:
           {
             if (memcmp(subconfig,guid_wav_format_pcm,16)==0) {
               wavformat = WAV_FORMAT_PCM;
               if (samplesize>8)
                 af.set(Format::Signed|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
-              else  
+              else
                 af.set(Format::Unsigned|Format::Little,validbitspersample,samplesize>>3,rate,channels,channelorder);
               }
             else if (memcmp(subconfig,guid_wav_format_float,16)==0) {
@@ -353,7 +351,7 @@ ReadStatus WavReader::parse() {
 
         default: return ReadError; break;
         }
- 
+
 #ifdef DEBUG
      af.debug();
      if (block!=af.framesize())
@@ -366,7 +364,7 @@ ReadStatus WavReader::parse() {
         stream_length = (datasize) / af.framesize();
         }
       GM_DEBUG_PRINT("[wav_reader] stream_length %ld\n",stream_length);
-      engine->decoder->post(new ConfigureEvent(af,Codec::PCM));
+      context->post_configuration(new ConfigureEvent(af,Codec::PCM));
       return ReadOk;
       }
     else if (compare(chunkid,"ds64",4)==0) {
@@ -443,7 +441,7 @@ ReadStatus WavReader::parse() {
   }
 
 
-ReaderPlugin * ap_wav_reader(AudioEngine * engine) {
-  return new WavReader(engine);
+ReaderPlugin * ap_wav_reader(InputContext * ctx) {
+  return new WavReader(ctx);
   }
 }

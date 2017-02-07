@@ -19,10 +19,7 @@
 #include "ap_defs.h"
 #include "ap_opus.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
 #include "ap_ogg_decoder.h"
-#include "ap_decoder_thread.h"
-
 
 #include <opus/opus_multistream.h>
 
@@ -42,11 +39,11 @@ protected:
 //  FXlong find_stream_length();
 protected:
 public:
-  OpusDecoderPlugin(AudioEngine*);
+  OpusDecoderPlugin(DecoderContext*);
 
   FXuchar codec() const override { return Codec::Opus; }
   FXbool init(ConfigureEvent*) override;
-  DecoderStatus process(Packet*) override;
+  FXbool process(Packet*) override;
   FXbool flush(FXlong) override;
 
 
@@ -54,7 +51,7 @@ public:
   };
 
 
-OpusDecoderPlugin::OpusDecoderPlugin(AudioEngine * e) : OggDecoder(e),opus(nullptr),pcm(nullptr),gain(0.0f),stream_offset_start(0) {
+OpusDecoderPlugin::OpusDecoderPlugin(DecoderContext * e) : OggDecoder(e),opus(nullptr),pcm(nullptr),gain(0.0f),stream_offset_start(0) {
   }
 
 OpusDecoderPlugin::~OpusDecoderPlugin(){
@@ -153,13 +150,12 @@ FXbool OpusDecoderPlugin::init_decoder(const FXuchar * packet,const FXuint size)
   }
 
 
-DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
+FXbool OpusDecoderPlugin::process(Packet * packet) {
   OggDecoder::process(packet);
 
   const FXlong stream_begin  = FXMAX(stream_offset_start,stream_decode_offset);
   const FXlong stream_length = packet->stream_length;
   const FXbool eos           = packet->flags&FLAG_EOS;
-  FXuint id                  = packet->stream;
   FXlong stream_end          = stream_length;
 
   while(get_next_packet(packet)) {
@@ -194,10 +190,10 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
     while(nsamples>0) {
       /// Get new buffer
       if (out==nullptr) {
-        out = engine->decoder->get_output_packet();
+        out = context->get_output_packet();
         if (out==nullptr) {
           if (packet) packet->unref();
-          return DecoderInterrupted;
+          return true;
           }
         out->stream_position=stream_position - stream_offset_start;
         out->stream_length=stream_length;
@@ -213,25 +209,20 @@ DecoderStatus OpusDecoderPlugin::process(Packet * packet) {
         }
 
       if (out->availableFrames()==0) {
-        engine->output->post(out);
-        out=nullptr;
+        context->post_output_packet(out);
         }
       }
     }
 
   if (eos) {
-    if (out && out->numFrames())  {
-      engine->output->post(out);
-      out=nullptr;
-      }
-    engine->output->post(new ControlEvent(End,id));
+    context->post_output_packet(out,true);
     }
-  return DecoderOk;
+  return true;
   }
 
 
-DecoderPlugin * ap_opus_decoder(AudioEngine * engine) {
-  return new OpusDecoderPlugin(engine);
+DecoderPlugin * ap_opus_decoder(DecoderContext * ctx) {
+  return new OpusDecoderPlugin(ctx);
   }
 
 

@@ -23,7 +23,7 @@
 
 namespace ap {
 
-OggDecoder::OggDecoder(AudioEngine*e) : DecoderPlugin(e),
+OggDecoder::OggDecoder(DecoderContext*e) : DecoderPlugin(e),
   buffer(0),
   packet_start_ptr(nullptr),
   out(nullptr),
@@ -123,13 +123,13 @@ FXbool OggDecoder::get_next_packet(Packet *& packet) {
   }
 
 
-DecoderStatus OggDecoder::process(Packet* packet){
+FXbool OggDecoder::process(Packet* packet){
   if (packet->stream_position>=0 && buffer.size()==0) {
     FXASSERT(stream_position==-1);
     stream_position=packet->stream_position;
     GM_DEBUG_PRINT("[ogg] new stream position %ld\n",packet->stream_position);
     }
-  return DecoderOk;
+  return true;
   }
 
 

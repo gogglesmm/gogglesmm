@@ -45,7 +45,7 @@ protected:
 protected:
   FXbool open();
 public:
-  OSSOutput(Output * output);
+  OSSOutput(OutputContext * ctx);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -113,7 +113,7 @@ static FXbool to_oss_format(const AudioFormat & af,FXint & oss_format){
 
 
 
-OSSOutput::OSSOutput(Output * out) : OutputPlugin(out), handle(BadHandle) {
+OSSOutput::OSSOutput(OutputContext * ctx) : OutputPlugin(ctx), handle(BadHandle) {
   }
 
 OSSOutput::~OSSOutput() {

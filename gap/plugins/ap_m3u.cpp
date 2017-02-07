@@ -55,7 +55,7 @@ class M3UReader : public TextReader {
 protected:
   FXStringList uri;
 public:
-  M3UReader(AudioEngine*);
+  M3UReader(InputContext*);
   ReadStatus process(Packet*) override;
   FXbool init(InputPlugin*) override;
   FXuchar format() const override { return Format::M3U; };
@@ -65,7 +65,7 @@ public:
 
 
 
-M3UReader::M3UReader(AudioEngine*e) : TextReader(e) {
+M3UReader::M3UReader(InputContext* ctx) : TextReader(ctx) {
   }
 
 M3UReader::~M3UReader(){
@@ -88,7 +88,7 @@ ReadStatus M3UReader::process(Packet*packet) {
   return ReadError;
   }
 
-ReaderPlugin * ap_m3u_reader(AudioEngine * engine) {
-  return new M3UReader(engine);
+ReaderPlugin * ap_m3u_reader(InputContext * ctx) {
+  return new M3UReader(ctx);
   }
 }

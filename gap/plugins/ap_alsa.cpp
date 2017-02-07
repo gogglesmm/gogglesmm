@@ -49,7 +49,7 @@ protected:
 protected:
   FXbool open();
 public:
-  AlsaOutput(Output*);
+  AlsaOutput(OutputContext*);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -678,12 +678,12 @@ public:
 
 class AlsaMixer : public Reactor::Native {
 private:
-  Output            * output;
+  OutputContext     * context;
   snd_mixer_t       * mixer;
   snd_mixer_elem_t  * element;
   FXint               nhandles;
 protected:
-  AlsaMixer(Output * o,snd_mixer_t * m,snd_mixer_elem_t * e) : output(o),mixer(m),element(e) {
+  AlsaMixer(OutputContext * ctx,snd_mixer_t * m,snd_mixer_elem_t * e) : context(ctx),mixer(m),element(e) {
     updateVolume();
     nhandles=snd_mixer_poll_descriptors_count(mixer);
     }
@@ -707,7 +707,7 @@ public:
           }
         }
       }
-    output->notify_volume(vol/(nvalues*(max-min)));
+    context->notify_volume(vol/(nvalues*(max-min)));
     }
 
 
@@ -766,7 +766,7 @@ protected:
 
 
 public:
-  static AlsaMixer * open(Output * output,snd_pcm_t * handle) {
+  static AlsaMixer * open(OutputContext * context,snd_pcm_t * handle) {
     FXString device;
     snd_mixer_t*        mixer   = nullptr;
     snd_mixer_elem_t*   element = nullptr;
@@ -823,10 +823,10 @@ public:
 
     // If we found an element
     if (element) {
-      return new AlsaMixer(output,mixer,element);
+      return new AlsaMixer(context,mixer,element);
       }
 fail:
-    output->notify_disable_volume();
+    context->notify_disable_volume();
     if (mixer) snd_mixer_close(mixer);
     return nullptr;
     }
@@ -837,7 +837,7 @@ fail:
 
 
 
-AlsaOutput::AlsaOutput(Output * o) : OutputPlugin(o), handle(nullptr),period_size(0),period_written(0),silence(nullptr),mixer(nullptr),can_pause(false),can_resume(false) {
+AlsaOutput::AlsaOutput(OutputContext * ctx) : OutputPlugin(ctx), handle(nullptr),period_size(0),period_written(0),silence(nullptr),mixer(nullptr),can_pause(false),can_resume(false) {
   }
 
 AlsaOutput::~AlsaOutput() {
@@ -855,8 +855,8 @@ FXbool AlsaOutput::open() {
       }
 
     GM_DEBUG_PRINT("[alsa] opened device \"%s\"\n",config.device.text());
-    mixer = AlsaMixer::open(output,handle);
-    if (mixer) output->getReactor().addNative(mixer);
+    mixer = AlsaMixer::open(context,handle);
+    if (mixer) context->getReactor().addNative(mixer);
     }
   return true;
   }
@@ -867,7 +867,7 @@ void AlsaOutput::close() {
     snd_pcm_drop(handle);
 
     if (mixer) {
-      output->getReactor().removeNative(mixer);
+      context->getReactor().removeNative(mixer);
       delete mixer;
       mixer=nullptr;
       }

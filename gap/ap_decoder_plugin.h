@@ -24,35 +24,43 @@
 namespace ap {
 
 class ConfigureEvent;
-class DecoderPacket;
-class AudioEngine;
 class Packet;
 
-enum DecoderStatus {
-  DecoderError,
-  DecoderOk,
-  DecoderDone,
-  DecoderInterrupted
+/* Interface to Decoder */
+class DecoderContext {
+public:
+  // Get input packet
+  virtual Packet * get_input_packet()=0;
+
+  // Get output packet
+  virtual Packet * get_output_packet()=0;
+
+  // Post output packet
+  virtual void post_output_packet(Packet*&,FXbool eos=false)=0;
+
+  // Post output configuration
+  virtual void post_configuration(ConfigureEvent*)=0;
   };
+
 
 class DecoderPlugin {
 protected:
-  AudioEngine * engine;
+  DecoderContext * context;
   AudioFormat   af;
   FXlong        stream_decode_offset;
 public:
 public:
-  DecoderPlugin(AudioEngine*);
+  DecoderPlugin(DecoderContext*);
 
   virtual FXuchar codec() const { return Codec::Invalid; }
 
   virtual FXbool init(ConfigureEvent*);
 
-  virtual DecoderStatus process(Packet*)=0;
+  virtual FXbool process(Packet*)=0;
 
   virtual FXbool flush(FXlong offset=0);
 
-  static DecoderPlugin* open(AudioEngine * engine,FXuchar codec);
+  static DecoderPlugin* open(DecoderContext * ctx,FXuchar codec);
 
   virtual ~DecoderPlugin() {}
   };
