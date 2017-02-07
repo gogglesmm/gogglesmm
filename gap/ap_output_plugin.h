@@ -28,7 +28,7 @@ namespace ap {
 
 #define AP_IMPLEMENT_PLUGIN(PluginName)\
  extern "C" {\
-  GMPLUGINAPI OutputPlugin * ap_load_plugin(Output* output) {\
+  GMPLUGINAPI OutputPlugin * ap_load_plugin(OutputContext* output) {\
     return new PluginName(output);\
     }\
   GMPLUGINAPI void ap_free_plugin(OutputPlugin * plugin) {\
@@ -39,7 +39,7 @@ namespace ap {
   }
 
 /* Interface to OutputThread */
-class GMAPI Output {
+class GMAPI OutputContext {
 public:
   virtual void notify_disable_volume()=0;
 
@@ -53,13 +53,13 @@ public:
 
 class GMAPI OutputPlugin {
 public:
-  Output*       output;
-  AudioFormat   af;
+  OutputContext * context = nullptr;
+  AudioFormat     af;
 private:
   OutputPlugin(){}
 public:
   /// Constructor
-  OutputPlugin(Output * o) : output(o) {}
+  OutputPlugin(OutputContext * ctx) : context(ctx) {}
 
   /// Output Plugin Type
   virtual FXchar type() const=0;
@@ -104,7 +104,7 @@ public:
 
 
 // Plugin API
-typedef OutputPlugin*  (*ap_load_plugin_t)(Output*);
+typedef OutputPlugin*  (*ap_load_plugin_t)(OutputContext*);
 typedef void           (*ap_free_plugin_t)(OutputPlugin*);
 
 }

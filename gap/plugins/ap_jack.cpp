@@ -31,7 +31,7 @@ protected:
 protected:
   FXbool open();
 public:
-  JackOutput(OutputThread * output);
+  JackOutput(OutputContext* ctx);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -65,7 +65,7 @@ public:
   };
 
 
-JackOutput::JackOutput(OutputThread * output) : OutputPlugin(output) {
+JackOutput::JackOutput(OutputContext * ctx) : OutputPlugin(ctx) {
   }
 
 JackOutput::~JackOutput() {
@@ -118,12 +118,4 @@ FXbool JackOutput::write(const void *,FXuint){
 }
 
 
-extern "C" GMAPI OutputPlugin * ap_load_plugin(OutputThread * output) {
-  return new JackOutput(output);
-  }
-
-extern "C" GMAPI void ap_free_plugin(OutputPlugin* plugin) {
-  delete plugin;
-  }
-
-FXuint GMAPI ap_version = AP_VERSION(GAP_VERSION_MAJOR,GAP_VERSION_MINOR,GAP_VERSION_PATCH);
+AP_IMPLEMENT_PLUGIN(JackOutput);

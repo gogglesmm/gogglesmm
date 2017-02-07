@@ -42,16 +42,16 @@ protected:
   friend struct ::pa_defer_event;
 protected:
   pa_mainloop_api  api;
-  pa_context     * context;
-  pa_stream      * stream;
-  pa_volume_t      pulsevolume;
+  pa_context     * pulse_context = nullptr;
+  pa_stream      * stream        = nullptr;
+  pa_volume_t      pulsevolume   = PA_VOLUME_MUTED;
 protected:
   static void sink_info_callback(pa_context*, const pa_sink_input_info *,int eol,void*);
   static void context_subscribe_callback(pa_context *c,pa_subscription_event_type_t, uint32_t,void*);
 protected:
   FXbool open();
 public:
-  PulseOutput(Output*);
+  PulseOutput(OutputContext*);
 
   /// Configure
   FXbool configure(const AudioFormat &);
@@ -138,14 +138,14 @@ public:
     event->callback         = cb;
     event->userdata         = userdata;
     event->destroy_callback = nullptr;
-    PulseOutput::instance->output->getReactor().addInput(event);
+    PulseOutput::instance->context->getReactor().addInput(event);
     return event;
     }
 
   static void destroy(pa_io_event* event){
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
-    PulseOutput::instance->output->getReactor().removeInput(event);
+    PulseOutput::instance->context->getReactor().removeInput(event);
     if (recycle==nullptr)
       recycle=event;
     else
@@ -193,14 +193,14 @@ public:
       }
     event->callback = cb;
     event->userdata = userdata;
-    PulseOutput::instance->output->getReactor().addTimer(event,time);
+    PulseOutput::instance->context->getReactor().addTimer(event,time);
     return event;
     }
 
   static void destroy(pa_time_event* event){
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
-    PulseOutput::instance->output->getReactor().removeTimer(event);
+    PulseOutput::instance->context->getReactor().removeTimer(event);
     if (recycle==nullptr)
       recycle=event;
     else
@@ -209,8 +209,8 @@ public:
 
   static void restart(pa_time_event* event, const struct timeval *tv){
     FXTime time = (tv->tv_sec*NANOSECONDS_PER_SECOND) + (tv->tv_usec*NANOSECONDS_PER_MICROSECOND);
-    PulseOutput::instance->output->getReactor().removeTimer(event);
-    PulseOutput::instance->output->getReactor().addTimer(event,time);
+    PulseOutput::instance->context->getReactor().removeTimer(event);
+    PulseOutput::instance->context->getReactor().addTimer(event,time);
     }
 
   static void set_destroy(pa_time_event *event, pa_time_event_destroy_cb_t cb){
@@ -251,7 +251,7 @@ public:
     event->userdata         = userdata;
     event->destroy_callback = nullptr;
 
-    PulseOutput::instance->output->getReactor().addDeferred(event);
+    PulseOutput::instance->context->getReactor().addDeferred(event);
     return event;
     };
 
@@ -266,7 +266,7 @@ public:
     if (event->destroy_callback)
       event->destroy_callback(&PulseOutput::instance->api,event,event->userdata);
 
-    PulseOutput::instance->output->getReactor().removeDeferred(event);
+    PulseOutput::instance->context->getReactor().removeDeferred(event);
 
     if (recycle==nullptr)
       recycle = event;
@@ -312,7 +312,7 @@ namespace ap {
 
 PulseOutput * PulseOutput::instance = nullptr;
 
-PulseOutput::PulseOutput(Output * output) : OutputPlugin(output),context(nullptr),stream(nullptr),pulsevolume(PA_VOLUME_MUTED) {
+PulseOutput::PulseOutput(OutputContext * ctx) : OutputPlugin(ctx) {
   FXASSERT(instance==nullptr);
   instance                = this;
   api.userdata            = this;
@@ -406,12 +406,12 @@ void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * inf
   if (info) {
     pa_volume_t value = pa_cvolume_avg(&info->volume);
     if (out->pulsevolume!=value) {
-      out->output->notify_volume((float)value / (float)PA_VOLUME_NORM);
+      out->context->notify_volume((float)value / (float)PA_VOLUME_NORM);
       }
     }
   }
 
-void PulseOutput::context_subscribe_callback(pa_context * context, pa_subscription_event_type_t type, uint32_t index, void *userdata){
+void PulseOutput::context_subscribe_callback(pa_context * pulse_context, pa_subscription_event_type_t type, uint32_t index, void *userdata){
   PulseOutput * out = static_cast<PulseOutput*>(userdata);
 
   if (out->stream==nullptr)
@@ -425,7 +425,7 @@ void PulseOutput::context_subscribe_callback(pa_context * context, pa_subscripti
 
   if ((type&PA_SUBSCRIPTION_EVENT_TYPE_MASK)==PA_SUBSCRIPTION_EVENT_CHANGE ||
       (type&PA_SUBSCRIPTION_EVENT_TYPE_MASK)==PA_SUBSCRIPTION_EVENT_NEW) {
-    pa_operation *operation = pa_context_get_sink_input_info(context,index,sink_info_callback,userdata);
+    pa_operation *operation = pa_context_get_sink_input_info(pulse_context,index,sink_info_callback,userdata);
     if (operation) pa_operation_unref(operation);
     }
   }
@@ -441,18 +441,18 @@ FXbool PulseOutput::open() {
    // }
 
   /// Get a context
-  if (context==nullptr) {
-    context = pa_context_new(&api,"Goggles Music Manager");
+  if (pulse_context==nullptr) {
+    pulse_context = pa_context_new(&api,"Goggles Music Manager");
 #ifdef DEBUG
-    pa_context_set_state_callback(context,context_state_callback,this);
+    pa_context_set_state_callback(pulse_context,context_state_callback,this);
 #endif
-    pa_context_set_subscribe_callback(context,context_subscribe_callback,this);
+    pa_context_set_subscribe_callback(pulse_context,context_subscribe_callback,this);
     }
 
   /// Try connecting
   GM_DEBUG_PRINT("pa_context_connect()\n");
-  if (pa_context_get_state(context)==PA_CONTEXT_UNCONNECTED) {
-    if (pa_context_connect(context,nullptr,PA_CONTEXT_NOFLAGS,nullptr)<0) {
+  if (pa_context_get_state(pulse_context)==PA_CONTEXT_UNCONNECTED) {
+    if (pa_context_connect(pulse_context,nullptr,PA_CONTEXT_NOFLAGS,nullptr)<0) {
       GM_DEBUG_PRINT("pa_context_connect failed\n");
       return false;
       }
@@ -461,15 +461,15 @@ FXbool PulseOutput::open() {
   /// Wait until we're connected to the pulse daemon
   GM_DEBUG_PRINT("wait for connection\n");
   pa_context_state_t state;
-  while((state=pa_context_get_state(context))!=PA_CONTEXT_READY) {
+  while((state=pa_context_get_state(pulse_context))!=PA_CONTEXT_READY) {
     if (state==PA_CONTEXT_FAILED || state==PA_CONTEXT_TERMINATED){
       GM_DEBUG_PRINT("Unable to connect to pulsedaemon\n");
       return false;
       }
-    output->wait_plugin_events();
+    context->wait_plugin_events();
     }
 
-  pa_operation* operation = pa_context_subscribe(context,PA_SUBSCRIPTION_MASK_SINK_INPUT,nullptr,this);
+  pa_operation* operation = pa_context_subscribe(pulse_context,PA_SUBSCRIPTION_MASK_SINK_INPUT,nullptr,this);
   if (operation) pa_operation_unref(operation);
 
 
@@ -479,7 +479,7 @@ FXbool PulseOutput::open() {
 
 void PulseOutput::close() {
 #ifdef DEBUG
-  output->getReactor().debug();
+  context->getReactor().debug();
 #endif
 
   if (stream) {
@@ -489,14 +489,14 @@ void PulseOutput::close() {
     stream=nullptr;
     }
 
-  if (context) {
+  if (pulse_context) {
     GM_DEBUG_PRINT("disconnecting context\n");
-    pa_context_disconnect(context);
-    pa_context_unref(context);
-    context=nullptr;
+    pa_context_disconnect(pulse_context);
+    pa_context_unref(pulse_context);
+    pulse_context=nullptr;
     }
 #ifdef DEBUG
-  output->getReactor().debug();
+  context->getReactor().debug();
 #endif
 
   delete pa_io_event::recycle;
@@ -513,11 +513,11 @@ void PulseOutput::close() {
 
 
 void PulseOutput::volume(FXfloat v) {
-  if (context && stream) {
+  if (pulse_context && stream) {
     pulsevolume = (pa_volume_t)(v*PA_VOLUME_NORM);
     pa_cvolume cvol;
     pa_cvolume_set(&cvol,af.channels,pulsevolume);
-    pa_operation* operation = pa_context_set_sink_input_volume(context,pa_stream_get_index(stream),&cvol,nullptr,nullptr);
+    pa_operation* operation = pa_context_set_sink_input_volume(pulse_context,pa_stream_get_index(stream),&cvol,nullptr,nullptr);
     pa_operation_unref(operation);
     }
   }
@@ -545,7 +545,7 @@ void PulseOutput::drain() {
   if (stream) {
     pa_operation * operation = pa_stream_drain(stream,nullptr,nullptr);
     while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
-      output->wait_plugin_events();
+      context->wait_plugin_events();
     pa_operation_unref(operation);
     }
   }
@@ -599,7 +599,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
       }
     }
 
-  stream = pa_stream_new(context,"Goggles Music Manager",&spec,&cmap);
+  stream = pa_stream_new(pulse_context,"Goggles Music Manager",&spec,&cmap);
   if (stream == nullptr)
     goto failed;
 
@@ -617,7 +617,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
     if (state==PA_STREAM_FAILED || state==PA_STREAM_TERMINATED){
       goto failed;
       }
-    output->wait_plugin_events();
+    context->wait_plugin_events();
     }
 
   /// Get Actual Format
@@ -629,7 +629,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
   af.channelmap=fmt.channelmap;
 
   /// Get Current Volume
-  operation = pa_context_get_sink_input_info(context,pa_stream_get_index(stream),sink_info_callback,this);
+  operation = pa_context_get_sink_input_info(pulse_context,pa_stream_get_index(stream),sink_info_callback,this);
   if (operation) pa_operation_unref(operation);
 
   return true;
@@ -652,7 +652,7 @@ FXbool PulseOutput::write(const void * b,FXuint nframes){
     size_t n = FXMIN(total,nbytes);
     if (n==0) {
       //fxmessage("size %ld\n",nbytes);
-      output->wait_plugin_events();
+      context->wait_plugin_events();
       continue;
       }
     pa_stream_write(stream,buffer,n,nullptr,0,PA_SEEK_RELATIVE);

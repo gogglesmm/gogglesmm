@@ -30,9 +30,9 @@ namespace ap {
 class WavOutput : public OutputPlugin {
 protected:
   FXFile file;
-  FXlong data_pos;
+  FXlong data_pos = 0;
 public:
-  WavOutput(Output * output);
+  WavOutput(OutputContext * ctx);
 
   FXchar type() const override { return DeviceWav; }
 
@@ -49,7 +49,7 @@ public:
   virtual ~WavOutput();
   };
 
-WavOutput::WavOutput(Output * out) : OutputPlugin(out),data_pos(0){
+WavOutput::WavOutput(OutputContext * ctx) : OutputPlugin(ctx) {
   }
 
 WavOutput::~WavOutput() {

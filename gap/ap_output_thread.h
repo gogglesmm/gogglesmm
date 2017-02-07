@@ -41,7 +41,7 @@ struct ReplayGainConfig {
   FXdouble peak() const { return (mode==ReplayGainAlbum) ? value.album_peak : value.track_peak; }
   };
 
-class OutputThread : public EngineThread, public Output {
+class OutputThread : public EngineThread, public OutputContext {
 protected:
   OutputConfig   output_config;
 protected:
