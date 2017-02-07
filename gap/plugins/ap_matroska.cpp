@@ -18,10 +18,8 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
 #include "ap_reader_plugin.h"
 #include "ap_input_plugin.h"
-#include "ap_decoder_thread.h"
 
 #include "ap_vorbis.h"
 #include "ap_opus.h"
@@ -203,7 +201,7 @@ public:
     OGG_WROTE_HEADER = 0x2,
     };
 public:
-  MatroskaReader(AudioEngine*);
+  MatroskaReader(InputContext*);
 
   // Format
   FXuchar format() const { return Format::Matroska; };
@@ -225,7 +223,7 @@ public:
   };
 
 
-MatroskaReader::MatroskaReader(AudioEngine* e) : ReaderPlugin(e) {
+MatroskaReader::MatroskaReader(InputContext * ctx) : ReaderPlugin(ctx) {
   }
 
 MatroskaReader::~MatroskaReader(){
@@ -364,7 +362,7 @@ ReadStatus MatroskaReader::process(Packet*packet) {
 
       // Still bytes left so pass packet to decoder
       if (frame_size) {
-        engine->decoder->post(packet);
+        context->post_packet(packet);
         return ReadOk;
         }
       }
@@ -379,7 +377,7 @@ ReadStatus MatroskaReader::process(Packet*packet) {
 
     if (frame_size==0) {
       packet->flags|=FLAG_EOS;
-      engine->decoder->post(packet);
+      context->post_packet(packet);
       return ReadDone;
       }
     }
@@ -434,7 +432,7 @@ ReadStatus MatroskaReader::parse() {
       track->dc = nullptr;
       stream_length = (duration * timecode_scale * track->af.rate )  / NANOSECONDS_PER_SECOND;
       cfg->stream_length = stream_length;
-      engine->decoder->post(cfg);
+      context->post_configuration(cfg);
 
       flags|=FLAG_PARSED;
       input->position(first_cluster,FXIO::Begin);
@@ -1513,8 +1511,8 @@ FXbool MatroskaReader::parse_float_as_uint32(FXuint & value,const FXlong size) {
 }
 
 
-ReaderPlugin * ap_matroska_reader(AudioEngine * engine) {
-  return new matroska::MatroskaReader(engine);
+ReaderPlugin * ap_matroska_reader(InputContext * ctx) {
+  return new matroska::MatroskaReader(ctx);
   }
 
 }

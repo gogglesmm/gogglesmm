@@ -19,10 +19,8 @@
 #include "ap_defs.h"
 #include "ap_event_private.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
 #include "ap_reader_plugin.h"
 #include "ap_input_plugin.h"
-#include "ap_decoder_thread.h"
 
 namespace ap {
 
@@ -205,7 +203,7 @@ protected:
   FXbool select_track();
   void clear_tracks();
 public:
-  MP4Reader(AudioEngine*);
+  MP4Reader(InputContext*);
 
   // Format
   FXuchar format() const override { return Format::MP4; };
@@ -227,13 +225,13 @@ public:
   };
 
 
-ReaderPlugin * ap_mp4_reader(AudioEngine * engine) {
-  return new MP4Reader(engine);
+ReaderPlugin * ap_mp4_reader(InputContext * ctx) {
+  return new MP4Reader(ctx);
   }
 
 
 
-MP4Reader::MP4Reader(AudioEngine* e) : ReaderPlugin(e),track(nullptr),meta(nullptr) {
+MP4Reader::MP4Reader(InputContext * ctx) : ReaderPlugin(ctx), track(nullptr), meta(nullptr) {
   }
 
 MP4Reader::~MP4Reader(){
@@ -291,7 +289,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
     packet->wroteBytes(n);
     framesize-=n;
     if (framesize) {
-      engine->decoder->post(packet);
+      context->post_packet(packet);
       packet=NULL;
       return ReadOk;
       }
@@ -314,7 +312,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
     // AAC decoder can't handle partial frames so only send full frames over
     if (packet->space()<8 || (track->codec==Codec::AAC && framesize>packet->space())){
       framesize = 0; // no remaining data to be read next time
-      engine->decoder->post(packet);
+      context->post_packet(packet);
       packet=nullptr;
       return ReadOk;
       }
@@ -340,7 +338,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
 
     /// If framesize remaining, assume packet is full
     if(framesize) {
-      engine->decoder->post(packet);
+      context->post_packet(packet);
       packet=nullptr;
       return ReadOk;
       }
@@ -349,7 +347,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
   if (packet) {
     FXASSERT(sample>=nsamples-1);
     packet->flags|=FLAG_EOS;
-    engine->decoder->post(packet);
+    context->post_packet(packet);
     packet=nullptr;
     return ReadDone;
     }
@@ -425,13 +423,12 @@ ReadStatus MP4Reader::parse() {
       case Codec::ALAC:
         // FIXME encoder delays
         break;
-
       }
 
-    engine->decoder->post(cfg);
+    context->post_configuration(cfg);
 
     if (meta->title.length()) {
-      engine->decoder->post(meta);
+      context->post_meta(meta);
       meta = nullptr;
       }
     else {

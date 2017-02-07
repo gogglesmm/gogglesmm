@@ -17,12 +17,11 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "ap_defs.h"
+#include "ap_packet.h"
 #include "ap_event_private.h"
-#include "ap_engine.h"
 #include "ap_reader_plugin.h"
 #include "ap_input_plugin.h"
 #include "ap_decoder_plugin.h"
-#include "ap_decoder_thread.h"
 
 #include "neaacdec.h"
 
@@ -32,7 +31,7 @@ namespace ap {
 
 class AACReader : public ReaderPlugin {
 public:
-  AACReader(AudioEngine*e) : ReaderPlugin(e) {}
+  AACReader(InputContext * ctx) : ReaderPlugin(ctx) {}
   FXbool init(InputPlugin*plugin) override { ReaderPlugin::init(plugin); flags=0; return true; }
   FXuchar format() const override { return Format::AAC; }
 
@@ -41,8 +40,8 @@ public:
   ~AACReader() {}
   };
 
-ReaderPlugin * ap_aac_reader(AudioEngine * engine) {
-  return new AACReader(engine);
+ReaderPlugin * ap_aac_reader(InputContext * ctx) {
+  return new AACReader(ctx);
   }
 
 ReadStatus AACReader::process(Packet*packet) {
@@ -54,7 +53,7 @@ ReadStatus AACReader::process(Packet*packet) {
     do {
       if ((buffer[0]==0xFF) && (buffer[1]&0xf0)==0xf0) {
         GM_DEBUG_PRINT("[aac] found sync\n");
-        engine->decoder->post(new ConfigureEvent(af,Codec::AAC));
+        context->post_configuration(new ConfigureEvent(af,Codec::AAC));
         flags|=FLAG_PARSED;
         packet->append(buffer,2);
         break;

@@ -20,11 +20,9 @@
 #include "ap_event_private.h"
 #include "ap_packet.h"
 #include "ap_id3v2.h"
-#include "ap_engine.h"
 #include "ap_input_plugin.h"
 #include "ap_reader_plugin.h"
 #include "ap_decoder_plugin.h"
-#include "ap_decoder_thread.h"
 
 #include <FLAC/stream_decoder.h>
 
@@ -79,7 +77,7 @@ protected:
 protected:
   ReadStatus parse();
 public:
-  FlacReader(AudioEngine*);
+  FlacReader(InputContext*);
   FXuchar format() const { return Format::FLAC; };
   FXbool init(InputPlugin*);
   FXbool seek(FXlong offset);
@@ -131,7 +129,7 @@ void flac_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain
 
 
 
-FlacReader::FlacReader(AudioEngine* e) : ReaderPlugin(e),meta(nullptr) {
+FlacReader::FlacReader(InputContext* ctx) : ReaderPlugin(ctx), meta(nullptr) {
   }
 
 FlacReader::~FlacReader(){
@@ -674,10 +672,9 @@ ReadStatus FlacReader::parse() {
 
       ConfigureEvent * config = new ConfigureEvent(af,Codec::FLAC,stream_length);
       config->replaygain=gain;
-      engine->decoder->post(config);
-
+      context->post_configuration(config);
       if (meta) {
-        engine->decoder->post(meta);
+        context->post_meta(meta);
         meta=nullptr;
         }
       return ReadOk;
@@ -949,8 +946,8 @@ FXbool FlacDecoder::process(Packet*packet){
   return false;
   }
 
-ReaderPlugin * ap_flac_reader(AudioEngine * engine) {
-  return new FlacReader(engine);
+ReaderPlugin * ap_flac_reader(InputContext * ctx) {
+  return new FlacReader(ctx);
   }
 
 DecoderPlugin * ap_flac_decoder(DecoderContext * ctx) {
