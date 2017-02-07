@@ -757,6 +757,13 @@ void GMIconTheme::loadExternal() {
   loadMedium(icon_volume_medium_toolbar,"audio-volume-medium",basecolor);
   loadMedium(icon_volume_low_toolbar,"audio-volume-low",basecolor);
   loadMedium(icon_volume_muted_toolbar,"audio-volume-muted",basecolor);
+
+  loadSmall(icon_volume_high,"audio-volume-high",basecolor);
+  loadSmall(icon_volume_medium,"audio-volume-medium",basecolor);
+  loadSmall(icon_volume_low,"audio-volume-low",basecolor);
+  loadSmall(icon_volume_muted,"audio-volume-muted",basecolor);
+
+
   loadMedium(icon_play_toolbar,"media-playback-start",basecolor);
   loadMedium(icon_pause_toolbar,"media-playback-pause",basecolor);
   loadMedium(icon_next_toolbar,"media-skip-forward",basecolor);
