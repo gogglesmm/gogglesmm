@@ -59,7 +59,6 @@ FXbool DCADecoder::init(ConfigureEvent*event) {
 
 FXbool DCADecoder::process(Packet*in) {
   FXbool eos    = (in->flags&FLAG_EOS);
-  FXint  stream = in->stream;
   FXlong stream_length=in->stream_length;
   buffer.append(in->data(),in->size());
   in->unref();
@@ -71,7 +70,7 @@ FXbool DCADecoder::process(Packet*in) {
     int framelength;
     int length = dca_syncinfo(state,buffer.data(),&flags,&samplerate,&bitrate,&framelength);
     if (length<=0) {
-      fxmessage("length returned %ld\n",length);
+      fxmessage("length returned %d\n",length);
       return false;
       }
     else if (buffer.size()<length) return true;

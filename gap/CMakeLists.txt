@@ -190,6 +190,10 @@ else()
     pkg_check_modules(JACK jack)
   endif()
 
+  if(WITH_DCA)
+    pkg_check_modules(DCA libdca)
+  endif()
+
   if(WITH_FLAC)
     pkg_check_modules(FLAC flac)
   endif()
