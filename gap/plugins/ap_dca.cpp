@@ -87,7 +87,7 @@ FXbool DCADecoder::process(Packet*in) {
 
       /// Get new buffer
       if (out==nullptr) {
-        out = engine->decoder->get_output_packet();
+        out = context->get_output_packet();
         if (out==nullptr) return true;
         out->stream_position=stream_position;
         out->stream_length=stream_length;

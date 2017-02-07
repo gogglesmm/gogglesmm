@@ -18,8 +18,6 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_packet.h"
-#include "ap_engine.h"
-#include "ap_output_thread.h"
 #include "ap_decoder_plugin.h"
 
 namespace ap {
