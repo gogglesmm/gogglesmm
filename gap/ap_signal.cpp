@@ -122,11 +122,11 @@ void Signal::set() {
   SetEvent(device);
 #elif defined(HAVE_EVENTFD)
   const FXlong value=1;
-  if (__unlikely(write(device,&value,sizeof(FXlong))!=sizeof(FXlong)))
+  if (__unlikely(write(device,&value,sizeof(FXlong))!=sizeof(FXlong) && errno!=EAGAIN))
     fxerror("gap: failed to set signal, write to eventfd failed");
 #else
   const FXuchar value=1;
-  if (__unlikely(write(wrptr,&value,sizeof(FXuchar))!=sizeof(FXuchar)))
+  if (__unlikely(write(wrptr,&value,sizeof(FXuchar))!=sizeof(FXuchar) && errno!=EAGAIN))
     fxerror("gap: failed to set signal, write to pipe failed");
 #endif
   }
@@ -136,7 +136,7 @@ void Signal::clear() {
   ResetEvent(device);
 #elif defined(HAVE_EVENTFD)
   FXlong value;
-  if (__unlikely(read(device,&value,sizeof(FXlong))!=sizeof(FXlong)))
+  if (__unlikely(read(device,&value,sizeof(FXlong))!=sizeof(FXlong) && errno!=EAGAIN))
     fxerror("gap: failed to clear signal, read from eventfd failed");
 #else
   FXuchar value[16];
@@ -254,11 +254,11 @@ void Semaphore::release() {
   ReleaseSemaphore(device,1,nullptr);
 #elif defined(HAVE_EVENTFD)
   const FXlong value=1;
-  if (__unlikely(write(device,&value,sizeof(FXlong))!=sizeof(FXlong)))
+  if (__unlikely(write(device,&value,sizeof(FXlong))!=sizeof(FXlong) && errno!=EAGAIN))
     fxerror("gap: failed to release semaphore, write to eventfd failed");
 #else
   const FXuchar value=1;
-  if (__unlikely(write(wrptr,&value,sizeof(FXuchar))!=sizeof(FXuchar)))
+  if (__unlikely(write(wrptr,&value,sizeof(FXuchar))!=sizeof(FXuchar) && errno!=EAGAIN))
     fxerror("gap: failed to release semaphore, write to pipe failed");
 #endif
   }

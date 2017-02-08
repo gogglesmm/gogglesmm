@@ -23,7 +23,7 @@ namespace ap {
 
 //#define GAP_NO_EVENTFD 1
 
-/// Using eventfd requires Linux 2.6.30. 
+/// Using eventfd requires Linux 2.6.30.
 #ifndef GAP_NO_EVENTFD
 #if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 8))
 #define HAVE_EVENTFD
@@ -52,7 +52,7 @@ enum class WaitMode {
 /// A signal that can either be set or unset and can be waited on using select/poll/WaitFor
 class Signal {
 private:
-#if !defined(_WIN32) && !defined(HAVE_EVENTFD) 
+#if !defined(_WIN32) && !defined(HAVE_EVENTFD)
   FXInputHandle wrptr;
 #endif
 protected:
@@ -84,7 +84,7 @@ public:
 class Semaphore {
 private:
 // For them BSDs we use a pipe
-#if !defined(_WIN32) && !defined(HAVE_EVENTFD) 
+#if !defined(_WIN32) && !defined(HAVE_EVENTFD)
   FXInputHandle wrptr;
 #endif
 protected:
