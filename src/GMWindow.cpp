@@ -1250,6 +1250,10 @@ long GMOpenDialog::onCmdBrowse(FXObject*,FXSelector,void*){
       filedialog.setDirectory(FXSystem::getHomeDirectory());
       }
     }
+  else {
+    filedialog.setDirectory(FXSystem::getHomeDirectory());
+    }
+
   filedialog.setPatternList(ap_get_gogglesmm_filepatterns());
   if (filedialog.execute())
     input->setText(filedialog.getFilename());

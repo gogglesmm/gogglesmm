@@ -12,6 +12,7 @@
   - Fix: tiptext for album list items in case when information is missing
   - Fix: incorrect access check in socket.
   - Fix: volume icon in miniplayer didn't get updated on icon theme change
+  - Fix: init directory in open dialog for Play File or Stream
 
 1.1.5
   - Fix lyrics column not being created on first run.
