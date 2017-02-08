@@ -5,11 +5,13 @@
   - New import option to exclude any files that cannot be played back.
   - Moved exclude import filters to its own tab.
   - cmake: added more options to enable/disable plugins during compilation
+  - gap: refactor decoder and reader plugins
   - Fix: refresh path lut if needed.
   - Fix: reset scroll position when loading new lyrics
   - Fix: show audio device options when using mousewheel or keys to change driver
   - Fix: tiptext for album list items in case when information is missing
   - Fix: incorrect access check in socket.
+  - Fix: volume icon in miniplayer didn't get updated on icon theme change
 
 1.1.5
   - Fix lyrics column not being created on first run.
