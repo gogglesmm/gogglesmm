@@ -37,6 +37,17 @@
 #define COVERCACHE_PNG  3
 #define COVERCACHE_BMP  4
 
+
+static FXbool is_image_format_supported(FXuchar format) {
+  switch(format) {
+    case COVERCACHE_JPG : return FXJPGImage::supported; break;
+    case COVERCACHE_WEBP: return FXWEBPImage::supported; break;
+    case COVERCACHE_PNG : return FXPNGImage::supported; break;
+    case COVERCACHE_BMP : return true; break;
+    }
+  return false;
+  }
+
 void GMCacheInfo::adopt(GMCacheInfo & info) {
   index.adopt(info.index);
   map.adopt(info.map);
@@ -245,6 +256,7 @@ FXbool GMCoverCache::load() {
   FXFileStream store;
   FXuint version;
   FXint  filesize;
+  FXuchar fileformat;
   FXbool status=true;
   if (store.open(filename,FXStreamLoad)) {
 
@@ -264,7 +276,21 @@ FXbool GMCoverCache::load() {
     info.size=filesize;
 
     // image format
-    store >> info.format;
+    store >> fileformat;
+    if (fileformat!=info.format) {
+
+      FXASSERT(info.format!=0);
+
+      // if not supported, don't bother to load the file
+      if (!is_image_format_supported(fileformat))
+        return false;
+
+      // supported, but like to regenerate
+      status = false;
+      }
+
+    // use the format stored in the file
+    info.format = fileformat;
 
     // load info structure
     info.load(store);
