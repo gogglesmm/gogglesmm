@@ -48,6 +48,21 @@ static FXbool is_image_format_supported(FXuchar format) {
   return false;
   }
 
+static FXuchar default_image_format() {
+  if (FXWEBPImage::supported)
+    return COVERCACHE_WEBP;
+  else if (FXJPGImage::supported)
+    return COVERCACHE_JPG;
+  else if (FXPNGImage::supported)
+    return COVERCACHE_PNG;
+  else
+    return COVERCACHE_BMP; // Getting real desperate here...
+  }
+
+GMCacheInfo::GMCacheInfo(FXint sz) : size(sz) {
+  format=default_image_format();
+  }
+
 void GMCacheInfo::adopt(GMCacheInfo & info) {
   index.adopt(info.index);
   map.adopt(info.map);
@@ -64,7 +79,7 @@ void GMCacheInfo::clear(FXint sz){
   index.clear();
   map.clear();
   size=sz;
-  format=0;
+  format=default_image_format();
   }
 
 void GMCacheInfo::save(FXStream & store) const {
@@ -96,14 +111,6 @@ void GMCacheInfo::load(FXStream & store) {
 
 
 GMCoverCacheWriter::GMCoverCacheWriter(FXint sz) : info(sz),pixels(nullptr) {
-  if (FXWEBPImage::supported)
-    info.format = COVERCACHE_WEBP;
-  else if (FXJPGImage::supported)
-    info.format = COVERCACHE_JPG;
-  else if (FXPNGImage::supported)
-    info.format = COVERCACHE_PNG;
-  else
-    info.format = COVERCACHE_BMP; // Getting real desperate here...
   }
 
 GMCoverCacheWriter::~GMCoverCacheWriter() {
@@ -119,6 +126,7 @@ FXbool GMCoverCacheWriter::open(const FXString & filename) {
     store << info.format;
     return true;
     }
+  FXASSERT(0);
   return false;
   }
 
@@ -236,19 +244,29 @@ void GMCoverCache::clear(FXint sz) {
 
 
 void GMCoverCache::load(GMCoverCacheWriter & writer) {
-  if (data.base())
-    data.close();
 
+  // close old file
+  if (data.base()) data.close();
+
+  // move in new file
 #if FOXVERSION >= FXVERSION(1,7,57)
-  FXFile::move(getTempFilename(),getFilename());
-#else
-  FXFile::rename(getTempFilename(),getFilename());
-#endif
-
-  if (data.openMap(getFilename()))
-    info.adopt(writer.info);
-  else
+  if (!FXFile::move(getTempFilename(),getFilename(),true)) {
     info.clear(writer.info.size);
+    return;
+    }
+#else
+  if (!FXFile::rename(getTempFilename(),getFilename())) {
+    info.clear(writer.info.size);
+    return;
+    }
+#endif
+  // try opening
+  if (data.openMap(getFilename())){
+    info.adopt(writer.info);
+    }
+  else {
+    info.clear(writer.info.size);
+    }
   }
 
 
@@ -296,11 +314,14 @@ FXbool GMCoverCache::load() {
     info.load(store);
 
     // Open memory map
-    if (data.openMap(filename)==nullptr)
+    if (data.openMap(filename)==nullptr) {
+      FXASSERT(0);
       return false;
+      }
 
     return status;
     }
+  FXASSERT(0);
   return false;
   }
 

@@ -27,18 +27,18 @@ class GMCover;
 class GMCacheInfo {
 public:
   struct FileIndex {
-    FXlong position;
-    FXint  length;
-    FileIndex() : position(0), length(0) {}
+    FXlong position = 0;
+    FXint  length = 0 ;
+    FileIndex() {}
     FileIndex(FXlong pos,FXint len) : position(pos),length(len) {}
     };
 public:
   FXArray<FileIndex> index;
   FXIntMap           map;
   FXint              size;
-  FXuchar            format;
+  FXuchar            format = 0;
 public:
-  GMCacheInfo(FXint sz) : size(sz),format(0) {}
+  GMCacheInfo(FXint sz);
 
   void adopt(GMCacheInfo & info);
 
