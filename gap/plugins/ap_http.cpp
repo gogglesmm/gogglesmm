@@ -45,7 +45,7 @@ public:
   /// Constructor
   HttpInput(InputThread*);
 
-  FXbool open(const FXString & uri);
+  FXbool open(const FXString & uri) override;
 
 	/// Read
 	FXival read(void*,FXival) override;

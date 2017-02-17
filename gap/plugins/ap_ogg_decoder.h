@@ -30,7 +30,6 @@ class Packet;
 class OggDecoder : public DecoderPlugin {
 private:
   MemoryBuffer  buffer;
-  FXuchar*      packet_start_ptr;
 protected:
   ogg_packet op = {};
   Packet*    out;

@@ -152,7 +152,7 @@ public:
 
   FXbool setFilter(const FXString&,FXuint) override;
 
-  FXbool listTags(GMList * taglist,FXIcon * icon);
+  FXbool listTags(GMList * taglist,FXIcon * icon) override;
 
   FXbool listArtists(GMList * artistlist,FXIcon * icon,const FXIntList & taglist) override;
 

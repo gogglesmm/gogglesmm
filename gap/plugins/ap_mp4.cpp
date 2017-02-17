@@ -648,10 +648,10 @@ FXuint MP4Reader::read_descriptor_length(FXuint & length) {
 class BitReader {
 private:
   const FXuchar* buffer;
-  FXuint   length;
+  //FXuint   length;
   FXuint   position;
 public:
-  BitReader(const FXuchar * data,FXuint l) : buffer(data), length(l),position(0) {}
+  BitReader(const FXuchar * data,FXuint /*l*/) : buffer(data), position(0) {}
 
   FXuint read(FXint nbits) {
     FXuint value  = 0;

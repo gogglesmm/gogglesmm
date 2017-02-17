@@ -25,7 +25,6 @@ namespace ap {
 
 OggDecoder::OggDecoder(DecoderContext*e) : DecoderPlugin(e),
   buffer(0),
-  packet_start_ptr(nullptr),
   out(nullptr),
   stream_position(-1) {
   }

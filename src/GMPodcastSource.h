@@ -116,9 +116,9 @@ public:
 
   FXint getType() const override { return SOURCE_PODCAST; }
 
-  FXString settingKey() const { return "podcast"; }
+  FXString settingKey() const override { return "podcast"; }
 
-  FXint getSortColumn(FXbool) const { return HEADER_TRACK; }
+  FXint getSortColumn(FXbool) const override { return HEADER_TRACK; }
 
   FXbool canBrowse() const override { return true; }
 

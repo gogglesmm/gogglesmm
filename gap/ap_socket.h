@@ -67,7 +67,7 @@ public:
 #endif
 
   // Handle eof
-  FXint eof();
+  FXint eof() override;
 
   // Close Socket
   FXbool close() override;
