@@ -21,6 +21,7 @@
 
 #include "ap_thread.h"
 #include "ap_packet.h"
+#include "ap_input_plugin.h"
 #include "ap_reader_plugin.h"
 
 namespace ap {
@@ -31,13 +32,13 @@ class InputPlugin;
 class ConfigureEvent;
 class MetaInfo;
 
-
-class InputThread : public EngineThread, public InputContext {
+class InputThread : public EngineThread, public IOContext, public InputContext {
 protected:
   PacketPool     packetpool;
   InputPlugin  * input;
   ReaderPlugin * reader;
   FXuchar        state;
+
 protected:
   enum {
     StateIdle       = 0, // doing nothing, waiting for events
@@ -45,14 +46,15 @@ protected:
     StateError      = 2
     };
   void set_state(FXuchar s,FXbool notify=false);
+
 protected:
   Event * wait_for_packet();
-  FXbool  aborted();
+
 protected:
   InputPlugin  * open_input(const FXString & uri);
   ReaderPlugin * open_reader();
-protected:
 
+protected:
   void ctrl_open_inputs(const FXStringList & url);
 
   void ctrl_open_input(const FXString & url);
@@ -67,14 +69,16 @@ protected:
 
   void ctrl_eos();
 
-
 public:
-
   void post_configuration(ConfigureEvent*) override;
 
   void post_meta(MetaInfo*) override;
 
   void post_packet(Packet*) override;
+
+  const Signal & signal() override { return fifo.signal();}
+
+  FXbool aborted() override;
 
 public:
   /// Constructor

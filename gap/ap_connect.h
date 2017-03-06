@@ -23,6 +23,7 @@ namespace ap {
 
 class Socket;
 class ThreadQueue;
+class IOContext;
 
 /* Connection Factory */
 class ConnectionFactory {
@@ -43,11 +44,11 @@ public:
 
 class ThreadConnectionFactory : public ConnectionFactory {
 protected:
-	ThreadQueue * fifo;
+	IOContext * context;
 protected:
 	Socket * create(FXint domain,FXint type,FXint protocol) override;
 public:
-	ThreadConnectionFactory(ThreadQueue*);
+	ThreadConnectionFactory(IOContext*);
   };
 
 }

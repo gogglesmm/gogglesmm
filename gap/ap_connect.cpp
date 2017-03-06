@@ -125,7 +125,8 @@ FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
 
 //------------------------------------------------------------------------------
 
-ThreadConnectionFactory::ThreadConnectionFactory(ThreadQueue * q) : fifo(q) {
+ThreadConnectionFactory::ThreadConnectionFactory(IOContext * ctx)
+  : context(ctx) {
   }
 
 
@@ -134,11 +135,11 @@ Socket * ThreadConnectionFactory::create(FXint domain,FXint type,FXint protocol)
 
 #if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
   if (use_ssl)
-    io = new ThreadSecureSocket(fifo);
+    io = new ThreadSecureSocket(context);
   else
-    io = new ThreadSocket(fifo);
+    io = new ThreadSocket(context);
 #else
-  io = new ThreadSocket(fifo);
+  io = new ThreadSocket(context);
 #endif
 
   if (io->create(domain,type,protocol,FXIO::NonBlocking)==false){

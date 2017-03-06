@@ -18,7 +18,7 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_socket.h"
-#include "ap_thread_queue.h"
+#include "ap_input_plugin.h"
 #include "ap_utils.h"
 
 #ifdef _WIN32
@@ -139,24 +139,6 @@ void ap_free_crypto() {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 FXbool Socket::setReceiveTimeout(FXTime time) {
 #ifdef _WIN32
   FXuint value = time / NANOSECONDS_PER_MILLISECOND;
@@ -201,7 +183,6 @@ FXint Socket::getError() const {
   }
 
 
-
 #ifdef _WIN32
 // Return true if open
 FXbool Socket::isOpen() const {
@@ -224,6 +205,7 @@ FXbool Socket::close() {
 #endif
   return true;
   }
+
 
 FXint Socket::eof() {
   return (access&EndOfStream) ? 1 : 0;
@@ -299,10 +281,6 @@ FXbool Socket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
   access|=OwnHandle;
   return true;
   }
-
-
-
-
 
 
 // Connect to address
@@ -445,8 +423,9 @@ x:n=poll(&handles,1,-1);
 
 
 
-ThreadSocket::ThreadSocket(ThreadQueue * q) : fifo(q) {
+ThreadSocket::ThreadSocket(IOContext * ctx) : context(ctx) {
   }
+
 
 WaitEvent ThreadSocket::wait(WaitMode mode) {
 #ifdef _WIN32
@@ -459,22 +438,19 @@ WaitEvent ThreadSocket::wait(WaitMode mode) {
 #endif
   WaitEvent event;
   do {
-    event = fifo->signal().wait(device,mode,10_s);
+    event = context->signal().wait(device,mode,10_s);
     if (event==WaitEvent::Input) {
       return event;
       }
     else if (event==WaitEvent::Signal) {
-      if (fifo->checkAbort()) return WaitEvent::Signal;
+      if (context->aborted()) return WaitEvent::Signal;
       }
     }
   while(event==WaitEvent::Signal);
   return event;
   }
 
-
-
 #if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
-
 
 SecureSocket::SecureSocket() {
   }
@@ -854,7 +830,7 @@ x:  n=gnutls_record_send(session,data,count);
   }
 
 
-ThreadSecureSocket::ThreadSecureSocket(ThreadQueue * q) : fifo(q) {
+ThreadSecureSocket::ThreadSecureSocket(IOContext * ctx) : context(ctx) {
   }
 
 WaitEvent ThreadSecureSocket::wait(WaitMode mode) {
@@ -868,12 +844,12 @@ WaitEvent ThreadSecureSocket::wait(WaitMode mode) {
 #endif
   WaitEvent event;
   do {
-    event = fifo->signal().wait(device,mode,10_s);
+    event = context->signal().wait(device,mode,10_s);
     if (event==WaitEvent::Input) {
       return event;
       }
     else if (event==WaitEvent::Signal) {
-      if (fifo->checkAbort()) return WaitEvent::Signal;
+      if (context->aborted()) return WaitEvent::Signal;
       }
     }
   while(event==WaitEvent::Signal);

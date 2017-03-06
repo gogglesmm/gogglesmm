@@ -19,71 +19,33 @@
 #include "ap_defs.h"
 #include "ap_input_plugin.h"
 
-
 using namespace ap;
 
 namespace ap {
 
-
-extern InputPlugin * ap_file_plugin(InputThread*);
-extern InputPlugin * ap_http_plugin(InputThread*);
-#ifdef HAVE_SMB
-extern InputPlugin * ap_smb_plugin(InputThread*);
-#endif
-#ifdef HAVE_CDDA
-extern InputPlugin * ap_cdda_plugin(InputThread*);
-#endif
-
-
-InputPlugin::InputPlugin(InputThread * i) : input(i){
-  }
-
-
-InputPlugin::~InputPlugin() {
-  }
+extern InputPlugin * ap_file_plugin(IOContext * context);
+extern InputPlugin * ap_http_plugin(IOContext * context);
 
   /// Open plugin for given url
-InputPlugin* InputPlugin::open(InputThread * input,const FXString & url) {
+InputPlugin* InputPlugin::open(IOContext * ctx,const FXString & url) {
   FXString scheme = FXURL::scheme(url);
 
-  if (scheme.empty() || scheme=="file") {
-    InputPlugin * file = ap_file_plugin(input);
+  if (__likely(scheme.empty() || scheme=="file")) {
+    InputPlugin * file = ap_file_plugin(ctx);
     if (!file->open(url)){
       delete file;
       return nullptr;
       }
     return file;
     }
-
-  // We do not support https yet, but hopefully we get a redirect
   else if (scheme=="http" || scheme=="https") {
-    InputPlugin * http = ap_http_plugin(input);
+    InputPlugin * http = ap_http_plugin(ctx);
     if (!http->open(url)){
       delete http;
       return nullptr;
       }
     return http;
     }
-#ifdef HAVE_CDDA
-  else if (scheme=="cdda") {
-    InputPlugin * cdda = ap_cdda_plugin(input);
-    if (!cdda->open(url)) {
-      delete cdda;
-      return nullptr;
-      }
-    return cdda;
-    }
-#endif
-#ifdef HAVE_SMB
-  else if (scheme=="smb") {
-    InputPlugin * smb = ap_smb_plugin(input);
-    if (!smb->open(url)) {
-      delete smb;
-      return nullptr;
-      }
-    return smb;
-    }
-#endif
   else {
     return nullptr;
     }
@@ -219,13 +181,4 @@ FXbool InputPlugin::read_double_be(FXdouble & value) {
     }
   return false;
   }
-
-
-
-
-
-
-
-
-
 }
