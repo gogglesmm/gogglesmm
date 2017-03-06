@@ -20,26 +20,33 @@
 #define INPUT_PLUGIN_H
 
 #include "ap_format.h"
+#include "ap_signal.h"
 
 namespace ap {
 
-class InputThread;
+class MetaInfo;
 
-enum {
-  AP_IO_ERROR = -1, // error occured
-  AP_IO_BLOCK = -2  // nothing available
-  };
+struct IOContext {
 
+  // Access to User Signal
+  virtual const Signal & signal() = 0;
 
+  // check if IO was aborted by user
+  virtual FXbool aborted() = 0;
+
+  // post meta data from io layer
+  virtual void post_meta(MetaInfo*) = 0;
+
+};
 
 class InputPlugin {
 protected:
-  InputThread * input;
+  IOContext * context;
 private:
   InputPlugin(const InputPlugin&);
   InputPlugin &operator=(const InputPlugin&);
 public:
-  InputPlugin(InputThread*);
+  InputPlugin(IOContext * ctx) : context(ctx) {}
 
   virtual FXbool open(const FXString & uri) = 0;
 
@@ -79,10 +86,10 @@ public:
   virtual FXuint plugin() const { return Format::Unknown; }
 
   /// Open plugin for given url
-  static InputPlugin* open(InputThread * input,const FXString & url);
+  static InputPlugin* open(IOContext * ctx,const FXString & url);
 
   /// Destructor
-  virtual ~InputPlugin();
+  virtual ~InputPlugin() {}
   };
 
 

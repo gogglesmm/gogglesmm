@@ -122,11 +122,11 @@ public:
 
 #endif
 
-class ThreadQueue;
+class IOContext;
 
 class ThreadSocket : public Socket {
 private:
-  ThreadQueue * fifo = nullptr;
+  IOContext * context = nullptr;
 private:
   ThreadSocket(const ThreadSocket&);
   ThreadSocket &operator=(const ThreadSocket&);
@@ -134,14 +134,14 @@ protected:
   // Wait for specified event
   WaitEvent wait(WaitMode) override;
 public:
-  ThreadSocket(ThreadQueue*);
+  ThreadSocket(IOContext*);
   };
 
 #if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
 
 class ThreadSecureSocket : public SecureSocket {
 private:
-  ThreadQueue * fifo = nullptr;
+  IOContext * context = nullptr;
 private:
   ThreadSecureSocket(const ThreadSecureSocket&);
   ThreadSecureSocket &operator=(const ThreadSecureSocket&);
@@ -149,7 +149,7 @@ protected:
   // Wait for specified event
   WaitEvent wait(WaitMode) override;
 public:
-  ThreadSecureSocket(ThreadQueue*);
+  ThreadSecureSocket(IOContext*);
   };
 
 #endif

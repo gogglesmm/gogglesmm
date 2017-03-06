@@ -43,7 +43,7 @@ protected:
 	void icy_parse(const FXString&);
 public:
   /// Constructor
-  HttpInput(InputThread*);
+  HttpInput(IOContext*);
 
   FXbool open(const FXString & uri) override;
 
@@ -80,12 +80,12 @@ public:
 #define HTTP_MEDIA_TYPE HTTP_TOKEN "/" HTTP_TOKEN
 
 
-HttpInput::HttpInput(InputThread * i) : InputPlugin(i),
+HttpInput::HttpInput(IOContext * ctx) : InputPlugin(ctx),
   content_position(0),
   content_type(Format::Unknown),
   icy_interval(0),
   icy_count(0) {
-  client.setConnectionFactory(new ThreadConnectionFactory(&input->getFifo()));
+  client.setConnectionFactory(new ThreadConnectionFactory(context));
   }
 
 HttpInput::~HttpInput() {
@@ -222,7 +222,7 @@ void HttpInput::icy_parse(const FXString & str) {
   if (title.length()) {
     MetaInfo* meta = new MetaInfo();
     meta->title = title;
-    input->post(meta);
+    context->post_meta(meta);
     }
   }
 
@@ -278,8 +278,8 @@ FXival HttpInput::icy_read(void*ptr,FXival count){
   }
 
 
-InputPlugin * ap_http_plugin(InputThread* input) {
-  return new HttpInput(input);
+InputPlugin * ap_http_plugin(IOContext * context) {
+  return new HttpInput(context);
   }
 
 }

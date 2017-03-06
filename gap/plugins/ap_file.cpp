@@ -31,12 +31,9 @@ protected:
 private:
   FileInput(const FileInput&);
   FileInput &operator=(const FileInput&);
-protected:
-  FXival io_read(void*data,FXival ncount);
-  FXInputHandle io_handle() const { return file.handle(); }
 public:
   /// Constructor
-  FileInput(InputThread*);
+  FileInput(IOContext*);
 
   FXbool open(const FXString & uri) override;
 
@@ -69,7 +66,7 @@ public:
   };
 
 
-FileInput::FileInput(InputThread * i) : InputPlugin(i) {
+FileInput::FileInput(IOContext * ctx) : InputPlugin(ctx) {
   }
 
 FileInput::~FileInput() {
@@ -127,8 +124,8 @@ FXuint FileInput::plugin() const {
   }
 
 
-InputPlugin * ap_file_plugin(InputThread * input) {
-  return new FileInput(input);
+InputPlugin * ap_file_plugin(IOContext * context) {
+  return new FileInput(context);
   }
 
 
