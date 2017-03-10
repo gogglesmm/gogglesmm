@@ -152,7 +152,7 @@ if(UNIX)
   option(WITH_GCRYPT "libgcrypt Support" ON)
   option(WITH_ZLIB "zlib Support" ON)
 
-  option(WITH_STATIC_FOX "Statically Link to FOX" OFF)
+  option(WITH_STATIC_FOX "Pull in static library dependencies for FOX" OFF)
 
 endif()
 
@@ -614,4 +614,3 @@ if(BUILD_GAP_SHARED_LIB)
                 include/ap_player.h
                 include/ap_xml_parser.h DESTINATION include/gap)
 endif()
-
