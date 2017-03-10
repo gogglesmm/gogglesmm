@@ -152,6 +152,7 @@ if(UNIX)
   option(WITH_GCRYPT "libgcrypt Support" ON)
   option(WITH_ZLIB "zlib Support" ON)
 
+  option(WITH_STATIC_FOX "Statically Link to FOX" OFF)
 
 endif()
 
@@ -584,8 +585,12 @@ target_include_directories(gap PRIVATE ${FOX_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURC
 target_include_directories(gap INTERFACE ${FOX_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(gap PRIVATE ${LIBRARIES})
-target_link_libraries(gap INTERFACE ${FOX_LIBRARIES})
 
+if(WITH_STATIC_FOX)
+  target_link_libraries(gap INTERFACE ${FOX_STATIC_LDFLAGS})
+else()
+  target_link_libraries(gap INTERFACE ${FOX_LDFLAGS})
+endif()
 
 if(BUILD_GAP_SHARED_LIB)
 
