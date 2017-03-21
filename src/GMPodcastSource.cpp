@@ -1448,13 +1448,17 @@ FXbool GMPodcastSource::listTracks(GMTrackList * tracklist,const FXIntList & alb
   }
 
 
-long GMPodcastSource::onCmdRefreshFeed(FXObject*,FXSelector,void*){
+void GMPodcastSource::refreshFeeds() {
   FXint num_feeds=0;
   db->execute("SELECT COUNT(*) FROM feeds;",num_feeds);
   if (num_feeds) {
     GM_DEBUG_PRINT("Found %d feeds. Running Podcast Updater\n",num_feeds);
     GMPlayerManager::instance()->runTask(new GMPodcastUpdater(this,ID_FEED_UPDATER));
     }
+  }
+
+long GMPodcastSource::onCmdRefreshFeed(FXObject*,FXSelector,void*){
+  refreshFeeds();
   return 1;
   }
 

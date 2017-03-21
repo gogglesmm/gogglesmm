@@ -776,6 +776,12 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
       return gm_dbus_reply_if_needed(c,msg);
       }
 
+    // Undocumented gogglesmm specific call
+    else if (dbus_message_is_method_call(msg,MPRIS2_ROOT,"UpdatePodcasts")) {
+      p->cmd_update_podcasts();
+      return gm_dbus_reply_if_needed(c,msg);
+      }
+
     return DBUS_HANDLER_RESULT_HANDLED;
     }
   else if (dbus_message_has_interface(msg,MPRIS2_PLAYER)) {
@@ -868,6 +874,10 @@ void GMMediaPlayerService2::request(const FXchar * command) {
   else if (compare(command,"--now-playing")==0) {
     interface = MPRIS2_ROOT;
     method = "Notify";
+    }
+  else if (compare(command,"--update-podcasts")==0) {
+    interface = MPRIS2_ROOT;
+    method = "UpdatePodcasts";
     }
   else if (compare(command,"--raise")==0) {
     interface = MPRIS2_ROOT;

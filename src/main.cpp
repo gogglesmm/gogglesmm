@@ -47,6 +47,7 @@ static bool gm_display_help(int argc,char * argv[]) {
                 "     --raise           Try to raise the main window\n"
                 "     --toggle-shown    Show or Hide the main window\n"
                 "     --now-playing     Show now playing notification\n"
+                "     --update-podcasts Refresh podcast feeds\n"
                 "\n"
                 );
       return true;
