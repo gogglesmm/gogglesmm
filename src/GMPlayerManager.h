@@ -348,6 +348,8 @@ public:
   void cmd_prev();
   void cmd_toggle_shown();
   void cmd_raise();
+  void cmd_update_podcasts();
+
 
   void setPlayQueue(FXbool enable);
 

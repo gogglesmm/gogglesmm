@@ -232,6 +232,7 @@ long GMPlayerManager::onDDEMessage(FXObject*,FXSelector,void*){
     else if (cmd=="--toggle-shown") cmd_toggle_shown();
     else if (cmd=="--now-playing") display_track_notification();
     else if (cmd=="--raise") cmd_raise();
+    else if (cmd=="--update-podcasts") cmd_update_podcasts();
     else {
       if (gm_is_local_file(cmd)) {
         if (!FXPath::isAbsolute(cmd)) {
@@ -523,6 +524,15 @@ static FXString get_cmdline_url(int& argc,char** argv) {
   return url;
   }
 
+static FXbool get_cmdline_update_podcasts(int & argc, char ** argv){
+  for (FXint i=1;i<argc;i++) {
+    if (compare(argv[i],"--update-podcasts")==0)
+      return true;
+    }
+  return false;
+  }
+
+
 void GMPlayerManager::init_configuration() {
   FXString xdg_config_home = GMApp::getConfigDirectory(true);
   FXString xdg_data_home = GMApp::getDataDirectory(true);
@@ -773,6 +783,11 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
 #ifndef HAVE_DBUS
   update_tray_icon();
 #endif
+
+  // Update Podcasts on startup if desired.
+  if (get_cmdline_update_podcasts(argc,argv))
+    cmd_update_podcasts();
+
 
   /// Run the application
   return application->run();
@@ -1521,6 +1536,13 @@ void GMPlayerManager::cmd_raise() {
 void GMPlayerManager::cmd_toggle_shown(){
   getMainWindow()->toggleShown();
   }
+
+void GMPlayerManager::cmd_update_podcasts(){
+  FXASSERT(podcast);
+  podcast->refreshFeeds();
+  }
+
+
 
 void GMPlayerManager::display_track_notification() {
 #ifdef DEBUG

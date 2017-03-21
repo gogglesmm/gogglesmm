@@ -88,6 +88,8 @@ public:
 
   void getLocalFiles(const FXIntList & ids,FXStringList&);
 
+  void refreshFeeds();
+
   void loadCovers() override;
 
   void updateCovers() override;
