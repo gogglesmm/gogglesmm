@@ -116,6 +116,10 @@ public:
 
   void shutdown();
 
+
+  virtual GMTrackListSortFunc getSortBrowse(FXbool album_list_mode=false) const override;
+
+
   virtual void addTracks(GMSource * src,const FXIntList & tracks);
 
   GMCoverCache* getCoverCache() const override { return covercache; }

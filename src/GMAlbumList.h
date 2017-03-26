@@ -56,6 +56,8 @@ protected:
 public:
   static FXint album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
   static FXint album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
+  static FXint album_browser_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
+  static FXint album_browser_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb);
 private:
   GMAlbumListItem(const GMAlbumListItem&);
   GMAlbumListItem& operator=(const GMAlbumListItem&);

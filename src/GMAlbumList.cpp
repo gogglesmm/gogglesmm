@@ -25,13 +25,61 @@
 #define ALBUMLIST_MASK (SELECT_MASK|ALBUMLIST_COLUMNS|ALBUMLIST_BROWSER|ALBUMLIST_YEAR)
 
 
+
+
+
+#define GET_ARTIST_STRING(x)  GMPlayerManager::instance()->getTrackDatabase()->getArtist(x)
+
+
+// return true if string starts with configured keyword
 static inline FXbool begins_with_keyword(const FXString & t){
-  const FXStringList & keywords = GMPlayerManager::instance()->getPreferences().gui_sort_keywords;
-  for (FXint i=0;i<keywords.no();i++){
-    if (comparecase(t,keywords[i],keywords[i].length())==0) return true;
+  for (FXint i=0;i<GMPlayerManager::instance()->getPreferences().gui_sort_keywords.no();i++){
+    if (comparecase(t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
     }
   return false;
   }
+
+// return true if string starts with configured keyword
+static inline FXbool begins_with_keyword_ptr(const FXString * t){
+  for (FXint i=0;i<GMPlayerManager::instance()->getPreferences().gui_sort_keywords.no();i++){
+    if (comparecase(*t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
+    }
+  return false;
+  }
+
+// compare two string taking into account the configured keywords it needs to ignore
+static inline FXint keywordcompare(const FXString *a,const FXString *b) {
+  FXint pa,pb;
+
+  if (a==b) return 0;
+
+  if (begins_with_keyword_ptr(a))
+    pa=FXMIN(a->length()-1,a->find(' ')+1);
+  else
+    pa=0;
+
+  if (begins_with_keyword_ptr(b))
+    pb=FXMIN(b->length()-1,b->find(' ')+1);
+  else
+    pb=0;
+  return comparecase(&((*a)[pa]),&((*b)[pb]));
+  }
+
+// compare two string taking into account the configured keywords it needs to ignore
+static inline FXint keywordcompare(const FXString & a,const FXString & b) {
+  FXint pa,pb;
+  if (begins_with_keyword(a))
+    pa=FXMIN(a.length()-1,a.find(' ')+1);
+  else
+    pa=0;
+
+  if (begins_with_keyword(b))
+    pb=FXMIN(b.length()-1,b.find(' ')+1);
+  else
+    pb=0;
+  return comparecase(&((a)[pa]),&((b)[pb]));
+  }
+
 
 
 FXint GMAlbumListItem::album_list_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
@@ -58,6 +106,25 @@ FXint GMAlbumListItem::album_list_sort_reverse(const GMAlbumListItem* pa,const G
 
 
 
+FXint GMAlbumListItem::album_browser_sort(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
+  FXint x = keywordcompare(GET_ARTIST_STRING(pa->artist),GET_ARTIST_STRING(pb->artist));
+  if (x!=0) return GMTrackView::reverse_artist ? -x : x;
+  if (GMTrackView::album_by_year) {
+    if (pa->year>pb->year) return 1;
+    else if (pa->year<pb->year) return -1;
+    }
+  return keywordcompare(pa->title,pb->title);
+  }
+
+FXint GMAlbumListItem::album_browser_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
+  FXint x = keywordcompare(GET_ARTIST_STRING(pb->artist),GET_ARTIST_STRING(pa->artist));
+  if (x!=0) return GMTrackView::reverse_artist ? -x : x;
+  if (GMTrackView::album_by_year) {
+    if (pa->year>pb->year) return -1;
+    else if (pa->year<pb->year) return 1;
+    }
+  return keywordcompare(pa->title,pb->title);
+  }
 
 
 // Object implementation

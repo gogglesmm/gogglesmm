@@ -101,7 +101,6 @@ class GMSource : public FXObject {
 FXDECLARE(GMSource)
 protected:
   FXint               current_track = -1;
-  GMTrackListSortFunc sort_browse   = nullptr;
 private:
   GMSource(const GMSource&);
   GMSource& operator=(const GMSource&);
@@ -137,7 +136,7 @@ public:
 
   virtual void shuffle(GMTrackList*,FXuint) const{}
 
-  GMTrackListSortFunc getSortBrowse() const { return sort_browse; }
+  virtual GMTrackListSortFunc getSortBrowse(FXbool /*album_list_mode=false*/) const { return nullptr; }
 
   virtual FXint getSortColumn(FXbool browse) const { if (browse) return HEADER_BROWSE; else return HEADER_ARTIST; }
 

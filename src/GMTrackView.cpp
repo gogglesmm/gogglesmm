@@ -1171,7 +1171,7 @@ void GMTrackView::setSortMethod(FXint def,FXbool reverse) {
 
   if (def==HEADER_BROWSE) {
     tracklist->setSortMethod(HEADER_BROWSE);
-    tracklist->setSortFunc(source->getSortBrowse());
+    tracklist->setSortFunc(source->getSortBrowse(albumlist->getListStyle()&ALBUMLIST_BROWSER));
     }
   else if (def==HEADER_SHUFFLE) {
     tracklist->setSortMethod(HEADER_SHUFFLE);
@@ -1255,13 +1255,26 @@ void GMTrackView::loadSettings(const FXString & key) {
 
   album_by_year = getApp()->reg().readBoolEntry(key.text(),"album-list-sort-by-year",false);
   reverse_album = getApp()->reg().readBoolEntry(key.text(),"album-list-sort-reverse",false);
-  if (reverse_album) {
-    albumlist->setSortFunc(GMAlbumListItem::album_list_sort_reverse);
-    albumlistheader->setArrowState(ARROW_UP);
+
+  if (albumlist->getListStyle()&ALBUMLIST_BROWSER) {
+    if (reverse_album) {
+      albumlist->setSortFunc(GMAlbumListItem::album_browser_sort_reverse);
+      albumlistheader->setArrowState(ARROW_UP);
+      }
+    else {
+      albumlist->setSortFunc(GMAlbumListItem::album_browser_sort);
+      albumlistheader->setArrowState(ARROW_DOWN);
+      }
     }
   else {
-    albumlist->setSortFunc(GMAlbumListItem::album_list_sort);
-    albumlistheader->setArrowState(ARROW_DOWN);
+    if (reverse_album) {
+      albumlist->setSortFunc(GMAlbumListItem::album_list_sort_reverse);
+      albumlistheader->setArrowState(ARROW_UP);
+      }
+    else {
+      albumlist->setSortFunc(GMAlbumListItem::album_list_sort);
+      albumlistheader->setArrowState(ARROW_DOWN);
+      }
     }
   albumlistheader->setText(source->getAlbumName());
 
@@ -1499,7 +1512,7 @@ long GMTrackView::onCmdSortBrowse(FXObject*,FXSelector,void*){
 
 
 long GMTrackView::onUpdSortBrowse(FXObject*sender,FXSelector,void*){
-  if ((hasBrowser()) && source && source->getSortBrowse()) {
+  if ((hasBrowser()) && source && source->getSortBrowse(false)) {
     sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
     if (tracklist->getSortMethod()==HEADER_BROWSE)
       sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
@@ -1564,28 +1577,46 @@ long GMTrackView::onCmdSortArtistList(FXObject*,FXSelector,void*){
 
   sortArtists();
 
+  // Resort albums since we sort by artist in browser mode
+  if (albumlist->getListStyle()&ALBUMLIST_BROWSER)
+    sortAlbums();
+
   if (tracklist->getSortMethod()==HEADER_BROWSE)
     sortTracks();
   return 1;
   }
 
 
-long GMTrackView::onCmdSortAlbumList(FXObject*,FXSelector,void*){
-  if (albumlist->getSortFunc()==GMAlbumListItem::album_list_sort) {
-    albumlist->setSortFunc(GMAlbumListItem::album_list_sort_reverse);
-    reverse_album=true;
-    albumlistheader->setArrowState(ARROW_UP);
+void GMTrackView::setAlbumListSort() {
+  if (albumlist->getListStyle()&ALBUMLIST_BROWSER) {
+    if (reverse_album) {
+      albumlist->setSortFunc(GMAlbumListItem::album_browser_sort_reverse);
+      albumlistheader->setArrowState(ARROW_UP);
+      }
+    else {
+      albumlist->setSortFunc(GMAlbumListItem::album_browser_sort);
+      albumlistheader->setArrowState(ARROW_DOWN);
+      }
     }
   else {
-    albumlist->setSortFunc(GMAlbumListItem::album_list_sort);
-    reverse_album=false;
-    albumlistheader->setArrowState(ARROW_DOWN);
+    if (reverse_album) {
+      albumlist->setSortFunc(GMAlbumListItem::album_list_sort_reverse);
+      albumlistheader->setArrowState(ARROW_UP);
+      }
+    else {
+      albumlist->setSortFunc(GMAlbumListItem::album_list_sort);
+      albumlistheader->setArrowState(ARROW_DOWN);
+      }
     }
-  sortAlbums();
+  }
 
+
+long GMTrackView::onCmdSortAlbumList(FXObject*,FXSelector,void*){
+  reverse_album=!reverse_album;
+  setAlbumListSort();
+  sortAlbums();
   if (tracklist->getSortMethod()==HEADER_BROWSE)
     sortTracks();
-
   return 1;
   }
 
@@ -1768,6 +1799,7 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
   FXEvent * event = static_cast<FXEvent*>(ptr);
   FXbool old        = album_by_year;
   FXint  old_size   = GMPlayerManager::instance()->getPreferences().gui_coverdisplay_size;
+  FXbool liststyle  = albumlist->getListStyle();
 
   FXDataTarget target_yearsort(album_by_year);
   if (source && !event->moved) {
@@ -1805,8 +1837,14 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
     pane.popup(nullptr,event->root_x+3,event->root_y+3);
     getApp()->runPopup(&pane);
 
-    if (old!=album_by_year){
+
+    // Changing list styles changes sort methods for album and tracklist
+    if ((albumlist->getListStyle()!=liststyle) || (old!=album_by_year)) {
+      setAlbumListSort();
       sortAlbums();
+      if (tracklist->getSortMethod()==HEADER_BROWSE) {
+        tracklist->setSortFunc(source->getSortBrowse(albumlist->getListStyle()&ALBUMLIST_BROWSER));
+        }    
       sortTracks();
       }
 

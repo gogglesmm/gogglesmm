@@ -262,9 +262,7 @@ const FXString * GMDBTrackItem::getColumnData(FXint type,FXString &text,FXuint &
 
 
 
-
-
-FXint GMDBTrackItem::browseSort(const GMTrackItem * pa,const GMTrackItem * pb){
+FXint GMDBTrackItem::list_sort(const GMTrackItem * pa,const GMTrackItem * pb){
   const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   FXint x;
@@ -292,6 +290,65 @@ FXint GMDBTrackItem::browseSort(const GMTrackItem * pa,const GMTrackItem * pb){
   return 0;
   }
 
+
+
+FXint GMDBTrackItem::browse_sort(const GMTrackItem * pa,const GMTrackItem * pb){
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
+
+  FXint x = keywordcompare(GET_ARTIST_STRING(ta->albumartist),GET_ARTIST_STRING(tb->albumartist));
+  if (x!=0) return (GMTrackView::reverse_album == !GMTrackView::reverse_artist) ? -x : x;
+
+  if (GMTrackView::album_by_year) {
+    if (ta->album_year > tb->album_year)
+      return GMTrackView::reverse_album ? -1 : 1;
+    else if (ta->album_year < tb->album_year)
+      return GMTrackView::reverse_album ? 1 : -1;
+    }
+
+  x = keywordcompare(ta->album,tb->album);
+  if (x!=0) return x;
+
+  if (ta->albumid>tb->albumid) return 1;
+  else if (ta->albumid<tb->albumid) return -1;
+
+  /// Track & Disc
+  if (ta->no>tb->no) return 1;
+  else if (ta->no<tb->no) return -1;
+
+  return 0;
+  }
+
+
+/*
+FXint GMDBTrackItem::browseSort(const GMTrackItem * pa,const GMTrackItem * pb){
+  const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
+  const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
+  FXint x;
+
+  if (GMTrackView::album_by_year) {
+    if (ta->album_year > tb->album_year)
+      return (GMTrackView::reverse_album) ? -1 : 1;
+    else if (ta->album_year < tb->album_year)
+      return (GMTrackView::reverse_album) ? 1 : -1;
+    }
+
+  x = keywordcompare(ta->album,tb->album);
+  if (x!=0) return (GMTrackView::reverse_album) ? -x : x;
+
+  x = keywordcompare(GET_ARTIST_STRING(ta->albumartist),GET_ARTIST_STRING(tb->albumartist));
+  if (x!=0) return (GMTrackView::reverse_artist) ? -x : x;
+
+  if (ta->albumid>tb->albumid) return 1;
+  else if (ta->albumid<tb->albumid) return -1;
+
+  /// Track & Disc
+  if (ta->no>tb->no) return 1;
+  else if (ta->no<tb->no) return -1;
+
+  return 0;
+  }
+*/
 
 FXint GMDBTrackItem::ascendingFilename(const GMTrackItem* pa,const GMTrackItem* pb){
   const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);

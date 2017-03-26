@@ -74,6 +74,7 @@ protected:
   void configureView(FXuint);
 protected:
   void init_track_context_menu(FXMenuPane *pane,FXbool selected);
+  void setAlbumListSort();
 private:
   GMTrackView(const GMTrackView&);
   GMTrackView& operator=(const GMTrackView&);

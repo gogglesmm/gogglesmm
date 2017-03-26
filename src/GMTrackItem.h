@@ -52,7 +52,8 @@ protected:
   FXushort playcount;     /* 2 - 2 */
   FXuchar  rating;        /* 1 - 1 */
 public:
-  static FXint browseSort(const GMTrackItem*,const GMTrackItem*);
+  static FXint browse_sort(const GMTrackItem*,const GMTrackItem*);
+  static FXint list_sort(const GMTrackItem*,const GMTrackItem*);
   static FXint ascendingTitle(const GMTrackItem*,const GMTrackItem*);
   static FXint descendingTitle(const GMTrackItem*,const GMTrackItem*);
   static FXint ascendingTrack(const GMTrackItem*,const GMTrackItem*);
