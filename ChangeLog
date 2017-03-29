@@ -1,3 +1,12 @@
+1.1.7
+  - Sort albums by album-artists when displaying covers
+  - Add commandline option to refresh podcast feeds
+  - Add the ability to build with static FOX library
+  - Fix covercache loading with FOX-1.7.57
+  - Regenerate covercache if supported file format has changed in FOX library.
+  - gap: refactor input plugins using new iocontext
+  - gap: remove unimplemented smb plugin
+
 1.1.6
   - https support with OpenSSL or GnuTLS.
   - http(s) gzip support.
