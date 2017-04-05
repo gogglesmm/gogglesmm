@@ -525,23 +525,18 @@ void GMIconTheme::loadIcon(FXIconPtr & icon,const FXString & pathlist,FXint size
   if (!name.empty())
     ic=loadIcon(name);
 
-  if (ic==nullptr) {
-    //fxmessage("%s\n",value);
+  if (ic) {
+    // Resize icon if necessary
+    gm_scale_crop(ic,size);
+    }
+  else {
     ic = new FXIcon(app,nullptr,0,IMAGE_OWNED,size,size);
     ic->fill(blendcolor);
     }
-//  else {
-//    FXFile::copyFiles(name,FXString::value("/home/sxj/gmm/x%d_%s",size,FXPath::name(name).substitute('-','_').text()),true);
-//    }
-
 
   if (icon) {
-
-    gm_scale_crop(ic,size);
-
     icon->destroy();
     icon->setData(ic->getData(),ic->getOptions(),ic->getWidth(),ic->getHeight());
-
     ic->setOwned(false);
     delete ic;
     }
