@@ -295,7 +295,7 @@ GMPlayerManager::~GMPlayerManager() {
 
   myself=nullptr;
 
-#ifdef HAVE_SSSION
+#ifdef HAVE_SESSION
   delete session;
 #endif
   delete application;
