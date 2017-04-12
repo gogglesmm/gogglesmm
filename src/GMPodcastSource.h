@@ -120,7 +120,7 @@ public:
 
   FXString settingKey() const override { return "podcast"; }
 
-  FXint getSortColumn(FXbool) const override { return HEADER_TRACK; }
+  FXint getSortColumn(FXbool) const override { return HEADER_DATE; }
 
   FXbool canBrowse() const override { return true; }
 
