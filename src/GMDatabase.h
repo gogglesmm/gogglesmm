@@ -19,11 +19,7 @@
 #ifndef GMDATABASE_H
 #define GMDATABASE_H
 
-struct sqlite3_stmt;
-struct sqlite3;
-typedef struct Mem sqlite3_value;
-struct sqlite3_context;
-
+#include <sqlite3.h>
 
 class GMDatabaseException {
   };

@@ -18,7 +18,6 @@
 ********************************************************************************/
 #include "gmdefs.h"
 #include "GMDatabase.h"
-#include <sqlite3.h>
 
 /// 100ms
 #define DATABASE_SLEEP 100000000

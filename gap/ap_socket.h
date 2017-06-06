@@ -122,7 +122,7 @@ public:
 
 #endif
 
-class IOContext;
+struct IOContext;
 
 class ThreadSocket : public Socket {
 private:

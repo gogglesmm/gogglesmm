@@ -23,7 +23,7 @@ namespace ap {
 
 class Socket;
 class ThreadQueue;
-class IOContext;
+struct IOContext;
 
 /* Connection Factory */
 class ConnectionFactory {
