@@ -605,6 +605,7 @@ FXbool GMTrackList::selectItem(FXint index,FXbool notify){
       case TRACKLIST_SINGLESELECT:
       case TRACKLIST_BROWSESELECT:
         killSelection(notify);
+        // fallthrough
       case TRACKLIST_EXTENDEDSELECT:
       case TRACKLIST_MULTIPLESELECT:
         items[index]->setSelected(true);

@@ -821,6 +821,7 @@ FXbool GMAlbumList::selectItem(FXint index,FXbool notify){
       case ALBUMLIST_SINGLESELECT:
       case ALBUMLIST_BROWSESELECT:
         killSelection(notify);
+        // fallthrough
       case ALBUMLIST_EXTENDEDSELECT:
       case ALBUMLIST_MULTIPLESELECT:
         items[index]->setSelected(true);

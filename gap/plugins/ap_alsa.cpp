@@ -1093,7 +1093,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
             navailable = snd_pcm_avail_update(handle);
             }
 
-        } /// intentionally no break
+        } // fallthrough - intentionally no break
       default                         :
         {
           if ((config.flags&AlsaConfig::DeviceMMap))

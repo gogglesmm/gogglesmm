@@ -284,7 +284,7 @@ FXbool GMTrackDatabase::init_database() {
         execute(create_feed);
         execute(create_feed_items);
 
-        // intentionally no break
+        // fallthrough - intentionally no break
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV2 :
 
@@ -293,27 +293,27 @@ FXbool GMTrackDatabase::init_database() {
         recreate_table("feeds",create_feed);
         recreate_table("feed_items",create_feed_items);
 
-        // intentionally no break
+        // fallthrough - intentionally no break
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV3 :
 
         recreate_table("playlist_tracks",create_playlist_tracks);
 
-        // intentionally no break
+        // fallthrough - intentionally no break
 
       case GOGGLESMM_DATABASE_SCHEMA_DEV4 :
 
         recreate_table("feeds",create_feed);
         fix_empty_tags();
 
-        // intentionally no break
+        // fallthrough - intentionally no break
 
       case GOGGLESMM_DATABASE_SCHEMA_V13  :
 
         execute("ALTER TABLE feeds ADD COLUMN autodownload INTEGER");
         execute("UPDATE feeds SET autodownload = 0");
 
-        // intentionally no break
+        // fallthrough -intentionally no break
 
       case GOGGLESMM_DATABASE_SCHEMA_V14  :
 
@@ -327,7 +327,7 @@ FXbool GMTrackDatabase::init_database() {
         init_album_properties();
         recreate_table("albums",create_albums); // fixup constraints
 
-        // intentionally no break
+        // fallthrough - intentionally no break
 
       case GOGGLESMM_DATABASE_SCHEMA_V15  :
 

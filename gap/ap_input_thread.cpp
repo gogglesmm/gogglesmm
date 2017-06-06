@@ -90,7 +90,7 @@ FXint InputThread::run(){
                             ctrl_close_input(true);
                             break;
 
-      case Ctrl_Open_Flush: ctrl_flush(); // intentional no break
+      case Ctrl_Open_Flush: ctrl_flush(); // fallthrough -  intentional no break
       case Ctrl_Open      : ctrl_open_input(static_cast<ControlEvent*>(event)->text);
                             break;
 
