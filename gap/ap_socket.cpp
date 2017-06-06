@@ -60,6 +60,7 @@ namespace ap {
 static FXMutex * ssl_locks = nullptr;
 static SSL_CTX * ssl_context = nullptr;
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000
 static void ap_ssl_locking_callback(int mode, int type, const char */*file*/, int /*line*/) {
   //GM_DEBUG_PRINT("ssl %s at %s:%d\n",(mode&CRYPTO_LOCK) ? "lock" : "unlock",file,line);
   if (mode&CRYPTO_LOCK)
@@ -77,6 +78,8 @@ static void ap_ssl_threadid_callback(CRYPTO_THREADID *tid) {
 #endif
   }
 
+#endif
+
 #elif defined(HAVE_GNUTLS)
 static gnutls_certificate_credentials_t ssl_credentials = nullptr;
 #endif
@@ -86,8 +89,10 @@ FXbool ap_init_crypto() {
 #ifdef HAVE_OPENSSL
   if (ssl_locks == nullptr) {
     ssl_locks = new FXMutex[CRYPTO_num_locks()];
+#if OPENSSL_VERSION_NUMBER < 0x10100000
     CRYPTO_THREADID_set_callback(ap_ssl_threadid_callback);
     CRYPTO_set_locking_callback(ap_ssl_locking_callback);
+#endif
 
     SSL_library_init();
     SSL_load_error_strings();
@@ -124,8 +129,10 @@ void ap_free_crypto() {
 
     EVP_cleanup();
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000
     CRYPTO_set_locking_callback(nullptr);
     CRYPTO_THREADID_set_callback(nullptr);
+#endif
 
     delete [] ssl_locks;
     ssl_locks = nullptr;
@@ -349,6 +356,8 @@ x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
 #endif
           if ((access&FXIO::NonBlocking) && wait(WaitMode::Write)==WaitEvent::Input)
             goto x;
+
+          // fallthrough - intentional no break
         default:
           access|=EndOfStream;
           return FXIO::Error;
@@ -381,6 +390,8 @@ x:  nwrote=::recv(device,ptr,count,MSG_NOSIGNAL);
 #endif
           if ((access&FXIO::NonBlocking) && wait(WaitMode::Read)==WaitEvent::Input)
             goto x;
+
+          // fallthrough - intentional no break
         default:
           access|=EndOfStream;
           return FXIO::Error;
