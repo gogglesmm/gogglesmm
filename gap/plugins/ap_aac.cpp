@@ -148,6 +148,7 @@ FXbool AacDecoder::process(Packet*packet){
   const FXuint stream_id = packet->stream;
 
   if (stream_position==-1 && buffer.size()==0) {
+    GM_DEBUG_PRINT("[aac] stream_position %ld\n",stream_position);
     stream_position = packet->stream_position;
     }
 
@@ -173,12 +174,14 @@ FXbool AacDecoder::process(Packet*packet){
 
   const FXuint bytes_needed = FAAD_MIN_STREAMSIZE*af.channels;
 
-  if (buffer.size()<bytes_needed && eos==false) {
-    return true;
-    }
-
   FXlong stream_begin = stream_decode_offset;
   do {
+
+    // done for now
+    if (buffer.size() < bytes_needed && eos == false)
+      return true;
+
+    FXASSERT(buffer.size() > 0);
 
     if (out==nullptr){
       out = context->get_output_packet();
@@ -193,22 +196,23 @@ FXbool AacDecoder::process(Packet*packet){
 
     // Looks like the decoder already takes care of stripping any encoder delay. So first call will return 0 samples.
     NeAACDecDecode2(handle,&frame,buffer.data(),buffer.size(),&outbuffer,out->availableFrames()*out->af.framesize());
+
     if (frame.bytesconsumed>0) {
       buffer.readBytes(frame.bytesconsumed);
       }
 
     if (frame.error > 0) {
-      GM_DEBUG_PRINT("[aac] error %d (%ld): %s\n",frame.error,frame.bytesconsumed,faacDecGetErrorMessage(frame.error));
+      GM_DEBUG_PRINT("[aac] error %d (%ld) buffer size %ld: %s\n",frame.error,frame.bytesconsumed,buffer.size(),faacDecGetErrorMessage(frame.error));
       return false;
       }
 
-
     if (frame.samples>0) {
-
       FXint nframes = frame.samples / frame.channels;
 
-      if (stream_length>0)
+      if (stream_length>0 && (nframes > (stream_length-stream_position))) {
+        GM_DEBUG_PRINT("[aac] trim end of stream. Skip %ld %d %ld, %d\n",stream_position,nframes,(stream_length-stream_position),nframes-(stream_length-stream_position));
         nframes = FXMIN((FXlong)nframes,(stream_length-stream_position));
+        }
 
       if (__unlikely(stream_position<stream_begin)) {
         if ((nframes+stream_position)<stream_begin) {
@@ -233,9 +237,10 @@ FXbool AacDecoder::process(Packet*packet){
         }
       }
     }
-  while(((buffer.size()>=bytes_needed) || eos) && frame.bytesconsumed);
+  while( buffer.size() && frame.bytesconsumed );
 
   if (eos) {
+    // GM_DEBUG_PRINT("stream_position %ld != stream_length %ld\n",stream_position,stream_length);
     context->post_output_packet(out,true);
     }
   return true;
