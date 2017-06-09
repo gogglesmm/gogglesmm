@@ -407,7 +407,6 @@ ReadStatus MP4Reader::parse() {
     switch(track->codec) {
 
       case Codec::AAC:
-
         // FAAD seem to handle the encoder delay just fine, so all we need to do
         // is adjust the stream length to account for the encoder delay. The offset end
         // is already taken care of by the track->getLength() call.
@@ -550,7 +549,7 @@ FXbool MP4Reader::atom_parse_alac(FXlong size) {
   if (size-40==24 || size-40==48) {
 
     if (track->dc) {
-      GM_DEBUG_PRINT("decoder_specific_info already set?");
+      GM_DEBUG_PRINT("[mp4] decoder_specific_info already set?");
       return false;
       }
 
@@ -611,6 +610,7 @@ FXbool MP4Reader::atom_parse_mp4a(FXlong size) {
     return false;
 
   samplerate = samplerate >> 16;
+
   track->af.set(AP_FORMAT_S16,samplerate,channels);
 
   if (version==1) {
@@ -936,6 +936,7 @@ FXbool MP4Reader::atom_parse_meta_free(FXlong size) {
   if (name=="iTunSMPB") {
     FXlong duration;
     data.simplify().scan("%*x %hx %hx %lx",&padstart,&padend,&duration);
+    GM_DEBUG_PRINT("mp4: %hu %hu %ld\n",padstart,padend,duration);
     }
 
 #ifdef DEBUG
@@ -1191,7 +1192,7 @@ FXbool MP4Reader::atom_parse(FXlong size) {
 
       case TRAK: ok=atom_parse_trak(atom_size);
                  if(!ok) return false;
-                 // intentionally no break
+                 // fallthrough - intentionally no break
       case MDIA:
       case MINF:
       case STBL:
