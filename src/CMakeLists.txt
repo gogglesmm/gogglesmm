@@ -4,7 +4,7 @@ include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
 
-project(GOGGLESMM VERSION 1.1.8)
+project(GOGGLESMM VERSION 1.1.9)
 
 
 option(WITH_OPENGL "Enable OpenGL Features" ON)
@@ -55,6 +55,7 @@ if(WITH_OPENGL)
 endif()
 
 if(WITH_NLS)
+  find_package(Intl REQUIRED)
   set(HAVE_NLS 1)
 endif()
 
@@ -339,6 +340,7 @@ target_link_libraries(gogglesmm PRIVATE gap
                       ${EPOXY_LIBRARIES}
                       ${X11_LIBRARIES}
                       ${SM_LIBRARIES}
-                      ${ICE_LIBRARIES})
+                      ${ICE_LIBRARIES}
+                      ${Intl_LIBRARIES})
 
 install(TARGETS gogglesmm RUNTIME DESTINATION bin)

@@ -1,7 +1,13 @@
+1.1.9
+  - Fix aac fatal decoder error
+  - Fix llvm build with latest sqlite library
+  - Fix unused openssl 1.1 api calls
+  - Fix various newly gcc7 warnings
+
 1.1.8
   - Fix: resize (if needed) icons from external icon themes on start up
   - Fix: set default sort column for podcasts to date.
-  - Fix: typo in ifdef 
+  - Fix: typo in ifdef
 
 1.1.7
   - Sort albums by album-artists when displaying covers
