@@ -16,6 +16,6 @@ Terminal=false
 Hidden=false
 Type=Application
 Icon=gogglesmm
-Categories=Application;AudioVideo;Audio;Player;
+Categories=AudioVideo;Audio;Player;
 MimeType=audio/flac;audio/ogg;audio/opus;audio/x-vorbis;audio/x-vorbis+ogg;audio/mpeg;audio/mp4a-latm;
 
