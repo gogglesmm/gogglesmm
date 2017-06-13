@@ -537,36 +537,47 @@ FXbool MP4Reader::atom_parse_alac(FXlong size) {
   if (!input->read_uint32_be(samplerate))
     return false;
 
+  // samplerate comes in as a fixed point number 16.16
   samplerate = samplerate >> 16;
-  track->af.set(Format::Signed,samplesize,samplesize>>3,samplerate,channels);
-  track->codec = Codec::ALAC;
 
-  // ALAC specifc info
+  // ALAC specifc info (size + "alac" + version)
   if (input->read(&alac_reserved,12)!=12)
     return false;
 
-  // Skip ALAC cookie
-  if (size-40==24 || size-40==48) {
+  // Check size of AlacSpecificConfig
+  if (size-40!=24 && size-40!=48)
+    return false;
 
-    if (track->dc) {
-      GM_DEBUG_PRINT("[mp4] decoder_specific_info already set?");
-      return false;
-      }
-
-    DecoderSpecificConfig * dc = new DecoderSpecificConfig();
-
-    dc->config_bytes = size - 40;
-
-    allocElms(dc->config,dc->config_bytes);
-    if (input->read(dc->config,dc->config_bytes)!=dc->config_bytes) {
-      delete dc;
-      return false;
-      }
-    track->dc = dc;
-    }
-  else {
+  // Check for duplicate entry
+  if (track->dc) {
+    GM_DEBUG_PRINT("[mp4] decoder_specific_info already set?");
     return false;
     }
+
+  // Read AlacSpecificConfig
+  DecoderSpecificConfig * dc = new DecoderSpecificConfig();
+  dc->config_bytes = size - 40;
+  allocElms(dc->config,dc->config_bytes);
+  if (input->read(dc->config,dc->config_bytes)!=dc->config_bytes) {
+    delete dc;
+    return false;
+    }
+
+  // As it turns out, samplesize from the AudioSampleEntry box is not always accurate
+  // 24 bit files I've gotten from bandcamp.org had it set to 16 which is the default value
+  // for audio sample entry boxes. Since decoder itself relies on the DecoderSpecificConfig,
+  // we may as well use the bitdepth information from there instead.
+  FXuchar bitdepth = *(dc->config + 5);
+
+  // Record what we found
+  track->codec = Codec::ALAC;
+  track->af.set(Format::Signed,bitdepth,bitdepth>>3,samplerate,channels);
+  track->dc = dc;
+
+  // Some extra debugging
+  if (samplesize!=bitdepth)
+    GM_DEBUG_PRINT("[mp4] alac samplesize %hu doesn't match bitdepth %hhu\n",samplesize,bitdepth);
+
   return true;
   }
 
