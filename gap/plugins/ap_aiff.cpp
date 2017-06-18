@@ -259,6 +259,7 @@ ReadStatus AIFFReader::parse() {
   if (got_ssnd && got_comm) {
     stream_length = nsamples;
     flags|=FLAG_PARSED;
+    GM_DEBUG_STREAM_LENGTH("aif",stream_length,af.rate);
     context->post_configuration(new ConfigureEvent(af,Codec::PCM));
     return ReadOk;
     }

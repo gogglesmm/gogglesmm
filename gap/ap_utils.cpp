@@ -517,4 +517,16 @@ FXbool ap_md5_digest(FXString & io) {
   return true;
   }
 
+#ifdef DEBUG
+void ap_debug_stream_length(const FXchar * prefix, FXlong stream_length,FXuint samplerate) {
+  FXuint seconds = stream_length / samplerate;
+  FXuint samples = stream_length % samplerate;
+  fxmessage("[%s] stream length %lld (%u:%.2u:%.2u.%.3u)\n",prefix,stream_length,
+                               (seconds / 3600),
+                               (seconds % 3600) / 60,
+                               (seconds % 3600) % 60,
+                               (samples*1000) / samplerate);
+  }
+#endif
+
 }

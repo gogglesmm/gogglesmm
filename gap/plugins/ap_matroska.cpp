@@ -425,15 +425,16 @@ ReadStatus MatroskaReader::parse() {
 
     if (track) {
       GM_DEBUG_PRINT("[matroska] select track with codec %s\n",Codec::name(track->codec));
+
       track->af.debug();
       af=track->af;
       ConfigureEvent * cfg = new ConfigureEvent(track->af,track->codec);
       cfg->dc = track->dc;
       track->dc = nullptr;
       stream_length = (duration * timecode_scale * track->af.rate )  / NANOSECONDS_PER_SECOND;
+      GM_DEBUG_STREAM_LENGTH("matroska",stream_length,track->af.rate);
       cfg->stream_length = stream_length;
       context->post_configuration(cfg);
-
       flags|=FLAG_PARSED;
       input->position(first_cluster,FXIO::Begin);
       return ReadOk;

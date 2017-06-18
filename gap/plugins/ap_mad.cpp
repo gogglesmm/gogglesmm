@@ -1049,6 +1049,8 @@ ReadStatus MadReader::parse(Packet * packet) {
           cfg->stream_offset_end   = id3v2->padend;
           }
 
+        GM_DEBUG_STREAM_LENGTH("mad",stream_length-cfg->stream_offset_start-cfg->stream_offset_end,af.rate);
+
         context->post_configuration(cfg);
 
         /// Send Meta Data if any
@@ -1060,6 +1062,8 @@ ReadStatus MadReader::parse(Packet * packet) {
         packet->stream_length   = stream_length;
         stream_position        += nsamples;
         context->post_packet(packet);
+
+
         return ReadOk;
         }
 

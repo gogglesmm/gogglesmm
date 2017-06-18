@@ -77,6 +77,15 @@
 
 #include "ap_config.h"
 
+#ifdef DEBUG
+namespace ap {
+extern void ap_debug_stream_length(const FXchar*,FXlong,FXuint);
+}
+#define GM_DEBUG_STREAM_LENGTH(prefix,length,rate) ap_debug_stream_length(prefix,length,rate)
+#else
+#define GM_DEBUG_STREAM_LENGTH(prefix,length,rate) ((void)0)
+#endif
+
 
 
 enum {

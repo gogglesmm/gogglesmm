@@ -510,6 +510,8 @@ FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_le
                                        samplerate,
                                        channels,
                                        flac_channel_map[channels-1]);
+
+  GM_DEBUG_STREAM_LENGTH("flac",stream_length,af.rate);
   return true;
   }
 
