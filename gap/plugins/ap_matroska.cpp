@@ -322,8 +322,9 @@ ReadStatus MatroskaReader::process(Packet*packet) {
           }
         case Codec::AAC:
           {
-            if(frame_size > packet->space())
+            if(frame_size+4 > packet->space())
               break;
+            packet->append(&frame_size,4);
             if (input->read(packet->ptr(),frame_size)!=frame_size)
               return ReadError;
             packet->wroteBytes(frame_size);
@@ -740,6 +741,7 @@ FXbool MatroskaReader::parse_xiph_lace(Element & container,FXuint & value) {
     }
   while(1);
   }
+
 
 
 FXbool MatroskaReader::parse_track_codec(Element & element) {

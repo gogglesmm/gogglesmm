@@ -279,6 +279,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
 
   if (!(flags&FLAG_PARSED) && parse()==ReadError) {
     packet->unref();
+    return ReadError;
     }
 
   // Remaining data from sample
@@ -305,12 +306,11 @@ ReadStatus MP4Reader::process(Packet*packet) {
     framesize = track->getSampleSize(sample);
 
     // Gracefully handle unknown framesizes
-    if (__unlikely(framesize<0 || (track->codec==Codec::AAC && framesize>packet->capacity())))
+    if (__unlikely(framesize<0))
       return ReadError;
 
     // Check if packet is full and we should continue at the next packet
-    // AAC decoder can't handle partial frames so only send full frames over
-    if (packet->space()<8 || (track->codec==Codec::AAC && framesize>packet->space())){
+    if (packet->space()<8){
       framesize = 0; // no remaining data to be read next time
       context->post_packet(packet);
       packet=nullptr;
@@ -321,8 +321,9 @@ ReadStatus MP4Reader::process(Packet*packet) {
     FXlong offset = track->getSampleOffset(sample);
     input->position(offset,FXIO::Begin);
 
-    // ALAC decoder needs framesize to handle partial frames.
-    if (track->codec==Codec::ALAC) {
+    // Send framesize to AAC and ALAC decoder
+    if (track->codec==Codec::ALAC || track->codec==Codec::AAC) {
+      if (__unlikely(framesize > UINT32_MAX)) return ReadError;
       FXuint size32=framesize; // perhaps bounce check?
       memcpy(packet->ptr(),&size32,4);
       packet->wroteBytes(4);
@@ -351,6 +352,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
     packet=nullptr;
     return ReadDone;
     }
+
   return ReadOk;
   }
 
@@ -378,6 +380,10 @@ FXbool MP4Reader::select_track() {
     }
   tracks.clear();
   track = selected;
+#ifdef DEBUG
+  if (track==nullptr)
+    GM_DEBUG_PRINT("[mp4] no suitable track found\n");
+#endif
   return (track!=nullptr);
   }
 
@@ -385,11 +391,7 @@ FXbool MP4Reader::select_track() {
 ReadStatus MP4Reader::parse() {
   meta = new MetaInfo();
 
-  if (atom_parse(input->size())) {
-
-    if (!select_track()) {
-      return ReadError;
-      }
+  if (atom_parse(input->size()) && select_track()) {
 
     FXASSERT(track);
 
