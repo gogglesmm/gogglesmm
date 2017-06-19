@@ -178,7 +178,7 @@ FXbool AlacDecoder::process(Packet*packet){
   const FXlong stream_length = packet->stream_length;
   const FXuint stream_id = packet->stream;
 
-  if (stream_position==-1) {
+  if (stream_position == -1) {
     stream_position = packet->stream_position;
     }
 
