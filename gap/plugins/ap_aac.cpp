@@ -29,6 +29,239 @@ namespace ap {
 
 #ifdef HAVE_FAAD
 
+class BitReader {
+public:
+  class OverflowException {};
+private:
+  const FXuchar* buffer;
+  FXuint length;
+  FXuint position=0;
+public:
+  BitReader(const FXuchar * data,FXuint len) : buffer(data), length(len) {}
+
+  FXuint remaining() {
+    return (length*8) - position;
+    }
+
+  FXuint read(FXuint nbits) {
+    FXuint value  = 0;
+    while(nbits) {
+      FXuint offset = position / 8;
+      FXuint shift  = position % 8;
+      FXuchar     r = FXMIN(nbits,8-shift);
+      if (__unlikely(offset>=length)) throw OverflowException();
+      value<<=r;
+      value|=((unsigned char)(buffer[offset]<<shift))>>(8-r);
+      nbits-=r;
+      position+=r;
+      }
+    return value;
+    }
+  };
+
+
+static const FXuint mp4_channel_map[]={
+  Channel::FrontCenter, // maybe mono?
+
+  AP_CHANNELMAP_STEREO,
+
+  AP_CMAP3(Channel::FrontCenter,
+           Channel::FrontLeft,
+           Channel::FrontRight),
+
+  AP_CMAP4(Channel::FrontCenter,
+           Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::BackCenter),
+
+  AP_CMAP5(Channel::FrontCenter,
+           Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight),
+
+  AP_CMAP6(Channel::FrontCenter,
+           Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::BackLeft,
+           Channel::BackRight,
+           Channel::LFE),
+
+  AP_CMAP8(Channel::FrontCenter,
+           Channel::FrontLeft,
+           Channel::FrontRight,
+           Channel::SideLeft,
+           Channel::SideRight,
+           Channel::BackLeft,
+           Channel::BackRight,
+           Channel::LFE)
+  };
+
+
+FXbool ap_parse_aac_specific_config(const FXuchar * data, FXuint length,
+                                    FXushort & samples_per_frame,
+                                    FXbool & upsampled,
+                                    AudioFormat & af) {
+
+  static const FXuint rates[] = { 96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000 };
+  BitReader bit(data,length);
+  try {
+
+    FXuint index;
+    FXuint samplerate;
+    FXuint ext_samplerate = 0;
+    FXuint ext_objtype = 0;
+    FXint  has_sbr = -1;
+
+    enum {
+      AAC_MAIN   = 1,
+      AAC_LC     = 2,
+      AAC_SSR    = 3,
+      AAC_LTP    = 4,
+      AAC_SBR    = 5,
+      ER_AAC_LC  = 17,
+      ER_AAC_LTP = 19,
+      ER_AAC_LD  = 23
+      };
+
+    // object type
+    FXuint objtype = bit.read(5);
+    if (objtype==31)
+      objtype = 32 + bit.read(6);
+
+    GM_DEBUG_PRINT("[asc] object type %u\n",objtype);
+
+    // samplerate
+    index = bit.read(4);
+    if (index < 12)
+      samplerate = rates[index];
+    else if (index == 15)
+      samplerate = bit.read(24);
+    else
+      samplerate = 0;
+
+    GM_DEBUG_PRINT("[asc] samplerate %u\n",samplerate);
+
+    // channel layout
+    FXuint channelconfig = bit.read(4);
+    if (channelconfig>0 && channelconfig<8) {
+      af.channelmap = mp4_channel_map[channelconfig-1];
+      }
+
+    if (objtype == AAC_SBR) {
+      ext_objtype = AAC_SBR;
+      has_sbr = 1;
+
+      // samplerate
+      index = bit.read(4);
+      if (index < 12)
+        ext_samplerate = rates[index];
+      else if (index == 15)
+        ext_samplerate = bit.read(24);
+      else
+        ext_samplerate = 0;
+
+      GM_DEBUG_PRINT("[asc] ext. samplerate %u\n",ext_samplerate);
+
+      objtype = bit.read(5);
+      if(objtype==31)
+        objtype = 32 + bit.read(6);
+
+      GM_DEBUG_PRINT("[asc] sbr object type %u\n",objtype);
+      FXASSERT(objtype!=22);
+      }
+
+    FXbool small_frame_length = false;
+    if (objtype == AAC_MAIN ||
+        objtype == AAC_LC ||
+        objtype == AAC_SSR ||
+        objtype == AAC_LTP ||
+        objtype == ER_AAC_LC ||
+        objtype == ER_AAC_LTP ||
+        objtype == ER_AAC_LD) {
+
+      // ga specific info
+      small_frame_length = (bit.read(1)!=0);
+
+      FXbool core_order = bit.read(1);
+      if (core_order)
+        bit.read(14);
+
+      FXbool extension = bit.read(1);
+      if (channelconfig==0) {
+        FXASSERT(0);
+        GM_DEBUG_PRINT("[asc] program element not supported\n");
+        }
+
+      if (extension) {
+        if (objtype>=17) bit.read(3);
+        bit.read(1);
+        }
+      }
+    else {
+      FXASSERT(0);
+      GM_DEBUG_PRINT("[asc] unsupported object type %u\n",objtype);
+      return false;
+      }
+
+    if (ext_objtype!=AAC_SBR && bit.remaining() >= 16) {
+      GM_DEBUG_PRINT("[asc] extension bit present\n");
+      if (bit.read(11)==0x2b7) {
+        FXuint x = bit.read(5);
+        if (x==AAC_SBR) {
+          has_sbr = bit.read(1);
+          if (has_sbr == 1) {
+            objtype = x;
+            GM_DEBUG_PRINT("[asc] object type %u\n",objtype);
+            index = bit.read(4);
+            if (index < 12)
+              ext_samplerate = rates[index];
+            else if (index == 15)
+              ext_samplerate = bit.read(24);
+            else
+              ext_samplerate = 0;
+
+            GM_DEBUG_PRINT("[asc] ext. samplerate %u\n",ext_samplerate);
+            }
+          }
+        }
+      }
+
+    samples_per_frame = 1024;
+    if (small_frame_length)
+      samples_per_frame = 960;
+
+    if (objtype == ER_AAC_LD)
+      samples_per_frame >>= 1;
+
+    // implicit sbr
+    if (has_sbr == -1 && samplerate <= 24000) {
+      samplerate <<= 1;
+      samples_per_frame <<= 1;
+      upsampled = true;
+      }
+
+    // explicit sbr
+    if (has_sbr == 1) {
+      if (ext_samplerate != samplerate) {
+        FXASSERT(ext_samplerate==(samplerate<<1));
+        samplerate=ext_samplerate;
+        samples_per_frame <<= 1;
+        upsampled = true;
+        }
+      }
+
+    af.rate = samplerate;
+    GM_DEBUG_PRINT("[asc] using samplerate %u\n",samplerate);
+    GM_DEBUG_PRINT("[asc] using samples_per_frame %u\n",samples_per_frame);
+    }
+  catch(BitReader::OverflowException &) {
+    return false;
+    }
+  return true;
+  }
+
+
 class AACReader : public ReaderPlugin {
 public:
   AACReader(InputContext * ctx) : ReaderPlugin(ctx) {}

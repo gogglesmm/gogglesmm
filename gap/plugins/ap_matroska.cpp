@@ -72,8 +72,11 @@ enum {
 
 namespace ap {
 
-namespace matroska {
+#ifdef HAVE_FAAD
+extern FXbool ap_parse_aac_specific_config(const FXuchar * data, FXuint length, FXushort & samples_per_frame,FXbool & upsampled, AudioFormat & af);
+#endif
 
+namespace matroska {
 
 struct Element {
   FXuint type   = 0;
@@ -114,6 +117,7 @@ public:
   DecoderConfig * dc = nullptr;
   FXuchar     codec  = Codec::Invalid;
   FXulong     number = 0;
+  FXushort    samples_per_frame = 0;
   FXArray<cue_entry> cues;
   FXint             ncues=0;
 
@@ -807,6 +811,7 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
         track->dc = vc;
         break;
       }
+#ifdef HAVE_FAAD
     case Codec::AAC:
       {
         DecoderSpecificConfig * ac = new DecoderSpecificConfig();
@@ -817,8 +822,12 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
           return false;
           }
         track->dc = ac;
+        FXbool upsampled=false; //fixme
+        if (!ap_parse_aac_specific_config(ac->config,ac->config_bytes,track->samples_per_frame,upsampled,track->af))
+          return false;
         break;
       }
+#endif
     case Codec::Invalid:
       {
         input->position(element.size,FXIO::Current);
