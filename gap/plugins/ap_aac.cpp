@@ -145,6 +145,12 @@ FXbool ap_parse_aac_specific_config(const FXuchar * data, FXuint length,
     // channel layout
     FXuint channelconfig = bit.read(4);
     if (channelconfig>0 && channelconfig<8) {
+      // faad will upmatrix to 2 channels
+      if (channelconfig==1) {
+        GM_DEBUG_PRINT("[asc] found 1 channel config. assuming faad will upmatrix to 2 channels");
+        channelconfig = 2;
+        af.channels   = 2;
+        }
       af.channelmap = mp4_channel_map[channelconfig-1];
       }
 
