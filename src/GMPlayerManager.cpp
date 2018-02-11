@@ -23,11 +23,12 @@
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 
+#include "gmdefs.h"
+
 #include <xincs.h>
 #include <X11/XF86keysym.h>
 
 
-#include "gmdefs.h"
 #include "gmutils.h"
 
 #include "GMSession.h"
