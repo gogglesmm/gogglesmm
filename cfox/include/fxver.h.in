@@ -1,0 +1,23 @@
+#ifndef FXVER_H
+#define FXVER_H
+
+
+// FOX version
+#define FOX_MAJOR  @FOX_MAJOR_VERSION@
+#define FOX_MINOR  @FOX_MINOR_VERSION@
+#define FOX_LEVEL  @FOX_PATCH_LEVEL@
+
+
+// FOX byte order
+#ifndef FOX_BIGENDIAN
+#if defined(__BIG_ENDIAN__)
+#define FOX_BIGENDIAN 1
+#elif defined(__LITTLE_ENDIAN__)
+#define FOX_BIGENDIAN 0
+#else
+#define FOX_BIGENDIAN @FOX_BYTEORDER@
+#endif
+#endif
+
+
+#endif

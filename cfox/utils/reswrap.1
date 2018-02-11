@@ -1,0 +1,239 @@
+.TH reswrap 1 "January 2016" "The FOX C++ GUI Toolkit" "FOX Programmers Manual"
+
+.SH NAME
+reswrap \- wrap icon and image resources into C or C++ code
+.SH SYNOPSIS
+.B reswrap
+.RB [ options ]
+.RB [ \-o [ a "] "
+.IR outfile ]
+.I files...
+.SH DESCRIPTION
+.B Reswrap
+is a tool to turn binary files into C or C++ data arrays.
+This allows various resources such as icons, images, or other data to be embedded into source 
+code and compiled into an application. When used in text mode, normal printing characters
+are passed normally while control characters or non-ascii are automatically escaped.
+
+In development of graphical applications with FOX, it is customary to embed icons, images, 
+online help, or OpenGL fragment shader programs into the executable file, thus removing the 
+need to distribute such files separately with the application.
+
+.B Reswrap
+is typically invoked as a part of the application build process to generate additional C++ source 
+files from collections of icons, images, or other binary resources. This can be easily accomplished 
+using a special Makefile Rule or Custom Build Rule, as part of the normal compile process of 
+an application.
+Reswrap supports a variety of options to facilitate inclusion into an automated build process.  
+Given a list of resource files, reswrap can automatically generate header files containing just 
+the declarations, adorn the generated symbols with namespaces, prefixes and/or postfixes,
+file-extensions, and apply extern or static linkage attributes.  Resource filenames containing
+unsafe characters are automatically transformed into legal C or C++ identifiers.
+
+By default reswrap will interpret the
+.I files
+listed as a stream of raw bytes and output them as an initialized data array to stdout.
+
+.SH OPTIONS
+.TP
+\fB\-?\fR, \fB\--help\fR
+Print summary usage information of all the supported options.
+
+.TP
+\fB\-v\fR, \fB\--version\fR
+Print the version number and license information.
+
+.TP
+\fB\-h\fR, \fB\--header\fR
+Generate an output file containing only declarations suitable for including as a header
+file.  This also enables the \fI --extern\fR option automatically.
+
+.TP
+\fB\-s\fR, \fB\--source\fR
+Generate an output file containing data arrays.  This option disables the \fI --extern\fR option.
+This option is the default when no directives are given.
+
+.TP
+\fB\-V\fR, \fB\--verbose\fR
+Print a list of the filenames, and the corresponding resource declarations generated as reswrap
+processes the resource files.
+
+.TP
+\fB\-i\fR\fI file\fR, \fB\--include\fR\fI file\fR
+Generate a \fB#include "\fR\fIfile\fR\fB"\fR directive in the output file, to make the declarations
+available when compiling the data source file.
+
+.TP
+\fB\-o\fR\fI file\fR, \fB\--output\fR\fI file\fR
+Write the output of the conversion into
+.I file
+instead of writing to stdout.
+
+.TP
+\fB\-oa\fR\fI file\fR, \fB\--append\fR\fI file\fR
+Append the output of the conversion to
+.I file
+instead of writing to stdout.  If \fI file\fR does not exist yet, it is created, and the optional
+comment line will be written, followed by the optional \fB#include "\fR\fIfile\fR\fB"\fR directive.
+If the file already exists then it will be opened for appending.
+
+.TP
+\fB\-e\fR, \fB\--extern\fR
+Places the storage modifier
+.I extern
+in front of the data array, ensuring that the data array can be linked with other compilation units.
+Normally, constant declarations are not visible in other compilation units.  This option is automatically
+turned on when \fI\--header\fR is passed.
+
+.TP
+\fB\-S\fR, \fB\--static\fR
+Places the storage modifier
+.I static
+in front of the data array.  This makes the symbols invisible outside the compilation unit.
+
+.TP
+\fB\-z\fR, \fB\--size\fR
+Output the size of the resource in the declaration of a resource-array.
+This allows the \fBsizeof()\fR operator to return the correct size of the resource
+even for external declarations.
+Note that in text mode, (\fI--text\fR or \fI--ascii\fR options), an extra byte is added to the
+size for the end of string character.
+
+.TP
+\fB\-d\fR, \fB\--decimal\fR
+Write data as decimal numbers instead of using the default hexadecimal numbers.
+
+.TP
+\fB\-x\fR, \fB\--hex\fR
+Write data as hexadecimal numbers. This option is the default.
+
+.TP
+\fB\-t\fR, \fB\--text\fR
+Write data as a text string, with each byte represented as a hexadecimal
+excape sequence, as in "\\x33".
+The C++ compiler appends a nul-character at the end of the text string, thus
+making the data array one character longer than the resource file.
+
+.TP
+\fB\-a\fR, \fB\--ascii\fR
+Write data as a text string, with each byte printed normally unless it must be
+escaped, as in "\\x33".  Use this option if you need to embed large chunks of
+text (for example, on-line help) into the application.  This lets you keep
+the original text in a plain text file, and obviates the need to manually escape
+special characters to embed them into source code.
+The C++ compiler appends a nul-character at the end of the text string, thus
+making the data array one character longer than the resource file.
+
+With the \fI--ascii\fR option, printable ascii characters are passed unescaped,
+while special characters like tabs and newlines are given the usual escape codes.
+
+.TP
+\fB\-k\fR, \fB\--keep-ext\fR
+This option causes reswrap to keep the file extension, replacing the "."
+with an underscore "_".
+For example, \fIimage.gif\fR generates \fIconst unsigned char image_gif[]\fR.
+
+This option is recommended as it reduces errors when using the data arrays.
+
+.TP
+\fB\-nk\fR, \fB\--drop-ext\fR
+This option causes the declaration to be based only on the basename of
+the resource file.  For example, \fIimage.gif\fR generates \fIconst unsigned char image[]\fR.
+
+.TP
+\fB\-m\fR, \fB\--msdos\fR
+Read files with MS-DOS mode.  This replaces "\\r\\n" with "\\n" when reading the resource file.
+Only use this if the resource is actually text!
+
+.TP
+\fB\-b\fR, \fB\--binary\fR
+Read files in BINARY mode. Data other than text should always be read in using binary mode.
+This option is the default.
+
+.TP
+\fB\-u\fR, \fB\--unsigned\fR
+Generate \fIunsigned char\fR declaration, even when  \fI--text\fR or \fI--ascii\fR
+was specified.
+
+.TP
+\fB\-N\fR, \fB\--no-const\fR
+Do not generate \fIconst\fR declarations.
+
+.TP
+\fB\-C\fR, \fB\--const\fR
+Force generation of \fIconst\fR declarations.
+
+.TP
+\fB\-cc\fR, \fB\--comments\fR
+Add comments to the output files.  This option is the default.  At the top of
+each output file, write the current date, and the reswrap version number.
+
+.TP
+\fB\-nc\fR, \fB\--no-comments\fR
+Suppress generations of comments in the output files.
+
+.TP
+\fB\-p\fI name\fR, \fB\--prefix\fI name\fR
+Prepend the given
+.I prefix
+in front of the name of the resource; this may be used to generate class
+names or namespace names in front of symbols.
+
+.TP
+\fB\-f\fI name\fR, \fB\--suffix\fI name\fR
+Prepend the given
+.I prefix
+in front of the name of the resource; this may be used to generate class
+names or namespace names in front of symbols.
+
+.TP
+\fB\-n\fI name\fR, \fB\--namespace\fI name\fR
+Generate all declarations inside the given C++
+.I namespace
+declaration.
+Using a
+.I namespace
+may be used to ensure that declarations are only accessible within the
+given scope, and thus won't clash with symbols.
+
+.TP
+\fB\-c\fI cols\fR, \fB\--columns\fI cols\fR
+Writes
+.I cols
+columns instead of the default number of columns in the data statements
+generated by reswrap.
+The default number of columns for decimal is 10 columns, while the default for hexadecimal printout is 16 columns.
+For text string printout, the default is 80 characters.
+When the number of columns is set to 0, decimal or hexadecimal output is printed without breaking
+columns, while text output lines are broken only at the newlines.
+
+.TP
+\fB\-r\fI name\fR, \fB\--resource\fI name\fR
+Instead of using a resource name based on the filename, reswrap substitutes
+.I name
+for the resource name used in the declaration or definition for the following
+resource file.  This is useful if the filename can not be used as an identifier,
+for example if the filename happens to be a reserved word in C or C++, like "while.gif".
+
+.SH CAVEATS
+When using the text string mode, please remember the C compiler appends
+one nul-character after the string, making the data array one element
+longer than the resource file.
+.SH AUTHOR
+This manpage was originally written by Torsten Landschoff (torsten@debian.org)
+for the Debian distribution of the FOX Toolkit, and is currently maintained
+by Jeroen van der Zijp (jeroen@fox-toolkit.com).
+.SH COPYRIGHT
+Copyright \(co 1997,2016 Jeroen van der Zijp.
+.br
+This is free software; see the source for copying conditions.  There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR  A  PARTICULAR
+PURPOSE.
+.SH SEE ALSO
+The reswrap program is a part of the FOX GUI Toolkit.  Further information
+about reswrap can be found at:
+
+.B http://www.fox-toolkit.org
+
+The FOX Toolkit website includes detailed information about reswrap and its use.
+
