@@ -797,7 +797,7 @@ void GMAudioScrobbler::process_token_response(const FXString & response){
     token=sr.getToken();
     FXTRACE((60,"GMAudioScrobbler::process_token_response => token=%s\n",token.text()));
     FXString url="http://www.last.fm/api/auth/?api_key=" CLIENT_KEY "&token="+token;
-    feedback.message(target,FXSEL(SEL_OPENED,message),url.text(),url.length());
+    feedback.message(target, FXSEL(SEL_OPENED,message), url.text(), url.length() + 1);
     reset_timeout(); /// Reset timer
     set_timeout();   /// Let's wait at least 60s
     }
