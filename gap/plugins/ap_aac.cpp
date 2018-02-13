@@ -147,7 +147,7 @@ FXbool ap_parse_aac_specific_config(const FXuchar * data, FXuint length,
     if (channelconfig>0 && channelconfig<8) {
       // faad will upmatrix to 2 channels
       if (channelconfig==1) {
-        GM_DEBUG_PRINT("[asc] found 1 channel config. assuming faad will upmatrix to 2 channels");
+        GM_DEBUG_PRINT("[asc] found 1 channel config. assuming faad will upmatrix to 2 channels\n");
         channelconfig = 2;
         af.channels   = 2;
         }
@@ -242,6 +242,7 @@ FXbool ap_parse_aac_specific_config(const FXuchar * data, FXuint length,
 
     // implicit sbr
     if (has_sbr == -1 && samplerate <= 24000) {
+      GM_DEBUG_PRINT("[asc] implicit sbr %u -> %u\n", samplerate, samplerate<<1);
       samplerate <<= 1;
       samples_per_frame <<= 1;
       upsampled = true;
@@ -251,6 +252,7 @@ FXbool ap_parse_aac_specific_config(const FXuchar * data, FXuint length,
     if (has_sbr == 1) {
       if (ext_samplerate != samplerate) {
         FXASSERT(ext_samplerate==(samplerate<<1));
+        GM_DEBUG_PRINT("[asc] explicit sbr %u -> %u\n", samplerate, ext_samplerate);
         samplerate=ext_samplerate;
         samples_per_frame <<= 1;
         upsampled = true;
