@@ -371,41 +371,45 @@ public:
 
     FXString feed_dir = make_podcast_feed_directory(rss.feed.title);
 
-    db->begin();
-    FXint tag=0;
+    try {
+      GMLockTransaction transaction(db);
+      FXint tag=0;
 
-    // Allow unset categories, just don't insert empty strings
-    if (!rss.feed.category.empty()) {
-      get_tag.set(0,rss.feed.category);
-      get_tag.execute(tag);
-      if (!tag) {
-        add_tag.set(0,rss.feed.category);
-        tag = add_tag.insert();
+      // Allow unset categories, just don't insert empty strings
+      if (!rss.feed.category.empty()) {
+        get_tag.set(0,rss.feed.category);
+        get_tag.execute(tag);
+        if (!tag) {
+          add_tag.set(0,rss.feed.category);
+          tag = add_tag.insert();
+          }
         }
+
+      add_feed.set(0,url);
+      add_feed.set(1,rss.feed.title);
+      add_feed.set(2,rss.feed.description);
+      add_feed.set(3,feed_dir);
+      add_feed.set_null(4,tag);
+      add_feed.set(5,rss.feed.date);
+      FXint feed_id = add_feed.insert();
+
+      GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, 0)");
+
+      for (FXint i=0;i<rss.feed.items.no();i++) {
+        add_feed_item.set(0,feed_id);
+        add_feed_item.set(1,rss.feed.items[i].id);
+        add_feed_item.set(2,rss.feed.items[i].url);
+        add_feed_item.set(3,rss.feed.items[i].title);
+        add_feed_item.set(4,rss.feed.items[i].description);
+        add_feed_item.set(5,rss.feed.items[i].length);
+        add_feed_item.set(6,rss.feed.items[i].time);
+        add_feed_item.set(7,rss.feed.items[i].date);
+        add_feed_item.execute();
+        }
+      transaction.commit();
       }
-
-    add_feed.set(0,url);
-    add_feed.set(1,rss.feed.title);
-    add_feed.set(2,rss.feed.description);
-    add_feed.set(3,feed_dir);
-    add_feed.set_null(4,tag);
-    add_feed.set(5,rss.feed.date);
-    FXint feed_id = add_feed.insert();
-
-    GMQuery add_feed_item(db,"INSERT INTO feed_items VALUES ( NULL, ? , ? , ? , NULL, ? , ? , ?, ?, ?, 0)");
-
-   for (FXint i=0;i<rss.feed.items.no();i++) {
-      add_feed_item.set(0,feed_id);
-      add_feed_item.set(1,rss.feed.items[i].id);
-      add_feed_item.set(2,rss.feed.items[i].url);
-      add_feed_item.set(3,rss.feed.items[i].title);
-      add_feed_item.set(4,rss.feed.items[i].description);
-      add_feed_item.set(5,rss.feed.items[i].length);
-      add_feed_item.set(6,rss.feed.items[i].time);
-      add_feed_item.set(7,rss.feed.items[i].date);
-      add_feed_item.execute();
+    catch(GMDatabaseException&) {
       }
-    db->commit();
     }
 
   long onThreadLeave(FXObject*,FXSelector,void*) {
@@ -901,7 +905,7 @@ FXint GMPodcastUpdater::run() {
 
 
     taskmanager->setStatus("Syncing Podcasts...");
-    db->beginTask();
+    GMTaskTransaction transaction(db);
 
     FXTime date;
     FXString url;
@@ -1021,10 +1025,9 @@ FXint GMPodcastUpdater::run() {
         GM_DEBUG_PRINT("[rss] failed to parse feed\n");
         }
       }
-    db->commitTask();
+    transaction.commit();
     }
   catch(GMDatabaseException&) {
-    db->rollbackTask();
     return 1;
     }
   return 0;
@@ -1289,15 +1292,19 @@ void GMPodcastSource::removeFeeds(const FXIntList & feeds) {
     if (FXStat::exists(feed_directory) && !FXDir::remove(feed_directory))
       fxwarning("failed to remove feed directory");
 
-    db->begin();
+    try {
+      GMLockTransaction transaction(db);
 
-    // Remove feed items
-    remove_feed_items.update(feeds[i]);
+      // Remove feed items
+      remove_feed_items.update(feeds[i]);
 
-    // Remove feed
-    remove_feed.update(feeds[i]);
+      // Remove feed
+      remove_feed.update(feeds[i]);
 
-    db->commit();
+      transaction.commit();
+      }
+    catch(GMDatabaseException&) {
+      }
     }
   }
 
@@ -1497,18 +1504,22 @@ long GMPodcastSource::onCmdFeedUpdated(FXObject*,FXSelector,void*ptr){
   }
 
 long GMPodcastSource::onCmdDownloadFeed(FXObject*,FXSelector,void*){
-  FXIntList tracks;
-  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
-  GMQuery queue_tracks(db,"UPDATE feed_items SET flags = (flags|1) WHERE id == ?;");
-  db->begin();
-  for (FXint i=0;i<tracks.no();i++){
-    queue_tracks.set(0,tracks[i]);
-    queue_tracks.execute();
+  try {
+    GMLockTransaction transaction(db);
+    FXIntList tracks;
+    GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+    GMQuery queue_tracks(db,"UPDATE feed_items SET flags = (flags|1) WHERE id == ?;");
+    for (FXint i=0;i<tracks.no();i++){
+      queue_tracks.set(0,tracks[i]);
+      queue_tracks.execute();
+      }
+    transaction.commit();
+    if (downloader==nullptr) {
+      downloader = new GMPodcastDownloader(FXApp::instance(),this);
+      downloader->start();
+      }
     }
-  db->commit();
-  if (downloader==nullptr) {
-    downloader = new GMPodcastDownloader(FXApp::instance(),this);
-    downloader->start();
+  catch(GMDatabaseException&) {
     }
   return 1;
   }
@@ -1542,14 +1553,18 @@ long GMPodcastSource::onCmdDeleteLocal(FXObject*,FXSelector,void*){
   }
 
 long GMPodcastSource::onCmdAutoDownload(FXObject*,FXSelector,void*){
-  GMPodcastFeed * item = static_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
-  GMQuery update_feed(db,"UPDATE feeds SET autodownload = ? WHERE id == ?;");
-  db->begin();
-  update_feed.set(0,!item->isAutoDownload());
-  update_feed.set(1,item->getId());
-  update_feed.execute();
-  db->commit();
-  item->setAutoDownload(!item->isAutoDownload());
+  try {
+    GMLockTransaction transaction(db);
+    GMPodcastFeed * item = static_cast<GMPodcastFeed*>(GMPlayerManager::instance()->getTrackView()->getCurrentAlbumItem());
+    GMQuery update_feed(db,"UPDATE feeds SET autodownload = ? WHERE id == ?;");
+    update_feed.set(0,!item->isAutoDownload());
+    update_feed.set(1,item->getId());
+    update_feed.execute();
+    transaction.commit();
+    item->setAutoDownload(!item->isAutoDownload());
+    }
+  catch(GMDatabaseException&) {
+    }
   return 1;
   }
 
@@ -1569,43 +1584,55 @@ long GMPodcastSource::onCmdAutoDownload(FXObject*,FXSelector,void*){
 
 
 long GMPodcastSource::onCmdMarkNew(FXObject*,FXSelector,void*){
-  FXIntList tracks;
-  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
-  GMQuery mark_tracks(db,"UPDATE feed_items SET flags = (flags&~(4)) WHERE id == ?;");
-  db->begin();
-  for (FXint i=0;i<tracks.no();i++){
-    mark_tracks.set(0,tracks[i]);
-    mark_tracks.execute();
+  try {
+    GMLockTransaction transaction(db);
+    FXIntList tracks;
+    GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+    GMQuery mark_tracks(db,"UPDATE feed_items SET flags = (flags&~(4)) WHERE id == ?;");
+    for (FXint i=0;i<tracks.no();i++){
+      mark_tracks.set(0,tracks[i]);
+      mark_tracks.execute();
+      }
+    transaction.commit();
+    updateAvailable();
     }
-  db->commit();
-  updateAvailable();
+  catch(GMDatabaseException&) {
+    }
   return 1;
   }
 
 
 long GMPodcastSource::onCmdMarkPlayed(FXObject*,FXSelector,void*){
-  FXIntList tracks;
-  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
-  GMQuery queue_tracks(db,"UPDATE feed_items SET flags = (flags|4) WHERE id == ?;");
-  db->begin();
-  for (FXint i=0;i<tracks.no();i++){
-    queue_tracks.set(0,tracks[i]);
-    queue_tracks.execute();
+  try {
+    GMLockTransaction transaction(db);
+    FXIntList tracks;
+    GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+    GMQuery queue_tracks(db,"UPDATE feed_items SET flags = (flags|4) WHERE id == ?;");
+    for (FXint i=0;i<tracks.no();i++){
+      queue_tracks.set(0,tracks[i]);
+      queue_tracks.execute();
+      }
+    transaction.commit();
+    updateAvailable();
     }
-  db->commit();
-  updateAvailable();
+  catch(GMDatabaseException&) {
+    }
   return 1;
   }
 
 long GMPodcastSource::onCmdTrackPlayed(FXObject*,FXSelector,void*) {
-  FXTRACE((60,"%s::onCmdTrackPlayed\n",getClassName()));
-  FXASSERT(current_track>=0);
-  GMQuery set_played(db,"UPDATE feed_items SET flags = (flags|4) WHERE id == ?;");
-  db->begin();
-  set_played.set(0,current_track);
-  set_played.execute();
-  db->commit();
-  updateAvailable();
+  try {
+    GMLockTransaction transaction(db);
+    FXTRACE((60,"%s::onCmdTrackPlayed\n",getClassName()));
+    FXASSERT(current_track>=0);
+    GMQuery set_played(db,"UPDATE feed_items SET flags = (flags|4) WHERE id == ?;");
+    set_played.set(0,current_track);
+    set_played.execute();
+    transaction.commit();
+    updateAvailable();
+    }
+  catch(GMDatabaseException&) {
+    }
   return 1;
   }
 

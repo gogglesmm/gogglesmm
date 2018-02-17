@@ -1118,10 +1118,11 @@ protected:
 protected:
   FXint run() {
     try {
-      database->beginTask();
+      GMTaskTransaction transaction(database);
+
       for (FXival i=0;i<files.no() && processing;i++) {
         if (database->interrupt)
-          database->waitTask();
+          transaction.pause();
 
         taskmanager->setStatus(FXString::value("Writing Cover %ld/%ld..",i+1,tracks.no()));
 
@@ -1137,10 +1138,9 @@ protected:
           database->setTrackImported(tracks[i],FXThread::time());
           }
         }
-      database->commitTask();
+      transaction.commit();
       }
     catch(GMDatabaseException&) {
-      database->rollbackTask();
       return 1;
       }
     return 0;
@@ -1326,12 +1326,11 @@ long GMDatabaseSource::onCmdDelete(FXObject*,FXSelector sel,void*){
         break;
       case ID_DELETE_TRACK:
           try {
-            db->begin();
+            GMLockTransaction transaction(db);
             db->removeTracks(tracks);
-            db->commit();
+            transaction.commit();
             }
           catch(GMDatabaseException&) {
-            db->rollback();
             FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Library Error"),fxtr("Unable to remove track from the library."));
             }
         break;

@@ -423,7 +423,7 @@ FXbool GMTrackDatabase::init_queries() {
 FXbool GMTrackDatabase::clearTracks(FXbool removeplaylists){
   DEBUG_DB_SET();
   try {
-    begin();
+    GMLockTransaction transaction(this);
     execute("DELETE FROM playlist_tracks;");
     execute("DELETE FROM track_tags;");
     execute("DELETE FROM tracks;");
@@ -434,10 +434,9 @@ FXbool GMTrackDatabase::clearTracks(FXbool removeplaylists){
     if (removeplaylists) {
       execute("DELETE FROM playlists;");
       }
-    commit();
+    transaction.commit();
     }
   catch(GMDatabaseException&) {
-    rollback();
     return false;
     }
   vacuum();
@@ -492,7 +491,7 @@ FXint GMTrackDatabase::hasTrack(const FXString & filename,FXint pid,FXTime & mod
 FXbool GMTrackDatabase::insertStream(const FXString & url,const FXString & description,const FXString & genre){
   DEBUG_DB_SET();
   try {
-    begin();
+    GMLockTransaction transaction(this);
     FXint genreid=0;
 
     GMQuery insert_tag(this,"INSERT OR IGNORE INTO tags VALUES ( NULL, ? );");
@@ -508,10 +507,9 @@ FXbool GMTrackDatabase::insertStream(const FXString & url,const FXString & descr
     q.set(1,description);
     q.set_null(2,genreid);
     q.execute();
-    commit();
+    transaction.commit();
     }
   catch(GMDatabaseException & e){
-    rollback();
     return false;
     }
   return true;
@@ -522,13 +520,12 @@ FXbool GMTrackDatabase::insertStream(const FXString & url,const FXString & descr
 FXbool GMTrackDatabase::insertPlaylist(const FXString & name,FXint & id) {
   DEBUG_DB_SET();
   try {
-    begin();
+    GMLockTransaction transaction(this);
     GMQuery query(this,"INSERT INTO playlists VALUES ( NULL, ? );");
     id = query.insert(name);
-    commit();
+    transaction.commit();
     }
   catch (GMDatabaseException & e){
-    rollback();
     return false;
     }
   return true;
@@ -550,22 +547,18 @@ FXbool GMTrackDatabase::insertPlaylistTracks(FXint playlist,const FXIntList & tr
   GM_TICKS_START();
   FXint max=1;
   try {
-    begin();
-
+    GMLockTransaction transaction(this);
     GMQuery q(this,"SELECT coalesce(MAX(queue)+1,1) FROM playlist_tracks WHERE playlist == ?;");
     q.execute(playlist,max);
-
     for (FXint i=0;i<tracks.no();i++) {
       insert_playlist_track_by_id.set(0,playlist);
       insert_playlist_track_by_id.set(1,tracks[i]);
       insert_playlist_track_by_id.set(2,max++);
       insert_playlist_track_by_id.execute();
       }
-
-    commit();
+    transaction.commit();
     }
   catch(GMDatabaseException&){
-    rollback();
     return false;
     }
   GM_TICKS_END();
@@ -574,6 +567,7 @@ FXbool GMTrackDatabase::insertPlaylistTracks(FXint playlist,const FXIntList & tr
 
 
 ///FIXME Insert Track in Playlist
+#if 0
 FXbool GMTrackDatabase::updateTrackPlaylists(FXint playlist,FXIntList & tracks) {
   DEBUG_DB_SET();
   FXint queue=1;
@@ -591,7 +585,7 @@ FXbool GMTrackDatabase::updateTrackPlaylists(FXint playlist,FXIntList & tracks) 
     }
   return true;
   }
-
+#endif
 
 /// List Playlists
 FXbool GMTrackDatabase::listPlaylists(FXIntList & ids){
@@ -1056,11 +1050,9 @@ FXbool GMTrackDatabase::getTrackAssociation(FXint id,FXint & artist,FXint & albu
 
 FXbool GMTrackDatabase::removeArtist(FXint artist) {
   DEBUG_DB_SET();
-
-  GMQuery query;
   try {
-
-    begin();
+    GMQuery query;
+    GMLockTransaction transaction(this);
 
     query = compile("DELETE FROM playlist_tracks WHERE track IN (SELECT id FROM tracks WHERE artist == ? OR album IN (SELECT id FROM albums WHERE artist == ?))");
     query.set(0,artist);
@@ -1081,10 +1073,9 @@ FXbool GMTrackDatabase::removeArtist(FXint artist) {
     query.update(artist);
 
     sync_tracks_removed();
-    commit();
+    transaction.commit();
     }
   catch (GMDatabaseException & e){
-    rollback();
     return false;
     }
   return true;
@@ -1092,10 +1083,9 @@ FXbool GMTrackDatabase::removeArtist(FXint artist) {
 
 FXbool GMTrackDatabase::removeAlbum(FXint album) {
   DEBUG_DB_SET();
-
-  GMQuery query;
   try {
-    begin();
+    GMQuery query;
+    GMLockTransaction transaction(this);
 
     /// Remove tracks from playlist
     query = compile("DELETE FROM playlist_tracks WHERE track IN (SELECT id FROM tracks WHERE album == ?);");
@@ -1118,22 +1108,20 @@ FXbool GMTrackDatabase::removeAlbum(FXint album) {
     clean_tags();
     execute("DELETE FROM pathlist WHERE id NOT IN (SELECT DISTINCT(path) FROM tracks);");
 
-    commit();
+    transaction.commit();
     }
   catch (GMDatabaseException & e){
-    rollback();
     return false;
     }
   return true;
   }
 
 /// For each playlist, we reset the queue number from 1 to max tracks.
-FXbool GMTrackDatabase::reorderPlaylists(){
+void GMTrackDatabase::reorderPlaylists(){
   DEBUG_DB_SET();
 
   GMQuery q;
   GM_TICKS_START();
-  try {
     FXIntList playlists;
     FXIntList tracks;
     FXint num_tracks=0;
@@ -1174,12 +1162,7 @@ FXbool GMTrackDatabase::reorderPlaylists(){
       q.set(2,j);
       q.execute();
       }
-    }
-  catch (GMDatabaseException & e){
-    return false;
-    }
   GM_TICKS_END();
-  return true;
   }
 
 /// For each playlist, we reset the queue number from 1 to max tracks.
@@ -1241,10 +1224,9 @@ FXbool GMTrackDatabase::reorderPlaylist(FXint pl){
 /// Update Playlist
 FXbool GMTrackDatabase::updatePlaylist(FXint playlist,const GMPlayListItemList & items) {
   DEBUG_DB_SET();
-
-  GMQuery q;
   try {
-    begin();
+    GMQuery q;
+    GMLockTransaction transaction(this);
 
     q = compile("DELETE FROM playlist_tracks WHERE playlist == ?;");
     q.update(playlist);
@@ -1255,10 +1237,9 @@ FXbool GMTrackDatabase::updatePlaylist(FXint playlist,const GMPlayListItemList &
       insert_playlist_track_by_id.set(2,items[i].queue);
       insert_playlist_track_by_id.execute();
       }
-    commit();
+    transaction.commit();
     }
   catch (GMDatabaseException & e){
-    rollback();
     return false;
     }
   return true;
@@ -1268,10 +1249,9 @@ FXbool GMTrackDatabase::updatePlaylist(FXint playlist,const GMPlayListItemList &
 
 FXbool GMTrackDatabase::removePlaylist(FXint playlist){
   DEBUG_DB_SET();
-
-  GMQuery q;
   try {
-    begin();
+    GMQuery q;
+    GMLockTransaction transaction(this);
 
     q = compile("DELETE FROM playlist_tracks WHERE playlist == ?;");
     q.update(playlist);
@@ -1279,10 +1259,9 @@ FXbool GMTrackDatabase::removePlaylist(FXint playlist){
     q = compile("DELETE FROM playlists WHERE id == ?;");
     q.update(playlist);
 
-    commit();
+    transaction.commit();
     }
   catch (GMDatabaseException & e){
-    rollback();
     return false;
     }
   return true;
@@ -1461,54 +1440,53 @@ void GMTrackDatabase::initArtistLookup() {
 
 FXbool GMTrackDatabase::vacuum() {
   DEBUG_DB_SET();
-
   GM_TICKS_START();
-
-  begin();
+  try {
+    GMLockTransaction transaction(this);
 
   /// Remove empty playlists ? FIXME: may be not...
   /// if (!execute("DELETE FROM playlists WHERE id NOT IN (SELECT DISTINCT(playlist) FROM playlist_tracks);"))
   //  return false;
 
-  GM_DEBUG_PRINT("Reorder Playlists\n");
+    GM_DEBUG_PRINT("Reorder Playlists\n");
 
-  /// Reorder Playlists
-  if (!reorderPlaylists()) goto error;
+    /// Reorder Playlists
+    reorderPlaylists();
 
-  GM_DEBUG_PRINT("Remove Empty Albums\n");
+    GM_DEBUG_PRINT("Remove Empty Albums\n");
 
-  /// Remove empty albums
-  execute("DELETE FROM albums WHERE id NOT IN (SELECT DISTINCT(album) FROM tracks);");
+    /// Remove empty albums
+    execute("DELETE FROM albums WHERE id NOT IN (SELECT DISTINCT(album) FROM tracks);");
 
-  GM_DEBUG_PRINT("Remove unused artists\n");
+    GM_DEBUG_PRINT("Remove unused artists\n");
 
-  /// Remove unused artists
-  execute("DELETE FROM artists WHERE id NOT IN (SELECT artist FROM albums UNION SELECT artist FROM tracks UNION SELECT composer FROM tracks UNION SELECT conductor FROM tracks);");
+    /// Remove unused artists
+    execute("DELETE FROM artists WHERE id NOT IN (SELECT artist FROM albums UNION SELECT artist FROM tracks UNION SELECT composer FROM tracks UNION SELECT conductor FROM tracks);");
 
-  GM_DEBUG_PRINT("Remove unused genres\n");
+    GM_DEBUG_PRINT("Remove unused genres\n");
 
-  /// Remove unused tags
-  clean_tags();
+    /// Remove unused tags
+    clean_tags();
 
-  GM_DEBUG_PRINT("Remove unused paths\n");
+    GM_DEBUG_PRINT("Remove unused paths\n");
 
-  /// Remove unused paths
-  execute("DELETE FROM pathlist WHERE id NOT IN (SELECT DISTINCT(path) FROM tracks);");
+    /// Remove unused paths
+    execute("DELETE FROM pathlist WHERE id NOT IN (SELECT DISTINCT(path) FROM tracks);");
 
-  /// commit changes
-  commit();
+    /// commit changes
+    transaction.commit();
 
-  /// Reinitialize path lookup
-  clear_path_lookup();
-  clear_artist_lookup();
-  setup_path_lookup();
-  setup_artist_lookup();
-
+    /// Reinitialize path lookup
+    clear_path_lookup();
+    clear_artist_lookup();
+    setup_path_lookup();
+    setup_artist_lookup();
+    }
+  catch(GMDatabaseException &) {
+    return false;
+    }
   GM_TICKS_END();
   return true;
-error:
-  rollback();
-  return false;
   }
 
 
@@ -1643,20 +1621,20 @@ void GMTrackDatabase::setTrackImported(FXint track,FXlong tm){
 
 void GMTrackDatabase::setTrackRating(FXint id,FXuchar rating){
   DEBUG_DB_SET();
-  begin();
+  GMLockTransaction transaction(this);
   update_track_rating.set(0,(FXuint)rating);
   update_track_rating.set(1,id);
   update_track_rating.execute();
-  commit();
+  transaction.commit();
   }
 
 void GMTrackDatabase::setTrackPlayed(FXint track,FXlong time) {
   DEBUG_DB_SET();
-  begin();
+  GMLockTransaction transaction(this);
   update_track_playcount.set(0,time);
   update_track_playcount.set(1,track);
   update_track_playcount.execute();
-  commit();
+  transaction.commit();
   }
 
 

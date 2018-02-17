@@ -426,49 +426,6 @@ void GMDatabase::execute(const FXchar * statement,const FXint in,FXString & out)
   q.execute(in,out);
   }
 
-void GMDatabase::begin() {
-  GM_DEBUG_PRINT("begin()\n");
-  lock();
-  execute("BEGIN TRANSACTION;");
-  }
-
-void GMDatabase::commit() {
-  GM_DEBUG_PRINT("commit()\n");
-  execute("COMMIT TRANSACTION;");
-  unlock();
-  }
-
-void GMDatabase::rollback() {
-  GM_DEBUG_PRINT("rollback()\n");
-  execute("ROLLBACK TRANSACTION;");
-  unlock();
-  }
-
-void GMDatabase::beginTask() {
-  GM_DEBUG_PRINT("beginTask()\n");
-  mutex.lock();
-  execute("BEGIN IMMEDIATE TRANSACTION;");
-  }
-
-void GMDatabase::commitTask() {
-  GM_DEBUG_PRINT("commitTask() %d\n",mutex.locked());
-  execute("COMMIT TRANSACTION;");
-  mutex.unlock();
-  }
-
-void GMDatabase::rollbackTask() {
-  GM_DEBUG_PRINT("rollbackTask()\n");
-  execute("ROLLBACK TRANSACTION;");
-  mutex.unlock();
-  }
-
-void GMDatabase::waitTask() {
-  GM_DEBUG_PRINT("waitTask()\n");
-  execute("COMMIT TRANSACTION;");
-  condition.wait(mutex);
-  execute("BEGIN IMMEDIATE TRANSACTION;");
-  }
-
 void GMDatabase::lock() {
 //  fxmessage("lock %d %d\n",FXThread::self()==nullptr,mutex.locked());
   if (FXThread::self()==nullptr) {
@@ -545,5 +502,132 @@ FXbool GMDatabase::threadsafe() {
   }
 const FXchar * GMDatabase::version() {
   return sqlite3_libversion();
+  }
+
+
+
+GMLockTransaction::GMLockTransaction(GMDatabase * database) : db(database) /*, state(std::uncaught_exceptions())*/ {
+  lock();
+  try {
+    db->execute("BEGIN");
+    }
+  catch(GMDatabaseException&) {
+    unlock();
+    throw;
+    }
+  unlock();
+  }
+
+
+GMLockTransaction::~GMLockTransaction() {
+  if (committed == false) {
+    try {
+      db->execute("ROLLBACK");
+      }
+    catch(GMDatabaseException&) {
+      }
+    }
+  unlock();
+  }
+
+
+void GMLockTransaction::commit() {
+  try {
+    db->execute("COMMIT");
+    committed = true;
+    }
+  catch(GMDatabaseException&) {
+    unlock();
+    throw;
+    }
+  unlock();
+  }
+
+
+void GMLockTransaction::lock() {
+  db->lock();
+  locked = true;
+  }
+
+
+void GMLockTransaction::unlock() {
+  if (locked) {
+    db->unlock();
+    locked = false;
+    }
+  }
+
+
+
+
+GMTaskTransaction::GMTaskTransaction(GMDatabase * database) : db(database) {
+  lock();
+  try {
+    db->execute("BEGIN IMMEDIATE");
+    }
+  catch(GMDatabaseException&) {
+    unlock();
+    throw;
+    }
+  unlock();
+  }
+
+
+GMTaskTransaction::~GMTaskTransaction() {
+  if (committed == false) {
+    try {
+      db->execute("ROLLBACK");
+      }
+    catch(GMDatabaseException&) {
+      }
+    }
+  unlock();
+  }
+
+
+void GMTaskTransaction::commit() {
+  try {
+    db->execute("COMMIT");
+    committed = true;
+    }
+  catch(GMDatabaseException&) {
+    unlock();
+    throw;
+    }
+  unlock();
+  }
+
+void GMTaskTransaction::pause() {
+  try {
+    db->execute("COMMIT");
+    committed=true;
+    }
+  catch(GMDatabaseException&) {
+    unlock();
+    throw;
+    }
+  db->condition.wait(db->mutex);
+  try {
+    committed=false;
+    db->execute("BEGIN IMMEDIATE");
+    }
+  catch(GMDatabaseException&) {
+    unlock();
+    throw;
+    }
+  }
+
+
+void GMTaskTransaction::lock() {
+  db->lock();
+  locked = true;
+  }
+
+
+void GMTaskTransaction::unlock() {
+  if (locked) {
+    db->unlock();
+    locked = false;
+    }
   }
 

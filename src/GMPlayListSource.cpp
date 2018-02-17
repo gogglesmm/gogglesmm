@@ -306,17 +306,16 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
     }
 
   try {
-    db->begin();
+    GMLockTransaction transaction(db);
     if (from_library)
       db->removeTracks(tracks);
     else if (GMPlayerManager::instance()->getTrackView()->hasBrowser())
       db->removePlaylistTracks(playlist,tracks);
     else
       db->removePlaylistQueue(playlist,queue);
-    db->commit();
+    transaction.commit();
     }
   catch(GMDatabaseException&) {
-    db->rollback();
     }
   GMPlayerManager::instance()->getTrackView()->refresh();
   return 1;
