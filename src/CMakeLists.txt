@@ -189,76 +189,76 @@ set(HEADERS GMAbout.h
             gmdefs.h
             gmutils.h)
 
-set(ICONS ${CMAKE_SOURCE_DIR}/icons/cursor_hand.gif
-          ${CMAKE_SOURCE_DIR}/icons/about.png
-          ${CMAKE_SOURCE_DIR}/icons/gogglesmm_16.png
-          ${CMAKE_SOURCE_DIR}/icons/gogglesmm_32.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_accessories_text_editor.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_application_rss_xml.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_applications_internet.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_high.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_low.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_medium.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_audio_volume_muted.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_audio_x_generic.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_bookmark_new.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_document_open.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_document_save.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_edit_copy.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_edit_cut.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_edit_delete.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_edit_find.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_edit_paste.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_edit_undo.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_exit.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_folder.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_folder_open.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_go_bottom.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_go_home.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_help_browser.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_image_x_generic.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_list_add.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_list_remove.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_media_optical.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_media_playback_pause.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_media_playback_start.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_media_playback_stop.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_media_skip_backward.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_media_skip_forward.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_preferences_desktop.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_process_working.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_stock_attach.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_status_error.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_system_users.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_text_x_generic.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_view_refresh.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_view_sort_descending.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_window_close.png
-          ${CMAKE_SOURCE_DIR}/icons/x16_x_office_presentation.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_applications_internet.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_applications_multimedia.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_applications_rss_xml.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_high.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_low.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_medium.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_audio_volume_muted.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_audio_x_generic.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_document_open.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_document_properties.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_drive_harddisk.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_folder.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_image_x_generic.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_media_playback_pause.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_media_playback_start.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_media_playback_stop.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_media_skip_backward.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_media_skip_forward.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_preferences_system.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_text_x_generic.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_user_bookmarks.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_user_home.png
-          ${CMAKE_SOURCE_DIR}/icons/x22_x_office_presentation.png
-          ${CMAKE_SOURCE_DIR}/icons/x128_media_optical.png)
+set(ICONS cursor_hand.gif
+          about.png
+          gogglesmm_16.png
+          gogglesmm_32.png
+          x16_accessories_text_editor.png
+          x16_application_rss_xml.png
+          x16_applications_internet.png
+          x16_audio_volume_high.png
+          x16_audio_volume_low.png
+          x16_audio_volume_medium.png
+          x16_audio_volume_muted.png
+          x16_audio_x_generic.png
+          x16_bookmark_new.png
+          x16_document_open.png
+          x16_document_save.png
+          x16_edit_copy.png
+          x16_edit_cut.png
+          x16_edit_delete.png
+          x16_edit_find.png
+          x16_edit_paste.png
+          x16_edit_undo.png
+          x16_exit.png
+          x16_folder.png
+          x16_folder_open.png
+          x16_go_bottom.png
+          x16_go_home.png
+          x16_help_browser.png
+          x16_image_x_generic.png
+          x16_list_add.png
+          x16_list_remove.png
+          x16_media_optical.png
+          x16_media_playback_pause.png
+          x16_media_playback_start.png
+          x16_media_playback_stop.png
+          x16_media_skip_backward.png
+          x16_media_skip_forward.png
+          x16_preferences_desktop.png
+          x16_process_working.png
+          x16_stock_attach.png
+          x16_status_error.png
+          x16_system_users.png
+          x16_text_x_generic.png
+          x16_view_refresh.png
+          x16_view_sort_descending.png
+          x16_window_close.png
+          x16_x_office_presentation.png
+          x22_applications_internet.png
+          x22_applications_multimedia.png
+          x22_applications_rss_xml.png
+          x22_audio_volume_high.png
+          x22_audio_volume_low.png
+          x22_audio_volume_medium.png
+          x22_audio_volume_muted.png
+          x22_audio_x_generic.png
+          x22_document_open.png
+          x22_document_properties.png
+          x22_drive_harddisk.png
+          x22_folder.png
+          x22_image_x_generic.png
+          x22_media_playback_pause.png
+          x22_media_playback_start.png
+          x22_media_playback_stop.png
+          x22_media_skip_backward.png
+          x22_media_skip_forward.png
+          x22_preferences_system.png
+          x22_text_x_generic.png
+          x22_user_bookmarks.png
+          x22_user_home.png
+          x22_x_office_presentation.png
+          x128_media_optical.png)
 
 
 
@@ -268,14 +268,11 @@ if(WITH_SESSION AND SM_FOUND AND ICE_FOUND)
 endif()
 
 
-# Generates icons.cpp / icons.h with reswrap
-set_source_files_properties(icons.cpp PROPERTIES GENERATED 1)
-set_source_files_properties(icons.h PROPERTIES GENERATED 1)
-
-ADD_CUSTOM_COMMAND(
+add_custom_command(
   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp
   COMMAND ${RESWRAP_H} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${ICONS}
   COMMAND ${RESWRAP_CPP} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp ${ICONS}
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/icons
   VERBATIM
   )
 
@@ -293,14 +290,12 @@ if (WITH_DBUS AND DBUS_FOUND)
                       mpris1_xml.h
                       mpris2_xml.h)
 
-
-  set_source_files_properties(mpris1_xml.h PROPERTIES GENERATED 1)
-  set_source_files_properties(mpris2_xml.h PROPERTIES GENERATED 1)
-
-  ADD_CUSTOM_COMMAND(
+  add_custom_command(
     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h
-    COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_player.xml ${CMAKE_CURRENT_SOURCE_DIR}/mpris_tracklist.xml
-    COMMAND ${RESWRAP_TEXT} -o ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2.xml
+    COMMAND ${RESWRAP_TEXT} -o mpris1_xml.h mpris.xml mpris_player.xml mpris_tracklist.xml
+    COMMAND ${RESWRAP_TEXT} -o mpris2_xml.h mpris2.xml
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    VERBATIM
     )
   set(HAVE_DBUS 1)
 endif()
