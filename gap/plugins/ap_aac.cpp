@@ -483,6 +483,7 @@ FXbool AacDecoder::getNextFrame(Packet *& packet,FXuchar *& ptr,FXuint & framesi
     // incomplete data in packet
     if (packet->size())
       buffer.append(packet->data(),packet->size());
+
     packet->unref();
     packet=nullptr;
     return false;
@@ -670,7 +671,10 @@ FXbool AacDecoder::process_frames(Packet*packet) {
     // get output buffer
     if (use_internal_buffer==false && out==nullptr){
       out = context->get_output_packet();
-      if (out==nullptr) return true;
+      if (out==nullptr) {
+        if (packet) packet->unref();
+        return true;
+        }
       out->af              = af;
       out->stream          = stream_id;
       out->stream_position = stream_position;
@@ -696,6 +700,7 @@ FXbool AacDecoder::process_frames(Packet*packet) {
 
     if (frame.error > 0) {
       GM_DEBUG_PRINT("[aac] fatal decoder error %hhu: %s\n",frame.error,faacDecGetErrorMessage(frame.error));
+      if (packet) packet->unref();
       return false;
       }
 
@@ -709,10 +714,12 @@ FXbool AacDecoder::process_frames(Packet*packet) {
     if (frame.samples==0)
       continue;
 
-    if (process_output(stream_id, stream_length, outsamples, frame.samples))
+    if (process_output(stream_id, stream_length, outsamples, frame.samples)){
+      if (packet) packet->unref();
       return true;
+      }
     }
-
+  FXASSERT(packet==nullptr);
   if (eos) {
     FXASSERT(stream_position==stream_length);
     GM_DEBUG_PRINT("stream_position %ld == stream_length %ld\n",stream_position-stream_offset_start,stream_length-stream_offset_start);
