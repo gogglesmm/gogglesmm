@@ -1,0 +1,27 @@
+Getting Started
+
+  See the INSTALL file on how to build gogglesmm. You can skip the install part and run gogglesmm
+  directly from the source directory. For development or diagnosing an issue, you want to build
+  gogglesmm with debug symbols. To do so, run cmake with the appropriate build type:
+
+  > cmake -DCMAKE_BUILD_TYPE=Debug .
+
+  To run gogglesmm directly from the source directory, you need tell gogglesmm where to find the output plugins.
+  By default it will try to find them in <install_prefix>/lib/gogglesmm, but you can set the GOGGLESMM_PLUGIN_PATH
+  environment variable to specify an alternate location:
+
+  > export GOGGLESMM_PLUGIN_PATH=gap
+  > src/gogglesmm
+
+  With the debug build enabled, it should print out the filename of the 
+  output plugin when gogglesmm starts playing:
+
+  [output] loading plugin: gap/libgap_pulse.so
+
+Contributing Bug Fixes
+
+  Bugfix branches should be forked off the "stable" branch
+
+Contributing New Features
+
+  New feature branches should be forked off the "develop" branch
