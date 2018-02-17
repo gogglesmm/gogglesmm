@@ -627,6 +627,7 @@ FXbool MP4Reader::atom_parse_mp4a(FXlong size) {
   samplerate = samplerate >> 16;
 
   GM_DEBUG_PRINT("[mp4] samplerate %d\n",samplerate);
+  GM_DEBUG_PRINT("[mp4] channels %d\n",channels);
 
   track->af.set(AP_FORMAT_S16,samplerate,channels);
 
@@ -1085,17 +1086,19 @@ FXbool MP4Reader::atom_parse_header(FXuint & type,FXlong & size,FXlong & contain
     size = sz - 8;
     container -= 8;
     }
-  GM_DEBUG_PRINT("[mp4] atom %c%c%c%c size %lld left %lld\n",(type)&0xFF,(type>>8)&0xFF,(type>>16)&0xFF,(type>>24),size,container);
   return true;
   }
 
 
 
 FXbool MP4Reader::atom_parse(FXlong size) {
+  static int indent = 0;
   FXuint atom_type;
   FXlong atom_size;
   FXbool ok;
+  indent++;
   while(size>=8 && atom_parse_header(atom_type,atom_size,size)){
+    GM_DEBUG_PRINT("[mp4] %*d atom %c%c%c%c size %lld left %lld\n",indent,indent,(atom_type)&0xFF,(atom_type>>8)&0xFF,(atom_type>>16)&0xFF,(atom_type>>24),atom_size,size);
     switch(atom_type){
 
       // Don't go any further than the mdat atom in serial streams.
@@ -1143,6 +1146,7 @@ FXbool MP4Reader::atom_parse(FXlong size) {
     if (!ok) return false;
     size-=atom_size;
     }
+  indent--;
   return true;
   }
 
