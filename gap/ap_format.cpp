@@ -18,6 +18,8 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_format.h"
+#include "ap_common.h"
+
 
 namespace ap {
 

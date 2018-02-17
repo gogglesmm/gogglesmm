@@ -56,7 +56,7 @@ Installation Instructions
           WITH_GCRYPT          => Enables building with libgcrypt if neither OpenSSL or GnuTLS is included.
           WITH_ZLIB            => Enables building with zlib
 
-          WITH_OPENGL          => Eanbles OpenGL based features
+          WITH_OPENGL          => Enables OpenGL based features
           WITH_DBUS            => Enables DBUS based features
           WITH_NLS             => Enables Native Language Support
           WITH_SESSION         => Enabled X Session Support

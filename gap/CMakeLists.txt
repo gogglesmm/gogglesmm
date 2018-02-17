@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.3.1 FATAL_ERROR)
 
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
+
 include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
@@ -11,6 +13,7 @@ endif()
 
 # Third Party Modules
 add_subdirectory(lib/alac)
+
 
 # Goggles Audio Player
 project(GAP VERSION 1.1.9)
@@ -177,7 +180,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
 else()
   find_package(PkgConfig REQUIRED QUIET)
-  pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
+
+  if (WITH_CFOX)
+    set(FOX_LIBRARIES cfox)
+    set(FOX_INCLUDE_DIRS $<TARGET_PROPERTY:cfox,INTERFACE_INCLUDE_DIRECTORIES>)
+    set_property(TARGET cfox PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  else()
+    pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
+  endif()
 
   if(WITH_ALSA)
     pkg_check_modules(ALSA alsa>=1.0)
@@ -478,7 +488,9 @@ target_include_directories(gap_plugins PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/inclu
 if(BUILD_GAP_SHARED_LIB)
   set_property(TARGET gap_alac PROPERTY POSITION_INDEPENDENT_CODE TRUE)
   set_property(TARGET gap_plugins PROPERTY POSITION_INDEPENDENT_CODE TRUE)
-  set_property(TARGET gap_md5 PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  if(TARGET gap_md5)
+    set_property(TARGET gap_md5 PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  endif()
 endif()
 
 
@@ -586,11 +598,16 @@ target_include_directories(gap INTERFACE ${FOX_INCLUDE_DIRS} ${CMAKE_CURRENT_SOU
 
 target_link_libraries(gap PRIVATE ${LIBRARIES})
 
-if(WITH_STATIC_FOX)
-  target_link_libraries(gap INTERFACE ${FOX_STATIC_LDFLAGS})
+if(NOT WITH_CFOX)
+  if(WITH_STATIC_FOX)
+    target_link_libraries(gap INTERFACE ${FOX_STATIC_LDFLAGS})
+  else()
+    target_link_libraries(gap INTERFACE ${FOX_LDFLAGS})
+  endif()
 else()
-  target_link_libraries(gap INTERFACE ${FOX_LDFLAGS})
+  target_link_libraries(gap INTERFACE cfox)
 endif()
+
 
 if(BUILD_GAP_SHARED_LIB)
 

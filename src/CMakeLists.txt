@@ -36,7 +36,12 @@ TEST_BIG_ENDIAN(GOGGLESMM_BIGENDIAN)
 
 find_package(PkgConfig)
 
-pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
+if(NOT WITH_CFOX)
+  pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
+else()
+  set(CFOX cfox)  
+endif()
+
 pkg_check_modules(TAGLIB taglib>=1.9.0 REQUIRED)
 pkg_check_modules(SQLITE sqlite3>=3.6.19 REQUIRED)
 
@@ -60,28 +65,30 @@ if(WITH_NLS)
 endif()
 
 
-
-# Detects reswrap version
-find_program(RESWRAP NAMES reswrap-1.7 reswrap fox-reswrap)
-if(RESWRAP)
-  message(STATUS "Found reswrap: ${RESWRAP}")
-  execute_process(COMMAND ${RESWRAP} -v OUTPUT_VARIABLE RESWRAP_OUTPUT)
-  string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]" RESWRAP_VERSION "${RESWRAP_OUTPUT}")
-  if(RESWRAP_VERSION VERSION_LESS "5.0")
-    set(RESWRAP_H ${RESWRAP} -i -k)
-    set(RESWRAP_CPP ${RESWRAP} -e -k)
-    set(RESWRAP_TEXT ${RESWRAP} -t -k)
-  else()
-    set(RESWRAP_H ${RESWRAP} --keep-ext --header)
-    set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
-    set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
-  endif()
+if(WITH_CFOX)
+  set(RESWRAP $<TARGET_FILE_NAME:reswrap>)
+  set(RESWRAP_H ${RESWRAP} --keep-ext --header)
+  set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
+  set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
 else()
-  message(FATAL_ERROR "Unable to find reswrap")
+  find_program(RESWRAP NAMES reswrap-1.7 reswrap fox-reswrap)
+  if(RESWRAP)
+    message(STATUS "Found reswrap: ${RESWRAP}")
+    execute_process(COMMAND ${RESWRAP} -v OUTPUT_VARIABLE RESWRAP_OUTPUT)
+    string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]" RESWRAP_VERSION "${RESWRAP_OUTPUT}")
+    if(RESWRAP_VERSION VERSION_LESS "5.0")
+      set(RESWRAP_H ${RESWRAP} -i -k)
+      set(RESWRAP_CPP ${RESWRAP} -e -k)
+      set(RESWRAP_TEXT ${RESWRAP} -t -k)
+    else()
+      set(RESWRAP_H ${RESWRAP} --keep-ext --header)
+      set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
+      set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
+    endif()
+  else()
+    message(FATAL_ERROR "Unable to find reswrap")
+  endif()
 endif()
-
-
-#------------------------------------------------------------------------------
 
 
 #------------------------------------------------------------------------------
@@ -327,7 +334,7 @@ target_include_directories(gogglesmm PRIVATE
                            ${DBUS_INCLUDE_DIRS})
 
 # Libraries
-target_link_libraries(gogglesmm PRIVATE gap
+target_link_libraries(gogglesmm PRIVATE gap ${CFOX}
                       ${SQLITE_LIBRARIES}
                       ${TAGLIB_LIBRARIES}
                       ${DBUS_LIBRARIES}

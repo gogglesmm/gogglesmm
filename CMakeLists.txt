@@ -8,10 +8,13 @@ cmake_policy(SET CMP0056 NEW)
 include(FeatureSummary)
 
 # Enable for cmake debugging
-# set(CMAKE_VERBOSE_MAKEFILE TRUE)
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 # libdir name to allow overriding to lib32 / lib64
 # set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Specify the name of the directory where libraries are meant to be installed")
+
+# Build with internal FOX library
+option(WITH_CFOX "Enable Internal FOX" ON)
 
 # Override default install to /usr
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -75,6 +78,10 @@ endif()
 
 #-------------------------------------------------------------------------------
 
+# Internal FOX Library
+if(WITH_CFOX)
+  add_subdirectory(cfox)
+endif()
 
 # Add Goggles Audio Player
 add_subdirectory(gap)
