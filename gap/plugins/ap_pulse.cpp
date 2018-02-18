@@ -26,7 +26,7 @@ extern "C" {
 using namespace ap;
 
 void pulse_quit(pa_mainloop_api*,int){
-  GM_DEBUG_PRINT("pulse_quit\n");
+  GM_DEBUG_PRINT("[pulse] pulse_quit\n");
   }
 
 
@@ -380,7 +380,7 @@ static FXbool to_gap_format(pa_sample_format pulse_format,AudioFormat & af){
 
 #ifdef DEBUG
 static void context_state_callback(pa_context *c,void*){
-  GM_DEBUG_PRINT("context_state_callback %d ",pa_context_get_state(c));
+  fxmessage("[pulse] context_state_callback:");
   switch(pa_context_get_state(c)) {
     case PA_CONTEXT_UNCONNECTED : fxmessage(" unconnected\n"); break;
     case PA_CONTEXT_CONNECTING  : fxmessage(" connecting\n"); break;
@@ -389,13 +389,23 @@ static void context_state_callback(pa_context *c,void*){
     case PA_CONTEXT_READY       : fxmessage(" ready\n"); break;
     case PA_CONTEXT_FAILED      : fxmessage(" failed\n"); break;
     case PA_CONTEXT_TERMINATED  : fxmessage(" terminated\n"); break;
-    };
+    default                     : fxmessage(" unknown\n"); break;
+    }
   }
 
 static void stream_state_callback(pa_stream *s,void*){
-  GM_DEBUG_PRINT("stream_state_callback %d\n",pa_stream_get_state(s));
+  fxmessage("[pulse] stream_state_callback:");
+  switch(pa_stream_get_state(s)) {
+    case PA_STREAM_UNCONNECTED : fxmessage(" unconnected\n"); break;
+    case PA_STREAM_CREATING    : fxmessage(" creating\n"); break;
+    case PA_STREAM_READY       : fxmessage(" ready\n"); break;
+    case PA_STREAM_FAILED      : fxmessage(" failed\n"); break;
+    case PA_STREAM_TERMINATED  : fxmessage(" terminated\n"); break;
+    default                     : fxmessage(" unknown\n"); break;
+    }
   }
 #endif
+
 
 //static void stream_write_callback(pa_stream*s,size_t,void *){
 //  GM_DEBUG_PRINT("stream_write_callback %d\n",pa_stream_get_state(s));
@@ -450,20 +460,20 @@ FXbool PulseOutput::open() {
     }
 
   /// Try connecting
-  GM_DEBUG_PRINT("pa_context_connect()\n");
+  GM_DEBUG_PRINT("[pulse] pa_context_connect()\n");
   if (pa_context_get_state(pulse_context)==PA_CONTEXT_UNCONNECTED) {
     if (pa_context_connect(pulse_context,nullptr,PA_CONTEXT_NOFLAGS,nullptr)<0) {
-      GM_DEBUG_PRINT("pa_context_connect failed\n");
+      GM_DEBUG_PRINT("[pulse] pa_context_connect failed\n");
       return false;
       }
     }
 
   /// Wait until we're connected to the pulse daemon
-  GM_DEBUG_PRINT("wait for connection\n");
+  GM_DEBUG_PRINT("[pulse] wait for connection\n");
   pa_context_state_t state;
   while((state=pa_context_get_state(pulse_context))!=PA_CONTEXT_READY) {
     if (state==PA_CONTEXT_FAILED || state==PA_CONTEXT_TERMINATED){
-      GM_DEBUG_PRINT("Unable to connect to pulsedaemon\n");
+      GM_DEBUG_PRINT("[pulse] Unable to connect to pulsedaemon\n");
       return false;
       }
     context->wait_plugin_events();
@@ -473,7 +483,7 @@ FXbool PulseOutput::open() {
   if (operation) pa_operation_unref(operation);
 
 
-  GM_DEBUG_PRINT("ready()\n");
+  GM_DEBUG_PRINT("[pulse] ready()\n");
   return true;
   }
 
@@ -483,14 +493,14 @@ void PulseOutput::close() {
 #endif
 
   if (stream) {
-    GM_DEBUG_PRINT("disconnecting stream\n");
+    GM_DEBUG_PRINT("[pulse] disconnecting stream\n");
     pa_stream_disconnect(stream);
     pa_stream_unref(stream);
     stream=nullptr;
     }
 
   if (pulse_context) {
-    GM_DEBUG_PRINT("disconnecting context\n");
+    GM_DEBUG_PRINT("[pulse] disconnecting context\n");
     pa_context_disconnect(pulse_context);
     pa_context_unref(pulse_context);
     pulse_context=nullptr;
@@ -634,7 +644,7 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
 
   return true;
 failed:
-  GM_DEBUG_PRINT("Unsupported pulse configuration:\n");
+  GM_DEBUG_PRINT("[pulse] Unsupported pulse configuration:\n");
   fmt.debug();
   return false;
   }

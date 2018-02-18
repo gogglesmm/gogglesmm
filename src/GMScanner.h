@@ -87,7 +87,8 @@ class Lyrics;
 
 class GMImportTask : public GMTask {
 protected:
-  GMTrackDatabase * database = nullptr;
+  GMTrackDatabase   * database = nullptr;
+  GMTaskTransaction * transaction = nullptr;
   GMDBTracks        dbtracks;
   GMImportOptions   options;
   FXStringList      files;
@@ -99,6 +100,20 @@ protected:
 protected:
   GMTrackArray  tracks;
   FXint        ntracks=0;
+protected:
+
+  void begin_transaction() {
+    FXASSERT(transaction==nullptr);
+    FXASSERT(database);
+    transaction = new GMTaskTransaction((GMDatabase*)database);
+    }
+
+  void commit_transaction() {
+    transaction->commit();
+    delete transaction;
+    transaction=nullptr;
+    }
+
 protected:
   // Return true if same composer is set on all tracks
   FXbool has_same_composer() const;
@@ -182,7 +197,7 @@ public:
 
   void setInput(const FXStringList & input) { files=input; }
 
-  void remove();
+  void remove(GMTaskTransaction &);
 
   virtual ~GMRemoveTask();
   };

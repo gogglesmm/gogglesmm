@@ -68,7 +68,7 @@ FXbool A52Decoder::process(Packet*in) {
     int bitrate;
     int length = a52_syncinfo(buffer.data(),&flags,&samplerate,&bitrate);
     if (length<=0) {
-      fxmessage("length returned %d\n",length);
+      GM_DEBUG_PRINT("[a52] length returned %d\n",length);
       return false;
       }
     else if (buffer.size()<length) return true;

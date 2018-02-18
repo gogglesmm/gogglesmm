@@ -365,7 +365,7 @@ FXint GMImportTask::run() {
     GMTag::setID3v1Encoding(nullptr);
     }
   catch(GMDatabaseException&) {
-    database->rollbackTask();
+    delete transaction;
     return 1;
     }
   return 0;
@@ -407,8 +407,7 @@ void GMImportTask::import() {
   FXString name;
   FXint    dircount=0;
 
-
-  database->beginTask();
+  begin_transaction();
 
   taskmanager->setStatus("Importing...");
 
@@ -447,7 +446,7 @@ void GMImportTask::import() {
     import_tracks();
     }
   database->sync_album_year();
-  database->commitTask();
+  commit_transaction();
   }
 
 
@@ -634,7 +633,7 @@ void GMImportTask::import_tracks(FXint path_index) {
 
       // Check for interrupts
       if (database->interrupt) {
-        database->waitTask();
+        transaction->pause();
         dbtracks.playlist_queue = database->getNextQueue(dbtracks.playlist);
         }
 
@@ -718,7 +717,7 @@ FXint GMSyncTask::run() {
     GMTag::setID3v1Encoding(nullptr);
     }
   catch(GMDatabaseException&) {
-    database->rollbackTask();
+    delete transaction;
     return 1;
     }
   return 0;
@@ -729,8 +728,7 @@ void GMSyncTask::import_and_update(){
   FXStat   data;
   FXString name;
 
-  database->beginTask();
-
+  begin_transaction();
   taskmanager->setStatus("Syncing Files..");
 
   for (FXint i=0;i<files.no() && processing;i++) {
@@ -749,7 +747,7 @@ void GMSyncTask::import_and_update(){
     database->sync_album_year();
     database->sync_tracks_removed();
     }
-  database->commitTask();
+  commit_transaction();
   }
 
 
@@ -758,7 +756,7 @@ void GMSyncTask::update() {
   FXStringList        pathlist;
   FXStat              data;
 
-  database->beginTask();
+  begin_transaction();
 
   taskmanager->setStatus("Updating Files..");
 
@@ -779,7 +777,7 @@ void GMSyncTask::update() {
         for (FXint t=0;t<tracklist.no();t++) {
 
           if (database->interrupt)
-            database->waitTask();
+            transaction->pause();
 
           dbtracks.remove(tracklist[t].id);
           }
@@ -793,7 +791,7 @@ void GMSyncTask::update() {
         const FXString & name = tracklist[t].filename;
 
         if (database->interrupt)
-          database->waitTask();
+          transaction->pause();
 
         if (options.exclude_file.empty() || !FXPath::match(name,options.exclude_file,matchflags)) {
           if (FXStat::statFile(path+PATHSEPSTRING+name,data)) {
@@ -819,7 +817,8 @@ void GMSyncTask::update() {
     database->sync_album_year();
     database->sync_tracks_removed();
     }
-  database->commitTask();
+  commit_transaction();
+
   }
 
 
@@ -829,7 +828,7 @@ void GMSyncTask::remove_missing() {
   FXStringList        pathlist;
   GMTrackFilenameList tracklist;
 
-  database->beginTask();
+  begin_transaction();
 
   taskmanager->setStatus("Clearing Files..");
 
@@ -845,7 +844,7 @@ void GMSyncTask::remove_missing() {
         for (FXint t=0;t<tracklist.no() && processing;t++) {
 
           if (database->interrupt)
-            database->waitTask();
+            transaction->pause();
 
           dbtracks.remove(tracklist[t].id);
           }
@@ -858,7 +857,7 @@ void GMSyncTask::remove_missing() {
         const FXString & name = tracklist[t].filename;
 
         if (database->interrupt)
-          database->waitTask();
+          transaction->pause();
 
         if ((options_sync.remove_missing && !FXStat::exists(pathlist[p]+PATHSEPSTRING+name)) ||
             (!options.exclude_file.empty() && FXPath::match(name,options.exclude_file,matchflags))){
@@ -869,7 +868,7 @@ void GMSyncTask::remove_missing() {
       }
     }
   if (changed) database->sync_tracks_removed();
-  database->commitTask();
+  commit_transaction();
   }
 
 
@@ -984,7 +983,7 @@ void GMSyncTask::update_tracks(FXint pathindex) {
 
       // Check for interrupts
       if (database->interrupt) {
-        database->waitTask();
+        transaction->pause();
         }
 
       // Update or Insert
@@ -1021,22 +1020,21 @@ GMRemoveTask::~GMRemoveTask() {
 FXint GMRemoveTask::run() {
   FXASSERT(database);
   try {
+    GMTaskTransaction transaction(database);
     dbtracks.init(database);
-    remove();
+    remove(transaction);
+    transaction.commit();
     }
   catch(GMDatabaseException&) {
-    database->rollbackTask();
     return 1;
     }
   return 0;
   }
 
 
-void GMRemoveTask::remove() {
+void GMRemoveTask::remove(GMTaskTransaction & transaction) {
   FXStringList        pathlist;
   GMTrackFilenameList tracklist;
-
-  database->beginTask();
 
   taskmanager->setStatus("Clearing Files..");
 
@@ -1051,7 +1049,7 @@ void GMRemoveTask::remove() {
       for (FXint t=0;t<tracklist.no() && processing;t++) {
 
         if (database->interrupt)
-          database->waitTask();
+          transaction.pause();
 
         dbtracks.remove(tracklist[t].id);
         changed=true;
@@ -1059,6 +1057,5 @@ void GMRemoveTask::remove() {
       }
     }
   if (changed) database->sync_tracks_removed();
-  database->commitTask();
   }
 

@@ -100,7 +100,7 @@ typedef FXArray<FXString> FXStringList;
 /// Some debugging macros
 #ifdef DEBUG
 #define GM_TICKS_START() FXTime end,start = fxgetticks();
-#define GM_TICKS_END()  end = fxgetticks(); fxmessage("%20s:%15ld ticks.\n",__func__,end-start)
+#define GM_TICKS_END()  end = fxgetticks(); fxmessage("%20s:%15lld ticks.\n",__func__,end-start)
 #define GM_DEBUG_PRINT(format,...) fxmessage(format , ##__VA_ARGS__)
 #else
 #define GM_TICKS_START() ((void)0)

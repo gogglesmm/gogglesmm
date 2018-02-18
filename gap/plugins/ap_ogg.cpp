@@ -474,7 +474,7 @@ void OggReader::check_opus_length() {
     FXlong pos = find_lastpage_position();
     if (pos>0) {
       stream_length = pos - stream_start - stream_offset_start;
-      GM_DEBUG_PRINT("[ogg] stream length = %ld\n",stream_length);
+      GM_DEBUG_STREAM_LENGTH("ogg",stream_length,af.rate);
       }
 
     input->position(cpos,FXIO::Begin);
@@ -522,7 +522,7 @@ void OggReader::check_vorbis_length() {
     FXlong pos = find_lastpage_position();
     if (pos>0) {
       stream_length = pos - stream_start;
-      GM_DEBUG_PRINT("[ogg] stream length = %ld\n",stream_length);
+      GM_DEBUG_STREAM_LENGTH("ogg",stream_length,af.rate);
       }
     input->position(cpos,FXIO::Begin);
 

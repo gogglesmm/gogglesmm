@@ -159,16 +159,13 @@ FXbool AlacDecoder::getNextFrame(Packet *& packet,FXuchar *& ptr,FXuint & frames
         packet->readBytes(4);
         ptr=packet->data();
         packet->readBytes(framesize);
-        if (packet->size()==0) {
-          packet->unref();
-          packet=nullptr;
-          }
         return true;
         }
       }
 
     // incomplete data in packet
-    buffer.append(packet->data(),packet->size());
+    if (packet->size())
+      buffer.append(packet->data(),packet->size());
     packet->unref();
     packet=nullptr;
     return false;
@@ -181,7 +178,7 @@ FXbool AlacDecoder::process(Packet*packet){
   const FXlong stream_length = packet->stream_length;
   const FXuint stream_id = packet->stream;
 
-  if (stream_position==-1) {
+  if (stream_position == -1) {
     stream_position = packet->stream_position;
     }
 
@@ -193,7 +190,6 @@ FXbool AlacDecoder::process(Packet*packet){
     decode_frame(handle,inputdata,outbuf.ptr(),&nframes);
     outbuf.wroteBytes(nframes);
     nframes /= af.framesize();
-
     while(nframes) {
 
       // Get output packet

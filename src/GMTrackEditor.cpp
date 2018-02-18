@@ -110,12 +110,12 @@ GMTagUpdateTask::GMTagUpdateTask(GMTrackDatabase * db,const FXIntList & t) : dat
 FXint GMTagUpdateTask::run() {
   try {
     GMTrack info;
-    database->beginTask();
+    GMTaskTransaction transaction(database);
 
     for (FXival i=0;i<tracks.no() && processing;i++) {
 
      if (database->interrupt)
-        database->waitTask();
+        transaction.pause();
 
       if (!database->getTrack(tracks[i],info)) {
         break;
@@ -127,10 +127,9 @@ FXint GMTagUpdateTask::run() {
 
       database->setTrackImported(tracks[i],FXThread::time());
       }
-    database->commitTask();
+    transaction.commit();
     }
   catch(GMDatabaseException&) {
-    database->rollbackTask();
     return 1;
     }
   return 0;
@@ -158,17 +157,17 @@ GMUpdateTask::GMUpdateTask(GMTrackDatabase * db,GMTrackArray & t,FXIntList & i) 
 
 FXint GMUpdateTask::run() {
   try {
+    GMTaskTransaction transaction(database);
     for (FXival i=0;i<tracks.no() && processing;i++) {
       taskmanager->setStatus(FXString::value("Writing Tags %ld/%ld..",i+1,tracks.no()));
       tracks[i].saveTag(tracks[i].url);
-
-      database->beginTask();
+      if (database->interrupt)
+        transaction.pause();
       database->setTrackImported(ids[i],FXThread::time());
-      database->commitTask();
       }
+    transaction.commit();
     }
   catch(GMDatabaseException&) {
-    database->rollbackTask();
     return 1;
     }
   return 0;
@@ -252,25 +251,30 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
                                  GMPlayerManager::instance()->getPreferences().export_character_filter,
                                  options);
 
-  /// Create New Mrls.
-  for (i=0;i<tracks.no();i++) {
-    db->begin();
-    if (!db->getTrack(tracks[i],trackinfo)) {
-      db->commit();
-      FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Database Error"),fxtr("Oops. Database Error"));
-      return true;
+  try {
+    GMLockTransaction transaction(db);
+
+    /// Create New Mrls.
+    for (i=0;i<tracks.no();i++) {
+      if (!db->getTrack(tracks[i],trackinfo)) {
+        FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Database Error"),fxtr("Oops. Database Error"));
+        return true;
+        }
+      url = trackformat.getPath(trackinfo);
+      if (!url.empty()) {
+        newurls.append(url);
+        oldurls.append(trackinfo.url);
+        numchanges++;
+        }
+      else {
+        newurls.append(FXString::null);
+        oldurls.append(FXString::null);
+        }
       }
-    db->commit();
-    url = trackformat.getPath(trackinfo);
-    if (!url.empty()) {
-      newurls.append(url);
-      oldurls.append(trackinfo.url);
-      numchanges++;
-      }
-    else {
-      newurls.append(FXString::null);
-      oldurls.append(FXString::null);
-      }
+    }
+  catch(GMDatabaseException&) {
+    FXMessageBox::error(GMPlayerManager::instance()->getMainWindow(),MBOX_OK,fxtr("Database Error"),fxtr("Failed to retrieve track filenames"));
+    return false;
     }
 
   if (numchanges==0){
@@ -673,11 +677,12 @@ void GMEditTrackDialog::getTrackSelection() {
 
   tracks.clear();
 
-  GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
-  db->begin();
-  db->getTrack(tracks[0],info);
-  db->commit();
-  infotags = list_concat(info.tags);
+  {
+    GMLockTransaction transaction(db);
+    GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
+    db->getTrack(tracks[0],info);
+    infotags = list_concat(info.tags);
+  }
 
   if (tracks.no()==1) {
     properties.load(info.url);
@@ -690,35 +695,37 @@ void GMEditTrackDialog::getTrackSelection() {
       filetag.open(info.url,FILETAG_TAGS);
       filetag.getLyrics(content);
       try {
-        db->begin();
+        GMLockTransaction transaction(db);
         db->setTrackLyrics(tracks[0],content);
-        db->commit();
+        transaction.commit();
         info.lyrics=content;
         }
       catch(GMDatabaseException&) {
-        db->rollback();
         }
       }
     }
 
-
-  samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR|SAME_TAGS;
-  if (tracks.no()>1) {
-    GMTrack other;
-    for (FXint i=1;i<tracks.no() && samemask ;i++) {
-      db->begin();
-      db->getTrack(tracks[i],other);
-      db->commit();
-      if (other.album!=info.album) samemask&=~SAME_ALBUM;
-      if (other.artist!=info.artist) samemask&=~SAME_ARTIST;
-      if (other.album_artist!=info.album_artist) samemask&=~SAME_ALBUMARTIST;
-      if (other.year!=info.year) samemask&=~SAME_YEAR;
-      if (GMDISCNO(other.no)!=GMDISCNO(info.no)) samemask&=~SAME_DISC;
-      if (other.composer!=info.composer) samemask&=~SAME_COMPOSER;
-      if (other.conductor!=info.conductor) samemask&=~SAME_CONDUCTOR;
-      if ((samemask&SAME_TAGS) && !list_equals(other.tags,info.tags)) samemask&=~SAME_TAGS;
+  try {
+    GMLockTransaction transaction(db);
+    samemask=SAME_ALBUM|SAME_ARTIST|SAME_ALBUMARTIST|SAME_GENRE|SAME_YEAR|SAME_DISC|SAME_COMPOSER|SAME_CONDUCTOR|SAME_TAGS;
+    if (tracks.no()>1) {
+      GMTrack other;
+      for (FXint i=1;i<tracks.no() && samemask ;i++) {
+        db->getTrack(tracks[i],other);
+        if (other.album!=info.album) samemask&=~SAME_ALBUM;
+        if (other.artist!=info.artist) samemask&=~SAME_ARTIST;
+        if (other.album_artist!=info.album_artist) samemask&=~SAME_ALBUMARTIST;
+        if (other.year!=info.year) samemask&=~SAME_YEAR;
+        if (GMDISCNO(other.no)!=GMDISCNO(info.no)) samemask&=~SAME_DISC;
+        if (other.composer!=info.composer) samemask&=~SAME_COMPOSER;
+        if (other.conductor!=info.conductor) samemask&=~SAME_CONDUCTOR;
+        if ((samemask&SAME_TAGS) && !list_equals(other.tags,info.tags)) samemask&=~SAME_TAGS;
+        }
       }
     }
+  catch(GMDatabaseException&) {
+    }
+
   }
 
 
@@ -837,7 +844,7 @@ FXbool GMEditTrackDialog::saveTracks() {
   FXStringList tags;
 
   try {
-    db->begin();
+    GMLockTransaction transaction(db);
 
     /// Update Title
     if (tracks.no()==1) {
@@ -973,13 +980,11 @@ FXbool GMEditTrackDialog::saveTracks() {
 
     db->sync_tracks_removed();
     db->sync_album_year();
-    db->commit();
+    transaction.commit();
     }
   catch(GMDatabaseException&) {
-    db->rollback();
     return false;
     }
-
 
   if (updatetags->getCheck()) {
     if (changed || (FXMessageBox::question(GMPlayerManager::instance()->getMainWindow(),MBOX_YES_NO,fxtr("Update Tags?"),fxtr("No tracks were updated.\nWould you still like to write the tags for the selected tracks?"))==MBOX_CLICKED_YES)) {

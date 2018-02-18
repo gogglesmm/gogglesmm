@@ -39,7 +39,7 @@ class Stream {
 class PacketPool {
 protected:
   FXLFQueueOf<Packet> packets;
-  Semaphore           semaphore; 
+  Semaphore           semaphore;
 public:
   /// Constructor
   PacketPool();
@@ -51,7 +51,7 @@ public:
   void free();
 
   /// Block until packet is available or signal is set
-  Packet * wait(const Signal &); 
+  Packet * wait(const Signal &);
 
   /// Put event back into pool
   void push(Packet*);
@@ -87,6 +87,19 @@ public:
   void wroteFrames(FXint nframes) { wroteBytes(nframes*af.framesize()); }
 
   void appendFrames(const FXuchar * buf,FXival nframes) { append(buf,af.framesize()*nframes); }
+
+  FXint copyFrames(FXuchar *& buf, FXint & nframes) {
+    FXint n = FXMIN(nframes,availableFrames());
+    if (n) {
+      const FXint nbytes = af.framesize()*n;
+      append(buf,nbytes);
+      nframes-=n;
+      buf+=nbytes;
+      }
+    return n;
+    }
+
+
   };
 
 }

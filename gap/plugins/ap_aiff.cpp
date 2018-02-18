@@ -167,11 +167,11 @@ ReadStatus AIFFReader::parse() {
   FXbool got_ssnd = false;
 
 
-  GM_DEBUG_PRINT("parsing aiff header\n");
+  GM_DEBUG_PRINT("[aiff] parsing aiff header\n");
 
   // formchunk
   if (input->read(&chunkid,4)!=4 || chunkid!=FORM){
-    GM_DEBUG_PRINT("no FORM tag found\n");
+    GM_DEBUG_PRINT("[aiff] no FORM tag found\n");
     return ReadError;
     }
 
@@ -182,7 +182,7 @@ ReadStatus AIFFReader::parse() {
 
   // formchunk
   if (input->read(&chunkid,4)!=4 || chunkid!=AIFF){
-    GM_DEBUG_PRINT("no AIFF tag found\n");
+    GM_DEBUG_PRINT("[aiff] no AIFF tag found\n");
     return ReadError;
     }
 
@@ -225,7 +225,7 @@ ReadStatus AIFFReader::parse() {
     else if (chunkid==SSND) {
 
       if (got_ssnd || (input->serial() && got_comm==false)) {
-        GM_DEBUG_PRINT("multiple ssnd or ssnd before comm in serial stream\n");
+        GM_DEBUG_PRINT("[aiff] multiple ssnd or ssnd before comm in serial stream\n");
         return ReadError;
         }
 
@@ -241,7 +241,7 @@ ReadStatus AIFFReader::parse() {
         return ReadError;
 
       if (blocksize!=0) {
-        GM_DEBUG_PRINT("blocksize %u not supported\n",blocksize);
+        GM_DEBUG_PRINT("[aiff] blocksize %u not supported\n",blocksize);
         return ReadError;
         }
 
@@ -259,6 +259,7 @@ ReadStatus AIFFReader::parse() {
   if (got_ssnd && got_comm) {
     stream_length = nsamples;
     flags|=FLAG_PARSED;
+    GM_DEBUG_STREAM_LENGTH("aiff",stream_length,af.rate);
     context->post_configuration(new ConfigureEvent(af,Codec::PCM));
     return ReadOk;
     }

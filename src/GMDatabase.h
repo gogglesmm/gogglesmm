@@ -97,8 +97,13 @@ public:
   };
 
 
+
+
+
 class GMDatabase {
 friend class GMQuery;
+friend class GMLockTransaction;
+friend class GMTaskTransaction;
 private:
   sqlite3 * db;
 private:
@@ -150,16 +155,6 @@ public:
 
   void recreate_table(const FXchar * table,const FXchar * make_table);
 
-  /// Transactions
-  void begin();
-  void commit();
-  void rollback();
-
-  void beginTask();
-  void commitTask();
-  void rollbackTask();
-  void waitTask();
-
   FXint rowid() const;
   FXint changes() const;
 
@@ -181,6 +176,44 @@ public:
   /// Close Database
   virtual ~GMDatabase();
   };
+
+
+class GMLockTransaction {
+protected:
+  GMDatabase * db = nullptr;
+  FXbool committed = false;
+  FXbool locked  = false;
+protected:
+  void lock();
+  void unlock();
+public:
+  GMLockTransaction(GMDatabase * database);
+
+  void commit();
+
+  ~GMLockTransaction();
+  };
+
+
+class GMTaskTransaction {
+protected:
+  GMDatabase * db = nullptr;
+  FXbool committed = false;
+  FXbool locked = false;
+protected:
+  void lock();
+  void unlock();
+public:
+  GMTaskTransaction(GMDatabase * database);
+
+  void pause();
+
+  void commit();
+
+  ~GMTaskTransaction();
+  };
+
+
 
 #endif
 

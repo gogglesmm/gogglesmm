@@ -70,7 +70,7 @@ FXbool DCADecoder::process(Packet*in) {
     int framelength;
     int length = dca_syncinfo(state,buffer.data(),&flags,&samplerate,&bitrate,&framelength);
     if (length<=0) {
-      fxmessage("length returned %d\n",length);
+      GM_DEBUG_PRINT("[dca] length returned %d\n",length);
       return false;
       }
     else if (buffer.size()<length) return true;

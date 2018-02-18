@@ -176,14 +176,13 @@ long GMPlayQueue::onCmdRemoveInPlaylist(FXObject*,FXSelector,void*){
   getSelectedTrackQueues(queue);
   if (queue.no()) {
     try {
-      db->begin();
+      GMLockTransaction transaction(db);
       db->removePlaylistQueue(playlist,queue);
-      db->commit();
+      transaction.commit();
       ntracks-=queue.no();
       updateTrackHash();
       }
     catch(GMDatabaseException&){
-      db->rollback();
       return 1;
       }
     GMPlayerManager::instance()->getTrackView()->refresh();

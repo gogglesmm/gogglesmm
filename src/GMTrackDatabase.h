@@ -84,7 +84,7 @@ private: /// Called from init()
   void   fix_empty_tags();
   void   init_album_properties();
 protected:
-  FXbool reorderPlaylists();
+  void reorderPlaylists();
   FXbool reorderPlaylist(FXint pl);
   FXbool reorderQueue();
 protected:

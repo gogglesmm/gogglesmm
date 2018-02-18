@@ -18,6 +18,8 @@
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_format.h"
+#include "ap_common.h"
+
 
 namespace ap {
 
@@ -330,6 +332,7 @@ extern FXuint ap_format_from_extension(const FXString & extension) {
   else if (comparecase(extension,"mp4")==0 ||
            comparecase(extension,"m4a")==0 ||
            comparecase(extension,"m4p")==0 ||
+           comparecase(extension,"mov")==0 ||
            comparecase(extension,"m4b")==0 )
     return Format::MP4;
   else if (comparecase(extension,"aac")==0)
@@ -373,7 +376,7 @@ extern FXString ap_get_gogglesmm_all_supported_files() {
   "mp3,"
 #endif
 #if defined(HAVE_MP4)
-  "mp4,m4a,m4b,m4p,"
+  "mp4,m4a,m4b,m4p,mov,"
 #endif
 #if defined(HAVE_FAAD)
   "aac,"
@@ -403,7 +406,7 @@ extern FXString ap_get_gogglesmm_supported_files() {
   "mp3,"
 #endif
 #if defined(HAVE_MP4)
-  "mp4,m4a,m4b,m4p,"
+  "mp4,m4a,m4b,m4p,mov,"
 #endif
 #if defined(HAVE_FAAD)
   "aac,"
@@ -436,7 +439,7 @@ extern FXString ap_get_gogglesmm_filepatterns() {
   "*.mp3,"
 #endif
 #if defined(HAVE_MP4)
-  "*.mp4,*.m4a,*.m4b,*.m4p,"
+  "*.mp4,*.m4a,*.m4b,*.m4p,*.mov,"
 #endif
 #if defined(HAVE_FAAD)
   "*.aac,"
@@ -462,7 +465,7 @@ extern FXString ap_get_gogglesmm_filepatterns() {
   "*.mp3,"
 #endif
 #if defined(HAVE_MP4)
-  "*.mp4,*.m4a,*.m4b,*.m4p,"
+  "*.mp4,*.m4a,*.m4b,*.m4p,*.mov,"
 #endif
 #if defined(HAVE_FAAD)
   "*.aac,"
@@ -485,7 +488,7 @@ extern FXString ap_get_gogglesmm_filepatterns() {
   "MPEG-1 Audio Layer 3 (*.mp3)\n"
 #endif
 #if defined(HAVE_MP4)
-  "MPEG-4 Part 14 (*.mp4,*.m4a,*.m4p,*.m4b)\n"
+  "MPEG-4 Part 14 (*.mp4,*.m4a,*.m4p,*.m4b,*.mov)\n"
 #endif
 #if defined(HAVE_FAAD)
   "Advanced Audio Coding (*.aac)\n"

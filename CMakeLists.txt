@@ -8,10 +8,13 @@ cmake_policy(SET CMP0056 NEW)
 include(FeatureSummary)
 
 # Enable for cmake debugging
-# set(CMAKE_VERBOSE_MAKEFILE TRUE)
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 # libdir name to allow overriding to lib32 / lib64
 # set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Specify the name of the directory where libraries are meant to be installed")
+
+# Build with internal FOX library
+option(WITH_CFOX "Enable Internal FOX" ON)
 
 # Override default install to /usr
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -35,6 +38,9 @@ include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG(-Wall HAS_CXX_WALL)
 if(HAS_CXX_WALL)
   add_compile_options(-Wall)
+  if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_compile_options(-Wno-format)
+  endif()
 endif()
 
 CHECK_CXX_COMPILER_FLAG(-Wextra HAS_CXX_WEXTRA)
@@ -42,10 +48,12 @@ if(HAS_CXX_WEXTRA)
   add_compile_options(-Wextra)
 endif()
 
+# Hide all false positive warnings for fox fxmessage
 CHECK_CXX_COMPILER_FLAG(-Wformat=2 HAS_CXX_WFORMAT)
-if(HAS_CXX_WFORMAT)
-  add_compile_options(-Wformat=2)
+if(HAS_CXX_WFORMAT AND NOT CMAKE_BUILD_TYPE MATCHES Debug)
+    add_compile_options(-Wformat=2)
 endif()
+
 
 CHECK_CXX_COMPILER_FLAG(-Wfatal-errors HAS_CXX_WFATAL)
 if(HAS_CXX_WFATAL)
@@ -70,6 +78,10 @@ endif()
 
 #-------------------------------------------------------------------------------
 
+# Internal FOX Library
+if(WITH_CFOX)
+  add_subdirectory(cfox)
+endif()
 
 # Add Goggles Audio Player
 add_subdirectory(gap)
