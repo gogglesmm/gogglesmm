@@ -644,7 +644,7 @@ FXbool AacDecoder::process_raw(Packet*packet) {
 
   if (eos) {
     FXASSERT(stream_position==stream_length);
-    //GM_DEBUG_PRINT("stream_position %ld == stream_length %ld\n",stream_position-stream_offset_start,stream_length-stream_offset_start);
+    GM_DEBUG_PRINT("stream_position %ld == stream_length %ld\n",stream_position-stream_offset_start,stream_length-stream_offset_start);
     context->post_output_packet(out,true);
     }
   return true;
