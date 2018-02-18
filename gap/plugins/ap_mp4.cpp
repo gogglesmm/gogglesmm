@@ -104,7 +104,10 @@ public:
     FXint s = 0;
     for (int i=0;i<ctts.no();i++){
       if (position < s + ctts[i].nsamples){
-        return ctts[i].offset;
+        if (upsampled)
+          return ctts[i].offset << 1;
+        else
+          return ctts[i].offset;
         }
       s+=ctts[i].nsamples;
       }
@@ -114,6 +117,11 @@ public:
   FXint getSample(FXlong position) const {
     FXlong n,ntotal = 0;
     FXint nsamples = 0;
+
+    if (upsampled) {
+      position>>=1;
+      }
+
     for (int i=0;i<stts.no();i++){
       n = stts[i].nsamples*stts[i].delta;
       if (position<ntotal+n) {
@@ -131,7 +139,10 @@ public:
     for (int i=0;i<stts.no();i++){
       if (s<(stts[i].nsamples+nsamples)){
         pos+=stts[i].delta*(s-nsamples);
-        return pos;
+        if (upsampled)
+          return pos << 1;
+        else
+          return pos;
         }
       else {
         pos+=stts[i].delta*stts[i].nsamples;
@@ -146,7 +157,11 @@ public:
     for (int i=0;i<stts.no();i++){
       length+=static_cast<FXlong>(stts[i].delta)*static_cast<FXlong>(stts[i].nsamples);
       }
-    return length;
+
+    if (upsampled)
+      return length << 1;
+    else
+      return length;
     }
 
   FXlong getSampleOffset(FXuint s) const {
@@ -414,15 +429,21 @@ ReadStatus MP4Reader::parse() {
     GM_DEBUG_PRINT("[mp4] composition offset %d\n",track->getCompositionOffset(0));
 
     if (track->codec == Codec::AAC) {
+
+      if (track->upsampled) {
+        padstart <<= 1;
+        padend <<= 1;
+        }
+
       // FAAD has a fixed decoder delay of one frame
       if (padstart || padend) {
-        stream_length -= (track->samples_per_frame + padend);
+          stream_length -= (track->samples_per_frame + padend);
         }
       else if (stream_length && track->stts.no() && track->ctts.no()) {
         padstart = track->getCompositionOffset(0); // usually 1024
         stream_length -= track->samples_per_frame;
         }
-      cfg->stream_offset_start = FXMAX(0,padstart-track->samples_per_frame);
+      cfg->stream_offset_start = FXMAX(0, padstart - track->samples_per_frame);
       GM_DEBUG_PRINT("[mp4] stream_offset_start %hu\n",cfg->stream_offset_start);
       }
 
