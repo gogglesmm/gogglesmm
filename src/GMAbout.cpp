@@ -84,7 +84,8 @@ void GMAboutDialog::setup(){
                  "as published by the Free Software Foundation,\n"
                  "either version 3 of the License, or (at your\n"
                  "option) any later version.\n\n"
-                 "ALAC (Apple Lossless Audio Codec) decoder\n"
+                 "This software uses the FOX Toolkit Library\n(http://www.fox-toolkit.org)\nCopyright " UTF8_COPYRIGHT_SIGN " 2001-2017 Jeroen van der Zijp.\n\n"
+                 "ALAC decoder (MIT Licensed)\n"
                  "Copyright " UTF8_COPYRIGHT_SIGN " 2005 David Hammerton\n"
                  "All rights reserved.\n";
 
