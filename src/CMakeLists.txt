@@ -4,7 +4,7 @@ include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
 
-project(GOGGLESMM VERSION 1.1.9)
+project(GOGGLESMM VERSION 1.2.0)
 
 
 option(WITH_OPENGL "Enable OpenGL Features" ON)
@@ -39,7 +39,7 @@ find_package(PkgConfig)
 if(NOT WITH_CFOX)
   pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
 else()
-  set(CFOX cfox)  
+  set(CFOX cfox)
 endif()
 
 pkg_check_modules(TAGLIB taglib>=1.9.0 REQUIRED)

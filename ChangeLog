@@ -1,3 +1,9 @@
+1.2.0
+  - Support for non-16bit alac files.
+  - Support for aacPlus streams.
+  - A copy of FOX is now included to make it easier to distribute gogglesmm
+  - Fix buffer overflow in audioscrobbler (issue 77).
+
 1.1.9
   - Fix aac fatal decoder error
   - Fix llvm build with latest sqlite library

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.3.1 FATAL_ERROR)
 
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
+# set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)
@@ -16,7 +16,7 @@ add_subdirectory(lib/alac)
 
 
 # Goggles Audio Player
-project(GAP VERSION 1.1.9)
+project(GAP VERSION 1.2.0)
 
 # Update whenever ABI changes
 set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added, removed or changed.
