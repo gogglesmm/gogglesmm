@@ -965,20 +965,69 @@ if(X11_Xrender_FOUND)
   list(APPEND LIBRARIES ${X11_Xrender_LIB})
 endif()
 
+# check for xinput2
+find_path(X11_Xi2_INCLUDE_PATH X11/extensions/XInput2.h ${X11_INC_SEARCH_PATH})
+if (X11_Xi2_INCLUDE_PATH AND X11_Xi_LIB)
+  set(X11_INCLUDE_DIR ${X11_INCLUDE_DIR} ${X11_Xi2_INCLUDE_PATH})
+  list(REMOVE_DUPLICATES X11_INCLUDE_DIR)
+  add_definitions(-DHAVE_XINPUT2_H)
+  list(APPEND LIBRARIES ${X11_Xi_LIB})
+endif ()
 
-check_include_file_cxx(dirent.h HAVE_DIRENT_H)
+#
+# AC_HEADER_DIRENT
+# This macro is obsolescent, as all current systems with directory libraries have <dirent.h>.
+# New programs need not use this macro.
+#
+# Not checking for the SCO Xenix dir and x libraries.
+#
+check_cxx_source_compiles("#include <dirent.h>\nint main(int argc,char *argv[]) { DIR * d; return 0; }" HAVE_DIRENT_H)
 if(HAVE_DIRENT_H)
+  message(STATUS "Found DIR in dirent.h")
   add_definitions(-DHAVE_DIRENT_H)
+else()
+  check_cxx_source_compiles("#include <sys/ndir.h>\nint main(int argc,char *argv[]) { DIR * d; return 0; }" HAVE_SYS_NDIR_H)
+  if(HAVE_SYS_NDIR_H)
+    add_definitions(-DHAVE_SYS_NDIR_H)
+  else()
+    check_cxx_source_compiles("#include <sys/dir.h>\nint main(int argc,char *argv[]) { DIR * d; return 0; }" HAVE_SYS_DIR_H)
+    if(NOT HAVE_SYS_DIR_H)
+      add_definitions(-DHAVE_SYS_DIR_H)
+    else()
+      check_cxx_source_compiles("#include <ndir.h>\nint main(int argc,char *argv[]) { DIR * d; return 0; }" HAVE_NDIR_H)
+      if(HAVE_NDIR_H)
+        add_definitions(-DHAVE_NDIR_H)
+      endif()
+    endif()
+  endif()
 endif()
 
-check_include_file_cxx(ndir.h HAVE_NDIR_H)
-if(HAVE_NDIR_H)
-  add_definitions(-DHAVE_NDIR_H)
+#
+# AC_HEADER_TIME
+#
+# This macro is obsolescent, as current systems can include both files when they exist.
+# New programs need not use this macro.
+#
+check_include_file_cxx(sys/time.h HAVE_SYS_TIME_H)
+if(HAVE_SYS_TIME_H)
+  add_definitions(-DHAVE_SYS_TIME_H)
+  check_cxx_source_compiles("#include <sys/time.h>\n#include <time.h>\nint main(int arc,char * argv[]) { return 0; }" TIME_WITH_SYS_TIME)
+  if(TIME_WITH_SYS_TIME)
+    add_definitions(-DTIME_WITH_SYS_TIME)
+  endif()
 endif()
 
-check_include_file_cxx(sys/ndir.h HAVE_SYS_NDIR_H)
-if(HAVE_SYS_NDIR_H)
-  add_definitions(-DHAVE_SYS_NDIR_H)
+#
+# AC_HEADER_SYS_WAIT
+#
+# If sys/wait.h is not Posix compatible, then instead of including it, define the Posix macros with their usual interpretations.
+# This macro is obsolescent, as current systems are compatible with Posix. New programs need not use this macro.
+# New programs need not use this macro.
+#
+# cmake: only check for header file since FOX doesn't define the alternative macros
+check_include_file_cxx(sys/wait.h HAVE_SYS_WAIT_H)
+if(HAVE_SYS_WAIT_H)
+  add_definitions(-DHAVE_SYS_WAIT_H)
 endif()
 
 check_include_file_cxx(semaphore.h HAVE_SEMAPHORE_H)
@@ -1036,11 +1085,10 @@ if(HAVE_SYS_STATVFS_H)
   add_definitions(-DHAVE_SYS_STATVFS_H)
 endif()
 
-check_include_file_cxx(sys/wait.h HAVE_SYS_WAIT_H)
-if(HAVE_SYS_WAIT_H)
-  add_definitions(-DHAVE_SYS_WAIT_H)
+check_include_file_cxx(sys/pstat.h HAVE_SYS_PSTAT_H)
+if(HAVE_SYS_PSTAT_H)
+  add_definitions(-DHAVE_SYS_PSTAT_H)
 endif()
-
 
 if(WITH_JPEG)
   find_package(JPEG)
