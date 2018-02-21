@@ -66,7 +66,7 @@ endif()
 
 
 if(WITH_CFOX)
-  set(RESWRAP $<TARGET_FILE_NAME:reswrap>)
+  set(RESWRAP $<TARGET_FILE:reswrap>)
   set(RESWRAP_H ${RESWRAP} --keep-ext --header)
   set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
   set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
