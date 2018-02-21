@@ -983,7 +983,6 @@ endif ()
 #
 check_cxx_source_compiles("#include <dirent.h>\nint main(int argc,char *argv[]) { DIR * d; return 0; }" HAVE_DIRENT_H)
 if(HAVE_DIRENT_H)
-  message(STATUS "Found DIR in dirent.h")
   add_definitions(-DHAVE_DIRENT_H)
 else()
   check_cxx_source_compiles("#include <sys/ndir.h>\nint main(int argc,char *argv[]) { DIR * d; return 0; }" HAVE_SYS_NDIR_H)
@@ -1157,9 +1156,12 @@ endif()
 
 
 if(WITH_OPENGL)
-  find_file(HAVE_GLX_H GL/glx.h)
-  if(OPENGL_FOUND AND OPENGL_GLU_FOUND AND HAVE_GLX_H)
+  if(TARGET OpenGL::GL AND TARGET OpenGL::GLU AND OPENGL_GLX_INCLUDE_DIR)
     list(APPEND LIBRARIES OpenGL::GL OpenGL::GLU)
+    target_compile_definitions(cfox PUBLIC -DHAVE_GL_H -DHAVE_GLU_H)
+    add_definitions(-DHAVE_GLX_H)
+  elseif(OPENGL_FOUND AND OPENGL_GLU_FOUND AND OPENGL_GLX_INCLUDE_DIR)
+    list(APPEND LIBRARIES OPENGL_gl_LIBRARY OPENGL_glu_LIBRARY)
     target_compile_definitions(cfox PUBLIC -DHAVE_GL_H -DHAVE_GLU_H)
     add_definitions(-DHAVE_GLX_H)
   endif()
@@ -1187,11 +1189,8 @@ set_target_properties(cfox PROPERTIES OUTPUT_NAME cfox-${cfox_VERSION_MAJOR}.${c
 # DON'T INSTALL FOR GOGGLESMM
 
 # install(TARGETS cfox
-#        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#        )
+#         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#         )
 
 # install(FILES ${HEADERS} DESTINATION include/cfox-${cfox_VERSION_MAJOR}.${cfox_VERSION_MINOR})
-
-
-
