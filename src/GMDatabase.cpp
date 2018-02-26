@@ -426,29 +426,6 @@ void GMDatabase::execute(const FXchar * statement,const FXint in,FXString & out)
   q.execute(in,out);
   }
 
-void GMDatabase::lock() {
-//  fxmessage("lock %d %d\n",FXThread::self()==nullptr,mutex.locked());
-  if (FXThread::self()==nullptr) {
-//    fxmessage("trylock %d\n",mutex.locked());
-    if (!mutex.trylock()) {
-      GM_DEBUG_PRINT("Failed to lock mutex\n");
-      interrupt=true;
-      mutex.lock();
-      }
-    }
-  }
-
-void GMDatabase::unlock() {
-//  fxmessage("unlock %d\n",FXThread::self()==nullptr);
-  if (FXThread::self()==nullptr) {
-    if (interrupt) {
-      interrupt=false;
-      condition.signal();
-      }
-    mutex.unlock();
-    }
-  }
-
 void GMDatabase::enableForeignKeys(){
   FXint enabled = -1;
   execute("PRAGMA foreign_keys",enabled);
@@ -515,7 +492,6 @@ GMLockTransaction::GMLockTransaction(GMDatabase * database) : db(database) /*, s
     unlock();
     throw;
     }
-  unlock();
   }
 
 
@@ -545,14 +521,24 @@ void GMLockTransaction::commit() {
 
 
 void GMLockTransaction::lock() {
-  db->lock();
-  locked = true;
+  if (FXThread::self() == nullptr) {
+    if (!db->mutex.trylock()) {
+      GM_DEBUG_PRINT("Failed to lock mutex\n");
+      db->interrupt = true;
+      db->mutex.lock();
+      }
+    locked = true;
+    }
   }
 
 
 void GMLockTransaction::unlock() {
-  if (locked) {
-    db->unlock();
+  if (FXThread::self() == nullptr) {
+    if (db->interrupt) {
+      db->interrupt = false;
+      db->condition.signal();
+      }
+    db->mutex.unlock();
     locked = false;
     }
   }
@@ -569,7 +555,6 @@ GMTaskTransaction::GMTaskTransaction(GMDatabase * database) : db(database) {
     unlock();
     throw;
     }
-  unlock();
   }
 
 
@@ -619,14 +604,14 @@ void GMTaskTransaction::pause() {
 
 
 void GMTaskTransaction::lock() {
-  db->lock();
+  db->mutex.lock();
   locked = true;
   }
 
 
 void GMTaskTransaction::unlock() {
   if (locked) {
-    db->unlock();
+    db->mutex.unlock();
     locked = false;
     }
   }

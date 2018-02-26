@@ -114,8 +114,6 @@ public:
 public:
   static volatile FXbool interrupt;
 private:
-  void lock();
-  void unlock();
   void fatal(const FXchar * q=nullptr) const;
 protected:
   GMDatabase(const GMDatabase&);
