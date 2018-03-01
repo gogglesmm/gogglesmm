@@ -3,7 +3,7 @@
 *                             K n o b   W i d g e t                             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2017 by Leandro Nini.   All Rights Reserved.               *
+* Copyright (C) 2005,2018 by Leandro Nini.   All Rights Reserved.               *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

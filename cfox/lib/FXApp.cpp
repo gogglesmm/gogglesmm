@@ -3,7 +3,7 @@
 *                     A p p l i c a t i o n   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -336,7 +336,7 @@ FXApp* FXApp::app=NULL;
 
 
 // Copyright information
-const FXuchar FXApp::copyright[]="Copyright (C) 1997,2017 Jeroen van der Zijp. All Rights Reserved.";
+const FXuchar FXApp::copyright[]="Copyright (C) 1997,2018 Jeroen van der Zijp. All Rights Reserved.";
 
 
 // Conversion
@@ -2557,9 +2557,8 @@ a:ev.xany.type=0;
     }
 #endif
 
-  // Event was filtered by input method; return no event
-  FXWindow* focuswin=getFocusWindow();
-  if(xim && focuswin && XFilterEvent(&ev,(Window)focuswin->id())){      // [Patch from Roland Baudin] FIXME but also need to deal with keyboard grabs
+  // Passing in focuswindow to XFilterEvent just didn't work on Gnome3 with either scim or ibus
+  if(xim && getFocusWindow() && XFilterEvent(&ev,None)){      // [Patch from Roland Baudin] FIXME but also need to deal with keyboard grabs
     return false;
     }
 

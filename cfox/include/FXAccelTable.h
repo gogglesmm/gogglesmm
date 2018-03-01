@@ -3,7 +3,7 @@
 *                   A c c e l e r a t o r   T a b l e   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -83,7 +83,7 @@ public:
 
 
 /**
-* Parse accelerator from string, yielding modifier and key code.  
+* Parse accelerator from string, yielding modifier and key code.
 * The syntax of the string is:
 *
 *  <Accelerator> ::= (<Modifier> ('-' | '+'))* <Key>
@@ -92,11 +92,11 @@ public:
 *
 * <Modifier> ::= 'Ctl' | 'Ctrl' | 'Alt' | 'Meta' | 'Shift'
 *
-* <Key>      ::= 'Home' | 'End' | 'PgUp' | 'PgDn' | 'Left' | 'Right' | 
-*                'Up' | 'Down' | 'Ins' | 'Del' | 'Esc' | 'Tab' | 'Return' | 
-*                'Enter' | 'Back' | 'Spc' | 'Space' | 
-*                'F'<Digit><Digit>? | 
-*                '#'<HexDigit>+ | 
+* <Key>      ::= 'Home' | 'End' | 'PgUp' | 'PgDn' | 'Left' | 'Right' |
+*                'Up' | 'Down' | 'Ins' | 'Del' | 'Esc' | 'Tab' | 'Return' |
+*                'Enter' | 'Back' | 'Spc' | 'Space' |
+*                'F'<Digit><Digit>? |
+*                '#'<HexDigit>+ |
 *                <Letter>
 *
 * <Digit>    ::= '0' ... '1'

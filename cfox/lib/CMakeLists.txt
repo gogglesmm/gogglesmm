@@ -416,6 +416,7 @@ set(SOURCES FX4Splitter.cpp
             FXComplexd.cpp
             FXComplexf.cpp
             FXComposeContext.cpp
+	    fxcompose.cpp
             FXComposite.cpp
             FXCondition.cpp
             FXConsole.cpp
@@ -475,6 +476,7 @@ set(SOURCES FX4Splitter.cpp
             FXDragCorner.cpp
             FXDrawable.cpp
             FXDriveBox.cpp
+	    fxescape.cpp
             FXException.cpp
             FXEXEIcon.cpp
             FXEXEImage.cpp
@@ -806,7 +808,7 @@ winmaximize.gif
 winminimize.gif
 winrestore.gif)
 
-add_library(cfox STATIC ${SOURCES})
+add_library(cfox ${SOURCES})
 
 find_package(PkgConfig)
 find_package(Threads)
@@ -1160,7 +1162,7 @@ if(WITH_OPENGL)
     list(APPEND LIBRARIES OpenGL::GL OpenGL::GLU)
     target_compile_definitions(cfox PUBLIC -DHAVE_GL_H -DHAVE_GLU_H)
     add_definitions(-DHAVE_GLX_H)
-  elseif(OPENGL_FOUND AND OPENGL_GLU_FOUND AND OPENGL_GLX_INCLUDE_DIR)
+  elseif(OPENGL_GL_FOUND AND OPENGL_GLU_FOUND AND OPENGL_GLX_INCLUDE_DIR)
     list(APPEND LIBRARIES OPENGL_gl_LIBRARY OPENGL_glu_LIBRARY)
     target_compile_definitions(cfox PUBLIC -DHAVE_GL_H -DHAVE_GLU_H)
     add_definitions(-DHAVE_GLX_H)
@@ -1186,11 +1188,11 @@ add_custom_command(
 set_target_properties(cfox PROPERTIES VERSION ${cfox_VERSION} SOVERSION ${cfox_VERSION_PATCH})
 set_target_properties(cfox PROPERTIES OUTPUT_NAME cfox-${cfox_VERSION_MAJOR}.${cfox_VERSION_MINOR})
 
-# DON'T INSTALL FOR GOGGLESMM
+install(TARGETS cfox
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        )
+install(FILES ${HEADERS} DESTINATION include/cfox-${cfox_VERSION_MAJOR}.${cfox_VERSION_MINOR})
 
-# install(TARGETS cfox
-#         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#         )
 
-# install(FILES ${HEADERS} DESTINATION include/cfox-${cfox_VERSION_MAJOR}.${cfox_VERSION_MINOR})
+

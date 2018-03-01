@@ -3,7 +3,7 @@
 *                      T r e e  L i s t  B o x   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -340,7 +340,7 @@ FXTreeItem* FXTreeListBox::getLastItem() const {
 // Change current item
 void FXTreeListBox::setCurrentItem(FXTreeItem* item,FXbool notify){
   FXTreeItem* current=tree->getCurrentItem();
-  FXTRACE((1,"FXTreeListBox::setCurrentItem(%p=%s,%d) current=%p\n",item,item?tree->getItemText(item).text():"",notify,current));
+  FXTRACE((100,"FXTreeListBox::setCurrentItem(%p=%s,%d) current=%p\n",item,item?tree->getItemText(item).text():"",notify,current));
   if(current!=item){
     tree->setCurrentItem(item,notify);
     tree->makeItemVisible(item);

@@ -3,7 +3,7 @@
 *                       I m a g e   V i e w   W i d g e t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -163,9 +163,9 @@ long FXImageView::onPaint(FXObject*,FXSelector,void* ptr){
     dc.setForeground(backColor);
     xl=xx; xr=xx+ww;
     yt=yy; yb=yy+hh;
-    if(xl<0) xl=0; 
+    if(xl<0) xl=0;
     if(xr>vw) xr=vw;
-    if(yt<0) yt=0; 
+    if(yt<0) yt=0;
     if(yb>vh) yb=vh;
     dc.fillRectangle(0,0,xr,yt);
     dc.fillRectangle(0,yt,xl,vh-yt);

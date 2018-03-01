@@ -3,7 +3,7 @@
 *                     D i r e c t o r y   B o x   O b j e c t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -215,7 +215,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
     FXint beg=0;
     FXint end=0;
 
-    // Parse root directory 
+    // Parse root directory
     if(ISPATHSEP(path[end])){
       end++;
       if(ISPATHSEP(path[end])) end++;
@@ -239,10 +239,10 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
 
       // First try find if existing root item
       if((item=findItemChild(getFirstItem(),name))==NULL){
-      
+
         // List drives
         ndrives=FXDir::listDrives(drives);
-        
+
         // Add the drives
         for(FXint i=0; i<ndrives; ++i){
           icon=foldericon;
@@ -253,7 +253,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
           child=appendItem(NULL,drives[i],icon,icon);
           if(id()) child->create();
           }
-          
+
         // Delete drive list
         delete [] drives;
 
@@ -272,7 +272,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
       // Now the subdirectories
       while(end<path.length()){
 
-        beg=end; 
+        beg=end;
 
         // Bracket the next component
         while(end<path.length() && !ISPATHSEP(path[end])) end++;
@@ -459,10 +459,10 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
   if(!path.empty()){
     FXint beg=0;
     FXint end=0;
-    
-    // Parse root directory 
+
+    // Parse root directory
     if(ISPATHSEP(path[0])) end++;
-    
+
     // Absolute path?
     if(beg<end){
       FXString     name;
@@ -491,7 +491,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
       // Now the subdirectories
       while(end<path.length()){
 
-        beg=end; 
+        beg=end;
 
         // Bracket the next component
         while(end<path.length() && !ISPATHSEP(path[end])) end++;
@@ -511,7 +511,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
             assoc=associations->findDirBinding(path.left(end));
             if(assoc && assoc->miniicon) icon=assoc->miniicon;
             }
-            
+
           // Add new
           child=appendItem(item,name,icon,icon);
           if(id()) child->create();
@@ -551,7 +551,7 @@ long FXDirBox::onTreeChanged(FXObject*,FXSelector,void* ptr){
 
 // Set directory
 void FXDirBox::setDirectory(const FXString& pathname,FXbool notify){
-  FXTRACE((1,"FXDirBox::setDirectory(%s,%d)\n",pathname.text(),notify));
+  FXTRACE((100,"FXDirBox::setDirectory(%s,%d)\n",pathname.text(),notify));
   setCurrentItem(getPathnameItem(FXPath::absolute(pathname)),notify);
   }
 

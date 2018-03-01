@@ -3,7 +3,7 @@
 *                  P a t h   N a m e   M a n i p u l a t i o n                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -1452,7 +1452,7 @@ FXint FXPath::parseArgs(FXchar**& argv,const FXchar* command){
     // Wrap up last one
     count+=token;
     space+=count;
-    
+
     // We got at least one argument
     if(count){
 
@@ -1467,7 +1467,7 @@ FXint FXPath::parseArgs(FXchar**& argv,const FXchar* command){
 
         // Reset string input
         p=command;
-        
+
         token=0;
         slash=0;
         quote=0;
@@ -1519,7 +1519,7 @@ FXint FXPath::parseArgs(FXchar**& argv,const FXchar* command){
           }
 
         // Final token closeout
-        if(token){                      
+        if(token){
           *ptr++=arg;
           *a='\0';
           }
@@ -1532,8 +1532,8 @@ FXint FXPath::parseArgs(FXchar**& argv,const FXchar* command){
     }
   return 0;
   }
-  
-  
+
+
 #else
 
 // Parse command to argc and argv, according to os-native rules
@@ -1688,11 +1688,11 @@ FXint FXPath::parseArgs(FXchar**& argv,const FXchar* command){
           }
 
         // Final token closeout
-        if(token){                      
+        if(token){
           *ptr++=arg;
           *a='\0';
           }
-          
+
         // Argv closeout
         *ptr=NULL;
         return count;

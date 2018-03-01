@@ -3,7 +3,7 @@
 *                   U N I C O D E   C h a r a c t e r   I n f o                 *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

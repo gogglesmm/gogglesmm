@@ -3,7 +3,7 @@
 *                          P C X   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2017 by Janusz Ganczarski.   All Rights Reserved.          *
+* Copyright (C) 2001,2018 by Janusz Ganczarski.   All Rights Reserved.          *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

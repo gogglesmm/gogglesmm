@@ -3,7 +3,7 @@
 *                       R o o t   W i n d o w   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -135,7 +135,7 @@ void FXRootWindow::create(){
       // Obtain desktop window size
       width=GetSystemMetrics(SM_CXVIRTUALSCREEN);
       height=GetSystemMetrics(SM_CYVIRTUALSCREEN);
-#if 0      
+#if 0
       HDC hdc=::GetDC((HWND)xid);
       width=GetDeviceCaps(hdc,HORZRES);
       height=GetDeviceCaps(hdc,VERTRES);
@@ -228,8 +228,8 @@ FXint FXRootWindow::getDefaultHeight(){
   return DisplayHeight(DISPLAY(getApp()),DefaultScreen(DISPLAY(getApp())));
 #endif
   }
-#endif  
-  
+#endif
+
 // Get default width
 FXint FXRootWindow::getDefaultWidth(){
 #ifdef WIN32
@@ -246,7 +246,7 @@ FXint FXRootWindow::getDefaultHeight(){
 #else
   return DisplayHeight(DISPLAY(getApp()),DefaultScreen(DISPLAY(getApp())));
 #endif
-  } 
+  }
 
 
 // Moving root has no effect

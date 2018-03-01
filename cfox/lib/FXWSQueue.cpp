@@ -3,7 +3,7 @@
 *                      W o r k - S t e a l i n g   Q u e u e                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -35,7 +35,7 @@
      threads may take() (steal) items of the back of the queue.
    - It is lock-free in that no operating-system calls are used; this solution requires
      atomic operations however.
-   - This is a version of the Chase-Lev work-stealing queue. 
+   - This is a version of the Chase-Lev work-stealing queue.
 */
 
 using namespace FX;

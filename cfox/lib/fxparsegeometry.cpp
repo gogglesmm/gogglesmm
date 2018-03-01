@@ -3,7 +3,7 @@
 *         P a r s e   G e o m e t r y   F r o m   C o m m a n d   L i n e       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

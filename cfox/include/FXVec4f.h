@@ -3,7 +3,7 @@
 *       S i n g l e - P r e c i s i o n   4 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -147,9 +147,15 @@ inline FXbool operator<=(const FXVec4f& a,const FXVec4f& b){ return a.x<=b.x && 
 inline FXbool operator>(const FXVec4f& a,const FXVec4f& b){ return a.x>b.x && a.y>b.y && a.z>b.z && a.w>b.w; }
 inline FXbool operator>=(const FXVec4f& a,const FXVec4f& b){ return a.x>=b.x && a.y>=b.y && a.z>=b.z && a.w>=b.w; }
 
-/// Lowest or highest components
+/// Lowest components
 inline FXVec4f lo(const FXVec4f& a,const FXVec4f& b){return FXVec4f(Math::fmin(a.x,b.x),Math::fmin(a.y,b.y),Math::fmin(a.z,b.z),Math::fmin(a.w,b.w));}
+inline FXVec4f lo(const FXVec4f& a,FXfloat n){return FXVec4f(Math::fmin(a.x,n),Math::fmin(a.y,n),Math::fmin(a.z,n),Math::fmin(a.w,n));}
+inline FXVec4f lo(FXfloat n,const FXVec4f& b){return FXVec4f(Math::fmin(n,b.x),Math::fmin(n,b.y),Math::fmin(n,b.z),Math::fmin(n,b.w));}
+
+/// Highest components
 inline FXVec4f hi(const FXVec4f& a,const FXVec4f& b){return FXVec4f(Math::fmax(a.x,b.x),Math::fmax(a.y,b.y),Math::fmax(a.z,b.z),Math::fmax(a.w,b.w));}
+inline FXVec4f hi(const FXVec4f& a,FXfloat n){return FXVec4f(Math::fmax(a.x,n),Math::fmax(a.y,n),Math::fmax(a.z,n),Math::fmax(a.w,n));}
+inline FXVec4f hi(FXfloat n,const FXVec4f& b){return FXVec4f(Math::fmax(n,b.x),Math::fmax(n,b.y),Math::fmax(n,b.z),Math::fmax(n,b.w));}
 
 /// Compute normalized plane equation ax+by+cz+d=0
 extern FXAPI FXVec4f plane(const FXVec4f& vec);

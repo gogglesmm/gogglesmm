@@ -3,7 +3,7 @@
 *                         T e x t   F i e l d   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -221,10 +221,6 @@ FXTextField::FXTextField(FXComposite* p,FXint ncols,FXObject* tgt,FXSelector sel
 void FXTextField::create(){
   FXFrame::create();
   font->create();
-  if(getApp()->hasInputMethod()){
-    createComposeContext();
-    getComposeContext()->setFont(font);
-    }
   }
 
 
@@ -252,6 +248,11 @@ void FXTextField::setFocus(){
   if(getApp()->hasInputMethod()){
     createComposeContext();
     getComposeContext()->setFont(font);
+
+    // focusIn() is needed for:
+    // scim: without it, input seems to be broken, input window doesn't appear
+    // ibus: without it, initial location of the input window is way off.
+    getComposeContext()->focusIn();
     }
   }
 
@@ -569,8 +570,15 @@ void FXTextField::setCursorPos(FXint pos){
   if(cursor!=pos){
     drawCursor(0);
     cursor=pos;
-    if(isEditable() && hasFocus()) drawCursor(FLAG_CARET);
+    if(isEditable() && hasFocus()) drawCursor(FLAG_CARET);    
     }
+
+  // After mouse click in widget, this assure we update the cursor pos in the InputMethod
+  if(getComposeContext()) {
+    register FXint cursorx=coord(cursor)-1;
+    getComposeContext()->setSpot(cursorx,height-padbottom-border);
+    }
+
   blink=FLAG_CARET;
   }
 
@@ -1324,8 +1332,9 @@ long FXTextField::onQueryHelp(FXObject* sender,FXSelector sel,void* ptr){
 long FXTextField::onIMEStart(FXObject*,FXSelector,void*){
   if(isEditable()){
     if(getComposeContext()){
+      // Not sure if this is needed
       register FXint cursorx=coord(cursor)-1;
-      getComposeContext()->setSpot(cursorx,padtop+border);
+      getComposeContext()->setSpot(cursorx,height-padbottom-border);
       }
     return 1;
     }

@@ -3,7 +3,7 @@
 *                    D i r e c t o r y   E n u m e r a t o r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -56,8 +56,6 @@ struct SPACE {
 struct SPACE {
   DIR*            handle;
   struct dirent*  dp;
-  struct dirent   result;
-  char            buffer[256];  // Extra space must follow dirent!
   };
 #endif
 
@@ -137,11 +135,6 @@ FXbool FXDir::next(FXString& name){
     if(((SPACE*)space)->first || FindNextFile(((SPACE*)space)->handle,&((SPACE*)space)->result)){
       ((SPACE*)space)->first=false;
       name.assign(((SPACE*)space)->result.cFileName);
-      return true;
-      }
-#elif defined(HAVE_READDIR_R)
-    if(!readdir_r(((SPACE*)space)->handle,&((SPACE*)space)->result,&((SPACE*)space)->dp) && ((SPACE*)space)->dp){
-      name.assign(((SPACE*)space)->dp->d_name);
       return true;
       }
 #else
@@ -279,7 +272,7 @@ FXint FXDir::listDrives(FXString*& drivelist){
   register FXint count=0;
 #ifdef WIN32
   FXchar drives[256];
-  clearElms(drives,ARRAYNUMBER(drives)); 
+  clearElms(drives,ARRAYNUMBER(drives));
   GetLogicalDriveStringsA(ARRAYNUMBER(drives),drives);
   drivelist=new FXString [33];
   for(const FXchar* drive=drives; *drive && count<32; drive++){

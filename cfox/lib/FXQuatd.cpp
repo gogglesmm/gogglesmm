@@ -3,7 +3,7 @@
 *              D o u b l e - P r e c i s i o n  Q u a t e r n i o n             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -507,7 +507,7 @@ FXQuatd FXQuatd::conj() const {
 //
 //   t = 2 * (q.xyz ^ v)
 //   v' = v + q.w * t + (q.xyz ^ t)
-// 
+//
 FXVec3d FXQuatd::operator*(const FXVec3d& v) const {
   return v*FXMat3d(*this);
   }

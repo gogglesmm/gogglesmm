@@ -3,7 +3,7 @@
 *                    D i r e c t o r y   E n u m e r a t o r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -83,7 +83,7 @@ public:
 
   /**
   * List drives, i.e. the roots of directory trees.
-  * On Windows, this returns an array of strings like {"C:\", "D:\", ..., ""}, 
+  * On Windows, this returns an array of strings like {"C:\", "D:\", ..., ""},
   * while on Unix it will be just a two-element list like {"/", ""}.
   * The last element will be always be set to the empty string.
   * The list can be released by means of delete [] list.

@@ -3,7 +3,7 @@
 *            S i n g l e - P r e c i s i o n   2 x 2   M a t r i x              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

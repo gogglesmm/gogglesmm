@@ -3,7 +3,7 @@
 *                L o a d   I c o n   F r o m   E x e c u t a b l e              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2014,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2014,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

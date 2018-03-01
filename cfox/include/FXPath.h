@@ -3,7 +3,7 @@
 *                  P a t h   N a m e   M a n i p u l a t i o n                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -231,12 +231,12 @@ namespace FXPath {
   * extensions (Windows)
   */
   extern FXAPI FXbool hasExecExtension(const FXString& file);
-  
+
   /**
   * Check if given name is controversial, i.e. reserved for other devices (Windows).
   */
   extern FXAPI FXbool isReservedName(const FXString& file);
-  
+
   }
 
 }

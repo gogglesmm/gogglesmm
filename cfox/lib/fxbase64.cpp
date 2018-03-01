@@ -3,7 +3,7 @@
 *              B a s e - 6 4    E n c o d i n g  /  D e c o d i n g             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2012,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2012,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

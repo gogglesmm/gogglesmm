@@ -3,7 +3,7 @@
 *       D o u b l e - P r e c i s i o n   3 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -144,9 +144,15 @@ inline FXbool operator<=(const FXVec3d& a,const FXVec3d& b){ return a.x<=b.x && 
 inline FXbool operator>(const FXVec3d& a,const FXVec3d& b){ return a.x>b.x && a.y>b.y && a.z>b.z; }
 inline FXbool operator>=(const FXVec3d& a,const FXVec3d& b){ return a.x>=b.x && a.y>=b.y && a.z>=b.z; }
 
-/// Lowest or highest components
+/// Lowest components
 inline FXVec3d lo(const FXVec3d& a,const FXVec3d& b){return FXVec3d(Math::fmin(a.x,b.x),Math::fmin(a.y,b.y),Math::fmin(a.z,b.z));}
+inline FXVec3d lo(const FXVec3d& a,FXdouble n){return FXVec3d(Math::fmin(a.x,n),Math::fmin(a.y,n),Math::fmin(a.z,n));}
+inline FXVec3d lo(FXdouble n,const FXVec3d& b){return FXVec3d(Math::fmin(n,b.x),Math::fmin(n,b.y),Math::fmin(n,b.z));}
+
+/// Highest components
 inline FXVec3d hi(const FXVec3d& a,const FXVec3d& b){return FXVec3d(Math::fmax(a.x,b.x),Math::fmax(a.y,b.y),Math::fmax(a.z,b.z));}
+inline FXVec3d hi(const FXVec3d& a,FXdouble n){return FXVec3d(Math::fmax(a.x,n),Math::fmax(a.y,n),Math::fmax(a.z,n));}
+inline FXVec3d hi(FXdouble n,const FXVec3d& b){return FXVec3d(Math::fmax(n,b.x),Math::fmax(n,b.y),Math::fmax(n,b.z));}
 
 /// Convert vector to color
 extern FXAPI FXColor colorFromVec3d(const FXVec3d& vec);

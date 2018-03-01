@@ -3,7 +3,7 @@
 *                           M a t h   F u n c t i o n s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2015,2017 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2015,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -142,6 +142,8 @@
 #define NO_FMIN
 #define NO_COPYSIGNF
 #define NO_COPYSIGN
+#define NO_FDIMF
+#define NO_FDIM
 #endif
 
 // Systems below are missing these functions
@@ -649,10 +651,25 @@ static inline FXfloat fmin(FXfloat x,FXfloat y){ return ::fminf(x,y); }
 #endif
 
 /// Double precision minimum of two
-#if defined(NO_FMINF)
+#if defined(NO_FMIN)
 static inline FXdouble fmin(FXdouble x,FXdouble y){ return (x<y)?x:y; }
 #else
 static inline FXdouble fmin(FXdouble x,FXdouble y){ return ::fmin(x,y); }
+#endif
+
+/// Single precision positive difference
+#if defined(NO_FDIMF)
+static inline FXfloat fdim(FXfloat x,FXfloat y){ return fmax(x-y,0.0f); }
+#else
+static inline FXfloat fdim(FXfloat x,FXfloat y){ return ::fdimf(x,y); }
+#endif
+
+
+/// Double precision positive difference
+#if defined(NO_FDIM)
+static inline FXdouble fdim(FXdouble x,FXdouble y){ return fmax(x-y,0.0); }
+#else
+static inline FXdouble fdim(FXdouble x,FXdouble y){ return ::fdim(x,y); }
 #endif
 
 
@@ -663,13 +680,35 @@ static inline FXfloat fclamp(FXfloat lo,FXfloat x,FXfloat hi){ return fmin(fmax(
 static inline FXdouble fclamp(FXdouble lo,FXdouble x,FXdouble hi){ return fmin(fmax(x,lo),hi); }
 
 
+/// Minimum if two integers
+inline FXint imin(FXint x,FXint y){ return (x<y)?x:y; }
+inline FXlong imin(FXlong x,FXlong y){ return (x<y)?x:y; }
+
+
+/// Minimum of two integers
+inline FXint imax(FXint x,FXint y){ return (x>y)?x:y; }
+inline FXlong imax(FXlong x,FXlong y){ return (x>y)?x:y; }
+
+
+/// Absolute value of integer
+inline FXint iabs(FXint x){ return 0<x?x:-x; }
+inline FXlong iabs(FXlong x){ return 0L<x?x:-x; }
+
+
+/// Integer clamp of number x to lie within range [lo..hi]
+inline FXint iclamp(FXint lo,FXint x,FXint hi){ return imin(imax(x,lo),hi); }
+inline FXlong iclamp(FXlong lo,FXlong x,FXlong hi){ return imin(imax(x,lo),hi); }
+
+
 /// Single precision copy sign of y and apply to magnitude of x
 #if defined(NO_COPYSIGNF)
 static inline FXfloat copysign(FXfloat x,FXfloat y){
   union{ FXfloat f; FXuint u; } xx={x},yy={y}; xx.u&=0x7fffffff; xx.u|=(yy.u&0x80000000); return xx.f;
   }
 #else
-static inline FXfloat copysign(FXfloat x,FXfloat y){ return ::copysignf(x,y); }
+static inline FXfloat copysign(FXfloat x,FXfloat y){
+  return ::copysignf(x,y);
+  }
 #endif
 
 
@@ -679,7 +718,9 @@ static inline FXdouble copysign(FXdouble x,FXdouble y){
   union{ FXdouble f; FXulong u; } xx={x},yy={y}; xx.u&=FXULONG(0x7fffffffffffffff); xx.u|=(yy.u&FXULONG(0x8000000000000000)); return xx.f;
   }
 #else
-static inline FXdouble copysign(FXdouble x,FXdouble y){ return ::copysign(x,y); }
+static inline FXdouble copysign(FXdouble x,FXdouble y){
+  return ::copysign(x,y);
+  }
 #endif
 
 
