@@ -2,6 +2,7 @@
 #cmakedefine HAVE_OPENGL
 #cmakedefine HAVE_NLS
 #cmakedefine HAVE_SESSION
+#cmakedefine HAVE_OPENSSL
 #define LOCALE_PATH "${LOCALE_PATH}"
 #define ICON_PATH "${ICON_PATH}"
 #define BUILD_DATE __DATE__

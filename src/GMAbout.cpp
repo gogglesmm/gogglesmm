@@ -78,17 +78,24 @@ void GMAboutDialog::setup(){
   label->setTextColor(FXRGB(0,0,0));
 
 
-  const FXchar gpl[] = "This program is free software: you can\n"
+  const FXchar license[] = "This program is free software: you can\n"
                  "redistribute it and/or modify it under the\n"
                  "terms of the GNU General Public License\n"
                  "as published by the Free Software Foundation,\n"
                  "either version 3 of the License, or (at your\n"
                  "option) any later version.\n\n"
-                 "This software uses the FOX Toolkit Library\n(http://www.fox-toolkit.org)\nCopyright " UTF8_COPYRIGHT_SIGN " 2001-2017 Jeroen van der Zijp.\n\n"
+                 "This software uses the FOX Toolkit Library\n(http://www.fox-toolkit.org)\nCopyright " UTF8_COPYRIGHT_SIGN " 2001-2018 Jeroen van der Zijp.\n\n"
                  "ALAC decoder (MIT Licensed)\n"
                  "Copyright " UTF8_COPYRIGHT_SIGN " 2005 David Hammerton\n"
-                 "All rights reserved.\n";
+                 "All rights reserved.\n"
 
+// FIXME In case of shared gap library, we should ask this during runtime
+#ifdef HAVE_OPENSSL
+                 "\nThis product includes software developed\n"
+                 "by the OpenSSL Project for use in the\n"
+                 "OpenSSL Toolkit. (http://www.openssl.org/)\n"
+#endif
+                 "";
 
   label = new FXLabel(this,"v" GOGGLESMM_VERSION_STRING,nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,5);
   label->setBackColor(FXRGB(255,255,255));
@@ -98,21 +105,7 @@ void GMAboutDialog::setup(){
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
 
-  label = new FXLabel(this,gpl,nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,5,0);
-  label->setBackColor(FXRGB(255,255,255));
-  label->setTextColor(FXRGB(0,0,0));
-  label->setFont(licensefont);
-
-
-  FXString libraries;
-
-#ifdef HAVE_DBUS
-  libraries.format("Build with FOX %d.%d.%d\nSQLite %s, DBus %s \nand Taglib.",fxversion[0],fxversion[1],fxversion[2],sqlite3_libversion(),GMDBus::dbusversion().text());
-#else
-  libraries.format("Build with FOX %d.%d.%d\nSQLite %s and Taglib.",fxversion[0],fxversion[1],fxversion[2],sqlite3_libversion());
-#endif
-
-  label = new FXLabel(this,libraries,nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,5,5);
+  label = new FXLabel(this,license,nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,5,0);
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
   label->setFont(licensefont);
@@ -133,9 +126,30 @@ long GMAboutDialog::onCmdHomePage(FXObject*,FXSelector,void*){
   }
 
 long GMAboutDialog::onCmdReportIssue(FXObject*,FXSelector,void*){
-  if (!gm_open_browser("https://github.com/gogglesmm/gogglesmm/issues")){
+
+  // github issue template
+  const char issuetemplate[]="- [x] gogglesmm version: " GOGGLESMM_VERSION_STRING "\n"
+                             "- [x] fox version: %d.%d.%d\n"
+                             "- [x] sqlite version: %s\n"
+                             "- [ ] OS / Distribution:\n\n"
+                             "Please describe your request or problem";
+
+  // Construct the body text
+  FXString body = FXURL::encode(FXString::value(issuetemplate,
+                                                fxversion[0],
+                                                fxversion[1],
+                                                fxversion[2],
+                                                sqlite3_libversion()));
+
+  // Construct the url
+  FXString url = FXString::value("https://github.com/gogglesmm/gogglesmm/issues/new?body=%s",body.text());
+
+
+  // Now open in browser
+  if (!gm_open_browser(url.text())){
     FXMessageBox::error(this,MBOX_OK,tr("Unable to launch webbrowser"),"Goggles Music Manager was unable to launch a webbrowser.\nPlease visit https://github.com/gogglesmm/gogglesmm/issues to report an issue.");
     }
+
   return 1;
   }
 
