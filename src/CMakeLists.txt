@@ -37,13 +37,13 @@ TEST_BIG_ENDIAN(GOGGLESMM_BIGENDIAN)
 find_package(PkgConfig)
 
 if(NOT WITH_CFOX)
-  pkg_check_modules(FOX fox17>=1.7.50 REQUIRED)
+  pkg_check_modules(FOX REQUIRED fox17>=1.7.50 )
 else()
   set(CFOX cfox)
 endif()
 
-pkg_check_modules(TAGLIB taglib>=1.9.0 REQUIRED)
-pkg_check_modules(SQLITE sqlite3>=3.6.19 REQUIRED)
+pkg_check_modules(TAGLIB REQUIRED taglib>=1.9.0)
+pkg_check_modules(SQLITE REQUIRED sqlite3>=3.6.19)
 
 pkg_check_modules(SM sm)
 pkg_check_modules(ICE ice)
