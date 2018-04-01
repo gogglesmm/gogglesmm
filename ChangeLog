@@ -2,7 +2,9 @@
   - Support for non-16bit alac files.
   - Support for aacPlus streams.
   - A copy of FOX is now included to make it easier to distribute gogglesmm
+  - Preserve clipboard (copy/paste) when closing track editor.
   - Fix buffer overflow in audioscrobbler (issue 77).
+  - Fix prevent consecutive spaces when renaming audio files.
 
 1.1.9
   - Fix aac fatal decoder error

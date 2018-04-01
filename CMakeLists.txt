@@ -13,7 +13,7 @@ include(FeatureSummary)
 # libdir name to allow overriding to lib32 / lib64
 # set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "Specify the name of the directory where libraries are meant to be installed")
 
-# Build with internal FOX library
+# Build with internal FOX library, the OFF setting is not supported
 option(WITH_CFOX "Enable Internal FOX" ON)
 
 # Override default install to /usr
