@@ -93,22 +93,7 @@ Building Goggles Music Manager on Ubuntu 14.04 LTS
        > sudo apt-get install libwebp-dev
        > sudo apt-get install libopenjpeg-dev
 
-    2. Download, Build and Install FOX
-
-       > wget ftp://ftp.fox-toolkit.org/pub/fox-1.7.51.tar.gz
-       > tar xvf fox-1.7.51.tar.gz
-       > cd fox-1.7.51/
-
-       for 32 bit:
-       > ./configure --enable-release --disable-static --enable-native --enable-opengl --enable-webp --enable-jp2 --prefix=/usr --libdir=/usr/lib/i386-linux-gnu
-
-       for 64 bit:
-       > ./configure --enable-release --disable-static --enable-native --enable-opengl --enable-webp --enable-jp2 --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
-
-       > make -j 4
-       > sudo make install
-
-    3. Install build dependencies for gogglesmm
+    2. Install build dependencies for gogglesmm
 
        > sudo apt-get install libasound2-dev
        > sudo apt-get install libpulse-dev
