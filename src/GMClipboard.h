@@ -34,6 +34,7 @@ FXDECLARE(GMClipboard)
 private:
   static GMClipboard * me;
 public:
+  static FXDragType theclipboard;
   static FXDragType kdeclipboard;
   static FXDragType gnomeclipboard;
   static FXDragType gnomedragndrop;
@@ -65,6 +66,8 @@ public:
   FXbool release();
 
   GMClipboardData * getClipData() const { return clipdata; }
+
+  void saveClipboard();
 
   virtual void create();
 

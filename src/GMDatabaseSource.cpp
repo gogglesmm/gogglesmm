@@ -1010,6 +1010,7 @@ FXbool GMDatabaseSource::updateSelectedTracks(GMTrackList*tracklist) {
 long GMDatabaseSource::onCmdEditTrack(FXObject*,FXSelector,void*){
   GMEditTrackDialog dialog(GMPlayerManager::instance()->getMainWindow(),db);
   dialog.execute();
+  GMClipboard::instance()->saveClipboard();
   return 1;
   }
 

@@ -17,7 +17,42 @@
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
 #include "gmdefs.h"
+
+#include "xincs.h"
 #include "GMClipboard.h"
+
+#include <FX88591Codec.h>
+#include <FXUTF16Codec.h>
+
+
+class GMTextData : public GMClipboardData {
+public:
+  FXString data;
+
+  GMTextData(){}
+
+  virtual FXbool request(FXDragType target, GMClipboard * clipboard) {
+
+    if (target == FXWindow::utf8Type){
+      clipboard->setDNDData(FROM_CLIPBOARD, target, data);
+      return true;
+      }
+
+    if(target == FXWindow::stringType || target == FXWindow::textType){
+      FX88591Codec ascii;
+      clipboard->setDNDData(FROM_CLIPBOARD, target, ascii.utf2mb(data));
+      return true;
+      }
+
+    if(target == FXWindow::utf16Type){
+      FXUTF16LECodec unicode;
+      clipboard->setDNDData(FROM_CLIPBOARD, target, unicode.utf2mb(data));
+      return 1;
+      }
+
+    return false;
+    }
+  };
 
 
 FXDEFMAP(GMClipboard) GMClipboardMap[]={
@@ -36,6 +71,7 @@ FXDragType GMClipboard::gnomedragndrop=0;
 FXDragType GMClipboard::trackdatabase=0;
 FXDragType GMClipboard::selectedtracks=0;
 FXDragType GMClipboard::alltracks=0;
+FXDragType GMClipboard::theclipboard=0;
 
 GMClipboard * GMClipboard::instance(){
   return me;
@@ -57,6 +93,7 @@ void GMClipboard::create(){
   trackdatabase  = getApp()->registerDragType("application/goggles-music-manager-database");
   selectedtracks = getApp()->registerDragType("application/goggles-dnd-selected-tracks");
   alltracks      = getApp()->registerDragType("application/goggles-dnd-all-tracks");
+  theclipboard   = getApp()->registerDragType("CLIPBOARD");
 
   if (FXWindow::urilistType==0){
     FXWindow::urilistType=getApp()->registerDragType(FXWindow::urilistTypeName);
@@ -89,6 +126,61 @@ FXbool GMClipboard::owned(FXObject * obj){
 
 FXbool GMClipboard::release(){
   return false;
+  }
+
+
+void GMClipboard::saveClipboard() {
+#ifndef WIN32
+  if (hasClipboard()) {
+    GM_DEBUG_PRINT("saveClipboard: we already own the clipboard\n");
+    return;
+    }
+
+  FXID owner = XGetSelectionOwner(static_cast<Display*>(getApp()->getDisplay()), theclipboard);
+
+  if (owner == 0) {
+    GM_DEBUG_PRINT("saveClipboard: nobody owns the clipboard\n");
+    return;
+    }
+
+  if (owner == xid) {
+    GM_DEBUG_PRINT("saveClipboard: owner matches our xid\n");
+    return;
+    }
+
+  FXWindow * window = getApp()->findWindowWithId(owner);
+  if (window == nullptr) {
+    GM_DEBUG_PRINT("saveClipboard: window not ours\n");
+    return;
+    }
+
+  GM_DEBUG_PRINT("saveClipboard: window is ours, need to save\n");
+
+  FXASSERT(clipdata == nullptr);
+  FXASSERT(clipowner == nullptr);
+
+  FXuint ntypes;
+  FXDragType * types=nullptr;
+  if (inquireDNDTypes(FROM_CLIPBOARD,types,ntypes)){
+    for (FXuint t = 0; t < ntypes; t++) {
+      if (types[t] == FXWindow::utf8Type) {
+
+        FXDragType text_types[] = {
+          FXWindow::stringType,
+          FXWindow::utf8Type,
+          FXWindow::utf16Type,
+          FXWindow::textType
+          };
+
+        GMTextData * textdata = new GMTextData();
+        getDNDData(FROM_CLIPBOARD, FXWindow::utf8Type, textdata->data);
+        acquire(this, text_types, 4, textdata);
+        break;
+        }
+      }
+    }
+  freeElms(types);
+#endif
   }
 
 
