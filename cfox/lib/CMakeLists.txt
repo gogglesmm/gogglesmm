@@ -154,14 +154,8 @@ set(HEADERS ../include/fx3d.h
             ../include/FXGIFIcon.h
             ../include/FXGIFImage.h
             ../include/FXGLCanvas.h
-            ../include/FXGLCone.h
             ../include/FXGLContext.h
-            ../include/FXGLCube.h
-            ../include/FXGLCylinder.h
             ../include/FXGLObject.h
-            ../include/FXGLShape.h
-            ../include/FXGLSphere.h
-            ../include/FXGLTriangleMesh.h
             ../include/FXGLViewer.h
             ../include/FXGLVisual.h
             ../include/FXGradientBar.h
@@ -398,8 +392,6 @@ set(SOURCES FX4Splitter.cpp
             fxbmpio.cpp
             FXButton.cpp
             FXBZFileStream.cpp
-            FXCalendar.cpp
-            FXCalendarView.cpp
             FXCanvas.cpp
             FXCheckButton.cpp
             FXChoiceBox.cpp
@@ -416,7 +408,7 @@ set(SOURCES FX4Splitter.cpp
             FXComplexd.cpp
             FXComplexf.cpp
             FXComposeContext.cpp
-	    fxcompose.cpp
+	          fxcompose.cpp
             FXComposite.cpp
             FXCondition.cpp
             FXConsole.cpp
@@ -468,15 +460,11 @@ set(SOURCES FX4Splitter.cpp
             FXDirVisitor.cpp
             FXDispatcher.cpp
             FXDLL.cpp
-            FXDockBar.cpp
-            FXDockHandler.cpp
-            FXDockSite.cpp
-            FXDockTitle.cpp
             FXDocument.cpp
             FXDragCorner.cpp
             FXDrawable.cpp
             FXDriveBox.cpp
-	    fxescape.cpp
+	          fxescape.cpp
             FXException.cpp
             FXEXEIcon.cpp
             FXEXEImage.cpp
@@ -497,7 +485,6 @@ set(SOURCES FX4Splitter.cpp
             FXFontSelector.cpp
             FXFrame.cpp
             fxfsquantize.cpp
-            FXGauge.cpp
             fxgetticks.cpp
             FXGIFCursor.cpp
             FXGIFIcon.cpp
@@ -550,17 +537,8 @@ set(SOURCES FX4Splitter.cpp
             FXList.cpp
             FXLocale.cpp
             FXMainWindow.cpp
-            FXMat2d.cpp
-            FXMat2f.cpp
-            FXMat3d.cpp
-            FXMat3f.cpp
-            FXMat4d.cpp
-            FXMat4f.cpp
             fxmath.cpp
             FXMatrix.cpp
-            FXMDIButton.cpp
-            FXMDIChild.cpp
-            FXMDIClient.cpp
             FXMemMap.cpp
             FXMemoryStream.cpp
             FXMenuBar.cpp
@@ -596,7 +574,6 @@ set(SOURCES FX4Splitter.cpp
             FXPPMIcon.cpp
             FXPPMImage.cpp
             fxppmio.cpp
-            FXPrintDialog.cpp
             fxprintf.cpp
             fxpriv.cpp
             FXProcess.cpp
@@ -605,8 +582,6 @@ set(SOURCES FX4Splitter.cpp
             fxpsio.cpp
             FXPtrList.cpp
             FXPtrQueue.cpp
-            FXQuatd.cpp
-            FXQuatf.cpp
             FXRadioButton.cpp
             FXRandom.cpp
             FXRanged.cpp
@@ -645,7 +620,6 @@ set(SOURCES FX4Splitter.cpp
             FXShutter.cpp
             FXSize.cpp
             FXSlider.cpp
-            FXSocket.cpp
             FXSphered.cpp
             FXSpheref.cpp
             FXSpinLock.cpp
@@ -701,11 +675,7 @@ set(SOURCES FX4Splitter.cpp
             FXVariantArray.cpp
             FXVariant.cpp
             FXVariantMap.cpp
-            FXVec2d.cpp
-            FXVec2f.cpp
-            FXVec3d.cpp
             FXVec3f.cpp
-            FXVec4d.cpp
             FXVec4f.cpp
             FXVerticalFrame.cpp
             FXVisual.cpp
@@ -713,7 +683,6 @@ set(SOURCES FX4Splitter.cpp
             FXWEBPImage.cpp
             fxwebpio.cpp
             FXWindow.cpp
-            FXWizard.cpp
             FXWorker.cpp
             FXWSQueue.cpp
             fxwuquantize.cpp
@@ -1156,17 +1125,11 @@ if(WITH_OPENJPEG)
   endif()
 endif()
 
-
 if(WITH_OPENGL)
-  if(TARGET OpenGL::GL AND TARGET OpenGL::GLU AND OPENGL_GLX_INCLUDE_DIR)
-    list(APPEND LIBRARIES OpenGL::GL OpenGL::GLU)
-    target_compile_definitions(cfox PUBLIC -DHAVE_GL_H -DHAVE_GLU_H)
-    add_definitions(-DHAVE_GLX_H)
-  elseif(OPENGL_GL_FOUND AND OPENGL_GLU_FOUND AND OPENGL_GLX_INCLUDE_DIR)
-    list(APPEND LIBRARIES OPENGL_gl_LIBRARY OPENGL_glu_LIBRARY)
-    target_compile_definitions(cfox PUBLIC -DHAVE_GL_H -DHAVE_GLU_H)
-    add_definitions(-DHAVE_GLX_H)
-  endif()
+  pkg_check_modules(EPOXY REQUIRED epoxy)
+  target_compile_definitions(cfox PUBLIC -DHAVE_GL_H)
+  list(APPEND LIBRARIES ${EPOXY_LIBRARIES})
+  add_definitions(-DHAVE_EPOXY)
 endif()
 
 if(NOT WITH_XIM)

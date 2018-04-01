@@ -1094,9 +1094,9 @@ void GMPreferencesDialog::updateColors(){
   FXMenuSeparator * menuseparator;
   FXText * text;
   FXFoldingList * foldinglist;
-  FXMDIChild * mdichild;
+  // FXMDIChild * mdichild;
   FXTable * table;
-  FXDockTitle * docktitle;
+  // FXDockTitle * docktitle;
   FXPacker * packer;
   FXHeader * header;
   FXGroupBox * groupbox;
@@ -1162,10 +1162,12 @@ void GMPreferencesDialog::updateColors(){
         gmtextfield->setSelBackColor(selected.selback);
         gmtextfield->setBorderColor(selected.shadow);
         }
+/*
       else if ((docktitle=dynamic_cast<FXDockTitle*>(w))!=nullptr) {
         docktitle->setCaptionColor(selected.selfore);
         docktitle->setBackColor(selected.selback);
         }
+*/
       else if ((header=dynamic_cast<FXHeader*>(w))!=nullptr) {
         header->setTextColor(selected.fore);
         }
@@ -1345,6 +1347,7 @@ void GMPreferencesDialog::updateColors(){
         table->setSelBackColor(selected.selback);
         }
       }
+/*
     else if ((mdichild=dynamic_cast<FXMDIChild*>(w))!=nullptr) {
       mdichild->setBackColor(selected.base);
       mdichild->setBaseColor(selected.base);
@@ -1354,6 +1357,7 @@ void GMPreferencesDialog::updateColors(){
       mdichild->setTitleColor(selected.selfore);
       mdichild->setTitleBackColor(selected.selback);
       }
+*/
     else if ((tooltip=dynamic_cast<FXToolTip*>(w))!=nullptr){
       tooltip->setTextColor(selected.tipfore);
       tooltip->setBackColor(selected.tipback);

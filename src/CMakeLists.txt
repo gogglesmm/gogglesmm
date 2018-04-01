@@ -54,8 +54,8 @@ if(WITH_DBUS)
 endif()
 
 if(WITH_OPENGL)
-  pkg_check_modules(EPOXY epoxy REQUIRED)
-  pkg_check_modules(GLU glu REQUIRED)
+  pkg_check_modules(EPOXY REQUIRED epoxy)
+  pkg_check_modules(GLU REQUIRED glu)
   set(HAVE_OPENGL 1)
 endif()
 

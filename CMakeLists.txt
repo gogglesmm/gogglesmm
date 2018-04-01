@@ -76,6 +76,11 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
   add_definitions(-DDEBUG)
 endif()
 
+# Suppress FXASSERT
+if(CMAKE_BUILD_TYPE MATCHES None)
+  add_definitions(-DNDEBUG)
+endif()
+
 #-------------------------------------------------------------------------------
 
 # Internal FOX Library

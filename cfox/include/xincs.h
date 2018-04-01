@@ -329,9 +329,14 @@ typedef cpuset_t   cpu_set_t;
 #ifndef HPOGL_SUPPRESS_FAST_API
 #define HPOGL_SUPPRESS_FAST_API
 #endif
+#ifdef HAVE_EPOXY
+#include <epoxy/gl.h>
+#include <epoxy/glx.h>
+#else
 #include <GL/gl.h>
 #ifdef HAVE_GLX_H
 #include <GL/glx.h>
+#endif
 #endif
 #endif
 //#ifdef HAVE_GLU_H
