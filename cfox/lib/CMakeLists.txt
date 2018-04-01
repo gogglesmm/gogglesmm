@@ -1188,11 +1188,12 @@ add_custom_command(
 set_target_properties(cfox PROPERTIES VERSION ${cfox_VERSION} SOVERSION ${cfox_VERSION_PATCH})
 set_target_properties(cfox PROPERTIES OUTPUT_NAME cfox-${cfox_VERSION_MAJOR}.${cfox_VERSION_MINOR})
 
-install(TARGETS cfox
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        )
-install(FILES ${HEADERS} DESTINATION include/cfox-${cfox_VERSION_MAJOR}.${cfox_VERSION_MINOR})
+# don't distribute for cfox
+# install(TARGETS cfox
+#        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#        )
+# install(FILES ${HEADERS} DESTINATION include/cfox-${cfox_VERSION_MAJOR}.${cfox_VERSION_MINOR})
 
 
 
