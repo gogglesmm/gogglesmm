@@ -403,7 +403,7 @@ FXString TrackFormatter::format_fields(const GMTrack & track,const FXString & pa
       }
 
     }
-  result.trim();
+  result.trim().simplify();
   return result;
   }
 

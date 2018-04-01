@@ -115,6 +115,9 @@ public:
   void setLyrics(const FXString &);
   void getLyrics(FXString &) const;
 
+  void setComment(const FXString &);
+  void getComment(FXString &) const;
+
   void setDiscNumber(FXushort disc);
   FXushort getDiscNumber() const;
 

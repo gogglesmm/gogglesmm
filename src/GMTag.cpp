@@ -867,6 +867,13 @@ void GMFileTag::getTags(FXStringList & tags) const {
     }
   }
 
+void GMFileTag::setComment(const FXString & value) {
+  tag->setComment(TagLib::String(value.text(),TagLib::String::UTF8));
+  }
+
+void GMFileTag::getComment(FXString & value) const {
+  gm_taglib_string(tag->comment(),value);
+  }
 
 void GMFileTag::setArtist(const FXString & value){
   tag->setArtist(TagLib::String(value.text(),TagLib::String::UTF8));
