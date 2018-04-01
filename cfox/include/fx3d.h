@@ -32,16 +32,13 @@
 #ifndef GL_GLEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES 1
 #endif
-#include <GL/gl.h>
+#include <epoxy/gl.h>
 #endif
 #ifndef GLAPIENTRY
 #define GLAPIENTRY
 #endif
 #ifndef GLAPI
 #define GLAPI
-#endif
-#ifdef HAVE_GLU_H
-#include <GL/glu.h>
 #endif
 
 // Additional FOX includes
