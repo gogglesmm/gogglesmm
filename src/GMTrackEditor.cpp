@@ -261,7 +261,7 @@ static FXbool updateTrackFilenames(GMTrackDatabase * db,FXIntList & tracks) {
         return true;
         }
       url = trackformat.getPath(trackinfo);
-      if (!url.empty()) {
+      if (!url.empty() && url!=trackinfo.url) {
         newurls.append(url);
         oldurls.append(trackinfo.url);
         numchanges++;
