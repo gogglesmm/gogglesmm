@@ -1301,8 +1301,7 @@ void GMPlayerManager::volume(FXint l) {
   }
 
 FXbool GMPlayerManager::can_stop() const {
-  if (player->playing() || player->pausing()) return true;
-  return false;
+  return (player->playing() || player->pausing());
   }
 
 FXbool GMPlayerManager::can_play() const {
@@ -1311,15 +1310,11 @@ FXbool GMPlayerManager::can_play() const {
   }
 
 FXbool GMPlayerManager::can_pause() const {
-  if (player->playing() && !player->pausing())
-    return true;
-  return false;
+  return (player->playing() && !player->pausing())
   }
 
 FXbool GMPlayerManager::can_unpause() const {
-  if (player->pausing())
-    return true;
-  return false;
+  return player->playing();
   }
 
 FXbool GMPlayerManager::can_next() const {
@@ -1492,8 +1487,6 @@ void GMPlayerManager::cmd_playpause(){
 void GMPlayerManager::cmd_pause(){
   if (can_pause())
     pause();
-  else if (can_unpause())
-    unpause();
   }
 
 void GMPlayerManager::cmd_schedule_stop(){
