@@ -1310,7 +1310,7 @@ FXbool GMPlayerManager::can_play() const {
   }
 
 FXbool GMPlayerManager::can_pause() const {
-  return (player->playing() && !player->pausing())
+  return (player->playing() && !player->pausing());
   }
 
 FXbool GMPlayerManager::can_unpause() const {
