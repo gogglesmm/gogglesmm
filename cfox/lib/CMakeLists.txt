@@ -937,13 +937,13 @@ if(X11_Xrender_FOUND)
 endif()
 
 # check for xinput2
-find_path(X11_Xi2_INCLUDE_PATH X11/extensions/XInput2.h ${X11_INC_SEARCH_PATH})
-if (X11_Xi2_INCLUDE_PATH AND X11_Xi_LIB)
-  set(X11_INCLUDE_DIR ${X11_INCLUDE_DIR} ${X11_Xi2_INCLUDE_PATH})
-  list(REMOVE_DUPLICATES X11_INCLUDE_DIR)
-  add_definitions(-DHAVE_XINPUT2_H)
-  list(APPEND LIBRARIES ${X11_Xi_LIB})
-endif ()
+# find_path(X11_Xi2_INCLUDE_PATH X11/extensions/XInput2.h ${X11_INC_SEARCH_PATH})
+#if (X11_Xi2_INCLUDE_PATH AND X11_Xi_LIB)
+#  set(X11_INCLUDE_DIR ${X11_INCLUDE_DIR} ${X11_Xi2_INCLUDE_PATH})
+#  list(REMOVE_DUPLICATES X11_INCLUDE_DIR)
+#  add_definitions(-DHAVE_XINPUT2_H)
+#  list(APPEND LIBRARIES ${X11_Xi_LIB})
+#endif ()
 
 #
 # AC_HEADER_DIRENT
