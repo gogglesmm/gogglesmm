@@ -520,16 +520,16 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
 */
 
 
-#define ONE_DIGIT_VALUE(d1) (FXString::digit2Value[(const FXuchar)d1])
-#define TWO_DIGIT_VALUE(d1,d2) (FXString::digit2Value[(const FXuchar)d1]*10) + (FXString::digit2Value[(const FXuchar)d2])
-#define THREE_DIGIT_VALUE(d1,d2,d3) (FXString::digit2Value[(const FXuchar)d1]*100) +\
-                                    (FXString::digit2Value[(const FXuchar)d2]*10) +\
-                                    (FXString::digit2Value[(const FXuchar)d3])
+#define ONE_DIGIT_VALUE(d1) (FXString::digit2Value[(FXuchar)d1])
+#define TWO_DIGIT_VALUE(d1,d2) (FXString::digit2Value[(FXuchar)d1]*10) + (FXString::digit2Value[(FXuchar)d2])
+#define THREE_DIGIT_VALUE(d1,d2,d3) (FXString::digit2Value[(FXuchar)d1]*100) +\
+                                    (FXString::digit2Value[(FXuchar)d2]*10) +\
+                                    (FXString::digit2Value[(FXuchar)d3])
 
-#define FOUR_DIGIT_VALUE(d1,d2,d3,d4) (FXString::digit2Value[(const FXuchar)d1]*1000) + \
-                                      (FXString::digit2Value[(const FXuchar)d2]*100) + \
-                                      (FXString::digit2Value[(const FXuchar)d3]*10) +\
-                                      (FXString::digit2Value[(const FXuchar)d4])
+#define FOUR_DIGIT_VALUE(d1,d2,d3,d4) (FXString::digit2Value[(FXuchar)d1]*1000) + \
+                                      (FXString::digit2Value[(FXuchar)d2]*100) + \
+                                      (FXString::digit2Value[(FXuchar)d3]*10) +\
+                                      (FXString::digit2Value[(FXuchar)d4])
 
 FXbool gm_parse_datetime(const FXString & str,FXTime & timestamp) {
   if (str.empty()) return false;
