@@ -501,7 +501,7 @@ FXApp::FXApp(const FXString& name,const FXString& vendor):registry(name,vendor){
   callocElms(handles,1);                  // Input handles
   maxhandle=-1;                           // Maximum handle number
   inputmethod="";                         // Input method name
-  inputstyle="overthespot";               // Input method style
+  inputstyle="onthespot";                 // Input method style
   maxcolors=MAXCOLORS;                    // Maximum number of colors to allocate
   ddeData=NULL;                           // Data exchange array
   ddeSize=0;                              // Data exchange array size
