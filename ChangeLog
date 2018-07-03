@@ -3,6 +3,7 @@
   - Support for aacPlus streams.
   - A copy of FOX is now included to make it easier to distribute gogglesmm
   - Preserve clipboard (copy/paste) when closing track editor.
+  - Updated spanish translation
   - Fix buffer overflow in audioscrobbler (issue 77).
   - Fix prevent consecutive spaces when renaming audio files.
 
