@@ -111,7 +111,7 @@ install(FILES icons/gogglesmm_32.png DESTINATION share/icons/hicolor/32x32/apps 
 install(FILES extra/gogglesmm_48.png DESTINATION share/icons/hicolor/48x48/apps RENAME gogglesmm.png)
 install(FILES extra/gogglesmm_64.png DESTINATION share/icons/hicolor/64x64/apps RENAME gogglesmm.png)
 install(FILES extra/gogglesmm.svg DESTINATION share/icons/hicolor/scalable/apps RENAME gogglesmm.svg)
-install(FILES extra/gogglesmm.appdata.xml DESTINATION share/appdata)
+install(FILES extra/gogglesmm.appdata.xml DESTINATION share/metainfo)
 install(FILES extra/gogglesmm.desktop DESTINATION share/applications)
 install(FILES extra/gogglesmm.1 DESTINATION share/man/man1)
 
