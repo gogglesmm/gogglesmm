@@ -30,7 +30,7 @@
 </description>
 <launchable type="desktop-id">gogglesmm.desktop</launchable>
 <releases>
-    <release version="1.2.0" type="stable" date="2018-07-04"/>
+    <release version="1.2.1" type="stable" date="2018-07-31"/>
 </releases>
 <screenshots>
 <screenshot type="default" width="1280" height="720">http://gogglesmm.github.io/images/gogglesmm.png</screenshot>

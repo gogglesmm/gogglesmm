@@ -16,7 +16,7 @@ add_subdirectory(lib/alac)
 
 
 # Goggles Audio Player
-project(GAP VERSION 1.2.0)
+project(GAP VERSION 1.2.1)
 
 # Update whenever ABI changes
 set(GAP_SOVERSION_CURRENT 0)    # Increase whenever an interface has been added, removed or changed.
