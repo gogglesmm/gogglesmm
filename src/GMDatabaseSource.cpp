@@ -342,7 +342,7 @@ FXbool GMDatabaseSource::track_context_menu(FXMenuPane * pane){
   new FXMenuSeparator(pane);
 
   if (GMPlayerManager::instance()->getTrackView()->numTrackSelected()==1){
-    new GMMenuCommand(pane,"Open Folder Location\t\tOpen Folder Location.",nullptr,this,ID_OPEN_FOLDER);
+    new GMMenuCommand(pane,fxtr("Open Folder Location\t\tOpen Folder Location."),nullptr,this,ID_OPEN_FOLDER);
     new GMMenuCommand(pane,fxtr("Find Cover…\t\tFind Cover with Google Image Search"),nullptr,this,ID_SEARCH_COVER);
     new FXMenuSeparator(pane);
     }
