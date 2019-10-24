@@ -172,6 +172,10 @@ msgstr ""
 msgid "Find Cover…\t\tFind Cover with Google Image Search"
 msgstr ""
 
+#: src/GMDatabaseSource.cpp:345
+msgid "Open Folder Location\t\tOpen Folder Location."
+msgstr ""
+
 #: src/GMDatabaseSource.cpp:338 src/GMPlayQueue.cpp:142
 msgid "Edit…\tF2\tEdit Track Information."
 msgstr ""
