@@ -2703,3 +2703,909 @@ msgstr "Ersetzen mit."
 #: cfox/lib/FXStatusLine.cpp:83
 msgid "Ready."
 msgstr "Bereit."
+
+#~ msgid "Exclude Filter\tFilter out directories and/or files based on pattern"
+#~ msgstr ""
+#~ "Ausfiltern\tFiltere Verzeichnisse und/oder Dateien nach einem Muster aus"
+
+#~ msgid "Remove tracks found in folder from database"
+#~ msgstr "Entferne alle Titel in diesem Ordner aus der Datenbank"
+
+#~ msgid "Default value:"
+#~ msgstr "Standardwert:"
+
+#~ msgid ""
+#~ "A DBus error occurred. All features requiring sessionbus are disabled."
+#~ msgstr ""
+#~ "DBus hat einen Fehler verursacht. Alle funktionen, die DBus benötigen "
+#~ "stehen nicht zur Verfügung."
+
+#~ msgid "Album Covers"
+#~ msgstr "Albencover"
+
+#, fuzzy
+#~ msgid "File Name"
+#~ msgstr "&Dateiname:"
+
+#~ msgid "Bitrate"
+#~ msgstr "Bitrate"
+
+#~ msgid "Export Genre"
+#~ msgstr "Genre exportieren"
+
+#~ msgid "Export tracks with genre to destination directory."
+#~ msgstr "Exportiere die Titel diesen Genres ins Zielverzeichnis."
+
+#~ msgid "Export Artists"
+#~ msgstr "Künstler exportieren"
+
+#~ msgid "Export tracks from artist to destination directory."
+#~ msgstr "Exportiere die Titel dieses Künstlers ins Zielverzeichnis."
+
+#~ msgid "Export Albums"
+#~ msgstr "Album exportieren"
+
+#~ msgid "Export tracks from album to destination directory."
+#~ msgstr "Exportiere die Titel dieses Albums ins Zielverzeichnis."
+
+#~ msgid "Export Tracks"
+#~ msgstr "Titel exportieren"
+
+#~ msgid "Export tracks to destination directory."
+#~ msgstr "Exportiere die Titel ins Zielverzeichnis"
+
+#~ msgid "&Export"
+#~ msgstr "&Exportieren"
+
+#~ msgid "&Directory"
+#~ msgstr "&Verzeichnis"
+
+#~ msgid "Filename"
+#~ msgstr "Dateiname"
+
+#, fuzzy
+#~ msgid "Merge Albums"
+#~ msgstr "Album exportieren"
+
+#~ msgid "&Replace"
+#~ msgstr "E&rsetzen"
+
+#~ msgid "Re&place All"
+#~ msgstr "Alle Erst&zen"
+
+#~ msgid "Ex&act"
+#~ msgstr "Extr&ahieren"
+
+#~ msgid "&Ignore Case"
+#~ msgstr "Groß-/Kleinschreibung ignorieren"
+
+#~ msgid "E&xpression"
+#~ msgstr "Ausdrücke"
+
+#~ msgid "&Backward"
+#~ msgstr "&Rückwärts"
+
+#~ msgid "&Search"
+#~ msgstr "&Suchen"
+
+#, fuzzy
+#~ msgid "Remove…\tDel\tRemove Tag from Library."
+#~ msgstr "Löschen…\tDel\tDas Genre aus der Bibliothek löschen."
+
+#~ msgid "Remove Genre?"
+#~ msgstr "Genre entfernen?"
+
+#~ msgid "Remove tracks with genre from library?"
+#~ msgstr "Entferne die Titel dieses Genres aus der Bibliothek."
+
+#~ msgid "Unable to remove genre from the library"
+#~ msgstr "Das Genre konnte nicht aus der Bibliothek gelöscht werden."
+
+#, fuzzy
+#~ msgid "Status"
+#~ msgstr "Sender"
+
+#~ msgid "&Music"
+#~ msgstr "&Musik"
+
+#~ msgid "New Radio Station…\t\tCreate a new playlist"
+#~ msgstr "Neuer &Radiosender…\t\tTrage einen neuen Radiosender ein"
+
+#~ msgid "&Copy\tCtrl-C\tCopy Selected Tracks"
+#~ msgstr "&Kopieren\tCtrl-C\tDie ausgewählten Titel kopieren"
+
+#~ msgid "&Cut\tCtrl-X\tCut Selected Tracks"
+#~ msgstr "Auss&chneiden\tCtrl-X\tDie ausgewählten Titel ausschneiden"
+
+#~ msgid "&Paste\tCtrl-V\tPaste Clipboard Selection"
+#~ msgstr "E&infügen\tCtrl-V\tAus der Zwischenablage einfügen"
+
+#~ msgid "&View"
+#~ msgstr "&Ansicht"
+
+#~ msgid "&Browse\tCtrl-B\tShow genre artist and album browser."
+#~ msgstr "&Browser anzeigen\tCtrl-B\tZeige den Künstler- und Alben-Browser."
+
+#~ msgid "Show &Genres\tCtrl-G\tShow genre browser."
+#~ msgstr "&Genre anzeigen\tCtrl-G\tZeige den Genre-Browser."
+
+#~ msgid "Show Mini Player\tF11\tToggle Mini Player."
+#~ msgstr ""
+#~ "Fernbedienung anzeigen\tF11\tZeige ein kleines Wiedergabefenster an."
+
+#~ msgid "&Sort"
+#~ msgstr "&Sortierung"
+
+#~ msgid "&Jump to Current Track\tCtrl-J\tShow current playing track."
+#~ msgstr ""
+#~ "Zum aktuellen Titel &springen\tCtrl-J\tZeige den aktuellen Titel an."
+
+#~ msgid "&Control"
+#~ msgstr "&Steuerung"
+
+#~ msgid "Play\tCtrl-P\tStart playback."
+#~ msgstr "Play\tCtrl-P\tStarte die Wiedergabe."
+
+#~ msgid "Stop\tCtrl-\\\tStop playback."
+#~ msgstr "Stopp\tCtrl-\\\tDie Wiedergabe anhalten."
+
+#~ msgid "Previous Track\tCtrl-[\tPlay next track."
+#~ msgstr "Vorherigen Titel\tCtrl-[\tGib den vorherigen Titel wieder."
+
+#~ msgid "Next Track\tCtrl-]\tPlay previous track."
+#~ msgstr "Nächsten Titel\tCtrl-]\tGib den nächsten Titel wieder."
+
+#~ msgid "Repeat A-B\tCtrl-T\tRepeat section of track."
+#~ msgstr ""
+#~ "Wiederholung A-B\tCtrl-T\tWiederhole die Titel, die sich zwischen zwei "
+#~ "ausgewählten Titeln befinden"
+
+#~ msgid "Shuffle Mode\tAlt-R\tPlay tracks in random order."
+#~ msgstr ""
+#~ "Zufällige Wiedergabe\tAlt-R\tGib die Titel in eine zufälligen Reihenfolge "
+#~ "wieder"
+
+#~ msgid "Equalizer\t\t"
+#~ msgstr "Equalizer\t\t"
+
+#~ msgid "&Help"
+#~ msgstr "&Hilfe"
+
+#~ msgid "&Report Issue…"
+#~ msgstr "Einen Fehle&r melden…"
+
+#~ msgid "&Sign up for last.fm…"
+#~ msgstr "Bei last.fm &anmelden…"
+
+#~ msgid ""
+#~ "&Join GMM on last.fm…\t\tJoin the Goggles Music Manager group on last.fm…"
+#~ msgstr ""
+#~ "GMM auf last.fm b&eitreten…\t\tTreten Sie der Goggles Music Manager-"
+#~ "Gruppe auf last.fm bei…"
+
+#~ msgid "Repeat A-B"
+#~ msgstr "Wiederhole A-B"
+
+#~ msgid "Repeat A"
+#~ msgstr "Wiederhole A"
+
+#~ msgid "Remove…\tDel\tRemove track(s) from play list."
+#~ msgstr "Entfernen…\tDel\tEntferne die/den Titel aus der Wiedergabeliste."
+
+#, fuzzy
+#~ msgid "Import…"
+#~ msgstr "Exportieren…"
+
+#, fuzzy
+#~ msgid "Import Playlist…\t\tImport a existing playlist"
+#~ msgstr "Neue &Wiedergabeliste…\t\tErstelle eine neue Wiedergabeliste"
+
+#~ msgid "New Station…\t\t"
+#~ msgstr "Neuer Radiosender\t\t"
+
+#~ msgid "Edit…\t\t"
+#~ msgstr "Bearbeiten…\t\t"
+
+#, fuzzy
+#~ msgid "&Reset"
+#~ msgstr "\tZurück setzen"
+
+#~ msgid "Albums\tPress to change sorting order\tPress to change sorting order"
+#~ msgstr ""
+#~ "Alben\tKlicken, um die Reihenfolge zu ändern\tKlicken, um die Reihenfolge "
+#~ "zu ändern"
+
+#~ msgid "Select all"
+#~ msgstr "Alles Auswählen"
+
+#~ msgid "About"
+#~ msgstr "Über"
+
+#~ msgid "Old Name"
+#~ msgstr "Alter Name"
+
+#~ msgid "Unable to rename file"
+#~ msgstr "Umbenennen der Datei nicht möglich"
+
+#, fuzzy
+#~ msgid ""
+#~ "Unable to rename:\n"
+#~ "%s\n"
+#~ "\n"
+#~ "to:%s\n"
+#~ "Continue renaming files?"
+#~ msgstr ""
+#~ "Konnte die Datei nicht von:\n"
+#~ "\n"
+#~ "%s  nach:  %s  verschieben.\n"
+#~ "\n"
+#~ "Trotzdem fortfahren?"
+
+#, fuzzy
+#~ msgid ""
+#~ "Unable to rename:\n"
+#~ "%s\n"
+#~ "\n"
+#~ "to:%s"
+#~ msgstr "Umbenennen der Datei nicht möglich"
+
+#~ msgid "New Play List…\t\tCreate a new play list."
+#~ msgstr "Neue Wiedergabeliste…\t\tErstelle eine neue Wiedergabeliste"
+
+#~ msgid "Information…\t\tLibrary Statistics"
+#~ msgstr "Informationen…\t\tBibliotheksstatistik"
+
+#~ msgid "\tSeparate Artists"
+#~ msgstr "\tKünstler aufteilen"
+
+#~ msgid "Import Files?"
+#~ msgstr "Dateien importieren?"
+
+#~ msgid ""
+#~ "Would you like import the pasted files and/or directories into the Music "
+#~ "Library?"
+#~ msgstr ""
+#~ "Möchten Sie die eingefügten Dateien und/oder Verzeichnisse in die "
+#~ "Musikbibliothek importieren?"
+
+#~ msgid "Music Library Information"
+#~ msgstr "Musikbibliothek-Informationen"
+
+#~ msgid "You music collection consists of…"
+#~ msgstr "Ihre Musiksammlung besteht aus…"
+
+#~ msgid "Tracks:"
+#~ msgstr "Titel:"
+
+#~ msgid "Artists:"
+#~ msgstr "Künstler:"
+
+#~ msgid "Total Time:"
+#~ msgstr "Zeit insgesamt:"
+
+#~ msgid "Equalizer"
+#~ msgstr "Equalizer"
+
+#~ msgid "Equalizer:"
+#~ msgstr "Equalizer:"
+
+#~ msgid "\tSave"
+#~ msgstr "\tSpeichern"
+
+#~ msgid "\tRemove"
+#~ msgstr "\tEntfernen"
+
+#~ msgid "Pre-amp"
+#~ msgstr "Vorverstärker"
+
+#~ msgid "Manual"
+#~ msgstr "Manuell"
+
+#~ msgid "Delete Preset"
+#~ msgstr "Voreinstellung löschen"
+
+#, fuzzy
+#~ msgid "Are you sure you want to delete %s preset?"
+#~ msgstr "Sind Sie sicher, dass Sie diese Wiedergabeliste löschen wollen?"
+
+#~ msgid "Preset Name"
+#~ msgstr "Name der Voreinstellung"
+
+#~ msgid "Please enter preset name:"
+#~ msgstr "Bitte geben Sie den Namen der Voreinstellung ein:"
+
+#~ msgid "Overwrite Preset"
+#~ msgstr "Voreinstellung überschreiben"
+
+#, fuzzy
+#~ msgid "Preset %s already exists. Would you like to overwrite it?"
+#~ msgstr "Die Datei existiert bereits. Möchten Sie sie überschreiben?"
+
+#~ msgid "Edit…\tF2\tEdit Genre."
+#~ msgstr "Bearbeiten…\tF2\tGenre bearbeiten."
+
+#~ msgid "Edit…\tF2\tEdit Artist."
+#~ msgstr "Bearbeiten…\tF2\tKünstlername bearbeiten."
+
+#~ msgid "Edit…\tF2\tEdit Album."
+#~ msgstr "Bearbeiten…\tF2\tAlbumname bearbeiten."
+
+#~ msgid "Unable to initialize audio driver."
+#~ msgstr "Der Audiotreiber konnte nicht geladen werden."
+
+#~ msgid "Unknown device"
+#~ msgstr "Unbekanntes Gerät."
+
+#~ msgid "Network not reachable."
+#~ msgstr "Keine Verbingung zum Netzwerk."
+
+#~ msgid "Audio output unavailable."
+#~ msgstr "Die Audioausgabe ist nicht verfügbar."
+
+#~ msgid "Connection Refused."
+#~ msgstr "Verbindung abgewiesen."
+
+#~ msgid "File not found."
+#~ msgstr "Datei wurde nicht gefunden."
+
+#~ msgid "Resource not accessible. Check permissions"
+#~ msgstr "Kein Zugriff auf die Ressource. Überprüfen die die Berechtigungen."
+
+#~ msgid "Read Error"
+#~ msgstr "Lesefehler"
+
+#~ msgid "Error while loading library/plugin"
+#~ msgstr "Fehler beim Laden einer Bibliothek/Plugins"
+
+#~ msgid "Warning"
+#~ msgstr "Warnung"
+
+#~ msgid "Security Warning"
+#~ msgstr "Sicherheitswarnung"
+
+#~ msgid "Unknown Error"
+#~ msgstr "Unbekannter Fehler"
+
+#~ msgid "Error"
+#~ msgstr "Fehler"
+
+#, fuzzy
+#~ msgid "Now Playing"
+#~ msgstr "Neue Wiedergabeliste"
+
+#~ msgid "Audio Device Error"
+#~ msgstr "Audio-Gerät-Fehler"
+
+#~ msgid ""
+#~ "Show album covers in album browser\tShow album covers in album browser"
+#~ msgstr ""
+#~ "Albumcover im Albenbrowser anzeigen\tAlbumcover im Albenbrowser anzeigen"
+
+#~ msgid ""
+#~ "&Join GMM on last.fm…\tJoin the Goggles Music Manager group on last.fm…"
+#~ "\tJoin the Goggles Music Manager group on last.fm…"
+#~ msgstr ""
+#~ "GMM auf last.fm &beitreten…\tTreten Sie der Goggles Music Manager-Gruppe "
+#~ "auf last.fm bei…\tTreten Sie der Goggles Music Manager-Gruppe auf last.fm "
+#~ "bei…"
+
+#~ msgid "Start Up:"
+#~ msgstr "Einschalten:"
+
+#~ msgid "Show Main Window"
+#~ msgstr "Zeige Hauptfenster"
+
+#~ msgid "Show Mini Remote"
+#~ msgstr "Zeige Fernbedienung"
+
+#~ msgid "Always Show Remote"
+#~ msgstr "Die Fernbedienung immer anzeigen"
+
+#~ msgid "Show Icons in Track Browser"
+#~ msgstr "Zeige Symbole im Titel-Browser"
+
+#~ msgid "Style:"
+#~ msgstr "Stil:"
+
+#~ msgid "Large Icons"
+#~ msgstr "Große Symbole"
+
+#~ msgid "Source\tActive Source Color"
+#~ msgstr "Quelle\tFarbe der aktiven Quelle"
+
+#~ msgid "Font"
+#~ msgstr "Schrift"
+
+#~ msgid "Theme Directory:"
+#~ msgstr "Themenverzeichnis:"
+
+#~ msgid "Engine"
+#~ msgstr "Engine"
+
+#~ msgid "Close audio device on pause."
+#~ msgstr "Bei Pausen Audio-Gerät freigeben."
+
+#~ msgid "Turn off playback engine on stop."
+#~ msgstr "Beim Stoppen die Wiedergabe-Engine abschalten."
+
+#~ msgid ""
+#~ "Turn on playback engine on startup.\tFor faster startup, playback engine "
+#~ "is normally started when first track is played.\tFor faster startup, "
+#~ "playback engine is normally started when first track is played."
+#~ msgstr ""
+#~ "Starte die Wiedergabe-Engine beim Programmstart.\tUm einen schnelleren "
+#~ "Programmstart zu ermöglichen wird die Wiedergabe-Engine erst gestartet, "
+#~ "wenn der erste Titel wiedergegeben wird\tUm einen schnelleren "
+#~ "Programmstart zu ermöglichen wird die Wiedergabe-Engine erst gestartet, "
+#~ "wenn der erste Titel wiedergegeben wird"
+
+#~ msgid "Gapless playback"
+#~ msgstr "Lückenlose Wiedergabe"
+
+#~ msgid "Volume Normalization"
+#~ msgstr "Lautstärke angleichen"
+
+#, fuzzy
+#~ msgid "Failed to open requested audio driver: %s"
+#~ msgstr "Der Audiotreiber konnte nicht geladen werden."
+
+#~ msgid "Select Theme Directory"
+#~ msgstr "Themenverzeichnis wählen"
+
+#~ msgid "normal"
+#~ msgstr "normal"
+
+#~ msgid "bold"
+#~ msgstr "fett"
+
+#~ msgid "regular"
+#~ msgstr "regulär"
+
+#~ msgid "P&revious"
+#~ msgstr "&Vorheriger"
+
+#~ msgid "P&ause"
+#~ msgstr "P&ause"
+
+#~ msgid "&Stop"
+#~ msgstr "&Stopp"
+
+#~ msgid "Unable to open the database"
+#~ msgstr "Die Datenbank konnte leider nicht geöffnet werden"
+
+#~ msgid "Unable to update track"
+#~ msgstr "Der Titel konnte nicht aktualisiert werden"
+
+#~ msgid "Unable to insert track into the database"
+#~ msgstr "Der Titel konnte nicht in die Datenbank eingetragen werden"
+
+#~ msgid "Updating Database..."
+#~ msgstr "Die Datenbank wird aktualisiert..."
+
+#~ msgid "Please wait. This may take a while."
+#~ msgstr "Bitte warten Sie einen Moment."
+
+#~ msgid "New Tracks:"
+#~ msgstr "Neue Titel:"
+
+#~ msgid "File:"
+#~ msgstr "Datei:"
+
+#~ msgid "Importing Files..."
+#~ msgstr "Dateien werden importiert..."
+
+#~ msgid "&Stop Import"
+#~ msgstr "Import &stoppen"
+
+#~ msgid "All Genres"
+#~ msgstr "Alle Genre"
+
+#~ msgid "&Columns\t\tChange Visible Columns."
+#~ msgstr "&Spalten\t\tÄndere die Spalten."
+
+#~ msgid "Play\tStart Playback\tStart Playback"
+#~ msgstr "Play\tStarte die Wiedergabe\tStarte die Wiedergabe"
+
+#~ msgid "Pause\tPause\tPause Playback"
+#~ msgstr "Pause\tPause\tDie Wiedergabe pausieren"
+
+#~ msgid "Stop\tStop Playback\tStop Playback"
+#~ msgstr "Stopp\tDie Wiedergabe anhalten\tDie Wiedergabe anhalten"
+
+#~ msgid "Previous\tPlay Previous Track\tPlay previous track."
+#~ msgstr ""
+#~ "Vorherigen\tVorherigen Titel wiedergeben\tVorherigen Titel wiedergeben"
+
+#~ msgid "Next\tPlay Next Track\tPlay next track."
+#~ msgstr "Nächsten\tNächsten Titel wiedergeben\tNächsten Titel wiedergeben"
+
+#~ msgid "Open URL…\t\tOpen Stream or File"
+#~ msgstr "URL ö&ffnen…\t\tInternetstream oder Datei öffnen"
+
+#~ msgid "Next"
+#~ msgstr "Nächstes"
+
+#~ msgid "Open MRL"
+#~ msgstr "MRL öffnen"
+
+#~ msgid "A capella"
+#~ msgstr "A capella"
+
+#~ msgid "Acid"
+#~ msgstr "Acid"
+
+#~ msgid "Acid Jazz"
+#~ msgstr "Acid Jazz"
+
+#~ msgid "Acid Punk"
+#~ msgstr "Acid Punk"
+
+#~ msgid "Acoustic"
+#~ msgstr "Akustisch"
+
+#~ msgid "Alternative"
+#~ msgstr "Alternative"
+
+#~ msgid "Avantgarde"
+#~ msgstr "Avantgarde"
+
+#~ msgid "Ballad"
+#~ msgstr "Ballade"
+
+#~ msgid "Bass"
+#~ msgstr "Bass"
+
+#~ msgid "Bebob"
+#~ msgstr "Bebob"
+
+#~ msgid "Big Band"
+#~ msgstr "Big Band"
+
+#~ msgid "Blues"
+#~ msgstr "Blues"
+
+#~ msgid "Bluegrass"
+#~ msgstr "Bluegrass"
+
+#~ msgid "Booty Bass"
+#~ msgstr "Booty Bass"
+
+#~ msgid "Cabaret"
+#~ msgstr "Kabarett"
+
+#~ msgid "Chamber Music"
+#~ msgstr "Kammermusik"
+
+#~ msgid "Chanson"
+#~ msgstr "Chanson"
+
+#~ msgid "Chorus"
+#~ msgstr "Chor"
+
+#~ msgid "Classical"
+#~ msgstr "Klassik"
+
+#~ msgid "Classic Rock"
+#~ msgstr "Classic Rock"
+
+#~ msgid "Club"
+#~ msgstr "Club"
+
+#~ msgid "Comedy"
+#~ msgstr "Comedy"
+
+#~ msgid "Country"
+#~ msgstr "Country"
+
+#~ msgid "Dance"
+#~ msgstr "Dance"
+
+#~ msgid "Dance Hall"
+#~ msgstr "Dance Hall"
+
+#~ msgid "Darkwave"
+#~ msgstr "Darkwave"
+
+#~ msgid "Death Metal"
+#~ msgstr "Death Metal"
+
+#~ msgid "Disco"
+#~ msgstr "Disco"
+
+#~ msgid "Drum Solo"
+#~ msgstr "Schlagzeugsolo"
+
+#~ msgid "Duet"
+#~ msgstr "Duet"
+
+#~ msgid "Easy Listening"
+#~ msgstr "Easy Listening"
+
+#~ msgid "Electronic"
+#~ msgstr "Elektronische Musik"
+
+#~ msgid "Folk"
+#~ msgstr "Folk"
+
+#~ msgid "Folk-Rock"
+#~ msgstr "Folk-Rock"
+
+#~ msgid "Folklore"
+#~ msgstr "Folklore"
+
+#~ msgid "Funk"
+#~ msgstr "Funk"
+
+#~ msgid "Gospel"
+#~ msgstr "Gospel"
+
+#~ msgid "Gothic"
+#~ msgstr "Gothic"
+
+#~ msgid "Gothic Rock"
+#~ msgstr "Gothic Rock"
+
+#~ msgid "Grunge"
+#~ msgstr "Grunge"
+
+#~ msgid "Hard Rock"
+#~ msgstr "Hard Rock"
+
+#~ msgid "Hip-Hop"
+#~ msgstr "Hip-Hop"
+
+#, fuzzy
+#~ msgid "House"
+#~ msgstr "Farbton:"
+
+#~ msgid "Industrial"
+#~ msgstr "Industrial"
+
+#~ msgid "Instrumental"
+#~ msgstr "Instrumental"
+
+#~ msgid "Jazz"
+#~ msgstr "Jazz"
+
+#~ msgid "Jazz+Funk"
+#~ msgstr "Jazz+Funk"
+
+#~ msgid "Meditative"
+#~ msgstr "Meditativ"
+
+#~ msgid "Metal"
+#~ msgstr "Metal"
+
+#~ msgid "Musical"
+#~ msgstr "Musical"
+
+#~ msgid "New Age"
+#~ msgstr "New Age"
+
+#~ msgid "New Wave"
+#~ msgstr "New Wave"
+
+#~ msgid "Noise"
+#~ msgstr "Noise"
+
+#~ msgid "Oldies"
+#~ msgstr "Oldies"
+
+#~ msgid "Opera"
+#~ msgstr "Oper"
+
+#~ msgid "Other"
+#~ msgstr "Andere"
+
+#~ msgid "Polka"
+#~ msgstr "Polka"
+
+#~ msgid "Pop"
+#~ msgstr "Pop"
+
+#~ msgid "Pop-Folk"
+#~ msgstr "Pop-Folk"
+
+#~ msgid "Pop/Funk"
+#~ msgstr "Pop/Funk"
+
+#~ msgid "Progressive Rock"
+#~ msgstr "Progressive Rock"
+
+#~ msgid "Psychadelic"
+#~ msgstr "Psychadelic"
+
+#~ msgid "Psychedelic Rock"
+#~ msgstr "Psychedelic Rock"
+
+#~ msgid "Punk"
+#~ msgstr "Punk"
+
+#~ msgid "Punk Rock"
+#~ msgstr "Punk Rock"
+
+#~ msgid "R&B"
+#~ msgstr "R&B"
+
+#~ msgid "Rap"
+#~ msgstr "Rap"
+
+#~ msgid "Rave"
+#~ msgstr "Rave"
+
+#~ msgid "Reggae"
+#~ msgstr "Reggae"
+
+#~ msgid "Retro"
+#~ msgstr "Retro"
+
+#~ msgid "Revival"
+#~ msgstr "Revival"
+
+#~ msgid "Rock"
+#~ msgstr "Rock"
+
+#~ msgid "Rock & Roll"
+#~ msgstr "Rock & Roll"
+
+#~ msgid "Samba"
+#~ msgstr "Samba"
+
+#~ msgid "Satire"
+#~ msgstr "Satire"
+
+#~ msgid "Ska"
+#~ msgstr "Ska"
+
+#~ msgid "Sonata"
+#~ msgstr "Sonate"
+
+#~ msgid "Soul"
+#~ msgstr "Soul"
+
+#~ msgid "Soundtrack"
+#~ msgstr "Soundtrack"
+
+#~ msgid "Speech"
+#~ msgstr "Sprache"
+
+#~ msgid "Swing"
+#~ msgstr "Swing"
+
+#~ msgid "Symphony"
+#~ msgstr "Symphonie"
+
+#~ msgid "Tango"
+#~ msgstr "Tango"
+
+#~ msgid "Techno"
+#~ msgstr "Techno"
+
+#~ msgid "Top 40"
+#~ msgstr "Top 40"
+
+#~ msgid "Trailer"
+#~ msgstr "Trailer"
+
+#~ msgid "Trance"
+#~ msgstr "Trance"
+
+#~ msgid "Tribal"
+#~ msgstr "Tribal"
+
+#~ msgid "Trip-Hop"
+#~ msgstr "Trip-Hop"
+
+#~ msgid "Vocal"
+#~ msgstr "Gesang"
+
+#~ msgid "&Family:"
+#~ msgstr "&Familie:"
+
+#~ msgid "&Weight:"
+#~ msgstr "&Breite:"
+
+#~ msgid "&Style:"
+#~ msgstr "&Stil"
+
+#~ msgid "Si&ze:"
+#~ msgstr "&Größe"
+
+#~ msgid "Character Set:"
+#~ msgstr "Zeichensatz:"
+
+#~ msgid "West European"
+#~ msgstr "West-Europäisch"
+
+#~ msgid "East European"
+#~ msgstr "Ost-Europäisch"
+
+#~ msgid "South European"
+#~ msgstr "Süd-Europäisch"
+
+#~ msgid "North European"
+#~ msgstr "Nord-Europäisch"
+
+#~ msgid "Cyrillic"
+#~ msgstr "Kyrillisch"
+
+#~ msgid "Arabic"
+#~ msgstr "Arabisch"
+
+#~ msgid "Greek"
+#~ msgstr "Griechisch"
+
+#~ msgid "Hebrew"
+#~ msgstr "Hebräisch"
+
+#~ msgid "Turkish"
+#~ msgstr "Türkisch"
+
+#~ msgid "Thai"
+#~ msgstr "Thai"
+
+#~ msgid "Baltic"
+#~ msgstr "Baltisch"
+
+#~ msgid "Russian"
+#~ msgstr "Russisch"
+
+#~ msgid "Central European (cp1250)"
+#~ msgstr "Zentral-Europäisch (cp1250)"
+
+#~ msgid "Russian (cp1251)"
+#~ msgstr "Russisch (cp1251)"
+
+#~ msgid "Latin1 (cp1252)"
+#~ msgstr "Latin1 (cp1252)"
+
+#~ msgid "Greek (cp1253)"
+#~ msgstr "Griechisch (cp1253)"
+
+#~ msgid "Turkish (cp1254)"
+#~ msgstr "Türkisch (cp1254)"
+
+#~ msgid "Hebrew (cp1255)"
+#~ msgstr "Hebräisch (cp1255)"
+
+#~ msgid "Arabic (cp1256)"
+#~ msgstr "Arabisch (cp1256)"
+
+#~ msgid "Baltic (cp1257)"
+#~ msgstr "Baltisch (cp1257)"
+
+#~ msgid "Vietnam (cp1258)"
+#~ msgstr "Vietnamesisch (cp1258)"
+
+#~ msgid "Thai (cp874)"
+#~ msgstr "Thai (cp874)"
+
+#~ msgid "UNICODE"
+#~ msgstr "UNICODE"
+
+#~ msgid "Set Width:"
+#~ msgstr "Wähle Breite:"
+
+#~ msgid "Fixed"
+#~ msgstr "Fest"
+
+#~ msgid "Variable"
+#~ msgstr "Variabel"
+
+#~ msgid "Scalable:"
+#~ msgstr "Skalierbar:"
+
+#~ msgid "All Fonts:"
+#~ msgstr "Alle Schriftarten:"
+
+#~ msgid "Preview:"
+#~ msgstr "Vorschau:"
+
+#~ msgid "Modified Date"
+#~ msgstr "Änderungsdatum"
+
+#~ msgid "Attributes"
+#~ msgstr "Attribute"
+
+#~ msgid "Link"
+#~ msgstr "Verknüpfung"
