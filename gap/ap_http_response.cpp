@@ -341,7 +341,7 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
         break;
 
       parameters.insert(str.mid(ks,kp-ks),
-                        unescape(str.mid(s,p-s),'\"','\"'));
+                        FX::FXString::unescape(str.mid(s,p-s),'\"','\"'));
       p++;
       }
     else {

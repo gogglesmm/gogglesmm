@@ -26,7 +26,7 @@ public:
   FXint remove(FXint name) {  return (FXint)(FXival)FXHash::remove((void*)(FXival)name); }
   //FXint find(FXint name) const { return (FXint)(FXival)FXHash::find((void*)(FXival)name); }
   FXint at(FXint name) const { return (FXint)(FXival)FXHash::at((void*)(FXival)name); }
-  FXint key(FXuint pos) const { return (FXint)(FXival)table[pos].name; }
+  FXint key(FXuint pos) const { return (FXint)(FXival)table[pos].key; }
   FXint value(FXuint pos) const { return (FXint)(FXival)table[pos].data; }
   void adopt(FXIntMap &);
   void load(FXStream & store);

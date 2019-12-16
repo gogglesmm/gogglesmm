@@ -1372,8 +1372,8 @@ FXbool GMTrackDatabase::listAlbums(FXComboBox * list,FXint track){
 void GMTrackDatabase::clear_path_lookup() {
   DEBUG_DB_GET();
   for (FXint i=0;i<pathdict.no();i++) {
-    if (!pathdict.empty(i) && pathdict.value(i)!=nullptr) {
-      free(pathdict.value(i));
+    if (!pathdict.empty(i) && pathdict.data(i)!=nullptr) {
+      free(pathdict.data(i));
       }
     }
   pathdict.clear();
@@ -1424,8 +1424,8 @@ void GMTrackDatabase::setup_artist_lookup() {
 void GMTrackDatabase::clear_artist_lookup() {
   DEBUG_DB_GET();
   for (FXint i=0;i<artistdict.no();i++) {
-    if (!artistdict.empty(i) && artistdict.value(i)!=nullptr) {
-      FXString * a = (FXString*)artistdict.value(i);
+    if (!artistdict.empty(i) && artistdict.data(i)!=nullptr) {
+      FXString * a = (FXString*)artistdict.data(i);
       delete a;
       }
     }
