@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gogglesmm 1.0.0\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2018-07-03 04:28-0500\n"
+"POT-Creation-Date: 2020-04-19 11:19-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,8 +75,7 @@ msgstr ""
 msgid "Move Down"
 msgstr ""
 
-#: src/GMDatabaseSource.cpp:226 src/GMFilterSource.cpp:197
-#: src/GMPlayListSource.cpp:387 src/GMPlayQueue.cpp:67
+#: src/GMDatabaseSource.cpp:226 src/GMPlayQueue.cpp:67
 #: src/GMStreamSource.cpp:58
 msgid "No"
 msgstr ""
@@ -172,10 +171,6 @@ msgstr ""
 msgid "Find Cover…\t\tFind Cover with Google Image Search"
 msgstr ""
 
-#: src/GMDatabaseSource.cpp:345
-msgid "Open Folder Location\t\tOpen Folder Location."
-msgstr ""
-
 #: src/GMDatabaseSource.cpp:338 src/GMPlayQueue.cpp:142
 msgid "Edit…\tF2\tEdit Track Information."
 msgstr ""
@@ -186,6 +181,10 @@ msgstr ""
 
 #: src/GMDatabaseSource.cpp:341 src/GMPlayQueue.cpp:143
 msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
+msgstr ""
+
+#: src/GMDatabaseSource.cpp:345
+msgid "Open Folder Location\t\tOpen Folder Location."
 msgstr ""
 
 #: src/GMDatabaseSource.cpp:350
@@ -560,7 +559,15 @@ msgid "Are you sure you want to remove the filter?"
 msgstr ""
 
 #: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
-msgid "Yes"
+#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
+#: cfox/lib/FXMessageBox.cpp:148
+msgid "&Yes"
+msgstr ""
+
+#: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
+#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
+#: cfox/lib/FXMessageBox.cpp:150
+msgid "&No"
 msgstr ""
 
 #: src/GMFilterSource.cpp:207
@@ -911,11 +918,11 @@ msgid ""
 "likely the libpng header files were not installed on your system."
 msgstr ""
 
-#: src/GMPlayerManager.cpp:1402
+#: src/GMPlayerManager.cpp:1397
 msgid "Last.FM Error"
 msgstr ""
 
-#: src/GMPlayerManager.cpp:1776
+#: src/GMPlayerManager.cpp:1769
 msgid "Playback Error"
 msgstr ""
 
@@ -1994,16 +2001,6 @@ msgstr ""
 
 #: src/GMStreamSource.h:55
 msgid "Internet Radio"
-msgstr ""
-
-#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
-#: cfox/lib/FXMessageBox.cpp:148
-msgid "&Yes"
-msgstr ""
-
-#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
-#: cfox/lib/FXMessageBox.cpp:150
-msgid "&No"
 msgstr ""
 
 #: cfox/lib/FXMessageBox.cpp:123 cfox/lib/FXMessageBox.cpp:128

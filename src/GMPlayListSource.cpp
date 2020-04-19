@@ -384,7 +384,7 @@ long GMPlayListSource::onCmdEditName(FXObject*,FXSelector,void *){
 
 
 long GMPlayListSource::onCmdRemove(FXObject*,FXSelector,void *){
-  if (GMPlayerManager::instance()->getMainWindow()->question(fxtr("Delete Play List?"),fxtr("Are you sure you want to delete the playlist?"),fxtr("Yes"),fxtr("No"))){
+  if (GMPlayerManager::instance()->getMainWindow()->question(fxtr("Delete Play List?"),fxtr("Are you sure you want to delete the playlist?"),fxtr("&Yes"),fxtr("&No"))){
     if (db->removePlaylist(playlist)) {
       FXApp::instance()->reg().deleteSection(settingKey().text());
       GMPlayerManager::instance()->removeSource(this);

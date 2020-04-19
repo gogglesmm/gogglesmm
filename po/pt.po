@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gogglesmm\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2018-07-03 04:28-0500\n"
+"POT-Creation-Date: 2020-04-19 11:19-0500\n"
 "PO-Revision-Date: 2011-11-16 22:22-0000\n"
 "Last-Translator: Sérgio Marques <smarquespt@gmail.com>\n"
 "Language-Team: \n"
@@ -80,8 +80,7 @@ msgstr "Para cima"
 msgid "Move Down"
 msgstr "Para baixo"
 
-#: src/GMDatabaseSource.cpp:226 src/GMFilterSource.cpp:197
-#: src/GMPlayListSource.cpp:387 src/GMPlayQueue.cpp:67
+#: src/GMDatabaseSource.cpp:226 src/GMPlayQueue.cpp:67
 #: src/GMStreamSource.cpp:58
 msgid "No"
 msgstr "Não"
@@ -190,6 +189,10 @@ msgstr ""
 #: src/GMDatabaseSource.cpp:341 src/GMPlayQueue.cpp:143
 msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
 msgstr "Copiar\tCtrl-C\tCopiar faixa(s) para a área de transferência"
+
+#: src/GMDatabaseSource.cpp:345
+msgid "Open Folder Location\t\tOpen Folder Location."
+msgstr "Abrir local da pasta\t\tAbrir local da pasta"
 
 #: src/GMDatabaseSource.cpp:350
 msgid "Remove…\tDel\tRemove track(s) from library."
@@ -587,8 +590,16 @@ msgstr ""
 "%s ?"
 
 #: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
-msgid "Yes"
-msgstr "Sim"
+#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
+#: cfox/lib/FXMessageBox.cpp:148
+msgid "&Yes"
+msgstr "&Sim"
+
+#: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
+#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
+#: cfox/lib/FXMessageBox.cpp:150
+msgid "&No"
+msgstr "&Não"
 
 #: src/GMFilterSource.cpp:207
 #, fuzzy
@@ -965,11 +976,11 @@ msgstr ""
 "disponibilizado pela biblioteca FOX. Se foi você que compilou o FOX,\n"
 "verifique se ficheiros libpng estão instalados."
 
-#: src/GMPlayerManager.cpp:1402
+#: src/GMPlayerManager.cpp:1397
 msgid "Last.FM Error"
 msgstr "Erro last.fm"
 
-#: src/GMPlayerManager.cpp:1776
+#: src/GMPlayerManager.cpp:1769
 msgid "Playback Error"
 msgstr "Erro de reprodução"
 
@@ -2125,16 +2136,6 @@ msgstr "Álbums:"
 msgid "Internet Radio"
 msgstr "Rádio na internet"
 
-#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
-#: cfox/lib/FXMessageBox.cpp:148
-msgid "&Yes"
-msgstr "&Sim"
-
-#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
-#: cfox/lib/FXMessageBox.cpp:150
-msgid "&No"
-msgstr "&Não"
-
 #: cfox/lib/FXMessageBox.cpp:123 cfox/lib/FXMessageBox.cpp:128
 msgid "&Quit"
 msgstr "&Sair"
@@ -2755,6 +2756,9 @@ msgstr "Su&bstituir por:"
 msgid "Ready."
 msgstr "Pronto"
 
+#~ msgid "Yes"
+#~ msgstr "Sim"
+
 #~ msgid "Exclude Filter\tFilter out directories and/or files based on pattern"
 #~ msgstr "Exclusão\tFiltrar diretórios e/ou ficheiros com base num padrão"
 
@@ -2984,9 +2988,6 @@ msgstr "Pronto"
 #~ "%s\n"
 #~ "\n"
 #~ "para: %s"
-
-#~ msgid "Open Folder Location\t\tOpen Folder Location."
-#~ msgstr "Abrir local da pasta\t\tAbrir local da pasta"
 
 #~ msgid "New Play List…\t\tCreate a new play list."
 #~ msgstr "Nova lista de reprodução…\t\tCriar nova lista de reprodução"

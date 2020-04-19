@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gogglesmm 1.2.1\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2018-07-03 04:28-0500\n"
+"POT-Creation-Date: 2020-04-19 11:19-0500\n"
 "PO-Revision-Date: 2019-10-24 21:21+0200\n"
 "Last-Translator: Martin Wagner <grisu-04@web.de>\n"
 "Language-Team: German\n"
@@ -78,8 +78,7 @@ msgstr "Nach oben verschieben"
 msgid "Move Down"
 msgstr "Nach unten verschieben"
 
-#: src/GMDatabaseSource.cpp:226 src/GMFilterSource.cpp:197
-#: src/GMPlayListSource.cpp:387 src/GMPlayQueue.cpp:67
+#: src/GMDatabaseSource.cpp:226 src/GMPlayQueue.cpp:67
 #: src/GMStreamSource.cpp:58
 #, fuzzy
 msgid "No"
@@ -176,10 +175,6 @@ msgstr "Löschen…\tDel\tLösche die zugehörigen Titel aus der Bibliothek."
 msgid "Find Cover…\t\tFind Cover with Google Image Search"
 msgstr "Finde Cover…\t\tFinde Cover über Google Bildersuche"
 
-#: src/GMDatabaseSource.cpp:345
-msgid "Open Folder Location\t\tOpen Folder Location."
-msgstr "Ordner öffnen\t\tUrsprungsordner öffnen."
-
 #: src/GMDatabaseSource.cpp:338 src/GMPlayQueue.cpp:142
 msgid "Edit…\tF2\tEdit Track Information."
 msgstr "Bearbeiten…\tF2\tBearbeite die Titel-Informationen."
@@ -191,6 +186,10 @@ msgstr "Cover setzen…\t\t"
 #: src/GMDatabaseSource.cpp:341 src/GMPlayQueue.cpp:143
 msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
 msgstr "Kopieren\tCtrl-C\tKopiere die/den Titel in die Zwischenablage."
+
+#: src/GMDatabaseSource.cpp:345
+msgid "Open Folder Location\t\tOpen Folder Location."
+msgstr "Ordner öffnen\t\tUrsprungsordner öffnen."
 
 #: src/GMDatabaseSource.cpp:350
 msgid "Remove…\tDel\tRemove track(s) from library."
@@ -572,8 +571,16 @@ msgid "Are you sure you want to remove the filter?"
 msgstr "Sind Sie sicher, dass Sie den Filter löschen wollen?"
 
 #: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
-msgid "Yes"
-msgstr "Ja"
+#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
+#: cfox/lib/FXMessageBox.cpp:148
+msgid "&Yes"
+msgstr "&Ja"
+
+#: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
+#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
+#: cfox/lib/FXMessageBox.cpp:150
+msgid "&No"
+msgstr "&Nein"
 
 #: src/GMFilterSource.cpp:207
 msgid "Edit"
@@ -970,11 +977,11 @@ msgstr ""
 "haben, so waren die libpng Header-Dateien wahrscheinlich nicht auf\n"
 "Ihrem System vorhanden."
 
-#: src/GMPlayerManager.cpp:1402
+#: src/GMPlayerManager.cpp:1397
 msgid "Last.FM Error"
 msgstr "Last.FM-Fehler"
 
-#: src/GMPlayerManager.cpp:1776
+#: src/GMPlayerManager.cpp:1769
 msgid "Playback Error"
 msgstr "Wiedergabe-Fehler"
 
@@ -2094,16 +2101,6 @@ msgstr "Alben"
 msgid "Internet Radio"
 msgstr "Internetradio"
 
-#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
-#: cfox/lib/FXMessageBox.cpp:148
-msgid "&Yes"
-msgstr "&Ja"
-
-#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
-#: cfox/lib/FXMessageBox.cpp:150
-msgid "&No"
-msgstr "&Nein"
-
 #: cfox/lib/FXMessageBox.cpp:123 cfox/lib/FXMessageBox.cpp:128
 msgid "&Quit"
 msgstr "B&eenden"
@@ -2703,6 +2700,9 @@ msgstr "Ersetzen mit."
 #: cfox/lib/FXStatusLine.cpp:83
 msgid "Ready."
 msgstr "Bereit."
+
+#~ msgid "Yes"
+#~ msgstr "Ja"
 
 #~ msgid "Exclude Filter\tFilter out directories and/or files based on pattern"
 #~ msgstr ""

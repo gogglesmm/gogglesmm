@@ -194,7 +194,7 @@ long GMFilterSource::onCmdEdit(FXObject*,FXSelector,void*){
 
 
 long GMFilterSource::onCmdRemove(FXObject*,FXSelector,void *){
-  if (GMPlayerManager::instance()->getMainWindow()->question(fxtr("Remove Filter"),fxtr("Are you sure you want to remove the filter?"),fxtr("Yes"),fxtr("No"))){
+  if (GMPlayerManager::instance()->getMainWindow()->question(fxtr("Remove Filter"),fxtr("Are you sure you want to remove the filter?"),fxtr("&Yes"),fxtr("&No"))){
     sources.remove(this);
     GMFilterSource::save();
     GMPlayerManager::instance()->removeSource(this);

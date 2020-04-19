@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gogglesmm 0.10.0\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2018-07-03 04:28-0500\n"
+"POT-Creation-Date: 2020-04-19 11:19-0500\n"
 "PO-Revision-Date: 2011-07-12 20:14+0300\n"
 "Last-Translator: L Lawliet <lestat.de.lionkur@gmail.com>\n"
 "Language-Team: Russian\n"
@@ -78,8 +78,7 @@ msgstr "Переместить вверх"
 msgid "Move Down"
 msgstr "Переместить вниз"
 
-#: src/GMDatabaseSource.cpp:226 src/GMFilterSource.cpp:197
-#: src/GMPlayListSource.cpp:387 src/GMPlayQueue.cpp:67
+#: src/GMDatabaseSource.cpp:226 src/GMPlayQueue.cpp:67
 #: src/GMStreamSource.cpp:58
 msgid "No"
 msgstr "Нет"
@@ -187,6 +186,10 @@ msgstr ""
 #: src/GMDatabaseSource.cpp:341 src/GMPlayQueue.cpp:143
 msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
 msgstr "Копировать\tCtrl-C\tКопировать трек(и) в буфер обмена."
+
+#: src/GMDatabaseSource.cpp:345
+msgid "Open Folder Location\t\tOpen Folder Location."
+msgstr ""
 
 #: src/GMDatabaseSource.cpp:350
 msgid "Remove…\tDel\tRemove track(s) from library."
@@ -586,8 +589,17 @@ msgstr ""
 "%s"
 
 #: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
-msgid "Yes"
+#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
+#: cfox/lib/FXMessageBox.cpp:148
+msgid "&Yes"
 msgstr "Да"
+
+#: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
+#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
+#: cfox/lib/FXMessageBox.cpp:150
+#, fuzzy
+msgid "&No"
+msgstr "Нет"
 
 #: src/GMFilterSource.cpp:207
 #, fuzzy
@@ -964,11 +976,11 @@ msgstr ""
 "библиотеке FOX. Если Вы сами компилируете FOX, вероятно заголовочные файлы\n"
 "libpng не установлены в Вашей системе."
 
-#: src/GMPlayerManager.cpp:1402
+#: src/GMPlayerManager.cpp:1397
 msgid "Last.FM Error"
 msgstr "Ошибка Last.FM"
 
-#: src/GMPlayerManager.cpp:1776
+#: src/GMPlayerManager.cpp:1769
 msgid "Playback Error"
 msgstr "Ошибка воспроизведения"
 
@@ -2129,17 +2141,6 @@ msgstr "Альбом"
 msgid "Internet Radio"
 msgstr "Интернет радио"
 
-#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
-#: cfox/lib/FXMessageBox.cpp:148
-msgid "&Yes"
-msgstr "Да"
-
-#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
-#: cfox/lib/FXMessageBox.cpp:150
-#, fuzzy
-msgid "&No"
-msgstr "Нет"
-
 #: cfox/lib/FXMessageBox.cpp:123 cfox/lib/FXMessageBox.cpp:128
 #, fuzzy
 msgid "&Quit"
@@ -2790,6 +2791,9 @@ msgstr "Заменить на:"
 #, fuzzy
 msgid "Ready."
 msgstr "Готово."
+
+#~ msgid "Yes"
+#~ msgstr "Да"
 
 #~ msgid "Exclude Filter\tFilter out directories and/or files based on pattern"
 #~ msgstr "Отключить фильтр\tОтфильтровать папки и/или файлы по шаблону"
