@@ -3,7 +3,7 @@
 *                         T o p   W i n d o w   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -673,7 +673,7 @@ void FXTopWindow::settitle(){
 #ifdef WIN32
 #ifdef UNICODE
     FXnchar unititle[1024];
-    utf2ncs(unititle,title.text(),1024);
+    utf2ncs(unititle,title.text(),ARRAYNUMBER(unititle));
     SetWindowTextW((HWND)xid,unititle);
 #else
     SetWindowTextA((HWND)xid,title.text());

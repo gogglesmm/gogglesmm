@@ -3,7 +3,7 @@
 *                           R e g i s t r y   C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -474,15 +474,15 @@ FXbool FXRegistry::read(){
         }
       }
     }
-  else{
 #if defined(WIN32)
+  else{
     // Try read system-wide registry settings from HKEY_LOCAL_MACHINE
     if(readFromRegistry(HKEY_LOCAL_MACHINE,false)) ok=true;
 
     // Try read per-user registry settings from HKEY_CURRENT_USER
     if(readFromRegistry(HKEY_CURRENT_USER,true)) ok=true;
-#endif
     }
+#endif
   return ok;
   }
 
@@ -533,12 +533,12 @@ FXbool FXRegistry::write(){
           }
         }
       }
-    else{
 #if defined(WIN32)
+    else{
       // Write per-user registry settings to HKEY_CURRENT_USER
       if(writeToRegistry(HKEY_CURRENT_USER)) ok=true;
-#endif
       }
+#endif
     }
   return ok;
   }

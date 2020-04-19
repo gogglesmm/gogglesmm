@@ -3,7 +3,7 @@
 *                             B i t m a p    O b j e c t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -115,7 +115,7 @@ void FXBitmap::create(){
       // Initialize visual
       visual->create();
 
-#ifdef WIN32
+#if defined(WIN32)
       xid=CreateBitmap(FXMAX(width,1),FXMAX(height,1),1,1,NULL);
 #else
       xid=XCreatePixmap((Display*)getApp()->getDisplay(),XDefaultRootWindow((Display*)getApp()->getDisplay()),FXMAX(width,1),FXMAX(height,1),1);
@@ -159,7 +159,7 @@ void FXBitmap::destroy(){
   if(xid){
     if(getApp()->isInitialized()){
       FXTRACE((100,"%s::destroy %p\n",getClassName(),this));
-#ifdef WIN32
+#if defined(WIN32)
       DeleteObject(xid);
 #else
       XFreePixmap((Display*)getApp()->getDisplay(),xid);
@@ -170,7 +170,7 @@ void FXBitmap::destroy(){
   }
 
 
-#ifdef WIN32            // WINDOWS
+#if defined(WIN32)      // WINDOWS
 
 
 struct BITMAPINFO256 {
@@ -446,7 +446,7 @@ void FXBitmap::resize(FXint w,FXint h){
   bw=(w+7)>>3;
   if(xid){
 
-#ifdef WIN32
+#if defined(WIN32)
 
     // Delete old bitmap
     DeleteObject(xid);
@@ -804,7 +804,7 @@ void FXBitmap::crop(FXint x,FXint y,FXint w,FXint h,FXbool color){
 
 
 
-#ifdef WIN32
+#if defined(WIN32)
 
 // Get the image's device context
 FXID FXBitmap::GetDC() const {

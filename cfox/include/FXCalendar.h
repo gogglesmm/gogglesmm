@@ -3,7 +3,7 @@
 *                       C a l e n d a r   W i d g e t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2018 by Sander Jansen.   All Rights Reserved.              *
+* Copyright (C) 2006,2019 by Sander Jansen.   All Rights Reserved.              *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

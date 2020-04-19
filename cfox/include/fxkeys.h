@@ -3,7 +3,7 @@
 *        F O X   K e y b o a r d   S y m b o l   D e f i n i t i o n s          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

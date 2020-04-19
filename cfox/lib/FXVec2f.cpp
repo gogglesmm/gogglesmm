@@ -3,7 +3,7 @@
 *       S i n g l e - P r e c i s i o n   2 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -43,12 +43,6 @@ FXVec2f normalize(const FXVec2f& v){
   FXVec2f result(v);
   if(__likely(0.0f<m)){ result/=Math::sqrt(m); }
   return result;
-  }
-
-
-// Linearly interpolate
-FXVec2f lerp(const FXVec2f& u,const FXVec2f& v,FXfloat f){
-  return FXVec2f(u.x+(v.x-u.x)*f,u.y+(v.y-u.y)*f);
   }
 
 

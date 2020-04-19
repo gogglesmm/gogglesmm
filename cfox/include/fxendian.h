@@ -3,7 +3,7 @@
 *                      B y t e   S w a p p i n g   S u p p o r t                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2010,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2010,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -183,6 +183,27 @@ static inline FXuint clz32(FXuint x){
   }
 
 
+// Count leading zeros in non-zero long
+static inline FXulong clz64(FXulong x){
+#if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
+#if defined(__LP64__) || defined(_LP64) || (__WORDSIZE == 64)
+  return __builtin_clzl(x);
+#else
+  return __builtin_clzll(x);
+#endif
+#else
+  FXulong g,f,e,d,c,b;
+  g=!(x&0xffffffff00000000)<<8; x<<=g;
+  f=!(x&0xffff000000000000)<<4; x<<=f;
+  e=!(x&0xff00000000000000)<<3; x<<=e;
+  d=!(x&0xf000000000000000)<<2; x<<=d;
+  c=!(x&0xC000000000000000)<<1; x<<=c;
+  b=!(x&0x8000000000000000);
+  return g+f+e+d+c+b;
+#endif
+  }
+
+
 // Count trailing zeros in non-zero integer
 static inline FXuint ctz32(FXuint x){
 #if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
@@ -198,6 +219,70 @@ static inline FXuint ctz32(FXuint x){
 #endif
   }
 
+
+// Count trailing zeros in non-zero long
+static inline FXulong ctz64(FXulong x){
+#if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
+#if defined(__LP64__) || defined(_LP64) || (__WORDSIZE == 64)
+  return __builtin_ctzl(x);
+#else
+  return __builtin_ctzll(x);
+#endif
+#else
+  FXulong g,f,e,d,c,b;
+  g=!(x&0x00000000ffffffff)<<8; x>>=g;
+  f=!(x&0x000000000000ffff)<<4; x>>=f;
+  e=!(x&0x00000000000000ff)<<3; x>>=e;
+  d=!(x&0x000000000000000f)<<2; x>>=d;
+  c=!(x&0x0000000000000003)<<1; x>>=c;
+  b=!(x&0x0000000000000001);
+  return g+f+e+d+c+b;
+#endif
+  }
+
+
+// Roll bits left, 32-bit flavor (count<32)
+static inline FXuint rol32(FXuint value,FXuint count){
+  return (value<<count) | (value>>(32-count));
+  }
+
+// Roll bits right, 32-bit flavor (count<32)
+static inline FXuint ror32(FXuint value,FXuint count){
+  return (value>>count) | (value<<(32-count));
+  }
+
+
+// Roll bits left, 64-bit flavor (count<64)
+static inline FXulong rol64(FXulong value,FXulong count){
+  return (value<<count) | (value>>(64-count));
+  }
+
+// Roll bits right, 64-bit flavor (count<64)
+static inline FXulong ror64(FXulong value,FXulong count){
+  return (value>>count) | (value<<(64-count));
+  }
+
+
+// Shift bits left, 32-bit flavor (count<32)
+static inline FXuint shl32(FXuint value,FXuint count){
+  return (value<<count);
+  }
+
+// Shift bits right, 32-bit flavor (count<32)
+static inline FXuint shr32(FXuint value,FXuint count){
+  return (value>>count);
+  }
+
+
+// Shift bits left, 64-bit flavor (count<64)
+static inline FXulong shl64(FXulong value,FXulong count){
+  return (value<<count);
+  }
+
+// Shift bits right, 64-bit flavor (count<64)
+static inline FXulong shr64(FXulong value,FXulong count){
+  return (value>>count);
+  }
 
 }
 

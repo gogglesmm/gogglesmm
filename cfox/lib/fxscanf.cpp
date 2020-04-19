@@ -3,7 +3,7 @@
 *                   V a r a r g s   S c a n f   R o u t i n e s                 *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -108,6 +108,10 @@ enum {
   ARG_VARIABLE          // Depending on size of pointer
   };
 
+// Some magick
+const union{ FXulong u; FXdouble f; } inf={FXULONG(0x7ff0000000000000)};
+const union{ FXulong u; FXdouble f; } nan={FXULONG(0x7fffffffffffffff)};
+
 /*******************************************************************************/
 
 static const FXchar* grouping(const FXchar* begin,const FXchar* end){
@@ -164,7 +168,7 @@ static const FXchar* grouping(const FXchar* begin,const FXchar* end){
 
 // Scan with va_list arguments
 FXint __vsscanf(const FXchar* string,const FXchar* format,va_list args){
-  FXint modifier,width,convert,comma,base,digits,sdigits,count,exponent,expo,done,neg,nex,pos,v;
+  FXint modifier,width,convert,comma,base,digits,sdigits,count,exponent,expo,done,neg,nex,nana,pos,v;
   const FXchar *start=string;
   const FXchar *ss;
   FXchar *ptr;
@@ -315,67 +319,67 @@ flg:  switch(ch){
 integer:  value=0;
           digits=0;
           if(width<1) width=2147483647;                 // Width at least 1
-          while(Ascii::isSpace(*string)) string++;      // Skip white space; not included in field width
-          if((neg=(*string=='-')) || (*string=='+')){   // Handle sign
+          while(Ascii::isSpace(string[0])) string++;    // Skip white space; not included in field width
+          if((neg=(string[0]=='-')) || (string[0]=='+')){       // Handle sign
             string++;
             width--;
             }
-          if(0<width && *string=='0'){                          // Got a '0'
+          if(0<width && string[0]=='0'){                        // Got a '0'
             digits++;
             string++;
             width--;
-            if(0<width && (*string=='x' || *string=='X')){      // Got a '0x'
-              if(base==0){ comma=0; base=16; }                  // If not set yet, '0x' means set base to 16
-              if(base==16){                                     // But don't eat the 'x' if base wasn't 16!
+            if(0<width && (string[0]|0x20)=='x'){       // Got a '0x'
+              if(base==0){ comma=0; base=16; }          // If not set yet, '0x' means set base to 16
+              if(base==16){                             // But don't eat the 'x' if base wasn't 16!
                 string++;
                 width--;
                 }
               }
-            else if(0<width && (*string=='b' || *string=='B')){ // Got a '0b'
-              if(base==0){ comma=0; base=2; }                   // If not set yet, '0b' means set base to 2
-              if(base==2){                                      // But don't eat the 'b' if base wasn't 2!
+            else if(0<width && (string[0]|0x20)=='b'){  // Got a '0b'
+              if(base==0){ comma=0; base=2; }           // If not set yet, '0b' means set base to 2
+              if(base==2){                              // But don't eat the 'b' if base wasn't 2!
                 string++;
                 width--;
                 }
               }
             else{
-              if(base==0){ comma=0; base=8; }                   // If not set yet, '0' means set base to 8
+              if(base==0){ comma=0; base=8; }           // If not set yet, '0' means set base to 8
               }
             }
           else{
-            if(base==0){ base=10; }                             // Not starting with '0' or '0x', so its decimal
+            if(base==0){ base=10; }                     // Not starting with '0' or '0x', so its decimal
             }
-          while(0<width && (ch=*string)!='\0'){
-            if(ch!=comma){                                      // FIXME only should consume LEGAL number groupings!
+          while(0<width && (ch=string[0])!='\0'){
+            if(ch!=comma){                              // FIXME only should consume LEGAL number groupings!
               v=FXString::digit2Value[ch];
               if(v<0 || base<=v) break;
-              value=value*base+v;                               // Convert to integer
+              value=value*base+v;                       // Convert to integer
               digits++;
               }
             string++;
             width--;
             }
-          if(!digits) goto x;                                   // No digits seen!
-          if(neg){                                              // Apply sign
+          if(!digits) goto x;                           // No digits seen!
+          if(neg){                                      // Apply sign
             value=0-value;
             }
           if(convert){
-            if(modifier==ARG_DEFAULT){                          // 32-bit always
+            if(modifier==ARG_DEFAULT){                  // 32-bit always
               *va_arg(ag,FXint*)=(FXint)value;
               }
-            else if(modifier==ARG_LONG){                        // Whatever size a long is
+            else if(modifier==ARG_LONG){                // Whatever size a long is
               *va_arg(ag,long*)=(long)value;
               }
-            else if(modifier==ARG_LONGLONG){                    // 64-bit always
+            else if(modifier==ARG_LONGLONG){            // 64-bit always
               *va_arg(ag,FXlong*)=value;
               }
-            else if(modifier==ARG_HALF){                        // 16-bit always
+            else if(modifier==ARG_HALF){                // 16-bit always
               *va_arg(ag,FXshort*)=(FXshort)value;
               }
-            else if(modifier==ARG_HALFHALF){                    // 8-bit always
+            else if(modifier==ARG_HALFHALF){            // 8-bit always
               *va_arg(ag,FXchar*)=(FXchar)value;
               }
-            else{                                               // Whatever size a pointer is
+            else{                                       // Whatever size a pointer is
               *va_arg(ag,FXival*)=(FXival)value;
               }
             count++;
@@ -393,90 +397,115 @@ integer:  value=0;
           digits=0;
           sdigits=0;
           if(width<1) width=2147483647;                         // Width at least 1
-          while(Ascii::isSpace(*string)) string++;              // Skip white space; not included in field width
-          if((neg=(*string=='-')) || (*string=='+')){           // Handle sign
+          while(Ascii::isSpace(string[0])) string++;            // Skip white space; not included in field width
+          if((neg=(string[0]=='-')) || (string[0]=='+')){       // Handle sign
             string++;
             width--;
             }
-          while(0<width && *string){                            // Leading zeros, with possible groupings
-            if(*string!=comma){
-              if(*string!='0') break;
-              digits++;
+          if(2<width && ((nana=(string[0]|0x20)=='n') || (string[0]|0x20)=='i')){
+            if(nana){
+              if((string[1]|0x20)!='a') goto x;
+              if((string[2]|0x20)!='n') goto x;
+              string+=3;
+              width-=3;
+              number=nan.f;                                     // Recognized a NaN
               }
-            string++;
-            width--;
-            }
-          while(0<width && (ch=*string)!='\0'){                 // Mantissa digits
-            if(ch!=comma){                                      // FIXME only should consume LEGAL number groupings!
-              if(ch<'0' || ch>'9') break;
-              if(sdigits<MAXDIGS){
-                number+=(ch-'0')*mult;
-                mult*=0.1;
+            else{
+              if((string[1]|0x20)!='n') goto x;
+              if((string[2]|0x20)!='f') goto x;
+              string+=3;
+              width-=3;
+              if(4<width && (string[0]|0x20)=='i' && (string[1]|0x20)=='n' && (string[2]|0x20)=='i' && (string[3]|0x20)=='t' && (string[4]|0x20)=='y'){
+                string+=5;
+                width-=5;
                 }
-              exponent++;
-              sdigits++;
-              digits++;
+              number=inf.f;                                     // Recognized Inf[inity]
               }
-            string++;
-            width--;
+            if(neg){                                            // Apply sign
+              number=-number;
+              }
             }
-          if(0<width && *string=='.'){                          // Mantissa decimals following '.'
-            string++;
-            width--;
-            while(0<width && (ch=*string)>='0' && ch<='9'){
-              if(sdigits<MAXDIGS){
-                number+=(ch-'0')*mult;
-                mult*=0.1;
+          else{
+            while(0<width && string[0]){                        // Leading zeros, with possible groupings
+              if(string[0]!=comma){
+                if(string[0]!='0') break;
+                digits++;
                 }
-              sdigits++;
-              digits++;
               string++;
               width--;
               }
-            }
-          if(!digits) goto x;                                   // No digits seen!
-          if(1<width && (*string|0x20)=='e'){                   // Handle exponent, tentatively
-            ss=string;
-            ss++;
-            width--;
-            expo=0;
-            if((nex=(*ss=='-')) || (*ss=='+')){                 // Handle exponent sign
-              ss++;
+            while(0<width && (ch=string[0])!='\0'){             // Mantissa digits
+              if(ch!=comma){                                    // FIXME only should consume LEGAL number groupings!
+                if(ch<'0' || ch>'9') break;
+                if(sdigits<MAXDIGS){
+                  number+=(ch-'0')*mult;
+                  mult*=0.1;
+                  }
+                exponent++;
+                sdigits++;
+                digits++;
+                }
+              string++;
               width--;
               }
-            if(0<width && '0'<=*ss && *ss<='9'){                // Have exponent?
-              while(0<width && (ch=*ss)>='0' && ch<='9'){
-                expo=expo*10+(ch-'0');
+            if(0<width && string[0]=='.'){                      // Mantissa decimals following '.'
+              string++;
+              width--;
+              while(0<width && (ch=string[0])>='0' && ch<='9'){
+                if(sdigits<MAXDIGS){
+                  number+=(ch-'0')*mult;
+                  mult*=0.1;
+                  }
+                sdigits++;
+                digits++;
+                string++;
+                width--;
+                }
+              }
+            if(!digits) goto x;                                 // No digits seen!
+            if(1<width && (string[0]|0x20)=='e'){               // Handle exponent, tentatively
+              ss=string;
+              ss++;
+              width--;
+              expo=0;
+              if((nex=(ss[0]=='-')) || (ss[0]=='+')){           // Handle exponent sign
                 ss++;
                 width--;
                 }
-              if(nex){
-                exponent-=expo;
+              if(0<width && '0'<=ss[0] && ss[0]<='9'){          // Have exponent?
+                while(0<width && (ch=ss[0])>='0' && ch<='9'){
+                  expo=expo*10+(ch-'0');
+                  ss++;
+                  width--;
+                  }
+                if(nex){
+                  exponent-=expo;
+                  }
+                else{
+                  exponent+=expo;
+                  }
+                string=ss;                                      // Eat exponent characters
                 }
-              else{
-                exponent+=expo;
-                }
-              string=ss;                                        // Eat exponent characters
               }
-            }
-          if(number!=0.0){
-            if(308<=exponent){                                  // Check for overflow
-              if((308<exponent) || (1.79769313486231570815<=number)){
-                number=1.79769313486231570815E+308;
-                exponent=0;
+            if(number!=0.0){
+              if(308<=exponent){                                // Check for overflow
+                if((308<exponent) || (1.79769313486231570815<=number)){
+                  number=1.79769313486231570815E+308;
+                  exponent=0;
+                  }
                 }
-              }
-            if(exponent<-308){                                  // Check for denormal or underflow
-              if((exponent<-324) || ((exponent==-324) && (number<=4.94065645841246544177))){
-                number=0.0;
-                exponent=0;
+              if(exponent<-308){                                // Check for denormal or underflow
+                if((exponent<-324) || ((exponent==-324) && (number<=4.94065645841246544177))){
+                  number=0.0;
+                  exponent=0;
+                  }
+                number*=1.0E-16;
+                exponent+=16;
                 }
-              number*=1.0E-16;
-              exponent+=16;
-              }
-            number*=Math::ipow(10.0,exponent);                  // In range
-            if(neg){                                            // Apply sign
-              number=-number;
+              number*=Math::ipow(10.0,exponent);                // In range
+              if(neg){                                          // Apply sign
+                number=-number;
+                }
               }
             }
           if(convert){
@@ -493,7 +522,7 @@ integer:  value=0;
           if(width<1) width=1;                          // Width at least 1
           if(convert){
             ptr=va_arg(ag,FXchar*);
-            while(0<width && (ch=*string)!='\0'){
+            while(0<width && (ch=string[0])!='\0'){
               *ptr++=ch;
               string++;
               width--;
@@ -502,7 +531,7 @@ integer:  value=0;
             count+=done;
             }
           else{
-            while(0<width && (ch=*string)!='\0'){
+            while(0<width && string[0]!='\0'){
               string++;
               width--;
               }
@@ -510,10 +539,10 @@ integer:  value=0;
           break;
         case 's':                                       // String
           if(width<1) width=2147483647;                 // Width at least 1
-          while(Ascii::isSpace(*string)) string++;      // Skip white space
+          while(Ascii::isSpace(string[0])) string++;    // Skip white space
           if(convert){
             ptr=va_arg(ag,FXchar*);
-            while(0<width && (ch=*string)!='\0' && !Ascii::isSpace(ch)){
+            while(0<width && (ch=string[0])!='\0' && !Ascii::isSpace(ch)){
               *ptr++=ch;
               string++;
               width--;
@@ -523,7 +552,7 @@ integer:  value=0;
             count+=done;
             }
           else{
-            while(0<width && (ch=*string)!='\0' && !Ascii::isSpace(ch)){
+            while(0<width && (ch=string[0])!='\0' && !Ascii::isSpace(ch)){
               string++;
               width--;
               }
@@ -531,21 +560,21 @@ integer:  value=0;
           break;
         case '[':                                       // Character set
           if(width<1) width=2147483647;                 // Width at least 1
-          ch=*format++;
+          ch=(FXuchar)*format++;
           v=1;                                          // Add characters to set
           if(ch=='^'){                                  // Negated character set
-            ch=*format++;
+            ch=(FXuchar)*format++;
             v=0;                                        // Remove characters from set
             }
           memset(set,1-v,sizeof(set));                  // Initialize set
           if(ch=='\0') goto x;                          // Format error
           for(;;){                                      // Parse set
             set[ch]=v;
-            nn=*format++;
+            nn=(FXuchar)*format++;
             if(nn=='\0') goto x;                        // Format error
             if(nn==']') break;
             if(nn=='-'){
-              nn=*format;
+              nn=(FXuchar)*format;
               if(nn!=']' && ch<=nn){                    // Range if not at end
                 while(ch<nn){ set[++ch]=v; }
                 format++;
@@ -558,7 +587,7 @@ integer:  value=0;
             }
           if(convert){
             ptr=va_arg(ag,FXchar*);
-            while(0<width && (ch=*string)!='\0' && set[ch]){
+            while(0<width && (ch=*string)!='\0' && set[(FXuchar)ch]){
               *ptr++=ch;
               string++;
               width--;
@@ -568,7 +597,7 @@ integer:  value=0;
             count+=done;
             }
           else{
-            while(0<width && (ch=*string)!='\0' && set[ch]){
+            while(0<width && (ch=*string)!='\0' && set[(FXuchar)ch]){
               string++;
               width--;
               }

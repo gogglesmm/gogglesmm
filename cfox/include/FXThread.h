@@ -3,7 +3,7 @@
 *                          T h r e a d   S u p p o r t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -168,6 +168,11 @@ public:
   * Return time in nanoseconds since Epoch (Jan 1, 1970).
   */
   static FXTime time();
+
+  /**
+  * Get steady time in nanoseconds since some arbitrary start time.
+  */
+  FXTime steadytime();
 
   /**
   * Make the calling thread sleep for a number of nanoseconds.

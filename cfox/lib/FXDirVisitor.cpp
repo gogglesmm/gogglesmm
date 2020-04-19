@@ -3,7 +3,7 @@
 *                     D i r e c t o r y   V i s i t o r                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2008,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2008,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -55,7 +55,7 @@ using namespace FX;
 namespace FX {
 
 
-// Keep track of visited directories
+// Keep track of visited directories, avoiding infinite recursion
 struct FXDirVisitor::Seen {
   FXStat  stat;                 // File status
   Seen**  current;              // Current one
@@ -80,28 +80,50 @@ const FXStat& FXDirVisitor::info() const {
 FXuint FXDirVisitor::traverse(const FXString& path,FXint depth){
   if(0<depth){
     Seen node(&current);
-    if(FXStat::statLink(path,node.stat)){
-      if(node.stat.isDirectory()){              // Directory
+
+    // Stat (target of sym-linked) path
+    if(FXStat::statFile(path,node.stat)){
+
+      // Is directory
+      if(node.stat.isDirectory()){
         FXuint code;
+
+        // Bail if visiting recursive sym-link
         for(Seen *s=node.last; s; s=s->last){
-          if(node.stat.index()==s->stat.index() && node.stat.volume()==s->stat.volume()) return 0;         // Skip if we've been here already
+          if(node.stat.index()==s->stat.index() && node.stat.volume()==s->stat.volume()) return 0;
           }
-        if((code=enter(path))==1){              // Conditionally enter subdirectories
+
+        // Conditionally enter subdirectories
+        if((code=enter(path))==1){
           FXDir directory(path);
           FXString name;
+
+          // Traverse items in directory
           while(directory.next(name)){
+
+            // Non-navigational directory item
             if(!(name[0]=='.' && (name[1]=='\0' || (name[1]=='.' && name[2]=='\0')))){
+
+              // Traverse sub-item, decreasing recursion depth by one
               if(traverse(path+(ISPATHSEP(path.tail())?"":PATHSEPSTRING)+name,depth-1)==2){
+
+                // Leave directory
                 leave(path);
-                return 2;                       // Bail
+
+                // Return bail code
+                return 2;
                 }
               }
             }
+
+          // Leave directory
           return leave(path);
           }
         return code;
         }
-      return visit(path);                       // Regular file
+
+      // Regular file
+      return visit(path);
       }
     }
   return 0;

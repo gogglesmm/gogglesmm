@@ -3,7 +3,7 @@
 *                       H a s h   T a b l e   C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -31,7 +31,7 @@ namespace FX {
 class FXAPI FXHash {
 protected:
   struct Entry {
-    FXptr name;
+    FXptr key;
     FXptr data;
     };
 protected:
@@ -94,38 +94,38 @@ public:
   /**
   * Find position of given key, returning -1 if not found.
   */
-  FXival find(FXptr name) const;
+  FXival find(FXptr ky) const;
 
   /**
   * Return reference to slot assocated with given key.
   */
-  FXptr& at(FXptr name);
+  FXptr& at(FXptr ky);
 
   /**
   * Return constant reference to slot assocated with given key.
   */
-  const FXptr& at(FXptr name) const;
+  const FXptr& at(FXptr ky) const;
 
   /**
   * Return reference to slot assocated with given key.
   */
-  FXptr& operator[](FXptr name){ return at(name); }
+  FXptr& operator[](FXptr ky){ return at(ky); }
 
   /**
   * Return constant reference to slot assocated with given key.
   */
-  const FXptr& operator[](FXptr name) const { return at(name); }
+  const FXptr& operator[](FXptr ky) const { return at(ky); }
 
   /**
   * Replace key in table, overwriting the old value if the
   * given key already exists.  Returns the old value of the key.
   */
-  FXptr insert(FXptr name,FXptr data=NULL){ return swap(data,at(name)); }
+  FXptr insert(FXptr ky,FXptr data=NULL){ return swap(data,at(ky)); }
 
   /**
   * Remove key from the table. Returns the old value of the key.
   */
-  FXptr remove(FXptr name);
+  FXptr remove(FXptr ky);
 
   /**
   * Erase entry from table at pos, returning old value.
@@ -135,22 +135,22 @@ public:
   /**
   * Return true if slot is not occupied by a key.
   */
-  FXbool empty(FXival pos) const { return (table[pos].name==(FXptr)0L)||(table[pos].name==(FXptr)-1L); }
+  FXbool empty(FXival pos) const { return (table[pos].key==(FXptr)0L)||(table[pos].key==(FXptr)-1L); }
 
   /**
   * Return key at position pos.
   */
-  FXptr key(FXival pos) const { return table[pos].name; }
+  FXptr key(FXival pos) const { return table[pos].key; }
 
   /**
   * Return reference to data pointer at position pos.
   */
-  FXptr& value(FXival pos){ return table[pos].data; }
+  FXptr& data(FXival pos){ return table[pos].data; }
 
   /**
   * Return constant reference data pointer at position pos.
   */
-  const FXptr& value(FXival pos) const { return table[pos].data; }
+  const FXptr& data(FXival pos) const { return table[pos].data; }
 
   /**
   * Clear hash table.
@@ -180,22 +180,22 @@ public:
   FXHashOf<KEYTYPE,VALUETYPE>& adopt(FXHashOf<KEYTYPE,VALUETYPE>& src){ return reinterpret_cast<FXHashOf<KEYTYPE,VALUETYPE>&>(FXHash::adopt(src)); }
 
   /// Return reference to slot assocated with given key
-  VALUETYPE*& at(KEYTYPE* name){ return (VALUETYPE*&)FXHash::at((FXptr)name); }
+  VALUETYPE*& at(KEYTYPE* ky){ return (VALUETYPE*&)FXHash::at((FXptr)ky); }
 
   /// Return constant reference to slot assocated with given key
-  VALUETYPE *const& at(KEYTYPE* name) const { return (VALUETYPE *const&)FXHash::at((FXptr)name); }
+  VALUETYPE *const& at(KEYTYPE* ky) const { return (VALUETYPE *const&)FXHash::at((FXptr)ky); }
 
   /// Return reference to slot assocated with given key
-  VALUETYPE*& operator[](KEYTYPE* name){ return (VALUETYPE*&)FXHash::at((FXptr)name); }
+  VALUETYPE*& operator[](KEYTYPE* ky){ return (VALUETYPE*&)FXHash::at((FXptr)ky); }
 
   /// Return constant reference to slot assocated with given key
-  VALUETYPE *const& operator[](KEYTYPE* name) const { return (VALUETYPE *const&)FXHash::at((FXptr)name); }
+  VALUETYPE *const& operator[](KEYTYPE* ky) const { return (VALUETYPE *const&)FXHash::at((FXptr)ky); }
 
   /// Insert association with given key; return old value, if any
-  VALUETYPE* insert(KEYTYPE* name,VALUETYPE* data=NULL){ return (VALUETYPE*)FXHash::insert((FXptr)name,(FXptr)data); }
+  VALUETYPE* insert(KEYTYPE* ky,VALUETYPE* data=NULL){ return (VALUETYPE*)FXHash::insert((FXptr)ky,(FXptr)data); }
 
   /// Remove association with given key; return old value, if any
-  VALUETYPE* remove(KEYTYPE* name){ return (VALUETYPE*)FXHash::remove((FXptr)name); }
+  VALUETYPE* remove(KEYTYPE* ky){ return (VALUETYPE*)FXHash::remove((FXptr)ky); }
 
   /// Erase data at pos in the table; return old value, if any
   VALUETYPE* erase(FXival pos){ return (VALUETYPE*)FXHash::erase(pos); }
@@ -204,10 +204,10 @@ public:
   KEYTYPE* key(FXival pos) const { return (KEYTYPE*)FXHash::key(pos); }
 
   /// Return reference to slot at position pos
-  VALUETYPE*& value(FXival pos){ return (VALUETYPE*&)FXHash::value(pos); }
+  VALUETYPE*& data(FXival pos){ return (VALUETYPE*&)FXHash::data(pos); }
 
   /// Return constant reference to slot at position pos
-  VALUETYPE *const& value(FXival pos) const { return (VALUETYPE *const&)FXHash::value(pos); }
+  VALUETYPE *const& data(FXival pos) const { return (VALUETYPE *const&)FXHash::data(pos); }
   };
 
 }

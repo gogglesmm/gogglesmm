@@ -3,7 +3,7 @@
 *                          C a l l B a c k    C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -67,9 +67,6 @@ public:
 
   // Copy constructor
   FXCallback(const FXCallback& org):method(org.method),object(org.object){ }
-
-  // Construct with given method and object
-  FXCallback(METHOD mw,const void* obj=0):method(mw),object(obj){ }
 
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
@@ -138,9 +135,6 @@ public:
   // Copy constructor
   FXCallback(const FXCallback& org):method(org.method),object(org.object){ }
 
-  // Construct with given method and object
-  FXCallback(METHOD mw,const void* obj=0):method(mw),object(obj){ }
-
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
 
@@ -207,9 +201,6 @@ public:
 
   // Copy constructor
   FXCallback(const FXCallback& org):method(org.method),object(org.object){ }
-
-  // Construct with given method and object
-  FXCallback(METHOD mw,const void* obj=0):method(mw),object(obj){ }
 
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
@@ -278,9 +269,6 @@ public:
   // Copy constructor
   FXCallback(const FXCallback& org):method(org.method),object(org.object){ }
 
-  // Construct with given method and object
-  FXCallback(METHOD mw,const void* obj=0):method(mw),object(obj){ }
-
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
 
@@ -347,9 +335,6 @@ public:
 
   // Copy constructor
   FXCallback(const FXCallback& org):method(org.method),object(org.object){ }
-
-  // Construct with given method and object
-  FXCallback(METHOD mw,const void* obj=0):method(mw),object(obj){ }
 
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }

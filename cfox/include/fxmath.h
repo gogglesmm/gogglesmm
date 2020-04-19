@@ -3,7 +3,7 @@
 *                           M a t h   F u n c t i o n s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2015,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2015,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -54,6 +54,8 @@
 #undef atanf
 #undef atan2
 #undef atan2f
+#undef sincos
+#undef sincosf
 #undef sinh
 #undef sinhf
 #undef cosh
@@ -69,8 +71,12 @@
 
 #undef pow
 #undef powf
+#undef pow10
+#undef pow10f
 #undef exp
 #undef expf
+#undef expm1
+#undef expm1f
 #undef exp2
 #undef exp2f
 #undef exp10
@@ -93,12 +99,17 @@
 #undef cub
 #undef cubf
 
+#undef max
+#undef min
 #undef fmax
 #undef fmaxf
 #undef fmin
 #undef fminf
 #undef copysign
 #undef copysignf
+#undef hypot
+#undef hypotf
+
 
 // Switch on remedial math on Windows with VC++
 #if defined(WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))
@@ -118,6 +129,8 @@
 #define NO_EXP2
 #define NO_EXP10F
 #define NO_EXP10
+#define NO_POW10F
+#define NO_POW10
 #define NO_LOG1PF
 #define NO_LOG1P
 #define NO_LOG2F
@@ -142,8 +155,14 @@
 #define NO_FMIN
 #define NO_COPYSIGNF
 #define NO_COPYSIGN
+#define NO_HYPOTF
+#define NO_HYPOT
 #define NO_FDIMF
 #define NO_FDIM
+#define NO_SINCOS
+#define NO_SINCOSF
+#define NO_LRINT
+#define NO_LRINTF
 #endif
 
 // Systems below are missing these functions
@@ -151,6 +170,13 @@
 #define NO_EXP10F
 #define NO_EXP10
 #endif
+
+// Apple is missing sincos
+#if defined(__APPLE__)
+#define NO_SINCOS
+#define NO_SINCOSF
+#endif
+
 
 namespace FX {
 
@@ -173,103 +199,227 @@ const FXdouble RTOD=57.295779513082320876798154814;
 // FOX math functions live here
 namespace Math {
 
-
 /// Sign of single precision float point number
-static inline FXuint fpSign(FXfloat x){
-  union{ FXfloat f; FXuint u; } z={x}; return (z.u>>31);
-  }
+extern FXAPI FXuint fpSign(FXfloat x);
 
 /// Sign of double precision float point number
-static inline FXulong fpSign(FXdouble x){
-  union{ FXdouble f; FXulong u; } z={x}; return (z.u>>63);
-  }
-
+extern FXAPI FXulong fpSign(FXdouble x);
 
 /// Mantissa of single precision float point number
-static inline FXuint fpMantissa(FXfloat x){
-  union{ FXfloat f; FXuint u; } z={x}; return (z.u&0x007fffff);
-  }
+extern FXAPI FXuint fpMantissa(FXfloat x);
 
 /// Mantissa of double precision float point number
-static inline FXulong fpMantissa(FXdouble x){
-  union{ FXdouble f; FXulong u; } z={x}; return (z.u&FXULONG(0x000fffffffffffff));
-  }
-
+extern FXAPI FXulong fpMantissa(FXdouble x);
 
 /// Exponent of single precision float point number
-static inline FXuint fpExponent(FXfloat x){
-  union{ FXfloat f; FXuint u; } z={x}; return ((z.u>>23)&0xff);
-  }
+extern FXAPI FXuint fpExponent(FXfloat x);
 
 /// Exponent of double precision float point number
-static inline FXulong fpExponent(FXdouble x){
-  union{ FXdouble f; FXulong u; } z={x}; return ((z.u>>52)&0x7ff);
-  }
-
+extern FXAPI FXulong fpExponent(FXdouble x);
 
 /// Single precision floating point number is finite
-static inline FXbool fpFinite(FXfloat x){
-  union{ FXfloat f; FXuint u; } z={x}; return ((z.u&0x7fffffff)<0x7f800000);
-  }
+extern FXAPI FXbool fpFinite(FXfloat x);
 
 /// Double precision floating point number is finite
-static inline FXbool fpFinite(FXdouble x){
-  union{ FXdouble f; FXulong u; } z={x}; return ((z.u&FXULONG(0x7fffffffffffffff))<FXULONG(0x7ff0000000000000));
-  }
-
+extern FXAPI FXbool fpFinite(FXdouble x);
 
 /// Single precision floating point number is infinite
-static inline FXbool fpInfinite(FXfloat x){
-  union{ FXfloat f; FXuint u; } z={x}; return ((z.u&0x7fffffff)==0x7f800000);
-  }
+extern FXAPI FXbool fpInfinite(FXfloat x);
 
 /// Double precision floating point number is infinite
-static inline FXbool fpInfinite(FXdouble x){
-  union{ FXdouble f; FXulong u; } z={x}; return ((z.u&FXULONG(0x7fffffffffffffff))==FXULONG(0x7ff0000000000000));
-  }
-
+extern FXAPI FXbool fpInfinite(FXdouble x);
 
 /// Single precision floating point number is NaN
-static inline FXbool fpNan(FXfloat x){
-  union{ FXfloat f; FXuint u; } z={x}; return (0x7f800000<(z.u&0x7fffffff));
-  }
+extern FXAPI FXbool fpNan(FXfloat x);
 
 /// Double precision floating point number is NaN
-static inline FXbool fpNan(FXdouble x){
-  union{ FXdouble f; FXulong u; } z={x}; return (FXULONG(0x7ff0000000000000)<(z.u&FXULONG(0x7fffffffffffffff)));
-  }
-
+extern FXAPI FXbool fpNan(FXdouble x);
 
 /// Single precision floating point number is normalized
-static inline FXbool fpNormal(FXfloat x){
-  union{ FXfloat f; FXuint u; } z={x};
-  return ((z.u&0x7fffffff)==0) || ((0x00800000<=(z.u&0x7fffffff)) && ((z.u&0x7fffffff)<0x7f800000));
-  }
+extern FXAPI FXbool fpNormal(FXfloat x);
 
 /// Double precision floating point number is normalized
-static inline FXbool fpNormal(FXdouble x){
-  union{ FXdouble f; FXulong u; } z={x};
-  return ((z.u&FXULONG(0x7fffffffffffffff))==0) || ((FXULONG(0x0010000000000000)<=(z.u&FXULONG(0x7fffffffffffffff))) && ((z.u&FXULONG(0x7fffffffffffffff))<FXULONG(0x7ff0000000000000)));
+extern FXAPI FXbool fpNormal(FXdouble x);
+
+/// All bits of single precision floating point number
+extern FXAPI FXuint fpBits(FXfloat x);
+
+/// All bits of double precision floating point number
+extern FXAPI FXulong fpBits(FXdouble x);
+
+
+/// Minimum if two integers
+static inline FXint imin(FXint x,FXint y){
+  return (x<y)?x:y;
+  }
+
+/// Minimum if two longs
+static inline FXlong imin(FXlong x,FXlong y){
+  return (x<y)?x:y;
+  }
+
+
+/// Minimum of two integers
+static inline FXint imax(FXint x,FXint y){
+  return (x>y)?x:y;
+  }
+
+/// Minimum of two longs
+static inline FXlong imax(FXlong x,FXlong y){
+  return (x>y)?x:y;
+  }
+
+
+/// Absolute value of integer
+static inline FXint iabs(FXint x){
+  return 0<x?x:-x;
+  }
+
+/// Absolute value of long
+static inline FXlong iabs(FXlong x){
+  return 0L<x?x:-x;
+  }
+
+
+/// Integer clamp of integer x to lie within range [lo..hi]
+static inline FXint iclamp(FXint lo,FXint x,FXint hi){
+  return Math::imin(Math::imax(x,lo),hi);
+  }
+
+/// Long clamp of long x to lie within range [lo..hi]
+static inline FXlong iclamp(FXlong lo,FXlong x,FXlong hi){
+  return Math::imin(Math::imax(x,lo),hi);
+  }
+
+
+/// Sign of integer, return -1 if x is <0, +1 if x>0, and zero otherwise
+static inline FXint isign(FXint x){
+  return (x>0)-(x<0);
+  }
+
+/// Sign of integer, return -1 if x is <0, +1 if x>0, and zero otherwise
+static inline FXlong isign(FXlong x){
+  return (x>0)-(x<0);
+  }
+
+
+/// Single precision minimum of two
+static inline FXfloat fmin(FXfloat x,FXfloat y){
+#if defined(NO_FMINF)
+  return (x<y)?x:y;
+#else
+  return ::fminf(x,y);
+#endif
+  }
+
+/// Double precision minimum of two
+static inline FXdouble fmin(FXdouble x,FXdouble y){
+#if defined(NO_FMIN)
+  return (x<y)?x:y;
+#else
+  return ::fmin(x,y);
+#endif
+  }
+
+
+/// Single precision maximum of two
+static inline FXfloat fmax(FXfloat x,FXfloat y){
+#if defined(NO_FMAXF)
+  return (x>y)?x:y;
+#else
+  return ::fmaxf(x,y);
+#endif
+  }
+
+/// Double precision maximum of two
+static inline FXdouble fmax(FXdouble x,FXdouble y){
+#if defined(NO_FMAX)
+  return (x>y)?x:y;
+#else
+  return ::fmax(x,y);
+#endif
   }
 
 
 /// Single precision absolute value
+static inline FXfloat fabs(FXfloat x){
 #if defined(NO_FABSF)
-static inline FXfloat fabs(FXfloat x){ return (x<0.0f) ? -x : x; }
+  return (x<0.0f) ? -x : x;
 #else
-static inline FXfloat fabs(FXfloat x){ return ::fabsf(x); }
+  return ::fabsf(x);
 #endif
+  }
 
 /// Double precision absolute value
-static inline FXdouble fabs(FXdouble x){ return ::fabs(x); }
+static inline FXdouble fabs(FXdouble x){
+  return ::fabs(x);
+  }
+
+
+/// Single precision clamp of number x to lie within range [lo..hi]
+static inline FXfloat fclamp(FXfloat lo,FXfloat x,FXfloat hi){
+  return Math::fmin(Math::fmax(x,lo),hi);
+  }
+
+/// Double precision clamp of number x to lie within range [lo..hi]
+static inline FXdouble fclamp(FXdouble lo,FXdouble x,FXdouble hi){
+  return Math::fmin(Math::fmax(x,lo),hi);
+  }
+
+
+/// Single precision positive difference
+static inline FXfloat fdim(FXfloat x,FXfloat y){
+#if defined(NO_FDIMF)
+  return Math::fmax(x-y,0.0f);
+#else
+  return ::fdimf(x,y);
+#endif
+  }
+
+/// Double precision positive difference
+static inline FXdouble fdim(FXdouble x,FXdouble y){
+#if defined(NO_FDIM)
+  return Math::fmax(x-y,0.0);
+#else
+  return ::fdim(x,y);
+#endif
+  }
 
 
 /// Single precision floating point remainder
-static inline FXfloat fmod(FXfloat x,FXfloat y){ return ::fmodf(x,y); }
+static inline FXfloat fmod(FXfloat x,FXfloat y){
+  return ::fmodf(x,y);
+  }
 
 /// Double precision floating point remainder
-static inline FXdouble fmod(FXdouble x,FXdouble y){ return ::fmod(x,y); }
+static inline FXdouble fmod(FXdouble x,FXdouble y){
+  return ::fmod(x,y);
+  }
 
+
+/// Single precision copy sign of y and apply to magnitude of x
+static inline FXfloat copysign(FXfloat x,FXfloat y){
+#if defined(NO_COPYSIGNF)
+  union{ FXfloat f; FXuint u; } xx={x},yy={y};
+  xx.u&=0x7fffffff;
+  xx.u|=(yy.u&0x80000000);
+  return xx.f;
+#else
+  return ::copysignf(x,y);
+#endif
+  }
+
+/// Double precision copy sign of y and apply to magnitude of x
+static inline FXdouble copysign(FXdouble x,FXdouble y){
+#if defined(NO_COPYSIGN)
+  union{ FXdouble f; FXulong u; } xx={x},yy={y};
+  xx.u&=FXULONG(0x7fffffffffffffff);
+  xx.u|=(yy.u&FXULONG(0x8000000000000000));
+  return xx.f;
+#else
+  return ::copysign(x,y);
+#endif
+  }
 
 
 /// Single precision ceiling (round upward to nearest integer)
@@ -322,6 +472,7 @@ extern FXAPI FXdouble trunc(FXdouble x);
 static inline FXdouble trunc(FXdouble x){ return ::trunc(x); }
 #endif
 
+
 /// Single precision round to nearest integer
 #if defined(NO_NEARBYINTF)
 extern FXAPI FXfloat nearbyint(FXfloat x);
@@ -350,53 +501,153 @@ extern FXAPI FXdouble rint(FXdouble x);
 static inline FXdouble rint(FXdouble x){ return ::rint(x); }
 #endif
 
+
+/// Single precision round to nearest integer
+static inline FXint lrint(FXfloat x){ 
+#if defined(NO_LRINTF)
+  return (FXint)(x+Math::copysign(0.5f,x));
+#else
+  return ::lrintf(x); 
+#endif
+ }
+
+/// Double precision round to nearest integer
+static inline FXlong lrint(FXdouble x){ 
+#if defined(NO_LRINT)
+ return (FXlong)(x+Math::copysign(0.5,x));
+#else
+ return ::lrint(x); 
+#endif
+ }
+
+
+/// Wrap single precision phase argument x to -PI...PI range
+static inline FXfloat wrap(FXfloat x){
+#if defined(__SSE4_1__)
+  return x-Math::nearbyint(x*0.159154943091895335768883763373f)*6.28318530717958647692528676656f;
+#else
+  return x-Math::lrint(x*0.159154943091895335768883763373f)*6.28318530717958647692528676656f;
+#endif
+  }
+
+/// Wrap double precision phase argument x to -PI...PI range
+static inline FXdouble wrap(FXdouble x){
+#if defined(__SSE4_1__)
+  return x-Math::nearbyint(x*0.159154943091895335768883763373)*6.28318530717958647692528676656;
+#else
+  return x-Math::lrint(x*0.159154943091895335768883763373)*6.28318530717958647692528676656;
+#endif
+  }
+
+
+/// Stepify single precision x into multiples of step s (where s>0)
+static inline FXfloat stepify(FXfloat x,FXfloat s){
+  return Math::nearbyint(x/s)*s;
+  }
+
+/// Stepify double precision x into multiples of step s (where s>0)
+static inline FXdouble stepify(FXdouble x,FXdouble s){
+  return Math::nearbyint(x/s)*s;
+  }
+
+
 /// Single precision sine
-static inline FXfloat sin(FXfloat x){ return ::sinf(x); }
+static inline FXfloat sin(FXfloat x){
+  return ::sinf(x);
+  }
 
 /// Double precision sine
-static inline FXdouble sin(FXdouble x){ return ::sin(x); }
+static inline FXdouble sin(FXdouble x){
+  return ::sin(x);
+  }
 
 
 /// Single precision cosine
-static inline FXfloat cos(FXfloat x){ return ::cosf(x); }
+static inline FXfloat cos(FXfloat x){
+  return ::cosf(x);
+  }
 
 /// Double precision cosine
-static inline FXdouble cos(FXdouble x){ return ::cos(x); }
+static inline FXdouble cos(FXdouble x){
+  return ::cos(x);
+  }
 
 
 /// Single precision tangent
-static inline FXfloat tan(FXfloat x){ return ::tanf(x); }
+static inline FXfloat tan(FXfloat x){
+  return ::tanf(x);
+  }
 
 /// Double precision tangent
-static inline FXdouble tan(FXdouble x){ return ::tan(x); }
+static inline FXdouble tan(FXdouble x){
+  return ::tan(x);
+  }
 
 
 /// Single precision arc sine
-static inline FXfloat asin(FXfloat x){ return ::asinf(x); }
+static inline FXfloat asin(FXfloat x){
+  return ::asinf(x);
+  }
 
 /// Double precision arc sine
-static inline FXdouble asin(FXdouble x){ return ::asin(x); }
+static inline FXdouble asin(FXdouble x){
+  return ::asin(x);
+  }
 
 
 /// Single precision arc cosine
-static inline FXfloat acos(FXfloat x){ return ::acosf(x); }
+static inline FXfloat acos(FXfloat x){
+  return ::acosf(x);
+  }
 
 /// Double precision arc cosine
-static inline FXdouble acos(FXdouble x){ return ::acos(x); }
+static inline FXdouble acos(FXdouble x){
+  return ::acos(x);
+  }
 
 
 /// Single precision arc tangent
-static inline FXfloat atan(FXfloat x){ return ::atanf(x); }
+static inline FXfloat atan(FXfloat x){
+  return ::atanf(x);
+  }
 
 /// Double precision arc tangent
-static inline FXdouble atan(FXdouble x){ return ::atan(x); }
+static inline FXdouble atan(FXdouble x){
+  return ::atan(x);
+  }
 
 
 /// Single precision arc tangent
-static inline FXfloat atan2(FXfloat y,FXfloat x){ return ::atan2f(y,x); }
+static inline FXfloat atan2(FXfloat y,FXfloat x){
+  return ::atan2f(y,x);
+  }
 
 /// Double precision arc tangent
-static inline FXdouble atan2(FXdouble y,FXdouble x){ return ::atan2(y,x); }
+static inline FXdouble atan2(FXdouble y,FXdouble x){
+  return ::atan2(y,x);
+  }
+
+
+/// Single precision sincos
+static inline void sincos(FXfloat x,FXfloat& s,FXfloat& c){
+#if defined(NO_SINCOSF)
+  s=Math::sin(x);
+  c=Math::cos(x);
+#else
+  ::sincosf(x,&s,&c);
+#endif
+  }
+
+
+/// Double precision sincos
+static inline void sincos(FXdouble x,FXdouble& s,FXdouble& c){
+#if defined(NO_SINCOS)
+  s=Math::sin(x);
+  c=Math::cos(x);
+#else
+  ::sincos(x,&s,&c);
+#endif
+  }
 
 
 /// Single precision hyperbolic sine
@@ -489,239 +740,263 @@ static inline FXdouble atanh(FXdouble x){ return ::atanh(x); }
 #endif
 
 
-/// Single precision power x^y
-static inline FXfloat pow(FXfloat x,FXfloat y){ return ::powf(x,y); }
-
-/// Double precision power x^y
-static inline FXdouble pow(FXdouble x,FXdouble y){ return ::pow(x,y); }
-
-
-/// Single precision base E exponential
-static inline FXfloat exp(FXfloat x){ return ::expf(x); }
-
-/// Double precision base E exponential
-static inline FXdouble exp(FXdouble x){ return ::exp(x); }
-
-
-/// Single precision base E exponential - 1
-#if defined(NO_EXPM1F)
-static inline FXfloat expm1(FXfloat x){ return ::expf(x)-1.0f; }
-#else
-static inline FXfloat expm1(FXfloat x){ return ::expm1f(x); }
-#endif
-
-/// Double precision base E exponential - 1
-#if defined(NO_EXPM1)
-static inline FXdouble expm1(FXdouble x){ return ::exp(x)-1.0; }
-#else
-static inline FXdouble expm1(FXdouble x){ return ::expm1(x); }
-#endif
-
-
-/// Single precision base 2 exponential
-#if defined(NO_EXP2F)
-static inline FXfloat exp2(FXfloat x){ return Math::pow(2.0f,x); }
-#else
-static inline FXfloat exp2(FXfloat x){ return ::exp2f(x); }
-#endif
-
-/// Double precision base 2 exponential
-#if defined(NO_EXP2)
-static inline FXdouble exp2(FXdouble x){ return Math::pow(2.0,x); }
-#else
-static inline FXdouble exp2(FXdouble x){ return ::exp2(x); }
-#endif
-
-
-/// Single precision base 10 exponential
-#if defined(NO_EXP10F)
-static inline FXfloat exp10(FXfloat x){ return Math::pow(10.0f,x); }
-#else
-static inline FXfloat exp10(FXfloat x){ return ::exp10f(x); }
-#endif
-
-/// Double precision base 10 exponential
-#if defined(NO_EXP10)
-static inline FXdouble exp10(FXdouble x){ return Math::pow(10.0,x); }
-#else
-static inline FXdouble exp10(FXdouble x){ return ::exp10(x); }
-#endif
-
-
-/// Single precision natural logarithm
-static inline FXfloat log(FXfloat x){ return ::logf(x); }
-
-/// Double precision natural logarithm
-static inline FXdouble log(FXdouble x){ return ::log(x); }
-
-
-/// Single precision logarithm of 1+x
-#if defined(NO_LOG1PF)
-static inline FXfloat log1p(FXfloat x){ return Math::log(1.0f+x); }
-#else
-static inline FXfloat log1p(FXfloat x){ return ::log1pf(x); }
-#endif
-
-/// Double precision logarithm of 1+x
-#if defined(NO_LOG1P)
-static inline FXdouble log1p(FXdouble x){ return Math::log(1.0+x); }
-#else
-static inline FXdouble log1p(FXdouble x){ return ::log1p(x); }
-#endif
-
-
-/// Single precision base 2 logarithm
-#if defined(NO_LOG2F)
-static inline FXfloat log2(FXfloat x){ return Math::log(x)*1.442695040888963407359924681001892137f; }
-#else
-static inline FXfloat log2(FXfloat x){ return ::log2f(x); }
-#endif
-
-/// Double precision base 2 logarithm
-#if defined(NO_LOG2)
-static inline FXdouble log2(FXdouble x){ return Math::log(x)*1.442695040888963407359924681001892137; }
-#else
-static inline FXdouble log2(FXdouble x){ return ::log2(x); }
-#endif
-
-
-/// Single precision base 10 logarithm
-static inline FXfloat log10(FXfloat x){ return ::log10f(x); }
-
-/// Double precision base 10 logarithm
-static inline FXdouble log10(FXdouble x){ return ::log10(x); }
-
-
 /// Single precision square root
-static inline FXfloat sqrt(FXfloat x){ return ::sqrtf(x); }
+static inline FXfloat sqrt(FXfloat x){
+  return ::sqrtf(x);
+  }
 
 /// Double precision square root
-static inline FXdouble sqrt(FXdouble x){ return ::sqrt(x); }
+static inline FXdouble sqrt(FXdouble x){
+  return ::sqrt(x);
+  }
+
+
+/// Safe single precision square root
+static inline FXfloat safesqrt(FXfloat x){
+  return Math::sqrt(Math::fmax(x,0.0f));
+  }
+
+/// Safe double precision square root
+static inline FXdouble safesqrt(FXdouble x){
+  return Math::sqrt(Math::fmax(x,0.0));
+  }
 
 
 /// Single precision cube root
+static inline FXfloat cbrt(FXfloat x){
 #if defined(NO_CBRTF)
-static inline FXfloat cbrt(FXfloat x){ return Math::pow(x,0.333333333333333333333333333333f); }
+  return ::powf(x,0.333333333333333333333333333333f);
 #else
-static inline FXfloat cbrt(FXfloat x){ return ::cbrtf(x); }
+  return ::cbrtf(x);
 #endif
+  }
 
 /// Double precision cube root
+static inline FXdouble cbrt(FXdouble x){
 #if defined(NO_CBRT)
-static inline FXdouble cbrt(FXdouble x){ return Math::pow(x,0.333333333333333333333333333333); }
+  return ::pow(x,0.333333333333333333333333333333);
 #else
-static inline FXdouble cbrt(FXdouble x){ return ::cbrt(x); }
+  return ::cbrt(x);
 #endif
+  }
 
 
 /// Single precision square
-static inline FXfloat sqr(FXfloat x){ return x*x; }
+static inline FXfloat sqr(FXfloat x){
+  return x*x;
+  }
 
 /// Double precision square
-static inline FXdouble sqr(FXdouble x){ return x*x; }
+static inline FXdouble sqr(FXdouble x){
+  return x*x;
+  }
 
 
 /// Single precision cube
-static inline FXfloat cub(FXfloat x){ return x*x*x; }
+static inline FXfloat cub(FXfloat x){
+  return x*x*x;
+  }
 
 /// Double precision cube
-static inline FXdouble cub(FXdouble x){ return x*x*x; }
-
-
-/// Single precision maximum of two
-#if defined(NO_FMAXF)
-static inline FXfloat fmax(FXfloat x,FXfloat y){ return (x>y)?x:y; }
-#else
-static inline FXfloat fmax(FXfloat x,FXfloat y){ return ::fmaxf(x,y); }
-#endif
-
-/// Double precision maximum of two
-#if defined(NO_FMAX)
-static inline FXdouble fmax(FXdouble x,FXdouble y){ return (x>y)?x:y; }
-#else
-static inline FXdouble fmax(FXdouble x,FXdouble y){ return ::fmax(x,y); }
-#endif
-
-
-/// Single precision minimum of two
-#if defined(NO_FMINF)
-static inline FXfloat fmin(FXfloat x,FXfloat y){ return (x<y)?x:y; }
-#else
-static inline FXfloat fmin(FXfloat x,FXfloat y){ return ::fminf(x,y); }
-#endif
-
-/// Double precision minimum of two
-#if defined(NO_FMIN)
-static inline FXdouble fmin(FXdouble x,FXdouble y){ return (x<y)?x:y; }
-#else
-static inline FXdouble fmin(FXdouble x,FXdouble y){ return ::fmin(x,y); }
-#endif
-
-/// Single precision positive difference
-#if defined(NO_FDIMF)
-static inline FXfloat fdim(FXfloat x,FXfloat y){ return fmax(x-y,0.0f); }
-#else
-static inline FXfloat fdim(FXfloat x,FXfloat y){ return ::fdimf(x,y); }
-#endif
-
-
-/// Double precision positive difference
-#if defined(NO_FDIM)
-static inline FXdouble fdim(FXdouble x,FXdouble y){ return fmax(x-y,0.0); }
-#else
-static inline FXdouble fdim(FXdouble x,FXdouble y){ return ::fdim(x,y); }
-#endif
-
-
-/// Single precision clamp of number x to lie within range [lo..hi]
-static inline FXfloat fclamp(FXfloat lo,FXfloat x,FXfloat hi){ return fmin(fmax(x,lo),hi); }
-
-/// Double precision clamp of number x to lie within range [lo..hi]
-static inline FXdouble fclamp(FXdouble lo,FXdouble x,FXdouble hi){ return fmin(fmax(x,lo),hi); }
-
-
-/// Minimum if two integers
-inline FXint imin(FXint x,FXint y){ return (x<y)?x:y; }
-inline FXlong imin(FXlong x,FXlong y){ return (x<y)?x:y; }
-
-
-/// Minimum of two integers
-inline FXint imax(FXint x,FXint y){ return (x>y)?x:y; }
-inline FXlong imax(FXlong x,FXlong y){ return (x>y)?x:y; }
-
-
-/// Absolute value of integer
-inline FXint iabs(FXint x){ return 0<x?x:-x; }
-inline FXlong iabs(FXlong x){ return 0L<x?x:-x; }
-
-
-/// Integer clamp of number x to lie within range [lo..hi]
-inline FXint iclamp(FXint lo,FXint x,FXint hi){ return imin(imax(x,lo),hi); }
-inline FXlong iclamp(FXlong lo,FXlong x,FXlong hi){ return imin(imax(x,lo),hi); }
-
-
-/// Single precision copy sign of y and apply to magnitude of x
-#if defined(NO_COPYSIGNF)
-static inline FXfloat copysign(FXfloat x,FXfloat y){
-  union{ FXfloat f; FXuint u; } xx={x},yy={y}; xx.u&=0x7fffffff; xx.u|=(yy.u&0x80000000); return xx.f;
+static inline FXdouble cub(FXdouble x){
+  return x*x*x;
   }
-#else
-static inline FXfloat copysign(FXfloat x,FXfloat y){
-  return ::copysignf(x,y);
-  }
-#endif
 
 
-/// Double precision copy sign of y and apply to magnitude of x
-#if defined(NO_COPYSIGN)
-static inline FXdouble copysign(FXdouble x,FXdouble y){
-  union{ FXdouble f; FXulong u; } xx={x},yy={y}; xx.u&=FXULONG(0x7fffffffffffffff); xx.u|=(yy.u&FXULONG(0x8000000000000000)); return xx.f;
-  }
+/// Single precision calculate hypothenuse sqrt(x^2+y^2)
+static inline FXfloat hypot(FXfloat x,FXfloat y){
+#if defined(NO_HYPOTF)
+  return Math::sqrt(Math::sqr(x)+Math::sqr(y));
 #else
-static inline FXdouble copysign(FXdouble x,FXdouble y){
-  return ::copysign(x,y);
-  }
+  return ::hypotf(x,y);
 #endif
+  }
+
+/// Double precision calculate hypothenuse sqrt(x^2+y^2)
+static inline FXdouble hypot(FXdouble x,FXdouble y){
+#if defined(NO_HYPOT)
+  return Math::sqrt(Math::sqr(x)+Math::sqr(y));
+#else
+  return ::hypot(x,y);
+#endif
+  }
+
+
+/// Linearly interpolate between u and v as f goes from 0...1
+static inline FXfloat lerp(FXfloat u,FXfloat v,FXfloat f){
+  return (v-u)*f+u;
+  }
+
+
+/// Linearly interpolate between u and v as f goes from 0...1
+static inline FXdouble lerp(FXdouble u,FXdouble v,FXdouble f){
+  return (v-u)*f+u;
+  }
+
+
+/// Smooth transition from 0 to 1 as f goes from 0...1
+static inline FXfloat smoothstep(FXfloat f){
+  return (3.0f-2.0f*f)*f*f;
+  }
+
+/// Smooth transition from 0 to 1 as f goes from 0...1
+static inline FXdouble smoothstep(FXdouble f){
+  return (3.0-2.0*f)*f*f;
+  }
+
+
+/// Single precision base E exponential
+static inline FXfloat exp(FXfloat x){
+  return ::expf(x);
+  }
+
+/// Double precision base E exponential
+static inline FXdouble exp(FXdouble x){
+  return ::exp(x);
+  }
+
+
+/// Single precision base E exponential - 1
+static inline FXfloat expm1(FXfloat x){
+#if defined(NO_EXPM1F)
+  return ::expf(x)-1.0f;
+#else
+  return ::expm1f(x);
+#endif
+  }
+
+/// Double precision base E exponential - 1
+static inline FXdouble expm1(FXdouble x){
+#if defined(NO_EXPM1)
+  return ::exp(x)-1.0;
+#else
+  return ::expm1(x);
+#endif
+  }
+
+
+/// Single precision power x^y
+static inline FXfloat pow(FXfloat x,FXfloat y){
+  return ::powf(x,y);
+  }
+
+/// Double precision power x^y
+static inline FXdouble pow(FXdouble x,FXdouble y){
+  return ::pow(x,y);
+  }
+
+
+/// Single precision base 2 exponential
+static inline FXfloat exp2(FXfloat x){
+#if defined(NO_EXP2F)
+  return Math::pow(2.0f,x);
+#else
+  return ::exp2f(x);
+#endif
+  }
+
+
+/// Double precision base 2 exponential
+static inline FXdouble exp2(FXdouble x){
+#if defined(NO_EXP2)
+  return Math::pow(2.0,x);
+#else
+  return ::exp2(x);
+#endif
+  }
+
+
+/// Single precision base 10 exponential
+static inline FXfloat exp10(FXfloat x){
+#if defined(NO_EXP10F)
+  return Math::pow(10.0f,x);
+#else
+  return ::exp10f(x);
+#endif
+  }
+
+
+/// Double precision base 10 exponential
+static inline FXdouble exp10(FXdouble x){
+#if defined(NO_EXP10)
+  return Math::pow(10.0,x);
+#else
+  return ::exp10(x);
+#endif
+  }
+
+
+/// Single precision 10^x
+static inline FXfloat pow10(FXfloat x){
+  return Math::exp10(x);
+  }
+
+/// Double precision 10^x
+static inline FXdouble pow10(FXdouble x){
+  return Math::exp10(x);
+  }
+
+
+/// Single precision natural logarithm
+static inline FXfloat log(FXfloat x){
+  return ::logf(x);
+  }
+
+/// Double precision natural logarithm
+static inline FXdouble log(FXdouble x){
+  return ::log(x);
+  }
+
+
+/// Single precision logarithm of 1+x
+static inline FXfloat log1p(FXfloat x){
+#if defined(NO_LOG1PF)
+  return Math::log(1.0f+x);
+#else
+  return ::log1pf(x);
+#endif
+  }
+
+
+/// Double precision logarithm of 1+x
+static inline FXdouble log1p(FXdouble x){
+#if defined(NO_LOG1P)
+  return Math::log(1.0+x);
+#else
+  return ::log1p(x);
+#endif
+  }
+
+
+/// Single precision base 2 logarithm
+static inline FXfloat log2(FXfloat x){
+#if defined(NO_LOG2F)
+  return Math::log(x)*1.442695040888963407359924681001892137f;
+#else
+  return ::log2f(x);
+#endif
+  }
+
+
+/// Double precision base 2 logarithm
+static inline FXdouble log2(FXdouble x){
+#if defined(NO_LOG2)
+  return Math::log(x)*1.442695040888963407359924681001892137;
+#else
+  return ::log2(x);
+#endif
+  }
+
+
+/// Single precision base 10 logarithm
+static inline FXfloat log10(FXfloat x){
+  return ::log10f(x);
+  }
+
+/// Double precision base 10 logarithm
+static inline FXdouble log10(FXdouble x){
+  return ::log10(x);
+  }
 
 
 /// Single precision integer power

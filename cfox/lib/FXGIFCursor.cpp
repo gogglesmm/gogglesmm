@@ -3,7 +3,7 @@
 *                        G I F   C u r s o r   O b j e c t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2018 by Daniel Gehriger.   All Rights Reserved.            *
+* Copyright (C) 2000,2019 by Daniel Gehriger.   All Rights Reserved.            *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

@@ -3,7 +3,7 @@
 *                        F i l e    L i s t   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -89,7 +89,7 @@
 
 #define OPENDIRDELAY        700000000   // Delay before opening directory
 #define REFRESHINTERVAL     1000000000  // Interval between refreshes
-#define REFRESHFREQUENCY    30          // File systems not supporting mod-time, refresh every nth time
+#define REFRESHCOUNT        30          // Refresh every REFRESHCOUNT-th time
 
 using namespace FX;
 
@@ -464,6 +464,32 @@ FXint FXFileList::descendingGroup(const FXIconItem* a,const FXIconItem* b){
   return diff;
   }
 
+/*******************************************************************************/
+
+// Return uri-list of selected files
+FXString FXFileList::getSelectedFiles() const {
+  FXString result;
+  for(FXint i=0; i<getNumItems(); i++){
+    if(isItemSelected(i) && !isItemNavigational(i)){
+      result.append(FXURL::fileToURL(getItemPathname(i)));
+      result.append("\r\n");
+      }
+    }
+  return result;
+  }
+
+
+// Update if we have selection
+long FXFileList::onUpdHaveSel(FXObject* sender,FXSelector,void*){
+  for(FXint i=0; i<getNumItems(); i++){
+    if(isItemSelected(i) && !isItemNavigational(i)){
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+      return 1;
+      }
+    }
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  return 1;
+  }
 
 /*******************************************************************************/
 
@@ -521,23 +547,10 @@ long FXFileList::onCmdCopySel(FXObject*,FXSelector,void*){
   }
 
 
-// Update if we have selection
-long FXFileList::onUpdHaveSel(FXObject* sender,FXSelector,void*){
-  for(FXint i=0; i<getNumItems(); i++){
-    if(isItemSelected(i) && !isItemNavigational(i)){
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-      return 1;
-      }
-    }
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
-  return 1;
-  }
-
-
 // We lost the selection somehow
 long FXFileList::onClipboardLost(FXObject* sender,FXSelector sel,void* ptr){
   FXIconList::onClipboardLost(sender,sel,ptr);
-  FXTRACE((1,"deleting clipfiles\n"));
+  FXTRACE((100,"deleting clipfiles\n"));
   clipfiles=FXString::null;
   clipcut=false;
   return 1;
@@ -547,21 +560,19 @@ long FXFileList::onClipboardLost(FXObject* sender,FXSelector sel,void* ptr){
 // Somebody wants our selection
 long FXFileList::onClipboardRequest(FXObject* sender,FXSelector sel,void* ptr){
 
-  FXTRACE((1,"FXFileList::onClipboardRequest: requested: %lu\n",((FXEvent*)ptr)->target));
-
   // Try base class first
   if(FXIconList::onClipboardRequest(sender,sel,ptr)) return 1;
 
   // Return list of filenames as a uri-list
   if(((FXEvent*)ptr)->target==urilistType){
-    FXTRACE((1,"Returning urilistType\n"));
+    FXTRACE((100,"Returning urilistType\n"));
     setDNDData(FROM_CLIPBOARD,urilistType,clipfiles);
     return 1;
     }
 
   // Return type of clipboard action
   if(((FXEvent*)ptr)->target==actionType){
-    FXTRACE((1,"Returning actionType\n"));
+    FXTRACE((100,"Returning actionType\n"));
     setDNDData(FROM_CLIPBOARD,actionType,clipcut?"1":"0");
     return 1;
     }
@@ -818,7 +829,7 @@ long FXFileList::onDNDMotion(FXObject* sender,FXSelector sel,void* ptr){
       }
 
     // See if dropdirectory is writable
-    if(FXStat::isWritable(dropdirectory)){
+    if(FXStat::isAccessible(dropdirectory,FXIO::ReadOnly|FXIO::WriteOnly)){
       acceptDrop(DRAG_ACCEPT);
       }
     return 1;
@@ -1261,9 +1272,8 @@ long FXFileList::onUpdHeader(FXObject*,FXSelector,void*){
 // Periodically check to see if directory was changed, and update the list if it was.
 long FXFileList::onRefreshTimer(FXObject*,FXSelector,void*){
   if(flags&FLAG_UPDATE){
-    counter=(counter+1)%REFRESHFREQUENCY;
-//    if(!listItems((counter==0),true)){
-    if(!listItems(false,true)){
+    counter+=1;
+    if(!listItems((counter==REFRESHCOUNT),true)){
       setDirectory(FXPath::validPath(directory),true);
       }
     }
@@ -1298,6 +1308,8 @@ static FXbool fileequal(const FXchar* p1,const FXchar* p2){
 // Return false if the directory can not be accessed, true otherwise.
 FXbool FXFileList::listItems(FXbool force,FXbool notify){
   FXStat info;
+
+  FXTRACE((100,"%s::listItems(%d,%d)\n",getClassName(),force,notify));
 
   // See if directory still there
   if(FXStat::statFile(directory,info)){
@@ -1336,16 +1348,13 @@ FXbool FXFileList::listItems(FXbool force,FXbool notify){
         // Loop over directory entries
         while(dir.next(name)){
 
-          // Hidden files of the form ".xxx" are normally not shown, but ".." is so we can
-          // navigate up as well as down.  However, at the root level we can't go up any
-          // further so we show "." but not ".."; this allows us to explicitly select "/."
-          // as a directory when we're in directory selection mode.
+          // Suppress '.' if not showing navigational items or not at top directory
           if(name[0]=='.'){
             if(name[1]=='\0'){
-              if((options&FILELIST_NO_PARENT) || !istop) continue;
+              if(!istop || (options&FILELIST_NO_PARENT)) continue;
               }
             else if(name[1]=='.' && name[2]=='\0'){
-              if((options&FILELIST_NO_PARENT) || istop) continue;
+              if(istop || (options&FILELIST_NO_PARENT)) continue;
               }
             else{
               if(!(options&FILELIST_SHOWHIDDEN)) continue;
@@ -1364,7 +1373,7 @@ FXbool FXFileList::listItems(FXbool force,FXbool notify){
 
           mode=info.mode();
 
-          // Hidden file or directory normally not shown
+          // Suppress hidden files or directories
           if((mode&FXIO::Hidden) && !(options&FILELIST_SHOWHIDDEN)) continue;
 #else
 
@@ -1500,8 +1509,10 @@ FXbool FXFileList::listItems(FXbool force,FXbool notify){
       // Update sort order
       sortItems();
 
-      // Update timestamp and reset counter
+      // Update timestamp
       timestamp=time;
+
+      // Reset counter
       counter=0;
       }
     return true;
@@ -1534,19 +1545,6 @@ FXString FXFileList::getCurrentFile() const {
     return getItemPathname(getCurrentItem());
     }
   return FXString::null;
-  }
-
-
-// Return uri-list of selected files
-FXString FXFileList::getSelectedFiles() const {
-  FXString result;
-  for(FXint i=0; i<getNumItems(); i++){
-    if(isItemSelected(i) && !isItemNavigational(i)){
-      result.append(FXURL::fileToURL(getItemPathname(i)));
-      result.append("\r\n");
-      }
-    }
-  return result;
   }
 
 

@@ -3,7 +3,7 @@
 *                         T o o l   T i p   W i d g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -256,12 +256,12 @@ void FXToolTip::autoplace(){
 
 // Update tooltip based on widget under cursor
 long FXToolTip::onUpdate(FXObject* sender,FXSelector sel,void* ptr){
-  FXWindow *helpsource=getApp()->getCursorWindow();
 
   // Regular GUI update
   FXWindow::onUpdate(sender,sel,ptr);
 
   // Ask the help source for a new status text first
+  FXWindow *helpsource=getApp()->getCursorWindow();
   if(helpsource && helpsource->handle(this,FXSEL(SEL_QUERY_TIP,0),NULL)){
     if(!popped){
       popped=true;

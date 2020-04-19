@@ -3,7 +3,7 @@
 *                  P a t h   N a m e   M a n i p u l a t i o n                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -62,7 +62,9 @@ namespace FXPath {
   */
   extern FXAPI FXString name(const FXString& file);
 
-  /// Return file title, i.e. document name only
+  /**
+  * Return file title, i.e. document name only.
+  */
   extern FXAPI FXString title(const FXString& file);
 
   /**
@@ -93,6 +95,12 @@ namespace FXPath {
   */
   extern FXAPI FXString expand(const FXString& file);
 
+  /**
+ * Convert a foreign path(s) or paths to local conventions,
+  * replacing environment variables etc.
+  */
+  extern FXAPI FXString convert(const FXString& path);
+
   /// Contract path based on user name and environment variable
   extern FXAPI FXString contract(const FXString& file,const FXString& user=FXString::null,const FXString& var=FXString::null);
 
@@ -116,9 +124,6 @@ namespace FXPath {
 
   /// Return relative path of file to given absolute base directory
   extern FXAPI FXString relative(const FXString& base,const FXString& file);
-
-  /// Convert path from using 'sepfm' or 'septo' to use only 'septo' path-separators
-  extern FXAPI FXString convert(const FXString& file,FXchar septo=PATHSEP,FXchar sepfm='/');
 
   /// Return path to directory above input directory name
   extern FXAPI FXString upLevel(const FXString& file);

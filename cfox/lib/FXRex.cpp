@@ -3,7 +3,7 @@
 *                 R e g u l a r   E x p r e s s i o n   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -503,7 +503,7 @@
 */
 
 // Debugging regex code
-//#define REXDEBUG 1
+// #define REXDEBUG 1
 
 // As close to infinity as we're going to get; this seems big enough.  We can not make
 // it too large as this may wrap around when added to something else!
@@ -4487,14 +4487,20 @@ FXRex::Error FXReverse::atom(){
       savemode=mode;
       if(*src=='?'){
         *dst++=*src++;
-        if((ch=*src)!='i' && ch!='I' && ch!='n' && ch!='N' && ch!=':' && ch!='=' && ch!='!' && ch!='>' && (ch!='<' || (*(src+1)!='=' && *(src+1)!='!'))) return FXRex::ErrToken;
-        *dst++=*src++;
-        if(ch=='=' || ch=='!'){                         // Non-reversed segment
-          mode&=~FXRex::Reverse;
-          }
-        else if(ch=='<'){                               // Reversed segment
-          mode|=FXRex::Reverse;
+        if((ch=*src)==':' || ch=='i' || ch=='I' || ch=='n' || ch=='N' || ch=='>'){      // Some type of sub-expression
           *dst++=*src++;
+          }
+        else if(ch=='=' || ch=='!'){                                                    // Positive or negative look-ahead
+          *dst++=*src++;
+          mode&=~FXRex::Reverse;                        // Non-reversed segment
+          }
+        else if(ch=='<' && (*(src+1)=='=' || *(src+1)=='!')){                           // Positive or negative look-behind
+          *dst++=*src++;
+          *dst++=*src++;
+          mode|=FXRex::Reverse;                         // Reversed segment
+          }
+        else{                                           // Bad token
+          return FXRex::ErrToken;
           }
         }
       if((err=expression())!=FXRex::ErrOK) return err;

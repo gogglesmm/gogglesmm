@@ -3,7 +3,7 @@
 *               S t r i n g   t o   D o u b l e   C o n v e r s i o n           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -77,33 +77,33 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
     }
 
   // Handle sign
-  if((neg=(*s=='-')) || (*s=='+')){
+  if((neg=(s[0]=='-')) || (s[0]=='+')){
     ++s;
     }
 
   // We see start of a number
-  if(*s=='.' || ('0'<=*s && *s<='9')){
+  if(s[0]=='.' || ('0'<=s[0] && s[0]<='9')){
 
     // Leading zeros
-    while(*s=='0'){
+    while(s[0]=='0'){
       ++s;
       }
 
     // Read the mantissa
-    while('0'<=*s && *s<='9'){
+    while('0'<=s[0] && s[0]<='9'){
       if(digits<MAXDIGS){
-        value+=(*s-'0')*mult;
+        value+=(s[0]-'0')*mult;
         mult*=0.1;
         }
       ++exponent;
       ++digits;
       ++s;
       }
-    if(*s=='.'){
+    if(s[0]=='.'){
       ++s;
-      while('0'<=*s && *s<='9'){
+      while('0'<=s[0] && s[0]<='9'){
         if(digits<MAXDIGS){
-          value+=(*s-'0')*mult;
+          value+=(s[0]-'0')*mult;
           mult*=0.1;
           }
         digits++;
@@ -115,20 +115,20 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
     if(end) *end=s;
 
     // Try exponent
-    if((*s|0x20)=='e'){
+    if((s[0]|0x20)=='e'){
       ++s;
 
       // Handle optional exponent sign
-      if((nex=(*s=='-')) || (*s=='+')){
+      if((nex=(s[0]=='-')) || (s[0]=='+')){
         ++s;
         }
 
       // Got an exponent
-      if('0'<=*s && *s<='9'){
+      if('0'<=s[0] && s[0]<='9'){
 
         // Eat exponent digits
-        while('0'<=*s && *s<='9'){
-          expo=expo*10+(*s-'0');
+        while('0'<=s[0] && s[0]<='9'){
+          expo=expo*10+(s[0]-'0');
           ++s;
           }
 
@@ -177,29 +177,38 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
     }
 
   // Infinite
-  else if(*s=='i' || *s=='I'){
+  else if((s[0]|0x20)=='i'){
     s++;
-    if(*s=='n' || *s=='N'){
+    if((s[0]|0x20)=='n'){
       s++;
-      if(*s=='f' || *s=='F'){
-        s++;
+      if((s[0]|0x20)=='f'){
         value=neg?-inf.f:inf.f;
-        if(end) *end=s;
-        if(ok) *ok=true;        // OK
+        if(end){                // Return end of recognized number
+          s++;
+          if((s[0]|0x20)=='i' && (s[1]|0x20)=='n' && (s[2]|0x20)=='i' && (s[3]|0x20)=='t' && (s[4]|0x20)=='y') s+=5;
+          *end=s;
+          }
+        if(ok){                 // OK
+          *ok=true;
+          }
         }
       }
     }
 
   // NaN
-  else if(*s=='n' || *s=='N'){
+  else if((s[0]|0x20)=='n'){
     s++;
-    if(*s=='a' || *s=='A'){
+    if((s[0]|0x20)=='a'){
       s++;
-      if(*s=='n' || *s=='N'){
-        s++;
+      if((s[0]|0x20)=='n'){
         value=neg?-nan.f:nan.f;
-        if(end) *end=s;
-        if(ok) *ok=true;        // OK
+        if(end){                // Return end of recognized number
+          s++;
+          *end=s;
+          }
+        if(ok){                 // OK
+          *ok=true;
+          }
         }
       }
     }

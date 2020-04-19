@@ -3,7 +3,7 @@
 *                         E v e n t   D i s p a t c h e r                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -95,7 +95,6 @@ struct FXDispatcher::FXHandles {
 #if defined(WIN32)
   FXInputHandle      handles[MAXIMUM_WAIT_OBJECTS];     // Handles
   FXuint             modes[MAXIMUM_WAIT_OBJECTS];       // IO Modes each handle
-  FX
 #elif defined(HAVE_EPOLL_CREATE1)
   struct epoll_event events[128];                       // Events
   FXInputHandle      handle;                            // Poll handle
@@ -379,7 +378,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
         now=FXThread::time();
         delay=due-now;
         if(delay<FXLONG(1000)){
-          if(dispatchTimeout(due)) return true;
+          if(dispatchTimeout(due)) return true;         // Timer activity
           continue;
           }
         }
@@ -389,21 +388,21 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
       if(atomicSet(&signotified[sig],0)){
         do{ nxt=(nxt+63)&63; }while(nxt!=sig && !signotified[nxt]);
         sigreceived=nxt;
-        if(dispatchSignal(sig)) return true;
+        if(dispatchSignal(sig)) return true;            // Signal activity
         continue;
         }
 
       // Check active handles
       if(0<=current && current<numhandles){
         nxt=(current+1)%numhandles;
-        hnd=handles->handles[current];                          // Shuffle raised handle up in the list
-        mode=handles->modes[current];                           // To give all handles equal play time
+        hnd=handles->handles[current];                  // Shuffle raised handle up in the list
+        mode=handles->modes[current];                   // To give all handles equal play time
         handles->handles[current]=handles->handles[nxt];
         handles->modes[current]=handles->modes[nxt];
         handles->handles[nxt]=hnd;
         handles->modes[nxt]=mode;
         current=-1;
-        if(dispatchHandle(hnd,mode)) return true;
+        if(dispatchHandle(hnd,mode)) return true;       // IO activity
         continue;
         }
 
@@ -419,7 +418,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
       if(current==WAIT_TIMEOUT){
 
         // Idle callback if we're about to block
-        if(dispatchIdle()) return true;
+        if(dispatchIdle()) return true;                 // Idle activity
 
         // We're not blocking
         if(blocking<=0) return false;
@@ -437,8 +436,10 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
 
         // Return if there was no timeout within maximum block time
         if(current==WAIT_TIMEOUT){
-          if(delay>=blocking) return false;             // Nothing happened during blocking period!
-          if(blocking<forever){ blocking-=delay; }      // Next blocking period reduced by time already expired
+          if(blocking<forever){                         // Next blocking period reduced by time already expired
+            blocking-=delay;
+            if(blocking<=0) return false;               // Nothing happened during blocking period!
+            }
           continue;
           }
         }
@@ -467,7 +468,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
         now=FXThread::time();
         delay=due-now;
         if(delay<FXLONG(1000)){
-          if(dispatchTimeout(due)) return true;
+          if(dispatchTimeout(due)) return true;         // Time activity
           continue;
           }
         }
@@ -477,7 +478,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
       if(atomicSet(&signotified[sig],0)){
         do{ nxt=(nxt+63)&63; }while(nxt!=sig && !signotified[nxt]);
         sigreceived=nxt;
-        if(dispatchSignal(sig)) return true;
+        if(dispatchSignal(sig)) return true;            // Signal activity
         continue;
         }
 
@@ -490,7 +491,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
         if(handles->events[current].events&EPOLLIN){ mode|=InputRead; }
         if(handles->events[current].events&EPOLLOUT){ mode|=InputWrite; }
         if(handles->events[current].events&EPOLLERR){ mode|=InputExcept; }
-        if(dispatchHandle(hnd,mode)) return true;
+        if(dispatchHandle(hnd,mode)) return true;       // IO activity
         continue;
         }
 
@@ -507,7 +508,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
       if(numwatched==0){
 
         // Idle callback if we're about to block
-        if(dispatchIdle()) return true;
+        if(dispatchIdle()) return true;                 // Idle activity
 
         // We're not blocking
         if(blocking<=0) return false;
@@ -526,8 +527,10 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
 
         // Return if there was no timeout within maximum block time
         if(numwatched==0){
-          if(delay>=blocking) return false;             // Nothing happened during blocking period!
-          if(blocking<forever){ blocking-=delay; }      // Next blocking period reduced by time already expired
+          if(blocking<forever){                         // Next blocking period reduced by time already expired
+            blocking-=delay;
+            if(blocking<=0) return false;               // Nothing happened during blocking period!
+            }
           continue;
           }
         }
@@ -587,7 +590,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
         now=FXThread::time();
         delay=due-now;
         if(delay<FXLONG(1000)){
-          if(dispatchTimeout(due)) return true;
+          if(dispatchTimeout(due)) return true;         // Timer activity
           continue;
           }
         }
@@ -597,7 +600,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
       if(atomicSet(&signotified[sig],0)){
         do{ nxt=(nxt+63)&63; }while(nxt!=sig && !signotified[nxt]);
         sigreceived=nxt;
-        if(dispatchSignal(sig)) return true;
+        if(dispatchSignal(sig)) return true;            // Signal activity
         continue;
         }
 
@@ -623,7 +626,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
             }
           }
         while(mode==0);
-        if(dispatchHandle(current,mode)) return true;
+        if(dispatchHandle(current,mode)) return true;   // IO activity
         continue;
         }
 
@@ -645,7 +648,7 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
       if(numraised==0){
 
         // Idle callback if we're about to block
-        if(dispatchIdle()) return true;
+        if(dispatchIdle()) return true;                 // Idle activity
 
         // We're not blocking
         if(blocking<=0) return false;
@@ -669,8 +672,10 @@ FXbool FXDispatcher::dispatch(FXTime blocking,FXuint flags){
 
         // Return if there was no timeout within maximum block time
         if(numraised==0){
-          if(delay>=blocking) return false;             // Nothing happened during blocking period!
-          if(blocking<forever){ blocking-=delay; }      // Next blocking period reduced by time already expired
+          if(blocking<forever){                         // Next blocking period reduced by time already expired
+            blocking-=delay;
+            if(blocking<=0) return false;               // Nothing happened during blocking period!
+            }
           continue;
           }
         }

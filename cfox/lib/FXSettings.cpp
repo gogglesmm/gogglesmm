@@ -3,7 +3,7 @@
 *                          S e t t i n g s   C l a s s                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -349,7 +349,7 @@ FXbool FXSettings::parse(const FXString& str,FXbool mrk){
       while(b<e && Ascii::isBlank(str[e-1])) e--;
 
       // Grab the unescaped value
-      value=unescape(str.mid(b,e-b),'"','"');
+      value=FXString::unescape(str.mid(b,e-b),'"','"');
 
       // Add entry to current section
       at(section).at(name,mrk)=value;
@@ -397,8 +397,8 @@ FXbool FXSettings::unparse(FXString& str) const {
             // Write marked key-value pairs only
             str.append(data(sec).key(ent));
             str.append("=");
-            if(shouldEscape(data(sec).data(ent),'"','"')){
-              str.append(escape(data(sec).data(ent),'"','"'));
+            if(FXString::shouldEscape(data(sec).data(ent),'"','"')){
+              str.append(FXString::escape(data(sec).data(ent),'"','"'));
               }
             else{
               str.append(data(sec).data(ent));

@@ -3,7 +3,7 @@
 *                  R a n d o m   N u m b e r   G e n e r a t o r                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2007,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2007,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -28,7 +28,7 @@ namespace FX {
 * FXRandom provides a thread-safe random number generator with a period
 * of around 1.84E19.
 */
-class FXRandom {
+class FXAPI FXRandom {
 private:
   FXulong state;
 public:

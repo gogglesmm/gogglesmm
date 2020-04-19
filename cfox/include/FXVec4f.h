@@ -3,7 +3,7 @@
 *       S i n g l e - P r e c i s i o n   4 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -72,8 +72,12 @@ public:
   /// Assigning operators
   FXVec4f& operator*=(FXfloat n){ return set(x*n,y*n,z*n,w*n); }
   FXVec4f& operator/=(FXfloat n){ return set(x/n,y/n,z/n,w/n); }
+
+  /// Element-wise assigning operators
   FXVec4f& operator+=(const FXVec4f& v){ return set(x+v.x,y+v.y,z+v.z,w+v.w); }
   FXVec4f& operator-=(const FXVec4f& v){ return set(x-v.x,y-v.y,z-v.z,w-v.w); }
+  FXVec4f& operator%=(const FXVec4f& v){ return set(x*v.x,y*v.y,z*v.z,w*v.w); }
+  FXVec4f& operator/=(const FXVec4f& v){ return set(x/v.x,y/v.y,z/v.z,w/v.w); }
 
   /// Conversion
   operator FXfloat*(){return &x;}
@@ -91,9 +95,6 @@ public:
   /// Length and square of length
   FXfloat length2() const { return x*x+y*y+z*z+w*w; }
   FXfloat length() const { return Math::sqrt(length2()); }
-
-  /// Clamp values of vector between limits
-  FXVec4f& clamp(FXfloat lo,FXfloat hi){ return set(Math::fclamp(lo,x,hi),Math::fclamp(lo,y,hi),Math::fclamp(lo,z,hi),Math::fclamp(lo,w,hi)); }
 
   /// Signed distance normalized plane and point
   FXfloat distance(const FXVec3f& p) const;
@@ -118,6 +119,10 @@ inline FXVec4f operator/(FXfloat n,const FXVec4f& a){return FXVec4f(n/a.x,n/a.y,
 /// Vector and vector addition
 inline FXVec4f operator+(const FXVec4f& a,const FXVec4f& b){ return FXVec4f(a.x+b.x,a.y+b.y,a.z+b.z,a.w+b.w); }
 inline FXVec4f operator-(const FXVec4f& a,const FXVec4f& b){ return FXVec4f(a.x-b.x,a.y-b.y,a.z-b.z,a.w-b.w); }
+
+/// Element-wise multiply and divide
+inline FXVec4f operator%(const FXVec4f& a,const FXVec4f& b){ return FXVec4f(a.x*b.x,a.y*b.y,a.z*b.z,a.w*b.w); }
+inline FXVec4f operator/(const FXVec4f& a,const FXVec4f& b){ return FXVec4f(a.x/b.x,a.y/b.y,a.z/b.z,a.w/b.w); }
 
 /// Equality tests
 inline FXbool operator==(const FXVec4f& a,FXfloat n){return a.x==n && a.y==n && a.z==n && a.w==n;}
@@ -157,10 +162,34 @@ inline FXVec4f hi(const FXVec4f& a,const FXVec4f& b){return FXVec4f(Math::fmax(a
 inline FXVec4f hi(const FXVec4f& a,FXfloat n){return FXVec4f(Math::fmax(a.x,n),Math::fmax(a.y,n),Math::fmax(a.z,n),Math::fmax(a.w,n));}
 inline FXVec4f hi(FXfloat n,const FXVec4f& b){return FXVec4f(Math::fmax(n,b.x),Math::fmax(n,b.y),Math::fmax(n,b.z),Math::fmax(n,b.w));}
 
+/// Clamp components of vector between lower and upper limits
+inline FXVec4f clamp(FXfloat lower,const FXVec4f& x,FXfloat upper){return hi(lo(x,upper),lower);}
+
+/// Clamp components of vector between lower corner and upper corner
+inline FXVec4f clamp(const FXVec4f& lower,const FXVec4f& x,const FXVec4f& upper){return hi(lo(x,upper),lower);}
+
+/// Return vector of absolute value of each element
+inline FXVec4f abs(const FXVec4f& a){return FXVec4f(Math::fabs(a.x),Math::fabs(a.y),Math::fabs(a.z),Math::fabs(a.w));}
+
+/// Return maximum component of vector
+inline FXfloat max(const FXVec4f& a){ return Math::fmax(Math::fmax(a.x,a.y),Math::fmax(a.z,a.w)); }
+
+/// Return minimum component of vector
+inline FXfloat min(const FXVec4f& a){ return Math::fmin(Math::fmin(a.x,a.y),Math::fmin(a.z,a.w)); }
+
+/// Linearly interpolate
+inline FXVec4f lerp(const FXVec4f& u,const FXVec4f& v,FXfloat f){return (v-u)*f+u;}
+
 /// Compute normalized plane equation ax+by+cz+d=0
 extern FXAPI FXVec4f plane(const FXVec4f& vec);
+
+/// Compute plane equation from vector and distance
 extern FXAPI FXVec4f plane(const FXVec3f& vec,FXfloat dist);
+
+/// Compute plane equation from vector and point on plane
 extern FXAPI FXVec4f plane(const FXVec3f& vec,const FXVec3f& p);
+
+/// Compute plane equation from 3 points a,b,c
 extern FXAPI FXVec4f plane(const FXVec3f& a,const FXVec3f& b,const FXVec3f& c);
 
 /// Convert vector to color
@@ -171,9 +200,6 @@ extern FXAPI FXVec4f colorToVec4f(FXColor clr);
 
 /// Normalize vector
 extern FXAPI FXVec4f normalize(const FXVec4f& v);
-
-/// Linearly interpolate
-extern FXAPI FXVec4f lerp(const FXVec4f& u,const FXVec4f& v,FXdouble f);
 
 /// Save vector to a stream
 extern FXAPI FXStream& operator<<(FXStream& store,const FXVec4f& v);

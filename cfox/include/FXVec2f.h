@@ -3,7 +3,7 @@
 *       S i n g l e - P r e c i s i o n   2 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -67,8 +67,12 @@ public:
   /// Assigning operators
   FXVec2f& operator*=(FXfloat n){ return set(x*n,y*n); }
   FXVec2f& operator/=(FXfloat n){ return set(x/n,y/n); }
+
+  /// Element-wise assigning operators
   FXVec2f& operator+=(const FXVec2f& v){ return set(x+v.x,y+v.y); }
   FXVec2f& operator-=(const FXVec2f& v){ return set(x-v.x,y-v.y); }
+  FXVec2f& operator%=(const FXVec2f& v){ return set(x*v.x,y*v.y); }
+  FXVec2f& operator/=(const FXVec2f& v){ return set(x/v.x,y/v.y); }
 
   /// Conversions
   operator FXfloat*(){return &x;}
@@ -84,9 +88,6 @@ public:
   /// Length and square of length
   FXfloat length2() const { return x*x+y*y; }
   FXfloat length() const { return Math::sqrt(length2()); }
-
-  /// Clamp values of vector between limits
-  FXVec2f& clamp(FXfloat lo,FXfloat hi){ return set(Math::fclamp(lo,x,hi),Math::fclamp(lo,y,hi)); }
 
   /// Destructor
  ~FXVec2f(){}
@@ -105,6 +106,10 @@ inline FXVec2f operator/(FXfloat n,const FXVec2f& a){return FXVec2f(n/a.x,n/a.y)
 /// Vector and vector addition
 inline FXVec2f operator+(const FXVec2f& a,const FXVec2f& b){ return FXVec2f(a.x+b.x,a.y+b.y); }
 inline FXVec2f operator-(const FXVec2f& a,const FXVec2f& b){ return FXVec2f(a.x-b.x,a.y-b.y); }
+
+/// Element-wise multiply and divide
+inline FXVec2f operator%(const FXVec2f& a,const FXVec2f& b){ return FXVec2f(a.x*b.x,a.y*b.y); }
+inline FXVec2f operator/(const FXVec2f& a,const FXVec2f& b){ return FXVec2f(a.x/b.x,a.y/b.y); }
 
 /// Equality tests
 inline FXbool operator==(const FXVec2f& a,FXfloat n){return a.x==n && a.y==n;}
@@ -144,11 +149,26 @@ inline FXVec2f hi(const FXVec2f& a,const FXVec2f& b){return FXVec2f(Math::fmax(a
 inline FXVec2f hi(const FXVec2f& a,FXfloat n){return FXVec2f(Math::fmax(a.x,n),Math::fmax(a.y,n));}
 inline FXVec2f hi(FXfloat n,const FXVec2f& b){return FXVec2f(Math::fmax(n,b.x),Math::fmax(n,b.y));}
 
-/// Normalize vector
-extern FXAPI FXVec2f normalize(const FXVec2f& v);
+/// Clamp components of vector between lower and upper limits
+inline FXVec2f clamp(FXfloat lower,const FXVec2f& x,FXfloat upper){return hi(lo(x,upper),lower);}
+
+/// Clamp components of vector between lower corner and upper corner
+inline FXVec2f clamp(const FXVec2f& lower,const FXVec2f& x,const FXVec2f& upper){return hi(lo(x,upper),lower);}
+
+/// Return vector of absolute value of each element
+inline FXVec2f abs(const FXVec2f& a){return FXVec2f(Math::fabs(a.x),Math::fabs(a.y));}
+
+/// Return maximum component of vector
+inline FXfloat max(const FXVec2f& a){ return Math::fmax(a.x,a.y); }
+
+/// Return minimum component of vector
+inline FXfloat min(const FXVec2f& a){ return Math::fmin(a.x,a.y); }
 
 /// Linearly interpolate
-extern FXAPI FXVec2f lerp(const FXVec2f& u,const FXVec2f& v,FXfloat f);
+inline FXVec2f lerp(const FXVec2f& u,const FXVec2f& v,FXfloat f){return (v-u)*f+u;}
+
+/// Normalize vector
+extern FXAPI FXVec2f normalize(const FXVec2f& v);
 
 /// Save vector to a stream
 extern FXAPI FXStream& operator<<(FXStream& store,const FXVec2f& v);

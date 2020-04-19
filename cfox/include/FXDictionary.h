@@ -3,7 +3,7 @@
 *                          D i c t i o n a r y    C l a s s                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -25,8 +25,8 @@ namespace FX {
 
 
 /**
-* The dictionary class is a fast-access hash table, mapping strings to pointers.
-* Subclasses of dictionary can easily specialize the pointers to pointers to
+* The dictionary class is a fast-access hash table, mapping strings to void-pointers.
+* Subclasses of dictionary can easily specialize the void-pointers to pointers to
 * particular types; to this end subclasses must overload certain API's and
 * perform the necessary type-casts for the proper interpretation of the stored
 * pointer values.

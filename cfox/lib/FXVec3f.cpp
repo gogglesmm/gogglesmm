@@ -3,7 +3,7 @@
 *       S i n g l e - P r e c i s i o n   3 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -106,12 +106,6 @@ FXVec3f normal(const FXVec3f& a,const FXVec3f& b,const FXVec3f& c){
 // Compute approximate normal from four points a,b,c,d
 FXVec3f normal(const FXVec3f& a,const FXVec3f& b,const FXVec3f& c,const FXVec3f& d){
   return normalize((c-a)^(d-b));
-  }
-
-
-// Linearly interpolate
-FXVec3f lerp(const FXVec3f& u,const FXVec3f& v,FXfloat f){
-  return FXVec3f(u.x+(v.x-u.x)*f,u.y+(v.y-u.y)*f,u.z+(v.z-u.z)*f);
   }
 
 

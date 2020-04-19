@@ -3,7 +3,7 @@
 *                           S t r i n g   O b j e c t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -117,8 +117,10 @@ public:
   /// Validate position to point to begin of utf8 character
   FXint validate(FXint p) const;
 
-  /// Get text contents
+  /// Get text contents as pointer
   FXchar* text(){ return str; }
+
+  /// Get text contents as const pointer
   const FXchar* text() const { return str; }
 
   /// See if string is empty
@@ -580,6 +582,70 @@ public:
   */
   static FXString vvalue(const FXchar* fmt,va_list args);
 
+
+  /**
+  * Check if the string contains special characters or leading or trailing whitespace,
+  * or contains UTF8 if flag!=0.
+  */
+  static FXbool shouldEscape(const FXString& str,FXchar lquote=0,FXchar rquote=0,FXint flag=0);
+
+  /**
+  * Escape special characters.
+  * Optionally enclose return value with left and right quotes.
+  * Flag: 0 don't encode UTF8 multi-byte characters.
+  * Flag: 1 encodes UTF8 multi-byte characters to a sequence of hexadecimals of the form \xXX.
+  * Flag: 2 encodes UTF8 multi-byte characters to the form \uXXXX or \uXXXX\uYYYY.
+  * Ill-formed UTF8 will be encoded as hexadecimals \xXX regardless even if \uXXXX is requested.
+  * Quotes will be escaped if quoting is performed.
+  */
+  static FXString escape(const FXString& str,FXchar lquote=0,FXchar rquote=0,FXint flag=0);
+
+  /**
+  * Unescape special characters,
+  * Optionally remove surrounding left and right quotes.
+  * In particular, decode \xXX to the hexadecimal character XX, \uXXXX to the multi-byte
+  * UTF8 sequence representing unicode character XXXX, and decode \t, \n, etc.
+  * Handle surrogate pairs of the form \uXXXX\uYYYY properly.
+  */
+  static FXString unescape(const FXString& str,FXchar lquote=0,FXchar rquote=0);
+
+  /**
+  * Expand tabs with the equivalent amount of spaces.
+  * UTF8 encoded characters are counted as one column.
+  */
+  static FXString detab(const FXString& text,FXint tabcols=8);
+
+  /**
+  * Compress runs of more than 2 spaces with tabs.
+  * UTF8 characters are counted as one column.
+  */
+  static FXString entab(const FXString& text,FXint tabcols=8);
+
+  /**
+  * Retabbify lines of text.
+  * Given lines of text at given indent-level, insert of remove spaces or tabs to
+  * align the text to new outdent-level, shifting over by a number of columns left-ward
+  * or rightward. UTF8 characters are counted as one column, and trailing space will be
+  * deleted.
+  */
+  static FXString tabbify(const FXString& text,FXint tabcols=8,FXint indent=0,FXint outdent=0,FXint shift=0,FXbool tabs=false);
+
+  /**
+  * Return normalized string, i.e. reordering of diacritical marks.
+  */
+  static FXString normalize(const FXString& s);
+
+  /**
+  * Return normalized decomposition of string.
+  */
+  static FXString decompose(const FXString& s,FXbool canonical=true);
+
+  /**
+  * Return normalized composition of string; this first performs normalized
+  * decomposition.
+  */
+  static FXString compose(const FXString& s,FXbool canonical=true);
+  
   /// Compute hash value of string
   FXuint hash() const;
 
@@ -701,43 +767,6 @@ extern FXAPI FXString& unixToDos(FXString& str);
 
 /// Convert dos string to unix string
 extern FXAPI FXString& dosToUnix(FXString& str);
-
-/**
-* Check if the string contains special characters or leading or trailing whitespace,
-* or contains UTF8 if flag!=0.
-*/
-extern FXAPI FXbool shouldEscape(const FXString& str,FXchar lquote=0,FXchar rquote=0,FXint flag=0);
-
-/**
-* Escape special characters.
-* Optionally enclose return value with left and right quotes.
-* Flag: 0 don't encode UTF8 multi-byte characters.
-* Flag: 1 encodes UTF8 multi-byte characters to a sequence of hexadecimals of the form \xXX.
-* Flag: 2 encodes UTF8 multi-byte characters to the form \uXXXX or \uXXXX\uYYYY.
-* Ill-formed UTF8 will be encoded as hexadecimals \xXX regardless even if \uXXXX is requested.
-* Quotes will be escaped if quoting is performed.
-*/
-extern FXAPI FXString escape(const FXString& str,FXchar lquote=0,FXchar rquote=0,FXint flag=0);
-
-/**
-* Unescape special characters,
-* Optionally remove surrounding left and right quotes.
-* In particular, decode \xXX to the hexadecimal character XX, \uXXXX to the multi-byte
-* UTF8 sequence representing unicode character XXXX, and decode \t, \n, etc.
-* Handle surrogate pairs of the form \uXXXX\uYYYY properly.
-*/
-extern FXAPI FXString unescape(const FXString& str,FXchar lquote=0,FXchar rquote=0);
-
-
-
-/// Return normalized string, i.e. reordering of diacritical marks
-extern FXAPI FXString normalize(const FXString& s);
-
-/// Return normalized decomposition of string
-extern FXAPI FXString decompose(const FXString& s,FXbool canonical=true);
-
-/// Return normalized composition of string; this first performs normalized decomposition
-extern FXAPI FXString compose(const FXString& s,FXbool canonical=true);
 
 }
 

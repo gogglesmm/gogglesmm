@@ -3,7 +3,7 @@
 *                     G Z F i l e S t r e a m   C l a s s e s                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2018 by Sander Jansen.   All Rights Reserved.              *
+* Copyright (C) 2002,2019 by Sander Jansen.   All Rights Reserved.              *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -120,6 +120,14 @@ public:
 
   /// Load object
   FXGZFileStream& loadObject(FXObject*& v){ FXStream::loadObject(v); return *this; }
+
+  /// Load object
+  template<class TYPE>
+  FXGZFileStream& operator>>(TYPE*& obj){ return loadObject(reinterpret_cast<FXObject*&>(obj)); }
+
+  /// Save object
+  template<class TYPE>
+  FXGZFileStream& operator<<(const TYPE* obj){ return saveObject(static_cast<const FXObject*>(obj)); }
 
   /// Clean up
   virtual ~FXGZFileStream();

@@ -3,7 +3,7 @@
 *                         P r o c e s s   S u p p o r t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -177,7 +177,7 @@ static int CDECL comparison(const void *a1, const void *a2){
 static FXbool needquotes(const FXchar* ptr){
   register FXchar c;
   while((c=*ptr++)!='\0'){
-    if(c==' ' || c=='"' || c=='\t' || c=='\v') return true;
+    if(c==' ' || c=='"' || c=='\t' || c=='\v' || c=='\n') return true;
     }
   return false;
   }

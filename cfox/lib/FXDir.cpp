@@ -3,7 +3,7 @@
 *                    D i r e c t o r y   E n u m e r a t o r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -94,13 +94,13 @@ FXbool FXDir::open(const FXString& path){
   if(!path.empty()){
 #ifdef WIN32
 #ifdef UNICODE
-    FXnchar buffer[MAXPATHLEN];
-    utf2ncs(buffer,path.text(),MAXPATHLEN-2);
-    wcsncat(buffer,TEXT("\\*"),MAXPATHLEN);
+    FXnchar buffer[MAXPATHLEN+2];
+    utf2ncs(buffer,path.text(),MAXPATHLEN);
+    wcsncat(buffer,TEXT("\\*"),MAXPATHLEN+2);
 #else
-    FXchar buffer[MAXPATHLEN];
+    FXchar buffer[MAXPATHLEN+2];
     fxstrlcpy(buffer,path.text(),MAXPATHLEN);
-    fxstrlcat(buffer,"\\*",MAXPATHLEN);
+    fxstrlcat(buffer,"\\*",MAXPATHLEN+2);
 #endif
     ((SPACE*)space)->handle=FindFirstFile(buffer,&((SPACE*)space)->result);
     if(((SPACE*)space)->handle!=INVALID_HANDLE_VALUE){

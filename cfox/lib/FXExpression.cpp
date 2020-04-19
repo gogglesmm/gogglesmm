@@ -3,7 +3,7 @@
 *                      E x p r e s s i o n   E v a l u a t o r                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -122,7 +122,12 @@ enum {
   TK_LOG10      = 124204261U,
   TK_SIN        = 124308U,
   TK_SINH       = 4102268U,
-  TK_SQRT       = 4076772,
+  TK_SQR        = 123536U,
+  TK_CUB        = 107284U,
+  TK_SQRT       = 4076772U,
+  TK_CBRT       = 3520359U,
+  TK_ROUND      = 136616002U,
+  TK_TRUNC      = 133596670U,
   TK_TAN        = 123227U,
   TK_TANH       = 4066515U,
   TK_MAX        = 121748U,
@@ -179,7 +184,12 @@ enum {
   OP_LOG10,
   OP_SIN,
   OP_SINH,
+  OP_SQR,
+  OP_CUB,
   OP_SQRT,
+  OP_CBRT,
+  OP_ROUND,
+  OP_TRUNC,
   OP_TAN,
   OP_TANH,
 
@@ -540,8 +550,23 @@ dyad: gettok();
     case TK_SINH:
       op=OP_SINH;
       goto mono;
+    case TK_SQR:
+      op=OP_SQR;
+      goto mono;
+    case TK_CUB:
+      op=OP_CUB;
+      goto mono;
     case TK_SQRT:
       op=OP_SQRT;
+      goto mono;
+    case TK_CBRT:
+      op=OP_CBRT;
+      goto mono;
+    case TK_ROUND:
+      op=OP_ROUND;
+      goto mono;
+    case TK_TRUNC:
+      op=OP_TRUNC;
       goto mono;
     case TK_TAN:
       op=OP_TAN;
@@ -746,6 +771,7 @@ void FXCompile::gettok(){
           while(Ascii::isAlphaNumeric(*tail)){
             token=((token<<5)+token) ^ (FXuchar)*tail++;
             }
+          //FXTRACE((1,"token=%u\n",token));
           }
         return;
       }
@@ -961,7 +987,12 @@ FXdouble FXExpression::evaluate(const FXdouble *args) const {
       case OP_ASINH: *sp=Math::asinh(*sp); break;
       case OP_ACOSH: *sp=Math::acosh(*sp); break;
       case OP_ATANH: *sp=Math::atanh(*sp); break;
+      case OP_SQR:   *sp=Math::sqr(*sp); break;
+      case OP_CUB:   *sp=Math::cub(*sp); break;
       case OP_SQRT:  *sp=Math::sqrt(*sp); break;
+      case OP_CBRT:  *sp=Math::cbrt(*sp); break;
+      case OP_ROUND: *sp=Math::round(*sp); break;
+      case OP_TRUNC: *sp=Math::trunc(*sp); break;
       case OP_ABS:   *sp=Math::fabs(*sp); break;
       case OP_CEIL:  *sp=Math::ceil(*sp); break;
       case OP_FLOOR: *sp=Math::floor(*sp); break;

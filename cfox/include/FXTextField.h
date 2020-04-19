@@ -3,7 +3,7 @@
 *                         T e x t   F i e l d   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -259,17 +259,17 @@ public:
   /// Remove the focus from this window
   virtual void killFocus();
 
-  /// Change the default width in terms of visible columns
-  void setNumColumns(FXint cols);
+  /// Set editable mode
+  void setEditable(FXbool edit=true);
 
-  /// Return number of visible columns
-  FXint getNumColumns() const { return columns; }
+  /// Return true if text field may be edited
+  FXbool isEditable() const;
 
-  /// Get entire text
-  FXString getText() const { return contents; }
+  /// Set overstrike mode
+  void setOverstrike(FXbool over=true);
 
-  /// Get selected text
-  FXString getSelectedText() const;
+  /// Return true if overstrike mode in effect
+  FXbool isOverstrike() const;
 
   /// Change the text and move cursor to end
   void setText(const FXString& text,FXbool notify=false);
@@ -289,6 +289,9 @@ public:
   /// Remove all text
   void clearText(FXbool notify=false);
 
+  /// Get entire text
+  FXString getText() const { return contents; }
+
   /// Select all text
   FXbool selectAll();
 
@@ -297,6 +300,12 @@ public:
 
   /// Extend the selection from the anchor to the given position
   FXbool extendSelection(FXint pos);
+
+  /// Unselect the text
+  FXbool killSelection();
+
+  /// Get selected text
+  FXString getSelectedText() const;
 
   /// Copy primary selection to clipboard
   FXbool copySelection();
@@ -315,9 +324,6 @@ public:
 
   /// Paste clipboard
   FXbool pasteClipboard(FXbool notify=false);
-
-  /// Unselect the text
-  FXbool killSelection();
 
   /// Return true if position pos is selected
   FXbool isPosSelected(FXint pos) const;
@@ -346,17 +352,29 @@ public:
   /// Return anchor position
   FXint getAnchorPos() const { return anchor; }
 
- /// Set editable mode
-  void setEditable(FXbool edit=true);
+  /// Change text style
+  void setTextStyle(FXuint style);
 
-  /// Return true if text field may be edited
-  FXbool isEditable() const;
+  /// Return text style
+  FXuint getTextStyle() const;
 
-  /// Set overstrike mode
-  void setOverstrike(FXbool over=true);
+  /// Set the text font
+  void setFont(FXFont* fnt);
 
-  /// Return true if overstrike mode in effect
-  FXbool isOverstrike() const;
+  /// Get the text font
+  FXFont* getFont() const { return font; }
+
+  /// Change number of visible columns
+  void setNumColumns(FXint cols);
+
+  /// Return number of visible columns
+  FXint getNumColumns() const { return columns; }
+
+  /// Change word delimiters
+  void setDelimiters(const FXchar* delims=textDelimiters){ delimiters=delims; }
+
+  /// Return word delimiters
+  const FXchar* getDelimiters() const { return delimiters; }
 
   /**
   * Change text justification mode. The justify mode is a combination of
@@ -369,24 +387,6 @@ public:
 
   /// Return text justification mode
   FXuint getJustify() const;
-
-  /// Change word delimiters
-  void setDelimiters(const FXchar* delims=textDelimiters){ delimiters=delims; }
-
-  /// Return word delimiters
-  const FXchar* getDelimiters() const { return delimiters; }
-
-  /// Change text style
-  void setTextStyle(FXuint style);
-
-  /// Return text style
-  FXuint getTextStyle() const;
-
-  /// Set the text font
-  void setFont(FXFont* fnt);
-
-  /// Get the text font
-  FXFont* getFont() const { return font; }
 
   /// Change text color
   void setTextColor(FXColor clr);

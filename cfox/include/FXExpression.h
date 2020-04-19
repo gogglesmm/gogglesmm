@@ -3,7 +3,7 @@
 *                      E x p r e s s i o n   E v a l u a t o r                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -67,7 +67,7 @@ namespace FX {
 *
 *       abs, acos, acosh, asin, asinh, atan, atanh,
 *       ceil, cos, cosh, exp, floor, log, log10, sin, sinh,
-*       sqrt, tan, tanh, max, min, atan2
+*       sqr, cub, sqrt, cbrt, round, trunc, tan, tanh, max, min, atan2
 *
 * The expression engine also contains the following constants:
 *

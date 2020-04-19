@@ -3,7 +3,7 @@
 *                          V a r i a n t   T y p e                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2013,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2013,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -34,19 +34,44 @@
 
 /*
   Notes:
-  - General purpose variant type to hold run-time determined values.
-  - Probably should simplify storage of all integer types to either FXlong
-    or FXulong; this will lead to fewer cases and cost no extra storage
-    at all since the union is the size of the biggest type, anyway.
-  - Object member operator or array indexing operator have two flavors;
-    the non-const version will change the type of the variant automatically,
-    and possibly return newly created variant objects.
-    The const operators will return default Null variant if referencing non-
-    existing members.
-  - New mebers or array entries will be automatically created in this case.
-  - Converting any non-empty string to type bool yields true; this was changed
-    from older implementation.  New implementation makes more sense.
-  - Likewise, converting non-empty map or array to boolean also yields true.
+  - Variant is a "discriminated union" type that may hold a integer, floating
+    point number, string, or respectively an array or key/value collection of
+    variants.  Thus, a single Variant can hold an arbitrarily complex collection
+    of information.
+  - As such, this makes for a convenient data structure to serialize and deserialize
+    JSON files; JSON syntax in fact maps almost 1:1 to Variant capabilities.
+  - Access to Variant's information is most typically performed using overloaded
+    conversion operators [reading information from variants], and overloaded
+    assignment operators [writing data to variants].
+  - A few important caveats are worth mentioning for effiencent use of this flexible
+    data structure:
+
+      1 When writing to variant as an array, its best to reference the last element
+        first, or if the number of elements is known in advance, to set the size
+        explicitly prior to assigning elements.  Even though Variant automatically
+        adapts the size of the array based on the index being accessed, such usage
+        may lead to much unneccessary reallocations and copying; if things get big
+        that may be performance bottleneck.
+
+      2 Be aware that variant map may get resized as more key/value pairs are added;
+        this means don't hang on to references to Variants that may be affected by
+        the resize.
+
+      3 Simple numbers (booleans, integers, floats, etc.) are VERY efficient to store;
+        consequently, its fine to store a fairly large array into Variant, as long as
+        one keeps point (1) above in mind.
+
+      4 No artificial limits to sizes.  Variant should handle arbitrarily large data-
+        structures, but efficient use needs to observe (1) above.
+
+  - Object member operator or array indexing operator have two flavors; the non-const
+    version will change the type of the variant automatically, and possibly return
+    reference to newly created variant object.
+    The const operators will return default Null variant if referencing non-existing
+    members.
+  - Probably should simplify storage of all integer types to either FXlong or FXulong;
+    this will lead to fewer cases and cost no extra storage at all since the union is
+    the size of the biggest type, anyway.
 */
 
 using namespace FX;
@@ -293,12 +318,6 @@ FXptr FXVariant::toPtr() const {
   }
 
 
-// Convert to char pointer
-const FXchar* FXVariant::toChars() const {
-  return (type==VString) ? value.s : FXString::null;
-  }
-
-
 // Convert to int
 FXint FXVariant::toInt(FXbool* ok) const {
   return (FXint)toLong(ok);
@@ -420,6 +439,12 @@ FXdouble FXVariant::toDouble(FXbool* ok) const {
     return 0.0;
     }
   return 0.0;
+  }
+
+
+// Convert to char pointer
+const FXchar* FXVariant::toChars() const {
+  return (type==VString) ? value.s : FXString::null;
   }
 
 

@@ -3,7 +3,7 @@
 *                            V i s u a l   C l a s s                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -282,7 +282,7 @@ static const FXint dither[16]={
 
 // Find shift amount
 static inline FXuint findshift(FXPixel mask){
-  register FXuint sh=0;
+  FXuint sh=0;
   while(!(mask&(1<<sh))) sh++;
   return sh;
   }
@@ -290,22 +290,18 @@ static inline FXuint findshift(FXPixel mask){
 
 // Apply gamma correction to an intensity value in [0..max].
 static FXuint gamma_adjust(FXdouble gamma,FXuint value,FXuint max){
-  register FXdouble x=(FXdouble)value / (FXdouble)max;
+  FXdouble x=(FXdouble)value / (FXdouble)max;
   return (FXuint) (((FXdouble)max * Math::pow(x,1.0/gamma))+0.5);
   }
 
 
-// Apparently, fabs() gives trouble on HP-UX aCC compiler
-static inline double fxabs(double a){ return a<0 ? -a : a; }
-
-
 // Setup for true color
 void FXVisual::setuptruecolor(){
-  register FXuint  redshift,greenshift,blueshift;
-  register FXPixel redmask,greenmask,bluemask,alphamask;
-  register FXPixel redmax,greenmax,bluemax;
-  register FXuint i,c,d,r,g,b;
-  register FXdouble gamma;
+  FXuint   redshift,greenshift,blueshift;
+  FXPixel  redmask,greenmask,bluemask,alphamask;
+  FXPixel  redmax,greenmax,bluemax;
+  FXuint   i,c,d,r,g,b;
+  FXdouble gamma;
 
   // Get gamma
   gamma=getApp()->reg().readRealEntry("SETTINGS","displaygamma",1.0);
@@ -360,14 +356,15 @@ void FXVisual::setuptruecolor(){
 
 // Setup direct color
 void FXVisual::setupdirectcolor(){
-  register FXuint  redshift,greenshift,blueshift;
-  register FXPixel redmask,greenmask,bluemask;
-  register FXPixel redmax,greenmax,bluemax;
-  register FXuint  mapsize,maxcols,i,j,r,g,b,emax,rr,gg,bb,d;
-  register FXuint  bestmatchr,bestmatchg,bestmatchb,gottable,allocedcolor;
-  register FXdouble mindist,dist,gamma;
-  XColor  table[MAX_MAPSIZE],color;
-  FXPixel alloced[MAX_MAPSIZE];
+  FXuint   redshift,greenshift,blueshift;
+  FXPixel  redmask,greenmask,bluemask;
+  FXPixel  redmax,greenmax,bluemax;
+  FXuint   mapsize,maxcols,i,j,r,g,b,emax,rr,gg,bb,d;
+  FXuint   bestmatchr,bestmatchg,bestmatchb,gottable,allocedcolor;
+  FXint    mindist,dist;
+  FXdouble gamma;
+  XColor   table[MAX_MAPSIZE],color;
+  FXPixel  alloced[MAX_MAPSIZE];
 
   // Get gamma
   gamma=getApp()->reg().readRealEntry("SETTINGS","displaygamma",1.0);
@@ -435,21 +432,21 @@ void FXVisual::setupdirectcolor(){
         }
 
       // Find best match for red
-      for(mindist=1.0E10,bestmatchr=0,j=0; j<mapsize; j++){
-        dist=fxabs(color.red-table[j].red);
-        if(dist<mindist){ bestmatchr=j; mindist=dist; if(mindist==0.0) break; }
+      for(mindist=2147483647,bestmatchr=0,j=0; j<mapsize; j++){
+        dist=Math::iabs(color.red-table[j].red);
+        if(dist<mindist){ bestmatchr=j; mindist=dist; if(mindist==0) break; }
         }
 
       // Find best match for green
-      for(mindist=1.0E10,bestmatchg=0,j=0; j<mapsize; j++){
-        dist=fxabs(color.green-table[j].green);
-        if(dist<mindist){ bestmatchg=j; mindist=dist; if(mindist==0.0) break; }
+      for(mindist=2147483647,bestmatchg=0,j=0; j<mapsize; j++){
+        dist=Math::iabs(color.green-table[j].green);
+        if(dist<mindist){ bestmatchg=j; mindist=dist; if(mindist==0) break; }
         }
 
       // Find best match for blue
-      for(mindist=1.0E10,bestmatchb=0,j=0; j<mapsize; j++){
-        dist=fxabs(color.blue-table[j].blue);
-        if(dist<mindist){ bestmatchb=j; mindist=dist; if(mindist==0.0) break; }
+      for(mindist=2147483647,bestmatchb=0,j=0; j<mapsize; j++){
+        dist=Math::iabs(color.blue-table[j].blue);
+        if(dist<mindist){ bestmatchb=j; mindist=dist; if(mindist==0) break; }
         }
 
       // Now try to allocate this color
@@ -505,10 +502,10 @@ void FXVisual::setupdirectcolor(){
 
 // Setup for pseudo color
 void FXVisual::setuppseudocolor(){
-  register FXuint r,g,b,mapsize,bestmatch,maxcols,gottable,allocedcolor,i,d;
-  register FXdouble mindist,dist,gamma,dr,dg,db;
-  register FXPixel redmax,greenmax,bluemax;
-  XColor table[256],color;
+  FXuint   r,g,b,mapsize,bestmatch,maxcols,gottable,allocedcolor,i,d;
+  FXdouble mindist,dist,gamma,dr,dg,db;
+  FXPixel  redmax,greenmax,bluemax;
+  XColor   table[256],color;
 
   // Get gamma
   gamma=getApp()->reg().readRealEntry("SETTINGS","displaygamma",1.0);
@@ -636,11 +633,11 @@ void FXVisual::setuppseudocolor(){
 
 // Setup for static color
 void FXVisual::setupstaticcolor(){
-  register FXuint mapsize,bestmatch,i,nr,ng,nb,r,g,b,j,d;
-  register FXdouble mindist,dist,gamma,dr,dg,db;
-  register FXPixel redmax,greenmax,bluemax;
-  FXuchar rcnt[256],gcnt[256],bcnt[256];
-  XColor table[256],color;
+  FXuint   mapsize,bestmatch,i,nr,ng,nb,r,g,b,j,d;
+  FXdouble mindist,dist,gamma,dr,dg,db;
+  FXPixel  redmax,greenmax,bluemax;
+  FXuchar  rcnt[256],gcnt[256],bcnt[256];
+  XColor   table[256],color;
 
   // Get gamma
   gamma=getApp()->reg().readRealEntry("SETTINGS","displaygamma",1.0);
@@ -746,10 +743,10 @@ void FXVisual::setupstaticcolor(){
 
 // Setup for gray scale
 void FXVisual::setupgrayscale(){
-  register FXuint g,bestmatch,mapsize,maxcols,graymax,gottable,allocedcolor,i,d;
-  register FXdouble mindist,dist,gamma,dr,dg,db;
-  XColor table[256],color;
-  FXPixel alloced[256];
+  FXuint   g,bestmatch,mapsize,maxcols,graymax,gottable,allocedcolor,i,d;
+  FXdouble mindist,dist,gamma,dr,dg,db;
+  XColor   table[256],color;
+  FXPixel  alloced[256];
 
   // Get gamma
   gamma=getApp()->reg().readRealEntry("SETTINGS","displaygamma",1.0);
@@ -851,8 +848,8 @@ void FXVisual::setupgrayscale(){
 
 // Setup for static gray
 void FXVisual::setupstaticgray(){
-  register FXuint i,d,c,graymax;
-  register FXdouble gamma;
+  FXuint   i,d,c,graymax;
+  FXdouble gamma;
 
   // Get gamma
   gamma=getApp()->reg().readRealEntry("SETTINGS","displaygamma",1.0);
@@ -884,8 +881,8 @@ void FXVisual::setupstaticgray(){
 
 // Setup for pixmap monochrome; this one has no colormap!
 void FXVisual::setuppixmapmono(){
-  register FXuint d,i,c;
-  register FXdouble gamma;
+  FXuint   d,i,c;
+  FXdouble gamma;
 
   // Get gamma
   gamma=getApp()->reg().readRealEntry("SETTINGS","displaygamma",1.0);

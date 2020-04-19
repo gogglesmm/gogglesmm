@@ -3,7 +3,7 @@
 *       S i n g l e - P r e c i s i o n   4 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -72,10 +72,10 @@ FXVec4f normalize(const FXVec4f& v){
   }
 
 
-// Compute plane equation from 3 points a,b,c
-FXVec4f plane(const FXVec3f& a,const FXVec3f& b,const FXVec3f& c){
-  FXVec3f nm(normal(a,b,c));
-  return FXVec4f(nm,-(nm.x*a.x+nm.y*a.y+nm.z*a.z));
+// Compute normalized plane equation ax+by+cz+d=0
+FXVec4f plane(const FXVec4f& vec){
+  register FXfloat t=Math::sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z);
+  return FXVec4f(vec.x/t,vec.y/t,vec.z/t,vec.w/t);
   }
 
 
@@ -93,10 +93,10 @@ FXVec4f plane(const FXVec3f& vec,const FXVec3f& p){
   }
 
 
-// Compute plane equation from 4 vector
-FXVec4f plane(const FXVec4f& vec){
-  register FXfloat t=Math::sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z);
-  return FXVec4f(vec.x/t,vec.y/t,vec.z/t,vec.w/t);
+// Compute plane equation from 3 points a,b,c
+FXVec4f plane(const FXVec3f& a,const FXVec3f& b,const FXVec3f& c){
+  FXVec3f nm(normal(a,b,c));
+  return FXVec4f(nm,-(nm.x*a.x+nm.y*a.y+nm.z*a.z));
   }
 
 
@@ -109,28 +109,6 @@ FXfloat FXVec4f::distance(const FXVec3f& p) const {
 // Return true if edge a-b crosses plane
 FXbool FXVec4f::crosses(const FXVec3f& a,const FXVec3f& b) const {
   return (distance(a)>=0.0f) ^ (distance(b)>=0.0f);
-  }
-
-
-// Linearly interpolate
-FXVec4f lerp(const FXVec4f& u,const FXVec4f& v,FXfloat f){
-#if defined(FOX_HAS_AVX2) && defined(FOX_HAS_FMA)
-  register __m128 u0=_mm_loadu_ps(&u[0]);
-  register __m128 v0=_mm_loadu_ps(&v[0]);
-  register __m128 ff=_mm_set1_ps(f);
-  FXVec4f r;
-  _mm_storeu_ps(&r[0],_mm_fmadd_ps(ff,v0,_mm_fnmadd_ps(ff,u0,u0)));       // Lerp in two instructions!
-  return r;
-#elif defined(FOX_HAS_SSE2)
-  register __m128 u0=_mm_loadu_ps(&u[0]);
-  register __m128 v0=_mm_loadu_ps(&v[0]);
-  register __m128 ff=_mm_set1_ps(f);
-  FXVec4f r;
-  _mm_storeu_ps(&r[0],_mm_add_ps(u0,_mm_mul_ps(_mm_sub_ps(v0,u0),ff)));
-  return r;
-#else
-  return FXVec4f(u.x+(v.x-u.x)*f,u.y+(v.y-u.y)*f,u.z+(v.z-u.z)*f,u.w+(v.w-u.w)*f);
-#endif
   }
 
 

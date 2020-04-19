@@ -3,7 +3,7 @@
 *                        P r i n t   J o b   D i a l o g                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -428,7 +428,7 @@ void FXPrintDialog::create(){
   FXchar name[1000];
   FILE *pc;
   FXchar buf[1000];
-  FXint i;
+  FXuint i;
 
   // Open printcap file, found as per registry setting
   // You may have change this setting for your particular system

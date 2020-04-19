@@ -3,7 +3,7 @@
 *                   M a i n   F O X   I n c l u d e   F i l e                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or                 *
 * modify it under the terms of the GNU Lesser General Public                    *
@@ -79,6 +79,7 @@
 #include "FXVariantArray.h"
 #include "FXVariantMap.h"
 #include "FXDictionary.h"
+#include "FXReverseDictionary.h"
 #include "FXDLL.h"
 #include "FXSize.h"
 #include "FXPoint.h"
@@ -289,6 +290,7 @@
 #include "FXCalendar.h"
 #include "FXGradientBar.h"
 #include "FXConsole.h"
+#include "FXDirWatch.h"
 #include "FXSplashWindow.h"
 
 

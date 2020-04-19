@@ -3,7 +3,7 @@
 *                        F o n t   S e l e c t i o n   B o x                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -211,7 +211,7 @@ FXFontSelector::FXFontSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   scalable=new FXCheckButton(attributes,tr("Scalable:"),this,ID_SCALABLE,JUSTIFY_NORMAL|TEXT_BEFORE_ICON|LAYOUT_CENTER_Y|LAYOUT_FILL_X);
 
   // Check for all (X11) fonts
-#ifdef WIN32
+#if defined(WIN32)
   allfonts=NULL;
 #else
   new FXFrame(attributes,FRAME_NONE|LAYOUT_FILL_X);

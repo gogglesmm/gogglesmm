@@ -3,7 +3,7 @@
 *                          T h r e a d   S u p p o r t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -288,6 +288,7 @@ void FXThread::yield(){
 FXTime FXThread::time(){
 #if defined(WIN32)
   FXTime now;
+  FXASSERT(sizeof(FXTime)==sizeof(FILETIME));
   GetSystemTimeAsFileTime((FILETIME*)&now);
   return (now-FXLONG(116444736000000000))*FXLONG(100);
 #elif (_POSIX_C_SOURCE >= 199309L)
@@ -305,12 +306,75 @@ FXTime FXThread::time(){
   }
 
 
+#if defined(WIN32)
+static FXTime frequency=0;
+#endif
+
+// Get steady time in nanoseconds since some arbitrary start time
+FXTime FXThread::steadytime(){
+#if defined(WIN32)
+  const FXTime seconds=1000000000;
+  FXTime now,s,f;
+  FXASSERT(sizeof(FXTime)==sizeof(LARGE_INTEGER));
+  if(__unlikely(frequency==0)){
+    ::QueryPerformanceFrequency((LARGE_INTEGER*)&frequency);
+    }
+  FXASSERT(frequency<FXLONG(9223372036));               // Overflow possible if CPU speed exceeds 9.2GHz
+  ::QueryPerformanceCounter((LARGE_INTEGER*)&now);
+  s=now/frequency;
+  f=now%frequency;
+  return seconds*s + ((seconds*f)/frequency);
+#elif (_POSIX_C_SOURCE >= 199309L)
+  const FXTime seconds=1000000000;
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC,&ts);
+  return ts.tv_sec*seconds+ts.tv_nsec;
+#else
+  const FXTime seconds=1000000000;
+  const FXTime microseconds=1000;
+  struct timeval tv;
+  gettimeofday(&tv,NULL);
+  return tv.tv_sec*seconds+tv.tv_usec*microseconds;
+#endif
+  }
+
+
+// We want to use NtDelayExecution() because it allows for both absolute as well as
+// interval wait times. In addition, it is more accurate than the other system calls.
+// Unfortunately, this is an undocumented NTDLL API; we can use it anyway by using
+// GetProcAddress() on the NTDLL module to dig up its location.
+#if defined(WIN32)
+
+// Typedef a pointer to NtDelayExecution()
+typedef DWORD (WINAPI *PFN_NTDELAYEXECUTION)(BOOLEAN Alertable,LARGE_INTEGER* DelayInterval);
+
+// Declare the stub function
+static DWORD WINAPI NtDelayExecutionStub(BOOLEAN Alertable,LARGE_INTEGER* DelayInterval);
+
+// Pointer to NtDelayExecution, initially pointing to the stub function
+static PFN_NTDELAYEXECUTION fxNtDelayExecution=NtDelayExecutionStub;
+
+// The stub gets the address of actual function, sets the function pointer, then calls
+// actual function; next time around actual function will be called directly.
+static DWORD WINAPI NtDelayExecutionStub(BOOLEAN Alertable,LARGE_INTEGER* DelayInterval){
+  if(fxNtDelayExecution==NtDelayExecutionStub){
+    HMODULE ntdllDll=GetModuleHandleA("ntdll.dll");
+    FXASSERT(ntdllDll);
+    fxNtDelayExecution=(PFN_NTDELAYEXECUTION)GetProcAddress(ntdllDll,"NtDelayExecution");
+    FXASSERT(fxNtDelayExecution);
+    }
+  return fxNtDelayExecution(Alertable,DelayInterval);
+  }
+
+#endif
+
+
 // Make the calling thread sleep for a number of nanoseconds
 void FXThread::sleep(FXTime nsec){
 #if defined(WIN32)
-  const FXTime milliseconds=1000000;
-  if(milliseconds<=nsec){
-    Sleep((DWORD)(nsec/milliseconds));
+  if(100<=nsec){
+    FXTime jiffies=-nsec/FXLONG(100);
+    fxNtDelayExecution((BOOLEAN)false,(LARGE_INTEGER*)&jiffies);
     }
 #elif (_POSIX_C_SOURCE >= 199309L)
   const FXTime seconds=1000000000;
@@ -334,13 +398,13 @@ void FXThread::sleep(FXTime nsec){
   }
 
 
+
 // Wake at appointed time
 void FXThread::wakeat(FXTime nsec){
 #if defined(WIN32)
-  const FXTime milliseconds=1000000;
-  nsec-=FXThread::time();
-  if(milliseconds<=nsec){
-    Sleep((DWORD)(nsec/milliseconds));
+  FXTime jiffies=nsec/FXLONG(100)+FXLONG(116444736000000000);
+  if(0<=jiffies){
+    fxNtDelayExecution((BOOLEAN)false,(LARGE_INTEGER*)&jiffies);
     }
 #elif (_XOPEN_SOURCE >= 600) || (_POSIX_C_SOURCE >= 200112L)
   const FXTime seconds=1000000000;

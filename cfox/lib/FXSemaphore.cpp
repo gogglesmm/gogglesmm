@@ -3,7 +3,7 @@
 *                          S e m a p h o r e   C l a s s                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -31,6 +31,19 @@
   - Implementation using Condition and Mutex now used for MacOSX and Minix.
     This may be less performant than a true semaphore, but its a nice and fully functional
     fallback until full posix semaphore implementation is available.
+  - Increased reserved for pthread_mutex_t as up to 11 FXuval's in size on MacOSX,
+    worst case is on 32-bit versions.
+  - Keep in mind we can not do sizeof() in the header file, as we're trying to avoid
+    including system-headers from public accessible FOX header files.  This is so
+    as to avoid "accidental" incorporation of declarations or unexpected macros,
+    that may clash.
+  - Also we want to avoid calls to memory allocators as that would incur a big
+    performance penalty; besides, a memory allocator may need to call locking
+    primitives since memory is a resource shared by all threads.
+  - The upshot is that the space allocated for the semaphore may be a bit more
+    than strictly necessary on some machines.  It may actually be a good thing
+    as this increases the odds of these datastructures living in dedicated
+    cache-lines.
 */
 
 using namespace FX;
@@ -52,7 +65,7 @@ FXSemaphore::FXSemaphore(FXint count){
   //FXTRACE((150,"sizeof(pthread_cond_t)=%d\n",sizeof(pthread_cond_t)));
   //FXTRACE((150,"sizeof(pthread_mutex_t)=%d\n",sizeof(pthread_mutex_t)));
   FXASSERT(sizeof(FXuval)*9 >= sizeof(pthread_cond_t));
-  FXASSERT(sizeof(FXuval)*6 >= sizeof(pthread_mutex_t));
+  FXASSERT(sizeof(FXuval)*11 >= sizeof(pthread_mutex_t));
   data[0]=count;
   pthread_cond_init((pthread_cond_t*)&data[1],NULL);
   pthread_mutex_init((pthread_mutex_t*)&data[10],NULL);

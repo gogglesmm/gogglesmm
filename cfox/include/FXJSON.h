@@ -3,7 +3,7 @@
 *                      J S O N   R e a d e r  &  W r i t e r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2013,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2013,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -25,10 +25,41 @@ namespace FX {
 
 
 /**
-* The FXJSON serializer loads or saves an FXVariant to a json text file.
+* The FXJSON serializer loads or saves an FXVariant to a JSON text file.
 * Since FXVariant can contain an arbitrarily complex data structure, this
 * provides applications with a convenient way to load and save state information
 * in a well-defined and human-readable file format.
+* The base class implements serialization/deserialization to/from an external
+* buffer.
+* Subclasses FXJSONFile and FXJSONString serialize from/to strings and disk-
+* based files, respectively.
+* The new JSON5 standard may also be parsed, allowing for single- and multi-line
+* nested comments to be embedded in the input.
+* Syntax errors in the input cause the parser to return an error, and allow
+* diagnosis of the problem and its location in the file by line number, column
+* number, and byte-offset from the start of the file.
+* When writing a json stream, the generated output may be formatter in different
+* ways. The flow-mode controls the overall layout of the resulting text output;
+* when flow is set to Stream, all output is generated with no formatting to
+* improve human legibility.  This is the most space-friendly format possible.
+* If flow is set to Compact, a human readable, compact format, aiming to
+* maximize the amount of information on each line is generated.
+* When flow is set to Pretty, a nicely indented, but extremely airy output
+* results, and the resulting document will contain many, many lines with
+* little data.
+* Numeric values are printed with configurable precision; (default=15 digits
+* which results in minimal information loss for real numbers).
+* For Pretty flow format, output may be indented in multiples of the indent
+* level (default=2).  Depending on flow setting, lines may be wrapped at a
+* maximum number of columns (default=80).
+* Output strings containing reserved characters may be escaped; for UTF8
+* characters, there are 3 options for escaping.  When escape mode is 0, UTF8
+* characters are passed unescaped.  In escape mode 1, UTF8 characters are
+* escaped as \xXX, and in escape mode 2, UTF8 will be escaed using Unicode
+* escape sequences \uXXXX or \uXXXX\uXXXX (two surrogate-pairs  escape codes
+* for code points exceeding 16 bits).
+* The default setting is to allow UTF8 characters in the output, but be aware
+* that such outputs need UTF8-capable viewer software to be rendered properly.
 */
 class FXAPI FXJSON {
 public:
@@ -42,6 +73,7 @@ public:
     ErrBracket,         /// Expected closing bracket
     ErrBrace,           /// Expected closing brace
     ErrQuotes,          /// Expected closing quotes
+    ErrQuote,           /// Expected closing quote
     ErrNumber,          /// Numeric conversion
     ErrEnd              /// Unexpected end of file
     };
@@ -58,56 +90,58 @@ public:
 protected:
   FXchar     *begptr;           // Text buffer begin ptr
   FXchar     *endptr;           // Text buffer end ptr
-  FXchar     *sptr;             // Text buffer start ptr
-  FXchar     *rptr;             // Text buffer read ptr
   FXchar     *wptr;             // Text buffer write ptr
-  FXint       token;            // Token
+  FXchar     *rptr;             // Text buffer read ptr
+  FXchar     *sptr;             // Text buffer scan ptr
+  FXlong      offset;           // Position from start
   FXint       column;           // Column number
   FXint       indent;           // Indent level
   FXint       line;             // Line number
-  FXint       wrap;             // Line wrap column
   Direction   dir;              // Direction
+  FXint       token;            // Token
+  FXint       wrap;             // Line wrap column
   FXuchar     flow;             // Output flow
   FXuchar     prec;             // Float precision
   FXuchar     fmt;              // Float format
+  FXuchar     esc;              // Escape mode
   FXuchar     dent;             // Indentation amount
-  FXbool      owns;             // Owns the buffer
 private:
   FXint next();
-  FXbool need(FXival n);
-  Error emit(const FXchar* str,FXint count);
-  Error emit(FXchar ch,FXint count);
+  FXbool need(FXival count);
+  FXbool emit(const FXchar* str,FXival count);
+  FXbool emit(FXchar ch,FXival count);
   Error loadString(FXString& str);
+  Error loadIdent(FXString& str);
   Error loadMap(FXVariant& var);
   Error loadArray(FXVariant& var);
   Error loadVariant(FXVariant& var);
   Error saveString(const FXString& str);
+  Error saveIdent(const FXString& str);
   Error saveMap(const FXVariant& var);
   Error saveArray(const FXVariant& var);
   Error saveVariant(const FXVariant& var);
 private:
   static const FXchar *const errors[];
 private:
-  FXJSON(const FXJSON&){}
+  FXJSON(const FXJSON&);
   FXJSON &operator=(const FXJSON&);
 public:
 
   /**
-  * Construct JSON serializer.
+  * Initialize JSON serializer with no buffer.
   */
   FXJSON();
 
   /**
-  * Construct JSON serializer and open for direction d.
-  * Use given buffer data of size sz, or allocate a local buffer.
+  * Construct JSON serializer with given buffer of size, and open it for
+  * direction d.
   */
-  FXJSON(FXchar* data,FXuval sz=4096,Direction d=Load);
+  FXJSON(FXchar* buffer,FXuval sz=8192,Direction d=Load);
 
   /**
-  * Open JSON stream for given direction d.
-  * Use given buffer data of size sz, or allocate a local buffer.
+  * Open JSON parse buffer with size and direction.
   */
-  FXbool open(FXchar* data=NULL,FXuval size=4096,Direction d=Load);
+  FXbool open(FXchar* buffer=NULL,FXuval sz=8192,Direction d=Load);
 
   /**
   * Return direction in effect.
@@ -120,18 +154,6 @@ public:
   FXuval size() const { return endptr-begptr; }
 
   /**
-  * Load a variant from stream.
-  * Return false if stream wasn't opened for loading, or syntax error.
-  */
-  Error load(FXVariant& variant);
-
-  /**
-  * Save a variant to stream.
-  * Return false if stream wasn't opened for saving, or disk was full.
-  */
-  Error save(const FXVariant& variant);
-
-  /**
   * Return current line number.
   */
   FXint getLine() const { return line; }
@@ -141,17 +163,43 @@ public:
   */
   FXint getColumn() const { return column; }
 
+  /**
+  * Return offset from begin of file.
+  */
+  FXlong getOffset() const { return offset; }
+
+  /**
+  * Load a variant from JSON stream.
+  * Return false if stream wasn't opened for loading, or syntax error.
+  */
+  Error load(FXVariant& variant);
+
+  /**
+  * Save a variant to JSON stream.
+  * Return false if stream wasn't opened for saving, or disk was full.
+  */
+  Error save(const FXVariant& variant);
+
   /// Returns error code for given error
   static const FXchar* getError(Error err){ return errors[err]; }
 
   /**
   * Floating point output precision control.
+  * This controls the number of significant digits written to
+  * the output.  The default is 15.
   */
   void setNumericPrecision(FXint p){ prec=p; }
   FXint getNumericPrecision() const { return prec; }
 
   /**
-  * Floating point output precision control.
+  * Floating point output format control.
+  * The format mode is interpreted as follows:
+  *
+  *   0   No exponent.
+  *   1   Exponent.
+  *   2   Output exponent when required.
+  *
+  * The default mode is 2.
   */
   void setNumericFormat(FXint f){ fmt=f; }
   FXint getNumericFormat() const { return fmt; }
@@ -182,21 +230,32 @@ public:
   FXint getLineWrap() const { return wrap; }
 
   /**
-  * Fill buffer from file.
-  * Return false if not open for reading, or fail to read from disk.
+  * Change string escape mode.
+  * The escape mode is interpreted as follows:
+  *
+  *  0  Don't escape unicode in strings;
+  *  1  Escape unicode as \xXX
+  *  2  Escape unicode as \uXXXX or \uXXXX\uXXXX.
+  *
+  * Default is to escape control characters only.
   */
-  virtual FXbool fill();
+  void setEscapeMode(FXint e){ esc=e; }
+  FXint getEscapeMode() const { return esc; }
 
   /**
-  * Flush buffer to file.
-  * Return false if not open for writing, or if fail to write to disk.
+  * Read at least count bytes into buffer; return bytes available, or -1 for error.
   */
-  virtual FXbool flush();
+  virtual FXival fill(FXival count);
+
+  /**
+  * Write at least count bytes from buffer; return space available, or -1 for error.
+  */
+  virtual FXival flush(FXival count);
 
   /**
   * Close stream and delete buffer, if owned.
   */
-  virtual FXbool close();
+  FXbool close();
 
   /**
   * Close JSON stream and clean up.

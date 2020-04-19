@@ -3,7 +3,7 @@
 *                     G L  R e n d e r i n g   C o n t e x t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -702,8 +702,7 @@ FXbool glUseFXFont(FXFont* font,int first,int count,int list){
     HFONT oldfont=(HFONT)SelectObject(hdc,(HFONT)font->id());
     // Replace wglUseFontBitmaps() with wglUseFontBitmapsW()
     // Change glCallLists() parameter:
-    //   len=utf2ncs(sbuffer,text.text(),text.length());
-    //   glCallLists(len,GL_UNSIGNED_SHORT,(GLushort*)sbuffer);
+    //   glCallLists(len,GL_UNSIGNED_SHORT,(GLushort*)unicodebuffer);
     // Figure out better values for "first" and "count".
     result=wglUseFontBitmaps(hdc,first,count,list);
     SelectObject(hdc,oldfont);

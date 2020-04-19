@@ -3,7 +3,7 @@
 *         M i s c e l l a n e o u s   S y s t e m   F u n c t i o n s           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -56,7 +56,7 @@ extern FXAPI FXint __snprintf(FXchar* string,FXint length,const FXchar* format,.
 const FXTime seconds=1000000000;
 
 // Default formatting string used for time formatting
-const char FXSystem::defaultTimeFormat[]="%m/%d/%Y %H:%M:%S";
+const FXchar FXSystem::defaultTimeFormat[]="%m/%d/%Y %H:%M:%S";
 
 
 // Convert file time to string
@@ -117,7 +117,7 @@ FXString FXSystem::localTime(const FXchar *format,FXTime value){
 // Convert file time to string as per strftime format
 FXString FXSystem::universalTime(const FXchar *format,FXTime value){
   time_t tmp=(time_t)(value/seconds);
-#ifdef WIN32
+#if defined(WIN32)
 #if (_MSC_VER >= 1500)
   struct tm tmv;
   if(gmtime_s(&tmv,&tmp)==0){
@@ -179,7 +179,7 @@ FXuint FXSystem::group(){
 // Return owner name from uid
 FXString FXSystem::userName(FXuint uid){
   FXchar result[64];
-#ifndef WIN32
+#if !defined(WIN32)
 #ifdef HAVE_GETPWUID_R
   struct passwd pwdresult,*pwd;
   char buffer[1024];
@@ -201,7 +201,7 @@ FXString FXSystem::userName(FXuint uid){
 // Return group name from gid
 FXString FXSystem::groupName(FXuint gid){
   FXchar result[64];
-#ifndef WIN32
+#if !defined(WIN32)
 #ifdef HAVE_GETGRGID_R
   ::group grpresult;
   ::group *grp;
@@ -247,7 +247,7 @@ FXString FXSystem::currentUserName(){
 
 // Get current effective group name
 FXString FXSystem::currentGroupName(){
-#ifndef WIN32
+#if !defined(WIN32)
 #ifdef HAVE_GETGRGID_R
   ::group grpresult;
   ::group *grp;
@@ -289,17 +289,24 @@ FXString FXSystem::getEnvironment(const FXString& name){
   if(!name.empty()){
 #if defined(WIN32)
 #ifdef UNICODE
-    FXnchar variable[256],string[1024];
-    utf2ncs(variable,name.text(),256);
-    DWORD len=GetEnvironmentVariableW(variable,string,1024);
-    return FXString(string,len);
+    // Windows limits total process environment space to 32767 bytes
+    FXnchar variable[256],buffer[32767]; DWORD len;
+    utf2ncs(variable,name.text(),ARRAYNUMBER(variable));
+    if((len=GetEnvironmentVariableW(variable,buffer,ARRAYNUMBER(buffer)))>0){
+      return FXString(buffer,len);
+      }
 #else
-    FXchar string[1024];
-    DWORD len=GetEnvironmentVariableA(name.text(),string,1024);
-    return FXString(string,len);
+    // Windows limits total process environment space to 32767 bytes
+    FXchar buffer[32767]; DWORD len;
+    if((len=GetEnvironmentVariableA(name.text(),buffer,ARRAYNUMBER(buffer)))>0){
+      return FXString(buffer,len);
+      }
 #endif
 #else
-    return FXString(getenv(name.text()));
+    const FXchar* value=getenv(name.text());
+    if(value){
+      return FXString(value);
+      }
 #endif
     }
   return FXString::null;
@@ -311,11 +318,12 @@ FXbool FXSystem::setEnvironment(const FXString& name,const FXString& value){
   if(!name.empty()){
 #if defined(WIN32)
 #if defined(UNICODE)
-    FXnchar variable[256],string[1024];
-    utf2ncs(variable,name.text(),256);
+    // Windows limits total process environment space to 32767 bytes
+    FXnchar variable[256],buffer[32767];
+    utf2ncs(variable,name.text(),ARRAYNUMBER(variable));
     if(!value.empty()){
-      utf2ncs(string,value.text(),1024);
-      return SetEnvironmentVariableW(variable,string)!=0;
+      utf2ncs(buffer,value.text(),ARRAYNUMBER(buffer));
+      return SetEnvironmentVariableW(variable,buffer)!=0;
       }
     return SetEnvironmentVariableW(variable,NULL)!=0;
 #else
@@ -412,34 +420,14 @@ FXbool FXSystem::setCurrentDrive(const FXString&){
 
 // Get executable path
 FXString FXSystem::getExecPath(){
-#if defined(WIN32)
-#ifdef UNICODE
-  FXnchar string[1024];
-  DWORD len=GetEnvironmentVariableW(L"PATH",string,1024);
-  return FXString(string,len);
-#else
-  FXchar string[1024];
-  DWORD len=GetEnvironmentVariableA("PATH",string,1024);
-  return FXString(string,len);
-#endif
-#else
-  return FXString(getenv("PATH"));
-#endif
+  return FXSystem::getEnvironment("PATH");
   }
 
 
 // Return known executable file extensions (Windows)
 FXString FXSystem::getExecExtensions(){
 #if defined(WIN32)
-#ifdef UNICODE
-  FXnchar string[1024];
-  DWORD len=GetEnvironmentVariableW(L"PATHEXT",string,1024);
-  return FXString(string,len);
-#else
-  FXchar string[1024];
-  DWORD len=GetEnvironmentVariableA("PATHEXT",string,1024);
-  return FXString(string,len);
-#endif
+  return FXSystem::getEnvironment("PATHEXT");
 #else
   return FXString::null;
 #endif
@@ -497,33 +485,69 @@ PSID GetUserSID(const FXString& name){
 // Get home directory for a given user
 FXString FXSystem::getUserDirectory(const FXString& user){
 #if defined(WIN32)
+#ifdef UNICODE
   if(user.empty()){
-    const FXchar *str1,*str2;
-    FXchar home[MAXPATHLEN];
-    DWORD size=MAXPATHLEN;
+    FXnchar path[4096];
+    FXnchar drive[256];
+    DWORD pathlen;
+    DWORD drivelen;
     HKEY hKey;
     LONG result;
-    if((str1=getenv("USERPROFILE"))!=NULL){
-      return FXString(str1);
+    if((pathlen=GetEnvironmentVariableW(L"USERPROFILE",path,ARRAYNUMBER(path)))>0){
+      return FXString(path,pathlen);
       }
-    if((str1=getenv("HOME"))!=NULL){
-      return FXString(str1);
+    if((pathlen=GetEnvironmentVariableW(L"HOME",path,ARRAYNUMBER(path)))>0){
+      return FXString(path,pathlen);
       }
-    if((str2=getenv("HOMEPATH"))!=NULL){      // This should be good for WinNT, Win2K according to MSDN
-      if((str1=getenv("HOMEDRIVE"))==NULL) str1="c:";
-      fxstrlcpy(home,str1,MAXPATHLEN);
-      fxstrlcat(home,str2,MAXPATHLEN);
-      return FXString(home);
+    if((pathlen=GetEnvironmentVariableW(L"HOMEPATH",path,ARRAYNUMBER(path)))>0){        // This should be good for WinNT, Win2K according to MSDN
+      FXString result("C:");
+      if((drivelen=GetEnvironmentVariableW(L"HOMEDRIVE",drive,ARRAYNUMBER(drive)))>0){
+        result.assign(drive,drivelen);
+        }
+      result.append(path,pathlen);
+      return result;
       }
-    if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders",0,KEY_READ,&hKey)==ERROR_SUCCESS){
-      result=RegQueryValueExA(hKey,"Personal",NULL,NULL,(LPBYTE)home,&size);  // Change "Personal" to "Desktop" if you want...
+    if(RegOpenKeyExW(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders",0,KEY_READ,&hKey)==ERROR_SUCCESS){
+      result=RegQueryValueExW(hKey,L"Personal",NULL,NULL,(LPBYTE)path,&pathlen);        // Change "Personal" to "Desktop" if you want...
       RegCloseKey(hKey);
       if(result==ERROR_SUCCESS){
-        return FXString(home);
+        return FXString(path,pathlen);
         }
       }
     }
   return FXString::null;
+#else
+  if(user.empty()){
+    FXchar path[4096];
+    FXchar drive[256];
+    DWORD pathlen;
+    DWORD drivelen;
+    HKEY hKey;
+    LONG result;
+    if((pathlen=GetEnvironmentVariableA("USERPROFILE",path,ARRAYNUMBER(buffer)))>0){
+      return FXString(path,pathlen);
+      }
+    if((pathlen=GetEnvironmentVariableA("HOME",path,ARRAYNUMBER(buffer)))>0){
+      return FXString(path,pathlen);
+      }
+    if((pathlen=GetEnvironmentVariableA("HOMEPATH",path,ARRAYNUMBER(path)))>0){         // This should be good for WinNT, Win2K according to MSDN
+      FXString result("C:");
+      if((drivelen=GetEnvironmentVariableA("HOMEDRIVE",drive,ARRAYNUMBER(drive)))>0){
+        result.assign(drive,drivelen);
+        }
+      result.append(path,pathlen);
+      return result;
+      }
+    if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders",0,KEY_READ,&hKey)==ERROR_SUCCESS){
+      result=RegQueryValueExA(hKey,"Personal",NULL,NULL,(LPBYTE)path,&pathlen);         // Change "Personal" to "Desktop" if you want...
+      RegCloseKey(hKey);
+      if(result==ERROR_SUCCESS){
+        return FXString(path,pathlen);
+        }
+      }
+    }
+  return FXString::null;
+#endif
 #elif defined(HAVE_GETPWNAM_R)
   struct passwd pwdresult,*pwd;
   const FXchar* str;

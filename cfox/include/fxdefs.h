@@ -3,7 +3,7 @@
 *                     FOX Definitions, Types, and Macros                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -189,12 +189,28 @@
 #endif
 
 
-// Suffixes for 64-bit long constants
-#if defined(WIN32) && !defined(__GNUC__)
-#define FXLONG(c)  c ## i64
+// Word size issues
+#if defined(_MSC_VER) || defined(__MINGW32__) // Windows
+#if defined(_WIN64)
+#define LLP64  1                // Long longs and pointers are 64 bit
+#else
+#define ILP32  1                // Ints, longs, and pointers are 32 bit
+#endif
+#elif defined(__LP64__) || defined(_LP64) || (_MIPS_SZLONG == 64) || (__WORDSIZE == 64)
+#define LP64   1                // Longs and pointers are 64 bit
+#else
+#define ILP32  1                // Longs, integers, and pointers are 32 bit
+#endif
+
+// Suffixes for 64-bit constants
+#if defined(LP64)
+#define FXLONG(c)  c ## L       // Long suffix for 64 bit
+#define FXULONG(c) c ## UL
+#elif defined(_MSC_VER) && (_MSC_VER < 1900)
+#define FXLONG(c)  c ## i64     // Special suffix for 64 bit
 #define FXULONG(c) c ## ui64
 #else
-#define FXLONG(c)  c ## LL
+#define FXLONG(c)  c ## LL      // Long long suffix for 64 bit
 #define FXULONG(c) c ## ULL
 #endif
 
@@ -268,34 +284,30 @@ typedef wchar_t                 FXnchar;
 typedef wchar_t                 FXwchar;
 typedef unsigned short          FXnchar;
 #endif
-#if defined(__LP64__) || defined(_LP64) || (_MIPS_SZLONG == 64) || (__WORDSIZE == 64)
-typedef unsigned long           FXulong;
+#if defined(LP64)
 typedef long                    FXlong;
-#elif defined(_MSC_VER) || (defined(__BCPLUSPLUS__) && __BORLANDC__ > 0x500) || defined(__WATCOM_INT64__)
-typedef unsigned __int64        FXulong;
+typedef unsigned long           FXulong;
+#elif defined(_MSC_VER) && (_MSC_VER < 1900)
 typedef __int64                 FXlong;
-#elif defined(__GNUG__) || defined(__GNUC__) || defined(__SUNPRO_CC) || defined(__MWERKS__) || defined(__SC__) || defined(_LONGLONG)
-typedef unsigned long long      FXulong;
-typedef long long               FXlong;
+typedef unsigned __int64        FXulong;
 #else
-#error "FXlong and FXulong not defined for this architecture!"
+typedef long long               FXlong;
+typedef unsigned long long      FXulong;
 #endif
 
-
 // Integral types large enough to hold value of a pointer
-#if defined(_WIN64)
-#if defined (_MSC_VER)
+#if defined(LP64) || defined(ILP32)     // Long for LP64 and ILP32 models
+typedef long                    FXival;
+typedef unsigned long           FXuval;
+#elif defined(LLP64)                    // Long long for LLP64 models
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 typedef __int64                 FXival;
 typedef unsigned __int64        FXuval;
 #else
 typedef long long               FXival;
 typedef unsigned long long      FXuval;
 #endif
-#else
-typedef long                    FXival;
-typedef unsigned long           FXuval;
 #endif
-
 
 // Generic void pointer
 typedef void*                   FXptr;
@@ -303,53 +315,53 @@ typedef void*                   FXptr;
 
 // Handle to something in server
 #ifdef WIN32
-typedef void*           FXID;
+typedef void*                   FXID;
 #else
-typedef unsigned long   FXID;
+typedef unsigned long           FXID;
 #endif
 
 // Time since January 1, 1970 (UTC)
-typedef FXlong          FXTime;
+typedef FXlong                  FXTime;
 
 // Pixel type (could be color index)
-typedef unsigned long   FXPixel;
+typedef unsigned long           FXPixel;
 
 // RGBA pixel value
-typedef FXuint          FXColor;
+typedef FXuint                  FXColor;
 
 // Hot key
-typedef FXuint          FXHotKey;
+typedef FXuint                  FXHotKey;
 
 // Input source handle type
 #ifdef WIN32
-typedef void*           FXInputHandle;
+typedef void*                   FXInputHandle;
 #else
-typedef FXint           FXInputHandle;
+typedef FXint                   FXInputHandle;
 #endif
 
 // Thread ID type
 #if defined(WIN32)
-typedef void*           FXThreadID;
+typedef void*                   FXThreadID;
 #else
-typedef unsigned long   FXThreadID;
+typedef unsigned long           FXThreadID;
 #endif
 
 // Thread-local storage key
-typedef FXuval          FXThreadStorageKey;
+typedef FXuval                  FXThreadStorageKey;
 
 // Raw event type
 #ifdef WIN32
-typedef tagMSG          FXRawEvent;
+typedef tagMSG                  FXRawEvent;
 #else
-typedef _XEvent         FXRawEvent;
+typedef _XEvent                 FXRawEvent;
 #endif
 
 
 /// Drag and drop data type
 #ifdef WIN32
-typedef FXushort        FXDragType;
+typedef FXushort                FXDragType;
 #else
-typedef FXID            FXDragType;
+typedef FXID                    FXDragType;
 #endif
 
 
@@ -435,6 +447,9 @@ const FXTime forever=FXLONG(9223372036854775807);
 /// Check if c is part of a utf8 multi-byte sequence
 #define FXISSEQUTF8(c)     (((c)&0x80)==0x80)
 
+/// Number of FXchars in utf8 sequence
+#define FXUTF8LEN(c)       (((0xE5000000>>((((FXuchar)(c))>>4)<<1))&3)+1)
+
 /// Test if character c is at start of utf16 sequence (not a follower from surrogate pair)
 #define FXISUTF16(c)       (((c)&0xFC00)!=0xDC00)
 
@@ -444,6 +459,9 @@ const FXTime forever=FXLONG(9223372036854775807);
 
 /// Check if c is part of a utf16 surrogate pair sequence
 #define FXISSEQUTF16(c)    (((c)&0xF800)==0xD800)
+
+/// Number of FXnchars in utf16 sequence
+#define FXUTF16LEN(c)      (FXISLEADUTF16(c)+1)
 
 /// Test if c is a legal utf32 character
 #define FXISUTF32(c)       ((c)<0x110000)
@@ -674,10 +692,16 @@ extern FXAPI void fxrgb_to_hsl(FXfloat& h,FXfloat& s,FXfloat& l,FXfloat r,FXfloa
 extern FXAPI void fxhsl_to_rgb(FXfloat& r,FXfloat& g,FXfloat& b,FXfloat h,FXfloat s,FXfloat l);
 
 /// Encode src to dst in base64
-extern FXint fxencode64(FXchar* dst,const FXchar* src,FXint len);
+extern FXchar* fxencode64(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend);
 
 /// Decode src to dst from base64
-extern FXint fxdecode64(FXchar* dst,const FXchar* src,FXint len);
+extern FXchar* fxdecode64(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend);
+
+/// Encode src to dst in base85
+extern FXchar* fxencode85(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend);
+
+/// Decode src to dst from base85
+extern FXchar* fxdecode85(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend);
 
 /// Convert keysym to unicode character
 extern FXAPI FXwchar fxkeysym2ucs(FXwchar sym);
@@ -745,62 +769,62 @@ extern FXAPI const FXnchar* wcstart(const FXnchar *ptr);
 extern FXAPI FXnchar* wcstart(FXnchar *ptr);
 
 /// Return number of FXchar's of wide character at ptr
-extern FXAPI FXint wclen(const FXchar *ptr);
+extern FXAPI FXival wclen(const FXchar *ptr);
 
 /// Return number of FXnchar's of narrow character at ptr
-extern FXAPI FXint wclen(const FXnchar *ptr);
+extern FXAPI FXival wclen(const FXnchar *ptr);
 
 /// Check if valid utf8 wide character representation; returns length or 0
-extern FXAPI FXint wcvalid(const FXchar* ptr);
+extern FXAPI FXival wcvalid(const FXchar* ptr);
 
 /// Check if valid utf16 wide character representation; returns length or 0
-extern FXAPI FXint wcvalid(const FXnchar* ptr);
+extern FXAPI FXival wcvalid(const FXnchar* ptr);
 
 
 /// Return number of bytes for utf8 representation of wide character w
-extern FXAPI FXint wc2utf(FXwchar w);
+extern FXAPI FXival wc2utf(FXwchar w);
 
 /// Return number of narrow characters for utf16 representation of wide character w
-extern FXAPI FXint wc2nc(FXwchar w);
+extern FXAPI FXival wc2nc(FXwchar w);
 
 /// Return number of bytes for utf8 representation of wide character string
-extern FXAPI FXint wcs2utf(const FXwchar* ptr,FXint len);
-extern FXAPI FXint wcs2utf(const FXwchar* ptr);
+extern FXAPI FXival wcs2utf(const FXwchar* src,FXival srclen);
+extern FXAPI FXival wcs2utf(const FXwchar* src);
 
 /// Return number of bytes for utf8 representation of narrow character string
-extern FXAPI FXint ncs2utf(const FXnchar* ptr,FXint len);
-extern FXAPI FXint ncs2utf(const FXnchar* ptr);
+extern FXAPI FXival ncs2utf(const FXnchar* src,FXival srclen);
+extern FXAPI FXival ncs2utf(const FXnchar* src);
 
 /// Return number of wide characters for utf8 character string
-extern FXAPI FXint utf2wcs(const FXchar *ptr,FXint len);
-extern FXAPI FXint utf2wcs(const FXchar *ptr);
+extern FXAPI FXival utf2wcs(const FXchar src,FXival srclen);
+extern FXAPI FXival utf2wcs(const FXchar *src);
 
 /// Return number of narrow characters for utf8 character string
-extern FXAPI FXint utf2ncs(const FXchar *ptr,FXint len);
-extern FXAPI FXint utf2ncs(const FXchar *ptr);
+extern FXAPI FXival utf2ncs(const FXchar *src,FXival srclen);
+extern FXAPI FXival utf2ncs(const FXchar *src);
 
 
 /// Convert wide character to utf8 string; return number of items written to dst
-extern FXAPI FXint wc2utf(FXchar *dst,FXwchar w);
+extern FXAPI FXival wc2utf(FXchar *dst,FXwchar w);
 
 /// Convert wide character to narrow character string; return number of items written to dst
-extern FXAPI FXint wc2nc(FXnchar *dst,FXwchar w);
+extern FXAPI FXival wc2nc(FXnchar *dst,FXwchar w);
 
 /// Convert wide character string to utf8 string; return number of items written to dst
-extern FXAPI FXint wcs2utf(FXchar *dst,const FXwchar* src,FXint dlen,FXint slen);
-extern FXAPI FXint wcs2utf(FXchar *dst,const FXwchar* src,FXint dlen);
+extern FXAPI FXival wcs2utf(FXchar *dst,const FXwchar* src,FXival dstlen,FXival srclen);
+extern FXAPI FXival wcs2utf(FXchar *dst,const FXwchar* src,FXival dstlen);
 
 /// Convert narrow character string to utf8 string; return number of items written to dst
-extern FXAPI FXint ncs2utf(FXchar *dst,const FXnchar* src,FXint dlen,FXint slen);
-extern FXAPI FXint ncs2utf(FXchar *dst,const FXnchar* src,FXint dlen);
+extern FXAPI FXival ncs2utf(FXchar *dst,const FXnchar* src,FXival dsrlen,FXival srclen);
+extern FXAPI FXival ncs2utf(FXchar *dst,const FXnchar* src,FXival dsrlen);
 
 /// Convert utf8 string to wide character string; return number of items written to dst
-extern FXAPI FXint utf2wcs(FXwchar *dst,const FXchar* src,FXint dlen,FXint slen);
-extern FXAPI FXint utf2wcs(FXwchar *dst,const FXchar* src,FXint dlen);
+extern FXAPI FXival utf2wcs(FXwchar *dst,const FXchar* src,FXival dsrlen,FXival srclen);
+extern FXAPI FXival utf2wcs(FXwchar *dst,const FXchar* src,FXival dsrlen);
 
 /// Convert utf8 string to narrow character string; return number of items written to dst
-extern FXAPI FXint utf2ncs(FXnchar *dst,const FXchar* src,FXint dlen,FXint slen);
-extern FXAPI FXint utf2ncs(FXnchar *dst,const FXchar* src,FXint dlen);
+extern FXAPI FXival utf2ncs(FXnchar *dst,const FXchar* src,FXival dsrlen,FXival srclen);
+extern FXAPI FXival utf2ncs(FXnchar *dst,const FXchar* src,FXival dsrlen);
 
 /// Swap non-overlapping arrays
 extern FXAPI void memswap(void* dst,void* src,FXuval n);

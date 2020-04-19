@@ -3,7 +3,7 @@
 *                          D D S   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -645,7 +645,7 @@ static FXbool dds_decompress_DXT5(const DDSImage& dds,FXuchar *image){
   FXuchar levels[8];
   FXuchar alpha[4][4];
 
-  FXTRACE((100,"dds_decompress_DXT5\n"));
+  FXTRACE((150,"dds_decompress_DXT5\n"));
 
   // Loop over 4x4 blocks
   for(z=0; z<dds.header.dwDepth; z+=1){
@@ -778,7 +778,7 @@ static FXbool dds_decompress_BC4(const DDSImage& dds,FXuchar *image){
   register FXuint x,y,z,i,j,bits,offset;
   FXuchar levels[8];
 
-  FXTRACE((100,"dds_decompress_BC4\n"));
+  FXTRACE((150,"dds_decompress_BC4\n"));
 
   // Loop over 4x4 blocks
   for(z=0; z<dds.header.dwDepth; z+=1){
@@ -848,7 +848,7 @@ static FXbool dds_decompress_3DC(const DDSImage& dds,FXuchar *image){
   FXuchar red[8];
   FXuchar grn[8];
 
-  FXTRACE((100,"dds_decompress_3DC\n"));
+  FXTRACE((150,"dds_decompress_3DC\n"));
 
   // Loop over 4x4 blocks
   for(z=0; z<dds.header.dwDepth; z+=1){
@@ -983,13 +983,13 @@ static FXbool dds_decompress_RGB(const DDSImage& dds,FXuchar *image,FXuint bmask
   FXuint rshift=0,gshift=0,bshift=0,rmul=0,gmul=0,bmul=0,rs=0,gs=0,bs=0;
   FXuint x,y,z,offset,pix,t;
   FXuchar *temp=dds.data;
-  FXTRACE((100,"dds_decompress_RGBA\n"));
+  FXTRACE((150,"dds_decompress_RGBA\n"));
   if(rmask){ getShifts(rmask,rshift,rmul,rs); }
   if(gmask){ getShifts(gmask,gshift,gmul,gs); }
   if(bmask){ getShifts(bmask,bshift,bmul,bs); }
-  FXTRACE((100,"rmask=0x%08x rshift=%2d rmul=%3d rs=%3d\n",rmask,rshift,rmul,rs));
-  FXTRACE((100,"gmask=0x%08x gshift=%2d gmul=%3d gs=%3d\n",gmask,gshift,gmul,gs));
-  FXTRACE((100,"bmask=0x%08x bshift=%2d bmul=%3d bs=%3d\n",bmask,bshift,bmul,bs));
+  FXTRACE((150,"rmask=0x%08x rshift=%2d rmul=%3d rs=%3d\n",rmask,rshift,rmul,rs));
+  FXTRACE((150,"gmask=0x%08x gshift=%2d gmul=%3d gs=%3d\n",gmask,gshift,gmul,gs));
+  FXTRACE((150,"bmask=0x%08x bshift=%2d bmul=%3d bs=%3d\n",bmask,bshift,bmul,bs));
   for(z=offset=0; z<dds.header.dwDepth; ++z){
     for(y=0; y<dds.header.dwHeight; ++y){
       for(x=0; x<dds.header.dwWidth; ++x){
@@ -1012,15 +1012,15 @@ static FXbool dds_decompress_RGBA(const DDSImage& dds,FXuchar *image,FXuint bmas
   FXuint rshift=0,gshift=0,bshift=0,ashift=0,rmul=0,gmul=0,bmul=0,amul=0,rs=0,gs=0,bs=0,as=0;
   FXuint x,y,z,offset,pix,t;
   FXuchar *temp=dds.data;
-  FXTRACE((100,"dds_decompress_RGBA\n"));
+  FXTRACE((150,"dds_decompress_RGBA\n"));
   if(rmask){ getShifts(rmask,rshift,rmul,rs); }
   if(gmask){ getShifts(gmask,gshift,gmul,gs); }
   if(bmask){ getShifts(bmask,bshift,bmul,bs); }
   if(amask){ getShifts(amask,ashift,amul,as); }
-  FXTRACE((100,"rmask=0x%08x rshift=%2d rmul=%3d rs=%3d\n",rmask,rshift,rmul,rs));
-  FXTRACE((100,"gmask=0x%08x gshift=%2d gmul=%3d gs=%3d\n",gmask,gshift,gmul,gs));
-  FXTRACE((100,"bmask=0x%08x bshift=%2d bmul=%3d bs=%3d\n",bmask,bshift,bmul,bs));
-  FXTRACE((100,"amask=0x%08x ashift=%2d amul=%3d as=%3d\n",amask,ashift,amul,as));
+  FXTRACE((150,"rmask=0x%08x rshift=%2d rmul=%3d rs=%3d\n",rmask,rshift,rmul,rs));
+  FXTRACE((150,"gmask=0x%08x gshift=%2d gmul=%3d gs=%3d\n",gmask,gshift,gmul,gs));
+  FXTRACE((150,"bmask=0x%08x bshift=%2d bmul=%3d bs=%3d\n",bmask,bshift,bmul,bs));
+  FXTRACE((150,"amask=0x%08x ashift=%2d amul=%3d as=%3d\n",amask,ashift,amul,as));
   for(z=offset=0; z<dds.header.dwDepth; ++z){
     for(y=0; y<dds.header.dwHeight; ++y){
       for(x=0; x<dds.header.dwWidth; ++x){
@@ -1043,9 +1043,9 @@ static FXbool dds_decompress_LUM(const DDSImage& dds,FXuchar *image,FXuint cmask
   FXuint cshift=0,cmul=0,cs=0;
   FXuint x,y,z,offset,pix,t;
   FXuchar *temp=dds.data;
-  FXTRACE((100,"dds_decompress_LUM\n"));
+  FXTRACE((150,"dds_decompress_LUM\n"));
   if(cmask){ getShifts(cmask,cshift,cmul,cs); }
-  FXTRACE((100,"cmask=0x%08x cshift=%2d cmul=%3d cs=%3d\n",cmask,cshift,cmul,cs));
+  FXTRACE((150,"cmask=0x%08x cshift=%2d cmul=%3d cs=%3d\n",cmask,cshift,cmul,cs));
   for(z=offset=0; z<dds.header.dwDepth; ++z){
     for(y=0; y<dds.header.dwHeight; ++y){
       for(x=0; x<dds.header.dwWidth; ++x){
@@ -1065,11 +1065,11 @@ static FXbool dds_decompress_LUMA(const DDSImage& dds,FXuchar *image,FXuint cmas
   FXuint cshift=0,ashift=0,cmul=0,amul=0,cs=0,as=0;
   FXuint x,y,z,offset,pix,t;
   FXuchar *temp=dds.data;
-  FXTRACE((100,"dds_decompress_LUMA\n"));
+  FXTRACE((150,"dds_decompress_LUMA\n"));
   if(cmask){ getShifts(cmask,cshift,cmul,cs); }
   if(amask){ getShifts(amask,ashift,amul,as); }
-  FXTRACE((100,"cmask=0x%08x cshift=%2d cmul=%3d cs=%3d\n",cmask,cshift,cmul,cs));
-  FXTRACE((100,"amask=0x%08x ashift=%2d amul=%3d as=%3d\n",amask,ashift,amul,as));
+  FXTRACE((150,"cmask=0x%08x cshift=%2d cmul=%3d cs=%3d\n",cmask,cshift,cmul,cs));
+  FXTRACE((150,"amask=0x%08x ashift=%2d amul=%3d as=%3d\n",amask,ashift,amul,as));
   for(z=offset=0; z<dds.header.dwDepth; ++z){
     for(y=0; y<dds.header.dwHeight; ++y){
       for(x=0; x<dds.header.dwWidth; ++x){
@@ -1090,7 +1090,7 @@ static FXbool dds_decompress_R16F(const DDSImage& dds,FXuchar *image){
   register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
   register FXhalf *temp=(FXhalf*)dds.data;
   register FXuint p=0;
-  FXTRACE((100,"dds_decompress_R16F\n"));
+  FXTRACE((150,"dds_decompress_R16F\n"));
   while(p<count){
     image[p+0]=0;
     image[p+1]=0;
@@ -1107,7 +1107,7 @@ static FXbool dds_decompress_G16R16F(const DDSImage& dds,FXuchar *image){
   register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
   register FXhalf *temp=(FXhalf*)dds.data;
   register FXuint p=0;
-  FXTRACE((100,"dds_decompress_G16R16F\n"));
+  FXTRACE((150,"dds_decompress_G16R16F\n"));
   while(p<count){
     image[p+0]=0;
     image[p+2]=(FXuchar)(*temp++ * 255.0f + 0.5f);
@@ -1124,7 +1124,7 @@ static FXbool dds_decompress_A16B16G16R16F(const DDSImage& dds,FXuchar *image){
   register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
   register FXhalf *temp=(FXhalf*)dds.data;
   register FXuint p=0;
-  FXTRACE((100,"dds_decompress_A16B16G16R16F\n"));
+  FXTRACE((150,"dds_decompress_A16B16G16R16F\n"));
   while(p<count){
     image[p+2]=(FXuchar)(*temp++ * 255.0f + 0.5f);
     image[p+1]=(FXuchar)(*temp++ * 255.0f + 0.5f);
@@ -1141,7 +1141,7 @@ static FXbool dds_decompress_A16B16G16R16(const DDSImage& dds,FXuchar *image){
   register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
   register FXushort *temp=(FXushort*)dds.data;
   register FXuint p=0;
-  FXTRACE((100,"dds_decompress_A16B16G16R16\n"));
+  FXTRACE((150,"dds_decompress_A16B16G16R16\n"));
   while(p<count){
     image[p+2]=(FXuchar)(*temp++ / 257);
     image[p+1]=(FXuchar)(*temp++ / 257);
@@ -1158,7 +1158,7 @@ static FXbool dds_decompress_R32F(const DDSImage& dds,FXuchar *image){
   register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
   register FXfloat *temp=(FXfloat*)dds.data;
   register FXuint p=0;
-  FXTRACE((100,"dds_decompress_R32F\n"));
+  FXTRACE((150,"dds_decompress_R32F\n"));
   while(p<count){
     image[p+0]=0;
     image[p+1]=0;
@@ -1175,7 +1175,7 @@ static FXbool dds_decompress_G32R32F(const DDSImage& dds,FXuchar *image){
   register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
   register FXfloat *temp=(FXfloat*)dds.data;
   register FXuint p=0;
-  FXTRACE((100,"dds_decompress_G32R32F\n"));
+  FXTRACE((150,"dds_decompress_G32R32F\n"));
   while(p<count){
     image[p+2]=(FXuchar)(*temp++ * 255.0f + 0.5f);
     image[p+1]=(FXuchar)(*temp++ * 255.0f + 0.5f);
@@ -1192,7 +1192,7 @@ static FXbool dds_decompress_A32B32G32R32F(const DDSImage& dds,FXuchar *image){
   register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
   register FXfloat *temp=(FXfloat*)dds.data;
   register FXuint p=0;
-  FXTRACE((100,"dds_decompress_A32B32G32R32F\n"));
+  FXTRACE((150,"dds_decompress_A32B32G32R32F\n"));
   while(p<count){
     image[p+2]=(FXuchar)(*temp++ * 255.0f + 0.5f);
     image[p+1]=(FXuchar)(*temp++ * 255.0f + 0.5f);
@@ -1208,7 +1208,7 @@ static FXbool dds_decompress_A32B32G32R32F(const DDSImage& dds,FXuchar *image){
 static FXbool dds_decompress_RGBG(const DDSImage& dds,FXuchar *image){
   FXuint x,y,z,offset;
   FXuchar *temp=dds.data;
-  FXTRACE((100,"dds_decompress_RGBG\n"));
+  FXTRACE((150,"dds_decompress_RGBG\n"));
   for(z=offset=0; z<dds.header.dwDepth; z+=1){
     for(y=0; y<dds.header.dwHeight; y+=1){
       for(x=0; x<dds.header.dwWidth; x+=2){
@@ -1233,7 +1233,7 @@ static FXbool dds_decompress_RGBG(const DDSImage& dds,FXuchar *image){
 static FXbool dds_decompress_GRGB(const DDSImage& dds,FXuchar *image){
   FXuint x,y,z,offset;
   FXuchar *temp=dds.data;
-  FXTRACE((100,"dds_decompress_GRGB\n"));
+  FXTRACE((150,"dds_decompress_GRGB\n"));
   for(z=offset=0; z<dds.header.dwDepth; z+=1){
     for(y=0; y<dds.header.dwHeight; y+=1){
       for(x=0; x<dds.header.dwWidth; x+=2){
@@ -1320,32 +1320,32 @@ FXbool fxloadDDS(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
       dds.xheader.reserved=0;
       }
 
-    FXTRACE((100,"dds.magic=0x%08x\n",dds.magic));
-    FXTRACE((100,"dds.header.dwSize=%d\n",dds.header.dwSize));
-    FXTRACE((100,"dds.header.dwFlags=0x%08x: %s%s%s%s%s%s%s%s\n",dds.header.dwFlags,(dds.header.dwFlags&DDSD_CAPS)?"DDSD_CAPS ":"",(dds.header.dwFlags&DDSD_HEIGHT)?"DDSD_HEIGHT ":"",(dds.header.dwFlags&DDSD_WIDTH)?"DDSD_WIDTH ":"",(dds.header.dwFlags&DDSD_PITCH)?"DDSD_PITCH ":"",(dds.header.dwFlags&DDSD_PIXELFORMAT)?"DDSD_PIXELFORMAT ":"",(dds.header.dwFlags&DDSD_MIPMAPCOUNT)?"DDSD_MIPMAPCOUNT ":"",(dds.header.dwFlags&DDSD_LINEARSIZE)?"DDSD_LINEARSIZE ":"",(dds.header.dwFlags&DDSD_DEPTH)?"DDSD_DEPTH":""));
-    FXTRACE((100,"dds.header.dwHeight=%d\n",dds.header.dwHeight));
-    FXTRACE((100,"dds.header.dwWidth=%d\n",dds.header.dwWidth));
-    FXTRACE((100,"dds.header.dwDepth=%d\n",dds.header.dwDepth));
-    FXTRACE((100,"dds.header.dwLinearSize=%d\n",dds.header.dwLinearSize));
-    FXTRACE((100,"dds.header.dwMipMapCount=%d\n",dds.header.dwMipMapCount));
-    FXTRACE((100,"dds.header.ddpf.dwSize=%d\n",dds.header.ddpf.dwSize));
-    FXTRACE((100,"dds.header.ddpf.dwFlags=0x%08x: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",dds.header.ddpf.dwFlags,(dds.header.ddpf.dwFlags&DDPF_ALPHAPIXELS)?"DDPF_ALPHAPIXELS ":"",(dds.header.ddpf.dwFlags&DDPF_ALPHA)?"DDPF_ALPHA ":"",(dds.header.ddpf.dwFlags&DDPF_FOURCC)?"DDPF_FOURCC ":"",(dds.header.ddpf.dwFlags&DDPF_PALETTEINDEXED4)?"DDPF_PALETTEINDEXED4 ":"",(dds.header.ddpf.dwFlags&DDPF_PALETTEINDEXED8)?"DDPF_PALETTEINDEXED8 ":"",(dds.header.ddpf.dwFlags&DDPF_RGB)?"DDPF_RGB ":"",(dds.header.ddpf.dwFlags&DDPF_COMPRESSED)?"DDPF_COMPRESSED ":"",(dds.header.ddpf.dwFlags&DDPF_RGBTOYUV)?"DDPF_RGBTOYUV ":"",(dds.header.ddpf.dwFlags&DDPF_YUV)?"DDPF_YUV ":"",(dds.header.ddpf.dwFlags&DDPF_ZBUFFER)?"DDPF_ZBUFFER ":"",(dds.header.ddpf.dwFlags&DDPF_PALETTEINDEXED1)?"DDPF_PALETTEINDEXED1 ":"",(dds.header.ddpf.dwFlags&DDPF_PALETTEINDEXED2)?"DDPF_PALETTEINDEXED2 ":"",(dds.header.ddpf.dwFlags&DDPF_ZPIXELS)?"DDPF_ZPIXELS ":"",(dds.header.ddpf.dwFlags&DDPF_STENCILBUFFER)?"DDPF_STENCILBUFFER ":"",(dds.header.ddpf.dwFlags&DDPF_ALPHAPREMULT)?"DDPF_ALPHAPREMULT ":"",(dds.header.ddpf.dwFlags&DDPF_LUMINANCE)?"DDPF_LUMINANCE ":"",(dds.header.ddpf.dwFlags&DDPF_BUMPLUMINANCE)?"DDPF_BUMPLUMINANCE ":"",(dds.header.ddpf.dwFlags&DDPF_NORMAL)?"DDPF_NORMAL":""));
-    FXTRACE((100,"dds.header.ddpf.dwFourCC=0x%08x (%d) (%c%c%c%c)\n",dds.header.ddpf.dwFourCC,dds.header.ddpf.dwFourCC,dds.header.ddpf.dwFourCC&255,(dds.header.ddpf.dwFourCC>>8)&255,(dds.header.ddpf.dwFourCC>>16)&255,(dds.header.ddpf.dwFourCC>>24)&255));
-    FXTRACE((100,"dds.header.ddpf.dwRGBBitCount=%d\n",dds.header.ddpf.dwRGBBitCount));
-    FXTRACE((100,"dds.header.ddpf.dwRBitMask=0x%08x\n",dds.header.ddpf.dwRBitMask));
-    FXTRACE((100,"dds.header.ddpf.dwGBitMask=0x%08x\n",dds.header.ddpf.dwGBitMask));
-    FXTRACE((100,"dds.header.ddpf.dwBBitMask=0x%08x\n",dds.header.ddpf.dwBBitMask));
-    FXTRACE((100,"dds.header.ddpf.dwABitMask=0x%08x\n",dds.header.ddpf.dwABitMask));
+    FXTRACE((150,"dds.magic=0x%08x\n",dds.magic));
+    FXTRACE((150,"dds.header.dwSize=%d\n",dds.header.dwSize));
+    FXTRACE((150,"dds.header.dwFlags=0x%08x: %s%s%s%s%s%s%s%s\n",dds.header.dwFlags,(dds.header.dwFlags&DDSD_CAPS)?"DDSD_CAPS ":"",(dds.header.dwFlags&DDSD_HEIGHT)?"DDSD_HEIGHT ":"",(dds.header.dwFlags&DDSD_WIDTH)?"DDSD_WIDTH ":"",(dds.header.dwFlags&DDSD_PITCH)?"DDSD_PITCH ":"",(dds.header.dwFlags&DDSD_PIXELFORMAT)?"DDSD_PIXELFORMAT ":"",(dds.header.dwFlags&DDSD_MIPMAPCOUNT)?"DDSD_MIPMAPCOUNT ":"",(dds.header.dwFlags&DDSD_LINEARSIZE)?"DDSD_LINEARSIZE ":"",(dds.header.dwFlags&DDSD_DEPTH)?"DDSD_DEPTH":""));
+    FXTRACE((150,"dds.header.dwHeight=%d\n",dds.header.dwHeight));
+    FXTRACE((150,"dds.header.dwWidth=%d\n",dds.header.dwWidth));
+    FXTRACE((150,"dds.header.dwDepth=%d\n",dds.header.dwDepth));
+    FXTRACE((150,"dds.header.dwLinearSize=%d\n",dds.header.dwLinearSize));
+    FXTRACE((150,"dds.header.dwMipMapCount=%d\n",dds.header.dwMipMapCount));
+    FXTRACE((150,"dds.header.ddpf.dwSize=%d\n",dds.header.ddpf.dwSize));
+    FXTRACE((150,"dds.header.ddpf.dwFlags=0x%08x: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",dds.header.ddpf.dwFlags,(dds.header.ddpf.dwFlags&DDPF_ALPHAPIXELS)?"DDPF_ALPHAPIXELS ":"",(dds.header.ddpf.dwFlags&DDPF_ALPHA)?"DDPF_ALPHA ":"",(dds.header.ddpf.dwFlags&DDPF_FOURCC)?"DDPF_FOURCC ":"",(dds.header.ddpf.dwFlags&DDPF_PALETTEINDEXED4)?"DDPF_PALETTEINDEXED4 ":"",(dds.header.ddpf.dwFlags&DDPF_PALETTEINDEXED8)?"DDPF_PALETTEINDEXED8 ":"",(dds.header.ddpf.dwFlags&DDPF_RGB)?"DDPF_RGB ":"",(dds.header.ddpf.dwFlags&DDPF_COMPRESSED)?"DDPF_COMPRESSED ":"",(dds.header.ddpf.dwFlags&DDPF_RGBTOYUV)?"DDPF_RGBTOYUV ":"",(dds.header.ddpf.dwFlags&DDPF_YUV)?"DDPF_YUV ":"",(dds.header.ddpf.dwFlags&DDPF_ZBUFFER)?"DDPF_ZBUFFER ":"",(dds.header.ddpf.dwFlags&DDPF_PALETTEINDEXED1)?"DDPF_PALETTEINDEXED1 ":"",(dds.header.ddpf.dwFlags&DDPF_PALETTEINDEXED2)?"DDPF_PALETTEINDEXED2 ":"",(dds.header.ddpf.dwFlags&DDPF_ZPIXELS)?"DDPF_ZPIXELS ":"",(dds.header.ddpf.dwFlags&DDPF_STENCILBUFFER)?"DDPF_STENCILBUFFER ":"",(dds.header.ddpf.dwFlags&DDPF_ALPHAPREMULT)?"DDPF_ALPHAPREMULT ":"",(dds.header.ddpf.dwFlags&DDPF_LUMINANCE)?"DDPF_LUMINANCE ":"",(dds.header.ddpf.dwFlags&DDPF_BUMPLUMINANCE)?"DDPF_BUMPLUMINANCE ":"",(dds.header.ddpf.dwFlags&DDPF_NORMAL)?"DDPF_NORMAL":""));
+    FXTRACE((150,"dds.header.ddpf.dwFourCC=0x%08x (%d) (%c%c%c%c)\n",dds.header.ddpf.dwFourCC,dds.header.ddpf.dwFourCC,dds.header.ddpf.dwFourCC&255,(dds.header.ddpf.dwFourCC>>8)&255,(dds.header.ddpf.dwFourCC>>16)&255,(dds.header.ddpf.dwFourCC>>24)&255));
+    FXTRACE((150,"dds.header.ddpf.dwRGBBitCount=%d\n",dds.header.ddpf.dwRGBBitCount));
+    FXTRACE((150,"dds.header.ddpf.dwRBitMask=0x%08x\n",dds.header.ddpf.dwRBitMask));
+    FXTRACE((150,"dds.header.ddpf.dwGBitMask=0x%08x\n",dds.header.ddpf.dwGBitMask));
+    FXTRACE((150,"dds.header.ddpf.dwBBitMask=0x%08x\n",dds.header.ddpf.dwBBitMask));
+    FXTRACE((150,"dds.header.ddpf.dwABitMask=0x%08x\n",dds.header.ddpf.dwABitMask));
 
-    FXTRACE((100,"dds.header.dwCaps =0x%08x: %s%s%s\n",dds.header.dwCaps,(dds.header.dwCaps&DDSCAPS_COMPLEX)?"DDSCAPS_COMPLEX ":"",(dds.header.dwCaps&DDSCAPS_TEXTURE)?"DDSCAPS_TEXTURE ":"",(dds.header.dwCaps&DDSCAPS_MIPMAP)?"DDSCAPS_MIPMAP":""));
-    FXTRACE((100,"dds.header.dwCaps2=0x%08x: %s%s%s%s%s%s%s%s\n",dds.header.dwCaps2,(dds.header.dwCaps2&DDSCAPS2_CUBEMAP)?"DDSCAPS2_CUBEMAP ":"",(dds.header.dwCaps2&DDSCAPS2_VOLUME)?"DDSCAPS2_VOLUME ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_POSITIVEX)?"DDSCAPS2_CUBEMAP_POSITIVEX ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_NEGATIVEX)?"DDSCAPS2_CUBEMAP_NEGATIVEX ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_POSITIVEY)?"DDSCAPS2_CUBEMAP_POSITIVEY ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_NEGATIVEY)?"DDSCAPS2_CUBEMAP_NEGATIVEY ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_POSITIVEZ)?"DDSCAPS2_CUBEMAP_POSITIVEZ ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_NEGATIVEZ)?"DDSCAPS2_CUBEMAP_NEGATIVEZ ":""));
-    FXTRACE((100,"dds.header.dwCaps3=0x%08x\n",dds.header.dwCaps3));
-    FXTRACE((100,"dds.header.dwCaps4=0x%08x\n",dds.header.dwCaps4));
+    FXTRACE((150,"dds.header.dwCaps =0x%08x: %s%s%s\n",dds.header.dwCaps,(dds.header.dwCaps&DDSCAPS_COMPLEX)?"DDSCAPS_COMPLEX ":"",(dds.header.dwCaps&DDSCAPS_TEXTURE)?"DDSCAPS_TEXTURE ":"",(dds.header.dwCaps&DDSCAPS_MIPMAP)?"DDSCAPS_MIPMAP":""));
+    FXTRACE((150,"dds.header.dwCaps2=0x%08x: %s%s%s%s%s%s%s%s\n",dds.header.dwCaps2,(dds.header.dwCaps2&DDSCAPS2_CUBEMAP)?"DDSCAPS2_CUBEMAP ":"",(dds.header.dwCaps2&DDSCAPS2_VOLUME)?"DDSCAPS2_VOLUME ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_POSITIVEX)?"DDSCAPS2_CUBEMAP_POSITIVEX ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_NEGATIVEX)?"DDSCAPS2_CUBEMAP_NEGATIVEX ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_POSITIVEY)?"DDSCAPS2_CUBEMAP_POSITIVEY ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_NEGATIVEY)?"DDSCAPS2_CUBEMAP_NEGATIVEY ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_POSITIVEZ)?"DDSCAPS2_CUBEMAP_POSITIVEZ ":"",(dds.header.dwCaps2&DDSCAPS2_CUBEMAP_NEGATIVEZ)?"DDSCAPS2_CUBEMAP_NEGATIVEZ ":""));
+    FXTRACE((150,"dds.header.dwCaps3=0x%08x\n",dds.header.dwCaps3));
+    FXTRACE((150,"dds.header.dwCaps4=0x%08x\n",dds.header.dwCaps4));
 
-    FXTRACE((100,"dds.xheader.dxgiFormat=%d\n",dds.xheader.dxgiFormat));
-    FXTRACE((100,"dds.xheader.resourceDimension=%d\n",dds.xheader.resourceDimension));
-    FXTRACE((100,"dds.xheader.miscFlag=%d\n",dds.xheader.miscFlag));
-    FXTRACE((100,"dds.xheader.arraySize=%d\n",dds.xheader.arraySize));
+    FXTRACE((150,"dds.xheader.dxgiFormat=%d\n",dds.xheader.dxgiFormat));
+    FXTRACE((150,"dds.xheader.resourceDimension=%d\n",dds.xheader.resourceDimension));
+    FXTRACE((150,"dds.xheader.miscFlag=%d\n",dds.xheader.miscFlag));
+    FXTRACE((150,"dds.xheader.arraySize=%d\n",dds.xheader.arraySize));
 
     // Fix depth
     if(!(dds.header.dwFlags&DDSD_DEPTH) || (dds.header.dwDepth==0)) dds.header.dwDepth=1;
@@ -1449,7 +1449,7 @@ FXbool fxloadDDS(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
       goto x;           // Not supported
       }
 
-    FXTRACE((100,"dds.size=%d\n",dds.size));
+    FXTRACE((150,"dds.size=%d\n",dds.size));
 
     // Allocate array for compressed data
     if(allocElms(dds.data,dds.size)){

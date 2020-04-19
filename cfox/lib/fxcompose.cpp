@@ -3,7 +3,7 @@
 *       C o m p o s e  /  D e c o m p o s e   U n i c o d e   S t r i n g       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018 by Jeroen van der Zijp.   All Rights Reserved.             *
+* Copyright (C) 2018,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -32,7 +32,7 @@
 
 /*
   Notes:
-  - Compose or decompose UTF8 unicode strings.
+  - Compose or decompose diacritics in UTF8 unicode strings.
 */
 
 
@@ -138,7 +138,7 @@ static FXint decomposerecursive(FXwchar *result,FXwchar w,FXbool canonical){
 
 
 // Canonicalize wide character string s, by rearranging combining marks
-static FXwchar *normalize(FXwchar* result,FXint len){
+static FXwchar *strnormalize(FXwchar* result,FXint len){
   register FXwchar uf,us,cf,cs;
   register FXint p=0;
   while(p+1<len){
@@ -171,7 +171,7 @@ static FXwchar *normalize(FXwchar* result,FXint len){
 
 
 // Compose characters from canonical/compatible decomposition
-static FXint compose(FXwchar* result,FXint len){
+static FXint strcompose(FXwchar* result,FXint len){
   register FXint p,q,cc,starterpos,startercc;
   register FXwchar w;
   if(0<len){
@@ -184,11 +184,12 @@ static FXint compose(FXwchar* result,FXint len){
         for(p=q+1; p<len; p++) result[p-1]=result[p];
         len--;
         q--;
-        if(q==starterpos)
+        if(q==starterpos){
           startercc=0;
-        else
+          }
+        else{
           startercc=Unicode::charCombining(result[q-1]);
-
+          }
         continue;
         }
       if(cc==0) starterpos=q;
@@ -200,12 +201,12 @@ static FXint compose(FXwchar* result,FXint len){
 
 
 // Return normalized string
-FXString normalize(const FXString& s){
+FXString FXString::normalize(const FXString& s){
   FXwchar* wcs=(FXwchar*)::malloc(s.length()*sizeof(FXwchar));
   FXString result;
   if(wcs){
-    FXint n=utf2wcs(wcs,s.text(),s.length(),s.length());
-    normalize(wcs,n);
+    FXint n=utf2wcs(wcs,s.text(),s.length());
+    strnormalize(wcs,n);
     result.assign(wcs,n);
     ::free(wcs);
     }
@@ -217,19 +218,19 @@ FXString normalize(const FXString& s){
 // the length of the worst recursive decomposition (18).  If unicode
 // tables change, make sure this code is updated.   We have an assert
 // just in case.
-FXString decompose(const FXString& s,FXbool canonical){
+FXString FXString::decompose(const FXString& s,FXbool canonical){
   FXwchar* wcs=(FXwchar*)::malloc(s.length()*sizeof(FXwchar)*18);
   FXString result;
   if(wcs){
     FXwchar* ptr=wcs+s.length()*17;
-    FXint m=utf2wcs(ptr,s.text(),s.length(),s.length());
+    FXint m=utf2wcs(ptr,s.text(),s.length());
     FXint p=0;
     FXint n=0;
     while(p<m){
       n+=decomposerecursive(&wcs[n],ptr[p++],canonical);
       }
     FXASSERT(n<=s.length()*18);
-    normalize(wcs,n);
+    strnormalize(wcs,n);
     result.assign(wcs,n);
     ::free(wcs);
     }
@@ -238,20 +239,20 @@ FXString decompose(const FXString& s,FXbool canonical){
 
 
 // Return normalized composition of string, as utf8
-FXString compose(const FXString& s,FXbool canonical){
+FXString FXString::compose(const FXString& s,FXbool canonical){
   FXwchar* wcs=(FXwchar*)::malloc(s.length()*sizeof(FXwchar)*18);
   FXString result;
   if(wcs){
     FXwchar* ptr=wcs+s.length()*17;
-    FXint m=utf2wcs(ptr,s.text(),s.length(),s.length());
+    FXint m=utf2wcs(ptr,s.text(),s.length());
     FXint p=0;
     FXint n=0;
     while(p<m){
       n+=decomposerecursive(&wcs[n],ptr[p++],canonical);
       }
     FXASSERT(n<=s.length()*18);
-    normalize(wcs,n);
-    n=compose(wcs,n);
+    strnormalize(wcs,n);
+    n=strcompose(wcs,n);
     result.assign(wcs,n);
     ::free(wcs);
     }

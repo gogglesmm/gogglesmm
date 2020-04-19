@@ -1,9 +1,9 @@
 /********************************************************************************
 *                                                                               *
-*                         T o p l e v el   O b j e c t                          *
+*                         T o p l e v e l   O b j e c t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -27,7 +27,6 @@
 
 namespace FX {
 
-
 /// Macro to set up class declaration
 #define FXDECLARE(classname) \
   public: \
@@ -36,8 +35,6 @@ namespace FX {
    static FX::FXObject* manufacture(); \
    virtual long handle(FX::FXObject* sender,FX::FXSelector sel,void* ptr); \
    virtual const FX::FXMetaClass* getMetaClass() const { return &metaClass; } \
-   friend FX::FXStream& operator<<(FX::FXStream& store,const classname* obj){return store.saveObject((const FX::FXObject*)(obj));} \
-   friend FX::FXStream& operator>>(FX::FXStream& store,classname*& obj){return store.loadObject((FX::FXObject*&)(obj));} \
   private:
 
 
@@ -58,8 +55,6 @@ namespace FX {
    static const FX::FXMetaClass metaClass; \
    virtual long handle(FX::FXObject* sender,FX::FXSelector sel,void* ptr); \
    virtual const FX::FXMetaClass* getMetaClass() const { return &metaClass; } \
-   friend FX::FXStream& operator<<(FX::FXStream& store,const classname* obj){return store.saveObject((const FX::FXObject*)(obj));} \
-   friend FX::FXStream& operator>>(FX::FXStream& store,classname*& obj){return store.loadObject((FX::FXObject*&)(obj));} \
   private:
 
 

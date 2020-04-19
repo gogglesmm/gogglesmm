@@ -3,7 +3,7 @@
 *       P e r s i s t e n t   S t o r a g e   S t r e a m   C l a s s e s       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -242,6 +242,14 @@ public:
 
   /// Add object without saving or loading
   FXStream& addObject(const FXObject* v);
+
+  /// Load object
+  template<class TYPE>
+  FXStream& operator>>(TYPE*& obj){ return loadObject(reinterpret_cast<FXObject*&>(obj)); }
+
+  /// Save object
+  template<class TYPE>
+  FXStream& operator<<(const TYPE* obj){ return saveObject(static_cast<const FXObject*>(obj)); }
 
   /// Destructor
   virtual ~FXStream();

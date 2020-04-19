@@ -3,7 +3,7 @@
 *                      A u t o m a t i c   P o i n t e r                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2007,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2007,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

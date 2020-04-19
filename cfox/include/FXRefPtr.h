@@ -3,7 +3,7 @@
 *         R e f e r e n c e   C o u n t e d   O b j e c t  P o i n t e r        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -80,14 +80,26 @@ public:
   /// Conversion operators
   operator EType*() const { return ptr; }
 
-  /// Return pointer value
-  EType* get() const { return ptr; }
-
   /// Dereference operator
   EType& operator*() const { return *ptr; }
 
   /// Follow pointer operator
   EType* operator->() const { return ptr; }
+
+  /// Test for non-null
+  operator FXbool() const { return !!ptr; }
+
+  /// Test for NULL
+  FXbool operator!() const { return !ptr; }
+
+  /// Comparison operator.
+  FXbool operator==(EType *p) const { return ptr==p; }
+
+  /// Comparison operator.
+  FXbool operator!=(EType *p) const { return ptr!=p; }
+
+  /// Return pointer value
+  EType* get() const { return ptr; }
 
   /// Clear pointer
   void clear(){

@@ -3,7 +3,7 @@
 *         I n t e r - T h r e a d    M e s s a g i n g    C h a n n e l         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -43,15 +43,23 @@
 /*
   Notes:
   - Inter-thread messaging is handy to have.
-  - Redo this in terms of FXPipe when that becomes possible.
-  - Because of unbelievably retarded design of Windows, we need to
-    use an Event-object to actually signal the GUI thread when we've
-    written something to the pipe.
+  - A pipe is used to pass data from worker thread to main GUI thread, so that
+    small messages may be sent from worker thread to main GUI thread asynchronously.
+  - On windows, an additional semaphore is needed to provide a watchable handle
+    for FXApp to block on, in MsgWaitForMultipleObjects().
+  - Main GUI thread blocks on a set of input sources, and wakes up and dispatches
+    to a handler when any one of them is raised.  For the message channel, control
+    will dispatch to onMessage(), which will pull the message from the pipe, and
+    invoke the handler read from the FXMessage struct.
+  - Note that the handler may get called later than message(); it depends on when
+    the main GUI thread returns to the event processing loop.
   - Based on suggestion from Axel Schmidt <axel.schmidt@analytica-karlsruhe.de>,
     the Event object was replaced by counting Semaphore.
     This way, the number of calls to message() has to be equal to the number of calls
     to MsgWaitForMultipleObjects.  Thus, each call to message() results in exactly
     one callback in the GUI thread.
+  - FIXME technically, FXMessageChannel should refer to an event loop instance (or
+    FXDispatcher instance), not FXApp.  Not all applications are GUI applications.
 */
 
 
@@ -59,7 +67,7 @@
 #define MAXMESSAGE 8192
 
 // Bad handle value
-#ifdef WIN32
+#if defined(WIN32)
 #define BadHandle  INVALID_HANDLE_VALUE
 #else
 #define BadHandle  -1
@@ -115,7 +123,7 @@ FXMessageChannel::FXMessageChannel():app((FXApp*)-1L){
 
 // Add handler to application
 FXMessageChannel::FXMessageChannel(FXApp* a):app(a){
-#ifdef WIN32
+#if defined(WIN32)
   if((h[2]=::CreateSemaphore(NULL,0,2147483647,NULL))==NULL){ throw FXResourceException("unable to create semaphore."); }
   if(::CreatePipe(&h[0],&h[1],NULL,0)==0){ throw FXResourceException("unable to create pipe."); }
   app->addInput(this,ID_IO_READ,h[2],INPUT_READ,NULL);
@@ -131,7 +139,7 @@ FXMessageChannel::FXMessageChannel(FXApp* a):app(a){
 // Fire signal message to target
 long FXMessageChannel::onMessage(FXObject*,FXSelector,void*){
   FXDataMessage pkg;
-#ifdef WIN32
+#if defined(WIN32)
   DWORD nread=-1;
   if(::ReadFile(h[0],&pkg,sizeof(FXMessage),&nread,NULL) && nread==sizeof(FXMessage)){
     if(0<pkg.size && (::ReadFile(h[0],pkg.data,pkg.size,&nread,NULL) && nread==pkg.size)){
@@ -161,7 +169,7 @@ FXbool FXMessageChannel::message(FXObject* tgt,FXSelector msg,const void* data,F
   pkg.pad=0;
 #endif
   pkg.size=FXMIN(size,MAXMESSAGE);
-#ifdef WIN32
+#if defined(WIN32)
   DWORD nwritten=-1;
   if(::WriteFile(h[1],&pkg,sizeof(FXMessage),&nwritten,NULL) && nwritten==sizeof(FXMessage)){
     if(pkg.size<=0 || (::WriteFile(h[1],data,pkg.size,&nwritten,NULL) && nwritten==pkg.size)){
@@ -182,7 +190,7 @@ FXbool FXMessageChannel::message(FXObject* tgt,FXSelector msg,const void* data,F
 
 // Remove handler from application
 FXMessageChannel::~FXMessageChannel(){
-#ifdef WIN32
+#if defined(WIN32)
   app->removeInput(h[2],INPUT_READ);
   ::CloseHandle(h[0]);
   ::CloseHandle(h[1]);

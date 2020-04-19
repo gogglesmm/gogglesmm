@@ -3,7 +3,7 @@
 *                       X M L   R e a d e r  &  W r i t e r                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -202,6 +202,8 @@
 
       o We're not at token or (multibyte) character boundary.
 
+  - The column may be incorrect if input string is not UTF8; column number is incremented
+    for every character-start [not for UTF8 follower characters, in other words].
 */
 
 
@@ -589,53 +591,29 @@ FXbool FXXML::encode(FXString& dst,const FXString& src,FXuint flags){
 /*******************************************************************************/
 
 // Construct XML parser instance
-FXXML::FXXML():begptr(NULL),endptr(NULL),sptr(NULL),rptr(NULL),wptr(NULL),current(NULL),column(0),line(1),dir(Stop),enc(UTF8),owns(false){
-  FXTRACE((1,"FXXML::FXXML\n"));
+FXXML::FXXML():begptr(NULL),endptr(NULL),wptr(NULL),rptr(NULL),sptr(NULL),offset(0),current(NULL),column(0),line(1),dir(Stop),enc(UTF8){
+  FXTRACE((100,"FXXML::FXXML\n"));
   }
 
 
 // Construct XML parser instance and pass it external buffer
-FXXML::FXXML(FXchar* data,FXuval sz,Direction d):begptr(NULL),endptr(NULL),sptr(NULL),rptr(NULL),wptr(NULL),current(NULL),column(0),line(1),dir(Stop),enc(UTF8),owns(false){
-  FXTRACE((1,"FXXML::FXXML(%p,%ld,%s)\n",data,sz,d==Load?"Load":d==Save?"Save":"Stop"));
-  open(data,sz,d);
+FXXML::FXXML(FXchar* buffer,FXuval sz,Direction d):begptr(NULL),endptr(NULL),wptr(NULL),rptr(NULL),sptr(NULL),offset(0),current(NULL),column(0),line(1),dir(Stop),enc(UTF8){
+  FXTRACE((100,"FXXML::FXXML(%p,%ld,%s)\n",buffer,sz,d==Load?"Load":d==Save?"Save":"Stop"));
+  open(buffer,sz,d);
   }
 
 
 // Open XML stream for given direction d
-FXbool FXXML::open(FXchar* data,FXuval sz,Direction d){
-  FXTRACE((2,"FXXML::open(%p,%ld,%s)\n",data,sz,d==Load?"Load":d==Save?"Save":"Stop"));
-  if((dir==Stop) && (d!=Stop)){
-    if(data){
-      begptr=data;
-      endptr=begptr+sz;
-      if(d==Save){
-        sptr=begptr;
-        rptr=begptr;
-        wptr=begptr;
-        }
-      else{
-        sptr=begptr;
-        rptr=begptr;
-        wptr=endptr;
-        }
-      owns=false;
-      }
-    else{
-      if(sz<MINBUFFER) sz=MINBUFFER;
-      if(!allocElms(begptr,sz)) return false;
-      endptr=begptr+sz;
-      if(d==Save){
-        sptr=begptr;
-        rptr=begptr;
-        wptr=begptr;
-        }
-      else{
-        sptr=endptr;
-        rptr=endptr;
-        wptr=endptr;
-        }
-      owns=true;
-      }
+FXbool FXXML::open(FXchar* buffer,FXuval sz,Direction d){
+  FXTRACE((100,"FXXML::open(%p,%ld,%s)\n",buffer,sz,d==Load?"Load":d==Save?"Save":"Stop"));
+  FXASSERT(dir==Stop);
+  if((dir==Stop) && (d!=Stop) && (0<sz) && buffer){
+    begptr=buffer;
+    endptr=buffer+sz;
+    wptr=(d==Load)?endptr:begptr;
+    rptr=begptr;
+    sptr=begptr;
+    offset=0;
     current=NULL;
     column=0;
     line=1;
@@ -646,16 +624,19 @@ FXbool FXXML::open(FXchar* data,FXuval sz,Direction d){
   return false;
   }
 
+/*******************************************************************************/
 
-// Fill buffer
-FXbool FXXML::fill(){
-  return rptr<wptr;
+// Read at least count bytes into buffer; return bytes available, or -1 for error
+FXival FXXML::fill(FXival){
+  FXASSERT(dir==Load);
+  return wptr-sptr;
   }
 
 
-// Flush buffer
-FXbool FXXML::flush(){
-  return wptr<endptr;
+// Write at least count bytes from buffer; return space available, or -1 for error
+FXival FXXML::flush(FXival){
+  FXASSERT(dir==Save);
+  return endptr-wptr;
   }
 
 
@@ -663,45 +644,52 @@ FXbool FXXML::flush(){
 // to load additional data into the buffer if needed.
 // Near the end of the file, there may be fewer than n bytes in the buffer
 // even after fill() is called.
-FXbool FXXML::need(FXival n){
-  if(wptr<rptr+n){
+FXbool FXXML::need(FXival count){
+  FXASSERT(dir==Load);
+  if(sptr+count>wptr){
     if(wptr==endptr){
-      fill();
+      if(fill(count)<0) return false;
       }
-    return rptr<wptr;
+    return sptr<wptr;
+    }
+  return true;
+  }
+
+
+// Emit characters to buffer
+FXbool FXXML::emit(FXchar ch,FXint count){
+  FXival num;
+  FXASSERT(dir==Save);
+  while(0<count){
+    if(wptr>=endptr){
+      if(flush(count)<=0) return false;
+      }
+    FXASSERT(wptr<endptr);
+    num=FXMIN(count,endptr-wptr);
+    fillElms(wptr,ch,num);
+    wptr+=num;
+    count-=num;
     }
   return true;
   }
 
 
 // Emit text to buffer
-FXXML::Error FXXML::emit(const FXchar* str,FXint count){
+FXbool FXXML::emit(const FXchar* str,FXint count){
   FXival num;
+  FXASSERT(dir==Save);
   while(0<count){
-    if(wptr>=endptr && !flush()){ FXTRACE((2,"%s:%d: flush() failed!\n",__FILE__,__LINE__)); return ErrSave; }
+    if(wptr>=endptr){
+      if(flush(count)<=0) return false;
+      }
     FXASSERT(wptr<endptr);
     num=FXMIN(count,endptr-wptr);
-    memcpy(wptr,str,num);
+    copyElms(wptr,str,num);
     wptr+=num;
     str+=num;
     count-=num;
     }
-  return ErrOK;
-  }
-
-
-// Emit characters to buffer
-FXXML::Error FXXML::emit(FXchar ch,FXint count){
-  FXival num;
-  while(0<count){
-    if(wptr>=endptr && !flush()){ FXTRACE((2,"%s:%d: flush() failed!\n",__FILE__,__LINE__)); return ErrSave; }
-    FXASSERT(wptr<endptr);
-    num=FXMIN(count,endptr-wptr);
-    memset(wptr,ch,num);
-    wptr+=num;
-    count-=num;
-    }
-  return ErrOK;
+  return true;
   }
 
 /*******************************************************************************/
@@ -712,111 +700,135 @@ static const FXchar boilerplate[]="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 
 // Document start
 FXXML::Error FXXML::startDocument(){
-  Error err=ErrSave;
   if(dir==Save){
-    err=emit(boilerplate,sizeof(boilerplate)-1);
+    if(!emit(boilerplate,sizeof(boilerplate)-1)) return ErrSave;
+    offset+=sizeof(boilerplate)-1;
+    return ErrOK;
     }
-  return err;
+  return ErrSave;
   }
 
 
 // Element start w/no attributes
 FXXML::Error FXXML::startElement(const FXString& tag){
-  Error err=ErrSave;
   if(dir==Save){
-    if((err=emit("<",1))!=ErrOK) return err;
-    if((err=emit(tag.text(),tag.length()))!=ErrOK) return err;
-    if((err=emit(">",1))!=ErrOK) return err;
+    if(!emit("<",1)) return ErrSave;
+    offset+=1;
+    if(!emit(tag.text(),tag.length())) return ErrSave;
+    offset+=tag.length();
+    if(!emit(">",1)) return ErrSave;
+    offset+=1;
+    return ErrOK;
     }
-  return err;
+  return ErrSave;
   }
 
 
 // Element start w/attributes
 FXXML::Error FXXML::startElement(const FXString& tag,const FXStringDictionary& atts){
-  Error err=ErrSave;
   FXString encodedatt;
   if(dir==Save){
-    if((err=emit("<",1))!=ErrOK) return err;
-    if((err=emit(tag.text(),tag.length()))!=ErrOK) return err;
+    if(!emit("<",1)) return ErrSave;
+    offset+=1;
+    if(!emit(tag.text(),tag.length())) return ErrSave;
+    offset+=tag.length();
     if(!atts.empty()){
       for(FXint i=0; i<atts.no(); ++i){
         if(!atts.empty(i)){
-          if((err=emit(" ",1))!=ErrOK) return err;
-          if((err=emit(atts.key(i).text(),atts.key(i).length()))!=ErrOK) return err;
-          if((err=emit("=\"",2))!=ErrOK) return err;
+          if(!emit(" ",1)) return ErrSave;
+          offset+=1;
+          if(!emit(atts.key(i).text(),atts.key(i).length())) return ErrSave;
+          offset+=atts.key(i).length();
+          if(!emit("=\"",2)) return ErrSave;
+          offset+=2;
           FXXML::encode(encodedatt,atts.data(i),REFS|CRLF);
-          if((err=emit(encodedatt.text(),encodedatt.length()))!=ErrOK) return err;
-          if((err=emit("\"",1))!=ErrOK) return err;
+          if(!emit(encodedatt.text(),encodedatt.length())) return ErrSave;
+          offset+=encodedatt.length();
+          if(!emit("\"",1)) return ErrSave;
+          offset+=1;
           }
         }
       }
-    if((err=emit(">",1))!=ErrOK) return err;
+    if(!emit(">",1)) return ErrSave;
+    offset+=1;
+    return ErrOK;
     }
-  return err;
+  return ErrSave;
   }
 
 
 // Characters
 FXXML::Error FXXML::characters(const FXString& text){
-  Error err=ErrSave;
   if(dir==Save){
     FXString encodedtext;
     FXXML::encode(encodedtext,text,CRLF|REFS);
-    if((err=emit(encodedtext.text(),encodedtext.length()))!=ErrOK) return err;
+    if(!emit(encodedtext.text(),encodedtext.length())) return ErrSave;
+    offset+=encodedtext.length();
+    return ErrOK;
     }
-  return err;
+  return ErrSave;
   }
 
 
 // Comment
 FXXML::Error FXXML::comment(const FXString& text){
-  Error err=ErrSave;
   if(dir==Save){
-    if((err=emit("<!--",4))!=ErrOK) return err;
-    if((err=emit(text.text(),text.length()))!=ErrOK) return err;
-    if((err=emit("-->",3))!=ErrOK) return err;
-    err=ErrOK;
+    if(!emit("<!--",4)) return ErrSave;
+    offset+=4;
+    if(!emit(text.text(),text.length())) return ErrSave;
+    offset+=text.length();
+    if(!emit("-->",3)) return ErrSave;
+    offset+=3;
+    return ErrOK;
     }
-  return err;
+  return ErrSave;
   }
 
 
 // Processing instruction
 FXXML::Error FXXML::processing(const FXString& target,const FXString& data){
-  Error err=ErrSave;
   if(dir==Save){
-    if((err=emit("<?",2))!=ErrOK) return err;
-    if((err=emit(target.text(),target.length()))!=ErrOK) return err;
+    if(!emit("<?",2)) return ErrSave;
+    offset+=2;
+    if(!emit(target.text(),target.length())) return ErrSave;
+    offset+=target.length();
     if(!data.empty()){
-      if((err=emit(" ",1))!=ErrOK) return err;
-      if((err=emit(data.text(),data.length()))!=ErrOK) return err;
+      if(!emit(" ",1)) return ErrSave;
+      offset+=1;
+      if(!emit(data.text(),data.length())) return ErrSave;
+      offset+=data.length();
       }
-    if((err=emit("?>",2))!=ErrOK) return err;
+    if(!emit("?>",2)) return ErrSave;
+    offset+=2;
+    return ErrOK;
     }
-  return err;
+  return ErrSave;
   }
 
 
 // Element end
 FXXML::Error FXXML::endElement(const FXString& tag){
-  Error err=ErrSave;
   if(dir==Save){
-    err=emit("</",2);
-    err=emit(tag.text(),tag.length());
-    err=emit(">",1);
+    if(!emit("</",2)) return ErrSave;
+    offset+=2;
+    if(!emit(tag.text(),tag.length())) return ErrSave;
+    offset+=tag.length();
+    if(!emit(">",1)) return ErrSave;
+    offset+=1;
+    return ErrOK;
     }
-  return err;
+  return ErrSave;
   }
 
 
 // Document end
 FXXML::Error FXXML::endDocument(){
-  Error err=ErrSave;
   if(dir==Save){
-    err=emit("\n",1);
+    if(!emit("\n",1)) return ErrSave;
+    offset+=1;
+    return ErrOK;
     }
-  return err;
+  return ErrSave;
   }
 
 /*******************************************************************************/
@@ -827,23 +839,23 @@ FXXML::Error FXXML::endDocument(){
 FXuint FXXML::guess(){
 
   // Quick check for UTF8 coded byte order mark (most likely case)
-  if(rptr+2<wptr && rptr[0]=='\xef' && rptr[1]=='\xbb' && rptr[2]=='\xbf'){ rptr+=3; return UTF8; }
+  if(sptr+3<=wptr && sptr[0]=='\xef' && sptr[1]=='\xbb' && sptr[2]=='\xbf'){ offset+=3; sptr+=3; return UTF8; }
 
   // Look for 32-bit byte order mark
-  if(rptr+3<wptr && rptr[0]=='\xff' && rptr[1]=='\xfe' && rptr[2]==0 && rptr[3]==0){ rptr+=4; return UTF32LE; }
-  if(rptr+3<wptr && rptr[0]==0 && rptr[1]==0 && rptr[2]=='\xfe' && rptr[3]=='\xff'){ rptr+=4; return UTF32BE; }
+  if(sptr+4<=wptr && sptr[0]=='\xff' && sptr[1]=='\xfe' && sptr[2]==0 && sptr[3]==0){ offset+=4; sptr+=4; return UTF32LE; }
+  if(sptr+4<=wptr && sptr[0]==0 && sptr[1]==0 && sptr[2]=='\xfe' && sptr[3]=='\xff'){ offset+=4; sptr+=4; return UTF32BE; }
 
   // Look for 16-bit byte order mark
-  if(rptr+1<wptr && rptr[0]=='\xff' && rptr[1]=='\xfe'){ rptr+=2; return UTF16LE; }
-  if(rptr+1<wptr && rptr[0]=='\xfe' && rptr[1]=='\xff'){ rptr+=2; return UTF16BE; }
+  if(sptr+2<=wptr && sptr[0]=='\xff' && sptr[1]=='\xfe'){ offset+=2; sptr+=2; return UTF16LE; }
+  if(sptr+2<=wptr && sptr[0]=='\xfe' && sptr[1]=='\xff'){ offset+=2; sptr+=2; return UTF16BE; }
 
   // Otherwise, look for 32-bit wide characters
-  if(rptr+3<wptr && rptr[0]==0 && rptr[1]==0 && rptr[2]==0 && rptr[3]!=0){ return UTF32BE; }
-  if(rptr+3<wptr && rptr[0]!=0 && rptr[1]==0 && rptr[2]==0 && rptr[3]==0){ return UTF32LE; }
+  if(sptr+4<=wptr && (sptr[0]!=0 || sptr[1]!=0) && (sptr[2]==0 && sptr[3]==0)){ return UTF32LE; }
+  if(sptr+4<=wptr && (sptr[0]==0 && sptr[1]==0) && (sptr[2]!=0 || sptr[3]!=0)){ return UTF32BE; }
 
   // Finally, look for 16-bit wide characters
-  if(rptr+1<wptr && rptr[0]==0 && rptr[1]!=0){ return UTF16BE; }
-  if(rptr+1<wptr && rptr[0]!=0 && rptr[1]==0){ return UTF16LE; }
+  if(sptr+2<=wptr && sptr[0]==0 && sptr[1]!=0){ return UTF16BE; }
+  if(sptr+2<=wptr && sptr[0]!=0 && sptr[1]==0){ return UTF16LE; }
 
   // Unknown encoding
   return 0;
@@ -853,23 +865,29 @@ FXuint FXXML::guess(){
 // Parse just spaces
 void FXXML::spaces(){
   while(need(MAXTOKEN)){
-    sptr=rptr;
-    switch(rptr[0]){
+    rptr=sptr;
+    switch(sptr[0]){
     case '\t':
       column+=(8-column%8);
-      rptr++;
+      offset++;
+      sptr++;
       continue;
+    case '\r':
+      if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
     case '\n':
       column=0;
+      offset++;
+      sptr++;
       line++;
-      rptr++;
       continue;
     case ' ':
       column++;
-    case '\r':
-      rptr++;
+    case '\v':
+    case '\f':
+      offset++;
+      sptr++;
       continue;
-    default:                    // We have a non-whitespace character
+    default:                            // We have a non-whitespace character
       return;
       }
     }
@@ -878,14 +896,15 @@ void FXXML::spaces(){
 
 // Parse name
 FXbool FXXML::name(){
-  if(nameStartChar(rptr[0])){
-    sptr=rptr;
+  if(nameStartChar(sptr[0])){
+    rptr=sptr;
     do{
-      rptr=wcinc(rptr);
-      column++;
-      if(rptr>=wptr) return false;
+      column+=FXISUTF8(*sptr);          // Increment if UTF8 leader only
+      offset++;
+      sptr++;
+      if(sptr>=wptr) return false;
       }
-    while(nameChar(rptr[0]));
+    while(nameChar(sptr[0]));
     return true;
     }
   return false;
@@ -894,10 +913,11 @@ FXbool FXXML::name(){
 
 // Match name with given name str of length len
 FXbool FXXML::match(FXchar ch){
-  if(rptr[0]==ch){
-    sptr=rptr;
+  if(sptr[0]==ch){
+    rptr=sptr;
     column++;
-    rptr++;
+    offset++;
+    sptr++;
     return true;
     }
   return false;
@@ -906,8 +926,8 @@ FXbool FXXML::match(FXchar ch){
 
 // Match name with given name str of length len
 FXbool FXXML::match(const FXchar* str,FXint len){
-  if(name() && sptr+len==rptr){
-    return compare(sptr,str,len)==0;
+  if(name() && rptr+len==sptr){
+    return compare(rptr,str,len)==0;
     }
   return false;
   }
@@ -915,43 +935,52 @@ FXbool FXXML::match(const FXchar* str,FXint len){
 
 // Parse string
 FXXML::Error FXXML::parsestring(FXString& str){
-  FXchar q=rptr[0];
+  FXchar q=sptr[0];
   str.clear();
   if(q=='"' || q=='\''){
-    rptr++;
     column++;
-    sptr=rptr;
+    offset++;
+    sptr++;
+    rptr=sptr;
     while(need(MAXTOKEN)){
-      switch(rptr[0]){
+      switch(sptr[0]){
       case '\t':
         column+=(8-column%8);
-        rptr++;
+        offset++;
+        sptr++;
         continue;
+      case '\r':
+        if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
       case '\n':
         column=0;
+        offset++;
+        sptr++;
         line++;
-        rptr++;
         continue;
       case ' ':
         column++;
-      case '\r':
-        rptr++;
+      case '\v':
+      case '\f':
+        offset++;
+        sptr++;
         continue;
       case '\'':
       case '"':
-        if(rptr[0]!=q) goto nxt;
-        str.append(sptr,rptr-sptr);
-        rptr++;
+        if(sptr[0]!=q) goto nxt;
+        str.append(rptr,sptr-rptr);
+        offset++;
         column++;
-        sptr=rptr;
+        sptr++;
+        rptr=sptr;
         return ErrOK;
       default:
-nxt:    if((rptr-sptr)>=(endptr-begptr-MAXTOKEN)){
-          str.append(sptr,rptr-sptr);
-          sptr=rptr;
+nxt:    if((sptr-rptr)>=(endptr-begptr-MAXTOKEN)){
+          str.append(rptr,sptr-rptr);
+          rptr=sptr;
           }
-        rptr=wcinc(rptr);
-        column++;
+        column+=FXISUTF8(*sptr);        // Increment if UTF8 leader only
+        offset++;
+        sptr++;
         continue;
         }
       }
@@ -999,67 +1028,77 @@ FXXML::Error FXXML::parsestandalone(){
 // XML header
 FXXML::Error FXXML::parsexml(){
   FXXML::Error err;
-  sptr=rptr;
+  rptr=sptr;
   while(need(MAXTOKEN)){
-    switch(rptr[0]){
+    switch(sptr[0]){
     case '\t':
       column+=(8-column%8);
-      rptr++;
+      offset++;
+      sptr++;
       continue;
+    case '\r':
+      if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
     case '\n':
       column=0;
+      offset++;
       line++;
-      rptr++;
+      sptr++;
       continue;
     case ' ':
       column++;
-    case '\r':
-      rptr++;
+    case '\v':
+    case '\f':
+      offset++;
+      sptr++;
       continue;
     case '?':                   // End of xml declaration
-      if(rptr[1]!='>') return ErrToken;
+      if(sptr[1]!='>') return ErrToken;
       column+=2;
-      rptr+=2;
+      offset+=2;
+      sptr+=2;
       return ErrOK;
     case 'v':
-      if(rptr[1]!='e') return ErrToken;
-      if(rptr[2]!='r') return ErrToken;
-      if(rptr[3]!='s') return ErrToken;
-      if(rptr[4]!='i') return ErrToken;
-      if(rptr[5]!='o') return ErrToken;
-      if(rptr[6]!='n') return ErrToken;
+      if(sptr[1]!='e') return ErrToken;
+      if(sptr[2]!='r') return ErrToken;
+      if(sptr[3]!='s') return ErrToken;
+      if(sptr[4]!='i') return ErrToken;
+      if(sptr[5]!='o') return ErrToken;
+      if(sptr[6]!='n') return ErrToken;
       column+=7;
-      rptr+=7;
+      offset+=7;
+      sptr+=7;
       if((err=parseversion())!=ErrOK) return err;
-      sptr=rptr;
+      rptr=sptr;
       continue;
     case 'e':
-      if(rptr[1]!='n') return ErrToken;
-      if(rptr[2]!='c') return ErrToken;
-      if(rptr[3]!='o') return ErrToken;
-      if(rptr[4]!='d') return ErrToken;
-      if(rptr[5]!='i') return ErrToken;
-      if(rptr[6]!='n') return ErrToken;
-      if(rptr[7]!='g') return ErrToken;
+      if(sptr[1]!='n') return ErrToken;
+      if(sptr[2]!='c') return ErrToken;
+      if(sptr[3]!='o') return ErrToken;
+      if(sptr[4]!='d') return ErrToken;
+      if(sptr[5]!='i') return ErrToken;
+      if(sptr[6]!='n') return ErrToken;
+      if(sptr[7]!='g') return ErrToken;
       column+=8;
-      rptr+=8;
+      offset+=8;
+      sptr+=8;
       if((err=parseencoding())!=ErrOK) return err;
-      sptr=rptr;
+      rptr=sptr;
       continue;
     case 's':
-      if(rptr[1]!='t') return ErrToken;
-      if(rptr[2]!='a') return ErrToken;
-      if(rptr[3]!='n') return ErrToken;
-      if(rptr[4]!='d') return ErrToken;
-      if(rptr[5]!='a') return ErrToken;
-      if(rptr[6]!='l') return ErrToken;
-      if(rptr[7]!='o') return ErrToken;
-      if(rptr[8]!='n') return ErrToken;
-      if(rptr[9]!='e') return ErrToken;
+      if(sptr[1]!='t') return ErrToken;
+      if(sptr[2]!='a') return ErrToken;
+      if(sptr[3]!='n') return ErrToken;
+      if(sptr[4]!='d') return ErrToken;
+      if(sptr[5]!='a') return ErrToken;
+      if(sptr[6]!='l') return ErrToken;
+      if(sptr[7]!='o') return ErrToken;
+      if(sptr[8]!='n') return ErrToken;
+      if(sptr[9]!='e') return ErrToken;
       column+=10;
-      rptr+=10;
+      offset+=10;
+      sptr+=10;
       if((err=parsestandalone())!=ErrOK) return err;
-      sptr=rptr;
+      rptr=sptr;
       continue;
     default:
       return ErrToken;
@@ -1074,7 +1113,7 @@ FXXML::Error FXXML::parseelementdecl(){
   FXString elmname;
   spaces();
   if(name()){
-    elmname.assign(sptr,rptr-sptr);
+    elmname.assign(rptr,sptr-rptr);
     spaces();
     //?//
     return ErrOK;
@@ -1093,7 +1132,7 @@ FXXML::Error FXXML::parseexternalid(){
     spaces();
     if((err=parsestring(syslit))!=ErrOK) return err;
     ///
-    FXTRACE((10,"SYSTEM \"%s\"\n",syslit.text()));
+    FXTRACE((101,"SYSTEM \"%s\"\n",syslit.text()));
     return ErrOK;
     }
   if(match("PUBLIC",6)){
@@ -1101,7 +1140,7 @@ FXXML::Error FXXML::parseexternalid(){
     if((err=parsestring(publit))!=ErrOK) return err;
     spaces();
     if((err=parsestring(syslit))!=ErrOK) return err;
-    FXTRACE((10,"PUBLIC \"%s\" \"%s\"\n",publit.text(),syslit.text()));
+    FXTRACE((101,"PUBLIC \"%s\" \"%s\"\n",publit.text(),syslit.text()));
     ///
     return ErrOK;
     }
@@ -1114,74 +1153,84 @@ FXXML::Error FXXML::parseinternalsubset(){
   FXXML::Error err;
   spaces();
   if(match('[')){
-    FXTRACE((2,"internalsubset\n"));
+    FXTRACE((101,"internalsubset\n"));
     while(need(MAXTOKEN)){
-      switch(rptr[0]){
+      switch(sptr[0]){
       case '\t':
         column+=(8-column%8);
-        rptr++;
+        offset++;
+        sptr++;
         continue;
+      case '\r':
+        if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
       case '\n':
         column=0;
+        offset++;
         line++;
-        rptr++;
+        sptr++;
         continue;
       case ' ':
         column++;
-      case '\r':
-        rptr++;
+      case '\v':
+      case '\f':
+        offset++;
+        sptr++;
         continue;
       case ']':
         column++;
-        rptr++;
+        offset++;
+        sptr++;
         return ErrOK;
       case '<':
-        if(rptr[1]=='?'){
+        if(sptr[1]=='?'){
           column+=2;
-          rptr+=2;
+          offset+=2;
+          sptr+=2;
           if((err=parseprocessing())!=ErrOK) return err;
           continue;
           }
-        if(rptr[1]=='!' && rptr[2]=='-' && rptr[3]=='-'){
+        if(sptr[1]=='!' && sptr[2]=='-' && sptr[3]=='-'){
           column+=4;
-          rptr+=4;
+          offset+=4;
+          sptr+=4;
           if((err=parsecomment())!=ErrOK) return err;
           continue;
           }
 #if 0 // SKIP NOT-YET-IMPLEMENTED STUFF
-        if(rptr[1]=='!' && rptr[2]=='E' && rptr[3]=='L' && rptr[4]=='E' && rptr[5]=='M' && rptr[6]=='E' && rptr[7]=='N' && rptr[8]=='T'){
+        if(sptr[1]=='!' && sptr[2]=='E' && sptr[3]=='L' && sptr[4]=='E' && sptr[5]=='M' && sptr[6]=='E' && sptr[7]=='N' && sptr[8]=='T'){
           column+=9;
-          rptr+=9;
-          FXTRACE((1,"<!ELEMENT\n"));
-          sptr=rptr;
+          sptr+=9;
+          FXTRACE((101,"<!ELEMENT\n"));
+          rptr=sptr;
           continue;
           }
-        if(rptr[1]=='!' && rptr[2]=='A' && rptr[3]=='T' && rptr[4]=='T' && rptr[5]=='L' && rptr[6]=='I' && rptr[7]=='T'){
+        if(sptr[1]=='!' && sptr[2]=='A' && sptr[3]=='T' && sptr[4]=='T' && sptr[5]=='L' && sptr[6]=='I' && sptr[7]=='T'){
           column+=8;
-          rptr+=8;
-          FXTRACE((1,"<!ATTLIST\n"));
-          sptr=rptr;
+          sptr+=8;
+          FXTRACE((101,"<!ATTLIST\n"));
+          rptr=sptr;
           continue;
           }
-        if(rptr[1]=='!' && rptr[2]=='E' && rptr[3]=='N' && rptr[4]=='T' && rptr[5]=='I' && rptr[6]=='T' && rptr[7]=='Y'){
+        if(sptr[1]=='!' && sptr[2]=='E' && sptr[3]=='N' && sptr[4]=='T' && sptr[5]=='I' && sptr[6]=='T' && sptr[7]=='Y'){
           column+=8;
-          rptr+=8;
-          FXTRACE((1,"<!ENTITY\n"));
-          sptr=rptr;
+          sptr+=8;
+          FXTRACE((101,"<!ENTITY\n"));
+          rptr=sptr;
           continue;
           }
-        if(rptr[1]=='!' && rptr[2]=='N' && rptr[3]=='O' && rptr[4]=='T' && rptr[5]=='A' && rptr[6]=='T' && rptr[7]=='I' && rptr[8]=='O' && rptr[9]=='N'){
+        if(sptr[1]=='!' && sptr[2]=='N' && sptr[3]=='O' && sptr[4]=='T' && sptr[5]=='A' && sptr[6]=='T' && sptr[7]=='I' && sptr[8]=='O' && sptr[9]=='N'){
           column+=10;
-          rptr+=10;
-          FXTRACE((1,"<!NOTATION\n"));
-          sptr=rptr;
+          sptr+=10;
+          FXTRACE((101,"<!NOTATION\n"));
+          rptr=sptr;
           continue;
           }
 #endif
 //        return ErrToken;
       default:
         column++;
-        rptr++;
+        offset++;
+        sptr++;
 //        return ErrToken;
         }
       }
@@ -1197,8 +1246,8 @@ FXXML::Error FXXML::parsedeclarations(){
   FXString docname;
   spaces();
   if(name()){
-    docname.assign(sptr,rptr-sptr);
-    FXTRACE((10,"docname=%s\n",docname.text()));
+    docname.assign(rptr,sptr-rptr);
+    FXTRACE((101,"docname=%s\n",docname.text()));
     if((err=parseexternalid())!=ErrOK) return err;
     if((err=parseinternalsubset())!=ErrOK) return err;
     spaces();
@@ -1214,38 +1263,46 @@ FXXML::Error FXXML::parseprocessing(){
   FXString target;
   FXString data;
   if(name()){
-    target.assign(sptr,rptr-sptr);
-    sptr=rptr;                          // Start of processing instruction data
+    target.assign(rptr,sptr-rptr);
+    rptr=sptr;                          // Start of processing instruction data
     while(need(MAXTOKEN)){
-      switch(rptr[0]){
+      switch(sptr[0]){
       case '\t':
         column+=(8-column%8);
-        rptr++;
+        offset++;
+        sptr++;
         continue;
+      case '\r':
+        if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
       case '\n':
         column=0;
+        offset++;
         line++;
-        rptr++;
+        sptr++;
         continue;
       case ' ':
         column++;
-      case '\r':
-        rptr++;
+      case '\v':
+      case '\f':
+        offset++;
+        sptr++;
         continue;
       case '?':
-        if(rptr[1]!='>') goto nxt;      // Just a lone '?'
-        data.append(sptr,rptr-sptr);    // Add last chunk of processing instruction
+        if(sptr[1]!='>') goto nxt;      // Just a lone '?'
+        data.append(rptr,sptr-rptr);    // Add last chunk of processing instruction
         column+=2;
-        rptr+=2;
-        sptr=rptr;
+        offset+=2;
+        sptr+=2;
+        rptr=sptr;
         return processingCB(target,data);
       default:
-nxt:    if((rptr-sptr)>=(endptr-begptr-MAXTOKEN)){
-          data.append(sptr,rptr-sptr);  // Add another chunk
-          sptr=rptr;
+nxt:    if((sptr-rptr)>=(endptr-begptr-MAXTOKEN)){
+          data.append(rptr,sptr-rptr);  // Add another chunk
+          rptr=sptr;
           }
-        rptr=wcinc(rptr);               // Next wide character
-        column++;
+        column+=FXISUTF8(*sptr);        // Increment if UTF8 leader only
+        offset++;
+        sptr++;
         continue;
         }
       }
@@ -1258,38 +1315,46 @@ nxt:    if((rptr-sptr)>=(endptr-begptr-MAXTOKEN)){
 // Scan comment
 FXXML::Error FXXML::parsecomment(){
   FXString text;
-  sptr=rptr;
+  rptr=sptr;
   while(need(MAXTOKEN)){
-    switch(rptr[0]){
+    switch(sptr[0]){
     case '\t':
       column+=(8-column%8);
-      rptr++;
+      offset++;
+      sptr++;
       continue;
+    case '\r':
+      if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
     case '\n':
       column=0;
+      offset++;
       line++;
-      rptr++;
+      sptr++;
       continue;
     case ' ':
       column++;
-    case '\r':
-      rptr++;
+    case '\v':
+    case '\f':
+      offset++;
+      sptr++;
       continue;
     case '-':
-      if(rptr[1]!='-') goto nxt;        // Just a lone '-'
-      if(rptr[2]!='>') goto nxt;        // Allow a '--' inside a comment; technically, not spec
-      text.append(sptr,rptr-sptr);      // Pass comment undecoded
+      if(sptr[1]!='-') goto nxt;        // Just a lone '-'
+      if(sptr[2]!='>') goto nxt;        // Allow a '--' inside a comment; technically, not spec
+      text.append(rptr,sptr-rptr);      // Pass comment undecoded
       column+=3;
-      rptr+=3;
-      sptr=rptr;
+      offset+=3;
+      sptr+=3;
+      rptr=sptr;
       return commentCB(text);
     default:
-nxt:  if((rptr-sptr)>=(endptr-begptr-MAXTOKEN)){
-        text.append(sptr,rptr-sptr);    // Pass comment undecoded
-        sptr=rptr;
+nxt:  if((sptr-rptr)>=(endptr-begptr-MAXTOKEN)){
+        text.append(rptr,sptr-rptr);    // Pass comment undecoded
+        rptr=sptr;
         }
-      rptr=wcinc(rptr);                 // Next wide character
-      column++;
+      column+=FXISUTF8(*sptr);          // Increment if UTF8 leader only
+      offset++;
+      sptr++;
       continue;
       }
     }
@@ -1303,7 +1368,7 @@ FXXML::Error FXXML::parseattribute(Element& elm){
   FXString value;
   FXString key;
   if(name()){
-    key.assign(sptr,rptr-sptr);
+    key.assign(rptr,sptr-rptr);
     spaces();
     if(!match('=')) return ErrEquals;
     spaces();
@@ -1320,34 +1385,42 @@ FXXML::Error FXXML::parseattribute(Element& elm){
 FXXML::Error FXXML::parsestarttag(Element& elm){
   FXXML::Error err;
   if(!name()) return ErrName;
-  elm.name.assign(sptr,rptr-sptr);
+  elm.name.assign(rptr,sptr-rptr);
   while(need(MAXTOKEN)){
-    sptr=rptr;
-    switch(rptr[0]){
+    rptr=sptr;
+    switch(sptr[0]){
     case '\t':
       column+=(8-column%8);
-      rptr++;
+      offset++;
+      sptr++;
       continue;
+    case '\r':
+      if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
     case '\n':
       column=0;
+      offset++;
       line++;
-      rptr++;
+      sptr++;
       continue;
     case ' ':
       column++;
-    case '\r':
-      rptr++;
+    case '\v':
+    case '\f':
+      offset++;
+      sptr++;
       continue;
     case '/':
-      if(rptr[1]!='>') return ErrToken; // Improper empty tag syntax
+      if(sptr[1]!='>') return ErrToken; // Improper empty tag syntax
       elm.empty=true;
       column+=2;
-      rptr+=2;
+      offset+=2;
+      sptr+=2;
       return ErrOK;                     // End of empty stag element
     case '>':
       elm.empty=false;
       column++;
-      rptr++;
+      offset++;
+      sptr++;
       return ErrOK;                     // End of stag
     default:
       if((err=parseattribute(elm))!=ErrOK) return err;
@@ -1362,25 +1435,32 @@ FXXML::Error FXXML::parsestarttag(Element& elm){
 FXXML::Error FXXML::parseendtag(Element& elm){
   if(!match(elm.name.text(),elm.name.length())) return ErrNoMatch;
   while(need(MAXTOKEN)){
-    sptr=rptr;
-    switch(rptr[0]){
+    rptr=sptr;
+    switch(sptr[0]){
     case '\t':
       column+=(8-column%8);
-      rptr++;
+      offset++;
+      sptr++;
       continue;
+    case '\r':
+      if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
     case '\n':
       column=0;
+      offset++;
       line++;
-      rptr++;
+      sptr++;
       continue;
     case ' ':
       column++;
-    case '\r':
-      rptr++;
+    case '\v':
+    case '\f':
+      offset++;
+      sptr++;
       continue;
     case '>':
       column++;
-      rptr++;
+      offset++;
+      sptr++;
       return ErrOK;                     // End of etag
     default:
       return ErrToken;
@@ -1394,40 +1474,48 @@ FXXML::Error FXXML::parseendtag(Element& elm){
 FXXML::Error FXXML::parsecdata(Element& elm){
   FXXML::Error err;
   FXString text;
-  sptr=rptr;
+  rptr=sptr;
   while(need(MAXTOKEN)){
-    switch(rptr[0]){
+    switch(sptr[0]){
     case '\t':
       column+=(8-column%8);
-      rptr++;
+      offset++;
+      sptr++;
       continue;
+    case '\r':
+      if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
     case '\n':
       column=0;
+      offset++;
       line++;
-      rptr++;
+      sptr++;
       continue;
     case ' ':
       column++;
-    case '\r':
-      rptr++;
+    case '\v':
+    case '\f':
+      offset++;
+      sptr++;
       continue;
     case ']':
-      if(rptr[1]!=']') goto nxt;
-      if(rptr[2]!='>') goto nxt;
-      if(!FXXML::decode(text,FXString(sptr,rptr-sptr),CRLF)) return ErrToken;
+      if(sptr[1]!=']') goto nxt;
+      if(sptr[2]!='>') goto nxt;
+      if(!FXXML::decode(text,FXString(rptr,sptr-rptr),CRLF)) return ErrToken;
       if((err=charactersCB(text))!=ErrOK) return err;
       column+=3;
-      rptr+=3;
-      sptr=rptr;
+      offset+=3;
+      sptr+=3;
+      rptr=sptr;
       return ErrOK;
     default:
-nxt:  if((rptr-sptr)>=(endptr-begptr-MAXTOKEN)){
-        if(!FXXML::decode(text,FXString(sptr,rptr-sptr),CRLF)) return ErrToken;
+nxt:  if((sptr-rptr)>=(endptr-begptr-MAXTOKEN)){
+        if(!FXXML::decode(text,FXString(rptr,sptr-rptr),CRLF)) return ErrToken;
         if((err=charactersCB(text))!=ErrOK) return err;
-        sptr=rptr;
+        rptr=sptr;
         }
-      rptr=wcinc(rptr);                 // Next wide character
-      column++;
+      column+=FXISUTF8(*sptr);          // Increment if UTF8 leader only
+      offset++;
+      sptr++;
       continue;
       }
     }
@@ -1440,102 +1528,116 @@ FXXML::Error FXXML::parsecontents(Element& elm){
   FXXML::Error err;
   FXString text;
   FXint brk=1;                          // Allow break
-  sptr=rptr;
+  rptr=sptr;
   while(need(MAXTOKEN)){
-    switch(rptr[0]){
+    switch(sptr[0]){
     case '\t':
       column+=(8-column%8);
-      rptr++;
+      offset++;
+      sptr++;
       brk=1;
       continue;
+    case '\r':
+      if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
     case '\n':
       column=0;
+      offset++;
       line++;
-      rptr++;
+      sptr++;
       brk=1;
       continue;
     case ' ':
       column++;
-    case '\r':
-      rptr++;
+    case '\v':
+    case '\f':
+      offset++;
+      sptr++;
       brk=1;
       continue;
     case '&':                           // Disallow break in character reference
       column++;
-      rptr++;
+      offset++;
+      sptr++;
       brk=0;
       continue;
     case ';':                           // Allow break now
       column++;
-      rptr++;
+      offset++;
+      sptr++;
       brk=1;
       continue;
     case '<':
       brk=1;
 
       // Try decode, translate both CRLF and references
-      if(!FXXML::decode(text,FXString(sptr,rptr-sptr),CRLF|REFS)) return ErrToken;
+      if(!FXXML::decode(text,FXString(rptr,sptr-rptr),CRLF|REFS)) return ErrToken;
 
       // Report final batch of characters
       if((err=charactersCB(text))!=ErrOK) return err;
 
       // Eat text
-      sptr=rptr;
+      rptr=sptr;
 
       // End tag
-      if(rptr[1]=='/'){
+      if(sptr[1]=='/'){
         column+=2;
-        rptr+=2;
+        offset+=2;
+        sptr+=2;
         return ErrOK;
         }
 
       // Processing instruction
-      if(rptr[1]=='?'){
+      if(sptr[1]=='?'){
         column+=2;
-        rptr+=2;
+        offset+=2;
+        sptr+=2;
         if((err=parseprocessing())!=ErrOK) return err;
         continue;
         }
 
       // Comment
-      if(rptr[1]=='!' && rptr[2]=='-' && rptr[3]=='-'){
+      if(sptr[1]=='!' && sptr[2]=='-' && sptr[3]=='-'){
         column+=4;
-        rptr+=4;
+        offset+=4;
+        sptr+=4;
         if((err=parsecomment())!=ErrOK) return err;
         continue;
         }
 
       // CDATA segment
-      if(rptr[1]=='!' && rptr[2]=='[' && rptr[3]=='C' && rptr[4]=='D' && rptr[5]=='A' && rptr[6]=='T' && rptr[7]=='A' && rptr[8]=='['){
+      if(sptr[1]=='!' && sptr[2]=='[' && sptr[3]=='C' && sptr[4]=='D' && sptr[5]=='A' && sptr[6]=='T' && sptr[7]=='A' && sptr[8]=='['){
         column+=9;
-        rptr+=9;
+        offset+=9;
+        sptr+=9;
         if((err=parsecdata(elm))!=ErrOK) return err;
         continue;
         }
 
       // Just eat the '<'
       column++;
-      rptr++;
+      offset++;
+      sptr++;
 
       // Parse child element
       if((err=parseelement())!=ErrOK) return err;
 
-      sptr=rptr;
+      rptr=sptr;
       continue;
     default:
-      if(brk && (rptr-sptr)>=(endptr-begptr-MAXTOKEN)){
+      if(brk && (sptr-rptr)>=(endptr-begptr-MAXTOKEN)){
 
         // Try decode, translate both CRLF and references
-        if(!FXXML::decode(text,FXString(sptr,rptr-sptr),CRLF|REFS)) return ErrToken;
+        if(!FXXML::decode(text,FXString(rptr,sptr-rptr),CRLF|REFS)) return ErrToken;
 
         // Report batch of characters
         if((err=charactersCB(text))!=ErrOK) return err;
 
         // Eat text
-        sptr=rptr;
+        rptr=sptr;
         }
-      rptr=wcinc(rptr);                 // Next wide character
-      column++;
+      column+=FXISUTF8(*sptr);          // Increment if UTF8 leader only
+      offset++;
+      sptr++;
       continue;
       }
     }
@@ -1578,61 +1680,72 @@ FXXML::Error FXXML::parse(){
   current=NULL;
   if(need(MAXTOKEN)){
     enc=guess();
-    FXTRACE((10,"encoding=%s\n",encodingName[enc]));
+    FXTRACE((101,"encoding=%s\n",encodingName[enc]));
     while(need(MAXTOKEN)){
-      sptr=rptr;
-      switch(rptr[0]){
+      rptr=sptr;
+      switch(sptr[0]){
       case '\t':
         column+=(8-column%8);
-        rptr++;
+        offset++;
+        sptr++;
         continue;
+      case '\r':
+        if(sptr+1<wptr && sptr[1]=='\n'){ offset++; sptr++; }
       case '\n':
         column=0;
+        offset++;
         line++;
-        rptr++;
+        sptr++;
         continue;
       case ' ':
         column++;
-      case '\r':
-        rptr++;
+      case '\v':
+      case '\f':
+        offset++;
+        sptr++;
         continue;
       case '<':
 
         // Parse comment
-        if(rptr[1]=='!' && rptr[2]=='-' && rptr[3]=='-'){
+        if(sptr[1]=='!' && sptr[2]=='-' && sptr[3]=='-'){
           column+=4;
-          rptr+=4;
+          offset+=4;
+          sptr+=4;
           if((err=parsecomment())!=ErrOK) return err;
           continue;
           }
 
         // Parse document type declarations
-        if(rptr[1]=='!' && rptr[2]=='D' && rptr[3]=='O' && rptr[4]=='C' && rptr[5]=='T' && rptr[6]=='Y' && rptr[7]=='P' && rptr[8]=='E' && spaceChar(rptr[9])){
+        if(sptr[1]=='!' && sptr[2]=='D' && sptr[3]=='O' && sptr[4]=='C' && sptr[5]=='T' && sptr[6]=='Y' && sptr[7]=='P' && sptr[8]=='E' && spaceChar(sptr[9])){
           column+=9;
-          rptr+=9;
+          offset+=9;
+          sptr+=9;
           if((err=parsedeclarations())!=ErrOK) return err;
           continue;
           }
 
         // Parse XML declaration
-        if(rptr[1]=='?' && rptr[2]=='x' && rptr[3]=='m' && rptr[4]=='l' && spaceChar(rptr[5])){
+        if(sptr[1]=='?' && sptr[2]=='x' && sptr[3]=='m' && sptr[4]=='l' && spaceChar(sptr[5])){
           column+=5;
-          rptr+=5;
+          offset+=5;
+          sptr+=5;
           if((err=parsexml())!=ErrOK) return err;
           continue;
           }
 
         // Parse processing instruction
-        if(rptr[1]=='?'){
+        if(sptr[1]=='?'){
           column+=2;
-          rptr+=2;
+          offset+=2;
+          sptr+=2;
           if((err=parseprocessing())!=ErrOK) return err;
           continue;
           }
 
         // Just eat the '<'
         column++;
-        rptr++;
+        offset++;
+        sptr++;
 
         // Report document start
         if((err=startDocumentCB())!=ErrOK) return err;
@@ -1657,20 +1770,24 @@ FXXML::Error FXXML::parse(){
 
 // Close it
 FXbool FXXML::close(){
-  FXTRACE((2,"XML::close()\n"));
+  FXTRACE((100,"XML::close()\n"));
   if(dir!=Stop){
-    if((dir==Load) || flush()){
-      if(owns){ freeElms(begptr); }
+    if((dir==Load) || 0<=flush(0)){             // Error during final flush is possible
       begptr=NULL;
       endptr=NULL;
-      sptr=NULL;
       rptr=NULL;
+      sptr=NULL;
       wptr=NULL;
       current=NULL;
       dir=Stop;
-      enc=UTF8;
       return true;
       }
+    begptr=NULL;
+    endptr=NULL;
+    wptr=NULL;
+    rptr=NULL;
+    sptr=NULL;
+    dir=Stop;
     }
   return false;
   }
@@ -1678,7 +1795,7 @@ FXbool FXXML::close(){
 
 // Clean up
 FXXML::~FXXML(){
-  FXTRACE((1,"FXXML::~FXXML\n"));
+  FXTRACE((100,"FXXML::~FXXML\n"));
   close();
   }
 

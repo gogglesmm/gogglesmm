@@ -3,7 +3,7 @@
 *                          U t i l i t y   F u n c t i o n s                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -340,26 +340,6 @@ FXival fxstrlcat(FXchar* dst,const FXchar* src,FXival len){
   return (s-src)+m;
   }
 
-/*
-FXchar* fxstrcasestr(const FXchar* s,const FXchar* find){
-  FXchar c, sc;
-  size_t len;
-  if((c=*find++)!=0){
-    c=tolower((unsigned char)c);
-    len=strlen(find);
-    do{
-      do{
-        if((sc=*s++)==0) return NULL;
-        }
-      while((FXchar)tolower((FXuchar)sc)!=c);
-      }
-    while(strncasecmp(s,find,len)!=0);
-    s--;
-    }
-  return ((char *)s);
-  }
-*/
-
 /*******************************************************************************/
 
 // Convert string of length len to MSDOS; return new string and new length
@@ -400,10 +380,9 @@ extern FXAPI FILE *fxopen(const char *filename,const char *mode);
 
 FILE *fxopen(const char *filename,const char *mode){
 #if defined(WIN32) && defined(UNICODE)
-  FXnchar unifile[MAXPATHLEN];
-  FXnchar unimode[8];
-  utf2ncs(unifile,filename,MAXPATHLEN);
-  utf2ncs(unimode,mode,8);
+  FXnchar unifile[MAXPATHLEN],unimode[8];
+  utf2ncs(unifile,filename,ARRAYNUMBER(unifile));
+  utf2ncs(unimode,mode,ARRAYNUMBER(unimode));
   return _wfopen(unifile,unimode);
 #else
   return fopen(filename,mode);
@@ -414,10 +393,9 @@ extern FXAPI FILE *fxreopen(const char *filename,const char *mode,FILE * stream)
 
 FILE *fxreopen(const char *filename,const char *mode,FILE * stream){
 #if defined(WIN32) && defined(UNICODE)
-  FXnchar unifile[MAXPATHLEN];
-  FXnchar unimode[8];
-  utf2ncs(unifile,filename,MAXPATHLEN);
-  utf2ncs(unimode,mode,8);
+  FXnchar unifile[MAXPATHLEN],unimode[8];
+  utf2ncs(unifile,filename,ARRAYNUMBER(unifile));
+  utf2ncs(unimode,mode,ARRAYNUMBER(unimode));
   return _wfreopen(unifile,unimode,stream);
 #else
   return freopen(filename,mode,stream);
@@ -426,7 +404,6 @@ FILE *fxreopen(const char *filename,const char *mode,FILE * stream){
 
 
 /*******************************************************************************/
-
 
 // Convert RGB to HSV
 void fxrgb_to_hsv(FXfloat& h,FXfloat& s,FXfloat& v,FXfloat r,FXfloat g,FXfloat b){
@@ -553,55 +530,6 @@ void memswap(void *dst,void *src,FXuval n){
     q++;
     }
   }
-
-
-/*******************************************************************************/
-
-#if defined(__GNUC__) && defined(__linux__) && defined(__x86_64__)
-
-// MXCSR controls SSE(2) operation:
-//
-// +----+-------+----+----+----+----+----+----+----+----+----+----+----+----+----+
-// | FZ |   RC  | PM | UM | OM | ZM | DM | IM | DAZ| PE | UE | OE | ZE | DE | IE |
-// +----+-------+----+----+----+----+----+----+----+----+----+----+----+----+----+
-// | 15 | 14 13 | 12 | 11 | 10 |  9 |  8 |  7 |  6 |  5 |  4 |  3 |  2 |  1 |  0 |
-// +----+-------+----+----+----+----+----+----+----+----+----+----+----+----+----+
-//
-// FZ  Flush to zero
-// RC  Round control (00=nearest, 01=down, 10=up, 11=toward zero)
-// PM  Precision exception mask
-// UM  Underflow exception mask
-// OM  Overflow exception mask
-// ZM  Zero divide exception mask
-// DM  Denormalized operand exception mask
-// IM  Invalid operation exception mask
-// DAZ Denormals are zeros
-// PE  Precision exception
-// UE  Underflow exception
-// OE  Overflow exception
-// ZE  Zero-divide exception
-// DE  Denormalized operand exception
-// IE  Invalid operation exception
-
-extern FXAPI FXuint fxgetmxcsr();
-extern FXAPI void fxsetmxcsr(FXuint mxcsr);
-
-
-// Set value to MXCSR control register
-void fxsetmxcsr(unsigned int mxcsr){
-  __asm("ldmxcsr %0" : : "m"(*&mxcsr));
-  }
-
-
-// Get current value of MXCSR control register
-unsigned int fxgetmxcsr(){
-  unsigned int mxcsr;
-  __asm("stmxcsr %0" : "=m"(*&mxcsr));
-  return mxcsr;
-  }
-
-#endif
-
 
 }
 

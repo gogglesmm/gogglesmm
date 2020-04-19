@@ -22,12 +22,12 @@
 
 class FXIntMap : public FXHash {
 public:
-  FXint insert(FXint name,FXint val) { return (FXint)(FXival)FXHash::insert((void*)(FXival)name,(void*)(FXival)val); }
-  FXint remove(FXint name) {  return (FXint)(FXival)FXHash::remove((void*)(FXival)name); }
-  //FXint find(FXint name) const { return (FXint)(FXival)FXHash::find((void*)(FXival)name); }
-  FXint at(FXint name) const { return (FXint)(FXival)FXHash::at((void*)(FXival)name); }
-  FXint key(FXuint pos) const { return (FXint)(FXival)table[pos].name; }
-  FXint value(FXuint pos) const { return (FXint)(FXival)table[pos].data; }
+  FXint insert(FXint key,FXint data) { return (FXint)(FXival)FXHash::insert((void*)(FXival)key,(void*)(FXival)data); }
+  FXint remove(FXint key) {  return (FXint)(FXival)FXHash::remove((void*)(FXival)key); }
+  //FXint find(FXint key) const { return (FXint)(FXival)FXHash::find((void*)(FXival)key); }
+  FXint at(FXint key) const { return (FXint)(FXival)FXHash::at((void*)(FXival)key); }
+  FXint key(FXuint pos) const { return (FXint)(FXival)table[pos].key; }
+  FXint data(FXuint pos) const { return (FXint)(FXival)table[pos].data; }
   void adopt(FXIntMap &);
   void load(FXStream & store);
   void save(FXStream & store) const;

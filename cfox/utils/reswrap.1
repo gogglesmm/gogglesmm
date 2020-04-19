@@ -1,4 +1,4 @@
-.TH reswrap 1 "January 2016" "The FOX C++ GUI Toolkit" "FOX Programmers Manual"
+.TH reswrap 1 "May 2019" "The FOX C++ GUI Toolkit" "FOX Programmers Manual"
 
 .SH NAME
 reswrap \- wrap icon and image resources into C or C++ code
@@ -11,21 +11,21 @@ reswrap \- wrap icon and image resources into C or C++ code
 .SH DESCRIPTION
 .B Reswrap
 is a tool to turn binary files into C or C++ data arrays.
-This allows various resources such as icons, images, or other data to be embedded into source 
+This allows various resources such as icons, images, or other data to be embedded into source
 code and compiled into an application. When used in text mode, normal printing characters
 are passed normally while control characters or non-ascii are automatically escaped.
 
-In development of graphical applications with FOX, it is customary to embed icons, images, 
-online help, or OpenGL fragment shader programs into the executable file, thus removing the 
+In development of graphical applications with FOX, it is customary to embed icons, images,
+online help, or OpenGL fragment shader programs into the executable file, thus removing the
 need to distribute such files separately with the application.
 
 .B Reswrap
-is typically invoked as a part of the application build process to generate additional C++ source 
-files from collections of icons, images, or other binary resources. This can be easily accomplished 
-using a special Makefile Rule or Custom Build Rule, as part of the normal compile process of 
+is typically invoked as a part of the application build process to generate additional C++ source
+files from collections of icons, images, or other binary resources. This can be easily accomplished
+using a special Makefile Rule or Custom Build Rule, as part of the normal compile process of
 an application.
-Reswrap supports a variety of options to facilitate inclusion into an automated build process.  
-Given a list of resource files, reswrap can automatically generate header files containing just 
+Reswrap supports a variety of options to facilitate inclusion into an automated build process.
+Given a list of resource files, reswrap can automatically generate header files containing just
 the declarations, adorn the generated symbols with namespaces, prefixes and/or postfixes,
 file-extensions, and apply extern or static linkage attributes.  Resource filenames containing
 unsafe characters are automatically transformed into legal C or C++ identifiers.
@@ -224,7 +224,7 @@ This manpage was originally written by Torsten Landschoff (torsten@debian.org)
 for the Debian distribution of the FOX Toolkit, and is currently maintained
 by Jeroen van der Zijp (jeroen@fox-toolkit.com).
 .SH COPYRIGHT
-Copyright \(co 1997,2016 Jeroen van der Zijp.
+Copyright \(co 1997,2019 Jeroen van der Zijp.
 .br
 This is free software; see the source for copying conditions.  There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR  A  PARTICULAR

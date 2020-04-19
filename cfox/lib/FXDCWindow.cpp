@@ -3,7 +3,7 @@
 *  D e v i c e   C o n t e x t   F o r   W i n d o w s   a n d   I m a g e s    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -774,7 +774,7 @@ void FXDCWindow::drawText(FXint x,FXint y,const FXchar* string,FXuint length){
   if(!surface){ fxerror("FXDCWindow::drawText: DC not connected to drawable.\n"); }
   if(!font){ fxerror("FXDCWindow::drawText: no font selected.\n"); }
   FXnchar sbuffer[4096];
-  FXint count=utf2ncs(sbuffer,string,4096,length);
+  FXint count=utf2ncs(sbuffer,string,ARRAYNUMBER(sbuffer),length);
   FXint bkmode=::SetBkMode((HDC)ctx,TRANSPARENT);
   ::TextOutW((HDC)ctx,x,y,sbuffer,count);
   ::SetBkMode((HDC)ctx,bkmode);
@@ -786,7 +786,7 @@ void FXDCWindow::drawImageText(FXint x,FXint y,const FXchar* string,FXuint lengt
   if(!surface){ fxerror("FXDCWindow::drawImageText: DC not connected to drawable.\n"); }
   if(!font){ fxerror("FXDCWindow::drawImageText: no font selected.\n"); }
   FXnchar sbuffer[4096];
-  FXint count=utf2ncs(sbuffer,string,4096,length);
+  FXint count=utf2ncs(sbuffer,string,ARRAYNUMBER(sbuffer),length);
   FXint bkmode=::SetBkMode((HDC)ctx,OPAQUE);
   ::TextOutW((HDC)ctx,x,y,sbuffer,count);
 //    RECT r;

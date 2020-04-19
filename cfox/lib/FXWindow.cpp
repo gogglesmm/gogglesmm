@@ -3,7 +3,7 @@
 *                            W i n d o w   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -2850,6 +2850,7 @@ FXbool FXWindow::setDNDData(FXDNDOrigin origin,FXDragType targettype,const FXStr
     if(callocElms(ptr,size+2)){
       unicode.utf2mb(ptr,size,string.text(),string.length());
       return setDNDData(origin,targettype,reinterpret_cast<FXuchar*>(ptr),size);
+//      return setDNDData(origin,targettype,reinterpret_cast<FXuchar*>(ptr),size+2);
       }
     }
   else if(targettype==textType || targettype==stringType){      // ASCII
@@ -2858,6 +2859,7 @@ FXbool FXWindow::setDNDData(FXDNDOrigin origin,FXDragType targettype,const FXStr
     if(callocElms(ptr,size+2)){
       ascii.utf2mb(ptr,size,string.text(),string.length());
       return setDNDData(origin,targettype,reinterpret_cast<FXuchar*>(ptr),size);
+//      return setDNDData(origin,targettype,reinterpret_cast<FXuchar*>(ptr),size+1);
       }
     }
   else{                                                         // AS-IS
@@ -2865,6 +2867,7 @@ FXbool FXWindow::setDNDData(FXDNDOrigin origin,FXDragType targettype,const FXStr
     if(callocElms(ptr,size+2)){
       memcpy(ptr,string.text(),string.length());
       return setDNDData(origin,targettype,reinterpret_cast<FXuchar*>(ptr),size);
+//      return setDNDData(origin,targettype,reinterpret_cast<FXuchar*>(ptr),size);
       }
     }
   return false;
@@ -3235,7 +3238,7 @@ FXDragAction FXWindow::endDrag(FXbool drop){
   if(xid==0){ fxerror("%s::endDrag: window has not yet been created.\n",getClassName()); }
   if(isDragging()){
 
-#ifdef WIN32            // WINDOWS
+#if defined(WIN32)      // WINDOWS
 
     FXbool nodrop=true;
     FXuint loops;

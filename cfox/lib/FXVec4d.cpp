@@ -3,7 +3,7 @@
 *       D o u b l e - P r e c i s i o n   4 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,10 +60,10 @@ FXVec4d normalize(const FXVec4d& v){
   }
 
 
-// Compute plane equation from 3 points a,b,c
-FXVec4d plane(const FXVec3d& a,const FXVec3d& b,const FXVec3d& c){
-  FXVec3d nm(normal(a,b,c));
-  return FXVec4d(nm,-(nm.x*a.x+nm.y*a.y+nm.z*a.z));
+// Compute normalized plane equation ax+by+cz+d=0
+FXVec4d plane(const FXVec4d& vec){
+  register FXdouble t=Math::sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z);
+  return FXVec4d(vec.x/t,vec.y/t,vec.z/t,vec.w/t);
   }
 
 
@@ -81,10 +81,10 @@ FXVec4d plane(const FXVec3d& vec,const FXVec3d& p){
   }
 
 
-// Compute plane equation from 4 vector
-FXVec4d plane(const FXVec4d& vec){
-  register FXdouble t=Math::sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z);
-  return FXVec4d(vec.x/t,vec.y/t,vec.z/t,vec.w/t);
+// Compute plane equation from 3 points a,b,c
+FXVec4d plane(const FXVec3d& a,const FXVec3d& b,const FXVec3d& c){
+  FXVec3d nm(normal(a,b,c));
+  return FXVec4d(nm,-(nm.x*a.x+nm.y*a.y+nm.z*a.z));
   }
 
 
@@ -97,38 +97,6 @@ FXdouble FXVec4d::distance(const FXVec3d& p) const {
 // Return true if edge a-b crosses plane
 FXbool FXVec4d::crosses(const FXVec3d& a,const FXVec3d& b) const {
   return (distance(a)>=0.0) ^ (distance(b)>=0.0);
-  }
-
-
-// Linearly interpolate
-FXVec4d lerp(const FXVec4d& u,const FXVec4d& v,FXdouble f){
-#if defined(FOX_HAS_AVX2) && defined(FOX_HAS_FMA)
-  register __m256d u0=_mm256_loadu_pd(&u[0]);
-  register __m256d v0=_mm256_loadu_pd(&v[0]);
-  register __m256d ff=_mm256_set1_pd(f);
-  FXVec4d r;
-  _mm256_storeu_pd(&r[0],_mm256_fmadd_pd(ff,v0,_mm256_fnmadd_pd(ff,u0,u0)));       // Lerp in two instructions!
-  return r;
-#elif defined(FOX_HAS_AVX)
-  register __m256d u0=_mm256_loadu_pd(&u[0]);
-  register __m256d v0=_mm256_loadu_pd(&v[0]);
-  register __m256d ff=_mm256_set1_pd(f);
-  FXVec4d r;
-  _mm256_storeu_pd(&r[0],_mm256_add_pd(u0,_mm256_mul_pd(_mm256_sub_pd(v0,u0),ff)));
-  return r;
-#elif defined(FOX_HAS_SSE2)
-  register __m128d u0=_mm_loadu_pd(&u[0]);
-  register __m128d u1=_mm_loadu_pd(&u[2]);
-  register __m128d v0=_mm_loadu_pd(&v[0]);
-  register __m128d v1=_mm_loadu_pd(&v[2]);
-  register __m128d ff=_mm_set1_pd(f);
-  FXVec4d r;
-  _mm_storeu_pd(&r[0],_mm_add_pd(u0,_mm_mul_pd(_mm_sub_pd(v0,u0),ff)));
-  _mm_storeu_pd(&r[2],_mm_add_pd(u1,_mm_mul_pd(_mm_sub_pd(v1,u1),ff)));
-  return r;
-#else
-  return FXVec4d(u.x+(v.x-u.x)*f,u.y+(v.y-u.y)*f,u.z+(v.z-u.z)*f,u.w+(v.w-u.w)*f);
-#endif
   }
 
 

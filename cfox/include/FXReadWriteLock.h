@@ -3,7 +3,7 @@
 *                  R e a d - W r i t e   L o c k   C l a s s                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -103,7 +103,7 @@ public:
   void unlock(){ rwlock.readUnlock(); }
 
   /// Destroy and unlock associated read-write lock
-  ~FXScopedReadLock(){ unlock(); }
+ ~FXScopedReadLock(){ unlock(); }
   };
 
 
@@ -137,7 +137,7 @@ public:
   void unlock(){ rwlock.writeUnlock(); }
 
   /// Destroy and unlock associated read-write lock
-  ~FXScopedWriteLock(){ unlock(); }
+ ~FXScopedWriteLock(){ unlock(); }
   };
 
 }

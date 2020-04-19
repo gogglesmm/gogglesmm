@@ -3,7 +3,7 @@
 *                           S l i d e r   W i d g e t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -708,7 +708,7 @@ void FXSlider::drawSliderHead(FXDCWindow& dc,FXint x,FXint y,FXint w,FXint h){
       dc.drawLine(x,y,x+w-m-1,y);
       dc.drawLine(x,y+1,x,y+h-1);
       dc.drawLine(x+w-1,y+m,x+w-m-1,y);
-#ifdef WIN32
+#if defined(WIN32)
       dc.setForeground(shadowColor);
       dc.drawLine(x+w-1,y+h-m-2,x+w-m-2,y+h-1);
       dc.drawLine(x+1,y+h-2,x+w-m-1,y+h-2);

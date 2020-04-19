@@ -3,7 +3,7 @@
 *                        I / O   D e v i c e   C l a s s                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -70,10 +70,42 @@ static FXbool isvalid(FXInputHandle h){
   DWORD flags;
   return GetHandleInformation(h,&flags)!=0;
 #else
-  return (fcntl(h,F_GETFD)!=-1) || (errno!=EBADF);
+//  return (fcntl(h,F_GETFD)!=-1) || (errno!=EBADF);
+  return (fcntl(h,F_GETFD,0)!=-1) || (errno!=EBADF);
 #endif
   }
 
+
+#if 0
+#if defined(WIN32)
+  DWORD flags;
+  FXuint mm=0;
+  if(GetHandleInformation(h,&flags)==0){ return false }
+  if(flags&HANDLE_FLAG_INHERIT){ mm|=FXIO::Inheritable; }
+//  FILE_ATTRIBUTE_TAG_INFO attribs;
+//  if(GetFileInformationByHandleEx(h,FileAttributeTagInfo,&attribs,sizeof(attribs))==0){ return false; }
+  // FIXME //
+  //https://stackoverflow.com/questions/9442436/windows-how-do-i-get-the-mode-access-rights-of-an-already-opened-file
+#else
+  FXint flags=::fcntl(h,F_GETFD,0);
+  FXuint mm=0;
+  if(flags==-1){ return false; }
+  if(flags&O_RDONLY){ mm|=FXIO::ReadOnly; }
+  if(flags&O_WRONLY){ mm|=FXIO::WriteOnly; }
+  if(flags&O_RDWR){ mm|=FXIO::ReadWrite; }
+  if(flags&O_APPEND){ mm|=FXIO::Append; }
+  if(flags&O_TRUNC){ mm|=FXIO::Truncate; }
+  if(flags&O_NONBLOCK){ mm|=FXIO::NonBlocking; }
+#if defined(O_NOATIME)
+  if(flags&O_NOATIME){ mm|=FXIO::NoAccessTime; }
+#endif
+#if defined(O_CLOEXEC)
+  if(!(flags&O_CLOEXEC)){ mm|=FXIO::Inheritable; }
+#endif
+  if(flags&O_CREAT){ mm|=FXIO::Create; }
+  if(flags&O_EXCL){ mm|=FXIO::Exclusive; }
+#endif
+#endif
 
 // Open device with access mode m and existing handle h
 FXbool FXIODevice::open(FXInputHandle h,FXuint m){

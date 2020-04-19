@@ -3,7 +3,7 @@
 *                      B Z F i l e S t r e a m   C l a s s e s                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2018 by Lyle Johnson. All Rights Reserved.                 *
+* Copyright (C) 1999,2019 by Lyle Johnson. All Rights Reserved.                 *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -121,6 +121,14 @@ public:
 
   /// Load object
   FXBZFileStream& loadObject(FXObject*& v){ FXStream::loadObject(v); return *this; }
+
+  /// Load object
+  template<class TYPE>
+  FXBZFileStream& operator>>(TYPE*& obj){ loadObject(reinterpret_cast<FXObject*&>(obj)); return *this; }
+
+  /// Save object
+  template<class TYPE>
+  FXBZFileStream& operator<<(const TYPE* obj){ saveObject(static_cast<const FXObject*>(obj)); return *this; }
 
   /// Clean up
   virtual ~FXBZFileStream();

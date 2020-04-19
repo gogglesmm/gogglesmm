@@ -167,7 +167,7 @@ FXString TextConverter::apply_codec(const FXString & src) const {
     else if (Unicode::isPrint(src.wc(i))) {
       if (codec->wc2mb(&c,1,src.wc(i))==1) {
         if (c==undefined_character) {
-          FXString dcm = decompose(src.mid(i,src.extent(i)),false);
+          FXString dcm = FXString::decompose(src.mid(i,src.extent(i)),false);
           for (FXint j=0;j<dcm.length();j+=dcm.inc(j)) {
             if (Unicode::isPrint(dcm.wc(j)) && codec->wc2mb(&c,1,dcm.wc(j)) && c!=0x1a) {
               n++;
@@ -190,7 +190,7 @@ FXString TextConverter::apply_codec(const FXString & src) const {
         if (c==undefined_character) {
           /* If codec didn't contain a mapping to the required character,
              do a compatibility decomposition and try mapping those */
-          FXString dcm = decompose(src.mid(i,src.extent(i)),false);
+          FXString dcm = FXString::decompose(src.mid(i,src.extent(i)),false);
           for (FXint j=0;j<dcm.length();j+=dcm.inc(j)) {
             if (Unicode::isPrint(dcm.wc(j)) && codec->wc2mb(&c,1,dcm.wc(j)) && c!=undefined_character) {
               dst[n++]=c;
@@ -208,7 +208,7 @@ FXString TextConverter::apply_codec(const FXString & src) const {
 
 
 FXString TextConverter::convert_to_ascii(const FXString & input) const {
-  FXString src = decompose(input,false);
+  FXString src = FXString::decompose(input,false);
   FXString dst;
   FXint i,n=0;
 

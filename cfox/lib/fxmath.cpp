@@ -3,7 +3,7 @@
 *                           M a t h   F u n c t i o n s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2015,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2015,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -44,6 +44,106 @@ using namespace FX;
 /*******************************************************************************/
 
 namespace FX {
+
+
+// All bits of single precision floating point number
+FXuint Math::fpBits(FXfloat x){
+  union{ FXfloat f; FXuint u; } z={x};
+  return z.u;
+  }
+
+
+// All bits of double precision floating point number
+FXulong Math::fpBits(FXdouble x){
+  union{ FXdouble f; FXulong u; } z={x};
+  return z.u;
+  }
+
+
+// Sign of single precision float point number
+FXuint Math::fpSign(FXfloat x){
+  return Math::fpBits(x)>>31;
+  }
+
+
+// Sign of double precision float point number
+FXulong Math::fpSign(FXdouble x){
+  return Math::fpBits(x)>>63;
+  }
+
+
+// Mantissa of single precision float point number
+FXuint Math::fpMantissa(FXfloat x){
+  return Math::fpBits(x)&0x007fffff;
+  }
+
+
+// Mantissa of double precision float point number
+FXulong Math::fpMantissa(FXdouble x){
+  return Math::fpBits(x)&FXULONG(0x000fffffffffffff);
+  }
+
+
+// Exponent of single precision float point number
+FXuint Math::fpExponent(FXfloat x){
+  return (Math::fpBits(x)>>23)&0xff;
+  }
+
+
+// Exponent of double precision float point number
+FXulong Math::fpExponent(FXdouble x){
+  return (Math::fpBits(x)>>52)&0x7ff;
+  }
+
+
+// Single precision floating point number is finite
+FXbool Math::fpFinite(FXfloat x){
+  return ((Math::fpBits(x)&0x7fffffff)<0x7f800000);
+  }
+
+
+// Double precision floating point number is finite
+FXbool Math::fpFinite(FXdouble x){
+  return ((Math::fpBits(x)&FXULONG(0x7fffffffffffffff))<FXULONG(0x7ff0000000000000));
+  }
+
+
+// Single precision floating point number is infinite
+FXbool Math::fpInfinite(FXfloat x){
+  return ((Math::fpBits(x)&0x7fffffff)==0x7f800000);
+  }
+
+
+// Double precision floating point number is infinite
+FXbool Math::fpInfinite(FXdouble x){
+  return ((Math::fpBits(x)&FXULONG(0x7fffffffffffffff))==FXULONG(0x7ff0000000000000));
+  }
+
+
+// Single precision floating point number is NaN
+FXbool Math::fpNan(FXfloat x){
+  return (0x7f800000<(Math::fpBits(x)&0x7fffffff));
+  }
+
+
+// Double precision floating point number is NaN
+FXbool Math::fpNan(FXdouble x){
+  return (FXULONG(0x7ff0000000000000)<(Math::fpBits(x)&FXULONG(0x7fffffffffffffff)));
+  }
+
+
+// Single precision floating point number is normalized
+FXbool Math::fpNormal(FXfloat x){
+  FXuint bits=Math::fpBits(x)&0x7fffffff;
+  return bits==0 || (0x00800000<=bits && bits<0x7f800000);
+  }
+
+
+// Double precision floating point number is normalized
+FXbool Math::fpNormal(FXdouble x){
+  FXulong bits=Math::fpBits(x)&FXULONG(0x7fffffffffffffff);
+  return (bits==0) || ((FXULONG(0x0010000000000000)<=bits) && (bits<FXULONG(0x7ff0000000000000)));
+  }
 
 
 // Single precision ceiling (round upward to nearest integer)

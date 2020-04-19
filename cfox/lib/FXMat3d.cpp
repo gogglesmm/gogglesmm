@@ -3,7 +3,7 @@
 *            D o u b l e - P r e c i s i o n   3 x 3   M a t r i x              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -54,12 +54,14 @@ namespace FX {
 
 // Initialize matrix from scalar
 FXMat3d::FXMat3d(FXdouble s){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[0][2],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[1][1],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[2][0],_mm_set1_pd(s));
-  _mm_store_sd(&m[2][2],_mm_set1_pd(s));
+#if defined(FOX_HAS_AVX)
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_set1_pd(s));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_set1_pd(s));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_set1_pd(s));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_set1_pd(s)); _mm_store_sd(&m[0][2],_mm_set1_pd(s));
+  _mm_storeu_pd(&m[1][0],_mm_set1_pd(s)); _mm_store_sd(&m[1][2],_mm_set1_pd(s));
+  _mm_storeu_pd(&m[2][0],_mm_set1_pd(s)); _mm_store_sd(&m[2][2],_mm_set1_pd(s));
 #else
   m[0][0]=s; m[0][1]=s; m[0][2]=s;
   m[1][0]=s; m[1][1]=s; m[1][2]=s;
@@ -79,15 +81,13 @@ FXMat3d::FXMat3d(const FXMat2d& s){
 // Initialize matrix from another matrix
 FXMat3d::FXMat3d(const FXMat3d& s){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_loadu_pd(&s[0][0]));
-  _mm256_storeu_pd(&m[1][1],_mm256_loadu_pd(&s[1][1]));
-  _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_maskload_pd(&s[0][0],MMM));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_maskload_pd(&s[1][0],MMM));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_maskload_pd(&s[2][0],MMM));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0]));
-  _mm_storeu_pd(&m[0][2],_mm_loadu_pd(&s[0][2]));
-  _mm_storeu_pd(&m[1][1],_mm_loadu_pd(&s[1][1]));
-  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0]));
-  _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[0][2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[1][0])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[1][2]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1]; m[0][2]=s[0][2];
   m[1][0]=s[1][0]; m[1][1]=s[1][1]; m[1][2]=s[1][2];
@@ -102,6 +102,10 @@ FXMat3d::FXMat3d(const FXMat4d& s){
   _mm256_maskstore_pd(&m[0][0],MMM,_mm256_loadu_pd(&s[0][0]));
   _mm256_maskstore_pd(&m[1][0],MMM,_mm256_loadu_pd(&s[1][0]));
   _mm256_maskstore_pd(&m[2][0],MMM,_mm256_loadu_pd(&s[2][0]));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[0][2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[1][0])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[1][2]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1]; m[0][2]=s[0][2];
   m[1][0]=s[1][0]; m[1][1]=s[1][1]; m[1][2]=s[1][2];
@@ -113,15 +117,13 @@ FXMat3d::FXMat3d(const FXMat4d& s){
 // Initialize matrix from array
 FXMat3d::FXMat3d(const FXdouble s[]){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_loadu_pd(s+0));
-  _mm256_storeu_pd(&m[1][1],_mm256_loadu_pd(s+4));
-  _mm_store_sd(&m[2][2],_mm_load_sd(s+8));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_maskload_pd(&s[0],MMM));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_maskload_pd(&s[3],MMM));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_maskload_pd(&s[6],MMM));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(s+0));
-  _mm_storeu_pd(&m[0][2],_mm_loadu_pd(s+2));
-  _mm_storeu_pd(&m[1][1],_mm_loadu_pd(s+4));
-  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(s+6));
-  _mm_store_sd(&m[2][2],_mm_load_sd(s+8));
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[3])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[5]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[6])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[8]));
 #else
   m[0][0]=s[0]; m[0][1]=s[1]; m[0][2]=s[2];
   m[1][0]=s[3]; m[1][1]=s[4]; m[1][2]=s[5];
@@ -152,6 +154,10 @@ FXMat3d::FXMat3d(const FXVec3d& a,const FXVec3d& b,const FXVec3d& c){
   _mm256_maskstore_pd(&m[0][0],MMM,_mm256_maskload_pd(a,MMM));
   _mm256_maskstore_pd(&m[1][0],MMM,_mm256_maskload_pd(b,MMM));
   _mm256_maskstore_pd(&m[2][0],MMM,_mm256_maskload_pd(c,MMM));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&a[0])); _mm_store_sd(&m[0][2],_mm_load_sd(&a[2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&b[0])); _mm_store_sd(&m[1][2],_mm_load_sd(&b[2]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&c[0])); _mm_store_sd(&m[2][2],_mm_load_sd(&c[2]));
 #else
   m[0]=a;
   m[1]=b;
@@ -168,12 +174,14 @@ FXMat3d::FXMat3d(const FXQuatd& quat){
 
 // Assign from scalar
 FXMat3d& FXMat3d::operator=(FXdouble s){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[0][2],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[1][1],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[2][0],_mm_set1_pd(s));
-  _mm_store_sd(&m[2][2],_mm_set1_pd(s));
+#if defined(FOX_HAS_AVX)
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_set1_pd(s));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_set1_pd(s));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_set1_pd(s));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_set1_pd(s)); _mm_store_sd(&m[0][2],_mm_set1_pd(s));
+  _mm_storeu_pd(&m[1][0],_mm_set1_pd(s)); _mm_store_sd(&m[1][2],_mm_set1_pd(s));
+  _mm_storeu_pd(&m[2][0],_mm_set1_pd(s)); _mm_store_sd(&m[2][2],_mm_set1_pd(s));
 #else
   m[0][0]=s; m[0][1]=s; m[0][2]=s;
   m[1][0]=s; m[1][1]=s; m[1][2]=s;
@@ -195,15 +203,13 @@ FXMat3d& FXMat3d::operator=(const FXMat2d& s){
 // Assignment operator
 FXMat3d& FXMat3d::operator=(const FXMat3d& s){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_loadu_pd(&s[0][0]));
-  _mm256_storeu_pd(&m[1][1],_mm256_loadu_pd(&s[1][1]));
-  _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_maskload_pd(&s[0][0],MMM));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_maskload_pd(&s[1][0],MMM));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_maskload_pd(&s[2][0],MMM));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0]));
-  _mm_storeu_pd(&m[0][2],_mm_loadu_pd(&s[0][2]));
-  _mm_storeu_pd(&m[1][1],_mm_loadu_pd(&s[1][1]));
-  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0]));
-  _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[0][2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[1][0])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[1][2]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1]; m[0][2]=s[0][2];
   m[1][0]=s[1][0]; m[1][1]=s[1][1]; m[1][2]=s[1][2];
@@ -219,6 +225,10 @@ FXMat3d& FXMat3d::operator=(const FXMat4d& s){
   _mm256_maskstore_pd(&m[0][0],MMM,_mm256_loadu_pd(&s[0][0]));
   _mm256_maskstore_pd(&m[1][0],MMM,_mm256_loadu_pd(&s[1][0]));
   _mm256_maskstore_pd(&m[2][0],MMM,_mm256_loadu_pd(&s[2][0]));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[0][2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[1][0])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[1][2]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1]; m[0][2]=s[0][2];
   m[1][0]=s[1][0]; m[1][1]=s[1][1]; m[1][2]=s[1][2];
@@ -238,15 +248,13 @@ FXMat3d& FXMat3d::operator=(const FXQuatd& quat){
 // Assignment from array
 FXMat3d& FXMat3d::operator=(const FXdouble s[]){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_loadu_pd(s+0));
-  _mm256_storeu_pd(&m[1][1],_mm256_loadu_pd(s+4));
-  _mm_store_sd(&m[2][2],_mm_load_sd(s+8));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_maskload_pd(&s[0],MMM));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_maskload_pd(&s[3],MMM));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_maskload_pd(&s[6],MMM));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(s+0));
-  _mm_storeu_pd(&m[0][2],_mm_loadu_pd(s+2));
-  _mm_storeu_pd(&m[1][1],_mm_loadu_pd(s+4));
-  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(s+6));
-  _mm_store_sd(&m[2][2],_mm_load_sd(s+8));
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[3])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[5]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[6])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[8]));
 #else
   m[0][0]=s[0]; m[0][1]=s[1]; m[0][2]=s[2];
   m[1][0]=s[3]; m[1][1]=s[4]; m[1][2]=s[5];
@@ -258,12 +266,14 @@ FXMat3d& FXMat3d::operator=(const FXdouble s[]){
 
 // Set value from scalar
 FXMat3d& FXMat3d::set(FXdouble s){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[0][2],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[1][1],_mm_set1_pd(s));
-  _mm_storeu_pd(&m[2][0],_mm_set1_pd(s));
-  _mm_store_sd(&m[2][2],_mm_set1_pd(s));
+#if defined(FOX_HAS_AVX)
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_set1_pd(s));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_set1_pd(s));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_set1_pd(s));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_set1_pd(s)); _mm_store_sd(&m[0][2],_mm_set1_pd(s));
+  _mm_storeu_pd(&m[1][0],_mm_set1_pd(s)); _mm_store_sd(&m[1][2],_mm_set1_pd(s));
+  _mm_storeu_pd(&m[2][0],_mm_set1_pd(s)); _mm_store_sd(&m[2][2],_mm_set1_pd(s));
 #else
   m[0][0]=s; m[0][1]=s; m[0][2]=s;
   m[1][0]=s; m[1][1]=s; m[1][2]=s;
@@ -285,15 +295,13 @@ FXMat3d& FXMat3d::set(const FXMat2d& s){
 // Set value from another matrix
 FXMat3d& FXMat3d::set(const FXMat3d& s){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_loadu_pd(&s[0][0]));
-  _mm256_storeu_pd(&m[1][1],_mm256_loadu_pd(&s[1][1]));
-  _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_maskload_pd(&s[0][0],MMM));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_maskload_pd(&s[1][0],MMM));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_maskload_pd(&s[2][0],MMM));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0]));
-  _mm_storeu_pd(&m[0][2],_mm_loadu_pd(&s[0][2]));
-  _mm_storeu_pd(&m[1][1],_mm_loadu_pd(&s[1][1]));
-  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0]));
-  _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[0][2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[1][0])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[1][2]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1]; m[0][2]=s[0][2];
   m[1][0]=s[1][0]; m[1][1]=s[1][1]; m[1][2]=s[1][2];
@@ -309,6 +317,10 @@ FXMat3d& FXMat3d::set(const FXMat4d& s){
   _mm256_maskstore_pd(&m[0][0],MMM,_mm256_loadu_pd(&s[0][0]));
   _mm256_maskstore_pd(&m[1][0],MMM,_mm256_loadu_pd(&s[1][0]));
   _mm256_maskstore_pd(&m[2][0],MMM,_mm256_loadu_pd(&s[2][0]));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0][0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[0][2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[1][0])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[1][2]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[2][0])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[2][2]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1]; m[0][2]=s[0][2];
   m[1][0]=s[1][0]; m[1][1]=s[1][1]; m[1][2]=s[1][2];
@@ -321,15 +333,13 @@ FXMat3d& FXMat3d::set(const FXMat4d& s){
 // Set value from array
 FXMat3d& FXMat3d::set(const FXdouble s[]){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_loadu_pd(s+0));
-  _mm256_storeu_pd(&m[1][1],_mm256_loadu_pd(s+4));
-  _mm_store_sd(&m[2][2],_mm_load_sd(s+8));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_maskload_pd(&s[0],MMM));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_maskload_pd(&s[3],MMM));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_maskload_pd(&s[6],MMM));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(s+0));
-  _mm_storeu_pd(&m[0][2],_mm_loadu_pd(s+2));
-  _mm_storeu_pd(&m[1][1],_mm_loadu_pd(s+4));
-  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(s+6));
-  _mm_store_sd(&m[2][2],_mm_load_sd(s+8));
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&s[0])); _mm_store_sd(&m[0][2],_mm_load_sd(&s[2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&s[3])); _mm_store_sd(&m[1][2],_mm_load_sd(&s[5]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&s[6])); _mm_store_sd(&m[2][2],_mm_load_sd(&s[8]));
 #else
   m[0][0]=s[0]; m[0][1]=s[1]; m[0][2]=s[2];
   m[1][0]=s[3]; m[1][1]=s[4]; m[1][2]=s[5];
@@ -363,6 +373,10 @@ FXMat3d& FXMat3d::set(const FXVec3d& a,const FXVec3d& b,const FXVec3d& c){
   _mm256_maskstore_pd(&m[0][0],MMM,_mm256_maskload_pd(a,MMM));
   _mm256_maskstore_pd(&m[1][0],MMM,_mm256_maskload_pd(b,MMM));
   _mm256_maskstore_pd(&m[2][0],MMM,_mm256_maskload_pd(c,MMM));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_loadu_pd(&a[0])); _mm_store_sd(&m[0][2],_mm_load_sd(&a[2]));
+  _mm_storeu_pd(&m[1][0],_mm_loadu_pd(&b[0])); _mm_store_sd(&m[1][2],_mm_load_sd(&b[2]));
+  _mm_storeu_pd(&m[2][0],_mm_loadu_pd(&c[0])); _mm_store_sd(&m[2][2],_mm_load_sd(&c[2]));
 #else
   m[0]=a;
   m[1]=b;
@@ -382,15 +396,13 @@ FXMat3d& FXMat3d::set(const FXQuatd& quat){
 // Add matrices
 FXMat3d& FXMat3d::operator+=(const FXMat3d& w){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_add_pd(_mm256_loadu_pd(&m[0][0]),_mm256_loadu_pd(&w[0][0])));
-  _mm256_storeu_pd(&m[1][1],_mm256_add_pd(_mm256_loadu_pd(&m[1][1]),_mm256_loadu_pd(&w[1][1])));
-  _mm_store_sd(&m[2][2],_mm_add_sd(_mm_load_sd(&m[2][2]),_mm_load_sd(&w[2][2])));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_add_pd(_mm256_maskload_pd(&m[0][0],MMM),_mm256_maskload_pd(&w[0][0],MMM)));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_add_pd(_mm256_maskload_pd(&m[1][0],MMM),_mm256_maskload_pd(&w[1][0],MMM)));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_add_pd(_mm256_maskload_pd(&m[2][0],MMM),_mm256_maskload_pd(&w[2][0],MMM)));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_add_pd(_mm_loadu_pd(&m[0][0]),_mm_loadu_pd(&w[0][0])));
-  _mm_storeu_pd(&m[0][2],_mm_add_pd(_mm_loadu_pd(&m[0][2]),_mm_loadu_pd(&w[0][2])));
-  _mm_storeu_pd(&m[1][1],_mm_add_pd(_mm_loadu_pd(&m[1][1]),_mm_loadu_pd(&w[1][1])));
-  _mm_storeu_pd(&m[2][0],_mm_add_pd(_mm_loadu_pd(&m[2][0]),_mm_loadu_pd(&w[2][0])));
-  _mm_store_sd(&m[2][2],_mm_add_sd(_mm_load_sd(&m[2][2]),_mm_load_sd(&w[2][2])));
+  _mm_storeu_pd(&m[0][0],_mm_add_pd(_mm_loadu_pd(&m[0][0]),_mm_loadu_pd(&w[0][0]))); _mm_store_sd(&m[0][2],_mm_add_sd(_mm_load_sd(&m[0][2]),_mm_load_sd(&w[0][2])));
+  _mm_storeu_pd(&m[1][0],_mm_add_pd(_mm_loadu_pd(&m[1][0]),_mm_loadu_pd(&w[1][0]))); _mm_store_sd(&m[1][2],_mm_add_sd(_mm_load_sd(&m[1][2]),_mm_load_sd(&w[1][2])));
+  _mm_storeu_pd(&m[2][0],_mm_add_pd(_mm_loadu_pd(&m[2][0]),_mm_loadu_pd(&w[2][0]))); _mm_store_sd(&m[2][2],_mm_add_sd(_mm_load_sd(&m[2][2]),_mm_load_sd(&w[2][2])));
 #else
   m[0][0]+=w[0][0]; m[0][1]+=w[0][1]; m[0][2]+=w[0][2];
   m[1][0]+=w[1][0]; m[1][1]+=w[1][1]; m[1][2]+=w[1][2];
@@ -403,15 +415,13 @@ FXMat3d& FXMat3d::operator+=(const FXMat3d& w){
 // Subtract matrices
 FXMat3d& FXMat3d::operator-=(const FXMat3d& w){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_sub_pd(_mm256_loadu_pd(&m[0][0]),_mm256_loadu_pd(&w[0][0])));
-  _mm256_storeu_pd(&m[1][1],_mm256_sub_pd(_mm256_loadu_pd(&m[1][1]),_mm256_loadu_pd(&w[1][1])));
-  _mm_store_sd(&m[2][2],_mm_sub_sd(_mm_load_sd(&m[2][2]),_mm_load_sd(&w[2][2])));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_sub_pd(_mm256_maskload_pd(&m[0][0],MMM),_mm256_maskload_pd(&w[0][0],MMM)));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_sub_pd(_mm256_maskload_pd(&m[1][0],MMM),_mm256_maskload_pd(&w[1][0],MMM)));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_sub_pd(_mm256_maskload_pd(&m[2][0],MMM),_mm256_maskload_pd(&w[2][0],MMM)));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_sub_pd(_mm_loadu_pd(&m[0][0]),_mm_loadu_pd(&w[0][0])));
-  _mm_storeu_pd(&m[0][2],_mm_sub_pd(_mm_loadu_pd(&m[0][2]),_mm_loadu_pd(&w[0][2])));
-  _mm_storeu_pd(&m[1][1],_mm_sub_pd(_mm_loadu_pd(&m[1][1]),_mm_loadu_pd(&w[1][1])));
-  _mm_storeu_pd(&m[2][0],_mm_sub_pd(_mm_loadu_pd(&m[2][0]),_mm_loadu_pd(&w[2][0])));
-  _mm_store_sd(&m[2][2],_mm_sub_sd(_mm_load_sd(&m[2][2]),_mm_load_sd(&w[2][2])));
+  _mm_storeu_pd(&m[0][0],_mm_sub_pd(_mm_loadu_pd(&m[0][0]),_mm_loadu_pd(&w[0][0]))); _mm_store_sd(&m[0][2],_mm_sub_pd(_mm_load_sd(&m[0][2]),_mm_load_sd(&w[0][2])));
+  _mm_storeu_pd(&m[1][0],_mm_sub_pd(_mm_loadu_pd(&m[1][0]),_mm_loadu_pd(&w[1][0]))); _mm_store_sd(&m[1][2],_mm_sub_pd(_mm_load_sd(&m[1][2]),_mm_load_sd(&w[1][2])));
+  _mm_storeu_pd(&m[2][0],_mm_sub_pd(_mm_loadu_pd(&m[2][0]),_mm_loadu_pd(&w[2][0]))); _mm_store_sd(&m[2][2],_mm_sub_pd(_mm_load_sd(&m[2][2]),_mm_load_sd(&w[2][2])));
 #else
   m[0][0]-=w[0][0]; m[0][1]-=w[0][1]; m[0][2]-=w[0][2];
   m[1][0]-=w[1][0]; m[1][1]-=w[1][1]; m[1][2]-=w[1][2];
@@ -424,15 +434,13 @@ FXMat3d& FXMat3d::operator-=(const FXMat3d& w){
 // Multiply matrix by scalar
 FXMat3d& FXMat3d::operator*=(FXdouble s){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_mul_pd(_mm256_loadu_pd(&m[0][0]),_mm256_set1_pd(s)));
-  _mm256_storeu_pd(&m[1][1],_mm256_mul_pd(_mm256_loadu_pd(&m[1][1]),_mm256_set1_pd(s)));
-  _mm_store_sd(&m[2][2],_mm_mul_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(s)));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_mul_pd(_mm256_maskload_pd(&m[0][0],MMM),_mm256_set1_pd(s)));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_mul_pd(_mm256_maskload_pd(&m[1][0],MMM),_mm256_set1_pd(s)));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_mul_pd(_mm256_maskload_pd(&m[2][0],MMM),_mm256_set1_pd(s)));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_mul_pd(_mm_loadu_pd(&m[0][0]),_mm_set1_pd(s)));
-  _mm_storeu_pd(&m[0][2],_mm_mul_pd(_mm_loadu_pd(&m[0][2]),_mm_set1_pd(s)));
-  _mm_storeu_pd(&m[1][1],_mm_mul_pd(_mm_loadu_pd(&m[1][1]),_mm_set1_pd(s)));
-  _mm_storeu_pd(&m[2][0],_mm_mul_pd(_mm_loadu_pd(&m[2][0]),_mm_set1_pd(s)));
-  _mm_store_sd(&m[2][2],_mm_mul_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(s)));
+  _mm_storeu_pd(&m[0][0],_mm_mul_pd(_mm_loadu_pd(&m[0][0]),_mm_set1_pd(s))); _mm_store_sd(&m[0][2],_mm_mul_pd(_mm_load_sd(&m[0][2]),_mm_set1_pd(s)));
+  _mm_storeu_pd(&m[1][0],_mm_mul_pd(_mm_loadu_pd(&m[1][0]),_mm_set1_pd(s))); _mm_store_sd(&m[1][2],_mm_mul_pd(_mm_load_sd(&m[1][2]),_mm_set1_pd(s)));
+  _mm_storeu_pd(&m[2][0],_mm_mul_pd(_mm_loadu_pd(&m[2][0]),_mm_set1_pd(s))); _mm_store_sd(&m[2][2],_mm_mul_pd(_mm_load_sd(&m[2][2]),_mm_set1_pd(s)));
 #else
   m[0][0]*=s; m[0][1]*=s; m[0][2]*=s;
   m[1][0]*=s; m[1][1]*=s; m[1][2]*=s;
@@ -456,11 +464,11 @@ FXMat3d& FXMat3d::operator*=(const FXMat3d& s){
   xx=_mm256_set1_pd(m[1][0]);
   yy=_mm256_set1_pd(m[1][1]);
   zz=_mm256_set1_pd(m[1][2]);
-  _mm256_maskstore_pd(m[0],MMM,_mm256_add_pd(_mm256_add_pd(_mm256_mul_pd(b0,xx),_mm256_mul_pd(b1,yy)),_mm256_mul_pd(b2,zz)));
+  _mm256_maskstore_pd(m[1],MMM,_mm256_add_pd(_mm256_add_pd(_mm256_mul_pd(b0,xx),_mm256_mul_pd(b1,yy)),_mm256_mul_pd(b2,zz)));
   xx=_mm256_set1_pd(m[2][0]);
   yy=_mm256_set1_pd(m[2][1]);
   zz=_mm256_set1_pd(m[2][2]);
-  _mm256_maskstore_pd(m[0],MMM,_mm256_add_pd(_mm256_add_pd(_mm256_mul_pd(b0,xx),_mm256_mul_pd(b1,yy)),_mm256_mul_pd(b2,zz)));
+  _mm256_maskstore_pd(m[2],MMM,_mm256_add_pd(_mm256_add_pd(_mm256_mul_pd(b0,xx),_mm256_mul_pd(b1,yy)),_mm256_mul_pd(b2,zz)));
   return *this;
 #elif defined(FOX_HAS_SSE2)
   register __m128d b00=_mm_loadu_pd(&s[0][0]);
@@ -508,15 +516,13 @@ FXMat3d& FXMat3d::operator*=(const FXMat3d& s){
 // Divide matrix by scalar
 FXMat3d& FXMat3d::operator/=(FXdouble s){
 #if defined(FOX_HAS_AVX)
-  _mm256_storeu_pd(&m[0][0],_mm256_div_pd(_mm256_loadu_pd(&m[0][0]),_mm256_set1_pd(s)));
-  _mm256_storeu_pd(&m[1][1],_mm256_div_pd(_mm256_loadu_pd(&m[1][1]),_mm256_set1_pd(s)));
-  _mm_store_sd(&m[2][2],_mm_div_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(s)));
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_div_pd(_mm256_maskload_pd(&m[0][0],MMM),_mm256_set1_pd(s)));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_div_pd(_mm256_maskload_pd(&m[1][0],MMM),_mm256_set1_pd(s)));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_div_pd(_mm256_maskload_pd(&m[2][0],MMM),_mm256_set1_pd(s)));
 #elif defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_div_pd(_mm_loadu_pd(&m[0][0]),_mm_set1_pd(s)));
-  _mm_storeu_pd(&m[0][2],_mm_div_pd(_mm_loadu_pd(&m[0][2]),_mm_set1_pd(s)));
-  _mm_storeu_pd(&m[1][1],_mm_div_pd(_mm_loadu_pd(&m[1][1]),_mm_set1_pd(s)));
-  _mm_storeu_pd(&m[2][0],_mm_div_pd(_mm_loadu_pd(&m[2][0]),_mm_set1_pd(s)));
-  _mm_store_sd(&m[2][2],_mm_div_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(s)));
+  _mm_storeu_pd(&m[0][0],_mm_div_sd(_mm_loadu_pd(&m[0][0]),_mm_set1_pd(s))); _mm_store_sd(&m[0][2],_mm_div_sd(_mm_load_sd(&m[0][2]),_mm_set1_pd(s)));
+  _mm_storeu_pd(&m[1][0],_mm_div_sd(_mm_loadu_pd(&m[1][0]),_mm_set1_pd(s))); _mm_store_sd(&m[1][2],_mm_div_sd(_mm_load_sd(&m[1][2]),_mm_set1_pd(s)));
+  _mm_storeu_pd(&m[2][0],_mm_div_sd(_mm_loadu_pd(&m[2][0]),_mm_set1_pd(s))); _mm_store_sd(&m[2][2],_mm_div_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(s)));
 #else
   m[0][0]/=s; m[0][1]/=s; m[0][2]/=s;
   m[1][0]/=s; m[1][1]/=s; m[1][2]/=s;
@@ -530,17 +536,15 @@ FXMat3d& FXMat3d::operator/=(FXdouble s){
 FXMat3d FXMat3d::operator-() const {
 #if defined(FOX_HAS_AVX)
   FXMat3d r;
-  _mm256_storeu_pd(&r[0][0],_mm256_sub_pd(_mm256_set1_pd(0.0),_mm256_loadu_pd(&m[0][0])));
-  _mm256_storeu_pd(&r[1][1],_mm256_sub_pd(_mm256_set1_pd(0.0),_mm256_loadu_pd(&m[1][1])));
-  _mm_store_sd(&r[2][2],_mm_sub_sd(_mm_set1_pd(0.0),_mm_load_sd(&m[2][2])));
+  _mm256_maskstore_pd(&r[0][0],MMM,_mm256_sub_pd(_mm256_set1_pd(0.0),_mm256_maskload_pd(&m[0][0],MMM)));
+  _mm256_maskstore_pd(&r[1][0],MMM,_mm256_sub_pd(_mm256_set1_pd(0.0),_mm256_maskload_pd(&m[1][0],MMM)));
+  _mm256_maskstore_pd(&r[2][0],MMM,_mm256_sub_pd(_mm256_set1_pd(0.0),_mm256_maskload_pd(&m[2][0],MMM)));
   return r;
 #elif defined(FOX_HAS_SSE2)
   FXMat3d r;
-  _mm_storeu_pd(&r[0][0],_mm_sub_pd(_mm_set1_pd(0.0),_mm_loadu_pd(&m[0][0])));
-  _mm_storeu_pd(&r[0][2],_mm_sub_pd(_mm_set1_pd(0.0),_mm_loadu_pd(&m[0][2])));
-  _mm_storeu_pd(&r[1][1],_mm_sub_pd(_mm_set1_pd(0.0),_mm_loadu_pd(&m[1][1])));
-  _mm_storeu_pd(&r[2][0],_mm_sub_pd(_mm_set1_pd(0.0),_mm_loadu_pd(&m[2][0])));
-  _mm_store_sd(&r[2][2],_mm_sub_sd(_mm_set1_pd(0.0),_mm_load_sd(&m[2][2])));
+  _mm_storeu_pd(&r[0][0],_mm_sub_pd(_mm_set1_pd(0.0),_mm_loadu_pd(&m[0][0]))); _mm_store_sd(&r[0][2],_mm_sub_sd(_mm_set1_pd(0.0),_mm_load_sd(&m[0][2])));
+  _mm_storeu_pd(&r[1][0],_mm_sub_pd(_mm_set1_pd(0.0),_mm_loadu_pd(&m[1][0]))); _mm_store_sd(&r[1][2],_mm_sub_sd(_mm_set1_pd(0.0),_mm_load_sd(&m[1][2])));
+  _mm_storeu_pd(&r[2][0],_mm_sub_pd(_mm_set1_pd(0.0),_mm_loadu_pd(&m[2][0]))); _mm_store_sd(&r[2][2],_mm_sub_sd(_mm_set1_pd(0.0),_mm_load_sd(&m[2][2])));
   return r;
 #else
   return FXMat3d(-m[0][0],-m[0][1],-m[0][2],
@@ -552,12 +556,14 @@ FXMat3d FXMat3d::operator-() const {
 
 // Set to identity matrix
 FXMat3d& FXMat3d::identity(){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_pd(&m[0][0],_mm_set_pd(0.0,1.0));
-  _mm_storeu_pd(&m[0][2],_mm_set_pd(0.0,0.0));
-  _mm_storeu_pd(&m[1][1],_mm_set_pd(0.0,1.0));
-  _mm_storeu_pd(&m[2][0],_mm_set_pd(0.0,0.0));
-  _mm_store_sd(&m[2][2],_mm_set_pd(0.0,1.0));
+#if defined(FOX_HAS_AVX)
+  _mm256_maskstore_pd(&m[0][0],MMM,_mm256_set_pd(0.0,0.0,0.0,1.0));
+  _mm256_maskstore_pd(&m[1][0],MMM,_mm256_set_pd(0.0,0.0,1.0,0.0));
+  _mm256_maskstore_pd(&m[2][0],MMM,_mm256_set_pd(0.0,1.0,0.0,0.0));
+#elif defined(FOX_HAS_SSE2)
+  _mm_storeu_pd(&m[0][0],_mm_set_pd(0.0,1.0)); _mm_store_sd(&m[0][2],_mm_set1_pd(0.0));
+  _mm_storeu_pd(&m[1][0],_mm_set_pd(1.0,0.0)); _mm_store_sd(&m[1][2],_mm_set1_pd(0.0));
+  _mm_storeu_pd(&m[2][0],_mm_set_pd(0.0,0.0)); _mm_store_sd(&m[2][2],_mm_set1_pd(1.0));
 #else
   m[0][0]=1.0; m[0][1]=0.0; m[0][2]=0.0;
   m[1][0]=0.0; m[1][1]=1.0; m[1][2]=0.0;
@@ -815,17 +821,15 @@ FXVec3d operator*(const FXVec3d& v,const FXMat3d& m){
 FXMat3d operator+(const FXMat3d& a,const FXMat3d& b){
 #if defined(FOX_HAS_AVX)
   FXMat3d r;
-  _mm256_storeu_pd(&r[0][0],_mm256_add_pd(_mm256_loadu_pd(&a[0][0]),_mm256_loadu_pd(&b[0][0])));
-  _mm256_storeu_pd(&r[1][1],_mm256_add_pd(_mm256_loadu_pd(&a[1][1]),_mm256_loadu_pd(&b[1][1])));
-  _mm_store_sd(&r[2][2],_mm_add_sd(_mm_load_sd(&a[2][2]),_mm_load_sd(&b[2][2])));
+  _mm256_maskstore_pd(&r[0][0],MMM,_mm256_add_pd(_mm256_maskload_pd(&a[0][0],MMM),_mm256_maskload_pd(&b[0][0],MMM)));
+  _mm256_maskstore_pd(&r[1][0],MMM,_mm256_add_pd(_mm256_maskload_pd(&a[1][0],MMM),_mm256_maskload_pd(&b[1][0],MMM)));
+  _mm256_maskstore_pd(&r[2][0],MMM,_mm256_add_pd(_mm256_maskload_pd(&a[2][0],MMM),_mm256_maskload_pd(&b[2][0],MMM)));
   return r;
 #elif defined(FOX_HAS_SSE2)
   FXMat3d r;
-  _mm_storeu_pd(&r[0][0],_mm_add_pd(_mm_loadu_pd(&a[0][0]),_mm_loadu_pd(&b[0][0])));
-  _mm_storeu_pd(&r[0][2],_mm_add_pd(_mm_loadu_pd(&a[0][2]),_mm_loadu_pd(&b[0][2])));
-  _mm_storeu_pd(&r[1][1],_mm_add_pd(_mm_loadu_pd(&a[1][1]),_mm_loadu_pd(&b[1][1])));
-  _mm_storeu_pd(&r[2][0],_mm_add_pd(_mm_loadu_pd(&a[2][0]),_mm_loadu_pd(&b[2][0])));
-  _mm_store_sd(&r[2][2],_mm_add_sd(_mm_load_sd(&a[2][2]),_mm_load_sd(&b[2][2])));
+  _mm_storeu_pd(&r[0][0],_mm_add_pd(_mm_loadu_pd(&a[0][0]),_mm_loadu_pd(&b[0][0]))); _mm_store_sd(&r[0][2],_mm_add_sd(_mm_load_sd(&a[0][2]),_mm_load_sd(&b[0][2])));
+  _mm_storeu_pd(&r[1][0],_mm_add_pd(_mm_loadu_pd(&a[1][0]),_mm_loadu_pd(&b[1][0]))); _mm_store_sd(&r[1][2],_mm_add_sd(_mm_load_sd(&a[1][2]),_mm_load_sd(&b[1][2])));
+  _mm_storeu_pd(&r[2][0],_mm_add_pd(_mm_loadu_pd(&a[2][0]),_mm_loadu_pd(&b[2][0]))); _mm_store_sd(&r[2][2],_mm_add_sd(_mm_load_sd(&a[2][2]),_mm_load_sd(&b[2][2])));
   return r;
 #else
   return FXMat3d(a[0][0]+b[0][0],a[0][1]+b[0][1],a[0][2]+b[0][2], a[1][0]+b[1][0],a[1][1]+b[1][1],a[1][2]+b[1][2], a[2][0]+b[2][0],a[2][1]+b[2][1],a[2][2]+b[2][2]);
@@ -837,17 +841,15 @@ FXMat3d operator+(const FXMat3d& a,const FXMat3d& b){
 FXMat3d operator-(const FXMat3d& a,const FXMat3d& b){
 #if defined(FOX_HAS_AVX)
   FXMat3d r;
-  _mm256_storeu_pd(&r[0][0],_mm256_sub_pd(_mm256_loadu_pd(&a[0][0]),_mm256_loadu_pd(&b[0][0])));
-  _mm256_storeu_pd(&r[1][1],_mm256_sub_pd(_mm256_loadu_pd(&a[1][1]),_mm256_loadu_pd(&b[1][1])));
-  _mm_store_sd(&r[2][2],_mm_sub_sd(_mm_load_sd(&a[2][2]),_mm_load_sd(&b[2][2])));
+  _mm256_maskstore_pd(&r[0][0],MMM,_mm256_sub_pd(_mm256_maskload_pd(&a[0][0],MMM),_mm256_maskload_pd(&b[0][0],MMM)));
+  _mm256_maskstore_pd(&r[1][0],MMM,_mm256_sub_pd(_mm256_maskload_pd(&a[1][0],MMM),_mm256_maskload_pd(&b[1][0],MMM)));
+  _mm256_maskstore_pd(&r[2][0],MMM,_mm256_sub_pd(_mm256_maskload_pd(&a[2][0],MMM),_mm256_maskload_pd(&b[2][0],MMM)));
   return r;
 #elif defined(FOX_HAS_SSE2)
   FXMat3d r;
-  _mm_storeu_pd(&r[0][0],_mm_sub_pd(_mm_loadu_pd(&a[0][0]),_mm_loadu_pd(&b[0][0])));
-  _mm_storeu_pd(&r[0][2],_mm_sub_pd(_mm_loadu_pd(&a[0][2]),_mm_loadu_pd(&b[0][2])));
-  _mm_storeu_pd(&r[1][1],_mm_sub_pd(_mm_loadu_pd(&a[1][1]),_mm_loadu_pd(&b[1][1])));
-  _mm_storeu_pd(&r[2][0],_mm_sub_pd(_mm_loadu_pd(&a[2][0]),_mm_loadu_pd(&b[2][0])));
-  _mm_store_sd(&r[2][2],_mm_sub_sd(_mm_load_sd(&a[2][2]),_mm_load_sd(&b[2][2])));
+  _mm_storeu_pd(&r[0][0],_mm_sub_pd(_mm_loadu_pd(&a[0][0]),_mm_loadu_pd(&b[0][0]))); _mm_store_sd(&r[0][2],_mm_sub_pd(_mm_load_sd(&a[0][2]),_mm_load_sd(&b[0][2])));
+  _mm_storeu_pd(&r[1][0],_mm_sub_pd(_mm_loadu_pd(&a[1][0]),_mm_loadu_pd(&b[1][0]))); _mm_store_sd(&r[1][2],_mm_sub_pd(_mm_load_sd(&a[1][2]),_mm_load_sd(&b[1][2])));
+  _mm_storeu_pd(&r[2][0],_mm_sub_pd(_mm_loadu_pd(&a[2][0]),_mm_loadu_pd(&b[2][0]))); _mm_store_sd(&r[2][2],_mm_sub_pd(_mm_load_sd(&a[2][2]),_mm_load_sd(&b[2][2])));
   return r;
 #else
   return FXMat3d(a[0][0]-b[0][0],a[0][1]-b[0][1],a[0][2]-b[0][2], a[1][0]-b[1][0],a[1][1]-b[1][1],a[1][2]-b[1][2], a[2][0]-b[2][0],a[2][1]-b[2][1],a[2][2]-b[2][2]);
@@ -870,11 +872,11 @@ FXMat3d operator*(const FXMat3d& a,const FXMat3d& b){
   xx=_mm256_set1_pd(a[1][0]);
   yy=_mm256_set1_pd(a[1][1]);
   zz=_mm256_set1_pd(a[1][2]);
-  _mm256_maskstore_pd(r[0],MMM,_mm256_add_pd(_mm256_add_pd(_mm256_mul_pd(b0,xx),_mm256_mul_pd(b1,yy)),_mm256_mul_pd(b2,zz)));
+  _mm256_maskstore_pd(r[1],MMM,_mm256_add_pd(_mm256_add_pd(_mm256_mul_pd(b0,xx),_mm256_mul_pd(b1,yy)),_mm256_mul_pd(b2,zz)));
   xx=_mm256_set1_pd(a[2][0]);
   yy=_mm256_set1_pd(a[2][1]);
   zz=_mm256_set1_pd(a[2][2]);
-  _mm256_maskstore_pd(r[0],MMM,_mm256_add_pd(_mm256_add_pd(_mm256_mul_pd(b0,xx),_mm256_mul_pd(b1,yy)),_mm256_mul_pd(b2,zz)));
+  _mm256_maskstore_pd(r[2],MMM,_mm256_add_pd(_mm256_add_pd(_mm256_mul_pd(b0,xx),_mm256_mul_pd(b1,yy)),_mm256_mul_pd(b2,zz)));
   return r;
 #elif defined(FOX_HAS_SSE2)
   register __m128d b00=_mm_loadu_pd(&b[0][0]);
@@ -925,17 +927,15 @@ FXMat3d operator*(const FXMat3d& a,const FXMat3d& b){
 FXMat3d operator*(FXdouble x,const FXMat3d& m){
 #if defined(FOX_HAS_AVX)
   FXMat3d r;
-  _mm256_storeu_pd(&r[0][0],_mm256_mul_pd(_mm256_set1_pd(x),_mm256_loadu_pd(&m[0][0])));
-  _mm256_storeu_pd(&r[1][1],_mm256_mul_pd(_mm256_set1_pd(x),_mm256_loadu_pd(&m[1][1])));
-  _mm_store_sd(&r[2][2],_mm_mul_sd(_mm_set1_pd(x),_mm_load_sd(&m[2][2])));
+  _mm256_maskstore_pd(&r[0][0],MMM,_mm256_mul_pd(_mm256_set1_pd(x),_mm256_maskload_pd(&m[0][0],MMM)));
+  _mm256_maskstore_pd(&r[1][0],MMM,_mm256_mul_pd(_mm256_set1_pd(x),_mm256_maskload_pd(&m[1][0],MMM)));
+  _mm256_maskstore_pd(&r[2][0],MMM,_mm256_mul_pd(_mm256_set1_pd(x),_mm256_maskload_pd(&m[2][0],MMM)));
   return r;
 #elif defined(FOX_HAS_SSE2)
   FXMat3d r;
-  _mm_storeu_pd(&r[0][0],_mm_mul_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[0][0])));
-  _mm_storeu_pd(&r[0][2],_mm_mul_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[0][2])));
-  _mm_storeu_pd(&r[1][1],_mm_mul_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[1][1])));
-  _mm_storeu_pd(&r[2][0],_mm_mul_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[2][0])));
-  _mm_store_sd(&r[2][2],_mm_mul_sd(_mm_set1_pd(x),_mm_load_sd(&m[2][2])));
+  _mm_storeu_pd(&r[0][0],_mm_mul_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[0][0]))); _mm_store_sd(&r[0][2],_mm_mul_pd(_mm_set1_pd(x),_mm_load_sd(&m[0][2])));
+  _mm_storeu_pd(&r[1][0],_mm_mul_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[1][0]))); _mm_store_sd(&r[1][2],_mm_mul_pd(_mm_set1_pd(x),_mm_load_sd(&m[1][2])));
+  _mm_storeu_pd(&r[2][0],_mm_mul_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[2][0]))); _mm_store_sd(&r[2][2],_mm_mul_pd(_mm_set1_pd(x),_mm_load_sd(&m[2][2])));
   return r;
 #else
   return FXMat3d(x*m[0][0],x*m[0][1],x*m[0][2],
@@ -949,17 +949,15 @@ FXMat3d operator*(FXdouble x,const FXMat3d& m){
 FXMat3d operator*(const FXMat3d& m,FXdouble x){
 #if defined(FOX_HAS_AVX)
   FXMat3d r;
-  _mm256_storeu_pd(&r[0][0],_mm256_mul_pd(_mm256_loadu_pd(&m[0][0]),_mm256_set1_pd(x)));
-  _mm256_storeu_pd(&r[1][1],_mm256_mul_pd(_mm256_loadu_pd(&m[1][1]),_mm256_set1_pd(x)));
-  _mm_store_sd(&r[2][2],_mm_mul_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(x)));
+  _mm256_maskstore_pd(&r[0][0],MMM,_mm256_mul_pd(_mm256_maskload_pd(&m[0][0],MMM),_mm256_set1_pd(x)));
+  _mm256_maskstore_pd(&r[1][0],MMM,_mm256_mul_pd(_mm256_maskload_pd(&m[1][0],MMM),_mm256_set1_pd(x)));
+  _mm256_maskstore_pd(&r[2][0],MMM,_mm256_mul_pd(_mm256_maskload_pd(&m[2][0],MMM),_mm256_set1_pd(x)));
   return r;
 #elif defined(FOX_HAS_SSE2)
   FXMat3d r;
-  _mm_storeu_pd(&r[0][0],_mm_mul_pd(_mm_loadu_pd(&m[0][0]),_mm_set1_pd(x)));
-  _mm_storeu_pd(&r[0][2],_mm_mul_pd(_mm_loadu_pd(&m[0][2]),_mm_set1_pd(x)));
-  _mm_storeu_pd(&r[1][1],_mm_mul_pd(_mm_loadu_pd(&m[1][1]),_mm_set1_pd(x)));
-  _mm_storeu_pd(&r[2][0],_mm_mul_pd(_mm_loadu_pd(&m[2][0]),_mm_set1_pd(x)));
-  _mm_store_sd(&r[2][2],_mm_mul_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(x)));
+  _mm_storeu_pd(&r[0][0],_mm_mul_pd(_mm_loadu_pd(&m[0][0]),_mm_set1_pd(x))); _mm_store_sd(&r[0][2],_mm_mul_pd(_mm_load_sd(&m[0][2]),_mm_set1_pd(x)));
+  _mm_storeu_pd(&r[1][0],_mm_mul_pd(_mm_loadu_pd(&m[1][0]),_mm_set1_pd(x))); _mm_store_sd(&r[1][2],_mm_mul_pd(_mm_load_sd(&m[1][2]),_mm_set1_pd(x)));
+  _mm_storeu_pd(&r[2][0],_mm_mul_pd(_mm_loadu_pd(&m[2][0]),_mm_set1_pd(x))); _mm_store_sd(&r[2][2],_mm_mul_pd(_mm_load_sd(&m[2][2]),_mm_set1_pd(x)));
   return r;
 #else
   return FXMat3d(m[0][0]*x,m[0][1]*x,m[0][2]*x,
@@ -973,17 +971,15 @@ FXMat3d operator*(const FXMat3d& m,FXdouble x){
 FXMat3d operator/(FXdouble x,const FXMat3d& m){
 #if defined(FOX_HAS_AVX)
   FXMat3d r;
-  _mm256_storeu_pd(&r[0][0],_mm256_div_pd(_mm256_set1_pd(x),_mm256_loadu_pd(&m[0][0])));
-  _mm256_storeu_pd(&r[1][1],_mm256_div_pd(_mm256_set1_pd(x),_mm256_loadu_pd(&m[1][1])));
-  _mm_store_sd(&r[2][2],_mm_div_sd(_mm_set1_pd(x),_mm_load_sd(&m[2][2])));
+  _mm256_maskstore_pd(&r[0][0],MMM,_mm256_div_pd(_mm256_set1_pd(x),_mm256_maskload_pd(&m[0][0],MMM)));
+  _mm256_maskstore_pd(&r[1][0],MMM,_mm256_div_pd(_mm256_set1_pd(x),_mm256_maskload_pd(&m[1][0],MMM)));
+  _mm256_maskstore_pd(&r[2][0],MMM,_mm256_div_pd(_mm256_set1_pd(x),_mm256_maskload_pd(&m[2][0],MMM)));
   return r;
 #elif defined(FOX_HAS_SSE2)
   FXMat3d r;
-  _mm_storeu_pd(&r[0][0],_mm_div_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[0][0])));
-  _mm_storeu_pd(&r[0][2],_mm_div_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[0][2])));
-  _mm_storeu_pd(&r[1][1],_mm_div_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[1][1])));
-  _mm_storeu_pd(&r[2][0],_mm_div_pd(_mm_set1_pd(x),_mm_loadu_pd(&m[2][0])));
-  _mm_store_sd(&r[2][2],_mm_div_sd(_mm_set1_pd(x),_mm_load_sd(&m[2][2])));
+  _mm_storeu_pd(&r[0][0],_mm_div_sd(_mm_set1_pd(x),_mm_loadu_pd(&m[0][0]))); _mm_store_sd(&r[0][2],_mm_div_sd(_mm_set1_pd(x),_mm_load_sd(&m[0][2])));
+  _mm_storeu_pd(&r[1][0],_mm_div_sd(_mm_set1_pd(x),_mm_loadu_pd(&m[1][0]))); _mm_store_sd(&r[1][2],_mm_div_sd(_mm_set1_pd(x),_mm_load_sd(&m[1][2])));
+  _mm_storeu_pd(&r[2][0],_mm_div_sd(_mm_set1_pd(x),_mm_loadu_pd(&m[2][0]))); _mm_store_sd(&r[2][2],_mm_div_sd(_mm_set1_pd(x),_mm_load_sd(&m[2][2])));
   return r;
 #else
   return FXMat3d(x/m[0][0],x/m[0][1],x/m[0][2],
@@ -997,17 +993,15 @@ FXMat3d operator/(FXdouble x,const FXMat3d& m){
 FXMat3d operator/(const FXMat3d& m,FXdouble x){
 #if defined(FOX_HAS_AVX)
   FXMat3d r;
-  _mm256_storeu_pd(&r[0][0],_mm256_div_pd(_mm256_loadu_pd(&m[0][0]),_mm256_set1_pd(x)));
-  _mm256_storeu_pd(&r[1][1],_mm256_div_pd(_mm256_loadu_pd(&m[1][1]),_mm256_set1_pd(x)));
-  _mm_store_sd(&r[2][2],_mm_div_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(x)));
+  _mm256_maskstore_pd(&r[0][0],MMM,_mm256_div_pd(_mm256_maskload_pd(&m[0][0],MMM),_mm256_set1_pd(x)));
+  _mm256_maskstore_pd(&r[1][0],MMM,_mm256_div_pd(_mm256_maskload_pd(&m[1][0],MMM),_mm256_set1_pd(x)));
+  _mm256_maskstore_pd(&r[2][0],MMM,_mm256_div_pd(_mm256_maskload_pd(&m[2][0],MMM),_mm256_set1_pd(x)));
   return r;
 #elif defined(FOX_HAS_SSE2)
   FXMat3d r;
-  _mm_storeu_pd(&r[0][0],_mm_div_pd(_mm_loadu_pd(&m[0][0]),_mm_set1_pd(x)));
-  _mm_storeu_pd(&r[0][2],_mm_div_pd(_mm_loadu_pd(&m[0][2]),_mm_set1_pd(x)));
-  _mm_storeu_pd(&r[1][1],_mm_div_pd(_mm_loadu_pd(&m[1][1]),_mm_set1_pd(x)));
-  _mm_storeu_pd(&r[2][0],_mm_div_pd(_mm_loadu_pd(&m[2][0]),_mm_set1_pd(x)));
-  _mm_store_sd(&r[2][2],_mm_div_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(x)));
+  _mm_storeu_pd(&r[0][0],_mm_div_sd(_mm_loadu_pd(&m[0][0]),_mm_set1_pd(x))); _mm_store_sd(&r[0][2],_mm_div_sd(_mm_load_sd(&m[0][2]),_mm_set1_pd(x)));
+  _mm_storeu_pd(&r[1][0],_mm_div_sd(_mm_loadu_pd(&m[1][0]),_mm_set1_pd(x))); _mm_store_sd(&r[1][2],_mm_div_sd(_mm_load_sd(&m[1][2]),_mm_set1_pd(x)));
+  _mm_storeu_pd(&r[2][0],_mm_div_sd(_mm_loadu_pd(&m[2][0]),_mm_set1_pd(x))); _mm_store_sd(&r[2][2],_mm_div_sd(_mm_load_sd(&m[2][2]),_mm_set1_pd(x)));
   return r;
 #else
   return FXMat3d(m[0][0]/x,m[0][1]/x,m[0][2]/x,

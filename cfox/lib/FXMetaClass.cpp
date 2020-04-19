@@ -3,7 +3,7 @@
 *                         M e t a C l a s s   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -239,6 +239,7 @@ FXMetaClass::~FXMetaClass(){
   register FXuint p=hashstring(className);
   register FXuint x=(p<<1)|1;
   while(metaClassTable[p=(p+x)&(metaClassSlots-1)]!=this){
+    if(metaClassTable[p]==NULL) return;
     }
   metaClassTable[p]=EMPTY;
   if((--metaClassCount<<1) <= metaClassSlots){

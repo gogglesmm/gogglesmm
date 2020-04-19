@@ -3,7 +3,7 @@
 *                               F o n t   O b j e c t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -140,9 +140,6 @@ namespace FX {
 static const FXint LEAD_OFFSET=0xD800-(0x10000>>10);
 static const FXint TAIL_OFFSET=0xDC00;
 
-
-// Absolute value
-static inline FXint fxabs(FXint a){ return a<0?-a:a; }
 
 extern FXAPI FXint __snprintf(FXchar* string,FXint length,const FXchar* format,...);
 
@@ -832,26 +829,26 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
 
       // Weight
       if(wantweight){
-        dweight=fxabs(weight-wantweight);
+        dweight=Math::iabs(weight-wantweight);
         }
       else{
-        dweight=fxabs(weight-FXFont::Normal);
+        dweight=Math::iabs(weight-FXFont::Normal);
         }
 
       // Slant
       if(wantslant){
-        dslant=fxabs(slant-wantslant);
+        dslant=Math::iabs(slant-wantslant);
         }
       else{
-        dslant=fxabs(slant-FXFont::Straight);
+        dslant=Math::iabs(slant-FXFont::Straight);
         }
 
       // Set width
       if(wantsetwidth){
-        dsetwidth=fxabs(setwidth-wantsetwidth);
+        dsetwidth=Math::iabs(setwidth-wantsetwidth);
         }
       else{
-        dsetwidth=fxabs(setwidth-FXFont::NonExpanded);
+        dsetwidth=Math::iabs(setwidth-FXFont::NonExpanded);
         }
 
       // Pitch
@@ -903,7 +900,7 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
       // should be multiplied by (100/90).
       else{
         size=(yres*points)/res;
-        dsize=fxabs(size-wantsize);
+        dsize=Math::iabs(size-wantsize);
         }
 
       FXTRACE((160,"%4d: dweight=%-3d dsize=%3d dslant=%d dsetwidth=%d dscalable=%d dpolymorph=%d xres=%-3d yres=%-3d xlfd=\"%s\"\n",f,dweight,dsize,dslant,dsetwidth,dscalable,dpolymorph,xres,yres,fontnames[f]));
@@ -1691,7 +1688,7 @@ FXint FXFont::getTextWidth(const FXchar *string,FXuint length) const {
   if(font){
 #if defined(WIN32)              ///// WIN32 /////
     FXnchar sbuffer[4096];
-    FXint count=utf2ncs(sbuffer,string,4096,length);
+    FXint count=utf2ncs(sbuffer,string,ARRAYNUMBER(sbuffer),length);
     SIZE size;
     GetTextExtentPoint32W((HDC)dc,sbuffer,count,&size);
     return size.cx;
@@ -1845,7 +1842,7 @@ static FX885916Codec codec_8859_16;
 void FXFont::drawText(FXDC* dc,FXint x,FXint y,const FXchar* string,FXuint length) const {
   FXnchar sbuffer[4096];
   FXint iBkMode=SetBkMode((HDC)dc->ctx,TRANSPARENT);
-  FXint count=utf2ncs(sbuffer,4096,string,FXMIN(length,4096));
+  FXint count=utf2ncs(sbuffer,string,ARRAYNUMBER(sbuffer),FXMIN(length,4096));
   FXASSERT(count<=length);
   TextOutW((HDC)dc->ctx,x,y,sbuffer,count);
   SetBkMode((HDC)dc->ctx,iBkMode);

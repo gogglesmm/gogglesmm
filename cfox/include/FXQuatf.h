@@ -3,7 +3,7 @@
 *              S i n g l e - P r e c i s i o n  Q u a t e r n i o n             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -24,6 +24,10 @@
 namespace FX {
 
 
+// Forward reference
+class FXMat3f;
+
+
 /// Single-precision quaternion
 class FXAPI FXQuatf {
 public:
@@ -33,49 +37,79 @@ public:
   FXfloat w;
 public:
 
-  /// Default constructor; value is not initialized
+  /**
+  * Default constructor; value is not initialized.
+  */
   FXQuatf(){}
 
-  /// Copy constructor
+  /**
+  * Copy constructor.
+  */
   FXQuatf(const FXQuatf& q):x(q.x),y(q.y),z(q.z),w(q.w){}
 
-  /// Construct from array of floats
+  /**
+  * Construct from array of four floats.
+  */
   FXQuatf(const FXfloat v[]):x(v[0]),y(v[1]),z(v[2]),w(v[3]){}
 
-  /// Construct from components
+  /**
+  * Construct from four components.
+  */
   FXQuatf(FXfloat xx,FXfloat yy,FXfloat zz,FXfloat ww):x(xx),y(yy),z(zz),w(ww){}
 
-  /// Construct quaternion from two unit vectors
+  /**
+  * Construct from rotation axis and angle in radians.
+  */
+  FXQuatf(const FXVec3f& axis,FXfloat phi);
+
+  /**
+  * Construct quaternion from arc between two unit vectors fm and to.
+  */
   FXQuatf(const FXVec3f& fr,const FXVec3f& to);
 
-  /// Construct from axis and angle
-  FXQuatf(const FXVec3f& axis,FXfloat phi=0.0f);
-
-  /// Construct from euler angles yaw (z), pitch (y), and roll (x)
+  /**
+  * Construct from euler angles yaw (z), pitch (y), and roll (x).
+  */
   FXQuatf(FXfloat roll,FXfloat pitch,FXfloat yaw);
 
-  /// Construct quaternion from three axes
+  /**
+  * Construct quaternion from three orthogonal unit vectors.
+  */
   FXQuatf(const FXVec3f& ex,const FXVec3f& ey,const FXVec3f& ez);
 
-  /// Return a non-const reference to the ith element
+  /**
+  * Return a non-const reference to the ith element.
+  */
   FXfloat& operator[](FXint i){return (&x)[i];}
 
-  /// Return a const reference to the ith element
+  /**
+  * Return a const reference to the ith element.
+  */
   const FXfloat& operator[](FXint i) const {return (&x)[i];}
 
-  /// Assignment
+  /**
+  * Assignment from other quaternion.
+  */
   FXQuatf& operator=(const FXQuatf& v){x=v.x;y=v.y;z=v.z;w=v.w;return *this;}
 
-  /// Assignment from array of doubles
+  /**
+  * Assignment from array of four floats.
+  */
   FXQuatf& operator=(const FXfloat v[]){x=v[0];y=v[1];z=v[2];w=v[3];return *this;}
 
-  /// Set value from another vector
+  /**
+  * Set value from another quaternion.
+  */
   FXQuatf& set(const FXQuatf& v){x=v.x;y=v.y;z=v.z;w=v.w;return *this;}
 
-  /// Set value from array of floats
+  /**
+  * Set value from array of four floats.
+  */
   FXQuatf& set(const FXfloat v[]){x=v[0];y=v[1];z=v[2];w=v[3];return *this;}
 
-  /// Set value from components
+  /**
+  * Set value from four components.
+  */
   FXQuatf& set(FXfloat xx,FXfloat yy,FXfloat zz,FXfloat ww){x=xx;y=yy;z=zz;w=ww;return *this;}
 
   /// Assigning operators
@@ -90,15 +124,16 @@ public:
   operator FXfloat*(){return &x;}
   operator const FXfloat*() const {return &x;}
 
+  /// Conversion to 3-vector, axis of rotation
+  operator FXVec3f&(){return *reinterpret_cast<FXVec3f*>(this);}
+  operator const FXVec3f&() const {return *reinterpret_cast<const FXVec3f*>(this);}
+
   /// Test if zero
   FXbool operator!() const {return x==0.0f && y==0.0f && z==0.0f && w==0.0f; }
 
   /// Unary
   FXQuatf operator+() const { return *this; }
   FXQuatf operator-() const { return FXQuatf(-x,-y,-z,-w); }
-
-  /// Rotation of a vector by a quaternion
-  FXVec3f operator*(const FXVec3f& v) const;
 
   /// Length and square of length
   FXfloat length2() const { return x*x+y*y+z*z+w*w; }
@@ -107,34 +142,66 @@ public:
   /// Adjust quaternion length
   FXQuatf& adjust();
 
-  /// Set quaternion from axis and angle
-  void setAxisAngle(const FXVec3f& axis,FXfloat phi=0.0f);
+  /**
+  * Set quaternion from axis and angle.
+  * Quaternion represents a rotation of phi radians about unit vector axis.
+  */
+  void setAxisAngle(const FXVec3f& axis,FXfloat phi);
 
-  /// Obtain axis and angle from quaternion
+  /**
+  * Obtain axis and angle from quaternion.
+  * Return unit vector and angle of rotation phi, in radians.
+  * If identity quaternion (0,0,0,1), return axis as (1,0.0).
+  */
   void getAxisAngle(FXVec3f& axis,FXfloat& phi) const;
 
-  /// Set quaternion from roll (x), pitch (y), yaw (z)
+  /**
+  * Set quaternion from rotation vector rot, representing a rotation by |rot| radians
+  * about a unit vector rot/|rot|.  Set to the identity quaternion (0,0,0,1) if the rotation
+  * vector is equal to (0,0,0).
+  */
+  void setRotation(const FXVec3f& rot);
+
+  /**
+  * Get rotation vector from quaternion, representing a rotation of |rot| radians
+  * about an axis rot/|rot|.  If quaternion is identity quaternion (0,0,0,1), return (0,0,0).
+  */
+  FXVec3f getRotation() const;
+
+  /// Set quaternion from roll (x), pitch (y), yaw (z), in that order
   void setRollPitchYaw(FXfloat roll,FXfloat pitch,FXfloat yaw);
+
+  /// Return the roll (x), pitch (y), yaw (z) angles represented by the quaternion
   void getRollPitchYaw(FXfloat& roll,FXfloat& pitch,FXfloat& yaw) const;
 
-  /// Set quaternion from yaw (z), pitch (y), roll (x)
+  /// Set quaternion from yaw (z), pitch (y), roll (x), in that order
   void setYawPitchRoll(FXfloat yaw,FXfloat pitch,FXfloat roll);
+
+  /// Return the yaw (z), pitch (y), roll (x) angles represented by the quaternion
   void getYawPitchRoll(FXfloat& yaw,FXfloat& pitch,FXfloat& roll) const;
 
-  /// Set quaternion from roll (x), yaw (z), pitch (y)
+  /// Set quaternion from roll (x), yaw (z), pitch (y), in that order
   void setRollYawPitch(FXfloat roll,FXfloat yaw,FXfloat pitch);
+
+  /// Return the roll (x), yaw (z), pitch (y) angles represented by the quaternion
   void getRollYawPitch(FXfloat& roll,FXfloat& yaw,FXfloat& pitch) const;
 
-  /// Set quaternion from pitch (y), roll (x),yaw (z)
+  /// Set quaternion from pitch (y), roll (x),yaw (z), in that order
   void setPitchRollYaw(FXfloat pitch,FXfloat roll,FXfloat yaw);
+
+  /// Return the pitch (y), roll (x),yaw (z) angles represented by the quaternion
   void getPitchRollYaw(FXfloat& pitch,FXfloat& roll,FXfloat& yaw) const;
 
-  /// Set quaternion from pitch (y), yaw (z), roll (x)
+  /// Set quaternion from pitch (y), yaw (z), roll (x), in that order
   void setPitchYawRoll(FXfloat pitch,FXfloat yaw,FXfloat roll);
+
+  /// Return the pitch (y), yaw (z), roll (x) angles represented by the quaternion
   void getPitchYawRoll(FXfloat& pitch,FXfloat& yaw,FXfloat& roll) const;
 
-  /// Set quaternion from yaw (z), roll (x), pitch (y)
+  /// Set quaternion from yaw (z), roll (x), pitch (y), in that order
   void setYawRollPitch(FXfloat yaw,FXfloat roll,FXfloat pitch);
+
+  /// Return the yaw (z), roll (x), pitch (y) angles represented by the quaternion
   void getYawRollPitch(FXfloat& yaw,FXfloat& roll,FXfloat& pitch) const;
 
   /// Set quaternion from axes
@@ -161,18 +228,19 @@ public:
   /// Power of quaternion
   FXQuatf pow(FXfloat t) const;
 
-  /// Invert quaternion
-  FXQuatf invert() const;
+  /// Conjugate quaternion
+  FXQuatf conj() const { return FXQuatf(-x,-y,-z,w); }
 
   /// Invert unit quaternion
-  FXQuatf unitinvert() const;
+  FXQuatf unitinvert() const { return FXQuatf(-x,-y,-z,w); }
 
-  /// Conjugate quaternion
-  FXQuatf conj() const;
+  /// Invert quaternion
+  FXQuatf invert() const { FXfloat m(length2()); return FXQuatf(-x/m,-y/m,-z/m,w/m); }
 
   /// Destructor
  ~FXQuatf(){}
   };
+
 
 /// Scaling
 inline FXQuatf operator*(const FXQuatf& a,FXfloat n){return FXQuatf(a.x*n,a.y*n,a.z*n,a.w*n);}
@@ -183,6 +251,12 @@ inline FXQuatf operator/(FXfloat n,const FXQuatf& a){return FXQuatf(n/a.x,n/a.y,
 /// Quaternion and quaternion multiply
 inline FXQuatf operator*(const FXQuatf& a,const FXQuatf& b){ return FXQuatf(a.w*b.x+a.x*b.w+a.y*b.z-a.z*b.y, a.w*b.y+a.y*b.w+a.z*b.x-a.x*b.z, a.w*b.z+a.z*b.w+a.x*b.y-a.y*b.x, a.w*b.w-a.x*b.x-a.y*b.y-a.z*b.z); }
 inline FXQuatf operator/(const FXQuatf& a,const FXQuatf& b){ return a*b.invert(); }
+
+/// Rotation quaternion and vector q . v = (q* . v . q)
+extern FXAPI FXVec3f operator*(const FXQuatf& q,const FXVec3f& v);
+
+/// Rotation a vector and quaternion v . q = (q . v . q*)
+extern FXAPI FXVec3f operator*(const FXVec3f& v,const FXQuatf& q);
 
 /// Quaternion and quaternion addition
 inline FXQuatf operator+(const FXQuatf& a,const FXQuatf& b){ return FXQuatf(a.x+b.x,a.y+b.y,a.z+b.z,a.w+b.w); }
@@ -207,6 +281,19 @@ extern FXAPI FXQuatf lerp(const FXQuatf& u,const FXQuatf& v,FXfloat f);
 
 /// Derivative of spherical lerp of unit quaternions u,v
 extern FXAPI FXQuatf lerpdot(const FXQuatf& u,const FXQuatf& v,FXfloat f);
+
+/// Cubic hermite quaternion interpolation
+extern FXAPI FXQuatf hermite(const FXQuatf& q0,const FXVec3f& r0,const FXQuatf& q1,const FXVec3f& r1,FXfloat t);
+
+/// Estimate angular body rates omega from unit quaternions Q0 and Q1 separated by time dt
+extern FXAPI FXVec3f omegaBody(const FXQuatf& q0,const FXQuatf& q1,FXfloat dt);
+
+/// Derivative of unit quaternion q with body angular rates omega (rad/s)
+extern FXAPI FXQuatf quatDot(const FXQuatf& q,const FXVec3f& omega);
+
+/// Calculate angular acceleration of a body with inertial moments tensor M
+/// Rotation about its axes with angular rates omega, under a torque torq
+extern FXAPI FXVec3f omegaDot(const FXMat3f& M,const FXVec3f& omega,const FXVec3f& torq);
 
 /// Save quaternion to a stream
 extern FXAPI FXStream& operator<<(FXStream& store,const FXQuatf& v);

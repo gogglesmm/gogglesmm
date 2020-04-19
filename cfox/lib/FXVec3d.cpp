@@ -3,7 +3,7 @@
 *       D o u b l e - P r e c i s i o n   3 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -72,12 +72,6 @@ FXVec3d normal(const FXVec3d& a,const FXVec3d& b,const FXVec3d& c){
 // Compute approximate normal from four points a,b,c,d
 FXVec3d normal(const FXVec3d& a,const FXVec3d& b,const FXVec3d& c,const FXVec3d& d){
   return normalize((c-a)^(d-b));
-  }
-
-
-// Linearly interpolate
-FXVec3d lerp(const FXVec3d& u,const FXVec3d& v,FXdouble f){
-  return FXVec3d(u.x+(v.x-u.x)*f,u.y+(v.y-u.y)*f,u.z+(v.z-u.z)*f);
   }
 
 

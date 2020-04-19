@@ -3,7 +3,7 @@
 *       D o u b l e - P r e c i s i o n   3 - E l e m e n t   V e c t o r       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -71,8 +71,13 @@ public:
   /// Assigning operators
   FXVec3d& operator*=(FXdouble n){ return set(x*n,y*n,z*n); }
   FXVec3d& operator/=(FXdouble n){ return set(x/n,y/n,z/n); }
+
+  /// Element-wise assigning operators
   FXVec3d& operator+=(const FXVec3d& v){ return set(x+v.x,y+v.y,z+v.z); }
   FXVec3d& operator-=(const FXVec3d& v){ return set(x-v.x,y-v.y,z-v.z); }
+  FXVec3d& operator%=(const FXVec3d& v){ return set(x*v.x,y*v.y,z*v.z); }
+
+  /// Cross product assigning operator
   FXVec3d& operator^=(const FXVec3d& v){ return set(y*v.z-z*v.y,z*v.x-x*v.z,x*v.y-y*v.x); }
 
   /// Conversions
@@ -91,9 +96,6 @@ public:
   /// Length and square of length
   FXdouble length2() const { return x*x+y*y+z*z; }
   FXdouble length() const { return Math::sqrt(length2()); }
-
-  /// Clamp values of vector between limits
-  FXVec3d& clamp(FXdouble lo,FXdouble hi){ return set(Math::fclamp(lo,x,hi),Math::fclamp(lo,y,hi),Math::fclamp(lo,z,hi)); }
 
   /// Destructor
  ~FXVec3d(){}
@@ -115,6 +117,10 @@ inline FXVec3d operator/(FXdouble n,const FXVec3d& a){return FXVec3d(n/a.x,n/a.y
 /// Vector and vector addition
 inline FXVec3d operator+(const FXVec3d& a,const FXVec3d& b){ return FXVec3d(a.x+b.x,a.y+b.y,a.z+b.z); }
 inline FXVec3d operator-(const FXVec3d& a,const FXVec3d& b){ return FXVec3d(a.x-b.x,a.y-b.y,a.z-b.z); }
+
+/// Element-wise multiply and divide
+inline FXVec3d operator%(const FXVec3d& a,const FXVec3d& b){ return FXVec3d(a.x*b.x,a.y*b.y,a.z*b.z); }
+inline FXVec3d operator/(const FXVec3d& a,const FXVec3d& b){ return FXVec3d(a.x/b.x,a.y/b.y,a.z/b.z); }
 
 /// Equality tests
 inline FXbool operator==(const FXVec3d& a,FXdouble n){return a.x==n && a.y==n && a.z==n;}
@@ -154,6 +160,24 @@ inline FXVec3d hi(const FXVec3d& a,const FXVec3d& b){return FXVec3d(Math::fmax(a
 inline FXVec3d hi(const FXVec3d& a,FXdouble n){return FXVec3d(Math::fmax(a.x,n),Math::fmax(a.y,n),Math::fmax(a.z,n));}
 inline FXVec3d hi(FXdouble n,const FXVec3d& b){return FXVec3d(Math::fmax(n,b.x),Math::fmax(n,b.y),Math::fmax(n,b.z));}
 
+/// Clamp components of vector between lower and upper limits
+inline FXVec3d clamp(FXdouble lower,const FXVec3d& x,FXdouble upper){return hi(lo(x,upper),lower);}
+
+/// Clamp components of vector between lower corner and upper corner
+inline FXVec3d clamp(const FXVec3d& lower,const FXVec3d& x,const FXVec3d& upper){return hi(lo(x,upper),lower);}
+
+/// Return vector of absolute value of each element
+inline FXVec3d abs(const FXVec3d& a){return FXVec3d(Math::fabs(a.x),Math::fabs(a.y),Math::fabs(a.z));}
+
+/// Return maximum component of vector
+inline FXdouble max(const FXVec3d& a){ return Math::fmax(Math::fmax(a.x,a.y),a.z); }
+
+/// Return minimum component of vector
+inline FXdouble min(const FXVec3d& a){ return Math::fmin(Math::fmin(a.x,a.y),a.z); }
+
+/// Linearly interpolate
+inline FXVec3d lerp(const FXVec3d& u,const FXVec3d& v,FXdouble f){return (v-u)*f+u;}
+
 /// Convert vector to color
 extern FXAPI FXColor colorFromVec3d(const FXVec3d& vec);
 
@@ -168,9 +192,6 @@ extern FXAPI FXVec3d normal(const FXVec3d& a,const FXVec3d& b,const FXVec3d& c,c
 
 /// Normalize vector
 extern FXAPI FXVec3d normalize(const FXVec3d& v);
-
-/// Linearly interpolate
-extern FXAPI FXVec3d lerp(const FXVec3d& u,const FXVec3d& v,FXdouble f);
 
 /// Rotate vector vec by unit-length axis about angle specified as (ca,sa)
 extern FXAPI FXVec3d rotate(const FXVec3d& vec,const FXVec3d& axis,FXdouble ca,FXdouble sa);

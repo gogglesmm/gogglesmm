@@ -60,7 +60,7 @@ public:
   void setuphooks() {
     for (FXint i=0;i<connections.no();i++) {
       if (!connections.empty(i)) {
-        static_cast<GMDBus*>(connections.value(i))->setup_event_loop();
+        static_cast<GMDBus*>(connections.data(i))->setup_event_loop();
         }
       }
     }
@@ -532,7 +532,7 @@ GMDBusProxy::~GMDBusProxy()  {
   /// remove any pending proxy replies;
   for (FXint i=0;i<serial.no();i++) {
     if (!serial.empty(i)) {
-      GMDBusProxyReply * reply = static_cast<GMDBusProxyReply*>(serial.value(i));
+      GMDBusProxyReply * reply = static_cast<GMDBusProxyReply*>(serial.data(i));
       delete reply;
       }
     }

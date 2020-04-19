@@ -3,7 +3,7 @@
 *                          V a r i a n t   T y p e                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2013,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2013,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -35,7 +35,7 @@ class FXVariantArray;
 * Complex hierarchies of Variants can be loaded (and saved) using the JSON parser.
 * When writing Variants, dictionaries and arrays are automatically grown.  When
 * reading Variants, non-existing dictionary entries or indexes outside arrays will read
-* as 0 (for numbers), the empty string (for arrays), or empty dictionaries or arrays.
+* as 0 (for numbers), the empty string, or as an empty dictionary or array.
 * For efficiency, you can hold references to Variants, for example to avoid repeatedly
 * accessing dictionaries or arrays with the same key or index. However, be aware that
 * adding or removing sub-items to dictionaries or arrays may cause reallocations of
@@ -176,9 +176,6 @@ public:
   /// Convert to pointer
   FXptr toPtr() const;
 
-  /// Convert to char pointer
-  const FXchar* toChars() const;
-
   /// Convert to int
   FXint toInt(FXbool* ok=NULL) const;
 
@@ -196,6 +193,9 @@ public:
 
   /// Convert to double
   FXdouble toDouble(FXbool* ok=NULL) const;
+
+  /// Convert to char pointer
+  const FXchar* toChars() const;
 
   /// Convert to string
   FXString toString(FXbool* ok=NULL) const;

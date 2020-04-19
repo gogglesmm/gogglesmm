@@ -3,7 +3,7 @@
 *                             X M L - F i l e   I / O                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -57,25 +57,32 @@ namespace FX {
 
 // Create XML file i/o object
 FXXMLFile::FXXMLFile(){
-  FXTRACE((1,"FXXMLFile::FXXMLFile\n"));
+  FXTRACE((100,"FXXMLFile::FXXMLFile\n"));
   }
 
 
 // Create XML file i/o object and open it
 FXXMLFile::FXXMLFile(const FXString& filename,Direction d,FXuval sz){
-  FXTRACE((1,"FXXMLFile::FXXMLFile(\"%s\",%s,%lu)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXTRACE((100,"FXXMLFile::FXXMLFile(\"%s\",%s,%lu)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   open(filename,d,sz);
   }
 
 
 // Open archive for operation
 FXbool FXXMLFile::open(FXInputHandle h,Direction d,FXuval sz){
-  FXTRACE((2,"FXXMLFile::open(%lx,%s,%lu)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
-  if(FXXML::open(NULL,sz,d)){
+  FXTRACE((100,"FXXMLFile::open(%lx,%s,%lu)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXchar *buffer;
+  if(allocElms(buffer,sz)){
     if(file.open(h,(d==Save)?FXIO::Writing:FXIO::Reading)){
-      return true;
+      if(FXXML::open(buffer,sz,d)){
+        rptr=endptr;
+        sptr=endptr;
+        wptr=endptr;
+        return true;
+        }
+      file.close();
       }
-    close();
+    freeElms(buffer);
     }
   return false;
   }
@@ -83,59 +90,69 @@ FXbool FXXMLFile::open(FXInputHandle h,Direction d,FXuval sz){
 
 // Open archive for operation
 FXbool FXXMLFile::open(const FXString& filename,Direction d,FXuval sz){
-  FXTRACE((2,"FXXMLFile::open(\"%s\",%s,%lu)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
-  if(FXXML::open(NULL,sz,d)){
+  FXTRACE((100,"FXXMLFile::open(\"%s\",%s,%lu)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXchar *buffer;
+  FXASSERT(dir==Stop);
+  if(allocElms(buffer,sz)){
     if(file.open(filename,(d==Save)?FXIO::Writing:FXIO::Reading,FXIO::AllReadWrite)){
-      return true;
+      if(FXXML::open(buffer,sz,d)){
+        rptr=endptr;
+        sptr=endptr;
+        wptr=endptr;
+        return true;
+        }
+      file.close();
       }
-    close();
+    freeElms(buffer);
     }
   return false;
   }
 
 
-// Fill buffer from file
-FXbool FXXMLFile::fill(){
-  register FXival n;
+// Read at least count bytes into buffer; return bytes available, or -1 for error
+FXival FXXMLFile::fill(FXival){
+  FXival nbytes;
+  FXASSERT(dir==Load);
   if(file.isReadable()){
-    if(sptr<wptr){ moveElms(begptr,sptr,wptr-sptr); }
-    wptr=begptr+(wptr-sptr);
-    rptr=begptr+(rptr-sptr);
-    sptr=begptr;
-    n=file.readBlock(wptr,endptr-wptr);
-    FXTRACE((2,"FXXMLFile::fill() = %ld\n",n));
-    if(0<=n){
-      wptr+=n;
+    moveElms(begptr,rptr,wptr-rptr);
+    wptr=begptr+(wptr-rptr);
+    sptr=begptr+(sptr-rptr);
+    rptr=begptr;
+    nbytes=file.readBlock(wptr,endptr-wptr);
+    if(0<=nbytes){
+      wptr+=nbytes;
       if(wptr<endptr){ wptr[0]='\0'; }
-      return rptr<wptr;         // Input left to read
+      return wptr-sptr;                         // Input left to read
       }
     }
-  return false;
+  return -1;
   }
 
 
-// Flush buffer to file
-FXbool FXXMLFile::flush(){
-  register FXival n;
+// Write at least count bytes from buffer; return space available, or -1 for error
+FXival FXXMLFile::flush(FXival){
+  FXival nbytes;
+  FXASSERT(dir==Save);
   if(file.isWritable()){
-    n=file.writeBlock(rptr,wptr-rptr);
-    FXTRACE((2,"FXXMLFile::flush() = %ld\n",n));
-    if(0<=n){
-      rptr+=n;
-      if(rptr<wptr){ moveElms(begptr,rptr,wptr-rptr); }
+    nbytes=file.writeBlock(rptr,wptr-rptr);
+    if(0<=nbytes){
+      rptr+=nbytes;
+      moveElms(begptr,rptr,wptr-rptr);
       wptr=begptr+(wptr-rptr);
       rptr=begptr;
-      return wptr<endptr;       // Space left to write
+      return endptr-wptr;                       // Space left to write
       }
     }
-  return false;
+  return -1;
   }
 
 
 // Close stream and delete buffers
 FXbool FXXMLFile::close(){
-  FXTRACE((2,"FXXMLFile::close()\n"));
+  FXchar *buffer=begptr;
+  FXTRACE((100,"FXXMLFile::close()\n"));
   if(FXXML::close()){
+    freeElms(buffer);
     return file.close();
     }
   return false;
@@ -144,7 +161,7 @@ FXbool FXXMLFile::close(){
 
 // Close XML file
 FXXMLFile::~FXXMLFile(){
-  FXTRACE((1,"FXXMLFile::~FXXMLFile\n"));
+  FXTRACE((100,"FXXMLFile::~FXXMLFile\n"));
   close();
   }
 

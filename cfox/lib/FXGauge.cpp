@@ -3,7 +3,7 @@
 *                             G a u g e   W i d g e t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2010,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2010,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -449,7 +449,7 @@ long FXGauge::onPaint(FXObject*,FXSelector,void *ptr){
       sa=(720+sa)%360-360;
       ea=sa+sw;
 
-      //FXTRACE((1,"sa=%d ea=%d sw=%d\n",sa,ea,sw));
+      //FXTRACE((100,"sa=%d ea=%d sw=%d\n",sa,ea,sw));
 
       // Include endpoints of arc
       csa=Math::cos(DTOR*sa);
@@ -480,18 +480,18 @@ long FXGauge::onPaint(FXObject*,FXSelector,void *ptr){
       FXASSERT(-1.0<=xmin && xmin<xmax && xmax<=1.0);
       FXASSERT(-1.0<=ymin && ymin<ymax && ymax<=1.0);
 
-      FXTRACE((1,"xmin=%.3lf xmax=%.3lf ymin=%.3lf ymax=%.3lf\n",xmin,xmax,ymin,ymax));
+      FXTRACE((100,"xmin=%.3lf xmax=%.3lf ymin=%.3lf ymax=%.3lf\n",xmin,xmax,ymin,ymax));
 
       W=xmax-xmin;
       H=ymax-ymin;
 
-      FXTRACE((1,"was W=%lf H=%lf\n",W,H));
+      FXTRACE((100,"was W=%lf H=%lf\n",W,H));
 
       // Keep circular
       if(!(options&GAUGE_ELLIPTICAL)){
         abox=H/W;
         if(abox*ww<hh){                                   // Box aspect wider than window
-          FXTRACE((1,"Box aspect wider than window\n"));
+          FXTRACE((100,"Box aspect wider than window\n"));
           E=-H;
           H=hh*(W/ww);                                      // New box height
           E+=H;
@@ -513,12 +513,12 @@ long FXGauge::onPaint(FXObject*,FXSelector,void *ptr){
           ymax+=0.5*E;
           }
         else{                                             // Box aspect taller than window
-          FXTRACE((1,"Box aspect taller than window\n"));
+          FXTRACE((100,"Box aspect taller than window\n"));
           E=-W;
           W=ww*H/hh;                                      // New box width
           E+=W;
 
-          FXTRACE((1,"E=%.3lf\n",E));
+          FXTRACE((100,"E=%.3lf\n",E));
 
           // Pivot right of box
           if(0.0>xmax){
@@ -534,10 +534,10 @@ long FXGauge::onPaint(FXObject*,FXSelector,void *ptr){
           xmin-=0.5*E;
           xmax+=0.5*E;
           }
-        FXTRACE((1,"xmin=%.3lf xmax=%.3lf ymin=%.3lf ymax=%.3lf\n",xmin,xmax,ymin,ymax));
+        FXTRACE((100,"xmin=%.3lf xmax=%.3lf ymin=%.3lf ymax=%.3lf\n",xmin,xmax,ymin,ymax));
         }
 
-      FXTRACE((1,"now W=%lf H=%lf\n",W,H));
+      FXTRACE((100,"now W=%lf H=%lf\n",W,H));
 
       FXASSERT(0.0<W && 0.0<H);
 
@@ -550,11 +550,11 @@ long FXGauge::onPaint(FXObject*,FXSelector,void *ptr){
       cy=ceny+(FXint)(0.5+0.5*(ymax+ymin)*ry);
       }
 
-    FXTRACE((1,"width=%d height=%d\n",width,height));
-    FXTRACE((1,"xx=%d yy=%d ww=%d hh=%d\n",xx,yy,ww,hh));
-    FXTRACE((1,"cx=%d cy=%d\n",cx,cy));
-    FXTRACE((1,"rx=%d ry=%d\n",rx,ry));
-    FXTRACE((1,"\n"));
+    FXTRACE((100,"width=%d height=%d\n",width,height));
+    FXTRACE((100,"xx=%d yy=%d ww=%d hh=%d\n",xx,yy,ww,hh));
+    FXTRACE((100,"cx=%d cy=%d\n",cx,cy));
+    FXTRACE((100,"rx=%d ry=%d\n",rx,ry));
+    FXTRACE((100,"\n"));
 
     // Don't draw over borders
     dc.setClipRectangle(border,border,width-(border<<1),height-(border<<1));

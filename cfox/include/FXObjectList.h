@@ -3,7 +3,7 @@
 *                            O b j e c t   L i s t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -188,13 +188,13 @@ public:
   FXObjectListOf(const FXObjectListOf<TYPE>& src):FXObjectList(src){ }
 
   /// Construct and init with single object
-  FXObjectListOf(TYPE* object):FXObjectList(reinterpret_cast<FXObject*>(object)){ }
+  FXObjectListOf(TYPE* object):FXObjectList(object){ }
 
   /// Construct and init with n copies of object
-  FXObjectListOf(TYPE* object,FXival n):FXObjectList(reinterpret_cast<FXObject*>(object),n){ }
+  FXObjectListOf(TYPE* object,FXival n):FXObjectList(object,n){ }
 
   /// Construct and init with list of objects
-  FXObjectListOf(TYPE** objects,FXival n):FXObjectList(reinterpret_cast<FXObject**>(objects),n){ }
+  FXObjectListOf(TYPE** objects,FXival n):FXObjectList(objects,n){ }
 
   /// Assignment operator
   FXObjectListOf<TYPE>& operator=(const FXObjectListOf<TYPE>& orig){ return reinterpret_cast<FXObjectListOf<TYPE>&>(FXObjectList::operator=(orig)); }

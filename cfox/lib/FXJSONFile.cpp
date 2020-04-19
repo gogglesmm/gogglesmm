@@ -3,7 +3,7 @@
 *                            J S O N   F i l e   I / O                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2013,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2013,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -51,25 +51,33 @@ namespace FX {
 
 // Create JSON file i/o object
 FXJSONFile::FXJSONFile(){
-  FXTRACE((1,"FXJSONFile::FXJSONFile\n"));
+  FXTRACE((100,"FXJSONFile::FXJSONFile\n"));
   }
 
 
 // Create JSON file i/o object and open it
 FXJSONFile::FXJSONFile(const FXString& filename,Direction d,FXuval sz){
-  FXTRACE((1,"FXJSONFile::FXJSONFile(\"%s\",%s,%ld)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXTRACE((100,"FXJSONFile::FXJSONFile(\"%s\",%s,%ld)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   open(filename,d,sz);
   }
 
 
 // Open archive for operation
 FXbool FXJSONFile::open(FXInputHandle h,Direction d,FXuval sz){
-  FXTRACE((1,"FXJSONFile::open(%lx,%s,%ld)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
-  if(FXJSON::open(NULL,sz,d)){
+  FXTRACE((100,"FXJSONFile::open(%lx,%s,%ld)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXchar *buffer;
+  FXASSERT(dir==Stop);
+  if(allocElms(buffer,sz)){
     if(file.open(h,(d==Save)?FXIO::Writing:FXIO::Reading)){
-      return true;
+      if(FXJSON::open(buffer,sz,d)){
+        rptr=endptr;
+        sptr=endptr;
+        wptr=endptr;
+        return true;
+        }
+      file.close();
       }
-    close();
+    freeElms(buffer);
     }
   return false;
   }
@@ -77,59 +85,69 @@ FXbool FXJSONFile::open(FXInputHandle h,Direction d,FXuval sz){
 
 // Open archive for operation
 FXbool FXJSONFile::open(const FXString& filename,Direction d,FXuval sz){
-  FXTRACE((1,"FXJSONFile::open(\"%s\",%s,%ld)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
-  if(FXJSON::open(NULL,sz,d)){
+  FXTRACE((100,"FXJSONFile::open(\"%s\",%s,%ld)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXchar *buffer;
+  FXASSERT(dir==Stop);
+  if(allocElms(buffer,sz)){
     if(file.open(filename,(d==Save)?FXIO::Writing:FXIO::Reading,FXIO::AllReadWrite)){
-      return true;
+      if(FXJSON::open(buffer,sz,d)){
+        rptr=endptr;
+        sptr=endptr;
+        wptr=endptr;
+        return true;
+        }
+      file.close();
       }
-    close();
+    freeElms(buffer);
     }
   return false;
   }
 
 
-// Fill buffer from file
-FXbool FXJSONFile::fill(){
-  register FXival n;
+// Read at least count bytes into buffer; return bytes available, or -1 for error
+FXival FXJSONFile::fill(FXival){
+  FXival nbytes;
+  FXASSERT(dir==Load);
   if(file.isReadable()){
-    if(sptr<wptr){ moveElms(begptr,sptr,wptr-sptr); }
-    wptr=begptr+(wptr-sptr);
-    rptr=begptr+(rptr-sptr);
-    sptr=begptr;
-    n=file.readBlock(wptr,endptr-wptr);
-    FXTRACE((2,"FXJSONFile::fill() = %ld\n",n));
-    if(0<=n){
-      wptr+=n;
+    moveElms(begptr,rptr,wptr-rptr);
+    wptr=begptr+(wptr-rptr);
+    sptr=begptr+(sptr-rptr);
+    rptr=begptr;
+    nbytes=file.readBlock(wptr,endptr-wptr);
+    if(0<=nbytes){
+      wptr+=nbytes;
       if(wptr<endptr){ wptr[0]='\0'; }
-      return rptr<wptr;         // Input left to read
+      return wptr-sptr;                         // Input left to read
       }
     }
-  return false;
+  return -1;
   }
 
 
-// Flush buffer to file
-FXbool FXJSONFile::flush(){
-  register FXival n;
+// Write at least count bytes from buffer; return space available, or -1 for error
+FXival FXJSONFile::flush(FXival){
+  FXival nbytes;
+  FXASSERT(dir==Save);
   if(file.isWritable()){
-    n=file.writeBlock(rptr,wptr-rptr);
-    FXTRACE((2,"FXJSONFile::flush() = %ld\n",n));
-    if(0<=n){
-      rptr+=n;
-      if(rptr<wptr){ moveElms(begptr,rptr,wptr-rptr); }
+    nbytes=file.writeBlock(rptr,wptr-rptr);
+    if(0<=nbytes){
+      rptr+=nbytes;
+      moveElms(begptr,rptr,wptr-rptr);
       wptr=begptr+(wptr-rptr);
       rptr=begptr;
-      return wptr<endptr;       // Space left to write
+      return endptr-wptr;                       // Space left to write
       }
     }
-  return false;
+  return -1;
   }
 
 
 // Close stream and delete buffers
 FXbool FXJSONFile::close(){
-  FXTRACE((2,"FXJSONFile::close()\n"));
+  FXchar *buffer=begptr;
+  FXTRACE((100,"FXJSONFile::close()\n"));
   if(FXJSON::close()){
+    freeElms(buffer);
     return file.close();
     }
   return false;
@@ -138,7 +156,7 @@ FXbool FXJSONFile::close(){
 
 // Close JSON file
 FXJSONFile::~FXJSONFile(){
-  FXTRACE((1,"FXJSONFile::~FXJSONFile\n"));
+  FXTRACE((100,"FXJSONFile::~FXJSONFile\n"));
   close();
   }
 

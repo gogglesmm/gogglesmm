@@ -3,7 +3,7 @@
 *                          G e n e r i c   A r r a y                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2018 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -71,11 +71,11 @@ public:
   /// Change number of elements in array to n
   FXbool no(FXival n){
     FXival m=no();
-    if(0<n-m){
+    if((n-m)>0){
       if(!resize(n,sizeof(EType))) return false;
       constructElms(&at(m),n-m);
       }
-    else if(0<m-n){
+    else if((m-n)>0){
       destructElms(&at(n),m-n);
       if(!resize(n,sizeof(EType))) return false;
       }
