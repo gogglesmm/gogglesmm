@@ -131,32 +131,6 @@ extern const FXuint vorbis_channel_map[]={
 #endif
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-AudioFormat::AudioFormat() {
-  }
-
-
-AudioFormat::AudioFormat(const AudioFormat & af) {
-  format    =af.format;
-  rate      =af.rate;
-  channels  =af.channels;
-  channelmap=af.channelmap;
-  }
-
 void AudioFormat::reset() {
   format=0;
   rate=0;

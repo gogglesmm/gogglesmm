@@ -75,11 +75,7 @@ public:
   FXint         samplerate    = 0;
   FXuchar       filetype      = FILETYPE_UNKNOWN;
 public:
-  GMTrack();
-
-  GMTrack(const GMTrack &);
-  GMTrack(GMTrack &);
-
+  GMTrack() = default;
 
   FXbool hasMissingLyrics() const;
 
@@ -108,8 +104,6 @@ public:
 
   /// Get Artist
   const FXString & getArtist(const FXString & def) const;
-
-
 
   void setTagsFromString(const FXString &);
 

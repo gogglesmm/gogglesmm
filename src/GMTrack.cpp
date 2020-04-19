@@ -20,22 +20,6 @@
 #include "GMTrack.h"
 #include "GMTag.h"
 
-GMTrack::GMTrack() {
-  }
-
-GMTrack::GMTrack(const GMTrack & t) {
-  url=t.url;
-  title=t.title;
-  artist=t.artist;
-  }
-
-GMTrack::GMTrack(GMTrack & t) {
-  url=t.url;
-  title=t.title;
-  artist=t.artist;
-  }
-
-
 
 FXbool GMTrack::hasMissingLyrics() const {
   if (!lyrics.empty() && compare(lyrics,"\0",1)==0)

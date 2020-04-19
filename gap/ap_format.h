@@ -198,9 +198,7 @@ public:
   FXuchar  channels   = 0;
   FXuint   channelmap = 0;  // up to 8 channels
 public:
-  AudioFormat();
-  AudioFormat(const AudioFormat &);
-
+  AudioFormat() = default;
 
   void setBits(FXushort bps);
 
