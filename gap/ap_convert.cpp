@@ -37,6 +37,16 @@
 namespace ap {
 
 
+
+template <typename T, unsigned B>
+inline T signextend(const T x)
+{
+  struct {T x:B;} s;
+  return s.x = x;
+}
+
+
+
 static FXint s16_to_s32(FXshort x) {
   if (x==INT16_MIN)
     return INT32_MIN;
@@ -72,6 +82,16 @@ static FXint float_to_s32(FXfloat x) {
   }
 
 
+
+void s16_to_s24le3(const FXuchar * buffer, FXuint nsamples, MemoryBuffer & out){
+  out.clear();
+  out.reserve(nsamples*3);
+  FX
+  const FXshort * input = reinterpret_cast<const FXshort*>(buffer);
+  for (FXuint i=0; i < nsamples; i++) {
+    
+    }  
+}
 
 void s16_to_s32(const FXuchar *buffer,FXuint nsamples,MemoryBuffer & out) {
   out.clear();

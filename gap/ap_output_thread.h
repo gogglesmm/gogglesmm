@@ -30,6 +30,7 @@ namespace ap {
 class AudioEngine;
 class Packet;
 class FrameTimer;
+class CrossFader;
 
 struct ReplayGainConfig {
   ReplayGainMode  mode;
@@ -68,6 +69,7 @@ public:
   MemoryBuffer      src_output;
   ReplayGainConfig  replaygain;
   Packet * packet_queue;
+  CrossFader * crossfader;  
 protected:
   FXbool draining;
   FXbool pausing;
