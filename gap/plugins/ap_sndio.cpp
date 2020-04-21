@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Audio Player Library                         *
 ********************************************************************************
-*           Copyright (C) 2010-2018 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2010-2020 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -27,6 +27,7 @@ namespace ap {
 
 class SndioOutput : public OutputPlugin {
 protected:
+  SndioConfig config;
   sio_hdl * handle = nullptr;
   FXint sio_delay = 0;
   FXuint sio_volume = 0;
@@ -44,7 +45,7 @@ protected:
         GM_DEBUG_PRINT("[sndio] volume: %d\n", volume);
         output->sio_volume = volume;
         output->context->notify_volume((float)volume / (float)SIO_MAXVOL);
-        }       
+        }
     }
 public:
   SndioOutput(OutputContext* ctx);
@@ -76,6 +77,9 @@ public:
   /// Get Device Type
   FXchar type() const { return DeviceSndio; }
 
+  /// Set Device Configuration
+  FXbool setOutputConfig(const OutputConfig &);
+
   /// Destructor
   virtual ~SndioOutput();
   };
@@ -84,15 +88,23 @@ public:
 SndioOutput::SndioOutput(OutputContext * ctx) : OutputPlugin(ctx) {
   }
 
+
 SndioOutput::~SndioOutput() {
   close();
   }
 
+
+FXbool SndioOutput::setOutputConfig(const OutputConfig &c){
+  config=c.sndio;
+  return true;
+  }
+
+
 FXbool SndioOutput::open() {
   if (handle == nullptr) {
-    handle = sio_open(SIO_DEVANY, SIO_PLAY, 0);
+    handle = sio_open(config.device.text(), SIO_PLAY, 0);
     if (handle == nullptr) {
-      GM_DEBUG_PRINT("[sndio] Unable to open device %s.\n", SIO_DEVANY);
+      GM_DEBUG_PRINT("[sndio] Unable to open device %s.\n", config.device.text());
       return false;
       }
     sio_onmove(handle, SndioOutput::on_move, this);
@@ -116,8 +128,8 @@ void SndioOutput::volume(FXfloat v) {
   if (handle != nullptr) {
     sio_volume = (unsigned int)(v * SIO_MAXVOL);
     GM_DEBUG_PRINT("[sndio] volume: %d\n", sio_volume);
-    sio_setvol(handle, sio_volume);  
-    }  
+    sio_setvol(handle, sio_volume);
+    }
   }
 
 FXint SndioOutput::delay() {

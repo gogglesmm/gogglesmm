@@ -50,6 +50,9 @@ protected:
   FXLabel     * oss_device_label = nullptr;
   FXTextField * oss_device = nullptr;
 
+  FXLabel     * sndio_device_label = nullptr;
+  FXTextField * sndio_device = nullptr;
+
 protected:
   void showDriverSettings(FXuchar driver);
 public:

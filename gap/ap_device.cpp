@@ -98,6 +98,22 @@ void OSSConfig::save(FXSettings & settings) const {
   }
 
 
+SndioConfig::SndioConfig() : device("default") {
+  }
+
+SndioConfig::SndioConfig(const FXString & d): device(d) {
+  }
+
+SndioConfig::~SndioConfig(){
+  }
+
+void SndioConfig::load(FXSettings & settings) {
+  device=settings.readStringEntry("sndio","device",device.text());
+  }
+
+void SndioConfig::save(FXSettings & settings) const {
+  settings.writeStringEntry("sndio","device",device.text());
+  }
 
 
 OutputConfig::OutputConfig() {
@@ -164,6 +180,7 @@ void OutputConfig::load(FXSettings & settings) {
     }
   alsa.load(settings);
   oss.load(settings);
+  sndio.load(settings);
   }
 
 void OutputConfig::save(FXSettings & settings) const {
@@ -181,6 +198,7 @@ void OutputConfig::save(FXSettings & settings) const {
 
   alsa.save(settings);
   oss.save(settings);
+  sndio.save(settings);
   }
 
 
