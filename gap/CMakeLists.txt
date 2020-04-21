@@ -79,6 +79,11 @@ set_package_properties(pulse PROPERTIES
                             PURPOSE "\tPulseAudio Output"
                             TYPE OPTIONAL)
 
+set_package_properties(sndio PROPERTIES
+                            URL "http://www.sndio.org/"
+                            PURPOSE "\tSndio Output"
+                            TYPE OPTIONAL)
+
 set_package_properties(openssl PROPERTIES
                             URL "https://www.openssl.org"
                             PURPOSE "\tSecure HTTP"
@@ -132,6 +137,7 @@ if(UNIX)
   option(WITH_PULSE "PulseAudio Output Support" ON)
   option(WITH_JACK "Jack Output Support (currently not working)" OFF)
   option(WITH_WAVOUT "WAV Output Support" ON)
+  option(WITH_SNDIO "Sndio Output Support" ON)
 
   # Containers
   option(WITH_OGG "Ogg File Support" ON)
@@ -199,6 +205,16 @@ else()
 
   if(WITH_JACK)
     pkg_check_modules(JACK jack)
+  endif()
+
+  if(WITH_SNDIO)
+    check_include_files(sndio.h HAVE_SNDIO_H)
+    if(HAVE_SNDIO_H)
+        find_library(SNDIO_LIBRARIES NAMES sndio)
+        if(SNDIO_LIBRARIES)
+            set(SNDIO_FOUND 1)
+        endif()
+    endif()
   endif()
 
   if(WITH_DCA)
@@ -536,6 +552,14 @@ if(NOT WIN32)
     set(HAVE_JACK 1)
   endif()
 
+  # Sndio Output
+  if (WITH_SNDIO AND SNDIO_FOUND)
+    add_library(gap_sndio MODULE plugins/ap_sndio.cpp)
+    target_link_libraries(gap_sndio ${SNDIO_LIBRARIES})
+    target_include_directories(gap_sndio PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${FOX_INCLUDE_DIRS})
+    install(TARGETS gap_sndio LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
+    set(HAVE_SNDIO 1)
+  endif()
 endif()
 
 
@@ -555,6 +579,7 @@ add_feature_info(pulse HAVE_PULSE "${PULSE_VERSION}")
 add_feature_info(alsa HAVE_ALSA "${ALSA_VERSION}")
 add_feature_info(jack HAVE_JACK "${JACK_VERSION}")
 add_feature_info(oss HAVE_OSS "OSS Output")
+add_feature_info(sndio HAVE_SNDIO "Sndio Output")
 add_feature_info(wav WITH_WAVOUT "WAV File Output")
 
 # Containers

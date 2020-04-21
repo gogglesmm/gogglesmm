@@ -33,7 +33,8 @@ static const FXchar * const plugin_names[DeviceLast]={
   "oss",
   "pulse",
   "jack",
-  "wav"
+  "wav",
+  "sndio"
   };
 
 static FXbool ap_has_plugin(FXuchar device) {
@@ -108,6 +109,8 @@ OutputConfig::OutputConfig() {
   device=DevicePulse;
 #elif defined(HAVE_JACK)
   device=DeviceJack;
+#elif defined(HAVE_SNDIO)
+  device=DeviceSndio;
 #else
   device=DeviceWav;
 #endif
@@ -134,6 +137,10 @@ FXuint OutputConfig::devices() {
 #ifdef HAVE_JACK
   if (ap_has_plugin(DeviceJack))
     AP_ENABLE_PLUGIN(plugins,DeviceJack);
+#endif
+#ifdef HAVE_SNDIO
+  if (ap_has_plugin(DeviceSndio))
+    AP_ENABLE_PLUGIN(plugins,DeviceSndio);
 #endif
   if (ap_has_plugin(DeviceWav))
     AP_ENABLE_PLUGIN(plugins,DeviceWav);

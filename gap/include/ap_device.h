@@ -28,6 +28,7 @@ enum {
   DevicePulse   = 3,
   DeviceJack    = 4,
   DeviceWav     = 5,
+  DeviceSndio   = 6,
   DeviceLast,
   };
 

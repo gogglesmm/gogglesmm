@@ -598,6 +598,9 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (AP_HAS_PLUGIN(devices,DeviceJack))
     driverlist->appendItem("Jack",nullptr,(void*)DeviceJack);
 
+  if (AP_HAS_PLUGIN(devices,DeviceSndio))
+    driverlist->appendItem("Sndio",nullptr,(void*)DeviceSndio);
+
   if (AP_HAS_PLUGIN(devices,DeviceWav))
     driverlist->appendItem("Wave File Output",nullptr,(void*)DeviceWav);
 
