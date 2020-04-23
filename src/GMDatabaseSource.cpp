@@ -223,7 +223,7 @@ void GMDatabaseSource::shuffle(GMTrackList*list,FXuint sort_seed) const {
 void GMDatabaseSource::configure(GMColumnList& list) {
   list.no(17);
   FXint i=0;
-  list[i++]=GMColumn(notr("No"),HEADER_TRACK,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,43,(!playlist) ,true,0);
+  list[i++]=GMColumn(notr("No."),HEADER_TRACK,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,43,(!playlist) ,true,0);
   list[i++]=GMColumn(notr("Queue"),HEADER_QUEUE,GMDBTrackItem::ascendingQueue,GMDBTrackItem::descendingQueue,60,(playlist),false,1);
   list[i++]=GMColumn(notr("Artist"),HEADER_ARTIST,GMDBTrackItem::ascendingArtist,GMDBTrackItem::descendingArtist,400,true,true,3);
   list[i++]=GMColumn(notr("Title"),HEADER_TITLE,GMDBTrackItem::ascendingTitle,GMDBTrackItem::descendingTitle,360,true,true,2);

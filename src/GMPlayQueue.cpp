@@ -64,7 +64,7 @@ GMPlayQueue::~GMPlayQueue() {
 void GMPlayQueue::configure(GMColumnList& list) {
   list.no(17);
   FXint i=0;
-  list[i++]=GMColumn(notr("No"),HEADER_TRACK,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,43,false ,false,0);
+  list[i++]=GMColumn(notr("No."),HEADER_TRACK,GMDBTrackItem::ascendingTrack,GMDBTrackItem::descendingTrack,43,false ,false,0);
   list[i++]=GMColumn(notr("Queue"),HEADER_QUEUE,GMDBTrackItem::ascendingQueue,GMDBTrackItem::descendingQueue,70,true,true,1);
   list[i++]=GMColumn(notr("Artist"),HEADER_ARTIST,GMDBTrackItem::ascendingArtist,GMDBTrackItem::descendingArtist,200,true,true,2);
   list[i++]=GMColumn(notr("Title"),HEADER_TITLE,GMDBTrackItem::ascendingTitle,GMDBTrackItem::descendingTitle,300,true,true,3);

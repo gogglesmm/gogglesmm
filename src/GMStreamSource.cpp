@@ -55,7 +55,7 @@ GMStreamSource::~GMStreamSource(){
 
 void GMStreamSource::configure(GMColumnList& list){
   list.no(4);
-  list[0]=GMColumn(notr("No"),HEADER_TRACK,GMStreamTrackItem::ascendingTrack,GMStreamTrackItem::descendingTrack,60,true,true,0);
+  list[0]=GMColumn(notr("No."),HEADER_TRACK,GMStreamTrackItem::ascendingTrack,GMStreamTrackItem::descendingTrack,60,true,true,0);
   list[1]=GMColumn(notr("Station"),HEADER_TITLE,GMStreamTrackItem::ascendingTitle,GMStreamTrackItem::descendingTitle,200,true,true,1);
   list[2]=GMColumn(notr("Bit Rate"),HEADER_BITRATE,GMStreamTrackItem::ascendingTime,GMStreamTrackItem::descendingTime,80,true,true,2);
   list[3]=GMColumn(notr("Genre"),HEADER_TAG,GMStreamTrackItem::ascendingTrack,GMStreamTrackItem::descendingTrack,150,true,true,3);
