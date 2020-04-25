@@ -31,8 +31,11 @@ protected:
   sio_hdl * handle = nullptr;
   FXint sio_delay = 0;
   FXuint sio_volume = 0;
+  FXbool sio_started = false;
 protected:
   FXbool open();
+  void start();
+  void stop();
 protected:
   static void on_move(void * ptr, int delta) {
     auto output = reinterpret_cast<SndioOutput*>(ptr);
@@ -114,6 +117,7 @@ FXbool SndioOutput::open() {
   return true;
   }
 
+
 void SndioOutput::close() {
   if (handle != nullptr) {
      drop();
@@ -121,6 +125,33 @@ void SndioOutput::close() {
      handle = nullptr;
      af.reset();
      }
+  }
+
+
+void SndioOutput::start() {
+  if (handle != nullptr && sio_started == false) {
+    if (sio_start(handle) == 0) {
+      GM_DEBUG_PRINT("[sndio] unable to start output\n");
+      }
+    else {
+      sio_started = true;
+      GM_DEBUG_PRINT("[sndio] switch to START\n");
+      }
+    }
+  }
+
+
+void SndioOutput::stop() {
+  if (handle != nullptr && sio_started == true) {
+    if (sio_stop(handle) == 0) {
+      GM_DEBUG_PRINT("[sndio] unable to stop output\n");
+      }
+    else {
+      sio_started = false;
+      sio_delay = 0;
+      GM_DEBUG_PRINT("[sndio] switch to STOP\n");
+      }
+    }
   }
 
 
@@ -132,35 +163,29 @@ void SndioOutput::volume(FXfloat v) {
     }
   }
 
+
 FXint SndioOutput::delay() {
   return sio_delay;
   }
 
+
 void SndioOutput::drop() {
   GM_DEBUG_PRINT("[sndio] drop\n");
-  if (__likely(handle != nullptr)) {
-    sio_stop(handle);
-    sio_start(handle);
-    sio_delay = 0;
-    }
+  stop();
   }
+
 
 void SndioOutput::drain() {
   GM_DEBUG_PRINT("[sndio] drain\n");
-  if (__likely(handle != nullptr)) {
-    sio_stop(handle);
-    sio_start(handle);
-    sio_delay = 0;
-    }
+  stop();
   }
 
-void SndioOutput::pause(FXbool p ) {
-  if (p) {
-    sio_stop(handle);
-    }
-  else {
-    sio_start(handle);
-    }
+
+void SndioOutput::pause(FXbool pausing) {
+  if (pausing)
+    stop();
+  else
+    start();
   }
 
 
@@ -172,8 +197,7 @@ FXbool SndioOutput::configure(const AudioFormat & fmt){
     return true;
 
   if (handle) {
-    sio_stop(handle);
-    sio_delay = 0;
+    drop();
     }
 
   if (!open())
@@ -185,7 +209,7 @@ FXbool SndioOutput::configure(const AudioFormat & fmt){
   parameters.le = fmt.byteorder() == Format::Little; // Byteorder
   parameters.pchan = fmt.channels; // Channel Count
   parameters.rate = fmt.rate; // Sample Rate
-  parameters.xrun = SIO_SYNC; // xrun behaviour
+  parameters.xrun = SIO_IGNORE; // xrun behaviour
 
   if (sio_setpar(handle, &parameters) == 0)
     goto failed;
@@ -198,9 +222,6 @@ FXbool SndioOutput::configure(const AudioFormat & fmt){
          parameters.bps,
          parameters.rate,
          parameters.pchan);
-
-  if (sio_start(handle) == 0)
-    goto failed;
 
   return true;
 failed:
@@ -218,6 +239,10 @@ FXbool SndioOutput::write(const void * buffer,FXuint nframes){
   if (__unlikely(handle == nullptr)) {
     GM_DEBUG_PRINT("[sndio] device not opened\n");
     return false;
+    }
+
+  if (__unlikely(sio_started == false)) {
+    start();
     }
 
   while(nbytes>0) {
