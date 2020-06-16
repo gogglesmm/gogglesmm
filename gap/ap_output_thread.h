@@ -42,6 +42,20 @@ struct ReplayGainConfig {
   FXdouble peak() const { return (mode==ReplayGainAlbum) ? value.album_peak : value.track_peak; }
   };
 
+
+struct Samples {
+  MemoryBuffer * buffer = nullptr;
+  MemoryBuffer   remapped;
+  MemoryBuffer   formatted;
+  FXint          nframes;
+  FXlong         position;
+  FXlong         length;
+  FXuint         stream;
+  FXbool         crossfade;
+  FXuchar * data() const { return buffer->data();}
+};
+
+
 class OutputThread : public EngineThread, public OutputContext {
 protected:
   OutputConfig   output_config;
@@ -64,12 +78,14 @@ public:
   AudioFormat       af;
   OutputPlugin *    plugin;
   FXDLL             dll;
+  Samples           samples;
+#ifdef HAVE_SAMPLERATE
   MemoryBuffer      converted_samples;
   MemoryBuffer      src_input;
   MemoryBuffer      src_output;
+#endif
   ReplayGainConfig  replaygain;
-  Packet * packet_queue;
-  CrossFader * crossfader;  
+  CrossFader * crossfader = nullptr;
 protected:
   FXbool draining;
   FXbool pausing;
@@ -85,22 +101,28 @@ protected:
   void update_timers(FXint delay,FXint nframes);
   void clear_timers();
 protected:
+  void init_samples(Packet*);
+  void init_crossfade_samples();
+  void process_samples();
+  void crossfade_samples();
+  FXbool convert_samples();
+  FXbool write_samples();
+  void replay_gain();
+protected:
+  void reset_crossfader();
+  void drain_crossfader();
+protected:
   void configure(const AudioFormat&);
   void load_plugin();
   void unload_plugin();
   void close_plugin();
-  void process(Packet*);
-
-
 #ifdef HAVE_SAMPLERATE
   void resample(Packet*,FXint & nframes);
 #endif
   void drain(FXbool flush=true);
-
   void update_position(FXint stream,FXlong position,FXint nframes,FXlong length);
   void notify_position();
   void reset_position();
-
   void reconfigure();
 public:
   OutputThread(AudioEngine*);

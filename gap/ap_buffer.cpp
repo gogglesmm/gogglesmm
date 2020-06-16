@@ -35,6 +35,18 @@ BufferBase::~BufferBase(){
   freeElms(begptr);
   }
 
+void BufferBase::adopt(BufferBase & other) {
+  freeElms(begptr);
+  begptr = other.begptr;
+  endptr = other.endptr;
+  wrptr  = other.wrptr;
+  rdptr  = other.rdptr;
+  other.begptr = nullptr;
+  other.endptr = nullptr;
+  other.wrptr = nullptr;
+  other.rdptr = nullptr;
+  }
+
 void BufferBase::clear() {
   wrptr=rdptr=begptr;
   }

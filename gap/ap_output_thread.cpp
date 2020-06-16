@@ -20,10 +20,9 @@
 #include "ap_utils.h"
 #include "ap_convert.h"
 #include "ap_engine.h"
+#include "ap_crossfader.h"
 #include "ap_input_thread.h"
 #include "ap_output_thread.h"
-
-
 
 
 #ifndef _WIN32
@@ -129,111 +128,6 @@ public:
     }
   };
 
-class CrossFader {
-public:
-  AudioFormat  af;
-  MemoryBuffer buffer;
-public:
-  CrossFader() {
-    }
-
-  void flush(){
-    buffer.clear();
-    }
-
-  void record(const FXuchar * in, FXint nbytes) {
-    buffer.append(in, nbytes);
-    }
-
-
-};
-
-/*
-class CrossFader {
-public:
-  AudioFormat  af;
-  MemoryBuffer buffer;
-  FXint        nframes = 0;
-  FXint        nfade = 0;
-  OutputPlugin * plugin;
-  bool         do_transition = false;
-public:
-  CrossFader()  {
-    }
-
-  void flush() {
-    buffer.clear();
-    nframes = 0;
-    nfade = 0;
-    do_transition = false;
-    }
-
-
-  void execute() {
-    if  (nframes > 0) {
-        printf("starting fade... reducing volume...\n");
-        do_transition = true;
-        nfade = 0;
-        FXuint nsamples = nframes * af.channels;
-        double step = 1.0 / nframes;
-        printf("nsamples %d step %g\n", nsamples, step);
-        FXshort * out = reinterpret_cast<FXshort*>(buffer.data());
-        for (FXuint i=0;i<nsamples;i++) {
-            //printf("volume %d: %g\n",i,  (1.0 - ((i/af.channels)*step)));
-            out[i] *= (1.0 - ((i/af.channels)*step));
-            }
-        }
-    }
-
-  void process(FXuchar * in,FXuint ninput) {
-    if (do_transition) {
-        FXint nprocess = FXMIN(ninput, nframes - nfade);
-        FXint nsamples = nprocess * af.channels;
-        FXshort * in_samples = reinterpret_cast<FXshort*>(in);
-        FXshort * out_samples = reinterpret_cast<FXshort*>(buffer.data());
-        double step = 1.0 / nframes;
-        for (FXint i=0;i < nsamples; i++) {
-            //printf("increase vol %g\n",(((i/af.channels) + nfade)*step));
-            out_samples[i+(nfade*af.channels)] += (in_samples[i] * (((i/af.channels) + nfade)*step));
-            }
-        nfade += nprocess;
-        ninput -= nprocess;
-        if (nfade >= nframes) {
-            do_transition = false;
-            }
-        else {
-            return;
-            }
-        }
-    //printf("crossfader: in %d frames\n", ninput);
-    //printf("crossfader: buffer %d frames\n", nframes);
-    FXint total = nframes + ninput;
-    FXint nout = total - (af.rate * 10);
-    //printf("crossfader: out %d frames\n", nout);
-    if (nout > 0) {
-        FXint from_buffer = FXMIN(nout, nframes);
-        //printf("crossfader: write from buffer %d frames\n", from_buffer);
-        plugin->write(buffer.data(), from_buffer);
-        buffer.readBytes(af.framesize() * from_buffer);
-        if (nout > nframes) {
-            FXint from_input = nout - from_buffer;
-            //printf("crossfader: write from input %d frames\n", from_input);
-            ninput -= from_input;
-            plugin->write(in, from_input);
-            in += from_input * af.framesize();
-            }
-        nframes -=  from_buffer;
-        }
-    if (ninput > 0) {
-        //printf("crossfader: append %d frames\n", ninput);
-        buffer.append(in, ninput * af.framesize());
-        nframes += ninput;
-        }
-    }
-
-
-};
-*/
 
 OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),plugin(nullptr),draining(false),pausing(false) {
   stream=-1;
@@ -242,8 +136,6 @@ OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),
   stream_written=0;
   stream_position=0;
   timestamp=-1;
-  packet_queue=nullptr;
-  crossfader = new CrossFader();
   }
 
 
@@ -262,6 +154,8 @@ OutputThread::~OutputThread() {
   reactor.removeInput(fifoinput);
   delete fifoinput;
   clear_timers();
+  if (crossfader)
+    delete crossfader;
   }
 
 
@@ -366,44 +260,6 @@ void OutputThread::update_position(FXint sid,FXlong position,FXint nframes,FXlon
 
   update_timers(delay,nframes);
   notify_position();
-
-
-#if 0
-
-
-      FXint fs_diff=fs_delay - fs_submitted;
-//      fxmessage("fs_diff=%d",fs_diff);
-      if (fs_diff>0) {
-        if (fs_diff>plugin->af.rate)
-          fs_output    += (fs_remaining - fs_diff);
-        fs_remaining  = fs_diff;
-//        fxmessage("diff: %d => %lg\n",fs_diff,floor((double)fs_output / (double)plugin->af.rate));
-//        fxmessage("fs_output=%d\n" ,fs_output);
-        }
-      else {
-        fs_remaining  = 0;
-        fs_submitted  = 0;
-        stream_length = length;
-        engine->post(new NotifyEvent(Notify_Begin_Of_Stream));
-        }
-      }
-    fs_submitted += nframes;
-    }
-  else {
-    fs_output     = position - fs_delay;
-    fs_submitted  = nframes;
-    stream_length = length;
-    }
-
-
-  FXint s = floor((double)fs_output / (double)plugin->af.rate);
-  if (s!=timestamp) {
-    timestamp=s;
-    FXuint len =0;
-    len = floor((double)stream_length / (double)plugin->af.rate);
-    engine->post(new TimeUpdate(timestamp,len));
-    }
-#endif
   }
 
 
@@ -639,6 +495,18 @@ void OutputThread::configure(const AudioFormat & fmt) {
   FXASSERT(plugin);
 
   if (af==fmt || fmt==plugin->af){
+    if (crossfader && crossfader->readable_frames()) {
+      GM_DEBUG_PRINT("[crossfader] has buffer\n");
+      if (af != fmt && !crossfader->convert(fmt)) {
+        GM_DEBUG_PRINT("[crossfader] cannot crossfade, play remaining samples\n");
+        drain_crossfader();
+        reset_crossfader();
+        }
+      else {
+        GM_DEBUG_PRINT("[crossfader] switch to playback\n");
+        crossfader->recording = false;
+        }
+      }
     af=fmt;
     draining=false;
 
@@ -654,6 +522,13 @@ void OutputThread::configure(const AudioFormat & fmt) {
 
   // We need to reconfigure the hardware, but first let's drain the existing samples
   GM_DEBUG_PRINT("[output] Potential new format... let's drain\n");
+
+  if (crossfader && crossfader->readable_frames()) {
+    GM_DEBUG_PRINT("[crossfader] cannot crossfade, play remaining samples\n");
+    drain_crossfader();
+    reset_crossfader();
+    }
+
   drain();
 
   af=fmt;
@@ -686,91 +561,6 @@ static FXbool mono_to_stereo(FXuchar * in,FXuint nsamples,FXuchar bps,MemoryBuff
   return true;
   }
 
-
-
-/*
-static void softvol_float(FXuchar * buffer,FXuint nsamples,FXfloat vol) {
-  FXfloat * input  = reinterpret_cast<FXfloat*>(buffer);
-  for (FXint i=0;i<nsamples;i++) {
-    input[i]*=vol;
-    }
-  }
-
-
-static void softvol_s16(FXuchar * buffer,FXuint nsamples,FXfloat vol) {
-  FXshort * input  = reinterpret_cast<FXshort*>(buffer);
-  for (FXint i=0;i<nsamples;i++) {
-    input[i]*=vol;
-    }
-  }
-*/
-
-/*
-static void s8_to_float(FXchar * in,FXfloat * out,FXuint nsamples){
-  for (FXint i=0;i<nsamples;i++) {
-    out[i]=(((FXfloat)in[i])/127.0f);
-    }
-  }
-
-static void s16_to_float(FXshort * in,FXfloat * out,FXuint nsamples){
-  for (FXint i=0;i<nsamples;i++) {
-    out[i]=(((FXfloat)in[i])/32767.0f);
-    }
-  }
-
-
-static FXbool convert_to_float(OutputPacket * packet,MemoryBuffer & output) {
-  const FXint nbytes  = packet->nframes*packet->af.channels*4;
-  const FXint nsamples= packet->nframes*packet->af.channels;
-
-  /// Make sure we have enough space
-  output.grow_by(nbytes);
-
-  switch(packet->af.format){
-    case AP_FORMAT_S8 : s8_to_float(reinterpret_cast<FXchar*>(packet->data),
-                                    reinterpret_cast<FXfloat*>(output.ptr()),
-                                    nsamples);
-                        output.data_size+=nbytes;
-                        break;
-
-    case AP_FORMAT_S16: s16_to_float(reinterpret_cast<FXshort*>(packet->data),
-                                     reinterpret_cast<FXfloat*>(output.ptr()),
-                                     nsamples);
-                        output.data_size+=nbytes;
-                        break;
-    default           : return false; break;
-    }
-  return true;
-  }
-
-*/
-
-
-
-/*
-void OutputThread::convert_and_resample(OutputPacket * packet) {
-
-  if (src_state==nullptr) {
-    int error;
-    src_state = src_new(SRC_SINC_BEST_QUALITY,packet->af.channels,&error);
-    }
-
-  if (packet->af.datatype()!=Format::Float) {
-    convert_to_float(packet,src_input);
-    }
-  else {
-    src_input.append(packet->data,packet->nframes*framesize);
-    }
-
-
-
-
-
-
-
-  }
-
-*/
 
 #ifdef HAVE_SAMPLERATE
 void OutputThread::resample(Packet * packet,FXint & nframes) {
@@ -829,6 +619,7 @@ static void apply_scale_float(FXuchar * buffer,FXuint nsamples,FXdouble scale) {
     }
   }
 
+
 static void apply_scale_s16(FXuchar * buffer,FXuint nsamples,FXdouble scale) {
   FXshort * out = reinterpret_cast<FXshort*>(buffer);
   for (FXuint i=0;i<nsamples;i++) {
@@ -836,81 +627,98 @@ static void apply_scale_s16(FXuchar * buffer,FXuint nsamples,FXdouble scale) {
     }
   }
 
-void OutputThread::process(Packet * packet) {
-  FXASSERT(packet);
-  FXbool use_buffer=false;
-  FXbool result=false;
-  FXint nframes=packet->numFrames();
-  FXint crossfade_length = packet->af.rate * 5;
-  FXint crossfade_start = packet->stream_length - crossfade_length;
 
-  if (packet->stream_position + nframes >= crossfade_start) {
-    FXint offset = 0;
-    if (packet->stream_position < crossfade_start)
-        offset = crossfade_start - packet->stream_position;
-    printf("crossfade: record %d / %d frames, offset %d\n", nframes - offset, nframes, offset);
-    crossfader->af = packet->af;
-    crossfader->record(packet->data() + (packet->af.framesize() * offset), (nframes-offset) * packet->af.framesize());
-    nframes = offset;
-    }
+static void apply_crossfade_s16(MemoryBuffer & fade_in, MemoryBuffer & fade_out, FXint nframes, FXuint nchannels, FXlong position, FXdouble step) {
+  auto in = reinterpret_cast<FXshort*>(fade_in.data());
+  auto out = reinterpret_cast<FXshort*>(fade_out.data());
+  double fade = position * step;
+  for (int f = 0, s = 0; f < nframes; f++, fade += step, s += nchannels) {
+    double fi = pow(fade, 3);
+    double fo = 1.0 - fi;
+    for (int c = 0; c < nchannels; c++) {
+      in[s + c] = lrint(((double)in[s + c]) * fi) + (((double)out[s + c]) * fo);
 
-
-  if (packet->stream_position < crossfade_length) {
-    if (crossfader->buffer.size()) {
-      if ((packet->af == crossfader->af) && packet->af.format == AP_FORMAT_S16) {
-        double step = 1.0 / crossfade_length;
-        FXint nfade = FXMIN(nframes, crossfade_length - packet->stream_position);
-        FXshort * fade = reinterpret_cast<FXshort*>(crossfader->buffer.data());
-        FXshort * out = reinterpret_cast<FXshort*>(packet->data());
-
-        FXint n = nfade * packet->af.channels;
-        for (int i = 0, p = 0; i < nfade; i++, p+=packet->af.channels) {
-          double m = (packet->stream_position+i) * step;
-          for (int c = 0; c < packet->af.channels; c++) {
-             out[p+c] *= m;
-             fade[p+c] *= (1.0 - m);
-             out[p+c] += fade[p+c];
-             }
-           }
-        crossfader->buffer.readBytes(nfade * crossfader->af.framesize());
-        }
-      else if ((packet->af == crossfader->af) && packet->af.format == AP_FORMAT_FLOAT) {
-        double step = 1.0 / crossfade_length;
-        FXint nfade = FXMIN(nframes, crossfade_length - packet->stream_position);
-        FXfloat * fade = reinterpret_cast<FXfloat*>(crossfader->buffer.data());
-        FXfloat * out = reinterpret_cast<FXfloat*>(packet->data());
-
-        FXint n = nfade * packet->af.channels;
-        for (int i = 0, p = 0; i < nfade; i++, p+=packet->af.channels) {
-          float m = (packet->stream_position+i) * step;
-          for (int c = 0; c < packet->af.channels; c++) {
-             out[p+c] *= m;
-             fade[p+c] *= (1.0 - m);
-             out[p+c] += fade[p+c];
-             }
-           }
-        crossfader->buffer.readBytes(nfade * crossfader->af.framesize());
-        } 
-      else {
-        crossfader->flush();
-        }
       }
     }
+  }
 
 
-
-
-
-/*
-  if (packet->af.format==AP_FORMAT_FLOAT) {
-    softvol_float(packet->data,packet->nframes*packet->af.channels,softvol);
+static void apply_crossfade_float(MemoryBuffer & fade_in, MemoryBuffer & fade_out, FXint nframes, FXuint nchannels, FXlong position, FXfloat step) {
+  auto in = reinterpret_cast<FXfloat*>(fade_in.data());
+  auto out = reinterpret_cast<FXfloat*>(fade_out.data());
+  float fade = position * step;
+  for (int f = 0, s = 0; f < nframes; f++, fade += step, s += nchannels) {
+    float fi = powf(fade, 3);
+    float fo = 1.0 - fi;
+    for (int c = 0; c < nchannels; c++) {
+      in[s + c] = (((float)in[s + c]) * fi) + (((float)out[s + c]) * fo);
+      }
     }
-  else if (packet->af.format==AP_FORMAT_S16){
-    softvol_s16(packet->data,packet->nframes*packet->af.channels,softvol);
-    }
-*/
+  }
 
-  if (replaygain.mode!=ReplayGainOff) {
+
+
+void OutputThread::reset_crossfader() {
+  FXASSERT(crossfader);
+  crossfader->flush();
+  if (crossfader->duration == 0) {
+    GM_DEBUG_PRINT("[crossfader] discard\n");
+    delete crossfader;
+    crossfader = nullptr;
+    }
+  }
+
+
+void OutputThread::drain_crossfader() {
+  FXASSERT(crossfader);
+  if (crossfader->recording && crossfader->rframes) {
+    GM_DEBUG_PRINT("[crossfader] drain %d\n", crossfader->rframes);
+    init_crossfade_samples();
+    process_samples();
+    }
+  }
+
+
+void OutputThread::init_samples(Packet * packet) {
+  samples.buffer = packet;
+  samples.position = packet->stream_position;
+  samples.length = packet->stream_length;
+  samples.nframes = packet->numFrames();
+  samples.stream = packet->stream;
+  samples.crossfade = true;
+  }
+
+
+void OutputThread::init_crossfade_samples() {
+  FXASSERT(crossfader);
+  samples.buffer = &crossfader->buffer;
+  samples.position = crossfader->position;
+  samples.length = crossfader->length;
+  samples.nframes = crossfader->buffer.size() / crossfader->af.framesize();
+  samples.stream = crossfader->stream;
+  samples.crossfade = false;
+  }
+
+
+void OutputThread::process_samples() {
+
+  replay_gain();
+
+  if (crossfader && samples.crossfade) {
+    crossfade_samples();
+    if (samples.nframes == 0)
+      return;
+    }
+
+  if (!convert_samples())
+    return;
+
+  if (!write_samples())
+    return;
+  }
+
+void OutputThread::replay_gain() {
+  if (replaygain.mode != ReplayGainOff) {
     FXdouble gain  = replaygain.gain();
     if(!isnan(gain)) {
       FXdouble peak  = replaygain.peak();
@@ -920,79 +728,139 @@ void OutputThread::process(Packet * packet) {
       if (!isnan(peak) && peak!=0.0 && (scale*peak)>1.0)
         scale = 1.0 / peak;
 
-      switch(packet->af.format) {
-        case AP_FORMAT_FLOAT: apply_scale_float(packet->data(),nframes*packet->af.channels,scale); break;
-        case AP_FORMAT_S16  : apply_scale_s16(packet->data(),nframes*packet->af.channels,scale);   break;
+      switch(af.format) {
+        case AP_FORMAT_FLOAT: apply_scale_float(samples.data(), samples.nframes * af.channels, scale); break;
+        case AP_FORMAT_S16  : apply_scale_s16(samples.data(), samples.nframes * af.channels, scale); break;
         }
       }
     }
+  }
 
-  if (packet->af!=plugin->af) {
 
+void OutputThread::crossfade_samples() {
+  FXASSERT(crossfader);
+  if (crossfader->recording) {
 
-    if (plugin->af.format!=packet->af.format) {
-
-      if (plugin->af.format==AP_FORMAT_S16) {
-        switch(packet->af.format) {
-          case AP_FORMAT_FLOAT: float_to_s16(packet->data(),nframes*packet->af.channels); break;
-          case AP_FORMAT_S24_3: s24le3_to_s16(packet->data(),nframes*packet->af.channels); break;
-          default             : goto mismatch; break;
-          }
-        }
-      else if (plugin->af.format==AP_FORMAT_S32) {
-        switch(packet->af.format) {
-          case AP_FORMAT_FLOAT: float_to_s32(packet->data(),nframes*packet->af.channels); break;
-          case AP_FORMAT_S24_3: s24le3_to_s32(packet->data(),nframes*packet->af.channels,converted_samples); use_buffer=true; break;
-          default             : goto mismatch; break;
-          }
-        }
-
+    // Initialize Crossfader if we haven't done so.
+    if (crossfader->position == -1) {
+      crossfader->position = samples.length - (af.rate * crossfader->duration) / 1000;
       }
 
-    if (packet->af.channels!=plugin->af.channels) {
+    // Store the end of stream samples into the crossfader
+    if (samples.position + samples.nframes >= crossfader->position) {
 
-      /// FIXME
-      if (use_buffer==true)
-        goto mismatch;
+      if (crossfader->nframes == 0) {  // Check if we record anything in the crossfader buffer
+        if (samples.position >= crossfader->position)  // already passed the record position (due to seeking)
+          crossfader->start_recording(af, samples.stream, samples.position, samples.length);
+        else  // still before the record_position
+          crossfader->start_recording(af, samples.stream, crossfader->position, samples.length);
+        }
 
-      if (packet->af.channels==1 && plugin->af.channels==2 ) {
-        mono_to_stereo(packet->data(),nframes,packet->af.packing(),converted_samples);
-        use_buffer=true;
+      if (samples.position < crossfader->position) {
+        FXint skip = crossfader->position - samples.position;
+        crossfader->writeFrames(samples.data() + (af.framesize() * skip), samples.nframes - skip);
+        samples.nframes = skip;
         }
       else {
-        goto mismatch;
+        crossfader->writeFrames(samples.data(), samples.nframes);
+        samples.nframes = 0;
         }
       }
-    if (packet->af.rate!=plugin->af.rate) {
+
+    }
+  else if (crossfader->readable_frames()) {  // Apply crossfader buffer to the start of the stream
+    FXASSERT(samples.position < crossfader->start_offset());
+    FXint nframes = FXMIN(samples.nframes, crossfader->readable_frames());
+    switch(af.format) {
+      case AP_FORMAT_S16:
+        apply_crossfade_s16(*samples.buffer, crossfader->buffer, nframes, af.channels, samples.position, 1.0 / crossfader->total_frames());
+        crossfader->readFrames(nframes);
+        break;
+      case AP_FORMAT_FLOAT:
+        apply_crossfade_float(*samples.buffer, crossfader->buffer, nframes, af.channels, samples.position, 1.0f / crossfader->total_frames());
+        crossfader->readFrames(nframes);
+        break;
+      default:
+        FXASSERT(0);
+        break;
+      }
+    if (crossfader->rframes == 0 && crossfader->duration == 0) {
+      delete crossfader;
+      crossfader = nullptr;
+      }
+    }
+  }
+
+
+bool OutputThread::convert_samples() {
+  if (af.format != plugin->af.format) {
+    switch(plugin->af.format) {
+      case AP_FORMAT_S16:
+        {
+          switch(af.format) {
+            case AP_FORMAT_FLOAT:
+              float_to_s16(samples.data(), samples.nframes * af.channels);
+              break;
+            case AP_FORMAT_S24_3:
+              s24le3_to_s16(samples.data(), samples.nframes * af.channels);
+              break;
+            default:
+              goto mismatch;
+              break;
+            }
+        } break;
+      case AP_FORMAT_S32:
+        {
+          switch(af.format) {
+            case AP_FORMAT_FLOAT:
+              float_to_s32(samples.data(), samples.nframes * af.channels);
+              break;
+            case AP_FORMAT_S24_3:
+              s24le3_to_s32(samples.data(), samples.nframes * af.channels, samples.formatted);
+              samples.buffer = &samples.formatted;
+              break;
+            default:
+              goto mismatch;
+              break;
+            }
+        } break;
+      }
+    }
+  if (af.channels != plugin->af.channels) {
+    if (af.channels == 1 && plugin->af.channels == 2) {
+      mono_to_stereo(samples.data(), samples.nframes, af.packing(), samples.remapped);
+      samples.buffer = &samples.remapped;
+      }
+    else {
       goto mismatch;
       }
     }
-
-  update_position(packet->stream,packet->stream_position, packet->numFrames(),packet->stream_length - crossfade_length);
-
-  if (use_buffer) {
-    //crossfader->process(converted_samples.data(),nframes);
-    result = plugin->write(converted_samples.data(),nframes);
-    result = true;
-    }
-  else {
-    //crossfader->process(packet->data(),nframes);
-    result = plugin->write(packet->data(),nframes);
-    result = true;
-    }
-
-  if (result==false) {
-    GM_DEBUG_PRINT("[output] write failed\n");
-    engine->input->post(new ControlEvent(Ctrl_Close));
-    engine->post(new ErrorMessage(FXString::value("Output Error")));
-    close_plugin();
-    }
-  return;
+  return true;
 mismatch:
   GM_DEBUG_PRINT("[output] config mismatch\n");
   draining=false;
   engine->input->post(new ControlEvent(Ctrl_Close));
   close_plugin();
+  return false;
+  }
+
+
+FXbool OutputThread::write_samples() {
+  FXuint nframes = 0;
+  while (samples.nframes) {
+    nframes = FXMIN(plugin->af.rate >> 1, samples.nframes);
+    update_position(samples.stream, samples.position, nframes, samples.length);
+    if (!plugin->write(samples.data(), nframes)) {
+      GM_DEBUG_PRINT("[output] write failed\n");
+      engine->input->post(new ControlEvent(Ctrl_Close));
+      engine->post(new ErrorMessage(FXString::value("Output Error")));
+      close_plugin();
+      return false;
+      }
+    samples.buffer->readBytes(plugin->af.framesize() * nframes);
+    samples.nframes -= nframes;
+    }
+  return true;
   }
 
 
@@ -1010,7 +878,9 @@ FXint OutputThread::run(){
       case Buffer     :
         {
           if (__likely(af.set())) {
-            process(static_cast<Packet*>(event));
+            auto packet = static_cast<Packet*>(event);
+            init_samples(packet);
+            process_samples();
             }
         } break;
 
@@ -1024,8 +894,9 @@ FXint OutputThread::run(){
             if (flush->close)
               close_plugin();
             }
-          crossfader->flush();
-
+          if (crossfader) {
+            reset_crossfader();
+            }
           pausing=false;
           draining=false;
           reset_position();
@@ -1104,6 +975,40 @@ FXint OutputThread::run(){
           GetReplayGain * g = static_cast<GetReplayGain*>(event);
           GM_DEBUG_PRINT("[output] get replay gain mode\n");
           g->mode = replaygain.mode;
+        } break;
+
+
+      case Ctrl_Set_Cross_Fade:
+        {
+          auto g = static_cast<SetCrossFade*>(event);
+          GM_DEBUG_PRINT("[output] set cross fade %d ms\n",g->duration);
+          if (g->enabled()) {
+            if (crossfader == nullptr)
+              crossfader = new CrossFader(g->duration);
+            else
+              crossfader->duration = g->duration;
+            }
+          else {
+            if (crossfader) {
+              crossfader->duration = 0;
+              if (crossfader->recording) {
+                drain_crossfader();
+                reset_crossfader();
+                }
+              }
+            }
+        } break;
+
+      case Ctrl_Get_Cross_Fade:
+        {
+          auto g = static_cast<GetCrossFade*>(event);
+          GM_DEBUG_PRINT("[output] get cross fade\n");
+          if (crossfader) {
+            g->duration = crossfader->duration;
+            }
+          else {
+            g->duration = 0;
+            }
         } break;
 
       case Ctrl_Get_Output_Config:

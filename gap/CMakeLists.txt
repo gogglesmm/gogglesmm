@@ -287,6 +287,7 @@ set(SOURCES ap_app_queue.cpp
             ap_buffer_io.cpp
             ap_connect.cpp
             ap_convert.cpp
+            ap_crossfader.cpp
             ap_decoder_plugin.cpp
             ap_decoder_thread.cpp
             ap_device.cpp
@@ -314,6 +315,7 @@ set(HEADERS ap_buffer.h
             ap_config.h
             ap_connect.h
             ap_convert.h
+            ap_crossfader.h
             ap_decoder_plugin.h
             ap_decoder_thread.h
             ap_defs.h

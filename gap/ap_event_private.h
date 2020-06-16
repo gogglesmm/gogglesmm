@@ -39,6 +39,8 @@ enum EventTypePrivate {
   Ctrl_Get_Output_Config,
   Ctrl_Set_Replay_Gain,
   Ctrl_Get_Replay_Gain,
+  Ctrl_Set_Cross_Fade,
+  Ctrl_Get_Cross_Fade,
   Ctrl_Volume,
 
   Buffer,
@@ -48,8 +50,6 @@ enum EventTypePrivate {
   Input_Read,
   Meta = AP_META_INFO,
   };
-
-
 
 
 class CtrlSeekEvent : public Event {
@@ -89,6 +89,17 @@ public:
   ControlEvent(FXuchar type,FXuint id);
   };
 
+
+class SetCrossFade : public Event {
+public:
+  FXuint duration;  // duration in ms. 0 means off
+protected:
+  virtual ~SetCrossFade() {}
+public:
+  SetCrossFade(FXuint ms) : Event(Ctrl_Set_Cross_Fade), duration(ms) {}
+
+  FXbool enabled() const { return duration > 0; }
+  };
 
 class SetReplayGain : public Event {
 public:
@@ -157,6 +168,18 @@ public:
 public:
   GetReplayGain() : SyncEvent(Ctrl_Get_Replay_Gain), mode(ReplayGainOff) {}
   virtual ~GetReplayGain() {}
+  };
+
+
+class GetCrossFade : public SyncEvent {
+public:
+  FXuint duration = 0;  // duration in milliseconds. 0 means off.
+public:
+  GetCrossFade() : SyncEvent(Ctrl_Get_Cross_Fade) {}
+
+  FXbool enabled() const { return duration > 0; }
+
+  virtual ~GetCrossFade() {}
   };
 
 
