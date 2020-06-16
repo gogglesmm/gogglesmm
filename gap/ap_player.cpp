@@ -119,4 +119,20 @@ void AudioPlayer::setReplayGain(ReplayGainMode mode) {
   engine->output->post(new SetReplayGain(mode),EventQueue::Front);
   }
 
+
+FXuint AudioPlayer::getCrossFade() const {
+  FXASSERT(engine->output->running());
+  GetCrossFade event;
+  engine->output->post(&event,EventQueue::Front);
+  if (event.waitForUnref()) {
+    return event.duration;
+    }
+  return 0;
+  }
+
+void AudioPlayer::setCrossFade(FXuint ms) {
+  FXASSERT(engine->output->running());
+  engine->output->post(new SetCrossFade(ms),EventQueue::Front);
+  }
+
 }

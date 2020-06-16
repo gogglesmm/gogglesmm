@@ -71,8 +71,14 @@ public:
   /// Set Replay Gain Mode
   void setReplayGain(ReplayGainMode mode);
 
+  /// Set Cross Fade Mode
+  void setCrossFade(FXuint seconds);
+
   /// Get Replay Gain Mode
   ReplayGainMode getReplayGain() const;
+
+  /// Get Cross Fade Mode
+  FXuint getCrossFade() const;
 
   Event * pop();
 

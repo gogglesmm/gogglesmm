@@ -46,12 +46,21 @@ inline T signextend(const T x)
 }
 
 
-
 static FXint s16_to_s32(FXshort x) {
   if (x==INT16_MIN)
     return INT32_MIN;
   else
     return (x<<16)+(x+x)+((x+16383)>>15);
+  }
+
+static FXfloat s16_to_float(FXshort x) {
+  FXfloat c =  (float)x / (float)INT16_MAX;
+  if (c > 1.0)
+    return 1.0;
+  else if (c < -1.0)
+    return -1.0;
+  else
+    return c;
   }
 
 static FXint s24_to_s32(FXint x) {
@@ -60,6 +69,20 @@ static FXint s24_to_s32(FXint x) {
   else
     return (x<<8)+(x>>16)+(x>>16)+((x+4194303)>>23);
   }
+
+
+static FXfloat s24_to_float(FXint x) {
+  struct {signed int x:24;} s;
+  FXint e = s.x = x;
+  FXfloat c = (float)e / (float)INT24_MAX;
+  if (c > 1.0)
+    return 1.0;
+  else if (c < -1.0)
+    return -1.0;
+  else
+    return c;
+  }
+
 
 static FXshort float_to_s16(FXfloat x) {
   FXfloat c = x*INT16_MAX;
@@ -84,14 +107,7 @@ static FXint float_to_s32(FXfloat x) {
 
 
 void s16_to_s24le3(const FXuchar * buffer, FXuint nsamples, MemoryBuffer & out){
-  out.clear();
-  out.reserve(nsamples*3);
-  FX
-  const FXshort * input = reinterpret_cast<const FXshort*>(buffer);
-  for (FXuint i=0; i < nsamples; i++) {
-    
-    }  
-}
+  }
 
 void s16_to_s32(const FXuchar *buffer,FXuint nsamples,MemoryBuffer & out) {
   out.clear();
@@ -117,6 +133,28 @@ void float_to_s16(FXuchar * buffer,FXuint nsamples){
   for (FXuint i=0;i<nsamples;i++) {
     output[i]=float_to_s16(input[i]);
     }
+  }
+
+
+void s16_to_float(FXuchar * buffer, FXuint nsamples, MemoryBuffer & out){
+  out.clear();
+  out.reserve(nsamples*4);
+  FXshort * input = reinterpret_cast<FXshort*>(buffer);
+  FXfloat * output  = out.flt();
+  for (FXuint i=0;i<nsamples;i++) {
+    output[i]=s16_to_float(input[i]);
+    }
+  out.wroteBytes(nsamples*4);
+  }
+
+void s24le3_to_float(FXuchar * input,FXuint nsamples, MemoryBuffer & out){
+  out.clear();
+  out.reserve(nsamples*4);
+  FXfloat * output = out.flt();
+  for (FXuint i=0;i<nsamples;i++,input+=3) {
+    output[i] = s24_to_float(input[0]|input[1]<<8|input[2]<<16);
+    }
+  out.wroteBytes(nsamples*4);
   }
 
 

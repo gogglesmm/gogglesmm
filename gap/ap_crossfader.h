@@ -16,36 +16,46 @@
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
 ********************************************************************************/
-#ifndef AP_BUFFER_BASE_H
-#define AP_BUFFER_BASE_H
+#ifndef AP_CROSSFADER_H
+#define AP_CROSSFADER_H
+
+#include "ap_buffer.h"
+#include "ap_format.h"
 
 namespace ap {
 
-class GMAPI BufferBase {
-protected:
-  FXuchar * begptr;  // Begin of buffer
-  FXuchar * endptr;  // End of buffer
-  FXuchar * wrptr;   // Write pointer
-  FXuchar * rdptr;   // Read pointer
+class CrossFader {
 public:
-  BufferBase(FXival n=4096);
+  AudioFormat  af;
+  MemoryBuffer buffer;
+  FXlong position=-1;
+  FXlong length=0;
+  FXuint stream=0;
+  FXint  nframes=0;   // number of frames stored in buffer
+  FXint  rframes=0;   // number of readable frames
+  FXuint duration;    // duration in milliseconds
+  FXbool recording=true;
+public:
+  CrossFader(FXuint d=5000) : duration(d) {}
 
-  // Adopt
-  void adopt(BufferBase & other);
+  void start_recording(AudioFormat & fmt, FXuint stream, FXlong stream_position, FXlong stream_length);
 
-  // Resize buffer
-  FXbool resize(FXival n);
+  void flush();
 
-  // Reserve up to free n bytes.
-  FXbool reserve(FXival n);
+  FXlong start_offset() const;
 
-  // Clear buffer by resetting read and write pointers
-  void clear();
+  FXint readable_frames() const;
 
-  ~BufferBase();
-  };
+  FXint total_frames() const;
+
+  FXlong min_stream_length() const;
+
+  void writeFrames(const FXuchar * data, FXint n);
+
+  void readFrames(FXint n);
+
+  FXbool convert(const AudioFormat & target);
+};
 
 }
-
 #endif
-
