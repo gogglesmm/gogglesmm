@@ -1,0 +1,2658 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Sander Jansen
+# This file is distributed under the same license as the gogglesmm package.
+# JungHee Lee <daemul72@gmail.com>,  2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gogglesmm 1.0.0\n"
+"Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
+"POT-Creation-Date: 2018-07-03 04:28-0500\n"
+"PO-Revision-Date: 2020-10-04 09:37+0900\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"Last-Translator: JungHee Lee <daemul72@gmail.com>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: ko\n"
+
+#: src/GMAbout.cpp:115
+msgid "&Homepage"
+msgstr "홈페이지(&H)"
+
+#: src/GMAbout.cpp:116
+msgid "&Report Issue"
+msgstr "이슈 보고(&R)"
+
+#: src/GMAbout.cpp:117 src/GMPreferencesDialog.cpp:688
+#: src/GMTrackEditor.cpp:401 src/GMTrackEditor.cpp:449
+#: src/GMTrackEditor.cpp:453 cfox/lib/FXReplaceDialog.cpp:133
+msgid "&Close"
+msgstr "닫기(&C)"
+
+#: src/GMAbout.cpp:123 src/GMAbout.cpp:150 src/GMPreferencesDialog.cpp:970
+#: src/GMPreferencesDialog.cpp:975 src/GMWindow.cpp:1176 src/GMWindow.cpp:1183
+msgid "Unable to launch webbrowser"
+msgstr "웹브라우저를 시작할 수 없음"
+
+#: src/GMColumnDialog.cpp:197
+msgid "Configure Columns"
+msgstr "열 구성하기"
+
+#: src/GMColumnDialog.cpp:200 cfox/lib/FXColorSelector.cpp:175
+msgid "&Accept"
+msgstr "수락(&A)"
+
+#: src/GMColumnDialog.cpp:201 src/GMDatabaseSource.cpp:1032
+#: src/GMDatabaseSource.cpp:1205 src/GMDatabaseSource.cpp:1307
+#: src/GMDatabaseSource.cpp:1547 src/GMDatabaseSource.cpp:1628
+#: src/GMFilterEditor.cpp:642 src/GMImportDialog.cpp:223
+#: src/GMImportDialog.cpp:583 src/GMPlayListSource.cpp:284
+#: src/GMPlayListSource.cpp:365 src/GMPodcastSource.cpp:433
+#: src/GMPodcastSource.cpp:1647 src/GMStreamSource.cpp:148
+#: src/GMStreamSource.cpp:185 src/GMStreamSource.cpp:246
+#: src/GMTrackEditor.cpp:292 src/GMWindow.cpp:1224 src/GMWindow.cpp:1288
+#: cfox/lib/FXMessageBox.cpp:108 cfox/lib/FXMessageBox.cpp:119
+#: cfox/lib/FXMessageBox.cpp:124 cfox/lib/FXMessageBox.cpp:130
+#: cfox/lib/FXMessageBox.cpp:136 cfox/lib/FXMessageBox.cpp:143
+#: cfox/lib/FXMessageBox.cpp:152 cfox/lib/FXColorSelector.cpp:176
+#: cfox/lib/FXDirSelector.cpp:139 cfox/lib/FXFileSelector.cpp:221
+msgid "&Cancel"
+msgstr "취소(&C)"
+
+#: src/GMColumnDialog.cpp:205
+msgid ""
+"Choose the order of information to appear\n"
+"in the track list."
+msgstr "곡 목록에 표시할 정보의 순서를 선택합니다."
+
+#: src/GMColumnDialog.cpp:211
+msgid "Move Up"
+msgstr "위로 이동"
+
+#: src/GMColumnDialog.cpp:212
+msgid "Move Down"
+msgstr "아래로 이동"
+
+#: src/GMDatabaseSource.cpp:226 src/GMFilterSource.cpp:197
+#: src/GMPlayListSource.cpp:387 src/GMPlayQueue.cpp:67
+#: src/GMStreamSource.cpp:58
+msgid "No"
+msgstr "No"
+
+#: src/GMDatabaseSource.cpp:227 src/GMPlayQueue.cpp:68
+msgid "Queue"
+msgstr "대기열"
+
+#: src/GMDatabaseSource.cpp:228 src/GMFilterEditor.cpp:44
+#: src/GMPlayQueue.cpp:69 src/GMTrackView.cpp:262
+msgid "Artist"
+msgstr "아티스트"
+
+#: src/GMDatabaseSource.cpp:229 src/GMFilterEditor.cpp:41
+#: src/GMPlayQueue.cpp:70 src/GMPodcastSource.cpp:1316 src/GMTrackView.cpp:261
+msgid "Title"
+msgstr "제목"
+
+#: src/GMDatabaseSource.cpp:230 src/GMFilterEditor.cpp:43
+#: src/GMPlayQueue.cpp:73
+msgid "Album Artist"
+msgstr "앨범 아티스트"
+
+#: src/GMDatabaseSource.cpp:231 src/GMFilterEditor.cpp:42
+#: src/GMPlayQueue.cpp:71 src/GMPreferencesDialog.cpp:645
+#: src/GMTrackView.cpp:263
+msgid "Album"
+msgstr "앨범"
+
+#: src/GMDatabaseSource.cpp:232 src/GMPlayQueue.cpp:74
+msgid "Disc"
+msgstr "디스크"
+
+#: src/GMDatabaseSource.cpp:234 src/GMFilterEditor.cpp:48
+#: src/GMPlayQueue.cpp:72
+msgid "Year"
+msgstr "연도"
+
+#: src/GMDatabaseSource.cpp:235 src/GMFilterEditor.cpp:49
+#: src/GMPlayQueue.cpp:75 src/GMPodcastSource.cpp:1317
+#: cfox/lib/FXFileSelector.cpp:942
+msgid "Time"
+msgstr "시간"
+
+#: src/GMDatabaseSource.cpp:236 src/GMFilterEditor.cpp:53
+#: src/GMPlayQueue.cpp:76
+msgid "Play Count"
+msgstr "재생 횟수"
+
+#: src/GMDatabaseSource.cpp:237 src/GMPlayQueue.cpp:77
+msgid "Play Date"
+msgstr "재생 날짜"
+
+#: src/GMDatabaseSource.cpp:238 src/GMFilterEditor.cpp:57
+#: src/GMImportDialog.cpp:499 src/GMLocalSource.cpp:56 src/GMPlayQueue.cpp:78
+#: src/GMTrackEditor.cpp:500
+msgid "Path"
+msgstr "경로"
+
+#: src/GMDatabaseSource.cpp:239 src/GMFilterEditor.cpp:56
+#: src/GMPlayQueue.cpp:79
+msgid "File Type"
+msgstr "파일 유형"
+
+#: src/GMDatabaseSource.cpp:240 src/GMPlayQueue.cpp:80
+msgid "Format"
+msgstr "형식"
+
+#: src/GMDatabaseSource.cpp:241 src/GMFilterEditor.cpp:45
+#: src/GMPlayQueue.cpp:81
+msgid "Composer"
+msgstr "작곡가"
+
+#: src/GMDatabaseSource.cpp:242 src/GMFilterEditor.cpp:46
+#: src/GMPlayQueue.cpp:82
+msgid "Conductor"
+msgstr "지휘자"
+
+#: src/GMDatabaseSource.cpp:243 src/GMFilterEditor.cpp:50
+#: src/GMPlayQueue.cpp:83
+msgid "Rating"
+msgstr "별점"
+
+#: src/GMDatabaseSource.cpp:323 src/GMDatabaseSource.cpp:330
+msgid "Copy\tCtrl-C\tCopy associated tracks to the clipboard."
+msgstr "복사\tCtrl-C\t관련 곡을 클립보드에 복사하기."
+
+#: src/GMDatabaseSource.cpp:325 src/GMDatabaseSource.cpp:333
+msgid "Remove…\tDel\tRemove associated tracks from library."
+msgstr "제거…\t삭제\t라이브러리에서 관련 곡 제거하기."
+
+#: src/GMDatabaseSource.cpp:331 src/GMDatabaseSource.cpp:346
+msgid "Find Cover…\t\tFind Cover with Google Image Search"
+msgstr "표지 찾기…\t\t구글 이미지 검색으로 표지 찾기"
+
+#: src/GMDatabaseSource.cpp:338 src/GMPlayQueue.cpp:142
+msgid "Edit…\tF2\tEdit Track Information."
+msgstr "편집…\tF2\t곡 정보 편집하기."
+
+#: src/GMDatabaseSource.cpp:339
+msgid "Set Cover…\t\t"
+msgstr "표지 넣기…\t\t"
+
+#: src/GMDatabaseSource.cpp:341 src/GMPlayQueue.cpp:143
+msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
+msgstr "복사\tCtrl-C\t곡을 클립보드로 복사하기."
+
+#: src/GMDatabaseSource.cpp:350
+msgid "Remove…\tDel\tRemove track(s) from library."
+msgstr "제거…\tDel\t라이브러리에서 곡 제거하기."
+
+#: src/GMDatabaseSource.cpp:356 src/GMPlayListSource.cpp:184
+msgid "Export As…"
+msgstr "다른 이름으로 내보내기…"
+
+#: src/GMDatabaseSource.cpp:358
+msgid "Remove Folder…\t\tRemove tracks in folder from library"
+msgstr "폴더 제거…\t\t라이브러리에서 폴더의 곡 제거"
+
+#: src/GMDatabaseSource.cpp:359
+msgid "Remove All Tracks\t\tRemove all tracks from the library"
+msgstr "모든 곡 제거\t\t라이브러리에서 모든 곡 제거"
+
+#: src/GMDatabaseSource.cpp:365
+msgid "Import Folder…\tCtrl-O\tImport Music from folder into Library"
+msgstr "폴더 가져오기…\tCtrl-O\t폴더에서 라이브러리로 음악 가져오기"
+
+#: src/GMDatabaseSource.cpp:366
+msgid "Sync Folder…\t\tSynchronize Folder with Music in Library"
+msgstr "폴더 동기화…\t\t라이브러리의 음악과 폴더 동기화"
+
+#: src/GMDatabaseSource.cpp:368
+msgid "Play File or Stream…\t\tPlay File or Stream"
+msgstr "파일 또는 스트림 재생…\t\t파일 또는 스트림 재생"
+
+#: src/GMDatabaseSource.cpp:370
+msgid "New Filter…\t\tCreate a new filter"
+msgstr "새 필터…\t\t새 필터 생성"
+
+#: src/GMDatabaseSource.cpp:371
+msgid "New Playlist…\t\tCreate a new playlist"
+msgstr "새 재생목록…\t\t새 재생목록 생성"
+
+#: src/GMDatabaseSource.cpp:372
+msgid "Import Playlist…\t\tImport existing playlist"
+msgstr "재생목록 가져오기…\t\t기존 재생목록 가져 오기"
+
+#: src/GMDatabaseSource.cpp:717
+#, c-format
+msgid "All %d Albums"
+msgstr "앨범 모두 %d개"
+
+#: src/GMDatabaseSource.cpp:1028
+msgid "Remove Audio Files?"
+msgstr "오디오 파일을 제거하시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1029
+msgid "Remove Audio Files..."
+msgstr "오디오 파일 제거..."
+
+#: src/GMDatabaseSource.cpp:1029
+msgid "The following audio files are going to be removed"
+msgstr "다음과 같은 오디오 파일이 제거될 예정입니다"
+
+#: src/GMDatabaseSource.cpp:1031 src/GMDatabaseSource.cpp:1306
+#: src/GMImportDialog.cpp:580 src/GMPlayListSource.cpp:283
+#: src/GMStreamSource.cpp:245
+msgid "&Remove"
+msgstr "제거(&R)"
+
+#: src/GMDatabaseSource.cpp:1059
+msgid "Export Main Library"
+msgstr "기본 라이브러리 내보내기"
+
+#: src/GMDatabaseSource.cpp:1061
+msgid "Export Playlist"
+msgstr "재생목록 내보내기"
+
+#: src/GMDatabaseSource.cpp:1072
+msgid "Overwrite File?"
+msgstr "파일을 덮어쓰시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1072
+msgid "File already exists. Would you like to overwrite it?"
+msgstr "존재하는 파일입니다. 덮어쓰시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1204 src/GMImportDialog.cpp:215
+#: cfox/lib/FXMessageBox.cpp:103 cfox/lib/FXMessageBox.cpp:107
+#: cfox/lib/FXDirSelector.cpp:138 cfox/lib/FXFileSelector.cpp:213
+msgid "&OK"
+msgstr "확인(&O)"
+
+#: src/GMDatabaseSource.cpp:1217
+msgid "Dimensions:"
+msgstr "공간 크기:"
+
+#: src/GMDatabaseSource.cpp:1220
+msgid "Size:"
+msgstr "크기:"
+
+#: src/GMDatabaseSource.cpp:1223
+msgid "Cover Type:"
+msgstr "표지 유형:"
+
+#: src/GMDatabaseSource.cpp:1231
+msgid "Description:"
+msgstr "설명:"
+
+#: src/GMDatabaseSource.cpp:1234
+msgid "Tag Mode:"
+msgstr "태그 모드:"
+
+#: src/GMDatabaseSource.cpp:1284 src/GMPlayListSource.cpp:268
+msgid "Remove Artist?"
+msgstr "아티스트를 제거하시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1285
+msgid "Remove tracks from artist from library?"
+msgstr "라이브러리에서 아티스트의 곡을 제거하시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1289 src/GMPlayListSource.cpp:271
+msgid "Remove Album?"
+msgstr "앨범을 제거하시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1290
+msgid "Remove tracks from album from library?"
+msgstr "라이브러리에서 앨범의 곡을 제거하시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1294 src/GMPlayListSource.cpp:274
+msgid "Remove Track(s)?"
+msgstr "곡을 제거하시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1295
+msgid "Remove track(s) from library?"
+msgstr "라이브러리에서 곡을 제거하시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1310 src/GMPlayListSource.cpp:288
+msgid "Remove tracks from disk"
+msgstr "디스크에서 곡 제거"
+
+#: src/GMDatabaseSource.cpp:1322 src/GMDatabaseSource.cpp:1326
+#: src/GMDatabaseSource.cpp:1335 src/GMStreamSource.cpp:255
+msgid "Library Error"
+msgstr "라이브러리 오류"
+
+#: src/GMDatabaseSource.cpp:1322
+msgid "Unable to remove artist from the library"
+msgstr "라이브러리에서 아티스트를 제거할 수 없음"
+
+#: src/GMDatabaseSource.cpp:1326
+msgid "Unable to remove album from the library"
+msgstr "라이브러리에서 앨범을 제거할 수 없음"
+
+#: src/GMDatabaseSource.cpp:1335
+msgid "Unable to remove track from the library."
+msgstr "라이브러리에서 곡을 제거할 수 없습니다."
+
+#: src/GMDatabaseSource.cpp:1543 src/GMDatabaseSource.cpp:1544
+msgid "Create Playlist"
+msgstr "재생목록 생성"
+
+#: src/GMDatabaseSource.cpp:1544
+msgid "Specify name of the new playlist"
+msgstr "새 재생 목록의 이름 지정하기"
+
+#: src/GMDatabaseSource.cpp:1546
+msgid "&Create"
+msgstr "생성(&C)"
+
+#: src/GMDatabaseSource.cpp:1551 src/GMPlayListSource.cpp:369
+#: cfox/lib/FXFileSelector.cpp:939
+msgid "Name"
+msgstr "이름"
+
+#: src/GMDatabaseSource.cpp:1553
+msgid "New Playlist"
+msgstr "새 재생목록"
+
+#: src/GMDatabaseSource.cpp:1624 src/GMDatabaseSource.cpp:1625
+msgid "Clear Music Library?"
+msgstr "음악 라이브러리를 지우시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1625
+msgid "Remove all tracks from the music library?"
+msgstr "음악 라이브러리에서 모든 곡을 제거하시겠습니까?"
+
+#: src/GMDatabaseSource.cpp:1627
+msgid "&Remove All"
+msgstr "모두 제거(&R)"
+
+#: src/GMDatabaseSource.cpp:1631
+msgid "Keep play lists"
+msgstr "재생 목록 유지"
+
+#: src/GMFilterEditor.cpp:47 src/GMImportDialog.cpp:498
+#: src/GMStreamSource.cpp:156 src/GMTrackView.cpp:264
+msgid "Tag"
+msgstr "태그"
+
+#: src/GMFilterEditor.cpp:51
+msgid "Track Number"
+msgstr "곡 번호"
+
+#: src/GMFilterEditor.cpp:52
+msgid "Disc Number"
+msgstr "디스크 번호"
+
+#: src/GMFilterEditor.cpp:54
+msgid "Last Played"
+msgstr "마지막 재생"
+
+#: src/GMFilterEditor.cpp:55
+msgid "Last Updated"
+msgstr "마지막 업데이트"
+
+#: src/GMFilterEditor.cpp:58 src/GMTrackEditor.cpp:515
+msgid "Channels"
+msgstr "채널"
+
+#: src/GMFilterEditor.cpp:59 src/GMStreamSource.cpp:60
+#: src/GMTrackEditor.cpp:775
+msgid "Bit Rate"
+msgstr "비트 레이트"
+
+#: src/GMFilterEditor.cpp:60 src/GMTrackEditor.cpp:512
+msgid "Sample Rate"
+msgstr "샘플 레이트"
+
+#: src/GMFilterEditor.cpp:61 src/GMTrackEditor.cpp:771
+msgid "Sample Size"
+msgstr "샘플 크기"
+
+#: src/GMFilterEditor.cpp:62
+msgid "Lyrics"
+msgstr "가사"
+
+#: src/GMFilterEditor.cpp:193
+msgid "\tRemove Rule\tRemove Rule"
+msgstr "\t규칙 제거\t규칙 제거"
+
+#: src/GMFilterEditor.cpp:208
+msgid "Minutes"
+msgstr "분"
+
+#: src/GMFilterEditor.cpp:209
+msgid "Hours"
+msgstr "시간"
+
+#: src/GMFilterEditor.cpp:210
+msgid "Days"
+msgstr "일"
+
+#: src/GMFilterEditor.cpp:211
+msgid "Weeks"
+msgstr "주"
+
+#: src/GMFilterEditor.cpp:386
+msgid "contains"
+msgstr "포함"
+
+#: src/GMFilterEditor.cpp:387
+msgid "does not contain"
+msgstr "포함하지 않음"
+
+#: src/GMFilterEditor.cpp:388 src/GMFilterEditor.cpp:410
+#: src/GMFilterEditor.cpp:420
+msgid "equals"
+msgstr "같음"
+
+#: src/GMFilterEditor.cpp:389 src/GMFilterEditor.cpp:411
+#: src/GMFilterEditor.cpp:421
+msgid "not equal to"
+msgstr "같지 않음"
+
+#: src/GMFilterEditor.cpp:390
+msgid "starts with"
+msgstr "시작:"
+
+#: src/GMFilterEditor.cpp:391
+msgid "ends with"
+msgstr "끝:"
+
+#: src/GMFilterEditor.cpp:392
+msgid "matches"
+msgstr "일치"
+
+#: src/GMFilterEditor.cpp:397
+msgid "in"
+msgstr ""
+
+#: src/GMFilterEditor.cpp:398
+msgid "not in"
+msgstr ""
+
+#: src/GMFilterEditor.cpp:399
+msgid "before"
+msgstr ""
+
+#: src/GMFilterEditor.cpp:400
+msgid "after"
+msgstr ""
+
+#: src/GMFilterEditor.cpp:404
+msgid "in the last"
+msgstr "마지막에"
+
+#: src/GMFilterEditor.cpp:405
+msgid "not in the last"
+msgstr "마지막에 있지 않음"
+
+#: src/GMFilterEditor.cpp:412
+msgid "at least"
+msgstr "적어도"
+
+#: src/GMFilterEditor.cpp:413
+msgid "at most"
+msgstr "기껏해야"
+
+#: src/GMFilterEditor.cpp:596
+msgid "Ascending"
+msgstr "오름차순"
+
+#: src/GMFilterEditor.cpp:597
+msgid "Descending"
+msgstr "내림차순"
+
+#: src/GMFilterEditor.cpp:600
+msgid "\tRemove Column\tRemove Column"
+msgstr "\t열 제거\t열 제거"
+
+#: src/GMFilterEditor.cpp:641
+msgid "&Update"
+msgstr "업데이트(&U)"
+
+#: src/GMFilterEditor.cpp:649
+msgid "Name:"
+msgstr "이름:"
+
+#: src/GMFilterEditor.cpp:653
+msgid "Match:"
+msgstr "일치:"
+
+#: src/GMFilterEditor.cpp:655
+msgid "All"
+msgstr "모두"
+
+#: src/GMFilterEditor.cpp:656
+msgid "Any"
+msgstr "아무거나"
+
+#: src/GMFilterEditor.cpp:660
+msgid "Filter:"
+msgstr "필터:"
+
+#: src/GMFilterEditor.cpp:669
+msgid "\tAdd Filter\tAdd Filter"
+msgstr "\t필터 추가\t필터 추가"
+
+#: src/GMFilterEditor.cpp:672
+msgid "Limit:"
+msgstr "제한:"
+
+#: src/GMFilterEditor.cpp:676
+msgid "tracks sorted by:"
+msgstr "곡 정렬 기준:"
+
+#: src/GMFilterEditor.cpp:683
+msgid "\tAdd Column\tAdd Column"
+msgstr "\t열 추가\t열 추가"
+
+#: src/GMFilterSource.cpp:197 src/GMFilterSource.cpp:208
+msgid "Remove Filter"
+msgstr "필터 제거"
+
+#: src/GMFilterSource.cpp:197
+msgid "Are you sure you want to remove the filter?"
+msgstr "필터를 제거 하시겠습니까?"
+
+#: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
+msgid "Yes"
+msgstr "예"
+
+#: src/GMFilterSource.cpp:207
+msgid "Edit"
+msgstr "편집"
+
+#: src/GMFontDialog.cpp:189
+msgid "Ultra Condensed"
+msgstr "매우 압축됨"
+
+#: src/GMFontDialog.cpp:190
+msgid "Extra Condensed"
+msgstr "추가 압축됨"
+
+#: src/GMFontDialog.cpp:191
+msgid "Condensed"
+msgstr "압축됨"
+
+#: src/GMFontDialog.cpp:192
+msgid "Semi Condensed"
+msgstr "절반 압축됨"
+
+#: src/GMFontDialog.cpp:194
+msgid "Semi Expanded"
+msgstr "절반 확장됨"
+
+#: src/GMFontDialog.cpp:195
+msgid "Expanded"
+msgstr "확장됨"
+
+#: src/GMFontDialog.cpp:196
+msgid "Extra Expanded"
+msgstr "추가 확장됨"
+
+#: src/GMFontDialog.cpp:197
+msgid "Ultra Expanded"
+msgstr "매우 확장됨"
+
+#: src/GMFontDialog.cpp:204 src/GMPreferencesDialog.cpp:1425
+msgid "Thin"
+msgstr "얇게"
+
+#: src/GMFontDialog.cpp:205 src/GMPreferencesDialog.cpp:1426
+msgid "Extra Light"
+msgstr "매우 가늘게"
+
+#: src/GMFontDialog.cpp:206 src/GMPreferencesDialog.cpp:1427
+msgid "Light"
+msgstr "가늘게"
+
+#: src/GMFontDialog.cpp:208 src/GMPreferencesDialog.cpp:1429
+msgid "Medium"
+msgstr "보통"
+
+#: src/GMFontDialog.cpp:209 src/GMPreferencesDialog.cpp:1430
+msgid "Demibold"
+msgstr "약간 굵게"
+
+#: src/GMFontDialog.cpp:210 src/GMPreferencesDialog.cpp:1431
+msgid "Bold"
+msgstr "굵게"
+
+#: src/GMFontDialog.cpp:211 src/GMPreferencesDialog.cpp:1432
+msgid "Extra Bold"
+msgstr "매우 굵게"
+
+#: src/GMFontDialog.cpp:212 src/GMPreferencesDialog.cpp:1433
+msgid "Heavy"
+msgstr "두껍게"
+
+#: src/GMFontDialog.cpp:219
+msgid "Reverse Oblique"
+msgstr "왼쪽으로 기울이기"
+
+#: src/GMFontDialog.cpp:220
+msgid "Reverse Italic"
+msgstr "역방향 기울임꼴"
+
+#: src/GMFontDialog.cpp:222
+msgid "Italic"
+msgstr "기울임꼴"
+
+#: src/GMFontDialog.cpp:223
+msgid "Oblique"
+msgstr "기울이기"
+
+#: src/GMFontDialog.cpp:245
+msgid "Normal"
+msgstr "보통"
+
+#: src/GMImportDialog.cpp:163
+msgid "&Folder:"
+msgstr "폴더(&F)"
+
+#: src/GMImportDialog.cpp:213 cfox/lib/FXFileSelector.cpp:211
+msgid "&File Name:"
+msgstr "파일 이름(&F)"
+
+#: src/GMImportDialog.cpp:218 cfox/lib/FXFileSelector.cpp:216
+msgid "File F&ilter:"
+msgstr "파일 필터(&I)"
+
+#: src/GMImportDialog.cpp:222 cfox/lib/FXFileSelector.cpp:220
+msgid "Read Only"
+msgstr "읽기 전용"
+
+#: src/GMImportDialog.cpp:229 cfox/lib/FXFileSelector.cpp:226
+msgid "Directory:"
+msgstr "디렉토리:"
+
+#: src/GMImportDialog.cpp:237 cfox/lib/FXFileSelector.cpp:250
+msgid "&Set bookmark\t\tBookmark current directory."
+msgstr "북마크 지정(&S)\t\t북마크 현재 디렉토리."
+
+#: src/GMImportDialog.cpp:238 cfox/lib/FXFileSelector.cpp:251
+msgid "&Unset bookmark\t\tRemove current directory bookmark."
+msgstr "북마크 지정해제(&U)\t\t현재 디렉토리 북마크 제거."
+
+#: src/GMImportDialog.cpp:239 cfox/lib/FXFileSelector.cpp:252
+msgid "&Clear all bookmarks\t\tClear all bookmarks."
+msgstr "북마크 모두 지우기(&C)\t\t북마크 모두 지우기."
+
+#: src/GMImportDialog.cpp:259 cfox/lib/FXFileSelector.cpp:272
+msgid "\tGo up one directory\tMove up to higher directory."
+msgstr "\t디렉토리 하나 위로 이동\t상위 디렉토리로 이동하기."
+
+#: src/GMImportDialog.cpp:260 cfox/lib/FXFileSelector.cpp:273
+msgid "\tGo to home directory\tBack to home directory."
+msgstr "\t홈 디렉토리로 가기\t홈 디렉토리로 돌아가기."
+
+#: src/GMImportDialog.cpp:261 cfox/lib/FXFileSelector.cpp:274
+msgid "\tGo to work directory\tBack to working directory."
+msgstr "\t작업 디렉토리로 가기\t작업중인 디렉토리로 돌아가기."
+
+#: src/GMImportDialog.cpp:262 cfox/lib/FXFileSelector.cpp:275
+msgid "\tBookmarks\tVisit bookmarked directories."
+msgstr "\t북마크\t북마크된 디렉토리 방문하기."
+
+#: src/GMImportDialog.cpp:265 cfox/lib/FXFileSelector.cpp:278
+msgid "\tCreate new directory\tCreate new directory."
+msgstr "\t새 디렉토리 생성\t새 디렉토리 만들기."
+
+#: src/GMImportDialog.cpp:266 cfox/lib/FXFileSelector.cpp:279
+msgid "\tShow list\tDisplay directory with small icons."
+msgstr "\t목록 표시\t작은 아이콘으로 디렉토리 보여주기."
+
+#: src/GMImportDialog.cpp:267 cfox/lib/FXFileSelector.cpp:280
+msgid "\tShow icons\tDisplay directory with big icons."
+msgstr "\t아이콘 표시\t큰 아이콘으로 디렉토리 보여주기."
+
+#: src/GMImportDialog.cpp:268 cfox/lib/FXFileSelector.cpp:281
+msgid "\tShow details\tDisplay detailed directory listing."
+msgstr "\t세부사항 표시\t상세한 디렉토리 목록 보여주기."
+
+#: src/GMImportDialog.cpp:269 cfox/lib/FXFileSelector.cpp:282
+msgid "\tShow hidden files\tShow hidden files and directories."
+msgstr "\t숨김 파일 표시\t숨김 파일 및 디렉터리 표시하기."
+
+#: src/GMImportDialog.cpp:269 cfox/lib/FXFileSelector.cpp:282
+msgid "\tHide Hidden Files\tHide hidden files and directories."
+msgstr "\t숨김 파일 숨기기\t숨김 파일 및 디렉토리 숨기기."
+
+#: src/GMImportDialog.cpp:295 cfox/lib/FXFileSelector.cpp:308
+#: cfox/lib/FXFileSelector.cpp:1113
+msgid "All Files (*)"
+msgstr "모든 파일 (*)"
+
+#: src/GMImportDialog.cpp:369 src/GMImportDialog.cpp:379
+msgid "&Options:"
+msgstr "옵션(&O)"
+
+#: src/GMImportDialog.cpp:399
+msgid "Remove Folder"
+msgstr "폴더 제거"
+
+#: src/GMImportDialog.cpp:401
+msgid "Synchronize Folder"
+msgstr "폴더 동기화"
+
+#: src/GMImportDialog.cpp:403
+msgid "Import Playlist"
+msgstr "재생목록 가져오기"
+
+#: src/GMImportDialog.cpp:405
+msgid "Import Music"
+msgstr "음악 가져오기"
+
+#: src/GMImportDialog.cpp:439
+msgid "&File(s)"
+msgstr "파일(&F)"
+
+#: src/GMImportDialog.cpp:462
+msgid "&Folder"
+msgstr "폴더(&F)"
+
+#: src/GMImportDialog.cpp:472 src/GMImportDialog.cpp:578
+msgid "&Sync"
+msgstr "동기화(&S)"
+
+#: src/GMImportDialog.cpp:474
+msgid "Sync Operation"
+msgstr "동기화 작업"
+
+#: src/GMImportDialog.cpp:477
+msgid "Import new tracks\tImports files not yet in the database."
+msgstr "새 곡 가져오기\t아직 데이터베이스에 없는 파일 가져오기."
+
+#: src/GMImportDialog.cpp:478
+msgid "Remove tracks that have been deleted from disk"
+msgstr "디스크에서 삭제된 트랙 제거"
+
+#: src/GMImportDialog.cpp:480
+msgid "Update existing tracks:"
+msgstr "기존 곡 업데이트:"
+
+#: src/GMImportDialog.cpp:481
+msgid ""
+"Modified since last import\tOnly reread the tag when the file has been "
+"modified."
+msgstr ""
+"마지막 가져오기 이후 수정됨\t파일이 수정된 경우에만 태그를 다시 읽습니다."
+
+#: src/GMImportDialog.cpp:483
+msgid "All\tAlways read the tags"
+msgstr "모두\t항상 태그 읽기"
+
+#: src/GMImportDialog.cpp:488
+msgid "&Track"
+msgstr "곡(&T)"
+
+#: src/GMImportDialog.cpp:491
+msgid "Parse Settings"
+msgstr "구문분석 설정"
+
+#: src/GMImportDialog.cpp:495
+msgid "Parse info from:"
+msgstr "구문분석 정보:"
+
+#: src/GMImportDialog.cpp:500
+msgid "Both"
+msgstr "모두"
+
+#: src/GMImportDialog.cpp:502
+msgid "ID3v1 Encoding:"
+msgstr "ID3v1 인코딩:"
+
+#: src/GMImportDialog.cpp:513
+msgid "Set track number based on scan order."
+msgstr "검색 순서에 따라 곡 번호 지정하기."
+
+#: src/GMImportDialog.cpp:516
+msgid ""
+"Group albums by audio format.\tImported tracks that differ in audio format "
+"will be grouped in separate albums."
+msgstr ""
+"오디오 형식으로 앨범 그룹화하기.\t오디오 형식이 다른 가져온 곡은 별도의 앨범"
+"으로 그룹화됨."
+
+#: src/GMImportDialog.cpp:519
+msgid ""
+"Detect compilations by folder.\tGroup tracks from the same folder without "
+"specific compilation/albumartist tags."
+msgstr ""
+"폴더별로 모음집 감지하기.\t특정 모음집/앨범아티스트 태그 없이 동일한 폴더의 "
+"곡을 그룹화하기."
+
+#: src/GMImportDialog.cpp:522
+msgid "Fetch Lyrics.\tFetch Lyrics"
+msgstr "가사 가져오기.\t가사 가져오기"
+
+#: src/GMImportDialog.cpp:524
+msgid "Path Template"
+msgstr "경로 템플릿"
+
+#: src/GMImportDialog.cpp:527
+msgid ""
+"%T - title              %A - album name\n"
+"%P - album artist name  %p - track artist name \n"
+"%N - track number       %d - disc number\n"
+"%y - year"
+msgstr ""
+"%T - 제목              %A - 앨범 이름\n"
+"%P - 앨범 아티스트 이름  %p - 곡 아티스트 이름 \n"
+"%N - 곡 번호       %d - 디스크 번호\n"
+"%y - 연도"
+
+#: src/GMImportDialog.cpp:538 src/GMTrackEditor.cpp:378
+msgid "Template:"
+msgstr "템플릿:"
+
+#: src/GMImportDialog.cpp:541
+msgid "Replace underscores with spaces"
+msgstr "밑줄을 공백으로 바꾸기"
+
+#: src/GMImportDialog.cpp:552
+msgid "&Filter"
+msgstr "필터(&F)"
+
+#: src/GMImportDialog.cpp:555
+msgid "Exclude Files"
+msgstr "파일 제외"
+
+#: src/GMImportDialog.cpp:556
+msgid "Unsupported Playback Formats"
+msgstr "지원되지 않는 재생 형식"
+
+#: src/GMImportDialog.cpp:558
+msgid "Exclude by Pattern"
+msgstr "패턴으로 제외"
+
+#: src/GMImportDialog.cpp:562
+msgid "Folders:"
+msgstr "폴더:"
+
+#: src/GMImportDialog.cpp:564
+msgid "Files:"
+msgstr "파일:"
+
+#: src/GMImportDialog.cpp:582
+msgid "&Import"
+msgstr "가져오기(&I)"
+
+#: src/GMNotifyDaemon.cpp:274
+#, c-format
+msgid ""
+"%s\n"
+"%s (%d)"
+msgstr ""
+"%s\n"
+"%s (%d)"
+
+#: src/GMPlayerManager.cpp:313
+#, c-format
+msgid "Unable to create directory %s\n"
+msgstr "%s 디렉토리를 만들 수 없음\n"
+
+#: src/GMPlayerManager.cpp:578
+msgid "Session bus not available. All features requiring dbus are disabled."
+msgstr ""
+"세션 버스를 사용할 수 없습니다. dbus가 필요한 모든 기능은 사용할 수 없습니다."
+
+#: src/GMPlayerManager.cpp:597
+msgid ""
+"Session Bus not available. All features requiring sessionbus are disabled."
+msgstr ""
+"세션 버스를 사용할 수 없습니다. 세션버스가 필요한 모든 기능은 사용할 수 없습"
+"니다."
+
+#: src/GMPlayerManager.cpp:671
+#, c-format
+msgid ""
+"A non threadsafe version of SQLite (%s) is being used.\n"
+"Goggles Music Manager requires a threadsafe SQLite.\n"
+"Please upgrade your SQLite installation."
+msgstr ""
+"SQLite(%s)의 안전하지 않은 버전이 사용되고 있습니다.\n"
+"Goggles Music Manager는 안전한 SQLite가 필요합니다.\n"
+"SQLite 설치를 업그레이드해 주십시오."
+
+#: src/GMPlayerManager.cpp:680
+msgid ""
+"For some reason the FOX library was compiled without PNG support.\n"
+"In order to show all icons, Goggles Music Manager requires PNG\n"
+"support in the FOX library. If you've compiled FOX yourself, most\n"
+"likely the libpng header files were not installed on your system."
+msgstr ""
+"어떤 이유에서인지 FOX 라이브러리는 PNG 지원 없이 컴파일되었습니다.\n"
+"모든 아이콘을 표시하기 위해 Goggles Music Manager는 FOX 라이브러리\n"
+"에서 PNG 지원을 필요로 합니다. FOX를 직접 컴파일한 경우,\n"
+"libpng 헤더 파일이 시스템에 설치되지 않았을 가능성이 높습니다."
+
+#: src/GMPlayerManager.cpp:1402
+msgid "Last.FM Error"
+msgstr "Last.FM 오류"
+
+#: src/GMPlayerManager.cpp:1776
+msgid "Playback Error"
+msgstr "재생 오류"
+
+#: src/GMPlayListSource.cpp:182
+msgid "Rename…"
+msgstr "이름변경…"
+
+#: src/GMPlayListSource.cpp:183
+msgid "Import Playlist…"
+msgstr "재생목록 가져오기…"
+
+#: src/GMPlayListSource.cpp:185
+msgid "Remove Playlist"
+msgstr "재생목록 제거"
+
+#: src/GMPlayListSource.cpp:265
+msgid "Remove Tag?"
+msgstr "태그를 제거하시겠습니까?"
+
+#: src/GMPlayListSource.cpp:266
+msgid "Remove tracks with tag from play list?"
+msgstr "재생 목록에서 태그가 있는 곡을 제거하시겠습니까?"
+
+#: src/GMPlayListSource.cpp:269
+msgid "Remove tracks from artist from play list?"
+msgstr "재생 목록에서 아티스트의 곡을 제거하시겠습니까?"
+
+#: src/GMPlayListSource.cpp:272
+msgid "Remove tracks from album from play list?"
+msgstr "재생 목록에서 앨범의 곡을 제거하시겠습니까?"
+
+#: src/GMPlayListSource.cpp:275
+msgid "Remove track(s) from play list?"
+msgstr "재생 목록에서 곡을 제거하시겠습니까?"
+
+#: src/GMPlayListSource.cpp:287
+msgid "Remove tracks from music library"
+msgstr "음악 라이브러리에서 곡 제거"
+
+#: src/GMPlayListSource.cpp:361 src/GMPlayListSource.cpp:362
+msgid "Edit Playlist"
+msgstr "재생목록 편집"
+
+#: src/GMPlayListSource.cpp:362
+msgid "Change playlist name"
+msgstr "재생목록 이름 변경"
+
+#: src/GMPlayListSource.cpp:364 src/GMStreamSource.cpp:184
+#: src/GMTrackEditor.cpp:448 src/GMTrackEditor.cpp:452
+#: cfox/lib/FXMessageBox.cpp:129 cfox/lib/FXMessageBox.cpp:144
+msgid "&Save"
+msgstr "저장(&S)"
+
+#: src/GMPlayListSource.cpp:387
+msgid "Delete Play List?"
+msgstr "재생 목록을 삭제하시겠습니까?"
+
+#: src/GMPlayListSource.cpp:387
+msgid "Are you sure you want to delete the playlist?"
+msgstr "재생목록을 삭제하시겠습니까?"
+
+#: src/GMPlayQueue.cpp:114
+msgid "Clear"
+msgstr "지우기"
+
+#: src/GMPlayQueue.cpp:145
+msgid "Remove…\tDel\tRemove track(s) from play queue."
+msgstr "제거…\t삭제\t재생 대기열에서 곡 제거하기."
+
+#: src/GMPodcastSource.cpp:430
+msgid "Select Feed"
+msgstr "피드 선택"
+
+#: src/GMPodcastSource.cpp:432 src/GMPodcastSource.cpp:1646
+msgid "Subscribe"
+msgstr "구독하기"
+
+#: src/GMPodcastSource.cpp:436
+msgid "Feed:"
+msgstr "피드:"
+
+#: src/GMPodcastSource.cpp:1249
+#, c-format
+msgid "Podcasts (%d)"
+msgstr "팟캐스트 (%d)"
+
+#: src/GMPodcastSource.cpp:1251
+msgid "Podcasts"
+msgstr "팟캐스트"
+
+#: src/GMPodcastSource.cpp:1314
+msgid "Date"
+msgstr "날짜"
+
+#: src/GMPodcastSource.cpp:1315
+msgid "Feed"
+msgstr "피드"
+
+#: src/GMPodcastSource.cpp:1351 src/GMPodcastSource.cpp:1357
+msgid "Add Podcast…"
+msgstr "팟캐스트 추가…"
+
+#: src/GMPodcastSource.cpp:1356
+msgid "Refresh\t\t"
+msgstr "새로고침\t\t"
+
+#: src/GMPodcastSource.cpp:1363
+msgid "Auto Download"
+msgstr "자동 다운로드"
+
+#: src/GMPodcastSource.cpp:1367
+msgid "Remove Podcast"
+msgstr "팟캐스트 제거"
+
+#: src/GMPodcastSource.cpp:1372
+msgid "Download"
+msgstr "다운로드"
+
+#: src/GMPodcastSource.cpp:1373
+msgid "Mark Played"
+msgstr "표시 재생함"
+
+#: src/GMPodcastSource.cpp:1374
+msgid "Mark New"
+msgstr "새로 표시"
+
+#: src/GMPodcastSource.cpp:1375
+msgid "Remove Local"
+msgstr "로컬 제거"
+
+#: src/GMPodcastSource.cpp:1415
+#, c-format
+msgid "All %d Feeds"
+msgstr "피드 모두 %d개"
+
+#: src/GMPodcastSource.cpp:1643 src/GMPodcastSource.cpp:1644
+msgid "Subscribe to Podcast"
+msgstr "팟캐스트 구독하기"
+
+#: src/GMPodcastSource.cpp:1644
+msgid "Specify url for the rss feed"
+msgstr "rss 피드의 URL 지정하기"
+
+#: src/GMPodcastSource.cpp:1651 src/GMStreamSource.cpp:152
+#: src/GMStreamSource.cpp:190
+msgid "Location"
+msgstr "위치"
+
+#: src/GMPodcastSource.cpp:1666
+msgid "Remove Feed?"
+msgstr "피드를 제거하시겠습니까?"
+
+#: src/GMPodcastSource.cpp:1666
+msgid "Remove feed and all downloaded episodes?"
+msgstr "피드와 다운로드한 모든 에피소드를 제거 하시겠습니까?"
+
+#: src/GMPreferencesDialog.cpp:285
+msgid "Preferences"
+msgstr "환경설정"
+
+#: src/GMPreferencesDialog.cpp:315
+msgid "&General"
+msgstr "일반(&G)"
+
+#: src/GMPreferencesDialog.cpp:318
+msgid "Sort Options"
+msgstr "정렬 옵션"
+
+#: src/GMPreferencesDialog.cpp:322
+msgid "Ignore leading words"
+msgstr "선행 단어 무시"
+
+#: src/GMPreferencesDialog.cpp:325
+msgid "Additional Track Information"
+msgstr "추가 곡 정보"
+
+#: src/GMPreferencesDialog.cpp:328
+msgid "Show Album Cover\tShow album cover of playing track"
+msgstr "앨범 표지 표시\t재생중인 곡의 앨범 표지 표시"
+
+#: src/GMPreferencesDialog.cpp:329
+msgid "Show Lyrics\tShow lyrics of playing track"
+msgstr "가사 표시\t재생중인 곡의 가사 표시"
+
+#: src/GMPreferencesDialog.cpp:332
+msgid "System Tray"
+msgstr "시스템 트레이"
+
+#: src/GMPreferencesDialog.cpp:336
+msgid "Show Tray Icon\tShow tray icon in the system tray."
+msgstr "트레이 아이콘 표시\t시스템 트레이에 트레이 아이콘 표시하기."
+
+#: src/GMPreferencesDialog.cpp:339
+msgid ""
+"Show Track Change Notifications\tInform notification daemon of track changes."
+msgstr "곡 변경 알림 표시\t알림 데몬에 곡 변경 사항을 알립니다."
+
+#: src/GMPreferencesDialog.cpp:340
+msgid "MPRIS v1 Connectivity\tEnable MPRIS v1 connectivity"
+msgstr "MPRIS v1 연결\tMPRIS v1 연결 활성화"
+
+#: src/GMPreferencesDialog.cpp:344
+msgid "Last.fm"
+msgstr "Last.fm"
+
+#: src/GMPreferencesDialog.cpp:349
+msgid ""
+"This version of Goggles Music Manager is\n"
+"not supported by Last-FM. Please upgrade\n"
+"to a newer version of GMM."
+msgstr ""
+"이 버전의 Goggles Music Manager는 \n"
+"Last-FM에서 지원하지 않습니다.\n"
+"최신 버전의 GMM으로 업그레이드하십시오."
+
+#: src/GMPreferencesDialog.cpp:355
+msgid "Service:"
+msgstr "서비스:"
+
+#: src/GMPreferencesDialog.cpp:372
+msgid "&Sign up…"
+msgstr "가입하기(&S)…"
+
+#: src/GMPreferencesDialog.cpp:378
+msgid "Username:"
+msgstr "사용자이름:"
+
+#: src/GMPreferencesDialog.cpp:380
+msgid "Password:"
+msgstr "비밀번호:"
+
+#: src/GMPreferencesDialog.cpp:384
+msgid "Scrobble"
+msgstr "퍼올리기"
+
+#: src/GMPreferencesDialog.cpp:408
+msgid "&Window"
+msgstr "창(&W)"
+
+#: src/GMPreferencesDialog.cpp:411
+msgid "Window"
+msgstr "창"
+
+#: src/GMPreferencesDialog.cpp:414
+msgid "Close button minimizes to tray"
+msgstr "닫기 버튼을 눌러 트레이로 최소화"
+
+#: src/GMPreferencesDialog.cpp:415
+msgid "Show Status Bar"
+msgstr "상태 표시줄 표시"
+
+#: src/GMPreferencesDialog.cpp:418
+msgid "Display playing track in title bar"
+msgstr "제목 표시줄에 재생중인 곡 보여주기"
+
+#: src/GMPreferencesDialog.cpp:421
+msgid "Toolbar"
+msgstr "도구모음"
+
+#: src/GMPreferencesDialog.cpp:425
+msgid "Location:"
+msgstr "위치:"
+
+#: src/GMPreferencesDialog.cpp:427
+msgid "Top"
+msgstr "상단"
+
+#: src/GMPreferencesDialog.cpp:428
+msgid "Bottom"
+msgstr "하단"
+
+#: src/GMPreferencesDialog.cpp:431
+msgid "Title Format:"
+msgstr "제목 형식:"
+
+#: src/GMPreferencesDialog.cpp:439 src/GMTrackEditor.cpp:361
+msgid ""
+"%T - title                   %A - album name\n"
+"%P - album artist name       %p - track artist name\n"
+"%w - composer                %c - conductor\n"
+"%y - year                    %d - disc number\n"
+"%N - track number (2 digits) %n - track number      \n"
+"%G - genre"
+msgstr ""
+"%T - title                   %A - album name\n"
+"%P - album artist name       %p - track artist name\n"
+"%w - composer                %c - conductor\n"
+"%y - year                    %d - disc number\n"
+"%N - track number (2 digits) %n - track number      \n"
+"%G - genre"
+
+#: src/GMPreferencesDialog.cpp:457
+msgid "A&ppearance"
+msgstr "모양새(&P)"
+
+#: src/GMPreferencesDialog.cpp:459
+msgid "Colors"
+msgstr "색상"
+
+#: src/GMPreferencesDialog.cpp:465
+msgid "fg\tForeground Color"
+msgstr "fg\t전경색"
+
+#: src/GMPreferencesDialog.cpp:466
+msgid "bg\tBackground Color"
+msgstr "bg\t배경색"
+
+#: src/GMPreferencesDialog.cpp:467
+msgid "alt bg\tAlternative Background Color"
+msgstr "alt bg\t대체 배경색"
+
+#: src/GMPreferencesDialog.cpp:478
+msgid "Normal\tNormal Text Color"
+msgstr "일반\t일반 텍스트 색상"
+
+#: src/GMPreferencesDialog.cpp:482
+msgid "Base\tBase Color"
+msgstr "기본\t기본 색상"
+
+#: src/GMPreferencesDialog.cpp:485
+msgid "Selected\tSelected Text Color"
+msgstr "선택됨\t텍스트 색상 선택됨"
+
+#: src/GMPreferencesDialog.cpp:489
+msgid "Menu\tMenu Base Color"
+msgstr "메뉴\t메뉴 기본 색상"
+
+#: src/GMPreferencesDialog.cpp:493
+msgid "Menu\tMenu Text Color"
+msgstr "메뉴\t메뉴 텍스트 색상"
+
+#: src/GMPreferencesDialog.cpp:497
+msgid "Border\tBorder Color"
+msgstr "테두리\t테두리 색상"
+
+#: src/GMPreferencesDialog.cpp:501
+msgid "Tooltip\tTooltip Color"
+msgstr "도구설명\t도구설명 색상"
+
+#: src/GMPreferencesDialog.cpp:505
+msgid "Hilite\tHilite Color"
+msgstr "강조\t강조 색상"
+
+#: src/GMPreferencesDialog.cpp:512
+msgid "Shadow\tShadow Color"
+msgstr "그림자\t그림자 색상"
+
+#: src/GMPreferencesDialog.cpp:515
+msgid "Playing\tPlaying Track Color"
+msgstr "재생중\t재생중 곡 색상"
+
+#: src/GMPreferencesDialog.cpp:519
+msgid "Tray\tTray Background Color"
+msgstr "트레이\t트레이 배경색"
+
+#: src/GMPreferencesDialog.cpp:529
+msgid "Presets:"
+msgstr "프리셋:"
+
+#: src/GMPreferencesDialog.cpp:537
+msgid "Font & Icons"
+msgstr "글꼴 & 아이콘"
+
+#: src/GMPreferencesDialog.cpp:542
+msgid "Default Font"
+msgstr "기본 글꼴"
+
+#: src/GMPreferencesDialog.cpp:544
+msgid "Change…"
+msgstr "변경…"
+
+#: src/GMPreferencesDialog.cpp:546
+msgid "Display DPI"
+msgstr "DPI 보여주기"
+
+#: src/GMPreferencesDialog.cpp:553
+msgid "Icons"
+msgstr "아이콘"
+
+#: src/GMPreferencesDialog.cpp:572
+msgid "&Audio"
+msgstr "오디오(&A)"
+
+#: src/GMPreferencesDialog.cpp:575
+msgid "Output"
+msgstr "출력"
+
+#: src/GMPreferencesDialog.cpp:579
+msgid "Driver:"
+msgstr "드라이버:"
+
+#: src/GMPreferencesDialog.cpp:613 src/GMPreferencesDialog.cpp:626
+msgid "Device:"
+msgstr "장치:"
+
+#: src/GMPreferencesDialog.cpp:633
+msgid "Apply Changes"
+msgstr "변경 적용"
+
+#: src/GMPreferencesDialog.cpp:635
+msgid "Playback"
+msgstr "재생"
+
+#: src/GMPreferencesDialog.cpp:640
+msgid "Replay Gain:"
+msgstr "리플레이 게인:"
+
+#: src/GMPreferencesDialog.cpp:643
+msgid "Off"
+msgstr "끄기"
+
+#: src/GMPreferencesDialog.cpp:644
+msgid "Track"
+msgstr "곡"
+
+#: src/GMPreferencesDialog.cpp:650
+msgid "&Podcasts"
+msgstr "팟캐스트(&P)"
+
+#: src/GMPreferencesDialog.cpp:653
+msgid "Updates"
+msgstr "업데이트"
+
+#: src/GMPreferencesDialog.cpp:657
+msgid "Update Interval"
+msgstr "업데이트 간격"
+
+#: src/GMPreferencesDialog.cpp:659
+msgid "Disabled"
+msgstr "사용안함"
+
+#: src/GMPreferencesDialog.cpp:660
+msgid "10 minutes"
+msgstr "10분"
+
+#: src/GMPreferencesDialog.cpp:661
+msgid "20 minutes"
+msgstr "20분"
+
+#: src/GMPreferencesDialog.cpp:662
+msgid "30 minutes"
+msgstr "30분"
+
+#: src/GMPreferencesDialog.cpp:663
+msgid "1 hour"
+msgstr "1시간"
+
+#: src/GMPreferencesDialog.cpp:664
+msgid "2 hours"
+msgstr "2시간"
+
+#: src/GMPreferencesDialog.cpp:665
+msgid "6 hours"
+msgstr "6시간"
+
+#: src/GMPreferencesDialog.cpp:666
+msgid "12 hours"
+msgstr "12시간"
+
+#: src/GMPreferencesDialog.cpp:863
+msgid "Current"
+msgstr "현재"
+
+#: src/GMPreferencesDialog.cpp:881
+msgid "Custom"
+msgstr "사용자지정"
+
+#: src/GMPreferencesDialog.cpp:1469
+msgid "Select Normal Font"
+msgstr "일반 글꼴 선택"
+
+#: src/GMRemote.cpp:79
+msgid "\tShow Browser\tShow Browser"
+msgstr "\t탐색기 표시\t탐색기 표시"
+
+#: src/GMRemote.cpp:81 src/GMWindow.cpp:282
+msgid "\tStart Playback\tStart Playback"
+msgstr "\t재생 시작\t재생 시작"
+
+#: src/GMRemote.cpp:82 src/GMWindow.cpp:283
+msgid "\tStop Playback\tStop Playback"
+msgstr "\t재생 중지\t재생 중지"
+
+#: src/GMRemote.cpp:84 src/GMWindow.cpp:284
+msgid "\tPlay Previous Track\tPlay previous track."
+msgstr "\t이전 곡 재생\t이전 곡 재생하기."
+
+#: src/GMRemote.cpp:85 src/GMWindow.cpp:285
+msgid "\tPlay Next Track\tPlay next track."
+msgstr "\t다음 곡 재생\t다음 곡 재생하기."
+
+#: src/GMRemote.cpp:93
+msgid "\tAdjust Volume\tAdjust Volume"
+msgstr "\t음량 조정\t음량 조정"
+
+#: src/GMScanner.cpp:45
+msgid "Unknown Artist"
+msgstr "알 수 없는 아티스트"
+
+#: src/GMScanner.cpp:46
+msgid "Unknown Album"
+msgstr "알 수 없는 앨범"
+
+#: src/GMScanner.cpp:593
+msgid "Various Artists"
+msgstr "여러 아티스트"
+
+#: src/GMSourceView.cpp:53
+msgid "Sources\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"소스\t정렬 순서를 변경하려면 누르십시오\t정렬 순서를 변경하려면 누르십시오"
+
+#: src/GMSourceView.cpp:294
+msgid "Show Browser\tCtrl-B\tShow Browser"
+msgstr "탐색기 표시\tCtrl-B\t탐색기 표시"
+
+#: src/GMSourceView.cpp:295
+msgid "Show Tags\tCtrl-T\tShow Tags"
+msgstr "태그 표시\tCtrl-T\t태그 표시"
+
+#: src/GMStreamSource.cpp:59
+msgid "Station"
+msgstr "방송국"
+
+#: src/GMStreamSource.cpp:61 src/GMStreamSource.cpp:195
+msgid "Genre"
+msgstr "장르"
+
+#: src/GMStreamSource.cpp:90 src/GMStreamSource.cpp:95
+#: src/GMStreamSource.cpp:101
+msgid "Add Radio Station…"
+msgstr "라디오 방송국 추가…"
+
+#: src/GMStreamSource.cpp:100
+msgid "Edit…"
+msgstr "편집…"
+
+#: src/GMStreamSource.cpp:102
+msgid "Remove\t\tRemove."
+msgstr "제거\t\t제거."
+
+#: src/GMStreamSource.cpp:144 src/GMStreamSource.cpp:145
+msgid "New Internet Radio Station"
+msgstr "새 인터넷 라디오 방송국"
+
+#: src/GMStreamSource.cpp:145
+msgid "Specify url and description of new station"
+msgstr "새 스테이션의 URL 및 설명 지정하기"
+
+#: src/GMStreamSource.cpp:147
+msgid "C&reate"
+msgstr "생성(&R)"
+
+#: src/GMStreamSource.cpp:154 src/GMStreamSource.cpp:193
+msgid "Description"
+msgstr "설명"
+
+#: src/GMStreamSource.cpp:168
+msgid "Untitled"
+msgstr "제목 없음"
+
+#: src/GMStreamSource.cpp:181 src/GMStreamSource.cpp:182
+msgid "Edit Internet Radio Station"
+msgstr "인터넷 라디오 방송국 편집"
+
+#: src/GMStreamSource.cpp:182
+msgid "Update url and description of station"
+msgstr "URL 업데이트 및 방송국에 대한 설명"
+
+#: src/GMStreamSource.cpp:240
+msgid "Remove Internet Radio Station(s)?"
+msgstr "인터넷 라디오 방송국을 제거하시겠습니까?"
+
+#: src/GMStreamSource.cpp:241
+msgid "Remove Internet Radio Station(s) from library?"
+msgstr "라이브러리에서 인터넷 라디오 방송국을 제거하시겠습니까?"
+
+#: src/GMStreamSource.cpp:255
+#, c-format
+msgid "Unable to remove station from the library."
+msgstr "라이브러리에서 방송국을 제거할 수 없습니다."
+
+#: src/GMTrackDatabase.cpp:174 src/GMTrackDatabase.cpp:180
+#: src/GMTrackEditor.cpp:260 src/GMTrackEditor.cpp:276
+msgid "Database Error"
+msgstr "데이터베이스 오류"
+
+#: src/GMTrackDatabase.cpp:174
+msgid ""
+"An incompatible (future) version of the database was found.\n"
+"This usually happens when you try to downgrade to a older version of GMM\n"
+"Press OK to continue and reset the database (all information will be "
+"lost!).\n"
+"Press Cancel to quit now and leave the database as is."
+msgstr ""
+"호환되지 않는(향후) 버전의 데이터베이스를 찾았습니다.\n"
+"이 문제는 일반적으로 이전 버전의 GMM으로 다운그레이드하려고 할 때 발생합니"
+"다.\n"
+"OK를 눌러 계속 진행하고 데이터베이스를 재설정합니다. (모든 정보가 손실됨!)\n"
+"지금 종료하고 데이터베이스를 그대로 두려면 취소를 누릅니다."
+
+#: src/GMTrackDatabase.cpp:180
+msgid ""
+"An incompatible (older) version of the database was found.\n"
+"Press OK to continue and reset the database (all information will be "
+"lost!).\n"
+"Press Cancel to quit now and leave the database as is."
+msgstr ""
+"호환되지 않는(이전) 버전의 데이터베이스를 찾았습니다.\n"
+"OK를 눌러 계속 진행하고 데이터베이스를 재설정합니다(모든 정보가 손실됨!).\n"
+"지금 종료하고 데이터베이스를 그대로 두려면 취소를 누릅니다."
+
+#: src/GMTrackDatabase.cpp:192
+msgid "Fatal Error"
+msgstr "치명적인 오류"
+
+#: src/GMTrackDatabase.cpp:192
+#, c-format
+msgid ""
+"Goggles Music Manager was unable to open the database.\n"
+"The database may have been corrupted. Please remove %s to try again.\n"
+"if the error keeps occuring, please file an issue at http://gogglesmm.github."
+"io"
+msgstr ""
+"Goggles Music Manager에서 데이터베이스를 열 수 없습니다.\n"
+"데이터베이스가 손상되었을 수 있습니다. %s을(를) 제거하고 다시 시도하십시오.\n"
+"오류가 계속 발생한다면, http://gogglesmm.github.io 에 문제를 제기해 주십시오"
+
+#: src/GMTrackEditor.cpp:233
+msgid "Invalid Template"
+msgstr "잘못된 템플릿"
+
+#: src/GMTrackEditor.cpp:233
+#, c-format
+msgid ""
+"The provided template is invalid. The track title %%T needs to be "
+"specified.\n"
+"Please fix the filename template in the preference panel."
+msgstr ""
+"제공된 템플릿이 잘못되었습니다. 곡 제목 %%T를 지정해야 합니다.\n"
+"기본 설정 패널에서 파일 이름 템플릿을 수정해 주십시오."
+
+#: src/GMTrackEditor.cpp:260
+msgid "Oops. Database Error"
+msgstr "에구머니. 데이터베이스 오류"
+
+#: src/GMTrackEditor.cpp:276
+msgid "Failed to retrieve track filenames"
+msgstr "곡 파일이름을 검색하지 못함"
+
+#: src/GMTrackEditor.cpp:281
+msgid "No changes"
+msgstr "변경사항 없음"
+
+#: src/GMTrackEditor.cpp:281
+msgid "Filenames did not require any changes"
+msgstr "파일이름을 변경할 필요가 없음"
+
+#: src/GMTrackEditor.cpp:287
+msgid "Rename Audio Files?"
+msgstr "오디오 파일의 이름을 바꾸시겠습니까?"
+
+#: src/GMTrackEditor.cpp:288
+msgid "Renaming Audio Files…"
+msgstr "오디오 파일 이름변경 중…"
+
+#: src/GMTrackEditor.cpp:288
+msgid "The following audio files are going to be renamed"
+msgstr "다음 오디오 파일의 이름이 변경됨"
+
+#: src/GMTrackEditor.cpp:291
+msgid "&Rename"
+msgstr "이름변경(&R)"
+
+#: src/GMTrackEditor.cpp:343
+msgid "Filename Template"
+msgstr "파일이름 템플릿"
+
+#: src/GMTrackEditor.cpp:360
+msgid ""
+"Template may contain absolute or relative path, environment variables\n"
+"and ~. Relative paths are based on the location of the original file. The\n"
+"file extension gets automatically added. The following macros\n"
+"may be used:"
+msgstr ""
+"템플릿에는 절대 또는 상대 경로, 환경 변수 및 ~가 포함될 수 있습니다. \n"
+"상대 경로는 원본 파일의 위치를 기준으로 합니다. 파일 확장명이 자동으로 \n"
+"추가됩니다. 다음과 같은 매크로를 사용할 수 있습니다:"
+
+#: src/GMTrackEditor.cpp:368
+msgid "Conditions may be used as well:"
+msgstr "다음과 같은 조건도 사용할 수 있음:"
+
+#: src/GMTrackEditor.cpp:369
+msgid ""
+"?c<a|b> - display a if c is not empty else display b.\n"
+"?c      - display c if not empty\n"
+msgstr ""
+"?c<a|b> - c가 비어 있지 않으면 a를 보여주고 그렇지 않으면 b를 보여줍니다.\n"
+"?c      - 비어 있지 않은 경우 c를 보여줍니다\n"
+
+#: src/GMTrackEditor.cpp:382
+msgid "Encoding:"
+msgstr "인코딩:"
+
+#: src/GMTrackEditor.cpp:388
+msgid "Exclude:"
+msgstr "제외:"
+
+#: src/GMTrackEditor.cpp:392
+msgid "Options:"
+msgstr "옵션:"
+
+#: src/GMTrackEditor.cpp:393
+msgid "Replace spaces with underscores"
+msgstr "공백을 밑줄로 바꾸기"
+
+#: src/GMTrackEditor.cpp:395
+msgid "Lower case"
+msgstr "소문자"
+
+#: src/GMTrackEditor.cpp:397
+msgid "Lower case extension"
+msgstr "소문자 확장"
+
+#: src/GMTrackEditor.cpp:443
+msgid "Edit Track Information"
+msgstr "곡 정보 편집"
+
+#: src/GMTrackEditor.cpp:446
+msgid "&Previous"
+msgstr "이전(&P)"
+
+#: src/GMTrackEditor.cpp:447
+msgid "&Next"
+msgstr "다음(&N)"
+
+#: src/GMTrackEditor.cpp:470
+msgid "&Tag"
+msgstr "태그(&T)"
+
+#: src/GMTrackEditor.cpp:477
+msgid "L&yrics"
+msgstr "가사(&Y)"
+
+#: src/GMTrackEditor.cpp:488 src/GMTrackView.cpp:269
+msgid "&Find"
+msgstr "찾기(&F)"
+
+#: src/GMTrackEditor.cpp:495
+msgid "&Properties"
+msgstr "속성(&P)"
+
+#: src/GMTrackEditor.cpp:503 cfox/lib/FXFileSelector.cpp:940
+msgid "Type"
+msgstr "유형"
+
+#: src/GMTrackEditor.cpp:506 cfox/lib/FXFileSelector.cpp:941
+msgid "Size"
+msgstr "크기"
+
+#: src/GMTrackEditor.cpp:520
+msgid "Co&ver"
+msgstr "표지(&V)"
+
+#: src/GMTrackEditor.cpp:531
+msgid "Trac&k"
+msgstr "곡(&K)"
+
+#: src/GMTrackEditor.cpp:537 src/GMTrackEditor.cpp:548
+#: src/GMTrackEditor.cpp:554
+msgid "&Disc"
+msgstr "디스크(&D)"
+
+#: src/GMTrackEditor.cpp:541 src/GMTrackEditor.cpp:560
+msgid "Y&ear"
+msgstr "연도(&E)"
+
+#: src/GMTrackEditor.cpp:564
+msgid "T&itle"
+msgstr "제목(&I)"
+
+#: src/GMTrackEditor.cpp:568
+msgid "&Artist"
+msgstr "아티스트(&A)"
+
+#: src/GMTrackEditor.cpp:571
+msgid "Album A&rtist"
+msgstr "앨범 아티스트(&R)"
+
+#: src/GMTrackEditor.cpp:574
+msgid "A&lbum"
+msgstr "앨범(&L)"
+
+#: src/GMTrackEditor.cpp:577
+msgid "C&omposer"
+msgstr "작곡가"
+
+#: src/GMTrackEditor.cpp:580
+msgid "Cond&uctor"
+msgstr "지휘자"
+
+#: src/GMTrackEditor.cpp:583
+msgid "Ta&gs"
+msgstr "태그(&G)"
+
+#: src/GMTrackEditor.cpp:594
+msgid "Auto track number. Offset:"
+msgstr "자동 곡 번호 오프셋:"
+
+#: src/GMTrackEditor.cpp:603
+msgid "Update Tag in File"
+msgstr "파일에서 태그 업데이트"
+
+#: src/GMTrackEditor.cpp:608
+msgid "Update Filename"
+msgstr "파일이름 업데이트"
+
+#: src/GMTrackEditor.cpp:609
+msgid "Set export template…"
+msgstr "내보내기 템플릿 지정…"
+
+#: src/GMTrackEditor.cpp:990
+msgid "Update Tags?"
+msgstr "태그를 업데이트 하시겠습니까?"
+
+#: src/GMTrackEditor.cpp:990
+msgid ""
+"No tracks were updated.\n"
+"Would you still like to write the tags for the selected tracks?"
+msgstr ""
+"업데이트된 곡이 없습니다.\n"
+"선택한 곡에 대한 태그를 계속 작성하시겠습니까?"
+
+#: src/GMTrackView.cpp:268
+msgid "\tClose Filter\tClose Filter"
+msgstr "\t필터 닫기\t필터 닫기"
+
+#: src/GMTrackView.cpp:275
+msgid "Tags\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"태그\t정렬 순서를 변경하려면 누르십시오\t정렬 순서를 변경하려면 누르십시오"
+
+#: src/GMTrackView.cpp:279
+msgid "Artists\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"아티스트\t정렬 순서를 변경하려면 누르십시오\t정렬 순서를 변경하려면 누르십시"
+"오"
+
+#: src/GMTrackView.cpp:283
+msgid "\tPress to change sorting order\tPress to change sorting order"
+msgstr "\t정렬 순서를 변경하려면 누르십시오\t정렬 순서를 변경하려면 누르십시오"
+
+#: src/GMTrackView.cpp:290
+msgid "Browse"
+msgstr "찾아보기"
+
+#: src/GMTrackView.cpp:291
+msgid "Shuffle\tCtrl-R"
+msgstr "순서섞기\tCtrl-R"
+
+#: src/GMTrackView.cpp:299 cfox/lib/FXDirSelector.cpp:422
+#: cfox/lib/FXFileSelector.cpp:946
+msgid "Reverse"
+msgstr "반복"
+
+#: src/GMTrackView.cpp:303 src/GMTrackView.cpp:461
+msgid "&Configure Columns…"
+msgstr "열 구성(&C)…"
+
+#: src/GMTrackView.cpp:304 src/GMTrackView.cpp:462
+msgid "&Sort\t\tChange Sorting."
+msgstr "정렬(&S)\t\t정렬 변경."
+
+#: src/GMTrackView.cpp:1014
+#, c-format
+msgid "All %d Tags"
+msgstr "태그 모두 %d개"
+
+#: src/GMTrackView.cpp:1016
+msgid "All Tags"
+msgstr "모든 태그"
+
+#: src/GMTrackView.cpp:1037
+#, c-format
+msgid "All %d Artists"
+msgstr "아티스트 모두 %d명"
+
+#: src/GMTrackView.cpp:1463
+#, c-format
+msgid "By %s"
+msgstr "%s별로"
+
+#: src/GMTrackView.cpp:1819
+msgid "Show Album Year"
+msgstr "앨범 연도 표시"
+
+#: src/GMTrackView.cpp:1820 src/GMTrackView.cpp:1993
+msgid "Sort by Album Year"
+msgstr "앨범 연도별로 정렬"
+
+#: src/GMTrackView.cpp:1823
+msgid "List View"
+msgstr "목록 보기"
+
+#: src/GMTrackView.cpp:1824
+msgid "Cover View"
+msgstr "표지 보기"
+
+#: src/GMTrackView.cpp:1827
+msgid "Small Cover"
+msgstr "작은 표지"
+
+#: src/GMTrackView.cpp:1828
+msgid "Medium Cover"
+msgstr "중간 표지"
+
+#: src/GMTrackView.cpp:1829
+msgid "Big Cover"
+msgstr "큰 표지"
+
+#: src/GMTrackView.cpp:1831
+msgid "Arrange By Rows"
+msgstr "행별로 정렬"
+
+#: src/GMTrackView.cpp:1832
+msgid "Arrange By Columns"
+msgstr "열별로 정렬"
+
+#: src/GMTrayIcon.cpp:299 src/GMWindow.cpp:956 src/GMWindow.cpp:984
+msgid "Play"
+msgstr "재생"
+
+#: src/GMTrayIcon.cpp:300
+msgid "Stop"
+msgstr "중지"
+
+#: src/GMTrayIcon.cpp:301
+msgid "Previous Track"
+msgstr "이전 곡"
+
+#: src/GMTrayIcon.cpp:302
+msgid "Next Track"
+msgstr "다음 곡"
+
+#: src/GMTrayIcon.cpp:304
+msgid "Quit"
+msgstr "종료"
+
+#: src/GMWindow.cpp:191
+msgid "\tCancel Task\tCancel Task"
+msgstr "\t작업 취소\t작업 취소"
+
+#: src/GMWindow.cpp:236
+msgid "Queue Play\t\tPlay tracks from queue."
+msgstr "대기열 재생\t\t대기열에서 곡 재생하기."
+
+#: src/GMWindow.cpp:237
+msgid "Shuffle Play\tAlt-R\tPlay tracks in random order."
+msgstr "재생 순서섞기\tAlt-R\t무작위 순서로 곡 재생하기."
+
+#: src/GMWindow.cpp:239
+msgid "Repeat Off\tCtrl-,\tRepeat current track."
+msgstr "반복 끄기\tCtrl-,\t현재 곡 반복하기."
+
+#: src/GMWindow.cpp:240
+msgid "Repeat Track\tCtrl-.\tRepeat current track."
+msgstr "곡 반복\tCtrl-.\t현재 곡 반복하기."
+
+#: src/GMWindow.cpp:241
+msgid "Repeat All Tracks\tCtrl-/\tRepeat all tracks."
+msgstr "모든 곡 반복\tCtrl-/\t모든 곡 반복하기."
+
+#: src/GMWindow.cpp:245
+msgid "Stop After Track\tCtrl-Shift-|\tStop playback at end of track."
+msgstr "음악이 끝나면 중지\tCtrl-Shift-|\t음악이 끝나면 재생 중지하기."
+
+#: src/GMWindow.cpp:246
+msgid "Sleep Timer\t\tSetup sleeptimer."
+msgstr "수면 타이머\t\t수면 타이머 설정하기."
+
+#: src/GMWindow.cpp:251
+msgid "Show &Sources\tCtrl-S\tShow source browser "
+msgstr "소스 표시(&S)\tCtrl-S\\소 탐색기 표시 "
+
+#: src/GMWindow.cpp:252
+msgid "Show Full Screen\tF12\tToggle fullscreen mode."
+msgstr "전체 화면 표시\tF12\t전체화면 모드로 전환하기."
+
+#: src/GMWindow.cpp:253
+msgid "Show Mini Player\tCtrl-M\tToggle Mini Player."
+msgstr "소형 재생기 표시\tCtrl-M\t소형 재생기로 전환하기."
+
+#: src/GMWindow.cpp:256
+msgid "Show Presenter\t\tShow Presenter."
+msgstr "표지 화면보호기\t\t표지 화면보호기."
+
+#: src/GMWindow.cpp:260
+msgid "Find…\tCtrl-F\tShow search filter."
+msgstr "찾기…\tCtrl-F\t검색 필터 표시."
+
+#: src/GMWindow.cpp:262
+msgid "Preferences…"
+msgstr "환경설정…"
+
+#: src/GMWindow.cpp:263
+msgid "&About…"
+msgstr "프로그램 정보(&A)…"
+
+#: src/GMWindow.cpp:265
+msgid "&Quit\tCtrl-Q\tQuit the application."
+msgstr "종료(&Q)\tCtrl-Q\t응용프로그램 종료."
+
+#: src/GMWindow.cpp:282
+msgid "\tPause\tPause Playback"
+msgstr "\t일시중지\t재생 일시중지"
+
+#: src/GMWindow.cpp:951 src/GMWindow.cpp:979 src/GMWindow.cpp:985
+msgid "Start playback."
+msgstr "재생 시작하기."
+
+#: src/GMWindow.cpp:957 src/GMWindow.cpp:958
+msgid "Start playback"
+msgstr "재생 시작"
+
+#: src/GMWindow.cpp:965 src/GMWindow.cpp:972
+msgid "Pause playback."
+msgstr "재생 일시중지하기."
+
+#: src/GMWindow.cpp:966
+msgid "Pause playback"
+msgstr "재생 일시중지"
+
+#: src/GMWindow.cpp:971
+msgid "Pause"
+msgstr "일시중지"
+
+#: src/GMWindow.cpp:1221
+msgid "Play File or Stream"
+msgstr "파일 또는 스트림 재생"
+
+#: src/GMWindow.cpp:1223
+msgid "&Play"
+msgstr "재생(&P)"
+
+#: src/GMWindow.cpp:1228
+msgid "Please specify a file or url to play:"
+msgstr "재생할 파일 또는 URL을 지정하십시오:"
+
+#: src/GMWindow.cpp:1232
+msgid "…"
+msgstr "…"
+
+#: src/GMWindow.cpp:1238
+msgid "Select File"
+msgstr "파일 선택"
+
+#: src/GMWindow.cpp:1284
+msgid "Sleep Timer"
+msgstr "수면 타이머"
+
+#: src/GMWindow.cpp:1285
+msgid "Setup sleep timer"
+msgstr "수면 타이며 설정"
+
+#: src/GMWindow.cpp:1285
+msgid "Stop playback within a certain time"
+msgstr "특정 시간 내에 재생을 중지합니다"
+
+#: src/GMWindow.cpp:1287
+msgid "&Start Timer"
+msgstr "타이머 시작(&S)"
+
+#: src/GMWindow.cpp:1292
+msgid "Sleep in"
+msgstr "숙면 예정"
+
+#: src/GMWindow.cpp:1294
+msgid "hours and"
+msgstr "시간"
+
+#: src/GMWindow.cpp:1296
+msgid "minutes."
+msgstr "분."
+
+#: src/GMWindow.cpp:1453
+msgid "Show Album Cover"
+msgstr "앨범 표지 표시"
+
+#: src/GMWindow.cpp:1454
+msgid "Show Lyrics"
+msgstr "가사 표시"
+
+#: src/GMDatabaseSource.h:147
+msgid "Music Library"
+msgstr "음악 라이브러리"
+
+#: src/GMLocalSource.h:49
+msgid "File System"
+msgstr "파일 시스템"
+
+#: src/GMPodcastSource.h:113
+msgid "Feeds"
+msgstr "피드"
+
+#: src/GMSource.h:185
+msgid "Albums"
+msgstr "앨범"
+
+#: src/GMStreamSource.h:55
+msgid "Internet Radio"
+msgstr "인터넷 라디오"
+
+#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
+#: cfox/lib/FXMessageBox.cpp:148
+msgid "&Yes"
+msgstr "예(&Y)"
+
+#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
+#: cfox/lib/FXMessageBox.cpp:150
+msgid "&No"
+msgstr ""
+
+#: cfox/lib/FXMessageBox.cpp:123 cfox/lib/FXMessageBox.cpp:128
+msgid "&Quit"
+msgstr "종료(&Q)"
+
+#: cfox/lib/FXMessageBox.cpp:134
+msgid "&Skip"
+msgstr "건너뛰기(&S)"
+
+#: cfox/lib/FXMessageBox.cpp:135
+msgid "Skip &All"
+msgstr "모두 건너뛰기(&A)"
+
+#: cfox/lib/FXMessageBox.cpp:141
+msgid "&Don't Save"
+msgstr "저장 안함(&D)"
+
+#: cfox/lib/FXMessageBox.cpp:149
+msgid "Y&es to All"
+msgstr "모두 예(&E)"
+
+#: cfox/lib/FXMessageBox.cpp:151
+msgid "N&o to All"
+msgstr "모두 아니요(&O)"
+
+#: cfox/lib/FXColorSelector.cpp:222
+msgid "\tPick color"
+msgstr "\t색상 고르기"
+
+#: cfox/lib/FXColorSelector.cpp:231 cfox/lib/FXColorSelector.cpp:274
+msgid "\tHue, Saturation, Value"
+msgstr "\t색조, 채도, 값"
+
+#: cfox/lib/FXColorSelector.cpp:239
+msgid "\tRed, Green, Blue"
+msgstr "\t적색, 녹색, 청색"
+
+#: cfox/lib/FXColorSelector.cpp:245
+msgid "&Red:"
+msgstr "적색(&R):"
+
+#: cfox/lib/FXColorSelector.cpp:250
+msgid "&Green:"
+msgstr "녹색(&G):"
+
+#: cfox/lib/FXColorSelector.cpp:255
+msgid "&Blue:"
+msgstr "청색(&B):"
+
+#: cfox/lib/FXColorSelector.cpp:260
+msgid "&Alpha:"
+msgstr "알파(&A):"
+
+#: cfox/lib/FXColorSelector.cpp:280
+msgid "Hue:"
+msgstr "색조:"
+
+#: cfox/lib/FXColorSelector.cpp:285
+msgid "Saturation:"
+msgstr "채도:"
+
+#: cfox/lib/FXColorSelector.cpp:290
+msgid "Value:"
+msgstr "값:"
+
+#: cfox/lib/FXColorSelector.cpp:295 cfox/lib/FXColorSelector.cpp:330
+msgid "Alpha:"
+msgstr "알파:"
+
+#: cfox/lib/FXColorSelector.cpp:309
+msgid "\tCyan, Magenta, Yellow"
+msgstr "\t청록색, 자홍색, 노란색"
+
+#: cfox/lib/FXColorSelector.cpp:315
+msgid "Cyan:"
+msgstr "청록색:"
+
+#: cfox/lib/FXColorSelector.cpp:320
+msgid "Magenta:"
+msgstr "자홍색:"
+
+#: cfox/lib/FXColorSelector.cpp:325
+msgid "Yellow:"
+msgstr "노란색:"
+
+#: cfox/lib/FXColorSelector.cpp:344
+msgid "\tBy Name"
+msgstr "\t이름별로"
+
+#: cfox/lib/FXDirSelector.cpp:141
+msgid "&Directory:"
+msgstr "디렉토리(&D):"
+
+#: cfox/lib/FXDirSelector.cpp:144
+msgid "&Name"
+msgstr "이름(&N)"
+
+#: cfox/lib/FXDirSelector.cpp:315 cfox/lib/FXFileSelector.cpp:720
+msgid "folder"
+msgstr "폴더"
+
+#: cfox/lib/FXDirSelector.cpp:316 cfox/lib/FXFileSelector.cpp:721
+msgid "Create New Directory"
+msgstr "새 디렉토리 생성"
+
+#: cfox/lib/FXDirSelector.cpp:319 cfox/lib/FXFileSelector.cpp:724
+msgid "Already Exists"
+msgstr "이미 존재함"
+
+#: cfox/lib/FXDirSelector.cpp:323 cfox/lib/FXFileSelector.cpp:728
+msgid "Cannot Create"
+msgstr "만들 수 없음"
+
+#: cfox/lib/FXDirSelector.cpp:343 cfox/lib/FXFileSelector.cpp:780
+msgid "Copy File"
+msgstr "파일 복사"
+
+#: cfox/lib/FXDirSelector.cpp:349 cfox/lib/FXFileSelector.cpp:786
+msgid "Error Copying File"
+msgstr "파일 복사중 오류"
+
+#: cfox/lib/FXDirSelector.cpp:360 cfox/lib/FXFileSelector.cpp:803
+msgid "Move File"
+msgstr "파일 이동"
+
+#: cfox/lib/FXDirSelector.cpp:366 cfox/lib/FXFileSelector.cpp:809
+msgid "Error Moving File"
+msgstr "파일 이동중 오류"
+
+#: cfox/lib/FXDirSelector.cpp:377 cfox/lib/FXFileSelector.cpp:826
+msgid "Link File"
+msgstr "링크 파일"
+
+#: cfox/lib/FXDirSelector.cpp:383 cfox/lib/FXFileSelector.cpp:832
+msgid "Error Linking File"
+msgstr "파일 연결중 오류"
+
+#: cfox/lib/FXDirSelector.cpp:393
+msgid "Deleting file"
+msgstr "파일 삭제중"
+
+#: cfox/lib/FXDirSelector.cpp:395 cfox/lib/FXFileSelector.cpp:852
+msgid "Error Deleting File"
+msgstr "파일 삭제중 오류"
+
+#: cfox/lib/FXDirSelector.cpp:415 cfox/lib/FXFileSelector.cpp:906
+msgid "Up one level"
+msgstr "한 단계 위로"
+
+#: cfox/lib/FXDirSelector.cpp:416 cfox/lib/FXFileSelector.cpp:907
+msgid "Home directory"
+msgstr "홈 디렉토리"
+
+#: cfox/lib/FXDirSelector.cpp:417 cfox/lib/FXFileSelector.cpp:908
+msgid "Work directory"
+msgstr "작업 디렉토리"
+
+#: cfox/lib/FXDirSelector.cpp:421
+msgid "Sorting"
+msgstr "정렬"
+
+#: cfox/lib/FXDirSelector.cpp:423 cfox/lib/FXFileSelector.cpp:947
+msgid "Ignore case"
+msgstr "대/소문자 무시"
+
+#: cfox/lib/FXDirSelector.cpp:424 cfox/lib/FXFileSelector.cpp:958
+msgid "Hidden files"
+msgstr "숨김 파일"
+
+#: cfox/lib/FXDirSelector.cpp:427 cfox/lib/FXFileSelector.cpp:912
+msgid "Bookmarks"
+msgstr "북마크"
+
+#: cfox/lib/FXDirSelector.cpp:428 cfox/lib/FXFileSelector.cpp:915
+msgid "Set bookmark"
+msgstr "북마크 지정"
+
+#: cfox/lib/FXDirSelector.cpp:429 cfox/lib/FXFileSelector.cpp:916
+msgid "&Unset bookmark"
+msgstr "북마크 지정해제(&U)"
+
+#: cfox/lib/FXDirSelector.cpp:430
+msgid "Clear bookmarks"
+msgstr "북마크 지우기"
+
+#: cfox/lib/FXDirSelector.cpp:446 cfox/lib/FXFileSelector.cpp:967
+msgid "New directory..."
+msgstr "새 디렉토리..."
+
+#: cfox/lib/FXDirSelector.cpp:447 cfox/lib/FXFileSelector.cpp:969
+msgid "Copy..."
+msgstr "복사..."
+
+#: cfox/lib/FXDirSelector.cpp:448 cfox/lib/FXFileSelector.cpp:970
+msgid "Move..."
+msgstr "이동..."
+
+#: cfox/lib/FXDirSelector.cpp:449 cfox/lib/FXFileSelector.cpp:971
+msgid "Link..."
+msgstr "링크..."
+
+#: cfox/lib/FXDirSelector.cpp:450 cfox/lib/FXFileSelector.cpp:972
+msgid "Delete..."
+msgstr "삭제..."
+
+#: cfox/lib/FXFileList.cpp:209
+msgid "Name\tName"
+msgstr "이름\t이름"
+
+#: cfox/lib/FXFileList.cpp:210
+msgid "Type\tFile type"
+msgstr "유형\t파일 유형"
+
+#: cfox/lib/FXFileList.cpp:211
+msgid "Size\tFile size"
+msgstr "크기\t파일 크기"
+
+#: cfox/lib/FXFileList.cpp:212
+msgid "Modified Date\tDate when last modified"
+msgstr "수정한 날짜\t마지막으로 수정한 날짜"
+
+#: cfox/lib/FXFileList.cpp:213
+msgid "User\tUser name"
+msgstr "사용자\t사용자 이름"
+
+#: cfox/lib/FXFileList.cpp:214
+msgid "Group\tGroup name"
+msgstr "그룹\t그룹 이름"
+
+#: cfox/lib/FXFileList.cpp:215
+msgid "Attributes\tFile attributes"
+msgstr "속성\t파일 속성"
+
+#: cfox/lib/FXFileList.cpp:217
+msgid "Link\tSymbolic link to"
+msgstr "링크\t심볼릭 링크:"
+
+#: cfox/lib/FXFileList.cpp:583
+msgid "Failed Deleting Files"
+msgstr "파일 삭제중 실패함"
+
+#: cfox/lib/FXFileList.cpp:583
+#, c-format
+msgid "Failed to delete file: %s; continue?"
+msgstr "파일 삭제 실패함: %s; 계속하시겠습니까?"
+
+#: cfox/lib/FXFileList.cpp:603 cfox/lib/FXFileList.cpp:632
+msgid "Overwrite File"
+msgstr "파일 덮어쓰기"
+
+#: cfox/lib/FXFileList.cpp:603 cfox/lib/FXFileList.cpp:632
+#, c-format
+msgid "Overwrite existing file or directory: %s?"
+msgstr "기존 파일 또는 디렉터리 덮어쓰기: %s하시겠습니까?"
+
+#: cfox/lib/FXFileList.cpp:610
+msgid "Failed Copying File"
+msgstr "파일 복사중 실패함"
+
+#: cfox/lib/FXFileList.cpp:610 cfox/lib/FXFileList.cpp:639
+#, c-format
+msgid "Failed to overwrite file: %s; continue?"
+msgstr "파일 덮어쓰기에 실패함: %s; 계속하시겠습니까?"
+
+#: cfox/lib/FXFileList.cpp:639
+msgid "Failed Moving File"
+msgstr "파일 이동중 실패함"
+
+#: cfox/lib/FXFileList.cpp:647
+msgid "Copying Files"
+msgstr "파일 복사중"
+
+#: cfox/lib/FXFileList.cpp:663
+msgid ""
+"Copying file:\n"
+"\n"
+msgstr ""
+"파일 복사중:\n"
+"\n"
+
+#: cfox/lib/FXFileList.cpp:714
+msgid "Failed Linking File"
+msgstr "파일 연결중 실패함"
+
+#: cfox/lib/FXFileList.cpp:714
+#, c-format
+msgid "Failed to make symbolic link from: %s; continue?"
+msgstr "심볼릭 링크를 만들지 못함: %s; 계속하시겠습니까?"
+
+#: cfox/lib/FXFileList.cpp:731
+msgid "Move Here"
+msgstr "여기에 이동"
+
+#: cfox/lib/FXFileList.cpp:732
+msgid "Copy Here"
+msgstr "여기에 복사"
+
+#: cfox/lib/FXFileList.cpp:733
+msgid "Link Here"
+msgstr "여기에 링크"
+
+#: cfox/lib/FXFileList.cpp:735
+msgid "Cancel"
+msgstr "취소"
+
+#: cfox/lib/FXFileList.cpp:1432
+msgid "Folder"
+msgstr "폴더"
+
+#: cfox/lib/FXFileList.cpp:1438
+msgid "Application"
+msgstr "응용프로그램"
+
+#: cfox/lib/FXFileList.cpp:1444
+msgid "Document"
+msgstr "문서"
+
+#: cfox/lib/FXFileSelector.cpp:721
+msgid "Create new directory with name: "
+msgstr "이름으로 새 디렉토리 생성: "
+
+#: cfox/lib/FXFileSelector.cpp:724
+#, c-format
+msgid "File or directory %s already exists.\n"
+msgstr "파일 또는 %s 디렉토리가 이미 존재합니다.\n"
+
+#: cfox/lib/FXFileSelector.cpp:728
+#, c-format
+msgid "Cannot create directory %s.\n"
+msgstr "%s 디렉터리를 만들 수 없습니다.\n"
+
+#: cfox/lib/FXFileSelector.cpp:756
+#, c-format
+msgid ""
+"Rename file from:\n"
+"\n"
+"%s\n"
+"\n"
+"to: "
+msgstr ""
+"다음에서 파일 이름변경:\n"
+"\n"
+"%s\n"
+"\n"
+"to: "
+
+#: cfox/lib/FXFileSelector.cpp:757
+msgid "Rename File"
+msgstr "파일 이름변경"
+
+#: cfox/lib/FXFileSelector.cpp:763
+msgid "Error Renaming File"
+msgstr "파일 이름변경중 오류"
+
+#: cfox/lib/FXFileSelector.cpp:763
+#, c-format
+msgid ""
+"Unable to rename file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"파일 이름을 바꿀 수 없음:\n"
+"\n"
+"%s  ⇒  %s\n"
+"\n"
+"작업을 계속하시겠습니까?"
+
+#: cfox/lib/FXFileSelector.cpp:779
+#, c-format
+msgid ""
+"Copy file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"다음 위치에서 파일 복사:\n"
+"\n"
+"%s\n"
+"\n"
+"다음 위치로: "
+
+#: cfox/lib/FXFileSelector.cpp:786
+#, c-format
+msgid ""
+"Unable to copy file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"파일을 복사할 수 없음:\n"
+"\n"
+"%s  ⇒  %s\n"
+"\n"
+"작업을 계속하시겠습니까?"
+
+#: cfox/lib/FXFileSelector.cpp:802
+#, c-format
+msgid ""
+"Move file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"다음 위치에서 파일 이동:\n"
+"\n"
+"%s\n"
+"\n"
+"다음 위치로: "
+
+#: cfox/lib/FXFileSelector.cpp:809
+#, c-format
+msgid ""
+"Unable to move file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"파일을 이동할 수 없음:\n"
+"\n"
+"%s  ⇒  %s\n"
+"\n"
+"작업을 계속하시겠습니까?"
+
+#: cfox/lib/FXFileSelector.cpp:825
+#, c-format
+msgid ""
+"Link file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"다음 위치에서 파일 링크:\n"
+"\n"
+"%s\n"
+"\n"
+"다음 위치로: "
+
+#: cfox/lib/FXFileSelector.cpp:832
+#, c-format
+msgid ""
+"Unable to link file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"파일을 링크할 수 없음:\n"
+"\n"
+"%s  ⇒  %s\n"
+"\n"
+"작업을 계속하시겠습니까?"
+
+#: cfox/lib/FXFileSelector.cpp:848
+msgid "Deleting files"
+msgstr "파일 삭제중"
+
+#: cfox/lib/FXFileSelector.cpp:848
+#, c-format
+msgid ""
+"Are you sure you want to delete the file:\n"
+"\n"
+"%s"
+msgstr ""
+"파일을 삭제하시겠습니까:\n"
+"\n"
+"%s"
+
+#: cfox/lib/FXFileSelector.cpp:852
+#, c-format
+msgid ""
+"Unable to delete file:\n"
+"\n"
+"%s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"파일을 삭제할 수 없음:\n"
+"\n"
+"%s\n"
+"\n"
+"작업을 계속하시겠습니까?"
+
+#: cfox/lib/FXFileSelector.cpp:917
+msgid "Clear all bookmarks"
+msgstr "북마크 모두 지우기"
+
+#: cfox/lib/FXFileSelector.cpp:938
+msgid "Sort by"
+msgstr "정렬 기준"
+
+#: cfox/lib/FXFileSelector.cpp:943
+msgid "User"
+msgstr "사용자"
+
+#: cfox/lib/FXFileSelector.cpp:944
+msgid "Group"
+msgstr "그룹"
+
+#: cfox/lib/FXFileSelector.cpp:950
+msgid "View"
+msgstr "보기"
+
+#: cfox/lib/FXFileSelector.cpp:951
+msgid "Small icons"
+msgstr "작은 아이콘"
+
+#: cfox/lib/FXFileSelector.cpp:952
+msgid "Big icons"
+msgstr "큰 아이콘"
+
+#: cfox/lib/FXFileSelector.cpp:953
+msgid "Details"
+msgstr "세부사항"
+
+#: cfox/lib/FXFileSelector.cpp:955
+msgid "Rows"
+msgstr "행"
+
+#: cfox/lib/FXFileSelector.cpp:956
+msgid "Columns"
+msgstr "열"
+
+#: cfox/lib/FXFileSelector.cpp:959
+msgid "Preview images"
+msgstr "미리보기 이미지"
+
+#: cfox/lib/FXFileSelector.cpp:961
+msgid "Mini images"
+msgstr "소형 이미지"
+
+#: cfox/lib/FXFileSelector.cpp:962
+msgid "Normal images"
+msgstr "정상 이미지"
+
+#: cfox/lib/FXFileSelector.cpp:963
+msgid "Medium images"
+msgstr "중형 이미지"
+
+#: cfox/lib/FXFileSelector.cpp:964
+msgid "Giant images"
+msgstr "대형 이미지"
+
+#: cfox/lib/FXFileSelector.cpp:968
+msgid "Rename..."
+msgstr "이름변경..."
+
+#: cfox/lib/FXReplaceDialog.cpp:129
+msgid "&Search\tSearch\tSearch for pattern."
+msgstr "검색(&S)\t검색\t패턴 검색하기."
+
+#: cfox/lib/FXReplaceDialog.cpp:130
+msgid "&Replace\tReplace\tSearch and replace pattern."
+msgstr "바꾸기(&R)\t바꾸기\t패턴 검색 및 바꾸기."
+
+#: cfox/lib/FXReplaceDialog.cpp:131
+msgid "Replace Sel\tReplace in selection\tReplace all in selection."
+msgstr "선택 바꾸기\t선택에서 바꾸기\t선택에서 모두 바꾸기."
+
+#: cfox/lib/FXReplaceDialog.cpp:132
+msgid "Replace All\tReplace all\tReplace all."
+msgstr "모두 바꾸기\t모두 바꾸기\t모두 바꾸기."
+
+#: cfox/lib/FXReplaceDialog.cpp:138
+msgid "Search &For:"
+msgstr "검색 대상(&F):"
+
+#: cfox/lib/FXReplaceDialog.cpp:146
+msgid "Re&place With:"
+msgstr "바꾸기 대상(&P):"
+
+#: cfox/lib/FXReplaceDialog.cpp:155
+msgid "&Expression\tRegular Expression\tPerform regular-expression match."
+msgstr "표현식(&E)\t정규식\t정규식 일치 수행하기."
+
+#: cfox/lib/FXReplaceDialog.cpp:156
+msgid "&Ignore Case\tCase Insensitive\tPerform case-insentive match."
+msgstr "대/소문자 무시(&I)\t대/소문자 구분안함\t대/소문자 일치 수행하기."
+
+#: cfox/lib/FXReplaceDialog.cpp:157
+msgid "&Wrap\tWrap Around\tWrap around when searching."
+msgstr "줄바꿈(&W)\t순환\t검색시 둘러보기."
+
+#: cfox/lib/FXReplaceDialog.cpp:158
+msgid "&Backward\tSearch Direction\tChange search direction."
+msgstr "역방향(&B)\t검색 방향\t검색 방향 변경하기."
+
+#: cfox/lib/FXReplaceDialog.cpp:159
+msgid "Text to replace with."
+msgstr "대체할 텍스트입니다."
+
+#: cfox/lib/FXStatusLine.cpp:83
+msgid "Ready."
+msgstr "준비됨."
