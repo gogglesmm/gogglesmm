@@ -386,9 +386,9 @@ void GMWindow::create(){
   gm_set_window_cursor(menu_library,getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
 
 
-
-
   mainsplitter->setHSplit(getApp()->reg().readIntEntry("window","source-list-hsplit",2500));
+  mainsplitter->setVSplit(getApp()->reg().readIntEntry("window","source-list-vsplit",5000));
+
 
   configureStatusbar(GMPlayerManager::instance()->getPreferences().gui_show_status_bar);
 
@@ -745,6 +745,7 @@ long GMWindow::onCmdQuit(FXObject *,FXSelector,void*){
   getApp()->reg().writeBoolEntry("window","fullscreen",isFullScreen());
   getApp()->reg().writeBoolEntry("window","maximized",isMaximized());
   getApp()->reg().writeIntEntry("window","source-list-hsplit",mainsplitter->getHSplit());
+  getApp()->reg().writeIntEntry("window","source-list-vsplit",mainsplitter->getVSplit());
 
 
   /// Get rid of remote
