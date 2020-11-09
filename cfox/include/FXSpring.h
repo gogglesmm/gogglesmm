@@ -3,7 +3,7 @@
 *                S p r i n g   C o n t a i n e r   W i d g e t                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

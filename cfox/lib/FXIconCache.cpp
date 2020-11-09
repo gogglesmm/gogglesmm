@@ -3,7 +3,7 @@
 *                              I c o n   C a c h e                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -32,6 +32,7 @@
 #include "FXRectangle.h"
 #include "FXPath.h"
 #include "FXDictionary.h"
+#include "FXDictionaryOf.h"
 #include "FXStringDictionary.h"
 #include "FXSettings.h"
 #include "FXRegistry.h"

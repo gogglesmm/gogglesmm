@@ -3,7 +3,7 @@
 *                          D i c t i o n a r y    C l a s s                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -149,70 +149,6 @@ public:
 
   /// Destroy table
  ~FXDictionary();
-  };
-
-
-/// Dictionary of pointers to TYPE
-template<typename TYPE>
-class FXDictionaryOf : public FXDictionary {
-public:
-
-  /// Default constructor
-  FXDictionaryOf(){}
-
-  /// Copy constructor
-  FXDictionaryOf(const FXDictionaryOf<TYPE>& src):FXDictionary(src){ }
-
-  /// Assignment operator
-  FXDictionaryOf<TYPE>& operator=(const FXDictionaryOf<TYPE>& other){ return reinterpret_cast<FXDictionaryOf<TYPE>&>(FXDictionary::operator=(other)); }
-
-  /// Adopt objects from orig, leaving orig empty
-  FXDictionaryOf<TYPE>& adopt(FXDictionaryOf<TYPE>& src){ return reinterpret_cast<FXDictionaryOf<TYPE>&>(FXDictionary::adopt(src)); }
-
-  /// Return reference to slot assocated with given key
-  TYPE*& at(const FXchar* ky){ return reinterpret_cast<TYPE*&>(FXDictionary::at(ky)); }
-
-  /// Return constant reference to slot assocated with given key
-  TYPE *const& at(const FXchar* ky) const { return reinterpret_cast<TYPE *const&>(FXDictionary::at(ky)); }
-
-  /// Return reference to slot assocated with given key
-  TYPE*& at(const FXString& ky){ return reinterpret_cast<TYPE*&>(FXDictionary::at(ky.text())); }
-
-  /// Return constant reference to slot assocated with given key
-  TYPE *const& at(const FXString& ky) const { return reinterpret_cast<TYPE *const&>(FXDictionary::at(ky.text())); }
-
-  /// Return reference to slot assocated with given key
-  TYPE*& operator[](const FXchar* ky){ return reinterpret_cast<TYPE*&>(FXDictionary::at(ky)); }
-
-  /// Return constant reference to slot assocated with given key
-  TYPE *const& operator[](const FXchar* ky) const { return reinterpret_cast<TYPE *const&>(FXDictionary::at(ky)); }
-
-  /// Return reference to slot assocated with given key
-  TYPE*& operator[](const FXString& ky){ return reinterpret_cast<TYPE*&>(FXDictionary::at(ky.text())); }
-
-  /// Return constant reference to slot assocated with given key
-  TYPE *const& operator[](const FXString& ky) const { return reinterpret_cast<TYPE *const&>(FXDictionary::at(ky.text())); }
-
-  /// Insert association with given key; return old value, if any
-  TYPE* insert(const FXchar* ky,TYPE* ptr=NULL){ return reinterpret_cast<TYPE*>(FXDictionary::insert(ky,ptr)); }
-
-  /// Insert association with given key; return old value, if any
-  TYPE* insert(const FXString& ky,TYPE* ptr=NULL){ return insert(ky.text(),ptr); }
-
-  /// Remove association with given key; return old value, if any
-  TYPE* remove(const FXchar* ky){ return reinterpret_cast<TYPE*>(FXDictionary::remove(ky)); }
-
-  /// Remove association with given key; return old value, if any
-  TYPE* remove(const FXString& ky){ return reinterpret_cast<TYPE*>(FXDictionary::remove(ky.text())); }
-
-  /// Erase data at pos in the table; return old value, if any
-  TYPE* erase(FXival pos){ return reinterpret_cast<TYPE*>(FXDictionary::erase(pos)); }
-
-  /// Return reference to slot at position pos
-  TYPE*& data(FXival pos){ return reinterpret_cast<TYPE*&>(FXDictionary::data(pos)); }
-
-  /// Return constant reference to slot at position pos
-  TYPE *const& data(FXival pos) const { return reinterpret_cast<TYPE *const&>(FXDictionary::data(pos)); }
   };
 
 }

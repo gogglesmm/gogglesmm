@@ -3,7 +3,7 @@
 *                   M a i n   F O X   I n c l u d e   F i l e                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or                 *
 * modify it under the terms of the GNU Lesser General Public                    *
@@ -48,6 +48,7 @@
 #include "FXElement.h"
 #include "FXArray.h"
 #include "FXHash.h"
+#include "FXHashOf.h"
 #include "FXCallback.h"
 #include "FXRandom.h"
 #include "FXMutex.h"
@@ -79,7 +80,9 @@
 #include "FXVariantArray.h"
 #include "FXVariantMap.h"
 #include "FXDictionary.h"
+#include "FXDictionaryOf.h"
 #include "FXReverseDictionary.h"
+#include "FXReverseDictionaryOf.h"
 #include "FXDLL.h"
 #include "FXSize.h"
 #include "FXPoint.h"
@@ -116,6 +119,9 @@
 #include "FXVisual.h"
 #include "FXEvent.h"
 #include "FXId.h"
+#include "FXReactor.h"
+#include "FXDispatcher.h"
+#include "FXEventDispatcher.h"
 #include "FXDrawable.h"
 #include "FXBitmap.h"
 #include "FXImage.h"

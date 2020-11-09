@@ -3,7 +3,7 @@
 *                          C a l l B a c k    C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -71,6 +71,10 @@ public:
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
 
+  // Equality operators
+  FXbool operator==(const FXCallback& other) const { return method==other.method && object==other.object; }
+  FXbool operator!=(const FXCallback& other) const { return method!=other.method || object!=other.object; }
+
   // Invoke the function
   RT operator()() const { return (*method)(object); }
 
@@ -94,6 +98,21 @@ public:
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
+
+  // Create default callback
+  static inline FXCallback create(){ return FXCallback(); }
+
+  // Create callback to member function of object
+  template<typename TYPE,RT (TYPE::* mfn)()>
+  static inline FXCallback create(TYPE* obj){ return FXCallback(&method_call<TYPE,mfn>,obj); }
+
+  // Create callback to member function of constant object
+  template<typename TYPE,RT (TYPE::* mfn)() const>
+  static inline FXCallback create(const TYPE* obj){ return FXCallback(&const_method_call<TYPE,mfn>,obj); }
+
+  // Create callback to function
+  template<RT (*fn)()>
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
   };
 
 /********************************************************************************/
@@ -138,6 +157,10 @@ public:
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
 
+  // Equality operators
+  FXbool operator==(const FXCallback& other) const { return method==other.method && object==other.object; }
+  FXbool operator!=(const FXCallback& other) const { return method!=other.method || object!=other.object; }
+
   // Invoke the function
   RT operator()(PT1 p1) const { return (*method)(object,p1); }
 
@@ -161,6 +184,21 @@ public:
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
+
+  // Create default callback
+  static inline FXCallback create(){ return FXCallback(); }
+
+  // Create callback to member function of object
+  template<typename TYPE,RT (TYPE::* mfn)(PT1)>
+  static inline FXCallback create(TYPE* obj){ return FXCallback(&method_call<TYPE,mfn>,obj); }
+
+  // Create callback to member function of constant object
+  template<typename TYPE,RT (TYPE::* mfn)(PT1) const>
+  static inline FXCallback create(const TYPE* obj){ return FXCallback(&const_method_call<TYPE,mfn>,obj); }
+
+  // Create callback to function
+  template<RT (*fn)(PT1)>
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
   };
 
 /********************************************************************************/
@@ -205,6 +243,10 @@ public:
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
 
+  // Equality operators
+  FXbool operator==(const FXCallback& other) const { return method==other.method && object==other.object; }
+  FXbool operator!=(const FXCallback& other) const { return method!=other.method || object!=other.object; }
+
   // Invoke the function
   RT operator()(PT1 p1,PT2 p2) const { return (*method)(object,p1,p2); }
 
@@ -228,6 +270,21 @@ public:
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
+
+  // Create default callback
+  static inline FXCallback create(){ return FXCallback(); }
+
+  // Create callback to member function of object
+  template<typename TYPE,RT (TYPE::* mfn)(PT1,PT2)>
+  static inline FXCallback create(TYPE* obj){ return FXCallback(&method_call<TYPE,mfn>,obj); }
+
+  // Create callback to member function of constant object
+  template<typename TYPE,RT (TYPE::* mfn)(PT1,PT2) const>
+  static inline FXCallback create(const TYPE* obj){ return FXCallback(&const_method_call<TYPE,mfn>,obj); }
+
+  // Create callback to function
+  template<RT (*fn)(PT1,PT2)>
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
   };
 
 /********************************************************************************/
@@ -272,6 +329,10 @@ public:
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
 
+  // Equality operators
+  FXbool operator==(const FXCallback& other) const { return method==other.method && object==other.object; }
+  FXbool operator!=(const FXCallback& other) const { return method!=other.method || object!=other.object; }
+
   // Invoke the function
   RT operator()(PT1 p1,PT2 p2,PT3 p3) const { return (*method)(object,p1,p2,p3); }
 
@@ -295,6 +356,21 @@ public:
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
+
+  // Create default callback
+  static inline FXCallback create(){ return FXCallback(); }
+
+  // Create callback to member function of object
+  template<typename TYPE,RT (TYPE::* mfn)(PT1,PT2,PT3)>
+  static inline FXCallback create(TYPE* obj){ return FXCallback(&method_call<TYPE,mfn>,obj); }
+
+  // Create callback to member function of constant object
+  template<typename TYPE,RT (TYPE::* mfn)(PT1,PT2,PT3) const>
+  static inline FXCallback create(const TYPE* obj){ return FXCallback(&const_method_call<TYPE,mfn>,obj); }
+
+  // Create callback to function
+  template<RT (*fn)(PT1,PT2,PT3)>
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
   };
 
 /********************************************************************************/
@@ -339,6 +415,10 @@ public:
   // Assignment operator
   FXCallback& operator=(const FXCallback& org){ method=org.method; object=org.object; return *this; }
 
+  // Equality operators
+  FXbool operator==(const FXCallback& other) const { return method==other.method && object==other.object; }
+  FXbool operator!=(const FXCallback& other) const { return method!=other.method || object!=other.object; }
+
   // Invoke the function
   RT operator()(PT1 p1,PT2 p2,PT3 p3,PT4 p4) const { return (*method)(object,p1,p2,p3,p4); }
 
@@ -351,7 +431,7 @@ public:
   inline void connect(const TYPE* obj){ method=&const_method_call<TYPE,mfn>; object=obj; }
 
   // Connect to plain function
-  template<RT (*fn)(PT1,PT2,PT3)>
+  template<RT (*fn)(PT1,PT2,PT3,PT4)>
   inline void connect(){ method=&function_call<fn>; object=NULL; }
 
   // Return trye if connected
@@ -362,6 +442,21 @@ public:
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
+
+  // Create default callback
+  static inline FXCallback create(){ return FXCallback(); }
+
+  // Create callback to member function of object
+  template<typename TYPE,RT (TYPE::* mfn)(PT1,PT2,PT3,PT4)>
+  static inline FXCallback create(TYPE* obj){ return FXCallback(&method_call<TYPE,mfn>,obj); }
+
+  // Create callback to member function of constant object
+  template<typename TYPE,RT (TYPE::* mfn)(PT1,PT2,PT3,PT4) const>
+  static inline FXCallback create(const TYPE* obj){ return FXCallback(&const_method_call<TYPE,mfn>,obj); }
+
+  // Create callback to function
+  template<RT (*fn)(PT1,PT2,PT3,PT4)>
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
   };
 
 }

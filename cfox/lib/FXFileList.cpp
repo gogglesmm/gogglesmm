@@ -3,7 +3,7 @@
 *                        F i l e    L i s t   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,6 +61,7 @@
 #include "FXMenuCheck.h"
 #include "FXMenuSeparator.h"
 #include "FXDictionary.h"
+#include "FXDictionaryOf.h"
 #include "FXIconCache.h"
 #include "FXFileAssociations.h"
 #include "FXHeader.h"
@@ -506,7 +507,7 @@ long FXFileList::onCmdPasteSel(FXObject*,FXSelector,void*){
   FXString files,action;
   if(getDNDData(FROM_CLIPBOARD,urilistType,files)){
     if(getDNDData(FROM_CLIPBOARD,actionType,action)){
-      FXTRACE((1,"%s::onCmdPasteSel(): Action: %s Files: %s\n",getClassName(),action.text(),files.text()));
+      FXTRACE((100,"%s::onCmdPasteSel(): Action: %s Files: %s\n",getClassName(),action.text(),files.text()));
       if(action[0]=='1'){
         move_files(directory,files);
         }
@@ -1423,7 +1424,7 @@ FXbool FXFileList::listItems(FXbool force,FXbool notify){
             attrs=FXSystem::modeString(mode);
 
             // Mod time
-            modtm=FXSystem::localTime(timeformat.text(),info.modified());
+            modtm=FXSystem::localTime(info.modified(),timeformat.text());
 
             // Link name, if any
             lnknm=FXString::null;
@@ -1528,10 +1529,10 @@ FXbool FXFileList::setCurrentFile(const FXString& file,FXbool notify){
   if(setDirectory(FXPath::directory(file),notify)){
     FXint index=findItem(FXPath::name(file));
     if(0<=index){
+      makeItemVisible(index);
       setAnchorItem(index);
       setCurrentItem(index,notify);
       selectItem(index,notify);
-      makeItemVisible(index);
       return true;
       }
     }
@@ -1552,14 +1553,15 @@ FXString FXFileList::getCurrentFile() const {
 FXbool FXFileList::setDirectory(const FXString& pathname,FXbool notify){
   FXTRACE((100,"%s::setDirectory(%s)\n",getClassName(),pathname.text()));
   FXString path(FXPath::absolute(directory,pathname));
-  if(directory==path) return true;
   if(FXStat::isDirectory(path)){
+    if(directory==path) return true;
     clearItems(notify);
     directory=path;
     list=NULL;
     if(listItems(true,notify)){
       if(getNumItems()){
         makeItemVisible(0);
+        setAnchorItem(0);
         setCurrentItem(0,notify);
         }
       return true;
@@ -1567,7 +1569,6 @@ FXbool FXFileList::setDirectory(const FXString& pathname,FXbool notify){
     }
   return false;
   }
-
 
 /*******************************************************************************/
 

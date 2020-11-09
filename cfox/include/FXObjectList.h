@@ -3,7 +3,7 @@
 *                            O b j e c t   L i s t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -38,7 +38,7 @@ public:
   FXObjectList();
 
   /// Copy constructor
-  FXObjectList(const FXObjectList& src);
+  FXObjectList(const FXObjectList& other);
 
   /// Construct and init with single object
   FXObjectList(FXObject* object);
@@ -50,10 +50,10 @@ public:
   FXObjectList(FXObject** objects,FXival n);
 
   /// Assignment operator
-  FXObjectList& operator=(const FXObjectList& orig);
+  FXObjectList& operator=(const FXObjectList& other);
 
-  /// Adopt objects from orig, leaving orig empty
-  FXObjectList& adopt(FXObjectList& orig);
+  /// Adopt objects from other, leaving other empty
+  FXObjectList& adopt(FXObjectList& other);
 
   /// Return number of objects
   FXival no() const { return *((FXival*)(ptr-1)); }

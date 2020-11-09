@@ -3,7 +3,7 @@
 *                            D a t e   C l a s s                                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -34,6 +34,7 @@
     Processing Calendar Dates". CACM, Vol. 11, No. 10, October 1968, pp 657.
   - Major clean up and simplification was done!
   - Added week number calculations!
+  - Start of the JD count is 0 at 12 NOON 1 JAN -4712 (4713 BC).
   - Reminder, MJD = JD - 2400000.5.
 */
 
@@ -46,16 +47,19 @@ namespace FX {
 
 
 // Many nanoseconds in a second
-const FXTime seconds=1000000000L;
+static const FXTime seconds=1000000000L;
 
 // Julian day number of GPS week zero (Jan 6, 1980)
-const FXuint GPS_EPOCH_JDAY=2444245;
+static const FXuint GPS_EPOCH_JDAY=2444245;
 
 // Julian day number of UNIX epoch (Jan 1, 1970)
-const FXuint UNIX_EPOCH_JDAY=2440588;
+static const FXuint UNIX_EPOCH_JDAY=2440588;
+
+// Julian day number of J2000 (Jan 1, 2000)
+static const FXuint J2000_EPOCH_JDAY=2451545;
 
 // UNIX time to GPS time offset in nanoseconds
-const FXTime UNIX_TO_GPS=315964800L*seconds;
+static const FXTime UNIX_TO_GPS=315964800L*seconds;
 
 // Short month names
 const FXchar FXDate::shortMonthName[12][4]={
@@ -147,14 +151,19 @@ void FXDate::getDate(FXint& yr,FXint& mo,FXint& dy) const {
 
 
 // Set date from nanoseconds since 1/1/1970
+// Technically, Julian Day starts at noon; however we truncate
+// incoming time to 00:00:00.
 void FXDate::setTime(FXTime ns){
-  julian=(FXuint)(UNIX_EPOCH_JDAY+ns/(86400L*seconds));
+  const FXTime days=86400L*seconds;
+  julian=UNIX_EPOCH_JDAY+(((0<=ns)?ns:ns-days+1)/days);
   }
 
 
 // Get nanoseconds since 1/1/1970 from date
+// Return time in nanoseconds at start of the day
 FXTime FXDate::getTime() const {
-  return (julian-UNIX_EPOCH_JDAY)*(86400L*seconds);
+  const FXTime days=86400L*seconds;
+  return ((FXTime)julian-(FXTime)UNIX_EPOCH_JDAY)*days;
   }
 
 
@@ -202,7 +211,6 @@ FXint FXDate::year() const {
 
 // Return day of the week
 FXint FXDate::dayOfWeek() const {
-//  return (((julian+1)%7)+6)%7;        // Monday is day 0 of week
   return (julian+1)%7;                  // Sunday is day 0 of week
   }
 
@@ -236,10 +244,9 @@ FXint FXDate::dayOfYear() const {
 
 // Return ISO8601 week number of this date
 FXint FXDate::weekOfYear() const {
-  FXint d4,L,d1;
-  d4=(((julian+31741-julian%7)%146097)%36524)%1461;
-  L=d4/1460;
-  d1=(d4-L)%365+L;
+  FXint d4=(((julian+31741-julian%7)%146097)%36524)%1461;
+  FXint L=d4/1460;
+  FXint d1=(d4-L)%365+L;
   return 1+d1/7;
   }
 

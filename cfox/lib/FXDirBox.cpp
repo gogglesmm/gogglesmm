@@ -3,7 +3,7 @@
 *                     D i r e c t o r y   B o x   O b j e c t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -64,6 +64,7 @@
 #include "FXTreeListBox.h"
 #include "FXDirBox.h"
 #include "FXDictionary.h"
+#include "FXDictionaryOf.h"
 #include "FXIconCache.h"
 #include "FXFileAssociations.h"
 #include "icons.h"

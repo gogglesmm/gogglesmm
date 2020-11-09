@@ -3,7 +3,7 @@
 *              F O X   P r i v a t e   I n c l u d e   F i l e s                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -73,6 +73,10 @@
 // Skip some stuff
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+
+#if (_MSC_VER >= 1500)
+#pragma warning(disable: 4251)
 #endif
 
 // Common headers
@@ -178,6 +182,9 @@
 #ifdef HAVE_SYS_TIMERFD_H
 #include <sys/timerfd.h>
 #endif
+#ifdef HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
 #ifdef HAVE_SYS_IPC_H
 #include <sys/ipc.h>
 #endif
@@ -187,14 +194,16 @@
 #ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
-#ifdef HAVE_SYS_SYSCTL_H
-#include <sys/sysctl.h>
-#endif
 #ifdef HAVE_SYS_PSTAT_H
 #include <sys/pstat.h>
 #endif
 #ifdef HAVE_SYS_INOTIFY_H
 #include <sys/inotify.h>
+#endif
+#ifdef HAVE_SYS_SYSCTL_H
+#if !defined(__linux__)
+#include <sys/sysctl.h>
+#endif
 #endif
 #if defined(__APPLE__)
 #include <libkern/OSAtomic.h>
@@ -268,7 +277,7 @@ typedef cpuset_t   cpu_set_t;
 #if defined(__SSSE3__)
 #define FOX_HAS_SSSE3
 #endif
-#if defined(__SSE4_2__)
+#if defined(__SSE4_1__) && defined(__SSE4_2__)
 #define FOX_HAS_SSE4
 #endif
 #if defined(__AVX__)
@@ -279,6 +288,9 @@ typedef cpuset_t   cpu_set_t;
 #endif
 #if defined(__FMA__)
 #define FOX_HAS_FMA
+#endif
+#if defined(__F16C__)
+#define FOX_HAS_F16
 #endif
 #endif
 #endif
@@ -357,7 +369,7 @@ typedef cpuset_t   cpu_set_t;
 #elif defined(MAX_PATH)
 #define MAXPATHLEN   MAX_PATH
 #else
-#define MAXPATHLEN   2048
+#define MAXPATHLEN   4096
 #endif
 #endif
 

@@ -3,7 +3,7 @@
 *                          T h r e a d   S u p p o r t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -23,6 +23,7 @@
 #include "fxdefs.h"
 #include "fxmath.h"
 #include "FXException.h"
+#include "FXString.h"
 #include "FXRunnable.h"
 #include "FXAutoThreadStorageKey.h"
 #include "FXThread.h"
@@ -284,13 +285,28 @@ void FXThread::yield(){
   }
 
 
+#if defined(WIN32)
+
+// Convert 100ns since 01/01/1601 to ns since 01/01/1970
+static inline FXTime fxunixtime(FXTime ft){
+  return (ft-FXLONG(116444736000000000))*FXLONG(100);
+  }
+
+// Convert ns since 01/01/1970 to 100ns since 01/01/1601
+static inline FXTime fxwintime(FXTime ut){
+  return ut/FXLONG(100)+FXLONG(116444736000000000);
+  }
+
+#endif
+
+
 // Get time in nanoseconds since Epoch
 FXTime FXThread::time(){
 #if defined(WIN32)
   FXTime now;
   FXASSERT(sizeof(FXTime)==sizeof(FILETIME));
   GetSystemTimeAsFileTime((FILETIME*)&now);
-  return (now-FXLONG(116444736000000000))*FXLONG(100);
+  return fxunixtime(now);
 #elif (_POSIX_C_SOURCE >= 199309L)
   const FXTime seconds=1000000000;
   struct timespec ts;
@@ -397,12 +413,39 @@ void FXThread::sleep(FXTime nsec){
 #endif
   }
 
+/*
+
+HANDLE CreateWaitableTimerEx(LPSECURITY_ATTRIBUTES lpTimerAttributes,
+                             LPCWSTR               lpTimerName,
+                             DWORD                 dwFlags,
+                             DWORD                 dwDesiredAccess);
+
+BOOL SetWaitableTimer(HANDLE               hTimer,
+                      const LARGE_INTEGER *lpDueTime,   // UTC if >0
+                      LONG                 lPeriod,
+                      PTIMERAPCROUTINE     pfnCompletionRoutine,
+                      LPVOID               lpArgToCompletionRoutine,
+                      BOOL                 fResume);
+
+BOOL SetWaitableTimerEx(HANDLE               hTimer,
+                        const LARGE_INTEGER *lpDueTime, // UTC if >0
+                        LONG                 lPeriod,
+                        PTIMERAPCROUTINE     pfnCompletionRoutine,
+                        LPVOID               lpArgToCompletionRoutine,
+                        PREASON_CONTEXT      WakeContext,
+                        ULONG                TolerableDelay);
+
+BOOL CancelWaitableTimer(HANDLE hTimer);
+
+DWORD WaitForSingleObject(HANDLE hHandle,DWORD  dwMilliseconds);
+
+*/
 
 
-// Wake at appointed time
+// Wake at appointed absolute time
 void FXThread::wakeat(FXTime nsec){
 #if defined(WIN32)
-  FXTime jiffies=nsec/FXLONG(100)+FXLONG(116444736000000000);
+  FXTime jiffies=fxwintime(nsec);
   if(0<=jiffies){
     fxNtDelayExecution((BOOLEAN)false,(LARGE_INTEGER*)&jiffies);
     }
@@ -441,7 +484,8 @@ void FXThread::wakeat(FXTime nsec){
 // Return thread id of caller
 FXThreadID FXThread::current(){
 #if defined(WIN32)
-  return (FXThreadID)GetCurrentThreadId();
+//return (FXThreadID)GetCurrentThreadId();
+  return (FXThreadID)GetCurrentThread();
 #else
   return (FXThreadID)pthread_self();
 #endif
@@ -450,44 +494,43 @@ FXThreadID FXThread::current(){
 
 // Return number of processors
 FXint FXThread::processors(){
-#if defined(WIN32)
+#if defined(WIN32)                                              // Windows
   SYSTEM_INFO info={{0}};
   GetSystemInfo(&info);
   return info.dwNumberOfProcessors;
-#elif defined(_SC_NPROCESSORS_ONLN)
+#elif defined(_SC_NPROCESSORS_ONLN)                             // Linux
   int result;
   if((result=sysconf(_SC_NPROCESSORS_ONLN))>0){
     return result;
     }
-  return 1;
-#elif defined(__IRIX__) && defined(_SC_NPROC_ONLN)
+#elif defined(HAVE_SYS_SYSCTL_H)                                // FreeBSD/NetBSD/OpenBSD/MacOSX
+  int mib[4];
+  int result;
+  size_t len;
+  mib[0]=CTL_HW;
+  mib[1]=HW_AVAILCPU;
+  len=sizeof(result);
+  if(sysctl(mib,2,&result,&len,NULL,0)!=-1){
+    return result;
+    }
+  mib[0]=CTL_HW;
+  mib[1]=HW_NCPU;
+  len=sizeof(result);
+  if(sysctl(mib,2,&result,&len,NULL,0)!=-1){
+    return result;
+    }
+#elif defined(__IRIX__) && defined(_SC_NPROC_ONLN)              // IRIX
   int result;
   if((result=sysconf(_SC_NPROC_ONLN))>0){
     return result;
     }
-  return 1;
-#elif defined(__APPLE__) || defined(__FreeBSD__)
-  int result=1;
-  size_t len=sizeof(result);
-  if(sysctlbyname("hw.ncpu",&result,&len,NULL,0)!=-1){
-    return result;
-    }
-  return 1;
-#elif defined(HW_NCPU)
-  int result=1;
-  int mib[2]={CTL_HW,HW_NCPU};
-  size_t len=sizeof(result);
-  if(sysctl(mib,2,&result,&len,NULL,0)!=-1){
-    return result;
-    }
-  return 1;
-#elif defined(hpux) || defined(__hpux) || defined(_hpux)
+#elif defined(hpux) || defined(__hpux) || defined(_hpux)        // HPUX
   struct pst_dynamic psd;
   if(!pstat_getdynamic(&psd,sizeof(psd),(size_t)1,0)){
     return (int)psd.psd_proc_cnt;
     }
-  return 1;
 #endif
+  return 1;
   }
 
 
@@ -824,6 +867,104 @@ FXulong FXThread::affinity() const {
     }
 #endif
   return 0;
+  }
+
+
+#if defined(WIN32)
+
+// Declare the function signatures
+typedef HRESULT (WINAPI *PFN_SETTHREADDESCRIPTION)(HANDLE hThread,const WCHAR* desc);
+typedef HRESULT (WINAPI *PFN_GETTHREADDESCRIPTION)(HANDLE hThread,WCHAR** desc);
+
+// Declare the stub functions
+static HRESULT WINAPI SetThreadDescriptionStub(HANDLE hThread,const WCHAR* desc);
+static HRESULT WINAPI GetThreadDescriptionStub(HANDLE hThread,WCHAR** desc);
+
+// Pointers to functions, initially pointing to the stub functions
+static PFN_SETTHREADDESCRIPTION fxSetThreadDescription=SetThreadDescriptionStub;
+static PFN_GETTHREADDESCRIPTION fxGetThreadDescription=GetThreadDescriptionStub;
+
+
+// Set thread name (needs late-model Windows 10)
+static HRESULT WINAPI SetThreadDescriptionStub(HANDLE hThread,const WCHAR* desc){
+  if(fxSetThreadDescription==SetThreadDescriptionStub){
+    HMODULE hnddll=GetModuleHandleA("kernel32.dll");
+    fxSetThreadDescription=(PFN_SETTHREADDESCRIPTION)GetProcAddress(hnddll,"SetThreadDescription");
+    }
+  if(fxSetThreadDescription){
+    return fxSetThreadDescription(hThread,desc);
+    }
+  return -1;
+  }
+
+
+// Get thread name (needs late-model Windows 10)
+static HRESULT WINAPI GetThreadDescriptionStub(HANDLE hThread,WCHAR** desc){
+  if(fxGetThreadDescription==GetThreadDescriptionStub){
+    HMODULE hnddll=GetModuleHandleA("kernel32.dll");
+    fxGetThreadDescription=(PFN_GETTHREADDESCRIPTION)GetProcAddress(hnddll,"GetThreadDescription");
+    }
+  if(fxGetThreadDescription){
+    return fxGetThreadDescription(hThread,desc);
+    }
+  return -1;
+  }
+
+#endif
+
+
+
+// Change thread description
+FXbool FXThread::description(const FXString& desc){
+  if(tid){
+#if defined(WIN32)
+    FXnchar udesc[256];
+    utf2ncs(udesc,desc.text(),ARRAYNUMBER(udesc));
+    return 0<=fxSetThreadDescription((HANDLE)tid,udesc);
+#elif defined(__APPLE__)
+    return pthread_setname_np(desc.text())==0;
+#elif defined(__NetBSD__)
+    return pthread_setname_np(tid,"%s",desc.text())==0;
+#elif defined(__FreeBSD__) || defined(__OpenBSD__)
+    pthread_set_name_np(tid,desc.text());
+    return true;
+#elif defined(HAVE_PTHREAD_SETNAME_NP)
+    return pthread_setname_np(tid,desc.text())==0;
+#endif
+    }
+  return false;
+  }
+
+
+// Return thread description
+FXString FXThread::description() const {
+  if(tid){
+#if defined(WIN32)
+    FXnchar* udesc;
+    if(0<=fxGetThreadDescription((HANDLE)tid,&udesc)){
+      FXchar desc[256];
+      ncs2utf(desc,udesc,ARRAYNUMBER(desc));
+      ::LocalFree(udesc);
+      return desc;
+      }
+#elif defined(__APPLE__)
+    FXchar desc[256];
+    if(pthread_getname_np(*((pthread_t*)&tid),desc,ARRAYNUMBER(desc))==0){
+      return desc;
+      }
+#elif defined(__NetBSD__)
+    FXchar desc[256];
+    if(pthread_getname_np(tid,desc,ARRAYNUMBER(desc))==0){
+      return desc;
+      }
+#elif defined(HAVE_PTHREAD_GETNAME_NP)
+    FXchar desc[256];
+    if(pthread_getname_np(tid,desc,ARRAYNUMBER(desc))==0){
+      return desc;
+      }
+#endif
+    }
+  return FXString::null;
   }
 
 

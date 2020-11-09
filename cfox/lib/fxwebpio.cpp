@@ -3,7 +3,7 @@
 *                    W e b - P   I m a g e   I n p u t / O u t p u t            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2011,2019 by S. Jansen & J. van der Zijp.  All Rights Reserved. *
+* Copyright (C) 2011,2020 by S. Jansen & J. van der Zijp.  All Rights Reserved. *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

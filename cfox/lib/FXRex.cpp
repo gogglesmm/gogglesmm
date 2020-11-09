@@ -3,7 +3,7 @@
 *                 R e g u l a r   E x p r e s s i o n   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -503,7 +503,7 @@
 */
 
 // Debugging regex code
-// #define REXDEBUG 1
+//#define REXDEBUG 1
 
 // As close to infinity as we're going to get; this seems big enough.  We can not make
 // it too large as this may wrap around when added to something else!
@@ -1234,7 +1234,7 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
   FXshort greediness=GREEDY;
   FXshort rep_min=1;
   FXshort rep_max=1;
-  FXshort ch;
+  FXuchar ch;
 
   // Remember point before atom
   FXuchar* ptr=pc;
@@ -1458,11 +1458,12 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
 
 // Parse atom
 FXRex::Error FXCompile::atom(FXshort& flags,FXshort& smin,FXshort& smax){
-  FXRex::Error err;
-  FXshort level,len,ch;
   const FXchar* savepat;
+  FXshort level,len;
+  FXRex::Error err;
   FXuchar *ptr;
   FXint save;
+  FXuchar ch;
   flags=FLG_WORST;                                      // Assume the worst
   smin=0;
   smax=0;
@@ -1814,7 +1815,7 @@ FXRex::Error FXCompile::atom(FXshort& flags,FXshort& smin,FXshort& smax){
 
 // Parse character class
 FXRex::Error FXCompile::charset(){
-  register FXint first,last,op,i;
+  FXint first,last,op,i;
   FXuchar set[32];
   ZERO(set);
   first=-1;
@@ -1989,7 +1990,7 @@ in: last=(FXuchar)*pat++;
 
 // Append opcode
 FXuchar* FXCompile::append(FXuchar op){
-  register FXuchar *ret=pc;
+  FXuchar *ret=pc;
   if(code){
     SETOP(pc,op);
     }
@@ -2000,7 +2001,7 @@ FXuchar* FXCompile::append(FXuchar op){
 
 // Append one-argument opcode
 FXuchar* FXCompile::append(FXuchar op,FXshort arg){
-  register FXuchar *ret=pc;
+  FXuchar *ret=pc;
   if(code){
     SETOP(pc,op);
     SETARG(pc+1,arg);
@@ -2012,7 +2013,7 @@ FXuchar* FXCompile::append(FXuchar op,FXshort arg){
 
 // Append two-argument opcode
 FXuchar* FXCompile::append(FXuchar op,FXshort arg1,FXshort arg2){
-  register FXuchar *ret=pc;
+  FXuchar *ret=pc;
   if(code){
     SETOP(pc,op);
     SETARG(pc+1,arg1);
@@ -2025,7 +2026,7 @@ FXuchar* FXCompile::append(FXuchar op,FXshort arg1,FXshort arg2){
 
 // Append character class opcode
 FXuchar* FXCompile::appendset(FXuchar op,const FXuchar set[]){
-  register FXuchar *ret=pc;
+  FXuchar *ret=pc;
   if(code){
     SETOP(pc,op);
     memcpy(pc+1,set,32);
@@ -2103,7 +2104,7 @@ FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op,FXshort arg1,FXshort arg2,FXs
 // to->10:  ....      10:  ....
 //
 void FXCompile::patch(FXuchar *fm,FXuchar *to){
-  register FXshort delta;
+  FXshort delta;
   if(code && fm){
     do{
       delta=GETARG(fm);
@@ -2201,7 +2202,7 @@ FXbool FXExecute::attempt(const FXuchar* prog,const FXchar* ptr){
 
 // Search in string, starting at ptr
 const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXchar* to){
-  register FXchar ch;
+  FXchar ch;
 
   // Must be true
   FXASSERT(str_beg<=fm && fm<=str_end);
@@ -4758,8 +4759,10 @@ FXint FXRex::search(const FXString& string,FXint fm,FXint to,FXint mode,FXint* b
 
 // Return substitution string
 FXString FXRex::substitute(const FXchar* string,FXint len,FXint* beg,FXint* end,const FXchar* replace,FXint npar){
-  register FXint ch,n,i=0;
   FXString result;
+  FXint i=0;
+  FXint n;
+  FXuchar ch;
   if(__unlikely(!string || !replace || len<0 || !beg || !end || npar<1 || NSUBEXP<npar)){ fxerror("FXRex::substitute: bad argument.\n"); }
   while((ch=replace[i++])!='\0'){
     if(ch=='&' || (ch=='\\' && '1'<=replace[i] && replace[i]<='9')){

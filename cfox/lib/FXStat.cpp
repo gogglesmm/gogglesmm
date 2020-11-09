@@ -3,7 +3,7 @@
 *                        F i l e   S t a t i s t i c s                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -182,13 +182,12 @@ FXbool FXStat::isOtherExecutable() const {
   }
 
 
-#ifdef WIN32
+#if defined(WIN32)
 
 // Convert 100ns since 01/01/1601 to ns since 01/01/1970
 static inline FXTime fxunixtime(FXTime ft){
   return (ft-FXLONG(116444736000000000))*FXLONG(100);
   }
-
 
 // Convert ns since 01/01/1970 to 100ns since 01/01/1601
 static inline FXTime fxwintime(FXTime ut){

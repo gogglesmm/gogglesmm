@@ -3,7 +3,7 @@
 *                          T h r e a d   S u p p o r t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -257,6 +257,16 @@ public:
   * Get thread's processor affinity.
   */
   FXulong affinity() const;
+
+  /**
+  * Change thread description.
+  */
+  FXbool description(const FXString& desc);
+
+  /**
+  * Return thread description, if any.
+  */
+  FXString description() const;
 
   /**
   * Suspend thread; return true if success.

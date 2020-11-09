@@ -1,74 +1,52 @@
 /********************************************************************************
 *                                                                               *
-*                         E v e n t   D i s p a t c h e r                       *
+*                      C a l l b a c k   D i s p a t c h e r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
-*********************************************************************************
-* This library is free software; you can redistribute it and/or modify          *
-* it under the terms of the GNU Lesser General Public License as published by   *
-* the Free Software Foundation; either version 3 of the License, or             *
-* (at your option) any later version.                                           *
-*                                                                               *
-* This library is distributed in the hope that it will be useful,               *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 *
-* GNU Lesser General Public License for more details.                           *
-*                                                                               *
-* You should have received a copy of the GNU Lesser General Public License      *
-* along with this program.  If not, see <http://www.gnu.org/licenses/>          *
+* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 ********************************************************************************/
-#ifndef FXDISPATCHER_H
-#define FXDISPATCHER_H
-
-#ifndef FXOBJECT_H
-#include "FXObject.h"
-#endif
-
-//////////////////////////////  UNDER DEVELOPMENT  //////////////////////////////
-
+#ifndef DISPATCHER_H
+#define DISPATCHER_H
 
 namespace FX {
 
-
 /**
-* A Dispatcher watches a number of devices and signals for activity
+* A FXDispatcher watches a number of devices and signals for activity
 * and dispatches to the proper function when activity is observed.
 */
-class FXAPI FXDispatcher {
+class FXAPI FXDispatcher : public FXReactor {
 private:
-  struct FXHandles;
+  struct Handle;
+  struct Signal;
+  struct Idle;
+  struct Timer;
 private:
-  FXHandles      *handles;              // Handle to watch
-  volatile FXint  signotified[64];      // Signal notify flag
-  FXint           sigreceived;          // Most recent received signal
-  FXint           numhandles;           // Number of handles
-  FXint           numwatched;           // Number of watched
-  FXint           numraised;            // Number of raised handles
-  FXint           current;              // Current handle
-  FXbool          initialized;          // Is initialized
-private:
-  static FXDispatcher* volatile sigmanager[64]; // Signals managed flag
+  FXHash        handles;                // Handle callbacks
+  Signal      **signals;                // Signal callbacks
+  Timer        *timers;                 // Timeout callbacks
+  Idle         *idles;                  // Idle callbacks
+  Timer        *timerrecs;              // Timer records
+  Idle         *idlerecs;               // Idle records
 private:
   FXDispatcher(const FXDispatcher&);
   FXDispatcher &operator=(const FXDispatcher&);
-private:
-  static CDECL void signalhandler(FXint sig);
-  static CDECL void signalhandlerasync(FXint sig);
+
+  /// Add new handle hnd to watch-list (no callback)
+  virtual FXbool addHandle(FXInputHandle hnd,FXuint mode=InputRead);
 public:
-  enum {
-    InputNone   = 0,            /// Inactive handle
-    InputRead   = 1,            /// Read input handle
-    InputWrite  = 2,            /// Write input handle
-    InputExcept = 4             /// Except input handle
-    };
-  enum {
-    DispatchAll     = 0xffffffff,       /// Dispatch all events
-    DispatchSignals = 0x00000001,       /// Dispatch signals
-    DispatchTimers  = 0x00000002,       /// Dispatch timers
-    DispatchIdle    = 0x00000004,       /// Dispatch idle processing
-    DispatchInputs  = 0x00000008        /// Dispatch i/o handles
-    };
+
+  /// I/O Handle callback when a handle is raised
+  typedef FXCallback<FXbool(FXDispatcher*,FXInputHandle,FXuint,void*)> HandleCallback;
+
+  /// Signal callback when signal has been fired
+  typedef FXCallback<FXbool(FXDispatcher*,FXint,void*)> SignalCallback;
+
+  /// Timer callback when timer expired
+  typedef FXCallback<FXbool(FXDispatcher*,FXTime,void*)> TimeoutCallback;
+
+  /// Idle callback when dispatcher is about to block
+  typedef FXCallback<FXbool(FXDispatcher*,void*)> IdleCallback;
+
 public:
 
   /// Construct dispatcher object.
@@ -77,50 +55,76 @@ public:
   /// Initialize dispatcher.
   virtual FXbool init();
 
-  /// Is dispatcher initialized
-  FXbool isInitialized() const { return initialized; }
+  /// Add callback cb with new handle hnd to watch-list
+  virtual FXbool addHandle(HandleCallback cb,FXInputHandle hnd,FXuint mode=InputRead,void* ptr=NULL);
 
+  /// Remove handle hnd from watch-list
+  virtual FXbool remHandle(FXInputHandle hnd);
 
-  /// Return timeout when something needs to happen
-  virtual FXTime getTimeout();
+  /// Return true if handle has been set.
+  virtual FXbool hasHandle(FXInputHandle hnd) const;
 
+  /// Dispatch handler when handle index is raised.
+  /// Return true if the handle was raised and the callback returned true.
+  virtual FXbool dispatchHandle(FXInputHandle hnd,FXuint mode,FXuint flags);
 
-  /// Check if dispatcher handles given signal
-  virtual FXbool hasSignal(FXint sig);
+  /// Add (optionally asynchronous) callback cb for signal sig to signal-set
+  virtual FXbool addSignal(SignalCallback cb,FXint sig,void* ptr=NULL,FXbool async=false);
 
-  /// Append signal to signal-set
+  /// Add (optionally asynchronous) signal sig to signal-set (no callback)
   virtual FXbool addSignal(FXint sig,FXbool async=false);
 
   /// Remove signal from signal-set
   virtual FXbool remSignal(FXint sig);
 
-  /// Remvoe all signals
-  virtual FXbool remAllSignals();
-
-
-  /// Append handle hnd to watch-list.
-  virtual FXbool addHandle(FXInputHandle hnd,FXuint mode=InputRead);
-
-  /// Remove handle hnd from watch-list.
-  virtual FXbool remHandle(FXInputHandle hnd);
-
-
-  /// Dispatch if something happens within given timeout
-  virtual FXbool dispatch(FXTime blocking=forever,FXuint flags=DispatchAll);
-
-
-  /// Dispatch when a signal was fired
+  /// Dispatch a signal handler if signal fired.
+  /// Return true if the signal was raised and the callback handler returned true.
   virtual FXbool dispatchSignal(FXint sig);
 
-  /// Dispatch when handle with given mode becomes active
-  virtual FXbool dispatchHandle(FXInputHandle hnd,FXuint mode);
+  /// Add timeout callback cb at time due (ns since Epoch).
+  /// If callback cb was already set, remove it and return its old
+  /// data pointer, then reset it to the new time and data pointer.
+  virtual void* addTimeout(TimeoutCallback cb,FXTime due,void* ptr=NULL);
 
-  /// Dispatch when timeout expires
+  /// Add timeout callback cb after time interval (ns).
+  /// If callback cb was already set, remove it and return its old
+  /// data pointer, then reset it to the new time and data pointer.
+  virtual void* addInterval(TimeoutCallback cb,FXTime interval,void* ptr=NULL);
+
+  /// Remove timeout callback cb.
+  /// If callback cb was set, return its data pointer.
+  virtual void* remTimeout(TimeoutCallback cb);
+
+  /// Return when timeout callback cb is due.
+  /// If callback cb was not set or has expired, return forever.
+  virtual FXTime getTimeout(TimeoutCallback cb) const;
+
+  /// Return true if timeout callback cb been set.
+  virtual FXbool hasTimeout(TimeoutCallback cb) const;
+
+  /// Return time when first timer callback is due.
+  /// If no timeout callback is currently set, return forever.
+  virtual FXTime nextTimeout();
+
+  /// Dispatch a timer when due.
+  /// Return true if a timer was due and the callback returned true.
   virtual FXbool dispatchTimeout(FXTime due);
 
-  /// Dispatch when idle
-  virtual FXbool dispatchIdle();
+  /// Add idle callback be executed when dispatch about to block.
+  /// If callback cb was already set, remove it and return its old
+  /// data pointer, then reset the callback with the new pointer.
+  virtual void* addIdle(IdleCallback cb,void* ptr=NULL);
 
+  /// Remove idle callback cb.
+  /// If callback cb was set, return its data pointer.
+  virtual void* remIdle(IdleCallback cb);
+
+  /// Return true if idle callback cb been set.
+  virtual FXbool hasIdle(IdleCallback cb) const;
+
+  /// Dispatch one idle callback.
+  /// Return true if a chore was set and the callback returned true.
+  virtual FXbool dispatchIdle();
 
   /// Exit dispatcher.
   virtual FXbool exit();
@@ -128,6 +132,7 @@ public:
   /// Destroy dispatcher object.
   virtual ~FXDispatcher();
   };
+
 
 }
 

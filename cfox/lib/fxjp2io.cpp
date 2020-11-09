@@ -3,7 +3,7 @@
 *                    J P E G - 2 0 0 0   I n p u t / O u t p u t                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2009,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2009,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -99,19 +99,19 @@ extern FXAPI FXbool fxsaveJP2(FXStream& store,const FXColor* data,FXint width,FX
 
 // Report error
 void j2k_error_callback(const char *msg, void *client_data){
-  FXTRACE((90,"fxjp2io: error: %s.\n",msg));
+  FXTRACE((100,"fxjp2io: error: %s.\n",msg));
   }
 
 
 // Report warning
 void j2k_warning_callback(const char *msg, void *client_data){
-  FXTRACE((90,"fxjp2io: warning: %s.\n",msg));
+  FXTRACE((100,"fxjp2io: warning: %s.\n",msg));
   }
 
 
 // Report info
 void j2k_info_callback(const char *msg, void *client_data){
-  FXTRACE((90,"fxjp2io: info: %s.\n",msg));
+  FXTRACE((100,"fxjp2io: info: %s.\n",msg));
   }
 
 
@@ -155,7 +155,7 @@ FXbool fxloadJP2(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
     size=store.position()-pos;
     store.position(pos);
 
-    FXTRACE((90,"fxloadJP2: file size=%d\n",size));
+    FXTRACE((100,"fxloadJP2: file size=%d\n",size));
 
     // Allocate chunk for file data
     if(allocElms(ptr,size)){
@@ -197,7 +197,7 @@ FXbool fxloadJP2(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
             width=image->x1-image->x0;
             height=image->y1-image->y0;
 
-            FXTRACE((90,"fxloadJP2: width=%d height=%d numcomps=%d color_space=%d\n",width,height,image->numcomps,image->color_space));
+            FXTRACE((100,"fxloadJP2: width=%d height=%d numcomps=%d color_space=%d\n",width,height,image->numcomps,image->color_space));
 
             // Only support GREY, RGB, and RGBA
             if(((image->numcomps==1) && (image->color_space==CLRSPC_GRAY)) || ((image->numcomps==3 || image->numcomps==4) && (image->color_space==CLRSPC_SRGB))){

@@ -3,7 +3,7 @@
 *                     A p p l i c a t i o n   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -336,7 +336,7 @@ FXApp* FXApp::app=NULL;
 
 
 // Copyright information
-const FXuchar FXApp::copyright[]="Copyright (C) 1997,2019 Jeroen van der Zijp. All Rights Reserved.";
+const FXuchar FXApp::copyright[]="Copyright (C) 1997,2020 Jeroen van der Zijp. All Rights Reserved.";
 
 
 // Conversion
@@ -2280,7 +2280,7 @@ void FXApp::removeRepaints(FXID win,FXint x,FXint y,FXint w,FXint h){
   // Fish out the expose events and compound them
   while(XCheckMaskEvent((Display*)display,ExposureMask,&ev)){
     if(ev.xany.type==NoExpose) continue;
-    addRepaint(ev.xexpose.window,ev.xexpose.x,ev.xexpose.y,ev.xexpose.width,ev.xexpose.height,0);
+    addRepaint(ev.xexpose.window,ev.xexpose.x,ev.xexpose.y,ev.xexpose.width,ev.xexpose.height,false);
     }
 
   // Then process events pertaining to window win and overlapping
@@ -2564,7 +2564,7 @@ a:ev.xany.type=0;
 
   // Event was repaint event; get next one
   if(ev.xany.type==Expose || ev.xany.type==GraphicsExpose){
-    addRepaint((FXID)ev.xexpose.window,ev.xexpose.x,ev.xexpose.y,ev.xexpose.width,ev.xexpose.height,0);
+    addRepaint((FXID)ev.xexpose.window,ev.xexpose.x,ev.xexpose.y,ev.xexpose.width,ev.xexpose.height,false);
     goto a;
     }
 
@@ -5253,8 +5253,9 @@ Alt key seems to repeat.
     case WM_STYLECHANGING:
     case WM_SIZING:
     case WM_MOVING:
-    case WM_ERASEBKGND:         // Do nothing, erasing background causes flashing
       return 0;
+    case WM_ERASEBKGND:         // Do nothing, erasing background causes flashing
+      return 1;
 
     case WM_ACTIVATE:
       //FXTRACE((100,"WM_ACTIVATE %d\n",LOWORD(wParam)));

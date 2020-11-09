@@ -3,7 +3,7 @@
 *                     D i r e c t o r y   L i s t   O b j e c t                 *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -57,6 +57,7 @@
 #include "FXMenuCheck.h"
 #include "FXMenuSeparator.h"
 #include "FXDictionary.h"
+#include "FXDictionaryOf.h"
 #include "FXIconCache.h"
 #include "FXFileAssociations.h"
 #include "FXMessageBox.h"

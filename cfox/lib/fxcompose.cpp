@@ -3,7 +3,7 @@
 *       C o m p o s e  /  D e c o m p o s e   U n i c o d e   S t r i n g       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

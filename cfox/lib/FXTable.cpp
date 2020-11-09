@@ -3,7 +3,7 @@
 *                            T a b l e   W i d g e t                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -876,13 +876,13 @@ FXbool FXTable::setSpanningRange(FXint row,FXint col,FXint fr,FXint lr,FXint fc,
   item=cells[row*ncols+col];
   if(item){
 
-    FXTRACE((1,"item r:%2d c:%2d\n",row,col));
+    FXTRACE((100,"item r:%2d c:%2d\n",row,col));
 
     // Current span of item
     getSpanningRange(row,col,sr,er,sc,ec);
 
-    FXTRACE((1,"old shape r:%2d..%-2d c:%2d..%-2d\n",sr,er,sc,ec));
-    FXTRACE((1,"new shape r:%2d..%-2d c:%2d..%-2d\n",fr,lr,fc,lc));
+    FXTRACE((100,"old shape r:%2d..%-2d c:%2d..%-2d\n",sr,er,sc,ec));
+    FXTRACE((100,"new shape r:%2d..%-2d c:%2d..%-2d\n",fr,lr,fc,lc));
 
     // Cancel editing
     if(sr<=input.fm.row && sc<=input.fm.col && input.to.row<=er && input.to.col<=ec){
@@ -895,10 +895,10 @@ FXbool FXTable::setSpanningRange(FXint row,FXint col,FXint fr,FXint lr,FXint fc,
     FXMINMAX(llrer,hlrer,lr,er);
     FXMINMAX(llcec,hlcec,lc,ec);
 
-    FXTRACE((1,"box 1: r:%2d..%-2d c:%2d..%-2d\n",lfrsr,hfrsr,lfcsc,llcec));
-    FXTRACE((1,"box 2: r:%2d..%-2d c:%2d..%-2d\n",lfrsr,llrer,llcec,hlcec));
-    FXTRACE((1,"box 3: r:%2d..%-2d c:%2d..%-2d\n",llrer,hlrer,hfcsc,hlcec));
-    FXTRACE((1,"box 4: r:%2d..%-2d c:%2d..%-2d\n",hfrsr,hlrer,lfcsc,hfcsc));
+    FXTRACE((100,"box 1: r:%2d..%-2d c:%2d..%-2d\n",lfrsr,hfrsr,lfcsc,llcec));
+    FXTRACE((100,"box 2: r:%2d..%-2d c:%2d..%-2d\n",lfrsr,llrer,llcec,hlcec));
+    FXTRACE((100,"box 3: r:%2d..%-2d c:%2d..%-2d\n",llrer,hlrer,hfcsc,hlcec));
+    FXTRACE((100,"box 4: r:%2d..%-2d c:%2d..%-2d\n",hfrsr,hlrer,lfcsc,hfcsc));
 
     // FIXME interference check
 
@@ -1077,14 +1077,14 @@ void FXTable::recalc(){
 
 // Get default width
 FXint FXTable::getDefaultWidth(){
-  register FXint rw=(rowHeader->getLayoutHints()&LAYOUT_FIX_WIDTH) ? rowHeader->getWidth() : rowHeader->getDefaultWidth();
+  FXint rw=(rowHeader->getLayoutHints()&LAYOUT_FIX_WIDTH) ? rowHeader->getWidth() : rowHeader->getDefaultWidth();
   return 0<visiblecols ? visiblecols*defColWidth+vgrid+rw : FXScrollArea::getDefaultWidth()+rw;
   }
 
 
 // Get default height
 FXint FXTable::getDefaultHeight(){
-  register FXint ch=(colHeader->getLayoutHints()&LAYOUT_FIX_HEIGHT) ? colHeader->getHeight() : colHeader->getDefaultHeight();
+  FXint ch=(colHeader->getLayoutHints()&LAYOUT_FIX_HEIGHT) ? colHeader->getHeight() : colHeader->getDefaultHeight();
   return 0<visiblerows ? visiblerows*defRowHeight+hgrid+ch : FXScrollArea::getDefaultHeight()+ch;
   }
 

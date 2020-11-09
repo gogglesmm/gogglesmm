@@ -3,7 +3,7 @@
 *      S t r i n g   t o   U n s i g n e d   L o n g   C o n v e r s i o n      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -23,12 +23,13 @@
 #include "fxdefs.h"
 #include "fxmath.h"
 #include "fxascii.h"
+#include "FXString.h"
 
 
 /*
   Notes:
   - Thread-safe conversion of strings to unsigned long and int, with extra parameter
-    for conversion success.
+    'ok' for conversion success.
 */
 
 
@@ -37,12 +38,11 @@
 #define ULLONG_MAX FXULONG(18446744073709551615)
 #endif
 
-/*******************************************************************************/
-
 using namespace FX;
 
-namespace FX {
+/*******************************************************************************/
 
+namespace FX {
 
 extern FXAPI FXulong __strtoull(const FXchar* beg,const FXchar** end=NULL,FXint base=0,FXbool* ok=NULL);
 extern FXAPI FXuint __strtoul(const FXchar* beg,const FXchar** end=NULL,FXint base=0,FXbool* ok=NULL);
@@ -50,14 +50,14 @@ extern FXAPI FXuint __strtoul(const FXchar* beg,const FXchar** end=NULL,FXint ba
 
 // Convert string to unsigned long
 FXulong __strtoull(const FXchar *beg,const FXchar** end,FXint base,FXbool* ok){
-  register const FXchar *s=beg;
-  register FXulong cutoff=ULLONG_MAX;
-  register FXulong value=0;
-  register FXint cutlim;
-  register FXint digits=0;
-  register FXint neg=0;
-  register FXint ovf=0;
-  register FXint v;
+  const FXchar *s=beg;
+  FXulong cutoff=ULLONG_MAX;
+  FXulong value=0;
+  FXint cutlim;
+  FXint digits=0;
+  FXint neg=0;
+  FXint ovf=0;
+  FXint v;
 
   // Assume the worst
   if(ok) *ok=false;
@@ -126,7 +126,7 @@ FXulong __strtoull(const FXchar *beg,const FXchar** end,FXint base,FXbool* ok){
 
 // Convert string to unsigned int
 FXuint __strtoul(const FXchar* beg,const FXchar** end,FXint base,FXbool* ok){
-  register FXulong value=__strtoull(beg,end,base,ok);
+  FXulong value=__strtoull(beg,end,base,ok);
   if(__unlikely(value>UINT_MAX)){
     if(ok) *ok=false;
     return UINT_MAX;

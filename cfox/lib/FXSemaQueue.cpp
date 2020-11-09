@@ -3,7 +3,7 @@
 *                          S e m a p h o r e   Q u e u e                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -38,21 +38,28 @@
 
 using namespace FX;
 
+/*******************************************************************************/
 
 namespace FX {
 
-/*******************************************************************************/
-
-
 // Create a queue and set its size to sz
-FXSemaQueue::FXSemaQueue(FXuint sz):list(sz),free(sz),used(0){
+FXSemaQueue::FXSemaQueue(FXuint sz):queue(sz),free(sz),used(0){
+  }
+
+
+// Push object into queue
+FXbool FXSemaQueue::push(FXptr obj){
+  free.wait();
+  queue.push(obj);
+  used.post();
+  return true;
   }
 
 
 // Try push object into queue
 FXbool FXSemaQueue::trypush(FXptr obj){
   if(free.trywait()){
-    list.push(obj);
+    queue.push(obj);
     used.post();
     return true;
     }
@@ -60,20 +67,12 @@ FXbool FXSemaQueue::trypush(FXptr obj){
   }
 
 
-// Push object into queue
-FXbool FXSemaQueue::push(FXptr obj){
-  free.wait();
-  list.push(obj);
-  used.post();
-  return true;
-  }
-
-
-// Try pop object from queue
-FXbool FXSemaQueue::trypop(FXptr& obj){
-  if(used.trywait()){
-    list.pop(obj);
-    free.post();
+// Try push object into queue, waiting up
+// to nsec for space to become available.
+FXbool FXSemaQueue::trypush(FXptr obj,FXTime nsec){
+  if(free.wait(nsec)){
+    queue.push(obj);
+    used.post();
     return true;
     }
   return false;
@@ -83,16 +82,39 @@ FXbool FXSemaQueue::trypop(FXptr& obj){
 // Pop onject from queue
 FXbool FXSemaQueue::pop(FXptr& obj){
   used.wait();
-  list.pop(obj);
+  queue.pop(obj);
   free.post();
   return true;
+  }
+
+
+// Try pop object from queue
+FXbool FXSemaQueue::trypop(FXptr& obj){
+  if(used.trywait()){
+    queue.pop(obj);
+    free.post();
+    return true;
+    }
+  return false;
+  }
+
+
+// Try pop object from queue, waiting up
+// to nsec for object to become available.
+FXbool FXSemaQueue::trypop(FXptr& obj,FXTime nsec){
+  if(used.wait(nsec)){
+    queue.pop(obj);
+    free.post();
+    return true;
+    }
+  return false;
   }
 
 
 // Pop onject from queue
 FXbool FXSemaQueue::pop(){
   used.wait();
-  list.pop();
+  queue.pop();
   free.post();
   return true;
   }

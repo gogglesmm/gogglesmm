@@ -3,7 +3,7 @@
 *                      S c r o l l A r e a   W i d g e t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -174,7 +174,7 @@ FXint FXScrollArea::getVisibleHeight() const {
 
 // Get default width
 FXint FXScrollArea::getDefaultWidth(){
-  register FXint w=0;
+  FXint w=0;
   if((options&HSCROLLER_NEVER)&&(options&HSCROLLER_ALWAYS)) w=getContentWidth();
   if(!(options&VSCROLLER_NEVER)) w+=vertical->getDefaultWidth();
   return FXMAX(w,1);
@@ -183,7 +183,7 @@ FXint FXScrollArea::getDefaultWidth(){
 
 // Get default height
 FXint FXScrollArea::getDefaultHeight(){
-  register FXint h=0;
+  FXint h=0;
   if((options&VSCROLLER_NEVER)&&(options&VSCROLLER_ALWAYS)) h=getContentHeight();
   if(!(options&HSCROLLER_NEVER)) h+=horizontal->getDefaultHeight();
   return FXMAX(h,1);
@@ -200,11 +200,11 @@ void FXScrollArea::moveContents(FXint x,FXint y){
 
 // Start automatic scrolling
 FXbool FXScrollArea::startAutoScroll(FXEvent *event,FXbool onlywheninside){
-  register FXint vx=getVisibleX();
-  register FXint vy=getVisibleY();
-  register FXint vw=getVisibleWidth();
-  register FXint vh=getVisibleHeight();
-  register FXbool autoscrolling=false;
+  FXint vx=getVisibleX();
+  FXint vy=getVisibleY();
+  FXint vw=getVisibleWidth();
+  FXint vh=getVisibleHeight();
+  FXbool autoscrolling=false;
   flags&=~FLAG_SCROLLINSIDE;
   if(onlywheninside) flags|=FLAG_SCROLLINSIDE;
   if(horizontal->getPage()<horizontal->getRange()){
@@ -237,9 +237,9 @@ void FXScrollArea::stopAutoScroll(){
 
 // Place scrollbars
 void FXScrollArea::placeScrollBars(FXint vw,FXint vh){
-  register FXint cw,ch,new_x,new_y;
-  register FXint sh_h=0;
-  register FXint sv_w=0;
+  FXint cw,ch,new_x,new_y;
+  FXint sh_h=0;
+  FXint sv_w=0;
 
   // Inviolate
   FXASSERT(pos_x<=0 && pos_y<=0);
@@ -406,13 +406,13 @@ long FXScrollArea::onHMouseWheel(FXObject* sender,FXSelector sel,void* ptr){
 
 // Timeout
 long FXScrollArea::onAutoScroll(FXObject*,FXSelector sel,void* ptr){
-  register FXEvent* event=(FXEvent*)ptr;
-  register FXint vx=getVisibleX();
-  register FXint vy=getVisibleY();
-  register FXint vw=getVisibleWidth();
-  register FXint vh=getVisibleHeight();
-  register FXint dx=0;
-  register FXint dy=0;
+  FXEvent* event=(FXEvent*)ptr;
+  FXint vx=getVisibleX();
+  FXint vy=getVisibleY();
+  FXint vw=getVisibleWidth();
+  FXint vh=getVisibleHeight();
+  FXint dx=0;
+  FXint dy=0;
 
   // If scrolling only while inside, and not inside, we stop scrolling
   if((flags&FLAG_SCROLLINSIDE) && !(vx<=event->win_x && vy<=event->win_y && event->win_x<vx+vw && event->win_y<vy+vh)) return 0;

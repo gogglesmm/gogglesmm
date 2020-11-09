@@ -3,7 +3,7 @@
 *                      B y t e   S w a p p i n g   S u p p o r t                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2010,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2010,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -66,9 +66,6 @@ static inline FXulong reverse64(FXulong x){
 static inline FXushort swap16(FXushort x){
 #if ((__GNUC__ >= 5) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)))
   return __builtin_bswap16(x);
-#elif (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)))
-  __asm__ __volatile__("rorw $8,%0\n\t" : "=r"(x) : "0"(x) : "cc");
-  return x;
 #elif (_MSC_VER >= 1500)
   return _byteswap_ushort(x);
 #else
@@ -81,9 +78,6 @@ static inline FXushort swap16(FXushort x){
 static inline FXuint swap32(FXuint x){
 #if ((__GNUC__ >= 5) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)))
   return __builtin_bswap32(x);
-#elif (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)))
-  __asm__ __volatile__("bswapl %0\n\t" : "=r"(x): "0"(x));
-  return x;
 #elif (_MSC_VER >= 1500)
   return _byteswap_ulong(x);
 #else
@@ -97,16 +91,6 @@ static inline FXuint swap32(FXuint x){
 static inline FXulong swap64(FXulong x){
 #if ((__GNUC__ >= 5) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)))
   return __builtin_bswap64(x);
-#elif (defined(__GNUC__) && defined(__i386__))
-  union { struct { FXuint l; FXuint h; } s; FXulong x; } n;
-  n.x=x;
-  __asm__ __volatile__("bswapl %0\n\t"
-                       "bswapl %1\n\t"
-                       "xchgl %0,%1\n\t" : "=r"(n.s.l), "=r" (n.s.h) : "0"(n.s.l), "1"(n.s.h));
-  return n.x;
-#elif (defined(__GNUC__) && defined(__x86_64__))
-  __asm__ __volatile__("bswapq %0\n\t" : "=r"(x) : "0"(x));
-  return x;
 #elif (_MSC_VER >= 1500)
   return _byteswap_uint64(x);
 #else
@@ -152,17 +136,30 @@ static inline FXulong msb64(FXulong x){
   }
 
 
-// Count one-bits in non-zero integer
+// Count one-bits in integer
 static inline FXuint pop32(FXuint x){
 #if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
   return __builtin_popcount(x);
 #else
   x=x-((x>>1)&0x55555555);
   x=(x&0x33333333)+((x>>2)&0x33333333);
-  x=(x+(x>>4))&0x0F0F0F0F;
-  x=x+(x>>8);
-  x=x+(x>>16);
-  return (x&0x3F);
+  return (((x+(x>>4))&0x0F0F0F0F)*0x01010101)>>24;
+#endif
+  }
+
+
+// Count one-bits in long
+static inline FXulong pop64(FXulong x){
+#if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
+#if defined(__LP64__) || defined(_LP64) || (__WORDSIZE == 64)
+  return __builtin_popcountl(x);
+#else
+  return __builtin_popcountll(x);
+#endif
+#else
+  x=x-((x>>1)&FXULONG(0x5555555555555555));
+  x=(x&FXULONG(0x3333333333333333))+((x>>2)&FXULONG(0x3333333333333333));
+  return (((x+(x>>4))&FXULONG(0xf0f0f0f0f0f0f0f))*FXULONG(0x101010101010101))>>56;
 #endif
   }
 
@@ -193,12 +190,12 @@ static inline FXulong clz64(FXulong x){
 #endif
 #else
   FXulong g,f,e,d,c,b;
-  g=!(x&0xffffffff00000000)<<8; x<<=g;
-  f=!(x&0xffff000000000000)<<4; x<<=f;
-  e=!(x&0xff00000000000000)<<3; x<<=e;
-  d=!(x&0xf000000000000000)<<2; x<<=d;
-  c=!(x&0xC000000000000000)<<1; x<<=c;
-  b=!(x&0x8000000000000000);
+  g=!(x&FXULONG(0xffffffff00000000))<<8; x<<=g;
+  f=!(x&FXULONG(0xffff000000000000))<<4; x<<=f;
+  e=!(x&FXULONG(0xff00000000000000))<<3; x<<=e;
+  d=!(x&FXULONG(0xf000000000000000))<<2; x<<=d;
+  c=!(x&FXULONG(0xC000000000000000))<<1; x<<=c;
+  b=!(x&FXULONG(0x8000000000000000));
   return g+f+e+d+c+b;
 #endif
   }
@@ -230,12 +227,12 @@ static inline FXulong ctz64(FXulong x){
 #endif
 #else
   FXulong g,f,e,d,c,b;
-  g=!(x&0x00000000ffffffff)<<8; x>>=g;
-  f=!(x&0x000000000000ffff)<<4; x>>=f;
-  e=!(x&0x00000000000000ff)<<3; x>>=e;
-  d=!(x&0x000000000000000f)<<2; x>>=d;
-  c=!(x&0x0000000000000003)<<1; x>>=c;
-  b=!(x&0x0000000000000001);
+  g=!(x&FXULONG(0x00000000ffffffff))<<8; x>>=g;
+  f=!(x&FXULONG(0x000000000000ffff))<<4; x>>=f;
+  e=!(x&FXULONG(0x00000000000000ff))<<3; x>>=e;
+  d=!(x&FXULONG(0x000000000000000f))<<2; x>>=d;
+  c=!(x&FXULONG(0x0000000000000003))<<1; x>>=c;
+  b=!(x&FXULONG(0x0000000000000001));
   return g+f+e+d+c+b;
 #endif
   }

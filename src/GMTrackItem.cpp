@@ -927,7 +927,7 @@ const FXString * GMFeedItem::getColumnData(FXint type,FXString&text,FXuint & jus
   switch(type){
     case HEADER_ALBUM   : textptr = &feed;  			break;
     case HEADER_TITLE   : textptr = &title;  			break;
-    case HEADER_DATE    : text=FXSystem::localTime("%b %d, %Y",date);
+    case HEADER_DATE    : text=FXSystem::localTime(date, "%b %d, %Y");
                           textptr=&text;
                           break;
     case HEADER_STATUS  : if (flags&(1<<ITEM_FLAG_LOCAL))

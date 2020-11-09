@@ -3,7 +3,7 @@
 *                 R e v e r s e   D i c t i o n a r y    C l a s s              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -82,18 +82,18 @@ FXbool FXReverseDictionary::resize(FXival n){
   FXASSERT((n-used())>0);
   if(elbat.no(n)){
     if(1<elbat.no() && 1<no()){
-      FXptr key;
+      FXptr ky;
       FXuval p,b,x;
       FXival i;
       for(i=0; i<no(); ++i){
-        key=table[i].key;
-        if(LEGAL(key)){
-          p=b=HASH(key);
+        ky=table[i].key;
+        if(LEGAL(ky)){
+          p=b=HASH(ky);
           while(elbat.table[x=p&(n-1)].key){
             p=(p<<2)+p+b+1;
             b>>=BSHIFT;
             }
-          elbat.table[x].key=key;
+          elbat.table[x].key=ky;
           elbat.table[x].data.adopt(table[i].data);
           }
         }
@@ -157,12 +157,12 @@ FXReverseDictionary& FXReverseDictionary::adopt(FXReverseDictionary& other){
 
 // Locate slot associated with key, if key is non-NULL.
 // If not found, or key is NULL, return -1.
-FXival FXReverseDictionary::find(FXptr key) const {
-  if(LEGAL(key)){
+FXival FXReverseDictionary::find(FXptr ky) const {
+  if(LEGAL(ky)){
     FXuval p,b,x;
-    p=b=HASH(key);
+    p=b=HASH(ky);
     while(table[x=p&(no()-1)].key){
-      if(table[x].key==key) return x;
+      if(table[x].key==ky) return x;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
@@ -176,12 +176,12 @@ FXival FXReverseDictionary::find(FXptr key) const {
 // If not found, optionally resize the array if needed, and then return a
 // reference to (possibly newly created) data element.
 // Write access to data associated with a NULL key will generate exception.
-FXString& FXReverseDictionary::at(FXptr key){
-  if(LEGAL(key)){
+FXString& FXReverseDictionary::at(FXptr ky){
+  if(LEGAL(ky)){
     FXuval p,b,h,x;
-    p=b=h=HASH(key);
+    p=b=h=HASH(ky);
     while(table[x=p&(no()-1)].key){
-      if(table[x].key==key) goto x;
+      if(table[x].key==ky) goto x;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
@@ -194,7 +194,7 @@ FXString& FXReverseDictionary::at(FXptr key){
       }
     free(free()-1);
 y:  used(used()+1);
-    table[x].key=key;
+    table[x].key=ky;
 x:  return table[x].data;
     }
   return *((FXString*)NULL);              // Can NOT be referenced; will generate segfault!
@@ -204,12 +204,12 @@ x:  return table[x].data;
 // Access element at given key, if key is non-NULL.
 // If found, return const-reference to the data element; if not found,
 // or if the key is NULL, return const-reference to the special empty data.
-const FXString& FXReverseDictionary::at(FXptr key) const {
-  if(LEGAL(key)){
+const FXString& FXReverseDictionary::at(FXptr ky) const {
+  if(LEGAL(ky)){
     FXuval p,b,x;
-    p=b=HASH(key);
+    p=b=HASH(ky);
     while(table[x=p&(no()-1)].key){
-      if(table[x].key==key) return table[x].data;
+      if(table[x].key==ky) return table[x].data;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
@@ -220,12 +220,12 @@ const FXString& FXReverseDictionary::at(FXptr key) const {
 
 // Remove data at given key, if key is non-NULL.
 // A resize is triggered when the occupancy drops below the next smaller power of two.
-FXString FXReverseDictionary::remove(FXptr key){
-  if(LEGAL(key)){
+FXString FXReverseDictionary::remove(FXptr ky){
+  if(LEGAL(ky)){
     FXString old;
     FXuval p,b,x;
-    p=b=HASH(key);
-    while(table[x=p&(no()-1)].key!=key){
+    p=b=HASH(ky);
+    while(table[x=p&(no()-1)].key!=ky){
       if(table[x].key==NULL) return FXString::null;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;

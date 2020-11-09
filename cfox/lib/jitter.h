@@ -3,7 +3,7 @@
 *                    G a u s s i a n   J i t t e r   T a b l e                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1995,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1995,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

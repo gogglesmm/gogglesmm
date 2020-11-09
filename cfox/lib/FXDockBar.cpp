@@ -3,7 +3,7 @@
 *                         D o c k S i t e   W i d g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -331,8 +331,8 @@ FXbool FXDockBar::isAllowable(FXuint hints) const {
 
 // Search siblings of drydock for first dock opportunity
 FXDockSite* FXDockBar::findDockAtSide(FXuint side){
-  register FXDockSite* docksite;
-  register FXWindow *child;
+  FXDockSite* docksite;
+  FXWindow *child;
   if(drydock){
     child=drydock->getParent()->getFirst();
     while(child){
@@ -352,8 +352,8 @@ FXbool FXDockBar::insideDock(FXDockSite* docksite,FXint barx,FXint bary){
   if(docksite){
 
     // Bar size
-    register FXint barw=getWidth();
-    register FXint barh=getHeight();
+    FXint barw=getWidth();
+    FXint barh=getHeight();
 
     // Vertically oriented dock
     if(docksite->getLayoutHints()&LAYOUT_SIDE_LEFT){

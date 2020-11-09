@@ -3,7 +3,7 @@
 *                  V a r a r g s   P r i n t f   R o u t i n e s                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -90,7 +90,10 @@
      'e', 'E',  Exponential notation floating point conversion.
      'f', 'F'   Simple point conversion.
      'g', 'G'   Shortest representation point conversion.
-     'a', 'A'   Hexadecimal floating point output (NOT IMPLEMENTED YET).
+     'a', 'A'   Hexadecimal floating point output. If no precision specified,
+                print the shortest number of digits (at most 13 after the hexadecimal
+                point), otherwise, round the last printed digit.  Use upper- or lower-case,
+                depending on whether A or a was used.
 
   - Printing special floating point values:
 
@@ -109,9 +112,6 @@
     Its therefore best if no parameters are skipped; referencing a single parameter
     multiple times however, is no problem!!
 
-  - FIXME Subtle difference between glibc: does NOT output '\0' at the end, unless
-    buffer is large enough.  This implementation is better for our purposes, however.
-
   - A sticky situation developed with compilers optimizing statements like:
 
         number*=xxx;
@@ -125,9 +125,10 @@
     The problem is prevented by declaring 'number' as 'volatile' which causes the
     value to be written to memory after assignment, and thus execute these two
     statements as written.
-*/
 
-#define CONVERTSIZE     512     // Conversion buffer
+  - Subtle difference between glibc: does NOT output '\0' at the end, unless
+    buffer is large enough.
+*/
 
 #if defined(_WIN32)
 #ifndef va_copy
@@ -175,8 +176,12 @@ enum {
   };
 
 
-static const FXchar lower_digits[]="0123456789abcdef";
-static const FXchar upper_digits[]="0123456789ABCDEF";
+// Conversion buffer
+const FXint CONVERTSIZE=512;
+
+// Hexadecimal digits
+const FXchar lower_digits[]="0123456789abcdef";
+const FXchar upper_digits[]="0123456789ABCDEF";
 
 /*******************************************************************************/
 
@@ -205,15 +210,14 @@ static FXdouble scaleneg2[10] = {
   };
 
 
-
 // Convert number to string in buffer
-static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decpt,FXint prec,FXuint flags){
+static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decimal,FXint precision,FXuint flags){
   volatile FXdouble number=value;
   FXchar *end=buffer+size;
   FXchar *dst=buffer;
   FXchar *src=end;
   FXchar *p;
-  FXint digits,binex,decex,negex,x;
+  FXint digits,binex,decex,negex,dex,x;
   FXulong num,n;
 
   // Compute decimal point
@@ -230,13 +234,14 @@ static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decpt,FXint 
     //
     //   decex = binex*0.30078125 = (binex*77)>>8
     //
-    decex=((FXint)((binex-1023)*77))>>8;
+    decex=(binex*77)>>8;
 
     // Ought to be in this range
     FXASSERT(-308<=decex && decex<=308);
 
-    // Bring mantissa in range for conversion to unsigned long.
-    // Mantissa is always [0.5...1), thus we scale by:
+    // Bring mantissa in range for conversion to a 64-bit long.
+    // For normalized floating point numbers the mantissa is always
+    // [0.5...1), thus we scale by:
     //
     //   1.0E18 * 10^-decex       decex>=0
     //
@@ -244,8 +249,11 @@ static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decpt,FXint 
     //
     //   1.0E18 * 10^+decex       decex<0
     //
-    // as per above. This leaves a number 0.5E18...1.0E18, which fits in
-    // 64-bit unsigned long.
+    // This leaves a number 0.5E18...1.0E18, which fits in 64-bit long.
+    // If the floating point number was denormalized, apply an additional
+    // scale after the one above.  We scale the number an arbitrary number
+    // of times by 10, until its in the expected range 0.5E18...1.0E18, and
+    // adjust the exponent along the way.
     //
     // The variable 'number' is declared as 'volatile', to force compiler
     // to write back to memory in between the two statements:
@@ -276,10 +284,17 @@ static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decpt,FXint 
       if(negex<32){
         number*=scalepos1[negex];
         }
-      else {
+      else{
         number*=scalepos1[negex&31];
         number*=scalepos2[negex>>5];
         }
+      }
+
+    // Denormalized number hack
+    if(binex==-1023){
+      dex=(Math::fpExponent(number)*77)>>8;
+      number*=Math::pow10i(18-dex);
+      decex+=dex-18;
       }
 
     // Adjust decimal point, keep 18 digits only
@@ -302,7 +317,7 @@ static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decpt,FXint 
     while(num);
 
     // Decimal point location after 1st digit
-    decpt=decex+1;
+    decimal=decex+1;
     }
   else{
 
@@ -310,17 +325,17 @@ static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decpt,FXint 
     *--src='0';
 
     // Assume decimal point location 0.
-    decpt=1;
+    decimal=1;
     }
 
   // Digits to be returned
-  digits=prec;
+  digits=precision;
 
   // In exponent mode, add one before decimal point; add up to
   // two more digits if engineering mode also in effect.
   if(flags&FLG_EXPONENT){
     if(flags&FLG_THOUSAND){
-      x=(decpt+600-1)%3;
+      x=(decimal+600-1)%3;
       digits+=x;
       }
     digits++;
@@ -330,8 +345,8 @@ static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decpt,FXint 
   // decimal point is negative, there will be fewer digits generated,
   // and the decimal point will be adjusted accordingly.
   if(flags&FLG_FRACTION){
-    if(digits<-decpt) decpt=-digits;
-    digits+=decpt;
+    if(digits<-decimal) decimal=-digits;
+    digits+=decimal;
     }
 
   // Don't exceed buffer space
@@ -356,7 +371,7 @@ static FXchar* cvt(FXchar* buffer,FXuval size,FXdouble value,FXint& decpt,FXint 
         if(buffer<dst) *dst='0';        // Extra zero at the end for normal mode
         dst++;                          // Added a digit
         }
-      decpt++;
+      decimal++;
       digits--;
       }
     }
@@ -377,12 +392,49 @@ n:while(digits>0){
 
 /*******************************************************************************/
 
+// Convert number to hex string in buffer
+static FXchar* cvthex(FXchar* buffer,FXuval size,FXdouble value,FXint& decimal,FXint precision,FXuint flags){
+  const FXchar* hexdigits=(flags&FLG_UPPER)?upper_digits:lower_digits;
+  const FXlong HEXRND=FXLONG(0x0080000000000000);
+  const FXlong HEXMSK=FXLONG(0xFF00000000000000);
+  FXulong mantissa=Math::fpMantissa(value);
+  FXint exponent=Math::fpExponent(value);
+  FXint digits=Math::imin(precision,size-2);
+  FXchar *dst=buffer;
+
+  // Zero mantissa means exponent should be zero also
+  if(mantissa==0) exponent=0;
+
+  // Decimal point location after 1st digit
+  decimal=exponent+1;
+
+  // Round to precision nibbles, and zero the rest
+  if(precision<14){
+    mantissa+=HEXRND>>(precision<<2);
+    mantissa&=HEXMSK>>(precision<<2);
+    }
+
+  // Whip out digits
+  while(digits>0){
+    *dst++=hexdigits[(mantissa>>52)&15];
+    mantissa<<=4;
+    digits--;
+    }
+
+  // Terminate
+  *dst='\0';
+
+  return buffer;
+  }
+
+/*******************************************************************************/
+
 // Convert double number; precision is digits after decimal point
-static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint prec,FXint flags){
+static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint precision,FXint flags){
   FXchar *ptr=buffer;
   FXchar *p;
   FXchar digits[512];
-  FXint  decimal;
+  FXint  decimal,pr;
   FXbool expo;
 
   // Handle sign
@@ -425,11 +477,87 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
       }
     }
 
+  // Hexadecimal float mode
+  else if(flags&FLG_HEXADEC){
+
+    pr=precision;
+    if(precision<0) precision=13;
+    precision++;
+
+    // Convert with 1 extra hexdigit before decimal point
+    p=cvthex(digits,ARRAYNUMBER(digits),number,decimal,precision,flags);
+
+    // Eliminate trailing zeroes; not done for alternate mode
+    if(pr<0 && !(flags&FLG_ALTER)){
+      while(0<precision && p[precision-1]=='0') precision--;
+      }
+
+    // Prefix with 0x
+    *ptr++='0';
+    if(flags&FLG_UPPER){
+      *ptr++='X';
+      }
+    else{
+      *ptr++='x';
+      }
+
+    // One digit before decimal point
+    *ptr++=*p++;
+    decimal--;
+    precision--;
+
+    // Decimal point needed
+    if((0<precision) || (flags&FLG_ALTER)){
+      *ptr++='.';
+      }
+
+    // Copy fraction
+    while(0<precision){
+      *ptr++=*p++;
+      precision--;
+      }
+
+    // Exponent
+    *ptr++=(flags&FLG_UPPER)?'P':'p';
+    if(Math::fpBits(number)){
+
+      // Negative exponent
+      if(decimal<0){
+        decimal=-decimal;
+        *ptr++='-';
+        }
+      else{
+        *ptr++='+';
+        }
+
+      // Exponent is 1..4 digits
+      if(10<=decimal){
+        if(100<=decimal){
+          if(1000<=decimal){
+            *ptr++='0'+(decimal/1000);
+            decimal%=1000;
+            }
+          *ptr++='0'+(decimal/100);
+          decimal%=100;
+          }
+        *ptr++='0'+(decimal/10);
+        decimal%=10;
+        }
+      *ptr++='0'+decimal;
+      }
+    else{
+      *ptr++='+';
+      *ptr++='0';
+      }
+    }
+
   // Force exponential mode
   else if(flags&FLG_EXPONENT){
 
+    if(precision<0) precision=6;
+
     // Convert with 1 extra digit before decimal point
-    p=cvt(digits,ARRAYNUMBER(digits),number,decimal,prec,flags);
+    p=cvt(digits,ARRAYNUMBER(digits),number,decimal,precision,flags);
 
     // One digit before decimal point
     *ptr++=*p++;
@@ -444,19 +572,21 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
       }
 
     // Decimal point needed
-    if((0<prec) || (flags&FLG_ALTER)){
+    if((0<precision) || (flags&FLG_ALTER)){
       *ptr++='.';
       }
 
     // Copy fraction
     while(*p){
       *ptr++=*p++;
-      prec--;
+      precision--;
       }
 
     // Exponent
     *ptr++=(flags&FLG_UPPER)?'E':'e';
-    if(number!=0.0){
+    if(Math::fpBits(number)){
+
+      // Negative exponent
       if(decimal<0){
         decimal=-decimal;
         *ptr++='-';
@@ -488,8 +618,10 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
   // Forced fractional mode
   else if(flags&FLG_FRACTION){
 
-    // Convert with prec decimals after decimal point
-    p=cvt(digits,ARRAYNUMBER(digits),number,decimal,prec,flags);
+    if(precision<0) precision=6;
+
+    // Convert with precision decimals after decimal point
+    p=cvt(digits,ARRAYNUMBER(digits),number,decimal,precision,flags);
 
     // Fractional notation +0.000ddd
     if(decimal<=0){
@@ -498,7 +630,7 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
       *ptr++='0';
 
       // Decimal point is negative or zero
-      if((0<prec) || (flags&FLG_ALTER)){
+      if((0<precision) || (flags&FLG_ALTER)){
         *ptr++='.';
         }
 
@@ -518,7 +650,7 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
     else{
 
       // Decimal point is positive
-      while(decimal>0){
+      while(0<decimal){
         *ptr++=*p++;
         decimal--;
         if(flags&FLG_THOUSAND){
@@ -527,7 +659,7 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
         }
 
       // Decimal point needed
-      if((0<prec) || (flags&FLG_ALTER)){
+      if((0<precision) || (flags&FLG_ALTER)){
         *ptr++='.';
         }
 
@@ -541,15 +673,18 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
   // General mode
   else{
 
-    // Convert with prec decimals
-    p=cvt(digits,ARRAYNUMBER(digits),number,decimal,prec,flags);
+    if(precision<0) precision=6;
+    if(precision<1) precision=1;
+
+    // Convert with precision decimals
+    p=cvt(digits,ARRAYNUMBER(digits),number,decimal,precision,flags);
 
     // Switch exponential mode
-    expo=(prec<decimal) || (decimal<-3);
+    expo=(precision<decimal) || (decimal<-3);
 
     // Eliminate trailing zeroes; not done for alternate mode
     if(!(flags&FLG_ALTER)){
-      while(0<prec && p[prec-1]=='0') prec--;
+      while(0<precision && p[precision-1]=='0') precision--;
       }
 
     // Exponential mode
@@ -558,30 +693,33 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
       // One digit before decimal point
       *ptr++=*p++;
       decimal--;
-      prec--;
+      precision--;
 
       // One or two more before decimal point
       if(flags&FLG_THOUSAND){
         while((decimal+600)%3){
           *ptr++=*p++;
           decimal--;
-          prec--;
+          precision--;
           }
         }
 
       // Decimal point needed
-      if((0<prec) || (flags&FLG_ALTER)){
+      if((0<precision) || (flags&FLG_ALTER)){
         *ptr++='.';
         }
 
       // Remaining fraction, if any
-      while(prec-->0){
+      while(0<precision){
         *ptr++=*p++;
+        precision--;
         }
 
       // Exponent
       *ptr++=(flags&FLG_UPPER)?'E':'e';
-      if(number!=0.0){
+      if(Math::fpBits(number)){
+
+        // Negative exponent
         if(decimal<0){
           decimal=-decimal;
           *ptr++='-';
@@ -620,34 +758,36 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
         *ptr++='0';
 
         // Decimal point only if followed by at least one digit
-        if(decimal<0 || 0<prec){
+        if(decimal<0 || 0<precision){
           *ptr++='.';
           }
 
         // Output a bunch of zeroes preceeded by '0.'
-        while(decimal++<0){
+        while(decimal<0){
           *ptr++='0';
+          decimal++;
           }
 
-        // Generate prec digits
-        while(prec>0){
+        // Generate precision digits
+        while(0<precision){
           *ptr++=*p++;
-          prec--;
+          precision--;
           }
         }
 
       // Integral notation +ddd000.
-      else if(prec<=decimal){
+      else if(precision<=decimal){
 
-        // Generate prec digits
-        while(prec-->0){
+        // Generate precision digits
+        while(0<precision){
           *ptr++=*p++;
           decimal--;
+          precision--;
           if(flags&FLG_THOUSAND){
             if(decimal%3==0 && decimal!=0) *ptr++=',';
             }
           }
-        while(decimal>0){
+        while(0<decimal){
           *ptr++='0';
           decimal--;
           if(flags&FLG_THOUSAND){
@@ -663,10 +803,10 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
       else{
 
         // Decimal point is positive
-        while(decimal>0){
+        while(0<decimal){
           *ptr++=*p++;
           decimal--;
-          prec--;
+          precision--;
           if(flags&FLG_THOUSAND){
             if(decimal%3==0 && decimal!=0) *ptr++=',';
             }
@@ -675,10 +815,10 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
         // Output decimal point
         *ptr++='.';
 
-        // Append more digits until we get prec
-        while(prec>0){
+        // Append more digits until we get precision
+        while(0<precision){
           *ptr++=*p++;
-          prec--;
+          precision--;
           }
         }
       }
@@ -694,7 +834,7 @@ static FXchar* convertDouble(FXchar* buffer,FXint& len,FXdouble number,FXint pre
 /*******************************************************************************/
 
 // Convert long value
-static FXchar* convertLong(FXchar* buffer,FXint& len,FXlong value,FXuint base,FXint prec,FXuint flags){
+static FXchar* convertLong(FXchar* buffer,FXint& len,FXlong value,FXuint base,FXint precision,FXuint flags){
   const FXchar *digits=(flags&FLG_UPPER)?upper_digits:lower_digits;
   FXchar *end=buffer+CONVERTSIZE-1;
   FXchar *ptr=end;
@@ -726,14 +866,14 @@ static FXchar* convertLong(FXchar* buffer,FXint& len,FXlong value,FXuint base,FX
     if(flags&FLG_THOUSAND){
       if(++digs%3==0 && number) *--ptr=',';
       }
-    prec--;
+    precision--;
     }
   while(number);
 
   // Pad to precision
-  while(0<prec){
+  while(0<precision){
     *--ptr='0';
-    --prec;
+    --precision;
     }
 
   // Alternate form
@@ -757,13 +897,11 @@ static FXchar* convertLong(FXchar* buffer,FXint& len,FXlong value,FXuint base,FX
     }
 
   // Return length
-  len=end-ptr;
+  len=(FXint)(end-ptr);
   return ptr;
   }
 
-
 /*******************************************************************************/
-
 
 // Advance ag from args to position before pos
 void vadvance(va_list& ag,va_list args,const FXchar* format,FXint pos){
@@ -932,7 +1070,6 @@ flg:    switch(ch){
 nxt:cur++;
     }
   }
-
 
 /*******************************************************************************/
 
@@ -1205,7 +1342,6 @@ flg:  switch(ch){
           flags|=FLG_FRACTION;                          // Fractional notation
           if(0<pos) vadvance(ag,args,format,pos);       // Advance ag to position
           number=va_arg(ag,FXdouble);
-          if(precision<0) precision=6;
           str=convertDouble(buffer,len,number,precision,flags);
           break;
         case 'E':
@@ -1214,7 +1350,6 @@ flg:  switch(ch){
           flags|=FLG_EXPONENT;                          // Exponential notation
           if(0<pos) vadvance(ag,args,format,pos);       // Advance ag to position
           number=va_arg(ag,FXdouble);
-          if(precision<0) precision=6;
           str=convertDouble(buffer,len,number,precision,flags);
           break;
         case 'G':
@@ -1222,8 +1357,6 @@ flg:  switch(ch){
         case 'g':
           if(0<pos) vadvance(ag,args,format,pos);       // Advance ag to position
           number=va_arg(ag,FXdouble);
-          if(precision<0) precision=6;
-          if(precision<1) precision=1;
           str=convertDouble(buffer,len,number,precision,flags);
           break;
         case 'A':
@@ -1333,7 +1466,7 @@ flg:  switch(ch){
           }
         }
 
-      // Get format character
+      // Next character
       continue;
       }
 
@@ -1343,10 +1476,10 @@ nml:if(count<length){ *string++=ch; }
     }
 
   // Last character
-  if(count<length){ *string++='\0'; }
+x:if(count<length){ *string++='\0'; }
 
   // Done
-x:va_end(ag);
+  va_end(ag);
   return count;
   }
 

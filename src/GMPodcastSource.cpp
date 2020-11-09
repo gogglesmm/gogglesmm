@@ -59,7 +59,7 @@ FXString gm_rfc1123(FXTime time) {
   date.setTime(time);
   FXString str;
   str  = FXString::value("%s, %d %s %d ",FXDate::dayNameShort(date.dayOfWeek()),date.day(),FXDate::monthNameShort(date.month()),date.year());
-  str += FXSystem::universalTime("%T GMT",time);
+  str += FXSystem::universalTime(time, "%T GMT");
   return str;
   }
 

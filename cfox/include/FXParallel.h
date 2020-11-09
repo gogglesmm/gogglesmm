@@ -3,7 +3,7 @@
 *                     P a r a l l e l   C o m p u t a t i o n                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2012,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2012,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *

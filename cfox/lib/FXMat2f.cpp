@@ -3,7 +3,7 @@
 *            S i n g l e - P r e c i s i o n   2 x 2   M a t r i x              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -71,8 +71,8 @@ FXMat2f::FXMat2f(const FXMat2f& s){
 
 // Initialize from rotation and scaling part of 3x3 matrix
 FXMat2f::FXMat2f(const FXMat3f& s){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_si128((__m128i*)&m[0][0],_mm_set_epi64(*((const __m64*)&s[1][0]),*((const __m64*)&s[0][0])));
+#if defined(FOX_HAS_SSE)
+  _mm_storeu_ps(&m[0][0],_mm_set_ps(s[1][1],s[1][0],s[0][1],s[0][0]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1];
   m[1][0]=s[1][0]; m[1][1]=s[1][1];
@@ -100,15 +100,19 @@ FXMat2f::FXMat2f(FXfloat a,FXfloat b){
 
 // Initialize matrix from components
 FXMat2f::FXMat2f(FXfloat a00,FXfloat a01,FXfloat a10,FXfloat a11){
+#if defined(FOX_HAS_SSE)
+  _mm_storeu_ps(&m[0][0],_mm_set_ps(a11,a10,a01,a00));
+#else
   m[0][0]=a00; m[0][1]=a01;
   m[1][0]=a10; m[1][1]=a11;
+#endif
   }
 
 
 // Initialize matrix from two vectors
 FXMat2f::FXMat2f(const FXVec2f& a,const FXVec2f& b){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_si128((__m128i*)&m[0][0],_mm_set_epi64(*((const __m64*)&b[0]),*((const __m64*)&a[0])));
+#if defined(FOX_HAS_SSE)
+  _mm_storeu_ps(&m[0][0],_mm_set_ps(b[1],b[0],a[1],a[0]));
 #else
   m[0]=a;
   m[1]=b;
@@ -142,8 +146,8 @@ FXMat2f& FXMat2f::operator=(const FXMat2f& s){
 
 // Assign from rotation and scaling part of 3x3 matrix
 FXMat2f& FXMat2f::operator=(const FXMat3f& s){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_si128((__m128i*)&m[0][0],_mm_set_epi64(*((const __m64*)&s[1][0]),*((const __m64*)&s[0][0])));
+#if defined(FOX_HAS_SSE)
+  _mm_storeu_ps(&m[0][0],_mm_set_ps(s[1][1],s[1][0],s[0][1],s[0][0]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1];
   m[1][0]=s[1][0]; m[1][1]=s[1][1];
@@ -190,8 +194,8 @@ FXMat2f& FXMat2f::set(const FXMat2f& s){
 
 // Set from rotation and scaling part of 3x3 matrix
 FXMat2f& FXMat2f::set(const FXMat3f& s){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_si128((__m128i*)&m[0][0],_mm_set_epi64(*((const __m64*)&s[1][0]),*((const __m64*)&s[0][0])));
+#if defined(FOX_HAS_SSE)
+  _mm_storeu_ps(&m[0][0],_mm_set_ps(s[1][1],s[1][0],s[0][1],s[0][0]));
 #else
   m[0][0]=s[0][0]; m[0][1]=s[0][1];
   m[1][0]=s[1][0]; m[1][1]=s[1][1];
@@ -230,8 +234,8 @@ FXMat2f& FXMat2f::set(FXfloat a00,FXfloat a01,FXfloat a10,FXfloat a11){
 
 // Set value from two vectors
 FXMat2f& FXMat2f::set(const FXVec2f& a,const FXVec2f& b){
-#if defined(FOX_HAS_SSE2)
-  _mm_storeu_si128((__m128i*)&m[0][0],_mm_set_epi64(*((const __m64*)&b[0]),*((const __m64*)&a[0])));
+#if defined(FOX_HAS_SSE)
+  _mm_storeu_ps(&m[0][0],_mm_set_ps(b[1],b[0],a[1],a[0]));
 #else
   m[0]=a;
   m[1]=b;

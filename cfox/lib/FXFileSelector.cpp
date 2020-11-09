@@ -3,7 +3,7 @@
 *                  F i l e   S e l e c t i o n   W i d g e t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -625,8 +625,9 @@ long FXFileSelector::onCmdAccept(FXObject*,FXSelector,void*){
 // a quick jump back into the original directory in case we went up too far.
 long FXFileSelector::onCmdDirectoryUp(FXObject*,FXSelector,void*){
   if(allowNavigation()){
-    setDirectory(FXPath::upLevel(getDirectory()));
-//  if(allowNavigation()) setFilename(getDirectory()); // FIXME
+    FXString dir(getDirectory());
+    setDirectory(FXPath::upLevel(dir));
+    filebox->setCurrentFile(dir);
     return 1;
     }
   getApp()->beep();

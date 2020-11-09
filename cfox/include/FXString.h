@@ -3,7 +3,7 @@
 *                           S t r i n g   O b j e c t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -189,6 +189,15 @@ public:
   /// Assign n characters c to this string
   FXString& assign(FXchar c,FXint n);
 
+  /// Assign string s to this string
+  FXString& assign(const FXchar* s);
+
+  /// Assign narrow character string s to this string
+  FXString& assign(const FXnchar* s);
+
+  /// Assign wide character string s to this string
+  FXString& assign(const FXwchar* s);
+
   /// Assign first n characters of string s to this string
   FXString& assign(const FXchar *s,FXint n);
 
@@ -199,15 +208,6 @@ public:
   FXString& assign(const FXwchar *s,FXint n);
 
   /// Assign string s to this string
-  FXString& assign(const FXchar* s);
-
-  /// Assign narrow character string s to this string
-  FXString& assign(const FXnchar* s);
-
-  /// Assign wide character string s to this string
-  FXString& assign(const FXwchar* s);
-
-  /// Assign string s to this string
   FXString& assign(const FXString& s);
 
   /// Insert character at specified position
@@ -215,6 +215,15 @@ public:
 
   /// Insert n characters c at specified position
   FXString& insert(FXint pos,FXchar c,FXint n);
+
+  /// Insert string at specified position
+  FXString& insert(FXint pos,const FXchar* s);
+
+  /// Insert narrow character string at specified position
+  FXString& insert(FXint pos,const FXnchar* s);
+
+  /// Insert wide character string at specified position
+  FXString& insert(FXint pos,const FXwchar* s);
 
   /// Insert first n characters of string at specified position
   FXString& insert(FXint pos,const FXchar* s,FXint n);
@@ -226,15 +235,6 @@ public:
   FXString& insert(FXint pos,const FXwchar* s,FXint n);
 
   /// Insert string at specified position
-  FXString& insert(FXint pos,const FXchar* s);
-
-  /// Insert narrow character string at specified position
-  FXString& insert(FXint pos,const FXnchar* s);
-
-  /// Insert wide character string at specified position
-  FXString& insert(FXint pos,const FXwchar* s);
-
-  /// Insert string at specified position
   FXString& insert(FXint pos,const FXString& s);
 
   /// Prepend string with input character
@@ -242,6 +242,15 @@ public:
 
   /// Prepend string with n characters c
   FXString& prepend(FXchar c,FXint n);
+
+  /// Prepend string with string s
+  FXString& prepend(const FXchar* s);
+
+  /// Prepend string with narrow character string
+  FXString& prepend(const FXnchar* s);
+
+  /// Prepend string with wide character string
+  FXString& prepend(const FXwchar* s);
 
   /// Prepend first n characters of string s
   FXString& prepend(const FXchar* s,FXint n);
@@ -253,15 +262,6 @@ public:
   FXString& prepend(const FXwchar* s,FXint n);
 
   /// Prepend string with string s
-  FXString& prepend(const FXchar* s);
-
-  /// Prepend string with narrow character string
-  FXString& prepend(const FXnchar* s);
-
-  /// Prepend string with wide character string
-  FXString& prepend(const FXwchar* s);
-
-  /// Prepend string with string s
   FXString& prepend(const FXString& s);
 
   /// Append character c to this string
@@ -269,6 +269,15 @@ public:
 
   /// Append n characters c to this string
   FXString& append(FXchar c,FXint n);
+
+  /// Append string s to this string
+  FXString& append(const FXchar* s);
+
+  /// Append narrow character string s to this string
+  FXString& append(const FXnchar* s);
+
+  /// Append wide character string s to this string
+  FXString& append(const FXwchar* s);
 
   /// Append first n characters of string s to this string
   FXString& append(const FXchar* s,FXint n);
@@ -280,15 +289,6 @@ public:
   FXString& append(const FXwchar* s,FXint n);
 
   /// Append string s to this string
-  FXString& append(const FXchar* s);
-
-  /// Append narrow character string s to this string
-  FXString& append(const FXnchar* s);
-
-  /// Append wide character string s to this string
-  FXString& append(const FXwchar* s);
-
-  /// Append string s to this string
   FXString& append(const FXString& s);
 
   /// Replace a single character
@@ -296,15 +296,6 @@ public:
 
   /// Replace the r characters at pos with n characters c
   FXString& replace(FXint pos,FXint r,FXchar c,FXint n);
-
-  /// Replaces the r characters at pos with first n characters of string s
-  FXString& replace(FXint pos,FXint r,const FXchar* s,FXint n);
-
-  /// Replaces the r characters at pos with first n characters of narrow character string s
-  FXString& replace(FXint pos,FXint r,const FXnchar* s,FXint n);
-
-  /// Replaces the r characters at pos with first n characters of wide character string s
-  FXString& replace(FXint pos,FXint r,const FXwchar* s,FXint n);
 
   /// Replace the r characters at pos with string s
   FXString& replace(FXint pos,FXint r,const FXchar* s);
@@ -314,6 +305,15 @@ public:
 
   /// Replace the r characters at pos with wide character string s
   FXString& replace(FXint pos,FXint r,const FXwchar* s);
+
+  /// Replaces the r characters at pos with first n characters of string s
+  FXString& replace(FXint pos,FXint r,const FXchar* s,FXint n);
+
+  /// Replaces the r characters at pos with first n characters of narrow character string s
+  FXString& replace(FXint pos,FXint r,const FXnchar* s,FXint n);
+
+  /// Replaces the r characters at pos with first n characters of wide character string s
+  FXString& replace(FXint pos,FXint r,const FXwchar* s,FXint n);
 
   /// Replace the r characters at pos with string s
   FXString& replace(FXint pos,FXint r,const FXString& s);
@@ -645,7 +645,7 @@ public:
   * decomposition.
   */
   static FXString compose(const FXString& s,FXbool canonical=true);
-  
+
   /// Compute hash value of string
   FXuint hash() const;
 

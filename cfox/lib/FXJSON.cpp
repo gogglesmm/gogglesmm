@@ -3,7 +3,7 @@
 *                      J S O N   R e a d e r  &  W r i t e r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2013,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2013,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -127,14 +127,14 @@
 
          literal   : decimal
                    | hex
+                   | ('n' | 'N') ('a' | 'A') ('n' | 'N')
+                   | ('i' | 'I') ('n' | 'N') ('f' | 'F')
+                   | ('i' | 'I') ('n' | 'N') ('f' | 'F') ('i' | 'I') ('n' | 'N') ('i' | 'I') ('t' | 'T') ('y' | 'Y')
                    ;
 
          decimal   : digits
                    | digits '.' [ digits ] [ exponent ]
                    | '.' digits [ exponent ]
-                   | ('n' | 'N') ('a' | 'A') ('n' | 'N')
-                   | ('i' | 'I') ('n' | 'N') ('f' | 'F')
-                   | ('i' | 'I') ('n' | 'N') ('f' | 'F') ('i' | 'I') ('n' | 'N') ('i' | 'I') ('t' | 'T') ('y' | 'Y')
                    ;
 
          exponent  : ('e' | 'E') [ '+' | '-' ] digits
@@ -144,9 +144,6 @@
                    | digit digits
                    ;
 
-         digit     : '0'...'9'
-                   ;
-
          hex       : '0' ('x' | 'X') hexdigits
                    ;
 
@@ -154,9 +151,19 @@
                    | hexdigit hexdigits
                    ;
 
+         digit     : '0'...'9'
+                   ;
+
          hexdigit  : '0'...'9' | 'a'...'f' | 'A'...'F'
                    ;
 
+  - Our version accepts 'Inf' in lieu of 'Infinity' for infinite float values; also, it
+    relaxes capitalization; this is for compatibility with various C-libraries
+    implementations, which have minor differences in the way these numbers are printed.
+
+  - Our implementation __vsnprintf() produces either INF or inf for infinity, and NAN
+    or nan for not-a-number, while our __vsscanf() implementation accepts any
+    capitalization if nan, inf, or infinity.
 
   - Flow controls the looks of the output.  The current values supported are:
 
@@ -244,7 +251,7 @@ const FXchar *const FXJSON::errors[]={
   };
 
 
-// Special double constants
+// Special IEEE-754 floating-point standard constants
 static const union{ FXulong u; FXdouble f; } inf={FXULONG(0x7ff0000000000000)};
 static const union{ FXulong u; FXdouble f; } nan={FXULONG(0x7fffffffffffffff)};
 
@@ -389,7 +396,7 @@ FXint FXJSON::next(){
           offset++;
           sptr++;
           }
-      case '\n':                                // Newline 
+      case '\n':                                // Newline
         if(comment<0) comment=0;                // End single-line comment
         column=0;
         offset++;
@@ -550,7 +557,7 @@ FXint FXJSON::next(){
               }
             }
           if(tok!=TK_ERROR){
-            if(sptr<wptr && (sptr[0]=='e' || sptr[0]=='E')){    // Exponent part
+            if(sptr<wptr && (sptr[0]|0x20)=='e'){               // Exponent part
               column++;
               offset++;
               sptr++;
@@ -802,7 +809,7 @@ FXint FXJSON::next(){
         if(sptr[0]=='\xC2' && sptr[1]=='\xA0'){
           column++;
           offset+=2;
-          sptr+=2;                              // Non Breakable Space 
+          sptr+=2;                              // Non Breakable Space
           continue;
           }
         if(!comment){
@@ -836,14 +843,14 @@ FXint FXJSON::next(){
         if(sptr+2>=wptr) return TK_EOF;         // Premature EOF
         if(sptr[0]=='\xEF' && sptr[1]=='\xBB' && sptr[2]=='\xBF'){
           offset+=3;
-          sptr+=3;                              // Byte order mark 
+          sptr+=3;                              // Byte order mark
           continue;
           }
         if(sptr[0]=='\xE2' && sptr[1]=='\x80' && (sptr[2]=='\xA8' || sptr[2]=='\xA9')){
           if(comment<0) comment=0;              // End single-line comment
           column=0;
           offset+=3;
-          sptr+=3;                              // Line Separator or Paragraph Separator 
+          sptr+=3;                              // Line Separator or Paragraph Separator
           line++;
           continue;
           }
@@ -1102,7 +1109,7 @@ FXJSON::Error FXJSON::loadString(FXString& str){
         if(sptr[0]=='\xE2' && sptr[1]=='\x80' && (sptr[2]=='\xA8' || sptr[2]=='\xA9')){
           column=0;
           offset+=3;
-          sptr+=3;                              // Line Separator or Paragraph Separator 
+          sptr+=3;                              // Line Separator or Paragraph Separator
           line++;
           continue;
           }

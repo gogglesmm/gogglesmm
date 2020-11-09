@@ -3,7 +3,7 @@
 *                     FOX Definitions, Types, and Macros                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -68,9 +68,15 @@
 
 // Shared library support
 #ifdef WIN32
-#define FXLOCAL
+#if defined(__GNUC__)
+#define FXLOCAL  
+#define FXEXPORT __attribute__ ((dllexport))
+#define FXIMPORT __attribute__ ((dllimport))
+#else
+#define FXLOCAL  
 #define FXEXPORT __declspec(dllexport)
 #define FXIMPORT __declspec(dllimport)
+#endif
 #else
 #if defined(__GNUC__) && (__GNUC__ >= 4)
 #define FXLOCAL  __attribute__((visibility("hidden")))

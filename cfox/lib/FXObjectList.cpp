@@ -3,7 +3,7 @@
 *                            O b j e c t   L i s t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -91,10 +91,10 @@ FXObjectList::FXObjectList():ptr(EMPTY){
 
 
 // Copy constructor
-FXObjectList::FXObjectList(const FXObjectList& src):ptr(EMPTY){
-  register FXival num=src.no();
+FXObjectList::FXObjectList(const FXObjectList& other):ptr(EMPTY){
+  register FXival num=other.no();
   if(__likely(0<num && no(num))){
-    copyElms(ptr,src.ptr,num);
+    copyElms(ptr,other.ptr,num);
     }
   }
 
@@ -124,19 +124,19 @@ FXObjectList::FXObjectList(FXObject** objects,FXival n):ptr(EMPTY){
 
 
 // Assignment operator
-FXObjectList& FXObjectList::operator=(const FXObjectList& src){
-  if(__likely(ptr!=src.ptr && no(src.no()))){
-    copyElms(ptr,src.ptr,src.no());
+FXObjectList& FXObjectList::operator=(const FXObjectList& other){
+  if(__likely(ptr!=other.ptr && no(other.no()))){
+    copyElms(ptr,other.ptr,other.no());
     }
   return *this;
   }
 
 
 // Adopt objects from src, leaving src empty
-FXObjectList& FXObjectList::adopt(FXObjectList& src){
-  if(__likely(ptr!=src.ptr)){
-    swap(ptr,src.ptr);
-    src.clear();
+FXObjectList& FXObjectList::adopt(FXObjectList& other){
+  if(__likely(ptr!=other.ptr)){
+    swap(ptr,other.ptr);
+    other.clear();
     }
   return *this;
   }

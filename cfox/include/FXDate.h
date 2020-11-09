@@ -3,7 +3,7 @@
 *                            D a t e   C l a s s                                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -89,10 +89,10 @@ public:
   /// Get nanoseconds since 1/1/1970 from date
   FXTime getTime() const;
 
-  /// Return day of the month
+  /// Return day of the month (1..31)
   FXint day() const;
 
-  /// Return month
+  /// Return month (1..12)
   FXint month() const;
 
   /// Return year
@@ -101,7 +101,7 @@ public:
   /// Return day of the week
   FXint dayOfWeek() const;
 
-  /// Return day of year
+  /// Return day of year (1..366)
   FXint dayOfYear() const;
 
   /// Return ISO8601 week number of this date

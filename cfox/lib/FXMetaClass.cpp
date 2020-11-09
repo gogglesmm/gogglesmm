@@ -3,7 +3,7 @@
 *                         M e t a C l a s s   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -22,19 +22,10 @@
 #include "fxver.h"
 #include "fxdefs.h"
 #include "fxmath.h"
+#include "FXElement.h"
 #include "FXArray.h"
-#include "FXHash.h"
-#include "FXStream.h"
 #include "FXMetaClass.h"
 #include "FXObject.h"
-#include "FXElement.h"
-#include "FXException.h"
-#include "FXRectangle.h"
-#include "FXStream.h"
-#include "FXString.h"
-#include "FXEvent.h"
-
-#include "FXDebugTarget.h"
 
 /*
   Notes:
@@ -82,7 +73,7 @@ FXbool fxcalloc(void** ptr,FXuval size){
 
 // Resize memory
 FXbool fxresize(void** ptr,FXuval size){
-  register void *p=NULL;
+  void *p=NULL;
   if(size!=0){
     if((p=realloc(*ptr,size))==NULL) return false;
     }
@@ -107,9 +98,9 @@ FXbool fxmemdup(void** ptr,const void* src,FXuval size){
 
 // String duplicate
 FXchar *fxstrdup(const FXchar* str){
-  register FXchar *ptr=NULL;
+  FXchar *ptr=NULL;
   if(str!=NULL){
-    register FXint size=strlen(str)+1;
+    FXint size=strlen(str)+1;
     if((ptr=(FXchar*)malloc(size))!=NULL){
       memcpy(ptr,str,size);
       }
@@ -138,12 +129,12 @@ FXuint              FXMetaClass::metaClassSlots=0;
 FXuint              FXMetaClass::metaClassCount=0;
 
 
-// Hash function for string
+// Compute FNV1a hash value of string
 static inline FXuint hashstring(const FXchar* str){
-  register FXuint result=0;
-  register FXuchar c;
+  FXuint result=0x811C9DC5;
+  FXuchar c;
   while((c=*str++)!='\0'){
-    result=((result<<5)+result)^c;
+    result=(result^c)*0x01000193;
     }
   return result;
   }
@@ -151,9 +142,9 @@ static inline FXuint hashstring(const FXchar* str){
 
 // Resize global hash table
 void FXMetaClass::resize(FXuint slots){
-  register const FXMetaClass *ptr;
   const FXMetaClass **table;
-  register FXuint p,x,s;
+  const FXMetaClass *ptr;
+  FXuint p,x,s;
   callocElms(table,slots);
   for(s=0; s<metaClassSlots; ++s){
     if((ptr=metaClassTable[s])!=NULL && ptr!=EMPTY){
@@ -172,8 +163,9 @@ void FXMetaClass::resize(FXuint slots){
 
 // Constructor adds metaclass to the table
 FXMetaClass::FXMetaClass(const FXchar* name,FXObject *(fac)(),const FXMetaClass* base,const void* ass,FXuint nass,FXuint assz):className(name),manufacture(fac),baseClass(base),assoc(ass),nassocs(nass),assocsz(assz){
-  register FXuint p=hashstring(className);
-  register FXuint x=(p<<1)|1;
+  FXTRACE((100,"FXMetaClass::FXMetaClass(%s)\n",className));
+  FXuint p=hashstring(className);
+  FXuint x=(p<<1)|1;
   if((++metaClassCount<<1) > metaClassSlots){
     resize(metaClassSlots?metaClassSlots<<1:1);
     }
@@ -192,9 +184,9 @@ FXObject* FXMetaClass::makeInstance() const {
 
 // Find function
 const void* FXMetaClass::search(FXSelector key) const {
-  register const FXObject::FXMapEntry* lst=(const FXObject::FXMapEntry*)assoc;
-  register FXuint inc=assocsz;
-  register FXuint n=nassocs;
+  const FXObject::FXMapEntry* lst=(const FXObject::FXMapEntry*)assoc;
+  FXuint inc=assocsz;
+  FXuint n=nassocs;
   while(n--){
     if(__unlikely(key<=lst->keyhi) && __likely(lst->keylo<=key)) return lst;
     lst=(const FXObject::FXMapEntry*) (((const FXchar*)lst)+inc);
@@ -205,7 +197,7 @@ const void* FXMetaClass::search(FXSelector key) const {
 
 // Test if subclass
 FXbool FXMetaClass::isSubClassOf(const FXMetaClass* metaclass) const {
-  register const FXMetaClass* cls;
+  const FXMetaClass* cls;
   for(cls=this; cls; cls=cls->baseClass){
     if(cls==metaclass) return true;
     }
@@ -216,8 +208,8 @@ FXbool FXMetaClass::isSubClassOf(const FXMetaClass* metaclass) const {
 // Find the FXMetaClass belonging to class name
 const FXMetaClass* FXMetaClass::getMetaClassFromName(const FXchar* name){
   if(metaClassSlots && name){
-    register FXuint p=hashstring(name);
-    register FXuint x=(p<<1)|1;
+    FXuint p=hashstring(name);
+    FXuint x=(p<<1)|1;
     while(metaClassTable[p=(p+x)&(metaClassSlots-1)]!=NULL){
       if(metaClassTable[p]!=EMPTY && strcmp(metaClassTable[p]->className,name)==0){
         return metaClassTable[p];
@@ -236,8 +228,9 @@ FXObject* FXMetaClass::nullObject(){
 
 // Destructor removes metaclass from the table
 FXMetaClass::~FXMetaClass(){
-  register FXuint p=hashstring(className);
-  register FXuint x=(p<<1)|1;
+  FXTRACE((100,"FXMetaClass::~FXMetaClass(%s)\n",className));
+  FXuint p=hashstring(className);
+  FXuint x=(p<<1)|1;
   while(metaClassTable[p=(p+x)&(metaClassSlots-1)]!=this){
     if(metaClassTable[p]==NULL) return;
     }

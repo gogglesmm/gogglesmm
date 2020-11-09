@@ -3,7 +3,7 @@
 *                            W i n d o w   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -2138,7 +2138,7 @@ void FXWindow::update(FXint x,FXint y,FXint w,FXint h) const {
       r.bottom=y+h;
       InvalidateRect((HWND)xid,&r,true);
 #else
-      getApp()->addRepaint(xid,x,y,w,h,1);
+      getApp()->addRepaint(xid,x,y,w,h,true);
 #endif
       }
     }
@@ -2295,7 +2295,7 @@ void FXWindow::scroll(FXint x,FXint y,FXint w,FXint h,FXint dx,FXint dy) const {
 
     // No overlap:- repaint the whole thing
     if((w<=FXABS(dx)) || (h<=FXABS(dy))){
-      getApp()->addRepaint(xid,x,y,w,h,1);
+      getApp()->addRepaint(xid,x,y,w,h,true);
       }
 
     // Has overlap, so blit contents and repaint the exposed parts
@@ -2309,7 +2309,7 @@ void FXWindow::scroll(FXint x,FXint y,FXint w,FXint h,FXint dx,FXint dy) const {
       // Pull any outstanding repaint events into our own repaint rectangle list
       while(XCheckWindowEvent((Display*)getApp()->getDisplay(),xid,ExposureMask,&event)){
         if(event.xany.type==NoExpose) continue;
-        getApp()->addRepaint(xid,event.xexpose.x,event.xexpose.y,event.xexpose.width,event.xexpose.height,0);
+        getApp()->addRepaint(xid,event.xexpose.x,event.xexpose.y,event.xexpose.width,event.xexpose.height,false);
         if(event.xgraphicsexpose.count==0) break;
         }
 
@@ -2347,10 +2347,10 @@ void FXWindow::scroll(FXint x,FXint y,FXint w,FXint h,FXint dx,FXint dy) const {
 
       // Post additional rectangles for the uncovered areas
       if(dy){
-        getApp()->addRepaint(xid,x,ey,w,eh,1);
+        getApp()->addRepaint(xid,x,ey,w,eh,true);
         }
       if(dx){
-        getApp()->addRepaint(xid,ex,y,ew,h,1);
+        getApp()->addRepaint(xid,ex,y,ew,h,true);
         }
       }
 #endif

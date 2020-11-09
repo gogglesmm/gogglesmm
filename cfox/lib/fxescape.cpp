@@ -3,7 +3,7 @@
 *                   E s c a p e  /  U n e s c a p e   S t r i n g               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -53,7 +53,7 @@
 
   - End-of-line continuation: '\<LF>', '\<CR>', '\<CR><LF>' will be replaced by nothing
     when unescaped.  Allows long strings from being broken up into separate lines.
-    
+
   - Bottom line: an escaped string shall not contain any control characters, UTF8
     followers not preceeded by a UTF8 leader, line terminators, or leading or
     trailing spaces surrounding printable characters.

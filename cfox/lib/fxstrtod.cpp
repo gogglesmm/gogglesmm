@@ -3,7 +3,7 @@
 *               S t r i n g   t o   D o u b l e   C o n v e r s i o n           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -38,32 +38,36 @@
     will be less accurate!
 */
 
-#define MAXDIGS  20     // Maximum number of significant digits
-
-/*******************************************************************************/
 
 using namespace FX;
 
-namespace FX {
+/*******************************************************************************/
 
+namespace FX {
 
 extern FXAPI FXdouble __strtod(const FXchar *beg,const FXchar** end=NULL,FXbool* ok=NULL);
 extern FXAPI FXfloat __strtof(const FXchar *beg,const FXchar** end=NULL,FXbool* ok=NULL);
+
 
 // Some magick
 const union{ FXulong u; FXdouble f; } inf={FXULONG(0x7ff0000000000000)};
 const union{ FXulong u; FXdouble f; } nan={FXULONG(0x7fffffffffffffff)};
 
+
+// Maximum number of significant digits
+const FXint MAXDIGS=20;
+
+
 // Convert string to double
 FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
-  register const FXchar *s=beg;
-  register FXdouble value=0.0;
-  register FXdouble mult=1.0;
-  register FXint exponent=-1;
-  register FXint digits=0;
-  register FXint expo=0;
-  register FXint neg;
-  register FXint nex;
+  const FXchar *s=beg;
+  FXdouble value=0.0;
+  FXdouble mult=1.0;
+  FXint exponent=-1;
+  FXint digits=0;
+  FXint expo=0;
+  FXint neg;
+  FXint nex;
 
   // Assume the worst
   if(ok) *ok=false;
@@ -89,7 +93,7 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
       ++s;
       }
 
-    // Read the mantissa
+    // Parse significant digits
     while('0'<=s[0] && s[0]<='9'){
       if(digits<MAXDIGS){
         value+=(s[0]-'0')*mult;
@@ -99,14 +103,26 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
       ++digits;
       ++s;
       }
+
+    // Decimal point
     if(s[0]=='.'){
       ++s;
+
+      // Leading zeros; adjust exponent
+      if(digits==0){
+        while(s[0]=='0'){
+          --exponent;
+          ++s;
+          }
+        }
+
+      // Parse significant digits
       while('0'<=s[0] && s[0]<='9'){
         if(digits<MAXDIGS){
           value+=(s[0]-'0')*mult;
           mult*=0.1;
           }
-        digits++;
+        ++digits;
         ++s;
         }
       }
@@ -150,30 +166,36 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
 
       // Check for overflow
       if(308<=exponent){
+
+        // Sensible value, but not OK
         if((308<exponent) || (1.79769313486231570815<=value)){
-          return neg ? -1.79769313486231570815E+308 : 1.79769313486231570815E+308;      // Sensible value, but not OK
+          return neg ? -1.79769313486231570815E+308 : 1.79769313486231570815E+308;
           }
         }
 
       // Check for denormal or underflow
       if(exponent<-308){
+
+        // Flush to zero, and OK
         if((exponent<-324) || ((exponent==-324) && (value<=4.94065645841246544177))){
           if(ok) *ok=true;
-          return 0.0;                                                                   // Flush to zero, and OK
+          return 0.0;
           }
-        value*=1.0E-16;         // Fix number
+
+        // Fix number
+        value*=1.0E-16;
         exponent+=16;
         }
 
-      // In range
-      value*=Math::ipow(10.0,exponent);
+      // Exponent in range
+      value*=Math::pow10i(exponent);
 
       // Adjust sign
       if(neg){
         value=-value;
         }
       }
-    if(ok) *ok=true;            // OK
+    if(ok) *ok=true;
     }
 
   // Infinite
@@ -188,9 +210,7 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
           if((s[0]|0x20)=='i' && (s[1]|0x20)=='n' && (s[2]|0x20)=='i' && (s[3]|0x20)=='t' && (s[4]|0x20)=='y') s+=5;
           *end=s;
           }
-        if(ok){                 // OK
-          *ok=true;
-          }
+        if(ok) *ok=true;
         }
       }
     }
@@ -206,9 +226,7 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
           s++;
           *end=s;
           }
-        if(ok){                 // OK
-          *ok=true;
-          }
+        if(ok) *ok=true;
         }
       }
     }
@@ -216,14 +234,16 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
   }
 
 
-// Convert string to unsigned int
+// Convert string to float
 FXfloat __strtof(const FXchar* beg,const FXchar** end,FXbool* ok){
-  register FXdouble value=__strtod(beg,end,ok);
-  if(__unlikely(value<-FLT_MAX)){
+  const FXdouble DBL_MINIMUM=(FXdouble)-FLT_MAX;
+  const FXdouble DBL_MAXIMUM=(FXdouble) FLT_MAX;
+  FXdouble value=__strtod(beg,end,ok);
+  if(__unlikely(value<DBL_MINIMUM)){
     if(ok) *ok=false;
     return -FLT_MAX;
     }
-  if(__unlikely(value>FLT_MAX)){
+  if(__unlikely(value>DBL_MAXIMUM)){
     if(ok) *ok=false;
     return FLT_MAX;
     }

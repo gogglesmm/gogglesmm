@@ -3,7 +3,7 @@
 *                       U R L   M a n i p u l a t i o n                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -215,8 +215,8 @@ public:
 
 // Parse string to url parts
 URL::URL(const FXString& string){
-  register FXint s=0;
-  register FXuchar c;
+  FXint s=0;
+  FXuchar c;
 
   prot[0]=prot[1]=0;
 
@@ -315,7 +315,7 @@ URL::URL(const FXString& string){
 FXString FXURL::encode(const FXString& url,const FXchar* set){
   FXString result;
   if(!url.empty()){
-    register FXint p,q,c;
+    FXint p,q,c;
     for(p=q=0; p<url.length(); ++p){
       c=(FXuchar)url[p];
       if(c<0x20 || 128<=c || c=='%' || (set && strchr(set,c))){
@@ -344,7 +344,7 @@ FXString FXURL::encode(const FXString& url,const FXchar* set){
 FXString FXURL::decode(const FXString& url){
   FXString result;
   if(!url.empty()){
-    register FXint p,q,c;
+    FXint p,q,c;
     for(p=q=0; p<url.length(); ++p){
       c=(FXuchar)url[p];
       if(c=='%' && Ascii::isHexDigit(url[p+1]) && Ascii::isHexDigit(url[p+2])){
@@ -371,7 +371,8 @@ FXString FXURL::decode(const FXString& url){
 static FXString convertPathSep(const FXString& file,FXchar septo,FXchar sepfm){
   if(!file.empty()){
     FXString result(file);
-    FXint p=0,q=0;
+    FXint p=0;
+    FXint q=0;
 #if defined(WIN32)
     if(result[q]==sepfm || result[q]==septo){                   // UNC
       result[p++]=septo; q++;
@@ -388,12 +389,6 @@ static FXString convertPathSep(const FXString& file,FXchar septo,FXchar sepfm){
         while(result[q]==sepfm || result[q]==septo) q++;
         }
       }
-#else
-    if(result[q]==sepfm || result[q]==septo){
-      result[p++]=septo; q++;
-      while(result[q]==sepfm || result[q]==septo) q++;
-      }
-#endif
     while(result[q]){
       if(result[q]==sepfm || result[q]==septo){                 // FIXME don't convert escaped path separators!!
         result[p++]=septo; q++;
@@ -403,6 +398,21 @@ static FXString convertPathSep(const FXString& file,FXchar septo,FXchar sepfm){
       result[p++]=result[q++];
       }
     return result.trunc(p);
+#else
+    if(result[q]==sepfm || result[q]==septo){
+      result[p++]=septo; q++;
+      while(result[q]==sepfm || result[q]==septo) q++;
+      }
+    while(result[q]){
+      if(result[q]==sepfm || result[q]==septo){                 // FIXME don't convert escaped path separators!!
+        result[p++]=septo; q++;
+        while(result[q]==sepfm || result[q]==septo) q++;
+        continue;
+        }
+      result[p++]=result[q++];
+      }
+    return result.trunc(p);
+#endif
     }
   return FXString::null;
   }
@@ -505,7 +515,7 @@ FXString FXURL::host(const FXString& string){
 
 // Parse port number from string containing url
 FXint FXURL::port(const FXString& string,FXint def){
-  register FXint result=def;
+  FXint result=def;
   URL url(string);
   if(url.port[0]<url.port[1]){
     result=Ascii::digitValue(string[url.port[0]++]);
@@ -536,6 +546,5 @@ FXString FXURL::fragment(const FXString& string){
   URL url(string);
   return string.mid(url.frag[0],url.frag[1]-url.frag[0]);
   }
-
 
 }

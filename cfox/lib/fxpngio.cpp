@@ -3,7 +3,7 @@
 *                         P N G    I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -18,9 +18,6 @@
 * You should have received a copy of the GNU Lesser General Public License      *
 * along with this program.  If not, see <http://www.gnu.org/licenses/>          *
 ********************************************************************************/
-#ifdef HAVE_PNG_H
-#include "png.h"
-#endif
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
@@ -29,6 +26,9 @@
 #include "FXHash.h"
 #include "FXElement.h"
 #include "FXStream.h"
+#ifdef HAVE_PNG_H
+#include "png.h"
+#endif
 
 /*
   Notes:

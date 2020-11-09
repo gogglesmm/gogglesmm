@@ -3,7 +3,7 @@
 *              S i n g l e - P r e c i s i o n  Q u a t e r n i o n             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -76,6 +76,12 @@ public:
   * Construct quaternion from three orthogonal unit vectors.
   */
   FXQuatf(const FXVec3f& ex,const FXVec3f& ey,const FXVec3f& ez);
+
+  /**
+  * Construct quaternion from rotation vector rot, representing a rotation
+  * by |rot| radians about a unit vector rot/|rot|.
+  */
+  FXQuatf(const FXVec3f& rot);
 
   /**
   * Return a non-const reference to the ith element.

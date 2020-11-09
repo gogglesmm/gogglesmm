@@ -3,7 +3,7 @@
 *                              V a r i a n t - M a p                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2019 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -111,11 +111,10 @@ FXbool FXVariantMap::resize(FXival n){
   FXASSERT((n-used())>0);       // At least one free slot
   if(elbat.no(n)){
     if(1<elbat.no() && 1<no()){
-      FXuval p,b,h,x;
-      FXival i;
+      FXuval p,b,h,x; FXival i;
       for(i=0; i<no(); ++i){                  // Hash existing entries into new table
-        p=b=h=table[i].hash;
         if(!table[i].key.empty()){
+          p=b=h=table[i].hash;
           while(elbat.table[x=p&(n-1)].hash){ // Locate slot
             p=(p<<2)+p+b+1;
             b>>=BSHIFT;
