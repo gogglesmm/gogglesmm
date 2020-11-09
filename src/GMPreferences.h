@@ -149,6 +149,8 @@ public:
   FXuint play_repeat                    = REPEAT_ALL;
   FXbool play_shuffle                   = false;
   FXbool play_from_queue                = false;
+  FXbool play_crossfade                 = false;
+  FXuint play_crossfade_duration        = 5000;
 
   FXuint export_encoding                = GMFilename::ENCODING_ASCII;
   FXbool export_lowercase               = false;

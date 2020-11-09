@@ -267,6 +267,7 @@ FXDEFMAP(GMPreferencesDialog) GMPreferencesDialogMap[]={
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_AUDIO_DRIVER,GMPreferencesDialog::onCmdAudioDriver),
   FXMAPFUNC(SEL_CHANGED,GMPreferencesDialog::ID_AUDIO_DRIVER,GMPreferencesDialog::onCmdAudioDriver),
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_REPLAY_GAIN,GMPreferencesDialog::onCmdReplayGain),
+  FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_CROSS_FADE,GMPreferencesDialog::onCmdCrossFade),
   FXMAPFUNC(SEL_COMMAND,GMPreferencesDialog::ID_TITLE_FORMAT,GMPreferencesDialog::onCmdTitleFormat),
   FXMAPFUNC(SEL_UPDATE,GMPreferencesDialog::ID_TITLE_FORMAT,GMPreferencesDialog::onUpdTitleFormat),
   FXMAPFUNC(SEL_UPDATE,GMPreferencesDialog::ID_TITLE_FORMAT_LABEL,GMPreferencesDialog::onUpdTitleFormat),
@@ -297,6 +298,9 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   target_replaygain.connect(GMPlayerManager::instance()->getPreferences().play_replaygain,this,ID_REPLAY_GAIN);
   target_gui_show_playing_titlebar.connect(GMPlayerManager::instance()->getPreferences().gui_show_playing_titlebar);
   target_gui_format_title.connect(GMPlayerManager::instance()->getPreferences().gui_format_title);
+
+  target_crossfade.connect(GMPlayerManager::instance()->getPreferences().play_crossfade, this,ID_CROSS_FADE);
+  target_crossfade_duration.connect(GMPlayerManager::instance()->getPreferences().play_crossfade_duration, this,ID_CROSS_FADE);
 
   GMPlayerManager::instance()->getPreferences().getKeyWords(keywords);
 
@@ -635,7 +639,7 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   grpbox =  new FXGroupBox(vframe,tr("Playback"),FRAME_NONE|LAYOUT_FILL_X,0,0,0,0,20);
   grpbox->setFont(GMApp::instance()->getThickFont());
 
-  matrix = new FXMatrix(grpbox,2,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
+  matrix = new FXMatrix(grpbox,4,MATRIX_BY_COLUMNS|LAYOUT_SIDE_TOP,0,0,0,0,0,0,0,0);
 
   new FXLabel(matrix,tr("Replay Gain:"),nullptr,labelstyle);
 
@@ -644,6 +648,19 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   gainlist->appendItem(tr("Track"));
   gainlist->appendItem(tr("Album"));
   gainlist->setNumVisible(3);
+  new FXFrame(matrix,FRAME_NONE);
+  new FXFrame(matrix,FRAME_NONE);
+
+
+  new FXLabel(matrix,tr("Crossfade:"),nullptr,labelstyle);
+  auto crossfade_list = new GMListBox(matrix,&target_crossfade,FXDataTarget::ID_VALUE,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
+  crossfade_list->appendItem(tr("Off"));
+  crossfade_list->appendItem(tr("On"));
+  crossfade_list->setNumVisible(2);
+  auto crossfade_duration = new GMSpinner(matrix,5,&target_crossfade_duration,FXDataTarget::ID_VALUE,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
+  crossfade_duration->setRange(1,20000);
+  new FXLabel(matrix, tr("ms"), nullptr, labelstyle);
+
 
 
   // Podcast Settings
@@ -782,6 +799,14 @@ long GMPreferencesDialog::onCmdAudioDriver(FXObject*,FXSelector,void*){
   showDriverSettings(device);
 //  layout();
 //  forceRefresh();
+  return 1;
+  }
+
+long GMPreferencesDialog::onCmdCrossFade(FXObject*,FXSelector,void*){
+  if (GMPlayerManager::instance()->getPreferences().play_crossfade)
+    GMPlayerManager::instance()->getPlayer()->setCrossFade(GMPlayerManager::instance()->getPreferences().play_crossfade_duration);
+  else
+    GMPlayerManager::instance()->getPlayer()->setCrossFade(0);
   return 1;
   }
 

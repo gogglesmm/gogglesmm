@@ -27,6 +27,8 @@ protected:
   FXDataTarget target_closeishide;
   FXDataTarget target_keywords;
   FXDataTarget target_replaygain;
+  FXDataTarget target_crossfade;
+  FXDataTarget target_crossfade_duration;
   FXDataTarget target_show_playing_albumcover;
   FXDataTarget target_show_playing_lyrics;
 #ifdef HAVE_DBUS
@@ -108,6 +110,7 @@ public:
     ID_CHANGE_FONT,
     ID_AUDIO_DRIVER,
     ID_REPLAY_GAIN,
+    ID_CROSS_FADE,
     ID_ICON_THEME,
     ID_TITLE_FORMAT,
     ID_TITLE_FORMAT_LABEL,
@@ -135,6 +138,7 @@ public:
   long onCmdDisplayDPI(FXObject*,FXSelector,void*);
   long onCmdIconTheme(FXObject*,FXSelector,void*);
   long onCmdApplyAudio(FXObject*,FXSelector,void*);
+  long onCmdCrossFade(FXObject*,FXSelector,void*);
 protected:
   GMPreferencesDialog(){}
 private:

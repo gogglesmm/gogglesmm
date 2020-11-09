@@ -732,6 +732,10 @@ FXint GMPlayerManager::run(int& argc,char** argv) {
     case 2: player->setReplayGain(ReplayGainAlbum); break;
     }
 
+  if (preferences.play_crossfade)
+    player->setCrossFade(preferences.play_crossfade_duration);
+
+
   /// Receive events from fifo
   if (fifo.isOpen()) {
     application->addInput(this,GMPlayerManager::ID_DDE_MESSAGE,fifo.handle(),INPUT_READ);

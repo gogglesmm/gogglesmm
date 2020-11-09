@@ -77,6 +77,9 @@ const char key_play_repeat[]="repeat-mode";
 const char key_play_replaygain[]="replay-gain";
 const char key_play_shuffle[]="shuffle";
 const char key_play_from_queue[]="play-from-queue";
+const char key_play_crossfade[]="crossfade";
+const char key_play_crossfade_duration[]="crossfade-duration";
+
 
 #ifdef HAVE_DBUS
 const char key_dbus_notify_daemon[]="notification-daemon";
@@ -193,6 +196,9 @@ void GMPreferences::save(FXSettings & reg) const {
   reg.writeIntEntry(section_player,key_play_replaygain,play_replaygain);
   reg.writeBoolEntry(section_player,key_play_shuffle,play_shuffle);
   reg.writeBoolEntry(section_player,key_play_from_queue,play_from_queue);
+  reg.writeBoolEntry(section_player,key_play_crossfade,play_crossfade);
+  reg.writeUIntEntry(section_player,key_play_crossfade_duration,play_crossfade_duration);
+
 
 #ifdef HAVE_DBUS
   /// Dbus
@@ -280,6 +286,8 @@ void GMPreferences::load(FXSettings & reg) {
   play_replaygain               = reg.readIntEntry(section_player,key_play_replaygain,play_replaygain);
   play_shuffle                  = reg.readBoolEntry(section_player,key_play_shuffle,play_shuffle);
   play_from_queue               = reg.readBoolEntry(section_player,key_play_from_queue,play_from_queue);
+  play_crossfade                = reg.readBoolEntry(section_player,key_play_crossfade,play_crossfade);
+  play_crossfade_duration       = reg.readUIntEntry(section_player,key_play_crossfade_duration,play_crossfade_duration);
 
   /// Dbus
 #ifdef HAVE_DBUS
