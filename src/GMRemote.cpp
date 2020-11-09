@@ -60,12 +60,14 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   font_title = new FXFont(getApp(),fontdescription);
   font_title->create();
 
+  coversize = getApp()->reg().readUIntEntry("window","remote-cover-size",coversize);
+
   img_default = new FXPNGImage(getApp(),about_png);
-  img_default->scale(64,64,FOX_SCALE_BEST);
+  img_default->scale(coversize,coversize,FOX_SCALE_BEST);
   img_default->blend(getApp()->getBackColor());
   img_default->create();
 
-  cover_label = new FXImageFrame(this,img_default,LAYOUT_SIDE_LEFT|FRAME_SUNKEN|LAYOUT_FIX_WIDTH|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_Y,0,0,64,64);
+  cover_label = new FXImageFrame(this,img_default,LAYOUT_SIDE_LEFT|FRAME_SUNKEN|LAYOUT_FIX_WIDTH|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_Y,0,0,coversize,coversize);
   cover_label->setBackColor(getApp()->getBackColor());
 
   /// Popup Volume Menu
@@ -258,7 +260,7 @@ void GMRemote::update_cover_display() {
     delete cover;
     cover=nullptr;
     }
-  cover = GMCover::copyToImage(GMPlayerManager::instance()->getCoverManager()->getCover(),64);
+  cover = GMCover::copyToImage(GMPlayerManager::instance()->getCoverManager()->getCover(),coversize);
   updateCover();
   }
 
@@ -266,6 +268,7 @@ void GMRemote::update_cover_display() {
 // Create and show window
 void GMRemote::create(){
   FXMainWindow::create();
+
   if (getApp()->reg().readIntEntry("window","remote-x",-1)!=-1) {
     FXint xx=getApp()->reg().readIntEntry("window","remote-x",getX());
     FXint yy=getApp()->reg().readIntEntry("window","remote-y",getY());

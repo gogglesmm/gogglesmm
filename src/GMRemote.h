@@ -36,6 +36,7 @@ private:
   FXImage*      cover = nullptr;
   GMTrackProgressBar* trackslider = nullptr;
   bool          is_remaining = false;
+  FXuint        coversize = 64;
 protected:
   virtual bool doesOverrideRedirect() const;
   GMRemote() {}
