@@ -28,6 +28,7 @@ enum {
   DevicePulse   = 3,
   DeviceJack    = 4,
   DeviceWav     = 5,
+  DeviceSndio   = 6,
   DeviceLast,
   };
 
@@ -82,11 +83,27 @@ public:
   };
 
 
+class GMAPI SndioConfig : public DeviceConfig {
+public:
+  FXString device;
+public:
+  SndioConfig();
+  SndioConfig(const FXString & d);
+
+  void load(FXSettings &);
+
+  void save(FXSettings &) const;
+
+  virtual ~SndioConfig();
+  };
+
+
 
 class GMAPI OutputConfig {
 public:
   AlsaConfig  alsa;
   OSSConfig   oss;
+  SndioConfig sndio;
   FXuchar     device;
 public:
   OutputConfig();

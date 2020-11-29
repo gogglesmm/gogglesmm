@@ -33,7 +33,8 @@ static const FXchar * const plugin_names[DeviceLast]={
   "oss",
   "pulse",
   "jack",
-  "wav"
+  "wav",
+  "sndio"
   };
 
 static FXbool ap_has_plugin(FXuchar device) {
@@ -97,6 +98,22 @@ void OSSConfig::save(FXSettings & settings) const {
   }
 
 
+SndioConfig::SndioConfig() : device("default") {
+  }
+
+SndioConfig::SndioConfig(const FXString & d): device(d) {
+  }
+
+SndioConfig::~SndioConfig(){
+  }
+
+void SndioConfig::load(FXSettings & settings) {
+  device=settings.readStringEntry("sndio","device",device.text());
+  }
+
+void SndioConfig::save(FXSettings & settings) const {
+  settings.writeStringEntry("sndio","device",device.text());
+  }
 
 
 OutputConfig::OutputConfig() {
@@ -108,6 +125,8 @@ OutputConfig::OutputConfig() {
   device=DevicePulse;
 #elif defined(HAVE_JACK)
   device=DeviceJack;
+#elif defined(HAVE_SNDIO)
+  device=DeviceSndio;
 #else
   device=DeviceWav;
 #endif
@@ -135,6 +154,10 @@ FXuint OutputConfig::devices() {
   if (ap_has_plugin(DeviceJack))
     AP_ENABLE_PLUGIN(plugins,DeviceJack);
 #endif
+#ifdef HAVE_SNDIO
+  if (ap_has_plugin(DeviceSndio))
+    AP_ENABLE_PLUGIN(plugins,DeviceSndio);
+#endif
   if (ap_has_plugin(DeviceWav))
     AP_ENABLE_PLUGIN(plugins,DeviceWav);
   return plugins;
@@ -157,6 +180,7 @@ void OutputConfig::load(FXSettings & settings) {
     }
   alsa.load(settings);
   oss.load(settings);
+  sndio.load(settings);
   }
 
 void OutputConfig::save(FXSettings & settings) const {
@@ -174,6 +198,7 @@ void OutputConfig::save(FXSettings & settings) const {
 
   alsa.save(settings);
   oss.save(settings);
+  sndio.save(settings);
   }
 
 

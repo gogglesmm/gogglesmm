@@ -13,6 +13,7 @@
 #cmakedefine HAVE_CDDA
 #cmakedefine HAVE_ALSA
 #cmakedefine HAVE_PULSE
+#cmakedefine HAVE_SNDIO
 #cmakedefine HAVE_OSS
 #cmakedefine HAVE_SMB
 #cmakedefine HAVE_OPENSSL

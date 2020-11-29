@@ -602,6 +602,9 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   if (AP_HAS_PLUGIN(devices,DeviceJack))
     driverlist->appendItem("Jack",nullptr,(void*)DeviceJack);
 
+  if (AP_HAS_PLUGIN(devices,DeviceSndio))
+    driverlist->appendItem("Sndio",nullptr,(void*)DeviceSndio);
+
   if (AP_HAS_PLUGIN(devices,DeviceWav))
     driverlist->appendItem("Wave File Output",nullptr,(void*)DeviceWav);
 
@@ -630,6 +633,11 @@ GMPreferencesDialog::GMPreferencesDialog(FXWindow * p) : FXDialogBox(p,FXString:
   oss_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
   oss_device = new GMTextField(matrix,20,nullptr,0,TEXTFIELD_NORMAL|LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
   oss_device->setText(config.oss.device);
+
+  /// Sndio
+  sndio_device_label = new FXLabel(matrix,tr("Device:"),nullptr,labelstyle);
+  sndio_device = new GMTextField(matrix,20,nullptr,0,TEXTFIELD_NORMAL|LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
+  sndio_device->setText(config.sndio.device);
 
   showDriverSettings(config.device);
 
@@ -735,6 +743,9 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_hardware_only_frame->show();
         oss_device->hide();
         oss_device_label->hide();
+        sndio_device->hide();
+        sndio_device_label->hide();
+
       } break;
 
     case DeviceOSS:
@@ -743,6 +754,8 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_device->hide();
         alsa_hardware_only->hide();
         alsa_hardware_only_frame->hide();
+        sndio_device->hide();
+        sndio_device_label->hide();
         oss_device->show();
         oss_device_label->show();
       } break;
@@ -755,6 +768,20 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_hardware_only_frame->hide();
         oss_device->hide();
         oss_device_label->hide();
+        sndio_device->hide();
+        sndio_device_label->hide();
+      } break;
+
+    case DeviceSndio:
+      {
+        alsa_device_label->hide();
+        alsa_device->hide();
+        alsa_hardware_only->hide();
+        alsa_hardware_only_frame->hide();
+        oss_device->hide();
+        oss_device_label->hide();
+        sndio_device->show();
+        sndio_device_label->show();
       } break;
 
     default:
@@ -765,6 +792,8 @@ void GMPreferencesDialog::showDriverSettings(FXuchar driver) {
         alsa_hardware_only_frame->hide();
         oss_device->hide();
         oss_device_label->hide();
+        sndio_device->hide();
+        sndio_device_label->hide();
       } break;
 
     }
@@ -789,6 +818,7 @@ long GMPreferencesDialog::onCmdApplyAudio(FXObject*,FXSelector,void*){
     config.alsa.flags&=~AlsaConfig::DeviceNoResample;
 
   config.oss.device = oss_device->getText();
+  config.sndio.device = sndio_device->getText();
 
   GMPlayerManager::instance()->getPlayer()->setOutputConfig(config);
   return 1;
