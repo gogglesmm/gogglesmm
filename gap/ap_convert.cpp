@@ -105,10 +105,6 @@ static FXint float_to_s32(FXfloat x) {
   }
 
 
-
-void s16_to_s24le3(const FXuchar * buffer, FXuint nsamples, MemoryBuffer & out){
-  }
-
 void s16_to_s32(const FXuchar *buffer,FXuint nsamples,MemoryBuffer & out) {
   out.clear();
   out.reserve(nsamples*4);
