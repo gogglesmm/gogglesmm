@@ -635,7 +635,7 @@ static void apply_crossfade_s16(MemoryBuffer & fade_in, MemoryBuffer & fade_out,
   for (int f = 0, s = 0; f < nframes; f++, fade += step, s += nchannels) {
     double fi = pow(fade, 3);
     double fo = 1.0 - fi;
-    for (int c = 0; c < nchannels; c++) {
+    for (FXuint c = 0; c < nchannels; c++) {
       in[s + c] = lrint(((double)in[s + c]) * fi) + (((double)out[s + c]) * fo);
 
       }
@@ -650,7 +650,7 @@ static void apply_crossfade_float(MemoryBuffer & fade_in, MemoryBuffer & fade_ou
   for (int f = 0, s = 0; f < nframes; f++, fade += step, s += nchannels) {
     float fi = powf(fade, 3);
     float fo = 1.0 - fi;
-    for (int c = 0; c < nchannels; c++) {
+    for (FXuint c = 0; c < nchannels; c++) {
       in[s + c] = (((float)in[s + c]) * fi) + (((float)out[s + c]) * fo);
       }
     }
@@ -846,9 +846,9 @@ mismatch:
 
 
 FXbool OutputThread::write_samples() {
-  FXuint nframes = 0;
+  FXuint nframes;
   while (samples.nframes) {
-    nframes = FXMIN(plugin->af.rate >> 1, samples.nframes);
+    nframes = FXMIN(FXint(plugin->af.rate >> 1), samples.nframes);
     update_position(samples.stream, samples.position, nframes, samples.length);
     if (!plugin->write(samples.data(), nframes)) {
       GM_DEBUG_PRINT("[output] write failed\n");
