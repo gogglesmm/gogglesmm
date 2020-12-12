@@ -113,15 +113,15 @@ GMRemote::GMRemote(FXApp* a,FXObject * tgt,FXSelector msg):FXMainWindow(a,"Goggl
   trackslider->setDefaultCursor(GMIconTheme::instance()->cursor_hand);
   trackslider->setDragCursor(GMIconTheme::instance()->cursor_hand);
 
-  getAccelTable()->addAccel(parseAccel("F11"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_SHOW_BROWSER));
-  getAccelTable()->addAccel(parseAccel("Ctrl-M"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_SHOW_BROWSER));
-  getAccelTable()->addAccel(parseAccel("Ctrl-W"),this,FXSEL(SEL_CLOSE,0));
-  getAccelTable()->addAccel(parseAccel("Ctrl-Q"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_QUIT));
+  getAccelTable()->addAccel("F11",GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_SHOW_BROWSER));
+  getAccelTable()->addAccel("Ctrl-M",GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_SHOW_BROWSER));
+  getAccelTable()->addAccel("Ctrl-W",this,FXSEL(SEL_CLOSE,0));
+  getAccelTable()->addAccel("Ctrl-Q",GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_QUIT));
 
-  getAccelTable()->addAccel(parseAccel("Ctrl-P"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_PLAYPAUSEMENU));
-  getAccelTable()->addAccel(parseAccel("Ctrl-\\"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_STOP));
-  getAccelTable()->addAccel(parseAccel("Ctrl-["),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_PREV));
-  getAccelTable()->addAccel(parseAccel("Ctrl-]"),GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_NEXT));
+  getAccelTable()->addAccel("Ctrl-P",GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_PLAYPAUSEMENU));
+  getAccelTable()->addAccel("Ctrl-\\",GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_STOP));
+  getAccelTable()->addAccel("Ctrl-[",GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_PREV));
+  getAccelTable()->addAccel("Ctrl-]",GMPlayerManager::instance()->getMainWindow(),FXSEL(SEL_COMMAND,GMWindow::ID_NEXT));
 
   reset();
   }

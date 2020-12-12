@@ -334,7 +334,7 @@ GMTrackView::GMTrackView(FXComposite* p) : FXPacker(p,LAYOUT_FILL_X|LAYOUT_FILL_
 
   view=0;
 
-  getShell()->getAccelTable()->addAccel(parseAccel("Ctrl-N"),this,FXSEL(SEL_COMMAND,ID_SORT_DEFAULT));
+  getShell()->getAccelTable()->addAccel("Ctrl-N",this,FXSEL(SEL_COMMAND,ID_SORT_DEFAULT));
   updateColors();
   }
 
@@ -1844,7 +1844,7 @@ long GMTrackView::onAlbumContextMenu(FXObject*,FXSelector sel,void*ptr){
       sortAlbums();
       if (tracklist->getSortMethod()==HEADER_BROWSE) {
         tracklist->setSortFunc(source->getSortBrowse(albumlist->getListStyle()&ALBUMLIST_BROWSER));
-        }    
+        }
       sortTracks();
       }
 

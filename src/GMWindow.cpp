@@ -303,29 +303,28 @@ GMWindow::GMWindow(FXApp* a,FXObject*tgt,FXSelector msg) : FXMainWindow(a,"Goggl
   trackslider->setDragCursor(GMIconTheme::instance()->cursor_hand);
 
 
-  getAccelTable()->addAccel(parseAccel("F11"),this,FXSEL(SEL_COMMAND,ID_SHOW_MINIPLAYER));
-  getAccelTable()->addAccel(parseAccel("Ctrl-W"),this,FXSEL(SEL_CLOSE,0));
-  getAccelTable()->addAccel(parseAccel("/"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
+  getAccelTable()->addAccel("F11",this,FXSEL(SEL_COMMAND,ID_SHOW_MINIPLAYER));
+  getAccelTable()->addAccel("Ctrl-W",this,FXSEL(SEL_CLOSE,0));
+  getAccelTable()->addAccel("/",trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_FILTER));
 
+  getAccelTable()->addAccel("Ctrl-P",this,FXSEL(SEL_COMMAND,ID_PLAYPAUSE));
+  getAccelTable()->addAccel("Ctrl-\\",this,FXSEL(SEL_COMMAND,ID_STOP));
+  getAccelTable()->addAccel("Ctrl-[",this,FXSEL(SEL_COMMAND,ID_PREV));
+  getAccelTable()->addAccel("Ctrl-]",this,FXSEL(SEL_COMMAND,ID_NEXT));
 
-  getAccelTable()->addAccel(parseAccel("Ctrl-P"),this,FXSEL(SEL_COMMAND,ID_PLAYPAUSE));
-  getAccelTable()->addAccel(parseAccel("Ctrl-\\"),this,FXSEL(SEL_COMMAND,ID_STOP));
-  getAccelTable()->addAccel(parseAccel("Ctrl-["),this,FXSEL(SEL_COMMAND,ID_PREV));
-  getAccelTable()->addAccel(parseAccel("Ctrl-]"),this,FXSEL(SEL_COMMAND,ID_NEXT));
+  getAccelTable()->addAccel("Ctrl-;",this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_1MIN));
+  getAccelTable()->addAccel("Ctrl-'",this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_1MIN));
+  getAccelTable()->addAccel("Ctrl-,",this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_10SEC));
+  getAccelTable()->addAccel("Ctrl-.",this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_10SEC));
 
-  getAccelTable()->addAccel(parseAccel("Ctrl-;"),this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_1MIN));
-  getAccelTable()->addAccel(parseAccel("Ctrl-'"),this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_1MIN));
-  getAccelTable()->addAccel(parseAccel("Ctrl-,"),this,FXSEL(SEL_COMMAND,ID_SEEK_BACKWARD_10SEC));
-  getAccelTable()->addAccel(parseAccel("Ctrl-."),this,FXSEL(SEL_COMMAND,ID_SEEK_FORWARD_10SEC));
+  getAccelTable()->addAccel("Ctrl-L",this,FXSEL(SEL_COMMAND,ID_NEXT_FOCUS));
 
-  getAccelTable()->addAccel(parseAccel("Ctrl-L"),this,FXSEL(SEL_COMMAND,ID_NEXT_FOCUS));
-
-  getAccelTable()->addAccel(parseAccel("Ctrl-C"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_COPY));
-  getAccelTable()->addAccel(parseAccel("Ctrl-X"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_CUT));
-  getAccelTable()->addAccel(parseAccel("Ctrl-V"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_PASTE));
-  getAccelTable()->addAccel(parseAccel("Ctrl-J"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_SHOW_CURRENT));
-  getAccelTable()->addAccel(parseAccel("Ctrl-B"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_BROWSER));
-  getAccelTable()->addAccel(parseAccel("Ctrl-T"),trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_TAGS));
+  getAccelTable()->addAccel("Ctrl-C",trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_COPY));
+  getAccelTable()->addAccel("Ctrl-X",trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_CUT));
+  getAccelTable()->addAccel("Ctrl-V",trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_PASTE));
+  getAccelTable()->addAccel("Ctrl-J",trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_SHOW_CURRENT));
+  getAccelTable()->addAccel("Ctrl-B",trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_BROWSER));
+  getAccelTable()->addAccel("Ctrl-T",trackview,FXSEL(SEL_COMMAND,GMTrackView::ID_TOGGLE_TAGS));
   }
 
 
