@@ -101,15 +101,15 @@ FXToggleButton::FXToggleButton(){
 // Construct and init
 FXToggleButton::FXToggleButton(FXComposite* p,const FXString& text1,const FXString& text2,FXIcon* icon1,FXIcon* icon2,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXLabel(p,text1,icon1,opts,x,y,w,h,pl,pr,pt,pb){
   FXString string=text2.section('\t',0);
-  target=tgt;
-  message=sel;
+  althotkey=parseHotKey(string);
   altlabel=stripHotKey(string);
+  althotoff=findHotKey(string);
   alttip=text2.section('\t',1);
   althelp=text2.section('\t',2);
   alticon=icon2;
-  althotkey=parseHotKey(string);
-  althotoff=findHotKey(string);
   addHotKey(althotkey);
+  target=tgt;
+  message=sel;
   state=false;
   down=false;
   }

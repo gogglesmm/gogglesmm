@@ -894,7 +894,7 @@ void FXApp::beginWaitCursor(){
 #ifdef WIN32
       SetCursor((HCURSOR)waitCursor->id());
 #else
-      register FXWindow* child;
+      FXWindow* child;
       FXASSERT(display);
       child=getRootWindow()->getFirst();
       while(child){
@@ -925,7 +925,7 @@ void FXApp::endWaitCursor(){
         SetCursor((HCURSOR)cursorWindow->getDefaultCursor()->id());
         }
 #else
-      register FXWindow* child;
+      FXWindow* child;
       child=getRootWindow()->getFirst();
       while(child){
         if(child->id()){
@@ -953,7 +953,7 @@ void FXApp::setWaitCursor(FXCursor *cur){
 #ifdef WIN32
         SetCursor((HCURSOR)waitCursor->id());
 #else
-        register FXWindow* child;
+        FXWindow* child;
         child=getRootWindow()->getFirst();
         while(child){
           if(child->id()){
@@ -1088,7 +1088,7 @@ void FXApp::openInputDevices(){
             //   FXTRACE((1,"usUsagePage:\t%d\n", devinfo.hid.usUsagePage));
             //   FXTRACE((1,"usUsage:\t%d\n", devinfo.hid.usUsage));
             //
-            // register to receive input from the SpaceNavigator
+            // to receive input from the SpaceNavigator
             //
             //	See:
             //	    www.3dconnexion.com/forum/viewtopic.php?t=1031#5666
@@ -1839,8 +1839,8 @@ FXbool FXApp::closeDisplay(){
 
 // Add deadline in nanoseconds
 FXptr FXApp::addDeadline(FXObject* tgt,FXSelector sel,FXTime due,FXptr ptr){
-  register FXptr result=NULL;
-  register FXTimer *t,**tt;
+  FXptr result=NULL;
+  FXTimer *t,**tt;
   for(tt=&timers; (t=*tt)!=NULL; tt=&t->next){
     if(t->target==tgt && t->message==sel){ *tt=t->next; result=t->data; goto a; }
     }
@@ -1870,7 +1870,7 @@ FXptr FXApp::addTimeout(FXObject* tgt,FXSelector sel,FXTime ns,FXptr ptr){
 
 // Check if timeout identified by tgt and sel has been set
 FXbool FXApp::hasTimeout(FXObject* tgt,FXSelector sel) const {
-  for(register FXTimer *t=timers; t; t=t->next){
+  for(FXTimer *t=timers; t; t=t->next){
     if(t->target==tgt && (sel==0 || t->message==sel)) return true;
     }
   return false;
@@ -1879,9 +1879,9 @@ FXbool FXApp::hasTimeout(FXObject* tgt,FXSelector sel) const {
 
 // Remove timeout(s) identified by tgt and sel from the list
 FXptr FXApp::removeTimeout(FXObject* tgt,FXSelector sel){
-  register FXptr result=NULL;
-  register FXTimer **tt=&timers;
-  register FXTimer *t;
+  FXptr result=NULL;
+  FXTimer **tt=&timers;
+  FXTimer *t;
   while((t=*tt)!=NULL){
     if(t->target==tgt && (sel==0 || t->message==sel)){
       *tt=t->next; result=t->data; t->next=timerrecs; timerrecs=t;
@@ -1895,9 +1895,9 @@ FXptr FXApp::removeTimeout(FXObject* tgt,FXSelector sel){
 
 // Return the remaining time, in nanoseconds
 FXTime FXApp::remainingTimeout(FXObject *tgt,FXSelector sel) const {
-  for(register FXTimer *t=timers; t; t=t->next){
+  for(FXTimer *t=timers; t; t=t->next){
     if(t->target==tgt && (sel==0 || t->message==sel)){
-      register FXTime now=FXThread::time();
+      FXTime now=FXThread::time();
       return t->due>now ? t->due-now : 0L;
       }
     }
@@ -1994,8 +1994,8 @@ void FXApp::removeSignal(FXint sig){
 
 // Add chore to the END of the list
 FXptr FXApp::addChore(FXObject* tgt,FXSelector sel,FXptr ptr){
-  register FXptr result=NULL;
-  register FXChore *c,**cc;
+  FXptr result=NULL;
+  FXChore *c,**cc;
   for(cc=&chores; (c=*cc)!=NULL; cc=&c->next){
     if(c->target==tgt && c->message==sel){ *cc=c->next; result=c->data; goto a; }
     }
@@ -2018,9 +2018,9 @@ a:c->data=ptr;
 
 // Remove chore(s) identified by tgt and sel from the list
 FXptr FXApp::removeChore(FXObject* tgt,FXSelector sel){
-  register FXptr result=NULL;
-  register FXChore **cc=&chores;
-  register FXChore *c;
+  FXptr result=NULL;
+  FXChore **cc=&chores;
+  FXChore *c;
   while((c=*cc)!=NULL){
     if(c->target==tgt && (sel==0 || c->message==sel)){
       *cc=c->next; result=c->data; c->next=chorerecs; chorerecs=c;
@@ -2034,7 +2034,7 @@ FXptr FXApp::removeChore(FXObject* tgt,FXSelector sel){
 
 // Check if chore identified by tgt and sel has been set
 FXbool FXApp::hasChore(FXObject* tgt,FXSelector sel) const {
-  for(register FXChore *c=chores; c; c=c->next){
+  for(FXChore *c=chores; c; c=c->next){
     if(c->target==tgt && (sel==0 || c->message==sel)) return true;
     }
   return false;
@@ -2047,7 +2047,7 @@ FXbool FXApp::hasChore(FXObject* tgt,FXSelector sel) const {
 FXbool FXApp::addInput(FXObject *tgt,FXSelector sel,FXInputHandle fd,FXuint mode,FXptr ptr){
   if(mode==INPUT_NONE) return false;
 #ifdef WIN32
-  register FXint in;
+  FXint in;
   if(fd==INVALID_HANDLE_VALUE || fd==NULL) return false;
   for(in=0; in<=maxhandle; in++){       // See if existing handle
     if(handles->hnd[in]==fd) goto r;    // If existing handle, just replace callbacks
@@ -2113,7 +2113,7 @@ r:FXASSERT(in<ninputs);
 FXbool FXApp::removeInput(FXInputHandle fd,FXuint mode){
   if(mode==INPUT_NONE) return false;
 #ifdef WIN32
-  register FXint in;
+  FXint in;
   if(fd==INVALID_HANDLE_VALUE || fd==NULL) return false;
   for(in=0; in<=maxhandle; in++){       // See if existing handle
     if(handles->hnd[in]==fd) goto r;
@@ -2204,8 +2204,8 @@ void FXApp::enterWindow(FXWindow *window,FXWindow *ancestor){
 
 // Smart rectangle compositing algorithm
 void FXApp::addRepaint(FXID win,FXint x,FXint y,FXint w,FXint h,FXbool synth){
-  register FXint px,py,pw,ph,newarea,area;
-  register FXRepaint *r,**pr;
+  FXint px,py,pw,ph,newarea,area;
+  FXRepaint *r,**pr;
   area=w*h;
   w+=x;
   h+=y;
@@ -2313,7 +2313,7 @@ void FXApp::removeRepaints(FXID win,FXint x,FXint y,FXint w,FXint h){
 // This means the original dirty area will remain part of the area to
 // be painted.
 void FXApp::scrollRepaints(FXID win,FXint dx,FXint dy){
-  register FXRepaint *r;
+  FXRepaint *r;
   for(r=repaints; r; r=r->next){
     if(r->window==win){
       if(dx>0) r->rect.w+=dx; else r->rect.x+=dx;
@@ -2340,7 +2340,7 @@ a:ev.xany.type=0;
 
   // If a timer is due, handle it
   if(timers && timers->due<=FXThread::time()){
-    register FXTimer* t=timers;
+    FXTimer* t=timers;
     timers=t->next;
     t->next=timerrecs;
     timerrecs=t;
@@ -2401,7 +2401,7 @@ a:ev.xany.type=0;
 
       // Release the expose events
       if(repaints){
-        register FXRepaint *r=repaints;
+        FXRepaint *r=repaints;
         ev.xany.type=Expose;
         ev.xexpose.window=r->window;
         ev.xexpose.send_event=r->synth;
@@ -2417,7 +2417,7 @@ a:ev.xany.type=0;
 
       // Do our chores :-)
       if(chores){
-        register FXChore *c=chores;
+        FXChore *c=chores;
         chores=c->next;
         c->next=chorerecs;
         chorerecs=c;
@@ -2460,7 +2460,7 @@ a:ev.xany.type=0;
 
       // If there are timers, we block only for a little while.
       if(timers || blocking<forever){
-        register FXTime interval;
+        FXTime interval;
 
         // All that testing above may have taken some time...
         if(timers && (interval=timers->due-FXThread::time())<blocking) blocking=interval;
@@ -3769,7 +3769,7 @@ FXbool FXApp::getNextEvent(FXRawEvent& msg,FXTime blocking){
 
   // If a timer is due, handle it
   if(timers && timers->due<=FXThread::time()){
-    register FXTimer* t=timers;
+    FXTimer* t=timers;
     timers=t->next;
     t->next=timerrecs;
     timerrecs=t;
@@ -3805,7 +3805,7 @@ FXbool FXApp::getNextEvent(FXRawEvent& msg,FXTime blocking){
 
     // Do our chores :-)
     if(chores){
-      register FXChore *c=chores;
+      FXChore *c=chores;
       chores=c->next;
       c->next=chorerecs;
       chorerecs=c;
@@ -3844,7 +3844,7 @@ FXbool FXApp::getNextEvent(FXRawEvent& msg,FXTime blocking){
     // If there are timers, block only a little time
     allinputs=maxhandle+1;
     if(timers || blocking<forever){
-      register FXTime interval;
+      FXTime interval;
 
       // All that testing above may have taken some time...
       if(timers && (interval=timers->due-FXThread::time())<blocking) blocking=interval;
@@ -3890,7 +3890,7 @@ FXbool FXApp::getNextEvent(FXRawEvent& msg,FXTime blocking){
     // MsgWaitForMultipleObjects. We copy the stuff out of the arrays
     // before issueing callbacks, in case an entry is removed.
     for(FXint i=0; i<=maxhandle; i++){
-      register FXInputHandle fff=handles->hnd[i];
+      FXInputHandle fff=handles->hnd[i];
       if((i==(FXint)(signaled-WAIT_OBJECT_0)) || (WaitForSingleObject(fff,0)==WAIT_OBJECT_0)){
         FXInput in=inputs[i];
         if(in.read.target && in.read.target->tryHandle(this,FXSEL(SEL_IO_READ,in.read.message),in.read.data)) refresh();
@@ -4098,7 +4098,7 @@ FXint FXApp::runPopup(FXWindow* window){
 
 // Test if the window is involved in a modal invocation
 FXbool FXApp::isModal(FXWindow *window) const {
-  register FXInvocation* inv;
+  FXInvocation* inv;
   for(inv=invocation; inv; inv=inv->upper){
     if(inv->window==window && inv->modality!=MODAL_FOR_NONE) return true;
     }
@@ -4120,7 +4120,7 @@ FXModality FXApp::getModality() const {
 
 // Break out of topmost event loop, closing all nested loops also
 void FXApp::stop(FXint value){
-  register FXInvocation* inv;
+  FXInvocation* inv;
   for(inv=invocation; inv; inv=inv->upper){
     inv->done=true;
     inv->code=0;
@@ -4134,7 +4134,7 @@ void FXApp::stop(FXint value){
 
 // Break out of modal loop matching window, and all deeper ones
 void FXApp::stopModal(FXWindow* window,FXint value){
-  register FXInvocation* inv;
+  FXInvocation* inv;
   if(isModal(window)){
     for(inv=invocation; inv; inv=inv->upper){
       inv->done=true;
@@ -4150,7 +4150,7 @@ void FXApp::stopModal(FXWindow* window,FXint value){
 
 // Break out of innermost modal loop, and all deeper non-modal ones
 void FXApp::stopModal(FXint value){
-  register FXInvocation* inv;
+  FXInvocation* inv;
   for(inv=invocation; inv; inv=inv->upper){
     inv->done=true;
     inv->code=0;
@@ -5562,10 +5562,10 @@ long FXApp::onCmdDump(FXObject*,FXSelector,void*){
 
 // Dump widget information
 void FXApp::dumpWidgets() const {
-  register FXWindow *w=getRootWindow();
-  register FXObject *t;
-  register FXint lev=0;
-  register FXchar s;
+  FXWindow *w=getRootWindow();
+  FXObject *t;
+  FXint lev=0;
+  FXchar s;
   while(w){
     t=w->getTarget();
     s=w->shown()?'+':'-';
@@ -5802,9 +5802,9 @@ void FXApp::setSelMenuBackColor(FXColor color){
 
 // Virtual destructor
 FXApp::~FXApp(){
-  register FXRepaint *r;
-  register FXTimer *t;
-  register FXChore *c;
+  FXRepaint *r;
+  FXTimer *t;
+  FXChore *c;
 
   // Close display
   closeDisplay();

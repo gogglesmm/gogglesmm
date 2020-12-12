@@ -221,7 +221,7 @@ FX7Segment::FX7Segment(FXComposite* p,const FXString& text,FXuint opts,FXint x,F
 
 // Get default width
 FXint FX7Segment::getDefaultWidth(){
-  register FXint w=(cellwidth+2)*label.length();
+  FXint w=(cellwidth+2)*label.length();
   if(label.length()) w-=2;
   return padleft+padright+(border<<1)+w;
   }
@@ -348,8 +348,8 @@ long FX7Segment::onQueryHelp(FXObject* sender,FXSelector sel,void* ptr){
 
 // Handle repaint
 long FX7Segment::onPaint(FXObject*,FXSelector,void *ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint tx,ty,tw,ch,cw;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint tx,ty,tw,ch,cw;
   FXDCWindow dc(this,event);
 
   // Draw frame
@@ -415,9 +415,8 @@ long FX7Segment::onPaint(FXObject*,FXSelector,void *ptr){
 
 // Draw cells
 void FX7Segment::drawCells(FXDCWindow &dc,FXint x,FXint y,FXint cw,FXint ch){
-  register FXint c,t;
-  for(c=0; c<label.length(); c++){
-    t=(FXuchar)label[c];
+  for(FXint c=0; c<label.length(); c++){
+    FXint t=(FXuchar)label[c];
     if(' '<=t && t<127){
       drawSegments(dc,x+c*(cellwidth+2),y,cw,ch,segm[t-' ']);
       }

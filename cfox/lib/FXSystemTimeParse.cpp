@@ -259,6 +259,23 @@ static const FXchar *findstring(FXint& result,const FXchar *string,const FXchar 
   }
 
 
+// Convert nanoseconds fraction of second, up to 9 digits 0...999999999
+static const FXchar *convertnanoseconds(FXint& result,const FXchar *string,FXint digs){
+  FXint w=100000000;
+  result=0;
+  if('0'<=*string && *string<='9' && digs){     // Need at least 1 digit
+    do{
+      result+=(*string++-'0')*w;
+      w/=10;                                  
+      }
+    while('0'<=*string && *string<='9' && --digs);
+    return string;
+    }
+  return NULL;
+  }
+
+
+
 // Convert string of digits, but ensure number is [lo..hi]
 static const FXchar *convertstring(FXint& result,const FXchar *string,FXint lo,FXint hi){
   FXint digs=hi;
@@ -596,20 +613,18 @@ nxt:  ch=*format++;
         continue;
       case 'f':                 // Fraction
         ch=*format++;
-        if(ch=='m'){            // Milliseconds (000-999)
-          string=convertstring(st.nano,string,0,999);
+        if(ch=='m'){            // Milliseconds
+          string=convertnanoseconds(st.nano,string,3);
           if(!string) return NULL;
-          st.nano*=1000000;
           continue;
           }
-        if(ch=='u'){            // Microseconds (000000-999999)
-          string=convertstring(st.nano,string,0,999999);
+        if(ch=='u'){            // Microseconds 
+          string=convertnanoseconds(st.nano,string,6);
           if(!string) return NULL;
-          st.nano*=1000;
           continue;
           }
-        if(ch=='n'){            // Nanoseconds (000000000-999999999)
-          string=convertstring(st.nano,string,0,999999999);
+        if(ch=='n'){            // Nanoseconds
+          string=convertnanoseconds(st.nano,string,9);
           if(!string) return NULL;
           continue;
           }

@@ -54,8 +54,8 @@ extern FXAPI FXbool fxsaveRGB(FXStream& store,const FXColor *data,FXint width,FX
 
 // RLE decompress with some checks against overruns
 static void expand(FXuchar dst[],FXint dlen,const FXuchar src[],FXint slen){
-  register FXuchar pixel,count;
-  register FXint d=0,s=0;
+  FXuchar pixel,count;
+  FXint d=0,s=0;
   while(s<slen){
     pixel=src[s++];
     count=pixel&0x7F;
@@ -248,7 +248,7 @@ FXbool fxloadRGB(FXStream& store,FXColor*& data,FXint& width,FXint& height){
 
       // Allocate image data
       if(allocElms(data,size)){
-        register FXint i,j,k;
+        FXint i,j,k;
 
         // Set width and height
         width=w;

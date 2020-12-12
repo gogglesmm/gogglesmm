@@ -56,20 +56,90 @@ public:
   long onKeyRelease(FXObject*,FXSelector,void*);
 public:
 
-  /// Construct empty accelerator table
+  /**
+  * Construct empty accelerator table.
+  */
   FXAccelTable();
 
-  /// Add an accelerator into the table
+  /**
+  * Add accelerator key-combination into the accelerator table.
+  */
   void addAccel(FXHotKey hotkey,FXObject* target=NULL,FXSelector seldn=0,FXSelector selup=0);
 
-  /// Remove an accelerator from the table
+  /**
+  * Parse key-combination description and add it into the accelerator table.
+  */
+  void addAccel(const FXchar* string,FXObject* target=NULL,FXSelector seldn=0,FXSelector selup=0);
+  void addAccel(const FXString& string,FXObject* target=NULL,FXSelector seldn=0,FXSelector selup=0);
+
+  /**
+  * Remove accelerator key combination from the accelerator table.
+  */
   void removeAccel(FXHotKey hotkey);
 
-  /// Return true if accelerator specified
+  /**
+  * Parse key-combination description and remove it from the accelerator table.
+  */
+  void removeAccel(const FXchar* string);
+  void removeAccel(const FXString& string);
+
+  /**
+  * Return true if accelerator accelerator key-combination is in accelerator table.
+  */
   FXbool hasAccel(FXHotKey hotkey) const;
 
-  /// Return target object of the given accelerator
+  /**
+  * Parse key-combination description and return true if it is in the accelerator table.
+  */
+  FXbool hasAccel(const FXchar* string) const;
+  FXbool hasAccel(const FXString& string) const;
+
+  /**
+  * Return target object of the given accelerator key-combination.
+  */
   FXObject* targetOfAccel(FXHotKey hotkey) const;
+
+  /**
+  * Parse key-combination description and return its target.
+  */
+  FXObject* targetOfAccel(const FXchar* string) const;
+  FXObject* targetOfAccel(const FXString& string) const;
+
+  /**
+  * Parse accelerator from string, yielding modifier and key code.
+  * The syntax of the string is:
+  *
+  *  <Accelerator> ::= (<Modifier> ('-' | '+'))* <Key>
+  *
+  * where:
+  *
+  * <Modifier> ::= 'Ctl' | 'Ctrl' | 'Alt' | 'Meta' | 'Shift'
+  *
+  * <Key>      ::= 'Home' | 'End' | 'PgUp' | 'PgDn' | 'Left' | 'Right' |
+  *                'Up' | 'Down' | 'Ins' | 'Del' | 'Esc' | 'Tab' | 'Return' |
+  *                'Enter' | 'Back' | 'Spc' | 'Space' |
+  *                'F'<Digit><Digit>? |
+  *                '#'<HexDigit>+ |
+  *                <Letter>
+  *
+  * <Digit>    ::= '0' ... '1'
+  * <Letter>   ::= 'A' ... 'Z'
+  * <HexDigit> ::= '0' ... '9', 'A' ... 'F'
+  *
+  * Case is not significant, but uppercase is preferred.
+  * For example, parseAccel("Ctl+Shift+X") yields the same value as:
+  * MKUINT(KEY_X,CONTROLMASK|SHIFTMASK).
+  */
+  static FXHotKey parseAccel(const FXchar* string);
+  static FXHotKey parseAccel(const FXString& string);
+
+  /**
+  * Unparse hot key comprising modifier and key code back
+  * into a string suitable for parsing with fxparseHotKey.
+  * For example, an input of MKUINT(KEY_X,CONTROLMASK|SHIFTMASK)
+  * will return the string "Ctl+Shift+X".
+  */
+  static FXString unparseAccel(FXHotKey key);
 
   /// Save table to a stream
   virtual void save(FXStream& store) const;
@@ -77,45 +147,12 @@ public:
   /// Load table from a stream
   virtual void load(FXStream& store);
 
-  /// Destructor
+  /**
+  * Destroy accelerator table.
+  */
   virtual ~FXAccelTable();
   };
 
-
-/**
-* Parse accelerator from string, yielding modifier and key code.
-* The syntax of the string is:
-*
-*  <Accelerator> ::= (<Modifier> ('-' | '+'))* <Key>
-*
-* where:
-*
-* <Modifier> ::= 'Ctl' | 'Ctrl' | 'Alt' | 'Meta' | 'Shift'
-*
-* <Key>      ::= 'Home' | 'End' | 'PgUp' | 'PgDn' | 'Left' | 'Right' |
-*                'Up' | 'Down' | 'Ins' | 'Del' | 'Esc' | 'Tab' | 'Return' |
-*                'Enter' | 'Back' | 'Spc' | 'Space' |
-*                'F'<Digit><Digit>? |
-*                '#'<HexDigit>+ |
-*                <Letter>
-*
-* <Digit>    ::= '0' ... '1'
-* <Letter>   ::= 'A' ... 'Z'
-* <HexDigit> ::= '0' ... '9', 'A' ... 'F'
-*
-* Case is not significant, but uppercase is preferred.
-* For example, parseAccel("Ctl+Shift+X") yields the same value as:
-* MKUINT(KEY_X,CONTROLMASK|SHIFTMASK).
-*/
-extern FXAPI FXHotKey parseAccel(const FXString& string);
-
-/**
-* Unparse hot key comprising modifier and key code back
-* into a string suitable for parsing with fxparseHotKey.
-* For example, an input of MKUINT(KEY_X,CONTROLMASK|SHIFTMASK)
-* will return the string "Ctl+Shift+X".
-*/
-extern FXAPI FXString unparseAccel(FXHotKey key);
 
 /**
 * Parse hot key from string of the form "&Hotkey", yielding modifier and

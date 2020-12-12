@@ -283,14 +283,14 @@ FXMat2f& FXMat2f::operator*=(FXfloat s){
 // Multiply matrix by matrix
 FXMat2f& FXMat2f::operator*=(const FXMat2f& s){
 #if defined(FOX_HAS_SSE2)
-  register __m128 m0=_mm_loadu_ps(&m[0][0]);
-  register __m128 ss=_mm_loadu_ps(&s[0][0]);
-  register __m128 m1=_mm_shufd_ps(m0,_MM_SHUFFLE(2,3,0,1));
-  register __m128 s0=_mm_shufd_ps(ss,_MM_SHUFFLE(3,0,3,0));
-  register __m128 s1=_mm_shufd_ps(ss,_MM_SHUFFLE(1,2,1,2));
+  __m128 m0=_mm_loadu_ps(&m[0][0]);
+  __m128 ss=_mm_loadu_ps(&s[0][0]);
+  __m128 m1=_mm_shufd_ps(m0,_MM_SHUFFLE(2,3,0,1));
+  __m128 s0=_mm_shufd_ps(ss,_MM_SHUFFLE(3,0,3,0));
+  __m128 s1=_mm_shufd_ps(ss,_MM_SHUFFLE(1,2,1,2));
   _mm_storeu_ps(&m[0][0],_mm_add_ps(_mm_mul_ps(m0,s0),_mm_mul_ps(m1,s1)));
 #else
-  register FXfloat m00=m[0][0],m01=m[0][1],m10=m[1][0],m11=m[1][1];
+  FXfloat m00=m[0][0],m01=m[0][1],m10=m[1][0],m11=m[1][1];
   m[0][0]=m00*s[0][0]+m01*s[1][0];
   m[0][1]=m00*s[0][1]+m01*s[1][1];
   m[1][0]=m10*s[0][0]+m11*s[1][0];
@@ -345,13 +345,13 @@ FXbool FXMat2f::isIdentity() const {
 // Rotate by cosine, sine
 FXMat2f& FXMat2f::rot(FXfloat c,FXfloat s){
 #if defined(FOX_HAS_SSE2)
-  register __m128 cc=_mm_set1_ps(c);
-  register __m128 ss=_mm_set1_ps(s);
-  register __m128 uv=_mm_loadu_ps(&m[0][0]);
-  register __m128 vu=_mm_shufd_ps(uv,_MM_SHUFFLE(1,0,3,2));
+  __m128 cc=_mm_set1_ps(c);
+  __m128 ss=_mm_set1_ps(s);
+  __m128 uv=_mm_loadu_ps(&m[0][0]);
+  __m128 vu=_mm_shufd_ps(uv,_MM_SHUFFLE(1,0,3,2));
   _mm_storeu_ps(&m[0][0],_mm_add_ps(_mm_mul_ps(cc,uv),_mm_xor_ps(_mm_mul_ps(ss,vu),_mm_castsi128_ps(_mm_set_epi32(0x80000000,0x80000000,0,0)))));
 #else
-  register FXfloat u,v;
+  FXfloat u,v;
   u=m[0][0]; v=m[1][0]; m[0][0]=c*u+s*v; m[1][0]=c*v-s*u;
   u=m[0][1]; v=m[1][1]; m[0][1]=c*u+s*v; m[1][1]=c*v-s*u;
 #endif
@@ -399,7 +399,7 @@ FXfloat FXMat2f::det() const {
 FXMat2f FXMat2f::transpose() const {
 #if defined(FOX_HAS_SSE2)
   FXMat2f r;
-  register __m128 mm=_mm_loadu_ps(&m[0][0]);
+  __m128 mm=_mm_loadu_ps(&m[0][0]);
   _mm_storeu_ps(&r[0][0],_mm_shufd_ps(mm,_MM_SHUFFLE(3,1,2,0)));
   return r;
 #else
@@ -410,7 +410,7 @@ FXMat2f FXMat2f::transpose() const {
 
 // Invert matrix
 FXMat2f FXMat2f::invert() const {
-  register FXfloat dd=m[0][0]*m[1][1]-m[0][1]*m[1][0];
+  FXfloat dd=m[0][0]*m[1][1]-m[0][1]*m[1][0];
   return FXMat2f(m[1][1]/dd,-m[0][1]/dd,-m[1][0]/dd,m[0][0]/dd);
   }
 
@@ -418,9 +418,9 @@ FXMat2f FXMat2f::invert() const {
 // Matrix times vector
 FXVec2f operator*(const FXMat2f& m,const FXVec2f& v){
 #if defined(FOX_HAS_SSE3)
-  register __m128 mm=_mm_loadu_ps(&m[0][0]);
-  register __m128 vv=_mm_castsi128_ps(_mm_set1_epi64(*((const __m64*)&v[0])));
-  register __m128 rr=_mm_mul_ps(mm,vv);
+  __m128 mm=_mm_loadu_ps(&m[0][0]);
+  __m128 vv=_mm_castsi128_ps(_mm_set1_epi64(*((const __m64*)&v[0])));
+  __m128 rr=_mm_mul_ps(mm,vv);
   FXVec2f r;
   _mm_storel_pi((__m64*)&r[0],_mm_hadd_ps(rr,rr));
   return r;
@@ -433,9 +433,9 @@ FXVec2f operator*(const FXMat2f& m,const FXVec2f& v){
 // Vector times matrix
 FXVec2f operator*(const FXVec2f& v,const FXMat2f& m){
 #if defined(FOX_HAS_SSE3)
-  register __m128 mm=_mm_loadu_ps(&m[0][0]);
-  register __m128 vv=_mm_castsi128_ps(_mm_set1_epi64(*((const __m64*)&v[0])));
-  register __m128 rr=_mm_mul_ps(_mm_shufd_ps(mm,_MM_SHUFFLE(3,1,2,0)),vv);
+  __m128 mm=_mm_loadu_ps(&m[0][0]);
+  __m128 vv=_mm_castsi128_ps(_mm_set1_epi64(*((const __m64*)&v[0])));
+  __m128 rr=_mm_mul_ps(_mm_shufd_ps(mm,_MM_SHUFFLE(3,1,2,0)),vv);
   FXVec2f r;
   _mm_storel_pi((__m64*)&r[0],_mm_hadd_ps(rr,rr));
   return r;
@@ -472,11 +472,11 @@ FXMat2f operator-(const FXMat2f& a,const FXMat2f& b){
 // Matrix and matrix multiply
 FXMat2f operator*(const FXMat2f& a,const FXMat2f& b){
 #if defined(FOX_HAS_SSE2)
-  register __m128 m0=_mm_loadu_ps(&a[0][0]);
-  register __m128 ww=_mm_loadu_ps(&b[0][0]);
-  register __m128 m1=_mm_shufd_ps(m0,_MM_SHUFFLE(2,3,0,1));
-  register __m128 w0=_mm_shufd_ps(ww,_MM_SHUFFLE(3,0,3,0));
-  register __m128 w1=_mm_shufd_ps(ww,_MM_SHUFFLE(1,2,1,2));
+  __m128 m0=_mm_loadu_ps(&a[0][0]);
+  __m128 ww=_mm_loadu_ps(&b[0][0]);
+  __m128 m1=_mm_shufd_ps(m0,_MM_SHUFFLE(2,3,0,1));
+  __m128 w0=_mm_shufd_ps(ww,_MM_SHUFFLE(3,0,3,0));
+  __m128 w1=_mm_shufd_ps(ww,_MM_SHUFFLE(1,2,1,2));
   FXMat2f r;
   _mm_storeu_ps(&r[0][0],_mm_add_ps(_mm_mul_ps(m0,w0),_mm_mul_ps(m1,w1)));
   return r;

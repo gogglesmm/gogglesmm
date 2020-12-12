@@ -117,7 +117,7 @@ FXTime fxgetticks(){
 
 // Return clock ticks from performance counter [HP-C++ PA-RISC version].
 FXTime fxgetticks(){
-  register FXTime ret;
+  FXTime ret;
   _MFCTL(16, ret);
   return ret;
   }

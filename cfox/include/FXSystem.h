@@ -42,8 +42,8 @@ namespace FXSystem {
   /// Compute nanoseconds since Unix Epoch from system time
   extern FXAPI FXTime timeFromSystemTime(const Time& st);
 
-  /// Return system time from number of nanoseconds since Epoch
-  extern FXAPI void systemTimeFromTime(Time& st,FXTime ns);
+  /// Return system time from utc in nanoseconds since Unix Epoch
+  extern FXAPI void systemTimeFromTime(Time& st,FXTime utc);
 
 
   /// Default formatting (mm/dd/yyyy hh:mm:ss) string used for time formatting
@@ -79,8 +79,11 @@ namespace FXSystem {
   extern FXAPI void civilFromDays(FXint& y,FXint& m,FXint& d,FXlong z);
 
 
-  /// Return leap seconds since since Unix Epoch time
-  extern FXAPI FXival leapSeconds(FXTime ns);
+  /// Return leap seconds from utc in nanocseconds since Unix Epoch
+  extern FXAPI FXival leapSeconds(FXTime utc);
+
+  /// Return leap seconds from tai in nanocseconds since Unix Epoch
+  extern FXAPI FXival leapSecondsTAI(FXTime tai);
 
   /// Return offset between standard local time zone to UTC, in nanoseconds
   extern FXAPI FXTime localTimeZoneOffset();
@@ -88,8 +91,8 @@ namespace FXSystem {
   /// Return offset daylight savings time to standard time, in nanoseconds
   extern FXAPI FXTime daylightSavingsOffset();
 
-  /// Return 1 if daylight savings time is active at Unix Epoch time
-  extern FXAPI FXTime daylightSavingsActive(FXTime ns);
+  /// Return 1 if daylight savings time is active at utc in nanoseconds since Unix Epoch 
+  extern FXAPI FXTime daylightSavingsActive(FXTime utc);
 
   /// Return time zone name (or daylight savings time time zone name)
   extern FXAPI FXString localTimeZoneName(FXbool dst=false);
@@ -98,20 +101,20 @@ namespace FXSystem {
   /// Convert NTP format (ssss:ffff) to nanoseconds since Unix Epoch
   extern FXAPI FXTime timeFromNTPTime(FXulong ntptime);
 
-  /// Convert nanoseconds since Unix Epoch to NTP (ssss:ffff)
-  extern FXAPI FXulong ntpTimeFromTime(FXTime ns);
+  /// Convert utc in nanoseconds since Unix Epoch to NTP (ssss:ffff)
+  extern FXAPI FXulong ntpTimeFromTime(FXTime utc);
 
 
-  /// Format UTC nanoseconds since Unix Epoch to date-time string using given format
-  extern FXAPI FXString universalTime(FXTime ns,const FXchar *format=defaultTimeFormat);
+  /// Format utc in nanoseconds since Unix Epoch to date-time string using given format
+  extern FXAPI FXString universalTime(FXTime utc,const FXchar *format=defaultTimeFormat);
 
   /// Parse date-time string to UTC nanoseconds since Unix Epoch using given format
   extern FXAPI FXTime universalTime(const FXchar* string,const FXchar* format=defaultTimeFormat);
   extern FXAPI FXTime universalTime(const FXString& string,const FXchar* format=defaultTimeFormat);
 
 
-  /// Format UTC nanoseconds since Unix Epoch to local date-time string using given format
-  extern FXAPI FXString localTime(FXTime ns,const FXchar *format=defaultTimeFormat);
+  /// Format utc in nanoseconds since Unix Epoch to local date-time string using given format
+  extern FXAPI FXString localTime(FXTime utc,const FXchar *format=defaultTimeFormat);
 
   /// Parse local date-time string to UTC nanoseconds since Unix Epoch using given format
   extern FXAPI FXTime localTime(const FXchar* string,const FXchar* format=defaultTimeFormat);

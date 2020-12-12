@@ -267,28 +267,28 @@ FXTreeItem* FXDirList::createItem(const FXString& text,FXIcon* oi,FXIcon* ci,voi
 
 // Sort ascending order, keeping directories first
 FXint FXDirList::ascending(const FXTreeItem* pa,const FXTreeItem* pb){
-  register FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
+  FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
   return diff ? diff : compare(pa->label,pb->label);
   }
 
 
 // Sort descending order, keeping directories first
 FXint FXDirList::descending(const FXTreeItem* pa,const FXTreeItem* pb){
-  register FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
+  FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
   return diff ? diff : compare(pb->label,pa->label);
   }
 
 
 // Sort ascending order, case insensitive, keeping directories first
 FXint FXDirList::ascendingCase(const FXTreeItem* pa,const FXTreeItem* pb){
-  register FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
+  FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
   return diff ? diff : comparecase(pa->label,pb->label);
   }
 
 
 // Sort descending order, case insensitive, keeping directories first
 FXint FXDirList::descendingCase(const FXTreeItem* pa,const FXTreeItem* pb){
-  register FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
+  FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
   return diff ? diff : comparecase(pb->label,pa->label);
   }
 
@@ -296,7 +296,7 @@ FXint FXDirList::descendingCase(const FXTreeItem* pa,const FXTreeItem* pb){
 
 // Return uri-list of selected files
 FXString FXDirList::getSelectedFiles() const {
-  register FXTreeItem *item=getFirstItem();
+  FXTreeItem *item=getFirstItem();
   FXString result;
   while(item){
     if(isItemSelected(item)){

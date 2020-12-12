@@ -744,7 +744,7 @@ void FXOptionMenu::setCurrent(FXOption *win,FXbool notify){
 
 // Set current option
 void FXOptionMenu::setCurrentNo(FXint no,FXbool notify){
-  register FXOption *win=NULL;
+  FXOption *win=NULL;
   if(pane) win=dynamic_cast<FXOption*>(pane->childAtIndex(no));
   setCurrent(win,notify);
   }
@@ -764,7 +764,7 @@ FXint FXOptionMenu::getNumOptions() const {
 
 // Change popup
 void FXOptionMenu::setMenu(FXPopup *pup){
-  register FXOption *win;
+  FXOption *win;
   if(pup!=pane){
     pane=pup;
     if(pane){

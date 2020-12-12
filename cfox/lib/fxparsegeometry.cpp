@@ -48,12 +48,12 @@ namespace FX {
 //      4       width was assigned
 //      8       height was assigned
 FXint fxparsegeometry(const FXchar *string,FXint& x,FXint& y,FXint& w,FXint& h){
-  register FXint result=0;
-  register FXint tw=0;
-  register FXint th=0;
-  register FXint tx=0;
-  register FXint ty=0;
-  register FXint mul;
+  FXint result=0;
+  FXint tw=0;
+  FXint th=0;
+  FXint tx=0;
+  FXint ty=0;
+  FXint mul;
 
   // Got string?
   if(string && *string!='\0'){

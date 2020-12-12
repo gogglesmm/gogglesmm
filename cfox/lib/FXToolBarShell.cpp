@@ -255,8 +255,8 @@ long FXToolBarShell::onPaint(FXObject*,FXSelector,void* ptr){
 
 // Perform layout; return 0 because no GUI update is needed
 long FXToolBarShell::onLayout(FXObject*,FXSelector,void*){
-  register FXuint hints;
-  register FXint w,h;
+  FXuint hints;
+  FXint w,h;
   if(getFirst() && getFirst()->shown()){
     hints=getFirst()->getLayoutHints();
     if(hints&LAYOUT_FIX_HEIGHT) h=getFirst()->getHeight();
@@ -275,7 +275,7 @@ long FXToolBarShell::onLayout(FXObject*,FXSelector,void*){
 
 // Find out where window was grabbed
 FXuchar FXToolBarShell::where(FXint x,FXint y) const {
-  register FXuchar code=DRAG_NONE;
+  FXuchar code=DRAG_NONE;
   if(getFirst() && ((0<=x && x<border+padleft) || (0<=y && y<border+padtop) || (width-padright-border<=x && x<width) || (height-padbottom-border<=y && y<height))){
     FXuint hints=getFirst()->getLayoutHints();
     if(hints&LAYOUT_FIX_WIDTH){
@@ -293,7 +293,7 @@ FXuchar FXToolBarShell::where(FXint x,FXint y) const {
 
 // Change cursor if we entered the window normally
 long FXToolBarShell::onEnter(FXObject* sender,FXSelector sel,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   FXTopWindow::onEnter(sender,sel,ptr);
   if(event->code!=CROSSINGGRAB){
     setDefaultCursor(getApp()->getDefaultCursor(cursorType[where(event->win_x,event->win_y)]));
@@ -304,7 +304,7 @@ long FXToolBarShell::onEnter(FXObject* sender,FXSelector sel,void* ptr){
 
 // Restore cursor if we left the window normally
 long FXToolBarShell::onLeave(FXObject* sender,FXSelector sel,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   FXTopWindow::onLeave(sender,sel,ptr);
   if(event->code!=CROSSINGUNGRAB){
     setDefaultCursor(getApp()->getDefaultCursor(DEF_ARROW_CURSOR));
@@ -315,7 +315,7 @@ long FXToolBarShell::onLeave(FXObject* sender,FXSelector sel,void* ptr){
 
 // Pressed LEFT button
 long FXToolBarShell::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -362,7 +362,7 @@ long FXToolBarShell::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Moved the mouse
 long FXToolBarShell::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
 
   // We were dragging
   if(mode!=DRAG_NONE){
@@ -414,9 +414,9 @@ long FXToolBarShell::onMotion(FXObject*,FXSelector,void* ptr){
 
 // Get width
 FXint FXToolBarShell::getDefaultWidth(){
-  register FXWindow* child=getFirst();
-  register FXuint hints;
-  register FXint w=0;
+  FXWindow* child=getFirst();
+  FXuint hints;
+  FXint w=0;
   if(child && child->shown()){
     hints=child->getLayoutHints();
     if(hints&LAYOUT_FIX_WIDTH){       // Fixed width
@@ -435,9 +435,9 @@ FXint FXToolBarShell::getDefaultWidth(){
 
 // Get height
 FXint FXToolBarShell::getDefaultHeight(){
-  register FXWindow* child=getFirst();
-  register FXuint hints;
-  register FXint h=0;
+  FXWindow* child=getFirst();
+  FXuint hints;
+  FXint h=0;
   if(child && child->shown()){
     hints=child->getLayoutHints();
     if(hints&LAYOUT_FIX_HEIGHT){      // Fixed height

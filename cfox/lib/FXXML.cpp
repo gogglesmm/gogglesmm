@@ -325,8 +325,8 @@ public:
 
 // Decode escaped special characters from XML stream
 FXbool FXXML::decode(FXString& dst,const FXString& src,FXuint flags){
-  register FXint p,q;
-  register FXwchar wc;
+  FXint p,q;
+  FXwchar wc;
 
   // Measure the resulting string first
   p=q=0;
@@ -473,8 +473,8 @@ FXbool FXXML::decode(FXString& dst,const FXString& src,FXuint flags){
 
 // Encode special characters for inclusion into XML stream
 FXbool FXXML::encode(FXString& dst,const FXString& src,FXuint flags){
-  register FXint p,q;
-  register FXuchar ch;
+  FXint p,q;
+  FXuchar ch;
 
   // Measure the resulting string first
   p=q=0;
@@ -605,7 +605,7 @@ FXXML::FXXML(FXchar* buffer,FXuval sz,Direction d):begptr(NULL),endptr(NULL),wpt
 
 // Open XML stream for given direction d
 FXbool FXXML::open(FXchar* buffer,FXuval sz,Direction d){
-  FXTRACE((100,"FXXML::open(%p,%ld,%s)\n",buffer,sz,d==Load?"Load":d==Save?"Save":"Stop"));
+  FXTRACE((101,"FXXML::open(%p,%ld,%s)\n",buffer,sz,d==Load?"Load":d==Save?"Save":"Stop"));
   FXASSERT(dir==Stop);
   if((dir==Stop) && (d!=Stop) && (0<sz) && buffer){
     begptr=buffer;
@@ -1770,7 +1770,7 @@ FXXML::Error FXXML::parse(){
 
 // Close it
 FXbool FXXML::close(){
-  FXTRACE((100,"XML::close()\n"));
+  FXTRACE((101,"XML::close()\n"));
   if(dir!=Stop){
     if((dir==Load) || 0<=flush(0)){             // Error during final flush is possible
       begptr=NULL;

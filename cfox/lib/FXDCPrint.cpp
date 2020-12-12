@@ -568,7 +568,7 @@ void FXDCPrint::drawPoint(FXint x,FXint y){
 // Draw points in the current pen color.
 // Each point's position is relative to the drawable's origin (as usual).
 void FXDCPrint::drawPoints(const FXPoint* points,FXuint npoints){
-  register FXuint i;
+  FXuint i;
   FXfloat xx,yy;
   for(i=0; i<npoints; i++){
     tfm(xx,yy,points[i].x,points[i].y);
@@ -600,7 +600,7 @@ void FXDCPrint::drawLine(FXint x1,FXint y1,FXint x2,FXint y2){
 // Draw multiple lines. All points are drawn connected.
 // Each point is specified relative to Drawable's origin.
 void FXDCPrint::drawLines(const FXPoint* points,FXuint npoints){
-  register FXuint i;
+  FXuint i;
   FXfloat xx,yy;
   if(npoints<2) return;
   tfm(xx,yy,points[0].x,points[0].y);
@@ -619,7 +619,7 @@ void FXDCPrint::drawLines(const FXPoint* points,FXuint npoints){
 // First point's coordinate is relative to drawable's origin, but
 // subsequent points' coordinates are relative to previous point.
 void FXDCPrint::drawLinesRel(const FXPoint* points,FXuint npoints){
-  register FXuint i,x,y;
+  FXuint i,x,y;
   FXfloat xx,yy;
   if(npoints<2) return;
   x=points[0].x;
@@ -640,7 +640,7 @@ void FXDCPrint::drawLinesRel(const FXPoint* points,FXuint npoints){
 
 // Draw unconnected line segments
 void FXDCPrint::drawLineSegments(const FXSegment* segments,FXuint nsegments){
-  register FXuint i;
+  FXuint i;
   for(i=0; i<=nsegments; i++)
     outf(" %d %d %d %d",
 		segments[i].x1,Yr-segments[i].y1,
@@ -662,7 +662,7 @@ void FXDCPrint::drawRectangle(FXint x,FXint y,FXint w,FXint h){
 
 // Draw unfilled rectangles
 void FXDCPrint::drawRectangles(const FXRectangle* rectangles,FXuint nrectangles){
-  register FXuint i;
+  FXuint i;
   for(i=0; i<nrectangles; i++){
     drawRectangle(rectangles[i].x,rectangles[i].y,rectangles[i].w,rectangles[i].h);
     }
@@ -709,7 +709,7 @@ void FXDCPrint::fillRectangle(FXint x,FXint y,FXint w,FXint h){
 
 // Filled rectangles
 void FXDCPrint::fillRectangles(const FXRectangle* rectangles,FXuint nrectangles){
-  register FXuint i;
+  FXuint i;
   for(i=0; i<nrectangles; i++){
     fillRectangle(rectangles[i].x,rectangles[i].y,rectangles[i].w,rectangles[i].h);
     }
@@ -749,7 +749,7 @@ void FXDCPrint::fillEllipse(FXint,FXint,FXint,FXint){
 
 // Filled simple polygon
 void FXDCPrint::fillPolygon(const FXPoint* points,FXuint npoints){
-  register FXuint i;
+  FXuint i;
   FXfloat xx,yy;
   if(npoints<2) return;
   tfm(xx,yy,points[0].x,points[0].y);

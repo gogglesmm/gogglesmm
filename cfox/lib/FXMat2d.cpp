@@ -317,12 +317,12 @@ FXMat2d& FXMat2d::operator*=(FXdouble s){
 // Multiply matrix by matrix
 FXMat2d& FXMat2d::operator*=(const FXMat2d& s){
 #if defined(FOX_HAS_SSE2)
-  register __m128d s0=_mm_loadu_pd(&s[0][0]);
-  register __m128d s1=_mm_loadu_pd(&s[1][0]);
+  __m128d s0=_mm_loadu_pd(&s[0][0]);
+  __m128d s1=_mm_loadu_pd(&s[1][0]);
   _mm_storeu_pd(&m[0][0],_mm_add_pd(_mm_mul_pd(_mm_set1_pd(m[0][0]),s0),_mm_mul_pd(_mm_set1_pd(m[0][1]),s1)));
   _mm_storeu_pd(&m[1][0],_mm_add_pd(_mm_mul_pd(_mm_set1_pd(m[1][0]),s0),_mm_mul_pd(_mm_set1_pd(m[1][1]),s1)));
 #else
-  register FXdouble m00=m[0][0],m01=m[0][1],m10=m[1][0],m11=m[1][1];
+  FXdouble m00=m[0][0],m01=m[0][1],m10=m[1][0],m11=m[1][1];
   m[0][0]=m00*s[0][0]+m01*s[1][0];
   m[0][1]=m00*s[0][1]+m01*s[1][1];
   m[1][0]=m10*s[0][0]+m11*s[1][0];
@@ -388,14 +388,14 @@ FXbool FXMat2d::isIdentity() const {
 // Rotate by cosine, sine
 FXMat2d& FXMat2d::rot(FXdouble c,FXdouble s){
 #if defined(FOX_HAS_SSE2)
-  register __m128d cc=_mm_set1_pd(c);
-  register __m128d ss=_mm_set1_pd(s);
-  register __m128d uu=_mm_loadu_pd(&m[0][0]);
-  register __m128d vv=_mm_loadu_pd(&m[1][0]);
+  __m128d cc=_mm_set1_pd(c);
+  __m128d ss=_mm_set1_pd(s);
+  __m128d uu=_mm_loadu_pd(&m[0][0]);
+  __m128d vv=_mm_loadu_pd(&m[1][0]);
   _mm_storeu_pd(&m[0][0],_mm_add_pd(_mm_mul_pd(cc,uu),_mm_mul_pd(ss,vv)));
   _mm_storeu_pd(&m[1][0],_mm_sub_pd(_mm_mul_pd(cc,vv),_mm_mul_pd(ss,uu)));
 #else
-  register FXdouble u,v;
+  FXdouble u,v;
   u=m[0][0]; v=m[1][0]; m[0][0]=c*u+s*v; m[1][0]=c*v-s*u;
   u=m[0][1]; v=m[1][1]; m[0][1]=c*u+s*v; m[1][1]=c*v-s*u;
 #endif
@@ -453,7 +453,7 @@ FXMat2d FXMat2d::transpose() const {
 
 // Invert matrix
 FXMat2d FXMat2d::invert() const {
-  register FXdouble dd=m[0][0]*m[1][1]-m[0][1]*m[1][0];
+  FXdouble dd=m[0][0]*m[1][1]-m[0][1]*m[1][0];
   return FXMat2d(m[1][1]/dd,-m[0][1]/dd,-m[1][0]/dd,m[0][0]/dd);
   }
 
@@ -461,9 +461,9 @@ FXMat2d FXMat2d::invert() const {
 // Matrix times vector
 FXVec2d operator*(const FXMat2d& m,const FXVec2d& v){
 #if defined(FOX_HAS_SSE3)
-  register __m128d vv=_mm_loadu_pd(v);
-  register __m128d r0=_mm_mul_pd(_mm_loadu_pd(&m[0][0]),vv);
-  register __m128d r1=_mm_mul_pd(_mm_loadu_pd(&m[1][0]),vv);
+  __m128d vv=_mm_loadu_pd(v);
+  __m128d r0=_mm_mul_pd(_mm_loadu_pd(&m[0][0]),vv);
+  __m128d r1=_mm_mul_pd(_mm_loadu_pd(&m[1][0]),vv);
   FXVec2d r;
   _mm_storeu_pd(&r[0],_mm_hadd_pd(r0,r1));
   return r;
@@ -477,8 +477,8 @@ FXVec2d operator*(const FXMat2d& m,const FXVec2d& v){
 FXVec2d operator*(const FXVec2d& v,const FXMat2d& m){
 #if defined(FOX_HAS_SSE2)
   FXVec2d r;
-  register __m128d r0=_mm_mul_pd(_mm_set1_pd(v[0]),_mm_loadu_pd(&m[0][0]));
-  register __m128d r1=_mm_mul_pd(_mm_set1_pd(v[1]),_mm_loadu_pd(&m[1][0]));
+  __m128d r0=_mm_mul_pd(_mm_set1_pd(v[0]),_mm_loadu_pd(&m[0][0]));
+  __m128d r1=_mm_mul_pd(_mm_set1_pd(v[1]),_mm_loadu_pd(&m[1][0]));
   _mm_storeu_pd(&r[0],_mm_add_pd(r0,r1));
   return r;
 #else
@@ -524,8 +524,8 @@ FXMat2d operator-(const FXMat2d& a,const FXMat2d& b){
 // Matrix and matrix multiply
 FXMat2d operator*(const FXMat2d& a,const FXMat2d& b){
 #if defined(FOX_HAS_SSE2)
-  register __m128d b0=_mm_loadu_pd(&b[0][0]);
-  register __m128d b1=_mm_loadu_pd(&b[1][0]);
+  __m128d b0=_mm_loadu_pd(&b[0][0]);
+  __m128d b1=_mm_loadu_pd(&b[1][0]);
   FXMat2d r;
   _mm_storeu_pd(&r[0][0],_mm_add_pd(_mm_mul_pd(_mm_set1_pd(a[0][0]),b0),_mm_mul_pd(_mm_set1_pd(a[0][1]),b1)));
   _mm_storeu_pd(&r[1][0],_mm_add_pd(_mm_mul_pd(_mm_set1_pd(a[1][0]),b0),_mm_mul_pd(_mm_set1_pd(a[1][1]),b1)));

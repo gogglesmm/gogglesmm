@@ -62,7 +62,7 @@ FXVec4d normalize(const FXVec4d& v){
 
 // Compute normalized plane equation ax+by+cz+d=0
 FXVec4d plane(const FXVec4d& vec){
-  register FXdouble t=Math::sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z);
+  FXdouble t=Math::sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z);
   return FXVec4d(vec.x/t,vec.y/t,vec.z/t,vec.w/t);
   }
 

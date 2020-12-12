@@ -49,14 +49,14 @@ FXuint fxCPUCaps(FXuint level){
   __cpuid(features,level);
   return features[0]+1;
 #elif ((defined(__GNUC__) || defined(__INTEL_COMPILER)) && defined(__i686__))
-  register FXuint eax,ebx,ecx,edx;
+  FXuint eax,ebx,ecx,edx;
   level&=0x80000000;
   __asm__ __volatile__("xchgl %%ebx, %1 \n\t"  \
                        "cpuid           \n\t"  \
                        "xchgl %%ebx, %1 \n\t"  : "=a"(eax), "=r"(ebx), "=c"(ecx), "=d"(edx) : "0" (level) : "cc");
   return eax+1;
 #elif ((defined(__GNUC__) || defined(__INTEL_COMPILER)) && defined(__x86_64__))
-  register FXuint eax,ebx,ecx,edx;
+  FXuint eax,ebx,ecx,edx;
   level&=0x80000000;
   __asm__ __volatile__("cpuid \n\t" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) : "0" (level) : "cc");
   return eax+1;

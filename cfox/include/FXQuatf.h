@@ -258,10 +258,10 @@ inline FXQuatf operator/(FXfloat n,const FXQuatf& a){return FXQuatf(n/a.x,n/a.y,
 inline FXQuatf operator*(const FXQuatf& a,const FXQuatf& b){ return FXQuatf(a.w*b.x+a.x*b.w+a.y*b.z-a.z*b.y, a.w*b.y+a.y*b.w+a.z*b.x-a.x*b.z, a.w*b.z+a.z*b.w+a.x*b.y-a.y*b.x, a.w*b.w-a.x*b.x-a.y*b.y-a.z*b.z); }
 inline FXQuatf operator/(const FXQuatf& a,const FXQuatf& b){ return a*b.invert(); }
 
-/// Rotation quaternion and vector q . v = (q* . v . q)
+/// Rotation unit-quaternion and vector q . v = (q* . v . q)
 extern FXAPI FXVec3f operator*(const FXQuatf& q,const FXVec3f& v);
 
-/// Rotation a vector and quaternion v . q = (q . v . q*)
+/// Rotation a vector and unit-quaternion v . q = (q . v . q*)
 extern FXAPI FXVec3f operator*(const FXVec3f& v,const FXQuatf& q);
 
 /// Quaternion and quaternion addition

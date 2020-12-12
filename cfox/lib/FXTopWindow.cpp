@@ -1050,7 +1050,7 @@ FXbool FXTopWindow::stackingOrder(FXuint order){
 
 // Attempt to close the window, return true if actually closed
 FXbool FXTopWindow::close(FXbool notify){
-  register FXWindow *window;
+  FXWindow *window;
 
   // Ask target if desired
   if(!notify || !target || !target->tryHandle(this,FXSEL(SEL_CLOSE,message),NULL)){
@@ -1311,9 +1311,9 @@ void FXTopWindow::position(FXint x,FXint y,FXint w,FXint h){
 
 // Compute minimum width based on child layout hints
 FXint FXTopWindow::getDefaultWidth(){
-  register FXint w,wcum,wmax,mw;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint w,wcum,wmax,mw;
+  FXWindow* child;
+  FXuint hints;
   wmax=wcum=mw=0;
   if(options&PACK_UNIFORM_WIDTH) mw=maxChildWidth();
   for(child=getLast(); child; child=child->getPrev()){
@@ -1342,9 +1342,9 @@ FXint FXTopWindow::getDefaultWidth(){
 
 // Compute minimum height based on child layout hints
 FXint FXTopWindow::getDefaultHeight(){
-  register FXint h,hcum,hmax,mh;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint h,hcum,hmax,mh;
+  FXWindow* child;
+  FXuint hints;
   hmax=hcum=mh=0;
   if(options&PACK_UNIFORM_HEIGHT) mh=maxChildHeight();
   for(child=getLast(); child; child=child->getPrev()){
@@ -1373,10 +1373,10 @@ FXint FXTopWindow::getDefaultHeight(){
 
 // Recalculate layout
 void FXTopWindow::layout(){
-  register FXint left,right,top,bottom,x,y,w,h;
-  register FXint mw=0,mh=0;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint left,right,top,bottom,x,y,w,h;
+  FXint mw=0,mh=0;
+  FXWindow* child;
+  FXuint hints;
 
   // Placement rectangle; right/bottom non-inclusive
   left=padleft;

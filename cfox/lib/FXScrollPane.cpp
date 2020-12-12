@@ -96,9 +96,9 @@ void FXScrollPane::show(){
 
 // Get width
 FXint FXScrollPane::getDefaultWidth(){
-  register FXWindow* child;
-  register FXint wmax,wcum,w,n;
-  register FXuint hints;
+  FXWindow* child;
+  FXint wmax,wcum,w,n;
+  FXuint hints;
   wmax=wcum=0;
   for(child=dn->getNext(); child; child=child->getNext()){
     if(child->shown()){
@@ -131,9 +131,9 @@ FXint FXScrollPane::getDefaultWidth(){
 
 // Get height
 FXint FXScrollPane::getDefaultHeight(){
-  register FXWindow* child;
-  register FXint hmax,hcum,h,n;
-  register FXuint hints;
+  FXWindow* child;
+  FXint hmax,hcum,h,n;
+  FXuint hints;
   hmax=hcum=0;
   for(child=dn->getNext(); child; child=child->getNext()){
     if(child->shown()){
@@ -166,9 +166,9 @@ FXint FXScrollPane::getDefaultHeight(){
 
 // Recalculate layout
 void FXScrollPane::layout(){
-  register FXint w,h,x,y,mw,mh,arrowsize,n;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint w,h,x,y,mw,mh,arrowsize,n;
+  FXWindow *child;
+  FXuint hints;
 
   // Horizontal
   if(options&POPUP_HORIZONTAL){

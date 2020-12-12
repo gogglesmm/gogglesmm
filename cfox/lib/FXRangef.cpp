@@ -53,27 +53,27 @@ FXRangef::FXRangef(const FXSpheref& sphere):
 
 // Longest side
 FXfloat FXRangef::longest() const {
-  register FXfloat x=upper.x-lower.x;
-  register FXfloat y=upper.y-lower.y;
-  register FXfloat z=upper.z-lower.z;
+  FXfloat x=upper.x-lower.x;
+  FXfloat y=upper.y-lower.y;
+  FXfloat z=upper.z-lower.z;
   return Math::fmax(Math::fmax(x,y),z);
   }
 
 
 // Shortest side
 FXfloat FXRangef::shortest() const {
-  register FXfloat x=upper.x-lower.x;
-  register FXfloat y=upper.y-lower.y;
-  register FXfloat z=upper.z-lower.z;
+  FXfloat x=upper.x-lower.x;
+  FXfloat y=upper.y-lower.y;
+  FXfloat z=upper.z-lower.z;
   return Math::fmin(Math::fmin(x,y),z);
   }
 
 
 // Length of diagonal
 FXfloat FXRangef::diameter() const {
-  register FXfloat x=upper.x-lower.x;
-  register FXfloat y=upper.y-lower.y;
-  register FXfloat z=upper.z-lower.z;
+  FXfloat x=upper.x-lower.x;
+  FXfloat y=upper.y-lower.y;
+  FXfloat z=upper.z-lower.z;
   return Math::sqrt(x*x+y*y+z*z);
   }
 
@@ -241,9 +241,9 @@ FXbool FXRangef::intersect(const FXVec3f& u,const FXVec3f& v) const {
 
 // Intersect box with ray pos+lambda*dir, returning true if hit
 FXbool FXRangef::intersect(const FXVec3f& pos,const FXVec3f& dir,FXfloat hit[]) const {
-  register FXfloat f= FLT_MAX;
-  register FXfloat n=-FLT_MAX;
-  register FXfloat ni,fi;
+  FXfloat f= FLT_MAX;
+  FXfloat n=-FLT_MAX;
+  FXfloat ni,fi;
   if(__likely(dir.x!=0.0f)){
     if(0.0f<dir.x){
       ni=(lower.x-pos.x)/dir.x;

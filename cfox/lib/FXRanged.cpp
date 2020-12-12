@@ -53,27 +53,27 @@ FXRanged::FXRanged(const FXSphered& sphere):
 
 // Longest side
 FXdouble FXRanged::longest() const {
-  register FXdouble x=upper.x-lower.x;
-  register FXdouble y=upper.y-lower.y;
-  register FXdouble z=upper.z-lower.z;
+  FXdouble x=upper.x-lower.x;
+  FXdouble y=upper.y-lower.y;
+  FXdouble z=upper.z-lower.z;
   return Math::fmax(Math::fmax(x,y),z);
   }
 
 
 // Shortest side
 FXdouble FXRanged::shortest() const {
-  register FXdouble x=upper.x-lower.x;
-  register FXdouble y=upper.y-lower.y;
-  register FXdouble z=upper.z-lower.z;
+  FXdouble x=upper.x-lower.x;
+  FXdouble y=upper.y-lower.y;
+  FXdouble z=upper.z-lower.z;
   return Math::fmin(Math::fmin(x,y),z);
   }
 
 
 // Length of diagonal
 FXdouble FXRanged::diameter() const {
-  register FXdouble x=upper.x-lower.x;
-  register FXdouble y=upper.y-lower.y;
-  register FXdouble z=upper.z-lower.z;
+  FXdouble x=upper.x-lower.x;
+  FXdouble y=upper.y-lower.y;
+  FXdouble z=upper.z-lower.z;
   return Math::sqrt(x*x+y*y+z*z);
   }
 
@@ -241,9 +241,9 @@ FXbool FXRanged::intersect(const FXVec3d& u,const FXVec3d& v) const {
 
 // Intersect box with ray p+lambda*d, returning true if hit
 FXbool FXRanged::intersect(const FXVec3d& pos,const FXVec3d& dir,FXdouble hit[]) const {
-  register FXdouble f= DBL_MAX;
-  register FXdouble n=-DBL_MAX;
-  register FXdouble ni,fi;
+  FXdouble f= DBL_MAX;
+  FXdouble n=-DBL_MAX;
+  FXdouble ni,fi;
   if(__likely(dir.x!=0.0)){
     if(0.0<dir.x){
       ni=(lower.x-pos.x)/dir.x;

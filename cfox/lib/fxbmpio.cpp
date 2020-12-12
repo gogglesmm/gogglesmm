@@ -355,7 +355,7 @@ static FXbool fxloadBMPBits(FXStream& store,FXColor*& data,FXint width,FXint hei
 static FXbool fxsaveBMPBits(FXStream& store,const FXColor* data,FXint width,FXint height,FXint bpp){
   const FXuchar padding[3]={0,0,0};
   FXuchar pad,r,g,b,a;
-  register FXint x,y;
+  FXint x,y;
 
   // Handle various depths
   switch(bpp){
@@ -395,7 +395,7 @@ static FXbool fxsaveBMPBits(FXStream& store,const FXColor* data,FXint width,FXin
 
 // Load icon bits
 static FXbool fxloadICOBits(FXStream& store,FXColor*& data,FXint width,FXint height,FXint bpp,FXint enc,FXint clrs,FXint fmt){
-  register FXint x,y,pad; FXuchar c;
+  FXint x,y,pad; FXuchar c;
 
   // Load pixels (XOR bytes)
   if(fxloadBMPBits(store,data,width,height,bpp,enc,clrs,fmt)){

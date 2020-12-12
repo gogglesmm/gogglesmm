@@ -43,7 +43,7 @@ namespace FX {
 
 // Convert utf8 but strip BOM
 FXint FXUTF8Codec::mb2wc(FXwchar& w,const FXchar* src,FXint nsrc) const {
-  register FXint n=0;
+  FXint n=0;
 a:if(n>=nsrc) return 0;
   w=(FXuchar)src[n++];
   if(__unlikely(0x80<=w)){

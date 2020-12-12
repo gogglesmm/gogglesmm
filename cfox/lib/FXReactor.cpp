@@ -126,6 +126,7 @@ const FXTime seconds=1000000000;
 // Sleep no longer than this
 const FXTime FXReactor::maxwait=86400*seconds;
 
+
 // Construct reactor object
 FXReactor::FXReactor():internals(NULL),sigreceived(0),numhandles(0),numwatched(0),numraised(0){
 #if defined(_WIN32)
@@ -215,10 +216,10 @@ FXbool FXReactor::addSignal(FXint sig,FXbool async){
     if(atomicBoolCas(&sigmanager[sig],(FXReactor*)NULL,this)){
       void (CDECL *handler)(int);
       if(async){
-        handler=FXReactor::signalhandlerasync;    // Asynchronous callback
+        handler=FXReactor::signalhandlerasync;  // Asynchronous callback
         }
       else{
-        handler=FXReactor::signalhandler;         // Normal callback
+        handler=FXReactor::signalhandler;       // Normal callback
         }
       internals->signotified[sig]=0;            // Set non-raised
 #if defined(_WIN32)

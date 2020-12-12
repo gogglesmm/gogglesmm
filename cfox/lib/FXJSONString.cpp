@@ -59,20 +59,21 @@ FXJSONString::FXJSONString(){
 
 // Create JSON string i/o object and open it
 FXJSONString::FXJSONString(const FXString& string,Direction d){
-  FXTRACE((100,"FXJSONString::FXJSONString(string,%s)\n",(d==Save)?"Save":(d==Load)?"Load":"Stop"));
+  FXTRACE((100,"FXJSONString::FXJSONString(\"%.*s\",%s)\n",FXMIN(string.length(),16),string.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   open(string,d);
   }
 
 
 // Create JSON string i/o object and open it
 FXJSONString::FXJSONString(const FXchar* string,FXuval length,Direction d){
-  FXTRACE((100,"FXJSONString::FXJSONString(string,%ld,%s)\n",length,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
+  FXTRACE((100,"FXJSONString::FXJSONString(\"%.*s\",%lu,%s)\n",FXMIN(length,16),string,length,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   open(string,length,d);
   }
 
 
 // Open archive for operation
 FXbool FXJSONString::open(const FXString& string,Direction d){
+  FXTRACE((101,"FXJSONString::open(\"%.*s\",%s)\n",FXMIN(string.length(),16),string.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   FXASSERT(dir==Stop);
   buffer=string;
   if(FXJSON::open(buffer.text(),buffer.length(),d)){
@@ -85,6 +86,7 @@ FXbool FXJSONString::open(const FXString& string,Direction d){
 
 // Open archive for operation
 FXbool FXJSONString::open(const FXchar* string,FXuval length,Direction d){
+  FXTRACE((101,"FXJSONString::open(\"%.*s\",%lu,%s)\n",FXMIN(length,16),string,length,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   FXASSERT(dir==Stop);
   buffer.assign(string,length);
   if(FXJSON::open(buffer.text(),buffer.length(),d)){
@@ -124,7 +126,7 @@ FXival FXJSONString::flush(FXival count){
 
 // Close stream and delete buffers
 FXbool FXJSONString::close(){
-  FXTRACE((100,"FXJSONString::close()\n"));
+  FXTRACE((101,"FXJSONString::close()\n"));
   return FXJSON::close();
   }
 

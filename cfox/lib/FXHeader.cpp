@@ -84,8 +84,8 @@ FXHeaderItem::FXHeaderItem(const FXString& text,FXIcon* ic,FXint s,void* ptr):ic
 
 // Draw item
 void FXHeaderItem::draw(const FXHeader* header,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const {
-  register FXint tx,ty,tw,th,ix,iy,iw,ih,s,ml,mr,mt,mb,beg,end,t,xx,yy,bb,aa,ax,ay;
-  register FXFont *font=header->getFont();
+  FXint tx,ty,tw,th,ix,iy,iw,ih,s,ml,mr,mt,mb,beg,end,t,xx,yy,bb,aa,ax,ay;
+  FXFont *font=header->getFont();
 
   // Get border width and padding
   bb=header->getBorderWidth();
@@ -303,10 +303,10 @@ FXbool FXHeaderItem::isPressed() const {
 
 // Get width of item
 FXint FXHeaderItem::getWidth(const FXHeader* header) const {
-  register FXint ml=header->getPadLeft()+header->getBorderWidth();
-  register FXint mr=header->getPadRight()+header->getBorderWidth();
-  register FXFont *font=header->getFont();
-  register FXint beg,end,tw,iw,s,t,w;
+  FXint ml=header->getPadLeft()+header->getBorderWidth();
+  FXint mr=header->getPadRight()+header->getBorderWidth();
+  FXFont *font=header->getFont();
+  FXint beg,end,tw,iw,s,t,w;
   tw=iw=beg=s=0;
   if(icon) iw=icon->getWidth();
   do{
@@ -327,10 +327,10 @@ FXint FXHeaderItem::getWidth(const FXHeader* header) const {
 
 // Get height of item
 FXint FXHeaderItem::getHeight(const FXHeader* header) const {
-  register FXint mt=header->getPadTop()+header->getBorderWidth();
-  register FXint mb=header->getPadBottom()+header->getBorderWidth();
-  register FXFont *font=header->getFont();
-  register FXint beg,end,th,ih,h;
+  FXint mt=header->getPadTop()+header->getBorderWidth();
+  FXint mb=header->getPadBottom()+header->getBorderWidth();
+  FXFont *font=header->getFont();
+  FXint beg,end,th,ih,h;
   th=ih=beg=0;
   if(icon) ih=icon->getHeight();
   do{
@@ -449,7 +449,7 @@ FXHeader::FXHeader(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint
 
 // Create window
 void FXHeader::create(){
-  register FXint i;
+  FXint i;
   FXFrame::create();
   for(i=0; i<items.no(); i++){items[i]->create();}
   font->create();
@@ -458,7 +458,7 @@ void FXHeader::create(){
 
 // Detach window
 void FXHeader::detach(){
-  register FXint i;
+  FXint i;
   FXFrame::detach();
   for(i=0; i<items.no(); i++){items[i]->detach();}
   font->detach();
@@ -467,7 +467,7 @@ void FXHeader::detach(){
 
 // Get default width
 FXint FXHeader::getDefaultWidth(){
-  register FXint i,t,w=0;
+  FXint i,t,w=0;
   if(options&HEADER_VERTICAL){
     for(i=0; i<items.no(); i++){
       if((t=items[i]->getWidth(this))>w) w=t;
@@ -484,7 +484,7 @@ FXint FXHeader::getDefaultWidth(){
 
 // Get default height
 FXint FXHeader::getDefaultHeight(){
-  register FXint i,t,h=0;
+  FXint i,t,h=0;
   if(options&HEADER_VERTICAL){
     for(i=0; i<items.no(); i++){
       h+=items[i]->getSize();
@@ -592,7 +592,7 @@ FXint FXHeader::setItem(FXint index,const FXString& text,FXIcon *icon,FXint size
 
 // Insert item
 FXint FXHeader::insertItem(FXint index,FXHeaderItem* item,FXbool notify){
-  register FXint i,d;
+  FXint i,d;
 
   // Must have item
   if(!item){ fxerror("%s::insertItem: item is NULL.\n",getClassName()); }
@@ -653,7 +653,7 @@ FXint FXHeader::prependItem(const FXString& text,FXIcon *icon,FXint size,void* p
 
 // Fill list by appending items from array of strings
 FXint FXHeader::fillItems(const FXchar *const *strings,FXIcon *icon,FXint size,void* ptr,FXbool notify){
-  register FXint n=0;
+  FXint n=0;
   if(strings){
     while(strings[n]){
       appendItem(strings[n++],icon,size,ptr,notify);
@@ -665,7 +665,7 @@ FXint FXHeader::fillItems(const FXchar *const *strings,FXIcon *icon,FXint size,v
 
 // Fill list by appending items from array of strings
 FXint FXHeader::fillItems(const FXString* strings,FXIcon *icon,FXint size,void* ptr,FXbool notify){
-  register FXint n=0;
+  FXint n=0;
   if(strings){
     while(!strings[n].empty()){
       appendItem(strings[n++],icon,size,ptr,notify);
@@ -677,7 +677,7 @@ FXint FXHeader::fillItems(const FXString* strings,FXIcon *icon,FXint size,void* 
 
 // Fill list by appending items from newline separated strings
 FXint FXHeader::fillItems(const FXString& strings,FXIcon *icon,FXint size,void* ptr,FXbool notify){
-  register FXint n=0;
+  FXint n=0;
   FXString text;
   while(!(text=strings.section('\n',n)).empty()){
     appendItem(text,icon,size,ptr,notify);
@@ -689,8 +689,8 @@ FXint FXHeader::fillItems(const FXString& strings,FXIcon *icon,FXint size,void* 
 
 // Extract node from list
 FXHeaderItem* FXHeader::extractItem(FXint index,FXbool notify){
-  register FXHeaderItem *result;
-  register FXint i,d;
+  FXHeaderItem *result;
+  FXint i,d;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::extractItem: index out of range.\n",getClassName()); }
@@ -720,7 +720,7 @@ FXHeaderItem* FXHeader::extractItem(FXint index,FXbool notify){
 
 // Remove node from list
 void FXHeader::removeItem(FXint index,FXbool notify){
-  register FXint i,d;
+  FXint i,d;
 
   // Must be in range
   if(index<0 || items.no()<=index){ fxerror("%s::removeItem: index out of range.\n",getClassName()); }
@@ -815,7 +815,7 @@ FXIcon* FXHeader::getItemIcon(FXint index) const {
 
 // Change item's size
 void FXHeader::setItemSize(FXint index,FXint size){
-  register FXint i,d;
+  FXint i,d;
   if(index<0 || items.no()<=index){ fxerror("%s::setItemSize: index out of range.\n",getClassName()); }
   if(size<0) size=0;
   d=size-items[index]->getSize();
@@ -843,7 +843,7 @@ FXint FXHeader::getItemOffset(FXint index) const {
 
 // Get index of item at offset
 FXint FXHeader::getItemAt(FXint coord) const {
-  register FXint h=items.no()-1,l=0,p=coord-pos,m;
+  FXint h=items.no()-1,l=0,p=coord-pos,m;
   if(l<=h){
     if(p<items[l]->getPos()) return -1;
     if(p>=items[h]->getPos()+items[h]->getSize()) return items.no();
@@ -944,7 +944,7 @@ FXbool FXHeader::isItemPressed(FXint index) const {
 
 // Scroll to make given item visible
 void FXHeader::makeItemVisible(FXint index){
-  register FXint newpos,ioffset,isize,space;
+  FXint newpos,ioffset,isize,space;
   if(xid){
     newpos=pos;
     if(0<=index && index<items.no()){

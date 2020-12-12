@@ -68,9 +68,9 @@ static const FXuchar decode[256]={
 
 // Encode src to dst in base85, each 4 bytes is encoded as 5 ascii bytes
 FXchar* fxencode85(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend){
-  register FXchar* ptr=dst;
-  register FXuchar c0,c1,c2,c3,c4;
-  register FXuint value;
+  FXchar* ptr=dst;
+  FXuchar c0,c1,c2,c3,c4;
+  FXuint value;
   while(ptr+4<dstend && src+3<srcend){  // Encode whole groups
     c0=src[0];
     c1=src[1];
@@ -123,10 +123,10 @@ FXchar* fxencode85(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* sr
 // Decode src to dst from base85; assume input is a multiple of 5,
 // and output a whole multiple of 4.
 FXchar* fxdecode85(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend){
-  register const FXchar* end=src;
-  register FXchar* ptr=dst;
-  register FXuchar c0,c1,c2,c3,c4;
-  register FXuint value;
+  const FXchar* end=src;
+  FXchar* ptr=dst;
+  FXuchar c0,c1,c2,c3,c4;
+  FXuint value;
   while(end<srcend && decode[(FXuchar)end[0]]!=128){
     ++end;
     }

@@ -399,8 +399,8 @@ FXbool FXDockBar::insideDock(FXDockSite* docksite,FXint barx,FXint bary){
 
 // Search siblings of drydock for dock opportunity near given coordinates
 FXDockSite* FXDockBar::findDockNear(FXint rootx,FXint rooty){
-  register FXDockSite *docksite;
-  register FXWindow *child;
+  FXDockSite *docksite;
+  FXWindow *child;
   FXint barx,bary;
   if(drydock){
 
@@ -663,7 +663,7 @@ long FXDockBar::onLeave(FXObject* sender,FXSelector sel,void* ptr){
 
 // Pressed LEFT button
 long FXDockBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -701,7 +701,7 @@ long FXDockBar::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Moved the mouse
 long FXDockBar::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   if(mode!=DRAG_NONE){
     FXDockSite *toolbardock=dynamic_cast<FXDockSite*>(getParent());
     FXint mousex,mousey;

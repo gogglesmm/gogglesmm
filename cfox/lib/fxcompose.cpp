@@ -58,8 +58,8 @@ enum {
 
 // Decompose hangul method, if it is hangul (from TR# 15)
 static FXint decomposehangul(FXwchar *result,FXwchar w){
-  register FXwchar SIndex=w-SBase;
-  register FXwchar L,V,T;
+  FXwchar SIndex=w-SBase;
+  FXwchar L,V,T;
   if(0<=SIndex && SIndex<SCount){
     L=LBase+SIndex/NCount;
     V=VBase+(SIndex%NCount)/TCount;
@@ -79,8 +79,8 @@ static FXint decomposehangul(FXwchar *result,FXwchar w){
 
 // Compose hangul in situ; return new length (from TR# 15)
 static FXint composehangul(FXwchar *result,FXint len){
-  register FXwchar w,last,LIndex,VIndex,SIndex,TIndex;
-  register FXint p,q;
+  FXwchar w,last,LIndex,VIndex,SIndex,TIndex;
+  FXint p,q;
   if(0<len){
     last=result[0];
     for(p=q=1; q<len; q++){
@@ -124,10 +124,10 @@ static FXint composehangul(FXwchar *result,FXint len){
 
 // Recursive decomposition of type kind
 static FXint decomposerecursive(FXwchar *result,FXwchar w,FXbool canonical){
-  register const FXwchar* decomposition=Unicode::charDecompose(w);
+  const FXwchar* decomposition=Unicode::charDecompose(w);
   if(decomposition[-2] && ((decomposition[-2]==DecomposeCanonical) || !canonical)){
-    register FXint p=0;
-    register FXint n=0;
+    FXint p=0;
+    FXint n=0;
     while(p<decomposition[-1]){
       n+=decomposerecursive(result+n,decomposition[p++],canonical);
       }
@@ -139,8 +139,8 @@ static FXint decomposerecursive(FXwchar *result,FXwchar w,FXbool canonical){
 
 // Canonicalize wide character string s, by rearranging combining marks
 static FXwchar *strnormalize(FXwchar* result,FXint len){
-  register FXwchar uf,us,cf,cs;
-  register FXint p=0;
+  FXwchar uf,us,cf,cs;
+  FXint p=0;
   while(p+1<len){
 
     // Second character is a starter; advance by 2
@@ -172,8 +172,8 @@ static FXwchar *strnormalize(FXwchar* result,FXint len){
 
 // Compose characters from canonical/compatible decomposition
 static FXint strcompose(FXwchar* result,FXint len){
-  register FXint p,q,cc,starterpos,startercc;
-  register FXwchar w;
+  FXint p,q,cc,starterpos,startercc;
+  FXwchar w;
   if(0<len){
     starterpos=0;
     startercc=0;

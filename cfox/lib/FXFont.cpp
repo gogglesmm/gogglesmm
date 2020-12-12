@@ -597,8 +597,8 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
 
 // Convert text to font weight
 static FXuint xlfdWeight(const FXchar* text){
-  register FXchar c1=Ascii::toLower(text[0]);
-  register FXchar c2=Ascii::toLower(text[1]);
+  FXchar c1=Ascii::toLower(text[0]);
+  FXchar c2=Ascii::toLower(text[1]);
   if(c1=='l' && c2=='i') return FXFont::Light;
   if(c1=='o' && c2=='u') return FXFont::Light;
   if(c1=='s' && c2=='h') return FXFont::Light;
@@ -615,8 +615,8 @@ static FXuint xlfdWeight(const FXchar* text){
 
 // Convert text to slant
 static FXuint xlfdSlant(const FXchar* text){
-  register FXchar c1=Ascii::toLower(text[0]);
-  register FXchar c2=Ascii::toLower(text[1]);
+  FXchar c1=Ascii::toLower(text[0]);
+  FXchar c2=Ascii::toLower(text[1]);
   if(c1=='i') return FXFont::Italic;
   if(c1=='o') return FXFont::Oblique;
   if(c1=='r' && c2=='i') return FXFont::ReverseItalic;
@@ -659,7 +659,7 @@ static FXuint xlfdSetwidth(const FXchar* text){
 
 // Convert pitch to flags
 static FXuint xlfdPitch(const FXchar* text){
-  register FXchar c=Ascii::toLower(text[0]);
+  FXchar c=Ascii::toLower(text[0]);
   if(c=='p') return FXFont::Variable;
   if(c=='m' || c=='c') return FXFont::Fixed;
   return 0;
@@ -1435,10 +1435,10 @@ FXbool FXFont::hasChar(FXwchar ch) const {
 #elif defined(HAVE_XFT_H)       ///// XFT /////
     return XftCharExists(DISPLAY(getApp()),(XftFont*)font,ch);
 #else                           ///// XLFD /////
-    register const XFontStruct *fs=(XFontStruct*)font;
-    register const XCharStruct *cm;
-    register FXuchar row=ch>>8;
-    register FXuchar col=ch&255;
+    const XFontStruct *fs=(XFontStruct*)font;
+    const XCharStruct *cm;
+    FXuchar row=ch>>8;
+    FXuchar col=ch&255;
     if(fs->min_char_or_byte2<=col && col<=fs->max_char_or_byte2 && fs->min_byte1<=row && row<=fs->max_byte1){
       if(!fs->per_char) return true;
       cm=fs->per_char+((row-fs->min_byte1)*(fs->max_char_or_byte2-fs->min_char_or_byte2+1))+(col-fs->min_char_or_byte2);
@@ -1518,12 +1518,12 @@ FXint FXFont::leftBearing(FXwchar ch) const {
 #elif defined(HAVE_XFT_H)       ///// XFT /////
     return 0;                                           // FIXME
 #else                           ///// XLFD /////
-    register const XFontStruct *fs=(XFontStruct*)font;
+    const XFontStruct *fs=(XFontStruct*)font;
     if(fs->per_char){
-      register FXuchar row=ch>>8;
-      register FXuchar col=ch&255;
+      FXuchar row=ch>>8;
+      FXuchar col=ch&255;
       if(fs->min_char_or_byte2<=col && col<=fs->max_char_or_byte2 && fs->min_byte1<=row && row<=fs->max_byte1){
-        register const XCharStruct *cm=fs->per_char+((row-fs->min_byte1)*(fs->max_char_or_byte2-fs->min_char_or_byte2+1))+(col-fs->min_char_or_byte2);
+        const XCharStruct *cm=fs->per_char+((row-fs->min_byte1)*(fs->max_char_or_byte2-fs->min_char_or_byte2+1))+(col-fs->min_char_or_byte2);
         if(cm->width || cm->ascent || cm->descent) return cm->lbearing;
         }
       return fs->per_char[((fs->default_char>>8)-fs->min_byte1)*(fs->max_char_or_byte2-fs->min_char_or_byte2+1)+((fs->default_char&255)-fs->min_char_or_byte2)].lbearing;
@@ -1543,12 +1543,12 @@ FXint FXFont::rightBearing(FXwchar ch) const {
 #elif defined(HAVE_XFT_H)       ///// XFT /////
     return 0;                                           // FIXME
 #else                           ///// XLFD /////
-    register const XFontStruct *fs=(XFontStruct*)font;
+    const XFontStruct *fs=(XFontStruct*)font;
     if(fs->per_char){
-      register FXuchar row=ch>>8;
-      register FXuchar col=ch&255;
+      FXuchar row=ch>>8;
+      FXuchar col=ch&255;
       if(fs->min_char_or_byte2<=col && col<=fs->max_char_or_byte2 && fs->min_byte1<=row && row<=fs->max_byte1){
-        register const XCharStruct *cm=fs->per_char+((row-fs->min_byte1)*(fs->max_char_or_byte2-fs->min_char_or_byte2+1))+(col-fs->min_char_or_byte2);
+        const XCharStruct *cm=fs->per_char+((row-fs->min_byte1)*(fs->max_char_or_byte2-fs->min_char_or_byte2+1))+(col-fs->min_char_or_byte2);
         if(cm->width || cm->ascent || cm->descent) return cm->rbearing;
         }
       return fs->per_char[((fs->default_char>>8)-fs->min_byte1)*(fs->max_char_or_byte2-fs->min_char_or_byte2+1)+((fs->default_char&255)-fs->min_char_or_byte2)].rbearing;
@@ -1658,9 +1658,9 @@ FXint FXFont::getCharWidth(const FXwchar ch) const {
     XftTextExtents32(DISPLAY(getApp()),(XftFont*)font,(const FcChar32*)&ch,1,&extents);
     return extents.xOff;
 #else                           ///// XLFD /////
-    register const XFontStruct *fs=(XFontStruct*)font;
-    register FXint width,size;
-    register FXuchar r,c;
+    const XFontStruct *fs=(XFontStruct*)font;
+    FXint width,size;
+    FXuchar r,c;
     if(fs->per_char){
       r=ch>>8;
       c=ch&255;
@@ -1701,14 +1701,14 @@ FXint FXFont::getTextWidth(const FXchar *string,FXuint length) const {
     if(angle){ return (FXint)(0.5+Math::sqrt((FXdouble)(extents.xOff*extents.xOff+extents.yOff*extents.yOff))); }
     return extents.xOff;
 #else                           ///// XLFD /////
-    register const XFontStruct *fs=(XFontStruct*)font;
-    register FXint defwidth=fs->min_bounds.width;
-    register FXint width=0,ww;
-    register FXuint p=0;
-    register FXuint s;
-    register FXuchar r;
-    register FXuchar c;
-    register FXwchar w;
+    const XFontStruct *fs=(XFontStruct*)font;
+    FXint defwidth=fs->min_bounds.width;
+    FXint width=0,ww;
+    FXuint p=0;
+    FXuint s;
+    FXuchar r;
+    FXuchar c;
+    FXwchar w;
     if(fs->per_char){
       r=fs->default_char>>8;
       c=fs->default_char&255;
@@ -1864,8 +1864,8 @@ void FXFont::drawText(FXDC* dc,FXint x,FXint y,const FXchar* string,FXuint lengt
 #else                           ///// XLFD /////
 
 static FXint utf2db(XChar2b *dst,const FXchar *src,FXint n){
-  register FXint len,p;
-  register FXwchar w;
+  FXint len,p;
+  FXwchar w;
   for(p=len=0; p<n; p+=wclen(src+p),len++){
     w=wc(src+p);
     dst[len].byte1=(w>>8);
@@ -1877,10 +1877,10 @@ static FXint utf2db(XChar2b *dst,const FXchar *src,FXint n){
 
 // Draw text starting at x,y
 void FXFont::drawText(FXDC* dc,FXint x,FXint y,const FXchar* string,FXuint length) const {
-  register const XFontStruct *fs=(XFontStruct*)font;
-  register FXint count,escapement,defwidth,ww,size,i;
-  register FXdouble ang,ux,uy;
-  register FXuchar r,c;
+  const XFontStruct *fs=(XFontStruct*)font;
+  FXint count,escapement,defwidth,ww,size,i;
+  FXdouble ang,ux,uy;
+  FXuchar r,c;
   XChar2b sbuffer[4096];
   count=utf2db(sbuffer,string,FXMIN(length,4096));
   FXASSERT(count<=length);
@@ -1947,9 +1947,9 @@ void FXFont::drawImageText(FXDC* dc,FXint x,FXint y,const FXString& string) cons
 
 // Function to sort by name, weight, slant, and size
 static int CDECL comparefont(const void *a,const void *b){
-  register const FXFontDesc *fa=(const FXFontDesc*)a;
-  register const FXFontDesc *fb=(const FXFontDesc*)b;
-  register FXint cmp=strcmp(fa->face,fb->face);
+  const FXFontDesc *fa=(const FXFontDesc*)a;
+  const FXFontDesc *fb=(const FXFontDesc*)b;
+  FXint cmp=strcmp(fa->face,fb->face);
   return cmp ? cmp : (fa->weight!=fb->weight) ? fa->weight-fb->weight : (fa->slant!=fb->slant) ? fa->slant-fb->slant : fa->size-fb->size;
   }
 
@@ -1969,7 +1969,7 @@ struct FXFontStore {
 
 // Callback function for EnumFontFamiliesEx()
 static int CALLBACK EnumFontFamExProc(const LOGFONTA *lf,const TEXTMETRICA *lptm,DWORD FontType,LPARAM lParam){
-  register FXFontStore *pFontStore=(FXFontStore*)lParam;
+  FXFontStore *pFontStore=(FXFontStore*)lParam;
   FXASSERT(lf);
   FXASSERT(lptm);
   FXASSERT(pFontStore);
@@ -2081,7 +2081,7 @@ static int CALLBACK EnumFontFamExProc(const LOGFONTA *lf,const TEXTMETRICA *lptm
 
 // List all fonts matching hints
 FXbool FXFont::listFonts(FXFontDesc*& fonts,FXuint& numfonts,const FXString& face,FXuint wt,FXuint sl,FXuint sw,FXuint en,FXuint h){
-  register FXuint i,j;
+  FXuint i,j;
 
   // Initialize return values
   fonts=NULL;

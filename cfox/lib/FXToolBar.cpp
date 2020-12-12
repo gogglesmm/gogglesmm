@@ -99,9 +99,9 @@ FXToolBar::FXToolBar(FXComposite* p,FXuint opts,FXint x,FXint y,FXint w,FXint h,
 
 // Compute minimum width based on child layout hints
 FXint FXToolBar::getDefaultWidth(){
-  register FXint total=0,mw=0,w;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint total=0,mw=0,w;
+  FXWindow* child;
+  FXuint hints;
   if(options&PACK_UNIFORM_WIDTH) mw=maxChildWidth();
   for(child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
@@ -125,9 +125,9 @@ FXint FXToolBar::getDefaultWidth(){
 
 // Compute minimum height based on child layout hints
 FXint FXToolBar::getDefaultHeight(){
-  register FXint total=0,mh=0,h;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint total=0,mh=0,h;
+  FXWindow* child;
+  FXuint hints;
   if(options&PACK_UNIFORM_HEIGHT) mh=maxChildHeight();
   for(child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
@@ -152,9 +152,9 @@ FXint FXToolBar::getDefaultHeight(){
 /*
 // Return width for given height
 FXint FXToolBar::getWidthForHeight(FXint givenheight){
-  register FXint wtot,wmax,hcum,w,h,space,ngalleys,mw=0,mh=0;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint wtot,wmax,hcum,w,h,space,ngalleys,mw=0,mh=0;
+  FXWindow* child;
+  FXuint hints;
   wtot=wmax=hcum=ngalleys=0;
   space=givenheight-padtop-padbottom-(border<<1);
   if(space<1) space=1;
@@ -184,9 +184,9 @@ FXint FXToolBar::getWidthForHeight(FXint givenheight){
 
 // Return height for given width
 FXint FXToolBar::getHeightForWidth(FXint givenwidth){
-  register FXint htot,hmax,wcum,w,h,space,ngalleys,mw=0,mh=0;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint htot,hmax,wcum,w,h,space,ngalleys,mw=0,mh=0;
+  FXWindow* child;
+  FXuint hints;
   htot=hmax=wcum=ngalleys=0;
   space=givenwidth-padleft-padright-(border<<1);
   if(space<1) space=1;
@@ -356,9 +356,9 @@ void FXToolBar::layout(){
 
 // Recalculate layout
 void FXToolBar::layout(){
-  register FXint left,right,top,bottom,remain,expand,mw=0,mh=0,x,y,w,h,e,t;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint left,right,top,bottom,remain,expand,mw=0,mh=0,x,y,w,h,e,t;
+  FXWindow *child;
+  FXuint hints;
 
   // Placement rectangle; right/bottom non-inclusive
   left=border+padleft;

@@ -185,7 +185,12 @@ void FXCursor::create(){
           if(!hmask){ throw FXImageException("unable to create cursor"); }
 
           // Create cursor
-          ICONINFO iconinfo={false,hotx,hoty,hmask,himage};
+          ICONINFO iconinfo;
+          iconinfo.fIcon=false;
+          iconinfo.xHotspot=hotx;
+          iconinfo.yHotspot=hoty;
+          iconinfo.hbmMask=hmask;
+          iconinfo.hbmColor=himage;
           xid=CreateIconIndirect(&iconinfo);
 
           // No longer needed

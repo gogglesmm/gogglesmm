@@ -96,9 +96,9 @@ FXTabBar::FXTabBar(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint
 
 // Get width
 FXint FXTabBar::getDefaultWidth(){
-  register FXint w,wtabs,maxtabw,t,ntabs;
-  register FXuint hints;
-  register FXWindow *child;
+  FXint w,wtabs,maxtabw,t,ntabs;
+  FXuint hints;
+  FXWindow *child;
 
   // Left or right tabs
   if(options&TABBOOK_SIDEWAYS){
@@ -134,9 +134,9 @@ FXint FXTabBar::getDefaultWidth(){
 
 // Get height
 FXint FXTabBar::getDefaultHeight(){
-  register FXint h,htabs,maxtabh,t,ntabs;
-  register FXuint hints;
-  register FXWindow *child;
+  FXint h,htabs,maxtabh,t,ntabs;
+  FXuint hints;
+  FXWindow *child;
 
   // Left or right tabs
   if(options&TABBOOK_SIDEWAYS){
@@ -172,10 +172,10 @@ FXint FXTabBar::getDefaultHeight(){
 
 // Recalculate layout
 void FXTabBar::layout(){
-  register FXint i,px,py,pw,ph,x,y,xx,yy,w,h,maxtabw,maxtabh,cumw,cumh,newcurrent;
-  register FXWindow *raisetab=NULL;
-  register FXWindow *tab;
-  register FXuint hints;
+  FXint i,px,py,pw,ph,x,y,xx,yy,w,h,maxtabw,maxtabh,cumw,cumh,newcurrent;
+  FXWindow *raisetab=NULL;
+  FXWindow *tab;
+  FXuint hints;
 
   newcurrent=-1;
 

@@ -298,7 +298,7 @@ FXIconItem *FXFileList::createItem(const FXString& text,FXIcon *big,FXIcon* mini
 
 // Compare file names
 FXint FXFileList::ascending(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSection(a->label.text(),b->label.text(),0);
     }
@@ -308,7 +308,7 @@ FXint FXFileList::ascending(const FXIconItem* a,const FXIconItem* b){
 
 // Reversed compare file name
 FXint FXFileList::descending(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSection(b->label.text(),a->label.text(),0);
     }
@@ -318,7 +318,7 @@ FXint FXFileList::descending(const FXIconItem* a,const FXIconItem* b){
 
 // Compare file names, case insensitive
 FXint FXFileList::ascendingCase(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSectionCase(a->label.text(),b->label.text(),0);
     }
@@ -328,7 +328,7 @@ FXint FXFileList::ascendingCase(const FXIconItem* a,const FXIconItem* b){
 
 // Reversed compare file name, case insensitive
 FXint FXFileList::descendingCase(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSectionCase(b->label.text(),a->label.text(),0);
     }
@@ -338,7 +338,7 @@ FXint FXFileList::descendingCase(const FXIconItem* a,const FXIconItem* b){
 
 // Compare file types
 FXint FXFileList::ascendingType(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSection(a->label.text(),b->label.text(),1);
     if(diff==0){
@@ -351,7 +351,7 @@ FXint FXFileList::ascendingType(const FXIconItem* a,const FXIconItem* b){
 
 // Reversed compare file type
 FXint FXFileList::descendingType(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSection(b->label.text(),a->label.text(),1);
     if(diff==0){
@@ -364,7 +364,7 @@ FXint FXFileList::descendingType(const FXIconItem* a,const FXIconItem* b){
 
 // Compare file size
 FXint FXFileList::ascendingSize(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=FXSGNZ(static_cast<const FXFileItem*>(a)->size - static_cast<const FXFileItem*>(b)->size);
     if(diff==0){
@@ -377,7 +377,7 @@ FXint FXFileList::ascendingSize(const FXIconItem* a,const FXIconItem* b){
 
 // Reversed compare file size
 FXint FXFileList::descendingSize(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=FXSGNZ(static_cast<const FXFileItem*>(b)->size - static_cast<const FXFileItem*>(a)->size);
     if(diff==0){
@@ -390,7 +390,7 @@ FXint FXFileList::descendingSize(const FXIconItem* a,const FXIconItem* b){
 
 // Compare file time
 FXint FXFileList::ascendingTime(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=(FXint)((FXFileItem*)b)->isDirectory() - (FXint)((FXFileItem*)a)->isDirectory();
+  FXint diff=(FXint)((FXFileItem*)b)->isDirectory() - (FXint)((FXFileItem*)a)->isDirectory();
   if(diff==0){
     diff=FXSGNZ(static_cast<const FXFileItem*>(a)->date - static_cast<const FXFileItem*>(b)->date);
     if(diff==0){
@@ -403,7 +403,7 @@ FXint FXFileList::ascendingTime(const FXIconItem* a,const FXIconItem* b){
 
 // Reversed compare file time
 FXint FXFileList::descendingTime(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=(FXint)((FXFileItem*)b)->isDirectory() - (FXint)((FXFileItem*)a)->isDirectory();
+  FXint diff=(FXint)((FXFileItem*)b)->isDirectory() - (FXint)((FXFileItem*)a)->isDirectory();
   if(diff==0){
     diff=FXSGNZ(static_cast<const FXFileItem*>(b)->date - static_cast<const FXFileItem*>(a)->date);
     if(diff==0){
@@ -416,7 +416,7 @@ FXint FXFileList::descendingTime(const FXIconItem* a,const FXIconItem* b){
 
 // Compare file user
 FXint FXFileList::ascendingUser(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSection(a->label.text(),b->label.text(),4);
     if(diff==0){
@@ -429,7 +429,7 @@ FXint FXFileList::ascendingUser(const FXIconItem* a,const FXIconItem* b){
 
 // Reversed compare file user
 FXint FXFileList::descendingUser(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSection(b->label.text(),a->label.text(),4);
     if(diff==0){
@@ -442,7 +442,7 @@ FXint FXFileList::descendingUser(const FXIconItem* a,const FXIconItem* b){
 
 // Compare file group
 FXint FXFileList::ascendingGroup(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSection(a->label.text(),b->label.text(),5);
     if(diff==0){
@@ -455,7 +455,7 @@ FXint FXFileList::ascendingGroup(const FXIconItem* a,const FXIconItem* b){
 
 // Reversed compare file group
 FXint FXFileList::descendingGroup(const FXIconItem* a,const FXIconItem* b){
-  register FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
+  FXint diff=static_cast<const FXFileItem*>(b)->isDirectory() - static_cast<const FXFileItem*>(a)->isDirectory();
   if(diff==0){
     diff=compareSection(b->label.text(),a->label.text(),5);
     if(diff==0){
@@ -1292,7 +1292,7 @@ long FXFileList::onCmdRefresh(FXObject*,FXSelector,void*){
 
 // Compare till '\t' or '\0'
 static FXbool fileequal(const FXchar* p1,const FXchar* p2){
-  register FXint c1,c2;
+  FXint c1,c2;
   do{
     c1=*p1++;
     c2=*p2++;

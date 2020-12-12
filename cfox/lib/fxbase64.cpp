@@ -68,8 +68,8 @@ static const FXuchar decode[256]={
 // Each 3 bytes from source is encoded as 4 bytes to destination.  If source is not
 // a multiple of 3 bytes, last few bytes are encoded with '='.
 FXchar* fxencode64(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend){
-  register FXchar* ptr=dst;
-  register FXuchar c0,c1,c2;
+  FXchar* ptr=dst;
+  FXuchar c0,c1,c2;
   while(ptr+3<dstend && src+2<srcend){  // Encode whole groups
     c0=src[0];
     c1=src[1];
@@ -110,9 +110,9 @@ FXchar* fxencode64(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* sr
 // Each 4 bytes from source is decoded to 3 bytes to destination, except at the end
 // where fewer bytes may be generated.
 FXchar* fxdecode64(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend){
-  register const FXchar* end=src;
-  register FXchar* ptr=dst;
-  register FXuchar c0,c1,c2,c3;
+  const FXchar* end=src;
+  FXchar* ptr=dst;
+  FXuchar c0,c1,c2,c3;
   while(end<srcend && decode[(FXuchar)end[0]]!=128){
     ++end;
     }

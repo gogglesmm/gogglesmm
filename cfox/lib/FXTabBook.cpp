@@ -90,9 +90,9 @@ FXTabBook::FXTabBook(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXi
 
 // Get width
 FXint FXTabBook::getDefaultWidth(){
-  register FXint w,wtabs,maxtabw,wpnls,t,ntabs;
-  register FXWindow *tab,*pane;
-  register FXuint hints;
+  FXint w,wtabs,maxtabw,wpnls,t,ntabs;
+  FXWindow *tab,*pane;
+  FXuint hints;
 
   // Left or right tabs
   if(options&TABBOOK_SIDEWAYS){
@@ -135,9 +135,9 @@ FXint FXTabBook::getDefaultWidth(){
 
 // Get height
 FXint FXTabBook::getDefaultHeight(){
-  register FXint h,htabs,maxtabh,hpnls,t,ntabs;
-  register FXWindow *tab,*pane;
-  register FXuint hints;
+  FXint h,htabs,maxtabh,hpnls,t,ntabs;
+  FXWindow *tab,*pane;
+  FXuint hints;
 
   // Left or right tabs
   if(options&TABBOOK_SIDEWAYS){
@@ -180,11 +180,11 @@ FXint FXTabBook::getDefaultHeight(){
 
 // Recalculate layout
 void FXTabBook::layout(){
-  register FXint i,xx,yy,x,y,w,h,px,py,pw,ph,maxtabw,maxtabh,cumw,cumh,newcurrent;
-  register FXWindow *raisepane=NULL;
-  register FXWindow *raisetab=NULL;
-  register FXWindow *pane,*tab;
-  register FXuint hints;
+  FXint i,xx,yy,x,y,w,h,px,py,pw,ph,maxtabw,maxtabh,cumw,cumh,newcurrent;
+  FXWindow *raisepane=NULL;
+  FXWindow *raisetab=NULL;
+  FXWindow *pane,*tab;
+  FXuint hints;
 
   newcurrent=-1;
 

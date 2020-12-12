@@ -95,7 +95,7 @@ void FXBitmapFrame::create(){
 
 // Get default width
 FXint FXBitmapFrame::getDefaultWidth(){
-  register FXint w=0;
+  FXint w=0;
   if(bitmap) w=bitmap->getWidth();
   return w+padleft+padright+(border<<1);
   }
@@ -103,7 +103,7 @@ FXint FXBitmapFrame::getDefaultWidth(){
 
 // Get default height
 FXint FXBitmapFrame::getDefaultHeight(){
-  register FXint h=0;
+  FXint h=0;
   if(bitmap) h=bitmap->getHeight();
   return h+padtop+padbottom+(border<<1);
   }

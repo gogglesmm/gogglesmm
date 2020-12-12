@@ -111,7 +111,7 @@ void FXColorBar::detach(){
 
 // Resize the bar
 void FXColorBar::layout(){
-  register FXint ww,hh;
+  FXint ww,hh;
   ww=width-padleft-padright-(border<<1)-4;
   hh=height-padtop-padbottom-(border<<1)-4;
   if(ww<1) ww=1;
@@ -127,8 +127,8 @@ void FXColorBar::layout(){
 
 // Recompute the bar image
 void FXColorBar::updatebar(){
-  register FXint x,y,w,h;
-  register FXColor clr;
+  FXint x,y,w,h;
+  FXColor clr;
   FXfloat r,g,b,d;
   w=bar->getWidth();
   h=bar->getHeight();

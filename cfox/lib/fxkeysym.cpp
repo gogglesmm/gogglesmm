@@ -820,7 +820,7 @@ static CodeMap sym2ucs[] = {
 
 // Translate X11 keysym to unicode
 FXwchar fxkeysym2ucs(FXwchar sym){
-  register FXint h=ARRAYNUMBER(sym2ucs)-1,l=0,m;
+  FXint h=ARRAYNUMBER(sym2ucs)-1,l=0,m;
 
   // First check for Latin-1 characters (1:1 mapping)
   if((0x0020<=sym && sym<=0x007e) || (0x00a0<=sym && sym<=0x00ff)) return sym;
@@ -1600,7 +1600,7 @@ static CodeMap ucs2sym[] = {
 
 // Translate X11 keysym to unicode
 FXwchar fxucs2keysym(FXwchar ucs){
-  register FXint h=ARRAYNUMBER(ucs2sym)-1,l=0,m;
+  FXint h=ARRAYNUMBER(ucs2sym)-1,l=0,m;
 
   // First check for Latin-1 characters
   if((ucs>=0x0020 && ucs<=0x007e) || (ucs>=0x00a0 && ucs<=0x00ff)) return ucs;

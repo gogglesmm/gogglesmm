@@ -74,8 +74,8 @@ FXIMPLEMENT(FXColorItem,FXListItem,NULL,0)
 
 // Draw item
 void FXColorItem::draw(const FXList* list,FXDC& dc,FXint xx,FXint yy,FXint ww,FXint hh) const {
-  register FXFont *font=list->getFont();
-  register FXint th=0;
+  FXFont *font=list->getFont();
+  FXint th=0;
   if(!label.empty()) th=font->getFontHeight();
   if(isSelected())
     dc.setForeground(list->getSelBackColor());
@@ -106,8 +106,8 @@ void FXColorItem::draw(const FXList* list,FXDC& dc,FXint xx,FXint yy,FXint ww,FX
 
 // See if item got hit, and where: 0 is outside, 1 is icon, 2 is text
 FXint FXColorItem::hitItem(const FXList* list,FXint xx,FXint yy) const {
-  register FXint tw=0,th=0,ix,iy,tx,ty,h;
-  register FXFont *font=list->getFont();
+  FXint tw=0,th=0,ix,iy,tx,ty,h;
+  FXFont *font=list->getFont();
   if(!label.empty()){
     tw=4+font->getTextWidth(label);
     th=4+font->getFontHeight();
@@ -131,8 +131,8 @@ FXint FXColorItem::hitItem(const FXList* list,FXint xx,FXint yy) const {
 
 // Get width of item
 FXint FXColorItem::getWidth(const FXList* list) const {
-  register FXFont *font=list->getFont();
-  register FXint w=SWATCH_WIDTH;
+  FXFont *font=list->getFont();
+  FXint w=SWATCH_WIDTH;
   if(!label.empty()) w+=ICON_SPACING+font->getTextWidth(label);
   return SIDE_SPACING+w;
   }
@@ -140,8 +140,8 @@ FXint FXColorItem::getWidth(const FXList* list) const {
 
 // Get height of item
 FXint FXColorItem::getHeight(const FXList* list) const {
-  register FXFont *font=list->getFont();
-  register FXint h=0;
+  FXFont *font=list->getFont();
+  FXint h=0;
   if(!label.empty()) h=font->getFontHeight();
   return LINE_SPACING+FXMAX(h,SWATCH_HEIGHT);
   }
@@ -167,7 +167,7 @@ FXListItem *FXColorList::createItem(const FXString& text,FXIcon*,void* ptr){
 
 // Fill list by appending color items from array of strings and array of colors
 FXint FXColorList::fillItems(const FXchar *const *strings,FXColor *colors,void* ptr,FXbool notify){
-  register FXint n=0;
+  FXint n=0;
   if(strings){
     while(strings[n]){
       appendItem(strings[n],colors[n],ptr,notify);

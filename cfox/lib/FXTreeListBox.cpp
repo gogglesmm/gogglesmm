@@ -364,8 +364,8 @@ FXTreeItem* FXTreeListBox::getCurrentItem() const {
 
 // Fill tree list box by appending items from array of strings
 FXint FXTreeListBox::fillItems(FXTreeItem* father,const FXchar *const *strings,FXIcon* oi,FXIcon* ci,void* ptr,FXbool notify){
-  register FXTreeItem* currentitem=tree->getCurrentItem();
-  register FXint n=tree->fillItems(father,strings,oi,ci,ptr,notify);
+  FXTreeItem* currentitem=tree->getCurrentItem();
+  FXint n=tree->fillItems(father,strings,oi,ci,ptr,notify);
   if(currentitem!=tree->getCurrentItem()){
     field->setIcon(tree->getItemClosedIcon(tree->getCurrentItem()));
     field->setText(tree->getItemText(tree->getCurrentItem()));
@@ -377,8 +377,8 @@ FXint FXTreeListBox::fillItems(FXTreeItem* father,const FXchar *const *strings,F
 
 // Fill tree list box by appending items from array of strings
 FXint FXTreeListBox::fillItems(FXTreeItem* father,const FXString* strings,FXIcon* oi,FXIcon* ci,void* ptr,FXbool notify){
-  register FXTreeItem* currentitem=tree->getCurrentItem();
-  register FXint n=tree->fillItems(father,strings,oi,ci,ptr,notify);
+  FXTreeItem* currentitem=tree->getCurrentItem();
+  FXint n=tree->fillItems(father,strings,oi,ci,ptr,notify);
   if(currentitem!=tree->getCurrentItem()){
     field->setIcon(tree->getItemClosedIcon(tree->getCurrentItem()));
     field->setText(tree->getItemText(tree->getCurrentItem()));
@@ -390,8 +390,8 @@ FXint FXTreeListBox::fillItems(FXTreeItem* father,const FXString* strings,FXIcon
 
 // Fill tree list box by appending items from newline separated strings
 FXint FXTreeListBox::fillItems(FXTreeItem* father,const FXString& strings,FXIcon* oi,FXIcon* ci,void* ptr,FXbool notify){
-  register FXTreeItem* currentitem=tree->getCurrentItem();
-  register FXint n=tree->fillItems(father,strings,oi,ci,ptr,notify);
+  FXTreeItem* currentitem=tree->getCurrentItem();
+  FXint n=tree->fillItems(father,strings,oi,ci,ptr,notify);
   if(currentitem!=tree->getCurrentItem()){
     field->setIcon(tree->getItemClosedIcon(tree->getCurrentItem()));
     field->setText(tree->getItemText(tree->getCurrentItem()));
@@ -403,7 +403,7 @@ FXint FXTreeListBox::fillItems(FXTreeItem* father,const FXString& strings,FXIcon
 
 // Replace the original item orig with new [possibly subclassed] item
 FXTreeItem* FXTreeListBox::setItem(FXTreeItem* orig,FXTreeItem* item,FXbool notify){
-  register FXTreeItem *newitem=tree->setItem(orig,item,notify);
+  FXTreeItem *newitem=tree->setItem(orig,item,notify);
   if(tree->getCurrentItem()==newitem){
     field->setIcon(tree->getItemClosedIcon(newitem));
     field->setText(tree->getItemText(newitem));
@@ -415,7 +415,7 @@ FXTreeItem* FXTreeListBox::setItem(FXTreeItem* orig,FXTreeItem* item,FXbool noti
 
 // Insert item under father before other item
 FXTreeItem* FXTreeListBox::insertItem(FXTreeItem* other,FXTreeItem* father,FXTreeItem* item,FXbool notify){
-  register FXTreeItem *newitem=tree->insertItem(other,father,item,notify);
+  FXTreeItem *newitem=tree->insertItem(other,father,item,notify);
   if(tree->getCurrentItem()==newitem){
     field->setIcon(tree->getItemClosedIcon(newitem));
     field->setText(tree->getItemText(newitem));
@@ -427,7 +427,7 @@ FXTreeItem* FXTreeListBox::insertItem(FXTreeItem* other,FXTreeItem* father,FXTre
 
 // Insert item with given text and optional icons, and user-data pointer under father before other item
 FXTreeItem* FXTreeListBox::insertItem(FXTreeItem* other,FXTreeItem* father,const FXString& text,FXIcon* oi,FXIcon* ci,void* ptr,FXbool notify){
-  register FXTreeItem *newitem=tree->insertItem(other,father,text,oi,ci,ptr,notify);
+  FXTreeItem *newitem=tree->insertItem(other,father,text,oi,ci,ptr,notify);
   if(tree->getCurrentItem()==newitem){
     field->setIcon(tree->getItemClosedIcon(newitem));
     field->setText(tree->getItemText(newitem));
@@ -439,7 +439,7 @@ FXTreeItem* FXTreeListBox::insertItem(FXTreeItem* other,FXTreeItem* father,const
 
 // Append item as last child of father
 FXTreeItem* FXTreeListBox::appendItem(FXTreeItem* father,FXTreeItem* item,FXbool notify){
-  register FXTreeItem *newitem=tree->appendItem(father,item,notify);
+  FXTreeItem *newitem=tree->appendItem(father,item,notify);
   if(tree->getCurrentItem()==newitem){
     field->setIcon(tree->getItemClosedIcon(newitem));
     field->setText(tree->getItemText(newitem));
@@ -451,7 +451,7 @@ FXTreeItem* FXTreeListBox::appendItem(FXTreeItem* father,FXTreeItem* item,FXbool
 
 // Append item with given text and optional icons, and user-data pointer as last child of father
 FXTreeItem* FXTreeListBox::appendItem(FXTreeItem* father,const FXString& text,FXIcon* oi,FXIcon* ci,void* ptr,FXbool notify){
-  register FXTreeItem *newitem=tree->appendItem(father,text,oi,ci,ptr,notify);
+  FXTreeItem *newitem=tree->appendItem(father,text,oi,ci,ptr,notify);
   if(tree->getCurrentItem()==newitem){
     field->setIcon(tree->getItemClosedIcon(newitem));
     field->setText(tree->getItemText(newitem));
@@ -463,7 +463,7 @@ FXTreeItem* FXTreeListBox::appendItem(FXTreeItem* father,const FXString& text,FX
 
 // Prepend item as first child of father
 FXTreeItem* FXTreeListBox::prependItem(FXTreeItem* father,FXTreeItem* item,FXbool notify){
-  register FXTreeItem *newitem=tree->prependItem(father,item,notify);
+  FXTreeItem *newitem=tree->prependItem(father,item,notify);
   if(tree->getCurrentItem()==newitem){
     field->setIcon(tree->getItemClosedIcon(newitem));
     field->setText(tree->getItemText(newitem));
@@ -475,7 +475,7 @@ FXTreeItem* FXTreeListBox::prependItem(FXTreeItem* father,FXTreeItem* item,FXboo
 
 // Prepend item with given text and optional icons, and user-data pointer as first child of father
 FXTreeItem* FXTreeListBox::prependItem(FXTreeItem* father,const FXString& text,FXIcon* oi,FXIcon* ci,void* ptr,FXbool notify){
-  register FXTreeItem *newitem=tree->prependItem(father,text,oi,ci,ptr,notify);
+  FXTreeItem *newitem=tree->prependItem(father,text,oi,ci,ptr,notify);
   if(tree->getCurrentItem()==newitem){
     field->setIcon(tree->getItemClosedIcon(newitem));
     field->setText(tree->getItemText(newitem));
@@ -487,7 +487,7 @@ FXTreeItem* FXTreeListBox::prependItem(FXTreeItem* father,const FXString& text,F
 
 // Move item under father before other item
 FXTreeItem *FXTreeListBox::moveItem(FXTreeItem* other,FXTreeItem* father,FXTreeItem* item){
-  register FXTreeItem *newitem=tree->moveItem(other,father,item);
+  FXTreeItem *newitem=tree->moveItem(other,father,item);
   recalc();
   return newitem;
   }
@@ -495,8 +495,8 @@ FXTreeItem *FXTreeListBox::moveItem(FXTreeItem* other,FXTreeItem* father,FXTreeI
 
 // Extract item
 FXTreeItem* FXTreeListBox::extractItem(FXTreeItem* item,FXbool notify){
-  register FXTreeItem *currentitem=tree->getCurrentItem();
-  register FXTreeItem *result=tree->extractItem(item,notify);
+  FXTreeItem *currentitem=tree->getCurrentItem();
+  FXTreeItem *result=tree->extractItem(item,notify);
   if(item==currentitem){
     currentitem=tree->getCurrentItem();
     if(currentitem){
@@ -515,7 +515,7 @@ FXTreeItem* FXTreeListBox::extractItem(FXTreeItem* item,FXbool notify){
 
 // Remove given item
 void FXTreeListBox::removeItem(FXTreeItem* item,FXbool notify){
-  register FXTreeItem *currentitem=tree->getCurrentItem();
+  FXTreeItem *currentitem=tree->getCurrentItem();
   tree->removeItem(item,notify);
   if(item==currentitem){
     currentitem=tree->getCurrentItem();

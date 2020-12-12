@@ -147,7 +147,12 @@ void* FXDispatcher::addTimeout(TimeoutCallback cb,FXTime due,void* ptr){
   if(isInitialized()){
     Timer **tt=&timers,*t,*x;
     while((x=*tt)!=NULL){
-      if(x->cb==cb){ *tt=x->next; res=x->ptr; t=x; goto a; }
+      if(x->cb==cb){ 
+        *tt=x->next; 
+        res=x->ptr; 
+        t=x; 
+        goto a; 
+        }
       tt=&x->next;
       }
     if(timerrecs){
@@ -243,7 +248,9 @@ void* FXDispatcher::addIdle(IdleCallback cb,void* ptr){
     Idle **cc=&idles,*c,*x;
     while((x=*cc)!=NULL){         // Search list for cb
       if(x->cb==cb){
-        *cc=x->next; res=x->ptr; c=x;
+        *cc=x->next; 
+        res=x->ptr; 
+        c=x;
         goto a;
         }
       cc=&x->next;
@@ -350,7 +357,7 @@ FXbool FXDispatcher::hasHandle(FXInputHandle hnd) const {
 
 
 // Dispatch when when handle hnd is signaled with mode
-FXbool FXDispatcher::dispatchHandle(FXInputHandle hnd,FXuint mode,FXuint flags){
+FXbool FXDispatcher::dispatchHandle(FXInputHandle hnd,FXuint mode,FXuint){
   Handle *handle=static_cast<Handle*>(handles[(FXptr)(FXuval)hnd]);
   return handle && handle->cb(this,hnd,mode,handle->ptr);
   }

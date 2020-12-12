@@ -113,9 +113,9 @@ FXHash::FXHash(const FXHash& other):table(EMPTY){
 
 // Adjust the size of the table
 FXbool FXHash::no(FXival n){
-  register FXival m=no();
+  FXival m=no();
   if(__likely(m!=n)){
-    register Entry *elbat;
+    Entry *elbat;
 
     // Release old table
     if(1<m){
@@ -145,9 +145,9 @@ FXbool FXHash::resize(FXival n){
   FXASSERT((n-used())>0);       // At least one free slot
   if(elbat.no(n)){
     if(1<elbat.no() && 1<no()){
-      register FXptr key,data;
-      register FXuval p,b,x;
-      register FXival i;
+      FXptr key,data;
+      FXuval p,b,x;
+      FXival i;
       for(i=0; i<no(); ++i){    // Hash existing entries into new table
         key=table[i].key;
         data=table[i].data;
@@ -195,7 +195,7 @@ FXHash& FXHash::adopt(FXHash& other){
 // Find position of given key
 FXival FXHash::find(FXptr ky) const {
   if(__likely(LEGAL(ky))){
-    register FXuval p,b,x;
+    FXuval p,b,x;
     p=b=HASH(ky);
     while(__likely(table[x=p&(no()-1)].key)){
       if(__likely(table[x].key==ky)) return x;
@@ -210,7 +210,7 @@ FXival FXHash::find(FXptr ky) const {
 // Return reference to slot assocated with given key
 FXptr& FXHash::at(FXptr ky){
   if(__likely(LEGAL(ky))){
-    register FXuval p,b,h,x;
+    FXuval p,b,h,x;
     p=b=h=HASH(ky);
     while(table[x=p&(no()-1)].key){
       if(table[x].key==ky) goto x;           // Replace existing slot
@@ -236,7 +236,7 @@ x:  return table[x].data;
 // Return constant reference to slot assocated with given key
 const FXptr& FXHash::at(FXptr ky) const {
   if(__likely(LEGAL(ky))){
-    register FXuval p,b,x;
+    FXuval p,b,x;
     p=b=HASH(ky);
     while(table[x=p&(no()-1)].key){
       if(table[x].key==ky) return table[x].data;        // Return existing slot
@@ -250,9 +250,9 @@ const FXptr& FXHash::at(FXptr ky) const {
 
 // Remove association from the table
 FXptr FXHash::remove(FXptr ky){
-  register FXptr old=NULL;
+  FXptr old=NULL;
   if(__likely(LEGAL(ky))){
-    register FXuval p,b,x;
+    FXuval p,b,x;
     p=b=HASH(ky);
     while(table[x=p&(no()-1)].key!=ky){
       if(table[x].key==NULL) return NULL;
@@ -271,7 +271,7 @@ FXptr FXHash::remove(FXptr ky){
 
 // Erase data at pos in the table, returning old pointer
 FXptr FXHash::erase(FXival pos){
-  register FXptr old=NULL;
+  FXptr old=NULL;
   if(__unlikely(pos<0 || no()<=pos)){ throw FXRangeException("FXHash::erase: argument out of range\n"); }
   if(__likely(LEGAL(table[pos].key))){
     old=table[pos].data;

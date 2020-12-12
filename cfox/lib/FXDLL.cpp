@@ -198,6 +198,10 @@ FXString FXDLL::name(void *addr){
     if(GetModuleFileNameA((HINSTANCE)mbi.AllocationBase,buffer,sizeof(buffer))){
       return FXString(buffer);
       }
+//  FXnchar buffer[1024];
+//  if(GetModuleFileNameW((HINSTANCE)mbi.AllocationBase,buffer,sizeof(buffer))){
+//    return FXString(buffer);
+//    }
     }
 #elif defined(HAVE_SHL_LOAD)    // HP-UX
   // FIXME //

@@ -211,8 +211,8 @@ FXint FXConsole::charWidth(FXwchar ch,FXint col) const {
 
 // Determine style
 FXuint FXConsole::styleOf(FXint line,FXint index,FXint p,FXint c) const {
-  register FXuint s=0;
-  register FXchar ch;
+  FXuint s=0;
+  FXchar ch;
 
   // Selected part of text
 //  if(selstartpos<=p && p<selendpos) s|=STYLE_SELECTED;
@@ -250,7 +250,7 @@ FXuint FXConsole::styleOf(FXint line,FXint index,FXint p,FXint c) const {
 
 // Draw fragment of text in given style
 void FXConsole::drawTextFragment(FXDCWindow& dc,FXint x,FXint y,FXint,FXint,const FXchar *text,FXint n,FXuint sty) const {
-  register FXColor color=FXRGB(255,255,255);
+  FXColor color=FXRGB(255,255,255);
   dc.setForeground(color);
   y+=font->getFontAscent();
   dc.drawText(x,y,text,n);
@@ -259,15 +259,15 @@ void FXConsole::drawTextFragment(FXDCWindow& dc,FXint x,FXint y,FXint,FXint,cons
 
 // Draw text line with correct style
 void FXConsole::drawTextLine(FXDCWindow& dc,FXint line,FXint left,FXint right) const {
-  register FXint index=(topline+line)%contents.no();
-  register FXint edge=pos_x+marginleft;
-  register FXint h=font->getFontHeight();
-  register FXint y=pos_y+margintop+line*h;
-  register FXint x=0;
-  register FXint w=0;
-  register FXuint curstyle;
-  register FXuint newstyle;
-  register FXint cw,sp,ep,sc,ec;
+  FXint index=(topline+line)%contents.no();
+  FXint edge=pos_x+marginleft;
+  FXint h=font->getFontHeight();
+  FXint y=pos_y+margintop+line*h;
+  FXint x=0;
+  FXint w=0;
+  FXuint curstyle;
+  FXuint newstyle;
+  FXint cw,sp,ep,sc,ec;
 
   // Scan ahead till until we hit the end or the left edge
   for(sp=sc=0; sp<contents[index].length(); sp=contents[index].inc(sp),sc++){
@@ -310,11 +310,11 @@ void FXConsole::drawTextLine(FXDCWindow& dc,FXint line,FXint left,FXint right) c
 
 // Repaint lines of text
 void FXConsole::drawContents(FXDCWindow& dc,FXint x,FXint y,FXint w,FXint h) const {
-  register FXint hh=font->getFontHeight();
-  register FXint yy=pos_y+margintop;
-  register FXint tl=(y-yy)/hh;
-  register FXint bl=(y+h-yy)/hh;
-  register FXint ln;
+  FXint hh=font->getFontHeight();
+  FXint yy=pos_y+margintop;
+  FXint tl=(y-yy)/hh;
+  FXint bl=(y+h-yy)/hh;
+  FXint ln;
   if(tl<0) tl=0;
   if(bl>=contents.no()) bl=contents.no()-1;
   FXTRACE((100,"tl=%d bl=%d\n",tl,bl));

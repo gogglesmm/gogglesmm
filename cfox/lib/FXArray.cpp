@@ -60,9 +60,9 @@ FXArrayBase::FXArrayBase():ptr(EMPTY){
 
 // Change number of items in list
 FXbool FXArrayBase::resize(FXival num,FXival sz){
-  register FXival old=*(((FXival*)ptr)-1);
+  FXival old=*(((FXival*)ptr)-1);
   if(__likely(old!=num)){
-    register FXptr p;
+    FXptr p;
     if(0<num){
       if(ptr!=EMPTY){
         if(__unlikely((p=::realloc(((FXival*)ptr)-1,sizeof(FXival)+num*sz))==NULL)) return false;

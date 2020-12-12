@@ -54,8 +54,8 @@ FXVec4f colorToVec4f(FXColor clr){
 // Compute fast dot product with vector code
 FXfloat dot(const FXVec4f& u,const FXVec4f& v){
 #if defined(FOX_HAS_AVX)
-  register __m128 uu=_mm_load_ps(&u[0]);
-  register __m128 vv=_mm_load_ps(&v[0]);
+  __m128 uu=_mm_load_ps(&u[0]);
+  __m128 vv=_mm_load_ps(&v[0]);
   return _mm_cvtss_f32(_mm_dp_ps(uu,vv,0xF1));
 #else
   return u*v;
@@ -74,7 +74,7 @@ FXVec4f normalize(const FXVec4f& v){
 
 // Compute normalized plane equation ax+by+cz+d=0
 FXVec4f plane(const FXVec4f& vec){
-  register FXfloat t=Math::sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z);
+  FXfloat t=Math::sqrt(vec.x*vec.x+vec.y*vec.y+vec.z*vec.z);
   return FXVec4f(vec.x/t,vec.y/t,vec.z/t,vec.w/t);
   }
 

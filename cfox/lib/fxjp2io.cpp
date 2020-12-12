@@ -126,8 +126,8 @@ FXbool fxcheckJP2(FXStream& store){
 
 // Load a JPEG image
 FXbool fxloadJP2(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint&){
-  register FXint x,y,cw,rsh,gsh,bsh,ash,rof,gof,bof,aof;
-  register FXuchar r,g,b,a;
+  FXint x,y,cw,rsh,gsh,bsh,ash,rof,gof,bof,aof;
+  FXuchar r,g,b,a;
   FXbool swap=store.swapBytes();
   FXlong pos=store.position();
   FXbool result=false;
@@ -277,7 +277,7 @@ FXbool fxloadJP2(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
 
 // Save a JPEG image
 FXbool fxsaveJP2(FXStream& store,const FXColor* data,FXint width,FXint height,FXint quality){
-  register FXint x,y,c,p;
+  FXint x,y,c,p;
   FXbool result=false;
 
   // Must make sense
@@ -399,9 +399,8 @@ FXbool fxloadJP2(FXStream&,FXColor*& data,FXint& width,FXint& height,FXint& qual
    0x45, 0x44, 0x20, 0xa2, 0x85, 0xe3, 0xe0, 0xa3, 0x05, 0x00, 0x00, 0xa0,
    0x05, 0x00, 0x00, 0xa0, 0x05, 0x00, 0x00, 0xa0, 0xfd, 0xff, 0xff, 0xbf,
    0x01, 0x00, 0x00, 0x80, 0xff, 0xff, 0xff, 0xff};
-  register FXint p;
   allocElms(data,32*32);
-  for(p=0; p<32*32; p++){
+  for(FXint p=0; p<32*32; p++){
     data[p]=color[(image_bits[p>>3]>>(p&7))&1];
     }
   width=32;

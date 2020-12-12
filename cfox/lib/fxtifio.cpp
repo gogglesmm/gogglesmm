@@ -338,7 +338,7 @@ FXbool fxloadTIF__(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXu
 
 // Save a TIFF image
 FXbool fxsaveTIF(FXStream& store,const FXColor* data,FXint width,FXint height,FXushort codec){
-  register FXbool result=false;
+  FXbool result=false;
 
   // Must make sense
   if(data && 0<width && 0<height){
@@ -437,9 +437,8 @@ FXbool fxloadTIF(FXStream&,FXColor*& data,FXint& width,FXint& height,FXushort& c
    0x45, 0x38, 0x81, 0xa0, 0x05, 0x00, 0x00, 0xa0, 0x05, 0x00, 0x00, 0xa0,
    0x05, 0x00, 0x00, 0xa0, 0x05, 0x00, 0x00, 0xa0, 0xfd, 0xff, 0xff, 0xbf,
    0x01, 0x00, 0x00, 0x80, 0xff, 0xff, 0xff, 0xff};
-  register FXint p;
   allocElms(data,32*32);
-  for(p=0; p<32*32; p++){
+  for(FXint p=0; p<32*32; p++){
     data[p]=color[(tiff_bits[p>>3]>>(p&7))&1];
     }
   width=32;

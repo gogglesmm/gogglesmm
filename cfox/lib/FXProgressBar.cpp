@@ -98,7 +98,7 @@ FXProgressBar::FXProgressBar(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint 
 
 // Get minimum width
 FXint FXProgressBar::getDefaultWidth(){
-  register FXint w=1,t;
+  FXint w=1,t;
   if((options&PROGRESSBAR_VERTICAL) || (options&PROGRESSBAR_DIAL)){
     w=barsize;
     if(options&PROGRESSBAR_PERCENTAGE){
@@ -112,7 +112,7 @@ FXint FXProgressBar::getDefaultWidth(){
 
 // Get minimum height
 FXint FXProgressBar::getDefaultHeight(){
-  register FXint h=1,t;
+  FXint h=1,t;
   if(!(options&PROGRESSBAR_VERTICAL) || (options&PROGRESSBAR_DIAL)){
     h=barsize;
     if(options&PROGRESSBAR_PERCENTAGE){
@@ -190,8 +190,8 @@ long FXProgressBar::onCmdGetIntRange(FXObject*,FXSelector,void* ptr){
 
 // Draw only the interior, i.e. the part that changes
 void FXProgressBar::drawInterior(FXDCWindow& dc){
-  register FXdouble fraction=(total>0)?((FXdouble)progress/(FXdouble)total):1.0;
-  register FXint percent,barlength,barwidth,barfilled,tx,ty,tw,th,dx,dy,ds,n;
+  FXdouble fraction=(total>0)?((FXdouble)progress/(FXdouble)total):1.0;
+  FXint percent,barlength,barwidth,barfilled,tx,ty,tw,th,dx,dy,ds,n;
   FXchar numtext[10];
 
   // Calculate percentage complete

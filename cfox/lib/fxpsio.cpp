@@ -63,8 +63,8 @@ static void output(FXStream& store,const char* fmt,...){
 
 // Save image to PostScript file
 FXbool fxsavePS(FXStream& store,const FXColor* data,FXint width,FXint height,FXint paperw,FXint paperh,FXint margin,FXbool color){
-  register FXint bx,by,bxx,byy,x,y;
-  register FXuchar *p;
+  FXint bx,by,bxx,byy,x,y;
+  FXuchar *p;
 
   // Must make sense
   if(!data || width<=0 || height<=0 || paperh<=0 || paperw<=0 || margin<=0) return false;

@@ -104,8 +104,8 @@ FXThread* FXThread::self(){
 // FXThread to return error-code of -1.
 #if defined(WIN32)
 unsigned int CALLBACK FXThread::function(void* ptr){
-  register FXThread *thread=(FXThread*)ptr;
-  register FXint code=-1;
+  FXThread *thread=(FXThread*)ptr;
+  FXint code=-1;
   self(thread);
   try{
     code=thread->run();
@@ -124,8 +124,8 @@ unsigned int CALLBACK FXThread::function(void* ptr){
   }
 #else
 void* FXThread::function(void* ptr){
-  register FXThread *thread=(FXThread*)ptr;
-  register FXint code=-1;
+  FXThread *thread=(FXThread*)ptr;
+  FXint code=-1;
   self(thread);
   pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
   pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);

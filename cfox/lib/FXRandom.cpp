@@ -76,25 +76,19 @@ FXulong FXRandom::next(){
 FXulong FXRandom::randLong(){
   return next()*FXULONG(2685821657736338717);
   }
-
+ 
 
 // Get random double
 FXfloat FXRandom::randFloat(){
-#if (_MSC_VER <= 1300)
-  return ((FXuint)randLong())*2.3283064370808E-10f;
-#else
-  return randLong()*5.42101086242752217033113759206E-20f;
-#endif
+  FXlong num=(FXlong)randLong();
+  return Math::fabs(num*1.0842021724855044340074528008699e-19f);
   }
 
 
 // Get random double
 FXdouble FXRandom::randDouble(){
-#if (_MSC_VER <= 1300)
-  return ((FXuint)randLong())*2.3283064370808E-10;
-#else
-  return randLong()*5.42101086242752217033113759206E-20;
-#endif
+  FXlong num=(FXlong)randLong();
+  return Math::fabs(num*1.0842021724855044340074528008699e-19);
   }
 
 }

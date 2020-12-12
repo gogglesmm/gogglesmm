@@ -73,9 +73,9 @@ FXStatusBar::FXStatusBar(FXComposite* p,FXuint opts,FXint x,FXint y,FXint w,FXin
 
 // Compute minimum width based on child layout hints
 FXint FXStatusBar::getDefaultWidth(){
-  register FXint w,wcum,numc;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint w,wcum,numc;
+  FXWindow* child;
+  FXuint hints;
   wcum=numc=0;
   for(child=corner->getNext(); child; child=child->getNext()){
     if(child->shown()){
@@ -94,9 +94,9 @@ FXint FXStatusBar::getDefaultWidth(){
 
 // Compute minimum height based on child layout hints
 FXint FXStatusBar::getDefaultHeight(){
-  register FXint h,hmax;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint h,hmax;
+  FXWindow* child;
+  FXuint hints;
   hmax=0;
   for(child=corner->getNext(); child; child=child->getNext()){
     if(child->shown()){

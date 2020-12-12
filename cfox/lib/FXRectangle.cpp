@@ -118,20 +118,20 @@ FXRectangle& FXRectangle::operator*=(const FXRectangle &r){
 
 // Union between rectangles
 FXRectangle FXRectangle::operator+(const FXRectangle& r) const {
-  register FXshort xx=_min(x,r.x);
-  register FXshort ww=_max(x+w,r.x+r.w)-xx;
-  register FXshort yy=_min(y,r.y);
-  register FXshort hh=_max(y+h,r.y+r.h)-yy;
+  FXshort xx=_min(x,r.x);
+  FXshort ww=_max(x+w,r.x+r.w)-xx;
+  FXshort yy=_min(y,r.y);
+  FXshort hh=_max(y+h,r.y+r.h)-yy;
   return FXRectangle(xx,yy,ww,hh);
   }
 
 
 // Intersection between rectangles
 FXRectangle FXRectangle::operator*(const FXRectangle& r) const {
-  register FXshort xx=_max(x,r.x);
-  register FXshort ww=_min(x+w,r.x+r.w)-xx;
-  register FXshort yy=_max(y,r.y);
-  register FXshort hh=_min(y+h,r.y+r.h)-yy;
+  FXshort xx=_max(x,r.x);
+  FXshort ww=_min(x+w,r.x+r.w)-xx;
+  FXshort yy=_max(y,r.y);
+  FXshort hh=_min(y+h,r.y+r.h)-yy;
   return FXRectangle(xx,yy,ww,hh);
   }
 

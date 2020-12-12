@@ -422,7 +422,7 @@ static FXuint isqrt(FXuint val){
 // Undo premultiplied alpha
 // The math: 255*X = (255*R * 255*A)/255, so 255*R = 255*X*255 / 255*A
 static void dds_correct_color(FXuchar *image,FXuint size){
-  register FXuint i,a;
+  FXuint i,a;
   for(i=0; i<size; i+=4){
     if((a=image[i+3])>0){
       image[i+0]=(image[i+0]*255)/a;
@@ -435,7 +435,7 @@ static void dds_correct_color(FXuchar *image,FXuint size){
 
 // Swizzle red and alpha for RXGB
 static void dds_correct_swizzle(FXuchar *image,FXuint size){
-  register FXuint i;
+  FXuint i;
   for(i=0; i<size; i+=4){
     image[i+2]^=image[i+3];
     image[i+3]^=image[i+2];
@@ -446,10 +446,10 @@ static void dds_correct_swizzle(FXuchar *image,FXuint size){
 
 // Decompress DXT1/BC1 image
 static FXbool dds_decompress_DXT1(const DDSImage& dds,FXuchar *image){
-  register const FXuchar *temp=dds.data;
-  register FXuint x,y,z,i,j,select,bitmask,offset;
-  register FXuchar r0,g0,b0,r1,g1,b1;
-  register FXushort c0,c1;
+  const FXuchar *temp=dds.data;
+  FXuint x,y,z,i,j,select,bitmask,offset;
+  FXuchar r0,g0,b0,r1,g1,b1;
+  FXushort c0,c1;
   FXuchar colors[4][4];
 
   FXTRACE((100,"dds_decompress_DXT1\n"));
@@ -532,10 +532,10 @@ static FXbool dds_decompress_DXT1(const DDSImage& dds,FXuchar *image){
 
 // Decompress DXT3/BC2 image
 static FXbool dds_decompress_DXT3(const DDSImage& dds,FXuchar *image){
-  register FXuchar *temp=dds.data;
-  register FXuint x,y,z,i,j,select,bitmask,offset;
-  register FXuchar r0,g0,b0,r1,g1,b1;
-  register FXushort c0,c1;
+  FXuchar *temp=dds.data;
+  FXuint x,y,z,i,j,select,bitmask,offset;
+  FXuchar r0,g0,b0,r1,g1,b1;
+  FXushort c0,c1;
   FXuchar colors[4][4];
   FXuchar alpha[4][4];
 
@@ -637,10 +637,10 @@ static FXbool dds_decompress_DXT2(const DDSImage& dds,FXuchar *image){
 
 // Decompress DXT5/BC3 image
 static FXbool dds_decompress_DXT5(const DDSImage& dds,FXuchar *image){
-  register FXuchar *temp=dds.data;
-  register FXuint x,y,z,i,j,select,bitmask,bits,offset;
-  register FXuchar r0,g0,b0,r1,g1,b1;
-  register FXushort c0,c1;
+  FXuchar *temp=dds.data;
+  FXuint x,y,z,i,j,select,bitmask,bits,offset;
+  FXuchar r0,g0,b0,r1,g1,b1;
+  FXushort c0,c1;
   FXuchar colors[4][4];
   FXuchar levels[8];
   FXuchar alpha[4][4];
@@ -774,8 +774,8 @@ static FXbool dds_decompress_RXGB(const DDSImage& dds,FXuchar *image){
 
 // Decompress BC4 (ATI1) image
 static FXbool dds_decompress_BC4(const DDSImage& dds,FXuchar *image){
-  register FXuchar *temp=dds.data;
-  register FXuint x,y,z,i,j,bits,offset;
+  FXuchar *temp=dds.data;
+  FXuint x,y,z,i,j,bits,offset;
   FXuchar levels[8];
 
   FXTRACE((150,"dds_decompress_BC4\n"));
@@ -842,9 +842,9 @@ static FXbool dds_decompress_BC4(const DDSImage& dds,FXuchar *image){
 
 // Decompress 3DC (ATI2) image
 static FXbool dds_decompress_3DC(const DDSImage& dds,FXuchar *image){
-  register FXuchar *temp=dds.data;
-  register FXuint x,y,z,i,j,redbits,grnbits,offset;
-  register FXint tx,ty,t;
+  FXuchar *temp=dds.data;
+  FXuint x,y,z,i,j,redbits,grnbits,offset;
+  FXint tx,ty,t;
   FXuchar red[8];
   FXuchar grn[8];
 
@@ -958,7 +958,7 @@ static FXbool dds_decompress_3DC(const DDSImage& dds,FXuchar *image){
 
 // Compute shifts
 static void getShifts(FXuint mask,FXuint& shift,FXuint& mul,FXuint& sc){
-  register FXuint bits=0;
+  FXuint bits=0;
   shift=0;
   mul=1;
   sc=0;
@@ -1087,9 +1087,9 @@ static FXbool dds_decompress_LUMA(const DDSImage& dds,FXuchar *image,FXuint cmas
 
 // Decompress R16F
 static FXbool dds_decompress_R16F(const DDSImage& dds,FXuchar *image){
-  register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
-  register FXhalf *temp=(FXhalf*)dds.data;
-  register FXuint p=0;
+  FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
+  FXhalf *temp=(FXhalf*)dds.data;
+  FXuint p=0;
   FXTRACE((150,"dds_decompress_R16F\n"));
   while(p<count){
     image[p+0]=0;
@@ -1104,9 +1104,9 @@ static FXbool dds_decompress_R16F(const DDSImage& dds,FXuchar *image){
 
 // Decompress G16R16F
 static FXbool dds_decompress_G16R16F(const DDSImage& dds,FXuchar *image){
-  register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
-  register FXhalf *temp=(FXhalf*)dds.data;
-  register FXuint p=0;
+  FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
+  FXhalf *temp=(FXhalf*)dds.data;
+  FXuint p=0;
   FXTRACE((150,"dds_decompress_G16R16F\n"));
   while(p<count){
     image[p+0]=0;
@@ -1121,9 +1121,9 @@ static FXbool dds_decompress_G16R16F(const DDSImage& dds,FXuchar *image){
 
 // Decompress A16B16G16R16F
 static FXbool dds_decompress_A16B16G16R16F(const DDSImage& dds,FXuchar *image){
-  register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
-  register FXhalf *temp=(FXhalf*)dds.data;
-  register FXuint p=0;
+  FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
+  FXhalf *temp=(FXhalf*)dds.data;
+  FXuint p=0;
   FXTRACE((150,"dds_decompress_A16B16G16R16F\n"));
   while(p<count){
     image[p+2]=(FXuchar)(*temp++ * 255.0f + 0.5f);
@@ -1138,9 +1138,9 @@ static FXbool dds_decompress_A16B16G16R16F(const DDSImage& dds,FXuchar *image){
 
 // Decompress A16B16G16R16
 static FXbool dds_decompress_A16B16G16R16(const DDSImage& dds,FXuchar *image){
-  register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
-  register FXushort *temp=(FXushort*)dds.data;
-  register FXuint p=0;
+  FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
+  FXushort *temp=(FXushort*)dds.data;
+  FXuint p=0;
   FXTRACE((150,"dds_decompress_A16B16G16R16\n"));
   while(p<count){
     image[p+2]=(FXuchar)(*temp++ / 257);
@@ -1155,9 +1155,9 @@ static FXbool dds_decompress_A16B16G16R16(const DDSImage& dds,FXuchar *image){
 
 // Decompress R32F
 static FXbool dds_decompress_R32F(const DDSImage& dds,FXuchar *image){
-  register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
-  register FXfloat *temp=(FXfloat*)dds.data;
-  register FXuint p=0;
+  FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
+  FXfloat *temp=(FXfloat*)dds.data;
+  FXuint p=0;
   FXTRACE((150,"dds_decompress_R32F\n"));
   while(p<count){
     image[p+0]=0;
@@ -1172,9 +1172,9 @@ static FXbool dds_decompress_R32F(const DDSImage& dds,FXuchar *image){
 
 // Decompress G32R32F
 static FXbool dds_decompress_G32R32F(const DDSImage& dds,FXuchar *image){
-  register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
-  register FXfloat *temp=(FXfloat*)dds.data;
-  register FXuint p=0;
+  FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
+  FXfloat *temp=(FXfloat*)dds.data;
+  FXuint p=0;
   FXTRACE((150,"dds_decompress_G32R32F\n"));
   while(p<count){
     image[p+2]=(FXuchar)(*temp++ * 255.0f + 0.5f);
@@ -1189,9 +1189,9 @@ static FXbool dds_decompress_G32R32F(const DDSImage& dds,FXuchar *image){
 
 // Decompress A32B32G32R32F
 static FXbool dds_decompress_A32B32G32R32F(const DDSImage& dds,FXuchar *image){
-  register FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
-  register FXfloat *temp=(FXfloat*)dds.data;
-  register FXuint p=0;
+  FXuint count=dds.header.dwDepth*dds.header.dwHeight*dds.header.dwWidth*4;
+  FXfloat *temp=(FXfloat*)dds.data;
+  FXuint p=0;
   FXTRACE((150,"dds_decompress_A32B32G32R32F\n"));
   while(p<count){
     image[p+2]=(FXuchar)(*temp++ * 255.0f + 0.5f);

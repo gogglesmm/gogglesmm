@@ -275,7 +275,7 @@ void FXImage::setData(FXColor *pix,FXuint opts,FXint w,FXint h){
 // Scan the image and return false if fully opaque
 FXbool FXImage::hasAlpha() const {
   if(data){
-    register FXint i=width*height-1;
+    FXint i=width*height-1;
     do{
       if(((const FXuchar*)(data+i))[3]<255) return true;
       }
@@ -371,8 +371,8 @@ void FXImage::destroy(){
 // Restore client-side pixel buffer from image
 void FXImage::restore(){
   if(xid){
-    register FXint size,bytes_per_line,skip,x,y;
-    register FXuchar *pix,*img;
+    FXint size,bytes_per_line,skip,x,y;
+    FXuchar *pix,*img;
     FXuchar *pixels;
     BITMAPINFO bmi;
     HDC hdcmem;
@@ -442,7 +442,7 @@ void FXImage::restore(){
 
 // Find shift amount
 static inline FXuint findshift(FXPixel mask){
-  register FXuint sh=0;
+  FXuint sh=0;
   while(!(mask&(1UL<<sh))) sh++;
   return sh;
   }
@@ -457,18 +457,18 @@ static inline FXPixel lowbit(FXPixel mask){
 // Restore client-side pixel buffer from image
 void FXImage::restore(){
   if(xid){
-    register FXPixel red,green,blue;
-    register FXPixel red1,green1,blue1;
-    register FXPixel pixel;
-    register FXuint  redshift,greenshift,blueshift;
-    register FXPixel redmask,greenmask,bluemask;
-    register int size,i;
-    register FXbool shmi=false;
-    register XImage *xim=NULL;
-    register Visual *vis;
-    register FXint x,y;
-    register FXuchar *img;
-    register FXuint r,g,b;
+    FXPixel red,green,blue;
+    FXPixel red1,green1,blue1;
+    FXPixel pixel;
+    FXuint  redshift,greenshift,blueshift;
+    FXPixel redmask,greenmask,bluemask;
+    int size,i;
+    FXbool shmi=false;
+    XImage *xim=NULL;
+    Visual *vis;
+    FXint x,y;
+    FXuchar *img;
+    FXuint r,g,b;
     FXuchar rtab[MAX_MAPSIZE];
     FXuchar gtab[MAX_MAPSIZE];
     FXuchar btab[MAX_MAPSIZE];
@@ -656,8 +656,8 @@ void FXImage::restore(){
 // Render into pixmap
 void FXImage::render(){
   if(xid){
-    register FXint bytes_per_line,skip,h,w;
-    register FXuchar *src,*dst;
+    FXint bytes_per_line,skip,h,w;
+    FXuchar *src,*dst;
     BITMAPINFO bmi;
     FXuchar *pixels;
     HDC hdcmem;
@@ -725,7 +725,7 @@ void FXImage::render(){
 
 // True generic mode
 void FXImage::render_true_N_fast(void *xim,FXuchar *img){
-  register FXint x,y;
+  FXint x,y;
   FXTRACE((150,"True MSB/LSB N bpp render nearest\n"));
   y=0;
   do{
@@ -742,7 +742,7 @@ void FXImage::render_true_N_fast(void *xim,FXuchar *img){
 
 // True generic mode
 void FXImage::render_true_N_dither(void *xim,FXuchar *img){
-  register FXint x,y,d;
+  FXint x,y,d;
   FXTRACE((150,"True MSB/LSB N bpp render dither\n"));
   y=0;
   do{
@@ -760,10 +760,10 @@ void FXImage::render_true_N_dither(void *xim,FXuchar *img){
 
 // True 24 bit color
 void FXImage::render_true_24(void *xim,FXuchar *img){
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-(width*3);
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXPixel val;
-  register FXint w,h;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-(width*3);
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXPixel val;
+  FXint w,h;
   if(((XImage*)xim)->byte_order==MSBFirst){    // MSB
     FXTRACE((150,"True MSB 24bpp render\n"));
     h=height-1;
@@ -805,10 +805,10 @@ void FXImage::render_true_24(void *xim,FXuchar *img){
 
 // True 32 bit color
 void FXImage::render_true_32(void *xim,FXuchar *img){
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-(width<<2);
-  register FXPixel val;
-  register FXint w,h;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-(width<<2);
+  FXPixel val;
+  FXint w,h;
 
   // Byte order matches
   if(((XImage*)xim)->byte_order == FOX_BIGENDIAN){
@@ -873,10 +873,10 @@ void FXImage::render_true_32(void *xim,FXuchar *img){
 
 // True 16 bit color
 void FXImage::render_true_16_fast(void *xim,FXuchar *img){
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-(width<<1);
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXPixel val;
-  register FXint w,h;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-(width<<1);
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXPixel val;
+  FXint w,h;
 
   // Byte order matches
   if(((XImage*)xim)->byte_order == FOX_BIGENDIAN){
@@ -937,10 +937,10 @@ void FXImage::render_true_16_fast(void *xim,FXuchar *img){
 
 // True 16 bit color, dithered
 void FXImage::render_true_16_dither(void *xim,FXuchar *img){
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-(width<<1);
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXPixel val;
-  register FXint w,h,d;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-(width<<1);
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXPixel val;
+  FXint w,h,d;
 
   // Byte order matches
   if(((XImage*)xim)->byte_order == FOX_BIGENDIAN){
@@ -1004,9 +1004,9 @@ void FXImage::render_true_16_dither(void *xim,FXuchar *img){
 
 // True 8 bit color
 void FXImage::render_true_8_fast(void *xim,FXuchar *img){
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-width;
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXint w,h;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-width;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXint w,h;
   FXTRACE((150,"True MSB/LSB 8bpp render nearest\n"));
   h=height-1;
   do{
@@ -1025,9 +1025,9 @@ void FXImage::render_true_8_fast(void *xim,FXuchar *img){
 
 // True 8 bit color, dithered
 void FXImage::render_true_8_dither(void *xim,FXuchar *img){
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-width;
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXint w,h,d;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-width;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXint w,h,d;
   FXTRACE((150,"True MSB/LSB 8bpp render dither\n"));
   h=height-1;
   do{
@@ -1047,10 +1047,10 @@ void FXImage::render_true_8_dither(void *xim,FXuchar *img){
 
 // Render 4 bit index color mode
 void FXImage::render_index_4_fast(void *xim,FXuchar *img){
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-width;
-  register FXuint val,half;
-  register FXint w,h;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-width;
+  FXuint val,half;
+  FXint w,h;
   if(((XImage*)xim)->byte_order==MSBFirst){    // MSB
     FXTRACE((150,"Index MSB 4bpp render nearest\n"));
     h=height-1;
@@ -1092,10 +1092,10 @@ void FXImage::render_index_4_fast(void *xim,FXuchar *img){
 
 // Render 4 bit index color mode
 void FXImage::render_index_4_dither(void *xim,FXuchar *img){
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-width;
-  register FXuint val,half,d;
-  register FXint w,h;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-width;
+  FXuint val,half,d;
+  FXint w,h;
   if(((XImage*)xim)->byte_order==MSBFirst){    // MSB
     FXTRACE((150,"Index MSB 4bpp render dither\n"));
     h=height-1;
@@ -1139,9 +1139,9 @@ void FXImage::render_index_4_dither(void *xim,FXuchar *img){
 
 // Render 8 bit index color mode
 void FXImage::render_index_8_fast(void *xim,FXuchar *img){
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-width;
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXint w,h;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-width;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXint w,h;
   FXTRACE((150,"Index MSB/LSB 8bpp render nearest\n"));
   h=height-1;
   do{
@@ -1160,9 +1160,9 @@ void FXImage::render_index_8_fast(void *xim,FXuchar *img){
 
 // Render 8 bit index color mode
 void FXImage::render_index_8_dither(void *xim,FXuchar *img){
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-width;
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXint w,h,d;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-width;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXint w,h,d;
   FXTRACE((150,"Index MSB/LSB 8bpp render dither\n"));
   h=height-1;
   do{
@@ -1182,7 +1182,7 @@ void FXImage::render_index_8_dither(void *xim,FXuchar *img){
 
 // Render generic N bit index color mode
 void FXImage::render_index_N_fast(void *xim,FXuchar *img){
-  register FXint x,y;
+  FXint x,y;
   FXTRACE((150,"Index MSB/LSB N bpp render nearest\n"));
   y=0;
   do{
@@ -1199,7 +1199,7 @@ void FXImage::render_index_N_fast(void *xim,FXuchar *img){
 
 // Render generic N bit index color mode
 void FXImage::render_index_N_dither(void *xim,FXuchar *img){
-  register FXint x,y,d;
+  FXint x,y,d;
   FXTRACE((150,"Index MSB/LSB N bpp render dither\n"));
   y=0;
   do{
@@ -1217,9 +1217,9 @@ void FXImage::render_index_N_dither(void *xim,FXuchar *img){
 
 // Render 8 bit gray mode
 void FXImage::render_gray_8_fast(void *xim,FXuchar *img){
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-width;
-  register FXint w,h;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-width;
+  FXint w,h;
   FXTRACE((150,"Gray MSB/LSB 8bpp render nearest\n"));
   h=height-1;
   do{
@@ -1238,9 +1238,9 @@ void FXImage::render_gray_8_fast(void *xim,FXuchar *img){
 
 // Render 8 bit gray mode
 void FXImage::render_gray_8_dither(void *xim,FXuchar *img){
-  register FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
-  register FXuint jmp=((XImage*)xim)->bytes_per_line-width;
-  register FXint w,h;
+  FXuchar *pix=(FXuchar*)((XImage*)xim)->data;
+  FXuint jmp=((XImage*)xim)->bytes_per_line-width;
+  FXint w,h;
   FXTRACE((150,"Gray MSB/LSB 8bpp render dither\n"));
   h=height-1;
   do{
@@ -1259,7 +1259,7 @@ void FXImage::render_gray_8_dither(void *xim,FXuchar *img){
 
 // Render generic N bit gray mode
 void FXImage::render_gray_N_fast(void *xim,FXuchar *img){
-  register FXint x,y;
+  FXint x,y;
   FXTRACE((150,"Gray MSB/LSB N bpp render nearest\n"));
   y=0;
   do{
@@ -1276,7 +1276,7 @@ void FXImage::render_gray_N_fast(void *xim,FXuchar *img){
 
 // Render generic N bit gray mode
 void FXImage::render_gray_N_dither(void *xim,FXuchar *img){
-  register FXint x,y;
+  FXint x,y;
   FXTRACE((150,"Gray MSB/LSB N bpp render dither\n"));
   y=0;
   do{
@@ -1293,7 +1293,7 @@ void FXImage::render_gray_N_dither(void *xim,FXuchar *img){
 
 // Render monochrome mode
 void FXImage::render_mono_1_fast(void *xim,FXuchar *img){
-  register FXint x,y;
+  FXint x,y;
   FXTRACE((150,"Monochrome MSB/LSB 1bpp render nearest\n"));
   y=0;
   do{
@@ -1310,7 +1310,7 @@ void FXImage::render_mono_1_fast(void *xim,FXuchar *img){
 
 // Render monochrome mode
 void FXImage::render_mono_1_dither(void *xim,FXuchar *img){
-  register FXint x,y;
+  FXint x,y;
   FXTRACE((150,"Monochrome MSB/LSB 1bpp render dither\n"));
   y=0;
   do{
@@ -1328,8 +1328,8 @@ void FXImage::render_mono_1_dither(void *xim,FXuchar *img){
 // Render into pixmap
 void FXImage::render(){
   if(xid){
-    register FXbool shmi=false;
-    register XImage *xim=NULL;
+    FXbool shmi=false;
+    XImage *xim=NULL;
     XGCValues values;
     GC gc;
 #ifdef HAVE_XSHM_H
@@ -1610,7 +1610,7 @@ static FXuint gammaLookup(FXuint i){
 
 #if 0
 static FXuint gammaInvertLookup(FXuint val){    // New
-  register FXint m,l=0,h=255;
+  FXint m,l=0,h=255;
   while(l<(m=(h+l)>>1)){
     if(gammatable[m]<=val) l=m; else h=m;
     }
@@ -1619,7 +1619,7 @@ static FXuint gammaInvertLookup(FXuint val){    // New
 #endif
 
 static FXuint gammaInvertLookup(FXuint val){
-  register FXint mid,low=0,high=255;
+  FXint mid,low=0,high=255;
   while((high-low)>1){
     mid=low+(high-low)/2;
     if(val<gammatable[mid])
@@ -1633,12 +1633,12 @@ static FXuint gammaInvertLookup(FXuint val){
 
 // Horizontal box-filtered, gamma-corrected
 static void hscalergbagamma(FXuchar *dst,const FXuchar* src,FXint dw,FXint dh,FXint sw,FXint ){
-  register FXint fin,fout,ar,ag,ab,aa;
-  register FXint ss=4*sw;
-  register FXint ds=4*dw;
-  register FXuchar *end=dst+ds*dh;
-  register FXuchar *d;
-  register const FXuchar *s;
+  FXint fin,fout,ar,ag,ab,aa;
+  FXint ss=4*sw;
+  FXint ds=4*dw;
+  FXuchar *end=dst+ds*dh;
+  FXuchar *d;
+  const FXuchar *s;
   do{
     s=src; src+=ss;
     d=dst; dst+=ds;
@@ -1674,13 +1674,13 @@ static void hscalergbagamma(FXuchar *dst,const FXuchar* src,FXint dw,FXint dh,FX
 
 // Vertical box-filtered, gamma-corrected
 static void vscalergbagamma(FXuchar *dst,const FXuchar* src,FXint dw,FXint dh,FXint sw,FXint sh){
-  register FXint fin,fout,ar,ag,ab,aa;
-  register FXint ss=4*sw;
-  register FXint ds=4*dw;
-  register FXint dss=ds*dh;
-  register FXuchar *end=dst+ds;
-  register FXuchar *d,*dd;
-  register const FXuchar *s;
+  FXint fin,fout,ar,ag,ab,aa;
+  FXint ss=4*sw;
+  FXint ds=4*dw;
+  FXint dss=ds*dh;
+  FXuchar *end=dst+ds;
+  FXuchar *d,*dd;
+  const FXuchar *s;
   do{
     s=src; src+=4;
     d=dst; dst+=4;
@@ -1717,12 +1717,12 @@ static void vscalergbagamma(FXuchar *dst,const FXuchar* src,FXint dw,FXint dh,FX
 
 // Horizontal box-filtered
 static void hscalergba(FXuchar *dst,const FXuchar* src,FXint dw,FXint dh,FXint sw,FXint ){
-  register FXint fin,fout,ar,ag,ab,aa;
-  register FXint ss=4*sw;
-  register FXint ds=4*dw;
-  register FXuchar *end=dst+ds*dh;
-  register FXuchar *d;
-  register const FXuchar *s;
+  FXint fin,fout,ar,ag,ab,aa;
+  FXint ss=4*sw;
+  FXint ds=4*dw;
+  FXuchar *end=dst+ds*dh;
+  FXuchar *d;
+  const FXuchar *s;
   do{
     s=src; src+=ss;
     d=dst; dst+=ds;
@@ -1757,13 +1757,13 @@ static void hscalergba(FXuchar *dst,const FXuchar* src,FXint dw,FXint dh,FXint s
 
 // Vertical box-filtered
 static void vscalergba(FXuchar *dst,const FXuchar* src,FXint dw,FXint dh,FXint sw,FXint sh){
-  register FXint fin,fout,ar,ag,ab,aa;
-  register FXint ss=4*sw;
-  register FXint ds=4*dw;
-  register FXint dss=ds*dh;
-  register FXuchar *end=dst+ds;
-  register FXuchar *d,*dd;
-  register const FXuchar *s;
+  FXint fin,fout,ar,ag,ab,aa;
+  FXint ss=4*sw;
+  FXint ds=4*dw;
+  FXint dss=ds*dh;
+  FXuchar *end=dst+ds;
+  FXuchar *d,*dd;
+  const FXuchar *s;
   do{
     s=src; src+=4;
     d=dst; dst+=4;
@@ -1799,11 +1799,11 @@ static void vscalergba(FXuchar *dst,const FXuchar* src,FXint dw,FXint dh,FXint s
 
 // Simple nearest neighbor scaling; fast but ugly
 static void scalenearest(FXColor *dst,const FXColor* src,FXint dw,FXint dh,FXint sw,FXint sh){
-  register FXint xs=(sw<<16)/dw;
-  register FXint ys=(sh<<16)/dh;
-  register FXint i,j,x,y;
-  register const FXColor *q;
-  register FXColor *p;
+  FXint xs=(sw<<16)/dw;
+  FXint ys=(sh<<16)/dh;
+  FXint i,j,x,y;
+  const FXColor *q;
+  FXColor *p;
   i=0;
   y=ys>>1;
   p=dst;
@@ -1830,8 +1830,8 @@ void FXImage::scale(FXint w,FXint h,FXint quality){
   FXTRACE((100,"%s::scale(%d,%d)\n",getClassName(),w,h));
   if(w!=width || h!=height){
     if(data){
-      register FXint ow=width;
-      register FXint oh=height;
+      FXint ow=width;
+      FXint oh=height;
       FXColor *interim;
 
       switch(quality){
@@ -1919,7 +1919,7 @@ void FXImage::mirror(FXbool horizontal,FXbool vertical){
   FXTRACE((100,"%s::mirror(%d,%d)\n",getClassName(),horizontal,vertical));
   if(horizontal || vertical){
     if(data){
-      register FXColor *paa,*pa,*pbb,*pb,t;
+      FXColor *paa,*pa,*pbb,*pb,t;
       if(vertical && height>1){     // Mirror vertically
         paa=data;
         pbb=data+width*(height-1);
@@ -1958,8 +1958,8 @@ void FXImage::rotate(FXint degrees){
   degrees=(degrees+360)%360;
   if(degrees!=0 && width>1 && height>1){
     if(data){
-      register FXColor *paa,*pbb,*end,*pa,*pb;
-      register FXint size=width*height;
+      FXColor *paa,*pbb,*end,*pa,*pb;
+      FXint size=width*height;
       FXColor *olddata;
       if(!dupElms(olddata,data,size)){ throw FXMemoryException("unable to rotate image"); }
       switch(degrees){
@@ -2047,13 +2047,13 @@ void FXImage::crop(FXint x,FXint y,FXint w,FXint h,FXColor color){
   if(x>=width || y>=height || x+w<=0 || y+h<=0){ fxerror("%s::crop: bad arguments.\n",getClassName()); }
   FXTRACE((100,"%s::crop(%d,%d,%d,%d)\n",getClassName(),x,y,w,h));
   if(data){
-    register FXColor *pnn,*poo,*yyy,*pn,*po,*xx;
-    register FXint ow=width;
-    register FXint oh=height;
-    register FXint nw=w;
-    register FXint nh=h;
-    register FXint cw;
-    register FXint ch;
+    FXColor *pnn,*poo,*yyy,*pn,*po,*xx;
+    FXint ow=width;
+    FXint oh=height;
+    FXint nw=w;
+    FXint nh=h;
+    FXint cw;
+    FXint ch;
     FXColor *olddata;
     if(!dupElms(olddata,data,width*height)){ throw FXMemoryException("unable to crop image"); }
     resize(nw,nh);
@@ -2116,12 +2116,12 @@ void FXImage::crop(FXint x,FXint y,FXint w,FXint h,FXColor color){
 
 
 /*
-    register FXuint r=FXREDVAL(color);
-    register FXuint g=FXGREENVAL(color);
-    register FXuint b=FXBLUEVAL(color);
-    register FXuint a=FXALPHAVAL(color);
-    register FXuchar *pix=data;
-    register FXuchar *end=pix+height*width*channels;
+    FXuint r=FXREDVAL(color);
+    FXuint g=FXGREENVAL(color);
+    FXuint b=FXBLUEVAL(color);
+    FXuint a=FXALPHAVAL(color);
+    FXuchar *pix=data;
+    FXuchar *end=pix+height*width*channels;
     FXuchar  tbl[512];
 
     // Fill table
@@ -2154,7 +2154,7 @@ void FXImage::crop(FXint x,FXint y,FXint w,FXint h,FXColor color){
 */
 
   // FXColor ____blend(FXColor fg,FXColor bg){
-//   register FXuint r,g,b,s,t,tmp;
+//   FXuint r,g,b,s,t,tmp;
 //   s=FXALPHAVAL(fg);
 //   t=~s;
 //   tmp=FXREDVAL(fg)*s+FXREDVAL(bg)*t+127;     r=(tmp+(tmp>>8))>>8;
@@ -2176,8 +2176,8 @@ void FXImage::crop(FXint x,FXint y,FXint w,FXint h,FXColor color){
 // Fill image with color
 void FXImage::fill(FXColor color){
   if(data){
-    register FXColor *pix=data;
-    register FXColor *end=pix+height*width;
+    FXColor *pix=data;
+    FXColor *end=pix+height*width;
     do{ *pix++=color; }while(pix<end);
     }
   }
@@ -2187,15 +2187,15 @@ void FXImage::fill(FXColor color){
 // Fade image to uniform color
 void FXImage::fade(FXColor color,FXint factor){
   if(data){
-    register FXuint s=factor;
-    register FXuint t=~factor;
-    register FXuint r=FXREDVAL(color)*t;
-    register FXuint g=FXGREENVAL(color)*t;
-    register FXuint b=FXBLUEVAL(color)*t;
-    register FXuint a=FXALPHAVAL(color)*t;
-    register FXuint w;
-    register FXuchar *pix=(FXuchar*)data;
-    register FXuchar *end=pix+height*width*4;
+    FXuint s=factor;
+    FXuint t=~factor;
+    FXuint r=FXREDVAL(color)*t;
+    FXuint g=FXGREENVAL(color)*t;
+    FXuint b=FXBLUEVAL(color)*t;
+    FXuint a=FXALPHAVAL(color)*t;
+    FXuint w;
+    FXuchar *pix=(FXuchar*)data;
+    FXuchar *end=pix+height*width*4;
     do{
       w=pix[3]*s+a; pix[3]=(w+(w>>8))>>8;
       w=pix[2]*s+r; pix[2]=(w+(w>>8))>>8;
@@ -2210,14 +2210,14 @@ void FXImage::fade(FXColor color,FXint factor){
 
 // Shear in X
 static void shearx(FXuchar *out,FXuchar* in,FXint nwidth,FXint owidth,FXint height,FXint shear,FXColor clr){
-  register FXuchar *ppp,*pp,*qq,*p,*q,*k;
-  register FXuint r=FXREDVAL(clr);
-  register FXuint g=FXGREENVAL(clr);
-  register FXuint b=FXBLUEVAL(clr);
-  register FXuint a=FXALPHAVAL(clr);
-  register FXint dp=owidth<<2;
-  register FXint dq=nwidth<<2;
-  register FXint s,z,y,d;
+  FXuchar *ppp,*pp,*qq,*p,*q,*k;
+  FXuint r=FXREDVAL(clr);
+  FXuint g=FXGREENVAL(clr);
+  FXuint b=FXBLUEVAL(clr);
+  FXuint a=FXALPHAVAL(clr);
+  FXint dp=owidth<<2;
+  FXint dq=nwidth<<2;
+  FXint s,z,y,d;
   if(shear){
     if(shear>0){ y=height-1; d=-1; } else { shear=-shear; y=0; d=1; }
     pp=in;
@@ -2273,13 +2273,13 @@ static void shearx(FXuchar *out,FXuchar* in,FXint nwidth,FXint owidth,FXint heig
 
 // Shear in Y
 static void sheary(FXuchar *out,FXuchar* in,FXint width,FXint nheight,FXint oheight,FXint shear,FXColor clr){
-  register FXuchar *ppp,*pp,*qq,*p,*q,*k;
-  register FXuint r=FXREDVAL(clr);
-  register FXuint g=FXGREENVAL(clr);
-  register FXuint b=FXBLUEVAL(clr);
-  register FXuint a=FXALPHAVAL(clr);
-  register FXint dp=width<<2;
-  register FXint s,z,x,d;
+  FXuchar *ppp,*pp,*qq,*p,*q,*k;
+  FXuint r=FXREDVAL(clr);
+  FXuint g=FXGREENVAL(clr);
+  FXuint b=FXBLUEVAL(clr);
+  FXuint a=FXALPHAVAL(clr);
+  FXint dp=width<<2;
+  FXint s,z,x,d;
   if(shear){
     if(shear>0){ x=width-1; d=-1; } else { shear=-shear; x=0; d=1; }
     pp=in+dp*oheight;
@@ -2375,9 +2375,9 @@ void FXImage::yshear(FXint shear,FXColor clr){
 
 // Fill horizontal gradient
 void FXImage::hgradient(FXColor left,FXColor right){
-  register FXint rr,gg,bb,aa,dr,dg,db,da,r1,g1,b1,a1,r2,g2,b2,a2,x;
-  register FXuchar *ptr=(FXuchar*)data;
-  register FXuchar *prv=(FXuchar*)data;
+  FXint rr,gg,bb,aa,dr,dg,db,da,r1,g1,b1,a1,r2,g2,b2,a2,x;
+  FXuchar *ptr=(FXuchar*)data;
+  FXuchar *prv=(FXuchar*)data;
   if(ptr && width>1 && height>1){
     r1=FXREDVAL(left);
     r2=FXREDVAL(right);
@@ -2420,8 +2420,8 @@ void FXImage::hgradient(FXColor left,FXColor right){
 
 // Fill vertical gradient
 void FXImage::vgradient(FXColor top,FXColor bottom){
-  register FXint rr,gg,bb,aa,dr,dg,db,da,r1,g1,b1,a1,r2,g2,b2,a2,x,y;
-  register FXuchar *ptr=(FXuchar*)data;
+  FXint rr,gg,bb,aa,dr,dg,db,da,r1,g1,b1,a1,r2,g2,b2,a2,x,y;
+  FXuchar *ptr=(FXuchar*)data;
   if(ptr && width>1 && height>1){
     r1=FXREDVAL(top);
     r2=FXREDVAL(bottom);
@@ -2462,9 +2462,9 @@ void FXImage::vgradient(FXColor top,FXColor bottom){
 
 // Fill with gradient
 void FXImage::gradient(FXColor topleft,FXColor topright,FXColor bottomleft,FXColor bottomright){
-  register FXint rl,gl,bl,al,rr,gr,br,ar,drl,dgl,dbl,dal,drr,dgr,dbr,dar,r,g,b,a,dr,dg,db,da,x,y;
-  register FXint rtl,gtl,btl,atl,rtr,gtr,btr,atr,rbl,gbl,bbl,abl,rbr,gbr,bbr,abr;
-  register FXuchar *ptr=(FXuchar*)data;
+  FXint rl,gl,bl,al,rr,gr,br,ar,drl,dgl,dbl,dal,drr,dgr,dbr,dar,r,g,b,a,dr,dg,db,da,x,y;
+  FXint rtl,gtl,btl,atl,rtr,gtr,btr,atr,rbl,gbl,bbl,abl,rbr,gbr,bbr,abr;
+  FXuchar *ptr=(FXuchar*)data;
   if(ptr && width>1 && height>1){
 
     rtl=FXREDVAL(topleft);
@@ -2531,12 +2531,12 @@ void FXImage::gradient(FXColor topleft,FXColor topright,FXColor bottomleft,FXCol
 // Blend image over uniform color
 void FXImage::blend(FXColor color){
   if(data){
-    register FXuchar *pix=(FXuchar*)data;
-    register FXuchar *end=pix+height*width*4;
-    register FXint r=FXREDVAL(color);
-    register FXint g=FXGREENVAL(color);
-    register FXint b=FXBLUEVAL(color);
-    register FXint s,w;
+    FXuchar *pix=(FXuchar*)data;
+    FXuchar *end=pix+height*width*4;
+    FXint r=FXREDVAL(color);
+    FXint g=FXGREENVAL(color);
+    FXint b=FXBLUEVAL(color);
+    FXint s,w;
     do{
       s=pix[3];
       w=(pix[2]-r)*s; pix[2]=r+((w+(w>>8)+128)>>8);
@@ -2552,8 +2552,8 @@ void FXImage::blend(FXColor color){
 // Invert colors of an image
 void FXImage::invert(){
   if(data){
-    register FXuchar *pix=(FXuchar*)data;
-    register FXuchar *end=pix+height*width*4;
+    FXuchar *pix=(FXuchar*)data;
+    FXuchar *end=pix+height*width*4;
     do{
       pix[1]=255-pix[1];
       pix[2]=255-pix[2];
@@ -2568,12 +2568,12 @@ void FXImage::invert(){
 // Colorize image based on luminance
 void FXImage::colorize(FXColor color){
   if(data){
-    register FXuchar *pix=(FXuchar*)data;
-    register FXuchar *end=pix+height*width*4;
-    register FXint r=FXREDVAL(color);
-    register FXint g=FXGREENVAL(color);
-    register FXint b=FXBLUEVAL(color);
-    register FXint lum,w;
+    FXuchar *pix=(FXuchar*)data;
+    FXuchar *end=pix+height*width*4;
+    FXint r=FXREDVAL(color);
+    FXint g=FXGREENVAL(color);
+    FXint b=FXBLUEVAL(color);
+    FXint lum,w;
     do{
       if(pix[3]){
         lum=(77*pix[2]+151*pix[1]+29*pix[0])>>8;
@@ -2592,8 +2592,8 @@ void FXImage::colorize(FXColor color){
 
 // Fill with diagonal gradient RGB
 static void dgradientrgba(FXuchar *dst,FXint w,FXint h,FXint r1,FXint g1,FXint b1,FXint a1,FXint r2,FXint g2,FXint b2,FXint a2){
-  register FXint rr,gg,bb,aa,drx,dgx,dbx,dax,dry,dgy,dby,day,x,y;
-  register FXuchar *ptr=dst;
+  FXint rr,gg,bb,aa,drx,dgx,dbx,dax,dry,dgy,dby,day,x,y;
+  FXuchar *ptr=dst;
   FXuchar xtable[4][2048];
   FXuchar ytable[4][2048];
   FXASSERT(w>0 && h>0);

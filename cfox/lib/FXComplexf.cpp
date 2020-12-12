@@ -39,9 +39,9 @@ namespace FX {
 
 // Complex square root
 FXComplexf csqrt(const FXComplexf& c){
-  register FXfloat mag=abs(c);
-  register FXfloat rr=Math::sqrt((mag+c.re)*0.5f);
-  register FXfloat ii=Math::sqrt((mag-c.re)*0.5f);
+  FXfloat mag=abs(c);
+  FXfloat rr=Math::sqrt((mag+c.re)*0.5f);
+  FXfloat ii=Math::sqrt((mag-c.re)*0.5f);
   return FXComplexf(rr,Math::copysign(ii,c.im));
   }
 

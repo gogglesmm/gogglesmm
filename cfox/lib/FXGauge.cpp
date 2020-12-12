@@ -339,8 +339,8 @@ void FXGauge::drawPointer(FXDCWindow& dc,FXdouble ang,FXint xx,FXint yy,FXint ww
 
 // Draw dial face
 void FXGauge::drawGauge(FXDCWindow& dc,FXint xx,FXint yy,FXint ww,FXint hh,FXint cx,FXint cy,FXint rx,FXint ry) const {
-  register FXint rrx=(FXint)(rx*innerRadius);
-  register FXint rry=(FXint)(ry*innerRadius);
+  FXint rrx=(FXint)(rx*innerRadius);
+  FXint rry=(FXint)(ry*innerRadius);
   FXdouble sa=startAngle*DTOR;
   FXdouble ea=(startAngle+sweepAngle)*DTOR;
   FXdouble ma=(sa+ea)*0.5;

@@ -207,9 +207,9 @@ long FXScrollBar::onCmdGetIntRange(FXObject*,FXSelector,void* ptr){
 // Pressed LEFT button in slider
 // Note we don't move the focus to the scrollbar widget!
 long FXScrollBar::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint r=range-page;
-  register FXint p=pos;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint r=range-page;
+  FXint p=pos;
   if(isEnabled()){
     grab();
     getApp()->removeTimeout(this,ID_TIMEWHEEL);
@@ -318,9 +318,9 @@ long FXScrollBar::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 // Pressed MIDDLE button in slider
 long FXScrollBar::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
   FXEvent *event=(FXEvent*)ptr;
-  register FXint r=range-page;
-  register FXint p=pos;
-  register FXint travel,lo,hi,t;
+  FXint r=range-page;
+  FXint p=pos;
+  FXint travel,lo,hi,t;
   if(isEnabled()){
     grab();
     getApp()->removeTimeout(this,ID_TIMEWHEEL);
@@ -392,9 +392,9 @@ long FXScrollBar::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Pressed RIGHT button in slider
 long FXScrollBar::onRightBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint r=range-page;
-  register FXint p=pos;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint r=range-page;
+  FXint p=pos;
   if(isEnabled()){
     grab();
     getApp()->removeTimeout(this,ID_TIMEWHEEL);
@@ -513,10 +513,10 @@ long FXScrollBar::onUngrabbed(FXObject* sender,FXSelector sel,void* ptr){
 
 // Moving
 long FXScrollBar::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint r=range-page;
-  register FXint p=pos;
-  register FXint travel,hi,lo,t;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint r=range-page;
+  FXint p=pos;
+  FXint travel,hi,lo,t;
   if(!isEnabled()) return 0;
   if(mode>=MODE_DRAG){
 
@@ -685,8 +685,8 @@ long FXScrollBar::onTimeWheel(FXObject*,FXSelector,void* ptr){
 
 // Automatic scroll based on timer
 long FXScrollBar::onAutoScroll(FXObject*,FXSelector,void* ptr){
-  register FXint p=pos+(FXint)(FXival)ptr;
-  register FXint r=range-page;
+  FXint p=pos+(FXint)(FXival)ptr;
+  FXint r=range-page;
   if(p>=r) p=r;
   if(p<=0) p=0;
   FXASSERT(0<=p);
@@ -837,8 +837,8 @@ void FXScrollBar::drawDownArrow(FXDCWindow& dc,FXint x,FXint y,FXint w,FXint h,F
 
 // Handle repaint
 long FXScrollBar::onPaint(FXObject*,FXSelector,void* ptr){
-  register FXEvent *ev=(FXEvent*)ptr;
-  register int total;
+  FXEvent *ev=(FXEvent*)ptr;
+  int total;
   FXDCWindow dc(this,ev);
   if(options&SCROLLBAR_HORIZONTAL){
     total=width-height-height;
@@ -946,10 +946,10 @@ void FXScrollBar::setLine(FXint l){
 // Set position; tricky because the thumb size may have changed
 // as well; we do the minimal possible update to repaint properly.
 void FXScrollBar::setPosition(FXint p,FXbool notify){
-  register FXint hi=thumbpos+thumbsize;
-  register FXint lo=thumbpos;
-  register FXint r=range-page;
-  register FXint total,travel,l,h;
+  FXint hi=thumbpos+thumbsize;
+  FXint lo=thumbpos;
+  FXint r=range-page;
+  FXint total,travel,l,h;
   if(p>r) p=r;
   if(p<0) p=0;
   FXASSERT(0<=p);

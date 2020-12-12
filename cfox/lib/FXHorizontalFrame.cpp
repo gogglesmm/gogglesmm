@@ -72,9 +72,9 @@ FXHorizontalFrame::FXHorizontalFrame(FXComposite* p,FXuint opts,FXint x,FXint y,
 
 // Compute minimum width based on child layout hints
 FXint FXHorizontalFrame::getDefaultWidth(){
-  register FXint w,wcum,wmax,mw;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint w,wcum,wmax,mw;
+  FXWindow* child;
+  FXuint hints;
   wcum=wmax=mw=0;
   if(options&PACK_UNIFORM_WIDTH) mw=maxChildWidth();
   for(child=getFirst(); child; child=child->getNext()){
@@ -100,9 +100,9 @@ FXint FXHorizontalFrame::getDefaultWidth(){
 
 // Compute minimum height based on child layout hints
 FXint FXHorizontalFrame::getDefaultHeight(){
-  register FXint h,hmax,hcum,mh;
-  register FXWindow* child;
-  register FXuint hints;
+  FXint h,hmax,hcum,mh;
+  FXWindow* child;
+  FXuint hints;
   hmax=hcum=mh=0;
   if(options&PACK_UNIFORM_HEIGHT) mh=maxChildHeight();
   for(child=getFirst(); child; child=child->getNext()){
@@ -127,14 +127,14 @@ FXint FXHorizontalFrame::getDefaultHeight(){
 
 // Recalculate layout
 void FXHorizontalFrame::layout(){
-  register FXint left,right,top,bottom,remain,extra_space,total_space,t,x,y,w,h;
-  register FXWindow* child;
-  register FXint sumexpand=0;
-  register FXint numexpand=0;
-  register FXint mw=0;
-  register FXint mh=0;
-  register FXint e=0;
-  register FXuint hints;
+  FXint left,right,top,bottom,remain,extra_space,total_space,t,x,y,w,h;
+  FXWindow* child;
+  FXint sumexpand=0;
+  FXint numexpand=0;
+  FXint mw=0;
+  FXint mh=0;
+  FXint e=0;
+  FXuint hints;
 
   // Placement rectangle; right/bottom non-inclusive
   left=border+padleft;

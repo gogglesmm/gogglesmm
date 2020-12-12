@@ -308,7 +308,7 @@ FXdouble Math::nearbyint(FXdouble x){
   FXulong ax=z.u&FXULONG(0x7fffffffffffffff);
   if(ax<FXULONG(0x4330000000000000)){   // |x| has fraction
     volatile FXdouble tmp;              // Volatile lest add/subtract is optimized away
-    register FXulong sx=z.u>>63;
+    FXulong sx=z.u>>63;
     tmp=x+TWO52[sx];                    // Blow fraction bits, works for values up to 4503599627370496
     x=tmp-TWO52[sx];                    // Values greater than 4503599627370496 are integral anyway
     }

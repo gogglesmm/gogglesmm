@@ -175,11 +175,11 @@ FXTime FXSystem::timeFromSystemTime(const Time& st){
   }
 
 
-// Return system time from number of nanoseconds since Epoch
-void FXSystem::systemTimeFromTime(Time& st,FXTime ns){
+// Return system time from utc in nanoseconds since Unix Epoch
+void FXSystem::systemTimeFromTime(Time& st,FXTime utc){
 
   // Compute days from nanoseconds, rounding down
-  FXlong zz=(0<=ns ? ns : ns-(days-1))/days;
+  FXlong zz=(0<=utc ? utc : utc-(days-1))/days;
 
   // Compute date from seconds
   civilFromDays(st.year,st.month,st.mday,zz);
@@ -191,20 +191,20 @@ void FXSystem::systemTimeFromTime(Time& st,FXTime ns){
   st.wday=weekday_from_days(zz);
 
   // Hours
-  ns=ns-zz*days;
-  st.hour=(FXint)(ns/hours);
+  utc=utc-zz*days;
+  st.hour=(FXint)(utc/hours);
 
   // Minutes
-  ns=ns-st.hour*hours;
-  st.min=(FXint)(ns/minutes);
+  utc=utc-st.hour*hours;
+  st.min=(FXint)(utc/minutes);
 
   // Seconds
-  ns=ns-st.min*minutes;
-  st.sec=(FXint)(ns/seconds);
+  utc=utc-st.min*minutes;
+  st.sec=(FXint)(utc/seconds);
 
   // Nanoseconds
-  ns=ns-st.sec*seconds;
-  st.nano=(FXint)ns;
+  utc=utc-st.sec*seconds;
+  st.nano=(FXint)utc;
 
   // Offset utc
   st.offset=0;
@@ -296,9 +296,9 @@ FXString FXSystem::localTimeZoneName(FXbool dst){
 
 #if defined(WIN32)
 
-// Convert ns since 01/01/1970 to 100ns since 01/01/1601
-static inline FXTime fxwintime(FXTime ut){
-  return ut/FXLONG(100)+FXLONG(116444736000000000);
+// Convert utc (ns) since 01/01/1970 to 100ns since 01/01/1601
+static inline FXTime fxwintime(FXTime utc){
+  return utc/FXLONG(100)+FXLONG(116444736000000000);
   }
 
 
@@ -358,15 +358,15 @@ static FXint compare_zone_switch_over(const SYSTEMTIME& cur,const SYSTEMTIME& ch
 // We assume that the time zone is relatively stable, but we may
 // call GetTimeZoneInformationForYear() in a future revision to
 // obtain only DST/STD time switches, which are changed more rapidly.
-static FXint daylightSavingsState(FXTime ns,FXbool local){
+static FXint daylightSavingsState(FXTime utc,FXbool local){
 
   // Expanded date/time
   SYSTEMTIME loc;
 
   // Assume local time
-  FXTime ftloc=ns;
-  FXTime ftdst=ns;
-  FXTime ftstd=ns;
+  FXTime ftloc=utc;
+  FXTime ftdst=utc;
+  FXTime ftstd=utc;
 
   // If UTC, convert to local using
   if(!local){
@@ -418,31 +418,31 @@ static FXint daylightSavingsState(FXTime ns,FXbool local){
 #endif
 
 
-// Return 1 if daylight savings time is active at Unix Epoch time
-FXTime FXSystem::daylightSavingsActive(FXTime ns){
+// Return 1 if daylight savings time is active at utc in nanoseconds since Unix Epoch
+FXTime FXSystem::daylightSavingsActive(FXTime utc){
   setuplocaltimezone();
 #if defined(_WIN32)
-  return daylightSavingsState(ns,false);
+  return daylightSavingsState(utc,false);
 #elif defined(HAVE_LOCALTIME_R)
   struct tm tmresult;
-  time_t tmp=(time_t)(ns/seconds);
+  time_t tmp=(time_t)(utc/seconds);
   struct tm* ptm=localtime_r(&tmp,&tmresult);
-  FXTRACE((100,"FXSystem::daylightSavingsActive(%lld) = %d\n",ns,ptm && ptm->tm_isdst!=0));
+  FXTRACE((100,"FXSystem::daylightSavingsActive(%lld) = %d\n",utc,ptm && ptm->tm_isdst!=0));
   return ptm && ptm->tm_isdst!=0;
 #else
-  time_t tmp=(time_t)(ns/seconds);
+  time_t tmp=(time_t)(utc/seconds);
   struct tm* ptm=localtime(&tmp);
-  FXTRACE((100,"FXSystem::daylightSavingsActive(%lld) = %d\n",ns,ptm && ptm->tm_isdst!=0));
+  FXTRACE((100,"FXSystem::daylightSavingsActive(%lld) = %d\n",utc,ptm && ptm->tm_isdst!=0));
   return ptm && ptm->tm_isdst!=0;
 #endif
   }
 
 /*******************************************************************************/
 
-// Format UTC nanoseconds since Unix Epoch to date-time string using given format
-FXString FXSystem::universalTime(FXTime ns,const FXchar *format){
+// Format utc in nanoseconds since Unix Epoch to date-time string using given format
+FXString FXSystem::universalTime(FXTime utc,const FXchar *format){
   FXSystem::Time st={0,0,0,0,0,0,0,0,0,0};
-  FXSystem::systemTimeFromTime(st,ns);
+  FXSystem::systemTimeFromTime(st,utc);
   return FXSystem::systemTimeFormat(st,format);
   }
 
@@ -466,11 +466,11 @@ FXTime FXSystem::universalTime(const FXString& string,const FXchar* format){
 
 /*******************************************************************************/
 
-// Format UTC nanoseconds since Unix Epoch to local date-time string using given format
-FXString FXSystem::localTime(FXTime ns,const FXchar *format){
-  FXTime zoneoffset=FXSystem::localTimeZoneOffset()+FXSystem::daylightSavingsOffset()*FXSystem::daylightSavingsActive(ns);
+// Format utc in nanoseconds since Unix Epoch to local date-time string using given format
+FXString FXSystem::localTime(FXTime utc,const FXchar *format){
+  FXTime zoneoffset=FXSystem::localTimeZoneOffset()+FXSystem::daylightSavingsOffset()*FXSystem::daylightSavingsActive(utc);
   FXSystem::Time st={0,0,0,0,0,0,0,0,0,(FXint)(zoneoffset/seconds)};
-  FXSystem::systemTimeFromTime(st,ns-zoneoffset);
+  FXSystem::systemTimeFromTime(st,utc-zoneoffset);
   return FXSystem::systemTimeFormat(st,format);
   }
 

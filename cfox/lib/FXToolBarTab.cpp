@@ -382,7 +382,7 @@ long FXToolBarTab::onCmdGetTip(FXObject*,FXSelector,void* ptr){
 
 // Draw horizontal speckles
 void FXToolBarTab::drawHSpeckles(FXDCWindow& dc,FXint x,FXint w){
-  register FXint i;
+  FXint i;
   dc.setForeground(hiliteColor);
   for(i=0; i<w-5; i+=4){dc.drawPoint(x+i,2);dc.drawPoint(x+i+1,5);}
   dc.setForeground(shadowColor);
@@ -392,7 +392,7 @@ void FXToolBarTab::drawHSpeckles(FXDCWindow& dc,FXint x,FXint w){
 
 // Draw vertical speckles
 void FXToolBarTab::drawVSpeckles(FXDCWindow& dc,FXint y,FXint h){
-  register FXint i;
+  FXint i;
   dc.setForeground(hiliteColor);
   for(i=0; i<h-5; i+=3){dc.drawPoint(2,y+i+1);dc.drawPoint(5,y+i);}
   dc.setForeground(shadowColor);

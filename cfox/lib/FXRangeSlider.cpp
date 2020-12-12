@@ -274,8 +274,8 @@ long FXRangeSlider::onCmdGetRealRange(FXObject*,FXSelector,void* ptr){
 
 // Pressed LEFT button
 long FXRangeSlider::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint p;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint p;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -366,7 +366,7 @@ long FXRangeSlider::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released Left button
 long FXRangeSlider::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXuint flgs=flags;
+  FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
     getApp()->removeTimeout(this,ID_AUTOSLIDE);
@@ -386,8 +386,8 @@ long FXRangeSlider::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Moving
 long FXRangeSlider::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint xx,yy,ww,hh,lo,hi,p,h,travel;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint xx,yy,ww,hh,lo,hi,p,h,travel;
   if(!isEnabled()) return 0;
   if(flags&FLAG_PRESSED){
     yy=border+padtop+2;
@@ -459,8 +459,8 @@ long FXRangeSlider::onMotion(FXObject*,FXSelector,void* ptr){
 
 // Pressed middle or right
 long FXRangeSlider::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint xx,yy,ww,hh,lo,hi,p,h,travel;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint xx,yy,ww,hh,lo,hi,p,h,travel;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -542,7 +542,7 @@ long FXRangeSlider::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released middle button
 long FXRangeSlider::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXuint flgs=flags;
+  FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
     getApp()->removeTimeout(this,ID_AUTOSLIDE);
@@ -562,9 +562,9 @@ long FXRangeSlider::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Mouse wheel
 long FXRangeSlider::onMouseWheel(FXObject*,FXSelector,void* ptr){
-  register FXEvent* event=(FXEvent*)ptr;
-  register FXint a=(options&RANGESLIDER_VERTICAL) ? (event->win_y<=(headPos[0]+headSize+headPos[1])/2) : (event->win_x>=(headPos[0]+headSize+headPos[1])/2);
-  register FXint p=values[a+1]+(((FXEvent*)ptr)->code*incr)/120;
+  FXEvent* event=(FXEvent*)ptr;
+  FXint a=(options&RANGESLIDER_VERTICAL) ? (event->win_y<=(headPos[0]+headSize+headPos[1])/2) : (event->win_x>=(headPos[0]+headSize+headPos[1])/2);
+  FXint p=values[a+1]+(((FXEvent*)ptr)->code*incr)/120;
   if(p<values[a+0]) p=values[a+0];
   if(p>values[a+2]) p=values[a+2];
   if(p!=values[a+1]){
@@ -653,8 +653,8 @@ long FXRangeSlider::onUngrabbed(FXObject* sender,FXSelector sel,void* ptr){
 
 // Automatically move slider while holding down mouse
 long FXRangeSlider::onAutoSlide(FXObject*,FXSelector,void* ptr){
-  register FXint inc=(FXint)(FXival)ptr;
-  register FXint p=values[active+1]+inc;
+  FXint inc=(FXint)(FXival)ptr;
+  FXint p=values[active+1]+inc;
   if(p<=values[active+0]){
     p=values[active+0];
     }
@@ -871,8 +871,8 @@ void FXRangeSlider::setRange(FXint lo,FXint hi,FXbool notify){
 // Also, the minimal amount is repainted, as one sometimes as very
 // large/wide sliders.
 void FXRangeSlider::setValue(FXint head,FXint value,FXbool notify){
-  register FXint interval=values[3]-values[0];
-  register FXint travel,lo,hi,h;
+  FXint interval=values[3]-values[0];
+  FXint travel,lo,hi,h;
   if(value<values[head+0]) value=values[head+0];
   if(value>values[head+2]) value=values[head+2];
   if(options&RANGESLIDER_VERTICAL){
@@ -910,7 +910,7 @@ FXuint FXRangeSlider::getSliderStyle() const {
 
 // Set slider options
 void FXRangeSlider::setSliderStyle(FXuint style){
-  register FXuint opts=(options&~RANGESLIDER_MASK) | (style&RANGESLIDER_MASK);
+  FXuint opts=(options&~RANGESLIDER_MASK) | (style&RANGESLIDER_MASK);
   if(options!=opts){
     headSize=(opts&RANGESLIDER_INSIDE_BAR)?HEADINSIDEBAR:HEADOVERHANGING;
     options=opts;

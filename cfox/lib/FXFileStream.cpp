@@ -57,7 +57,7 @@ FXFileStream::FXFileStream(const FXString& filename,FXStreamDirection save_or_lo
 
 // Write at least count bytes from the buffer
 FXuval FXFileStream::writeBuffer(FXuval){
-  register FXival m,n;
+  FXival m,n;
   if(dir!=FXStreamSave){fxerror("FXFileStream::writeBuffer: wrong stream direction.\n");}
   FXASSERT(begptr<=rdptr);
   FXASSERT(rdptr<=wrptr);
@@ -76,7 +76,7 @@ FXuval FXFileStream::writeBuffer(FXuval){
 
 // Read at least count bytes into the buffer
 FXuval FXFileStream::readBuffer(FXuval){
-  register FXival m,n;
+  FXival m,n;
   if(dir!=FXStreamLoad){fxerror("FXFileStream::readBuffer: wrong stream direction.\n");}
   FXASSERT(begptr<=rdptr);
   FXASSERT(rdptr<=wrptr);
@@ -128,7 +128,7 @@ FXbool FXFileStream::close(){
 
 // Move to position
 FXbool FXFileStream::position(FXlong offset,FXWhence whence){
-  register FXlong p;
+  FXlong p;
   if(dir==FXStreamDead){ fxerror("FXFileStream::position: stream is not open.\n"); }
   if(code==FXStreamOK){
     FXASSERT(FXFromStart==SEEK_SET);

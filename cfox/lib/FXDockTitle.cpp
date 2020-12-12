@@ -100,7 +100,7 @@ void FXDockTitle::detach(){
 
 // Get default width
 FXint FXDockTitle::getDefaultWidth(){
-  register FXint w=0;
+  FXint w=0;
   if(!caption.empty()) w=font->getTextWidth(caption.text(),caption.length());
   return padleft+padright+(border<<1)+w;
   }
@@ -108,7 +108,7 @@ FXint FXDockTitle::getDefaultWidth(){
 
 // Get default height
 FXint FXDockTitle::getDefaultHeight(){
-  register FXint h=0;
+  FXint h=0;
   if(!caption.empty()) h=font->getFontHeight();
   return padtop+padbottom+(border<<1)+h;
   }

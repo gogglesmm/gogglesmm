@@ -107,19 +107,20 @@ FXMenuCaption::FXMenuCaption(){
 // Menu entry
 FXMenuCaption::FXMenuCaption(FXComposite* p,const FXString& text,FXIcon* ic,FXuint opts):FXWindow(p,opts,0,0,0,0){
   FXString string=text.section('\t',0);
-  flags|=FLAG_SHOWN;
+  hotkey=parseHotKey(string);
   label=stripHotKey(string);
-  icon=ic;
+  hotoff=findHotKey(string);
   font=getApp()->getNormalFont();
   help=text.section('\t',2);
+  tip=text.section('\t',1);
   textColor=getApp()->getForeColor();
-  seltextColor=getApp()->getSelMenuTextColor();
   selbackColor=getApp()->getSelMenuBackColor();
+  seltextColor=getApp()->getSelMenuTextColor();
   hiliteColor=getApp()->getHiliteColor();
   shadowColor=getApp()->getShadowColor();
-  hotkey=parseHotKey(string);
-  hotoff=findHotKey(string);
+  icon=ic;
   addHotKey(hotkey);
+  flags|=FLAG_SHOWN;
   }
 
 

@@ -135,9 +135,9 @@ FXbool FXDockSite::wrapGalleys() const {
 
 // Compute minimum width based on child layout hints
 FXint FXDockSite::getDefaultWidth(){
-  register FXint total=0,galw=0,w;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint total=0,galw=0,w;
+  FXWindow *child;
+  FXuint hints;
 
   // Vertically oriented
   if(options&LAYOUT_SIDE_LEFT){
@@ -182,9 +182,9 @@ FXint FXDockSite::getDefaultWidth(){
 
 // Compute minimum height based on child layout hints
 FXint FXDockSite::getDefaultHeight(){
-  register FXint total=0,galh=0,h;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint total=0,galh=0,h;
+  FXWindow *child;
+  FXuint hints;
 
   // Vertically oriented
   if(options&LAYOUT_SIDE_LEFT){
@@ -229,9 +229,9 @@ FXint FXDockSite::getDefaultHeight(){
 
 // Return width for given height (vertical orientation)
 FXint FXDockSite::getWidthForHeight(FXint givenheight){
-  register FXint total=0,galh=0,galw=0,w,h;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint total=0,galh=0,galw=0,w,h;
+  FXWindow *child;
+  FXuint hints;
   givenheight-=padtop+padbottom+border+border;
   for(child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
@@ -257,9 +257,9 @@ FXint FXDockSite::getWidthForHeight(FXint givenheight){
 
 // Return height for given width (horizontal orientation)
 FXint FXDockSite::getHeightForWidth(FXint givenwidth){
-  register FXint total=0,galh=0,galw=0,w,h;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint total=0,galh=0,galw=0,w,h;
+  FXWindow *child;
+  FXuint hints;
   givenwidth-=padleft+padright+border+border;
   for(child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
@@ -285,8 +285,8 @@ FXint FXDockSite::getHeightForWidth(FXint givenwidth){
 
 // Find begin and end of galley containing bar on horizontal dock site
 void FXDockSite::galleyOfHorzBar(FXWindow *bar,FXWindow*& begin,FXWindow*& end) const {
-  register FXint space=width-padleft-padright-border-border,ss=0,w;
-  register FXWindow *child;
+  FXint space=width-padleft-padright-border-border,ss=0,w;
+  FXWindow *child;
   for(child=bar; child->getPrev(); child=child->getPrev()){
     if(child->shown() && (child->getLayoutHints()&LAYOUT_DOCK_NEXT)) break;
     }
@@ -312,8 +312,8 @@ void FXDockSite::galleyOfHorzBar(FXWindow *bar,FXWindow*& begin,FXWindow*& end) 
 
 // Find begin and end of galley containing bar on vertical dock site
 void FXDockSite::galleyOfVertBar(FXWindow *bar,FXWindow*& begin,FXWindow*& end) const {
-  register FXint space=height-padtop-padbottom-border-border,ss=0,h;
-  register FXWindow *child;
+  FXint space=height-padtop-padbottom-border-border,ss=0,h;
+  FXWindow *child;
   for(child=bar; child->getPrev(); child=child->getPrev()){
     if(child->shown() && (child->getLayoutHints()&LAYOUT_DOCK_NEXT)) break;
     }
@@ -342,9 +342,9 @@ void FXDockSite::galleyOfVertBar(FXWindow *bar,FXWindow*& begin,FXWindow*& end) 
 
 // Determine vertical galley size
 FXint FXDockSite::galleyWidth(FXWindow *begin,FXWindow*& end,FXint space,FXint& require,FXint& expand) const {
-  register FXint galley,any,w,h;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint galley,any,w,h;
+  FXWindow *child;
+  FXuint hints;
   require=expand=galley=any=0;
   for(child=end=begin; child; end=child,child=child->getNext()){
     if(child->shown()){
@@ -373,9 +373,9 @@ FXint FXDockSite::galleyWidth(FXWindow *begin,FXWindow*& end,FXint space,FXint& 
 
 // Determine horizontal galley size
 FXint FXDockSite::galleyHeight(FXWindow *begin,FXWindow*& end,FXint space,FXint& require,FXint& expand) const {
-  register FXint galley,any,w,h;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint galley,any,w,h;
+  FXWindow *child;
+  FXuint hints;
   require=expand=galley=any=0;
   for(child=end=begin; child; end=child,child=child->getNext()){
     if(child->shown()){
@@ -1268,7 +1268,7 @@ long FXDockSite::onLeave(FXObject* sender,FXSelector sel,void* ptr){
 
 // Pressed LEFT button
 long FXDockSite::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -1306,7 +1306,7 @@ long FXDockSite::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Moved the mouse
 long FXDockSite::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   if(mode!=DRAG_NONE){
     FXDockSite *toolbardock=dynamic_cast<FXDockSite*>(getParent());
     FXint mousex,mousey;

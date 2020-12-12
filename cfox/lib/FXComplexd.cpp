@@ -111,9 +111,9 @@ namespace FX {
 
 // Complex square root
 FXComplexd csqrt(const FXComplexd& c){
-  register FXdouble mag=abs(c);
-  register FXdouble rr=Math::sqrt((mag+c.re)*0.5);
-  register FXdouble ii=Math::sqrt((mag-c.re)*0.5);
+  FXdouble mag=abs(c);
+  FXdouble rr=Math::sqrt((mag+c.re)*0.5);
+  FXdouble ii=Math::sqrt((mag-c.re)*0.5);
   return FXComplexd(rr,Math::copysign(ii,c.im));
   }
 

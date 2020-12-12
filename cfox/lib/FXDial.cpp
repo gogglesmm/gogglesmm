@@ -133,14 +133,14 @@ FXDial::FXDial(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,F
 
 // Get minimum width
 FXint FXDial::getDefaultWidth(){
-  register FXint w=(options&DIAL_HORIZONTAL)?DIALDIAMETER:DIALWIDTH;
+  FXint w=(options&DIAL_HORIZONTAL)?DIALDIAMETER:DIALWIDTH;
   return w+padleft+padright+(border<<1);
   }
 
 
 // Get minimum height
 FXint FXDial::getDefaultHeight(){
-  register FXint h=(options&DIAL_HORIZONTAL)?DIALWIDTH:DIALDIAMETER;
+  FXint h=(options&DIAL_HORIZONTAL)?DIALWIDTH:DIALDIAMETER;
   return h+padtop+padbottom+(border<<1);
   }
 
@@ -682,7 +682,7 @@ void FXDial::setRange(FXint lo,FXint hi,FXbool notify){
 
 // Set dial value
 void FXDial::setValue(FXint p,FXbool notify){
-  register FXint n;
+  FXint n;
   if(p<range[0]) p=range[0];
   if(p>range[1]) p=range[1];
   n=(notchOffset+(3600*(p-range[0]))/incr)%3600;

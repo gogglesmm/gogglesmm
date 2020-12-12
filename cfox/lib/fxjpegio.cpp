@@ -177,8 +177,8 @@ FXbool fxloadJPG(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
   FOX_jpeg_error_mgr jerr;
   FOX_jpeg_source_mgr src;
   JSAMPLE *buffer[1];
-  register FXColor *pp;
-  register JSAMPLE *qq;
+  FXColor *pp;
+  JSAMPLE *qq;
   int row_stride,color,i;
 
   // Null out
@@ -328,8 +328,8 @@ FXbool fxsaveJPG(FXStream& store,const FXColor* data,FXint width,FXint height,FX
   FOX_jpeg_error_mgr jerr;
   FOX_jpeg_dest_mgr dst;
   JSAMPLE *buffer[1];
-  register const FXColor *pp;
-  register JSAMPLE *qq;
+  const FXColor *pp;
+  JSAMPLE *qq;
 
   // Must make sense
   if(!data || width<=0 || height<=0 || quality<=0 || 100<quality) return false;
@@ -418,9 +418,8 @@ FXbool fxloadJPG(FXStream&,FXColor*& data,FXint& width,FXint& height,FXint& qual
    0xe5, 0x04, 0x9f, 0xa3, 0x05, 0x00, 0x00, 0xa0, 0x05, 0x00, 0x00, 0xa0,
    0x05, 0x00, 0x00, 0xa0, 0x05, 0x00, 0x00, 0xa0, 0xfd, 0xff, 0xff, 0xbf,
    0x01, 0x00, 0x00, 0x80, 0xff, 0xff, 0xff, 0xff};
-  register FXint p;
   allocElms(data,32*32);
-  for(p=0; p<32*32; p++){
+  for(FXint p=0; p<32*32; p++){
     data[p]=color[(jpeg_bits[p>>3]>>(p&7))&1];
     }
   width=32;

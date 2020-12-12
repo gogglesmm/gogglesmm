@@ -1921,7 +1921,7 @@ x:return p;
 //       will fail.
 //
 // ( | ) Will start, separate, and end a group of alternatives, each of which may contain pattern
-//       characters as well as sub-groups thereof.
+//       characters as well as sub-groups thereof; The ',' may also be used.
 //
 static FXbool domatch(const FXchar* string,const FXchar* s,const FXchar* p,FXuint flags){
   const FXchar* q;

@@ -57,12 +57,12 @@ FXVec3f colorToVec3f(FXColor clr){
 // Compute fast cross product with vector code
 FXVec3f cross(const FXVec3f& u,const FXVec3f& v){
 #if defined(FOX_HAS_AVX)
-  register __m128 uu=_mm_maskload_ps(&u[0],MMM);
-  register __m128 vv=_mm_maskload_ps(&v[0],MMM);
-  register __m128 a0=_mm_shuffle_ps(uu,uu,_MM_SHUFFLE(3,0,2,1));
-  register __m128 b0=_mm_shuffle_ps(vv,vv,_MM_SHUFFLE(3,1,0,2));
-  register __m128 a1=_mm_shuffle_ps(uu,uu,_MM_SHUFFLE(3,1,0,2));
-  register __m128 b1=_mm_shuffle_ps(vv,vv,_MM_SHUFFLE(3,0,2,1));
+  __m128 uu=_mm_maskload_ps(&u[0],MMM);
+  __m128 vv=_mm_maskload_ps(&v[0],MMM);
+  __m128 a0=_mm_shuffle_ps(uu,uu,_MM_SHUFFLE(3,0,2,1));
+  __m128 b0=_mm_shuffle_ps(vv,vv,_MM_SHUFFLE(3,1,0,2));
+  __m128 a1=_mm_shuffle_ps(uu,uu,_MM_SHUFFLE(3,1,0,2));
+  __m128 b1=_mm_shuffle_ps(vv,vv,_MM_SHUFFLE(3,0,2,1));
   FXVec3f r;
   _mm_maskstore_ps(&r[0],MMM,_mm_sub_ps(_mm_mul_ps(a0,b0),_mm_mul_ps(a1,b1)));
   return r;
@@ -79,8 +79,8 @@ FXVec3f cross(const FXVec3f& u,const FXVec3f& v){
 // Compute fast dot product with vector code
 FXfloat dot(const FXVec3f& u,const FXVec3f& v){
 #if defined(FOX_HAS_AVX)
-  register __m128 uu=_mm_maskload_ps(&u[0],MMM);
-  register __m128 vv=_mm_maskload_ps(&v[0],MMM);
+  __m128 uu=_mm_maskload_ps(&u[0],MMM);
+  __m128 vv=_mm_maskload_ps(&v[0],MMM);
   return _mm_cvtss_f32(_mm_dp_ps(uu,vv,0x71));
 #else
   return u*v;

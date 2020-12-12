@@ -271,7 +271,7 @@ FXJSON::FXJSON(FXchar* buffer,FXuval sz,Direction d):begptr(NULL),endptr(NULL),w
 
 // Open JSON stream for given direction and set its buffer
 FXbool FXJSON::open(FXchar* buffer,FXuval sz,Direction d){
-  FXTRACE((100,"FXJSON::open(%p,%lu,%s)\n",buffer,sz,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
+  FXTRACE((101,"FXJSON::open(%p,%lu,%s)\n",buffer,sz,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   FXASSERT(dir==Stop);
   if((dir==Stop) && (d!=Stop) && (0<sz) && buffer){
     begptr=buffer;
@@ -1489,7 +1489,7 @@ FXJSON::Error FXJSON::loadVariant(FXVariant& var){
 
 // Load a variant
 FXJSON::Error FXJSON::load(FXVariant& variant){
-  FXTRACE((100,"FXJSON::load(variant)\n"));
+  FXTRACE((101,"FXJSON::load(variant)\n"));
   Error err=ErrLoad;
   if(dir==Load){
     token=next();
@@ -1768,7 +1768,7 @@ FXJSON::Error FXJSON::saveVariant(const FXVariant& var){
 
 // Save a variant
 FXJSON::Error FXJSON::save(const FXVariant& variant){
-  FXTRACE((100,"FXJSON::save(variant)\n"));
+  FXTRACE((101,"FXJSON::save(variant)\n"));
   Error err=ErrSave;
   if(dir==Save){
     err=saveVariant(variant);
@@ -1781,7 +1781,7 @@ FXJSON::Error FXJSON::save(const FXVariant& variant){
 
 // Close stream and delete buffers
 FXbool FXJSON::close(){
-  FXTRACE((100,"FXJSON::close()\n"));
+  FXTRACE((101,"FXJSON::close()\n"));
   if(dir!=Stop){
     if((dir==Load) || 0<=flush(0)){             // Error during final flush is possible
       begptr=NULL;

@@ -633,7 +633,7 @@ FXint FXCompile::lookup(const FXchar *list){
 
 // Obtain next token from input
 void FXCompile::gettok(){
-  register FXchar c;
+  FXchar c;
   head=tail;
   while((c=*tail)!='\0'){
     switch(c){
@@ -764,15 +764,67 @@ void FXCompile::gettok(){
           while(Ascii::isDigit(*tail)) tail++;
           }
         return;
+      case 'a':
+      case 'b':
+      case 'c':
+      case 'd':
+      case 'e':
+      case 'f':
+      case 'g':
+      case 'h':
+      case 'i':
+      case 'j':
+      case 'k':
+      case 'l':
+      case 'm':
+      case 'n':
+      case 'o':
+      case 'p':
+      case 'q':
+      case 'r':
+      case 's':
+      case 't':
+      case 'u':
+      case 'v':
+      case 'w':
+      case 'x':
+      case 'y':
+      case 'z':
+      case 'A':
+      case 'B':
+      case 'C':
+      case 'D':
+      case 'E':
+      case 'F':
+      case 'G':
+      case 'H':
+      case 'I':
+      case 'J':
+      case 'K':
+      case 'L':
+      case 'M':
+      case 'N':
+      case 'O':
+      case 'P':
+      case 'Q':
+      case 'R':
+      case 'S':
+      case 'T':
+      case 'U':
+      case 'V':
+      case 'W':
+      case 'X':
+      case 'Y':
+      case 'Z':
+      case '_':
+        token=(FXuchar)*tail++;
+        while(Ascii::isWord(*tail)){
+          token=((token<<5)+token) ^ (FXuchar)*tail++;
+          }
+        //FXTRACE((1,"token=%u\n",token));
+        return;
       default:
         token=TK_ERROR;
-        if(Ascii::isLetter(*tail)){
-          token=(FXuchar)*tail++;
-          while(Ascii::isAlphaNumeric(*tail)){
-            token=((token<<5)+token) ^ (FXuchar)*tail++;
-            }
-          //FXTRACE((1,"token=%u\n",token));
-          }
         return;
       }
     }
@@ -782,7 +834,7 @@ void FXCompile::gettok(){
 
 // Emit opcode
 FXuchar* FXCompile::opcode(FXuchar op){
-  register FXuchar* result=pc;
+  FXuchar* result=pc;
   if(code){
     pc[0]=op;
     }
@@ -793,7 +845,7 @@ FXuchar* FXCompile::opcode(FXuchar op){
 
 // Emit offset
 FXuchar* FXCompile::offset(FXshort n){
-  register FXuchar* result=pc;
+  FXuchar* result=pc;
   if(code){
     SETARG(pc,n);
     }
@@ -804,7 +856,7 @@ FXuchar* FXCompile::offset(FXshort n){
 
 // Emit double
 FXuchar* FXCompile::number(FXdouble n){
-  register FXuchar* result=pc;
+  FXuchar* result=pc;
   if(code){
 #if defined(__i386__) || defined(__x86_64__)
     ((FXdouble*)pc)[0]=n;
@@ -958,8 +1010,8 @@ FXExpression::Error FXExpression::parse(const FXString& expression,const FXStrin
 // Evaluate expression
 FXdouble FXExpression::evaluate(const FXdouble *args) const {
   FXdouble stack[MAXSTACKDEPTH];
-  register const FXuchar *pc=code+2;
-  register FXdouble *sp=stack;
+  const FXuchar *pc=code+2;
+  FXdouble *sp=stack;
   stack[0]=0.0;
   while(1){
     switch(*pc++){

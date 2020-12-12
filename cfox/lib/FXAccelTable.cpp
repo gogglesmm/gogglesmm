@@ -46,11 +46,16 @@
 
 /*
   Notes:
-  - We also dropped the "fx" since we now have namespaces to keep stuff out of each
-    other's hair.
-  - Turned parseAccel() cum suis to simple global functions.  The rules for friend
-    declarations have change in GCC 4.1 so declaring them as friends is no longer
-    possible.
+  - Routines parseAccel(), unparseAccel(), and parseHotKey() now static members of
+    FXAccelTable.
+
+  - Need to call parseAccel() is much reduced since addition of convenience functions
+    that take a string as input; these new routines overload addAccel(), removeAccel(),
+    hasAccel() and targetOfAccel().
+
+  - Thus, often no need to call parseAccel() directly in many cases, and much less
+    cumbersome stuff to learn.
+
   - We need to deal with X11 unicode keysyms (with 0x01000000 flag) in some way.
 */
 
@@ -64,7 +69,6 @@ using namespace FX;
 
 namespace FX {
 
-extern FXAPI FXint __snprintf(FXchar* string,FXint length,const FXchar* format,...);
 
 // Map
 FXDEFMAP(FXAccelTable) FXAccelTableMap[]={
@@ -92,7 +96,7 @@ FXAccelTable::FXAccelTable(){
 
 // Resize hash table, and rehash old stuff into it
 void FXAccelTable::resize(FXuint m){
-  register FXuint p,i,c;
+  FXuint p,i,c;
   FXAccelKey *newkey;
   allocElms(newkey,m+1);
   for(i=0; i<=m; i++){
@@ -112,13 +116,14 @@ void FXAccelTable::resize(FXuint m){
   max=m;
   }
 
+/*******************************************************************************/
 
-// Add (or replace) accelerator
+// Add accelerator key combination into the accelerator table
 void FXAccelTable::addAccel(FXHotKey hotkey,FXObject* target,FXSelector seldn,FXSelector selup){
   if(hotkey){
     FXTRACE((160,"%p->FXAccelTable::addAccel: code=%04x state=%04x\n",this,(FXushort)hotkey,(FXushort)(hotkey>>16)));
-    register FXuint p=(hotkey*13)&max;
-    register FXuint c;
+    FXuint p=(hotkey*13)&max;
+    FXuint c;
     FXASSERT(hotkey!=UNUSEDSLOT);
     FXASSERT(hotkey!=EMPTYSLOT);
     while((c=key[p].code)!=UNUSEDSLOT){ // Check if in table already
@@ -140,14 +145,25 @@ x:  key[p].code=hotkey;                 // Add or replace accelerator info
   }
 
 
-// Remove accelerator.
-// When removed, the slot may still be in a chain of probe
-// positions, unless it is demonstrably the last item in a chain.
+// Parse key-combination description and add it into the accelerator table
+void FXAccelTable::addAccel(const FXString& string,FXObject* target,FXSelector seldn,FXSelector selup){
+  addAccel(parseAccel(string),target,seldn,selup);
+  }
+
+
+// Parse key-combination description and add it into the accelerator table
+void FXAccelTable::addAccel(const FXchar* string,FXObject* target,FXSelector seldn,FXSelector selup){
+  addAccel(parseAccel(string),target,seldn,selup);
+  }
+
+/*******************************************************************************/
+
+// Remove accelerator key combination from the accelerator table
 void FXAccelTable::removeAccel(FXHotKey hotkey){
   if(hotkey){
     FXTRACE((160,"%p->FXAccelTable::removeAccel: code=%04x state=%04x\n",this,(FXushort)hotkey,(FXushort)(hotkey>>16)));
-    register FXuint p=(hotkey*13)&max;
-    register FXuint c;
+    FXuint p=(hotkey*13)&max;
+    FXuint c;
     FXASSERT(hotkey!=UNUSEDSLOT);
     FXASSERT(hotkey!=EMPTYSLOT);
     while((c=key[p].code)!=hotkey){
@@ -170,11 +186,24 @@ void FXAccelTable::removeAccel(FXHotKey hotkey){
   }
 
 
-// See if accelerator exists
+// Parse key-combination description and remove it from the accelerator table
+void FXAccelTable::removeAccel(const FXString& string){
+  removeAccel(parseAccel(string));
+  }
+
+
+// Parse key-combination description and remove it from the accelerator table
+void FXAccelTable::removeAccel(const FXchar* string){
+  removeAccel(parseAccel(string));
+  }
+
+/*******************************************************************************/
+
+// Return true if accelerator accelerator key-combination is in accelerator table
 FXbool FXAccelTable::hasAccel(FXHotKey hotkey) const {
   if(hotkey){
-    register FXuint p=(hotkey*13)&max;
-    register FXuint c;
+    FXuint p=(hotkey*13)&max;
+    FXuint c;
     FXASSERT(hotkey!=UNUSEDSLOT);
     FXASSERT(hotkey!=EMPTYSLOT);
     while((c=key[p].code)!=hotkey){
@@ -187,11 +216,24 @@ FXbool FXAccelTable::hasAccel(FXHotKey hotkey) const {
   }
 
 
-// Return target object of the given accelerator
+// Parse key-combination description and return true if it is in the accelerator table
+FXbool FXAccelTable::hasAccel(const FXString& string) const {
+  return hasAccel(parseAccel(string));
+  }
+
+
+// Parse key-combination description and return true if it is in the accelerator table
+FXbool FXAccelTable::hasAccel(const FXchar* string) const {
+  return hasAccel(parseAccel(string));
+  }
+
+/*******************************************************************************/
+
+// Return target object of the given accelerator key-combination
 FXObject* FXAccelTable::targetOfAccel(FXHotKey hotkey) const {
   if(hotkey){
-    register FXuint p=(hotkey*13)&max;
-    register FXuint c;
+    FXuint p=(hotkey*13)&max;
+    FXuint c;
     FXASSERT(hotkey!=UNUSEDSLOT);
     FXASSERT(hotkey!=EMPTYSLOT);
     while((c=key[p].code)!=hotkey){
@@ -204,13 +246,26 @@ FXObject* FXAccelTable::targetOfAccel(FXHotKey hotkey) const {
   }
 
 
+// Parse key-combination description and return its target
+FXObject* FXAccelTable::targetOfAccel(const FXString& string) const {
+  return targetOfAccel(parseAccel(string));
+  }
+
+
+// Parse key-combination description and return its target
+FXObject* FXAccelTable::targetOfAccel(const FXchar* string) const {
+  return targetOfAccel(parseAccel(string));
+  }
+
+/*******************************************************************************/
+
 // Keyboard press; forward to accelerator target
 long FXAccelTable::onKeyPress(FXObject* sender,FXSelector,void* ptr){
   FXTRACE((200,"%p->FXAccelTable::onKeyPress keysym=0x%04x state=%04x\n",this,((FXEvent*)ptr)->code,((FXEvent*)ptr)->state));
-  register FXEvent* event=(FXEvent*)ptr;
-  register FXuint code=MKUINT(event->code,event->state&(SHIFTMASK|CONTROLMASK|ALTMASK));
-  register FXuint p=(code*13)&max;
-  register FXuint c;
+  FXEvent* event=(FXEvent*)ptr;
+  FXuint code=MKUINT(event->code,event->state&(SHIFTMASK|CONTROLMASK|ALTMASK));
+  FXuint p=(code*13)&max;
+  FXuint c;
   FXASSERT(code!=UNUSEDSLOT);
   FXASSERT(code!=EMPTYSLOT);
   while((c=key[p].code)!=code){
@@ -227,10 +282,10 @@ long FXAccelTable::onKeyPress(FXObject* sender,FXSelector,void* ptr){
 // Keyboard release; forward to accelerator target
 long FXAccelTable::onKeyRelease(FXObject* sender,FXSelector,void* ptr){
   FXTRACE((200,"%p->FXAccelTable::onKeyRelease keysym=0x%04x state=%04x\n",this,((FXEvent*)ptr)->code,((FXEvent*)ptr)->state));
-  register FXEvent* event=(FXEvent*)ptr;
-  register FXuint code=MKUINT(event->code,event->state&(SHIFTMASK|CONTROLMASK|ALTMASK));
-  register FXuint p=(code*13)&max;
-  register FXuint c;
+  FXEvent* event=(FXEvent*)ptr;
+  FXuint code=MKUINT(event->code,event->state&(SHIFTMASK|CONTROLMASK|ALTMASK));
+  FXuint p=(code*13)&max;
+  FXuint c;
   FXASSERT(code!=UNUSEDSLOT);
   FXASSERT(code!=EMPTYSLOT);
   while((c=key[p].code)!=code){
@@ -243,12 +298,135 @@ long FXAccelTable::onKeyRelease(FXObject* sender,FXSelector,void* ptr){
   return 1;
   }
 
+/*******************************************************************************/
+
+// Parse accelerator from string, yielding modifier and key code
+FXHotKey FXAccelTable::parseAccel(const FXString& string){
+  return FXAccelTable::parseAccel(string.text());
+  }
+
+
+// Parse accelerator from string, yielding modifier and key code
+FXHotKey FXAccelTable::parseAccel(const FXchar* string){
+  const FXchar* ptr=string;
+  FXuint code=0;
+  FXuint mods=0;
+
+  // Parse leading space
+  while(*ptr && Ascii::isSpace(*ptr)) ptr++;
+
+  // Parse modifiers
+  while(*ptr){
+
+    // Modifier
+    if(comparecase(ptr,"ctl",3)==0){ mods|=CONTROLMASK; ptr+=3; }
+    else if(comparecase(ptr,"ctrl",4)==0){ mods|=CONTROLMASK; ptr+=4; }
+    else if(comparecase(ptr,"alt",3)==0){ mods|=ALTMASK; ptr+=3; }
+    else if(comparecase(ptr,"meta",4)==0){ mods|=METAMASK; ptr+=4; }
+    else if(comparecase(ptr,"shift",5)==0){ mods|=SHIFTMASK; ptr+=5; }
+    else break;
+
+    // Separator
+    if(*ptr=='+' || *ptr=='-' || Ascii::isSpace(*ptr)) ptr++;
+    }
+
+  // Test for some special keys
+  if(comparecase(ptr,"home",4)==0){
+    code=KEY_Home;
+    }
+  else if(comparecase(ptr,"end",3)==0){
+    code=KEY_End;
+    }
+  else if(comparecase(ptr,"pgup",4)==0){
+    code=KEY_Page_Up;
+    }
+  else if(comparecase(ptr,"pgdn",4)==0){
+    code=KEY_Page_Down;
+    }
+  else if(comparecase(ptr,"left",4)==0){
+    code=KEY_Left;
+    }
+  else if(comparecase(ptr,"right",5)==0){
+    code=KEY_Right;
+    }
+  else if(comparecase(ptr,"up",2)==0){
+    code=KEY_Up;
+    }
+  else if(comparecase(ptr,"down",4)==0){
+    code=KEY_Down;
+    }
+  else if(comparecase(ptr,"ins",3)==0){
+    code=KEY_Insert;
+    }
+  else if(comparecase(ptr,"del",3)==0){
+    code=KEY_Delete;
+    }
+  else if(comparecase(ptr,"delete",6)==0){
+    code=KEY_Delete;
+    }
+  else if(comparecase(ptr,"esc",3)==0){
+    code=KEY_Escape;
+    }
+  else if(comparecase(ptr,"tab",3)==0){
+    code=KEY_Tab;
+    }
+  else if(comparecase(ptr,"return",6)==0){
+    code=KEY_Return;
+    }
+  else if(comparecase(ptr,"enter",5)==0){
+    code=KEY_Return;
+    }
+  else if(comparecase(ptr,"back",4)==0){
+    code=KEY_BackSpace;
+    }
+  else if(comparecase(ptr,"backspace",9)==0){
+    code=KEY_BackSpace;
+    }
+  else if(comparecase(ptr,"spc",3)==0){
+    code=KEY_space;
+    }
+  else if(comparecase(ptr,"space",5)==0){
+    code=KEY_space;
+    }
+
+  // Test for function keys
+  else if(Ascii::toLower(*ptr)=='f' && Ascii::isDigit(*(ptr+1))){
+    if(Ascii::isDigit(*(ptr+2))){
+      code=KEY_F1+10*(*(ptr+1)-'0')+(*(ptr+2)-'0')-1;
+      }
+    else{
+      code=KEY_F1+*(ptr+1)-'0'-1;
+      }
+    }
+
+  // Test if hexadecimal code designator
+  else if(*ptr=='#' && Ascii::isHexDigit(*(ptr+1))){
+    code=Ascii::digitValue(*(ptr+1));
+    ptr+=2;
+    while(Ascii::isHexDigit(*ptr)){
+      code=(code<<4)+Ascii::digitValue(*ptr);
+      ptr++;
+      }
+    }
+
+  // Test if its a single character accelerator
+  else if(Ascii::isPrint(*ptr)){
+    if(mods&SHIFTMASK)
+      code=Ascii::toUpper(*ptr)+KEY_space-' ';
+    else
+      code=Ascii::toLower(*ptr)+KEY_space-' ';
+    }
+
+  FXTRACE((160,"parseAccel(%s) = code=%04x mods=%04x\n",string,code,mods));
+  return MKUINT(code,mods);
+  }
+
+/*******************************************************************************/
 
 // Unparse hot key back into a string
-FXString unparseAccel(FXHotKey key){
+FXString FXAccelTable::unparseAccel(FXHotKey key){
   FXuint mods=(key&0xffff0000)>>16;
   FXuint code=(key&0xffff);
-  FXchar buffer[64];
   FXString s;
 
   // Handle modifier keys
@@ -339,8 +517,7 @@ FXString unparseAccel(FXHotKey key){
     case KEY_F33:
     case KEY_F34:
     case KEY_F35:
-      __snprintf(buffer,sizeof(buffer),"F%d",code-KEY_F1+1);
-      s+=buffer;
+      s+=FXString::value("F%d",code-KEY_F1+1);
       break;
     default:
       if(Ascii::isPrint(code)){
@@ -350,137 +527,33 @@ FXString unparseAccel(FXHotKey key){
           s+=Ascii::toLower(code);
         }
       else{
-        __snprintf(buffer,sizeof(buffer),"#%04x",code);
-        s+=buffer;
+        s+=FXString::value("#%04X",code);
         }
       break;
     }
   return s;
   }
 
-
-// Parse accelerator from menu
-FXHotKey parseAccel(const FXString& string){
-  register FXuint code=0,mods=0;
-  register FXint pos=0;
-
-  // Parse leading space
-  while(pos<string.length() && Ascii::isSpace(string[pos])) pos++;
-
-  // Parse modifiers
-  while(pos<string.length()){
-
-    // Modifier
-    if(comparecase(&string[pos],"ctl",3)==0){ mods|=CONTROLMASK; pos+=3; }
-    else if(comparecase(&string[pos],"ctrl",4)==0){ mods|=CONTROLMASK; pos+=4; }
-    else if(comparecase(&string[pos],"alt",3)==0){ mods|=ALTMASK; pos+=3; }
-    else if(comparecase(&string[pos],"meta",4)==0){ mods|=METAMASK; pos+=4; }
-    else if(comparecase(&string[pos],"shift",5)==0){ mods|=SHIFTMASK; pos+=5; }
-    else break;
-
-    // Separator
-    if(string[pos]=='+' || string[pos]=='-' || Ascii::isSpace(string[pos])) pos++;
-    }
-
-  // Test for some special keys
-  if(comparecase(&string[pos],"home",4)==0){
-    code=KEY_Home;
-    }
-  else if(comparecase(&string[pos],"end",3)==0){
-    code=KEY_End;
-    }
-  else if(comparecase(&string[pos],"pgup",4)==0){
-    code=KEY_Page_Up;
-    }
-  else if(comparecase(&string[pos],"pgdn",4)==0){
-    code=KEY_Page_Down;
-    }
-  else if(comparecase(&string[pos],"left",4)==0){
-    code=KEY_Left;
-    }
-  else if(comparecase(&string[pos],"right",5)==0){
-    code=KEY_Right;
-    }
-  else if(comparecase(&string[pos],"up",2)==0){
-    code=KEY_Up;
-    }
-  else if(comparecase(&string[pos],"down",4)==0){
-    code=KEY_Down;
-    }
-  else if(comparecase(&string[pos],"ins",3)==0){
-    code=KEY_Insert;
-    }
-  else if(comparecase(&string[pos],"del",3)==0){
-    code=KEY_Delete;
-    }
-  else if(comparecase(&string[pos],"esc",3)==0){
-    code=KEY_Escape;
-    }
-  else if(comparecase(&string[pos],"tab",3)==0){
-    code=KEY_Tab;
-    }
-  else if(comparecase(&string[pos],"return",6)==0){
-    code=KEY_Return;
-    }
-  else if(comparecase(&string[pos],"enter",5)==0){
-    code=KEY_Return;
-    }
-  else if(comparecase(&string[pos],"back",4)==0){
-    code=KEY_BackSpace;
-    }
-  else if(comparecase(&string[pos],"spc",3)==0){
-    code=KEY_space;
-    }
-  else if(comparecase(&string[pos],"space",5)==0){
-    code=KEY_space;
-    }
-
-  // Test for function keys
-  else if(Ascii::toLower(string[pos])=='f' && Ascii::isDigit(string[pos+1])){
-    if(Ascii::isDigit(string[pos+2])){
-      code=KEY_F1+10*(string[pos+1]-'0')+(string[pos+2]-'0')-1;
-      }
-    else{
-      code=KEY_F1+string[pos+1]-'1';
-      }
-    }
-
-  // Test if hexadecimal code designator
-  else if(string[pos]=='#'){
-    code=strtoul(&string[pos+1],NULL,16);
-    }
-
-  // Test if its a single character accelerator
-  else if(Ascii::isPrint(string[pos])){
-    if(mods&SHIFTMASK)
-      code=Ascii::toUpper(string[pos])+KEY_space-' ';
-    else
-      code=Ascii::toLower(string[pos])+KEY_space-' ';
-    }
-
-  FXTRACE((160,"parseAccel(%s) = code=%04x mods=%04x\n",string.text(),code,mods));
-  return MKUINT(code,mods);
-  }
-
+/*******************************************************************************/
 
 // Parse hot key from string
 FXHotKey parseHotKey(const FXString& string){
-  register FXuint code=0,mods=0;
-  register FXint pos=0;
-  register FXwchar w;
-  while(pos<string.length()){
-    if(string[pos]=='&'){
-      if(string[pos+1]!='&'){
-        w=string.wc(pos+1);
+  const FXchar* ptr=string.text();
+  FXuint code=0;
+  FXuint mods=0;
+  while(*ptr){
+    if(*ptr=='&'){
+      if(*(ptr+1)!='&'){
+        FXwchar w=wc(ptr+1);
         if(Unicode::isAlphaNumeric(w)){
           mods=ALTMASK;
           code=fxucs2keysym(Unicode::toLower(w));
           }
         break;
         }
-      pos++;
+      ptr++;
       }
-    pos++;
+    ptr++;
     }
   FXTRACE((160,"parseHotKey(%s) = code=%04x mods=%04x\n",string.text(),code,mods));
   return MKUINT(code,mods);
@@ -489,8 +562,8 @@ FXHotKey parseHotKey(const FXString& string){
 
 // Obtain hot key offset in string
 FXint findHotKey(const FXString& string){
-  register FXint pos=0;
-  register FXint n=0;
+  FXint pos=0;
+  FXint n=0;
   while(pos<string.length()){
     if(string[pos]=='&'){
       if(string[pos+1]!='&'){
@@ -508,8 +581,8 @@ FXint findHotKey(const FXString& string){
 // Strip hot key from string
 FXString stripHotKey(const FXString& string){
   FXString result=string;
-  register FXint len=result.length();
-  register FXint i,j;
+  FXint len=result.length();
+  FXint i,j;
   for(i=j=0; j<len; j++){
     if(result[j]=='&'){
       if(result[j+1]!='&') continue;
@@ -521,14 +594,14 @@ FXString stripHotKey(const FXString& string){
   return result;
   }
 
+/*******************************************************************************/
 
 // Save data
 void FXAccelTable::save(FXStream& store) const {
-  register FXuint i;
   FXObject::save(store);
   store << max;
   store << num;
-  for(i=0; i<=max; i++){
+  for(FXuint i=0; i<=max; i++){
     store << key[i].code;
     store << key[i].target;
     store << key[i].messagedn;
@@ -539,12 +612,11 @@ void FXAccelTable::save(FXStream& store) const {
 
 // Load data
 void FXAccelTable::load(FXStream& store){
-  register FXuint i;
   FXObject::load(store);
   store >> max;
   store >> num;
   resizeElms(key,max+1);
-  for(i=0; i<=max; i++){
+  for(FXuint i=0; i<=max; i++){
     store >> key[i].code;
     store >> key[i].target;
     store >> key[i].messagedn;

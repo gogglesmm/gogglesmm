@@ -54,7 +54,7 @@ extern FXbool fxfsquantize(FXuchar* dst,const FXColor* src,FXColor* colormap,FXi
 
 // Floyd-Steinberg quantization full 32 bpp to less than or equal to maxcolors
 FXbool fxfsquantize(FXuchar* dst,const FXColor* src,FXColor* colormap,FXint& actualcolors,FXint w,FXint h,FXint){
-  register FXint i,j,val,r1,g1,b1,*cr,*cg,*cb,*nr,*ng,*nb,*p;
+  FXint i,j,val,r1,g1,b1,*cr,*cg,*cb,*nr,*ng,*nb,*p;
   FXint *begin;
 
   // Fill colormap

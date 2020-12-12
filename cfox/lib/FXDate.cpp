@@ -114,7 +114,7 @@ void FXDate::setDate(FXint yr,FXint dy){
 
 // Get year and day of year from date
 void FXDate::getDate(FXint& yr,FXint& dy) const {
-  register FXint l,n,i,j;
+  FXint l,n,i,j;
   l=julian+68569;
   n=(4*l)/146097;
   l=l-(146097*n+3)/4;
@@ -136,7 +136,7 @@ void FXDate::setDate(FXint yr,FXint mo,FXint dy){
 
 // Get year, month, and day of month from date
 void FXDate::getDate(FXint& yr,FXint& mo,FXint& dy) const {
-  register FXint l,n,i,j;
+  FXint l,n,i,j;
   l=julian+68569;
   n=(4*l)/146097;
   l=l-(146097*n+3)/4;

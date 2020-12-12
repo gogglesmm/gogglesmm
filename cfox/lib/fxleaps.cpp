@@ -27,20 +27,22 @@
 
 /*
   Notes:
-  - Return number of leap seconds since Unix Epoch.
+  - Return number of leap seconds from utc or tai (nanoseconds) since Unix Epoch.
   - Leap seconds date may be obtained from International Earth Rotation
-    System (www.iers.org), Bulletin C.  At the time of this writing, 
+    System (www.iers.org), Bulletin C.  At the time of this writing,
     https://datacenter.iers.org/data/16/bulletinc-059.txt.
   - List of leap seconds is obtained from IETF,
     https://www.ietf.org/timezones/data/leap-seconds.list.
   - When new leap seconds are announced by IERS, leapsecond table must be
     appended with a new entry; please notify jeroen@fox-toolkit.com if new
     data is available but not yet incorporated into "leapseconds.h".
+  - We only remember *when* the leap seconds happen; the index in the array
+    tells us how many leap seconds there were up to that time (just add 10,
+    since when leap seconds were first applied, there were 10 of them).
 */
 
 
 using namespace FX;
-
 
 /*******************************************************************************/
 
@@ -48,13 +50,25 @@ namespace FX {
 
 #include "leapseconds.h"
 
-// Return leap seconds since time
-FXival FXSystem::leapSeconds(FXTime ns){
-  FXival l=0,h=ARRAYNUMBER(leapseconds)-1,m;
-  if(leapseconds[h]<=ns) return h+10;
-  if(ns<leapseconds[l]) return 0;
+// Return leap seconds from utc in nanocseconds since Unix Epoch
+FXival FXSystem::leapSeconds(FXTime utc){
+  FXival l=0,h=ARRAYNUMBER(leapseconds_utc)-1,m;
+  if(leapseconds_utc[h]<=utc) return h+10;
+  if(utc<leapseconds_utc[l]) return 0;
   while(l<(m=(h+l)>>1)){
-    if(leapseconds[m]<=ns) l=m; else h=m;
+    if(leapseconds_utc[m]<=utc) l=m; else h=m;
+    }
+  return l+10;
+  }
+
+
+// Return leap seconds from tai in nanocseconds since Unix Epoch
+FXival FXSystem::leapSecondsTAI(FXTime tai){
+  FXival l=0,h=ARRAYNUMBER(leapseconds_tai)-1,m;
+  if(leapseconds_tai[h]<=tai) return h+10;
+  if(tai<leapseconds_tai[l]) return 0;
+  while(l<(m=(h+l)>>1)){
+    if(leapseconds_tai[m]<=tai) l=m; else h=m;
     }
   return l+10;
   }

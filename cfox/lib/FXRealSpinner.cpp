@@ -258,7 +258,7 @@ long FXRealSpinner::onWheelEntry(FXObject*,FXSelector,void* ptr){
 
 // Text field changed
 long FXRealSpinner::onChgEntry(FXObject*,FXSelector,void*){
-  register FXdouble value=textField->getText().toDouble();
+  FXdouble value=textField->getText().toDouble();
   if(value<range[0]) value=range[0];
   if(value>range[1]) value=range[1];
   if(value!=pos){

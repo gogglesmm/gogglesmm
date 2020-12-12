@@ -80,7 +80,7 @@ FXRegion::FXRegion(const FXRectangle& rect){
 // Construct polygon region
 FXRegion::FXRegion(const FXPoint* points,FXuint npoints,FXbool winding){
 #ifdef WIN32
-  register FXuint i;
+  FXuint i;
   POINT pts[1024];
   for(i=0; i<npoints; i++){
     pts[i].x=points[i].x;

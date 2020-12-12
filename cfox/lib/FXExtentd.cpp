@@ -41,24 +41,24 @@ namespace FX {
 
 // Longest side
 FXdouble FXExtentd::longest() const {
-  register FXdouble x=upper.x-lower.x;
-  register FXdouble y=upper.y-lower.y;
+  FXdouble x=upper.x-lower.x;
+  FXdouble y=upper.y-lower.y;
   return Math::fmax(x,y);
   }
 
 
 // Shortest side
 FXdouble FXExtentd::shortest() const {
-  register FXdouble x=upper.x-lower.x;
-  register FXdouble y=upper.y-lower.y;
+  FXdouble x=upper.x-lower.x;
+  FXdouble y=upper.y-lower.y;
   return Math::fmin(x,y);
   }
 
 
 // Length of diagonal
 FXdouble FXExtentd::diameter() const {
-  register FXdouble x=upper.x-lower.x;
-  register FXdouble y=upper.y-lower.y;
+  FXdouble x=upper.x-lower.x;
+  FXdouble y=upper.y-lower.y;
   return Math::sqrt(x*x+y*y);
   }
 
@@ -139,9 +139,9 @@ FXbool FXExtentd::intersect(const FXVec2d& u,const FXVec2d& v) const {
 
 // Intersect box with ray p+lambda*d, returning true if hit
 FXbool FXExtentd::intersect(const FXVec2d& pos,const FXVec2d& dir,FXdouble hit[]) const {
-  register FXdouble f= DBL_MAX;
-  register FXdouble n=-DBL_MAX;
-  register FXdouble ni,fi;
+  FXdouble f= DBL_MAX;
+  FXdouble n=-DBL_MAX;
+  FXdouble ni,fi;
   if(__likely(dir.x!=0.0)){
     if(0.0<dir.x){
       ni=(lower.x-pos.x)/dir.x;

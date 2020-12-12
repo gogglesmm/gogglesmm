@@ -49,10 +49,10 @@ extern FXbool fxezquantize(FXuchar* dst,const FXColor* src,FXColor* colormap,FXi
 // used is less than maxcolors; using fxezquantize assures that no
 // loss of data occurs repeatedly loading and saving the same file!
 FXbool fxezquantize(FXuchar* dst,const FXColor* src,FXColor* colormap,FXint& actualcolors,FXint w,FXint h,FXint maxcolors){
-  register FXint   npixels=w*h;
-  register FXint   ncolors=0;
-  register FXColor color;
-  register FXint   i,p,x;
+  FXint   npixels=w*h;
+  FXint   ncolors=0;
+  FXColor color;
+  FXint   i,p,x;
   FXColor  colortable[337];             // Colors encountered in image
   FXushort mapindex[337];               // Map index assigned to color
 

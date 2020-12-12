@@ -239,7 +239,7 @@ static inline FXint utflen(FXwchar w){
 
 // Count number of utf8 characters needed to convert multi-byte characters from src
 FXint FXUTF32Codec::mb2utflen(const FXchar* src,FXint nsrc) const {
-  register FXint len=0;
+  FXint len=0;
   FXwchar w;
   if(src && 0<nsrc){
     if(nsrc<4) return -4;
@@ -305,7 +305,7 @@ FXint FXUTF32Codec::mb2utflen(const FXchar* src,FXint nsrc) const {
 
 // Convert multi-byte characters from src to utf8 characters at dst
 FXint FXUTF32Codec::mb2utf(FXchar* dst,FXint ndst,const FXchar* src,FXint nsrc) const {
-  register FXint nw,len=0;
+  FXint nw,len=0;
   FXwchar w;
   if(dst && src && 0<nsrc){
     if(nsrc<4) return -4;
@@ -397,7 +397,7 @@ FXint FXUTF32Codec::wc2mb(FXchar* dst,FXint ndst,FXwchar wc) const {
 
 // Count multi-byte characters characters needed to convert utf8 from src
 FXint FXUTF32Codec::utf2mblen(const FXchar* src,FXint nsrc) const {
-  register FXint nr,len=0;
+  FXint nr,len=0;
   if(src && 0<nsrc){
     len+=4;
     while(0<nsrc){
@@ -414,7 +414,7 @@ FXint FXUTF32Codec::utf2mblen(const FXchar* src,FXint nsrc) const {
 
 // Convert utf8 characters at src to multi-byte characters at dst
 FXint FXUTF32Codec::utf2mb(FXchar* dst,FXint ndst,const FXchar* src,FXint nsrc) const {
-  register FXint nr,len=0;
+  FXint nr,len=0;
   FXwchar w;
   if(dst && src && 0<nsrc){
     if(ndst<4) return 0;

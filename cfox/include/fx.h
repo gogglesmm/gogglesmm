@@ -102,6 +102,7 @@
 #include "FXJSONFile.h"
 #include "FXXML.h"
 #include "FXXMLFile.h"
+#include "FXXMLString.h"
 #include "FXSettings.h"
 #include "FXRegistry.h"
 #include "FXObjectList.h"

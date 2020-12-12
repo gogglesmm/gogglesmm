@@ -56,7 +56,7 @@ FXIMPLEMENT(FXUTF16BECodec,FXTextCodec,NULL,0)
 // Convert from utf16be
 FXint FXUTF16BECodec::mb2wc(FXwchar& wc,const FXchar* src,FXint nsrc) const {
   const FXint SURROGATE_OFFSET=0x10000-(0xD800<<10)-0xDC00;
-  register FXwchar w;
+  FXwchar w;
   if(nsrc<2) return 0;
   wc=(((FXuchar)src[0])<<8)|((FXuchar)src[1]);
   if(__unlikely(FXISLEADUTF16(wc))){
@@ -74,7 +74,7 @@ FXint FXUTF16BECodec::mb2wc(FXwchar& wc,const FXchar* src,FXint nsrc) const {
 FXint FXUTF16BECodec::wc2mb(FXchar* dst,FXint ndst,FXwchar wc) const {
   const FXint LEAD_OFFSET=0xD800-(0x10000>>10);
   const FXint TAIL_OFFSET=0xDC00;
-  register FXwchar w;
+  FXwchar w;
   if(ndst<2) return 0;
   if(0xD800<=wc && wc<0xE000) return 0;
   dst[0]=(FXchar)(wc>>8);
@@ -126,7 +126,7 @@ FXIMPLEMENT(FXUTF16LECodec,FXTextCodec,NULL,0)
 // Convert from utf16le
 FXint FXUTF16LECodec::mb2wc(FXwchar& wc,const FXchar* src,FXint nsrc) const {
   const FXint SURROGATE_OFFSET=0x10000-(0xD800<<10)-0xDC00;
-  register FXwchar w;
+  FXwchar w;
   if(nsrc<2) return 0;
   wc=(((FXuchar)src[1])<<8)|((FXuchar)src[0]);
   if(__unlikely(FXISLEADUTF16(wc))){
@@ -144,7 +144,7 @@ FXint FXUTF16LECodec::mb2wc(FXwchar& wc,const FXchar* src,FXint nsrc) const {
 FXint FXUTF16LECodec::wc2mb(FXchar* dst,FXint ndst,FXwchar wc) const {
   const FXint LEAD_OFFSET=0xD800-(0x10000>>10);
   const FXint TAIL_OFFSET=0xDC00;
-  register FXwchar w;
+  FXwchar w;
   if(ndst<2) return 0;
   if(0xD800<=wc && wc<0xE000) return 0;
   dst[0]=(FXchar)(wc);
@@ -195,8 +195,8 @@ FXIMPLEMENT(FXUTF16Codec,FXTextCodec,NULL,0)
 // Convert utf16 but strip BOM
 FXint FXUTF16Codec::mb2wc(FXwchar& wc,const FXchar* src,FXint nsrc) const {
   const FXint SURROGATE_OFFSET=0x10000-(0xD800<<10)-0xDC00;
-  register const FXuchar *s=(const FXuchar*)src;
-  register FXwchar w;
+  const FXuchar *s=(const FXuchar*)src;
+  FXwchar w;
   if(nsrc<2) return 0;
   wc=(s[0]<<8)|s[1];
   if(wc==BOM_BE){
@@ -237,7 +237,7 @@ FXint FXUTF16Codec::mb2wc(FXwchar& wc,const FXchar* src,FXint nsrc) const {
 // Count number of utf8 characters needed to convert multi-byte characters from src
 FXint FXUTF16Codec::mb2utflen(const FXchar* src,FXint nsrc) const {
   const FXint SURROGATE_OFFSET=0x10000-(0xD800<<10)-0xDC00;
-  register FXint len=0;
+  FXint len=0;
   FXwchar w,v;
   if(src && 0<nsrc){
     if(nsrc<2) return -2;
@@ -290,7 +290,7 @@ FXint FXUTF16Codec::mb2utflen(const FXchar* src,FXint nsrc) const {
 // Convert multi-byte characters from src to utf8 characters at dst
 FXint FXUTF16Codec::mb2utf(FXchar* dst,FXint ndst,const FXchar* src,FXint nsrc) const {
   const FXint SURROGATE_OFFSET=0x10000-(0xD800<<10)-0xDC00;
-  register FXint nw,len=0;
+  FXint nw,len=0;
   FXwchar w,v;
   if(dst && src && 0<nsrc){
     if(nsrc<2) return -2;
@@ -352,7 +352,7 @@ FXint FXUTF16Codec::mb2utf(FXchar* dst,FXint ndst,const FXchar* src,FXint nsrc) 
 FXint FXUTF16Codec::wc2mb(FXchar* dst,FXint ndst,FXwchar wc) const {
   const FXint LEAD_OFFSET=0xD800-(0x10000>>10);
   const FXint TAIL_OFFSET=0xDC00;
-  register FXwchar w;
+  FXwchar w;
   if(0xD800<=wc && wc<0xE000) return 0;
   if(ndst<2) return -2;
   dst[0]=(FXchar)(wc>>8);
@@ -373,7 +373,7 @@ FXint FXUTF16Codec::wc2mb(FXchar* dst,FXint ndst,FXwchar wc) const {
 
 // Count multi-byte characters characters needed to convert utf8 from src
 FXint FXUTF16Codec::utf2mblen(const FXchar* src,FXint nsrc) const {
-  register FXint nr,len=0;
+  FXint nr,len=0;
   FXchar buffer[64];
   FXwchar w;
   if(0<nsrc){
@@ -393,7 +393,7 @@ FXint FXUTF16Codec::utf2mblen(const FXchar* src,FXint nsrc) const {
 
 // Convert utf8 characters at src to multi-byte characters at dst
 FXint FXUTF16Codec::utf2mb(FXchar* dst,FXint ndst,const FXchar* src,FXint nsrc) const {
-  register FXint nr,nw,len=0;
+  FXint nr,nw,len=0;
   FXwchar w;
   if(dst && src && 0<nsrc){
     dst[0]='\xFE';

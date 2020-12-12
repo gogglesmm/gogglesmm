@@ -94,8 +94,8 @@ FXbool FXLFQueue::isEmpty() const {
 
 // Add item to queue, return true if success
 FXbool FXLFQueue::push(FXptr ptr){
-  register FXuint mask=getSize()-1;
-  register FXuint w;
+  FXuint mask=getSize()-1;
+  FXuint w;
 x:w=whead;
   if(__likely((w-rtail)<=mask)){
     if(__unlikely(!atomicBoolCas(&whead,w,w+1))) goto x;
@@ -110,8 +110,8 @@ x:w=whead;
 
 // Remove item from queue, return true if success
 FXbool FXLFQueue::pop(FXptr& ptr){
-  register FXuint mask=getSize()-1;
-  register FXuint r;
+  FXuint mask=getSize()-1;
+  FXuint r;
 x:r=rhead;
   if(__likely((wtail-r)>=1)){
     if(__unlikely(!atomicBoolCas(&rhead,r,r+1))) goto x;

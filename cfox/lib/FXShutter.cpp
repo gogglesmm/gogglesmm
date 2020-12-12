@@ -290,8 +290,8 @@ long FXShutter::onTimeout(FXObject*,FXSelector,void*){
 
 // Layout
 void FXShutter::layout(){
-  register FXShutterItem* child;
-  register FXint i;
+  FXShutterItem* child;
+  FXint i;
 
   // One of the children may have disappeared
   if(current<0) current=0;

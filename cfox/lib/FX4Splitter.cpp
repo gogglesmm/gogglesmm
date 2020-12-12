@@ -307,7 +307,7 @@ void FX4Splitter::layout(){
 
 // Determine split mode
 FXuchar FX4Splitter::getMode(FXint x,FXint y){
-  register FXuchar mm=ONCENTER;
+  FXuchar mm=ONCENTER;
   if(x<splitx) mm&=~ONVERTICAL;
   if(y<splity) mm&=~ONHORIZONTAL;
   if(x>=splitx+barsize) mm&=~ONVERTICAL;
@@ -539,7 +539,7 @@ long FX4Splitter::onCmdExpand(FXObject*,FXSelector sel,void*){
 
 // Update show pane
 long FX4Splitter::onUpdExpand(FXObject* sender,FXSelector sel,void*){
-  register FXuint ex=FXSELID(sel)-ID_EXPAND_NONE;
+  FXuint ex=FXSELID(sel)-ID_EXPAND_NONE;
   sender->handle(this,(getExpanded()==ex)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
   return 1;
   }

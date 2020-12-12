@@ -90,7 +90,7 @@ void FXImageFrame::create(){
 
 // Get default width
 FXint FXImageFrame::getDefaultWidth(){
-  register FXint w=0;
+  FXint w=0;
   if(image) w=image->getWidth();
   return w+padleft+padright+(border<<1);
   }
@@ -98,7 +98,7 @@ FXint FXImageFrame::getDefaultWidth(){
 
 // Get default height
 FXint FXImageFrame::getDefaultHeight(){
-  register FXint h=0;
+  FXint h=0;
   if(image) h=image->getHeight();
   return h+padtop+padbottom+(border<<1);
   }

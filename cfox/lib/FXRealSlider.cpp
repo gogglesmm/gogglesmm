@@ -337,8 +337,8 @@ long FXRealSlider::onCmdGetRealRange(FXObject*,FXSelector,void* ptr){
 
 // Pressed LEFT button
 long FXRealSlider::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXdouble p=pos;
+  FXEvent *event=(FXEvent*)ptr;
+  FXdouble p=pos;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -390,7 +390,7 @@ long FXRealSlider::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released Left button
 long FXRealSlider::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXuint flgs=flags;
+  FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
     getApp()->removeTimeout(this,ID_AUTOSLIDE);
@@ -410,9 +410,9 @@ long FXRealSlider::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Moving
 long FXRealSlider::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint xx,yy,ww,hh,lo,hi,h,travel;
-  register FXdouble p;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint xx,yy,ww,hh,lo,hi,h,travel;
+  FXdouble p;
   if(!isEnabled()) return 0;
   if(flags&FLAG_PRESSED){
     yy=border+padtop+2;
@@ -465,9 +465,9 @@ long FXRealSlider::onMotion(FXObject*,FXSelector,void* ptr){
 
 // Pressed middle or right
 long FXRealSlider::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint xx,yy,ww,hh,lo,hi,h,travel;
-  register FXdouble p;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint xx,yy,ww,hh,lo,hi,h,travel;
+  FXdouble p;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -526,7 +526,7 @@ long FXRealSlider::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released middle button
 long FXRealSlider::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXuint flgs=flags;
+  FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
     getApp()->removeTimeout(this,ID_AUTOSLIDE);
@@ -546,8 +546,8 @@ long FXRealSlider::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Mouse wheel
 long FXRealSlider::onMouseWheel(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXdouble p=pos+incr*(event->code/120);
+  FXEvent *event=(FXEvent*)ptr;
+  FXdouble p=pos+incr*(event->code/120);
   if(p<range[0]) p=range[0];
   if(p>range[1]) p=range[1];
   if(pos!=p){
@@ -636,8 +636,8 @@ long FXRealSlider::onUngrabbed(FXObject* sender,FXSelector sel,void* ptr){
 
 // Automatically move slider while holding down mouse
 long FXRealSlider::onAutoSlide(FXObject*,FXSelector,void* ptr){
-  register FXint dir=(FXint)(FXival)ptr;
-  register FXdouble p=pos+incr*dir;
+  FXint dir=(FXint)(FXival)ptr;
+  FXdouble p=pos+incr*dir;
   if(p<=range[0]){
     p=range[0];
     }
@@ -659,9 +659,9 @@ long FXRealSlider::onAutoSlide(FXObject*,FXSelector,void* ptr){
 
 // Draw horizontal ticks
 void FXRealSlider::drawHorzTicks(FXDCWindow& dc,FXint,FXint y,FXint,FXint){
-  register FXdouble interval=range[1]-range[0];
-  register FXint travel,offset,p;
-  register FXdouble v,d;
+  FXdouble interval=range[1]-range[0];
+  FXint travel,offset,p;
+  FXdouble v,d;
   if(0.0<interval){
     d=delta;
     if(d<=0.0) d=incr;
@@ -678,9 +678,9 @@ void FXRealSlider::drawHorzTicks(FXDCWindow& dc,FXint,FXint y,FXint,FXint){
 
 // Draw vertical ticks
 void FXRealSlider::drawVertTicks(FXDCWindow& dc,FXint x,FXint,FXint,FXint){
-  register FXdouble interval=range[1]-range[0];
-  register FXint travel,offset,p;
-  register FXdouble v,d;
+  FXdouble interval=range[1]-range[0];
+  FXint travel,offset,p;
+  FXdouble v,d;
   if(0.0<interval){
     d=delta;
     if(d<=0.0) d=incr;
@@ -895,8 +895,8 @@ void FXRealSlider::setRange(FXdouble lo,FXdouble hi,FXbool notify){
 // Also, the minimal amount is repainted, as one sometimes as very
 // large/wide sliders.
 void FXRealSlider::setValue(FXdouble p,FXbool notify){
-  register FXdouble interval=range[1]-range[0];
-  register FXint travel,lo,hi,h;
+  FXdouble interval=range[1]-range[0];
+  FXint travel,lo,hi,h;
   if(p<range[0]) p=range[0];
   if(p>range[1]) p=range[1];
   if(options&REALSLIDER_VERTICAL){

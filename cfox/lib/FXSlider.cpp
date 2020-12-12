@@ -332,8 +332,8 @@ long FXSlider::onCmdGetRealRange(FXObject*,FXSelector,void* ptr){
 
 // Pressed LEFT button
 long FXSlider::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint p=pos;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint p=pos;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -384,7 +384,7 @@ long FXSlider::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released Left button
 long FXSlider::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXuint flgs=flags;
+  FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
     getApp()->removeTimeout(this,ID_AUTOSLIDE);
@@ -404,8 +404,8 @@ long FXSlider::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Moving
 long FXSlider::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint xx,yy,ww,hh,lo,hi,p,h,travel;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint xx,yy,ww,hh,lo,hi,p,h,travel;
   if(!isEnabled()) return 0;
   if(flags&FLAG_PRESSED){
     yy=border+padtop+2;
@@ -457,8 +457,8 @@ long FXSlider::onMotion(FXObject*,FXSelector,void* ptr){
 
 // Pressed middle or right
 long FXSlider::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint xx,yy,ww,hh,lo,hi,p,h,travel;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint xx,yy,ww,hh,lo,hi,p,h,travel;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -516,7 +516,7 @@ long FXSlider::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released middle button
 long FXSlider::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXuint flgs=flags;
+  FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
     getApp()->removeTimeout(this,ID_AUTOSLIDE);
@@ -536,8 +536,8 @@ long FXSlider::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Mouse wheel
 long FXSlider::onMouseWheel(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint p=pos+(event->code*incr)/120;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint p=pos+(event->code*incr)/120;
   if(p<range[0]) p=range[0];
   if(p>range[1]) p=range[1];
   if(pos!=p){
@@ -626,8 +626,8 @@ long FXSlider::onUngrabbed(FXObject* sender,FXSelector sel,void* ptr){
 
 // Automatically move slider while holding down mouse
 long FXSlider::onAutoSlide(FXObject*,FXSelector,void* ptr){
-  register FXint inc=(FXint)(FXival)ptr;
-  register FXint p=pos+inc;
+  FXint inc=(FXint)(FXival)ptr;
+  FXint p=pos+inc;
   if(p<=range[0]){
     p=range[0];
     }
@@ -649,8 +649,8 @@ long FXSlider::onAutoSlide(FXObject*,FXSelector,void* ptr){
 
 // Draw horizontal ticks
 void FXSlider::drawHorzTicks(FXDCWindow& dc,FXint,FXint y,FXint,FXint){
-  register FXint interval=range[1]-range[0];
-  register FXint travel,offset,v,d,p;
+  FXint interval=range[1]-range[0];
+  FXint travel,offset,v,d,p;
   if(0<interval){
     d=delta;
     if(d<=0) d=incr;
@@ -667,8 +667,8 @@ void FXSlider::drawHorzTicks(FXDCWindow& dc,FXint,FXint y,FXint,FXint){
 
 // Draw vertical ticks
 void FXSlider::drawVertTicks(FXDCWindow& dc,FXint x,FXint,FXint,FXint){
-  register FXint interval=range[1]-range[0];
-  register FXint travel,offset,v,d,p;
+  FXint interval=range[1]-range[0];
+  FXint travel,offset,v,d,p;
   if(0<interval){
     d=delta;
     if(d<=0) d=incr;
@@ -883,8 +883,8 @@ void FXSlider::setRange(FXint lo,FXint hi,FXbool notify){
 // Also, the minimal amount is repainted, as one sometimes as very
 // large/wide sliders.
 void FXSlider::setValue(FXint p,FXbool notify){
-  register FXint interval=range[1]-range[0];
-  register FXint travel,lo,hi,h;
+  FXint interval=range[1]-range[0];
+  FXint travel,lo,hi,h;
   if(p<range[0]) p=range[0];
   if(p>range[1]) p=range[1];
   if(options&SLIDER_VERTICAL){
@@ -922,7 +922,7 @@ FXuint FXSlider::getSliderStyle() const {
 
 // Set slider options
 void FXSlider::setSliderStyle(FXuint style){
-  register FXuint opts=(options&~SLIDER_MASK) | (style&SLIDER_MASK);
+  FXuint opts=(options&~SLIDER_MASK) | (style&SLIDER_MASK);
   if(options!=opts){
     headSize=(opts&SLIDER_INSIDE_BAR)?HEADINSIDEBAR:HEADOVERHANGING;
     options=opts;

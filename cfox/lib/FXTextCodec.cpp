@@ -75,7 +75,7 @@ FXint FXTextCodec::mb2wc(FXwchar& w,const FXchar* src,FXint nsrc) const {
 
 // Count number of utf8 characters needed to convert multi-byte characters from src
 FXint FXTextCodec::mb2utflen(const FXchar* src,FXint nsrc) const {
-  register FXint nr,len=0;
+  FXint nr,len=0;
   FXwchar w;
   while(0<nsrc){
     nr=mb2wc(w,src,nsrc);
@@ -97,7 +97,7 @@ FXint FXTextCodec::mb2utflen(const FXString& src) const {
 
 // Convert multi-byte characters from src to utf8 characters at dst
 FXint FXTextCodec::mb2utf(FXchar* dst,FXint ndst,const FXchar* src,FXint nsrc) const {
-  register FXint nr,nw,len=0;
+  FXint nr,nw,len=0;
   FXwchar w;
   while(0<nsrc && 0<ndst){
     nr=mb2wc(w,src,nsrc);
@@ -128,7 +128,7 @@ FXint FXTextCodec::mb2utf(FXchar* dst,FXint ndst,const FXString& src) const {
 
 // Convert multi-byte characters from src to utf8 string
 FXString FXTextCodec::mb2utf(const FXchar* src,FXint nsrc) const {
-  register FXint len=mb2utflen(src,nsrc);
+  FXint len=mb2utflen(src,nsrc);
   FXString result;
   if(0<len){
     result.length(len);
@@ -168,7 +168,7 @@ FXint FXTextCodec::wc2mb(FXchar* dst,FXint ndst,FXwchar w) const {
 
 // Count multi-byte characters characters needed to convert utf8 from src
 FXint FXTextCodec::utf2mblen(const FXchar* src,FXint nsrc) const {
-  register FXint nr,len=0;
+  FXint nr,len=0;
   FXchar buffer[64];
   FXwchar w;
   while(0<nsrc){
@@ -191,7 +191,7 @@ FXint FXTextCodec::utf2mblen(const FXString& src) const {
 
 // Convert utf8 characters at src to multi-byte characters at dst
 FXint FXTextCodec::utf2mb(FXchar* dst,FXint ndst,const FXchar* src,FXint nsrc) const {
-  register FXint nr,nw,len=0;
+  FXint nr,nw,len=0;
   FXwchar w;
   while(0<nsrc && 0<ndst){
     nr=FX::wclen(src);
@@ -223,8 +223,8 @@ FXint FXTextCodec::utf2mb(FXchar* dst,FXint ndst,const FXString& src) const {
 
 // Convert utf8 characters at src to multi-byte string
 FXString FXTextCodec::utf2mb(const FXchar* src,FXint nsrc) const {
-  register FXint len=utf2mblen(src,nsrc)+utf2mblen(FXString::null,1);   // Reserve extra space for explicit conversion of end-of-string
-  register FXint end;
+  FXint len=utf2mblen(src,nsrc)+utf2mblen(FXString::null,1);   // Reserve extra space for explicit conversion of end-of-string
+  FXint end;
   FXString result;
   result.length(len);
   end=utf2mb(&result[0],len,src,nsrc);                                  // Convert the text itself

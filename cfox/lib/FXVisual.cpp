@@ -150,7 +150,7 @@ struct BITMAPINFO256 {
 
 // Get number of bits in n
 static inline FXuint findnbits(DWORD n){
-  register FXuint nb=0;
+  FXuint nb=0;
   while(n){nb+=(n&1);n>>=1;}
   return nb;
   }

@@ -2505,19 +2505,19 @@ FXString& FXString::fromULong(FXulong number,FXint base){
 
 
 // Formatting for reals
-static const char conversionformat[4][6]={"%.*lF","%.*lE","%.*lG","%.*lF"};
+static const char conversionformat[8][8]={"%.*lF","%.*lE","%.*lG","%.*lF","%'.*lF","%'.*lE","%'.*lG","%'.*lF"};
 
 
 // Convert from float
 FXString& FXString::fromFloat(FXfloat number,FXint prec,FXint fmt){
-  format(conversionformat[fmt&3],prec,(FXdouble)number);
+  format(conversionformat[fmt&7],prec,(FXdouble)number);
   return *this;
   }
 
 
 // Convert from double
 FXString& FXString::fromDouble(FXdouble number,FXint prec,FXint fmt){
-  format(conversionformat[fmt&3],prec,number);
+  format(conversionformat[fmt&7],prec,number);
   return *this;
   }
 

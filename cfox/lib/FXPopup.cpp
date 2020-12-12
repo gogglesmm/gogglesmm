@@ -170,9 +170,9 @@ FXWindow* FXPopup::getGrabOwner() const {
 
 // Get width
 FXint FXPopup::getDefaultWidth(){
-  register FXWindow* child;
-  register FXint w,wmax,wcum;
-  register FXuint hints;
+  FXWindow* child;
+  FXint w,wmax,wcum;
+  FXuint hints;
   wmax=wcum=0;
   for(child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
@@ -198,9 +198,9 @@ FXint FXPopup::getDefaultWidth(){
 
 // Get height
 FXint FXPopup::getDefaultHeight(){
-  register FXWindow* child;
-  register FXint h,hmax,hcum;
-  register FXuint hints;
+  FXWindow* child;
+  FXint h,hmax,hcum;
+  FXuint hints;
   hmax=hcum=0;
   for(child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
@@ -226,14 +226,14 @@ FXint FXPopup::getDefaultHeight(){
 
 // Recalculate layout
 void FXPopup::layout(){
-  register FXWindow *child;
-  register FXint w,h,x,y,remain,t;
-  register FXuint hints;
-  register FXint sumexpand=0;
-  register FXint numexpand=0;
-  register FXint mw=0;
-  register FXint mh=0;
-  register FXint e=0;
+  FXWindow *child;
+  FXint w,h,x,y,remain,t;
+  FXuint hints;
+  FXint sumexpand=0;
+  FXint numexpand=0;
+  FXint mw=0;
+  FXint mh=0;
+  FXint e=0;
 
   // Horizontal
   if(options&POPUP_HORIZONTAL){

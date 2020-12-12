@@ -450,8 +450,8 @@ FXWindow::WindowClass FXWindow::getWindowClass() const {
 
 // Return a pointer to the shell window
 FXWindow* FXWindow::getShell() const {
-  register FXWindow *win=(FXWindow*)this;
-  register FXWindow *p;
+  FXWindow *win=(FXWindow*)this;
+  FXWindow *p;
   while((p=win->parent)!=NULL && p->parent) win=p;
   return win;
   }
@@ -459,7 +459,7 @@ FXWindow* FXWindow::getShell() const {
 
 // Return a pointer to the root window
 FXWindow* FXWindow::getRoot() const {
-  register FXWindow *win=(FXWindow*)this;
+  FXWindow *win=(FXWindow*)this;
   while(win->parent) win=win->parent;
   return win;
   }
@@ -488,9 +488,9 @@ FXWindow* FXWindow::getChildWithKey(FXuint k) const {
 
 // Get window from Dewey decimal key
 FXWindow *FXWindow::getChildFromKey(const FXString& key) const {
-  register FXWindow *window=(FXWindow*)this;
-  register const FXchar *s=key.text();
-  register FXuint num;
+  FXWindow *window=(FXWindow*)this;
+  const FXchar *s=key.text();
+  FXuint num;
   do{
     if(!('0'<=*s && *s<='9')) return NULL;
     for(num=0; '0'<=*s && *s<='9'; s++){ num=10*num+*s-'0'; }
@@ -504,8 +504,8 @@ FXWindow *FXWindow::getChildFromKey(const FXString& key) const {
 // Get Dewey decimal key from window
 FXString FXWindow::getKeyFromChild(FXWindow* window) const {
   FXchar buf[1024];
-  register FXchar *p=buf+1023;
-  register FXuint num;
+  FXchar *p=buf+1023;
+  FXuint num;
   *p='\0';
   while(window && window!=this && buf+10<=p){
     num=window->getKey();
@@ -541,7 +541,7 @@ FXbool FXWindow::isOwnerOf(const FXWindow* window) const {
 
 // Return true if specified window is ancestor of this window
 FXbool FXWindow::isChildOf(const FXWindow* window) const {
-  register const FXWindow* child=this;
+  const FXWindow* child=this;
   while(child){
     child=child->parent;
     if(child==window) return true;
@@ -552,7 +552,7 @@ FXbool FXWindow::isChildOf(const FXWindow* window) const {
 
 // Get child at x,y
 FXWindow* FXWindow::getChildAt(FXint x,FXint y) const {
-  register FXWindow *child;
+  FXWindow *child;
   if(0<=x && 0<=y && x<width && y<height){
     for(child=last; child; child=child->prev){
       if(child->shown() && child->xpos<=x && child->ypos<=y && x<child->xpos+child->width && y<child->ypos+child->height) return child;
@@ -564,8 +564,8 @@ FXWindow* FXWindow::getChildAt(FXint x,FXint y) const {
 
 // Count number of children
 FXint FXWindow::numChildren() const {
-  register const FXWindow *child=first;
-  register FXint num=0;
+  const FXWindow *child=first;
+  FXint num=0;
   while(child){
     child=child->next;
     num++;
@@ -576,7 +576,7 @@ FXint FXWindow::numChildren() const {
 
 // Get index of child window
 FXint FXWindow::indexOfChild(const FXWindow *window) const {
-  register FXint index=0;
+  FXint index=0;
   if(!window || window->parent!=this) return -1;
   while(window->prev){
     window=window->prev;
@@ -588,7 +588,7 @@ FXint FXWindow::indexOfChild(const FXWindow *window) const {
 
 // Get child window at index
 FXWindow* FXWindow::childAtIndex(FXint index) const {
-  register FXWindow* child=first;
+  FXWindow* child=first;
   if(index<0) return NULL;
   while(index && child){
     child=child->next;
@@ -600,7 +600,7 @@ FXWindow* FXWindow::childAtIndex(FXint index) const {
 
 // Find common ancestor between window a and b
 FXWindow* FXWindow::commonAncestor(FXWindow* a,FXWindow* b){
-  register FXWindow *p1,*p2;
+  FXWindow *p1,*p2;
   if(a || b){
     if(!a) return b->getRoot();
     if(!b) return a->getRoot();
@@ -1098,7 +1098,7 @@ FXbool FXWindow::isDefault() const {
 
 // Make widget drawn as default
 void FXWindow::setDefault(FXuchar flag){
-  register FXWindow *win;
+  FXWindow *win;
   switch(flag){
     case false:
       flags&=~FLAG_DEFAULT;
@@ -1122,7 +1122,7 @@ void FXWindow::setDefault(FXuchar flag){
 
 // Find default window
 FXWindow* FXWindow::findDefault() const {
-  register FXWindow *win=(FXWindow*)this;
+  FXWindow *win=(FXWindow*)this;
   while(1){
     if(win->isDefault()) return win;
     if(win->getFirst()){ win=win->getFirst(); continue; }
@@ -1144,7 +1144,7 @@ FXbool FXWindow::isInitial() const {
 
 // Make this window the initial default window
 void FXWindow::setInitial(FXbool flag){
-  register FXWindow *win;
+  FXWindow *win;
   if((flags&FLAG_INITIAL) && !flag){
     flags&=~FLAG_INITIAL;
     }
@@ -1158,7 +1158,7 @@ void FXWindow::setInitial(FXbool flag){
 
 // Find initial window
 FXWindow* FXWindow::findInitial() const {
-  register FXWindow *win=(FXWindow*)this;
+  FXWindow *win=(FXWindow*)this;
   while(1){
     if(win->isInitial()) return win;
     if(win->getFirst()){ win=win->getFirst(); continue; }
@@ -1586,8 +1586,8 @@ void FXWindow::setShape(const FXRegion& region){
 #ifdef WIN32
 static HRGN makeregion(HDC hdc,FXint w,FXint h){
   const COLORREF clear=RGB(255,255,255);
-  register HRGN shape,run;
-  register FXint x,y,z;
+  HRGN shape,run;
+  FXint x,y,z;
   shape=CreateRectRgn(0,0,0,0);
   for(y=0; y<h; y++){
     for(x=0; x<w; ){
@@ -1760,8 +1760,8 @@ FXbool FXWindow::doesSaveUnder() const {
 
 // Add hot key to closest ancestor's accelerator table
 void FXWindow::addHotKey(FXHotKey code){
-  register FXAccelTable *accel=NULL;
-  register FXWindow *win=this;
+  FXAccelTable *accel=NULL;
+  FXWindow *win=this;
   while(win && (accel=win->getAccelTable())==NULL) win=win->parent;
   if(accel) accel->addAccel(code,this,FXSEL(SEL_KEYPRESS,ID_HOTKEY),FXSEL(SEL_KEYRELEASE,ID_HOTKEY));
   }
@@ -1769,8 +1769,8 @@ void FXWindow::addHotKey(FXHotKey code){
 
 // Remove hot key from closest ancestor's accelerator table
 void FXWindow::remHotKey(FXHotKey code){
-  register FXAccelTable *accel=NULL;
-  register FXWindow *win=this;
+  FXAccelTable *accel=NULL;
+  FXWindow *win=this;
   while(win && (accel=win->getAccelTable())==NULL) win=win->parent;
   if(accel) accel->removeAccel(code);
   }
@@ -2103,7 +2103,7 @@ void FXWindow::recalc(){
 
 // Force GUI refresh of this window and all of its children
 void FXWindow::forceRefresh(){
-  register FXWindow *win=this;
+  FXWindow *win=this;
   while(1){
     win->handle(win,FXSEL(SEL_UPDATE,0),NULL);
     if(win->getFirst()){ win=win->getFirst(); continue; }
@@ -2209,8 +2209,8 @@ void FXWindow::move(FXint x,FXint y){
 
 // Move and resize
 void FXWindow::position(FXint x,FXint y,FXint w,FXint h){
-  register FXint ow=width;
-  register FXint oh=height;
+  FXint ow=width;
+  FXint oh=height;
   FXTRACE((200,"%s::position: x=%d y=%d w=%d h=%d\n",getClassName(),x,y,w,h));
   if(w<0) w=0;
   if(h<0) h=0;
@@ -2249,8 +2249,8 @@ void FXWindow::position(FXint x,FXint y,FXint w,FXint h){
 
 // Resize
 void FXWindow::resize(FXint w,FXint h){
-  register FXint ow=width;
-  register FXint oh=height;
+  FXint ow=width;
+  FXint oh=height;
   FXTRACE((200,"%s::resize: w=%d h=%d\n",getClassName(),w,h));
   if(w<0) w=0;
   if(h<0) h=0;

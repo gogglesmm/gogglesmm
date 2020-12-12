@@ -175,7 +175,7 @@ static int CDECL comparison(const void *a1, const void *a2){
 
 // See if quotes are needed
 static FXbool needquotes(const FXchar* ptr){
-  register FXchar c;
+  FXchar c;
   while((c=*ptr++)!='\0'){
     if(c==' ' || c=='"' || c=='\t' || c=='\v' || c=='\n') return true;
     }
@@ -189,7 +189,7 @@ static FXbool needquotes(const FXchar* ptr){
 static FXnchar* commandline(const FXchar *const *args){
   FXnchar *result=NULL;
   if(args){
-    register FXint size,s,n,w;
+    FXint size,s,n,w;
     const FXchar  *ptr;
     FXnchar       *dst;
     FXbool         q;
@@ -289,7 +289,7 @@ static FXnchar* enviroblock(const FXchar *const *env){
 static FXchar* commandline(const FXchar *const *args){
   FXchar *result=NULL;
   if(args){
-    register FXint size,s,n,w;
+    FXint size,s,n,w;
     const FXchar  *ptr;
     FXchar        *dst;
     FXbool         q;

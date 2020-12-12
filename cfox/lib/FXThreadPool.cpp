@@ -178,7 +178,7 @@ FXbool FXThreadPool::startWorker(){
 
 // Start thread pool
 FXuint FXThreadPool::start(FXuint count){
-  register FXuint result=0;
+  FXuint result=0;
   FXTRACE((150,"FXThreadPool::start(%u)\n",count));
   if(atomicBoolCas(&running,0,2)){
 
@@ -302,7 +302,7 @@ FXbool FXThreadPool::waitFor(FXCompletion& comp){
 FXbool FXThreadPool::stop(){
   FXTRACE((150,"FXThreadPool::stop()\n"));
   if(atomicBoolCas(&running,1,2)){
-    register FXint w=threads.count();
+    FXint w=threads.count();
 
     // Help out processing tasks while waiting
     wait();

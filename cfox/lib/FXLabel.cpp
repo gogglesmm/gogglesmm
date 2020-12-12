@@ -102,16 +102,16 @@ FXLabel::FXLabel(){
 // Make a label
 FXLabel::FXLabel(FXComposite* p,const FXString& text,FXIcon* ic,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXFrame(p,opts,x,y,w,h,pl,pr,pt,pb){
   FXString string=text.section('\t',0);
-  flags|=FLAG_ENABLED;
+  hotkey=parseHotKey(string);
   label=stripHotKey(string);
-  icon=ic;
+  hotoff=findHotKey(string);
   font=getApp()->getNormalFont();
   help=text.section('\t',2);
   tip=text.section('\t',1);
   textColor=getApp()->getForeColor();
-  hotkey=parseHotKey(string);
-  hotoff=findHotKey(string);
+  icon=ic;
   addHotKey(hotkey);
+  flags|=FLAG_ENABLED;
   }
 
 
@@ -151,8 +151,8 @@ void FXLabel::disable(){
 
 // Get height of multi-line label
 FXint FXLabel::labelHeight(const FXString& text) const {
-  register FXint beg,end;
-  register FXint th=0;
+  FXint beg,end;
+  FXint th=0;
   beg=0;
   do{
     end=beg;
@@ -167,8 +167,8 @@ FXint FXLabel::labelHeight(const FXString& text) const {
 
 // Get width of multi-line label
 FXint FXLabel::labelWidth(const FXString& text) const {
-  register FXint beg,end;
-  register FXint w,tw=0;
+  FXint beg,end;
+  FXint w,tw=0;
   beg=0;
   do{
     end=beg;
@@ -237,8 +237,8 @@ void FXLabel::just_y(FXint& ty,FXint& iy,FXint th,FXint ih){
 
 // Draw multi-line label, with underline for hotkey
 void FXLabel::drawLabel(FXDCWindow& dc,const FXString& text,FXint hot,FXint tx,FXint ty,FXint tw,FXint){
-  register FXint beg,end;
-  register FXint xx,yy;
+  FXint beg,end;
+  FXint xx,yy;
   yy=ty+font->getFontAscent();
   beg=0;
   do{
@@ -437,8 +437,8 @@ long FXLabel::onQueryHelp(FXObject* sender,FXSelector sel,void* ptr){
 
 // Change text
 void FXLabel::setText(const FXString& text){
-  FXString string=stripHotKey(text);
   FXHotKey hkey=parseHotKey(text);
+  FXString string=stripHotKey(text);
   FXint hoff=findHotKey(text);
   if(label!=string || hkey!=hotkey || hotoff!=hoff){
     label.adopt(string);

@@ -47,7 +47,7 @@ using namespace FX;
 /*******************************************************************************/
 
 namespace FX {
- 
+
 
 // Initialize matrix from scalar
 FXMat4f::FXMat4f(FXfloat s){
@@ -406,11 +406,11 @@ FXMat4f& FXMat4f::operator*=(FXfloat s){
 // Multiply matrix by matrix
 FXMat4f& FXMat4f::operator*=(const FXMat4f& s){
 #if defined(FOX_HAS_SSE)
-  register __m128 b0=_mm_loadu_ps(&s[0][0]);
-  register __m128 b1=_mm_loadu_ps(&s[1][0]);
-  register __m128 b2=_mm_loadu_ps(&s[2][0]);
-  register __m128 b3=_mm_loadu_ps(&s[3][0]);
-  register __m128 xx,yy,zz,ww;
+  __m128 b0=_mm_loadu_ps(&s[0][0]);
+  __m128 b1=_mm_loadu_ps(&s[1][0]);
+  __m128 b2=_mm_loadu_ps(&s[2][0]);
+  __m128 b3=_mm_loadu_ps(&s[3][0]);
+  __m128 xx,yy,zz,ww;
   xx=_mm_set1_ps(m[0][0]);
   yy=_mm_set1_ps(m[0][1]);
   zz=_mm_set1_ps(m[0][2]);
@@ -432,7 +432,7 @@ FXMat4f& FXMat4f::operator*=(const FXMat4f& s){
   ww=_mm_set1_ps(m[3][3]);
   _mm_storeu_ps(m[3],_mm_add_ps(_mm_add_ps(_mm_mul_ps(b0,xx),_mm_mul_ps(b1,yy)),_mm_add_ps(_mm_mul_ps(b2,zz),_mm_mul_ps(b3,ww))));
 #else
-  register FXfloat x,y,z,w;
+  FXfloat x,y,z,w;
   x=m[0][0]; y=m[0][1]; z=m[0][2]; w=m[0][3];
   m[0][0]=x*s[0][0]+y*s[1][0]+z*s[2][0]+w*s[3][0];
   m[0][1]=x*s[0][1]+y*s[1][1]+z*s[2][1]+w*s[3][1];
@@ -521,9 +521,9 @@ FXbool FXMat4f::isIdentity() const {
 
 // Set orthographic projection from view volume
 FXMat4f& FXMat4f::setOrtho(FXfloat xlo,FXfloat xhi,FXfloat ylo,FXfloat yhi,FXfloat zlo,FXfloat zhi){
-  register FXfloat rl=xhi-xlo;
-  register FXfloat tb=yhi-ylo;
-  register FXfloat yh=zhi-zlo;
+  FXfloat rl=xhi-xlo;
+  FXfloat tb=yhi-ylo;
+  FXfloat yh=zhi-zlo;
   return set(2.0f/rl,0.0f,0.0f,0.0f,0.0f,2.0f/tb,0.0f,0.0f,0.0f,0.0f,-2.0f/yh,0.0f,-(xhi+xlo)/rl,-(yhi+ylo)/tb,-(zhi+zlo)/yh,1.0f);
   }
 
@@ -541,18 +541,18 @@ void FXMat4f::getOrtho(FXfloat& xlo,FXfloat& xhi,FXfloat& ylo,FXfloat& yhi,FXflo
 
 // Set to inverse orthographic projection
 FXMat4f& FXMat4f::setInverseOrtho(FXfloat xlo,FXfloat xhi,FXfloat ylo,FXfloat yhi,FXfloat zlo,FXfloat zhi){
-  register FXfloat rl=xhi-xlo;
-  register FXfloat tb=yhi-ylo;
-  register FXfloat yh=zhi-zlo;
+  FXfloat rl=xhi-xlo;
+  FXfloat tb=yhi-ylo;
+  FXfloat yh=zhi-zlo;
   return set(0.5f*rl,0.0f,0.0f,0.0f,0.0f,0.5f*tb,0.0f,0.0f,0.0f,0.0f,-0.5f*yh,0.0f,0.5f*(xhi+xlo),0.5f*(yhi+ylo),0.5f*(zhi+zlo),1.0f);
   }
 
 
 // Set to perspective projection from view volume
 FXMat4f& FXMat4f::setFrustum(FXfloat xlo,FXfloat xhi,FXfloat ylo,FXfloat yhi,FXfloat zlo,FXfloat zhi){
-  register FXfloat rl=xhi-xlo;
-  register FXfloat tb=yhi-ylo;
-  register FXfloat yh=zhi-zlo;
+  FXfloat rl=xhi-xlo;
+  FXfloat tb=yhi-ylo;
+  FXfloat yh=zhi-zlo;
   return set(2.0f*zlo/rl,0.0f,0.0f,0.0f,0.0f,2.0f*zlo/tb,0.0f,0.0f,(xhi+xlo)/rl,(yhi+ylo)/tb,-(zhi+zlo)/yh,-1.0f,0.0f,0.0f,-2.0f*zhi*zlo/yh,0.0f);
   }
 
@@ -570,9 +570,9 @@ void FXMat4f::getFrustum(FXfloat& xlo,FXfloat& xhi,FXfloat& ylo,FXfloat& yhi,FXf
 
 // Set to inverse perspective projection from view volume
 FXMat4f& FXMat4f::setInverseFrustum(FXfloat xlo,FXfloat xhi,FXfloat ylo,FXfloat yhi,FXfloat zlo,FXfloat zhi){
-  register FXfloat rl=xhi-xlo;
-  register FXfloat tb=yhi-ylo;
-  register FXfloat yh=zhi-zlo;
+  FXfloat rl=xhi-xlo;
+  FXfloat tb=yhi-ylo;
+  FXfloat yh=zhi-zlo;
   return set(0.5f*rl/zlo,0.0f,0.0f,0.0f,0.0f,0.5f*tb/zlo,0.0f,0.0f,0.0f,0.0f,0.0f,-0.5f*yh/(zhi*zlo),0.5f*(xhi+xlo)/zlo,0.5f*(yhi+ylo)/zlo,-1.0f,0.5f*(zhi+zlo)/(zhi*zlo));
   }
 
@@ -589,7 +589,7 @@ FXMat4f& FXMat4f::left(){
 
 // Multiply by rotation matrix
 FXMat4f& FXMat4f::rot(const FXMat3f& r){
-  register FXfloat x,y,z;
+  FXfloat x,y,z;
   x=m[0][0]; y=m[1][0]; z=m[2][0];
   m[0][0]=x*r[0][0]+y*r[0][1]+z*r[0][2];
   m[1][0]=x*r[1][0]+y*r[1][1]+z*r[1][2];
@@ -618,16 +618,16 @@ FXMat4f& FXMat4f::rot(const FXQuatf& q){
 
 // Multiply by rotation c,s about unit axis
 FXMat4f& FXMat4f::rot(const FXVec3f& v,FXfloat c,FXfloat s){
-  register FXfloat xx=v.x*v.x;
-  register FXfloat yy=v.y*v.y;
-  register FXfloat zz=v.z*v.z;
-  register FXfloat xy=v.x*v.y;
-  register FXfloat yz=v.y*v.z;
-  register FXfloat zx=v.z*v.x;
-  register FXfloat xs=v.x*s;
-  register FXfloat ys=v.y*s;
-  register FXfloat zs=v.z*s;
-  register FXfloat t=1.0f-c;
+  FXfloat xx=v.x*v.x;
+  FXfloat yy=v.y*v.y;
+  FXfloat zz=v.z*v.z;
+  FXfloat xy=v.x*v.y;
+  FXfloat yz=v.y*v.z;
+  FXfloat zx=v.z*v.x;
+  FXfloat xs=v.x*s;
+  FXfloat ys=v.y*s;
+  FXfloat zs=v.z*s;
+  FXfloat t=1.0f-c;
   return rot(FXMat3f(t*xx+c,t*xy+zs,t*zx-ys,t*xy-zs,t*yy+c,t*yz+xs,t*zx+ys,t*yz-xs,t*zz+c));
   }
 
@@ -641,14 +641,14 @@ FXMat4f& FXMat4f::rot(const FXVec3f& v,FXfloat phi){
 // Rotate about x-axis
 FXMat4f& FXMat4f::xrot(FXfloat c,FXfloat s){
 #if defined(FOX_HAS_SSE)
-  register __m128 cc=_mm_set1_ps(c);
-  register __m128 ss=_mm_set1_ps(s);
-  register __m128 uu=_mm_loadu_ps(&m[1][0]);
-  register __m128 vv=_mm_loadu_ps(&m[2][0]);
+  __m128 cc=_mm_set1_ps(c);
+  __m128 ss=_mm_set1_ps(s);
+  __m128 uu=_mm_loadu_ps(&m[1][0]);
+  __m128 vv=_mm_loadu_ps(&m[2][0]);
   _mm_storeu_ps(m[1],_mm_add_ps(_mm_mul_ps(cc,uu),_mm_mul_ps(ss,vv)));
   _mm_storeu_ps(m[2],_mm_sub_ps(_mm_mul_ps(cc,vv),_mm_mul_ps(ss,uu)));
 #else
-  register FXfloat u,v;
+  FXfloat u,v;
   u=m[1][0]; v=m[2][0]; m[1][0]=c*u+s*v; m[2][0]=c*v-s*u;
   u=m[1][1]; v=m[2][1]; m[1][1]=c*u+s*v; m[2][1]=c*v-s*u;
   u=m[1][2]; v=m[2][2]; m[1][2]=c*u+s*v; m[2][2]=c*v-s*u;
@@ -667,14 +667,14 @@ FXMat4f& FXMat4f::xrot(FXfloat phi){
 // Rotate about y-axis
 FXMat4f& FXMat4f::yrot(FXfloat c,FXfloat s){
 #if defined(FOX_HAS_SSE)
-  register __m128 cc=_mm_set1_ps(c);
-  register __m128 ss=_mm_set1_ps(s);
-  register __m128 uu=_mm_loadu_ps(&m[0][0]);
-  register __m128 vv=_mm_loadu_ps(&m[2][0]);
+  __m128 cc=_mm_set1_ps(c);
+  __m128 ss=_mm_set1_ps(s);
+  __m128 uu=_mm_loadu_ps(&m[0][0]);
+  __m128 vv=_mm_loadu_ps(&m[2][0]);
   _mm_storeu_ps(m[0],_mm_sub_ps(_mm_mul_ps(cc,uu),_mm_mul_ps(ss,vv)));
   _mm_storeu_ps(m[2],_mm_add_ps(_mm_mul_ps(cc,vv),_mm_mul_ps(ss,uu)));
 #else
-  register FXfloat u,v;
+  FXfloat u,v;
   u=m[0][0]; v=m[2][0]; m[0][0]=c*u-s*v; m[2][0]=c*v+s*u;
   u=m[0][1]; v=m[2][1]; m[0][1]=c*u-s*v; m[2][1]=c*v+s*u;
   u=m[0][2]; v=m[2][2]; m[0][2]=c*u-s*v; m[2][2]=c*v+s*u;
@@ -693,14 +693,14 @@ FXMat4f& FXMat4f::yrot(FXfloat phi){
 // Rotate about z-axis
 FXMat4f& FXMat4f::zrot(FXfloat c,FXfloat s){
 #if defined(FOX_HAS_SSE)
-  register __m128 cc=_mm_set1_ps(c);
-  register __m128 ss=_mm_set1_ps(s);
-  register __m128 uu=_mm_loadu_ps(&m[0][0]);
-  register __m128 vv=_mm_loadu_ps(&m[1][0]);
+  __m128 cc=_mm_set1_ps(c);
+  __m128 ss=_mm_set1_ps(s);
+  __m128 uu=_mm_loadu_ps(&m[0][0]);
+  __m128 vv=_mm_loadu_ps(&m[1][0]);
   _mm_storeu_ps(m[0],_mm_add_ps(_mm_mul_ps(cc,uu),_mm_mul_ps(ss,vv)));
   _mm_storeu_ps(m[1],_mm_sub_ps(_mm_mul_ps(cc,vv),_mm_mul_ps(ss,uu)));
 #else
-  register FXfloat u,v;
+  FXfloat u,v;
   u=m[0][0]; v=m[1][0]; m[0][0]=c*u+s*v; m[1][0]=c*v-s*u;
   u=m[0][1]; v=m[1][1]; m[0][1]=c*u+s*v; m[1][1]=c*v-s*u;
   u=m[0][2]; v=m[1][2]; m[0][2]=c*u+s*v; m[1][2]=c*v-s*u;
@@ -718,7 +718,7 @@ FXMat4f& FXMat4f::zrot(FXfloat phi){
 
 // Look at
 FXMat4f& FXMat4f::look(const FXVec3f& from,const FXVec3f& to,const FXVec3f& up){
-  register FXfloat x0,x1,x2,tx,ty,tz;
+  FXfloat x0,x1,x2,tx,ty,tz;
   FXVec3f rz,rx,ry;
   rz=normalize(from-to);
   rx=normalize(up^rz);
@@ -749,13 +749,13 @@ FXMat4f& FXMat4f::look(const FXVec3f& from,const FXVec3f& to,const FXVec3f& up){
 // Translate
 FXMat4f& FXMat4f::trans(FXfloat tx,FXfloat ty,FXfloat tz){
 #if defined(FOX_HAS_SSE)
-  register __m128 ttx=_mm_set1_ps(tx);
-  register __m128 tty=_mm_set1_ps(ty);
-  register __m128 ttz=_mm_set1_ps(tz);
-  register __m128 r0=_mm_mul_ps(_mm_loadu_ps(&m[0][0]),ttx);
-  register __m128 r1=_mm_mul_ps(_mm_loadu_ps(&m[1][0]),tty);
-  register __m128 r2=_mm_mul_ps(_mm_loadu_ps(&m[2][0]),ttz);
-  register __m128 r3=_mm_loadu_ps(&m[3][0]);
+  __m128 ttx=_mm_set1_ps(tx);
+  __m128 tty=_mm_set1_ps(ty);
+  __m128 ttz=_mm_set1_ps(tz);
+  __m128 r0=_mm_mul_ps(_mm_loadu_ps(&m[0][0]),ttx);
+  __m128 r1=_mm_mul_ps(_mm_loadu_ps(&m[1][0]),tty);
+  __m128 r2=_mm_mul_ps(_mm_loadu_ps(&m[2][0]),ttz);
+  __m128 r3=_mm_loadu_ps(&m[3][0]);
   _mm_storeu_ps(&m[3][0],_mm_add_ps(_mm_add_ps(r0,r1),_mm_add_ps(r2,r3)));
 #else
   m[3][0]=m[3][0]+tx*m[0][0]+ty*m[1][0]+tz*m[2][0];
@@ -776,9 +776,9 @@ FXMat4f& FXMat4f::trans(const FXVec3f& v){
 // Scale unqual
 FXMat4f& FXMat4f::scale(FXfloat sx,FXfloat sy,FXfloat sz){
 #if defined(FOX_HAS_SSE)
-  register __m128 ssx=_mm_set1_ps(sx);
-  register __m128 ssy=_mm_set1_ps(sy);
-  register __m128 ssz=_mm_set1_ps(sz);
+  __m128 ssx=_mm_set1_ps(sx);
+  __m128 ssy=_mm_set1_ps(sy);
+  __m128 ssz=_mm_set1_ps(sz);
   _mm_storeu_ps(&m[0][0],_mm_mul_ps(_mm_loadu_ps(&m[0][0]),ssx));
   _mm_storeu_ps(&m[1][0],_mm_mul_ps(_mm_loadu_ps(&m[1][0]),ssy));
   _mm_storeu_ps(&m[2][0],_mm_mul_ps(_mm_loadu_ps(&m[2][0]),ssz));
@@ -819,14 +819,14 @@ FXfloat FXMat4f::det() const {
 FXMat4f FXMat4f::transpose() const {
 #if defined(FOX_HAS_SSE)
   FXMat4f r;
-  register __m128 m0=_mm_loadu_ps(&m[0][0]);
-  register __m128 m1=_mm_loadu_ps(&m[1][0]);
-  register __m128 m2=_mm_loadu_ps(&m[2][0]);
-  register __m128 m3=_mm_loadu_ps(&m[3][0]);
-  register __m128 t0=_mm_unpacklo_ps(m0,m1);    // m11 m01 m10 m00
-  register __m128 t1=_mm_unpacklo_ps(m2,m3);    // m31 m21 m30 m20
-  register __m128 t2=_mm_unpackhi_ps(m0,m1);    // m13 m03 m12 m02
-  register __m128 t3=_mm_unpackhi_ps(m2,m3);    // m33 m23 m32 m22
+  __m128 m0=_mm_loadu_ps(&m[0][0]);
+  __m128 m1=_mm_loadu_ps(&m[1][0]);
+  __m128 m2=_mm_loadu_ps(&m[2][0]);
+  __m128 m3=_mm_loadu_ps(&m[3][0]);
+  __m128 t0=_mm_unpacklo_ps(m0,m1);    // m11 m01 m10 m00
+  __m128 t1=_mm_unpacklo_ps(m2,m3);    // m31 m21 m30 m20
+  __m128 t2=_mm_unpackhi_ps(m0,m1);    // m13 m03 m12 m02
+  __m128 t3=_mm_unpackhi_ps(m2,m3);    // m33 m23 m32 m22
   _mm_storeu_ps(r[0],_mm_movelh_ps(t0,t1));     // m30 m20 m10 m00
   _mm_storeu_ps(r[1],_mm_movehl_ps(t1,t0));     // m31 m21 m11 m01
   _mm_storeu_ps(r[2],_mm_movelh_ps(t2,t3));     // m32 m22 m12 m02
@@ -844,19 +844,19 @@ FXMat4f FXMat4f::transpose() const {
 // Invert matrix
 FXMat4f FXMat4f::invert() const {
   FXMat4f r;
-  register FXfloat a0=m[0][0]*m[1][1]-m[0][1]*m[1][0];
-  register FXfloat a1=m[0][0]*m[1][2]-m[0][2]*m[1][0];
-  register FXfloat a2=m[0][0]*m[1][3]-m[0][3]*m[1][0];
-  register FXfloat a3=m[0][1]*m[1][2]-m[0][2]*m[1][1];
-  register FXfloat a4=m[0][1]*m[1][3]-m[0][3]*m[1][1];
-  register FXfloat a5=m[0][2]*m[1][3]-m[0][3]*m[1][2];
-  register FXfloat b0=m[2][0]*m[3][1]-m[2][1]*m[3][0];
-  register FXfloat b1=m[2][0]*m[3][2]-m[2][2]*m[3][0];
-  register FXfloat b2=m[2][0]*m[3][3]-m[2][3]*m[3][0];
-  register FXfloat b3=m[2][1]*m[3][2]-m[2][2]*m[3][1];
-  register FXfloat b4=m[2][1]*m[3][3]-m[2][3]*m[3][1];
-  register FXfloat b5=m[2][2]*m[3][3]-m[2][3]*m[3][2];
-  register FXfloat dd=a0*b5-a1*b4+a2*b3+a3*b2-a4*b1+a5*b0;
+  FXfloat a0=m[0][0]*m[1][1]-m[0][1]*m[1][0];
+  FXfloat a1=m[0][0]*m[1][2]-m[0][2]*m[1][0];
+  FXfloat a2=m[0][0]*m[1][3]-m[0][3]*m[1][0];
+  FXfloat a3=m[0][1]*m[1][2]-m[0][2]*m[1][1];
+  FXfloat a4=m[0][1]*m[1][3]-m[0][3]*m[1][1];
+  FXfloat a5=m[0][2]*m[1][3]-m[0][3]*m[1][2];
+  FXfloat b0=m[2][0]*m[3][1]-m[2][1]*m[3][0];
+  FXfloat b1=m[2][0]*m[3][2]-m[2][2]*m[3][0];
+  FXfloat b2=m[2][0]*m[3][3]-m[2][3]*m[3][0];
+  FXfloat b3=m[2][1]*m[3][2]-m[2][2]*m[3][1];
+  FXfloat b4=m[2][1]*m[3][3]-m[2][3]*m[3][1];
+  FXfloat b5=m[2][2]*m[3][3]-m[2][3]*m[3][2];
+  FXfloat dd=a0*b5-a1*b4+a2*b3+a3*b2-a4*b1+a5*b0;
   FXASSERT(dd!=0.0f);
   dd=1.0f/dd;
   r[0][0]=(m[1][1]*b5-m[1][2]*b4+m[1][3]*b3)*dd;
@@ -881,7 +881,7 @@ FXMat4f FXMat4f::invert() const {
 
 // Invert affine matrix
 FXMat4f FXMat4f::affineInvert() const {
-  register FXfloat dd;
+  FXfloat dd;
   FXMat4f r;
   r[0][0]=m[1][1]*m[2][2]-m[1][2]*m[2][1];
   r[0][1]=m[0][2]*m[2][1]-m[0][1]*m[2][2];
@@ -917,7 +917,7 @@ FXMat4f FXMat4f::affineInvert() const {
 
 // Invert rigid body transform matrix
 FXMat4f FXMat4f::rigidInvert() const {
-  register FXfloat ss;
+  FXfloat ss;
   FXMat4f r;
   ss=1.0f/(m[0][0]*m[0][0]+m[0][1]*m[0][1]+m[0][2]*m[0][2]);
   r[0][0]=m[0][0]*ss;
@@ -942,7 +942,7 @@ FXMat4f FXMat4f::rigidInvert() const {
 
 // Return normal-transformation matrix (inverse transpose of upper 3x3 block)
 FXMat3f FXMat4f::normalMatrix() const {
-  register FXfloat dd;
+  FXfloat dd;
   FXMat3f res;
   res[0][0]=m[1][1]*m[2][2]-m[1][2]*m[2][1];
   res[0][1]=m[1][2]*m[2][0]-m[1][0]*m[2][2];
@@ -972,18 +972,18 @@ FXMat3f FXMat4f::normalMatrix() const {
 // Matrix times vector
 FXVec3f operator*(const FXMat4f& m,const FXVec3f& v){
 #if defined(FOX_HAS_SSE3)
-  register __m128 m0=_mm_loadu_ps(&m[0][0]);
-  register __m128 m1=_mm_loadu_ps(&m[1][0]);
-  register __m128 m2=_mm_loadu_ps(&m[2][0]);
-  register __m128 vv=_mm_set_ps(1.0f,v[2],v[1],v[0]);
-  register __m128 r0=_mm_mul_ps(m0,vv);         // m03 m02*v2 m01*v1 m00*v0
-  register __m128 r1=_mm_mul_ps(m1,vv);         // m13 m12*v2 m11*v1 m10*v0
-  register __m128 r2=_mm_mul_ps(m2,vv);         // m23 m22*v2 m21*v1 m20*v0
+  __m128 m0=_mm_loadu_ps(&m[0][0]);
+  __m128 m1=_mm_loadu_ps(&m[1][0]);
+  __m128 m2=_mm_loadu_ps(&m[2][0]);
+  __m128 vv=_mm_set_ps(1.0f,v[2],v[1],v[0]);
+  __m128 r0=_mm_mul_ps(m0,vv);         // m03 m02*v2 m01*v1 m00*v0
+  __m128 r1=_mm_mul_ps(m1,vv);         // m13 m12*v2 m11*v1 m10*v0
+  __m128 r2=_mm_mul_ps(m2,vv);         // m23 m22*v2 m21*v1 m20*v0
   FXVec3f r;
   r0=_mm_hadd_ps(r0,r1);        // m13+m12*v2  m11*v1+m10*v0  m03+m02*v2  m01*v1+m00*v0
   r2=_mm_hadd_ps(r2,m0);        // **********  *************  m23+m22*v2  m21*v1+m20*v0
   r0=_mm_hadd_ps(r0,r2);        // ************************  m23+m22*v2+m21*v1+m20*v0  m13+m12*v2+m11*v1+m10*v0  m03+m02*v2+m01*v1+m00*v0
-  _mm_storel_pi((__m64*)&r[0],r0); 
+  _mm_storel_pi((__m64*)&r[0],r0);
   _mm_store_ss(&r[2],_mm_movehl_ps(r0,r0));
   return r;
 #else
@@ -995,11 +995,11 @@ FXVec3f operator*(const FXMat4f& m,const FXVec3f& v){
 // Matrix times vector
 FXVec4f operator*(const FXMat4f& m,const FXVec4f& v){
 #if defined(FOX_HAS_SSE3)
-  register __m128 vv=_mm_loadu_ps(v);
-  register __m128 r0=_mm_mul_ps(_mm_loadu_ps(&m[0][0]),vv);     // m03*v3 m02*v2 m01*v1 m00*v0
-  register __m128 r1=_mm_mul_ps(_mm_loadu_ps(&m[1][0]),vv);     // m13*v3 m12*v2 m11*v1 m10*v0
-  register __m128 r2=_mm_mul_ps(_mm_loadu_ps(&m[2][0]),vv);     // m23*v3 m22*v2 m21*v1 m20*v0
-  register __m128 r3=_mm_mul_ps(_mm_loadu_ps(&m[3][0]),vv);     // m33*v3 m32*v2 m31*v1 m30*v0
+  __m128 vv=_mm_loadu_ps(v);
+  __m128 r0=_mm_mul_ps(_mm_loadu_ps(&m[0][0]),vv);     // m03*v3 m02*v2 m01*v1 m00*v0
+  __m128 r1=_mm_mul_ps(_mm_loadu_ps(&m[1][0]),vv);     // m13*v3 m12*v2 m11*v1 m10*v0
+  __m128 r2=_mm_mul_ps(_mm_loadu_ps(&m[2][0]),vv);     // m23*v3 m22*v2 m21*v1 m20*v0
+  __m128 r3=_mm_mul_ps(_mm_loadu_ps(&m[3][0]),vv);     // m33*v3 m32*v2 m31*v1 m30*v0
   FXVec4f r;
   r0=_mm_hadd_ps(r0,r1);        // m13*v3+m12*v2  m11*v1+m10*v0  m03*v3+m02*v2  m01*v1+m00*v0
   r2=_mm_hadd_ps(r2,r3);        // m33*v3+m32*v2  m31*v1+m30*v0  m23*v3+m22*v2  m21*v1+m20*v0
@@ -1010,7 +1010,7 @@ FXVec4f operator*(const FXMat4f& m,const FXVec4f& v){
   return FXVec4f(m[0][0]*v[0]+m[0][1]*v[1]+m[0][2]*v[2]+m[0][3]*v[3], m[1][0]*v[0]+m[1][1]*v[1]+m[1][2]*v[2]+m[1][3]*v[3], m[2][0]*v[0]+m[2][1]*v[1]+m[2][2]*v[2]+m[2][3]*v[3], m[3][0]*v[0]+m[3][1]*v[1]+m[3][2]*v[2]+m[3][3]*v[3]);
 #endif
   }
- 
+
 
 // Vector times matrix
 //
@@ -1018,16 +1018,16 @@ FXVec4f operator*(const FXMat4f& m,const FXVec4f& v){
 //  v[0]*m[0][1] + v[1]*m[1][1] + v[2]*m[2][1] + m[3][1]
 //  v[0]*m[0][2] + v[1]*m[1][2] + v[2]*m[2][2] + m[3][2]
 //
-FXVec3f operator*(const FXVec3f& v,const FXMat4f& m){ 
+FXVec3f operator*(const FXVec3f& v,const FXMat4f& m){
 #if defined(FOX_HAS_SSE)
-  register __m128 m0=_mm_loadu_ps(&m[0][0]);
-  register __m128 m1=_mm_loadu_ps(&m[1][0]);
-  register __m128 m2=_mm_loadu_ps(&m[2][0]);
-  register __m128 m3=_mm_loadu_ps(&m[3][0]);
-  register __m128 v0=_mm_set1_ps(v[0]);
-  register __m128 v1=_mm_set1_ps(v[1]);
-  register __m128 v2=_mm_set1_ps(v[2]);
-  register __m128 rr=_mm_add_ps(_mm_add_ps(_mm_mul_ps(v0,m0),_mm_mul_ps(v1,m1)),_mm_add_ps(_mm_mul_ps(v2,m2),m3));
+  __m128 m0=_mm_loadu_ps(&m[0][0]);
+  __m128 m1=_mm_loadu_ps(&m[1][0]);
+  __m128 m2=_mm_loadu_ps(&m[2][0]);
+  __m128 m3=_mm_loadu_ps(&m[3][0]);
+  __m128 v0=_mm_set1_ps(v[0]);
+  __m128 v1=_mm_set1_ps(v[1]);
+  __m128 v2=_mm_set1_ps(v[2]);
+  __m128 rr=_mm_add_ps(_mm_add_ps(_mm_mul_ps(v0,m0),_mm_mul_ps(v1,m1)),_mm_add_ps(_mm_mul_ps(v2,m2),m3));
   FXVec3f r;
   _mm_storel_pi((__m64*)&r[0],rr);
   _mm_store_ss(&r[2],_mm_movehl_ps(rr,rr));
@@ -1047,14 +1047,14 @@ FXVec3f operator*(const FXVec3f& v,const FXMat4f& m){
 //
 FXVec4f operator*(const FXVec4f& v,const FXMat4f& m){
 #if defined(FOX_HAS_SSE)
-  register __m128 m0=_mm_loadu_ps(&m[0][0]);
-  register __m128 m1=_mm_loadu_ps(&m[1][0]);
-  register __m128 m2=_mm_loadu_ps(&m[2][0]);
-  register __m128 m3=_mm_loadu_ps(&m[3][0]);
-  register __m128 v0=_mm_set1_ps(v[0]);
-  register __m128 v1=_mm_set1_ps(v[1]);
-  register __m128 v2=_mm_set1_ps(v[2]);
-  register __m128 v3=_mm_set1_ps(v[3]);
+  __m128 m0=_mm_loadu_ps(&m[0][0]);
+  __m128 m1=_mm_loadu_ps(&m[1][0]);
+  __m128 m2=_mm_loadu_ps(&m[2][0]);
+  __m128 m3=_mm_loadu_ps(&m[3][0]);
+  __m128 v0=_mm_set1_ps(v[0]);
+  __m128 v1=_mm_set1_ps(v[1]);
+  __m128 v2=_mm_set1_ps(v[2]);
+  __m128 v3=_mm_set1_ps(v[3]);
   FXVec4f r;
   _mm_storeu_ps(&r[0],_mm_add_ps(_mm_add_ps(_mm_mul_ps(v0,m0),_mm_mul_ps(v1,m1)),_mm_add_ps(_mm_mul_ps(v2,m2),_mm_mul_ps(v3,m3))));
   return r;
@@ -1103,11 +1103,11 @@ FXMat4f operator-(const FXMat4f& a,const FXMat4f& b){
 // Matrix and matrix multiply
 FXMat4f operator*(const FXMat4f& a,const FXMat4f& b){
 #if defined(FOX_HAS_SSE)
-  register __m128 b0=_mm_loadu_ps(&b[0][0]);
-  register __m128 b1=_mm_loadu_ps(&b[1][0]);
-  register __m128 b2=_mm_loadu_ps(&b[2][0]);
-  register __m128 b3=_mm_loadu_ps(&b[3][0]);
-  register __m128 xx,yy,zz,ww;
+  __m128 b0=_mm_loadu_ps(&b[0][0]);
+  __m128 b1=_mm_loadu_ps(&b[1][0]);
+  __m128 b2=_mm_loadu_ps(&b[2][0]);
+  __m128 b3=_mm_loadu_ps(&b[3][0]);
+  __m128 xx,yy,zz,ww;
   FXMat4f r;
   xx=_mm_set1_ps(a[0][0]);
   yy=_mm_set1_ps(a[0][1]);
@@ -1131,7 +1131,7 @@ FXMat4f operator*(const FXMat4f& a,const FXMat4f& b){
   _mm_storeu_ps(r[3],_mm_add_ps(_mm_add_ps(_mm_mul_ps(b0,xx),_mm_mul_ps(b1,yy)),_mm_add_ps(_mm_mul_ps(b2,zz),_mm_mul_ps(b3,ww))));
   return r;
 #else
-  register FXfloat x,y,z,w;
+  FXfloat x,y,z,w;
   FXMat4f r;
   x=a[0][0]; y=a[0][1]; z=a[0][2]; w=a[0][3];
   r[0][0]=x*b[0][0]+y*b[1][0]+z*b[2][0]+w*b[3][0];

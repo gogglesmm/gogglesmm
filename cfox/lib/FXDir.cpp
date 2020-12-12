@@ -269,7 +269,7 @@ FXint FXDir::listFiles(FXString*& filelist,const FXString& path,const FXString& 
 
 // List drives, i.e. roots of directory trees.
 FXint FXDir::listDrives(FXString*& drivelist){
-  register FXint count=0;
+  FXint count=0;
 #ifdef WIN32
   FXchar drives[256];
   clearElms(drives,ARRAYNUMBER(drives));
@@ -291,7 +291,7 @@ FXint FXDir::listDrives(FXString*& drivelist){
 #if 0
 
 FXint FXDir::listShares(FXString*& sharelist){
-  register FXint count=0;
+  FXint count=0;
 #ifdef WIN32
 #else
   sharelist=new FXString [2];

@@ -235,7 +235,7 @@ protected:
   FXint changeBeg(FXint pos) const;
   FXint changeEnd(FXint pos) const;
   void mutation(FXint pos,FXint ncins,FXint ncdel,FXint nrins,FXint nrdel);
-  FXint overstruck(FXint start,FXint end,const FXchar *text,FXint n);
+  FXint overstruck(FXint start,FXint end,const FXchar *text,FXint num);
   void drawCursor(FXuint state);
   virtual void paintCursor(FXDCWindow& dc) const;
   virtual void eraseCursor(FXDCWindow& dc) const;
@@ -246,13 +246,12 @@ protected:
   virtual void drawTextRow(FXDCWindow& dc,FXint row) const;
   virtual void drawContents(FXDCWindow& dc) const;
   virtual void drawNumbers(FXDCWindow& dc) const;
-  virtual void replace(FXint pos,FXint m,const FXchar *text,FXint n,FXint style);
+  virtual void replace(FXint pos,FXint del,const FXchar *text,FXint ins,FXint style);
   void updateRow(FXint row) const;
   void updateLines(FXint startpos,FXint endpos) const;
   void updateRange(FXint startpos,FXint endpos) const;
   FXint shiftText(FXint startpos,FXint endpos,FXint shift,FXbool notify);
   FXint caseShift(FXint startpos,FXint endpos,FXint upper,FXbool notify);
-  FXint insertTextBlock(FXint startpos,FXint endpos,FXint startcol,const FXchar *text,FXint n,FXbool notify);
   FXbool deletePendingSelection(FXbool notify);
 protected:
   enum {
@@ -347,7 +346,7 @@ public:
   long onCmdCursorWordLeft(FXObject*,FXSelector,void*);
   long onCmdCursorWordRight(FXObject*,FXSelector,void*);
 
-  // Cursor drag movement
+  // Cursor shift-drag movement
   long onCmdCursorShiftTop(FXObject*,FXSelector,void*);
   long onCmdCursorShiftBottom(FXObject*,FXSelector,void*);
   long onCmdCursorShiftHome(FXObject*,FXSelector,void*);
@@ -360,6 +359,12 @@ public:
   long onCmdCursorShiftPageDown(FXObject*,FXSelector,void*);
   long onCmdCursorShiftWordLeft(FXObject*,FXSelector,void*);
   long onCmdCursorShiftWordRight(FXObject*,FXSelector,void*);
+
+  // Cursor alt-drag movement
+  long onCmdCursorAltUp(FXObject*,FXSelector,void*);
+  long onCmdCursorAltDown(FXObject*,FXSelector,void*);
+  long onCmdCursorAltLeft(FXObject*,FXSelector,void*);
+  long onCmdCursorAltRight(FXObject*,FXSelector,void*);
 
   // Positioning
   long onCmdScrollUp(FXObject*,FXSelector,void*);
@@ -388,7 +393,7 @@ public:
   long onCmdSelectWord(FXObject*,FXSelector,void*);
   long onCmdSelectLine(FXObject*,FXSelector,void*);
   long onCmdSelectMatching(FXObject*,FXSelector,void*);
-  long onCmdSelectBlock(FXObject*,FXSelector,void*);
+  long onCmdSelectEnclosing(FXObject*,FXSelector,void*);
   long onCmdSelectAll(FXObject*,FXSelector,void*);
   long onCmdDeselectAll(FXObject*,FXSelector,void*);
 
@@ -461,6 +466,10 @@ public:
     ID_CURSOR_SHIFT_PAGEDOWN,
     ID_CURSOR_SHIFT_WORD_LEFT,
     ID_CURSOR_SHIFT_WORD_RIGHT,
+    ID_CURSOR_ALT_UP,
+    ID_CURSOR_ALT_DOWN,
+    ID_CURSOR_ALT_LEFT,
+    ID_CURSOR_ALT_RIGHT,
     ID_SCROLL_UP,
     ID_SCROLL_DOWN,
     ID_SCROLL_TOP,
@@ -683,62 +692,70 @@ public:
 
 
   /// Change the text in the buffer to new text
-  virtual FXint setText(const FXchar* text,FXint n,FXbool notify=false);
+  virtual FXint setText(const FXchar* text,FXint num,FXbool notify=false);
   virtual FXint setText(const FXString& text,FXbool notify=false);
 
   /// Change the text in the buffer to new text
-  virtual FXint setStyledText(const FXchar* text,FXint n,FXint style=0,FXbool notify=false);
+  virtual FXint setStyledText(const FXchar* text,FXint num,FXint style=0,FXbool notify=false);
   virtual FXint setStyledText(const FXString& text,FXint style=0,FXbool notify=false);
 
-  /// Replace m bytes at pos by n characters
-  virtual FXint replaceText(FXint pos,FXint m,const FXchar *text,FXint n,FXbool notify=false);
-  virtual FXint replaceText(FXint pos,FXint m,const FXString& text,FXbool notify=false);
+  /// Replace del bytes at pos by ins characters of text
+  virtual FXint replaceText(FXint pos,FXint del,const FXchar *text,FXint ins,FXbool notify=false);
+  virtual FXint replaceText(FXint pos,FXint del,const FXString& text,FXbool notify=false);
 
-  /// Replace m bytes at pos by n characters
-  virtual FXint replaceStyledText(FXint pos,FXint m,const FXchar *text,FXint n,FXint style=0,FXbool notify=false);
-  virtual FXint replaceStyledText(FXint pos,FXint m,const FXString& text,FXint style=0,FXbool notify=false);
+  /// Replace del bytes at pos by ins characters of text
+  virtual FXint replaceStyledText(FXint pos,FXint del,const FXchar *text,FXint ins,FXint style=0,FXbool notify=false);
+  virtual FXint replaceStyledText(FXint pos,FXint del,const FXString& text,FXint style=0,FXbool notify=false);
 
   /// Replace text columns startcol to endcol in lines starting at startpos to endpos by new text
-  virtual FXint replaceTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXchar *text,FXint n,FXbool notify=false);
+  virtual FXint replaceTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXchar *text,FXint num,FXbool notify=false);
   virtual FXint replaceTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXString& text,FXbool notify=false);
 
   /// Replace text columns startcol to endcol in lines starting at startpos to endpos by new text with given style
-  virtual FXint replaceStyledTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXchar *text,FXint n,FXint style=0,FXbool notify=false);
+  virtual FXint replaceStyledTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXchar *text,FXint num,FXint style=0,FXbool notify=false);
   virtual FXint replaceStyledTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXString& text,FXint style=0,FXbool notify=false);
 
   /// Overstrike text block
-  virtual FXint overstrikeTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXchar *text,FXint n,FXbool notify=false);
+  virtual FXint overstrikeTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXchar *text,FXint num,FXbool notify=false);
   virtual FXint overstrikeTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXString& text,FXbool notify=false);
 
   /// Overstrike styled text block
-  virtual FXint overstrikeStyledTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXchar *text,FXint n,FXint style=0,FXbool notify=false);
+  virtual FXint overstrikeStyledTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXchar *text,FXint num,FXint style=0,FXbool notify=false);
   virtual FXint overstrikeStyledTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,const FXString& text,FXint style=0,FXbool notify=false);
 
   /// Append n bytes of text at the end of the buffer
-  virtual FXint appendText(const FXchar *text,FXint n,FXbool notify=false);
+  virtual FXint appendText(const FXchar *text,FXint num,FXbool notify=false);
   virtual FXint appendText(const FXString& text,FXbool notify=false);
 
   /// Append n bytes of text at the end of the buffer
-  virtual FXint appendStyledText(const FXchar *text,FXint n,FXint style=0,FXbool notify=false);
+  virtual FXint appendStyledText(const FXchar *text,FXint num,FXint style=0,FXbool notify=false);
   virtual FXint appendStyledText(const FXString& text,FXint style=0,FXbool notify=false);
 
   /// Insert n bytes of text at position pos into the buffer
-  virtual FXint insertText(FXint pos,const FXchar *text,FXint n,FXbool notify=false);
+  virtual FXint insertText(FXint pos,const FXchar *text,FXint num,FXbool notify=false);
   virtual FXint insertText(FXint pos,const FXString& text,FXbool notify=false);
 
   /// Insert n bytes of text at position pos into the buffer
-  virtual FXint insertStyledText(FXint pos,const FXchar *text,FXint n,FXint style=0,FXbool notify=false);
+  virtual FXint insertStyledText(FXint pos,const FXchar *text,FXint num,FXint style=0,FXbool notify=false);
   virtual FXint insertStyledText(FXint pos,const FXString& text,FXint style=0,FXbool notify=false);
 
+  /// Insert text columns at startcol in line starting at startpos to endpos
+  virtual FXint insertTextBlock(FXint startpos,FXint endpos,FXint startcol,const FXchar *text,FXint num,FXbool notify=false);
+  virtual FXint insertTextBlock(FXint startpos,FXint endpos,FXint startcol,const FXString& text,FXbool notify=false);
+
+  /// Insert text columns at startcol in line starting at startpos to endpos with given style
+  virtual FXint insertStyledTextBlock(FXint startpos,FXint endpos,FXint startcol,const FXchar *text,FXint num,FXint style=0,FXbool notify=false);
+  virtual FXint insertStyledTextBlock(FXint startpos,FXint endpos,FXint startcol,const FXString& text,FXint style=0,FXbool notify=false);
+
   /// Change style of text range
-  virtual FXint changeStyle(FXint pos,FXint n,FXint style);
+  virtual FXint changeStyle(FXint pos,FXint num,FXint style);
 
   /// Change style of text range from style-array
-  virtual FXint changeStyle(FXint pos,const FXchar* style,FXint n);
+  virtual FXint changeStyle(FXint pos,const FXchar* style,FXint num);
   virtual FXint changeStyle(FXint pos,const FXString& style);
 
   /// Remove n bytes of text at position pos from the buffer
-  virtual FXint removeText(FXint pos,FXint n,FXbool notify=false);
+  virtual FXint removeText(FXint pos,FXint num,FXbool notify=false);
 
   /// Remove columns startcol to endcol from lines starting at startpos to endpos
   virtual FXint removeTextBlock(FXint startpos,FXint endpos,FXint startcol,FXint endcol,FXbool notify=false);
@@ -748,22 +765,22 @@ public:
 
 
   /// Extract n bytes of text from position pos into already allocated buffer
-  void extractText(FXchar *text,FXint pos,FXint n) const;
+  void extractText(FXchar *text,FXint pos,FXint num) const;
 
   /// Extract n bytes of text from position pos into string text
-  void extractText(FXString& text,FXint pos,FXint n) const;
+  void extractText(FXString& text,FXint pos,FXint num) const;
 
   /// Return n bytes of contents of text buffer from position pos
-  FXString extractText(FXint pos,FXint n) const;
+  FXString extractText(FXint pos,FXint num) const;
 
   /// Extract n bytes of style info from position pos into already allocated buffer
-  void extractStyle(FXchar *style,FXint pos,FXint n) const;
+  void extractStyle(FXchar *style,FXint pos,FXint num) const;
 
   /// Extract n bytes of style info from position pos into string text
-  void extractStyle(FXString& style,FXint pos,FXint n) const;
+  void extractStyle(FXString& style,FXint pos,FXint num) const;
 
   /// Return n bytes of style info from buffer from position pos
-  FXString extractStyle(FXint pos,FXint n) const;
+  FXString extractStyle(FXint pos,FXint num) const;
 
   /// Extract text columns startcol to endcol from lines starting at startpos to endpos
   void extractTextBlock(FXString& text,FXint startpos,FXint endpos,FXint startcol,FXint endcol) const;
@@ -775,7 +792,7 @@ public:
   FXString getText() const;
 
   /// Retrieve text into buffer
-  void getText(FXchar* text,FXint n) const;
+  void getText(FXchar* text,FXint num) const;
 
   /// Retrieve text into string
   void getText(FXString& text) const;
@@ -796,8 +813,14 @@ public:
   /// Extend primary selection from anchor to given row, column
   virtual FXbool extendBlockSelection(FXint row,FXint col,FXbool notify=false);
 
-  /// Kill or deselect primary selection
-  virtual FXbool killSelection(FXbool notify=false);
+  /// Get selected text
+  FXString getSelectedText() const;
+
+  /// Return true if position pos is selected
+  FXbool isPosSelected(FXint pos) const;
+
+  /// Return true if position pos (and column col) is selected
+  FXbool isPosSelected(FXint pos,FXint col) const;
 
   /// Return selection start position
   FXint getSelStartPos() const { return select.startpos; }
@@ -811,8 +834,8 @@ public:
   /// Return selection end column
   FXint getSelEndColumn() const { return select.endcol; }
 
-  /// Get selected text
-  FXString getSelectedText() const;
+  /// Kill or deselect primary selection
+  virtual FXbool killSelection(FXbool notify=false);
 
 
   /// Copy primary selection to clipboard
@@ -832,15 +855,6 @@ public:
 
   /// Replace primary selection by other text
   FXbool replaceSelection(const FXString& text,FXbool notify=false);
-
-  /// Return true if position pos is selected
-  FXbool isPosSelected(FXint pos) const;
-
-  /// Return true if position pos (and column col) is selected
-  FXbool isPosSelected(FXint pos,FXint col) const;
-
-  /// Return true if line containing position is fully visible
-  FXbool isPosVisible(FXint pos) const;
 
   /// Highlight len characters starting at given position pos
   FXbool setHighlight(FXint start,FXint len);
@@ -863,6 +877,9 @@ public:
 
   /// Make line containing pos the center line
   void setCenterLine(FXint pos);
+
+  /// Return true if line containing position is fully visible
+  FXbool isPosVisible(FXint pos) const;
 
   /// Scroll text to make the given position visible
   void makePositionVisible(FXint pos);

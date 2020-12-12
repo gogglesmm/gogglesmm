@@ -81,7 +81,7 @@ FXIMPLEMENT(FXChoiceBox,FXDialogBox,FXChoiceBoxMap,ARRAYNUMBER(FXChoiceBoxMap))
 
 // Construct choice box with given caption, icon, message text, and with choices from array of strings
 FXChoiceBox::FXChoiceBox(FXWindow* own,const FXString& caption,const FXString& text,FXIcon* icn,const FXchar** choices,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(own,caption,opts|DECOR_TITLE|DECOR_BORDER,x,y,w,h,10,10,10,10, 10,10){
-  register FXint n;
+  FXint n;
   initialize(text,icn);
   n=list->fillItems(choices);
   list->setNumVisible(FXMIN(n,5));
@@ -90,7 +90,7 @@ FXChoiceBox::FXChoiceBox(FXWindow* own,const FXString& caption,const FXString& t
 
 // Construct choice box with given caption, icon, message text, and with choices from newline separated strings
 FXChoiceBox::FXChoiceBox(FXWindow* own,const FXString& caption,const FXString& text,FXIcon* icn,const FXString& choices,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(own,caption,opts|DECOR_TITLE|DECOR_BORDER,x,y,w,h,10,10,10,10, 10,10){
-  register FXint n;
+  FXint n;
   initialize(text,icn);
   n=list->fillItems(choices);
   list->setNumVisible(FXMIN(n,5));
@@ -99,7 +99,7 @@ FXChoiceBox::FXChoiceBox(FXWindow* own,const FXString& caption,const FXString& t
 
 // Construct free floating choice box with given caption, icon, message text, and with choices from array of strings
 FXChoiceBox::FXChoiceBox(FXApp* a,const FXString& caption,const FXString& text,FXIcon* icn,const FXchar** choices,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(a,caption,opts|DECOR_TITLE|DECOR_BORDER,x,y,w,h,10,10,10,10, 10,10){
-  register FXint n;
+  FXint n;
   initialize(text,icn);
   n=list->fillItems(choices);
   list->setNumVisible(FXMIN(n,5));
@@ -108,7 +108,7 @@ FXChoiceBox::FXChoiceBox(FXApp* a,const FXString& caption,const FXString& text,F
 
 // Construct free floating choice box with given caption, icon, message text, and with choices from newline separated strings
 FXChoiceBox::FXChoiceBox(FXApp* a,const FXString& caption,const FXString& text,FXIcon* icn,const FXString& choices,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(a,caption,opts|DECOR_TITLE|DECOR_BORDER,x,y,w,h,10,10,10,10, 10,10){
-  register FXint n;
+  FXint n;
   initialize(text,icn);
   n=list->fillItems(choices);
   list->setNumVisible(FXMIN(n,5));

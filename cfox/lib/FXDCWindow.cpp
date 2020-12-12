@@ -282,7 +282,7 @@ void FXDCWindow::drawPoint(FXint x,FXint y){
 
 // Draw points
 void FXDCWindow::drawPoints(const FXPoint* points,FXuint npoints){
-  register FXuint i;
+  FXuint i;
   if(!surface){ fxerror("FXDCWindow::drawPoints: DC not connected to drawable.\n"); }
   for(i=0; i<npoints; i++){
     ::SetPixel((HDC)ctx,points[i].x,points[i].y,devfg);
@@ -292,8 +292,8 @@ void FXDCWindow::drawPoints(const FXPoint* points,FXuint npoints){
 
 // Draw points relative
 void FXDCWindow::drawPointsRel(const FXPoint* points,FXuint npoints){
-  register int x=0,y=0;
-  register FXuint i;
+  int x=0,y=0;
+  FXuint i;
   if(!surface){ fxerror("FXDCWindow::drawPointsRel: DC not connected to drawable.\n"); }
   for(i=0; i<npoints; i++){
     x+=points[i].x;
@@ -323,7 +323,7 @@ void FXDCWindow::drawLine(FXint x1,FXint y1,FXint x2,FXint y2){
 
 // Draw lines
 void FXDCWindow::drawLines(const FXPoint* points,FXuint npoints){
-  register FXuint i;
+  FXuint i;
   POINT pts[1360];      // Worst case limit according to MSDN
   if(!surface){ fxerror("FXDCWindow::drawLines: DC not connected to drawable.\n"); }
   if(needsNewPen) updatePen();
@@ -350,8 +350,8 @@ void FXDCWindow::drawLines(const FXPoint* points,FXuint npoints){
 
 // Draw lines relative
 void FXDCWindow::drawLinesRel(const FXPoint* points,FXuint npoints){
-  register int x=0,y=0;
-  register FXuint i;
+  int x=0,y=0;
+  FXuint i;
   POINT pts[1360];      // Worst case limit according to MSDN
   if(!surface){ fxerror("FXDCWindow::drawLinesRel: DC not connected to drawable.\n"); }
   if(needsNewPen) updatePen();
@@ -382,7 +382,7 @@ void FXDCWindow::drawLinesRel(const FXPoint* points,FXuint npoints){
 
 // Draw line segments
 void FXDCWindow::drawLineSegments(const FXSegment* segments,FXuint nsegments){
-  register FXuint i;
+  FXuint i;
   POINT pts[2];
   if(!surface){ fxerror("FXDCWindow::drawLineSegments: DC not connected to drawable.\n"); }
   if(needsNewPen) updatePen();
@@ -413,7 +413,7 @@ void FXDCWindow::drawRectangle(FXint x,FXint y,FXint w,FXint h){
 
 // Draw unfilled rectangles
 void FXDCWindow::drawRectangles(const FXRectangle* rectangles,FXuint nrectangles){
-  register FXuint i;
+  FXuint i;
   if(!surface){ fxerror("FXDCWindow::drawRectangles: DC not connected to drawable.\n"); }
   if(needsNewPen) updatePen();
   HBRUSH hbrush=(HBRUSH)::SelectObject((HDC)ctx,(HBRUSH)GetStockObject(NULL_BRUSH));
@@ -440,7 +440,7 @@ void FXDCWindow::drawRoundRectangle(FXint x,FXint y,FXint w,FXint h,FXint ew,FXi
 // If angle is negative flip the start and end; also, if ang2 is zero,
 // don't draw anything at all (patch: Sander Jansen <sander@knology.net>).
 void FXDCWindow::drawArc(FXint x,FXint y,FXint w,FXint h,FXint ang1,FXint ang2){
-  register FXbool reversed=(ang2<0);
+  FXbool reversed=(ang2<0);
   if(!surface){ fxerror("FXDCWindow::drawArc: DC not connected to drawable.\n"); }
   if(ang2==0) return;
   if(needsNewPen) updatePen();
@@ -467,7 +467,7 @@ void FXDCWindow::drawArc(FXint x,FXint y,FXint w,FXint h,FXint ang1,FXint ang2){
 
 // Draw arcs
 void FXDCWindow::drawArcs(const FXArc* arcs,FXuint narcs){
-  register FXuint i;
+  FXuint i;
   if(!surface){ fxerror("FXDCWindow::drawArcs: DC not connected to drawable.\n"); }
   for(i=0; i<narcs; i++){
     drawArc(arcs[i].x,arcs[i].y,arcs[i].w,arcs[i].h,arcs[i].a,arcs[i].b);
@@ -505,7 +505,7 @@ void FXDCWindow::fillRectangle(FXint x,FXint y,FXint w,FXint h){
 
 // Fill using currently selected ROP code
 void FXDCWindow::fillRectangles(const FXRectangle* rectangles,FXuint nrectangles){
-  register FXuint i;
+  FXuint i;
   if(!surface){ fxerror("FXDCWindow::fillRectangles: DC not connected to drawable.\n"); }
   if(needsNewBrush) updateBrush();
   HPEN hpen=(HPEN)::SelectObject((HDC)ctx,GetStockObject(NULL_PEN));
@@ -530,7 +530,7 @@ void FXDCWindow::fillRoundRectangle(FXint x,FXint y,FXint w,FXint h,FXint ew,FXi
 
 // Fill chord
 void FXDCWindow::fillChord(FXint x,FXint y,FXint w,FXint h,FXint ang1,FXint ang2){
-  register FXbool reversed=(ang2<0);
+  FXbool reversed=(ang2<0);
   if(!surface){ fxerror("FXDCWindow::fillChord: DC not connected to drawable.\n"); }
   if(ang2==0) return;
   if(needsNewBrush) updateBrush();
@@ -552,7 +552,7 @@ void FXDCWindow::fillChord(FXint x,FXint y,FXint w,FXint h,FXint ang1,FXint ang2
 
 // Fill chords
 void FXDCWindow::fillChords(const FXArc* chords,FXuint nchords){
-  register FXuint i;
+  FXuint i;
   if(!surface){ fxerror("FXDCWindow::fillChords: DC not connected to drawable.\n"); }
   for(i=0; i<nchords; i++){
     fillChord(chords[i].x,chords[i].y,chords[i].w,chords[i].h,chords[i].a,chords[i].b);
@@ -564,7 +564,7 @@ void FXDCWindow::fillChords(const FXArc* chords,FXuint nchords){
 // If angle is negative flip the start and end; also, if ang2 is zero,
 // don't draw anything at all (patch: Sander Jansen <sander@knology.net>).
 void FXDCWindow::fillArc(FXint x,FXint y,FXint w,FXint h,FXint ang1,FXint ang2){
-  register FXbool reversed=(ang2<0);
+  FXbool reversed=(ang2<0);
   if(!surface){ fxerror("FXDCWindow::fillArc: DC not connected to drawable.\n"); }
   if(ang2==0) return;
   if(needsNewBrush) updateBrush();
@@ -587,7 +587,7 @@ void FXDCWindow::fillArc(FXint x,FXint y,FXint w,FXint h,FXint ang1,FXint ang2){
 
 // Fill arcs
 void FXDCWindow::fillArcs(const FXArc* arcs,FXuint narcs){
-  register FXuint i;
+  FXuint i;
   if(!surface){ fxerror("FXDCWindow::fillArcs: DC not connected to drawable.\n"); }
   for(i=0; i<narcs; i++){
     fillArc(arcs[i].x,arcs[i].y,arcs[i].w,arcs[i].h,arcs[i].a,arcs[i].b);
@@ -609,7 +609,7 @@ void FXDCWindow::fillEllipse(FXint x,FXint y,FXint w,FXint h){
 
 // Filled simple polygon
 void FXDCWindow::fillPolygon(const FXPoint* points,FXuint npoints){
-  register FXuint i;
+  FXuint i;
   POINT pts[1360];      // Worst case limit according to MSDN
   if(!surface){ fxerror("FXDCWindow::fillPolygon: DC not connected to drawable.\n"); }
   if(npoints>=1360){ fxerror("FXDCWindow::fillPolygon: too many points.\n"); }
@@ -626,7 +626,7 @@ void FXDCWindow::fillPolygon(const FXPoint* points,FXuint npoints){
 
 // Filled concave polygon
 void FXDCWindow::fillConcavePolygon(const FXPoint* points,FXuint npoints){
-  register FXuint i;
+  FXuint i;
   POINT pts[1360];      // Worst case limit according to MSDN
   if(!surface){ fxerror("FXDCWindow::fillConcavePolygon: DC not connected to drawable.\n"); }
   if(npoints>=1360){ fxerror("FXDCWindow::fillConcavePolygon: too many points.\n"); }
@@ -643,7 +643,7 @@ void FXDCWindow::fillConcavePolygon(const FXPoint* points,FXuint npoints){
 
 // Filled complex polygon relative
 void FXDCWindow::fillComplexPolygon(const FXPoint* points,FXuint npoints){
-  register FXuint i;
+  FXuint i;
   POINT pts[1360];      // Worst case limit according to MSDN
   if(!surface){ fxerror("FXDCWindow::fillComplexPolygon: DC not connected to drawable.\n"); }
   if(npoints>=1360){ fxerror("FXDCWindow::fillComplexPolygon: too many points.\n"); }
@@ -660,8 +660,8 @@ void FXDCWindow::fillComplexPolygon(const FXPoint* points,FXuint npoints){
 
 // Filled simple polygon with relative points
 void FXDCWindow::fillPolygonRel(const FXPoint* points,FXuint npoints){
-  register int x=0,y=0;
-  register FXuint i;
+  int x=0,y=0;
+  FXuint i;
   POINT pts[1360];      // Worst case limit according to MSDN
   if(!surface){ fxerror("FXDCWindow::fillPolygonRel: DC not connected to drawable.\n"); }
   if(npoints>=1360){ fxerror("FXDCWindow::fillPolygonRel: too many points.\n"); }
@@ -678,8 +678,8 @@ void FXDCWindow::fillPolygonRel(const FXPoint* points,FXuint npoints){
 
 // Filled concave polygon relative
 void FXDCWindow::fillConcavePolygonRel(const FXPoint* points,FXuint npoints){
-  register int x=0,y=0;
-  register FXuint i;
+  int x=0,y=0;
+  FXuint i;
   POINT pts[1360];      // Worst case limit according to MSDN
   if(!surface){ fxerror("FXDCWindow::fillConcavePolygonRel: DC not connected to drawable.\n"); }
   if(npoints>=1360){ fxerror("FXDCWindow::fillConcavePolygonRel: too many points.\n"); }
@@ -696,8 +696,8 @@ void FXDCWindow::fillConcavePolygonRel(const FXPoint* points,FXuint npoints){
 
 // Filled complex polygon relative
 void FXDCWindow::fillComplexPolygonRel(const FXPoint* points,FXuint npoints){
-  register int x=0,y=0;
-  register FXuint i;
+  int x=0,y=0;
+  FXuint i;
   POINT pts[1360];      // Worst case limit according to MSDN
   if(!surface){ fxerror("FXDCWindow::fillComplexPolygonRel: DC not connected to drawable.\n"); }
   if(npoints>=1360){ fxerror("FXDCWindow::fillComplexPolygonRel: too many points.\n"); }
@@ -1426,7 +1426,7 @@ void FXDCWindow::setBackground(FXColor clr){
 
 // Set dash pattern (for the LINE_ONOFF_DASH line style)
 void FXDCWindow::setDashes(FXuint dashoffset,const FXchar *dashpattern,FXuint dashlength){
-  register FXuint len,i;
+  FXuint len,i;
   if(!surface){ fxerror("FXDCWindow::setDashes: DC not connected to drawable.\n"); }
   if(dashlength>32){ fxerror("FXDCWindow::setDashes: bad dashlength parameter.\n"); }
   for(i=len=0; i<dashlength; i++){
@@ -2104,7 +2104,7 @@ void FXDCWindow::fillComplexPolygonRel(const FXPoint* points,FXuint npoints){
 
 // Fill vertical gradient rectangle
 void FXDCWindow::fillVerticalGradient(FXint x,FXint y,FXint w,FXint h,FXColor top,FXColor bottom){
-  register FXint rr,gg,bb,dr,dg,db,r1,g1,b1,r2,g2,b2,yl,yh,yy,dy,n,t;
+  FXint rr,gg,bb,dr,dg,db,r1,g1,b1,r2,g2,b2,yl,yh,yy,dy,n,t;
   if(!surface){ fxerror("FXDCWindow::fillVerticalGradient: DC not connected to drawable.\n"); }
   if(0<w && 0<h){
     r1=FXREDVAL(top);
@@ -2174,7 +2174,7 @@ void FXDCWindow::fillVerticalGradient(FXint x,FXint y,FXint w,FXint h,FXColor to
 
 // Fill horizontal gradient rectangle
 void FXDCWindow::fillHorizontalGradient(FXint x,FXint y,FXint w,FXint h,FXColor left,FXColor right){
-  register FXint rr,gg,bb,dr,dg,db,r1,g1,b1,r2,g2,b2,xl,xh,xx,dx,n,t;
+  FXint rr,gg,bb,dr,dg,db,r1,g1,b1,r2,g2,b2,xl,xh,xx,dx,n,t;
   if(!surface){ fxerror("FXDCWindow::fillHorizontalGradient: DC not connected to drawable.\n"); }
   if(0<w && 0<h){
     r1=FXREDVAL(left);
@@ -2280,8 +2280,8 @@ void FXDCWindow::drawText(FXint x,FXint y,const FXchar* string,FXuint length){
 
 
 static FXint utf2db(XChar2b *dst,const FXchar *src,FXint n){
-  register FXint len,p;
-  register FXwchar w;
+  FXint len,p;
+  FXwchar w;
   for(p=len=0; p<n; p+=wclen(src+p),len++){
     w=wc(src+p);
     dst[len].byte1=(w>>8);
@@ -2304,9 +2304,9 @@ void FXDCWindow::drawText(FXint x,FXint y,const FXchar* string,FXuint length){
   color.color.alpha=FXALPHAVAL(fg)*257;
   XftDrawStringUtf8((XftDraw*)xftDraw,&color,(XftFont*)font->font,x,y,(const FcChar8*)string,length);
 #else
-  register FXint count,escapement,defwidth,ww,size,i;
-  register FXdouble ang,ux,uy;
-  register FXuchar r,c;
+  FXint count,escapement,defwidth,ww,size,i;
+  FXdouble ang,ux,uy;
+  FXuchar r,c;
   XChar2b sbuffer[4096];
   count=utf2db(sbuffer,string,FXMIN(length,4096));
   if(font->getAngle()){
@@ -2372,9 +2372,9 @@ void FXDCWindow::drawImageText(FXint x,FXint y,const FXchar* string,FXuint lengt
 //XftDrawRect((XftDraw*)xftDraw,&bgcolor,x+cache->xoff,y-((XftFont*)font->font)->ascent,cache->x2off-cache->xoff,((XftFont*)font->font)->ascent+((XftFont*)font->font)->descent);
   XftDrawStringUtf8((XftDraw*)xftDraw,&fgcolor,(XftFont*)font->font,x,y,(const FcChar8*)string,length);
 #else
-  register FXint count,escapement,defwidth,ww,size,i;
-  register FXdouble ang,ux,uy;
-  register FXuchar r,c;
+  FXint count,escapement,defwidth,ww,size,i;
+  FXdouble ang,ux,uy;
+  FXuchar r,c;
   XChar2b sbuffer[4096];
   count=utf2db(sbuffer,string,FXMIN(length,4096));
   if(font->getAngle()){
@@ -2438,7 +2438,7 @@ void FXDCWindow::drawArea(const FXDrawable* source,FXint sx,FXint sy,FXint sw,FX
 
 // Draw area stretched area from source; FIXME this works but it's like molasses!
 void FXDCWindow::drawArea(const FXDrawable* source,FXint sx,FXint sy,FXint sw,FXint sh,FXint dx,FXint dy,FXint dw,FXint dh){
-  register FXint i,j,x,y,xs,ys;
+  FXint i,j,x,y,xs,ys;
   if(!surface){ fxerror("FXDCWindow::drawArea: DC not connected to drawable.\n"); }
   if(!source || !source->id()){ fxerror("FXDCWindow::drawArea: illegal source specified.\n"); }
   xs=(sw<<16)/dw;
@@ -2636,7 +2636,7 @@ void FXDCWindow::setBackground(FXColor clr){
 
 // Set dashes
 void FXDCWindow::setDashes(FXuint dashoffset,const FXchar *dashpattern,FXuint dashlength){
-  register FXuint len,i;
+  FXuint len,i;
   if(!surface){ fxerror("FXDCWindow::setDashes: DC not connected to drawable.\n"); }
   if(dashlength>32){ fxerror("FXDCWindow::setDashes: bad dashlength parameter.\n"); }
   for(i=len=0; i<dashlength; i++){

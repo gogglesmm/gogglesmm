@@ -354,7 +354,7 @@ x:return result;
 // Return the empty string if n exceeds the number of filenames present, or if
 // unmatching quotes are encountered.
 FXString FXFileSelector::decodeFilename(const FXString& string,FXint n){
-  register FXint pp,p,q;
+  FXint pp,p,q;
   FXString result;
   pp=p=q=0;
   while(p<string.length()){
@@ -420,8 +420,8 @@ x:return result;
 // Leave normal filenames consisting of uninterrupted sequence of printable
 // characters unchanged.
 FXString FXFileSelector::encodeFilename(const FXString& string){
-  register FXint p,q,e;
-  register FXuchar c;
+  FXint p,q,e;
+  FXuchar c;
   FXString result;
   p=q=e=0;
   while(p<string.length()){
@@ -448,8 +448,8 @@ FXString FXFileSelector::encodeFilename(const FXString& string){
 
 // Change in items which are selected
 long FXFileSelector::onCmdItemSelected(FXObject*,FXSelector,void* ptr){
-  register FXint index=(FXint)(FXival)ptr;
-  register FXint i;
+  FXint index=(FXint)(FXival)ptr;
+  FXint i;
   FXString text;
   if(selectmode==SELECTFILE_MULTIPLE){
     for(i=0; i<filebox->getNumItems(); i++){
@@ -487,7 +487,7 @@ long FXFileSelector::onCmdItemSelected(FXObject*,FXSelector,void* ptr){
 
 // Change in items which are selected
 long FXFileSelector::onCmdItemDeselected(FXObject*,FXSelector,void*){
-  register FXint i;
+  FXint i;
   FXString text;
   if(selectmode==SELECTFILE_MULTIPLE){
     for(i=0; i<filebox->getNumItems(); i++){

@@ -174,7 +174,7 @@ FXString FXComposeContext::translateEvent(FXRawEvent& event){
       mstr=new FXnchar [mlen+1];
       ImmGetCompositionString(himc,GCS_COMPSTR,mstr,mlen);
       }
-	mstr[mlen/sizeof(FXnchar)]=0;
+    mstr[mlen/sizeof(FXnchar)]=0;
     ImmReleaseContext(event.hwnd,himc);
     int utf8len=WideCharToMultiByte(CP_UTF8,0,mstr,-1,NULL,0,NULL,NULL);
     FXchar* utf8str=new FXchar [utf8len];

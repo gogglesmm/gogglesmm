@@ -70,7 +70,7 @@ FXXMLFile::FXXMLFile(const FXString& filename,Direction d,FXuval sz){
 
 // Open archive for operation
 FXbool FXXMLFile::open(FXInputHandle h,Direction d,FXuval sz){
-  FXTRACE((100,"FXXMLFile::open(%lx,%s,%lu)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXTRACE((101,"FXXMLFile::open(%lx,%s,%lu)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   FXchar *buffer;
   if(allocElms(buffer,sz)){
     if(file.open(h,(d==Save)?FXIO::Writing:FXIO::Reading)){
@@ -90,7 +90,7 @@ FXbool FXXMLFile::open(FXInputHandle h,Direction d,FXuval sz){
 
 // Open archive for operation
 FXbool FXXMLFile::open(const FXString& filename,Direction d,FXuval sz){
-  FXTRACE((100,"FXXMLFile::open(\"%s\",%s,%lu)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXTRACE((101,"FXXMLFile::open(\"%s\",%s,%lu)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   FXchar *buffer;
   FXASSERT(dir==Stop);
   if(allocElms(buffer,sz)){
@@ -150,7 +150,7 @@ FXival FXXMLFile::flush(FXival){
 // Close stream and delete buffers
 FXbool FXXMLFile::close(){
   FXchar *buffer=begptr;
-  FXTRACE((100,"FXXMLFile::close()\n"));
+  FXTRACE((101,"FXXMLFile::close()\n"));
   if(FXXML::close()){
     freeElms(buffer);
     return file.close();

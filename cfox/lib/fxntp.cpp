@@ -29,7 +29,7 @@
 
 /*
   Notes:
-  
+
   - Conversions between Network Time Protocol (NTP) time and Unix Epoch Time.
 */
 
@@ -56,9 +56,9 @@ FXTime FXSystem::timeFromNTPTime(FXulong ntptime){
   }
 
 
-// Convert nanoseconds since Unix Epoch to NTP format (ssss:ffff)
-FXulong FXSystem::ntpTimeFromTime(FXTime ns){
-  FXlong base=ns-FEBRUARY2036;
+// Convert utc in nanoseconds since Unix Epoch to NTP (ssss:ffff)
+FXulong FXSystem::ntpTimeFromTime(FXTime utc){
+  FXlong base=utc-FEBRUARY2036;
   FXlong secs=(0<=base ? base : base-999999999)/1000000000;
   FXlong nano=base-secs*1000000000;
   FXlong frac=((nano<<32)+500000000)/1000000000;

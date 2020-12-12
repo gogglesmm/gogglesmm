@@ -1,9 +1,9 @@
 /********************************************************************************
 *                                                                               *
-*                            J S O N   S t r i n g   I / O                      *
+*                             X M L   S t r i n g   I / O                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -18,49 +18,48 @@
 * You should have received a copy of the GNU Lesser General Public License      *
 * along with this program.  If not, see <http://www.gnu.org/licenses/>          *
 ********************************************************************************/
-#ifndef FXJSONSTRING_H
-#define FXJSONSTRING_H
+#ifndef FXXMLSTRING_H
+#define FXXMLSTRING_H
 
-#ifndef FXJSON_H
-#include "FXJSON.h"
+#ifndef FXXML_H
+#include "FXXML.h"
 #endif
 
 namespace FX {
 
 
 /**
-* Serialize a variant to or from JSON formatted string.
+* Serialize a variant to or from XML formatted string.
 */
-class FXAPI FXJSONString : public FXJSON {
+class FXAPI FXXMLString : public FXXML {
 private:
   FXString buffer;
 private:
-  FXJSONString(const FXJSONString&);
-  FXJSONString &operator=(const FXJSONString&);
+  FXXMLString(const FXXMLString&);
+  FXXMLString &operator=(const FXXMLString&);
 public:
-
   /**
-  * Create JSON string i/o object.
+  * Create XML string i/o object.
   */
-  FXJSONString();
+  FXXMLString();
 
   /**
-  * Create JSON string i/o object and open it.
+  * Open XML string for direction d.
   */
-  FXJSONString(const FXString& string,Direction d=Load);
+  FXXMLString(const FXString& string,Direction d=Load);
 
   /**
-  * Create JSON i/o object and open it.
+  * Create XML i/o object and open it.
   */
-  FXJSONString(const FXchar* string,FXuval length,Direction d=Load);
+  FXXMLString(const FXchar* string,FXuval length,Direction d=Load);
 
   /**
-  * Open JSON string for loading or saving.
+  * Open XML file for direction d.
   */
   FXbool open(const FXString& string,Direction d=Load);
 
   /**
-  * Open JSON character string of length for direction d.
+  * Open XML character string of length for direction d.
   */
   FXbool open(const FXchar* string,FXuval length,Direction d=Load);
 
@@ -80,14 +79,14 @@ public:
   virtual FXival flush(FXival count);
 
   /**
-  * Close JSON string and delete buffers.
+  * Close XML file and delete buffers.
   */
-  FXbool close();
+  virtual FXbool close();
 
   /**
-  * Close JSON string.
+  * Close XML string.
   */
-  virtual ~FXJSONString();
+  virtual ~FXXMLString();
   };
 
 }

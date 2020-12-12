@@ -120,9 +120,8 @@ void FXComposite::destroy(){
 
 // Get width
 FXint FXComposite::getDefaultWidth(){
-  register FXWindow *child;
-  FXint t,w=0;
-  for(child=getFirst(); child; child=child->getNext()){
+  FXint w=0,t;
+  for(FXWindow *child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
       t=child->getX()+child->getWidth();
       if(w<t) w=t;
@@ -134,9 +133,8 @@ FXint FXComposite::getDefaultWidth(){
 
 // Get height
 FXint FXComposite::getDefaultHeight(){
-  register FXWindow *child;
-  FXint t,h=0;
-  for(child=getFirst(); child; child=child->getNext()){
+  FXint h=0,t;
+  for(FXWindow *child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
       t=child->getY()+child->getHeight();
       if(h<t) h=t;
@@ -148,10 +146,9 @@ FXint FXComposite::getDefaultHeight(){
 
 // Get maximum child width
 FXint FXComposite::maxChildWidth() const {
-  register FXWindow* child;
-  register FXuint hints;
-  register FXint t,m;
-  for(m=0,child=getFirst(); child; child=child->getNext()){
+  FXuint hints;
+  FXint m=0,t;
+  for(FXWindow *child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
       hints=child->getLayoutHints();
       if(hints&LAYOUT_FIX_WIDTH) t=child->getWidth();
@@ -165,10 +162,9 @@ FXint FXComposite::maxChildWidth() const {
 
 // Get maximum child height
 FXint FXComposite::maxChildHeight() const {
-  register FXWindow* child;
-  register FXuint hints;
-  register FXint t,m;
-  for(m=0,child=getFirst(); child; child=child->getNext()){
+  FXuint hints;
+  FXint m=0,t;
+  for(FXWindow *child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
       hints=child->getLayoutHints();
       if(hints&LAYOUT_FIX_HEIGHT) t=child->getHeight();
@@ -182,8 +178,7 @@ FXint FXComposite::maxChildHeight() const {
 
 // Just tell server where the windows are!
 void FXComposite::layout(){
-  register FXWindow *child;
-  for(child=getFirst(); child; child=child->getNext()){
+  for(FXWindow *child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
       child->position(child->getX(),child->getY(),child->getWidth(),child->getHeight());
       }
@@ -194,9 +189,8 @@ void FXComposite::layout(){
 
 // Update all subwindows
 long FXComposite::onCmdUpdate(FXObject* sender,FXSelector,void* ptr){
-  register FXWindow *child;
   update();
-  for(child=getFirst(); child; child=child->getNext()){
+  for(FXWindow *child=getFirst(); child; child=child->getNext()){
     if(child->shown()) child->handle(sender,FXSEL(SEL_COMMAND,ID_UPDATE),ptr);
     }
   return 1;
@@ -241,7 +235,7 @@ long FXComposite::onFocusPrev(FXObject*,FXSelector sel,void* ptr){
 
 // Keyboard press
 long FXComposite::onKeyPress(FXObject* sender,FXSelector sel,void* ptr){
-  register FXEvent* event=(FXEvent*)ptr;
+  FXEvent* event=(FXEvent*)ptr;
 
   FXTRACE((200,"%p->%s::onKeyPress keysym=0x%04x state=%04x\n",this,getClassName(),((FXEvent*)ptr)->code,((FXEvent*)ptr)->state));
 

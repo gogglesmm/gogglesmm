@@ -184,10 +184,10 @@ FXVec3f FXQuatf::getRotation() const {
 
 // Set quaternion from roll (x), pitch (y), yaw (z)
 void FXQuatf::setRollPitchYaw(FXfloat roll,FXfloat pitch,FXfloat yaw){
-  register FXfloat sr,cr,sp,cp,sy,cy;
-  register FXfloat rr=0.5f*roll;
-  register FXfloat pp=0.5f*pitch;
-  register FXfloat yy=0.5f*yaw;
+  FXfloat sr,cr,sp,cp,sy,cy;
+  FXfloat rr=0.5f*roll;
+  FXfloat pp=0.5f*pitch;
+  FXfloat yy=0.5f*yaw;
   sr=Math::sin(rr); cr=Math::cos(rr);
   sp=Math::sin(pp); cp=Math::cos(pp);
   sy=Math::sin(yy); cy=Math::cos(yy);
@@ -200,10 +200,10 @@ void FXQuatf::setRollPitchYaw(FXfloat roll,FXfloat pitch,FXfloat yaw){
 
 // Set quaternion from yaw (z), pitch (y), roll (x)
 void FXQuatf::setYawPitchRoll(FXfloat yaw,FXfloat pitch,FXfloat roll){
-  register FXfloat sr,cr,sp,cp,sy,cy;
-  register FXfloat rr=0.5f*roll;
-  register FXfloat pp=0.5f*pitch;
-  register FXfloat yy=0.5f*yaw;
+  FXfloat sr,cr,sp,cp,sy,cy;
+  FXfloat rr=0.5f*roll;
+  FXfloat pp=0.5f*pitch;
+  FXfloat yy=0.5f*yaw;
   sr=Math::sin(rr); cr=Math::cos(rr);
   sp=Math::sin(pp); cp=Math::cos(pp);
   sy=Math::sin(yy); cy=Math::cos(yy);
@@ -216,10 +216,10 @@ void FXQuatf::setYawPitchRoll(FXfloat yaw,FXfloat pitch,FXfloat roll){
 
 // Set quaternion from roll (x), yaw (z), pitch (y)
 void FXQuatf::setRollYawPitch(FXfloat roll,FXfloat yaw,FXfloat pitch){
-  register FXfloat sr,cr,sp,cp,sy,cy;
-  register FXfloat rr=0.5f*roll;
-  register FXfloat pp=0.5f*pitch;
-  register FXfloat yy=0.5f*yaw;
+  FXfloat sr,cr,sp,cp,sy,cy;
+  FXfloat rr=0.5f*roll;
+  FXfloat pp=0.5f*pitch;
+  FXfloat yy=0.5f*yaw;
   sr=Math::sin(rr); cr=Math::cos(rr);
   sp=Math::sin(pp); cp=Math::cos(pp);
   sy=Math::sin(yy); cy=Math::cos(yy);
@@ -232,10 +232,10 @@ void FXQuatf::setRollYawPitch(FXfloat roll,FXfloat yaw,FXfloat pitch){
 
 // Set quaternion from pitch (y), roll (x),yaw (z)
 void FXQuatf::setPitchRollYaw(FXfloat pitch,FXfloat roll,FXfloat yaw){
-  register FXfloat sr,cr,sp,cp,sy,cy;
-  register FXfloat rr=0.5f*roll;
-  register FXfloat pp=0.5f*pitch;
-  register FXfloat yy=0.5f*yaw;
+  FXfloat sr,cr,sp,cp,sy,cy;
+  FXfloat rr=0.5f*roll;
+  FXfloat pp=0.5f*pitch;
+  FXfloat yy=0.5f*yaw;
   sr=Math::sin(rr); cr=Math::cos(rr);
   sp=Math::sin(pp); cp=Math::cos(pp);
   sy=Math::sin(yy); cy=Math::cos(yy);
@@ -248,10 +248,10 @@ void FXQuatf::setPitchRollYaw(FXfloat pitch,FXfloat roll,FXfloat yaw){
 
 // Set quaternion from pitch (y), yaw (z), roll (x)
 void FXQuatf::setPitchYawRoll(FXfloat pitch,FXfloat yaw,FXfloat roll){
-  register FXfloat sr,cr,sp,cp,sy,cy;
-  register FXfloat rr=0.5f*roll;
-  register FXfloat pp=0.5f*pitch;
-  register FXfloat yy=0.5f*yaw;
+  FXfloat sr,cr,sp,cp,sy,cy;
+  FXfloat rr=0.5f*roll;
+  FXfloat pp=0.5f*pitch;
+  FXfloat yy=0.5f*yaw;
   sr=Math::sin(rr); cr=Math::cos(rr);
   sp=Math::sin(pp); cp=Math::cos(pp);
   sy=Math::sin(yy); cy=Math::cos(yy);
@@ -264,10 +264,10 @@ void FXQuatf::setPitchYawRoll(FXfloat pitch,FXfloat yaw,FXfloat roll){
 
 // Set quaternion from yaw (z), roll (x), pitch (y)
 void FXQuatf::setYawRollPitch(FXfloat yaw,FXfloat roll,FXfloat pitch){
-  register FXfloat sr,cr,sp,cp,sy,cy;
-  register FXfloat rr=0.5f*roll;
-  register FXfloat pp=0.5f*pitch;
-  register FXfloat yy=0.5f*yaw;
+  FXfloat sr,cr,sp,cp,sy,cy;
+  FXfloat rr=0.5f*roll;
+  FXfloat pp=0.5f*pitch;
+  FXfloat yy=0.5f*yaw;
   sr=Math::sin(rr); cr=Math::cos(rr);
   sp=Math::sin(pp); cp=Math::cos(pp);
   sy=Math::sin(yy); cy=Math::cos(yy);
@@ -328,8 +328,8 @@ void FXQuatf::getYawRollPitch(FXfloat& yaw,FXfloat& roll,FXfloat& pitch) const {
 
 // Set quaternion from axes
 void FXQuatf::setAxes(const FXVec3f& ex,const FXVec3f& ey,const FXVec3f& ez){
-  register FXfloat trace=ex.x+ey.y+ez.z;
-  register FXfloat scale;
+  FXfloat trace=ex.x+ey.y+ez.z;
+  FXfloat scale;
   if(trace>0.0f){
     scale=Math::sqrt(1.0f+trace);
     w=0.5f*scale;
@@ -364,18 +364,18 @@ void FXQuatf::setAxes(const FXVec3f& ex,const FXVec3f& ey,const FXVec3f& ez){
 
 // Get quaternion axes
 void FXQuatf::getAxes(FXVec3f& ex,FXVec3f& ey,FXVec3f& ez) const {
-  register FXfloat tx=2.0f*x;
-  register FXfloat ty=2.0f*y;
-  register FXfloat tz=2.0f*z;
-  register FXfloat twx=tx*w;
-  register FXfloat twy=ty*w;
-  register FXfloat twz=tz*w;
-  register FXfloat txx=tx*x;
-  register FXfloat txy=ty*x;
-  register FXfloat txz=tz*x;
-  register FXfloat tyy=ty*y;
-  register FXfloat tyz=tz*y;
-  register FXfloat tzz=tz*z;
+  FXfloat tx=2.0f*x;
+  FXfloat ty=2.0f*y;
+  FXfloat tz=2.0f*z;
+  FXfloat twx=tx*w;
+  FXfloat twy=ty*w;
+  FXfloat twz=tz*w;
+  FXfloat txx=tx*x;
+  FXfloat txy=ty*x;
+  FXfloat txz=tz*x;
+  FXfloat tyy=ty*y;
+  FXfloat tyz=tz*y;
+  FXfloat tzz=tz*z;
   ex.x=1.0f-tyy-tzz;
   ex.y=txy+twz;
   ex.z=txz-twy;
@@ -390,24 +390,24 @@ void FXQuatf::getAxes(FXVec3f& ex,FXVec3f& ey,FXVec3f& ez) const {
 
 // Obtain local x axis
 FXVec3f FXQuatf::getXAxis() const {
-  register FXfloat ty=2.0f*y;
-  register FXfloat tz=2.0f*z;
+  FXfloat ty=2.0f*y;
+  FXfloat tz=2.0f*z;
   return FXVec3f(1.0f-ty*y-tz*z,ty*x+tz*w,tz*x-ty*w);
   }
 
 
 // Obtain local y axis
 FXVec3f FXQuatf::getYAxis() const {
-  register FXfloat tx=2.0f*x;
-  register FXfloat tz=2.0f*z;
+  FXfloat tx=2.0f*x;
+  FXfloat tz=2.0f*z;
   return FXVec3f(tx*y-tz*w,1.0f-tx*x-tz*z,tz*y+tx*w);
   }
 
 
 // Obtain local z axis
 FXVec3f FXQuatf::getZAxis() const {
-  register FXfloat tx=2.0f*x;
-  register FXfloat ty=2.0f*y;
+  FXfloat tx=2.0f*x;
+  FXfloat ty=2.0f*y;
   return FXVec3f(tx*z+ty*w,ty*z-tx*w,1.0f-tx*x-ty*y);
   }
 
@@ -454,8 +454,8 @@ FXQuatf FXQuatf::pow(FXfloat t) const {
   }
 
 
-// Rotation quaternion and vector v . q = (q . v . q*) where q* is
-// the conjugate of q; assume |q|=1.  Our version uses a faster formulation.
+// Rotation unit-quaternion and vector v . q = (q . v . q*) where q* is
+// the conjugate of q.
 //
 // The Rodriques Formula for rotating a vector V about a unit-axis K is:
 //
@@ -463,7 +463,7 @@ FXQuatf FXQuatf::pow(FXfloat t) const {
 //
 // Given UNIT quaternion q=(S,c), i.e. |q|=1, defined as a imaginary part S with
 // |S|=K sin(A/2), where K is a unit vector, and a real part c=cos(A/2), we can obtain,
-// after some (well, a LOT of) manipilation:
+// after some (well, a LOT of) manipulation:
 //
 //    V' = S (S . V) + c (c V + S x V) + S x (c V + S x V)
 //
@@ -481,7 +481,7 @@ FXVec3f operator*(const FXVec3f& v,const FXQuatf& q){
   }
 
 
-// Rotation quaternion and vector q . v = (q* . v . q)
+// Rotation unit-quaternion and vector q . v = (q* . v . q)
 FXVec3f operator*(const FXQuatf& q,const FXVec3f& v){
   FXVec3f s(q.x,q.y,q.z);
   return v+(((v^s)+(v*q.w))^s)*2.0;     // Yes, -a^b is b^a!
@@ -519,7 +519,7 @@ FXVec3f operator*(const FXQuatf& q,const FXVec3f& v){
 //  2 * cos(theta/2)   = sqrt(2 + 2 * (f . t))
 //
 FXQuatf arc(const FXVec3f& f,const FXVec3f& t){
-  register FXfloat dot=f.x*t.x+f.y*t.y+f.z*t.z,div;
+  FXfloat dot=f.x*t.x+f.y*t.y+f.z*t.z,div;
   FXQuatf result;
   if(__unlikely(dot> 0.999999f)){       // Unit quaternion
     result.x=0.0f;
@@ -564,12 +564,12 @@ FXQuatf arc(const FXVec3f& f,const FXVec3f& t){
 // Spherical lerp of unit quaternions u,v
 // This is equivalent to: u * (u.unitinvert()*v).pow(f)
 FXQuatf lerp(const FXQuatf& u,const FXQuatf& v,FXfloat f){
-  register FXfloat dot=u.x*v.x+u.y*v.y+u.z*v.z+u.w*v.w;
-  register FXfloat cost=Math::fabs(dot);
-  register FXfloat sint;
-  register FXfloat fr=1.0f-f;
-  register FXfloat to=f;
-  register FXfloat theta;
+  FXfloat dot=u.x*v.x+u.y*v.y+u.z*v.z+u.w*v.w;
+  FXfloat cost=Math::fabs(dot);
+  FXfloat sint;
+  FXfloat fr=1.0f-f;
+  FXfloat to=f;
+  FXfloat theta;
   FXQuatf result;
   if(__likely(cost<0.999999f)){
     sint=Math::sqrt(1.0f-cost*cost);
@@ -590,12 +590,12 @@ FXQuatf lerp(const FXQuatf& u,const FXQuatf& v,FXfloat f){
 // This is equivalent to: u * (u.unitinvert()*v).pow(f) * (u.unitinvert()*v).log(),
 // which is itself equivalent to: lerp(u,v,f) * (u.unitinvert()*v).log()
 FXQuatf lerpdot(const FXQuatf& u,const FXQuatf& v,FXfloat f){
-  register FXfloat dot=u.x*v.x+u.y*v.y+u.z*v.z+u.w*v.w;
-  register FXfloat cost=Math::fabs(dot);
-  register FXfloat sint;
-  register FXfloat fr=1.0f-f;
-  register FXfloat to=f;
-  register FXfloat theta;
+  FXfloat dot=u.x*v.x+u.y*v.y+u.z*v.z+u.w*v.w;
+  FXfloat cost=Math::fabs(dot);
+  FXfloat sint;
+  FXfloat fr=1.0f-f;
+  FXfloat to=f;
+  FXfloat theta;
   FXQuatf result;
   if(__likely(cost<0.999999f)){
     sint=Math::sqrt(1.0f-cost*cost);

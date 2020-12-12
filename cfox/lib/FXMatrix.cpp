@@ -114,22 +114,22 @@ FXWindow* FXMatrix::childAtRowCol(FXint r,FXint c) const {
 
 // Get child's row
 FXint FXMatrix::rowOfChild(const FXWindow* child) const {
-  register FXint i=indexOfChild(child);
+  FXint i=indexOfChild(child);
   return (options&MATRIX_BY_COLUMNS) ? i/num : i%num;
   }
 
 
 // Get child's column
 FXint FXMatrix::colOfChild(const FXWindow* child) const {
-  register FXint i=indexOfChild(child);
+  FXint i=indexOfChild(child);
   return (options&MATRIX_BY_COLUMNS) ? i%num : i/num;
   }
 
 
 // Focus moved up
 long FXMatrix::onFocusUp(FXObject*,FXSelector,void* ptr){
-  register FXWindow *child;
-  register FXint r,c;
+  FXWindow *child;
+  FXint r,c;
   if(getFocus()){
     r=rowOfChild(getFocus());
     c=colOfChild(getFocus());
@@ -156,8 +156,8 @@ long FXMatrix::onFocusUp(FXObject*,FXSelector,void* ptr){
 
 // Focus moved down
 long FXMatrix::onFocusDown(FXObject*,FXSelector,void* ptr){
-  register FXWindow *child;
-  register FXint r,c;
+  FXWindow *child;
+  FXint r,c;
   if(getFocus()){
     r=rowOfChild(getFocus());
     c=colOfChild(getFocus());
@@ -184,8 +184,8 @@ long FXMatrix::onFocusDown(FXObject*,FXSelector,void* ptr){
 
 // Focus moved to left
 long FXMatrix::onFocusLeft(FXObject*,FXSelector,void* ptr){
-  register FXWindow *child;
-  register FXint r,c;
+  FXWindow *child;
+  FXint r,c;
   if(getFocus()){
     r=rowOfChild(getFocus());
     c=colOfChild(getFocus());
@@ -212,8 +212,8 @@ long FXMatrix::onFocusLeft(FXObject*,FXSelector,void* ptr){
 
 // Focus moved to right
 long FXMatrix::onFocusRight(FXObject*,FXSelector,void* ptr){
-  register FXWindow *child;
-  register FXint r,c;
+  FXWindow *child;
+  FXint r,c;
   if(getFocus()){
     r=rowOfChild(getFocus());
     c=colOfChild(getFocus());
@@ -272,9 +272,9 @@ FXint FXMatrix::getNumColumns() const {
 
 // Compute minimum width based on child layout hints
 FXint FXMatrix::getDefaultWidth(){
-  register FXint c,n,w,nzcol=0,wmax=0,mw=0;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint c,n,w,nzcol=0,wmax=0,mw=0;
+  FXWindow *child;
+  FXuint hints;
   FXint colw[MAXNUM];
   for(c=0; c<MAXNUM; c++) colw[c]=0;
   if(options&PACK_UNIFORM_WIDTH) mw=maxChildWidth();
@@ -301,9 +301,9 @@ FXint FXMatrix::getDefaultWidth(){
 
 // Compute minimum height based on child layout hints
 FXint FXMatrix::getDefaultHeight(){
-  register FXint r,n,h,nzrow=0,hmax=0,mh=0;
-  register FXWindow *child;
-  register FXuint hints;
+  FXint r,n,h,nzrow=0,hmax=0,mh=0;
+  FXWindow *child;
+  FXuint hints;
   FXint rowh[MAXNUM];
   for(r=0; r<MAXNUM; r++) rowh[r]=0;
   if(options&PACK_UNIFORM_HEIGHT) mh=maxChildHeight();

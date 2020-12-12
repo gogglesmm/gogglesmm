@@ -362,8 +362,9 @@ set(HEADERS ../include/fx3d.h
             ../include/FXWSQueue.h
             ../include/FXXBMIcon.h
             ../include/FXXBMImage.h
-            ../include/FXXMLFile.h
             ../include/FXXML.h
+            ../include/FXXMLFile.h
+            ../include/FXXMLString.h
             ../include/FXXPMIcon.h
             ../include/FXXPMImage.h
             ../include/xincs.h)
@@ -711,6 +712,7 @@ set(SOURCES FX4Splitter.cpp
             fxxbmio.cpp
             FXXML.cpp
             FXXMLFile.cpp
+            FXXMLString.cpp
             FXXPMIcon.cpp
             FXXPMImage.cpp
             fxxpmio.cpp
@@ -805,9 +807,9 @@ find_package(X11)
 find_package(Freetype)
 pkg_check_modules(FONTCONFIG fontconfig)
 
-if(WITH_OPENGL)
-  find_package(OpenGL)
-endif()
+#if(WITH_OPENGL)
+#  find_package(OpenGL)
+#endif()
 
 check_cxx_source_compiles( "#include <immintrin.h>
 int main(int argc,char *argv) { return 0; }" HAVE_IMMINTRIN_H)

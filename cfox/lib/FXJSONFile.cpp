@@ -64,7 +64,7 @@ FXJSONFile::FXJSONFile(const FXString& filename,Direction d,FXuval sz){
 
 // Open archive for operation
 FXbool FXJSONFile::open(FXInputHandle h,Direction d,FXuval sz){
-  FXTRACE((100,"FXJSONFile::open(%lx,%s,%ld)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXTRACE((101,"FXJSONFile::open(%lx,%s,%ld)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   FXchar *buffer;
   FXASSERT(dir==Stop);
   if(allocElms(buffer,sz)){
@@ -85,7 +85,7 @@ FXbool FXJSONFile::open(FXInputHandle h,Direction d,FXuval sz){
 
 // Open archive for operation
 FXbool FXJSONFile::open(const FXString& filename,Direction d,FXuval sz){
-  FXTRACE((100,"FXJSONFile::open(\"%s\",%s,%ld)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXTRACE((101,"FXJSONFile::open(\"%s\",%s,%ld)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   FXchar *buffer;
   FXASSERT(dir==Stop);
   if(allocElms(buffer,sz)){
@@ -114,6 +114,7 @@ FXival FXJSONFile::fill(FXival){
     sptr=begptr+(sptr-rptr);
     rptr=begptr;
     nbytes=file.readBlock(wptr,endptr-wptr);
+    FXTRACE((104,"FXJSONFile::fill() = %ld\n",nbytes));
     if(0<=nbytes){
       wptr+=nbytes;
       if(wptr<endptr){ wptr[0]='\0'; }
@@ -130,6 +131,7 @@ FXival FXJSONFile::flush(FXival){
   FXASSERT(dir==Save);
   if(file.isWritable()){
     nbytes=file.writeBlock(rptr,wptr-rptr);
+    FXTRACE((104,"FXJSONFile::flush() = %ld\n",nbytes));
     if(0<=nbytes){
       rptr+=nbytes;
       moveElms(begptr,rptr,wptr-rptr);
@@ -144,8 +146,8 @@ FXival FXJSONFile::flush(FXival){
 
 // Close stream and delete buffers
 FXbool FXJSONFile::close(){
+  FXTRACE((101,"FXJSONFile::close()\n"));
   FXchar *buffer=begptr;
-  FXTRACE((100,"FXJSONFile::close()\n"));
   if(FXJSON::close()){
     freeElms(buffer);
     return file.close();

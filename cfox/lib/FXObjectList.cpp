@@ -64,7 +64,7 @@ const FXival __objectlist__empty__[2]={0,0};
 FXbool FXObjectList::no(FXival num){
   if(__likely(num!=no())){
     if(0<num){
-      register FXptr p;
+      FXptr p;
       if(ptr!=EMPTY){
         if(__unlikely((p=::realloc(((FXival*)ptr)-1,sizeof(FXival)+sizeof(FXObject*)*ROUNDUP(num)))==NULL)) return false;
         }
@@ -92,7 +92,7 @@ FXObjectList::FXObjectList():ptr(EMPTY){
 
 // Copy constructor
 FXObjectList::FXObjectList(const FXObjectList& other):ptr(EMPTY){
-  register FXival num=other.no();
+  FXival num=other.no();
   if(__likely(0<num && no(num))){
     copyElms(ptr,other.ptr,num);
     }
@@ -144,7 +144,7 @@ FXObjectList& FXObjectList::adopt(FXObjectList& other){
 
 // Find object in list, searching forward; return position or -1
 FXival FXObjectList::find(const FXObject* object,FXival pos) const {
-  register FXival p=FXMAX(0,pos);
+  FXival p=FXMAX(0,pos);
   while(p<no()){
     if(ptr[p]==object){ return p; }
     ++p;
@@ -155,7 +155,7 @@ FXival FXObjectList::find(const FXObject* object,FXival pos) const {
 
 // Find object in list, searching backward; return position or -1
 FXival FXObjectList::rfind(const FXObject* object,FXival pos) const {
-  register FXival p=FXMIN(pos,no()-1);
+  FXival p=FXMIN(pos,no()-1);
   while(0<=p){
     if(ptr[p]==object){ return p; }
     --p;
@@ -202,7 +202,7 @@ FXbool FXObjectList::assign(const FXObjectList& objects){
 
 // Insert an object
 FXbool FXObjectList::insert(FXival pos,FXObject* object){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+1))){
     moveElms(ptr+pos+1,ptr+pos,num-pos);
     ptr[pos]=object;
@@ -214,7 +214,7 @@ FXbool FXObjectList::insert(FXival pos,FXObject* object){
 
 // Insert n copies of object at specified position
 FXbool FXObjectList::insert(FXival pos,FXObject* object,FXival n){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+n))){
     moveElms(ptr+pos+n,ptr+pos,num-pos);
     fillElms(ptr+pos,object,n);
@@ -226,7 +226,7 @@ FXbool FXObjectList::insert(FXival pos,FXObject* object,FXival n){
 
 // Insert n objects at specified position
 FXbool FXObjectList::insert(FXival pos,FXObject** objects,FXival n){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+n))){
     moveElms(ptr+pos+n,ptr+pos,num-pos);
     copyElms(ptr+pos,objects,n);
@@ -244,7 +244,7 @@ FXbool FXObjectList::insert(FXival pos,const FXObjectList& objects){
 
 // Prepend an object
 FXbool FXObjectList::prepend(FXObject* object){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+1))){
     moveElms(ptr+1,ptr,num);
     ptr[0]=object;
@@ -256,7 +256,7 @@ FXbool FXObjectList::prepend(FXObject* object){
 
 // Prepend n copies of object
 FXbool FXObjectList::prepend(FXObject* object,FXival n){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+n))){
     moveElms(ptr+n,ptr,num);
     fillElms(ptr,object,n);
@@ -268,7 +268,7 @@ FXbool FXObjectList::prepend(FXObject* object,FXival n){
 
 // Prepend n objects
 FXbool FXObjectList::prepend(FXObject** objects,FXival n){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+n))){
     moveElms(ptr+n,ptr,num);
     copyElms(ptr,objects,n);
@@ -286,7 +286,7 @@ FXbool FXObjectList::prepend(const FXObjectList& objects){
 
 // Append an object
 FXbool FXObjectList::append(FXObject* object){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+1))){
     ptr[num]=object;
     return true;
@@ -297,7 +297,7 @@ FXbool FXObjectList::append(FXObject* object){
 
 // Append n copies of object
 FXbool FXObjectList::append(FXObject* object,FXival n){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+n))){
     fillElms(ptr+num,object,n);
     return true;
@@ -308,7 +308,7 @@ FXbool FXObjectList::append(FXObject* object,FXival n){
 
 // Append n objects
 FXbool FXObjectList::append(FXObject** objects,FXival n){
-  register FXival num=no();
+  FXival num=no();
   if(__likely(no(num+n))){
     copyElms(ptr+num,objects,n);
     return true;
@@ -332,7 +332,7 @@ FXbool FXObjectList::replace(FXival pos,FXObject* object){
 
 // Replaces the m objects at pos with n copies of object
 FXbool FXObjectList::replace(FXival pos,FXival m,FXObject* object,FXival n){
-  register FXival num=no();
+  FXival num=no();
   if(__unlikely(m<n)){
     if(__unlikely(!no(num-m+n))) return false;
     moveElms(ptr+pos+n,ptr+pos+m,num-pos-n);
@@ -348,7 +348,7 @@ FXbool FXObjectList::replace(FXival pos,FXival m,FXObject* object,FXival n){
 
 // Replaces the m objects at pos with n objects
 FXbool FXObjectList::replace(FXival pos,FXival m,FXObject** objects,FXival n){
-  register FXival num=no();
+  FXival num=no();
   if(__unlikely(m<n)){
     if(__unlikely(!no(num-m+n))) return false;
     moveElms(ptr+pos+n,ptr+pos+m,num-pos-n);
@@ -370,7 +370,7 @@ FXbool FXObjectList::replace(FXival pos,FXival m,const FXObjectList& objects){
 
 // Remove object at pos
 FXbool FXObjectList::erase(FXival pos){
-  register FXival num=no();
+  FXival num=no();
   moveElms(ptr+pos,ptr+pos+1,num-pos-1);
   return no(num-1);
   }
@@ -378,7 +378,7 @@ FXbool FXObjectList::erase(FXival pos){
 
 // Remove n objects at pos
 FXbool FXObjectList::erase(FXival pos,FXival n){
-  register FXival num=no();
+  FXival num=no();
   moveElms(ptr+pos,ptr+pos+n,num-n-pos);
   return no(num-n);
   }
@@ -386,7 +386,7 @@ FXbool FXObjectList::erase(FXival pos,FXival n){
 
 // Remove object
 FXbool FXObjectList::remove(const FXObject* object){
-  register FXival pos;
+  FXival pos;
   if(0<=(pos=find(object))){
     return erase(pos);
     }

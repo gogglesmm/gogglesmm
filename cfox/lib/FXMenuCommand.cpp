@@ -105,7 +105,7 @@ FXMenuCommand::FXMenuCommand(FXComposite* p,const FXString& text,FXIcon* ic,FXOb
   target=tgt;
   message=sel;
   accel=text.section('\t',1);
-  acckey=parseAccel(accel);
+  acckey=FXAccelTable::parseAccel(accel);
   if(acckey){
     FXWindow *own=getShell()->getOwner();
     if(own){
@@ -333,7 +333,7 @@ long FXMenuCommand::onPaint(FXObject*,FXSelector,void* ptr){
 void FXMenuCommand::setAccelText(const FXString& text,FXbool acc){
   if(accel!=text){
     if(acc){
-      FXHotKey yekcca=parseAccel(text);
+      FXHotKey yekcca=FXAccelTable::parseAccel(text);
       if(acckey || yekcca){
         FXWindow *own=getShell()->getOwner();
         if(own){

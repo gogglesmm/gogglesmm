@@ -850,8 +850,8 @@ long FXRuler::onPaint(FXObject*,FXSelector,void* ptr){
 
 // Pressed LEFT button
 long FXRuler::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent* event=(FXEvent*)ptr;
-  register FXint lo,hi;
+  FXEvent* event=(FXEvent*)ptr;
+  FXint lo,hi;
   flags&=~FLAG_TIP;
   if(isEnabled()){
     grab();
@@ -899,7 +899,7 @@ long FXRuler::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Determine what was picked
 FXint FXRuler::picked(FXint x,FXint y){
-  register FXint wlo,whi,lo,hi;
+  FXint wlo,whi,lo,hi;
   lo=pos+edgeSpacing+marginLower;
   hi=lo+documentSize-marginUpper-marginLower;
   if(options&RULER_VERTICAL){
@@ -937,7 +937,7 @@ FXint FXRuler::picked(FXint x,FXint y){
 
 // Moving
 long FXRuler::onMotion(FXObject*,FXSelector,void*ptr){
-  register FXEvent* event=(FXEvent*)ptr;
+  FXEvent* event=(FXEvent*)ptr;
   FXint value=(options&RULER_VERTICAL)?(event->win_y+off):(event->win_x+off);
   switch(mode){
     case MOUSE_NONE:

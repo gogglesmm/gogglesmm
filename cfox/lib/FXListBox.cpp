@@ -373,8 +373,8 @@ FXint FXListBox::setItem(FXint index,const FXString& text,FXIcon* icon,FXptr ptr
 
 // Fill list by appending items from array of strings
 FXint FXListBox::fillItems(const FXchar *const *strings,FXIcon* icon,FXptr ptr,FXbool notify){
-  register FXint numberofitems=list->getNumItems();
-  register FXint n=list->fillItems(strings,icon,ptr,notify);
+  FXint numberofitems=list->getNumItems();
+  FXint n=list->fillItems(strings,icon,ptr,notify);
   if(numberofitems<=list->getCurrentItem()){
     field->setIcon(list->getItemIcon(list->getCurrentItem()));
     field->setText(list->getItemText(list->getCurrentItem()));
@@ -386,8 +386,8 @@ FXint FXListBox::fillItems(const FXchar *const *strings,FXIcon* icon,FXptr ptr,F
 
 // Fill list by appending items from array of strings
 FXint FXListBox::fillItems(const FXString* strings,FXIcon* icon,FXptr ptr,FXbool notify){
-  register FXint numberofitems=list->getNumItems();
-  register FXint n=list->fillItems(strings,icon,ptr,notify);
+  FXint numberofitems=list->getNumItems();
+  FXint n=list->fillItems(strings,icon,ptr,notify);
   if(numberofitems<=list->getCurrentItem()){
     field->setIcon(list->getItemIcon(list->getCurrentItem()));
     field->setText(list->getItemText(list->getCurrentItem()));
@@ -399,8 +399,8 @@ FXint FXListBox::fillItems(const FXString* strings,FXIcon* icon,FXptr ptr,FXbool
 
 // Fill list by appending items from newline separated strings
 FXint FXListBox::fillItems(const FXString& strings,FXIcon* icon,FXptr ptr,FXbool notify){
-  register FXint numberofitems=list->getNumItems();
-  register FXint n=list->fillItems(strings,icon,ptr,notify);
+  FXint numberofitems=list->getNumItems();
+  FXint n=list->fillItems(strings,icon,ptr,notify);
   if(numberofitems<=list->getCurrentItem()){
     field->setIcon(list->getItemIcon(list->getCurrentItem()));
     field->setText(list->getItemText(list->getCurrentItem()));
@@ -469,8 +469,8 @@ FXint FXListBox::moveItem(FXint newindex,FXint oldindex,FXbool notify){
 
 // Extract item from list
 FXListItem* FXListBox::extractItem(FXint index,FXbool notify){
-  register FXint current=list->getCurrentItem();
-  register FXListItem *result=list->extractItem(index,notify);
+  FXint current=list->getCurrentItem();
+  FXListItem *result=list->extractItem(index,notify);
   if(index==current){
     current=list->getCurrentItem();
     if(0<=current){
@@ -489,7 +489,7 @@ FXListItem* FXListBox::extractItem(FXint index,FXbool notify){
 
 // Remove given item
 void FXListBox::removeItem(FXint index,FXbool notify){
-  register FXint current=list->getCurrentItem();
+  FXint current=list->getCurrentItem();
   list->removeItem(index,notify);
   if(index==current){
     current=list->getCurrentItem();

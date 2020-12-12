@@ -133,8 +133,8 @@ long FXSwitcher::onUpdOpen(FXObject* sender,FXSelector sel,void* ptr){
 
 // Get maximum child width
 FXint FXSwitcher::getDefaultWidth(){
-  register FXWindow* child;
-  register FXint i,w,wmax=0,wcur=0;
+  FXWindow* child;
+  FXint i,w,wmax=0,wcur=0;
   for(i=0,child=getFirst(); child; child=child->getNext(),i++){
     if(i==current) wcur=child->getDefaultWidth();
     if(wmax<(w=child->getDefaultWidth())) wmax=w;
@@ -146,8 +146,8 @@ FXint FXSwitcher::getDefaultWidth(){
 
 // Get maximum child height
 FXint FXSwitcher::getDefaultHeight(){
-  register FXWindow* child;
-  register FXint i,h,hmax=0,hcur=0;
+  FXWindow* child;
+  FXint i,h,hmax=0,hcur=0;
   for(i=0,child=getFirst(); child; child=child->getNext(),i++){
     if(i==current) hcur=child->getDefaultHeight();
     if(hmax<(h=child->getDefaultHeight())) hmax=h;
@@ -159,8 +159,8 @@ FXint FXSwitcher::getDefaultHeight(){
 
 // Recalculate layout
 void FXSwitcher::layout(){
-  register FXWindow *child;
-  register FXint i,x,y,w,h;
+  FXWindow *child;
+  FXint i,x,y,w,h;
   x=border+padleft;
   y=border+padtop;
   w=width-padright-padleft-(border<<1);

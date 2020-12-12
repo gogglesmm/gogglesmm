@@ -77,14 +77,14 @@
 
   - In the case of string (%s or %[...]), do not report a conversion unless at
     least one character is returned.
-    
+
   - Algorithm accumulate up to 16 digits from the string, starting from most
     significant digit; then convert to real and adjust exponent as necessary.
-    
-  - Background: integer numbers larger than 2**53 (52 bits plus one hidden bit) 
+
+  - Background: integer numbers larger than 2**53 (52 bits plus one hidden bit)
     can not be represented exactly as double-precision real number, so any
     additional digits past 10**16 are only useful for rounding purposes.
-    
+
   - Some special numeric values:
 
     2**53   =     9007199254740992  =  Largest representable mantissa, plus 1.
@@ -129,12 +129,6 @@ enum {
 const union{ FXulong u; FXdouble f; } inf={FXULONG(0x7ff0000000000000)};
 const union{ FXulong u; FXdouble f; } nan={FXULONG(0x7fffffffffffffff)};
 
-// Maximum number of significant digits
-const FXint MAXDIGS=20;
-
-// Maximum number of hexadecimal significant digits
-const FXint MAXHEXDIGS=14;
-
 // Normal mode (non-ascii character)
 const FXint NORMAL=0x100;
 
@@ -148,7 +142,7 @@ static inline FXdouble fpMake(FXlong m,FXlong exp){
   union{ FXulong u; FXdouble f; } z={(m&FXULONG(0x000fffffffffffff)) | (((exp+1023)&0x7ff)<<52)};
   return z.f;
   }
-
+ 
 #if 0
 // Fast hex digit '0'..'9', 'A'..'F', 'a'..'f' to int
 // Otherwise bad values
@@ -159,11 +153,11 @@ static inline FXint htoi(FXint x){
 
 // Scan with va_list arguments
 FXint __vsscanf(const FXchar* string,const FXchar* format,va_list args){
-  FXint modifier,width,convert,comma,base,digits,count,exponent,expo,done,neg,nex,pos,dd,ww,v;
+  FXint modifier,width,convert,comma,base,digits,count,exponent,expo,done,neg,nex,pos,ww,v;
   const FXchar *start=string;
   const FXchar *ss;
-  FXdouble dvalue,dmult,dv;
-  FXulong  ivalue,imult,iv;
+  FXdouble dvalue;
+  FXulong  ivalue,imult;
   FXchar   set[256];
   FXchar  *ptr;
   FXuchar  ch,nn;

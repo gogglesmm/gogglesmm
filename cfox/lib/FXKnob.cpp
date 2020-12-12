@@ -179,14 +179,14 @@ void FXKnob::disable(){
 
 // Get default size
 FXint FXKnob::getDefaultWidth(){
-  register FXint w=KNOBSIZE;
+  FXint w=KNOBSIZE;
   if(options&KNOB_TICKS) w+=4;
   return w+padleft+padright+(border<<1);
   }
 
 
 FXint FXKnob::getDefaultHeight(){
-  register FXint h=KNOBSIZE;
+  FXint h=KNOBSIZE;
   if(options&KNOB_TICKS) h+=4;
   return h+padtop+padbottom+(border<<1);
   }
@@ -346,8 +346,8 @@ long FXKnob::onCmdGetRealRange(FXObject*,FXSelector,void* ptr){
 
 // Pressed LEFT button
 long FXKnob::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint p,tol;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint p,tol;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   flags&=~FLAG_TIP;
   if(isEnabled()){
@@ -381,7 +381,7 @@ long FXKnob::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released Left button
 long FXKnob::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXuint flgs=flags;
+  FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
     setValue(pos);
@@ -401,8 +401,8 @@ long FXKnob::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Moving
 long FXKnob::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint p;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint p;
   if(!isEnabled()) return 0;
   if(flags&FLAG_PRESSED){
     p=calcValue(event->win_x,event->win_y);
@@ -419,8 +419,8 @@ long FXKnob::onMotion(FXObject*,FXSelector,void* ptr){
 
 // Pressed middle button
 long FXKnob::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint p;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint p;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   flags&=~FLAG_TIP;
   if(isEnabled()){
@@ -442,7 +442,7 @@ long FXKnob::onMiddleBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released middle button
 long FXKnob::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXuint flgs=flags;
+  FXuint flgs=flags;
   if(isEnabled()){
     ungrab();
     getApp()->removeTimeout(this,ID_AUTOSLIDE);
@@ -462,8 +462,8 @@ long FXKnob::onMiddleBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Mouse wheel
 long FXKnob::onMouseWheel(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint p=pos+(event->code*incr)/120;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint p=pos+(event->code*incr)/120;
   setValue(p,true);
   return 1;
   }
@@ -482,8 +482,8 @@ long FXKnob::onUngrabbed(FXObject* sender,FXSelector sel,void* ptr){
 
 // Automatically move knob while holding down mouse
 long FXKnob::onAutoSlide(FXObject*,FXSelector,void* ptr){
-  register FXint inc=(FXint)(FXival)ptr;
-  register FXint p=pos+inc;
+  FXint inc=(FXint)(FXival)ptr;
+  FXint p=pos+inc;
   if(p<=range[0]){
     p=range[0];
     }
@@ -668,7 +668,7 @@ FXuint FXKnob::getKnobStyle() const {
 
 // Set knob style
 void FXKnob::setKnobStyle(FXuint style){
-  register FXuint opts=(options&~KNOB_MASK) | (style&KNOB_MASK);
+  FXuint opts=(options&~KNOB_MASK) | (style&KNOB_MASK);
   if(options!=opts){
     options=opts;
     update();
@@ -687,9 +687,9 @@ void FXKnob::setTickDelta(FXint dist){
 
 // Calculate value from position relative to center
 FXint FXKnob::calcValue(FXint x,FXint y){
-  register FXint cx=(width+padleft-padright)>>1;
-  register FXint cy=(height+padtop-padbottom)>>1;
-  register FXdouble angle=Math::atan2((FXdouble)(cy-y),(FXdouble)(x-cx))/PI;
+  FXint cx=(width+padleft-padright)>>1;
+  FXint cy=(height+padtop-padbottom)>>1;
+  FXdouble angle=Math::atan2((FXdouble)(cy-y),(FXdouble)(x-cx))/PI;
   if(angle<-0.5) angle+=2.0;
   angle=(1.0-angle-limits[0])/(limits[1]-limits[0]);
   return (FXint)(angle*(range[1]-range[0])+0.5)+range[0];

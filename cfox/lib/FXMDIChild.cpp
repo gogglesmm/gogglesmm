@@ -717,7 +717,7 @@ long FXMDIChild::onFocusOut(FXObject* sender,FXSelector sel,void* ptr){
 
 // Pressed LEFT button
 long FXMDIChild::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   flags&=~FLAG_TIP;
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
@@ -752,7 +752,7 @@ long FXMDIChild::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
 
 // Released LEFT button
 long FXMDIChild::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
+  FXEvent *event=(FXEvent*)ptr;
   if(isEnabled()){
     ungrab();
     if(target && target->tryHandle(this,FXSEL(SEL_LEFTBUTTONRELEASE,message),ptr)) return 1;
@@ -788,9 +788,9 @@ long FXMDIChild::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 
 // Moved
 long FXMDIChild::onMotion(FXObject*,FXSelector,void* ptr){
-  register FXEvent *event=(FXEvent*)ptr;
-  register FXint tmp,mousex,mousey;
-  register FXint oldx,oldy,oldw,oldh;
+  FXEvent *event=(FXEvent*)ptr;
+  FXint tmp,mousex,mousey;
+  FXint oldx,oldy,oldw,oldh;
   if(mode!=DRAG_NONE){
 
     // Mouse in FXMDIClient's coordinates
