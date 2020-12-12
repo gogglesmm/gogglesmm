@@ -33,10 +33,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
-
-
-
-
+#include <sys/utsname.h>
 
 
 void FXIntMap::save(FXStream & store) const {
@@ -108,6 +105,42 @@ FXuint gm_desktop_session() {
     return DESKTOP_SESSION_X11;
   }
 
+
+FXString gm_os_information() {
+  FXString osrelease;
+
+  FXSettings settings;
+  FXFile file("/etc/os-release",FXFile::Reading);
+  if(file.isOpen()){
+    FXString string;
+    string.length(file.size());
+    if(file.readBlock(string.text(),string.length())==string.length()){
+      string.prepend("[info]\n");
+      settings.parse(string);
+      if (settings.existingEntry("info", "PRETTY_NAME")) {
+        osrelease = settings.readStringEntry("info", "PRETTY_NAME");
+        }
+      else {
+        FXString osname = settings.readStringEntry("info", "NAME");
+        if (osname.length()) {
+          FXString osversion = settings.readStringEntry("info", "VERSION");
+          if (osversion.length())
+            osrelease = osname + " " + osversion;
+          else
+            osrelease = osname;
+          }
+        }
+      }
+    }
+
+  struct utsname osname;
+  uname(&osname);
+
+  if (osrelease.length())
+    return FXString::value("%s %s (%s) / %s", osname.sysname, osname.release, osname.machine, osrelease.text());
+  else
+    return FXString::value("%s %s (%s)", osname.sysname, osname.release, osname.machine);
+}
 
 /******************************************************************************/
 

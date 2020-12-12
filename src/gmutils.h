@@ -45,6 +45,8 @@ enum {
 
 extern FXuint gm_desktop_session();
 
+extern FXString gm_os_information();
+
 extern FXbool gm_open_folder(const FXString & folder);
 
 extern FXbool gm_open_browser(const FXString & folder);

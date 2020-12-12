@@ -127,11 +127,13 @@ long GMAboutDialog::onCmdHomePage(FXObject*,FXSelector,void*){
 
 long GMAboutDialog::onCmdReportIssue(FXObject*,FXSelector,void*){
 
+
+
   // github issue template
   const char issuetemplate[]="- [x] gogglesmm version: " GOGGLESMM_VERSION_STRING "\n"
                              "- [x] fox version: %d.%d.%d\n"
                              "- [x] sqlite version: %s\n"
-                             "- [ ] OS / Distribution:\n\n"
+                             "- [x] OS / Distribution: %s\n\n"
                              "Please describe your request or problem";
 
   // Construct the body text
@@ -139,7 +141,8 @@ long GMAboutDialog::onCmdReportIssue(FXObject*,FXSelector,void*){
                                                 fxversion[0],
                                                 fxversion[1],
                                                 fxversion[2],
-                                                sqlite3_libversion()));
+                                                sqlite3_libversion(),
+                                                gm_os_information().text()));
 
   // Construct the url
   FXString url = FXString::value("https://github.com/gogglesmm/gogglesmm/issues/new?body=%s",body.text());
