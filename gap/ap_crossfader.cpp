@@ -128,8 +128,9 @@ FXbool CrossFader::convert(const AudioFormat & target) {
     af.format = target.format;
     return true;
     }
-
+  else {
+    return false;
+    }
   }
 
 }
-
