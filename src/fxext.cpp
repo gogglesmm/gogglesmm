@@ -720,48 +720,68 @@ long GMButton::onPaint(FXObject*,FXSelector,void* ptr){
     dc.fillRectangle(0,0,width,height);
     }
   else if (state==STATE_UP && ((options&BUTTON_TOOLBAR)==0 || (options&BUTTON_TOOLBAR && underCursor()))) {
+    /*
+        Symmetrical Corner Detail
 
-    /// Outside Background
-    dc.setForeground(baseColor);
-    dc.drawPoints(basebackground,4);
+          0 | 1 | 2 | 3 |
+        +---+---+---+---+
+      0 | x | s | b | b |
+        +---+---+---+---+
+      1 | s | b | s | g |
+        +---+---+---+---+
+      2 | b | s | g | g |
+        +---+---+---+---+
+      3 | b | h | g | g |
+        +---+---+---+---+
 
-    /// Border
+        x = base color
+        b = border color
+        s = shade color
+        g = vertical gradient pixels
+        h = left/right hilite
+    */
+
+    // Border
     dc.setForeground(bordercolor);
-    dc.drawRectangle(2,0,width-5,0);
-    dc.drawRectangle(2,height-1,width-5,height-1);
-    dc.drawRectangle(0,2,0,height-5);
-    dc.drawRectangle(width-1,2,0,height-5);
-    dc.drawPoints(bordercorners,4);
+    dc.fillRectangle(2, 0, width - 2 - 2, 1);          // top
+    dc.fillRectangle(2, height - 1, width - 2 - 2, 1); // bottom
+    dc.fillRectangle(0, 2, 1, height - 2 - 2);         // left
+    dc.fillRectangle(width - 1, 2, 1, height - 2 -2 ); // right
+    dc.drawPoints(bordercorners, 4);
+
+    // Hilite
+    dc.setForeground(top);
+    dc.fillRectangle(1, 3, 1, height - 3 - 3); // left
+    dc.setForeground(bottom);
+    dc.fillRectangle(width - 2, 3, 1, height - 3 - 3); // right
+
+    // Gradient
+    fillVerticalGradient(dc, 2, 1, width - 2 - 2, height - 1 - 1,top,bottom);
+
+    // Shade
     dc.setForeground(shade);
     dc.drawPoints(bordershade,16);
 
-    fillVerticalGradient(dc,2,1,width-4,height-2,top,bottom);
-    dc.setForeground(top);
-    dc.drawRectangle(1,3,0,height-7);
-    dc.setForeground(bottom);
-    dc.drawRectangle(width-2,3,0,height-7);
+    // Base
+    dc.setForeground(baseColor);
+    dc.drawPoints(basebackground,4);
     }
   else {
-    /// Outside Background
+    // Base
     dc.setForeground(baseColor);
-    dc.drawPoints(basebackground,4);
+    dc.fillRectangle(0,0,width,height);
 
-    /// Border
+    // Border
     dc.setForeground(bordercolor);
-    dc.drawRectangle(2,0,width-5,0);
-    dc.drawRectangle(2,height-1,width-5,height-1);
-    dc.drawRectangle(0,2,0,height-5);
-    dc.drawRectangle(width-1,2,0,height-5);
-    dc.drawPoints(bordercorners,4);
+    dc.fillRectangle(2, 0, width - 2 - 2, 1);          // top
+    dc.fillRectangle(2, height - 1, width - 2 - 2, 1); // bottom
+    dc.fillRectangle(0, 2, 1, height - 2 - 2);         // left
+    dc.fillRectangle(width - 1, 2, 1, height - 2 -2 ); // right
+    dc.drawPoints(bordercorners, 4);
+
+    // Shade
     dc.setForeground(shade);
     dc.drawPoints(bordershade,16);
-
-    dc.setForeground(baseColor);
-    dc.fillRectangle(2,1,width-4,height-2);
-
-
-    //dc.setForeground(FXRGB(0xdc,0xd4,0xc9));
-    //dc.fillRectangle(2,1,width-4,height-2);
     }
 
   // Place text & icon
