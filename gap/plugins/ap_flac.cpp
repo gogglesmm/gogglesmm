@@ -26,6 +26,12 @@
 
 #include <FLAC/stream_decoder.h>
 
+#ifdef FLAC__REFERENCE_CODEC_MAX_BITS_PER_SAMPLE
+#define MAX_SAMPLE_BITS FLAC__REFERENCE_CODEC_MAX_BITS_PER_SAMPLE
+#else
+#define MAX_SAMPLE_BITS 24
+#endif
+
 namespace ap {
 
 
@@ -183,7 +189,7 @@ FXint FlacReader::parse_utf_value(const FXuchar * buffer,FXuint & value) {
                                          ((ptr)[2]&0xf)!=0xf &&\
                                          ((ptr)[3])<0xb0 &&\
                                          ((ptr)[3]&0x1)==0 &&\
-                                         ((ptr)[3]&0x6)!=0x6
+                                         ((ptr)[3]&0xe)!=0x6
 
 FXbool FlacReader::sync(FXlong & offset,FXlong & sample,FXuint & blocksize) {
   const FXuchar blocking_strategy = (minblocksize==maxblocksize) ? 0xf8 : 0xf9;
@@ -214,6 +220,7 @@ FXbool FlacReader::sync(FXlong & offset,FXlong & sample,FXuint & blocksize) {
           case  8: samplesize = 16; break;
           case 10: samplesize = 20; break;
           case 12: samplesize = 24; break;
+          case 14: samplesize = 32; break;
           default: samplesize = af.bps(); break;
           }
         if (samplesize!=af.bps()) continue;
@@ -505,6 +512,19 @@ FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_le
   if (channels<1 || channels>8)
     return false;
 
+  if (samplesize > MAX_SAMPLE_BITS)
+    return false;
+
+  /*
+    FLAC 1.4.x started supporting 32 bit sample size.
+    Make sure we don't try to playback these when linking
+    to older version of the flac library
+  */
+  if (samplesize > 24) {
+    if (compareversion(FLAC__VERSION_STRING, "1.4.0") < 0)
+      return false;
+  }
+
   af.set(Format::Signed|Format::Little,samplesize,
                                        samplesize>>3,
                                        samplerate,
@@ -762,6 +782,19 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
               buf8[p+0]=(buffer[c][s]&0xFF);
               buf8[p+1]=(buffer[c][s]&0xFF00)>>8;
               buf8[p+2]=(buffer[c][s]&0xFF0000)>>16;
+              }
+            }
+        }
+        break;
+      case 32:
+        {
+          FXchar * buf8 = packet->s8();
+          for (p=0,s=sample;s<(ncopy+sample);s++) {
+            for (c=0;c<nchannels;c++,p+=4) {
+              buf8[p+0]=(buffer[c][s]&0xFF);
+              buf8[p+1]=(buffer[c][s]&0xFF00)>>8;
+              buf8[p+2]=(buffer[c][s]&0xFF0000)>>16;
+              buf8[p+3]=(buffer[c][s]&0xFF000000)>>24;
               }
             }
         }
