@@ -319,53 +319,16 @@ public:
   };
 
 
-class LyricsWikiaSource : public HtmlSource {
-protected:
-  FXRex lyricbox;
-
-public:
-  LyricsWikiaSource() {
-    lyricbox.parse("<div class=\'lyricbox\'>(.*)<div class=\'lyricsbreak\'>",FXRex::IgnoreCase|FXRex::Capture);
-    }
-
-  FXbool fetch(GMTrack & track) override {
-    HttpClient http;
-
-    http.setAcceptEncoding(HttpClient::AcceptEncodingGZip);
-
-    FXString artist = track.artist;
-    FXString title  = track.title;
-
-    FXString url = FXString::value("http://lyrics.wikia.com/%s:%s",FXURL::encode(artist.substitute(' ','_')).text(),
-                                                                   FXURL::encode(title.substitute(' ','_')).text());
-    if (http.basic("GET",url)) {
-      FXString html = http.textBody();
-      FXint b[2],e[2];
-      if (lyricbox.search(html,0,html.length()-1,FXRex::Normal,b,e,2)>=0){
-        FXString content = html.mid(b[1],e[1]-b[1]);
-        clearMarkup(content);
-        track.lyrics = content;
-        return true;
-        }
-      }
-    return false;
-    }
-
-  };
-
-
 Lyrics::Lyrics() {
   source[0] = new LrcSource;
-  source[1] = new LyricsWikiaSource;
   }
 
 Lyrics::~Lyrics() {
   delete source[0];
-  delete source[1];
   }
 
 FXbool Lyrics::fetch(GMTrack & track) const {
-  for (FXint i=0;i<2;i++) {
+  for (FXint i=0;i<1;i++) {
     if (source[i]->fetch(track)) {
       GM_DEBUG_PRINT("Found lyrics for %s from src %d\n",track.url.text(),i);
       return true;
@@ -373,9 +336,3 @@ FXbool Lyrics::fetch(GMTrack & track) const {
     }
   return false;
   }
-
-
-
-
-
- 

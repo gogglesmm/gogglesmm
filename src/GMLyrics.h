@@ -23,7 +23,7 @@ class LyricsSource;
 
 class Lyrics {
 private:
-  LyricsSource * source[2] = {nullptr}; // Todo: allow multiple sources
+  LyricsSource * source[1] = {nullptr}; // Todo: allow multiple sources
 public:
   Lyrics();
 
