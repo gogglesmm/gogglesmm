@@ -172,8 +172,8 @@ ServiceResponse::~ServiceResponse() {
 void ServiceResponse::parse_lfm_atts(const FXchar ** attributes) {
   status=false;
   for (FXint i=0;attributes[i];i+=2){
-    if (compare(attributes[i],"status")==0) {
-      if (comparecase(attributes[i+1],"ok")==0){
+    if (FXString::compare(attributes[i],"status")==0) {
+      if (FXString::comparecase(attributes[i+1],"ok")==0){
         status=true;
         }
       }
@@ -184,7 +184,7 @@ void ServiceResponse::parse_lfm_atts(const FXchar ** attributes) {
 void ServiceResponse::parse_lfm_error_atts(const FXchar ** attributes) {
   FXString cd;
   for (FXint i=0;attributes[i];i+=2){
-    if (compare(attributes[i],"code")==0) {
+    if (FXString::compare(attributes[i],"code")==0) {
       cd=attributes[i+1];
       code=cd.toInt();
       }
@@ -196,27 +196,27 @@ FXint ServiceResponse::begin(const FXchar * element,const FXchar ** attributes){
   switch(node()) {
     case Elem_None:
       {
-        if (compare(element,"lfm")==0) {
+        if (FXString::compare(element,"lfm")==0) {
           parse_lfm_atts(attributes);
           return Elem_LastFM;
           }
       } break;
     case Elem_LastFM:
       {
-        if (compare(element,"error")==0) {
+        if (FXString::compare(element,"error")==0) {
           parse_lfm_error_atts(attributes);
           return Elem_LastFM_Error;
           }
-        else if (compare(element,"session")==0) {
+        else if (FXString::compare(element,"session")==0) {
           return Elem_LastFM_Session;
           }
-        else if (compare(element,"token")==0) {
+        else if (FXString::compare(element,"token")==0) {
           return Elem_LastFM_Token;
           }
       } break;
     case Elem_LastFM_Session:
       {
-        if (compare(element,"key")==0) {
+        if (FXString::compare(element,"key")==0) {
           return Elem_LastFM_Session_Key;
           }
       } break;
@@ -316,8 +316,8 @@ GMAudioScrobbler::GMAudioScrobbler(FXObject* tgt,FXSelector msg) :
     }
 
   /// Check if we're banned
-  if (compare(FXApp::instance()->reg().readStringEntry("LastFM","client-id",CLIENT_ID),CLIENT_ID)==0 &&
-      compare(FXApp::instance()->reg().readStringEntry("LastFM","client-version",CLIENT_VERSION),CLIENT_VERSION)==0){
+  if (FXString::compare(FXApp::instance()->reg().readStringEntry("LastFM","client-id",CLIENT_ID),CLIENT_ID)==0 &&
+      FXString::compare(FXApp::instance()->reg().readStringEntry("LastFM","client-version",CLIENT_VERSION),CLIENT_VERSION)==0){
     if (FXApp::instance()->reg().readBoolEntry("LastFM","client-banned",false))
       flags|=FLAG_BANNED;
     }
@@ -858,21 +858,21 @@ void GMAudioScrobbler::process_handshake_response(const FXString & response){
   else {
     FXString code;
     code=response.section('\n',0);
-    if (compare(code,"OK",2)==0) {
+    if (FXString::compare(code,"OK",2)==0) {
       session = response.section('\n',1);
       nowplaying_url=response.section('\n',2);
       submit_url=response.section('\n',3);
       flags&=~FLAG_BADAUTH;
       reset_timeout();
       }
-    else if (compare(code,"BANNED",6)==0){
+    else if (FXString::compare(code,"BANNED",6)==0){
       FXTRACE((60,"\t=> BANNED\n"));
       const FXchar msg[] = "This version of Goggles Music Manager is not supported\nby scrobbler service. Please upgrade to a newer version of GMM.";
       feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
       flags|=FLAG_BANNED;
       //FXApp::instance()->reg().writeBoolEntry("LastFM","client-banned",true);
       }
-    else if (compare(code,"BADTIME",7)==0){
+    else if (FXString::compare(code,"BADTIME",7)==0){
       FXTRACE((60,"\t=> BADTIME\n"));
       const FXchar msg[] = "Unable submit tracks scrobbler service. The system time doesn't match\n"
                            "the scrobbler server time. Please adjust your system time\n"
@@ -880,13 +880,13 @@ void GMAudioScrobbler::process_handshake_response(const FXString & response){
       feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
       flags|=FLAG_BADTIME;
       }
-    else if (compare(code,"BADAUTH",7)==0){
+    else if (FXString::compare(code,"BADAUTH",7)==0){
       FXTRACE((60,"\t=> BADAUTH\n"));
       const FXchar msg[] = "Unable to login to scrobbler service.\nUsername and password do not match.";
       feedback.message(target,FXSEL(SEL_COMMAND,message),msg,ARRAYNUMBER(msg));
       flags|=FLAG_BADAUTH;
       }
-    else if (compare(code,"FAILED",6)==0){
+    else if (FXString::compare(code,"FAILED",6)==0){
       FXTRACE((60,"\t=> FAILED\n"));
       set_timeout();
       }
@@ -1026,7 +1026,7 @@ void GMAudioScrobbler::process_nowplaying_response(const FXString & response){
   else {
     FXString code=response.section('\n',0);
     FXTRACE((70,"Now Playing Response: %s\n\n",response.text()));
-    if (compare(code,"BADSESSION",10)==0) {
+    if (FXString::compare(code,"BADSESSION",10)==0) {
       session.clear();
       }
     }
@@ -1236,7 +1236,7 @@ void GMAudioScrobbler::process_submit_response(const FXString & response){
   else {
     FXString code=response.section('\n',0);
     FXTRACE((70,"Submit Response: %s\n\n",response.text()));
-    if (compare(code,"OK",2)==0) {
+    if (FXString::compare(code,"OK",2)==0) {
       if (submitqueue[0].loveban!=0) {
         submitqueue[0].timestamp=0;
         loveban();
@@ -1246,11 +1246,11 @@ void GMAudioScrobbler::process_submit_response(const FXString & response){
         }
       nsubmitted=0;
       }
-    else if (compare(code,"BADSESSION",10)==0) {
+    else if (FXString::compare(code,"BADSESSION",10)==0) {
       session.clear();
       nsubmitted=0;
       }
-    else if (compare(code,"FAILED",6)==0) {
+    else if (FXString::compare(code,"FAILED",6)==0) {
       session.clear();
       nsubmitted=0;
       }

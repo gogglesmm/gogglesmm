@@ -35,6 +35,7 @@
 #define FXVERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
 
 #include <fxdefs.h>
+#include <fxchar.h>
 #include <fxendian.h>
 #include <fxascii.h>
 #include <fxunicode.h>
@@ -122,5 +123,11 @@ constexpr FXTime operator"" _ms(unsigned long long int value)
   return value * NANOSECONDS_PER_MILLISECOND;
 }
 
+#if FOXVERSION < FXVERSION(1, 7, 80)
+#define followUTF8 FXISFOLLOWUTF8
+#define FXString::compare compare
+#define FXString::comparecase comparecase
+#define FXString::comparenatural compareversion
 #endif
 
+#endif

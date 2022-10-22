@@ -58,26 +58,26 @@ FXint XSPFParser::begin(const FXchar * element,const FXchar **/* attributes*/){
   switch(node()) {
     case Elem_None:
       {
-        if (compare(element,"playlist")==0)
+        if (FXString::compare(element,"playlist")==0)
           return Elem_Playlist;
       } break;
     case Elem_Playlist:
       {
-        if (compare(element,"title")==0)
+        if (FXString::compare(element,"title")==0)
           return Elem_Playlist_Title;
-        else if (compare(element,"trackList")==0)
+        else if (FXString::compare(element,"trackList")==0)
           return Elem_Playlist_TrackList;
 
       } break;
     case Elem_Playlist_TrackList:
       {
-        if (compare(element,"track")==0)
+        if (FXString::compare(element,"track")==0)
           return Elem_Playlist_TrackList_Track;
 
       } break;
     case Elem_Playlist_TrackList_Track:
       {
-        if (compare(element,"location")==0)
+        if (FXString::compare(element,"location")==0)
           return Elem_Playlist_TrackList_Track_Location;
       } break;
     default: return 0; // skip

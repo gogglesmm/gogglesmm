@@ -620,7 +620,7 @@ void ApeTag::parse_item(FXuint flags,const FXchar * key,FXint key_length,const F
   FXint type = (flags>>1)&0x3;
   if (type==0) {
     fxmessage("key: %s\n",key);
-    if (comparecase(key,"title",6)==0) {
+    if (FXString::comparecase(key,"title",6)==0) {
       title.assign(value,value_length);
       }
     }
@@ -774,8 +774,8 @@ FXbool MadReader::readFrame(Packet * packet,const mpeg_frame & frame) {
 
 
 void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
-  if (compare((const FXchar*)(packet->data()+frame.xing_offset()),"Xing",4)==0 ||
-      compare((const FXchar*)(packet->data()+frame.xing_offset()),"Info",4)==0 ) {
+  if (FXString::compare((const FXchar*)(packet->data()+frame.xing_offset()),"Xing",4)==0 ||
+      FXString::compare((const FXchar*)(packet->data()+frame.xing_offset()),"Info",4)==0 ) {
 
     xing = new XingHeader(packet->data()+frame.xing_offset(),packet->size()-frame.xing_offset());
 
@@ -785,12 +785,12 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
     GM_DEBUG_PRINT("    rate: %d\n",frame.samplerate());
 
     const FXint lame_offset = frame.xing_offset()+XING_HEADER_SIZE;
-    if (compare((const FXchar*)(packet->data()+lame_offset),"LAME",4)==0) {
+    if (FXString::compare((const FXchar*)(packet->data()+lame_offset),"LAME",4)==0) {
       lame = new LameHeader(packet->data()+lame_offset,packet->size()-lame_offset);
       }
     }
 
-  if (compare((const FXchar*)(packet->data()+frame.vbri_offset()),"VBRI",4)==0) {
+  if (FXString::compare((const FXchar*)(packet->data()+frame.vbri_offset()),"VBRI",4)==0) {
     vbri = new VBRIHeader(packet->data()+frame.vbri_offset(),packet->size()-frame.vbri_offset());
     }
 
@@ -827,7 +827,7 @@ FXbool MadReader::parse_id3v1() {
   if (input->read(buffer,3)!=3)
     return false;
 
-  if (compare((FXchar*)buffer,"TAG",3)==0) {
+  if (FXString::compare((FXchar*)buffer,"TAG",3)==0) {
     GM_DEBUG_PRINT("[mad_reader] found id3v1 tag\n");
 
     FXchar tag[125];
@@ -851,7 +851,7 @@ FXbool MadReader::parse_ape() {
   if (input->read(ape,32)!=32)
     return false;
 
-  if (compare(ape,"APETAGEX",8)==0) {
+  if (FXString::compare(ape,"APETAGEX",8)==0) {
     fxmessage("[mad_reader] found ape tag");
 
     FXint ape_version  = INT32_LE(buf+8);
@@ -879,7 +879,7 @@ FXbool MadReader::parse_ape() {
   if (input->read(ape,32)!=32)
     return false;
 
-  if (compare(ape,"APETAGEX",8)==0) {
+  if (FXString::compare(ape,"APETAGEX",8)==0) {
     GM_DEBUG_PRINT("[mad_reader] found ape tag");
 
     FXint ape_version  = INT32_LE(buf+8);
@@ -928,7 +928,7 @@ FXbool MadReader::parse_lyrics() {
   if (input->read(buf,9)!=9)
     return false;
 
-  if (comparecase(buf,"LYRICS200",9)==0){
+  if (FXString::comparecase(buf,"LYRICS200",9)==0){
     input->position(input_end-15,FXIO::Begin);
     if (input->read(buf,6)!=6)
       return false;
@@ -936,7 +936,7 @@ FXbool MadReader::parse_lyrics() {
     FXint size = FXString(buf,6).toInt();
     input_end = input_end - (15 + size);
     }
-  else if (comparecase(buf,"LYRICSEND",9)==0) {
+  else if (FXString::comparecase(buf,"LYRICSEND",9)==0) {
 
     input->position(input_end-5100,FXIO::Begin);
 
@@ -948,7 +948,7 @@ FXbool MadReader::parse_lyrics() {
     while(nb<5100) {
 
       /* Check if we found start of lyrics */
-      if (buf[0]=='B' && comparecase(buf,"LYRICSBEGIN")==0) {
+      if (buf[0]=='B' && FXString::comparecase(buf,"LYRICSBEGIN")==0) {
         input_end = input->position()-11;
         return true;
         }

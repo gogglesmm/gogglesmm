@@ -101,7 +101,7 @@ FXbool OpusDecoderPlugin::init_decoder(const FXuchar * packet,const FXuint size)
   if (size>=19) {
 
     // Extra check to make sure the reader gave us the header packet
-    if (compare((const FXchar*)packet,"OpusHead",8))
+    if (FXString::compare((const FXchar*)packet,"OpusHead",8))
       return false;
 
     if (packet[18]!=0) {

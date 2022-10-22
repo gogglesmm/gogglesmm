@@ -43,7 +43,7 @@
 // return true if string starts with configured keyword
 static inline FXbool begins_with_keyword(const FXString & t){
   for (FXint i=0;i<GMPlayerManager::instance()->getPreferences().gui_sort_keywords.no();i++){
-    if (comparecase(t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
+    if (FXString::comparecase(t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
     }
   return false;
   }
@@ -51,7 +51,7 @@ static inline FXbool begins_with_keyword(const FXString & t){
 // return true if string starts with configured keyword
 static inline FXbool begins_with_keyword_ptr(const FXString * t){
   for (FXint i=0;i<GMPlayerManager::instance()->getPreferences().gui_sort_keywords.no();i++){
-    if (comparecase(*t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
+    if (FXString::comparecase(*t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
     }
   return false;
   }
@@ -71,7 +71,7 @@ static inline FXint keywordcompare(const FXString *a,const FXString *b) {
     pb=FXMIN(b->length()-1,b->find(' ')+1);
   else
     pb=0;
-  return comparecase(&((*a)[pa]),&((*b)[pb]));
+  return FXString::comparecase(&((*a)[pa]),&((*b)[pb]));
   }
 
 // compare two string taking into account the configured keywords it needs to ignore
@@ -86,7 +86,7 @@ static inline FXint keywordcompare(const FXString & a,const FXString & b) {
     pb=FXMIN(b.length()-1,b.find(' ')+1);
   else
     pb=0;
-  return comparecase(&((a)[pa]),&((b)[pb]));
+  return FXString::comparecase(&((a)[pa]),&((b)[pb]));
   }
 
 
@@ -355,10 +355,10 @@ FXint GMDBTrackItem::ascendingFilename(const GMTrackItem* pa,const GMTrackItem* 
   const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   if (ta->path!=tb->path) {
     GMTrackDatabase* const db = GMPlayerManager::instance()->getTrackDatabase();
-    FXint x = comparecase(db->getTrackPath(ta->path),db->getTrackPath(tb->path));
+    FXint x = FXString::comparecase(db->getTrackPath(ta->path),db->getTrackPath(tb->path));
     if (x!=0) return x;
     }
-  return comparecase(ta->mrl,tb->mrl);
+  return FXString::comparecase(ta->mrl,tb->mrl);
   }
 
 
@@ -367,24 +367,24 @@ FXint GMDBTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackItem*
   const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
   if (ta->path!=tb->path) {
     GMTrackDatabase* const db = GMPlayerManager::instance()->getTrackDatabase();
-    FXint x = comparecase(db->getTrackPath(ta->path),db->getTrackPath(tb->path));
+    FXint x = FXString::comparecase(db->getTrackPath(ta->path),db->getTrackPath(tb->path));
     if (x!=0) return -x;
     }
-  return -comparecase(ta->mrl,tb->mrl);
+  return -FXString::comparecase(ta->mrl,tb->mrl);
   }
 
 
 FXint GMDBTrackItem::ascendingFiletype(const GMTrackItem* pa,const GMTrackItem* pb){
   const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
-  return comparecase(FXPath::extension(ta->mrl),FXPath::extension(tb->mrl));
+  return FXString::comparecase(FXPath::extension(ta->mrl),FXPath::extension(tb->mrl));
   }
 
 
 FXint GMDBTrackItem::descendingFiletype(const GMTrackItem* pa,const GMTrackItem* pb){
   const GMDBTrackItem * const ta = static_cast<const GMDBTrackItem*>(pa);
   const GMDBTrackItem * const tb = static_cast<const GMDBTrackItem*>(pb);
-  return -comparecase(FXPath::extension(ta->mrl),FXPath::extension(tb->mrl));
+  return -FXString::comparecase(FXPath::extension(ta->mrl),FXPath::extension(tb->mrl));
   }
 
 
@@ -789,7 +789,7 @@ FXint GMStreamTrackItem::ascendingGenre(const GMTrackItem* pa,const GMTrackItem*
   const GMStreamTrackItem * const ta = static_cast<const GMStreamTrackItem*>(pa);
   const GMStreamTrackItem * const tb = static_cast<const GMStreamTrackItem*>(pb);
   FXint x;
-  x = comparecase(ta->genre,tb->genre);
+  x = FXString::comparecase(ta->genre,tb->genre);
   if (x!=0) return x;
   return ascendingTrack(pa,pb);
   }
@@ -799,7 +799,7 @@ FXint GMStreamTrackItem::descendingGenre(const GMTrackItem* pa,const GMTrackItem
   const GMStreamTrackItem * const ta = static_cast<const GMStreamTrackItem*>(pa);
   const GMStreamTrackItem * const tb = static_cast<const GMStreamTrackItem*>(pb);
   FXint x;
-  x = comparecase(tb->genre,ta->genre);
+  x = FXString::comparecase(tb->genre,ta->genre);
   if (x!=0) return x;
   return ascendingTrack(pa,pb);
   }
@@ -824,7 +824,7 @@ FXint GMStreamTrackItem::ascendingTitle(const GMTrackItem* pa,const GMTrackItem*
   FXint a=0,b=0;
   if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
   if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
-  return comparecase(&ta->title[a],&tb->title[b]);
+  return FXString::comparecase(&ta->title[a],&tb->title[b]);
   }
 
 
@@ -834,7 +834,7 @@ FXint GMStreamTrackItem::descendingTitle(const GMTrackItem* pa,const GMTrackItem
   FXint a=0,b=0;
   if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
   if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
-  return -comparecase(&ta->title[a],&tb->title[b]);
+  return -FXString::comparecase(&ta->title[a],&tb->title[b]);
   }
 
 
@@ -881,7 +881,7 @@ FXint GMLocalTrackItem::ascendingFilename(const GMTrackItem* pa,const GMTrackIte
   const GMLocalTrackItem * const ta = static_cast<const GMLocalTrackItem*>(pa);
   const GMLocalTrackItem * const tb = static_cast<const GMLocalTrackItem*>(pb);
   FXint diff = (tb->state&FOLDER)-(ta->state&FOLDER);
-  if (diff==0) return comparecase(ta->filename,tb->filename);;
+  if (diff==0) return FXString::comparecase(ta->filename,tb->filename);;
   return diff;
   }
 
@@ -890,7 +890,7 @@ FXint GMLocalTrackItem::descendingFilename(const GMTrackItem* pa,const GMTrackIt
   const GMLocalTrackItem * const ta = static_cast<const GMLocalTrackItem*>(pa);
   const GMLocalTrackItem * const tb = static_cast<const GMLocalTrackItem*>(pb);
   FXint diff = (ta->state&FOLDER)-(tb->state&FOLDER);
-  if (diff==0) return -comparecase(ta->filename,tb->filename);
+  if (diff==0) return -FXString::comparecase(ta->filename,tb->filename);
   return diff;
   }
 
@@ -1017,7 +1017,7 @@ FXint GMFeedItem::ascendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
   FXint a=0,b=0;
   if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
   if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
-  return comparecase(&ta->title[a],&tb->title[b]);
+  return FXString::comparecase(&ta->title[a],&tb->title[b]);
   }
 
 
@@ -1027,5 +1027,5 @@ FXint GMFeedItem::descendingTitle(const GMTrackItem* pa,const GMTrackItem* pb){
   FXint a=0,b=0;
   if (begins_with_keyword(ta->title)) a=FXMIN(ta->title.length()-1,ta->title.find(' ')+1);
   if (begins_with_keyword(tb->title)) b=FXMIN(tb->title.length()-1,tb->title.find(' ')+1);
-  return -comparecase(&ta->title[a],&tb->title[b]);
+  return -FXString::comparecase(&ta->title[a],&tb->title[b]);
   }

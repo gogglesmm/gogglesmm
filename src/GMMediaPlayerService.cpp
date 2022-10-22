@@ -495,7 +495,7 @@ void GMMediaPlayerService2::notify_volume(FXint volume){
 
 
 static void mpris_root_property_set(const FXchar * prop,FXVariant & value) {
-  if (compare(prop,"Fullscreen")==0) {
+  if (FXString::compare(prop,"Fullscreen")==0) {
     if (value.isBool()) GMPlayerManager::instance()->getMainWindow()->setFullScreen(value.toBool());
     }
   }
@@ -529,15 +529,15 @@ static DBusHandlerResult mpris_root_property_get(DBusConnection *connection,DBus
       }
     return DBUS_HANDLER_RESULT_HANDLED;
     }
-  else if (compare(prop,"Identity")==0)             return gm_dbus_property_string(connection,msg,prop_identity);
-  else if (compare(prop,"DesktopEntry")==0)         return gm_dbus_property_string(connection,msg,prop_desktopentry);
-  else if (compare(prop,"CanQuit")==0)              return gm_dbus_property_bool(connection,msg,true);
-  else if (compare(prop,"Fullscreen")==0)           return gm_dbus_property_bool(connection,msg,GMPlayerManager::instance()->getMainWindow()->isFullScreen());
-  else if (compare(prop,"CanSetFullscreen")==0)     return gm_dbus_property_bool(connection,msg,true);
-  else if (compare(prop,"CanRaise")==0)             return gm_dbus_property_bool(connection,msg,true);
-  else if (compare(prop,"HasTrackList")==0)         return gm_dbus_property_bool(connection,msg,false);
-  else if (compare(prop,"SupportedUriSchemes")==0)  return gm_dbus_property_string_list(connection,msg,schemes);
-  else if (compare(prop,"SupportedMimeTypes")==0)   return gm_dbus_property_string_list(connection,msg,mimetypes);
+  else if (FXString::compare(prop,"Identity")==0)             return gm_dbus_property_string(connection,msg,prop_identity);
+  else if (FXString::compare(prop,"DesktopEntry")==0)         return gm_dbus_property_string(connection,msg,prop_desktopentry);
+  else if (FXString::compare(prop,"CanQuit")==0)              return gm_dbus_property_bool(connection,msg,true);
+  else if (FXString::compare(prop,"Fullscreen")==0)           return gm_dbus_property_bool(connection,msg,GMPlayerManager::instance()->getMainWindow()->isFullScreen());
+  else if (FXString::compare(prop,"CanSetFullscreen")==0)     return gm_dbus_property_bool(connection,msg,true);
+  else if (FXString::compare(prop,"CanRaise")==0)             return gm_dbus_property_bool(connection,msg,true);
+  else if (FXString::compare(prop,"HasTrackList")==0)         return gm_dbus_property_bool(connection,msg,false);
+  else if (FXString::compare(prop,"SupportedUriSchemes")==0)  return gm_dbus_property_string_list(connection,msg,schemes);
+  else if (FXString::compare(prop,"SupportedMimeTypes")==0)   return gm_dbus_property_string_list(connection,msg,mimetypes);
   else return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
@@ -555,7 +555,7 @@ static const FXchar * mpris_loop_status(GMPlayerManager * player) {
 
 
 static void mpris_player_property_set(const FXchar * prop,FXVariant & value) {
-  if (compare(prop,"LoopStatus")==0) {
+  if (FXString::compare(prop,"LoopStatus")==0) {
     if (GMPlayerManager::instance()->getPlayQueue()) return;
     if (!value.isString()) return;
     FXString state = value.toString();
@@ -566,14 +566,14 @@ static void mpris_player_property_set(const FXchar * prop,FXVariant & value) {
     else if (state=="Playlist")
       GMPlayerManager::instance()->getPreferences().play_repeat = REPEAT_ALL;
     }
-  else if (compare(prop,"Shuffle")==0){
+  else if (FXString::compare(prop,"Shuffle")==0){
     if (!value.isBool()) return;
     GMPlayerManager::instance()->getPreferences().play_shuffle = value.toBool();
     }
-  else if (compare(prop,"Position")==0){
+  else if (FXString::compare(prop,"Position")==0){
     GMPlayerManager::instance()->seekTime((FXint)(value.asLong()/1000000));
     }
-  else if (compare(prop,"Volume")==0){
+  else if (FXString::compare(prop,"Volume")==0){
     GMPlayerManager::instance()->volume(FXCLAMP(0,(FXint)(value.asDouble()*100),100));
     }
   /*
@@ -617,7 +617,7 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
       dbus_message_unref(reply);
       }
     }
-  else if (compare(prop,"Metadata")==0) {
+  else if (FXString::compare(prop,"Metadata")==0) {
     DBusMessage * reply;
     if ((reply=dbus_message_new_method_return(msg))!=nullptr) {
       DBusMessageIter iter;
@@ -635,20 +635,20 @@ static DBusHandlerResult mpris_player_property_get(DBusConnection *c,DBusMessage
       }
     return DBUS_HANDLER_RESULT_HANDLED;
     }
-  else if (compare(prop,"PlaybackStatus")==0) return gm_dbus_property_string(c,msg,mpris_play_status(p));
-  else if (compare(prop,"LoopStatus")==0)     return gm_dbus_property_string(c,msg,mpris_loop_status(p));
-  else if (compare(prop,"Shuffle")==0)        return gm_dbus_property_bool(c,msg,p->getPreferences().play_shuffle);
-  else if (compare(prop,"Volume")==0)         return gm_dbus_property_double(c,msg,p->volume()>=0 ? (p->volume()/100.0f) : 0.0f);
-  else if (compare(prop,"Position")==0)       return gm_dbus_property_long(c,msg,((FXlong)p->getPlayer()->getPosition())*1000000);
-  else if (compare(prop,"Rate")==0)           return gm_dbus_property_double(c,msg,1.0);
-  else if (compare(prop,"MinimumRate")==0)    return gm_dbus_property_double(c,msg,1.0);
-  else if (compare(prop,"MaximumRate")==0)    return gm_dbus_property_double(c,msg,1.0);
-  else if (compare(prop,"CanGoNext")==0)      return gm_dbus_property_bool(c,msg,p->can_next());
-  else if (compare(prop,"CanGoPrevious")==0)  return gm_dbus_property_bool(c,msg,p->can_prev());
-  else if (compare(prop,"CanPlay")==0)        return gm_dbus_property_bool(c,msg,p->can_play());
-  else if (compare(prop,"CanPause")==0)       return gm_dbus_property_bool(c,msg,p->can_pause());
-  else if (compare(prop,"CanControl")==0)     return gm_dbus_property_bool(c,msg,true);
-  else if (compare(prop,"CanSeek")==0)        return gm_dbus_property_bool(c,msg,true);
+  else if (FXString::compare(prop,"PlaybackStatus")==0) return gm_dbus_property_string(c,msg,mpris_play_status(p));
+  else if (FXString::compare(prop,"LoopStatus")==0)     return gm_dbus_property_string(c,msg,mpris_loop_status(p));
+  else if (FXString::compare(prop,"Shuffle")==0)        return gm_dbus_property_bool(c,msg,p->getPreferences().play_shuffle);
+  else if (FXString::compare(prop,"Volume")==0)         return gm_dbus_property_double(c,msg,p->volume()>=0 ? (p->volume()/100.0f) : 0.0f);
+  else if (FXString::compare(prop,"Position")==0)       return gm_dbus_property_long(c,msg,((FXlong)p->getPlayer()->getPosition())*1000000);
+  else if (FXString::compare(prop,"Rate")==0)           return gm_dbus_property_double(c,msg,1.0);
+  else if (FXString::compare(prop,"MinimumRate")==0)    return gm_dbus_property_double(c,msg,1.0);
+  else if (FXString::compare(prop,"MaximumRate")==0)    return gm_dbus_property_double(c,msg,1.0);
+  else if (FXString::compare(prop,"CanGoNext")==0)      return gm_dbus_property_bool(c,msg,p->can_next());
+  else if (FXString::compare(prop,"CanGoPrevious")==0)  return gm_dbus_property_bool(c,msg,p->can_prev());
+  else if (FXString::compare(prop,"CanPlay")==0)        return gm_dbus_property_bool(c,msg,p->can_play());
+  else if (FXString::compare(prop,"CanPause")==0)       return gm_dbus_property_bool(c,msg,p->can_pause());
+  else if (FXString::compare(prop,"CanControl")==0)     return gm_dbus_property_bool(c,msg,true);
+  else if (FXString::compare(prop,"CanSeek")==0)        return gm_dbus_property_bool(c,msg,true);
   return DBUS_HANDLER_RESULT_HANDLED;
   }
 
@@ -706,10 +706,10 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
       const FXchar * interface=nullptr;
       const FXchar * property=nullptr;
       if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&interface,DBUS_TYPE_STRING,&property,DBUS_TYPE_INVALID)) {
-        if (compare(interface,MPRIS2_ROOT)==0) {
+        if (FXString::compare(interface,MPRIS2_ROOT)==0) {
           return mpris_root_property_get(c,msg,property);
           }
-        else if (compare(interface,MPRIS2_PLAYER)==0) {
+        else if (FXString::compare(interface,MPRIS2_PLAYER)==0) {
           return mpris_player_property_get(c,msg,property);
           }
         }
@@ -718,10 +718,10 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
     else if (dbus_message_is_method_call(msg,DBUS_PROPERTIES,"GetAll")){
       const FXchar * interface=nullptr;
       if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&interface,DBUS_TYPE_INVALID)) {
-        if (compare(interface,MPRIS2_ROOT)==0) {
+        if (FXString::compare(interface,MPRIS2_ROOT)==0) {
           return mpris_root_property_get(c,msg,nullptr);
           }
-        else if (compare(interface,MPRIS2_PLAYER)==0) {
+        else if (FXString::compare(interface,MPRIS2_PLAYER)==0) {
           return mpris_player_property_get(c,msg,nullptr);
           }
         }
@@ -738,11 +738,11 @@ DBusHandlerResult GMMediaPlayerService2::mpris_filter(DBusConnection * c,DBusMes
           dbus_message_iter_get_basic	(&iter,&property);
           dbus_message_iter_next(&iter);
           if (dbus_message_iter_get_arg_type(&iter)==DBUS_TYPE_VARIANT) {
-            if (compare(interface,MPRIS2_PLAYER)==0) {
+            if (FXString::compare(interface,MPRIS2_PLAYER)==0) {
               FXVariant v = get_property(&iter);
               mpris_player_property_set(property,v);
               }
-            else if (compare(interface,MPRIS2_ROOT)==0) {
+            else if (FXString::compare(interface,MPRIS2_ROOT)==0) {
               FXVariant v = get_property(&iter);
               mpris_root_property_set(property,v);
               }
@@ -843,43 +843,43 @@ void GMMediaPlayerService2::request(const FXchar * command) {
   const FXchar * method = nullptr;
   FXString       argument;
 
-  if (compare(command,"--previous")==0) {
+  if (FXString::compare(command,"--previous")==0) {
     interface = MPRIS2_PLAYER;
     method = "Previous";
     }
-  else if (compare(command,"--play")==0) {
+  else if (FXString::compare(command,"--play")==0) {
     interface = MPRIS2_PLAYER;
     method = "Play";
     }
-  else if (compare(command,"--play-pause")==0) {
+  else if (FXString::compare(command,"--play-pause")==0) {
     interface = MPRIS2_PLAYER;
     method = "PlayPause";
     }
-  else if (compare(command,"--pause")==0) {
+  else if (FXString::compare(command,"--pause")==0) {
     interface = MPRIS2_PLAYER;
     method = "Pause";
     }
-  else if (compare(command,"--next")==0) {
+  else if (FXString::compare(command,"--next")==0) {
     interface = MPRIS2_PLAYER;
     method = "Next";
     }
-  else if (compare(command,"--stop")==0) {
+  else if (FXString::compare(command,"--stop")==0) {
     interface = MPRIS2_PLAYER;
     method = "Stop";
     }
-  else if (compare(command,"--toggle-shown")==0) {
+  else if (FXString::compare(command,"--toggle-shown")==0) {
     interface = MPRIS2_ROOT;
     method = "ToggleShown";
     }
-  else if (compare(command,"--now-playing")==0) {
+  else if (FXString::compare(command,"--now-playing")==0) {
     interface = MPRIS2_ROOT;
     method = "Notify";
     }
-  else if (compare(command,"--update-podcasts")==0) {
+  else if (FXString::compare(command,"--update-podcasts")==0) {
     interface = MPRIS2_ROOT;
     method = "UpdatePodcasts";
     }
-  else if (compare(command,"--raise")==0) {
+  else if (FXString::compare(command,"--raise")==0) {
     interface = MPRIS2_ROOT;
     method = "Raise";
     }

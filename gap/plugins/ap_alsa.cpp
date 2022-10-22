@@ -757,7 +757,7 @@ protected:
         return element;
 
       /* Check if this is the one we want */
-      if (comparecase(snd_mixer_selem_get_name(element),name)==0)
+      if (FXString::comparecase(snd_mixer_selem_get_name(element),name)==0)
         return element;
 
       }
@@ -1128,4 +1128,3 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
 }
 
 AP_IMPLEMENT_PLUGIN(AlsaOutput);
-

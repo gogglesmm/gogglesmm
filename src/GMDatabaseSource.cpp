@@ -1576,10 +1576,10 @@ long GMDatabaseSource::onCmdImportPlayList(FXObject*,FXSelector,void*){
       FXString title;
       FXString extension = FXPath::extension(dialog.getFilename());
 
-      if (comparecase(extension,"m3u")==0){
+      if (FXString::comparecase(extension,"m3u")==0){
         ap_parse_m3u(buffer,urls);
         }
-      else if (comparecase(extension,"pls")==0){
+      else if (FXString::comparecase(extension,"pls")==0){
         ap_parse_pls(buffer,urls);
         }
       else {
@@ -1591,7 +1591,7 @@ long GMDatabaseSource::onCmdImportPlayList(FXObject*,FXSelector,void*){
         // which FXURL::fileFromURL can't decode because the first %2f is probably not legal in an url.
         // So just double decode it ourselves here.
         for (FXint i=0;i<urls.no();i++) {
-          if (comparecase(urls[i].text(),"file://%252F",12)==0) {
+          if (FXString::comparecase(urls[i].text(),"file://%252F",12)==0) {
             urls[i]=FXURL::decode(FXURL::decode(urls[i]));
             }
           }

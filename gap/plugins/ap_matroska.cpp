@@ -902,14 +902,14 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
 #ifdef HAVE_OGG
 
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
-          if (comparecase(codec,"A_VORBIS")==0) {
+          if (FXString::comparecase(codec,"A_VORBIS")==0) {
             track->codec = Codec::Vorbis;
             break;
             }
 #endif
 
 #ifdef HAVE_OPUS
-          if (comparecase(codec,"A_OPUS")==0) {
+          if (FXString::comparecase(codec,"A_OPUS")==0) {
             track->codec      = Codec::Opus;
             track->af.format |= (Format::Float|Format::Little);
             track->af.setBits(32);
@@ -921,32 +921,32 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
           if (!is_webm) {
 
 
-            if (comparecase(codec,"A_PCM/INT/LIT")==0) {
+            if (FXString::comparecase(codec,"A_PCM/INT/LIT")==0) {
               track->codec   = Codec::PCM;
               track->af.format |= (Format::Signed|Format::Little);
               break;
               }
 
-            if (comparecase(codec,"A_PCM/INT/BIG")==0) {
+            if (FXString::comparecase(codec,"A_PCM/INT/BIG")==0) {
               track->codec   = Codec::PCM;
               track->af.format |= (Format::Signed|Format::Big);
               break;
               }
 
-            if (comparecase(codec,"A_PCM/FLOAT/IEEE")==0) {
+            if (FXString::comparecase(codec,"A_PCM/FLOAT/IEEE")==0) {
               track->codec   = Codec::PCM;
               track->af.format |= (Format::Float|Format::Little);
               break;
               }
 
-            if (comparecase(codec,"A_DTS")==0) {
+            if (FXString::comparecase(codec,"A_DTS")==0) {
               track->codec      = Codec::DCA;
               track->af.format |= (Format::Float|Format::Little);
               track->af.setBits(32);
               break;
               }
 
-            if (comparecase(codec,"A_AC3")==0) {
+            if (FXString::comparecase(codec,"A_AC3")==0) {
               track->codec      = Codec::A52;
               track->af.format |= (Format::Float|Format::Little);
               track->af.setBits(32);
@@ -954,7 +954,7 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
               }
 
 #ifdef HAVE_MAD
-            if (comparecase(codec,"A_MPEG/L3")==0) {
+            if (FXString::comparecase(codec,"A_MPEG/L3")==0) {
               track->codec      = Codec::MPEG;
               track->af.format |= (Format::Signed|Format::Little);
               track->af.setBits(16);
@@ -963,7 +963,7 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
 #endif
 
 #ifdef HAVE_FLAC
-            if (comparecase(codec,"A_FLAC")==0) {
+            if (FXString::comparecase(codec,"A_FLAC")==0) {
               track->codec      = Codec::FLAC;
               track->af.format |= (Format::Signed|Format::Little);
               break;
@@ -971,7 +971,7 @@ FXbool MatroskaReader::parse_track_entry(Element & container) {
 #endif
 
 #ifdef HAVE_FAAD
-            if (comparecase(codec,"A_AAC")==0) {
+            if (FXString::comparecase(codec,"A_AAC")==0) {
               track->codec      = Codec::AAC;
               track->af.format |= (Format::Signed|Format::Little);
               track->af.setBits(16);
@@ -1528,6 +1528,3 @@ ReaderPlugin * ap_matroska_reader(InputContext * ctx) {
   }
 
 }
-
-
-

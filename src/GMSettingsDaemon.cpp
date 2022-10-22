@@ -63,7 +63,7 @@ long GMSettingsDaemon::onSignal(FXObject*,FXSelector,void*ptr){
     const FXchar * pl=nullptr;
     const FXchar * cmd=nullptr;
     if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&pl,DBUS_TYPE_STRING,&cmd,DBUS_TYPE_INVALID)) {
-      if (compare(pl,player)==0 && target && cmd) {
+      if (FXString::compare(pl,player)==0 && target && cmd) {
         target->handle(this,FXSEL(SEL_KEYPRESS,message),(void*)cmd);
         }
       }

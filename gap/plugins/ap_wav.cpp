@@ -283,10 +283,10 @@ ReadStatus WavReader::parse() {
   if (input->read(&chunksize,4)!=4)
     return ReadError;
 
-  if (compare(chunkid,"RIFF",4) && compare(chunkid,"RF64",4))
+  if (FXString::compare(chunkid,"RIFF",4) && FXString::compare(chunkid,"RF64",4))
     return ReadError;
 
-  if (input->read(&chunkid,4)!=4 || compare(chunkid,"WAVE",4))
+  if (input->read(&chunkid,4)!=4 || FXString::compare(chunkid,"WAVE",4))
     return ReadError;
 
   while(1) {
@@ -297,7 +297,7 @@ ReadStatus WavReader::parse() {
     if (input->read(&chunksize,4)!=4)
       return ReadError;
 
-    if (compare(chunkid,"data",4)==0) {
+    if (FXString::compare(chunkid,"data",4)==0) {
 
       if (has_fmt==false)
         return ReadError;
@@ -367,10 +367,10 @@ ReadStatus WavReader::parse() {
       context->post_configuration(new ConfigureEvent(af,Codec::PCM));
       return ReadOk;
       }
-    else if (compare(chunkid,"ds64",4)==0) {
+    else if (FXString::compare(chunkid,"ds64",4)==0) {
       input->position(chunksize,FXIO::Current);
       }
-    else if (compare(chunkid,"fmt ",4)==0) {
+    else if (FXString::compare(chunkid,"fmt ",4)==0) {
 
       if (input->read(&wavformat,2)!=2 || !(wavformat==WAV_FORMAT_PCM || wavformat==WAV_FORMAT_FLOAT || wavformat==WAV_FORMAT_ALAW || wavformat==WAV_FORMAT_ULAW  || wavformat==WAV_FORMAT_EXTENSIBLE) ) {
         GM_DEBUG_PRINT("[wav_reader] unsupported format: %x\n",wavformat);

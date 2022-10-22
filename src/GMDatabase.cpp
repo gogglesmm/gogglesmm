@@ -454,7 +454,7 @@ FXbool GMDatabase::hasColumn(const FXchar * table, const FXchar * column) {
   GMQuery q(this,FXString::value("PRAGMA table_info(%s)",table).text());
   while(q.row()) {
     const FXchar * existing = q.get(1);
-    if (compare(existing,column)==0)
+    if (FXString::compare(existing,column)==0)
       return true;
     }
   return false;
@@ -615,4 +615,3 @@ void GMTaskTransaction::unlock() {
     locked = false;
     }
   }
-

@@ -497,6 +497,8 @@ else()
   set(MD5_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lib/md5)
 endif()
 
+
+
 #-------------------------------------------------------------------------------
 
 # GAP Plugins Library
@@ -606,10 +608,24 @@ add_feature_info(openssl HAVE_OPENSSL "${OPENSSL_VERSION}")
 add_feature_info(gnutls HAVE_GNUTLS "${GNUTLS_VERSION}")
 add_feature_info(gcrypt HAVE_GCRYPT "")
 
-
 set(AP_PLUGIN_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/gogglesmm)
 
 configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
+
+#-------------------------------------------------------------------------------
+#
+# Workaround to compile with earlier versions of FOX, something
+# that cannot be easily handled using the preprocessor#
+#
+if (NOT WITH_CFOX AND FOX_VERSION VERSION_LESS "1.7.80")
+  message("Replacing occurences of FXString::compare")
+  foreach(sourcefile IN LISTS PLUGIN_SOURCES SOURCES)
+    file(READ ${sourcefile} content)
+    string(REPLACE "FXString::compare" "FX::compare" updated "${content}")
+    string(REPLACE "comparenatural" "compareversion" updated "${updated}")
+    file(WRITE ${sourcefile} "${updated}")
+  endforeach()
+endif()
 
 #-------------------------------------------------------------------------------
 

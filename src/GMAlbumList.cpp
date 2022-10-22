@@ -34,7 +34,7 @@
 // return true if string starts with configured keyword
 static inline FXbool begins_with_keyword(const FXString & t){
   for (FXint i=0;i<GMPlayerManager::instance()->getPreferences().gui_sort_keywords.no();i++){
-    if (comparecase(t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
+    if (FXString::comparecase(t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
     }
   return false;
   }
@@ -42,7 +42,7 @@ static inline FXbool begins_with_keyword(const FXString & t){
 // return true if string starts with configured keyword
 static inline FXbool begins_with_keyword_ptr(const FXString * t){
   for (FXint i=0;i<GMPlayerManager::instance()->getPreferences().gui_sort_keywords.no();i++){
-    if (comparecase(*t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
+    if (FXString::comparecase(*t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
     }
   return false;
   }
@@ -62,7 +62,7 @@ static inline FXint keywordcompare(const FXString *a,const FXString *b) {
     pb=FXMIN(b->length()-1,b->find(' ')+1);
   else
     pb=0;
-  return comparecase(&((*a)[pa]),&((*b)[pb]));
+  return FXString::comparecase(&((*a)[pa]),&((*b)[pb]));
   }
 
 // compare two string taking into account the configured keywords it needs to ignore
@@ -77,7 +77,7 @@ static inline FXint keywordcompare(const FXString & a,const FXString & b) {
     pb=FXMIN(b.length()-1,b.find(' ')+1);
   else
     pb=0;
-  return comparecase(&((a)[pa]),&((b)[pb]));
+  return FXString::comparecase(&((a)[pa]),&((b)[pb]));
   }
 
 
@@ -90,7 +90,7 @@ FXint GMAlbumListItem::album_list_sort(const GMAlbumListItem* pa,const GMAlbumLi
     }
   if (begins_with_keyword(pa->title)) a=FXMIN(pa->title.length()-1,pa->title.find(' ')+1);
   if (begins_with_keyword(pb->title)) b=FXMIN(pb->title.length()-1,pb->title.find(' ')+1);
-  return comparecase(&pa->title[a],&pb->title[b]);
+  return FXString::comparecase(&pa->title[a],&pb->title[b]);
   }
 
 FXint GMAlbumListItem::album_list_sort_reverse(const GMAlbumListItem* pa,const GMAlbumListItem* pb){
@@ -101,7 +101,7 @@ FXint GMAlbumListItem::album_list_sort_reverse(const GMAlbumListItem* pa,const G
     }
   if (begins_with_keyword(pa->title)) a=FXMIN(pa->title.length()-1,pa->title.find(' ')+1);
   if (begins_with_keyword(pb->title)) b=FXMIN(pb->title.length()-1,pb->title.find(' ')+1);
-  return -comparecase(&pa->title[a],&pb->title[b]);
+  return -FXString::comparecase(&pa->title[a],&pb->title[b]);
   }
 
 
@@ -2406,4 +2406,3 @@ GMAlbumList::~GMAlbumList(){
   getApp()->removeTimeout(this,ID_LOOKUPTIMER);
   clearItems(false);
   }
-

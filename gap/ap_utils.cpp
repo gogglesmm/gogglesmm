@@ -296,12 +296,12 @@ extern const FXTextCodec * ap_get_usercodec(FXuint encoding) {
 extern const FXTextCodec * ap_get_textcodec(const FXString & encoding) {
   // Check if any of the codecs match
   for (FXint i=0;codec_list[i];i++) {
-    if (comparecase(codec_list[i]->name(),encoding)==0) {
+    if (FXString::comparecase(codec_list[i]->name(),encoding)==0) {
       return codec_list[i];
       }
     const FXchar * const * alias = codec_list[i]->aliases();
     for (FXint j=0;alias[j]!=nullptr;j++) {
-      if (comparecase(alias[j],encoding)==0) {
+      if (FXString::comparecase(alias[j],encoding)==0) {
         return codec_list[i];
         }
       }
@@ -317,14 +317,14 @@ extern const FXTextCodec * ap_get_textcodec(const FXString & encoding) {
 
 void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint len) {
   FXASSERT(meta);
-  if (comparecase(comment,"TITLE=",6)==0){
+  if (FXString::comparecase(comment,"TITLE=",6)==0){
     if (!meta->title.empty()) meta->title.append(' ');
     meta->title.append(comment+6,len-6);
     }
-  else if (meta->artist.empty() && comparecase(comment,"ARTIST=",7)==0){
+  else if (meta->artist.empty() && FXString::comparecase(comment,"ARTIST=",7)==0){
     meta->artist.assign(comment+7,len-7);
     }
-  else if (meta->album.empty() && comparecase(comment,"ALBUM=",6)==0){
+  else if (meta->album.empty() && FXString::comparecase(comment,"ALBUM=",6)==0){
     meta->album.assign(comment+6,len-6);
     }
   }
@@ -332,19 +332,19 @@ void ap_meta_from_vorbis_comment(MetaInfo * meta, const FXchar * comment,FXint l
 
 void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,FXint len) {
   if (len>22) {
-    if (comparecase(comment,"REPLAYGAIN_TRACK_GAIN=",22)==0){
+    if (FXString::comparecase(comment,"REPLAYGAIN_TRACK_GAIN=",22)==0){
       FXString tag(comment+22,len-22);
       tag.scan("%lg",&gain.track);
       }
-    else if (comparecase(comment,"REPLAYGAIN_TRACK_PEAK=",22)==0){
+    else if (FXString::comparecase(comment,"REPLAYGAIN_TRACK_PEAK=",22)==0){
       FXString tag(comment+22,len-22);
       tag.scan("%lg",&gain.track_peak);
       }
-    else if (comparecase(comment,"REPLAYGAIN_ALBUM_GAIN=",22)==0){
+    else if (FXString::comparecase(comment,"REPLAYGAIN_ALBUM_GAIN=",22)==0){
       FXString tag(comment+22,len-22);
       tag.scan("%lg",&gain.album);
       }
-    else if (comparecase(comment,"REPLAYGAIN_ALBUM_PEAK=",22)==0){
+    else if (FXString::comparecase(comment,"REPLAYGAIN_ALBUM_PEAK=",22)==0){
       FXString tag(comment+22,len-22);
       tag.scan("%lg",&gain.album_peak);
       }

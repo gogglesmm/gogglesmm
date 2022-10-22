@@ -115,19 +115,19 @@ long GMNotifyDaemon::onSignal(FXObject*,FXSelector,void*ptr){
     }
   else if (dbus_message_is_signal(msg,GALAGO_NOTIFY_INTERFACE,"ActionInvoked")){
     if (dbus_message_has_signature(msg,"us") && dbus_message_get_args(msg,nullptr,DBUS_TYPE_UINT32,&id,DBUS_TYPE_STRING,&action,DBUS_TYPE_INVALID)) {
-      if (compare(action,"media-skip-backward")==0) {
+      if (FXString::compare(action,"media-skip-backward")==0) {
         GMPlayerManager::instance()->cmd_prev();
         }
-      else if (compare(action,"media-skip-forward")==0) {
+      else if (FXString::compare(action,"media-skip-forward")==0) {
         GMPlayerManager::instance()->cmd_next();
         }
-      else if (compare(action,"media-playback-pause")==0) {
+      else if (FXString::compare(action,"media-playback-pause")==0) {
         GMPlayerManager::instance()->cmd_pause();
         }
-      else if (compare(action,"media-playback-start")==0) {
+      else if (FXString::compare(action,"media-playback-start")==0) {
         GMPlayerManager::instance()->cmd_play();
         }
-      else if (compare(action,"media-playback-stop")==0) {
+      else if (FXString::compare(action,"media-playback-stop")==0) {
         GMPlayerManager::instance()->cmd_stop();
         }
       else {
@@ -153,24 +153,24 @@ long GMNotifyDaemon::onNotifyServer(FXObject*,FXSelector,void*ptr){
 
   if ((dbus_message_get_type(msg)==DBUS_MESSAGE_TYPE_METHOD_RETURN) && dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&dname,DBUS_TYPE_STRING,&vendor,DBUS_TYPE_STRING,&version,DBUS_TYPE_STRING,&spec,DBUS_TYPE_INVALID)) {
 
-    if (compareversion(spec,"1.1")==0) {
+    if (FXString::comparenatural(spec,"1.1")==0) {
       icondata="image_data";
       }
-    else if (compareversion(spec,"1.2")>=0) {
+    else if (FXString::comparenatural(spec,"1.2")>=0) {
       icondata="image-data";
       }
     else {
       icondata="icon_data";
       }
 
-    if (comparecase(vendor,"xfce")==0 && comparecase(dname,"xfce notify daemon")==0) {
+    if (FXString::comparecase(vendor,"xfce")==0 && FXString::comparecase(dname,"xfce notify daemon")==0) {
       flags|=IMAGE_WITHOUT_APPICON;
       }
 
-    if (comparecase(dname,"gnome-shell")==0 && comparecase(vendor,"gnome")==0) {
+    if (FXString::comparecase(dname,"gnome-shell")==0 && FXString::comparecase(vendor,"gnome")==0) {
       GMPlayerManager::instance()->getPreferences().gui_tray_icon_disabled=true;
       flags|=ACTION_ITEMS;
-      if (compareversion(version,"3.2.0")<0){
+      if (FXString::comparenatural(version,"3.2.0")<0){
         flags|=IMAGE_WITHOUT_APPICON;
         }
       }
@@ -200,11 +200,11 @@ long GMNotifyDaemon::onNotifyCapabilities(FXObject*,FXSelector,void*ptr){
     for (FXint i=0;i<ncaps;i++){
       GM_DEBUG_PRINT("caps[%d]=%s\n",i,caps[i]);
       if (flags&ACTION_ITEMS) {
-        if (comparecase(caps[i],"actions")==0)
+        if (FXString::comparecase(caps[i],"actions")==0)
           has_actions=true;
-        else if ((comparecase(caps[i],"action-icons")==0) || (comparecase(caps[i],"x-gnome-icon-buttons")==0))
+        else if ((FXString::comparecase(caps[i],"action-icons")==0) || (FXString::comparecase(caps[i],"x-gnome-icon-buttons")==0))
           has_action_icons=true;
-        else if (comparecase(caps[i],"persistence")==0)
+        else if (FXString::comparecase(caps[i],"persistence")==0)
           has_persistence=true;
         }
       }
@@ -386,5 +386,3 @@ void GMNotifyDaemon::notify(const FXchar * summary,const FXchar * body,FXint tim
       send(msg,this,ID_NOTIFY_REPLY);
       }
     }
-
-

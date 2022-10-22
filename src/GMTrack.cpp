@@ -22,7 +22,7 @@
 
 
 FXbool GMTrack::hasMissingLyrics() const {
-  if (!lyrics.empty() && compare(lyrics,"\0",1)==0)
+  if (!lyrics.empty() && FXString::compare(lyrics,"\0",1)==0)
     return true;
   else
     return false;

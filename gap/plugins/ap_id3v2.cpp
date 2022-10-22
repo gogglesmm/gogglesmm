@@ -137,10 +137,10 @@ void ID3V2::parse_priv_frame(FXint /*framesize*/) {
 void ID3V2::parse_rva2_frame(FXint framesize) {
   if (framesize>6) {
     FXbool is_track_gain=false;
-    if (comparecase((const FXchar*)buffer+p,"track\0",6)==0) {
+    if (FXString::comparecase((const FXchar*)buffer+p,"track\0",6)==0) {
       is_track_gain=true;
       }
-    else if (comparecase((const FXchar*)buffer+p,"album\0",6)) {
+    else if (FXString::comparecase((const FXchar*)buffer+p,"album\0",6)) {
       return;
       }
 
@@ -357,15 +357,3 @@ FXbool ID3V2::empty() const {
   }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-

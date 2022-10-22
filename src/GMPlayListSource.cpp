@@ -335,9 +335,9 @@ long GMPlayListSource::onCmdImport(FXObject*,FXSelector,void*){
 
       FXString extension = FXPath::extension(dialog.getFilename());
 
-      if (comparecase(extension,"m3u")==0)
+      if (FXString::comparecase(extension,"m3u")==0)
         ap_parse_m3u(buffer,urls);
-      else if (comparecase(extension,"pls")==0)
+      else if (FXString::comparecase(extension,"pls")==0)
         ap_parse_pls(buffer,urls);
       else
         ap_parse_xspf(buffer,urls,title);
@@ -395,5 +395,3 @@ long GMPlayListSource::onCmdRemove(FXObject*,FXSelector,void *){
     }
   return 1;
   }
-
-

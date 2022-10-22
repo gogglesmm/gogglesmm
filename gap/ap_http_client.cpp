@@ -145,7 +145,7 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
   // Reset Client
   reset(host_changed);
 
-  if (compare(method,"HEAD")==0) {
+  if (FXString::comparecase(method,"HEAD")==0) {
     flags|=HeadRequest;
     }
 
@@ -241,7 +241,7 @@ FXbool HttpClient::basic(const FXchar*    method,
               *moved=url;
               }
             // Don't do automatic redirections for non GET/HEAD requests
-            if (comparecase(method,"GET") && comparecase(method,"HEAD"))
+            if (FXString::comparecase(method,"GET") && FXString::comparecase(method,"HEAD"))
               return true;
 
             if (!request(method,url,header,content)) {
@@ -263,7 +263,7 @@ FXbool HttpClient::basic(const FXchar*    method,
 
               FXString challenge = getHeader("www-authenticate");
 
-              if (comparecase(challenge,"basic",5)==0) {
+              if (FXString::comparecase(challenge,"basic",5)==0) {
                 FXString auth = "Authorization: Basic " + Base64Encoder::encodeString(user+":"+password) + "\r\n";
 
                 if (!request(method,url,header+auth,content)) {

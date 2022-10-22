@@ -93,5 +93,12 @@ extern const FXchar * fxtr(const FXchar *) FX_FORMAT(1);
 // Best Image Scaler in FXImage
 #define FOX_SCALE_BEST 2
 
+
+#if FOXVERSION < FXVERSION(1, 7, 80)
+#define followUTF8 FXISFOLLOWUTF8
+#define leadUTF16 FXISLEADUTF16
+#define followUTF16 FXISFOLLOWUTF16
+#define seqUTF16 FXISSEQUTF16
 #endif
 
+#endif

@@ -625,7 +625,7 @@ ReadStatus OggReader::parse_opus_stream() {
   if (!fetch_next_packet())
     return ReadError;
 
-  if (compare((const FXchar*)op.packet,"OpusTags",8))
+  if (FXString::compare((const FXchar*)op.packet,"OpusTags",8))
     return ReadError;
 
 
@@ -692,7 +692,7 @@ ReadStatus OggReader::parse_vorbis_stream() {
     }
 
   // Check make sure its a comment packet
-  if (compare((const FXchar*)op.packet,"\x03""vorbis",7)) {
+  if (FXString::compare((const FXchar*)op.packet,"\x03""vorbis",7)) {
     goto x;
     }
 
@@ -706,7 +706,7 @@ ReadStatus OggReader::parse_vorbis_stream() {
     }
 
   // Check make sure its the correct packet
-  if (compare((const FXchar*)op.packet,"\x05""vorbis",7)) {
+  if (FXString::compare((const FXchar*)op.packet,"\x05""vorbis",7)) {
     goto x;
     }
 
@@ -823,17 +823,17 @@ ReadStatus OggReader::parse() {
     }
 
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
-  if (compare((const FXchar*)op.packet,"\x01""vorbis",7)==0) {
+  if (FXString::compare((const FXchar*)op.packet,"\x01""vorbis",7)==0) {
     return parse_vorbis_stream();
     }
 #endif
 #ifdef HAVE_OPUS
-  if (compare((const FXchar*)op.packet,"OpusHead",8)==0){
+  if (FXString::compare((const FXchar*)op.packet,"OpusHead",8)==0){
     return parse_opus_stream();
     }
 #endif
 #ifdef HAVE_FLAC
-  if (compare((const FXchar*)op.packet,"\x7f""FLAC",5)==0) {
+  if (FXString::compare((const FXchar*)op.packet,"\x7f""FLAC",5)==0) {
     return parse_flac_stream();
     }
 #endif
@@ -1038,12 +1038,3 @@ ReaderPlugin * ap_ogg_reader(InputContext * ctx) {
 
 
 }
-
-
-
-
-
-
-
-
-

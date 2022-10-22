@@ -500,7 +500,7 @@ void GMPlayerManager::init_window(FXbool wizard) {
     FXbool start_as_tray=false;
     if (preferences.gui_tray_icon_disabled==false){
       for(FXint i=1;i<argc;i++) {
-        if (comparecase(argv[i],"--tray")==0){
+        if (FXString::comparecase(argv[i],"--tray")==0){
           start_as_tray=true;
           preferences.gui_tray_icon=true;
           break;
@@ -527,7 +527,7 @@ static FXString get_cmdline_url(int& argc,char** argv) {
 
 static FXbool get_cmdline_update_podcasts(int & argc, char ** argv){
   for (FXint i=1;i<argc;i++) {
-    if (compare(argv[i],"--update-podcasts")==0)
+    if (FXString::compare(argv[i],"--update-podcasts")==0)
       return true;
     }
   return false;
@@ -931,7 +931,7 @@ void GMPlayerManager::cleanSourceSettings() {
   FXStringList keys;
 
   for (s=0;s<application->reg().no();s++){
-    if (!application->reg().empty(s) && comparecase(application->reg().key(s),"database",8)==0){
+    if (!application->reg().empty(s) && FXString::compare(application->reg().key(s),"database",8)==0){
       if (!hasSourceWithKey(application->reg().key(s))) {
         keys.append(application->reg().key(s));
         }
@@ -1564,11 +1564,11 @@ void GMPlayerManager::display_track_notification() {
 #ifdef HAVE_DBUS
 long GMPlayerManager::onCmdSettingsDaemon(FXObject*,FXSelector,void*ptr){
   const FXchar * cmd = (const FXchar*)ptr;
-  if (comparecase(cmd,"play")==0) cmd_playpause();
-  else if (comparecase(cmd,"pause")==0) cmd_playpause();
-  else if (comparecase(cmd,"stop")==0) cmd_stop();
-  else if (comparecase(cmd,"previous")==0) cmd_prev();
-  else if (comparecase(cmd,"next")==0) cmd_next();
+  if (FXString::comparecase(cmd,"play")==0) cmd_playpause();
+  else if (FXString::comparecase(cmd,"pause")==0) cmd_playpause();
+  else if (FXString::comparecase(cmd,"stop")==0) cmd_stop();
+  else if (FXString::comparecase(cmd,"previous")==0) cmd_prev();
+  else if (FXString::comparecase(cmd,"next")==0) cmd_next();
   else {
     GM_DEBUG_PRINT("Unknown or unhandled key press: %s\n",cmd);
     }
@@ -1787,5 +1787,3 @@ FXint GMPlayerManager::createPlaylist(const FXString & name) {
 FXuint GMPlayerManager::getMainWindowId() const {
   return mainwindow->id();
   }
-
-

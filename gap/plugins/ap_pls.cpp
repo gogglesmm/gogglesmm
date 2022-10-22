@@ -38,7 +38,7 @@ void ap_parse_pls(const FXString & data,FXStringList & mrl) {
 
       /// Parse the actual line.
       if ((end-start)>6) {
-        if (compare(&data[start],"File",4)==0) {
+        if (FXString::compare(&data[start],"File",4)==0) {
           pos = data.find('=',start+4);
           if (pos==-1) continue;
           pos++;

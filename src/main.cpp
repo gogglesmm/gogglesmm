@@ -27,7 +27,7 @@
 */
 static bool gm_display_help(int argc,char * argv[]) {
   for (int i=1;i<argc;i++){
-    if ( (comparecase(argv[i],"--help")==0) || (comparecase(argv[i],"-h")==0) ) {
+    if ( (FXString::comparecase(argv[i],"--help")==0) || (FXString::comparecase(argv[i],"-h")==0) ) {
       fxmessage("Usage: %s [options]\n\n",FXPath::name(argv[0]).text());
       fxmessage("General options:\n"
                 " -h, --help            Display this help page\n"
@@ -52,7 +52,7 @@ static bool gm_display_help(int argc,char * argv[]) {
                 );
       return true;
       }
-    else if ( (comparecase(argv[i],"--version")==0) || (comparecase(argv[i],"-v")==0) ) {
+    else if ( (FXString::comparecase(argv[i],"--version")==0) || (FXString::comparecase(argv[i],"-v")==0) ) {
       fxmessage("Goggles Music Manager %s\n",GOGGLESMM_VERSION_STRING);
       return true;
       }

@@ -349,7 +349,7 @@ void GMPreferences::getKeyWords(FXString & keywords) const {
 
 void GMPreferences::parseCommandLine(int argc,char **argv){
   for (FXint i=0;i<argc;i++){
-    if (comparecase(argv[i],"--disable-opengl")==0) {
+    if (FXString::comparecase(argv[i],"--disable-opengl")==0) {
       gui_use_opengl=false;
       }
     }

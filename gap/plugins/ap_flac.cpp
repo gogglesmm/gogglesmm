@@ -161,12 +161,12 @@ FXbool FlacReader::can_seek() const {
 FXint FlacReader::parse_utf_value(const FXuchar * buffer,FXlong & value) {
   FXint p=0;
   value = buffer[p++];
-  if(0xC0<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x3080;
-  if(0x800<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x20080;
-  if(0x10000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x400080;
-  if(0x100000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x8000080;
-  if(0x4000000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x100000080;
-  if(0x80000000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x2000000080;}}}}}}
+  if(0xC0<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x3080;
+  if(0x800<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x20080;
+  if(0x10000<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x400080;
+  if(0x100000<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x8000080;
+  if(0x4000000<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x100000080;
+  if(0x80000000<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x2000000080;}}}}}}
   return p;
   }
 
@@ -174,11 +174,11 @@ FXint FlacReader::parse_utf_value(const FXuchar * buffer,FXlong & value) {
 FXint FlacReader::parse_utf_value(const FXuchar * buffer,FXuint & value) {
   FXint p=0;
   value = buffer[p++];
-  if(0xC0<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x3080;
-  if(0x800<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x20080;
-  if(0x10000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x400080;
-  if(0x100000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x8000080;
-  if(0x4000000<=value) { if (!FXISFOLLOWUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x100000080;}}}}}
+  if(0xC0<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x3080;
+  if(0x800<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x20080;
+  if(0x10000<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x400080;
+  if(0x100000<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x8000080;
+  if(0x4000000<=value) { if (!followUTF8(buffer[p])) {return false;} value=(value<<6)^buffer[p++]^0x100000080;}}}}}
   return p;
   }
 
@@ -521,7 +521,7 @@ FXbool flac_audioformat(const FXuchar * info,AudioFormat & af,FXlong & stream_le
     to older version of the flac library
   */
   if (samplesize > 24) {
-    if (compareversion(FLAC__VERSION_STRING, "1.4.0") < 0)
+    if (FXString::comparenatural(FLAC__VERSION_STRING, "1.4.0") < 0)
       return false;
   }
 

@@ -258,34 +258,34 @@ FXbool operator==(const AudioFormat& af1,const AudioFormat& af2){
 
 
 extern FXuint ap_format_from_mime(const FXString & mime) {
-  if (comparecase(mime,"audio/mpeg")==0) {
+  if (FXString::comparecase(mime,"audio/mpeg")==0) {
     return Format::MP3;
     }
-  else if (comparecase(mime,"audio/ogg")==0 ||
-           comparecase(mime,"application/ogg")==0 ||
-           comparecase(mime,"audio/opus")==0){
+  else if (FXString::comparecase(mime,"audio/ogg")==0 ||
+           FXString::comparecase(mime,"application/ogg")==0 ||
+           FXString::comparecase(mime,"audio/opus")==0){
     return Format::OGG;
     }
-  else if (comparecase(mime,"audio/aacp")==0 ||
-           comparecase(mime,"audio/aac")==0) {
+  else if (FXString::comparecase(mime,"audio/aacp")==0 ||
+           FXString::comparecase(mime,"audio/aac")==0) {
     return Format::AAC;
     }
-  else if (comparecase(mime,"audio/x-mpegurl")==0 ||
-           comparecase(mime,"audio/mpegurl")==0) {
+  else if (FXString::comparecase(mime,"audio/x-mpegurl")==0 ||
+           FXString::comparecase(mime,"audio/mpegurl")==0) {
     return Format::M3U;
     }
-  else if ((comparecase(mime,"application/pls+xml")==0) || /// wrong mimetype, but NPR actually returns this: http://www.npr.org/streams/mp3/nprlive24.pls
-           (comparecase(mime,"audio/x-scpls")==0)){
+  else if ((FXString::comparecase(mime,"application/pls+xml")==0) || /// wrong mimetype, but NPR actually returns this: http://www.npr.org/streams/mp3/nprlive24.pls
+           (FXString::comparecase(mime,"audio/x-scpls")==0)){
     return Format::PLS;
     }
-  else if (comparecase(mime,"application/xspf+xml")==0){
+  else if (FXString::comparecase(mime,"application/xspf+xml")==0){
     return Format::XSPF;
     }
-  else if (comparecase(mime,"audio/x-aiff")==0 ||
-           comparecase(mime,"audio/aiff")==0) {
+  else if (FXString::comparecase(mime,"audio/x-aiff")==0 ||
+           FXString::comparecase(mime,"audio/aiff")==0) {
     return Format::AIFF;
     }
-  else if (comparecase(mime,"video/webm")==0){
+  else if (FXString::comparecase(mime,"video/webm")==0){
     return Format::Matroska;
     }
 
@@ -295,31 +295,31 @@ extern FXuint ap_format_from_mime(const FXString & mime) {
   }
 
 extern FXuint ap_format_from_extension(const FXString & extension) {
-  if (comparecase(extension,"wav")==0)
+  if (FXString::comparecase(extension,"wav")==0)
     return Format::WAV;
-  else if (comparecase(extension,"flac")==0)
+  else if (FXString::comparecase(extension,"flac")==0)
     return Format::FLAC;
-  else if (comparecase(extension,"ogg")==0 || comparecase(extension,"oga")==0 || comparecase(extension,"opus")==0)
+  else if (FXString::comparecase(extension,"ogg")==0 || FXString::comparecase(extension,"oga")==0 || FXString::comparecase(extension,"opus")==0)
     return Format::OGG;
-  else if (comparecase(extension,"mp3")==0)
+  else if (FXString::comparecase(extension,"mp3")==0)
     return Format::MP3;
-  else if (comparecase(extension,"mp4")==0 ||
-           comparecase(extension,"m4a")==0 ||
-           comparecase(extension,"m4p")==0 ||
-           comparecase(extension,"mov")==0 ||
-           comparecase(extension,"m4b")==0 )
+  else if (FXString::comparecase(extension,"mp4")==0 ||
+           FXString::comparecase(extension,"m4a")==0 ||
+           FXString::comparecase(extension,"m4p")==0 ||
+           FXString::comparecase(extension,"mov")==0 ||
+           FXString::comparecase(extension,"m4b")==0 )
     return Format::MP4;
-  else if (comparecase(extension,"aac")==0)
+  else if (FXString::comparecase(extension,"aac")==0)
     return Format::AAC;
-  else if (comparecase(extension,"aiff")==0 || comparecase(extension,"aif")==0)
+  else if (FXString::comparecase(extension,"aiff")==0 || FXString::comparecase(extension,"aif")==0)
     return Format::AIFF;
-  else if (comparecase(extension,"m3u")==0)
+  else if (FXString::comparecase(extension,"m3u")==0)
     return Format::M3U;
-  else if (comparecase(extension,"pls")==0)
+  else if (FXString::comparecase(extension,"pls")==0)
     return Format::PLS;
-  else if (comparecase(extension,"xspf")==0)
+  else if (FXString::comparecase(extension,"xspf")==0)
     return Format::XSPF;
-  else if (comparecase(extension,"mkv")==0 || comparecase(extension,"webm")==0)
+  else if (FXString::comparecase(extension,"mkv")==0 || FXString::comparecase(extension,"webm")==0)
     return Format::Matroska;
   else
     return Format::Unknown;

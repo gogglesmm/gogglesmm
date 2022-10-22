@@ -65,9 +65,9 @@ FXString gm_rfc1123(FXTime time) {
 
 
 static FXbool gm_is_feed(const FXString & mime) {
-  if ( comparecase(mime,"application/rss+xml")==0 ||
-       comparecase(mime,"text/xml")==0 ||
-       comparecase(mime,"application/xml")==0 ) {
+  if ( FXString::comparecase(mime,"application/rss+xml")==0 ||
+       FXString::comparecase(mime,"text/xml")==0 ||
+       FXString::comparecase(mime,"application/xml")==0 ) {
     return true;
     }
   else {
@@ -193,49 +193,49 @@ protected:
   FXint begin(const FXchar *element,const FXchar** attributes){
     switch(node()) {
       case Elem_None:
-        if (compare(element,"rss")==0)
+        if (FXString::compare(element,"rss")==0)
           return Elem_RSS;
         break;
       case Elem_RSS:
-        if (compare(element,"channel")==0)
+        if (FXString::compare(element,"channel")==0)
           return Elem_Channel;
         break;
       case Elem_Channel:
-        if (compare(element,"item")==0)
+        if (FXString::compare(element,"item")==0)
           return Elem_Item;
-        else if (comparecase(element,"title")==0)
+        else if (FXString::comparecase(element,"title")==0)
           return Elem_Channel_Title;
-        else if (comparecase(element,"description")==0)
+        else if (FXString::comparecase(element,"description")==0)
           return Elem_Channel_Description;
-        else if (comparecase(element,"category")==0)
+        else if (FXString::comparecase(element,"category")==0)
           return Elem_Channel_Category;
-        else if (comparecase(element,"itunes:category")==0)
+        else if (FXString::comparecase(element,"itunes:category")==0)
           parse_itunes_category(attributes);
-        else if (comparecase(element,"itunes:image")==0 && feed.image.empty())
+        else if (FXString::comparecase(element,"itunes:image")==0 && feed.image.empty())
           parse_itunes_image(attributes);
-        else if (comparecase(element,"image")==0 && feed.image.empty())
+        else if (FXString::comparecase(element,"image")==0 && feed.image.empty())
           return Elem_Channel_Image;
-        else if (comparecase(element,"pubdate")==0)
+        else if (FXString::comparecase(element,"pubdate")==0)
           return Elem_Channel_Date;
         break;
       case Elem_Item:
-        if (comparecase(element,"enclosure")==0) {
+        if (FXString::comparecase(element,"enclosure")==0) {
           if (attributes)
             parse_enclosure(attributes);
           }
-        else if (comparecase(element,"title")==0)
+        else if (FXString::comparecase(element,"title")==0)
           return Elem_Item_Title;
-        else if (comparecase(element,"description")==0)
+        else if (FXString::comparecase(element,"description")==0)
           return Elem_Item_Description;
-        else if (comparecase(element,"guid")==0)
+        else if (FXString::comparecase(element,"guid")==0)
           return Elem_Item_Guid;
-        else if (comparecase(element,"pubdate")==0)
+        else if (FXString::comparecase(element,"pubdate")==0)
           return Elem_Item_Date;
-        else if (comparecase(element,"itunes:duration")==0)
+        else if (FXString::comparecase(element,"itunes:duration")==0)
           return Elem_Item_Duration;
         break;
       case Elem_Channel_Image:
-        if (comparecase(element,"url")==0)
+        if (FXString::comparecase(element,"url")==0)
           return Elem_Channel_Image_Url;
       default: break;
       }
@@ -280,7 +280,7 @@ protected:
 
   void parse_itunes_image(const FXchar** attributes) {
     for (FXint i=0;attributes[i];i+=2) {
-      if (comparecase(attributes[i],"href")==0){
+      if (FXString::comparecase(attributes[i],"href")==0){
         feed.image = attributes[i+1];
         }
       }
@@ -288,7 +288,7 @@ protected:
 
   void parse_itunes_category(const FXchar** attributes) {
     for (FXint i=0;attributes[i];i+=2) {
-      if (comparecase(attributes[i],"text")==0){
+      if (FXString::comparecase(attributes[i],"text")==0){
         feed.category = attributes[i+1];
         unescape_html(feed.category);
         }
@@ -297,9 +297,9 @@ protected:
 
   void parse_enclosure(const FXchar** attributes) {
     for (FXint i=0;attributes[i];i+=2) {
-      if (comparecase(attributes[i],"url")==0)
+      if (FXString::comparecase(attributes[i],"url")==0)
         item.url = attributes[i+1];
-      else if (comparecase(attributes[i],"length")==0)
+      else if (FXString::comparecase(attributes[i],"length")==0)
         item.length = FXString(attributes[i+1]).toInt();
       }
     }
@@ -467,22 +467,22 @@ public:
       while(attr.search(mlink,ff,mlink.length()-1,FXRex::Normal,b,e,5)>=0){
         if (b[1]>=0) {
           if (e[1]-b[1]==4) {
-            if (comparecase(&mlink[b[1]],"type",4)==0) {
+            if (FXString::comparecase(&mlink[b[1]],"type",4)==0) {
               mimetype = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
               GM_DEBUG_PRINT("\tmimetype=%s\n",mimetype.text());
               }
-            else if (comparecase(&mlink[b[1]],"href",4)==0) {
+            else if (FXString::comparecase(&mlink[b[1]],"href",4)==0) {
               feed.url = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
               GM_DEBUG_PRINT("\thref=%s\n",feed.url.text());
               }
             }
-          else if (e[1]-b[1]==5 && comparecase(&mlink[b[1]],"title",5)==0) {
+          else if (e[1]-b[1]==5 && FXString::comparecase(&mlink[b[1]],"title",5)==0) {
             feed.description = (b[2]>0) ? mlink.mid(b[3],e[3]-b[3]) : mlink.mid(b[4],e[4]-b[4]);
             }
           }
         ff=e[0];
         }
-      if (comparecase(mimetype,"application/rss+xml")==0 && !feed.url.empty()) {
+      if (FXString::comparecase(mimetype,"application/rss+xml")==0 && !feed.url.empty()) {
         links.append(feed);
         }
       }
@@ -512,7 +512,7 @@ public:
         else
           return 1;
         }
-      else if (comparecase(media.mime,"text/html")==0) {
+      else if (FXString::comparecase(media.mime,"text/html")==0) {
         FXArray<FeedLink> links;
         if (findFeedLink(client.body(),links)) {
           FXint index = select_feed(links);

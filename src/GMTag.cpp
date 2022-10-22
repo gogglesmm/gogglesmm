@@ -265,8 +265,8 @@ static FXbool gm_taglib_string(const TagLib::String & src,FXString & dst) {
     w=src[q++];
     if(__likely(w<0x80)){ p+=1; continue; }
     if(__likely(w<0x800)){ p+=2; continue; }
-    if(__likely(!FXISSEQUTF16(w))){ p+=3; continue; }
-    if(__likely(FXISLEADUTF16(w) && q<slen && FXISFOLLOWUTF16(src[q++]))){ p+=4; continue; }
+    if(__likely(!seqUTF16(w))){ p+=3; continue; }
+    if(__likely(leadUTF16(w) && q<slen && followUTF16(src[q++]))){ p+=4; continue; }
     break;
     }
 
@@ -288,14 +288,14 @@ static FXbool gm_taglib_string(const TagLib::String & src,FXString & dst) {
       dst[p++]=(w&0x3F)|0x80;
       continue;
       }
-    if(__likely(!FXISSEQUTF16(w))){
+    if(__likely(!seqUTF16(w))){
       if(__unlikely(p+2>=dlen)) break;
       dst[p++]=(w>>12)|0xE0;
       dst[p++]=((w>>6)&0x3F)|0x80;
       dst[p++]=(w&0x3F)|0x80;
       continue;
       }
-    if(__likely(FXISLEADUTF16(w) && q<slen && FXISFOLLOWUTF16(src[q]))){
+    if(__likely(leadUTF16(w) && q<slen && followUTF16(src[q]))){
       if(__unlikely(p+3>=dlen)) break;
       w=SURROGATE_OFFSET+(w<<10)+src[q++];
       dst[p++]=(w>>18)|0xF0;
@@ -310,8 +310,6 @@ static FXbool gm_taglib_string(const TagLib::String & src,FXString & dst) {
 
   return !dst.empty();
   }
-
-
 
 
 
@@ -1442,11 +1440,3 @@ FXbool length(GMTrack & info) {
 
 
 }
-
-
-
-
-
-
-
-

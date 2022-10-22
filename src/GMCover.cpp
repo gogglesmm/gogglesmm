@@ -58,7 +58,7 @@ FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
       FXuint chunk_length = MSB_UINT(chunk);
 
       // IHDR chunk
-      if (compare((const FXchar*)(chunk+4),"IHDR",4)==0) {
+      if (FXString::compare((const FXchar*)(chunk+4),"IHDR",4)==0) {
 
         if (chunk_length!=13)
           return false;
@@ -81,7 +81,7 @@ FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
           return true;
 
         }
-      else if (compare((const FXchar*)(chunk+4),"PLTE",4)==0) {
+      else if (FXString::compare((const FXchar*)(chunk+4),"PLTE",4)==0) {
         info.colors = chunk_length / 3; /// 3 bytes for each palette entry
         return true;
         }
@@ -499,7 +499,7 @@ GMCover * GMCover::fromPath(const FXString & path) {
 
     for (FXint c=0;covernames[c]!=nullptr;c++) {
       for (FXint i=0;i<nfiles;i++){
-        if (comparecase(names[i],covernames[c])==0) {
+        if (FXString::comparecase(names[i],covernames[c])==0) {
           cover = GMCover::fromFile(path+PATHSEPSTRING+files[i]);
           if (cover) {
             delete [] names;

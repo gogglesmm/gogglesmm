@@ -92,14 +92,14 @@ enum {
 
 FXuint gm_desktop_session() {
   FXString desktop = FXSystem::getEnvironment("DESKTOP_SESSION");
-  if (comparecase(desktop,"kde-plasma")==0 ||
-      comparecase(desktop,"/usr/share/xsessions/plasma")==0)
+  if (FXString::comparecase(desktop,"kde-plasma")==0 ||
+      FXString::comparecase(desktop,"/usr/share/xsessions/plasma")==0)
     return DESKTOP_SESSION_KDE_PLASMA;
-  else if (comparecase(desktop,"gnome")==0)
+  else if (FXString::comparecase(desktop,"gnome")==0)
     return DESKTOP_SESSION_GNOME;
-  else if (comparecase(desktop,"xfce")==0)
+  else if (FXString::comparecase(desktop,"xfce")==0)
     return DESKTOP_SESSION_XFCE;
-  else if (comparecase(desktop,"lxde")==0)
+  else if (FXString::comparecase(desktop,"lxde")==0)
     return DESKTOP_SESSION_LXDE;
   else
     return DESKTOP_SESSION_X11;
@@ -242,7 +242,7 @@ FXString gm_make_url(const FXString & in) {
 FXbool gm_is_local_file(const FXString & filename) {
   if (filename[0]=='/') return true;
   FXString scheme = FXURL::scheme(filename);
-  if (scheme.empty() || (comparecase(scheme,"file")==0))
+  if (scheme.empty() || (FXString::comparecase(scheme,"file")==0))
     return true;
   else
     return false;
@@ -303,7 +303,7 @@ void gm_make_absolute_path(const FXString & path,FXStringList & urls) {
     if (!urls[i].empty()) {
       if (urls[i][0]!='/') {
         FXString scheme = FXURL::scheme(urls[i]);
-        if (comparecase(scheme,"file")==0) {
+        if (FXString::comparecase(scheme,"file")==0) {
           urls[i]=FXURL::fileFromURL(urls[i]);
           if (urls[i][0]!='/')
             urls[i]=FXPath::absolute(path,urls[i]);
@@ -887,9 +887,3 @@ parsefield:
   timestamp += seconds * ((hour*3600)+(minute*60)+(second)-(tzoffset));
   return true;
   }
-
-
-
-
-
-

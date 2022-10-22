@@ -44,7 +44,7 @@
 
 static inline FXbool begins_with_keyword(const FXString & t){
   for (FXint i=0;i<GMPlayerManager::instance()->getPreferences().gui_sort_keywords.no();i++){
-    if (comparecase(t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
+    if (FXString::comparecase(t,GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i],GMPlayerManager::instance()->getPreferences().gui_sort_keywords[i].length())==0) return true;
     }
   return false;
   }
@@ -1957,7 +1957,7 @@ long GMTrackView::onCmdArtistKeyPress(FXObject*,FXSelector,void*ptr){
         a=FXMIN(text.length()-1,text.find(' ')+1);
       else
         a=0;
-      if (comparecase(&text[a],event->text,1)==0){
+      if (FXString::comparecase(&text[a],event->text,1)==0){
         selectArtistItem(i);
         artistlist->makeItemVisible(i);
         break;

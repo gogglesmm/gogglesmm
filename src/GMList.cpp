@@ -36,16 +36,16 @@
 static inline FXbool begins_with_keyword(const FXString & t){
   const FXStringList & keywords = GMPlayerManager::instance()->getPreferences().gui_sort_keywords;
   for (FXint i=0;i<keywords.no();i++){
-    if (comparecase(t,keywords[i],keywords[i].length())==0) return true;
+    if (FXString::comparecase(t,keywords[i],keywords[i].length())==0) return true;
     }
   return false;
   }
 
 FXint genre_list_sort(const FXListItem* pa,const FXListItem* pb){
-  return comparecase(pa->getText(),pb->getText());
+  return FXString::comparecase(pa->getText(),pb->getText());
   }
 FXint genre_list_sort_reverse(const FXListItem* pa,const FXListItem* pb){
-  return -comparecase(pa->getText(),pb->getText());
+  return -FXString::comparecase(pa->getText(),pb->getText());
   }
 
 
@@ -53,14 +53,14 @@ FXint generic_name_sort(const FXListItem* pa,const FXListItem* pb){
   FXint a=0,b=0;
   if (begins_with_keyword(pa->getText())) a=FXMIN(pa->getText().length()-1,pa->getText().find(' ')+1);
   if (begins_with_keyword(pb->getText())) b=FXMIN(pb->getText().length()-1,pb->getText().find(' ')+1);
-  return comparecase(&pa->getText()[a],&pb->getText()[b]);
+  return FXString::comparecase(&pa->getText()[a],&pb->getText()[b]);
   }
 
 FXint generic_name_sort_reverse(const FXListItem* pa,const FXListItem* pb){
   FXint a=0,b=0;
   if (begins_with_keyword(pa->getText())) a=FXMIN(pa->getText().length()-1,pa->getText().find(' ')+1);
   if (begins_with_keyword(pb->getText())) b=FXMIN(pb->getText().length()-1,pb->getText().find(' ')+1);
-  return comparecase(&pb->getText()[b],&pa->getText()[a]);
+  return FXString::comparecase(&pb->getText()[b],&pa->getText()[a]);
   }
 
 FXint source_list_sort(const FXTreeItem* pa,const FXTreeItem* pb){
@@ -71,7 +71,7 @@ FXint source_list_sort(const FXTreeItem* pa,const FXTreeItem* pb){
   FXint a=0,b=0;
   if (begins_with_keyword(pa->getText())) a=FXMIN(pa->getText().length()-1,pa->getText().find(' ')+1);
   if (begins_with_keyword(pb->getText())) b=FXMIN(pb->getText().length()-1,pb->getText().find(' ')+1);
-  return compareversion(&pa->getText()[a],&pb->getText()[b]);
+  return FXString::comparenatural(&pa->getText()[a],&pb->getText()[b]);
   }
 
 FXint source_list_sort_reverse(const FXTreeItem* pa,const FXTreeItem* pb){
@@ -82,7 +82,7 @@ FXint source_list_sort_reverse(const FXTreeItem* pa,const FXTreeItem* pb){
   FXint a=0,b=0;
   if (begins_with_keyword(pa->getText())) a=FXMIN(pa->getText().length()-1,pa->getText().find(' ')+1);
   if (begins_with_keyword(pb->getText())) b=FXMIN(pb->getText().length()-1,pb->getText().find(' ')+1);
-  return -compareversion(&pa->getText()[a],&pb->getText()[b]);
+  return -FXString::comparenatural(&pa->getText()[a],&pb->getText()[b]);
   }
 
 

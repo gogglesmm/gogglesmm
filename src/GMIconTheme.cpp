@@ -263,7 +263,7 @@ GMIconTheme::GMIconTheme(FXApp * application) : app(application), set(-1),rsvg(f
   if (!theme.empty()) {
 
     for (FXint i=0;i<iconsets.no();i++){
-      if (compare(iconsets[i].dir,theme)==0) {
+      if (FXString::compare(iconsets[i].dir,theme)==0) {
         set=i;
         break;
         }
@@ -351,7 +351,7 @@ void GMIconTheme::build() {
           const FXint minsize   = index[xx].readIntEntry(dir.text(),"MinSize",size);
           const FXint maxsize   = index[xx].readIntEntry(dir.text(),"MaxSize",size);
 
-          if (comparecase(type,"scalable")==0) {
+          if (FXString::comparecase(type,"scalable")==0) {
             if (smallsize>=minsize && smallsize<=maxsize)
               add_path(basedirs,base,dir,smallpath);
             if (mediumsize>=minsize && mediumsize<=maxsize)
@@ -359,7 +359,7 @@ void GMIconTheme::build() {
             if (largesize>=minsize && largesize<=maxsize)
               add_path(basedirs,base,dir,largepath);
             }
-          else if (comparecase(type,"fixed")==0) {
+          else if (FXString::comparecase(type,"fixed")==0) {
             if (size==smallsize)
               add_path(basedirs,base,dir,smallpath);
             else if (size==mediumsize)
@@ -420,16 +420,16 @@ FXImage * GMIconTheme::loadImage(const FXString & filename) {
   const FXString ext = FXPath::extension(filename);
   FXFileStream store;
   if(store.open(filename,FXStreamLoad,65536)){
-    if(comparecase(FXPNGImage::fileExt,ext)==0){
+    if(FXString::comparecase(FXPNGImage::fileExt,ext)==0){
       img=new FXPNGImage(app);
       }
-    else if(comparecase(FXJPGImage::fileExt,ext)==0 || comparecase("jpeg",ext)==0){
+    else if(FXString::comparecase(FXJPGImage::fileExt,ext)==0 || FXString::comparecase("jpeg",ext)==0){
       img=new FXJPGImage(app);
       }
-    else if(comparecase(FXBMPIcon::fileExt,ext)==0){
+    else if(FXString::comparecase(FXBMPIcon::fileExt,ext)==0){
       img=new FXBMPImage(app);
       }
-    else if(comparecase(FXGIFIcon::fileExt,ext)==0){
+    else if(FXString::comparecase(FXGIFIcon::fileExt,ext)==0){
       img=new FXGIFImage(app);
       }
     else {
@@ -450,19 +450,19 @@ FXIcon * GMIconTheme::loadIcon(const FXString & filename) {
   const FXString ext = FXPath::extension(filename);
   FXFileStream store;
   if(store.open(filename,FXStreamLoad,65536)){
-    if(comparecase(FXPNGImage::fileExt,ext)==0){
+    if(FXString::comparecase(FXPNGImage::fileExt,ext)==0){
       icon=new FXPNGIcon(app);
       }
-    else if(comparecase(FXJPGImage::fileExt,ext)==0 || comparecase("jpeg",ext)==0){
+    else if(FXString::comparecase(FXJPGImage::fileExt,ext)==0 || FXString::comparecase("jpeg",ext)==0){
       icon=new FXJPGIcon(app);
       }
-    else if(comparecase(FXBMPIcon::fileExt,ext)==0){
+    else if(FXString::comparecase(FXBMPIcon::fileExt,ext)==0){
       icon=new FXBMPIcon(app);
       }
-    else if(comparecase(FXGIFIcon::fileExt,ext)==0){
+    else if(FXString::comparecase(FXGIFIcon::fileExt,ext)==0){
       icon=new FXGIFIcon(app);
       }
-    else if(comparecase(FXICOIcon::fileExt,ext)==0 || comparecase("cur",ext)==0){
+    else if(FXString::comparecase(FXICOIcon::fileExt,ext)==0 || FXString::comparecase("cur",ext)==0){
       icon=new FXICOIcon(app);
       }
     else {
@@ -569,7 +569,11 @@ void GMIconTheme::loadLarge(FXIconPtr & icon,const FXchar * value,const FXColor 
     loadIcon(icon,FXString::null,largesize,value,blendcolor);
   }
 
+#if FOXVERSION >= FXVERSION(1, 7, 80)
+void GMIconTheme::loadResource(FXIconPtr & icon,const FXuchar * data,const FXColor blendcolor,const char * type) {
+#else
 void GMIconTheme::loadResource(FXIconPtr & icon,const void * data,const FXColor blendcolor,const char * type) {
+#endif
   FXIconSource source;
   FXIcon * newicon = source.loadIconData(app,data,type);
   FXASSERT(newicon);

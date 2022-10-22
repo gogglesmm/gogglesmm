@@ -275,6 +275,7 @@ if(WITH_SESSION AND SM_FOUND AND ICE_FOUND)
 endif()
 
 
+
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp
   COMMAND ${RESWRAP_H} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${ICONS}
@@ -307,6 +308,22 @@ if (WITH_DBUS AND DBUS_FOUND)
   set(HAVE_DBUS 1)
 endif()
 
+#-------------------------------------------------------------------------------
+#
+# Workaround to compile with earlier versions of FOX, something
+# that cannot be easily handled using the preprocessor#
+#
+if (NOT WITH_CFOX AND FOX_VERSION VERSION_LESS "1.7.80")
+  message("Replacing occurences of FXString::compare")
+  foreach(sourcefile IN LISTS PLUGIN_SOURCES SOURCES)
+    file(READ ${sourcefile} content)
+    string(REPLACE "FXString::compare" "FX::compare" updated "${content}")
+    string(REPLACE "comparenatural" "compareversion" updated "${updated}")
+    file(WRITE ${sourcefile} "${updated}")
+  endforeach()
+endif()
+
+#-------------------------------------------------------------------------------
 
 # Features
 add_feature_info(dbus HAVE_DBUS "D-Bus")

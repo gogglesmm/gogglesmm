@@ -93,7 +93,7 @@ FXIMPLEMENT(IceHook,FXObject,IceHookMap,ARRAYNUMBER(IceHookMap))
 
 static FXchar * gm_session_from_command(FXint argc,const FXchar * const argv[]){
   for (int i=1;i<argc;i++){
-    if (compare(argv[i],"--session=",10)==0) {
+    if (FXString::compare(argv[i],"--session=",10)==0) {
       return (FXchar*)(argv[i]+10);
       }
     }

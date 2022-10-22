@@ -158,7 +158,7 @@ void GMFontDialog::listFontFamily(){
         lastitem=familylist->appendItem(family,nullptr,(void*)(FXuval)fonts[f].flags);
         }
       pfamily.adopt(family);
-      if(compare(selected.face,fonts[f].face)==0) selindex=f;
+      if(FXString::compare(selected.face,fonts[f].face)==0) selindex=f;
       }
     if(selindex==-1) selindex=0;
     if(0<familylist->getNumItems()){

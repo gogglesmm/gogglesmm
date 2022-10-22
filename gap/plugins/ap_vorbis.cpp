@@ -148,7 +148,7 @@ FXbool VorbisDecoder::flush(FXlong offset) {
 
 
 FXbool VorbisDecoder::is_vorbis_header() {
-  return (op.bytes>6 && ((op.packet[0]==1) || (op.packet[0]==3) || (op.packet[0]==5)) && (compare((const FXchar*)&op.packet[1],"vorbis",6)==0));
+  return (op.bytes>6 && ((op.packet[0]==1) || (op.packet[0]==3) || (op.packet[0]==5)) && (FXString::compare((const FXchar*)&op.packet[1],"vorbis",6)==0));
   }
 
 #ifdef HAVE_TREMOR

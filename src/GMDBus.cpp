@@ -478,11 +478,11 @@ static DBusHandlerResult dbus_proxy_filter(DBusConnection *,DBusMessage * msg,vo
         const FXchar * new_owner=nullptr;
         const FXchar * old_owner=nullptr;
         if (dbus_message_get_args(msg,nullptr,DBUS_TYPE_STRING,&dbus_name,DBUS_TYPE_STRING,&old_owner,DBUS_TYPE_STRING,&new_owner,DBUS_TYPE_INVALID)) {
-          if (compare(proxy->getName(),dbus_name)==0) {
-            if (new_owner==nullptr || compare(new_owner,"")==0) {
+          if (FXString::compare(proxy->getName(),dbus_name)==0) {
+            if (new_owner==nullptr || FXString::compare(new_owner,"")==0) {
               proxy->handle(proxy,FXSEL(SEL_DESTROY,0),nullptr);
               }
-            else if (old_owner==nullptr || compare(old_owner,"")==0){
+            else if (old_owner==nullptr || FXString::compare(old_owner,"")==0){
               proxy->handle(proxy,FXSEL(SEL_CREATE,0),nullptr);
               }
             else {
