@@ -633,16 +633,35 @@ FXbool  GMFileTag::id3v2_get_field(const FXchar * field,FXStringList & list) con
 void GMFileTag::mp4_update_field(const FXchar * field,const FXString & value) {
   FXASSERT(field);
   FXASSERT(mp4);
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+  if (!value.empty())
+    mp4->setItem(field,TagLib::StringList(TagLib::String(value.text(),TagLib::String::UTF8)));
+  else
+    mp4->removeItem(field);
+#else
   if (!value.empty())
     mp4->itemListMap().insert(field,TagLib::StringList(TagLib::String(value.text(),TagLib::String::UTF8)));
   else
     mp4->itemListMap().erase(field);
+#endif
   }
 
 
 void GMFileTag::mp4_update_field(const FXchar * field,const FXStringList & list) {
   FXASSERT(field);
   FXASSERT(mp4);
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+  if (list.no()==0) {
+    mp4->removeItem(field);
+    }
+  else {
+    TagLib::StringList values;
+    for (FXint i=0;i<list.no();i++) {
+      values.append(TagLib::String(list[i].text(),TagLib::String::UTF8));
+      }
+    mp4->setItem(field,values);
+    }
+#else
   if (list.no()==0) {
     mp4->itemListMap().erase(field);
     }
@@ -653,12 +672,24 @@ void GMFileTag::mp4_update_field(const FXchar * field,const FXStringList & list)
       }
     mp4->itemListMap().insert(field,values);
     }
+#endif
   }
 
 
 FXbool GMFileTag::mp4_get_field(const FXchar * field,FXString & value) const {
   FXASSERT(field);
   FXASSERT(mp4);
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+  if (mp4->contains(field)) {
+    value=mp4->item(field).toStringList().toString(", ").toCString(true);
+    value.trim();
+    return !value.empty();
+    }
+  else {
+    value.clear();
+    return false;
+    }
+#else
   if (mp4->itemListMap().contains(field)) {
     value=mp4->itemListMap()[field].toStringList().toString(", ").toCString(true);
     value.trim();
@@ -668,14 +699,20 @@ FXbool GMFileTag::mp4_get_field(const FXchar * field,FXString & value) const {
     value.clear();
     return false;
     }
+#endif
   }
 
 
 FXbool GMFileTag::mp4_get_field(const FXchar * field,FXStringList & list) const{
   FXASSERT(field);
   FXASSERT(mp4);
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+  if (mp4->contains(field)) {
+    const TagLib::StringList fieldlist = mp4->item(field).toStringList();
+#else
   if (mp4->itemListMap().contains(field)) {
     const TagLib::StringList fieldlist = mp4->itemListMap()[field].toStringList();
+#endif
     list.no(fieldlist.size());
     FXint item=0;
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
@@ -934,12 +971,21 @@ void GMFileTag::setDiscNumber(FXushort disc) {
     else
       id3v2_update_field("TPOS",FXString::null);
     }
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+  if (mp4) {
+    if (disc>0)
+      mp4->setItem("disk",TagLib::MP4::Item(disc,0));
+    else
+      mp4->removeItem("disk");
+    }
+#else
   if (mp4) {
     if (disc>0)
       mp4->itemListMap().insert("disk",TagLib::MP4::Item(disc,0));
     else
       mp4->itemListMap().erase("disk");
     }
+#endif
   }
 
 
@@ -957,9 +1003,15 @@ FXushort GMFileTag::getDiscNumber() const{
   else if (id3v2 && id3v2_get_field("TPOS",disc)) {
     return string_to_disc_number(disc);
     }
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+  else if (mp4 && mp4->contains("disk")) {
+    return FXMIN(mp4->item("disk").toIntPair().first,0xFFFF);
+    }
+#else
   else if (mp4 && mp4->itemListMap().contains("disk")) {
     return FXMIN(mp4->itemListMap()["disk"].toIntPair().first,0xFFFF);
     }
+#endif
   return 0;
   }
 
@@ -1005,7 +1057,11 @@ FXint GMFileTag::getSampleSize() const{
   FXASSERT(file);
   TagLib::FLAC::File * flacfile = dynamic_cast<TagLib::FLAC::File*>(file);
   if (flacfile && flacfile->audioProperties()) {
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+    return flacfile->audioProperties()->bitsPerSample();
+#else
     return flacfile->audioProperties()->sampleWidth();
+#endif
     }
   else
     return 0;
@@ -1079,6 +1135,16 @@ GMCover * GMFileTag::getFrontCover() const {
 #endif
     }
   else if (mp4) { /// MP4
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+    if (mp4->contains("covr")) {
+      TagLib::MP4::CoverArtList coverlist = mp4->item("covr").toCoverArtList();
+      for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
+        if (it->data().size())
+          return new GMCover(it->data().data(),it->data().size());
+        }
+      }
+    }
+#else
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
@@ -1087,6 +1153,7 @@ GMCover * GMFileTag::getFrontCover() const {
         }
       }
     }
+#endif
   return nullptr;
   }
 
@@ -1132,6 +1199,15 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
       }
     }
   else if (mp4) {
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+    if (mp4->contains("covr")) {
+      TagLib::MP4::CoverArtList coverlist = mp4->item("covr").toCoverArtList();
+      for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
+        if (it->data().size())
+          covers.append(new GMCover(it->data().data(),it->data().size(),0));
+        }
+      }
+#else
     if (mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList coverlist = mp4->itemListMap()["covr"].toCoverArtList();
       for(TagLib::MP4::CoverArtList::Iterator it = coverlist.begin(); it != coverlist.end(); it++) {
@@ -1139,6 +1215,7 @@ FXint GMFileTag::getCovers(GMCoverList & covers) const {
           covers.append(new GMCover(it->data().data(),it->data().size(),0));
         }
       }
+#endif
     }
   return covers.no();
   }
@@ -1189,7 +1266,7 @@ void GMFileTag::replaceCover(GMCover*cover,FXuint mode){
       }
     else if (mp4) {
       // mp4 has no type information so we erase all
-      mp4->itemListMap().erase("covr");
+      clearCovers();
       }
     }
   else { // COVER_REPLACE_ALL
@@ -1214,7 +1291,11 @@ void GMFileTag::clearCovers() {
 #endif
     }
   else if (mp4) {
-    mp4->itemListMap().erase("covr");
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+      mp4->removeItem("covr");
+#else
+      mp4->itemListMap().erase("covr");
+#endif
     }
   }
 
@@ -1301,6 +1382,18 @@ void GMFileTag::appendCover(GMCover* cover){
       case FILETYPE_GIF: format = TagLib::MP4::CoverArt::GIF; break;
       default: return; break;
       }
+#if TAGLIB_VERSION >= TAGVERSION(1,12,0)
+    if (!mp4->contains("covr")) {
+      TagLib::MP4::CoverArtList list;
+      list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
+      mp4->setItem("covr",list);
+      }
+    else {
+      TagLib::MP4::CoverArtList list = mp4->item("covr").toCoverArtList();
+      list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
+      mp4->setItem("covr",list);
+      }
+#else
     if (!mp4->itemListMap().contains("covr")) {
       TagLib::MP4::CoverArtList list;
       list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
@@ -1311,6 +1404,7 @@ void GMFileTag::appendCover(GMCover* cover){
       list.append(TagLib::MP4::CoverArt(format,TagLib::ByteVector((const FXchar*)cover->data,cover->size)));
       mp4->itemListMap().insert("covr",list);
       }
+#endif
     }
 }
 
