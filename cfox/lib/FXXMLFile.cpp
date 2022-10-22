@@ -3,7 +3,7 @@
 *                             X M L - F i l e   I / O                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,11 +21,13 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "fxascii.h"
 #include "FXElement.h"
 #include "FXArray.h"
 #include "FXString.h"
+#include "FXParseBuffer.h"
 #include "FXIO.h"
 #include "FXIODevice.h"
 #include "FXStat.h"
@@ -70,7 +72,7 @@ FXXMLFile::FXXMLFile(const FXString& filename,Direction d,FXuval sz){
 
 // Open archive for operation
 FXbool FXXMLFile::open(FXInputHandle h,Direction d,FXuval sz){
-  FXTRACE((101,"FXXMLFile::open(%lx,%s,%lu)\n",h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+  FXTRACE((101,"FXXMLFile::open(%lx,%s,%lu)\n",(FXuval)h,(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   FXchar *buffer;
   if(allocElms(buffer,sz)){
     if(file.open(h,(d==Save)?FXIO::Writing:FXIO::Reading)){
@@ -149,8 +151,8 @@ FXival FXXMLFile::flush(FXival){
 
 // Close stream and delete buffers
 FXbool FXXMLFile::close(){
-  FXchar *buffer=begptr;
   FXTRACE((101,"FXXMLFile::close()\n"));
+  FXchar *buffer=begptr;
   if(FXXML::close()){
     freeElms(buffer);
     return file.close();

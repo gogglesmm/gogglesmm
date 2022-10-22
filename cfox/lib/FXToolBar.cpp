@@ -3,7 +3,7 @@
 *                        T o o l   B a r   W i d g e t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -546,7 +546,7 @@ long FXToolBar::onCmdDockFlip(FXObject*,FXSelector,void*){
 
 // Check for flip
 long FXToolBar::onUpdDockFlip(FXObject* sender,FXSelector,void*){
-  sender->handle(this,isDocked()?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+  sender->handle(this,isDocked()?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   return 1;
   }
 

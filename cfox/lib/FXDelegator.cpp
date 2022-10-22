@@ -3,7 +3,7 @@
 *                       D e l e g a t o r   T a r g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -43,7 +43,7 @@ using namespace FX;
 namespace FX {
 
 // Object implementation
-FXIMPLEMENT(FXDelegator,FXObject,NULL,0)
+FXIMPLEMENT(FXDelegator,FXObject,nullptr,0)
 
 
 // Delegate message to another target

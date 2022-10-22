@@ -3,7 +3,7 @@
 *                            X P M   I m a g e   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -42,7 +42,7 @@ public:
 public:
 
   /// Construct image from compiled-in X Pixmap format
-  FXXPMImage(FXApp* a,const FXchar **pix=NULL,FXuint opts=0,FXint w=1,FXint h=1);
+  FXXPMImage(FXApp* a,const FXchar **pix=nullptr,FXuint opts=0,FXint w=1,FXint h=1);
 
   /// Save pixels into stream in X Pixmap format
   virtual FXbool savePixels(FXStream& store) const;

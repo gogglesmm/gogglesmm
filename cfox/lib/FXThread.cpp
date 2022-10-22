@@ -3,7 +3,7 @@
 *                          T h r e a d   S u p p o r t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "FXException.h"
 #include "FXString.h"
@@ -127,8 +128,8 @@ void* FXThread::function(void* ptr){
   FXThread *thread=(FXThread*)ptr;
   FXint code=-1;
   self(thread);
-  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
-  pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,nullptr);
+  pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,nullptr);
   try{
     code=thread->run();
     }
@@ -154,8 +155,8 @@ FXbool FXThread::start(FXuval stacksize){
   if(busy){ fxerror("FXThread::start: thread already running.\n"); }
   if(tid){ fxerror("FXThread::start: thread still attached.\n"); }
   busy=true;
-  if((tid=(FXThreadID)CreateThread(NULL,stacksize,(LPTHREAD_START_ROUTINE)FXThread::function,this,0,&thd))==NULL) busy=false;
-//  if((tid=(FXThreadID)_beginthreadex(NULL,stacksize,(LPTHREAD_START_ROUTINE)FXThread::function,this,0,&thd))==NULL) busy=false;
+  if((tid=(FXThreadID)CreateThread(nullptr,stacksize,(LPTHREAD_START_ROUTINE)FXThread::function,this,0,&thd))==nullptr) busy=false;
+//  if((tid=(FXThreadID)_beginthreadex(nullptr,stacksize,(LPTHREAD_START_ROUTINE)FXThread::function,this,0,&thd))==nullptr) busy=false;
 #else
   pthread_attr_t attr;
   if(busy){ fxerror("FXThread::start: thread already running.\n"); }
@@ -169,7 +170,7 @@ FXbool FXThread::start(FXuval stacksize){
   sigfillset(&newset);
   pthread_sigmask(SIG_SETMASK,&newset,&oldset); // No signals except to main thread
   if(pthread_create((pthread_t*)&tid,&attr,FXThread::function,(void*)this)!=0) busy=false;
-  pthread_sigmask(SIG_SETMASK,&oldset,NULL);    // Restore old mask
+  pthread_sigmask(SIG_SETMASK,&oldset,nullptr);    // Restore old mask
 #else
   if(pthread_create((pthread_t*)&tid,&attr,FXThread::function,(void*)this)!=0) busy=false;
 #endif
@@ -190,7 +191,7 @@ FXbool FXThread::join(FXint& code){
     }
   return false;
 #else
-  void *trc=NULL;
+  void *trc=nullptr;
   if(tid && pthread_join((pthread_t)tid,&trc)==0){
     code=(FXint)(FXival)trc;
     tid=0;
@@ -211,7 +212,7 @@ FXbool FXThread::join(){
     }
   return false;
 #else
-  if(tid && pthread_join((pthread_t)tid,NULL)==0){
+  if(tid && pthread_join((pthread_t)tid,nullptr)==0){
     tid=0;
     return true;
     }
@@ -234,7 +235,7 @@ FXbool FXThread::cancel(){
 #else
   if(tid){
     if(busy && pthread_cancel((pthread_t)tid)==0) busy=false;
-    if(pthread_join((pthread_t)tid,NULL)==0){
+    if(pthread_join((pthread_t)tid,nullptr)==0){
       tid=0;
       return true;
       }
@@ -285,6 +286,21 @@ void FXThread::yield(){
   }
 
 
+// Processor pause/back-off
+void FXThread::pause(){
+#if defined(_WIN32)
+#if defined(_MSC_VER)
+  YieldProcessor();
+#endif
+#elif (defined(__GNUC__) || defined(__INTEL_COMPILER)) && (defined(__i386__) || defined(__x86_64__))
+  __asm__ __volatile__("rep; nop\n" : : : "memory" );
+//  _mm_pause();
+#elif defined(__GNUC__) && defined(__aarch64__)
+  __asm__ __volatile__("yield" ::: "memory");
+#endif
+  }
+
+
 #if defined(WIN32)
 
 // Convert 100ns since 01/01/1601 to ns since 01/01/1970
@@ -316,7 +332,7 @@ FXTime FXThread::time(){
   const FXTime seconds=1000000000;
   const FXTime microseconds=1000;
   struct timeval tv;
-  gettimeofday(&tv,NULL);
+  gettimeofday(&tv,nullptr);
   return tv.tv_sec*seconds+tv.tv_usec*microseconds;
 #endif
   }
@@ -349,7 +365,7 @@ FXTime FXThread::steadytime(){
   const FXTime seconds=1000000000;
   const FXTime microseconds=1000;
   struct timeval tv;
-  gettimeofday(&tv,NULL);
+  gettimeofday(&tv,nullptr);
   return tv.tv_sec*seconds+tv.tv_usec*microseconds;
 #endif
   }
@@ -392,6 +408,14 @@ void FXThread::sleep(FXTime nsec){
     FXTime jiffies=-nsec/FXLONG(100);
     fxNtDelayExecution((BOOLEAN)false,(LARGE_INTEGER*)&jiffies);
     }
+#elif (_XOPEN_SOURCE >= 600) || (_POSIX_C_SOURCE >= 200112L)
+  const FXTime seconds=1000000000;
+  struct timespec value;
+  if(1<=nsec){
+    value.tv_sec=nsec/seconds;
+    value.tv_nsec=nsec%seconds;
+    while(clock_nanosleep(CLOCK_MONOTONIC,0,&value,&value)!=0){ }
+    }
 #elif (_POSIX_C_SOURCE >= 199309L)
   const FXTime seconds=1000000000;
   struct timespec value;
@@ -408,37 +432,17 @@ void FXThread::sleep(FXTime nsec){
   if(microseconds<=nsec){
     value.tv_usec=(nsec/microseconds)%milliseconds;
     value.tv_sec=nsec/seconds;
-    select(0,NULL,NULL,NULL,&value);
+    select(0,nullptr,nullptr,nullptr,&value);
     }
 #endif
   }
 
 /*
-
-HANDLE CreateWaitableTimerEx(LPSECURITY_ATTRIBUTES lpTimerAttributes,
-                             LPCWSTR               lpTimerName,
-                             DWORD                 dwFlags,
-                             DWORD                 dwDesiredAccess);
-
-BOOL SetWaitableTimer(HANDLE               hTimer,
-                      const LARGE_INTEGER *lpDueTime,   // UTC if >0
-                      LONG                 lPeriod,
-                      PTIMERAPCROUTINE     pfnCompletionRoutine,
-                      LPVOID               lpArgToCompletionRoutine,
-                      BOOL                 fResume);
-
-BOOL SetWaitableTimerEx(HANDLE               hTimer,
-                        const LARGE_INTEGER *lpDueTime, // UTC if >0
-                        LONG                 lPeriod,
-                        PTIMERAPCROUTINE     pfnCompletionRoutine,
-                        LPVOID               lpArgToCompletionRoutine,
-                        PREASON_CONTEXT      WakeContext,
-                        ULONG                TolerableDelay);
-
+HANDLE CreateWaitableTimerEx(LPSECURITY_ATTRIBUTES lpTimerAttributes,LPCWSTR lpTimerName,DWORD dwFlags,DWORD dwDesiredAccess);
+BOOL SetWaitableTimer(HANDLE hTimer,const LARGE_INTEGER *lpDueTime,LONG lPeriod,PTIMERAPCROUTINE pfnCompletionRoutine,LPVOID lpArgToCompletionRoutine,BOOL fResume);
+BOOL SetWaitableTimerEx(HANDLE hTimer,const LARGE_INTEGER *lpDueTime,LONG lPeriod,PTIMERAPCROUTINE pfnCompletionRoutine,LPVOID lpArgToCompletionRoutine,PREASON_CONTEXT WakeContext,ULONG TolerableDelay);
 BOOL CancelWaitableTimer(HANDLE hTimer);
-
 DWORD WaitForSingleObject(HANDLE hHandle,DWORD  dwMilliseconds);
-
 */
 
 
@@ -455,7 +459,7 @@ void FXThread::wakeat(FXTime nsec){
   if(0<=nsec){
     value.tv_sec=nsec/seconds;
     value.tv_nsec=nsec%seconds;
-    while(clock_nanosleep(CLOCK_REALTIME,TIMER_ABSTIME,&value,NULL)!=0){ }
+    while(clock_nanosleep(CLOCK_REALTIME,TIMER_ABSTIME,&value,nullptr)!=0){ }
     }
 #elif (_POSIX_C_SOURCE >= 199309L)
   const FXTime seconds=1000000000;
@@ -475,7 +479,7 @@ void FXThread::wakeat(FXTime nsec){
   if(microseconds<=nsec){
     value.tv_usec=(nsec/microseconds)%milliseconds;
     value.tv_sec=nsec/seconds;
-    select(0,NULL,NULL,NULL,&value);
+    select(0,nullptr,nullptr,nullptr,&value);
     }
 #endif
   }
@@ -498,6 +502,7 @@ FXint FXThread::processors(){
   SYSTEM_INFO info={{0}};
   GetSystemInfo(&info);
   return info.dwNumberOfProcessors;
+//return GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
 #elif defined(_SC_NPROCESSORS_ONLN)                             // Linux
   int result;
   if((result=sysconf(_SC_NPROCESSORS_ONLN))>0){
@@ -510,13 +515,13 @@ FXint FXThread::processors(){
   mib[0]=CTL_HW;
   mib[1]=HW_AVAILCPU;
   len=sizeof(result);
-  if(sysctl(mib,2,&result,&len,NULL,0)!=-1){
+  if(sysctl(mib,2,&result,&len,nullptr,0)!=-1){
     return result;
     }
   mib[0]=CTL_HW;
   mib[1]=HW_NCPU;
   len=sizeof(result);
-  if(sysctl(mib,2,&result,&len,NULL,0)!=-1){
+  if(sysctl(mib,2,&result,&len,nullptr,0)!=-1){
     return result;
     }
 #elif defined(__IRIX__) && defined(_SC_NPROC_ONLN)              // IRIX
@@ -557,7 +562,7 @@ FXThreadStorageKey FXThread::createStorageKey(){
   return (FXThreadStorageKey)TlsAlloc();
 #else
   pthread_key_t key;
-  return pthread_key_create(&key,NULL)==0UL ? (FXThreadStorageKey)key : ~0UL;
+  return pthread_key_create(&key,nullptr)==0UL ? (FXThreadStorageKey)key : ~0UL;
 #endif
   }
 
@@ -923,13 +928,11 @@ FXbool FXThread::description(const FXString& desc){
     return 0<=fxSetThreadDescription((HANDLE)tid,udesc);
 #elif defined(__APPLE__)
     return pthread_setname_np(desc.text())==0;
-#elif defined(__NetBSD__)
-    return pthread_setname_np(tid,"%s",desc.text())==0;
-#elif defined(__FreeBSD__) || defined(__OpenBSD__)
-    pthread_set_name_np(tid,desc.text());
+#elif defined(__NetBSD__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+    pthread_setname_np((pthread_t)tid,desc.text());
     return true;
 #elif defined(HAVE_PTHREAD_SETNAME_NP)
-    return pthread_setname_np(tid,desc.text())==0;
+    return pthread_setname_np((pthread_t)tid,desc.text())==0;
 #endif
     }
   return false;
@@ -952,14 +955,14 @@ FXString FXThread::description() const {
     if(pthread_getname_np(*((pthread_t*)&tid),desc,ARRAYNUMBER(desc))==0){
       return desc;
       }
-#elif defined(__NetBSD__)
+#elif defined(__NetBSD__) || defined(__FreeBSD__) || defined(__OpenBSD__)
     FXchar desc[256];
-    if(pthread_getname_np(tid,desc,ARRAYNUMBER(desc))==0){
+    if(pthread_getname_np((pthread_t)tid,desc,ARRAYNUMBER(desc))==0){
       return desc;
       }
 #elif defined(HAVE_PTHREAD_GETNAME_NP)
     FXchar desc[256];
-    if(pthread_getname_np(tid,desc,ARRAYNUMBER(desc))==0){
+    if(pthread_getname_np((pthread_t)tid,desc,ARRAYNUMBER(desc))==0){
       return desc;
       }
 #endif
@@ -999,7 +1002,7 @@ FXbool FXThread::resume(){
 // Destroy
 FXThread::~FXThread(){
   if(self()==this){
-    self(NULL);
+    self(nullptr);
     detach();
     }
   else{

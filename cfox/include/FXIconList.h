@@ -3,7 +3,7 @@
 *                         I c o n   L i s t   W i d g e t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -66,7 +66,7 @@ private:
   FXIconItem(const FXIconItem&);
   FXIconItem& operator=(const FXIconItem&);
 protected:
-  FXIconItem():bigIcon(NULL),miniIcon(NULL),data(NULL),state(0){}
+  FXIconItem():bigIcon(nullptr),miniIcon(nullptr),data(nullptr),state(0){}
   virtual void draw(const FXIconList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
   virtual FXint hitItem(const FXIconList* list,FXint rx,FXint ry,FXint rw=1,FXint rh=1) const;
 protected:
@@ -85,7 +85,7 @@ public:
 public:
 
   /// Construct new item with given text, icons, and user-data
-  FXIconItem(const FXString& text,FXIcon* bi=NULL,FXIcon* mi=NULL,FXptr ptr=NULL):label(text),bigIcon(bi),miniIcon(mi),data(ptr),state(0){}
+  FXIconItem(const FXString& text,FXIcon* bi=nullptr,FXIcon* mi=nullptr,FXptr ptr=nullptr):label(text),bigIcon(bi),miniIcon(mi),data(ptr),state(0){}
 
   /// Change item's text label
   virtual void setText(const FXString& txt);
@@ -303,7 +303,7 @@ public:
 public:
 
   /// Construct icon list with no items in it initially
-  FXIconList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=ICONLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXIconList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=ICONLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Create server-side resources
   virtual void create();
@@ -363,7 +363,7 @@ public:
   void setHeaders(const FXString& strings,FXint size=1);
 
   /// Append header with given text and optional icon
-  void appendHeader(const FXString& text,FXIcon *icon=NULL,FXint size=1);
+  void appendHeader(const FXString& text,FXIcon *icon=nullptr,FXint size=1);
 
   /// Remove header at index
   void removeHeader(FXint index);
@@ -396,34 +396,34 @@ public:
   FXint setItem(FXint index,FXIconItem* item,FXbool notify=false);
 
   /// Replace items text, icons, and user-data pointer
-  FXint setItem(FXint index,const FXString& text,FXIcon *big=NULL,FXIcon* mini=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint setItem(FXint index,const FXString& text,FXIcon *big=nullptr,FXIcon* mini=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill list by appending items from array of strings
-  FXint fillItems(const FXchar** strings,FXIcon *big=NULL,FXIcon* mini=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXchar** strings,FXIcon *big=nullptr,FXIcon* mini=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill list by appending items from array of strings
-  FXint fillItems(const FXString* strings,FXIcon *big=NULL,FXIcon* mini=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXString* strings,FXIcon *big=nullptr,FXIcon* mini=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill list by appending items from newline separated strings
-  FXint fillItems(const FXString& strings,FXIcon *big=NULL,FXIcon* mini=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXString& strings,FXIcon *big=nullptr,FXIcon* mini=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Insert a new [possibly subclassed] item at the give index
   FXint insertItem(FXint index,FXIconItem* item,FXbool notify=false);
 
   /// Insert item at index with given text, icons, and user-data pointer
-  FXint insertItem(FXint index,const FXString& text,FXIcon *big=NULL,FXIcon* mini=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint insertItem(FXint index,const FXString& text,FXIcon *big=nullptr,FXIcon* mini=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Append a [possibly subclassed] item to the end of the list
   FXint appendItem(FXIconItem* item,FXbool notify=false);
 
   /// Append new item with given text and optional icons, and user-data pointer
-  FXint appendItem(const FXString& text,FXIcon *big=NULL,FXIcon* mini=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint appendItem(const FXString& text,FXIcon *big=nullptr,FXIcon* mini=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Prepend a [possibly subclassed] item to the end of the list
   FXint prependItem(FXIconItem* item,FXbool notify=false);
 
   /// Prepend new item with given text and optional icons, and user-data pointer
-  FXint prependItem(const FXString& text,FXIcon *big=NULL,FXIcon* mini=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint prependItem(const FXString& text,FXIcon *big=nullptr,FXIcon* mini=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Move item from oldindex to newindex
   FXint moveItem(FXint newindex,FXint oldindex,FXbool notify=false);
@@ -456,7 +456,7 @@ public:
   * passing SEARCH_PREFIX causes searching for a prefix of the item name.
   * Return -1 if no matching item is found.
   */
-  FXint findItem(const FXString& text,FXint start=-1,FXuint flags=SEARCH_FORWARD|SEARCH_WRAP) const;
+  FXint findItem(const FXString& string,FXint start=-1,FXuint flags=SEARCH_FORWARD|SEARCH_WRAP) const;
 
   /**
   * Search items by associated user data, beginning from item start. If the

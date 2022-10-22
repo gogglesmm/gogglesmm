@@ -3,7 +3,7 @@
 *             M u l t i p l e   D o c u m e n t   B u t t o n                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -43,7 +43,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Constructor
-  FXMDIDeleteButton(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=FRAME_RAISED,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXMDIDeleteButton(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=FRAME_RAISED,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
   virtual FXint getDefaultWidth();
   virtual FXint getDefaultHeight();
   };
@@ -61,7 +61,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Constructor
-  FXMDIRestoreButton(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=FRAME_RAISED,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXMDIRestoreButton(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=FRAME_RAISED,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
   virtual FXint getDefaultWidth();
   virtual FXint getDefaultHeight();
   };
@@ -79,7 +79,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Constructor
-  FXMDIMaximizeButton(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=FRAME_RAISED,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXMDIMaximizeButton(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=FRAME_RAISED,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
   virtual FXint getDefaultWidth();
   virtual FXint getDefaultHeight();
   };
@@ -97,7 +97,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Constructor
-  FXMDIMinimizeButton(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=FRAME_RAISED,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXMDIMinimizeButton(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=FRAME_RAISED,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
   virtual FXint getDefaultWidth();
   virtual FXint getDefaultHeight();
   };
@@ -115,7 +115,7 @@ public:
   long onPaint(FXObject*,FXSelector,void*);
 public:
   /// Constructor
-  FXMDIWindowButton(FXComposite* p,FXPopup* pup,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXMDIWindowButton(FXComposite* p,FXPopup* pup,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
   virtual FXint getDefaultWidth();
   virtual FXint getDefaultHeight();
   };
@@ -137,7 +137,7 @@ private:
 public:
 
   /// Construct MDI menu
-  FXMDIMenu(FXWindow *owner,FXObject* tgt=NULL);
+  FXMDIMenu(FXWindow *owner,FXObject* tgt=nullptr);
 
   /// Destructor
   virtual ~FXMDIMenu();

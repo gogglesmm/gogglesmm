@@ -3,7 +3,7 @@
 *                            W i n d o w   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -164,9 +164,6 @@ public:
   static const FXDragType stringType;   // Clipboard text type (pre-registered)
   static const FXDragType imageType;    // Clipboard image type (pre-registered)
 protected:
-  FXWindow();
-  FXWindow(FXApp* a,FXVisual *vis);
-  FXWindow(FXApp* a,FXWindow* own,FXuint opts,FXint x,FXint y,FXint w,FXint h);
   virtual FXbool doesOverrideRedirect() const;
 protected:
 #ifdef WIN32
@@ -177,6 +174,10 @@ protected:
   void addColormapWindows();
   void remColormapWindows();
 #endif
+protected:
+  FXWindow();
+  FXWindow(FXApp* a,FXVisual *vis);
+  FXWindow(FXApp* a,FXWindow* own,FXuint opts,FXint x,FXint y,FXint w,FXint h);
 private:
   FXWindow(const FXWindow&);
   FXWindow& operator=(const FXWindow&);
@@ -231,8 +232,6 @@ public:
     };
 
 public:
-
-  // Message handlers
   long onPaint(FXObject*,FXSelector,void*);
   long onMap(FXObject*,FXSelector,void*);
   long onUnmap(FXObject*,FXSelector,void*);
@@ -287,10 +286,7 @@ public:
   long onCmdUpdate(FXObject*,FXSelector,void*);
   long onUpdYes(FXObject*,FXSelector,void*);
   long onCmdDelete(FXObject*,FXSelector,void*);
-
 public:
-
-  // Message ID's common to most Windows
   enum {
     ID_NONE,
     ID_HIDE,
@@ -347,7 +343,6 @@ public:
     ID_MDI_PREV,
     ID_LAST
     };
-
 public:
 
   // Predefined DND type names
@@ -568,9 +563,6 @@ public:
   /// Remove the focus from this window
   virtual void killFocus();
 
-  /// Notification that focus moved to new child
-  virtual void changeFocus(FXWindow *child);
-
   /// Return true if this is the default window
   FXbool isDefault() const;
 
@@ -665,7 +657,7 @@ public:
   void forceRefresh();
 
   /// Reparent this window under new father before other
-  virtual void reparent(FXWindow* father,FXWindow *other=NULL);
+  virtual void reparent(FXWindow* father,FXWindow *other=nullptr);
 
   /// Scroll rectangle x,y,w,h by a shift of dx,dy
   void scroll(FXint x,FXint y,FXint w,FXint h,FXint dx,FXint dy) const;
@@ -854,7 +846,7 @@ public:
   * In addition, the name of the widget is passed as context name so
   * that translations for a single dialog may be grouped together.
   */
-  virtual const FXchar* tr(const FXchar* text,const FXchar* hint=NULL,FXint count=-1) const FX_FORMAT(2) ;
+  virtual const FXchar* tr(const FXchar* text,const FXchar* hint=nullptr,FXint count=-1) const FX_FORMAT(2) ;
 
   /// Save window to stream
   virtual void save(FXStream& store) const;

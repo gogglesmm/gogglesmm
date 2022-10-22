@@ -3,7 +3,7 @@
 *                     D i r e c t o r y   V i s i t o r                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2008,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2008,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -65,13 +65,13 @@ private:
 public:
 
   /// Initialize directory visitor
-  FXDirVisitor():current(NULL){}
+  FXDirVisitor():current(nullptr){}
 
   /// Start traversal at given path
   FXuint traverse(const FXString& path,FXint limit=1000);
 
   /// Return true if we're actively visiting directories
-  FXbool visiting() const { return current!=NULL; }
+  FXbool visiting() const { return current!=nullptr; }
 
   /// Return stats on current file or directory
   const FXStat& info() const;

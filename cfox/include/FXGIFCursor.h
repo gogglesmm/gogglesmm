@@ -3,7 +3,7 @@
 *                        G I F   C u r so r   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Daniel Gehriger.   All Rights Reserved.            *
+* Copyright (C) 2000,2022 by Daniel Gehriger.   All Rights Reserved.            *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -46,7 +46,7 @@ public:
   * format does not specify a hot spot. The image must be smaller than
   * 32x32 pixels.
   */
-  FXGIFCursor(FXApp* a,const void* pix,FXint hx=0,FXint hy=0);
+  FXGIFCursor(FXApp* a,const FXuchar* pix,FXint hx=0,FXint hy=0);
 
   /// Save pixel data only, in GIF format
   virtual FXbool savePixels(FXStream& store) const;

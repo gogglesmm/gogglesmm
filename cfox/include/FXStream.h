@@ -3,7 +3,7 @@
 *       P e r s i s t e n t   S t o r a g e   S t r e a m   C l a s s e s       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -103,6 +103,9 @@ protected:
   */
   virtual FXuval readBuffer(FXuval count);
 
+private:
+  FXStream(const FXStream&);
+  FXStream &operator=(const FXStream&);
 public:
 
   /**
@@ -111,7 +114,7 @@ public:
   * but which may be referenced by other objects.  These references will be
   * properly saved and restored.
   */
-  FXStream(const FXObject* cont=NULL);
+  FXStream(const FXObject* cont=nullptr);
 
   /**
   * Open stream for reading (FXStreamLoad) or for writing (FXStreamSave).
@@ -119,7 +122,7 @@ public:
   * If data is not NULL, it is expected to point to an external data buffer
   * of length size; otherwise stream will use an internally managed buffer.
   */
-  FXbool open(FXStreamDirection save_or_load,FXuchar* data=NULL,FXuval size=8192UL,FXbool owned=false);
+  FXbool open(FXStreamDirection save_or_load,FXuchar* data=nullptr,FXuval size=8192UL,FXbool owned=false);
 
   /// Flush buffer
   virtual FXbool flush();

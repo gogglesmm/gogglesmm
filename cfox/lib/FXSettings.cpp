@@ -3,7 +3,7 @@
 *                          S e t t i n g s   C l a s s                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -58,8 +58,7 @@
 */
 
 
-#define EMPTY     ((Entry*)(__settings__empty__+3))
-#define NOMEMORY  ((Entry*)(((FXival*)NULL)+3))
+#define EMPTY     (const_cast<Entry*>((const Entry*)(__settings__empty__+3)))
 #define BSHIFT    5
 
 using namespace FX;
@@ -80,7 +79,8 @@ const FXival __settings__empty__[6]={1,0,1,(FXival)(__string__empty__+1),(FXival
 FXbool FXSettings::no(FXival n){
   FXival m=no();
   if(__likely(m!=n)){
-    Entry *elbat;
+    Entry* elbat;
+    void*  p;
 
     // Release old table
     if(1<m){
@@ -91,7 +91,8 @@ FXbool FXSettings::no(FXival n){
 
     // Allocate new table
     if(1<n){
-      if((elbat=(Entry*)(((FXival*)::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))+3))==NOMEMORY) return false;
+      if(__unlikely((p=::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))==nullptr)) return false;
+      elbat=(Entry*)(((FXival*)p)+3);
       ((FXival*)elbat)[-3]=n;
       ((FXival*)elbat)[-2]=0;
       ((FXival*)elbat)[-1]=n;
@@ -140,7 +141,7 @@ FXSettings::FXSettings():table(EMPTY),modified(false){
   }
 
 
-// Construct from another string dictionary
+// Construct from another settings database
 FXSettings::FXSettings(const FXSettings& other):table(EMPTY),modified(other.modified){
   FXASSERT(sizeof(Entry)<=sizeof(FXival)*3);
   if(1<other.no()){
@@ -170,11 +171,12 @@ FXSettings& FXSettings::operator=(const FXSettings& other){
   }
 
 
-// Adopt string dictionary from another
+// Adopt settings database from another
 FXSettings& FXSettings::adopt(FXSettings& other){
   if(__likely(table!=other.table)){
     swap(table,other.table);
     other.clear();
+    other.modified=true;
     modified=true;
     }
   return *this;
@@ -198,7 +200,7 @@ FXival FXSettings::find(const FXchar* ky) const {
   }
 
 
-// Return reference to string assocated with key
+// Return reference to string dictionary assocated with key
 FXStringDictionary& FXSettings::at(const FXchar* ky){
   FXuval p,b,h,x;
   if(__unlikely(!ky || !*ky)){ throw FXRangeException("FXSettings::at: null or empty key\n"); }
@@ -225,7 +227,7 @@ x:modified=true;                                        // Assume its to be writ
   }
 
 
-// Return constant reference to string assocated with key
+// Return constant reference to string dictionary assocated with key
 const FXStringDictionary& FXSettings::at(const FXchar* ky) const {
   if(__unlikely(!ky || !*ky)){ throw FXRangeException("FXSettings::at: null or empty key\n"); }
   if(__likely(!empty())){
@@ -767,6 +769,7 @@ FXColor FXSettings::readColorEntry(const FXString& section,const FXchar* name,FX
   return readColorEntry(section.text(),name,def);
   }
 
+
 // Read a color registry entry
 FXColor FXSettings::readColorEntry(const FXString& section,const FXString& name,FXColor def) const {
   return readColorEntry(section.text(),name.text(),def);
@@ -796,14 +799,14 @@ FXbool FXSettings::writeColorEntry(const FXString& section,const FXString& name,
 FXbool FXSettings::readBoolEntry(const FXchar* section,const FXchar* name,FXbool def) const {
   const FXString& value=at(section).at(name);
   if(!value.empty()){
-    if(comparecase(value,"true")==0) return true;
-    else if(comparecase(value,"false")==0) return false;
-    else if(comparecase(value,"yes")==0) return true;
-    else if(comparecase(value,"no")==0) return false;
-    else if(comparecase(value,"on")==0) return true;
-    else if(comparecase(value,"off")==0) return false;
-    else if(comparecase(value,"1")==0) return true;
-    else if(comparecase(value,"0")==0) return false;
+    if(FXString::comparecase(value,"true")==0) return true;
+    if(FXString::comparecase(value,"false")==0) return false;
+    if(FXString::comparecase(value,"yes")==0) return true;
+    if(FXString::comparecase(value,"no")==0) return false;
+    if(FXString::comparecase(value,"on")==0) return true;
+    if(FXString::comparecase(value,"off")==0) return false;
+    if(FXString::comparecase(value,"1")==0) return true;
+    if(FXString::comparecase(value,"0")==0) return false;
     }
   return def;
   }

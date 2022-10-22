@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FXCP874Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXCP874Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: CP874.TXT ////
@@ -112,7 +112,7 @@ const FXchar* FXCP874Codec::mimeName() const {
 
 
 const FXchar* const* FXCP874Codec::aliases() const {
-  static const FXchar *const list[]={"microsoft-cp874","IBM874","cp874","874",NULL};
+  static const FXchar *const list[]={"microsoft-cp874","IBM874","cp874","874",nullptr};
   return list;
   }
 

@@ -3,7 +3,7 @@
 *                            L i s t   O b j e c t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -108,12 +108,9 @@ using namespace FX;
 
 namespace FX {
 
-// Explicit template instantiation
-//template class  FXObjectListOf<FXListItem>;
-
 
 // Object implementation
-FXIMPLEMENT(FXListItem,FXObject,NULL,0)
+FXIMPLEMENT(FXListItem,FXObject,nullptr,0)
 
 
 // Draw item
@@ -352,7 +349,7 @@ FXList::FXList(){
   listWidth=0;
   listHeight=0;
   visible=0;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   grabx=0;
   graby=0;
   state=false;
@@ -375,7 +372,7 @@ FXList::FXList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,F
   listWidth=0;
   listHeight=0;
   visible=0;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   grabx=0;
   graby=0;
   state=false;
@@ -1463,25 +1460,25 @@ long FXList::onTripleClicked(FXObject*,FXSelector,void* ptr){
 
 // Sort items in ascending order
 FXint FXList::ascending(const FXListItem* a,const FXListItem* b){
-  return compare(a->getText(),b->getText());
+  return FXString::compare(a->getText(),b->getText());
   }
 
 
 // Sort items in descending order
 FXint FXList::descending(const FXListItem* a,const FXListItem* b){
-  return compare(b->getText(),a->getText());
+  return FXString::compare(b->getText(),a->getText());
   }
 
 
 // Sort ascending order, case insensitive
 FXint FXList::ascendingCase(const FXListItem* a,const FXListItem* b){
-  return comparecase(a->getText(),b->getText());
+  return FXString::comparecase(a->getText(),b->getText());
   }
 
 
 // Sort descending order, case insensitive
 FXint FXList::descendingCase(const FXListItem* a,const FXListItem* b){
-  return comparecase(b->getText(),a->getText());
+  return FXString::comparecase(b->getText(),a->getText());
   }
 
 
@@ -1898,33 +1895,33 @@ void FXList::clearItems(FXbool notify){
   }
 
 
-typedef FXint (*FXCompareFunc)(const FXString&,const FXString&,FXint);
+typedef FXint (*FXCompareFunc)(const FXchar*,const FXchar*,FXint);
 
 
 // Get item by name
 FXint FXList::findItem(const FXString& string,FXint start,FXuint flgs) const {
-  FXCompareFunc comparefunc=(flgs&SEARCH_IGNORECASE) ? (FXCompareFunc)comparecase : (FXCompareFunc)compare;
+  FXCompareFunc comparefunc=(flgs&SEARCH_IGNORECASE) ? (FXCompareFunc)FXString::comparecase : (FXCompareFunc)FXString::compare;
   FXint index,len;
   if(0<items.no()){
     len=(flgs&SEARCH_PREFIX)?string.length():2147483647;
     if(flgs&SEARCH_BACKWARD){
       if(start<0) start=items.no()-1;
       for(index=start; 0<=index; index--){
-        if((*comparefunc)(items[index]->getText(),string,len)==0) return index;
+        if((*comparefunc)(items[index]->getText().text(),string.text(),len)==0) return index;
         }
       if(!(flgs&SEARCH_WRAP)) return -1;
       for(index=items.no()-1; start<index; index--){
-        if((*comparefunc)(items[index]->getText(),string,len)==0) return index;
+        if((*comparefunc)(items[index]->getText().text(),string.text(),len)==0) return index;
         }
       }
     else{
       if(start<0) start=0;
       for(index=start; index<items.no(); index++){
-        if((*comparefunc)(items[index]->getText(),string,len)==0) return index;
+        if((*comparefunc)(items[index]->getText().text(),string.text(),len)==0) return index;
         }
       if(!(flgs&SEARCH_WRAP)) return -1;
       for(index=0; index<start; index++){
-        if((*comparefunc)(items[index]->getText(),string,len)==0) return index;
+        if((*comparefunc)(items[index]->getText().text(),string.text(),len)==0) return index;
         }
       }
     }

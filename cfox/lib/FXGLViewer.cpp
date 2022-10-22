@@ -3,7 +3,7 @@
 *                           O p e n G L   V i e w e r                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -133,6 +133,7 @@
   - Zoom centered on point at which you started the zoom operation.
 */
 
+#define TOPIC_KEYBOARD  1009
 
 // Size of pick buffer
 #define MAX_PICKBUF    1024
@@ -294,9 +295,9 @@ FXGLViewer::FXGLViewer(){
   dial[0]=0;
   dial[1]=0;
   dial[2]=0;
-  dropped=NULL;
-  selection=NULL;
-  zsortfunc=NULL;
+  dropped=nullptr;
+  selection=nullptr;
+  zsortfunc=nullptr;
   doesturbo=false;
   mode=HOVERING;
   }
@@ -407,10 +408,10 @@ void FXGLViewer::initialize(){
   dial[0]=0;                                    // Old dial position
   dial[1]=0;                                    // Old dial position
   dial[2]=0;                                    // Old dial position
-  dropped=NULL;                                 // Nobody being dropped on
-  selection=NULL;                               // No initial selection
-  zsortfunc=NULL;                               // Routine to sort feedback buffer
-  scene=NULL;                                   // Scene to look at
+  dropped=nullptr;                                 // Nobody being dropped on
+  selection=nullptr;                               // No initial selection
+  zsortfunc=nullptr;                               // Routine to sort feedback buffer
+  scene=nullptr;                                   // Scene to look at
   doesturbo=false;                              // In interaction
   turbomode=false;                              // Turbo mode
   mode=HOVERING;                                // Mouse operation
@@ -683,7 +684,7 @@ FXint FXGLViewer::selectHits(FXuint*& hits,FXint& nhits,FXint x,FXint y,FXint w,
 #ifdef HAVE_GL_H
   FXfloat pickx,picky,pickw,pickh;
   FXint mh=maxhits;
-  hits=NULL;
+  hits=nullptr;
   nhits=0;
   if(makeCurrent()){
 
@@ -750,22 +751,22 @@ FXGLObject* FXGLViewer::processHits(FXuint *pickbuffer,FXint nhits){
       }
     return scene->identify(&pickbuffer[4+sel]);
     }
-  return NULL;
+  return nullptr;
   }
 
 
 // Build NULL-terminated list of ALL picked objects overlapping rectangle
 FXGLObject** FXGLViewer::select(FXint x,FXint y,FXint w,FXint h){
-  FXGLObject *obj,**objects=NULL;
+  FXGLObject *obj,**objects=nullptr;
   FXint nhits,i,j;
   FXuint *hits;
   if(scene && maxhits){
     if(selectHits(hits,nhits,x,y,w,h)){     // FIXME leak
       resizeElms(objects,nhits+1);
       for(i=j=0; nhits>0; i+=hits[i]+3,nhits--){
-        if((obj=scene->identify(&hits[4+i]))!=NULL) objects[j++]=obj;
+        if((obj=scene->identify(&hits[4+i]))!=nullptr) objects[j++]=obj;
         }
-      objects[j]=NULL;
+      objects[j]=nullptr;
       freeElms(hits);
       }
     }
@@ -784,7 +785,7 @@ FXGLObject** FXGLViewer::lasso(FXint x1,FXint y1,FXint x2,FXint y2){
 
 // Pick ONE object at x,y
 FXGLObject* FXGLViewer::pick(FXint x,FXint y){
-  FXGLObject *obj=NULL;
+  FXGLObject *obj=nullptr;
   FXuint *hits;
   FXint nhits;
   if(scene && maxhits){
@@ -1618,7 +1619,7 @@ long FXGLViewer::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
       setOp(HOVERING);
       if(!handle(this,FXSEL(SEL_PICKED,0),ptr)){
         objects[0]=pick(event->click_x,event->click_y);
-        objects[1]=NULL;
+        objects[1]=nullptr;
         handle(this,FXSEL(SEL_CHANGED,0),(void*)objects[0]);        // FIXME want multiple objects
         handle(this,FXSEL(SEL_SELECTED,0),(void*)objects);
         }
@@ -1923,12 +1924,12 @@ FXfloat curve(FXfloat x,FXfloat theta){
 
 // Space ball motion
 long FXGLViewer::onSpaceBallMotion(FXObject*,FXSelector,void* ptr){
-  FXEvent* event=(FXEvent*)ptr;
   const FXVec3f xaxis(1.0f,0.0f,0.0f);
   const FXVec3f yaxis(0.0f,1.0f,0.0f);
   const FXVec3f zaxis(0.0f,0.0f,1.0f);
-  FXTRACE((100,"onSpaceBallMotion Mask=%08x\n",event->state));
   if(isEnabled()){
+    FXEvent* event=(FXEvent*)ptr;
+    FXTRACE((100,"%s::onSpaceBallMotion Mask=%08x\n",getClassName(),event->state));
     if(target && target->tryHandle(this,FXSEL(SEL_SPACEBALLMOTION,message),ptr)) return 1;
     //FXTRACE((1,"values: %+3d %+3d %+3d %+3d %+3d %+3d\n",event->values[0],event->values[1],event->values[2],event->values[3],event->values[4],event->values[5]));
     FXQuatf q;
@@ -1958,9 +1959,10 @@ long FXGLViewer::onSpaceBallMotion(FXObject*,FXSelector,void* ptr){
 
 // Handle keyboard press/release
 long FXGLViewer::onKeyPress(FXObject*,FXSelector,void* ptr){
-  FXEvent* event=(FXEvent*)ptr;
   flags&=~FLAG_TIP;
   if(isEnabled()){
+    FXEvent* event=(FXEvent*)ptr;
+    FXTRACE((TOPIC_KEYBOARD,"%s::onKeyPress keysym=0x%04x state=%04x\n",getClassName(),event->code,event->state));
     if(target && target->tryHandle(this,FXSEL(SEL_KEYPRESS,message),ptr)) return 1;
     switch(event->code){
       case KEY_Shift_L:
@@ -1994,8 +1996,9 @@ long FXGLViewer::onKeyPress(FXObject*,FXSelector,void* ptr){
 
 // Key release
 long FXGLViewer::onKeyRelease(FXObject*,FXSelector,void* ptr){
-  FXEvent* event=(FXEvent*)ptr;
   if(isEnabled()){
+    FXEvent* event=(FXEvent*)ptr;
+    FXTRACE((TOPIC_KEYBOARD,"%s::onKeyRelease keysym=0x%04x state=%04x\n",getClassName(),event->code,event->state));
     if(target && target->tryHandle(this,FXSEL(SEL_KEYRELEASE,message),ptr)) return 1;
     switch(event->code){
       case KEY_Shift_L:
@@ -2087,9 +2090,9 @@ long FXGLViewer::onCmdPerspective(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXGLViewer::onUpdPerspective(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(projection==PERSPECTIVE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(projection==PERSPECTIVE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2103,9 +2106,9 @@ long FXGLViewer::onCmdParallel(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXGLViewer::onUpdParallel(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(projection==PARALLEL)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(projection==PARALLEL)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2123,9 +2126,9 @@ long FXGLViewer::onCmdFront(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXGLViewer::onUpdFront(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-1.0)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-1.0)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2140,9 +2143,9 @@ long FXGLViewer::onCmdBack(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXGLViewer::onUpdBack(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]+1.0) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3])) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]+1.0) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3])) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2157,9 +2160,9 @@ long FXGLViewer::onCmdLeft(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXGLViewer::onUpdLeft(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]-0.7071067811865) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]-0.7071067811865) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2174,9 +2177,9 @@ long FXGLViewer::onCmdRight(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXGLViewer::onUpdRight(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]+0.7071067811865) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]+0.7071067811865) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2191,9 +2194,9 @@ long FXGLViewer::onCmdTop(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXGLViewer::onUpdTop(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]-0.7071067811865) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]-0.7071067811865) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2208,9 +2211,9 @@ long FXGLViewer::onCmdBottom(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXGLViewer::onUpdBottom(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]+0.7071067811865) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]+0.7071067811865) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2520,7 +2523,7 @@ FXint FXGLViewer::renderFeedback(FXfloat *buffer,FXint x,FXint y,FXint w,FXint h
 // Read feedback buffer
 FXbool FXGLViewer::readFeedback(FXfloat*& buffer,FXint& used,FXint& size,FXint x,FXint y,FXint w,FXint h){
   FXbool ok=false;
-  buffer=NULL;
+  buffer=nullptr;
   used=0;
   size=10000;
   while(1){
@@ -2707,7 +2710,7 @@ long FXGLViewer::onClipboardRequest(FXObject* sender,FXSelector sel,void* ptr){
   if(event->target==objectType){
     FXTRACE((100,"requested objectType\n"));
 //    FXMemoryStream stream;
-//    stream.open(NULL,0,FXStreamSave);
+//    stream.open(nullptr,0,FXStreamSave);
 //    stream.takeBuffer(data,len);
 //    stream.close();
 //    setDNDData(FROM_CLIPBOARD,objectType,data,len);
@@ -2748,9 +2751,9 @@ long FXGLViewer::onCmdPasteSel(FXObject*,FXSelector,void*){
 long FXGLViewer::onCmdDeleteSel(FXObject*,FXSelector,void*){
   FXGLObject *obj[2];
   obj[0]=selection;
-  obj[1]=NULL;
+  obj[1]=nullptr;
   if(obj[0] && obj[0]->canDelete()){
-    handle(this,FXSEL(SEL_CHANGED,0),NULL);
+    handle(this,FXSEL(SEL_CHANGED,0),nullptr);
     handle(this,FXSEL(SEL_DELETED,0),(void*)obj);
     //delete obj[0];
     }
@@ -2764,8 +2767,8 @@ long FXGLViewer::onCmdDeleteSel(FXObject*,FXSelector,void*){
 // Update delete object
 long FXGLViewer::onUpdDeleteSel(FXObject* sender,FXSelector,void*){
   if(selection && selection->canDelete()){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     return 1;
     }
   return 0;
@@ -2775,8 +2778,8 @@ long FXGLViewer::onUpdDeleteSel(FXObject* sender,FXSelector,void*){
 // Update for current object
 long FXGLViewer::onUpdCurrent(FXObject* sender,FXSelector,void*){
   if(selection){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     return 1;
     }
   return 0;
@@ -2900,9 +2903,9 @@ long FXGLViewer::onCmdTurbo(FXObject*,FXSelector,void*){
 
 // Update Turbo Mode
 long FXGLViewer::onUpdTurbo(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,getTurboMode() ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,getTurboMode() ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2917,9 +2920,9 @@ long FXGLViewer::onCmdLighting(FXObject*,FXSelector,void*){
 
 // Update lighting
 long FXGLViewer::onUpdLighting(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(options&GLVIEWER_LIGHTING) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(options&GLVIEWER_LIGHTING) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2934,9 +2937,9 @@ long FXGLViewer::onCmdFog(FXObject*,FXSelector,void*){
 
 // Update fog
 long FXGLViewer::onUpdFog(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(options&GLVIEWER_FOG) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(options&GLVIEWER_FOG) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2951,9 +2954,9 @@ long FXGLViewer::onCmdDither(FXObject*,FXSelector,void*){
 
 // Update dithering
 long FXGLViewer::onUpdDither(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-  sender->handle(this,(options&GLVIEWER_DITHER) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+  sender->handle(this,(options&GLVIEWER_DITHER) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2964,14 +2967,14 @@ long FXGLViewer::onUpdDither(FXObject* sender,FXSelector,void*){
 // Handle drag-and-drop enter
 long FXGLViewer::onDNDEnter(FXObject* sender,FXSelector sel,void* ptr){
   if(FXGLCanvas::onDNDEnter(sender,sel,ptr)) return 1;
-  dropped=NULL;
+  dropped=nullptr;
   return 1;
   }
 
 // Handle drag-and-drop leave
 long FXGLViewer::onDNDLeave(FXObject* sender,FXSelector sel,void* ptr){
   if(FXGLCanvas::onDNDLeave(sender,sel,ptr)) return 1;
-  dropped=NULL;
+  dropped=nullptr;
   return 1;
   }
 
@@ -2984,7 +2987,7 @@ long FXGLViewer::onDNDMotion(FXObject* sender,FXSelector sel,void* ptr){
   if(FXGLCanvas::onDNDMotion(sender,sel,ptr)) return 1;
 
   // Dropped on some object
-  if((dropped=pick(event->win_x,event->win_y))!=NULL){
+  if((dropped=pick(event->win_x,event->win_y))!=nullptr){
 
     // Object agrees with drop type
     if(dropped->handle(this,sel,ptr)){
@@ -2993,7 +2996,7 @@ long FXGLViewer::onDNDMotion(FXObject* sender,FXSelector sel,void* ptr){
       }
 
     // Forget about the whole thing
-    dropped=NULL;
+    dropped=nullptr;
     return 0;
     }
 

@@ -3,7 +3,7 @@
 *                        T o o l   B a r   W i d g e t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -64,7 +64,7 @@ public:
   virtual FXint getDefaultHeight();
 
   /// Dock and optionally flip orientation of toolbar before other window
-  virtual void dock(FXDockSite* docksite,FXWindow* other=NULL,FXbool notify=false);
+  virtual void dock(FXDockSite* docksite,FXWindow* other=nullptr,FXbool notify=false);
 
   /// Dock and optionally flip orientation of toolbar
   virtual void dock(FXDockSite* docksite,FXint localx,FXint localy,FXbool notify=false);

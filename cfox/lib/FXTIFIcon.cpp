@@ -3,7 +3,7 @@
 *                          T I F F  I c o n   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 Eric Gillet.   All Rights Reserved.                   *
+* Copyright (C) 2001,2022 Eric Gillet.   All Rights Reserved.                   *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,7 +61,7 @@ const FXchar FXTIFIcon::mimeType[]="image/tiff";
 
 
 // Object implementation
-FXIMPLEMENT(FXTIFIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXTIFIcon,FXIcon,nullptr,0)
 
 
 #ifdef HAVE_TIFF_H
@@ -72,9 +72,9 @@ const FXbool FXTIFIcon::supported=false;
 
 
 // Initialize
-FXTIFIcon::FXTIFIcon(FXApp* a,const void *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,NULL,clr,opts,w,h),codec(0){
+FXTIFIcon::FXTIFIcon(FXApp* a,const FXuchar *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,nullptr,clr,opts,w,h),codec(0){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

@@ -3,7 +3,7 @@
 *                        S t a t u s   B a r   W i d g e t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,7 +61,7 @@ using namespace FX;
 namespace FX {
 
 // Object implementation
-FXIMPLEMENT(FXStatusBar,FXHorizontalFrame,NULL,0)
+FXIMPLEMENT(FXStatusBar,FXHorizontalFrame,nullptr,0)
 
 
 // Make a status bar
@@ -164,7 +164,6 @@ void FXStatusBar::layout(){
       hints=child->getLayoutHints();
 
       // Layout child in Y
-      y=child->getY();
       if(hints&LAYOUT_FIX_HEIGHT) h=child->getHeight();
       else h=child->getDefaultHeight();
       extra_space=0;
@@ -181,7 +180,6 @@ void FXStatusBar::layout(){
         y=top+extra_space;
 
       // Layout child in X
-      x=child->getX();
       if(hints&LAYOUT_FIX_WIDTH) w=child->getWidth();
       else w=child->getDefaultWidth();
       extra_space=0;

@@ -3,7 +3,7 @@
 *                  P a t h   N a m e   M a n i p u l a t i o n                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -90,13 +90,13 @@ namespace FXPath {
   * Perform tilde or environment variable expansion.
   * A prefix of the form ~ or ~user is expanded to the user's home directory.
   * Environment variables of the form $HOME or ${HOME} are expanded by
-  * substituting the value of the variable.
+  * substituting the value of the variable, recusively up to given level.
   * On Windows, only environment variables of the form %HOME% are expanded.
   */
-  extern FXAPI FXString expand(const FXString& file);
+  extern FXAPI FXString expand(const FXString& file,FXint level=4);
 
   /**
- * Convert a foreign path(s) or paths to local conventions,
+  * Convert a foreign path(s) or paths to local conventions,
   * replacing environment variables etc.
   */
   extern FXAPI FXString convert(const FXString& path);

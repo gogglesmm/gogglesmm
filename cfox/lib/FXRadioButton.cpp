@@ -3,7 +3,7 @@
 *                  R a d i o   B u t t o n    O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -99,7 +99,7 @@ FXRadioButton::FXRadioButton(){
 
 
 // Make a check button
-FXRadioButton::FXRadioButton(FXComposite* p,const FXString& text,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXLabel(p,text,NULL,opts,x,y,w,h,pl,pr,pt,pb){
+FXRadioButton::FXRadioButton(FXComposite* p,const FXString& text,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXLabel(p,text,nullptr,opts,x,y,w,h,pl,pr,pt,pb){
   radioColor=getApp()->getForeColor();
   diskColor=getApp()->getBackColor();
   target=tgt;

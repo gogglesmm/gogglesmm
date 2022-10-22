@@ -3,7 +3,7 @@
 *                    D i r e c t o r y   E n u m e r a t o r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -28,9 +28,6 @@ namespace FX {
 class FXAPI FXDir {
 private:
   FXuval space[256];
-private:
-  FXDir(const FXDir&);
-  FXDir &operator=(const FXDir&);
 public:
 
   /// Options for listing files
@@ -46,6 +43,9 @@ public:
     CaseFold    = 128             /// Matching is case-insensitive
     };
 
+private:
+  FXDir(const FXDir&);
+  FXDir &operator=(const FXDir&);
 public:
 
   /// Construct directory enumerator

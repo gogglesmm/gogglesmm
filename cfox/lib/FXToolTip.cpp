@@ -3,7 +3,7 @@
 *                         T o o l   T i p   W i d g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -78,7 +78,7 @@ FXIMPLEMENT(FXToolTip,FXShell,FXToolTipMap,ARRAYNUMBER(FXToolTipMap))
 
 // Deserialization
 FXToolTip::FXToolTip(){
-  font=NULL;
+  font=nullptr;
   textColor=0;
   popped=false;
   }
@@ -262,7 +262,7 @@ long FXToolTip::onUpdate(FXObject* sender,FXSelector sel,void* ptr){
 
   // Ask the help source for a new status text first
   FXWindow *helpsource=getApp()->getCursorWindow();
-  if(helpsource && helpsource->handle(this,FXSEL(SEL_QUERY_TIP,0),NULL)){
+  if(helpsource && helpsource->handle(this,FXSEL(SEL_QUERY_TIP,0),nullptr)){
     if(!popped){
       popped=true;
       if(!shown()){

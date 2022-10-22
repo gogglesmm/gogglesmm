@@ -3,7 +3,7 @@
 *                        I / O   B u f f e r   C l a s s                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -45,12 +45,12 @@ namespace FX {
 
 
 // Construct
-FXIOBuffer::FXIOBuffer():buffer(NULL),space(0L){
+FXIOBuffer::FXIOBuffer():buffer(nullptr),space(0L){
   }
 
 
 // Construct and open
-FXIOBuffer::FXIOBuffer(FXuchar* ptr,FXuval sz,FXuint m):buffer(NULL),space(0L){
+FXIOBuffer::FXIOBuffer(FXuchar* ptr,FXuval sz,FXuint m):buffer(nullptr),space(0L){
   open(ptr,sz,m);
   }
 
@@ -70,7 +70,7 @@ FXbool FXIOBuffer::open(FXuchar* ptr,FXuval sz,FXuint m){
 
 // Return true if open
 FXbool FXIOBuffer::isOpen() const {
-  return buffer!=NULL;
+  return buffer!=nullptr;
   }
 
 
@@ -157,7 +157,7 @@ FXlong FXIOBuffer::size(){
 
 // Close file
 FXbool FXIOBuffer::close(){
-  buffer=NULL;
+  buffer=nullptr;
   space=0L;
   pointer=0L;
   access=NoAccess;

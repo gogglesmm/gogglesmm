@@ -3,7 +3,7 @@
 *                      T e x t   R e p l a c e   D i a l o g                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -132,7 +132,7 @@ public:
 public:
 
   /// Construct search and replace dialog box
-  FXReplaceDialog(FXWindow* owner,const FXString& caption,FXIcon* ic=NULL,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXReplaceDialog(FXWindow* owner,const FXString& caption,FXIcon* ic=nullptr,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Set text or pattern to search for
   void setSearchText(const FXString& text);

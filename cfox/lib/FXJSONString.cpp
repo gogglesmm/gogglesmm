@@ -3,7 +3,7 @@
 *                            J S O N   S t r i n g   I / O                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2018,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -59,21 +59,21 @@ FXJSONString::FXJSONString(){
 
 // Create JSON string i/o object and open it
 FXJSONString::FXJSONString(const FXString& string,Direction d){
-  FXTRACE((100,"FXJSONString::FXJSONString(\"%.*s\",%s)\n",FXMIN(string.length(),16),string.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop"));
+  FXTRACE((100,"FXJSONString::FXJSONString(\"%.*s\",%s)\n",(FXint)FXMIN(string.length(),16),string.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   open(string,d);
   }
 
 
 // Create JSON string i/o object and open it
 FXJSONString::FXJSONString(const FXchar* string,FXuval length,Direction d){
-  FXTRACE((100,"FXJSONString::FXJSONString(\"%.*s\",%lu,%s)\n",FXMIN(length,16),string,length,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
+  FXTRACE((100,"FXJSONString::FXJSONString(\"%.*s\",%lu,%s)\n",(FXint)FXMIN(length,16),string,length,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   open(string,length,d);
   }
 
 
 // Open archive for operation
 FXbool FXJSONString::open(const FXString& string,Direction d){
-  FXTRACE((101,"FXJSONString::open(\"%.*s\",%s)\n",FXMIN(string.length(),16),string.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop"));
+  FXTRACE((101,"FXJSONString::open(\"%.*s\",%s)\n",(FXint)FXMIN(string.length(),16),string.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   FXASSERT(dir==Stop);
   buffer=string;
   if(FXJSON::open(buffer.text(),buffer.length(),d)){
@@ -86,7 +86,7 @@ FXbool FXJSONString::open(const FXString& string,Direction d){
 
 // Open archive for operation
 FXbool FXJSONString::open(const FXchar* string,FXuval length,Direction d){
-  FXTRACE((101,"FXJSONString::open(\"%.*s\",%lu,%s)\n",FXMIN(length,16),string,length,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
+  FXTRACE((101,"FXJSONString::open(\"%.*s\",%lu,%s)\n",(FXint)FXMIN(length,16),string,length,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   FXASSERT(dir==Stop);
   buffer.assign(string,length);
   if(FXJSON::open(buffer.text(),buffer.length(),d)){

@@ -3,7 +3,7 @@
 *                      J P E G   I m a g e   O b j e c t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by David Tyree.   All Rights Reserved.                *
+* Copyright (C) 2000,2022 by David Tyree.   All Rights Reserved.                *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -44,7 +44,7 @@ public:
 public:
 
   /// Construct an image from memory stream formatted in JPEG format
-  FXJPGImage(FXApp *a,const void *pix=NULL,FXuint opts=0,FXint w=1,FXint h=1,FXint q=75);
+  FXJPGImage(FXApp *a,const FXuchar *pix=nullptr,FXuint opts=0,FXint w=1,FXint h=1,FXint q=75);
 
   /// True if format is supported
   static const FXbool supported;

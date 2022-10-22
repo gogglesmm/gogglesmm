@@ -3,7 +3,7 @@
 *                         I n p u t   D i a l o g   B o x                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -62,10 +62,10 @@ public:
 public:
 
   /// Construct input dialog box with given caption, icon, and prompt text
-  FXInputDialog(FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* icon=NULL,FXuint opts=INPUTDIALOG_STRING,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXInputDialog(FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* icon=nullptr,FXuint opts=INPUTDIALOG_STRING,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Construct free floating input dialog box with given caption, icon, and prompt text
-  FXInputDialog(FXApp* app,const FXString& caption,const FXString& label,FXIcon* icon=NULL,FXuint opts=INPUTDIALOG_STRING,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXInputDialog(FXApp* app,const FXString& caption,const FXString& label,FXIcon* icon=nullptr,FXuint opts=INPUTDIALOG_STRING,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Get input string
   FXString getText() const;
@@ -92,36 +92,36 @@ public:
   * Prompt for a string, start with the initial value.
   * Return true if the new value is accepted, and false otherwise.
   */
-  static FXbool getString(FXString& result,FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* icon=NULL);
+  static FXbool getString(FXString& result,FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* icon=nullptr);
 
   /**
   * Prompt for a string, in free floating window.
   */
-  static FXbool getString(FXString& result,FXApp* app,const FXString& caption,const FXString& label,FXIcon* icon=NULL);
+  static FXbool getString(FXString& result,FXApp* app,const FXString& caption,const FXString& label,FXIcon* icon=nullptr);
 
   /**
   * Prompt for an integer number, start with the given initial value.
   * Return true if the new value is accepted, and false otherwise.
   * The input is constrained between lo and hi.
   */
-  static FXbool getInteger(FXint& result,FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* icon=NULL,FXint lo=-2147483647,FXint hi=2147483647);
+  static FXbool getInteger(FXint& result,FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* icon=nullptr,FXint lo=-2147483647,FXint hi=2147483647);
 
   /**
   * Prompt for a integer number, in free floating window.
   */
-  static FXbool getInteger(FXint& result,FXApp* app,const FXString& caption,const FXString& label,FXIcon* icon=NULL,FXint lo=-2147483647,FXint hi=2147483647);
+  static FXbool getInteger(FXint& result,FXApp* app,const FXString& caption,const FXString& label,FXIcon* icon=nullptr,FXint lo=-2147483647,FXint hi=2147483647);
 
   /**
   * Prompt for an real number, start with the given initial value.
   * Return true if the new value is accepted, and false otherwise.
   * The input is constrained between lo and hi.
   */
-  static FXbool getReal(FXdouble& result,FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* icon=NULL,FXdouble lo=-1.797693134862315e+308,FXdouble hi=1.797693134862315e+308);
+  static FXbool getReal(FXdouble& result,FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* icon=nullptr,FXdouble lo=-1.797693134862315e+308,FXdouble hi=1.797693134862315e+308);
 
   /**
   * Prompt for a real number, in free floating window.
   */
-  static FXbool getReal(FXdouble& result,FXApp* app,const FXString& caption,const FXString& label,FXIcon* icon=NULL,FXdouble lo=-1.797693134862315e+308,FXdouble hi=1.797693134862315e+308);
+  static FXbool getReal(FXdouble& result,FXApp* app,const FXString& caption,const FXString& label,FXIcon* icon=nullptr,FXdouble lo=-1.797693134862315e+308,FXdouble hi=1.797693134862315e+308);
   };
 
 }

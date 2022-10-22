@@ -3,7 +3,7 @@
 *                   B a s e   C a l e n d a r   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Sander Jansen.   All Rights Reserved.              *
+* Copyright (C) 2006,2022 by Sander Jansen.   All Rights Reserved.              *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -109,18 +109,18 @@ FXCalendar::FXCalendar(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,F
 
   // Popup for months
   monthpopup=new FXPopup(this);
-  months[ 0]=new FXOption(monthpopup,tr(FXDate::monthName( 1)),NULL,this,ID_MONTH_START+ 0,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 1]=new FXOption(monthpopup,tr(FXDate::monthName( 2)),NULL,this,ID_MONTH_START+ 1,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 2]=new FXOption(monthpopup,tr(FXDate::monthName( 3)),NULL,this,ID_MONTH_START+ 2,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 3]=new FXOption(monthpopup,tr(FXDate::monthName( 4)),NULL,this,ID_MONTH_START+ 3,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 4]=new FXOption(monthpopup,tr(FXDate::monthName( 5)),NULL,this,ID_MONTH_START+ 4,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 5]=new FXOption(monthpopup,tr(FXDate::monthName( 6)),NULL,this,ID_MONTH_START+ 5,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 6]=new FXOption(monthpopup,tr(FXDate::monthName( 7)),NULL,this,ID_MONTH_START+ 6,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 7]=new FXOption(monthpopup,tr(FXDate::monthName( 8)),NULL,this,ID_MONTH_START+ 7,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 8]=new FXOption(monthpopup,tr(FXDate::monthName( 9)),NULL,this,ID_MONTH_START+ 8,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[ 9]=new FXOption(monthpopup,tr(FXDate::monthName(10)),NULL,this,ID_MONTH_START+ 9,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[10]=new FXOption(monthpopup,tr(FXDate::monthName(11)),NULL,this,ID_MONTH_START+10,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
-  months[11]=new FXOption(monthpopup,tr(FXDate::monthName(12)),NULL,this,ID_MONTH_START+11,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 0]=new FXOption(monthpopup,tr(FXDate::monthName( 1)),nullptr,this,ID_MONTH_START+ 0,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 1]=new FXOption(monthpopup,tr(FXDate::monthName( 2)),nullptr,this,ID_MONTH_START+ 1,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 2]=new FXOption(monthpopup,tr(FXDate::monthName( 3)),nullptr,this,ID_MONTH_START+ 2,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 3]=new FXOption(monthpopup,tr(FXDate::monthName( 4)),nullptr,this,ID_MONTH_START+ 3,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 4]=new FXOption(monthpopup,tr(FXDate::monthName( 5)),nullptr,this,ID_MONTH_START+ 4,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 5]=new FXOption(monthpopup,tr(FXDate::monthName( 6)),nullptr,this,ID_MONTH_START+ 5,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 6]=new FXOption(monthpopup,tr(FXDate::monthName( 7)),nullptr,this,ID_MONTH_START+ 6,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 7]=new FXOption(monthpopup,tr(FXDate::monthName( 8)),nullptr,this,ID_MONTH_START+ 7,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 8]=new FXOption(monthpopup,tr(FXDate::monthName( 9)),nullptr,this,ID_MONTH_START+ 8,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[ 9]=new FXOption(monthpopup,tr(FXDate::monthName(10)),nullptr,this,ID_MONTH_START+ 9,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[10]=new FXOption(monthpopup,tr(FXDate::monthName(11)),nullptr,this,ID_MONTH_START+10,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
+  months[11]=new FXOption(monthpopup,tr(FXDate::monthName(12)),nullptr,this,ID_MONTH_START+11,OPTIONMENU_NOGLYPH|LAYOUT_LEFT|JUSTIFY_CENTER_X|ICON_AFTER_TEXT);
 
   // Month selector
   arrows[0]=new FXArrowButton(frame,this,ID_PREVMONTH,ARROW_LEFT|ARROW_REPEAT|ARROW_TOOLBAR|FRAME_RAISED|LAYOUT_FILL_Y,0,0,0,0,2,2,4,4);
@@ -131,7 +131,7 @@ FXCalendar::FXCalendar(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,F
 
   // Year selector
   arrows[2]=new FXArrowButton(frame,this,ID_NEXTYEAR,ARROW_RIGHT|ARROW_REPEAT|ARROW_TOOLBAR|FRAME_RAISED|LAYOUT_FILL_Y|LAYOUT_RIGHT,0,0,0,0,2,2,4,4);
-  year=new FXLabel(frame,"0000",NULL,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
+  year=new FXLabel(frame,"0000",nullptr,LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   arrows[3]=new FXArrowButton(frame,this,ID_PREVYEAR,ARROW_LEFT|ARROW_REPEAT|ARROW_TOOLBAR|FRAME_RAISED|LAYOUT_FILL_Y|LAYOUT_RIGHT,0,0,0,0,2,2,4,4);
 
   // Main widget

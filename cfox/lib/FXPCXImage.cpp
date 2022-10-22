@@ -3,7 +3,7 @@
 *                            P C X   I m a g e   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Janusz Ganczarski.   All Rights Reserved.          *
+* Copyright (C) 2001,2022 by Janusz Ganczarski.   All Rights Reserved.          *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -63,13 +63,13 @@ const FXchar FXPCXImage::mimeType[]="image/vnd.zbrush.pcx";
 
 
 // Object implementation
-FXIMPLEMENT(FXPCXImage,FXImage,NULL,0)
+FXIMPLEMENT(FXPCXImage,FXImage,nullptr,0)
 
 
 // Initialize
-FXPCXImage::FXPCXImage(FXApp* a,const void *pix,FXuint opts,FXint w,FXint h):FXImage(a,NULL,opts,w,h){
+FXPCXImage::FXPCXImage(FXApp* a,const FXuchar *pix,FXuint opts,FXint w,FXint h):FXImage(a,nullptr,opts,w,h){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

@@ -3,7 +3,7 @@
 *                          S e t t i n g s   C l a s s                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -151,9 +151,9 @@ public:
   FXint writeFormatEntry(const FXString& section,const FXString& name,const FXchar* fmt,...) FX_PRINTF(4,5) ;
 
   /// Read a string registry entry; if no value is found, the default value def is returned
-  const FXchar* readStringEntry(const FXchar* section,const FXchar* name,const FXchar* def=NULL) const;
-  const FXchar* readStringEntry(const FXString& section,const FXchar* name,const FXchar* def=NULL) const;
-  const FXchar* readStringEntry(const FXString& section,const FXString& name,const FXchar* def=NULL) const;
+  const FXchar* readStringEntry(const FXchar* section,const FXchar* name,const FXchar* def=nullptr) const;
+  const FXchar* readStringEntry(const FXString& section,const FXchar* name,const FXchar* def=nullptr) const;
+  const FXchar* readStringEntry(const FXString& section,const FXString& name,const FXchar* def=nullptr) const;
 
   /// Write a string registry entry
   FXbool writeStringEntry(const FXchar* section,const FXchar* name,const FXchar* val);

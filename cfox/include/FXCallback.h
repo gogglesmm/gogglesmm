@@ -3,7 +3,7 @@
 *                          C a l l B a c k    C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -88,13 +88,13 @@ public:
 
   // Connect to plain function
   template<RT (*fn)()>
-  inline void connect(){ method=&function_call<fn>; object=NULL; }
+  inline void connect(){ method=&function_call<fn>; object=nullptr; }
 
   // Return trye if connected
   bool connected() const { return (method!=&default_call); }
 
   // Disconnect resets to default
-  void disconnect(){ method=&default_call; object=NULL; }
+  void disconnect(){ method=&default_call; object=nullptr; }
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
@@ -112,7 +112,7 @@ public:
 
   // Create callback to function
   template<RT (*fn)()>
-  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,nullptr); }
   };
 
 /********************************************************************************/
@@ -174,13 +174,13 @@ public:
 
   // Connect to plain function
   template<RT (*fn)(PT1)>
-  inline void connect(){ method=&function_call<fn>; object=NULL; }
+  inline void connect(){ method=&function_call<fn>; object=nullptr; }
 
   // Return trye if connected
   bool connected() const { return (method!=&default_call); }
 
   // Disconnect resets to default
-  void disconnect(){ method=&default_call; object=NULL; }
+  void disconnect(){ method=&default_call; object=nullptr; }
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
@@ -198,7 +198,7 @@ public:
 
   // Create callback to function
   template<RT (*fn)(PT1)>
-  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,nullptr); }
   };
 
 /********************************************************************************/
@@ -260,13 +260,13 @@ public:
 
   // Connect to plain function
   template<RT (*fn)(PT1,PT2)>
-  inline void connect(){ method=&function_call<fn>; object=NULL; }
+  inline void connect(){ method=&function_call<fn>; object=nullptr; }
 
   // Return trye if connected
   bool connected() const { return (method!=&default_call); }
 
   // Disconnect resets to default
-  void disconnect(){ method=&default_call; object=NULL; }
+  void disconnect(){ method=&default_call; object=nullptr; }
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
@@ -284,7 +284,7 @@ public:
 
   // Create callback to function
   template<RT (*fn)(PT1,PT2)>
-  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,nullptr); }
   };
 
 /********************************************************************************/
@@ -346,13 +346,13 @@ public:
 
   // Connect to plain function
   template<RT (*fn)(PT1,PT2,PT3)>
-  inline void connect(){ method=&function_call<fn>; object=NULL; }
+  inline void connect(){ method=&function_call<fn>; object=nullptr; }
 
   // Return trye if connected
   bool connected() const { return (method!=&default_call); }
 
   // Disconnect resets to default
-  void disconnect(){ method=&default_call; object=NULL; }
+  void disconnect(){ method=&default_call; object=nullptr; }
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
@@ -370,7 +370,7 @@ public:
 
   // Create callback to function
   template<RT (*fn)(PT1,PT2,PT3)>
-  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,nullptr); }
   };
 
 /********************************************************************************/
@@ -432,13 +432,13 @@ public:
 
   // Connect to plain function
   template<RT (*fn)(PT1,PT2,PT3,PT4)>
-  inline void connect(){ method=&function_call<fn>; object=NULL; }
+  inline void connect(){ method=&function_call<fn>; object=nullptr; }
 
   // Return trye if connected
   bool connected() const { return (method!=&default_call); }
 
   // Disconnect resets to default
-  void disconnect(){ method=&default_call; object=NULL; }
+  void disconnect(){ method=&default_call; object=nullptr; }
 
   // Disconnect conditionally
   void disconnect(const void* obj){ if(obj==object){ disconnect(); } }
@@ -456,7 +456,7 @@ public:
 
   // Create callback to function
   template<RT (*fn)(PT1,PT2,PT3,PT4)>
-  static inline FXCallback create(){ return FXCallback(&function_call<fn>,NULL); }
+  static inline FXCallback create(){ return FXCallback(&function_call<fn>,nullptr); }
   };
 
 }

@@ -3,7 +3,7 @@
 *                           M a t h   F u n c t i o n s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2015,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2015,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -166,7 +166,7 @@
 #endif
 
 // Systems below are missing these functions
-#if defined(__sun__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+#if defined(__sun__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__)
 #define NO_EXP10F
 #define NO_EXP10
 #endif
@@ -208,10 +208,10 @@ extern FXAPI FXint fpSign(FXfloat x);
 /// Sign of double precision float point number (0..1)
 extern FXAPI FXlong fpSign(FXdouble x);
 
-/// Signed exponent of single precision float point number (-127..128)
+/// Signed exponent of single precision float point number (-126..128)
 extern FXAPI FXint fpExponent(FXfloat x);
 
-/// Signed exponent of double precision float point number (-1023..1023)
+/// Signed exponent of double precision float point number (-1022..1024)
 extern FXAPI FXlong fpExponent(FXdouble x);
 
 /// Mantissa of single precision float point number (including hidden bit)
@@ -306,6 +306,17 @@ static inline FXlong iclamp(FXlong lo,FXlong x,FXlong hi){
   }
 
 
+/// Integer clamp of integer x to [-lim..lim], where lim>0
+static inline FXint iclamp(FXint x,FXint lim){
+  return imin(imax(x,-lim),lim);
+  }
+
+/// Long clamp of long x to [-lim..lim], where lim>0
+static inline FXlong iclamp(FXlong x,FXlong lim){
+  return imin(imax(x,-lim),lim);
+  }
+
+
 /// Sign of integer, return -1 if x is <0, +1 if x>0, and zero otherwise
 static inline FXint isign(FXint x){
   return (x>0)-(x<0);
@@ -325,6 +336,7 @@ static inline FXfloat fmin(FXfloat x,FXfloat y){
   return ::fminf(x,y);
 #endif
   }
+
 
 /// Double precision minimum of two
 static inline FXdouble fmin(FXdouble x,FXdouble y){
@@ -378,6 +390,17 @@ static inline FXfloat fclamp(FXfloat lo,FXfloat x,FXfloat hi){
 /// Double precision clamp of number x to lie within range [lo..hi]
 static inline FXdouble fclamp(FXdouble lo,FXdouble x,FXdouble hi){
   return Math::fmin(Math::fmax(x,lo),hi);
+  }
+
+
+/// Single precision clamp of number x to [-lim..lim], where lim>0
+static inline FXfloat fclamp(FXfloat x,FXfloat lim){
+  return fmin(fmax(x,-lim),lim);
+  }
+
+/// Double precision clamp of number x to [-lim..lim], where lim>0
+static inline FXdouble fclamp(FXdouble x,FXdouble lim){
+  return fmin(fmax(x,-lim),lim);
   }
 
 
@@ -574,6 +597,39 @@ static inline FXfloat stepify(FXfloat x,FXfloat s){
 /// Stepify double precision x into multiples of step s (where s>0)
 static inline FXdouble stepify(FXdouble x,FXdouble s){
   return Math::nearbyint(x/s)*s;
+  }
+
+
+/// Single precision zig-zag function, period 1
+static inline FXfloat zigzag(FXfloat x){
+  return Math::fabs(2.0f*(x-Math::nearbyint(x)));
+  }
+
+/// Single precision zig-zag function, period 1
+static inline FXdouble zigzag(FXdouble x){
+  return Math::fabs(2.0*(x-Math::nearbyint(x)));
+  }
+
+
+/// Single precision sawtooth function, period 1
+static inline FXfloat sawtooth(FXfloat x){
+  return x-Math::floor(x);
+  }
+
+/// Single precision sawtooth function, period 1
+static inline FXdouble sawtooth(FXdouble x){
+  return x-Math::floor(x);
+  }
+
+
+/// Single precision revserse sawtooth function, period 1
+static inline FXfloat rsawtooth(FXfloat x){
+  return Math::ceil(x)-x;
+  }
+
+/// Single precision revserse sawtooth function, period 1
+static inline FXdouble rsawtooth(FXdouble x){
+  return Math::ceil(x)-x;
   }
 
 

@@ -3,7 +3,7 @@
 *                            R e a c t o r   C l a s s                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -94,7 +94,6 @@ public:
     DispatchOther   = 0x00000010        /// Dispatch other i/o
     };
 
-
   /// Sleep no longer than this
   static const FXTime maxwait;
 
@@ -107,7 +106,7 @@ public:
   virtual FXbool init();
 
   /// Is reactor initialized.
-  FXbool isInitialized() const { return (internals!=NULL); }
+  FXbool isInitialized() const { return (internals!=nullptr); }
 
   /// Dispatch if something happens within given blocking time.
   /// Flags control subsets of events to be dispatched (signals, timers,
@@ -125,7 +124,7 @@ public:
   virtual FXbool dispatchHandle(FXInputHandle hnd,FXuint mode,FXuint flags);
 
   /// Add (optionally asynchronous) signal sig to signal-set
-  virtual FXbool addSignal(FXint sig,FXbool FXbool=false);
+  virtual FXbool addSignal(FXint sig,FXbool=false);
 
   /// Remove signal sig from signal-set
   virtual FXbool remSignal(FXint sig);

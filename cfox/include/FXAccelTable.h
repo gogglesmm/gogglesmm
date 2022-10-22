@@ -3,7 +3,7 @@
 *                   A c c e l e r a t o r   T a b l e   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -64,13 +64,13 @@ public:
   /**
   * Add accelerator key-combination into the accelerator table.
   */
-  void addAccel(FXHotKey hotkey,FXObject* target=NULL,FXSelector seldn=0,FXSelector selup=0);
+  void addAccel(FXHotKey hotkey,FXObject* target=nullptr,FXSelector seldn=0,FXSelector selup=0);
 
   /**
   * Parse key-combination description and add it into the accelerator table.
   */
-  void addAccel(const FXchar* string,FXObject* target=NULL,FXSelector seldn=0,FXSelector selup=0);
-  void addAccel(const FXString& string,FXObject* target=NULL,FXSelector seldn=0,FXSelector selup=0);
+  void addAccel(const FXchar* string,FXObject* target=nullptr,FXSelector seldn=0,FXSelector selup=0);
+  void addAccel(const FXString& string,FXObject* target=nullptr,FXSelector seldn=0,FXSelector selup=0);
 
   /**
   * Remove accelerator key combination from the accelerator table.

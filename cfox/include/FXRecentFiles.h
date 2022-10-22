@@ -3,7 +3,7 @@
 *                     R e c e n t   F i l e s   L i s t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -115,14 +115,14 @@ public:
   * An optional target and message may be passed to invoke when one of the
   * list of files is invoked.
   */
-  FXRecentFiles(FXApp* a,const FXString& gp="Recent Files",FXObject *tgt=NULL,FXSelector sel=0);
+  FXRecentFiles(FXApp* a,const FXString& gp="Recent Files",FXObject *tgt=nullptr,FXSelector sel=0);
 
   /**
   * Make new recent files group, using given settings database.
   * An optional target and message may be passed to invoke when one of the
   * list of files is invoked.
   */
-  FXRecentFiles(FXSettings* st,const FXString& gp="Recent Files",FXObject *tgt=NULL,FXSelector sel=0);
+  FXRecentFiles(FXSettings* st,const FXString& gp="Recent Files",FXObject *tgt=nullptr,FXSelector sel=0);
 
   /// Change settings database
   void setSettings(FXSettings* s){ settings=s; }

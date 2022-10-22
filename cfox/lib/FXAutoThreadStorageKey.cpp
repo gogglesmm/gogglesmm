@@ -3,7 +3,7 @@
 *               T h r e a d - L o c a l   S t o r a g e   C l a s s             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -34,22 +34,19 @@
 
 using namespace FX;
 
-
-namespace FX {
-
-
 /*******************************************************************************/
 
+namespace FX {
 
 // Automatically acquire a thread-local storage key
 FXAutoThreadStorageKey::FXAutoThreadStorageKey(){
 #if defined(WIN32)
-  FXASSERT(sizeof(FXThreadStorageKey)>=sizeof(DWORD));
+  FXASSERT_STATIC(sizeof(FXThreadStorageKey)>=sizeof(DWORD));
   if((value=(FXThreadStorageKey)TlsAlloc())==TLS_OUT_OF_INDEXES){ throw FXMemoryException("FXAutoThreadStorageKey::FXAutoThreadStorageKey: out of memory\n"); }
 #else
-  FXASSERT(sizeof(FXThreadStorageKey)>=sizeof(pthread_key_t));
+  FXASSERT_STATIC(sizeof(FXThreadStorageKey)>=sizeof(pthread_key_t));
   pthread_key_t key;
-  if(pthread_key_create(&key,NULL)!=0){ throw FXMemoryException("FXAutoThreadStorageKey::FXAutoThreadStorageKey: out of memory\n"); }
+  if(pthread_key_create(&key,nullptr)!=0){ throw FXMemoryException("FXAutoThreadStorageKey::FXAutoThreadStorageKey: out of memory\n"); }
   value=(FXThreadStorageKey)key;
 #endif
   }
@@ -83,6 +80,5 @@ FXAutoThreadStorageKey::~FXAutoThreadStorageKey(){
   pthread_key_delete((pthread_key_t)value);
 #endif
   }
-
 
 }

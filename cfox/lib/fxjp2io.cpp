@@ -3,7 +3,7 @@
 *                    J P E G - 2 0 0 0   I n p u t / O u t p u t                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2009,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2009,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -137,7 +137,7 @@ FXbool fxloadJP2(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
   FXuchar *ptr;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
 
@@ -168,8 +168,8 @@ FXbool fxloadJP2(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
       if(decompressor){
         opj_dparameters_t     parameters;
         opj_event_mgr_t       event_mgr;
-        opj_cio_t            *cio=NULL;
-        opj_image_t          *image=NULL;
+        opj_cio_t            *cio=nullptr;
+        opj_image_t          *image=nullptr;
 
         // Set up callbacks
         event_mgr.error_handler=j2k_error_callback;
@@ -177,7 +177,7 @@ FXbool fxloadJP2(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
         event_mgr.info_handler=j2k_info_callback;
 
         // Set event manager
-        opj_set_event_mgr((opj_common_ptr)decompressor,&event_mgr,NULL);
+        opj_set_event_mgr((opj_common_ptr)decompressor,&event_mgr,nullptr);
 
         // Initialize decompression parameters
         opj_set_default_decoder_parameters(&parameters);
@@ -286,8 +286,8 @@ FXbool fxsaveJP2(FXStream& store,const FXColor* data,FXint width,FXint height,FX
     if(compressor){
       opj_event_mgr_t       event_mgr;
       opj_cparameters_t     parameters;
-      opj_cio_t            *cio=NULL;
-      opj_image_t          *image=NULL;
+      opj_cio_t            *cio=nullptr;
+      opj_image_t          *image=nullptr;
       opj_image_cmptparm_t  components[3];
       FXColor               color;
 
@@ -297,7 +297,7 @@ FXbool fxsaveJP2(FXStream& store,const FXColor* data,FXint width,FXint height,FX
       event_mgr.info_handler=j2k_info_callback;
 
       // Set event manager
-      opj_set_event_mgr((opj_common_ptr)compressor,&event_mgr,NULL);
+      opj_set_event_mgr((opj_common_ptr)compressor,&event_mgr,nullptr);
 
       // Set encoding parameters to default values
       opj_set_default_encoder_parameters(&parameters);
@@ -345,11 +345,11 @@ FXbool fxsaveJP2(FXStream& store,const FXColor* data,FXint width,FXint height,FX
           }
 
         // Open code stream
-        cio=opj_cio_open((opj_common_ptr)compressor,NULL,0);
+        cio=opj_cio_open((opj_common_ptr)compressor,nullptr,0);
         if(cio){
 
           // Encode the image
-          result=opj_encode(compressor,cio,image,NULL);
+          result=opj_encode(compressor,cio,image,nullptr);
 
           // Encoded properly
           if(result){

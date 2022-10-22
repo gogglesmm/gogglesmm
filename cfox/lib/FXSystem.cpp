@@ -3,7 +3,7 @@
 *         M i s c e l l a n e o u s   S y s t e m   F u n c t i o n s           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "fxascii.h"
 #include "FXArray.h"
@@ -232,12 +233,12 @@ FXbool FXSystem::setEnvironment(const FXString& name,const FXString& value){
       utf2ncs(buffer,value.text(),ARRAYNUMBER(buffer));
       return SetEnvironmentVariableW(variable,buffer)!=0;
       }
-    return SetEnvironmentVariableW(variable,NULL)!=0;
+    return SetEnvironmentVariableW(variable,nullptr)!=0;
 #else
     if(!value.empty()){
       return SetEnvironmentVariableA(name.text(),value.text())!=0;
       }
-    return SetEnvironmentVariableA(name.text(),NULL)!=0;
+    return SetEnvironmentVariableA(name.text(),nullptr)!=0;
 #endif
 #elif defined(__GNU_LIBRARY__)
     if(!value.empty()){
@@ -345,7 +346,7 @@ FXString FXSystem::getExecExtensions(){
 FXString FXSystem::getExecFilename(){
 #if defined(WIN32)
   TCHAR buffer[MAXPATHLEN];
-  DWORD len=GetModuleFileName(NULL,buffer,MAXPATHLEN);
+  DWORD len=GetModuleFileName(nullptr,buffer,MAXPATHLEN);
   return FXString(buffer,len);
 #elif defined(__linux__)
   FXint pid=FXProcess::current();
@@ -362,6 +363,36 @@ FXString FXSystem::getHomeDirectory(){
   return FXSystem::getUserDirectory(FXString::null);
   }
 
+
+// Return temporary directory.
+FXString FXSystem::getTempDirectory(){
+#if defined(WIN32)
+  TCHAR buffer[MAXPATHLEN];
+  DWORD len=GetTempPath(MAXPATHLEN,buffer);
+  if(1<len && ISPATHSEP(buffer[len-1]) && !ISPATHSEP(buffer[len-2])) len--;
+  return FXString(buffer,len);
+#else
+  const FXchar* dir;
+  if((dir=getenv("TMPDIR"))!=nullptr){
+    return FXString(dir);
+    }
+  return FXString("/tmp");
+#endif
+  }
+
+
+// Return system directory
+FXString FXSystem::getSystemDirectory(){
+#if defined(WIN32)
+  TCHAR buffer[MAXPATHLEN];
+  DWORD len=GetSystemDirectory(buffer,MAXPATHLEN);
+  return FXString(buffer,len);
+#else
+  return FXString("/bin");
+#endif
+  }
+
+
 /*
 BOOL WINAPI LookupAccountName(
   _In_opt_   LPCTSTR lpSystemName,
@@ -376,21 +407,21 @@ BOOL WINAPI LookupAccountName(
 PSID GetUserSID(const FXString& name){
   FXString user=name.empty()?currentUserName():name;
   if(!user.empty()){
-    PSID   sid=NULL;
+    PSID   sid=nullptr;
     DWORD  sid_size=0;
-    TCHAR *domain=NULL;
+    TCHAR *domain=nullptr;
     DWORD  domain_size=0;
     SID_NAME_USE use=SidTypeUnknown;
 
     // First call to LookupAccountName to get the buffer sizes
-    if(LookupAccountNameA(NULL,user.text(),sid,&sid_size,domain,&domain_size,&use)){
+    if(LookupAccountNameA(nullptr,user.text(),sid,&sid_size,domain,&domain_size,&use)){
 
       // Allocate
       sid=(PSID)LocalAlloc(LMEM_FIXED,sid_size);
       domain=new TCHAR [domain_size];
 
       // Second call to LookupAccountName to get the actual account info
-      if(LookupAccountName(NULL,user.text(),sid,&sid_size,domain,&domain_size,&use)){
+      if(LookupAccountName(nullptr,user.text(),sid,&sid_size,domain,&domain_size,&use)){
         delete [] domain;
         return sid;
         }
@@ -400,7 +431,7 @@ PSID GetUserSID(const FXString& name){
       delete [] domain;
       }
     }
-  return NULL
+  return nullptr;
   }
 */
 
@@ -430,7 +461,7 @@ FXString FXSystem::getUserDirectory(const FXString& user){
       return result;
       }
     if(RegOpenKeyExW(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders",0,KEY_READ,&hKey)==ERROR_SUCCESS){
-      result=RegQueryValueExW(hKey,L"Personal",NULL,NULL,(LPBYTE)path,&pathlen);        // Change "Personal" to "Desktop" if you want...
+      result=RegQueryValueExW(hKey,L"Personal",nullptr,nullptr,(LPBYTE)path,&pathlen);        // Change "Personal" to "Desktop" if you want...
       RegCloseKey(hKey);
       if(result==ERROR_SUCCESS){
         return FXString(path,pathlen);
@@ -446,10 +477,10 @@ FXString FXSystem::getUserDirectory(const FXString& user){
     DWORD drivelen;
     HKEY hKey;
     LONG result;
-    if((pathlen=GetEnvironmentVariableA("USERPROFILE",path,ARRAYNUMBER(buffer)))>0){
+    if((pathlen=GetEnvironmentVariableA("USERPROFILE",path,ARRAYNUMBER(path)))>0){
       return FXString(path,pathlen);
       }
-    if((pathlen=GetEnvironmentVariableA("HOME",path,ARRAYNUMBER(buffer)))>0){
+    if((pathlen=GetEnvironmentVariableA("HOME",path,ARRAYNUMBER(path)))>0){
       return FXString(path,pathlen);
       }
     if((pathlen=GetEnvironmentVariableA("HOMEPATH",path,ARRAYNUMBER(path)))>0){         // This should be good for WinNT, Win2K according to MSDN
@@ -461,7 +492,7 @@ FXString FXSystem::getUserDirectory(const FXString& user){
       return result;
       }
     if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders",0,KEY_READ,&hKey)==ERROR_SUCCESS){
-      result=RegQueryValueExA(hKey,"Personal",NULL,NULL,(LPBYTE)path,&pathlen);         // Change "Personal" to "Desktop" if you want...
+      result=RegQueryValueExA(hKey,"Personal",nullptr,nullptr,(LPBYTE)path,&pathlen);         // Change "Personal" to "Desktop" if you want...
       RegCloseKey(hKey);
       if(result==ERROR_SUCCESS){
         return FXString(path,pathlen);
@@ -475,10 +506,10 @@ FXString FXSystem::getUserDirectory(const FXString& user){
   const FXchar* str;
   char buffer[1024];
   if(user.empty()){
-    if((str=getenv("HOME"))!=NULL){
+    if((str=getenv("HOME"))!=nullptr){
       return FXString(str);
       }
-    if((str=getenv("USER"))!=NULL || (str=getenv("LOGNAME"))!=NULL){
+    if((str=getenv("USER"))!=nullptr || (str=getenv("LOGNAME"))!=nullptr){
       if(getpwnam_r(str,&pwdresult,buffer,sizeof(buffer),&pwd)==0 && pwd){
         return FXString(pwd->pw_dir);
         }
@@ -496,40 +527,23 @@ FXString FXSystem::getUserDirectory(const FXString& user){
   struct passwd *pwd;
   const FXchar* str;
   if(user.empty()){
-    if((str=getenv("HOME"))!=NULL){
+    if((str=getenv("HOME"))!=nullptr){
       return FXString(str);
       }
-    if((str=getenv("USER"))!=NULL || (str=getenv("LOGNAME"))!=NULL){
-      if((pwd=getpwnam(str))!=NULL){
+    if((str=getenv("USER"))!=nullptr || (str=getenv("LOGNAME"))!=nullptr){
+      if((pwd=getpwnam(str))!=nullptr){
         return FXString(pwd->pw_dir);
         }
       }
-    if((pwd=getpwuid(getuid()))!=NULL){
+    if((pwd=getpwuid(getuid()))!=nullptr){
       return FXString(pwd->pw_dir);
       }
     return FXString::null;
     }
-  if((pwd=getpwnam(user.text()))!=NULL){
+  if((pwd=getpwnam(user.text()))!=nullptr){
     return FXString(pwd->pw_dir);
     }
   return FXString::null;
-#endif
-  }
-
-
-// Return temporary directory.
-FXString FXSystem::getTempDirectory(){
-#if defined(WIN32)
-  TCHAR buffer[MAXPATHLEN];
-  DWORD len=GetTempPath(MAXPATHLEN,buffer);
-  if(1<len && ISPATHSEP(buffer[len-1]) && !ISPATHSEP(buffer[len-2])) len--;
-  return FXString(buffer,len);
-#else
-  const FXchar* dir;
-  if((dir=getenv("TMPDIR"))!=NULL){
-    return FXString(dir);
-    }
-  return FXString("/tmp");
 #endif
   }
 
@@ -551,8 +565,8 @@ FXbool FXSystem::localeIsUTF8(){
   return GetACP()==CP_UTF8;
 #else
   const FXchar* str;
-  if((str=getenv("LC_CTYPE"))!=NULL || (str=getenv("LC_ALL"))!=NULL || (str=getenv("LANG"))!=NULL){
-    return (strstr(str,"utf")!=NULL || strstr(str,"UTF")!=NULL);
+  if((str=getenv("LC_CTYPE"))!=nullptr || (str=getenv("LC_ALL"))!=nullptr || (str=getenv("LANG"))!=nullptr){
+    return (strstr(str,"utf")!=nullptr || strstr(str,"UTF")!=nullptr);
     }
   return false;
 #endif

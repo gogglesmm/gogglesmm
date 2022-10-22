@@ -3,7 +3,7 @@
 *                        E X E   I c o n   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2014,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2014,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,13 +60,13 @@ const FXchar FXEXEIcon::mimeType[]="application/octet-stream";
 
 
 // Object implementation
-FXIMPLEMENT(FXEXEIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXEXEIcon,FXIcon,nullptr,0)
 
 
 // Initialize nicely
-FXEXEIcon::FXEXEIcon(FXApp* a,const void *pix,FXColor clr,FXuint opts,FXint w,FXint h,FXint ri,FXint rt):FXIcon(a,NULL,clr,opts,w,h),rtype(rt),rid(ri){
+FXEXEIcon::FXEXEIcon(FXApp* a,const FXuchar *pix,FXColor clr,FXuint opts,FXint w,FXint h,FXint ri,FXint rt):FXIcon(a,nullptr,clr,opts,w,h),rtype(rt),rid(ri){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

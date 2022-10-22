@@ -3,7 +3,7 @@
 *                     G Z F i l e S t r e a m   C l a s s e s                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Sander Jansen.   All Rights Reserved.              *
+* Copyright (C) 2002,2022 by Sander Jansen.   All Rights Reserved.              *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -57,12 +57,12 @@ struct ZBlock {
 
 
 // Create GZIP compressed file stream
-FXGZFileStream::FXGZFileStream(const FXObject* cont):FXFileStream(cont),gz(NULL),ac(0){
+FXGZFileStream::FXGZFileStream(const FXObject* cont):FXFileStream(cont),gz(nullptr),ac(0){
   }
 
 
 // Create and open GZIP compressed file stream
-FXGZFileStream::FXGZFileStream(const FXString& filename,FXStreamDirection save_or_load,FXuval size):gz(NULL),ac(0){
+FXGZFileStream::FXGZFileStream(const FXString& filename,FXStreamDirection save_or_load,FXuval size):gz(nullptr),ac(0){
   open(filename,save_or_load,size);
   }
 
@@ -127,9 +127,9 @@ FXbool FXGZFileStream::open(const FXString& filename,FXStreamDirection save_or_l
   if(FXFileStream::open(filename,save_or_load,size)){
     if(callocElms(gz,1)){
       int zerror;
-      gz->stream.next_in=NULL;
+      gz->stream.next_in=nullptr;
       gz->stream.avail_in=0;
-      gz->stream.next_out=NULL;
+      gz->stream.next_out=nullptr;
       gz->stream.avail_out=0;
       ac=Z_NO_FLUSH;
       if(save_or_load==FXStreamLoad){

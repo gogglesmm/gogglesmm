@@ -3,7 +3,7 @@
 *                          I c o n L i s t   O b j e c t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -103,7 +103,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXIconItem,FXObject,NULL,0)
+FXIMPLEMENT(FXIconItem,FXObject,nullptr,0)
 
 
 // Draw item
@@ -191,7 +191,6 @@ void FXIconItem::drawMiniIcon(const FXIconList* list,FXDC& dc,FXint x,FXint y,FX
     for(len=0; len<label.length() && label[len]!='\t'; len++){}
     tw=4+font->getTextWidth(label.text(),len);
     th=4+font->getFontHeight();
-    dw=font->getTextWidth("...",3);
     y+=(h-th)/2;
     dw=0;
     if(tw>space){                  // FIXME as below in drawDetails
@@ -575,7 +574,7 @@ FXIconList::FXIconList(){
   extent=-1;
   viewable=-1;
   font=(FXFont*)-1L;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   textColor=0;
   selbackColor=0;
   seltextColor=0;
@@ -605,7 +604,7 @@ FXIconList::FXIconList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,F
   extent=-1;
   viewable=-1;
   font=getApp()->getNormalFont();
-  sortfunc=NULL;
+  sortfunc=nullptr;
   textColor=getApp()->getForeColor();
   selbackColor=getApp()->getSelbackColor();
   seltextColor=getApp()->getSelforeColor();
@@ -872,14 +871,14 @@ long FXIconList::onClkHeader(FXObject*,FXSelector,void* ptr){
 // Set headers from array of strings
 void FXIconList::setHeaders(const FXchar** strings,FXint size){
   header->clearItems();
-  header->fillItems(strings,NULL,size);
+  header->fillItems(strings,nullptr,size);
   }
 
 
 // Set headers from newline separated strings
 void FXIconList::setHeaders(const FXString& strings,FXint size){
   header->clearItems();
-  header->fillItems(strings,NULL,size);
+  header->fillItems(strings,nullptr,size);
   }
 
 
@@ -1127,7 +1126,6 @@ FXint FXIconList::getItemAt(FXint x,FXint y) const {
     }
   else{
     y-=header->getDefaultHeight();
-    c=0;
     index=y/itemHeight;
     if(index<0 || index>=items.no()) return -1;
     }
@@ -1136,16 +1134,16 @@ FXint FXIconList::getItemAt(FXint x,FXint y) const {
 
 
 // Compare strings up to n
-static FXint comp(const FXString& s1,const FXString& s2,FXint n){
-  const FXuchar *p1=(const FXuchar *)s1.text();
-  const FXuchar *p2=(const FXuchar *)s2.text();
-  FXint c1,c2;
+static FXint comp(const FXchar* s1,const FXchar* s2,FXint n){
   if(0<n){
+    FXint c1,c2;
     do{
-      c1=*p1++; if(c1=='\t') c1=0;
-      c2=*p2++; if(c2=='\t') c2=0;
+      c1=(FXuchar)*s1++;
+      c2=(FXuchar)*s2++;
       }
-    while(--n && c1 && (c1==c2));
+    while((c1==c2) && (' '<=c1) && --n);
+    if(c1<' ') c1=0;
+    if(c2<' ') c2=0;
     return c1-c2;
     }
   return 0;
@@ -1153,49 +1151,49 @@ static FXint comp(const FXString& s1,const FXString& s2,FXint n){
 
 
 // Compare strings case insensitive up to n
-static FXint compcase(const FXString& s1,const FXString& s2,FXint n){
-  const FXuchar *p1=(const FXuchar *)s1.text();
-  const FXuchar *p2=(const FXuchar *)s2.text();
-  FXint c1,c2;
+static FXint compcase(const FXchar* s1,const FXchar* s2,FXint n){
   if(0<n){
+    FXint c1,c2;
     do{
-      c1=Ascii::toLower(*p1++); if(c1=='\t') c1=0;      // FIXME UTF8 version
-      c2=Ascii::toLower(*p2++); if(c2=='\t') c2=0;
+      c1=Ascii::toLower((FXuchar)*s1++);
+      c2=Ascii::toLower((FXuchar)*s2++);
       }
-    while(--n && c1 && (c1==c2));
+    while((c1==c2) && (' '<=c1) && --n);
+    if(c1<' ') c1=0;
+    if(c2<' ') c2=0;
     return c1-c2;
     }
   return 0;
   }
 
 
-typedef FXint (*FXCompareFunc)(const FXString&,const FXString&,FXint);
+typedef FXint (*FXCompareFunc)(const FXchar*,const FXchar*,FXint);
 
 
 // Get item by name
-FXint FXIconList::findItem(const FXString& text,FXint start,FXuint flgs) const {
-  FXCompareFunc comparefunc=(flgs&SEARCH_IGNORECASE) ? (FXCompareFunc)compcase : (FXCompareFunc)comp;
+FXint FXIconList::findItem(const FXString& string,FXint start,FXuint flgs) const {
+  FXCompareFunc comparefunc=(flgs&SEARCH_IGNORECASE) ? compcase : comp;
   FXint index,len;
   if(0<items.no()){
-    len=(flgs&SEARCH_PREFIX)?text.length():2147483647;
+    len=(flgs&SEARCH_PREFIX)?string.length():2147483647;
     if(flgs&SEARCH_BACKWARD){
       if(start<0) start=items.no()-1;
       for(index=start; 0<=index; index--){
-        if((*comparefunc)(items[index]->getText(),text,len)==0) return index;
+        if((*comparefunc)(items[index]->getText().text(),string.text(),len)==0) return index;
         }
       if(!(flgs&SEARCH_WRAP)) return -1;
       for(index=items.no()-1; start<index; index--){
-        if((*comparefunc)(items[index]->getText(),text,len)==0) return index;
+        if((*comparefunc)(items[index]->getText().text(),string.text(),len)==0) return index;
         }
       }
     else{
       if(start<0) start=0;
       for(index=start; index<items.no(); index++){
-        if((*comparefunc)(items[index]->getText(),text,len)==0) return index;
+        if((*comparefunc)(items[index]->getText().text(),string.text(),len)==0) return index;
         }
       if(!(flgs&SEARCH_WRAP)) return -1;
       for(index=0; index<start; index++){
-        if((*comparefunc)(items[index]->getText(),text,len)==0) return index;
+        if((*comparefunc)(items[index]->getText().text(),string.text(),len)==0) return index;
         }
       }
     }
@@ -1821,8 +1819,8 @@ long FXIconList::onCmdArrangeByRows(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXIconList::onUpdArrangeByRows(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(options&ICONLIST_COLUMNS)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
-  sender->handle(this,(options&(ICONLIST_MINI_ICONS|ICONLIST_BIG_ICONS))?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(options&ICONLIST_COLUMNS)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
+  sender->handle(this,(options&(ICONLIST_MINI_ICONS|ICONLIST_BIG_ICONS))?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -1837,8 +1835,8 @@ long FXIconList::onCmdArrangeByColumns(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXIconList::onUpdArrangeByColumns(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(options&ICONLIST_COLUMNS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
-  sender->handle(this,(options&(ICONLIST_MINI_ICONS|ICONLIST_BIG_ICONS))?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(options&ICONLIST_COLUMNS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(options&(ICONLIST_MINI_ICONS|ICONLIST_BIG_ICONS))?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -1854,7 +1852,7 @@ long FXIconList::onCmdShowDetails(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXIconList::onUpdShowDetails(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(options&(ICONLIST_MINI_ICONS|ICONLIST_BIG_ICONS))?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  sender->handle(this,(options&(ICONLIST_MINI_ICONS|ICONLIST_BIG_ICONS))?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   return 1;
   }
 
@@ -1870,7 +1868,7 @@ long FXIconList::onCmdShowBigIcons(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXIconList::onUpdShowBigIcons(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(options&ICONLIST_BIG_ICONS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(options&ICONLIST_BIG_ICONS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1886,7 +1884,7 @@ long FXIconList::onCmdShowMiniIcons(FXObject*,FXSelector,void*){
 
 // Update sender
 long FXIconList::onUpdShowMiniIcons(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(options&ICONLIST_MINI_ICONS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(options&ICONLIST_MINI_ICONS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -1918,10 +1916,12 @@ FXint FXIconList::compareSection(const FXchar *p,const FXchar* q,FXint s){
   for(x=s; x && *p; x-=(*p++=='\t')){}
   for(x=s; x && *q; x-=(*q++=='\t')){}
   do{
-    c1=(FXuchar) *p++;
-    c2=(FXuchar) *q++;
+    c1=*p++;
+    c2=*q++;
     }
-  while('\t'<c1 && (c1==c2));
+  while((c1==c2) && (' '<=c1));
+  if(c1<' ') c1=0;
+  if(c2<' ') c2=0;
   return c1-c2;
   }
 
@@ -1932,10 +1932,12 @@ FXint FXIconList::compareSectionCase(const FXchar *p,const FXchar* q,FXint s){
   for(x=s; x && *p; x-=(*p++=='\t')){}
   for(x=s; x && *q; x-=(*q++=='\t')){}
   do{
-    c1=Unicode::toLower(wc(p)); p=wcinc(p);
-    c2=Unicode::toLower(wc(q)); q=wcinc(q);
+    c1=Ascii::toLower(*p++);
+    c2=Ascii::toLower(*q++);
     }
-  while('\t'<c1 && (c1==c2));
+  while((c1==c2) && (' '<=c1));
+  if(c1<' ') c1=0;
+  if(c2<' ') c2=0;
   return c1-c2;
   }
 

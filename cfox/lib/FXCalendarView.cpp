@@ -3,7 +3,7 @@
 *                   B a s e   C a l e n d a r   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Sander Jansen.   All Rights Reserved.              *
+* Copyright (C) 2006,2022 by Sander Jansen.   All Rights Reserved.              *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -697,7 +697,7 @@ void FXCalendarView::markdirty(FXDate d){
     FXint xx=0,yy=0,ww=0,hh=0,i=0,e=0;
 
     // Calculate xx
-    for(i=0,e=0;i<col;i++){
+    for(i=0,e=0; i<col; i++){
       xx+=cw;
       e+=cwr;
       if(e>=ncols){ xx++; e-=ncols; }
@@ -709,7 +709,7 @@ void FXCalendarView::markdirty(FXDate d){
     if(e>=ncols){ ww++; e-=ncols; }
 
     // Calculate yy
-    for(i=0,e=0;i<row;i++){
+    for(i=0,e=0; i<row; i++){
       yy+=ch;
       e+=chr;
       if(e>=nrows){ yy++; e-=nrows; }

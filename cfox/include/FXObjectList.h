@@ -3,7 +3,7 @@
 *                            O b j e c t   L i s t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -163,7 +163,7 @@ public:
   FXbool pop();
 
   /// Remove all objects
-  void clear();
+  FXbool clear();
 
   /// Save to a stream
   void save(FXStream& store) const;

@@ -3,7 +3,7 @@
 *                    F o l d i n g   L i s t   W i d g e t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -69,7 +69,7 @@ private:
   FXFoldingItem(const FXFoldingItem&);
   FXFoldingItem& operator=(const FXFoldingItem&);
 protected:
-  FXFoldingItem():parent(NULL),prev(NULL),next(NULL),first(NULL),last(NULL),openIcon(NULL),closedIcon(NULL),data(NULL),state(0),x(0),y(0){}
+  FXFoldingItem():parent(nullptr),prev(nullptr),next(nullptr),first(nullptr),last(nullptr),openIcon(nullptr),closedIcon(nullptr),data(nullptr),state(0),x(0),y(0){}
   virtual void draw(const FXFoldingList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
   virtual FXint hitItem(const FXFoldingList* list,FXint x,FXint y) const;
 public:
@@ -87,7 +87,7 @@ public:
 public:
 
   /// Constructor
-  FXFoldingItem(const FXString& text,FXIcon* oi=NULL,FXIcon* ci=NULL,FXptr ptr=NULL):parent(NULL),prev(NULL),next(NULL),first(NULL),last(NULL),label(text),openIcon(oi),closedIcon(ci),data(ptr),state(0),x(0),y(0){}
+  FXFoldingItem(const FXString& text,FXIcon* oi=nullptr,FXIcon* ci=nullptr,FXptr ptr=nullptr):parent(nullptr),prev(nullptr),next(nullptr),first(nullptr),last(nullptr),label(text),openIcon(oi),closedIcon(ci),data(ptr),state(0),x(0),y(0){}
 
   /// Get parent item
   FXFoldingItem* getParent() const { return parent; }
@@ -321,7 +321,7 @@ public:
 public:
 
   /// Construct a folding list; the folding list is initially empty
-  FXFoldingList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=FOLDINGLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXFoldingList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=FOLDINGLIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Create server-side resources
   virtual void create();
@@ -375,7 +375,7 @@ public:
   void setHeaders(const FXString& strings,FXint size=1);
 
   /// Append header with given text and optional icon
-  void appendHeader(const FXString& text,FXIcon *icon=NULL,FXint size=1);
+  void appendHeader(const FXString& text,FXIcon *icon=nullptr,FXint size=1);
 
   /// Remove header at index
   void removeHeader(FXint index);
@@ -417,13 +417,13 @@ public:
   FXFoldingItem* getLastItem() const { return lastitem; }
 
   /// Fill list by appending items from array of strings
-  FXint fillItems(FXFoldingItem* father,const FXchar *const *strings,FXIcon* oi=NULL,FXIcon* ci=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(FXFoldingItem* father,const FXchar *const *strings,FXIcon* oi=nullptr,FXIcon* ci=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill list by appending items from array of strings
-  FXint fillItems(FXFoldingItem* father,const FXString* strings,FXIcon* oi=NULL,FXIcon* ci=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(FXFoldingItem* father,const FXString* strings,FXIcon* oi=nullptr,FXIcon* ci=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill list by appending items from newline separated strings
-  FXint fillItems(FXFoldingItem* father,const FXString& strings,FXIcon* oi=NULL,FXIcon* ci=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(FXFoldingItem* father,const FXString& strings,FXIcon* oi=nullptr,FXIcon* ci=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Replace the original item orig with new [possibly subclassed] item
   FXFoldingItem* setItem(FXFoldingItem* orig,FXFoldingItem* item,FXbool notify=false);
@@ -432,19 +432,19 @@ public:
   FXFoldingItem* insertItem(FXFoldingItem* other,FXFoldingItem* father,FXFoldingItem* item,FXbool notify=false);
 
   /// Insert item with given text and optional icons, and user-data pointer under father before other item
-  FXFoldingItem* insertItem(FXFoldingItem* other,FXFoldingItem* father,const FXString& text,FXIcon* oi=NULL,FXIcon* ci=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXFoldingItem* insertItem(FXFoldingItem* other,FXFoldingItem* father,const FXString& text,FXIcon* oi=nullptr,FXIcon* ci=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Append [possibly subclassed] item as last child of father
   FXFoldingItem* appendItem(FXFoldingItem* father,FXFoldingItem* item,FXbool notify=false);
 
   /// Append item with given text and optional icons, and user-data pointer as last child of father
-  FXFoldingItem* appendItem(FXFoldingItem* father,const FXString& text,FXIcon* oi=NULL,FXIcon* ci=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXFoldingItem* appendItem(FXFoldingItem* father,const FXString& text,FXIcon* oi=nullptr,FXIcon* ci=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Prepend [possibly subclassed] item as first child of father
   FXFoldingItem* prependItem(FXFoldingItem* father,FXFoldingItem* item,FXbool notify=false);
 
   /// Prepend item with given text and optional icons, and user-data pointer as first child of father
-  FXFoldingItem* prependItem(FXFoldingItem* father,const FXString& text,FXIcon* oi=NULL,FXIcon* ci=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXFoldingItem* prependItem(FXFoldingItem* father,const FXString& text,FXIcon* oi=nullptr,FXIcon* ci=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Move item under father before other item
   FXFoldingItem *moveItem(FXFoldingItem* other,FXFoldingItem* father,FXFoldingItem* item);
@@ -486,7 +486,7 @@ public:
   * passing SEARCH_PREFIX causes searching for a prefix of the item name.
   * Return NULL if no matching item is found.
   */
-  FXFoldingItem* findItem(const FXString& text,FXFoldingItem* start=NULL,FXuint flags=SEARCH_FORWARD|SEARCH_WRAP) const;
+  FXFoldingItem* findItem(const FXString& string,FXFoldingItem* start=nullptr,FXuint flags=SEARCH_FORWARD|SEARCH_WRAP) const;
 
   /**
   * Search items by associated user data, beginning from item start. If the
@@ -495,7 +495,7 @@ public:
   * the search direction; this can be combined with SEARCH_NOWRAP or SEARCH_WRAP
   * to control whether the search wraps at the start or end of the list.
   */
-  FXFoldingItem* findItemByData(FXptr ptr,FXFoldingItem* start=NULL,FXuint flags=SEARCH_FORWARD|SEARCH_WRAP) const;
+  FXFoldingItem* findItemByData(FXptr ptr,FXFoldingItem* start=nullptr,FXuint flags=SEARCH_FORWARD|SEARCH_WRAP) const;
 
   /// Change item's text
   void setItemText(FXFoldingItem* item,const FXString& text);

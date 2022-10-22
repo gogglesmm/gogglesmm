@@ -3,7 +3,7 @@
 *  R e v e r s e   D i c t i o n a r y   O f   P o i n t e r s   T o   T y p e  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2018,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -47,34 +47,34 @@ public:
   FXReverseDictionaryOf<TYPE>& adopt(FXReverseDictionaryOf<TYPE>& other){ return reinterpret_cast<FXReverseDictionaryOf<TYPE>&>(FXReverseDictionary::adopt(other)); }
 
   /// Find position of given key, returning -1 if not found
-  FXival find(TYPE* ky) const { return FXReverseDictionary::find((FXptr)ky); }
+  FXival find(TYPE* ky) const { return FXReverseDictionary::find(ky); }
 
   /// Check if key is mapped
-  FXbool has(TYPE* ky) const { return FXReverseDictionary::has((FXptr)ky); }
+  FXbool has(TYPE* ky) const { return FXReverseDictionary::has(ky); }
 
   /// Return reference to slot assocated with given key
-  FXString& at(TYPE* ky){ return FXReverseDictionary::at((FXptr)ky); }
+  FXString& at(TYPE* ky){ return FXReverseDictionary::at(ky); }
 
   /// Return constant reference to slot assocated with given key
-  const FXString& at(TYPE* ky) const { return FXReverseDictionary::at((FXptr)ky); }
+  const FXString& at(TYPE* ky) const { return FXReverseDictionary::at(ky); }
 
   /// Return reference to slot assocated with given key
-  FXString& operator[](TYPE* ky){ return FXReverseDictionary::at((FXptr)ky); }
+  FXString& operator[](TYPE* ky){ return FXReverseDictionary::at(ky); }
 
   /// Return constant reference to slot assocated with given key
-  const FXString& operator[](TYPE* ky) const { return FXReverseDictionary::at((FXptr)ky); }
+  const FXString& operator[](TYPE* ky) const { return FXReverseDictionary::at(ky); }
 
   /// Insert association with given key; return old value, if any
-  FXString insert(TYPE* ky,const FXString& str=FXString::null){ return FXReverseDictionary::insert((FXptr)ky,str); }
+  FXString insert(TYPE* ky,const FXString& str=FXString::null){ return FXReverseDictionary::insert(ky,str); }
 
   /// Remove association with given key; return old value, if any
-  FXString remove(TYPE* ky){ return FXReverseDictionary::remove((FXptr)ky); }
+  FXString remove(TYPE* ky){ return FXReverseDictionary::remove(ky); }
 
   /// Erase data at pos in the table; return old value, if any
   FXString erase(FXival pos){ return FXReverseDictionary::erase(pos); }
 
   /// Return key at position pos
-  TYPE* key(FXival pos) const { return (TYPE*)table[pos].key; }
+  TYPE* key(FXival pos) const { return reinterpret_cast<TYPE*&>(FXReverseDictionary::key(pos)); }
 
   /// Return reference to slot at position pos
   FXString& data(FXival pos){ return FXReverseDictionary::data(pos); }

@@ -3,7 +3,7 @@
 *                      E x p r e s s i o n   E v a l u a t o r                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -39,15 +39,18 @@
   - Maintain stack-depth during compile phase for possible limit check.
 */
 
-// Debugging expression code
-//#define EXPRDEBUG 1
+#define TOPIC_CONSTRUCT 1000
+//#define TOPIC_EXPDUMP   1015          // Debugging expression code
 
 #define MAXSTACKDEPTH 128
+
+// Empty expression
+#define EMPTY         (const_cast<FXuchar*>(FXExpression::initial))
 
 // Access to argument
 #if defined(__i386__) || defined(__x86_64__)            // No alignment limits on shorts
 #define SETARG(p,val) (*((FXshort*)(p))=(val))
-#define GETARG(p)     (*((FXshort*)(p)))
+#define GETARG(p)     (*((const FXshort*)(p)))
 #elif (FOX_BIGENDIAN == 1)                              // Big-endian machines
 #define SETARG(p,val) (*((p)+0)=(val)>>8,*((p)+1)=(val))
 #define GETARG(p)     ((FXshort)((*((p)+0)<<8)+(*((p)+1))))
@@ -64,8 +67,8 @@ namespace FX {
 
 
 // Furnish our own versions
-extern FXAPI FXlong __strtoll(const FXchar *beg,const FXchar** end=NULL,FXint base=0,FXbool* ok=NULL);
-extern FXAPI FXdouble __strtod(const FXchar *beg,const FXchar** end=NULL,FXbool* ok=NULL);
+extern FXAPI FXlong __strtoll(const FXchar *beg,const FXchar** end=nullptr,FXint base=0,FXbool* ok=nullptr);
+extern FXAPI FXdouble __strtod(const FXchar *beg,const FXchar** end=nullptr,FXbool* ok=nullptr);
 
 
 namespace {
@@ -434,31 +437,31 @@ FXExpression::Error FXCompile::element(){
       if(token!=TK_RPAR) return FXExpression::ErrParent;
       break;
     case TK_INT_HEX:
-      num=(FXdouble)__strtoll(head+2,NULL,16,&ok);
+      num=(FXdouble)__strtoll(head+2,nullptr,16,&ok);
       if(!ok) return FXExpression::ErrToken;
       opcode(OP_NUM);
       number(num);
       break;
     case TK_INT_BIN:
-      num=(FXdouble)__strtoll(head+2,NULL,2,&ok);
+      num=(FXdouble)__strtoll(head+2,nullptr,2,&ok);
       if(!ok) return FXExpression::ErrToken;
       opcode(OP_NUM);
       number(num);
       break;
     case TK_INT_OCT:
-      num=(FXdouble)__strtoll(head+1,NULL,8,&ok);
+      num=(FXdouble)__strtoll(head+1,nullptr,8,&ok);
       if(!ok) return FXExpression::ErrToken;
       opcode(OP_NUM);
       number(num);
       break;
     case TK_INT:
-      num=(FXdouble)__strtoll(head,NULL,10,&ok);
+      num=(FXdouble)__strtoll(head,nullptr,10,&ok);
       opcode(OP_NUM);
       if(!ok) return FXExpression::ErrToken;
       number(num);
       break;
     case TK_REAL:
-      num=__strtod(head,NULL,&ok);
+      num=__strtod(head,nullptr,&ok);
       if(!ok) return FXExpression::ErrToken;
       opcode(OP_NUM);
       number(num);
@@ -909,12 +912,14 @@ const FXchar *const FXExpression::errors[]={
 
 
 // Construct empty expression object
-FXExpression::FXExpression():code((FXuchar*)(void*)initial){
+FXExpression::FXExpression():code(EMPTY){
+  FXTRACE((TOPIC_CONSTRUCT,"FXExpression::FXExpression()\n"));
   }
 
 
 // Copy regex object
-FXExpression::FXExpression(const FXExpression& orig):code((FXuchar*)(void*)initial){
+FXExpression::FXExpression(const FXExpression& orig):code(EMPTY){
+  FXTRACE((TOPIC_CONSTRUCT,"FXExpression::FXExpression(FXExpression)\n"));
   if(orig.code!=initial){
     dupElms(code,orig.code,GETARG(orig.code));
     }
@@ -922,14 +927,16 @@ FXExpression::FXExpression(const FXExpression& orig):code((FXuchar*)(void*)initi
 
 
 // Compile expression from pattern; fail if error
-FXExpression::FXExpression(const FXchar* expression,const FXchar* variables,FXExpression::Error* error):code((FXuchar*)(void*)initial){
+FXExpression::FXExpression(const FXchar* expression,const FXchar* variables,FXExpression::Error* error):code(EMPTY){
+  FXTRACE((TOPIC_CONSTRUCT,"FXExpression::FXExpression(%s,%s,%p)\n",expression,variables,error));
   FXExpression::Error err=parse(expression,variables);
   if(error){ *error=err; }
   }
 
 
 // Compile expression from pattern; fail if error
-FXExpression::FXExpression(const FXString& expression,const FXString& variables,FXExpression::Error* error):code((FXuchar*)(void*)initial){
+FXExpression::FXExpression(const FXString& expression,const FXString& variables,FXExpression::Error* error):code(EMPTY){
+  FXTRACE((TOPIC_CONSTRUCT,"FXExpression::FXExpression(%s,%s,%p)\n",expression.text(),variables.text(),error));
   FXExpression::Error err=parse(expression.text(),variables.text());
   if(error){ *error=err; }
   }
@@ -939,7 +946,7 @@ FXExpression::FXExpression(const FXString& expression,const FXString& variables,
 FXExpression& FXExpression::operator=(const FXExpression& orig){
   if(code!=orig.code){
     if(code!=initial) freeElms(code);
-    code=(FXuchar*)(void*)initial;
+    code=EMPTY;
     if(orig.code!=initial){
       dupElms(code,orig.code,GETARG(orig.code));
       }
@@ -949,7 +956,7 @@ FXExpression& FXExpression::operator=(const FXExpression& orig){
 
 /*******************************************************************************/
 
-#ifdef EXPRDEBUG
+#ifdef TOPIC_EXPDUMP
 #include "fxexprdbg.h"
 #endif
 
@@ -965,7 +972,7 @@ FXExpression::Error FXExpression::parse(const FXchar* expression,const FXchar* v
   if(expression){
 
     // Create compile engine
-    FXCompile cs(NULL,expression,variables);
+    FXCompile cs(nullptr,expression,variables);
 
     // Parse to check syntax and determine size
     if((err=cs.compile())==ErrOK){
@@ -986,8 +993,8 @@ FXExpression::Error FXExpression::parse(const FXchar* expression,const FXchar* v
           // Install new program
           code=prog;
 
-#ifdef EXPRDEBUG
-          if(fxTraceLevel>100) dump(code);
+#ifdef TOPIC_EXPDUMP
+          if(getTraceTopic(TOPIC_EXPDUMP)){ dump(code); }
 #endif
 
           // Report success
@@ -1020,7 +1027,7 @@ FXdouble FXExpression::evaluate(const FXdouble *args) const {
       case OP_BRF:   pc+=*sp-- ? 2 : GETARG(pc); break;
       case OP_BRT:   pc+=*sp-- ? GETARG(pc) : 2; break;
 #if defined(__i386__) || defined(__x86_64__) || defined(WIN32) || defined(__minix)
-      case OP_NUM:   *++sp=*((FXdouble*)pc); pc+=8; break;
+      case OP_NUM:   *++sp=*((const FXdouble*)pc); pc+=8; break;
 #else
       case OP_NUM:   ++sp; ((FXuchar*)sp)[0]=*pc++; ((FXuchar*)sp)[1]=*pc++; ((FXuchar*)sp)[2]=*pc++; ((FXuchar*)sp)[3]=*pc++; ((FXuchar*)sp)[4]=*pc++; ((FXuchar*)sp)[5]=*pc++; ((FXuchar*)sp)[6]=*pc++; ((FXuchar*)sp)[7]=*pc++; break;
 #endif
@@ -1099,15 +1106,16 @@ FXStream& operator>>(FXStream& store,FXExpression& s){
 
 // Clear the expression
 void FXExpression::clear(){
-  if(code!=initial){
+  if(code!=EMPTY){
     freeElms(code);
-    code=(FXuchar*)(void*)initial;
+    code=EMPTY;
     }
   }
 
 
 // Clean up
 FXExpression::~FXExpression(){
+  FXTRACE((TOPIC_CONSTRUCT,"FXExpression::~FXExpression()\n"));
   clear();
   }
 

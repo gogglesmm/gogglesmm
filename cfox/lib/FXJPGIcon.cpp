@@ -3,7 +3,7 @@
 *                         J P E G   I c o n   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by David Tyree.   All Rights Reserved.                *
+* Copyright (C) 2000,2022 by David Tyree.   All Rights Reserved.                *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,7 +61,7 @@ const FXchar FXJPGIcon::mimeType[]="image/jpeg";
 
 
 // Object implementation
-FXIMPLEMENT(FXJPGIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXJPGIcon,FXIcon,nullptr,0)
 
 
 #ifdef HAVE_JPEG_H
@@ -72,9 +72,9 @@ const FXbool FXJPGIcon::supported=false;
 
 
 // Initialize
-FXJPGIcon::FXJPGIcon(FXApp* a,const void *pix,FXColor clr,FXuint opts,FXint w,FXint h,FXint q):FXIcon(a,NULL,clr,opts,w,h),quality(q){
+FXJPGIcon::FXJPGIcon(FXApp* a,const FXuchar *pix,FXColor clr,FXuint opts,FXint w,FXint h,FXint q):FXIcon(a,nullptr,clr,opts,w,h),quality(q){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

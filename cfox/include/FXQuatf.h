@@ -3,7 +3,7 @@
 *              S i n g l e - P r e c i s i o n  Q u a t e r n i o n             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -173,6 +173,18 @@ public:
   * about an axis rot/|rot|.  If quaternion is identity quaternion (0,0,0,1), return (0,0,0).
   */
   FXVec3f getRotation() const;
+
+  /**
+  * Set unit quaternion to modified rodrigues parameters.
+  * Modified Rodriques parameters are defined as MRP = tan(theta/4)*E,
+  * where theta is rotation angle (radians), and E is unit axis of rotation.
+  */
+  void setMRP(const FXVec3f& m);
+
+  /**
+  * Return modified rodrigues parameters from unit quaternion.
+  */
+  FXVec3f getMRP() const;
 
   /// Set quaternion from roll (x), pitch (y), yaw (z), in that order
   void setRollPitchYaw(FXfloat roll,FXfloat pitch,FXfloat yaw);

@@ -3,7 +3,7 @@
 *                       T e x t   S e a r c h   D i a l o g                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -65,7 +65,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXSearchDialog,FXReplaceDialog,NULL,0)
+FXIMPLEMENT(FXSearchDialog,FXReplaceDialog,nullptr,0)
 
 
 // Search Dialog

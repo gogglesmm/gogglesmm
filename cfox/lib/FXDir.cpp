@@ -3,7 +3,7 @@
 *                    D i r e c t o r y   E n u m e r a t o r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "FXArray.h"
 #include "FXHash.h"
@@ -63,13 +64,13 @@ struct SPACE {
 // Construct directory enumerator
 FXDir::FXDir(){
   // If this fails on your machine, determine what sizeof(SPACE) is
-  // on your machine and mail it to: jeroen@fox-toolkit.com!
+  // on your machine and mail it to: jeroen@fox-toolkit.net!
   //FXTRACE((150,"sizeof(SPACE)=%ld\n",sizeof(SPACE)));
   FXASSERT(sizeof(SPACE)<=sizeof(space));
 #ifdef WIN32
   ((SPACE*)space)->handle=INVALID_HANDLE_VALUE;
 #else
-  ((SPACE*)space)->handle=NULL;
+  ((SPACE*)space)->handle=nullptr;
 #endif
   }
 
@@ -77,13 +78,13 @@ FXDir::FXDir(){
 // Construct directory enumerator
 FXDir::FXDir(const FXString& path){
   // If this fails on your machine, determine what sizeof(SPACE) is
-  // on your machine and mail it to: jeroen@fox-toolkit.com!
+  // on your machine and mail it to: jeroen@fox-toolkit.net!
   //FXTRACE((150,"sizeof(SPACE)=%ld\n",sizeof(SPACE)));
   FXASSERT(sizeof(SPACE)<=sizeof(space));
 #ifdef WIN32
   ((SPACE*)space)->handle=INVALID_HANDLE_VALUE;
 #else
-  ((SPACE*)space)->handle=NULL;
+  ((SPACE*)space)->handle=nullptr;
 #endif
   open(path);
   }
@@ -109,7 +110,7 @@ FXbool FXDir::open(const FXString& path){
       }
 #else
     ((SPACE*)space)->handle=opendir(path.text());
-    if(((SPACE*)space)->handle!=NULL){
+    if(((SPACE*)space)->handle!=nullptr){
       return true;
       }
 #endif
@@ -123,7 +124,7 @@ FXbool FXDir::isOpen() const {
 #ifdef WIN32
   return (((const SPACE*)space)->handle!=INVALID_HANDLE_VALUE);
 #else
-  return (((const SPACE*)space)->handle!=NULL);
+  return (((const SPACE*)space)->handle!=nullptr);
 #endif
   }
 
@@ -138,7 +139,7 @@ FXbool FXDir::next(FXString& name){
       return true;
       }
 #else
-    if((((SPACE*)space)->dp=readdir(((SPACE*)space)->handle))!=NULL){
+    if((((SPACE*)space)->dp=readdir(((SPACE*)space)->handle))!=nullptr){
       name.assign(((SPACE*)space)->dp->d_name);
       return true;
       }
@@ -157,7 +158,7 @@ void FXDir::close(){
     ((SPACE*)space)->handle=INVALID_HANDLE_VALUE;
 #else
     closedir(((SPACE*)space)->handle);
-    ((SPACE*)space)->handle=NULL;
+    ((SPACE*)space)->handle=nullptr;
 #endif
     }
   }
@@ -170,9 +171,9 @@ FXbool FXDir::create(const FXString& path,FXuint perm){
 #ifdef UNICODE
     FXnchar buffer[MAXPATHLEN];
     utf2ncs(buffer,path.text(),MAXPATHLEN);
-    return CreateDirectoryW(buffer,NULL)!=0;
+    return CreateDirectoryW(buffer,nullptr)!=0;
 #else
-    return CreateDirectoryA(path.text(),NULL)!=0;
+    return CreateDirectoryA(path.text(),nullptr)!=0;
 #endif
 #else
     return ::mkdir(path.text(),perm)==0;
@@ -206,7 +207,7 @@ FXint FXDir::listFiles(FXString*& filelist,const FXString& path,const FXString& 
   FXDir dir(path);
 
   // Initialize to empty
-  filelist=NULL;
+  filelist=nullptr;
 
   // Get directory stream pointer
   if(dir.isOpen()){
@@ -304,7 +305,7 @@ FXint FXDir::listShares(FXString*& sharelist){
 
 // Create a directories recursively
 FXbool FXDir::createDirectories(const FXString& path,FXuint perm){
-  if(!path.empty()){
+  if(FXPath::isAbsolute(path)){
     if(FXStat::isDirectory(path)) return true;
     if(createDirectories(FXPath::upLevel(path),perm)){
       if(FXDir::create(path,perm)) return true;
@@ -341,7 +342,7 @@ FXint FXDir::listFiles(FXString*& filelist,const FXString& path,const FXString& 
   FXchar server[200];
 
   // Initialize to empty
-  filelist=NULL;
+  filelist=nullptr;
 
 /*
   // Each drive is a root on windows
@@ -369,13 +370,13 @@ FXint FXDir::listFiles(FXString*& filelist,const FXString& path,const FXString& 
     host.dwType=RESOURCETYPE_DISK;
     host.dwDisplayType=RESOURCEDISPLAYTYPE_GENERIC;
     host.dwUsage=RESOURCEUSAGE_CONTAINER;
-    host.lpLocalName=NULL;
+    host.lpLocalName=nullptr;
     host.lpRemoteName=(char*)path.text();
-    host.lpComment=NULL;
-    host.lpProvider=NULL;
+    host.lpComment=nullptr;
+    host.lpProvider=nullptr;
 
     // Open network enumeration
-    if(WNetOpenEnum((path[2]?RESOURCE_GLOBALNET:RESOURCE_CONTEXT),RESOURCETYPE_DISK,0,(path[2]?&host:NULL),&hEnum)==NO_ERROR){
+    if(WNetOpenEnum((path[2]?RESOURCE_GLOBALNET:RESOURCE_CONTEXT),RESOURCETYPE_DISK,0,(path[2]?&host:nullptr),&hEnum)==NO_ERROR){
       NETRESOURCE resource[16384/sizeof(NETRESOURCE)];
       FXTRACE((1,"Enumerating=%s\n",path.text()));
       while(1){
@@ -493,7 +494,7 @@ void fxenumWNetContainerResource(NETRESOURCE* netResource,FXObjectListOf<FXStrin
 
   NETRESOURCE *netResources;
   DWORD netResourcesSize=16*1024;               // 16 kB is a good size, according to MSDN
-  if ((netResources=(NETRESOURCE *)malloc(netResourcesSize))==NULL){
+  if ((netResources=(NETRESOURCE *)malloc(netResourcesSize))==nullptr){
     FXTRACE((1,"ERROR: Not enough memory for NETRESOURCE structures\n"));
     WNetCloseEnum(handle);
     return;
@@ -509,7 +510,7 @@ void fxenumWNetContainerResource(NETRESOURCE* netResource,FXObjectListOf<FXStrin
       // MSDN info is not correct; ERROR_MORE_DATA means the buffer was too
       //  small for a _single_ entry
       // netResourcesSize (now) contains required size
-      if((netResources=(NETRESOURCE *)realloc(netResources,netResourcesSize))==NULL){
+      if((netResources=(NETRESOURCE *)realloc(netResources,netResourcesSize))==nullptr){
         FXTRACE((1,"ERROR: Reallocation for NETRESOURCE structures failed\n"));
         WNetCloseEnum(handle);
         return;
@@ -544,7 +545,7 @@ void fxenumWNetContainerResource(NETRESOURCE* netResource,FXObjectListOf<FXStrin
         //  If RESOURCE_CONTEXT was passed to WNetOpenEnum(), the first entry is
         //  a "self reference". For example, starting from the network root one
         //  can find a container entry with lpComment "Entire Network"
-        //  (lpRemoteName and lpLocalName are NULL for me). This container
+        //  (lpRemoteName and lpLocalName are nullptr for me). This container
         //  contains an entry with the same properties. In order to avoid getting
         //  into an infinite loop, we must handle this case.
         //  However, trying to enumerate normal containers while RESOURCE_CONTEXT

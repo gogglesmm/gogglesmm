@@ -3,7 +3,7 @@
 *                          T I F F  I m a g e   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 Eric Gillet.   All Rights Reserved.                   *
+* Copyright (C) 2001,2022 Eric Gillet.   All Rights Reserved.                   *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,7 +61,7 @@ const FXchar FXTIFImage::mimeType[]="image/tiff";
 
 
 // Object implementation
-FXIMPLEMENT(FXTIFImage,FXImage,NULL,0)
+FXIMPLEMENT(FXTIFImage,FXImage,nullptr,0)
 
 
 #ifdef HAVE_TIFF_H
@@ -72,9 +72,9 @@ const FXbool FXTIFImage::supported=false;
 
 
 // Initialize
-FXTIFImage::FXTIFImage(FXApp* a,const void *pix,FXuint opts,FXint w,FXint h):FXImage(a,NULL,opts,w,h),codec(0){
+FXTIFImage::FXTIFImage(FXApp* a,const FXuchar *pix,FXuint opts,FXint w,FXint h):FXImage(a,nullptr,opts,w,h),codec(0){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

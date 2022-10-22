@@ -3,7 +3,7 @@
 *                           R e g i s t r y   C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -134,7 +134,7 @@
       o On UNIX systems, the XDG standard is followed; this means the location of the
         Per-User settings should controlled by $XDG_CONFIG_HOME.   If this environment
         variable set, the root for the Per-User settings tree for all FOX applications
-        is $XDG_CONFIG_HOME/foxrc.
+        is $XDG_CONFIG_HOME/fox.rc.
 
       o Otherwise, it will have the default value: "~/.config".
 
@@ -162,7 +162,7 @@
 // Default locations and names
 #if defined(WIN32)
 #define FOXRC           "fox.ini"
-#define SYSTEMDIRS      "\\Program Files;\\Windows"
+#define SYSTEMDIRS      "C:\\Program Files;C:\\Windows"
 #define USERDIR         "%USERPROFILE%\\fox"
 #define FILEEXT         ".ini"
 #else
@@ -260,7 +260,7 @@ FXbool FXRegistry::readFromRegistryGroup(const FXString& group,FXptr hbase,FXboo
     FILETIME writetime;
 
     // Read sections
-    while(RegEnumKeyExA(hgroup,sectionindex,section,&sectionsize,NULL,NULL,NULL,&writetime)==ERROR_SUCCESS){
+    while(RegEnumKeyExA(hgroup,sectionindex,section,&sectionsize,nullptr,nullptr,nullptr,&writetime)==ERROR_SUCCESS){
 
       // Open section
       HKEY hsection;
@@ -271,7 +271,7 @@ FXbool FXRegistry::readFromRegistryGroup(const FXString& group,FXptr hbase,FXboo
         DWORD type;
 
         // Read key-value pairs
-        while(RegEnumValueA(hsection,index,name,&namesize,NULL,&type,(BYTE*)value,&valuesize)!=ERROR_NO_MORE_ITEMS){
+        while(RegEnumValueA(hsection,index,name,&namesize,nullptr,&type,(BYTE*)value,&valuesize)!=ERROR_NO_MORE_ITEMS){
           FXASSERT(type==REG_SZ);
           at(section).at(name,mrk)=value;
           namesize=MAXNAME;
@@ -313,7 +313,7 @@ FXbool FXRegistry::writeToRegistry(FXptr hroot){
         DWORD disp;
 
         // Open vendor registry sub-section
-        if(RegCreateKeyExA(hsoftware,vendorkey.text(),0,REG_NONE,REG_OPTION_NON_VOLATILE,KEY_WRITE|KEY_READ,NULL,&hvendor,&disp)==ERROR_SUCCESS){
+        if(RegCreateKeyExA(hsoftware,vendorkey.text(),0,REG_NONE,REG_OPTION_NON_VOLATILE,KEY_WRITE|KEY_READ,nullptr,&hvendor,&disp)==ERROR_SUCCESS){
 
           // Have application key
           if(!applicationkey.empty()){
@@ -355,13 +355,13 @@ FXbool FXRegistry::writeToRegistryGroup(const FXString& group,FXptr hbase){
   FILETIME writetime;
 
   // Open registry group
-  if(RegCreateKeyExA((HKEY)hbase,group.text(),0,REG_NONE,REG_OPTION_NON_VOLATILE,KEY_WRITE|KEY_READ,NULL,&hgroup,&disp)==ERROR_SUCCESS){
+  if(RegCreateKeyExA((HKEY)hbase,group.text(),0,REG_NONE,REG_OPTION_NON_VOLATILE,KEY_WRITE|KEY_READ,nullptr,&hgroup,&disp)==ERROR_SUCCESS){
 
     // First, purge all existing sections
     while(1){
       sectionindex=0;
       sectionsize=MAXNAME;
-      if(RegEnumKeyExA(hgroup,sectionindex,section,&sectionsize,NULL,NULL,NULL,&writetime)!=ERROR_SUCCESS) break;
+      if(RegEnumKeyExA(hgroup,sectionindex,section,&sectionsize,nullptr,nullptr,nullptr,&writetime)!=ERROR_SUCCESS) break;
       if(RegDeleteKeyA(hgroup,section)!=ERROR_SUCCESS) break;
       }
 
@@ -370,7 +370,7 @@ FXbool FXRegistry::writeToRegistryGroup(const FXString& group,FXptr hbase){
 
       // Section is non-empty
       if(!empty(s)){
-        hsection=NULL;
+        hsection=nullptr;
 
         // Write keys in this section
         for(e=0; e<data(s).no(); ++e){
@@ -379,8 +379,8 @@ FXbool FXRegistry::writeToRegistryGroup(const FXString& group,FXptr hbase){
           if(!data(s).empty(e) && data(s).mark(e)){
 
             // Create section in registry upon finding first key in it
-            if(hsection==NULL){
-              if(RegCreateKeyExA(hgroup,key(s).text(),0,REG_NONE,REG_OPTION_NON_VOLATILE,KEY_WRITE|KEY_READ,NULL,&hsection,&disp)!=ERROR_SUCCESS) goto x;
+            if(hsection==nullptr){
+              if(RegCreateKeyExA(hgroup,key(s).text(),0,REG_NONE,REG_OPTION_NON_VOLATILE,KEY_WRITE|KEY_READ,nullptr,&hsection,&disp)!=ERROR_SUCCESS) goto x;
               }
 
             // Write key-value pair
@@ -411,8 +411,8 @@ x:    continue;
 // Read registry
 FXbool FXRegistry::read(){
   FXbool ok=false;
-  FXString path;
   if(ascii){
+    FXString path;
 
     // Read system-wide settings from systemdirs
     if(!systemdirs.empty()){

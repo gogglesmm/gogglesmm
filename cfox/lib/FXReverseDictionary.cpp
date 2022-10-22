@@ -3,7 +3,7 @@
 *                 R e v e r s e   D i c t i o n a r y    C l a s s              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2018,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -29,14 +29,14 @@
 
 /*
   Notes:
+  - Reverse dictionary maps pointers to strings.
 */
 
 
 #define EMPTY     (const_cast<Entry*>((const Entry*)(__reversedictionary__empty__+3)))
-#define NOMEMORY  ((const Entry*)(((FXival*)NULL)+3))
 #define HASH(x)   ((FXival)(x)^(((FXival)(x))>>13))
-#define VOID      ((FXptr)-1L)
-#define LEGAL(p)  ((p)!=NULL && (p)!=VOID)
+#define VOID      ((const void*)-1L)
+#define LEGAL(p)  ((p)!=nullptr && (p)!=VOID)
 #define BSHIFT    5
 
 using namespace FX;
@@ -45,6 +45,7 @@ using namespace FX;
 
 namespace FX {
 
+// Empty dictionary table value
 extern const FXint __string__empty__[];
 extern const FXival __reversedictionary__empty__[];
 const FXival __reversedictionary__empty__[5]={1,0,1,0,(FXival)(__string__empty__+1)};
@@ -54,14 +55,20 @@ const FXival __reversedictionary__empty__[5]={1,0,1,0,(FXival)(__string__empty__
 FXbool FXReverseDictionary::no(FXival n){
   FXival m=no();
   if(__likely(m!=n)){
-    Entry *elbat;
+    Entry* elbat;
+    void*  p;
+
+    // Release old table
     if(1<m){
       destructElms(table,m);
       ::free(((FXival*)table)-3);
       table=EMPTY;
       }
+
+    // Allocate new table
     if(1<n){
-      if((elbat=(Entry*)(((FXival*)::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))+3))==NOMEMORY) return false;
+      if(__unlikely((p=::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))==nullptr)) return false;
+      elbat=(Entry*)(((FXival*)p)+3);
       ((FXival*)elbat)[-3]=n;
       ((FXival*)elbat)[-2]=0;
       ((FXival*)elbat)[-1]=n;
@@ -82,7 +89,7 @@ FXbool FXReverseDictionary::resize(FXival n){
   FXASSERT((n-used())>0);
   if(elbat.no(n)){
     if(1<elbat.no() && 1<no()){
-      FXptr ky;
+      const void* ky;
       FXuval p,b,x;
       FXival i;
       for(i=0; i<no(); ++i){
@@ -157,7 +164,7 @@ FXReverseDictionary& FXReverseDictionary::adopt(FXReverseDictionary& other){
 
 // Locate slot associated with key, if key is non-NULL.
 // If not found, or key is NULL, return -1.
-FXival FXReverseDictionary::find(FXptr ky) const {
+FXival FXReverseDictionary::find(const void* ky) const {
   if(LEGAL(ky)){
     FXuval p,b,x;
     p=b=HASH(ky);
@@ -176,7 +183,7 @@ FXival FXReverseDictionary::find(FXptr ky) const {
 // If not found, optionally resize the array if needed, and then return a
 // reference to (possibly newly created) data element.
 // Write access to data associated with a NULL key will generate exception.
-FXString& FXReverseDictionary::at(FXptr ky){
+FXString& FXReverseDictionary::at(const void* ky){
   if(LEGAL(ky)){
     FXuval p,b,h,x;
     p=b=h=HASH(ky);
@@ -197,14 +204,14 @@ y:  used(used()+1);
     table[x].key=ky;
 x:  return table[x].data;
     }
-  return *((FXString*)NULL);              // Can NOT be referenced; will generate segfault!
+  return *((FXString*)nullptr);              // Can NOT be referenced; will generate segfault!
   }
 
 
 // Access element at given key, if key is non-NULL.
 // If found, return const-reference to the data element; if not found,
 // or if the key is NULL, return const-reference to the special empty data.
-const FXString& FXReverseDictionary::at(FXptr ky) const {
+const FXString& FXReverseDictionary::at(const void* ky) const {
   if(LEGAL(ky)){
     FXuval p,b,x;
     p=b=HASH(ky);
@@ -220,13 +227,13 @@ const FXString& FXReverseDictionary::at(FXptr ky) const {
 
 // Remove data at given key, if key is non-NULL.
 // A resize is triggered when the occupancy drops below the next smaller power of two.
-FXString FXReverseDictionary::remove(FXptr ky){
+FXString FXReverseDictionary::remove(const void* ky){
   if(LEGAL(ky)){
     FXString old;
     FXuval p,b,x;
     p=b=HASH(ky);
     while(table[x=p&(no()-1)].key!=ky){
-      if(table[x].key==NULL) return FXString::null;
+      if(table[x].key==nullptr) return FXString::null;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
@@ -258,8 +265,8 @@ FXString FXReverseDictionary::erase(FXival pos){
 
 
 // Resize to one element (the special empty element) when cleared.
-void FXReverseDictionary::clear(){
-  no(1);
+FXbool FXReverseDictionary::clear(){
+  return no(1);
   }
 
 

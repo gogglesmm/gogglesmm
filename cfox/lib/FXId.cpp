@@ -3,7 +3,7 @@
 *                                  X - O b j e c t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -54,7 +54,7 @@ enum { MAGIC = 0x464f5831 };
 namespace FX {
 
 // Object implementation
-FXIMPLEMENT_ABSTRACT(FXId,FXObject,NULL,0)
+FXIMPLEMENT_ABSTRACT(FXId,FXObject,nullptr,0)
 
 
 // Create resource

@@ -3,7 +3,7 @@
 *                          P C X   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Janusz Ganczarski.   All Rights Reserved.          *
+* Copyright (C) 2001,2022 by Janusz Ganczarski.   All Rights Reserved.          *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -110,7 +110,7 @@ FXbool fxloadPCX(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   FXbool   ok=false;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
 
@@ -278,6 +278,7 @@ FXbool fxloadPCX(FXStream& store,FXColor*& data,FXint& width,FXint& height){
 // Save a PCX file to a stream
 FXbool fxsavePCX(FXStream& store,const FXColor *data,FXint width,FXint height){
   const FXuchar Colormap[16][3]={{0,0,0},{255,255,255},{0,170,0},{0,170,170},{170,0,0},{170,0,170},{170,170,0},{170,170,170},{85,85,85},{85,85,255},{85,255,85},{85,255,255},{255,85,85},{255,85,255},{255,255,85},{255,255,255}};
+  const FXuchar *pp;
   FXuchar  Manufacturer=10;
   FXuchar  Version=5;
   FXuchar  Encoding=1;
@@ -293,7 +294,7 @@ FXbool fxsavePCX(FXStream& store,const FXColor *data,FXint width,FXint height){
   FXshort  Xmax=width-1;
   FXshort  Ymax=height-1;
   FXshort  BytesPerLine=width;          // FIXME see PCX.txt docs
-  FXuchar  Current,Last,RLECount,rc,*pp;
+  FXuchar  Current,Last,RLECount,rc;
   FXint    i,x,y,rgb;
   FXbool   swap;
 
@@ -349,7 +350,7 @@ FXbool fxsavePCX(FXStream& store,const FXColor *data,FXint width,FXint height){
   // Save as 24 bits/pixel
   for(y=0; y<height; y++){
     for(rgb=2; rgb>=0; rgb--){
-      pp=((FXuchar*)(data+y*width))+rgb;
+      pp=((const FXuchar*)(data+y*width))+rgb;
       Last=*pp;
       pp+=4;
       RLECount=1;
@@ -372,7 +373,6 @@ FXbool fxsavePCX(FXStream& store,const FXColor *data,FXint width,FXint height){
             else{
               rc=0xC0|RLECount;
               store << rc << Last;
-              RLECount = 1;
               }
             }
           Last=Current;

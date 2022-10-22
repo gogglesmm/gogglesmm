@@ -3,7 +3,7 @@
 *              P r i v a t e   I n t e r n a l   F u n c t i o n s              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -70,7 +70,7 @@ HANDLE fxsenddata(HWND window,FXuchar* data,FXuint size){
   HANDLE process;
 
   if(data && size){
-    hMap=CreateFileMappingA(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,size+sizeof(FXuint),"_FOX_DDE");
+    hMap=CreateFileMappingA(INVALID_HANDLE_VALUE,nullptr,PAGE_READWRITE,0,size+sizeof(FXuint),"_FOX_DDE");
     if(hMap){
       ptr=(FXuchar*)MapViewOfFile((HANDLE)hMap,FILE_MAP_WRITE,0,0,size+sizeof(FXuint));
       if(ptr){
@@ -92,7 +92,7 @@ HANDLE fxsenddata(HWND window,FXuchar* data,FXuint size){
 // Receive data via shared memory
 HANDLE fxrecvdata(HANDLE hMap,FXuchar*& data,FXuint& size){
   FXuchar *ptr;
-  data=NULL;
+  data=nullptr;
   size=0;
   if(hMap){
     ptr=(FXuchar*)MapViewOfFile(hMap,FILE_MAP_READ,0,0,0);
@@ -115,7 +115,7 @@ HANDLE fxsendrequest(HWND window,HWND requestor,WPARAM type){
   FXuint loops=100;
   MSG msg;
   PostMessage((HWND)window,WM_DND_REQUEST,type,(LPARAM)requestor);
-  while(!PeekMessage(&msg,NULL,WM_DND_REPLY,WM_DND_REPLY,PM_REMOVE)){
+  while(!PeekMessage(&msg,nullptr,WM_DND_REPLY,WM_DND_REPLY,PM_REMOVE)){
     if(loops==0){ fxwarning("timed out\n"); return 0; }
     FXThread::sleep(10000000);  // Don't burn too much CPU here:- the other guy needs it more....
     loops--;
@@ -137,17 +137,17 @@ void FXApp::selectionSetData(const FXWindow*,FXDragType,FXuchar* data,FXuint siz
 
 // Retrieve PRIMARY selection data
 void FXApp::selectionGetData(const FXWindow*,FXDragType type,FXuchar*& data,FXuint& size){
-  data=NULL;
+  data=nullptr;
   size=0;
   if(selectionWindow){
     event.type=SEL_SELECTION_REQUEST;
     event.target=type;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     selectionWindow->handle(this,FXSEL(SEL_SELECTION_REQUEST,0),&event);
     data=ddeData;
     size=ddeSize;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     }
   }
@@ -156,7 +156,7 @@ void FXApp::selectionGetData(const FXWindow*,FXDragType type,FXuchar*& data,FXui
 
 // Retrieve PRIMARY selection types
 void FXApp::selectionGetTypes(const FXWindow*,FXDragType*& types,FXuint& numtypes){
-  types=NULL;
+  types=nullptr;
   numtypes=0;
   if(selectionWindow){
     dupElms(types,xselTypeList,xselNumTypes);
@@ -183,7 +183,7 @@ void FXApp::clipboardSetData(const FXWindow*,FXDragType type,FXuchar* data,FXuin
 
 // Retrieve CLIPBOARD selection data
 void FXApp::clipboardGetData(const FXWindow* window,FXDragType type,FXuchar*& data,FXuint& size){
-  data=NULL;
+  data=nullptr;
   size=0;
   if(IsClipboardFormatAvailable(type)){
     if(OpenClipboard((HWND)window->id())){
@@ -206,7 +206,7 @@ void FXApp::clipboardGetData(const FXWindow* window,FXDragType type,FXuchar*& da
 // Retrieve CLIPBOARD selection types
 void FXApp::clipboardGetTypes(const FXWindow* window,FXDragType*& types,FXuint& numtypes){
   FXuint count;
-  types=NULL;
+  types=nullptr;
   numtypes=0;
   if(OpenClipboard((HWND)window->id())){
     count=CountClipboardFormats();
@@ -235,17 +235,17 @@ void FXApp::dragdropSetData(const FXWindow*,FXDragType,FXuchar* data,FXuint size
 // Retrieve DND selection data
 void FXApp::dragdropGetData(const FXWindow* window,FXDragType type,FXuchar*& data,FXuint& size){
   HANDLE answer;
-  data=NULL;
+  data=nullptr;
   size=0;
   if(dragWindow){
     event.type=SEL_DND_REQUEST;
     event.target=type;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     dragWindow->handle(this,FXSEL(SEL_DND_REQUEST,0),&event);
     data=ddeData;
     size=ddeSize;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     }
   else{
@@ -348,7 +348,7 @@ Atom fxrecvtypes(Display *display,Window window,Atom prop,FXDragType*& types,FXu
   unsigned char *ptr;
   int actualformat;
   Atom actualtype;
-  types=NULL;
+  types=nullptr;
   numtypes=0;
   if(prop){
     if(XGetWindowProperty(display,window,prop,0,1024,del,XA_ATOM,&actualtype,&actualformat,&numitems,&bytesleft,&ptr)==Success){
@@ -403,7 +403,7 @@ Atom fxrecvdata(Display *display,Window window,Atom prop,Atom incr,Atom& type,FX
   unsigned char *ptr;
   XEvent ev;
   int format;
-  data=NULL;
+  data=nullptr;
   size=0;
   if(prop){
 
@@ -469,17 +469,17 @@ void FXApp::selectionSetData(const FXWindow*,FXDragType,FXuchar* data,FXuint siz
 // Retrieve PRIMARY selection data
 void FXApp::selectionGetData(const FXWindow* window,FXDragType type,FXuchar*& data,FXuint& size){
   FXID answer;
-  data=NULL;
+  data=nullptr;
   size=0;
   if(selectionWindow){
     event.type=SEL_SELECTION_REQUEST;
     event.target=type;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     selectionWindow->handle(this,FXSEL(SEL_SELECTION_REQUEST,0),&event);
     data=ddeData;
     size=ddeSize;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     }
   else{
@@ -492,7 +492,7 @@ void FXApp::selectionGetData(const FXWindow* window,FXDragType type,FXuchar*& da
 // Retrieve PRIMARY selection types
 void FXApp::selectionGetTypes(const FXWindow* window,FXDragType*& types,FXuint& numtypes){
   FXID answer;
-  types=NULL;
+  types=nullptr;
   numtypes=0;
   if(selectionWindow){
     dupElms(types,xselTypeList,xselNumTypes);
@@ -519,17 +519,17 @@ void FXApp::clipboardSetData(const FXWindow*,FXDragType,FXuchar* data,FXuint siz
 // Retrieve CLIPBOARD selection data
 void FXApp::clipboardGetData(const FXWindow* window,FXDragType type,FXuchar*& data,FXuint& size){
   FXID answer;
-  data=NULL;
+  data=nullptr;
   size=0;
   if(clipboardWindow){
     event.type=SEL_CLIPBOARD_REQUEST;
     event.target=type;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     clipboardWindow->handle(this,FXSEL(SEL_CLIPBOARD_REQUEST,0),&event);
     data=ddeData;
     size=ddeSize;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     }
   else{
@@ -542,7 +542,7 @@ void FXApp::clipboardGetData(const FXWindow* window,FXDragType type,FXuchar*& da
 // Retrieve CLIPBOARD selection types
 void FXApp::clipboardGetTypes(const FXWindow* window,FXDragType*& types,FXuint& numtypes){
   FXID answer;
-  types=NULL;
+  types=nullptr;
   numtypes=0;
   if(clipboardWindow){
     dupElms(types,xcbTypeList,xcbNumTypes);
@@ -569,17 +569,17 @@ void FXApp::dragdropSetData(const FXWindow*,FXDragType,FXuchar* data,FXuint size
 // Retrieve DND selection data
 void FXApp::dragdropGetData(const FXWindow* window,FXDragType type,FXuchar*& data,FXuint& size){
   FXID answer;
-  data=NULL;
+  data=nullptr;
   size=0;
   if(dragWindow){
     event.type=SEL_DND_REQUEST;
     event.target=type;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     dragWindow->handle(this,FXSEL(SEL_DND_REQUEST,0),&event);
     data=ddeData;
     size=ddeSize;
-    ddeData=NULL;
+    ddeData=nullptr;
     ddeSize=0;
     }
   else{

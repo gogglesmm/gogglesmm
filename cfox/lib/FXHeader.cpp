@@ -3,7 +3,7 @@
 *                               H e a d e r   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -72,7 +72,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXHeaderItem,FXObject,NULL,0)
+FXIMPLEMENT(FXHeaderItem,FXObject,nullptr,0)
 
 
 // Construct new item with given text, icon, size, and user-data
@@ -420,8 +420,8 @@ FXIMPLEMENT(FXHeader,FXFrame,FXHeaderMap,ARRAYNUMBER(FXHeaderMap))
 // Make a Header
 FXHeader::FXHeader(){
   flags|=FLAG_ENABLED|FLAG_SHOWN;
-  font=NULL;
-  numbering=NULL;
+  font=nullptr;
+  numbering=nullptr;
   textColor=0;
   pos=0;
   active=-1;
@@ -437,7 +437,7 @@ FXHeader::FXHeader(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint
   target=tgt;
   message=sel;
   font=getApp()->getNormalFont();
-  numbering=NULL;
+  numbering=nullptr;
   textColor=getApp()->getForeColor();
   pos=0;
   active=-1;

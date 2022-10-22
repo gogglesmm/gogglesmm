@@ -3,7 +3,7 @@
 *                         C o m p o s e - C o n t e x t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,7 +60,7 @@ private:
 public:
 
   /// Construct compose context for given window
-  FXComposeContext(FXApp* a,FXWindow* win=NULL,FXSelector sel=0);
+  FXComposeContext(FXApp* a,FXWindow* win=nullptr,FXSelector sel=0);
 
   /// Create resource
   virtual void create();

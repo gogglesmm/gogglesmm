@@ -3,7 +3,7 @@
 *                       A b s t r a c t   I / O   C l a s s                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -34,12 +34,6 @@ class FXAPI FXIO {
 protected:
   FXlong pointer;       // Stream pointer
   FXuint access;        // Access mode flags
-private:
-  FXIO(const FXIO&);
-  FXIO &operator=(const FXIO&);
-protected:
-  FXIO();
-  FXIO(FXuint m);
 public:
 
   /// Access modes
@@ -125,6 +119,12 @@ public:
     Broken = -3                 /// Broken pipe or socket
     };
 
+protected:
+  FXIO();
+  FXIO(FXuint m);
+private:
+  FXIO(const FXIO&);
+  FXIO &operator=(const FXIO&);
 public:
 
   /// Is readable

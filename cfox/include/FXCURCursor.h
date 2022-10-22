@@ -3,7 +3,7 @@
 *                        C U R   C u r s o r    O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Sander Jansen.   All Rights Reserved.              *
+* Copyright (C) 2001,2022 by Sander Jansen.   All Rights Reserved.              *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -44,7 +44,7 @@ public:
   * Construct a cursor from memory stream in Microsoft CUR format.
   * The image is limited to 32x32 pixels.
   */
-  FXCURCursor(FXApp* a,const void* pix);
+  FXCURCursor(FXApp* a,const FXuchar* pix);
 
   /// Save pixel data only, in CUR format
   virtual FXbool savePixels(FXStream& store) const;

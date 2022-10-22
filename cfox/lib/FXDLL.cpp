@@ -3,7 +3,7 @@
 *             D y n a m i c   L i n k   L i b r a r y   S u p p o r t           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -38,7 +38,7 @@
 
     or
 
-      dlopen(NULL,RTLD_NOW|RTLD_GLOBAL);
+      dlopen(nullptr,RTLD_NOW|RTLD_GLOBAL);
 
   - Nice thing for tracing:
 
@@ -117,7 +117,7 @@ FXbool FXDLL::load(const FXString& nm){
     // We switched to the latter so sub-modules needed by a DLL are
     // plucked from the same place as name (thanks to Rafael de
     // Pelegrini Soares" <Rafael@enq.ufrgs.br>).
-    hnd=LoadLibraryExA(nm.text(),NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+    hnd=LoadLibraryExA(nm.text(),nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
 #elif defined(HAVE_SHL_LOAD)    // HP-UX
     hnd=shl_load(nm.text(),BIND_IMMEDIATE|BIND_NONFATAL|DYNAMIC_PATH,0L);
 #elif defined(__minix)          // MINIX
@@ -126,7 +126,7 @@ FXbool FXDLL::load(const FXString& nm){
     hnd=dlopen(nm.text(),RTLD_NOW|RTLD_GLOBAL);
 #endif
     }
-  return hnd!=NULL;
+  return hnd!=nullptr;
   }
 
 
@@ -142,7 +142,7 @@ void FXDLL::unload(){
 #else			        // POSIX
     dlclose(hnd);
 #endif
-    hnd=NULL;
+    hnd=nullptr;
     }
   }
 
@@ -153,7 +153,7 @@ void* FXDLL::address(const FXchar* sym) const {
 #if defined(WIN32)              // WIN32
     return (void*)GetProcAddress((HMODULE)hnd,sym);
 #elif defined(HAVE_SHL_LOAD)    // HP-UX
-    void* ptr=NULL;
+    void* ptr=nullptr;
     if(shl_findsym((shl_t*)&hnd,sym,TYPE_UNDEFINED,&ptr)==0) return ptr;
 #elif defined(__minix)          // MINIX
     //// NOT SUPPORTED ////
@@ -161,7 +161,7 @@ void* FXDLL::address(const FXchar* sym) const {
     return dlsym(hnd,sym);
 #endif
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -245,7 +245,7 @@ FXDLL FXDLL::dll(void* addr){
     return FXDLL(dlopen(info.dli_fname,RTLD_NOLOAD|RTLD_NOW|RTLD_GLOBAL));
     }
 #endif
-  return FXDLL(NULL);
+  return FXDLL(nullptr);
   }
 
 
@@ -260,7 +260,7 @@ FXString FXDLL::error(){
 #if defined(WIN32)              // WIN32
   DWORD dw=GetLastError();
   FXchar buffer[512];
-  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,NULL,dw,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPTSTR)buffer,sizeof(buffer),NULL);
+  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,nullptr,dw,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPTSTR)buffer,sizeof(buffer),nullptr);
   return FXString(buffer);
 #elif defined(HAVE_SHL_LOAD)    // HP-UX
   return FXString::null;

@@ -3,7 +3,7 @@
 *                          T a b   B a r   W i d g e t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -173,7 +173,7 @@ FXint FXTabBar::getDefaultHeight(){
 // Recalculate layout
 void FXTabBar::layout(){
   FXint i,px,py,pw,ph,x,y,xx,yy,w,h,maxtabw,maxtabh,cumw,cumh,newcurrent;
-  FXWindow *raisetab=NULL;
+  FXWindow *raisetab=nullptr;
   FXWindow *tab;
   FXuint hints;
 
@@ -340,9 +340,9 @@ void FXTabBar::layout(){
           if(x+w>px+pw-2) x=px+pw-w-2;
           if(x<px+2) x=px+2;
           if(options&TABBOOK_BOTTOMTABS)
-            tab->position(xx+2,-4,w,h);
+            tab->position(x+2,-4,w,h);
           else
-            tab->position(xx+2,height-h+4,w,h);
+            tab->position(x+2,height-h+4,w,h);
           tab->lower();
           xx+=w;
           }
@@ -351,9 +351,9 @@ void FXTabBar::layout(){
           if(x+w>px+pw-2) x=px+pw-w-2;
           if(x<px) x=px;
           if(options&TABBOOK_BOTTOMTABS)
-            tab->position(xx,-2,w,h);
+            tab->position(x,-2,w,h);
           else
-            tab->position(xx,height-h+2,w,h);
+            tab->position(x,height-h+2,w,h);
           raisetab=tab;
           xx+=w-3;
           }
@@ -483,7 +483,7 @@ long FXTabBar::onCmdOpen(FXObject*,FXSelector sel,void*){
 
 // Update the nth button
 long FXTabBar::onUpdOpen(FXObject* sender,FXSelector sel,void*){
-  sender->handle(this,((FXSELID(sel)-ID_OPEN_FIRST)==current)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,((FXSELID(sel)-ID_OPEN_FIRST)==current)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 

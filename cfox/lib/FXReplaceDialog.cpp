@@ -3,7 +3,7 @@
 *                      T e x t   R e p l a c e   D i a l o g                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -126,16 +126,16 @@ FXIMPLEMENT(FXReplaceDialog,FXDialogBox,FXReplaceDialogMap,ARRAYNUMBER(FXReplace
 // Search and Replace Dialog
 FXReplaceDialog::FXReplaceDialog(FXWindow* own,const FXString& caption,FXIcon* icn,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(own,caption,opts|DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,x,y,w,h,10,10,10,10, 10,10){
   FXHorizontalFrame* buttons=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_RIGHT,0,0,0,0,0,0,0,0);
-  search=new FXButton(buttons,tr("&Search\tSearch\tSearch for pattern."),NULL,this,ID_SEARCH,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
-  replace=new FXButton(buttons,tr("&Replace\tReplace\tSearch and replace pattern."),NULL,this,ID_REPLACE,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
-  replacesel=new FXButton(buttons,tr("Replace Sel\tReplace in selection\tReplace all in selection."),NULL,this,ID_REPLACE_SEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y,0,0,0,0,6,6,VERT_PAD,VERT_PAD);
-  replaceall=new FXButton(buttons,tr("Replace All\tReplace all\tReplace all."),NULL,this,ID_REPLACE_ALL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y,0,0,0,0,6,6,VERT_PAD,VERT_PAD);
-  cancel=new FXButton(buttons,tr("&Close"),NULL,this,ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
+  search=new FXButton(buttons,tr("&Search\tSearch\tSearch for pattern."),nullptr,this,ID_SEARCH,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
+  replace=new FXButton(buttons,tr("&Replace\tReplace\tSearch and replace pattern."),nullptr,this,ID_REPLACE,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
+  replacesel=new FXButton(buttons,tr("Replace Sel\tReplace in selection\tReplace all in selection."),nullptr,this,ID_REPLACE_SEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y,0,0,0,0,6,6,VERT_PAD,VERT_PAD);
+  replaceall=new FXButton(buttons,tr("Replace All\tReplace all\tReplace all."),nullptr,this,ID_REPLACE_ALL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y,0,0,0,0,6,6,VERT_PAD,VERT_PAD);
+  cancel=new FXButton(buttons,tr("&Close"),nullptr,this,ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
   new FXHorizontalSeparator(this,SEPARATOR_GROOVE|LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X);
   FXHorizontalFrame* toppart=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0, 0,0,0,0, 10,10);
   new FXLabel(toppart,FXString::null,icn,ICON_BEFORE_TEXT|JUSTIFY_CENTER_X|JUSTIFY_CENTER_Y|LAYOUT_FILL_Y|LAYOUT_FILL_X);
   FXVerticalFrame* entry=new FXVerticalFrame(toppart,LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0, 0,0,0,0);
-  searchlabel=new FXLabel(entry,tr("Search &For:"),NULL,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X);
+  searchlabel=new FXLabel(entry,tr("Search &For:"),nullptr,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X);
   searchbox=new FXHorizontalFrame(entry,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0, 0,0,0,0, 0,0);
   searchtext=new FXTextField(searchbox,26,this,ID_SEARCH_TEXT,TEXTFIELD_ENTER_ONLY|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,4,4,2,2);
   FXVerticalFrame* searcharrows=new FXVerticalFrame(searchbox,LAYOUT_RIGHT|LAYOUT_FILL_Y,0,0,0,0, 0,0,0,0, 0,0);
@@ -143,7 +143,7 @@ FXReplaceDialog::FXReplaceDialog(FXWindow* own,const FXString& caption,FXIcon* i
   FXArrowButton* ar2=new FXArrowButton(searcharrows,this,ID_SEARCH_DN,FRAME_RAISED|FRAME_THICK|ARROW_DOWN|ARROW_REPEAT|LAYOUT_FILL_Y|LAYOUT_FIX_WIDTH, 0,0,16,0, 1,1,1,1);
   ar1->setArrowSize(3);
   ar2->setArrowSize(3);
-  replacelabel=new FXLabel(entry,tr("Re&place With:"),NULL,LAYOUT_LEFT);
+  replacelabel=new FXLabel(entry,tr("Re&place With:"),nullptr,LAYOUT_LEFT);
   replacebox=new FXHorizontalFrame(entry,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0, 0,0,0,0, 0,0);
   replacetext=new FXTextField(replacebox,26,this,ID_REPLACE_TEXT,TEXTFIELD_ENTER_ONLY|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,4,4,2,2);
   FXVerticalFrame* replacearrows=new FXVerticalFrame(replacebox,LAYOUT_RIGHT|LAYOUT_FILL_Y,0,0,0,0, 0,0,0,0, 0,0);
@@ -267,7 +267,7 @@ long FXReplaceDialog::onCmdSearch(FXObject*,FXSelector,void*){
 
 // Grey out buttons if no search text
 long FXReplaceDialog::onUpdSearch(FXObject* sender,FXSelector,void*){
-  sender->handle(this,searchtext->getText().empty()?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+  sender->handle(this,searchtext->getText().empty()?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   return 1;
   }
 
@@ -305,7 +305,7 @@ long FXReplaceDialog::onCmdDir(FXObject*,FXSelector,void*){
 
 // Update search direction
 long FXReplaceDialog::onUpdDir(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(searchmode&SEARCH_BACKWARD)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(searchmode&SEARCH_BACKWARD)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -319,7 +319,7 @@ long FXReplaceDialog::onCmdWrap(FXObject*,FXSelector,void*){
 
 // Update wrap mode
 long FXReplaceDialog::onUpdWrap(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(searchmode&SEARCH_WRAP)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(searchmode&SEARCH_WRAP)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -333,7 +333,7 @@ long FXReplaceDialog::onCmdCase(FXObject*,FXSelector,void*){
 
 // Update case sensitive mode
 long FXReplaceDialog::onUpdCase(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(searchmode&SEARCH_IGNORECASE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(searchmode&SEARCH_IGNORECASE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -347,7 +347,7 @@ long FXReplaceDialog::onCmdRegex(FXObject*,FXSelector,void*){
 
 // Update search mode
 long FXReplaceDialog::onUpdRegex(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(searchmode&SEARCH_REGEX)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(searchmode&SEARCH_REGEX)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -423,16 +423,16 @@ long FXReplaceDialog::onSearchKey(FXObject*,FXSelector,void* ptr){
   switch(((FXEvent*)ptr)->code){
     case KEY_Page_Up:
       searchmode=(searchmode&~SEARCH_FORWARD)|SEARCH_BACKWARD;
-      return onCmdSearch(this,FXSEL(SEL_COMMAND,ID_SEARCH),NULL);
+      return onCmdSearch(this,FXSEL(SEL_COMMAND,ID_SEARCH),nullptr);
     case KEY_Page_Down:
       searchmode=(searchmode&~SEARCH_BACKWARD)|SEARCH_FORWARD;
-      return onCmdSearch(this,FXSEL(SEL_COMMAND,ID_SEARCH),NULL);
+      return onCmdSearch(this,FXSEL(SEL_COMMAND,ID_SEARCH),nullptr);
     case KEY_Up:
     case KEY_KP_Up:
-      return onCmdSearchHistUp(this,FXSEL(SEL_COMMAND,ID_SEARCH_UP),NULL);
+      return onCmdSearchHistUp(this,FXSEL(SEL_COMMAND,ID_SEARCH_UP),nullptr);
     case KEY_Down:
     case KEY_KP_Down:
-      return onCmdSearchHistDn(this,FXSEL(SEL_COMMAND,ID_SEARCH_DN),NULL);
+      return onCmdSearchHistDn(this,FXSEL(SEL_COMMAND,ID_SEARCH_DN),nullptr);
     case KEY_i:
       if(!(((FXEvent*)ptr)->state&CONTROLMASK)) return 0;
       searchmode^=SEARCH_IGNORECASE;
@@ -460,10 +460,10 @@ long FXReplaceDialog::onReplaceKey(FXObject*,FXSelector,void* ptr){
   switch(((FXEvent*)ptr)->code){
     case KEY_Up:
     case KEY_KP_Up:
-      return onCmdReplaceHistUp(this,FXSEL(SEL_COMMAND,ID_REPLACE_UP),NULL);
+      return onCmdReplaceHistUp(this,FXSEL(SEL_COMMAND,ID_REPLACE_UP),nullptr);
     case KEY_Down:
     case KEY_KP_Down:
-      return onCmdReplaceHistDn(this,FXSEL(SEL_COMMAND,ID_REPLACE_DN),NULL);
+      return onCmdReplaceHistDn(this,FXSEL(SEL_COMMAND,ID_REPLACE_DN),nullptr);
     }
   return 0;
   }
@@ -472,10 +472,10 @@ long FXReplaceDialog::onReplaceKey(FXObject*,FXSelector,void* ptr){
 // Wheeled in search text
 long FXReplaceDialog::onWheelSearch(FXObject*,FXSelector,void* ptr){
   if(((FXEvent*)ptr)->code>0){
-    return onCmdSearchHistUp(this,FXSEL(SEL_COMMAND,ID_SEARCH_UP),NULL);
+    return onCmdSearchHistUp(this,FXSEL(SEL_COMMAND,ID_SEARCH_UP),nullptr);
     }
   if(((FXEvent*)ptr)->code<0){
-    return onCmdSearchHistDn(this,FXSEL(SEL_COMMAND,ID_SEARCH_DN),NULL);
+    return onCmdSearchHistDn(this,FXSEL(SEL_COMMAND,ID_SEARCH_DN),nullptr);
     }
   return 1;
   }
@@ -484,10 +484,10 @@ long FXReplaceDialog::onWheelSearch(FXObject*,FXSelector,void* ptr){
 // Wheeled in replace text
 long FXReplaceDialog::onWheelReplace(FXObject*,FXSelector,void* ptr){
   if(((FXEvent*)ptr)->code>0){
-    return onCmdReplaceHistUp(this,FXSEL(SEL_COMMAND,ID_REPLACE_UP),NULL);
+    return onCmdReplaceHistUp(this,FXSEL(SEL_COMMAND,ID_REPLACE_UP),nullptr);
     }
   if(((FXEvent*)ptr)->code<0){
-    return onCmdReplaceHistDn(this,FXSEL(SEL_COMMAND,ID_REPLACE_DN),NULL);
+    return onCmdReplaceHistDn(this,FXSEL(SEL_COMMAND,ID_REPLACE_DN),nullptr);
     }
   return 1;
   }

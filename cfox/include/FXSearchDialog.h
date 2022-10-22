@@ -3,7 +3,7 @@
 *                       T e x t   S e a r c h   D i a l o g                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -48,7 +48,7 @@ private:
 public:
 
   /// Construct search dialog box
-  FXSearchDialog(FXWindow* owner,const FXString& caption,FXIcon* ic=NULL,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXSearchDialog(FXWindow* owner,const FXString& caption,FXIcon* ic=nullptr,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Destructor
   virtual ~FXSearchDialog();

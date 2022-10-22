@@ -3,7 +3,7 @@
 *                         Q u e u e   O f   P o i n t e r s                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -49,7 +49,7 @@ FXPtrQueue::FXPtrQueue():head(0),tail(0){
 
 
 // Create queue with initial size
-FXPtrQueue::FXPtrQueue(FXival sz):list((FXptr)NULL,sz),head(0),tail(0){
+FXPtrQueue::FXPtrQueue(FXival sz):list((FXptr)nullptr,sz),head(0),tail(0){
   }
 
 

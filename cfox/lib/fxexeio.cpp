@@ -3,7 +3,7 @@
 *                L o a d   I c o n   F r o m   E x e c u t a b l e              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2014,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2014,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -430,7 +430,7 @@ FXbool fxloadEXE(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
   FXTRACE((100,"fxloadEXE(data,width,height,type:%d,id:%d)\n\n",type,id));
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
 
@@ -554,7 +554,7 @@ FXbool fxloadEXE(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
             FXTRACE((100,"sec%d.characteristics: %#08x\n\n",s,sec.characteristics));
 
             // Found the resource section in the pe file
-            if(compare(sec.name,".rsrc")==0){
+            if(FXString::compare(sec.name,".rsrc")==0){
               Context context={sec.pointerToRawData,sec.virtualAddress,sec.sizeOfRawData,{type,id,-1}};
 
               // Scan resources in resource section

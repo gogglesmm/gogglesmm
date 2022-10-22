@@ -3,7 +3,7 @@
 *                         P r o c e s s   S u p p o r t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "FXElement.h"
 #include "FXString.h"
 #include "FXIO.h"
@@ -116,6 +117,8 @@
     This means setting up some posix_spawn_file_actions and posix_spawnattr to
     deal with file descriptors, signal masks, process groups, etc.
     Need POSIX >= 2008 for this.
+
+  - Maybe pidfd_open() is useful to obtain waitable handle to process.
 */
 
 using namespace FX;
@@ -126,7 +129,7 @@ namespace FX {
 
 
 // Initialize process
-FXProcess::FXProcess():pid(0),input(NULL),output(NULL),errors(NULL){
+FXProcess::FXProcess():pid(0),input(nullptr),output(nullptr),errors(nullptr){
   FXTRACE((100,"FXProcess::FXProcess\n"));
   }
 
@@ -169,7 +172,7 @@ static const FXchar* extravars[]={
 
 // Sort environment variables
 static int CDECL comparison(const void *a1, const void *a2){
-  return compare(*((const FXchar**)a1),*((const FXchar**)a2));
+  return FXString::compare(*((const FXchar**)a1),*((const FXchar**)a2));
   }
 
 
@@ -187,13 +190,13 @@ static FXbool needquotes(const FXchar* ptr){
 
 // Build command line for windows
 static FXnchar* commandline(const FXchar *const *args){
-  FXnchar *result=NULL;
+  FXnchar *result=nullptr;
   if(args){
     FXint size,s,n,w;
     const FXchar  *ptr;
     FXnchar       *dst;
     FXbool         q;
-    for(size=s=0; (ptr=args[s])!=NULL; ++s){
+    for(size=s=0; (ptr=args[s])!=nullptr; ++s){
       q=needquotes(ptr);
       if(q) size+=2;
       n=0;
@@ -220,7 +223,7 @@ static FXnchar* commandline(const FXchar *const *args){
       size++;
       }
     if(allocElms(result,size+1)){
-      for(dst=result,s=0; (ptr=args[s])!=NULL; ++s){
+      for(dst=result,s=0; (ptr=args[s])!=nullptr; ++s){
         q=needquotes(ptr);
         if(q) *dst++='"';
         n=0;
@@ -258,7 +261,7 @@ static FXnchar* commandline(const FXchar *const *args){
 
 // Make windows environment block
 static FXnchar* enviroblock(const FXchar *const *env){
-  FXnchar* result=NULL;
+  FXnchar* result=nullptr;
   if(env){
     const FXchar **tmp;
     FXint size=0,n=0,s,d;
@@ -287,13 +290,13 @@ static FXnchar* enviroblock(const FXchar *const *env){
 
 // Build command line for windows
 static FXchar* commandline(const FXchar *const *args){
-  FXchar *result=NULL;
+  FXchar *result=nullptr;
   if(args){
     FXint size,s,n,w;
     const FXchar  *ptr;
     FXchar        *dst;
     FXbool         q;
-    for(size=s=0; (ptr=args[s])!=NULL; ++s){
+    for(size=s=0; (ptr=args[s])!=nullptr; ++s){
       q=needquotes(ptr);
       if(q) size+=2;
       n=0;
@@ -319,7 +322,7 @@ static FXchar* commandline(const FXchar *const *args){
       size++;
       }
     if(allocElms(result,size+1)){
-      for(dst=result,s=0; (ptr=args[s])!=NULL; ++s){
+      for(dst=result,s=0; (ptr=args[s])!=nullptr; ++s){
         q=needquotes(ptr);
         if(q) *dst++='"';
         n=0;
@@ -356,7 +359,7 @@ static FXchar* commandline(const FXchar *const *args){
 
 // Make windows environment block
 static FXchar* enviroblock(const FXchar *const *env){
-  FXchar* result=NULL;
+  FXchar* result=nullptr;
   if(env){
     const FXchar **tmp;
     FXint size=0,n=0,s,d;
@@ -430,7 +433,7 @@ FXbool FXProcess::start(const FXchar* exec,const FXchar *const *args,const FXcha
       FXnchar *envir=enviroblock(env);
 
       // Create process
-      if(CreateProcessW(uniexec,command,NULL,NULL,true,CREATE_UNICODE_ENVIRONMENT,envir,NULL,&si,&pi)){
+      if(CreateProcessW(uniexec,command,nullptr,nullptr,true,CREATE_UNICODE_ENVIRONMENT,envir,nullptr,&si,&pi)){
         CloseHandle(pi.hThread);
         pid=pi.hProcess;
         result=true;
@@ -478,7 +481,7 @@ FXbool FXProcess::start(const FXchar* exec,const FXchar *const *args,const FXcha
       FXchar *envir=enviroblock(env);
 
       // Create process
-      if(CreateProcessA(exec,command,NULL,NULL,true,0,envir,NULL,&si,&pi)){
+      if(CreateProcessA(exec,command,nullptr,nullptr,true,0,envir,nullptr,&si,&pi)){
         CloseHandle(pi.hThread);
         pid=pi.hProcess;
         result=true;
@@ -521,12 +524,12 @@ FXbool FXProcess::start(const FXchar* exec,const FXchar *const *args,const FXcha
 
           // Kick off with arguments and environment
           if(env){
-            ::execve(exec,(char* const*)args,(char* const*)env);
+            ::execve(exec,const_cast<char* const*>(args),const_cast<char* const*>(env));
             }
 
           // Kick off with just arguments
           else{
-            ::execv(exec,(char* const*)args);
+            ::execv(exec,const_cast<char* const*>(args));
             }
 
           // Failed to kick off child
@@ -570,7 +573,7 @@ FXbool FXProcess::suspend(){
   if(pid){
 #if defined(WIN32)
 /*
-    HANDLE hThreadSnap=NULL;
+    HANDLE hThreadSnap=nullptr;
     HANDLE hThreadSnap=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,0);
     if(hThreadSnap!=INVALID_HANDLE_VALUE){
       THREADENTRY32  te32={0};
@@ -603,7 +606,7 @@ FXbool FXProcess::resume(){
   if(pid){
 #if defined(WIN32)
 /*
-    HANDLE hThreadSnap=NULL;
+    HANDLE hThreadSnap=nullptr;
     HANDLE hThreadSnap=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,0);
     if(hThreadSnap!=INVALID_HANDLE_VALUE){
       THREADENTRY32  te32={0};

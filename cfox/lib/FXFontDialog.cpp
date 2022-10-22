@@ -3,7 +3,7 @@
 *                    F o n t   S e l e c t i o n   D i a l o g                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -64,12 +64,12 @@ const FXchar FXFontDialog::sectionName[]="Font Dialog";
 
 
 // Object implementation
-FXIMPLEMENT(FXFontDialog,FXDialogBox,NULL,0)
+FXIMPLEMENT(FXFontDialog,FXDialogBox,nullptr,0)
 
 
 // Constructor font dialog box
 FXFontDialog::FXFontDialog(FXWindow* own,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(own,name,opts|DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,x,y,w,h,0,0,0,0,4,4){
-  fontbox=new FXFontSelector(this,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  fontbox=new FXFontSelector(this,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
   fontbox->acceptButton()->setTarget(this);
   fontbox->acceptButton()->setSelector(FXDialogBox::ID_ACCEPT);
   fontbox->cancelButton()->setTarget(this);
@@ -80,7 +80,7 @@ FXFontDialog::FXFontDialog(FXWindow* own,const FXString& name,FXuint opts,FXint 
 
 // Constructor free-floating font dialog box
 FXFontDialog::FXFontDialog(FXApp* a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(a,name,opts|DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE|DECOR_CLOSE,x,y,w,h,0,0,0,0,4,4){
-  fontbox=new FXFontSelector(this,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  fontbox=new FXFontSelector(this,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
   fontbox->acceptButton()->setTarget(this);
   fontbox->acceptButton()->setSelector(FXDialogBox::ID_ACCEPT);
   fontbox->cancelButton()->setTarget(this);

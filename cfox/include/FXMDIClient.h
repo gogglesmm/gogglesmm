@@ -3,7 +3,7 @@
 *         M u l t i p l e   D o c u m e n t   C l i e n t   W i n d o w         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -150,7 +150,7 @@ public:
   long forallDocWindows(FXObject* document,FXObject* sender,FXSelector sel,void* ptr);
 
   /// Set active MDI Child
-  virtual FXbool setActiveChild(FXMDIChild* child=NULL,FXbool notify=true);
+  virtual FXbool setActiveChild(FXMDIChild* child=nullptr,FXbool notify=true);
 
   /// Get current active child; may be NULL!
   FXMDIChild* getActiveChild() const { return active; }

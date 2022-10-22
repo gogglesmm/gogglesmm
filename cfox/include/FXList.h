@@ -3,7 +3,7 @@
 *                            L i s t   W i d g e t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -58,7 +58,7 @@ private:
   FXListItem(const FXListItem&);
   FXListItem& operator=(const FXListItem&);
 protected:
-  FXListItem():icon(NULL),data(NULL),state(0),x(0),y(0){}
+  FXListItem():icon(nullptr),data(nullptr),state(0),x(0),y(0){}
   virtual void draw(const FXList* list,FXDC& dc,FXint x,FXint y,FXint w,FXint h) const;
   virtual FXint hitItem(const FXList* list,FXint x,FXint y) const;
 public:
@@ -72,7 +72,7 @@ public:
 public:
 
   /// Construct new item with given text, icon, and user-data
-  FXListItem(const FXString& text,FXIcon* ic=NULL,FXptr ptr=NULL):label(text),icon(ic),data(ptr),state(0),x(0),y(0){}
+  FXListItem(const FXString& text,FXIcon* ic=nullptr,FXptr ptr=nullptr):label(text),icon(ic),data(ptr),state(0),x(0),y(0){}
 
   /// Change item's text label
   virtual void setText(const FXString& txt);
@@ -148,9 +148,6 @@ public:
 /// List item collate function
 typedef FXint (*FXListSortFunc)(const FXListItem*,const FXListItem*);
 
-
-/// Explicit template specialization
-//extern FXAPI template class FXObjectListOf<FXListItem>;
 
 /// List of FXListItem's
 typedef FXObjectListOf<FXListItem> FXListItemList;
@@ -236,7 +233,7 @@ public:
 public:
 
   /// Construct a list with initially no items in it
-  FXList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=LIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=LIST_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Create server-side resources
   virtual void create();
@@ -287,34 +284,34 @@ public:
   FXint setItem(FXint index,FXListItem* item,FXbool notify=false);
 
   /// Replace items text, icon, and user-data pointer
-  FXint setItem(FXint index,const FXString& text,FXIcon *icon=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint setItem(FXint index,const FXString& text,FXIcon *icon=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill list by appending items from array of strings
-  FXint fillItems(const FXchar *const *strings,FXIcon *icon=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXchar *const *strings,FXIcon *icon=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill list by appending items from array of strings
-  FXint fillItems(const FXString* strings,FXIcon *icon=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXString* strings,FXIcon *icon=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill list by appending items from newline separated strings
-  FXint fillItems(const FXString& strings,FXIcon *icon=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXString& strings,FXIcon *icon=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Insert a new [possibly subclassed] item at the give index
   FXint insertItem(FXint index,FXListItem* item,FXbool notify=false);
 
   /// Insert item at index with given text, icon, and user-data pointer
-  FXint insertItem(FXint index,const FXString& text,FXIcon *icon=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint insertItem(FXint index,const FXString& text,FXIcon *icon=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Append a [possibly subclassed] item to the list
   FXint appendItem(FXListItem* item,FXbool notify=false);
 
   /// Append new item with given text and optional icon, and user-data pointer
-  FXint appendItem(const FXString& text,FXIcon *icon=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint appendItem(const FXString& text,FXIcon *icon=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Prepend a [possibly subclassed] item to the list
   FXint prependItem(FXListItem* item,FXbool notify=false);
 
   /// Prepend new item with given text and optional icon, and user-data pointer
-  FXint prependItem(const FXString& text,FXIcon *icon=NULL,FXptr ptr=NULL,FXbool notify=false);
+  FXint prependItem(const FXString& text,FXIcon *icon=nullptr,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Move item from oldindex to newindex
   FXint moveItem(FXint newindex,FXint oldindex,FXbool notify=false);

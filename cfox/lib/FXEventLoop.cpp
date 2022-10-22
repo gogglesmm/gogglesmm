@@ -3,7 +3,7 @@
 *                         F O X   E v e n t   L o o p                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2019,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2019,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -39,6 +39,9 @@
 
   - Exceptions will unroll through event loops.
 
+  - The member variable invocation holds the address of the variable
+    containing the innermost model loop currently running; so we can
+    locate all model loops through invocation.
 */
 
 using namespace FX;
@@ -48,30 +51,48 @@ using namespace FX;
 namespace FX {
 
 
-
 // Enter modal loop
-FXEventLoop::FXEventLoop(FXEventLoop** inv,FXWindow* win,FXuint mode):dispatcher(NULL),invocation(inv),upper(*inv),window(win),modality(mode),code(0),done(false){
+FXEventLoop::FXEventLoop(FXEventLoop** inv,FXWindow* win,FXuint mode):dispatcher(nullptr),invocation(inv),upper(*inv),window(win),modality(mode),code(0),done(false){
   *invocation=this;
+  }
+
+
+// Return window of current modal loop
+FXWindow* FXEventLoop::getModalWindow() const {
+  if(invocation){
+    return (*invocation)->window;
+    }
+  return nullptr;
   }
 
 
 // Test if the window is involved in a modal invocation
 FXbool FXEventLoop::isModal(FXWindow *win) const {
-  for(const FXEventLoop* eventloop=this; eventloop; eventloop=eventloop->upper){
-    if(eventloop->window==win && eventloop->modality) return true;
+  if(invocation){
+    FXEventLoop* eventloop=*invocation;
+    while(eventloop){
+      if(eventloop->window==win && eventloop->modality){
+        return true;
+        }
+      eventloop=eventloop->upper;
+      }
     }
   return false;
   }
 
 
-// Break out of topmost event loop, closing all nested loops also
+// Break out of all event loops, closing all nested loops also
 void FXEventLoop::stop(FXint value){
-  for(FXEventLoop* eventloop=this; eventloop; eventloop=eventloop->upper){
-    eventloop->done=true;
-    eventloop->code=0;
-    if(eventloop->upper==NULL){
-      eventloop->code=value;
-      return;
+  if(invocation){
+    FXEventLoop* eventloop=*invocation;
+    while(eventloop){
+      eventloop->done=true;
+      eventloop->code=0;
+      if(eventloop->upper==nullptr){
+        eventloop->code=value;
+        break;
+        }
+      eventloop=eventloop->upper;
       }
     }
   }
@@ -79,14 +100,16 @@ void FXEventLoop::stop(FXint value){
 
 // Break out of modal loop matching window, and all deeper ones
 void FXEventLoop::stopModal(FXWindow* win,FXint value){
-  if(isModal(window)){
-    for(FXEventLoop* eventloop=this; eventloop; eventloop=eventloop->upper){
+  if(isModal(win)){
+    FXEventLoop* eventloop=*invocation;
+    while(eventloop){
       eventloop->done=true;
       eventloop->code=0;
       if(eventloop->window==win && eventloop->modality){
         eventloop->code=value;
-        return;
+        break;
         }
+      eventloop=eventloop->upper;
       }
     }
   }
@@ -94,12 +117,16 @@ void FXEventLoop::stopModal(FXWindow* win,FXint value){
 
 // Break out of innermost modal loop, and all deeper non-modal ones
 void FXEventLoop::stopModal(FXint value){
-  for(FXEventLoop* eventloop=this; eventloop; eventloop=eventloop->upper){
-    eventloop->done=true;
-    eventloop->code=0;
-    if(eventloop->modality){
-      eventloop->code=value;
-      return;
+  if(invocation){
+    FXEventLoop* eventloop=*invocation;
+    while(eventloop){
+      eventloop->done=true;
+      eventloop->code=0;
+      if(eventloop->modality){
+        eventloop->code=value;
+        break;
+        }
+      eventloop=eventloop->upper;
       }
     }
   }
@@ -110,14 +137,13 @@ FXEventLoop::~FXEventLoop(){
   *invocation=upper;
   }
 
-
-
-
-
-
-
-
 #if 0
+
+
+// Perform a single event dispatch
+FXbool FXEventLoop::runOneEvent(FXTime blocking,FXuint flags){
+  return dispatcher && dispatcher->dispatch(blocking,flags);
+  }
 
 
 
@@ -154,17 +180,6 @@ FXint FXEventLoop::runModalWhileEvents(FXWindow* window,FXTime blocking){
   FXEventLoop inv(&invocation,window,MODAL_FOR_WINDOW);
   while(!inv.done && runOneEvent(blocking)) blocking=1000;
   return !inv.done;
-  }
-
-
-// Perform one event dispatch
-FXbool FXEventLoop::runOneEvent(FXTime blocking){
-  FXRawEvent ev;
-  if(getNextEvent(ev,blocking)){
-    dispatchEvent(ev);
-    return true;
-    }
-  return false;
   }
 
 

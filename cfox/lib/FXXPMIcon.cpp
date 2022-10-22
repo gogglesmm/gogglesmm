@@ -3,7 +3,7 @@
 *                        X P M   I c o n   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,11 +60,11 @@ const FXchar FXXPMIcon::mimeType[]="image/xpm";
 
 
 // Object implementation
-FXIMPLEMENT(FXXPMIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXXPMIcon,FXIcon,nullptr,0)
 
 
 // Initialize nicely
-FXXPMIcon::FXXPMIcon(FXApp* a,const FXchar **pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,NULL,clr,opts,w,h){
+FXXPMIcon::FXXPMIcon(FXApp* a,const FXchar **pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,nullptr,clr,opts,w,h){
   if(pix){
     fxloadXPM(pix,data,width,height);
     if(options&IMAGE_ALPHAGUESS) setTransparentColor(guesstransp());

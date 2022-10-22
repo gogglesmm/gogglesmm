@@ -3,7 +3,7 @@
 *                D i r e c t o r y   S e l e c t i o n   D i a l o g            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -42,6 +42,8 @@ class FXAPI FXDirDialog : public FXDialogBox {
   FXDECLARE(FXDirDialog)
 protected:
   FXDirSelector *dirbox;          // Directory selection widget
+protected:
+  static const FXchar sectionName[];
 protected:
   FXDirDialog(){}
   void initdialog();

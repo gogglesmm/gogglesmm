@@ -3,7 +3,7 @@
 *                     FOX Definitions, Types, and Macros                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -53,15 +53,22 @@
 #endif
 
 
-// For Windows
-#ifdef _DEBUG
-#ifndef DEBUG
-#define DEBUG
+// Byte order
+#if !defined(FOX_BIGENDIAN)
+#if defined(__GNUC__)
+#if defined(__BYTE_ORDER__)
+#if (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+#define FOX_BIGENDIAN 0
+#else
+#define FOX_BIGENDIAN 1
 #endif
+#else
+#error "FOX_BIGENDIAN macro not set"
 #endif
-#ifdef _NDEBUG
-#ifndef NDEBUG
-#define NDEBUG
+#elif defined(_MSC_VER)
+#define FOX_BIGENDIAN 0
+#else
+#error "FOX_BIGENDIAN macro not set"
 #endif
 #endif
 
@@ -69,11 +76,11 @@
 // Shared library support
 #ifdef WIN32
 #if defined(__GNUC__)
-#define FXLOCAL  
+#define FXLOCAL
 #define FXEXPORT __attribute__ ((dllexport))
 #define FXIMPORT __attribute__ ((dllimport))
 #else
-#define FXLOCAL  
+#define FXLOCAL
 #define FXEXPORT __declspec(dllexport)
 #define FXIMPORT __declspec(dllimport)
 #endif
@@ -232,32 +239,6 @@ union _XEvent;
 namespace FX {
 
 
-/// Third logic state: unknown/indeterminate
-enum { maybe=2 };
-
-
-/// Exponent display
-enum FXExponent {
-  EXP_NEVER=0,                          /// Never use exponential notation
-  EXP_ALWAYS=1,                         /// Always use exponential notation
-  EXP_AUTO=2                            /// Use exponential notation if needed
-  };
-
-
-/// Search modes for search/replace dialogs
-enum {
-  SEARCH_BACKWARD   = 1,                            /// Search backward
-  SEARCH_FORWARD    = 2,                            /// Search forward
-  SEARCH_NOWRAP     = 0,                            /// Don't wrap (default)
-  SEARCH_WRAP       = 4,                            /// Wrap around to start
-  SEARCH_EXACT      = 0,                            /// Exact match (default)
-  SEARCH_IGNORECASE = 8,                            /// Ignore case
-  SEARCH_REGEX      = 16,                           /// Regular expression match
-  SEARCH_PREFIX     = 32,                           /// Prefix of subject string
-  SEARCH_SUFFIX     = 64                            /// Suffix of subject string
-  };
-
-
 /*********************************  Typedefs  **********************************/
 
 // Forward declarations
@@ -345,6 +326,13 @@ typedef void*                   FXInputHandle;
 typedef FXint                   FXInputHandle;
 #endif
 
+// Process handle
+#if defined(WIN32)
+typedef void*                   FXProcessID;
+#else
+typedef int                     FXProcessID;
+#endif
+
 // Thread ID type
 #if defined(WIN32)
 typedef void*                   FXThreadID;
@@ -363,7 +351,7 @@ typedef _XEvent                 FXRawEvent;
 #endif
 
 
-/// Drag and drop data type
+// Drag and drop data type
 #ifdef WIN32
 typedef FXushort                FXDragType;
 #else
@@ -371,9 +359,24 @@ typedef FXID                    FXDragType;
 #endif
 
 
-/// A time in the far, far future
+// Third logic state: unknown/indeterminate
+enum { maybe=2 };
+
+// A time in the far, far future
 const FXTime forever=FXLONG(9223372036854775807);
 
+// Search modes for search/replace dialogs
+enum {
+  SEARCH_BACKWARD   = 1,        /// Search backward
+  SEARCH_FORWARD    = 2,        /// Search forward
+  SEARCH_NOWRAP     = 0,        /// Don't wrap (default)
+  SEARCH_WRAP       = 4,        /// Wrap around to start
+  SEARCH_EXACT      = 0,        /// Exact match (default)
+  SEARCH_IGNORECASE = 8,        /// Ignore case
+  SEARCH_REGEX      = 16,       /// Regular expression match
+  SEARCH_PREFIX     = 32,       /// Prefix of subject string
+  SEARCH_SUFFIX     = 64        /// Suffix of subject string
+  };
 
 /**********************************  Macros  ***********************************/
 
@@ -442,35 +445,6 @@ const FXTime forever=FXLONG(9223372036854775807);
 
 /// Get ID from selector
 #define FXSELID(s)         ((FX::FXushort)((s)&0xffff))
-
-/// Test if character c is at the start of a utf8 sequence (not a follower byte)
-#define FXISUTF8(c)        (((c)&0xC0)!=0x80)
-
-/// Check if c is leader/follower of a utf8 multi-byte sequence
-#define FXISLEADUTF8(c)    (((c)&0xC0)==0xC0)
-#define FXISFOLLOWUTF8(c)  (((c)&0xC0)==0x80)
-
-/// Check if c is part of a utf8 multi-byte sequence
-#define FXISSEQUTF8(c)     (((c)&0x80)==0x80)
-
-/// Number of FXchars in utf8 sequence
-#define FXUTF8LEN(c)       (((0xE5000000>>((((FXuchar)(c))>>4)<<1))&3)+1)
-
-/// Test if character c is at start of utf16 sequence (not a follower from surrogate pair)
-#define FXISUTF16(c)       (((c)&0xFC00)!=0xDC00)
-
-/// Check if c is leader/follower of a utf16 surrogate pair sequence
-#define FXISLEADUTF16(c)   (((c)&0xFC00)==0xD800)
-#define FXISFOLLOWUTF16(c) (((c)&0xFC00)==0xDC00)
-
-/// Check if c is part of a utf16 surrogate pair sequence
-#define FXISSEQUTF16(c)    (((c)&0xF800)==0xD800)
-
-/// Number of FXnchars in utf16 sequence
-#define FXUTF16LEN(c)      (FXISLEADUTF16(c)+1)
-
-/// Test if c is a legal utf32 character
-#define FXISUTF32(c)       ((c)<0x110000)
 
 /// Average of two FXColor ca and FXColor cb
 #define FXAVGCOLOR(ca,cb)  (((ca)&(cb))+((((ca)^(cb))&0xFEFEFEFE)>>1))
@@ -541,7 +515,6 @@ const FXTime forever=FXLONG(9223372036854775807);
 
 #endif
 
-
 /**
 * FXASSERT() prints out a message when the expression fails,
 * and nothing otherwise.  Unlike assert(), FXASSERT() will not
@@ -571,16 +544,32 @@ const FXTime forever=FXLONG(9223372036854775807);
 
 
 /**
+* FXASSERT_STATIC performs a compile time assert (requires C++11 or newer).
+* When assertion (which must be const expression) fails, a compile-time
+* error message is generated.  Thus, there is no run-time overhead whatsoever.
+* In addition, the condition is checked even if code is never executed.
+*/
+#if (defined(__cplusplus) && (__cplusplus >= 201103L)) || (defined(_MSC_VER) && (_MSC_VER >= 1600))
+#define FXASSERT_STATIC(expr) static_assert(expr,#expr)
+#else
+#define FXASSERT_STATIC(expr) FXASSERT(expr)
+#endif
+
+
+/**
 * FXTRACE() allows you to trace the execution of your application
-* with increasing levels of detail the higher the trace level.
-* The trace level is determined by variable fxTraceLevel, which
-* may be set from the command line with "-tracelevel <level>".
+* with any amount of detail desired.
+* The trace topic number determines whether a trace command is
+* printed to the output.
 * When compiling your application for release, all trace statements
 * are compiled out, just like FXASSERT.
 * A statement like: FXTRACE((10,"The value of x=%d\n",x)) will
-* generate output only if fxTraceLevel is set to 11 or greater.
-* The default value fxTraceLevel=0 will block all trace outputs.
+* generate output only if the trace topic 10 is enabled.
 * Note the double parentheses!
+* Trace topics may be set by command line parameter "-tracetopics"
+* followed by a comma-separeted list of topic ranges.  For example,
+* parameter "-tracetopics 1000:1023,0:3" selects topics 1000 through
+* 1023, and topics 0 through 3.
 */
 #ifndef NDEBUG
 #define FXTRACE(arguments) FX::fxtrace arguments
@@ -643,16 +632,16 @@ extern FXAPI FXbool fxcalloc(void** ptr,FXuval size);
 /// Resize memory
 extern FXAPI FXbool fxresize(void** ptr,FXuval size);
 
-/// Duplicate memory
-extern FXAPI FXbool fxmemdup(void** ptr,const void* src,FXuval size);
-
 /// Free memory, resets ptr to NULL afterward
 extern FXAPI void fxfree(void** ptr);
 
-/// Error routine
+/// Duplicate memory
+extern FXAPI FXbool fxmemdup(void** ptr,const void* src,FXuval size);
+
+/// Error output routine; will terminate program after writing message
 extern FXAPI __noreturn void fxerror(const FXchar* format,...) FX_PRINTF(1,2) ;
 
-/// Warning routine
+/// Warning routine; will continue program after writing message
 extern FXAPI void fxwarning(const FXchar* format,...) FX_PRINTF(1,2) ;
 
 /// Log message to [typically] stderr
@@ -665,7 +654,7 @@ extern FXAPI void fxassert(const FXchar* expression,const FXchar* filename,unsig
 extern FXAPI void fxverify(const FXchar* expression,const FXchar* filename,unsigned int lineno);
 
 /// Trace printout routine:- usually not called directly but called through FXTRACE
-extern FXAPI void fxtrace(FXint level,const FXchar* format,...) FX_PRINTF(2,3) ;
+extern FXAPI void fxtrace(FXuint level,const FXchar* format,...) FX_PRINTF(2,3) ;
 
 /// Convert string of length len to MSDOS; return new string and new length
 extern FXAPI FXbool fxtoDOS(FXchar*& string,FXint& len);
@@ -727,113 +716,30 @@ extern FXAPI FXTime fxgetticks();
 /// Version number that the library has been compiled with
 extern FXAPI const FXuchar fxversion[3];
 
-/// Controls tracing level
-extern FXAPI FXint fxTraceLevel;
+/// Get trace topic setting
+extern FXAPI FXbool getTraceTopic(FXuint topic);
 
+/// Set trace topic on or off
+extern FXAPI void setTraceTopic(FXuint topic,FXbool flag=true);
 
-/// Return wide character from utf8 string at ptr
-extern FXAPI FXwchar wc(const FXchar *ptr);
+/// Set tracing for all topics up to and including level
+extern FXAPI void setTraceLevel(FXuint level,FXbool flag=true);
 
-/// Return wide character from utf16 string at ptr
-extern FXAPI FXwchar wc(const FXnchar *ptr);
+/// Set trace topics from a string of the form:
+///
+/// <topic-list>  : <topic-range> [ ',' <topic-range> ]*
+///
+/// <topic-range> : <topic> [':' [ <topic> ]? ]?
+///
+///               : ':' [<topic> ]?
+///
+/// <topic>       : <digit> [ <digits> ]*
+///
+extern FXAPI FXbool setTraceTopics(const FXchar* topics,FXbool flag=true);
 
+/// Get operating system version string
+extern FXAPI FXival fxosversion(FXchar version[],FXival len);
 
-/// Increment to start of next wide character in utf8 string
-extern FXAPI const FXchar* wcinc(const FXchar* ptr);
-
-/// Increment to start of next wide character in utf8 string
-extern FXAPI FXchar* wcinc(FXchar* ptr);
-
-/// Increment to start of next wide character in utf16 string
-extern FXAPI const FXnchar* wcinc(const FXnchar* ptr);
-
-/// Increment to start of next wide character in utf16 string
-extern FXAPI FXnchar* wcinc(FXnchar* ptr);
-
-/// Decrement to start of previous wide character in utf8 string
-extern FXAPI const FXchar* wcdec(const FXchar* ptr);
-
-/// Decrement to start of previous wide character in utf8 string
-extern FXAPI FXchar* wcdec(FXchar* ptr);
-
-/// Decrement to start of previous wide character in utf16 string
-extern FXAPI const FXnchar* wcdec(const FXnchar* ptr);
-
-/// Decrement to start of previous wide character in utf16 string
-extern FXAPI FXnchar* wcdec(FXnchar* ptr);
-
-/// Adjust ptr to point to leader of multi-byte sequence
-extern FXAPI const FXchar* wcstart(const FXchar* ptr);
-
-/// Adjust ptr to point to leader of multi-byte sequence
-extern FXAPI FXchar* wcstart(FXchar* ptr);
-
-/// Adjust ptr to point to leader of surrogate pair sequence
-extern FXAPI const FXnchar* wcstart(const FXnchar *ptr);
-
-/// Adjust ptr to point to leader of surrogate pair sequence
-extern FXAPI FXnchar* wcstart(FXnchar *ptr);
-
-/// Return number of FXchar's of wide character at ptr
-extern FXAPI FXival wclen(const FXchar *ptr);
-
-/// Return number of FXnchar's of narrow character at ptr
-extern FXAPI FXival wclen(const FXnchar *ptr);
-
-/// Check if valid utf8 wide character representation; returns length or 0
-extern FXAPI FXival wcvalid(const FXchar* ptr);
-
-/// Check if valid utf16 wide character representation; returns length or 0
-extern FXAPI FXival wcvalid(const FXnchar* ptr);
-
-
-/// Return number of bytes for utf8 representation of wide character w
-extern FXAPI FXival wc2utf(FXwchar w);
-
-/// Return number of narrow characters for utf16 representation of wide character w
-extern FXAPI FXival wc2nc(FXwchar w);
-
-/// Return number of bytes for utf8 representation of wide character string
-extern FXAPI FXival wcs2utf(const FXwchar* src,FXival srclen);
-extern FXAPI FXival wcs2utf(const FXwchar* src);
-
-/// Return number of bytes for utf8 representation of narrow character string
-extern FXAPI FXival ncs2utf(const FXnchar* src,FXival srclen);
-extern FXAPI FXival ncs2utf(const FXnchar* src);
-
-/// Return number of wide characters for utf8 character string
-extern FXAPI FXival utf2wcs(const FXchar src,FXival srclen);
-extern FXAPI FXival utf2wcs(const FXchar *src);
-
-/// Return number of narrow characters for utf8 character string
-extern FXAPI FXival utf2ncs(const FXchar *src,FXival srclen);
-extern FXAPI FXival utf2ncs(const FXchar *src);
-
-
-/// Convert wide character to utf8 string; return number of items written to dst
-extern FXAPI FXival wc2utf(FXchar *dst,FXwchar w);
-
-/// Convert wide character to narrow character string; return number of items written to dst
-extern FXAPI FXival wc2nc(FXnchar *dst,FXwchar w);
-
-/// Convert wide character string to utf8 string; return number of items written to dst
-extern FXAPI FXival wcs2utf(FXchar *dst,const FXwchar* src,FXival dstlen,FXival srclen);
-extern FXAPI FXival wcs2utf(FXchar *dst,const FXwchar* src,FXival dstlen);
-
-/// Convert narrow character string to utf8 string; return number of items written to dst
-extern FXAPI FXival ncs2utf(FXchar *dst,const FXnchar* src,FXival dsrlen,FXival srclen);
-extern FXAPI FXival ncs2utf(FXchar *dst,const FXnchar* src,FXival dsrlen);
-
-/// Convert utf8 string to wide character string; return number of items written to dst
-extern FXAPI FXival utf2wcs(FXwchar *dst,const FXchar* src,FXival dsrlen,FXival srclen);
-extern FXAPI FXival utf2wcs(FXwchar *dst,const FXchar* src,FXival dsrlen);
-
-/// Convert utf8 string to narrow character string; return number of items written to dst
-extern FXAPI FXival utf2ncs(FXnchar *dst,const FXchar* src,FXival dsrlen,FXival srclen);
-extern FXAPI FXival utf2ncs(FXnchar *dst,const FXchar* src,FXival dsrlen);
-
-/// Swap non-overlapping arrays
-extern FXAPI void memswap(void* dst,void* src,FXuval n);
 
 }
 

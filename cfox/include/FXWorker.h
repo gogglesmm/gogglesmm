@@ -3,7 +3,7 @@
 *                            W o r k e r   T h r e a d                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -45,7 +45,7 @@ private:
 public:
 
   /// Create worker for runnable
-  FXWorker(FXRunnable* task=NULL);
+  FXWorker(FXRunnable* task=nullptr);
 
   /// Change runnable if not started yet
   void setRunnable(FXRunnable* task){ runnable=task; }

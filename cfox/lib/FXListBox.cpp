@@ -3,7 +3,7 @@
 *                        L i s t   B o x   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -99,11 +99,11 @@ FXListBox::FXListBox(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXi
   flags|=FLAG_ENABLED;
   target=tgt;
   message=sel;
-  field=new FXButton(this," ",NULL,this,FXListBox::ID_FIELD,ICON_BEFORE_TEXT|JUSTIFY_LEFT,0,0,0,0,pl,pr,pt,pb);
+  field=new FXButton(this," ",nullptr,this,FXListBox::ID_FIELD,ICON_BEFORE_TEXT|JUSTIFY_LEFT,0,0,0,0,pl,pr,pt,pb);
   field->setBackColor(getApp()->getBackColor());
   pane=new FXPopup(this,FRAME_LINE);
   list=new FXList(pane,this,FXListBox::ID_LIST,LIST_BROWSESELECT|LIST_AUTOSELECT|LAYOUT_FILL_X|LAYOUT_FILL_Y|SCROLLERS_TRACK|HSCROLLING_OFF);
-  button=new FXMenuButton(this,FXString::null,NULL,pane,FRAME_RAISED|FRAME_THICK|MENUBUTTON_DOWN|MENUBUTTON_ATTACH_RIGHT,0,0,0,0,0,0,0,0);
+  button=new FXMenuButton(this,FXString::null,nullptr,pane,FRAME_RAISED|FRAME_THICK|MENUBUTTON_DOWN|MENUBUTTON_ATTACH_RIGHT,0,0,0,0,0,0,0,0);
   button->setXOffset(border);
   button->setYOffset(border);
   flags&=~FLAG_UPDATE;  // Never GUI update
@@ -207,7 +207,7 @@ long FXListBox::onCmdSetIntValue(FXObject*,FXSelector,void* ptr){
 
 // Forward GUI update of list to target; but only if pane is not popped
 long FXListBox::onListUpdate(FXObject*,FXSelector,void*){
-  return target && !isMenuShown() && target->tryHandle(this,FXSEL(SEL_UPDATE,message),NULL);
+  return target && !isMenuShown() && target->tryHandle(this,FXSEL(SEL_UPDATE,message),nullptr);
   }
 
 
@@ -227,7 +227,7 @@ long FXListBox::onListChanged(FXObject*,FXSelector,void* ptr){
 
 // Clicked inside or outside an item in the list; unpost the pane
 long FXListBox::onListClicked(FXObject*,FXSelector,void*){
-  return button->handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  return button->handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   }
 
 
@@ -339,7 +339,7 @@ void FXListBox::setCurrentItem(FXint index,FXbool notify){
       field->setText(list->getItemText(index));
       }
     else{
-      field->setIcon(NULL);
+      field->setIcon(nullptr);
       field->setText(" ");
       }
     }
@@ -458,7 +458,7 @@ FXint FXListBox::moveItem(FXint newindex,FXint oldindex,FXbool notify){
       field->setText(list->getItemText(current));
       }
     else{
-      field->setIcon(NULL);
+      field->setIcon(nullptr);
       field->setText(" ");
       }
     }
@@ -478,7 +478,7 @@ FXListItem* FXListBox::extractItem(FXint index,FXbool notify){
       field->setText(list->getItemText(current));
       }
     else{
-      field->setIcon(NULL);
+      field->setIcon(nullptr);
       field->setText(" ");
       }
     }
@@ -498,7 +498,7 @@ void FXListBox::removeItem(FXint index,FXbool notify){
       field->setText(list->getItemText(current));
       }
     else{
-      field->setIcon(NULL);
+      field->setIcon(nullptr);
       field->setText(" ");
       }
     }
@@ -509,15 +509,15 @@ void FXListBox::removeItem(FXint index,FXbool notify){
 // Remove all items
 void FXListBox::clearItems(FXbool notify){
   list->clearItems(notify);
-  field->setIcon(NULL);
+  field->setIcon(nullptr);
   field->setText(" ");
   recalc();
   }
 
 
 // Get item by name
-FXint FXListBox::findItem(const FXString& text,FXint start,FXuint flgs) const {
-  return list->findItem(text,start,flgs);
+FXint FXListBox::findItem(const FXString& string,FXint start,FXuint flgs) const {
+  return list->findItem(string,start,flgs);
   }
 
 

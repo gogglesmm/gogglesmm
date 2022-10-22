@@ -3,7 +3,7 @@
 *                          T r e e L i s t   O b j e c t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -83,7 +83,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXTreeItem,FXObject,NULL,0)
+FXIMPLEMENT(FXTreeItem,FXObject,nullptr,0)
 
 
 
@@ -262,7 +262,7 @@ FXint FXTreeItem::getNumChildren() const {
 
 // Get item (logically) below this one
 FXTreeItem* FXTreeItem::getBelow() const {
-  FXTreeItem* item=(FXTreeItem*)this;
+  FXTreeItem* item=const_cast<FXTreeItem*>(this);
   if(first) return first;
   while(!item->next && item->parent) item=item->parent;
   return item->next;
@@ -409,14 +409,14 @@ FXIMPLEMENT(FXTreeList,FXScrollArea,FXTreeListMap,ARRAYNUMBER(FXTreeListMap))
 // Tree List
 FXTreeList::FXTreeList(){
   flags|=FLAG_ENABLED;
-  firstitem=NULL;
-  lastitem=NULL;
-  anchoritem=NULL;
-  currentitem=NULL;
-  extentitem=NULL;
-  viewableitem=NULL;
+  firstitem=nullptr;
+  lastitem=nullptr;
+  anchoritem=nullptr;
+  currentitem=nullptr;
+  extentitem=nullptr;
+  viewableitem=nullptr;
   font=(FXFont*)-1L;
-  sortfunc=NULL;
+  sortfunc=nullptr;
   textColor=0;
   selbackColor=0;
   seltextColor=0;
@@ -436,14 +436,14 @@ FXTreeList::FXTreeList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,F
   flags|=FLAG_ENABLED;
   target=tgt;
   message=sel;
-  firstitem=NULL;
-  lastitem=NULL;
-  anchoritem=NULL;
-  currentitem=NULL;
-  extentitem=NULL;
-  viewableitem=NULL;
+  firstitem=nullptr;
+  lastitem=nullptr;
+  anchoritem=nullptr;
+  currentitem=nullptr;
+  extentitem=nullptr;
+  viewableitem=nullptr;
   font=getApp()->getNormalFont();
-  sortfunc=NULL;
+  sortfunc=nullptr;
   textColor=getApp()->getForeColor();
   selbackColor=getApp()->getSelbackColor();
   seltextColor=getApp()->getSelforeColor();
@@ -608,7 +608,7 @@ FXint FXTreeList::getNumItems() const {
 
 // Set item text
 void FXTreeList::setItemText(FXTreeItem* item,const FXString& text){
-  if(item==NULL){ fxerror("%s::setItemText: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::setItemText: NULL argument.\n",getClassName()); }
   if(item->getText()!=text){
     item->setText(text);
     recalc();
@@ -618,14 +618,14 @@ void FXTreeList::setItemText(FXTreeItem* item,const FXString& text){
 
 // Get item text
 FXString FXTreeList::getItemText(const FXTreeItem* item) const {
-  if(item==NULL){ fxerror("%s::getItemText: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::getItemText: NULL argument.\n",getClassName()); }
   return item->getText();
   }
 
 
 // Set item open icon
 void FXTreeList::setItemOpenIcon(FXTreeItem* item,FXIcon* icon,FXbool owned){
-  if(item==NULL){ fxerror("%s::setItemOpenIcon: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::setItemOpenIcon: NULL argument.\n",getClassName()); }
   if(item->getOpenIcon()!=icon) recalc();
   item->setOpenIcon(icon,owned);
   }
@@ -633,14 +633,14 @@ void FXTreeList::setItemOpenIcon(FXTreeItem* item,FXIcon* icon,FXbool owned){
 
 // Get item open icon
 FXIcon* FXTreeList::getItemOpenIcon(const FXTreeItem* item) const {
-  if(item==NULL){ fxerror("%s::getItemOpenIcon: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::getItemOpenIcon: NULL argument.\n",getClassName()); }
   return item->getOpenIcon();
   }
 
 
 // Set item closed icon
 void FXTreeList::setItemClosedIcon(FXTreeItem* item,FXIcon* icon,FXbool owned){
-  if(item==NULL){ fxerror("%s::setItemClosedIcon: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::setItemClosedIcon: NULL argument.\n",getClassName()); }
   if(item->getClosedIcon()!=icon) recalc();
   item->setClosedIcon(icon,owned);
   }
@@ -648,21 +648,21 @@ void FXTreeList::setItemClosedIcon(FXTreeItem* item,FXIcon* icon,FXbool owned){
 
 // Get item closed icon
 FXIcon* FXTreeList::getItemClosedIcon(const FXTreeItem* item) const {
-  if(item==NULL){ fxerror("%s::getItemClosedIcon: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::getItemClosedIcon: NULL argument.\n",getClassName()); }
   return item->getClosedIcon();
   }
 
 
 // Set item data
 void FXTreeList::setItemData(FXTreeItem* item,void* ptr) const {
-  if(item==NULL){ fxerror("%s::setItemData: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::setItemData: NULL argument.\n",getClassName()); }
   item->setData(ptr);
   }
 
 
 // Get item data
 void* FXTreeList::getItemData(const FXTreeItem* item) const {
-  if(item==NULL){ fxerror("%s::getItemData: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::getItemData: NULL argument.\n",getClassName()); }
   return item->getData();
   }
 
@@ -691,7 +691,7 @@ FXbool FXTreeList::isItemExpanded(const FXTreeItem* item) const {
 // Is item a leaf item
 FXbool FXTreeList::isItemLeaf(const FXTreeItem* item) const {
   if(!item){ fxerror("%s::isItemLeaf: NULL argument.\n",getClassName()); }
-  return item->first==NULL;
+  return item->first==nullptr;
   }
 
 
@@ -763,7 +763,7 @@ void FXTreeList::makeItemVisible(FXTreeItem* item){
       setPosition(px,py);
 
       // Done it
-      viewableitem=NULL;
+      viewableitem=nullptr;
       }
     }
   }
@@ -791,7 +791,7 @@ FXTreeItem* FXTreeList::getItemAt(FXint,FXint y) const {
       }
     item=item->next;
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -936,7 +936,7 @@ FXbool FXTreeList::extendSelection(FXTreeItem* item,FXbool notify){
   FXbool changes=false;
   if(item && anchoritem && extentitem){
     it=firstitem;
-    i1=i2=i3=NULL;
+    i1=i2=i3=nullptr;
 
     // Find segments
     while(it){
@@ -1045,7 +1045,7 @@ FXbool FXTreeList::killSelection(FXbool notify){
 
 // Open item
 FXbool FXTreeList::openItem(FXTreeItem* item,FXbool notify){
-  if(item==NULL){ fxerror("%s::openItem: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::openItem: NULL argument.\n",getClassName()); }
   if(!item->isOpened()){
     item->setOpened(true);
     updateItem(item);
@@ -1058,7 +1058,7 @@ FXbool FXTreeList::openItem(FXTreeItem* item,FXbool notify){
 
 // Close item
 FXbool FXTreeList::closeItem(FXTreeItem* item,FXbool notify){
-  if(item==NULL){ fxerror("%s::closeItem: NULL argument.\n",getClassName()); }
+  if(item==nullptr){ fxerror("%s::closeItem: NULL argument.\n",getClassName()); }
   if(item->isOpened()){
     item->setOpened(false);
     updateItem(item);
@@ -1071,7 +1071,7 @@ FXbool FXTreeList::closeItem(FXTreeItem* item,FXbool notify){
 
 // Collapse all subtrees under item
 FXbool FXTreeList::collapseTree(FXTreeItem* tree,FXbool notify){
-  if(tree==NULL){ fxerror("%s::collapseTree: NULL argument.\n",getClassName()); }
+  if(tree==nullptr){ fxerror("%s::collapseTree: NULL argument.\n",getClassName()); }
   if(tree->isExpanded()){
     tree->setExpanded(false);
     if(!(options&TREELIST_AUTOSELECT)){     // In autoselect, already shown as expanded!
@@ -1091,7 +1091,7 @@ FXbool FXTreeList::collapseTree(FXTreeItem* tree,FXbool notify){
 
 // Expand subtree under item
 FXbool FXTreeList::expandTree(FXTreeItem* tree,FXbool notify){
-  if(tree==NULL){ fxerror("%s::expandTree: NULL argument.\n",getClassName()); }
+  if(tree==nullptr){ fxerror("%s::expandTree: NULL argument.\n",getClassName()); }
   if(!tree->isExpanded()){
     tree->setExpanded(true);
     if(!(options&TREELIST_AUTOSELECT)){     // In autoselect, already shown as expanded!
@@ -1137,7 +1137,7 @@ long FXTreeList::onQueryTip(FXObject* sender,FXSelector sel,void* ptr){
   FXTreeItem* item; FXint cx,cy; FXuint btns;
   if(FXScrollArea::onQueryTip(sender,sel,ptr)) return 1;
   if((flags&FLAG_TIP) && !(options&TREELIST_AUTOSELECT)){   // No tip when autoselect!
-    if(getCursorPosition(cx,cy,btns) && (item=getItemAt(cx,cy))!=NULL){
+    if(getCursorPosition(cx,cy,btns) && (item=getItemAt(cx,cy))!=nullptr){
       FXString string=item->getTipText();
       sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),(void*)&string);
       return 1;
@@ -1282,7 +1282,7 @@ long FXTreeList::onKeyPress(FXObject*,FXSelector,void* ptr){
   flags&=~FLAG_TIP;
   if(!isEnabled()) return 0;
   if(target && target->tryHandle(this,FXSEL(SEL_KEYPRESS,message),ptr)) return 1;
-  if(item==NULL) item=firstitem;
+  if(item==nullptr) item=firstitem;
   switch(event->code){
     case KEY_Control_L:
     case KEY_Control_R:
@@ -1642,7 +1642,7 @@ long FXTreeList::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
     item=getItemAt(event->win_x,event->win_y);
 
     // No item
-    if(item==NULL){
+    if(item==nullptr){
       if((options&SELECT_MASK)==TREELIST_EXTENDEDSELECT){
         if(!(event->state&(SHIFTMASK|CONTROLMASK))){
           killSelection(true);
@@ -1854,25 +1854,25 @@ long FXTreeList::onTripleClicked(FXObject*,FXSelector,void* ptr){
 
 // Sort items in ascending order
 FXint FXTreeList::ascending(const FXTreeItem* a,const FXTreeItem* b){
-  return compare(a->getText(),b->getText());
+  return FXString::compare(a->getText(),b->getText());
   }
 
 
 // Sort items in descending order
 FXint FXTreeList::descending(const FXTreeItem* a,const FXTreeItem* b){
-  return compare(b->getText(),a->getText());
+  return FXString::compare(b->getText(),a->getText());
   }
 
 
 // Sort ascending order, case insensitive
 FXint FXTreeList::ascendingCase(const FXTreeItem* a,const FXTreeItem* b){
-  return comparecase(a->getText(),b->getText());
+  return FXString::comparecase(a->getText(),b->getText());
   }
 
 
 // Sort descending order, case insensitive
 FXint FXTreeList::descendingCase(const FXTreeItem* a,const FXTreeItem* b){
-  return comparecase(b->getText(),a->getText());
+  return FXString::comparecase(b->getText(),a->getText());
   }
 
 
@@ -1880,9 +1880,9 @@ FXint FXTreeList::descendingCase(const FXTreeItem* a,const FXTreeItem* b){
 void FXTreeList::sort(FXTreeItem*& f1,FXTreeItem*& t1,FXTreeItem*& f2,FXTreeItem*& t2,int n){
   FXTreeItem *ff1,*tt1,*ff2,*tt2,*q;
   FXint m;
-  if(f2==NULL){
-    f1=NULL;
-    t1=NULL;
+  if(f2==nullptr){
+    f1=nullptr;
+    t1=nullptr;
     return;
     }
   if(n>1){
@@ -1893,19 +1893,19 @@ void FXTreeList::sort(FXTreeItem*& f1,FXTreeItem*& t1,FXTreeItem*& f2,FXTreeItem
     FXASSERT(ff1);
     if(ff2 && sortfunc(ff1,ff2)>0){
       f1=ff2;
-      ff2->prev=NULL;
+      ff2->prev=nullptr;
       ff2=ff2->next;
       }
     else{
       f1=ff1;
-      ff1->prev=NULL;
+      ff1->prev=nullptr;
       ff1=ff1->next;
       }
     t1=f1;
-    t1->next=NULL;
+    t1->next=nullptr;
     while(ff1 || ff2){
-      if(ff1==NULL){ t1->next=ff2; ff2->prev=t1; t1=tt2; break; }
-      if(ff2==NULL){ t1->next=ff1; ff1->prev=t1; t1=tt1; break; }
+      if(ff1==nullptr){ t1->next=ff2; ff2->prev=t1; t1=tt2; break; }
+      if(ff2==nullptr){ t1->next=ff1; ff1->prev=t1; t1=tt1; break; }
       if(sortfunc(ff1,ff2)>0){
         t1->next=ff2;
         ff2->prev=t1;
@@ -1918,7 +1918,7 @@ void FXTreeList::sort(FXTreeItem*& f1,FXTreeItem*& t1,FXTreeItem*& f2,FXTreeItem
         t1=ff1;
         ff1=ff1->next;
         }
-      t1->next=NULL;
+      t1->next=nullptr;
       }
     return;
     }
@@ -1927,7 +1927,7 @@ void FXTreeList::sort(FXTreeItem*& f1,FXTreeItem*& t1,FXTreeItem*& f2,FXTreeItem
   t1=f2;
   f2=f2->next;
   while(f2){
-    f2->prev=NULL;
+    f2->prev=nullptr;
     if(sortfunc(f2,t1)>0){
       t1->next=f2;
       f2->prev=t1;
@@ -1947,8 +1947,8 @@ void FXTreeList::sort(FXTreeItem*& f1,FXTreeItem*& t1,FXTreeItem*& f2,FXTreeItem
     }
   FXASSERT(f1);
   FXASSERT(t1);
-  f1->prev=NULL;
-  t1->next=NULL;
+  f1->prev=nullptr;
+  t1->next=nullptr;
   }
 
 
@@ -2127,7 +2127,7 @@ FXTreeItem* FXTreeList::insertItem(FXTreeItem* other,FXTreeItem* father,FXTreeIt
       other->prev=item;
       }
     else{
-      item->next=NULL;
+      item->next=nullptr;
       item->prev=father->last;
       father->last=item;
       }
@@ -2140,7 +2140,7 @@ FXTreeItem* FXTreeList::insertItem(FXTreeItem* other,FXTreeItem* father,FXTreeIt
       other->prev=item;
       }
     else{
-      item->next=NULL;
+      item->next=nullptr;
       item->prev=lastitem;
       lastitem=item;
       }
@@ -2149,8 +2149,8 @@ FXTreeItem* FXTreeList::insertItem(FXTreeItem* other,FXTreeItem* father,FXTreeIt
 
   // Fill in the rest
   item->parent=father;
-  item->first=NULL;
-  item->last=NULL;
+  item->first=nullptr;
+  item->last=nullptr;
   item->x=0;
   item->y=0;
 
@@ -2187,13 +2187,13 @@ FXTreeItem* FXTreeList::insertItem(FXTreeItem* other,FXTreeItem* father,const FX
 
 // Append item under father
 FXTreeItem* FXTreeList::appendItem(FXTreeItem* father,FXTreeItem* item,FXbool notify){
-  return insertItem(NULL,father,item,notify);
+  return insertItem(nullptr,father,item,notify);
   }
 
 
 // Append item under father
 FXTreeItem* FXTreeList::appendItem(FXTreeItem* father,const FXString& text,FXIcon* oi,FXIcon* ci,FXptr ptr,FXbool notify){
-  return insertItem(NULL,father,createItem(text,oi,ci,ptr),notify);
+  return insertItem(nullptr,father,createItem(text,oi,ci,ptr),notify);
   }
 
 
@@ -2268,7 +2268,7 @@ FXTreeItem *FXTreeList::moveItem(FXTreeItem* other,FXTreeItem* father,FXTreeItem
         other->prev=item;
         }
       else{
-        item->next=NULL;
+        item->next=nullptr;
         item->prev=father->last;
         father->last=item;
         }
@@ -2281,7 +2281,7 @@ FXTreeItem *FXTreeList::moveItem(FXTreeItem* other,FXTreeItem* father,FXTreeItem
         other->prev=item;
         }
       else{
-        item->next=NULL;
+        item->next=nullptr;
         item->prev=lastitem;
         lastitem=item;
         }
@@ -2317,9 +2317,9 @@ FXTreeItem* FXTreeList::extractItem(FXTreeItem* item,FXbool notify){
     if(nxt) nxt->prev=prv; else if(par) par->last=prv; else lastitem=prv;
 
     // Is now unhooked
-    result->parent=NULL;
-    result->next=NULL;
-    result->prev=NULL;
+    result->parent=nullptr;
+    result->next=nullptr;
+    result->prev=nullptr;
 
     // Successor value
     if(prv) par=prv;
@@ -2444,44 +2444,44 @@ void FXTreeList::clearItems(FXbool notify){
   }
 
 
-typedef FXint (*FXCompareFunc)(const FXString&,const FXString&,FXint);
+typedef FXint (*FXCompareFunc)(const FXchar*,const FXchar*,FXint);
 
 
 // Get item by name
-FXTreeItem* FXTreeList::findItem(const FXString& text,FXTreeItem* start,FXuint flgs) const {
-  FXCompareFunc comparefunc=(flgs&SEARCH_IGNORECASE) ? (FXCompareFunc)comparecase : (FXCompareFunc)compare;
+FXTreeItem* FXTreeList::findItem(const FXString& string,FXTreeItem* start,FXuint flgs) const {
+  FXCompareFunc comparefunc=(flgs&SEARCH_IGNORECASE) ? (FXCompareFunc)FXString::comparecase : (FXCompareFunc)FXString::compare;
   FXTreeItem *item;
   FXint len;
   if(firstitem){
-    len=(flgs&SEARCH_PREFIX)?text.length():2147483647;
+    len=(flgs&SEARCH_PREFIX)?string.length():2147483647;
     if(flgs&SEARCH_BACKWARD){
       item=start;
-      while(item!=NULL){
-        if((*comparefunc)(item->getText(),text,len)==0) return item;
+      while(item!=nullptr){
+        if((*comparefunc)(item->getText().text(),string.text(),len)==0) return item;
         item=item->getAbove();
         }
-      if(start && !(flgs&SEARCH_WRAP)) return NULL;
+      if(start && !(flgs&SEARCH_WRAP)) return nullptr;
       for(item=lastitem; item->getLast(); item=item->getLast()){}
       while(item!=start){
-        if((*comparefunc)(item->getText(),text,len)==0) return item;
+        if((*comparefunc)(item->getText().text(),string.text(),len)==0) return item;
         item=item->getAbove();
         }
       }
     else{
       item=start;
-      while(item!=NULL){
-        if((*comparefunc)(item->getText(),text,len)==0) return item;
+      while(item!=nullptr){
+        if((*comparefunc)(item->getText().text(),string.text(),len)==0) return item;
         item=item->getBelow();
         }
-      if(start && !(flgs&SEARCH_WRAP)) return NULL;
+      if(start && !(flgs&SEARCH_WRAP)) return nullptr;
       item=firstitem;
       while(item!=start){
-        if((*comparefunc)(item->getText(),text,len)==0) return item;
+        if((*comparefunc)(item->getText().text(),string.text(),len)==0) return item;
         item=item->getBelow();
         }
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -2491,11 +2491,11 @@ FXTreeItem* FXTreeList::findItemByData(FXptr ptr,FXTreeItem* start,FXuint flgs) 
   if(firstitem){
     if(flgs&SEARCH_BACKWARD){
       item=start;
-      while(item!=NULL){
+      while(item!=nullptr){
         if(item->getData()==ptr) return item;
         item=item->getAbove();
         }
-      if(start && !(flgs&SEARCH_WRAP)) return NULL;
+      if(start && !(flgs&SEARCH_WRAP)) return nullptr;
       for(item=lastitem; item->getLast(); item=item->getLast()){}
       while(item!=start){
         if(item->getData()==ptr) return item;
@@ -2504,11 +2504,11 @@ FXTreeItem* FXTreeList::findItemByData(FXptr ptr,FXTreeItem* start,FXuint flgs) 
       }
     else{
       item=start;
-      while(item!=NULL){
+      while(item!=nullptr){
         if(item->getData()==ptr) return item;
         item=item->getBelow();
         }
-      if(start && !(flgs&SEARCH_WRAP)) return NULL;
+      if(start && !(flgs&SEARCH_WRAP)) return nullptr;
       item=firstitem;
       while(item!=start){
         if(item->getData()==ptr) return item;
@@ -2516,7 +2516,7 @@ FXTreeItem* FXTreeList::findItemByData(FXptr ptr,FXTreeItem* start,FXuint flgs) 
         }
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 

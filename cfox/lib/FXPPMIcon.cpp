@@ -3,7 +3,7 @@
 *                        P P M   I c o n   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -62,13 +62,13 @@ const FXchar FXPPMIcon::mimeType[]="image/x-portable-pixmap";
 
 
 // Object implementation
-FXIMPLEMENT(FXPPMIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXPPMIcon,FXIcon,nullptr,0)
 
 
 // Initialize nicely
-FXPPMIcon::FXPPMIcon(FXApp* a,const void *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,NULL,clr,opts,w,h){
+FXPPMIcon::FXPPMIcon(FXApp* a,const FXuchar *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,nullptr,clr,opts,w,h){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

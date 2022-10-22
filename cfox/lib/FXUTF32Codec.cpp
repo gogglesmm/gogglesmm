@@ -3,7 +3,7 @@
 *                      U T F - 3 2  T e x t   C o d e c                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by L.Johnson & J.van der Zijp.  All Rights Reserved.  *
+* Copyright (C) 2002,2022 by L.Johnson & J.van der Zijp.  All Rights Reserved.  *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "FXArray.h"
 #include "FXHash.h"
@@ -43,7 +44,7 @@ const FXwchar BOM_BE=0x0000FEFF;
 const FXwchar BOM_LE=0xFFFE0000;
 
 
-FXIMPLEMENT(FXUTF32BECodec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXUTF32BECodec,FXTextCodec,nullptr,0)
 
 
 // Convert from utf32be
@@ -102,14 +103,14 @@ FXint FXUTF32BECodec::mibEnum() const {
 
 // Return aliases
 const FXchar* const* FXUTF32BECodec::aliases() const {
-  static const FXchar *const list[]={"UTF-32BE",NULL};
+  static const FXchar *const list[]={"UTF-32BE",nullptr};
   return list;
   }
 
 
 /*******************************************************************************/
 
-FXIMPLEMENT(FXUTF32LECodec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXUTF32LECodec,FXTextCodec,nullptr,0)
 
 
 // Convert from utf32le
@@ -168,14 +169,14 @@ FXint FXUTF32LECodec::mibEnum() const {
 
 // Return aliases
 const FXchar* const* FXUTF32LECodec::aliases() const {
-  static const FXchar *const list[]={"UTF-32LE",NULL};
+  static const FXchar *const list[]={"UTF-32LE",nullptr};
   return list;
   }
 
 
 /*******************************************************************************/
 
-FXIMPLEMENT(FXUTF32Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXUTF32Codec,FXTextCodec,nullptr,0)
 
 
 // Convert utf32
@@ -471,7 +472,7 @@ FXint FXUTF32Codec::mibEnum() const {
 
 // Return aliases
 const FXchar* const* FXUTF32Codec::aliases() const {
-  static const FXchar *const list[]={"UTF-32",NULL};
+  static const FXchar *const list[]={"UTF-32",nullptr};
   return list;
   }
 

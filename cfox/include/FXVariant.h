@@ -3,7 +3,7 @@
 *                          V a r i a n t   T y p e                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2013,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2013,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -43,38 +43,37 @@ class FXVariantArray;
 */
 class FXAPI FXVariant {
 public:
-  enum VType {
-    VNull=0,            // Simple types
-    VBool,
-    VChar,
-    VInt,
-    VUInt,
-    VLong,
-    VULong,
-    VFloat,
-    VDouble,
-    VPointer,
-    VString,            // Complex types
-    VArray,
-    VMap
+  enum Type {
+    NullType=0,         // Simple types
+    BoolType,
+    CharType,
+    IntType,
+    UIntType,
+    LongType,
+    ULongType,
+    FloatType,
+    DoubleType,
+    PointerType,
+    StringType,         // Complex types
+    ArrayType,
+    MapType
     };
 private:
-  union VValue {
-    FXlong      i;      // Signed integral types
-    FXulong     u;      // Unsigned integral types
-    FXdouble    d;      // Floating point types
-    FXchar*     s;      // Character string
-    FXptr       p;      // Pointer types
+  union Value {
+    FXlong   i;         // Signed integral types
+    FXulong  u;         // Unsigned integral types
+    FXdouble d;         // Floating point types
+    FXchar*  s;         // Character string
+    FXptr    p;         // Pointer types
     };
 private:
-  VValue        value;  // Current value
-  VType         type;   // Type of value
+  Value      value;     // Current value
+  Type       type;      // Type of value
 private:
-  FXVariant& copy(const FXVariant& other);
-  FXVariant& init(VType t);
+  FXbool init(Type t);
 public:
 
-  /// Default constructor makes Null type
+  /// Default constructor makes null type
   FXVariant();
 
   /// Copy constructor
@@ -113,17 +112,11 @@ public:
   /// Construct and initialize with string
   explicit FXVariant(const FXString& val);
 
-  /// Construct and initialize with array
-  explicit FXVariant(const FXVariantArray& val);
-
-  /// Construct and initialize with map
-  explicit FXVariant(const FXVariantMap& val);
-
   /// Change type
-  void setType(VType t);
+  void setType(Type t);
 
   /// Return type
-  VType getType() const { return type; }
+  Type getType() const { return type; }
 
   /// Return size of array
   FXival no() const;
@@ -132,43 +125,52 @@ public:
   FXbool no(FXival n);
 
   /// Is it a null?
-  FXbool isNull() const { return type==VNull; }
+  FXbool isNull() const { return type==NullType; }
 
   /// Is it a bool?
-  FXbool isBool() const { return type==VBool; }
+  FXbool isBool() const { return type==BoolType; }
 
   /// Is it a character?
-  FXbool isChar() const { return type==VChar; }
+  FXbool isChar() const { return type==CharType; }
 
   /// Is it a int?
-  FXbool isInt() const { return type==VInt; }
+  FXbool isInt() const { return type==IntType; }
 
   /// Is it a unsigned int?
-  FXbool isUInt() const { return type==VUInt; }
+  FXbool isUInt() const { return type==UIntType; }
 
   /// Is it a long?
-  FXbool isLong() const { return type==VLong; }
+  FXbool isLong() const { return type==LongType; }
 
   /// Is it a unsigned long?
-  FXbool isULong() const { return type==VULong; }
+  FXbool isULong() const { return type==ULongType; }
 
   /// Is it a float?
-  FXbool isFloat() const { return type==VFloat; }
+  FXbool isFloat() const { return type==FloatType; }
 
   /// Is it a double?
-  FXbool isDouble() const { return type==VDouble; }
+  FXbool isDouble() const { return type==DoubleType; }
+
+  /// Is it a integer (bool, char, ..., or long)?
+  FXbool isInteger() const { return BoolType<=type && type<=ULongType; }
+
+  /// Is it a real (float or double)?
+  FXbool isReal() const { return FloatType<=type && type<=DoubleType; }
+
+  /// Is it any kind of number?
+  FXbool isNumber() const { return BoolType<=type && type<=DoubleType; }
 
   /// Is it a pointer?
-  FXbool isPtr() const { return type==VPointer; }
+  FXbool isPtr() const { return type==PointerType; }
 
   /// Is it a string?
-  FXbool isString() const { return type==VString; }
+  FXbool isString() const { return type==StringType; }
 
   /// Is it a array?
-  FXbool isArray() const { return type==VArray; }
+  FXbool isArray() const { return type==ArrayType; }
 
   /// Is it a map?
-  FXbool isMap() const { return type==VMap; }
+  FXbool isMap() const { return type==MapType; }
 
   /// Convert to bool; always OK
   FXbool toBool() const;
@@ -177,28 +179,28 @@ public:
   FXptr toPtr() const;
 
   /// Convert to int
-  FXint toInt(FXbool* ok=NULL) const;
+  FXint toInt(FXbool* ok=nullptr) const;
 
   /// Convert to unsigned int
-  FXuint toUInt(FXbool* ok=NULL) const;
+  FXuint toUInt(FXbool* ok=nullptr) const;
 
   /// Convert to long
-  FXlong toLong(FXbool* ok=NULL) const;
+  FXlong toLong(FXbool* ok=nullptr) const;
 
   /// Convert to unsigned long
-  FXulong toULong(FXbool* ok=NULL) const;
+  FXulong toULong(FXbool* ok=nullptr) const;
 
   /// Convert to float
-  FXfloat toFloat(FXbool* ok=NULL) const;
+  FXfloat toFloat(FXbool* ok=nullptr) const;
 
   /// Convert to double
-  FXdouble toDouble(FXbool* ok=NULL) const;
+  FXdouble toDouble(FXbool* ok=nullptr) const;
 
   /// Convert to char pointer
   const FXchar* toChars() const;
 
   /// Convert to string
-  FXString toString(FXbool* ok=NULL) const;
+  FXString toString(FXbool* ok=nullptr) const;
 
   /// Convert to bool
   operator FXbool() const { return toBool(); }
@@ -272,23 +274,14 @@ public:
   /// Assign with string
   FXVariant& operator=(const FXString& val);
 
-  /// Assign with array
-  FXVariant& operator=(const FXVariantArray& val);
-
-  /// Assign with map
-  FXVariant& operator=(const FXVariantMap& val);
-
   /// Assign with variant
   FXVariant& operator=(const FXVariant& val);
 
+  /// Assign with variant
+  FXVariant& assign(const FXVariant& other);
+
   /// Adopt variant from another
   FXVariant& adopt(FXVariant& other);
-
-  /// Adopt variant array
-  FXVariant& adopt(FXVariantArray& other);
-
-  /// Adopt a variant map
-  FXVariant& adopt(FXVariantMap& other);
 
   /// Return value of object member
   FXVariant& at(const FXchar* key);
@@ -334,56 +327,62 @@ public:
   /// Check if key is mapped
   FXbool has(const FXString& key) const { return has(key.text()); }
 
-  /// Return the value of the variant as a pointer; variant type MUST be a VPointer
+  /// Return the value of the variant as a pointer; variant type MUST be PointerType
   FXptr& asPtr(){ return value.p; }
 
-  /// Return the value of the variant as a pointer; variant type MUST be a VPointer
+  /// Return the value of the variant as a pointer; variant type MUST be PointerType
   const FXptr& asPtr() const { return value.p; }
 
-  /// Return the value of the variant as a long; variant type MUST be a VLong
+  /// Return the value of the variant as a long; variant type MUST be LongType
   FXlong& asLong(){ return value.i; }
 
-  /// Return the value of the variant as a long; variant type MUST be a VLong
+  /// Return the value of the variant as a long; variant type MUST be LongType
   const FXlong& asLong() const { return value.i; }
 
-  /// Return the value of the variant as an unsigned long; variant type MUST be a VULong
+  /// Return the value of the variant as an unsigned long; variant type MUST be ULongType
   FXulong& asULong(){ return value.u; }
 
-  /// Return the value of the variant as an unsigned long; variant type MUST be a VULong
+  /// Return the value of the variant as an unsigned long; variant type MUST be ULongType
   const FXulong& asULong() const { return value.u; }
 
-  /// Return the value of the variant as a double; variant type MUST be a VDouble
+  /// Return the value of the variant as a double; variant type MUST be DoubleType
   FXdouble& asDouble(){ return value.d; }
 
-  /// Return the value of the variant as a double; variant type MUST be a VDouble
+  /// Return the value of the variant as a double; variant type MUST be DoubleType
   const FXdouble& asDouble() const { return value.d; }
 
-  /// Return the value of the variant as a char pointer; variant type MUST be a VString
+  /// Return the value of the variant as a char pointer; variant type MUST be StringType
   const FXchar* asChars() const { return value.s; }
 
-  /// Return the value of the variant as a string-reference; variant type MUST be a VString
+  /// Return the value of the variant as a string-reference; variant type MUST be StringType
   FXString& asString(){ return *reinterpret_cast<FXString*>(&value.p); }
 
-  /// Return the value of the variant as a const string-reference; variant type MUST be a VString
+  /// Return the value of the variant as a const string-reference; variant type MUST be StringType
   const FXString& asString() const { return *reinterpret_cast<const FXString*>(&value.p); }
 
-  /// Return the value of the variant as an array-reference; variant type MUST be a VArray
+  /// Return the value of the variant as an array-reference; variant type MUST be ArrayType
   FXVariantArray& asArray(){ return *reinterpret_cast<FXVariantArray*>(&value.p); }
 
-  /// Return the value of the variant as a const array-reference; variant type MUST be a VArray
+  /// Return the value of the variant as a const array-reference; variant type MUST be ArrayType
   const FXVariantArray& asArray() const { return *reinterpret_cast<const FXVariantArray*>(&value.p); }
 
-  /// Return the value of the variant as an map-reference; variant type MUST be VMap
+  /// Return the value of the variant as an map-reference; variant type MUST be MapType
   FXVariantMap& asMap(){ return *reinterpret_cast<FXVariantMap*>(&value.p); }
 
-  /// Return the value of the variant as a const map-reference; variant type MUST be VMap
+  /// Return the value of the variant as a const map-reference; variant type MUST be MapType
   const FXVariantMap& asMap() const { return *reinterpret_cast<const FXVariantMap*>(&value.p); }
 
-  /// Clear the data
-  void clear();
+  /// Remove variant at key from map
+  FXbool remove(const FXchar* key);
 
-  /// Reset to null
-  void reset();
+  /// Remove variant at key from map
+  FXbool remove(const FXString& key){ return remove(key.text()); }
+
+  /// Erase variant at idx from array
+  FXbool erase(FXival idx);
+
+  /// Clear the data
+  FXbool clear();
 
   /// Default constant variant
   static const FXVariant null;

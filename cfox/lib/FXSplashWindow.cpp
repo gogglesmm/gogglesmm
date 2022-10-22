@@ -3,7 +3,7 @@
 *                            S p l a s h    W i n d o w                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -73,13 +73,13 @@ FXIMPLEMENT(FXSplashWindow,FXTopWindow,FXSplashWindowMap,ARRAYNUMBER(FXSplashWin
 // For deserialization
 FXSplashWindow::FXSplashWindow(){
   flags|=FLAG_ENABLED;
-  icon=NULL;
+  icon=nullptr;
   delay=0;
   }
 
 
 // Splash window
-FXSplashWindow::FXSplashWindow(FXApp* ap,FXIcon* ic,FXuint opts,FXTime ns):FXTopWindow(ap,FXString::null,NULL,NULL,opts&~DECOR_ALL,0,0,ic->getWidth(),ic->getHeight(),0,0,0,0,0,0){
+FXSplashWindow::FXSplashWindow(FXApp* ap,FXIcon* ic,FXuint opts,FXTime ns):FXTopWindow(ap,FXString::null,nullptr,nullptr,opts&~DECOR_ALL,0,0,ic->getWidth(),ic->getHeight(),0,0,0,0,0,0){
   flags|=FLAG_ENABLED;
   delay=ns;
   icon=ic;
@@ -87,7 +87,7 @@ FXSplashWindow::FXSplashWindow(FXApp* ap,FXIcon* ic,FXuint opts,FXTime ns):FXTop
 
 
 // Splash window
-FXSplashWindow::FXSplashWindow(FXWindow* ow,FXIcon* ic,FXuint opts,FXTime ns):FXTopWindow(ow,FXString::null,NULL,NULL,opts&~DECOR_ALL,0,0,ic->getWidth(),ic->getHeight(),0,0,0,0,0,0){
+FXSplashWindow::FXSplashWindow(FXWindow* ow,FXIcon* ic,FXuint opts,FXTime ns):FXTopWindow(ow,FXString::null,nullptr,nullptr,opts&~DECOR_ALL,0,0,ic->getWidth(),ic->getHeight(),0,0,0,0,0,0){
   flags|=FLAG_ENABLED;
   delay=ns;
   icon=ic;

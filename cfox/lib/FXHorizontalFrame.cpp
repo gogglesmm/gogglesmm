@@ -3,7 +3,7 @@
 *              H o r i z o n t a l   C o n t a i n e r   O b j e c t            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -47,7 +47,6 @@
   - Tabbing order takes widget layout into account
 */
 
-
 using namespace FX;
 
 /*******************************************************************************/
@@ -83,7 +82,7 @@ FXint FXHorizontalFrame::getDefaultWidth(){
       if(hints&LAYOUT_FIX_WIDTH) w=child->getWidth();
       else if(options&PACK_UNIFORM_WIDTH) w=mw;
       else w=child->getDefaultWidth();
-      if((hints&LAYOUT_RIGHT)&&(hints&LAYOUT_CENTER_X)){        // LAYOUT_FIX_X
+      if((hints&LAYOUT_RIGHT)&&(hints&LAYOUT_CENTER_X)){
         w=child->getX()+w;
         if(w>wmax) wmax=w;
         }
@@ -111,7 +110,7 @@ FXint FXHorizontalFrame::getDefaultHeight(){
       if(hints&LAYOUT_FIX_HEIGHT) h=child->getHeight();
       else if(options&PACK_UNIFORM_HEIGHT) h=mh;
       else h=child->getDefaultHeight();
-      if((hints&LAYOUT_BOTTOM)&&(hints&LAYOUT_CENTER_Y)){       // LAYOUT_FIX_Y
+      if((hints&LAYOUT_BOTTOM)&&(hints&LAYOUT_CENTER_Y)){
         h=child->getY()+h;
         if(h>hmax) hmax=h;
         }
@@ -151,7 +150,7 @@ void FXHorizontalFrame::layout(){
   for(child=getFirst(); child; child=child->getNext()){
     if(child->shown()){
       hints=child->getLayoutHints();
-      if(!((hints&LAYOUT_RIGHT)&&(hints&LAYOUT_CENTER_X))){     // LAYOUT_FIX_X
+      if(!((hints&LAYOUT_RIGHT)&&(hints&LAYOUT_CENTER_X))){
         if(hints&LAYOUT_FIX_WIDTH) w=child->getWidth();
         else if(options&PACK_UNIFORM_WIDTH) w=mw;
         else w=child->getDefaultWidth();
@@ -193,7 +192,7 @@ void FXHorizontalFrame::layout(){
       if(hints&LAYOUT_FIX_WIDTH) w=child->getWidth();
       else if(options&PACK_UNIFORM_WIDTH) w=mw;
       else w=child->getDefaultWidth();
-      if(!((hints&LAYOUT_RIGHT)&&(hints&LAYOUT_CENTER_X))){     // LAYOUT_FIX_X
+      if(!((hints&LAYOUT_RIGHT)&&(hints&LAYOUT_CENTER_X))){
         extra_space=0;
         total_space=0;
         if((hints&LAYOUT_FILL_X) && !(hints&LAYOUT_FIX_WIDTH)){

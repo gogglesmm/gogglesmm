@@ -3,7 +3,7 @@
 *                      E x p r e s s i o n   E v a l u a t o r                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -107,10 +107,10 @@ public:
   FXExpression(const FXExpression& orig);
 
   /// Compile expression; if error is not NULL, error code is returned
-  FXExpression(const FXchar* expression,const FXchar* variables=NULL,Error* error=NULL);
+  FXExpression(const FXchar* expression,const FXchar* variables=nullptr,Error* error=nullptr);
 
   /// Compile expression; if error is not NULL, error code is returned
-  FXExpression(const FXString& expression,const FXString& variables=FXString::null,Error* error=NULL);
+  FXExpression(const FXString& expression,const FXString& variables=FXString::null,Error* error=nullptr);
 
   /// Assign another expression to this one
   FXExpression& operator=(const FXExpression& orig);
@@ -123,7 +123,7 @@ public:
   * The array of arguments should match the number of variables
   * passed when compiling the expression.
   */
-  FXdouble evaluate(const FXdouble *args=NULL) const;
+  FXdouble evaluate(const FXdouble *args=nullptr) const;
 
   /**
   * Parse expression, return error code if syntax error is found.
@@ -132,7 +132,7 @@ public:
   * The values of the array will be read in place of the variable names
   * in the expression.
   */
-  Error parse(const FXchar* expression,const FXchar* variables=NULL);
+  Error parse(const FXchar* expression,const FXchar* variables=nullptr);
   Error parse(const FXString& expression,const FXString& variables=FXString::null);
 
   /// Returns error code for given error

@@ -3,7 +3,7 @@
 *                          M e n u C h e c k   W i d g e t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -64,7 +64,7 @@ public:
 public:
 
   /// Construct a menu check
-  FXMenuCheck(FXComposite* p,const FXString& text,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=0);
+  FXMenuCheck(FXComposite* p,const FXString& text,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=0);
 
   /// Return default width
   virtual FXint getDefaultWidth();

@@ -3,7 +3,7 @@
 *                              V a r i a n t - M a p                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -113,13 +113,13 @@ public:
   const FXVariant& operator[](const FXString& ky) const { return at(ky); }
 
   /// Remove entry from the table
-  void remove(const FXchar* ky);
+  FXbool remove(const FXchar* ky);
 
   /// Remove entry from the table
-  void remove(const FXString& ky){ remove(ky.text()); }
+  FXbool remove(const FXString& ky){ return remove(ky.text()); }
 
   /// Erase entry at pos in the table
-  void erase(FXival pos);
+  FXbool erase(FXival pos);
 
   /// Return true if slot at pos is empty.
   FXbool empty(FXival pos) const { return table[pos].key.empty(); }
@@ -135,7 +135,7 @@ public:
   const FXVariant& data(FXival pos) const { return table[pos].data; }
 
   /// Clear the table
-  void clear();
+  FXbool clear();
 
   /// Destructor
  ~FXVariantMap();

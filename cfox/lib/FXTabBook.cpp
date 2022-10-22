@@ -3,7 +3,7 @@
 *                         T a b   B o o k   W i d g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -181,8 +181,8 @@ FXint FXTabBook::getDefaultHeight(){
 // Recalculate layout
 void FXTabBook::layout(){
   FXint i,xx,yy,x,y,w,h,px,py,pw,ph,maxtabw,maxtabh,cumw,cumh,newcurrent;
-  FXWindow *raisepane=NULL;
-  FXWindow *raisetab=NULL;
+  FXWindow *raisepane=nullptr;
+  FXWindow *raisetab=nullptr;
   FXWindow *pane,*tab;
   FXuint hints;
 
@@ -500,7 +500,7 @@ long FXTabBook::onFocusUp(FXObject*,FXSelector,void* ptr){
     return handle(this,FXSEL(SEL_FOCUS_PREV,0),ptr);
     }
   if(getFocus()){
-    FXWindow *child=NULL;
+    FXWindow *child=nullptr;
     if(indexOfChild(getFocus())&1){     // We're on a panel
       if(!(options&TABBOOK_BOTTOMTABS)) child=getFocus()->getPrev();
       }
@@ -522,7 +522,7 @@ long FXTabBook::onFocusDown(FXObject*,FXSelector,void* ptr){
     return handle(this,FXSEL(SEL_FOCUS_NEXT,0),ptr);
     }
   if(getFocus()){
-    FXWindow *child=NULL;
+    FXWindow *child=nullptr;
     if(indexOfChild(getFocus())&1){     // We're on a panel
       if(options&TABBOOK_BOTTOMTABS) child=getFocus()->getPrev();
       }
@@ -544,7 +544,7 @@ long FXTabBook::onFocusLeft(FXObject*,FXSelector,void* ptr){
     return handle(this,FXSEL(SEL_FOCUS_PREV,0),ptr);
     }
   if(getFocus()){
-    FXWindow *child=NULL;
+    FXWindow *child=nullptr;
     if(indexOfChild(getFocus())&1){     // We're on a panel
       if(!(options&TABBOOK_BOTTOMTABS)) child=getFocus()->getPrev();
       }
@@ -566,7 +566,7 @@ long FXTabBook::onFocusRight(FXObject*,FXSelector,void* ptr){
     return handle(this,FXSEL(SEL_FOCUS_NEXT,0),ptr);
     }
   if(getFocus()){
-    FXWindow *child=NULL;
+    FXWindow *child=nullptr;
     if(indexOfChild(getFocus())&1){     // We're on a panel
       if(options&TABBOOK_BOTTOMTABS) child=getFocus()->getPrev();
       }

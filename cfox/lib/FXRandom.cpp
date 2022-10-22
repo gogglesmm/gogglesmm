@@ -3,7 +3,7 @@
 *                  R a n d o m   N u m b e r   G e n e r a t o r                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2007,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2007,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -76,7 +76,7 @@ FXulong FXRandom::next(){
 FXulong FXRandom::randLong(){
   return next()*FXULONG(2685821657736338717);
   }
- 
+
 
 // Get random double
 FXfloat FXRandom::randFloat(){

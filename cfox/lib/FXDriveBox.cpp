@@ -3,7 +3,7 @@
 *                         D r i v e   B o x   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -107,7 +107,7 @@ FXIMPLEMENT(FXDriveBox,FXListBox,FXDriveBoxMap,ARRAYNUMBER(FXDriveBoxMap))
 
 // Directory box
 FXDriveBox::FXDriveBox(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXListBox(p,tgt,sel,opts,x,y,w,h, pl,pr,pt,pb){
-  associations=NULL;
+  associations=nullptr;
   if(!(options&DRIVEBOX_NO_OWN_ASSOC)) associations=new FXFileAssociations(getApp());
   foldericon=new FXGIFIcon(getApp(),minifolder);
   cdromicon=new FXGIFIcon(getApp(),minicdrom);
@@ -258,7 +258,7 @@ void FXDriveBox::listDrives(){
 
 // Forward clicked message from list to target
 long FXDriveBox::onListClicked(FXObject*,FXSelector,void* ptr){
-  button->handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);    // Unpost the list
+  button->handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);    // Unpost the list
   if(0<=((FXint)(FXival)ptr)){
     field->setText(getItemText((FXival)ptr));
     field->setIcon(getItemIcon((FXival)ptr));

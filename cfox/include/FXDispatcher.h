@@ -3,7 +3,7 @@
 *                      C a l l b a c k   D i s p a t c h e r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 ********************************************************************************/
 #ifndef DISPATCHER_H
 #define DISPATCHER_H
@@ -30,9 +30,6 @@ private:
 private:
   FXDispatcher(const FXDispatcher&);
   FXDispatcher &operator=(const FXDispatcher&);
-
-  /// Add new handle hnd to watch-list (no callback)
-  virtual FXbool addHandle(FXInputHandle hnd,FXuint mode=InputRead);
 public:
 
   /// I/O Handle callback when a handle is raised
@@ -56,7 +53,10 @@ public:
   virtual FXbool init();
 
   /// Add callback cb with new handle hnd to watch-list
-  virtual FXbool addHandle(HandleCallback cb,FXInputHandle hnd,FXuint mode=InputRead,void* ptr=NULL);
+  virtual FXbool addHandle(HandleCallback cb,FXInputHandle hnd,FXuint mode=InputRead,void* ptr=nullptr);
+
+  /// Add new handle hnd to watch-list (no callback)
+  virtual FXbool addHandle(FXInputHandle hnd,FXuint mode=InputRead);
 
   /// Remove handle hnd from watch-list
   virtual FXbool remHandle(FXInputHandle hnd);
@@ -69,7 +69,7 @@ public:
   virtual FXbool dispatchHandle(FXInputHandle hnd,FXuint mode,FXuint flags);
 
   /// Add (optionally asynchronous) callback cb for signal sig to signal-set
-  virtual FXbool addSignal(SignalCallback cb,FXint sig,void* ptr=NULL,FXbool async=false);
+  virtual FXbool addSignal(SignalCallback cb,FXint sig,void* ptr=nullptr,FXbool async=false);
 
   /// Add (optionally asynchronous) signal sig to signal-set (no callback)
   virtual FXbool addSignal(FXint sig,FXbool async=false);
@@ -84,12 +84,12 @@ public:
   /// Add timeout callback cb at time due (ns since Epoch).
   /// If callback cb was already set, remove it and return its old
   /// data pointer, then reset it to the new time and data pointer.
-  virtual void* addTimeout(TimeoutCallback cb,FXTime due,void* ptr=NULL);
+  virtual void* addTimeout(TimeoutCallback cb,FXTime due,void* ptr=nullptr);
 
   /// Add timeout callback cb after time interval (ns).
   /// If callback cb was already set, remove it and return its old
   /// data pointer, then reset it to the new time and data pointer.
-  virtual void* addInterval(TimeoutCallback cb,FXTime interval,void* ptr=NULL);
+  virtual void* addInterval(TimeoutCallback cb,FXTime interval,void* ptr=nullptr);
 
   /// Remove timeout callback cb.
   /// If callback cb was set, return its data pointer.
@@ -113,7 +113,7 @@ public:
   /// Add idle callback be executed when dispatch about to block.
   /// If callback cb was already set, remove it and return its old
   /// data pointer, then reset the callback with the new pointer.
-  virtual void* addIdle(IdleCallback cb,void* ptr=NULL);
+  virtual void* addIdle(IdleCallback cb,void* ptr=nullptr);
 
   /// Remove idle callback cb.
   /// If callback cb was set, return its data pointer.

@@ -3,7 +3,7 @@
 *         M i s c e l l a n e o u s   S y s t e m   F u n c t i o n s           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -91,7 +91,7 @@ namespace FXSystem {
   /// Return offset daylight savings time to standard time, in nanoseconds
   extern FXAPI FXTime daylightSavingsOffset();
 
-  /// Return 1 if daylight savings time is active at utc in nanoseconds since Unix Epoch 
+  /// Return 1 if daylight savings time is active at utc in nanoseconds since Unix Epoch
   extern FXAPI FXTime daylightSavingsActive(FXTime utc);
 
   /// Return time zone name (or daylight savings time time zone name)
@@ -176,11 +176,14 @@ namespace FXSystem {
   /// Return the home directory for the current user
   extern FXAPI FXString getHomeDirectory();
 
-  /// Return the home directory for a given user
-  extern FXAPI FXString getUserDirectory(const FXString& user);
-
   /// Return temporary directory
   extern FXAPI FXString getTempDirectory();
+
+  /// Return system directory
+  extern FXAPI FXString getSystemDirectory();
+
+  /// Return the home directory for a given user
+  extern FXAPI FXString getUserDirectory(const FXString& user);
 
 
   /// Return host name

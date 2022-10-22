@@ -3,7 +3,7 @@
 *         I n t e r - T h r e a d    M e s s a g i n g    C h a n n e l         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -88,7 +88,7 @@ public:
   * thread's event loop.
   * Up to 8192 bytes may be passed along.
   */
-  FXbool message(FXObject* tgt,FXSelector msg,const void* data=NULL,FXint size=0);
+  FXbool message(FXObject* tgt,FXSelector msg,const void* data=nullptr,FXint size=0);
 
   /**
   * Clean up message channel.

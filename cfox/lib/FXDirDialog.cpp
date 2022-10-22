@@ -3,7 +3,7 @@
 *                D i r e c t o r y   S e l e c t i o n   D i a l o g            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -31,6 +31,7 @@
 #include "FXSize.h"
 #include "FXPoint.h"
 #include "FXRectangle.h"
+#include "FXPath.h"
 #include "FXStat.h"
 #include "FXFile.h"
 #include "FXStringDictionary.h"
@@ -67,8 +68,13 @@ using namespace FX;
 
 namespace FX {
 
+
+// File dialog registry section name
+const FXchar FXDirDialog::sectionName[]="Directory Dialog";
+
+
 // Object implementation
-FXIMPLEMENT(FXDirDialog,FXDialogBox,NULL,0)
+FXIMPLEMENT(FXDirDialog,FXDialogBox,nullptr,0)
 
 
 // Construct directory dialog box
@@ -85,21 +91,21 @@ FXDirDialog::FXDirDialog(FXApp* a,const FXString& name,FXuint opts,FXint x,FXint
 
 // Initialize dialog and load settings
 void FXDirDialog::initdialog(){
-  dirbox=new FXDirSelector(this,NULL,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  dirbox=new FXDirSelector(this,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_Y);
   dirbox->acceptButton()->setTarget(this);
   dirbox->acceptButton()->setSelector(FXDialogBox::ID_ACCEPT);
   dirbox->cancelButton()->setTarget(this);
   dirbox->cancelButton()->setSelector(FXDialogBox::ID_CANCEL);
-  setWidth(getApp()->reg().readIntEntry("Directory Dialog","width",getWidth()));
-  setHeight(getApp()->reg().readIntEntry("Directory Dialog","height",getHeight()));
+  setWidth(getApp()->reg().readIntEntry(sectionName,"width",getWidth()));
+  setHeight(getApp()->reg().readIntEntry(sectionName,"height",getHeight()));
   }
 
 
 // Hide window and save settings
 void FXDirDialog::hide(){
   FXDialogBox::hide();
-  getApp()->reg().writeIntEntry("Directory Dialog","width",getWidth());
-  getApp()->reg().writeIntEntry("Directory Dialog","height",getHeight());
+  getApp()->reg().writeIntEntry(sectionName,"width",getWidth());
+  getApp()->reg().writeIntEntry(sectionName,"height",getHeight());
   }
 
 

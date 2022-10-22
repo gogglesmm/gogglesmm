@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FXCP1256Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXCP1256Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: CP1256.TXT ////
@@ -128,7 +128,7 @@ const FXchar* FXCP1256Codec::mimeName() const {
 
 
 const FXchar* const* FXCP1256Codec::aliases() const {
-  static const FXchar *const list[]={"microsoft-cp1256","windows-1256","cp1256",NULL};
+  static const FXchar *const list[]={"microsoft-cp1256","windows-1256","cp1256",nullptr};
   return list;
   }
 

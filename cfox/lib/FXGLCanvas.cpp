@@ -3,7 +3,7 @@
 *                    O p e n G L   C a n v a s   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,13 +61,13 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXGLCanvas,FXCanvas,NULL,0)
+FXIMPLEMENT(FXGLCanvas,FXCanvas,nullptr,0)
 
 
 // For serialization
 FXGLCanvas::FXGLCanvas(){
   flags|=FLAG_ENABLED|FLAG_SHOWN;
-  context=NULL;
+  context=nullptr;
   }
 
 
@@ -82,7 +82,7 @@ FXGLCanvas::FXGLCanvas(FXComposite* p,FXGLVisual *vis,FXObject* tgt,FXSelector s
 // Construct a GL canvas with its private context but shared display lists
 FXGLCanvas::FXGLCanvas(FXComposite* p,FXGLVisual *vis,FXGLCanvas* share,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXCanvas(p,tgt,sel,opts|GLCANVAS_OWN_CONTEXT,x,y,w,h){
   flags|=FLAG_ENABLED|FLAG_SHOWN;
-  context=new FXGLContext(getApp(),vis,share ? share->getContext() : NULL);
+  context=new FXGLContext(getApp(),vis,share ? share->getContext() : nullptr);
   visual=vis;
   }
 
@@ -115,7 +115,7 @@ void FXGLCanvas::setContext(FXGLContext *ctx,FXbool owned){
 
 // Return true if it is sharing display lists
 FXbool FXGLCanvas::isShared() const {
-  return (context->getShared()!=NULL);
+  return (context->getShared()!=nullptr);
   }
 
 
@@ -136,7 +136,7 @@ void FXGLCanvas::create(){
       SetPixelFormat(hdc,(FXint)(FXival)visual->id(),&pfd);
       ::ReleaseDC((HWND)xid,hdc);       // FIXME should this be this->ReleaseDC()
 //#elif defined(GLX_VERSION_1_3)
-//      xid=glXCreateWindow((Display*)getApp()->getDisplay(),(GLXFBConfig)visual->id(),xid,NULL);
+//      xid=glXCreateWindow((Display*)getApp()->getDisplay(),(GLXFBConfig)visual->id(),xid,nullptr);
 #endif
 #endif
       }

@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FX88597Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FX88597Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: 8859-7.TXT ////
@@ -113,7 +113,7 @@ const FXchar* FX88597Codec::mimeName() const {
 
 
 const FXchar* const* FX88597Codec::aliases() const {
-  static const FXchar *const list[]={"iso8859-7","ISO-8859-7","ISO_8859-7","greek","iso-ir-126","greek8","ELOT_928","ECMA-118",NULL};
+  static const FXchar *const list[]={"iso8859-7","ISO-8859-7","ISO_8859-7","greek","iso-ir-126","greek8","ELOT_928","ECMA-118",nullptr};
   return list;
   }
 

@@ -3,7 +3,7 @@
 *                          P i c k e r   B u t t o n                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2001,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -49,8 +49,9 @@
     widget without a preceeding SEL_LEFTBUTTONPRESS.
 */
 
-using namespace FX;
+#define TOPIC_KEYBOARD  1009
 
+using namespace FX;
 
 /*******************************************************************************/
 
@@ -142,9 +143,10 @@ long FXPicker::onLeftBtnRelease(FXObject*,FXSelector,void*){
 
 // Key Press
 long FXPicker::onKeyPress(FXObject*,FXSelector,void* ptr){
-  FXEvent* event=(FXEvent*)ptr;
   flags&=~FLAG_TIP;
   if(isEnabled() && !(flags&FLAG_PRESSED)){
+    FXEvent* event=(FXEvent*)ptr;
+    FXTRACE((TOPIC_KEYBOARD,"%s::onKeyPress keysym=0x%04x state=%04x\n",getClassName(),event->code,event->state));
     if((event->code==KEY_space || event->code==KEY_KP_Space) || (isDefault() && (event->code==KEY_Return || event->code==KEY_KP_Enter))){
       flags|=FLAG_PRESSED;
       if(state==STATE_UP){
@@ -165,8 +167,9 @@ long FXPicker::onKeyPress(FXObject*,FXSelector,void* ptr){
 
 // Key Release
 long FXPicker::onKeyRelease(FXObject*,FXSelector,void* ptr){
-  FXEvent* event=(FXEvent*)ptr;
   if(isEnabled() && (flags&FLAG_PRESSED)){
+    FXEvent* event=(FXEvent*)ptr;
+    FXTRACE((TOPIC_KEYBOARD,"%s::onKeyRelease keysym=0x%04x state=%04x\n",getClassName(),event->code,event->state));
     if((event->code==KEY_space || event->code==KEY_KP_Space) || (isDefault() && (event->code==KEY_Return || event->code==KEY_KP_Enter))){
       flags&=~FLAG_PRESSED;
       if(state==STATE_DOWN && picked){

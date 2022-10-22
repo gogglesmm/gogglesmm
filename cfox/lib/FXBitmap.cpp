@@ -3,7 +3,7 @@
 *                             B i t m a p    O b j e c t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -81,23 +81,23 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXBitmap,FXDrawable,NULL,0)
+FXIMPLEMENT(FXBitmap,FXDrawable,nullptr,0)
 
 
 // For deserialization
 FXBitmap::FXBitmap(){
-  data=NULL;
+  data=nullptr;
   bytewidth=0;
   options=0;
   }
 
 
 // Initialize
-FXBitmap::FXBitmap(FXApp* a,const void *pix,FXuint opts,FXint w,FXint h):FXDrawable(a,w,h){
+FXBitmap::FXBitmap(FXApp* a,const FXuchar *pix,FXuint opts,FXint w,FXint h):FXDrawable(a,w,h){
   FXTRACE((100,"FXBitmap::FXBitmap %p\n",this));
   FXASSERT((opts&~(BITMAP_OWNED|BITMAP_MASK))==0);
   visual=getApp()->getMonoVisual();
-  data=(FXuchar*)pix;
+  data=const_cast<FXuchar*>(pix);
   bytewidth=(width+7)>>3;
   options=opts;
   if(!data && (options&BITMAP_OWNED)){
@@ -116,7 +116,7 @@ void FXBitmap::create(){
       visual->create();
 
 #if defined(WIN32)
-      xid=CreateBitmap(FXMAX(width,1),FXMAX(height,1),1,1,NULL);
+      xid=CreateBitmap(FXMAX(width,1),FXMAX(height,1),1,1,nullptr);
 #else
       xid=XCreatePixmap((Display*)getApp()->getDisplay(),XDefaultRootWindow((Display*)getApp()->getDisplay()),FXMAX(width,1),FXMAX(height,1),1);
 #endif
@@ -140,7 +140,7 @@ void FXBitmap::release(){
     options&=~BITMAP_OWNED;
     freeElms(data);
     }
-  data=NULL;
+  data=nullptr;
   }
 
 
@@ -228,7 +228,7 @@ void FXBitmap::restore(){
       if(!allocElms(pixels,height*bytes_per_line)){ throw FXImageException("unable to restore image"); }
 
       // Make device context
-      HDC hdcmem=::CreateCompatibleDC(NULL);
+      HDC hdcmem=::CreateCompatibleDC(nullptr);
       if(!GetDIBits(hdcmem,(HBITMAP)xid,0,height,pixels,(BITMAPINFO*)&bmi,DIB_RGB_COLORS)){
         throw FXImageException("unable to restore image");
         }
@@ -299,7 +299,7 @@ void FXBitmap::render(){
         }
 
       // Get memory device context
-      HDC hdcmem=::CreateCompatibleDC(NULL);
+      HDC hdcmem=::CreateCompatibleDC(nullptr);
       if(!SetDIBits(hdcmem,(HBITMAP)xid,0,height,pixels,(BITMAPINFO*)&bmi,DIB_RGB_COLORS)){
         throw FXImageException("unable to render bitmap");
         }
@@ -321,7 +321,7 @@ void FXBitmap::render(){
 // Restore client-side pixel buffer from bitmap
 void FXBitmap::restore(){
   if(xid){
-    XImage *xim=NULL;
+    XImage *xim=nullptr;
     FXint size,x,y;
 
     FXTRACE((100,"%s::restore bitmap %p\n",getClassName(),this));
@@ -373,7 +373,7 @@ void FXBitmap::restore(){
 // Render into pixmap
 void FXBitmap::render(){
   if(xid){
-    XImage *xim=NULL;
+    XImage *xim=nullptr;
     int size;
     FXuchar *pix;
     int i;
@@ -391,7 +391,7 @@ void FXBitmap::render(){
       gc=XCreateGC((Display*)getApp()->getDisplay(),xid,GCForeground|GCBackground,&values);
 
       // Create image to transfer pixels
-      xim=XCreateImage((Display*)getApp()->getDisplay(),(Visual*)visual->visual,1,XYBitmap,0,NULL,width,height,8,(width+7)>>3);
+      xim=XCreateImage((Display*)getApp()->getDisplay(),(Visual*)visual->visual,1,XYBitmap,0,nullptr,width,height,8,(width+7)>>3);
       if(!xim){ throw FXImageException("unable to render bitmap"); }
 
       // Try create temp pixel store
@@ -450,7 +450,7 @@ void FXBitmap::resize(FXint w,FXint h){
     DeleteObject(xid);
 
     // Create a bitmap compatible with current display
-    xid=CreateBitmap(w,h,1,1,NULL);
+    xid=CreateBitmap(w,h,1,1,nullptr);
     if(!xid){ throw FXImageException("unable to resize bitmap"); }
 
 #else
@@ -806,7 +806,7 @@ void FXBitmap::crop(FXint x,FXint y,FXint w,FXint h,FXbool color){
 
 // Get the image's device context
 FXID FXBitmap::GetDC() const {
-  HDC hdc=::CreateCompatibleDC(NULL);
+  HDC hdc=::CreateCompatibleDC(nullptr);
   SelectObject(hdc,(HBITMAP)xid);
   return hdc;
   }
@@ -900,7 +900,7 @@ FXbool FXBitmap::loadPixels(FXStream& store){
 
 // Save data
 void FXBitmap::save(FXStream& store) const {
-  FXuchar haspixels=(data!=NULL);
+  FXuchar haspixels=(data!=nullptr);
   FXDrawable::save(store);
   store << options;
   store << haspixels;

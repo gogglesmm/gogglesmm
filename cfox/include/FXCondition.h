@@ -3,7 +3,7 @@
 *                         C o n d i t i o n   C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,6 +61,8 @@ public:
   * wait was interrupted or some error occurred.
   */
   FXbool wait(FXMutex& mtx);
+  FXbool wait(FXScopedMutex& smx){ return wait(smx.mutex()); }
+  FXbool wait(FXReverseMutex& rmx){ return wait(rmx.mutex()); }
 
   /**
   * Wait until condition becomes signalled, using given mutex,
@@ -72,6 +74,8 @@ public:
   * special value 'forever' is passed, wait indefinitely.
   */
   FXbool wait(FXMutex& mtx,FXTime nsec);
+  FXbool wait(FXScopedMutex& smx,FXTime nsec){ return wait(smx.mutex(),nsec); }
+  FXbool wait(FXReverseMutex& rmx,FXTime nsec){ return wait(rmx.mutex(),nsec); }
 
   /// Delete the condition
   ~FXCondition();

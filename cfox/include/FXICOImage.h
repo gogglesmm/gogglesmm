@@ -3,7 +3,7 @@
 *                          I C O   I m a g e   O b j e c t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Janusz Ganczarski.   All Rights Reserved.          *
+* Copyright (C) 2001,2022 by Janusz Ganczarski.   All Rights Reserved.          *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -42,7 +42,7 @@ public:
 public:
 
   /// Construct image from memory stream formatted in Microsoft icon format
-  FXICOImage(FXApp* a,const void *pix=NULL,FXuint opts=0,FXint w=1,FXint h=1);
+  FXICOImage(FXApp* a,const FXuchar *pix=nullptr,FXuint opts=0,FXint w=1,FXint h=1);
 
   /// Save pixels into stream in Microsoft icon format
   virtual FXbool savePixels(FXStream& store) const;

@@ -3,7 +3,7 @@
 *                S p l i t t e r   W i n d o w   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -97,7 +97,7 @@ FXIMPLEMENT(FXSplitter,FXComposite,FXSplitterMap,ARRAYNUMBER(FXSplitterMap))
 // Make a splitter
 FXSplitter::FXSplitter(){
   flags|=FLAG_ENABLED|FLAG_SHOWN;
-  window=NULL;
+  window=nullptr;
   split=0;
   offset=0;
   barsize=4;
@@ -109,7 +109,7 @@ FXSplitter::FXSplitter(FXComposite* p,FXuint opts,FXint x,FXint y,FXint w,FXint 
   flags|=FLAG_ENABLED|FLAG_SHOWN;
   defaultCursor=(options&SPLITTER_VERTICAL) ? getApp()->getDefaultCursor(DEF_VSPLIT_CURSOR) : getApp()->getDefaultCursor(DEF_HSPLIT_CURSOR);
   dragCursor=defaultCursor;
-  window=NULL;
+  window=nullptr;
   split=0;
   offset=0;
   barsize=4;
@@ -123,7 +123,7 @@ FXSplitter::FXSplitter(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,F
   dragCursor=defaultCursor;
   target=tgt;
   message=sel;
-  window=NULL;
+  window=nullptr;
   split=0;
   offset=0;
   barsize=4;
@@ -386,7 +386,7 @@ FXWindow* FXSplitter::findHSplit(FXint pos){
       child=child->getNext();
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -409,7 +409,7 @@ FXWindow* FXSplitter::findVSplit(FXint pos){
       child=child->getNext();
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 

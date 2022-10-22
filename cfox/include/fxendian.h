@@ -3,7 +3,7 @@
 *                      B y t e   S w a p p i n g   S u p p o r t                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2010,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2010,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -140,6 +140,8 @@ static inline FXulong msb64(FXulong x){
 static inline FXuint pop32(FXuint x){
 #if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
   return __builtin_popcount(x);
+#elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+  return __popcnt(x);
 #else
   x=x-((x>>1)&0x55555555);
   x=(x&0x33333333)+((x>>2)&0x33333333);
@@ -156,6 +158,8 @@ static inline FXulong pop64(FXulong x){
 #else
   return __builtin_popcountll(x);
 #endif
+#elif defined(_MSC_VER) && (defined(_M_X64))
+  return __popcnt64(x);
 #else
   x=x-((x>>1)&FXULONG(0x5555555555555555));
   x=(x&FXULONG(0x3333333333333333))+((x>>2)&FXULONG(0x3333333333333333));
@@ -168,13 +172,17 @@ static inline FXulong pop64(FXulong x){
 static inline FXuint clz32(FXuint x){
 #if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
   return __builtin_clz(x);
+#elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+  unsigned long result;
+  _BitScanReverse(&result,x);
+  return 31-result;
 #else
   FXuint f,e,d,c,b;
-  f=!(x&0xffff0000)<<4; x<<=f;
-  e=!(x&0xff000000)<<3; x<<=e;
-  d=!(x&0xf0000000)<<2; x<<=d;
-  c=!(x&0xC0000000)<<1; x<<=c;
-  b=!(x&0x80000000);
+  f=(((FXint)(x-0x00010000))>>31)&16; x<<=f;
+  e=(((FXint)(x-0x01000000))>>31)&8;  x<<=e;
+  d=(((FXint)(x-0x10000000))>>31)&4;  x<<=d;
+  c=(((FXint)(x-0x40000000))>>31)&2;  x<<=c;
+  b=(((FXint)(x-0x80000000))>>31)&1;
   return f+e+d+c+b;
 #endif
   }
@@ -188,14 +196,18 @@ static inline FXulong clz64(FXulong x){
 #else
   return __builtin_clzll(x);
 #endif
+#elif defined(_MSC_VER) && defined(_M_X64)
+  unsigned long result;
+  _BitScanReverse64(&result,x);
+  return 63-result;
 #else
   FXulong g,f,e,d,c,b;
-  g=!(x&FXULONG(0xffffffff00000000))<<8; x<<=g;
-  f=!(x&FXULONG(0xffff000000000000))<<4; x<<=f;
-  e=!(x&FXULONG(0xff00000000000000))<<3; x<<=e;
-  d=!(x&FXULONG(0xf000000000000000))<<2; x<<=d;
-  c=!(x&FXULONG(0xC000000000000000))<<1; x<<=c;
-  b=!(x&FXULONG(0x8000000000000000));
+  g=(((FXlong)(x-FXULONG(0x0000000100000000)))>>63)&32; x<<=g;
+  f=(((FXlong)(x-FXULONG(0x0001000000000000)))>>63)&16; x<<=f;
+  e=(((FXlong)(x-FXULONG(0x0100000000000000)))>>63)&8;  x<<=e;
+  d=(((FXlong)(x-FXULONG(0x1000000000000000)))>>63)&4;  x<<=d;
+  c=(((FXlong)(x-FXULONG(0x4000000000000000)))>>63)&2;  x<<=c;
+  b=(((FXlong)(x-FXULONG(0x8000000000000000)))>>63)&1;
   return g+f+e+d+c+b;
 #endif
   }
@@ -205,14 +217,12 @@ static inline FXulong clz64(FXulong x){
 static inline FXuint ctz32(FXuint x){
 #if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4)))
   return __builtin_ctz(x);
+#elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+  unsigned long result;
+  _BitScanForward(&result,x);
+  return result;
 #else
-  FXuint f,e,d,c,b;
-  f=!(x&0x0000ffff)<<4; x>>=f;
-  e=!(x&0x000000ff)<<3; x>>=e;
-  d=!(x&0x0000000f)<<2; x>>=d;
-  c=!(x&0x00000003)<<1; x>>=c;
-  b=!(x&0x00000001);
-  return f+e+d+c+b;
+  return 31-clz32(x&-x);
 #endif
   }
 
@@ -225,15 +235,12 @@ static inline FXulong ctz64(FXulong x){
 #else
   return __builtin_ctzll(x);
 #endif
+#elif defined(_MSC_VER) && defined(_M_X64)
+  unsigned long result;
+  _BitScanForward64(&result,x);
+  return result;
 #else
-  FXulong g,f,e,d,c,b;
-  g=!(x&FXULONG(0x00000000ffffffff))<<8; x>>=g;
-  f=!(x&FXULONG(0x000000000000ffff))<<4; x>>=f;
-  e=!(x&FXULONG(0x00000000000000ff))<<3; x>>=e;
-  d=!(x&FXULONG(0x000000000000000f))<<2; x>>=d;
-  c=!(x&FXULONG(0x0000000000000003))<<1; x>>=c;
-  b=!(x&FXULONG(0x0000000000000001));
-  return g+f+e+d+c+b;
+  return 63-clz64(x&-x);
 #endif
   }
 

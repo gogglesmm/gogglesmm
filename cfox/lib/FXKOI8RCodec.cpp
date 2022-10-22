@@ -10,7 +10,7 @@
 namespace FX {
 
 
-FXIMPLEMENT(FXKOI8RCodec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXKOI8RCodec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/24/2005 from: KOI8-R.TXT ////
@@ -127,7 +127,7 @@ const FXchar* FXKOI8RCodec::mimeName() const {
 
 
 const FXchar* const* FXKOI8RCodec::aliases() const {
-  static const FXchar *list[]={"koi8-r","KOI8-R",NULL};
+  static const FXchar *list[]={"koi8-r","KOI8-R",nullptr};
   return list;
   }
 

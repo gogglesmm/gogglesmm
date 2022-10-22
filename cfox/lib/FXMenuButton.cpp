@@ -3,7 +3,7 @@
 *                       M e n u    B u t t o n    O b j e c t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxkeys.h"
 #include "fxmath.h"
 #include "FXArray.h"
@@ -243,9 +244,9 @@ long FXMenuButton::onButtonPress(FXObject*,FXSelector sel,void* ptr){
   if(isEnabled()){
     if(target && target->tryHandle(this,FXSEL(FXSELTYPE(sel),message),ptr)) return 1;
     if(state)
-      handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+      handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
     else
-      handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+      handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
     return 1;
     }
   return 0;
@@ -257,7 +258,7 @@ long FXMenuButton::onButtonRelease(FXObject*,FXSelector sel,void* ptr){
   FXEvent* ev=(FXEvent*)ptr;
   if(isEnabled()){
     if(target && target->tryHandle(this,FXSEL(FXSELTYPE(sel),message),ptr)) return 1;
-    if(ev->moved){ handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL); }
+    if(ev->moved){ handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr); }
     return 1;
     }
   return 0;
@@ -286,7 +287,7 @@ long FXMenuButton::onMotion(FXObject*,FXSelector,void* ptr){
 // The widget lost the grab for some reason
 long FXMenuButton::onUngrabbed(FXObject* sender,FXSelector sel,void* ptr){
   FXLabel::onUngrabbed(sender,sel,ptr);
-  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   return 1;
   }
 
@@ -300,9 +301,9 @@ long FXMenuButton::onKeyPress(FXObject*,FXSelector sel,void* ptr){
     if(pane && pane->shown() && pane->handle(pane,sel,ptr)) return 1;
     if(event->code==KEY_space || event->code==KEY_KP_Space){
       if(state)
-        handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+        handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
       else
-        handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+        handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
       return 1;
       }
     }
@@ -330,9 +331,9 @@ long FXMenuButton::onHotKeyPress(FXObject*,FXSelector,void* ptr){
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   if(isEnabled()){
     if(state)
-      handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+      handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
     else
-      handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+      handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
     }
   return 1;
   }
@@ -641,7 +642,7 @@ long FXMenuButton::onPaint(FXObject*,FXSelector,void* ptr){
 // Out of focus chain
 void FXMenuButton::killFocus(){
   FXLabel::killFocus();
-  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   }
 
 

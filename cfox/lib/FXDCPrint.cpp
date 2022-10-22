@@ -3,7 +3,7 @@
 *           D e v i c e   C o n t e x t   F o r   P r i n t i n g               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -84,7 +84,7 @@ namespace FX {
 // Construct
 FXDCPrint::FXDCPrint(FXApp* a):FXDC(a){
   font=getApp()->getNormalFont();
-  psout=NULL;   // FIXME use ctx for this
+  psout=nullptr;   // FIXME use ctx for this
   mediawidth=0.0;
   mediaheight=0.0;
   mediabb.xmin=0.0;
@@ -1066,7 +1066,7 @@ void FXDCPrint::setStipple(FXBitmap* bitmap,FXint dx,FXint dy){
 
 // Set stipple pattern
 void FXDCPrint::setStipple(FXStipplePattern pat,FXint dx,FXint dy){
-  stipple=NULL;
+  stipple=nullptr;
   pattern=pat;
   tx=dx;
   ty=dy;
@@ -1128,10 +1128,10 @@ void FXDCPrint::clipChildren(FXbool){
 
 Contrib by "Vasudeva Upadhya" <kvu@cfd1.cfdrc.com>
 FXint FXSetup::DoNTPrint(FXPrinter& printInfo){
-	PDEVMODE pDevMode = NULL;
+	PDEVMODE pDevMode = nullptr;
 	LONG     lDevModeSize;
-	HANDLE   hDevMode = NULL;
-	HDC      pDC = NULL;
+	HANDLE   hDevMode = nullptr;
+	HDC      pDC = nullptr;
 	DOCINFO  docInfo;
 	FXString msg = FXString("License setup wizard was unable to print,\nto printer:")+FXString(printInfo.name);
 	FXint    xOrigin;
@@ -1139,13 +1139,13 @@ FXint FXSetup::DoNTPrint(FXPrinter& printInfo){
 	FXint    xSize;
 	FXint    ySize;
 
-	lDevModeSize = DocumentProperties(NULL,NULL,printInfo.name,NULL,NULL,0);
+	lDevModeSize = DocumentProperties(nullptr,nullptr,printInfo.name,nullptr,nullptr,0);
 	if(lDevModeSize > 0){
 		hDevMode = GlobalAlloc(GHND,lDevModeSize);
 		pDevMode = (PDEVMODE)GlobalLock(hDevMode);
-		DocumentProperties(NULL,NULL,printInfo.name,pDevMode,NULL,DM_OUT_BUFFER);
+		DocumentProperties(nullptr,nullptr,printInfo.name,pDevMode,nullptr,DM_OUT_BUFFER);
 	  }
-	pDC = CreateDC("WINSPOOL",printInfo.name,NULL,pDevMode);
+	pDC = CreateDC("WINSPOOL",printInfo.name,nullptr,pDevMode);
 	if(pDC){
 		xOrigin = GetDeviceCaps(pDC,PHYSICALOFFSETX);
 		yOrigin = GetDeviceCaps(pDC,PHYSICALOFFSETY);
@@ -1154,8 +1154,8 @@ FXint FXSetup::DoNTPrint(FXPrinter& printInfo){
 
 		docInfo.cbSize       = sizeof(DOCINFO);
 		docInfo.lpszDocName  = printInfo.name;
-		docInfo.lpszOutput   = NULL;
-		docInfo.lpszDatatype = NULL;
+		docInfo.lpszOutput   = nullptr;
+		docInfo.lpszDatatype = nullptr;
 		docInfo.fwType       = 0;
 
 		if(StartDoc(pDC,&docInfo)){

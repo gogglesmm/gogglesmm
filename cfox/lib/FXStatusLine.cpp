@@ -3,7 +3,7 @@
 *                       S t a t u s   L i n e   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -155,7 +155,7 @@ long FXStatusLine::onUpdate(FXObject* sender,FXSelector sel,void* ptr){
   // Ask the help source for a new status text first, but only if the
   // statusline's shell is a direct or indirect owner of the help source
   if(helpsource && getShell()->isOwnerOf(helpsource)){
-    helpsource->handle(this,FXSEL(SEL_QUERY_HELP,0),NULL);
+    helpsource->handle(this,FXSEL(SEL_QUERY_HELP,0),nullptr);
     }
   return 1;
   }

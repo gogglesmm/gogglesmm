@@ -3,7 +3,7 @@
 *                   T o g g l e    B u t t o n    O b j e c t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -552,19 +552,31 @@ long FXToggleButton::onPaint(FXObject*,FXSelector,void* ptr){
   }
 
 
-// Change text
+// Change alternate text, removing hotkey if changed
 void FXToggleButton::setAltText(const FXString& text){
-  FXString string=stripHotKey(text);
-  FXHotKey hkey=parseHotKey(text);
-  FXint hoff=findHotKey(text);
-  if(altlabel!=string || althotkey!=hkey || althotoff!=hoff){
-    altlabel.adopt(string);
-    remHotKey(althotkey);
-    althotkey=hkey;
-    althotoff=hoff;
-    addHotKey(althotkey);
+  if(text!=altlabel){
+    if(0<=althotoff && (althotoff>=text.length() || althotoff>=altlabel.length() || altlabel[althotoff]!=text[althotoff])){
+      remHotKey(althotkey);
+      althotoff=-1;
+      }
+    altlabel=text;
     recalc();
     update();
+    }
+  }
+
+
+// Change alternate text and hotkey
+void FXToggleButton::setAltTextAndHotKey(const FXString& hotkeytext){
+  FXString string=stripHotKey(hotkeytext);
+  FXHotKey hkey=parseHotKey(hotkeytext);
+  FXint hoff=findHotKey(hotkeytext);
+  if(string!=altlabel || hkey!=althotkey || hoff!=althotoff){
+    setAltText(string);
+    remHotKey(althotkey);
+    addHotKey(hkey);
+    althotkey=hkey;
+    althotoff=hoff;
     }
   }
 

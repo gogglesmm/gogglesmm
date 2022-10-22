@@ -3,7 +3,7 @@
 *                              V a r i a n t - M a p                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,8 +60,7 @@
   - Similar to FXDictionary; reimplemented to support FXVariant as payload.
 */
 
-#define EMPTY     ((Entry*)(__variantmap__empty__+3))
-#define NOMEMORY  ((Entry*)(((FXival*)NULL)+3))
+#define EMPTY     (const_cast<Entry*>((const Entry*)(__variantmap__empty__+3)))
 #define BSHIFT    5
 
 using namespace FX;
@@ -74,14 +73,15 @@ namespace FX {
 // Empty dictionary table value
 extern const FXint __string__empty__[];
 extern const FXival __variantmap__empty__[];
-const FXival __variantmap__empty__[8]={1,0,1,(FXival)(__string__empty__+1),0,0,0,0};
+const FXival __variantmap__empty__[12]={1,0,1,(FXival)(__string__empty__+1),0,0,0,0,0,0,0,0};
 
 
 // Adjust the size of the table
 FXbool FXVariantMap::no(FXival n){
   FXival m=no();
   if(__likely(m!=n)){
-    Entry *elbat;
+    Entry* elbat;
+    void*  p;
 
     // Release old table
     if(1<m){
@@ -92,7 +92,8 @@ FXbool FXVariantMap::no(FXival n){
 
     // Allocate new table
     if(1<n){
-      if((elbat=(Entry*)(((FXival*)::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))+3))==NOMEMORY) return false;
+      if(__unlikely((p=::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))==nullptr)) return false;
+      elbat=(Entry*)(((FXival*)p)+3);
       ((FXival*)elbat)[-3]=n;
       ((FXival*)elbat)[-2]=0;
       ((FXival*)elbat)[-1]=n;
@@ -119,9 +120,9 @@ FXbool FXVariantMap::resize(FXival n){
             p=(p<<2)+p+b+1;
             b>>=BSHIFT;
             }
-          elbat.table[x].key.adopt(table[i].key);   // Steal string from old table
-          elbat.table[x].data.adopt(table[i].data); // Steal data from old table
-          elbat.table[x].hash=(FXuint)h;            // And copy the hash value
+          elbat.table[x].key.adopt(table[i].key);       // Steal string from old table
+          elbat.table[x].data.adopt(table[i].data);     // Steal data from old table
+          elbat.table[x].hash=(FXuint)h;                // And copy the hash value
           }
         }
       elbat.free(n-used());     // All non-empty slots now free
@@ -137,14 +138,14 @@ FXbool FXVariantMap::resize(FXival n){
 // Construct empty map
 FXVariantMap::FXVariantMap():table(EMPTY){
   FXASSERT(sizeof(FXVariantMap)==sizeof(FXptr));
-  FXASSERT(sizeof(Entry)<=sizeof(FXival)*4);
+  FXASSERT(sizeof(Entry)<=sizeof(FXival)*8);
   }
 
 
 // Construct from another map
 FXVariantMap::FXVariantMap(const FXVariantMap& other):table(EMPTY){
   FXASSERT(sizeof(FXVariantMap)==sizeof(FXptr));
-  FXASSERT(sizeof(Entry)<=sizeof(FXival)*4);
+  FXASSERT(sizeof(Entry)<=sizeof(FXival)*8);
   if(1<other.no()){
     if(__unlikely(!no(other.no()))){ throw FXMemoryException("FXVariantMap::FXVariantMap: out of memory\n"); }
     copyElms(table,other.table,no());
@@ -242,14 +243,14 @@ const FXVariant& FXVariantMap::at(const FXchar* ky) const {
 
 
 // Remove entry from table
-void FXVariantMap::remove(const FXchar* ky){
+FXbool FXVariantMap::remove(const FXchar* ky){
   if(__unlikely(!ky || !*ky)){ throw FXRangeException("FXVariantMap::remove: null or empty key\n"); }
   if(__likely(!empty())){
     FXuval p,b,h,x;
     p=b=h=FXString::hash(ky);
     FXASSERT(h);
     while(table[x=p&(no()-1)].hash!=h || table[x].key!=ky){
-      if(!table[x].hash) return;
+      if(!table[x].hash) return false;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
@@ -257,25 +258,29 @@ void FXVariantMap::remove(const FXchar* ky){
     table[x].data.clear();        // Clear the variant
     used(used()-1);
     if(__unlikely(used()<=(no()>>2))) resize(no()>>1);
+    return true;
     }
+  return false;
   }
 
 
 // Erase entry at pos in the table
-void FXVariantMap::erase(FXival pos){
+FXbool FXVariantMap::erase(FXival pos){
   if(__unlikely(pos<0 || no()<=pos)){ throw FXRangeException("FXVariantMap::erase: argument out of range\n"); }
   if(!table[pos].key.empty()){
     table[pos].key.clear();     // Void the slot (not empty!)
     table[pos].data.clear();    // Clear the variant
     used(used()-1);
     if(__unlikely(used()<=(no()>>2))) resize(no()>>1);
+    return true;
     }
+  return false;
   }
 
 
 // Clear the table
-void FXVariantMap::clear(){
-  no(1);
+FXbool FXVariantMap::clear(){
+  return no(1);
   }
 
 

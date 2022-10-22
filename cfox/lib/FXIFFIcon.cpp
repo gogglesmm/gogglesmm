@@ -3,7 +3,7 @@
 *                        I F F   I c o n   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,13 +60,13 @@ const FXchar FXIFFIcon::mimeType[]="image/x-iff";
 
 
 // Object implementation
-FXIMPLEMENT(FXIFFIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXIFFIcon,FXIcon,nullptr,0)
 
 
 // Initialize nicely
-FXIFFIcon::FXIFFIcon(FXApp* a,const void *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,NULL,clr,opts,w,h){
+FXIFFIcon::FXIFFIcon(FXApp* a,const FXuchar *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,nullptr,clr,opts,w,h){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

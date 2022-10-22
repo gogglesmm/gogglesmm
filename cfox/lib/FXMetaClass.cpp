@@ -3,7 +3,7 @@
 *                         M e t a C l a s s   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -44,6 +44,7 @@
       - Very minor space penalty.
 */
 
+#define TOPIC_CONSTRUCT 1000
 
 using namespace FX;
 
@@ -53,9 +54,9 @@ namespace FX {
 
 // Allocate memory
 FXbool fxmalloc(void** ptr,FXuval size){
-  *ptr=NULL;
+  *ptr=nullptr;
   if(size!=0){
-    if((*ptr=malloc(size))==NULL) return false;
+    if((*ptr=malloc(size))==nullptr) return false;
     }
   return true;
   }
@@ -63,9 +64,9 @@ FXbool fxmalloc(void** ptr,FXuval size){
 
 // Allocate cleaned memory
 FXbool fxcalloc(void** ptr,FXuval size){
-  *ptr=NULL;
+  *ptr=nullptr;
   if(size!=0){
-    if((*ptr=calloc(size,1))==NULL) return false;
+    if((*ptr=calloc(size,1))==nullptr) return false;
     }
   return true;
   }
@@ -73,9 +74,9 @@ FXbool fxcalloc(void** ptr,FXuval size){
 
 // Resize memory
 FXbool fxresize(void** ptr,FXuval size){
-  void *p=NULL;
+  void *p=nullptr;
   if(size!=0){
-    if((p=realloc(*ptr,size))==NULL) return false;
+    if((p=realloc(*ptr,size))==nullptr) return false;
     }
   else{
     if(*ptr) free(*ptr);
@@ -87,9 +88,9 @@ FXbool fxresize(void** ptr,FXuval size){
 
 // Allocate and initialize memory
 FXbool fxmemdup(void** ptr,const void* src,FXuval size){
-  *ptr=NULL;
-  if(size!=0 && src!=NULL){
-    if((*ptr=malloc(size))==NULL) return false;
+  *ptr=nullptr;
+  if(size!=0 && src!=nullptr){
+    if((*ptr=malloc(size))==nullptr) return false;
     memcpy(*ptr,src,size);
     }
   return true;
@@ -98,10 +99,10 @@ FXbool fxmemdup(void** ptr,const void* src,FXuval size){
 
 // String duplicate
 FXchar *fxstrdup(const FXchar* str){
-  FXchar *ptr=NULL;
-  if(str!=NULL){
+  FXchar *ptr=nullptr;
+  if(str!=nullptr){
     FXint size=strlen(str)+1;
-    if((ptr=(FXchar*)malloc(size))!=NULL){
+    if((ptr=(FXchar*)malloc(size))!=nullptr){
       memcpy(ptr,str,size);
       }
     }
@@ -113,7 +114,7 @@ FXchar *fxstrdup(const FXchar* str){
 void fxfree(void** ptr){
   if(*ptr){
     free(*ptr);
-    *ptr=NULL;
+    *ptr=nullptr;
     }
   }
 
@@ -124,7 +125,7 @@ void fxfree(void** ptr){
 #define EMPTY  ((FXMetaClass*)-1L)
 
 // Hash table of metaclasses initialized at load-time
-const FXMetaClass** FXMetaClass::metaClassTable=NULL;
+const FXMetaClass** FXMetaClass::metaClassTable=nullptr;
 FXuint              FXMetaClass::metaClassSlots=0;
 FXuint              FXMetaClass::metaClassCount=0;
 
@@ -147,11 +148,12 @@ void FXMetaClass::resize(FXuint slots){
   FXuint p,x,s;
   callocElms(table,slots);
   for(s=0; s<metaClassSlots; ++s){
-    if((ptr=metaClassTable[s])!=NULL && ptr!=EMPTY){
+    if((ptr=metaClassTable[s])!=nullptr && ptr!=EMPTY){
       p=hashstring(ptr->className);
       x=(p<<1)|1;
-      while(table[p=(p+x)&(slots-1)]!=NULL){
+      while(table[p=(p+x)&(slots-1)]!=nullptr){
         }
+      FXASSERT(p<slots);
       table[p]=ptr;
       }
     }
@@ -163,15 +165,16 @@ void FXMetaClass::resize(FXuint slots){
 
 // Constructor adds metaclass to the table
 FXMetaClass::FXMetaClass(const FXchar* name,FXObject *(fac)(),const FXMetaClass* base,const void* ass,FXuint nass,FXuint assz):className(name),manufacture(fac),baseClass(base),assoc(ass),nassocs(nass),assocsz(assz){
-  FXTRACE((100,"FXMetaClass::FXMetaClass(%s)\n",className));
+  FXTRACE((TOPIC_CONSTRUCT,"FXMetaClass::FXMetaClass(%s)\n",className));
   FXuint p=hashstring(className);
   FXuint x=(p<<1)|1;
   if((++metaClassCount<<1) > metaClassSlots){
     resize(metaClassSlots?metaClassSlots<<1:1);
     }
   FXASSERT(metaClassSlots>=metaClassCount);
-  while(metaClassTable[p=(p+x)&(metaClassSlots-1)]!=NULL){
+  while(metaClassTable[p=(p+x)&(metaClassSlots-1)]!=nullptr){
     }
+  FXASSERT(p<metaClassSlots);
   metaClassTable[p]=this;
   }
 
@@ -191,7 +194,7 @@ const void* FXMetaClass::search(FXSelector key) const {
     if(__unlikely(key<=lst->keyhi) && __likely(lst->keylo<=key)) return lst;
     lst=(const FXObject::FXMapEntry*) (((const FXchar*)lst)+inc);
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -210,29 +213,29 @@ const FXMetaClass* FXMetaClass::getMetaClassFromName(const FXchar* name){
   if(metaClassSlots && name){
     FXuint p=hashstring(name);
     FXuint x=(p<<1)|1;
-    while(metaClassTable[p=(p+x)&(metaClassSlots-1)]!=NULL){
+    while(metaClassTable[p=(p+x)&(metaClassSlots-1)]!=nullptr){
       if(metaClassTable[p]!=EMPTY && strcmp(metaClassTable[p]->className,name)==0){
         return metaClassTable[p];
         }
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
 // Make NULL object; used for abstract classes that may not be instantiated
 FXObject* FXMetaClass::nullObject(){
-  return NULL;
+  return nullptr;
   }
 
 
 // Destructor removes metaclass from the table
 FXMetaClass::~FXMetaClass(){
-  FXTRACE((100,"FXMetaClass::~FXMetaClass(%s)\n",className));
+  FXTRACE((TOPIC_CONSTRUCT,"FXMetaClass::~FXMetaClass(%s)\n",className));
   FXuint p=hashstring(className);
   FXuint x=(p<<1)|1;
   while(metaClassTable[p=(p+x)&(metaClassSlots-1)]!=this){
-    if(metaClassTable[p]==NULL) return;
+    if(metaClassTable[p]==nullptr) return;
     }
   metaClassTable[p]=EMPTY;
   if((--metaClassCount<<1) <= metaClassSlots){

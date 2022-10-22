@@ -3,7 +3,7 @@
 *                   M e m o r y   S t r e a m   C l a s s e s                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -33,13 +33,16 @@ class FXAPI FXMemoryStream : public FXStream {
 protected:
   virtual FXuval writeBuffer(FXuval count);
   virtual FXuval readBuffer(FXuval count);
+private:
+  FXMemoryStream(const FXMemoryStream&);
+  FXMemoryStream &operator=(const FXMemoryStream&);
 public:
 
   /// Create memory stream
-  FXMemoryStream(const FXObject* cont=NULL);
+  FXMemoryStream(const FXObject* cont=nullptr);
 
   /// Create and open memory stream
-  FXMemoryStream(FXStreamDirection save_or_load,FXuchar* data=NULL,FXuval size=~0UL,FXbool owned=false);
+  FXMemoryStream(FXStreamDirection save_or_load,FXuchar* data=nullptr,FXuval size=~0UL,FXbool owned=false);
 
   /**
   * Open memory stream.
@@ -52,7 +55,7 @@ public:
   * Passing NULL for the data buffer will cause the stream to allocate a buffer of the
   * given size.
   */
-  FXbool open(FXStreamDirection save_or_load,FXuchar* data=NULL,FXuval size=~0UL,FXbool owned=false);
+  FXbool open(FXStreamDirection save_or_load,FXuchar* data=nullptr,FXuval size=~0UL,FXbool owned=false);
 
   /// Take buffer away from stream
   void takeBuffer(FXuchar*& data,FXuval& size);

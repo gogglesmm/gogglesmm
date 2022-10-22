@@ -3,7 +3,7 @@
 *                         C o l o r   L i s t   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -42,7 +42,7 @@ protected:
   virtual FXint hitItem(const FXList* list,FXint x,FXint y) const;
 public:
   /// Construct new item with given text, color, and user-data
-  FXColorItem(const FXString& text,FXColor clr,void* ptr=NULL):FXListItem(text,NULL,ptr),color(clr){}
+  FXColorItem(const FXString& text,FXColor clr,void* ptr=nullptr):FXListItem(text,nullptr,ptr),color(clr){}
 
   /// Change item's color
   void setColor(FXColor clr){ color=clr; }
@@ -72,19 +72,19 @@ private:
 public:
 
   /// Construct a list with initially no items in it
-  FXColorList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=LIST_BROWSESELECT,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXColorList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=LIST_BROWSESELECT,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Fill list by appending color items from array of strings and array of colors
-  FXint fillItems(const FXchar *const *strings,FXColor *colors=NULL,void* ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXchar *const *strings,FXColor *colors=nullptr,void* ptr=nullptr,FXbool notify=false);
 
   /// Insert item at index with given text, color, and user-data pointer
-  FXint insertItem(FXint index,const FXString& text,FXColor color=0,void* ptr=NULL,FXbool notify=false);
+  FXint insertItem(FXint index,const FXString& text,FXColor color=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Append new item with given text, color, and user-data pointer
-  FXint appendItem(const FXString& text,FXColor color=0,void* ptr=NULL,FXbool notify=false);
+  FXint appendItem(const FXString& text,FXColor color=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Prepend new item with given text, color, and user-data pointer
-  FXint prependItem(const FXString& text,FXColor color=0,void* ptr=NULL,FXbool notify=false);
+  FXint prependItem(const FXString& text,FXColor color=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Change item color
   void setItemColor(FXint index,FXColor color);

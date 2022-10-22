@@ -3,7 +3,7 @@
 *                         P N G    I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -110,7 +110,7 @@ FXbool fxloadPNG(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   png_bytep *row_pointers;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
 
@@ -121,7 +121,7 @@ FXbool fxloadPNG(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   // Allocate/initialize the memory for image information
   info_ptr=png_create_info_struct(png_ptr);
   if(!info_ptr){
-    png_destroy_read_struct(&png_ptr,(png_infopp)NULL,(png_infopp)NULL);
+    png_destroy_read_struct(&png_ptr,(png_infopp)nullptr,(png_infopp)nullptr);
     return false;
     }
 
@@ -131,7 +131,7 @@ FXbool fxloadPNG(FXStream& store,FXColor*& data,FXint& width,FXint& height){
 #else
   if(setjmp((*png_set_longjmp_fn((png_ptr),(png_longjmp_ptr)longjmp,sizeof(jmp_buf))))){
 #endif
-    png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)NULL);
+    png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)nullptr);
     return false;
     }
 
@@ -145,7 +145,7 @@ FXbool fxloadPNG(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   png_read_info(png_ptr,info_ptr);
 
   // Get the goods
-  png_get_IHDR(png_ptr,info_ptr,&ww,&hh,&bit_depth,&color_type,&interlace_type,NULL,NULL);
+  png_get_IHDR(png_ptr,info_ptr,&ww,&hh,&bit_depth,&color_type,&interlace_type,nullptr,nullptr);
 
   FXTRACE((100,"fxloadPNG: width=%d height=%d bit_depth=%d color_type=%d\n",(int)ww,(int)hh,bit_depth,color_type));
 
@@ -179,14 +179,14 @@ FXbool fxloadPNG(FXStream& store,FXColor*& data,FXint& width,FXint& height){
 
   // Make room for data
   if(!allocElms(data,hh*ww)){
-    png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)NULL);
+    png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)nullptr);
     return false;
     }
 
   // Row pointers
   if(!allocElms(row_pointers,hh)){
     freeElms(data);
-    png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)NULL);
+    png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)nullptr);
     return false;
     }
 
@@ -204,7 +204,7 @@ FXbool fxloadPNG(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   png_read_end(png_ptr,info_ptr);
 
   // clean up after the read, and free any memory allocated
-  png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)NULL);
+  png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)nullptr);
 
   // Get rid of it
   freeElms(row_pointers);
@@ -235,7 +235,7 @@ FXbool fxsavePNG(FXStream& store,const FXColor* data,FXint width,FXint height){
   // Allocate/initialize the image information data.
   info_ptr=png_create_info_struct(png_ptr);
   if(!info_ptr){
-    png_destroy_write_struct(&png_ptr,(png_infopp)NULL);
+    png_destroy_write_struct(&png_ptr,(png_infopp)nullptr);
     return false;
     }
 

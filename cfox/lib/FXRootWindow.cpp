@@ -3,7 +3,7 @@
 *                       R o o t   W i n d o w   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -58,7 +58,7 @@ using namespace FX;
 namespace FX {
 
 // Object implementation
-FXIMPLEMENT(FXRootWindow,FXComposite,NULL,0)
+FXIMPLEMENT(FXRootWindow,FXComposite,nullptr,0)
 
 
 // Construct root window
@@ -71,14 +71,14 @@ FXRootWindow::FXRootWindow(FXApp* a,FXVisual *vis):FXComposite(a,vis){
 // Returns device context
 FXID FXRootWindow::GetDC() const {
   LockWindowUpdate(GetDesktopWindow());
-  return GetDCEx(GetDesktopWindow(),NULL,DCX_CACHE|DCX_LOCKWINDOWUPDATE);
+  return GetDCEx(GetDesktopWindow(),nullptr,DCX_CACHE|DCX_LOCKWINDOWUPDATE);
   }
 
 
 // Release DC
 int FXRootWindow::ReleaseDC(FXID hdc) const {
   int status=::ReleaseDC(GetDesktopWindow(),(HDC)hdc);
-  LockWindowUpdate(NULL);
+  LockWindowUpdate(nullptr);
   return status;
   }
 
@@ -101,7 +101,7 @@ static BOOL maxScreenSizeCallback(HMONITOR hmon,HDC hdc,LPRECT rect,LPARAM args)
 // Obtain largest dimensions of all screens (bounding box)
 static FXbool getMaxScreenSize(FXint& width,FXint& height){
   FXint args[2]={0,0};
-  if(EnumDisplayMonitors(NULL,NULL,(MONITORENUMPROC)maxScreenSizeCallback,(LPARAM)args)){
+  if(EnumDisplayMonitors(nullptr,nullptr,(MONITORENUMPROC)maxScreenSizeCallback,(LPARAM)args)){
     width=args[0];
     height=args[1];
     return true;
@@ -135,22 +135,18 @@ void FXRootWindow::create(){
       // Obtain desktop window size
       width=GetSystemMetrics(SM_CXVIRTUALSCREEN);
       height=GetSystemMetrics(SM_CYVIRTUALSCREEN);
-#if 0
-      HDC hdc=::GetDC((HWND)xid);
-      width=GetDeviceCaps(hdc,HORZRES);
-      height=GetDeviceCaps(hdc,VERTRES);
-      ::ReleaseDC((HWND)xid,hdc);
-#endif
-      // Size bigger than all display screens
-      //getMaxScreenSize(width,height);
 
-      // Size bigger than all display screens
-      //width=GetSystemMetrics(SM_CXVIRTUALSCREEN);
-      //height=GetSystemMetrics(SM_CYVIRTUALSCREEN);
+      //HDC hdc=::GetDC((HWND)xid);
+      //width=GetDeviceCaps(hdc,HORZRES);
+      //height=GetDeviceCaps(hdc,VERTRES);
+      //::ReleaseDC((HWND)xid,hdc);
 
       // Size of primary display screen
       //width=GetSystemMetrics(SM_CXSCREEN);
       //height=GetSystemMetrics(SM_CYSCREEN);
+
+      // Size bigger than all display screens
+      //getMaxScreenSize(width,height);
 
       // Store for xid to C++ object mapping
       getApp()->hash.insert((void*)xid,this);
@@ -203,36 +199,13 @@ void FXRootWindow::destroy(){
   }
 
 
-#if 0
 // Get default width
 FXint FXRootWindow::getDefaultWidth(){
 #ifdef WIN32
-  HDC hdc=::GetDC(GetDesktopWindow());
-  FXint w=GetDeviceCaps(hdc,HORZRES);
-  ::ReleaseDC(GetDesktopWindow(),hdc);
-  return w;
-#else
-  return DisplayWidth(DISPLAY(getApp()),DefaultScreen(DISPLAY(getApp())));
-#endif
-  }
-
-
-// Get default height
-FXint FXRootWindow::getDefaultHeight(){
-#ifdef WIN32
-  HDC hdc=::GetDC(GetDesktopWindow());
-  FXint h=GetDeviceCaps(hdc,VERTRES);
-  ::ReleaseDC(GetDesktopWindow(),hdc);
-  return h;
-#else
-  return DisplayHeight(DISPLAY(getApp()),DefaultScreen(DISPLAY(getApp())));
-#endif
-  }
-#endif
-
-// Get default width
-FXint FXRootWindow::getDefaultWidth(){
-#ifdef WIN32
+//  HDC hdc=::GetDC(GetDesktopWindow());
+//  FXint w=GetDeviceCaps(hdc,HORZRES);
+//  ::ReleaseDC(GetDesktopWindow(),hdc);
+//  return w;
   return GetSystemMetrics(SM_CXVIRTUALSCREEN);
 #else
   return DisplayWidth(DISPLAY(getApp()),DefaultScreen(DISPLAY(getApp())));
@@ -242,6 +215,10 @@ FXint FXRootWindow::getDefaultWidth(){
 // Get default height
 FXint FXRootWindow::getDefaultHeight(){
 #ifdef WIN32
+//  HDC hdc=::GetDC(GetDesktopWindow());
+//  FXint h=GetDeviceCaps(hdc,VERTRES);
+//  ::ReleaseDC(GetDesktopWindow(),hdc);
+//  return h;
   return GetSystemMetrics(SM_CYVIRTUALSCREEN);
 #else
   return DisplayHeight(DISPLAY(getApp()),DefaultScreen(DISPLAY(getApp())));

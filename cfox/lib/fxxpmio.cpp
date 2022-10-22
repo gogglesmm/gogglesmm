@@ -3,7 +3,7 @@
 *                          X P M   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -132,7 +132,7 @@ FXbool fxloadXPM(const FXchar **pixels,FXColor*& data,FXint& width,FXint& height
   FXint   i,j,ncolors,cpp,c;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
   color=0;
@@ -231,7 +231,7 @@ FXbool fxloadXPM(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   FXint i,j,ncolors,cpp,c;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
   color=0;

@@ -3,7 +3,7 @@
 *                     G L  R e n d e r i n g   C o n t e x t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -74,17 +74,17 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXGLContext,FXId,NULL,0)
+FXIMPLEMENT(FXGLContext,FXId,nullptr,0)
 
 
 // Make GL context
-FXGLContext::FXGLContext():surface(NULL),visual(NULL),shared(NULL){
+FXGLContext::FXGLContext():surface(nullptr),visual(nullptr),shared(nullptr){
   FXTRACE((100,"FXGLContext::FXGLContext %p\n",this));
   }
 
 
 // Make a GL context
-FXGLContext::FXGLContext(FXApp *a,FXGLVisual *vis,FXGLContext* shr):FXId(a),surface(NULL),visual(vis),shared(shr){
+FXGLContext::FXGLContext(FXApp *a,FXGLVisual *vis,FXGLContext* shr):FXId(a),surface(nullptr),visual(vis),shared(shr){
   FXTRACE((100,"FXGLContext::FXGLContext %p\n",this));
   }
 
@@ -107,7 +107,7 @@ void FXGLContext::create(){
 #ifdef HAVE_GL_H
 #if defined(WIN32)
       PIXELFORMATDESCRIPTOR pfd={sizeof(PIXELFORMATDESCRIPTOR),1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-      HWND hwnd=CreateWindow(TEXT("GLTEMP"),TEXT(""),0,0,0,0,0,(HWND)NULL,(HMENU)NULL,(HINSTANCE)getApp()->getDisplay(),NULL);
+      HWND hwnd=CreateWindow(TEXT("GLTEMP"),TEXT(""),0,0,0,0,0,(HWND)nullptr,(HMENU)nullptr,(HINSTANCE)getApp()->getDisplay(),nullptr);
       HDC hdc=::GetDC(hwnd);
       SetPixelFormat(hdc,(FXint)(FXival)visual->id(),&pfd);
       xid=(FXID)wglCreateContext(hdc);
@@ -122,7 +122,7 @@ void FXGLContext::create(){
         wglMakeCurrent(hdc,(HGLRC)xid);
         PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
         wglCreateContextAttribsARB=(PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-        if(wglCreateContextAttribsARB!=NULL){                           // OpenGL 3.0 is supported
+        if(wglCreateContextAttribsARB!=nullptr){                           // OpenGL 3.0 is supported
           HGLRC hrc=wglCreateContextAttribsARB(hdc,0,attribList);
           wglDeleteContext((HGLRC)xid);
           xid=hrc;
@@ -132,14 +132,14 @@ void FXGLContext::create(){
       // I hope I didn't get this backward; the new context obviously has no
       // display lists yet, but the old one may have, as it has already been around
       // for a while.  If you see this fail and can't explain why, then that might
-      // be what's going on.  Report this to jeroen@fox-toolkit.com
+      // be what's going on.  Report this to jeroen@fox-toolkit.net
       if(shared && !wglShareLists((HGLRC)shared->id(),(HGLRC)xid)){
         throw FXWindowException("unable to share GL context.");
         }
       ::ReleaseDC(hwnd,hdc);
       DestroyWindow(hwnd);
 //#elif defined(GLX_VERSION_1_3)
-//      xid=(FXID)glXCreateNewContext((Display*)getApp()->getDisplay(),(GLXFBConfig)visual->id(),GLX_RGBA_TYPE,shared?(GLXContext)shared->id():NULL,true);
+//      xid=(FXID)glXCreateNewContext((Display*)getApp()->getDisplay(),(GLXFBConfig)visual->id(),GLX_RGBA_TYPE,shared?(GLXContext)shared->id():nullptr,true);
 #else
       XVisualInfo vi;
       vi.visual=(Visual*)visual->visual;
@@ -152,7 +152,7 @@ void FXGLContext::create(){
       vi.blue_mask=vi.visual->blue_mask;
       vi.colormap_size=vi.visual->map_entries;
       vi.bits_per_rgb=vi.visual->bits_per_rgb;
-      xid=(FXID)glXCreateContext((Display*)getApp()->getDisplay(),&vi,shared?(GLXContext)shared->id():NULL,true);
+      xid=(FXID)glXCreateContext((Display*)getApp()->getDisplay(),&vi,shared?(GLXContext)shared->id():nullptr,true);
 #endif
 #endif
       if(!xid){
@@ -412,7 +412,7 @@ void FXGLContext::detach(){
 #ifdef HAVE_GL_H
   if(xid){
     FXTRACE((100,"FXGLContext::detach %p\n",this));
-    surface=NULL;
+    surface=nullptr;
     xid=0;
     }
 #endif
@@ -431,7 +431,7 @@ void FXGLContext::destroy(){
       glXDestroyContext((Display*)getApp()->getDisplay(),(GLXContext)xid);
 #endif
       }
-    surface=NULL;
+    surface=nullptr;
     xid=0;
     }
 #endif
@@ -490,19 +490,19 @@ FXbool FXGLContext::end(){
   if(xid && surface){
 #ifdef WIN32
     HDC hdc=wglGetCurrentDC();
-    if(wglMakeCurrent(NULL,NULL)!=0){
+    if(wglMakeCurrent(nullptr,nullptr)!=0){
       surface->ReleaseDC(hdc);
-      surface=NULL;
+      surface=nullptr;
       return true;
       }
 //#elif defined(GLX_VERSION_1_3)
-//    if(glXMakeContextCurrent((Display*)getApp()->getDisplay(),None,None,NULL)){
-//      surface=NULL;
+//    if(glXMakeContextCurrent((Display*)getApp()->getDisplay(),None,None,nullptr)){
+//      surface=nullptr;
 //      return true;
 //      }
 #else
-    if(glXMakeCurrent((Display*)getApp()->getDisplay(),None,(GLXContext)NULL)){
-      surface=NULL;
+    if(glXMakeCurrent((Display*)getApp()->getDisplay(),None,(GLXContext)nullptr)){
+      surface=nullptr;
       return true;
       }
 #endif
@@ -548,9 +548,9 @@ FXbool FXGLContext::isCurrent() const {
 FXbool FXGLContext::hasCurrent(){
 #ifdef HAVE_GL_H
 #ifdef WIN32
-  return wglGetCurrentContext()!=NULL;
+  return wglGetCurrentContext()!=nullptr;
 #else
-  return glXGetCurrentContext()!=NULL;
+  return glXGetCurrentContext()!=nullptr;
 #endif
 #else
   return false;

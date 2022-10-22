@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FX885915Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FX885915Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: 8859-15.TXT ////
@@ -111,7 +111,7 @@ const FXchar* FX885915Codec::mimeName() const {
 
 
 const FXchar* const* FX885915Codec::aliases() const {
-  static const FXchar *const list[]={"iso8859-15","ISO-8859-15","ISO_8859-15","Latin-9","latin9",NULL};
+  static const FXchar *const list[]={"iso8859-15","ISO-8859-15","ISO_8859-15","Latin-9","latin9",nullptr};
   return list;
   }
 

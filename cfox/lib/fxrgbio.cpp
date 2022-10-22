@@ -3,7 +3,7 @@
 *                    I R I S   R G B   I n p u t / O u t p u t                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -210,7 +210,7 @@ FXbool fxloadRGB(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   FXuint   colormap;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
 
@@ -293,7 +293,6 @@ FXbool fxloadRGB(FXStream& store,FXColor*& data,FXint& width,FXint& height){
 
               // Free RLE chunks
               freeElms(chunk);
-              result=true;
               }
 
             // Free line tables

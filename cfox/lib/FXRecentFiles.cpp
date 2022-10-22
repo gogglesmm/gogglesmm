@@ -3,7 +3,7 @@
 *                     R e c e n t   F i l e s   L i s t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -84,7 +84,7 @@ FXIMPLEMENT(FXRecentFiles,FXObject,FXRecentFilesMap,ARRAYNUMBER(FXRecentFilesMap
 
 
 // Serialization
-FXRecentFiles::FXRecentFiles():settings(NULL),target(NULL),message(0),maxfiles(10){
+FXRecentFiles::FXRecentFiles():settings(nullptr),target(nullptr),message(0),maxfiles(10){
   }
 
 
@@ -128,7 +128,7 @@ void FXRecentFiles::appendFile(const FXString& filename){
     FXuint i=0;
     FXuint j=0;
     do{
-      do{ oldname=settings->readStringEntry(group,key[j++],NULL); }while(oldname==filename);
+      do{ oldname=settings->readStringEntry(group,key[j++],nullptr); }while(oldname==filename);
       settings->writeStringEntry(group,key[i],newname.text());
       if(oldname.empty()) break;
       newname=oldname;
@@ -145,7 +145,7 @@ void FXRecentFiles::removeFile(const FXString& filename){
     FXuint i=0;
     FXuint j=0;
     do{
-      name=settings->readStringEntry(group,key[i],NULL);
+      name=settings->readStringEntry(group,key[i],nullptr);
       if(name.empty()) break;
       if(name!=filename){
         settings->writeStringEntry(group,key[j++],name.text());
@@ -172,7 +172,7 @@ long FXRecentFiles::onCmdClear(FXObject*,FXSelector,void*){
 
 // User clicks on one of the file names
 long FXRecentFiles::onCmdFile(FXObject*,FXSelector sel,void*){
-  const FXchar *filename=settings->readStringEntry(group,key[FXSELID(sel)-ID_FILE_1],NULL);
+  const FXchar *filename=settings->readStringEntry(group,key[FXSELID(sel)-ID_FILE_1],nullptr);
   if(filename){
     if(target){ target->handle(this,FXSEL(SEL_COMMAND,message),(void*)filename); }
     }
@@ -182,23 +182,16 @@ long FXRecentFiles::onCmdFile(FXObject*,FXSelector sel,void*){
 
 // Update handler for same
 long FXRecentFiles::onUpdFile(FXObject *sender,FXSelector sel,void*){
-  const FXchar *filename=settings->readStringEntry(group,key[FXSELID(sel)-ID_FILE_1],NULL);
+  const FXchar *filename=settings->readStringEntry(group,key[FXSELID(sel)-ID_FILE_1],nullptr);
   if(filename){
     FXint which=FXSELID(sel)-ID_FILE_1+1;
     FXString string;
     string.format("%d %s",which,filename);
-    string.substitute("&","&&",true);   // No accelerator, please!
-    if(which<=9){
-      string.insert(0,"&");
-      }
-    else if(which==10){
-      string.insert(1,"&");
-      }
     sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SETSTRINGVALUE),(void*)&string);
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),nullptr);
     }
   else{
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),nullptr);
     }
   return 1;
   }
@@ -206,10 +199,10 @@ long FXRecentFiles::onUpdFile(FXObject *sender,FXSelector sel,void*){
 
 // Show or hide depending on whether there are any files
 long FXRecentFiles::onUpdAnyFiles(FXObject *sender,FXSelector,void*){
-  if(settings->readStringEntry(group,key[0],NULL))
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),NULL);
+  if(settings->readStringEntry(group,key[0],nullptr))
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),nullptr);
   return 1;
   }
 

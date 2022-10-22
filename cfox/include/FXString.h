@@ -3,7 +3,7 @@
 *                           S t r i n g   O b j e c t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -48,8 +48,6 @@ public:
   static const FXchar  value2Digit[36];
   static const FXschar digit2Value[256];
 public:
-  static const FXschar utfBytes[256];
-public:
 
   /// Construct empty string
   FXString();
@@ -82,10 +80,16 @@ public:
   FXint length() const { return *(((FXint*)str)-1); }
 
   /// Change the length of the string to len
-  void length(FXint len);
+  FXbool length(FXint len);
 
-  /// Return wide character starting at offset p
+  /// Return wide character starting at p
   FXwchar wc(FXint p) const;
+
+  /// Return wide character at p and advance to next
+  FXwchar wcnxt(FXint& p) const;
+
+  /// Retreat to wide character previous to p and return it
+  FXwchar wcprv(FXint& p) const;
 
   /// Increment byte offset by one utf8 character
   FXint inc(FXint p) const;
@@ -98,9 +102,6 @@ public:
 
   /// Decrement byte offset by n utf8 characters
   FXint dec(FXint p,FXint n) const;
-
-  /// Return extent of utf8 character at position
-  FXint extent(FXint p) const { return utfBytes[(FXuchar)str[p]]; }
 
   /// Count number of utf8 characters
   FXint count() const;
@@ -318,7 +319,7 @@ public:
   /// Replace the r characters at pos with string s
   FXString& replace(FXint pos,FXint r,const FXString& s);
 
-  /// Move range of m characters from src position to dst position
+  /// Move range of n characters from src position to dst position
   FXString& move(FXint dst,FXint src,FXint n);
 
   /// Remove one character
@@ -515,22 +516,22 @@ public:
   FXint vformat(const FXchar* fmt,va_list args);
 
   /// Convert to integer
-  FXint toInt(FXint base=10,FXbool* ok=NULL) const;
+  FXint toInt(FXint base=10,FXbool* ok=nullptr) const;
 
   /// Convert to unsigned integer
-  FXuint toUInt(FXint base=10,FXbool* ok=NULL) const;
+  FXuint toUInt(FXint base=10,FXbool* ok=nullptr) const;
 
   /// Convert to long integer
-  FXlong toLong(FXint base=10,FXbool* ok=NULL) const;
+  FXlong toLong(FXint base=10,FXbool* ok=nullptr) const;
 
   /// Convert to unsigned long integer
-  FXulong toULong(FXint base=10,FXbool* ok=NULL) const;
+  FXulong toULong(FXint base=10,FXbool* ok=nullptr) const;
 
   /// Convert to float
-  FXfloat toFloat(FXbool* ok=NULL) const;
+  FXfloat toFloat(FXbool* ok=nullptr) const;
 
   /// Convert to double
-  FXdouble toDouble(FXbool* ok=NULL) const;
+  FXdouble toDouble(FXbool* ok=nullptr) const;
 
   /// Convert from integer
   FXString& fromInt(FXint number,FXint base=10);
@@ -583,43 +584,99 @@ public:
   static FXString vvalue(const FXchar* fmt,va_list args);
 
 
+  /// Compute hash value of string
+  FXuint hash() const;
+
+  /// Compute hash value of string
+  static FXuint hash(const FXchar* s);
+
+  /// Compute hash value of string
+  static FXuint hash(const FXchar* s,FXint n);
+
+  /// Compare
+  static FXint compare(const FXchar* s1,const FXchar* s2);
+  static FXint compare(const FXchar* s1,const FXString& s2);
+  static FXint compare(const FXString& s1,const FXchar* s2);
+  static FXint compare(const FXString& s1,const FXString& s2);
+
+  /// Compare up to n
+  static FXint compare(const FXchar* s1,const FXchar* s2,FXint n);
+  static FXint compare(const FXchar* s1,const FXString& s2,FXint n);
+  static FXint compare(const FXString& s1,const FXchar* s2,FXint n);
+  static FXint compare(const FXString& s1,const FXString& s2,FXint n);
+
+  /// Compare case insensitive
+  static FXint comparecase(const FXchar* s1,const FXchar* s2);
+  static FXint comparecase(const FXchar* s1,const FXString& s2);
+  static FXint comparecase(const FXString& s1,const FXchar* s2);
+  static FXint comparecase(const FXString& s1,const FXString& s2);
+
+  /// Compare case insensitive up to n
+  static FXint comparecase(const FXchar* s1,const FXchar* s2,FXint n);
+  static FXint comparecase(const FXchar* s1,const FXString& s2,FXint n);
+  static FXint comparecase(const FXString& s1,const FXchar* s2,FXint n);
+  static FXint comparecase(const FXString& s1,const FXString& s2,FXint n);
+
+  /// Compare with natural interpretation of decimal numbers
+  static FXint comparenatural(const FXchar* s1,const FXchar* s2);
+  static FXint comparenatural(const FXchar* s1,const FXString& s2);
+  static FXint comparenatural(const FXString& s1,const FXchar* s2);
+  static FXint comparenatural(const FXString& s1,const FXString& s2);
+
+  /// Compare case insensitive with natural interpretation of decimal numbers
+  static FXint comparenaturalcase(const FXchar* s1,const FXchar* s2);
+  static FXint comparenaturalcase(const FXchar* s1,const FXString& s2);
+  static FXint comparenaturalcase(const FXString& s1,const FXchar* s2);
+  static FXint comparenaturalcase(const FXString& s1,const FXString& s2);
+
   /**
   * Check if the string contains special characters or leading or trailing whitespace,
   * or contains UTF8 if flag!=0.
   */
-  static FXbool shouldEscape(const FXString& str,FXchar lquote=0,FXchar rquote=0,FXint flag=0);
+  static FXbool shouldEscape(const FXchar* str,FXchar lquote='\0',FXchar rquote='\0',FXint flag=0);
+  static FXbool shouldEscape(const FXchar* str,FXint num,FXchar lquote='\0',FXchar rquote='\0',FXint flag=0);
+  static FXbool shouldEscape(const FXString& str,FXchar lquote='\0',FXchar rquote='\0',FXint flag=0);
 
   /**
   * Escape special characters.
   * Optionally enclose return value with left and right quotes.
-  * Flag: 0 don't encode UTF8 multi-byte characters.
-  * Flag: 1 encodes UTF8 multi-byte characters to a sequence of hexadecimals of the form \xXX.
-  * Flag: 2 encodes UTF8 multi-byte characters to the form \uXXXX or \uXXXX\uYYYY.
-  * Ill-formed UTF8 will be encoded as hexadecimals \xXX regardless even if \uXXXX is requested.
+  * Flag: 0 don't escape UTF8 multi-byte characters.
+  * Flag: 1 escapes UTF8 multi-byte characters to a sequence of hexadecimals of the form \xXX.
+  * Flag: 2 escapes UTF8 multi-byte characters to the form \uXXXX or \uXXXX\uYYYY.
+  * Ill-formed UTF8 will be escaped as hexadecimals \xXX regardless even if \uXXXX is requested.
   * Quotes will be escaped if quoting is performed.
   */
-  static FXString escape(const FXString& str,FXchar lquote=0,FXchar rquote=0,FXint flag=0);
+  static FXString escape(const FXchar* str,FXchar lquote='\0',FXchar rquote='\0',FXint flag=0);
+  static FXString escape(const FXchar* str,FXint num,FXchar lquote='\0',FXchar rquote='\0',FXint flag=0);
+  static FXString escape(const FXString& str,FXchar lquote='\0',FXchar rquote='\0',FXint flag=0);
 
   /**
   * Unescape special characters,
   * Optionally remove surrounding left and right quotes.
-  * In particular, decode \xXX to the hexadecimal character XX, \uXXXX to the multi-byte
-  * UTF8 sequence representing unicode character XXXX, and decode \t, \n, etc.
+  * In particular, unescape \xXX to the hexadecimal character XX, \uXXXX to the multi-byte
+  * UTF8 sequence representing unicode character XXXX, and unescape \t, \n, etc.
   * Handle surrogate pairs of the form \uXXXX\uYYYY properly.
   */
-  static FXString unescape(const FXString& str,FXchar lquote=0,FXchar rquote=0);
+  static FXString unescape(const FXchar* str,FXchar lquote='\0',FXchar rquote='\0');
+  static FXString unescape(const FXchar* str,FXint num,FXchar lquote='\0',FXchar rquote='\0');
+  static FXString unescape(const FXString& str,FXchar lquote='\0',FXchar rquote='\0');
 
   /**
   * Expand tabs with the equivalent amount of spaces.
   * UTF8 encoded characters are counted as one column.
   */
-  static FXString detab(const FXString& text,FXint tabcols=8);
+  static FXString detab(const FXchar* str,FXint tabcols);
+  static FXString detab(const FXchar* str,FXint num,FXint tabcols);
+  static FXString detab(const FXString& str,FXint tabcols);
+
 
   /**
   * Compress runs of more than 2 spaces with tabs.
   * UTF8 characters are counted as one column.
   */
-  static FXString entab(const FXString& text,FXint tabcols=8);
+  static FXString entab(const FXchar* str,FXint tabcols);
+  static FXString entab(const FXchar* str,FXint num,FXint tabcols);
+  static FXString entab(const FXString& str,FXint tabcols);
 
   /**
   * Retabbify lines of text.
@@ -628,7 +685,9 @@ public:
   * or rightward. UTF8 characters are counted as one column, and trailing space will be
   * deleted.
   */
-  static FXString tabbify(const FXString& text,FXint tabcols=8,FXint indent=0,FXint outdent=0,FXint shift=0,FXbool tabs=false);
+  static FXString tabbify(const FXchar* str,FXint tabcols,FXint indent,FXint outdent,FXint shift,FXbool tabs);
+  static FXString tabbify(const FXchar* str,FXint num,FXint tabcols,FXint indent,FXint outdent,FXint shift,FXbool tabs);
+  static FXString tabbify(const FXString& str,FXint tabcols,FXint indent,FXint outdent,FXint shift,FXbool tabs);
 
   /**
   * Return normalized string, i.e. reordering of diacritical marks.
@@ -645,12 +704,6 @@ public:
   * decomposition.
   */
   static FXString compose(const FXString& s,FXbool canonical=true);
-
-  /// Compute hash value of string
-  FXuint hash() const;
-
-  /// Compute hash value of string
-  static FXuint hash(const FXchar* s);
 
   /// Swap two strings
   friend inline FXString& swap(FXString& dst,FXString& src);
@@ -673,71 +726,35 @@ inline FXString& swap(FXString& dst,FXString& src){
   }
 
 
-/// Compare
-extern FXAPI FXint compare(const FXchar* s1,const FXchar* s2);
-extern FXAPI FXint compare(const FXchar* s1,const FXString& s2);
-extern FXAPI FXint compare(const FXString& s1,const FXchar* s2);
-extern FXAPI FXint compare(const FXString& s1,const FXString& s2);
-
-/// Compare up to n
-extern FXAPI FXint compare(const FXchar* s1,const FXchar* s2,FXint n);
-extern FXAPI FXint compare(const FXchar* s1,const FXString& s2,FXint n);
-extern FXAPI FXint compare(const FXString& s1,const FXchar* s2,FXint n);
-extern FXAPI FXint compare(const FXString& s1,const FXString& s2,FXint n);
-
-/// Compare case insensitive
-extern FXAPI FXint comparecase(const FXchar* s1,const FXchar* s2);
-extern FXAPI FXint comparecase(const FXchar* s1,const FXString& s2);
-extern FXAPI FXint comparecase(const FXString& s1,const FXchar* s2);
-extern FXAPI FXint comparecase(const FXString& s1,const FXString& s2);
-
-/// Compare case insensitive up to n
-extern FXAPI FXint comparecase(const FXchar* s1,const FXchar* s2,FXint n);
-extern FXAPI FXint comparecase(const FXchar* s1,const FXString& s2,FXint n);
-extern FXAPI FXint comparecase(const FXString& s1,const FXchar* s2,FXint n);
-extern FXAPI FXint comparecase(const FXString& s1,const FXString& s2,FXint n);
-
-/// Compare with natural interpretation
-extern FXAPI FXint compareversion(const FXchar* s1,const FXchar* s2);
-extern FXAPI FXint compareversion(const FXchar* s1,const FXString& s2);
-extern FXAPI FXint compareversion(const FXString& s1,const FXchar* s2);
-extern FXAPI FXint compareversion(const FXString& s1,const FXString& s2);
-
-/// Compare case insensitive with natural interpretation
-extern FXAPI FXint compareversioncase(const FXchar* s1,const FXchar* s2);
-extern FXAPI FXint compareversioncase(const FXchar* s1,const FXString& s2);
-extern FXAPI FXint compareversioncase(const FXString& s1,const FXchar* s2);
-extern FXAPI FXint compareversioncase(const FXString& s1,const FXString& s2);
-
 /// Equality operators
-extern FXAPI FXbool operator==(const FXString& s1,const FXString& s2);
-extern FXAPI FXbool operator==(const FXString& s1,const FXchar* s2);
-extern FXAPI FXbool operator==(const FXchar* s1,const FXString& s2);
+static inline FXbool operator==(const FXString& s1,const FXString& s2){ return FXString::compare(s1.text(),s2.text())==0; }
+static inline FXbool operator==(const FXString& s1,const FXchar* s2){ return FXString::compare(s1.text(),s2)==0; }
+static inline FXbool operator==(const FXchar* s1,const FXString& s2){ return FXString::compare(s1,s2.text())==0; }
 
 /// Inequality operators
-extern FXAPI FXbool operator!=(const FXString& s1,const FXString& s2);
-extern FXAPI FXbool operator!=(const FXString& s1,const FXchar* s2);
-extern FXAPI FXbool operator!=(const FXchar* s1,const FXString& s2);
+static inline FXbool operator!=(const FXString& s1,const FXString& s2){ return FXString::compare(s1.text(),s2.text())!=0; }
+static inline FXbool operator!=(const FXString& s1,const FXchar* s2){ return FXString::compare(s1.text(),s2)!=0; }
+static inline FXbool operator!=(const FXchar* s1,const FXString& s2){ return FXString::compare(s1,s2.text())!=0; }
 
 /// Lexicographic less than operators
-extern FXAPI FXbool operator<(const FXString& s1,const FXString& s2);
-extern FXAPI FXbool operator<(const FXString& s1,const FXchar* s2);
-extern FXAPI FXbool operator<(const FXchar* s1,const FXString& s2);
+static inline FXbool operator<(const FXString& s1,const FXString& s2){ return FXString::compare(s1.text(),s2.text())<0; }
+static inline FXbool operator<(const FXString& s1,const FXchar* s2){ return FXString::compare(s1.text(),s2)<0; }
+static inline FXbool operator<(const FXchar* s1,const FXString& s2){ return FXString::compare(s1,s2.text())<0; }
 
 /// Lexicographic less than or equal operators
-extern FXAPI FXbool operator<=(const FXString& s1,const FXString& s2);
-extern FXAPI FXbool operator<=(const FXString& s1,const FXchar* s2);
-extern FXAPI FXbool operator<=(const FXchar* s1,const FXString& s2);
+static inline FXbool operator<=(const FXString& s1,const FXString& s2){ return FXString::compare(s1.text(),s2.text())<=0; }
+static inline FXbool operator<=(const FXString& s1,const FXchar* s2){ return FXString::compare(s1.text(),s2)<=0; }
+static inline FXbool operator<=(const FXchar* s1,const FXString& s2){ return FXString::compare(s1,s2.text())<=0; }
 
 /// Lexicographic greater than operators
-extern FXAPI FXbool operator>(const FXString& s1,const FXString& s2);
-extern FXAPI FXbool operator>(const FXString& s1,const FXchar* s2);
-extern FXAPI FXbool operator>(const FXchar* s1,const FXString& s2);
+static inline FXbool operator>(const FXString& s1,const FXString& s2){ return FXString::compare(s1.text(),s2.text())>0; }
+static inline FXbool operator>(const FXString& s1,const FXchar* s2){ return FXString::compare(s1.text(),s2)>0; }
+static inline FXbool operator>(const FXchar* s1,const FXString& s2){ return FXString::compare(s1,s2.text())>0; }
 
 /// Lexicographic greater than or equal operators
-extern FXAPI FXbool operator>=(const FXString& s1,const FXString& s2);
-extern FXAPI FXbool operator>=(const FXString& s1,const FXchar* s2);
-extern FXAPI FXbool operator>=(const FXchar* s1,const FXString& s2);
+static inline FXbool operator>=(const FXString& s1,const FXString& s2){ return FXString::compare(s1.text(),s2.text())>=0; }
+static inline FXbool operator>=(const FXString& s1,const FXchar* s2){ return FXString::compare(s1.text(),s2)>=0; }
+static inline FXbool operator>=(const FXchar* s1,const FXString& s2){ return FXString::compare(s1,s2.text())>=0; }
 
 /// Concatenate FXString and FXString
 extern FXAPI FXString operator+(const FXString& s1,const FXString& s2);

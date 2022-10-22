@@ -3,7 +3,7 @@
 *                          G e n e r i c   A r r a y                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -39,7 +39,7 @@
 
 
 // Special empty array value
-#define EMPTY   ((FXptr)(__array__empty__+1))
+#define EMPTY  (const_cast<void*>((const void*)(__array__empty__+1)))
 
 using namespace FX;
 
@@ -53,22 +53,25 @@ extern const FXival __array__empty__[];
 const FXival __array__empty__[2]={0,0};
 
 
-// Default constructor
+// Copying empty array uses same empty-array pointer regardless of
+// subclass; if array is non-empty, subclass does the actual copying.
 FXArrayBase::FXArrayBase():ptr(EMPTY){
   }
 
 
-// Change number of items in list
+// Resize the array to num elements of size sz; if size becomes zero,
+// substitute special empty-array pointer again which contains zero
+// elements of any type.
 FXbool FXArrayBase::resize(FXival num,FXival sz){
   FXival old=*(((FXival*)ptr)-1);
   if(__likely(old!=num)){
     FXptr p;
     if(0<num){
       if(ptr!=EMPTY){
-        if(__unlikely((p=::realloc(((FXival*)ptr)-1,sizeof(FXival)+num*sz))==NULL)) return false;
+        if(__unlikely((p=::realloc(((FXival*)ptr)-1,sizeof(FXival)+num*sz))==nullptr)) return false;
         }
       else{
-        if(__unlikely((p=::malloc(sizeof(FXival)+num*sz))==NULL)) return false;
+        if(__unlikely((p=::malloc(sizeof(FXival)+num*sz))==nullptr)) return false;
         }
       ptr=((FXival*)p)+1;
       *(((FXival*)ptr)-1)=num;
@@ -87,6 +90,7 @@ FXbool FXArrayBase::resize(FXival num,FXival sz){
 // Destructor
 FXArrayBase::~FXArrayBase(){
   resize(0,0);
+  ptr=(void*)-1L;
   }
 
 }

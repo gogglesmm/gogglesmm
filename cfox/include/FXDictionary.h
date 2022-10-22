@@ -3,7 +3,7 @@
 *                          D i c t i o n a r y    C l a s s                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -37,7 +37,7 @@ class FXAPI FXDictionary {
 protected:
   struct Entry {
     FXString key;       // Key
-    FXptr    data;      // Value
+    void*    data;      // Value
     FXuint   hash;      // Hash of key
     };
 protected:
@@ -94,43 +94,43 @@ public:
   FXbool has(const FXString& ky) const { return has(ky.text()); }
 
   /// Return reference to slot assocated with given key
-  FXptr& at(const FXchar* ky);
+  void*& at(const FXchar* ky);
 
   /// Return constant reference to slot assocated with given key
-  const FXptr& at(const FXchar* ky) const;
+  void *const& at(const FXchar* ky) const;
 
   /// Return reference to slot assocated with given key
-  FXptr& at(const FXString& ky){ return at(ky.text()); }
+  void*& at(const FXString& ky){ return at(ky.text()); }
 
   /// Return constant reference to slot assocated with given key
-  const FXptr& at(const FXString& ky) const { return at(ky.text()); }
+  void *const& at(const FXString& ky) const { return at(ky.text()); }
 
   /// Return reference to slot assocated with given key
-  FXptr& operator[](const FXchar* ky){ return at(ky); }
+  void*& operator[](const FXchar* ky){ return at(ky); }
 
   /// Return constant reference to slot assocated with given key
-  const FXptr& operator[](const FXchar* ky) const { return at(ky); }
+  void *const& operator[](const FXchar* ky) const { return at(ky); }
 
   /// Return reference to slot assocated with given key
-  FXptr& operator[](const FXString& ky){ return at(ky); }
+  void*& operator[](const FXString& ky){ return at(ky); }
 
   /// Return constant reference to slot assocated with given key
-  const FXptr& operator[](const FXString& ky) const { return at(ky); }
+  void *const& operator[](const FXString& ky) const { return at(ky); }
 
   /// Insert association with given key; return old value, if any
-  FXptr insert(const FXchar* ky,FXptr ptr=NULL){ return swap(ptr,at(ky)); }
+  void* insert(const FXchar* ky,void* ptr=nullptr){ return swap(ptr,at(ky)); }
 
   /// Insert association with given key; return old value, if any
-  FXptr insert(const FXString& ky,FXptr ptr=NULL){ return swap(ptr,at(ky)); }
+  void* insert(const FXString& ky,void* ptr=nullptr){ return swap(ptr,at(ky)); }
 
   /// Remove association with given key; return old value, if any
-  FXptr remove(const FXchar* ky);
+  void* remove(const FXchar* ky);
 
   /// Remove association with given key; return old value, if any
-  FXptr remove(const FXString& ky){ return remove(ky.text()); }
+  void* remove(const FXString& ky){ return remove(ky.text()); }
 
   /// Erase data at pos in the table; return old value, if any
-  FXptr erase(FXival pos);
+  void* erase(FXival pos);
 
   /// Return true if slot is empty.
   FXbool empty(FXival pos) const { return table[pos].key.empty(); }
@@ -139,13 +139,13 @@ public:
   const FXString& key(FXival pos) const { return table[pos].key; }
 
   /// Return reference to slot at position pos
-  FXptr& data(FXival pos){ return table[pos].data; }
+  void*& data(FXival pos){ return table[pos].data; }
 
   /// Return constant reference to slot at position pos
-  const FXptr& data(FXival pos) const { return table[pos].data; }
+  void *const& data(FXival pos) const { return table[pos].data; }
 
   /// Clear entire table
-  void clear();
+  FXbool clear();
 
   /// Destroy table
  ~FXDictionary();

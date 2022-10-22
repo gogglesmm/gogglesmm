@@ -3,7 +3,7 @@
 *                       X M L   R e a d e r  &  W r i t e r                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,9 @@
 #ifndef FXXML_H
 #define FXXML_H
 
+#ifndef FXPARSEBUFFER_H
+#include "FXParseBuffer.h"
+#endif
 
 namespace FX {
 
@@ -28,7 +31,7 @@ namespace FX {
 /**
 * The XML serializer loads or saves data to xml text file.
 */
-class FXAPI FXXML {
+class FXAPI FXXML : public FXParseBuffer {
 public:
   enum Error {
     ErrOK,              /// No errors
@@ -47,11 +50,6 @@ public:
     ErrNoMatch,         /// Start and end tag not matching
     ErrEof              /// Unexpected end of file
     };
-  enum Direction {
-    Stop = 0,           /// Not active
-    Save = 1,           /// Save to device
-    Load = 2            /// Load from device
-    };
   enum {
     CRLF = 0x0001,      /// CRLF, LFCR, CR, LF map to LF
     REFS = 0x0002,      /// Character references processed
@@ -66,22 +64,13 @@ public:
 protected:
   class Element;        // Element info
 protected:
-  FXchar    *begptr;    // Text buffer begin ptr
-  FXchar    *endptr;    // Text buffer end ptr
-  FXchar    *wptr;      // Text buffer write ptr
-  FXchar    *rptr;      // Text buffer read ptr
-  FXchar    *sptr;      // Text buffer scan ptr
   FXlong     offset;    // Position from start
   Element   *current;   // Current element instance
   FXint      column;    // Column number
   FXint      line;      // Line number
-  Direction  dir;       // Direction
   FXString   vers;      // Version
   FXuint     enc;       // Encoding
 private:
-  FXbool need(FXival n);
-  FXbool emit(const FXchar* str,FXint count);
-  FXbool emit(FXchar ch,FXint count);
   FXuint guess();
   void spaces();
   FXbool name();
@@ -107,7 +96,7 @@ private:
 private:
   static const FXchar *const errors[];
 private:
-  FXXML(const FXXML&){}
+  FXXML(const FXXML&);
   FXXML& operator=(const FXXML&);
 public:
 
@@ -149,7 +138,7 @@ public:
   * Open XML stream for given direction d.
   * Use given buffer data of size sz, or allocate a local buffer.
   */
-  FXbool open(FXchar* buffer=NULL,FXuval sz=4096,Direction d=Load);
+  FXbool open(FXchar* buffer=nullptr,FXuval sz=4096,Direction d=Load);
 
   /**
   * Return size of parse buffer.
@@ -208,16 +197,6 @@ public:
 
   /// Returns error code for given error
   static const FXchar* getError(Error err){ return errors[err]; }
-
-  /**
-  * Read at least count bytes into buffer; return bytes available, or -1 for error.
-  */
-  virtual FXival fill(FXival count);
-
-  /**
-  * Write at least count bytes from buffer; return space available, or -1 for error.
-  */
-  virtual FXival flush(FXival count);
 
   /**
   * Close stream and delete buffer, if owned.

@@ -3,7 +3,7 @@
 *                       I m a g e   V i e w   W i d g e t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -79,7 +79,7 @@ FXIMPLEMENT(FXImageView,FXScrollArea,FXImageViewMap,ARRAYNUMBER(FXImageViewMap))
 // Deserialization
 FXImageView::FXImageView(){
   flags|=FLAG_ENABLED;
-  image=NULL;
+  image=nullptr;
   grabx=0;
   graby=0;
   }

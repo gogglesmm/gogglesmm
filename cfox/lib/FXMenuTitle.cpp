@@ -3,7 +3,7 @@
 *                       M e n u   T i t l e   W i d g e t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "fxkeys.h"
 #include "FXArray.h"
@@ -58,7 +59,7 @@
     somehow does not allow keyboard navigation.
 */
 
-
+#define TOPIC_KEYBOARD  1009
 
 using namespace FX;
 
@@ -187,10 +188,10 @@ long FXMenuTitle::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
   if(isEnabled()){
     if(target && target->tryHandle(this,FXSEL(SEL_LEFTBUTTONPRESS,message),ptr)) return 1;
     if(flags&FLAG_ACTIVE){
-      handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+      handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
       }
     else{
-      handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+      handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
       }
     return 1;
     }
@@ -215,7 +216,7 @@ long FXMenuTitle::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
 // Keyboard press; forward to menu pane
 long FXMenuTitle::onKeyPress(FXObject*,FXSelector sel,void* ptr){
   if(isEnabled()){
-    FXTRACE((200,"%s::onKeyPress %p keysym=0x%04x state=%04x\n",getClassName(),this,((FXEvent*)ptr)->code,((FXEvent*)ptr)->state));
+    FXTRACE((TOPIC_KEYBOARD,"%s::onKeyPress %p keysym=0x%04x state=%04x\n",getClassName(),this,((FXEvent*)ptr)->code,((FXEvent*)ptr)->state));
     if(target && target->tryHandle(this,FXSEL(SEL_KEYPRESS,message),ptr)) return 1;
     if(pane && pane->shown() && pane->handle(pane,sel,ptr)) return 1;
     }
@@ -226,7 +227,7 @@ long FXMenuTitle::onKeyPress(FXObject*,FXSelector sel,void* ptr){
 // Keyboard release; forward to menu pane
 long FXMenuTitle::onKeyRelease(FXObject*,FXSelector sel,void* ptr){
   if(isEnabled()){
-    FXTRACE((200,"%s::onKeyRelease %p keysym=0x%04x state=%04x\n",getClassName(),this,((FXEvent*)ptr)->code,((FXEvent*)ptr)->state));
+    FXTRACE((TOPIC_KEYBOARD,"%s::onKeyRelease %p keysym=0x%04x state=%04x\n",getClassName(),this,((FXEvent*)ptr)->code,((FXEvent*)ptr)->state));
     if(target && target->tryHandle(this,FXSEL(SEL_KEYRELEASE,message),ptr)) return 1;
     if(pane && pane->shown() && pane->handle(pane,sel,ptr)) return 1;
     }
@@ -236,7 +237,7 @@ long FXMenuTitle::onKeyRelease(FXObject*,FXSelector sel,void* ptr){
 
 // Hot key combination pressed
 long FXMenuTitle::onHotKeyPress(FXObject*,FXSelector,void* ptr){
-  FXTRACE((200,"%s::onHotKeyPress %p\n",getClassName(),this));
+  FXTRACE((TOPIC_KEYBOARD,"%s::onHotKeyPress %p\n",getClassName(),this));
   handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr);
   return 1;
   }
@@ -244,13 +245,13 @@ long FXMenuTitle::onHotKeyPress(FXObject*,FXSelector,void* ptr){
 
 // Hot key combination released
 long FXMenuTitle::onHotKeyRelease(FXObject*,FXSelector,void*){
-  FXTRACE((200,"%s::onHotKeyRelease %p\n",getClassName(),this));
+  FXTRACE((TOPIC_KEYBOARD,"%s::onHotKeyRelease %p\n",getClassName(),this));
   if(isEnabled()){
     if(flags&FLAG_ACTIVE){
-      handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+      handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
       }
     else{
-      handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+      handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
       }
     }
   return 1;
@@ -307,7 +308,7 @@ long FXMenuTitle::onCmdUnpost(FXObject*,FXSelector,void*){
 // Focus moved down
 long FXMenuTitle::onFocusDown(FXObject*,FXSelector,void*){
   if(pane && !pane->shown()){
-    handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+    handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
     return 1;
     }
   return 0;
@@ -317,7 +318,7 @@ long FXMenuTitle::onFocusDown(FXObject*,FXSelector,void*){
 // Focus moved up
 long FXMenuTitle::onFocusUp(FXObject*,FXSelector,void*){
   if(pane && pane->shown()){
-    handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+    handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
     return 1;
     }
   return 0;
@@ -329,14 +330,14 @@ void FXMenuTitle::setFocus(){
   FXWindow *menuitem=getParent()->getFocus();
   FXbool active=menuitem && menuitem->isActive();
   FXMenuCaption::setFocus();
-  if(active) handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+  if(active) handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
   }
 
 
 // Out of focus chain
 void FXMenuTitle::killFocus(){
   FXMenuCaption::killFocus();
-  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   }
 
 

@@ -3,7 +3,7 @@
 *              D o u b l e - P r e c i s i o n  Q u a t e r n i o n             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1994,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1994,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -45,6 +45,7 @@
   - Typically, |Q| == 1.  But this is not always a given.
   - Repeated operations should periodically fix Q to maintain |Q| == 1, using
     the adjust() API.
+  - FIXME maybe refine exp() and log() as non-members.
 */
 
 using namespace FX;
@@ -179,6 +180,32 @@ FXVec3d FXQuatd::getRotation() const {
     rot.z=z*phi*mag;
     }
   return rot;
+  }
+
+
+// Set unit quaternion to modified rodrigues parameters.
+// Modified Rodriques parameters are defined as MRP = tan(theta/4)*E,
+// where theta is rotation angle (radians), and E is unit axis of rotation.
+// Reference: "A survey of Attitude Representations", Malcolm D. Shuster,
+// Journal of Astronautical sciences, Vol. 41, No. 4, Oct-Dec. 1993, pp. 476,
+// Equations (253).
+void FXQuatd::setMRP(const FXVec3d& m){
+  FXdouble mm=m[0]*m[0]+m[1]*m[1]+m[2]*m[2];
+  FXdouble D=1.0/(1.0+mm);
+  x=m[0]*2.0*D;
+  y=m[1]*2.0*D;
+  z=m[2]*2.0*D;
+  w=(1.0-mm)*D;
+  }
+
+
+// Return modified rodrigues parameters from unit quaternion.
+// Reference: "A survey of Attitude Representations", Malcolm D. Shuster,
+// Journal of Astronautical sciences, Vol. 41, No. 4, Oct-Dec. 1993, pp. 475,
+// Equations (249). (250).
+FXVec3d FXQuatd::getMRP() const {
+  FXdouble m=(0.0<w)?1.0/(1.0+w):-1.0/(1.0-w);
+  return FXVec3d(x*m,y*m,z*m);
   }
 
 
@@ -327,38 +354,47 @@ void FXQuatd::getYawRollPitch(FXdouble& yaw,FXdouble& roll,FXdouble& pitch) cons
 
 
 // Set quaternion from axes
+// "Converting a Rotation Matrix to a Quaternion," Mike Day, Insomniac Games.
 void FXQuatd::setAxes(const FXVec3d& ex,const FXVec3d& ey,const FXVec3d& ez){
-  FXdouble trace=ex.x+ey.y+ez.z;
-  FXdouble scale;
-  if(trace>0.0){
-    scale=Math::sqrt(1.0+trace);
-    w=0.5*scale;
-    scale=0.5/scale;
-    x=(ey.z-ez.y)*scale;
-    y=(ez.x-ex.z)*scale;
-    z=(ex.y-ey.x)*scale;
-    }
-  else if(ex.x>ey.y && ex.x>ez.z){
-    scale=2.0*Math::sqrt(1.0+ex.x-ey.y-ez.z);
-    x=0.25*scale;
-    y=(ex.y+ey.x)/scale;
-    z=(ex.z+ez.x)/scale;
-    w=(ey.z-ez.y)/scale;
-    }
-  else if(ey.y>ez.z){
-    scale=2.0*Math::sqrt(1.0+ey.y-ex.x-ez.z);
-    y=0.25*scale;
-    x=(ex.y+ey.x)/scale;
-    z=(ey.z+ez.y)/scale;
-    w=(ez.x-ex.z)/scale;
+  FXdouble t;
+  if(ez.z<0.0){
+    if(ex.x>ey.y){
+      t=1.0+ex.x-ey.y-ez.z;
+      x=t;
+      y=ex.y+ey.x;
+      z=ez.x+ex.z;
+      w=ey.z-ez.y;
+      }
+    else{
+      t=1.0-ex.x+ey.y-ez.z;
+      x=ex.y+ey.x;
+      y=t;
+      z=ey.z+ez.y;
+      w=ez.x-ex.z;
+      }
     }
   else{
-    scale=2.0*Math::sqrt(1.0+ez.z-ex.x-ey.y);
-    z=0.25*scale;
-    x=(ex.z+ez.x)/scale;
-    y=(ey.z+ez.y)/scale;
-    w=(ex.y-ey.x)/scale;
+    if(ex.x<-ey.y){
+      t=1.0-ex.x-ey.y+ez.z;
+      x=ez.x+ex.z;
+      y=ey.z+ez.y;
+      z=t;
+      w=ex.y-ey.x;
+      }
+    else{
+      t=1.0+ex.x+ey.y+ez.z;
+      x=ey.z-ez.y;
+      y=ez.x-ex.z;
+      z=ex.y-ey.x;
+      w=t;
+      }
     }
+  FXASSERT(t>0.0);
+  t=0.5/Math::sqrt(t);
+  x*=t;
+  y*=t;
+  z*=t;
+  w*=t;
   }
 
 
@@ -457,7 +493,7 @@ FXQuatd FXQuatd::pow(FXdouble t) const {
 // Rotation unit-quaternion and vector v . q = (q . v . q*) where q* is
 // the conjugate of q.
 //
-// The Rodriques Formula for rotating a vector V about a unit-axis K is:
+// The Rodriques Formula for rotating a vector V over angle A about a unit-vector K:
 //
 //    V' = K (K . V) + (K x V) sin(A) - K x (K x V) cos(A)
 //
@@ -565,10 +601,10 @@ FXQuatd arc(const FXVec3d& f,const FXVec3d& t){
 // This is equivalent to: u * (u.unitinvert()*v).pow(f)
 FXQuatd lerp(const FXQuatd& u,const FXQuatd& v,FXdouble f){
   FXdouble dot=u.x*v.x+u.y*v.y+u.z*v.z+u.w*v.w;
+  FXdouble to=Math::fblend(dot,0.0,-f,f);
+  FXdouble fr=1.0-f;
   FXdouble cost=Math::fabs(dot);
   FXdouble sint;
-  FXdouble fr=1.0-f;
-  FXdouble to=f;
   FXdouble theta;
   FXQuatd result;
   if(__likely(cost<0.999999999999999)){
@@ -577,7 +613,6 @@ FXQuatd lerp(const FXQuatd& u,const FXQuatd& v,FXdouble f){
     fr=Math::sin(fr*theta)/sint;
     to=Math::sin(to*theta)/sint;
     }
-  if(dot<0.0) to=-to;
   result.x=fr*u.x+to*v.x;
   result.y=fr*u.y+to*v.y;
   result.z=fr*u.z+to*v.z;
@@ -611,6 +646,336 @@ FXQuatd lerpdot(const FXQuatd& u,const FXQuatd& v,FXdouble f){
   }
 
 
+/*******************************************************************************/
+
+// 1/(i*(2*i+1)) for i>=1
+const FXdouble u8_0=0.333333333333333333333333;
+const FXdouble u8_1=0.1;
+const FXdouble u8_2=0.047619047619047619047619;
+const FXdouble u8_3=0.027777777777777777777778;
+const FXdouble u8_4=0.018181818181818181818182;
+const FXdouble u8_5=0.012820512820512820512820;
+const FXdouble u8_6=0.009523809523809523809524;
+const FXdouble u8_7=0.00735294117647058823529412*1.85298109240830;
+
+// i/(2*i+1) for i>=1
+const FXdouble v8_0=0.333333333333333333333333;
+const FXdouble v8_1=0.4;
+const FXdouble v8_2=0.428571428571428571428571;
+const FXdouble v8_3=0.444444444444444444444444;
+const FXdouble v8_4=0.454545454545454545454545;
+const FXdouble v8_5=0.461538461538461538461538;
+const FXdouble v8_6=0.466666666666666666666667;
+const FXdouble v8_7=0.470588235294117647058824*1.85298109240830;
+
+
+// It is assumed that the angle between q0 and q1 is acute, i.e. angle between
+// q0 and q1 is less than pi/2.
+//
+// Based on "A Fast and Accurate Algorithm for Computing SLERP", by David Eberly.
+FXQuatd fastlerp8(const FXQuatd& q0,const FXQuatd& q1,FXdouble t){
+  FXdouble xm1=q0.x*q1.x+q0.y*q1.y+q0.z*q1.z+q0.w*q1.w-1.0;      // x-1 = cos(theta)-1
+  FXdouble d=1.0-t;
+  FXdouble sqrT=t*t;
+  FXdouble sqrD=d*d;
+  FXdouble bD0=(u8_0*sqrD-v8_0)*xm1;
+  FXdouble bD1=(u8_1*sqrD-v8_1)*xm1;
+  FXdouble bD2=(u8_2*sqrD-v8_2)*xm1;
+  FXdouble bD3=(u8_3*sqrD-v8_3)*xm1;
+  FXdouble bD4=(u8_4*sqrD-v8_4)*xm1;
+  FXdouble bD5=(u8_5*sqrD-v8_5)*xm1;
+  FXdouble bD6=(u8_6*sqrD-v8_6)*xm1;
+  FXdouble bD7=(u8_7*sqrD-v8_7)*xm1;
+  FXdouble bT0=(u8_0*sqrT-v8_0)*xm1;
+  FXdouble bT1=(u8_1*sqrT-v8_1)*xm1;
+  FXdouble bT2=(u8_2*sqrT-v8_2)*xm1;
+  FXdouble bT3=(u8_3*sqrT-v8_3)*xm1;
+  FXdouble bT4=(u8_4*sqrT-v8_4)*xm1;
+  FXdouble bT5=(u8_5*sqrT-v8_5)*xm1;
+  FXdouble bT6=(u8_6*sqrT-v8_6)*xm1;
+  FXdouble bT7=(u8_7*sqrT-v8_7)*xm1;
+  FXdouble f0=d*(1.0+bD0*(1.0+bD1*(1.0+bD2*(1.0+bD3*(1.0+bD4*(1.0+bD5*(1.0+bD6*(1.0+bD7))))))));
+  FXdouble f1=t*(1.0+bT0*(1.0+bT1*(1.0+bT2*(1.0+bT3*(1.0+bT4*(1.0+bT5*(1.0+bT6*(1.0+bT7))))))));
+  FXQuatd result(f0*q0+f1*q1);
+  return result;
+  }
+
+// 1/(i*(2*i+1)) for i>=1
+const FXdouble u10_0=0.333333333333333333333333;
+const FXdouble u10_1=0.1;
+const FXdouble u10_2=0.047619047619047619047619;
+const FXdouble u10_3=0.027777777777777777777778;
+const FXdouble u10_4=0.018181818181818181818182;
+const FXdouble u10_5=0.012820512820512820512820;
+const FXdouble u10_6=0.009523809523809523809524;
+const FXdouble u10_7=0.007352941176470588235294;
+const FXdouble u10_8=0.005847953216374269005848;
+const FXdouble u10_9=0.004761904761904761904762*1.87666328810155;
+
+// i/(2*i+1) for i>=1
+const FXdouble v10_0=0.333333333333333333333333;
+const FXdouble v10_1=0.4;
+const FXdouble v10_2=0.428571428571428571428571;
+const FXdouble v10_3=0.444444444444444444444444;
+const FXdouble v10_4=0.454545454545454545454545;
+const FXdouble v10_5=0.461538461538461538461538;
+const FXdouble v10_6=0.466666666666666666666667;
+const FXdouble v10_7=0.470588235294117647058824;
+const FXdouble v10_8=0.473684210526315789473684;
+const FXdouble v10_9=0.476190476190476190476190*1.87666328810155;
+
+
+FXQuatd fastlerp10(const FXQuatd& q0,const FXQuatd& q1,FXdouble t){
+  FXdouble xm1=q0.x*q1.x+q0.y*q1.y+q0.z*q1.z+q0.w*q1.w-1.0;      // x-1 = cos(theta)-1
+  FXdouble d=1.0-t;
+  FXdouble sqrT=t*t;
+  FXdouble sqrD=d*d;
+  FXdouble bD0=(u10_0*sqrD-v10_0)*xm1;
+  FXdouble bD1=(u10_1*sqrD-v10_1)*xm1;
+  FXdouble bD2=(u10_2*sqrD-v10_2)*xm1;
+  FXdouble bD3=(u10_3*sqrD-v10_3)*xm1;
+  FXdouble bD4=(u10_4*sqrD-v10_4)*xm1;
+  FXdouble bD5=(u10_5*sqrD-v10_5)*xm1;
+  FXdouble bD6=(u10_6*sqrD-v10_6)*xm1;
+  FXdouble bD7=(u10_7*sqrD-v10_7)*xm1;
+  FXdouble bD8=(u10_8*sqrD-v10_8)*xm1;
+  FXdouble bD9=(u10_9*sqrD-v10_9)*xm1;
+  FXdouble bT0=(u10_0*sqrT-v10_0)*xm1;
+  FXdouble bT1=(u10_1*sqrT-v10_1)*xm1;
+  FXdouble bT2=(u10_2*sqrT-v10_2)*xm1;
+  FXdouble bT3=(u10_3*sqrT-v10_3)*xm1;
+  FXdouble bT4=(u10_4*sqrT-v10_4)*xm1;
+  FXdouble bT5=(u10_5*sqrT-v10_5)*xm1;
+  FXdouble bT6=(u10_6*sqrT-v10_6)*xm1;
+  FXdouble bT7=(u10_7*sqrT-v10_7)*xm1;
+  FXdouble bT8=(u10_8*sqrT-v10_8)*xm1;
+  FXdouble bT9=(u10_9*sqrT-v10_9)*xm1;
+  FXdouble f0=d*(1.0+bD0*(1.0+bD1*(1.0+bD2*(1.0+bD3*(1.0+bD4*(1.0+bD5*(1.0+bD6*(1.0+bD7*(1.0+bD8*(1.0+bD9))))))))));
+  FXdouble f1=t*(1.0+bT0*(1.0+bT1*(1.0+bT2*(1.0+bT3*(1.0+bT4*(1.0+bT5*(1.0+bT6*(1.0+bT7*(1.0+bT8*(1.0+bT9))))))))));
+  FXQuatd result(f0*q0+f1*q1);
+  return result;
+  }
+
+
+// 1/(i*(2*i+1)) for i>=1
+const FXdouble u12_0=0.333333333333333333333333;
+const FXdouble u12_1=0.1;
+const FXdouble u12_2=0.047619047619047619047619;
+const FXdouble u12_3=0.027777777777777777777778;
+const FXdouble u12_4=0.018181818181818181818182;
+const FXdouble u12_5=0.012820512820512820512820;
+const FXdouble u12_6=0.009523809523809523809524;
+const FXdouble u12_7=0.007352941176470588235294;
+const FXdouble u12_8=0.005847953216374269005848;
+const FXdouble u12_9=0.004761904761904761904762;
+const FXdouble u12_10=0.003952569169960474308300;
+const FXdouble u12_11=0.00333333333333333333333333*1.89371240325272;
+
+// i/(2*i+1) for i>=1
+const FXdouble v12_0=0.333333333333333333333333;
+const FXdouble v12_1=0.4;
+const FXdouble v12_2=0.428571428571428571428571;
+const FXdouble v12_3=0.444444444444444444444444;
+const FXdouble v12_4=0.454545454545454545454545;
+const FXdouble v12_5=0.461538461538461538461538;
+const FXdouble v12_6=0.466666666666666666666667;
+const FXdouble v12_7=0.470588235294117647058824;
+const FXdouble v12_8=0.473684210526315789473684;
+const FXdouble v12_9=0.476190476190476190476190;
+const FXdouble v12_10=0.478260869565217391304348;
+const FXdouble v12_11=0.48*1.89371240325272;
+
+
+// About 26 clocks, err = ~1E-6
+FXQuatd fastlerp12(const FXQuatd& q0,const FXQuatd& q1,FXdouble t){
+  FXdouble xm1=q0.x*q1.x+q0.y*q1.y+q0.z*q1.z+q0.w*q1.w-1.0;      // x-1 = cos(theta)-1
+  FXdouble d=1.0-t;
+  FXdouble sqrT=t*t;
+  FXdouble sqrD=d*d;
+  FXdouble bD0=(u12_0*sqrD-v12_0)*xm1;
+  FXdouble bD1=(u12_1*sqrD-v12_1)*xm1;
+  FXdouble bD2=(u12_2*sqrD-v12_2)*xm1;
+  FXdouble bD3=(u12_3*sqrD-v12_3)*xm1;
+  FXdouble bD4=(u12_4*sqrD-v12_4)*xm1;
+  FXdouble bD5=(u12_5*sqrD-v12_5)*xm1;
+  FXdouble bD6=(u12_6*sqrD-v12_6)*xm1;
+  FXdouble bD7=(u12_7*sqrD-v12_7)*xm1;
+  FXdouble bD8=(u12_8*sqrD-v12_8)*xm1;
+  FXdouble bD9=(u12_9*sqrD-v12_9)*xm1;
+  FXdouble bD10=(u12_10*sqrD-v12_10)*xm1;
+  FXdouble bD11=(u12_11*sqrD-v12_11)*xm1;
+  FXdouble bT0=(u12_0*sqrT-v12_0)*xm1;
+  FXdouble bT1=(u12_1*sqrT-v12_1)*xm1;
+  FXdouble bT2=(u12_2*sqrT-v12_2)*xm1;
+  FXdouble bT3=(u12_3*sqrT-v12_3)*xm1;
+  FXdouble bT4=(u12_4*sqrT-v12_4)*xm1;
+  FXdouble bT5=(u12_5*sqrT-v12_5)*xm1;
+  FXdouble bT6=(u12_6*sqrT-v12_6)*xm1;
+  FXdouble bT7=(u12_7*sqrT-v12_7)*xm1;
+  FXdouble bT8=(u12_8*sqrT-v12_8)*xm1;
+  FXdouble bT9=(u12_9*sqrT-v12_9)*xm1;
+  FXdouble bT10=(u12_10*sqrT-v12_10)*xm1;
+  FXdouble bT11=(u12_11*sqrT-v12_11)*xm1;
+  FXdouble f0=d*(1.0+bD0*(1.0+bD1*(1.0+bD2*(1.0+bD3*(1.0+bD4*(1.0+bD5*(1.0+bD6*(1.0+bD7*(1.0+bD8*(1.0+bD9*(1.0+bD10*(1.0+bD11))))))))))));
+  FXdouble f1=t*(1.0+bT0*(1.0+bT1*(1.0+bT2*(1.0+bT3*(1.0+bT4*(1.0+bT5*(1.0+bT6*(1.0+bT7*(1.0+bT8*(1.0+bT9*(1.0+bT10*(1.0+bT11))))))))))));
+  FXQuatd result(f0*q0+f1*q1);
+  return result;
+  }
+
+
+// 1/(i*(2*i+1)) for i>=1
+const FXdouble u16_0=0.333333333333333333333333;
+const FXdouble u16_1=0.1;
+const FXdouble u16_2=0.047619047619047619047619;
+const FXdouble u16_3=0.027777777777777777777778;
+const FXdouble u16_4=0.018181818181818181818182;
+const FXdouble u16_5=0.012820512820512820512820;
+const FXdouble u16_6=0.009523809523809523809524;
+const FXdouble u16_7=0.007352941176470588235294;
+const FXdouble u16_8=0.005847953216374269005848;
+const FXdouble u16_9=0.004761904761904761904762;
+const FXdouble u16_10=0.003952569169960474308300;
+const FXdouble u16_11=0.00333333333333333333333333;
+const FXdouble u16_12=0.002849002849002849002849;
+const FXdouble u16_13=0.00246305418719211822660099;
+const FXdouble u16_14=0.00215053763440860215053763;
+const FXdouble u16_15=0.00189393939393939393939394*1.91666919924319;     // Best value if angle <pi/2
+//const FXdouble u16_15=0.00189393939393939393939394*1.06647791713476;   // Best value if angle <pi/4
+
+// i/(2*i+1) for i>=1
+const FXdouble v16_0=0.333333333333333333333333;
+const FXdouble v16_1=0.4;
+const FXdouble v16_2=0.428571428571428571428571;
+const FXdouble v16_3=0.444444444444444444444444;
+const FXdouble v16_4=0.454545454545454545454545;
+const FXdouble v16_5=0.461538461538461538461538;
+const FXdouble v16_6=0.466666666666666666666667;
+const FXdouble v16_7=0.470588235294117647058824;
+const FXdouble v16_8=0.473684210526315789473684;
+const FXdouble v16_9=0.476190476190476190476190;
+const FXdouble v16_10=0.478260869565217391304348;
+const FXdouble v16_11=0.48;
+const FXdouble v16_12=0.481481481481481481481481;
+const FXdouble v16_13=0.482758620689655172413793;
+const FXdouble v16_14=0.483870967741935483870968;
+const FXdouble v16_15=0.484848484848484848484848*1.91666919924319;       // Best value if angle <pi/2
+//const FXdouble v16_15=0.484848484848484848484848*1.06647791713476;     // Best value if angle <pi/4
+
+
+// About 39 clocks, err = ~3.5E-8
+FXQuatd fastlerp16(const FXQuatd& q0,const FXQuatd& q1,FXdouble t){
+  FXdouble xm1=q0.x*q1.x+q0.y*q1.y+q0.z*q1.z+q0.w*q1.w-1.0;      // x-1 = cos(theta)-1
+  FXdouble d=1.0-t;
+  FXdouble sqrT=t*t;
+  FXdouble sqrD=d*d;
+  FXdouble bD0=(u16_0*sqrD-v16_0)*xm1;
+  FXdouble bT0=(u16_0*sqrT-v16_0)*xm1;
+  FXdouble bD1=(u16_1*sqrD-v16_1)*xm1;
+  FXdouble bT1=(u16_1*sqrT-v16_1)*xm1;
+  FXdouble bD2=(u16_2*sqrD-v16_2)*xm1;
+  FXdouble bT2=(u16_2*sqrT-v16_2)*xm1;
+  FXdouble bD3=(u16_3*sqrD-v16_3)*xm1;
+  FXdouble bT3=(u16_3*sqrT-v16_3)*xm1;
+  FXdouble bD4=(u16_4*sqrD-v16_4)*xm1;
+  FXdouble bT4=(u16_4*sqrT-v16_4)*xm1;
+  FXdouble bD5=(u16_5*sqrD-v16_5)*xm1;
+  FXdouble bT5=(u16_5*sqrT-v16_5)*xm1;
+  FXdouble bD6=(u16_6*sqrD-v16_6)*xm1;
+  FXdouble bT6=(u16_6*sqrT-v16_6)*xm1;
+  FXdouble bD7=(u16_7*sqrD-v16_7)*xm1;
+  FXdouble bT7=(u16_7*sqrT-v16_7)*xm1;
+  FXdouble bD8=(u16_8*sqrD-v16_8)*xm1;
+  FXdouble bT8=(u16_8*sqrT-v16_8)*xm1;
+  FXdouble bD9=(u16_9*sqrD-v16_9)*xm1;
+  FXdouble bT9=(u16_9*sqrT-v16_9)*xm1;
+  FXdouble bD10=(u16_10*sqrD-v16_10)*xm1;
+  FXdouble bT10=(u16_10*sqrT-v16_10)*xm1;
+  FXdouble bD11=(u16_11*sqrD-v16_11)*xm1;
+  FXdouble bT11=(u16_11*sqrT-v16_11)*xm1;
+  FXdouble bD12=(u16_12*sqrD-v16_12)*xm1;
+  FXdouble bT12=(u16_12*sqrT-v16_12)*xm1;
+  FXdouble bD13=(u16_13*sqrD-v16_13)*xm1;
+  FXdouble bT13=(u16_13*sqrT-v16_13)*xm1;
+  FXdouble bD14=(u16_14*sqrD-v16_14)*xm1;
+  FXdouble bT14=(u16_14*sqrT-v16_14)*xm1;
+  FXdouble bD15=(u16_15*sqrD-v16_15)*xm1;
+  FXdouble bT15=(u16_15*sqrT-v16_15)*xm1;
+  FXdouble f0=d*(1.0+bD0*(1.0+bD1*(1.0+bD2*(1.0+bD3*(1.0+bD4*(1.0+bD5*(1.0+bD6*(1.0+bD7*(1.0+bD8*(1.0+bD9*(1.0+bD10*(1.0+bD11*(1.0+bD12*(1.0+bD13*(1.0+bD14*(1.0+bD15))))))))))))))));
+  FXdouble f1=t*(1.0+bT0*(1.0+bT1*(1.0+bT2*(1.0+bT3*(1.0+bT4*(1.0+bT5*(1.0+bT6*(1.0+bT7*(1.0+bT8*(1.0+bT9*(1.0+bT10*(1.0+bT11*(1.0+bT12*(1.0+bT13*(1.0+bT14*(1.0+bT15))))))))))))))));
+  FXQuatd result(f0*q0+f1*q1);
+  return result;
+  }
+
+#if 0
+
+FXQuatd lerp1(const FXQuatd& u,const FXQuatd& v,TDouble f){
+  return lerp(u,v,f);
+  }
+
+
+FXQuatd lerp2(const FXQuatd& u,const FXQuatd& v,TDouble f){
+  return fastlerp(u,v,f);
+  }
+
+
+// Test fast slerp() vs slerp()
+void fastSlerpTest(){
+  FXRandom rng(FXThread::ticks());
+  FXQuat q1,q2,qf,qs,qd,qworst1,qworst2;
+  FXdouble t,dot,err;
+  FXdouble eworst=0.0;
+  FXdouble tworst=0.0;
+  fxmessage("fastSlerpTest:\n");
+
+  for(FXival i=0; i<1000000000L; ++i){
+    t=rng.randDouble();
+    q1.x=2.0*rng.randDouble()-1.0;
+    q1.y=2.0*rng.randDouble()-1.0;
+    q1.z=2.0*rng.randDouble()-1.0;
+    q1.w=2.0*rng.randDouble()-1.0;
+    q2.x=2.0*rng.randDouble()-1.0;
+    q2.y=2.0*rng.randDouble()-1.0;
+    q2.z=2.0*rng.randDouble()-1.0;
+    q2.w=2.0*rng.randDouble()-1.0;
+    q1.adjust();
+    q2.adjust();
+    dot=q1.x*q2.x+q1.y*q2.y+q1.z*q2.z+q1.w*q2.w;
+//  if(0.667457216028384<=dot){
+    if(0.0<=dot){
+      qs=lerp1(q1,q2,t);
+      qf=lerp2(q1,q2,t);
+      qd=qs-qf;
+      err=qd.length2();
+      if(err>eworst){
+        qworst1=q1;
+        qworst2=q2;
+        tworst=t;
+        eworst=err;
+        }
+      }
+    }
+  if(0.0<=eworst){
+    qs=lerp(qworst1,qworst2,t);
+    qf=fastlerp(qworst1,qworst2,t);
+    qd=qs-qf;
+    dot=qworst1.x*qworst2.x+qworst1.y*qworst2.y+qworst1.z*qworst2.z+qworst1.w*qworst2.w;
+    fxmessage("q1  = (%12.8lf,%12.8lf,%12.8lf,%12.8lf)\n",qworst1.x,qworst1.y,qworst1.z,qworst1.w);
+    fxmessage("q2  = (%12.8lf,%12.8lf,%12.8lf,%12.8lf)\n",qworst2.x,qworst2.y,qworst2.z,qworst2.w);
+    fxmessage("qs  = (%12.8lf,%12.8lf,%12.8lf,%12.8lf)\n",qs.x,qs.y,qs.z,qs.w);
+    fxmessage("qf  = (%12.8lf,%12.8lf,%12.8lf,%12.8lf)\n",qf.x,qf.y,qf.z,qf.w);
+    fxmessage("qd  = (%12.8le,%12.8le,%12.8le,%12.8le)\n",qd.x,qd.y,qd.z,qd.w);
+    fxmessage("|qs|= %.16lE\n",qs.length());
+    fxmessage("|qf|= %.16lE\n",qf.length());
+    fxmessage("err = %.16lE\n",Math::sqrt(eworst));
+    fxmessage("dot = %.16lE\n",dot);
+    fxmessage("arg = %.16lE (%.16lg deg)\n",Math::acos(dot),Math::RTOD*Math::acos(dot));
+    fxmessage("t   = %.16lE\n",tworst);
+    }
+  }
+#endif
+
+/*******************************************************************************/
+
 // Cubic hermite quaternion interpolation
 FXQuatd hermite(const FXQuatd& q0,const FXVec3d& r0,const FXQuatd& q1,const FXVec3d& r1,FXdouble t){
   FXQuatd w1(r0[0]*0.333333333333333333,r0[1]*0.333333333333333333,r0[2]*0.333333333333333333,0.0);
@@ -623,6 +988,7 @@ FXQuatd hermite(const FXQuatd& q0,const FXVec3d& r0,const FXQuatd& q1,const FXVe
   return q0*(w1*beta1).exp()*(w2*beta2).exp()*(w3*beta3).exp();
   }
 
+/*******************************************************************************/
 
 // Estimate angular body rates omega from unit quaternions Q0 and Q1 separated by time dt
 //
@@ -648,6 +1014,7 @@ FXVec3d omegaBody(const FXQuatd& q0,const FXQuatd& q1,FXdouble dt){
   return omega;
   }
 
+/*******************************************************************************/
 
 // Derivative q' of orientation quaternion q with angular body rates omega (rad/s)
 //

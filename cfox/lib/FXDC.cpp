@@ -3,7 +3,7 @@
 *               D e v i c e   C o n t e x t   B a s e   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -109,12 +109,12 @@ namespace FX {
 
 // Initialize nicely
 FXDC::FXDC(FXApp* a):app(a){
-  ctx=NULL;
-  font=NULL;
+  ctx=nullptr;
+  font=nullptr;
   pattern=STIPPLE_NONE;
-  stipple=NULL;
-  tile=NULL;
-  mask=NULL;
+  stipple=nullptr;
+  tile=nullptr;
+  mask=nullptr;
   clip.x=0;
   clip.y=0;
   clip.w=32767;
@@ -336,7 +336,7 @@ void FXDC::setBackground(FXColor clr){
 // Set dash pattern
 void FXDC::setDashes(FXuint dashoffset,const FXchar *dashpattern,FXuint dashlength){
   FXuint len,i;
-  if(dashlength>32){ fxerror("FXDCWindow::setDashes: bad dashlength parameter.\n"); }
+  if(dashlen<1 || dashlength>32){ fxerror("FXDC::setDashes: bad dashlength parameter.\n"); }
   for(i=len=0; i<dashlength; i++){
     dashpat[i]=dashpattern[i];
     len+=(FXuint)dashpattern[i];
@@ -408,7 +408,7 @@ void FXDC::setStipple(FXBitmap* bitmap,FXint dx,FXint dy){
 // Set stipple pattern
 void FXDC::setStipple(FXStipplePattern pat,FXint dx,FXint dy){
   pattern=pat;
-  stipple=NULL;
+  stipple=nullptr;
   tx=dx;
   ty=dy;
   }
@@ -453,7 +453,7 @@ void FXDC::setClipMask(FXBitmap* bitmap,FXint dx,FXint dy){
 
 // Clear clip mask
 void FXDC::clearClipMask(){
-  mask=NULL;
+  mask=nullptr;
   cx=0;
   cy=0;
   }

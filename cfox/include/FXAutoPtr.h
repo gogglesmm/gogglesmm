@@ -3,7 +3,7 @@
 *                      A u t o m a t i c   P o i n t e r                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2007,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2007,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -43,7 +43,7 @@ private:
 public:
 
   /// Construct from optional pointer
-  explicit FXAutoPtr(EType* src=NULL):ptr(src){ }
+  explicit FXAutoPtr(EType* src=nullptr):ptr(src){ }
 
   /// Construct from another automatic pointer
   FXAutoPtr(FXAutoPtr<EType>& src):ptr(src.release()){ }
@@ -85,10 +85,10 @@ public:
   EType& operator[](FXint i) const { return ptr[i]; }
 
   /// Release hold on the pointer
-  EType* release(){ EType* tmp=ptr; ptr=NULL; return tmp; }
+  EType* release(){ EType* tmp=ptr; ptr=nullptr; return tmp; }
 
   /// Delete old object, replace by new, if any
-  FXAutoPtr& reset(EType* p=NULL){ if(p!=ptr){ delete ptr; ptr=p; } return *this; }
+  FXAutoPtr& reset(EType* p=nullptr){ if(p!=ptr){ delete ptr; ptr=p; } return *this; }
 
   /// Destruction deletes pointer
   ~FXAutoPtr(){ delete ptr; }

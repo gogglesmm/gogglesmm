@@ -3,7 +3,7 @@
 *                    B i t m a p   V i e w   W i d g e t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -78,7 +78,7 @@ FXIMPLEMENT(FXBitmapView,FXScrollArea,FXBitmapViewMap,ARRAYNUMBER(FXBitmapViewMa
 // Deserialization
 FXBitmapView::FXBitmapView(){
   flags|=FLAG_ENABLED;
-  bitmap=NULL;
+  bitmap=nullptr;
   onColor=0;
   offColor=0;
   grabx=0;

@@ -3,7 +3,7 @@
 *                 R e g u l a r   E x p r e s s i o n   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "fxascii.h"
 #include "fxunicode.h"
@@ -199,9 +200,9 @@
   Grammar:
   ========
 
-      exp        ::= branch { "|" branch }*
+      exp        ::= branch ( "|" branch ) *
 
-      branch     ::= { piece }+
+      branch     ::= ( piece ) +
 
       piece      ::= atom [ rep ]
 
@@ -211,11 +212,11 @@
 
       atom       ::= "(" exp ")" | "[" [^] range "]" | characters
 
-      range      ::= { character | character "-" character } +
+      range      ::= ( character ( "-" character ) ? ) +
 
-      characters ::= { character }*
+      characters ::= ( character ) *
 
-      digits     ::= { digit }*
+      digits     ::= ( digit ) *
 
 
   Special Characters:
@@ -502,8 +503,9 @@
     parsing code.
 */
 
-// Debugging regex code
-//#define REXDEBUG 1
+#define TOPIC_CONSTRUCT 1000
+//#define TOPIC_REXDUMP   1014          // Debugging regex code
+
 
 // As close to infinity as we're going to get; this seems big enough.  We can not make
 // it too large as this may wrap around when added to something else!
@@ -519,6 +521,9 @@
 // Maximum number of pieces reversed
 #define MAXPIECES     256
 
+// Empty regex
+#define EMPTY         (const_cast<FXuchar*>(FXRex::fallback))
+
 
 // Access to opcode
 #define SETOP(p,op)   (*(p)=(op))
@@ -526,7 +531,7 @@
 // Access to argument
 #if defined(__i386__) || defined(__x86_64__)            // No alignment limits on shorts
 #define SETARG(p,val) (*((FXshort*)(p))=(val))
-#define GETARG(p)     (*((FXshort*)(p)))
+#define GETARG(p)     (*((const FXshort*)(p)))
 #elif (FOX_BIGENDIAN == 1)                              // Big-endian machines
 #define SETARG(p,val) (*((p)+0)=(val)>>8,*((p)+1)=(val))
 #define GETARG(p)     ((FXshort)((*((p)+0)<<8)+(*((p)+1))))
@@ -1011,6 +1016,12 @@ static inline void INCL(FXuchar set[],FXuchar ch){
   }
 
 
+// Set bit c to value v
+static inline void SET(FXuchar set[],FXuchar ch,FXbool v){
+  set[ch>>3]^=(set[ch>>3]^(0-v))&(1<<(ch&7));
+  }
+
+
 // Check if character in set
 static inline FXuchar ISIN(const FXuchar set[],FXuchar ch){
   return set[ch>>3]&(1<<(ch&7));
@@ -1100,7 +1111,7 @@ public:
 /*******************************************************************************/
 
 // Construct compile engine
-FXCompile::FXCompile():code(NULL),pc(NULL),pat(NULL),mode(0),nbra(0),npar(0){
+FXCompile::FXCompile():code(nullptr),pc(nullptr),pat(nullptr),mode(0),nbra(0),npar(0){
   }
 
 
@@ -1112,7 +1123,7 @@ FXRex::Error FXCompile::compile(FXuchar *prog,FXchar* p,FXint m){
   FXshort  smax=0;
   FXuchar* at;
 
-  FXASSERT(OP_LAST<=256);
+  FXASSERT_STATIC(OP_LAST<=256);
 
   // Initialize parser data
   code=pc=at=prog;
@@ -1180,7 +1191,7 @@ FXRex::Error FXCompile::expression(FXshort& flags,FXshort& smin,FXshort& smax){
   FXshort  smn=0;
   FXshort  smx=0;
   FXuchar* at=pc;
-  FXuchar* jp=NULL;
+  FXuchar* jp=nullptr;
 
   // Parse branch
   if((err=branch(flags,smin,smax))!=FXRex::ErrOK) return err;
@@ -1196,6 +1207,8 @@ FXRex::Error FXCompile::expression(FXshort& flags,FXshort& smin,FXshort& smax){
 
     // Update flags for expression thus far
     if(!(flg&FLG_WIDTH)) flags&=~FLG_WIDTH;
+
+    // Update size range
     if(smx>smax) smax=smx;
     if(smn<smin) smin=smn;
     }
@@ -1220,6 +1233,8 @@ FXRex::Error FXCompile::branch(FXshort& flags,FXshort& smin,FXshort& smax){
 
     // Update flags for branch based on pieces seen thus far
     if(flg&FLG_WIDTH) flags|=FLG_WIDTH;
+
+    // Update size range
     smax=FXMIN(smax+smx,ONEINDIG);
     smin=smin+smn;
     }
@@ -1370,7 +1385,7 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
             }
           }
         else{
-          if(rep_min==0 && rep_max==ONEINDIG){        // (...)*
+          if(rep_min==0 && rep_max==ONEINDIG){          // (...)*
             /*    ________
             **   |        \
             ** --B--(...)--J--+--
@@ -1379,7 +1394,7 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
             insert(ptr,greediness?OP_BRANCHREV:OP_BRANCH,pc-ptr+5);
             append(OP_JUMP,ptr-pc-1);
             }
-          else if(rep_min==1 && rep_max==ONEINDIG){   // (...)+
+          else if(rep_min==1 && rep_max==ONEINDIG){     // (...)+
             /*    ________
             **   |        \
             ** --+--(...)--B--
@@ -1387,7 +1402,7 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
             */
             append(greediness?OP_BRANCH:OP_BRANCHREV,ptr-pc-1);
             }
-          else if(rep_min==0 && rep_max==1){          // (...)?
+          else if(rep_min==0 && rep_max==1){            // (...)?
             /*
             **
             ** --B--(...)--+--
@@ -1395,7 +1410,7 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
             */
             insert(ptr,greediness?OP_BRANCHREV:OP_BRANCH,pc-ptr+2);
             }
-          else if(0<rep_min && rep_min==rep_max){     // (...){M,N}, where M>0
+          else if(0<rep_min && rep_min==rep_max){       // (...){M,N}, where M>0
             /*       ___________
             **      |           \
             ** --Z--+--(...)--I--L--
@@ -1407,7 +1422,7 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
             append(OP_JUMPLT_0+nbra,rep_min,ptr-pc-2);
             nbra++;
             }
-          else if(rep_min==0 && rep_max<ONEINDIG){    // (...){0,N}, while N finite
+          else if(rep_min==0 && rep_max<ONEINDIG){      // (...){0,N}, while N finite
             /*       ___________
             **      |           \
             ** --Z--B--(...)--I--L--+--
@@ -1420,7 +1435,7 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
             append(OP_JUMPLT_0+nbra,rep_max,ptr-pc-2);
             nbra++;
             }
-          else if(0<rep_min && rep_max==ONEINDIG){    // (...){M,}, where M>0
+          else if(0<rep_min && rep_max==ONEINDIG){      // (...){M,}, where M>0
             /*       ________________
             **      |   ___________  \
             **      |  |           \  \
@@ -2160,17 +2175,17 @@ public:
 /*******************************************************************************/
 
 // Construct match engine
-FXExecute::FXExecute(const FXchar *sbeg,const FXchar *send,FXint* b,FXint* e,FXint p,FXint m):anc(NULL),str(NULL),str_beg(sbeg),str_end(send),sub_beg(b),sub_end(e),npar(p),recs(0),mode(m){
-  bak_beg[0]=bak_end[0]=NULL;
-  bak_beg[1]=bak_end[1]=NULL;
-  bak_beg[2]=bak_end[2]=NULL;
-  bak_beg[3]=bak_end[3]=NULL;
-  bak_beg[4]=bak_end[4]=NULL;
-  bak_beg[5]=bak_end[5]=NULL;
-  bak_beg[6]=bak_end[6]=NULL;
-  bak_beg[7]=bak_end[7]=NULL;
-  bak_beg[8]=bak_end[8]=NULL;
-  bak_beg[9]=bak_end[9]=NULL;
+FXExecute::FXExecute(const FXchar *sbeg,const FXchar *send,FXint* b,FXint* e,FXint p,FXint m):anc(nullptr),str(nullptr),str_beg(sbeg),str_end(send),sub_beg(b),sub_end(e),npar(p),recs(0),mode(m){
+  bak_beg[0]=bak_end[0]=nullptr;
+  bak_beg[1]=bak_end[1]=nullptr;
+  bak_beg[2]=bak_end[2]=nullptr;
+  bak_beg[3]=bak_end[3]=nullptr;
+  bak_beg[4]=bak_end[4]=nullptr;
+  bak_beg[5]=bak_end[5]=nullptr;
+  bak_beg[6]=bak_end[6]=nullptr;
+  bak_beg[7]=bak_end[7]=nullptr;
+  bak_beg[8]=bak_end[8]=nullptr;
+  bak_beg[9]=bak_end[9]=nullptr;
   switch(npar){
     case 10: sub_beg[9]=sub_end[9]=-1;
     case  9: sub_beg[8]=sub_end[8]=-1;
@@ -2217,7 +2232,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
       // Anchored at string start
       if(prog[0]==OP_STR_BEG){
         if((to==str_beg) && attempt(prog,to)) return to;
-        return NULL;
+        return nullptr;
         }
 
       // Anchored at BOL
@@ -2226,7 +2241,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
           if(((str_beg==fm) || (*(fm-1)=='\n')) && attempt(prog,fm)) return fm;
           fm=wcdec(fm);
           }
-        return NULL;
+        return nullptr;
         }
 
       // General case
@@ -2242,7 +2257,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
       // Anchored at string start
       if(prog[0]==OP_STR_BEG){
         if((fm==str_beg) && attempt(prog,fm)) return fm;
-        return NULL;
+        return nullptr;
         }
 
       // Anchored at BOL
@@ -2251,7 +2266,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
           if(((str_beg==fm) || (*(fm-1)=='\n')) && attempt(prog,fm)) return fm;
           fm=wcinc(fm);
           }
-        return NULL;
+        return nullptr;
         }
 
       // General case
@@ -2271,7 +2286,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
       // Anchored at string start
       if(prog[0]==OP_STR_BEG){
         if((to==str_beg) && attempt(prog,to)) return to;
-        return NULL;
+        return nullptr;
         }
 
       // Anchored at BOL
@@ -2280,7 +2295,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
           if(((str_beg==fm) || (*(fm-1)=='\n')) && attempt(prog,fm)) return fm;
           fm--;
           }
-        return NULL;
+        return nullptr;
         }
 
       // Known starting character
@@ -2291,7 +2306,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
           if((*fm==ch) && attempt(prog,fm)) return fm;
           fm--;
           }
-        return NULL;
+        return nullptr;
         }
 
       // Known starting character, ignoring case
@@ -2302,7 +2317,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
           if((Ascii::toLower(*fm)==ch) && attempt(prog,fm)) return fm;
           fm--;
           }
-        return NULL;
+        return nullptr;
         }
 
       // General case
@@ -2318,7 +2333,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
       // Anchored at string start
       if(prog[0]==OP_STR_BEG){
         if((fm==str_beg) && attempt(prog,fm)) return fm;
-        return NULL;
+        return nullptr;
         }
 
       // Anchored at BOL
@@ -2327,7 +2342,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
           if(((str_beg==fm) || (*(fm-1)=='\n')) && attempt(prog,fm)) return fm;
           fm++;
           }
-        return NULL;
+        return nullptr;
         }
 
       // Known starting character
@@ -2338,7 +2353,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
           if((*fm==ch) && attempt(prog,fm)) return fm;
           fm++;
           }
-        return NULL;
+        return nullptr;
         }
 
       // Known starting character, ignoring case
@@ -2349,7 +2364,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
           if((Ascii::toLower(*fm)==ch) && attempt(prog,fm)) return fm;
           fm++;
           }
-        return NULL;
+        return nullptr;
         }
 
       // General case
@@ -2359,7 +2374,7 @@ const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXcha
         }
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 /*******************************************************************************/
@@ -3189,7 +3204,7 @@ asc:    if(no<rep_min) goto f;
         beg=bak_beg[no];                        // Save old backrefs
         end=bak_end[no];
         bak_beg[no]=save=str;                   // New backref start
-        bak_end[no]=NULL;
+        bak_end[no]=nullptr;
         if(match(prog)){
           if(no<npar && sub_beg[no]==-1){ sub_beg[no]=save-str_beg; }
           goto t;
@@ -4189,7 +4204,7 @@ asc:    if(no<rep_min) goto f;
         beg=bak_beg[no];                        // Save old backrefs
         end=bak_end[no];
         bak_beg[no]=save=str;                   // New backref start
-        bak_end[no]=NULL;
+        bak_end[no]=nullptr;
         if(revmatch(prog)){
           if(no<npar && sub_beg[no]==-1){ sub_beg[no]=save-str_beg; }
           goto t;
@@ -4338,7 +4353,7 @@ f:  --recs;
 
 /*******************************************************************************/
 
-// Structure used during pattern reveral adjustment
+// Structure used during pattern reversal adjustment
 class FXReverse {
   const FXchar *src;    // Original pattern source
   FXchar       *dst;    // Adjusted pattern destination
@@ -4482,7 +4497,7 @@ FXRex::Error FXReverse::atom(){
   FXRex::Error err;
   FXint savemode;
   FXuchar ch;
-  switch((ch=*src)){
+  switch(*src){
     case '(':                                           // Subexpression grouping
       *dst++=*src++;
       savemode=mode;
@@ -4517,7 +4532,7 @@ FXRex::Error FXReverse::atom(){
       break;
     case '\\':                                          // Escape sequences which are NOT part of simple character-run
       *dst++=*src++;
-      switch((ch=*src)){
+      switch(*src){
         case '\0':                                      // Unexpected pattern end
           return FXRex::ErrNoAtom;
         case '1':                                       // Back reference not supported in reverse
@@ -4628,14 +4643,17 @@ const FXuchar FXRex::fallback[]={
 #endif
   };
 
+//const_cast<TUChar*>(fallback)
 
 // Construct empty regular expression object
-FXRex::FXRex():code((FXuchar*)(void*)fallback){
+FXRex::FXRex():code(EMPTY){
+  FXTRACE((TOPIC_CONSTRUCT,"FXRex::FXRex()\n"));
   }
 
 
 // Copy regex object
-FXRex::FXRex(const FXRex& orig):code((FXuchar*)(void*)fallback){
+FXRex::FXRex(const FXRex& orig):code(EMPTY){
+  FXTRACE((TOPIC_CONSTRUCT,"FXRex::FXRex(FXRex)\n"));
   if(orig.code!=fallback){
     dupElms(code,orig.code,GETARG(orig.code));
     }
@@ -4643,21 +4661,23 @@ FXRex::FXRex(const FXRex& orig):code((FXuchar*)(void*)fallback){
 
 
 // Compile expression from pattern; fail if error
-FXRex::FXRex(const FXchar* pattern,FXint mode,FXRex::Error* error):code((FXuchar*)(void*)fallback){
+FXRex::FXRex(const FXchar* pattern,FXint mode,FXRex::Error* error):code(EMPTY){
+  FXTRACE((TOPIC_CONSTRUCT,"FXRex::FXRex(%s,%u,%p)\n",pattern,mode,error));
   FXRex::Error err=parse(pattern,mode);
   if(error){ *error=err; }
   }
 
 
 // Compile expression from pattern; fail if error
-FXRex::FXRex(const FXString& pattern,FXint mode,FXRex::Error* error):code((FXuchar*)(void*)fallback){
+FXRex::FXRex(const FXString& pattern,FXint mode,FXRex::Error* error):code(EMPTY){
+  FXTRACE((TOPIC_CONSTRUCT,"FXRex::FXRex(%s,%u,%p)\n",pattern.text(),mode,error));
   FXRex::Error err=parse(pattern.text(),mode);
   if(error){ *error=err; }
   }
 
 /*******************************************************************************/
 
-#ifdef REXDEBUG
+#ifdef TOPIC_REXDUMP
 #include "fxrexdbg.h"
 #endif
 
@@ -4682,7 +4702,7 @@ FXRex::Error FXRex::parse(const FXchar* pattern,FXint mode){
         FXCompile cs;
 
         // Check syntax and count the bytes
-        if((err=cs.compile(NULL,adjustedpattern,mode))==ErrOK){
+        if((err=cs.compile(nullptr,adjustedpattern,mode))==ErrOK){
 
           // Compile code if we want to
           if(!(mode&FXRex::Syntax)){
@@ -4699,8 +4719,8 @@ FXRex::Error FXRex::parse(const FXchar* pattern,FXint mode){
 
                 // Install new program
                 code=prog;
-#ifdef REXDEBUG
-                if(fxTraceLevel>50){ dump(adjustedpattern,code); }
+#ifdef TOPIC_REXDUMP
+                if(getTraceTopic(TOPIC_REXDUMP)){ dump(adjustedpattern,code); }
 #endif
                 freeElms(adjustedpattern);
                 return ErrOK;
@@ -4733,26 +4753,25 @@ FXbool FXRex::amatch(const FXchar* string,FXint len,FXint pos,FXint mode,FXint* 
 
 // Match pattern in string at position pos
 FXbool FXRex::amatch(const FXString& string,FXint pos,FXint mode,FXint* beg,FXint* end,FXint npar) const {
-  return amatch(string.text(),string.length(),pos,mode,beg,end,npar);
+  FXExecute ms(string.text(),string.text()+string.length(),beg,end,npar,mode);
+  return ms.attempt(code+2,&string[pos]);
   }
 
 /*******************************************************************************/
 
 // Search for pattern in string, starting at fm; return position or -1
 FXint FXRex::search(const FXchar* string,FXint len,FXint fm,FXint to,FXint mode,FXint* beg,FXint* end,FXint npar) const {
-  if(__unlikely(NSUBEXP<npar || fm<0 || to<0 || len<fm || len<to)){ fxerror("FXRex::search: bad argument.\n"); }
   FXExecute ms(string,string+len,beg,end,npar,mode);
-  const FXchar* result;
-  if((result=ms.search(code+2,&string[fm],&string[to]))!=NULL){
-    return result-string;
-    }
-  return -1;
+  const FXchar* result=ms.search(code+2,&string[fm],&string[to]);
+  return result ? (result-string) : -1;
   }
 
 
 // Search for pattern in string, starting at fm; return position or -1
 FXint FXRex::search(const FXString& string,FXint fm,FXint to,FXint mode,FXint* beg,FXint* end,FXint npar) const {
-  return search(string.text(),string.length(),fm,to,mode,beg,end,npar);
+  FXExecute ms(string.text(),string.text()+string.length(),beg,end,npar,mode);
+  const FXchar* result=ms.search(code+2,&string[fm],&string[to]);
+  return result ? (result-string.text()) : -1;
   }
 
 /*******************************************************************************/
@@ -4899,15 +4918,16 @@ FXStream& operator>>(FXStream& store,FXRex& s){
 
 // Clear program
 void FXRex::clear(){
-  if(code!=fallback){
+  if(code!=EMPTY){
     freeElms(code);
-    code=(FXuchar*)(void*)fallback;
+    code=EMPTY;
     }
   }
 
 
 // Clean up
 FXRex::~FXRex(){
+  FXTRACE((TOPIC_CONSTRUCT,"FXRex::~FXRex()\n"));
   clear();
   }
 

@@ -3,7 +3,7 @@
 *                          C o l o r   S e l e c t o r                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -172,8 +172,8 @@ FXColorSelector::FXColorSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXu
 
   // Buttons
   FXHorizontalFrame *buttons=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH);
-  accept=new FXButton(buttons,tr("&Accept"),NULL,NULL,0,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_RIGHT,0,0,0,0,20,20);
-  cancel=new FXButton(buttons,tr("&Cancel"),NULL,NULL,0,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_RIGHT,0,0,0,0,20,20);
+  accept=new FXButton(buttons,tr("&Accept"),nullptr,nullptr,0,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_RIGHT,0,0,0,0,20,20);
+  cancel=new FXButton(buttons,tr("&Cancel"),nullptr,nullptr,0,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_RIGHT,0,0,0,0,20,20);
 
   // Separator
   new FXHorizontalSeparator(this,SEPARATOR_RIDGE|LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X);
@@ -225,7 +225,7 @@ FXColorSelector::FXColorSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXu
   well=new FXColorWell(wellframe,FXRGBA(255,255,255,255),this,ID_WELL_CHANGED,COLORWELL_SOURCEONLY|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_Y|LAYOUT_FIX_WIDTH|FRAME_SUNKEN|FRAME_THICK, 0,0,64,0);
 
   // Tab book with switchable panels
-  panels=new FXTabBook(main,NULL,0,TABBOOK_TOPTABS|LAYOUT_FILL_Y|LAYOUT_FILL_X);
+  panels=new FXTabBook(main,nullptr,0,TABBOOK_TOPTABS|LAYOUT_FILL_Y|LAYOUT_FILL_X);
 
   // HSV Dial Mode
   new FXTabItem(panels,tr("\tHue, Saturation, Value"),dialmodeicon,TAB_TOP_NORMAL,0,0,0,0, 6,6,0,0);
@@ -242,22 +242,22 @@ FXColorSelector::FXColorSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXu
     FXMatrix *rgbblock=new FXMatrix(panels,3,FRAME_THICK|FRAME_RAISED|LAYOUT_FILL_Y|LAYOUT_FILL_X|LAYOUT_TOP|LAYOUT_LEFT|MATRIX_BY_COLUMNS,0,0,0,0,10,10,10,10, 5,8);
 
     // Red
-    new FXLabel(rgbblock,tr("&Red:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(rgbblock,tr("&Red:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     rgbatext[0]=new FXTextField(rgbblock,5,this,FXColorSelector::ID_RGB_RED_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     rgbaslider[0]=new FXSlider(rgbblock,this,FXColorSelector::ID_RGB_RED_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Green slider
-    new FXLabel(rgbblock,tr("&Green:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(rgbblock,tr("&Green:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     rgbatext[1]=new FXTextField(rgbblock,5,this,FXColorSelector::ID_RGB_GREEN_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     rgbaslider[1]=new FXSlider(rgbblock,this,FXColorSelector::ID_RGB_GREEN_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Blue slider
-    new FXLabel(rgbblock,tr("&Blue:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(rgbblock,tr("&Blue:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     rgbatext[2]=new FXTextField(rgbblock,5,this,FXColorSelector::ID_RGB_BLUE_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     rgbaslider[2]=new FXSlider(rgbblock,this,FXColorSelector::ID_RGB_BLUE_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Alpha slider
-    label=new FXLabel(rgbblock,tr("&Alpha:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    label=new FXLabel(rgbblock,tr("&Alpha:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     rgbatext[3]=new FXTextField(rgbblock,5,this,FXColorSelector::ID_ALPHA_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     rgbaslider[3]=new FXSlider(rgbblock,this,FXColorSelector::ID_ALPHA_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
@@ -277,22 +277,22 @@ FXColorSelector::FXColorSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXu
     FXMatrix *hsvblock=new FXMatrix(panels,3,FRAME_THICK|FRAME_RAISED|LAYOUT_FILL_Y|LAYOUT_FILL_X|LAYOUT_TOP|LAYOUT_LEFT|MATRIX_BY_COLUMNS,0,0,0,0,10,10,10,10, 5,8);
 
     // Hue Slider
-    new FXLabel(hsvblock,tr("Hue:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(hsvblock,tr("Hue:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     hsvatext[0]=new FXTextField(hsvblock,5,this,FXColorSelector::ID_HSV_HUE_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     hsvaslider[0]=new FXSlider(hsvblock,this,FXColorSelector::ID_HSV_HUE_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Saturation slider
-    new FXLabel(hsvblock,tr("Saturation:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(hsvblock,tr("Saturation:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     hsvatext[1]=new FXTextField(hsvblock,5,this,FXColorSelector::ID_HSV_SATURATION_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     hsvaslider[1]=new FXSlider(hsvblock,this,FXColorSelector::ID_HSV_SATURATION_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Value slider
-    new FXLabel(hsvblock,tr("Value:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(hsvblock,tr("Value:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     hsvatext[2]=new FXTextField(hsvblock,5,this,FXColorSelector::ID_HSV_VALUE_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     hsvaslider[2]=new FXSlider(hsvblock,this,FXColorSelector::ID_HSV_VALUE_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Alpha slider
-    label=new FXLabel(hsvblock,tr("Alpha:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    label=new FXLabel(hsvblock,tr("Alpha:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     hsvatext[3]=new FXTextField(hsvblock,5,this,FXColorSelector::ID_ALPHA_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     hsvaslider[3]=new FXSlider(hsvblock,this,FXColorSelector::ID_ALPHA_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
@@ -312,22 +312,22 @@ FXColorSelector::FXColorSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXu
     FXMatrix *cmyblock=new FXMatrix(panels,3,FRAME_THICK|FRAME_RAISED|LAYOUT_FILL_Y|LAYOUT_FILL_X|LAYOUT_TOP|LAYOUT_LEFT|MATRIX_BY_COLUMNS,0,0,0,0,10,10,10,10, 5,8);
 
     // Cyan Slider
-    new FXLabel(cmyblock,tr("Cyan:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(cmyblock,tr("Cyan:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     cmytext[0]=new FXTextField(cmyblock,5,this,FXColorSelector::ID_CMY_CYAN_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     cmyslider[0]=new FXSlider(cmyblock,this,FXColorSelector::ID_CMY_CYAN_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Magenta slider
-    new FXLabel(cmyblock,tr("Magenta:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(cmyblock,tr("Magenta:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     cmytext[1]=new FXTextField(cmyblock,5,this,FXColorSelector::ID_CMY_MAGENTA_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     cmyslider[1]=new FXSlider(cmyblock,this,FXColorSelector::ID_CMY_MAGENTA_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Yellow slider
-    new FXLabel(cmyblock,tr("Yellow:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    new FXLabel(cmyblock,tr("Yellow:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     cmytext[2]=new FXTextField(cmyblock,5,this,FXColorSelector::ID_CMY_YELLOW_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     cmyslider[2]=new FXSlider(cmyblock,this,FXColorSelector::ID_CMY_YELLOW_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
     // Alpha slider
-    label=new FXLabel(cmyblock,tr("Alpha:"),NULL,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
+    label=new FXLabel(cmyblock,tr("Alpha:"),nullptr,LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|LAYOUT_RIGHT);
     cmytext[3]=new FXTextField(cmyblock,5,this,FXColorSelector::ID_ALPHA_TEXT,JUSTIFY_RIGHT|LAYOUT_FILL_ROW|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, DEFAULT_PAD,DEFAULT_PAD,0,0);
     cmyslider[3]=new FXSlider(cmyblock,this,FXColorSelector::ID_ALPHA_SLIDER,LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FIX_HEIGHT|SLIDER_HORIZONTAL|SLIDER_INSIDE_BAR,0,0,0,15);
 
@@ -427,12 +427,12 @@ long FXColorSelector::onCmdAlphaText(FXObject* sender,FXSelector,void*){
 long FXColorSelector::onUpdAlphaText(FXObject* sender,FXSelector,void*){
   FXString value;
   if(isOpaqueOnly()){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
     }
   else{
     value.fromDouble(255.0f*rgba[3],1,0);
     sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),(void*)&value);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
     }
   return 1;
   }
@@ -441,12 +441,12 @@ long FXColorSelector::onUpdAlphaText(FXObject* sender,FXSelector,void*){
 // Update Alpha sliders
 long FXColorSelector::onUpdAlphaSlider(FXObject* sender,FXSelector,void*){
   if(isOpaqueOnly()){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
     }
   else{
     FXint value=(FXint)(255.0f*rgba[3]);
     sender->handle(this,FXSEL(SEL_COMMAND,ID_SETINTVALUE),(void*)&value);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
     }
   return 1;
   }
@@ -454,7 +454,7 @@ long FXColorSelector::onUpdAlphaSlider(FXObject* sender,FXSelector,void*){
 
 // Update Alpha Labels
 long FXColorSelector::onUpdAlphaLabel(FXObject* sender,FXSelector,void*){
-  sender->handle(this,isOpaqueOnly()?FXSEL(SEL_COMMAND,ID_HIDE):FXSEL(SEL_COMMAND,ID_SHOW),NULL);
+  sender->handle(this,isOpaqueOnly()?FXSEL(SEL_COMMAND,ID_HIDE):FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   return 1;
   }
 

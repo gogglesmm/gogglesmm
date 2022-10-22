@@ -3,7 +3,7 @@
 *                     A p p l i c a t i o n   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -515,7 +515,7 @@ public:
   void* getDisplay() const { return display; }
 
   /// Connection to display; this is called by init()
-  virtual FXbool openDisplay(const FXchar* dpy=NULL);
+  virtual FXbool openDisplay(const FXchar* dpy=nullptr);
 
   /// Close connection to the display
   virtual FXbool closeDisplay();
@@ -531,7 +531,7 @@ public:
   * whereas on Windows, it is about 1000000 ns.
   * Return data pointer from original timeout, if any.
   */
-  FXptr addTimeout(FXObject* tgt,FXSelector sel,FXTime ns=1000000000,FXptr ptr=NULL);
+  FXptr addTimeout(FXObject* tgt,FXSelector sel,FXTime ns=1000000000,FXptr ptr=nullptr);
 
   /**
   * Add deadline timeout message sel to be sent to target object tgt when the due time,
@@ -542,7 +542,7 @@ public:
   * executing nothing but timeout messages.
   * Return data pointer from original timeout, if any.
   */
-  FXptr addDeadline(FXObject* tgt,FXSelector sel,FXTime due=forever,FXptr ptr=NULL);
+  FXptr addDeadline(FXObject* tgt,FXSelector sel,FXTime due=forever,FXptr ptr=nullptr);
 
   /**
   * Remove timeout identified by target object tgt and message sel; if sel=0, remove all timeouts which
@@ -574,7 +574,7 @@ public:
   * already exists, it will be rescheduled.
   * Returns the data pointer from the original chore, if any.
   */
-  FXptr addChore(FXObject* tgt,FXSelector sel,FXptr ptr=NULL);
+  FXptr addChore(FXObject* tgt,FXSelector sel,FXptr ptr=nullptr);
 
   /**
   * Remove chore identified by target object tgt and message sel; if sel=0,
@@ -611,7 +611,7 @@ public:
   * as the value for ptr so that the message handler knows which file descriptor
   * is involved.
   */
-  FXbool addInput(FXObject *tgt,FXSelector sel,FXInputHandle fd,FXuint mode=INPUT_READ,FXptr ptr=NULL);
+  FXbool addInput(FXObject *tgt,FXSelector sel,FXInputHandle fd,FXuint mode=INPUT_READ,FXptr ptr=nullptr);
 
   /**
   * Remove input message and target object for the specified file descriptor
@@ -656,7 +656,7 @@ public:
   * Except for the modal window and its children, user input to all windows
   * is blocked; if the modal window is NULL, all user input is blocked.
   */
-  FXint runModalWhileEvents(FXWindow* window=NULL,FXTime blocking=0);
+  FXint runModalWhileEvents(FXWindow* window=nullptr,FXTime blocking=0);
 
   /**
   * Run modal event loop, blocking keyboard and mouse events to all windows

@@ -3,7 +3,7 @@
 *                   M e m o r y   S t r e a m   C l a s s e s                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -92,17 +92,17 @@ FXbool FXMemoryStream::open(FXStreamDirection save_or_load,FXuchar* data,FXuval 
 void FXMemoryStream::takeBuffer(FXuchar*& data,FXuval& size){
   data=begptr;
   size=endptr-begptr;
-  begptr=NULL;
-  wrptr=NULL;
-  rdptr=NULL;
-  endptr=NULL;
+  begptr=nullptr;
+  wrptr=nullptr;
+  rdptr=nullptr;
+  endptr=nullptr;
   owns=false;
   }
 
 
 // Give buffer to stream
 void FXMemoryStream::giveBuffer(FXuchar *data,FXuval size){
-  if(data==NULL){ fxerror("FXMemoryStream::giveBuffer: NULL buffer argument.\n"); }
+  if(data==nullptr){ fxerror("FXMemoryStream::giveBuffer: NULL buffer argument.\n"); }
   if(owns){freeElms(begptr);}
   begptr=data;
   endptr=data+size;

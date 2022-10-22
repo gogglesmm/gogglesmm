@@ -3,7 +3,7 @@
 *          D o u b l e - P r e c i s i o n   C o m p l e x   N u m b e r        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -126,7 +126,6 @@ inline FXComplexd exp(const FXComplexd& c){ return polar(Math::exp(c.real()),c.i
 
 /// Returns the complex base e logarithm of c
 inline FXComplexd log(const FXComplexd& c){ return FXComplexd(Math::log(abs(c)),arg(c)); }
-
 
 
 /// Equality between complex and real

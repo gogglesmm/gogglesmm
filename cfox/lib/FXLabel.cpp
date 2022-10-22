@@ -3,7 +3,7 @@
 *                            L a b e l   W i d g e t                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "FXArray.h"
 #include "FXHash.h"
@@ -233,8 +234,6 @@ void FXLabel::just_y(FXint& ty,FXint& iy,FXint th,FXint ih){
   }
 
 
-
-
 // Draw multi-line label, with underline for hotkey
 void FXLabel::drawLabel(FXDCWindow& dc,const FXString& text,FXint hot,FXint tx,FXint ty,FXint tw,FXint){
   FXint beg,end;
@@ -435,19 +434,31 @@ long FXLabel::onQueryHelp(FXObject* sender,FXSelector sel,void* ptr){
   }
 
 
-// Change text
+// Change text, removing hotkey if changed
 void FXLabel::setText(const FXString& text){
-  FXHotKey hkey=parseHotKey(text);
-  FXString string=stripHotKey(text);
-  FXint hoff=findHotKey(text);
-  if(label!=string || hkey!=hotkey || hotoff!=hoff){
-    label.adopt(string);
-    remHotKey(hotkey);
-    hotkey=hkey;
-    hotoff=hoff;
-    addHotKey(hotkey);
+  if(text!=label){
+    if(0<=hotoff && (hotoff>=text.length() || hotoff>=label.length() || label[hotoff]!=text[hotoff])){
+      remHotKey(hotkey);
+      hotoff=-1;
+      }
+    label=text;
     recalc();
     update();
+    }
+  }
+
+
+// Change text and hotkey
+void FXLabel::setTextAndHotKey(const FXString& hotkeytext){
+  FXString string=stripHotKey(hotkeytext);
+  FXHotKey hkey=parseHotKey(hotkeytext);
+  FXint hoff=findHotKey(hotkeytext);
+  if(string!=label || hkey!=hotkey || hotoff!=hoff){
+    setText(string);
+    remHotKey(hotkey);
+    addHotKey(hkey);
+    hotkey=hkey;
+    hotoff=hoff;
     }
   }
 

@@ -3,7 +3,7 @@
 *                        C o l o r W h e e l   W i d g e t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2001,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -59,6 +59,11 @@ using namespace FX;
 
 namespace FX {
 
+// Special single-precision versions
+const FXfloat pi=3.1415926535897932384626433833f;
+const FXfloat dtor=0.0174532925199432957692369077f;
+const FXfloat rtod=57.295779513082320876798154814f;
+
 // Map
 FXDEFMAP(FXColorWheel) FXColorWheelMap[]={
   FXMAPFUNC(SEL_PAINT,0,FXColorWheel::onPaint),
@@ -97,7 +102,7 @@ FXColorWheel::FXColorWheel(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint op
   flags|=FLAG_ENABLED;
   target=tgt;
   message=sel;
-  dial=new FXImage(getApp(),NULL,IMAGE_DITHER|IMAGE_KEEP|IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,WHEELDIAMETER,WHEELDIAMETER);
+  dial=new FXImage(getApp(),nullptr,IMAGE_DITHER|IMAGE_KEEP|IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,WHEELDIAMETER,WHEELDIAMETER);
   hsv[0]=0.0f;
   hsv[1]=0.0f;
   hsv[2]=1.0f;
@@ -165,7 +170,7 @@ void FXColorWheel::layout(){
 // Compute x,y location from hue and saturation
 FXbool FXColorWheel::hstoxy(FXint& x,FXint& y,FXfloat h,FXfloat s) const {
   FXfloat r=dial->getWidth()*0.5f;
-  FXfloat a=(h-180.0f)*DTOR;
+  FXfloat a=(h-180.0f)*dtor;
   x=(FXint)(s*r*Math::cos(a)+r+0.5f);
   y=(FXint)(s*r*Math::sin(a)+r+0.5f);
   return true;
@@ -181,7 +186,7 @@ FXbool FXColorWheel::xytohs(FXfloat& h,FXfloat& s,FXint x,FXint y) const {
   h=0.0f;
   s=0.0f;
   if(0.0f<v){
-    h=Math::atan2(ry,rx)*RTOD+180.0f;
+    h=Math::atan2(ry,rx)*rtod+180.0f;
     if(v<r){
       s=v/r;
       return true;

@@ -3,7 +3,7 @@
 *                  S t r i n g   D i c t i o n a r y    C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -114,22 +114,22 @@ public:
   const FXString& operator[](const FXString& ky) const { return at(ky); }
 
   /// Insert association with given key; return reference to the string
-  void insert(const FXchar* ky,const FXchar* str,FXbool mrk=false){ at(ky,mrk)=str; }
+  FXbool insert(const FXchar* ky,const FXchar* str,FXbool mrk=false){ at(ky,mrk)=str; return true; }
 
   /// Insert association with given key; return reference to the string
-  void insert(const FXString& ky,const FXchar* str,FXbool mrk=false){ at(ky,mrk)=str; }
+  FXbool insert(const FXString& ky,const FXchar* str,FXbool mrk=false){ at(ky,mrk)=str; return true; }
 
   /// Insert association with given key; return reference to the string
-  void insert(const FXString& ky,const FXString& str,FXbool mrk=false){ at(ky,mrk)=str; }
+  FXbool insert(const FXString& ky,const FXString& str,FXbool mrk=false){ at(ky,mrk)=str; return true; }
 
   /// Remove association with given key
-  void remove(const FXchar* ky);
+  FXbool remove(const FXchar* ky);
 
   /// Remove association with given key
-  void remove(const FXString& ky){ remove(ky.text()); }
+  FXbool remove(const FXString& ky){ return remove(ky.text()); }
 
   /// Erase data at pos in the table
-  void erase(FXival pos);
+  FXbool erase(FXival pos);
 
   /// Return true if slot is empty.
   FXbool empty(FXival pos) const { return table[pos].key.empty(); }
@@ -147,7 +147,7 @@ public:
   FXuint mark(FXival pos) const { return table[pos].mark; }
 
   /// Clear entire table
-  void clear();
+  FXbool clear();
 
   /// Destroy table
  ~FXStringDictionary();

@@ -3,7 +3,7 @@
 *                     G L  R e n d e r i n g   C o n t e x t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -46,7 +46,7 @@ public:
   * Construct an GLContext with given GL Visual.  Optionally
   * share GL objects (textures, etc) with another GLContext shr.
   */
-  FXGLContext(FXApp *a,FXGLVisual *vis,FXGLContext* shr=NULL);
+  FXGLContext(FXApp *a,FXGLVisual *vis,FXGLContext* shr=nullptr);
 
   /// Create context
   virtual void create();

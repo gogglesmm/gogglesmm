@@ -3,7 +3,7 @@
 *                            I c o n   S o u r c e                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -85,7 +85,7 @@ public:
   * versions will attempt to inspect the first few bytes of the stream
   * to divine the icon format if the parameter is omitted].
   */
-  virtual FXIcon *loadIconData(FXApp* app,const void *pixels,const FXString& type=FXString::null) const;
+  virtual FXIcon *loadIconData(FXApp* app,const FXuchar *pixels,const FXString& type=FXString::null) const;
 
   /**
   * Load an icon of a given type (e.g. "gif") from an already open stream.
@@ -126,7 +126,7 @@ public:
   * versions will attempt to inspect the first few bytes of the stream
   * to divine the icon format if the parameter is omitted].
   */
-  virtual FXImage *loadImageData(FXApp* app,const void *pixels,const FXString& type=FXString::null) const;
+  virtual FXImage *loadImageData(FXApp* app,const FXuchar *pixels,const FXString& type=FXString::null) const;
 
   /**
   * Load an image of a given type (e.g. "gif") from an already open stream.
@@ -147,7 +147,7 @@ public:
   /**
   * Load an icon from pixels and scale it such that its dimensions does not exceed given size.
   */
-  virtual FXIcon *loadScaledIconData(FXApp* app,const void *pixels,FXint size=32,FXint qual=0,const FXString& type=FXString::null) const;
+  virtual FXIcon *loadScaledIconData(FXApp* app,const FXuchar *pixels,FXint size=32,FXint qual=0,const FXString& type=FXString::null) const;
 
   /**
   * Load icon from stream and scale it such that its dimensions does not exceed given size.
@@ -163,7 +163,7 @@ public:
   /**
   * Load image and scale it such that its dimensions does not exceed given size.
   */
-  virtual FXImage *loadScaledImageData(FXApp* app,const void *pixels,FXint size=32,FXint qual=0,const FXString& type=FXString::null) const;
+  virtual FXImage *loadScaledImageData(FXApp* app,const FXuchar *pixels,FXint size=32,FXint qual=0,const FXString& type=FXString::null) const;
 
   /**
   * Load image and scale it such that its dimensions does not exceed given size.

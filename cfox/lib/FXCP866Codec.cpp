@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FXCP866Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXCP866Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: CP866.TXT ////
@@ -123,7 +123,7 @@ const FXchar* FXCP866Codec::mimeName() const {
 
 
 const FXchar* const* FXCP866Codec::aliases() const {
-  static const FXchar *const list[]={"microsoft-cp866","IBM866","cp866","866","csIBM866",NULL};
+  static const FXchar *const list[]={"microsoft-cp866","IBM866","cp866","866","csIBM866",nullptr};
   return list;
   }
 

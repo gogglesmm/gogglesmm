@@ -3,7 +3,7 @@
 *                         M e s s a g e   B o x e s                             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -94,10 +94,10 @@ public:
 public:
 
   /// Construct message box with given caption, icon, and message text
-  FXMessageBox(FXWindow* owner,const FXString& caption,const FXString& text,FXIcon* ic=NULL,FXuint opts=0,FXint x=0,FXint y=0);
+  FXMessageBox(FXWindow* owner,const FXString& caption,const FXString& text,FXIcon* ic=nullptr,FXuint opts=0,FXint x=0,FXint y=0);
 
   /// Construct free floating message box with given caption, icon, and message text
-  FXMessageBox(FXApp* app,const FXString& caption,const FXString& text,FXIcon* ic=NULL,FXuint opts=0,FXint x=0,FXint y=0);
+  FXMessageBox(FXApp* app,const FXString& caption,const FXString& text,FXIcon* ic=nullptr,FXuint opts=0,FXint x=0,FXint y=0);
 
   /**
   * Show a modal error message.

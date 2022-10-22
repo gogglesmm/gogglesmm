@@ -1,3 +1,5 @@
 This version of FOX is optimized to be directly included in other CMake based projects with the goal of statically linking in FOX.
 It adds the cmake based build system and removes unneeded example / test programs.
 
+
+

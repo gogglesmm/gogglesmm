@@ -3,7 +3,7 @@
 *                        F i l e   S t a t i s t i c s                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "fxascii.h"
 #include "FXArray.h"
@@ -216,7 +217,7 @@ FXbool FXStat::statFile(const FXString& file,FXStat& info){
     FXnchar unifile[MAXPATHLEN];
     HANDLE hfile;
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    if((hfile=::CreateFile(unifile,FILE_READ_ATTRIBUTES,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_BACKUP_SEMANTICS,NULL))!=INVALID_HANDLE_VALUE){
+    if((hfile=::CreateFile(unifile,FILE_READ_ATTRIBUTES,FILE_SHARE_READ,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_BACKUP_SEMANTICS,nullptr))!=INVALID_HANDLE_VALUE){
       BY_HANDLE_FILE_INFORMATION data;
       if(::GetFileInformationByHandle(hfile,&data)){
         info.modeFlags=FXIO::AllFull;
@@ -239,7 +240,7 @@ FXbool FXStat::statFile(const FXString& file,FXStat& info){
       }
 #else
     HANDLE hfile;
-    if((hfile=::CreateFile(file.text(),FILE_READ_ATTRIBUTES,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_BACKUP_SEMANTICS,NULL))!=INVALID_HANDLE_VALUE){
+    if((hfile=::CreateFile(file.text(),FILE_READ_ATTRIBUTES,FILE_SHARE_READ,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_BACKUP_SEMANTICS,nullptr))!=INVALID_HANDLE_VALUE){
       BY_HANDLE_FILE_INFORMATION data;
       if(::GetFileInformationByHandle(hfile,&data)){
         info.modeFlags=FXIO::AllFull;
@@ -318,7 +319,7 @@ FXbool FXStat::statLink(const FXString& file,FXStat& info){
     FXnchar unifile[MAXPATHLEN];
     HANDLE hfile;
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    if((hfile=::CreateFile(unifile,FILE_READ_ATTRIBUTES,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_BACKUP_SEMANTICS,NULL))!=INVALID_HANDLE_VALUE){
+    if((hfile=::CreateFile(unifile,FILE_READ_ATTRIBUTES,FILE_SHARE_READ,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_BACKUP_SEMANTICS,nullptr))!=INVALID_HANDLE_VALUE){
       BY_HANDLE_FILE_INFORMATION data;
       if(::GetFileInformationByHandle(hfile,&data)){
         info.modeFlags=FXIO::AllFull;
@@ -341,7 +342,7 @@ FXbool FXStat::statLink(const FXString& file,FXStat& info){
       }
 #else
     HANDLE hfile;
-    if((hfile=::CreateFile(file.text(),FILE_READ_ATTRIBUTES,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_BACKUP_SEMANTICS,NULL))!=INVALID_HANDLE_VALUE){
+    if((hfile=::CreateFile(file.text(),FILE_READ_ATTRIBUTES,FILE_SHARE_READ,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_BACKUP_SEMANTICS,nullptr))!=INVALID_HANDLE_VALUE){
       BY_HANDLE_FILE_INFORMATION data;
       if(::GetFileInformationByHandle(hfile,&data)){
         info.modeFlags=FXIO::AllFull;
@@ -597,14 +598,14 @@ FXbool FXStat::modified(const FXString& file,FXTime ns){
 #ifdef UNICODE
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    FXInputHandle hnd=CreateFileW(unifile,GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,0,NULL);
+    FXInputHandle hnd=CreateFileW(unifile,GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #else
-    FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,0,NULL);
+    FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #endif
     if(hnd!=INVALID_HANDLE_VALUE){
       FILETIME wintime;
       *((FXTime*)&wintime)=fxwintime(ns);
-      if(SetFileTime(hnd,NULL,NULL,&wintime)!=0){
+      if(SetFileTime(hnd,nullptr,nullptr,&wintime)!=0){
         CloseHandle(hnd);
         return true;
         }
@@ -652,14 +653,14 @@ FXbool FXStat::accessed(const FXString& file,FXTime ns){
 #ifdef UNICODE
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    FXInputHandle hnd=CreateFileW(unifile,GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,0,NULL);
+    FXInputHandle hnd=CreateFileW(unifile,GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #else
-    FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,0,NULL);
+    FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #endif
     if(hnd!=INVALID_HANDLE_VALUE){
       FILETIME wintime;
       *((FXTime*)&wintime)=fxwintime(ns);
-      if(SetFileTime(hnd,NULL,&wintime,NULL)!=0){
+      if(SetFileTime(hnd,nullptr,&wintime,nullptr)!=0){
         CloseHandle(hnd);
         return true;
         }
@@ -707,14 +708,14 @@ FXbool FXStat::created(const FXString& file,FXTime ns){
 #ifdef UNICODE
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    FXInputHandle hnd=CreateFileW(unifile,GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,0,NULL);
+    FXInputHandle hnd=CreateFileW(unifile,GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #else
-    FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,0,NULL);
+    FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #endif
     if(hnd!=INVALID_HANDLE_VALUE){
       FILETIME wintime;
       *((FXTime*)&wintime)=fxwintime(ns);
-      if(SetFileTime(hnd,&wintime,NULL,NULL)!=0){
+      if(SetFileTime(hnd,&wintime,nullptr,nullptr)!=0){
         CloseHandle(hnd);
         return true;
         }
@@ -917,11 +918,11 @@ FXbool FXStat::getTotalDiskSpace(const FXString& path,FXulong& space){
 #ifdef UNICODE
   FXnchar unifile[MAXPATHLEN];
   utf2ncs(unifile,path.text(),MAXPATHLEN);
-  if(GetDiskFreeSpaceExW(unifile,NULL,(PULARGE_INTEGER)&space,NULL)){
+  if(GetDiskFreeSpaceExW(unifile,nullptr,(PULARGE_INTEGER)&space,nullptr)){
     return true;
     }
 #else
-  if(GetDiskFreeSpaceExA(path.text(),NULL,(PULARGE_INTEGER)&space,NULL)){
+  if(GetDiskFreeSpaceExA(path.text(),nullptr,(PULARGE_INTEGER)&space,nullptr)){
     return true;
     }
 #endif
@@ -944,11 +945,11 @@ FXbool FXStat::getAvailableDiskSpace(const FXString& path,FXulong& space){
 #ifdef UNICODE
   FXnchar unifile[MAXPATHLEN];
   utf2ncs(unifile,path.text(),MAXPATHLEN);
-  if(GetDiskFreeSpaceExW(unifile,(PULARGE_INTEGER)&space,NULL,NULL)){
+  if(GetDiskFreeSpaceExW(unifile,(PULARGE_INTEGER)&space,nullptr,nullptr)){
     return true;
     }
 #else
-  if(GetDiskFreeSpaceExA(path.text(),(PULARGE_INTEGER)&space,NULL,NULL)){
+  if(GetDiskFreeSpaceExA(path.text(),(PULARGE_INTEGER)&space,nullptr,nullptr)){
     return true;
     }
 #endif

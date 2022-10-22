@@ -3,7 +3,7 @@
 *                             O p t i o n   M e n u                             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -357,10 +357,10 @@ FXIMPLEMENT(FXOptionMenu,FXLabel,FXOptionMenuMap,ARRAYNUMBER(FXOptionMenuMap))
 
 
 // Make a option menu button
-FXOptionMenu::FXOptionMenu(FXComposite* p,FXPopup* pup,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXLabel(p,FXString::null,NULL,opts,x,y,w,h,pl,pr,pt,pb){
+FXOptionMenu::FXOptionMenu(FXComposite* p,FXPopup* pup,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXLabel(p,FXString::null,nullptr,opts,x,y,w,h,pl,pr,pt,pb){
   dragCursor=getApp()->getDefaultCursor(DEF_RARROW_CURSOR);
   pane=pup;
-  current=NULL;
+  current=nullptr;
   if(pane){
     current=dynamic_cast<FXOption*>(pane->getFirst());
     if(current){
@@ -560,10 +560,10 @@ long FXOptionMenu::onKeyRelease(FXObject*,FXSelector sel,void* ptr){
       case KEY_KP_Space:
         if(pane){
           if(pane->shown()){
-            handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+            handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
             }
           else{
-            handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+            handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
             }
           }
         return 1;
@@ -581,10 +581,10 @@ long FXOptionMenu::onLeftBtnPress(FXObject*,FXSelector,void* ptr){
     if(target && target->tryHandle(this,FXSEL(SEL_LEFTBUTTONPRESS,message),ptr)) return 1;
     if(pane){
       if(pane->shown()){
-        handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+        handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
         }
       else{
-        handle(this,FXSEL(SEL_COMMAND,ID_POST),NULL);
+        handle(this,FXSEL(SEL_COMMAND,ID_POST),nullptr);
         }
       }
     return 1;
@@ -599,7 +599,7 @@ long FXOptionMenu::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
   flags&=~FLAG_TIP;
   if(isEnabled()){
     if(target && target->tryHandle(this,FXSEL(SEL_LEFTBUTTONRELEASE,message),ptr)) return 1;
-    if(ev->moved && pane){ handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL); }
+    if(ev->moved && pane){ handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr); }
     return 1;
     }
   return 0;
@@ -711,7 +711,7 @@ FXbool FXOptionMenu::contains(FXint parentx,FXint parenty) const {
 // Out of focus chain
 void FXOptionMenu::killFocus(){
   FXLabel::killFocus();
-  handle(current,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  handle(current,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   }
 
 
@@ -721,7 +721,7 @@ FXbool FXOptionMenu::canFocus() const { return true; }
 
 // Return the option item at the given index
 FXOption *FXOptionMenu::getItem(FXint index) const {
-  return pane ? dynamic_cast<FXOption*>(pane->childAtIndex(index)) : NULL;
+  return pane ? dynamic_cast<FXOption*>(pane->childAtIndex(index)) : nullptr;
   }
 
 
@@ -735,7 +735,7 @@ void FXOptionMenu::setCurrent(FXOption *win,FXbool notify){
       }
     else{
       setText(FXString::null);
-      setIcon(NULL);
+      setIcon(nullptr);
       }
     if(notify && target){target->tryHandle(this,FXSEL(SEL_COMMAND,message),(void*)(FXival)getCurrentNo());}
     }
@@ -744,7 +744,7 @@ void FXOptionMenu::setCurrent(FXOption *win,FXbool notify){
 
 // Set current option
 void FXOptionMenu::setCurrentNo(FXint no,FXbool notify){
-  FXOption *win=NULL;
+  FXOption *win=nullptr;
   if(pane) win=dynamic_cast<FXOption*>(pane->childAtIndex(no));
   setCurrent(win,notify);
   }

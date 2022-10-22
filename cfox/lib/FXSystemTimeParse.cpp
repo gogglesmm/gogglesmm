@@ -3,7 +3,7 @@
 *                  C o n v e r t   S t r i n g   T o   T i m e                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2019,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2019,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -250,12 +250,12 @@ static const FXint militaryzoneoffsets[]={
 static const FXchar *findstring(FXint& result,const FXchar *string,const FXchar *const *list,FXint nlist){
   for(FXint i=0; i<nlist; i++){
     FXuval len=strlen(list[i]);
-    if(comparecase(list[i],string,len)==0){
+    if(FXString::comparecase(list[i],string,len)==0){
       result=i;
       return string+len;
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -266,12 +266,12 @@ static const FXchar *convertnanoseconds(FXint& result,const FXchar *string,FXint
   if('0'<=*string && *string<='9' && digs){     // Need at least 1 digit
     do{
       result+=(*string++-'0')*w;
-      w/=10;                                  
+      w/=10;
       }
     while('0'<=*string && *string<='9' && --digs);
     return string;
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -293,7 +293,7 @@ static const FXchar *convertstring(FXint& result,const FXchar *string,FXint lo,F
       return string;
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -356,7 +356,7 @@ static const FXchar* systemTimeParseRecursive(FXSystem::Time& st,FXuint& set,con
 nxt:  ch=*format++;
       switch(ch){
       case '%':                 // Just match '%'
-        if(*string!='%') return NULL;
+        if(*string!='%') return nullptr;
         string++;
         continue;
       case 'n':                 // Any kind of white-space
@@ -375,46 +375,46 @@ nxt:  ch=*format++;
       case 'P':                 // AM/PM 0..1
       case 'p':
         string=findstring(pm,string,ampm,2);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_PM;
         continue;
       case 'a':
       case 'A':                 // Weekday 0..6
-        if((s=findstring(st.wday,string,weekdays,7))!=NULL){    // Longest first
+        if((s=findstring(st.wday,string,weekdays,7))!=nullptr){    // Longest first
           string=s;
           set|=SET_WDAY;
           continue;
           }
-        if((s=findstring(st.wday,string,sweekdays,7))!=NULL){   // Then shorter
+        if((s=findstring(st.wday,string,sweekdays,7))!=nullptr){   // Then shorter
           string=s;
           set|=SET_WDAY;
           continue;
           }
-        return NULL;
+        return nullptr;
       case 'B':                 // Month 1..12
       case 'b':
       case 'h':
-        if((s=findstring(num,string,months,12))!=NULL){         // Longest first
+        if((s=findstring(num,string,months,12))!=nullptr){         // Longest first
           st.month=num+1;
           string=s;
           set|=SET_MON;
           continue;
           }
-        if((s=findstring(num,string,smonths,12))!=NULL){        // Then shorter
+        if((s=findstring(num,string,smonths,12))!=nullptr){        // Then shorter
           st.month=num+1;
           string=s;
           set|=SET_MON;
           continue;
           }
-        return NULL;
+        return nullptr;
       case 'j':                 // The day of year 1..366
         string=convertstring(st.yday,string,1,366);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_YDAY;
         continue;
       case 'g':                 // Year corresponding to the ISO week, w/o century
         string=convertstring(num,string,0,99);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         if(set&SET_CENT){       // Keep century, set the years
           st.year=(st.year/100)*100+num;
           }
@@ -425,12 +425,12 @@ nxt:  ch=*format++;
         continue;
       case 'G':                 // Year corresponding to the ISO week, with century
         string=convertstring(st.year,string,0,9999);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_CENT|SET_YEAR|SET_ISO;
         continue;
       case 'y':                 // Year without century
         string=convertstring(num,string,0,99);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         if(set&SET_CENT){       // Keep century, set the years
           st.year=(st.year/100)*100+num;
           }
@@ -441,12 +441,12 @@ nxt:  ch=*format++;
         continue;
       case 'Y':                 // Year with century 0..9999
         string=convertstring(st.year,string,0,9999);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_CENT|SET_YEAR;
         continue;
       case 'C':                 // Century number 0..99
         string=convertstring(num,string,0,99);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         if(set&SET_YEAR){       // Keep the years, set the century
           st.year=st.year%100+num*100;
           }
@@ -457,32 +457,32 @@ nxt:  ch=*format++;
         continue;
       case 'w':                 // The day of week, sunday = 0
         string=convertstring(st.wday,string,0,6);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         startofweek=0;
         set|=SET_WDAY;
         continue;
       case 'u':                 // The day of week, monday = 1
         string=convertstring(num,string,1,7);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         st.wday=num%7;
         startofweek=1;
         set|=SET_WDAY;
         continue;
       case 'U':                 // Week number, starting 1st Sunday (00..53)
         string=convertstring(week,string,0,53);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         startofweek=0;          // SUN
         set|=SET_WEEK;
         continue;
       case 'W':                  // Week number, starting 1st Monday (00..53)
         string=convertstring(week,string,0,53);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         startofweek=1;          // MON
         set|=SET_WEEK;
         continue;
       case 'V':                 // Week number, ISO 8601:1988 (01..53)
         string=convertstring(week,string,1,53);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         startofweek=1;          // MON
         set|=SET_WEEK|SET_ISO;
         continue;
@@ -497,19 +497,19 @@ nxt:  ch=*format++;
           set|=SET_OFF;
           continue;
           }
-        if((s=findstring(num,string,USSTD,ARRAYNUMBER(USSTD)))!=NULL){          // Standard time
+        if((s=findstring(num,string,USSTD,ARRAYNUMBER(USSTD)))!=nullptr){          // Standard time
           string=s;
           st.offset=-3600*(num+5);
           set|=SET_OFF;
           continue;
           }
-        if((s=findstring(num,string,USDST,ARRAYNUMBER(USDST)))!=NULL){          // Daylight savings time
+        if((s=findstring(num,string,USDST,ARRAYNUMBER(USDST)))!=nullptr){          // Daylight savings time
           string=s;
           st.offset=-3600*(num+4);
           set|=SET_OFF;
           continue;
           }
-        if((s=findstring(num,string,GMT,ARRAYNUMBER(GMT)))!=NULL){              // GMT
+        if((s=findstring(num,string,GMT,ARRAYNUMBER(GMT)))!=nullptr){              // GMT
           string=s;
           st.offset=0;
           set|=SET_OFF;
@@ -542,16 +542,16 @@ nxt:  ch=*format++;
                   if('0'<=*string && *string<='9'){
                     ext*=10;
                     ext+=*string++-'0';
-                    if(ext>=60) return NULL;            // More than 60 minutes
+                    if(ext>=60) return nullptr;            // More than 60 minutes
                     ext*=60;                            // Convert minutes to seconds
                     num+=ext;                           // Add to the rest
                     }
                   else{
-                    return NULL;                        // 1 minute digit only!
+                    return nullptr;                        // 1 minute digit only!
                     }
                   }
                 else{
-                  return NULL;                          // 0 minute digits at all!
+                  return nullptr;                          // 0 minute digits at all!
                   }
                 }
               if(neg) num=-num;
@@ -561,49 +561,49 @@ nxt:  ch=*format++;
               }
             }
           }
-        return NULL;
+        return nullptr;
       case 'e':                 // Day of month 1..31
       case 'd':
         string=convertstring(st.mday,string,1,31);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_MDAY;
         continue;
       case 'k':                 // The hour using a 24 hour clock
       case 'H':
         string=convertstring(st.hour,string,0,23);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_24HR;
         continue;
       case 'l':                 // The hour using a 12 hour clock
       case 'I':
         string=convertstring(st.hour,string,0,12);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         st.hour%=12;
         set|=SET_12HR;
         continue;
       case 'm':                 // Month 1..12
         string=convertstring(st.month,string,1,12);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_MON;
         continue;
       case 'M':                 // Minutes 0..59
         string=convertstring(st.min,string,0,59);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_MIN;
         continue;
       case 'S':                 // Seconds 0..61
         string=convertstring(st.sec,string,0,61);
-        if(!string) return NULL;
+        if(!string) return nullptr;
         set|=SET_SEC;
         continue;
       case 's':                 // Seconds since Unix Epoch
-        if(*string<'0' || '9'<*string) return NULL;
+        if(*string<'0' || '9'<*string) return nullptr;
         sse=0;
         do{
           num=*string++-'0';
           if(sse>=(LLONG_MAX/10)){
-            if(sse>(LLONG_MAX/10)) return NULL;
-            if(num>(LLONG_MAX%10)) return NULL;
+            if(sse>(LLONG_MAX/10)) return nullptr;
+            if(num>(LLONG_MAX%10)) return nullptr;
             }
           sse=sse*10+num;
           }
@@ -615,56 +615,56 @@ nxt:  ch=*format++;
         ch=*format++;
         if(ch=='m'){            // Milliseconds
           string=convertnanoseconds(st.nano,string,3);
-          if(!string) return NULL;
+          if(!string) return nullptr;
           continue;
           }
-        if(ch=='u'){            // Microseconds 
+        if(ch=='u'){            // Microseconds
           string=convertnanoseconds(st.nano,string,6);
-          if(!string) return NULL;
+          if(!string) return nullptr;
           continue;
           }
         if(ch=='n'){            // Nanoseconds
           string=convertnanoseconds(st.nano,string,9);
-          if(!string) return NULL;
+          if(!string) return nullptr;
           continue;
           }
-        return NULL;
+        return nullptr;
       case 'D':                 // The date as "%m/%d/%y"
         string=systemTimeParseRecursive(st,set,string,"%m/%d/%y");
-        if(!string) return NULL;
+        if(!string) return nullptr;
         continue;
       case 'F':                 // The date as "%Y-%m-%d"
         string=systemTimeParseRecursive(st,set,string,"%Y-%m-%d");
-        if(!string) return NULL;
+        if(!string) return nullptr;
         continue;
       case 'c':                 // Date and time, using the locale's format
         string=systemTimeParseRecursive(st,set,string,"%b %a %d %k:%M:%S %Z %Y");
-        if(!string) return NULL;
+        if(!string) return nullptr;
         continue;
       case 'r':                 // The time in 12-hour clock representation
         string=systemTimeParseRecursive(st,set,string,"%I:%M:%S %p");
-        if(!string) return NULL;
+        if(!string) return nullptr;
         continue;
       case 'R':                 // The time as "%H:%M"
         string=systemTimeParseRecursive(st,set,string,"%H:%M");
-        if(!string) return NULL;
+        if(!string) return nullptr;
         continue;
       case 'x':                 // The date, using the locale's format
         string=systemTimeParseRecursive(st,set,string,"%b %a %d");
-        if(!string) return NULL;
+        if(!string) return nullptr;
         continue;
       case 'X':                 // The time, using the locale's format
         string=systemTimeParseRecursive(st,set,string,"%k:%M:%S");
-        if(!string) return NULL;
+        if(!string) return nullptr;
         continue;
       case 'T':                 // The time as "%H:%M:%S"
         string=systemTimeParseRecursive(st,set,string,"%H:%M:%S");
-        if(!string) return NULL;
+        if(!string) return nullptr;
         continue;
       default:                  // Error: not supported
-        return NULL;
+        return nullptr;
         }
-      return NULL;
+      return nullptr;
       }
 
     // Match whitespace
@@ -674,7 +674,7 @@ nxt:  ch=*format++;
       }
 
     // Match other characters
-    if(ch!=*string) return NULL;
+    if(ch!=*string) return nullptr;
     string++;
     }
 
@@ -747,7 +747,7 @@ nxt:  ch=*format++;
 // Parse system time from string, returning number of characters parsed
 FXint FXSystem::systemTimeParse(Time& st,const FXchar* string,const FXchar* format){
   const FXchar* ptr; FXuint set=0;
-  if((ptr=systemTimeParseRecursive(st,set,string,format))!=NULL){
+  if((ptr=systemTimeParseRecursive(st,set,string,format))!=nullptr){
     return ptr-string;
     }
   return 0;

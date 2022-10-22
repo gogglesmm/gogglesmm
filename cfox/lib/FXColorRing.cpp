@@ -3,7 +3,7 @@
 *                         C o l o r R i n g   W i d g e t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -117,6 +117,11 @@ using namespace FX;
 
 namespace FX {
 
+// Special single-precision versions
+const FXfloat pi=3.1415926535897932384626433833f;
+const FXfloat dtor=0.0174532925199432957692369077f;
+const FXfloat rtod=57.295779513082320876798154814f;
+
 // Map
 FXDEFMAP(FXColorRing) FXColorRingMap[]={
   FXMAPFUNC(SEL_PAINT,0,FXColorRing::onPaint),
@@ -162,7 +167,7 @@ FXColorRing::FXColorRing(){
 // Make a color ring
 FXColorRing::FXColorRing(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXFrame(p,opts,x,y,w,h,pl,pr,pt,pb){
   flags|=FLAG_ENABLED;
-  dial=new FXImage(getApp(),NULL,IMAGE_DITHER|IMAGE_KEEP|IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,RINGDIAMETER,RINGDIAMETER);
+  dial=new FXImage(getApp(),nullptr,IMAGE_DITHER|IMAGE_KEEP|IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,RINGDIAMETER,RINGDIAMETER);
   target=tgt;
   message=sel;
   hsv[0]=0.0f;
@@ -264,15 +269,15 @@ void FXColorRing::updatering(){
   FXint o2,i2,r2,rx,ry,x,y;
 
   // Hue angle in radians
-  a=(hsv[0]-180.0f)*DTOR;
+  a=(hsv[0]-180.0f)*dtor;
 
   // Calculate triangle points
   clrx=(FXint)(ringinner*Math::cos(a)+0.5f);
   clry=(FXint)(ringinner*Math::sin(a)+0.5f);
-  blkx=(FXint)(ringinner*Math::cos(a+2.0f*PI/3.0f)+0.5f);
-  blky=(FXint)(ringinner*Math::sin(a+2.0f*PI/3.0f)+0.5f);
-  whtx=(FXint)(ringinner*Math::cos(a-2.0f*PI/3.0f)+0.5f);
-  whty=(FXint)(ringinner*Math::sin(a-2.0f*PI/3.0f)+0.5f);
+  blkx=(FXint)(ringinner*Math::cos(a+2.0f*pi/3.0f)+0.5f);
+  blky=(FXint)(ringinner*Math::sin(a+2.0f*pi/3.0f)+0.5f);
+  whtx=(FXint)(ringinner*Math::cos(a-2.0f*pi/3.0f)+0.5f);
+  whty=(FXint)(ringinner*Math::sin(a-2.0f*pi/3.0f)+0.5f);
 
   // To test for ring
   o2=ringouter*ringouter;
@@ -294,7 +299,7 @@ void FXColorRing::updatering(){
         if(i2<=r2){
 
           // Compute color
-          fxhsv_to_rgb(r,g,b,Math::atan2((FXfloat)ry,(FXfloat)rx)*RTOD+180.0f,1.0f,1.0f);
+          fxhsv_to_rgb(r,g,b,Math::atan2((FXfloat)ry,(FXfloat)rx)*rtod+180.0f,1.0f,1.0f);
           dial->setPixel(x,y,FXRGB(255.0f*r,255.0f*g,255.0f*b));
           continue;
           }
@@ -330,13 +335,13 @@ FXbool FXColorRing::inHueRing(FXint x,FXint y) const {
 
 // Compute hue from position on ring x, y
 FXfloat FXColorRing::hueFromXY(FXint x,FXint y) const {
-  return Math::atan2((FXfloat)(y-dialy-ringouter),(FXfloat)(x-dialx-ringouter))*RTOD+180.0f;
+  return Math::atan2((FXfloat)(y-dialy-ringouter),(FXfloat)(x-dialx-ringouter))*rtod+180.0f;
   }
 
 
 // Compute position on ring from hue
 void FXColorRing::hueToXY(FXint& x,FXint& y,FXfloat hue) const {
-  FXfloat a=(hue-180.0f)*DTOR;
+  FXfloat a=(hue-180.0f)*dtor;
   FXfloat r=ringouter-ringwidth*0.5f;
   x=dialx+ringouter+(FXint)(r*Math::cos(a)+0.5f);
   y=dialy+ringouter+(FXint)(r*Math::sin(a)+0.5f);

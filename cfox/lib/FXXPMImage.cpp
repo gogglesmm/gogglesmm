@@ -3,7 +3,7 @@
 *                            X P M   I m a g e   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -62,11 +62,11 @@ const FXchar FXXPMImage::mimeType[]="image/xpm";
 
 
 // Object implementation
-FXIMPLEMENT(FXXPMImage,FXImage,NULL,0)
+FXIMPLEMENT(FXXPMImage,FXImage,nullptr,0)
 
 
 // Initialize
-FXXPMImage::FXXPMImage(FXApp* a,const FXchar **pix,FXuint opts,FXint w,FXint h):FXImage(a,NULL,opts,w,h){
+FXXPMImage::FXXPMImage(FXApp* a,const FXchar **pix,FXuint opts,FXint w,FXint h):FXImage(a,nullptr,opts,w,h){
   if(pix){
     fxloadXPM(pix,data,width,height);
     options|=IMAGE_OWNED;

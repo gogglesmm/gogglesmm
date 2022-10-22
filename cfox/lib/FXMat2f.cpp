@@ -3,7 +3,7 @@
 *            S i n g l e - P r e c i s i o n   2 x 2   M a t r i x              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -412,6 +412,17 @@ FXMat2f FXMat2f::transpose() const {
 FXMat2f FXMat2f::invert() const {
   FXfloat dd=m[0][0]*m[1][1]-m[0][1]*m[1][0];
   return FXMat2f(m[1][1]/dd,-m[0][1]/dd,-m[1][0]/dd,m[0][0]/dd);
+  }
+
+
+// Orthogonalize matrix
+// Uses Gram-Schmidt orthogonalization on a row-by-row basis
+FXMat2f orthogonalize(const FXMat2f& m){
+  FXMat2f result(m);
+  result[0]/=result[0].length();
+  result[1]-=result[0]*(result[1]*result[0]);
+  result[1]/=result[1].length();
+  return result;
   }
 
 

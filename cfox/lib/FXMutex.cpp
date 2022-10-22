@@ -3,7 +3,7 @@
 *                              M u t e x   C l a s s                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -41,33 +41,30 @@
     new platform.
 
   - If you run into this, try to figure out sizeof(pthread_mutex_t) and
-    let me know about it (jeroen@fox-toolkit.com).
+    let me know about it (jeroen@fox-toolkit.net).
 */
 
 using namespace FX;
 
-
-namespace FX {
-
-
 /*******************************************************************************/
 
+namespace FX {
 
 // Initialize mutex
 FXMutex::FXMutex(FXbool recursive){
 #if defined(WIN32)
   // If this fails on your machine, determine what value
   // of sizeof(CRITICAL_SECTION) is supposed to be on your
-  // machine and mail it to: jeroen@fox-toolkit.com!!
+  // machine and mail it to: jeroen@fox-toolkit.net!!
   //FXTRACE((150,"sizeof(CRITICAL_SECTION)=%d\n",sizeof(CRITICAL_SECTION)));
-  FXASSERT(sizeof(data)>=sizeof(CRITICAL_SECTION));
+  FXASSERT_STATIC(sizeof(data)>=sizeof(CRITICAL_SECTION));
   InitializeCriticalSection((CRITICAL_SECTION*)data);
 #else
   // If this fails on your machine, determine what value
   // of sizeof(pthread_mutex_t) is supposed to be on your
-  // machine and mail it to: jeroen@fox-toolkit.com!!
+  // machine and mail it to: jeroen@fox-toolkit.net!!
   //FXTRACE((150,"sizeof(pthread_mutex_t)=%d\n",sizeof(pthread_mutex_t)));
-  FXASSERT(sizeof(data)>=sizeof(pthread_mutex_t));
+  FXASSERT_STATIC(sizeof(data)>=sizeof(pthread_mutex_t));
   pthread_mutexattr_t mutexatt;
   pthread_mutexattr_init(&mutexatt);
   pthread_mutexattr_settype(&mutexatt,recursive?PTHREAD_MUTEX_RECURSIVE:PTHREAD_MUTEX_DEFAULT);

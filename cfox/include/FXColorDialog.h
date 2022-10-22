@@ -3,7 +3,7 @@
 *                           C o l o r   D i a l o g                             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -48,6 +48,8 @@ protected:
   static const FXchar sectionName[];
 protected:
   FXColorDialog(){}
+  void readRegistry();
+  void writeRegistry();
 private:
   FXColorDialog(const FXColorDialog&);
   FXColorDialog &operator=(const FXColorDialog&);

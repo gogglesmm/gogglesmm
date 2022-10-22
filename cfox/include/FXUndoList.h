@@ -3,7 +3,7 @@
 *                  U n d o / R e d o - a b l e   C o m m a n d                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -48,7 +48,7 @@ private:
   FXCommand(const FXCommand&);
   FXCommand &operator=(const FXCommand&);
 protected:
-  FXCommand():next(NULL){}
+  FXCommand():next(nullptr){}
 public:
 
   /**
@@ -124,7 +124,7 @@ private:
 public:
 
   /// Construct initially empty undo command group
-  FXCommandGroup():undolist(NULL),redolist(NULL),group(NULL){}
+  FXCommandGroup():undolist(nullptr),redolist(nullptr),group(nullptr){}
 
   /// Return true if empty
   FXbool empty(){ return !undolist; }

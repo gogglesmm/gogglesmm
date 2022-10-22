@@ -3,7 +3,7 @@
 *              B a s e - 8 5    E n c o d i n g  /  D e c o d i n g             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2018,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -31,6 +31,8 @@
   - Which base85 is most useful? Adobe, rfc1924, Z85,
   - 85^5 = 4384852500, which is just larger than 256^4=4294967295; thus, 5
     bytes needed to encode each 4 bytes.
+  - Encode 4 bytes of source into 5 bytes of destination, using only 85 printable
+    ASCII symbols.
 
 */
 

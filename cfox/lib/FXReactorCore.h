@@ -3,7 +3,7 @@
 *                            R e a c t o r   C o r e                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2019,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2019,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -34,12 +34,10 @@ struct FXReactor::Internals {
   FXuint             modes[MAXIMUM_WAIT_OBJECTS];       // IO Modes each handle
 #elif defined(HAVE_EPOLL_CREATE1)
   FXint              signotified[64];                   // Signal notify flag
-  sigset_t           sigmaskset;                        // Signal mask
   struct epoll_event events[128];                       // Events
   FXInputHandle      handle;                            // Poll handle
 #else
   FXint              signotified[64];                   // Signal notify flag
-  sigset_t           sigmaskset;                        // Signal mask
   fd_set             watched[3];                        // Watched handles
   fd_set             handles[3];                        // Known handles
 #endif

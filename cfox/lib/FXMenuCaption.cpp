@@ -3,7 +3,7 @@
 *                       M e n u   C a p t i o n   W i d g e t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "fxkeys.h"
 #include "FXArray.h"
@@ -304,19 +305,31 @@ void FXMenuCaption::setHelpText(const FXString& text){
   }
 
 
-// Change text, and scan this text to replace accelerators
+// Change text, removing hotkey if changed
 void FXMenuCaption::setText(const FXString& text){
-  FXString string=stripHotKey(text);
-  FXHotKey hkey=parseHotKey(text);
-  FXint hoff=findHotKey(text);
-  if(label!=string || hkey!=hotkey || hotoff!=hoff){
-    label.adopt(string);
-    remHotKey(hotkey);
-    hotkey=hkey;
-    hotoff=hoff;
-    addHotKey(hotkey);
+  if(text!=label){
+    if(0<=hotoff && (hotoff>=text.length() || hotoff>=label.length() || label[hotoff]!=text[hotoff])){
+      remHotKey(hotkey);
+      hotoff=-1;
+      }
+    label=text;
     recalc();
     update();
+    }
+  }
+
+
+// Change text and hotkey
+void FXMenuCaption::setTextAndHotKey(const FXString& hotkeytext){
+  FXString string=stripHotKey(hotkeytext);
+  FXHotKey hkey=parseHotKey(hotkeytext);
+  FXint hoff=findHotKey(hotkeytext);
+  if(string!=label || hkey!=hotkey || hoff!=hotoff){
+    setText(string);
+    remHotKey(hotkey);
+    addHotKey(hkey);
+    hotkey=hkey;
+    hotoff=hoff;
     }
   }
 

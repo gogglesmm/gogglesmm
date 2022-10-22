@@ -3,7 +3,7 @@
 *                      P r o g r e s s B a r   W i d g e t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -247,7 +247,6 @@ void FXProgressBar::drawInterior(FXDCWindow& dc){
       if(th>ds/2) return;                        // Text too tall
       n=__snprintf(numtext,sizeof(numtext),"%d%%",percent);
       tw=font->getTextWidth(numtext,n);
-      th=font->getFontHeight();
       tx=dx+ds/2-tw/2;
       ty=dy+ds/2+font->getFontAscent()+5;
       dc.setFont(font);

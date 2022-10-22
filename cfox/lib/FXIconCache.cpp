@@ -3,7 +3,7 @@
 *                              I c o n   C a c h e                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -59,6 +59,7 @@
     obtained the icon.
 */
 
+#define TOPIC_CONSTRUCT  1000
 
 // You can override the default icon locations to search for your
 // particular platform by specifying -DDEFAULTICONPATH="path" on
@@ -83,18 +84,18 @@ const FXchar FXIconCache::defaultIconPath[]=DEFAULTICONPATH;
 
 
 // Object implementation
-FXIMPLEMENT(FXIconCache,FXObject,NULL,0)
+FXIMPLEMENT(FXIconCache,FXObject,nullptr,0)
 
 
 // Build icon cache
 FXIconCache::FXIconCache():app((FXApp*)-1L),loader(&FXIconSource::defaultIconSource){
-  FXTRACE((100,"FXIconCache::FXIconCache\n"));
+  FXTRACE((TOPIC_CONSTRUCT,"FXIconCache::FXIconCache\n"));
   }
 
 
 // Build icon cache
 FXIconCache::FXIconCache(FXApp* ap,const FXString& sp):app(ap),loader(&FXIconSource::defaultIconSource),path(sp){
-  FXTRACE((100,"FXIconCache::FXIconCache\n"));
+  FXTRACE((TOPIC_CONSTRUCT,"FXIconCache::FXIconCache\n"));
   }
 
 
@@ -145,7 +146,7 @@ void FXIconCache::load(FXStream& store){
 
 // Destructor
 FXIconCache::~FXIconCache(){
-  FXTRACE((100,"FXIconCache::~FXIconCache\n"));
+  FXTRACE((TOPIC_CONSTRUCT,"FXIconCache::~FXIconCache\n"));
   clear();
   app=(FXApp*)-1L;
   loader=(FXIconSource*)-1L;

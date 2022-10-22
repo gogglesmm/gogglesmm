@@ -3,7 +3,7 @@
 *                          D D S   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -1270,7 +1270,7 @@ FXbool fxloadDDS(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
   DDSImage dds;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
   depth=0;

@@ -3,7 +3,7 @@
 *                               I c o n - O b j e c t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -56,6 +56,10 @@
     This simplifies the shape/etch mask procedure.
 */
 
+#define TOPIC_CONSTRUCT 1000
+#define TOPIC_CREATION  1001
+
+
 #define DARKCOLOR(r,g,b) (((r)+(g)+(b))<thresh)
 
 using namespace FX;
@@ -65,7 +69,7 @@ using namespace FX;
 namespace FX {
 
 // Object implementation
-FXIMPLEMENT(FXIcon,FXImage,NULL,0)
+FXIMPLEMENT(FXIcon,FXImage,nullptr,0)
 
 
 // For deserialization
@@ -75,7 +79,7 @@ FXIcon::FXIcon():shape(0),etch(0),transp(0),thresh(382){
 
 // Initialize nicely
 FXIcon::FXIcon(FXApp* a,const FXColor *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXImage(a,pix,opts,w,h),shape(0),etch(0),transp(clr),thresh(382){
-  FXTRACE((100,"FXIcon::FXIcon %p\n",this));
+  FXTRACE((TOPIC_CONSTRUCT,"FXIcon::FXIcon %p\n",this));
   }
 
 
@@ -126,7 +130,7 @@ FXshort FXIcon::guessthresh() const {
 void FXIcon::create(){
   if(!xid){
     if(getApp()->isInitialized()){
-      FXTRACE((100,"%s::create %p\n",getClassName(),this));
+      FXTRACE((TOPIC_CREATION,"%s::create %p\n",getClassName(),this));
 
       // Initialize visual
       visual->create();
@@ -139,11 +143,11 @@ void FXIcon::create(){
       if(!xid){ fxerror("%s::create: unable to create image.\n",getClassName()); }
 
       // Make shape bitmap
-      shape=::CreateBitmap(FXMAX(width,1),FXMAX(height,1),1,1,NULL);
+      shape=::CreateBitmap(FXMAX(width,1),FXMAX(height,1),1,1,nullptr);
       if(!shape){ fxerror("%s::create: unable to create icon.\n",getClassName()); }
 
       // Make etch bitmap
-      etch=::CreateBitmap(FXMAX(width,1),FXMAX(height,1),1,1,NULL);
+      etch=::CreateBitmap(FXMAX(width,1),FXMAX(height,1),1,1,nullptr);
       if(!etch){ fxerror("%s::create: unable to create icon.\n",getClassName()); }
 #else
 
@@ -174,7 +178,7 @@ void FXIcon::create(){
 void FXIcon::detach(){
   visual->detach();
   if(xid){
-    FXTRACE((100,"%s::detach %p\n",getClassName(),this));
+    FXTRACE((TOPIC_CREATION,"%s::detach %p\n",getClassName(),this));
     shape=0;
     etch=0;
     xid=0;
@@ -186,7 +190,7 @@ void FXIcon::detach(){
 void FXIcon::destroy(){
   if(xid){
     if(getApp()->isInitialized()){
-      FXTRACE((100,"%s::destroy %p\n",getClassName(),this));
+      FXTRACE((TOPIC_CREATION,"%s::destroy %p\n",getClassName(),this));
 #ifdef WIN32
       ::DeleteObject(shape);
       ::DeleteObject(etch);
@@ -224,7 +228,7 @@ void FXIcon::render(){
     BITMAPINFO2 bmi;
     HDC hdcmsk;
 
-    FXTRACE((100,"%s::render %p\n",getClassName(),this));
+    FXTRACE((TOPIC_CREATION,"%s::render %p\n",getClassName(),this));
 
     // Render the image (color) pixels as usual
     FXImage::render();
@@ -301,7 +305,7 @@ void FXIcon::render(){
       // Win95 you must pass in a non-NULL hdc for the first parameter; otherwise
       // this call to SetDIBits() will fail (in contrast, it works fine under
       // Windows NT if you pass in a NULL hdc).
-      hdcmsk=::CreateCompatibleDC(NULL);
+      hdcmsk=::CreateCompatibleDC(nullptr);
 
       // Set mask data
       if(!::SetDIBits(hdcmsk,(HBITMAP)shape,0,height,maskdata,(BITMAPINFO*)&bmi,DIB_RGB_COLORS)){
@@ -319,7 +323,7 @@ void FXIcon::render(){
       // We AND the image with the mask, then we can do faster and more
       // flicker-free icon painting later using the `black source' method
       HBITMAP hmsk=(HBITMAP)::SelectObject(hdcmsk,(HBITMAP)shape);
-      HDC hdcmem=::CreateCompatibleDC(NULL);
+      HDC hdcmem=::CreateCompatibleDC(nullptr);
       HBITMAP hbmp=(HBITMAP)::SelectObject(hdcmem,(HBITMAP)xid);
       ::SetBkColor(hdcmem,RGB(0,0,0));                // 1 -> black
       ::SetTextColor(hdcmem,RGB(255,255,255));        // 0 -> white
@@ -339,7 +343,7 @@ void FXIcon::render(){
 // Render icon X Windows
 void FXIcon::render(){
   if(xid){
-    XImage *xim=NULL;
+    XImage *xim=nullptr;
     FXbool shmi=false;
     FXColor *img;
     FXint x,y;
@@ -349,7 +353,7 @@ void FXIcon::render(){
     XShmSegmentInfo shminfo;
 #endif
 
-    FXTRACE((100,"%s::render shape %p\n",getClassName(),this));
+    FXTRACE((TOPIC_CREATION,"%s::render shape %p\n",getClassName(),this));
 
     // Render the image pixels
     FXImage::render();
@@ -365,11 +369,11 @@ void FXIcon::render(){
       // First try XShm
 #ifdef HAVE_XSHM_H
       if(shmi){
-        xim=XShmCreateImage((Display*)getApp()->getDisplay(),(Visual*)visual->visual,1,ZPixmap,NULL,&shminfo,width,height);
+        xim=XShmCreateImage((Display*)getApp()->getDisplay(),(Visual*)visual->visual,1,ZPixmap,nullptr,&shminfo,width,height);
         if(!xim){ shmi=0; }
         if(shmi){
           shminfo.shmid=shmget(IPC_PRIVATE,xim->bytes_per_line*xim->height,IPC_CREAT|0777);
-          if(shminfo.shmid==-1){ xim->data=NULL; XDestroyImage(xim); xim=NULL; shmi=0; }
+          if(shminfo.shmid==-1){ xim->data=nullptr; XDestroyImage(xim); xim=nullptr; shmi=0; }
           if(shmi){
             shminfo.shmaddr=xim->data=(char*)shmat(shminfo.shmid,0,0);
             shminfo.readOnly=false;
@@ -384,7 +388,7 @@ void FXIcon::render(){
       if(!shmi){
 
         // Try create image
-        xim=XCreateImage((Display*)getApp()->getDisplay(),(Visual*)visual->visual,1,ZPixmap,0,NULL,width,height,32,0);
+        xim=XCreateImage((Display*)getApp()->getDisplay(),(Visual*)visual->visual,1,ZPixmap,0,nullptr,width,height,32,0);
         if(!xim){ fxerror("%s::render: unable to render icon.\n",getClassName()); }
 
         // Try create temp pixel store
@@ -493,7 +497,7 @@ void FXIcon::render(){
       if(shmi){
         FXTRACE((150,"Bitmap XSHM detached at memory=%p (%d bytes)\n",xim->data,xim->bytes_per_line*xim->height));
         XShmDetach((Display*)getApp()->getDisplay(),&shminfo);
-        xim->data=NULL;
+        xim->data=nullptr;
         XDestroyImage(xim);
         shmdt(shminfo.shmaddr);
         shmctl(shminfo.shmid,IPC_RMID,0);
@@ -515,7 +519,7 @@ void FXIcon::render(){
 void FXIcon::resize(FXint w,FXint h){
   if(w<1) w=1;
   if(h<1) h=1;
-  FXTRACE((100,"%s::resize(%d,%d) %p\n",getClassName(),w,h,this));
+  FXTRACE((TOPIC_CREATION,"%s::resize(%d,%d) %p\n",getClassName(),w,h,this));
   if(width!=w || height!=h){
 
     // Resize device dependent pixmap
@@ -533,11 +537,11 @@ void FXIcon::resize(FXint w,FXint h){
       if(!xid){ fxerror("%s::resize: unable to resize image.\n",getClassName()); }
 
       // Make shape bitmap
-      shape=::CreateBitmap(w,h,1,1,NULL);
+      shape=::CreateBitmap(w,h,1,1,nullptr);
       if(!shape){ fxerror("%s::create: unable to create icon.\n",getClassName()); }
 
       // Make etch bitmap
-      etch=::CreateBitmap(w,h,1,1,NULL);
+      etch=::CreateBitmap(w,h,1,1,nullptr);
       if(!etch){ fxerror("%s::create: unable to create icon.\n",getClassName()); }
 #else
       // Get depth (should use visual!!)
@@ -583,7 +587,7 @@ void FXIcon::resize(FXint w,FXint h){
 
 // Clean up
 FXIcon::~FXIcon(){
-  FXTRACE((100,"FXIcon::~FXIcon %p\n",this));
+  FXTRACE((TOPIC_CONSTRUCT,"FXIcon::~FXIcon %p\n",this));
   destroy();
   }
 

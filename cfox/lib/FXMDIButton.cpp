@@ -3,7 +3,7 @@
 *             M u l t i p l e   D o c u m e n t   B u t t o n                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -78,7 +78,7 @@ FXIMPLEMENT(FXMDIDeleteButton,FXButton,FXMDIDeleteButtonMap,ARRAYNUMBER(FXMDIDel
 
 
 // Make delete button
-FXMDIDeleteButton::FXMDIDeleteButton(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXButton(p,"\tClose\tClose Window.",NULL,tgt,sel,opts,x,y,w,h,3,3,2,2){
+FXMDIDeleteButton::FXMDIDeleteButton(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXButton(p,"\tClose\tClose Window.",nullptr,tgt,sel,opts,x,y,w,h,3,3,2,2){
   }
 
 
@@ -148,7 +148,7 @@ FXIMPLEMENT(FXMDIRestoreButton,FXButton,FXMDIRestoreButtonMap,ARRAYNUMBER(FXMDIR
 
 
 // Make restore button
-FXMDIRestoreButton::FXMDIRestoreButton(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXButton(p,"\tRestore\tRestore Window.",NULL,tgt,sel,opts,x,y,w,h,3,3,2,2){
+FXMDIRestoreButton::FXMDIRestoreButton(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXButton(p,"\tRestore\tRestore Window.",nullptr,tgt,sel,opts,x,y,w,h,3,3,2,2){
   }
 
 
@@ -213,7 +213,7 @@ FXIMPLEMENT(FXMDIMaximizeButton,FXButton,FXMDIMaximizeButtonMap,ARRAYNUMBER(FXMD
 
 
 // Make maximize button
-FXMDIMaximizeButton::FXMDIMaximizeButton(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXButton(p,"\tMaximize\tMaximize Window.",NULL,tgt,sel,opts,x,y,w,h,3,3,2,2){
+FXMDIMaximizeButton::FXMDIMaximizeButton(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXButton(p,"\tMaximize\tMaximize Window.",nullptr,tgt,sel,opts,x,y,w,h,3,3,2,2){
   }
 
 FXint FXMDIMaximizeButton::getDefaultWidth(){
@@ -269,7 +269,7 @@ FXIMPLEMENT(FXMDIMinimizeButton,FXButton,FXMDIMinimizeButtonMap,ARRAYNUMBER(FXMD
 
 
 // Make minimize button
-FXMDIMinimizeButton::FXMDIMinimizeButton(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXButton(p,"\tMinimize\tMinimize Window.",NULL,tgt,sel,opts,x,y,w,h,3,3,2,2){
+FXMDIMinimizeButton::FXMDIMinimizeButton(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXButton(p,"\tMinimize\tMinimize Window.",nullptr,tgt,sel,opts,x,y,w,h,3,3,2,2){
   }
 
 
@@ -326,7 +326,7 @@ FXIMPLEMENT(FXMDIWindowButton,FXMenuButton,FXMDIWindowButtonMap,ARRAYNUMBER(FXMD
 
 
 // Make window button
-FXMDIWindowButton::FXMDIWindowButton(FXComposite* p,FXPopup* pup,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXMenuButton(p,FXString::null,NULL,pup,opts,x,y,w,h,0,0,0,0){
+FXMDIWindowButton::FXMDIWindowButton(FXComposite* p,FXPopup* pup,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXMenuButton(p,FXString::null,nullptr,pup,opts,x,y,w,h,0,0,0,0){
   tip="Menu";
   target=tgt;
   message=sel;
@@ -396,7 +396,7 @@ long FXMDIWindowButton::onPaint(FXObject*,FXSelector,void* ptr){
 
 
 // Object implementation
-FXIMPLEMENT(FXMDIMenu,FXMenuPane,NULL,0)
+FXIMPLEMENT(FXMDIMenu,FXMenuPane,nullptr,0)
 
 
 // Convenience constructor
@@ -405,8 +405,8 @@ FXMDIMenu::FXMDIMenu(FXWindow *own,FXObject* tgt):FXMenuPane(own){
   maximizeicon=new FXGIFIcon(getApp(),winmaximize);
   minimizeicon=new FXGIFIcon(getApp(),winminimize);
   restoreicon=new FXGIFIcon(getApp(),winrestore);
-  new FXMenuCommand(this,"&Next\t\tNext window.",NULL,tgt,FXWindow::ID_MDI_NEXT,0);
-  new FXMenuCommand(this,"&Previous\t\tPrevious window.",NULL,tgt,FXWindow::ID_MDI_PREV,0);
+  new FXMenuCommand(this,"&Next\t\tNext window.",nullptr,tgt,FXWindow::ID_MDI_NEXT,0);
+  new FXMenuCommand(this,"&Previous\t\tPrevious window.",nullptr,tgt,FXWindow::ID_MDI_PREV,0);
   new FXMenuCommand(this,"&Restore\t\tRestore window.",restoreicon,tgt,FXWindow::ID_MDI_RESTORE,0);
   new FXMenuCommand(this,"&Minimize\t\tMinimize window.",minimizeicon,tgt,FXWindow::ID_MDI_MINIMIZE,0);
   new FXMenuCommand(this,"&Maximize\t\tMaximize window.",maximizeicon,tgt,FXWindow::ID_MDI_MAXIMIZE,0);

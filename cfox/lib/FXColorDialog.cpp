@@ -3,7 +3,7 @@
 *                           C o l o r   D i a l o g                             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -100,7 +100,21 @@ FXColorDialog::FXColorDialog(FXApp* a,const FXString& name,FXuint opts,FXint x,F
 
 // Create server-side resources
 void FXColorDialog::create(){
-  setActivePanel(getApp()->reg().readIntEntry(sectionName,"activecolorpane",COLORTAB_COLOR_RING));
+  readRegistry();
+  FXDialogBox::create();
+  }
+
+
+// Destroy server-side resources
+void FXColorDialog::destroy(){
+  FXDialogBox::destroy();
+  writeRegistry();
+  }
+
+// Load settings from registry
+void FXColorDialog::readRegistry(){
+  setWidth(getApp()->reg().readIntEntry(sectionName,"width",getWidth()));
+  setHeight(getApp()->reg().readIntEntry(sectionName,"height",getHeight()));
   setWellColor( 0,getApp()->reg().readColorEntry(sectionName,"WA",FXRGBA(255,255,255,255)));
   setWellColor( 1,getApp()->reg().readColorEntry(sectionName,"WB",FXRGBA(204,204,204,255)));
   setWellColor( 2,getApp()->reg().readColorEntry(sectionName,"WC",FXRGBA(153,153,153,255)));
@@ -125,13 +139,14 @@ void FXColorDialog::create(){
   setWellColor(21,getApp()->reg().readColorEntry(sectionName,"WV",FXRGBA(175,175,255,255)));
   setWellColor(22,getApp()->reg().readColorEntry(sectionName,"WW",FXRGBA(175,255,255,255)));
   setWellColor(23,getApp()->reg().readColorEntry(sectionName,"WX",FXRGBA(255,255,175,255)));
-  FXDialogBox::create();
+  setActivePanel(getApp()->reg().readIntEntry(sectionName,"activecolorpane",COLORTAB_COLOR_RING));
   }
 
 
-// Destroy server-side resources
-void FXColorDialog::destroy(){
-  getApp()->reg().writeIntEntry(sectionName,"activecolorpane",getActivePanel());
+// Save settings to registry
+void FXColorDialog::writeRegistry(){
+  getApp()->reg().writeIntEntry(sectionName,"width",getWidth());
+  getApp()->reg().writeIntEntry(sectionName,"height",getHeight());
   getApp()->reg().writeColorEntry(sectionName,"WA",getWellColor( 0));
   getApp()->reg().writeColorEntry(sectionName,"WB",getWellColor( 1));
   getApp()->reg().writeColorEntry(sectionName,"WC",getWellColor( 2));
@@ -156,7 +171,7 @@ void FXColorDialog::destroy(){
   getApp()->reg().writeColorEntry(sectionName,"WV",getWellColor(21));
   getApp()->reg().writeColorEntry(sectionName,"WW",getWellColor(22));
   getApp()->reg().writeColorEntry(sectionName,"WX",getWellColor(23));
-  FXDialogBox::destroy();
+  getApp()->reg().writeIntEntry(sectionName,"activecolorpane",getActivePanel());
   }
 
 

@@ -3,7 +3,7 @@
 *             S U N   R A S T E R   I M A G E   I n p u t / O u t p u t         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -200,14 +200,14 @@ FXbool fxcheckRAS(FXStream& store){
 // Load SUN raster image file format
 FXbool fxloadRAS(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   FXuchar red[256],green[256],blue[256],*line,*p,*q,count,c,bit;
-  FXint   npixels,linesize,x,y,i;
+  FXint   npixels,linesize,x,y,i,b;
   HEADER  header;
   FXbool  swap;
   FXbool  ok=false;
 
   // Null out
-  data=NULL;
-  line=NULL;
+  data=nullptr;
+  line=nullptr;
   width=0;
   height=0;
 
@@ -317,8 +317,9 @@ FXbool fxloadRAS(FXStream& store,FXColor*& data,FXint& width,FXint& height){
                       }
                     }
                   if(header.depth==1){                          // 1 bits/pixel
-                    for(x=0,q=line; x<width; x++,p+=4){
-                      bit=(line[x>>3]>>(7-(x&7)))&1;
+                    for(x=0,q=line,b=-1; x<width; x++,p+=4){
+                      if(b<0){ c=~*q++; b=7; }
+                      bit=(c>>(b--))&1;
                       p[0]=blue[bit];
                       p[1]=green[bit];
                       p[2]=red[bit];

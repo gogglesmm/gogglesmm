@@ -3,7 +3,7 @@
 *                          S e m a p h o r e   Q u e u e                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -43,7 +43,7 @@ using namespace FX;
 namespace FX {
 
 // Create a queue and set its size to sz
-FXSemaQueue::FXSemaQueue(FXuint sz):queue(sz),free(sz),used(0){
+FXSemaQueue::FXSemaQueue(FXival sz):queue(sz),free(sz),used(0){
   }
 
 

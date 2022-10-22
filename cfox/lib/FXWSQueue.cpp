@@ -3,7 +3,7 @@
 *                      W o r k - S t e a l i n g   Q u e u e                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -111,7 +111,7 @@ FXbool FXWSQueue::pop(FXptr& ptr){
     ptr=list[b&mask];
     if(t==b){
       if(!atomicBoolCas(&top,t,t+1)){
-        ptr=NULL;
+        ptr=nullptr;
         bot=b+1;
         atomicThreadFence();
         return false;
@@ -121,7 +121,7 @@ FXbool FXWSQueue::pop(FXptr& ptr){
       }
     return true;
     }
-  ptr=NULL;
+  ptr=nullptr;
   bot=b+1;
   atomicThreadFence();
   return false;
@@ -140,7 +140,7 @@ FXbool FXWSQueue::take(FXptr& ptr){
       return true;
       }
     }
-  ptr=NULL;
+  ptr=nullptr;
   return false;
   }
 

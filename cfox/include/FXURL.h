@@ -3,7 +3,7 @@
 *                       U R L   M a n i p u l a t i o n                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -26,7 +26,7 @@ namespace FX {
 namespace FXURL {
 
   /// Encode control characters and characters from set using %-encoding
-  extern FXAPI FXString encode(const FXString& string,const FXchar* set=NULL);
+  extern FXAPI FXString encode(const FXString& string,const FXchar* set=nullptr);
 
   /// Decode string containing %-encoded characters
   extern FXAPI FXString decode(const FXString& string);

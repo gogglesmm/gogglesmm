@@ -3,7 +3,7 @@
 *                       M e s s a g e   T r a n s l a t o r                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -51,6 +51,9 @@
   -
 */
 
+#define TOPIC_CONSTRUCT 1000
+#define TOPIC_TRANSLATE 1010
+
 using namespace FX;
 
 /*******************************************************************************/
@@ -59,12 +62,12 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXTranslator,FXObject,NULL,0)
+FXIMPLEMENT(FXTranslator,FXObject,nullptr,0)
 
 
 // Construct translator
 FXTranslator::FXTranslator(){
-  FXTRACE((100,"%p->FXTranslator::FXTranslator\n",this));
+  FXTRACE((TOPIC_CONSTRUCT,"FXTranslator::FXTranslator()\n"));
   }
 
 /*
@@ -82,7 +85,7 @@ FXTranslator::FXTranslator(){
   GetLocaleInfo(mylcid,LOCALE_SINTLSYMBOL,buffer,sizeof(buffer)/sizeof(TCHAR)));
 
 #else
-  char *locale=setlocale(LC_ALL, NULL);
+  char *locale=setlocale(LC_ALL, nullptr);
   char *lang=strstr(locale,"LANG=");
   if(!lang) lang=strstr(locale,"LC_MESSAGES=");
   if(!lang) lang=strstr(locale,"LC_CTYPE=");
@@ -109,7 +112,7 @@ FXTranslator::FXTranslator(){
 
 // Translate a string
 const FXchar* FXTranslator::tr(const FXchar* context,const FXchar* message,const FXchar* hint,FXint count) const {
-  FXTRACE((200,"tr context: '%s' message: '%s' hint: '%s' count: %d.\n",context,message,hint?hint:"",count));
+  FXTRACE((TOPIC_TRANSLATE,"tr context: '%s' message: '%s' hint: '%s' count: %d.\n",context,message,hint?hint:"",count));
   return message;
   }
 
@@ -128,7 +131,7 @@ void FXTranslator::load(FXStream& store){
 
 // Destroy translator
 FXTranslator::~FXTranslator(){
-  FXTRACE((100,"%p->FXTranslator::~FXTranslator\n",this));
+  FXTRACE((TOPIC_CONSTRUCT,"FXTranslator::~FXTranslator()\n"));
   }
 
 }

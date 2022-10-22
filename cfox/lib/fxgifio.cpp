@@ -3,7 +3,7 @@
 *                        G I F   I n p u t / O u t p u t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -128,7 +128,7 @@ FXbool fxloadGIF(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXboo
   FXint   OutCode[4097];              // An output array used by the decompressor
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
 
@@ -528,7 +528,7 @@ FXbool fxsaveGIF(FXStream& store,const FXColor *data,FXint width,FXint height,FX
     }
 
   // Output Graphics Control Extension, if alpha is present
-  for(i=0,alpha=0; i<ncolors; i++){
+  for(i=0; i<ncolors; i++){
     if(((FXuchar*)(colormap+i))[0]==0){
       alpha=i;
       store << TAG_EXTENSION;   // Extension Introducer

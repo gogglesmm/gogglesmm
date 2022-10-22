@@ -3,7 +3,7 @@
 *                 R e v e r s e   D i c t i o n a r y    C l a s s              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2018,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2018,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -39,8 +39,8 @@ namespace FX {
 class FXAPI FXReverseDictionary {
 protected:
   struct Entry {
-    FXptr    key;       // Key
-    FXString data;      // Value
+    const void* key;
+    FXString    data;
     };
 protected:
   Entry*     table;     // Hash table
@@ -84,37 +84,37 @@ public:
   FXReverseDictionary& adopt(FXReverseDictionary& other);
 
   /// Find position of given key, returning -1 if not found
-  FXival find(FXptr ky) const;
+  FXival find(const void* ky) const;
 
   /// Check if key is mapped
-  FXbool has(FXptr ky) const { return 0<=find(ky); }
+  FXbool has(const void* ky) const { return 0<=find(ky); }
 
   /// Return reference to slot assocated with given key
-  FXString& at(FXptr ky);
+  FXString& at(const void* ky);
 
   /// Return constant reference to slot assocated with given key
-  const FXString& at(FXptr ky) const;
+  const FXString& at(const void* ky) const;
 
   /// Return reference to slot assocated with given key
-  FXString& operator[](FXptr ky){ return at(ky); }
+  FXString& operator[](const void* ky){ return at(ky); }
 
   /// Return constant reference to slot assocated with given key
-  const FXString& operator[](FXptr ky) const { return at(ky); }
+  const FXString& operator[](const void* ky) const { return at(ky); }
 
   /// Insert association with given key; return old value, if any
-  FXString insert(FXptr ky,const FXString& str=FXString::null){ FXString ret(str); return swap(at(ky),ret); }
+  FXString insert(const void* ky,const FXString& str=FXString::null){ FXString ret(str); return swap(ret,at(ky)); }
 
   /// Remove association with given key; return old value, if any
-  FXString remove(FXptr ky);
+  FXString remove(const void* ky);
 
   /// Erase data at pos in the table; return old value, if any
   FXString erase(FXival pos);
 
   /// Return true if slot is empty.
-  FXbool empty(FXival pos) const { return (table[pos].key==(FXptr)0L)||(table[pos].key==(FXptr)-1L); }
+  FXbool empty(FXival pos) const { return (table[pos].key==nullptr)||(table[pos].key==(const void*)-1L); }
 
   /// Return key at position pos
-  FXptr key(FXival pos) const { return table[pos].key; }
+  const void* key(FXival pos) const { return table[pos].key; }
 
   /// Return reference to slot at position pos
   FXString& data(FXival pos){ return table[pos].data; }
@@ -123,7 +123,7 @@ public:
   const FXString& data(FXival pos) const { return table[pos].data; }
 
   /// Clear entire table
-  void clear();
+  FXbool clear();
 
   /// Destroy table
  ~FXReverseDictionary();

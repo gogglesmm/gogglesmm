@@ -3,7 +3,7 @@
 *                        D o c k B a r   W i d g e t                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -170,7 +170,7 @@ public:
   * However, if after is -1, it will be docked as the innermost bar just before
   * the work-area, while if after is 0, if will be docked as the outermost bar.
   */
-  virtual void dock(FXDockSite* docksite,FXWindow* other=NULL,FXbool notify=false);
+  virtual void dock(FXDockSite* docksite,FXWindow* other=nullptr,FXbool notify=false);
 
   /**
   * Dock the bar against the given side, near the given position relative

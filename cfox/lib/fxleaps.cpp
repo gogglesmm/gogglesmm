@@ -3,7 +3,7 @@
 *                                T i m e   S t u f f                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2019,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2019,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -34,7 +34,7 @@
   - List of leap seconds is obtained from IETF,
     https://www.ietf.org/timezones/data/leap-seconds.list.
   - When new leap seconds are announced by IERS, leapsecond table must be
-    appended with a new entry; please notify jeroen@fox-toolkit.com if new
+    appended with a new entry; please notify jeroen@fox-toolkit.net if new
     data is available but not yet incorporated into "leapseconds.h".
   - We only remember *when* the leap seconds happen; the index in the array
     tells us how many leap seconds there were up to that time (just add 10,

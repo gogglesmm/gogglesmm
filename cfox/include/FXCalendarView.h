@@ -3,7 +3,7 @@
 *                   B a s e   C a l e n d a r   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Sander Jansen.   All Rights Reserved.              *
+* Copyright (C) 2006,2022 by Sander Jansen.   All Rights Reserved.              *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -90,7 +90,7 @@ public:
 public:
 
   /// Construct a Calendar View
-  FXCalendarView(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=CALENDAR_BROWSESELECT,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXCalendarView(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=CALENDAR_BROWSESELECT,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Create server-side resources
   virtual void create();

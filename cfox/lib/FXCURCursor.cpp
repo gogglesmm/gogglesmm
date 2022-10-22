@@ -3,7 +3,7 @@
 *                        C U R   C u r s o r    O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Sander Jansen.   All Rights Reserved.              *
+* Copyright (C) 2001,2022 by Sander Jansen.   All Rights Reserved.              *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,13 +60,13 @@ const FXchar FXCURCursor::fileExt[]="cur";
 
 
 // Object implementation
-FXIMPLEMENT(FXCURCursor,FXCursor,NULL,0)
+FXIMPLEMENT(FXCURCursor,FXCursor,nullptr,0)
 
 
 // Constructor
-FXCURCursor::FXCURCursor(FXApp* a,const void *pix):FXCursor(a,NULL,0,0,0,0){
+FXCURCursor::FXCURCursor(FXApp* a,const FXuchar *pix):FXCursor(a,nullptr,0,0,0,0){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     fxloadICO(ms,data,width,height,hotx,hoty);
     options|=CURSOR_OWNED;
     }

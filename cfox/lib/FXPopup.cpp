@@ -3,7 +3,7 @@
 *                     P o p u p   W i n d o w   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -104,16 +104,16 @@ FXIMPLEMENT(FXPopup,FXShell,FXPopupMap,ARRAYNUMBER(FXPopupMap))
 
 
 // Deserialization
-FXPopup::FXPopup():prevActive(NULL),nextActive(NULL){
+FXPopup::FXPopup():prevActive(nullptr),nextActive(nullptr){
   }
 
 
 // Transient window used for popups
-FXPopup::FXPopup(FXWindow* own,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXShell(own,opts,x,y,w,h),prevActive(NULL),nextActive(NULL){
+FXPopup::FXPopup(FXWindow* own,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXShell(own,opts,x,y,w,h),prevActive(nullptr),nextActive(nullptr){
   defaultCursor=getApp()->getDefaultCursor(DEF_RARROW_CURSOR);
   dragCursor=getApp()->getDefaultCursor(DEF_RARROW_CURSOR);
   flags|=FLAG_ENABLED;
-  grabowner=NULL;
+  grabowner=nullptr;
   baseColor=getApp()->getBaseColor();
   hiliteColor=getApp()->getHiliteColor();
   shadowColor=getApp()->getShadowColor();
@@ -163,8 +163,8 @@ void FXPopup::killFocus(){
 
 
 // Get owner; if it has none, it's owned by itself
-FXWindow* FXPopup::getGrabOwner() const {
-  return grabowner ? grabowner : (FXWindow*)this;
+FXWindow* FXPopup::getGrabOwner(){
+  return grabowner ? grabowner : this;
   }
 
 
@@ -594,7 +594,7 @@ long FXPopup::onLayout(FXObject*,FXSelector,void*){
 // Pressed button outside popup
 long FXPopup::onButtonPress(FXObject*,FXSelector,void*){
   FXTRACE((200,"%s::onButtonPress %p\n",getClassName(),this));
-  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   //popdown(0);
   return 1;
   }
@@ -604,7 +604,7 @@ long FXPopup::onButtonPress(FXObject*,FXSelector,void*){
 long FXPopup::onButtonRelease(FXObject*,FXSelector,void* ptr){
   FXEvent* event=(FXEvent*)ptr;
   FXTRACE((200,"%s::onButtonRelease %p\n",getClassName(),this));
-  if(event->moved){handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);}
+  if(event->moved){handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);}
   //popdown(0);
   return 1;
   }
@@ -613,7 +613,7 @@ long FXPopup::onButtonRelease(FXObject*,FXSelector,void* ptr){
 // The widget lost the grab for some reason; unpost the menu
 long FXPopup::onUngrabbed(FXObject* sender,FXSelector sel,void* ptr){
   FXShell::onUngrabbed(sender,sel,ptr);
-  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   return 1;
   }
 
@@ -622,7 +622,7 @@ long FXPopup::onUngrabbed(FXObject* sender,FXSelector sel,void* ptr){
 long FXPopup::onKeyPress(FXObject* sender,FXSelector sel,void* ptr){
   FXEvent* event=(FXEvent*)ptr;
   if(event->code==KEY_Escape || event->code==KEY_Cancel){
-    handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+    handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
     return 1;
     }
   return FXShell::onKeyPress(sender,sel,ptr);
@@ -633,7 +633,7 @@ long FXPopup::onKeyPress(FXObject* sender,FXSelector sel,void* ptr){
 long FXPopup::onKeyRelease(FXObject* sender,FXSelector sel,void* ptr){
   FXEvent* event=(FXEvent*)ptr;
   if(event->code==KEY_Escape || event->code==KEY_Cancel){
-    handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+    handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
     return 1;
     }
   return FXShell::onKeyRelease(sender,sel,ptr);
@@ -674,8 +674,8 @@ void FXPopup::hide(){
     if(getApp()->popupWindow==this) getApp()->popupWindow=prevActive;
     if(prevActive) prevActive->nextActive=nextActive;
     if(nextActive) nextActive->prevActive=prevActive;
-    nextActive=NULL;
-    prevActive=NULL;
+    nextActive=nullptr;
+    prevActive=nullptr;
     killFocus();
     }
   // Focus back to popup under this one, iff this was top one
@@ -741,7 +741,7 @@ void FXPopup::popup(FXWindow* grabto,FXint x,FXint y,FXint w,FXint h){
 void FXPopup::popdown(){
   FXTRACE((150,"%s::popdown %p\n",getClassName(),this));
   if(!grabowner) ungrab();
-  grabowner=NULL;
+  grabowner=nullptr;
   killFocus();
   hide();
   }

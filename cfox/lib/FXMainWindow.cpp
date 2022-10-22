@@ -3,7 +3,7 @@
 *                     M a i n   W i n d o w   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,7 +61,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXMainWindow,FXTopWindow,NULL,0)
+FXIMPLEMENT(FXMainWindow,FXTopWindow,nullptr,0)
 
 
 // Make main window
@@ -76,7 +76,7 @@ void FXMainWindow::create(){
     if(getApp()->isInitialized()){
 #ifndef WIN32
       // Set the WM_COMMAND hint on non-owned toplevel windows
-      XSetCommand(DISPLAY(getApp()),xid,(char**)getApp()->getArgv(),getApp()->getArgc());
+      XSetCommand(DISPLAY(getApp()),xid,const_cast<char**>((const char *const *)getApp()->getArgv()),getApp()->getArgc());
 #endif
       }
     }

@@ -3,7 +3,7 @@
 *                           D i s p l a y   C l a s s                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2019,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2019,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -24,12 +24,21 @@
 namespace FX {
 
 
+/**
+* Display class.
+*/
 class FXAPI FXDisplay {
+private:
+  FXptr   display;      // Display
 private:
   FXDisplay(const FXDisplay&);
   FXDisplay &operator=(const FXDisplay&);
 public:
+
+  /// Construct display
   FXDisplay();
+
+  /// Destroy display
  ~FXDisplay();
   };
 

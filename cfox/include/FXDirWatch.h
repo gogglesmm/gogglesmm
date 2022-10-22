@@ -3,7 +3,7 @@
 *           W a t c h   D i r e c t o r i e s   f o r   C h a n g e s           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -57,7 +57,7 @@ public:
 public:
 
   /// Initialize directory watcher
-  FXDirWatch(FXApp* a=NULL,FXObject* tgt=NULL,FXSelector sel=0);
+  FXDirWatch(FXApp* a=nullptr,FXObject* tgt=nullptr,FXSelector sel=0);
 
   /// Get application pointer
   FXApp* getApp() const { return app; }

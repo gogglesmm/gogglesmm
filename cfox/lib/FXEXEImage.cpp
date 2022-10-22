@@ -3,7 +3,7 @@
 *                          E X E   I m a g e   O b j e c t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2014,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2014,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,13 +61,13 @@ const FXchar FXEXEImage::mimeType[]="application/octet-stream";
 
 
 // Object implementation
-FXIMPLEMENT(FXEXEImage,FXImage,NULL,0)
+FXIMPLEMENT(FXEXEImage,FXImage,nullptr,0)
 
 
 // Initialize
-FXEXEImage::FXEXEImage(FXApp* a,const void *pix,FXuint opts,FXint w,FXint h,FXint ri,FXint rt):FXImage(a,NULL,opts,w,h),rtype(rt),rid(ri){
+FXEXEImage::FXEXEImage(FXApp* a,const FXuchar *pix,FXuint opts,FXint w,FXint h,FXint ri,FXint rt):FXImage(a,nullptr,opts,w,h),rtype(rt),rid(ri){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

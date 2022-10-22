@@ -3,7 +3,7 @@
 *                         M e n u C a p t i o n   W i d g e t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -86,7 +86,7 @@ public:
 public:
 
   /// Construct a menu caption
-  FXMenuCaption(FXComposite* p,const FXString& text,FXIcon* ic=NULL,FXuint opts=0);
+  FXMenuCaption(FXComposite* p,const FXString& text,FXIcon* ic=nullptr,FXuint opts=0);
 
   /// Create server-side resources
   virtual void create();
@@ -106,7 +106,10 @@ public:
   /// Return default height
   virtual FXint getDefaultHeight();
 
-  /// Set the text for this menu
+  /// Change text and hotkey for this menu
+  void setTextAndHotKey(const FXString& hotkeytext);
+
+  /// Change the text for this menu
   void setText(const FXString& text);
 
   /// Get the text for this menu

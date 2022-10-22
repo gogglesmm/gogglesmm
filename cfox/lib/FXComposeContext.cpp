@@ -3,7 +3,7 @@
 *                         C o m p o s e - C o n t e x t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -65,14 +65,14 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXComposeContext,FXId,NULL,0)
+FXIMPLEMENT(FXComposeContext,FXId,nullptr,0)
 
 
 #ifdef WIN32   //////////////////////////  MS-Windows ///////////////////////////
 
 
 // Deserialization
-FXComposeContext::FXComposeContext():window(NULL),message(0){
+FXComposeContext::FXComposeContext():window(nullptr),message(0){
   FXTRACE((100,"FXComposeContext::FXComposeContext %p\n",this));
   }
 
@@ -165,20 +165,20 @@ FXString FXComposeContext::translateEvent(FXRawEvent& event){
     LONG mlen=0;
     FXnchar* mstr;
     if(event.lParam&GCS_RESULTSTR){
-      mlen=ImmGetCompositionString(himc,GCS_RESULTSTR,NULL,0);
+      mlen=ImmGetCompositionString(himc,GCS_RESULTSTR,nullptr,0);
       mstr=new FXnchar [mlen];
       ImmGetCompositionString(himc,GCS_RESULTSTR,mstr,mlen);
       }
     else{
-      mlen=ImmGetCompositionString(himc,GCS_COMPSTR,NULL,0);
+      mlen=ImmGetCompositionString(himc,GCS_COMPSTR,nullptr,0);
       mstr=new FXnchar [mlen+1];
       ImmGetCompositionString(himc,GCS_COMPSTR,mstr,mlen);
       }
     mstr[mlen/sizeof(FXnchar)]=0;
     ImmReleaseContext(event.hwnd,himc);
-    int utf8len=WideCharToMultiByte(CP_UTF8,0,mstr,-1,NULL,0,NULL,NULL);
+    int utf8len=WideCharToMultiByte(CP_UTF8,0,mstr,-1,nullptr,0,nullptr,nullptr);
     FXchar* utf8str=new FXchar [utf8len];
-    WideCharToMultiByte(CP_UTF8,0,mstr,-1,utf8str,utf8len,NULL,NULL);
+    WideCharToMultiByte(CP_UTF8,0,mstr,-1,utf8str,utf8len,nullptr,nullptr);
     result.assign(utf8str,utf8len);
 
     delete [] mstr;
@@ -198,7 +198,7 @@ FXComposeContext::~FXComposeContext(){
 
 
 // Deserialization
-FXComposeContext::FXComposeContext():window(NULL),message(0),fontset(0){
+FXComposeContext::FXComposeContext():window(nullptr),message(0),fontset(0){
   FXTRACE((100,"FXComposeContext::FXComposeContext %p\n",this));
   }
 
@@ -212,8 +212,8 @@ FXComposeContext::FXComposeContext(FXApp* a,FXWindow* win,FXSelector sel):FXId(a
 /*
 
     // Determine list of input styles
-    XIMStyles *ximstyles=NULL;
-    XGetIMValues((XIM)xim,XNQueryInputStyle,&ximstyles,NULL);
+    XIMStyles *ximstyles=nullptr;
+    XGetIMValues((XIM)xim,XNQueryInputStyle,&ximstyles,nullptr);
     if(ximstyles){
       FXuint s;
 
@@ -244,7 +244,7 @@ match:XFree(ximstyles);
 
 /*
 FXbool isIMRunning(Display *display){
-  const FXchar *p=XSetLocaleModifiers(NULL);
+  const FXchar *p=XSetLocaleModifiers(nullptr);
   if(p){
     FXTRACE((100,"XSetLocaleModifiers=%s\n",p));
     FXString server("@server=");
@@ -275,7 +275,7 @@ void FXComposeContext::create(){
       XIMCallback editCaretStruct;
       XVaNestedList editAttr;
       XVaNestedList statusAttr;
-      XIMStyles *ximstyles=NULL;
+      XIMStyles *ximstyles=nullptr;
       XRectangle rect;
       XPoint spot;
       FXuint style,s;
@@ -287,19 +287,19 @@ void FXComposeContext::create(){
       if(!window || !window->id()){ fxerror("FXComposeContext: illegal window parameter\n"); }
 
       // Get input style
-      if(comparecase(getApp()->inputstyle,"onthespot")==0)
+      if(FXString::comparecase(getApp()->inputstyle,"onthespot")==0)
         style=XIMPreeditCallbacks|XIMStatusNothing;
-      else if(comparecase(getApp()->inputstyle,"overthespot")==0)
+      else if(FXString::comparecase(getApp()->inputstyle,"overthespot")==0)
         style=XIMPreeditPosition|XIMStatusNothing;
-      else if(comparecase(getApp()->inputstyle,"offthespot")==0)
+      else if(FXString::comparecase(getApp()->inputstyle,"offthespot")==0)
         style=XIMPreeditArea|XIMStatusArea;
-      else if(comparecase(getApp()->inputstyle,"root")==0)
+      else if(FXString::comparecase(getApp()->inputstyle,"root")==0)
         style=XIMPreeditNothing|XIMStatusNothing;
       else
         style=XIMPreeditNone|XIMStatusNone;
 
       // Determine list of input styles
-      XGetIMValues((XIM)getApp()->xim,XNQueryInputStyle,&ximstyles,NULL);
+      XGetIMValues((XIM)getApp()->xim,XNQueryInputStyle,&ximstyles,nullptr);
       if(ximstyles){
 
         // Try preferred input style
@@ -338,7 +338,7 @@ m:      XFree(ximstyles);
         editDrawStruct.callback=(XIMProc)editDrawCallback;
         editCaretStruct.client_data=(XPointer)this;
         editCaretStruct.callback=(XIMProc)editCaretCallback;
-        editAttr=XVaCreateNestedList(0,XNPreeditStartCallback,&editStartStruct,XNPreeditDrawCallback,&editDrawStruct,XNPreeditDoneCallback,&editDoneStruct,XNPreeditCaretCallback,&editCaretStruct,NULL);
+        editAttr=XVaCreateNestedList(0,XNPreeditStartCallback,&editStartStruct,XNPreeditDrawCallback,&editDrawStruct,XNPreeditDoneCallback,&editDoneStruct,XNPreeditCaretCallback,&editCaretStruct,nullptr);
 
         // Have status callbacks
         if(style&XIMStatusCallbacks){
@@ -349,15 +349,15 @@ m:      XFree(ximstyles);
           statusDoneStruct.callback=(XIMProc)statusDoneCallback;
           statusDrawStruct.client_data=(XPointer)this;
           statusDrawStruct.callback=(XIMProc)statusDrawCallback;
-          statusAttr=XVaCreateNestedList(0,XNStatusStartCallback,&statusStartStruct,XNStatusDoneCallback,&statusDoneStruct,XNStatusDrawCallback,&statusDrawStruct,NULL);
-          xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditCallbacks|XIMStatusCallbacks,XNClientWindow,window->id(),XNPreeditAttributes,editAttr,XNStatusAttributes,statusAttr,NULL);
+          statusAttr=XVaCreateNestedList(0,XNStatusStartCallback,&statusStartStruct,XNStatusDoneCallback,&statusDoneStruct,XNStatusDrawCallback,&statusDrawStruct,nullptr);
+          xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditCallbacks|XIMStatusCallbacks,XNClientWindow,window->id(),XNPreeditAttributes,editAttr,XNStatusAttributes,statusAttr,nullptr);
           XFree(statusAttr);
           }
 
         // No status callbacks
         else{
           FXTRACE((100,"On the Spot\n"));
-          xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditCallbacks|XIMStatusNothing,XNClientWindow,window->id(),XNPreeditAttributes,editAttr,NULL);
+          xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditCallbacks|XIMStatusNothing,XNClientWindow,window->id(),XNPreeditAttributes,editAttr,nullptr);
           }
         XFree(editAttr);
         }
@@ -369,8 +369,8 @@ m:      XFree(ximstyles);
         rect.y=0;
         rect.width=window->getWidth();
         rect.height=window->getHeight();
-        editAttr=XVaCreateNestedList(0,XNArea,&rect,NULL);
-        xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditArea|XIMStatusArea,XNClientWindow,window->id(),XNPreeditAttributes,editAttr,NULL);
+        editAttr=XVaCreateNestedList(0,XNArea,&rect,nullptr);
+        xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditArea|XIMStatusArea,XNClientWindow,window->id(),XNPreeditAttributes,editAttr,nullptr);
         XFree(editAttr);
         }
 
@@ -383,8 +383,8 @@ m:      XFree(ximstyles);
         char** missing_charsetlist;
         char* def_string;
         fontset=XCreateFontSet(DISPLAY(getApp()),"10x20,10x20",&missing_charsetlist,&missing_charcount,&def_string);
-        editAttr=XVaCreateNestedList(0,XNSpotLocation,&spot,XNFontSet,fontset,NULL);
-        xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditPosition|XIMStatusNothing,XNClientWindow,window->id(),XNPreeditAttributes,editAttr,NULL);
+        editAttr=XVaCreateNestedList(0,XNSpotLocation,&spot,XNFontSet,fontset,nullptr);
+        xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditPosition|XIMStatusNothing,XNClientWindow,window->id(),XNPreeditAttributes,editAttr,nullptr);
         XFreeStringList(missing_charsetlist);
         XFree(editAttr);
         }
@@ -392,13 +392,13 @@ m:      XFree(ximstyles);
       // Root method
       else{
         FXTRACE((100,"Root\n"));
-        xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditNothing|XIMStatusNothing,XNClientWindow,window->id(),NULL);
+        xid=(FXID)XCreateIC((XIM)getApp()->xim,XNInputStyle,XIMPreeditNothing|XIMStatusNothing,XNClientWindow,window->id(),nullptr);
         }
 
       // Reset context
       if(xid){
         //long filterevents=0;
-        //XGetICValues((XIC)xid,XNFilterEvents,&filterevents,NULL);
+        //XGetICValues((XIC)xid,XNFilterEvents,&filterevents,nullptr);
         //XSelectInput((Display*)getApp()->getDisplay(),window->id(),BASIC_EVENT_MASK|ENABLED_EVENT_MASK|filterevents);
         XmbResetIC((XIC)xid);
         }
@@ -459,8 +459,8 @@ void FXComposeContext::setSpot(FXint x,FXint y){
     XPoint spot;
     spot.x=x;
     spot.y=y;
-    editAttr=XVaCreateNestedList(0,XNSpotLocation,&spot,NULL);
-    XSetICValues((XIC)xid,XNPreeditAttributes,editAttr,NULL);
+    editAttr=XVaCreateNestedList(0,XNSpotLocation,&spot,nullptr);
+    XSetICValues((XIC)xid,XNPreeditAttributes,editAttr,nullptr);
     XFree(editAttr);
     }
 #endif
@@ -477,8 +477,8 @@ void FXComposeContext::setArea(FXint x,FXint y,FXint w,FXint h){
     rect.y=y;
     rect.width=w;
     rect.height=h;
-    editAttr=XVaCreateNestedList(0,XNArea,&rect,NULL);
-    XSetICValues((XIC)xid,XNPreeditAttributes,editAttr,NULL);
+    editAttr=XVaCreateNestedList(0,XNArea,&rect,nullptr);
+    XSetICValues((XIC)xid,XNPreeditAttributes,editAttr,nullptr);
     XFree(editAttr);
     }
 #endif

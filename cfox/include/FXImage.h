@@ -3,7 +3,7 @@
 *                             I m a g e    O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -113,7 +113,7 @@ public:
   * large images to instruct render() to use shared memory to communicate
   * with the server.
   */
-  FXImage(FXApp* a,const FXColor *pix=NULL,FXuint opts=0,FXint w=1,FXint h=1);
+  FXImage(FXApp* a,const FXColor *pix=nullptr,FXuint opts=0,FXint w=1,FXint h=1);
 
   /// Change options
   void setOptions(FXuint opts);

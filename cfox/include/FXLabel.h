@@ -3,7 +3,7 @@
 *                            L a b e l   W i d g e t                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -119,6 +119,9 @@ public:
 
   /// Return default height
   virtual FXint getDefaultHeight();
+
+  /// Change text and hotkey
+  void setTextAndHotKey(const FXString& hotkeytext);
 
   /// Set the text for this label
   void setText(const FXString& text);

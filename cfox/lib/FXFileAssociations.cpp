@@ -3,7 +3,7 @@
 *                        F i l e   A s s o c i a t i o n s                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -146,6 +146,7 @@
         ExtractIconEx("absolutepathofprogram",index,NULL,&smallicon,1);
 */
 
+#define TOPIC_CONSTRUCT  1000
 
 #define COMMANDLEN   256
 #define EXTENSIONLEN 128
@@ -161,7 +162,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXFileAssociations,FXObject,NULL,0)
+FXIMPLEMENT(FXFileAssociations,FXObject,nullptr,0)
 
 
 // These registry keys are used for default bindings.
@@ -171,21 +172,21 @@ const FXchar FXFileAssociations::defaultFileBinding[]="defaultfilebinding";
 
 
 // Construct for serialization
-FXFileAssociations::FXFileAssociations():cache(NULL),settings(NULL){
+FXFileAssociations::FXFileAssociations():cache(nullptr),settings(nullptr){
   }
 
 
 
 // Construct an file-extension association table
 FXFileAssociations::FXFileAssociations(FXApp* app):cache(app),settings(&app->reg()){
-  FXTRACE((100,"FXFileAssociations::FXFileAssociations\n"));
+  FXTRACE((TOPIC_CONSTRUCT,"FXFileAssociations::FXFileAssociations\n"));
   cache.setIconPath(settings->readStringEntry("SETTINGS","iconpath",FXIconCache::defaultIconPath));
   }
 
 
 // Construct an file-extension association table, and alternative settings database
 FXFileAssociations::FXFileAssociations(FXApp* app,FXSettings* sdb):cache(app),settings(sdb){
-  FXTRACE((100,"FXFileAssociations::FXFileAssociations\n"));
+  FXTRACE((TOPIC_CONSTRUCT,"FXFileAssociations::FXFileAssociations\n"));
   cache.setIconPath(settings->readStringEntry("SETTINGS","iconpath",FXIconCache::defaultIconPath));
   }
 
@@ -209,19 +210,21 @@ FXFileAssoc* FXFileAssociations::parse(const FXString& assoc){
       // Parse description
       result->extension=assoc.section(';',1);
 
-      // Get icon names
+      // Big icon closed and open
       string=assoc.section(';',2);
       bigname=string.section(':',0);
       bignameopen=string.section(':',1);
+
+      // Small icon closed and open
       string=assoc.section(';',3);
       mininame=string.section(':',0);
       mininameopen=string.section(':',1);
 
       // Initialize icons
-      result->bigicon=NULL;
-      result->miniicon=NULL;
-      result->bigiconopen=NULL;
-      result->miniiconopen=NULL;
+      result->bigicon=nullptr;
+      result->miniicon=nullptr;
+      result->bigiconopen=nullptr;
+      result->miniiconopen=nullptr;
 
       // Insert icons into icon dictionary
       if(!bigname.empty()){ result->bigicon=result->bigiconopen=cache.insert(bigname); }
@@ -249,7 +252,7 @@ FXFileAssoc* FXFileAssociations::parse(const FXString& assoc){
       return result;
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -258,7 +261,7 @@ FXFileAssoc* FXFileAssociations::fetch(const FXString& ext){
   FXTRACE((200,"FXFileAssociations::fetch(\"%s\")\n",ext.text()));
   FXFileAssoc* result=bindings[ext];
   if(!result){
-    result=parse(getSettings()->readStringEntry("FILETYPES",ext,NULL));
+    result=parse(getSettings()->readStringEntry("FILETYPES",ext,nullptr));
     if(result){
       bindings[ext]=result;
       }
@@ -276,7 +279,7 @@ FXFileAssoc* FXFileAssociations::findFileBinding(const FXString& pathname){
     if(ISPATHSEP(*p)) filename=p+1;
     }
   while(*filename!='\0'){
-    if((record=fetch(filename))!=NULL) return record;
+    if((record=fetch(filename))!=nullptr) return record;
     filename=strchr(filename,'.');
     if(!filename) break;
     filename++;
@@ -291,7 +294,7 @@ FXFileAssoc* FXFileAssociations::findDirBinding(const FXString& pathname){
   const FXchar* path=pathname.text();
   FXFileAssoc* record;
   while(*path){
-    if((record=fetch(path))!=NULL) return record;
+    if((record=fetch(path))!=nullptr) return record;
     while(ISPATHSEP(*path)) path++;             // Skip path seperators
     while(*path && !ISPATHSEP(*path)) path++;   // Skip directory name
     }
@@ -331,7 +334,7 @@ void FXFileAssociations::load(FXStream& store){
 
 // Destructor
 FXFileAssociations::~FXFileAssociations(){
-  FXTRACE((100,"FXFileAssociations::~FXFileAssociations\n"));
+  FXTRACE((TOPIC_CONSTRUCT,"FXFileAssociations::~FXFileAssociations\n"));
   clear();
   settings=(FXSettings*)-1L;
   }

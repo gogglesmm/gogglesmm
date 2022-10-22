@@ -3,7 +3,7 @@
 *                       S t a t u s L i n e   W i d g e t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -68,7 +68,7 @@ public:
 public:
 
   /// Constructor
-  FXStatusLine(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0);
+  FXStatusLine(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0);
 
   /// Create server-side resources
   virtual void create();

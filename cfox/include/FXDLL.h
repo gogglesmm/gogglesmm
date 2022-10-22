@@ -3,7 +3,7 @@
 *             D y n a m i c   L i n k   L i b r a r y   S u p p o r t           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -34,7 +34,7 @@ private:
 public:
 
   /// Construct with no handle
-  FXDLL():hnd(NULL){}
+  FXDLL():hnd(nullptr){}
 
   /// Construct with existing handle
   FXDLL(void *h):hnd(h){}
@@ -49,7 +49,7 @@ public:
   void* handle() const { return hnd; }
 
   /// True if library was loaded
-  FXbool loaded() const { return hnd!=NULL; }
+  FXbool loaded() const { return hnd!=nullptr; }
 
   /// Load the library module from the name
   FXbool load(const FXString& nm);

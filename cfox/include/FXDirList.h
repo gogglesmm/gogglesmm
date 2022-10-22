@@ -3,7 +3,7 @@
 *                     D i r e c t o r y   L i s t   W i d g e t                 *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -56,11 +56,11 @@ private:
   FXDirItem(const FXDirItem&);
   FXDirItem& operator=(const FXDirItem&);
 protected:
-  FXDirItem():assoc(NULL),link(NULL),list(NULL),size(0L),date(0),mode(0){}
+  FXDirItem():assoc(nullptr),link(nullptr),list(nullptr),size(0L),date(0),mode(0){}
 public:
 
   /// Constructor
-  FXDirItem(const FXString& text,FXIcon* oi=NULL,FXIcon* ci=NULL,void* ptr=NULL):FXTreeItem(text,oi,ci,ptr),assoc(NULL),link(NULL),list(NULL),size(0),date(0),mode(0){}
+  FXDirItem(const FXString& text,FXIcon* oi=nullptr,FXIcon* ci=nullptr,void* ptr=nullptr):FXTreeItem(text,oi,ci,ptr),assoc(nullptr),link(nullptr),list(nullptr),size(0),date(0),mode(0){}
 
   /// Return true if this is a file item
   FXbool isFile() const { return (mode&(FXIO::File))!=0; }
@@ -220,7 +220,7 @@ public:
 public:
 
   /// Construct a directory list
-  FXDirList(FXComposite *p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXDirList(FXComposite *p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=0,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Create server-side resources
   virtual void create();
@@ -280,13 +280,16 @@ public:
   virtual FXbool expandTree(FXTreeItem* tree,FXbool notify=false);
 
   /// Change wildcard matching pattern
-  void setPattern(const FXString& ptrn,FXbool notify=false);
+  FXbool selectMatching(const FXString& ptrn="*",FXuint mode=FXPath::PathName|FXPath::NoEscape,FXbool notify=false);
+
+  /// Change wildcard matching pattern
+  void setPattern(const FXString& ptrn="*",FXbool notify=false);
 
   /// Return wildcard pattern
   FXString getPattern() const { return pattern; }
 
   /// Change wildcard matching mode (see FXPath)
-  void setMatchMode(FXuint mode,FXbool notify=false);
+  void setMatchMode(FXuint mode=FXPath::PathName|FXPath::NoEscape,FXbool notify=false);
 
   /// Return wildcard matching mode
   FXuint getMatchMode() const { return matchmode; }

@@ -3,7 +3,7 @@
 *                     D i r e c t o r y   B o x   O b j e c t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -105,7 +105,7 @@ FXIMPLEMENT(FXDirBox,FXTreeListBox,FXDirBoxMap,ARRAYNUMBER(FXDirBoxMap))
 
 // Directory box
 FXDirBox::FXDirBox(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb):FXTreeListBox(p,tgt,sel,opts,x,y,w,h, pl,pr,pt,pb){
-  associations=NULL;
+  associations=nullptr;
   if(!(options&DIRBOX_NO_OWN_ASSOC)) associations=new FXFileAssociations(getApp());
   foldericon=new FXGIFIcon(getApp(),minifolder);
   cdromicon=new FXGIFIcon(getApp(),minicdrom);
@@ -197,13 +197,13 @@ FXString FXDirBox::getItemPathname(FXTreeItem *item) const {
 static FXTreeItem* findItemChild(FXTreeItem* item,const FXString& name){
   while(item){
 #ifdef WIN32
-    if(comparecase(name,item->getText())==0) return item;
+    if(FXString::comparecase(name,item->getText())==0) return item;
 #else
-    if(compare(name,item->getText())==0) return item;
+    if(FXString::compare(name,item->getText())==0) return item;
 #endif
     item=item->getNext();
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -211,7 +211,7 @@ static FXTreeItem* findItemChild(FXTreeItem* item,const FXString& name){
 
 // Return the item from the absolute pathname
 FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
-  FXTreeItem *item=NULL;
+  FXTreeItem *item=nullptr;
   if(!path.empty()){
     FXint beg=0;
     FXint end=0;
@@ -239,7 +239,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
       name=path.mid(beg,end-beg);
 
       // First try find if existing root item
-      if((item=findItemChild(getFirstItem(),name))==NULL){
+      if((item=findItemChild(getFirstItem(),name))==nullptr){
 
         // List drives
         ndrives=FXDir::listDrives(drives);
@@ -251,7 +251,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
             assoc=associations->findDirBinding(drives[i]);
             if(assoc && assoc->miniicon) icon=assoc->miniicon;
             }
-          child=appendItem(NULL,drives[i],icon,icon);
+          child=appendItem(nullptr,drives[i],icon,icon);
           if(id()) child->create();
           }
 
@@ -259,13 +259,13 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
         delete [] drives;
 
         // Perhaps something else?
-        if((item=findItemChild(getFirstItem(),name))==NULL){
+        if((item=findItemChild(getFirstItem(),name))==nullptr){
           icon=foldericon;
           if(associations){
             assoc=associations->findDirBinding(path.left(end));
             if(assoc && assoc->miniicon) icon=assoc->miniicon;
             }
-          item=appendItem(NULL,name,icon,icon);
+          item=appendItem(nullptr,name,icon,icon);
           if(id()) item->create();
           }
         }
@@ -282,7 +282,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
         name=path.mid(beg,end-beg);
 
         // Find child, remove other siblings if not found
-        if((child=findItemChild(item->getFirst(),name))==NULL){
+        if((child=findItemChild(item->getFirst(),name))==nullptr){
 
           // Remove the old ones
           removeItems(item->getFirst(),item->getLast());
@@ -346,7 +346,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
   if(beg<end){
 
     // Add all roots
-    item=NULL;
+    item=nullptr;
     drivemask=GetLogicalDrives();
     drivename[1]=':';
     drivename[2]=PATHSEP;
@@ -388,10 +388,10 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
         if(id()) icon->create();
 
         // Add another root item
-        it=appendItem(NULL,drivename,icon,icon);
+        it=appendItem(nullptr,drivename,icon,icon);
 
         // Rest of path under this root
-        if(comparecase(path,drivename,end)==0) item=it;
+        if(FXString::comparecase(path,drivename,end)==0) item=it;
         }
       drivemask>>=1;
       }
@@ -409,10 +409,10 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
     if(id()) icon->create();
 
     // Add netword neighborhood item
-    it=appendItem(NULL,"\\\\",icon,icon);
+    it=appendItem(nullptr,"\\\\",icon,icon);
 
     // Rest of path under this root maybe
-    if(comparecase(path,"\\\\",end)==0) item=it;
+    if(FXString::comparecase(path,"\\\\",end)==0) item=it;
 */
     // Got root?
     if(item){
@@ -447,7 +447,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
       return item;
       }
     }
-  return NULL;
+  return nullptr;
   }
 #endif
 
@@ -456,7 +456,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
 
 // Return the item from the absolute pathname
 FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
-  FXTreeItem *item=NULL;
+  FXTreeItem *item=nullptr;
   if(!path.empty()){
     FXint beg=0;
     FXint end=0;
@@ -475,7 +475,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
       name=path.mid(beg,end-beg);
 
       // Find root item, or create it if needed
-      if((item=findItemChild(getFirstItem(),name))==NULL){
+      if((item=findItemChild(getFirstItem(),name))==nullptr){
 
         // Update icon
         icon=foldericon;
@@ -485,7 +485,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
           }
 
         // Create item
-        item=appendItem(NULL,name,icon,icon);
+        item=appendItem(nullptr,name,icon,icon);
         if(id()) item->create();
         }
 
@@ -501,7 +501,7 @@ FXTreeItem* FXDirBox::getPathnameItem(const FXString& path){
         name=path.mid(beg,end-beg);
 
         // Find child, remove other siblings if not found
-        if((child=findItemChild(item->getFirst(),name))==NULL){
+        if((child=findItemChild(item->getFirst(),name))==nullptr){
 
           // Remove the old ones
           removeItems(item->getFirst(),item->getLast());

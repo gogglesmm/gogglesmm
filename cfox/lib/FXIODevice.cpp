@@ -3,7 +3,7 @@
 *                        I / O   D e v i c e   C l a s s                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -200,7 +200,7 @@ FXival FXIODevice::readBlock(void* ptr,FXival count){
   if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
 #if defined(WIN32)
     DWORD nread;
-    if(::ReadFile(device,ptr,(DWORD)count,&nread,NULL)==0){
+    if(::ReadFile(device,ptr,(DWORD)count,&nread,nullptr)==0){
       if(GetLastError()==ERROR_IO_PENDING) return FXIO::Again;
       return FXIO::Error;
       }
@@ -228,7 +228,7 @@ FXival FXIODevice::writeBlock(const void* ptr,FXival count){
   if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
 #if defined(WIN32)
     DWORD nwritten;
-    if(::WriteFile(device,ptr,(DWORD)count,&nwritten,NULL)==0){
+    if(::WriteFile(device,ptr,(DWORD)count,&nwritten,nullptr)==0){
       return FXIO::Error;
       }
     pointer+=nwritten;

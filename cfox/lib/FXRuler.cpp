@@ -3,7 +3,7 @@
 *                            R u l e r   W i d g e t                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -1089,7 +1089,7 @@ void FXRuler::setPosition(FXint p,FXbool notify){
       scroll(0,0,width,height,p-pos,0);
     arrowPos+=p-pos;
     pos=p;
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1101,7 +1101,7 @@ void FXRuler::setDocumentSize(FXint size,FXbool notify){
     documentSize=size;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1113,7 +1113,7 @@ void FXRuler::setEdgeSpacing(FXint space,FXbool notify){
     edgeSpacing=space;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1126,7 +1126,7 @@ void FXRuler::setMarginLower(FXint mgn,FXbool notify){
     marginLower=mgn;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1139,7 +1139,7 @@ void FXRuler::setMarginUpper(FXint mgn,FXbool notify){
     marginUpper=mgn;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1152,7 +1152,7 @@ void FXRuler::setIndentFirst(FXint ind,FXbool notify){
     indentFirst=ind;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1165,7 +1165,7 @@ void FXRuler::setIndentLower(FXint ind,FXbool notify){
     indentLower=ind;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1178,7 +1178,7 @@ void FXRuler::setIndentUpper(FXint ind,FXbool notify){
     indentUpper=ind;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1190,7 +1190,7 @@ void FXRuler::setNumberTicks(FXint ticks,FXbool notify){
     numberTicks=ticks;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1202,7 +1202,7 @@ void FXRuler::setMajorTicks(FXint ticks,FXbool notify){
     majorTicks=ticks;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1214,7 +1214,7 @@ void FXRuler::setMediumTicks(FXint ticks,FXbool notify){
     mediumTicks=ticks;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1226,7 +1226,7 @@ void FXRuler::setTinyTicks(FXint ticks,FXbool notify){
     tinyTicks=ticks;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1238,7 +1238,7 @@ void FXRuler::setPixelPerTick(FXdouble space,FXbool notify){
     pixelPerTick=space;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1250,7 +1250,7 @@ void FXRuler::setFont(FXFont *fnt,FXbool notify){
     font=fnt;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 
@@ -1288,7 +1288,7 @@ void FXRuler::setRulerAlignment(FXuint alignment,FXbool notify){
     options=opts;
     recalc();
     update();
-    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+    if(notify && target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
     }
   }
 

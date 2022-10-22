@@ -3,7 +3,7 @@
 *                       C o m b o   B o x   W i d g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -95,7 +95,7 @@ public:
 public:
 
   /// Construct a Combo Box widget with room to display cols columns of text
-  FXComboBox(FXComposite *p,FXint cols,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=COMBOBOX_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  FXComboBox(FXComposite *p,FXint cols,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=COMBOBOX_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
 
   /// Create server-side resources
   virtual void create();
@@ -167,7 +167,7 @@ public:
   FXString getItem(FXint index) const;
 
   /// Replace the item at index
-  FXint setItem(FXint index,const FXString& text,FXptr ptr=NULL,FXbool notify=false);
+  FXint setItem(FXint index,const FXString& text,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Fill combo box by appending items from array of strings
   FXint fillItems(const FXchar *const *strings,FXbool notify=false);
@@ -179,13 +179,13 @@ public:
   FXint fillItems(const FXString& strings,FXbool notify=false);
 
   /// Insert a new item at index
-  FXint insertItem(FXint index,const FXString& text,FXptr ptr=NULL,FXbool notify=false);
+  FXint insertItem(FXint index,const FXString& text,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Append an item to the list
-  FXint appendItem(const FXString& text,FXptr ptr=NULL,FXbool notify=false);
+  FXint appendItem(const FXString& text,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Prepend an item to the list
-  FXint prependItem(const FXString& text,FXptr ptr=NULL,FXbool notify=false);
+  FXint prependItem(const FXString& text,FXptr ptr=nullptr,FXbool notify=false);
 
   /// Move item from oldindex to newindex
   FXint moveItem(FXint newindex,FXint oldindex,FXbool notify=false);
@@ -206,7 +206,7 @@ public:
   * passing SEARCH_PREFIX causes searching for a prefix of the item name.
   * Return -1 if no matching item is found.
   */
-  FXint findItem(const FXString& text,FXint start=-1,FXuint flags=SEARCH_FORWARD|SEARCH_WRAP) const;
+  FXint findItem(const FXString& string,FXint start=-1,FXuint flags=SEARCH_FORWARD|SEARCH_WRAP) const;
 
   /**
   * Search items by associated user data, beginning from item start. If the

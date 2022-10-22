@@ -3,7 +3,7 @@
 *                    T o o l   B a r   S h e l l   W i d g e t                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -121,7 +121,7 @@ FXToolBarShell::FXToolBarShell(){
 
 
 // Make toolbar shell
-FXToolBarShell::FXToolBarShell(FXWindow* own,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint hs,FXint vs):FXTopWindow(own,FXString::null,NULL,NULL,(opts|DECOR_SHRINKABLE|DECOR_STRETCHABLE)&~(DECOR_TITLE|DECOR_MINIMIZE|DECOR_MAXIMIZE|DECOR_CLOSE|DECOR_BORDER|DECOR_MENU),x,y,w,h,0,0,0,0,hs,vs){
+FXToolBarShell::FXToolBarShell(FXWindow* own,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint hs,FXint vs):FXTopWindow(own,FXString::null,nullptr,nullptr,(opts|DECOR_SHRINKABLE|DECOR_STRETCHABLE)&~(DECOR_TITLE|DECOR_MINIMIZE|DECOR_MAXIMIZE|DECOR_CLOSE|DECOR_BORDER|DECOR_MENU),x,y,w,h,0,0,0,0,hs,vs){
   flags|=FLAG_ENABLED;
   baseColor=getApp()->getBaseColor();
   hiliteColor=getApp()->getHiliteColor();

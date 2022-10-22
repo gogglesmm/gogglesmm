@@ -3,7 +3,7 @@
 *         H a s h   T a b l e   O f   P o i n t e r s   T o   T y p e           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -47,37 +47,40 @@ public:
   FXHashOf<KEYTYPE,VALUETYPE>& adopt(FXHashOf<KEYTYPE,VALUETYPE>& other){ return reinterpret_cast<FXHashOf<KEYTYPE,VALUETYPE>&>(FXHash::adopt(other)); }
 
   /// Find position of given key, returning -1 if not found.
-  FXival find(KEYTYPE* ky) const { return FXHash::find((FXptr)ky); }
+  FXival find(KEYTYPE* ky) const { return FXHash::find(ky); }
+
+  /// Check if key is mapped.
+  FXbool has(KEYTYPE* ky) const { return FXHash::has(ky); }
 
   /// Return reference to slot assocated with given key
-  VALUETYPE*& at(KEYTYPE* ky){ return (VALUETYPE*&)FXHash::at((FXptr)ky); }
+  VALUETYPE*& at(KEYTYPE* ky){ return reinterpret_cast<VALUETYPE*&>(FXHash::at(ky)); }
 
   /// Return constant reference to slot assocated with given key
-  VALUETYPE *const& at(KEYTYPE* ky) const { return (VALUETYPE *const&)FXHash::at((FXptr)ky); }
+  VALUETYPE *const& at(KEYTYPE* ky) const { return reinterpret_cast<VALUETYPE *const&>(FXHash::at(ky)); }
 
   /// Return reference to slot assocated with given key
-  VALUETYPE*& operator[](KEYTYPE* ky){ return (VALUETYPE*&)FXHash::at((FXptr)ky); }
+  VALUETYPE*& operator[](KEYTYPE* ky){ return reinterpret_cast<VALUETYPE*&>(FXHash::at(ky)); }
 
   /// Return constant reference to slot assocated with given key
-  VALUETYPE *const& operator[](KEYTYPE* ky) const { return (VALUETYPE *const&)FXHash::at((FXptr)ky); }
+  VALUETYPE *const& operator[](KEYTYPE* ky) const { return reinterpret_cast<VALUETYPE *const&>(FXHash::at(ky)); }
 
   /// Insert association with given key; return old value, if any
-  VALUETYPE* insert(KEYTYPE* ky,VALUETYPE* ptr=NULL){ return (VALUETYPE*)FXHash::insert((FXptr)ky,(FXptr)ptr); }
+  VALUETYPE* insert(KEYTYPE* ky,VALUETYPE* ptr=nullptr){ return reinterpret_cast<VALUETYPE*>(FXHash::insert(ky,ptr)); }
 
   /// Remove association with given key; return old value, if any
-  VALUETYPE* remove(KEYTYPE* ky){ return (VALUETYPE*)FXHash::remove((FXptr)ky); }
+  VALUETYPE* remove(KEYTYPE* ky){ return reinterpret_cast<VALUETYPE*>(FXHash::remove(ky)); }
 
   /// Erase data at pos in the table; return old value, if any
-  VALUETYPE* erase(FXival pos){ return (VALUETYPE*)FXHash::erase(pos); }
+  VALUETYPE* erase(FXival pos){ return reinterpret_cast<VALUETYPE*>(FXHash::erase(pos)); }
 
   /// Return key at position pos
-  KEYTYPE* key(FXival pos) const { return (KEYTYPE*)FXHash::key(pos); }
+  KEYTYPE* key(FXival pos) const { return reinterpret_cast<KEYTYPE*>(FXHash::key(pos)); }
 
   /// Return reference to slot at position pos
-  VALUETYPE*& data(FXival pos){ return (VALUETYPE*&)FXHash::data(pos); }
+  VALUETYPE*& data(FXival pos){ return reinterpret_cast<VALUETYPE*&>(FXHash::data(pos)); }
 
   /// Return constant reference to slot at position pos
-  VALUETYPE *const& data(FXival pos) const { return (VALUETYPE *const&)FXHash::data(pos); }
+  VALUETYPE *const& data(FXival pos) const { return reinterpret_cast<VALUETYPE *const&>(FXHash::data(pos)); }
   };
 
 }

@@ -3,7 +3,7 @@
 *                     S h e l l   W i n d o w   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -71,7 +71,7 @@ FXIMPLEMENT(FXShell,FXComposite,FXShellMap,ARRAYNUMBER(FXShellMap))
 
 
 // Create a toplevel window
-FXShell::FXShell(FXApp* a,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXComposite(a,NULL,opts,x,y,w,h){
+FXShell::FXShell(FXApp* a,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXComposite(a,nullptr,opts,x,y,w,h){
   }
 
 
@@ -128,6 +128,7 @@ long FXShell::onLayout(FXObject*,FXSelector,void*){
 long FXShell::onConfigure(FXObject* sender,FXSelector sel,void* ptr){
   FXEvent *ev=(FXEvent*)ptr;
   FXComposite::onConfigure(sender,sel,ptr);
+  FXTRACE((100,"%s::onConfigure x=%d y=%d w=%d h=%d\n",getClassName(),ev->rect.x,ev->rect.y,ev->rect.w,ev->rect.h));
   xpos=ev->rect.x;
   ypos=ev->rect.y;
   if((ev->rect.w!=width) || (ev->rect.h!=height)){

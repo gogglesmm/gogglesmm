@@ -3,7 +3,7 @@
 *                             F i l e   C l a s s                               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxchar.h"
 #include "fxmath.h"
 #include "fxascii.h"
 #include "FXArray.h"
@@ -102,7 +103,7 @@ FXbool FXFile::open(const FXString& file,FXuint m,FXuint perm){
     // Inheritable
     sat.nLength=sizeof(SECURITY_ATTRIBUTES);
     sat.bInheritHandle=(m&Inheritable)?true:false;
-    sat.lpSecurityDescriptor=NULL;
+    sat.lpSecurityDescriptor=nullptr;
 
     // Non-blocking mode
     if(m&NonBlocking){
@@ -115,9 +116,9 @@ FXbool FXFile::open(const FXString& file,FXuint m,FXuint perm){
 #if defined(UNICODE)
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    device=::CreateFileW(unifile,flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,FILE_ATTRIBUTE_NORMAL,NULL);
+    device=::CreateFileW(unifile,flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,FILE_ATTRIBUTE_NORMAL,nullptr);
 #else
-    device=::CreateFileA(file.text(),flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,FILE_ATTRIBUTE_NORMAL,NULL);
+    device=::CreateFileA(file.text(),flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,FILE_ATTRIBUTE_NORMAL,nullptr);
 #endif
     if(device!=BadHandle){
       if(m&Append){ position(0,FXIO::End); }    // Appending
@@ -289,9 +290,9 @@ FXbool FXFile::create(const FXString& file,FXuint perm){
 #if defined(UNICODE)
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    FXInputHandle h=::CreateFileW(unifile,GENERIC_WRITE,FILE_SHARE_READ,NULL,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,NULL);
+    FXInputHandle h=::CreateFileW(unifile,GENERIC_WRITE,FILE_SHARE_READ,nullptr,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,nullptr);
 #else
-    FXInputHandle h=::CreateFileA(file.text(),GENERIC_WRITE,FILE_SHARE_READ,NULL,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,NULL);
+    FXInputHandle h=::CreateFileA(file.text(),GENERIC_WRITE,FILE_SHARE_READ,nullptr,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,nullptr);
 #endif
     if(h!=BadHandle){ ::CloseHandle(h); return true; }
 #else
@@ -313,9 +314,9 @@ FXbool FXFile::link(const FXString& srcfile,const FXString& dstfile){
     FXnchar dstname[MAXPATHLEN];
     utf2ncs(srcname,srcfile.text(),MAXPATHLEN);
     utf2ncs(dstname,dstfile.text(),MAXPATHLEN);
-    return CreateHardLinkW(dstname,srcname,NULL)!=0;
+    return CreateHardLinkW(dstname,srcname,nullptr)!=0;
 #else
-    return CreateHardLinkA(dstfile.text(),srcfile.text(),NULL)!=0;
+    return CreateHardLinkA(dstfile.text(),srcfile.text(),nullptr)!=0;
 #endif
 #else
     return ::link(srcfile.text(),dstfile.text())==0;

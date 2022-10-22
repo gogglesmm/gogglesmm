@@ -3,7 +3,7 @@
 *                         C o l o r   L i s t   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -69,7 +69,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXColorItem,FXListItem,NULL,0)
+FXIMPLEMENT(FXColorItem,FXListItem,nullptr,0)
 
 
 // Draw item
@@ -151,7 +151,7 @@ FXint FXColorItem::getHeight(const FXList* list) const {
 
 
 // Object implementation
-FXIMPLEMENT(FXColorList,FXList,NULL,0)
+FXIMPLEMENT(FXColorList,FXList,nullptr,0)
 
 
 // List
@@ -180,7 +180,7 @@ FXint FXColorList::fillItems(const FXchar *const *strings,FXColor *colors,void* 
 
 // Insert item at index with given text, color, and user-data pointer
 FXint FXColorList::insertItem(FXint index,const FXString& text,FXColor color,void* ptr,FXbool notify){
-  FXint pos=FXList::insertItem(index,text,NULL,ptr,notify);
+  FXint pos=FXList::insertItem(index,text,nullptr,ptr,notify);
   setItemColor(pos,color);
   return pos;
   }
@@ -188,14 +188,14 @@ FXint FXColorList::insertItem(FXint index,const FXString& text,FXColor color,voi
 
 // Append new item with given text, color, and user-data pointer
 FXint FXColorList::appendItem(const FXString& text,FXColor color,void* ptr,FXbool notify){
-  FXint pos=FXList::appendItem(text,NULL,ptr,notify);
+  FXint pos=FXList::appendItem(text,nullptr,ptr,notify);
   setItemColor(pos,color);
   return pos;
   }
 
 // Prepend new item with given text, color, and user-data pointer
 FXint FXColorList::prependItem(const FXString& text,FXColor color,void* ptr,FXbool notify){
-  FXint pos=FXList::prependItem(text,NULL,ptr,notify);
+  FXint pos=FXList::prependItem(text,nullptr,ptr,notify);
   setItemColor(pos,color);
   return pos;
   }

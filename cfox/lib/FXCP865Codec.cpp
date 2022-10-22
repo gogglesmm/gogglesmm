@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FXCP865Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXCP865Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: CP865.TXT ////
@@ -131,7 +131,7 @@ const FXchar* FXCP865Codec::mimeName() const {
 
 
 const FXchar* const* FXCP865Codec::aliases() const {
-  static const FXchar *const list[]={"microsoft-cp865","IBM865","cp865","865","csIBM865",NULL};
+  static const FXchar *const list[]={"microsoft-cp865","IBM865","cp865","865","csIBM865",nullptr};
   return list;
   }
 

@@ -3,7 +3,7 @@
 *                         C o n s o l e   W i d g e t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -72,7 +72,7 @@ FXIMPLEMENT(FXConsole,FXScrollArea,FXConsoleMap,ARRAYNUMBER(FXConsoleMap))
 // Deserialization
 FXConsole::FXConsole(){
   flags|=FLAG_ENABLED|FLAG_DROPTARGET;
-  font=NULL;
+  font=nullptr;
   margintop=0;
   marginbottom=0;
   marginleft=0;

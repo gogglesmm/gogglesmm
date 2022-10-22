@@ -3,7 +3,7 @@
 *                     T o o l   B a r   T a b   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -331,9 +331,9 @@ long FXToolBarTab::onCmdCollapse(FXObject*,FXSelector,void*){
 // Update collapse
 long FXToolBarTab::onUpdCollapse(FXObject* sender,FXSelector,void*){
   if(collapsed)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -348,9 +348,9 @@ long FXToolBarTab::onCmdUncollapse(FXObject*,FXSelector,void*){
 // Update uncollapse
 long FXToolBarTab::onUpdUncollapse(FXObject* sender,FXSelector,void*){
   if(!collapsed)
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 

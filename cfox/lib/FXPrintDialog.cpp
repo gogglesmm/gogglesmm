@@ -3,7 +3,7 @@
 *                        P r i n t   J o b   D i a l o g                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -247,10 +247,10 @@ FXPrintDialog::FXPrintDialog(FXWindow* own,const FXString& caption,FXuint opts,F
 
   // Close and cancel buttons
   FXHorizontalFrame* buttons=new FXHorizontalFrame(contents,LAYOUT_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
-  new FXButton(buttons,tr("&Print"),NULL,this,ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT,0,0,0,0,20,20);
-  new FXButton(buttons,tr("&Cancel"),NULL,this,ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT,0,0,0,0,20,20);
+  new FXButton(buttons,tr("&Print"),nullptr,this,ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT,0,0,0,0,20,20);
+  new FXButton(buttons,tr("&Cancel"),nullptr,this,ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT,0,0,0,0,20,20);
 #ifdef HAVE_CUPS_H
-  FXLabel *label=new FXLabel(buttons,tr("Using CUPS"),NULL,LAYOUT_CENTER_Y|LAYOUT_LEFT,0,0,0,0,0,0);
+  FXLabel *label=new FXLabel(buttons,tr("Using CUPS"),nullptr,LAYOUT_CENTER_Y|LAYOUT_LEFT,0,0,0,0,0,0);
   label->setTextColor(label->getShadowColor());
 #endif
 
@@ -261,14 +261,14 @@ FXPrintDialog::FXPrintDialog(FXWindow* own,const FXString& caption,FXuint opts,F
   FXHorizontalFrame* printdest=new FXHorizontalFrame(dest,LAYOUT_SIDE_TOP|LAYOUT_FILL_X,0,0,0,0, 0,0,0,0, 10,10);
   printername=new FXComboBox(printdest,25,this,ID_PRINTER_NAME,COMBOBOX_NORMAL|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_X);
   printername->setNumVisible(4);
-  new FXButton(printdest,tr("Properties..."),NULL,this,ID_PROPERTIES,FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT|LAYOUT_FIX_WIDTH,0,0,100,0, 10,10);
+  new FXButton(printdest,tr("Properties..."),nullptr,this,ID_PROPERTIES,FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT|LAYOUT_FIX_WIDTH,0,0,100,0, 10,10);
 
   new FXFrame(dest,LAYOUT_SIDE_TOP|LAYOUT_FIX_HEIGHT,0,0,0,10);
 
   sendtofile=new FXRadioButton(dest,tr("&File:"),this,ID_TO_FILE,LAYOUT_SIDE_TOP|ICON_BEFORE_TEXT);
   FXHorizontalFrame* filedest=new FXHorizontalFrame(dest,LAYOUT_SIDE_TOP|LAYOUT_FILL_X,0,0,0,0, 0,0,0,0, 10,10);
   filename=new FXTextField(filedest,25,this,ID_FILE_NAME,FRAME_THICK|FRAME_SUNKEN|LAYOUT_CENTER_Y|LAYOUT_FILL_X);
-  new FXButton(filedest,tr("&Browse..."),NULL,this,ID_BROWSE_FILE,FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT|LAYOUT_FIX_WIDTH,0,0,100,0, 10,10);
+  new FXButton(filedest,tr("&Browse..."),nullptr,this,ID_BROWSE_FILE,FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT|LAYOUT_FIX_WIDTH,0,0,100,0, 10,10);
 
   FXHorizontalFrame* bottom=new FXHorizontalFrame(contents,LAYOUT_BOTTOM|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0);
 
@@ -282,8 +282,8 @@ FXPrintDialog::FXPrintDialog(FXWindow* own,const FXString& caption,FXuint opts,F
   printodd=new FXRadioButton(pages,tr("&Odd Pages"),this,ID_PAGES_ODD,LAYOUT_SIDE_TOP|ICON_BEFORE_TEXT);
   printrange=new FXRadioButton(pages,tr("Print &Range:"),this,ID_PAGES_RANGE,LAYOUT_SIDE_TOP|ICON_BEFORE_TEXT);
   FXMatrix *pagerange=new FXMatrix(pages,2,MATRIX_BY_ROWS|LAYOUT_FILL_X|LAYOUT_SIDE_TOP,0,0,0,0, 20,0,0,0);
-  new FXLabel(pagerange,tr("From:"),NULL,LAYOUT_CENTER_Y|LAYOUT_RIGHT|JUSTIFY_RIGHT);
-  new FXLabel(pagerange,tr("To:"),NULL,LAYOUT_CENTER_Y|LAYOUT_RIGHT|JUSTIFY_RIGHT);
+  new FXLabel(pagerange,tr("From:"),nullptr,LAYOUT_CENTER_Y|LAYOUT_RIGHT|JUSTIFY_RIGHT);
+  new FXLabel(pagerange,tr("To:"),nullptr,LAYOUT_CENTER_Y|LAYOUT_RIGHT|JUSTIFY_RIGHT);
   firstpage=new FXSpinner(pagerange,4,this,ID_PAGES_FIRST,FRAME_THICK|FRAME_SUNKEN|LAYOUT_RIGHT);
   lastpage=new FXSpinner(pagerange,4,this,ID_PAGES_LAST,FRAME_THICK|FRAME_SUNKEN|LAYOUT_RIGHT);
   firstpage->setRange(1,10000000);
@@ -302,7 +302,7 @@ FXPrintDialog::FXPrintDialog(FXWindow* own,const FXString& caption,FXuint opts,F
 
   // Layout
   FXGroupBox *copies=new FXGroupBox(right,tr("Copies"),GROUPBOX_TITLE_LEFT|FRAME_RIDGE|LAYOUT_FILL_X|LAYOUT_TOP|LAYOUT_FILL_Y,0,0,0,0, 10,10,5,5);
-  new FXLabel(copies,tr("Number of copies to print:"),NULL,LAYOUT_CENTER_Y|LAYOUT_RIGHT|JUSTIFY_RIGHT|LAYOUT_SIDE_LEFT);
+  new FXLabel(copies,tr("Number of copies to print:"),nullptr,LAYOUT_CENTER_Y|LAYOUT_RIGHT|JUSTIFY_RIGHT|LAYOUT_SIDE_LEFT);
   numberofcopies=new FXSpinner(copies,4,this,ID_NUM_COPIES,FRAME_THICK|FRAME_SUNKEN|LAYOUT_CENTER_Y|LAYOUT_SIDE_LEFT);
   numberofcopies->setRange(1,1000);
 
@@ -334,7 +334,7 @@ FXPrintDialog::FXPrintDialog(FXWindow* own,const FXString& caption,FXuint opts,F
   printername->setFocus();
 
   // Make sure we have at least a couple
-  if(!getApp()->reg().readStringEntry("PAPER","0",NULL)){
+  if(!getApp()->reg().readStringEntry("PAPER","0",nullptr)){
     getApp()->reg().writeStringEntry("PAPER","0","[US Letter] 612 792 72 72 72 72");
     getApp()->reg().writeStringEntry("PAPER","1","[US Legal] 612 1008 72 72 72 72");
     getApp()->reg().writeStringEntry("PAPER","2","[A4] 595.27559 841.88976 80 80 80 80");
@@ -486,10 +486,10 @@ void FXPrintDialog::create(){
   // Determine list of printers on Windows NT
   if(osvi.dwPlatformId==VER_PLATFORM_WIN32_NT){
     DWORD dwBytesNeeded,dwNumPrinters;
-    EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,4,NULL,0,&dwBytesNeeded,&dwNumPrinters);
+    EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,4,nullptr,0,&dwBytesNeeded,&dwNumPrinters);
     PRINTER_INFO_4 *prtinfo=(PRINTER_INFO_4*)malloc(dwBytesNeeded);
     if(prtinfo){
-      if(EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,4,(LPBYTE)prtinfo,dwBytesNeeded,&dwBytesNeeded,&dwNumPrinters)){
+      if(EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,4,(LPBYTE)prtinfo,dwBytesNeeded,&dwBytesNeeded,&dwNumPrinters)){
         for(p=0; p<dwNumPrinters; p++){
           printername->appendItem(prtinfo[p].pPrinterName);
           if(printer.name==prtinfo[p].pPrinterName) printername->setCurrentItem(p);
@@ -502,10 +502,10 @@ void FXPrintDialog::create(){
   // Determine list of printers on Windows 9x
   else if(osvi.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS){
     DWORD dwBytesNeeded,dwNumPrinters;
-    EnumPrinters(PRINTER_ENUM_LOCAL,NULL,5,NULL,0,&dwBytesNeeded,&dwNumPrinters);
+    EnumPrinters(PRINTER_ENUM_LOCAL,nullptr,5,nullptr,0,&dwBytesNeeded,&dwNumPrinters);
     PRINTER_INFO_5 *prtinfo=(PRINTER_INFO_5*)malloc(dwBytesNeeded);
     if(prtinfo){
-      if(EnumPrinters(PRINTER_ENUM_LOCAL,NULL,5,(LPBYTE)prtinfo,dwBytesNeeded,&dwBytesNeeded,&dwNumPrinters)){
+      if(EnumPrinters(PRINTER_ENUM_LOCAL,nullptr,5,(LPBYTE)prtinfo,dwBytesNeeded,&dwBytesNeeded,&dwNumPrinters)){
         for(p=0; p<dwNumPrinters; p++){
           printername->appendItem(prtinfo[p].pPrinterName);
           if(printer.name==prtinfo[p].pPrinterName) printername->setCurrentItem(p);
@@ -586,7 +586,7 @@ long FXPrintDialog::onCmdToPrinter(FXObject*,FXSelector,void*){
 
 // Update send to printer
 long FXPrintDialog::onUpdToPrinter(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_DEST_FILE)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  sender->handle(this,(printer.flags&PRINT_DEST_FILE)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   return 1;
   }
 
@@ -603,7 +603,7 @@ long FXPrintDialog::onCmdToFile(FXObject*,FXSelector,void*){
 
 // Update send to file
 long FXPrintDialog::onUpdToFile(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_DEST_FILE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(printer.flags&PRINT_DEST_FILE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -639,7 +639,7 @@ long FXPrintDialog::onCmdBrowse(FXObject*,FXSelector,void*){
 
 // Update browse output file
 long FXPrintDialog::onUpdBrowse(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_DEST_FILE)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(printer.flags&PRINT_DEST_FILE)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -659,7 +659,7 @@ long FXPrintDialog::onCmdProps(FXObject*,FXSelector,void*){   // FIXME this need
 
 // Update printer properties panel
 long FXPrintDialog::onUpdProps(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_DEST_FILE)?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+  sender->handle(this,(printer.flags&PRINT_DEST_FILE)?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   return 1;
   }
 
@@ -681,11 +681,11 @@ long FXPrintDialog::onUpdFileName(FXObject* sender,FXSelector,void*){
   FXString name;
   if(printer.flags&PRINT_DEST_FILE){
     name=printer.name;
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     }
   else{
     name=getApp()->reg().readStringEntry("PRINTER","file","output.ps");
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
     }
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),(void*)&name);
   return 1;
@@ -728,11 +728,11 @@ long FXPrintDialog::onUpdPrinterName(FXObject* sender,FXSelector,void*){
   FXString name;
   if(printer.flags&PRINT_DEST_FILE){
     name=getApp()->reg().readStringEntry("PRINTER","printer","");
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
     }
   else{
     name=printer.name;
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     }
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SETSTRINGVALUE),(void*)&name);
   return 1;
@@ -749,7 +749,7 @@ long FXPrintDialog::onCmdPortrait(FXObject*,FXSelector,void*){
 
 // Update portrait
 long FXPrintDialog::onUpdPortrait(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_LANDSCAPE)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  sender->handle(this,(printer.flags&PRINT_LANDSCAPE)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   return 1;
   }
 
@@ -764,7 +764,7 @@ long FXPrintDialog::onCmdLandscape(FXObject*,FXSelector,void*){
 
 // Update landscape
 long FXPrintDialog::onUpdLandscape(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_LANDSCAPE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(printer.flags&PRINT_LANDSCAPE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -823,7 +823,7 @@ long FXPrintDialog::onUpdPages(FXObject* sender,FXSelector sel,void*){
       if(printer.flags&PRINT_PAGES_RANGE) ch=ID_CHECK;
       break;
     }
-  sender->handle(this,FXSEL(SEL_COMMAND,ch),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ch),nullptr);
   return 1;
   }
 
@@ -838,7 +838,7 @@ long FXPrintDialog::onCmdColor(FXObject*,FXSelector,void*){
 
 // Update color
 long FXPrintDialog::onUpdColor(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_COLOR)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(printer.flags&PRINT_COLOR)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -853,7 +853,7 @@ long FXPrintDialog::onCmdGray(FXObject*,FXSelector,void*){
 
 // Update gray
 long FXPrintDialog::onUpdGray(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_COLOR)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  sender->handle(this,(printer.flags&PRINT_COLOR)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   return 1;
   }
 
@@ -887,7 +887,7 @@ long FXPrintDialog::onCmdFirstPage(FXObject* sender,FXSelector,void*){
 // Update first page
 long FXPrintDialog::onUpdFirstPage(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SETINTVALUE),(void*)&printer.frompage);
-  sender->handle(this,(printer.flags&PRINT_PAGES_RANGE)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(printer.flags&PRINT_PAGES_RANGE)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -907,7 +907,7 @@ long FXPrintDialog::onCmdLastPage(FXObject* sender,FXSelector,void*){
 // Update last page
 long FXPrintDialog::onUpdLastPage(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SETINTVALUE),(void*)&printer.topage);
-  sender->handle(this,(printer.flags&PRINT_PAGES_RANGE)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(printer.flags&PRINT_PAGES_RANGE)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -921,7 +921,7 @@ long FXPrintDialog::onCmdCollateNormal(FXObject*,FXSelector,void*){
 
 // Update Collate Normal
 long FXPrintDialog::onUpdCollateNormal(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_COLLATE_REVERSED)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  sender->handle(this,(printer.flags&PRINT_COLLATE_REVERSED)?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   return 1;
   }
 
@@ -935,7 +935,7 @@ long FXPrintDialog::onCmdCollateReversed(FXObject*,FXSelector,void*){
 
 // Update Collate Reversed
 long FXPrintDialog::onUpdCollateReversed(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(printer.flags&PRINT_COLLATE_REVERSED)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(printer.flags&PRINT_COLLATE_REVERSED)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 

@@ -3,7 +3,7 @@
 *                       H a s h   T a b l e   C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -76,11 +76,10 @@
         will not cause a table resize (except when the table is near empty, of course).
 */
 
-#define EMPTY     ((Entry*)(__hash__empty__+3))
-#define NOMEMORY  ((Entry*)(((FXival*)NULL)+3))
+#define EMPTY     (const_cast<Entry*>((const Entry*)(__hash__empty__+3)))
 #define HASH(x)   ((FXival)(x)^(((FXival)(x))>>13))
-#define VOID      ((FXptr)-1L)
-#define LEGAL(p)  ((p)!=NULL && (p)!=VOID)
+#define VOID      ((const void*)-1L)
+#define LEGAL(p)  ((p)!=nullptr && (p)!=VOID)
 #define BSHIFT    5
 
 
@@ -96,26 +95,12 @@ extern const FXival __hash__empty__[];
 const FXival __hash__empty__[7]={1,0,1,0,0};
 
 
-// Make empty table
-FXHash::FXHash():table(EMPTY){
-  }
-
-
-// Construct from another table
-FXHash::FXHash(const FXHash& other):table(EMPTY){
-  if(__likely(1<other.no() && no(other.no()))){
-    copyElms(table,other.table,no());
-    free(other.free());
-    used(other.used());
-    }
-  }
-
-
 // Adjust the size of the table
 FXbool FXHash::no(FXival n){
   FXival m=no();
   if(__likely(m!=n)){
-    Entry *elbat;
+    Entry* elbat;
+    void*  p;
 
     // Release old table
     if(1<m){
@@ -126,7 +111,8 @@ FXbool FXHash::no(FXival n){
 
     // Allocate new table
     if(1<n){
-      if((elbat=(Entry*)(((FXival*)::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))+3))==NOMEMORY) return false;
+      if(__unlikely((p=::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))==nullptr)) return false;
+      elbat=(Entry*)(((FXival*)p)+3);
       ((FXival*)elbat)[-3]=n;
       ((FXival*)elbat)[-2]=0;
       ((FXival*)elbat)[-1]=n;
@@ -145,20 +131,21 @@ FXbool FXHash::resize(FXival n){
   FXASSERT((n-used())>0);       // At least one free slot
   if(elbat.no(n)){
     if(1<elbat.no() && 1<no()){
-      FXptr key,data;
+      const void* ky;
+      void* da;
       FXuval p,b,x;
       FXival i;
       for(i=0; i<no(); ++i){    // Hash existing entries into new table
-        key=table[i].key;
-        data=table[i].data;
-        if(LEGAL(key)){
-          p=b=HASH(key);
+        ky=table[i].key;
+        da=table[i].data;
+        if(LEGAL(ky)){
+          p=b=HASH(ky);
           while(elbat.table[x=p&(n-1)].key){    // Locate slot
             p=(p<<2)+p+b+1;
             b>>=BSHIFT;
             }
-          elbat.table[x].key=key;
-          elbat.table[x].data=data;
+          elbat.table[x].key=ky;
+          elbat.table[x].data=da;
           }
         }
       elbat.free(n-used());     // All non-empty slots now free
@@ -168,6 +155,25 @@ FXbool FXHash::resize(FXival n){
     return true;
     }
   return false;
+  }
+
+
+// Make empty table
+FXHash::FXHash():table(EMPTY){
+  FXASSERT_STATIC(sizeof(FXHash)==sizeof(void*));
+  FXASSERT_STATIC(sizeof(Entry)<=sizeof(FXival)*2);
+  }
+
+
+// Construct from another table
+FXHash::FXHash(const FXHash& other):table(EMPTY){
+  FXASSERT_STATIC(sizeof(FXHash)==sizeof(void*));
+  FXASSERT_STATIC(sizeof(Entry)<=sizeof(FXival)*2);
+  if(__likely(1<other.no() && no(other.no()))){
+    copyElms(table,other.table,no());
+    free(other.free());
+    used(other.used());
+    }
   }
 
 
@@ -193,11 +199,11 @@ FXHash& FXHash::adopt(FXHash& other){
 
 
 // Find position of given key
-FXival FXHash::find(FXptr ky) const {
+FXival FXHash::find(const void* ky) const {
   if(__likely(LEGAL(ky))){
     FXuval p,b,x;
     p=b=HASH(ky);
-    while(__likely(table[x=p&(no()-1)].key)){
+    while(table[x=p&(no()-1)].key){
       if(__likely(table[x].key==ky)) return x;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
@@ -208,19 +214,19 @@ FXival FXHash::find(FXptr ky) const {
 
 
 // Return reference to slot assocated with given key
-FXptr& FXHash::at(FXptr ky){
+void*& FXHash::at(const void* ky){
   if(__likely(LEGAL(ky))){
     FXuval p,b,h,x;
     p=b=h=HASH(ky);
     while(table[x=p&(no()-1)].key){
-      if(table[x].key==ky) goto x;           // Replace existing slot
+      if(__likely(table[x].key==ky)) goto x;    // Replace existing slot
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
     if(__unlikely(free()<=1+(no()>>2)) && __unlikely(!resize(no()<<1))){ throw FXMemoryException("FXHash::at: out of memory\n"); }
     p=b=h;
     while(table[x=p&(no()-1)].key){
-      if(table[x].key==VOID) goto y;           // Put into voided slot
+      if(__likely(table[x].key==VOID)) goto y;  // Put into voided slot
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
@@ -229,17 +235,17 @@ y:  used(used()+1);
     table[x].key=ky;
 x:  return table[x].data;
     }
-  return *((FXptr*)NULL);               // Can NOT be referenced; will generate segfault!
+  return *((void**)nullptr);            // Can NOT be referenced; will generate segfault!
   }
 
 
 // Return constant reference to slot assocated with given key
-const FXptr& FXHash::at(FXptr ky) const {
+void *const& FXHash::at(const void* ky) const {
   if(__likely(LEGAL(ky))){
     FXuval p,b,x;
     p=b=HASH(ky);
     while(table[x=p&(no()-1)].key){
-      if(table[x].key==ky) return table[x].data;        // Return existing slot
+      if(__likely(table[x].key==ky)) return table[x].data;      // Return existing slot
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
@@ -249,34 +255,34 @@ const FXptr& FXHash::at(FXptr ky) const {
 
 
 // Remove association from the table
-FXptr FXHash::remove(FXptr ky){
-  FXptr old=NULL;
+void* FXHash::remove(const void* ky){
+  void* old=nullptr;
   if(__likely(LEGAL(ky))){
     FXuval p,b,x;
     p=b=HASH(ky);
     while(table[x=p&(no()-1)].key!=ky){
-      if(table[x].key==NULL) return NULL;
+      if(table[x].key==nullptr) goto x;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
     old=table[x].data;
-    table[x].key=VOID;                         // Void the slot (not empty!)
-    table[x].data=NULL;
+    table[x].key=VOID;          // Void the slot (not empty!)
+    table[x].data=nullptr;
     used(used()-1);
     if(__unlikely(used()<=(no()>>2))) resize(no()>>1);
     }
-  return old;
+x:return old;
   }
 
 
 // Erase data at pos in the table, returning old pointer
-FXptr FXHash::erase(FXival pos){
-  FXptr old=NULL;
+void* FXHash::erase(FXival pos){
+  void* old=nullptr;
   if(__unlikely(pos<0 || no()<=pos)){ throw FXRangeException("FXHash::erase: argument out of range\n"); }
   if(__likely(LEGAL(table[pos].key))){
     old=table[pos].data;
-    table[pos].key=VOID;                        // Void the slot (not empty!)
-    table[pos].data=NULL;
+    table[pos].key=VOID;        // Void the slot (not empty!)
+    table[pos].data=nullptr;
     used(used()-1);
     if(__unlikely(used()<=(no()>>2))) resize(no()>>1);
     }
@@ -285,8 +291,8 @@ FXptr FXHash::erase(FXival pos){
 
 
 // Clear hash table, marking all slots as free
-void FXHash::clear(){
-  no(1);
+FXbool FXHash::clear(){
+  return no(1);
   }
 
 

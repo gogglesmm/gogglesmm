@@ -3,7 +3,7 @@
 *                          H e a d e r   W i d g e t                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -82,7 +82,7 @@ public:
 public:
 
   /// Construct new item with given text, icon, size, and user-data
-  FXHeaderItem(const FXString& text,FXIcon* ic=NULL,FXint s=0,void* ptr=NULL);
+  FXHeaderItem(const FXString& text,FXIcon* ic=nullptr,FXint s=0,void* ptr=nullptr);
 
   /// Change item's text label
   virtual void setText(const FXString& txt);
@@ -234,7 +234,7 @@ public:
 public:
 
   /// Construct new header control
-  FXHeader(FXComposite* p,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=HEADER_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  FXHeader(FXComposite* p,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=HEADER_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
 
   /// Create server-side resources
   virtual void create();
@@ -277,34 +277,34 @@ public:
   FXint setItem(FXint index,FXHeaderItem* item,FXbool notify=false);
 
   /// Replace items text, icon, and user-data pointer
-  FXint setItem(FXint index,const FXString& text,FXIcon *icon=NULL,FXint size=0,void* ptr=NULL,FXbool notify=false);
+  FXint setItem(FXint index,const FXString& text,FXIcon *icon=nullptr,FXint size=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Fill header by appending items from array of strings
-  FXint fillItems(const FXchar *const *strings,FXIcon *icon=NULL,FXint size=0,void* ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXchar *const *strings,FXIcon *icon=nullptr,FXint size=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Fill header by appending items from array of strings
-  FXint fillItems(const FXString* strings,FXIcon *icon=NULL,FXint size=0,void* ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXString* strings,FXIcon *icon=nullptr,FXint size=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Fill header by appending items from newline separated strings
-  FXint fillItems(const FXString& strings,FXIcon *icon=NULL,FXint size=0,void* ptr=NULL,FXbool notify=false);
+  FXint fillItems(const FXString& strings,FXIcon *icon=nullptr,FXint size=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Insert a new [possibly subclassed] item at the give index
   FXint insertItem(FXint index,FXHeaderItem* item,FXbool notify=false);
 
   /// Insert item at index with given text, icon, and user-data pointer
-  FXint insertItem(FXint index,const FXString& text,FXIcon *icon=NULL,FXint size=0,void* ptr=NULL,FXbool notify=false);
+  FXint insertItem(FXint index,const FXString& text,FXIcon *icon=nullptr,FXint size=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Append a [possibly subclassed] item to the list
   FXint appendItem(FXHeaderItem* item,FXbool notify=false);
 
   /// Append new item with given text and optional icon, and user-data pointer
-  FXint appendItem(const FXString& text,FXIcon *icon=NULL,FXint size=0,void* ptr=NULL,FXbool notify=false);
+  FXint appendItem(const FXString& text,FXIcon *icon=nullptr,FXint size=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Prepend a [possibly subclassed] item to the list
   FXint prependItem(FXHeaderItem* item,FXbool notify=false);
 
   /// Prepend new item with given text and optional icon, and user-data pointer
-  FXint prependItem(const FXString& text,FXIcon *icon=NULL,FXint size=0,void* ptr=NULL,FXbool notify=false);
+  FXint prependItem(const FXString& text,FXIcon *icon=nullptr,FXint size=0,void* ptr=nullptr,FXbool notify=false);
 
   /// Extract item from list
   FXHeaderItem* extractItem(FXint index,FXbool notify=false);

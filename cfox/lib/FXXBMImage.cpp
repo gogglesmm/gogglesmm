@@ -3,7 +3,7 @@
 *                            X B M   I m a g e   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,11 +61,11 @@ const FXchar FXXBMImage::mimeType[]="image/xbm";
 
 
 // Object implementation
-FXIMPLEMENT(FXXBMImage,FXImage,NULL,0)
+FXIMPLEMENT(FXXBMImage,FXImage,nullptr,0)
 
 
 // Initialize
-FXXBMImage::FXXBMImage(FXApp* a,const FXuchar *pixels,const FXuchar *mask,FXuint opts,FXint w,FXint h):FXImage(a,NULL,opts,w,h){
+FXXBMImage::FXXBMImage(FXApp* a,const FXuchar *pixels,const FXuchar *mask,FXuint opts,FXint w,FXint h):FXImage(a,nullptr,opts,w,h){
   if(pixels && mask){
     fxloadXBM(data,pixels,mask,w,h);
     options|=IMAGE_OWNED;

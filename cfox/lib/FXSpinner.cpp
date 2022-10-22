@@ -3,7 +3,7 @@
 *                          S p i n n e r   W i d g e t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Lyle Johnson.   All Rights Reserved.               *
+* Copyright (C) 1998,2022 by Lyle Johnson.   All Rights Reserved.               *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -184,24 +184,26 @@ void FXSpinner::layout(){
   }
 
 
-// Notification that focus moved to new child
-void FXSpinner::changeFocus(FXWindow *child){
-  FXPacker::changeFocus(child);
-  if(child){
-    flags&=~FLAG_UPDATE;
-    }
-  else{
-    flags|=FLAG_UPDATE;
-    }
+// Move the focus to this window
+void FXSpinner::setFocus(){
+  FXPacker::setFocus();
+  flags&=~FLAG_UPDATE;
+  }
+
+
+// Remove the focus from this window
+void FXSpinner::killFocus(){
+  FXPacker::killFocus();
+  flags|=FLAG_UPDATE;
   }
 
 
 // Respond to increment message
 long FXSpinner::onUpdIncrement(FXObject* sender,FXSelector,void*){
   if(isEnabled() && ((options&SPIN_CYCLIC) || (pos<range[1])))
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -219,9 +221,9 @@ long FXSpinner::onCmdIncrement(FXObject*,FXSelector,void*){
 // Disable decrement if at low end already
 long FXSpinner::onUpdDecrement(FXObject* sender,FXSelector,void*){
   if(isEnabled() && ((options&SPIN_CYCLIC) || (range[0]<pos)))
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 

@@ -3,7 +3,7 @@
 *                             P i p e   C l a s s                               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -77,7 +77,7 @@ FXbool FXPipe::open(FXPipe& other,FXuint m){
     HANDLE hrd,hwr;
     sat.nLength=sizeof(SECURITY_ATTRIBUTES);
     sat.bInheritHandle=(m&Inheritable)?true:false;
-    sat.lpSecurityDescriptor=NULL;
+    sat.lpSecurityDescriptor=nullptr;
 
     // Create connected pipe
     if(CreatePipe(&hrd,(HANDLE*)&hwr,&sat,0)!=0){

@@ -3,7 +3,7 @@
 *                   J P E G - 2 0 0 0   I c o n   O b j e c t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2009,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2009,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,7 +61,7 @@ const FXchar FXJP2Icon::mimeType[]="image/jp2";
 
 
 // Object implementation
-FXIMPLEMENT(FXJP2Icon,FXIcon,NULL,0)
+FXIMPLEMENT(FXJP2Icon,FXIcon,nullptr,0)
 
 
 #ifdef HAVE_J2K_H
@@ -72,9 +72,9 @@ const FXbool FXJP2Icon::supported=false;
 
 
 // Initialize
-FXJP2Icon::FXJP2Icon(FXApp* a,const void *pix,FXColor clr,FXuint opts,FXint w,FXint h,FXint q):FXIcon(a,NULL,clr,opts,w,h),quality(q){
+FXJP2Icon::FXJP2Icon(FXApp* a,const FXuchar *pix,FXColor clr,FXuint opts,FXint w,FXint h,FXint q):FXIcon(a,nullptr,clr,opts,w,h),quality(q){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

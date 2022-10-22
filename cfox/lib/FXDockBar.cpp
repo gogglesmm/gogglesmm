@@ -3,7 +3,7 @@
 *                         D o c k S i t e   W i d g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -217,7 +217,7 @@ const FXDefaultCursor FXDockBar::cursorType[16]={
 
 
 // Deserialization
-FXDockBar::FXDockBar():drydock(NULL),wetdock(NULL){
+FXDockBar::FXDockBar():drydock(nullptr),wetdock(nullptr){
   flags|=FLAG_ENABLED;
   gripx=0;
   gripy=0;
@@ -237,7 +237,7 @@ FXDockBar::FXDockBar(FXComposite* p,FXComposite* q,FXuint opts,FXint x,FXint y,F
 
 
 // Make a non-floatable toolbar
-FXDockBar::FXDockBar(FXComposite* p,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXPacker(p,opts,x,y,w,h,pl,pr,pt,pb,hs,vs),drydock(NULL),wetdock(NULL){
+FXDockBar::FXDockBar(FXComposite* p,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXPacker(p,opts,x,y,w,h,pl,pr,pt,pb,hs,vs),drydock(nullptr),wetdock(nullptr){
   flags|=FLAG_ENABLED;
   gripx=0;
   gripy=0;
@@ -255,7 +255,7 @@ FXbool FXDockBar::isDocked() const {
 // Set parent when docked, if it was docked it will remain docked
 void FXDockBar::setDryDock(FXComposite* dry){
   if(dry && dry->id() && getParent()==drydock){
-    reparent(dry,NULL);
+    reparent(dry,nullptr);
     }
   drydock=dry;
   }
@@ -264,7 +264,7 @@ void FXDockBar::setDryDock(FXComposite* dry){
 // Set parent when floating
 void FXDockBar::setWetDock(FXComposite* wet){
   if(wet && wet->id() && getParent()==wetdock){
-    reparent(wet,NULL);
+    reparent(wet,nullptr);
     }
   wetdock=wet;
   }
@@ -286,7 +286,7 @@ void FXDockBar::dock(FXDockSite* docksite,FXWindow* other,FXbool notify){
 void FXDockBar::dock(FXDockSite* docksite,FXint localx,FXint localy,FXbool notify){
   if(docksite && getParent()!=docksite){
     setDryDock(docksite);
-    reparent(docksite,NULL);
+    reparent(docksite,nullptr);
     if(wetdock) wetdock->hide();
     docksite->dockToolBar(this,localx,localy);
     if(notify && target){target->tryHandle(this,FXSEL(SEL_DOCKED,message),docksite);}
@@ -343,7 +343,7 @@ FXDockSite* FXDockBar::findDockAtSide(FXuint side){
       child=child->getNext();
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -420,7 +420,7 @@ FXDockSite* FXDockBar::findDockNear(FXint rootx,FXint rooty){
       child=child->getNext();
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -435,14 +435,14 @@ long FXDockBar::onCmdUndock(FXObject*,FXSelector,void*){
 
 // Check if undocked
 long FXDockBar::onUpdUndock(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(wetdock && wetdock!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(wetdock && wetdock!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
 
 // Redock on top
 long FXDockBar::onCmdDockTop(FXObject*,FXSelector,void*){
-  dock(findDockAtSide(LAYOUT_SIDE_TOP),NULL,true);
+  dock(findDockAtSide(LAYOUT_SIDE_TOP),nullptr,true);
   return 1;
   }
 
@@ -450,14 +450,14 @@ long FXDockBar::onCmdDockTop(FXObject*,FXSelector,void*){
 // Check if docked at top
 long FXDockBar::onUpdDockTop(FXObject* sender,FXSelector,void*){
   FXDockSite* docksite=findDockAtSide(LAYOUT_SIDE_TOP);
-  sender->handle(this,(docksite && docksite!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(docksite && docksite!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
 
 // Redock on bottom
 long FXDockBar::onCmdDockBottom(FXObject*,FXSelector,void*){
-  dock(findDockAtSide(LAYOUT_SIDE_BOTTOM),NULL,true);
+  dock(findDockAtSide(LAYOUT_SIDE_BOTTOM),nullptr,true);
   return 1;
   }
 
@@ -465,14 +465,14 @@ long FXDockBar::onCmdDockBottom(FXObject*,FXSelector,void*){
 // Check if docked at bottom
 long FXDockBar::onUpdDockBottom(FXObject* sender,FXSelector,void*){
   FXDockSite* docksite=findDockAtSide(LAYOUT_SIDE_BOTTOM);
-  sender->handle(this,(docksite && docksite!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(docksite && docksite!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
 
 // Redock on left
 long FXDockBar::onCmdDockLeft(FXObject*,FXSelector,void*){
-  dock(findDockAtSide(LAYOUT_SIDE_LEFT),NULL,true);
+  dock(findDockAtSide(LAYOUT_SIDE_LEFT),nullptr,true);
   return 1;
   }
 
@@ -480,14 +480,14 @@ long FXDockBar::onCmdDockLeft(FXObject*,FXSelector,void*){
 // Check if docked at left
 long FXDockBar::onUpdDockLeft(FXObject* sender,FXSelector,void*){
   FXDockSite* docksite=findDockAtSide(LAYOUT_SIDE_LEFT);
-  sender->handle(this,(docksite && docksite!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(docksite && docksite!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
 
 // Redock on right
 long FXDockBar::onCmdDockRight(FXObject*,FXSelector,void*){
-  dock(findDockAtSide(LAYOUT_SIDE_RIGHT),NULL,true);
+  dock(findDockAtSide(LAYOUT_SIDE_RIGHT),nullptr,true);
   return 1;
   }
 
@@ -495,14 +495,14 @@ long FXDockBar::onCmdDockRight(FXObject*,FXSelector,void*){
 // Check if docked at right
 long FXDockBar::onUpdDockRight(FXObject* sender,FXSelector,void*){
   FXDockSite* docksite=findDockAtSide(LAYOUT_SIDE_RIGHT);
-  sender->handle(this,(docksite && docksite!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(docksite && docksite!=getParent())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
 
 // Check for flip
 long FXDockBar::onUpdDockFlip(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -527,7 +527,7 @@ long FXDockBar::onPopupMenu(FXObject*,FXSelector,void* ptr){
   new FXMenuCommand(&dockmenu,tr("Float"),&dockfreeicon,this,ID_DOCK_FLOAT);
   new FXMenuCommand(&dockmenu,tr("Flip"),&dockflipicon,this,ID_DOCK_FLIP);
   dockmenu.create();
-  dockmenu.popup(NULL,event->root_x,event->root_y);
+  dockmenu.popup(nullptr,event->root_x,event->root_y);
   getApp()->runModalWhileShown(&dockmenu);
   return 1;
   }

@@ -3,7 +3,7 @@
 *                          P P M   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -92,7 +92,7 @@ FXbool fxloadPPM(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   FXuchar magic,format,byte;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
 
@@ -134,7 +134,7 @@ FXbool fxloadPPM(FXStream& store,FXColor*& data,FXint& width,FXint& height){
           switch(format){
             case '1':   // Ascii bitmap
               for(i=0; i<height; i++){
-                for(j=0; j<width; j++,byte<<=1,pp+=4){
+                for(j=0; j<width; j++,pp+=4){
                   byte=getint(store);
                   pp[2] = byte?255:0;
                   pp[1] = pp[2];

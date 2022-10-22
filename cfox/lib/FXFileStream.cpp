@@ -3,7 +3,7 @@
 *                       F i l e   S t r e a m   C l a s s                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -109,7 +109,7 @@ FXbool FXFileStream::open(const FXString& filename,FXStreamDirection save_or_loa
         return false;
         }
       }
-    return FXStream::open(save_or_load,NULL,size);
+    return FXStream::open(save_or_load,nullptr,size);
     }
   return false;
   }

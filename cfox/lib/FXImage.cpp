@@ -3,7 +3,7 @@
 *                             I m a g e    O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -160,6 +160,8 @@
   - Need to move to BGRA components; 4x faster with OpenGL!
 */
 
+#define TOPIC_CONSTRUCT 1000
+#define TOPIC_CREATION  1001
 
 #define DISPLAY(app) ((Display*)((app)->display))
 
@@ -192,20 +194,20 @@ enum {
 
 
 // Object implementation
-FXIMPLEMENT(FXImage,FXDrawable,NULL,0)
+FXIMPLEMENT(FXImage,FXDrawable,nullptr,0)
 
 
 // For deserialization
-FXImage::FXImage():data(NULL),options(0){
+FXImage::FXImage():data(nullptr),options(0){
   }
 
 
 // Initialize
 FXImage::FXImage(FXApp* a,const FXColor *pix,FXuint opts,FXint w,FXint h):FXDrawable(a,w,h){
-  FXTRACE((100,"FXImage::FXImage %p\n",this));
+  FXTRACE((TOPIC_CONSTRUCT,"FXImage::FXImage %p\n",this));
   FXASSERT((opts&~(IMAGE_OWNED|IMAGE_MASK))==0);
   visual=getApp()->getDefaultVisual();
-  data=(FXColor*)pix;
+  data=const_cast<FXColor*>(pix);
   options=opts;
   if(!data && (options&IMAGE_OWNED)){           // This is confusing use of IMAGE_OWNED
     if(!callocElms(data,width*height)){ throw FXMemoryException("unable to construct image"); }
@@ -289,7 +291,7 @@ FXbool FXImage::hasAlpha() const {
 
 // Return the device context; the image already selected into it
 FXID FXImage::GetDC() const {
-  HDC hdc=::CreateCompatibleDC(NULL);
+  HDC hdc=::CreateCompatibleDC(nullptr);
   SelectObject(hdc,(HBITMAP)xid);
   return hdc;
   }
@@ -307,12 +309,14 @@ int FXImage::ReleaseDC(FXID hdc) const {
 void FXImage::create(){
   if(!xid){
     if(getApp()->isInitialized()){
-      FXTRACE((100,"%s::create %p\n",getClassName(),this));
+      FXTRACE((TOPIC_CREATION,"%s::create %p\n",getClassName(),this));
 
       // Initialize visual
       visual->create();
 
 #ifdef WIN32
+
+      FXASSERT_STATIC(sizeof(FXID)>=sizeof(HBITMAP));
 
       // Create a bitmap compatible with current display
       HDC hdc=::GetDC(GetDesktopWindow());
@@ -320,6 +324,8 @@ void FXImage::create(){
       ::ReleaseDC(GetDesktopWindow(),hdc);
 
 #else
+
+      FXASSERT_STATIC(sizeof(FXID)>=sizeof(Pixmap));
 
       // Make pixmap
       xid=XCreatePixmap(DISPLAY(getApp()),XDefaultRootWindow(DISPLAY(getApp())),FXMAX(width,1),FXMAX(height,1),visual->depth);
@@ -343,7 +349,7 @@ void FXImage::create(){
 void FXImage::detach(){
   visual->detach();
   if(xid){
-    FXTRACE((100,"%s::detach %p\n",getClassName(),this));
+    FXTRACE((TOPIC_CREATION,"%s::detach %p\n",getClassName(),this));
     xid=0;
     }
   }
@@ -353,7 +359,7 @@ void FXImage::detach(){
 void FXImage::destroy(){
   if(xid){
     if(getApp()->isInitialized()){
-      FXTRACE((100,"%s::destroy %p\n",getClassName(),this));
+      FXTRACE((TOPIC_CREATION,"%s::destroy %p\n",getClassName(),this));
 #ifdef WIN32
       DeleteObject(xid);
 #else
@@ -377,7 +383,7 @@ void FXImage::restore(){
     BITMAPINFO bmi;
     HDC hdcmem;
 
-    FXTRACE((100,"%s::restore image %p\n",getClassName(),this));
+    FXTRACE((TOPIC_CREATION,"%s::restore image %p\n",getClassName(),this));
 
     // Check for legal size
     if(width<1 || height<1){ fxerror("%s::restore: illegal image size %dx%d.\n",getClassName(),width,height); }
@@ -413,7 +419,7 @@ void FXImage::restore(){
       if(!pixels){ throw FXMemoryException("unable to restore image"); }
 
       // Make device context
-      hdcmem=::CreateCompatibleDC(NULL);
+      hdcmem=::CreateCompatibleDC(nullptr);
       if(!GetDIBits(hdcmem,(HBITMAP)xid,0,height,pixels,&bmi,DIB_RGB_COLORS)){
         throw FXImageException("unable to restore image");
         }
@@ -464,7 +470,7 @@ void FXImage::restore(){
     FXPixel redmask,greenmask,bluemask;
     int size,i;
     FXbool shmi=false;
-    XImage *xim=NULL;
+    XImage *xim=nullptr;
     Visual *vis;
     FXint x,y;
     FXuchar *img;
@@ -476,7 +482,7 @@ void FXImage::restore(){
     XShmSegmentInfo shminfo;
 #endif
 
-    FXTRACE((100,"%s::restore image %p\n",getClassName(),this));
+    FXTRACE((TOPIC_CREATION,"%s::restore image %p\n",getClassName(),this));
 
     // Check for legal size
     if(width<1 || height<1){ fxerror("%s::restore: illegal image size %dx%d.\n",getClassName(),width,height); }
@@ -505,11 +511,11 @@ void FXImage::restore(){
       // First try XShm
 #ifdef HAVE_XSHM_H
       if(shmi){
-        xim=XShmCreateImage(DISPLAY(getApp()),vis,visual->depth,(visual->depth==1)?XYPixmap:ZPixmap,NULL,&shminfo,width,height);
+        xim=XShmCreateImage(DISPLAY(getApp()),vis,visual->depth,(visual->depth==1)?XYPixmap:ZPixmap,nullptr,&shminfo,width,height);
         if(!xim){ shmi=0; }
         if(shmi){
           shminfo.shmid=shmget(IPC_PRIVATE,xim->bytes_per_line*xim->height,IPC_CREAT|0777);
-          if(shminfo.shmid==-1){ xim->data=NULL; XDestroyImage(xim); xim=NULL; shmi=0; }
+          if(shminfo.shmid==-1){ xim->data=nullptr; XDestroyImage(xim); xim=nullptr; shmi=0; }
           if(shmi){
             shminfo.shmaddr=xim->data=(char*)shmat(shminfo.shmid,0,0);
             shminfo.readOnly=false;
@@ -662,7 +668,7 @@ void FXImage::render(){
     FXuchar *pixels;
     HDC hdcmem;
 
-    FXTRACE((100,"%s::render %p\n",getClassName(),this));
+    FXTRACE((TOPIC_CREATION,"%s::render %p\n",getClassName(),this));
 
     // Fill with pixels if there is data
     if(data && 0<width && 0<height){
@@ -707,7 +713,7 @@ void FXImage::render(){
       // Win95 you must pass in a non-NULL hdc for the first parameter; otherwise
       // this call to SetDIBits() will fail (in contrast, it works fine under
       // Windows NT if you pass in a NULL hdc).
-      hdcmem=::CreateCompatibleDC(NULL);
+      hdcmem=::CreateCompatibleDC(nullptr);
       if(!SetDIBits(hdcmem,(HBITMAP)xid,0,height,pixels,&bmi,DIB_RGB_COLORS)){
 //    if(!StretchDIBits(hdcmem,0,0,width,height,0,0,width,height,pixels,&bmi,DIB_RGB_COLORS,SRCCOPY)){
         throw FXImageException("unable to render image");
@@ -1329,14 +1335,14 @@ void FXImage::render_mono_1_dither(void *xim,FXuchar *img){
 void FXImage::render(){
   if(xid){
     FXbool shmi=false;
-    XImage *xim=NULL;
+    XImage *xim=nullptr;
     XGCValues values;
     GC gc;
 #ifdef HAVE_XSHM_H
     XShmSegmentInfo shminfo;
 #endif
 
-    FXTRACE((100,"%s::render image %p\n",getClassName(),this));
+    FXTRACE((TOPIC_CREATION,"%s::render image %p\n",getClassName(),this));
 
     // Fill with pixels if there is data
     if(data && 0<width && 0<height){
@@ -1354,11 +1360,11 @@ void FXImage::render(){
       // First try XShm
 #ifdef HAVE_XSHM_H
       if(shmi){
-        xim=XShmCreateImage(DISPLAY(getApp()),(Visual*)visual->visual,visual->depth,(visual->depth==1)?XYPixmap:ZPixmap,NULL,&shminfo,width,height);
+        xim=XShmCreateImage(DISPLAY(getApp()),(Visual*)visual->visual,visual->depth,(visual->depth==1)?XYPixmap:ZPixmap,nullptr,&shminfo,width,height);
         if(!xim){ shmi=0; }
         if(shmi){
           shminfo.shmid=shmget(IPC_PRIVATE,xim->bytes_per_line*xim->height,IPC_CREAT|0777);
-          if(shminfo.shmid==-1){ xim->data=NULL; XDestroyImage(xim); xim=NULL; shmi=0; }
+          if(shminfo.shmid==-1){ xim->data=nullptr; XDestroyImage(xim); xim=nullptr; shmi=0; }
           if(shmi){
             shminfo.shmaddr=xim->data=(char*)shmat(shminfo.shmid,0,0);
             shminfo.readOnly=false;
@@ -1371,7 +1377,7 @@ void FXImage::render(){
 
       // Try the old fashioned way
       if(!shmi){
-        xim=XCreateImage(DISPLAY(getApp()),(Visual*)visual->visual,visual->depth,(visual->depth==1)?XYPixmap:ZPixmap,0,NULL,width,height,32,0);
+        xim=XCreateImage(DISPLAY(getApp()),(Visual*)visual->visual,visual->depth,(visual->depth==1)?XYPixmap:ZPixmap,0,nullptr,width,height,32,0);
         if(!xim){ throw FXImageException("unable to render image"); }
 
         // Try create temp pixel store
@@ -1482,7 +1488,7 @@ void FXImage::render(){
         XSync(DISPLAY(getApp()),False);
         FXTRACE((150,"RGBPixmap XSHM detached at memory=%p (%d bytes)\n",xim->data,xim->bytes_per_line*xim->height));
         XShmDetach(DISPLAY(getApp()),&shminfo);
-        xim->data=NULL;
+        xim->data=nullptr;
         XDestroyImage(xim);
         shmdt(shminfo.shmaddr);
         shmctl(shminfo.shmid,IPC_RMID,0);
@@ -1509,7 +1515,7 @@ void FXImage::release(){
     options&=~IMAGE_OWNED;
     freeElms(data);
     }
-  data=NULL;
+  data=nullptr;
   }
 
 
@@ -1518,7 +1524,7 @@ void FXImage::release(){
 void FXImage::resize(FXint w,FXint h){
   if(w<1) w=1;
   if(h<1) h=1;
-  FXTRACE((100,"%s::resize(%d,%d)\n",getClassName(),w,h));
+  FXTRACE((TOPIC_CREATION,"%s::resize(%d,%d)\n",getClassName(),w,h));
   if(width!=w || height!=h){
 
     // Resize device dependent pixmap
@@ -1827,7 +1833,7 @@ static void scalenearest(FXColor *dst,const FXColor* src,FXint dw,FXint dh,FXint
 void FXImage::scale(FXint w,FXint h,FXint quality){
   if(w<1) w=1;
   if(h<1) h=1;
-  FXTRACE((100,"%s::scale(%d,%d)\n",getClassName(),w,h));
+  FXTRACE((TOPIC_CREATION,"%s::scale(%d,%d)\n",getClassName(),w,h));
   if(w!=width || h!=height){
     if(data){
       FXint ow=width;
@@ -1916,7 +1922,7 @@ void FXImage::scale(FXint w,FXint h,FXint quality){
 
 // Mirror image horizontally and/or vertically
 void FXImage::mirror(FXbool horizontal,FXbool vertical){
-  FXTRACE((100,"%s::mirror(%d,%d)\n",getClassName(),horizontal,vertical));
+  FXTRACE((TOPIC_CREATION,"%s::mirror(%d,%d)\n",getClassName(),horizontal,vertical));
   if(horizontal || vertical){
     if(data){
       FXColor *paa,*pa,*pbb,*pb,t;
@@ -1954,7 +1960,7 @@ void FXImage::mirror(FXbool horizontal,FXbool vertical){
 
 // Rotate image by degrees ccw
 void FXImage::rotate(FXint degrees){
-  FXTRACE((100,"%s::rotate(%d)\n",getClassName(),degrees));
+  FXTRACE((TOPIC_CREATION,"%s::rotate(%d)\n",getClassName(),degrees));
   degrees=(degrees+360)%360;
   if(degrees!=0 && width>1 && height>1){
     if(data){
@@ -2045,7 +2051,7 @@ void FXImage::crop(FXint x,FXint y,FXint w,FXint h,FXColor color){
   if(w<1) w=1;
   if(h<1) h=1;
   if(x>=width || y>=height || x+w<=0 || y+h<=0){ fxerror("%s::crop: bad arguments.\n",getClassName()); }
-  FXTRACE((100,"%s::crop(%d,%d,%d,%d)\n",getClassName(),x,y,w,h));
+  FXTRACE((TOPIC_CREATION,"%s::crop(%d,%d,%d,%d)\n",getClassName(),x,y,w,h));
   if(data){
     FXColor *pnn,*poo,*yyy,*pn,*po,*xx;
     FXint ow=width;
@@ -2339,7 +2345,7 @@ static void sheary(FXuchar *out,FXuchar* in,FXint width,FXint nheight,FXint ohei
 void FXImage::xshear(FXint shear,FXColor clr){
   FXint neww=width+((FXABS(shear)+255)>>8);
   FXint oldw=width;
-  FXTRACE((100,"%s::xshear(%d)\n",getClassName(),shear));
+  FXTRACE((TOPIC_CREATION,"%s::xshear(%d)\n",getClassName(),shear));
   if(data){
     FXColor *olddata;
     if(!dupElms(olddata,data,width*height)){ throw FXMemoryException("unable to xshear image"); }
@@ -2358,7 +2364,7 @@ void FXImage::xshear(FXint shear,FXColor clr){
 void FXImage::yshear(FXint shear,FXColor clr){
   FXint newh=height+((FXABS(shear)+255)>>8);
   FXint oldh=height;
-  FXTRACE((100,"%s::yshear(%d)\n",getClassName(),shear));
+  FXTRACE((TOPIC_CREATION,"%s::yshear(%d)\n",getClassName(),shear));
   if(data){
     FXColor *olddata;
     if(!dupElms(olddata,data,width*height)){ throw FXMemoryException("unable to yshear image"); }
@@ -2678,7 +2684,7 @@ FXbool FXImage::loadPixels(FXStream& store){
 
 // Save data
 void FXImage::save(FXStream& store) const {
-  FXuchar haspixels=(data!=NULL);
+  FXuchar haspixels=(data!=nullptr);
   FXDrawable::save(store);
   store << options;
   store << haspixels;
@@ -2698,7 +2704,7 @@ void FXImage::load(FXStream& store){
 
 // Clean up
 FXImage::~FXImage(){
-  FXTRACE((100,"FXImage::~FXImage %p\n",this));
+  FXTRACE((TOPIC_CONSTRUCT,"FXImage::~FXImage %p\n",this));
   destroy();
   if(options&IMAGE_OWNED){freeElms(data);}
   data=(FXColor*)-1L;

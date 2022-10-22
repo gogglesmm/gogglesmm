@@ -3,7 +3,7 @@
 *                       F o u r - W a y   S p l i t t e r                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -142,19 +142,19 @@ FXWindow *FX4Splitter::getTopLeft() const {
 
 // Get top right child
 FXWindow *FX4Splitter::getTopRight() const {
-  return getTopLeft() ? getTopLeft()->getNext() : NULL;
+  return getTopLeft() ? getTopLeft()->getNext() : nullptr;
   }
 
 
 // Get bottom left child
 FXWindow *FX4Splitter::getBottomLeft() const {
-  return getTopRight() ? getTopRight()->getNext() : NULL;
+  return getTopRight() ? getTopRight()->getNext() : nullptr;
   }
 
 
 // Get bottom right child
 FXWindow *FX4Splitter::getBottomRight() const {
-  return getBottomLeft() ? getBottomLeft()->getNext() : NULL;
+  return getBottomLeft() ? getBottomLeft()->getNext() : nullptr;
   }
 
 
@@ -385,11 +385,11 @@ long FX4Splitter::onLeftBtnRelease(FXObject*,FXSelector,void* ptr){
         drawSplit(splitx,splity,m);
         adjustLayout();
         if(f&FLAG_CHANGED){
-          if(target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+          if(target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
           }
         }
       if(f&FLAG_CHANGED){
-        if(target) target->tryHandle(this,FXSEL(SEL_COMMAND,message),NULL);
+        if(target) target->tryHandle(this,FXSEL(SEL_COMMAND,message),nullptr);
         }
       }
     return 1;
@@ -442,7 +442,7 @@ long FX4Splitter::onMotion(FXObject*,FXSelector,void* ptr){
       }
     else{
       adjustLayout();
-      if(target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),NULL);
+      if(target) target->tryHandle(this,FXSEL(SEL_CHANGED,message),nullptr);
       }
     }
   return 1;
@@ -451,7 +451,7 @@ long FX4Splitter::onMotion(FXObject*,FXSelector,void* ptr){
 
 // Focus moved up
 long FX4Splitter::onFocusUp(FXObject*,FXSelector,void* ptr){
-  FXWindow *child=NULL;
+  FXWindow *child=nullptr;
   if(getFocus()){
     if(getFocus()==getBottomLeft()) child=getTopLeft();
     else if(getFocus()==getBottomRight()) child=getTopRight();
@@ -471,7 +471,7 @@ long FX4Splitter::onFocusUp(FXObject*,FXSelector,void* ptr){
 
 // Focus moved down
 long FX4Splitter::onFocusDown(FXObject*,FXSelector,void* ptr){
-  FXWindow *child=NULL;
+  FXWindow *child=nullptr;
   if(getFocus()){
     if(getFocus()==getTopLeft()) child=getBottomLeft();
     else if(getFocus()==getTopRight()) child=getBottomRight();
@@ -491,7 +491,7 @@ long FX4Splitter::onFocusDown(FXObject*,FXSelector,void* ptr){
 
 // Focus moved to left
 long FX4Splitter::onFocusLeft(FXObject*,FXSelector,void* ptr){
-  FXWindow *child=NULL;
+  FXWindow *child=nullptr;
   if(getFocus()){
     if(getFocus()==getTopRight()) child=getTopLeft();
     else if(getFocus()==getBottomRight()) child=getBottomLeft();
@@ -511,7 +511,7 @@ long FX4Splitter::onFocusLeft(FXObject*,FXSelector,void* ptr){
 
 // Focus moved to right
 long FX4Splitter::onFocusRight(FXObject*,FXSelector,void* ptr){
-  FXWindow *child=NULL;
+  FXWindow *child=nullptr;
   if(getFocus()){
     if(getFocus()==getTopLeft()) child=getTopRight();
     else if(getFocus()==getBottomLeft()) child=getBottomRight();
@@ -540,7 +540,7 @@ long FX4Splitter::onCmdExpand(FXObject*,FXSelector sel,void*){
 // Update show pane
 long FX4Splitter::onUpdExpand(FXObject* sender,FXSelector sel,void*){
   FXuint ex=FXSELID(sel)-ID_EXPAND_NONE;
-  sender->handle(this,(getExpanded()==ex)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,(getExpanded()==ex)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 

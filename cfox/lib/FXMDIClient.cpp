@@ -3,7 +3,7 @@
 *          M u l t i p l e   D o c u m e n t   C l i e n t   W i n d o w        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -139,8 +139,8 @@ FXIMPLEMENT(FXMDIClient,FXComposite,FXMDIClientMap,ARRAYNUMBER(FXMDIClientMap))
 // Construct and init
 FXMDIClient::FXMDIClient(){
   flags|=FLAG_SHOWN;
-  active=NULL;
-  backImage=NULL;
+  active=nullptr;
+  backImage=nullptr;
   cascadex=CASCADE_XOFF;
   cascadey=CASCADE_YOFF;
   }
@@ -150,8 +150,8 @@ FXMDIClient::FXMDIClient(){
 FXMDIClient::FXMDIClient(FXComposite* p,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXComposite(p,opts,x,y,w,h){
   flags|=FLAG_SHOWN;
   backColor=getApp()->getShadowColor();
-  active=NULL;
-  backImage=NULL;
+  active=nullptr;
+  backImage=nullptr;
   cascadex=CASCADE_XOFF;
   cascadey=CASCADE_YOFF;
   }
@@ -326,7 +326,7 @@ FXbool FXMDIClient::setActiveChild(FXMDIChild* child,FXbool notify){
 
 // Get active document; this is the target of the active MDI Child
 FXObject* FXMDIClient::getActiveDocument() const {
-  return getActiveChild() ? getActiveChild()->getTarget() : NULL;
+  return getActiveChild() ? getActiveChild()->getTarget() : nullptr;
   }
 
 
@@ -440,19 +440,16 @@ long FXMDIClient::onUpdWindowSelect(FXObject *sender,FXSelector sel,void*){
   FXMDIChild *child=(FXMDIChild*)childAtIndex(which);
   if(child){
     FXString string;
-    if(which<9)
-      string.format("&%d %s",which+1,child->getTitle().text());
-    else
-      string.format("1&0 %s",child->getTitle().text());
+    string.format("%d %s",which+1,child->getTitle().text());
     sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SETSTRINGVALUE),(void*)&string);
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_SHOW),nullptr);
     if(child==active)
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_CHECK),nullptr);
     else
-      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_UNCHECK),nullptr);
     }
   else{
-    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),nullptr);
     }
   return 1;
   }
@@ -463,10 +460,10 @@ long FXMDIClient::onUpdWindowSelect(FXObject *sender,FXSelector sel,void*){
 long FXMDIClient::onCmdOthersWindows(FXObject*,FXSelector,void*){
   FXDialogBox choose(this,tr("Select Window"),DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,0,0,300,200,10,10,10,10, 10,10);
   FXHorizontalFrame* buttons=new FXHorizontalFrame(&choose,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH|PACK_UNIFORM_HEIGHT,0,0,0,0,0,0,0,0);
-  new FXButton(buttons,tr("&OK"),NULL,&choose,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
-  new FXButton(buttons,tr("&Cancel"),NULL,&choose,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
+  new FXButton(buttons,tr("&OK"),nullptr,&choose,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
+  new FXButton(buttons,tr("&Cancel"),nullptr,&choose,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
   FXVerticalFrame* mdilistframe=new FXVerticalFrame(&choose,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,0,0,0,0,0,0);
-  FXList* mdilist=new FXList(mdilistframe,NULL,0,LIST_BROWSESELECT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  FXList* mdilist=new FXList(mdilistframe,nullptr,0,LIST_BROWSESELECT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
   mdilist->setNumVisible(10);
   for(FXMDIChild *child=(FXMDIChild*)getFirst(); child; child=(FXMDIChild*)child->getNext()){
     mdilist->appendItem(child->getTitle(),child->getIcon(),child);
@@ -482,14 +479,14 @@ long FXMDIClient::onCmdOthersWindows(FXObject*,FXSelector,void*){
 
 // Update button to show menu of other MDI child windows when more than N windows
 long FXMDIClient::onUpdOthersWindows(FXObject *sender,FXSelector sel,void*){
-  sender->handle(this,((FXSELID(sel)-ID_MDI_OVER_1)<numChildren())?FXSEL(SEL_COMMAND,FXWindow::ID_SHOW):FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),NULL);
+  sender->handle(this,((FXSELID(sel)-ID_MDI_OVER_1)<numChildren())?FXSEL(SEL_COMMAND,FXWindow::ID_SHOW):FXSEL(SEL_COMMAND,FXWindow::ID_HIDE),nullptr);
   return 1;
   }
 
 
 // Show or hide depending on whether there are any windows
 long FXMDIClient::onUpdAnyWindows(FXObject *sender,FXSelector,void*){
-  sender->handle(this,getFirst()?FXSEL(SEL_COMMAND,ID_SHOW):FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+  sender->handle(this,getFirst()?FXSEL(SEL_COMMAND,ID_SHOW):FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -497,7 +494,7 @@ long FXMDIClient::onUpdAnyWindows(FXObject *sender,FXSelector,void*){
 // Update restore; gray if no active
 long FXMDIClient::onUpdRestore(FXObject* sender,FXSelector sel,void* ptr){
   if(active) return active->handle(sender,sel,ptr);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -505,7 +502,7 @@ long FXMDIClient::onUpdRestore(FXObject* sender,FXSelector sel,void* ptr){
 // Update maximized; gray if no active
 long FXMDIClient::onUpdMaximize(FXObject* sender,FXSelector sel,void* ptr){
   if(active) return active->handle(sender,sel,ptr);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -513,7 +510,7 @@ long FXMDIClient::onUpdMaximize(FXObject* sender,FXSelector sel,void* ptr){
 // Update minimized
 long FXMDIClient::onUpdMinimize(FXObject* sender,FXSelector sel,void* ptr){
   if(active) return active->handle(sender,sel,ptr);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -521,7 +518,7 @@ long FXMDIClient::onUpdMinimize(FXObject* sender,FXSelector sel,void* ptr){
 // Update close active child
 long FXMDIClient::onUpdClose(FXObject* sender,FXSelector sel,void* ptr){
   if(active) return active->handle(sender,sel,ptr);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -529,7 +526,7 @@ long FXMDIClient::onUpdClose(FXObject* sender,FXSelector sel,void* ptr){
 // Update menu's restore button
 long FXMDIClient::onUpdMenuWindow(FXObject* sender,FXSelector sel,void* ptr){
   if(active) return active->handle(sender,sel,ptr);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -537,7 +534,7 @@ long FXMDIClient::onUpdMenuWindow(FXObject* sender,FXSelector sel,void* ptr){
 // Update menu's restore button
 long FXMDIClient::onUpdMenuRestore(FXObject* sender,FXSelector sel,void* ptr){
   if(active) return active->handle(sender,sel,ptr);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -545,7 +542,7 @@ long FXMDIClient::onUpdMenuRestore(FXObject* sender,FXSelector sel,void* ptr){
 // Update menu's minimized button
 long FXMDIClient::onUpdMenuMinimize(FXObject* sender,FXSelector sel,void* ptr){
   if(active) return active->handle(sender,sel,ptr);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -553,7 +550,7 @@ long FXMDIClient::onUpdMenuMinimize(FXObject* sender,FXSelector sel,void* ptr){
 // Update menu's close button
 long FXMDIClient::onUpdMenuClose(FXObject* sender,FXSelector sel,void* ptr){
   if(active) return active->handle(sender,sel,ptr);
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -567,7 +564,7 @@ long FXMDIClient::onCmdTileHorizontal(FXObject*,FXSelector,void*){
 
 // Update tile horizontally
 long FXMDIClient::onUpdTileHorizontal(FXObject* sender,FXSelector,void*){
-  sender->handle(this,getFirst()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,getFirst()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -581,7 +578,7 @@ long FXMDIClient::onCmdTileVertical(FXObject*,FXSelector,void*){
 
 // Update tile vertically
 long FXMDIClient::onUpdTileVertical(FXObject* sender,FXSelector,void*){
-  sender->handle(this,getFirst()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,getFirst()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -595,7 +592,7 @@ long FXMDIClient::onCmdCascade(FXObject*,FXSelector,void*){
 
 // Update cascade
 long FXMDIClient::onUpdCascade(FXObject* sender,FXSelector,void*){
-  sender->handle(this,getFirst()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,getFirst()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -609,7 +606,7 @@ long FXMDIClient::onCmdActivateNext(FXObject*,FXSelector,void*){
 
 // Activate next child
 long FXMDIClient::onUpdActivateNext(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(active && active->getNext())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(active && active->getNext())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -623,7 +620,7 @@ long FXMDIClient::onCmdActivatePrev(FXObject*,FXSelector,void*){
 
 // Activate previous child
 long FXMDIClient::onUpdActivatePrev(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(active && active->getPrev())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(active && active->getPrev())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 

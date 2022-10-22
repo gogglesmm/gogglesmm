@@ -3,7 +3,7 @@
 *                      M e n u   T i t l e   W i d g e t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -63,7 +63,7 @@ public:
 public:
 
   /// Constructor
-  FXMenuTitle(FXComposite* p,const FXString& text,FXIcon* ic=NULL,FXPopup* pup=NULL,FXuint opts=0);
+  FXMenuTitle(FXComposite* p,const FXString& text,FXIcon* ic=nullptr,FXPopup* pup=nullptr,FXuint opts=0);
 
   /// Create server-side resources
   virtual void create();

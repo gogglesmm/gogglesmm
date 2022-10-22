@@ -3,7 +3,7 @@
 *                        I C O   I c o n   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Janusz Ganczarski.   All Rights Reserved.          *
+* Copyright (C) 2001,2022 by Janusz Ganczarski.   All Rights Reserved.          *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,13 +60,13 @@ const FXchar FXICOIcon::mimeType[]="image/ico";
 
 
 // Object implementation
-FXIMPLEMENT(FXICOIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXICOIcon,FXIcon,nullptr,0)
 
 
 // Initialize nicely
-FXICOIcon::FXICOIcon(FXApp* a,const void *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,NULL,clr,opts,w,h){
+FXICOIcon::FXICOIcon(FXApp* a,const FXuchar *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,nullptr,clr,opts,w,h){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

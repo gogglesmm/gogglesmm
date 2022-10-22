@@ -3,7 +3,7 @@
 *                       H a s h   T a b l e   C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -33,8 +33,8 @@ namespace FX {
 class FXAPI FXHash {
 protected:
   struct Entry {
-    FXptr key;
-    FXptr data;
+    const void *key;
+    void       *data;
     };
 protected:
   Entry  *table;
@@ -96,68 +96,73 @@ public:
   /**
   * Find position of given key, returning -1 if not found.
   */
-  FXival find(FXptr ky) const;
+  FXival find(const void* ky) const;
+
+  /**
+  * Check if key is mapped.
+  */
+  FXbool has(const void* ky) const { return 0<=find(ky); }
 
   /**
   * Return reference to slot assocated with given key.
   */
-  FXptr& at(FXptr ky);
+  void*& at(const void* ky);
 
   /**
   * Return constant reference to slot assocated with given key.
   */
-  const FXptr& at(FXptr ky) const;
+  void *const& at(const void* ky) const;
 
   /**
   * Return reference to slot assocated with given key.
   */
-  FXptr& operator[](FXptr ky){ return at(ky); }
+  void*& operator[](const void* ky){ return at(ky); }
 
   /**
   * Return constant reference to slot assocated with given key.
   */
-  const FXptr& operator[](FXptr ky) const { return at(ky); }
+  void *const& operator[](const void* ky) const { return at(ky); }
 
   /**
   * Replace key in table, overwriting the old value if the
   * given key already exists.  Returns the old value of the key.
   */
-  FXptr insert(FXptr ky,FXptr ptr=NULL){ return swap(ptr,at(ky)); }
+  void* insert(const void* ky,void* ptr=nullptr){ return swap(ptr,at(ky)); }
 
   /**
   * Remove key from the table. Returns the old value of the key.
   */
-  FXptr remove(FXptr ky);
+  void* remove(const void* ky);
 
   /**
   * Erase entry from table at pos, returning old value.
   */
-  FXptr erase(FXival pos);
+  void* erase(FXival pos);
 
   /**
   * Return true if slot is not occupied by a key.
   */
-  FXbool empty(FXival pos) const { return (table[pos].key==(FXptr)0L)||(table[pos].key==(FXptr)-1L); }
+  FXbool empty(FXival pos) const { return (table[pos].key==nullptr)||(table[pos].key==(const void*)-1L); }
 
   /**
   * Return key at position pos.
   */
-  FXptr key(FXival pos) const { return table[pos].key; }
+  const void* key(FXival pos) const { return table[pos].key; }
 
   /**
   * Return reference to data pointer at position pos.
   */
-  FXptr& data(FXival pos){ return table[pos].data; }
+  void*& data(FXival pos){ return table[pos].data; }
 
   /**
   * Return constant reference data pointer at position pos.
   */
-  const FXptr& data(FXival pos) const { return table[pos].data; }
+  void *const& data(FXival pos) const { return table[pos].data; }
 
   /**
   * Clear hash table.
   */
-  void clear();
+  FXbool clear();
 
   /// Destructor
  ~FXHash();

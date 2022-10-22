@@ -3,7 +3,7 @@
 *                         K e y b o a r d   H a n d l i n g                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -212,7 +212,7 @@ static BYTE ksRMenu=0;
 
 // Retrieves the current input code page
 UINT wkbGetCodePage(){
-  static HKL hklOld=NULL;
+  static HKL hklOld=nullptr;
   static UINT uCPID=0;
   HKL hkl=GetKeyboardLayout(0);
   if(hklOld!=hkl || uCPID==0){
@@ -228,7 +228,7 @@ UINT wkbGetCodePage(){
 // Checks if the right-hand ALT key is used as a 2nd shift key
 static FXbool wkbAltGrDown(PBYTE ks){
   static FXbool bHasAltGr=false;
-  static HKL hklOld = NULL;
+  static HKL hklOld = nullptr;
   HKL hkl=GetKeyboardLayout(0);
   if(hklOld!=hkl){
     hklOld=hkl;

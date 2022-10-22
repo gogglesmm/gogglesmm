@@ -3,7 +3,7 @@
 *            D o u b l e - P r e c i s i o n   3 x 3   M a t r i x              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -202,6 +202,9 @@ extern FXAPI FXbool operator==(const FXMat3d& a,FXdouble n);
 extern FXAPI FXbool operator!=(const FXMat3d& a,FXdouble n);
 extern FXAPI FXbool operator==(FXdouble n,const FXMat3d& a);
 extern FXAPI FXbool operator!=(FXdouble n,const FXMat3d& a);
+
+/// Orthogonalize matrix
+extern FXAPI FXMat3d orthogonalize(const FXMat3d& m);
 
 /// Save matrix to a stream
 extern FXAPI FXStream& operator<<(FXStream& store,const FXMat3d& m);

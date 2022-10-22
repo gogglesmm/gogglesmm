@@ -3,7 +3,7 @@
 *                      G r a d i e n t B a r   W i d g e t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -175,7 +175,7 @@ FXGradientBar::FXGradientBar(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint 
   message=sel;
   backColor=getApp()->getHiliteColor();
   selectColor=FXRGB((85*FXREDVAL(backColor))/100,(85*FXGREENVAL(backColor))/100,(85*FXBLUEVAL(backColor))/100);
-  bar=new FXImage(getApp(),NULL,IMAGE_DITHER|IMAGE_KEEP|IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,2,2);
+  bar=new FXImage(getApp(),nullptr,IMAGE_DITHER|IMAGE_KEEP|IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,2,2);
   nsegs=3;
   allocElms(seg,nsegs);
   seg[0].lower=0.0/6.0;
@@ -319,7 +319,7 @@ void FXGradientBar::gradient(FXColor *ramp,FXint nramp) const {
   FXint s,lr,lg,lb,la,ur,ug,ub,ua,d,l,h,m,i;
   FXdouble len=seg[nsegs-1].upper-seg[0].lower;
   FXdouble del=nramp-1;
-  BLENDFUNC blend=NULL;
+  BLENDFUNC blend=blendlinear;
   FXdouble f,t;
 
   FXASSERT(len>0.0);
@@ -352,6 +352,7 @@ void FXGradientBar::gradient(FXColor *ramp,FXint nramp) const {
       case GRADIENT_BLEND_SINE:       blend=blendsine;       break;
       case GRADIENT_BLEND_INCREASING: blend=blendincreasing; break;
       case GRADIENT_BLEND_DECREASING: blend=blenddecreasing; break;
+      default:                        blend=blendlinear;     break;
       }
 
     d=h-l;
@@ -376,7 +377,7 @@ void FXGradientBar::updatebar(){
   FXint barh=bar->getHeight();
   FXint x,y,r,g,b,a;
   FXColor clr;
-  FXColor *ramp=NULL;
+  FXColor *ramp=nullptr;
 
   // Vertical
   if(options&GRADIENTBAR_VERTICAL){
@@ -683,7 +684,7 @@ FXbool FXGradientBar::selectSegments(FXint fm,FXint to,FXbool notify){
     sellower=fm;
     selupper=to;
     update();
-    if(notify && target){target->tryHandle(this,FXSEL(SEL_SELECTED,message),NULL);}
+    if(notify && target){target->tryHandle(this,FXSEL(SEL_SELECTED,message),nullptr);}
     return true;
     }
   return false;
@@ -695,7 +696,7 @@ FXbool FXGradientBar::deselectSegments(FXbool notify){
   if(0<=sellower && 0<=selupper){
     sellower=selupper=-1;
     update();
-    if(notify && target){target->tryHandle(this,FXSEL(SEL_DESELECTED,message),NULL);}
+    if(notify && target){target->tryHandle(this,FXSEL(SEL_DESELECTED,message),nullptr);}
     return true;
     }
   return false;
@@ -1270,7 +1271,7 @@ long FXGradientBar::onCmdSegColor(FXObject* sender,FXSelector sel,void*){
 
 // Update recenter midpoint
 long FXGradientBar::onUpdRecenter(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(0<=current)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(0<=current)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -1286,7 +1287,7 @@ long FXGradientBar::onCmdRecenter(FXObject*,FXSelector,void*){
 
 // Update split segment
 long FXGradientBar::onUpdSplit(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(0<=sellower && 0<=selupper)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(0<=sellower && 0<=selupper)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -1303,7 +1304,7 @@ long FXGradientBar::onCmdSplit(FXObject*,FXSelector,void*){
 
 // Update merge segments
 long FXGradientBar::onUpdMerge(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(0<=sellower && 0<=selupper && sellower<selupper)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(0<=sellower && 0<=selupper && sellower<selupper)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -1320,7 +1321,7 @@ long FXGradientBar::onCmdMerge(FXObject*,FXSelector,void*){
 
 // Update make uniform
 long FXGradientBar::onUpdUniform(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(0<=sellower && 0<=selupper)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(0<=sellower && 0<=selupper)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -1343,14 +1344,14 @@ long FXGradientBar::onCmdReset(FXObject*,FXSelector,void*){
 long FXGradientBar::onUpdBlending(FXObject* sender,FXSelector sel,void*){
   FXuint blend=FXSELID(sel)-ID_BLEND_LINEAR;
   if(0<=sellower && 0<=selupper){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     for(FXint s=sellower; s<=selupper; s++){
-      if(seg[s].blend!=blend){ sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),NULL); return 1; }
+      if(seg[s].blend!=blend){ sender->handle(this,FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr); return 1; }
       }
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
     }
   else{
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
     }
   return 1;
   }

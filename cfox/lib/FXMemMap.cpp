@@ -3,7 +3,7 @@
 *                      M e m o r y   M a p p e d   F i l e                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -52,7 +52,7 @@ namespace FX {
 
 
 // Create new map object
-FXMemMap::FXMemMap():maphandle(BadHandle),mapbase(NULL),mapoffset(0L),maplength(0){
+FXMemMap::FXMemMap():maphandle(BadHandle),mapbase(nullptr),mapoffset(0L),maplength(0){
   }
 
 
@@ -65,7 +65,7 @@ void *FXMemMap::openMap(const FXString& filename,FXlong off,FXival len,FXuint m,
       }
     close();
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -78,7 +78,7 @@ void* FXMemMap::openMap(FXInputHandle h,FXlong off,FXival len,FXuint m){
       }
     close();
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -105,10 +105,10 @@ void *FXMemMap::map(FXlong off,FXival len){
       if(access&WriteOnly){ flag=FILE_MAP_WRITE; }
 
       // Now map it
-      FXInputHandle hnd=::CreateFileMapping(handle(),NULL,prot,0,len,NULL);
-      if(hnd!=NULL){
+      FXInputHandle hnd=::CreateFileMapping(handle(),nullptr,prot,0,len,nullptr);
+      if(hnd!=nullptr){
         FXuchar* ptr=(FXuchar*)::MapViewOfFile(hnd,flag,0,off,len);
-        if(ptr!=NULL){
+        if(ptr!=nullptr){
           maphandle=hnd;
           mapbase=ptr;
           maplength=len;
@@ -140,7 +140,7 @@ void *FXMemMap::map(FXlong off,FXival len){
       if(access&Executable){ prot|=PROT_EXEC; }
 
       // Now map it
-      FXuchar* ptr=(FXuchar*)::mmap(NULL,len,prot,MAP_SHARED,handle(),off);
+      FXuchar* ptr=(FXuchar*)::mmap(nullptr,len,prot,MAP_SHARED,handle(),off);
       if(ptr!=MAP_FAILED){
         mapbase=ptr;
         maplength=len;
@@ -151,7 +151,7 @@ void *FXMemMap::map(FXlong off,FXival len){
 #endif
       }
     }
-  return NULL;
+  return nullptr;
   }
 
 
@@ -165,12 +165,12 @@ void* FXMemMap::unmap(){
     ::munmap(mapbase,maplength);
 #endif
     maphandle=BadHandle;
-    mapbase=NULL;
+    mapbase=nullptr;
     mapoffset=0L;
     pointer=0L;
     maplength=0;
     }
-  return NULL;
+  return nullptr;
   }
 
 

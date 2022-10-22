@@ -3,7 +3,7 @@
 *                     D i a l o g   B o x    O b j e c t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -74,13 +74,13 @@ FXIMPLEMENT(FXDialogBox,FXTopWindow,FXDialogBoxMap,ARRAYNUMBER(FXDialogBoxMap))
 
 
 // Contruct free floating dialog
-FXDialogBox::FXDialogBox(FXApp* a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(a,name,NULL,NULL,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
+FXDialogBox::FXDialogBox(FXApp* a,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(a,name,nullptr,nullptr,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
   getAccelTable()->addAccel(MKUINT(KEY_Escape,0),this,FXSEL(SEL_COMMAND,ID_CANCEL));
   }
 
 
 // Contruct dialog which will stay on top of owner
-FXDialogBox::FXDialogBox(FXWindow* own,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(own,name,NULL,NULL,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
+FXDialogBox::FXDialogBox(FXWindow* own,const FXString& name,FXuint opts,FXint x,FXint y,FXint w,FXint h,FXint pl,FXint pr,FXint pt,FXint pb,FXint hs,FXint vs):FXTopWindow(own,name,nullptr,nullptr,opts,x,y,w,h,pl,pr,pt,pb,hs,vs){
   getAccelTable()->addAccel(MKUINT(KEY_Escape,0),this,FXSEL(SEL_COMMAND,ID_CANCEL));
   }
 

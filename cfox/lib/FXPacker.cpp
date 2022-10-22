@@ -3,7 +3,7 @@
 *                P a c k e r   C o n t a i n e r   O b j e c t                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -374,7 +374,7 @@ long FXPacker::onFocusUp(FXObject*,FXSelector,void* ptr){
   if(getFocus()){
     cury=getFocus()->getY();
     while(1){
-      child=NULL;
+      child=nullptr;
       childy=-10000000;
       for(c=getFirst(); c; c=c->getNext()){
         if(c->shown() && c->getY()<cury && childy<c->getY()){ childy=c->getY(); child=c; }
@@ -406,7 +406,7 @@ long FXPacker::onFocusDown(FXObject*,FXSelector,void* ptr){
   if(getFocus()){
     cury=getFocus()->getY();
     while(1){
-      child=NULL;
+      child=nullptr;
       childy=10000000;
       for(c=getFirst(); c; c=c->getNext()){
         if(c->shown() && cury<c->getY() && c->getY()<childy){ childy=c->getY(); child=c; }
@@ -438,7 +438,7 @@ long FXPacker::onFocusLeft(FXObject*,FXSelector,void* ptr){
   if(getFocus()){
     curx=getFocus()->getX();
     while(1){
-      child=NULL;
+      child=nullptr;
       childx=-10000000;
       for(c=getFirst(); c; c=c->getNext()){
         if(c->shown() && c->getX()<curx && childx<c->getX()){ childx=c->getX(); child=c; }
@@ -470,7 +470,7 @@ long FXPacker::onFocusRight(FXObject*,FXSelector,void* ptr){
   if(getFocus()){
     curx=getFocus()->getX();
     while(1){
-      child=NULL;
+      child=nullptr;
       childx=10000000;
       for(c=getFirst(); c; c=c->getNext()){
         if(c->shown() && curx<c->getX() && c->getX()<childx){ childx=c->getX(); child=c; }

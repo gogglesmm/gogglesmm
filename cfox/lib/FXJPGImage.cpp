@@ -3,7 +3,7 @@
 *                      J P E G   I m a g e   O b j e c t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by David Tyree.   All Rights Reserved.                *
+* Copyright (C) 2000,2022 by David Tyree.   All Rights Reserved.                *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,7 +61,7 @@ const FXchar FXJPGImage::mimeType[]="image/jpeg";
 
 
 // Object implementation
-FXIMPLEMENT(FXJPGImage,FXImage,NULL,0)
+FXIMPLEMENT(FXJPGImage,FXImage,nullptr,0)
 
 
 #ifdef HAVE_JPEG_H
@@ -72,9 +72,9 @@ const FXbool FXJPGImage::supported=false;
 
 
 // Initialize
-FXJPGImage::FXJPGImage(FXApp* a,const void *pix,FXuint opts,FXint w,FXint h,FXint q):FXImage(a,NULL,opts,w,h),quality(q){
+FXJPGImage::FXJPGImage(FXApp* a,const FXuchar *pix,FXuint opts,FXint w,FXint h,FXint q):FXImage(a,nullptr,opts,w,h),quality(q){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

@@ -3,7 +3,7 @@
 *                   M a t r i x   C o n t a i n e r   O b j e c t               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -104,10 +104,10 @@ FXMatrix::FXMatrix(FXComposite* p,FXint n,FXuint opts,FXint x,FXint y,FXint w,FX
 // Find child at given row, column
 FXWindow* FXMatrix::childAtRowCol(FXint r,FXint c) const {
   if(options&MATRIX_BY_COLUMNS){
-    return (0<=c && c<num) ? childAtIndex(num*r+c) : NULL;
+    return (0<=c && c<num) ? childAtIndex(num*r+c) : nullptr;
     }
   else{
-    return (0<=r && r<num) ? childAtIndex(r+num*c) : NULL;
+    return (0<=r && r<num) ? childAtIndex(r+num*c) : nullptr;
     }
   }
 
@@ -133,7 +133,7 @@ long FXMatrix::onFocusUp(FXObject*,FXSelector,void* ptr){
   if(getFocus()){
     r=rowOfChild(getFocus());
     c=colOfChild(getFocus());
-    while((child=childAtRowCol(--r,c))!=NULL){
+    while((child=childAtRowCol(--r,c))!=nullptr){
       if(child->shown()){
         if(child->handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr)) return 1;
         if(child->handle(this,FXSEL(SEL_FOCUS_UP,0),ptr)) return 1;
@@ -161,7 +161,7 @@ long FXMatrix::onFocusDown(FXObject*,FXSelector,void* ptr){
   if(getFocus()){
     r=rowOfChild(getFocus());
     c=colOfChild(getFocus());
-    while((child=childAtRowCol(++r,c))!=NULL){
+    while((child=childAtRowCol(++r,c))!=nullptr){
       if(child->shown()){
         if(child->handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr)) return 1;
         if(child->handle(this,FXSEL(SEL_FOCUS_DOWN,0),ptr)) return 1;
@@ -189,7 +189,7 @@ long FXMatrix::onFocusLeft(FXObject*,FXSelector,void* ptr){
   if(getFocus()){
     r=rowOfChild(getFocus());
     c=colOfChild(getFocus());
-    while((child=childAtRowCol(r,--c))!=NULL){
+    while((child=childAtRowCol(r,--c))!=nullptr){
       if(child->shown()){
         if(child->handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr)) return 1;
         if(child->handle(this,FXSEL(SEL_FOCUS_LEFT,0),ptr)) return 1;
@@ -217,7 +217,7 @@ long FXMatrix::onFocusRight(FXObject*,FXSelector,void* ptr){
   if(getFocus()){
     r=rowOfChild(getFocus());
     c=colOfChild(getFocus());
-    while((child=childAtRowCol(r,++c))!=NULL){
+    while((child=childAtRowCol(r,++c))!=nullptr){
       if(child->shown()){
         if(child->handle(this,FXSEL(SEL_FOCUS_SELF,0),ptr)) return 1;
         if(child->handle(this,FXSEL(SEL_FOCUS_RIGHT,0),ptr)) return 1;

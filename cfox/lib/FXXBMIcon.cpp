@@ -3,7 +3,7 @@
 *                        X B M   I c o n   O b j e c t                          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,11 +61,11 @@ const FXchar FXXBMIcon::mimeType[]="image/xbm";
 
 
 // Object implementation
-FXIMPLEMENT(FXXBMIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXXBMIcon,FXIcon,nullptr,0)
 
 
 // Initialize nicely
-FXXBMIcon::FXXBMIcon(FXApp* a,const FXuchar *pixels,const FXuchar *mask,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,NULL,clr,opts,w,h){
+FXXBMIcon::FXXBMIcon(FXApp* a,const FXuchar *pixels,const FXuchar *mask,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,nullptr,clr,opts,w,h){
   if(pixels && mask){
     fxloadXBM(data,pixels,mask,w,h);
     if(options&IMAGE_ALPHAGUESS) setTransparentColor(guesstransp());

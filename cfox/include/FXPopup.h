@@ -3,7 +3,7 @@
 *                     P o p u p   W i n d o w   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -174,7 +174,7 @@ public:
   virtual void popdown();
 
   /// Return current grab owner
-  FXWindow* getGrabOwner() const;
+  FXWindow* getGrabOwner();
 
 //   /// Popup the menu and grab to the given owner
 //   virtual FXint popup(FXint x,FXint y,FXint w=0,FXint h=0);

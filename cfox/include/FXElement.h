@@ -3,7 +3,7 @@
 *                 G e n e r i c   E l e m e n t   H a n d l i n g               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -183,8 +183,9 @@ inline void freeElms(EType*& ptr){
 
 
 // No-op constructors for array of basic type
-inline void constructElms(FXuchar*,FXuval){ }
 inline void constructElms(FXchar*,FXuval){ }
+inline void constructElms(FXuchar*,FXuval){ }
+inline void constructElms(FXschar*,FXuval){ }
 inline void constructElms(FXushort*,FXuval){ }
 inline void constructElms(FXshort*,FXuval){ }
 inline void constructElms(FXuint*,FXuval){ }
@@ -199,8 +200,9 @@ template<typename EType> inline void constructElms(EType**,FXuval){ }
 
 
 // No-op destructors for array of basic type
-inline void destructElms(FXuchar*,FXuval){ }
 inline void destructElms(FXchar*,FXuval){ }
+inline void destructElms(FXuchar*,FXuval){ }
+inline void destructElms(FXschar*,FXuval){ }
 inline void destructElms(FXushort*,FXuval){ }
 inline void destructElms(FXshort*,FXuval){ }
 inline void destructElms(FXuint*,FXuval){ }
@@ -215,8 +217,9 @@ template<typename EType> inline void destructElms(EType**,FXuval){ }
 
 
 // Simple bit-wise copy for array of basic type
-inline void copyElms(FXuchar* dst,const FXuchar* src,FXuval n){ memcpy(dst,src,n); }
 inline void copyElms(FXchar* dst,const FXchar* src,FXuval n){ memcpy(dst,src,n); }
+inline void copyElms(FXuchar* dst,const FXuchar* src,FXuval n){ memcpy(dst,src,n); }
+inline void copyElms(FXschar* dst,const FXschar* src,FXuval n){ memcpy(dst,src,n); }
 inline void copyElms(FXushort* dst,const FXushort* src,FXuval n){ memcpy(dst,src,n<<1); }
 inline void copyElms(FXshort* dst,const FXshort* src,FXuval n){ memcpy(dst,src,n<<1); }
 inline void copyElms(FXuint* dst,const FXuint* src,FXuval n){ memcpy(dst,src,n<<2); }
@@ -231,8 +234,9 @@ template<typename EType> inline void copyElms(EType** dst,const EType** src,FXuv
 
 
 // Simple bit-wise move for array of basic type
-inline void moveElms(FXuchar* dst,const FXuchar* src,FXuval n){ memmove(dst,src,n); }
 inline void moveElms(FXchar* dst,const FXchar* src,FXuval n){ memmove(dst,src,n); }
+inline void moveElms(FXuchar* dst,const FXuchar* src,FXuval n){ memmove(dst,src,n); }
+inline void moveElms(FXschar* dst,const FXschar* src,FXuval n){ memmove(dst,src,n); }
 inline void moveElms(FXushort* dst,const FXushort* src,FXuval n){ memmove(dst,src,n<<1); }
 inline void moveElms(FXshort* dst,const FXshort* src,FXuval n){ memmove(dst,src,n<<1); }
 inline void moveElms(FXuint* dst,const FXuint* src,FXuval n){ memmove(dst,src,n<<2); }
@@ -246,25 +250,10 @@ inline void moveElms(FXdouble* dst,const FXdouble* src,FXuval n){ memmove(dst,sr
 template<typename EType> inline void moveElms(EType** dst,const EType** src,FXuval n){ memmove(dst,src,n*sizeof(void*)); }
 
 
-// Simple bit-wise swap for array of basic type
-inline void swapElms(FXuchar* dst,FXuchar* src,FXuval n){ memswap(dst,src,n); }
-inline void swapElms(FXchar* dst,FXchar* src,FXuval n){ memswap(dst,src,n); }
-inline void swapElms(FXushort* dst,FXushort* src,FXuval n){ memswap(dst,src,n<<1); }
-inline void swapElms(FXshort* dst,FXshort* src,FXuval n){ memswap(dst,src,n<<1); }
-inline void swapElms(FXuint* dst,FXuint* src,FXuval n){ memswap(dst,src,n<<2); }
-inline void swapElms(FXint* dst,FXint* src,FXuval n){ memswap(dst,src,n<<2); }
-inline void swapElms(FXulong* dst,FXulong* src,FXuval n){ memswap(dst,src,n<<3); }
-inline void swapElms(FXlong* dst,FXlong* src,FXuval n){ memswap(dst,src,n<<3); }
-inline void swapElms(FXfloat* dst,FXfloat* src,FXuval n){ memswap(dst,src,n<<2); }
-inline void swapElms(FXdouble* dst,FXdouble* src,FXuval n){ memswap(dst,src,n<<3); }
-
-// Simple bit-wise swap for array of pointers to any type
-template<typename EType> inline void swapElms(EType** dst,EType** src,FXuval n){ memswap(dst,src,n*sizeof(void*)); }
-
-
 // Simple bit-wise comparison for array of basic type
-inline FXbool equalElms(const FXuchar* dst,const FXuchar* src,FXuval n){ return memcmp(dst,src,n)==0; }
 inline FXbool equalElms(const FXchar* dst,const FXchar* src,FXuval n){ return memcmp(dst,src,n)==0; }
+inline FXbool equalElms(const FXuchar* dst,const FXuchar* src,FXuval n){ return memcmp(dst,src,n)==0; }
+inline FXbool equalElms(const FXschar* dst,const FXschar* src,FXuval n){ return memcmp(dst,src,n)==0; }
 inline FXbool equalElms(const FXushort* dst,const FXushort* src,FXuval n){ return memcmp(dst,src,n<<1)==0; }
 inline FXbool equalElms(const FXshort* dst,const FXshort* src,FXuval n){ return memcmp(dst,src,n<<1)==0; }
 inline FXbool equalElms(const FXuint* dst,const FXuint* src,FXuval n){ return memcmp(dst,src,n<<2)==0; }
@@ -279,8 +268,9 @@ template<typename EType> inline FXbool equalElms(EType** dst,const EType** src,F
 
 
 // Fill byte arrays with constant
-inline void fillElms(FXuchar* dst,const FXuchar& src,FXuval n){ memset(dst,src,n); }
 inline void fillElms(FXchar* dst,const FXchar& src,FXuval n){ memset(dst,src,n); }
+inline void fillElms(FXuchar* dst,const FXuchar& src,FXuval n){ memset(dst,src,n); }
+inline void fillElms(FXschar* dst,const FXschar& src,FXuval n){ memset(dst,src,n); }
 
 }
 

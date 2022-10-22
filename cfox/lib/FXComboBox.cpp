@@ -3,7 +3,7 @@
 *                       C o m b o   B o x   O b j e c t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -118,7 +118,7 @@ FXComboBox::FXComboBox(FXComposite *p,FXint cols,FXObject* tgt,FXSelector sel,FX
   pane=new FXPopup(this,FRAME_LINE);
   list=new FXList(pane,this,FXComboBox::ID_LIST,LIST_BROWSESELECT|LIST_AUTOSELECT|LAYOUT_FILL_X|LAYOUT_FILL_Y|SCROLLERS_TRACK|HSCROLLER_NEVER);
   if(options&COMBOBOX_STATIC) list->setScrollStyle(SCROLLERS_TRACK|HSCROLLING_OFF);
-  button=new FXMenuButton(this,FXString::null,NULL,pane,FRAME_RAISED|FRAME_THICK|MENUBUTTON_DOWN|MENUBUTTON_ATTACH_RIGHT,0,0,0,0,0,0,0,0);
+  button=new FXMenuButton(this,FXString::null,nullptr,pane,FRAME_RAISED|FRAME_THICK|MENUBUTTON_DOWN|MENUBUTTON_ATTACH_RIGHT,0,0,0,0,0,0,0,0);
   button->setXOffset(border);
   button->setYOffset(border);
   flags&=~FLAG_UPDATE;  // Never GUI update
@@ -197,7 +197,7 @@ void FXComboBox::layout(){
 
 // Forward GUI update of text field to target; but only if pane is not popped
 long FXComboBox::onUpdFmText(FXObject*,FXSelector,void*){
-  return target && !isMenuShown() && target->tryHandle(this,FXSEL(SEL_UPDATE,message),NULL);
+  return target && !isMenuShown() && target->tryHandle(this,FXSEL(SEL_UPDATE,message),nullptr);
   }
 
 
@@ -209,7 +209,7 @@ long FXComboBox::onFwdToText(FXObject* sender,FXSelector sel,void* ptr){
 
 // Clicked inside or outside an item in the list; unpost the pane
 long FXComboBox::onListClicked(FXObject*,FXSelector,void*){
-  return button->handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  return button->handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   }
 
 
@@ -415,7 +415,7 @@ FXString FXComboBox::getItem(FXint index) const {
 // Replace text of item at index
 FXint FXComboBox::setItem(FXint index,const FXString& text,FXptr ptr,FXbool notify){
   if(index<0 || list->getNumItems()<=index){ fxerror("%s::setItem: index out of range.\n",getClassName()); }
-  list->setItem(index,text,NULL,ptr);
+  list->setItem(index,text,nullptr,ptr);
   recalc();
   if(isItemCurrent(index)){
     setText(text,notify);
@@ -463,7 +463,7 @@ FXint FXComboBox::fillItems(const FXString& strings,FXbool notify){
 // Insert item at index
 FXint FXComboBox::insertItem(FXint index,const FXString& text,FXptr ptr,FXbool notify){
   if(index<0 || list->getNumItems()<index){ fxerror("%s::insertItem: index out of range.\n",getClassName()); }
-  list->insertItem(index,text,NULL,ptr);
+  list->insertItem(index,text,nullptr,ptr);
   recalc();
   if(isItemCurrent(index)){
     setText(text,notify);
@@ -474,7 +474,7 @@ FXint FXComboBox::insertItem(FXint index,const FXString& text,FXptr ptr,FXbool n
 
 // Append item
 FXint FXComboBox::appendItem(const FXString& text,FXptr ptr,FXbool notify){
-  FXint index=list->appendItem(text,NULL,ptr);
+  FXint index=list->appendItem(text,nullptr,ptr);
   recalc();
   if(isItemCurrent(index)){
     setText(text,notify);
@@ -485,7 +485,7 @@ FXint FXComboBox::appendItem(const FXString& text,FXptr ptr,FXbool notify){
 
 // Prepend item
 FXint FXComboBox::prependItem(const FXString& text,void* ptr,FXbool notify){
-  FXint index=list->prependItem(text,NULL,ptr);
+  FXint index=list->prependItem(text,nullptr,ptr);
   recalc();
   if(isItemCurrent(index)){
     setText(text,notify);
@@ -539,8 +539,8 @@ void FXComboBox::clearItems(FXbool notify){
 
 
 // Get item by name
-FXint FXComboBox::findItem(const FXString& text,FXint start,FXuint flgs) const {
-  return list->findItem(text,start,flgs);
+FXint FXComboBox::findItem(const FXString& string,FXint start,FXuint flgs) const {
+  return list->findItem(string,start,flgs);
   }
 
 

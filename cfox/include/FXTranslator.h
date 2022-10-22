@@ -3,7 +3,7 @@
 *                       M e s s a g e   T r a n s l a t o r                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -46,7 +46,7 @@ public:
   FXTranslator();
 
   /// Translate a string
-  virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=NULL,FXint count=-1) const FX_FORMAT(2) ;
+  virtual const FXchar* tr(const FXchar* context,const FXchar* message,const FXchar* hint=nullptr,FXint count=-1) const FX_FORMAT(2) ;
 
   /// Save translator to a stream
   virtual void save(FXStream& store) const;

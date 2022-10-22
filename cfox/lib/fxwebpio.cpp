@@ -3,7 +3,7 @@
 *                    W e b - P   I m a g e   I n p u t / O u t p u t            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2011,2020 by S. Jansen & J. van der Zijp.  All Rights Reserved. *
+* Copyright (C) 2011,2022 by S. Jansen & J. van der Zijp.  All Rights Reserved. *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -84,7 +84,7 @@ FXbool fxcheckWEBP(FXStream& store){
 
 // Load a WebP image
 FXbool fxloadWEBP(FXStream& store,FXColor*& data,FXint& width,FXint& height){
-  FXuchar *buffer=NULL;
+  FXuchar *buffer=nullptr;
   FXlong   start;
   FXuint   size;
   FXbool   swap;
@@ -127,7 +127,7 @@ FXbool fxloadWEBP(FXStream& store,FXColor*& data,FXint& width,FXint& height){
       }
     freeElms(buffer);
     }
-  data=NULL;
+  data=nullptr;
   height=0;
   width=0;
   return false;
@@ -137,7 +137,7 @@ FXbool fxloadWEBP(FXStream& store,FXColor*& data,FXint& width,FXint& height){
 
 // Save a WebP image
 FXbool fxsaveWEBP(FXStream& store,const FXColor* colors,FXint width,FXint height,FXfloat quality){
-  FXuchar *data=NULL;
+  FXuchar *data=nullptr;
   FXuint   size=WebPEncodeBGRA((const FXuchar*)colors,width,height,width*4,quality,&data);
   if(size){
     store.save(data,size);

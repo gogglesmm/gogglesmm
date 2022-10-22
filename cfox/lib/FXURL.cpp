@@ -3,7 +3,7 @@
 *                       U R L   M a n i p u l a t i o n                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -438,7 +438,7 @@ FXString FXURL::fileToURL(const FXString& file){
 
 // Return filename from URL, empty if url is not a local file
 FXString FXURL::fileFromURL(const FXString& string){
-  if(comparecase(string,"file:",5)==0){
+  if(FXString::comparecase(string,"file:",5)==0){
 #ifdef WIN32
     URL url(string);
     if(url.host[0]<url.host[1]){
@@ -471,7 +471,7 @@ FXString FXURL::filesToURIList(const FXString* files){
 
 // Make array of filenames from URI list
 FXString* FXURL::filesFromURIList(const FXString& urilist){
-  FXString* result=NULL;
+  FXString* result=nullptr;
   if(!urilist.empty()){
     FXint beg,end,n=0;
     result=new FXString [urilist.contains("\r\n")+2];

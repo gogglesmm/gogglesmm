@@ -3,7 +3,7 @@
 *                         W E B P   I m a g e   O b j e c t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -56,7 +56,7 @@ const FXchar FXWEBPImage::mimeType[]="image/webp";
 
 
 // Object implementation
-FXIMPLEMENT(FXWEBPImage,FXImage,NULL,0)
+FXIMPLEMENT(FXWEBPImage,FXImage,nullptr,0)
 
 
 #ifdef HAVE_WEBP_H
@@ -67,9 +67,9 @@ const FXbool FXWEBPImage::supported=false;
 
 
 // Initialize
-FXWEBPImage::FXWEBPImage(FXApp* a,const void *pix,FXuint opts,FXint w,FXint h):FXImage(a,NULL,opts,w,h){
+FXWEBPImage::FXWEBPImage(FXApp* a,const FXuchar *pix,FXuint opts,FXint w,FXint h):FXImage(a,nullptr,opts,w,h){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

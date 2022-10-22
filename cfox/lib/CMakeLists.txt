@@ -96,6 +96,7 @@ set(HEADERS ../include/fx3d.h
             ../include/FXCP866Codec.h
             ../include/FXCP869Codec.h
             ../include/FXCP874Codec.h
+            ../include/fxchar.h
             ../include/fxcpuid.h
             ../include/FXCURCursor.h
             ../include/FXCursor.h
@@ -236,6 +237,7 @@ set(HEADERS ../include/fx3d.h
             ../include/FXOptionMenu.h
             ../include/FXPacker.h
             ../include/FXParallel.h
+            ../include/FXParseBuffer.h
             ../include/FXPath.h
             ../include/FXPCXIcon.h
             ../include/FXPCXImage.h
@@ -405,6 +407,7 @@ set(SOURCES FX4Splitter.cpp
             FXButton.cpp
             FXBZFileStream.cpp
             FXCanvas.cpp
+            fxchar.cpp
             FXCheckButton.cpp
             FXChoiceBox.cpp
             FXColorBar.cpp
@@ -453,7 +456,6 @@ set(SOURCES FX4Splitter.cpp
             FXDataTarget.cpp
             FXDate.cpp
             FXDC.cpp
-            FXDCPrint.cpp
             FXDCWindow.cpp
             FXDDSIcon.cpp
             FXDDSImage.cpp
@@ -480,7 +482,6 @@ set(SOURCES FX4Splitter.cpp
             FXDragCorner.cpp
             FXDrawable.cpp
             FXDriveBox.cpp
-            fxescape.cpp
             FXEventDispatcher.cpp
             FXEventLoop.cpp
             FXException.cpp
@@ -576,7 +577,9 @@ set(SOURCES FX4Splitter.cpp
             FXObject.cpp
             FXObjectList.cpp
             FXOptionMenu.cpp
+            fxosver.cpp
             FXPacker.cpp
+            FXParseBuffer.cpp
             fxparsegeometry.cpp
             FXPath.cpp
             FXPCXIcon.cpp
@@ -598,7 +601,6 @@ set(SOURCES FX4Splitter.cpp
             FXProcess.cpp
             FXProgressBar.cpp
             FXProgressDialog.cpp
-            fxpsio.cpp
             FXPtrList.cpp
             FXPtrQueue.cpp
             FXReactor.cpp
@@ -807,9 +809,9 @@ find_package(X11)
 find_package(Freetype)
 pkg_check_modules(FONTCONFIG fontconfig)
 
-#if(WITH_OPENGL)
-#  find_package(OpenGL)
-#endif()
+if(WITH_OPENGL)
+  find_package(OpenGL)
+endif()
 
 check_cxx_source_compiles( "#include <immintrin.h>
 int main(int argc,char *argv) { return 0; }" HAVE_IMMINTRIN_H)
@@ -880,6 +882,12 @@ check_cxx_symbol_exists(getgrgid_r "sys/types.h;grp.h" HAVE_GETGRGID_R)
 if(HAVE_GETGRGID_R)
   add_definitions(-DHAVE_GETGRGID_R)
 endif()
+
+check_cxx_symbol_exists(uname "sys/utsname.h" HAVE_SYS_UTSNAME_H)
+if(HAVE_SYS_UTSNAME_H)
+  add_definitions(-DHAVE_SYS_UTSNAME_H)
+endif()
+
 
 cmake_push_check_state()
   set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
@@ -1092,6 +1100,7 @@ if(HAVE_SYS_INOTIFY_H)
   add_definitions(-DHAVE_SYS_INOTIFY_H)
 endif()
 
+
 if(WITH_JPEG)
   find_package(JPEG)
   if(JPEG_FOUND)
@@ -1190,5 +1199,3 @@ set_target_properties(cfox PROPERTIES OUTPUT_NAME cfox-${cfox_VERSION_MAJOR}.${c
 #        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 #        )
 # install(FILES ${HEADERS} DESTINATION include/cfox-${cfox_VERSION_MAJOR}.${cfox_VERSION_MINOR})
-
-

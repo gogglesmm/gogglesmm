@@ -3,7 +3,7 @@
 *                     F i l e   P r o g r e s s   D i a l o g                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -85,20 +85,20 @@ FXFileProgressDialog::FXFileProgressDialog(){
 // Create progress dialog box
 FXFileProgressDialog::FXFileProgressDialog(FXWindow* own,const FXString& caption,const FXString& label,FXIcon* ico,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(own,caption,opts,x,y,w,h,5,5,5,5, 0,0){
   FXHorizontalFrame* horz=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,10,10,5,5);
-  FXButton* cancel=new FXButton(horz,tr("&Cancel"),NULL,this,ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_SIDE_BOTTOM|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
-  progress=new FXProgressBar(horz,NULL,0,PROGRESSBAR_HORIZONTAL|PROGRESSBAR_PERCENTAGE|PROGRESSBAR_NORMAL|LAYOUT_CENTER_Y|LAYOUT_FILL_X,0,0,0,0);
+  FXButton* cancel=new FXButton(horz,tr("&Cancel"),nullptr,this,ID_CANCEL,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_SIDE_BOTTOM|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
+  progress=new FXProgressBar(horz,nullptr,0,PROGRESSBAR_HORIZONTAL|PROGRESSBAR_PERCENTAGE|PROGRESSBAR_NORMAL|LAYOUT_CENTER_Y|LAYOUT_FILL_X,0,0,0,0);
   FXVerticalFrame *vert=new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_SIDE_TOP,0,0,0,0, 10,10,5,5);
   activitylabel=new FXLabel(vert,label,ico,ICON_BEFORE_TEXT|JUSTIFY_LEFT|JUSTIFY_CENTER_Y|LAYOUT_FILL_X|LAYOUT_TOP);
   new FXHorizontalSeparator(vert,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_TOP);
   FXMatrix *matrix=new FXMatrix(this,2,MATRIX_BY_COLUMNS|LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_SIDE_TOP,0,0,0,0, 10,10,5,5);
-  originlabel=new FXLabel(matrix,tr("From:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW);
-  originfile=new FXLabel(matrix,"/usr/include/stdio.h",NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN);
-  targetlabel=new FXLabel(matrix,tr("To:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW);
-  targetfile=new FXLabel(matrix,"/usr/include/stdio.h",NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN);
-  byteslabel=new FXLabel(matrix,tr("Bytes:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW);
-  numbytes=new FXLabel(matrix,"10,000,000",NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN);
-  fileslabel=new FXLabel(matrix,tr("Files:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW);
-  numfiles=new FXLabel(matrix,"10",NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN);
+  originlabel=new FXLabel(matrix,tr("From:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW);
+  originfile=new FXLabel(matrix,"/usr/include/stdio.h",nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN);
+  targetlabel=new FXLabel(matrix,tr("To:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW);
+  targetfile=new FXLabel(matrix,"/usr/include/stdio.h",nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN);
+  byteslabel=new FXLabel(matrix,tr("Bytes:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW);
+  numbytes=new FXLabel(matrix,"10,000,000",nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN);
+  fileslabel=new FXLabel(matrix,tr("Files:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW);
+  numfiles=new FXLabel(matrix,"10",nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_ROW|LAYOUT_FILL_COLUMN);
   cancel->setFocus();
   cancelled=false;
   }

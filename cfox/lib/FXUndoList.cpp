@@ -3,7 +3,7 @@
 *                  U n d o / R e d o - a b l e   C o m m a n d                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -55,7 +55,7 @@
   - To keep track of when we get back to an "unmodified" state, a mark
     can be set.  The mark is basically a counter which is incremented
     with every undo record added, and decremented when undoing a command.
-    When we get back to 0, we are back to the unmodified state.
+    When we get back to 0, we are back to the "unmodified" state.
 
     If, after setting the mark, we have called undo(), then the mark can be
     reached by calling redo().
@@ -102,7 +102,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT_ABSTRACT(FXCommand,FXObject,NULL,0)
+FXIMPLEMENT_ABSTRACT(FXCommand,FXObject,nullptr,0)
 
 
 // Default implementation of undo name is just "Undo"
@@ -128,7 +128,7 @@ FXuint FXCommand::size() const { return sizeof(FXCommand); }
 /*******************************************************************************/
 
 // Object implementation
-FXIMPLEMENT(FXCommandGroup,FXCommand,NULL,0)
+FXIMPLEMENT(FXCommandGroup,FXCommand,nullptr,0)
 
 
 // Undoing a command group undoes each sub command
@@ -238,7 +238,7 @@ void FXUndoList::unmark(){
 
 // Check if marked
 FXbool FXUndoList::marked() const {
-  return (group==NULL) && (marker==0);
+  return (group==nullptr) && (marker==0);
   }
 
 
@@ -252,7 +252,7 @@ void FXUndoList::cut(){
     redolist=redolist->next;
     delete command;
     }
-  redolist=NULL;
+  redolist=nullptr;
   redocount=0;
   }
 
@@ -358,7 +358,7 @@ void FXUndoList::end(){
 
   // Unlink from group chain
   command=g->group;
-  g->group=NULL;
+  g->group=nullptr;
 
   // Add to group if non-empty
   if(!command->empty()){
@@ -405,7 +405,7 @@ void FXUndoList::abort(){
   delete g->group;
 
   // New end of chain
-  g->group=NULL;
+  g->group=nullptr;
   }
 
 
@@ -474,13 +474,13 @@ void FXUndoList::revert(){
 
 // Can we undo more commands
 FXbool FXUndoList::canUndo() const {
-  return undolist!=NULL;
+  return undolist!=nullptr;
   }
 
 
 // Can we redo more commands
 FXbool FXUndoList::canRedo() const {
-  return redolist!=NULL;
+  return redolist!=nullptr;
   }
 
 
@@ -519,12 +519,12 @@ void FXUndoList::clear(){
     delete command;
     }
   delete group;
-  redolist=NULL;
-  undolist=NULL;
+  redolist=nullptr;
+  undolist=nullptr;
   marker=NOMARK;
   undocount=0;
   redocount=0;
-  group=NULL;
+  group=nullptr;
   space=0;
   }
 
@@ -538,7 +538,7 @@ long FXUndoList::onCmdClear(FXObject*,FXSelector,void*){
 
 // Update Clear undo list
 long FXUndoList::onUpdClear(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(canUndo()||canRedo())?FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE):FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+  sender->handle(this,(canUndo()||canRedo())?FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE):FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -552,7 +552,7 @@ long FXUndoList::onCmdRevert(FXObject*,FXSelector,void*){
 
 // Update revert to marked
 long FXUndoList::onUpdRevert(FXObject* sender,FXSelector,void*){
-  sender->handle(this,canRevert()?FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE):FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+  sender->handle(this,canRevert()?FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE):FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -573,7 +573,7 @@ long FXUndoList::onCmdUndoAll(FXObject*,FXSelector,void*){
 
 // Update undo last command
 long FXUndoList::onUpdUndo(FXObject* sender,FXSelector,void*){
-  sender->handle(this,canUndo()?FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE):FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+  sender->handle(this,canUndo()?FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE):FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -594,7 +594,7 @@ long FXUndoList::onCmdRedoAll(FXObject*,FXSelector,void*){
 
 // Update redo last command
 long FXUndoList::onUpdRedo(FXObject* sender,FXSelector,void*){
-  sender->handle(this,canRedo()?FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE):FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),NULL);
+  sender->handle(this,canRedo()?FXSEL(SEL_COMMAND,FXWindow::ID_ENABLE):FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
 

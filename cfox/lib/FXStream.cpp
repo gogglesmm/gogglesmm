@@ -3,7 +3,7 @@
 *       P e r s i s t e n t   S t o r a g e   S t r e a m   C l a s s e s       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -63,10 +63,10 @@ namespace FX {
 // Create PersistentStore object
 FXStream::FXStream(const FXObject *cont){
   parent=cont;
-  begptr=NULL;
-  endptr=NULL;
-  wrptr=NULL;
-  rdptr=NULL;
+  begptr=nullptr;
+  endptr=nullptr;
+  wrptr=nullptr;
+  rdptr=nullptr;
   pos=0L;
   dir=FXStreamDead;
   code=FXStreamOK;
@@ -218,10 +218,10 @@ FXbool FXStream::close(){
     hash.clear();
     dir=FXStreamDead;
     if(owns){freeElms(begptr);}
-    begptr=NULL;
-    wrptr=NULL;
-    rdptr=NULL;
-    endptr=NULL;
+    begptr=nullptr;
+    wrptr=nullptr;
+    rdptr=nullptr;
+    endptr=nullptr;
     owns=false;
     return code==FXStreamOK;
     }
@@ -788,11 +788,12 @@ FXStream& FXStream::load(FXdouble* p,FXuval n){
 // Add object without saving or loading
 FXStream& FXStream::addObject(const FXObject* v){
   if(v){
+    void* ref=(void*)(FXuval)seq++;
     if(dir==FXStreamSave){
-      hash.insert((FXptr)v,(FXptr)(FXuval)seq++);
+      hash.insert(v,ref);
       }
     else if(dir==FXStreamLoad){
-      hash.insert((FXptr)(FXuval)seq++,(FXptr)v);
+      hash.insert(ref,const_cast<FXObject*>(v));
       }
     }
   return *this;
@@ -804,21 +805,22 @@ FXStream& FXStream::addObject(const FXObject* v){
 
 // Save object
 FXStream& FXStream::saveObject(const FXObject* v){
-  const FXMetaClass *cls;
-  const FXchar *name;
-  FXuint tag,zero=0;
   if(dir!=FXStreamSave){ fxerror("FXStream::saveObject: wrong stream direction.\n"); }
   if(code==FXStreamOK){
-    if(v==NULL){                                // Its a NULL
-      *this << zero;
+    const FXMetaClass *cls;
+    const FXchar *name;
+    FXuint tag,zero=0;
+    void* ref;
+    if(v==nullptr){                             // Its a NULL
+      *this << zero;                            // Save special null-object tag
       return *this;
       }
-    tag=(FXuint)(FXuval)hash.at((FXptr)v);      // Already in table
-    if(tag){
+    ref=hash.at(v);                             // Reference from table
+    tag=(FXuint)(FXuval)ref;
+    if(tag){                                    // Already in table
       *this << tag;
       return *this;
       }
-    hash.insert((FXptr)v,(FXptr)(FXuval)seq++); // Add to table
     cls=v->getMetaClass();
     name=cls->getClassName();
     tag=strlen(name)+1;
@@ -826,11 +828,13 @@ FXStream& FXStream::saveObject(const FXObject* v){
       code=FXStreamFormat;
       return *this;
       }
+    ref=(void*)(FXuval)seq++;                   // New reference
+    hash.insert(v,ref);                         // Map object to reference
     *this << tag;                               // Save tag
-    *this << zero;
-    save(name,tag);
+    *this << zero;                              // Save escape code
+    save(name,tag);                             // Save class name
     FXTRACE((100,"%08ld: saveObject(%s)\n",(FXuval)pos,v->getClassName()));
-    v->save(*this);
+    v->save(*this);                             // Save object
     }
   return *this;
   }
@@ -840,18 +844,20 @@ FXStream& FXStream::saveObject(const FXObject* v){
 
 // Load object
 FXStream& FXStream::loadObject(FXObject*& v){
-  const FXMetaClass *cls;
-  FXchar name[MAXCLASSNAME+1];
-  FXuint tag,esc;
   if(dir!=FXStreamLoad){ fxerror("FXStream::loadObject: wrong stream direction.\n"); }
   if(code==FXStreamOK){
+    FXchar name[MAXCLASSNAME+1];
+    const FXMetaClass *cls;
+    FXuint tag,esc;
+    void* ref;
     *this >> tag;
     if(tag==0){                                 // Was a NULL
-      v=NULL;
+      v=nullptr;
       return *this;
       }
     if(tag>=0x80000000){
-      v=(FXObject*)hash.at((FXptr)(FXuval)tag);
+      ref=(void*)(FXuval)tag;
+      v=(FXObject*)hash.at(ref);                // Object referenced by tag
       if(!v){
         code=FXStreamFormat;                    // Bad format in stream
         }
@@ -866,14 +872,15 @@ FXStream& FXStream::loadObject(FXObject*& v){
       code=FXStreamFormat;                      // Bad format in stream
       return *this;
       }
-    load(name,tag);                             // Load name
+    load(name,tag);                             // Load class name
     cls=FXMetaClass::getMetaClassFromName(name);
-    if(cls==NULL){                              // No FXMetaClass with this class name
+    if(cls==nullptr){                           // We don't have a class with this name
       code=FXStreamUnknown;                     // Unknown class
       return *this;
       }
-    v=cls->makeInstance();                      // Build some object!!
-    hash.insert((FXptr)(FXuval)seq++,(FXptr)v); // Add to table
+    ref=(void*)(FXuval)seq++;                   // New reference
+    v=cls->makeInstance();                      // Make instance of class
+    hash.insert(ref,v);                         // Map reference to object
     FXTRACE((100,"%08ld: loadObject(%s)\n",(FXuval)pos,v->getClassName()));
     v->load(*this);
     }

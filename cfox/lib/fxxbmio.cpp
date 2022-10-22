@@ -3,7 +3,7 @@
 *                          X B M   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2003,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -84,7 +84,7 @@ FXbool fxcheckXBM(FXStream& store){
 // Load alpha XBM image from pixels and mask
 FXbool fxloadXBM(FXColor*& data,const FXuchar *pixels,const FXuchar *mask,FXint width,FXint height){
   FXint x,y,byt,bit,row;
-  data=NULL;
+  data=nullptr;
   if(pixels && mask && 0<width && 0<height){
     if(callocElms(data,width*height)){
       row=(width+7)>>3;
@@ -113,7 +113,7 @@ FXbool fxloadXBM(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXint
   FXColor *pp;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
   hotx=-1;

@@ -3,7 +3,7 @@
 *                     F i l e   P r o g r e s s   D i a l o g                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -60,7 +60,7 @@ public:
 public:
 
   /// Construct input dialog box with given caption, icon, and prompt text
-  FXFileProgressDialog(FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* ico=NULL,FXuint opts=DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
+  FXFileProgressDialog(FXWindow* owner,const FXString& caption,const FXString& label,FXIcon* ico=nullptr,FXuint opts=DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,FXint x=0,FXint y=0,FXint w=0,FXint h=0);
 
   /// Change the amount of progress
   void setProgress(FXuint value);

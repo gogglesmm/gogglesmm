@@ -3,7 +3,7 @@
 *                     D i r e c t o r y   L i s t   O b j e c t                 *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -104,7 +104,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXDirItem,FXTreeItem,NULL,0)
+FXIMPLEMENT(FXDirItem,FXTreeItem,nullptr,0)
 
 
 // Map
@@ -159,17 +159,17 @@ FXIMPLEMENT(FXDirList,FXTreeList,FXDirListMap,ARRAYNUMBER(FXDirListMap))
 // For serialization
 FXDirList::FXDirList(){
   dropEnable();
-  associations=NULL;
-  list=NULL;
-  opendiricon=NULL;
-  closeddiricon=NULL;
-  documenticon=NULL;
-  applicationicon=NULL;
-  cdromicon=NULL;
-  harddiskicon=NULL;
-  networkicon=NULL;
-  floppyicon=NULL;
-  zipdiskicon=NULL;
+  associations=nullptr;
+  list=nullptr;
+  opendiricon=nullptr;
+  closeddiricon=nullptr;
+  documenticon=nullptr;
+  applicationicon=nullptr;
+  cdromicon=nullptr;
+  harddiskicon=nullptr;
+  networkicon=nullptr;
+  floppyicon=nullptr;
+  zipdiskicon=nullptr;
 #ifdef WIN32
   matchmode=FXPath::PathName|FXPath::NoEscape|FXPath::CaseFold;
 #else
@@ -185,8 +185,8 @@ FXDirList::FXDirList(){
 // Directory List Widget
 FXDirList::FXDirList(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXTreeList(p,tgt,sel,opts,x,y,w,h),pattern("*"){
   dropEnable();
-  associations=NULL;
-  list=NULL;
+  associations=nullptr;
+  list=nullptr;
   if(!(options&DIRLIST_NO_OWN_ASSOC)) associations=new FXFileAssociations(getApp());
   opendiricon=new FXGIFIcon(getApp(),minifolderopen);
   closeddiricon=new FXGIFIcon(getApp(),minifolder);
@@ -268,31 +268,51 @@ FXTreeItem* FXDirList::createItem(const FXString& text,FXIcon* oi,FXIcon* ci,voi
 // Sort ascending order, keeping directories first
 FXint FXDirList::ascending(const FXTreeItem* pa,const FXTreeItem* pb){
   FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
-  return diff ? diff : compare(pa->label,pb->label);
+  return diff ? diff : FXString::comparenatural(pa->label,pb->label);
   }
 
 
 // Sort descending order, keeping directories first
 FXint FXDirList::descending(const FXTreeItem* pa,const FXTreeItem* pb){
   FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
-  return diff ? diff : compare(pb->label,pa->label);
+  return diff ? diff : FXString::comparenatural(pb->label,pa->label);
   }
 
 
 // Sort ascending order, case insensitive, keeping directories first
 FXint FXDirList::ascendingCase(const FXTreeItem* pa,const FXTreeItem* pb){
   FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
-  return diff ? diff : comparecase(pa->label,pb->label);
+  return diff ? diff : FXString::comparenaturalcase(pa->label,pb->label);
   }
 
 
 // Sort descending order, case insensitive, keeping directories first
 FXint FXDirList::descendingCase(const FXTreeItem* pa,const FXTreeItem* pb){
   FXint diff=static_cast<const FXDirItem*>(pb)->isDirectory() - static_cast<const FXDirItem*>(pa)->isDirectory();
-  return diff ? diff : comparecase(pb->label,pa->label);
+  return diff ? diff : FXString::comparenaturalcase(pb->label,pa->label);
   }
 
 /*******************************************************************************/
+
+// Select files matching wildcard pattern
+FXbool FXDirList::selectMatching(const FXString& ptrn,FXuint mode,FXbool notify){
+  FXTreeItem *item=getFirstItem();
+  FXbool changes=false;
+  while(item){
+    if(FXPath::match(getItemText(item),ptrn,mode)){
+      changes|=selectItem(item,notify);
+      }
+    if(item->getFirst()){
+      item=item->getFirst();
+      }
+    else{
+      while(!item->getNext() && item->getParent()) item=item->getParent();
+      item=item->getNext();
+      }
+    }
+  return changes;
+  }
+
 
 // Return uri-list of selected files
 FXString FXDirList::getSelectedFiles() const {
@@ -320,7 +340,7 @@ long FXDirList::onUpdHaveSel(FXObject* sender,FXSelector,void*){
   FXTreeItem *item=getFirstItem();
   while(item){
     if(isItemSelected(item)){
-      sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+      sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
       return 1;
       }
     if(item->getFirst()){
@@ -331,7 +351,7 @@ long FXDirList::onUpdHaveSel(FXObject* sender,FXSelector,void*){
       item=item->getNext();
       }
     }
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -425,7 +445,7 @@ long FXDirList::onCmdDropAsk(FXObject*,FXSelector,void* ptr){
   new FXMenuSeparator(&dropmenu);
   new FXMenuCommand(&dropmenu,tr("Cancel"),&filecancelicon);
   dropmenu.create();
-  dropmenu.popup(NULL,((FXEvent*)ptr)->root_x,((FXEvent*)ptr)->root_y);
+  dropmenu.popup(nullptr,((FXEvent*)ptr)->root_x,((FXEvent*)ptr)->root_y);
   getApp()->runModalWhileShown(&dropmenu);
   dropdirectory=FXString::null;
   dropfiles=FXString::null;
@@ -627,7 +647,7 @@ long FXDirList::onCmdToggleHidden(FXObject*,FXSelector,void*){
 
 // Update toggle hidden files widget
 long FXDirList::onUpdToggleHidden(FXObject* sender,FXSelector,void*){
-  sender->handle(this,showHiddenFiles()?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,showHiddenFiles()?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -641,7 +661,7 @@ long FXDirList::onCmdShowHidden(FXObject*,FXSelector,void*){
 
 // Update show hidden files widget
 long FXDirList::onUpdShowHidden(FXObject* sender,FXSelector,void*){
-  sender->handle(this,showHiddenFiles()?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,showHiddenFiles()?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -655,7 +675,7 @@ long FXDirList::onCmdHideHidden(FXObject*,FXSelector,void*){
 
 // Update hide hidden files widget
 long FXDirList::onUpdHideHidden(FXObject* sender,FXSelector,void*){
-  sender->handle(this,showHiddenFiles()?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  sender->handle(this,showHiddenFiles()?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   return 1;
   }
 
@@ -669,7 +689,7 @@ long FXDirList::onCmdToggleFiles(FXObject*,FXSelector,void*){
 
 // Update toggle files widget
 long FXDirList::onUpdToggleFiles(FXObject* sender,FXSelector,void*){
-  sender->handle(this,showFiles()?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,showFiles()?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -683,7 +703,7 @@ long FXDirList::onCmdShowFiles(FXObject*,FXSelector,void*){
 
 // Update show files widget
 long FXDirList::onUpdShowFiles(FXObject* sender,FXSelector,void*){
-  sender->handle(this,showFiles()?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),NULL);
+  sender->handle(this,showFiles()?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -697,7 +717,7 @@ long FXDirList::onCmdHideFiles(FXObject*,FXSelector,void*){
 
 // Update hide files widget
 long FXDirList::onUpdHideFiles(FXObject* sender,FXSelector,void*){
-  sender->handle(this,showFiles()?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),NULL);
+  sender->handle(this,showFiles()?FXSEL(SEL_COMMAND,ID_UNCHECK):FXSEL(SEL_COMMAND,ID_CHECK),nullptr);
   return 1;
   }
 
@@ -823,7 +843,7 @@ void FXDirList::listItems(FXbool force,FXbool notify){
 // List root directories
 void FXDirList::listRootItems(FXbool force,FXbool notify){
   FXDirItem  *oldlist=list;
-  FXDirItem  *newlist=NULL;
+  FXDirItem  *newlist=nullptr;
   FXDirItem **po=&oldlist;
   FXDirItem **pn=&newlist;
   FXDirItem  *item;
@@ -838,22 +858,22 @@ void FXDirList::listRootItems(FXbool force,FXbool notify){
     if(!(mask&1)) continue;
 
     // Find it, and take it out from the old list if found
-    for(FXDirItem** pp=po; (item=*pp)!=NULL; pp=&item->link){
-      if(comparecase(item->label,name)==0){
-        *pp=item->link; item->link=NULL;
+    for(FXDirItem** pp=po; (item=*pp)!=nullptr; pp=&item->link){
+      if(FXString::comparecase(item->label,name)==0){
+        *pp=item->link; item->link=nullptr;
         goto fnd;
         }
       }
 
     // Not found; prepend before list
-    item=(FXDirItem*)appendItem(NULL,name,opendiricon,closeddiricon,NULL,notify);
+    item=(FXDirItem*)appendItem(nullptr,name,opendiricon,closeddiricon,nullptr,notify);
 
     // Next gets hung after this one
 fnd:*pn=item; pn=&item->link;
 
     // Update item information
     item->setHasItems(true);
-    item->assoc=NULL;
+    item->assoc=nullptr;
     item->size=0L;
     item->date=0;
     item->mode=FXIO::Directory;
@@ -925,13 +945,13 @@ void FXDirList::listRootItems(FXbool force,FXbool notify){
   FXDirItem *item=(FXDirItem*)firstitem;
 
   // First time, make root node
-  if(!item) item=list=(FXDirItem*)appendItem(NULL,PATHSEPSTRING,harddiskicon,harddiskicon,NULL,notify);
+  if(!item) item=list=(FXDirItem*)appendItem(nullptr,PATHSEPSTRING,harddiskicon,harddiskicon,nullptr,notify);
 
   // Update item information
   item->setHasItems(true);
   item->setOpenIcon(harddiskicon);
   item->setClosedIcon(harddiskicon);
-  item->assoc=NULL;
+  item->assoc=nullptr;
   item->size=0L;
   item->date=0;
   item->mode=FXIO::Directory;
@@ -970,11 +990,11 @@ FXbool FXDirList::listChildItems(FXDirItem *par,FXbool force,FXbool notify){
     // Regenerate list if update forced or modified time changed
     if(force || date!=par->getDate()){
       FXDirItem  *oldlist=par->list;
-      FXDirItem  *newlist=NULL;
+      FXDirItem  *newlist=nullptr;
       FXDirItem **po=&oldlist;
       FXDirItem **pn=&newlist;
-      FXDirItem  *olditem=NULL;
-      FXDirItem  *newitem=NULL;
+      FXDirItem  *olditem=nullptr;
+      FXDirItem  *newitem=nullptr;
       FXDirItem  *link;
       FXString    pathname;
       FXString    name;
@@ -1028,9 +1048,9 @@ FXbool FXDirList::listChildItems(FXDirItem *par,FXbool force,FXbool notify){
           if(!(mode&FXIO::Directory) && !((options&DIRLIST_SHOWFILES) && FXPath::match(name,pattern,matchmode))) continue;
 
           // Find it, and take it out from the old list if found
-          for(FXDirItem** pp=po; (olditem=*pp)!=NULL; pp=&olditem->link){
-            if(compare(olditem->label,name)==0){
-              *pp=olditem->link; olditem->link=NULL;
+          for(FXDirItem** pp=po; (olditem=*pp)!=nullptr; pp=&olditem->link){
+            if(FXString::compare(olditem->label,name)==0){
+              *pp=olditem->link; olditem->link=nullptr;
               break;
               }
             }
@@ -1039,14 +1059,14 @@ FXbool FXDirList::listChildItems(FXDirItem *par,FXbool force,FXbool notify){
           if(force || !olditem || olditem->getDate()!=info.modified() || olditem->getSize()!=info.size() || olditem->getMode()!=mode){
 
             // Make new item
-            newitem=(FXDirItem*)createItem(name,NULL,NULL,NULL);
+            newitem=(FXDirItem*)createItem(name,nullptr,nullptr,nullptr);
 
             // Update item information
             newitem->setDraggable(draggable);
             newitem->setSize(info.size());
             newitem->setDate(info.modified());
             newitem->setMode(mode);
-            newitem->setAssoc(NULL);
+            newitem->setAssoc(nullptr);
 
             // Determine icons and type
             if(newitem->isDirectory()){
@@ -1126,19 +1146,19 @@ FXbool FXDirList::listChildItems(FXDirItem *par,FXbool force,FXbool notify){
 static FXTreeItem* findChildItem(FXTreeItem* item,const FXString& name){
   while(item){
 #ifdef WIN32
-    if(comparecase(name,item->getText())==0) return item;
+    if(FXString::comparecase(name,item->getText())==0) return item;
 #else
-    if(compare(name,item->getText())==0) return item;
+    if(FXString::compare(name,item->getText())==0) return item;
 #endif
     item=item->getNext();
     }
-  return NULL;
+  return nullptr;
   }
 
 
 // Return the item from the absolute pathname
 FXTreeItem* FXDirList::expandPath(const FXString& path,FXbool notify){
-  FXTreeItem *item=NULL;
+  FXTreeItem *item=nullptr;
   if(!path.empty()){
     FXTreeItem *it;
     FXString name;
@@ -1162,7 +1182,7 @@ FXTreeItem* FXDirList::expandPath(const FXString& path,FXbool notify){
       name=path.mid(beg,end-beg);
 
       // Find it, if not found, rescan and try again
-      if((item=findChildItem(firstitem,name))==NULL){
+      if((item=findChildItem(firstitem,name))==nullptr){
 
         // Relist root items
         listRootItems(true,notify);
@@ -1188,13 +1208,13 @@ FXTreeItem* FXDirList::expandPath(const FXString& path,FXbool notify){
           name=path.mid(beg,end-beg);
 
           // Search children of item; if not found, rescan and try again
-          if((it=findChildItem(item->first,name))==NULL){
+          if((it=findChildItem(item->first,name))==nullptr){
 
             // Relist child items
             listChildItems((FXDirItem*)item,true,notify);
 
             // If we still don't find it, return closest existing item
-            if((it=findChildItem(item->first,name))==NULL) break;
+            if((it=findChildItem(item->first,name))==nullptr) break;
             }
 
           // Skip over path separators
@@ -1214,7 +1234,7 @@ FXTreeItem* FXDirList::expandPath(const FXString& path,FXbool notify){
 FXbool FXDirList::setCurrentFile(const FXString& pathname,FXbool notify){
   FXTRACE((100,"%s::setCurrentFile(%s)\n",getClassName(),pathname.text()));
   FXTreeItem* item;
-  if((item=expandPath(FXPath::absolute(pathname),notify))!=NULL){
+  if((item=expandPath(FXPath::absolute(pathname),notify))!=nullptr){
     setAnchorItem(item);
     setCurrentItem(item,notify);
     makeItemVisible(item);
@@ -1234,7 +1254,7 @@ FXString FXDirList::getCurrentFile() const {
 FXbool FXDirList::setDirectory(const FXString& pathname,FXbool notify){
   FXTRACE((100,"%s::setDirectory(%s)\n",getClassName(),pathname.text()));
   FXTreeItem* item;
-  if((item=expandPath(FXPath::absolute(pathname),notify))!=NULL){
+  if((item=expandPath(FXPath::absolute(pathname),notify))!=nullptr){
     expandTree(item,notify);
     setAnchorItem(item);
     setCurrentItem(item,notify);
@@ -1275,7 +1295,7 @@ FXString FXDirList::getItemPathname(const FXTreeItem* item) const {
 
 // Return the (closest) item from the absolute pathname
 FXTreeItem* FXDirList::getPathnameItem(const FXString& path) const {
-  FXTreeItem* item=NULL;
+  FXTreeItem* item=nullptr;
   if(!path.empty()){
     FXTreeItem* it;
     FXint beg=0;
@@ -1295,7 +1315,7 @@ FXTreeItem* FXDirList::getPathnameItem(const FXString& path) const {
     if(beg<end){
 
       // Search for root part of path
-      if((item=findChildItem(firstitem,path.mid(beg,end-beg)))!=NULL){
+      if((item=findChildItem(firstitem,path.mid(beg,end-beg)))!=nullptr){
 
         // Skip over path separators
         while(ISPATHSEP(path[end])) end++;
@@ -1308,7 +1328,7 @@ FXTreeItem* FXDirList::getPathnameItem(const FXString& path) const {
           while(end<path.length() && !ISPATHSEP(path[end])) end++;
 
           // Search among children of item
-          if((it=findChildItem(item->first,path.mid(beg,end-beg)))==NULL) break;
+          if((it=findChildItem(item->first,path.mid(beg,end-beg)))==nullptr) break;
 
           // Skip over path separators
           while(ISPATHSEP(path[end])) end++;
@@ -1349,7 +1369,7 @@ FXbool FXDirList::isItemSymlink(const FXTreeItem* item) const {
 
 // Return file association of item
 FXFileAssoc* FXDirList::getItemAssoc(const FXTreeItem* item) const {
-  return item ? ((const FXDirItem*)item)->getAssoc() : NULL;
+  return item ? ((const FXDirItem*)item)->getAssoc() : nullptr;
   }
 
 
@@ -1392,7 +1412,7 @@ FXbool FXDirList::collapseTree(FXTreeItem* tree,FXbool notify){
   if(FXTreeList::collapseTree(item,notify)){
     if(item->isDirectory() && item->getFirst()){
       removeItems(item->getFirst(),item->getLast(),notify);
-      item->list=NULL;
+      item->list=nullptr;
       }
     return true;
     }

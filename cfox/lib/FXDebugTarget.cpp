@@ -3,7 +3,7 @@
 *                      D e b u g - T a r g e t   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -159,7 +159,7 @@ FXIMPLEMENT(FXDebugTarget,FXObject,FXDebugTargetMap,ARRAYNUMBER(FXDebugTargetMap
 
 // Init
 FXDebugTarget::FXDebugTarget(){
-  lastsender=NULL;
+  lastsender=nullptr;
   lastsel=0;
   count=0;
   }

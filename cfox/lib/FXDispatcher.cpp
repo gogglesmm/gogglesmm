@@ -3,7 +3,7 @@
 *                      C a l l b a c k   D i s p a t c h e r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 ********************************************************************************/
 #include "xincs.h"
 #include "fxver.h"
@@ -40,6 +40,28 @@
     will not establish a handler callback, and thus when such a signal is raised,
     it must be filtered via overrides of dispatchSignal prior to being processed
     by this implementation of dispatchSignal(); otherwise, a core dump may result.
+
+  - Sample usage:
+
+    disp->addInterval(TimeoutCallback::create<MyClass,&MyClass::memfunc>(target),dt,ptr);
+
+    FIXME maybe this is better:
+
+    disp->addInterval(FXObject* tgt,FXSelector sel,FXTime ns=1000000000,FXptr ptr=nullptr);
+
+    OK, if message map only contains function-pointers [method_call() template-generated
+    function call addresses], then we can look up this method-call:
+
+      long (*caller)(FXObject*,FXSelector,void*);
+
+      caller=metaClass.search(sel);
+
+    We can store caller into callback struct!
+
+    Then:
+
+      caller(target,this,FXSEL(SEL_TIMEOUT,message),userdata);
+
 */
 
 using namespace FX;
@@ -83,7 +105,7 @@ struct FXDispatcher::Idle {
 /*******************************************************************************/
 
 // Construct dispatcher object
-FXDispatcher::FXDispatcher():signals(NULL),timers(NULL),idles(NULL),timerrecs(NULL),idlerecs(NULL){
+FXDispatcher::FXDispatcher():signals(nullptr),timers(nullptr),idles(nullptr),timerrecs(nullptr),idlerecs(nullptr){
   }
 
 
@@ -91,10 +113,10 @@ FXDispatcher::FXDispatcher():signals(NULL),timers(NULL),idles(NULL),timerrecs(NU
 FXbool FXDispatcher::init(){
   if(FXReactor::init()){
     callocElms(signals,64);
-    timers=NULL;
-    idles=NULL;
-    timerrecs=NULL;
-    idlerecs=NULL;
+    timers=nullptr;
+    idles=nullptr;
+    timerrecs=nullptr;
+    idlerecs=nullptr;
     return true;
     }
   return false;
@@ -124,7 +146,7 @@ FXbool FXDispatcher::addSignal(FXint sig,FXbool async){
 FXbool FXDispatcher::remSignal(FXint sig){
   if(FXReactor::remSignal(sig)){
     delete signals[sig];
-    signals[sig]=NULL;
+    signals[sig]=nullptr;
     return true;
     }
   return false;
@@ -143,15 +165,15 @@ FXbool FXDispatcher::dispatchSignal(FXint sig){
 
 // Add timeout callback cb at time due (ns since Epoch).
 void* FXDispatcher::addTimeout(TimeoutCallback cb,FXTime due,void* ptr){
-  void* res=NULL;
+  void* res=nullptr;
   if(isInitialized()){
     Timer **tt=&timers,*t,*x;
-    while((x=*tt)!=NULL){
-      if(x->cb==cb){ 
-        *tt=x->next; 
-        res=x->ptr; 
-        t=x; 
-        goto a; 
+    while((x=*tt)!=nullptr){
+      if(x->cb==cb){
+        *tt=x->next;
+        res=x->ptr;
+        t=x;
+        goto a;
         }
       tt=&x->next;
       }
@@ -164,10 +186,10 @@ void* FXDispatcher::addTimeout(TimeoutCallback cb,FXTime due,void* ptr){
       }
 a:  t->cb=cb;
     t->due=due;
-    t->next=NULL;
+    t->next=nullptr;
     t->ptr=ptr;
     tt=&timers;
-    while((x=*tt) && x->due<t->due){
+    while((x=*tt) && x->due<=t->due){
       tt=&x->next;
       }
     t->next=*tt;
@@ -185,10 +207,10 @@ void* FXDispatcher::addInterval(TimeoutCallback cb,FXTime interval,void* ptr){
 
 // Remove timeout callback cb.
 void* FXDispatcher::remTimeout(TimeoutCallback cb){
-  void* res=NULL;
+  void* res=nullptr;
   if(isInitialized()){
     Timer **tt=&timers,*t;
-    while((t=*tt)!=NULL){
+    while((t=*tt)!=nullptr){
       if(t->cb==cb){
         *tt=t->next;
         res=t->ptr;
@@ -229,8 +251,8 @@ FXbool FXDispatcher::hasTimeout(TimeoutCallback cb) const {
 
 // Dispatch when timeout expires
 FXbool FXDispatcher::dispatchTimeout(FXTime due){
-  if(timers && timers->due<=due){
-    Timer *t=timers;
+  Timer *t=timers;
+  if(t && t->due<=due){
     timers=t->next;
     t->next=timerrecs;
     timerrecs=t;
@@ -239,17 +261,18 @@ FXbool FXDispatcher::dispatchTimeout(FXTime due){
   return false;
   }
 
+
 /*******************************************************************************/
 
 // Add idle callback be executed when dispatch about to block.
 void* FXDispatcher::addIdle(IdleCallback cb,void* ptr){
-  void* res=NULL;
+  void* res=nullptr;
   if(isInitialized()){
     Idle **cc=&idles,*c,*x;
-    while((x=*cc)!=NULL){         // Search list for cb
+    while((x=*cc)!=nullptr){         // Search list for cb
       if(x->cb==cb){
-        *cc=x->next; 
-        res=x->ptr; 
+        *cc=x->next;
+        res=x->ptr;
         c=x;
         goto a;
         }
@@ -264,8 +287,8 @@ void* FXDispatcher::addIdle(IdleCallback cb,void* ptr){
       }
 a:  c->cb=cb;
     c->ptr=ptr;
-    c->next=NULL;
-    while((x=*cc)!=NULL){         // Continue to end of list
+    c->next=nullptr;
+    while((x=*cc)!=nullptr){         // Continue to end of list
       cc=&x->next;
       }
     *cc=c;
@@ -276,10 +299,10 @@ a:  c->cb=cb;
 
 // Remove idle callback cb.
 void* FXDispatcher::remIdle(IdleCallback cb){
-  void *res=NULL;
+  void *res=nullptr;
   if(isInitialized()){
     Idle **cc=&idles,*c;
-    while((c=*cc)!=NULL){
+    while((c=*cc)!=nullptr){
       if(c->cb==cb){
         *cc=c->next;
         res=c->ptr;
@@ -305,8 +328,8 @@ FXbool FXDispatcher::hasIdle(IdleCallback cb) const {
 
 // Dispatch one idle callback.
 FXbool FXDispatcher::dispatchIdle(){
-  if(idles){
-    Idle *c=idles;
+  Idle *c=idles;
+  if(c){
     idles=c->next;
     c->next=idlerecs;
     idlerecs=c;
@@ -323,7 +346,7 @@ FXbool FXDispatcher::addHandle(HandleCallback cb,FXInputHandle hnd,FXuint mode,v
     Handle *handle=new Handle();
     handle->cb=cb;
     handle->ptr=ptr;
-    handles.insert((FXptr)(FXuval)hnd,handle);
+    handles.insert(reinterpret_cast<FXptr>(hnd),handle);
     return true;
     }
   return false;
@@ -339,7 +362,7 @@ FXbool FXDispatcher::addHandle(FXInputHandle hnd,FXuint mode){
 // Remove handle hnd from list
 FXbool FXDispatcher::remHandle(FXInputHandle hnd){
   if(FXReactor::remHandle(hnd)){
-    Handle *handle=static_cast<Handle*>(handles.remove((FXptr)(FXuval)hnd));
+    Handle *handle=static_cast<Handle*>(handles.remove(reinterpret_cast<FXptr>(hnd)));
     delete handle;
     return true;
     }
@@ -350,7 +373,7 @@ FXbool FXDispatcher::remHandle(FXInputHandle hnd){
 // Return true if handle has been set.
 FXbool FXDispatcher::hasHandle(FXInputHandle hnd) const {
   if(isInitialized()){
-    return 0<=handles.find((FXptr)(FXuval)hnd);
+    return 0<=handles.find(reinterpret_cast<FXptr>(hnd));
     }
   return false;
   }
@@ -358,7 +381,7 @@ FXbool FXDispatcher::hasHandle(FXInputHandle hnd) const {
 
 // Dispatch when when handle hnd is signaled with mode
 FXbool FXDispatcher::dispatchHandle(FXInputHandle hnd,FXuint mode,FXuint){
-  Handle *handle=static_cast<Handle*>(handles[(FXptr)(FXuval)hnd]);
+  Handle *handle=static_cast<Handle*>(handles[reinterpret_cast<FXptr>(hnd)]);
   return handle && handle->cb(this,hnd,mode,handle->ptr);
   }
 
@@ -374,19 +397,19 @@ FXbool FXDispatcher::exit(){
       if(handles.empty(i)) continue;
       delete static_cast<Handle*>(handles.data(i));
       }
-    while((t=timers)!=NULL){
+    while((t=timers)!=nullptr){
       timers=t->next;
       delete t;
       }
-    while((t=timerrecs)!=NULL){
+    while((t=timerrecs)!=nullptr){
       timerrecs=t->next;
       delete t;
       }
-    while((c=idles)!=NULL){
+    while((c=idles)!=nullptr){
       idles=c->next;
       delete c;
       }
-    while((c=idlerecs)!=NULL){
+    while((c=idlerecs)!=nullptr){
       idlerecs=c->next;
       delete c;
       }
@@ -395,10 +418,10 @@ FXbool FXDispatcher::exit(){
       }
     freeElms(signals);
     handles.clear();
-    timers=NULL;
-    idles=NULL;
-    timerrecs=NULL;
-    idlerecs=NULL;
+    timers=nullptr;
+    idles=nullptr;
+    timerrecs=nullptr;
+    idlerecs=nullptr;
     return true;
     }
   return false;

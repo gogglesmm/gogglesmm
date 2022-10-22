@@ -3,7 +3,7 @@
 *                             X M L - F i l e   I / O                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -34,6 +34,9 @@ namespace FX {
 class FXAPI FXXMLFile : public FXXML {
 private:
   FXFile file;
+private:
+  FXXMLFile(const FXXMLFile&);
+  FXXMLFile& operator=(const FXXMLFile&);
 public:
 
   /**

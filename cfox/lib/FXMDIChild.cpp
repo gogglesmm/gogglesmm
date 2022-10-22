@@ -3,7 +3,7 @@
 *          M u l t i p l e   D o c u m e n t   C h i l d   W i n d o w          *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -315,7 +315,7 @@ FXbool FXMDIChild::restore(FXbool notify){
     height=normalHeight;
     options&=~(MDI_MINIMIZED|MDI_MAXIMIZED);
     recalc();
-    if(notify && target){target->tryHandle(this,FXSEL(SEL_RESTORE,message),NULL);}
+    if(notify && target){target->tryHandle(this,FXSEL(SEL_RESTORE,message),nullptr);}
     }
   return true;
   }
@@ -343,7 +343,7 @@ FXbool FXMDIChild::maximize(FXbool notify){
     options|=MDI_MAXIMIZED;
     options&=~MDI_MINIMIZED;
     recalc();
-    if(notify && target){target->tryHandle(this,FXSEL(SEL_MAXIMIZE,message),NULL);}
+    if(notify && target){target->tryHandle(this,FXSEL(SEL_MAXIMIZE,message),nullptr);}
     }
   return true;
   }
@@ -365,7 +365,7 @@ FXbool FXMDIChild::minimize(FXbool notify){
     options|=MDI_MINIMIZED;
     options&=~MDI_MAXIMIZED;
     recalc();
-    if(notify && target){target->tryHandle(this,FXSEL(SEL_MINIMIZE,message),NULL);}
+    if(notify && target){target->tryHandle(this,FXSEL(SEL_MINIMIZE,message),nullptr);}
     }
   return true;
   }
@@ -380,10 +380,10 @@ FXbool FXMDIChild::close(FXbool notify){
   client->setActiveChild(alternative,notify);
 
   // See if OK to close
-  if(!notify || !target || !target->tryHandle(this,FXSEL(SEL_CLOSE,message),NULL)){
+  if(!notify || !target || !target->tryHandle(this,FXSEL(SEL_CLOSE,message),nullptr)){
 
     // Target will receive no further messages from us
-    setTarget(NULL);
+    setTarget(nullptr);
     setSelector(0);
 
     // Self destruct
@@ -974,7 +974,7 @@ long FXMDIChild::onCmdRestore(FXObject*,FXSelector,void*){
 
 // Update restore command
 long FXMDIChild::onUpdRestore(FXObject* sender,FXSelector,void*){
-  sender->handle(this,isMinimized()||isMaximized()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,isMinimized()||isMaximized()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -982,11 +982,11 @@ long FXMDIChild::onUpdRestore(FXObject* sender,FXSelector,void*){
 // Update MDI restore button on menu bar
 long FXMDIChild::onUpdMenuRestore(FXObject* sender,FXSelector,void*){
   if(isMaximized()){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     }
   else{
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
     }
   return 1;
   }
@@ -1002,7 +1002,7 @@ long FXMDIChild::onCmdMaximize(FXObject*,FXSelector,void*){
 
 // Update maximized command
 long FXMDIChild::onUpdMaximize(FXObject* sender,FXSelector,void*){
-  sender->handle(this,isMaximized()?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+  sender->handle(this,isMaximized()?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   return 1;
   }
 
@@ -1017,7 +1017,7 @@ long FXMDIChild::onCmdMinimize(FXObject*,FXSelector,void*){
 
 // Update minimized command
 long FXMDIChild::onUpdMinimize(FXObject* sender,FXSelector,void*){
-  sender->handle(this,isMinimized()?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+  sender->handle(this,isMinimized()?FXSEL(SEL_COMMAND,ID_DISABLE):FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   return 1;
   }
 
@@ -1025,11 +1025,11 @@ long FXMDIChild::onUpdMinimize(FXObject* sender,FXSelector,void*){
 // Update MDI minimized button on menu bar
 long FXMDIChild::onUpdMenuMinimize(FXObject* sender,FXSelector,void*){
   if(isMaximized()){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     }
   else{
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
     }
   return 1;
   }
@@ -1043,7 +1043,7 @@ long FXMDIChild::onCmdClose(FXObject*,FXSelector,void*){
 
 // Update close command
 long FXMDIChild::onUpdClose(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   return 1;
   }
 
@@ -1051,11 +1051,11 @@ long FXMDIChild::onUpdClose(FXObject* sender,FXSelector,void*){
 // Update MDI close button on menu bar
 long FXMDIChild::onUpdMenuClose(FXObject* sender,FXSelector,void*){
   if(isMaximized()){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
     }
   else{
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
     }
   return 1;
   }
@@ -1063,7 +1063,7 @@ long FXMDIChild::onUpdMenuClose(FXObject* sender,FXSelector,void*){
 
 // Update window menu button
 long FXMDIChild::onUpdWindow(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   return 1;
   }
 
@@ -1072,12 +1072,12 @@ long FXMDIChild::onUpdWindow(FXObject* sender,FXSelector,void*){
 long FXMDIChild::onUpdMenuWindow(FXObject* sender,FXSelector,void*){
   FXIcon *icon=getIcon();
   if(isMaximized()){
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),NULL);
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
     sender->handle(this,FXSEL(SEL_COMMAND,ID_SETICONVALUE),(void*)&icon);
     }
   else{
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
     }
   return 1;
   }
@@ -1260,7 +1260,7 @@ void FXMDIChild::load(FXStream& store){
 
 // Destruct thrashes the pointers
 FXMDIChild::~FXMDIChild(){
-  if(((FXMDIClient*)getParent())->active==this) ((FXMDIClient*)getParent())->active=NULL;
+  if(((FXMDIClient*)getParent())->active==this) ((FXMDIClient*)getParent())->active=nullptr;
   windowbtn=(FXMenuButton*)-1L;
   minimizebtn=(FXButton*)-1L;
   restorebtn=(FXButton*)-1L;

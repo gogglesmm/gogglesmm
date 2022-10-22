@@ -3,7 +3,7 @@
 *                                  X - O b j e c t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -42,8 +42,8 @@ private:
   FXId(const FXId&);
   FXId &operator=(const FXId&);
 protected:
-  FXId():app((FXApp*)-1L),data(NULL),xid(0){}
-  FXId(FXApp* a):app(a),data(NULL),xid(0){}
+  FXId():app((FXApp*)-1L),data(nullptr),xid(0){}
+  FXId(FXApp* a):app(a),data(nullptr),xid(0){}
 public:
 
   /// Get application

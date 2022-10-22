@@ -3,7 +3,7 @@
 *                      I R I S   R G B   I c o n   O b j e c t                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,13 +61,13 @@ const FXchar FXRGBIcon::mimeType[]="image/rgb";
 
 
 // Object implementation
-FXIMPLEMENT(FXRGBIcon,FXIcon,NULL,0)
+FXIMPLEMENT(FXRGBIcon,FXIcon,nullptr,0)
 
 
 // Initialize nicely
-FXRGBIcon::FXRGBIcon(FXApp* a,const void *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,NULL,clr,opts,w,h){
+FXRGBIcon::FXRGBIcon(FXApp* a,const FXuchar *pix,FXColor clr,FXuint opts,FXint w,FXint h):FXIcon(a,nullptr,clr,opts,w,h){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

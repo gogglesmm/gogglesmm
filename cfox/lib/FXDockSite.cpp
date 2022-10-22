@@ -3,7 +3,7 @@
 *                         D o c k   S i t e   W i d g e t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -908,7 +908,7 @@ void FXDockSite::moveToolBar(FXDockBar* bar,FXint barx,FXint bary){
       // Determine galley sizes
       galx=left;
       galw=0;
-      for(begin=getFirst(),cur=prv=nxt=curend=prvend=nxtend=NULL; begin; begin=end->getNext()){
+      for(begin=getFirst(),cur=prv=nxt=curend=prvend=nxtend=nullptr; begin; begin=end->getNext()){
         w=galleyWidth(begin,end,bottom-top,require,expand);
         if(!after(end,bar)){ if(left<=barx && barx<left+w){ prv=begin; prvend=end; } }
         else if(!after(bar,begin)){ if(left<=barx+barw && barx+barw<left+w){ nxt=begin; nxtend=end; } }
@@ -935,7 +935,7 @@ void FXDockSite::moveToolBar(FXDockBar* bar,FXint barx,FXint bary){
           if(cur==bar && bar!=curend) cur->getNext()->setLayoutHints(cur->getNext()->getLayoutHints()|LAYOUT_DOCK_NEXT);
           else cur->setLayoutHints(cur->getLayoutHints()|LAYOUT_DOCK_NEXT);
           bar->setLayoutHints(bar->getLayoutHints()|LAYOUT_DOCK_NEXT);
-          bar->reparent(this,NULL);
+          bar->reparent(this,nullptr);
           }
         }
 
@@ -958,7 +958,7 @@ void FXDockSite::moveToolBar(FXDockBar* bar,FXint barx,FXint bary){
       // Determine galley sizes
       galx=left;
       galw=0;
-      for(begin=getFirst(),cur=prv=nxt=curend=prvend=nxtend=NULL; begin; begin=end->getNext()){
+      for(begin=getFirst(),cur=prv=nxt=curend=prvend=nxtend=nullptr; begin; begin=end->getNext()){
         w=galleyWidth(begin,end,bottom-top,require,expand);
         if(!after(end,bar)){ if(left<=barx && barx<left+w){ prv=begin; prvend=end; } }
         else if(!after(bar,begin)){ if(left<=barx+barw && barx+barw<left+w){ nxt=begin; nxtend=end; }  }
@@ -985,7 +985,7 @@ void FXDockSite::moveToolBar(FXDockBar* bar,FXint barx,FXint bary){
           if(cur==bar && bar!=curend) cur->getNext()->setLayoutHints(cur->getNext()->getLayoutHints()|LAYOUT_DOCK_NEXT);
           else cur->setLayoutHints(cur->getLayoutHints()|LAYOUT_DOCK_NEXT);
           bar->setLayoutHints(bar->getLayoutHints()|LAYOUT_DOCK_NEXT);
-          bar->reparent(this,NULL);
+          bar->reparent(this,nullptr);
           }
         }
 
@@ -1013,7 +1013,7 @@ void FXDockSite::moveToolBar(FXDockBar* bar,FXint barx,FXint bary){
       // Determine galley sizes
       galy=top;
       galh=0;
-      for(begin=getFirst(),cur=prv=nxt=curend=prvend=nxtend=NULL; begin; begin=end->getNext()){
+      for(begin=getFirst(),cur=prv=nxt=curend=prvend=nxtend=nullptr; begin; begin=end->getNext()){
         h=galleyHeight(begin,end,right-left,require,expand);
         if(!after(end,bar)){ if(top<=bary && bary<top+h){ prv=begin; prvend=end; } }
         else if(!after(bar,begin)){ if(top<=bary+barh && bary+barh<top+h){ nxt=begin; nxtend=end; }  }
@@ -1040,7 +1040,7 @@ void FXDockSite::moveToolBar(FXDockBar* bar,FXint barx,FXint bary){
           if(cur==bar && bar!=curend) cur->getNext()->setLayoutHints(cur->getNext()->getLayoutHints()|LAYOUT_DOCK_NEXT);
           else cur->setLayoutHints(cur->getLayoutHints()|LAYOUT_DOCK_NEXT);
           bar->setLayoutHints(bar->getLayoutHints()|LAYOUT_DOCK_NEXT);
-          bar->reparent(this,NULL);
+          bar->reparent(this,nullptr);
           }
         }
 
@@ -1174,7 +1174,7 @@ void FXDockSite::dockToolBar(FXDockBar* bar,FXint barx,FXint bary){
             }
 
           // Link at the bottom
-          bar->reparent(this,NULL);
+          bar->reparent(this,nullptr);
           }
         }
 
@@ -1222,7 +1222,7 @@ ver:  bar->move(FXCLAMP(left,barx,right),bary);
             }
 
           // Link at the bottom
-          bar->reparent(this,NULL);
+          bar->reparent(this,nullptr);
           }
         }
 

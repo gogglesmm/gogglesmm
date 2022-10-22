@@ -3,7 +3,7 @@
 *                      J S O N   R e a d e r  &  W r i t e r                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2013,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2013,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,6 +21,10 @@
 #ifndef FXJSON_H
 #define FXJSON_H
 
+#ifndef FXPARSEBUFFER_H
+#include "FXParseBuffer.h"
+#endif
+
 namespace FX {
 
 
@@ -31,37 +35,49 @@ namespace FX {
 * in a well-defined and human-readable file format.
 * The base class implements serialization/deserialization to/from an external
 * buffer.
+*
 * Subclasses FXJSONFile and FXJSONString serialize from/to strings and disk-
 * based files, respectively.
 * The new JSON5 standard may also be parsed, allowing for single- and multi-line
-* nested comments to be embedded in the input.
+* nested comments to be embedded in the input, and makes quotation of variable
+* names optional.  In addition, JSON5 also allows use of single quotes (') as
+* well as double quotes (").
+*
 * Syntax errors in the input cause the parser to return an error, and allow
 * diagnosis of the problem and its location in the file by line number, column
 * number, and byte-offset from the start of the file.
-* When writing a json stream, the generated output may be formatter in different
+*
+* When writing a json stream, the generated output may be formatted in different
 * ways. The flow-mode controls the overall layout of the resulting text output;
 * when flow is set to Stream, all output is generated with no formatting to
 * improve human legibility.  This is the most space-friendly format possible.
 * If flow is set to Compact, a human readable, compact format, aiming to
 * maximize the amount of information on each line is generated.
-* When flow is set to Pretty, a nicely indented, but extremely airy output
+* When flow is set to Pretty, a nicely indented, but extremely "airy" output
 * results, and the resulting document will contain many, many lines with
 * little data.
+*
 * Numeric values are printed with configurable precision; (default=15 digits
 * which results in minimal information loss for real numbers).
 * For Pretty flow format, output may be indented in multiples of the indent
 * level (default=2).  Depending on flow setting, lines may be wrapped at a
 * maximum number of columns (default=80).
-* Output strings containing reserved characters may be escaped; for UTF8
-* characters, there are 3 options for escaping.  When escape mode is 0, UTF8
-* characters are passed unescaped.  In escape mode 1, UTF8 characters are
-* escaped as \xXX, and in escape mode 2, UTF8 will be escaed using Unicode
-* escape sequences \uXXXX or \uXXXX\uXXXX (two surrogate-pairs  escape codes
-* for code points exceeding 16 bits).
+* Output strings containing reserved characters may have to be escaped.
+* For UTF8 characters, there are 3 options for escaping.
+*
+*   - Escape mode 0: UTF8 characters are passed unescaped.
+*   - Escape mode 1: UTF8 characters are escaped as \xXX.
+*   - Escape mode 2: UTF8 will be escaed using Unicode escape sequences of
+*     the for \uXXXX or \uXXXX\uXXXX (two surrogate-pairs  escape codes
+*     for code points exceeding 16 bits).
+*
 * The default setting is to allow UTF8 characters in the output, but be aware
 * that such outputs need UTF8-capable viewer software to be rendered properly.
+* Finally, in JSON5 mode (version set to 5), variable names may be written as
+* unquoted strings if their syntax allows for it; in JSON5 mode, single quotes
+* may be selected to improve human legibility.
 */
-class FXAPI FXJSON {
+class FXAPI FXJSON : public FXParseBuffer {
 public:
   enum Error {
     ErrOK,              /// No errors
@@ -82,36 +98,26 @@ public:
     Compact,            /// Compact, human readable output (default)
     Pretty              /// Pretty printed, indented output
     };
-  enum Direction {
-    Stop = 0,           /// Not active
-    Save = 1,           /// Save to device
-    Load = 2            /// Load from device
-    };
 protected:
-  FXchar     *begptr;           // Text buffer begin ptr
-  FXchar     *endptr;           // Text buffer end ptr
-  FXchar     *wptr;             // Text buffer write ptr
-  FXchar     *rptr;             // Text buffer read ptr
-  FXchar     *sptr;             // Text buffer scan ptr
-  FXlong      offset;           // Position from start
-  FXint       column;           // Column number
-  FXint       indent;           // Indent level
-  FXint       line;             // Line number
-  Direction   dir;              // Direction
-  FXint       token;            // Token
-  FXint       wrap;             // Line wrap column
-  FXuchar     flow;             // Output flow
-  FXuchar     prec;             // Float precision
-  FXuchar     fmt;              // Float format
-  FXuchar     esc;              // Escape mode
-  FXuchar     dent;             // Indentation amount
+  FXString  value;      // Token value
+  FXlong    offset;     // Position from start
+  FXint     token;      // Token
+  FXint     column;     // Column number
+  FXint     indent;     // Indent level
+  FXint     line;       // Line number
+  FXint     wrap;       // Line wrap column
+  FXchar    quote;      // Quote type used
+  FXuchar   flow;       // Output flow
+  FXuchar   prec;       // Float precision
+  FXuchar   fmt;        // Float format
+  FXuchar   esc;        // Escape mode
+  FXuchar   dent;       // Indentation amount
+  FXuchar   ver;        // Version
 private:
   FXint next();
-  FXbool need(FXival count);
-  FXbool emit(const FXchar* str,FXival count);
-  FXbool emit(FXchar ch,FXival count);
-  Error loadString(FXString& str);
-  Error loadIdent(FXString& str);
+  FXint ident();
+  FXint string();
+  FXint number();
   Error loadMap(FXVariant& var);
   Error loadArray(FXVariant& var);
   Error loadVariant(FXVariant& var);
@@ -141,7 +147,7 @@ public:
   /**
   * Open JSON parse buffer with size and direction.
   */
-  FXbool open(FXchar* buffer=NULL,FXuval sz=8192,Direction d=Load);
+  FXbool open(FXchar* buffer=nullptr,FXuval sz=8192,Direction d=Load);
 
   /**
   * Return direction in effect.
@@ -243,14 +249,16 @@ public:
   FXint getEscapeMode() const { return esc; }
 
   /**
-  * Read at least count bytes into buffer; return bytes available, or -1 for error.
+  * Change json version.
   */
-  virtual FXival fill(FXival count);
+  void setVersion(FXint v){ ver=v; }
+  FXint getVersion() const { return ver; }
 
   /**
-  * Write at least count bytes from buffer; return space available, or -1 for error.
+  * Change quote type, either (') or (").
   */
-  virtual FXival flush(FXival count);
+  void setQuote(FXint q){ quote=q; }
+  FXint getQuote() const { return quote; }
 
   /**
   * Close stream and delete buffer, if owned.

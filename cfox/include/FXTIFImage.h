@@ -3,7 +3,7 @@
 *                          T I F F   I m a g e   O b j e c t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 Eric Gillet.   All Rights Reserved.                   *
+* Copyright (C) 2001,2022 Eric Gillet.   All Rights Reserved.                   *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -44,7 +44,7 @@ public:
 public:
 
   /// Construct an image from memory stream formatted in TIFF format
-  FXTIFImage(FXApp *a,const void *pix=NULL,FXuint opts=0,FXint w=1,FXint h=1);
+  FXTIFImage(FXApp *a,const FXuchar *pix=nullptr,FXuint opts=0,FXint w=1,FXint h=1);
 
   /// True if format is supported
   static const FXbool supported;

@@ -3,7 +3,7 @@
 *                          S e m a p h o r e   Q u e u e                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -52,10 +52,10 @@ private:
 public:
 
   /// Create initially empty queue of given size sz
-  FXSemaQueue(FXuint sz=32);
+  FXSemaQueue(FXival sz=32);
 
   /// Return size
-  FXuint getSize() const { return queue.getSize(); }
+  FXival getSize() const { return queue.getSize(); }
 
   /// Add item to queue, return true if success
   FXbool push(FXptr ptr);
@@ -91,7 +91,7 @@ class FXSemaQueueOf : public FXSemaQueue {
 public:
 
   /// Create initially empty queue of given size sz
-  FXSemaQueueOf(FXuint sz=32):FXSemaQueue(sz){}
+  FXSemaQueueOf(FXival sz=32):FXSemaQueue(sz){}
 
   /// Add item to queue, return true if success
   FXbool push(TYPE* obj){ return FXSemaQueue::push((FXptr)obj); }

@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FXCP437Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXCP437Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: CP437.TXT ////
@@ -131,7 +131,7 @@ const FXchar* FXCP437Codec::mimeName() const {
 
 
 const FXchar* const* FXCP437Codec::aliases() const {
-  static const FXchar *const list[]={"microsoft-cp437","IBM437","cp437","csPC8CodePage437",NULL};
+  static const FXchar *const list[]={"microsoft-cp437","IBM437","cp437","csPC8CodePage437",nullptr};
   return list;
   }
 

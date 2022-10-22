@@ -3,7 +3,7 @@
 *                       C o l o r   B a r   W i d g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2001,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -87,7 +87,7 @@ FXColorBar::FXColorBar(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,F
   flags|=FLAG_ENABLED;
   target=tgt;
   message=sel;
-  bar=new FXImage(getApp(),NULL,IMAGE_DITHER|IMAGE_KEEP|IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,1,1);
+  bar=new FXImage(getApp(),nullptr,IMAGE_DITHER|IMAGE_KEEP|IMAGE_OWNED|IMAGE_SHMI|IMAGE_SHMP,1,1);
   hsv[0]=0.0f;
   hsv[1]=0.0f;
   hsv[2]=1.0f;

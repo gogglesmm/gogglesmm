@@ -3,7 +3,7 @@
 *                  S t r i n g   D i c t i o n a r y    C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -40,8 +40,7 @@
     its not a very large class, but one which has high use.
 */
 
-#define EMPTY     ((Entry*)(__stringdictionary__empty__+3))
-#define NOMEMORY  ((Entry*)(((FXival*)NULL)+3))
+#define EMPTY     (const_cast<Entry*>((const Entry*)(__stringdictionary__empty__+3)))
 #define BSHIFT    5
 
 using namespace FX;
@@ -61,7 +60,8 @@ const FXival __stringdictionary__empty__[7]={1,0,1,(FXival)(__string__empty__+1)
 FXbool FXStringDictionary::no(FXival n){
   FXival m=no();
   if(__likely(m!=n)){
-    Entry *elbat;
+    Entry* elbat;
+    void*  p;
 
     // Release old table
     if(1<m){
@@ -72,7 +72,8 @@ FXbool FXStringDictionary::no(FXival n){
 
     // Allocate new table
     if(1<n){
-      if((elbat=(Entry*)(((FXival*)::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))+3))==NOMEMORY) return false;
+      if(__unlikely((p=::calloc(sizeof(FXival)*3+sizeof(Entry)*n,1))==nullptr)) return false;
+      elbat=(Entry*)(((FXival*)p)+3);
       ((FXival*)elbat)[-3]=n;
       ((FXival*)elbat)[-2]=0;
       ((FXival*)elbat)[-1]=n;
@@ -224,14 +225,14 @@ const FXString& FXStringDictionary::at(const FXchar* ky) const {
 
 
 // Remove string associated with given key
-void FXStringDictionary::remove(const FXchar* ky){
+FXbool FXStringDictionary::remove(const FXchar* ky){
   if(__unlikely(!ky || !*ky)){ throw FXRangeException("FXStringDictionary::remove: null or empty key\n"); }
   if(__likely(!empty())){
     FXuval p,b,h,x;
     p=b=h=FXString::hash(ky);
     FXASSERT(h);
     while(table[x=p&(no()-1)].hash!=h || table[x].key!=ky){
-      if(!table[x].hash) return;
+      if(!table[x].hash) return false;
       p=(p<<2)+p+b+1;
       b>>=BSHIFT;
       }
@@ -239,25 +240,29 @@ void FXStringDictionary::remove(const FXchar* ky){
     table[x].data.clear();
     used(used()-1);
     if(__unlikely(used()<=(no()>>2))) resize(no()>>1);
+    return true;
     }
+  return false;
   }
 
 
 // Erase string at pos in the table
-void FXStringDictionary::erase(FXival pos){
+FXbool FXStringDictionary::erase(FXival pos){
   if(__unlikely(pos<0 || no()<=pos)){ throw FXRangeException("FXStringDictionary::erase: argument out of range\n"); }
   if(!table[pos].key.empty()){
     table[pos].key.clear();                             // Void the slot (not empty!)
     table[pos].data.clear();
     used(used()-1);
     if(__unlikely(used()<=(no()>>2))) resize(no()>>1);
+    return true;
     }
+  return false;
   }
 
 
 // Clear entire table
-void FXStringDictionary::clear(){
-  no(1);
+FXbool FXStringDictionary::clear(){
+  return no(1);
   }
 
 

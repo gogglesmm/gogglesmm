@@ -3,7 +3,7 @@
 *                          I F F   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -113,13 +113,14 @@ FXbool fxloadIFF(FXStream& store,FXColor*& data,FXint& width,FXint& height){
   FXbool   ok=false;
 
   // Init
-  data=NULL;
-  buffer=NULL;
+  data=nullptr;
+  buffer=nullptr;
   width=0;
   height=0;
   pixels=0;
   view=0;
   colors=0;
+  planes=0;
   bytesperline=0;
   pixelcolor=0;
   fmt=ILBM_NORMAL;

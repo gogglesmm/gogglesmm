@@ -3,7 +3,7 @@
 *                         C o n d i t i o n   C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -31,37 +31,35 @@
 
 using namespace FX;
 
+/*******************************************************************************/
 
 namespace FX {
-
-
-/*******************************************************************************/
 
 // Initialize condition
 FXCondition::FXCondition(){
 #if defined(WIN32) && (_WIN32_WINNT >= 0x0600)    // Vista or newer
   // If this fails on your machine, determine what value
   // of sizeof(pthread_cond_t) is supposed to be on your
-  // machine and mail it to: jeroen@fox-toolkit.com!!
-  FXASSERT(sizeof(data)>=sizeof(CONDITION_VARIABLE));
+  // machine and mail it to: jeroen@fox-toolkit.net!!
+  FXASSERT_STATIC(sizeof(data)>=sizeof(CONDITION_VARIABLE));
   InitializeConditionVariable((CONDITION_VARIABLE*)data);
 #elif defined(WIN32)
   // If this fails on your machine, determine what value
   // of sizeof(pthread_cond_t) is supposed to be on your
-  // machine and mail it to: jeroen@fox-toolkit.com!!
+  // machine and mail it to: jeroen@fox-toolkit.net!!
   //FXTRACE((150,"sizeof(CRITICAL_SECTION)+sizeof(HANDLE)+sizeof(HANDLE)+sizeof(FXuval)=%d\n",sizeof(CRITICAL_SECTION)+sizeof(HANDLE)+sizeof(HANDLE)+sizeof(FXuval)));
-  FXASSERT(sizeof(data)>=sizeof(CRITICAL_SECTION)+sizeof(HANDLE)+sizeof(HANDLE)+sizeof(FXuval));
-  data[0]=(FXuval)CreateEvent(NULL,0,0,NULL);                   // Wakes one, autoreset
-  data[1]=(FXuval)CreateEvent(NULL,1,0,NULL);                   // Wakes all, manual reset
+  FXASSERT_STATIC(sizeof(data)>=sizeof(CRITICAL_SECTION)+sizeof(HANDLE)+sizeof(HANDLE)+sizeof(FXuval));
+  data[0]=(FXuval)CreateEvent(nullptr,0,0,nullptr);                   // Wakes one, autoreset
+  data[1]=(FXuval)CreateEvent(nullptr,1,0,nullptr);                   // Wakes all, manual reset
   data[2]=0;                                                    // Blocked count
   InitializeCriticalSection((CRITICAL_SECTION*)&data[3]);       // Critical section
 #else
   // If this fails on your machine, determine what value
   // of sizeof(pthread_cond_t) is supposed to be on your
-  // machine and mail it to: jeroen@fox-toolkit.com!!
+  // machine and mail it to: jeroen@fox-toolkit.net!!
   //FXTRACE((150,"sizeof(pthread_cond_t)=%d\n",sizeof(pthread_cond_t)));
-  FXASSERT(sizeof(data)>=sizeof(pthread_cond_t));
-  pthread_cond_init((pthread_cond_t*)data,NULL);
+  FXASSERT_STATIC(sizeof(data)>=sizeof(pthread_cond_t));
+  pthread_cond_init((pthread_cond_t*)data,nullptr);
 #endif
   }
 
@@ -158,7 +156,7 @@ FXbool FXCondition::wait(FXMutex& mtx,FXTime nsec){
 #else
       struct timespec ts;
       struct timeval tv;
-      gettimeofday(&tv,NULL);
+      gettimeofday(&tv,nullptr);
       tv.tv_usec*=1000;
       ts.tv_sec=tv.tv_sec+(tv.tv_usec+nsec)/1000000000;
       ts.tv_nsec=(tv.tv_usec+nsec)%1000000000;

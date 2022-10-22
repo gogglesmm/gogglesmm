@@ -3,7 +3,7 @@
 *                      S c r o l l A r e a   W i d g e t                        *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -116,9 +116,9 @@ static const FXint acceleration[AUTOSCROLL_FUDGE+1]={1,1,1,2,3,4,6,7,8,16,32,64}
 // Deserialization
 FXScrollArea::FXScrollArea(){
   flags|=FLAG_SHOWN;
-  horizontal=NULL;
-  vertical=NULL;
-  corner=NULL;
+  horizontal=nullptr;
+  vertical=nullptr;
+  corner=nullptr;
   pos_x=0;
   pos_y=0;
   }

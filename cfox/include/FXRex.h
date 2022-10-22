@@ -3,7 +3,7 @@
 *                 R e g u l a r   E x p r e s s i o n   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -129,10 +129,10 @@ public:
   FXRex(const FXRex& orig);
 
   /// Compile expression from pattern; if error is not NULL, error code is returned
-  FXRex(const FXchar* pattern,FXint mode=Normal,Error* error=NULL);
+  FXRex(const FXchar* pattern,FXint mode=Normal,Error* error=nullptr);
 
   /// Compile expression from pattern; if error is not NULL, error code is returned
-  FXRex(const FXString& pattern,FXint mode=Normal,Error* error=NULL);
+  FXRex(const FXString& pattern,FXint mode=Normal,Error* error=nullptr);
 
   /**
   * See if regular expression is empty; the regular expression
@@ -157,8 +157,8 @@ public:
   * If there is a match, the pattern and subpatterns are captured in the arrays beg[] and end[]
   * which must both be at least npar entries long.
   */
-  FXbool amatch(const FXchar* string,FXint len,FXint pos=0,FXint mode=Normal,FXint* beg=NULL,FXint* end=NULL,FXint npar=0) const;
-  FXbool amatch(const FXString& string,FXint pos=0,FXint mode=Normal,FXint* beg=NULL,FXint* end=NULL,FXint npar=0) const;
+  FXbool amatch(const FXchar* string,FXint len,FXint pos=0,FXint mode=Normal,FXint* beg=nullptr,FXint* end=nullptr,FXint npar=0) const;
+  FXbool amatch(const FXString& string,FXint pos=0,FXint mode=Normal,FXint* beg=nullptr,FXint* end=nullptr,FXint npar=0) const;
 
   /**
   * Search subject string of length len for a pattern, returning the location where the pattern
@@ -168,8 +168,8 @@ public:
   * The string is searched forwards (or backwards) starting from position fm toward to, both of which
   * must lie inside the string.
   */
-  FXint search(const FXchar* string,FXint len,FXint fm,FXint to,FXint mode=Normal,FXint* beg=NULL,FXint* end=NULL,FXint npar=0) const;
-  FXint search(const FXString& string,FXint fm,FXint to,FXint mode=Normal,FXint* beg=NULL,FXint* end=NULL,FXint npar=0) const;
+  FXint search(const FXchar* string,FXint len,FXint fm,FXint to,FXint mode=Normal,FXint* beg=nullptr,FXint* end=nullptr,FXint npar=0) const;
+  FXint search(const FXString& string,FXint fm,FXint to,FXint mode=Normal,FXint* beg=nullptr,FXint* end=nullptr,FXint npar=0) const;
 
   /**
   * After performing a regular expression match with capturing parentheses,

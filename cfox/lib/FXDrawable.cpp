@@ -3,7 +3,7 @@
 *                             D r a w a b l e   A r e a                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -52,16 +52,16 @@ using namespace FX;
 namespace FX {
 
 // Object implementation
-FXIMPLEMENT_ABSTRACT(FXDrawable,FXId,NULL,0)
+FXIMPLEMENT_ABSTRACT(FXDrawable,FXId,nullptr,0)
 
 
 // For deserialization
-FXDrawable::FXDrawable():visual(NULL),width(0),height(0){
+FXDrawable::FXDrawable():visual(nullptr),width(0),height(0){
   }
 
 
 // Initialize nicely
-FXDrawable::FXDrawable(FXApp* a,FXint w,FXint h):FXId(a),visual(NULL),width(FXMAX(w,0)),height(FXMAX(h,0)){
+FXDrawable::FXDrawable(FXApp* a,FXint w,FXint h):FXId(a),visual(nullptr),width(FXMAX(w,0)),height(FXMAX(h,0)){
   }
 
 

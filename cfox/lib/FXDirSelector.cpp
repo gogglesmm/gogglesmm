@@ -3,7 +3,7 @@
 *              D i r e c t o r y   S e l e c t i o n   W i d g e t              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -135,13 +135,13 @@ FXDirSelector::FXDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
   target=tgt;
   message=sel;
   FXHorizontalFrame *buttons=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
-  accept=new FXButton(buttons,tr("&OK"),NULL,NULL,0,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
-  cancel=new FXButton(buttons,tr("&Cancel"),NULL,NULL,0,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
+  accept=new FXButton(buttons,tr("&OK"),nullptr,nullptr,0,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
+  cancel=new FXButton(buttons,tr("&Cancel"),nullptr,nullptr,0,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0,20,20);
   FXHorizontalFrame *field=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X,0,0,0,0,0,0,0,0);
-  new FXLabel(field,tr("&Directory:"),NULL,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
+  new FXLabel(field,tr("&Directory:"),nullptr,JUSTIFY_LEFT|LAYOUT_CENTER_Y);
   dirname=new FXTextField(field,25,this,ID_DIRNAME,LAYOUT_FILL_X|LAYOUT_CENTER_Y|FRAME_SUNKEN|FRAME_THICK);
   FXVerticalFrame *frame=new FXVerticalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, 0,0,0,0, 0,0);
-  new FXLabel(frame,tr("&Name"),NULL,JUSTIFY_LEFT|JUSTIFY_CENTER_Y|LAYOUT_TOP|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X);
+  new FXLabel(frame,tr("&Name"),nullptr,JUSTIFY_LEFT|JUSTIFY_CENTER_Y|LAYOUT_TOP|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X);
   dirbox=new FXDirList(frame,this,ID_DIRLIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_TOP|TREELIST_SHOWS_LINES|TREELIST_SHOWS_BOXES|TREELIST_BROWSESELECT);
   updiricon=new FXGIFIcon(getApp(),dirupicon);
   homeicon=new FXGIFIcon(getApp(),gotohome);
@@ -331,7 +331,7 @@ long FXDirSelector::onCmdNew(FXObject*,FXSelector,void*){
 
 // Update create new directory
 long FXDirSelector::onUpdNew(FXObject* sender,FXSelector,void*){
-  sender->handle(this,FXStat::isAccessible(getDirectory(),FXIO::Writing)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,FXStat::isAccessible(getDirectory(),FXIO::Writing)?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -340,7 +340,7 @@ long FXDirSelector::onUpdNew(FXObject* sender,FXSelector,void*){
 long FXDirSelector::onCmdCopy(FXObject*,FXSelector,void*){
   FXString oldname=dirbox->getCurrentFile();
   FXString newname=FXPath::directory(oldname)+PATHSEPSTRING "CopyOf"+FXPath::name(oldname);
-  FXInputDialog inputdialog(this,tr("Copy File"),"Copy file from location:\n\n"+oldname+"\n\nto location:",NULL,INPUTDIALOG_STRING,0,0,0,0);
+  FXInputDialog inputdialog(this,tr("Copy File"),"Copy file from location:\n\n"+oldname+"\n\nto location:",nullptr,INPUTDIALOG_STRING,0,0,0,0);
   inputdialog.setText(newname);
   inputdialog.setNumColumns(60);
   if(inputdialog.execute()){
@@ -357,7 +357,7 @@ long FXDirSelector::onCmdCopy(FXObject*,FXSelector,void*){
 long FXDirSelector::onCmdMove(FXObject*,FXSelector,void*){
   FXString oldname=dirbox->getCurrentFile();
   FXString newname=oldname;
-  FXInputDialog inputdialog(this,tr("Move File"),"Move file from location:\n\n"+oldname+"\n\nto location:",NULL,INPUTDIALOG_STRING,0,0,0,0);
+  FXInputDialog inputdialog(this,tr("Move File"),"Move file from location:\n\n"+oldname+"\n\nto location:",nullptr,INPUTDIALOG_STRING,0,0,0,0);
   inputdialog.setText(newname);
   inputdialog.setNumColumns(60);
   if(inputdialog.execute()){
@@ -374,7 +374,7 @@ long FXDirSelector::onCmdMove(FXObject*,FXSelector,void*){
 long FXDirSelector::onCmdLink(FXObject*,FXSelector,void*){
   FXString oldname=dirbox->getCurrentFile();
   FXString newname=FXPath::directory(oldname)+PATHSEPSTRING "LinkTo"+FXPath::name(oldname);
-  FXInputDialog inputdialog(this,tr("Link File"),"Link file from location:\n\n"+oldname+"\n\nto location:",NULL,INPUTDIALOG_STRING,0,0,0,0);
+  FXInputDialog inputdialog(this,tr("Link File"),"Link file from location:\n\n"+oldname+"\n\nto location:",nullptr,INPUTDIALOG_STRING,0,0,0,0);
   inputdialog.setText(newname);
   inputdialog.setNumColumns(60);
   if(inputdialog.execute()){
@@ -401,7 +401,7 @@ long FXDirSelector::onCmdRemove(FXObject*,FXSelector,void*){
 
 // Sensitize when files are selected
 long FXDirSelector::onUpdSelected(FXObject* sender,FXSelector,void*){
-  sender->handle(this,dirbox->getCurrentItem()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,dirbox->getCurrentItem()?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -431,16 +431,16 @@ long FXDirSelector::onPopupMenu(FXObject*,FXSelector,void* ptr){
   FXMenuSeparator* sep1=new FXMenuSeparator(&bookmenu);
   sep1->setTarget(&mrufiles);
   sep1->setSelector(FXRecentFiles::ID_ANYFILES);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_1);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_2);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_3);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_4);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_5);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_6);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_7);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_8);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_9);
-  new FXMenuCommand(&bookmenu,FXString::null,NULL,&mrufiles,FXRecentFiles::ID_FILE_10);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_1);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_2);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_3);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_4);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_5);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_6);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_7);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_8);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_9);
+  new FXMenuCommand(&bookmenu,FXString::null,nullptr,&mrufiles,FXRecentFiles::ID_FILE_10);
 
   new FXMenuSeparator(&filemenu);
   new FXMenuCommand(&filemenu,tr("New directory..."),newicon,this,ID_NEW);
@@ -450,7 +450,7 @@ long FXDirSelector::onPopupMenu(FXObject*,FXSelector,void* ptr){
   new FXMenuCommand(&filemenu,tr("Delete..."),deleteicon,this,ID_REMOVE);
 
   filemenu.create();
-  filemenu.popup(NULL,event->root_x,event->root_y);
+  filemenu.popup(nullptr,event->root_x,event->root_y);
   getApp()->runModalWhileShown(&filemenu);
   return 1;
   }

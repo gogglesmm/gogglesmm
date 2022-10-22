@@ -3,7 +3,7 @@
 *              B a s e - 6 4    E n c o d i n g  /  D e c o d i n g             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2012,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2012,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -26,7 +26,9 @@
   Notes:
   - Encode/decode binary data to or from base64 ascii.
   - New implementation should be both faster and safer.
-  -
+  - Encode 3 bytes of source into 4 bytes to destination, allowing
+    binary data to be safely transmitted using only 64 safe printable letters,
+    numbers, and other printable ASCII symbols.
 */
 
 using namespace FX;

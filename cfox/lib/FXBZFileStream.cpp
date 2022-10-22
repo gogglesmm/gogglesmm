@@ -3,7 +3,7 @@
 *                      B Z F i l e S t r e a m   C l a s s e s                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Lyle Johnson. All Rights Reserved.                 *
+* Copyright (C) 1999,2022 by Lyle Johnson. All Rights Reserved.                 *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -63,12 +63,12 @@ struct BZBlock {
 
 
 // Create BZIP2 file stream
-FXBZFileStream::FXBZFileStream(const FXObject* cont):FXFileStream(cont),bz(NULL),ac(0){
+FXBZFileStream::FXBZFileStream(const FXObject* cont):FXFileStream(cont),bz(nullptr),ac(0){
   }
 
 
 // Create and open BZIP2 file stream
-FXBZFileStream::FXBZFileStream(const FXString& filename,FXStreamDirection save_or_load,FXuval size):bz(NULL),ac(0){
+FXBZFileStream::FXBZFileStream(const FXString& filename,FXStreamDirection save_or_load,FXuval size):bz(nullptr),ac(0){
   open(filename,save_or_load,size);
   }
 
@@ -134,9 +134,9 @@ FXbool FXBZFileStream::open(const FXString& filename,FXStreamDirection save_or_l
   if(FXFileStream::open(filename,save_or_load,size)){
     if(callocElms(bz,1)){
       int bzerror;
-      bz->stream.next_in=NULL;
+      bz->stream.next_in=nullptr;
       bz->stream.avail_in=0;
-      bz->stream.next_out=NULL;
+      bz->stream.next_out=nullptr;
       bz->stream.avail_out=0;
       ac=BZ_RUN;
       if(save_or_load==FXStreamLoad){

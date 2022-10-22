@@ -3,7 +3,7 @@
 *             R e a l - V a l u e d   S p i n n e r  W i d g e t                *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2003,2020 by Bill Baxter.   All Rights Reserved.                *
+* Copyright (C) 2003,2022 by Bill Baxter.   All Rights Reserved.                *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -187,24 +187,26 @@ void FXRealSpinner::layout(){
   }
 
 
-// Notification that focus moved to new child
-void FXRealSpinner::changeFocus(FXWindow *child){
-  FXPacker::changeFocus(child);
-  if(child){
-    flags&=~FLAG_UPDATE;
-    }
-  else{
-    flags|=FLAG_UPDATE;
-    }
+// Move the focus to this window
+void FXRealSpinner::setFocus(){
+  FXPacker::setFocus();
+  flags&=~FLAG_UPDATE;
+  }
+
+
+// Remove the focus from this window
+void FXRealSpinner::killFocus(){
+  FXPacker::killFocus();
+  flags|=FLAG_UPDATE;
   }
 
 
 // Respond to increment message
 long FXRealSpinner::onUpdIncrement(FXObject* sender,FXSelector,void*){
   if(isEnabled() && ((options&REALSPIN_CYCLIC) || (pos<range[1])))
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 
@@ -222,9 +224,9 @@ long FXRealSpinner::onCmdIncrement(FXObject*,FXSelector,void*){
 // Disable decrement if at low end already
 long FXRealSpinner::onUpdDecrement(FXObject* sender,FXSelector,void*){
   if(isEnabled() && ((options&REALSPIN_CYCLIC) || (range[0]<pos)))
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   else
-    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+    sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 

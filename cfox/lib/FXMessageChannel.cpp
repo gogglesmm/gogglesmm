@@ -3,7 +3,7 @@
 *         I n t e r - T h r e a d    M e s s a g i n g    C h a n n e l         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -124,14 +124,14 @@ FXMessageChannel::FXMessageChannel():app((FXApp*)-1L){
 // Add handler to application
 FXMessageChannel::FXMessageChannel(FXApp* a):app(a){
 #if defined(WIN32)
-  if((h[2]=::CreateSemaphore(NULL,0,2147483647,NULL))==NULL){ throw FXResourceException("unable to create semaphore."); }
-  if(::CreatePipe(&h[0],&h[1],NULL,0)==0){ throw FXResourceException("unable to create pipe."); }
-  app->addInput(this,ID_IO_READ,h[2],INPUT_READ,NULL);
+  if((h[2]=::CreateSemaphore(nullptr,0,2147483647,nullptr))==nullptr){ throw FXResourceException("unable to create semaphore."); }
+  if(::CreatePipe(&h[0],&h[1],nullptr,0)==0){ throw FXResourceException("unable to create pipe."); }
+  app->addInput(this,ID_IO_READ,h[2],INPUT_READ,nullptr);
 #else
   if(::pipe(h)!=0){ throw FXResourceException("unable to create pipe."); }
   ::fcntl(h[0],F_SETFD,FD_CLOEXEC);
   ::fcntl(h[1],F_SETFD,FD_CLOEXEC);
-  app->addInput(this,ID_IO_READ,h[0],INPUT_READ,NULL);
+  app->addInput(this,ID_IO_READ,h[0],INPUT_READ,nullptr);
 #endif
   }
 
@@ -141,18 +141,18 @@ long FXMessageChannel::onMessage(FXObject*,FXSelector,void*){
   FXDataMessage pkg;
 #if defined(WIN32)
   DWORD nread=-1;
-  if(::ReadFile(h[0],&pkg,sizeof(FXMessage),&nread,NULL) && nread==sizeof(FXMessage)){
-    if(0<pkg.size && (::ReadFile(h[0],pkg.data,pkg.size,&nread,NULL) && nread==pkg.size)){
+  if(::ReadFile(h[0],&pkg,sizeof(FXMessage),&nread,nullptr) && nread==sizeof(FXMessage)){
+    if(0<pkg.size && (::ReadFile(h[0],pkg.data,pkg.size,&nread,nullptr) && nread==pkg.size)){
       return pkg.target && pkg.target->tryHandle(this,pkg.message,pkg.data);
       }
-    return pkg.target && pkg.target->tryHandle(this,pkg.message,NULL);
+    return pkg.target && pkg.target->tryHandle(this,pkg.message,nullptr);
     }
 #else
   if(::read(h[0],&pkg,sizeof(FXMessage))==sizeof(FXMessage)){
     if(0<pkg.size && (::read(h[0],pkg.data,pkg.size)==pkg.size)){
       return pkg.target && pkg.target->tryHandle(this,pkg.message,pkg.data);
       }
-    return pkg.target && pkg.target->tryHandle(this,pkg.message,NULL);
+    return pkg.target && pkg.target->tryHandle(this,pkg.message,nullptr);
     }
 #endif
   return 0;
@@ -171,9 +171,9 @@ FXbool FXMessageChannel::message(FXObject* tgt,FXSelector msg,const void* data,F
   pkg.size=FXMIN(size,MAXMESSAGE);
 #if defined(WIN32)
   DWORD nwritten=-1;
-  if(::WriteFile(h[1],&pkg,sizeof(FXMessage),&nwritten,NULL) && nwritten==sizeof(FXMessage)){
-    if(pkg.size<=0 || (::WriteFile(h[1],data,pkg.size,&nwritten,NULL) && nwritten==pkg.size)){
-      ::ReleaseSemaphore(h[2],1,NULL);
+  if(::WriteFile(h[1],&pkg,sizeof(FXMessage),&nwritten,nullptr) && nwritten==sizeof(FXMessage)){
+    if(pkg.size<=0 || (::WriteFile(h[1],data,pkg.size,&nwritten,nullptr) && nwritten==pkg.size)){
+      ::ReleaseSemaphore(h[2],1,nullptr);
       return true;
       }
     }

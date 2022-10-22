@@ -3,7 +3,7 @@
 *                           S p i n l o c k   C l a s s                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -27,16 +27,17 @@
   Notes:
 
   - Spin lock variable.
+  - Extra fluff data is not useless; it is intentionally there to pad the
+    spin-variable to a cache line, thus reducing false-sharing in case other
+    "hot" data is nearby.
   - Ticket spinlock flavor does not support more than 256 simultaneous threads.
 */
 
 using namespace FX;
 
+/*******************************************************************************/
 
 namespace FX {
-
-
-/*******************************************************************************/
 
 // Initialize spinlock
 FXSpinLock::FXSpinLock(){
@@ -47,16 +48,18 @@ FXSpinLock::FXSpinLock(){
 #elif defined(__APPLE__)
   // If this fails on your machine, determine what value
   // of sizeof(pthread_mutex_t) is supposed to be on your
-  // machine and mail it to: jeroen@fox-toolkit.com!!
+  // machine and mail it to: jeroen@fox-toolkit.net!!
   //FXTRACE((150,"sizeof(OSSpinLock)=%d\n",sizeof(OSSpinLock)));
-  FXASSERT(sizeof(data)>=sizeof(OSSpinLock));
+  FXASSERT_STATIC(sizeof(data)>=sizeof(OSSpinLock));
+  data[0]=data[1]=data[2]=data[3]=0;
   *((OSSpinLock*)data)=OS_SPINLOCK_INIT;
 #else
   // If this fails on your machine, determine what value
   // of sizeof(pthread_spinlock_t) is supposed to be on your
-  // machine and mail it to: jeroen@fox-toolkit.com!!
+  // machine and mail it to: jeroen@fox-toolkit.net!!
   //FXTRACE((150,"sizeof(pthread_spinlock_t)=%d\n",sizeof(pthread_spinlock_t)));
-  FXASSERT(sizeof(data)>=sizeof(pthread_spinlock_t));
+  FXASSERT_STATIC(sizeof(data)>=sizeof(pthread_spinlock_t));
+  data[0]=data[1]=data[2]=data[3]=0;
   pthread_spin_init((pthread_spinlock_t*)(void*)data,PTHREAD_PROCESS_PRIVATE);
 #endif
   }
@@ -66,7 +69,7 @@ FXSpinLock::FXSpinLock(){
 void FXSpinLock::lock(){
 #if defined(WIN32)
   while(_InterlockedExchange((LONG*)data,1L)){
-    while(data[0]){ }
+    YieldProcessor();
     }
 #elif (defined(__GNUC__) || defined(__INTEL_COMPILER)) && (defined(__i386__) || defined(__x86_64__))
   __asm__ __volatile__ ("movw $0x0100, %%ax \n\t"

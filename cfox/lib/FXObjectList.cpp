@@ -3,7 +3,7 @@
 *                            O b j e c t   L i s t                              *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -46,7 +46,7 @@
 #define ROUNDUP(n)  (((n)+ROUNDVAL-1)&-ROUNDVAL)
 
 // Special empty object list value
-#define EMPTY       ((FXObject**)(__objectlist__empty__+1))
+#define EMPTY       (const_cast<FXObject**>((FXObject *const *)(__objectlist__empty__+1)))
 
 using namespace FX;
 
@@ -66,10 +66,10 @@ FXbool FXObjectList::no(FXival num){
     if(0<num){
       FXptr p;
       if(ptr!=EMPTY){
-        if(__unlikely((p=::realloc(((FXival*)ptr)-1,sizeof(FXival)+sizeof(FXObject*)*ROUNDUP(num)))==NULL)) return false;
+        if(__unlikely((p=::realloc(((FXival*)ptr)-1,sizeof(FXival)+sizeof(FXObject*)*ROUNDUP(num)))==nullptr)) return false;
         }
       else{
-        if(__unlikely((p=::malloc(sizeof(FXival)+sizeof(FXObject*)*ROUNDUP(num)))==NULL)) return false;
+        if(__unlikely((p=::malloc(sizeof(FXival)+sizeof(FXObject*)*ROUNDUP(num)))==nullptr)) return false;
         }
       ptr=(FXObject**)(((FXival*)p)+1);
       *(((FXival*)ptr)-1)=num;
@@ -407,8 +407,8 @@ FXbool FXObjectList::pop(){
 
 
 // Clear the list
-void FXObjectList::clear(){
-  no(0);
+FXbool FXObjectList::clear(){
+  return no(0);
   }
 
 

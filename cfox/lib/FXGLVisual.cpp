@@ -3,7 +3,7 @@
 *                            V i s u a l   C l a s s                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -94,7 +94,7 @@ using namespace FX;
 namespace FX {
 
 // Object implementation
-FXIMPLEMENT(FXGLVisual,FXVisual,NULL,0)
+FXIMPLEMENT(FXGLVisual,FXVisual,nullptr,0)
 
 
 // Deserialization
@@ -167,7 +167,7 @@ FXbool FXGLVisual::hasOpenGL(FXApp* application){
 #ifdef WIN32            // WIN32
     return true;
 #else                   // UNIX
-    return glXQueryExtension((Display*)application->getDisplay(),NULL,NULL);
+    return glXQueryExtension((Display*)application->getDisplay(),nullptr,nullptr);
 #endif
 #endif
     }
@@ -544,7 +544,7 @@ void FXGLVisual::create(){
       ::ReleaseDC(GetDesktopWindow(),hdc);
 
       // Make non-current
-      wglMakeCurrent(NULL,NULL);
+      wglMakeCurrent(nullptr,nullptr);
 #endif
       }
 

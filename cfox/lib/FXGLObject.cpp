@@ -3,7 +3,7 @@
 *                           O p e n G L   O b j e c t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -62,7 +62,7 @@ namespace FX {
 
 
 // Object implementation
-FXIMPLEMENT(FXGLObject,FXObject,NULL,0)
+FXIMPLEMENT(FXGLObject,FXObject,nullptr,0)
 
 
 // Get bounding box
@@ -105,7 +105,7 @@ FXbool FXGLObject::drag(FXGLViewer*,FXint,FXint,FXint,FXint){ return false; }
 /*******************************************************************************/
 
 // Object implementation
-FXIMPLEMENT(FXGLGroup,FXGLObject,NULL,0)
+FXIMPLEMENT(FXGLGroup,FXGLObject,nullptr,0)
 
 
 // Get bounding box

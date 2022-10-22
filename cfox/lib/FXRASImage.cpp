@@ -3,7 +3,7 @@
 *                   S U N   R A S T E R   I m a g e   O b j e c t               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -62,13 +62,13 @@ const FXchar FXRASImage::mimeType[]="image/ras";
 
 
 // Object implementation
-FXIMPLEMENT(FXRASImage,FXImage,NULL,0)
+FXIMPLEMENT(FXRASImage,FXImage,nullptr,0)
 
 
 // Initialize
-FXRASImage::FXRASImage(FXApp* a,const void *pix,FXuint opts,FXint w,FXint h):FXImage(a,NULL,opts,w,h){
+FXRASImage::FXRASImage(FXApp* a,const FXuchar *pix,FXuint opts,FXint w,FXint h):FXImage(a,nullptr,opts,w,h){
   if(pix){
-    FXMemoryStream ms(FXStreamLoad,(FXuchar*)pix);
+    FXMemoryStream ms(FXStreamLoad,const_cast<FXuchar*>(pix));
     loadPixels(ms);
     }
   }

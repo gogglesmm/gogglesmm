@@ -3,7 +3,7 @@
 *                       D e l e g a t o r   T a r g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2000,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2000,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -49,7 +49,7 @@ public:
 public:
 
   /// Construct a delegator
-  FXDelegator(FXObject* target=NULL):delegate(target){ }
+  FXDelegator(FXObject* target=nullptr):delegate(target){ }
 
   /// Return delegate object
   FXObject* getDelegate() const { return delegate; }

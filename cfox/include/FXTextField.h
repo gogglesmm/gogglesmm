@@ -3,7 +3,7 @@
 *                         T e x t   F i e l d   W i d g e t                     *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -165,7 +165,6 @@ public:
   long onCmdCopySel(FXObject*,FXSelector,void*);
   long onCmdPasteSel(FXObject*,FXSelector,void*);
   long onCmdDeleteSel(FXObject*,FXSelector,void*);
-  long onCmdReplaceSel(FXObject*,FXSelector,void*);
   long onCmdPasteMiddle(FXObject*,FXSelector,void*);
   long onCmdSelectAll(FXObject*,FXSelector,void*);
   long onCmdDeselectAll(FXObject*,FXSelector,void*);
@@ -190,7 +189,6 @@ public:
   static const FXchar textDelimiters[];
 
 public:
-
   enum{
     ID_CURSOR_HOME=FXFrame::ID_LAST,
     ID_CURSOR_END,
@@ -209,7 +207,6 @@ public:
     ID_CUT_SEL,
     ID_COPY_SEL,
     ID_DELETE_SEL,
-    ID_REPLACE_SEL,
     ID_PASTE_SEL,
     ID_PASTE_MIDDLE,
     ID_INSERT_STRING,
@@ -226,11 +223,10 @@ public:
     ID_AUTOSCROLL,
     ID_LAST
     };
-
 public:
 
   /// Construct text field wide enough to display ncols columns
-  FXTextField(FXComposite* p,FXint ncols,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TEXTFIELD_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  FXTextField(FXComposite* p,FXint ncols,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TEXTFIELD_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
 
   /// Create server-side resources
   virtual void create();
@@ -315,9 +311,6 @@ public:
 
   /// Delete primary selection
   FXbool deleteSelection(FXbool notify=false);
-
-  /// Replace primary selection by other text
-  FXbool replaceSelection(const FXString& text,FXbool notify=false);
 
   /// Paste primary selection
   FXbool pasteSelection(FXbool notify=false);

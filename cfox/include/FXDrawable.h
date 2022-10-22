@@ -3,7 +3,7 @@
 *                           D r a w a b l e   A r e a                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -51,7 +51,7 @@ private:
   FXDrawable(const FXDrawable&);
   FXDrawable &operator=(const FXDrawable&);
 #ifdef WIN32
-  virtual FXID GetDC() const { return NULL; }
+  virtual FXID GetDC() const { return nullptr; }
   virtual int ReleaseDC(FXID) const { return 0; }
 #endif
 public:

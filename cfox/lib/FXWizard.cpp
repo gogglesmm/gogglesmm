@@ -3,7 +3,7 @@
 *                           W i z a r d   W i d g e t                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2002,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -110,9 +110,9 @@ void FXWizard::construct(){
   advance=new FXButton(buttons,tr("&Next"),nexticon,this,ID_NEXT,BUTTON_INITIAL|BUTTON_DEFAULT|ICON_AFTER_TEXT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
   retreat=new FXButton(buttons,tr("&Back"),backicon,this,ID_BACK,ICON_BEFORE_TEXT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD+10,HORZ_PAD+10,VERT_PAD,VERT_PAD);
   new FXFrame(buttons,LAYOUT_FIX_WIDTH|LAYOUT_RIGHT,0,0,10,0);
-  cancel=new FXButton(buttons,tr("&Cancel"),NULL,this,ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
+  cancel=new FXButton(buttons,tr("&Cancel"),nullptr,this,ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y|LAYOUT_RIGHT,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
   new FXHorizontalSeparator(this,SEPARATOR_GROOVE|LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X);
-  sidebar=new FXImageFrame(this,NULL,FRAME_GROOVE|LAYOUT_SIDE_LEFT|LAYOUT_CENTER_Y);
+  sidebar=new FXImageFrame(this,nullptr,FRAME_GROOVE|LAYOUT_SIDE_LEFT|LAYOUT_CENTER_Y);
   panels=new FXSwitcher(this,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0, 0,0,0,0);
   finish->hide();
   }
@@ -120,7 +120,7 @@ void FXWizard::construct(){
 
 // Update finish panel
 long FXWizard::onUpdFinish(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(getCurrentPanel()<getNumPanels()-1)?FXSEL(SEL_COMMAND,ID_HIDE):FXSEL(SEL_COMMAND,ID_SHOW),NULL);
+  sender->handle(this,(getCurrentPanel()<getNumPanels()-1)?FXSEL(SEL_COMMAND,ID_HIDE):FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   return 1;
   }
 
@@ -134,7 +134,7 @@ long FXWizard::onCmdNext(FXObject*,FXSelector,void*){
 
 // Update advance to next page
 long FXWizard::onUpdNext(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(getCurrentPanel()<getNumPanels()-1)?FXSEL(SEL_COMMAND,ID_SHOW):FXSEL(SEL_COMMAND,ID_HIDE),NULL);
+  sender->handle(this,(getCurrentPanel()<getNumPanels()-1)?FXSEL(SEL_COMMAND,ID_SHOW):FXSEL(SEL_COMMAND,ID_HIDE),nullptr);
   return 1;
   }
 
@@ -148,7 +148,7 @@ long FXWizard::onCmdBack(FXObject*,FXSelector,void*){
 
 // Update revert to next page
 long FXWizard::onUpdBack(FXObject* sender,FXSelector,void*){
-  sender->handle(this,(0<getCurrentPanel())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),NULL);
+  sender->handle(this,(0<getCurrentPanel())?FXSEL(SEL_COMMAND,ID_ENABLE):FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
 

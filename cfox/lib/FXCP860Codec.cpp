@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FXCP860Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXCP860Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: CP860.TXT ////
@@ -129,7 +129,7 @@ const FXchar* FXCP860Codec::mimeName() const {
 
 
 const FXchar* const* FXCP860Codec::aliases() const {
-  static const FXchar *const list[]={"microsoft-cp860","IBM860","cp860","860","csIBM860",NULL};
+  static const FXchar *const list[]={"microsoft-cp860","IBM860","cp860","860","csIBM860",nullptr};
   return list;
   }
 

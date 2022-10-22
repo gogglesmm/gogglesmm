@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FXCP862Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXCP862Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: CP862.TXT ////
@@ -134,7 +134,7 @@ const FXchar* FXCP862Codec::mimeName() const {
 
 
 const FXchar* const* FXCP862Codec::aliases() const {
-  static const FXchar *const list[]={"microsoft-cp862","IBM862","cp862","862","csPC862LatinHebrew",NULL};
+  static const FXchar *const list[]={"microsoft-cp862","IBM862","cp862","862","csPC862LatinHebrew",nullptr};
   return list;
   }
 

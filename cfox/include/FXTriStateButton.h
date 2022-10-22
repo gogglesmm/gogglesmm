@@ -3,7 +3,7 @@
 *               T r i - S t a t e    B u t t o n    W i d g e t                 *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2002,2020 by Charles Warren.   All Rights Reserved.             *
+* Copyright (C) 2002,2022 by Charles Warren.   All Rights Reserved.             *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -55,7 +55,7 @@ public:
 public:
 
   /// Construct tri-state toggle button with three text labels, and three icons, one for each state
-  FXTriStateButton(FXComposite* p,const FXString& text1,const FXString& text2,const FXString& text3,FXIcon* icon1=NULL,FXIcon* icon2=NULL,FXIcon* icon3=NULL,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TOGGLEBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  FXTriStateButton(FXComposite* p,const FXString& text1,const FXString& text2,const FXString& text3,FXIcon* icon1=nullptr,FXIcon* icon2=nullptr,FXIcon* icon3=nullptr,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TOGGLEBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
 
   /// Create server-side resources
   virtual void create();

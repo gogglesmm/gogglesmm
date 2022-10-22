@@ -3,7 +3,7 @@
 *                         M e n u   B a r   W i d g e t                         *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -192,7 +192,7 @@ long FXMenuBar::onMotion(FXObject*,FXSelector,void* ptr){
 // Button pressed
 long FXMenuBar::onButtonPress(FXObject*,FXSelector,void*){
   FXTRACE((200,"%s::onButtonPress %p\n",getClassName(),this));
-  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL);
+  handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);
   return 1;
   }
 
@@ -201,7 +201,7 @@ long FXMenuBar::onButtonPress(FXObject*,FXSelector,void*){
 long FXMenuBar::onButtonRelease(FXObject*,FXSelector,void* ptr){
   FXEvent* ev=(FXEvent*)ptr;
   FXTRACE((200,"%s::onButtonRelease %p\n",getClassName(),this));
-  if(ev->moved){ handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),NULL); }
+  if(ev->moved){ handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr); }
   return 1;
   }
 

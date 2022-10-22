@@ -3,7 +3,7 @@
 *                          E v e n t   D i s p a t c h e r                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2019,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2019,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 ********************************************************************************/
 #include "xincs.h"
 #include "fxver.h"
@@ -34,7 +34,10 @@
     display connection is special in some sense [having to do with message queue
     management].
 
+  - FIXME link to chain of FXEventLoop items from this class, and add the modal
+    loops here.
 */
+
 
 using namespace FX;
 
@@ -42,9 +45,37 @@ using namespace FX;
 
 namespace FX {
 
+// Units of time in nanoseconds
+const FXTime seconds=1000000000;
+
 
 // Construct event dispatcher object
-FXEventDispatcher::FXEventDispatcher():display(NULL){
+FXEventDispatcher::FXEventDispatcher():display(nullptr){
+  }
+
+
+// Initialize dispatcher
+FXbool FXEventDispatcher::init(FXptr dpy){
+  if(FXDispatcher::init()){
+    if(dpy){
+#if !defined(WIN32)
+      addHandle(ConnectionNumber((Display*)dpy),InputRead);
+#endif
+      display=dpy;
+      return true;
+      }
+    }
+  return false;
+  }
+
+
+// Initialize dispatcher
+FXbool FXEventDispatcher::init(){
+  if(FXDispatcher::init()){
+    display=nullptr;
+    return true;
+    }
+  return false;
   }
 
 
@@ -91,7 +122,7 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
       // The fix is to call MsgWaitForMultipleObjects() only AFTER having ascertained
       // that there are NO unhandled messages queued up.
       if(flags&DispatchEvents){
-        if(PeekMessage(&event,NULL,0,0,PM_REMOVE)){
+        if(PeekMessage(&event,nullptr,0,0,PM_REMOVE)){
           if(dispatchEvent(event)) return true;         // Event activity
           continue;
           }
@@ -133,7 +164,7 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
         // A call to MsgWaitForMultipleObjects() when there are messages already in
         // the queue would block until the next message comes in.
         if(flags&DispatchEvents){
-          if(PeekMessage(&event,NULL,0,0,PM_REMOVE)){
+          if(PeekMessage(&event,nullptr,0,0,PM_REMOVE)){
            if(dispatchEvent(event)) return true;        // Event activity
            continue;
            }
@@ -186,9 +217,9 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
 FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
   if(internals){
     FXTime now,due,delay,interval;
-    FXuint sig,nxt,mode,ms;
+    FXuint sig,nxt,ms,mode,ticks;
     FXInputHandle hnd;
-    FXRawEvent event;
+    FXRawEvent event,ev;
 
     // Loop till we got something
     while(1){
@@ -222,7 +253,56 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
       if(flags&DispatchEvents){
         if(XEventsQueued((Display*)display,QueuedAfterFlush)){
           XNextEvent((Display*)display,&event);
-          if(dispatchEvent(event)) return true;         // Event activity
+#if 0
+#if 0
+          // Event was filtered by input method; get next one
+          if(xim && XFilterEvent(&ev,None)){
+            goto a;
+            }
+          if(xim && getFocusWindow() && XFilterEvent(&ev,(Window)getFocusWindow()->id())){    // FIXME
+            goto a;
+            }
+#endif
+          // Passing in focuswindow to XFilterEvent just didn't work on Gnome3 with either scim or ibus
+          if(xim && getFocusWindow() && XFilterEvent(&ev,None)){      // [Patch from Roland Baudin] FIXME but also need to deal with keyboard grabs
+            return false;
+            }
+#endif
+          // Compress motion events
+          if(event.xany.type==MotionNotify){
+            while(XPending((Display*)display)){
+              XPeekEvent((Display*)display,&ev);
+              if((ev.xany.type!=MotionNotify) || (event.xmotion.window!=ev.xmotion.window) || (event.xmotion.state != ev.xmotion.state)) break;
+              XNextEvent((Display*)display,&event);
+              }
+            }
+
+          // Compress wheel events
+          else if((event.xany.type==ButtonPress) && (event.xbutton.button==Button4 || event.xbutton.button==Button5)){
+            ticks=1;
+            while(XPending((Display*)display)){
+              XPeekEvent((Display*)display,&ev);
+              if((ev.xany.type!=ButtonPress && ev.xany.type!=ButtonRelease) || (event.xany.window!=ev.xany.window) || (event.xbutton.button != ev.xbutton.button)) break;
+              ticks+=(ev.xany.type==ButtonPress);
+              XNextEvent((Display*)display,&event);
+              }
+            event.xbutton.subwindow=(Window)ticks;   // Stick it here for later
+            }
+
+          // Compress configure events
+          else if(event.xany.type==ConfigureNotify){
+            while(XCheckTypedWindowEvent((Display*)display,event.xconfigure.window,ConfigureNotify,&ev)){
+              event.xconfigure.width=ev.xconfigure.width;
+              event.xconfigure.height=ev.xconfigure.height;
+              if(ev.xconfigure.send_event){
+                event.xconfigure.x=ev.xconfigure.x;
+                event.xconfigure.y=ev.xconfigure.y;
+                }
+              }
+            }
+
+          // Event activity
+          if(dispatchEvent(event)) return true;
           continue;
           }
         }
@@ -246,7 +326,7 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
         }
 
       // Select active handles and check signals; don't block
-      numwatched=epoll_pwait(internals->handle,internals->events,ARRAYNUMBER(internals->events),0,NULL);
+      numwatched=epoll_pwait(internals->handle,internals->events,ARRAYNUMBER(internals->events),0,nullptr);
 
       // No active handles yet; need to wait
       if(numwatched==0){
@@ -270,7 +350,7 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
           }
 
         // Select active handles and check signals, waiting for timeout or maximum block time
-        numwatched=epoll_pwait(internals->handle,internals->events,ARRAYNUMBER(internals->events),ms,NULL);
+        numwatched=epoll_pwait(internals->handle,internals->events,ARRAYNUMBER(internals->events),ms,nullptr);
 
         // Return if there was no timeout within maximum block time
         if(numwatched==0){
@@ -297,20 +377,17 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
 
 #else ///////////////////////////////////////////////////////////////////////////
 
-// Wait for file descriptors
-extern FXint sselect(FXint nfds,fd_set* readfds,fd_set* writefds,fd_set* errorfds,FXTime interval);
-
-// FIXME Somewhere else...
-//      FXReactor::addHandle(ConnectionNumber((Display*)display),InputRead);
-//      FXReactor::remHandle(ConnectionNumber((Display*)display);
-// FIXME
-
 // Dispatch driver
 FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
   if(internals){
     FXTime now,due,delay,interval;
-    FXuint sig,nxt,mode;
-    FXRawEvent event;
+    FXuint sig,nxt,mode,ticks;
+    FXRawEvent event,ev;
+#if (_POSIX_C_SOURCE >= 200112L)
+    struct timespec delta;
+#else
+    struct timeval delta;
+#endif
 
     // Loop till we got something
     while(1){
@@ -344,7 +421,56 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
       if(flags&DispatchEvents){
         if(XEventsQueued((Display*)display,QueuedAfterFlush)){
           XNextEvent((Display*)display,&event);
-          if(dispatchEvent(event)) return true;         // Event activity
+#if 0
+#if 0
+          // Event was filtered by input method; get next one
+          if(xim && XFilterEvent(&ev,None)){
+            goto a;
+            }
+          if(xim && getFocusWindow() && XFilterEvent(&ev,(Window)getFocusWindow()->id())){    // FIXME
+            goto a;
+            }
+#endif
+          // Passing in focuswindow to XFilterEvent just didn't work on Gnome3 with either scim or ibus
+          if(xim && getFocusWindow() && XFilterEvent(&ev,None)){      // [Patch from Roland Baudin] FIXME but also need to deal with keyboard grabs
+            return false;
+            }
+#endif
+          // Compress motion events
+          if(event.xany.type==MotionNotify){
+            while(XPending((Display*)display)){
+              XPeekEvent((Display*)display,&ev);
+              if((ev.xany.type!=MotionNotify) || (event.xmotion.window!=ev.xmotion.window) || (event.xmotion.state != ev.xmotion.state)) break;
+              XNextEvent((Display*)display,&event);
+              }
+            }
+
+          // Compress wheel events
+          else if((event.xany.type==ButtonPress) && (event.xbutton.button==Button4 || event.xbutton.button==Button5)){
+            ticks=1;
+            while(XPending((Display*)display)){
+              XPeekEvent((Display*)display,&ev);
+              if((ev.xany.type!=ButtonPress && ev.xany.type!=ButtonRelease) || (event.xany.window!=ev.xany.window) || (event.xbutton.button != ev.xbutton.button)) break;
+              ticks+=(ev.xany.type==ButtonPress);
+              XNextEvent((Display*)display,&event);
+              }
+            event.xbutton.subwindow=(Window)ticks;   // Stick it here for later
+            }
+
+          // Compress configure events
+          else if(event.xany.type==ConfigureNotify){
+            while(XCheckTypedWindowEvent((Display*)display,event.xconfigure.window,ConfigureNotify,&ev)){
+              event.xconfigure.width=ev.xconfigure.width;
+              event.xconfigure.height=ev.xconfigure.height;
+              if(ev.xconfigure.send_event){
+                event.xconfigure.x=ev.xconfigure.x;
+                event.xconfigure.y=ev.xconfigure.y;
+                }
+              }
+            }
+
+          // Event activity
+          if(dispatchEvent(event)) return true;
           continue;
           }
         }
@@ -386,7 +512,11 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
       internals->watched[2]=internals->handles[2];
 
       // Select active handles and check signals; don't block
-      numraised=sselect(numhandles,&internals->watched[0],&internals->watched[1],&internals->watched[2],0);
+#if (_POSIX_C_SOURCE >= 200112L)
+      numraised=pselect(numhandles,&internals->watched[0],&internals->watched[1],&internals->watched[2],nullptr,nullptr);
+#else
+      numraised=select(numhandles,&internals->watched[0],&internals->watched[1],&internals->watched[2],nullptr);
+#endif
 
       // No handles were active
       if(numraised==0){
@@ -411,7 +541,15 @@ FXbool FXEventDispatcher::dispatch(FXTime blocking,FXuint flags){
           }
 
         // Select active handles and check signals, waiting for timeout or maximum block time
-        numraised=sselect(numhandles,&internals->watched[0],&internals->watched[1],&internals->watched[2],interval);
+#if (_POSIX_C_SOURCE >= 200112L)
+        delta.tv_sec=interval/seconds;
+        delta.tv_nsec=(interval-seconds*delta.tv_sec);
+        numraised=pselect(numhandles,&internals->watched[0],&internals->watched[1],&internals->watched[2],&delta,nullptr);
+#else
+        delta.tv_sec=interval/seconds;
+        delta.tv_usec=(interval-seconds*delta.tv_sec)/1000;
+        numraised=select(numhandles,&internals->watched[0],&internals->watched[1],&internals->watched[2],&delta);
+#endif
 
         // Return if there was no timeout within maximum block time
         if(numraised==0){
@@ -445,6 +583,16 @@ FXbool FXEventDispatcher::dispatchEvent(FXRawEvent& event){
   }
 
 /*******************************************************************************/
+
+// Exit dispatcher
+FXbool FXEventDispatcher::exit(){
+  if(FXDispatcher::exit()){
+    display=nullptr;
+    return true;
+    }
+  return false;
+  }
+
 
 // Destroy event dispatcher object
 FXEventDispatcher::~FXEventDispatcher(){

@@ -3,7 +3,7 @@
 *                              D a t a   T a r g e t                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -101,46 +101,46 @@ public:
 public:
 
   /// Associate with nothing
-  FXDataTarget():data(NULL),target(NULL),message(0),type(DT_VOID){}
+  FXDataTarget():data(nullptr),target(nullptr),message(0),type(DT_VOID){}
 
   /// Associate with nothing
-  FXDataTarget(FXObject* tgt,FXSelector sel):data(NULL),target(tgt),message(sel),type(DT_VOID){}
+  FXDataTarget(FXObject* tgt,FXSelector sel):data(nullptr),target(tgt),message(sel),type(DT_VOID){}
 
   /// Associate with character variable
-  FXDataTarget(FXbool& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_BOOL){}
+  FXDataTarget(FXbool& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_BOOL){}
 
   /// Associate with character variable
-  FXDataTarget(FXchar& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_CHAR){}
+  FXDataTarget(FXchar& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_CHAR){}
 
   /// Associate with unsigned character variable
-  FXDataTarget(FXuchar& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_UCHAR){}
+  FXDataTarget(FXuchar& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_UCHAR){}
 
   /// Associate with signed short variable
-  FXDataTarget(FXshort& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_SHORT){}
+  FXDataTarget(FXshort& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_SHORT){}
 
   /// Associate with unsigned short variable
-  FXDataTarget(FXushort& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_USHORT){}
+  FXDataTarget(FXushort& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_USHORT){}
 
   /// Associate with int variable
-  FXDataTarget(FXint& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_INT){}
+  FXDataTarget(FXint& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_INT){}
 
   /// Associate with unsigned int variable
-  FXDataTarget(FXuint& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_UINT){}
+  FXDataTarget(FXuint& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_UINT){}
 
   /// Associate with long variable
-  FXDataTarget(FXlong& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_LONG){}
+  FXDataTarget(FXlong& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_LONG){}
 
   /// Associate with unsigned long variable
-  FXDataTarget(FXulong& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_ULONG){}
+  FXDataTarget(FXulong& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_ULONG){}
 
   /// Associate with float variable
-  FXDataTarget(FXfloat& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_FLOAT){}
+  FXDataTarget(FXfloat& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_FLOAT){}
 
   /// Associate with double variable
-  FXDataTarget(FXdouble& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_DOUBLE){}
+  FXDataTarget(FXdouble& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_DOUBLE){}
 
   /// Associate with string variable
-  FXDataTarget(FXString& value,FXObject* tgt=NULL,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_STRING){}
+  FXDataTarget(FXString& value,FXObject* tgt=nullptr,FXSelector sel=0):data(&value),target(tgt),message(sel),type(DT_STRING){}
 
 
   /// Set the message target object for this data target
@@ -165,7 +165,7 @@ public:
 
 
   /// Associate with nothing
-  void connect(){ data=NULL; type=DT_VOID; }
+  void connect(){ data=nullptr; type=DT_VOID; }
 
   /// Associate with FXbool variable
   void connect(FXbool& value){ data=&value; type=DT_BOOL; }
@@ -205,7 +205,7 @@ public:
 
 
   /// Associate with nothing; also set target and message
-  void connect(FXObject* tgt,FXSelector sel){ data=NULL; target=tgt; message=sel; type=DT_VOID; }
+  void connect(FXObject* tgt,FXSelector sel){ data=nullptr; target=tgt; message=sel; type=DT_VOID; }
 
   /// Associate with character variable; also set target and message
   void connect(FXbool& value,FXObject* tgt,FXSelector sel){ data=&value; target=tgt; message=sel; type=DT_BOOL; }

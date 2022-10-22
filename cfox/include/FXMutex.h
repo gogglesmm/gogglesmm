@@ -3,7 +3,7 @@
 *                              M u t e x   C l a s s                            *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2004,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2004,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -61,7 +61,7 @@ public:
 
 
 /**
-* Establish a correspondence between a C++ scope and a mutex,
+* Establish a correspondence between a C++ scope and a FXMutex,
 * so that entering and leaving the scope in which the scoped lock
 * is defined will automatically lock and unlock the associated
 * mutex.
@@ -101,7 +101,7 @@ public:
 
 
 /**
-* The Reverse Mutex unlocks its associated Mutex when entering the
+* The Reverse Mutex unlocks its associated FXMutex when entering the
 * scope, and automatically relocks it upon exiting the scope.
 * Exceptions raised while in this region will automatically relock
 * the mutex upon leaving the enclosing scope.

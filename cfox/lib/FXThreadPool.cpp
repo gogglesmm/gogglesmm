@@ -3,7 +3,7 @@
 *                             T h r e a d   P o o l                             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2006,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -188,7 +188,7 @@ FXuint FXThreadPool::start(FXuint count){
       }
 
     // Set context reference if not set yet
-    if(instance()==NULL) instance(this);
+    if(instance()==nullptr) instance(this);
 
     // Start running
     running=1;
@@ -226,12 +226,12 @@ FXint FXThreadPool::run(){
     runWhile(threads,(w<minimum)?forever:expiration);
     }
   catch(...){
-    instance(NULL);
+    instance(nullptr);
     atomicAdd(&workers,-1);
     threads.decrement();
     throw;
     }
-  instance(NULL);
+  instance(nullptr);
   atomicAdd(&workers,-1);
   threads.decrement();
   return 0;
@@ -320,7 +320,7 @@ FXbool FXThreadPool::stop(){
     while(usedslots.trywait()){ }
 
     // Unset context reference if set to this context
-    if(instance()==this) instance(NULL);
+    if(instance()==this) instance(nullptr);
 
     // Stop running
     running=0;

@@ -3,7 +3,7 @@
 *                        T I F F   I n p u t / O u t p u t                      *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2001,2020 Eric Gillet.   All Rights Reserved.                   *
+* Copyright (C) 2001,2022 Eric Gillet.   All Rights Reserved.                   *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -142,13 +142,13 @@ FXbool fxloadTIF(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXush
   FXuval size,s;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
 
   // Set error/warning handlers
-  TIFFSetErrorHandler(NULL);
-  TIFFSetWarningHandler(NULL);
+  TIFFSetErrorHandler(nullptr);
+  TIFFSetWarningHandler(nullptr);
 
   // Initialize
   s_handle.store=&store;
@@ -158,7 +158,7 @@ FXbool fxloadTIF(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXush
   FXTRACE((100,"fxloadTIF\n"));
 
   // Open image
-  TIFF* image=TIFFClientOpen("tiff","rm",(thandle_t)&s_handle,tif_read_store,tif_write_store,tif_seek_store,tif_close_store,tif_size_store,NULL,NULL);
+  TIFF* image=TIFFClientOpen("tiff","rm",(thandle_t)&s_handle,tif_read_store,tif_write_store,tif_seek_store,tif_close_store,tif_size_store,nullptr,nullptr);
   if(image){
 
     // Get sizes
@@ -196,14 +196,14 @@ FXbool fxloadTIF__(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXu
   TIFF* image;
 
   // Null out
-  data=NULL;
+  data=nullptr;
   width=0;
   height=0;
   codec=0;
 
   // Set error/warning handlers
-  TIFFSetErrorHandler(NULL);
-  TIFFSetWarningHandler(NULL);
+  TIFFSetErrorHandler(nullptr);
+  TIFFSetWarningHandler(nullptr);
 
   // Initialize
   s_handle.store=&store;
@@ -213,7 +213,7 @@ FXbool fxloadTIF__(FXStream& store,FXColor*& data,FXint& width,FXint& height,FXu
   FXTRACE((100,"fxloadGEOTIF\n"));
 
   // Open image
-  if((image=TIFFClientOpen("tiff","rm",(thandle_t)&s_handle,tif_read_store,tif_write_store,tif_seek_store,tif_close_store,tif_size_store,NULL,NULL))!=NULL){
+  if((image=TIFFClientOpen("tiff","rm",(thandle_t)&s_handle,tif_read_store,tif_write_store,tif_seek_store,tif_close_store,tif_size_store,nullptr,nullptr))!=nullptr){
     FXushort samples=0;
     FXushort samplebits=0;
     FXushort format=0;
@@ -345,7 +345,7 @@ FXbool fxsaveTIF(FXStream& store,const FXColor* data,FXint width,FXint height,FX
 
     // Correct for unsupported codecs
     const TIFFCodec* coder=TIFFFindCODEC(codec);
-    if(coder==NULL) codec=COMPRESSION_PACKBITS;
+    if(coder==nullptr) codec=COMPRESSION_PACKBITS;
 
     // Due to the infamous UNISYS patent, we can read LZW TIFF's but not
     // write them back as that would require the LZW compression algorithm!
@@ -354,8 +354,8 @@ FXbool fxsaveTIF(FXStream& store,const FXColor* data,FXint width,FXint height,FX
     FXTRACE((100,"fxsaveTIF: codec=%d\n",codec));
 
     // Set error/warning handlers
-    TIFFSetErrorHandler(NULL);
-    TIFFSetWarningHandler(NULL);
+    TIFFSetErrorHandler(nullptr);
+    TIFFSetWarningHandler(nullptr);
 
     // Initialize
     tiff_store_handle s_handle;
@@ -364,9 +364,9 @@ FXbool fxsaveTIF(FXStream& store,const FXColor* data,FXint width,FXint height,FX
     s_handle.end=store.position();
 
     // Open image
-    TIFF* image=TIFFClientOpen("tiff","w",(thandle_t)&s_handle,tif_dummy_read_store,tif_write_store,tif_seek_store,tif_close_store,tif_size_store,NULL,NULL);
+    TIFF* image=TIFFClientOpen("tiff","w",(thandle_t)&s_handle,tif_dummy_read_store,tif_write_store,tif_seek_store,tif_close_store,tif_size_store,nullptr,nullptr);
     if(image){
-      FXColor *buffer=NULL;
+      FXColor *buffer=nullptr;
 
       // Size of a strip is 16kb
       FXint rows_per_strip=16*1024/width;

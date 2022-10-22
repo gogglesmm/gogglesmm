@@ -3,7 +3,7 @@
 *                   T o g g l e    B u t t o n    W i d g e t                   *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2020 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -86,7 +86,7 @@ public:
 public:
 
   /// Construct toggle button with two text labels, and two icons, one for each state
-  FXToggleButton(FXComposite* p,const FXString& text1,const FXString& text2,FXIcon* icon1=NULL,FXIcon* icon2=NULL,FXObject* tgt=NULL,FXSelector sel=0,FXuint opts=TOGGLEBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
+  FXToggleButton(FXComposite* p,const FXString& text1,const FXString& text2,FXIcon* icon1=nullptr,FXIcon* icon2=nullptr,FXObject* tgt=nullptr,FXSelector sel=0,FXuint opts=TOGGLEBUTTON_NORMAL,FXint x=0,FXint y=0,FXint w=0,FXint h=0,FXint pl=DEFAULT_PAD,FXint pr=DEFAULT_PAD,FXint pt=DEFAULT_PAD,FXint pb=DEFAULT_PAD);
 
   /// Create server-side resources
   virtual void create();
@@ -102,6 +102,9 @@ public:
 
   /// Get default height
   virtual FXint getDefaultHeight();
+
+  /// Change alternate text and hotkey
+  void setAltTextAndHotKey(const FXString& hotkeytext);
 
   /// Change alternate text shown when toggled
   void setAltText(const FXString& text);

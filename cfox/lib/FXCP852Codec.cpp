@@ -9,7 +9,7 @@
 
 namespace FX {
 
-FXIMPLEMENT(FXCP852Codec,FXTextCodec,NULL,0)
+FXIMPLEMENT(FXCP852Codec,FXTextCodec,nullptr,0)
 
 
 //// Created by codec tool on 03/25/2005 from: CP852.TXT ////
@@ -123,7 +123,7 @@ const FXchar* FXCP852Codec::mimeName() const {
 
 
 const FXchar* const* FXCP852Codec::aliases() const {
-  static const FXchar *const list[]={"microsoft-cp852","IBM852","cp852","852","csPCp852","microsoft-cp852",NULL};
+  static const FXchar *const list[]={"microsoft-cp852","IBM852","cp852","852","csPCp852","microsoft-cp852",nullptr};
   return list;
   }
 
