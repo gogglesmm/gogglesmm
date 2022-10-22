@@ -36,33 +36,35 @@ message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 include(CheckCXXCompilerFlag)
 
+check_cxx_compiler_flag(-Wall                HAS_CXX_WALL)
+check_cxx_compiler_flag(-Wextra              HAS_CXX_WEXTRA)
+check_cxx_compiler_flag(-Wno-format          HAS_CXX_WFORMAT)
+check_cxx_compiler_flag(-Wno-format-security HAS_CXX_WFORMAT_SECURITY)
+check_cxx_compiler_flag(-Wfatal-errors       HAS_CXX_WFATAL)
+check_cxx_compiler_flag(-Og                  HAS_CXX_OPTIMIZE_DEBUG)
+
+
 # Additional compiler flags we like
-CHECK_CXX_COMPILER_FLAG(-Wall HAS_CXX_WALL)
 if(HAS_CXX_WALL)
   add_compile_options(-Wall)
-  if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_compile_options(-Wno-format)
-  endif()
 endif()
 
-CHECK_CXX_COMPILER_FLAG(-Wextra HAS_CXX_WEXTRA)
 if(HAS_CXX_WEXTRA)
   add_compile_options(-Wextra)
 endif()
 
-# Hide all false positive warnings for fox fxmessage
-CHECK_CXX_COMPILER_FLAG(-Wformat=2 HAS_CXX_WFORMAT)
-if(HAS_CXX_WFORMAT AND NOT CMAKE_BUILD_TYPE MATCHES Debug)
-    add_compile_options(-Wformat=2)
+if (HAS_CXX_WFORMAT)
+  add_compile_options(-Wno-format)
 endif()
 
+if (HAS_CXX_WFORMAT_SECURITY)
+  add_compile_options(-Wno-format-security)
+endif()
 
-CHECK_CXX_COMPILER_FLAG(-Wfatal-errors HAS_CXX_WFATAL)
 if(HAS_CXX_WFATAL)
   add_compile_options(-Wfatal-errors)
 endif()
 
-CHECK_CXX_COMPILER_FLAG(-Og HAS_CXX_OPTIMIZE_DEBUG)
 if(HAS_CXX_OPTIMIZE_DEBUG AND CMAKE_BUILD_TYPE MATCHES Debug)
   add_compile_options(-Og)
 endif()
@@ -144,4 +146,3 @@ install(SCRIPT build/update_icons.cmake)
 
 # Display Feature Summary
 feature_summary(WHAT ENABLED_FEATURES DESCRIPTION "Features:\n")
-
