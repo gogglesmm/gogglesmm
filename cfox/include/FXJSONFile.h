@@ -50,11 +50,6 @@ public:
   FXJSONFile(const FXString& filename,Direction d=Load,FXuval sz=4096);
 
   /**
-  * Open JSON file from given handle for direction d.
-  */
-  FXbool open(FXInputHandle h,Direction d=Load,FXuval sz=4096);
-
-  /**
   * Open JSON file for direction d.
   */
   FXbool open(const FXString& filename,Direction d=Load,FXuval sz=4096);

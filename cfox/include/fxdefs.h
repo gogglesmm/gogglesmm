@@ -623,6 +623,20 @@ enum {
 
 /**********************************  Globals  **********************************/
 
+/// Aliasing cast pointer to other type
+template <typename to_type>
+static inline to_type* alias_cast(void* ptr){
+  union UNI { to_type dst[1]; };
+  return reinterpret_cast<UNI*>(ptr)->dst;
+  }
+
+/// Aliasing cast const-pointer to other type
+template <typename to_type>
+static inline const to_type* alias_cast(const void* ptr){
+  union UNI { to_type dst[1]; };
+  return reinterpret_cast<const UNI*>(ptr)->dst;
+  }
+
 /// Allocate memory
 extern FXAPI FXbool fxmalloc(void** ptr,FXuval size);
 
@@ -709,9 +723,6 @@ extern FXAPI FXint fxparsegeometry(const FXchar *string,FXint& x,FXint& y,FXint&
 
 /// True if executable with given path is a console application
 extern FXAPI FXbool fxisconsole(const FXchar *path);
-
-/// Return clock ticks from cpu tick-counter
-extern FXAPI FXTime fxgetticks();
 
 /// Version number that the library has been compiled with
 extern FXAPI const FXuchar fxversion[3];

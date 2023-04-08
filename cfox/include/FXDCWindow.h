@@ -190,7 +190,7 @@ public:
   virtual void setBackground(FXColor clr);
 
   /// Set dash pattern
-  virtual void setDashes(FXuint dashoffset,const FXchar *dashpattern,FXuint dashlength);
+  virtual void setDashes(FXuint dashoffset,const FXuchar *dashpattern,FXuint dashlength);
 
   /// Set line width
   virtual void setLineWidth(FXuint linewidth=0);

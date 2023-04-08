@@ -66,8 +66,10 @@ namespace FX {
 * The following functions are available:
 *
 *       abs, acos, acosh, asin, asinh, atan, atanh,
-*       ceil, cos, cosh, exp, floor, log, log10, sin, sinh,
-*       sqr, cub, sqrt, cbrt, round, trunc, tan, tanh, max, min, atan2
+*       cbrt, ceil, cos, cosh, cub, erf, erfc, exp, exp2,
+*       exp10, floor, inverf, inverfc, isfin, isinf, isnan,
+*       log, log2, log10, near, round, sin, sinh, sqr, sqrt,
+*       tan, tanh, trunc, wrap, wrap4, max, min, atan2
 *
 * The expression engine also contains the following constants:
 *

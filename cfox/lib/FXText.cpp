@@ -207,8 +207,11 @@ FXDEFMAP(FXText) FXTextMap[]={
   FXMAPFUNC(SEL_QUERY_TIP,0,FXText::onQueryTip),
   FXMAPFUNC(SEL_QUERY_HELP,0,FXText::onQueryHelp),
   FXMAPFUNC(SEL_IME_START,0,FXText::onIMEStart),
+  FXMAPFUNC(SEL_UPDATE,FXText::ID_TEXT_ROWS,FXText::onUpdTextRows),
+  FXMAPFUNC(SEL_UPDATE,FXText::ID_TEXT_SIZE,FXText::onUpdTextSize),
   FXMAPFUNC(SEL_UPDATE,FXText::ID_TOGGLE_EDITABLE,FXText::onUpdToggleEditable),
   FXMAPFUNC(SEL_UPDATE,FXText::ID_TOGGLE_OVERSTRIKE,FXText::onUpdToggleOverstrike),
+  FXMAPFUNC(SEL_UPDATE,FXText::ID_CURSOR_POS,FXText::onUpdCursorPos),
   FXMAPFUNC(SEL_UPDATE,FXText::ID_CURSOR_ROW,FXText::onUpdCursorRow),
   FXMAPFUNC(SEL_UPDATE,FXText::ID_CURSOR_COLUMN,FXText::onUpdCursorColumn),
   FXMAPFUNC(SEL_UPDATE,FXText::ID_CUT_SEL,FXText::onUpdHaveEditableSelection),
@@ -276,6 +279,7 @@ FXDEFMAP(FXText) FXTextMap[]={
   FXMAPFUNC(SEL_COMMAND,FXText::ID_DELETE_LINE,FXText::onCmdDeleteLine),
   FXMAPFUNC(SEL_COMMAND,FXText::ID_TOGGLE_EDITABLE,FXText::onCmdToggleEditable),
   FXMAPFUNC(SEL_COMMAND,FXText::ID_TOGGLE_OVERSTRIKE,FXText::onCmdToggleOverstrike),
+  FXMAPFUNC(SEL_COMMAND,FXText::ID_CURSOR_POS,FXText::onCmdCursorPos),
   FXMAPFUNC(SEL_COMMAND,FXText::ID_CURSOR_ROW,FXText::onCmdCursorRow),
   FXMAPFUNC(SEL_COMMAND,FXText::ID_CURSOR_COLUMN,FXText::onCmdCursorColumn),
   FXMAPFUNC(SEL_COMMAND,FXText::ID_SETSTRINGVALUE,FXText::onCmdSetStringValue),
@@ -2543,7 +2547,7 @@ static inline void wcskip(const FXchar*& src){
 // Copy columns up from col to endcol
 static FXint copycols(FXchar*& dst,FXchar* dstend,const FXchar*& src,const FXchar* srcend,FXint ncols=2147483647){
   FXint nc=ncols;
-  while(dst<dstend && 0<nc && src<srcend && *src!='\n'){
+  while(0<nc && dst<dstend && src<srcend && *src!='\n'){
     wccopy(dst,src);
     nc--;
     }
@@ -2565,7 +2569,7 @@ static FXint skipcols(const FXchar*& src,const FXchar* srcend,FXint ncols=214748
 // Padd output until endcol
 static FXint padcols(FXchar*& dst,FXchar* dstend,FXint ncols=0){
   FXint nc=ncols;
-  while(dst<dstend && 0<nc){
+  while(0<nc && dst<dstend){
     *dst++=' ';
     nc--;
     }
@@ -2593,7 +2597,7 @@ static FXchar* removecolumns(FXchar* dst,FXchar* dstend,const FXchar* src,const 
 
 // Replicate text at src n times to dst
 static FXchar* replicatecolumns(FXchar* dst,FXchar* dstend,const FXchar* src,const FXchar* srcend,FXint nr){
-  while(dst<dstend && 0<nr){
+  while(0<nr && dst<dstend){
     const FXchar *ptr=src;
     while(dst<dstend && ptr<srcend && *ptr!='\n'){
       wccopy(dst,ptr);
@@ -6431,6 +6435,22 @@ long FXText::onCmdGotoMatching(FXObject*,FXSelector,void*){
 
 
 // Move cursor to indicated row
+long FXText::onCmdCursorPos(FXObject* sender,FXSelector,void*){
+  FXint pos=cursorpos;
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_GETINTVALUE),(void*)&pos);
+  setCursorPos(pos,true);
+  return 1;
+  }
+
+
+// Being asked about current row number
+long FXText::onUpdCursorPos(FXObject* sender,FXSelector,void*){
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SETINTVALUE),(void*)&cursorpos);
+  return 1;
+  }
+
+
+// Move cursor to indicated row
 long FXText::onCmdCursorRow(FXObject* sender,FXSelector,void*){
   FXint row=cursorrow+1;
   sender->handle(this,FXSEL(SEL_COMMAND,ID_GETINTVALUE),(void*)&row);
@@ -6493,6 +6513,22 @@ long FXText::onUpdToggleOverstrike(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
   return 1;
   }
+
+
+// Update number of rows
+long FXText::onUpdTextRows(FXObject* sender,FXSelector,void*){
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SETINTVALUE),(void*)&nrows);
+  return 1;
+  }
+
+
+// Update number of rows
+long FXText::onUpdTextSize(FXObject* sender,FXSelector,void*){
+  sender->handle(this,FXSEL(SEL_COMMAND,ID_SETINTVALUE),(void*)&length);
+  return 1;
+  }
+
+
 
 /*******************************************************************************/
 

@@ -40,12 +40,10 @@
 */
 
 #define TOPIC_CONSTRUCT 1000
+#define TOPIC_DETAIL    1001
 //#define TOPIC_EXPDUMP   1015          // Debugging expression code
 
-#define MAXSTACKDEPTH 128
-
-// Empty expression
-#define EMPTY         (const_cast<FXuchar*>(FXExpression::initial))
+#define MAXSTACKDEPTH   128
 
 // Access to argument
 #if defined(__i386__) || defined(__x86_64__)            // No alignment limits on shorts
@@ -116,27 +114,40 @@ enum {
   TK_ASINH      = 119140637U,
   TK_ATAN       = 3615258U,
   TK_ATANH      = 119303474U,
+  TK_CBRT       = 3520359U,
   TK_CEIL       = 3523203U,
   TK_COS        = 107103U,
   TK_COSH       = 3534423U,
+  TK_CUB        = 107284U,
+  TK_ERF        = 113713U,
+  TK_ERFC       = 3752498U,
   TK_EXP        = 114029U,
+  TK_EXP2       = 3763007U,
+  TK_EXP10      = 124179084U,
   TK_FLOOR      = 122360152U,
+  TK_INVERF     = 4219871328U,
+  TK_INVERFC    = 1816800259U,
+  TK_ISFIN      = 128618299U,
+  TK_ISINF      = 128611099U,
+  TK_ISNAN      = 128609851U,
   TK_LOG        = 114052U,
+  TK_LOG2       = 3763766U,
   TK_LOG10      = 124204261U,
+  TK_NEAR       = 3985784U,
   TK_SIN        = 124308U,
   TK_SINH       = 4102268U,
   TK_SQR        = 123536U,
-  TK_CUB        = 107284U,
   TK_SQRT       = 4076772U,
-  TK_CBRT       = 3520359U,
   TK_ROUND      = 136616002U,
   TK_TRUNC      = 133596670U,
   TK_TAN        = 123227U,
   TK_TANH       = 4066515U,
+  TK_WRAP       = 4221012U,
+  TK_WRAP4      = 139293408U,
   TK_MAX        = 121748U,
   TK_MIN        = 121482U,
   TK_POW        = 119176U,
-  TK_ATAN2      = 119303528U
+  TK_ATAN2      = 119303528U,
   };
 
 
@@ -181,10 +192,21 @@ enum {
   OP_CEIL,
   OP_COS,
   OP_COSH,
+  OP_ERF,
+  OP_ERFC,
   OP_EXP,
+  OP_EXP2,
+  OP_EXP10,
   OP_FLOOR,
+  OP_INVERF,
+  OP_INVERFC,
+  OP_ISFIN,
+  OP_ISINF,
+  OP_ISNAN,
   OP_LOG,
+  OP_LOG2,
   OP_LOG10,
+  OP_NEAR,
   OP_SIN,
   OP_SINH,
   OP_SQR,
@@ -195,11 +217,15 @@ enum {
   OP_TRUNC,
   OP_TAN,
   OP_TANH,
+  OP_WRAP,
+  OP_WRAP4,
 
   OP_MAX,
   OP_MIN,
   OP_POW,
-  OP_ATAN2
+  OP_ATAN2,
+
+  OP_LAST
   };
 
 
@@ -236,15 +262,15 @@ public:
   FXExpression::Error element();
 
   // Variable lookup
-  FXint lookup(const FXchar *list);
+  FXint lookup(const FXchar* sym,FXival len) const;
 
   // Code generation
   FXuchar* opcode(FXuchar op);
-  FXuchar* offset(FXshort n);
+  FXuchar* offset(FXival n);
   FXuchar* number(FXdouble num);
 
   // Backpatch
-  void fix(FXuchar *ptr,FXshort val);
+  void fix(FXuchar *ptr,FXival val);
   };
 
 
@@ -261,12 +287,30 @@ FXExpression::Error FXCompile::compile(){
   FXuchar* at=pc;
   gettok();
   pc+=2;
+
+  FXASSERT_STATIC(OP_LAST<=256);
+
+  // Empty expression
   if(token==TK_EOF) return FXExpression::ErrEmpty;
+
+  // Parse expression
   err=expression();
+
+  // Error occurred
   if(err!=FXExpression::ErrOK) return err;
+
+  // Not at the end of the expression
   if(token!=TK_EOF) return FXExpression::ErrToken;
+
+  // Return from evaluator
   opcode(OP_END);
+
+  // Fix up compiled code size
   fix(at,pc-code);
+
+  FXTRACE((TOPIC_DETAIL,"OP_LAST=%d\n",OP_LAST));
+  FXTRACE((TOPIC_DETAIL,"SIZE=%ld\n",pc-code));
+
   return FXExpression::ErrOK;
   }
 
@@ -535,8 +579,20 @@ dyad: gettok();
     case TK_COSH:
       op=OP_COSH;
       goto mono;
+    case TK_ERF:
+      op=OP_ERF;
+      goto mono;
+    case TK_ERFC:
+      op=OP_ERFC;
+      goto mono;
     case TK_EXP:
       op=OP_EXP;
+      goto mono;
+    case TK_EXP2:
+      op=OP_EXP2;
+      goto mono;
+    case TK_EXP10:
+      op=OP_EXP10;
       goto mono;
     case TK_FLOOR:
       op=OP_FLOOR;
@@ -544,8 +600,29 @@ dyad: gettok();
     case TK_LOG:
       op=OP_LOG;
       goto mono;
+    case TK_LOG2:
+      op=OP_LOG2;
+      goto mono;
     case TK_LOG10:
       op=OP_LOG10;
+      goto mono;
+    case TK_INVERF:
+      op=OP_INVERF;
+      goto mono;
+    case TK_INVERFC:
+      op=OP_INVERFC;
+      goto mono;
+    case TK_ISFIN:
+      op=OP_ISFIN;
+      goto mono;
+    case TK_ISINF:
+      op=OP_ISINF;
+      goto mono;
+    case TK_ISNAN:
+      op=OP_ISNAN;
+      goto mono;
+    case TK_NEAR:
+      op=OP_NEAR;
       goto mono;
     case TK_SIN:
       op=OP_SIN;
@@ -584,8 +661,14 @@ mono: gettok();
       if(token!=TK_RPAR) return FXExpression::ErrParent;
       opcode(op);
       break;
+    case TK_WRAP:
+      op=OP_WRAP;
+      goto mono;
+    case TK_WRAP4:
+      op=OP_WRAP4;
+      goto mono;
     default:
-      v=lookup(vars);
+      v=lookup(head,tail-head);
       if(v<0) return FXExpression::ErrIdent;
       opcode(OP_VAR);
       opcode(v);
@@ -618,16 +701,20 @@ mono: gettok();
   }
 
 
-// Lookup current token in list
-FXint FXCompile::lookup(const FXchar *list){
-  if(list){
+// Lookup symbol
+FXint FXCompile::lookup(const FXchar* sym,FXival len) const{
+  if(vars){
+    const FXchar* beg=vars;
+    const FXchar* end=vars;
     FXint which=0;
-    while(*list){
-      const FXchar *q;
-      for(q=head; q<tail && *q==*list; q++,list++){}
-      if(q==tail && (*list=='\0' || *list==',')) return which;
-      while(*list && *list!=',') list++;
-      if(*list==','){ which++; list++; }
+    while(*end){
+      beg=end;
+      while(*end && *end!=',') end++;
+      if((end-beg)==len){
+        if(equalElms(sym,beg,len)) return which;
+        }
+      if(*end==',') end++;
+      which++;
       }
     }
   return -1;
@@ -847,7 +934,7 @@ FXuchar* FXCompile::opcode(FXuchar op){
 
 
 // Emit offset
-FXuchar* FXCompile::offset(FXshort n){
+FXuchar* FXCompile::offset(FXival n){
   FXuchar* result=pc;
   if(code){
     SETARG(pc,n);
@@ -861,7 +948,7 @@ FXuchar* FXCompile::offset(FXshort n){
 FXuchar* FXCompile::number(FXdouble n){
   FXuchar* result=pc;
   if(code){
-#if defined(__i386__) || defined(__x86_64__)
+#if defined(__i386__) || defined(__x86_64__) || defined(WIN32) || defined(__minix)
     ((FXdouble*)pc)[0]=n;
 #else
     pc[0]=((const FXuchar*)&n)[0];
@@ -880,7 +967,7 @@ FXuchar* FXCompile::number(FXdouble n){
 
 
 // Fix value
-void FXCompile::fix(FXuchar *ptr,FXshort val){
+void FXCompile::fix(FXuchar *ptr,FXival val){
   if(code && ptr){
     SETARG(ptr,val);
     }
@@ -890,12 +977,15 @@ void FXCompile::fix(FXuchar *ptr,FXshort val){
 
 /*******************************************************************************/
 
+// Empty expression
 #if (FOX_BIGENDIAN == 1)
 const FXuchar FXExpression::initial[]={0,14,OP_NUM,0,0,0,0,0,0,0,0,OP_END};
 #endif
 #if (FOX_BIGENDIAN == 0)
 const FXuchar FXExpression::initial[]={14,0,OP_NUM,0,0,0,0,0,0,0,0,OP_END};
 #endif
+
+#define EMPTY (const_cast<FXuchar*>(FXExpression::initial))
 
 
 // Error messages
@@ -965,6 +1055,8 @@ FXExpression& FXExpression::operator=(const FXExpression& orig){
 FXExpression::Error FXExpression::parse(const FXchar* expression,const FXchar* variables){
   FXExpression::Error err=FXExpression::ErrEmpty;
 
+  FXTRACE((TOPIC_DETAIL,"Expression::parse(%s,%p)\n",expression,variables));
+
   // Free old code, if any
   clear();
 
@@ -1022,62 +1114,235 @@ FXdouble FXExpression::evaluate(const FXdouble *args) const {
   stack[0]=0.0;
   while(1){
     switch(*pc++){
-      case OP_END:   return *sp;
-      case OP_BRA:   pc+=GETARG(pc); break;
-      case OP_BRF:   pc+=*sp-- ? 2 : GETARG(pc); break;
-      case OP_BRT:   pc+=*sp-- ? GETARG(pc) : 2; break;
-#if defined(__i386__) || defined(__x86_64__) || defined(WIN32) || defined(__minix)
-      case OP_NUM:   *++sp=*((const FXdouble*)pc); pc+=8; break;
-#else
-      case OP_NUM:   ++sp; ((FXuchar*)sp)[0]=*pc++; ((FXuchar*)sp)[1]=*pc++; ((FXuchar*)sp)[2]=*pc++; ((FXuchar*)sp)[3]=*pc++; ((FXuchar*)sp)[4]=*pc++; ((FXuchar*)sp)[5]=*pc++; ((FXuchar*)sp)[6]=*pc++; ((FXuchar*)sp)[7]=*pc++; break;
-#endif
-      case OP_VAR:   *++sp=args[*pc++]; break;
-      case OP_NOT:   *sp=(FXdouble)(~((FXlong)*sp)); break;
-      case OP_NEG:   *sp=-*sp; break;
-      case OP_SIN:   *sp=Math::sin(*sp); break;
-      case OP_COS:   *sp=Math::cos(*sp); break;
-      case OP_TAN:   *sp=Math::tan(*sp); break;
-      case OP_ASIN:  *sp=Math::asin(*sp); break;
-      case OP_ACOS:  *sp=Math::acos(*sp); break;
-      case OP_ATAN:  *sp=Math::atan(*sp); break;
-      case OP_SINH:  *sp=Math::sinh(*sp); break;
-      case OP_COSH:  *sp=Math::cosh(*sp); break;
-      case OP_TANH:  *sp=Math::tanh(*sp); break;
-      case OP_ASINH: *sp=Math::asinh(*sp); break;
-      case OP_ACOSH: *sp=Math::acosh(*sp); break;
-      case OP_ATANH: *sp=Math::atanh(*sp); break;
-      case OP_SQR:   *sp=Math::sqr(*sp); break;
-      case OP_CUB:   *sp=Math::cub(*sp); break;
-      case OP_SQRT:  *sp=Math::sqrt(*sp); break;
-      case OP_CBRT:  *sp=Math::cbrt(*sp); break;
-      case OP_ROUND: *sp=Math::round(*sp); break;
-      case OP_TRUNC: *sp=Math::trunc(*sp); break;
-      case OP_ABS:   *sp=Math::fabs(*sp); break;
-      case OP_CEIL:  *sp=Math::ceil(*sp); break;
-      case OP_FLOOR: *sp=Math::floor(*sp); break;
-      case OP_EXP:   *sp=Math::exp(*sp); break;
-      case OP_LOG:   *sp=Math::log(*sp); break;
-      case OP_LOG10: *sp=Math::log10(*sp); break;
-      case OP_MUL:   *(sp-1)=*(sp-1) * *sp; --sp; break;
-      case OP_DIV:   *(sp-1)=*(sp-1) / *sp; --sp; break;
-      case OP_MOD:   *(sp-1)=Math::fmod(*(sp-1),*sp); --sp; break;
-      case OP_ADD:   *(sp-1)=*(sp-1) + *sp; --sp; break;
-      case OP_SUB:   *(sp-1)=*(sp-1) - *sp; --sp; break;
-      case OP_AND:   *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) & ((FXlong)*sp)); --sp; break;
-      case OP_OR:    *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) | ((FXlong)*sp)); --sp; break;
-      case OP_XOR:   *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) ^ ((FXlong)*sp)); --sp; break;
-      case OP_SHL:   *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) << ((FXlong)*sp)); --sp; break;
-      case OP_SHR:   *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) >> ((FXlong)*sp)); --sp; break;
-      case OP_LT:    *(sp-1)=(FXdouble)(*(sp-1) < *sp); --sp; break;
-      case OP_GT:    *(sp-1)=(FXdouble)(*(sp-1) > *sp); --sp; break;
-      case OP_LE:    *(sp-1)=(FXdouble)(*(sp-1) <= *sp); --sp; break;
-      case OP_GE:    *(sp-1)=(FXdouble)(*(sp-1) >= *sp); --sp; break;
-      case OP_EQ:    *(sp-1)=(FXdouble)(*(sp-1) == *sp); --sp; break;
-      case OP_NE:    *(sp-1)=(FXdouble)(*(sp-1) != *sp); --sp; break;
-      case OP_POW:   *(sp-1)=Math::pow(*(sp-1),*sp); --sp; break;
-      case OP_MAX:   *(sp-1)=Math::fmax(*(sp-1),*sp); --sp; break;
-      case OP_MIN:   *(sp-1)=Math::fmin(*(sp-1),*sp); --sp; break;
-      case OP_ATAN2: *(sp-1)=Math::atan2(*(sp-1),*sp); --sp; break;
+      case OP_END:
+        return *sp;
+      case OP_BRA:
+        pc+=GETARG(pc);
+        break;
+      case OP_BRF:
+        pc+=*sp-- ? 2 : GETARG(pc);
+        break;
+      case OP_BRT:
+        pc+=*sp-- ? GETARG(pc) : 2;
+        break;
+  #if defined(__i386__) || defined(__x86_64__) || defined(WIN32) || defined(__minix)
+      case OP_NUM:
+        *++sp=*((const FXdouble*)pc);
+        pc+=8;
+        break;
+  #else
+      case OP_NUM:
+        ++sp;
+        ((FXuchar*)sp)[0]=*pc++;
+        ((FXuchar*)sp)[1]=*pc++;
+        ((FXuchar*)sp)[2]=*pc++;
+        ((FXuchar*)sp)[3]=*pc++;
+        ((FXuchar*)sp)[4]=*pc++;
+        ((FXuchar*)sp)[5]=*pc++;
+        ((FXuchar*)sp)[6]=*pc++;
+        ((FXuchar*)sp)[7]=*pc++;
+        break;
+  #endif
+      case OP_VAR:
+        *++sp=args[*pc++];
+        break;
+      case OP_NOT:
+        *sp=(FXdouble)(~((FXlong)*sp));
+        break;
+      case OP_NEG:
+        *sp=-*sp;
+        break;
+      case OP_ABS:
+        *sp=Math::fabs(*sp);
+        break;
+      case OP_SIN:
+        *sp=Math::sin(*sp);
+        break;
+      case OP_COS:
+        *sp=Math::cos(*sp);
+        break;
+      case OP_TAN:
+        *sp=Math::tan(*sp);
+        break;
+      case OP_ASIN:
+        *sp=Math::asin(*sp);
+        break;
+      case OP_ACOS:
+        *sp=Math::acos(*sp);
+        break;
+      case OP_ATAN:
+        *sp=Math::atan(*sp);
+        break;
+      case OP_SINH:
+        *sp=Math::sinh(*sp);
+        break;
+      case OP_COSH:
+        *sp=Math::cosh(*sp);
+        break;
+      case OP_TANH:
+        *sp=Math::tanh(*sp);
+        break;
+      case OP_ASINH:
+        *sp=Math::asinh(*sp);
+        break;
+      case OP_ACOSH:
+        *sp=Math::acosh(*sp);
+        break;
+      case OP_ATANH:
+        *sp=Math::atanh(*sp);
+        break;
+      case OP_SQR:
+        *sp=Math::sqr(*sp);
+        break;
+      case OP_CUB:
+        *sp=Math::cub(*sp);
+        break;
+      case OP_SQRT:
+        *sp=Math::sqrt(*sp);
+        break;
+      case OP_CBRT:
+        *sp=Math::cbrt(*sp);
+        break;
+      case OP_CEIL:
+        *sp=Math::ceil(*sp);
+        break;
+      case OP_FLOOR:
+        *sp=Math::floor(*sp);
+        break;
+      case OP_NEAR:
+        *sp=Math::nearbyint(*sp);
+        break;
+      case OP_ROUND:
+        *sp=Math::round(*sp);
+        break;
+      case OP_TRUNC:
+        *sp=Math::trunc(*sp);
+        break;
+      case OP_ERF:
+        *sp=Math::erf(*sp);
+        break;
+      case OP_ERFC:
+        *sp=Math::erfc(*sp);
+        break;
+      case OP_INVERF:
+        *sp=Math::inverf(*sp);
+        break;
+      case OP_INVERFC:
+        *sp=Math::inverfc(*sp);
+        break;
+      case OP_EXP:
+        *sp=Math::exp(*sp);
+        break;
+      case OP_EXP2:
+        *sp=Math::exp2(*sp);
+        break;
+      case OP_EXP10:
+        *sp=Math::exp10(*sp);
+        break;
+      case OP_LOG:
+        *sp=Math::log(*sp);
+        break;
+      case OP_LOG2:
+        *sp=Math::log2(*sp);
+        break;
+      case OP_LOG10:
+        *sp=Math::log10(*sp);
+        break;
+      case OP_ISFIN:
+        *sp=(FXdouble)Math::fpFinite(*sp);
+        break;
+      case OP_ISINF:
+        *sp=(FXdouble)Math::fpInfinite(*sp);
+        break;
+      case OP_ISNAN:
+        *sp=(FXdouble)Math::fpNan(*sp);
+        break;
+      case OP_WRAP:
+        *sp=Math::wrap(*sp);
+        break;
+      case OP_WRAP4:
+        *sp=Math::wrap4(*sp);
+        break;
+      case OP_MUL:
+        *(sp-1)=*(sp-1) * *sp;
+        --sp;
+        break;
+      case OP_DIV:
+        *(sp-1)=*(sp-1) / *sp;
+        --sp;
+        break;
+      case OP_MOD:
+        *(sp-1)=Math::fmod(*(sp-1),*sp);
+        --sp;
+        break;
+      case OP_ADD:
+        *(sp-1)=*(sp-1) + *sp;
+        --sp;
+        break;
+      case OP_SUB:
+        *(sp-1)=*(sp-1) - *sp;
+        --sp;
+        break;
+      case OP_AND:
+        *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) & ((FXlong)*sp));
+        --sp;
+        break;
+      case OP_OR:
+        *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) | ((FXlong)*sp));
+        --sp;
+        break;
+      case OP_XOR:
+        *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) ^ ((FXlong)*sp));
+        --sp;
+        break;
+      case OP_SHL:
+         *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) << ((FXlong)*sp));
+         --sp;
+         break;
+      case OP_SHR:
+        *(sp-1)=(FXdouble)(((FXlong)*(sp-1)) >> ((FXlong)*sp));
+        --sp;
+        break;
+      case OP_LT:
+         *(sp-1)=(FXdouble)(*(sp-1) < *sp);
+         --sp;
+         break;
+      case OP_GT:
+        *(sp-1)=(FXdouble)(*(sp-1) > *sp);
+        --sp;
+         break;
+      case OP_LE:
+        *(sp-1)=(FXdouble)(*(sp-1) <= *sp);
+        --sp;
+        break;
+      case OP_GE:
+        *(sp-1)=(FXdouble)(*(sp-1) >= *sp);
+        --sp;
+        break;
+      case OP_EQ:
+        *(sp-1)=(FXdouble)(*(sp-1) == *sp);
+        --sp;
+        break;
+      case OP_NE:
+        *(sp-1)=(FXdouble)(*(sp-1) != *sp);
+        --sp;
+        break;
+      case OP_POW:
+        *(sp-1)=Math::pow(*(sp-1),*sp);
+        --sp;
+        break;
+      case OP_MAX:
+        *(sp-1)=Math::fmax(*(sp-1),*sp);
+        --sp;
+        break;
+      case OP_MIN:
+        *(sp-1)=Math::fmin(*(sp-1),*sp);
+        --sp;
+        break;
+      case OP_ATAN2:
+        *(sp-1)=Math::atan2(*(sp-1),*sp);
+        --sp;
+        break;
       }
     }
   return 0.0;

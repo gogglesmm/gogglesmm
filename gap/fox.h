@@ -38,6 +38,9 @@
 #if FOXVERSION >= FXVERSION(1, 7, 80)
 #include <fxchar.h>
 #endif
+#if FOXVERSION >= FXVERSION(1, 7, 81)
+#include "fxmath.h"
+#endif
 #include <fxendian.h>
 #include <fxascii.h>
 #include <fxunicode.h>
@@ -60,7 +63,11 @@
 #include <FXIO.h>
 #include <FXIODevice.h>
 #include <FXFile.h>
+#if FOXVERSION >= FXVERSION(1, 7, 82)
+#include <FXMappedFile.h>
+#else
 #include <FXMemMap.h>
+#endif
 
 // Events
 #include <FXSize.h>

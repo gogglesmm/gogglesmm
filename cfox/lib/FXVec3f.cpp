@@ -42,6 +42,44 @@ namespace FX {
 #define MMM     _mm_set_epi32(0,~0,~0,~0)
 
 
+#if defined(FOX_HAS_AVX2)
+
+// Convert from vector to color
+FXColor colorFromVec3f(const FXVec3f& vec){
+  FXColor res;
+
+  // Scale and convert to integer:      00000000 000000BB 000000GG 000000RR
+  __m128i uuuu=_mm_cvtps_epi32(_mm_mul_ps(_mm_maskload_ps(&vec[0],MMM),_mm_set1_ps(255.0f)));
+
+  // Shuffle to lower 4 bytes:          RRRRRRRR RRRRRRRR RRRRRRRR 00RRGGBB
+  __m128i bbbb=_mm_shuffle_epi8(uuuu,_mm_set_epi8(0,0,0,0, 0,0,0,0, 0,0,0,0, 12,0,4,8));
+
+  // Assign to output
+  res=_mm_cvtsi128_si32(bbbb);
+
+  // Set alpha to opaque
+  res|=FXRGBA(0,0,0,255);
+  return res;
+  }
+
+
+// Convert from color to vector
+FXVec3f colorToVec3f(FXColor clr){
+  FXVec3f res;
+
+  // Shuffle into place, zero the rest: 000000AA 000000BB 000000GG 000000RR
+  __m128i uuuu=_mm_shuffle_epi8(_mm_cvtsi32_si128(clr),_mm_set_epi8(8,8,8,3, 8,8,8,0, 8,8,8,1, 8,8,8,2));
+
+  // Convert to float and scale:        AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR
+  __m128 ffff=_mm_mul_ps(_mm_cvtepi32_ps(uuuu),_mm_set1_ps(0.003921568627f));
+
+  // Assign to output
+  _mm_maskstore_ps(&res[0],MMM,ffff);
+  return res;
+  }
+
+#else
+
 // Convert from vector to color
 FXColor colorFromVec3f(const FXVec3f& vec){
   return FXRGB((vec.x*255.0f+0.5f),(vec.y*255.0f+0.5f),(vec.z*255.0f+0.5f));
@@ -52,6 +90,8 @@ FXColor colorFromVec3f(const FXVec3f& vec){
 FXVec3f colorToVec3f(FXColor clr){
   return FXVec3f(0.003921568627f*FXREDVAL(clr),0.003921568627f*FXGREENVAL(clr),0.003921568627f*FXBLUEVAL(clr));
   }
+
+#endif
 
 
 // Compute fast cross product with vector code
@@ -90,9 +130,38 @@ FXfloat dot(const FXVec3f& u,const FXVec3f& v){
 
 // Normalize vector
 FXVec3f normalize(const FXVec3f& v){
-  FXfloat m=v.length2();
-  FXVec3f result(v);
-  if(__likely(0.0f<m)){ result/=Math::sqrt(m); }
+  FXfloat m=v.length();
+  if(__likely(m)){ return v/m; }
+  return v;
+  }
+
+
+// Return vector orthogonal to v
+FXVec3f orthogonal(const FXVec3f& v){
+  FXVec3f result(0.0f,0.0f,0.0f);
+  FXfloat x=Math::fabs(v.x);
+  FXfloat y=Math::fabs(v.y);
+  FXfloat z=Math::fabs(v.z);
+  if(x<y){
+    if(x<z){            // Y,Z largest
+      result.y= v.z;    // v x X
+      result.z=-v.y;
+      }
+    else{               // Y, X largest
+      result.x= v.y;    // v x Z
+      result.y=-v.x;
+      }
+    }
+  else{
+    if(y<z){            // X, Z largest
+      result.x=-v.z;    // v x Y
+      result.z= v.x;
+      }
+    else{               // X, Y largest
+      result.x= v.y;    // v x Z
+      result.y=-v.x;
+      }
+    }
   return result;
   }
 

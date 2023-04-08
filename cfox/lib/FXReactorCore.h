@@ -28,7 +28,7 @@ namespace FX {
 
 // Platform dependent reactor internals
 struct FXReactor::Internals {
-#if defined(_WIN32)
+#if defined(WIN32)
   FXint              signotified[64];                   // Signal notify flag
   FXInputHandle      handles[MAXIMUM_WAIT_OBJECTS];     // Handles
   FXuint             modes[MAXIMUM_WAIT_OBJECTS];       // IO Modes each handle

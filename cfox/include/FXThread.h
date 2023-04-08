@@ -178,7 +178,12 @@ public:
   /**
   * Get steady time in nanoseconds since some arbitrary start time.
   */
-  FXTime steadytime();
+  static FXTime steadytime();
+
+  /**
+  * Return time in processor ticks.
+  */
+  static FXTime ticks();
 
   /**
   * Make the calling thread sleep for a number of nanoseconds.

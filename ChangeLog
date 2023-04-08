@@ -1,9 +1,16 @@
+1.2.3:
+  - flac: add support for 32 bit samples introduced in FLAC 1.4
+  - taglib: remove use of deprecated methods
+  - ui: Update FOX to 1.7.82
+  - ui: Fix button rendering
+  - remove support for long gone LyricWikia.
+
 1.2.2
   - gap: added sndio output plugin
   - gap: added crossfader
   - ui: Updated FOX to 1.7.74
   - ui: Updated German translation thanks to Martin Wagner
-  - ui: New Korean translation by JungHee Lee 
+  - ui: New Korean translation by JungHee Lee
   - ui: make it easier to adjust cover size in the miniplayer for hdpi screens
 
 1.2.1

@@ -42,6 +42,44 @@ namespace FX {
 #define MMM _mm256_set_epi64x(0,~0,~0,~0)
 
 
+#if defined(FOX_HAS_AVX2)
+
+// Convert from vector to color
+FXColor colorFromVec3d(const FXVec3d& vec){
+  FXColor res;
+
+  // Scale and convert to integer:      00000000 000000BB 000000GG 000000RR
+  __m128i uuuu=_mm256_cvtpd_epi32(_mm256_mul_pd(_mm256_maskload_pd(&vec[0],MMM),_mm256_set1_pd(255.0)));
+
+  // Shuffle to lower 4 bytes:          RRRRRRRR RRRRRRRR RRRRRRRR 00RRGGBB
+  __m128i bbbb=_mm_shuffle_epi8(uuuu,_mm_set_epi8(0,0,0,0, 0,0,0,0, 0,0,0,0, 12,0,4,8));
+
+  // Assign to output
+  res=_mm_cvtsi128_si32(bbbb);
+
+  // Set alpha to opaque
+  res|=FXRGBA(0,0,0,255);
+  return res;
+  }
+
+
+// Convert from color to vector
+FXVec3d colorToVec3d(FXColor clr){
+  FXVec3d res;
+
+  // Shuffle into place, zero the rest: 000000AA 000000BB 000000GG 000000RR
+  __m128i uuuu=_mm_shuffle_epi8(_mm_cvtsi32_si128(clr),_mm_set_epi8(8,8,8,3, 8,8,8,0, 8,8,8,1, 8,8,8,2));
+
+  // Convert to double and scale:       AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR
+  __m256d dddd=_mm256_mul_pd(_mm256_cvtepi32_pd(uuuu),_mm256_set1_pd(0.003921568627));
+
+  // Assign to output
+  _mm256_maskstore_pd(&res[0],MMM,dddd);
+  return res;
+  }
+
+#else
+
 // Convert from vector to color
 FXColor colorFromVec3d(const FXVec3d& vec){
   return FXRGB((vec.x*255.0+0.5),(vec.y*255.0+0.5),(vec.z*255.0+0.5));
@@ -53,12 +91,43 @@ FXVec3d colorToVec3d(FXColor clr){
   return FXVec3d(0.003921568627*FXREDVAL(clr),0.003921568627*FXGREENVAL(clr),0.003921568627*FXBLUEVAL(clr));
   }
 
+#endif
+
 
 // Normalize vector
 FXVec3d normalize(const FXVec3d& v){
-  FXdouble m=v.length2();
-  FXVec3d result(v);
-  if(__likely(0.0<m)){ result/=Math::sqrt(m); }
+  FXdouble m=v.length();
+  if(__likely(m)){ return v/m; }
+  return v;
+  }
+
+
+// Return vector orthogonal to v
+FXVec3d orthogonal(const FXVec3d& v){
+  FXVec3d result(0.0,0.0,0.0);
+  FXdouble x=Math::fabs(v.x);
+  FXdouble y=Math::fabs(v.y);
+  FXdouble z=Math::fabs(v.z);
+  if(x<y){
+    if(x<z){            // Y,Z largest
+      result.y= v.z;    // v x X
+      result.z=-v.y;
+      }
+    else{               // Y, X largest
+      result.x= v.y;    // v x Z
+      result.y=-v.x;
+      }
+    }
+  else{
+    if(y<z){            // X, Z largest
+      result.x=-v.z;    // v x Y
+      result.z= v.x;
+      }
+    else{               // X, Y largest
+      result.x= v.y;    // v x Z
+      result.y=-v.x;
+      }
+    }
   return result;
   }
 

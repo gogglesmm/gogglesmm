@@ -121,7 +121,7 @@
     buffer is large enough.
 */
 
-#if defined(_WIN32)
+#if defined(WIN32)
 #ifndef va_copy
 #define va_copy(arg,list) ((arg)=(list))
 #endif
@@ -257,7 +257,7 @@ static FXchar* cvtdec(FXchar digits[],FXdouble value,FXint& decimal){
     // cause truncation to zero.
     if(z.u<FXULONG(0x0010000000000000)){
       shift=clz64(z.u)-11;                      // Shift s is leading zeros minus 11
-      decor=1+((shift*77+255)>>8);              // Decimal correction x such that 10^x > 2^s
+      decor=((shift*77+255)>>8);                // Decimal correction x such that 10^x > 2^s
       z.u*=tenToThe[decor];                     // Multiply by correction factor 10^x
       binex=1;                                  // Binary exponent (no bias applied)
       while(FXULONG(0x001fffffffffffff)<z.u){
@@ -282,7 +282,12 @@ static FXchar* cvtdec(FXchar digits[],FXdouble value,FXint& decimal){
     //   decex = floor(binex*0.30078125)
     //         = (binex*77)>>8
     //
-    decex=(binex*77)>>8;
+    // or even better, at no additional cost:
+    //
+    //   decex = floor(binex*0.301025390625)
+    //         = (binex*1233)>>12
+    //
+    decex=(binex*1233)>>12;
 
     FXASSERT(-308<=decex && decex<=308);
 

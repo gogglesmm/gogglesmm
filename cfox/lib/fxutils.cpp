@@ -63,7 +63,7 @@ const FXuchar fxversion[3]={FOX_MAJOR,FOX_MINOR,FOX_LEVEL};
 
 /*******************************************************************************/
 
-#ifdef WIN32
+#if defined(WIN32)
 
 // Return true if console application
 FXbool fxisconsole(const FXchar *path){
@@ -163,8 +163,8 @@ void fxmessage(const FXchar* format,...){
   va_start(arguments,format);
   message.vformat(format,arguments);
   va_end(arguments);
-#ifdef WIN32
-#ifdef _WINDOWS
+#if defined(WIN32)
+#if defined(_WINDOWS)
   OutputDebugStringA(message.text());
   fputs(message.text(),stderr);         // if a console is available
   fflush(stderr);
@@ -186,8 +186,8 @@ void fxerror(const FXchar* format,...){
   va_start(arguments,format);
   message.vformat(format,arguments);
   va_end(arguments);
-#ifdef WIN32
-#ifdef _WINDOWS
+#if defined(WIN32)
+#if defined(_WINDOWS)
   OutputDebugStringA(message.text());
   fputs(message.text(),stderr);         // if a console is available
   fflush(stderr);
@@ -213,8 +213,8 @@ void fxwarning(const FXchar* format,...){
   va_start(arguments,format);
   message.vformat(format,arguments);
   va_end(arguments);
-#ifdef WIN32
-#ifdef _WINDOWS
+#if defined(WIN32)
+#if defined(_WINDOWS)
   OutputDebugStringA(message.text());
   fputs(message.text(),stderr);         // if a console is available
   fflush(stderr);
@@ -233,7 +233,7 @@ void fxwarning(const FXchar* format,...){
 
 // Assert failed routine
 void fxassert(const FXchar* expression,const FXchar* filename,unsigned int lineno){
-#ifdef WIN32
+#if defined(WIN32)
   fxmessage("%s(%d): FXASSERT(%s) failed.\n",filename,lineno,expression);
 #else
   if(isatty(fileno(stderr))){
@@ -248,7 +248,7 @@ void fxassert(const FXchar* expression,const FXchar* filename,unsigned int linen
 
 // Verify failed routine
 void fxverify(const FXchar* expression,const FXchar* filename,unsigned int lineno){
-#ifdef WIN32
+#if defined(WIN32)
   fxmessage("%s(%d): FXVERIFY(%s) failed.\n",filename,lineno,expression);
 #else
   if(isatty(fileno(stderr))){
@@ -352,8 +352,8 @@ void fxtrace(FXuint level,const FXchar* format,...){
     va_start(arguments,format);
     message.vformat(format,arguments);
     va_end(arguments);
-#ifdef WIN32
-#ifdef _WINDOWS
+#if defined(WIN32)
+#if defined(_WINDOWS)
     OutputDebugStringA(message.text());
     fputs(message.text(),stderr);       // if a console is available
     fflush(stderr);
@@ -575,6 +575,4 @@ void fxhsl_to_rgb(FXfloat& r,FXfloat& g,FXfloat& b,FXfloat h,FXfloat s,FXfloat l
     }
   }
 
-
 }
-

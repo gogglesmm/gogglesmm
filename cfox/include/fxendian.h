@@ -240,7 +240,7 @@ static inline FXulong ctz64(FXulong x){
   _BitScanForward64(&result,x);
   return result;
 #else
-  return 63-clz64(x&-x);
+  return FXULONG(63)-clz64(x&-x);
 #endif
   }
 
@@ -258,12 +258,12 @@ static inline FXuint ror32(FXuint value,FXuint count){
 
 // Roll bits left, 64-bit flavor (count<64)
 static inline FXulong rol64(FXulong value,FXulong count){
-  return (value<<count) | (value>>(64-count));
+  return (value<<count) | (value>>(FXULONG(64)-count));
   }
 
 // Roll bits right, 64-bit flavor (count<64)
 static inline FXulong ror64(FXulong value,FXulong count){
-  return (value>>count) | (value<<(64-count));
+  return (value>>count) | (value<<(FXULONG(64)-count));
   }
 
 

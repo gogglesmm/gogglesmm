@@ -28,7 +28,6 @@
 #include "FXHash.h"
 #include "FXStream.h"
 #include "FXString.h"
-#include "FXPath.h"
 #include "FXIO.h"
 #include "FXIODevice.h"
 #include "FXStat.h"
@@ -52,12 +51,6 @@
 #define BadHandle -1
 #endif
 
-#ifdef WIN32
-#ifndef INVALID_SET_FILE_POINTER
-#define INVALID_SET_FILE_POINTER ((DWORD)-1)
-#endif
-#endif
-
 using namespace FX;
 
 /*******************************************************************************/
@@ -66,123 +59,120 @@ namespace FX {
 
 
 // Construct file and attach existing handle h
-FXFile::FXFile(FXInputHandle h,FXuint m){
-  attach(h,m);
+FXFile::FXFile(FXInputHandle h){
+  attach(h);
   }
 
 
 // Construct and open a file
-FXFile::FXFile(const FXString& file,FXuint m,FXuint perm){
-  open(file,m,perm);
+FXFile::FXFile(const FXString& filename,FXuint m,FXuint perm){
+  open(filename,m,perm);
   }
 
 
-// Open file
-FXbool FXFile::open(const FXString& file,FXuint m,FXuint perm){
-  if(__likely(device==BadHandle) && __likely(!file.empty())){
 #if defined(WIN32)
-    SECURITY_ATTRIBUTES sat;
-    DWORD flags=GENERIC_READ;
-    DWORD creation=OPEN_EXISTING;
+
+// Open file
+FXbool FXFile::open(const FXString& filename,FXuint m,FXuint perm){
+  if(device==BadHandle){
 
     // Basic access mode
-    switch(m&(ReadOnly|WriteOnly)){
-      case ReadOnly: flags=GENERIC_READ; break;
-      case WriteOnly: flags=GENERIC_WRITE; break;
-      case ReadWrite: flags=GENERIC_READ|GENERIC_WRITE; break;
+    DWORD flags=GENERIC_READ;
+    switch(m&(FXIO::ReadOnly|FXIO::WriteOnly)){
+      case FXIO::ReadOnly: flags=GENERIC_READ; break;
+      case FXIO::WriteOnly: flags=GENERIC_WRITE; break;
+      case FXIO::ReadWrite: flags=GENERIC_READ|GENERIC_WRITE; break;
       }
 
     // Creation and truncation mode
-    switch(m&(Create|Truncate|Exclusive)){
-      case Create: creation=OPEN_ALWAYS; break;
-      case Truncate: creation=TRUNCATE_EXISTING; break;
-      case Create|Truncate: creation=CREATE_ALWAYS; break;
-      case Create|Truncate|Exclusive: creation=CREATE_NEW; break;
+    DWORD creation=OPEN_EXISTING;
+    switch(m&(FXIO::Create|FXIO::Truncate|FXIO::Exclusive)){
+      case FXIO::Create: creation=OPEN_ALWAYS; break;
+      case FXIO::Exclusive: creation=CREATE_NEW; break;
+      case FXIO::Truncate: creation=TRUNCATE_EXISTING; break;
+      case FXIO::Create|FXIO::Truncate: creation=CREATE_ALWAYS; break;
+      case FXIO::Create|FXIO::Exclusive: creation=CREATE_NEW; break;
+      case FXIO::Create|FXIO::Truncate|FXIO::Exclusive: creation=CREATE_NEW; break;
       }
+
+    // Hidden file
+    DWORD attributes=FILE_ATTRIBUTE_NORMAL;
+    if(perm&FXIO::Hidden){ attributes=FILE_ATTRIBUTE_HIDDEN; }
 
     // Inheritable
+    SECURITY_ATTRIBUTES sat;
     sat.nLength=sizeof(SECURITY_ATTRIBUTES);
-    sat.bInheritHandle=(m&Inheritable)?true:false;
+    sat.bInheritHandle=((m&FXIO::Inheritable)==0);
     sat.lpSecurityDescriptor=nullptr;
 
-    // Non-blocking mode
-    if(m&NonBlocking){
-      // FIXME
-      }
-
     // Do it
-    access=NoAccess;
-    pointer=0L;
 #if defined(UNICODE)
     FXnchar unifile[MAXPATHLEN];
-    utf2ncs(unifile,file.text(),MAXPATHLEN);
-    device=::CreateFileW(unifile,flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,FILE_ATTRIBUTE_NORMAL,nullptr);
+    utf2ncs(unifile,filename.text(),MAXPATHLEN);
+    device=::CreateFileW(unifile,flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,attributes,nullptr);
 #else
-    device=::CreateFileA(file.text(),flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,FILE_ATTRIBUTE_NORMAL,nullptr);
+    device=::CreateFileA(filename.text(),flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,attributes,nullptr);
 #endif
-    if(device!=BadHandle){
-      if(m&Append){ position(0,FXIO::End); }    // Appending
-      access=(m|OwnHandle);                     // Own handle
-      return true;
-      }
-#else
-    FXint bits=perm&0777;
-    FXint flags=0;
-
-    // Basic access mode
-    switch(m&(ReadOnly|WriteOnly)){
-      case ReadOnly: flags=O_RDONLY; break;
-      case WriteOnly: flags=O_WRONLY; break;
-      case ReadWrite: flags=O_RDWR; break;
-      }
-
-    // Appending and truncation
-    if(m&Append) flags|=O_APPEND;
-    if(m&Truncate) flags|=O_TRUNC;
-
-    // Non-blocking mode
-    if(m&NonBlocking) flags|=O_NONBLOCK;
-
-    // Change access time
-#if defined(O_NOATIME)
-    if(m&NoAccessTime) flags|=O_NOATIME;
-#endif
-
-    // Inheritable only if specified
-#if defined(O_CLOEXEC)
-    if(!(m&Inheritable)) flags|=O_CLOEXEC;
-#endif
-
-    // Creation mode
-    if(m&Create){
-      flags|=O_CREAT;
-      if(m&Exclusive) flags|=O_EXCL;
-      }
-
-    // Permission bits
-    if(perm&FXIO::SetUser) bits|=S_ISUID;
-    if(perm&FXIO::SetGroup) bits|=S_ISGID;
-    if(perm&FXIO::Sticky) bits|=S_ISVTX;
-
-    // Do it
-    access=NoAccess;
-    pointer=0L;
-    device=::open(file.text(),flags,bits);
-    if(device!=BadHandle){
-      if(m&Append){ position(0,FXIO::End); }    // Appending
-      access=(m|OwnHandle);                     // Own handle
-      return true;
-      }
-#endif
+    return (device!=BadHandle);
     }
   return false;
   }
 
 
-// Open device with access mode and handle
-FXbool FXFile::open(FXInputHandle h,FXuint m){
-  return FXIODevice::open(h,m);
+#else
+
+
+// Open file
+FXbool FXFile::open(const FXString& filename,FXuint m,FXuint perm){
+  if(device==BadHandle){
+
+    // Basic access mode
+    FXint flags=0;
+    switch(m&(FXIO::ReadOnly|FXIO::WriteOnly)){
+      case FXIO::ReadOnly: flags=O_RDONLY; break;
+      case FXIO::WriteOnly: flags=O_WRONLY; break;
+      case FXIO::ReadWrite: flags=O_RDWR; break;
+      }
+
+    // Truncate it
+    if(m&FXIO::Truncate){ flags|=O_TRUNC; }
+
+    // Change access time
+#if defined(O_NOATIME)
+    if(m&FXIO::NoAccessTime){ flags|=O_NOATIME; }
+#endif
+
+    // Inheritable
+#if defined(O_CLOEXEC)
+    if(!(m&FXIO::Inheritable)){ flags|=O_CLOEXEC; }
+#endif
+
+    // Appending and truncation
+    if(m&FXIO::Append){ flags|=O_APPEND; }
+
+    // Non-blocking mode
+    if(m&FXIO::NonBlocking){ flags|=O_NONBLOCK; }
+
+    // Creation mode
+    if(m&FXIO::Create){
+      flags|=O_CREAT;
+      if(m&FXIO::Exclusive){ flags|=O_EXCL; }
+      }
+
+    // Permission bits
+    FXint bits=perm&0777;
+    if(perm&FXIO::SetUser){ bits|=S_ISUID; }
+    if(perm&FXIO::SetGroup){ bits|=S_ISGID; }
+    if(perm&FXIO::Sticky){ bits|=S_ISVTX; }
+
+    // Do it
+    device=::open(filename.text(),flags,bits);
+    return (device!=BadHandle);
+    }
+  return false;
   }
+
+#endif
 
 
 // Return true if serial access only
@@ -193,26 +183,37 @@ FXbool FXFile::isSerial() const {
 
 // Get position
 FXlong FXFile::position() const {
-  return pointer;
+  if(device!=BadHandle){
+#if defined(WIN32)
+    LARGE_INTEGER off,pos;
+    off.QuadPart=pos.QuadPart=0;
+    if(SetFilePointerEx(device,off,&pos,FILE_CURRENT)!=0){
+      return pos.QuadPart;
+      }
+#else
+    FXlong pos;
+    if((pos=::lseek(device,0,SEEK_CUR))>=0){
+      return pos;
+      }
+#endif
+    }
+  return FXIO::Error;
   }
 
 
 // Move to position
 FXlong FXFile::position(FXlong offset,FXuint from){
-  if(__likely(device!=BadHandle)){
+  if(device!=BadHandle){
 #if defined(WIN32)
-    LARGE_INTEGER pos;
-    pos.QuadPart=offset;
-    pos.LowPart=::SetFilePointer(device,pos.LowPart,&pos.HighPart,from);
-    if(pos.LowPart!=INVALID_SET_FILE_POINTER || GetLastError()==NO_ERROR){
-      pointer=pos.QuadPart;
-      return pointer;
+    LARGE_INTEGER off,pos;
+    off.QuadPart=pos.QuadPart=offset;
+    if(SetFilePointerEx(device,off,&pos,from)!=0){
+      return pos.QuadPart;
       }
 #else
     FXlong pos;
     if(0<=(pos=::lseek(device,offset,from))){
-      pointer=pos;
-      return pointer;
+      return pos;
       }
 #endif
     }
@@ -222,21 +223,21 @@ FXlong FXFile::position(FXlong offset,FXuint from){
 
 // Truncate file
 FXlong FXFile::truncate(FXlong sz){
-  if(__likely(device!=BadHandle)){
+  if(device!=BadHandle){
 #if defined(WIN32)
-    LARGE_INTEGER pos;
-    pos.QuadPart=sz;
-    pos.LowPart=::SetFilePointer(device,pos.LowPart,&pos.HighPart,FILE_BEGIN);
-    if(pos.LowPart!=INVALID_SET_FILE_POINTER || GetLastError()==NO_ERROR){
+    LARGE_INTEGER off,pos;
+    off.QuadPart=pos.QuadPart=sz;
+    if(SetFilePointerEx(device,off,&pos,FILE_BEGIN)!=0){
       if(::SetEndOfFile(device)!=0){
-        position(pointer);
         return sz;
         }
       }
 #else
+    FXlong pos;
     if(::ftruncate(device,sz)==0){
-      position(pointer);
-      return sz;
+      if(0<=(pos=::lseek(device,sz,SEEK_SET))){
+        return pos;
+        }
       }
 #endif
     }
@@ -246,7 +247,7 @@ FXlong FXFile::truncate(FXlong sz){
 
 // Flush to disk
 FXbool FXFile::flush(){
-  if(__likely(device!=BadHandle)){
+  if(device!=BadHandle){
 #if defined(WIN32)
     return ::FlushFileBuffers(device)!=0;
 #elif defined(_BSD_SOURCE) || defined(_XOPEN_SOURCE) || (_POSIX_C_SOURCE >= 200112L)
@@ -259,8 +260,8 @@ FXbool FXFile::flush(){
 
 // Test if we're at the end; -1 if error
 FXint FXFile::eof(){
-  if(__likely(device!=BadHandle)){
-    return !(pointer<size());
+  if(device!=BadHandle){
+    return !(position()<size());
     }
   return FXIO::Error;
   }
@@ -268,11 +269,10 @@ FXint FXFile::eof(){
 
 // Return file size
 FXlong FXFile::size(){
-  if(__likely(device!=BadHandle)){
+  if(device!=BadHandle){
 #if defined(WIN32)
-    ULARGE_INTEGER result;
-    result.LowPart=::GetFileSize(device,&result.HighPart);
-    return result.QuadPart;
+    LARGE_INTEGER result;
+    if(::GetFileSizeEx(device,&result)) return result.QuadPart;
 #else
     struct stat data;
     if(::fstat(device,&data)==0) return data.st_size;
@@ -296,7 +296,7 @@ FXbool FXFile::create(const FXString& file,FXuint perm){
 #endif
     if(h!=BadHandle){ ::CloseHandle(h); return true; }
 #else
-    FXInputHandle h=::open(file.text(),O_CREAT|O_WRONLY|O_TRUNC|O_EXCL,perm);
+    FXInputHandle h=::open(file.text(),O_CREAT|O_WRONLY|O_TRUNC|O_EXCL,perm&0777);
     if(h!=BadHandle){ ::close(h); return true; }
 #endif
     }
@@ -465,6 +465,8 @@ FXbool FXFile::copyFiles(const FXString& srcfile,const FXString& dstfile,FXbool 
         return true;
         }
 
+#if !defined(WIN32)
+
       // Source is fifo: make a new one
       if(srcstat.isFifo()){
 
@@ -476,14 +478,15 @@ FXbool FXFile::copyFiles(const FXString& srcfile,const FXString& dstfile,FXbool 
         }
 
       // Source is device/socket; only on UNIX
-#if !defined(WIN32)
       if(srcstat.isDevice() || srcstat.isSocket()){
         struct stat data;
         if(::lstat(srcfile.text(),&data)==0){
           return ::mknod(dstfile.text(),data.st_mode,data.st_rdev)==0;
           }
         }
+
 #endif
+
       }
     }
   return false;

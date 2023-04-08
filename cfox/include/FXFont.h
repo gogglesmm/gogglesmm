@@ -41,13 +41,13 @@ enum FXFontEncoding {
   FONTENCODING_ISO_8859_7   = 7,        /// Greek
   FONTENCODING_ISO_8859_8   = 8,        /// Hebrew
   FONTENCODING_ISO_8859_9   = 9,        /// Turkish (Latin5)
-  FONTENCODING_ISO_8859_10  = 10,
+  FONTENCODING_ISO_8859_10  = 10,       /// Nordic language (Latin6)
   FONTENCODING_ISO_8859_11  = 11,       /// Thai
   FONTENCODING_ISO_8859_13  = 13,       /// Baltic
-  FONTENCODING_ISO_8859_14  = 14,
-  FONTENCODING_ISO_8859_15  = 15,
-  FONTENCODING_ISO_8859_16  = 16,
-  FONTENCODING_KOI8         = 17,
+  FONTENCODING_ISO_8859_14  = 14,       /// Celtic (Latin8)
+  FONTENCODING_ISO_8859_15  = 15,       /// West-European (Latin9)
+  FONTENCODING_ISO_8859_16  = 16,       /// South-Eastern European (Latin10)
+  FONTENCODING_KOI8         = 17,       /// Russian
   FONTENCODING_KOI8_R       = 18,       /// Russian
   FONTENCODING_KOI8_U       = 19,       /// Ukrainian
   FONTENCODING_KOI8_UNIFIED = 20,
@@ -168,22 +168,25 @@ public:
 
   /// Font pitch hints
   enum {
-    Fixed          = 1,         /// Fixed pitch, mono-spaced
-    Variable       = 2          /// Variable pitch, proportional spacing
+    Mono           = 1,         /// Mono spaced  font
+    Variable       = 2,         /// Variable pitch, proportional spacing
+    Dual           = 4,         /// Dual pitch font
+    Cell           = 8,         /// Character cell font
+    Fixed          = Mono|Cell  /// Mono spaced or cell font
     };
 
   /// Font style hints
   enum {
-    Decorative     = 4,         /// Fancy fonts
-    Modern         = 8,         /// Monospace typewriter font
-    Roman          = 16,        /// Variable width times-like font, serif
-    Script         = 32,        /// Script or cursive
-    Swiss          = 64,        /// Helvetica/swiss type font, sans-serif
-    System         = 128,       /// System font
-    X11            = 256,       /// Raw X11 font string
-    Scalable       = 512,       /// Scalable fonts
-    Polymorphic    = 1024,      /// Polymorphic fonts, e.g. parametric weight, slant, etc.
-    Rotatable      = 2048       /// Rotatable fonts
+    Decorative     = 16,        /// Fancy fonts
+    Modern         = 32,        /// Monospace typewriter font
+    Roman          = 64,        /// Variable width times-like font, serif
+    Script         = 128,       /// Script or cursive
+    Swiss          = 256,       /// Helvetica/swiss type font, sans-serif
+    System         = 512,       /// System font
+    X11            = 1024,      /// Raw X11 font string
+    Scalable       = 2048,      /// Scalable fonts
+    Polymorphic    = 4096,      /// Polymorphic fonts, e.g. parametric weight, slant, etc.
+    Rotatable      = 8192       /// Rotatable fonts
     };
 
   /// Font slant options

@@ -109,7 +109,7 @@ void atomicThreadFence(){
 // Atomic read; necessary as it serializes reads and writes prior to this one
 FXint atomicRead(volatile FXint* ptr){
 #if defined(WIN32) && (_MSC_VER >= 1500)
-  return _InterlockedCompareExchange((LONG*)ptr,0,0);
+  return _InterlockedCompareExchange((volatile LONG*)ptr,0,0);
 #elif defined(HAVE_BUILTIN_ATOMIC)
   return __atomic_load_n(ptr,__ATOMIC_SEQ_CST);
 #elif defined(HAVE_BUILTIN_SYNC)
@@ -147,7 +147,7 @@ void atomicWrite(volatile FXint* ptr,FXint v){
 // Atomically set variable at ptr to v, and return its old contents
 FXint atomicSet(volatile FXint* ptr,FXint v){
 #if defined(WIN32) && (_MSC_VER >= 1500)
-  return _InterlockedExchange((LONG*)ptr,v);
+  return _InterlockedExchange((volatile LONG*)ptr,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && (defined(__i386__) || defined(__x86_64__)))
   FXint ret=v;
   __asm__ __volatile__("xchgl %0, (%1)\n\t" : "=r"(ret) : "r"(ptr), "0"(ret) : "memory", "cc");
@@ -165,7 +165,7 @@ FXint atomicSet(volatile FXint* ptr,FXint v){
 // Atomically add v to variable at ptr, and return its old contents
 FXint atomicAdd(volatile FXint* ptr,FXint v){
 #if defined(WIN32) && (_MSC_VER >= 1500)
-  return _InterlockedExchangeAdd((LONG*)ptr,v);
+  return _InterlockedExchangeAdd((volatile LONG*)ptr,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && (defined(__i386__) || defined(__x86_64__)))
   FXint ret=v;
   __asm__ __volatile__ ("lock\n\t"
@@ -184,7 +184,7 @@ FXint atomicAdd(volatile FXint* ptr,FXint v){
 // Atomically compare variable at ptr against expect, setting it to v if equal; returns the old value at ptr
 FXint atomicCas(volatile FXint* ptr,FXint expect,FXint v){
 #if defined(WIN32) && (_MSC_VER >= 1500)
-  return _InterlockedCompareExchange((LONG*)ptr,(LONG)v,(LONG)expect);
+  return _InterlockedCompareExchange((volatile LONG*)ptr,(LONG)v,(LONG)expect);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && (defined(__i386__) || defined(__x86_64__)))
   FXint ret;
   __asm__ __volatile__("lock\n\t"
@@ -205,7 +205,7 @@ FXint atomicCas(volatile FXint* ptr,FXint expect,FXint v){
 // Atomically compare variable at ptr against expect, setting it to v if equal and return true, or false otherwise
 FXbool atomicBoolCas(volatile FXint* ptr,FXint expect,FXint v){
 #if defined(WIN32) && (_MSC_VER >= 1500)
-  return (_InterlockedCompareExchange((LONG*)ptr,(LONG)v,(LONG)expect)==(LONG)expect);
+  return (_InterlockedCompareExchange((volatile LONG*)ptr,(LONG)v,(LONG)expect)==(LONG)expect);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && (defined(__i386__) || defined(__x86_64__)))
   FXbool ret;
   __asm__ __volatile__ ("lock\n\t"
@@ -229,7 +229,7 @@ FXbool atomicBoolCas(volatile FXint* ptr,FXint expect,FXint v){
 // Atomically set variable at ptr to v, and return its old contents
 FXlong atomicSet(volatile FXlong* ptr,FXlong v){
 #if defined(WIN32) && (_MSC_VER >= 1800)
-  return _InterlockedExchange64(ptr,v);
+  return _InterlockedExchange64((volatile LONG64*)ptr,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__) && (defined(__PIC__) || defined(__PIE__)))
   FXlong ret;
   __asm__ __volatile__ ("xchgl %%esi, %%ebx\n\t"
@@ -265,7 +265,7 @@ FXlong atomicSet(volatile FXlong* ptr,FXlong v){
 // Atomically add v to variable at ptr, and return its old contents
 FXlong atomicAdd(volatile FXlong* ptr,FXlong v){
 #if defined(WIN32) && (_MSC_VER >= 1800)
-  return _InterlockedAdd64(ptr,v);
+  return _InterlockedExchangeAdd64((volatile LONG64*)ptr,v);
 #elif defined(HAVE_BUILTIN_ATOMIC)
   return __atomic_fetch_add(ptr,v,__ATOMIC_SEQ_CST);
 #elif defined(HAVE_BUILTIN_SYNC)
@@ -314,7 +314,7 @@ FXlong atomicAdd(volatile FXlong* ptr,FXlong v){
 // Atomically compare variable at ptr against expect, setting it to v if equal; returns the old value at ptr
 FXlong atomicCas(volatile FXlong* ptr,FXlong expect,FXlong v){
 #if defined(WIN32) && (_MSC_VER >= 1800)
-  return _InterlockedCompareExchange64(ptr,v,expect);
+  return _InterlockedCompareExchange64((volatile LONG64*)ptr,v,expect);
 #elif defined(HAVE_BUILTIN_SYNC)
   return __sync_val_compare_and_swap(ptr,expect,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__) && (defined(__PIC__) || defined(__PIE__)))
@@ -347,7 +347,7 @@ FXlong atomicCas(volatile FXlong* ptr,FXlong expect,FXlong v){
 // Atomically compare variable at ptr against expect, setting it to v if equal and return true, or false otherwise
 FXbool atomicBoolCas(volatile FXlong* ptr,FXlong expect,FXlong v){
 #if defined(WIN32) && (_MSC_VER >= 1800)
-  return (_InterlockedCompareExchange64(ptr,v,expect)==expect);
+  return (_InterlockedCompareExchange64((volatile LONG64*)ptr,v,expect)==expect);
 #elif defined(HAVE_BUILTIN_SYNC)
   return __sync_bool_compare_and_swap(ptr,expect,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__) && (defined(__PIC__) || defined(__PIE__)))
@@ -388,7 +388,7 @@ FXbool atomicBoolCas(volatile FXlong* ptr,FXlong expect,FXlong v){
 // Atomically set variable at ptr to v, and return its old contents
 FXulong atomicSet(volatile FXulong* ptr,FXulong v){
 #if defined(WIN32) && (_MSC_VER >= 1800)
-  return _InterlockedExchange64(reinterpret_cast<volatile FXlong*>(ptr),v);
+  return _InterlockedExchange64((volatile LONG64*)ptr,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__) && (defined(__PIC__) || defined(__PIE__)))
   FXulong ret;
   __asm__ __volatile__ ("xchgl %%esi, %%ebx\n\t"
@@ -424,7 +424,7 @@ FXulong atomicSet(volatile FXulong* ptr,FXulong v){
 // Atomically add v to variable at ptr, and return its old contents
 FXulong atomicAdd(volatile FXulong* ptr,FXulong v){
 #if defined(WIN32) && (_MSC_VER >= 1800)
-  return _InterlockedAdd64(reinterpret_cast<volatile FXlong*>(ptr),v);
+  return _InterlockedExchangeAdd64((volatile LONG64*)ptr,v);
 #elif defined(HAVE_BUILTIN_ATOMIC)
   return __atomic_fetch_add(ptr,v,__ATOMIC_SEQ_CST);
 #elif defined(HAVE_BUILTIN_SYNC)
@@ -473,7 +473,7 @@ FXulong atomicAdd(volatile FXulong* ptr,FXulong v){
 // Atomically compare variable at ptr against expect, setting it to v if equal; returns the old value at ptr
 FXulong atomicCas(volatile FXulong* ptr,FXulong expect,FXulong v){
 #if defined(WIN32) && (_MSC_VER >= 1800)
-  return _InterlockedCompareExchange64(reinterpret_cast<volatile FXlong*>(ptr),v,expect);
+  return _InterlockedCompareExchange64((volatile LONG64*)ptr,v,expect);
 #elif defined(HAVE_BUILTIN_SYNC)
   return __sync_val_compare_and_swap(ptr,expect,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__) && (defined(__PIC__) || defined(__PIE__)))
@@ -506,7 +506,7 @@ FXulong atomicCas(volatile FXulong* ptr,FXulong expect,FXulong v){
 // Atomically compare variable at ptr against expect, setting it to v if equal and return true, or false otherwise
 FXbool atomicBoolCas(volatile FXulong* ptr,FXulong expect,FXulong v){
 #if defined(WIN32) && (_MSC_VER >= 1800)
-  return (_InterlockedCompareExchange64(reinterpret_cast<volatile FXlong*>(ptr),v,expect)==expect);
+  return (_InterlockedCompareExchange64((volatile LONG64*)ptr,v,expect)==expect);
 #elif defined(HAVE_BUILTIN_SYNC)
   return __sync_bool_compare_and_swap(ptr,expect,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__) && (defined(__PIC__) || defined(__PIE__)))
@@ -546,7 +546,7 @@ FXbool atomicBoolCas(volatile FXulong* ptr,FXulong expect,FXulong v){
 // Atomic read; necessary as it serializes reads and writes prior to this one
 FXuint atomicRead(volatile FXuint* ptr){
 #if defined(WIN32) && (_MSC_VER >= 1500)
-  return _InterlockedCompareExchange((LONG*)ptr,0,0);
+  return _InterlockedCompareExchange((volatile LONG*)ptr,0,0);
 #elif defined(HAVE_BUILTIN_ATOMIC)
   return __atomic_load_n(ptr,__ATOMIC_SEQ_CST);
 #elif defined(HAVE_BUILTIN_SYNC)
@@ -584,7 +584,7 @@ void atomicWrite(volatile FXuint* ptr,FXuint v){
 // Atomically set variable at ptr to v, and return its old contents
 FXuint atomicSet(volatile FXuint* ptr,FXuint v){
 #if defined(WIN32) && (_MSC_VER >= 1500)
-  return _InterlockedExchange((LONG*)ptr,v);
+  return _InterlockedExchange((volatile LONG*)ptr,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && (defined(__i386__) || defined(__x86_64__)))
   FXuint ret=v;
   __asm__ __volatile__("xchgl %0, (%1)\n\t" : "=r"(ret) : "r"(ptr), "0"(ret) : "memory", "cc");
@@ -602,7 +602,7 @@ FXuint atomicSet(volatile FXuint* ptr,FXuint v){
 // Atomically add v to variable at ptr, and return its old contents
 FXuint atomicAdd(volatile FXuint* ptr,FXuint v){
 #if defined(WIN32) && (_MSC_VER >= 1500)
-  return _InterlockedExchangeAdd((LONG*)ptr,v);
+  return _InterlockedExchangeAdd((volatile LONG*)ptr,v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && (defined(__i386__) || defined(__x86_64__)))
   FXuint ret=v;
   __asm__ __volatile__ ("lock\n\t"
@@ -621,7 +621,7 @@ FXuint atomicAdd(volatile FXuint* ptr,FXuint v){
 // Atomically compare variable at ptr against expect, setting it to v if equal; returns the old value at ptr
 FXuint atomicCas(volatile FXuint* ptr,FXuint expect,FXuint v){
 #if defined(WIN32) && ((_MSC_VER >= 1500))
-  return _InterlockedCompareExchange((LONG*)ptr,(LONG)v,(LONG)expect);
+  return _InterlockedCompareExchange((volatile LONG*)ptr,(LONG)v,(LONG)expect);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && (defined(__i386__) || defined(__x86_64__)))
   FXuint ret;
   __asm__ __volatile__("lock\n\t"
@@ -642,7 +642,7 @@ FXuint atomicCas(volatile FXuint* ptr,FXuint expect,FXuint v){
 // Atomically compare variable at ptr against expect, setting it to v if equal and return true, or false otherwise
 FXbool atomicBoolCas(volatile FXuint* ptr,FXuint expect,FXuint v){
 #if defined(WIN32) && ((_MSC_VER >= 1500))
-  return (_InterlockedCompareExchange((LONG*)ptr,(LONG)v,(LONG)expect)==(LONG)expect);
+  return (_InterlockedCompareExchange((volatile LONG*)ptr,(LONG)v,(LONG)expect)==(LONG)expect);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && (defined(__i386__) || defined(__x86_64__)))
   FXbool ret;
   __asm__ __volatile__ ("lock\n\t"
@@ -711,7 +711,7 @@ void atomicWrite(volatile FXptr* ptr,FXptr v){
 // Atomically set pointer variable at ptr to v, and return its old contents
 FXptr atomicSet(volatile FXptr* ptr,FXptr v){
 #if (defined(WIN32) && (_MSC_VER >= 1700))
-  return _InterlockedExchangePointer(ptr,v);
+  return (FXptr)_InterlockedExchangePointer(ptr,v);
 #elif (defined(WIN32) && defined(_WIN64) && (_MSC_VER >= 1500))
   FXptr result;
   do{                   // Stop-gap measure: VC++ 2008 doesn't have _InterlockedExchangePointer()
@@ -743,9 +743,9 @@ FXptr atomicSet(volatile FXptr* ptr,FXptr v){
 // Atomically add v to pointer variable at ptr, and return its old contents
 FXptr atomicAdd(volatile FXptr* ptr,FXival v){
 #if (defined(WIN32) && defined(_WIN64) && (_MSC_VER >= 1500))
-  return (FXptr)_InterlockedExchangeAdd64((LONGLONG*)ptr,(LONGLONG)v);
+  return (FXptr)_InterlockedExchangeAdd64((volatile LONGLONG*)ptr,(LONGLONG)v);
 #elif (defined(WIN32) && (_MSC_VER >= 1600))
-  return (FXptr)_InterlockedExchangeAdd((LONG*)ptr,(LONG)v);
+  return (FXptr)_InterlockedExchangeAdd((volatile LONG*)ptr,(LONG)v);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__))
   FXptr ret=(void*)v;
   __asm__ __volatile__ ("lock\n\t"
@@ -769,9 +769,9 @@ FXptr atomicAdd(volatile FXptr* ptr,FXival v){
 // Atomically compare pointer variable at ptr against expect, setting it to v if equal; returns the old value at ptr
 FXptr atomicCas(volatile FXptr* ptr,FXptr expect,FXptr v){
 #if defined(WIN32) && defined(_WIN64) && (_MSC_VER >= 1500)
-  return (FXptr)_InterlockedCompareExchange64((LONGLONG*)ptr,(LONGLONG)v,(LONGLONG)expect);
+  return (FXptr)_InterlockedCompareExchange64((volatile LONGLONG*)ptr,(LONGLONG)v,(LONGLONG)expect);
 #elif defined(WIN32) && (MSC_VER >=1500)
-  return (FXptr)_InterlockedCompareExchange((LONG*)ptr,(LONG)v,(LONG)expect);
+  return (FXptr)_InterlockedCompareExchange((volatile LONG*)ptr,(LONG)v,(LONG)expect);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__))
   FXptr ret;
   __asm__ __volatile__("lock\n\t"
@@ -797,9 +797,9 @@ FXptr atomicCas(volatile FXptr* ptr,FXptr expect,FXptr v){
 // Atomically compare pointer variable at ptr against expect, setting it to v if equal and return true, or false otherwise
 FXbool atomicBoolCas(volatile FXptr* ptr,FXptr expect,FXptr v){
 #if defined(WIN32) && defined(_WIN64) && (_MSC_VER >= 1500)
-  return (_InterlockedCompareExchange64((LONGLONG*)ptr,(LONGLONG)v,(LONGLONG)expect)==(LONGLONG)expect);
+  return (_InterlockedCompareExchange64((volatile LONGLONG*)ptr,(LONGLONG)v,(LONGLONG)expect)==(LONGLONG)expect);
 #elif defined(WIN32) && (MSC_VER >=1500)
-  return (_InterlockedCompareExchange((LONG*)ptr,(LONG)v,(LONG)expect)==(LONG)expect);
+  return (_InterlockedCompareExchange((volatile LONG*)ptr,(LONG)v,(LONG)expect)==(LONG)expect);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__))
   FXbool ret;
   __asm__ __volatile__ ("lock\n\t"
@@ -830,11 +830,11 @@ FXbool atomicBoolCas(volatile FXptr* ptr,FXptr expect,FXptr v){
 FXbool atomicBoolDCas(FXptr volatile* ptr,FXptr cmpa,FXptr cmpb,FXptr a,FXptr b){
 #if (defined(WIN32) && defined(_WIN64) && (_MSC_VER >= 1500))
   LONGLONG duet[2]={(LONGLONG)a,(LONGLONG)b};
-  return (_InterlockedCompareExchange128((LONGLONG volatile*)ptr,(LONGLONG)cmpb,(LONGLONG)cmpa,duet));
+  return !!(_InterlockedCompareExchange128((volatile LONGLONG*)ptr,(LONGLONG)cmpb,(LONGLONG)cmpa,duet));
 #elif (defined(WIN32) && (_MSC_VER >= 1500))
   LONGLONG ab=(((LONGLONG)(FXuval)a)|((LONGLONG)(FXuval)b)<<32);
   LONGLONG compab=(((LONGLONG)(FXuval)cmpa)|((LONGLONG)(FXuval)cmpb)<<32);
-  return (_InterlockedCompareExchange64((LONGLONG volatile *)ptr,ab,compab)==compab);
+  return (_InterlockedCompareExchange64((volatile LONGLONG*)ptr,ab,compab)==compab);
 #elif (defined(HAVE_INLINE_ASSEMBLY) && defined(__i386__) && (defined(__PIC__) || defined(__PIE__)))
   FXbool ret;
   __asm__ __volatile__ ("xchgl  %%esi, %%ebx\n\t"

@@ -744,6 +744,103 @@ FXdouble Math::atanh(FXdouble x){
 
 /*******************************************************************************/
 
+/// Single precision error function
+FXfloat Math::erf(FXfloat x){
+  return ::erff(x);
+  }
+
+
+/// Double precision error function
+FXdouble Math::erf(FXdouble x){
+  return ::erf(x);
+  }
+
+
+/// Single precision complementary error function
+FXfloat Math::erfc(FXfloat x){
+  return ::erfcf(x);
+  }
+
+
+/// Double precision complementary error function
+FXdouble Math::erfc(FXdouble x){
+  return ::erfc(x);
+  }
+
+
+// Single precision inverse error function
+FXfloat Math::inverf(FXfloat x){
+  return Math::inverfc(1.0f-x);
+  }
+
+
+// Double precision inverse error function
+FXdouble Math::inverf(FXdouble x){
+  return Math::inverfc(1.0-x);
+  }
+
+
+// Single precision inverse complementary error function
+FXfloat Math::inverfc(FXfloat x){
+  FXfloat result,sign,err,t;
+
+  // Argument check
+  if(1.0f<=x){
+    if(__unlikely(x>=2.0f)){ return -FLT_MAX; }
+    sign=-1.0f;
+    x=2.0f-x;
+    }
+  else{
+    if(__unlikely(x<=0.0f)){ return FLT_MAX; }
+    sign=1.0f;
+    }
+
+  // Approximation
+  t=Math::sqrt(-Math::log(0.5f*x*x));
+  result=-0.70711f*((2.30753f+t*0.27061f)/(1.0f+t*(0.99229f+t*0.04481f))-t);
+
+  // Newton-Raphson refinement steps f(x)/f'(x)
+  err=Math::erfc(result)-x;
+  result+=err/(1.12837916709551257f*Math::exp(-result*result)-result*err);
+
+  // Restore sign
+  result*=sign;
+  return result;
+  }
+
+
+// Double precision inverse complementary error function
+FXdouble Math::inverfc(FXdouble x){
+  FXdouble result,sign,err,t;
+
+  // Argument check
+  if(1.0<=x){
+    if(__unlikely(x>=2.0)){ return -DBL_MAX; }
+    sign=-1.0;
+    x=2.0-x;
+    }
+  else{
+    if(__unlikely(x<=0.0)){ return DBL_MAX; }
+    sign=1.0;
+    }
+
+  // Approximation
+  t=Math::sqrt(-Math::log(0.5*x*x));
+  result=-0.70711*((2.30753+t*0.27061)/(1.0+t*(0.99229+t*0.04481))-t);
+
+  // Newton-Raphson refinement steps f(x)/f'(x)
+  err=Math::erfc(result)-x;
+  result+=err/(1.12837916709551257*Math::exp(-result*result)-result*err);
+  err=Math::erfc(result)-x;
+  result+=err/(1.12837916709551257*Math::exp(-result*result)-result*err);
+
+  // Restore sign
+  result*=sign;
+  return result;
+  }
+
+/*******************************************************************************/
+
 // Power of 10 table
 static const FXdouble powOfTen[632]={
                                                    1E-323,1E-322,1E-321,

@@ -477,6 +477,13 @@
   - Repeating back references, only possible if capturing parentheses are known NOT to match "".
   - Note the \uXXXX and \UXXXXXXXX is going to be used for UNICODE:
     See: http://www.unicode.org/unicode/reports/tr18.
+  - Old character class structure (OP_IN, OP_NOT_IN):
+
+           byte0 ... byte31
+
+    A total of 32 bytes, to store 256 individual bits.  Not the best use
+    of space.
+
   - The new character class structures; method #1:
 
                   <N>
@@ -485,7 +492,7 @@
               ...    ...
            ( <lo_N> <hi_N> )
 
-    Or heterogeneous set; method #2:
+    And/or heterogeneous set; method #2 (OP_ANY_OF/OP_ANY_BUT):
 
                   <N>
            c1, c2, c3, ... cN
@@ -496,7 +503,8 @@
         [a82d]       Method #2
 
     Either method has an <N> count number, this is needed so we know how much space
-    to skip in the program.
+    to skip in the program. For unicode, [XYZ] may be better implemented as combination
+    of (X|Y|Z), to avoid some complexities.
   - Careful about reversing unicode, don't reverse bytes but characters.
   - Possibly implement parser base class, with actions in derived class; easier to
     keep up additions to syntax this way and keep reversal code in sync with regular
@@ -504,7 +512,8 @@
 */
 
 #define TOPIC_CONSTRUCT 1000
-//#define TOPIC_REXDUMP   1014          // Debugging regex code
+#define TOPIC_DETAIL    1013
+//#define TOPIC_REXDUMP   1014
 
 
 // As close to infinity as we're going to get; this seems big enough.  We can not make
@@ -607,8 +616,10 @@ enum {
   // Single character matching; these can be in simple repeat
   OP_ANY,               // Any character but no newline
   OP_ANY_NL,            // Any character including newline
-  OP_ANY_OF,            // Any character in set
-  OP_ANY_BUT,           // Any character not in set
+  OP_IN,                // Any character in set
+  OP_NOT_IN,            // Any character not in set
+  OP_ANY_OF,            // Any character in list
+  OP_ANY_BUT,           // Any character not in list
   OP_UPPER,             // Match upper case
   OP_LOWER,             // Match lower case
   OP_SPACE,             // White space
@@ -635,8 +646,10 @@ enum {
   // Single unicode character matching
   OP_UANY,              // Unicode any character, except newline
   OP_UANY_NL,           // Unicode any  character, including newline
-  OP_UANY_OF,           // Unicode any character in set
-  OP_UANY_BUT,          // Unicode any character not in set
+  OP_UIN,               // Unicode any character in set
+  OP_UNOT_IN,           // Unicode any character not in set
+  OP_UANY_OF,           // Unicode any character in list
+  OP_UANY_BUT,          // Unicode any character not in list
   OP_UUPPER,            // Unicode uppercase
   OP_ULOWER,            // Unicode lowercase
   OP_UTITLE,            // Unicode title case
@@ -1027,7 +1040,6 @@ static inline FXuchar ISIN(const FXuchar set[],FXuchar ch){
   return set[ch>>3]&(1<<(ch&7));
   }
 
-
 // Clear the set
 static inline void ZERO(FXuchar set[]){
   set[ 0]=0; set[ 1]=0; set[ 2]=0; set[ 3]=0; set[ 4]=0; set[ 5]=0; set[ 6]=0; set[ 7]=0;
@@ -1043,6 +1055,14 @@ static inline void UNION(FXuchar set[],const FXuchar src[]){
   set[ 8]|=src[ 8]; set[ 9]|=src[ 9]; set[10]|=src[10]; set[11]|=src[11]; set[12]|=src[12]; set[13]|=src[13]; set[14]|=src[14]; set[15]|=src[15];
   set[16]|=src[16]; set[17]|=src[17]; set[18]|=src[18]; set[19]|=src[19]; set[20]|=src[20]; set[21]|=src[21]; set[22]|=src[22]; set[23]|=src[23];
   set[24]|=src[24]; set[25]|=src[25]; set[26]|=src[26]; set[27]|=src[27]; set[28]|=src[28]; set[29]|=src[29]; set[30]|=src[30]; set[31]|=src[31];
+  }
+
+
+// Character in list at prg
+static inline FXbool INLIST(const FXuchar* prg,FXuchar ch){
+  const FXuchar* ptr=prg;
+  while(ptr<prg+*prg && *++ptr!=ch){ }
+  return (*ptr==ch);
   }
 
 
@@ -1166,6 +1186,8 @@ FXRex::Error FXCompile::compile(FXuchar *prog,FXchar* p,FXint m){
   // Success if we got this far
   append(OP_PASS);
 
+  FXASSERT((pc-code)<65536);
+
   // Fix up compiled code size
   fix(at,pc-code);
 
@@ -1175,10 +1197,17 @@ FXRex::Error FXCompile::compile(FXuchar *prog,FXchar* p,FXint m){
 
 // Parse without interpretation of magic characters
 FXRex::Error FXCompile::verbatim(){
-  append((mode&FXRex::IgnoreCase)?OP_CHARS_CI:OP_CHARS,strlen(pat));
-  while(*pat){
-    append((mode&FXRex::IgnoreCase)?Ascii::toLower(*pat):*pat);
-    pat++;
+  if(mode&FXRex::IgnoreCase){
+    append(OP_CHARS_CI,strlen(pat));
+    while(*pat){
+      append(Ascii::toLower(*pat++));
+      }
+    }
+  else{
+    append(OP_CHARS,strlen(pat));
+    while(*pat){
+      append(*pat++);
+      }
     }
   return FXRex::ErrOK;
   }
@@ -1809,17 +1838,29 @@ FXRex::Error FXCompile::atom(FXshort& flags,FXshort& smin,FXshort& smax){
       len=pat-savepat;
       if(1<len){
         flags=FLG_WIDTH;
-        append((mode&FXRex::IgnoreCase)?OP_CHARS_CI:OP_CHARS,len);
-        while(savepat<pat){
-          ch=*savepat++;
-          append((mode&FXRex::IgnoreCase)?Ascii::toLower(ch):ch);
+        if(mode&FXRex::IgnoreCase){                     // Multiple characters, case insensitive
+          append(OP_CHARS_CI,len);
+          while(savepat<pat){
+            append(Ascii::toLower(*savepat++));
+            }
+          }
+        else{                                           // Multiple characters, case sensitive
+          append(OP_CHARS,len);
+          while(savepat<pat){
+            append(*savepat++);
+            }
           }
         }
-      else{
+      else{                                             // One character, case insensitive
         flags=FLG_WIDTH|FLG_SIMPLE;
-        append((mode&FXRex::IgnoreCase)?OP_CHAR_CI:OP_CHAR);
-        ch=*savepat;
-        append((mode&FXRex::IgnoreCase)?Ascii::toLower(ch):ch);
+        if(mode&FXRex::IgnoreCase){
+          append(OP_CHAR_CI);
+          append(Ascii::toLower(*savepat));
+          }
+        else{                                           // One character, case sensitive
+          append(OP_CHAR);
+          append(*savepat);
+          }
         }
       smin=smax=len;
       return FXRex::ErrOK;
@@ -1836,8 +1877,8 @@ FXRex::Error FXCompile::charset(){
   first=-1;
 
   // Negated character class
-  op=OP_ANY_OF;
-  if(*pat=='^'){ op=OP_ANY_BUT; pat++; }
+  op=OP_IN;
+  if(*pat=='^'){ op=OP_NOT_IN; pat++; }
 
   // '-' and ']' are literal at begin
   if(*pat=='-' || *pat==']') goto in;
@@ -1992,7 +2033,7 @@ in: last=(FXuchar)*pat++;
     }
 
   // Are we matching newlines
-  if((op==OP_ANY_BUT) && !(mode&FXRex::Newline) && !ISIN(set,'\n')){
+  if((op==OP_NOT_IN) && !(mode&FXRex::Newline) && !ISIN(set,'\n')){
     INCL(set,'\n');
     }
 
@@ -2569,16 +2610,57 @@ nxt:op=*prog++;
         if(str_end<=str) goto f;
         str++;
         goto nxt;
-      case OP_ANY_OF:                           // Match a character in a set
+      case OP_IN:                               // Match a character in a set
         if(str_end<=str) goto f;
         if(!ISIN(prog,*str)) goto f;
         prog+=32;
         str++;
         goto nxt;
-      case OP_ANY_BUT:                          // Match a character NOT in a set
+      case OP_NOT_IN:                           // Match a character NOT in a set
         if(str_end<=str) goto f;
         if(ISIN(prog,*str)) goto f;
         prog+=32;
+        str++;
+        goto nxt;
+/*
+      case OP_INSIDE:                           // Match a character in ranges
+        if(str_end<=str) goto f;
+        no=*prog++;     // Number of bytes
+        ptr=prog;
+        prog+=no;
+        do{
+
+//          if((ptr[0]<str[0] || (ptr[0]==str[0] && (str[0]<0xC0 || ptr[1]<str[1] || (ptr[1]==str[1] && (str[0]<0xE0 || ptr[2]<str[2] || (ptr[2]==str[2] && (str[0]<0xF0 || ptr[3]<=str[3]))))))) &&
+//             (str[0]<ptr[0] || (str[0]==ptr[0] && (ptr[0]<0xC0 || str[1]<ptr[1] || (str[1]==ptr[1] && (ptr[0]<0xE0 || str[2]<ptr[2] || (str[2]==ptr[2] && (ptr[0]<0xF0 || str[3]<=ptr[3])))))))){ str++; goto nxt; }
+
+          if(ptr[0]<=*str && *str<=ptr[1]){ str++; goto nxt; }
+          ptr+=2;
+          }
+        while(ptr<prog);
+        goto f;
+      case OP_OUTSIDE:                          // Match a character NOT in ranges
+        if(str_end<=str) goto f;
+        no=*prog++;     // Number of bytes
+        ptr=prog;
+        prog+=no;
+        do{
+          if(ptr[0]<=*str && *str<=ptr[1]){ goto f; }
+          ptr+=2;
+          }
+        while(ptr<prog);
+        str++;
+        goto nxt;
+*/
+      case OP_ANY_OF:                           // Match character in list
+        if(str_end<=str) goto f;
+        if(!INLIST(prog,*str)) goto f;
+        prog+=1+*prog;
+        str++;
+        goto nxt;
+      case OP_ANY_BUT:                          // Match character NOT in list
+        if(str_end<=str) goto f;
+        if(INLIST(prog,*str)) goto f;
+        prog+=1+*prog;
         str++;
         goto nxt;
       case OP_UPPER:                            // Match if uppercase
@@ -2708,11 +2790,11 @@ nxt:op=*prog++;
         if(str_end<=str) goto f;
         str=wcinc(str);
         goto nxt;
-      case OP_UANY_OF:                          // Unicode any character in set
+      case OP_UIN:                              // Unicode any character in set
         // FIXME
         FXASSERT(0);
         goto nxt;
-      case OP_UANY_BUT:                         // Unicode any character not in set
+      case OP_UNOT_IN:                          // Unicode any character not in set
         // FIXME
         FXASSERT(0);
         goto nxt;
@@ -2927,13 +3009,21 @@ rep:    if(str+rep_min>str_end) goto f;         // Can't possibly succeed
           case OP_ANY_NL:
             while(str<str_end && no<rep_max){ ++str; ++no; }
             goto asc;
-          case OP_ANY_OF:
+          case OP_IN:
             while(str<str_end && ISIN(prog,*str) && no<rep_max){ ++str; ++no; }
             prog+=32;
             goto asc;
-          case OP_ANY_BUT:
+          case OP_NOT_IN:
             while(str<str_end && !ISIN(prog,*str) && no<rep_max){ ++str; ++no; }
             prog+=32;
+            goto asc;
+          case OP_ANY_OF:                       // Match character in list
+            while(str<str_end && INLIST(prog,*str) && no<rep_max){ ++str; ++no; }
+            prog+=1+*prog;
+            goto asc;
+          case OP_ANY_BUT:                      // Match character NOT in list
+            while(str<str_end && !INLIST(prog,*str) && no<rep_max){ ++str; ++no; }
+            prog+=1+*prog;
             goto asc;
           case OP_UPPER:
             while(str<str_end && Ascii::isUpper(*str) && no<rep_max){ ++str; ++no; }
@@ -3009,10 +3099,10 @@ rep:    if(str+rep_min>str_end) goto f;         // Can't possibly succeed
           case OP_UANY_NL:
             while(str<str_end && no<rep_max){ str=wcinc(str); ++no; }
             goto uni;
-          case OP_UANY_OF:
+          case OP_UIN:
             FXASSERT(0);
             goto uni;
-          case OP_UANY_BUT:
+          case OP_UNOT_IN:
             FXASSERT(0);
             goto uni;
           case OP_UUPPER:
@@ -3545,16 +3635,28 @@ nxt:op=*prog++;
         if(str<=str_beg) goto f;
         str--;
         goto nxt;
-      case OP_ANY_OF:                           // Match a character in a set
+      case OP_IN:                               // Match a character in a set
         if(str<=str_beg) goto f;
         if(!ISIN(prog,*(str-1))) goto f;
         prog+=32;
         str--;
         goto nxt;
-      case OP_ANY_BUT:                          // Match a character NOT in a set
+      case OP_NOT_IN:                           // Match a character NOT in a set
         if(str<=str_beg) goto f;
         if(ISIN(prog,*(str-1))) goto f;
         prog+=32;
+        str--;
+        goto nxt;
+      case OP_ANY_OF:                           // Match character in list
+        if(str<=str_beg) goto f;
+        if(!INLIST(prog,*(str-1))) goto f;
+        prog+=1+*prog;
+        str--;
+        goto nxt;
+      case OP_ANY_BUT:                          // Match character NOT in list
+        if(str<=str_beg) goto f;
+        if(INLIST(prog,*(str-1))) goto f;
+        prog+=1+*prog;
         str--;
         goto nxt;
       case OP_UPPER:                            // Match if uppercase
@@ -3685,11 +3787,11 @@ nxt:op=*prog++;
         if(str<=str_beg) goto f;
         str=wcdec(str);
         goto nxt;
-      case OP_UANY_OF:                          // Unicode any character in set
+      case OP_UIN:                              // Unicode any character in set
         // FIXME
         FXASSERT(0);
         goto nxt;
-      case OP_UANY_BUT:                         // Unicode any character not in set
+      case OP_UNOT_IN:                          // Unicode any character not in set
         // FIXME
         FXASSERT(0);
         goto nxt;
@@ -3927,13 +4029,21 @@ rep:    if(str-rep_min<str_beg) goto f;         // Can't possibly succeed
           case OP_ANY_NL:
             while(str_beg<str && no<rep_max){ --str; ++no; }
             goto asc;
-          case OP_ANY_OF:
+          case OP_IN:
             while(str_beg<str && ISIN(prog,*(str-1)) && no<rep_max){ --str; ++no; }
             prog+=32;
             goto asc;
-          case OP_ANY_BUT:
+          case OP_NOT_IN:
             while(str_beg<str && !ISIN(prog,*(str-1)) && no<rep_max){ --str; ++no; }
             prog+=32;
+            goto asc;
+          case OP_ANY_OF:                       // Match character in list
+            while(str_beg<str && INLIST(prog,*(str-1)) && no<rep_max){ --str; ++no; }
+            prog+=1+*prog;
+            goto asc;
+          case OP_ANY_BUT:                      // Match character NOT in list
+            while(str_beg<str && !INLIST(prog,*(str-1)) && no<rep_max){ --str; ++no; }
+            prog+=1+*prog;
             goto asc;
           case OP_UPPER:
             while(str_beg<str && Ascii::isUpper(*(str-1)) && no<rep_max){ --str; ++no; }
@@ -4009,10 +4119,10 @@ rep:    if(str-rep_min<str_beg) goto f;         // Can't possibly succeed
           case OP_UANY_NL:
             while(str_beg<str && no<rep_max){ str=wcdec(str); ++no; }
             goto uni;
-          case OP_UANY_OF:
+          case OP_UIN:
             FXASSERT(0);
             goto uni;
-          case OP_UANY_BUT:
+          case OP_UNOT_IN:
             FXASSERT(0);
             goto uni;
           case OP_UUPPER:
@@ -4606,7 +4716,6 @@ FXRex::Error FXReverse::charset(){
   return FXRex::ErrOK;
   }
 
-
 }
 
 /*******************************************************************************/
@@ -4686,6 +4795,8 @@ FXRex::FXRex(const FXString& pattern,FXint mode,FXRex::Error* error):code(EMPTY)
 FXRex::Error FXRex::parse(const FXchar* pattern,FXint mode){
   FXRex::Error err=ErrEmpty;
 
+  FXTRACE((TOPIC_DETAIL,"FXRex::parse(\"%s\",%u)\n",pattern,mode));
+
   // Free old code
   clear();
 
@@ -4701,6 +4812,8 @@ FXRex::Error FXRex::parse(const FXchar* pattern,FXint mode){
       if((err=FXReverse::reverse(adjustedpattern,pattern,mode))==ErrOK){
         FXCompile cs;
 
+        FXTRACE((TOPIC_DETAIL,"FXRex::parse: adjustedpattern: \"%s\"\n",adjustedpattern));
+
         // Check syntax and count the bytes
         if((err=cs.compile(nullptr,adjustedpattern,mode))==ErrOK){
 
@@ -4714,15 +4827,15 @@ FXRex::Error FXRex::parse(const FXchar* pattern,FXint mode){
               // Now generate code for pattern
               if((err=cs.compile(prog,adjustedpattern,mode))==ErrOK){
 
-                // Size still checking out?
-                FXASSERT(cs.size()==cs.size());
-
                 // Install new program
                 code=prog;
 #ifdef TOPIC_REXDUMP
                 if(getTraceTopic(TOPIC_REXDUMP)){ dump(adjustedpattern,code); }
 #endif
                 freeElms(adjustedpattern);
+
+                FXTRACE((TOPIC_DETAIL,"FXRex::parse: OK\n\n"));
+
                 return ErrOK;
                 }
               freeElms(prog);
@@ -4733,6 +4846,9 @@ FXRex::Error FXRex::parse(const FXchar* pattern,FXint mode){
       freeElms(adjustedpattern);
       }
     }
+
+  FXTRACE((TOPIC_DETAIL,"FXRex::parse: %s\n\n",getError(err)));
+
   return err;
   }
 

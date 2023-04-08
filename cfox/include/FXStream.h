@@ -188,7 +188,7 @@ public:
   /// Save single items to stream
   FXStream& operator<<(const FXuchar& v);
   FXStream& operator<<(const FXchar& v){ return *this << reinterpret_cast<const FXuchar&>(v); }
-  FXStream& operator<<(const FXbool& v){ return *this << reinterpret_cast<const FXuchar&>(v); }
+  FXStream& operator<<(const FXbool& v);
   FXStream& operator<<(const FXushort& v);
   FXStream& operator<<(const FXshort& v){ return *this << reinterpret_cast<const FXushort&>(v); }
   FXStream& operator<<(const FXuint& v);
@@ -201,7 +201,7 @@ public:
   /// Save arrays of items to stream
   FXStream& save(const FXuchar* p,FXuval n);
   FXStream& save(const FXchar* p,FXuval n){ return save(reinterpret_cast<const FXuchar*>(p),n); }
-  FXStream& save(const FXbool* p,FXuval n){ return save(reinterpret_cast<const FXuchar*>(p),n); }
+  FXStream& save(const FXbool* p,FXuval n);
   FXStream& save(const FXushort* p,FXuval n);
   FXStream& save(const FXshort* p,FXuval n){ return save(reinterpret_cast<const FXushort*>(p),n); }
   FXStream& save(const FXuint* p,FXuval n);
@@ -214,7 +214,7 @@ public:
   /// Load single items from stream
   FXStream& operator>>(FXuchar& v);
   FXStream& operator>>(FXchar& v){ return *this >> reinterpret_cast<FXuchar&>(v); }
-  FXStream& operator>>(FXbool& v){ return *this >> reinterpret_cast<FXuchar&>(v); }
+  FXStream& operator>>(FXbool& v);
   FXStream& operator>>(FXushort& v);
   FXStream& operator>>(FXshort& v){ return *this >> reinterpret_cast<FXushort&>(v); }
   FXStream& operator>>(FXuint& v);
@@ -227,7 +227,7 @@ public:
   /// Load arrays of items from stream
   FXStream& load(FXuchar* p,FXuval n);
   FXStream& load(FXchar* p,FXuval n){ return load(reinterpret_cast<FXuchar*>(p),n); }
-  FXStream& load(FXbool* p,FXuval n){ return load(reinterpret_cast<FXuchar*>(p),n); }
+  FXStream& load(FXbool* p,FXuval n);
   FXStream& load(FXushort* p,FXuval n);
   FXStream& load(FXshort* p,FXuval n){ return load(reinterpret_cast<FXushort*>(p),n); }
   FXStream& load(FXuint* p,FXuval n);

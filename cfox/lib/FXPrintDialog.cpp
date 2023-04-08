@@ -66,11 +66,12 @@
 #include "FXInputDialog.h"
 #include "FXFileDialog.h"
 #include "FXPrintDialog.h"
+#include "icons.h"
+
 #ifdef HAVE_CUPS_H
 #include <cups/cups.h>
 #include <cups/ppd.h>
 #endif
-#include "icons.h"
 
 /*
   Notes:
@@ -342,7 +343,7 @@ FXPrintDialog::FXPrintDialog(FXWindow* own,const FXString& caption,FXuint opts,F
     }
 
   // List paper sizes
-  for(int i=0; ; i++){
+  for(FXint i=0; ; i++){
     __snprintf(key,sizeof(key),"%d",i);
     if(getApp()->reg().readFormatEntry("PAPER",key,"[%[^]]] %*f %*f %*f %*f %*f %*f",name)!=1) break;
     media->appendItem(name);

@@ -55,6 +55,13 @@
         return directory;
         }
 
+  - Another way:
+
+      HMODULE hModule;
+      if(GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,addr,&hModule)!=0){
+        return hModule;
+        }
+
 */
 
 using namespace FX;

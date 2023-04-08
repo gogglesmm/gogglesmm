@@ -45,10 +45,7 @@ public:
   FXSocket(){ }
 
   /// Construct file and attach existing handle h
-  FXSocket(FXInputHandle h,FXuint m);
-
-  /// Open device with access mode and handle
-  virtual FXbool open(FXInputHandle h,FXuint m);
+  FXSocket(FXInputHandle h);
   };
 
 }

@@ -42,13 +42,6 @@
     any i/o to the actual device; this is often convenient.
 */
 
-// Bad handle value
-#ifdef WIN32
-#define BadHandle INVALID_HANDLE_VALUE
-#else
-#define BadHandle -1
-#endif
-
 using namespace FX;
 
 /*******************************************************************************/
@@ -56,32 +49,8 @@ using namespace FX;
 namespace FX {
 
 
-
 // Construct
-FXIO::FXIO():pointer(0L),access(NoAccess){
-  }
-
-
-// Construct with given mode
-FXIO::FXIO(FXuint m):pointer(0L),access(m){
-  }
-
-
-// Is readable
-FXbool FXIO::isReadable() const {
-  return ((access&ReadOnly)!=0);
-  }
-
-
-// Is writable
-FXbool FXIO::isWritable() const {
-  return ((access&WriteOnly)!=0);
-  }
-
-
-// Change access mode
-FXbool FXIO::setMode(FXuint){
-  return false;
+FXIO::FXIO(){
   }
 
 
@@ -93,38 +62,54 @@ FXbool FXIO::isOpen() const {
 
 // Return true if serial access only
 FXbool FXIO::isSerial() const {
+  return true;
+  }
+
+
+// Return access mode
+FXuint FXIO::mode() const {
+  return FXIO::ReadWrite;
+  }
+
+
+// Change access mode
+FXbool FXIO::mode(FXuint){
+  return false;
+  }
+
+
+// Return permissions
+FXuint FXIO::perms() const {
+  return FXIO::AllFull;
+  }
+
+
+// Set permissions
+FXbool FXIO::perms(FXuint){
   return false;
   }
 
 
 // Get position
 FXlong FXIO::position() const {
-  return pointer;
+  return FXIO::Error;
   }
 
 
 // Move to position
-FXlong FXIO::position(FXlong offset,FXuint from){
-  if(from==Current) offset=pointer+offset;
-  if(0<=offset){
-    pointer=offset;
-    return pointer;
-    }
+FXlong FXIO::position(FXlong,FXuint){
   return FXIO::Error;
   }
 
 
 // Read block
-FXival FXIO::readBlock(void* ptr,FXival count){
-  memset(ptr,0,count);
-  pointer+=count;
-  return count;
+FXival FXIO::readBlock(void*,FXival){
+  return 0;
   }
 
 
 // Write block
 FXival FXIO::writeBlock(const void*,FXival count){
-  pointer+=count;
   return count;
   }
 
@@ -142,11 +127,7 @@ FXbool FXIO::writeChar(FXchar ch){
 
 
 // Truncate file
-FXlong FXIO::truncate(FXlong sz){
-  if(0<=sz){
-    if(pointer>=sz) pointer=sz;
-    return sz;
-    }
+FXlong FXIO::truncate(FXlong){
   return FXIO::Error;
   }
 
@@ -159,20 +140,18 @@ FXbool FXIO::flush(){
 
 // Test if we're at the end; -1 if error
 FXint FXIO::eof(){
-  return 0;
+  return 1;
   }
 
 
 // Return file size
 FXlong FXIO::size(){
-  return pointer;
+  return 0;
   }
 
 
 // Close file
 FXbool FXIO::close(){
-  access=NoAccess;
-  pointer=0L;
   return true;
   }
 
@@ -181,6 +160,4 @@ FXbool FXIO::close(){
 FXIO::~FXIO(){
   }
 
-
 }
-

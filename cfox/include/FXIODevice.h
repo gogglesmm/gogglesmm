@@ -44,34 +44,31 @@ public:
   FXIODevice();
 
   /// Construct device and attach existing handle h
-  FXIODevice(FXInputHandle h,FXuint m=FXIO::Reading);
-
-  /// Open device with access mode m and existing handle h
-  virtual FXbool open(FXInputHandle h,FXuint m=FXIO::Reading);
+  FXIODevice(FXInputHandle h);
 
   /// Return handle
   FXInputHandle handle() const { return device; }
 
-  /// Change access mode of open device
-  virtual FXbool setMode(FXuint m);
-
   /// Return true if open
   virtual FXbool isOpen() const;
 
-  /// Return true if serial access only
-  virtual FXbool isSerial() const;
+  /// Return access mode
+  virtual FXuint mode() const;
+
+  /// Change access mode of open device
+  virtual FXbool mode(FXuint m);
+
+  /// Return permissions
+  virtual FXuint perms() const;
+
+  /// Set permissions
+  virtual FXbool perms(FXuint p);
 
   /// Attach existing device handle, taking ownership of the handle
-  virtual FXbool attach(FXInputHandle h,FXuint m);
+  virtual FXbool attach(FXInputHandle h);
 
   /// Detach device handle
   virtual FXbool detach();
-
-  /// Get current file position
-  virtual FXlong position() const;
-
-  /// Change file position, returning new position from start
-  virtual FXlong position(FXlong offset,FXuint from=FXIO::Begin);
 
   /// Read block of bytes, returning number of bytes read
   virtual FXival readBlock(void* ptr,FXival count);
@@ -93,6 +90,9 @@ public:
 
   /// Close handle
   virtual FXbool close();
+
+  /// Check handle validity
+  static FXbool valid(FXInputHandle hnd);
 
   /// Destroy and close
   virtual ~FXIODevice();

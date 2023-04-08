@@ -423,7 +423,7 @@ public:
   const FXVec3f& getScale() const { return scale; }
 
   /// Change camera orientation from quaternion
-  void setOrientation(FXQuatf rot);
+  void setOrientation(const FXQuatf& rot);
 
   /// Return current camera orientation quaternion
   const FXQuatf& getOrientation() const { return rotation; }

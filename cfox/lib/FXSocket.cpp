@@ -56,14 +56,8 @@ namespace FX {
 
 
 // Construct file and attach existing handle h
-FXSocket::FXSocket(FXInputHandle h,FXuint m){
-  open(h,m);
-  }
-
-
-// Open device with access mode and handle
-FXbool FXSocket::open(FXInputHandle h,FXuint m){
-  return FXIODevice::open(h,m);
+FXSocket::FXSocket(FXInputHandle h){
+  attach(h);
   }
 
 

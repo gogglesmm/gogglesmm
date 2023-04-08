@@ -113,6 +113,66 @@ long FXShutterItem::onFocusDown(FXObject* sender,FXSelector sel,void* ptr){
   }
 
 
+// Set the text for this shutter item
+void FXShutterItem::setText(const FXString& text){
+  button->setText(text);
+  }
+
+
+// Get the text for this item
+FXString FXShutterItem::getText() const {
+  return button->getText();
+  }
+
+
+// Set the icon for this item
+void FXShutterItem::setIcon(FXIcon* ic){
+  button->setIcon(ic);
+  }
+
+
+// Get the icon for this item
+FXIcon* FXShutterItem::getIcon() const {
+  return button->getIcon();
+  }
+
+
+// Set the text font
+void FXShutterItem::setFont(FXFont *fnt){
+  button->setFont(fnt);
+  }
+
+
+// Get the text font
+FXFont* FXShutterItem::getFont() const {
+  return button->getFont();
+  }
+
+
+// Set the current text-justification mode.
+void FXShutterItem::setJustify(FXuint mode){
+  button->setJustify(mode);
+  }
+
+
+// Get the current text-justification mode.
+FXuint FXShutterItem::getJustify() const {
+  return button->getJustify();
+  }
+
+
+// Set the current icon position
+void FXShutterItem::setIconPosition(FXuint mode){
+  button->setIconPosition(mode);
+  }
+
+
+// Get the current icon position
+FXuint FXShutterItem::getIconPosition() const {
+  return button->getIconPosition();
+  }
+
+
 // Change help text
 void FXShutterItem::setHelpText(const FXString& text){
   button->setHelpText(text);

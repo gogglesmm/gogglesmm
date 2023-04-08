@@ -1,9 +1,9 @@
 /********************************************************************************
 *                                                                               *
-*                             X M L - F i l e   I / O                           *
+*                             I N I   F i l e   I / O                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2022 by Jeroen van der Zijp.   All Rights Reserved.             *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -21,63 +21,57 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
-#include "fxchar.h"
 #include "fxmath.h"
 #include "fxascii.h"
 #include "FXElement.h"
 #include "FXArray.h"
 #include "FXString.h"
-#include "FXParseBuffer.h"
 #include "FXIO.h"
 #include "FXIODevice.h"
 #include "FXStat.h"
 #include "FXFile.h"
+#include "FXParseBuffer.h"
 #include "FXException.h"
-#include "FXStringDictionary.h"
-#include "FXCallback.h"
-#include "FXXML.h"
-#include "FXXMLFile.h"
-
+#include "FXVariant.h"
+#include "FXVariantArray.h"
+#include "FXVariantMap.h"
+#include "FXINI.h"
+#include "FXINIFile.h"
 
 /*
   Notes:
 
-  - XML serialization to a file.
-  - To fill buffer, move unread bytes to start, then load as from file as will fit;
-    thus, wptr==endptr indicates the file is not fully loaded yet, while wptr<endptr
-    means we've reached end of file.
-  - To flush buffer, try write all bytes from buffer; if not able to write it all,
-    move unwritten bytes to start to have maximum of free space in buffer.
-*/
+  - INI Serialization to a file.
 
+*/
 
 using namespace FX;
 
-namespace FX {
-
 /*******************************************************************************/
 
-// Create XML file i/o object
-FXXMLFile::FXXMLFile(){
-  FXTRACE((100,"FXXMLFile::FXXMLFile\n"));
+namespace FX {
+
+// Create INI file i/o object
+FXINIFile::FXINIFile(){
+  FXTRACE((100,"FXINIFile::FXINIFile\n"));
   }
 
 
-// Create XML file i/o object and open it
-FXXMLFile::FXXMLFile(const FXString& filename,Direction d,FXuval sz){
-  FXTRACE((100,"FXXMLFile::FXXMLFile(\"%s\",%s,%lu)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+// Create INI file i/o object and open it
+FXINIFile::FXINIFile(const FXString& filename,Direction d,FXuval sz){
+  FXTRACE((100,"FXINIFile::FXINIFile(\"%s\",%s,%ld)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   open(filename,d,sz);
   }
 
 
-// Open XML file for operation
-FXbool FXXMLFile::open(const FXString& filename,Direction d,FXuval sz){
-  FXTRACE((101,"FXXMLFile::open(\"%s\",%s,%lu)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
+// Open INI for load or save
+FXbool FXINIFile::open(const FXString& filename,Direction d,FXuval sz){
+  FXTRACE((101,"FXINIFile::open(\"%s\",%s,%ld)\n",filename.text(),(d==Save)?"Save":(d==Load)?"Load":"Stop",sz));
   if(dir==Stop){
     FXchar *buffer;
     if(allocElms(buffer,sz)){
       if(file.open(filename,(d==Save)?FXIO::Writing:FXIO::Reading,FXIO::AllReadWrite)){
-        if(FXXML::open(buffer,sz,d)){
+        if(FXINI::open(buffer,sz,d)){
           rptr=endptr;
           sptr=endptr;
           wptr=endptr;
@@ -92,8 +86,8 @@ FXbool FXXMLFile::open(const FXString& filename,Direction d,FXuval sz){
   }
 
 
-// Read at least count bytes into buffer; return bytes available, or -1 for error
-FXival FXXMLFile::fill(FXival){
+// Read at least n bytes into buffer; return bytes available, or -1 for error
+FXival FXINIFile::fill(FXival){
   if(dir==Load){
     FXival nbytes;
     moveElms(begptr,rptr,wptr-rptr);
@@ -101,6 +95,7 @@ FXival FXXMLFile::fill(FXival){
     sptr=begptr+(sptr-rptr);
     rptr=begptr;
     nbytes=file.readBlock(wptr,endptr-wptr);
+    FXTRACE((104,"FXINIFile::fill() = %ld\n",nbytes));
     if(0<=nbytes){
       wptr+=nbytes;
       if(wptr<endptr){ wptr[0]='\0'; }
@@ -111,11 +106,12 @@ FXival FXXMLFile::fill(FXival){
   }
 
 
-// Write at least count bytes from buffer; return space available, or -1 for error
-FXival FXXMLFile::flush(FXival){
+// Write at least n bytes from buffer; return space available, or -1 for error
+FXival FXINIFile::flush(FXival){
   if(dir==Save){
     FXival nbytes;
     nbytes=file.writeBlock(rptr,wptr-rptr);
+    FXTRACE((104,"FXINIFile::flush() = %ld\n",nbytes));
     if(0<=nbytes){
       rptr+=nbytes;
       moveElms(begptr,rptr,wptr-rptr);
@@ -129,10 +125,10 @@ FXival FXXMLFile::flush(FXival){
 
 
 // Close stream and delete buffers
-FXbool FXXMLFile::close(){
-  FXTRACE((101,"FXXMLFile::close()\n"));
+FXbool FXINIFile::close(){
+  FXTRACE((101,"FXINIFile::close()\n"));
   FXchar *buffer=begptr;
-  if(FXXML::close()){
+  if(FXINI::close()){
     freeElms(buffer);
     return file.close();
     }
@@ -140,9 +136,9 @@ FXbool FXXMLFile::close(){
   }
 
 
-// Close XML file
-FXXMLFile::~FXXMLFile(){
-  FXTRACE((100,"FXXMLFile::~FXXMLFile\n"));
+// Close INI stream and clean up.
+FXINIFile::~FXINIFile(){
+  FXTRACE((100,"FXINIFile::~FXINIFile\n"));
   close();
   }
 

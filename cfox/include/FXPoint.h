@@ -110,8 +110,8 @@ inline FXbool operator>(const FXPoint& a,const FXPoint& b){ return a.x>b.x && a.
 inline FXbool operator>=(const FXPoint& a,const FXPoint& b){ return a.x>=b.x && a.y>=b.y; }
 
 /// Lowest or highest components
-inline FXPoint lo(const FXPoint& a,const FXPoint& b){ return FXPoint(FXMIN(a.x,b.x),FXMIN(a.y,b.y)); }
-inline FXPoint hi(const FXPoint& a,const FXPoint& b){ return FXPoint(FXMAX(a.x,b.x),FXMAX(a.y,b.y)); }
+inline FXPoint lo(const FXPoint& a,const FXPoint& b){ return FXPoint(Math::imin(a.x,b.x),Math::imin(a.y,b.y)); }
+inline FXPoint hi(const FXPoint& a,const FXPoint& b){ return FXPoint(Math::imax(a.x,b.x),Math::imax(a.y,b.y)); }
 
 /// Save object to a stream
 extern FXAPI FXStream& operator<<(FXStream& store,const FXPoint& p);

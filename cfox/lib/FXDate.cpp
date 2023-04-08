@@ -155,7 +155,7 @@ void FXDate::getDate(FXint& yr,FXint& mo,FXint& dy) const {
 // incoming time to 00:00:00.
 void FXDate::setTime(FXTime ns){
   const FXTime days=86400L*seconds;
-  julian=UNIX_EPOCH_JDAY+(((0<=ns)?ns:ns-days+1)/days);
+  julian=UNIX_EPOCH_JDAY+(FXuint)(((0<=ns)?ns:ns-days+1)/days);
   }
 
 

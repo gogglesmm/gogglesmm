@@ -50,8 +50,9 @@
   - Interpretation of the hints:
 
       0                    No preference for pitch
-      FXFont::Fixed        If specified, match for fixed pitch fonts are strongly preferred
+      FXFont::Mono         If specified, match for fixed pitch fonts are strongly preferred
       FXFont::Variable     If specified, match for variable pitch font strongly preferred
+      FXFont::Dual         If specified, match for dual pitch font strongly preferred
 
       0                    No hints given
       FXFont::Decorative   Ye Olde Fonte
@@ -125,7 +126,6 @@
 
   - Get encoding from locale (see X11).
 
-  - ix|xi
 */
 
 #define TOPIC_CONSTRUCT 1000
@@ -150,17 +150,18 @@ extern FXAPI FXint __snprintf(FXchar* string,FXint length,const FXchar* format,.
 // Character set encoding
 static BYTE FXFontEncoding2CharSet(FXuint encoding){
   switch(encoding){
-    case FONTENCODING_DEFAULT: return DEFAULT_CHARSET;
-    case FONTENCODING_TURKISH: return TURKISH_CHARSET;
-    case FONTENCODING_BALTIC: return BALTIC_CHARSET;
-    case FONTENCODING_CYRILLIC: return RUSSIAN_CHARSET;
+    case FONTENCODING_USASCII: return ANSI_CHARSET;
     case FONTENCODING_ARABIC: return ARABIC_CHARSET;
+    case FONTENCODING_BALTIC: return BALTIC_CHARSET;
+    case FONTENCODING_EASTEUROPE: return EASTEUROPE_CHARSET;
     case FONTENCODING_GREEK: return GREEK_CHARSET;
     case FONTENCODING_HEBREW: return HEBREW_CHARSET;
+    case FONTENCODING_CYRILLIC: return RUSSIAN_CHARSET;
+    case FONTENCODING_TURKISH: return TURKISH_CHARSET;
     case FONTENCODING_THAI: return THAI_CHARSET;
-    case FONTENCODING_EASTEUROPE: return EASTEUROPE_CHARSET;
-    case FONTENCODING_USASCII: return ANSI_CHARSET;
-//    case FONTENCODING_UNICODE: return ANSI_CHARSET;
+    case FONTENCODING_CP1258: return VIETNAMESE_CHARSET;
+    case FONTENCODING_DEFAULT: return DEFAULT_CHARSET;
+    //case FONTENCODING_UNICODE: return ANSI_CHARSET;
     }
   return DEFAULT_CHARSET;
   }
@@ -177,9 +178,7 @@ static FXuint CharSet2FXFontEncoding(BYTE lfCharSet){
     case EASTEUROPE_CHARSET: return FONTENCODING_EASTEUROPE;
     case GB2312_CHARSET: return FONTENCODING_DEFAULT;
     case GREEK_CHARSET: return FONTENCODING_GREEK;
-#if !defined (__WATCOMC__) || (__WATCOMC__ >= 1200)
     case HANGUL_CHARSET: return FONTENCODING_DEFAULT;
-#endif
     case HEBREW_CHARSET: return FONTENCODING_HEBREW;
     case MAC_CHARSET: return FONTENCODING_DEFAULT;
     case OEM_CHARSET: return FONTENCODING_DEFAULT;
@@ -188,6 +187,7 @@ static FXuint CharSet2FXFontEncoding(BYTE lfCharSet){
     case SHIFTJIS_CHARSET: return FONTENCODING_DEFAULT;
     case THAI_CHARSET: return FONTENCODING_THAI;
     case TURKISH_CHARSET: return FONTENCODING_TURKISH;
+    case VIETNAMESE_CHARSET: return FONTENCODING_CP1258;
     }
   return FONTENCODING_DEFAULT;
   }
@@ -241,8 +241,9 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
   lf.lfPitchAndFamily=0;
 
   // Pitch
-  if(wanthints&FXFont::Fixed) lf.lfPitchAndFamily|=FIXED_PITCH;
-  else if(wanthints&FXFont::Variable) lf.lfPitchAndFamily|=VARIABLE_PITCH;
+  if(wanthints&FXFont::Variable) lf.lfPitchAndFamily|=VARIABLE_PITCH;
+  else if(wanthints&FXFont::Mono) lf.lfPitchAndFamily|=MONO_FONT;
+  else if(wanthints&FXFont::Cell) lf.lfPitchAndFamily|=FIXED_PITCH;
   else lf.lfPitchAndFamily|=DEFAULT_PITCH;
 
   // Family
@@ -292,22 +293,6 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
 // Access to display
 #define DISPLAY(app)      ((Display*)((app)->display))
 
-// For Fontconfig 1.0.2
-#ifndef FC_WEIGHT_THIN
-#define FC_WEIGHT_THIN              0
-#undef FC_WEIGHT_LIGHT
-#define FC_WEIGHT_LIGHT             50
-#endif
-#ifndef FC_WEIGHT_EXTRALIGHT
-#define FC_WEIGHT_EXTRALIGHT        40
-#endif
-#ifndef FC_WEIGHT_NORMAL
-#define FC_WEIGHT_NORMAL            80
-#endif
-#ifndef FC_WEIGHT_EXTRABOLD
-#define FC_WEIGHT_EXTRABOLD         205
-#endif
-
 
 // From FOX weight to fontconfig weight
 static FXint weight2FcWeight(FXint weight){
@@ -345,7 +330,6 @@ static FXint fcWeight2Weight(FXint fcWeight){
 
 // From FOX setwidth to fontconfig setwidth
 static FXint setWidth2FcSetWidth(FXint setwidth){
-#ifdef FC_WIDTH
   switch(setwidth){
     case FXFont::UltraCondensed:return FC_WIDTH_ULTRACONDENSED;
     case FXFont::ExtraCondensed:return FC_WIDTH_EXTRACONDENSED;
@@ -358,15 +342,11 @@ static FXint setWidth2FcSetWidth(FXint setwidth){
     case FXFont::UltraExpanded: return FC_WIDTH_ULTRAEXPANDED;
     }
   return FC_WIDTH_NORMAL;
-#else
-  return 0;
-#endif
   }
 
 
 // From fontconfig setwidth to FOX setwidth
 static FXint fcSetWidth2SetWidth(FXint fcSetWidth){
-#ifdef FC_WIDTH
   switch(fcSetWidth){
     case FC_WIDTH_ULTRACONDENSED:return FXFont::UltraCondensed;
     case FC_WIDTH_EXTRACONDENSED:return FXFont::ExtraCondensed;
@@ -378,7 +358,6 @@ static FXint fcSetWidth2SetWidth(FXint fcSetWidth){
     case FC_WIDTH_EXTRAEXPANDED: return FXFont::ExtraExpanded;
     case FC_WIDTH_ULTRAEXPANDED: return FXFont::UltraExpanded;
     }
-#endif
   return FXFont::NonExpanded;
   }
 
@@ -468,7 +447,7 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
 
   // Set font weight
   if(wantweight!=0){
-    FcPatternAddInteger(pattern,FC_WEIGHT,weight2FcWeight(wantweight));
+    FcPatternAddInteger(pattern,FC_WEIGHT,weight2FcWeight(wantweight));         // FIXME
     }
 
   // Set slant
@@ -476,27 +455,31 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
     FcPatternAddInteger(pattern,FC_SLANT,slant2FcSlant(wantslant));
     }
 
-#ifdef FC_WIDTH
   // Set setwidth
   if(wantsetwidth!=0){
     FcPatternAddInteger(pattern,FC_WIDTH,setWidth2FcSetWidth(wantsetwidth));
     }
-#endif
 
   // Set encoding
   if(wantencoding!=FONTENCODING_DEFAULT){                                       // FIXME
 //    FcCharSet* charSet=FcCharSetCreate();
 //    encoding2FcCharSet((void*)charSet, (FXFontEncoding)encoding);
-//    FcPatternAddCharSet(pattern, FC_CHARSET, charSet);
+//    FcPatternAddCharSet(pattern,FC_CHARSET,charSet);
 //    FcCharSetDestroy(charSet);
     }
 
   // Set pitch
-  if(wanthints&FXFont::Fixed){
+  if(wanthints&FXFont::Variable){
+    FcPatternAddInteger(pattern,FC_SPACING,FC_PROPORTIONAL);
+    }
+  else if(wanthints&FXFont::Mono){
     FcPatternAddInteger(pattern,FC_SPACING,FC_MONO);
     }
-  else if(wanthints&FXFont::Variable){
-    FcPatternAddInteger(pattern,FC_SPACING,FC_PROPORTIONAL);
+  else if(wanthints&FXFont::Cell){
+    FcPatternAddInteger(pattern,FC_SPACING,FC_CHARCELL);
+    }
+  else if(wanthints&FXFont::Dual){
+    FcPatternAddInteger(pattern,FC_SPACING,FC_DUAL);
     }
 
   // Scalable font hint; also set if we want rotation
@@ -532,16 +515,14 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
       }
     }
 
-#ifdef FC_WIDTH
   // Get setwidth
   if(FcPatternGetInteger(p,FC_WIDTH,0,&sw)==FcResultMatch){
     actualSetwidth=fcSetWidth2SetWidth(sw);
     }
-#endif
 
   // Get weight
   if(FcPatternGetInteger(p,FC_WEIGHT,0,&wt)==FcResultMatch){
-    actualWeight=fcWeight2Weight(wt);
+    actualWeight=fcWeight2Weight(wt);                                   // FIXME
     }
 
   // Get slant
@@ -551,10 +532,11 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
 
   // Get pitch
   if(FcPatternGetInteger(p,FC_SPACING,0,&pp)==FcResultMatch){
-    flags&=~(FXFont::Fixed|FXFont::Variable);
-//    if(pp==FC_MONO || pp==FC_DUAL || pp==FC_CHARCELL) flags|=FXFont::Fixed;
-    if(pp==FC_MONO || pp==FC_CHARCELL) flags|=FXFont::Fixed;
+    flags&=~(FXFont::Mono|FXFont::Variable|FXFont::Dual);
+    if(pp==FC_MONO) flags|=FXFont::Mono;
+    else if(pp==FC_DUAL) flags|=FXFont::Dual;
     else if(pp==FC_PROPORTIONAL) flags|=FXFont::Variable;
+    else if(pp==FC_CHARCELL) flags|=FXFont::Mono;
     }
 
   // Get scalable flag
@@ -658,7 +640,8 @@ static FXuint xlfdSetwidth(const FXchar* text){
 static FXuint xlfdPitch(const FXchar* text){
   FXchar c=Ascii::toLower(text[0]);
   if(c=='p') return FXFont::Variable;
-  if(c=='m' || c=='c') return FXFont::Fixed;
+  if(c=='m') return FXFont::Mono;
+  if(c=='c') return FXFont::Cell;
   return 0;
   }
 
@@ -849,14 +832,17 @@ void* FXFont::match(const FXString& wantfamily,const FXString& wantforge,FXuint 
         }
 
       // Pitch
-      if(wanthints&FXFont::Fixed){
-        dpitch=(FXFont::Fixed!=pitch);
+      dpitch=0;
+      if(wanthints&FXFont::Variable){
+        if(!(pitch&FXFont::Variable)) dpitch+=3;
         }
-      else if(wanthints&FXFont::Variable){
-        dpitch=(FXFont::Variable!=pitch);
+      else if(wanthints&FXFont::Mono){
+        if(!(pitch&FXFont::Mono)) dpitch+=2;
+        if(!(pitch&FXFont::Cell)) dpitch+=1;
         }
-      else{
-        dpitch=0;
+      else if(wanthints&FXFont::Cell){
+        if(!(pitch&FXFont::Cell)) dpitch+=2;
+        if(!(pitch&FXFont::Mono)) dpitch+=1;
         }
 
       // Scalable
@@ -1951,7 +1937,6 @@ static int CDECL comparefont(const void *a,const void *b){
   }
 
 
-
 #if defined(WIN32)              ///////  MS-Windows ///////
 
 // Need to get some data into the callback function.
@@ -1973,20 +1958,21 @@ static int CALLBACK EnumFontFamExProc(const LOGFONTA *lf,const TEXTMETRICA *lptm
 
   // Get pitch
   FXuint flags=0;
-  if(lf->lfPitchAndFamily&FIXED_PITCH) flags|=FXFont::Fixed;
+  if(lf->lfPitchAndFamily&MONO_FONT) flags|=FXFont::Mono;
+  if(lf->lfPitchAndFamily&FIXED_PITCH) flags|=FXFont::Cell;
   if(lf->lfPitchAndFamily&VARIABLE_PITCH) flags|=FXFont::Variable;
 
   // Get hints
-  if(lf->lfPitchAndFamily&FF_DONTCARE) flags|=0;
   if(lf->lfPitchAndFamily&FF_MODERN) flags|=FXFont::Modern;
   if(lf->lfPitchAndFamily&FF_ROMAN) flags|=FXFont::Roman;
   if(lf->lfPitchAndFamily&FF_SCRIPT) flags|=FXFont::Script;
   if(lf->lfPitchAndFamily&FF_DECORATIVE) flags|=FXFont::Decorative;
   if(lf->lfPitchAndFamily&FF_SWISS) flags|=FXFont::Swiss;
+  if(lf->lfPitchAndFamily&FF_DONTCARE) flags&=~(FXFont::Modern|FXFont::Roman|FXFont::Script|FXFont::Decorative|FXFont::Swiss);
 
   // Skip if no match
   FXuint h=pFontStore->desc.flags;
-  if((h&FXFont::Fixed) && !(flags&FXFont::Fixed)) return 1;
+  if((h&FXFont::Mono) && !(flags&FXFont::Mono)) return 1;
   if((h&FXFont::Variable) && !(flags&FXFont::Variable)) return 1;
 
   // Get weight (also guess from the name)
@@ -2248,18 +2234,16 @@ FXbool FXFont::listFonts(FXFontDesc*& fonts,FXuint& numfonts,const FXString& fac
                 }
               }
 
-#ifdef FC_WIDTH
             // Get setwidth
             setwidth=0;
             if(FcPatternGetInteger(p,FC_WIDTH,0,&setwidth)==FcResultMatch){
               setwidth=fcSetWidth2SetWidth(setwidth);
               }
-#endif
 
             // Get weight
             weight=0;
             if(FcPatternGetInteger(p,FC_WEIGHT,0,&weight)==FcResultMatch){
-              weight=fcWeight2Weight(weight);
+              weight=fcWeight2Weight(weight);   // FIXME
               }
 
             // Get slant
@@ -2271,8 +2255,10 @@ FXbool FXFont::listFonts(FXFontDesc*& fonts,FXuint& numfonts,const FXString& fac
             // Get pitch
             pitch=FXFont::Variable;
             if(FcPatternGetInteger(p,FC_SPACING,0,&pitch)==FcResultMatch){
-//              if(pitch==FC_MONO || pitch==FC_DUAL || pitch==FC_CHARCELL) pitch=FXFont::Fixed;
-              if(pitch==FC_MONO || pitch==FC_CHARCELL) pitch=FXFont::Fixed;
+              if(pitch==FC_PROPORTIONAL) pitch=FXFont::Variable;
+              else if(pitch==FC_MONO) pitch=FXFont::Mono;
+              else if(pitch==FC_CHARCELL) pitch=FXFont::Cell;
+              else if(pitch==FC_DUAL) pitch=FXFont::Dual;
               }
 
             // Pixel size works for both bitmap and scalable fonts
@@ -2297,7 +2283,8 @@ FXbool FXFont::listFonts(FXFontDesc*& fonts,FXuint& numfonts,const FXString& fac
             FXTRACE((160,"wt=%2d sl=%d sw=%3d en=%5d sz=%3d sc=%4x pi=%d name=%s\n",weight,slant,setwidth,encoding,size,scalable,pitch,fullname));
 
             // Skip if pitch does not match
-            if((h&FXFont::Fixed) && (pitch!=FXFont::Fixed)) continue;
+            if((h&FXFont::Mono) && (pitch!=FXFont::Mono)) continue;
+            if((h&FXFont::Dual) && (pitch!=FXFont::Dual)) continue;
             if((h&FXFont::Variable) && (pitch!=FXFont::Variable)) continue;
 
             // Skip if weight does not match
@@ -2428,8 +2415,8 @@ FXbool FXFont::listFonts(FXFontDesc*& fonts,FXuint& numfonts,const FXString& fac
       if((en!=FONTENCODING_DEFAULT) && (en!=encoding)) continue;
 
       // Skip if pitch does not match
-      if((h&FXFont::Fixed) && (pitch!=FXFont::Fixed)) continue;
-      if((h&FXFont::Variable) && (pitch!=FXFont::Variable)) continue;
+      if((h&FXFont::Variable) && !(pitch&FXFont::Variable)) continue;
+      if((h&(FXFont::Mono|FXFont::Cell)) && !(pitch&(FXFont::Mono|FXFont::Cell))) continue;
 
       // Skip if weight does not match
       if((wt!=0) && (wt!=weight)) continue;
@@ -2576,13 +2563,13 @@ static const ENTRY styletable[]={
 // Font pitch table
 static const ENTRY pitchtable[]={
   {"",0},
-  {"mono",FXFont::Fixed},
-  {"fixed",FXFont::Fixed},
-  {"constant",FXFont::Fixed},
+  {"mono",FXFont::Mono},
+  {"dual",FXFont::Dual},
+  {"cell",FXFont::Cell},
   {"variable",FXFont::Variable},
   {"proportional",FXFont::Variable},
-  {"c",FXFont::Fixed},
-  {"m",FXFont::Fixed},
+  {"c",FXFont::Cell},
+  {"m",FXFont::Mono},
   {"p",FXFont::Variable}
   };
 
@@ -2767,23 +2754,6 @@ FXFontDesc FXFont::getActualFontDesc() const {
   }
 
 /*******************************************************************************/
-
-#if 0
-  /// Construct font description
-  FXFontDesc(const FXString& fc,FXuint sz,FXuint wt,FXuint sl,FXuint enc,FXuint sw,FXuint h);
-
-// Construct font description
-FXFontDesc::FXFontDesc(const FXString& fc,FXuint sz,FXuint wt,FXuint sl,FXuint enc,FXuint sw,FXuint h){
-  memcpy(face,fc.text(),sizeof(face)-1);    // FIXME yes, not liking this...
-  size=10*sz;
-  weight=wt;
-  slant=sl;
-  setwidth=sw;
-  encoding=enc;
-  flags=(h&~FXFont::X11);          // System-independent method
-  }
-#endif
-
 
 // Set font description from a string
 void FXFontDesc::setFont(const FXString& string){

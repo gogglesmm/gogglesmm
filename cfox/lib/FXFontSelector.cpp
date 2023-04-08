@@ -68,6 +68,8 @@
 
 /*
   Notes:
+
+  - Mega-widget to select a font from the system.
 */
 
 using namespace FX;
@@ -200,10 +202,12 @@ FXFontSelector::FXFontSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   // Pitch
   new FXLabel(attributes,tr("Pitch:"),nullptr,JUSTIFY_LEFT|JUSTIFY_CENTER_Y|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
   pitch=new FXComboBox(attributes,5,this,ID_PITCH,COMBOBOX_STATIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_CENTER_Y|LAYOUT_FILL_X|LAYOUT_FILL_COLUMN);
-  pitch->setNumVisible(3);
+  pitch->setNumVisible(5);
   pitch->appendItem(tr("Any"),(void*)0);
-  pitch->appendItem(tr("Fixed"),(void*)FXFont::Fixed);
-  pitch->appendItem(tr("Variable"),(void*)FXFont::Variable);
+  pitch->appendItem(tr("Variable"),(void*)(FXuval)FXFont::Variable);
+  pitch->appendItem(tr("Mono"),(void*)(FXuval)(FXFont::Mono|FXFont::Cell));
+  pitch->appendItem(tr("Cell"),(void*)(FXuval)FXFont::Cell);
+  pitch->appendItem(tr("Dual"),(void*)(FXuval)FXFont::Dual);
   pitch->setCurrentItem(0);
 
   // Check for scalable
@@ -436,10 +440,9 @@ void FXFontSelector::listFontSizes(){
 
 // Preview
 void FXFontSelector::previewFont(){
-  FXFont *old;
 
   // Save old font
-  old=previewfont;
+  FXFont *old=previewfont;
 
   // Get new font
   previewfont=new FXFont(getApp(),selected);
@@ -557,7 +560,7 @@ long FXFontSelector::onUpdSetWidth(FXObject*,FXSelector,void*){
 // Changed pitch
 long FXFontSelector::onCmdPitch(FXObject*,FXSelector,void*){
   FXint index=pitch->getCurrentItem();
-  selected.flags&=~(FXFont::Fixed|FXFont::Variable);
+  selected.flags&=~(FXFont::Mono|FXFont::Variable|FXFont::Dual|FXFont::Cell);
   selected.flags|=(FXuint)(FXuval)pitch->getItemData(index);
   listFontFaces();
   listWeights();
@@ -570,7 +573,14 @@ long FXFontSelector::onCmdPitch(FXObject*,FXSelector,void*){
 
 // Update pitch
 long FXFontSelector::onUpdPitch(FXObject*,FXSelector,void*){
-  pitch->setCurrentItem((selected.flags&FXFont::Fixed) ? 1 : (selected.flags&FXFont::Variable) ? 2 : 0);
+  FXint item=0;
+  switch(selected.flags&(FXFont::Mono|FXFont::Variable|FXFont::Dual|FXFont::Cell)){
+    case FXFont::Variable: item=1; break;
+    case FXFont::Mono|FXFont::Cell: item=2; break;
+    case FXFont::Cell: item=3; break;
+    case FXFont::Dual: item=4; break;
+    }
+  pitch->setCurrentItem(item);
   return 1;
   }
 

@@ -142,7 +142,7 @@ public:
   FXQuatd operator-() const { return FXQuatd(-x,-y,-z,-w); }
 
   /// Length and square of length
-  FXdouble length2() const { return x*x+y*y+z*z+w*w; }
+  FXdouble length2() const { return w*w+z*z+y*y+x*x; }
   FXdouble length() const { return Math::sqrt(length2()); }
 
   /// Adjust quaternion length
@@ -299,6 +299,12 @@ extern FXAPI FXQuatd lerp(const FXQuatd& u,const FXQuatd& v,FXdouble f);
 
 /// Derivative of spherical lerp of unit quaternions u,v
 extern FXAPI FXQuatd lerpdot(const FXQuatd& u,const FXQuatd& v,FXdouble f);
+
+/// Normalize quaternion such that |Q|==1
+extern FXAPI FXQuatd normalize(const FXQuatd& q);
+
+/// Normalize quaternion incrementally; assume |Q| approximately 1 already
+extern FXAPI FXQuatd fastnormalize(const FXQuatd& q);
 
 /// Cubic hermite quaternion interpolation
 extern FXAPI FXQuatd hermite(const FXQuatd& q0,const FXVec3d& r0,const FXQuatd& q1,const FXVec3d& r1,FXdouble t);

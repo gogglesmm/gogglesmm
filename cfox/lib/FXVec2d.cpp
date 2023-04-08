@@ -39,10 +39,9 @@ namespace FX {
 
 // Normalize vector
 FXVec2d normalize(const FXVec2d& v){
-  FXdouble m=v.length2();
-  FXVec2d result(v);
-  if(__likely(0.0<m)){ result/=Math::sqrt(m); }
-  return result;
+  FXdouble m=v.length();
+  if(__likely(m)){ return v/m; }
+  return v;
   }
 
 

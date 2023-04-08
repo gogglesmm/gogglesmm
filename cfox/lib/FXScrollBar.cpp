@@ -101,14 +101,19 @@ FXIMPLEMENT(FXScrollBar,FXWindow,FXScrollBarMap,ARRAYNUMBER(FXScrollBarMap))
 // For deserialization
 FXScrollBar::FXScrollBar(){
   flags|=FLAG_ENABLED|FLAG_SHOWN;
-  barsize=15;
-  thumbsize=8;
-  thumbpos=15;
-  dragpoint=0;
   range=0;
   page=0;
   line=0;
   pos=0;
+  barsize=15;
+  thumbsize=8;
+  thumbpos=15;
+  wheelLines=1;
+  hiliteColor=0;
+  shadowColor=0;
+  borderColor=0;
+  arrowColor=0;
+  dragpoint=0;
   mode=MODE_NONE;
   }
 
@@ -116,6 +121,7 @@ FXScrollBar::FXScrollBar(){
 // Make a scrollbar
 FXScrollBar::FXScrollBar(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXWindow(p,opts,x,y,w,h){
   flags|=FLAG_ENABLED|FLAG_SHOWN;
+  wheelLines=getApp()->getWheelLines();
   backColor=getApp()->getBaseColor();
   hiliteColor=getApp()->getHiliteColor();
   shadowColor=getApp()->getShadowColor();
@@ -126,11 +132,11 @@ FXScrollBar::FXScrollBar(FXComposite* p,FXObject* tgt,FXSelector sel,FXuint opts
   thumbsize=barsize>>1;
   target=tgt;
   message=sel;
-  dragpoint=0;
   range=100;
   page=1;
   line=1;
   pos=0;
+  dragpoint=0;
   mode=MODE_NONE;
   }
 
@@ -610,7 +616,7 @@ long FXScrollBar::onMouseWheel(FXObject*,FXSelector,void* ptr){
       // Scroll by a line-at-a-time, page-at-a-time, or by given wheel-lines
       if(ev->state&ALTMASK) jump=line;
       else if(ev->state&CONTROLMASK) jump=page;
-      else jump=FXMIN(page,getApp()->getWheelLines()*line);
+      else jump=FXMIN(page,wheelLines*line);
 
       // Move scroll position
       dragpoint-=ev->code*jump/120;

@@ -215,14 +215,16 @@ FXbool Socket::close() {
 
 
 FXint Socket::eof() {
-  return (access&EndOfStream) ? 1 : 0;
+  return endofstream;
   }
 
 
 FXbool Socket::shutdown() {
   GM_DEBUG_PRINT("[socket] shutdown()\n");
 #ifndef _WIN32
+#if FOXVERSION < FXVERSION(1, 7, 82)
   access&=~FXIO::ReadWrite;
+#endif
   return ::shutdown(device,SHUT_RDWR)==0;
 #endif
   }
@@ -241,7 +243,9 @@ FXbool Socket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
       sockethandle==INVALID_SOCKET;
       return false;
       }
+#if FOXVERSION < FXVERSION(1, 7, 82)
     access|=FXIO::NonBlocking;
+#endif
     }
 
   device = CreateEvent();
@@ -258,7 +262,9 @@ FXbool Socket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
 
 #ifdef SOCK_NONBLOCK
   if (mode&FXIO::NonBlocking){
+#if FOXVERSION < FXVERSION(1, 7, 82)
     access|=FXIO::NonBlocking;
+#endif
     options|=SOCK_NONBLOCK;
     }
 #endif
@@ -276,7 +282,9 @@ FXbool Socket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
 
 #ifndef SOCK_NONBLOCK
   if (mode&FXIO::NonBlocking){
+#if FOXVERSION < FXVERSION(1, 7, 82)
     access|=FXIO::NonBlocking;
+#endif
     if (!ap_set_nonblocking(device)){
       ::close(device);
       device=BadHandle;
@@ -285,7 +293,9 @@ FXbool Socket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
     }
 #endif
 #endif
+#if FOXVERSION < FXVERSION(1, 7, 82)
   access|=OwnHandle;
+#endif
   return true;
   }
 
@@ -295,13 +305,17 @@ FXint Socket::connect(const struct sockaddr * address,FXint address_length) {
 #ifdef _WIN32
 
   if (::connect(sockethandle,address,address_length)==0) {
+#if FOXVERSION < FXVERSION(1, 7, 82)
     access|=ReadWrite;
     pointer=0;
+#endif
     return 0;
     }
 
   if (WSAGetLastError()==WSAEWOULDBLOCK) {
+#if FOXVERSION < FXVERSION(1, 7, 82)
     pointer=0;
+#endif
     return FXIO::Again;
     }
 
@@ -309,8 +323,10 @@ FXint Socket::connect(const struct sockaddr * address,FXint address_length) {
 
   // Connect
   if (::connect(device,address,address_length)==0) {
+#if FOXVERSION < FXVERSION(1, 7, 82)
     access|=FXIO::ReadWrite;
     pointer=0;
+#endif
     return 0;
     }
 
@@ -323,8 +339,10 @@ FXint Socket::connect(const struct sockaddr * address,FXint address_length) {
         switch(wait(WaitMode::Connect)) {
           case WaitEvent::Input:
             if (getError()==0) {
+#if FOXVERSION < FXVERSION(1, 7, 82)
               access|=FXIO::ReadWrite;
               pointer=0;
+#endif
               return 0;
               }
             break;
@@ -340,7 +358,8 @@ FXint Socket::connect(const struct sockaddr * address,FXint address_length) {
 
 
 FXival Socket::writeBlock(const void* ptr,FXival count){
-  if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
+  FXuint access = mode();
+  if(__likely(device!=BadHandle) && __likely(access&FXIO::WriteOnly)){
 #ifdef _WIN32
 #else
     FXival nwrote;
@@ -359,13 +378,13 @@ x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
 
           // fallthrough - intentional no break
         default:
-          access|=EndOfStream;
+          endofstream = 1;
           return FXIO::Error;
           break;
         }
       }
     if (nwrote==0 && count>0)
-      access|=EndOfStream;
+      endofstream = 1;
 #endif
     return nwrote;
     }
@@ -374,6 +393,7 @@ x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
 
 
 FXival Socket::readBlock(void* ptr,FXival count){
+  FXuint access = mode();
   if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
 #ifdef _WIN32
 #else
@@ -393,13 +413,13 @@ x:  nwrote=::recv(device,ptr,count,MSG_NOSIGNAL);
 
           // fallthrough - intentional no break
         default:
-          access|=EndOfStream;
+          endofstream = 1;
           return FXIO::Error;
           break;
         }
       }
     if (nwrote==0 && count>0)
-      access|=EndOfStream;
+      endofstream = 1;
 #endif
     return nwrote;
     }
@@ -700,6 +720,7 @@ x:status = SSL_connect(ssl);
 
 // Read block of bytes, returning number of bytes read
 FXival SecureSocket::readBlock(void* data,FXival count) {
+  FXuint access = mode();
   if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
 #if defined(HAVE_OPENSSL)
     FXival n;
@@ -725,9 +746,11 @@ x:  n=SSL_read(ssl,data,count);
       }
 
     if (n==0 && count>0)
-      access|=EndOfStream;
+      endofstream = 1;
 
+#if FOXVERSION < FXVERSION(1, 7, 82)
     pointer+=n;
+#endif
     return n;
 #elif defined(HAVE_GNUTLS)
     FXival n;
@@ -759,9 +782,11 @@ x:  n=gnutls_record_recv(session,data,count);
       }
 
     if (n==0 && count>0)
-      access|=EndOfStream;
+      endofstream = 1;
 
+#if FOXVERSION < FXVERSION(1, 7, 82)
     pointer+=n;
+#endif
     return n;
 #endif
     }
@@ -770,8 +795,9 @@ x:  n=gnutls_record_recv(session,data,count);
 
 
 
-// Read block of bytes, returning number of bytes read
+// Write block of bytes, returning number of bytes read
 FXival SecureSocket::writeBlock(const void* data,FXival count) {
+  FXuint access = mode();
   if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
 #if defined(HAVE_OPENSSL)
     FXival n;
@@ -797,9 +823,11 @@ x:  n=SSL_write(ssl,data,count);
       }
 
     if (n==0 && count>0)
-      access|=EndOfStream;
+      endofstream = 1;
 
+#if FOXVERSION < FXVERSION(1, 7, 82)
     pointer+=n;
+#endif
     return n;
 #elif defined(HAVE_GNUTLS)
     FXival n;
@@ -831,9 +859,11 @@ x:  n=gnutls_record_send(session,data,count);
       }
 
     if (n==0 && count>0)
-      access|=EndOfStream;
+      endofstream = 1;
 
+#if FOXVERSION < FXVERSION(1, 7, 82)
     pointer+=n;
+#endif
     return n;
 #endif
     }

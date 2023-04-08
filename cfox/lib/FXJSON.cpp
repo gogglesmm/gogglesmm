@@ -44,123 +44,141 @@
     comments, which is an extension to the JSON5 standard. However, its very
     convenient to comment out blocks of input.
 
-  - Closing the file does not reset comment and line number (in case of error, this
-    point to the problem).
+  - Closing the file does not reset comment and line number (in case of error,
+    this point to the problem).
 
   - JSON5 syntax is very simple:
 
-      value     : object | array | string | number | boolean | empty
-                ;
+         value       : object | array | string | number | boolean | empty
+                     ;
 
-      object    : '{' '}'
-                | '{' members [ ',' ] '}'
-                ;
+         object      : '{' '}'
+                     | '{' members [ ',' ] '}'
+                     ;
 
-      members   : pair
-                | pair ',' members
-                ;
+         members     : pair
+                     | pair ',' members
+                     ;
 
-      pair      : name ':' value
-                ;
+         pair        : name ':' value
+                     ;
 
-      name      : string
-                | ident
-                ;
+         name        : string
+                     | ident
+                     ;
 
-      array     : '[' ']'
-                | '[' elements [ ',' ] ']'
-                ;
+         array       : '[' ']'
+                     | '[' elements [ ',' ] ']'
+                     ;
 
-      elements  : value
-                | value ',' elements
-                ;
+         elements    : value
+                     | value ',' elements
+                     ;
 
-      string    : '"' dq-chars '"'
-                | '\'' sq-chars '\''
-                ;
+         string      : '"' dq-chars '"'
+                     | '\'' sq-chars '\''
+                     ;
 
-      dq-chars  : dq-char [ dq-chars ]
-                ;
+         dq-chars    : dq-char
+                     | dq-char dq-chars
+                     | empty
+                     ;
 
-      sq-chars  : sq-char [ sq-chars ]
-                ;
+         sq-chars    : sq-char
+                     : char sq-chars
+                     | empty
+                     ;
 
-      dq-char   : any-character-except-double-quotes
-                | '\\"' | '\\\\' | '\\/' | '\\b' | '\\f' | '\\n' | '\\r' | '\\t'
-                | '\\x' hxdigit hxdigit
-                | '\\u' hxdigit hxdigit hxdigit hxdigit
-                | '\\' newline
-                ;
+         dq-char     : any-character-except-double-quotes
+                     | '\\"' | '\\\\' | '\\/' | '\\b' | '\\f' | '\\n' | '\\r' | '\\t'
+                     | '\\x' hxdigit hxdigit
+                     | '\\u' hxdigit hxdigit hxdigit hxdigit
+                     | '\\' octaldigits
+                     | '\\' newline
+                     ;
 
-      sq-char   : any-character-except-single-quotes
-                | '\\\'' | '\\\\' | '\\/' | '\\b' | '\\f' | '\\n' | '\\r' | '\\t'
-                | '\\x' hxdigit hxdigit
-                | '\\u' hxdigit hxdigit hxdigit hxdigit
-                | '\\' newline
-                ;
+         sq-char     : any-character-except-single-quotes
+                     | '\\\'' | '\\\\' | '\\/' | '\\b' | '\\f' | '\\n' | '\\r' | '\\t'
+                     | '\\x' hxdigit hxdigit
+                     | '\\u' hxdigit hxdigit hxdigit hxdigit
+                     | '\\' octaldigits
+                     | '\\' newline
+                     ;
 
-      newline   : '\n'
-                | '\r\n'
-                | '\r'
-                ;
+         newline     : '\n'
+                     | '\r\n'
+                     | '\r'
+                     ;
 
-      empty     : 'null'
-                ;
+         empty       : 'null'
+                     ;
 
-      boolean   : 'true'
-                | 'false'
-                ;
+         boolean     : 'true'
+                     | 'false'
+                     ;
 
-      ident     : alpha
-                | alpha alphanums
-                ;
+         ident       : alpha
+                     | alpha alphanums
+                     ;
 
-      alpha     : 'a'...'z' | 'A'...'Z' | '_' | '$'
-                | unicode-categories in { Lu, Ll, Lt, Lm, Lo, Nl }
-                ;
+         alpha       : 'a'...'z' | 'A'...'Z' | '_' | '$'
+                      | unicode-categories in { Lu, Ll, Lt, Lm, Lo, Nl }
+                     ;
 
-      alphanums : alphanum
-                | alphanum alphanums
-                ;
+         alphanums   : alphanum
+                     | alphanum alphanums
+                     ;
 
-      alphanum  : 'a'...'z' | 'A'...'Z' | '0'...'9'  | '_' | '$'
-                | unicode-categories in { Lu, Ll, Lt, Lm, Lo, Nl, Mn, Mc, Nd, Pc }
-                ;
+         alphanum    : 'a'...'z' | 'A'...'Z' | '0'...'9'  | '_' | '$'
+                     | unicode-categories in { Lu, Ll, Lt, Lm, Lo, Nl, Mn, Mc, Nd, Pc }
+                     ;
 
-      number    : [ '+' | '-' ] literal
-                ;
+         number      : [ '+' | '-' ] literal
+                     ;
 
-      literal   : decimal
-                | hex
-                | ('n' | 'N') ('a' | 'A') ('n' | 'N')
-                | ('i' | 'I') ('n' | 'N') ('f' | 'F')
-                | ('i' | 'I') ('n' | 'N') ('f' | 'F') ('i' | 'I') ('n' | 'N') ('i' | 'I') ('t' | 'T') ('y' | 'Y')
-                ;
+         literal     : decimal
+                     | hex
+                     | ('n' | 'N') ('a' | 'A') ('n' | 'N')
+                     | ('i' | 'I') ('n' | 'N') ('f' | 'F')
+                     | ('i' | 'I') ('n' | 'N') ('f' | 'F') ('i' | 'I') ('n' | 'N') ('i' | 'I') ('t' | 'T') ('y' | 'Y')
+                     ;
 
-      decimal   : digits
-                | digits '.' [ digits ] [ exponent ]
-                | '.' digits [ exponent ]
-                ;
+         decimal     : digits
+                     | fraction
+                     | fraction exponent
+                     ;
 
-      exponent  : ('e' | 'E') [ '+' | '-' ] digits
-                ;
+         fraction    : digits '.'
+                     | '.' digits
+                     | digits '.' digits
+                     ;
 
-      digits    : digit
-                | digit digits
-                ;
+         exponent    : ('e' | 'E') [ '+' | '-' ] digits
+                     ;
 
-      hex       : '0' ('x' | 'X') hexdigits
-                ;
+         hex         : '0' ('x' | 'X') hexdigits
+                     ;
 
-      hexdigits : hexdigit
-                | hexdigit hexdigits
-                ;
+         digits      : digit
+                     | digit digits
+                     ;
 
-      digit     : '0'...'9'
-                ;
+         octaldigits : octaldigit
+                     | octaldigit octaldigits
+                     ;
 
-      hexdigit  : '0'...'9' | 'a'...'f' | 'A'...'F'
-                ;
+         hexdigits   : hexdigit
+                     | hexdigit hexdigits
+                     ;
+
+         digit       : '0'...'9'
+                     ;
+
+         octaldigit  : '0'...'7'
+                     ;
+
+         hexdigit    : '0'...'9' | 'a'...'f' | 'A'...'F'
+                     ;
 
   - Our version accepts 'Inf' in lieu of 'Infinity' for infinite float values; also, it
     relaxes capitalization; this is for compatibility with various C-libraries
@@ -191,8 +209,7 @@
               is used to implement surrogate pairs, i.e. code points exceeding
               16 bits.
 
-    Quotes will be escaped; output will be written to JSON standard; in future,
-    we may support JSON5 output as an option.
+    Quotes will be escaped; output will be written to JSON standard
 
   - Feature: if FXVariant not initialized to empty, a 2nd call to FXJSON::load() may
     be issued, overwriting only thoses keys present in the original file.  This is
@@ -207,8 +224,8 @@
     we care about!
 
   - When saving, ver=5 forces JSON5 output mode.  In this mode, keys are written w/o
-    quotes if possible, and strings may be written either with single quotes (') or
-    double quotes (").
+    quotes; it is upon the user to ensure that keys follow proper identifier syntax
+    if the json5 file is to be loaded correctly.
 */
 
 using namespace FX;
@@ -219,8 +236,8 @@ namespace FX {
 
 // Maximum token size
 enum {
-   MAXTOKEN  = 256
-   };
+  MAXTOKEN = 256
+  };
 
 // Tokens
 enum {
@@ -228,20 +245,22 @@ enum {
   TK_EOF     = 1,       // End of file
   TK_COMMA   = 2,       // Element separator
   TK_COLON   = 3,       // Key:value pair separator
-  TK_NULL    = 4,       // NULL value
-  TK_FALSE   = 5,       // False value
-  TK_TRUE    = 6,       // True value
-  TK_INT     = 7,       // Integer value (decimal)
-  TK_HEX     = 8,       // Integer value (hexadecimal)
-  TK_REAL    = 9,       // Real value
-  TK_INF     = 10,      // Infinity
-  TK_NAN     = 11,      // NaN
-  TK_STRING  = 12,      // String
-  TK_LBRACK  = 13,      // Start of array
-  TK_LBRACE  = 14,      // Start of map
-  TK_RBRACK  = 15,      // End of array
-  TK_RBRACE  = 16,      // End of map
-  TK_IDENT   = 17       // Identifier
+  TK_IDENT   = 4,       // Identifier
+  TK_NAN     = 5,       // Not a Number
+  TK_INF     = 6,       // Infinity
+  TK_NULL    = 7,       // NULL value
+  TK_FALSE   = 8,       // False value
+  TK_TRUE    = 9,       // True value
+  TK_STRING  = 10,      // String
+  TK_PLUS    = 11,      // Plus sign
+  TK_MINUS   = 12,      // Minus sign
+  TK_INT     = 13,      // Integer value (decimal)
+  TK_HEX     = 14,      // Integer value (hexadecimal)
+  TK_REAL    = 15,      // Real value
+  TK_LBRACK  = 16,      // Start of array
+  TK_LBRACE  = 17,      // Start of map
+  TK_RBRACK  = 18,      // End of array
+  TK_RBRACE  = 19       // End of map
   };
 
 
@@ -263,18 +282,30 @@ const FXchar *const FXJSON::errors[]={
 
 
 // Special double constants
-static const union{ FXulong u; FXdouble f; } inf={FXULONG(0x7ff0000000000000)};
-static const union{ FXulong u; FXdouble f; } nan={FXULONG(0x7fffffffffffffff)};
+static const union{ FXulong u; FXdouble f; } dblinf={FXULONG(0x7ff0000000000000)};
+static const union{ FXulong u; FXdouble f; } dblnan={FXULONG(0x7fffffffffffffff)};
 
+// Furnish our own versions
+extern FXAPI FXlong __strtoll(const FXchar *beg,const FXchar** end=nullptr,FXint base=0,FXbool* ok=nullptr);
+extern FXAPI FXdouble __strtod(const FXchar *beg,const FXchar** end=nullptr,FXbool* ok=nullptr);
+
+// Unicode IdentifierStart character category set
+const FXuint IdentStart=(1<<CatLetterUpper)|(1<<CatLetterLower)|(1<<CatLetterTitle)|(1<<CatLetterModifier)|(1<<CatLetterOther)|(1<<CatNumberLetter);
+
+
+// Unicode IdentifierPart character category set
+const FXuint IdentPart=(1<<CatLetterUpper)|(1<<CatLetterLower)|(1<<CatLetterTitle)|(1<<CatLetterModifier)|(1<<CatLetterOther)|(1<<CatNumberLetter)|(1<<CatNumberDecimal)|(1<<CatMarkNonSpacing)|(1<<CatMarkSpacingCombining)|(1<<CatPunctConnector);
+
+/*******************************************************************************/
 
 // Construct JSON serializer
-FXJSON::FXJSON():offset(0),token(TK_EOF),column(0),indent(0),line(1),wrap(80),quote('"'),flow(Compact),prec(16),fmt(2),esc(0),dent(2),ver(4){
+FXJSON::FXJSON():offset(0),token(TK_EOF),column(0),indent(0),line(1),wrap(80),quote('"'),flow(Compact),prec(15),fmt(2),esc(0),dent(2),ver(4){
   FXTRACE((100,"FXJSON::FXJSON\n"));
   }
 
 
 // Construct and open for loading
-FXJSON::FXJSON(FXchar* buffer,FXuval sz,Direction d):FXParseBuffer(buffer,sz,d),offset(0),token(TK_EOF),column(0),indent(0),line(1),wrap(80),quote('"'),flow(Compact),prec(16),fmt(2),esc(0),dent(2),ver(4){
+FXJSON::FXJSON(FXchar* buffer,FXuval sz,Direction d):FXParseBuffer(buffer,sz,d),offset(0),token(TK_EOF),column(0),indent(0),line(1),wrap(80),quote('"'),flow(Compact),prec(15),fmt(2),esc(0),dent(2),ver(4){
   FXTRACE((100,"FXJSON::FXJSON(%p,%lu,%s)\n",buffer,sz,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
   open(buffer,sz,d);
   }
@@ -283,7 +314,7 @@ FXJSON::FXJSON(FXchar* buffer,FXuval sz,Direction d):FXParseBuffer(buffer,sz,d),
 // Open JSON stream for given direction and set its buffer
 FXbool FXJSON::open(FXchar* buffer,FXuval sz,Direction d){
   FXTRACE((101,"FXJSON::open(%p,%lu,%s)\n",buffer,sz,(d==Save)?"Save":(d==Load)?"Load":"Stop"));
-  if(FXParseBuffer::open(buffer,sz,d)){
+  if(FXParseBuffer::open(buffer,Math::imax(sz,MAXTOKEN),d)){
     value=FXString::null;
     token=TK_ERROR;
     offset=0;
@@ -295,24 +326,34 @@ FXbool FXJSON::open(FXchar* buffer,FXuval sz,Direction d){
   return false;
   }
 
+
+// Close json parse buffer
+FXbool FXJSON::close(){
+  FXTRACE((101,"FXJSON::close()\n"));
+  if(FXParseBuffer::close()){
+    value=FXString::null;
+    return true;
+    }
+  return false;
+  }
+
 /*******************************************************************************/
 
 // Get next token
 FXint FXJSON::next(){
   FXint comment=0;
-  FXuchar c,cc;
+  FXint tok=TK_EOF;
+  FXuchar c;
 
   // While more data
   while(need(MAXTOKEN)){
 
     // Start new token
+    tok=TK_ERROR;
     rptr=sptr;
 
-    FXASSERT(sptr<wptr);
-
     // Process characters
-    c=sptr[0];
-    switch(c){
+    switch((c=sptr[0])){
       case '\t':                                        // Tab hops to next tabstop
         column+=(8-column%8);
         offset++;
@@ -326,10 +367,11 @@ FXint FXJSON::next(){
         sptr++;
         continue;
       case '\r':                                        // Carriage return
-        if(sptr+1<wptr && sptr[1]=='\n'){
+        if(sptr[1]=='\n'){
           offset++;
           sptr++;
           }
+        //FALL//
       case '\n':                                        // Newline
         if(comment<0) comment=0;                        // End single-line comment
         column=0;
@@ -337,37 +379,54 @@ FXint FXJSON::next(){
         sptr++;
         line++;
         continue;
-      case '/':                                         // Start or end of comment
-      case '*':
-        if(sptr+1<wptr){
-          if(sptr[0]=='/' && sptr[1]=='/' && comment==0){
-            comment=-1;                                 // Comment until end of line
-            column+=2;
-            offset+=2;
-            sptr+=2;
-            continue;
-            }
-          if(sptr[0]=='/' && sptr[1]=='*' && comment>=0){
-            comment+=1;                                 // Increase comment nesting level
-            column+=2;
-            offset+=2;
-            sptr+=2;
-            continue;
-            }
-          if(sptr[0]=='*' && sptr[1]=='/' && comment>=1){
-            comment-=1;                                 // Decrease comment nesting level
-            column+=2;
-            offset+=2;
-            sptr+=2;
-            continue;
-            }
-          }
-      default:                                          // Normal characters
+      case '!':                                         // Unassigned characters
+      case '#':
+      case '%':
+      case '&':
+      case '(':
+      case ')':
+      case ';':
+      case '<':
+      case '=':
+      case '>':
+      case '?':
+      case '@':
+      case '^':
+      case '`':
+      case '|':
+      case '~':
         if(!comment) return TK_ERROR;
-        column++;
+cmt:    column++;                                       // Comments
         offset++;
         sptr++;
         continue;
+      case '/':                                         // Start or end of comment
+        if(sptr[1]=='/' && comment==0){
+          comment=-1;                                   // Comment until end of line
+          column+=2;
+          offset+=2;
+          sptr+=2;
+          continue;
+          }
+        if(sptr[1]=='*' && comment>=0){
+          comment+=1;                                   // Increase comment nesting level
+          column+=2;
+          offset+=2;
+          sptr+=2;
+          continue;
+          }
+        if(comment) goto cmt;
+        return TK_ERROR;
+      case '*':
+        if(sptr[1]=='/' && comment>=1){
+          comment-=1;                                   // Decrease comment nesting level
+          column+=2;
+          offset+=2;
+          sptr+=2;
+          continue;
+          }
+        if(comment) goto cmt;
+        return TK_ERROR;
       case '{':                                         // Begin of map
         column++;
         offset++;
@@ -406,16 +465,39 @@ FXint FXJSON::next(){
         return TK_COLON;
       case '"':                                         // String double quotes
       case '\'':                                        // String single quote
-        if(!comment) return string();
+        if(comment) goto cmt;
+        return string();
+      case '+':                                         // Plus sign
         column++;
         offset++;
         sptr++;
-        continue;
-      case '+':                                         // Number value
-      case '-':
-      case '.':
-      case '0':
-      case '1':
+        if(comment) continue;
+        return TK_PLUS;
+      case '-':                                         // Minus sign
+        column++;
+        offset++;
+        sptr++;
+        if(comment) continue;
+        return TK_MINUS;
+      case '0':                                         // Number
+        column++;
+        offset++;
+        sptr++;
+        if(comment) continue;
+        if((sptr[0]|0x20)=='x'){                        // Hex
+          column++;
+          offset++;
+          sptr++;
+          while(Ascii::isHexDigit(sptr[0])){
+            tok=TK_HEX;
+            column++;
+            offset++;
+            sptr++;
+            }
+          return tok;
+          }
+        //FALL//
+      case '1':                                         // Number
       case '2':
       case '3':
       case '4':
@@ -424,12 +506,50 @@ FXint FXJSON::next(){
       case '7':
       case '8':
       case '9':
-        if(!comment) return number();
-        column++;
-        offset++;
-        sptr++;
-        continue;
-      case 'a':                                         // Identifier or reserved word
+        tok=TK_INT;
+        while('0'<= sptr[0] && sptr[0]<='9'){
+          tok=TK_INT;
+          column++;
+          offset++;
+          sptr++;
+          }
+        //FALL//
+      case '.':                                         // Fraction
+        if(sptr[0]=='.'){
+          column++;
+          offset++;
+          sptr++;
+          if(tok==TK_INT) tok=TK_REAL;
+          while('0'<= sptr[0] && sptr[0]<='9'){
+            tok=TK_REAL;
+            column++;
+            offset++;
+            sptr++;
+            }
+          }
+        if(comment) continue;
+        if(tok!=TK_ERROR){
+          if((sptr[0]|0x20)=='e'){                      // Exponent part
+            column++;
+            offset++;
+            sptr++;
+            if(sptr[0]=='-' || sptr[0]=='+'){
+              column++;
+              offset++;
+              sptr++;
+              }
+            tok=TK_ERROR;
+            while('0'<= sptr[0] && sptr[0]<='9'){
+              tok=TK_REAL;
+              column++;
+              offset++;
+              sptr++;
+              }
+            }
+          return tok;
+          }
+        return TK_ERROR;                                // Error
+      case 'a':                                         // Identifier
       case 'b':
       case 'c':
       case 'd':
@@ -483,112 +603,13 @@ FXint FXJSON::next(){
       case 'Z':
       case '_':
       case '$':
-        if(!comment) return ident();
-        column++;
-        offset++;
-        sptr++;
-        continue;
-      case 0x00:                                        // Non-special control characters
-      case 0x01:
-      case 0x02:
-      case 0x03:
-      case 0x04:
-      case 0x05:
-      case 0x06:
-      case 0x07:
-      case 0x08:
-      case 0x0E:
-      case 0x0F:
-      case 0x10:
-      case 0x11:
-      case 0x12:
-      case 0x13:
-      case 0x14:
-      case 0x15:
-      case 0x16:
-      case 0x17:
-      case 0x18:
-      case 0x19:
-      case 0x1A:
-      case 0x1B:
-      case 0x1C:
-      case 0x1D:
-      case 0x1E:
-      case 0x1F:
-      case 0x7F:                                        // DEL
-      case 0x80:                                        // UTF8 followers
-      case 0x81:
-      case 0x82:
-      case 0x83:
-      case 0x84:
-      case 0x85:
-      case 0x86:
-      case 0x87:
-      case 0x88:
-      case 0x89:
-      case 0x8A:
-      case 0x8B:
-      case 0x8C:
-      case 0x8D:
-      case 0x8E:
-      case 0x8F:
-      case 0x90:
-      case 0x91:
-      case 0x92:
-      case 0x93:
-      case 0x94:
-      case 0x95:
-      case 0x96:
-      case 0x97:
-      case 0x98:
-      case 0x99:
-      case 0x9A:
-      case 0x9B:
-      case 0x9C:
-      case 0x9D:
-      case 0x9E:
-      case 0x9F:
-      case 0xA0:
-      case 0xA1:
-      case 0xA2:
-      case 0xA3:
-      case 0xA4:
-      case 0xA5:
-      case 0xA6:
-      case 0xA7:
-      case 0xA8:
-      case 0xA9:
-      case 0xAA:
-      case 0xAB:
-      case 0xAC:
-      case 0xAD:
-      case 0xAE:
-      case 0xAF:
-      case 0xB0:
-      case 0xB1:
-      case 0xB2:
-      case 0xB3:
-      case 0xB4:
-      case 0xB5:
-      case 0xB6:
-      case 0xB7:
-      case 0xB8:
-      case 0xB9:
-      case 0xBA:
-      case 0xBB:
-      case 0xBC:
-      case 0xBD:
-      case 0xBE:
-      case 0xBF:
-      case 0xF8:                                        // Bad UTF8 leaders
-      case 0xF9:
-      case 0xFA:
-      case 0xFB:
-      case 0xFC:
-      case 0xFD:
-      case 0xFE:
-      case 0xFF:
-        return TK_ERROR;                                // Bad token
+        if(comment){
+          column++;
+          offset++;
+          sptr++;
+          continue;
+          }
+        return ident();
       case 0xC0:                                        // 2-byte UTF8 sequences
       case 0xC1:
       case 0xC2:
@@ -621,24 +642,20 @@ FXint FXJSON::next(){
       case 0xDD:
       case 0xDE:
       case 0xDF:
-        if(sptr+1>=wptr) return TK_EOF;                 // Premature EOF
-        if((sptr[1]&192)!=128) return TK_ERROR;         // Bad followers
+        if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
         if(sptr[0]=='\xC2' && sptr[1]=='\xA0'){
           column++;
           offset+=2;                                    // Non Breakable Space (\xC2\xA0)
           sptr+=2;
           continue;
           }
-        if(!comment){
-          cc=Unicode::charCategory(wc2(sptr));
-          if(cc<CatLetterUpper) return TK_ERROR;
-          if(CatNumberLetter<cc) return TK_ERROR;
-          return ident();                               // Identifier
+        if(comment){
+          column++;
+          offset+=2;
+          sptr+=2;
+          continue;
           }
-        column++;
-        offset+=2;
-        sptr+=2;
-        continue;
+        return ident();
       case 0xE0:                                        // 3-byte UTF8 sequences
       case 0xE1:
       case 0xE2:
@@ -655,9 +672,8 @@ FXint FXJSON::next(){
       case 0xED:
       case 0xEE:
       case 0xEF:
-        if(sptr+2>=wptr) return TK_EOF;                 // Premature EOF
-        if((sptr[1]&192)!=128) return TK_ERROR;         // Non-follower
-        if((sptr[2]&192)!=128) return TK_ERROR;         // Non-follower
+        if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
+        if((sptr[2]&192)!=128) return TK_ERROR;
         if(sptr[0]=='\xEF' && sptr[1]=='\xBB' && sptr[2]=='\xBF'){
           offset+=3;
           sptr+=3;                                      // Byte order mark
@@ -671,16 +687,13 @@ FXint FXJSON::next(){
           line++;
           continue;
           }
-        if(!comment){
-          cc=Unicode::charCategory(wc3(sptr));
-          if(cc<CatLetterUpper) return TK_ERROR;
-          if(CatNumberLetter<cc) return TK_ERROR;
-          return ident();                               // Identifier
+        if(comment){
+          column++;
+          offset+=3;
+          sptr+=3;
+          continue;
           }
-        column++;
-        offset+=3;
-        sptr+=3;
-        continue;
+        return ident();
       case 0xF0:                                        // 4-byte UTF8 sequences
       case 0xF1:
       case 0xF2:
@@ -689,131 +702,57 @@ FXint FXJSON::next(){
       case 0xF5:
       case 0xF6:
       case 0xF7:
-        if(sptr+3>=wptr) return TK_EOF;                 // Premature EOF
-        if((sptr[1]&192)!=128) return TK_ERROR;         // Non-follower
+        if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
         if((sptr[2]&192)!=128) return TK_ERROR;
         if((sptr[3]&192)!=128) return TK_ERROR;
-        if(!comment){
-          cc=Unicode::charCategory(wc4(sptr));
-          if(cc<CatLetterUpper) return TK_ERROR;
-          if(CatNumberLetter<cc) return TK_ERROR;
-          return ident();                               // Identifier
+        if(comment){
+          column++;
+          offset+=4;
+          sptr+=4;
+          continue;
           }
-        column++;
-        offset+=4;
-        sptr+=4;
-        continue;
+        return ident();
+      default:                                          // Bad token
+        return TK_ERROR;
       }
     }
   return TK_EOF;
   }
 
 
-// Number
-FXint FXJSON::number(){
-  FXint tok=TK_ERROR;
-  value=FXString::null;
-  if(sptr[0]=='-' || sptr[0]=='+'){                     // Both '+' and '-' sign may appear
-    column++;
-    offset++;
-    sptr++;
+// Identifier token
+static FXint identoken(const FXString& str){
+  switch(str[0]){
+  case 'n':                                     // Check for 'null'
+    if(str[1]=='u' && str[2]=='l' && str[3]=='l' && str.length()==4) return TK_NULL;
+    // FALL //
+  case 'N':                                     // Check for 'NaN'
+    if((str[1]|0x20)=='a' && (str[2]|0x20)=='n' && str.length()==3) return TK_NAN;
+    return TK_IDENT;
+  case 'i':
+  case 'I':                                     // Check for 'Inf' or 'Infinity'
+    if((str[1]|0x20)=='n' && (str[2]|0x20)=='f' && (str.length()==3 || ((str[3]|0x20)=='i' && (str[4]|0x20)=='n' && (str[5]|0x20)=='i' && (str[6]|0x20)=='t' && (str[7]|0x20)=='y' && str.length()==8))) return TK_INF;
+    return TK_IDENT;
+  case 't':                                     // Check for 'true'
+    if(str[1]=='r' && str[2]=='u' && str[3]=='e' && str.length()==4) return TK_TRUE;
+    return TK_IDENT;
+  case 'f':                                     // Check for 'false'
+    if(str[1]=='a' && str[2]=='l' && str[3]=='s' && str[4]=='e' && str.length()==5) return TK_FALSE;
+    return TK_IDENT;
+  default:
+    return TK_IDENT;
     }
-  if(sptr+2<wptr && (sptr[0]|0x20)=='n'){               // NaN
-    if((sptr[1]|0x20)!='a') return TK_ERROR;
-    if((sptr[2]|0x20)!='n') return TK_ERROR;
-    column+=3;
-    offset+=3;
-    sptr+=3;
-    return TK_NAN;
-    }
-  if(sptr+2<wptr && (sptr[0]|0x20)=='i'){               // Inf{inity}
-    if((sptr[1]|0x20)!='n') return TK_ERROR;
-    if((sptr[2]|0x20)!='f') return TK_ERROR;
-    if(sptr+7<wptr && (sptr[3]|0x20)=='i'){
-      if((sptr[4]|0x20)!='n') return TK_ERROR;
-      if((sptr[5]|0x20)!='i') return TK_ERROR;
-      if((sptr[6]|0x20)!='t') return TK_ERROR;
-      if((sptr[7]|0x20)!='y') return TK_ERROR;
-      column+=5;
-      offset+=5;
-      sptr+=5;
-      }
-    column+=3;
-    offset+=3;
-    sptr+=3;
-    return TK_INF;
-    }
-  if(sptr<wptr && sptr[0]=='0'){                        // Support for hexadecimal as in 0xHHHH
-    column++;
-    offset++;
-    sptr++;
-    tok=TK_INT;
-    if(sptr+1<wptr && (sptr[0]|0x20)=='x' && Ascii::isHexDigit(sptr[1])){
-      column+=2;
-      offset+=2;
-      sptr+=2;
-      while(sptr<wptr && Ascii::isHexDigit(sptr[0])){   // Eat hex digits
-        column++;
-        offset++;
-        sptr++;
-        }
-      value.assign(rptr,sptr-rptr);
-      return TK_HEX;
-      }
-    }
-  while(sptr<wptr && Ascii::isDigit(sptr[0])){          // Eat integer digits
-    tok=TK_INT;
-    column++;
-    offset++;
-    sptr++;
-    }
-  if(sptr<wptr && sptr[0]=='.'){                        // Fraction part
-    column++;
-    offset++;
-    sptr++;
-    if(tok==TK_INT) tok=TK_REAL;
-    while(sptr<wptr && Ascii::isDigit(sptr[0])){        // Eat fraction digits
-      tok=TK_REAL;
-      column++;
-      offset++;
-      sptr++;
-      }
-    }
-  if(tok!=TK_ERROR){
-    if(sptr<wptr && (sptr[0]|0x20)=='e'){               // Exponent part
-      column++;
-      offset++;
-      sptr++;
-      if(sptr<wptr && (sptr[0]=='-' || sptr[0]=='+')){  // Both '+' and '-' exponent sign may appear
-        column++;
-        offset++;
-        sptr++;
-        }
-      tok=TK_ERROR;
-      while(sptr<wptr && Ascii::isDigit(sptr[0])){      // Eat exponent digits
-        tok=TK_REAL;
-        column++;
-        offset++;
-        sptr++;
-        }
-      }
-    if(tok!=TK_ERROR){                                  // Matched a number
-      value.assign(rptr,sptr-rptr);
-      }
-    }
-  return tok;
+  return TK_IDENT;
   }
 
 
 // Identifier
 FXint FXJSON::ident(){
-  FXint size=0;
+  FXuint charset=IdentStart;
   FXuchar c,cc;
   value=FXString::null;
   while(need(MAXTOKEN)){
-    FXASSERT(sptr<wptr);
-    c=sptr[0];
-    switch(c){
+    switch((c=sptr[0])){
       case 'a':                                         // Identifier characters
       case 'b':
       case 'c':
@@ -881,12 +820,7 @@ FXint FXJSON::ident(){
         column++;                                       // Add legal identifier characters
         offset++;
         sptr++;
-        size++;
-chk:    if(sptr+MAXTOKEN>wptr && wptr==endptr){         // Big token
-          value.append(rptr,sptr-rptr);
-          rptr=sptr;
-          }
-        continue;
+        break;
       case 0xC0:                                        // 2-byte UTF8 sequences
       case 0xC1:
       case 0xC2:
@@ -919,17 +853,13 @@ chk:    if(sptr+MAXTOKEN>wptr && wptr==endptr){         // Big token
       case 0xDD:
       case 0xDE:
       case 0xDF:
-        if(sptr+1>=wptr) return TK_EOF;                 // Premature EOF
-        if((sptr[1]&192)!=128) return TK_ERROR;         // Non-follower
+        if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
         cc=Unicode::charCategory(wc2(sptr));
-        if(cc<CatMarkNonSpacing) goto end;
-        if(CatPunctConnector<cc) goto end;
-        if(CatMarkSpacingCombining<cc && cc<CatLetterUpper) goto end;
+        if(!FXBIT(charset,cc)) goto end;
         column++;
         offset+=2;
         sptr+=2;
-        size+=2;
-        goto chk;
+        break;
       case 0xE0:                                        // 3-byte UTF8 sequences
       case 0xE1:
       case 0xE2:
@@ -946,18 +876,14 @@ chk:    if(sptr+MAXTOKEN>wptr && wptr==endptr){         // Big token
       case 0xED:
       case 0xEE:
       case 0xEF:
-        if(sptr+2>=wptr) return TK_EOF;                 // Premature EOF
-        if((sptr[1]&192)!=128) return TK_ERROR;         // Non-follower
-        if((sptr[2]&192)!=128) return TK_ERROR;         // Non-follower
+        if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
+        if((sptr[2]&192)!=128) return TK_ERROR;
         cc=Unicode::charCategory(wc3(sptr));
-        if(cc<CatMarkNonSpacing) goto end;
-        if(CatPunctConnector<cc) goto end;
-        if(CatMarkSpacingCombining<cc && cc<CatLetterUpper) goto end;
+        if(!FXBIT(charset,cc)) goto end;
         column++;
         offset+=3;
         sptr+=3;
-        size+=3;
-        goto chk;
+        break;
       case 0xF0:                                        // 4-byte UTF8 sequences
       case 0xF1:
       case 0xF2:
@@ -966,29 +892,27 @@ chk:    if(sptr+MAXTOKEN>wptr && wptr==endptr){         // Big token
       case 0xF5:
       case 0xF6:
       case 0xF7:
-        if(sptr+3>=wptr) return ErrEnd;                 // Premature EOF
-        if((sptr[1]&192)!=128) return TK_ERROR;         // Non-follower
+        if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
         if((sptr[2]&192)!=128) return TK_ERROR;
         if((sptr[3]&192)!=128) return TK_ERROR;
         cc=Unicode::charCategory(wc4(sptr));
-        if(cc<CatMarkNonSpacing) goto end;
-        if(CatPunctConnector<cc) goto end;
-        if(CatMarkSpacingCombining<cc && cc<CatLetterUpper) goto end;
+        if(!FXBIT(charset,cc)) goto end;
         column++;
         offset+=4;
         sptr+=4;
-        size+=4;
-        goto chk;
-      default:                                          // End of identifier
-        if(rptr[0]=='n' && rptr[1]=='u' && rptr[2]=='l' && rptr[3]=='l' && size==4) return TK_NULL;
-        if(rptr[0]=='t' && rptr[1]=='r' && rptr[2]=='u' && rptr[3]=='e' && size==4) return TK_TRUE;
-        if(rptr[0]=='f' && rptr[1]=='a' && rptr[2]=='l' && rptr[3]=='s' && rptr[4]=='e' && size==5) return TK_FALSE;
-        if((rptr[0]|0x20)=='n' && (rptr[1]|0x20)=='a' && (rptr[2]|0x20)=='n' && size==3) return TK_NAN;
-        if((rptr[0]|0x20)=='i' && (rptr[1]|0x20)=='n' && (rptr[2]|0x20)=='f' && size==3) return TK_INF;
-        if((rptr[0]|0x20)=='i' && (rptr[1]|0x20)=='n' && (rptr[2]|0x20)=='f' && (rptr[3]|0x20)=='i' && (rptr[4]|0x20)=='n' && (rptr[5]|0x20)=='i' && (rptr[6]|0x20)=='t' && (rptr[7]|0x20)=='y' && size==8) return TK_INF;
+        break;
+      default:                                          // Identifier or reserved word
 end:    value.append(rptr,sptr-rptr);
-        rptr=sptr;
-        return TK_IDENT;                                // Identifier
+        return identoken(value);
+      }
+
+    // Character set
+    charset=IdentPart;
+
+    // Big token handling
+    if(sptr+MAXTOKEN>wptr && wptr==endptr){
+      value.append(rptr,sptr-rptr);
+      rptr=sptr;
       }
     }
   return TK_EOF;
@@ -997,27 +921,24 @@ end:    value.append(rptr,sptr-rptr);
 
 // String
 FXint FXJSON::string(){
-  FXchar q=rptr[0];
+  FXuchar q=rptr[0];
   FXuchar c;
   column++;
   offset++;
   sptr++;
   value=FXString::null;
   while(need(MAXTOKEN)){
-    c=sptr[0];
-    switch(c){
+    switch((c=sptr[0])){
       case '\t':                                        // Tab hops to next tabstop
         column+=(8-column%8);
         offset++;
         sptr++;
-        goto nxt;
-      case ' ':                                         // Space
-        column++;
+        break;
       case '\v':                                        // Vertical tab
       case '\f':                                        // Form feed
         offset++;
         sptr++;
-        goto nxt;
+        break;
       case '\r':                                        // Carriage return
       case '\n':                                        // Newline
         return TK_ERROR;
@@ -1026,112 +947,127 @@ FXint FXJSON::string(){
         column++;
         offset++;
         sptr++;
-        if(q!=c) goto nxt;
+        if(q!=c) break;                                 // Opening quote?
         value.append(rptr,sptr-rptr);
         rptr=sptr;
-        value=FXString::unescape(value,q,q);            // Of course
+        value=FXString::unescape(value,(FXchar)q,(FXchar)q);    // Of course
         return TK_STRING;
-      case 0x00:                                        // Non-special control characters
-      case 0x01:
-      case 0x02:
-      case 0x03:
-      case 0x04:
-      case 0x05:
-      case 0x06:
-      case 0x07:
-      case 0x08:
-      case 0x0E:
-      case 0x0F:
-      case 0x10:
-      case 0x11:
-      case 0x12:
-      case 0x13:
-      case 0x14:
-      case 0x15:
-      case 0x16:
-      case 0x17:
-      case 0x18:
-      case 0x19:
-      case 0x1A:
-      case 0x1B:
-      case 0x1C:
-      case 0x1D:
-      case 0x1E:
-      case 0x1F:
-      case 0x7F:                                        // DEL
-      case 0x80:                                        // UTF8 followers
-      case 0x81:
-      case 0x82:
-      case 0x83:
-      case 0x84:
-      case 0x85:
-      case 0x86:
-      case 0x87:
-      case 0x88:
-      case 0x89:
-      case 0x8A:
-      case 0x8B:
-      case 0x8C:
-      case 0x8D:
-      case 0x8E:
-      case 0x8F:
-      case 0x90:
-      case 0x91:
-      case 0x92:
-      case 0x93:
-      case 0x94:
-      case 0x95:
-      case 0x96:
-      case 0x97:
-      case 0x98:
-      case 0x99:
-      case 0x9A:
-      case 0x9B:
-      case 0x9C:
-      case 0x9D:
-      case 0x9E:
-      case 0x9F:
-      case 0xA0:
-      case 0xA1:
-      case 0xA2:
-      case 0xA3:
-      case 0xA4:
-      case 0xA5:
-      case 0xA6:
-      case 0xA7:
-      case 0xA8:
-      case 0xA9:
-      case 0xAA:
-      case 0xAB:
-      case 0xAC:
-      case 0xAD:
-      case 0xAE:
-      case 0xAF:
-      case 0xB0:
-      case 0xB1:
-      case 0xB2:
-      case 0xB3:
-      case 0xB4:
-      case 0xB5:
-      case 0xB6:
-      case 0xB7:
-      case 0xB8:
-      case 0xB9:
-      case 0xBA:
-      case 0xBB:
-      case 0xBC:
-      case 0xBD:
-      case 0xBE:
-      case 0xBF:
-      case 0xF8:                                        // Bad UTF8 leaders
-      case 0xF9:
-      case 0xFA:
-      case 0xFB:
-      case 0xFC:
-      case 0xFD:
-      case 0xFE:
-      case 0xFF:
-        return TK_ERROR;                                // Bad characters
+      case '\\':                                        // Escape next character
+        column++;
+        offset++;
+        sptr++;
+        if(sptr[0]=='\n'){                              // Check line-continuation
+          column=0;                                     // Reset to line start
+          line++;                                       // Add line
+          offset++;
+          sptr++;
+          break;
+          }
+        if(sptr[0]=='\r'){                              // Check line-continuation
+          if(sptr[1]=='\n'){ offset++; sptr++; }
+          column=0;                                     // Reset to line start
+          line++;                                       // Add line
+          offset++;
+          sptr++;
+          break;
+          }
+        //FALL//
+      case ' ':                                         // Characters
+      case '!':
+      case '#':
+      case '$':
+      case '%':
+      case '&':
+      case '(':
+      case ')':
+      case '*':
+      case '+':
+      case ',':
+      case '-':
+      case '.':
+      case '/':
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+      case ':':
+      case ';':
+      case '<':
+      case '=':
+      case '>':
+      case '?':
+      case '@':
+      case 'A':
+      case 'B':
+      case 'C':
+      case 'D':
+      case 'E':
+      case 'F':
+      case 'G':
+      case 'H':
+      case 'I':
+      case 'J':
+      case 'K':
+      case 'L':
+      case 'M':
+      case 'N':
+      case 'O':
+      case 'P':
+      case 'Q':
+      case 'R':
+      case 'S':
+      case 'T':
+      case 'U':
+      case 'V':
+      case 'W':
+      case 'X':
+      case 'Y':
+      case 'Z':
+      case '[':
+      case ']':
+      case '^':
+      case '_':
+      case '`':
+      case 'a':
+      case 'b':
+      case 'c':
+      case 'd':
+      case 'e':
+      case 'f':
+      case 'g':
+      case 'h':
+      case 'i':
+      case 'j':
+      case 'k':
+      case 'l':
+      case 'm':
+      case 'n':
+      case 'o':
+      case 'p':
+      case 'q':
+      case 'r':
+      case 's':
+      case 't':
+      case 'u':
+      case 'v':
+      case 'w':
+      case 'x':
+      case 'y':
+      case 'z':
+      case '{':
+      case '|':
+      case '}':
+      case '~':
+        column++;
+        offset++;
+        sptr++;
+        break;
       case 0xC0:                                        // 2-byte UTF8 sequences
       case 0xC1:
       case 0xC2:
@@ -1164,12 +1100,11 @@ FXint FXJSON::string(){
       case 0xDD:
       case 0xDE:
       case 0xDF:
-        if(sptr+1>=wptr) return TK_EOF;                 // Premature EOF
         if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
         column++;
         offset+=2;
         sptr+=2;
-        goto nxt;
+        break;
       case 0xE0:                                        // 3-byte UTF8 sequences
       case 0xE1:
       case 0xE2:
@@ -1186,7 +1121,6 @@ FXint FXJSON::string(){
       case 0xED:
       case 0xEE:
       case 0xEF:
-        if(sptr+2>=wptr) return TK_EOF;                 // Premature EOF
         if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
         if((sptr[2]&192)!=128) return TK_ERROR;
         if(sptr[0]=='\xE2' && sptr[1]=='\x80' && (sptr[2]=='\xA8' || sptr[2]=='\xA9')){
@@ -1196,7 +1130,7 @@ FXint FXJSON::string(){
         column++;
         offset+=3;
         sptr+=3;
-        goto nxt;
+        break;
       case 0xF0:                                        // 4-byte UTF8 sequences
       case 0xF1:
       case 0xF2:
@@ -1205,46 +1139,21 @@ FXint FXJSON::string(){
       case 0xF5:
       case 0xF6:
       case 0xF7:
-        if(sptr+3>=wptr) return TK_EOF;                 // Premature EOF
         if((sptr[1]&192)!=128) return TK_ERROR;         // Bad UTF8 followers
         if((sptr[2]&192)!=128) return TK_ERROR;
         if((sptr[3]&192)!=128) return TK_ERROR;
         column++;
         offset+=4;
         sptr+=4;
-        goto nxt;
-      case '\\':                                        // Escape next character
-        column++;
-        offset++;
-        sptr++;
-        if(sptr>=wptr) return TK_EOF;                   // Premature EOF
-        if(sptr[0]=='\n'){                              // Check line-continuation
-          column=0;                                     // Reset to line start
-          line++;                                       // Add line
-          offset++;
-          sptr++;
-          goto nxt;
-          }
-        if(sptr[0]=='\r'){                              // Check line-continuation
-          if(sptr+1<wptr && sptr[1]=='\n'){
-            offset++;
-            sptr++;
-            }
-          column=0;                                     // Reset to line start
-          line++;                                       // Add line
-          offset++;
-          sptr++;
-          goto nxt;
-          }
-      default:                                          // Advance
-        column++;
-        offset++;
-        sptr++;
-nxt:    if(sptr+MAXTOKEN>wptr && wptr==endptr){         // Big token
-          value.append(rptr,sptr-rptr);
-          rptr=sptr;
-          }
-        continue;
+        break;
+      default:
+        return TK_ERROR;                                // Bad characters
+      }
+
+    // Big token handling
+    if(sptr+MAXTOKEN>wptr && wptr==endptr){
+      value.append(rptr,sptr-rptr);
+      rptr=sptr;
       }
     }
   return TK_EOF;
@@ -1260,7 +1169,7 @@ FXJSON::Error FXJSON::loadMap(FXVariant& var){
   var.setType(FXVariant::MapType);
 
   // While more keys
-  while(token==TK_STRING || token==TK_IDENT){
+  while(TK_IDENT<=token && token<=TK_STRING){
 
     // Load key
     key=value;
@@ -1296,7 +1205,7 @@ FXJSON::Error FXJSON::loadArray(FXVariant& var){
   var.setType(FXVariant::ArrayType);
 
   // While possible item start token
-  while(TK_NULL<=token && token<=TK_LBRACE){
+  while(TK_NAN<=token && token<=TK_LBRACE){
 
     // Load item directly into array slot
     if((err=loadVariant(var[index]))!=ErrOK) return err;
@@ -1321,6 +1230,62 @@ FXJSON::Error FXJSON::loadVariant(FXVariant& var){
   case TK_EOF:                                  // Unexpected end of file
     var=FXVariant::null;
     return ErrEnd;
+  case TK_PLUS:
+    token=next();
+    if(token==TK_INT){                          // +Integer
+      var=__strtoll(rptr,nullptr,10);
+      token=next();
+      return ErrOK;
+      }
+    if(token==TK_HEX){                          // +Hexadecimal
+      var=__strtoll(rptr,nullptr,16);
+      token=next();
+      return ErrOK;
+      }
+    if(token==TK_REAL){                         // +Real
+      var=__strtod(rptr,nullptr);
+      token=next();
+      return ErrOK;
+      }
+    if(token==TK_INF){                          // +Infinity
+      var=dblinf.f;
+      token=next();
+      return ErrOK;
+      }
+    if(token==TK_NAN){                          // +NaN
+      var=dblnan.f;
+      token=next();
+      return ErrOK;
+      }
+    return ErrToken;
+  case TK_MINUS:
+    token=next();
+    if(token==TK_INT){                          // -Integer
+      var=-__strtoll(rptr,nullptr,10);
+      token=next();
+      return ErrOK;
+      }
+    if(token==TK_HEX){                          // -Hexadecimal
+      var=-__strtoll(rptr,nullptr,16);
+      token=next();
+      return ErrOK;
+      }
+    if(token==TK_REAL){                         // -Real
+      var=-__strtod(rptr,nullptr);
+      token=next();
+      return ErrOK;
+      }
+    if(token==TK_INF){                          // -Infinity
+      var=-dblinf.f;
+      token=next();
+      return ErrOK;
+      }
+    if(token==TK_NAN){                          // -NaN
+      var=-dblnan.f;
+      token=next();
+      return ErrOK;
+      }
+    return ErrToken;
   case TK_NULL:                                 // Null
     var=FXVariant::null;
     token=next();
@@ -1333,24 +1298,24 @@ FXJSON::Error FXJSON::loadVariant(FXVariant& var){
     var=true;
     token=next();
     return ErrOK;
-  case TK_INT:
-    var=value.toLong(10);
+  case TK_INT:                                  // Integer
+    var=__strtoll(rptr,nullptr,10);
     token=next();
     return ErrOK;
-  case TK_HEX:
-    var=value.toLong(16);
+  case TK_HEX:                                  // Hex
+    var=__strtoll(rptr,nullptr,16);
     token=next();
     return ErrOK;
-  case TK_REAL:
-    var=value.toDouble();
+  case TK_REAL:                                 // Real
+    var=__strtod(rptr,nullptr);
     token=next();
     return ErrOK;
-  case TK_INF:                                  // To infinity...
-    var=(rptr[0]=='-')?-inf.f:inf.f;
+  case TK_INF:                                  // Infinity
+    var=dblinf.f;
     token=next();
     return ErrOK;
-  case TK_NAN:                                  // ...and beyond!
-    var=(rptr[0]=='-')?-nan.f:nan.f;
+  case TK_NAN:                                  // NaN
+    var=dblnan.f;
     token=next();
     return ErrOK;
   case TK_LBRACK:                               // Array
@@ -1409,18 +1374,6 @@ FXJSON::Error FXJSON::saveIdent(const FXString& str){
   }
 
 
-// Check string has identifier syntax
-static FXbool isIdent(const FXString& str){
-  const FXchar* p=str.text();
-  FXwchar w;
-  if((w=wcnxt(p))!=0 && (Unicode::isLetter(w) || w=='_' || w=='$')){
-    while((w=wcnxt(p))!=0 && (Unicode::isAlphaNumeric(w) || w=='_' || w=='$')){
-      }
-    }
-  return w==0;
-  }
-
-
 // Save map elements from var
 FXJSON::Error FXJSON::saveMap(const FXVariant& var){
   FXival count=var.asMap().used();
@@ -1456,8 +1409,8 @@ FXJSON::Error FXJSON::saveMap(const FXVariant& var){
       // Skip empty slots
       if(var.asMap().key(i).empty()) continue;
 
-      // JSON5 output AND key has identifier syntax
-      if((5<=ver) && isIdent(var.asMap().key(i))){
+      // JSON5 output
+      if(5<=ver){
         if(saveIdent(var.asMap().key(i))!=ErrOK) return ErrSave;
         }
 
@@ -1687,17 +1640,6 @@ FXJSON::Error FXJSON::save(const FXVariant& variant){
   }
 
 /*******************************************************************************/
-
-// Close json parse buffer
-FXbool FXJSON::close(){
-  FXTRACE((101,"FXJSON::close()\n"));
-  if(FXParseBuffer::close()){
-    value=FXString::null;
-    return true;
-    }
-  return false;
-  }
-
 
 // Close stream and clean up
 FXJSON::~FXJSON(){

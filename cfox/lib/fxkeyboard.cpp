@@ -21,6 +21,7 @@
 #include "xincs.h"
 #include "fxver.h"
 #include "fxdefs.h"
+#include "fxmath.h"
 #include "fxkeys.h"
 #include "FXArray.h"
 #include "FXHash.h"

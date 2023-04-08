@@ -481,7 +481,7 @@ public:
   FXint find_last_of(const FXString& set,FXint pos=2147483647) const;
 
   /// Find last character, starting from pos; return position or -1
-  FXint find_last_of(FXchar c,FXint pos=0) const;
+  FXint find_last_of(FXchar c,FXint pos=2147483647) const;
 
   /// Find first character NOT in the set of size n, starting from pos; return position or -1
   FXint find_first_not_of(const FXchar* set,FXint n,FXint pos) const;
@@ -505,7 +505,7 @@ public:
   FXint find_last_not_of(const FXString& set,FXint pos=2147483647) const;
 
   /// Find last character NOT equal to c, starting from pos; return position or -1
-  FXint find_last_not_of(FXchar c,FXint pos=0) const;
+  FXint find_last_not_of(FXchar c,FXint pos=2147483647) const;
 
   /// Scan a string a-la scanf
   FXint scan(const FXchar* fmt,...) const FX_SCANF(2,3) ;

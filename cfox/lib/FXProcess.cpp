@@ -127,7 +127,6 @@ using namespace FX;
 
 namespace FX {
 
-
 // Initialize process
 FXProcess::FXProcess():pid(0),input(nullptr),output(nullptr),errors(nullptr){
   FXTRACE((100,"FXProcess::FXProcess\n"));
@@ -186,7 +185,6 @@ static FXbool needquotes(const FXchar* ptr){
   }
 
 #ifdef UNICODE
-
 
 // Build command line for windows
 static FXnchar* commandline(const FXchar *const *args){
@@ -548,12 +546,23 @@ FXbool FXProcess::start(const FXchar* exec,const FXchar *const *args,const FXcha
   }
 
 
+
 // Get process id
 FXint FXProcess::current(){
 #if defined(WIN32)
   return (FXint)::GetCurrentProcessId();
 #else
   return (FXint)::getpid();
+#endif
+  }
+
+
+// Get current process handle
+FXInputHandle FXProcess::handle(){
+#if defined(WIN32)
+  return ::GetCurrentProcess();
+#else
+  return ::getpid();
 #endif
   }
 
@@ -691,7 +700,6 @@ FXbool FXProcess::wait(FXint& code){
   }
 
 
-
 // Delete
 FXProcess::~FXProcess(){
   FXTRACE((100,"FXProcess::~FXProcess\n"));
@@ -703,6 +711,5 @@ FXProcess::~FXProcess(){
 #endif
     }
   }
-
 
 }

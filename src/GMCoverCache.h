@@ -82,7 +82,11 @@ class GMCoverCache {
 protected:
   FXString    filename;
   GMCacheInfo info;
+#if FOXVERSION >= FXVERSION(1, 7, 82)
+  FXMappedFile data;
+#else
   FXMemMap    data;
+#endif
 public:
   GMCoverCache(const FXString & name,FXint size=128);
 

@@ -96,7 +96,6 @@ struct FXAPI FXPrinter {
 
 /// Postscript Printer Device Context
 class FXAPI FXDCPrint : public FXDC {
-//  friend class FXGLViewer; // This is TEMPORARY!!!
 protected:
   void      *psout;                   // File Stream for PS output
   FXFont    *font;
@@ -114,8 +113,8 @@ protected:
   FXint      pxmax;                   // max X coord in content
   FXint      pymax;                   // max Y coord in content
 protected:
-  void bbox(FXfloat x,FXfloat y);
-  void tfm(FXfloat& xo,FXfloat& yo,FXfloat xi,FXfloat yi);
+  void bbox(FXdouble x,FXdouble y);
+  void tfm(FXdouble& xo,FXdouble& yo,FXdouble xi,FXdouble yi);
 private:
   FXDCPrint();
   FXDCPrint(const FXDCPrint&);
@@ -225,7 +224,7 @@ public:
   virtual void setBackground(FXColor clr);
 
   /// Set dash pattern
-  virtual void setDashes(FXuint dashoffset,const FXchar *dashlist,FXuint n);
+  virtual void setDashes(FXuint dashoffset,const FXuchar *dashlist,FXuint n);
 
   /// Set line width
   virtual void setLineWidth(FXuint linewidth=0);

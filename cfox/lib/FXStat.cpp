@@ -186,13 +186,22 @@ FXbool FXStat::isOtherExecutable() const {
 #if defined(WIN32)
 
 // Convert 100ns since 01/01/1601 to ns since 01/01/1970
-static inline FXTime fxunixtime(FXTime ft){
-  return (ft-FXLONG(116444736000000000))*FXLONG(100);
+static inline FXTime fxunixtime(const FILETIME& ft){
+  const FXTime BIAS=FXLONG(116444736000000000);
+  const FXTime HIGH=FXLONG(4294967296);
+  const FXTime MULT=FXLONG(100);
+  return (ft.dwHighDateTime*HIGH+ft.dwLowDateTime-BIAS)*MULT;
   }
 
 // Convert ns since 01/01/1970 to 100ns since 01/01/1601
-static inline FXTime fxwintime(FXTime ut){
-  return ut/FXLONG(100)+FXLONG(116444736000000000);
+static inline FILETIME fxwintime(FXTime ut){
+  const FXTime BIAS=FXLONG(116444736000000000);
+  const FXTime MULT=FXLONG(100);
+  FILETIME ft;
+  ut=BIAS+ut/MULT;
+  ft.dwLowDateTime=(DWORD)ut;
+  ft.dwHighDateTime=(DWORD)(ut>>32);
+  return ft;
   }
 
 #endif
@@ -221,16 +230,27 @@ FXbool FXStat::statFile(const FXString& file,FXStat& info){
       BY_HANDLE_FILE_INFORMATION data;
       if(::GetFileInformationByHandle(hfile,&data)){
         info.modeFlags=FXIO::AllFull;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) info.modeFlags|=FXIO::Hidden;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY) info.modeFlags&=~FXIO::AllWrite;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) info.modeFlags|=FXIO::Directory|FXIO::AllWrite; else info.modeFlags|=FXIO::File;     // Directories (folders) always writable on Windows
-        if((info.modeFlags&FXIO::File) && !FXPath::hasExecExtension(file)) info.modeFlags&=~FXIO::AllExec;
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
+          info.modeFlags|=FXIO::Directory;
+          }
+        else{
+          info.modeFlags|=FXIO::File;
+          }
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN){
+          info.modeFlags|=FXIO::Hidden;
+          }
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY){
+          info.modeFlags&=~FXIO::AllWrite;
+          }
+        if((info.modeFlags&FXIO::File) && !FXPath::hasExecExtension(file)){
+          info.modeFlags&=~FXIO::AllExec;
+          }
         info.userNumber=0;
         info.groupNumber=0;
         info.linkCount=data.nNumberOfLinks;
-        info.accessTime=fxunixtime(*((FXTime*)&data.ftLastAccessTime));
-        info.modifyTime=fxunixtime(*((FXTime*)&data.ftLastWriteTime));
-        info.createTime=fxunixtime(*((FXTime*)&data.ftCreationTime));
+        info.accessTime=fxunixtime(data.ftLastAccessTime);
+        info.modifyTime=fxunixtime(data.ftLastWriteTime);
+        info.createTime=fxunixtime(data.ftCreationTime);
         info.fileVolume=data.dwVolumeSerialNumber;
         info.fileIndex=(((FXulong)data.nFileIndexHigh)<<32)|((FXulong)data.nFileIndexLow);
         info.fileSize=(((FXlong)data.nFileSizeHigh)<<32)|((FXlong)data.nFileSizeLow);
@@ -244,16 +264,27 @@ FXbool FXStat::statFile(const FXString& file,FXStat& info){
       BY_HANDLE_FILE_INFORMATION data;
       if(::GetFileInformationByHandle(hfile,&data)){
         info.modeFlags=FXIO::AllFull;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) info.modeFlags|=FXIO::Hidden;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY) info.modeFlags&=~FXIO::AllWrite;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) info.modeFlags|=FXIO::Directory|FXIO::AllWrite; else info.modeFlags|=FXIO::File;     // Directories (folders) always writable on Windows
-        if((info.modeFlags&FXIO::File) && !FXPath::hasExecExtension(file)) info.modeFlags&=~FXIO::AllExec;
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
+          info.modeFlags|=FXIO::Directory;
+          }
+        else{
+          info.modeFlags|=FXIO::File;
+          }
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN){
+          info.modeFlags|=FXIO::Hidden;
+          }
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY){
+          info.modeFlags&=~FXIO::AllWrite;
+          }
+        if((info.modeFlags&FXIO::File) && !FXPath::hasExecExtension(file)){
+          info.modeFlags&=~FXIO::AllExec;
+          }
         info.userNumber=0;
         info.groupNumber=0;
         info.linkCount=data.nNumberOfLinks;
-        info.accessTime=fxunixtime(*((FXTime*)&data.ftLastAccessTime));
-        info.modifyTime=fxunixtime(*((FXTime*)&data.ftLastWriteTime));
-        info.createTime=fxunixtime(*((FXTime*)&data.ftCreationTime));
+        info.accessTime=fxunixtime(data.ftLastAccessTime);
+        info.modifyTime=fxunixtime(data.ftLastWriteTime);
+        info.createTime=fxunixtime(data.ftCreationTime);
         info.fileVolume=data.dwVolumeSerialNumber;
         info.fileIndex=(((FXulong)data.nFileIndexHigh)<<32)|((FXulong)data.nFileIndexLow);
         info.fileSize=(((FXlong)data.nFileSizeHigh)<<32)|((FXlong)data.nFileSizeLow);
@@ -323,16 +354,27 @@ FXbool FXStat::statLink(const FXString& file,FXStat& info){
       BY_HANDLE_FILE_INFORMATION data;
       if(::GetFileInformationByHandle(hfile,&data)){
         info.modeFlags=FXIO::AllFull;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) info.modeFlags|=FXIO::Hidden;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY) info.modeFlags&=~FXIO::AllWrite;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) info.modeFlags|=FXIO::Directory|FXIO::AllWrite; else info.modeFlags|=FXIO::File;     // Directories (folders) always writable on Windows
-        if((info.modeFlags&FXIO::File) && !FXPath::hasExecExtension(file)) info.modeFlags&=~FXIO::AllExec;
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
+          info.modeFlags|=FXIO::Directory;
+          }
+        else{
+          info.modeFlags|=FXIO::File;
+          }
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN){
+          info.modeFlags|=FXIO::Hidden;
+          }
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY){
+          info.modeFlags&=~FXIO::AllWrite;
+          }
+        if((info.modeFlags&FXIO::File) && !FXPath::hasExecExtension(file)){
+          info.modeFlags&=~FXIO::AllExec;
+          }
         info.userNumber=0;
         info.groupNumber=0;
         info.linkCount=data.nNumberOfLinks;
-        info.accessTime=fxunixtime(*((FXTime*)&data.ftLastAccessTime));
-        info.modifyTime=fxunixtime(*((FXTime*)&data.ftLastWriteTime));
-        info.createTime=fxunixtime(*((FXTime*)&data.ftCreationTime));
+        info.accessTime=fxunixtime(data.ftLastAccessTime);
+        info.modifyTime=fxunixtime(data.ftLastWriteTime);
+        info.createTime=fxunixtime(data.ftCreationTime);
         info.fileVolume=data.dwVolumeSerialNumber;
         info.fileIndex=(((FXulong)data.nFileIndexHigh)<<32)|((FXulong)data.nFileIndexLow);
         info.fileSize=(((FXlong)data.nFileSizeHigh)<<32)|((FXlong)data.nFileSizeLow);
@@ -346,16 +388,27 @@ FXbool FXStat::statLink(const FXString& file,FXStat& info){
       BY_HANDLE_FILE_INFORMATION data;
       if(::GetFileInformationByHandle(hfile,&data)){
         info.modeFlags=FXIO::AllFull;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) info.modeFlags|=FXIO::Hidden;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY) info.modeFlags&=~FXIO::AllWrite;
-        if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) info.modeFlags|=FXIO::Directory|FXIO::AllWrite; else info.modeFlags|=FXIO::File;     // Directories (folders) always writable on Windows
-        if((info.modeFlags&FXIO::File) && !FXPath::hasExecExtension(file)) info.modeFlags&=~FXIO::AllExec;
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
+          info.modeFlags|=FXIO::Directory;
+          }
+        else{
+          info.modeFlags|=FXIO::File;
+          }
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN){
+          info.modeFlags|=FXIO::Hidden;
+          }
+        if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY){
+          info.modeFlags&=~FXIO::AllWrite;
+          }
+        if((info.modeFlags&FXIO::File) && !FXPath::hasExecExtension(file)){
+          info.modeFlags&=~FXIO::AllExec;
+          }
         info.userNumber=0;
         info.groupNumber=0;
         info.linkCount=data.nNumberOfLinks;
-        info.accessTime=fxunixtime(*((FXTime*)&data.ftLastAccessTime));
-        info.modifyTime=fxunixtime(*((FXTime*)&data.ftLastWriteTime));
-        info.createTime=fxunixtime(*((FXTime*)&data.ftCreationTime));
+        info.accessTime=fxunixtime(data.ftLastAccessTime);
+        info.modifyTime=fxunixtime(data.ftLastWriteTime);
+        info.createTime=fxunixtime(data.ftCreationTime);
         info.fileVolume=data.dwVolumeSerialNumber;
         info.fileIndex=(((FXulong)data.nFileIndexHigh)<<32)|((FXulong)data.nFileIndexLow);
         info.fileSize=(((FXlong)data.nFileSizeHigh)<<32)|((FXlong)data.nFileSizeLow);
@@ -418,15 +471,24 @@ FXbool FXStat::stat(const FXFile& file,FXStat& info){
   BY_HANDLE_FILE_INFORMATION data;
   if(::GetFileInformationByHandle(file.handle(),&data)){
     info.modeFlags=FXIO::AllFull;
-    if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) info.modeFlags|=FXIO::Hidden;
-    if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY) info.modeFlags&=~FXIO::AllWrite;
-    if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) info.modeFlags|=FXIO::Directory|FXIO::AllWrite; else info.modeFlags|=FXIO::File; // Directories (folders) always writable on Windows
+    if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
+      info.modeFlags|=FXIO::Directory;
+      }
+    else{
+      info.modeFlags|=FXIO::File;
+      }
+    if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN){
+      info.modeFlags|=FXIO::Hidden;
+      }
+    if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY){
+      info.modeFlags&=~FXIO::AllWrite;
+      }
     info.userNumber=0;
     info.groupNumber=0;
     info.linkCount=data.nNumberOfLinks;
-    info.accessTime=fxunixtime(*((FXTime*)&data.ftLastAccessTime));
-    info.modifyTime=fxunixtime(*((FXTime*)&data.ftLastWriteTime));
-    info.createTime=fxunixtime(*((FXTime*)&data.ftCreationTime));
+    info.accessTime=fxunixtime(data.ftLastAccessTime);
+    info.modifyTime=fxunixtime(data.ftLastWriteTime);
+    info.createTime=fxunixtime(data.ftCreationTime);
     info.fileVolume=data.dwVolumeSerialNumber;
     info.fileIndex=(((FXulong)data.nFileIndexHigh)<<32)|((FXulong)data.nFileIndexLow);
     info.fileSize=(((FXulong)data.nFileSizeHigh)<<32)|((FXulong)data.nFileSizeLow);
@@ -529,21 +591,17 @@ FXbool FXStat::mode(const FXString& file,FXuint perm){
 
 // Return true if file exists
 FXbool FXStat::exists(const FXString& file){
-  FXTRACE((100,"FXStat::exists(\"%s\"\n",file.text()));
   if(!file.empty()){
 #ifdef WIN32
 #ifdef UNICODE
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    FXTRACE((100,"FXStat::exists: %d\n",(::GetFileAttributesW(unifile)!=INVALID_FILE_ATTRIBUTES)));
     return ::GetFileAttributesW(unifile)!=INVALID_FILE_ATTRIBUTES;
 #else
-    FXTRACE((100,"FXStat::exists: %d\n",(::GetFileAttributesA(file.text())!=INVALID_FILE_ATTRIBUTES)));
     return ::GetFileAttributesA(file.text())!=INVALID_FILE_ATTRIBUTES;
 #endif
 #else
     struct stat status;
-    FXTRACE((100,"FXStat::exists: %d\n",(::stat(file.text(),&status)==0)));
     return ::stat(file.text(),&status)==0;
 #endif
     }
@@ -603,8 +661,7 @@ FXbool FXStat::modified(const FXString& file,FXTime ns){
     FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #endif
     if(hnd!=INVALID_HANDLE_VALUE){
-      FILETIME wintime;
-      *((FXTime*)&wintime)=fxwintime(ns);
+      FILETIME wintime=fxwintime(ns);
       if(SetFileTime(hnd,nullptr,nullptr,&wintime)!=0){
         CloseHandle(hnd);
         return true;
@@ -658,8 +715,7 @@ FXbool FXStat::accessed(const FXString& file,FXTime ns){
     FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #endif
     if(hnd!=INVALID_HANDLE_VALUE){
-      FILETIME wintime;
-      *((FXTime*)&wintime)=fxwintime(ns);
+      FILETIME wintime=fxwintime(ns);
       if(SetFileTime(hnd,nullptr,&wintime,nullptr)!=0){
         CloseHandle(hnd);
         return true;
@@ -700,11 +756,11 @@ FXTime FXStat::created(const FXString& file){
   return data.created();
   }
 
+#ifdef WIN32
 
 // Change time when file was last created
 FXbool FXStat::created(const FXString& file,FXTime ns){
   if(!file.empty()){
-#ifdef WIN32
 #ifdef UNICODE
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,file.text(),MAXPATHLEN);
@@ -713,20 +769,25 @@ FXbool FXStat::created(const FXString& file,FXTime ns){
     FXInputHandle hnd=CreateFileA(file.text(),GENERIC_READ|FILE_WRITE_ATTRIBUTES,0,nullptr,OPEN_EXISTING,0,nullptr);
 #endif
     if(hnd!=INVALID_HANDLE_VALUE){
-      FILETIME wintime;
-      *((FXTime*)&wintime)=fxwintime(ns);
+      FILETIME wintime=fxwintime(ns);
       if(SetFileTime(hnd,&wintime,nullptr,nullptr)!=0){
         CloseHandle(hnd);
         return true;
         }
       CloseHandle(hnd);
       }
-#else
-    return false;               // Not available on *NIX
-#endif
     }
   return false;
   }
+
+#else
+
+// Change time when file was last created
+FXbool FXStat::created(const FXString&,FXTime){
+  return false;
+  }
+
+#endif
 
 
 // Return true if file is hidden
@@ -889,16 +950,16 @@ FXbool FXStat::isAccessible(const FXString& file,FXuint m){
 #ifdef WIN32
 #ifdef UNICODE
     FXnchar unifile[MAXPATHLEN];
-    FXuint mode=0;
-    if(m&FXIO::ReadOnly) mode|=4;
-    if(m&FXIO::WriteOnly) mode|=2;
+    WIN32_FILE_ATTRIBUTE_DATA attr;
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    return _waccess(unifile,mode)==0;
+    if(GetFileAttributesExW(unifile,GetFileExInfoStandard,&attr)){
+      return (attr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) || !(m&FXIO::WriteOnly) || !(attr.dwFileAttributes&FILE_ATTRIBUTE_READONLY);
+      }
 #else
-    FXuint mode=0;
-    if(m&FXIO::ReadOnly) mode|=4;
-    if(m&FXIO::WriteOnly) mode|=2;
-    return _access(file.text(),mode)==0;
+    WIN32_FILE_ATTRIBUTE_DATA attr;
+    if(GetFileAttributesExA(file.text(),GetFileExInfoStandard,&attr)){
+      return (attr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) || !(m&FXIO::WriteOnly) || !(attr.dwFileAttributes&FILE_ATTRIBUTE_READONLY);
+      }
 #endif
 #else
     FXuint mode=F_OK;

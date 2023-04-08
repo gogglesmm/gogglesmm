@@ -128,7 +128,7 @@ void FXDCPrint::outf(const char* format,...){
 
 
 // Extends bounding box with point x,y
-void FXDCPrint::bbox(FXfloat x,FXfloat y){
+void FXDCPrint::bbox(FXdouble x,FXdouble y){
   if(x<pagebb.xmin) pagebb.xmin=x;
   if(pagebb.xmax<x) pagebb.xmax=x;
   if(y<pagebb.ymin) pagebb.ymin=y;
@@ -155,7 +155,7 @@ FXbool FXDCPrint::setContentRange(FXint pxminArg, FXint pyminArg, FXint pxmaxArg
 
 
 // Transform point
-void FXDCPrint::tfm(FXfloat& xo,FXfloat& yo,FXfloat xi,FXfloat yi){
+void FXDCPrint::tfm(FXdouble& xo,FXdouble& yo,FXdouble xi,FXdouble yi){
 /*
   if(flags&PRINT_LANDSCAPE){
     xo=yi;
@@ -166,37 +166,37 @@ void FXDCPrint::tfm(FXfloat& xo,FXfloat& yo,FXfloat xi,FXfloat yi){
     yo=(FXfloat)(mediaheight-yi);
     }
 */
-  FXfloat pxrange=static_cast<FXfloat>(pxmax-pxmin);
-  FXfloat pyrange=static_cast<FXfloat>(pymax-pymin);
-  FXfloat mxmin,mxmax,mymin,mymax,mxrange,myrange;
+  FXdouble pxrange=pxmax-pxmin;
+  FXdouble pyrange=pymax-pymin;
+  FXdouble mxmin,mxmax,mymin,mymax,mxrange,myrange;
 
   if(flags&PRINT_LANDSCAPE){
-    mxmin=static_cast<FXfloat>(mediabb.ymin);
-    mxmax=static_cast<FXfloat>(mediabb.ymax);
+    mxmin=mediabb.ymin;
+    mxmax=mediabb.ymax;
     //mymin=static_cast<FXfloat>(mediawidth-mediabb.xmax);
     //mymax=static_cast<FXfloat>(mediawidth-mediabb.xmin);
-    mymin=static_cast<FXfloat>(mediabb.xmin);
-    mymax=static_cast<FXfloat>(mediabb.xmax);
+    mymin=mediabb.xmin;
+    mymax=mediabb.xmax;
     mxrange=mxmax-mxmin;
     myrange=mymax-mymin;
     //xo=xi;
     //yo=mediawidth-yi;
     }
   else{
-    mxmin=static_cast<FXfloat>(mediabb.xmin);
-    mxmax=static_cast<FXfloat>(mediabb.xmax);
-    mymin=static_cast<FXfloat>(mediabb.ymin);
-    mymax=static_cast<FXfloat>(mediabb.ymax);
+    mxmin=mediabb.xmin;
+    mxmax=mediabb.xmax;
+    mymin=mediabb.ymin;
+    mymax=mediabb.ymax;
     mxrange=mxmax-mxmin;
     myrange=mymax-mymin;
     }
 
-  if (pyrange/pxrange<=myrange/mxrange) { // short/wide
+  if(pyrange/pxrange<=myrange/mxrange){         // short/wide
     xo=mxmin+((xi-pxmin)/pxrange)*mxrange;
-    yo=mymin+.5f*(myrange-pyrange*(mxrange/pxrange))+(pyrange-yi)*(mxrange/pxrange);
+    yo=mymin+0.5*(myrange-pyrange*(mxrange/pxrange))+(pyrange-yi)*(mxrange/pxrange);
     }
-  else {// tall/thin
-    xo=mxmin+.5f*(mxrange-pxrange*(myrange/pyrange))+xi*(myrange/pyrange);
+  else{                                         // tall/thin
+    xo=mxmin+0.5*(mxrange-pxrange*(myrange/pyrange))+xi*(myrange/pyrange);
     yo=mymin+((pyrange-yi)/pyrange)*myrange;
     }
   }
@@ -240,14 +240,14 @@ FXbool FXDCPrint::beginPrint(FXPrinter& job){
   flags=job.flags;
 
   // This determines transformations
-  mediawidth=(FXfloat)job.mediawidth;
-  mediaheight=(FXfloat)job.mediaheight;
+  mediawidth=job.mediawidth;
+  mediaheight=job.mediaheight;
 
   // Set media bb; this determines transformation
-  mediabb.xmin=(FXfloat)job.leftmargin;
-  mediabb.xmax=(FXfloat)(job.mediawidth-job.rightmargin);
-  mediabb.ymin=(FXfloat)job.bottommargin;
-  mediabb.ymax=(FXfloat)(job.mediaheight-job.topmargin);
+  mediabb.xmin=job.leftmargin;
+  mediabb.xmax=job.mediawidth-job.rightmargin;
+  mediabb.ymin=job.bottommargin;
+  mediabb.ymax=job.mediaheight-job.topmargin;
 
   // Initialize page and document bb from media bb
   pagebb=mediabb;
@@ -267,10 +267,10 @@ FXbool FXDCPrint::beginPrint(FXPrinter& job){
     outf("%%%%BoundingBox: (atend)\n");
     }
   else{
-    docbb.xmin=(FXfloat)job.leftmargin;
-    docbb.xmax=(FXfloat)(job.mediawidth-job.rightmargin);
-    docbb.ymin=(FXfloat)job.bottommargin;
-    docbb.ymax=(FXfloat)(job.mediaheight-job.topmargin);
+    docbb.xmin=job.leftmargin;
+    docbb.xmax=job.mediawidth-job.rightmargin;
+    docbb.ymin=job.bottommargin;
+    docbb.ymax=job.mediaheight-job.topmargin;
     outf("%%%%BoundingBox: %d %d %d %d\n",(int)docbb.xmin,(int)docbb.ymin,(int)docbb.xmax,(int)docbb.ymax);
     }
   setContentRange((int)docbb.xmin, (int)docbb.ymin, (int)docbb.xmax, (int)docbb.ymax);
@@ -558,22 +558,21 @@ FXbool FXDCPrint::endPage(){
 
 // Draw a point in the current pen color
 void FXDCPrint::drawPoint(FXint x,FXint y){
-  FXfloat xx,yy;
-  tfm(xx,yy,(FXfloat)x,(FXfloat)y);
+  FXdouble xx,yy;
+  tfm(xx,yy,x,y);
   bbox(xx,yy);
-  outf("%g %g 0.5 0 360 arc fill\n",xx,yy);
+  outf("%lg %lg 0.5 0 360 arc fill\n",xx,yy);
   }
 
 
 // Draw points in the current pen color.
 // Each point's position is relative to the drawable's origin (as usual).
 void FXDCPrint::drawPoints(const FXPoint* points,FXuint npoints){
-  FXuint i;
-  FXfloat xx,yy;
-  for(i=0; i<npoints; i++){
+  FXdouble xx,yy;
+  for(FXuint i=0; i<npoints; i++){
     tfm(xx,yy,points[i].x,points[i].y);
     bbox(xx,yy);
-    outf("%g %g 0.5 0 360 arc fill\n",xx,yy);
+    outf("%lg %lg 0.5 0 360 arc fill\n",xx,yy);
     }
   }
 
@@ -588,28 +587,27 @@ void FXDCPrint::drawPointsRel(const FXPoint*,FXuint){
 
 // Draw a line
 void FXDCPrint::drawLine(FXint x1,FXint y1,FXint x2,FXint y2){
-  FXfloat xx1,yy1,xx2,yy2;
-  tfm(xx1,yy1,(FXfloat)x1,(FXfloat)y1);
-  tfm(xx2,yy2,(FXfloat)x2,(FXfloat)y2);
+  FXdouble xx1,yy1,xx2,yy2;
+  tfm(xx1,yy1,x1,y1);
+  tfm(xx2,yy2,x2,y2);
   bbox(xx1,yy1);
   bbox(xx2,yy2);
-  outf("newpath %g %g moveto %g %g lineto stroke\n",xx1,yy1,xx2,yy2);
+  outf("newpath %lg %lg moveto %lg %lg lineto stroke\n",xx1,yy1,xx2,yy2);
   }
 
 
 // Draw multiple lines. All points are drawn connected.
 // Each point is specified relative to Drawable's origin.
 void FXDCPrint::drawLines(const FXPoint* points,FXuint npoints){
-  FXuint i;
-  FXfloat xx,yy;
+  FXdouble xx,yy;
   if(npoints<2) return;
   tfm(xx,yy,points[0].x,points[0].y);
   bbox(xx,yy);
-  outf("newpath %g %g moveto",xx,yy);
-  for(i=1; i<npoints; i++){
+  outf("newpath %lg %lg moveto",xx,yy);
+  for(FXuint i=1; i<npoints; i++){
     tfm(xx,yy,points[i].x,points[i].y);
     bbox(xx,yy);
-    outf(" %g %g lineto",xx,yy);
+    outf(" %lg %lg lineto",xx,yy);
     }
   outf(" stroke\n");
   }
@@ -619,20 +617,20 @@ void FXDCPrint::drawLines(const FXPoint* points,FXuint npoints){
 // First point's coordinate is relative to drawable's origin, but
 // subsequent points' coordinates are relative to previous point.
 void FXDCPrint::drawLinesRel(const FXPoint* points,FXuint npoints){
-  FXuint i,x,y;
-  FXfloat xx,yy;
+  FXdouble xx,yy;
+  FXuint x,y;
   if(npoints<2) return;
   x=points[0].x;
   y=points[0].y;
-  tfm(xx,yy,(FXfloat)x,(FXfloat)y);
+  tfm(xx,yy,x,y);
   bbox(xx,yy);
-  outf("newpath %g %g moveto",xx,yy);
-  for(i=1; i<npoints; i++){
+  outf("newpath %lg %lg moveto",xx,yy);
+  for(FXuint i=1; i<npoints; i++){
     x+=points[i].x;
     y+=points[i].y;
-    tfm(xx,yy,(FXfloat)x,(FXfloat)y);
+    tfm(xx,yy,x,y);
     bbox(xx,yy);
-    outf(" %g %g lineto",xx,yy);
+    outf(" %lg %lg lineto",xx,yy);
     }
   outf(" stroke\n");
   }
@@ -640,30 +638,27 @@ void FXDCPrint::drawLinesRel(const FXPoint* points,FXuint npoints){
 
 // Draw unconnected line segments
 void FXDCPrint::drawLineSegments(const FXSegment* segments,FXuint nsegments){
-  FXuint i;
-  for(i=0; i<=nsegments; i++)
-    outf(" %d %d %d %d",
-		segments[i].x1,Yr-segments[i].y1,
-		segments[i].x2,Yr-segments[i].y2);
+  for(FXuint i=0; i<=nsegments; i++){
+    outf(" %d %d %d %d",segments[i].x1,Yr-segments[i].y1,segments[i].x2,Yr-segments[i].y2);
+    }
   outf(" %d drawSegmt\n",nsegments);
   }
 
 
 // Draw unfilled rectangle
 void FXDCPrint::drawRectangle(FXint x,FXint y,FXint w,FXint h){
-  FXfloat xl,xr,yt,yb;
-  tfm(xl,yt,(FXfloat)x,(FXfloat)y);
-  tfm(xr,yb,(FXfloat)(x+w-1),(FXfloat)(y+h-1));
+  FXdouble xl,xr,yt,yb;
+  tfm(xl,yt,x,y);
+  tfm(xr,yb,x+w-1,y+h-1);
   bbox(xl,yt);
   bbox(xr,yb);
-  outf("newpath %g %g moveto %g %g lineto %g %g lineto %g %g lineto %g %g lineto stroke\n",xl,yt,xr,yt,xr,yb,xl,yb,xl,yt);
+  outf("newpath %lg %lg moveto %lg %lg lineto %lg %lg lineto %lg %lg lineto %lg %lg lineto stroke\n",xl,yt,xr,yt,xr,yb,xl,yb,xl,yt);
   }
 
 
 // Draw unfilled rectangles
 void FXDCPrint::drawRectangles(const FXRectangle* rectangles,FXuint nrectangles){
-  FXuint i;
-  for(i=0; i<nrectangles; i++){
+  for(FXuint i=0; i<nrectangles; i++){
     drawRectangle(rectangles[i].x,rectangles[i].y,rectangles[i].w,rectangles[i].h);
     }
   }
@@ -676,12 +671,12 @@ void FXDCPrint::drawRoundRectangle(FXint,FXint,FXint,FXint,FXint,FXint){
 
 // Draw arc (patch from: sancelot@crosswinds.net)
 void FXDCPrint::drawArc(FXint x,FXint y,FXint w,FXint h,FXint ang1,FXint ang2){
-  FXfloat startAngle,endAngle,xx,yy,yr;
-  startAngle=((float)ang1)/64.0f;
-  endAngle=startAngle+(((float) ang2)/64.0f);
-  tfm(xx,yy,(FXfloat)x,(FXfloat)y);
-  tfm(xx,yr,(FXfloat)x,(FXfloat)Yr);
-  outf("%1.3f %1.3f %1.3f %1.3f %1.3f %1.3f drawArc\n",xx+(w/2.0),yy-(h/2.0),startAngle,endAngle,w/2.0,h/2.0);
+  FXdouble startAngle,endAngle,xx,yy,yr;
+  startAngle=ang1/64.0;
+  endAngle=startAngle+ang2/64.0;       // FIXME
+  tfm(xx,yy,x,y);
+  tfm(xx,yr,x,Yr);
+  outf("%1.3lf %1.3lf %1.3lf %1.3lf %1.3lf %1.3lf drawArc\n",xx+(w/2.0),yy-(h/2.0),startAngle,endAngle,w/2.0,h/2.0);
   }
 
 
@@ -698,19 +693,18 @@ void FXDCPrint::drawEllipse(FXint,FXint,FXint,FXint){
 
 // Filled rectangle
 void FXDCPrint::fillRectangle(FXint x,FXint y,FXint w,FXint h){
-  FXfloat xl,xr,yt,yb;
-  tfm(xl,yt,(FXfloat)x,(FXfloat)y);
-  tfm(xr,yb,(FXfloat)(x+w-1),(FXfloat)(y+h-1));
+  FXdouble xl,xr,yt,yb;
+  tfm(xl,yt,x,y);
+  tfm(xr,yb,x+w-1,y+h-1);
   bbox(xl,yt);
   bbox(xr,yb);
-  outf("newpath %g %g moveto %g %g lineto %g %g lineto %g %g lineto %g %g lineto fill\n",xl,yt,xr,yt,xr,yb,xl,yb,xl,yt);
+  outf("newpath %lg %lg moveto %lg %lg lineto %lg %lg lineto %lg %lg lineto %lg %lg lineto fill\n",xl,yt,xr,yt,xr,yb,xl,yb,xl,yt);
   }
 
 
 // Filled rectangles
 void FXDCPrint::fillRectangles(const FXRectangle* rectangles,FXuint nrectangles){
-  FXuint i;
-  for(i=0; i<nrectangles; i++){
+  for(FXuint i=0; i<nrectangles; i++){
     fillRectangle(rectangles[i].x,rectangles[i].y,rectangles[i].w,rectangles[i].h);
     }
   }
@@ -749,16 +743,15 @@ void FXDCPrint::fillEllipse(FXint,FXint,FXint,FXint){
 
 // Filled simple polygon
 void FXDCPrint::fillPolygon(const FXPoint* points,FXuint npoints){
-  FXuint i;
-  FXfloat xx,yy;
+  FXdouble xx,yy;
   if(npoints<2) return;
   tfm(xx,yy,points[0].x,points[0].y);
   bbox(xx,yy);
-  outf("newpath %g %g moveto",xx,yy);
-  for(i=1; i<npoints; i++){
+  outf("newpath %lg %lg moveto",xx,yy);
+  for(FXuint i=1; i<npoints; i++){
     tfm(xx,yy,points[i].x,points[i].y);
     bbox(xx,yy);
-    outf(" %g %g lineto",xx,yy);
+    outf(" %lg %lg lineto",xx,yy);
     }
   outf(" fill\n");
   }
@@ -809,8 +802,8 @@ void FXDCPrint::drawText(FXint x,FXint y,const FXchar* string,FXuint len){
   outf(") show\n");
   outf("grestore\n");
 */
-  FXfloat xx,yy;
-  tfm(xx,yy,(FXfloat)x,(FXfloat)y);
+  FXdouble xx,yy;
+  tfm(xx,yy,x,y);
 
   // old font size was hardcoded...
   //outf("(%s) %g %g %d /Courier drawText\n",string,xx,yy,15);
@@ -838,7 +831,7 @@ void FXDCPrint::drawText(FXint x,FXint y,const FXchar* string,FXuint len){
     myrange=mymax-mymin;
     }
 */
-  FXfloat fsize=0.1f*font->getSize();
+  FXdouble fsize=0.1*font->getSize();
   // Hack...
   // Account for dpi and scale up or down with graph...
   // Perhaps override screen resolution via registry
@@ -892,7 +885,7 @@ void FXDCPrint::drawText(FXint x,FXint y,const FXchar* string,FXuint len){
     fname+="-Roman";
     }
 
-  outf("(%s) %g %g %d /%s drawText\n",string,xx,yy,(int)fsize,fname.text());
+  outf("(%s) %lg %lg %ld /%s drawText\n",string,xx,yy,(int)fsize,fname.text());
   }
 
 
@@ -981,7 +974,7 @@ void FXDCPrint::drawHashBox(FXint,FXint,FXint,FXint,FXint){
 
 // Set foreground drawing color (brush)
 void FXDCPrint::setForeground(FXColor clr){
-  outf("%g %g %g setrgbcolor\n",FXREDVAL(clr)/255.0,FXGREENVAL(clr)/255.0,FXBLUEVAL(clr)/255.0);
+  outf("%lg %lg %lg setrgbcolor\n",FXREDVAL(clr)/255.0,FXGREENVAL(clr)/255.0,FXBLUEVAL(clr)/255.0);
   fg=clr;
   }
 
@@ -993,7 +986,7 @@ void FXDCPrint::setBackground(FXColor clr){
 
 
 // Set dash pattern
-void FXDCPrint::setDashes(FXuint,const FXchar *,FXuint){
+void FXDCPrint::setDashes(FXuint,const FXuchar *,FXuint){
   }
 
 

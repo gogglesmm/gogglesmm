@@ -589,6 +589,18 @@ static inline FXdouble wrap(FXdouble x){
   }
 
 
+/// Four quadrant wrap phase argument x to 0...2*PI range
+static inline FXfloat wrap4(FXfloat x){
+  return x-Math::floor(x*0.159154943091895335768883763373f)*6.28318530717958647692528676656f;
+  }
+
+
+/// Four quadrant wrap phase argument x to 0...2*PI range
+static inline FXdouble wrap4(FXdouble x){
+  return x-Math::floor(x*0.159154943091895335768883763373)*6.28318530717958647692528676656;
+  }
+
+
 /// Stepify single precision x into multiples of step s (where s>0)
 static inline FXfloat stepify(FXfloat x,FXfloat s){
   return Math::nearbyint(x/s)*s;
@@ -1091,6 +1103,34 @@ static inline FXfloat log10(FXfloat x){
 static inline FXdouble log10(FXdouble x){
   return ::log10(x);
   }
+
+
+/// Single precision error function
+extern FXAPI FXfloat erf(FXfloat x);
+
+/// Double precision error function
+extern FXAPI FXdouble erf(FXdouble x);
+
+
+/// Single precision complementary error function
+extern FXAPI FXfloat erfc(FXfloat x);
+
+/// Double precision complementary error function
+extern FXAPI FXdouble erfc(FXdouble x);
+
+
+/// Single precision inverse error function
+extern FXAPI FXfloat inverf(FXfloat x);
+
+/// Double precision inverse error function
+extern FXAPI FXdouble inverf(FXdouble x);
+
+
+/// Single precision inverse complementary error function
+extern FXAPI FXfloat inverfc(FXfloat x);
+
+/// Double precision inverse complementary error function
+extern FXAPI FXdouble inverfc(FXdouble x);
 
 }
 

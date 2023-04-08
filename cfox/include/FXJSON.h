@@ -117,7 +117,6 @@ private:
   FXint next();
   FXint ident();
   FXint string();
-  FXint number();
   Error loadMap(FXVariant& var);
   Error loadArray(FXVariant& var);
   Error loadVariant(FXVariant& var);
@@ -134,30 +133,21 @@ private:
 public:
 
   /**
-  * Initialize JSON serializer with no buffer.
+  * Initialize JSON serializer.
   */
   FXJSON();
 
   /**
-  * Construct JSON serializer with given buffer of size, and open it for
-  * direction d.
+  * Initialize JSON serializer with buffer of size and direction.
+  * Text location (column, line number, byte offset) is reset.
   */
   FXJSON(FXchar* buffer,FXuval sz=8192,Direction d=Load);
 
   /**
-  * Open JSON parse buffer with size and direction.
+  * Open JSON parse buffer with given size and direction.
+  * Text location (column, line number, byte offset) is reset.
   */
   FXbool open(FXchar* buffer=nullptr,FXuval sz=8192,Direction d=Load);
-
-  /**
-  * Return direction in effect.
-  */
-  Direction direction() const { return dir; }
-
-  /**
-  * Return size of parse buffer
-  */
-  FXuval size() const { return endptr-begptr; }
 
   /**
   * Return current line number.
@@ -186,7 +176,9 @@ public:
   */
   Error save(const FXVariant& variant);
 
-  /// Returns error code for given error
+  /**
+  * Returns error for given error code.
+  */
   static const FXchar* getError(Error err){ return errors[err]; }
 
   /**
@@ -262,6 +254,7 @@ public:
 
   /**
   * Close stream and delete buffer, if owned.
+  * To permit diagnostics, text location not reset.
   */
   FXbool close();
 

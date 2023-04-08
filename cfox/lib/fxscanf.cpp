@@ -121,8 +121,8 @@ enum {
 
 
 // Some floating point magick
-const union{ FXulong u; FXdouble f; } inf={FXULONG(0x7ff0000000000000)};
-const union{ FXulong u; FXdouble f; } nan={FXULONG(0x7fffffffffffffff)};
+static const union{ FXulong u; FXdouble f; } dblinf={FXULONG(0x7ff0000000000000)};
+static const union{ FXulong u; FXdouble f; } dblnan={FXULONG(0x7fffffffffffffff)};
 
 // Normal mode (non-ascii character)
 const FXint NORMAL=0x100;
@@ -156,7 +156,8 @@ FXint __vsscanf(const FXchar* string,const FXchar* format,va_list args){
   const FXchar *start=string;
   const FXchar *ss;
   FXdouble dvalue;
-  FXulong  ivalue,imult;
+  FXulong  ivalue;
+  FXulong  imult;
   FXchar   set[256];
   FXchar  *ptr;
   FXuchar  ch,nn;
@@ -335,8 +336,8 @@ integer:  ivalue=0;
             width--;
             digits++;
             }
-          if(3<width && string[0]==comma && 0<digits && digits<4){
-            while(3<width && string[0]==comma){                 // Thousands group is ',ddd' or nothing
+          if(3<width && string[0]==comma && 0<digits && digits<4){ // Thousands group is ',ddd' or nothing
+            do{
               if((ch=string[1])<'0' || ch>'9') break;
               if((ch=string[2])<'0' || ch>'9') break;
               if((ch=string[3])<'0' || ch>'9') break;
@@ -345,6 +346,7 @@ integer:  ivalue=0;
               width-=4;
               digits+=3;
               }
+            while(3<width && string[0]==comma);
             }
           if(!digits) goto x;                                   // No digits seen!
           if(neg){                                              // Apply sign
@@ -393,7 +395,7 @@ integer:  ivalue=0;
             if((string[1]|0x20)!='a') goto x;
             if((string[2]|0x20)!='n') goto x;
             string+=3;
-            dvalue=nan.f;
+            dvalue=dblnan.f;
             }
           else if(2<width && (string[0]|0x20)=='i'){            // Inf{inity}
             if((string[1]|0x20)!='n') goto x;
@@ -402,7 +404,7 @@ integer:  ivalue=0;
               string+=5;
               }
             string+=3;
-            dvalue=inf.f;
+            dvalue=dblinf.f;
             }
           else if(1<width && string[0]=='0' && (string[1]|0x20)=='x'){  // Hexadecimal float
             string+=2;
@@ -507,8 +509,8 @@ integer:  ivalue=0;
               width--;
               digits++;
               }
-            if(3<width && string[0]==comma && 0<digits && digits<4){
-              while(3<width && string[0]==comma){               // Thousands group is ',ddd' or nothing
+            if(3<width && string[0]==comma && 0<digits && digits<4){ // Thousands group is ',ddd' or nothing
+              do{
                 if((ch=string[1])<'0' || ch>'9') break;
                 if((ch=string[2])<'0' || ch>'9') break;
                 if((ch=string[3])<'0' || ch>'9') break;
@@ -522,6 +524,7 @@ integer:  ivalue=0;
                 width-=4;
                 digits+=3;
                 }
+              while(3<width && string[0]==comma);
               }
             if(0<width && string[0]=='.'){                      // Decimals following '.'
               string++;

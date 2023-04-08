@@ -113,7 +113,7 @@
 */
 
 // Bad handle value
-#if defined(_WIN32)
+#if defined(WIN32)
 #define BadHandle INVALID_HANDLE_VALUE
 #else
 #define BadHandle -1
@@ -127,6 +127,8 @@ namespace FX {
 
 // Units of time in nanoseconds
 const FXTime seconds=1000000000;
+const FXTime milliseconds=1000000;
+const FXTime microseconds=1000;
 
 // Sleep no longer than this
 const FXTime FXReactor::maxwait=86400*seconds;
@@ -134,7 +136,7 @@ const FXTime FXReactor::maxwait=86400*seconds;
 
 // Construct reactor object
 FXReactor::FXReactor():internals(nullptr),sigreceived(0),numhandles(0),numwatched(0),numraised(0){
-#if defined(_WIN32)
+#if defined(WIN32)
   current=-1;
 #else
   current=0;
@@ -202,7 +204,7 @@ FXbool FXReactor::addSignal(FXint sig,FXbool async){
         handler=FXReactor::signalhandler;       // Normal callback
         }
       internals->signotified[sig]=0;            // Set non-raised
-#if defined(_WIN32)
+#if defined(WIN32)
       if(signal(sig,handler)==SIG_ERR){         // Set handler
         sigmanager[sig]=nullptr;
         return false;
@@ -235,7 +237,7 @@ FXbool FXReactor::remSignal(FXint sig){
     if(sig<=0) return false;
     if(sig>=64) return false;
     if(sigmanager[sig]==this){
-#if defined(_WIN32)
+#if defined(WIN32)
       if(signal(sig,SIG_DFL)==SIG_ERR){         // Unset handler
         return false;
         }
@@ -288,7 +290,7 @@ FXbool FXReactor::dispatchIdle(){
 
 /*******************************************************************************/
 
-#if defined(_WIN32)
+#if defined(WIN32)
 
 // Find index of the given handle; -1 if not found
 static inline FXint findHandle(FXInputHandle hnd,const FXInputHandle handles[],FXint n){
@@ -301,7 +303,7 @@ static inline FXint findHandle(FXInputHandle hnd,const FXInputHandle handles[],F
 // Append new handle hnd to watch-list
 FXbool FXReactor::addHandle(FXInputHandle hnd,FXuint mode){
   if(internals){
-#if defined(_WIN32)
+#if defined(WIN32)
     if(hnd==BadHandle) return false;
     if(numhandles>=MAXIMUM_WAIT_OBJECTS) return false;
     if(findHandle(hnd,internals->handles,numhandles)>=0) return false;
@@ -338,7 +340,7 @@ FXbool FXReactor::addHandle(FXInputHandle hnd,FXuint mode){
 // Remove handle hnd from list
 FXbool FXReactor::remHandle(FXInputHandle hnd){
   if(internals){
-#if defined(_WIN32)
+#if defined(WIN32)
     FXint s;
     if(hnd==BadHandle) return false;
     if((s=findHandle(hnd,internals->handles,numhandles))<0) return false;
@@ -383,7 +385,7 @@ FXbool FXReactor::dispatchHandle(FXInputHandle,FXuint,FXuint){
   return false;
   }
 
-#if defined(_WIN32) /////////////////////////////////////////////////////////////
+#if defined(WIN32) //////////////////////////////////////////////////////////////
 
 // Dispatch driver
 FXbool FXReactor::dispatch(FXTime blocking,FXuint flags){
@@ -402,7 +404,7 @@ FXbool FXReactor::dispatch(FXTime blocking,FXuint flags){
         if(due<forever){
           now=FXThread::time();
           delay=due-now;
-          if(delay<FXLONG(1000)){
+          if(delay<microseconds){
             if(dispatchTimeout(due)) return true;       // Timer activity
             continue;
             }
@@ -453,7 +455,7 @@ FXbool FXReactor::dispatch(FXTime blocking,FXuint flags){
         interval=Math::imin(delay,blocking);
         if(interval<forever){
           interval=Math::imin(interval,maxwait);
-          ms=(FXuint)(interval/1000000);
+          ms=(FXuint)(interval/milliseconds);
           }
 
         // Select active handles, wait for timeout or maximum block time
@@ -501,7 +503,7 @@ FXbool FXReactor::dispatch(FXTime blocking,FXuint flags){
         if(due<forever){
           now=FXThread::time();
           delay=due-now;
-          if(delay<FXLONG(1000)){
+          if(delay<microseconds){
             if(dispatchTimeout(due)) return true;       // Timer activity
             continue;
             }
@@ -553,7 +555,7 @@ FXbool FXReactor::dispatch(FXTime blocking,FXuint flags){
         interval=Math::imin(delay,blocking);
         if(interval<forever){
           interval=Math::imin(interval,maxwait);
-          ms=(FXuint)(interval/1000000);
+          ms=(FXuint)(interval/milliseconds);
           }
 
         // Select active handles and check signals, waiting for timeout or maximum block time
@@ -605,7 +607,7 @@ FXbool FXReactor::dispatch(FXTime blocking,FXuint flags){
         if(due<forever){
           now=FXThread::time();
           delay=due-now;
-          if(delay<FXLONG(1000)){
+          if(delay<microseconds){
             if(dispatchTimeout(due)) return true;       // Timer activity
             continue;
             }
@@ -645,6 +647,8 @@ FXbool FXReactor::dispatch(FXTime blocking,FXuint flags){
             }
           }
         while(mode==0);
+
+        // IO handle became active
         if(dispatchHandle(current,mode,flags)) return true;     // IO activity
         continue;
         }
@@ -690,7 +694,7 @@ FXbool FXReactor::dispatch(FXTime blocking,FXuint flags){
         numraised=pselect(numhandles,&internals->watched[0],&internals->watched[1],&internals->watched[2],&delta,nullptr);
 #else
         delta.tv_sec=interval/seconds;
-        delta.tv_usec=(interval-seconds*delta.tv_sec)/1000;
+        delta.tv_usec=(interval-seconds*delta.tv_sec)/microseconds;
         numraised=select(numhandles,&internals->watched[0],&internals->watched[1],&internals->watched[2],&delta);
 #endif
 

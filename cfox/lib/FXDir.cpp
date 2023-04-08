@@ -61,6 +61,7 @@ struct SPACE {
 #endif
 
 
+
 // Construct directory enumerator
 FXDir::FXDir(){
   // If this fails on your machine, determine what sizeof(SPACE) is
@@ -68,9 +69,9 @@ FXDir::FXDir(){
   //FXTRACE((150,"sizeof(SPACE)=%ld\n",sizeof(SPACE)));
   FXASSERT(sizeof(SPACE)<=sizeof(space));
 #ifdef WIN32
-  ((SPACE*)space)->handle=INVALID_HANDLE_VALUE;
+  alias_cast<SPACE>(space)->handle=INVALID_HANDLE_VALUE;
 #else
-  ((SPACE*)space)->handle=nullptr;
+  alias_cast<SPACE>(space)->handle=nullptr;
 #endif
   }
 
@@ -82,9 +83,9 @@ FXDir::FXDir(const FXString& path){
   //FXTRACE((150,"sizeof(SPACE)=%ld\n",sizeof(SPACE)));
   FXASSERT(sizeof(SPACE)<=sizeof(space));
 #ifdef WIN32
-  ((SPACE*)space)->handle=INVALID_HANDLE_VALUE;
+  alias_cast<SPACE>(space)->handle=INVALID_HANDLE_VALUE;
 #else
-  ((SPACE*)space)->handle=nullptr;
+  alias_cast<SPACE>(space)->handle=nullptr;
 #endif
   open(path);
   }
@@ -103,14 +104,14 @@ FXbool FXDir::open(const FXString& path){
     fxstrlcpy(buffer,path.text(),MAXPATHLEN);
     fxstrlcat(buffer,"\\*",MAXPATHLEN+2);
 #endif
-    ((SPACE*)space)->handle=FindFirstFile(buffer,&((SPACE*)space)->result);
-    if(((SPACE*)space)->handle!=INVALID_HANDLE_VALUE){
-      ((SPACE*)space)->first=true;
+    alias_cast<SPACE>(space)->handle=FindFirstFile(buffer,&alias_cast<SPACE>(space)->result);
+    if(alias_cast<SPACE>(space)->handle!=INVALID_HANDLE_VALUE){
+      alias_cast<SPACE>(space)->first=true;
       return true;
       }
 #else
-    ((SPACE*)space)->handle=opendir(path.text());
-    if(((SPACE*)space)->handle!=nullptr){
+    alias_cast<SPACE>(space)->handle=opendir(path.text());
+    if(alias_cast<SPACE>(space)->handle!=nullptr){
       return true;
       }
 #endif
@@ -122,9 +123,9 @@ FXbool FXDir::open(const FXString& path){
 // Returns true if the directory is open
 FXbool FXDir::isOpen() const {
 #ifdef WIN32
-  return (((const SPACE*)space)->handle!=INVALID_HANDLE_VALUE);
+  return (alias_cast<const SPACE>(space)->handle!=INVALID_HANDLE_VALUE);
 #else
-  return (((const SPACE*)space)->handle!=nullptr);
+  return alias_cast<const SPACE>(space)->handle!=nullptr;
 #endif
   }
 
@@ -133,14 +134,14 @@ FXbool FXDir::isOpen() const {
 FXbool FXDir::next(FXString& name){
   if(isOpen()){
 #if defined(WIN32)
-    if(((SPACE*)space)->first || FindNextFile(((SPACE*)space)->handle,&((SPACE*)space)->result)){
-      ((SPACE*)space)->first=false;
-      name.assign(((SPACE*)space)->result.cFileName);
+    if(alias_cast<SPACE>(space)->first || FindNextFile(alias_cast<SPACE>(space)->handle,&alias_cast<SPACE>(space)->result)){
+      alias_cast<SPACE>(space)->first=false;
+      name.assign(alias_cast<SPACE>(space)->result.cFileName);
       return true;
       }
 #else
-    if((((SPACE*)space)->dp=readdir(((SPACE*)space)->handle))!=nullptr){
-      name.assign(((SPACE*)space)->dp->d_name);
+    if((alias_cast<SPACE>(space)->dp=readdir(alias_cast<SPACE>(space)->handle))!=nullptr){
+      name.assign(alias_cast<SPACE>(space)->dp->d_name);
       return true;
       }
 #endif
@@ -154,11 +155,11 @@ FXbool FXDir::next(FXString& name){
 void FXDir::close(){
   if(isOpen()){
 #ifdef WIN32
-    FindClose(((SPACE*)space)->handle);
-    ((SPACE*)space)->handle=INVALID_HANDLE_VALUE;
+    FindClose(alias_cast<SPACE>(space)->handle);
+    alias_cast<SPACE>(space)->handle=INVALID_HANDLE_VALUE;
 #else
-    closedir(((SPACE*)space)->handle);
-    ((SPACE*)space)->handle=nullptr;
+    closedir(alias_cast<SPACE>(space)->handle);
+    alias_cast<SPACE>(space)->handle=nullptr;
 #endif
     }
   }
@@ -657,7 +658,5 @@ void fxenumWNetContainerResource(NETRESOURCE* netResource,FXObjectListOf<FXStrin
     }
   return count;
   }
-
-
 
 #endif

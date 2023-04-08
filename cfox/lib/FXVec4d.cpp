@@ -39,6 +39,59 @@ using namespace FX;
 namespace FX {
 
 
+#if defined(FOX_HAS_AVX2)
+
+// Convert from vector to color
+FXColor colorFromVec4d(const FXVec4d& vec){
+  FXColor res;
+
+  // Scale and convert to integer:      00000000 000000BB 000000GG 000000RR
+  __m128i uuuu=_mm256_cvtpd_epi32(_mm256_mul_pd(_mm256_loadu_pd(&vec[0]),_mm256_set1_pd(255.0)));
+
+  // Shuffle to lower 4 bytes:          RRRRRRRR RRRRRRRR RRRRRRRR 00RRGGBB
+  __m128i bbbb=_mm_shuffle_epi8(uuuu,_mm_set_epi8(0,0,0,0, 0,0,0,0, 0,0,0,0, 12,0,4,8));
+
+  // Assign to output
+  res=_mm_cvtsi128_si32(bbbb);
+
+  return res;
+  }
+
+
+// Convert from color to vector
+FXVec4d colorToVec4d(FXColor clr){
+  FXVec4d res;
+
+  // Shuffle into place, zero the rest: 000000AA 000000BB 000000GG 000000RR
+  __m128i uuuu=_mm_shuffle_epi8(_mm_cvtsi32_si128(clr),_mm_set_epi8(8,8,8,3, 8,8,8,0, 8,8,8,1, 8,8,8,2));
+
+  // Convert to double and scale:       AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR
+  __m256d dddd=_mm256_mul_pd(_mm256_cvtepi32_pd(uuuu),_mm256_set1_pd(0.003921568627));
+
+  // Assign to output
+  _mm256_storeu_pd(&res[0],dddd);
+  return res;
+  }
+
+
+/*
+// Normalize vector
+FXVec4d normalizeAVX(const FXVec4d& v){
+  __m256d dddd=_mm256_loadu_pd(&v[0]);
+  __m256d abcd=_mm256_mul_pd(dddd,dddd);                // 4
+  __m256d cdab=_mm256_permute2f128_pd(abcd,abcd,1);     // 3
+  __m256d pqrs=_mm256_add_pd(abcd,cdab);                // 4
+  __m256d qpsr=_mm256_permute_pd(pqrs,5);               // 1
+  __m256d rrrr=_mm256_add_pd(pqrs,qpsr);                // 4
+  __m256d ssss=_mm256_div_pd(dddd,_mm256_sqrt_pd(rrrr));// 18+14
+  FXVec4d res;
+  _mm256_storeu_pd(&res[0],ssss);
+  return res;
+  }
+*/
+
+#else
+
 // Convert from vector to color
 FXColor colorFromVec4d(const FXVec4d& vec){
   return FXRGBA((vec.x*255.0+0.5),(vec.y*255.0+0.5),(vec.z*255.0+0.5),(vec.w*255.0+0.5));
@@ -50,13 +103,15 @@ FXVec4d colorToVec4d(FXColor clr){
   return FXVec4d(0.003921568627*FXREDVAL(clr),0.003921568627*FXGREENVAL(clr),0.003921568627*FXBLUEVAL(clr),0.003921568627*FXALPHAVAL(clr));
   }
 
+#endif
+
 
 // Normalize vector
 FXVec4d normalize(const FXVec4d& v){
-  FXdouble m=v.length2();
-  FXVec4d result(v);
-  if(__likely(0.0<m)){ result/=Math::sqrt(m); }
-  return result;
+  FXdouble m=v.length();
+//  if(__likely(m)){ return v/m; }
+//  return v;
+  return v/m;
   }
 
 

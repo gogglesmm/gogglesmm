@@ -85,20 +85,6 @@ FXQuatd::FXQuatd(const FXVec3d& rot){
   }
 
 
-// Adjust quaternion length
-FXQuatd& FXQuatd::adjust(){
-  FXdouble mag2(x*x+y*y+z*z+w*w);
-  if(__likely(0.0<mag2)){
-    FXdouble s(1.0/Math::sqrt(mag2));
-    x*=s;
-    y*=s;
-    z*=s;
-    w*=s;
-    }
-  return *this;
-  }
-
-
 // Set axis and angle
 void FXQuatd::setAxisAngle(const FXVec3d& axis,FXdouble phi){
   FXdouble mag2(axis.length2());
@@ -523,79 +509,122 @@ FXVec3d operator*(const FXQuatd& q,const FXVec3d& v){
   return v+(((v^s)+(v*q.w))^s)*2.0;     // Yes, -a^b is b^a!
   }
 
+/*******************************************************************************/
 
-// Construct quaternion from arc a->b on unit sphere.
+// Adjust quaternion length
+FXQuatd& FXQuatd::adjust(){
+  FXdouble s(length());
+  if(__likely(s)){
+    return *this /= s;
+    }
+  return *this;
+  }
+
+
+// Normalize quaternion such that |Q|==1
+FXQuatd normalize(const FXQuatd& q){
+  FXdouble s(q.length());
+  if(__likely(s)){
+    return q/s;
+    }
+  return q;
+  }
+
+
+// Normalize quaternion incrementally; assume |Q| approximately 1 already
+FXQuatd fastnormalize(const FXQuatd& q){
+  FXdouble s((3.0-q.w*q.w-q.z*q.z-q.y*q.y-q.x*q.x)*0.5);
+  return q*s;
+  }
+
+/*******************************************************************************/
+
+// Construct quaternion from arc f->t, described by two vectors f and t on
+// a unit sphere.
 //
-// Explanation: a quaternion which rotates by angle theta about unit axis a
-// is specified as:
+// A quaternion which rotates by an angle theta about a unit axis A is specified as:
 //
-//   q = (a * sin(theta/2), cos(theta/2)).
+//   q = (A * sin(theta/2), cos(theta/2)).
 //
-// Assuming is f and t are unit length, we have:
+// Assuming is f and t are unit length, construct half-way vector:
 //
-//  sin(theta) = | f x t |
+//   h = (f + t)
 //
-// and
+// Then:
+//                        f . h
+//  cos(theta/2)     =   -------
+//                       |f|*|h|
 //
-//  cos(theta) = f . t
+// and:
 //
-// Using sin(2 * x) = 2 * sin(x) * cos(x), we get:
+//                        f x h
+//  A * sin(theta/2) =   -------
+//                       |f|*|h|
 //
-//  a * sin(theta/2) = (f x t) * sin(theta/2) / (2 * sin(theta/2) * cos(theta/2))
+// So generate normalized quaternion as follows:
 //
-//                   = (f x t) / (2 * cos(theta/2))
+//         f x h     f . h        (f x h, f . h)     (f x h, f . h)
+//  Q = ( ------- , ------- )  = ---------------- = ----------------
+//        |f|*|h|   |f|*|h|          |f|*|h|        |(f x h, f . h)|
 //
-// Using cos^2(x)=(1 + cos(2 * x)) / 2, we get:
+// NOTE1: Technically, input vectors f and t do not actually have to
+// be unit length in this formulation.  However, they do need to be
+// the same lengths.
 //
-//  4 * cos^2(theta/2) = 2 + 2 * cos(theta)
+// NOTE2: A problem exists when |h|=0.  This only happens when rotating
+// 180 degrees, i.e. f = -t.  In this case, the dot-product (f . h) will
+// be zero.  Pick a vector v orthogonal to f, then set Q:
 //
-//                     = 2 + 2 * (f . t)
-// Ergo:
-//
-//  2 * cos(theta/2)   = sqrt(2 + 2 * (f . t))
+//  Q = (v, 0)
 //
 FXQuatd arc(const FXVec3d& f,const FXVec3d& t){
-  FXdouble dot=f.x*t.x+f.y*t.y+f.z*t.z,div;
   FXQuatd result;
-  if(__unlikely(dot>0.999999999999999)){        // Unit quaternion
-    result.x=0.0;
-    result.y=0.0;
-    result.z=0.0;
-    result.w=1.0;
-    }
-  else if(__unlikely(dot<-0.999999999999999)){  // 180 quaternion (Stephen Hardy)
-    if(Math::fabs(f.z)<Math::fabs(f.x) && Math::fabs(f.z)<Math::fabs(f.y)){     // x, y largest magnitude
-      result.x= f.x*f.z-f.z*f.y;
-      result.y= f.z*f.x+f.y*f.z;
-      result.z=-f.y*f.y-f.x*f.x;
+  FXVec3d h(f+t);
+  FXdouble w(f.x*h.x+f.y*h.y+f.z*h.z);
+  if(Math::fabs(w)<0.00000000000000001){ // |f.h| is small
+    FXdouble ax=Math::fabs(f.x);
+    FXdouble ay=Math::fabs(f.y);
+    FXdouble az=Math::fabs(f.z);
+    if(ax<ay){
+      if(ax<az){                        // |f.x| smallest
+        result.x=-f.y*f.y-f.z*f.z;
+        result.y= f.x*f.y;
+        result.z= f.x*f.z;
+        result.w= 0.0;
+        }
+      else{                             // |f.z| smallest
+        result.x= f.x*f.z;
+        result.y= f.y*f.z;
+        result.z=-f.x*f.x-f.y*f.y;
+        result.w= 0.0;
+        }
       }
-    else if(Math::fabs(f.y)<Math::fabs(f.x)){               // y, z largest magnitude
-      result.x= f.y*f.z-f.x*f.y;
-      result.y= f.x*f.x+f.z*f.z;
-      result.z=-f.z*f.y-f.y*f.x;
+    else{
+      if(ay<az){                        // |f.y| smallest
+        result.x= f.y*f.x;
+        result.y=-f.x*f.x-f.z*f.z;
+        result.z= f.y*f.z;
+        result.w= 0.0;
+        }
+      else{                             // |f.z| smallest
+        result.x= f.x*f.z;
+        result.y= f.y*f.z;
+        result.z=-f.y*f.y-f.x*f.x;
+        result.w= 0.0;
+        }
       }
-    else{                                               // x, z largest magnitude
-      result.x=-f.z*f.z-f.y*f.y;
-      result.y= f.y*f.x-f.x*f.z;
-      result.z= f.x*f.y+f.z*f.x;
-      }
-    dot=result.x*result.x+result.y*result.y+result.z*result.z;
-    div=Math::sqrt(dot);
-    result.x/=div;
-    result.y/=div;
-    result.z/=div;
-    result.w=0.0;
     }
   else{
-    div=Math::sqrt((dot+1.0)*2.0);
-    result.x=(f.y*t.z-f.z*t.y)/div;
-    result.y=(f.z*t.x-f.x*t.z)/div;
-    result.z=(f.x*t.y-f.y*t.x)/div;
-    result.w=div*0.5;
+    result.x=f.y*h.z-f.z*h.y;           // fxh
+    result.y=f.z*h.x-f.x*h.z;
+    result.z=f.x*h.y-f.y*h.x;
+    result.w=w;                         // f.h
     }
+  result*=(1.0/result.length());
   return result;
   }
 
+/*******************************************************************************/
 
 // Spherical lerp of unit quaternions u,v
 // This is equivalent to: u * (u.unitinvert()*v).pow(f)
@@ -937,8 +966,8 @@ void fastSlerpTest(){
     q2.y=2.0*rng.randDouble()-1.0;
     q2.z=2.0*rng.randDouble()-1.0;
     q2.w=2.0*rng.randDouble()-1.0;
-    q1.adjust();
-    q2.adjust();
+    q1=normalize(q1);
+    q2=normalize(q2);
     dot=q1.x*q2.x+q1.y*q2.y+q1.z*q2.z+q1.w*q2.w;
 //  if(0.667457216028384<=dot){
     if(0.0<=dot){
@@ -1028,6 +1057,7 @@ FXQuatd quatDot(const FXQuatd& q,const FXVec3d& omega){
                  -0.5*(omega.x*q.x+omega.y*q.y+omega.z*q.z));
   }
 
+/*******************************************************************************/
 
 // Calculate angular acceleration of a body with inertial moments tensor M
 // Rotationg about its axes with angular rates omega, under a torque torq.
@@ -1066,10 +1096,10 @@ FXVec3d omegaDot(const FXMat3d& M,const FXVec3d& omega,const FXVec3d& torq){
     FXdouble ox=omega.x;
     FXdouble oy=omega.y;
     FXdouble oz=omega.z;
-    FXdouble mox=Ixx*ox+Ixy*oy+Ixz*oz;           // M * w
+    FXdouble mox=Ixx*ox+Ixy*oy+Ixz*oz;          // M * w
     FXdouble moy=Ixy*ox+Iyy*oy+Iyz*oz;
     FXdouble moz=Ixz*ox+Iyz*oy+Izz*oz;
-    FXdouble rhx=torq.x-(oy*moz-oz*moy);         // R = T - w x (M * w)
+    FXdouble rhx=torq.x-(oy*moz-oz*moy);        // R = T - w x (M * w)
     FXdouble rhy=torq.y-(oz*mox-ox*moz);
     FXdouble rhz=torq.z-(ox*moy-oy*mox);
     result.x=(m00*rhx+m01*rhy+m02*rhz)/det;     //  -1
@@ -1093,4 +1123,3 @@ FXStream& operator>>(FXStream& store,FXQuatd& v){
   }
 
 }
-

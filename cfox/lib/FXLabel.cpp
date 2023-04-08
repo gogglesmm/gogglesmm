@@ -437,10 +437,9 @@ long FXLabel::onQueryHelp(FXObject* sender,FXSelector sel,void* ptr){
 // Change text, removing hotkey if changed
 void FXLabel::setText(const FXString& text){
   if(text!=label){
-    if(0<=hotoff && (hotoff>=text.length() || hotoff>=label.length() || label[hotoff]!=text[hotoff])){
-      remHotKey(hotkey);
-      hotoff=-1;
-      }
+    remHotKey(hotkey);
+    hotkey=0;
+    hotoff=-1;
     label=text;
     recalc();
     update();

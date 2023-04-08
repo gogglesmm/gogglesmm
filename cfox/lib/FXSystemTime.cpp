@@ -216,7 +216,7 @@ void FXSystem::systemTimeFromTime(Time& st,FXTime utc){
 // Time zone variables, set only once
 static volatile FXuint local_zone_set=0;
 
-#if defined(_WIN32)
+#if defined(WIN32)
 //
 // The Windows TIME_ZONE_INFORMATION struct contains:
 //
@@ -250,7 +250,7 @@ static TIME_ZONE_INFORMATION tzi;
 // Call tzset() only once
 static void setuplocaltimezone(){
   if(atomicSet(&local_zone_set,1)==0){
-#if defined(_WIN32)
+#if defined(WIN32)
     GetTimeZoneInformation(&tzi);
 #else
     tzset();
@@ -262,7 +262,7 @@ static void setuplocaltimezone(){
 // Return offset between standard local time zone to UTC, in nanoseconds
 FXTime FXSystem::localTimeZoneOffset(){
   setuplocaltimezone();
-#if defined(_WIN32)
+#if defined(WIN32)
   return minutes*tzi.Bias;              // +minutes*tzi.StandardBias;
 #elif defined(__FreeBSD__) || defined(__OpenBSD__)
   return 0;     // FIXME
@@ -275,7 +275,7 @@ FXTime FXSystem::localTimeZoneOffset(){
 // Return offset daylight savings time to standard time, in nanoseconds
 FXTime FXSystem::daylightSavingsOffset(){
   setuplocaltimezone();
-#if defined(_WIN32)
+#if defined(WIN32)
   return minutes*tzi.DaylightBias;      // Or difference between standard and daylight bias.
 #elif defined(__FreeBSD__) || defined(__OpenBSD__)
   return 0;     // FIXME
@@ -288,7 +288,7 @@ FXTime FXSystem::daylightSavingsOffset(){
 // Return time zone name (or daylight savings time time zone name)
 FXString FXSystem::localTimeZoneName(FXbool dst){
   setuplocaltimezone();
-#if defined(_WIN32)
+#if defined(WIN32)
   return FXString(dst?tzi.DaylightName:tzi.StandardName);
 #else
   return FXString(tzname[dst]);
@@ -299,8 +299,21 @@ FXString FXSystem::localTimeZoneName(FXbool dst){
 #if defined(WIN32)
 
 // Convert utc (ns) since 01/01/1970 to 100ns since 01/01/1601
-static inline FXTime fxwintime(FXTime utc){
-  return utc/FXLONG(100)+FXLONG(116444736000000000);
+//static inline FXTime fxwintime(FXTime utc){
+//  const FXTime BIAS=FXLONG(116444736000000000);
+//  const FXTime MULT=FXLONG(100);
+//  return BIAS+utc/MULT;
+//  }
+
+// Convert utc (ns) since 01/01/1970 to 100ns since 01/01/1601
+static inline FILETIME fxwintime(FXTime ut){
+  const FXTime BIAS=FXLONG(116444736000000000);
+  const FXTime MULT=FXLONG(100);
+  FILETIME ft;
+  ut=BIAS+ut/MULT;
+  ft.dwLowDateTime=(DWORD)ut;
+  ft.dwHighDateTime=(DWORD)(ut>>32);
+  return ft;
   }
 
 
@@ -366,37 +379,30 @@ static FXint daylightSavingsState(FXTime utc,FXbool local){
   SYSTEMTIME loc;
 
   // Assume local time
-  FXTime ftloc=utc;
-  FXTime ftdst=utc;
-  FXTime ftstd=utc;
+  FILETIME ftloc=fxwintime(utc);
+  FILETIME ftdst=ftloc;
+  FILETIME ftstd=ftloc;
 
-  // If UTC, convert to local using
+  // If UTC, convert to local using time zone information
   if(!local){
-    ftloc=ftloc-tzi.Bias*minutes;
-    ftdst=ftloc-tzi.DaylightBias*minutes;
-    ftstd=ftloc-tzi.StandardBias*minutes;
+    ftloc=fxwintime(utc-tzi.Bias*minutes);
+    ftdst=fxwintime(utc-tzi.Bias*minutes-tzi.DaylightBias*minutes);
+    ftstd=fxwintime(utc-tzi.Bias*minutes-tzi.StandardBias*minutes);
     }
 
-  // Convert to windows time
-  ftloc=fxwintime(ftloc);
-
   // Get expanded date/time
-  FileTimeToSystemTime((const FILETIME*)&ftloc,&loc);
+  FileTimeToSystemTime(&ftloc,&loc);
 
   // If wMonth is zero then no daylight savings in effect
   if(tzi.DaylightDate.wMonth && tzi.StandardDate.wMonth){
-
-    // Convert UNIX Epoch to windows time
-    ftdst=fxwintime(ftdst);
-    ftstd=fxwintime(ftstd);
 
     // Expanded date/time
     SYSTEMTIME dst;
     SYSTEMTIME std;
 
     // Get expanded date/time
-    FileTimeToSystemTime((const FILETIME*)&ftdst,&dst);
-    FileTimeToSystemTime((const FILETIME*)&ftstd,&std);
+    FileTimeToSystemTime(&ftdst,&dst);
+    FileTimeToSystemTime(&ftstd,&std);
 
     // Daylight savings time prior to switch to standard time
     FXbool before_std_date=(compare_zone_switch_over(dst,tzi.StandardDate)<0);
@@ -423,7 +429,7 @@ static FXint daylightSavingsState(FXTime utc,FXbool local){
 // Return 1 if daylight savings time is active at utc in nanoseconds since Unix Epoch
 FXTime FXSystem::daylightSavingsActive(FXTime utc){
   setuplocaltimezone();
-#if defined(_WIN32)
+#if defined(WIN32)
   return daylightSavingsState(utc,false);
 #elif defined(HAVE_LOCALTIME_R)
   struct tm tmresult;

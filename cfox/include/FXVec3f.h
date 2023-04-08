@@ -95,7 +95,7 @@ public:
   FXVec3f operator-() const { return FXVec3f(-x,-y,-z); }
 
   /// Length and square of length
-  FXfloat length2() const { return x*x+y*y+z*z; }
+  FXfloat length2() const { return z*z+y*y+x*x; }
   FXfloat length() const { return Math::sqrt(length2()); }
 
   /// Destructor
@@ -193,6 +193,9 @@ extern FXAPI FXVec3f normal(const FXVec3f& a,const FXVec3f& b,const FXVec3f& c,c
 
 /// Normalize vector
 extern FXAPI FXVec3f normalize(const FXVec3f& v);
+
+/// Return vector orthogonal to v
+extern FXAPI FXVec3f orthogonal(const FXVec3f& v);
 
 /// Rotate vector vec by unit-length axis about angle specified as (ca,sa)
 extern FXAPI FXVec3f rotate(const FXVec3f& vec,const FXVec3f& axis,FXfloat ca,FXfloat sa);

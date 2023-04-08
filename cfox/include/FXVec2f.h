@@ -86,7 +86,7 @@ public:
   FXVec2f operator-() const { return FXVec2f(-x,-y); }
 
   /// Length and square of length
-  FXfloat length2() const { return x*x+y*y; }
+  FXfloat length2() const { return y*y+x*x; }
   FXfloat length() const { return Math::sqrt(length2()); }
 
   /// Destructor

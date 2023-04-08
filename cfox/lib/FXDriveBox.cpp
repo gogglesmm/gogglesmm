@@ -260,9 +260,9 @@ void FXDriveBox::listDrives(){
 long FXDriveBox::onListClicked(FXObject*,FXSelector,void* ptr){
   button->handle(this,FXSEL(SEL_COMMAND,ID_UNPOST),nullptr);    // Unpost the list
   if(0<=((FXint)(FXival)ptr)){
-    field->setText(getItemText((FXival)ptr));
-    field->setIcon(getItemIcon((FXival)ptr));
-    if(target){target->tryHandle(this,FXSEL(SEL_COMMAND,message),(void*)getItemText((FXival)ptr).text());}
+    field->setText(getItemText((FXint)(FXival)ptr));
+    field->setIcon(getItemIcon((FXint)(FXival)ptr));
+    if(target){target->tryHandle(this,FXSEL(SEL_COMMAND,message),(void*)getItemText((FXint)(FXival)ptr).text());}
     }
   return 1;
   }
@@ -270,7 +270,7 @@ long FXDriveBox::onListClicked(FXObject*,FXSelector,void* ptr){
 
 // List has changed
 long FXDriveBox::onListChanged(FXObject*,FXSelector,void* ptr){
-  return target && target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)getItemText((FXival)ptr).text());
+  return target && target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)getItemText((FXint)(FXival)ptr).text());
   }
 
 

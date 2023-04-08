@@ -52,100 +52,14 @@ using namespace FX;
 namespace FX {
 
 
-
 // Construct
 FXIODevice::FXIODevice():device(BadHandle){
   }
 
 
 // Construct with given handle and mode
-FXIODevice::FXIODevice(FXInputHandle h,FXuint m):device(BadHandle){
-  attach(h,m);
-  }
-
-
-// Return true if handle is valid
-static FXbool isvalid(FXInputHandle h){
-#if defined(WIN32)
-  DWORD flags;
-  return GetHandleInformation(h,&flags)!=0;
-#else
-//  return (fcntl(h,F_GETFD)!=-1) || (errno!=EBADF);
-  return (fcntl(h,F_GETFD,0)!=-1) || (errno!=EBADF);
-#endif
-  }
-
-
-#if 0
-#if defined(WIN32)
-  DWORD flags;
-  FXuint mm=0;
-  if(GetHandleInformation(h,&flags)==0){ return false }
-  if(flags&HANDLE_FLAG_INHERIT){ mm|=FXIO::Inheritable; }
-//  FILE_ATTRIBUTE_TAG_INFO attribs;
-//  if(GetFileInformationByHandleEx(h,FileAttributeTagInfo,&attribs,sizeof(attribs))==0){ return false; }
-  // FIXME //
-  //https://stackoverflow.com/questions/9442436/windows-how-do-i-get-the-mode-access-rights-of-an-already-opened-file
-#else
-  FXint flags=::fcntl(h,F_GETFD,0);
-  FXuint mm=0;
-  if(flags==-1){ return false; }
-  if(flags&O_RDONLY){ mm|=FXIO::ReadOnly; }
-  if(flags&O_WRONLY){ mm|=FXIO::WriteOnly; }
-  if(flags&O_RDWR){ mm|=FXIO::ReadWrite; }
-  if(flags&O_APPEND){ mm|=FXIO::Append; }
-  if(flags&O_TRUNC){ mm|=FXIO::Truncate; }
-  if(flags&O_NONBLOCK){ mm|=FXIO::NonBlocking; }
-#if defined(O_NOATIME)
-  if(flags&O_NOATIME){ mm|=FXIO::NoAccessTime; }
-#endif
-#if defined(O_CLOEXEC)
-  if(!(flags&O_CLOEXEC)){ mm|=FXIO::Inheritable; }
-#endif
-  if(flags&O_CREAT){ mm|=FXIO::Create; }
-  if(flags&O_EXCL){ mm|=FXIO::Exclusive; }
-#endif
-#endif
-
-// Open device with access mode m and existing handle h
-FXbool FXIODevice::open(FXInputHandle h,FXuint m){
-  if(__likely(h!=BadHandle && isvalid(h))){
-    device=h;
-    access=m;
-    pointer=0L;
-    return true;
-    }
-  return false;
-  }
-
-
-// Change access mode of open device
-FXbool FXIODevice::setMode(FXuint m){
-  if(__likely(device!=BadHandle)){
-#if defined(WIN32)
-    FXint flags=0;
-    if(m&Inheritable) flags=HANDLE_FLAG_INHERIT;
-    if(::SetHandleInformation(device,HANDLE_FLAG_INHERIT,flags)!=0) return false;
-    access^=(access^m)&Inheritable;
-    return true;
-#else
-    FXint flags=0;
-    if(m&NonBlocking) flags|=O_NONBLOCK;
-    if(m&Append) flags|=O_APPEND;
-#if defined(O_NOATIME)
-    if(m&NoAccessTime) flags|=O_NOATIME;
-#endif
-    if(::fcntl(device,F_SETFL,flags)<0) return false;
-#if defined(O_CLOEXEC)
-    flags=O_CLOEXEC;
-    if(m&Inheritable) flags=0;
-    if(::fcntl(device,F_SETFD,flags)<0) return false;
-#endif
-    access^=(access^m)&(NonBlocking|Append|NoAccessTime|Inheritable);
-    return true;
-#endif
-    }
-  return false;
+FXIODevice::FXIODevice(FXInputHandle h):device(BadHandle){
+  attach(h);
   }
 
 
@@ -155,19 +69,225 @@ FXbool FXIODevice::isOpen() const {
   }
 
 
-// Return true if serial access only
-FXbool FXIODevice::isSerial() const {
-  return true;
+// Grab access attributes from the open handle.
+// There doesn't seem to be a way to do that on Windows except
+// through the use of the undocumented NtQueryObject() function.
+// At the first call, dig up the function pointer and keep it
+// for the next time.
+#if defined(WIN32)
+
+// Declare NtQueryObject()
+typedef NTSTATUS (WINAPI *PFN_NTQUERYOBJECT)(HANDLE,OBJECT_INFORMATION_CLASS,void*,ULONG,ULONG*);
+
+// Declare the stub function
+static NTSTATUS WINAPI StubNtQueryObject(HANDLE,OBJECT_INFORMATION_CLASS,void*,ULONG,ULONG*);
+
+// Pointer to (stub for) NtQueryObject
+static PFN_NTQUERYOBJECT fxNtQueryObject=StubNtQueryObject;
+
+// The stub gets the address of actual function, sets the function pointer, then calls
+// actual function; next time around actual function will be called directly.
+static NTSTATUS WINAPI StubNtQueryObject(HANDLE hnd,OBJECT_INFORMATION_CLASS oic,void* oi,ULONG oilen,ULONG* len){
+  if(fxNtQueryObject==StubNtQueryObject){
+    HMODULE ntdllDll=GetModuleHandleA("ntdll.dll");
+    FXASSERT(ntdllDll);
+    fxNtQueryObject=(PFN_NTQUERYOBJECT)GetProcAddress(ntdllDll,"NtQueryObject");
+    FXASSERT(fxNtQueryObject);
+    }
+  return fxNtQueryObject(hnd,oic,oi,oilen,len);
+  }
+
+#endif
+
+
+// Return access mode
+FXuint FXIODevice::mode() const {
+  if(device!=BadHandle){
+#if defined(WIN32)
+    FXuint result=FXIO::NoAccess;
+    PUBLIC_OBJECT_BASIC_INFORMATION obi;
+    DWORD flags=0;
+    if(GetHandleInformation(device,&flags)!=0){
+      result=FXIO::ReadWrite;
+      if(flags&HANDLE_FLAG_INHERIT){ result|=FXIO::Inheritable; }
+/*
+      if(fxNtQueryObject(device,ObjectBasicInformation,&obi,sizeof(obi),nullptr)>=0){
+        //FXTRACE((100,"obi.Attributes     = %08x\n",obi.Attributes));
+        //FXTRACE((100,"obi.GrantedAccess  = %08x\n",obi.GrantedAccess));
+        //FXTRACE((100,"obi.GrantedAccess  = %08x\n",obi.GrantedAccess));
+        //FXTRACE((100,"obi.HandleCount    = %08x\n",obi.HandleCount));
+        //FXTRACE((100,"obi.PointerCount   = %08x\n",obi.PointerCount));
+        if(obi.GrantedAccess&GENERIC_READ){ result|=FXIO::ReadOnly; }
+        if(obi.GrantedAccess&GENERIC_WRITE){ result|=FXIO::WriteOnly; }
+        if(obi.GrantedAccess&GENERIC_ALL){ result|=FXIO::ReadWrite; }
+        if(obi.GrantedAccess&GENERIC_EXECUTE){ result|=FXIO::Executable; }
+        }
+      FXTRACE((100,"result             = %08x\n",result));
+*/
+      return result;
+      }
+#else
+    FXuint result=FXIO::Inheritable;
+    FXint flags=::fcntl(device,F_GETFL,0);
+    if(flags!=-1){
+#if defined(O_NOATIME)
+      if(flags&O_NOATIME){ result|=FXIO::NoAccessTime; }
+#endif
+      if(flags&O_APPEND){ result|=FXIO::Append; }
+      if(flags&O_CREAT){ result|=FXIO::Create; }
+      if(flags&O_EXCL){ result|=FXIO::Exclusive; }
+      if(flags&O_RDONLY){ result|=FXIO::ReadOnly; }
+      if(flags&O_WRONLY){ result|=FXIO::WriteOnly; }
+      if(flags&O_TRUNC){ result|=FXIO::Truncate; }
+      if(flags&O_NONBLOCK){ result|=FXIO::NonBlocking; }
+#if defined(O_CLOEXEC)
+      flags=::fcntl(device,F_GETFD,0);
+      if(flags!=-1){
+        if(flags&O_CLOEXEC){ result&=~FXIO::Inheritable; }
+        }
+#endif
+      return result;
+      }
+#endif
+    }
+  return FXIO::Error;
+  }
+
+
+// Change access mode of open device
+FXbool FXIODevice::mode(FXuint m){
+  if(device!=BadHandle){
+#if defined(WIN32)
+    DWORD flags=0;
+    if(m&FXIO::Inheritable) flags=HANDLE_FLAG_INHERIT;
+    if(::SetHandleInformation(device,HANDLE_FLAG_INHERIT,flags)){
+      return true;
+      }
+#else
+    FXint flags=0;
+    if(m&FXIO::Append){ flags|=O_APPEND; }
+    if(m&FXIO::Truncate){ flags|=O_TRUNC; }
+    if(m&FXIO::NonBlocking){ flags|=O_NONBLOCK; }
+#if defined(O_NOATIME)
+    if(m&FXIO::NoAccessTime){ flags|=O_NOATIME; }
+#endif
+    if(::fcntl(device,F_SETFL,flags)==0){
+#if defined(O_CLOEXEC)
+      flags=O_CLOEXEC;
+      if(m&FXIO::Inheritable) flags=0;
+      if(::fcntl(device,F_SETFD,flags)==0){
+        return true;
+        }
+#else
+      return true;
+#endif
+      }
+#endif
+    }
+  return false;
+  }
+
+
+// Return permissions
+FXuint FXIODevice::perms() const {
+  if(device!=BadHandle){
+#if defined(WIN32)
+    BY_HANDLE_FILE_INFORMATION data;
+    if(::GetFileInformationByHandle(device,&data)){
+      FXuint result=FXIO::AllFull;
+      DWORD bits=::GetFileType(device);
+      if(bits&FILE_TYPE_CHAR){ result|=FXIO::Character; }
+      if(bits&FILE_TYPE_DISK){ result|=FXIO::Block; }
+      if(bits&FILE_TYPE_PIPE){ result|=FXIO::Fifo; }
+      if(data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
+        result|=FXIO::Directory;
+        }
+      else{
+        result|=FXIO::File;
+        }
+      if(data.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN){
+        result|=FXIO::Hidden;
+        }
+      if(data.dwFileAttributes&FILE_ATTRIBUTE_READONLY){
+        result&=~FXIO::AllWrite;
+        }
+      return result;
+      }
+#else
+    struct stat data;
+    if(::fstat(device,&data)==0){
+      FXuint result=(data.st_mode&FXIO::AllFull);
+      if(S_ISDIR(data.st_mode)){ result|=FXIO::Directory; }
+      if(S_ISREG(data.st_mode)){ result|=FXIO::File; }
+      if(S_ISLNK(data.st_mode)){ result|=FXIO::SymLink; }
+      if(S_ISCHR(data.st_mode)){ result|=FXIO::Character; }
+      if(S_ISBLK(data.st_mode)){ result|=FXIO::Block; }
+      if(S_ISFIFO(data.st_mode)){ result|=FXIO::Fifo; }
+      if(S_ISSOCK(data.st_mode)){ result|=FXIO::Socket; }
+      if(data.st_mode&S_ISUID){ result|=FXIO::SetUser; }
+      if(data.st_mode&S_ISGID){ result|=FXIO::SetGroup; }
+      if(data.st_mode&S_ISVTX){ result|=FXIO::Sticky; }
+      return result;
+      }
+#endif
+    }
+  return FXIO::Error;
+  }
+
+
+// Set permissions
+FXbool FXIODevice::perms(FXuint p){
+  if(device!=BadHandle){
+#if defined(WIN32)
+/*
+    BY_HANDLE_FILE_INFORMATION data;
+    if(::GetFileInformationByHandle(device,&data)){
+      FILE_BASIC_INFO info;
+      info.CreationTime.LowPart=data.ftCreationTime.dwLowDateTime;
+      info.CreationTime.HighPart=data.ftCreationTime.dwHighDateTime;
+      info.LastAccessTime.LowPart=data.ftLastAccessTime.dwLowDateTime;
+      info.LastAccessTime.HighPart=data.ftLastAccessTime.dwHighDateTime;
+      info.LastWriteTime.LowPart=data.ftLastWriteTime.dwLowDateTime;
+      info.LastWriteTime.HighPart=data.ftLastWriteTime.dwHighDateTime;
+      info.ChangeTime.LowPart=data.ftLastWriteTime.dwLowDateTime;       // ??
+      info.ChangeTime.HighPart=data.ftLastWriteTime.dwHighDateTime;
+      info.FileAttributes=data.dwFileAttributes;        // FIXME with changes
+      if(p&FXIO::Hidden) info.FileAttributes|=FILE_ATTRIBUTE_HIDDEN; else info.FileAttributes&=~FILE_ATTRIBUTE_HIDDEN;
+      if(!(p&FXIO::AllWrite)) info.FileAttributes|=FILE_ATTRIBUTE_READONLY; else info.FileAttributes&=~FILE_ATTRIBUTE_READONLY;
+      return ::SetFileInformationByHandle(device,FileBasicInfo,&info,sizeof(info))!=0;
+      }
+*/
+#else
+    FXint bits=p&0777;
+    if(p&FXIO::SetUser){ bits|=S_ISUID; }
+    if(p&FXIO::SetGroup){ bits|=S_ISGID; }
+    if(p&FXIO::Sticky){ bits|=S_ISVTX; }
+    return (::fchmod(device,bits)==0);
+#endif
+    }
+  return false;
+  }
+
+
+// Return true if handle is valid
+FXbool FXIODevice::valid(FXInputHandle hnd){
+  if(hnd!=BadHandle){
+#if defined(WIN32)
+    DWORD flags;
+    return ::GetHandleInformation(hnd,&flags)!=0;
+#else
+    return ::fcntl(hnd,F_GETFD,0)>=0;
+#endif
+    }
+  return false;
   }
 
 
 // Attach existing file handle
-FXbool FXIODevice::attach(FXInputHandle h,FXuint m){
-  if(__likely(h!=BadHandle && isvalid(h))){
+FXbool FXIODevice::attach(FXInputHandle h){
+  if(valid(h)){
     close();
     device=h;
-    access=(m|OwnHandle);
-    pointer=0L;
     return true;
     }
   return false;
@@ -177,45 +297,29 @@ FXbool FXIODevice::attach(FXInputHandle h,FXuint m){
 // Detach existing file handle
 FXbool FXIODevice::detach(){
   device=BadHandle;
-  access=NoAccess;
-  pointer=0L;
   return true;
-  }
-
-
-// Get position
-FXlong FXIODevice::position() const {
-  return pointer;
-  }
-
-
-// Move to position
-FXlong FXIODevice::position(FXlong,FXuint){
-  return FXIO::Error;
   }
 
 
 // Read block
 FXival FXIODevice::readBlock(void* ptr,FXival count){
-  if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
+  if(device!=BadHandle){
 #if defined(WIN32)
     DWORD nread;
     if(::ReadFile(device,ptr,(DWORD)count,&nread,nullptr)==0){
       if(GetLastError()==ERROR_IO_PENDING) return FXIO::Again;
       return FXIO::Error;
       }
-    pointer+=nread;
     return nread;
 #else
     FXival nread;
 a:  nread=::read(device,ptr,count);
-    if(__unlikely(nread<0)){
+    if(nread<0){
       if(errno==EINTR) goto a;
       if(errno==EAGAIN) return FXIO::Again;
       if(errno==EWOULDBLOCK) return FXIO::Again;
       return FXIO::Error;
       }
-    pointer+=nread;
     return nread;
 #endif
     }
@@ -225,25 +329,23 @@ a:  nread=::read(device,ptr,count);
 
 // Write block
 FXival FXIODevice::writeBlock(const void* ptr,FXival count){
-  if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
+  if(device!=BadHandle){
 #if defined(WIN32)
     DWORD nwritten;
     if(::WriteFile(device,ptr,(DWORD)count,&nwritten,nullptr)==0){
       return FXIO::Error;
       }
-    pointer+=nwritten;
     return nwritten;
 #else
     FXival nwritten;
 a:  nwritten=::write(device,ptr,count);
-    if(__unlikely(nwritten<0)){
+    if(nwritten<0){
       if(errno==EINTR) goto a;
       if(errno==EAGAIN) return FXIO::Again;
       if(errno==EWOULDBLOCK) return FXIO::Again;
       if(errno==EPIPE) return FXIO::Broken;
       return FXIO::Error;
       }
-    pointer+=nwritten;
     return nwritten;
 #endif
     }
@@ -259,7 +361,7 @@ FXlong FXIODevice::truncate(FXlong){
 
 // Synchronize disk with cached data
 FXbool FXIODevice::flush(){
-  return false;
+  return true;
   }
 
 
@@ -277,27 +379,18 @@ FXlong FXIODevice::size(){
 
 // Close file
 FXbool FXIODevice::close(){
-  if(__likely(device!=BadHandle)){
-    if(access&OwnHandle){
+  if(device!=BadHandle){
 #if defined(WIN32)
-      if(::CloseHandle(device)!=0){
-        device=BadHandle;
-        access=NoAccess;
-        pointer=0L;
-        return true;
-        }
-#else
-      if(::close(device)==0){
-        device=BadHandle;
-        access=NoAccess;
-        pointer=0L;
-        return true;
-        }
-#endif
+    if(::CloseHandle(device)!=0){
+      device=BadHandle;
+      return true;
       }
-    device=BadHandle;
-    access=NoAccess;
-    pointer=0L;
+#else
+    if(::close(device)==0){
+      device=BadHandle;
+      return true;
+      }
+#endif
     }
   return false;
   }
@@ -307,7 +400,6 @@ FXbool FXIODevice::close(){
 FXIODevice::~FXIODevice(){
   close();
   }
-
 
 }
 

@@ -34,6 +34,7 @@ namespace FX {
 class FXAPI FXIOBuffer : public FXIO {
 protected:
   FXuchar *buffer;      // Memory buffer
+  FXuval   pointer;     // Stream pointer
   FXuval   space;       // Space in buffer
 private:
   FXIOBuffer(const FXIOBuffer&);
@@ -44,10 +45,10 @@ public:
   FXIOBuffer();
 
   /// Construct and open
-  FXIOBuffer(FXuchar* ptr,FXuval sz,FXuint m=FXIO::Reading);
+  FXIOBuffer(FXuchar* ptr,FXuval sz);
 
   /// Open buffer
-  virtual FXbool open(FXuchar* ptr,FXuval sz,FXuint m=FXIO::Reading);
+  virtual FXbool open(FXuchar* ptr,FXuval sz);
 
   /// Obtain pointer to buffer
   FXuchar* data() const { return buffer; }

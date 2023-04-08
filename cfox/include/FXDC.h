@@ -171,7 +171,7 @@ protected:
   FXFillStyle      fill;        // Fill style
   FXFillRule       rule;        // Fill rule
   FXFunction       rop;         // RasterOp
-  FXchar           dashpat[32]; // Line dash pattern data
+  FXuchar          dashpat[32]; // Line dash pattern data
   FXuint           dashlen;     // Line dash pattern length
   FXuint           dashoff;     // Line dash pattern offset
   FXint            tx;          // Tile dx
@@ -312,10 +312,10 @@ public:
   * The offset is where in the pattern the system will start counting.
   * The maximum length of the dash pattern is 32.
   */
-  virtual void setDashes(FXuint dashoffset,const FXchar *dashpattern,FXuint dashlength);
+  virtual void setDashes(FXuint dashoffset,const FXuchar *dashpattern,FXuint dashlength);
 
   /// Get dash pattern
-  const FXchar* getDashPattern() const { return dashpat; }
+  const FXuchar* getDashPattern() const { return dashpat; }
 
   /// Get dash offset
   FXuint getDashOffset() const { return dashoff; }

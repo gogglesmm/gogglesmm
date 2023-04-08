@@ -288,7 +288,7 @@ void FXThread::yield(){
 
 // Processor pause/back-off
 void FXThread::pause(){
-#if defined(_WIN32)
+#if defined(WIN32)
 #if defined(_MSC_VER)
   YieldProcessor();
 #endif
@@ -301,28 +301,14 @@ void FXThread::pause(){
   }
 
 
-#if defined(WIN32)
-
-// Convert 100ns since 01/01/1601 to ns since 01/01/1970
-static inline FXTime fxunixtime(FXTime ft){
-  return (ft-FXLONG(116444736000000000))*FXLONG(100);
-  }
-
-// Convert ns since 01/01/1970 to 100ns since 01/01/1601
-static inline FXTime fxwintime(FXTime ut){
-  return ut/FXLONG(100)+FXLONG(116444736000000000);
-  }
-
-#endif
-
-
 // Get time in nanoseconds since Epoch
 FXTime FXThread::time(){
 #if defined(WIN32)
-  FXTime now;
-  FXASSERT(sizeof(FXTime)==sizeof(FILETIME));
-  GetSystemTimeAsFileTime((FILETIME*)&now);
-  return fxunixtime(now);
+  const FXTime BIAS=FXLONG(116444736000000000);
+  const FXTime HIGH=FXLONG(4294967296);
+  FILETIME now;
+  GetSystemTimeAsFileTime(&now);
+  return (now.dwHighDateTime*HIGH+now.dwLowDateTime-BIAS)*100;
 #elif (_POSIX_C_SOURCE >= 199309L)
   const FXTime seconds=1000000000;
   struct timespec ts;
@@ -338,24 +324,17 @@ FXTime FXThread::time(){
   }
 
 
-#if defined(WIN32)
-static FXTime frequency=0;
-#endif
-
 // Get steady time in nanoseconds since some arbitrary start time
 FXTime FXThread::steadytime(){
 #if defined(WIN32)
   const FXTime seconds=1000000000;
-  FXTime now,s,f;
-  FXASSERT(sizeof(FXTime)==sizeof(LARGE_INTEGER));
-  if(__unlikely(frequency==0)){
-    ::QueryPerformanceFrequency((LARGE_INTEGER*)&frequency);
-    }
-  FXASSERT(frequency<FXLONG(9223372036));               // Overflow possible if CPU speed exceeds 9.2GHz
-  ::QueryPerformanceCounter((LARGE_INTEGER*)&now);
-  s=now/frequency;
-  f=now%frequency;
-  return seconds*s + ((seconds*f)/frequency);
+  LARGE_INTEGER frq,clk;
+  ::QueryPerformanceFrequency(&frq);
+  ::QueryPerformanceCounter(&clk);
+  FXASSERT(frequency<FXLONG(9223372036));       // Overflow possible if CPU speed exceeds 9.2GHz
+  FXTime s=clk.QuadPart/frq.QuadPart;
+  FXTime f=clk.QuadPart%frq.QuadPart;
+  return seconds*s+(seconds*f)/frq.QuadPart;
 #elif (_POSIX_C_SOURCE >= 199309L)
   const FXTime seconds=1000000000;
   struct timespec ts;
@@ -369,6 +348,101 @@ FXTime FXThread::steadytime(){
   return tv.tv_sec*seconds+tv.tv_usec*microseconds;
 #endif
   }
+
+
+#if defined(WIN32) && defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+  FXTime value=__rdtsc();
+  return value;
+  }
+
+#elif defined(WIN32)
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+  FXTime value;
+  FXASSERT(sizeof(FXTime)==sizeof(LARGE_INTEGER));
+  QueryPerformanceCounter((LARGE_INTEGER*)&value);
+  return value;
+  }
+
+#elif (defined(__GNUC__) || defined(__INTEL_COMPILER)) && defined(__i386__)
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+  FXTime value;
+  __asm__ __volatile__ ( "rdtsc" : "=A" (value));
+  return value;
+  }
+
+#elif (defined(__GNUC__) || defined(__INTEL_COMPILER)) && defined(__x86_64__)
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+  FXTime value;
+  __asm__ __volatile__ ( "rdtsc              \n\t"
+                         "salq	$32, %%rdx   \n\t"
+                         "orq	%%rdx, %%rax \n\t" : "=q" (value));
+  return value;
+  }
+
+/*
+#elif (defined(__GNUC__) && defined(__aarch64__))
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+   NSTime value;
+   __asm__ __volatile__("isb; mrs %0, cntvct_el0" : "=r"(value));
+   return value;
+   }
+*/
+
+#elif defined(__GNUC__) && (defined(__powerpc64__) || defined(__ppc64__))
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+  FXTime value;
+  asm volatile("mfspr %0, 268" : "=r"(value));
+  return value;
+  }
+
+#elif defined(__GNUC__) && (defined(__powerpc__) || defined(__ppc__))
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+  FXuint tbl,tbu0,tbu1;
+  asm volatile("mftbu %0 \n\t"
+               "mftb  %1 \n\t"
+               "mftbu %2 \n\t" : "=r"(tbu0), "=r"(tbl), "=r"(tbu1));
+  tbl&=-(FXint)(tbu0==tbu1);
+  return (static_cast<uint64_t>(tbu1) << 32) | tbl;
+  return (((FXTime)tbu1) << 32) | tbl;
+  }
+
+#elif (_POSIX_C_SOURCE >= 199309L)
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+  const FXTime seconds=1000000000;
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC,&ts);   // Monotonic: no jumps!
+  return ts.tv_sec*seconds+ts.tv_nsec;
+  }
+
+#else
+
+// Return time in processor ticks.
+FXTime FXThread::ticks(){
+  const FXTime seconds=1000000000;
+  const FXTime microseconds=1000;
+  struct timeval tv;
+  gettimeofday(&tv,nullptr);
+  return tv.tv_sec*seconds+tv.tv_usec*microseconds;
+  }
+
+#endif
 
 
 // We want to use NtDelayExecution() because it allows for both absolute as well as
@@ -405,8 +479,9 @@ static DWORD WINAPI NtDelayExecutionStub(BOOLEAN Alertable,LARGE_INTEGER* DelayI
 void FXThread::sleep(FXTime nsec){
 #if defined(WIN32)
   if(100<=nsec){
-    FXTime jiffies=-nsec/FXLONG(100);
-    fxNtDelayExecution((BOOLEAN)false,(LARGE_INTEGER*)&jiffies);
+    LARGE_INTEGER jiffies;
+    jiffies.QuadPart=-nsec/100;
+    fxNtDelayExecution((BOOLEAN)false,&jiffies);
     }
 #elif (_XOPEN_SOURCE >= 600) || (_POSIX_C_SOURCE >= 200112L)
   const FXTime seconds=1000000000;
@@ -437,21 +512,14 @@ void FXThread::sleep(FXTime nsec){
 #endif
   }
 
-/*
-HANDLE CreateWaitableTimerEx(LPSECURITY_ATTRIBUTES lpTimerAttributes,LPCWSTR lpTimerName,DWORD dwFlags,DWORD dwDesiredAccess);
-BOOL SetWaitableTimer(HANDLE hTimer,const LARGE_INTEGER *lpDueTime,LONG lPeriod,PTIMERAPCROUTINE pfnCompletionRoutine,LPVOID lpArgToCompletionRoutine,BOOL fResume);
-BOOL SetWaitableTimerEx(HANDLE hTimer,const LARGE_INTEGER *lpDueTime,LONG lPeriod,PTIMERAPCROUTINE pfnCompletionRoutine,LPVOID lpArgToCompletionRoutine,PREASON_CONTEXT WakeContext,ULONG TolerableDelay);
-BOOL CancelWaitableTimer(HANDLE hTimer);
-DWORD WaitForSingleObject(HANDLE hHandle,DWORD  dwMilliseconds);
-*/
-
 
 // Wake at appointed absolute time
 void FXThread::wakeat(FXTime nsec){
 #if defined(WIN32)
-  FXTime jiffies=fxwintime(nsec);
-  if(0<=jiffies){
-    fxNtDelayExecution((BOOLEAN)false,(LARGE_INTEGER*)&jiffies);
+  LARGE_INTEGER jiffies;
+  jiffies.QuadPart=FXLONG(116444736000000000)+nsec/100;
+  if(0<=jiffies.QuadPart){
+    fxNtDelayExecution((BOOLEAN)false,&jiffies);
     }
 #elif (_XOPEN_SOURCE >= 600) || (_POSIX_C_SOURCE >= 200112L)
   const FXTime seconds=1000000000;
@@ -502,7 +570,6 @@ FXint FXThread::processors(){
   SYSTEM_INFO info={{0}};
   GetSystemInfo(&info);
   return info.dwNumberOfProcessors;
-//return GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
 #elif defined(_SC_NPROCESSORS_ONLN)                             // Linux
   int result;
   if((result=sysconf(_SC_NPROCESSORS_ONLN))>0){

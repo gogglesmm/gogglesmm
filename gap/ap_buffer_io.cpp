@@ -24,8 +24,14 @@ namespace ap {
 BufferIO::BufferIO(FXuval sz) : BufferBase(sz),io(nullptr),dir(DirNone) {
   }
 
+#if FOXVERSION >= FXVERSION(1, 7, 82)
+BufferIO::BufferIO(FXIO * stream,FXuval sz) : FXIO(),BufferBase(sz),io(stream),dir(DirNone) {
+  }
+#else
 BufferIO::BufferIO(FXIO * stream,FXuval sz) : FXIO(stream->mode()),BufferBase(sz),io(stream),dir(DirNone) {
   }
+#endif
+
 
 BufferIO::~BufferIO() {
   close();
@@ -35,7 +41,9 @@ BufferIO::~BufferIO() {
 // Attach an IO. Close and delete existing
 void BufferIO::attach(FXIO * stream) {
   close();
+#if FOXVERSION < FXVERSION(1, 7, 82)
   access=stream->mode();
+#endif
   io=stream;
   }
 

@@ -142,10 +142,10 @@
 #define MAX_SELPATH    64
 
 // Rotation tolerance
-#define EPS            1.0E-2
+//#define EPS            1.0E-2
 
 // Pick tolerance
-#define PICK_TOL       3
+//#define PICK_TOL       3
 
 using namespace FX;
 
@@ -277,6 +277,12 @@ FXIMPLEMENT(FXGLViewer,FXGLCanvas,FXGLViewerMap,ARRAYNUMBER(FXGLViewerMap))
 
 
 /*******************************************************************************/
+
+// Rotation tolerance
+const FXfloat EPS=0.01f;
+
+// Pick tolerance
+const FXint PICK_TOL=3;
 
 // Drag type names for generic object
 const FXchar FXGLViewer::objectTypeName[]="application/x-globject";
@@ -918,10 +924,9 @@ void FXGLViewer::setScale(FXVec3f s){
 
 
 // Change orientation to new quaternion
-void FXGLViewer::setOrientation(FXQuatf rot){
+void FXGLViewer::setOrientation(const FXQuatf& rot){
   if(rot!=rotation){
-    rotation=rot;
-    rotation.adjust();
+    rotation=normalize(rot);
     updateTransform();
     update();
     }
@@ -2128,7 +2133,7 @@ long FXGLViewer::onCmdFront(FXObject*,FXSelector,void*){
 long FXGLViewer::onUpdFront(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-1.0)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-1.0f)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2145,7 +2150,7 @@ long FXGLViewer::onCmdBack(FXObject*,FXSelector,void*){
 long FXGLViewer::onUpdBack(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]+1.0) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3])) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]+1.0f) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3])) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2162,7 +2167,7 @@ long FXGLViewer::onCmdLeft(FXObject*,FXSelector,void*){
 long FXGLViewer::onUpdLeft(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]-0.7071067811865) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]-0.7071067811865f) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865f)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2179,7 +2184,7 @@ long FXGLViewer::onCmdRight(FXObject*,FXSelector,void*){
 long FXGLViewer::onUpdRight(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]+0.7071067811865) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]) && EPS>Math::fabs(rotation[1]+0.7071067811865f) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865f)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2196,7 +2201,7 @@ long FXGLViewer::onCmdTop(FXObject*,FXSelector,void*){
 long FXGLViewer::onUpdTop(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]-0.7071067811865) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]-0.7071067811865f) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865f)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2213,7 +2218,7 @@ long FXGLViewer::onCmdBottom(FXObject*,FXSelector,void*){
 long FXGLViewer::onUpdBottom(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SHOW),nullptr);
   sender->handle(this,FXSEL(SEL_COMMAND,ID_ENABLE),nullptr);
-  sender->handle(this,(EPS>Math::fabs(rotation[0]+0.7071067811865) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  sender->handle(this,(EPS>Math::fabs(rotation[0]+0.7071067811865f) && EPS>Math::fabs(rotation[1]) && EPS>Math::fabs(rotation[2]) && EPS>Math::fabs(rotation[3]-0.7071067811865f)) ? FXSEL(SEL_COMMAND,ID_CHECK) : FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 
@@ -2583,7 +2588,7 @@ void FXGLViewer::drawFeedback(FXDCPrint& pdc,const FXfloat* buffer,FXint used){
       // Line primitive
       case GL_LINE_RESET_TOKEN:
       case GL_LINE_TOKEN:
-        if(Math::fabs(buffer[p+3]-buffer[p+7+3])<1E-4 || Math::fabs(buffer[p+4]-buffer[p+7+4])<1E-4 || Math::fabs(buffer[p+5]-buffer[p+7+5])<1E-4){
+        if(Math::fabs(buffer[p+3]-buffer[p+7+3])<1E-4f || Math::fabs(buffer[p+4]-buffer[p+7+4])<1E-4f || Math::fabs(buffer[p+5]-buffer[p+7+5])<1E-4f){
           pdc.outf("%lg %lg %lg %lg %lg %lg %lg %lg %lg %lg SL\n",buffer[p+0],buffer[p+1],buffer[p+3],buffer[p+4],buffer[p+5], buffer[p+7+0],buffer[p+7+1],buffer[p+7+3],buffer[p+7+4],buffer[p+7+5]);
           }
         else{
@@ -2598,7 +2603,7 @@ void FXGLViewer::drawFeedback(FXDCPrint& pdc,const FXfloat* buffer,FXint used){
         if(nvertices==3){ // We assume polybusting has taken place already!
           smooth=0;
           for(i=1; i<nvertices; i++){
-            if(Math::fabs(buffer[p+3]-buffer[p+i*7+3])<1E-4 || Math::fabs(buffer[p+4]-buffer[p+i*7+4])<1E-4 || Math::fabs(buffer[p+5]-buffer[p+i*7+5])<1E-4){ smooth=1; break; }
+            if(Math::fabs(buffer[p+3]-buffer[p+i*7+3])<1E-4f || Math::fabs(buffer[p+4]-buffer[p+i*7+4])<1E-4f || Math::fabs(buffer[p+5]-buffer[p+i*7+5])<1E-4f){ smooth=1; break; }
             }
           if(smooth){
             pdc.outf("%lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg %lg ST\n",buffer[p+0],buffer[p+1],buffer[p+3],buffer[p+4],buffer[p+5], buffer[p+7+0],buffer[p+7+1],buffer[p+7+3],buffer[p+7+4],buffer[p+7+5], buffer[p+14+0],buffer[p+14+1],buffer[p+14+3],buffer[p+14+4],buffer[p+14+5]);

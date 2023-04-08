@@ -118,8 +118,8 @@ inline FXbool operator>(const FXSize& a,const FXSize& b){ return a.w>b.w && a.h>
 inline FXbool operator>=(const FXSize& a,const FXSize& b){ return a.w>=b.w && a.h>=b.h; }
 
 /// Lowest or highest components
-inline FXSize lo(const FXSize& a,const FXSize& b){ return FXSize(FXMIN(a.w,b.w),FXMIN(a.h,b.h)); }
-inline FXSize hi(const FXSize& a,const FXSize& b){ return FXSize(FXMAX(a.w,b.w),FXMAX(a.h,b.h)); }
+inline FXSize lo(const FXSize& a,const FXSize& b){ return FXSize(Math::imin(a.w,b.w),Math::imin(a.h,b.h)); }
+inline FXSize hi(const FXSize& a,const FXSize& b){ return FXSize(Math::imax(a.w,b.w),Math::imax(a.h,b.h)); }
 
 /// Save object to a stream
 extern FXAPI FXStream& operator<<(FXStream& store,const FXSize& s);

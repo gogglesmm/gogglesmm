@@ -3,7 +3,7 @@
 *                     A p p l i c a t i o n   O b j e c t                       *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2023 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -337,14 +337,14 @@ FXApp* FXApp::app=nullptr;
 
 
 // Copyright information
-const FXuchar FXApp::copyright[]="Copyright (C) 1997,2022 Jeroen van der Zijp. All Rights Reserved.";
+const FXuchar FXApp::copyright[]="Copyright (C) 1997,2023 Jeroen van der Zijp. All Rights Reserved.";
 
 
 // Conversion
 extern FXAPI FXuint __strtoul(const FXchar *beg,const FXchar** end=nullptr,FXint base=0,FXbool* ok=nullptr);
 
 
-#ifdef WIN32            // Windows
+#if defined(WIN32)      // Windows
 
 // 17 stipple patterns which match up exactly with the 4x4 dither kernel
 // Note that each scan line must be word-aligned so we pad to the right
@@ -581,7 +581,7 @@ FXApp::FXApp(const FXString& name,const FXString& vendor):registry(name,vendor){
   root=new FXRootWindow(this,defaultVisual);
 
 
-#ifdef WIN32            // MS-Windows specific inits
+#if defined(WIN32)      // MS-Windows specific inits
 
   // DDE
   ddeTargets=0;                           // Data exchange to get list of types
@@ -789,7 +789,7 @@ const FXString& FXApp::getVendorName() const {
 
 // Return true if input method support
 FXbool FXApp::hasInputMethod() const {
-#ifdef WIN32
+#if defined(WIN32)
   return true;
 #else
   return xim!=nullptr;
@@ -851,7 +851,7 @@ FXWindow* FXApp::findWindowWithId(FXID xid) const {
 // Find window from root x,y, starting from given window
 FXWindow* FXApp::findWindowAt(FXint rx,FXint ry,FXID window) const {
   if(initialized){
-#ifdef WIN32
+#if defined(WIN32)
     POINT point;
     FXID child;
     if(!window) window=(FXID)GetDesktopWindow();
@@ -892,7 +892,7 @@ void FXApp::beginWaitCursor(){
   if(initialized){
     if(waitCount==0){
       if(!waitCursor->id()){ fxerror("%s::beginWaitCursor: wait cursor not created yet.\n",getClassName()); }
-#ifdef WIN32
+#if defined(WIN32)
       SetCursor((HCURSOR)waitCursor->id());
 #else
       FXWindow* child;
@@ -921,7 +921,7 @@ void FXApp::endWaitCursor(){
     waitCount--;
     if(waitCount==0){
       if(!waitCursor->id()){ fxerror("%s::endWaitCursor: wait cursor not created yet.\n",getClassName()); }
-#ifdef WIN32
+#if defined(WIN32)
       if(cursorWindow){
         SetCursor((HCURSOR)cursorWindow->getDefaultCursor()->id());
         }
@@ -951,7 +951,7 @@ void FXApp::setWaitCursor(FXCursor *cur){
       waitCursor=cur;
       if(waitCount){
         if(!waitCursor->id()){ fxerror("%s::setWaitCursor: wait cursor not created yet.\n",getClassName()); }
-#ifdef WIN32
+#if defined(WIN32)
         SetCursor((HCURSOR)waitCursor->id());
 #else
         FXWindow* child;
@@ -983,7 +983,7 @@ void FXApp::setDefaultCursor(FXDefaultCursor which,FXCursor* cur){
 // Register DND type
 FXDragType FXApp::registerDragType(const FXString& name) const {
   if(initialized){
-#ifdef WIN32
+#if defined(WIN32)
     return RegisterClipboardFormatA(name.text());
 #else
     return (FXDragType)XInternAtom((Display*)display,name.text(),0);
@@ -997,7 +997,7 @@ FXDragType FXApp::registerDragType(const FXString& name) const {
 FXString FXApp::getDragTypeName(FXDragType type) const {
   if(initialized){
     FXString result;
-#ifdef WIN32
+#if defined(WIN32)
     if(0xC000<=type && type<=0xFFFF){
       FXchar buffer[256];
       GetClipboardFormatNameA(type,buffer,sizeof(buffer));
@@ -1026,7 +1026,7 @@ void FXApp::setTranslator(FXTranslator* trans){
   }
 
 
-#ifdef WIN32            // WIN32
+#if defined(WIN32)      // WIN32
 
 // Trick to find module handle of FOX library
 static HINSTANCE GetOwnModuleHandle(){
@@ -1065,49 +1065,49 @@ void FXApp::openInputDevices(){
         bc=devinfo.cbSize=sizeof(devinfo);
         GetRawInputDeviceInfo(devlist[i].hDevice,RIDI_DEVICEINFO,&devinfo,&bc);
         switch(devinfo.dwType){
-          case RIM_TYPEMOUSE:
+        case RIM_TYPEMOUSE:
 #if 0
-            FXTRACE((1,"dwId:\t%d\n", devinfo.mouse.dwId));
-            FXTRACE((1,"dwNumberOfButtons:\t%d\n", devinfo.mouse.dwNumberOfButtons));
-            FXTRACE((1,"dwSampleRate:\t%d\n", devinfo.mouse.dwSampleRate));
+          FXTRACE((1,"dwId:\t%d\n", devinfo.mouse.dwId));
+          FXTRACE((1,"dwNumberOfButtons:\t%d\n", devinfo.mouse.dwNumberOfButtons));
+          FXTRACE((1,"dwSampleRate:\t%d\n", devinfo.mouse.dwSampleRate));
 #endif
-            break;
-          case RIM_TYPEKEYBOARD:
+          break;
+        case RIM_TYPEKEYBOARD:
 #if 0
-            FXTRACE((1,"dwType:\t%d\n", devinfo.keyboard.dwType));
-            FXTRACE((1,"dwSubType:\t%d\n", devinfo.keyboard.dwSubType));
-            FXTRACE((1,"dwKeyboardMode:\t%d\n", devinfo.keyboard.dwKeyboardMode));
-            FXTRACE((1,"dwNumberOfFunctionKeys:\t%d\n", devinfo.keyboard.dwNumberOfFunctionKeys));
-            FXTRACE((1,"dwNumberOfIndicators:\t%d\n", devinfo.keyboard.dwNumberOfIndicators));
-            FXTRACE((1,"dwNumberOfKeysTotal:\t%d\n", devinfo.keyboard.dwNumberOfKeysTotal));
+          FXTRACE((1,"dwType:\t%d\n", devinfo.keyboard.dwType));
+          FXTRACE((1,"dwSubType:\t%d\n", devinfo.keyboard.dwSubType));
+          FXTRACE((1,"dwKeyboardMode:\t%d\n", devinfo.keyboard.dwKeyboardMode));
+          FXTRACE((1,"dwNumberOfFunctionKeys:\t%d\n", devinfo.keyboard.dwNumberOfFunctionKeys));
+          FXTRACE((1,"dwNumberOfIndicators:\t%d\n", devinfo.keyboard.dwNumberOfIndicators));
+          FXTRACE((1,"dwNumberOfKeysTotal:\t%d\n", devinfo.keyboard.dwNumberOfKeysTotal));
 #endif
-            break;
-          case RIM_TYPEHID:
-            //   FXTRACE((1,"dwVendorId:\t0x%x (%s)\n", devinfo.hid.dwVendorId, fmt_vendor(devinfo.hid.dwVendorId)));
-            //   FXTRACE((1,"dwProductId:\t0x%x (%s)\n", devinfo.hid.dwProductId, fmt_product(devinfo.hid.dwProductId)));
-            //   FXTRACE((1,"dwVersionNumber:\t%d\n", devinfo.hid.dwVersionNumber));
-            //   FXTRACE((1,"usUsagePage:\t%d\n", devinfo.hid.usUsagePage));
-            //   FXTRACE((1,"usUsage:\t%d\n", devinfo.hid.usUsage));
-            //
-            // to receive input from the SpaceNavigator
-            //
-            //	See:
-            //	    www.3dconnexion.com/forum/viewtopic.php?t=1031#5666
-            //	    www.usb.org/developers/hidpage/
-            //
+          break;
+        case RIM_TYPEHID:
+          //   FXTRACE((1,"dwVendorId:\t0x%x (%s)\n", devinfo.hid.dwVendorId, fmt_vendor(devinfo.hid.dwVendorId)));
+          //   FXTRACE((1,"dwProductId:\t0x%x (%s)\n", devinfo.hid.dwProductId, fmt_product(devinfo.hid.dwProductId)));
+          //   FXTRACE((1,"dwVersionNumber:\t%d\n", devinfo.hid.dwVersionNumber));
+          //   FXTRACE((1,"usUsagePage:\t%d\n", devinfo.hid.usUsagePage));
+          //   FXTRACE((1,"usUsage:\t%d\n", devinfo.hid.usUsage));
+          //
+          // to receive input from the SpaceNavigator
+          //
+          //  See:
+          //      www.3dconnexion.com/forum/viewtopic.php?t=1031#5666
+          //      www.usb.org/developers/hidpage/
+          //
 
-            // Match 3Dconnexion SpaceNavigator / Generic Desktop Controls / Multi-axis Controller
-            if((devinfo.hid.dwVendorId==0x046d) && (devinfo.hid.dwProductId==0xc626) && (devinfo.hid.usUsagePage==1) && (devinfo.hid.usUsage==8)){
-              dev.usUsagePage=1;
-              dev.usUsage=8;
-              dev.dwFlags=0;
-              dev.hwndTarget=nullptr;		    // follow keyboard focus
-              if(RegisterRawInputDevices(&dev,1,sizeof(dev))){
-                spaceNavHandle=devlist[i].hDevice;  // assume only one device is connected
-                // FXTRACE((1,"\nRegistered for WM_INPUT!\n"));
-                }
+          // Match 3Dconnexion SpaceNavigator / Generic Desktop Controls / Multi-axis Controller
+          if((devinfo.hid.dwVendorId==0x046d) && (devinfo.hid.dwProductId==0xc626) && (devinfo.hid.usUsagePage==1) && (devinfo.hid.usUsage==8)){
+            dev.usUsagePage=1;
+            dev.usUsage=8;
+            dev.dwFlags=0;
+            dev.hwndTarget=nullptr;               // follow keyboard focus
+            if(RegisterRawInputDevices(&dev,1,sizeof(dev))){
+              spaceNavHandle=devlist[i].hDevice;  // assume only one device is connected
+              // FXTRACE((1,"\nRegistered for WM_INPUT!\n"));
               }
-            break;
+            }
+          break;
           }
         }
       }
@@ -1127,83 +1127,85 @@ void FXApp::closeInputDevices(){
 //
 long SpaceNav::onMotion(FXObject *, FXSelector, void *vp){
 #if 1
-    //
-    // this is the "unbuffered read" method
-    //
+  //
+  // this is the "unbuffered read" method
+  //
 #pragma pack(1)
-    struct SpaceNavStruct {
-	RAWINPUTHEADER hdr;
-	unsigned long bc;	// sizeof(u + id)
-	unsigned long count;	// number of inputs
-	unsigned char id;	// 1=translation, 2=rotation, 3=buttons
-	union DataUnion {
-	    struct AxesStruct {
-		signed short x,y,z;
-	    } axes;
-	    unsigned char buttons;
-	} u;
+  struct SpaceNavStruct {
+    RAWINPUTHEADER hdr;
+    unsigned long bc;       // sizeof(u + id)
+    unsigned long count;    // number of inputs
+    unsigned char id;       // 1=translation, 2=rotation, 3=buttons
+    union DataUnion {
+      struct AxesStruct {
+        signed short x,y,z;
+        } axes;
+      unsigned char buttons;
+      } u;
     } snav;
-    FXuint bc = sizeof(snav);
-    FXint status;
+  FXuint bc=sizeof(snav);
+  FXint status;
 #pragma pack()
-    status = GetRawInputData(
-	    (HRAWINPUT)vp,		// hRawInput
-	    RID_INPUT,			// uiCommand
-	    &snav,			// pData
-	    &bc,			// pcbSize
-	    sizeof(RAWINPUTHEADER));	// cbSizeHeader
-    if (status == bc) {
-	switch (snav.id) {
-	    case 1:
-		dofValue[0] = snav.u.axes.x;
-		dofValue[1] = snav.u.axes.y;
-		dofValue[2] = snav.u.axes.z;
-//		tlog("X{%6d %6d %6d}\n", snav.u.axes.x, snav.u.axes.y, snav.u.axes.z);
-		break;
-	    case 2:
-		dofValue[3] = snav.u.axes.x;
-		dofValue[4] = snav.u.axes.y;
-		dofValue[5] = snav.u.axes.z;
-//		tlog("R{%6d %6d %6d}\n", snav.u.axes.x, snav.u.axes.y, snav.u.axes.z);
-		break;
-	    case 3:
-		tlog("B(%d)\n", snav.u.buttons);
-		break;
-	    default:
-		tlog("id=%d (?)\n", snav.id);
-		break;
-	}
+  status = GetRawInputData(
+          (HRAWINPUT)vp,              // hRawInput
+          RID_INPUT,                  // uiCommand
+          &snav,                      // pData
+          &bc,                        // pcbSize
+          sizeof(RAWINPUTHEADER));    // cbSizeHeader
+  if(status==bc){
+    switch (snav.id){
+    case 1:
+      dofValue[0] = snav.u.axes.x;
+      dofValue[1] = snav.u.axes.y;
+      dofValue[2] = snav.u.axes.z;
+//    tlog("X{%6d %6d %6d}\n", snav.u.axes.x, snav.u.axes.y, snav.u.axes.z);
+      break;
+    case 2:
+      dofValue[3] = snav.u.axes.x;
+      dofValue[4] = snav.u.axes.y;
+      dofValue[5] = snav.u.axes.z;
+//    tlog("R{%6d %6d %6d}\n", snav.u.axes.x, snav.u.axes.y, snav.u.axes.z);
+      break;
+    case 3:
+      tlog("B(%d)\n", snav.u.buttons);
+      break;
+    default:
+      tlog("id=%d (?)\n", snav.id);
+      break;
+      }
     }
-    else tlog("Error %d != %d\n", bc, status);
+  else{
+    tlog("Error %d != %d\n",bc,status);
+    }
 #else
-    //
-    // and the "buffered read" method..
-    //
-    //	I cannot get this to work.
-    //	I posted a question on the MSDN forum to see if I'm doing something
-    //	wrong.  I'll post more info as I get it.  In the meantime, the
-    //	unbuffered read seems to work ok.
-    //
-    FXint status;
-    FXuint num_inputs;
-    FXuint sizeof_buffer;
-    // can a function's semantics get any more ridiculous???
-    sizeof_buffer = sizeof(RAWINPUT);
+  //
+  // and the "buffered read" method..
+  //
+  //  I cannot get this to work.
+  //  I posted a question on the MSDN forum to see if I'm doing something
+  //  wrong.  I'll post more info as I get it.  In the meantime, the
+  //  unbuffered read seems to work ok.
+  //
+  FXint status;
+  FXuint num_inputs;
+  FXuint sizeof_buffer;
+  // can a function's semantics get any more ridiculous???
+  sizeof_buffer=sizeof(RAWINPUT);
 #if 1
-    num_inputs = GetRawInputBuffer(nullptr, &sizeof_buffer, sizeof(RAWINPUTHEADER));
-    num_inputs = sizeof_buffer/sizeof(RAWINPUT);
-    if (bufAlloc < num_inputs) {
-	bufAlloc = num_inputs;
-        resizeElms(inpBuffer,bufAlloc);
+  num_inputs=GetRawInputBuffer(nullptr, &sizeof_buffer, sizeof(RAWINPUTHEADER));
+  num_inputs=sizeof_buffer/sizeof(RAWINPUT);
+  if(bufAlloc<num_inputs){
+    bufAlloc=num_inputs;
+    resizeElms(inpBuffer,bufAlloc);
     }
 #endif
-    num_inputs = GetRawInputBuffer(inpBuffer, &sizeof_buffer, sizeof(RAWINPUTHEADER));
-    tlog("onMotion(%d)\n", num_inputs);
-    status = DefRawInputProc(&inpBuffer, 1/*num_inputs*/, sizeof(RAWINPUTHEADER));
+  num_inputs=GetRawInputBuffer(inpBuffer,&sizeof_buffer,sizeof(RAWINPUTHEADER));
+  tlog("onMotion(%d)\n",num_inputs);
+  status=DefRawInputProc(&inpBuffer, 1/*num_inputs*/,sizeof(RAWINPUTHEADER));
 #endif
-    onPaint(nullptr,0,nullptr);
-    return 1;
-}
+  onPaint(nullptr,0,nullptr);
+  return 1;
+  }
 #endif
 
 
@@ -1366,7 +1368,7 @@ void setDPIAwareness(){
 FXbool FXApp::openDisplay(const FXchar* dpy){
   if(!initialized){
 
-#ifdef WIN32            // MS-Windows
+#if defined(WIN32)      // MS-Windows
 
     // What's going on
     FXTRACE((100,"%s::openDisplay(%s)\n",getClassName(),dpy));
@@ -1778,7 +1780,7 @@ FXbool FXApp::closeDisplay(){
     // Close input devices
     closeInputDevices();
 
-#ifdef WIN32            // MS-Windows
+#if defined(WIN32)      // MS-Windows
 
     // Atoms created using GlobalCreateAtom() are reference-counted by
     // the system; calling GlobalDeleteAtom() here just decrements the
@@ -1961,7 +1963,7 @@ void FXApp::addSignal(FXint sig,FXObject* tgt,FXSelector sel,FXbool immediate,FX
       handler=immediatesignalhandler;
     else
       handler=signalhandler;
-#ifdef WIN32
+#if defined(WIN32)
 #if defined(__IBMCPP__)
     if(signal(sig,(_SigFunc)handler)==SIG_ERR){ fxwarning("%s::addSignal: error setting signal handler\n",getClassName()); }
 #else
@@ -1990,7 +1992,7 @@ void FXApp::removeSignal(FXint sig){
 
   // Has a handler been set?
   if(signals[sig].handlerset){
-#ifdef WIN32
+#if defined(WIN32)
     if(signal(sig,SIG_DFL)==SIG_ERR){ fxwarning("%s::removeSignal: error removing signal handler\n",getClassName()); }
 #else
 #if defined(_POSIX_SOURCE) || defined(_INCLUDE_POSIX_SOURCE)
@@ -2068,7 +2070,7 @@ FXbool FXApp::hasChore(FXObject* tgt,FXSelector sel) const {
 // Add input
 FXbool FXApp::addInput(FXObject *tgt,FXSelector sel,FXInputHandle fd,FXuint mode,FXptr ptr){
   if(mode==INPUT_NONE) return false;
-#ifdef WIN32
+#if defined(WIN32)
   FXint in;
   if(fd==INVALID_HANDLE_VALUE || fd==nullptr) return false;
   for(in=0; in<=maxhandle; in++){       // See if existing handle
@@ -2134,7 +2136,7 @@ r:FXASSERT(in<ninputs);
 // Remove input
 FXbool FXApp::removeInput(FXInputHandle fd,FXuint mode){
   if(mode==INPUT_NONE) return false;
-#ifdef WIN32
+#if defined(WIN32)
   FXint in;
   if(fd==INVALID_HANDLE_VALUE || fd==nullptr) return false;
   for(in=0; in<=maxhandle; in++){       // See if existing handle
@@ -2221,7 +2223,7 @@ void FXApp::enterWindow(FXWindow *window,FXWindow *ancestor){
 /*******************************************************************************/
 
 
-#ifndef WIN32
+#if !defined(WIN32)
 
 
 // Smart rectangle compositing algorithm
@@ -2594,7 +2596,7 @@ a:ev.xany.type=0;
   if(ev.xany.type==MotionNotify){
     while(XPending((Display*)display)){
       XPeekEvent((Display*)display,&e);
-      if((e.xany.type!=MotionNotify) || (ev.xmotion.window!=e.xmotion.window) || (ev.xmotion.state != e.xmotion.state)) break;
+      if((e.xany.type!=MotionNotify) || (ev.xmotion.window!=e.xmotion.window) || (ev.xmotion.state!=e.xmotion.state)) break;
       XNextEvent((Display*)display,&ev);
       }
     }
@@ -2604,7 +2606,7 @@ a:ev.xany.type=0;
     FXint ticks=1;
     while(XPending((Display*)display)){
       XPeekEvent((Display*)display,&e);
-      if((e.xany.type!=ButtonPress && e.xany.type!=ButtonRelease) || (ev.xany.window!=e.xany.window) || (ev.xbutton.button != e.xbutton.button)) break;
+      if((e.xany.type!=ButtonPress && e.xany.type!=ButtonRelease) || (ev.xany.window!=e.xany.window) || (ev.xbutton.button!=e.xbutton.button)) break;
       ticks+=(e.xany.type==ButtonPress);
       XNextEvent((Display*)display,&ev);
       }
@@ -3812,7 +3814,6 @@ FXbool FXApp::getNextEvent(FXRawEvent& msg,FXTime blocking){
     return false;
     }
 
-
   // Peek for messages; this marks the message queue as unsignalled, i.e.
   // MsgWaitForMultipleObjects would block even if there are unhandled events;
   // the fix is to call MsgWaitForMultipleObjects only AFTER having ascertained
@@ -3976,7 +3977,7 @@ FXbool FXApp::dispatchEvent(FXRawEvent& msg){
 // Flush pending repaints
 void FXApp::flush(FXbool sync){
   if(initialized){
-#ifdef WIN32
+#if defined(WIN32)
     GdiFlush();
 #else
     if(sync)
@@ -4006,7 +4007,7 @@ void FXApp::refresh(){
 // Paint all windows marked for repainting
 void FXApp::repaint(){
   if(initialized){
-#ifdef WIN32
+#if defined(WIN32)
     for(FXWindow *top=getRootWindow()->getFirst(); top; top=top->getNext()){
       RedrawWindow((HWND)top->id(),nullptr,nullptr,RDW_ERASENOW|RDW_UPDATENOW|RDW_ALLCHILDREN);
       }
@@ -4187,7 +4188,7 @@ void FXApp::stopModal(FXint value){
 
 
 // Obtain system color and translate to FXColor
-#ifdef WIN32
+#if defined(WIN32)
 static FXColor getSystemColor(FXuint which){
   DWORD dwColor=GetSysColor(which);
   return FXRGB(GetRValue(dwColor),GetGValue(dwColor),GetBValue(dwColor));
@@ -4196,7 +4197,7 @@ static FXColor getSystemColor(FXuint which){
 
 
 // Obtain system font and translate to FXFontDesc
-#ifdef WIN32
+#if defined(WIN32)
 static void getSystemFont(FXFontDesc& fontdesc){
   NONCLIENTMETRICS ncm;
   memset(&ncm,0,sizeof(NONCLIENTMETRICS));
@@ -4416,7 +4417,7 @@ void FXApp::init(int& argc,char** argv,FXbool connect){
   // Read the registry
   registry.read();
 
-#ifdef WIN32
+#if defined(WIN32)
 
   // Get font face and metrics
   FXFontDesc fontdesc;
@@ -4707,7 +4708,7 @@ long FXApp::onCmdHover(FXObject*,FXSelector,void*){
   }
 
 
-#ifdef WIN32
+#if defined(WIN32)
 
 // This window procedure is a static member function of class FXApp.
 // Its sole purpose is to forward the message info on to FXApp::dispatchEvent().
@@ -4729,7 +4730,6 @@ FXString translateKeyEvent(FXuint,FXuval wParam,FXival lParam){
   if(n<=0) n=0;
   return FXString(buffer,n);
   }
-
 
 
 // Message dispatching
@@ -5564,7 +5564,7 @@ long FXApp::onCmdQuit(FXObject*,FXSelector,void*){
 
 // Return key state
 FXbool FXApp::getKeyState(FXuint keysym) const {
-#ifdef WIN32
+#if defined(WIN32)
   return GetKeyState(keysym)!=0;
 #else
   KeyCode keycode=XKeysymToKeycode((Display*)display,keysym);
@@ -5580,7 +5580,7 @@ FXbool FXApp::getKeyState(FXuint keysym) const {
 void FXApp::beep(){
   if(initialized){
     FXTRACE((100,"Beep\n"));
-#ifdef WIN32
+#if defined(WIN32)
     MessageBeep(0);
 #else
     XBell((Display*)display,0);
@@ -5683,156 +5683,131 @@ void FXApp::load(FXStream& store){
 // Change typing speed
 void FXApp::setTypingSpeed(FXTime speed){
   typingSpeed=speed;
-  registry.writeLongEntry("SETTINGS","typingspeed",typingSpeed);
   }
 
 // Change double-click speed
 void FXApp::setClickSpeed(FXTime speed){
   clickSpeed=speed;
-  registry.writeLongEntry("SETTINGS","clickspeed",clickSpeed);
   }
 
 // Change scroll speed
 void FXApp::setScrollSpeed(FXTime speed){
   scrollSpeed=speed;
-  registry.writeLongEntry("SETTINGS","scrollspeed",scrollSpeed);
   }
 
 // Change scroll delay
 void FXApp::setScrollDelay(FXTime delay){
   scrollDelay=delay;
-  registry.writeLongEntry("SETTINGS","scrolldelay",scrollDelay);
   }
 
 // Change cursor blink speed
 void FXApp::setBlinkSpeed(FXTime speed){
   blinkSpeed=speed;
-  registry.writeLongEntry("SETTINGS","blinkspeed",blinkSpeed);
   }
 
 // Change animation speed
 void FXApp::setAnimSpeed(FXTime speed){
   animSpeed=speed;
-  registry.writeLongEntry("SETTINGS","animspeed",animSpeed);
   }
 
 // Change menu popup delay
 void FXApp::setMenuPause(FXTime pause){
   menuPause=pause;
-  registry.writeLongEntry("SETTINGS","menupause",menuPause);
   }
 
 // Change tooltip popup pause
 void FXApp::setToolTipPause(FXTime pause){
   toolTipPause=pause;
-  registry.writeLongEntry("SETTINGS","tippause",toolTipPause);
   }
 
 // Change tooltip visibility time
 void FXApp::setToolTipTime(FXTime time){
   toolTipTime=time;
-  registry.writeLongEntry("SETTINGS","tiptime",toolTipTime);
   }
 
 
 // Change autohide delay time
 void FXApp::setAutoHideDelay(FXTime time){
   autoHideDelay=time;
-  registry.writeLongEntry("SETTINGS","autohide",autoHideDelay);
   }
 
 
 // Change drag delta
 void FXApp::setDragDelta(FXint delta){
   dragDelta=delta;
-  registry.writeIntEntry("SETTINGS","dragdelta",dragDelta);
   }
 
 // Change mouse wheel lines
 void FXApp::setWheelLines(FXint lines){
   wheelLines=lines;
-  registry.writeIntEntry("SETTINGS","wheellines",wheelLines);
   }
 
 // Change scroll bar size
 void FXApp::setScrollBarSize(FXint size){
   scrollBarSize=size;
-  registry.writeIntEntry("SETTINGS","scrollbarsize",scrollBarSize);
   }
 
 
 // Change border color
 void FXApp::setBorderColor(FXColor color){
   borderColor=color;
-  registry.writeColorEntry("SETTINGS","bordercolor",borderColor);
   }
 
 // Change base color
 void FXApp::setBaseColor(FXColor color){
   baseColor=color;
-  registry.writeColorEntry("SETTINGS","basecolor",baseColor);
   }
 
 // Change highlight color
 void FXApp::setHiliteColor(FXColor color){
   hiliteColor=color;
-  registry.writeColorEntry("SETTINGS","hilitecolor",hiliteColor);
   }
 
 // Change shadow color
 void FXApp::setShadowColor(FXColor color){
   shadowColor=color;
-  registry.writeColorEntry("SETTINGS","shadowcolor",shadowColor);
   }
 
 // Change background color
 void FXApp::setBackColor(FXColor color){
   backColor=color;
-  registry.writeColorEntry("SETTINGS","backcolor",backColor);
   }
 
 // Change foreground color
 void FXApp::setForeColor(FXColor color){
   foreColor=color;
-  registry.writeColorEntry("SETTINGS","forecolor",foreColor);
   }
 
 // Change selected foreground color
 void FXApp::setSelforeColor(FXColor color){
   selforeColor=color;
-  registry.writeColorEntry("SETTINGS","selforecolor",selforeColor);
   }
 
 // Change selected background color
 void FXApp::setSelbackColor(FXColor color){
   selbackColor=color;
-  registry.writeColorEntry("SETTINGS","selbackcolor",selbackColor);
   }
 
 // Change tip foreground color
 void FXApp::setTipforeColor(FXColor color){
   tipforeColor=color;
-  registry.writeColorEntry("SETTINGS","tipforecolor",tipforeColor);
   }
 
 // Change tip background color
 void FXApp::setTipbackColor(FXColor color){
   tipbackColor=color;
-  registry.writeColorEntry("SETTINGS","tipbackcolor",tipbackColor);
   }
 
 
 // Change selected menu text color
 void FXApp::setSelMenuTextColor(FXColor color){
   selMenuTextColor=color;
-  registry.writeColorEntry("SETTINGS","selmenutextcolor",selMenuTextColor);
   }
 
 
 // Change selected menu back color
 void FXApp::setSelMenuBackColor(FXColor color){
   selMenuBackColor=color;
-  registry.writeColorEntry("SETTINGS","selmenubackcolor",selMenuBackColor);
   }
 
 
@@ -5899,7 +5874,7 @@ FXApp::~FXApp(){
   ddeSize=0;
 
   // Free left-over selection type data
-#ifdef WIN32
+#if defined(WIN32)
   freeElms(xselTypeList);
   freeElms(ddeTypeList);
 #else

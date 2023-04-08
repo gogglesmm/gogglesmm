@@ -36,7 +36,20 @@
 /*
   Notes:
 
-  - Obviously this will get fleshed out some more...
+  - Create a pipe for reading or writing; if created for reading,
+    the "other" is the write-side.  If created for writing, the
+    "other" is the read-side.
+
+  - The pipe may be inherited by a sub-process if so indicated.
+
+  - On Linux, we prefer to use pipe2(), elsewhere we use pipe()
+    and set the flags properly afterwards, using fcntl().
+
+  - Both our end the other end FXPipe instances should not be open
+    yet prior to a call to open().
+
+  - FIXME Probably need special class to implement unix socket
+    or named pipe, this will be just for anonymous pipes.
 */
 
 // Bad handle value
@@ -60,74 +73,101 @@ FXPipe::FXPipe(FXPipe& other,FXuint m){
 
 
 // Construct file and attach existing handle h
-FXPipe::FXPipe(FXInputHandle h,FXuint m){
-  attach(h,m);
+FXPipe::FXPipe(FXInputHandle h){
+  attach(h);
   }
+
+
+#if defined(WIN32)
+
+// Open pipes with access mode m for this one and the reverse for the other
+FXbool FXPipe::open(FXPipe& other,FXuint m){
+  if(device==BadHandle && other.device==BadHandle){
+    HANDLE hnd[2];
+
+    // Inheritable
+    SECURITY_ATTRIBUTES sat;
+    sat.nLength=sizeof(SECURITY_ATTRIBUTES);
+    sat.bInheritHandle=((m&FXIO::Inheritable)==0);
+    sat.lpSecurityDescriptor=nullptr;
+
+    // Create connected pipe
+    if(CreatePipe(&hnd[0],&hnd[1],&sat,0)!=0){
+
+      // Who's is the read-side?
+      if(m&FXIO::ReadOnly){
+        device=hnd[0];
+        other.device=hnd[1];
+        }
+      else{
+        device=hnd[1];
+        other.device=hnd[0];
+        }
+      return true;
+      }
+    }
+  return false;
+  }
+
+
+#else
 
 
 // Open pipes with access mode m for this one and the reverse for the other
 FXbool FXPipe::open(FXPipe& other,FXuint m){
   if(device==BadHandle && other.device==BadHandle){
-    access=NoAccess;
-    other.access=NoAccess;
-    pointer=0L;
-    other.pointer=0L;
-#if defined(WIN32)
-    SECURITY_ATTRIBUTES sat;
-    HANDLE hrd,hwr;
-    sat.nLength=sizeof(SECURITY_ATTRIBUTES);
-    sat.bInheritHandle=(m&Inheritable)?true:false;
-    sat.lpSecurityDescriptor=nullptr;
+    FXint hnd[2];
+#if defined(HAVE_PIPE2)
+    FXint flags=0;
 
-    // Create connected pipe
-    if(CreatePipe(&hrd,(HANDLE*)&hwr,&sat,0)!=0){
-      if(m&ReadOnly){
-        device=hrd;
-        other.device=hwr;
-        access=(m&~WriteOnly)|ReadOnly|OwnHandle;
-        other.access=(m&~ReadOnly)|WriteOnly|OwnHandle;
+    // Non-blocking
+    if(m&FXIO::NonBlocking){ flags|=O_NONBLOCK; }
+
+    // Inheritable
+#if defined(O_CLOEXEC)
+    if(!(m&FXIO::Inheritable)){ flags|=O_CLOEXEC; }
+#endif
+
+    // Create pipe
+    if(pipe2(hnd,flags)==0){
+
+      // Who's is the read-side?
+      if(m&FXIO::ReadOnly){
+        device=hnd[0];
+        other.device=hnd[1];
         }
       else{
-        device=hwr;
-        other.device=hrd;
-        access=(m&~ReadOnly)|WriteOnly|OwnHandle;
-        other.access=(m&~WriteOnly)|ReadOnly|OwnHandle;
+        device=hnd[1];
+        other.device=hnd[0];
         }
       return true;
       }
+
 #else
-    FXint flags=0;
-    FXint fd[2];
 
-    // Non-blocking mode
-    if(m&NonBlocking) flags|=O_NONBLOCK;
+    // Create pipe
+    if(pipe(hnd)==0){
 
-    // Inheritable only if specified
-#if defined(O_CLOEXEC)
-    if(!(m&Inheritable)) flags|=O_CLOEXEC;
-#endif
-
-    // Create connected pipe
-#if defined(HAVE_PIPE2)
-    if(pipe2(fd,flags)==0){
-#else
-    if(pipe(fd)==0){
-#endif
-      if(m&ReadOnly){
-        device=fd[0];
-        other.device=fd[1];
-        access=(m&~WriteOnly)|ReadOnly|OwnHandle;
-        other.access=(m&~ReadOnly)|WriteOnly|OwnHandle;
+      // Who's is the read-side?
+      if(m&FXIO::ReadOnly){
+        device=hnd[0];
+        other.device=hnd[1];
         }
       else{
-        device=fd[1];
-        other.device=fd[0];
-        access=(m&~ReadOnly)|WriteOnly|OwnHandle;
-        other.access=(m&~WriteOnly)|ReadOnly|OwnHandle;
+        device=hnd[1];
+        other.device=hnd[0];
         }
-#if !defined(HAVE_PIPE2)
-      if(m&NonBlocking){fcntl(device,F_SETFL,O_NONBLOCK);}
-      if(!(m&Inheritable)){fcntl(device,F_SETFD,FD_CLOEXEC);}
+
+      // Non-blocking
+      if(m&FXIO::NonBlocking){
+        fcntl(device,F_SETFL,O_NONBLOCK);
+        }
+
+      // Inheritable
+#if defined(O_CLOEXEC)
+      if(!(m&FXIO::Inheritable)){
+        fcntl(device,F_SETFD,FD_CLOEXEC);
+        }
 #endif
       return true;
       }
@@ -136,20 +176,34 @@ FXbool FXPipe::open(FXPipe& other,FXuint m){
   return false;
   }
 
-
-// Open pipe with access mode m and handle h
-FXbool FXPipe::open(FXInputHandle h,FXuint m){
-  return FXIODevice::open(h,m);
-  }
+#endif
 
 /*******************************************************************************/
 
-
-// Create a named pipe
+// Create a named pipe (not available on Windows)
 FXbool FXPipe::create(const FXString& file,FXuint perm){
+#if !defined(WIN32)
   if(!file.empty()){
-#if defined(WIN32)
+    return ::mkfifo(file.text(),perm&0777)==0;
+    }
+#endif
+  return false;
+  }
+
+
+// Remove a named pipe (not available on Windows)
+FXbool FXPipe::remove(const FXString& file){
+#if !defined(WIN32)
+  if(!file.empty()){
+    return ::unlink(file.text())==0;
+    }
+#endif
+  return false;
+  }
+
 /*
+
+// FIXME move elsewhere
 HANDLE WINAPI CreateNamedPipe(
   __in      LPCTSTR lpName,
   __in      DWORD dwOpenMode,
@@ -161,12 +215,6 @@ HANDLE WINAPI CreateNamedPipe(
   __in_opt  LPSECURITY_ATTRIBUTES lpSecurityAttributes
 );
 */
-#else
-    return ::mkfifo(file.text(),perm)==0;
-#endif
-    }
-  return false;
-  }
 
 }
 

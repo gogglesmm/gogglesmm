@@ -41,16 +41,13 @@ public:
   FXFile(){ }
 
   /// Construct file and attach existing handle h
-  FXFile(FXInputHandle h,FXuint m=FXIO::Reading);
+  FXFile(FXInputHandle h);
 
   /// Construct and open a file
-  FXFile(const FXString& file,FXuint m=FXIO::Reading,FXuint perm=FXIO::AllReadWrite);
+  FXFile(const FXString& filename,FXuint m=FXIO::Reading,FXuint perm=FXIO::AllReadWrite);
 
   /// Open file
-  virtual FXbool open(const FXString& file,FXuint m=FXIO::Reading,FXuint perm=FXIO::AllReadWrite);
-
-  /// Open device with access mode and handle
-  virtual FXbool open(FXInputHandle h,FXuint m=FXIO::Reading);
+  virtual FXbool open(const FXString& filename,FXuint m=FXIO::Reading,FXuint perm=FXIO::AllReadWrite);
 
   /// Return true if serial access only
   virtual FXbool isSerial() const;

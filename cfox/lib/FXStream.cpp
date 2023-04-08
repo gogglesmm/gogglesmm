@@ -259,6 +259,21 @@ FXStream& FXStream::operator<<(const FXuchar& v){
   }
 
 
+// Write one bool
+FXStream& FXStream::operator<<(const FXbool& v){
+  if(code==FXStreamOK){
+    FXASSERT(begptr<=rdptr);
+    FXASSERT(rdptr<=wrptr);
+    FXASSERT(wrptr<=endptr);
+    if(wrptr+1>endptr && writeBuffer(1)<1){ code=FXStreamFull; return *this; }
+    FXASSERT(wrptr+1<=endptr);
+    *wrptr++ = (FXuchar)v;
+    pos++;
+    }
+  return *this;
+  }
+
+
 // Write one short
 FXStream& FXStream::operator<<(const FXushort& v){
   if(code==FXStreamOK){
@@ -357,6 +372,27 @@ FXStream& FXStream::save(const FXuchar* p,FXuval n){
       FXASSERT(wrptr<endptr);
       do{
         *wrptr++=*p++;
+        pos++;
+        n--;
+        }
+      while(0<n && wrptr<endptr);
+      }
+    }
+  return *this;
+  }
+
+
+// Write array of bools
+FXStream& FXStream::save(const FXbool* p,FXuval n){
+  if(code==FXStreamOK){
+    FXASSERT(begptr<=rdptr);
+    FXASSERT(rdptr<=wrptr);
+    FXASSERT(wrptr<=endptr);
+    while(0<n){
+      if(wrptr+n>endptr && writeBuffer((wrptr-endptr)+n)<1){ code=FXStreamFull; return *this; }
+      FXASSERT(wrptr<endptr);
+      do{
+        *wrptr++=(FXuchar)*p++;
         pos++;
         n--;
         }
@@ -529,6 +565,21 @@ FXStream& FXStream::operator>>(FXuchar& v){
   }
 
 
+// Read one bool
+FXStream& FXStream::operator>>(FXbool& v){
+  if(code==FXStreamOK){
+    FXASSERT(begptr<=rdptr);
+    FXASSERT(rdptr<=wrptr);
+    FXASSERT(wrptr<=endptr);
+    if(rdptr+1>wrptr && readBuffer(1)<1){ code=FXStreamEnd; return *this; }
+    FXASSERT(rdptr+1<=wrptr);
+    v=(FXbool) *rdptr++;
+    pos++;
+    }
+  return *this;
+  }
+
+
 // Read one short
 FXStream& FXStream::operator>>(FXushort& v){
   if(code==FXStreamOK){
@@ -627,6 +678,27 @@ FXStream& FXStream::load(FXuchar* p,FXuval n){
       FXASSERT(rdptr<wrptr);
       do{
         *p++=*rdptr++;
+        pos++;
+        n--;
+        }
+      while(0<n && rdptr<wrptr);
+      }
+    }
+  return *this;
+  }
+
+
+// Read array of bools
+FXStream& FXStream::load(FXbool* p,FXuval n){
+  if(code==FXStreamOK){
+    FXASSERT(begptr<=rdptr);
+    FXASSERT(rdptr<=wrptr);
+    FXASSERT(wrptr<=endptr);
+    while(0<n){
+      if(rdptr+n>wrptr && readBuffer((rdptr-wrptr)+n)<1){ code=FXStreamEnd; return *this; }
+      FXASSERT(rdptr<wrptr);
+      do{
+        *p++=(FXbool)*rdptr++;
         pos++;
         n--;
         }
@@ -848,7 +920,8 @@ FXStream& FXStream::loadObject(FXObject*& v){
   if(code==FXStreamOK){
     FXchar name[MAXCLASSNAME+1];
     const FXMetaClass *cls;
-    FXuint tag,esc;
+    FXuint tag=0;
+    FXuint esc=0;
     void* ref;
     *this >> tag;
     if(tag==0){                                 // Was a NULL

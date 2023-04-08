@@ -333,6 +333,10 @@ FXString FXSystem::getExecPath(){
 
 
 // Return known executable file extensions (Windows)
+// Default list is:
+//
+//   .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+//
 FXString FXSystem::getExecExtensions(){
 #if defined(WIN32)
   return FXSystem::getEnvironment("PATHEXT");

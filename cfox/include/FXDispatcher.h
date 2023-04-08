@@ -5,10 +5,15 @@
 *********************************************************************************
 * Copyright (C) 2006,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 ********************************************************************************/
-#ifndef DISPATCHER_H
-#define DISPATCHER_H
+#ifndef FXDISPATCHER_H
+#define FXDISPATCHER_H
+
+#ifndef FXREACTOR_H
+#include "FXReactor.h"
+#endif
 
 namespace FX {
+
 
 /**
 * A FXDispatcher watches a number of devices and signals for activity

@@ -334,12 +334,12 @@ void FXDC::setBackground(FXColor clr){
 
 
 // Set dash pattern
-void FXDC::setDashes(FXuint dashoffset,const FXchar *dashpattern,FXuint dashlength){
-  FXuint len,i;
+void FXDC::setDashes(FXuint dashoffset,const FXuchar *dashpattern,FXuint dashlength){
+  FXuint len=0;
   if(dashlen<1 || dashlength>32){ fxerror("FXDC::setDashes: bad dashlength parameter.\n"); }
-  for(i=len=0; i<dashlength; i++){
+  for(FXuint i=0; i<dashlength; i++){
     dashpat[i]=dashpattern[i];
-    len+=(FXuint)dashpattern[i];
+    len+=dashpattern[i];
     }
   dashlen=dashlength;
   dashoff=dashoffset%len;

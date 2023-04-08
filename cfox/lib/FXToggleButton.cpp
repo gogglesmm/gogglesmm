@@ -555,10 +555,9 @@ long FXToggleButton::onPaint(FXObject*,FXSelector,void* ptr){
 // Change alternate text, removing hotkey if changed
 void FXToggleButton::setAltText(const FXString& text){
   if(text!=altlabel){
-    if(0<=althotoff && (althotoff>=text.length() || althotoff>=altlabel.length() || altlabel[althotoff]!=text[althotoff])){
-      remHotKey(althotkey);
-      althotoff=-1;
-      }
+    remHotKey(althotkey);
+    althotkey=0;
+    althotoff=-1;
     altlabel=text;
     recalc();
     update();

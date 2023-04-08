@@ -40,20 +40,20 @@ public:
   /// Construct pipe
   FXPipe(){ }
 
+  /// Construct pipe and attach existing handle h
+  FXPipe(FXInputHandle h);
+
   /// Construct and open pipes with access mode m for this one and the reverse for the other
   FXPipe(FXPipe& other,FXuint m);
-
-  /// Construct pipe and attach existing handle h
-  FXPipe(FXInputHandle h,FXuint m=FXIO::Reading);
 
   /// Open pipes with access mode m for this one and the reverse for the other
   virtual FXbool open(FXPipe& other,FXuint m=FXIO::Reading);
 
-  /// Open device with access mode and handle
-  virtual FXbool open(FXInputHandle h,FXuint m=FXIO::Reading);
-
-  /// Create a named pipe
+  /// Create a named pipe (not available on Windows)
   static FXbool create(const FXString& file,FXuint perm=FXIO::AllReadWrite);
+
+  /// Remove a named pipe (not available on Windows)
+  static FXbool remove(const FXString& file);
   };
 
 }

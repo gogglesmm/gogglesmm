@@ -219,8 +219,13 @@ FXbool GMCoverCache::render(FXint id,FXImage * image) {
   FXint ww,hh,dd;
   FXint i = info.map.at(id) - 1;
   FXASSERT(i>=0);
+#if FOXVERSION >= FXVERSION(1, 7, 82)
+  if (data.data()) {
+    FXMemoryStream store(FXStreamLoad,((FXuchar*)data.data())+info.index[i].position,info.index[i].length);
+#else
   if (data.base()) {
     FXMemoryStream store(FXStreamLoad,((FXuchar*)data.base())+info.index[i].position,info.index[i].length);
+#endif
     switch(info.format) {
       case COVERCACHE_JPG : result = fxloadJPG(store,pixels,ww,hh,dd); break;
       case COVERCACHE_WEBP: result = fxloadWEBP(store,pixels,ww,hh); break;
@@ -246,7 +251,11 @@ void GMCoverCache::clear(FXint sz) {
 void GMCoverCache::load(GMCoverCacheWriter & writer) {
 
   // close old file
+#if FOXVERSION >= FXVERSION(1, 7, 82)
+  if (data.data()) data.close();
+#else
   if (data.base()) data.close();
+#endif
 
   // move in new file
 #if FOXVERSION >= FXVERSION(1,7,57)
@@ -261,13 +270,19 @@ void GMCoverCache::load(GMCoverCacheWriter & writer) {
     }
 #endif
   // try opening
+#if FOXVERSION >= FXVERSION(1, 7, 82)
+  if (data.open(getFilename())){
+#else
   if (data.openMap(getFilename())){
+#endif
     info.adopt(writer.info);
     }
   else {
     info.clear(writer.info.size);
     }
   }
+
+
 
 
 FXbool GMCoverCache::load() {
@@ -314,7 +329,11 @@ FXbool GMCoverCache::load() {
     info.load(store);
 
     // Open memory map
+#if FOXVERSION >= FXVERSION(1, 7, 82)
+    if (data.open(filename)==nullptr) {
+#else
     if (data.openMap(filename)==nullptr) {
+#endif
       FXASSERT(0);
       return false;
       }
@@ -471,4 +490,3 @@ FXImage* GMCoverRender::getImage(FXint id) {
 
   return image;
   }
-

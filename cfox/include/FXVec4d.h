@@ -93,7 +93,7 @@ public:
   FXVec4d operator-() const { return FXVec4d(-x,-y,-z,-w); }
 
   /// Length and square of length
-  FXdouble length2() const { return x*x+y*y+z*z+w*w; }
+  FXdouble length2() const { return w*w+z*z+y*y+x*x; }
   FXdouble length() const { return Math::sqrt(length2()); }
 
   /// Signed distance normalized plane and point

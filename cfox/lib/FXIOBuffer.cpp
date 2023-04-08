@@ -45,23 +45,22 @@ namespace FX {
 
 
 // Construct
-FXIOBuffer::FXIOBuffer():buffer(nullptr),space(0L){
+FXIOBuffer::FXIOBuffer():buffer(nullptr),space(0){
   }
 
 
 // Construct and open
-FXIOBuffer::FXIOBuffer(FXuchar* ptr,FXuval sz,FXuint m):buffer(nullptr),space(0L){
-  open(ptr,sz,m);
+FXIOBuffer::FXIOBuffer(FXuchar* ptr,FXuval sz):buffer(nullptr),space(0){
+  open(ptr,sz);
   }
 
 
 // Open buffer
-FXbool FXIOBuffer::open(FXuchar* ptr,FXuval sz,FXuint m){
-  if(ptr && sz && (m&ReadWrite)){
+FXbool FXIOBuffer::open(FXuchar* ptr,FXuval sz){
+  if(ptr!=nullptr && 0<sz){
     buffer=ptr;
+    pointer=0;
     space=sz;
-    access=m;
-    pointer=0L;
     return true;
     }
   return false;
@@ -88,52 +87,49 @@ FXlong FXIOBuffer::position() const {
 
 // Move to position
 FXlong FXIOBuffer::position(FXlong offset,FXuint from){
-  if(__likely(access&ReadWrite)){
-    if(from==Current) offset=pointer+offset;
-    else if(from==End) offset=space+offset;
-    if(0<=offset && offset<=(FXlong)space){
-      pointer=offset;
-      return pointer;
-      }
-    }
-  return -1;
+  FXuval ptr=FXIO::Error;
+  if(from==FXIO::Current){ ptr=pointer+offset; }
+  else if(from==FXIO::End){ ptr=space+offset; }
+  else if(from==FXIO::Begin){ ptr=offset; }
+  if(0<=ptr && ptr<=space){ pointer=ptr; }
+  return ptr;
   }
 
 
 // Read block
 FXival FXIOBuffer::readBlock(void* ptr,FXival count){
-  if(__likely(access&ReadOnly)){
+  if(buffer!=nullptr && ptr!=nullptr){
     FXival remaining=space-pointer;
-    if(count>remaining) count=remaining;
+    if(remaining<count) count=remaining;
     memcpy(ptr,&buffer[pointer],count);
     pointer+=count;
     return count;
     }
-  return 0;
+  return FXIO::Error;
   }
 
 
 // Write block
 FXival FXIOBuffer::writeBlock(const void* ptr,FXival count){
-  if(__likely(access&WriteOnly)){
+  if(buffer!=nullptr && ptr!=nullptr){
     FXival remaining=space-pointer;
-    if(count>remaining) count=remaining;
+    if(remaining<count) count=remaining;
     memcpy(&buffer[pointer],ptr,count);
     pointer+=count;
     return count;
     }
-  return 0;
+  return FXIO::Error;
   }
 
 
 // Truncate file
 FXlong FXIOBuffer::truncate(FXlong sz){
-  if(buffer && 0<=sz && sz<=(FXlong)space){
+  if(buffer!=nullptr && 0<=sz && sz<=(FXlong)space){
     if(pointer>sz) pointer=sz;
     space=sz;
     return sz;
     }
-  return -1;
+  return FXIO::Error;
   }
 
 
@@ -158,9 +154,8 @@ FXlong FXIOBuffer::size(){
 // Close file
 FXbool FXIOBuffer::close(){
   buffer=nullptr;
-  space=0L;
   pointer=0L;
-  access=NoAccess;
+  space=0L;
   return true;
   }
 
@@ -170,6 +165,4 @@ FXIOBuffer::~FXIOBuffer(){
   close();
   }
 
-
 }
-

@@ -1,9 +1,9 @@
 /********************************************************************************
 *                                                                               *
-*                             X M L - F i l e   I / O                           *
+*                             I N I   F i l e   I / O                           *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2016,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2022 by Jeroen van der Zijp.   All Rights Reserved.             *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -18,61 +18,57 @@
 * You should have received a copy of the GNU Lesser General Public License      *
 * along with this program.  If not, see <http://www.gnu.org/licenses/>          *
 ********************************************************************************/
-#ifndef FXXMLFILE_H
-#define FXXMLFILE_H
+#ifndef FXINIFILE_H
+#define FXINIFILE_H
 
-#ifndef FXXML_H
-#include "FXXML.h"
+#ifndef FXINI_H
+#include "FXINI.h"
 #endif
 
 namespace FX {
 
 
 /**
-* procesing XML file
+* Serialize a variant to or from INI formatted file.
 */
-class FXAPI FXXMLFile : public FXXML {
+class FXAPI FXINIFile : public FXINI {
 private:
   FXFile file;
 private:
-  FXXMLFile(const FXXMLFile&);
-  FXXMLFile& operator=(const FXXMLFile&);
+  FXINIFile(const FXINIFile&);
+  FXINIFile &operator=(const FXINIFile&);
 public:
 
   /**
-  * Create XML file i/o object.
+  * Create INI file i/o object.
   */
-  FXXMLFile();
+  FXINIFile();
 
   /**
-  * Create XML file i/o object and open it.
+  * Create INI file i/o object and open it.
   */
-  FXXMLFile(const FXString& filename,Direction d=Load,FXuval sz=4096);
+  FXINIFile(const FXString& filename,Direction d=Load,FXuval sz=8192);
 
   /**
-  * Open XML file for direction d.
+  * Open INI file from given handle for direction d.
   */
-  FXbool open(const FXString& filename,Direction d=Load,FXuval sz=4096);
+  FXbool open(const FXString& filename,Direction d=Load,FXuval sz=8192);
 
-  /**
-  * Read at least count bytes into buffer; return bytes available, or -1 for error.
-  */
+  /// Read at least count bytes into buffer; return bytes available, or -1 for error
   virtual FXival fill(FXival count);
 
-  /**
-  * Write at least count bytes from buffer; return space available, or -1 for error.
-  */
+  /// Write at least count bytes from buffer; return space available, or -1 for error
   virtual FXival flush(FXival count);
 
   /**
-  * Close XML file and delete buffers.
+  * Close INI file and delete buffers.
   */
   FXbool close();
 
   /**
-  * Close XML file.
+  * Close INI file.
   */
-  virtual ~FXXMLFile();
+  virtual ~FXINIFile();
   };
 
 }

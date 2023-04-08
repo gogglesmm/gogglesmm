@@ -68,6 +68,9 @@ public:
   /// Get process id of calling process
   static FXint current();
 
+  /// Get current process handle
+  static FXInputHandle handle();
+
   /// Exit calling process
   static void exit(FXint code=0);
 

@@ -40,6 +40,7 @@ public:
   /// Constructors
   FXRectangle(){ }
   FXRectangle(FXshort xx,FXshort yy,FXshort ww,FXshort hh):x(xx),y(yy),w(ww),h(hh){ }
+  FXRectangle(const FXRectangle& src):x(src.x),y(src.y),w(src.w),h(src.h){ }
   FXRectangle(const FXPoint& p,const FXSize& s):x(p.x),y(p.y),w(s.w),h(s.h){ }
   FXRectangle(const FXPoint& topleft,const FXPoint& bottomright):x(topleft.x),y(topleft.y),w(bottomright.x-topleft.x+1),h(bottomright.y-topleft.y+1){ }
 

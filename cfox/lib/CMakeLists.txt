@@ -185,6 +185,8 @@ set(HEADERS ../include/fx3d.h
             ../include/FXImageFrame.h
             ../include/FXImage.h
             ../include/FXImageView.h
+            ../include/FXINI.h
+            ../include/FXINIFile.h
             ../include/FXInputDialog.h
             ../include/FXIOBuffer.h
             ../include/FXIODevice.h
@@ -504,7 +506,6 @@ set(SOURCES FX4Splitter.cpp
             FXFontSelector.cpp
             FXFrame.cpp
             fxfsquantize.cpp
-            fxgetticks.cpp
             FXGIFCursor.cpp
             FXGIFIcon.cpp
             FXGIFImage.cpp
@@ -532,6 +533,8 @@ set(SOURCES FX4Splitter.cpp
             FXImage.cpp
             FXImageFrame.cpp
             FXImageView.cpp
+            FXINI.cpp
+            FXINIFile.cpp
             FXInputDialog.cpp
             FXIOBuffer.cpp
             FXIO.cpp
@@ -555,9 +558,9 @@ set(SOURCES FX4Splitter.cpp
             FXList.cpp
             FXLocale.cpp
             FXMainWindow.cpp
+            FXMappedFile.cpp
             fxmath.cpp
             FXMatrix.cpp
-            FXMemMap.cpp
             FXMemoryStream.cpp
             FXMenuBar.cpp
             FXMenuButton.cpp

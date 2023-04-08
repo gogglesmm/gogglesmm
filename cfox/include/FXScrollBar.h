@@ -66,6 +66,7 @@ protected:
   FXint      barsize;         // Bar size
   FXint      thumbsize;       // Thumb size
   FXint      thumbpos;        // Thumb position
+  FXint      wheelLines;      // Scroll wheel lines
   FXColor    hiliteColor;     // Hightlight color
   FXColor    shadowColor;     // Shadow color
   FXColor    borderColor;     // Border color
@@ -166,6 +167,12 @@ public:
 
   /// Return line increment
   FXint getLine() const { return line; }
+
+  /// Change mouse wheel scroll lines
+  void setWheelLines(FXint lines){ wheelLines=lines; }
+
+  /// Return current wheel lines
+  FXint getWheelLines() const { return wheelLines; }
 
   /// Change highlight color
   void setHiliteColor(FXColor clr);

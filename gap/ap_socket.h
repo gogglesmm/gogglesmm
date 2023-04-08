@@ -37,13 +37,11 @@ class Socket : public FXIODevice {
 #ifdef _WIN32
   FXuint sockethandle = 0;
 #endif
+protected:
+  FXint endofstream = 0;
 private:
   Socket(const Socket&);
   Socket &operator=(const Socket&);
-public:
-  enum {
-    EndOfStream = 2048
-    };
 public:
   Socket(){}
 

@@ -50,8 +50,8 @@ extern FXAPI FXfloat __strtof(const FXchar *beg,const FXchar** end=nullptr,FXboo
 
 
 // Some magick
-const union{ FXulong u; FXdouble f; } inf={FXULONG(0x7ff0000000000000)};
-const union{ FXulong u; FXdouble f; } nan={FXULONG(0x7fffffffffffffff)};
+static const union{ FXulong u; FXdouble f; } dblinf={FXULONG(0x7ff0000000000000)};
+static const union{ FXulong u; FXdouble f; } dblnan={FXULONG(0x7fffffffffffffff)};
 
 
 // Maximum number of significant digits
@@ -200,15 +200,14 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
 
   // Infinite
   else if((s[0]|0x20)=='i'){
-    s++;
+    ++s;
     if((s[0]|0x20)=='n'){
-      s++;
+      ++s;
       if((s[0]|0x20)=='f'){
-        value=neg?-inf.f:inf.f;
+        value=neg?-dblinf.f:dblinf.f;
         if(end){                // Return end of recognized number
-          s++;
-          if((s[0]|0x20)=='i' && (s[1]|0x20)=='n' && (s[2]|0x20)=='i' && (s[3]|0x20)=='t' && (s[4]|0x20)=='y') s+=5;
-          *end=s;
+          if((s[1]|0x20)=='i' && (s[2]|0x20)=='n' && (s[3]|0x20)=='i' && (s[4]|0x20)=='t' && (s[5]|0x20)=='y') s+=5;
+          *end=++s;
           }
         if(ok) *ok=true;
         }
@@ -217,14 +216,13 @@ FXdouble __strtod(const FXchar *beg,const FXchar** end,FXbool* ok){
 
   // NaN
   else if((s[0]|0x20)=='n'){
-    s++;
+    ++s;
     if((s[0]|0x20)=='a'){
-      s++;
+      ++s;
       if((s[0]|0x20)=='n'){
-        value=neg?-nan.f:nan.f;
+        value=neg?-dblnan.f:dblnan.f;
         if(end){                // Return end of recognized number
-          s++;
-          *end=s;
+          *end=++s;
           }
         if(ok) *ok=true;
         }

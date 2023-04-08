@@ -5,8 +5,12 @@
 *********************************************************************************
 * Copyright (C) 2019,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
 ********************************************************************************/
-#ifndef EVENTDISPATCHER_H
-#define EVENTDISPATCHER_H
+#ifndef FXEVENTDISPATCHER_H
+#define FXEVENTDISPATCHER_H
+
+#ifndef FXDISPATCHER_H
+#include "FXDispatcher.h"
+#endif
 
 namespace FX {
 
@@ -17,7 +21,7 @@ namespace FX {
 */
 class FXAPI FXEventDispatcher : public FXDispatcher {
 private:
-  FXptr         display;                // Display
+  FXptr         display;        // Display
 private:
   FXEventDispatcher(const FXEventDispatcher&);
   FXEventDispatcher &operator=(const FXEventDispatcher&);

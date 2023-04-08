@@ -60,6 +60,9 @@ constexpr FXTime operator"" _ms(unsigned long long int value)
   return value * NANOSECONDS_PER_MILLISECOND;
 }
 
+#if FOXVERSION >= FXVERSION(1, 7, 82)
+#define fxgetticks FXThread::ticks
+#endif
 
 
 //#define NO_FXGETTICKS 1

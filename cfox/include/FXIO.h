@@ -31,9 +31,6 @@ namespace FX {
 * something to storage before actually doing so.
 */
 class FXAPI FXIO {
-protected:
-  FXlong pointer;       // Stream pointer
-  FXuint access;        // Access mode flags
 public:
 
   /// Access modes
@@ -53,8 +50,6 @@ public:
     OwnHandle    = 256,                  /// File handle is ours
     NoAccessTime = 512,                  /// Don't change access time of file
     Inheritable  = 1024,                 /// Child process can inherit handle
-
-    /// Convenience access options
     Reading      = ReadOnly,                    /// Normal options for reading
     Writing      = ReadWrite|Create|Truncate    /// Normal options for writing
     };
@@ -66,28 +61,31 @@ public:
     End     = 2                 /// Position from the end
     };
 
-  /// File modes
+  /// Permissions
   enum {
 
-    /// Permissions
+    /// Other permissions
     OtherExec      = 0x00001,                   /// Others have execute permission
     OtherWrite     = 0x00002,                   /// Others have write permisson
     OtherRead      = 0x00004,                   /// Others have read permission
     OtherReadWrite = OtherRead|OtherWrite,      /// Others have read and write permission
     OtherFull      = OtherReadWrite|OtherExec,  /// Others have full access
 
+    /// Group permissions
     GroupExec      = 0x00008,                   /// Group has execute permission
     GroupWrite     = 0x00010,                   /// Group has write permission
     GroupRead      = 0x00020,                   /// Group has read permission
     GroupReadWrite = GroupRead|GroupWrite,      /// Group has read and write permission
     GroupFull      = GroupReadWrite|GroupExec,  /// Group has full access
 
+    /// Owner permissions
     OwnerExec      = 0x00040,                   /// Owner has execute permission
     OwnerWrite     = 0x00080,                   /// Owner has write permission
     OwnerRead      = 0x00100,                   /// Owner has read permission
     OwnerReadWrite = OwnerRead|OwnerWrite,      /// Owner has read and write permission
     OwnerFull      = OwnerReadWrite|OwnerExec,  /// Owner has full access
 
+    /// Combined permissions
     AllRead        = OtherRead|GroupRead|OwnerRead,     /// Read permission for all
     AllWrite       = OtherWrite|GroupWrite|OwnerWrite,  /// Write permisson for all
     AllExec        = OtherExec|GroupExec|OwnerExec,     /// Execute permission for all
@@ -121,29 +119,28 @@ public:
 
 protected:
   FXIO();
-  FXIO(FXuint m);
 private:
   FXIO(const FXIO&);
   FXIO &operator=(const FXIO&);
 public:
-
-  /// Is readable
-  FXbool isReadable() const;
-
-  /// Is writable
-  FXbool isWritable() const;
-
-  /// Return access mode
-  FXuint mode() const { return access; }
-
-  /// Change access mode of open device
-  virtual FXbool setMode(FXuint m);
 
   /// Return true if open
   virtual FXbool isOpen() const;
 
   /// Return true if serial access only
   virtual FXbool isSerial() const;
+
+  /// Return access mode
+  virtual FXuint mode() const;
+
+  /// Change access mode of open device
+  virtual FXbool mode(FXuint m);
+
+  /// Return permissions
+  virtual FXuint perms() const;
+
+  /// Set permissions
+  virtual FXbool perms(FXuint p);
 
   /// Get current file position
   virtual FXlong position() const;

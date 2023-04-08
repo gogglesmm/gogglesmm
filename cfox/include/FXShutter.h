@@ -74,6 +74,36 @@ public:
   /// Return a pointer to the contents for this item
   FXVerticalFrame* getContent() const { return content; }
 
+  /// Set the text for this shutter item
+  void setText(const FXString& text);
+
+  /// Get the text for this item
+  FXString getText() const;
+
+  /// Set the icon for this item
+  void setIcon(FXIcon* ic);
+
+  /// Get the icon for this item
+  FXIcon* getIcon() const;
+
+  /// Set the text font
+  void setFont(FXFont *fnt);
+
+  /// Get the text font
+  FXFont* getFont() const;
+
+  /// Set the current text-justification mode.
+  void setJustify(FXuint mode);
+
+  /// Get the current text-justification mode.
+  FXuint getJustify() const;
+
+  /// Set the current icon position
+  void setIconPosition(FXuint mode);
+
+  /// Get the current icon position
+  FXuint getIconPosition() const;
+
   /// Set the status line help text for this item
   void setHelpText(const FXString& text);
 
