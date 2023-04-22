@@ -358,72 +358,64 @@ FXint Socket::connect(const struct sockaddr * address,FXint address_length) {
 
 
 FXival Socket::writeBlock(const void* ptr,FXival count){
-  FXuint access = mode();
-  if(__likely(device!=BadHandle) && __likely(access&FXIO::WriteOnly)){
 #ifdef _WIN32
 #else
-    FXival nwrote;
-x:  nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
-    if(__unlikely(nwrote<0)){
-      switch(errno) {
-        case EINTR:
-          goto x;
-          break;
-        case EAGAIN:
+  FXival nwrote;
+x:nwrote=::send(device,ptr,count,MSG_NOSIGNAL);
+  if(__unlikely(nwrote<0)){
+    switch(errno) {
+      case EINTR:
+        goto x;
+        break;
+      case EAGAIN:
 #if EAGAIN!=EWOULDBLOCK
-        case EWOULDBLOCK:
+      case EWOULDBLOCK:
 #endif
-          if ((access&FXIO::NonBlocking) && wait(WaitMode::Write)==WaitEvent::Input)
-            goto x;
+        if (wait(WaitMode::Write)==WaitEvent::Input)
+          goto x;
 
-          // fallthrough - intentional no break
-        default:
-          endofstream = 1;
-          return FXIO::Error;
-          break;
-        }
+        // fallthrough - intentional no break
+      default:
+        endofstream = 1;
+        return FXIO::Error;
+        break;
       }
-    if (nwrote==0 && count>0)
-      endofstream = 1;
-#endif
-    return nwrote;
     }
-  return FXIO::Error;
+  if (nwrote==0 && count>0)
+    endofstream = 1;
+#endif
+  return nwrote;
   }
 
 
 FXival Socket::readBlock(void* ptr,FXival count){
-  FXuint access = mode();
-  if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
 #ifdef _WIN32
 #else
-    FXival nwrote;
-x:  nwrote=::recv(device,ptr,count,MSG_NOSIGNAL);
-    if(__unlikely(nwrote<0)){
-      switch(errno) {
-        case EINTR:
-          goto x;
-          break;
-        case EAGAIN:
+  FXival nwrote;
+x:nwrote=::recv(device,ptr,count,MSG_NOSIGNAL);
+  if(__unlikely(nwrote<0)){
+    switch(errno) {
+      case EINTR:
+        goto x;
+        break;
+      case EAGAIN:
 #if EAGAIN!=EWOULDBLOCK
-        case EWOULDBLOCK:
+      case EWOULDBLOCK:
 #endif
-          if ((access&FXIO::NonBlocking) && wait(WaitMode::Read)==WaitEvent::Input)
-            goto x;
+        if (wait(WaitMode::Read)==WaitEvent::Input)
+          goto x;
 
-          // fallthrough - intentional no break
-        default:
-          endofstream = 1;
-          return FXIO::Error;
-          break;
-        }
+        // fallthrough - intentional no break
+      default:
+        endofstream = 1;
+        return FXIO::Error;
+        break;
       }
-    if (nwrote==0 && count>0)
-      endofstream = 1;
-#endif
-    return nwrote;
     }
-  return FXIO::Error;
+  if (nwrote==0 && count>0)
+    endofstream = 1;
+#endif
+  return nwrote;
   }
 
 
