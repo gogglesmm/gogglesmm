@@ -712,154 +712,146 @@ x:status = SSL_connect(ssl);
 
 // Read block of bytes, returning number of bytes read
 FXival SecureSocket::readBlock(void* data,FXival count) {
-  FXuint access = mode();
-  if(__likely(device!=BadHandle) && __likely(access&ReadOnly)){
 #if defined(HAVE_OPENSSL)
-    FXival n;
-x:  n=SSL_read(ssl,data,count);
-    if (__unlikely(n<0)) {
-      WaitMode mode;
-      switch(SSL_get_error(ssl,n)) {
-        case SSL_ERROR_WANT_READ :
-          mode = WaitMode::Read;
-          break;
-        case SSL_ERROR_WANT_WRITE:
-          mode = WaitMode::Write;
-          break;
-        default:
-          close();
-          return FXIO::Error;
-        }
+  FXival n;
+x:n=SSL_read(ssl,data,count);
+  if (__unlikely(n<0)) {
+    WaitMode mode;
+    switch(SSL_get_error(ssl,n)) {
+      case SSL_ERROR_WANT_READ :
+        mode = WaitMode::Read;
+        break;
+      case SSL_ERROR_WANT_WRITE:
+        mode = WaitMode::Write;
+        break;
+      default:
+        close();
+        return FXIO::Error;
+      }
 
-      if ((access&FXIO::NonBlocking) && wait(mode)==WaitEvent::Input) {
+    if (wait(mode)==WaitEvent::Input) {
+      goto x;
+      }
+    return FXIO::Error;
+    }
+
+  if (n==0 && count>0)
+    endofstream = 1;
+
+#if FOXVERSION < FXVERSION(1, 7, 82)
+  pointer+=n;
+#endif
+  return n;
+#elif defined(HAVE_GNUTLS)
+  FXival n;
+x:n=gnutls_record_recv(session,data,count);
+  if(__unlikely(n<0)) {
+    if (n == GNUTLS_E_INTERRUPTED || n == GNUTLS_E_AGAIN) {
+      WaitMode mode;
+
+      if (gnutls_record_get_direction(session)==0)
+        mode = WaitMode::Read;
+      else
+        mode = WaitMode::Write;
+
+      if (wait(mode)==WaitEvent::Input)
+        goto x;
+      }
+    else if (n == GNUTLS_E_REHANDSHAKE) {
+      if (gnutls_safe_renegotiation_status(session) && handshake()==0) {
         goto x;
         }
       return FXIO::Error;
       }
-
-    if (n==0 && count>0)
-      endofstream = 1;
-
-#if FOXVERSION < FXVERSION(1, 7, 82)
-    pointer+=n;
-#endif
-    return n;
-#elif defined(HAVE_GNUTLS)
-    FXival n;
-x:  n=gnutls_record_recv(session,data,count);
-    if(__unlikely(n<0)) {
-      if (n == GNUTLS_E_INTERRUPTED || n == GNUTLS_E_AGAIN) {
-        WaitMode mode;
-
-        if (gnutls_record_get_direction(session)==0)
-          mode = WaitMode::Read;
-        else
-          mode = WaitMode::Write;
-
-        if (wait(mode)==WaitEvent::Input)
-          goto x;
-        }
-      else if (n == GNUTLS_E_REHANDSHAKE) {
-        if (gnutls_safe_renegotiation_status(session) && handshake()==0) {
-          goto x;
-          }
-        return FXIO::Error;
-        }
-      else if (!gnutls_error_is_fatal(n)){
-        goto x; // try again
-        }
-      else {
-        return FXIO::Error;
-        }
+    else if (!gnutls_error_is_fatal(n)){
+      goto x; // try again
       }
+    else {
+      return FXIO::Error;
+      }
+    }
 
-    if (n==0 && count>0)
-      endofstream = 1;
+  if (n==0 && count>0)
+    endofstream = 1;
 
 #if FOXVERSION < FXVERSION(1, 7, 82)
-    pointer+=n;
+  pointer+=n;
 #endif
-    return n;
+  return n;
 #endif
-    }
-  return FXIO::Error;
   }
 
 
 
 // Write block of bytes, returning number of bytes read
 FXival SecureSocket::writeBlock(const void* data,FXival count) {
-  FXuint access = mode();
-  if(__likely(device!=BadHandle) && __likely(access&WriteOnly)){
 #if defined(HAVE_OPENSSL)
-    FXival n;
-x:  n=SSL_write(ssl,data,count);
-    if (__unlikely(n<0)) {
-      WaitMode mode;
-      switch(SSL_get_error(ssl,n)) {
-        case SSL_ERROR_WANT_READ :
-          mode = WaitMode::Read;
-          break;
-        case SSL_ERROR_WANT_WRITE:
-          mode = WaitMode::Write;
-          break;
-        default:
-          close();
-          return FXIO::Error;
-        }
+  FXival n;
+x:n=SSL_write(ssl,data,count);
+  if (__unlikely(n<0)) {
+    WaitMode mode;
+    switch(SSL_get_error(ssl,n)) {
+      case SSL_ERROR_WANT_READ :
+        mode = WaitMode::Read;
+        break;
+      case SSL_ERROR_WANT_WRITE:
+        mode = WaitMode::Write;
+        break;
+      default:
+        close();
+        return FXIO::Error;
+      }
 
-      if ((access&FXIO::NonBlocking) && wait(mode)==WaitEvent::Input) {
+    if (wait(mode)==WaitEvent::Input) {
+      goto x;
+      }
+    return FXIO::Error;
+    }
+
+  if (n==0 && count>0)
+    endofstream = 1;
+
+#if FOXVERSION < FXVERSION(1, 7, 82)
+  pointer+=n;
+#endif
+  return n;
+#elif defined(HAVE_GNUTLS)
+  FXival n;
+x:n=gnutls_record_send(session,data,count);
+  if(__unlikely(n<0)) {
+    if (n == GNUTLS_E_INTERRUPTED || n == GNUTLS_E_AGAIN) {
+      WaitMode mode;
+
+      if (gnutls_record_get_direction(session)==0)
+        mode = WaitMode::Read;
+      else
+        mode = WaitMode::Write;
+
+      if (wait(mode)==WaitEvent::Input)
+        goto x;
+      }
+    else if (n == GNUTLS_E_REHANDSHAKE) {
+      if (gnutls_safe_renegotiation_status(session) && handshake()==0) {
         goto x;
         }
       return FXIO::Error;
       }
-
-    if (n==0 && count>0)
-      endofstream = 1;
-
-#if FOXVERSION < FXVERSION(1, 7, 82)
-    pointer+=n;
-#endif
-    return n;
-#elif defined(HAVE_GNUTLS)
-    FXival n;
-x:  n=gnutls_record_send(session,data,count);
-    if(__unlikely(n<0)) {
-      if (n == GNUTLS_E_INTERRUPTED || n == GNUTLS_E_AGAIN) {
-        WaitMode mode;
-
-        if (gnutls_record_get_direction(session)==0)
-          mode = WaitMode::Read;
-        else
-          mode = WaitMode::Write;
-
-        if (wait(mode)==WaitEvent::Input)
-          goto x;
-        }
-      else if (n == GNUTLS_E_REHANDSHAKE) {
-        if (gnutls_safe_renegotiation_status(session) && handshake()==0) {
-          goto x;
-          }
-        return FXIO::Error;
-        }
-      else if (!gnutls_error_is_fatal(n)){
-        goto x; // try again
-        }
-      else {
-        return FXIO::Error;
-        }
+    else if (!gnutls_error_is_fatal(n)){
+      goto x; // try again
       }
+    else {
+      return FXIO::Error;
+      }
+    }
 
-    if (n==0 && count>0)
-      endofstream = 1;
+  if (n==0 && count>0)
+    endofstream = 1;
 
 #if FOXVERSION < FXVERSION(1, 7, 82)
-    pointer+=n;
+  pointer+=n;
 #endif
-    return n;
+  return n;
 #endif
-    }
-  return FXIO::Error;
   }
 
 

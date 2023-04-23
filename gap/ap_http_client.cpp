@@ -30,9 +30,6 @@ using namespace ap;
 namespace ap {
 
 
-HttpHost::HttpHost() : port(0) {
-  }
-
 HttpHost::HttpHost(const FXString & url) {
   set(url);
   }
@@ -40,14 +37,17 @@ HttpHost::HttpHost(const FXString & url) {
 void HttpHost::clear() {
   name.clear();
   port=0;
+  ssl=false;
   }
 
 FXbool HttpHost::set(const FXString & url) {
+  FXbool   ns = FXString::comparecase(FXURL::scheme(url), "https") == 0;
   FXString nn = FXURL::host(url);
-  FXint    np = FXURL::port(url,(FXURL::scheme(url)=="https") ? 443 : 80);
-  if (name!=nn || port!=np) {
+  FXint    np = FXURL::port(url, ns ? 443 : 80);
+  if (name!=nn || port!=np || ssl!=ns) {
     name.adopt(nn);
     port=np;
+    ssl=ns;
     return true;
     }
   return false;
@@ -111,9 +111,9 @@ FXbool HttpClient::open_connection() {
     connection = new ConnectionFactory();
 
   if (options&UseProxy)
-    stream = connection->open(proxy.name.text(),proxy.port);
+    stream = connection->open(proxy.name.text(),proxy.port, proxy.ssl);
   else
-    stream = connection->open(server.name.text(),server.port);
+    stream = connection->open(server.name.text(),server.port, server.ssl);
 
   if (stream) {
     GM_DEBUG_PRINT("[http] connected\n");

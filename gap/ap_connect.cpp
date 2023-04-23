@@ -72,7 +72,7 @@ Socket * ConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
   }
 
 
-FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
+FXIO* ConnectionFactory::open(const FXString & hostname,FXint port,FXbool ssl) {
   struct addrinfo   hints;
   struct addrinfo * list=nullptr;
   struct addrinfo * item=nullptr;
@@ -85,10 +85,10 @@ FXIO* ConnectionFactory::open(const FXString & hostname,FXint port) {
 
   // Automatically enable ssl for 443
 #if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
-  use_ssl = (port==443);
+  use_ssl = ssl;
   if (use_ssl) GM_DEBUG_PRINT("[connection] using SSL on port %d\n",port);
 #else
-  if (port==443) {
+  if (ssl) {
     GM_DEBUG_PRINT("[connection] no support for SSL\n");
     return nullptr;
     }

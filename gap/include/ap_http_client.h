@@ -24,9 +24,10 @@ namespace ap {
 class GMAPI HttpHost {
 public:
   FXString name;
-  FXint    port;
+  FXint    port = 0;
+  FXbool   ssl  = false;
 public:
-  HttpHost();
+  HttpHost()=default;
 
   // HttpHost from url
   HttpHost(const FXString & url);

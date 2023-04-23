@@ -37,7 +37,7 @@ public:
 	ConnectionFactory();
 
 	// Open connection to hostname and port
-	FXIO * open(const FXString & hostname,FXint port);
+	FXIO * open(const FXString & hostname,FXint port,FXbool ssl=false);
 
 	virtual ~ConnectionFactory();
 	};
