@@ -101,13 +101,6 @@ add_subdirectory(src)
 
 #-------------------------------------------------------------------------------
 
-# Extra Installation Files
-install(PROGRAMS extra/import_banshee_stats.py
-                 extra/import_gogglesmm12.py
-                 extra/import_gogglesmm12_stats.py
-        DESTINATION
-                 share/gogglesmm)
-
 install(FILES icons/gogglesmm_16.png DESTINATION share/icons/hicolor/16x16/apps RENAME gogglesmm.png)
 install(FILES extra/gogglesmm_22.png DESTINATION share/icons/hicolor/22x22/apps RENAME gogglesmm.png)
 install(FILES extra/gogglesmm_24.png DESTINATION share/icons/hicolor/24x24/apps RENAME gogglesmm.png)
