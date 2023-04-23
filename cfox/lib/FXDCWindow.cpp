@@ -1877,7 +1877,18 @@ void FXDCWindow::drawLineSegments(const FXSegment* segments,FXuint nsegments){
 // Draw rectangle
 void FXDCWindow::drawRectangle(FXint x,FXint y,FXint w,FXint h){
   if(!surface){ fxerror("FXDCWindow::drawRectangle: DC not connected to drawable.\n"); }
+
+  // Fix broken XDrawRectangle observed under Wayland / Gnome
+  // https://gitlab.freedesktop.org/xorg/xserver/-/issues/1221
+  // https://github.com/fltk/fltk/issues/156
+  FXuint prev_line_width = getLineWidth();
+  if (prev_line_width == 0)
+    setLineWidth(1);
+
   XDrawRectangle((Display*)getApp()->getDisplay(),surface->id(),(GC)ctx,x,y,w,h);
+
+  if (prev_line_width == 0)
+    setLineWidth(prev_line_width);
   }
 
 
