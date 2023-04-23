@@ -30,6 +30,8 @@
 </description>
 <launchable type="desktop-id">gogglesmm.desktop</launchable>
 <releases>
+    <release version="1.2.3" type="stable" date="2023-04-23"/>
+    <release version="1.2.2" type="stable" date="2021-01-03"/>
     <release version="1.2.1" type="stable" date="2018-07-31"/>
 </releases>
 <screenshots>

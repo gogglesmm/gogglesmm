@@ -1,9 +1,12 @@
 1.2.3:
   - flac: add support for 32 bit samples introduced in FLAC 1.4
   - taglib: remove use of deprecated methods
+  - gap: allow https connections to ports other than 443
   - ui: Update FOX to 1.7.82
   - ui: Fix button rendering
+  - ui: Fix rectangle rendering on certain platforms
   - remove support for long gone LyricWikia.
+  - remove python scripts from extra
 
 1.2.2
   - gap: added sndio output plugin

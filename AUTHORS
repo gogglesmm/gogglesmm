@@ -1,5 +1,5 @@
 Goggles Music Manager
-Copyright (C) 2002-2021 by Sander Jansen. All Rights Reserved.
+Copyright (C) 2002-2023 by Sander Jansen. All Rights Reserved.
 
 Various code snippets from FOX-Toolkit
 Copyright (c) 1998-2011 by Jeroen van der Zijp. All Rights Reserved.
@@ -22,7 +22,9 @@ Other Contributions
 
  - Contains icons from Tango and Gnome icon themes.
 
- - MD5 implementation see: src/md5.cpp
+ - MD5 implementation see: gap/lib/md5
+
+ - ALAC implementation  see: gap/lib/alac
 
 
 Thanks for all the Fish!
