@@ -377,6 +377,14 @@ set(PLUGIN_SOURCES plugins/ap_aiff.cpp
                    plugins/ap_wav.cpp
                    plugins/ap_xspf.cpp
                    )
+
+set(OUTPUT_SOURCES plugins/ap_alsa.cpp
+                   plugins/ap_jack.cpp
+                   plugins/ap_oss_plugin.cpp
+                   plugins/ap_pulse.cpp
+                   plugins/ap_sndio.cpp
+                   plugins/ap_wavout.cpp)
+
 #if(WIN32)
   if(BUILD_GAP_SHARED_LIB)
     add_definitions(-DGAP_DLL)
@@ -618,8 +626,8 @@ configure_file(ap_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ap_config.h)
 # that cannot be easily handled using the preprocessor#
 #
 if (NOT WITH_CFOX AND FOX_VERSION VERSION_LESS "1.7.80")
-  message("Replacing occurences of FXString::compare")
-  foreach(sourcefile IN LISTS PLUGIN_SOURCES SOURCES)
+  foreach(sourcefile IN LISTS PLUGIN_SOURCES OUTPUT_SOURCES SOURCES)
+    message(STATUS "${sourcefile}")
     file(READ ${sourcefile} content)
     string(REPLACE "FXString::compare" "FX::compare" updated "${content}")
     string(REPLACE "comparenatural" "compareversion" updated "${updated}")
