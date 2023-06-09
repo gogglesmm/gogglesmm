@@ -122,6 +122,22 @@ void ColorTheme::save() const {
   GMPlayerManager::instance()->getPreferences().gui_row_color=altback;
   GMPlayerManager::instance()->getPreferences().gui_menu_base_color=menubase;
   GMPlayerManager::instance()->getPreferences().gui_tray_color=trayback;
+
+#if FOXVERSION >= FXVERSION(1, 7, 81)
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "basecolor", base);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "bordercolor", border);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "hilitecolor", hilite);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "shadowcolor", shadow);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "backcolor", back);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "forecolor", fore);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "selforecolor", selfore);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "selbackcolor", selback);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "tipforecolor", tipfore);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "tipbackcolor", tipback);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "selmenutextcolor", menufore);
+  FXApp::instance()->reg().writeColorEntry("SETTINGS", "selmenubackcolor", menuback);
+#endif
+
   }
 
 bool operator==(const ColorTheme& t1,const ColorTheme& t2) {
@@ -1558,9 +1574,3 @@ long GMPreferencesDialog::onUpdTitleFormat(FXObject*sender,FXSelector sel,void*)
 
   return 1;
   }
-
-
-
-
-
-
