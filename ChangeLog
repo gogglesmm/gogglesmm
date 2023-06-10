@@ -1,3 +1,9 @@
+1.2.4:
+  - gap: fix pulse output to work better with pipewire server
+  - ui: fix broken color theme saving with FOX >= 1.7.81
+  - ui: workaround for buggy window behaviour under wayland gnome
+  - fix build with FOX < 1.7.80
+
 1.2.3:
   - flac: add support for 32 bit samples introduced in FLAC 1.4
   - taglib: remove use of deprecated methods
