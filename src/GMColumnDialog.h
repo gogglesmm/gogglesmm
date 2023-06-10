@@ -44,6 +44,8 @@ public:
   /// Construct button with text and icon
   GMColumnDialog(FXWindow* p,GMColumnList & cols);
 
+  virtual FXuint execute(FXuint placement=PLACEMENT_CURSOR);
+
   void saveIndex();
   };
 

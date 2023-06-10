@@ -287,7 +287,7 @@ long GMPlayListSource::onCmdRemoveInPlaylist(FXObject*,FXSelector sel,void*){
     FXCheckButton * library_check = new FXCheckButton(main,fxtr("Remove tracks from music library"));
     FXCheckButton * disk_check = new FXCheckButton(main,fxtr("Remove tracks from disk"));
     FromDiskTarget disktgt(disk_check,library_check);
-
+    dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
     if (!dialog.execute())
       return 1;
 
@@ -369,6 +369,7 @@ long GMPlayListSource::onCmdEditName(FXObject*,FXSelector,void *){
   new FXLabel(matrix,fxtr("Name"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   GMTextField * name_field = new GMTextField(matrix,20,&dialog,FXDialogBox::ID_ACCEPT,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_ENTER_ONLY);
   name_field->setText(getName());
+  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   dialog.create();
   gm_focus_and_select(name_field);
   if (dialog.execute()) {

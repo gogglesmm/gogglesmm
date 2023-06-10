@@ -274,3 +274,8 @@ long GMColumnDialog::onUpdMoveDown(FXObject*sender,FXSelector,void*){
     sender->handle(this,FXSEL(SEL_COMMAND,ID_DISABLE),nullptr);
   return 1;
   }
+
+FXuint GMColumnDialog::execute(FXuint placement) {
+  resize(getDefaultWidth(), getDefaultHeight());
+  return FXDialogBox::execute(placement);
+  }

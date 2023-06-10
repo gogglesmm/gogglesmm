@@ -1039,6 +1039,7 @@ void GMDatabaseSource::removeFiles(const FXStringList & files) {
   for (int i=0;i<files.no();i++) {
     list->appendItem(files[i]);
     }
+  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   if (dialog.execute()) {
     for (int i=0;i<files.no();i++){
       FXFile::remove(files[i]);
@@ -1238,6 +1239,7 @@ long GMDatabaseSource::onCmdAddCover(FXObject*,FXSelector,void*){
       list_tag->appendItem("Replace All",nullptr,(void*)(FXival)GMCoverTask::ModeReplaceAll);
       list_tag->setNumVisible(3);
 
+      confirmdialog.resize(confirmdialog.getDefaultWidth(), confirmdialog.getDefaultHeight());
       if (confirmdialog.execute()) {
         FXStringList files;
         db->getTrackFilenames(tracks,files);
@@ -1309,7 +1311,7 @@ long GMDatabaseSource::onCmdDelete(FXObject*,FXSelector sel,void*){
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,30,20,10,10);
   GMCheckButton * from_disk = new GMCheckButton(main,fxtr("Remove tracks from disk"));
   from_disk->setCheck(FXApp::instance()->reg().readBoolEntry("delete dialog","from-disk",false));
-
+  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   if (dialog.execute()){
 
     if (from_disk->getCheck())
@@ -1551,6 +1553,7 @@ long GMDatabaseSource::onCmdNewPlayList(FXObject*,FXSelector,void*){
   new FXLabel(matrix,fxtr("Name"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   GMTextField * name_field = new GMTextField(matrix,20,&dialog,FXDialogBox::ID_ACCEPT,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK|TEXTFIELD_ENTER_ONLY);
   name_field->setText(fxtr("New Playlist"));
+  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   dialog.create();
   gm_focus_and_select(name_field);
   if (dialog.execute()) {
@@ -1630,6 +1633,7 @@ long GMDatabaseSource::onCmdClear(FXObject*,FXSelector,void*){
   FXVerticalFrame * main = new FXVerticalFrame(&dialog,LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,30,20,10,10);
   GMCheckButton * playlist_check = new GMCheckButton(main,fxtr("Keep play lists"));
   playlist_check->setCheck(FXApp::instance()->reg().readBoolEntry("clear dialog","keep-play-lists",true));
+  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   if (dialog.execute()){
     //GMPlayerManager::instance()->stop();
     db->clearTracks(!playlist_check->getCheck());

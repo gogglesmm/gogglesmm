@@ -439,6 +439,7 @@ public:
         feedbox->appendItem(links[i].description);
         }
       feedbox->setNumVisible(FXMIN(feedbox->getNumItems(),9));
+      dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
       if (dialog.execute(channel)) {
         return feedbox->getCurrentItem();
         }
@@ -1650,6 +1651,7 @@ long GMPodcastSource::onCmdAddFeed(FXObject*,FXSelector,void*){
   FXMatrix * matrix = new FXMatrix(main,2,LAYOUT_FILL_X|MATRIX_BY_COLUMNS);
   new FXLabel(matrix,fxtr("Location"),nullptr,LABEL_NORMAL|LAYOUT_RIGHT|LAYOUT_CENTER_Y);
   GMTextField * location_field = new GMTextField(matrix,40,nullptr,0,LAYOUT_FILL_X|LAYOUT_FILL_COLUMN|FRAME_SUNKEN|FRAME_THICK);
+  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   if (dialog.execute()) {
     FXString url=location_field->getText().trim();
     if (!url.empty()) {

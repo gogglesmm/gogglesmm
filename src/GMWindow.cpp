@@ -1208,6 +1208,8 @@ public:
   GMOpenDialog(FXWindow*);
 
   FXString getFilename() const;
+
+  virtual FXuint execute(FXuint placement=PLACEMENT_CURSOR);
   };
 
 FXDEFMAP(GMOpenDialog) GMOpenDialogMap[]={
@@ -1267,6 +1269,11 @@ long GMOpenDialog::onCmdAccept(FXObject*sender,FXSelector sel,void*ptr){
 
 FXString GMOpenDialog::getFilename() const {
   return input->getText();
+  }
+
+FXuint GMOpenDialog::execute(FXuint placement) {
+  resize(getDefaultWidth(), getDefaultHeight());
+  return FXDialogBox::execute(placement);
   }
 
 long GMWindow::onCmdOpen(FXObject*,FXSelector,void*){

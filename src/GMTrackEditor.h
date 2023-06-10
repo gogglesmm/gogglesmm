@@ -94,6 +94,8 @@ public:
 public:
   GMEditTrackDialog(FXWindow *,GMTrackDatabase*);
 
+  virtual FXuint execute(FXuint placement=PLACEMENT_CURSOR);
+
   void setLyrics(const GMTrack & track);
   virtual ~GMEditTrackDialog();
   };
