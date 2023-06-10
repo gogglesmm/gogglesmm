@@ -616,9 +616,16 @@ FXbool PulseOutput::configure(const AudioFormat & fmt){
 #ifdef DEBUG
   pa_stream_set_state_callback(stream,stream_state_callback,this);
 #endif
-  //pa_stream_set_write_callback(stream,stream_write_callback,this);
 
-  if (pa_stream_connect_playback(stream,nullptr,nullptr,PA_STREAM_NOFLAGS,nullptr,nullptr)<0)
+  // Set to recommended values according to PulseAudio docs
+  pa_buffer_attr buffer_attributes;
+  buffer_attributes.maxlength = -1;  // set to maximum value supported by server (recommended)
+  buffer_attributes.tlength = -1;    // server should initialize this to reasonable default
+  buffer_attributes.prebuf = -1;     // set to same values as maxlength
+  buffer_attributes.minreq = -1;     // server should initialize this to reasonable default
+  buffer_attributes.fragsize = -1;   // server should initialize this to reasonable default
+
+  if (pa_stream_connect_playback(stream,nullptr,&buffer_attributes,pa_stream_flags(PA_STREAM_AUTO_TIMING_UPDATE|PA_STREAM_INTERPOLATE_TIMING),nullptr,nullptr)<0)
     goto failed;
 
   /// Wait until stream is ready
