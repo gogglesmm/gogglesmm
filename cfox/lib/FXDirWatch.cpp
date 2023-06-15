@@ -41,6 +41,7 @@
 #include "FXPath.h"
 #include "FXWindow.h"
 #include "FXApp.h"
+#include "FXIO.h"
 #include "FXStat.h"
 #include "FXDirWatch.h"
 
@@ -60,6 +61,8 @@
 
   - In other words, if watching a file then there is no name string in the
     inotify_event!!
+
+  - We need a fallback version that uses timers.
 */
 
 
@@ -74,6 +77,10 @@
 #endif
 
 
+// Test
+#undef HAVE_INOTIFY_INIT1
+
+
 using namespace FX;
 
 /*******************************************************************************/
@@ -81,20 +88,10 @@ using namespace FX;
 namespace FX {
 
 
-// Notify struct containing data from directory watch
-#if defined(HAVE_INOTIFY_INIT1)
-struct INotify {
-  union {
-    inotify_event e;
-    FXlong        d[(MAXPATHLEN+sizeof(inotify_event))/sizeof(FXlong)];
-    } info;
-  };
-#endif
-
-
 // Map
 FXDEFMAP(FXDirWatch) FXDirWatchMap[]={
-  FXMAPFUNC(SEL_IO_READ,FXDirWatch::ID_IO_READ,FXDirWatch::onMessage)
+  FXMAPFUNC(SEL_IO_READ,FXDirWatch::ID_CHANGE,FXDirWatch::onMessage),
+  FXMAPFUNC(SEL_TIMEOUT,FXDirWatch::ID_CHANGE,FXDirWatch::onMessage)
   };
 
 
@@ -103,64 +100,55 @@ FXIMPLEMENT(FXDirWatch,FXObject,FXDirWatchMap,ARRAYNUMBER(FXDirWatchMap));
 
 
 // Add handler to application
-FXDirWatch::FXDirWatch(FXApp* a,FXObject* tgt,FXSelector sel):app(a),hnd(BadHandle),target(tgt),message(sel){
+FXDirWatch::FXDirWatch(FXApp* a,FXObject* tgt,FXSelector sel):app(a),hnd(BadHandle),timestamp(0),target(tgt),message(sel){
   FXTRACE((1,"FXDirWatch::FXDirWatch(%p,%p,%d)\n",a,tgt,sel));
-#if defined(HAVE_INOTIFY_INIT1)
-  hnd=::inotify_init1(IN_CLOEXEC);
-  if(hnd==BadHandle){ throw FXResourceException("unable to create directory watcher."); }
-  FXTRACE((1,"hnd=%d\n",hnd));
-  getApp()->addInput(this,ID_IO_READ,hnd,INPUT_READ);
-#endif
   }
 
+
+// Remove handler from application
+FXDirWatch::~FXDirWatch(){
+  FXTRACE((1,"FXDirWatch::~FXDirWatch\n"));
+  clearAll();
+  app=(FXApp*)-1L;
+  target=(FXObject*)-1L;
+  }
+
+
+#if defined(WIN32)  /////////////////////////////////////////////////////////////
+
+
+// Event filter flags
+const FXuint FILTER=FILE_NOTIFY_CHANGE_FILE_NAME|FILE_NOTIFY_CHANGE_DIR_NAME|FILE_NOTIFY_CHANGE_ATTRIBUTES|FILE_NOTIFY_CHANGE_SIZE|FILE_NOTIFY_CHANGE_LAST_WRITE;
+
+
+// FIXME important note: watches contents of directory, not a file.
+// FIXME also, does not watch directory itself.
+// FIXME thus, to watch directory /path/dir, you may need to watch /path AND /path/dir,
+// FIXME or watch /path with recursive option....
 
 // Add path to watch; return true if added
 FXbool FXDirWatch::addWatch(const FXString& path){
   FXTRACE((1,"FXDirWatch::addWatch(%s)\n",path.text()));
   if(!pathToHandle.has(path)){
-#if defined(WIN32)
-    FXuint attrs;
-    HANDLE h;
 #if defined(UNICODE)
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,path.text(),MAXPATHLEN);
-    attrs=::GetFileAttributesW(unifile);
+    FXuint attrs=::GetFileAttributesW(unifile);
     if((attrs!=INVALID_FILE_ATTRIBUTES) && (attrs&FILE_ATTRIBUTE_DIRECTORY)){
-      h=::FindFirstChangeNotificationW(unifile,false,FILE_NOTIFY_CHANGE_FILE_NAME|FILE_NOTIFY_CHANGE_DIR_NAME|FILE_NOTIFY_CHANGE_ATTRIBUTES|FILE_NOTIFY_CHANGE_SIZE|FILE_NOTIFY_CHANGE_LAST_WRITE);
-      if(h!=BadHandle){
-        app->addInput(this,ID_IO_READ,h,INPUT_READ,(FXptr)h);
-        pathToHandle[path]=(FXptr)h;
-        handleToPath[(FXptr)h]=path;
-        FXTRACE((1,"%s -> %d\n",path.text(),h));
-        return true;
-        }
-      }
+      HANDLE h=::FindFirstChangeNotificationW(unifile,false,FILTER);
 #else
-    attrs=::GetFileAttributesA(path.text());
+    FXuint attrs=::GetFileAttributesA(path.text());
     if((attrs!=INVALID_FILE_ATTRIBUTES) && (attrs&FILE_ATTRIBUTE_DIRECTORY)){
-      h=::FindFirstChangeNotificationA(path.text(),false,FILE_NOTIFY_CHANGE_FILE_NAME|FILE_NOTIFY_CHANGE_DIR_NAME|FILE_NOTIFY_CHANGE_ATTRIBUTES|FILE_NOTIFY_CHANGE_SIZE|FILE_NOTIFY_CHANGE_LAST_WRITE);
+      HANDLE h=::FindFirstChangeNotificationA(path.text(),false,FILTER);
+#endif
       if(h!=BadHandle){
-        app->addInput(this,ID_IO_READ,h,INPUT_READ,(FXptr)h);
+        app->addInput(this,ID_CHANGE,h,INPUT_READ,(FXptr)h);
         pathToHandle[path]=(FXptr)h;
         handleToPath[(FXptr)h]=path;
         FXTRACE((1,"%s -> %d\n",path.text(),h));
         return true;
         }
       }
-#endif
-#elif defined(HAVE_INOTIFY_INIT1)
-    FXStat stat;
-    if(FXStat::statFile(path,stat)){
-      FXuint flags=stat.isDirectory()?(IN_ATTRIB|IN_MOVE|IN_CREATE|IN_DELETE|IN_DELETE_SELF):(IN_ATTRIB|IN_MODIFY|IN_MOVE|IN_MOVE_SELF|IN_DELETE_SELF);
-      FXInputHandle h=::inotify_add_watch(hnd,path.text(),flags);
-      if(h!=BadHandle){
-        pathToHandle[path]=(FXptr)(FXival)h;
-        handleToPath[(FXptr)(FXival)h]=path;
-        FXTRACE((1,"%s -> %d\n",path.text(),h));
-        return true;
-        }
-      }
-#endif
     }
   return false;
   }
@@ -170,7 +158,6 @@ FXbool FXDirWatch::addWatch(const FXString& path){
 FXbool FXDirWatch::remWatch(const FXString& path){
   FXTRACE((1,"FXDirWatch::remWatch(%s)\n",path.text()));
   if(pathToHandle.has(path)){
-#if defined(WIN32)
     HANDLE h=(HANDLE)pathToHandle[path];
     pathToHandle.remove(path);
     handleToPath.remove((FXptr)h);
@@ -179,52 +166,26 @@ FXbool FXDirWatch::remWatch(const FXString& path){
       FXTRACE((1,"%s -> %d\n",path.text(),h));
       return true;
       }
-#elif defined(HAVE_INOTIFY_INIT1)
-    FXInputHandle h=(FXival)pathToHandle[path];
-    pathToHandle.remove(path);
-    handleToPath.remove((FXptr)(FXival)h);
-    if(::inotify_rm_watch(hnd,h)!=BadHandle){
-      FXTRACE((1,"%s -> %d\n",path.text(),h));
-      return true;
-      }
-#endif
     }
   return false;
   }
-
-//BOOL ReadDirectoryChangesW(
-//  HANDLE                          hDirectory,
-//  LPVOID                          lpBuffer,
-//  DWORD                           nBufferLength,
-//  BOOL                            bWatchSubtree,
-//  DWORD                           dwNotifyFilter,
-//  LPDWORD                         lpBytesReturned,
-//  LPOVERLAPPED                    lpOverlapped,
-//  LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-//);
 
 
 // Clear all watches
 FXbool FXDirWatch::clearAll(){
   FXTRACE((1,"FXDirWatch::clearAll\n"));
-#if defined(WIN32)
-  HANDLE h;
-  for(FXint i=0; i<pathToHandle.no(); ++i){
-    if(!pathToHandle.empty(i)){
-      h=(HANDLE)pathToHandle.data(i);
-      app->removeInput(h,INPUT_READ);
-      FindCloseChangeNotification(h);
+  if(pathToHandle.used()!=0){
+    for(FXint i=0; i<pathToHandle.no(); ++i){
+      if(!pathToHandle.empty(i)){
+        HANDLE h=(HANDLE)pathToHandle.data(i);
+        app->removeInput(h,INPUT_READ);
+        FindCloseChangeNotification(h);
+        }
       }
+    pathToHandle.clear();
+    handleToPath.clear();
+    return true;
     }
-#elif defined(HAVE_INOTIFY_INIT1)
-  for(FXint i=0; i<pathToHandle.no(); ++i){
-    if(!pathToHandle.empty(i)){
-      ::inotify_rm_watch(hnd,(FXival)pathToHandle.data(i));
-      }
-    }
-#endif
-  pathToHandle.clear();
-  handleToPath.clear();
   return false;
   }
 
@@ -232,31 +193,155 @@ FXbool FXDirWatch::clearAll(){
 // Fire signal message to target
 long FXDirWatch::onMessage(FXObject*,FXSelector,void* ptr){
   FXTRACE((1,"FXDirWatch::onMessage()\n"));
-#if defined(WIN32)
   FXString pathname;
   HANDLE h=(HANDLE)ptr;
   FindNextChangeNotification(h);
   pathname=handleToPath[(FXptr)h];
   FXTRACE((2,"pathname=\"%s\"\n",pathname.text()));
-#elif defined(HAVE_INOTIFY_INIT1)
-  FXchar *beg,*end,*pne;
-  inotify_event* ne;
-  FXival expect=0,actual=0;
-  FXString path,pathname;
-  ::ioctl(hnd,FIONREAD,&expect);
-  FXTRACE((1,"expect=%ld\n",expect));
-  if(0<expect){
-    if(allocElms(beg,expect)){
-      actual=::read(hnd,beg,expect);
+#if 0
+BOOL ReadDirectoryChangesW(
+  HANDLE                          hDirectory,
+  LPVOID                          lpBuffer,
+  DWORD                           nBufferLength,
+  BOOL                            bWatchSubtree,
+  DWORD                           dwNotifyFilter,
+  LPDWORD                         lpBytesReturned,
+  LPOVERLAPPED                    lpOverlapped,
+  LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+  );
+
+struct FILE_NOTIFY_INFORMATION {
+  DWORD NextEntryOffset;
+  DWORD Action;
+  DWORD FileNameLength;
+  WCHAR FileName[1];
+  };
+
+  USES_CONVERSION;
+  HANDLE hDir = CreateFile("c:\\Folder", // pointer to the file name
+    FILE_LIST_DIRECTORY,                // access (read-write) mode
+    FILE_SHARE_READ|FILE_SHARE_DELETE,  // share mode
+    NULL, // security descriptor
+    OPEN_EXISTING, // how to create
+    FILE_FLAG_BACKUP_SEMANTICS, // file attributes
+    NULL // file with attributes to copy
+  );
+
+  FILE_NOTIFY_INFORMATION Buffer[1024];
+  DWORD BytesReturned;
+  while( ReadDirectoryChangesW(hDir, // handle to directory
+     &Buffer, // read results buffer
+     sizeof(Buffer), // length of buffer
+     TRUE, // monitoring option
+     FILE_NOTIFY_CHANGE_SECURITY|FILE_NOTIFY_CHANGE_CREATION|FILE_NOTIFY_CHANGE_LAST_ACCESS|FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_SIZE|FILE_NOTIFY_CHANGE_ATTRIBUTES|FILE_NOTIFY_CHANGE_DIR_NAME|FILE_NOTIFY_CHANGE_FILE_NAME, // filter conditions
+     &BytesReturned, // bytes returned
+     NULL, // overlapped buffer
+     NULL)){ // completion routine
+       ...
+   }
+  ::CloseHandle(hDir);
+#endif
+
+  return 1;
+  }
+
+
+#elif defined(HAVE_INOTIFY_INIT1)  //////////////////////////////////////////////
+
+
+// Event filter flags
+const FXuint FILTER_DIRS=IN_ATTRIB|IN_DELETE_SELF|IN_MOVE|IN_CREATE|IN_DELETE;
+const FXuint FILTER_FILE=IN_ATTRIB|IN_DELETE_SELF|IN_MOVE|IN_MODIFY|IN_MOVE_SELF;
+
+
+// Add path to watch; return true if added
+FXbool FXDirWatch::addWatch(const FXString& path){
+  FXTRACE((1,"FXDirWatch::addWatch(%s)\n",path.text()));
+  if(!pathToHandle.has(path)){
+    FXStat stat;
+    if(FXStat::statFile(path,stat)){
+      if(pathToHandle.used()==0){
+        hnd=::inotify_init1(IN_CLOEXEC);  //hnd=::inotify_init1(IN_CLOEXEC|O_NONBLOCK);
+        if(hnd!=BadHandle){
+          getApp()->addInput(this,ID_CHANGE,hnd,INPUT_READ);
+          }
+        }
+      if(hnd!=BadHandle){
+        FXuint mask=stat.isDirectory()?FILTER_DIRS:FILTER_FILE;
+        FXInputHandle h=::inotify_add_watch(hnd,path.text(),mask);
+        if(h!=BadHandle){
+          pathToHandle[path]=(FXptr)(FXival)h;
+          handleToPath[(FXptr)(FXival)h]=path;
+          FXTRACE((1,"FXDirWatch::addWatch(%s) -> %d\n",path.text(),h));
+          return true;
+          }
+        }
+      }
+    }
+  return false;
+  }
+
+
+// Remove path to watch; return true if removed
+FXbool FXDirWatch::remWatch(const FXString& path){
+  FXTRACE((1,"FXDirWatch::remWatch(%s)\n",path.text()));
+  if(pathToHandle.has(path)){
+    if(hnd!=BadHandle){
+      FXInputHandle h=(FXival)pathToHandle[path];
+      pathToHandle.remove(path);
+      handleToPath.remove((FXptr)(FXival)h);
+      if(::inotify_rm_watch(hnd,h)!=BadHandle){
+        FXTRACE((1,"FXDirWatch::remWatch(%s) -> %d\n",path.text(),h));
+        if(pathToHandle.used()==0){
+          app->removeInput(hnd,INPUT_READ);
+          ::close(hnd);
+          hnd=BadHandle;
+          }
+        return true;
+        }
+      }
+    }
+  return false;
+  }
+
+
+// Clear all watches
+FXbool FXDirWatch::clearAll(){
+  FXTRACE((1,"FXDirWatch::clearAll\n"));
+  if(pathToHandle.used()!=0){
+    for(FXint i=0; i<pathToHandle.no(); ++i){
+      if(!pathToHandle.empty(i)){
+        ::inotify_rm_watch(hnd,(FXival)pathToHandle.data(i));
+        }
+      }
+    pathToHandle.clear();
+    handleToPath.clear();
+    app->removeInput(hnd,INPUT_READ);
+    ::close(hnd);
+    hnd=BadHandle;
+    return true;
+    }
+  return false;
+  }
+
+
+// Fire signal message to target
+long FXDirWatch::onMessage(FXObject*,FXSelector,void*){
+  FXTRACE((1,"FXDirWatch::onMessage()\n"));
+  FXival expect=0;
+  if(0<=::ioctl(hnd,FIONREAD,&expect) && 0<expect){
+    FXTRACE((1,"expect=%ld\n",expect));
+    FXchar *ptr;
+    if(allocElms(ptr,expect)){
+      FXival actual=::read(hnd,ptr,expect);
       FXTRACE((1,"actual=%ld\n",actual));
       if(0<actual){
-        end=beg+actual;
-        pne=beg;
+        FXchar *end=ptr+actual;
+        FXchar *pne=ptr;
         while(pne<end){
-          ne=(inotify_event*)pne;
-          path=handleToPath[(FXptr)(FXival)ne->wd];
-          pathname=FXPath::absolute(path,ne->name);
-          FXTRACE((2,"wd=%d mask=%x cookie=%u len=%u name=\"%s\" path=\"%s\" pathname=\"%s\"\n",ne->wd,ne->mask,ne->cookie,ne->len,ne->name,path.text(),pathname.text()));
+          inotify_event* ne=(inotify_event*)pne;
+          FXString pathname=FXPath::absolute(handleToPath[(FXptr)(FXival)ne->wd],ne->name);
+          FXTRACE((2,"wd=%d mask=%x cookie=%u len=%u name=\"%s\" pathname=\"%s\"\n",ne->wd,ne->mask,ne->cookie,ne->len,ne->name,pathname.text()));
           if(ne->mask&IN_ACCESS)        FXTRACE((2,"IN_ACCESS "));
           if(ne->mask&IN_ATTRIB)        FXTRACE((2,"IN_ATTRIB "));
           if(ne->mask&IN_CLOSE_NOWRITE) FXTRACE((2,"IN_CLOSE_NOWRITE "));
@@ -286,24 +371,90 @@ long FXDirWatch::onMessage(FXObject*,FXSelector,void* ptr){
           pne+=sizeof(inotify_event)+ne->len;
           }
         }
-      freeElms(beg);
+      freeElms(ptr);
       }
     }
-#endif
   return 1;
   }
 
 
-// Remove handler from application
-FXDirWatch::~FXDirWatch(){
-  FXTRACE((1,"FXDirWatch::~FXDirWatch\n"));
-  clearAll();
-#if defined(HAVE_INOTIFY_INIT1)
-  if(hnd!=BadHandle){
-    app->removeInput(hnd,INPUT_READ);
-    ::close(hnd);
+#else  //////////////////////////////////////////////////////////////////////////
+
+
+// Interval between refreshes
+const FXTime REFRESHINTERVAL=1000000000;
+
+
+// Add path to watch; return true if added
+FXbool FXDirWatch::addWatch(const FXString& path){
+  FXTRACE((1,"FXDirWatch::addWatch(%s)\n",path.text()));
+  if(!pathToHandle.has(path)){
+    FXStat stat;
+    if(FXStat::statFile(path,stat)){
+      if(pathToHandle.used()==0){
+        getApp()->addTimeout(this,ID_CHANGE,REFRESHINTERVAL);
+        }
+      pathToHandle[path]=(FXptr)(stat.isFile()?1L:2L);
+      return true;
+      }
     }
-#endif
+  return false;
   }
+
+
+// Remove path to watch; return true if removed
+FXbool FXDirWatch::remWatch(const FXString& path){
+  FXTRACE((1,"FXDirWatch::remWatch(%s)\n",path.text()));
+  if(pathToHandle.has(path)){
+    pathToHandle.remove(path);
+    if(pathToHandle.used()==0){
+      getApp()->removeTimeout(this,ID_CHANGE);
+      }
+    return true;
+    }
+  return false;
+  }
+
+
+// Clear all watches
+FXbool FXDirWatch::clearAll(){
+  FXTRACE((1,"FXDirWatch::clearAll()\n"));
+  if(pathToHandle.used()!=0){
+    pathToHandle.clear();
+    getApp()->removeTimeout(this,ID_CHANGE);
+    return true;
+    }
+  return false;
+  }
+
+
+// Fire signal message to target
+long FXDirWatch::onMessage(FXObject*,FXSelector,void*){
+  FXTRACE((1,"FXDirWatch::onMessage()\n"));
+  if(pathToHandle.used()!=0){
+    FXTime newstamp=0;
+    for(FXint i=0; i<pathToHandle.no(); ++i){
+      if(!pathToHandle.empty(i)){
+        FXStat stat;
+        if(FXStat::statFile(pathToHandle.key(i),stat)){
+          FXTime time=stat.modified();
+          if(newstamp<time) newstamp=time;
+          if(timestamp<time){
+            FXTRACE((1,"SEL_CHANGED \"%s\"\n",pathToHandle.key(i).text()));
+            }
+          }
+        else{
+          FXTRACE((1,"SEL_DELETED \"%s\"\n",pathToHandle.key(i).text()));
+          }
+        }
+      }
+    timestamp=newstamp;
+    getApp()->addTimeout(this,ID_CHANGE,REFRESHINTERVAL);
+    }
+  return 1;
+  }
+
+
+#endif  /////////////////////////////////////////////////////////////////////////
 
 }

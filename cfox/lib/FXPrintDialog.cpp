@@ -29,6 +29,7 @@
 #include "FXElement.h"
 #include "FXStream.h"
 #include "FXString.h"
+#include "FXIO.h"
 #include "FXStat.h"
 #include "FXFile.h"
 #include "FXSize.h"

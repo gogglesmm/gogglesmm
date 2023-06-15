@@ -653,6 +653,7 @@ FXint FXText::validPos(FXint pos) const {
   return (isUTF8(ptr[pos]) || --pos<=0 || isUTF8(ptr[pos]) || --pos<=0 || isUTF8(ptr[pos]) || --pos), pos;
   }
 
+
 // Decrement; a wide character does not cross the gap, so if pos is at
 // or below below the gap, we read from the segment below the gap
 FXint FXText::dec(FXint pos) const {
@@ -1503,18 +1504,19 @@ void FXText::flashMatching(){
 
 // Search for text
 FXbool FXText::findText(const FXString& string,FXint* beg,FXint* end,FXint start,FXuint flgs,FXint npar){
-  FXint rexmode=FXRex::Normal;
-  FXRex rex;
 
   // Check arguments
   if(npar<1 || !beg || !end){ fxerror("%s::findText: bad argument.\n",getClassName()); }
 
   // Tweak parse flags a bit
+  FXint rexmode=FXRex::Normal;
   if(1<npar) rexmode|=FXRex::Capture;                           // Capturing parentheses
+  if(flgs&SEARCH_WORDS) rexmode|=FXRex::Words;			// Word mode
   if(flgs&SEARCH_IGNORECASE) rexmode|=FXRex::IgnoreCase;        // Case insensitivity
   if(!(flgs&SEARCH_REGEX)) rexmode|=FXRex::Verbatim;            // Verbatim match
 
   // Try parse the regex
+  FXRex rex;
   if(rex.parse(string,rexmode)==FXRex::ErrOK){
 
     // Make all characters contiguous in the buffer
@@ -2385,7 +2387,6 @@ FXint FXText::setText(const FXString& text,FXbool notify){
 
 // Change the text in the buffer to new text
 FXint FXText::setStyledText(const FXchar* text,FXint num,FXint style,FXbool notify){
-  FXTextChange textchange;
   if(num<0){ fxerror("%s::setStyledText: bad argument.\n",getClassName()); }
   if(!resizeElms(buffer,num+MINSIZE)){
     fxerror("%s::setStyledText: out of memory.\n",getClassName());
@@ -2423,12 +2424,8 @@ FXint FXText::setStyledText(const FXchar* text,FXint num,FXint style,FXbool noti
   pos_x=0;
   pos_y=0;
   modified=false;
-  textchange.pos=0;
-  textchange.ndel=0;
-  textchange.nins=num;
-  textchange.ins=(FXchar*)text;
-  textchange.del=(FXchar*)"";
   if(notify && target){
+    FXTextChange textchange={0,0,num,"",text};
     target->tryHandle(this,FXSEL(SEL_INSERTED,message),(void*)&textchange);
     target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)(FXival)cursorpos);
     }
@@ -2461,19 +2458,13 @@ FXint FXText::replaceText(FXint pos,FXint del,const FXString& text,FXbool notify
 // Replace m characters at pos by n characters
 FXint FXText::replaceStyledText(FXint pos,FXint del,const FXchar *text,FXint ins,FXint style,FXbool notify){
   if(0<=pos && 0<=del && 0<=ins && pos+del<=length && text){
-    FXTextChange textchange;
-    textchange.pos=pos;
-    textchange.ndel=del;
-    textchange.nins=ins;
-    textchange.ins=(FXchar*)text;
-    allocElms(textchange.del,del);
-    extractText(textchange.del,pos,del);
+    FXString txet=extractText(pos,del);
     replace(pos,del,text,ins,style);
     if(notify && target){
+      FXTextChange textchange={pos,del,ins,txet.text(),text};
       target->tryHandle(this,FXSEL(SEL_REPLACED,message),(void*)&textchange);
       target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)(FXival)cursorpos);
       }
-    freeElms(textchange.del);
     return ins;
     }
   return 0;
@@ -3136,15 +3127,11 @@ FXint FXText::appendText(const FXString& text,FXbool notify){
 
 // Add text at the end
 FXint FXText::appendStyledText(const FXchar *text,FXint num,FXint style,FXbool notify){
-  FXTextChange textchange;
   if(num<0){ fxerror("%s::appendStyledText: bad argument.\n",getClassName()); }
-  textchange.pos=length;
-  textchange.ndel=0;
-  textchange.nins=num;
-  textchange.ins=(FXchar*)text;
-  textchange.del=(FXchar*)"";
+  FXint pos=length;
   replace(length,0,text,num,style);
   if(notify && target){
+    FXTextChange textchange={pos,0,num,"",text};
     target->tryHandle(this,FXSEL(SEL_INSERTED,message),(void*)&textchange);
     target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)(FXival)cursorpos);
     }
@@ -3174,14 +3161,9 @@ FXint FXText::insertText(FXint pos,const FXString& text,FXbool notify){
 // Insert some text at pos
 FXint FXText::insertStyledText(FXint pos,const FXchar *text,FXint num,FXint style,FXbool notify){
   if(0<=pos && pos<=length && 0<=num && text){
-    FXTextChange textchange;
-    textchange.pos=pos;
-    textchange.ndel=0;
-    textchange.nins=num;
-    textchange.ins=(FXchar*)text;
-    textchange.del=(FXchar*)"";
     replace(pos,0,text,num,style);
     if(notify && target){
+      FXTextChange textchange={pos,0,num,"",text};
       target->tryHandle(this,FXSEL(SEL_INSERTED,message),(void*)&textchange);
       target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)(FXival)cursorpos);
       }
@@ -3307,19 +3289,13 @@ FXint FXText::changeStyle(FXint pos,const FXString& style){
 // Remove some text at pos
 FXint FXText::removeText(FXint pos,FXint num,FXbool notify){
   if(0<=pos && 0<=num && pos+num<=length){
-    FXTextChange textchange;
-    textchange.pos=pos;
-    textchange.ndel=num;
-    textchange.nins=0;
-    textchange.ins=(FXchar*)"";
-    allocElms(textchange.del,num);
-    extractText(textchange.del,pos,num);
+    FXString txet=extractText(pos,num);
     replace(pos,num,nullptr,0,0);
     if(notify && target){
+      FXTextChange textchange={pos,num,0,txet.text(),""};
       target->tryHandle(this,FXSEL(SEL_DELETED,message),(void*)&textchange);
       target->tryHandle(this,FXSEL(SEL_CHANGED,message),(void*)(FXival)cursorpos);
       }
-    freeElms(textchange.del);
     return num;
     }
   return 0;
@@ -3538,10 +3514,10 @@ FXbool FXText::selectAll(FXbool notify){
 
 // Select range of len characters starting at given position pos
 FXbool FXText::setSelection(FXint pos,FXint len,FXbool notify){
-  FXDragType types[4]={stringType,textType,utf8Type,utf16Type};
   FXint spos=validPos(pos);
   FXint epos=validPos(pos+len);
   if(select.startpos!=spos || select.endpos!=epos || select.startcol<=select.endcol){
+    FXDragType types[4]={stringType,textType,utf8Type,utf16Type};
     FXint what[4];
 
     // Now a range select
@@ -3645,10 +3621,10 @@ FXbool FXText::extendSelection(FXint pos,FXuint sel,FXbool notify){
 
 // Select block of characters within given box
 FXbool FXText::setBlockSelection(FXint trow,FXint lcol,FXint brow,FXint rcol,FXbool notify){
-  FXDragType types[4]={stringType,textType,utf8Type,utf16Type};
   FXint spos=lineStart(posFromRow(trow));
   FXint epos=lineEnd(posFromRow(brow));
   if(select.startpos!=spos || select.endpos!=epos || select.startcol!=lcol || select.endcol!=rcol){
+    FXDragType types[4]={stringType,textType,utf8Type,utf16Type};
     FXint what[4];
 
     // Update affected areas
@@ -3753,8 +3729,8 @@ FXString FXText::getSelectedText() const {
 
 // Copy selection to clipboard
 FXbool FXText::copySelection(){
-  FXDragType types[4]={stringType,textType,utf8Type,utf16Type};
   if(select.startpos<=select.endpos){
+    FXDragType types[4]={stringType,textType,utf8Type,utf16Type};
     if(acquireClipboard(types,ARRAYNUMBER(types))){
       clipped=getSelectedText();
       return true;
@@ -3774,6 +3750,7 @@ FXbool FXText::cutSelection(FXbool notify){
 
 
 // Replace selection by other text
+// FIXME Select new text if it replaces the selection
 FXbool FXText::replaceSelection(const FXString& text,FXbool notify){
   if((select.startcol<select.endcol) && (select.startpos<=select.endpos)){
     FXint cols=maxColumns(text,tabcolumns);
@@ -4210,6 +4187,9 @@ FXuint FXText::styleOf(FXint beg,FXint end,FXint row,FXint col,FXint pos) const 
         }
       }
 
+    // FIXME draw (soft) vertical line at indent-stops
+    //if((col%tabcolumns)==0) style|=STYLE_INSERT;
+
     // Inside text
     if(pos<end){
 
@@ -4439,48 +4419,40 @@ void FXText::updateRow(FXint row) const {
   }
 
 
-// Update whole lines
+// Repaint whole lines
 void FXText::updateLines(FXint startpos,FXint endpos) const {
-  FXint b,e,tr,br,ty,by;
+  FXint b,e;
   FXMINMAX(b,e,startpos,endpos);
   if(b<=visrows[nvisrows] && visrows[0]<e){
-    if(b<visrows[0]) b=visrows[0];
-    if(e>visrows[nvisrows-1]) e=visrows[nvisrows-1];
-    tr=rowFromPos(b);
-    br=rowFromPos(e);
-    ty=getVisibleY()+margintop+pos_y+tr*font->getFontHeight();
-    by=getVisibleY()+margintop+pos_y+br*font->getFontHeight()+font->getFontHeight();
+    FXint tr=rowFromPos(FXMAX(b,visrows[0]));
+    FXint br=rowFromPos(FXMIN(e,visrows[nvisrows-1]));
+    FXint ty=getVisibleY()+margintop+pos_y+tr*font->getFontHeight();
+    FXint by=getVisibleY()+margintop+pos_y+br*font->getFontHeight()+font->getFontHeight();
     update(getVisibleX(),ty,getVisibleWidth(),by-ty);
     }
   }
 
 
-// Repaint text range
+// Repaint minimal range; newline spans to edge of window!
 void FXText::updateRange(FXint startpos,FXint endpos) const {
-  FXint b,e,vx,vy,vw,tr,br,lx,rx,ty,by;
+  FXint b,e;
   FXMINMAX(b,e,startpos,endpos);
   if(b<=visrows[nvisrows] && visrows[0]<e){
-    if(b<visrows[0]) b=visrows[0];
-    if(e>visrows[nvisrows-1]) e=visrows[nvisrows-1];
-    vx=getVisibleX();
-    vy=getVisibleY();
-    vw=getVisibleWidth();
-    tr=rowFromPos(b);
-    br=rowFromPos(e);
+    FXint tr=rowFromPos(FXMAX(b,visrows[0]));
+    FXint br=rowFromPos(FXMIN(e,visrows[nvisrows-1]));
+    FXint vx=getVisibleX();
+    FXint vy=getVisibleY();
+    FXint vw=getVisibleWidth();
+    FXint th=font->getFontHeight();
+    FXint ty=vy+pos_y+margintop+tr*th;
+    FXint by=vy+pos_y+margintop+br*th+th;
+    FXint lx=vx;
+    FXint rx=vx+vw;
     if(tr==br){
-      ty=pos_y+vy+margintop+tr*font->getFontHeight();
-      by=ty+font->getFontHeight();
       lx=vx+pos_x+marginleft+xoffset(visrows[tr-toprow],b);
-      if(e<=(visrows[tr-toprow+1]-1))
+      if(e<=(visrows[tr-toprow+1]-1)){
         rx=vx+pos_x+marginleft+xoffset(visrows[tr-toprow],e);
-      else
-        rx=vx+vw;
-      }
-    else{
-      ty=vy+pos_y+margintop+tr*font->getFontHeight();
-      by=vy+pos_y+margintop+br*font->getFontHeight()+font->getFontHeight();
-      lx=vx;
-      rx=lx+vw;
+        }
       }
     update(lx,ty,rx-lx,by-ty);
     }
@@ -4680,8 +4652,8 @@ long FXText::onIMEStart(FXObject*,FXSelector,void*){
 
 // Start a drag operation
 long FXText::onBeginDrag(FXObject* sender,FXSelector sel,void* ptr){
-  FXDragType types[4]={stringType,textType,utf8Type,utf16Type};
   if(!FXScrollArea::onBeginDrag(sender,sel,ptr)){
+    FXDragType types[4]={stringType,textType,utf8Type,utf16Type};
     beginDrag(types,ARRAYNUMBER(types));
     setDragCursor(getApp()->getDefaultCursor(DEF_DNDSTOP_CURSOR));
     }
@@ -6527,8 +6499,6 @@ long FXText::onUpdTextSize(FXObject* sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,ID_SETINTVALUE),(void*)&length);
   return 1;
   }
-
-
 
 /*******************************************************************************/
 

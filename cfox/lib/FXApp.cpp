@@ -906,6 +906,9 @@ void FXApp::beginWaitCursor(){
         while(!child->getNext()&&child->getParent()){child=child->getParent();}
         child=child->getNext();
         }
+      if(mouseGrabWindow){
+        XChangeActivePointerGrab((Display*)display,(ButtonPressMask|ButtonReleaseMask|PointerMotionMask|EnterWindowMask|LeaveWindowMask),waitCursor->id(),CurrentTime);
+        }
       XFlush((Display*)display);
 #endif
       }
@@ -935,6 +938,9 @@ void FXApp::endWaitCursor(){
           }
         while(!child->getNext()&&child->getParent()){child=child->getParent();}
         child=child->getNext();
+        }
+      if(mouseGrabWindow){
+        XChangeActivePointerGrab((Display*)display,(ButtonPressMask|ButtonReleaseMask|PointerMotionMask|EnterWindowMask|LeaveWindowMask),mouseGrabWindow->getDragCursor()->id(),CurrentTime);
         }
       XFlush((Display*)display);
 #endif
@@ -5424,7 +5430,7 @@ Alt key seems to repeat.
         FXDragType *dragtypes=(FXDragType*)MapViewOfFile(hMap,FILE_MAP_READ,0,0,0);
         if(dragtypes){
           if(allocElms(ddeTypeList,dragtypes[0])){
-            memcpy(ddeTypeList,&dragtypes[1],dragtypes[0]*sizeof(FXDragType));
+            copyElms(ddeTypeList,&dragtypes[1],dragtypes[0]);
             ddeNumTypes=dragtypes[0];
             }
           UnmapViewOfFile(dragtypes);

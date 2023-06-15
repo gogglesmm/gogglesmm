@@ -331,7 +331,7 @@ FXTime FXThread::steadytime(){
   LARGE_INTEGER frq,clk;
   ::QueryPerformanceFrequency(&frq);
   ::QueryPerformanceCounter(&clk);
-  FXASSERT(frequency<FXLONG(9223372036));       // Overflow possible if CPU speed exceeds 9.2GHz
+  FXASSERT(frq.QuadPart<FXLONG(9223372036));       // Overflow possible if CPU speed exceeds 9.2GHz
   FXTime s=clk.QuadPart/frq.QuadPart;
   FXTime f=clk.QuadPart%frq.QuadPart;
   return seconds*s+(seconds*f)/frq.QuadPart;
@@ -556,8 +556,7 @@ void FXThread::wakeat(FXTime nsec){
 // Return thread id of caller
 FXThreadID FXThread::current(){
 #if defined(WIN32)
-//return (FXThreadID)GetCurrentThreadId();
-  return (FXThreadID)GetCurrentThread();
+  return (FXThreadID)GetCurrentThreadId();
 #else
   return (FXThreadID)pthread_self();
 #endif

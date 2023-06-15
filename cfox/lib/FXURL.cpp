@@ -329,8 +329,8 @@ FXString FXURL::encode(const FXString& url,const FXchar* set){
       c=(FXuchar)url[p];
       if(c<0x20 || 128<=c || c=='%' || (set && strchr(set,c))){
         result[q++]='%';
-        result[q++]=FXString::value2Digit[c>>4];
-        result[q++]=FXString::value2Digit[c&15];
+        result[q++]=Ascii::valueDigit(c>>4);
+        result[q++]=Ascii::valueDigit(c&15);
         continue;
         }
       result[q++]=c;

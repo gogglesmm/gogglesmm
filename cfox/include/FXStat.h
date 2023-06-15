@@ -296,8 +296,9 @@ public:
   /// Return true if the file has the sticky bit set
   static FXbool isSetSticky(const FXString& file);
 
-  /// Return true if file is accessible for access mode m (FXIO::ReadOnly, FXIO::WriteOnly, FXIO::Executable)
-  static FXbool isAccessible(const FXString& file,FXuint m=0);
+  /// Return true if file is accessible for access mode m
+  /// (FXIO::ReadOnly, FXIO::WriteOnly, FXIO::ReadWrite, FXIO::Executable, etc.)
+  static FXbool isAccessible(const FXString& file,FXuint m=FXIO::ReadWrite);
 
   /// Obtain total amount of space on disk mounted at given path
   static FXbool getTotalDiskSpace(const FXString& path,FXulong& space);

@@ -1522,14 +1522,14 @@ void FXTable::extractText(FXchar*& text,FXint& size,FXint startrow,FXint endrow,
       for(r=startrow; r<=endrow; r++){
         for(c=startcol; c<=endcol; c++){
           string=getItemText(r,c);
-          memcpy(ptr,string.text(),string.length());
+          copyElms(ptr,string.text(),string.length());
           ptr+=string.length();
           if(c==endcol){
-            memcpy(ptr,rs,nrs);
+            copyElms(ptr,rs,nrs);
             ptr+=nrs;
             }
           else{
-            memcpy(ptr,cs,ncs);
+            copyElms(ptr,cs,ncs);
             ptr+=ncs;
             }
           }

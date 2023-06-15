@@ -3,7 +3,7 @@
 *                         M e s s a g e   B o x e s                             *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1997,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1997,2023 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -49,8 +49,10 @@
 
 /*
   Notes:
+
   - Want justify modes for the message box so the label can be aligned
     different ways.
+
   - Added MBOX_SAVE_CANCEL_DONTSAVE dialog from Sander.
 */
 
@@ -95,8 +97,8 @@ void FXMessageBox::initialize(const FXString& text,FXIcon* icn,FXuint whichbutto
   FXButton *initial;
   FXVerticalFrame* content=new FXVerticalFrame(this,LAYOUT_FILL_X|LAYOUT_FILL_Y);
   FXHorizontalFrame* info=new FXHorizontalFrame(content,LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,10,10,10,10);
-  new FXLabel(info,FXString::null,icn,ICON_BEFORE_TEXT|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
-  new FXLabel(info,text,nullptr,JUSTIFY_LEFT|ICON_BEFORE_TEXT|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  new FXLabel(info,FXString::null,icn,ICON_BEFORE_TEXT|JUSTIFY_RIGHT|JUSTIFY_CENTER_Y|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  new FXLabel(info,text,nullptr,JUSTIFY_LEFT|JUSTIFY_CENTER_Y|ICON_BEFORE_TEXT|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X|LAYOUT_FILL_Y);
   new FXHorizontalSeparator(content,SEPARATOR_GROOVE|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X);
   FXHorizontalFrame* buttons=new FXHorizontalFrame(content,LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,0,0,0,0,10,10,5,5);
   if(whichbuttons==MBOX_OK){
@@ -137,11 +139,9 @@ void FXMessageBox::initialize(const FXString& text,FXIcon* icn,FXuint whichbutto
     initial->setFocus();
     }
   else if(whichbuttons==MBOX_SAVE_CANCEL_DONTSAVE){
-    buttons->setPackingHints(PACK_NORMAL);
-    new FXButton(buttons,tr("&Don't Save"),nullptr,this,ID_CLICKED_NO,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_TOP|LAYOUT_CENTER_X,0,0,0,0,15,15,VERT_PAD,VERT_PAD);
-    FXHorizontalFrame *buttons3=new FXHorizontalFrame(buttons,LAYOUT_RIGHT|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
-    new FXButton(buttons3,tr("&Cancel"),nullptr,this,ID_CLICKED_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_TOP|LAYOUT_LEFT,0,0,0,0,15,15,VERT_PAD,VERT_PAD);
-    initial=new FXButton(buttons3,tr("&Save"),nullptr,this,ID_CLICKED_SAVE,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_TOP|LAYOUT_LEFT,0,0,0,0,15,15,VERT_PAD,VERT_PAD);
+    new FXButton(buttons,tr("&Don't Save"),nullptr,this,ID_CLICKED_NO,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_CENTER_X,0,0,0,0,15,15,VERT_PAD,VERT_PAD);
+    new FXButton(buttons,tr("&Cancel"),nullptr,this,ID_CLICKED_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_CENTER_X,0,0,0,0,15,15,VERT_PAD,VERT_PAD);
+    initial=new FXButton(buttons,tr("&Save"),nullptr,this,ID_CLICKED_SAVE,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_TOP|LAYOUT_LEFT|LAYOUT_CENTER_X,0,0,0,0,15,15,VERT_PAD,VERT_PAD);
     initial->setFocus();
     }
   else if(whichbuttons==MBOX_YES_YESALL_NO_NOALL_CANCEL){

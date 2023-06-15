@@ -28,6 +28,7 @@
 #include "FXElement.h"
 #include "FXArray.h"
 #include "FXString.h"
+#include "FXIO.h"
 #include "FXStat.h"
 #include "FXFile.h"
 #include "FXException.h"

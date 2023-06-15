@@ -127,7 +127,7 @@ FXbool FXHash::no(FXival n){
 // Resize the table to the given size, keeping contents
 FXbool FXHash::resize(FXival n){
   FXHash elbat;
-  FXASSERT((n&(n-1))==0);       // Power of w
+  FXASSERT((n&(n-1))==0);       // Power of 2
   FXASSERT((n-used())>0);       // At least one free slot
   if(elbat.no(n)){
     if(1<elbat.no() && 1<no()){

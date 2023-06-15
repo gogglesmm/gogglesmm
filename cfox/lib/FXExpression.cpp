@@ -3,7 +3,7 @@
 *                      E x p r e s s i o n   E v a l u a t o r                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2023 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -37,6 +37,9 @@
   - Old as night, but recently rediscovered ;-).
   - Better treatment of identifiers needed [user-supplied names].
   - Maintain stack-depth during compile phase for possible limit check.
+  - The new return code ErrMore means not all the input for the expression
+    was consumed; It could treated it as ErrOK.  However, we should add a
+    way to find out where the parse stopped.
 */
 
 #define TOPIC_CONSTRUCT 1000
@@ -299,17 +302,20 @@ FXExpression::Error FXCompile::compile(){
   // Error occurred
   if(err!=FXExpression::ErrOK) return err;
 
-  // Not at the end of the expression
-  if(token!=TK_EOF) return FXExpression::ErrToken;
-
   // Return from evaluator
   opcode(OP_END);
+  FXTRACE((TOPIC_DETAIL,"SIZE=%ld\n",pc-code));
+
+  // Code is too long
+  if(code+32767<pc) return FXExpression::ErrLong;
 
   // Fix up compiled code size
   fix(at,pc-code);
 
   FXTRACE((TOPIC_DETAIL,"OP_LAST=%d\n",OP_LAST));
-  FXTRACE((TOPIC_DETAIL,"SIZE=%ld\n",pc-code));
+
+  // Not at the end of the expression
+  if(token!=TK_EOF) return FXExpression::ErrMore;
 
   return FXExpression::ErrOK;
   }
@@ -326,17 +332,16 @@ FXExpression::Error FXCompile::expression(){
 // Parse x?y:z
 FXExpression::Error FXCompile::altex(){
   FXExpression::Error err=compex();
-  FXuchar *piff,*pels;
   if(err!=FXExpression::ErrOK) return err;
   if(token==TK_QUEST){
     gettok();
     opcode(OP_BRF);
-    piff=offset(0);
+    FXuchar* piff=offset(0);
     err=altex();
     if(err!=FXExpression::ErrOK) return err;
     if(token!=TK_COLON) return FXExpression::ErrColon;
     opcode(OP_BRA);
-    pels=offset(0);
+    FXuchar* pels=offset(0);
     gettok();
     fix(piff,pc-piff);
     err=altex();
@@ -728,10 +733,7 @@ void FXCompile::gettok(){
   while((c=*tail)!='\0'){
     switch(c){
       case ' ':
-      case '\b':
       case '\t':
-      case '\v':
-      case '\f':
       case '\r':
       case '\n':
         head=++tail;
@@ -977,7 +979,7 @@ void FXCompile::fix(FXuchar *ptr,FXival val){
 
 /*******************************************************************************/
 
-// Empty expression
+// Default expression (returns 0)
 #if (FOX_BIGENDIAN == 1)
 const FXuchar FXExpression::initial[]={0,14,OP_NUM,0,0,0,0,0,0,0,0,OP_END};
 #endif
@@ -985,6 +987,8 @@ const FXuchar FXExpression::initial[]={0,14,OP_NUM,0,0,0,0,0,0,0,0,OP_END};
 const FXuchar FXExpression::initial[]={14,0,OP_NUM,0,0,0,0,0,0,0,0,OP_END};
 #endif
 
+
+// Empty expression
 #define EMPTY (const_cast<FXuchar*>(FXExpression::initial))
 
 
@@ -992,12 +996,14 @@ const FXuchar FXExpression::initial[]={14,0,OP_NUM,0,0,0,0,0,0,0,0,OP_END};
 const FXchar *const FXExpression::errors[]={
   "OK",
   "Empty expression",
+  "Extra characters at end",
   "Out of memory",
   "Unmatched parenthesis",
   "Illegal token",
   "Expected comma",
   "Unknown identifier",
-  "Expected colon"
+  "Expected colon",
+  "Expression too long",
   };
 
 
@@ -1125,12 +1131,12 @@ FXdouble FXExpression::evaluate(const FXdouble *args) const {
       case OP_BRT:
         pc+=*sp-- ? GETARG(pc) : 2;
         break;
-  #if defined(__i386__) || defined(__x86_64__) || defined(WIN32) || defined(__minix)
+#if defined(__i386__) || defined(__x86_64__) || defined(WIN32) || defined(__minix)
       case OP_NUM:
         *++sp=*((const FXdouble*)pc);
         pc+=8;
         break;
-  #else
+#else
       case OP_NUM:
         ++sp;
         ((FXuchar*)sp)[0]=*pc++;
@@ -1142,7 +1148,7 @@ FXdouble FXExpression::evaluate(const FXdouble *args) const {
         ((FXuchar*)sp)[6]=*pc++;
         ((FXuchar*)sp)[7]=*pc++;
         break;
-  #endif
+#endif
       case OP_VAR:
         *++sp=args[*pc++];
         break;

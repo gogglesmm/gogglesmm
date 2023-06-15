@@ -61,11 +61,11 @@ struct FXHiliteStyle {
 * syntax highlighting.
 */
 struct FXTextChange {
-  FXint   pos;          /// Position in buffer
-  FXint   ndel;         /// Number characters deleted at position
-  FXint   nins;         /// Number characters inserted at position
-  FXchar *ins;          /// Text inserted at position
-  FXchar *del;          /// Text deleted at position
+  FXint         pos;          /// Position in buffer
+  FXint         ndel;         /// Number characters deleted at position
+  FXint         nins;         /// Number characters inserted at position
+  const FXchar *del;          /// Text deleted at position
+  const FXchar *ins;          /// Text inserted at position
   };
 
 

@@ -3,7 +3,7 @@
 *                    A S C I I   C h a r a c t e r   I n f o                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 2005,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 2005,2023 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -22,7 +22,7 @@
 #define FXASCII_H
 
 
-/******** Generated on 2013/07/17 09:50:20 by ascii tool version 3.0.0 *********/
+/******** Generated on 2023/06/11 16:58:10 by ascii tool version 3.1.0 *********/
 
 
 namespace FX {
@@ -30,34 +30,158 @@ namespace FX {
 
 namespace Ascii {
 
-/// Get numeric value of character (this includes hex value)
-extern FXAPI FXint digitValue(FXchar asc);
+// Ascii table
+extern FXAPI const FXushort ascii_data[256];
 
-/// Ascii-only common functions
-extern FXAPI FXbool hasCase(FXchar asc);
-extern FXAPI FXbool isUpper(FXchar asc);
-extern FXAPI FXbool isLower(FXchar asc);
-extern FXAPI FXbool isTitle(FXchar asc);
-extern FXAPI FXbool isAscii(FXchar asc);
-extern FXAPI FXbool isLetter(FXchar asc);
-extern FXAPI FXbool isDigit(FXchar asc);
-extern FXAPI FXbool isAlphaNumeric(FXchar asc);
-extern FXAPI FXbool isControl(FXchar asc);
-extern FXAPI FXbool isSpace(FXchar asc);
-extern FXAPI FXbool isBlank(FXchar asc);
-extern FXAPI FXbool isPunct(FXchar asc);
-extern FXAPI FXbool isGraph(FXchar asc);
-extern FXAPI FXbool isPrint(FXchar asc);
-extern FXAPI FXbool isHexDigit(FXchar asc);
-extern FXAPI FXbool isOctDigit(FXchar asc);
-extern FXAPI FXbool isBinDigit(FXchar asc);
-extern FXAPI FXbool isWord(FXchar asc);
-extern FXAPI FXbool isDelim(FXchar asc);
+// Value to ascii digit table
+extern FXAPI const FXchar value_to_digit[256];
 
-/// Case conversion
-extern FXAPI FXchar toUpper(FXchar asc);
-extern FXAPI FXchar toLower(FXchar asc);
-extern FXAPI FXchar toTitle(FXchar asc);
+// Ascii digit to valuetable
+extern FXAPI const FXschar digit_to_value[256];
+
+
+// Numeric value of ascii digit
+static inline FXint digitValue(FXchar asc){
+  return digit_to_value[(FXuchar)asc];
+  }
+
+
+// Ascii digit of numeric value
+static inline FXint valueDigit(FXuchar asc){
+  return value_to_digit[(FXuchar)asc];
+  }
+
+
+// Has upper or lower case variant
+static inline FXbool hasCase(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x4000)!=0;
+  }
+
+
+// Is upper case
+static inline FXbool isUpper(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x200)!=0;
+  }
+
+
+// Is lower case
+static inline FXbool isLower(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x20)!=0;
+  }
+
+
+// Is title case
+static inline FXbool isTitle(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x200)!=0;
+  }
+
+
+// Is us-ascii
+static inline FXbool isAscii(FXchar asc){
+  return ((FXuchar)asc)<128;
+  }
+
+
+// Is letter
+static inline FXbool isLetter(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x2)!=0;
+  }
+
+
+// Is decimal digit
+static inline FXbool isDigit(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x8)!=0;
+  }
+
+
+// Is letter or digit
+static inline FXbool isAlphaNumeric(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x1)!=0;
+  }
+
+
+// Is control character
+static inline FXbool isControl(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x4)!=0;
+  }
+
+
+// Is space
+static inline FXbool isSpace(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x100)!=0;
+  }
+
+
+// Is blank
+static inline FXbool isBlank(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x800)!=0;
+  }
+
+
+// Is punctuation character
+static inline FXbool isPunct(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x80)!=0;
+  }
+
+
+// Is graphic character
+static inline FXbool isGraph(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x10)!=0;
+  }
+
+
+// Is printing character
+static inline FXbool isPrint(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x40)!=0;
+  }
+
+
+// Is hexadecimal digit
+static inline FXbool isHexDigit(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x400)!=0;
+  }
+
+
+// Is octal digit
+static inline FXbool isOctDigit(FXchar asc){
+  return (asc&0xF8)==0x30;
+  }
+
+
+// Is binary digit
+static inline FXbool isBinDigit(FXchar asc){
+  return (asc&0xFE)==0x30;
+  }
+
+
+// Is word character
+static inline FXbool isWord(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x1000)!=0;
+  }
+
+
+// Is delimiter character
+static inline FXbool isDelim(FXchar asc){
+  return (ascii_data[(FXuchar)asc]&0x2000)!=0;
+  }
+
+
+// Convert to upper case
+static inline FXchar toUpper(FXchar asc){
+  return ((FXuchar)(asc-'a'))<26 ? asc+'A'-'a' : asc;
+  }
+
+
+// Convert to lower case
+static inline FXchar toLower(FXchar asc){
+  return ((FXuchar)(asc-'A'))<26 ? asc+'a'-'A' : asc;
+  }
+
+
+// Convert to title case
+static inline FXchar toTitle(FXchar asc){
+  return ((FXuchar)(asc-'a'))<26 ? asc+'A'-'a' : asc;
+  }
 
 }
 

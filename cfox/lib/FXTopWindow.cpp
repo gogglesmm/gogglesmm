@@ -994,7 +994,6 @@ FXbool FXTopWindow::fullScreen(FXbool notify){
   }
 
 
-
 // Special stacking order level
 FXbool FXTopWindow::stackingOrder(FXuint order){
   if(xid){
@@ -1751,7 +1750,6 @@ void FXTopWindow::setMiniIcon(FXIcon *ic){
       }
     }
   }
-
 
 
 // Set new window title

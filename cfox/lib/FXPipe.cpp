@@ -86,13 +86,13 @@ FXbool FXPipe::open(FXPipe& other,FXuint m){
     HANDLE hnd[2];
 
     // Inheritable
-    SECURITY_ATTRIBUTES sat;
-    sat.nLength=sizeof(SECURITY_ATTRIBUTES);
-    sat.bInheritHandle=((m&FXIO::Inheritable)==0);
-    sat.lpSecurityDescriptor=nullptr;
+    SECURITY_ATTRIBUTES security;
+    security.nLength=sizeof(SECURITY_ATTRIBUTES);
+    security.bInheritHandle=((m&FXIO::Inheritable)==0);
+    security.lpSecurityDescriptor=nullptr;
 
     // Create connected pipe
-    if(CreatePipe(&hnd[0],&hnd[1],&sat,0)!=0){
+    if(CreatePipe(&hnd[0],&hnd[1],&security,0)!=0){
 
       // Who's is the read-side?
       if(m&FXIO::ReadOnly){

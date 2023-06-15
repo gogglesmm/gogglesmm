@@ -347,9 +347,9 @@ FXbool FXXML::decode(FXString& dst,const FXString& src,FXuint flags){
         if(src[q+1]=='x'){                      // &#xXXXX;
           q+=2;
           if(!Ascii::isHexDigit(src[q])) return false;  // Expected at least one hex digit
-          wc=FXString::digit2Value[(FXuchar)src[q++]];
+          wc=Ascii::digitValue(src[q++]);
           while(Ascii::isHexDigit(src[q])){
-            wc=wc*16+FXString::digit2Value[(FXuchar)src[q++]];
+            wc=wc*16+Ascii::digitValue(src[q++]);
             }
           if(src[q++]!=';') return false;       // Expected semicolon
           }
@@ -417,9 +417,9 @@ FXbool FXXML::decode(FXString& dst,const FXString& src,FXuint flags){
         if(src[q+1]=='x'){                      // &#xXXXX;
           q+=2;
           FXASSERT(Ascii::isHexDigit(src[q]));  // Expected at least one hex digit
-          wc=FXString::digit2Value[(FXuchar)src[q++]];
+          wc=Ascii::digitValue(src[q++]);
           while(Ascii::isHexDigit(src[q])){
-            wc=wc*16+FXString::digit2Value[(FXuchar)src[q++]];
+            wc=wc*16+Ascii::digitValue(src[q++]);
             }
           FXASSERT(src[q]==';');                // Expected semicolon
           q++;
@@ -575,8 +575,8 @@ FXbool FXXML::encode(FXString& dst,const FXString& src,FXuint flags){
         dst[p+0]='&';
         dst[p+1]='#';
         dst[p+2]='x';
-        dst[p+3]=FXString::value2Digit[ch>>4];
-        dst[p+4]=FXString::value2Digit[ch&15];
+        dst[p+3]=Ascii::valueDigit(ch>>4);
+        dst[p+4]=Ascii::valueDigit(ch&15);
         dst[p+5]=';';
         p+=6;
         continue;

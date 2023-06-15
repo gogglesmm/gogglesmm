@@ -58,6 +58,9 @@
   - NULL keys or empty-string keys are not allowed.
 
   - Similar to FXDictionary; reimplemented to support FXVariant as payload.
+
+  - A capability to copy the keys from another map, but not the values, may be
+    very useful...
 */
 
 #define EMPTY     (const_cast<Entry*>((const Entry*)(__variantmap__empty__+3)))

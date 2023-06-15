@@ -106,35 +106,6 @@ const FXint __string__empty__[2]={0,0};
 const FXchar FXString::null[4]={0,0,0,0};
 
 
-// Hexadecimal digit of value
-const FXchar FXString::value2Digit[36]={
-  '0','1','2','3','4','5','6','7','8','9','A','B',
-  'C','D','E','F','G','H','I','J','K','L','M','N',
-  'O','P','Q','R','S','T','U','V','W','X','Y','Z',
-  };
-
-
-// Hexadecimal value of digit
-const FXschar FXString::digit2Value[256]={
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   0, 1, 2, 3, 4, 5, 6, 7, 8, 9,-1,-1,-1,-1,-1,-1,
-  -1,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,
-  25,26,27,28,29,30,31,32,33,34,35,-1,-1,-1,-1,-1,
-  -1,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,
-  25,26,27,28,29,30,31,32,33,34,35,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
-  };
-
-
 // Furnish our own versions
 extern FXAPI FXint __vsscanf(const FXchar* string,const FXchar* format,va_list arg_ptr);
 extern FXAPI FXint __vsnprintf(FXchar* string,FXint length,const FXchar* format,va_list args);
@@ -1761,7 +1732,7 @@ FXString& FXString::fromInt(FXint number,FXint base){
   FXchar buf[34],*p=buf+sizeof(buf);
   if(base<2 || base>16){ fxerror("FXString::fromInt: base out of range.\n"); }
   do{
-    *--p=FXString::value2Digit[nn%base];
+    *--p=Ascii::valueDigit(nn%base);
     nn/=base;
     }
   while(nn);
@@ -1776,7 +1747,7 @@ FXString& FXString::fromUInt(FXuint number,FXint base){
   FXchar buf[34],*p=buf+sizeof(buf);
   if(base<2 || base>16){ fxerror("FXString::fromUInt: base out of range.\n"); }
   do{
-    *--p=FXString::value2Digit[nn%base];
+    *--p=Ascii::valueDigit(nn%base);
     nn/=base;
     }
   while(nn);
@@ -1790,7 +1761,7 @@ FXString& FXString::fromLong(FXlong number,FXint base){
   FXchar buf[66],*p=buf+sizeof(buf);
   if(base<2 || base>16){ fxerror("FXString::fromLong: base out of range.\n"); }
   do{
-    *--p=FXString::value2Digit[nn%base];
+    *--p=Ascii::valueDigit(nn%base);
     nn/=base;
     }
   while(nn);
@@ -1805,7 +1776,7 @@ FXString& FXString::fromULong(FXulong number,FXint base){
   FXchar buf[66],*p=buf+sizeof(buf);
   if(base<2 || base>16){ fxerror("FXString::fromULong: base out of range.\n"); }
   do{
-    *--p=FXString::value2Digit[nn%base];
+    *--p=Ascii::valueDigit(nn%base);
     nn/=base;
     }
   while(nn);
@@ -2544,8 +2515,8 @@ nml1:   q+=1;                                   // Normal characters
       case 0xFF:
 hex2:   result[q++]='\\';                       // Escape as \xHH
         result[q++]='x';
-        result[q++]=FXString::value2Digit[(c>>4)&15];
-        result[q++]=FXString::value2Digit[c&15];
+        result[q++]=Ascii::valueDigit((c>>4)&15);
+        result[q++]=Ascii::valueDigit(c&15);
         continue;
       case 0x80:                                // UTF8 followers
       case 0x81:
@@ -2687,20 +2658,20 @@ hex2:   result[q++]='\\';                       // Escape as \xHH
             w=TAIL_OFFSET+(w&0x3FF);
             result[q++]='\\';                   // Escape as \uHHHH
             result[q++]='u';
-            result[q++]=FXString::value2Digit[(v>>12)&15];
-            result[q++]=FXString::value2Digit[(v>>8)&15];
-            result[q++]=FXString::value2Digit[(v>>4)&15];
-            result[q++]=FXString::value2Digit[v&15];
+            result[q++]=Ascii::valueDigit((v>>12)&15);
+            result[q++]=Ascii::valueDigit((v>>8)&15);
+            result[q++]=Ascii::valueDigit((v>>4)&15);
+            result[q++]=Ascii::valueDigit(v&15);
             p++;
             }
           p++;
           }
         result[q++]='\\';                       // Escape as \uHHHH
         result[q++]='u';
-        result[q++]=FXString::value2Digit[(w>>12)&15];
-        result[q++]=FXString::value2Digit[(w>>8)&15];
-        result[q++]=FXString::value2Digit[(w>>4)&15];
-        result[q++]=FXString::value2Digit[w&15];
+        result[q++]=Ascii::valueDigit((v>>12)&15);
+        result[q++]=Ascii::valueDigit((v>>8)&15);
+        result[q++]=Ascii::valueDigit((v>>4)&15);
+        result[q++]=Ascii::valueDigit(v&15);
         p++;
         continue;
       default:
@@ -2792,7 +2763,9 @@ FXString FXString::unescape(const FXchar* str,FXint num,FXchar lquote,FXchar rqu
         case '7':
           if(Ascii::isOctDigit(str[p])){
             p++;
-            if(Ascii::isOctDigit(str[p])) p++;
+            if(Ascii::isOctDigit(str[p]) && str[p-2]<'4'){      // Leave last character if it would overflow
+              p++;
+              }
             }
           q++;
           continue;
@@ -2866,7 +2839,7 @@ FXString FXString::unescape(const FXchar* str,FXint num,FXchar lquote,FXchar rqu
           c=c-'0';
           if(Ascii::isOctDigit(str[p])){
             c=(c<<3)+str[p++]-'0';
-            if(Ascii::isOctDigit(str[p])){
+            if(Ascii::isOctDigit(str[p]) && str[p-2]<'4'){      // Leave last character if it would overflow
               c=(c<<3)+str[p++]-'0';
               }
             }

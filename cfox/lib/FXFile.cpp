@@ -77,11 +77,11 @@ FXbool FXFile::open(const FXString& filename,FXuint m,FXuint perm){
   if(device==BadHandle){
 
     // Basic access mode
-    DWORD flags=GENERIC_READ;
+    DWORD access=0;
     switch(m&(FXIO::ReadOnly|FXIO::WriteOnly)){
-      case FXIO::ReadOnly: flags=GENERIC_READ; break;
-      case FXIO::WriteOnly: flags=GENERIC_WRITE; break;
-      case FXIO::ReadWrite: flags=GENERIC_READ|GENERIC_WRITE; break;
+      case FXIO::ReadOnly: access=GENERIC_READ; break;
+      case FXIO::WriteOnly: access=GENERIC_WRITE; break;
+      case FXIO::ReadWrite: access=GENERIC_READ|GENERIC_WRITE; break;
       }
 
     // Creation and truncation mode
@@ -95,23 +95,24 @@ FXbool FXFile::open(const FXString& filename,FXuint m,FXuint perm){
       case FXIO::Create|FXIO::Truncate|FXIO::Exclusive: creation=CREATE_NEW; break;
       }
 
-    // Hidden file
+    // Attributes (hidden, read-only)
     DWORD attributes=FILE_ATTRIBUTE_NORMAL;
-    if(perm&FXIO::Hidden){ attributes=FILE_ATTRIBUTE_HIDDEN; }
+    if(!(perm&FXIO::AllWrite)){ attributes=(attributes&~FILE_ATTRIBUTE_NORMAL)|FILE_ATTRIBUTE_READONLY; }
+    if(perm&FXIO::Hidden){ attributes=(attributes&~FILE_ATTRIBUTE_NORMAL)|FILE_ATTRIBUTE_HIDDEN; }
 
     // Inheritable
-    SECURITY_ATTRIBUTES sat;
-    sat.nLength=sizeof(SECURITY_ATTRIBUTES);
-    sat.bInheritHandle=((m&FXIO::Inheritable)==0);
-    sat.lpSecurityDescriptor=nullptr;
+    SECURITY_ATTRIBUTES security;
+    security.nLength=sizeof(SECURITY_ATTRIBUTES);
+    security.bInheritHandle=((m&FXIO::Inheritable)==0);
+    security.lpSecurityDescriptor=nullptr;
 
     // Do it
 #if defined(UNICODE)
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,filename.text(),MAXPATHLEN);
-    device=::CreateFileW(unifile,flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,attributes,nullptr);
+    device=::CreateFileW(unifile,access,FILE_SHARE_READ|FILE_SHARE_WRITE,&security,creation,attributes,nullptr);
 #else
-    device=::CreateFileA(filename.text(),flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,attributes,nullptr);
+    device=::CreateFileA(filename.text(),access,FILE_SHARE_READ|FILE_SHARE_WRITE,&security,creation,attributes,nullptr);
 #endif
     return (device!=BadHandle);
     }
@@ -283,20 +284,27 @@ FXlong FXFile::size(){
 
 /*******************************************************************************/
 
-// Create new (empty) file
+// Create new (empty) file; fails if file already exists
 FXbool FXFile::create(const FXString& file,FXuint perm){
   if(!file.empty()){
 #if defined(WIN32)
 #if defined(UNICODE)
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,file.text(),MAXPATHLEN);
-    FXInputHandle h=::CreateFileW(unifile,GENERIC_WRITE,FILE_SHARE_READ,nullptr,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,nullptr);
-#else
-    FXInputHandle h=::CreateFileA(file.text(),GENERIC_WRITE,FILE_SHARE_READ,nullptr,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,nullptr);
-#endif
+    DWORD attributes=FILE_ATTRIBUTE_NORMAL;
+    if(!(perm&FXIO::AllWrite)){ attributes=(attributes&~FILE_ATTRIBUTE_NORMAL)|FILE_ATTRIBUTE_READONLY; }
+    if(perm&FXIO::Hidden){ attributes=(attributes&~FILE_ATTRIBUTE_NORMAL)|FILE_ATTRIBUTE_HIDDEN; }
+    FXInputHandle h=::CreateFileW(unifile,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_NEW,attributes,nullptr);
     if(h!=BadHandle){ ::CloseHandle(h); return true; }
 #else
-    FXInputHandle h=::open(file.text(),O_CREAT|O_WRONLY|O_TRUNC|O_EXCL,perm&0777);
+    DWORD attributes=FILE_ATTRIBUTE_NORMAL;
+    if(!(perm&FXIO::AllWrite)){ attributes=(attributes&~FILE_ATTRIBUTE_NORMAL)|FILE_ATTRIBUTE_READONLY; }
+    if(perm&FXIO::Hidden){ attributes=(attributes&~FILE_ATTRIBUTE_NORMAL)|FILE_ATTRIBUTE_HIDDEN; }
+    FXInputHandle h=::CreateFileA(file.text(),GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_NEW,attributes,nullptr);
+    if(h!=BadHandle){ ::CloseHandle(h); return true; }
+#endif
+#else
+    FXInputHandle h=::open(file.text(),O_CREAT|O_RDWR|O_TRUNC|O_EXCL,perm&0777);
     if(h!=BadHandle){ ::close(h); return true; }
 #endif
     }

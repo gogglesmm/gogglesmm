@@ -515,6 +515,7 @@ FXIconItem::~FXIconItem(){
 FXDEFMAP(FXIconList) FXIconListMap[]={
   FXMAPFUNC(SEL_PAINT,0,FXIconList::onPaint),
   FXMAPFUNC(SEL_MOTION,0,FXIconList::onMotion),
+  FXMAPFUNC(SEL_MOUSEWHEEL,0,FXIconList::onMouseWheel),
   FXMAPFUNC(SEL_LEFTBUTTONPRESS,0,FXIconList::onLeftBtnPress),
   FXMAPFUNC(SEL_LEFTBUTTONRELEASE,0,FXIconList::onLeftBtnRelease),
   FXMAPFUNC(SEL_RIGHTBUTTONPRESS,0,FXIconList::onRightBtnPress),
@@ -2255,6 +2256,23 @@ long FXIconList::onAutoScroll(FXObject* sender,FXSelector sel,void* ptr){
     return 1;
     }
 
+  return 0;
+  }
+
+
+// Mouse wheel handling
+long FXIconList::onMouseWheel(FXObject* sender,FXSelector sel,void* ptr){
+  if(options&(ICONLIST_BIG_ICONS|ICONLIST_MINI_ICONS)){
+    if(options&ICONLIST_COLUMNS){
+      return vertical->handle(sender,sel,ptr);
+      }
+    else{
+      return horizontal->handle(sender,sel,ptr);
+      }
+    }
+  else{
+    return vertical->handle(sender,sel,ptr);
+    }
   return 0;
   }
 

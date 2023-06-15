@@ -3,7 +3,7 @@
 *                  F i l e   S e l e c t i o n   W i d g e t                    *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2023 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -35,6 +35,7 @@
 #include "FXRectangle.h"
 #include "FXPath.h"
 #include "FXSystem.h"
+#include "FXIO.h"
 #include "FXStat.h"
 #include "FXFile.h"
 #include "FXDir.h"
@@ -221,10 +222,11 @@ FXFileSelector::FXFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   cancel=new FXButton(entryblock,tr("&Cancel"),nullptr,nullptr,0,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X,0,0,0,0,20,20);
   fileboxframe=new FXHorizontalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0,0,0,0,0);
   filebox=new FXFileList(fileboxframe,this,ID_FILELIST,ICONLIST_MINI_ICONS|ICONLIST_BROWSESELECT|ICONLIST_AUTOSIZE|LAYOUT_FILL_X|LAYOUT_FILL_Y);
+  filebox->horizontalScrollBar()->setWheelLines(1);
   filebox->setDraggableFiles(false);
   filebox->setFocus();
   new FXLabel(navbuttons,tr("Directory:"),nullptr,LAYOUT_CENTER_Y);
-  updiricon=new FXGIFIcon(getApp(),dirupicon);
+  updiricon=new FXGIFIcon(getApp(),dirup_gif);
   listicon=new FXGIFIcon(getApp(),showsmallicons);
   iconsicon=new FXGIFIcon(getApp(),showbigicons);
   detailicon=new FXGIFIcon(getApp(),showdetails);
@@ -232,10 +234,10 @@ FXFileSelector::FXFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   workicon=new FXGIFIcon(getApp(),gotowork);
   shownicon=new FXGIFIcon(getApp(),fileshown);
   hiddenicon=new FXGIFIcon(getApp(),filehidden);
-  bookmarkicon=new FXGIFIcon(getApp(),bookset);
-  bookaddicon=new FXBMPIcon(getApp(),bookadd,0,IMAGE_ALPHAGUESS);
-  bookdelicon=new FXBMPIcon(getApp(),bookdel,0,IMAGE_ALPHAGUESS);
-  bookclricon=new FXGIFIcon(getApp(),bookclr);
+  bookmarkicon=new FXGIFIcon(getApp(),bookmrk_gif);
+  bookaddicon=new FXGIFIcon(getApp(),bookset_gif);
+  bookdelicon=new FXGIFIcon(getApp(),bookdel_gif);
+  bookclricon=new FXGIFIcon(getApp(),bookclr_gif);
   sortingicon=new FXBMPIcon(getApp(),sorting,0,IMAGE_ALPHAGUESS);
   newicon=new FXGIFIcon(getApp(),foldernew);
   renameicon=new FXGIFIcon(getApp(),filerename);
@@ -1114,7 +1116,7 @@ FXString FXFileSelector::getPattern() const {
 
 // Set current file pattern from the list
 void FXFileSelector::setCurrentPattern(FXint patno){
-  if(patno<0 || patno>=filefilter->getNumItems()){ fxerror("%s::setCurrentPattern: index out of range.\n",getClassName()); }
+  patno=FXCLAMP(0,patno,filefilter->getNumItems()-1);
   filefilter->setCurrentItem(patno);
   filebox->setPattern(patternFromText(filefilter->getItemText(patno)));
   }

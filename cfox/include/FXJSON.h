@@ -79,6 +79,8 @@ namespace FX {
 */
 class FXAPI FXJSON : public FXParseBuffer {
 public:
+
+  /// JSON deserializer error codes
   enum Error {
     ErrOK,              /// No errors
     ErrSave,            /// Unable to save
@@ -91,17 +93,43 @@ public:
     ErrQuotes,          /// Expected closing quotes
     ErrQuote,           /// Expected closing quote
     ErrNumber,          /// Numeric conversion
+    ErrIdent,           /// Unexpected identifier
     ErrEnd              /// Unexpected end of file
     };
+
+  /// JSON serializer flow modes
   enum Flow {
     Stream,             /// Stream-of-consciousness output
     Compact,            /// Compact, human readable output (default)
     Pretty              /// Pretty printed, indented output
     };
 protected:
+  enum Token {
+    TK_ERROR,
+    TK_EOF,
+    TK_COMMA,
+    TK_COLON,
+    TK_IDENT,
+    TK_NAN,
+    TK_INF,
+    TK_NULL,
+    TK_FALSE,
+    TK_TRUE,
+    TK_STRING,
+    TK_PLUS,
+    TK_MINUS,
+    TK_INT,
+    TK_HEX,
+    TK_REAL,
+    TK_LBRACK,
+    TK_LBRACE,
+    TK_RBRACK,
+    TK_RBRACE
+    };
+protected:
   FXString  value;      // Token value
   FXlong    offset;     // Position from start
-  FXint     token;      // Token
+  Token     token;      // Token
   FXint     column;     // Column number
   FXint     indent;     // Indent level
   FXint     line;       // Line number
@@ -113,10 +141,13 @@ protected:
   FXuchar   esc;        // Escape mode
   FXuchar   dent;       // Indentation amount
   FXuchar   ver;        // Version
-private:
-  FXint next();
-  FXint ident();
-  FXint string();
+protected:
+  static const FXchar *const errors[];
+protected:
+  virtual Token next();
+  Token ident();
+  Token string();
+  static Token identoken(const FXString& str);
   Error loadMap(FXVariant& var);
   Error loadArray(FXVariant& var);
   Error loadVariant(FXVariant& var);
@@ -125,8 +156,6 @@ private:
   Error saveMap(const FXVariant& var);
   Error saveArray(const FXVariant& var);
   Error saveVariant(const FXVariant& var);
-private:
-  static const FXchar *const errors[];
 private:
   FXJSON(const FXJSON&);
   FXJSON &operator=(const FXJSON&);
@@ -168,13 +197,13 @@ public:
   * Load a variant from JSON stream.
   * Return false if stream wasn't opened for loading, or syntax error.
   */
-  Error load(FXVariant& variant);
+  virtual Error load(FXVariant& variant);
 
   /**
   * Save a variant to JSON stream.
   * Return false if stream wasn't opened for saving, or disk was full.
   */
-  Error save(const FXVariant& variant);
+  virtual Error save(const FXVariant& variant);
 
   /**
   * Returns error for given error code.

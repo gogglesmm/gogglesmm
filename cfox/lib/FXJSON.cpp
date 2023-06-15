@@ -186,7 +186,11 @@
 
   - Our implementation __vsnprintf() produces either INF or inf for infinity, and NAN
     or nan for not-a-number, while our __vsscanf() implementation accepts any
-    capitalization if nan, inf, or infinity.
+    capitalization of nan, inf, or infinity.
+
+  - In our JSON5 implementation, the reserved words "true", "false", "null", etc.
+    may serve as identifiers in an Object.  This prevents unexpected surprises
+    loading back JSON5 files.
 
   - Flow controls the looks of the output.  The current values supported are:
 
@@ -239,30 +243,6 @@ enum {
   MAXTOKEN = 256
   };
 
-// Tokens
-enum {
-  TK_ERROR   = 0,       // Syntax error
-  TK_EOF     = 1,       // End of file
-  TK_COMMA   = 2,       // Element separator
-  TK_COLON   = 3,       // Key:value pair separator
-  TK_IDENT   = 4,       // Identifier
-  TK_NAN     = 5,       // Not a Number
-  TK_INF     = 6,       // Infinity
-  TK_NULL    = 7,       // NULL value
-  TK_FALSE   = 8,       // False value
-  TK_TRUE    = 9,       // True value
-  TK_STRING  = 10,      // String
-  TK_PLUS    = 11,      // Plus sign
-  TK_MINUS   = 12,      // Minus sign
-  TK_INT     = 13,      // Integer value (decimal)
-  TK_HEX     = 14,      // Integer value (hexadecimal)
-  TK_REAL    = 15,      // Real value
-  TK_LBRACK  = 16,      // Start of array
-  TK_LBRACE  = 17,      // Start of map
-  TK_RBRACK  = 18,      // End of array
-  TK_RBRACE  = 19       // End of map
-  };
-
 
 // Error messages
 const FXchar *const FXJSON::errors[]={
@@ -277,6 +257,7 @@ const FXchar *const FXJSON::errors[]={
   "Unmatched '\"'",
   "Unmatched '\''",
   "Bad number",
+  "Unexpected identifier",
   "Unexpected end of file"
   };
 
@@ -340,9 +321,9 @@ FXbool FXJSON::close(){
 /*******************************************************************************/
 
 // Get next token
-FXint FXJSON::next(){
+FXJSON::Token FXJSON::next(){
+  Token tok=TK_EOF;
   FXint comment=0;
-  FXint tok=TK_EOF;
   FXuchar c;
 
   // While more data
@@ -721,7 +702,7 @@ cmt:    column++;                                       // Comments
 
 
 // Identifier token
-static FXint identoken(const FXString& str){
+FXJSON::Token FXJSON::identoken(const FXString& str){
   switch(str[0]){
   case 'n':                                     // Check for 'null'
     if(str[1]=='u' && str[2]=='l' && str[3]=='l' && str.length()==4) return TK_NULL;
@@ -747,7 +728,7 @@ static FXint identoken(const FXString& str){
 
 
 // Identifier
-FXint FXJSON::ident(){
+FXJSON::Token FXJSON::ident(){
   FXuint charset=IdentStart;
   FXuchar c,cc;
   value=FXString::null;
@@ -902,8 +883,8 @@ FXint FXJSON::ident(){
         sptr+=4;
         break;
       default:                                          // Identifier or reserved word
-end:    value.append(rptr,sptr-rptr);
-        return identoken(value);
+end:    value.append(rptr,sptr-rptr);                   // Reserved words can be interpreted as identifier,
+        return identoken(value);                        // so we must copy them, just in case.
       }
 
     // Character set
@@ -920,7 +901,7 @@ end:    value.append(rptr,sptr-rptr);
 
 
 // String
-FXint FXJSON::string(){
+FXJSON::Token FXJSON::string(){
   FXuchar q=rptr[0];
   FXuchar c;
   column++;
@@ -948,9 +929,7 @@ FXint FXJSON::string(){
         offset++;
         sptr++;
         if(q!=c) break;                                 // Opening quote?
-        value.append(rptr,sptr-rptr);
-        rptr=sptr;
-        value=FXString::unescape(value,(FXchar)q,(FXchar)q);    // Of course
+        value.append(rptr,sptr-rptr);                   // Copy tail-end of string
         return TK_STRING;
       case '\\':                                        // Escape next character
         column++;
@@ -1168,20 +1147,30 @@ FXJSON::Error FXJSON::loadMap(FXVariant& var){
   // Make it into an array now
   var.setType(FXVariant::MapType);
 
-  // While more keys
+  // Parse key : value pairs
+  // Allow either string (old JSON), or identifier (JSON5)
+  // syntax (this includes reserved words such as null, true
+  // false, etc, as there can be no confusion here).
   while(TK_IDENT<=token && token<=TK_STRING){
 
-    // Load key
-    key=value;
+    // Decode the keys
+    if(token==TK_STRING){
+      key=FXString::unescape(value,value.head(),value.tail());
+      }
+    else{
+      key=value;
+      }
 
     // Token following the string
     token=next();
+    if(token==TK_EOF) return ErrEnd;
 
     // Expect colon
     if(token!=TK_COLON) return ErrColon;
 
     // Eat the colon
     token=next();
+    if(token==TK_EOF) return ErrEnd;
 
     // Load item directly into associated slot
     if((err=loadVariant(var[key]))!=ErrOK) return err;
@@ -1191,6 +1180,7 @@ FXJSON::Error FXJSON::loadMap(FXVariant& var){
 
     // Eat the comma
     token=next();
+    if(token==TK_EOF) return ErrEnd;
     }
   return ErrOK;
   }
@@ -1204,7 +1194,9 @@ FXJSON::Error FXJSON::loadArray(FXVariant& var){
   // Make it into an array now
   var.setType(FXVariant::ArrayType);
 
-  // While possible item start token
+  // Parse values
+  // Here reserved words have special meanings;
+  // note that identifiers are excluded.
   while(TK_NAN<=token && token<=TK_LBRACE){
 
     // Load item directly into array slot
@@ -1215,6 +1207,7 @@ FXJSON::Error FXJSON::loadArray(FXVariant& var){
 
     // Next token
     token=next();
+    if(token==TK_EOF) return ErrEnd;
 
     // Next array index
     index++;
@@ -1232,6 +1225,7 @@ FXJSON::Error FXJSON::loadVariant(FXVariant& var){
     return ErrEnd;
   case TK_PLUS:
     token=next();
+    if(token==TK_EOF) return ErrEnd;
     if(token==TK_INT){                          // +Integer
       var=__strtoll(rptr,nullptr,10);
       token=next();
@@ -1260,6 +1254,7 @@ FXJSON::Error FXJSON::loadVariant(FXVariant& var){
     return ErrToken;
   case TK_MINUS:
     token=next();
+    if(token==TK_EOF) return ErrEnd;
     if(token==TK_INT){                          // -Integer
       var=-__strtoll(rptr,nullptr,10);
       token=next();
@@ -1320,20 +1315,25 @@ FXJSON::Error FXJSON::loadVariant(FXVariant& var){
     return ErrOK;
   case TK_LBRACK:                               // Array
     token=next();
+    if(token==TK_EOF) return ErrEnd;
     if((err=loadArray(var))!=ErrOK) return err;
     if(token!=TK_RBRACK) return ErrBracket;     // Expected closing bracket
     token=next();
     return ErrOK;
   case TK_LBRACE:                               // Map
     token=next();
+    if(token==TK_EOF) return ErrEnd;
     if((err=loadMap(var))!=ErrOK) return err;
     if(token!=TK_RBRACE) return ErrBrace;       // Expected closing brace
     token=next();
     return ErrOK;
   case TK_STRING:                               // String
-    var=value;
+    var=FXString::unescape(value,value.head(),value.tail());
     token=next();
     return ErrOK;
+  case TK_IDENT:                                // Unexpected identifier
+    var=FXVariant::null;
+    return ErrIdent;
   default:                                      // Illegal token
     var=FXVariant::null;
     return ErrToken;

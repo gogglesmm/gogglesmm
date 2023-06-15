@@ -3,7 +3,7 @@
 *                      E x p r e s s i o n   E v a l u a t o r                  *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1998,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1998,2023 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -92,12 +92,14 @@ public:
   enum Error {
     ErrOK,              /// No errors
     ErrEmpty,           /// Empty input
+    ErrMore,            /// More characters after input
     ErrMemory,          /// Out of memory
     ErrParent,          /// Unmatched parentheses
     ErrToken,           /// Illegal token
     ErrComma,           /// Expected comma
     ErrIdent,           /// Unknown identifier
-    ErrColon            /// Expected colon
+    ErrColon,           /// Expected colon
+    ErrLong             /// Expression too long
     };
 
 public:

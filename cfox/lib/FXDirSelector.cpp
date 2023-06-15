@@ -33,6 +33,7 @@
 #include "FXRectangle.h"
 #include "FXSystem.h"
 #include "FXPath.h"
+#include "FXIO.h"
 #include "FXStat.h"
 #include "FXFile.h"
 #include "FXDir.h"
@@ -143,13 +144,13 @@ FXDirSelector::FXDirSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuint 
   FXVerticalFrame *frame=new FXVerticalFrame(this,LAYOUT_SIDE_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y|FRAME_SUNKEN|FRAME_THICK,0,0,0,0, 0,0,0,0, 0,0);
   new FXLabel(frame,tr("&Name"),nullptr,JUSTIFY_LEFT|JUSTIFY_CENTER_Y|LAYOUT_TOP|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X);
   dirbox=new FXDirList(frame,this,ID_DIRLIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|LAYOUT_TOP|TREELIST_SHOWS_LINES|TREELIST_SHOWS_BOXES|TREELIST_BROWSESELECT);
-  updiricon=new FXGIFIcon(getApp(),dirupicon);
+  updiricon=new FXGIFIcon(getApp(),dirup_gif);
   homeicon=new FXGIFIcon(getApp(),gotohome);
   workicon=new FXGIFIcon(getApp(),gotowork);
-  bookmarkicon=new FXGIFIcon(getApp(),bookset);
-  bookaddicon=new FXBMPIcon(getApp(),bookadd,0,IMAGE_ALPHAGUESS);
-  bookdelicon=new FXBMPIcon(getApp(),bookdel,0,IMAGE_ALPHAGUESS);
-  bookclricon=new FXGIFIcon(getApp(),bookclr);
+  bookmarkicon=new FXGIFIcon(getApp(),bookmrk_gif);
+  bookaddicon=new FXGIFIcon(getApp(),bookset_gif);
+  bookdelicon=new FXGIFIcon(getApp(),bookdel_gif);
+  bookclricon=new FXGIFIcon(getApp(),bookclr_gif);
   sortingicon=new FXBMPIcon(getApp(),sorting,0,IMAGE_ALPHAGUESS);
   newicon=new FXGIFIcon(getApp(),foldernew);
   deleteicon=new FXGIFIcon(getApp(),filedelete);

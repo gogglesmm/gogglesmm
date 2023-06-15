@@ -127,6 +127,18 @@ const FXFontDesc& FXFontDialog::getFontDesc() const {
   }
 
 
+// Set sample text for font sample
+void FXFontDialog::setSampleText(const FXString& sampletext){
+  fontbox->setSampleText(sampletext);
+  }
+
+
+// Get sample text for font sample
+FXString FXFontDialog::getSampleText() const {
+  return fontbox->getSampleText();
+  }
+
+
 // Save data
 void FXFontDialog::save(FXStream& store) const {
   FXDialogBox::save(store);

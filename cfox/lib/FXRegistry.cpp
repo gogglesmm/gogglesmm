@@ -30,6 +30,7 @@
 #include "FXSystem.h"
 #include "FXProcess.h"
 #include "FXPath.h"
+#include "FXIO.h"
 #include "FXStat.h"
 #include "FXFile.h"
 #include "FXDir.h"

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.3.1)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
-project(cfox VERSION 1.7.82)
+project(cfox VERSION 1.7.83)
 
 option(WITH_NATIVE "Compile for native architecture" OFF)
 

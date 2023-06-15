@@ -96,7 +96,7 @@ using namespace FX;
 namespace FX {
 
 FXDEFMAP(FXScrollArea) FXScrollAreaMap[]={
-  FXMAPFUNC(SEL_MOUSEWHEEL,0,FXScrollArea::onVMouseWheel),
+  FXMAPFUNC(SEL_MOUSEWHEEL,0,FXScrollArea::onMouseWheel),
   FXMAPFUNC(SEL_TIMEOUT,FXScrollArea::ID_AUTOSCROLL,FXScrollArea::onAutoScroll),
   FXMAPFUNC(SEL_COMMAND,FXScrollArea::ID_HSCROLLED,FXScrollArea::onHScrollerChanged),
   FXMAPFUNC(SEL_COMMAND,FXScrollArea::ID_VSCROLLED,FXScrollArea::onVScrollerChanged),
@@ -390,17 +390,20 @@ long FXScrollArea::onVScrollerDragged(FXObject*,FXSelector,void* ptr){
   }
 
 
-// Mouse wheel used for vertical scrolling
-long FXScrollArea::onVMouseWheel(FXObject* sender,FXSelector sel,void* ptr){
-  vertical->handle(sender,sel,ptr);
-  return 1;
-  }
-
-
-// Mouse wheel used for horizontal scrolling
-long FXScrollArea::onHMouseWheel(FXObject* sender,FXSelector sel,void* ptr){
-  horizontal->handle(sender,sel,ptr);
-  return 1;
+// Mouse wheel used for scrolling, preferentially, in vertical
+// direction if scrolling is allowed; if vertical scrolling is
+// not allowed, try horizontal scrolling instead.
+// If neither is allowed, return not handled (0).
+long FXScrollArea::onMouseWheel(FXObject* sender,FXSelector sel,void* ptr){
+  if((options&VSCROLLING_OFF)!=VSCROLLING_OFF){
+    vertical->handle(sender,sel,ptr);
+    return 1;
+    }
+  if((options&HSCROLLING_OFF)!=HSCROLLING_OFF){
+    horizontal->handle(sender,sel,ptr);
+    return 1;
+    }
+  return 0;
   }
 
 

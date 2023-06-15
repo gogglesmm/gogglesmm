@@ -3,7 +3,7 @@
 *                 R e g u l a r   E x p r e s s i o n   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2023 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -66,10 +66,9 @@ namespace FX {
 */
 class FXAPI FXRex {
 private:
-  FXuchar *code;
+  FXString code;
 private:
   static const FXchar *const errors[];
-  static const FXuchar fallback[];
 public:
 
   /// Regular expression flags
@@ -88,31 +87,33 @@ public:
     Exact      = 64,    /// Exact match to entire string (\A..\Z)
     NotEmpty   = 128,   /// A successful match must not be empty
     Reverse    = 256,   /// Reverse expression mode
+    Words      = 512,   /// Match whole words (\<..\>)
 
     /// Regular expression match flags
-    NotBol     = 512,   /// Start of string is NOT begin of line
-    NotEol     = 1024   /// End of string is NOT end of line
+    NotBol     = 1024,  /// Start of string is NOT begin of line
+    NotEol     = 2048   /// End of string is NOT end of line
     };
 
   /// Regular expression error codes
   enum Error {
     ErrOK      = 0,     /// No errors
     ErrEmpty   = 1,     /// Empty pattern
-    ErrParent  = 2,     /// Unmatched parenthesis
-    ErrBracket = 3,     /// Unmatched bracket
-    ErrBrace   = 4,     /// Unmatched brace
-    ErrRange   = 5,     /// Bad character range
-    ErrEscape  = 6,     /// Bad escape sequence
-    ErrCount   = 7,     /// Bad counted repeat
-    ErrNoAtom  = 8,     /// No atom preceding repetition
-    ErrRepeat  = 9,     /// Repeat following repeat
-    ErrBackRef = 10,    /// Bad backward reference
-    ErrClass   = 11,    /// Bad character class
-    ErrComplex = 12,    /// Expression too complex
-    ErrMemory  = 13,    /// Out of memory
-    ErrToken   = 14,    /// Illegal token
-    ErrBehind  = 15,    /// Bad look-behind pattern
-    ErrSupport = 16     /// Unsupported
+    ErrMore    = 2,     /// More characters after pattern
+    ErrParent  = 3,     /// Unmatched parenthesis
+    ErrBracket = 4,     /// Unmatched bracket
+    ErrBrace   = 5,     /// Unmatched brace
+    ErrRange   = 6,     /// Bad character range
+    ErrEscape  = 7,     /// Bad escape sequence
+    ErrCount   = 8,     /// Bad counted repeat
+    ErrNoAtom  = 9,     /// No atom preceding repetition
+    ErrRepeat  = 10,    /// Repeat following repeat
+    ErrBackRef = 11,    /// Bad backward reference
+    ErrClass   = 12,    /// Bad character class
+    ErrComplex = 13,    /// Expression too complex
+    ErrMemory  = 14,    /// Out of memory
+    ErrToken   = 15,    /// Illegal token
+    ErrLong    = 16,    /// Pattern too long
+    ErrSupport = 17     /// Unsupported
     };
 
 public:
@@ -139,7 +140,7 @@ public:
   * will be empty when it is unable to parse a pattern due to
   * a syntax error.
   */
-  FXbool empty() const { return (code==fallback); }
+  FXbool empty() const { return code.empty(); }
 
   /**
   * Parse pattern, return error code if syntax error is found.
@@ -159,6 +160,7 @@ public:
   */
   FXbool amatch(const FXchar* string,FXint len,FXint pos=0,FXint mode=Normal,FXint* beg=nullptr,FXint* end=nullptr,FXint npar=0) const;
   FXbool amatch(const FXString& string,FXint pos=0,FXint mode=Normal,FXint* beg=nullptr,FXint* end=nullptr,FXint npar=0) const;
+
 
   /**
   * Search subject string of length len for a pattern, returning the location where the pattern

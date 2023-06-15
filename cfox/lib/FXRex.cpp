@@ -3,7 +3,7 @@
 *                 R e g u l a r   E x p r e s s i o n   C l a s s               *
 *                                                                               *
 *********************************************************************************
-* Copyright (C) 1999,2022 by Jeroen van der Zijp.   All Rights Reserved.        *
+* Copyright (C) 1999,2023 by Jeroen van der Zijp.   All Rights Reserved.        *
 *********************************************************************************
 * This library is free software; you can redistribute it and/or modify          *
 * it under the terms of the GNU Lesser General Public License as published by   *
@@ -25,11 +25,10 @@
 #include "fxmath.h"
 #include "fxascii.h"
 #include "fxunicode.h"
-#include "FXArray.h"
+#include "FXElement.h"
 #include "FXHash.h"
 #include "FXStream.h"
 #include "FXString.h"
-#include "FXElement.h"
 #include "FXException.h"
 #include "FXRex.h"
 
@@ -509,6 +508,12 @@
   - Possibly implement parser base class, with actions in derived class; easier to
     keep up additions to syntax this way and keep reversal code in sync with regular
     parsing code.
+  - The new return code ErrMore means not all of the input pattern was consumed.
+    It could treated as ErrOK.  However, if not ALL of the input pattern IS parsed,
+    there should be a way to find out where the parse stopped.
+  - When generating code for "reverse mode", backward references don't work, but
+    forward references do. Can we fix this, or are we OK with "forward references"
+    in reverse mode?
 */
 
 #define TOPIC_CONSTRUCT 1000
@@ -530,9 +535,6 @@
 // Maximum number of pieces reversed
 #define MAXPIECES     256
 
-// Empty regex
-#define EMPTY         (const_cast<FXuchar*>(FXRex::fallback))
-
 
 // Access to opcode
 #define SETOP(p,op)   (*(p)=(op))
@@ -542,12 +544,19 @@
 #define SETARG(p,val) (*((FXshort*)(p))=(val))
 #define GETARG(p)     (*((const FXshort*)(p)))
 #elif (FOX_BIGENDIAN == 1)                              // Big-endian machines
-#define SETARG(p,val) (*((p)+0)=(val)>>8,*((p)+1)=(val))
-#define GETARG(p)     ((FXshort)((*((p)+0)<<8)+(*((p)+1))))
+#define SETARG(p,val) ((p)[0]=(val)>>8,(p)[1]=(val))
+#define GETARG(p)     ((((FXshort)(FXuchar)(p)[0])<<8)|(FXuchar)(p)[1])
 #else                                                   // Little-endian machines
-#define SETARG(p,val) (*((p)+0)=(val),*((p)+1)=(val)>>8)
-#define GETARG(p)     ((FXshort)((*((p)+0))+(*((p)+1)<<8)))
+#define SETARG(p,val) ((p)[0]=(val),(p)[1]=(val)>>8)
+#define GETARG(p)     ((FXuchar)(p)[0]|(((FXshort)(FXuchar)(p)[1])<<8))
 #endif
+
+// Set manipulations
+#define EXCL(set,ch)   (set[ch>>3]&=~(1<<((ch)&7)))
+#define INCL(set,ch)   (set[ch>>3]|=(1<<((ch)&7)))
+#define ISIN(set,ch)   (set[(ch)>>3]&(1<<((ch)&7)))
+#define UNION(set,src) (set[0]|=src[0],set[1]|=src[1],set[2]|=src[2],set[3]|=src[3],set[4]|=src[4],set[5]|=src[5],set[6]|=src[6],set[7]|=src[7],set[8]|=src[8],set[9]|=src[9],set[10]|=src[10],set[11]|=src[11],set[12]|=src[12],set[13]|=src[13],set[14]|=src[14],set[15]|=src[15],set[16]|=src[16],set[17]|=src[17],set[18]|=src[18],set[19]|=src[19],set[20]|=src[20],set[21]|=src[21],set[22]|=src[22],set[23]|=src[23],set[24]|=src[24],set[25]|=src[25],set[26]|=src[26],set[27]|=src[27],set[28]|=src[28],set[29]|=src[29],set[30]|=src[30],set[31]|=src[31])
+#define ZERO(set)      (set[0]=0,set[1]=0,set[2]=0,set[3]=0,set[4]=0,set[5]=0,set[6]=0,set[7]=0,set[8]=0,set[9]=0,set[10]=0,set[11]=0,set[12]=0,set[13]=0,set[14]=0,set[15]=0,set[16]=0,set[17]=0,set[18]=0,set[19]=0,set[20]=0,set[21]=0,set[22]=0,set[23]=0,set[24]=0,set[25]=0,set[26]=0,set[27]=0,set[28]=0,set[29]=0,set[30]=0,set[31]=0)
 
 using namespace FX;
 
@@ -577,11 +586,9 @@ enum {
 
 // Opcodes of the engine; these are numbered in a certain way so that
 // its easy to determine if these are asserts, simple single character matches,
-// unicode matches, and so on.  We need to be able to know how to backtrack:
-// in case we're using unicode, backtracking needs to account for variable byte
-// counts representing a character.
+// unicode matches, and so on.
 enum {
-  OP_FAIL,              // Always fail
+  OP_FAIL=0,            // Always fail
   OP_PASS,              // Always succeed
   OP_JUMP,              // Jump to another location
   OP_BRANCH,            // Jump after trying following code, recursive
@@ -1017,55 +1024,14 @@ static const FXuchar nondelimset[32]={
 
 /*******************************************************************************/
 
-// Remove character from set
-static inline void EXCL(FXuchar set[],FXuchar ch){
-  set[ch>>3]&=~(1<<(ch&7));
-  }
-
-
-// Include character in set
-static inline void INCL(FXuchar set[],FXuchar ch){
-  set[ch>>3]|=1<<(ch&7);
-  }
-
-
-// Set bit c to value v
-static inline void SET(FXuchar set[],FXuchar ch,FXbool v){
-  set[ch>>3]^=(set[ch>>3]^(0-v))&(1<<(ch&7));
-  }
-
-
-// Check if character in set
-static inline FXuchar ISIN(const FXuchar set[],FXuchar ch){
-  return set[ch>>3]&(1<<(ch&7));
-  }
-
-// Clear the set
-static inline void ZERO(FXuchar set[]){
-  set[ 0]=0; set[ 1]=0; set[ 2]=0; set[ 3]=0; set[ 4]=0; set[ 5]=0; set[ 6]=0; set[ 7]=0;
-  set[ 8]=0; set[ 9]=0; set[10]=0; set[11]=0; set[12]=0; set[13]=0; set[14]=0; set[15]=0;
-  set[16]=0; set[17]=0; set[18]=0; set[19]=0; set[20]=0; set[21]=0; set[22]=0; set[23]=0;
-  set[24]=0; set[25]=0; set[26]=0; set[27]=0; set[28]=0; set[29]=0; set[30]=0; set[31]=0;
-  }
-
-
-// Union of sets
-static inline void UNION(FXuchar set[],const FXuchar src[]){
-  set[ 0]|=src[ 0]; set[ 1]|=src[ 1]; set[ 2]|=src[ 2]; set[ 3]|=src[ 3]; set[ 4]|=src[ 4]; set[ 5]|=src[ 5]; set[ 6]|=src[ 6]; set[ 7]|=src[ 7];
-  set[ 8]|=src[ 8]; set[ 9]|=src[ 9]; set[10]|=src[10]; set[11]|=src[11]; set[12]|=src[12]; set[13]|=src[13]; set[14]|=src[14]; set[15]|=src[15];
-  set[16]|=src[16]; set[17]|=src[17]; set[18]|=src[18]; set[19]|=src[19]; set[20]|=src[20]; set[21]|=src[21]; set[22]|=src[22]; set[23]|=src[23];
-  set[24]|=src[24]; set[25]|=src[25]; set[26]|=src[26]; set[27]|=src[27]; set[28]|=src[28]; set[29]|=src[29]; set[30]|=src[30]; set[31]|=src[31];
-  }
-
-
 // Character in list at prg
-static inline FXbool INLIST(const FXuchar* prg,FXuchar ch){
-  const FXuchar* ptr=prg;
-  while(ptr<prg+*prg && *++ptr!=ch){ }
-  return (*ptr==ch);
+static inline FXbool INLIST(const FXchar* p,FXuchar ch){
+  const FXchar* q=p+(FXuchar)*p;
+  while(p<q && *++p!=ch){ }
+  return (*p==ch);
   }
 
-
+#if 0
 // Check if wide-character at wcs is in enumerated wide-character set
 static FXbool inwcset(const FXchar* set,const FXchar* wcs){
   const FXuchar* s=(const FXuchar*)set;
@@ -1078,15 +1044,16 @@ static FXbool inwcset(const FXchar* set,const FXchar* wcs){
     }
   return false;
   }
+#endif
 
 /*******************************************************************************/
 
 
 // Structure used during compiling
 class FXCompile {
-  FXuchar       *code;              // Program code
-  FXuchar       *pc;                // Program counter
-  FXchar        *pat;               // Pattern string pointer
+  FXchar        *code;              // Program code
+  FXchar        *pc;                // Program counter
+  const FXchar  *pat;               // Pattern string pointer
   FXint          mode;              // Compile mode
   FXint          nbra;              // Number of counting braces
   FXint          npar;              // Number of capturing parentheses
@@ -1096,7 +1063,7 @@ public:
   FXCompile();
 
   // Parse pattern
-  FXRex::Error compile(FXuchar *prog,FXchar* p,FXint m);
+  FXRex::Error compile(FXchar *prog,const FXchar* p,FXint m);
 
   // Return size of generated code
   FXival size() const { return pc-code; }
@@ -1110,22 +1077,19 @@ public:
   FXRex::Error charset();
 
   // Code generation
-  FXuchar* append(FXuchar op);
-  FXuchar* append(FXuchar op,FXshort arg);
-  FXuchar* append(FXuchar op,FXshort arg1,FXshort arg2);
-  FXuchar* appendset(FXuchar op,const FXuchar set[]);
+  FXchar* append(FXuchar op);
+  FXchar* append(FXuchar op,FXshort arg);
+  FXchar* append(FXuchar op,FXshort arg1,FXshort arg2);
+  FXchar* appendset(FXuchar op,const FXuchar set[]);
 
   // Insert node at ptr
-  FXuchar* insert(FXuchar *ptr,FXuchar op);
-  FXuchar* insert(FXuchar *ptr,FXuchar op,FXshort arg);
-  FXuchar* insert(FXuchar *ptr,FXuchar op,FXshort arg1,FXshort arg2);
-  FXuchar* insert(FXuchar *ptr,FXuchar op,FXshort arg1,FXshort arg2,FXshort arg3);
+  FXchar* insert(FXchar *ptr,FXuchar op);
+  FXchar* insert(FXchar *ptr,FXuchar op,FXshort arg);
+  FXchar* insert(FXchar *ptr,FXuchar op,FXshort arg1,FXshort arg2);
+  FXchar* insert(FXchar *ptr,FXuchar op,FXshort arg1,FXshort arg2,FXshort arg3);
 
   // Patch branches
-  void patch(FXuchar *fm,FXuchar *to);
-
-  // Fix value
-  void fix(FXuchar *ptr,FXshort val);
+  void patch(FXchar *fm,FXchar *to);
   };
 
 /*******************************************************************************/
@@ -1136,24 +1100,20 @@ FXCompile::FXCompile():code(nullptr),pc(nullptr),pat(nullptr),mode(0),nbra(0),np
 
 
 // Compiler main
-FXRex::Error FXCompile::compile(FXuchar *prog,FXchar* p,FXint m){
+FXRex::Error FXCompile::compile(FXchar *prog,const FXchar* p,FXint m){
   FXRex::Error err;
   FXshort  flags=0;
   FXshort  smin=0;
   FXshort  smax=0;
-  FXuchar* at;
 
   FXASSERT_STATIC(OP_LAST<=256);
 
   // Initialize parser data
-  code=pc=at=prog;
+  code=pc=prog;
   pat=p;
   mode=m;
   nbra=0;
   npar=0;
-
-  // Skip size
-  pc+=2;
 
   // Unicode support
   if(mode&FXRex::Unicode) return FXRex::ErrSupport;
@@ -1162,7 +1122,10 @@ FXRex::Error FXCompile::compile(FXuchar *prog,FXchar* p,FXint m){
   if(*pat=='\0') return FXRex::ErrEmpty;
 
   // Assert start of string
-  if(mode&FXRex::Exact) append(OP_STR_BEG);
+  if(mode&FXRex::Exact){ append(OP_STR_BEG); }
+
+  // Assert begin of word
+  if(mode&FXRex::Words){ append(OP_WORD_BEG); }
 
   // Verbatim mode
   if(mode&FXRex::Verbatim){
@@ -1174,11 +1137,11 @@ FXRex::Error FXCompile::compile(FXuchar *prog,FXchar* p,FXint m){
     if((err=expression(flags,smin,smax))!=FXRex::ErrOK) return err;
     }
 
-  // Not at the end of the pattern
-  if(*pat!='\0') return FXRex::ErrParent;
+  // Assert end of word
+  if(mode&FXRex::Words){ append(OP_WORD_END); }
 
   // Assert end of string
-  if(mode&FXRex::Exact) append(OP_STR_END);
+  if(mode&FXRex::Exact){ append(OP_STR_END); }
 
   // Assert non-empty match
   if(mode&FXRex::NotEmpty) append(OP_NOT_EMPTY);
@@ -1186,25 +1149,30 @@ FXRex::Error FXCompile::compile(FXuchar *prog,FXchar* p,FXint m){
   // Success if we got this far
   append(OP_PASS);
 
-  FXASSERT((pc-code)<65536);
+  // Code is too long
+  if(code+32767<pc) return FXRex::ErrLong;
 
-  // Fix up compiled code size
-  fix(at,pc-code);
+  // Not at the end of the pattern
+  if(*pat!='\0') return FXRex::ErrMore;
 
   return FXRex::ErrOK;
   }
 
 
 // Parse without interpretation of magic characters
+// For "word search" feature:
+//  1) First character of search string is word-character, prepend OP_WORD_BEG
+//  2) Last character of search string is word-character, append OP_WORD_END
 FXRex::Error FXCompile::verbatim(){
+  FXint len=strlen(pat);
   if(mode&FXRex::IgnoreCase){
-    append(OP_CHARS_CI,strlen(pat));
+    append(OP_CHARS_CI,len);
     while(*pat){
       append(Ascii::toLower(*pat++));
       }
     }
   else{
-    append(OP_CHARS,strlen(pat));
+    append(OP_CHARS,len);
     while(*pat){
       append(*pat++);
       }
@@ -1216,18 +1184,24 @@ FXRex::Error FXCompile::verbatim(){
 // Parse expression
 FXRex::Error FXCompile::expression(FXshort& flags,FXshort& smin,FXshort& smax){
   FXRex::Error err;
+  FXchar  *jp=nullptr;
+  FXchar  *at=pc;
   FXshort  flg=0;
   FXshort  smn=0;
   FXshort  smx=0;
-  FXuchar* at=pc;
-  FXuchar* jp=nullptr;
 
   // Parse branch
   if((err=branch(flags,smin,smax))!=FXRex::ErrOK) return err;
   while(*pat=='|'){
     pat++;
+
+    // Insert branch in front
     insert(at,OP_BRANCH,pc-at+5);
+
+    // Append jump behind
     append(OP_JUMP,jp?jp-pc-1:0);
+
+    // Set ready for the next one
     jp=pc-2;
     at=pc;
 
@@ -1241,6 +1215,8 @@ FXRex::Error FXCompile::expression(FXshort& flags,FXshort& smin,FXshort& smax){
     if(smx>smax) smax=smx;
     if(smn<smin) smin=smn;
     }
+
+  // Patch the jumps
   patch(jp,pc);
   return FXRex::ErrOK;
   }
@@ -1252,9 +1228,9 @@ FXRex::Error FXCompile::branch(FXshort& flags,FXshort& smin,FXshort& smax){
   FXshort flg=0;
   FXshort smn=0;
   FXshort smx=0;
+  flags=FLG_WORST;
   smin=0;
   smax=0;
-  flags=FLG_WORST;
   do{
 
     // Parse piece
@@ -1275,21 +1251,21 @@ FXRex::Error FXCompile::branch(FXshort& flags,FXshort& smin,FXshort& smax){
 // Parse piece
 FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
   FXRex::Error err;
-  FXshort greediness=GREEDY;
-  FXshort rep_min=1;
-  FXshort rep_max=1;
   FXuchar ch;
 
   // Remember point before atom
-  FXuchar* ptr=pc;
+  FXchar* ptr=pc;
 
   // Process atom
   if((err=atom(flags,smin,smax))!=FXRex::ErrOK) return err;
 
   // Check if atom is followed by repetition
   if((ch=*pat)=='*' || ch=='+' || ch=='?' || ch=='{'){
+    FXshort greediness=GREEDY;
+    FXshort rep_min=1;
+    FXshort rep_max=1;
 
-    // Repeats may not match empty
+    // We can not repeat an empty match
     if(!(flags&FLG_WIDTH)) return FXRex::ErrNoAtom;
 
     pat++;
@@ -1346,16 +1322,16 @@ FXRex::Error FXCompile::piece(FXshort& flags,FXshort& smin,FXshort& smax){
 
     // Handle greedy, lazy, or possessive forms
     if(*pat=='?'){
-      pat++;
       greediness=LAZY;
+      pat++;
       }
     else if(*pat=='+'){
-      pat++;
       greediness=GRABBY;
+      pat++;
       }
 
     // Non-trivial repetition?
-    if(!(rep_min==1 && rep_max==1)){
+    if(rep_min!=1 || rep_max!=1){
 
       // For simple repeats we prefix the last operation
       if(flags&FLG_SIMPLE){
@@ -1505,7 +1481,7 @@ FXRex::Error FXCompile::atom(FXshort& flags,FXshort& smin,FXshort& smax){
   const FXchar* savepat;
   FXshort level,len;
   FXRex::Error err;
-  FXuchar *ptr;
+  FXchar *ptr;
   FXint save;
   FXuchar ch;
   flags=FLG_WORST;                                      // Assume the worst
@@ -1787,11 +1763,11 @@ FXRex::Error FXCompile::atom(FXshort& flags,FXshort& smin,FXshort& smax){
         case '0':                                       // Octal digit
           pat++;
           ch=0;
-          if('0'<=*pat && *pat<='7'){
+          if(Ascii::isOctDigit(*pat)){
             ch=*pat++ - '0';
-            if('0'<=*pat && *pat<='7'){
+            if(Ascii::isOctDigit(*pat)){
               ch=(ch<<3) + *pat++ - '0';
-              if('0'<=*pat && *pat<='7' && ch<32){      // Leave last character if it would overflow
+              if(Ascii::isOctDigit(*pat) && *(pat-2)<'4'){      // Leave last character if it would overflow
                 ch=(ch<<3) + *pat++ - '0';
                 }
               }
@@ -1871,23 +1847,31 @@ FXRex::Error FXCompile::atom(FXshort& flags,FXshort& smin,FXshort& smax){
 
 // Parse character class
 FXRex::Error FXCompile::charset(){
-  FXint first,last,op,i;
   FXuchar set[32];
+  FXint   first;
+  FXint   last;
+  FXuchar op;
+
+  // Empty set
   ZERO(set);
-  first=-1;
 
   // Negated character class
   op=OP_IN;
   if(*pat=='^'){ op=OP_NOT_IN; pat++; }
 
-  // '-' and ']' are literal at begin
-  if(*pat=='-' || *pat==']') goto in;
-
   // Parse the character set
-  while(*pat!='\0' && *pat!=']'){
-in: last=(FXuchar)*pat++;
+  first=-1;
+  do{
+
+    // Grab a character
+    last=(FXuchar)*pat++;
+
+    // Not at the end we hope
+    if(*pat=='\0') return FXRex::ErrBracket;
+
+    // Handle escapes
     if(last=='\\'){
-      last=*pat++;
+      last=(FXuchar)*pat++;
       switch(last){
         case 'w':
           UNION(set,wordset);
@@ -1982,11 +1966,11 @@ in: last=(FXuchar)*pat++;
           break;
         case '0':                               // Octal digit
           last=0;
-          if('0'<=*pat && *pat<='7'){
+          if(Ascii::isOctDigit(*pat)){
             last=*pat++ - '0';
-            if('0'<=*pat && *pat<='7'){
+            if(Ascii::isOctDigit(*pat)){
               last=(last<<3) + *pat++ - '0';
-              if('0'<=*pat && *pat<='7' && last<32){     // Leave last character if it would overflow
+              if(Ascii::isOctDigit(*pat) && *(pat-2)<'4'){      // Leave last character if it would overflow
                 last=(last<<3) + *pat++ - '0';
                 }
               }
@@ -2002,35 +1986,44 @@ in: last=(FXuchar)*pat++;
           return FXRex::ErrNoAtom;              // Unexpected pattern end
         }
       }
-    if(first==-1){
-      if(mode&FXRex::IgnoreCase){
-        INCL(set,Ascii::toLower(last));
-        INCL(set,Ascii::toUpper(last));
-        }
-      else{
-        INCL(set,last);
-        }
-      if(*pat=='-' && *(pat+1)!='\0' && *(pat+1)!=']'){
-        first=last;
-        pat++;
-        }
+
+    FXASSERT(0<=last && last<=255);
+
+    // Include in set
+    if(mode&FXRex::IgnoreCase){
+      INCL(set,Ascii::toLower(last));
+      INCL(set,Ascii::toUpper(last));
       }
     else{
+      INCL(set,last);
+      }
+
+    // Seen begin of range?
+    if(0<=first){
       if(first>=last) return FXRex::ErrRange;   // Bad range
       if(mode&FXRex::IgnoreCase){
-        for(i=first; i<=last; i++){
-          INCL(set,Ascii::toLower(i));
-          INCL(set,Ascii::toUpper(i));
+        while(first<last){
+          INCL(set,Ascii::toLower(first));
+          INCL(set,Ascii::toUpper(first));
+          first++;
           }
         }
       else{
-        for(i=first; i<=last; i++){
-          INCL(set,i);
+        while(first<last){
+          INCL(set,first);
+          first++;
           }
         }
       first=-1;
       }
+
+    // Range separator?
+    else if(*pat=='-' && *(pat+1)!=']'){
+      first=last;
+      pat++;
+      }
     }
+  while(*pat!=']');
 
   // Are we matching newlines
   if((op==OP_NOT_IN) && !(mode&FXRex::Newline) && !ISIN(set,'\n')){
@@ -2045,8 +2038,8 @@ in: last=(FXuchar)*pat++;
 
 
 // Append opcode
-FXuchar* FXCompile::append(FXuchar op){
-  FXuchar *ret=pc;
+FXchar* FXCompile::append(FXuchar op){
+  FXchar *ret=pc;
   if(code){
     SETOP(pc,op);
     }
@@ -2056,8 +2049,8 @@ FXuchar* FXCompile::append(FXuchar op){
 
 
 // Append one-argument opcode
-FXuchar* FXCompile::append(FXuchar op,FXshort arg){
-  FXuchar *ret=pc;
+FXchar* FXCompile::append(FXuchar op,FXshort arg){
+  FXchar *ret=pc;
   if(code){
     SETOP(pc,op);
     SETARG(pc+1,arg);
@@ -2068,8 +2061,8 @@ FXuchar* FXCompile::append(FXuchar op,FXshort arg){
 
 
 // Append two-argument opcode
-FXuchar* FXCompile::append(FXuchar op,FXshort arg1,FXshort arg2){
-  FXuchar *ret=pc;
+FXchar* FXCompile::append(FXuchar op,FXshort arg1,FXshort arg2){
+  FXchar *ret=pc;
   if(code){
     SETOP(pc,op);
     SETARG(pc+1,arg1);
@@ -2081,8 +2074,8 @@ FXuchar* FXCompile::append(FXuchar op,FXshort arg1,FXshort arg2){
 
 
 // Append character class opcode
-FXuchar* FXCompile::appendset(FXuchar op,const FXuchar set[]){
-  FXuchar *ret=pc;
+FXchar* FXCompile::appendset(FXuchar op,const FXuchar set[]){
+  FXchar *ret=pc;
   if(code){
     SETOP(pc,op);
     memcpy(pc+1,set,32);
@@ -2093,7 +2086,7 @@ FXuchar* FXCompile::appendset(FXuchar op,const FXuchar set[]){
 
 
 // Insert opcode at ptr
-FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op){
+FXchar* FXCompile::insert(FXchar *ptr,FXuchar op){
   if(code){
     memmove(ptr+1,ptr,pc-ptr);
     SETOP(ptr,op);
@@ -2104,7 +2097,7 @@ FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op){
 
 
 // Insert one-argument opcode at ptr
-FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op,FXshort arg){
+FXchar* FXCompile::insert(FXchar *ptr,FXuchar op,FXshort arg){
   if(code){
     memmove(ptr+3,ptr,pc-ptr);
     SETOP(ptr,op);
@@ -2116,7 +2109,7 @@ FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op,FXshort arg){
 
 
 // Insert two-argument opcode at ptr
-FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op,FXshort arg1,FXshort arg2){
+FXchar* FXCompile::insert(FXchar *ptr,FXuchar op,FXshort arg1,FXshort arg2){
   if(code){
     memmove(ptr+5,ptr,pc-ptr);
     SETOP(ptr,op);
@@ -2129,7 +2122,7 @@ FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op,FXshort arg1,FXshort arg2){
 
 
 // Insert three-argument opcode at ptr
-FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op,FXshort arg1,FXshort arg2,FXshort arg3){
+FXchar* FXCompile::insert(FXchar *ptr,FXuchar op,FXshort arg1,FXshort arg2,FXshort arg3){
   if(code){
     memmove(ptr+7,ptr,pc-ptr);
     SETOP(ptr,op);
@@ -2159,7 +2152,7 @@ FXuchar* FXCompile::insert(FXuchar *ptr,FXuchar op,FXshort arg1,FXshort arg2,FXs
 //      9:  ....       9:  ....
 // to->10:  ....      10:  ....
 //
-void FXCompile::patch(FXuchar *fm,FXuchar *to){
+void FXCompile::patch(FXchar *fm,FXchar *to){
   FXshort delta;
   if(code && fm){
     do{
@@ -2171,12 +2164,269 @@ void FXCompile::patch(FXuchar *fm,FXuchar *to){
     }
   }
 
+/*******************************************************************************/
 
-// Fix value
-void FXCompile::fix(FXuchar *ptr,FXshort val){
-  if(code && ptr){
-    SETARG(ptr,val);
+// Structure used during pattern reversal adjustment
+class FXReverse {
+  const FXchar *src;    // Original pattern source
+  FXchar       *dst;    // Adjusted pattern destination
+  FXint         mode;   // Compile mode
+public:
+
+  // Reversal engine initialize
+  FXReverse(FXchar* d=NULL,const FXchar* s=NULL,FXint f=0):src(s),dst(d),mode(f){ }
+
+  // Reverse expression
+  static FXRex::Error reverse(FXchar* destination,const FXchar* source,FXint flags);
+
+  // Parsing
+  FXRex::Error verbatim();
+  FXRex::Error expression();
+  FXRex::Error branch();
+  FXRex::Error piece();
+  FXRex::Error atom();
+  FXRex::Error charset();
+  };
+
+
+// Reverse expression
+FXRex::Error FXReverse::reverse(FXchar* destination,const FXchar* source,FXint flags){
+  FXReverse reverser(destination,source,flags);
+  FXRex::Error err;
+
+  // Verbatim mode
+  if(flags&FXRex::Verbatim){
+    if((err=reverser.verbatim())!=FXRex::ErrOK) return err;
     }
+
+  // Regular expression mode
+  else{
+    if((err=reverser.expression())!=FXRex::ErrOK) return err;
+    }
+
+  return FXRex::ErrOK;
+  }
+
+
+// Reverse string
+FXRex::Error FXReverse::verbatim(){
+  if(mode&FXRex::Reverse){
+    dst+=strlen(src);
+    *dst='\0';
+    while(*src){                // Copy reversed
+      *--dst=*src++;
+      }
+    }
+  else{
+    while(*src){                // Copy forwards
+      *dst++=*src++;
+      }
+    *dst='\0';
+    }
+  return FXRex::ErrOK;
+  }
+
+
+// Reverse expression
+FXRex::Error FXReverse::expression(){
+  FXRex::Error err;
+  if((err=branch())!=FXRex::ErrOK) return err;
+  while(*src=='|'){
+    *dst++=*src++;
+    if((err=branch())!=FXRex::ErrOK) return err;
+    }
+  *dst='\0';
+  return FXRex::ErrOK;
+  }
+
+
+// Reverse branch
+FXRex::Error FXReverse::branch(){
+  const FXchar* point[MAXPIECES];
+  FXchar*       ptr=dst;
+  FXRex::Error  err;
+  FXint         n=0;
+
+  // Parse a run of pieces
+  do{
+
+    // Ensure not exceeding maximum # of pieces
+    if(n>=MAXPIECES) return FXRex::ErrComplex;
+
+    // Start of piece
+    point[n++]=src;
+
+    // Parse piece
+    if((err=piece())!=FXRex::ErrOK) return err;
+    }
+  while(*src!='\0' && *src!='|' && *src!=')');
+
+  // End of last piece
+  point[n]=src;
+
+  // Reverse order of pieces, if there's more than 1
+  if((mode&FXRex::Reverse) && 1<n){
+    dst=ptr;
+    while(0<n){
+      copyElms(dst,point[n-1],point[n]-point[n-1]);
+      dst+=point[n]-point[n-1];
+      n--;
+      }
+    }
+  return FXRex::ErrOK;
+  }
+
+
+// Parse piece
+FXRex::Error FXReverse::piece(){
+  FXRex::Error err;
+  FXchar ch;
+  if((err=atom())!=FXRex::ErrOK) return err;
+  if((ch=*src)=='*' || ch=='+' || ch=='?' || ch=='{'){
+    *dst++=*src++;
+    if(ch=='{'){                                        // Counted repeat
+      while(Ascii::isDigit(*src)){
+        *dst++=*src++;
+        }
+      if(*src==','){
+        *dst++=*src++;
+        while(Ascii::isDigit(*src)){
+          *dst++=*src++;
+          }
+        }
+      if(*src!='}') return FXRex::ErrBrace;             // Unmatched brace
+      *dst++=*src++;
+      }
+    if(*src=='?' || *src=='+'){                         // Greedy, lazy, or possessive
+      *dst++=*src++;
+      }
+    }
+  return FXRex::ErrOK;
+  }
+
+
+// Reverse atom
+FXRex::Error FXReverse::atom(){
+  FXRex::Error err;
+  FXint savemode;
+  FXuchar ch;
+  switch(*src){
+    case '(':                                           // Subexpression grouping
+      *dst++=*src++;
+      savemode=mode;
+      if(*src=='?'){
+        *dst++=*src++;
+        if((ch=*src)==':' || ch=='i' || ch=='I' || ch=='n' || ch=='N' || ch=='>'){      // Some type of sub-expression
+          *dst++=*src++;
+          }
+        else if(ch=='=' || ch=='!'){                                                    // Positive or negative look-ahead
+          *dst++=*src++;
+          mode&=~FXRex::Reverse;                        // Non-reversed segment
+          }
+        else if(ch=='<' && (*(src+1)=='=' || *(src+1)=='!')){                           // Positive or negative look-behind
+          *dst++=*src++;
+          *dst++=*src++;
+          mode|=FXRex::Reverse;                         // Reversed segment
+          }
+        else{                                           // Bad token
+          return FXRex::ErrToken;
+          }
+        }
+      if((err=expression())!=FXRex::ErrOK) return err;
+      mode=savemode;
+      if(*src!=')') return FXRex::ErrParent;            // Unmatched parenthesis
+      *dst++=*src++;
+      break;
+    case '[':
+      *dst++=*src++;
+      if((err=charset())!=FXRex::ErrOK) return err;
+      if(*src!=']') return FXRex::ErrBracket;           // Unmatched bracket
+      *dst++=*src++;
+      break;
+    case '\\':                                          // Escape sequences which are NOT part of simple character-run
+      *dst++=*src++;
+      switch(*src){
+        case '\0':                                      // Unexpected pattern end
+          return FXRex::ErrNoAtom;
+        case '1':                                       // Back reference
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          *dst++=*src++;
+          break;
+        case 'c':                                       // Control character
+          *dst++=*src++;
+          if(('@'<=*src && *src<='_') || (*src=='?')){
+            *dst++=*src++;
+            }
+          else{
+            return FXRex::ErrToken;
+            }
+          break;
+        case '0':                                       // Octal digit
+          *dst++=*src++;
+          if(Ascii::isOctDigit(*src)){
+            *dst++=*src++;
+            if(Ascii::isOctDigit(*src)){
+              *dst++=*src++;
+              if(Ascii::isOctDigit(*src) && *(src-2)<'4'){      // Leave last character if it would overflow
+                *dst++=*src++;
+                }
+              }
+            }
+          break;
+        case 'x':                                       // Hex digit
+          *dst++=*src++;
+          if(!Ascii::isHexDigit(*src)) return FXRex::ErrToken;
+          *dst++=*src++;
+          if(!Ascii::isHexDigit(*src)) return FXRex::ErrToken;
+          *dst++=*src++;
+          break;
+        default:                                        // Single escaped character
+          *dst++=*src++;
+          break;
+        }
+      break;
+    case '*':                                           // No preceding atom
+    case '+':
+    case '?':
+    case '{':
+    case '|':
+      return FXRex::ErrNoAtom;
+    case ')':                                           // Unmatched parenthesis
+      return FXRex::ErrParent;
+    case '}':                                           // Unmatched brace
+      return FXRex::ErrBrace;
+    case ']':                                           // Unmatched bracket
+      return FXRex::ErrBracket;
+    case '\0':                                          // Illegal token
+      return FXRex::ErrToken;
+    default:                                            // Normal non-escaped character
+      *dst++=*src++;
+      break;
+    }
+  return FXRex::ErrOK;
+  }
+
+
+// Skip over charset
+FXRex::Error FXReverse::charset(){
+  if(*src=='^'){
+    *dst++=*src++;
+    }
+  if(*src){
+    do{
+      if(*src=='\\'){ *dst++=*src++; }
+      *dst++=*src++;
+      }
+    while(*src!='\0' && *src!=']');
+    }
+  return FXRex::ErrOK;
   }
 
 /*******************************************************************************/
@@ -2198,25 +2448,25 @@ class FXExecute {
 public:
 
   // Construct match engine
-  FXExecute(const FXchar *sbeg,const FXchar *send,FXint* b,FXint* e,FXint p,FXint m);
+  FXExecute(const FXchar* sbeg,const FXchar* send,FXint* b,FXint* e,FXint p,FXint m);
 
   // Attempt to match
-  FXbool attempt(const FXuchar* prog,const FXchar* string);
+  FXbool attempt(const FXchar* prog,const FXchar* ptr);
 
   // Search in string, starting at ptr
-  const FXchar* search(const FXuchar* prog,const FXchar* fm,const FXchar* to);
+  FXint search(const FXchar* prog,const FXchar* fm,const FXchar* to);
 
   // Match at current string position
-  FXbool match(const FXuchar* prog);
+  FXbool match(const FXchar* prog);
 
   // Reverse-match at current string position
-  FXbool revmatch(const FXuchar* prog);
+  FXbool revmatch(const FXchar* prog);
   };
 
-/*******************************************************************************/
+
 
 // Construct match engine
-FXExecute::FXExecute(const FXchar *sbeg,const FXchar *send,FXint* b,FXint* e,FXint p,FXint m):anc(nullptr),str(nullptr),str_beg(sbeg),str_end(send),sub_beg(b),sub_end(e),npar(p),recs(0),mode(m){
+FXExecute::FXExecute(const FXchar* sbeg,const FXchar* send,FXint* b,FXint* e,FXint p,FXint m):anc(nullptr),str(nullptr),str_beg(sbeg),str_end(send),sub_beg(b),sub_end(e),npar(p),recs(0),mode(m){
   bak_beg[0]=bak_end[0]=nullptr;
   bak_beg[1]=bak_end[1]=nullptr;
   bak_beg[2]=bak_end[2]=nullptr;
@@ -2242,190 +2492,15 @@ FXExecute::FXExecute(const FXchar *sbeg,const FXchar *send,FXint* b,FXint* e,FXi
   }
 
 
-// Try match text buffer at given position ptr
-FXbool FXExecute::attempt(const FXuchar* prog,const FXchar* ptr){
-  anc=str=ptr;
-  if(match(prog)){
-    if(0<npar){                         // Record matched range if we have room
-      sub_beg[0]=ptr-str_beg;
-      sub_end[0]=str-str_beg;
-      }
-    return true;
-    }
-  return false;
-  }
-
-
-// Search in string, starting at ptr
-const FXchar* FXExecute::search(const FXuchar* prog,const FXchar* fm,const FXchar* to){
-  FXchar ch;
-
-  // Must be true
-  FXASSERT(str_beg<=fm && fm<=str_end);
-  FXASSERT(str_beg<=to && to<=str_end);
-
-  // Unicode mode
-  if(mode&FXRex::Unicode){
-
-    // Search backwards
-    if(to<fm){
-
-      // Anchored at string start
-      if(prog[0]==OP_STR_BEG){
-        if((to==str_beg) && attempt(prog,to)) return to;
-        return nullptr;
-        }
-
-      // Anchored at BOL
-      if(prog[0]==OP_LINE_BEG){
-        while(to<=fm){
-          if(((str_beg==fm) || (*(fm-1)=='\n')) && attempt(prog,fm)) return fm;
-          fm=wcdec(fm);
-          }
-        return nullptr;
-        }
-
-      // General case
-      while(to<=fm){
-        if(attempt(prog,fm)) return fm;
-        fm=wcdec(fm);
-        }
-      }
-
-    // Search forwards
-    else{
-
-      // Anchored at string start
-      if(prog[0]==OP_STR_BEG){
-        if((fm==str_beg) && attempt(prog,fm)) return fm;
-        return nullptr;
-        }
-
-      // Anchored at BOL
-      if(prog[0]==OP_LINE_BEG){
-        while(fm<=to){
-          if(((str_beg==fm) || (*(fm-1)=='\n')) && attempt(prog,fm)) return fm;
-          fm=wcinc(fm);
-          }
-        return nullptr;
-        }
-
-      // General case
-      while(fm<=to){
-        if(attempt(prog,fm)) return fm;
-        fm=wcinc(fm);
-        }
-      }
-    }
-
-  // Ascii mode
-  else{
-
-    // Search backwards
-    if(to<fm){
-
-      // Anchored at string start
-      if(prog[0]==OP_STR_BEG){
-        if((to==str_beg) && attempt(prog,to)) return to;
-        return nullptr;
-        }
-
-      // Anchored at BOL
-      if(prog[0]==OP_LINE_BEG){
-        while(to<=fm){
-          if(((str_beg==fm) || (*(fm-1)=='\n')) && attempt(prog,fm)) return fm;
-          fm--;
-          }
-        return nullptr;
-        }
-
-      // Known starting character
-      if(prog[0]==OP_CHAR || prog[0]==OP_CHARS){
-        ch=(prog[0]==OP_CHAR)?prog[1]:prog[3];
-        if(fm==str_end) fm--;
-        while(to<=fm){
-          if((*fm==ch) && attempt(prog,fm)) return fm;
-          fm--;
-          }
-        return nullptr;
-        }
-
-      // Known starting character, ignoring case
-      if(prog[0]==OP_CHAR_CI || prog[0]==OP_CHARS_CI){
-        ch=(prog[0]==OP_CHAR_CI)?prog[1]:prog[3];
-        if(fm==str_end) fm--;
-        while(to<=fm){
-          if((Ascii::toLower(*fm)==ch) && attempt(prog,fm)) return fm;
-          fm--;
-          }
-        return nullptr;
-        }
-
-      // General case
-      while(to<=fm){
-        if(attempt(prog,fm)) return fm;
-        fm--;
-        }
-      }
-
-    // Search forwards
-    else{
-
-      // Anchored at string start
-      if(prog[0]==OP_STR_BEG){
-        if((fm==str_beg) && attempt(prog,fm)) return fm;
-        return nullptr;
-        }
-
-      // Anchored at BOL
-      if(prog[0]==OP_LINE_BEG){
-        while(fm<=to){
-          if(((str_beg==fm) || (*(fm-1)=='\n')) && attempt(prog,fm)) return fm;
-          fm++;
-          }
-        return nullptr;
-        }
-
-      // Known starting character
-      if(prog[0]==OP_CHAR || prog[0]==OP_CHARS){
-        ch=(prog[0]==OP_CHAR)?prog[1]:prog[3];
-        if(to==str_end) to--;
-        while(fm<=to){
-          if((*fm==ch) && attempt(prog,fm)) return fm;
-          fm++;
-          }
-        return nullptr;
-        }
-
-      // Known starting character, ignoring case
-      if(prog[0]==OP_CHAR_CI || prog[0]==OP_CHARS_CI){
-        ch=(prog[0]==OP_CHAR_CI)?prog[1]:prog[3];
-        if(to==str_end) to--;
-        while(fm<=to){
-          if((Ascii::toLower(*fm)==ch) && attempt(prog,fm)) return fm;
-          fm++;
-          }
-        return nullptr;
-        }
-
-      // General case
-      while(fm<=to){
-        if(attempt(prog,fm)) return fm;
-        fm++;
-        }
-      }
-    }
-  return nullptr;
-  }
-
 /*******************************************************************************/
 
 // The workhorse
-FXbool FXExecute::match(const FXuchar* prog){
+FXbool FXExecute::match(const FXchar* prog){
   if(recs<MAXRECURSION){
-    FXint op,no,keep,rep_min,rep_max,greediness;
+    FXint no,keep,rep_min,rep_max,greediness;
     const FXchar *save,*beg,*end;
-    const FXuchar *ptr;
+    const FXchar *ptr;
+    FXuchar op;
     FXwchar ch;
 
     // Recurse deeper
@@ -2559,8 +2634,8 @@ nxt:op=*prog++;
         ptr=prog+no;
         while(prog<ptr){
           if(str_end<=str) goto f;
-          if(*prog++ != (FXuchar)*str) goto f;
-          str++;
+          ch=(FXuchar)*prog++;
+          if(*str++ != ch) goto f;
           }
         goto nxt;
       case OP_CHARS_CI:                         // Match a run of 1 or more characters, case-insensitive
@@ -2569,8 +2644,8 @@ nxt:op=*prog++;
         ptr=prog+no;
         while(prog<ptr){
           if(str_end<=str) goto f;
-          if(*prog++ != (FXuchar)Ascii::toLower(*str)) goto f;
-          str++;
+          ch=(FXuchar)*prog++;
+          if(Ascii::toLower(*str++)!=ch) goto f;
           }
         goto nxt;
       case OP_UCHARS:                           // Match a run of 1 or more unicode characters
@@ -2579,12 +2654,8 @@ nxt:op=*prog++;
         ptr=prog+no;
         while(prog<ptr){
           if(str_end<=str) goto f;
-          ch=*prog++;
-          if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-          if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-          if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-          if(ch!=wc(str)) goto f;
-          str=wcinc(str);
+          ch=wcnxt(prog);
+          if(wcnxt(str)!=ch) goto f;
           }
         goto nxt;
       case OP_UCHARS_CI:                        // Match a run of 1 or more unicode characters, case-insensitive
@@ -2593,18 +2664,14 @@ nxt:op=*prog++;
         ptr=prog+no;
         while(prog<ptr){
           if(str_end<=str) goto f;
-          ch=*prog++;
-          if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-          if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-          if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-          if(ch!=Unicode::toLower(wc(str))) goto f;
-          str=wcinc(str);
+          ch=wcnxt(prog);
+          if(Unicode::toLower(wcnxt(str))!=ch) goto f;
           }
         goto nxt;
       case OP_ANY:                              // Match any character, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        str++;
+        ch=*str++;
+        if(ch=='\n') goto f;
         goto nxt;
       case OP_ANY_NL:                           // Matches any character, including newline
         if(str_end<=str) goto f;
@@ -2612,20 +2679,20 @@ nxt:op=*prog++;
         goto nxt;
       case OP_IN:                               // Match a character in a set
         if(str_end<=str) goto f;
-        if(!ISIN(prog,*str)) goto f;
+        ch=*str++;
+        if(!ISIN(prog,ch)) goto f;
         prog+=32;
-        str++;
         goto nxt;
       case OP_NOT_IN:                           // Match a character NOT in a set
         if(str_end<=str) goto f;
-        if(ISIN(prog,*str)) goto f;
+        ch=*str++;
+        if(ISIN(prog,ch)) goto f;
         prog+=32;
-        str++;
         goto nxt;
 /*
       case OP_INSIDE:                           // Match a character in ranges
         if(str_end<=str) goto f;
-        no=*prog++;     // Number of bytes
+        no=(FXuchar)*prog++;     // Number of bytes
         ptr=prog;
         prog+=no;
         do{
@@ -2640,7 +2707,7 @@ nxt:op=*prog++;
         goto f;
       case OP_OUTSIDE:                          // Match a character NOT in ranges
         if(str_end<=str) goto f;
-        no=*prog++;     // Number of bytes
+        no=(FXuchar)*prog++;     // Number of bytes
         ptr=prog;
         prog+=no;
         do{
@@ -2653,142 +2720,140 @@ nxt:op=*prog++;
 */
       case OP_ANY_OF:                           // Match character in list
         if(str_end<=str) goto f;
-        if(!INLIST(prog,*str)) goto f;
-        prog+=1+*prog;
-        str++;
+        ch=*str++;
+        if(!INLIST(prog,ch)) goto f;
+        prog+=1+(FXuchar)*prog;
         goto nxt;
       case OP_ANY_BUT:                          // Match character NOT in list
         if(str_end<=str) goto f;
-        if(INLIST(prog,*str)) goto f;
-        prog+=1+*prog;
-        str++;
+        ch=*str++;
+        if(INLIST(prog,ch)) goto f;
+        prog+=1+(FXuchar)*prog;
         goto nxt;
       case OP_UPPER:                            // Match if uppercase
         if(str_end<=str) goto f;
-        if(!Ascii::isUpper(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(!Ascii::isUpper(ch)) goto f;
         goto nxt;
       case OP_LOWER:                            // Match if lowercase
         if(str_end<=str) goto f;
-        if(!Ascii::isLower(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(!Ascii::isLower(ch)) goto f;
         goto nxt;
       case OP_SPACE:                            // Match space, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(!Ascii::isSpace(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(ch=='\n') goto f;
+        if(!Ascii::isSpace(ch)) goto f;
         goto nxt;
       case OP_SPACE_NL:                         // Match space, including newline
         if(str_end<=str) goto f;
-        if(!Ascii::isSpace(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(!Ascii::isSpace(ch)) goto f;
         goto nxt;
       case OP_NOT_SPACE:                        // Match non-space
         if(str_end<=str) goto f;
-        if(Ascii::isSpace(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(Ascii::isSpace(ch)) goto f;
         goto nxt;
       case OP_DIGIT:                            // Match a digit 0..9
         if(str_end<=str) goto f;
-        if(!Ascii::isDigit(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(!Ascii::isDigit(ch)) goto f;
         goto nxt;
       case OP_NOT_DIGIT:                        // Match a non-digit, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Ascii::isDigit(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(ch=='\n') goto f;
+        if(Ascii::isDigit(ch)) goto f;
         goto nxt;
       case OP_NOT_DIGIT_NL:                     // Match a non-digit, including newline
         if(str_end<=str) goto f;
-        if(Ascii::isDigit(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(Ascii::isDigit(ch)) goto f;
         goto nxt;
       case OP_HEX:                              // Match a hex digit 0..9A-Fa-f
         if(str_end<=str) goto f;
-        if(!Ascii::isHexDigit(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(!Ascii::isHexDigit(ch)) goto f;
         goto nxt;
       case OP_NOT_HEX:                          // Match a non-hex digit, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Ascii::isHexDigit(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(ch=='\n') goto f;
+        if(Ascii::isHexDigit(ch)) goto f;
         goto nxt;
       case OP_NOT_HEX_NL:                       // Match a non-hex digit, including newline
         if(str_end<=str) goto f;
-        if(Ascii::isHexDigit(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(Ascii::isHexDigit(ch)) goto f;
         goto nxt;
       case OP_LETTER:                           // Match a letter a..z, A..Z
         if(str_end<=str) goto f;
-        if(!Ascii::isLetter(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(!Ascii::isLetter(ch)) goto f;
         goto nxt;
       case OP_NOT_LETTER:                       // Match a non-letter, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Ascii::isLetter(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(ch=='\n') goto f;
+        if(Ascii::isLetter(ch)) goto f;
         goto nxt;
       case OP_NOT_LETTER_NL:                    // Match a non-letter, including newline
         if(str_end<=str) goto f;
-        if(Ascii::isLetter(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(Ascii::isLetter(ch)) goto f;
         goto nxt;
       case OP_PUNCT:                            // Match a punctuation
         if(str_end<=str) goto f;
-        if(!Ascii::isDelim(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(!Ascii::isDelim(ch)) goto f;
         goto nxt;
       case OP_NOT_PUNCT:                        // Match a non-punctuation, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Ascii::isDelim(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(ch=='\n') goto f;
+        if(Ascii::isDelim(ch)) goto f;
         goto nxt;
       case OP_NOT_PUNCT_NL:                     // Match a non-punctuation, including newline
         if(str_end<=str) goto f;
-        if(Ascii::isDelim(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(Ascii::isDelim(ch)) goto f;
         goto nxt;
       case OP_WORD:                             // Match a word character a..z,A..Z,0..9,_
         if(str_end<=str) goto f;
-        if(!Ascii::isWord(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(!Ascii::isWord(ch)) goto f;
         goto nxt;
       case OP_NOT_WORD:                         // Match a non-word character, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Ascii::isWord(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(ch=='\n') goto f;
+        if(Ascii::isWord(ch)) goto f;
         goto nxt;
       case OP_NOT_WORD_NL:                      // Match a non-word character, including newline
         if(str_end<=str) goto f;
-        if(Ascii::isWord(*str)) goto f;
-        str++;
+        ch=*str++;
+        if(Ascii::isWord(ch)) goto f;
         goto nxt;
       case OP_CHAR:                             // Match single character
         if(str_end<=str) goto f;
-        if(prog[0]!=(FXuchar)*str) goto f;
-        prog++;
-        str++;
+        ch=*str++;
+        if(*prog++!=ch) goto f;
         goto nxt;
       case OP_CHAR_CI:                          // Match single character, case-insensitive
         if(str_end<=str) goto f;
-        if(prog[0]!=(FXuchar)Ascii::toLower(*str)) goto f;
-        prog++;
-        str++;
+        ch=*str++;
+        if(*prog++!=Ascii::toLower(ch)) goto f;
         goto nxt;
       case OP_UANY:                             // Match any unicode character, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        str=wcinc(str);                         // Safe increment
+        ch=wcnxt(str);
+        if(ch=='\n') goto f;
         goto nxt;
       case OP_UANY_NL:                          // Matches any unicode characterm, including newline
         if(str_end<=str) goto f;
-        str=wcinc(str);
+        wcnxt(str);
         goto nxt;
       case OP_UIN:                              // Unicode any character in set
         // FIXME
@@ -2798,143 +2863,143 @@ nxt:op=*prog++;
         // FIXME
         FXASSERT(0);
         goto nxt;
+      case OP_UANY_OF:                          // Unicode any character in list
+        // FIXME
+        FXASSERT(0);
+        goto nxt;
+      case OP_UANY_BUT:                         // Unicode any character not in list
+        // FIXME
+        FXASSERT(0);
+        goto nxt;
       case OP_UUPPER:                           // Match if unicode uppercase
         if(str_end<=str) goto f;
-        if(!Unicode::isUpper(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(!Unicode::isUpper(ch)) goto f;
         goto nxt;
       case OP_ULOWER:                           // Match if unicode lowercase
         if(str_end<=str) goto f;
-        if(!Unicode::isLower(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(!Unicode::isLower(ch)) goto f;
         goto nxt;
       case OP_UTITLE:                           // Match if unicode title case
         if(str_end<=str) goto f;
-        if(!Unicode::isTitle(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(!Unicode::isTitle(ch)) goto f;
         goto nxt;
       case OP_USPACE:                           // Match space, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(!Unicode::isSpace(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(ch=='\n') goto f;
+        if(!Unicode::isSpace(ch)) goto f;
         goto nxt;
       case OP_USPACE_NL:                        // Match space, including newline
         if(str_end<=str) goto f;
-        if(!Unicode::isSpace(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(!Unicode::isSpace(ch)) goto f;
         goto nxt;
       case OP_UNOT_SPACE:                       // Match non-space
         if(str_end<=str) goto f;
-        if(Unicode::isSpace(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(Unicode::isSpace(ch)) goto f;
         goto nxt;
       case OP_UDIGIT:                           // Match a digit 0..9
         if(str_end<=str) goto f;
-        if(!Unicode::isDigit(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(!Unicode::isDigit(ch)) goto f;
         goto nxt;
       case OP_UNOT_DIGIT:                       // Match a non-digit, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Unicode::isDigit(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(ch=='\n') goto f;
+        if(Unicode::isDigit(ch)) goto f;
         goto nxt;
       case OP_UNOT_DIGIT_NL:                    // Match a non-digit, including newline
         if(str_end<=str) goto f;
-        if(Unicode::isDigit(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(Unicode::isDigit(ch)) goto f;
         goto nxt;
       case OP_ULETTER:                          // Match a letter a..z, A..Z
         if(str_end<=str) goto f;
-        if(!Unicode::isLetter(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(!Unicode::isLetter(ch)) goto f;
         goto nxt;
       case OP_UNOT_LETTER:                      // Match a non-letter, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Unicode::isLetter(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(ch=='\n') goto f;
+        if(Unicode::isLetter(ch)) goto f;
         goto nxt;
       case OP_UNOT_LETTER_NL:                   // Match a non-letter, including newline
         if(str_end<=str) goto f;
-        if(Unicode::isLetter(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(Unicode::isLetter(ch)) goto f;
         goto nxt;
       case OP_UPUNCT:                           // Match a punctuation
         if(str_end<=str) goto f;
-        if(!Unicode::isPunct(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(!Unicode::isPunct(ch)) goto f;
         goto nxt;
       case OP_UNOT_PUNCT:                       // Match a non-punctuation, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Unicode::isPunct(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(ch=='\n') goto f;
+        if(Unicode::isPunct(ch)) goto f;
         goto nxt;
       case OP_UNOT_PUNCT_NL:                    // Match a non-punctuation, including newline
         if(str_end<=str) goto f;
-        if(Unicode::isPunct(wc(str))) goto f;
-        str=wcinc(str);
+        ch=wcnxt(str);
+        if(Unicode::isPunct(ch)) goto f;
         goto nxt;
       case OP_UCAT:                             // Unicode character from category
         if(str_end<=str) goto f;
-        ch=Unicode::charCategory(wc(str));
+        ch=wcnxt(str);
+        ch=Unicode::charCategory(ch);
         if(!(prog[0]<=ch && ch<=prog[1])) goto f;
-        str=wcinc(str);
         prog+=2;
         goto nxt;
       case OP_UNOT_CAT:                         // Unicode character NOT from category, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        ch=Unicode::charCategory(wc(str));
+        ch=wcnxt(str);
+        if(ch=='\n') goto f;
+        ch=Unicode::charCategory(ch);
         if(prog[0]<=ch && ch<=prog[1]) goto f;
-        str=wcinc(str);
         prog+=2;
         goto nxt;
       case OP_UNOT_CAT_NL:                      // Unicode character NOT from category, including newline
         if(str_end<=str) goto f;
-        ch=Unicode::charCategory(wc(str));
+        ch=wcnxt(str);
+        ch=Unicode::charCategory(ch);
         if(prog[0]<=ch && ch<=prog[1]) goto f;
-        str=wcinc(str);
         prog+=2;
         goto nxt;
       case OP_USCRIPT:                          // Unicode character from script
         if(str_end<=str) goto f;
-        if(Unicode::scriptType(wc(str)!=*prog)) goto f;
-        str=wcinc(str);
-        prog++;
+        ch=wcnxt(str);
+        ch=Unicode::scriptType(ch);
+        if(*prog++!=ch) goto f;
         goto nxt;
       case OP_UNOT_SCRIPT:                      // Unicode character NOT from script, except newline
         if(str_end<=str) goto f;
-        if(*str=='\n') goto f;
-        if(Unicode::scriptType(wc(str)==*prog)) goto f;
-        str=wcinc(str);
-        prog++;
+        ch=wcnxt(str);
+        if(ch=='\n') goto f;
+        ch=Unicode::scriptType(ch);
+        if(*prog++==ch) goto f;
         goto nxt;
       case OP_UNOT_SCRIPT_NL:                   // Unicode character NOT from script, including newline
         if(str_end<=str) goto f;
-        if(Unicode::scriptType(wc(str)==*prog)) goto f;
-        str=wcinc(str);
-        prog++;
+        ch=wcnxt(str);
+        ch=Unicode::scriptType(ch);
+        if(*prog++==ch) goto f;
         goto nxt;
       case OP_UCHAR:                            // Match single unicode character
         if(str_end<=str) goto f;
-        ch=*prog++;
-        if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-        if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-        if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-        if(ch!=wc(str)) goto f;
-        str=wcinc(str);                         // Safe increment
+        ch=wcnxt(prog);
+        if(wcnxt(str)!=ch) goto f;
         goto nxt;
       case OP_UCHAR_CI:                         // Match unicode single character, case-insensitive
         if(str_end<=str) goto f;
-        ch=*prog++;
-        if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-        if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-        if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-        if(ch!=Unicode::toLower(wc(str))) goto f;
-        str=wcinc(str);                         // Safe increment
+        ch=wcnxt(prog);
+        if(Unicode::toLower(wcnxt(str))!=ch) goto f;
         goto nxt;
       case OP_MIN_PLUS:                         // Lazy one or more repetitions
         rep_min=1;
@@ -3004,100 +3069,100 @@ rep:    if(str+rep_min>str_end) goto f;         // Can't possibly succeed
         op=*prog++;
         switch(op){
           case OP_ANY:
-            while(str<str_end && *str!='\n' && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && *str!='\n'){ ++str; ++no; }
             goto asc;
           case OP_ANY_NL:
             while(str<str_end && no<rep_max){ ++str; ++no; }
             goto asc;
           case OP_IN:
-            while(str<str_end && ISIN(prog,*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && ISIN(prog,*str)){ ++str; ++no; }
             prog+=32;
             goto asc;
           case OP_NOT_IN:
-            while(str<str_end && !ISIN(prog,*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && !ISIN(prog,*str)){ ++str; ++no; }
             prog+=32;
             goto asc;
           case OP_ANY_OF:                       // Match character in list
-            while(str<str_end && INLIST(prog,*str) && no<rep_max){ ++str; ++no; }
-            prog+=1+*prog;
+            while(str<str_end && no<rep_max && INLIST(prog,*str)){ ++str; ++no; }
+            prog+=1+(FXuchar)*prog;
             goto asc;
           case OP_ANY_BUT:                      // Match character NOT in list
-            while(str<str_end && !INLIST(prog,*str) && no<rep_max){ ++str; ++no; }
-            prog+=1+*prog;
+            while(str<str_end && no<rep_max && !INLIST(prog,*str)){ ++str; ++no; }
+            prog+=1+(FXuchar)*prog;
             goto asc;
           case OP_UPPER:
-            while(str<str_end && Ascii::isUpper(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && Ascii::isUpper(*str)){ ++str; ++no; }
             goto asc;
           case OP_LOWER:
-            while(str<str_end && Ascii::isLower(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && Ascii::isLower(*str)){ ++str; ++no; }
             goto asc;
           case OP_SPACE:
-            while(str<str_end && *str!='\n' && Ascii::isSpace(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && *str!='\n' && Ascii::isSpace(*str)){ ++str; ++no; }
             goto asc;
           case OP_SPACE_NL:
-            while(str<str_end && Ascii::isSpace(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && Ascii::isSpace(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_SPACE:
-            while(str<str_end && !Ascii::isSpace(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && !Ascii::isSpace(*str)){ ++str; ++no; }
             goto asc;
           case OP_DIGIT:
-            while(str<str_end && Ascii::isDigit(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && Ascii::isDigit(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_DIGIT:
-            while(str<str_end && *str!='\n' && !Ascii::isDigit(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && *str!='\n' && !Ascii::isDigit(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_DIGIT_NL:
-            while(str<str_end && !Ascii::isDigit(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && !Ascii::isDigit(*str)){ ++str; ++no; }
             goto asc;
           case OP_HEX:
-            while(str<str_end && Ascii::isHexDigit(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && Ascii::isHexDigit(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_HEX:
-            while(str<str_end && *str!='\n' && !Ascii::isHexDigit(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && *str!='\n' && !Ascii::isHexDigit(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_HEX_NL:
-            while(str<str_end && !Ascii::isHexDigit(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && !Ascii::isHexDigit(*str)){ ++str; ++no; }
             goto asc;
           case OP_LETTER:
-            while(str<str_end && Ascii::isLetter(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && Ascii::isLetter(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_LETTER:
-            while(str<str_end && *str!='\n' && !Ascii::isLetter(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && *str!='\n' && !Ascii::isLetter(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_LETTER_NL:
-            while(str<str_end && !Ascii::isLetter(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && !Ascii::isLetter(*str)){ ++str; ++no; }
             goto asc;
           case OP_PUNCT:
-            while(str<str_end && Ascii::isDelim(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && Ascii::isDelim(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_PUNCT:
-            while(str<str_end && *str!='\n' && !Ascii::isDelim(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && *str!='\n' && !Ascii::isDelim(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_PUNCT_NL:
-            while(str<str_end && !Ascii::isDelim(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && !Ascii::isDelim(*str)){ ++str; ++no; }
             goto asc;
           case OP_WORD:
-            while(str<str_end && Ascii::isWord(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && Ascii::isWord(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_WORD:
-            while(str<str_end && *str!='\n' && !Ascii::isWord(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && *str!='\n' && !Ascii::isWord(*str)){ ++str; ++no; }
             goto asc;
           case OP_NOT_WORD_NL:
-            while(str<str_end && !Ascii::isWord(*str) && no<rep_max){ ++str; ++no; }
+            while(str<str_end && no<rep_max && !Ascii::isWord(*str)){ ++str; ++no; }
             goto asc;
           case OP_CHAR:
-            ch=*prog++;
-            while(str<str_end && ch==(FXuchar)*str && no<rep_max){ ++str; ++no; }
+            ch=(FXuchar)*prog++;
+            while(str<str_end && no<rep_max && *str==ch){ ++str; ++no; }
             goto asc;
           case OP_CHAR_CI:
-            ch=*prog++;
-            while(str<str_end && ch==(FXuchar)Ascii::toLower(*str) && no<rep_max){ ++str; ++no; }
+            ch=(FXuchar)*prog++;
+            while(str<str_end && no<rep_max && Ascii::toLower(*str)==ch){ ++str; ++no; }
             goto asc;
           case OP_UANY:
-            while(str<str_end && *str!='\n' && no<rep_max){ str=wcinc(str); ++no; }
+            while(str<str_end && no<rep_max && *str!='\n'){ wcnxt(str); ++no; }
             goto uni;
           case OP_UANY_NL:
-            while(str<str_end && no<rep_max){ str=wcinc(str); ++no; }
+            while(str<str_end && no<rep_max){ wcnxt(str); ++no; }
             goto uni;
           case OP_UIN:
             FXASSERT(0);
@@ -3105,88 +3170,134 @@ rep:    if(str+rep_min>str_end) goto f;         // Can't possibly succeed
           case OP_UNOT_IN:
             FXASSERT(0);
             goto uni;
+          case OP_UANY_OF:
+            FXASSERT(0);
+            goto uni;
+          case OP_UANY_BUT:
+            FXASSERT(0);
+            goto uni;
           case OP_UUPPER:
-            while(str<str_end && Unicode::isUpper(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::isUpper(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_ULOWER:
-            while(str<str_end && Unicode::isLower(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::isLower(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UTITLE:
-            while(str<str_end && Unicode::isTitle(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::isTitle(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_USPACE:
-            while(str<str_end && *str!='\n' && Unicode::isSpace(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && *str!='\n' && Unicode::isSpace(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_USPACE_NL:
-            while(str<str_end && Unicode::isSpace(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::isSpace(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_SPACE:
-            while(str<str_end && !Unicode::isSpace(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && !Unicode::isSpace(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UDIGIT:
-            while(str<str_end && Unicode::isDigit(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::isDigit(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_DIGIT:
-            while(str<str_end && *str!='\n' && !Unicode::isDigit(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && *str!='\n' && !Unicode::isDigit(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_DIGIT_NL:
-            while(str<str_end && !Unicode::isDigit(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && !Unicode::isDigit(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_ULETTER:
-            while(str<str_end && Unicode::isLetter(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::isLetter(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_LETTER:
-            while(str<str_end && !Unicode::isLetter(wc(str)) && no<rep_max && *str!='\n'){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && *str!='\n' && !Unicode::isLetter(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_LETTER_NL:
-            while(str<str_end && !Unicode::isLetter(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && !Unicode::isLetter(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UPUNCT:
-            while(str<str_end && Unicode::isPunct(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::isPunct(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_PUNCT:
-            while(str<str_end && *str!='\n' && !Unicode::isPunct(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && *str!='\n' && !Unicode::isPunct(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_PUNCT_NL:
-            while(str<str_end && !Unicode::isPunct(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && !Unicode::isPunct(wcnxt(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UCAT:
-            while(str<str_end && prog[0]<=(ch=Unicode::charCategory(wc(str))) && ch<=prog[1] && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && prog[0]<=(ch=Unicode::charCategory(wcnxt(str))) && ch<=prog[1]){ save=str; ++no; }
+            str=save;
             prog+=2;
             goto uni;
           case OP_UNOT_CAT:
-            while(str<str_end && *str!='\n' && !(prog[0]<=(ch=Unicode::charCategory(wc(str))) && ch<=prog[1]) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && *str!='\n' && !(prog[0]<=(ch=Unicode::charCategory(wcnxt(str))) && ch<=prog[1])){ save=str; ++no; }
+            str=save;
             prog+=2;
             goto uni;
           case OP_UNOT_CAT_NL:
-            while(str<str_end && !(prog[0]<=(ch=Unicode::charCategory(wc(str))) && ch<=prog[1]) && no<rep_max){ str=wcinc(str); ++no; }
+            save=str;
+            while(str<str_end && no<rep_max && !(prog[0]<=(ch=Unicode::charCategory(wcnxt(str))) && ch<=prog[1])){ save=str; ++no; }
+            str=save;
             prog+=2;
             goto uni;
           case OP_USCRIPT:
-            while(str<str_end && Unicode::scriptType(wc(str))==prog[0] && no<rep_max){ str=wcinc(str); ++no; }
-            prog++;
+            ch=*prog++;
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::scriptType(wcnxt(str))==(FXuint)ch){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_SCRIPT:
-            while(str<str_end && *str!='\n' && Unicode::scriptType(wc(str))!=prog[0] && no<rep_max){ str=wcinc(str); ++no; }
-            prog++;
+            ch=*prog++;
+            save=str;
+            while(str<str_end && no<rep_max && *str!='\n' && Unicode::scriptType(wcnxt(str))!=(FXuint)ch){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_SCRIPT_NL:
-            while(str<str_end && Unicode::scriptType(wc(str))!=prog[0] && no<rep_max){ str=wcinc(str); ++no; }
-            prog++;
+            ch=*prog++;
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::scriptType(wcnxt(str))!=(FXuint)ch){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UCHAR:
-            ch=*prog++;
-            if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-            if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-            if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-            while(str<str_end && ch==wc(str) && no<rep_max){ str=wcinc(str); ++no; }
+            ch=wcnxt(prog);
+            save=str;
+            while(str<str_end && no<rep_max && wcnxt(str)==ch){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UCHAR_CI:
-            ch=*prog++;
-            if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-            if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-            if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-            while(str<str_end && ch==Unicode::toLower(wc(str)) && no<rep_max){ str=wcinc(str); ++no; }
+            ch=wcnxt(prog);
+            save=str;
+            while(str<str_end && no<rep_max && Unicode::toLower(wcnxt(str))==ch){ save=str; ++no; }
+            str=save;
             goto uni;
           default:
             fxerror("FXRex::match: bad opcode (%d) at: %p on line: %d\n",op,prog-1,__LINE__);
@@ -3444,11 +3555,12 @@ f:  --recs;
 /*******************************************************************************/
 
 // Reverse-match at current string position
-FXbool FXExecute::revmatch(const FXuchar* prog){
+FXbool FXExecute::revmatch(const FXchar* prog){
   if(recs<MAXRECURSION){
-    FXint op,no,keep,rep_min,rep_max,greediness;
+    FXint no,keep,rep_min,rep_max,greediness;
     const FXchar *save,*beg,*end;
-    const FXuchar *ptr;
+    const FXchar *ptr;
+    FXuchar op;
     FXwchar ch;
 
     // Recurse deeper
@@ -3582,8 +3694,8 @@ nxt:op=*prog++;
         ptr=prog+no;
         while(prog<ptr){
           if(str<=str_beg) goto f;
-          if(*prog++ != (FXuchar)*(str-1)) goto f;
-          str--;
+          ch=(FXuchar)*prog++;
+          if(*--str!=ch) goto f;
           }
         goto nxt;
       case OP_CHARS_CI:                         // Match a run of 1 or more characters, case-insensitive
@@ -3592,8 +3704,8 @@ nxt:op=*prog++;
         ptr=prog+no;
         while(prog<ptr){
           if(str<=str_beg) goto f;
-          if(*prog++ != (FXuchar)Ascii::toLower(*(str-1))) goto f;
-          str--;
+          ch=(FXuchar)*prog++;
+          if(Ascii::toLower(*--str)!=ch) goto f;
           }
         goto nxt;
       case OP_UCHARS:                           // Match a run of 1 or more unicode characters
@@ -3602,13 +3714,8 @@ nxt:op=*prog++;
         ptr=prog+no;
         while(prog<ptr){
           if(str<=str_beg) goto f;
-          ch=*prog++;
-          if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-          if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-          if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-          save=wcdec(str);
-          if(ch!=wc(save)) goto f;
-          str=save;
+          ch=wcnxt(prog);
+          if(wcprv(str)!=ch) goto f;
           }
         goto nxt;
       case OP_UCHARS_CI:                        // Match a run of 1 or more unicode characters, case-insensitive
@@ -3617,175 +3724,165 @@ nxt:op=*prog++;
         ptr=prog+no;
         while(prog<ptr){
           if(str<=str_beg) goto f;
-          ch=*prog++;
-          if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-          if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-          if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-          save=wcdec(str);
-          if(ch!=Unicode::toLower(wc(save))) goto f;
-          str=save;
+          ch=wcnxt(prog);
+          if(Unicode::toLower(wcprv(str))!=ch) goto f;
           }
         goto nxt;
       case OP_ANY:                              // Match any character, except newline
         if(str<=str_beg) goto f;
-        if(*(str-1)=='\n') goto f;
-        str--;
+        ch=*--str;
+        if(ch=='\n') goto f;
         goto nxt;
       case OP_ANY_NL:                           // Matches any character, including newline
         if(str<=str_beg) goto f;
-        str--;
+        --str;
         goto nxt;
       case OP_IN:                               // Match a character in a set
         if(str<=str_beg) goto f;
-        if(!ISIN(prog,*(str-1))) goto f;
+        ch=*--str;
+        if(!ISIN(prog,ch)) goto f;
         prog+=32;
-        str--;
         goto nxt;
       case OP_NOT_IN:                           // Match a character NOT in a set
         if(str<=str_beg) goto f;
-        if(ISIN(prog,*(str-1))) goto f;
+        ch=*--str;
+        if(ISIN(prog,ch)) goto f;
         prog+=32;
-        str--;
         goto nxt;
       case OP_ANY_OF:                           // Match character in list
         if(str<=str_beg) goto f;
-        if(!INLIST(prog,*(str-1))) goto f;
-        prog+=1+*prog;
-        str--;
+        ch=*--str;
+        if(!INLIST(prog,ch)) goto f;
+        prog+=1+(FXuchar)*prog;
         goto nxt;
       case OP_ANY_BUT:                          // Match character NOT in list
         if(str<=str_beg) goto f;
-        if(INLIST(prog,*(str-1))) goto f;
-        prog+=1+*prog;
-        str--;
+        ch=*--str;
+        if(INLIST(prog,ch)) goto f;
+        prog+=1+(FXuchar)*prog;
         goto nxt;
       case OP_UPPER:                            // Match if uppercase
         if(str<=str_beg) goto f;
-        if(!Ascii::isUpper(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(!Ascii::isUpper(ch)) goto f;
         goto nxt;
       case OP_LOWER:                            // Match if lowercase
         if(str<=str_beg) goto f;
-        if(!Ascii::isLower(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(!Ascii::isLower(ch)) goto f;
         goto nxt;
       case OP_SPACE:                            // Match space, except newline
         if(str<=str_beg) goto f;
-        if(*(str-1)=='\n') goto f;
-        if(!Ascii::isSpace(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(ch=='\n') goto f;
+        if(!Ascii::isSpace(ch)) goto f;
         goto nxt;
       case OP_SPACE_NL:                         // Match space, including newline
         if(str<=str_beg) goto f;
-        if(!Ascii::isSpace(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(!Ascii::isSpace(ch)) goto f;
         goto nxt;
       case OP_NOT_SPACE:                        // Match non-space
         if(str<=str_beg) goto f;
-        if(Ascii::isSpace(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(Ascii::isSpace(ch)) goto f;
         goto nxt;
       case OP_DIGIT:                            // Match a digit 0..9
         if(str<=str_beg) goto f;
-        if(!Ascii::isDigit(*(str-1))) goto f;
-        str--;
+        if(!Ascii::isDigit(*--str)) goto f;
         goto nxt;
       case OP_NOT_DIGIT:                        // Match a non-digit, except newline
         if(str<=str_beg) goto f;
-        if(*(str-1)=='\n') goto f;
-        if(Ascii::isDigit(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(ch=='\n') goto f;
+        if(Ascii::isDigit(ch)) goto f;
         goto nxt;
       case OP_NOT_DIGIT_NL:                     // Match a non-digit, including newline
         if(str<=str_beg) goto f;
-        if(Ascii::isDigit(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(Ascii::isDigit(ch)) goto f;
         goto nxt;
       case OP_HEX:                              // Match a hex digit 0..9A-Fa-f
         if(str<=str_beg) goto f;
-        if(!Ascii::isHexDigit(*(str-1))) goto f;
-        str--;
+        if(!Ascii::isHexDigit(*--str)) goto f;
         goto nxt;
       case OP_NOT_HEX:                          // Match a non-hex digit, except newline
         if(str<=str_beg) goto f;
-        if(*(str-1)=='\n') goto f;
-        if(Ascii::isHexDigit(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(ch=='\n') goto f;
+        if(Ascii::isHexDigit(ch)) goto f;
         goto nxt;
       case OP_NOT_HEX_NL:                       // Match a non-hex digit, including newline
         if(str<=str_beg) goto f;
-        if(Ascii::isHexDigit(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(Ascii::isHexDigit(ch)) goto f;
         goto nxt;
       case OP_LETTER:                           // Match a letter a..z, A..Z
         if(str<=str_beg) goto f;
-        if(!Ascii::isLetter(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(!Ascii::isLetter(ch)) goto f;
         goto nxt;
       case OP_NOT_LETTER:                       // Match a non-letter, except newline
         if(str<=str_beg) goto f;
-        if(*(str-1)=='\n') goto f;
-        if(Ascii::isLetter(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(ch=='\n') goto f;
+        if(Ascii::isLetter(ch)) goto f;
         goto nxt;
       case OP_NOT_LETTER_NL:                    // Match a non-letter, including newline
         if(str<=str_beg) goto f;
-        if(Ascii::isLetter(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(Ascii::isLetter(ch)) goto f;
         goto nxt;
       case OP_PUNCT:                            // Match a punctuation
         if(str<=str_beg) goto f;
-        if(!Ascii::isDelim(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(!Ascii::isDelim(ch)) goto f;
         goto nxt;
       case OP_NOT_PUNCT:                        // Match a non-punctuation, except newline
         if(str<=str_beg) goto f;
-        if(*(str-1)=='\n') goto f;
-        if(Ascii::isDelim(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(ch=='\n') goto f;
+        if(Ascii::isDelim(ch)) goto f;
         goto nxt;
       case OP_NOT_PUNCT_NL:                     // Match a non-punctuation, including newline
         if(str<=str_beg) goto f;
-        if(Ascii::isDelim(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(Ascii::isDelim(ch)) goto f;
         goto nxt;
       case OP_WORD:                             // Match a word character a..z,A..Z,0..9,_
         if(str<=str_beg) goto f;
-        if(!Ascii::isWord(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(!Ascii::isWord(ch)) goto f;
         goto nxt;
       case OP_NOT_WORD:                         // Match a non-word character, except newline
         if(str<=str_beg) goto f;
-        if(*(str-1)=='\n') goto f;
-        if(Ascii::isWord(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(ch=='\n') goto f;
+        if(Ascii::isWord(ch)) goto f;
         goto nxt;
       case OP_NOT_WORD_NL:                      // Match a non-word character, including newline
         if(str<=str_beg) goto f;
-        if(Ascii::isWord(*(str-1))) goto f;
-        str--;
+        ch=*--str;
+        if(Ascii::isWord(ch)) goto f;
         goto nxt;
       case OP_CHAR:                             // Match single character
         if(str<=str_beg) goto f;
-        if(prog[0]!=(FXuchar)*(str-1)) goto f;
-        prog++;
-        str--;
+        ch=*--str;
+        if(*prog++!=ch) goto f;
         goto nxt;
       case OP_CHAR_CI:                          // Match single character, case-insensitive
         if(str<=str_beg) goto f;
-        if(prog[0]!=(FXuchar)Ascii::toLower(*(str-1))) goto f;
-        prog++;
-        str--;
+        ch=*--str;
+        if(*prog++!=Ascii::toLower(ch)) goto f;
         goto nxt;
       case OP_UANY:                             // Match any unicode character, except newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(*save=='\n') goto f;
-        str=save;
+        ch=wcprv(str);
+        if(ch=='\n') goto f;
         goto nxt;
       case OP_UANY_NL:                          // Matches any unicode characterm, including newline
         if(str<=str_beg) goto f;
-        str=wcdec(str);
+        wcprv(str);
         goto nxt;
       case OP_UIN:                              // Unicode any character in set
         // FIXME
@@ -3795,166 +3892,143 @@ nxt:op=*prog++;
         // FIXME
         FXASSERT(0);
         goto nxt;
+      case OP_UANY_OF:                          // Unicode any character in list
+        // FIXME
+        FXASSERT(0);
+        goto nxt;
+      case OP_UANY_BUT:                         // Unicode any character not in list
+        // FIXME
+        FXASSERT(0);
+        goto nxt;
       case OP_UUPPER:                           // Match if unicode uppercase
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(!Unicode::isUpper(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(!Unicode::isUpper(ch)) goto f;
         goto nxt;
       case OP_ULOWER:                           // Match if unicode lowercase
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(!Unicode::isLower(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(!Unicode::isLower(ch)) goto f;
         goto nxt;
       case OP_UTITLE:                           // Match if unicode title case
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(!Unicode::isTitle(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(!Unicode::isTitle(ch)) goto f;
         goto nxt;
       case OP_USPACE:                           // Match space, except newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(*save=='\n') goto f;
-        if(!Unicode::isSpace(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(ch=='\n') goto f;
+        if(!Unicode::isSpace(ch)) goto f;
         goto nxt;
       case OP_USPACE_NL:                        // Match space, including newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(!Unicode::isSpace(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(!Unicode::isSpace(ch)) goto f;
         goto nxt;
       case OP_UNOT_SPACE:                       // Match non-space
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(Unicode::isSpace(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(Unicode::isSpace(ch)) goto f;
         goto nxt;
       case OP_UDIGIT:                           // Match a digit 0..9
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(!Unicode::isDigit(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(!Unicode::isDigit(ch)) goto f;
         goto nxt;
       case OP_UNOT_DIGIT:                       // Match a non-digit, except newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(*save=='\n') goto f;
-        if(Unicode::isDigit(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(ch=='\n') goto f;
+        if(Unicode::isDigit(ch)) goto f;
         goto nxt;
       case OP_UNOT_DIGIT_NL:                    // Match a non-digit, including newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(Unicode::isDigit(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(Unicode::isDigit(ch)) goto f;
         goto nxt;
       case OP_ULETTER:                          // Match a letter a..z, A..Z
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(!Unicode::isLetter(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(!Unicode::isLetter(ch)) goto f;
         goto nxt;
       case OP_UNOT_LETTER:                      // Match a non-letter, except newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(*save=='\n') goto f;
-        if(Unicode::isLetter(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(ch=='\n') goto f;
+        if(Unicode::isLetter(ch)) goto f;
         goto nxt;
       case OP_UNOT_LETTER_NL:                   // Match a non-letter, including newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(Unicode::isLetter(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(Unicode::isLetter(ch)) goto f;
         goto nxt;
       case OP_UPUNCT:                           // Match a punctuation
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(!Unicode::isPunct(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(!Unicode::isPunct(ch)) goto f;
         goto nxt;
       case OP_UNOT_PUNCT:                       // Match a non-punctuation, except newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(*save=='\n') goto f;
-        if(Unicode::isPunct(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(ch=='\n') goto f;
+        if(Unicode::isPunct(ch)) goto f;
         goto nxt;
       case OP_UNOT_PUNCT_NL:                    // Match a non-punctuation, including newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(Unicode::isPunct(wc(save))) goto f;
-        str=save;
+        ch=wcprv(str);
+        if(Unicode::isPunct(ch)) goto f;
         goto nxt;
       case OP_UCAT:                             // Unicode character from category
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        ch=Unicode::charCategory(wc(save));
+        ch=wcprv(str);
+        ch=Unicode::charCategory(ch);
         if(!(prog[0]<=ch && ch<=prog[1])) goto f;
-        str=save;
         prog+=2;
         goto nxt;
       case OP_UNOT_CAT:                         // Unicode character NOT from category, except newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(*save=='\n') goto f;
-        ch=Unicode::charCategory(wc(save));
+        ch=wcprv(str);
+        if(ch=='\n') goto f;
+        ch=Unicode::charCategory(ch);
         if(prog[0]<=ch && ch<=prog[1]) goto f;
-        str=save;
         prog+=2;
         goto nxt;
       case OP_UNOT_CAT_NL:                      // Unicode character NOT from category, including newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        ch=Unicode::charCategory(wc(save));
+        ch=wcprv(str);
+        ch=Unicode::charCategory(ch);
         if(prog[0]<=ch && ch<=prog[1]) goto f;
-        str=save;
         prog+=2;
         goto nxt;
       case OP_USCRIPT:                          // Unicode character from script
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(Unicode::scriptType(wc(save)!=*prog)) goto f;
-        str=save;
-        prog++;
+        ch=wcprv(str);
+        ch=Unicode::scriptType(ch);
+        if(*prog++!=ch) goto f;
         goto nxt;
       case OP_UNOT_SCRIPT:                      // Unicode character NOT from script, except newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(*save=='\n') goto f;
-        if(Unicode::scriptType(wc(save)==*prog)) goto f;
-        str=save;
-        prog++;
+        ch=wcprv(str);
+        if(ch=='\n') goto f;
+        ch=Unicode::scriptType(ch);
+        if(*prog++==ch) goto f;
         goto nxt;
       case OP_UNOT_SCRIPT_NL:                   // Unicode character NOT from script, including newline
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        if(Unicode::scriptType(wc(save)==*prog)) goto f;
-        str=save;
-        prog++;
+        ch=wcprv(str);
+        ch=Unicode::scriptType(ch);
+        if(*prog++==ch) goto f;
         goto nxt;
       case OP_UCHAR:                            // Match single unicode character
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        ch=*prog++;
-        if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-        if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-        if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-        if(ch!=wc(save)) goto f;
-        str=save;
+        ch=wcnxt(prog);
+        if(wcprv(str)!=ch) goto f;
         goto nxt;
       case OP_UCHAR_CI:                         // Match unicode single character, case-insensitive
         if(str<=str_beg) goto f;
-        save=wcdec(str);
-        ch=*prog++;
-        if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-        if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-        if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-        if(ch!=Unicode::toLower(wc(save))) goto f;
-        str=save;
+        ch=wcnxt(prog);
+        if(Unicode::toLower(wcprv(str))!=ch) goto f;
         goto nxt;
       case OP_MIN_PLUS:                         // Lazy one or more repetitions
         rep_min=1;
@@ -4024,100 +4098,100 @@ rep:    if(str-rep_min<str_beg) goto f;         // Can't possibly succeed
         op=*prog++;
         switch(op){
           case OP_ANY:
-            while(str_beg<str && *(str-1)!='\n' && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && *(str-1)!='\n'){ --str; ++no; }
             goto asc;
           case OP_ANY_NL:
             while(str_beg<str && no<rep_max){ --str; ++no; }
             goto asc;
           case OP_IN:
-            while(str_beg<str && ISIN(prog,*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && ISIN(prog,*(str-1))){ --str; ++no; }
             prog+=32;
             goto asc;
           case OP_NOT_IN:
-            while(str_beg<str && !ISIN(prog,*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && !ISIN(prog,*(str-1))){ --str; ++no; }
             prog+=32;
             goto asc;
           case OP_ANY_OF:                       // Match character in list
-            while(str_beg<str && INLIST(prog,*(str-1)) && no<rep_max){ --str; ++no; }
-            prog+=1+*prog;
+            while(str_beg<str && no<rep_max && INLIST(prog,*(str-1))){ --str; ++no; }
+            prog+=1+(FXuchar)*prog;
             goto asc;
           case OP_ANY_BUT:                      // Match character NOT in list
-            while(str_beg<str && !INLIST(prog,*(str-1)) && no<rep_max){ --str; ++no; }
-            prog+=1+*prog;
+            while(str_beg<str && no<rep_max && !INLIST(prog,*(str-1))){ --str; ++no; }
+            prog+=1+(FXuchar)*prog;
             goto asc;
           case OP_UPPER:
-            while(str_beg<str && Ascii::isUpper(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && Ascii::isUpper(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_LOWER:
-            while(str_beg<str && Ascii::isLower(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && Ascii::isLower(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_SPACE:
-            while(str_beg<str && *(str-1)!='\n' && Ascii::isSpace(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && Ascii::isSpace(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_SPACE_NL:
-            while(str_beg<str && Ascii::isSpace(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && Ascii::isSpace(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_SPACE:
-            while(str_beg<str && !Ascii::isSpace(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && !Ascii::isSpace(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_DIGIT:
-            while(str_beg<str && Ascii::isDigit(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && Ascii::isDigit(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_DIGIT:
-            while(str_beg<str && *(str-1)!='\n' && !Ascii::isDigit(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !Ascii::isDigit(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_DIGIT_NL:
-            while(str_beg<str && !Ascii::isDigit(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && !Ascii::isDigit(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_HEX:
-            while(str_beg<str && Ascii::isHexDigit(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && Ascii::isHexDigit(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_HEX:
-            while(str_beg<str && *(str-1)!='\n' && !Ascii::isHexDigit(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !Ascii::isHexDigit(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_HEX_NL:
-            while(str_beg<str && !Ascii::isHexDigit(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && !Ascii::isHexDigit(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_LETTER:
-            while(str_beg<str && Ascii::isLetter(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && Ascii::isLetter(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_LETTER:
-            while(str_beg<str && *(str-1)!='\n' && !Ascii::isLetter(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !Ascii::isLetter(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_LETTER_NL:
-            while(str_beg<str && !Ascii::isLetter(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && !Ascii::isLetter(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_PUNCT:
-            while(str_beg<str && Ascii::isDelim(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && Ascii::isDelim(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_PUNCT:
-            while(str_beg<str && *(str-1)!='\n' && !Ascii::isDelim(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !Ascii::isDelim(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_PUNCT_NL:
-            while(str_beg<str && !Ascii::isDelim(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && !Ascii::isDelim(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_WORD:
-            while(str_beg<str && Ascii::isWord(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && Ascii::isWord(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_WORD:
-            while(str_beg<str && *(str-1)!='\n' && !Ascii::isWord(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !Ascii::isWord(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_NOT_WORD_NL:
-            while(str_beg<str && !Ascii::isWord(*(str-1)) && no<rep_max){ --str; ++no; }
+            while(str_beg<str && no<rep_max && !Ascii::isWord(*(str-1))){ --str; ++no; }
             goto asc;
           case OP_CHAR:
-            ch=*prog++;
-            while(str_beg<str && ch==(FXuchar)*(str-1) && no<rep_max){ --str; ++no; }
+            ch=(FXuchar)*prog++;
+            while(str_beg<str && no<rep_max && *(str-1)==ch){ --str; ++no; }
             goto asc;
           case OP_CHAR_CI:
-            ch=*prog++;
-            while(str_beg<str && ch==(FXuchar)Ascii::toLower(*(str-1)) && no<rep_max){ --str; ++no; }
+            ch=(FXuchar)*prog++;
+            while(str_beg<str && no<rep_max && Ascii::toLower(*(str-1))==ch){ --str; ++no; }
             goto asc;
           case OP_UANY:
-            while(str_beg<str && *(save=wcdec(str))!='\n' && no<rep_max){ str=save; ++no; }
+            while(str_beg<str && no<rep_max && *(str-1)!='\n'){ wcprv(str); ++no; }
             goto uni;
           case OP_UANY_NL:
-            while(str_beg<str && no<rep_max){ str=wcdec(str); ++no; }
+            while(str_beg<str && no<rep_max){ wcprv(str); ++no; }
             goto uni;
           case OP_UIN:
             FXASSERT(0);
@@ -4125,88 +4199,134 @@ rep:    if(str-rep_min<str_beg) goto f;         // Can't possibly succeed
           case OP_UNOT_IN:
             FXASSERT(0);
             goto uni;
+          case OP_UANY_OF:
+            FXASSERT(0);
+            goto uni;
+          case OP_UANY_BUT:
+            FXASSERT(0);
+            goto uni;
           case OP_UUPPER:
-            while(str_beg<str && Unicode::isUpper(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::isUpper(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_ULOWER:
-            while(str_beg<str && Unicode::isLower(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::isLower(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UTITLE:
-            while(str_beg<str && Unicode::isTitle(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::isTitle(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_USPACE:
-            while(str_beg<str && *(save=wcdec(str))!='\n' && Unicode::isSpace(wc(save)) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && Unicode::isSpace(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_USPACE_NL:
-            while(str_beg<str && Unicode::isSpace(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::isSpace(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_SPACE:
-            while(str_beg<str && !Unicode::isSpace(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && !Unicode::isSpace(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UDIGIT:
-            while(str_beg<str && Unicode::isDigit(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::isDigit(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_DIGIT:
-            while(str_beg<str && *(save=wcdec(str))!='\n' && !Unicode::isDigit(wc(save)) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !Unicode::isDigit(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_DIGIT_NL:
-            while(str_beg<str && !Unicode::isDigit(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && !Unicode::isDigit(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_ULETTER:
-            while(str_beg<str && Unicode::isLetter(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::isLetter(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_LETTER:
-            while(str_beg<str && *(save=wcdec(str))!='\n' && !Unicode::isLetter(wc(save)) && no<rep_max ){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !Unicode::isLetter(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_LETTER_NL:
-            while(str_beg<str && !Unicode::isLetter(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && !Unicode::isLetter(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UPUNCT:
-            while(str_beg<str && Unicode::isPunct(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::isPunct(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_PUNCT:
-            while(str_beg<str && *(save=wcdec(str))!='\n' && !Unicode::isPunct(wc(save)) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !Unicode::isPunct(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_PUNCT_NL:
-            while(str_beg<str && !Unicode::isPunct(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && !Unicode::isPunct(wcprv(str))){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UCAT:
-            while(str_beg<str && prog[0]<=(ch=Unicode::charCategory(wc(save=wcdec(str)))) && ch<=prog[1] && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && prog[0]<=(ch=Unicode::charCategory(wcprv(str))) && ch<=prog[1]){ save=str; ++no; }
+            str=save;
             prog+=2;
             goto uni;
           case OP_UNOT_CAT:
-            while(str_beg<str && *(save=wcdec(str))!='\n' && !(prog[0]<=(ch=Unicode::charCategory(wc(save))) && ch<=prog[1]) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && !(prog[0]<=(ch=Unicode::charCategory(wcprv(str))) && ch<=prog[1])){ save=str; ++no; }
+            str=save;
             prog+=2;
             goto uni;
           case OP_UNOT_CAT_NL:
-            while(str_beg<str && !(prog[0]<=(ch=Unicode::charCategory(wc(save=wcdec(str)))) && ch<=prog[1]) && no<rep_max){ str=save; ++no; }
+            save=str;
+            while(str_beg<str && no<rep_max && !(prog[0]<=(ch=Unicode::charCategory(wcprv(str))) && ch<=prog[1])){ save=str; ++no; }
+            str=save;
             prog+=2;
             goto uni;
           case OP_USCRIPT:
-            while(str_beg<str && Unicode::scriptType(wc(save=wcdec(str)))==prog[0] && no<rep_max){ str=save; ++no; }
-            prog++;
+            ch=*prog++;
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::scriptType(wcprv(str))==(FXuint)ch){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_SCRIPT:
-            while(str_beg<str && *(save=wcdec(str))!='\n' && Unicode::scriptType(wc(save))!=prog[0] && no<rep_max){ str=save; ++no; }
-            prog++;
+            ch=*prog++;
+            save=str;
+            while(str_beg<str && no<rep_max && *(str-1)!='\n' && Unicode::scriptType(wcprv(str))!=(FXuint)ch){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UNOT_SCRIPT_NL:
-            while(str_beg<str && Unicode::scriptType(wc(save=wcdec(str)))!=prog[0] && no<rep_max){ str=save; ++no; }
-            prog++;
+            ch=*prog++;
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::scriptType(wcprv(str))!=(FXuint)ch){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UCHAR:
-            ch=*prog++;
-            if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-            if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-            if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-            while(str_beg<str && ch==wc(save=wcdec(str)) && no<rep_max){ str=save; ++no; }
+            ch=wcnxt(prog);
+            save=str;
+            while(str_beg<str && no<rep_max && wcprv(str)==ch){ save=str; ++no; }
+            str=save;
             goto uni;
           case OP_UCHAR_CI:
-            ch=*prog++;
-            if(0xC0<=ch){ ch=(ch<<6)^0x3080^*prog++;
-            if(0x800<=ch){ ch=(ch<<6)^0x20080^*prog++;
-            if(0x10000<=ch){ ch=(ch<<6)^0x400080^*prog++; }}}
-            while(str_beg<str && ch==Unicode::toLower(wc(save=wcdec(str))) && no<rep_max){ str=save; ++no; }
+            ch=wcnxt(prog);
+            save=str;
+            while(str_beg<str && no<rep_max && Unicode::toLower(wcprv(str))==ch){ save=str; ++no; }
+            str=save;
             goto uni;
           default:
             fxerror("FXRex::revmatch: bad opcode (%d) at: %p on line: %d\n",op,prog-1,__LINE__);
@@ -4461,259 +4581,199 @@ f:  --recs;
   return false;
   }
 
+
 /*******************************************************************************/
 
-// Structure used during pattern reversal adjustment
-class FXReverse {
-  const FXchar *src;    // Original pattern source
-  FXchar       *dst;    // Adjusted pattern destination
-  FXint         mode;   // Compile mode
-public:
-
-  // Reversal engine initialize
-  FXReverse(FXchar* d=NULL,const FXchar* s=NULL,FXint f=0):src(s),dst(d),mode(f){ }
-
-  // Reverse expression
-  static FXRex::Error reverse(FXchar* destination,const FXchar* source,FXint flags);
-
-  // Parsing
-  FXRex::Error verbatim();
-  FXRex::Error expression();
-  FXRex::Error branch();
-  FXRex::Error piece();
-  FXRex::Error atom();
-  FXRex::Error charset();
-  };
-
-
-// Reverse expression
-FXRex::Error FXReverse::reverse(FXchar* destination,const FXchar* source,FXint flags){
-  FXReverse reverser(destination,source,flags);
-  FXRex::Error err;
-
-  // Verbatim mode
-  if(flags&FXRex::Verbatim){
-    if((err=reverser.verbatim())!=FXRex::ErrOK) return err;
-    }
-
-  // Regular expression mode
-  else{
-    if((err=reverser.expression())!=FXRex::ErrOK) return err;
-    }
-
-  return FXRex::ErrOK;
-  }
-
-
-// Reverse string
-FXRex::Error FXReverse::verbatim(){
-  if(mode&FXRex::Reverse){
-    dst+=strlen(src);
-    *dst='\0';
-    while(*src){                // Copy reversed
-      *--dst=*src++;
+// Try match text buffer at given position ptr
+FXbool FXExecute::attempt(const FXchar* prog,const FXchar* ptr){
+  anc=str=ptr;
+  if(match(prog)){
+    if(0<npar){                         // Record matched range if we have room
+      sub_beg[0]=anc-str_beg;
+      sub_end[0]=str-str_beg;
       }
+    return true;
     }
-  else{
-    while(*src){                // Copy forwards
-      *dst++=*src++;
-      }
-    *dst='\0';
-    }
-  return FXRex::ErrOK;
+  return false;
   }
 
+/*******************************************************************************/
 
-// Reverse expression
-FXRex::Error FXReverse::expression(){
-  FXRex::Error err;
-  if((err=branch())!=FXRex::ErrOK) return err;
-  while(*src=='|'){
-    *dst++=*src++;
-    if((err=branch())!=FXRex::ErrOK) return err;
-    }
-  *dst='\0';
-  return FXRex::ErrOK;
-  }
-
-
-// Reverse branch
-FXRex::Error FXReverse::branch(){
-  const FXchar* point[MAXPIECES];
-  FXchar*       ptr=dst;
-  FXRex::Error  err;
-  FXint         n=0;
-
-  // Parse a run of pieces
-  do{
-
-    // Ensure not exceeding maximum # of pieces
-    if(n>=MAXPIECES) return FXRex::ErrComplex;
-
-    // Start of piece
-    point[n++]=src;
-
-    // Parse piece
-    if((err=piece())!=FXRex::ErrOK) return err;
-    }
-  while(*src!='\0' && *src!='|' && *src!=')');
-
-  // End of last piece
-  point[n]=src;
-
-  // Reverse order of pieces, if there's more than 1
-  if((mode&FXRex::Reverse) && 1<n){
-    dst=ptr;
-    while(0<n){
-      copyElms(dst,point[n-1],point[n]-point[n-1]);
-      dst+=point[n]-point[n-1];
-      n--;
-      }
-    }
-  return FXRex::ErrOK;
-  }
-
-
-// Parse piece
-FXRex::Error FXReverse::piece(){
-  FXRex::Error err;
+// Search in string, starting at ptr
+FXint FXExecute::search(const FXchar* prog,const FXchar* fm,const FXchar* to){
   FXchar ch;
-  if((err=atom())!=FXRex::ErrOK) return err;
-  if((ch=*src)=='*' || ch=='+' || ch=='?' || ch=='{'){
-    *dst++=*src++;
-    if(ch=='{'){                                        // Counted repeat
-      while(Ascii::isDigit(*src)){
-        *dst++=*src++;
+
+  // Must be true
+  FXASSERT(str_beg<=fm && fm<=str_end);
+  FXASSERT(str_beg<=to && to<=str_end);
+
+  //// Ascii mode
+  if(!(mode&FXRex::Unicode)){
+
+    //// Search forwards
+    if(fm<=to){
+
+      // Anchored at string start
+      if(prog[0]==OP_STR_BEG){
+        if((fm==str_beg) && attempt(prog,fm)) return 0;
+        return -1;
         }
-      if(*src==','){
-        *dst++=*src++;
-        while(Ascii::isDigit(*src)){
-          *dst++=*src++;
+
+      // Anchored at BOL
+      if(prog[0]==OP_LINE_BEG){
+        if(fm==str_beg){
+          if(!(mode&FXRex::NotBol) && attempt(prog,fm)) return 0;
+          fm++;
           }
+        while(fm<=to){
+          if((*(fm-1)=='\n') && attempt(prog,fm)) return fm-str_beg;
+          fm++;
+          }
+        return -1;
         }
-      if(*src!='}') return FXRex::ErrBrace;             // Unmatched brace
-      *dst++=*src++;
+
+      // Known starting character
+      if(prog[0]==OP_CHAR || prog[0]==OP_CHARS){
+        ch=(prog[0]==OP_CHAR)?prog[1]:prog[3];
+        if(to==str_end) to--;
+        while(fm<=to){
+          if((*fm==ch) && attempt(prog,fm)) return fm-str_beg;
+          fm++;
+          }
+        return -1;
+        }
+
+      // Known starting character, ignoring case
+      if(prog[0]==OP_CHAR_CI || prog[0]==OP_CHARS_CI){
+        ch=(prog[0]==OP_CHAR_CI)?prog[1]:prog[3];
+        if(to==str_end) to--;
+        while(fm<=to){
+          if((Ascii::toLower(*fm)==ch) && attempt(prog,fm)) return fm-str_beg;
+          fm++;
+          }
+        return -1;
+        }
+
+      // General case
+      while(fm<=to){
+        if(attempt(prog,fm)) return fm-str_beg;
+        fm++;
+        }
       }
-    if(*src=='?' || *src=='+'){                         // Greedy, lazy, or possessive
-      *dst++=*src++;
+
+    //// Search backwards
+    else{
+
+      // Anchored at string start
+      if(prog[0]==OP_STR_BEG){
+        if((to==str_beg) && attempt(prog,to)) return 0;
+        return -1;
+        }
+
+      // Anchored at BOL
+      if(prog[0]==OP_LINE_BEG){
+        while(to<fm){
+          if((*(fm-1)=='\n') && attempt(prog,fm)) return fm-str_beg;
+          fm--;
+          }
+        if(fm==str_beg){
+          if(!(mode&FXRex::NotBol) && attempt(prog,fm)) return 0;
+          }
+        return -1;
+        }
+
+      // Known starting character
+      if(prog[0]==OP_CHAR || prog[0]==OP_CHARS){
+        ch=(prog[0]==OP_CHAR)?prog[1]:prog[3];
+        if(fm==str_end) fm--;
+        while(to<=fm){
+          if((*fm==ch) && attempt(prog,fm)) return fm-str_beg;
+          fm--;
+          }
+        return -1;
+        }
+
+      // Known starting character, ignoring case
+      if(prog[0]==OP_CHAR_CI || prog[0]==OP_CHARS_CI){
+        ch=(prog[0]==OP_CHAR_CI)?prog[1]:prog[3];
+        if(fm==str_end) fm--;
+        while(to<=fm){
+          if((Ascii::toLower(*fm)==ch) && attempt(prog,fm)) return fm-str_beg;
+          fm--;
+          }
+        return -1;
+        }
+
+      // General case
+      while(to<=fm){
+        if(attempt(prog,fm)) return fm-str_beg;
+        fm--;
+        }
+      }
+
+    return -1;
+    }
+
+  //// Unicode mode
+
+  // Search forwards
+  if(fm<=to){
+
+    // Anchored at string start
+    if(prog[0]==OP_STR_BEG){
+      if((fm==str_beg) && attempt(prog,fm)) return 0;
+      return -1;
+      }
+
+    // Anchored at BOL
+    if(prog[0]==OP_LINE_BEG){
+      if(fm==str_beg){
+        if(!(mode&FXRex::NotBol) && attempt(prog,fm)) return 0;
+        fm=wcinc(fm);
+        }
+      while(fm<=to){
+        if((*(fm-1)=='\n') && attempt(prog,fm)) return fm-str_beg;
+        fm=wcinc(fm);
+        }
+      return -1;
+      }
+
+    // General case
+    while(fm<=to){
+      if(attempt(prog,fm)) return fm-str_beg;
+      fm=wcinc(fm);
       }
     }
-  return FXRex::ErrOK;
-  }
 
+  // Search backwards
+  else{
 
-// Reverse atom
-FXRex::Error FXReverse::atom(){
-  FXRex::Error err;
-  FXint savemode;
-  FXuchar ch;
-  switch(*src){
-    case '(':                                           // Subexpression grouping
-      *dst++=*src++;
-      savemode=mode;
-      if(*src=='?'){
-        *dst++=*src++;
-        if((ch=*src)==':' || ch=='i' || ch=='I' || ch=='n' || ch=='N' || ch=='>'){      // Some type of sub-expression
-          *dst++=*src++;
-          }
-        else if(ch=='=' || ch=='!'){                                                    // Positive or negative look-ahead
-          *dst++=*src++;
-          mode&=~FXRex::Reverse;                        // Non-reversed segment
-          }
-        else if(ch=='<' && (*(src+1)=='=' || *(src+1)=='!')){                           // Positive or negative look-behind
-          *dst++=*src++;
-          *dst++=*src++;
-          mode|=FXRex::Reverse;                         // Reversed segment
-          }
-        else{                                           // Bad token
-          return FXRex::ErrToken;
-          }
-        }
-      if((err=expression())!=FXRex::ErrOK) return err;
-      mode=savemode;
-      if(*src!=')') return FXRex::ErrParent;            // Unmatched parenthesis
-      *dst++=*src++;
-      break;
-    case '[':
-      *dst++=*src++;
-      if((err=charset())!=FXRex::ErrOK) return err;
-      if(*src!=']') return FXRex::ErrBracket;           // Unmatched bracket
-      *dst++=*src++;
-      break;
-    case '\\':                                          // Escape sequences which are NOT part of simple character-run
-      *dst++=*src++;
-      switch(*src){
-        case '\0':                                      // Unexpected pattern end
-          return FXRex::ErrNoAtom;
-        case '1':                                       // Back reference not supported in reverse
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          return FXRex::ErrBackRef;
-        case 'c':                                       // Control character
-          *dst++=*src++;
-          if(('@'<=*src && *src<='_') || (*src=='?')){
-            *dst++=*src++;
-            }
-          else{
-            return FXRex::ErrToken;
-            }
-          break;
-        case '0':                                       // Octal digit not supported in reverse
-          return FXRex::ErrSupport;
-          break;
-        case 'x':                                       // Hex digit
-          *dst++=*src++;
-          if(!Ascii::isHexDigit(*src)) return FXRex::ErrToken;
-          *dst++=*src++;
-          if(!Ascii::isHexDigit(*src)) return FXRex::ErrToken;
-          *dst++=*src++;
-          break;
-        default:                                        // Single escaped character
-          *dst++=*src++;
-          break;
-        }
-      break;
-    case '*':                                           // No preceding atom
-    case '+':
-    case '?':
-    case '{':
-    case '|':
-      return FXRex::ErrNoAtom;
-    case ')':                                           // Unmatched parenthesis
-      return FXRex::ErrParent;
-    case '}':                                           // Unmatched brace
-      return FXRex::ErrBrace;
-    case ']':                                           // Unmatched bracket
-      return FXRex::ErrBracket;
-    case '\0':                                          // Illegal token
-      return FXRex::ErrToken;
-    default:                                            // Normal non-escaped character
-      *dst++=*src++;
-      break;
-    }
-  return FXRex::ErrOK;
-  }
-
-
-// Skip over charset
-FXRex::Error FXReverse::charset(){
-  if(*src=='^'){
-    *dst++=*src++;
-    }
-  if(*src){
-    do{
-      if(*src=='\\'){ *dst++=*src++; }
-      *dst++=*src++;
+    // Anchored at string start
+    if(prog[0]==OP_STR_BEG){
+      if((to==str_beg) && attempt(prog,to)) return 0;
+      return -1;
       }
-    while(*src!='\0' && *src!=']');
+
+    // Anchored at BOL
+    if(prog[0]==OP_LINE_BEG){
+      while(to<fm){
+        if((*(fm-1)=='\n') && attempt(prog,fm)) return fm-str_beg;
+        fm=wcdec(fm);
+        }
+      if(fm==str_beg){
+        if(!(mode&FXRex::NotBol) && attempt(prog,fm)) return 0;
+        }
+      return -1;
+      }
+
+    // General case
+    while(to<=fm){
+      if(attempt(prog,fm)) return fm-str_beg;
+      fm=wcdec(fm);
+      }
     }
-  return FXRex::ErrOK;
+
+  return -1;
   }
 
 }
@@ -4725,6 +4785,7 @@ FXRex::Error FXReverse::charset(){
 const FXchar *const FXRex::errors[]={
   "OK",
   "Empty pattern",
+  "Extra characters at end",
   "Unmatched parenthesis",
   "Unmatched bracket",
   "Unmatched brace",
@@ -4738,39 +4799,25 @@ const FXchar *const FXRex::errors[]={
   "Expression too complex",
   "Out of memory",
   "Illegal token",
-  "Bad look-behind pattern",
+  "Pattern too long",
   "Unsupported feature"
   };
 
 
-// Default program always fails
-const FXuchar FXRex::fallback[]={
-#if (FOX_BIGENDIAN == 1)
-  0,3,OP_FAIL
-#else
-  3,0,OP_FAIL
-#endif
-  };
-
-//const_cast<TUChar*>(fallback)
-
 // Construct empty regular expression object
-FXRex::FXRex():code(EMPTY){
+FXRex::FXRex(){
   FXTRACE((TOPIC_CONSTRUCT,"FXRex::FXRex()\n"));
   }
 
 
 // Copy regex object
-FXRex::FXRex(const FXRex& orig):code(EMPTY){
+FXRex::FXRex(const FXRex& orig):code(orig.code){
   FXTRACE((TOPIC_CONSTRUCT,"FXRex::FXRex(FXRex)\n"));
-  if(orig.code!=fallback){
-    dupElms(code,orig.code,GETARG(orig.code));
-    }
   }
 
 
 // Compile expression from pattern; fail if error
-FXRex::FXRex(const FXchar* pattern,FXint mode,FXRex::Error* error):code(EMPTY){
+FXRex::FXRex(const FXchar* pattern,FXint mode,FXRex::Error* error){
   FXTRACE((TOPIC_CONSTRUCT,"FXRex::FXRex(%s,%u,%p)\n",pattern,mode,error));
   FXRex::Error err=parse(pattern,mode);
   if(error){ *error=err; }
@@ -4778,7 +4825,7 @@ FXRex::FXRex(const FXchar* pattern,FXint mode,FXRex::Error* error):code(EMPTY){
 
 
 // Compile expression from pattern; fail if error
-FXRex::FXRex(const FXString& pattern,FXint mode,FXRex::Error* error):code(EMPTY){
+FXRex::FXRex(const FXString& pattern,FXint mode,FXRex::Error* error){
   FXTRACE((TOPIC_CONSTRUCT,"FXRex::FXRex(%s,%u,%p)\n",pattern.text(),mode,error));
   FXRex::Error err=parse(pattern.text(),mode);
   if(error){ *error=err; }
@@ -4790,65 +4837,55 @@ FXRex::FXRex(const FXString& pattern,FXint mode,FXRex::Error* error):code(EMPTY)
 #include "fxrexdbg.h"
 #endif
 
-
 // Parse pattern
 FXRex::Error FXRex::parse(const FXchar* pattern,FXint mode){
   FXRex::Error err=ErrEmpty;
 
-  FXTRACE((TOPIC_DETAIL,"FXRex::parse(\"%s\",%u)\n",pattern,mode));
+  FXTRACE((TOPIC_DETAIL,"FXRex::parse(pattern=\"%s\",mode=%b)\n",pattern,mode));
 
-  // Free old code
+  // Error
   clear();
 
   // Check
   if(pattern){
-    FXchar* adjustedpattern;
+    FXString adjustedpattern;
 
     // Allocate adjusted pattern
     err=ErrMemory;
-    if(allocElms(adjustedpattern,1+strlen(pattern))){
+    if(adjustedpattern.length(strlen(pattern))){
 
       // Modify pattern
-      if((err=FXReverse::reverse(adjustedpattern,pattern,mode))==ErrOK){
+      if((err=FXReverse::reverse(adjustedpattern.text(),pattern,mode))==ErrOK){
         FXCompile cs;
 
         FXTRACE((TOPIC_DETAIL,"FXRex::parse: adjustedpattern: \"%s\"\n",adjustedpattern));
 
         // Check syntax and count the bytes
-        if((err=cs.compile(nullptr,adjustedpattern,mode))==ErrOK){
+        if((err=cs.compile(nullptr,adjustedpattern.text(),mode))==ErrOK){
 
           // Compile code if we want to
           if(!(mode&FXRex::Syntax)){
-            FXuchar *prog;
 
             // Allocate program space
-            if(allocElms(prog,cs.size())){
+            if(code.length(cs.size())){
 
               // Now generate code for pattern
-              if((err=cs.compile(prog,adjustedpattern,mode))==ErrOK){
+              if((err=cs.compile(code.text(),adjustedpattern.text(),mode))==ErrOK){
 
-                // Install new program
-                code=prog;
 #ifdef TOPIC_REXDUMP
-                if(getTraceTopic(TOPIC_REXDUMP)){ dump(adjustedpattern,code); }
+                if(getTraceTopic(TOPIC_REXDUMP)){ dump(adjustedpattern.text(),code.text()); }
 #endif
-                freeElms(adjustedpattern);
-
                 FXTRACE((TOPIC_DETAIL,"FXRex::parse: OK\n\n"));
-
                 return ErrOK;
                 }
-              freeElms(prog);
               }
             }
           }
         }
-      freeElms(adjustedpattern);
       }
     }
 
   FXTRACE((TOPIC_DETAIL,"FXRex::parse: %s\n\n",getError(err)));
-
   return err;
   }
 
@@ -4863,14 +4900,14 @@ FXRex::Error FXRex::parse(const FXString& pattern,FXint mode){
 // Match pattern in string at position pos
 FXbool FXRex::amatch(const FXchar* string,FXint len,FXint pos,FXint mode,FXint* beg,FXint* end,FXint npar) const {
   FXExecute ms(string,string+len,beg,end,npar,mode);
-  return ms.attempt(code+2,&string[pos]);
+  return ms.attempt(code.text(),string+pos);
   }
 
 
 // Match pattern in string at position pos
 FXbool FXRex::amatch(const FXString& string,FXint pos,FXint mode,FXint* beg,FXint* end,FXint npar) const {
   FXExecute ms(string.text(),string.text()+string.length(),beg,end,npar,mode);
-  return ms.attempt(code+2,&string[pos]);
+  return ms.attempt(code.text(),string.text()+pos);
   }
 
 /*******************************************************************************/
@@ -4878,16 +4915,14 @@ FXbool FXRex::amatch(const FXString& string,FXint pos,FXint mode,FXint* beg,FXin
 // Search for pattern in string, starting at fm; return position or -1
 FXint FXRex::search(const FXchar* string,FXint len,FXint fm,FXint to,FXint mode,FXint* beg,FXint* end,FXint npar) const {
   FXExecute ms(string,string+len,beg,end,npar,mode);
-  const FXchar* result=ms.search(code+2,&string[fm],&string[to]);
-  return result ? (result-string) : -1;
+  return ms.search(code.text(),string+fm,string+to);
   }
 
 
 // Search for pattern in string, starting at fm; return position or -1
 FXint FXRex::search(const FXString& string,FXint fm,FXint to,FXint mode,FXint* beg,FXint* end,FXint npar) const {
   FXExecute ms(string.text(),string.text()+string.length(),beg,end,npar,mode);
-  const FXchar* result=ms.search(code+2,&string[fm],&string[to]);
-  return result ? (result-string.text()) : -1;
+  return ms.search(code.text(),string.text()+fm,string.text()+to);
   }
 
 /*******************************************************************************/
@@ -4944,11 +4979,11 @@ FXString FXRex::substitute(const FXchar* string,FXint len,FXint* beg,FXint* end,
           break;
         case '0':                 // Octal digit
           ch=ch-'0';
-          if('0'<=replace[i] && replace[i]<='7'){
+          if(Ascii::isOctDigit(replace[i])){
             ch=replace[i++]-'0';
-            if('0'<=replace[i] && replace[i]<='7'){
+            if(Ascii::isOctDigit(replace[i])){
               ch=(ch<<3)+replace[i++]-'0';
-              if('0'<=replace[i] && replace[i]<='7' && ch<32){  // Leave last character if it would overflow!
+              if(Ascii::isOctDigit(replace[i]) && replace[i-2]<'4'){    // Leave last character if it would overflow!
                 ch=(ch<<3)+replace[i++]-'0';
                 }
               }
@@ -4991,19 +5026,14 @@ FXString FXRex::substitute(const FXString& string,FXint* beg,FXint* end,const FX
 
 // Assignment
 FXRex& FXRex::operator=(const FXRex& orig){
-  if(code!=orig.code){
-    clear();
-    if(orig.code!=fallback){
-      dupElms(code,orig.code,GETARG(orig.code));
-      }
-    }
+  code=orig.code;
   return *this;
   }
 
 
 // Equality
 FXbool FXRex::operator==(const FXRex& rex) const {
-  return code==rex.code || (GETARG(code)==GETARG(rex.code) && memcmp(code,rex.code,GETARG(rex.code))==0);
+  return code==rex.code;
   }
 
 
@@ -5015,29 +5045,21 @@ FXbool FXRex::operator!=(const FXRex& rex) const {
 
 // Save
 FXStream& operator<<(FXStream& store,const FXRex& s){
-  FXshort size=GETARG(s.code);
-  store << size;
-  store.save(s.code+2,size-2);
+  store << s.code;
   return store;
   }
 
 
 // Load
 FXStream& operator>>(FXStream& store,FXRex& s){
-  FXshort size;
-  store >> size;
-  allocElms(s.code,size);
-  store.load(s.code+2,size-2);
+  store >> s.code;
   return store;
   }
 
 
 // Clear program
 void FXRex::clear(){
-  if(code!=EMPTY){
-    freeElms(code);
-    code=EMPTY;
-    }
+  code.clear();
   }
 
 

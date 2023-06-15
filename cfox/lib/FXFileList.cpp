@@ -36,6 +36,7 @@
 #include "FXRectangle.h"
 #include "FXSystem.h"
 #include "FXPath.h"
+#include "FXIO.h"
 #include "FXStat.h"
 #include "FXFile.h"
 #include "FXDir.h"
@@ -354,7 +355,6 @@ FXint FXFileList::compareSectionNatural(const FXchar* s1,const FXchar* s2,FXint 
   // Use tie-breaker
   return diff;
   }
-
 
 
 // Compare file names

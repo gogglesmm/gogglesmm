@@ -983,16 +983,17 @@ void* FXVisual::setupgc(FXbool gex){
 
   gval.fill_style=FillSolid;
   gval.graphics_exposures=gex;
+  gval.line_width=1;      // SANDER FIX
 
   // For default visual; this is easy as we already have a matching window
   if((Visual*)visual==DefaultVisual((Display*)getApp()->getDisplay(),DefaultScreen((Display*)getApp()->getDisplay())) && depth==(FXuint)DefaultDepth((Display*)getApp()->getDisplay(),DefaultScreen((Display*)getApp()->getDisplay()))){
-    gg=XCreateGC((Display*)getApp()->getDisplay(),XDefaultRootWindow((Display*)getApp()->getDisplay()),GCFillStyle|GCGraphicsExposures,&gval);
+    gg=XCreateGC((Display*)getApp()->getDisplay(),XDefaultRootWindow((Display*)getApp()->getDisplay()),GCFillStyle|GCLineWidth|GCGraphicsExposures,&gval);
     }
 
   // For arbitrary visual; create a temporary pixmap of the same depth as the visual
   else{
     drawable=XCreatePixmap((Display*)getApp()->getDisplay(),XDefaultRootWindow((Display*)getApp()->getDisplay()),1,1,depth);
-    gg=XCreateGC((Display*)getApp()->getDisplay(),drawable,GCFillStyle|GCGraphicsExposures,&gval);
+    gg=XCreateGC((Display*)getApp()->getDisplay(),drawable,GCFillStyle|GCLineWidth|GCGraphicsExposures,&gval);
     XFreePixmap((Display*)getApp()->getDisplay(),drawable);
     }
   return gg;

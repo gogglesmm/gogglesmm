@@ -63,9 +63,9 @@ namespace FXPath {
   extern FXAPI FXString name(const FXString& file);
 
   /**
-  * Return file title, i.e. document name only.
+  * Return file stem, i.e. document name only.
   */
-  extern FXAPI FXString title(const FXString& file);
+  extern FXAPI FXString stem(const FXString& file);
 
   /**
   * Return extension part of the file name.
@@ -134,6 +134,9 @@ namespace FXPath {
   /// Return true if file name is absolute
   extern FXAPI FXbool isAbsolute(const FXString& file);
 
+  /// Return true if file name is relative
+  extern FXAPI FXbool isRelative(const FXString& file);
+
   /// Return true if input directory is a top-level directory
   extern FXAPI FXbool isTopDirectory(const FXString& file);
 
@@ -174,7 +177,7 @@ namespace FXPath {
   extern FXAPI FXint parseArgs(FXchar**& argv,const FXString& command);
 
   /**
-  * Perform match of a filename against a wildcard pattern.
+  * Perform match of a string against a wildcard pattern.
   * The wildcard pattern may comprise ordinary characters or special
   * matching characters, as given below:
   *
@@ -203,14 +206,19 @@ namespace FXPath {
   extern FXAPI FXbool match(const FXchar* string,const FXchar* pattern="*",FXuint flags=(NoEscape|PathName));
 
   /**
-  * Perform match of a filename against a wildcard pattern.
+  * Perform match of a string against a wildcard pattern.
   */
-  extern FXAPI FXbool match(const FXString& file,const FXchar* pattern="*",FXuint flags=(NoEscape|PathName));
+  extern FXAPI FXbool match(const FXString& string,const FXchar* pattern="*",FXuint flags=(NoEscape|PathName));
 
   /**
-  * Perform match of a filename against a wildcard pattern.
+  * Perform match of a string against a wildcard pattern.
   */
-  extern FXAPI FXbool match(const FXString& file,const FXString& pattern,FXuint flags=(NoEscape|PathName));
+  extern FXAPI FXbool match(const FXchar* string,const FXString& pattern,FXuint flags=(NoEscape|PathName));
+
+  /**
+  * Perform match of a string against a wildcard pattern.
+  */
+  extern FXAPI FXbool match(const FXString& string,const FXString& pattern,FXuint flags=(NoEscape|PathName));
 
   /**
   * Generate unique filename of the form pathnameXXX.ext, where

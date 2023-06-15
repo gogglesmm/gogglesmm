@@ -59,11 +59,11 @@ FXptr FXMappedFile::open(const FXString& filename,FXuint m,FXuint perm,FXlong le
   if(device==BadHandle){
 
     // Basic access mode
-    DWORD flags=GENERIC_READ;
+    DWORD access=0;
     switch(m&(FXIO::ReadOnly|FXIO::WriteOnly)){
-      case FXIO::ReadOnly: flags=GENERIC_READ; break;
-      case FXIO::WriteOnly: flags=GENERIC_WRITE; break;
-      case FXIO::ReadWrite: flags=GENERIC_READ|GENERIC_WRITE; break;
+      case FXIO::ReadOnly: access=GENERIC_READ; break;
+      case FXIO::WriteOnly: access=GENERIC_WRITE; break;
+      case FXIO::ReadWrite: access=GENERIC_READ|GENERIC_WRITE; break;
       }
 
     // Creation and truncation mode
@@ -77,23 +77,24 @@ FXptr FXMappedFile::open(const FXString& filename,FXuint m,FXuint perm,FXlong le
       case FXIO::Create|FXIO::Truncate|FXIO::Exclusive: creation=CREATE_NEW; break;
       }
 
-    // Hidden file
+    // Attributes (hidden, read-only)
     DWORD attributes=FILE_ATTRIBUTE_NORMAL;
-    if(perm&FXIO::Hidden){ attributes=FILE_ATTRIBUTE_HIDDEN; }
+    if(!(perm&FXIO::AllWrite)){ attributes=(attributes&~FILE_ATTRIBUTE_NORMAL)|FILE_ATTRIBUTE_READONLY; }
+    if(perm&FXIO::Hidden){ attributes=(attributes&~FILE_ATTRIBUTE_NORMAL)|FILE_ATTRIBUTE_HIDDEN; }
 
     // Inheritable
-    SECURITY_ATTRIBUTES sat;
-    sat.nLength=sizeof(SECURITY_ATTRIBUTES);
-    sat.bInheritHandle=((m&FXIO::Inheritable)==0);
-    sat.lpSecurityDescriptor=nullptr;
+    SECURITY_ATTRIBUTES security;
+    security.nLength=sizeof(SECURITY_ATTRIBUTES);
+    security.bInheritHandle=((m&FXIO::Inheritable)==0);
+    security.lpSecurityDescriptor=nullptr;
 
     // Open file
 #if defined(UNICODE)
     FXnchar unifile[MAXPATHLEN];
     utf2ncs(unifile,filename.text(),MAXPATHLEN);
-    device=::CreateFileW(unifile,flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,attributes,nullptr);
+    device=::CreateFileW(unifile,access,FILE_SHARE_READ|FILE_SHARE_WRITE,&security,creation,attributes,nullptr);
 #else
-    device=::CreateFileA(filename.text(),flags,FILE_SHARE_READ|FILE_SHARE_WRITE,&sat,creation,attributes,nullptr);
+    device=::CreateFileA(filename.text(),access,FILE_SHARE_READ|FILE_SHARE_WRITE,&security,creation,attributes,nullptr);
 #endif
     if(device!=BadHandle){
 
@@ -111,33 +112,33 @@ FXptr FXMappedFile::open(const FXString& filename,FXuint m,FXuint perm,FXlong le
         }
 
       // Set access flags
-      DWORD prot=0;
+      DWORD protect=0;
       switch(m&(FXIO::ReadOnly|FXIO::WriteOnly|FXIO::Executable)){
-        case FXIO::ReadOnly: prot=PAGE_READONLY; break;
-        case FXIO::ReadOnly|FXIO::Executable: prot=PAGE_EXECUTE_READ; break;
-        case FXIO::WriteOnly: prot = PAGE_READWRITE; break;
-        case FXIO::WriteOnly|FXIO::Executable: prot = PAGE_EXECUTE_READWRITE; break;
-        case FXIO::ReadOnly|FXIO::WriteOnly: prot=PAGE_READWRITE; break;
-        case FXIO::ReadOnly|FXIO::WriteOnly|FXIO::Executable: prot=PAGE_EXECUTE_READWRITE; break;
+        case FXIO::ReadOnly: protect=PAGE_READONLY; break;
+        case FXIO::ReadOnly|FXIO::Executable: protect=PAGE_EXECUTE_READ; break;
+        case FXIO::WriteOnly: protect=PAGE_READWRITE; break;
+        case FXIO::WriteOnly|FXIO::Executable: protect=PAGE_EXECUTE_READWRITE; break;
+        case FXIO::ReadOnly|FXIO::WriteOnly: protect=PAGE_READWRITE; break;
+        case FXIO::ReadOnly|FXIO::WriteOnly|FXIO::Executable: protect=PAGE_EXECUTE_READWRITE; break;
         }
 
       // Create mapping
-      FXInputHandle hnd=::CreateFileMapping(device,nullptr,prot,(DWORD)((off+len)>>32),(DWORD)((off+len)&0xFFFFFFFF),nullptr);
+      FXInputHandle hnd=::CreateFileMapping(device,nullptr,protect,(DWORD)((off+len)>>32),(DWORD)((off+len)&0xFFFFFFFF),nullptr);
       if(hnd!=BadHandle){
 
         // Protection bits
-        DWORD flag=0;
+        DWORD bits=0;
         switch(m&(FXIO::ReadOnly|FXIO::WriteOnly|FXIO::Executable)){
-          case FXIO::ReadOnly: flag=FILE_MAP_READ; break;
-          case FXIO::ReadOnly|FXIO::Executable: flag=FILE_MAP_READ|FILE_MAP_EXECUTE; break;
-          case FXIO::WriteOnly: flag=FILE_MAP_ALL_ACCESS; break;
-          case FXIO::WriteOnly|FXIO::Executable: flag=FILE_MAP_ALL_ACCESS|FILE_MAP_EXECUTE; break;
-          case FXIO::ReadWrite: flag=FILE_MAP_ALL_ACCESS; break;
-          case FXIO::ReadWrite|FXIO::Executable: flag=FILE_MAP_ALL_ACCESS|FILE_MAP_EXECUTE; break;
+          case FXIO::ReadOnly: bits=FILE_MAP_READ; break;
+          case FXIO::ReadOnly|FXIO::Executable: bits=FILE_MAP_READ|FILE_MAP_EXECUTE; break;
+          case FXIO::WriteOnly: bits=FILE_MAP_ALL_ACCESS; break;
+          case FXIO::WriteOnly|FXIO::Executable: bits=FILE_MAP_ALL_ACCESS|FILE_MAP_EXECUTE; break;
+          case FXIO::ReadWrite: bits=FILE_MAP_ALL_ACCESS; break;
+          case FXIO::ReadWrite|FXIO::Executable: bits=FILE_MAP_ALL_ACCESS|FILE_MAP_EXECUTE; break;
           }
 
         // Open map
-        FXptr ptr=::MapViewOfFile(hnd,flag,(DWORD)(off>>32),(DWORD)(off&0xFFFFFFFF),(DWORD)len);
+        FXptr ptr=::MapViewOfFile(hnd,bits,(DWORD)(off>>32),(DWORD)(off&0xFFFFFFFF),(DWORD)len);
 
         if(ptr!=nullptr){
           // MEMORY_BASIC_INFORMATION mbi;
@@ -220,18 +221,18 @@ FXptr FXMappedFile::open(const FXString& filename,FXuint m,FXuint perm,FXlong le
       if(0<len){
 
         // Protection bits
-        FXint prot=PROT_NONE;
+        FXint protect=PROT_NONE;
         switch(m&(FXIO::ReadOnly|FXIO::WriteOnly|FXIO::Executable)){
-          case FXIO::ReadOnly: prot=PROT_READ; break;
-          case FXIO::ReadOnly|FXIO::Executable: prot=PROT_READ|PROT_EXEC; break;
-          case FXIO::WriteOnly: prot=PROT_WRITE; break;
-          case FXIO::WriteOnly|FXIO::Executable: prot=PROT_WRITE|PROT_EXEC; break;
-          case FXIO::ReadWrite: prot=PROT_READ|PROT_WRITE; break;
-          case FXIO::ReadWrite|FXIO::Executable: prot=PROT_READ|PROT_WRITE|PROT_EXEC; break;
+          case FXIO::ReadOnly: protect=PROT_READ; break;
+          case FXIO::ReadOnly|FXIO::Executable: protect=PROT_READ|PROT_EXEC; break;
+          case FXIO::WriteOnly: protect=PROT_WRITE; break;
+          case FXIO::WriteOnly|FXIO::Executable: protect=PROT_WRITE|PROT_EXEC; break;
+          case FXIO::ReadWrite: protect=PROT_READ|PROT_WRITE; break;
+          case FXIO::ReadWrite|FXIO::Executable: protect=PROT_READ|PROT_WRITE|PROT_EXEC; break;
           }
 
         // Open map
-        FXptr ptr=::mmap(nullptr,len,prot,MAP_SHARED,device,off);
+        FXptr ptr=::mmap(nullptr,len,protect,MAP_SHARED,device,off);
         if(ptr!=MAP_FAILED){
 #if defined(F_ADD_SEALS)
           //::fcntl(device,F_ADD_SEALS,F_SEAL_SHRINK|F_SEAL_GROW);   // Prevent size changes from here on

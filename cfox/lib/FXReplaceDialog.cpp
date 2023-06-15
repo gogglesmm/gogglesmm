@@ -110,6 +110,8 @@ FXDEFMAP(FXReplaceDialog) FXReplaceDialogMap[]={
   FXMAPFUNC(SEL_COMMAND,FXReplaceDialog::ID_WRAP,FXReplaceDialog::onCmdWrap),
   FXMAPFUNC(SEL_UPDATE,FXReplaceDialog::ID_CASE,FXReplaceDialog::onUpdCase),
   FXMAPFUNC(SEL_COMMAND,FXReplaceDialog::ID_CASE,FXReplaceDialog::onCmdCase),
+  FXMAPFUNC(SEL_UPDATE,FXReplaceDialog::ID_WORDS,FXReplaceDialog::onUpdWords),
+  FXMAPFUNC(SEL_COMMAND,FXReplaceDialog::ID_WORDS,FXReplaceDialog::onCmdWords),
   FXMAPFUNC(SEL_UPDATE,FXReplaceDialog::ID_REGEX,FXReplaceDialog::onUpdRegex),
   FXMAPFUNC(SEL_COMMAND,FXReplaceDialog::ID_REGEX,FXReplaceDialog::onCmdRegex),
   FXMAPFUNC(SEL_COMMAND,FXReplaceDialog::ID_SEARCH_UP,FXReplaceDialog::onCmdSearchHistUp),
@@ -125,11 +127,11 @@ FXIMPLEMENT(FXReplaceDialog,FXDialogBox,FXReplaceDialogMap,ARRAYNUMBER(FXReplace
 
 // Search and Replace Dialog
 FXReplaceDialog::FXReplaceDialog(FXWindow* own,const FXString& caption,FXIcon* icn,FXuint opts,FXint x,FXint y,FXint w,FXint h):FXDialogBox(own,caption,opts|DECOR_TITLE|DECOR_BORDER|DECOR_RESIZE,x,y,w,h,10,10,10,10, 10,10){
-  FXHorizontalFrame* buttons=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_RIGHT,0,0,0,0,0,0,0,0);
+  FXHorizontalFrame* buttons=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_RIGHT|PACK_UNIFORM_WIDTH,0,0,0,0,0,0,0,0);
   search=new FXButton(buttons,tr("&Search\tSearch\tSearch for pattern."),nullptr,this,ID_SEARCH,BUTTON_INITIAL|BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
   replace=new FXButton(buttons,tr("&Replace\tReplace\tSearch and replace pattern."),nullptr,this,ID_REPLACE,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
-  replacesel=new FXButton(buttons,tr("Replace Sel\tReplace in selection\tReplace all in selection."),nullptr,this,ID_REPLACE_SEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y,0,0,0,0,6,6,VERT_PAD,VERT_PAD);
-  replaceall=new FXButton(buttons,tr("Replace All\tReplace all\tReplace all."),nullptr,this,ID_REPLACE_ALL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y,0,0,0,0,6,6,VERT_PAD,VERT_PAD);
+  replacesel=new FXButton(buttons,tr("Replace S&el\tReplace in selection\tReplace all in selection."),nullptr,this,ID_REPLACE_SEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y,0,0,0,0,6,6,VERT_PAD,VERT_PAD);
+  replaceall=new FXButton(buttons,tr("Replace &All\tReplace all\tReplace all in text."),nullptr,this,ID_REPLACE_ALL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_Y,0,0,0,0,6,6,VERT_PAD,VERT_PAD);
   cancel=new FXButton(buttons,tr("&Close"),nullptr,this,ID_CANCEL,BUTTON_DEFAULT|FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_Y,0,0,0,0,HORZ_PAD,HORZ_PAD,VERT_PAD,VERT_PAD);
   new FXHorizontalSeparator(this,SEPARATOR_GROOVE|LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X);
   FXHorizontalFrame* toppart=new FXHorizontalFrame(this,LAYOUT_SIDE_BOTTOM|LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0, 0,0,0,0, 10,10);
@@ -143,7 +145,7 @@ FXReplaceDialog::FXReplaceDialog(FXWindow* own,const FXString& caption,FXIcon* i
   FXArrowButton* ar2=new FXArrowButton(searcharrows,this,ID_SEARCH_DN,FRAME_RAISED|FRAME_THICK|ARROW_DOWN|ARROW_REPEAT|LAYOUT_FILL_Y|LAYOUT_FIX_WIDTH, 0,0,16,0, 1,1,1,1);
   ar1->setArrowSize(3);
   ar2->setArrowSize(3);
-  replacelabel=new FXLabel(entry,tr("Re&place With:"),nullptr,LAYOUT_LEFT);
+  replacelabel=new FXLabel(entry,tr("Replace &With:"),nullptr,LAYOUT_LEFT);
   replacebox=new FXHorizontalFrame(entry,FRAME_SUNKEN|FRAME_THICK|LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0, 0,0,0,0, 0,0);
   replacetext=new FXTextField(replacebox,26,this,ID_REPLACE_TEXT,TEXTFIELD_ENTER_ONLY|LAYOUT_FILL_X|LAYOUT_FILL_Y,0,0,0,0,4,4,2,2);
   FXVerticalFrame* replacearrows=new FXVerticalFrame(replacebox,LAYOUT_RIGHT|LAYOUT_FILL_Y,0,0,0,0, 0,0,0,0, 0,0);
@@ -152,12 +154,14 @@ FXReplaceDialog::FXReplaceDialog(FXWindow* own,const FXString& caption,FXIcon* i
   ar3->setArrowSize(3);
   ar4->setArrowSize(3);
   FXHorizontalFrame* options1=new FXHorizontalFrame(entry,LAYOUT_FILL_X,0,0,0,0, 0,0,0,0);
-  new FXCheckButton(options1,tr("&Expression\tRegular Expression\tPerform regular-expression match."),this,ID_REGEX,ICON_BEFORE_TEXT|LAYOUT_CENTER_X);
-  new FXCheckButton(options1,tr("&Ignore Case\tCase Insensitive\tPerform case-insentive match."),this,ID_CASE,ICON_BEFORE_TEXT|LAYOUT_CENTER_X);
-  new FXCheckButton(options1,tr("&Wrap\tWrap Around\tWrap around when searching."),this,ID_WRAP,ICON_BEFORE_TEXT|LAYOUT_CENTER_X);
+  new FXCheckButton(options1,tr("E&xpression\tRegular Expression\tPerform regular-expression match."),this,ID_REGEX,ICON_BEFORE_TEXT|LAYOUT_CENTER_X);
+  new FXCheckButton(options1,tr("W&ords\tWhole Words\tPerform whole-word match."),this,ID_WORDS,ICON_BEFORE_TEXT|LAYOUT_CENTER_X);
+  new FXCheckButton(options1,tr("Case\tCase Insensitive\tPerform case-insentive match."),this,ID_CASE,ICON_BEFORE_TEXT|LAYOUT_CENTER_X);
+  new FXCheckButton(options1,tr("Wra&p\tWrap Around\tWrap around when searching."),this,ID_WRAP,ICON_BEFORE_TEXT|LAYOUT_CENTER_X);
   new FXCheckButton(options1,tr("&Backward\tSearch Direction\tChange search direction."),this,ID_DIR,ICON_BEFORE_TEXT|LAYOUT_CENTER_X);
   replacetext->setHelpText(tr("Text to replace with."));
-  searchmode=SEARCH_EXACT|SEARCH_FORWARD|SEARCH_WRAP;
+  getAccelTable()->addAccel("Alt-I",this,FXSEL(SEL_COMMAND,ID_CASE));
+  searchmode=SEARCH_FORWARD|SEARCH_WRAP;
   loadHistory();
   }
 
@@ -334,6 +338,20 @@ long FXReplaceDialog::onCmdCase(FXObject*,FXSelector,void*){
 // Update case sensitive mode
 long FXReplaceDialog::onUpdCase(FXObject* sender,FXSelector,void*){
   sender->handle(this,(searchmode&SEARCH_IGNORECASE)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
+  return 1;
+  }
+
+
+// Change word mode
+long FXReplaceDialog::onCmdWords(FXObject*,FXSelector,void*){
+  searchmode^=SEARCH_WORDS;
+  return 1;
+  }
+
+
+// Update word mode
+long FXReplaceDialog::onUpdWords(FXObject* sender,FXSelector,void*){
+  sender->handle(this,(searchmode&SEARCH_WORDS)?FXSEL(SEL_COMMAND,ID_CHECK):FXSEL(SEL_COMMAND,ID_UNCHECK),nullptr);
   return 1;
   }
 

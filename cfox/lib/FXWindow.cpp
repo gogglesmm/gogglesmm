@@ -1933,7 +1933,7 @@ FXbool FXWindow::acquireSelection(const FXDragType *types,FXuint numtypes){
     getApp()->selectionWindow=this;
     getApp()->selectionWindow->handle(getApp(),FXSEL(SEL_SELECTION_GAINED,0),&getApp()->event);
     resizeElms(getApp()->xselTypeList,numtypes);
-    memcpy(getApp()->xselTypeList,types,sizeof(FXDragType)*numtypes);
+    copyElms(getApp()->xselTypeList,types,numtypes);
     getApp()->xselNumTypes=numtypes;
     }
   return true;
@@ -2019,7 +2019,7 @@ FXbool FXWindow::acquireClipboard(const FXDragType *types,FXuint numtypes){
     getApp()->clipboardWindow->handle(getApp(),FXSEL(SEL_CLIPBOARD_GAINED,0),&getApp()->event);
 #ifndef WIN32
     resizeElms(getApp()->xcbTypeList,numtypes);
-    memcpy(getApp()->xcbTypeList,types,sizeof(FXDragType)*numtypes);
+    copyElms(getApp()->xcbTypeList,types,numtypes);
     getApp()->xcbNumTypes=numtypes;
 #endif
     }
@@ -3025,7 +3025,7 @@ FXbool FXWindow::beginDrag(const FXDragType *types,FXuint numtypes){
       FXDragType *dragtypes=(FXDragType*)MapViewOfFile(getApp()->xdndTypes,FILE_MAP_WRITE,0,0,0);
       if(dragtypes){
         dragtypes[0]=numtypes;
-        memcpy(&dragtypes[1],types,numtypes*sizeof(FXDragType));
+        copyElms(&dragtypes[1],types,numtypes);
         UnmapViewOfFile(dragtypes);
         }
       }
@@ -3044,7 +3044,7 @@ FXbool FXWindow::beginDrag(const FXDragType *types,FXuint numtypes){
       return false;
       }
     resizeElms(getApp()->xdndTypeList,numtypes);
-    memcpy(getApp()->xdndTypeList,types,sizeof(FXDragType)*numtypes);
+    copyElms(getApp()->xdndTypeList,types,numtypes);
     getApp()->xdndNumTypes=numtypes;
     XChangeProperty((Display*)getApp()->getDisplay(),xid,getApp()->xdndTypes,XA_ATOM,32,PropModeReplace,(unsigned char*)getApp()->xdndTypeList,getApp()->xdndNumTypes);
     XChangeProperty((Display*)getApp()->getDisplay(),xid,getApp()->xdndActions,XA_ATOM,32,PropModeReplace,(unsigned char*)getApp()->xdndActionList,6);

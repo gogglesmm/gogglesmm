@@ -45,9 +45,6 @@ private:
 public:
   static const FXchar null[];
 public:
-  static const FXchar  value2Digit[36];
-  static const FXschar digit2Value[256];
-public:
 
   /// Construct empty string
   FXString();

@@ -182,7 +182,7 @@ void FXDocument::setTitle(const FXString& name){
 // Set file name, and the title also
 void FXDocument::setFilename(const FXString& path){
   filename=FXPath::absolute(path);
-  title=FXPath::title(filename);
+  title=FXPath::stem(filename);
   }
 
 

@@ -28,6 +28,7 @@
 #include "FXHash.h"
 #include "FXStream.h"
 #include "FXString.h"
+#include "FXIO.h"
 #include "FXPath.h"
 #include "FXStat.h"
 #include "FXFile.h"

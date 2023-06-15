@@ -61,6 +61,10 @@ class FXScrollCorner;
 * will influence the width (height) of the scroll area widget.
 * For content which is time-consuming to repaint, continuous
 * scrolling may be turned off.
+* Mouse wheel in content area scrolls vertically, unless vertical
+* scrolling is disabled.  If both directions have scrolling disabled,
+* mouse wheel is not processed.  Subclasses may interpret wheel
+* events differently.
 */
 class FXAPI FXScrollArea : public FXComposite {
   FXDECLARE(FXScrollArea)
@@ -81,8 +85,7 @@ private:
   FXScrollArea(const FXScrollArea&);
   FXScrollArea &operator=(const FXScrollArea&);
 public:
-  long onHMouseWheel(FXObject*,FXSelector,void*);
-  long onVMouseWheel(FXObject*,FXSelector,void*);
+  long onMouseWheel(FXObject*,FXSelector,void*);
   long onHScrollerChanged(FXObject*,FXSelector,void*);
   long onVScrollerChanged(FXObject*,FXSelector,void*);
   long onHScrollerDragged(FXObject*,FXSelector,void*);

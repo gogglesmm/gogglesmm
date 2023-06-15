@@ -127,6 +127,12 @@ public:
   /// Get font selection
   const FXFontDesc& getFontDesc() const;
 
+  /// Set sample text for font sample
+  void setSampleText(const FXString& sampletext);
+
+  /// Get sample text for font sample
+  FXString getSampleText() const { return preview->getText(); }
+
   /// Save to a stream
   virtual void save(FXStream& store) const;
 

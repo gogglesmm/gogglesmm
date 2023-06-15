@@ -33,6 +33,10 @@ class FXApp;
 #define DIRWATCH 1
 
 /**
+* Watches one or more directories (on Linux, also files..).
+* Issue messages when one of them was changed.
+* Each path has a corresponding handle which is used to interact with
+* the operating system.
 */
 class FXAPI FXDirWatch : public FXObject {
   FXDECLARE(FXDirWatch)
@@ -42,6 +46,7 @@ protected:
   FXInputHandle       hnd;              // Handle
   FXDictionary        pathToHandle;     // Path to handle map
   FXReverseDictionary handleToPath;     // Handle to path map
+  FXTime              timestamp;        // Time stamp
   FXObject*           target;           // Target object
   FXSelector          message;          // Message ID
 private:
@@ -49,7 +54,7 @@ private:
   FXDirWatch& operator=(const FXDirWatch&);
 public:
   enum{
-    ID_IO_READ=1,
+    ID_CHANGE=1,
     ID_LAST
     };
 public:

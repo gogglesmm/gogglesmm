@@ -86,6 +86,8 @@ public:
   long onCmdWrap(FXObject*,FXSelector,void*);
   long onUpdCase(FXObject*,FXSelector,void*);
   long onCmdCase(FXObject*,FXSelector,void*);
+  long onUpdWords(FXObject*,FXSelector,void*);
+  long onCmdWords(FXObject*,FXSelector,void*);
   long onUpdRegex(FXObject*,FXSelector,void*);
   long onCmdRegex(FXObject*,FXSelector,void*);
   long onSearchKey(FXObject*,FXSelector,void*);
@@ -115,6 +117,7 @@ public:
     ID_REPLACE_ALL,
     ID_DIR,
     ID_CASE,
+    ID_WORDS,
     ID_REGEX,
     ID_WRAP,
     ID_SEARCH_TEXT,

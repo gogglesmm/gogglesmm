@@ -101,7 +101,7 @@ FXbool fxmemdup(void** ptr,const void* src,FXuval size){
 FXchar *fxstrdup(const FXchar* str){
   FXchar *ptr=nullptr;
   if(str!=nullptr){
-    FXint size=strlen(str)+1;
+    FXuval size=strlen(str)+1;
     if((ptr=(FXchar*)malloc(size))!=nullptr){
       memcpy(ptr,str,size);
       }

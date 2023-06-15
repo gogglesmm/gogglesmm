@@ -140,7 +140,6 @@
 #define __threadlocal
 #endif
 
-
 // Non-returning function
 #if defined(__GNUC__)
 #define __noreturn      __attribute__((__noreturn__))
@@ -159,6 +158,14 @@
 #define __unlikely(cond)  (!!(cond))
 #endif
 
+// Unreachable part of code
+#if defined(__GNUC__) && (__GNUC__ >= 4)
+#define __unreachable()    __builtin_unreachable()
+#elif defined(_MSC_VER)
+#define __unreachable()    __assume(false)
+#else
+#define __unreachable()
+#endif
 
 // Prefetch address
 #if (__GNUC__ >= 4) && (defined(__i386__) || defined(__x86_64__))
@@ -169,14 +176,12 @@
 #define __prefetchw(addr)
 #endif
 
-
 // Standard call calling sequence
 #ifdef WIN32
 #ifndef CALLBACK
 #define CALLBACK __stdcall
 #endif
 #endif
-
 
 // C Language calling sequence
 #ifdef WIN32
@@ -189,7 +194,6 @@
 #endif
 #endif
 
-
 // Checking printf and scanf format strings
 #if defined(_CC_GNU_) || defined(__GNUG__) || defined(__GNUC__)
 #define FX_PRINTF(fmt,arg) __attribute__((format(printf,fmt,arg)))
@@ -200,7 +204,6 @@
 #define FX_SCANF(fmt,arg)
 #define FX_FORMAT(arg)
 #endif
-
 
 // Word size issues
 #if defined(_MSC_VER) || defined(__MINGW32__) // Windows
@@ -375,7 +378,8 @@ enum {
   SEARCH_IGNORECASE = 8,        /// Ignore case
   SEARCH_REGEX      = 16,       /// Regular expression match
   SEARCH_PREFIX     = 32,       /// Prefix of subject string
-  SEARCH_SUFFIX     = 64        /// Suffix of subject string
+  SEARCH_SUFFIX     = 64,       /// Suffix of subject string
+  SEARCH_WORDS      = 128       /// Whole words
   };
 
 /**********************************  Macros  ***********************************/

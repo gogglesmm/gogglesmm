@@ -60,6 +60,10 @@ typedef int INT32;
       http://www.ijg.org/
       ftp://ftp.uu.net/graphics/jpeg/
       http://the-labs.com
+
+  - Compression rationale for optimize_coding=true flag:
+
+     https://github.com/bither/bither-android-lib/blob/master/REASON.md
 */
 
 #define JPEG_BUFFER_SIZE 4096
@@ -366,6 +370,9 @@ FXbool fxsaveJPG(FXStream& store,const FXColor* data,FXint width,FXint height,FX
   dstinfo.input_components=3;
   dstinfo.in_color_space=JCS_RGB;
   dstinfo.dest=&dst.pub;
+
+  // Based on Sander's recommendation
+  dstinfo.optimize_coding=true;
 
   jpeg_set_defaults(&dstinfo);
   jpeg_set_quality(&dstinfo,quality,TRUE);

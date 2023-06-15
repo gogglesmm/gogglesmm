@@ -121,7 +121,7 @@ FXDC::FXDC(FXApp* a):app(a){
   clip.h=32767;
   fg=0;
   bg=1;
-  width=0;
+  width=1;      // SANDER FIX
   cap=CAP_BUTT;
   join=JOIN_MITER;
   style=LINE_SOLID;

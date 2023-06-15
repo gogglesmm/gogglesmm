@@ -318,6 +318,7 @@ a:  nread=::read(device,ptr,count);
       if(errno==EINTR) goto a;
       if(errno==EAGAIN) return FXIO::Again;
       if(errno==EWOULDBLOCK) return FXIO::Again;
+      if(errno==EPIPE) return FXIO::Broken;
       return FXIO::Error;
       }
     return nread;
