@@ -159,8 +159,13 @@ FXString gm_url_encode(const FXString& url){
 //    if(!Ascii::isAlphaNumeric(c) && ((c<=' ' || c>='{') || strchr(URL_UNSAFE URL_RESERVED,c))){
     if (!Ascii::isAlphaNumeric(c)){
       result.append('%');
+#if FOXVERSION < FXVERSION(1, 7, 83)
       result.append(FXString::value2Digit[(c>>4)&15]);
       result.append(FXString::value2Digit[c&15]);
+#else
+      result.append(Ascii::valueDigit((c>>4)&15));
+      result.append(Ascii::valueDigit(c&15));
+#endif
       continue;
       }
     result.append(c);
@@ -553,6 +558,7 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
 */
 
 
+#if FOXVERSION < FXVERSION(1, 7, 83)
 #define ONE_DIGIT_VALUE(d1) (FXString::digit2Value[(FXuchar)d1])
 #define TWO_DIGIT_VALUE(d1,d2) (FXString::digit2Value[(FXuchar)d1]*10) + (FXString::digit2Value[(FXuchar)d2])
 #define THREE_DIGIT_VALUE(d1,d2,d3) (FXString::digit2Value[(FXuchar)d1]*100) +\
@@ -563,6 +569,19 @@ void gm_bgra_to_rgba(FXColor * inbuf,FXColor * outbuf, FXint len) {
                                       (FXString::digit2Value[(FXuchar)d2]*100) + \
                                       (FXString::digit2Value[(FXuchar)d3]*10) +\
                                       (FXString::digit2Value[(FXuchar)d4])
+#else
+#define ONE_DIGIT_VALUE(d1) (Ascii::digitValue((FXuchar)d1))
+#define TWO_DIGIT_VALUE(d1,d2) (Ascii::digitValue((FXuchar)d1)*10) + (Ascii::digitValue((FXuchar)d2))
+#define THREE_DIGIT_VALUE(d1,d2,d3) (Ascii::digitValue((FXuchar)d1)*100) +\
+                                    (Ascii::digitValue((FXuchar)d2)*10) +\
+                                    (Ascii::digitValue((FXuchar)d3))
+
+#define FOUR_DIGIT_VALUE(d1,d2,d3,d4) (Ascii::digitValue((FXuchar)d1)*1000) + \
+                                      (Ascii::digitValue((FXuchar)d2)*100) + \
+                                      (Ascii::digitValue((FXuchar)d3)*10) +\
+                                      (Ascii::digitValue((FXuchar)d4))
+#endif
+
 
 FXbool gm_parse_datetime(const FXString & str,FXTime & timestamp) {
   if (str.empty()) return false;

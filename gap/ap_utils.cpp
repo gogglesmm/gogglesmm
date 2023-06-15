@@ -510,8 +510,13 @@ FXbool ap_md5_digest(FXString & io) {
 
   io.length(32);
   for (FXint i=0,d=0;i<32;i+=2,d++) {
+#if FOXVERSION < FXVERSION(1, 7, 83)
     io[i]=Ascii::toLower(FXString::value2Digit[(digest[d]/16)%16]);
     io[i+1]=Ascii::toLower(FXString::value2Digit[digest[d]%16]);
+#else
+    io[i]=Ascii::toLower(Ascii::valueDigit((digest[d]/16)%16));
+    io[i+1]=Ascii::toLower(Ascii::valueDigit(digest[d]%16));
+#endif
     }
 
   return true;

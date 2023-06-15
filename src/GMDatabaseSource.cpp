@@ -1606,7 +1606,11 @@ long GMDatabaseSource::onCmdImportPlayList(FXObject*,FXSelector,void*){
         gm_make_absolute_path(FXPath::directory(dialog.getFilename()),urls);
 
         title.trim();
+#if FOXVERSION < FXVERSION(1, 7, 83)
         if (title.empty()) title = FXPath::title(dialog.getFilename());
+#else
+        if (title.empty()) title = FXPath::stem(dialog.getFilename());
+#endif
 
         FXint pl = GMPlayerManager::instance()->createPlaylist(title);
 

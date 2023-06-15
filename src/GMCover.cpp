@@ -495,7 +495,11 @@ GMCover * GMCover::fromPath(const FXString & path) {
   if (nfiles) {
     names = new FXString[nfiles];
     for (FXint i=0;i<nfiles;i++)
+#if FOXVERSION < FXVERSION(1, 7, 83)
       names[i]=FXPath::title(files[i]);
+#else
+      names[i]=FXPath::stem(files[i]);
+#endif
 
     for (FXint c=0;covernames[c]!=nullptr;c++) {
       for (FXint i=0;i<nfiles;i++){

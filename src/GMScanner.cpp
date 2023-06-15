@@ -246,7 +246,11 @@ void GMDBTracks::insert(GMTrack & track,FXint & path_index) {
     /// Insert Track
     insert_track.set(0,path_index);
     insert_track.set(1,path_index ? FXPath::name(track.url) : track.url);
+#if FOXVERSION < FXVERSION(1, 7, 83)
     insert_track.set(2,track.title.empty() ? FXPath::title(track.url) : track.title);
+#else
+    insert_track.set(2,track.title.empty() ? FXPath::stem(track.url) : track.title);
+#endif
     insert_track.set(3,track.time);
     insert_track.set(4,track.no);
     insert_track.set(5,track.year);
@@ -287,7 +291,11 @@ void GMDBTracks::update(GMTrack & track) {
   FXint album_id        = insertAlbum(track,album_artist_id);
 
   /// Update Tracks
+#if FOXVERSION < FXVERSION(1, 7, 83)
   update_track.set(0,track.title.empty() ? FXPath::title(track.url) : track.title);
+#else
+  update_track.set(0,track.title.empty() ? FXPath::stem(track.url) : track.title);
+#endif
   update_track.set(1,track.time);
   update_track.set(2,track.no);
   update_track.set(3,track.year);
@@ -1058,4 +1066,3 @@ void GMRemoveTask::remove(GMTaskTransaction & transaction) {
     }
   if (changed) database->sync_tracks_removed();
   }
-

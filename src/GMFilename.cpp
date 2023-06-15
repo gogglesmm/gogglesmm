@@ -473,7 +473,11 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
   /// Remove path components from the front that are not part of the mask
   /// Or if the mask doesn't specifiy path components, we just take the title of the filename.
   if (nsep) {
+#if FOXVERSION < FXVERSION(1, 7, 83)
     input=FXPath::title(track.url);
+#else
+    input=FXPath::stem(track.url);
+#endif
     FXString dir=FXPath::directory(track.url);
     for (i=0;i<nsep;i++) {
       input = FXPath::name(dir) + PATHSEPSTRING + input;
@@ -481,7 +485,11 @@ void parse(GMTrack & track,const FXString & mask,FXuint options) {
       }
     }
   else {
+#if FOXVERSION < FXVERSION(1, 7, 83)
     input=FXPath::title(track.url);
+#else
+    input=FXPath::stem(track.url);
+#endif
     }
 
   // Start from fresh
