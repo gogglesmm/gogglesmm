@@ -160,7 +160,6 @@ long GMStreamSource::onCmdNewStation(FXObject*,FXSelector,void*){
   tagbox->setNumVisible(FXMIN(10,tagbox->getNumItems()));
   tagbox->sortItems();
   tagbox->setCurrentItem(-1);
-  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   if (dialog.execute()) {
     FXString url=location_field->getText().trim();
     FXString name=description_field->getText().trim();
@@ -210,7 +209,6 @@ long GMStreamSource::onCmdEditStation(FXObject*,FXSelector,void*){
     tagbox->setCurrentItem(tagbox->findItem(info.tag));
     }
 
-  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   if (dialog.execute()) {
     FXbool changed=false;
 
@@ -247,7 +245,6 @@ long GMStreamSource::onCmdDeleteStation(FXObject*,FXSelector,void*){
   new GMButton(closebox,fxtr("&Remove"),nullptr,&dialog,FXDialogBox::ID_ACCEPT,BUTTON_INITIAL|BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
   new GMButton(closebox,fxtr("&Cancel"),nullptr,&dialog,FXDialogBox::ID_CANCEL,BUTTON_DEFAULT|LAYOUT_RIGHT|FRAME_RAISED|FRAME_THICK,0,0,0,0, 15,15);
 //  new FXSeparator(&dialog,SEPARATOR_GROOVE|LAYOUT_FILL_X|LAYOUT_SIDE_BOTTOM);
-  dialog.resize(dialog.getDefaultWidth(), dialog.getDefaultHeight());
   if (dialog.execute()){
     FXIntList tracks;
     GMPlayerManager::instance()->getTrackView()->getSelectedTracks(tracks);
@@ -270,3 +267,5 @@ long GMStreamSource::onUpdExport(FXObject*sender,FXSelector,void*){
   sender->handle(this,FXSEL(SEL_COMMAND,FXWindow::ID_DISABLE),nullptr);
   return 1;
   }
+
+

@@ -1010,8 +1010,3 @@ long GMEditTrackDialog::onCmdAccept(FXObject*sender,FXSelector sel,void*ptr){
     GMPlayerManager::instance()->getTrackView()->refreshUpdate();
   return 1;
   }
-
-FXuint GMEditTrackDialog::execute(FXuint placement) {
-  resize(getDefaultWidth(), getDefaultHeight());
-  return FXDialogBox::execute(placement);
-  }
