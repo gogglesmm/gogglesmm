@@ -27,7 +27,6 @@
 #endif
 #include <FXPNGIcon.h>
 #include <sqlite3.h>
-#include <tag.h>
 
 #define UTF8_COPYRIGHT_SIGN "\xc2\xa9"
 

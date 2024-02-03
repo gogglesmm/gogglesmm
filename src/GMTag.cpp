@@ -26,9 +26,9 @@
 #include "GMTag.h"
 #include "GMAudioPlayer.h"
 
-/// TagLib
 
-
+// taglib Variant enum Type { Bool } conflicts with Xlib
+#undef Bool
 #include <fileref.h>
 #include <tstring.h>
 #include <id3v1tag.h>
@@ -337,6 +337,7 @@ static void gm_strip_tags(TagLib::File * file,FXuint opts) {
 /******************************************************************************/
 
 GMFileTag::GMFileTag() :
+    fileref(nullptr),
     file(nullptr),
     tag(nullptr),
     mp4(nullptr),
@@ -347,20 +348,35 @@ GMFileTag::GMFileTag() :
   }
 
 GMFileTag::~GMFileTag() {
+#if TAGLIB_VERSION >= TAGVERSION(2,0,0)
+  if (fileref) delete fileref;
+#else
   if (file) delete file;
+#endif
   }
 
 
 FXbool GMFileTag::open(const FXString & filename,FXuint opts) {
-
-  file = TagLib::FileRef::create(filename.text(),(opts&FILETAG_AUDIOPROPERTIES));
-  if (file==nullptr || !file->isValid() || file->tag()==nullptr) {
-    if (file) {
-      delete file;
-      file=nullptr;
+#if TAGLIB_VERSION >= TAGVERSION(2,0,0)
+    fileref = new TagLib::FileRef(filename.text(),(opts&FILETAG_AUDIOPROPERTIES));
+    file = fileref->file();
+    if (file==nullptr || !file->isValid() || file->tag()==nullptr) {
+      if (fileref) {
+        delete fileref;
+        fileref=nullptr;
+        }
+      return false;
       }
-    return false;
-    }
+#else
+    file = TagLib::FileRef::create(filename.text(),(opts&FILETAG_AUDIOPROPERTIES));
+    if (file==nullptr || !file->isValid() || file->tag()==nullptr) {
+      if (file) {
+        delete file;
+        file=nullptr;
+        }
+      return false;
+      }
+#endif
 
   TagLib::MPEG::File        * mpgfile   = nullptr;
   TagLib::Ogg::Vorbis::File * oggfile   = nullptr;
@@ -519,7 +535,11 @@ FXbool GMFileTag::ape_get_field(const FXchar * field,FXStringList & list)  const
   FXASSERT(field);
   FXASSERT(ape);
   if (ape->itemListMap().contains(field)) {
+#if TAGLIB_VERSION >= TAGVERSION(2,0,0)
+    const TagLib::StringList fieldlist = ape->itemListMap()[field].values();
+#else
     const TagLib::StringList fieldlist = ape->itemListMap()[field].toStringList();
+#endif
     list.no(fieldlist.size());
     FXint item=0;
     for(TagLib::StringList::ConstIterator it = fieldlist.begin(); it != fieldlist.end(); it++) {
@@ -1019,7 +1039,11 @@ FXint GMFileTag::getTime() const{
   FXASSERT(file);
   TagLib::AudioProperties * properties = file->audioProperties();
   if (properties)
+#if TAGLIB_VERSION >= TAGVERSION(2,0,0)
+    return properties->lengthInSeconds();
+#else
     return properties->length();
+#endif
   else
     return 0;
   }

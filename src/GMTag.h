@@ -21,6 +21,7 @@
 
 
 namespace TagLib {
+  class FileRef;
   class File;
   class Tag;
   namespace MP4 {
@@ -54,6 +55,7 @@ typedef FXArray<GMCover*> GMCoverList;
 
 class GMFileTag {
 protected:
+  TagLib::FileRef           * fileref;
   TagLib::File              * file;
   TagLib::Tag               * tag;
   TagLib::MP4::Tag          * mp4;
