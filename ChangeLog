@@ -1,3 +1,8 @@
+1.2.5:
+  - taglib: add support for taglib 2.0
+  - ui: Update FOX to 1.7.83
+  - ui: remove workaround for buggy window behaviour under wayland gnome introduced in 1.2.4
+
 1.2.4:
   - gap: fix pulse output to work better with pipewire server
   - ui: fix broken color theme saving with FOX >= 1.7.81
