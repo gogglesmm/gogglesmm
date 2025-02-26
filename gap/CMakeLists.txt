@@ -104,6 +104,10 @@ set_package_properties(zlib PROPERTIES
                             PURPOSE "\tZLIB decompression for http(s)"
                             TYPE OPTIONAL)
 
+set_package_properties(samplerate PROPERTIES
+                            URL "https://libsndfile.github.io/libsamplerate/"
+			    PURPOSE "\tSample Rate Converter for audio"
+                            TYPE OPTIONAL)
 
 # Allow GAP to be build as a shared library.
 if(MSVC)
@@ -163,6 +167,7 @@ if(UNIX)
 
   option(WITH_STATIC_FOX "Pull in static library dependencies for FOX" OFF)
 
+  option(WITH_LIBSAMPLERATE "Samplerate support" OFF)
 endif()
 
 # Endiannes
@@ -253,6 +258,9 @@ else()
         set(GCRYPT_FOUND 1)
       endif()
     endif()
+  endif()
+  if(WITH_LIBSAMPLERATE)
+    pkg_check_modules(SAMPLERATE samplerate)
   endif()
 endif()
 
@@ -505,6 +513,10 @@ else()
   set(MD5_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lib/md5)
 endif()
 
+if(WITH_LIBSAMPLERATE AND SAMPLERATE_FOUND)
+  LIST(APPEND LIBRARIES ${SAMPLERATE_LIBRARIES})
+  set(HAVE_SAMPLERATE 1)
+endif()
 
 
 #-------------------------------------------------------------------------------
@@ -615,6 +627,8 @@ add_feature_info(zlib HAVE_ZLIB "${ZLIB_VERSION}")
 add_feature_info(openssl HAVE_OPENSSL "${OPENSSL_VERSION}")
 add_feature_info(gnutls HAVE_GNUTLS "${GNUTLS_VERSION}")
 add_feature_info(gcrypt HAVE_GCRYPT "")
+
+add_feature_info(samplerate HAVE_SAMPLERATE "${SAMPLERATE_VERSION}")
 
 set(AP_PLUGIN_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/gogglesmm)
 
