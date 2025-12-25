@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)
@@ -34,238 +34,72 @@ message(STATUS "Locale Path: ${LOCALE_PATH}")
 
 TEST_BIG_ENDIAN(GOGGLESMM_BIGENDIAN)
 
-find_package(PkgConfig)
+# FOX is found at top-level via FindFox.cmake, FX::FOX and FOX_RESWRAP are already available
 
-if(NOT WITH_CFOX)
-  pkg_check_modules(FOX REQUIRED fox17>=1.7.50 )
-else()
-  set(CFOX cfox)
+#-------------------------------------------------------------------------------
+# Find Required Dependencies
+#-------------------------------------------------------------------------------
+
+# TagLib - Audio metadata library (required, >=1.9.0)
+find_package(TagLib 1.9.0 REQUIRED)
+
+# SQLite3 - Database engine (required, >=3.6.19)
+find_package(SQLite3 3.6.19 REQUIRED)
+
+#-------------------------------------------------------------------------------
+# Find Optional Dependencies
+#-------------------------------------------------------------------------------
+
+# X11 Session Management
+find_package(X11)
+if(X11_FOUND)
+  # X11_SM_FOUND and X11_ICE_FOUND are set by FindX11
+  if(X11_SM_FOUND)
+    message(STATUS "Found X11 SM: ${X11_SM_LIB}")
+  endif()
+  if(X11_ICE_FOUND)
+    message(STATUS "Found X11 ICE: ${X11_ICE_LIB}")
+  endif()
 endif()
 
-pkg_check_modules(TAGLIB REQUIRED taglib>=1.9.0)
-pkg_check_modules(SQLITE REQUIRED sqlite3>=3.6.19)
-
-pkg_check_modules(SM sm)
-pkg_check_modules(ICE ice)
-pkg_check_modules(X11 x11)
-
+# D-Bus message bus
 if(WITH_DBUS)
-  pkg_check_modules(DBUS dbus-1)
+  find_package(DBus)
 endif()
 
+# OpenGL + libepoxy
 if(WITH_OPENGL)
-  pkg_check_modules(EPOXY REQUIRED epoxy)
-  pkg_check_modules(GLU REQUIRED glu)
+  find_package(OpenGL REQUIRED COMPONENTS OpenGL)
+  find_package(Epoxy REQUIRED)
   set(HAVE_OPENGL 1)
 endif()
 
+# Native Language Support (gettext/Intl)
 if(WITH_NLS)
   find_package(Intl REQUIRED)
   set(HAVE_NLS 1)
 endif()
 
-
-if(WITH_CFOX)
-  set(RESWRAP $<TARGET_FILE:reswrap>)
-  set(RESWRAP_H ${RESWRAP} --keep-ext --header)
-  set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
-  set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
-else()
-  find_program(RESWRAP NAMES reswrap-1.7 reswrap fox-reswrap)
-  if(RESWRAP)
-    message(STATUS "Found reswrap: ${RESWRAP}")
-    execute_process(COMMAND ${RESWRAP} -v OUTPUT_VARIABLE RESWRAP_OUTPUT)
-    string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]" RESWRAP_VERSION "${RESWRAP_OUTPUT}")
-    if(RESWRAP_VERSION VERSION_LESS "5.0")
-      set(RESWRAP_H ${RESWRAP} -i -k)
-      set(RESWRAP_CPP ${RESWRAP} -e -k)
-      set(RESWRAP_TEXT ${RESWRAP} -t -k)
-    else()
-      set(RESWRAP_H ${RESWRAP} --keep-ext --header)
-      set(RESWRAP_CPP ${RESWRAP} --keep-ext --source --extern)
-      set(RESWRAP_TEXT ${RESWRAP} --keep-ext -t)
-    endif()
-  else()
-    message(FATAL_ERROR "Unable to find reswrap")
-  endif()
+# Use reswrap command variables from FindFox.cmake
+# FindFox sets: FOX_RESWRAP, FOX_RESWRAP_H, FOX_RESWRAP_CPP, FOX_RESWRAP_TEXT
+if(NOT FOX_RESWRAP)
+  message(FATAL_ERROR "reswrap not found - FOX_RESWRAP should be set by FindFox.cmake")
 endif()
+
+set(RESWRAP ${FOX_RESWRAP})
+set(RESWRAP_H ${FOX_RESWRAP_H})
+set(RESWRAP_CPP ${FOX_RESWRAP_CPP})
+set(RESWRAP_TEXT ${FOX_RESWRAP_TEXT})
 
 
 #------------------------------------------------------------------------------
+# Source and Header File Lists
+#------------------------------------------------------------------------------
 
-set(SOURCES GMAbout.cpp
-            GMAnimImage.cpp
-            GMApp.cpp
-            GMAudioPlayer.cpp
-            GMAudioScrobbler.cpp
-            GMAlbumList.cpp
-            GMClipboard.cpp
-            GMColumnDialog.cpp
-            GMCover.cpp
-            GMCoverCache.cpp
-            GMCoverManager.cpp
-            GMDatabase.cpp
-            GMDatabaseSource.cpp
-            GMFilename.cpp
-            GMFilter.cpp
-            GMFilterEditor.cpp
-            GMFilterSource.cpp
-            GMFontDialog.cpp
-            GMIconTheme.cpp
-            GMImportDialog.cpp
-            GMImageView.cpp
-            GMList.cpp
-            GMLocalSource.cpp
-            GMLyrics.cpp
-            GMPlayerManager.cpp
-            GMPlayListSource.cpp
-            GMPlayQueue.cpp
-            GMPodcastSource.cpp
-            GMPreferences.cpp
-            GMPreferencesDialog.cpp
-            GMPresenter.cpp
-            GMRemote.cpp
-            GMScanner.cpp
-            GMSource.cpp
-            GMSourceView.cpp
-            GMTag.cpp
-            GMTaskManager.cpp
-            GMTrack.cpp
-            GMTrackDatabase.cpp
-            GMTrackEditor.cpp
-            GMTrackList.cpp
-            GMTrackItem.cpp
-            GMTrackView.cpp
-            GMTrayIcon.cpp
-            GMStreamSource.cpp
-            GMWindow.cpp
-            main.cpp
-            icons.cpp
-            fxext.cpp
-            gmutils.cpp)
-
-set(HEADERS GMAbout.h
-            GMAnimImage.h
-            GMApp.h
-            GMAudioPlayer.h
-            GMAudioScrobbler.h
-            GMAlbumList.h
-            GMClipboard.h
-            GMColumnDialog.h
-            GMCover.h
-            GMCoverCache.h
-            GMCoverManager.h
-            GMDatabase.h
-            GMDatabaseSource.h
-            GMFilename.h
-            GMFilter.h
-            GMFilterEditor.h
-            GMFilterSource.h
-            GMFontDialog.h
-            GMIconTheme.h
-            GMImportDialog.h
-            GMImageView.h
-            GMList.h
-            GMLocalSource.h
-            GMLyrics.h
-            GMPlayerManager.h
-            GMPlayListSource.h
-            GMPlayQueue.h
-            GMPodcastSource.h
-            GMPreferences.h
-            GMPreferencesDialog.h
-            GMPresenter.h
-            GMRemote.h
-            GMSession.h
-            GMScanner.h
-            GMSource.h
-            GMSourceView.h
-            GMTag.h
-            GMTaskManager.h
-            GMTrack.h
-            GMTrackDatabase.h
-            GMTrackEditor.h
-            GMTrackList.h
-            GMTrackItem.h
-            GMTrackView.h
-            GMTrayIcon.h
-            GMStreamSource.h
-            GMWindow.h
-            icons.h
-            fxext.h
-            gmdefs.h
-            gmutils.h)
-
-set(ICONS cursor_hand.gif
-          about.png
-          gogglesmm_16.png
-          gogglesmm_32.png
-          x16_accessories_text_editor.png
-          x16_application_rss_xml.png
-          x16_applications_internet.png
-          x16_audio_volume_high.png
-          x16_audio_volume_low.png
-          x16_audio_volume_medium.png
-          x16_audio_volume_muted.png
-          x16_audio_x_generic.png
-          x16_bookmark_new.png
-          x16_document_open.png
-          x16_document_save.png
-          x16_edit_copy.png
-          x16_edit_cut.png
-          x16_edit_delete.png
-          x16_edit_find.png
-          x16_edit_paste.png
-          x16_edit_undo.png
-          x16_exit.png
-          x16_folder.png
-          x16_folder_open.png
-          x16_go_bottom.png
-          x16_go_home.png
-          x16_help_browser.png
-          x16_image_x_generic.png
-          x16_list_add.png
-          x16_list_remove.png
-          x16_media_optical.png
-          x16_media_playback_pause.png
-          x16_media_playback_start.png
-          x16_media_playback_stop.png
-          x16_media_skip_backward.png
-          x16_media_skip_forward.png
-          x16_preferences_desktop.png
-          x16_process_working.png
-          x16_stock_attach.png
-          x16_status_error.png
-          x16_system_users.png
-          x16_text_x_generic.png
-          x16_view_refresh.png
-          x16_view_sort_descending.png
-          x16_window_close.png
-          x16_x_office_presentation.png
-          x22_applications_internet.png
-          x22_applications_multimedia.png
-          x22_applications_rss_xml.png
-          x22_audio_volume_high.png
-          x22_audio_volume_low.png
-          x22_audio_volume_medium.png
-          x22_audio_volume_muted.png
-          x22_audio_x_generic.png
-          x22_document_open.png
-          x22_document_properties.png
-          x22_drive_harddisk.png
-          x22_folder.png
-          x22_image_x_generic.png
-          x22_media_playback_pause.png
-          x22_media_playback_start.png
-          x22_media_playback_stop.png
-          x22_media_skip_backward.png
-          x22_media_skip_forward.png
-          x22_preferences_system.png
-          x22_text_x_generic.png
-          x22_user_bookmarks.png
-          x22_user_home.png
-          x22_x_office_presentation.png
-          x128_media_optical.png)
+# Include source, header, and icon file lists
+include(sources.cmake)
+include(headers.cmake)
+include(icons.cmake)
 
 
 
@@ -276,13 +110,25 @@ endif()
 
 
 
+#-------------------------------------------------------------------------------
+# Generate icon resources using reswrap
+#-------------------------------------------------------------------------------
+
+# Get full paths to icon files for proper dependency tracking
+set(_icon_files "")
+foreach(_icon ${ICONS})
+  list(APPEND _icon_files "${CMAKE_SOURCE_DIR}/icons/${_icon}")
+endforeach()
+
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp
   COMMAND ${RESWRAP_H} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.h ${ICONS}
   COMMAND ${RESWRAP_CPP} -o ${CMAKE_CURRENT_SOURCE_DIR}/icons.cpp ${ICONS}
+  DEPENDS ${_icon_files}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/icons
+  COMMENT "Generating icon resources with reswrap"
   VERBATIM
-  )
+)
 
 # Enable DBUS specific features
 if (WITH_DBUS AND DBUS_FOUND)
@@ -298,22 +144,38 @@ if (WITH_DBUS AND DBUS_FOUND)
                       mpris1_xml.h
                       mpris2_xml.h)
 
+  # Generate MPRIS XML resources using reswrap
+  set(_mpris1_sources mpris.xml mpris_player.xml mpris_tracklist.xml)
+  set(_mpris2_sources mpris2.xml)
+
+  # Convert to full paths for dependency tracking
+  set(_mpris1_files "")
+  set(_mpris2_files "")
+  foreach(_xml ${_mpris1_sources})
+    list(APPEND _mpris1_files "${CMAKE_CURRENT_SOURCE_DIR}/${_xml}")
+  endforeach()
+  foreach(_xml ${_mpris2_sources})
+    list(APPEND _mpris2_files "${CMAKE_CURRENT_SOURCE_DIR}/${_xml}")
+  endforeach()
+
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/mpris1_xml.h ${CMAKE_CURRENT_SOURCE_DIR}/mpris2_xml.h
-    COMMAND ${RESWRAP_TEXT} -o mpris1_xml.h mpris.xml mpris_player.xml mpris_tracklist.xml
-    COMMAND ${RESWRAP_TEXT} -o mpris2_xml.h mpris2.xml
+    COMMAND ${RESWRAP_TEXT} -o mpris1_xml.h ${_mpris1_sources}
+    COMMAND ${RESWRAP_TEXT} -o mpris2_xml.h ${_mpris2_sources}
+    DEPENDS ${_mpris1_files} ${_mpris2_files}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Generating MPRIS XML resources with reswrap"
     VERBATIM
-    )
+  )
   set(HAVE_DBUS 1)
 endif()
 
 #-------------------------------------------------------------------------------
 #
 # Workaround to compile with earlier versions of FOX, something
-# that cannot be easily handled using the preprocessor#
+# that cannot be easily handled using the preprocessor
 #
-if (NOT WITH_CFOX AND FOX_VERSION VERSION_LESS "1.7.80")
+if (DEFINED FOX_VERSION AND FOX_VERSION VERSION_LESS "1.7.80")
   message("Replacing occurences of FXString::compare")
   foreach(sourcefile IN LISTS SOURCES)
     if(EXISTS ${sourcefile})
@@ -339,29 +201,68 @@ configure_file(gmconfig.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gmconfig.h)
 # Goggles Music Manager
 add_executable(gogglesmm ${SOURCES} ${HEADERS})
 
-# GAP outplut plugins need symbols from the gap library. If we build GAP as a static library,
-# gogglesmm needs to export those symbols instead.
-if(NOT BUILD_GAP_SHARED_LIB)
-  message(STATUS "gogglesmm: enable exports (libgap static library)")
-  set_target_properties(gogglesmm PROPERTIES ENABLE_EXPORTS 1)
+# GAP output plugins need symbols from the gap library. If GAP is static,
+# it sets an INTERFACE property telling us we need to export symbols.
+get_target_property(_gap_requires_exports gap INTERFACE_GAP_REQUIRES_CONSUMER_EXPORTS)
+if(_gap_requires_exports)
+  message(STATUS "gogglesmm: enabling symbol exports (required by static GAP)")
+  set_target_properties(gogglesmm PROPERTIES ENABLE_EXPORTS TRUE)
 endif()
 
-# Include Directories
-target_include_directories(gogglesmm PRIVATE
-                           ${FOX_INCLUDE_DIRS}
-                           ${TAGLIB_INCLUDE_DIRS}
-                           ${DBUS_INCLUDE_DIRS})
+#-------------------------------------------------------------------------------
+# Precompiled Headers - external library headers only
+#-------------------------------------------------------------------------------
 
-# Libraries
-target_link_libraries(gogglesmm PRIVATE gap ${CFOX}
-                      ${SQLITE_LIBRARIES}
-                      ${TAGLIB_LIBRARIES}
-                      ${DBUS_LIBRARIES}
-                      ${GLU_LIBRARIES}
-                      ${EPOXY_LIBRARIES}
-                      ${X11_LIBRARIES}
-                      ${SM_LIBRARIES}
-                      ${ICE_LIBRARIES}
-                      ${Intl_LIBRARIES})
+# Precompile stable external headers that rarely change
+# gmdefs.h is included in 55/56 source files and pulls in fx.h
+# Only precompile fx.h (not fx3d.h/OpenGL) to avoid X11 macro pollution (Bool, etc.)
+# which conflicts with TagLib and other libraries
+target_precompile_headers(gogglesmm PRIVATE
+  <fx.h>
+)
 
-install(TARGETS gogglesmm RUNTIME DESTINATION bin)
+# Link libraries using modern imported targets
+# Imported targets automatically provide include directories
+target_link_libraries(gogglesmm PRIVATE
+  # Core dependencies
+  gap
+  FX::FOX
+  FX::FOX_XINCS
+  TagLib::TagLib
+  SQLite::SQLite3
+)
+
+# Optional dependencies
+if(WITH_DBUS AND DBus_FOUND)
+  target_link_libraries(gogglesmm PRIVATE DBus::DBus)
+endif()
+
+if(WITH_OPENGL)
+  target_link_libraries(gogglesmm PRIVATE
+    OpenGL::OpenGL
+    Epoxy::Epoxy
+  )
+endif()
+
+if(WITH_NLS AND Intl_FOUND)
+  target_link_libraries(gogglesmm PRIVATE ${Intl_LIBRARIES})
+  # Intl may need include directories
+  if(Intl_INCLUDE_DIRS)
+    target_include_directories(gogglesmm PRIVATE ${Intl_INCLUDE_DIRS})
+  endif()
+endif()
+
+# X11 Session Management (uses FindX11 variables, not modern targets)
+if(X11_SM_FOUND)
+  target_link_libraries(gogglesmm PRIVATE ${X11_SM_LIB})
+endif()
+
+if(X11_ICE_FOUND)
+  target_link_libraries(gogglesmm PRIVATE ${X11_ICE_LIB})
+endif()
+
+if(X11_FOUND)
+  target_link_libraries(gogglesmm PRIVATE ${X11_LIBRARIES})
+endif()
+
+install(TARGETS gogglesmm RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

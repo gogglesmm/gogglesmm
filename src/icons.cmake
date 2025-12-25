@@ -1,0 +1,79 @@
+# Gogglesmm Icon Resources
+#
+# This file lists all icon resources for the Gogglesmm application
+# These icons are processed by reswrap to create embedded resources
+# Included from src/CMakeLists.txt
+
+# Icon files (from icons/ directory)
+set(ICONS
+    cursor_hand.gif
+    about.png
+    gogglesmm_16.png
+    gogglesmm_32.png
+    x16_accessories_text_editor.png
+    x16_application_rss_xml.png
+    x16_applications_internet.png
+    x16_audio_volume_high.png
+    x16_audio_volume_low.png
+    x16_audio_volume_medium.png
+    x16_audio_volume_muted.png
+    x16_audio_x_generic.png
+    x16_bookmark_new.png
+    x16_document_open.png
+    x16_document_save.png
+    x16_edit_copy.png
+    x16_edit_cut.png
+    x16_edit_delete.png
+    x16_edit_find.png
+    x16_edit_paste.png
+    x16_edit_undo.png
+    x16_exit.png
+    x16_folder.png
+    x16_folder_open.png
+    x16_go_bottom.png
+    x16_go_home.png
+    x16_help_browser.png
+    x16_image_x_generic.png
+    x16_list_add.png
+    x16_list_remove.png
+    x16_media_optical.png
+    x16_media_playback_pause.png
+    x16_media_playback_start.png
+    x16_media_playback_stop.png
+    x16_media_skip_backward.png
+    x16_media_skip_forward.png
+    x16_preferences_desktop.png
+    x16_process_working.png
+    x16_stock_attach.png
+    x16_status_error.png
+    x16_system_users.png
+    x16_text_x_generic.png
+    x16_view_refresh.png
+    x16_view_sort_descending.png
+    x16_window_close.png
+    x16_x_office_presentation.png
+    x22_applications_internet.png
+    x22_applications_multimedia.png
+    x22_applications_rss_xml.png
+    x22_audio_volume_high.png
+    x22_audio_volume_low.png
+    x22_audio_volume_medium.png
+    x22_audio_volume_muted.png
+    x22_audio_x_generic.png
+    x22_document_open.png
+    x22_document_properties.png
+    x22_drive_harddisk.png
+    x22_folder.png
+    x22_image_x_generic.png
+    x22_media_playback_pause.png
+    x22_media_playback_start.png
+    x22_media_playback_stop.png
+    x22_media_skip_backward.png
+    x22_media_skip_forward.png
+    x22_preferences_system.png
+    x22_text_x_generic.png
+    x22_user_bookmarks.png
+    x22_user_home.png
+    x22_x_office_presentation.png
+    x128_media_optical.png
+)

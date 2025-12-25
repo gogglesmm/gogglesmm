@@ -1,0 +1,36 @@
+# gap-config.cmake
+# CMake config file for GAP (Goggles Audio Player) library
+#
+# This file is installed to allow other projects to find GAP using:
+#   find_package(GAP)
+#
+# It creates the imported target: GAP::gap
+#
+# Generated from gap-config.cmake.in
+
+@PACKAGE_INIT@
+
+# Provide version variables
+set(GAP_VERSION "@PROJECT_VERSION@")
+set(GAP_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@")
+set(GAP_VERSION_MINOR "@PROJECT_VERSION_MINOR@")
+set(GAP_VERSION_PATCH "@PROJECT_VERSION_PATCH@")
+
+# Find dependencies that GAP requires
+include(CMakeFindDependencyMacro)
+
+# FOX is required and must be propagated to consumers
+find_dependency(Fox REQUIRED)
+
+# EXPAT is a private dependency, not needed by consumers
+# (consumers don't need to link it directly)
+
+# Include the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/gap-targets.cmake")
+
+# Create alias for consistent naming
+if(NOT TARGET GAP::gap)
+  add_library(GAP::gap ALIAS gap)
+endif()
+
+check_required_components(GAP)
