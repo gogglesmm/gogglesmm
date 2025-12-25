@@ -1,0 +1,4 @@
+[submodule "fox"]
+	path = fox
+	url = git@github.com:gogglesguy/fox.git
+	branch = cmake
