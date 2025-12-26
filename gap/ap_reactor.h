@@ -19,7 +19,7 @@
 #ifndef EVENT_LOOP_H
 #define EVENT_LOOP_H
 
-#ifndef _WIN32 
+#ifndef _WIN32
 struct pollfd;
 #endif
 
@@ -28,7 +28,7 @@ namespace ap {
 class GMAPI Reactor {
 private:
 #ifdef _WIN32
-  HANDLE * pfds;
+  FXInputHandle * pfds;
   FXint    nfds;
   FXint    mfds;
   FXuint   result;

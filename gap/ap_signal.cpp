@@ -34,15 +34,12 @@
   #include <poll.h>
   #include <unistd.h>
   #include <errno.h>
+#else
+  #include <windows.h>
 #endif
-
 
 #ifdef HAVE_EVENTFD
   #include <sys/eventfd.h>
-#endif
-
-#ifdef _WIN32
-  #include <windows.h>
 #endif
 
 
@@ -173,7 +170,7 @@ void Signal::wait() {
 
 WaitEvent Signal::wait(FXInputHandle input,WaitMode mode,FXTime timeout/*=0*/) const{
 #ifdef _WIN32
-  HANDLE handles[2]={input,device}
+  HANDLE handles[2]={input,device};
   DWORD result=WaitForMultipleObjects(2,handles,false,(timeout>0) ? (timeout / NANOSECONDS_PER_MILLISECOND) : INFINITE);
   if (__likely(result>=WAIT_OBJECT_0)) {
     if (WaitForSingleObject(device,0)==WAIT_OBJECT_0)
@@ -266,8 +263,8 @@ void Semaphore::release() {
 
 FXbool Semaphore::wait(const Signal & input) {
 #if defined(_WIN32)
-  HANDLE handles[2]={device,input.handle()}
-  DWORD result=WaitForMultipleObjects(2,devices,false,INFINITE);
+  HANDLE handles[2]={device,input.handle()};
+  DWORD result=WaitForMultipleObjects(2,handles,false,INFINITE);
   if(result==WAIT_OBJECT_0) {
     if (WaitForSingleObject(device,0)==WAIT_OBJECT_0){
       release();

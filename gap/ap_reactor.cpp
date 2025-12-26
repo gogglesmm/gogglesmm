@@ -78,7 +78,7 @@ void Reactor::dispatch() {
       if ((inputs[i]->mode&Input::Disabled) || (inputs[i]->mode&(Input::Readable|Input::Writable|Input::Exception))==0) {
         continue;
         }
-      if (obj>=(result-WAIT_OBJECT_0) {
+      if (obj>=(result-WAIT_OBJECT_0)) {
         if (WaitForSingleObject(pfds[obj],0)==WAIT_OBJECT_0) {
           inputs[obj]->mode|=Input::IsReadable|Input::Writable;
           inputs[obj]->onSignal();
@@ -119,7 +119,7 @@ void Reactor::dispatch() {
 
 void Reactor::wait(FXTime timeout) {
 #ifdef _WIN32
-  result = WaitForMultipleObjects(nfds,pfds,false,(timeout>0) ? timeout / NANOSECONDS_PER_MILLISECOND : FINITE);
+  result = WaitForMultipleObjects(nfds,pfds,false,(timeout>0) ? timeout / NANOSECONDS_PER_MILLISECOND : INFINITE);
 #else
   FXint n;
   if (timeout>=0) {
