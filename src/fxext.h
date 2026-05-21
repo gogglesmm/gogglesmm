@@ -111,6 +111,7 @@ public:
 
 
 
+#if FOXVERSION < FXVERSION(1, 7, 87)
 class GMTreeListBox : public FXTreeListBox {
   FXDECLARE(GMTreeListBox)
 protected:
@@ -121,6 +122,7 @@ private:
 public:
   static void replace(FXTreeListBox*);
   };
+#endif
 
 
 class GMTabBook : public FXTabBook {

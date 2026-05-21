@@ -1685,6 +1685,7 @@ void GMScrollArea::replaceScrollbars(FXScrollArea *fs) {
 
 
 
+#if FOXVERSION < FXVERSION(1, 7, 87)
 FXIMPLEMENT(GMTreeListBox,FXTreeListBox,nullptr,0)
 
 void GMTreeListBox::replace(FXTreeListBox *fs) {
@@ -1701,6 +1702,7 @@ void GMTreeListBox::replace(FXTreeListBox *fs) {
   s->button->setYOffset(0);
   s->button->setXOffset(1);
   }
+#endif
 
 
 
