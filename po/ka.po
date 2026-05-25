@@ -1,0 +1,2688 @@
+# Georgian translation for gogglesmm.
+# Copyright (C) 2026 Sander Jansen
+# This file is distributed under the same license as the gogglesmm package.
+# Ekaterine Papava <papava.e@gtu.ge>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gogglesmm 1.0.0\n"
+"Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
+"POT-Creation-Date: 2020-04-19 11:19-0500\n"
+"PO-Revision-Date: 2026-05-08 10:55+0200\n"
+"Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
+"Language-Team: Georgian <(nothing)>\n"
+"Language: ka\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.9\n"
+
+#: src/GMAbout.cpp:115
+msgid "&Homepage"
+msgstr "&საწყისი გვერდი"
+
+#: src/GMAbout.cpp:116
+msgid "&Report Issue"
+msgstr "პრობლემის &რეპორტი"
+
+#: src/GMAbout.cpp:117 src/GMPreferencesDialog.cpp:688
+#: src/GMTrackEditor.cpp:401 src/GMTrackEditor.cpp:449
+#: src/GMTrackEditor.cpp:453 cfox/lib/FXReplaceDialog.cpp:133
+msgid "&Close"
+msgstr "&დახურვა"
+
+#: src/GMAbout.cpp:123 src/GMAbout.cpp:150 src/GMPreferencesDialog.cpp:970
+#: src/GMPreferencesDialog.cpp:975 src/GMWindow.cpp:1176 src/GMWindow.cpp:1183
+msgid "Unable to launch webbrowser"
+msgstr "ბრაუზერის გაშვების შეცდომა"
+
+#: src/GMColumnDialog.cpp:197
+msgid "Configure Columns"
+msgstr "სვეტების მორგება"
+
+#: src/GMColumnDialog.cpp:200 cfox/lib/FXColorSelector.cpp:175
+msgid "&Accept"
+msgstr "&დათანხმება"
+
+#: src/GMColumnDialog.cpp:201 src/GMDatabaseSource.cpp:1032
+#: src/GMDatabaseSource.cpp:1205 src/GMDatabaseSource.cpp:1307
+#: src/GMDatabaseSource.cpp:1547 src/GMDatabaseSource.cpp:1628
+#: src/GMFilterEditor.cpp:642 src/GMImportDialog.cpp:223
+#: src/GMImportDialog.cpp:583 src/GMPlayListSource.cpp:284
+#: src/GMPlayListSource.cpp:365 src/GMPodcastSource.cpp:433
+#: src/GMPodcastSource.cpp:1647 src/GMStreamSource.cpp:148
+#: src/GMStreamSource.cpp:185 src/GMStreamSource.cpp:246
+#: src/GMTrackEditor.cpp:292 src/GMWindow.cpp:1224 src/GMWindow.cpp:1288
+#: cfox/lib/FXMessageBox.cpp:108 cfox/lib/FXMessageBox.cpp:119
+#: cfox/lib/FXMessageBox.cpp:124 cfox/lib/FXMessageBox.cpp:130
+#: cfox/lib/FXMessageBox.cpp:136 cfox/lib/FXMessageBox.cpp:143
+#: cfox/lib/FXMessageBox.cpp:152 cfox/lib/FXColorSelector.cpp:176
+#: cfox/lib/FXDirSelector.cpp:139 cfox/lib/FXFileSelector.cpp:221
+msgid "&Cancel"
+msgstr "&გაუქმება"
+
+#: src/GMColumnDialog.cpp:205
+msgid ""
+"Choose the order of information to appear\n"
+"in the track list."
+msgstr ""
+"აირჩიეთ მიმდევრობა, რომლითაც ინფორმაცია გამოჩნდება\n"
+"ტრეკების სიაში."
+
+#: src/GMColumnDialog.cpp:211
+msgid "Move Up"
+msgstr "აწევა"
+
+#: src/GMColumnDialog.cpp:212
+msgid "Move Down"
+msgstr "ჩამოწევა"
+
+#: src/GMDatabaseSource.cpp:226 src/GMPlayQueue.cpp:67
+#: src/GMStreamSource.cpp:58
+msgid "No"
+msgstr "არა"
+
+#: src/GMDatabaseSource.cpp:227 src/GMPlayQueue.cpp:68
+msgid "Queue"
+msgstr "რიგი"
+
+#: src/GMDatabaseSource.cpp:228 src/GMFilterEditor.cpp:44
+#: src/GMPlayQueue.cpp:69 src/GMTrackView.cpp:262
+msgid "Artist"
+msgstr "შემსრულებელი"
+
+#: src/GMDatabaseSource.cpp:229 src/GMFilterEditor.cpp:41
+#: src/GMPlayQueue.cpp:70 src/GMPodcastSource.cpp:1316 src/GMTrackView.cpp:261
+msgid "Title"
+msgstr "სათაური"
+
+#: src/GMDatabaseSource.cpp:230 src/GMFilterEditor.cpp:43
+#: src/GMPlayQueue.cpp:73
+msgid "Album Artist"
+msgstr "ალბომის შემსრულებელი"
+
+#: src/GMDatabaseSource.cpp:231 src/GMFilterEditor.cpp:42
+#: src/GMPlayQueue.cpp:71 src/GMPreferencesDialog.cpp:645
+#: src/GMTrackView.cpp:263
+msgid "Album"
+msgstr "ალბომი"
+
+#: src/GMDatabaseSource.cpp:232 src/GMPlayQueue.cpp:74
+msgid "Disc"
+msgstr "დისკის #"
+
+#: src/GMDatabaseSource.cpp:234 src/GMFilterEditor.cpp:48
+#: src/GMPlayQueue.cpp:72
+msgid "Year"
+msgstr "წელი"
+
+#: src/GMDatabaseSource.cpp:235 src/GMFilterEditor.cpp:49
+#: src/GMPlayQueue.cpp:75 src/GMPodcastSource.cpp:1317
+#: cfox/lib/FXFileSelector.cpp:942
+msgid "Time"
+msgstr "დრო"
+
+#: src/GMDatabaseSource.cpp:236 src/GMFilterEditor.cpp:53
+#: src/GMPlayQueue.cpp:76
+msgid "Play Count"
+msgstr "დაკვრების რაოდენობა"
+
+#: src/GMDatabaseSource.cpp:237 src/GMPlayQueue.cpp:77
+msgid "Play Date"
+msgstr "დაკვრის თარიღი"
+
+#: src/GMDatabaseSource.cpp:238 src/GMFilterEditor.cpp:57
+#: src/GMImportDialog.cpp:499 src/GMLocalSource.cpp:56 src/GMPlayQueue.cpp:78
+#: src/GMTrackEditor.cpp:500
+msgid "Path"
+msgstr "ბილიკი"
+
+#: src/GMDatabaseSource.cpp:239 src/GMFilterEditor.cpp:56
+#: src/GMPlayQueue.cpp:79
+msgid "File Type"
+msgstr "ფაილის ტიპი"
+
+#: src/GMDatabaseSource.cpp:240 src/GMPlayQueue.cpp:80
+msgid "Format"
+msgstr "ფორმატი"
+
+#: src/GMDatabaseSource.cpp:241 src/GMFilterEditor.cpp:45
+#: src/GMPlayQueue.cpp:81
+msgid "Composer"
+msgstr "კომპოზიტორი"
+
+#: src/GMDatabaseSource.cpp:242 src/GMFilterEditor.cpp:46
+#: src/GMPlayQueue.cpp:82
+msgid "Conductor"
+msgstr "დირიჟორი"
+
+#: src/GMDatabaseSource.cpp:243 src/GMFilterEditor.cpp:50
+#: src/GMPlayQueue.cpp:83
+msgid "Rating"
+msgstr "რეიტინგი"
+
+#: src/GMDatabaseSource.cpp:323 src/GMDatabaseSource.cpp:330
+msgid "Copy\tCtrl-C\tCopy associated tracks to the clipboard."
+msgstr "კოპირება\tCtrl-C\tასოცირებული ტრეკების ბუფერში კოპირება."
+
+#: src/GMDatabaseSource.cpp:325 src/GMDatabaseSource.cpp:333
+msgid "Remove…\tDel\tRemove associated tracks from library."
+msgstr "წაშლა…\tDel\tასოცირებული ტრეკების წაშლა ბიბლიოთეკიდან."
+
+#: src/GMDatabaseSource.cpp:331 src/GMDatabaseSource.cpp:346
+msgid "Find Cover…\t\tFind Cover with Google Image Search"
+msgstr "ყდის პოვნა…\t\tყდის პოვნა Google-ის სურათების ძებნით"
+
+#: src/GMDatabaseSource.cpp:338 src/GMPlayQueue.cpp:142
+msgid "Edit…\tF2\tEdit Track Information."
+msgstr "ჩასწორება…\tF2\tტრეკის ინფორმაციის ჩასწორება."
+
+#: src/GMDatabaseSource.cpp:339
+msgid "Set Cover…\t\t"
+msgstr "ყდის დაყენება…\t\t"
+
+#: src/GMDatabaseSource.cpp:341 src/GMPlayQueue.cpp:143
+msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
+msgstr "კოპირება\tCtrl-C\tტრეკ(ებ)-ის კოპირება ბუფერში."
+
+#: src/GMDatabaseSource.cpp:345
+msgid "Open Folder Location\t\tOpen Folder Location."
+msgstr "საქაღალდის მდებარეობის გახსნა\t\tსაქაღალდის მდებარეობის გახსნა."
+
+#: src/GMDatabaseSource.cpp:350
+msgid "Remove…\tDel\tRemove track(s) from library."
+msgstr "წაშლა…\tDel\tტრეკ(ებ)-ის წაშლა ბიბლიოთეკიდან."
+
+#: src/GMDatabaseSource.cpp:356 src/GMPlayListSource.cpp:184
+msgid "Export As…"
+msgstr "გატანა, როგორც…"
+
+#: src/GMDatabaseSource.cpp:358
+msgid "Remove Folder…\t\tRemove tracks in folder from library"
+msgstr "საქაღლადის წაშლა…\t\tსაქაღალდეში არსებული ტრეკების წაშლა ბიბლიოთეკიდან"
+
+#: src/GMDatabaseSource.cpp:359
+msgid "Remove All Tracks\t\tRemove all tracks from the library"
+msgstr "ყველა ტრეკის წაშლა\t\tყველა ტრეკის წაშლა ბიბლიოთეკიდან"
+
+#: src/GMDatabaseSource.cpp:365
+msgid "Import Folder…\tCtrl-O\tImport Music from folder into Library"
+msgstr ""
+"საქაღალდის შემოტანა…\tCtrl-O\tსაქაღალდეში არსებული მუსიკის შემოტანა "
+"ბიბლიოთეკაში"
+
+#: src/GMDatabaseSource.cpp:366
+msgid "Sync Folder…\t\tSynchronize Folder with Music in Library"
+msgstr ""
+"საქაღალდის სინქრონიზაცია…\t\tსაქაღალდეში არსებული მუსიკის სინქრონიზაცია "
+"ბიბლიოთეკასთან"
+
+#: src/GMDatabaseSource.cpp:368
+msgid "Play File or Stream…\t\tPlay File or Stream"
+msgstr "ფაილის, ან ნაკადის დაკვრა…\t\tფაილის, ან ნაკადის დაკვრა"
+
+#: src/GMDatabaseSource.cpp:370
+msgid "New Filter…\t\tCreate a new filter"
+msgstr "ახალი ფილტრი…\t\tახალი ფილტრის შექმნა"
+
+#: src/GMDatabaseSource.cpp:371
+msgid "New Playlist…\t\tCreate a new playlist"
+msgstr "ახალი დასაკრავი სია…\t\tახალი დასაკრავი სიის შექმნა"
+
+#: src/GMDatabaseSource.cpp:372
+msgid "Import Playlist…\t\tImport existing playlist"
+msgstr "დასაკრავი სიის შემოტანა…\t\tარსებული დასაკრავი სიის შემოტანა"
+
+#: src/GMDatabaseSource.cpp:717
+#, c-format
+msgid "All %d Albums"
+msgstr "ყველა %d ალბომი"
+
+#: src/GMDatabaseSource.cpp:1028
+msgid "Remove Audio Files?"
+msgstr "წავშალო აუდიოფაილები?"
+
+#: src/GMDatabaseSource.cpp:1029
+msgid "Remove Audio Files..."
+msgstr "აუდიოფაილების წაშლა..."
+
+#: src/GMDatabaseSource.cpp:1029
+msgid "The following audio files are going to be removed"
+msgstr "წაიშლება შემდეგი აუდიოფაილები"
+
+#: src/GMDatabaseSource.cpp:1031 src/GMDatabaseSource.cpp:1306
+#: src/GMImportDialog.cpp:580 src/GMPlayListSource.cpp:283
+#: src/GMStreamSource.cpp:245
+msgid "&Remove"
+msgstr "&წაშლა"
+
+#: src/GMDatabaseSource.cpp:1059
+msgid "Export Main Library"
+msgstr "მთავარი ბიბლიოთეკის გატანა"
+
+#: src/GMDatabaseSource.cpp:1061
+msgid "Export Playlist"
+msgstr "დასაკრავი სიის გატანა"
+
+#: src/GMDatabaseSource.cpp:1072
+msgid "Overwrite File?"
+msgstr "ჩავანაცვლო ფაილი?"
+
+#: src/GMDatabaseSource.cpp:1072
+msgid "File already exists. Would you like to overwrite it?"
+msgstr "ფაილი უკვე არსებობს. გნებავთ, თავზე გადააწეროთ?"
+
+#: src/GMDatabaseSource.cpp:1204 src/GMImportDialog.cpp:215
+#: cfox/lib/FXMessageBox.cpp:103 cfox/lib/FXMessageBox.cpp:107
+#: cfox/lib/FXDirSelector.cpp:138 cfox/lib/FXFileSelector.cpp:213
+msgid "&OK"
+msgstr "&დიახ"
+
+#: src/GMDatabaseSource.cpp:1217
+msgid "Dimensions:"
+msgstr "ზომები:"
+
+#: src/GMDatabaseSource.cpp:1220
+msgid "Size:"
+msgstr "ზომა:"
+
+#: src/GMDatabaseSource.cpp:1223
+msgid "Cover Type:"
+msgstr "ყდის ტიპი:"
+
+#: src/GMDatabaseSource.cpp:1231
+msgid "Description:"
+msgstr "აღწერა:"
+
+#: src/GMDatabaseSource.cpp:1234
+msgid "Tag Mode:"
+msgstr "ჭდის რეჟიმი:"
+
+#: src/GMDatabaseSource.cpp:1284 src/GMPlayListSource.cpp:268
+msgid "Remove Artist?"
+msgstr "წავშალო შემსრულებელი?"
+
+#: src/GMDatabaseSource.cpp:1285
+msgid "Remove tracks from artist from library?"
+msgstr "წაიშალოს შემსრულებლის ტრეკები ბიბლიოთეკიდან?"
+
+#: src/GMDatabaseSource.cpp:1289 src/GMPlayListSource.cpp:271
+msgid "Remove Album?"
+msgstr "წავშალო ალბომი?"
+
+#: src/GMDatabaseSource.cpp:1290
+msgid "Remove tracks from album from library?"
+msgstr "წაიშალოს ალბომის ტრეკები ბიბლიოთეკიდან?"
+
+#: src/GMDatabaseSource.cpp:1294 src/GMPlayListSource.cpp:274
+msgid "Remove Track(s)?"
+msgstr "წავშალო ტრეკ(ებ)-ი?"
+
+#: src/GMDatabaseSource.cpp:1295
+msgid "Remove track(s) from library?"
+msgstr "წაიშალოს ტრეკები ბიბლიოთეკიდან?"
+
+#: src/GMDatabaseSource.cpp:1310 src/GMPlayListSource.cpp:288
+msgid "Remove tracks from disk"
+msgstr "ტრეკების წაშლა დისკიდან"
+
+#: src/GMDatabaseSource.cpp:1322 src/GMDatabaseSource.cpp:1326
+#: src/GMDatabaseSource.cpp:1335 src/GMStreamSource.cpp:255
+msgid "Library Error"
+msgstr "ბიბლიოთეკის შეცდომა"
+
+#: src/GMDatabaseSource.cpp:1322
+msgid "Unable to remove artist from the library"
+msgstr "ბიბლიოთეკიდან შემსრულებლის წაშლა შეუძლებელია"
+
+#: src/GMDatabaseSource.cpp:1326
+msgid "Unable to remove album from the library"
+msgstr "ბიბლიოთეკიდან ალბომის წაშლა შეუძლებელია"
+
+#: src/GMDatabaseSource.cpp:1335
+msgid "Unable to remove track from the library."
+msgstr "ბიბლიოთეკიდან ტრეკის წაშლა შეუძლებელია."
+
+#: src/GMDatabaseSource.cpp:1543 src/GMDatabaseSource.cpp:1544
+msgid "Create Playlist"
+msgstr "დასაკრავი სიის შექმნა"
+
+#: src/GMDatabaseSource.cpp:1544
+msgid "Specify name of the new playlist"
+msgstr "მიუთითეთ ახალი დასაკრავი სიის სახელი"
+
+#: src/GMDatabaseSource.cpp:1546
+msgid "&Create"
+msgstr "&შექმნა"
+
+#: src/GMDatabaseSource.cpp:1551 src/GMPlayListSource.cpp:369
+#: cfox/lib/FXFileSelector.cpp:939
+msgid "Name"
+msgstr "სახელი"
+
+#: src/GMDatabaseSource.cpp:1553
+msgid "New Playlist"
+msgstr "ახალი დასაკრავი სია"
+
+#: src/GMDatabaseSource.cpp:1624 src/GMDatabaseSource.cpp:1625
+msgid "Clear Music Library?"
+msgstr "გავასუფთავო მუსიკის ბიბლიოთეკა?"
+
+#: src/GMDatabaseSource.cpp:1625
+msgid "Remove all tracks from the music library?"
+msgstr "წავშალო ყველა ტრეკი მუსიკის ბიბლიოთეკიდან?"
+
+#: src/GMDatabaseSource.cpp:1627
+msgid "&Remove All"
+msgstr "ყველას &წაშლა"
+
+#: src/GMDatabaseSource.cpp:1631
+msgid "Keep play lists"
+msgstr "დასაკრავი სიების შენარჩუნება"
+
+#: src/GMFilterEditor.cpp:47 src/GMImportDialog.cpp:498
+#: src/GMStreamSource.cpp:156 src/GMTrackView.cpp:264
+msgid "Tag"
+msgstr "ჭდე"
+
+#: src/GMFilterEditor.cpp:51
+msgid "Track Number"
+msgstr "აუდიობილიკის ნომერი"
+
+#: src/GMFilterEditor.cpp:52
+msgid "Disc Number"
+msgstr "დისკის ნომერი"
+
+#: src/GMFilterEditor.cpp:54
+msgid "Last Played"
+msgstr "ბოლოს დაკვრის დრო"
+
+#: src/GMFilterEditor.cpp:55
+msgid "Last Updated"
+msgstr "ბოლო განახლება"
+
+#: src/GMFilterEditor.cpp:58 src/GMTrackEditor.cpp:515
+msgid "Channels"
+msgstr "არხები"
+
+#: src/GMFilterEditor.cpp:59 src/GMStreamSource.cpp:60
+#: src/GMTrackEditor.cpp:775
+msgid "Bit Rate"
+msgstr "ბიტური სიჩქარე"
+
+#: src/GMFilterEditor.cpp:60 src/GMTrackEditor.cpp:512
+msgid "Sample Rate"
+msgstr "სემპლების სიხშირე"
+
+#: src/GMFilterEditor.cpp:61 src/GMTrackEditor.cpp:771
+msgid "Sample Size"
+msgstr "სემპლის ზომა"
+
+#: src/GMFilterEditor.cpp:62
+msgid "Lyrics"
+msgstr "ლირიკა"
+
+#: src/GMFilterEditor.cpp:193
+msgid "\tRemove Rule\tRemove Rule"
+msgstr "\tწესის წაშლა\tწესის წაშლა"
+
+#: src/GMFilterEditor.cpp:208
+msgid "Minutes"
+msgstr "წუთი"
+
+#: src/GMFilterEditor.cpp:209
+msgid "Hours"
+msgstr "საათი"
+
+#: src/GMFilterEditor.cpp:210
+msgid "Days"
+msgstr "დღე"
+
+#: src/GMFilterEditor.cpp:211
+msgid "Weeks"
+msgstr "კვირა"
+
+#: src/GMFilterEditor.cpp:386
+msgid "contains"
+msgstr "შეიცავს"
+
+#: src/GMFilterEditor.cpp:387
+msgid "does not contain"
+msgstr "არ შეიცავს"
+
+#: src/GMFilterEditor.cpp:388 src/GMFilterEditor.cpp:410
+#: src/GMFilterEditor.cpp:420
+msgid "equals"
+msgstr "უდრის"
+
+#: src/GMFilterEditor.cpp:389 src/GMFilterEditor.cpp:411
+#: src/GMFilterEditor.cpp:421
+msgid "not equal to"
+msgstr "არ უდრის"
+
+#: src/GMFilterEditor.cpp:390
+msgid "starts with"
+msgstr "იწყება"
+
+#: src/GMFilterEditor.cpp:391
+msgid "ends with"
+msgstr "სრულდება"
+
+#: src/GMFilterEditor.cpp:392
+msgid "matches"
+msgstr "ემთხვევა"
+
+#: src/GMFilterEditor.cpp:397
+msgid "in"
+msgstr "სად"
+
+#: src/GMFilterEditor.cpp:398
+msgid "not in"
+msgstr "სად არ"
+
+#: src/GMFilterEditor.cpp:399
+msgid "before"
+msgstr "მითითებულ დრომდე"
+
+#: src/GMFilterEditor.cpp:400
+msgid "after"
+msgstr "დროის შემდეგ"
+
+#: src/GMFilterEditor.cpp:404
+msgid "in the last"
+msgstr "ბოლოში"
+
+#: src/GMFilterEditor.cpp:405
+msgid "not in the last"
+msgstr "არა ბოლოში"
+
+#: src/GMFilterEditor.cpp:412
+msgid "at least"
+msgstr "მინიმუმ"
+
+#: src/GMFilterEditor.cpp:413
+msgid "at most"
+msgstr "მაქსიმუმ"
+
+#: src/GMFilterEditor.cpp:596
+msgid "Ascending"
+msgstr "აღმავალი"
+
+#: src/GMFilterEditor.cpp:597
+msgid "Descending"
+msgstr "დაღმავალი"
+
+#: src/GMFilterEditor.cpp:600
+msgid "\tRemove Column\tRemove Column"
+msgstr "\tსვეტის წაშლა\tსვეტის წაშლა"
+
+#: src/GMFilterEditor.cpp:641
+msgid "&Update"
+msgstr "&განახლება"
+
+#: src/GMFilterEditor.cpp:649
+msgid "Name:"
+msgstr "სახელი:"
+
+#: src/GMFilterEditor.cpp:653
+msgid "Match:"
+msgstr "დამთხვევა:"
+
+#: src/GMFilterEditor.cpp:655
+msgid "All"
+msgstr "ყველა"
+
+#: src/GMFilterEditor.cpp:656
+msgid "Any"
+msgstr "ნებისმიერი"
+
+#: src/GMFilterEditor.cpp:660
+msgid "Filter:"
+msgstr "ფილტრი:"
+
+#: src/GMFilterEditor.cpp:669
+msgid "\tAdd Filter\tAdd Filter"
+msgstr "\tფილტრის დამატება\tფილტრის დამატება"
+
+#: src/GMFilterEditor.cpp:672
+msgid "Limit:"
+msgstr "ზღვარი:"
+
+#: src/GMFilterEditor.cpp:676
+msgid "tracks sorted by:"
+msgstr "ტრეკების დალაგების პირობა:"
+
+#: src/GMFilterEditor.cpp:683
+msgid "\tAdd Column\tAdd Column"
+msgstr "\tსვეტის დამატება\tსვეტის დამატება"
+
+#: src/GMFilterSource.cpp:197 src/GMFilterSource.cpp:208
+msgid "Remove Filter"
+msgstr "ფილტრის წაშლა"
+
+#: src/GMFilterSource.cpp:197
+msgid "Are you sure you want to remove the filter?"
+msgstr "მართლა გნებავთ ფილტრის წაშლა?"
+
+#: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
+#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
+#: cfox/lib/FXMessageBox.cpp:148
+msgid "&Yes"
+msgstr "&დიახ"
+
+#: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
+#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
+#: cfox/lib/FXMessageBox.cpp:150
+msgid "&No"
+msgstr "&არა"
+
+#: src/GMFilterSource.cpp:207
+msgid "Edit"
+msgstr "ჩასწორება"
+
+#: src/GMFontDialog.cpp:189
+msgid "Ultra Condensed"
+msgstr "ულტრა შესქელებული"
+
+#: src/GMFontDialog.cpp:190
+msgid "Extra Condensed"
+msgstr "ექსტრა შესქელებული"
+
+#: src/GMFontDialog.cpp:191
+msgid "Condensed"
+msgstr "შესქელებული"
+
+#: src/GMFontDialog.cpp:192
+msgid "Semi Condensed"
+msgstr "ნახევრად-შესქელებული"
+
+#: src/GMFontDialog.cpp:194
+msgid "Semi Expanded"
+msgstr "ნახევრად-გაფართოებული"
+
+#: src/GMFontDialog.cpp:195
+msgid "Expanded"
+msgstr "ჩამოშლილია"
+
+#: src/GMFontDialog.cpp:196
+msgid "Extra Expanded"
+msgstr "ექსტრა გაფართოებული"
+
+#: src/GMFontDialog.cpp:197
+msgid "Ultra Expanded"
+msgstr "ულტრა გაფართოებული"
+
+#: src/GMFontDialog.cpp:204 src/GMPreferencesDialog.cpp:1425
+msgid "Thin"
+msgstr "თხელი"
+
+#: src/GMFontDialog.cpp:205 src/GMPreferencesDialog.cpp:1426
+msgid "Extra Light"
+msgstr "ძალიან თხელი"
+
+#: src/GMFontDialog.cpp:206 src/GMPreferencesDialog.cpp:1427
+msgid "Light"
+msgstr "ღია"
+
+#: src/GMFontDialog.cpp:208 src/GMPreferencesDialog.cpp:1429
+msgid "Medium"
+msgstr "საშუალო"
+
+#: src/GMFontDialog.cpp:209 src/GMPreferencesDialog.cpp:1430
+msgid "Demibold"
+msgstr "საშუალოდ სქელი"
+
+#: src/GMFontDialog.cpp:210 src/GMPreferencesDialog.cpp:1431
+msgid "Bold"
+msgstr "სქელი"
+
+#: src/GMFontDialog.cpp:211 src/GMPreferencesDialog.cpp:1432
+msgid "Extra Bold"
+msgstr "ძალიან სქელი"
+
+#: src/GMFontDialog.cpp:212 src/GMPreferencesDialog.cpp:1433
+msgid "Heavy"
+msgstr "მძიმე"
+
+#: src/GMFontDialog.cpp:219
+msgid "Reverse Oblique"
+msgstr "შებრუნებით ირიბი"
+
+#: src/GMFontDialog.cpp:220
+msgid "Reverse Italic"
+msgstr "შებრუნებით დახრილი"
+
+#: src/GMFontDialog.cpp:222
+msgid "Italic"
+msgstr "კურსივი"
+
+#: src/GMFontDialog.cpp:223
+msgid "Oblique"
+msgstr "ირიბი"
+
+#: src/GMFontDialog.cpp:245
+msgid "Normal"
+msgstr "ნორმალური"
+
+#: src/GMImportDialog.cpp:163
+msgid "&Folder:"
+msgstr "&საქაღალდე:"
+
+#: src/GMImportDialog.cpp:213 cfox/lib/FXFileSelector.cpp:211
+msgid "&File Name:"
+msgstr "&ფაილის სახელი:"
+
+#: src/GMImportDialog.cpp:218 cfox/lib/FXFileSelector.cpp:216
+msgid "File F&ilter:"
+msgstr "ფაილის ფ&ილტრი:"
+
+#: src/GMImportDialog.cpp:222 cfox/lib/FXFileSelector.cpp:220
+msgid "Read Only"
+msgstr "მხოლოდ-კითხვადი"
+
+#: src/GMImportDialog.cpp:229 cfox/lib/FXFileSelector.cpp:226
+msgid "Directory:"
+msgstr "საქაღალდე:"
+
+#: src/GMImportDialog.cpp:237 cfox/lib/FXFileSelector.cpp:250
+msgid "&Set bookmark\t\tBookmark current directory."
+msgstr "&სანიშნეს დაყენება\t\tმიმდინარე საქაღალდის ჩამატება სანიშნეებში."
+
+#: src/GMImportDialog.cpp:238 cfox/lib/FXFileSelector.cpp:251
+msgid "&Unset bookmark\t\tRemove current directory bookmark."
+msgstr "&სანიშნეს მოხსნა\t\tმიმდინარე საქაღალდის წაშლა სანიშნეებიდან."
+
+#: src/GMImportDialog.cpp:239 cfox/lib/FXFileSelector.cpp:252
+msgid "&Clear all bookmarks\t\tClear all bookmarks."
+msgstr "&ყველა სანიშნეს გასუფთავება\t\tყველა სანიშნეს გასუფთავება."
+
+#: src/GMImportDialog.cpp:259 cfox/lib/FXFileSelector.cpp:272
+msgid "\tGo up one directory\tMove up to higher directory."
+msgstr "\tერთი საქაღალდით მაღლა ასვლა\tერთი საქაღალდით მაღლა ასვლა."
+
+#: src/GMImportDialog.cpp:260 cfox/lib/FXFileSelector.cpp:273
+msgid "\tGo to home directory\tBack to home directory."
+msgstr "\tსაწყის საქაღალდეზე გადასვლა\tსაწყის საქაღალდეზე გადასვლა."
+
+#: src/GMImportDialog.cpp:261 cfox/lib/FXFileSelector.cpp:274
+msgid "\tGo to work directory\tBack to working directory."
+msgstr "\tსამუშაო საქაღალდეზე დაბრუნება\tსამუშაო საქაღალდეზე დაბრუნება."
+
+#: src/GMImportDialog.cpp:262 cfox/lib/FXFileSelector.cpp:275
+msgid "\tBookmarks\tVisit bookmarked directories."
+msgstr "\tსანიშნეები\tჩანიშნული საქაღალდეების ნახვა."
+
+#: src/GMImportDialog.cpp:265 cfox/lib/FXFileSelector.cpp:278
+msgid "\tCreate new directory\tCreate new directory."
+msgstr "\tახალი საქაღალდის შექმნა\tახალი საქაღალდის შექმნა."
+
+#: src/GMImportDialog.cpp:266 cfox/lib/FXFileSelector.cpp:279
+msgid "\tShow list\tDisplay directory with small icons."
+msgstr "\tსიის ჩვენება\tსაქაღალდის ჩვენება პატარა ხატულებით."
+
+#: src/GMImportDialog.cpp:267 cfox/lib/FXFileSelector.cpp:280
+msgid "\tShow icons\tDisplay directory with big icons."
+msgstr "\tხატულების ჩვენება\tსაქაღალდის ჩვენება დიდი ხატულებით."
+
+#: src/GMImportDialog.cpp:268 cfox/lib/FXFileSelector.cpp:281
+msgid "\tShow details\tDisplay detailed directory listing."
+msgstr "\tდეტალების ჩვენება\tდეტალური საქაღალდის ჩამონათვალის ჩვენება."
+
+#: src/GMImportDialog.cpp:269 cfox/lib/FXFileSelector.cpp:282
+msgid "\tShow hidden files\tShow hidden files and directories."
+msgstr ""
+"\tდამალული ფაილების ჩვენება\tდამალული ფაილებისა და საქაღალდეების ჩვენება."
+
+#: src/GMImportDialog.cpp:269 cfox/lib/FXFileSelector.cpp:282
+msgid "\tHide Hidden Files\tHide hidden files and directories."
+msgstr ""
+"\tდამალული ფაილების დამალვა\tდამალული ფაილებისა და საქაღალდეების დამალვა."
+
+#: src/GMImportDialog.cpp:295 cfox/lib/FXFileSelector.cpp:308
+#: cfox/lib/FXFileSelector.cpp:1113
+msgid "All Files (*)"
+msgstr "ყველა ფაილი (*)"
+
+#: src/GMImportDialog.cpp:369 src/GMImportDialog.cpp:379
+msgid "&Options:"
+msgstr "&პარამეტრები:"
+
+#: src/GMImportDialog.cpp:399
+msgid "Remove Folder"
+msgstr "საქაღალდის წაშლა"
+
+#: src/GMImportDialog.cpp:401
+msgid "Synchronize Folder"
+msgstr "საქაღალდის სინქრონიზაცია"
+
+#: src/GMImportDialog.cpp:403
+msgid "Import Playlist"
+msgstr "დასაკრავი სიის შემოტანა"
+
+#: src/GMImportDialog.cpp:405
+msgid "Import Music"
+msgstr "მუსიკის შემოტანა"
+
+#: src/GMImportDialog.cpp:439
+msgid "&File(s)"
+msgstr "&ფაილ(ებ)-ი"
+
+#: src/GMImportDialog.cpp:462
+msgid "&Folder"
+msgstr "&საქაღალდე"
+
+#: src/GMImportDialog.cpp:472 src/GMImportDialog.cpp:578
+msgid "&Sync"
+msgstr "&სინქრონიზაცია"
+
+#: src/GMImportDialog.cpp:474
+msgid "Sync Operation"
+msgstr "სინქრონიზაციის ოპერაცია"
+
+#: src/GMImportDialog.cpp:477
+msgid "Import new tracks\tImports files not yet in the database."
+msgstr ""
+"ახალი ტრეკების შემოტანა\tშემოიტანს ტრეკებს, რომლებიც ჯერ მონაცემთა ბაზაში "
+"არაა."
+
+#: src/GMImportDialog.cpp:478
+msgid "Remove tracks that have been deleted from disk"
+msgstr "დისკიდან წაშლილი ტრეკების მოცილება"
+
+#: src/GMImportDialog.cpp:480
+msgid "Update existing tracks:"
+msgstr "არსებული ტრეკების განახლება:"
+
+#: src/GMImportDialog.cpp:481
+msgid ""
+"Modified since last import\tOnly reread the tag when the file has been "
+"modified."
+msgstr ""
+"ბოლო შემოტანის შემდეგ შეცვლილები\tმოხდება, მხოლოდ, ჭდეების თავიდან წაკითხვა "
+"ფაილებისთვის, რომლებიც შეიცვალა."
+
+#: src/GMImportDialog.cpp:483
+msgid "All\tAlways read the tags"
+msgstr "ყველა\tჭდეების ყოველთვის წაკითხვა"
+
+#: src/GMImportDialog.cpp:488
+msgid "&Track"
+msgstr "&აუდიობილიკი"
+
+#: src/GMImportDialog.cpp:491
+msgid "Parse Settings"
+msgstr "პარამეტრების დამუშავება"
+
+#: src/GMImportDialog.cpp:495
+msgid "Parse info from:"
+msgstr "ინფორმაციის დამუშავება საიდან:"
+
+#: src/GMImportDialog.cpp:500
+msgid "Both"
+msgstr "ორივე"
+
+#: src/GMImportDialog.cpp:502
+msgid "ID3v1 Encoding:"
+msgstr "ID3v1 კოდირება:"
+
+#: src/GMImportDialog.cpp:513
+msgid "Set track number based on scan order."
+msgstr "ტრეკის ნომრის დაყენება სკანირების მიმდევრობის მიხედვით."
+
+#: src/GMImportDialog.cpp:516
+msgid ""
+"Group albums by audio format.\tImported tracks that differ in audio format "
+"will be grouped in separate albums."
+msgstr ""
+"ალბომების დაჯგუფება აუდიოფორმატის მიხედვით.\tშემოტანილი ტრეკები, რომლების "
+"აუდიოფორმატიც განსხვავდება, სხვადასხვა ალბომებში დაჯგუფდება."
+
+#: src/GMImportDialog.cpp:519
+msgid ""
+"Detect compilations by folder.\tGroup tracks from the same folder without "
+"specific compilation/albumartist tags."
+msgstr ""
+"კომპილაციების დადგენა საქაღალდით.\tიმავე საქაღალდიდან ტრეკების დაჯგუფება "
+"სპეციფიკური კომპილაციის/ალბომის/შემსრულებლის ჭდეების გარეშე."
+
+#: src/GMImportDialog.cpp:522
+msgid "Fetch Lyrics.\tFetch Lyrics"
+msgstr "ლირიკის გამოთხოვა.\tლირიკის გამოთხოვა"
+
+#: src/GMImportDialog.cpp:524
+msgid "Path Template"
+msgstr "ბილიკის ნიმუში"
+
+#: src/GMImportDialog.cpp:527
+msgid ""
+"%T - title              %A - album name\n"
+"%P - album artist name  %p - track artist name \n"
+"%N - track number       %d - disc number\n"
+"%y - year"
+msgstr ""
+"%T - სახელი              %A - ალბომის სახელი\n"
+"%P - album artist name  %p - ტრეკის შემსრულებლის სახელი \n"
+"%N - ტრეკის ნომერი       %d - დისკის ნომერი\n"
+"%y - წელი"
+
+#: src/GMImportDialog.cpp:538 src/GMTrackEditor.cpp:378
+msgid "Template:"
+msgstr "შაბლონი:"
+
+#: src/GMImportDialog.cpp:541
+msgid "Replace underscores with spaces"
+msgstr "ქვედატირეების ჩანაცვლება ჰარეებით"
+
+#: src/GMImportDialog.cpp:552
+msgid "&Filter"
+msgstr "&ფილტრი"
+
+#: src/GMImportDialog.cpp:555
+msgid "Exclude Files"
+msgstr "ფაილების გამორიცხვა"
+
+#: src/GMImportDialog.cpp:556
+msgid "Unsupported Playback Formats"
+msgstr "მხარდაუჭერელი დაკვრის ფორმატები"
+
+#: src/GMImportDialog.cpp:558
+msgid "Exclude by Pattern"
+msgstr "ნიმუშით ამოღება"
+
+#: src/GMImportDialog.cpp:562
+msgid "Folders:"
+msgstr "საქაღალდეები:"
+
+#: src/GMImportDialog.cpp:564
+msgid "Files:"
+msgstr "ფაილები:"
+
+#: src/GMImportDialog.cpp:582
+msgid "&Import"
+msgstr "&შემოტანა"
+
+#: src/GMNotifyDaemon.cpp:274
+#, c-format
+msgid ""
+"%s\n"
+"%s (%d)"
+msgstr ""
+"%s\n"
+"%s (%d)"
+
+#: src/GMPlayerManager.cpp:313
+#, c-format
+msgid "Unable to create directory %s\n"
+msgstr "ვერ შევქმენი საქაღალდე %s\n"
+
+#: src/GMPlayerManager.cpp:578
+msgid "Session bus not available. All features requiring dbus are disabled."
+msgstr ""
+"სესიის სალტე ხელმისაწვდომი არაა. ყველა თვისებები, რომელსაც dbus სჭირდება, "
+"გამორთულია."
+
+#: src/GMPlayerManager.cpp:597
+msgid ""
+"Session Bus not available. All features requiring sessionbus are disabled."
+msgstr ""
+"სესიის სალტე ხელმისაწვდომი არაა. ყველა თვისებები, რომელსაც sessionbus "
+"სჭირდება, გამორთულია."
+
+#: src/GMPlayerManager.cpp:671
+#, c-format
+msgid ""
+"A non threadsafe version of SQLite (%s) is being used.\n"
+"Goggles Music Manager requires a threadsafe SQLite.\n"
+"Please upgrade your SQLite installation."
+msgstr ""
+"გამოიყენება SQLite-ის (%s) არა უსაფრთხონაკადიანი ვერსია.\n"
+"Goggles Music Manager-ს უსაფრთხონაკადიანი SQLite სჭირდება.\n"
+"განაახლეთ SQLite-ის თქვენი ვერსია."
+
+#: src/GMPlayerManager.cpp:680
+msgid ""
+"For some reason the FOX library was compiled without PNG support.\n"
+"In order to show all icons, Goggles Music Manager requires PNG\n"
+"support in the FOX library. If you've compiled FOX yourself, most\n"
+"likely the libpng header files were not installed on your system."
+msgstr ""
+"რატომაც ბიბლიოთეკა FOX აგებული იყო PNG-ის მხარდაჭერის გარეშე.\n"
+"ყველა ხატულას საჩვენებლად Goggles Music Manager-ს FOX ბიბლიოთეკაში\n"
+"PNG-ის მხარდაჭერა სჭირდება. თუ FOX თვითონ დააკომპილეთ, როგორც ჩანს,\n"
+"libpng-ის თავსართის ფაილები დაყენებული არ გქონდათ."
+
+#: src/GMPlayerManager.cpp:1397
+msgid "Last.FM Error"
+msgstr "Last.FM-ის შეცდომა"
+
+#: src/GMPlayerManager.cpp:1769
+msgid "Playback Error"
+msgstr "დაკვრის შეცდომა"
+
+#: src/GMPlayListSource.cpp:182
+msgid "Rename…"
+msgstr "სახელის გადარქმევა…"
+
+#: src/GMPlayListSource.cpp:183
+msgid "Import Playlist…"
+msgstr "დასაკრავი სიის შემოტანა…"
+
+#: src/GMPlayListSource.cpp:185
+msgid "Remove Playlist"
+msgstr "დასაკრავი სიის წაშლა"
+
+#: src/GMPlayListSource.cpp:265
+msgid "Remove Tag?"
+msgstr "წავშალო ჭდე?"
+
+#: src/GMPlayListSource.cpp:266
+msgid "Remove tracks with tag from play list?"
+msgstr "წაიშალოს ჭდის მქონე ტრეკები დასაკრავი სიიდან?"
+
+#: src/GMPlayListSource.cpp:269
+msgid "Remove tracks from artist from play list?"
+msgstr "წაიშალოს შემსრულებლის ტრეკები დასაკრავი სიიდან?"
+
+#: src/GMPlayListSource.cpp:272
+msgid "Remove tracks from album from play list?"
+msgstr "წაიშალოს ალბომის ტრეკები დასაკრავი სიიდან?"
+
+#: src/GMPlayListSource.cpp:275
+msgid "Remove track(s) from play list?"
+msgstr "წაიშალოს ტრეკ(ებ)-ი დასაკრავი სიიდან?"
+
+#: src/GMPlayListSource.cpp:287
+msgid "Remove tracks from music library"
+msgstr "ტრეკების წაშლა დასაკრავი სიიდან"
+
+#: src/GMPlayListSource.cpp:361 src/GMPlayListSource.cpp:362
+msgid "Edit Playlist"
+msgstr "დასაკრავი სიის ჩასწორება"
+
+#: src/GMPlayListSource.cpp:362
+msgid "Change playlist name"
+msgstr "დასაკრავი სიის სახელის სეცვლა"
+
+#: src/GMPlayListSource.cpp:364 src/GMStreamSource.cpp:184
+#: src/GMTrackEditor.cpp:448 src/GMTrackEditor.cpp:452
+#: cfox/lib/FXMessageBox.cpp:129 cfox/lib/FXMessageBox.cpp:144
+msgid "&Save"
+msgstr "&შენახვა"
+
+#: src/GMPlayListSource.cpp:387
+msgid "Delete Play List?"
+msgstr "წავშალო დასაკრავი სია?"
+
+#: src/GMPlayListSource.cpp:387
+msgid "Are you sure you want to delete the playlist?"
+msgstr "მართლა გნებავთ დასაკრავი სიიდან წაშლა?"
+
+#: src/GMPlayQueue.cpp:114
+msgid "Clear"
+msgstr "გასუფთავება"
+
+#: src/GMPlayQueue.cpp:145
+msgid "Remove…\tDel\tRemove track(s) from play queue."
+msgstr "წაშლა…\tDel\tტრეკ(ებ)-ის წაშლა დაკვრის რიგიდან."
+
+#: src/GMPodcastSource.cpp:430
+msgid "Select Feed"
+msgstr "აირჩიეთ ლენტა"
+
+#: src/GMPodcastSource.cpp:432 src/GMPodcastSource.cpp:1646
+msgid "Subscribe"
+msgstr "გამოწერა"
+
+#: src/GMPodcastSource.cpp:436
+msgid "Feed:"
+msgstr "ლენტა:"
+
+#: src/GMPodcastSource.cpp:1249
+#, c-format
+msgid "Podcasts (%d)"
+msgstr "პოდკასტები (%d)"
+
+#: src/GMPodcastSource.cpp:1251
+msgid "Podcasts"
+msgstr "პოდკასტები"
+
+#: src/GMPodcastSource.cpp:1314
+msgid "Date"
+msgstr "თარიღი"
+
+#: src/GMPodcastSource.cpp:1315
+msgid "Feed"
+msgstr "ლენტა"
+
+#: src/GMPodcastSource.cpp:1351 src/GMPodcastSource.cpp:1357
+msgid "Add Podcast…"
+msgstr "პოდკასტის დამატება…"
+
+#: src/GMPodcastSource.cpp:1356
+msgid "Refresh\t\t"
+msgstr "განახლება\t\t"
+
+#: src/GMPodcastSource.cpp:1363
+msgid "Auto Download"
+msgstr "ავტომატური გადმოწერა"
+
+#: src/GMPodcastSource.cpp:1367
+msgid "Remove Podcast"
+msgstr "პოდკასტის წაშლა"
+
+#: src/GMPodcastSource.cpp:1372
+msgid "Download"
+msgstr "გადმოწერა"
+
+#: src/GMPodcastSource.cpp:1373
+msgid "Mark Played"
+msgstr "დაკრულად მონიშვნა"
+
+#: src/GMPodcastSource.cpp:1374
+msgid "Mark New"
+msgstr "ახლად მონიშვნა"
+
+#: src/GMPodcastSource.cpp:1375
+msgid "Remove Local"
+msgstr "ლოკალურის წაშლა"
+
+#: src/GMPodcastSource.cpp:1415
+#, c-format
+msgid "All %d Feeds"
+msgstr "ყველა %d ლენტა"
+
+#: src/GMPodcastSource.cpp:1643 src/GMPodcastSource.cpp:1644
+msgid "Subscribe to Podcast"
+msgstr "პოდკასტის გამოწერა"
+
+#: src/GMPodcastSource.cpp:1644
+msgid "Specify url for the rss feed"
+msgstr "მიუთითეთ ბმული rss ლენტისტვის"
+
+#: src/GMPodcastSource.cpp:1651 src/GMStreamSource.cpp:152
+#: src/GMStreamSource.cpp:190
+msgid "Location"
+msgstr "მდებარეობა"
+
+#: src/GMPodcastSource.cpp:1666
+msgid "Remove Feed?"
+msgstr "წავშალო ლენტა?"
+
+#: src/GMPodcastSource.cpp:1666
+msgid "Remove feed and all downloaded episodes?"
+msgstr "წაიშალოს ლენტა და ყველა გადმოწერილი ეპიზოდი?"
+
+#: src/GMPreferencesDialog.cpp:285
+msgid "Preferences"
+msgstr "მორგება"
+
+#: src/GMPreferencesDialog.cpp:315
+msgid "&General"
+msgstr "&ზოგადი"
+
+#: src/GMPreferencesDialog.cpp:318
+msgid "Sort Options"
+msgstr "დალაგების მორგება"
+
+#: src/GMPreferencesDialog.cpp:322
+msgid "Ignore leading words"
+msgstr "პირველი სიტყვების გამოტოვება"
+
+#: src/GMPreferencesDialog.cpp:325
+msgid "Additional Track Information"
+msgstr "ტრეკის დამატებითი ინფორმაცია"
+
+#: src/GMPreferencesDialog.cpp:328
+msgid "Show Album Cover\tShow album cover of playing track"
+msgstr "ალბომის ყდის ჩვენება\tდაკრული ტრეკის ალბომის ყდის ჩვენება"
+
+#: src/GMPreferencesDialog.cpp:329
+msgid "Show Lyrics\tShow lyrics of playing track"
+msgstr "ლირიკის ჩვენება\tდაკრული ტრეკის ლირიკის ჩვენება"
+
+#: src/GMPreferencesDialog.cpp:332
+msgid "System Tray"
+msgstr "სისტემს კუთხე"
+
+#: src/GMPreferencesDialog.cpp:336
+msgid "Show Tray Icon\tShow tray icon in the system tray."
+msgstr "ხატულას ჩვენება სისტემურ საათთან\tხატულას ჩვენება სისტემურ საათთან."
+
+#: src/GMPreferencesDialog.cpp:339
+msgid ""
+"Show Track Change Notifications\tInform notification daemon of track changes."
+msgstr ""
+"ტრეკის შეცვლის გაფრთხილების ჩვენება\tტრეკის შეცვლის გაფრთხილების ჩვენება."
+
+#: src/GMPreferencesDialog.cpp:340
+msgid "MPRIS v1 Connectivity\tEnable MPRIS v1 connectivity"
+msgstr "MPRIS v1 კავშირი\tMPRIS v1 კავშირის ჩართვა"
+
+#: src/GMPreferencesDialog.cpp:344
+msgid "Last.fm"
+msgstr "Last.fm"
+
+#: src/GMPreferencesDialog.cpp:349
+msgid ""
+"This version of Goggles Music Manager is\n"
+"not supported by Last-FM. Please upgrade\n"
+"to a newer version of GMM."
+msgstr ""
+"Goggles Music Manager-ის ეს ვერსია Last-FM-ის მიერ\n"
+"მხარდაჭერილი არაა. განაახლეთ GMM\n"
+"უფრო ახალ ვერსიამდე."
+
+#: src/GMPreferencesDialog.cpp:355
+msgid "Service:"
+msgstr "სერვისი:"
+
+#: src/GMPreferencesDialog.cpp:372
+msgid "&Sign up…"
+msgstr "რეგი&სტრაცია…"
+
+#: src/GMPreferencesDialog.cpp:378
+msgid "Username:"
+msgstr "მომხმარებელი:"
+
+#: src/GMPreferencesDialog.cpp:380
+msgid "Password:"
+msgstr "პაროლი:"
+
+#: src/GMPreferencesDialog.cpp:384
+msgid "Scrobble"
+msgstr "სკრობლინგი"
+
+#: src/GMPreferencesDialog.cpp:408
+msgid "&Window"
+msgstr "&ფანჯარა"
+
+#: src/GMPreferencesDialog.cpp:411
+msgid "Window"
+msgstr "ფანჯარა"
+
+#: src/GMPreferencesDialog.cpp:414
+msgid "Close button minimizes to tray"
+msgstr "დახურვის ღილაკი სისტემურ კუთხეში ჩაკეცავს"
+
+#: src/GMPreferencesDialog.cpp:415
+msgid "Show Status Bar"
+msgstr "მდგომარეობის ზოლის ჩვენება"
+
+#: src/GMPreferencesDialog.cpp:418
+msgid "Display playing track in title bar"
+msgstr "დაკრული სიმღერის სახელის ჩვენება სათაურის ზოლში"
+
+#: src/GMPreferencesDialog.cpp:421
+msgid "Toolbar"
+msgstr "ხელსაწყოთა ზოლი"
+
+#: src/GMPreferencesDialog.cpp:425
+msgid "Location:"
+msgstr "მდებარეობა:"
+
+#: src/GMPreferencesDialog.cpp:427
+msgid "Top"
+msgstr "ზედა"
+
+#: src/GMPreferencesDialog.cpp:428
+msgid "Bottom"
+msgstr "ქვემო"
+
+#: src/GMPreferencesDialog.cpp:431
+msgid "Title Format:"
+msgstr "სათაურის ფორმატი:"
+
+#: src/GMPreferencesDialog.cpp:439 src/GMTrackEditor.cpp:361
+msgid ""
+"%T - title                   %A - album name\n"
+"%P - album artist name       %p - track artist name\n"
+"%w - composer                %c - conductor\n"
+"%y - year                    %d - disc number\n"
+"%N - track number (2 digits) %n - track number      \n"
+"%G - genre"
+msgstr ""
+"%T - სახელი                   %A - ალბომის სახელი\n"
+"%P - ალბომის შემსრულებლის სახელი       %p - ტრეკის შემსრულებლის სახელი\n"
+"%w - კომპოზიტორი                %c - დირიჟორი\n"
+"%y - წელი                    %d - დისკის ნომერი\n"
+"%N - ტრეკის ნომერი (2 ციფრი) %n - ტრეკის ნომერი      \n"
+"%G - ჟანრი"
+
+#: src/GMPreferencesDialog.cpp:457
+msgid "A&ppearance"
+msgstr "გა_რეგნობა"
+
+#: src/GMPreferencesDialog.cpp:459
+msgid "Colors"
+msgstr "ფერები"
+
+#: src/GMPreferencesDialog.cpp:465
+msgid "fg\tForeground Color"
+msgstr "fg\tწინა პლანის ფერი"
+
+#: src/GMPreferencesDialog.cpp:466
+msgid "bg\tBackground Color"
+msgstr "bg\tფონის ფერი"
+
+#: src/GMPreferencesDialog.cpp:467
+msgid "alt bg\tAlternative Background Color"
+msgstr "alt bg\tფონის ალტერნატიული ფერი"
+
+#: src/GMPreferencesDialog.cpp:478
+msgid "Normal\tNormal Text Color"
+msgstr "ნორმალური\tნორმალური ტექსტის ფერი"
+
+#: src/GMPreferencesDialog.cpp:482
+msgid "Base\tBase Color"
+msgstr "ძირითადი\tძირითადი ფერი"
+
+#: src/GMPreferencesDialog.cpp:485
+msgid "Selected\tSelected Text Color"
+msgstr "მონიშნული\tმონიშნული ტექსტის ფერი"
+
+#: src/GMPreferencesDialog.cpp:489
+msgid "Menu\tMenu Base Color"
+msgstr "მენიუს\tმენიუს ძირითადი ფერი"
+
+#: src/GMPreferencesDialog.cpp:493
+msgid "Menu\tMenu Text Color"
+msgstr "მენიუ\tმენიუს ტექსტის ფერი"
+
+#: src/GMPreferencesDialog.cpp:497
+msgid "Border\tBorder Color"
+msgstr "საზღვარი\tსაზღვრის ფერი"
+
+#: src/GMPreferencesDialog.cpp:501
+msgid "Tooltip\tTooltip Color"
+msgstr "მინიშნება\tმინიშნების ფერი"
+
+#: src/GMPreferencesDialog.cpp:505
+msgid "Hilite\tHilite Color"
+msgstr "Hilite\tფერის გამოკვეთა"
+
+#: src/GMPreferencesDialog.cpp:512
+msgid "Shadow\tShadow Color"
+msgstr "ჩრდილი\tჩრდილის ფერი"
+
+#: src/GMPreferencesDialog.cpp:515
+msgid "Playing\tPlaying Track Color"
+msgstr "დაკვრა\tდაკრული ტრეკის ფერი"
+
+#: src/GMPreferencesDialog.cpp:519
+msgid "Tray\tTray Background Color"
+msgstr "სისტემური კუთხე\tსისტემური კუთხის ფერი"
+
+#: src/GMPreferencesDialog.cpp:529
+msgid "Presets:"
+msgstr "პრესეტები:"
+
+#: src/GMPreferencesDialog.cpp:537
+msgid "Font & Icons"
+msgstr "ფონტი & ხატულები"
+
+#: src/GMPreferencesDialog.cpp:542
+msgid "Default Font"
+msgstr "ნაგულისხმევი ფონტი"
+
+#: src/GMPreferencesDialog.cpp:544
+msgid "Change…"
+msgstr "ცვლილება…"
+
+#: src/GMPreferencesDialog.cpp:546
+msgid "Display DPI"
+msgstr "ეკრანის DPI"
+
+#: src/GMPreferencesDialog.cpp:553
+msgid "Icons"
+msgstr "ხატულები"
+
+#: src/GMPreferencesDialog.cpp:572
+msgid "&Audio"
+msgstr "აუდიო"
+
+#: src/GMPreferencesDialog.cpp:575
+msgid "Output"
+msgstr "გამოტანა"
+
+#: src/GMPreferencesDialog.cpp:579
+msgid "Driver:"
+msgstr "დრაივერი:"
+
+#: src/GMPreferencesDialog.cpp:613 src/GMPreferencesDialog.cpp:626
+msgid "Device:"
+msgstr "მოწყობილობა:"
+
+#: src/GMPreferencesDialog.cpp:633
+msgid "Apply Changes"
+msgstr "ცვლილებების გადატარება"
+
+#: src/GMPreferencesDialog.cpp:635
+msgid "Playback"
+msgstr "დაკვრა"
+
+#: src/GMPreferencesDialog.cpp:640
+msgid "Replay Gain:"
+msgstr "ხმის გაძლიერება:"
+
+#: src/GMPreferencesDialog.cpp:643
+msgid "Off"
+msgstr "გამორთ"
+
+#: src/GMPreferencesDialog.cpp:644
+msgid "Track"
+msgstr "ტრეკი"
+
+#: src/GMPreferencesDialog.cpp:650
+msgid "&Podcasts"
+msgstr "&პოდკასტები"
+
+#: src/GMPreferencesDialog.cpp:653
+msgid "Updates"
+msgstr "განახლებები"
+
+#: src/GMPreferencesDialog.cpp:657
+msgid "Update Interval"
+msgstr "განახლების ინტერვალი"
+
+#: src/GMPreferencesDialog.cpp:659
+msgid "Disabled"
+msgstr "გამორთულია"
+
+#: src/GMPreferencesDialog.cpp:660
+msgid "10 minutes"
+msgstr "10 წუთი"
+
+#: src/GMPreferencesDialog.cpp:661
+msgid "20 minutes"
+msgstr "20 წთ"
+
+#: src/GMPreferencesDialog.cpp:662
+msgid "30 minutes"
+msgstr "30 წუთი"
+
+#: src/GMPreferencesDialog.cpp:663
+msgid "1 hour"
+msgstr "1 საათი"
+
+#: src/GMPreferencesDialog.cpp:664
+msgid "2 hours"
+msgstr "2 საათი"
+
+#: src/GMPreferencesDialog.cpp:665
+msgid "6 hours"
+msgstr "5 სთ"
+
+#: src/GMPreferencesDialog.cpp:666
+msgid "12 hours"
+msgstr "12 საათი"
+
+#: src/GMPreferencesDialog.cpp:863
+msgid "Current"
+msgstr "მიმდინარე"
+
+#: src/GMPreferencesDialog.cpp:881
+msgid "Custom"
+msgstr "ხელით"
+
+#: src/GMPreferencesDialog.cpp:1469
+msgid "Select Normal Font"
+msgstr "აირჩიეთ ნორმალური ფონტი"
+
+#: src/GMRemote.cpp:79
+msgid "\tShow Browser\tShow Browser"
+msgstr "\tShow Browser\tბრაუზერის ჩვენება"
+
+#: src/GMRemote.cpp:81 src/GMWindow.cpp:282
+msgid "\tStart Playback\tStart Playback"
+msgstr "\tდაკვრის დაწყება\tდაკვრის დაწყება"
+
+#: src/GMRemote.cpp:82 src/GMWindow.cpp:283
+msgid "\tStop Playback\tStop Playback"
+msgstr "\tდაკვრის გაჩერება\tდაკვრის გაჩერება"
+
+#: src/GMRemote.cpp:84 src/GMWindow.cpp:284
+msgid "\tPlay Previous Track\tPlay previous track."
+msgstr "\tწინა ტრეკის დაკვრა\tწინა ტრეკის დაკვრა."
+
+#: src/GMRemote.cpp:85 src/GMWindow.cpp:285
+msgid "\tPlay Next Track\tPlay next track."
+msgstr "\tშემდეგი ტრეკის დაკვრა\tშემდეგი ტრეკის დაკვრა."
+
+#: src/GMRemote.cpp:93
+msgid "\tAdjust Volume\tAdjust Volume"
+msgstr "\tხმის რეგულაცია\tხმის რეგულაცია"
+
+#: src/GMScanner.cpp:45
+msgid "Unknown Artist"
+msgstr "უცნობი შემსრულებელი"
+
+#: src/GMScanner.cpp:46
+msgid "Unknown Album"
+msgstr "უცნობი ალბომი"
+
+#: src/GMScanner.cpp:593
+msgid "Various Artists"
+msgstr "სხვადასხვა შემსრულებლები"
+
+#: src/GMSourceView.cpp:53
+msgid "Sources\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"წყაროები\tდააჭირეთ დალაგების მიმდევრობის შესაცვლელად\tდააჭირეთ დალაგების "
+"მიმდევრობის შესაცვლელად"
+
+#: src/GMSourceView.cpp:294
+msgid "Show Browser\tCtrl-B\tShow Browser"
+msgstr "ბრაუზერის ჩვენება\tCtrl-B\tბრაუზერის ჩვენება"
+
+#: src/GMSourceView.cpp:295
+msgid "Show Tags\tCtrl-T\tShow Tags"
+msgstr "ჭდეების ჩვენება\tCtrl-T\tჭდეების ჩვენება"
+
+#: src/GMStreamSource.cpp:59
+msgid "Station"
+msgstr "სადგური"
+
+#: src/GMStreamSource.cpp:61 src/GMStreamSource.cpp:195
+msgid "Genre"
+msgstr "ჟანრი"
+
+#: src/GMStreamSource.cpp:90 src/GMStreamSource.cpp:95
+#: src/GMStreamSource.cpp:101
+msgid "Add Radio Station…"
+msgstr "რადიოსადგურის დამატება…"
+
+#: src/GMStreamSource.cpp:100
+msgid "Edit…"
+msgstr "ჩასწორება…"
+
+#: src/GMStreamSource.cpp:102
+msgid "Remove\t\tRemove."
+msgstr "წაშლა\t\tწაშლა."
+
+#: src/GMStreamSource.cpp:144 src/GMStreamSource.cpp:145
+msgid "New Internet Radio Station"
+msgstr "ახალი ინტერნეტრადიოსადგური"
+
+#: src/GMStreamSource.cpp:145
+msgid "Specify url and description of new station"
+msgstr "მიუთითეთ ახალი სადგურის ბმული და აღწერა"
+
+#: src/GMStreamSource.cpp:147
+msgid "C&reate"
+msgstr "&შექმნა"
+
+#: src/GMStreamSource.cpp:154 src/GMStreamSource.cpp:193
+msgid "Description"
+msgstr "აღწერა"
+
+#: src/GMStreamSource.cpp:168
+msgid "Untitled"
+msgstr "უსათაურო"
+
+#: src/GMStreamSource.cpp:181 src/GMStreamSource.cpp:182
+msgid "Edit Internet Radio Station"
+msgstr "ინტერნეტრადიოსადგურის ჩასწორება"
+
+#: src/GMStreamSource.cpp:182
+msgid "Update url and description of station"
+msgstr "სადგურის ბმულისა და აღწერის განახლება"
+
+#: src/GMStreamSource.cpp:240
+msgid "Remove Internet Radio Station(s)?"
+msgstr "წავშალო ინტერნეტრადიოსადგურ(ებ)-ი?"
+
+#: src/GMStreamSource.cpp:241
+msgid "Remove Internet Radio Station(s) from library?"
+msgstr "წავშალო ინტერნეტრადიოსადგურ(ებ)-ი ბიბლიოთეკიდან?"
+
+#: src/GMStreamSource.cpp:255
+#, c-format
+msgid "Unable to remove station from the library."
+msgstr "სადგურის ბიბლიოთეკიდან წაშლა შეუძლებელია."
+
+#: src/GMTrackDatabase.cpp:174 src/GMTrackDatabase.cpp:180
+#: src/GMTrackEditor.cpp:260 src/GMTrackEditor.cpp:276
+msgid "Database Error"
+msgstr "მონაცემთა ბაზის შეცდომა"
+
+#: src/GMTrackDatabase.cpp:174
+msgid ""
+"An incompatible (future) version of the database was found.\n"
+"This usually happens when you try to downgrade to a older version of GMM\n"
+"Press OK to continue and reset the database (all information will be "
+"lost!).\n"
+"Press Cancel to quit now and leave the database as is."
+msgstr ""
+"აღმოჩენილია მონაცემთა ბაზის არათავსებადი (მომავალი) ვერსია.\n"
+"ეს, ჩვეულებრივ, ხდება მაშინ, როცა GMM-ის უფრო ძველ ვერსიაზე ჩამოწევას "
+"ცდილობთ\n"
+"დააჭირეთ ღილაკს 'დიახ', რომ გააგრძელოთ და მოხდეს მონაცემთა ბაზის ჩამოყრა "
+"(მონაცემები დაიკარგება!).\n"
+"დააჭირეთ ღილაკს 'გაუქმება' გასასვლელად და მონაცემთა ბაზის არსებულ ფორმაში "
+"დასატოვებლად."
+
+#: src/GMTrackDatabase.cpp:180
+msgid ""
+"An incompatible (older) version of the database was found.\n"
+"Press OK to continue and reset the database (all information will be "
+"lost!).\n"
+"Press Cancel to quit now and leave the database as is."
+msgstr ""
+"აღმოჩენილია მონაცემთა ბაზის არათავსებადი (ძველი) ვერსია.\n"
+"დააჭირეთ ღილაკს 'დიახ', რომ გააგრძელოთ და მოხდეს მონაცემთა ბაზის ჩამოყრა "
+"(მონაცემები დაიკარგება!).\n"
+"დააჭირეთ ღილაკს 'გაუქმება' გასასვლელად და მონაცემთა ბაზის არსებულ ფორმაში "
+"დასატოვებლად."
+
+#: src/GMTrackDatabase.cpp:192
+msgid "Fatal Error"
+msgstr "ფატალური შეცდომა"
+
+#: src/GMTrackDatabase.cpp:192
+#, c-format
+msgid ""
+"Goggles Music Manager was unable to open the database.\n"
+"The database may have been corrupted. Please remove %s to try again.\n"
+"if the error keeps occuring, please file an issue at http://"
+"gogglesmm.github.io"
+msgstr ""
+"Goggles Music Manager-მა მონაცემთა ბაზა ვერ გახსნა.\n"
+"შეიძლება, მონაცემთა ბაზა დაზიანებულია. წაშალეთ %s და კიდევ სცადეთ.\n"
+"თუ პრობლემა არ გაქრება, მოგვწერეთ მისამართზე https://gogglesmm.github.io"
+
+#: src/GMTrackEditor.cpp:233
+msgid "Invalid Template"
+msgstr "არასწორი ნიმუში"
+
+#: src/GMTrackEditor.cpp:233
+#, c-format
+msgid ""
+"The provided template is invalid. The track title %%T needs to be "
+"specified.\n"
+"Please fix the filename template in the preference panel."
+msgstr ""
+"მოწოდებული ნიმუში არასწორია. აუცილებელია ტრეკის სათაურის %%T მითითება.\n"
+"გაასწორეთ ფაილის სახელის ნიმუში მორგების პანელში."
+
+#: src/GMTrackEditor.cpp:260
+msgid "Oops. Database Error"
+msgstr "ვაი. მონაცემთა ბაზის შეცდომა"
+
+#: src/GMTrackEditor.cpp:276
+msgid "Failed to retrieve track filenames"
+msgstr "ტრეკის ფაილის სახელების მღება ჩავარდა"
+
+#: src/GMTrackEditor.cpp:281
+msgid "No changes"
+msgstr "ცვლილებების გარეშე"
+
+#: src/GMTrackEditor.cpp:281
+msgid "Filenames did not require any changes"
+msgstr "ფაილის სახელებს ცვლილებები არ სჭირდება"
+
+#: src/GMTrackEditor.cpp:287
+msgid "Rename Audio Files?"
+msgstr "გადავარქვა სახელი აუდიოფაილებს?"
+
+#: src/GMTrackEditor.cpp:288
+msgid "Renaming Audio Files…"
+msgstr "მიმდინარეობს აუდიოფაილების სახელის გადარქმევა…"
+
+#: src/GMTrackEditor.cpp:288
+msgid "The following audio files are going to be renamed"
+msgstr "მოხდება შემდეგი აუდიოფაილების სახელის გადარქმევა"
+
+#: src/GMTrackEditor.cpp:291
+msgid "&Rename"
+msgstr "სახელის გადა&რქმევა"
+
+#: src/GMTrackEditor.cpp:343
+msgid "Filename Template"
+msgstr "ფაილის სახელის შაბლონი"
+
+#: src/GMTrackEditor.cpp:360
+msgid ""
+"Template may contain absolute or relative path, environment variables\n"
+"and ~. Relative paths are based on the location of the original file. The\n"
+"file extension gets automatically added. The following macros\n"
+"may be used:"
+msgstr ""
+"ნიმუში, შეიძლება, შეიცავდეს აბსოლუტურ, ან შედარებით ბილიკს, გარემოს "
+"ცვლადებს\n"
+"და ~. შედარებითი ბილიკები დაფუძნებულია ორიგინალი ფაილის მდებარეობაზე. "
+"ფაილის\n"
+"გაფართოების დამატება ავტომატურად ხდება. შესაძლებელია\n"
+"შემდეგი მაკროების გამოყენება:"
+
+#: src/GMTrackEditor.cpp:368
+msgid "Conditions may be used as well:"
+msgstr "ასევე შეგიძლიათ, გამოიყენოთ პირობები:"
+
+#: src/GMTrackEditor.cpp:369
+msgid ""
+"?c<a|b> - display a if c is not empty else display b.\n"
+"?c      - display c if not empty\n"
+msgstr ""
+"?c<a|b> - a-ს ჩვენება, თუ c ცარიელი არაა. არადა b-ის ჩვენება.\n"
+"?c      - c-ს ჩვენება, თუ ის ცარიელი არაა\n"
+
+#: src/GMTrackEditor.cpp:382
+msgid "Encoding:"
+msgstr "კოდირება:"
+
+#: src/GMTrackEditor.cpp:388
+msgid "Exclude:"
+msgstr "გამორიცხვა:"
+
+#: src/GMTrackEditor.cpp:392
+msgid "Options:"
+msgstr "მორგება:"
+
+#: src/GMTrackEditor.cpp:393
+msgid "Replace spaces with underscores"
+msgstr "გამოტოვებების ქვედახაზებით შეცვლა"
+
+#: src/GMTrackEditor.cpp:395
+msgid "Lower case"
+msgstr "ქვედა რეგისტრი"
+
+#: src/GMTrackEditor.cpp:397
+msgid "Lower case extension"
+msgstr "გაფართოება პატარა ასოებით"
+
+#: src/GMTrackEditor.cpp:443
+msgid "Edit Track Information"
+msgstr "ტრეკის ინფორმაციის ჩასწორება"
+
+#: src/GMTrackEditor.cpp:446
+msgid "&Previous"
+msgstr "&წინა"
+
+#: src/GMTrackEditor.cpp:447
+msgid "&Next"
+msgstr "&შემდეგი"
+
+#: src/GMTrackEditor.cpp:470
+msgid "&Tag"
+msgstr "&ჭდე"
+
+#: src/GMTrackEditor.cpp:477
+msgid "L&yrics"
+msgstr "&ლირიკა"
+
+#: src/GMTrackEditor.cpp:488 src/GMTrackView.cpp:269
+msgid "&Find"
+msgstr "&ძებნა"
+
+#: src/GMTrackEditor.cpp:495
+msgid "&Properties"
+msgstr "&თვისებები"
+
+#: src/GMTrackEditor.cpp:503 cfox/lib/FXFileSelector.cpp:940
+msgid "Type"
+msgstr "ტიპი"
+
+#: src/GMTrackEditor.cpp:506 cfox/lib/FXFileSelector.cpp:941
+msgid "Size"
+msgstr "ზომა"
+
+#: src/GMTrackEditor.cpp:520
+msgid "Co&ver"
+msgstr "&ყდა"
+
+#: src/GMTrackEditor.cpp:531
+msgid "Trac&k"
+msgstr "ტრე&კი"
+
+#: src/GMTrackEditor.cpp:537 src/GMTrackEditor.cpp:548
+#: src/GMTrackEditor.cpp:554
+msgid "&Disc"
+msgstr "&დისკი"
+
+#: src/GMTrackEditor.cpp:541 src/GMTrackEditor.cpp:560
+msgid "Y&ear"
+msgstr "&წელი"
+
+#: src/GMTrackEditor.cpp:564
+msgid "T&itle"
+msgstr "&სათაური"
+
+#: src/GMTrackEditor.cpp:568
+msgid "&Artist"
+msgstr "შ&ემსრულებელი"
+
+#: src/GMTrackEditor.cpp:571
+msgid "Album A&rtist"
+msgstr "ალბომის შემს&რულებელი"
+
+#: src/GMTrackEditor.cpp:574
+msgid "A&lbum"
+msgstr "ა&ლბომი"
+
+#: src/GMTrackEditor.cpp:577
+msgid "C&omposer"
+msgstr "კ&ომპოზიტორი"
+
+#: src/GMTrackEditor.cpp:580
+msgid "Cond&uctor"
+msgstr "დირი&ჟორი"
+
+#: src/GMTrackEditor.cpp:583
+msgid "Ta&gs"
+msgstr "&ჭდეები"
+
+#: src/GMTrackEditor.cpp:594
+msgid "Auto track number. Offset:"
+msgstr "აუდიოტრეკის ნომერი. წანაცვლება:"
+
+#: src/GMTrackEditor.cpp:603
+msgid "Update Tag in File"
+msgstr "ჭდის განახლება ფაილში"
+
+#: src/GMTrackEditor.cpp:608
+msgid "Update Filename"
+msgstr "ფაილის სახელის განახლება"
+
+#: src/GMTrackEditor.cpp:609
+msgid "Set export template…"
+msgstr "გატანის ნიმუშის დაყენება…"
+
+#: src/GMTrackEditor.cpp:990
+msgid "Update Tags?"
+msgstr "განახლდეს ჭდეები?"
+
+#: src/GMTrackEditor.cpp:990
+msgid ""
+"No tracks were updated.\n"
+"Would you still like to write the tags for the selected tracks?"
+msgstr ""
+"ტრეკები არ განახლებულა.\n"
+"გნებავთ ჭდეების ჩაწერა მონიშნულ ტრეკებში?"
+
+#: src/GMTrackView.cpp:268
+msgid "\tClose Filter\tClose Filter"
+msgstr "\tფილტრის დახურვა\tფილტრის დახურვა"
+
+#: src/GMTrackView.cpp:275
+msgid "Tags\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"ჭდეები\tდააჭირეთ დალაგების მიმდევრობის შესაცვლელად\tდააჭირეთ დალაგების "
+"მიმდევრობის შესაცვლელად"
+
+#: src/GMTrackView.cpp:279
+msgid "Artists\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"შემსრულებლები\tდააჭირეთ დალაგების მიმდევრობის შესაცვლელად\tდააჭირეთ "
+"დალაგების მიმდევრობის შესაცვლელად"
+
+#: src/GMTrackView.cpp:283
+msgid "\tPress to change sorting order\tPress to change sorting order"
+msgstr ""
+"\tდააჭირეთ დალაგების მიმდევრობის შესაცვლელად\tდააჭირეთ დალაგების მიმდევრობის "
+"შესაცვლელად"
+
+#: src/GMTrackView.cpp:290
+msgid "Browse"
+msgstr "პოვნა"
+
+#: src/GMTrackView.cpp:291
+msgid "Shuffle\tCtrl-R"
+msgstr "არევა\tCtrl-R"
+
+#: src/GMTrackView.cpp:299 cfox/lib/FXDirSelector.cpp:422
+#: cfox/lib/FXFileSelector.cpp:946
+msgid "Reverse"
+msgstr "რევერსი"
+
+#: src/GMTrackView.cpp:303 src/GMTrackView.cpp:461
+msgid "&Configure Columns…"
+msgstr "&სვეტების მორგება…"
+
+#: src/GMTrackView.cpp:304 src/GMTrackView.cpp:462
+msgid "&Sort\t\tChange Sorting."
+msgstr "&დალაგება\t\tდალაგების შეცვლა."
+
+#: src/GMTrackView.cpp:1014
+#, c-format
+msgid "All %d Tags"
+msgstr "ყველა %d ჭდე"
+
+#: src/GMTrackView.cpp:1016
+msgid "All Tags"
+msgstr "ყველა ჭდე"
+
+#: src/GMTrackView.cpp:1037
+#, c-format
+msgid "All %d Artists"
+msgstr "ყველა %d შემსრულებელი"
+
+#: src/GMTrackView.cpp:1463
+#, c-format
+msgid "By %s"
+msgstr "ავტორი %s"
+
+#: src/GMTrackView.cpp:1819
+msgid "Show Album Year"
+msgstr "ალბომის წლის ჩვენება"
+
+#: src/GMTrackView.cpp:1820 src/GMTrackView.cpp:1993
+msgid "Sort by Album Year"
+msgstr "დალაგება ალბომის წლით"
+
+#: src/GMTrackView.cpp:1823
+msgid "List View"
+msgstr "სიის ხედი"
+
+#: src/GMTrackView.cpp:1824
+msgid "Cover View"
+msgstr "ყდის ხედი"
+
+#: src/GMTrackView.cpp:1827
+msgid "Small Cover"
+msgstr "პატარა ყდა"
+
+#: src/GMTrackView.cpp:1828
+msgid "Medium Cover"
+msgstr "საშუალო ყდა"
+
+#: src/GMTrackView.cpp:1829
+msgid "Big Cover"
+msgstr "დიდი ყდა"
+
+#: src/GMTrackView.cpp:1831
+msgid "Arrange By Rows"
+msgstr "დალაგება მწკრივებით"
+
+#: src/GMTrackView.cpp:1832
+msgid "Arrange By Columns"
+msgstr "დალაგება სვეტებით"
+
+#: src/GMTrayIcon.cpp:299 src/GMWindow.cpp:956 src/GMWindow.cpp:984
+msgid "Play"
+msgstr "დაკვრა"
+
+#: src/GMTrayIcon.cpp:300
+msgid "Stop"
+msgstr "გაჩერება"
+
+#: src/GMTrayIcon.cpp:301
+msgid "Previous Track"
+msgstr "წინა აუდიობილიკი"
+
+#: src/GMTrayIcon.cpp:302
+msgid "Next Track"
+msgstr "შემდეგი ტრეკი"
+
+#: src/GMTrayIcon.cpp:304
+msgid "Quit"
+msgstr "გასვლა"
+
+#: src/GMWindow.cpp:191
+msgid "\tCancel Task\tCancel Task"
+msgstr "\tდავალების გაუქმება\tდავალების გაუქმება"
+
+#: src/GMWindow.cpp:236
+msgid "Queue Play\t\tPlay tracks from queue."
+msgstr "რიგის დაკვრა\t\tტრეკების დაკვრა რიგიდან."
+
+#: src/GMWindow.cpp:237
+msgid "Shuffle Play\tAlt-R\tPlay tracks in random order."
+msgstr "არეულად დაკვრა\tAlt-R\tტრეკების დაკვრა შემთხვევითი მიმდევრობთ."
+
+#: src/GMWindow.cpp:239
+msgid "Repeat Off\tCtrl-,\tRepeat current track."
+msgstr "გამეორება გამორთულია\tCtrl-,\tმიმდინარე ტრეკის გამეორება."
+
+#: src/GMWindow.cpp:240
+msgid "Repeat Track\tCtrl-.\tRepeat current track."
+msgstr "ტრეკის გამეორება\tCtrl-.\tმიმდინარე ტრეკის გამეორება."
+
+#: src/GMWindow.cpp:241
+msgid "Repeat All Tracks\tCtrl-/\tRepeat all tracks."
+msgstr "ყველა ტრეკის გამეორება\tCtrl-/\tყველა ტრეკის გამეორება."
+
+#: src/GMWindow.cpp:245
+msgid "Stop After Track\tCtrl-Shift-|\tStop playback at end of track."
+msgstr ""
+"გაჩერება ტრეკის შემდეგ\tCtrl-Shift-|\tდაკვრის გაჩერება ტრეკის დასრულების "
+"შემდეგ."
+
+#: src/GMWindow.cpp:246
+msgid "Sleep Timer\t\tSetup sleeptimer."
+msgstr "ძილის წამზომი\t\tძილის წამზომის მორგება."
+
+#: src/GMWindow.cpp:251
+msgid "Show &Sources\tCtrl-S\tShow source browser "
+msgstr "&წყაროების ჩვენება\tCtrl-S\tწყაროს ბრაუზერის ჩვენება "
+
+#: src/GMWindow.cpp:252
+msgid "Show Full Screen\tF12\tToggle fullscreen mode."
+msgstr "სრულ ეკრანზე ჩვენება\tF12\tსრულეკრანიანი რეჟიმის გადართვა."
+
+#: src/GMWindow.cpp:253
+msgid "Show Mini Player\tCtrl-M\tToggle Mini Player."
+msgstr "მინიდამკვრელის ჩვენება\tCtrl-M\tმინიდამკვრელის ჩვენების გადართვა."
+
+#: src/GMWindow.cpp:256
+msgid "Show Presenter\t\tShow Presenter."
+msgstr "წარმომდგენის ჩვენება\t\tწარმომდგენის ჩვენება."
+
+#: src/GMWindow.cpp:260
+msgid "Find…\tCtrl-F\tShow search filter."
+msgstr "ძებნა…\tCtrl-F\tძებნის ფილტრის ჩვენება."
+
+#: src/GMWindow.cpp:262
+msgid "Preferences…"
+msgstr "მორგება…"
+
+#: src/GMWindow.cpp:263
+msgid "&About…"
+msgstr "შეს&ახებ…"
+
+#: src/GMWindow.cpp:265
+msgid "&Quit\tCtrl-Q\tQuit the application."
+msgstr "&გასვლა\tCtrl-Q\tაპლიკაციიდან გასვლა."
+
+#: src/GMWindow.cpp:282
+msgid "\tPause\tPause Playback"
+msgstr "\tშეჩერება\tდაკვრის შეჩერება"
+
+#: src/GMWindow.cpp:951 src/GMWindow.cpp:979 src/GMWindow.cpp:985
+msgid "Start playback."
+msgstr "დაკვრის დაწყება."
+
+#: src/GMWindow.cpp:957 src/GMWindow.cpp:958
+msgid "Start playback"
+msgstr "დაკვრის დაწყება"
+
+#: src/GMWindow.cpp:965 src/GMWindow.cpp:972
+msgid "Pause playback."
+msgstr "დაკვრის შეჩერება."
+
+#: src/GMWindow.cpp:966
+msgid "Pause playback"
+msgstr "დაკვრის შეჩერება"
+
+#: src/GMWindow.cpp:971
+msgid "Pause"
+msgstr "შეჩერება"
+
+#: src/GMWindow.cpp:1221
+msgid "Play File or Stream"
+msgstr "ფაილის, ან ნაკადის დაკვრა"
+
+#: src/GMWindow.cpp:1223
+msgid "&Play"
+msgstr "&დაკვრა"
+
+#: src/GMWindow.cpp:1228
+msgid "Please specify a file or url to play:"
+msgstr "მიუთითეთ დასაკრავი ფაილი, ან url:"
+
+#: src/GMWindow.cpp:1232
+msgid "…"
+msgstr "…"
+
+#: src/GMWindow.cpp:1238
+msgid "Select File"
+msgstr "აირჩიეთ ფაილი"
+
+#: src/GMWindow.cpp:1284
+msgid "Sleep Timer"
+msgstr "ძილის წამმზომი"
+
+#: src/GMWindow.cpp:1285
+msgid "Setup sleep timer"
+msgstr "ძილის წამზომის მორგება"
+
+#: src/GMWindow.cpp:1285
+msgid "Stop playback within a certain time"
+msgstr "დაკვრის გაჩერება მითითებულ დროს"
+
+#: src/GMWindow.cpp:1287
+msgid "&Start Timer"
+msgstr "&ტაიმერის გაშვება"
+
+#: src/GMWindow.cpp:1292
+msgid "Sleep in"
+msgstr "დაძინება"
+
+#: src/GMWindow.cpp:1294
+msgid "hours and"
+msgstr "საათში და"
+
+#: src/GMWindow.cpp:1296
+msgid "minutes."
+msgstr "წუთში."
+
+#: src/GMWindow.cpp:1453
+msgid "Show Album Cover"
+msgstr "ალბომის ყდის ჩვენება"
+
+#: src/GMWindow.cpp:1454
+msgid "Show Lyrics"
+msgstr "ლირიკის ჩვენება"
+
+#: src/GMDatabaseSource.h:147
+msgid "Music Library"
+msgstr "მუსიკის ბიბლიოთეკა"
+
+#: src/GMLocalSource.h:49
+msgid "File System"
+msgstr "ფაილური სისტემა"
+
+#: src/GMPodcastSource.h:113
+msgid "Feeds"
+msgstr "ლენტები"
+
+#: src/GMSource.h:185
+msgid "Albums"
+msgstr "ალბომები"
+
+#: src/GMStreamSource.h:55
+msgid "Internet Radio"
+msgstr "ინტერნეტრადიო"
+
+#: cfox/lib/FXMessageBox.cpp:123 cfox/lib/FXMessageBox.cpp:128
+msgid "&Quit"
+msgstr "&გასვლა"
+
+#: cfox/lib/FXMessageBox.cpp:134
+msgid "&Skip"
+msgstr "გამო&ტოვება"
+
+#: cfox/lib/FXMessageBox.cpp:135
+msgid "Skip &All"
+msgstr "ყველას გ&ამოტოვება"
+
+#: cfox/lib/FXMessageBox.cpp:141
+msgid "&Don't Save"
+msgstr "არ შეინა&ხო"
+
+#: cfox/lib/FXMessageBox.cpp:149
+msgid "Y&es to All"
+msgstr "დიახ ყვ&ელაფერზე"
+
+#: cfox/lib/FXMessageBox.cpp:151
+msgid "N&o to All"
+msgstr "ა&რა ყველაფერზე"
+
+#: cfox/lib/FXColorSelector.cpp:222
+msgid "\tPick color"
+msgstr "\tფერის არჩევა"
+
+#: cfox/lib/FXColorSelector.cpp:231 cfox/lib/FXColorSelector.cpp:274
+msgid "\tHue, Saturation, Value"
+msgstr "\tტონი, გაჯერებულობა, მნიშვნელობა"
+
+#: cfox/lib/FXColorSelector.cpp:239
+msgid "\tRed, Green, Blue"
+msgstr "\tწითელი, მწვანე, ლურჯი"
+
+#: cfox/lib/FXColorSelector.cpp:245
+msgid "&Red:"
+msgstr "&წითელი:"
+
+#: cfox/lib/FXColorSelector.cpp:250
+msgid "&Green:"
+msgstr "&მწვანე:"
+
+#: cfox/lib/FXColorSelector.cpp:255
+msgid "&Blue:"
+msgstr "&ლურჯი:"
+
+#: cfox/lib/FXColorSelector.cpp:260
+msgid "&Alpha:"
+msgstr "&ალფა:"
+
+#: cfox/lib/FXColorSelector.cpp:280
+msgid "Hue:"
+msgstr "ტონი:"
+
+#: cfox/lib/FXColorSelector.cpp:285
+msgid "Saturation:"
+msgstr "ჯერადობა:"
+
+#: cfox/lib/FXColorSelector.cpp:290
+msgid "Value:"
+msgstr "მნიშვნელობა:"
+
+#: cfox/lib/FXColorSelector.cpp:295 cfox/lib/FXColorSelector.cpp:330
+msgid "Alpha:"
+msgstr "ალფა:"
+
+#: cfox/lib/FXColorSelector.cpp:309
+msgid "\tCyan, Magenta, Yellow"
+msgstr "\tცისფერი, იასამნისფერი, ყვითელი"
+
+#: cfox/lib/FXColorSelector.cpp:315
+msgid "Cyan:"
+msgstr "ცისფ:"
+
+#: cfox/lib/FXColorSelector.cpp:320
+msgid "Magenta:"
+msgstr "ალისფერი:"
+
+#: cfox/lib/FXColorSelector.cpp:325
+msgid "Yellow:"
+msgstr "ყვითელი:"
+
+#: cfox/lib/FXColorSelector.cpp:344
+msgid "\tBy Name"
+msgstr "\tსახელით"
+
+#: cfox/lib/FXDirSelector.cpp:141
+msgid "&Directory:"
+msgstr "&საქაღალდე:"
+
+#: cfox/lib/FXDirSelector.cpp:144
+msgid "&Name"
+msgstr "&სახელი"
+
+#: cfox/lib/FXDirSelector.cpp:315 cfox/lib/FXFileSelector.cpp:720
+msgid "folder"
+msgstr "საქაღალდე"
+
+#: cfox/lib/FXDirSelector.cpp:316 cfox/lib/FXFileSelector.cpp:721
+msgid "Create New Directory"
+msgstr "ახალი საქაღალდის შექმნა"
+
+#: cfox/lib/FXDirSelector.cpp:319 cfox/lib/FXFileSelector.cpp:724
+msgid "Already Exists"
+msgstr "უკვე არსებობს"
+
+#: cfox/lib/FXDirSelector.cpp:323 cfox/lib/FXFileSelector.cpp:728
+msgid "Cannot Create"
+msgstr "შექმნის შეცდომა"
+
+#: cfox/lib/FXDirSelector.cpp:343 cfox/lib/FXFileSelector.cpp:780
+msgid "Copy File"
+msgstr "ფაილის კოპირება"
+
+#: cfox/lib/FXDirSelector.cpp:349 cfox/lib/FXFileSelector.cpp:786
+msgid "Error Copying File"
+msgstr "ფაილის კოპირების შეცდომა"
+
+#: cfox/lib/FXDirSelector.cpp:360 cfox/lib/FXFileSelector.cpp:803
+msgid "Move File"
+msgstr "ფაილის გადატანა"
+
+#: cfox/lib/FXDirSelector.cpp:366 cfox/lib/FXFileSelector.cpp:809
+msgid "Error Moving File"
+msgstr "ფაილის გადატანის შეცდომა"
+
+#: cfox/lib/FXDirSelector.cpp:377 cfox/lib/FXFileSelector.cpp:826
+msgid "Link File"
+msgstr "ბმული ფაილზე"
+
+#: cfox/lib/FXDirSelector.cpp:383 cfox/lib/FXFileSelector.cpp:832
+msgid "Error Linking File"
+msgstr "ფაილის ბმულის შექმნის შეცდომა"
+
+#: cfox/lib/FXDirSelector.cpp:393
+msgid "Deleting file"
+msgstr "ფაილის წაშლა"
+
+#: cfox/lib/FXDirSelector.cpp:395 cfox/lib/FXFileSelector.cpp:852
+msgid "Error Deleting File"
+msgstr "ფაილის წაშლის შეცდომა"
+
+#: cfox/lib/FXDirSelector.cpp:415 cfox/lib/FXFileSelector.cpp:906
+msgid "Up one level"
+msgstr "ერთი დონით მაღლა"
+
+#: cfox/lib/FXDirSelector.cpp:416 cfox/lib/FXFileSelector.cpp:907
+msgid "Home directory"
+msgstr "საწყისი საქაღალდე"
+
+#: cfox/lib/FXDirSelector.cpp:417 cfox/lib/FXFileSelector.cpp:908
+msgid "Work directory"
+msgstr "სამუშაო საქაღალდე"
+
+#: cfox/lib/FXDirSelector.cpp:421
+msgid "Sorting"
+msgstr "დალაგება"
+
+#: cfox/lib/FXDirSelector.cpp:423 cfox/lib/FXFileSelector.cpp:947
+msgid "Ignore case"
+msgstr "რეგისტრის იგნორი"
+
+#: cfox/lib/FXDirSelector.cpp:424 cfox/lib/FXFileSelector.cpp:958
+msgid "Hidden files"
+msgstr "დამალული ფაილები"
+
+#: cfox/lib/FXDirSelector.cpp:427 cfox/lib/FXFileSelector.cpp:912
+msgid "Bookmarks"
+msgstr "სანიშნეები"
+
+#: cfox/lib/FXDirSelector.cpp:428 cfox/lib/FXFileSelector.cpp:915
+msgid "Set bookmark"
+msgstr "სანიშნეს დაყენება"
+
+#: cfox/lib/FXDirSelector.cpp:429 cfox/lib/FXFileSelector.cpp:916
+msgid "&Unset bookmark"
+msgstr "სანიშ&ნეს მოხსნა"
+
+#: cfox/lib/FXDirSelector.cpp:430
+msgid "Clear bookmarks"
+msgstr "სანიშნეების გასუფათავება"
+
+#: cfox/lib/FXDirSelector.cpp:446 cfox/lib/FXFileSelector.cpp:967
+msgid "New directory..."
+msgstr "ახალი საქაღალდე..."
+
+#: cfox/lib/FXDirSelector.cpp:447 cfox/lib/FXFileSelector.cpp:969
+msgid "Copy..."
+msgstr "კოპირება..."
+
+#: cfox/lib/FXDirSelector.cpp:448 cfox/lib/FXFileSelector.cpp:970
+msgid "Move..."
+msgstr "გადატანა..."
+
+#: cfox/lib/FXDirSelector.cpp:449 cfox/lib/FXFileSelector.cpp:971
+msgid "Link..."
+msgstr "ბმული..."
+
+#: cfox/lib/FXDirSelector.cpp:450 cfox/lib/FXFileSelector.cpp:972
+msgid "Delete..."
+msgstr "წაშლა..."
+
+#: cfox/lib/FXFileList.cpp:209
+msgid "Name\tName"
+msgstr "სახელი\tსახელი"
+
+#: cfox/lib/FXFileList.cpp:210
+msgid "Type\tFile type"
+msgstr "ტიპი\tფაილის ტიპი"
+
+#: cfox/lib/FXFileList.cpp:211
+msgid "Size\tFile size"
+msgstr "ზომა\tფაილის ზომა"
+
+#: cfox/lib/FXFileList.cpp:212
+msgid "Modified Date\tDate when last modified"
+msgstr "ცვლილების თარიღი\tბოლო ცვლილების თარიღი"
+
+#: cfox/lib/FXFileList.cpp:213
+msgid "User\tUser name"
+msgstr "მომხმარებელი\tმომხმარებლის სახელი"
+
+#: cfox/lib/FXFileList.cpp:214
+msgid "Group\tGroup name"
+msgstr "ჯგუფი\tჯგუფის სახელი"
+
+#: cfox/lib/FXFileList.cpp:215
+msgid "Attributes\tFile attributes"
+msgstr "ატრიბუტები\tფაილის ატრიბუტები"
+
+#: cfox/lib/FXFileList.cpp:217
+msgid "Link\tSymbolic link to"
+msgstr "ბმული\tსიმბმული ფაილამდე"
+
+#: cfox/lib/FXFileList.cpp:583
+msgid "Failed Deleting Files"
+msgstr "ფაილების წაშლის შეცდომა"
+
+#: cfox/lib/FXFileList.cpp:583
+#, c-format
+msgid "Failed to delete file: %s; continue?"
+msgstr "ფაილის წაშლის შეცდომა: %s; გავაგრძელო?"
+
+#: cfox/lib/FXFileList.cpp:603 cfox/lib/FXFileList.cpp:632
+msgid "Overwrite File"
+msgstr "ფაილის ჩანაცვლება"
+
+#: cfox/lib/FXFileList.cpp:603 cfox/lib/FXFileList.cpp:632
+#, c-format
+msgid "Overwrite existing file or directory: %s?"
+msgstr "გადავაწერო თავზე არსებულ ფაილს, ან საქაღალდეს: %s?"
+
+#: cfox/lib/FXFileList.cpp:610
+msgid "Failed Copying File"
+msgstr "ფაილის კოპირების შეცდომა"
+
+#: cfox/lib/FXFileList.cpp:610 cfox/lib/FXFileList.cpp:639
+#, c-format
+msgid "Failed to overwrite file: %s; continue?"
+msgstr "ფაილის თავზე გადაწერის შეცდომა: %s; გავაგრძელო?"
+
+#: cfox/lib/FXFileList.cpp:639
+msgid "Failed Moving File"
+msgstr "ფაილის გადატანის შეცდომა"
+
+#: cfox/lib/FXFileList.cpp:647
+msgid "Copying Files"
+msgstr "ფაილების კოპირება"
+
+#: cfox/lib/FXFileList.cpp:663
+msgid ""
+"Copying file:\n"
+"\n"
+msgstr ""
+"კოპირდება ფაილი:\n"
+"\n"
+
+#: cfox/lib/FXFileList.cpp:714
+msgid "Failed Linking File"
+msgstr "ფაილის ბმულის შექმნის შეცდომა"
+
+#: cfox/lib/FXFileList.cpp:714
+#, c-format
+msgid "Failed to make symbolic link from: %s; continue?"
+msgstr "სიმბოლური ბმულის შექმნის შეცდომა ფაილიდან: %s; გავაგრძელო?"
+
+#: cfox/lib/FXFileList.cpp:731
+msgid "Move Here"
+msgstr "აქ გადმოტანა"
+
+#: cfox/lib/FXFileList.cpp:732
+msgid "Copy Here"
+msgstr "აქ ჩაკოპირება"
+
+#: cfox/lib/FXFileList.cpp:733
+msgid "Link Here"
+msgstr "აქ ბმულის შექმნა"
+
+#: cfox/lib/FXFileList.cpp:735
+msgid "Cancel"
+msgstr "გაუქმება"
+
+#: cfox/lib/FXFileList.cpp:1432
+msgid "Folder"
+msgstr "საქაღალდე"
+
+#: cfox/lib/FXFileList.cpp:1438
+msgid "Application"
+msgstr "აპლიკაცია"
+
+#: cfox/lib/FXFileList.cpp:1444
+msgid "Document"
+msgstr "დოკუმენტი"
+
+#: cfox/lib/FXFileSelector.cpp:721
+msgid "Create new directory with name: "
+msgstr "ახალი საქაღალდის შექმნა სახელით: "
+
+#: cfox/lib/FXFileSelector.cpp:724
+#, c-format
+msgid "File or directory %s already exists.\n"
+msgstr "ფაილი, ან საქაღალდე %s უკვე არსებობს.\n"
+
+#: cfox/lib/FXFileSelector.cpp:728
+#, c-format
+msgid "Cannot create directory %s.\n"
+msgstr "საქაღალდის %s შექმნა შეუძლებელია.\n"
+
+#: cfox/lib/FXFileSelector.cpp:756
+#, c-format
+msgid ""
+"Rename file from:\n"
+"\n"
+"%s\n"
+"\n"
+"to: "
+msgstr ""
+"ფაილის სახელის გადარქმევა:\n"
+"\n"
+"%s-დან\n"
+"\n"
+"სახელზე: "
+
+#: cfox/lib/FXFileSelector.cpp:757
+msgid "Rename File"
+msgstr "ფაილის სახელის გადარქმევა"
+
+#: cfox/lib/FXFileSelector.cpp:763
+msgid "Error Renaming File"
+msgstr "ფაილის სახელის გადარქმევის შეცდომა"
+
+#: cfox/lib/FXFileSelector.cpp:763
+#, c-format
+msgid ""
+"Unable to rename file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"ფაილის სახელის გადარქმევის შეცდომა\n"
+"\n"
+"%s-დან    %s-ზე\n"
+"\n"
+"გავაგრძელო ოპერაცია?"
+
+#: cfox/lib/FXFileSelector.cpp:779
+#, c-format
+msgid ""
+"Copy file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"ფაილის კოპირება მდებარეობიდან:\n"
+"\n"
+"%s\n"
+"\n"
+"მდებარეობამდე: "
+
+#: cfox/lib/FXFileSelector.cpp:786
+#, c-format
+msgid ""
+"Unable to copy file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"ფაილის კოპირება შეუძლებელია:\n"
+"\n"
+"%s  მდებარეობაზე:  %s\n"
+"\n"
+"Continue with operation?"
+
+#: cfox/lib/FXFileSelector.cpp:802
+#, c-format
+msgid ""
+"Move file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"ფაილის გადატანა მდებარეობიდან\n"
+"\n"
+"%s\n"
+"\n"
+"მდებარეობაზე: "
+
+#: cfox/lib/FXFileSelector.cpp:809
+#, c-format
+msgid ""
+"Unable to move file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"შეუძლებელია ფაილის გადატანა:\n"
+"\n"
+"%s-დან:   %s-ში\n"
+"\n"
+"გავაგრძელო ოპერაცია?"
+
+#: cfox/lib/FXFileSelector.cpp:825
+#, c-format
+msgid ""
+"Link file from location:\n"
+"\n"
+"%s\n"
+"\n"
+"to location: "
+msgstr ""
+"ფაილის ბმული მდებარეობიდან:\n"
+"\n"
+"%s\n"
+"\n"
+"მდებარეობაზე: "
+
+#: cfox/lib/FXFileSelector.cpp:832
+#, c-format
+msgid ""
+"Unable to link file:\n"
+"\n"
+"%s  to:  %s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"შეუძლებელია ფაილის ბმულის შექმნა:\n"
+"\n"
+"%s-დან:  %s-ზე\n"
+"\n"
+"გავაგრძელო ოპერაცია?"
+
+#: cfox/lib/FXFileSelector.cpp:848
+msgid "Deleting files"
+msgstr "ფაილების წაშლა"
+
+#: cfox/lib/FXFileSelector.cpp:848
+#, c-format
+msgid ""
+"Are you sure you want to delete the file:\n"
+"\n"
+"%s"
+msgstr ""
+"დარწმუნებული ბრძანდებით, რომ გსურთ, წაშალოთ ფაილი:\n"
+"\n"
+"%s"
+
+#: cfox/lib/FXFileSelector.cpp:852
+#, c-format
+msgid ""
+"Unable to delete file:\n"
+"\n"
+"%s\n"
+"\n"
+"Continue with operation?"
+msgstr ""
+"ვერ წავშალე ფაილი:\n"
+"\n"
+"%s\n"
+"\n"
+"გავაგრძელო ოპერაცია?"
+
+#: cfox/lib/FXFileSelector.cpp:917
+msgid "Clear all bookmarks"
+msgstr "ყველა სანიშნეს წაშლა"
+
+#: cfox/lib/FXFileSelector.cpp:938
+msgid "Sort by"
+msgstr "დალაგების პირობა"
+
+#: cfox/lib/FXFileSelector.cpp:943
+msgid "User"
+msgstr "მომხმარებელი"
+
+#: cfox/lib/FXFileSelector.cpp:944
+msgid "Group"
+msgstr "ჯგუფები"
+
+#: cfox/lib/FXFileSelector.cpp:950
+msgid "View"
+msgstr "ხედი"
+
+#: cfox/lib/FXFileSelector.cpp:951
+msgid "Small icons"
+msgstr "პატარა ხატულები"
+
+#: cfox/lib/FXFileSelector.cpp:952
+msgid "Big icons"
+msgstr "დიდი ხატულები"
+
+#: cfox/lib/FXFileSelector.cpp:953
+msgid "Details"
+msgstr "დეტალები"
+
+#: cfox/lib/FXFileSelector.cpp:955
+msgid "Rows"
+msgstr "მწკრივები"
+
+#: cfox/lib/FXFileSelector.cpp:956
+msgid "Columns"
+msgstr "სვეტები"
+
+#: cfox/lib/FXFileSelector.cpp:959
+msgid "Preview images"
+msgstr "სურათების მინიატურები"
+
+#: cfox/lib/FXFileSelector.cpp:961
+msgid "Mini images"
+msgstr "მინიგამოსახულებები"
+
+#: cfox/lib/FXFileSelector.cpp:962
+msgid "Normal images"
+msgstr "ნორმალური გამოსახულებები"
+
+#: cfox/lib/FXFileSelector.cpp:963
+msgid "Medium images"
+msgstr "საშუალო გამოსახულებები"
+
+#: cfox/lib/FXFileSelector.cpp:964
+msgid "Giant images"
+msgstr "გიგანტური გამოსახულებები"
+
+#: cfox/lib/FXFileSelector.cpp:968
+msgid "Rename..."
+msgstr "სახელის გადარქმევა..."
+
+#: cfox/lib/FXReplaceDialog.cpp:129
+msgid "&Search\tSearch\tSearch for pattern."
+msgstr "&ძებნა\tძებნა\tნიმუშის ძებნა."
+
+#: cfox/lib/FXReplaceDialog.cpp:130
+msgid "&Replace\tReplace\tSearch and replace pattern."
+msgstr "&ჩანაცვლება\tჩანაცვლება\tნიმუშის ძებნა და ჩანაცვლება."
+
+#: cfox/lib/FXReplaceDialog.cpp:131
+msgid "Replace Sel\tReplace in selection\tReplace all in selection."
+msgstr ""
+"ჩანაცვლება მონიშნულშიl\tჩანაცვლება მონიშნულში\tყველას ჩანაცვლება მონიშნულში."
+
+#: cfox/lib/FXReplaceDialog.cpp:132
+msgid "Replace All\tReplace all\tReplace all."
+msgstr "ყველას ჩანაცვლება\tყველას ჩანაცვლება\tყველას ჩანაცვლება."
+
+#: cfox/lib/FXReplaceDialog.cpp:138
+msgid "Search &For:"
+msgstr "ძ&ებნა:"
+
+#: cfox/lib/FXReplaceDialog.cpp:146
+msgid "Re&place With:"
+msgstr "&ჩასანაცვლებელი ტექსტი:"
+
+#: cfox/lib/FXReplaceDialog.cpp:155
+msgid "&Expression\tRegular Expression\tPerform regular-expression match."
+msgstr ""
+"გამოსახულ&ება\tრეგულარული გამოსახულება\tრეგულარული გამოსახულებით დამთხვევა."
+
+#: cfox/lib/FXReplaceDialog.cpp:156
+msgid "&Ignore Case\tCase Insensitive\tPerform case-insentive match."
+msgstr ""
+"დ&იდი და პატარა ასოების სხვაობის იგნორი\tდიდი და პატარა ასოების სხვაობის "
+"იგნორი\tდიდი და პატარა ასოების სხვაობის იგნორი ძებნისას."
+
+#: cfox/lib/FXReplaceDialog.cpp:157
+msgid "&Wrap\tWrap Around\tWrap around when searching."
+msgstr "გადა&ტანა\tგადატანა\tსიტყვების გადატან ძებნისას."
+
+#: cfox/lib/FXReplaceDialog.cpp:158
+msgid "&Backward\tSearch Direction\tChange search direction."
+msgstr "უკან ძე&ბნა\tძებნის მიმართულება\tძებნის მიმართულების შეცვლა."
+
+#: cfox/lib/FXReplaceDialog.cpp:159
+msgid "Text to replace with."
+msgstr "ჩასანაცვლებელი ტექსტი."
+
+#: cfox/lib/FXStatusLine.cpp:83
+msgid "Ready."
+msgstr "მზადაა."
