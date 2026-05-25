@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gogglesmm 1.0.0\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2026-05-25 15:32-0500\n"
+"POT-Creation-Date: 2026-05-25 15:59-0500\n"
 "PO-Revision-Date: 2026-05-08 10:55+0200\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
@@ -1594,11 +1594,11 @@ msgid "Fatal Error"
 msgstr "ფატალური შეცდომა"
 
 #: src/GMTrackDatabase.cpp:192
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "Goggles Music Manager was unable to open the database.\n"
 "The database may have been corrupted. Please remove %s to try again.\n"
-"if the error keeps occuring, please file an issue at http://"
+"if the error keeps occurring, please file an issue at http://"
 "gogglesmm.github.io"
 msgstr ""
 "Goggles Music Manager-მა მონაცემთა ბაზა ვერ გახსნა.\n"

@@ -189,7 +189,7 @@ FXbool GMTrackDatabase::init(const FXString & database) {
 
   return true;
 error:
-  FXMessageBox::error(FXApp::instance(),MBOX_OK,fxtr("Fatal Error"),fxtr("Goggles Music Manager was unable to open the database.\nThe database may have been corrupted. Please remove %s to try again.\nif the error keeps occuring, please file an issue at http://gogglesmm.github.io"),database.text());
+  FXMessageBox::error(FXApp::instance(),MBOX_OK,fxtr("Fatal Error"),fxtr("Goggles Music Manager was unable to open the database.\nThe database may have been corrupted. Please remove %s to try again.\nif the error keeps occurring, please file an issue at http://gogglesmm.github.io"),database.text());
   return false;
   }
 

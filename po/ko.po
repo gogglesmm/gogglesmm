@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gogglesmm 1.0.0\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2026-05-25 15:32-0500\n"
+"POT-Creation-Date: 2026-05-25 15:59-0500\n"
 "PO-Revision-Date: 2020-10-04 09:37+0900\n"
 "Last-Translator: JungHee Lee <daemul72@gmail.com>\n"
 "Language-Team: \n"
@@ -1577,11 +1577,11 @@ msgid "Fatal Error"
 msgstr "치명적인 오류"
 
 #: src/GMTrackDatabase.cpp:192
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "Goggles Music Manager was unable to open the database.\n"
 "The database may have been corrupted. Please remove %s to try again.\n"
-"if the error keeps occuring, please file an issue at http://"
+"if the error keeps occurring, please file an issue at http://"
 "gogglesmm.github.io"
 msgstr ""
 "Goggles Music Manager에서 데이터베이스를 열 수 없습니다.\n"

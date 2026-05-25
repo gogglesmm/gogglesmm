@@ -1174,7 +1174,7 @@ static const FXchar * const covertypes[]={
   "Lyricist",
   "Recording Location",
   "During Recording",
-  "During Perfomance",
+  "During Performance",
   "Screen Capture",
   "Fish",
   "Illustration",
