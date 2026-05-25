@@ -24,8 +24,22 @@
 #include <new>
 #include <fx.h>
 
+
+
+
 #define FOXVERSION ((FOX_LEVEL) + (FOX_MINOR*1000) + (FOX_MAJOR*100000))
 #define FXVERSION(major,minor,release) ((release)+(minor*1000)+(major*100000))
+
+
+#if FOXVERSION < FXVERSION(1, 7, 90)
+#undef FXTRACE
+#ifndef NDEBUG
+#define FXTRACE(topic, ...) FX::fxtrace(topic, __VA_ARGS__)
+#else
+#define FXTRACE(topic, ...) ((void)0)
+#endif
+#endif
+
 
 #ifdef HAVE_OPENGL
 #include <epoxy/gl.h>

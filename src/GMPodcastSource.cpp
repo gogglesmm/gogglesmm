@@ -1623,7 +1623,7 @@ long GMPodcastSource::onCmdMarkPlayed(FXObject*,FXSelector,void*){
 long GMPodcastSource::onCmdTrackPlayed(FXObject*,FXSelector,void*) {
   try {
     GMLockTransaction transaction(db);
-    FXTRACE((60,"%s::onCmdTrackPlayed\n",getClassName()));
+    FXTRACE(60,"%s::onCmdTrackPlayed\n",getClassName());
     FXASSERT(current_track>=0);
     GMQuery set_played(db,"UPDATE feed_items SET flags = (flags|4) WHERE id == ?;");
     set_played.set(0,current_track);

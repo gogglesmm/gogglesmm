@@ -175,13 +175,13 @@ public:
 
 
 #define DEBUG_DBUS_MESSAGE(msg) { \
-    FXTRACE((80,"-----%s-------\n",__func__)); \
-    FXTRACE((80,"type: %s\n",dbus_message_type_to_string(dbus_message_get_type(msg))));\
-    FXTRACE((80,"path: %s\n",dbus_message_get_path(msg))); \
-    FXTRACE((80,"member: \"%s\"\n",dbus_message_get_member(msg))); \
-    FXTRACE((80,"interface: %s\n",dbus_message_get_interface(msg))); \
-    FXTRACE((80,"sender: %s\n",dbus_message_get_sender(msg))); \
-    FXTRACE((80,"signature: %s\n",dbus_message_get_signature(msg))); }
+    FXTRACE(80,"-----%s-------\n",__func__); \
+    FXTRACE(80,"type: %s\n",dbus_message_type_to_string(dbus_message_get_type(msg)));\
+    FXTRACE(80,"path: %s\n",dbus_message_get_path(msg)); \
+    FXTRACE(80,"member: \"%s\"\n",dbus_message_get_member(msg)); \
+    FXTRACE(80,"interface: %s\n",dbus_message_get_interface(msg)); \
+    FXTRACE(80,"sender: %s\n",dbus_message_get_sender(msg)); \
+    FXTRACE(80,"signature: %s\n",dbus_message_get_signature(msg)); }
 
 /* Some Helper Functions */
 extern void gm_dbus_variant_append_basic(DBusMessageIter * iter,const FXchar * element_string,FXint element,const void * value);

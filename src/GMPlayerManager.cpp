@@ -138,11 +138,11 @@ FXIMPLEMENT(GMPlayerManager,FXObject,GMPlayerManagerMap,ARRAYNUMBER(GMPlayerMana
 #ifdef HAVE_DBUS
 
 DBusHandlerResult dbus_systembus_filter(DBusConnection *,DBusMessage * msg,void * data){
-  FXTRACE((80,"-----dbus_systembus_filter-------\n"));
-  FXTRACE((80,"path: %s\n",dbus_message_get_path(msg)));
-  FXTRACE((80,"member: \"%s\"\n",dbus_message_get_member(msg)));
-  FXTRACE((80,"interface: %s\n",dbus_message_get_interface(msg)));
-  FXTRACE((80,"sender: %s\n",dbus_message_get_sender(msg)));
+  FXTRACE(80,"-----dbus_systembus_filter-------\n");
+  FXTRACE(80,"path: %s\n",dbus_message_get_path(msg));
+  FXTRACE(80,"member: \"%s\"\n",dbus_message_get_member(msg));
+  FXTRACE(80,"interface: %s\n",dbus_message_get_interface(msg));
+  FXTRACE(80,"sender: %s\n",dbus_message_get_sender(msg));
 
   GMPlayerManager * p = static_cast<GMPlayerManager*>(data);
   if (dbus_message_has_path(msg,"/org/freedesktop/NetworkManager")){
@@ -1189,7 +1189,7 @@ FXbool GMPlayerManager::playing() const {
 
 
 void GMPlayerManager::reset_track_display() {
-  FXTRACE((51,"GMPlayerManager::reset_track_display()\n"));
+  FXTRACE(51,"GMPlayerManager::reset_track_display()\n");
 
   /// Reset the cover
   covermanager->clear();
@@ -1265,11 +1265,11 @@ void GMPlayerManager::update_cover_display() {
   }
 
 void GMPlayerManager::update_track_display(FXbool notify) {
-  FXTRACE((51,"GMPlayerManager::update_track_display()\n"));
+  FXTRACE(51,"GMPlayerManager::update_track_display()\n");
 
   /// If track information is not set, we need to get the latest from the player.
   if (source) {
-    FXint time = (FXint) (((double)trackinfo.time) * 0.80);
+    auto time = static_cast<FXint>(static_cast<double>(trackinfo.time) * 0.80);
     if (time <= 5) {
       application->removeTimeout(source,GMSource::ID_TRACK_PLAYED);
       source->handle(this,FXSEL(SEL_TIMEOUT,GMSource::ID_TRACK_PLAYED),nullptr);

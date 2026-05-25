@@ -1658,7 +1658,7 @@ long GMDatabaseSource::onQueryTip(FXObject*sender,FXSelector,void*){
 
 
 long GMDatabaseSource::onCmdTrackPlayed(FXObject*,FXSelector,void*) {
-  FXTRACE((60,"%s::onCmdTrackPlayed\n",getClassName()));
+  FXTRACE(60,"%s::onCmdTrackPlayed\n",getClassName());
   FXASSERT(current_track>=0);
   FXlong timestamp = (FXlong)FXThread::time();
   db->setTrackPlayed(current_track,timestamp);

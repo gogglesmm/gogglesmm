@@ -207,7 +207,7 @@ long GMDBusTimeout::onTimeout(FXObject*,FXSelector,void*){
 /*******************************************************************************************************/
 
 static dbus_bool_t fxdbus_addwatch(DBusWatch *watch,void * data) {
-  FXTRACE((35,"fxdbus_addwatch()\n"));
+  FXTRACE(35,"fxdbus_addwatch()\n");
   GMDBus * dc = static_cast<GMDBus*>(data);
   FXuint mode  = INPUT_EXCEPT;
   FXuint flags = dbus_watch_get_flags(watch);
@@ -229,7 +229,7 @@ static dbus_bool_t fxdbus_addwatch(DBusWatch *watch,void * data) {
   }
 
 static void fxdbus_removewatch(DBusWatch *watch,void *) {
-  FXTRACE((35,"fxdbus_removewatch()\n"));
+  FXTRACE(35,"fxdbus_removewatch()\n");
 /*
   FXuint mode=INPUT_EXCEPT;
   unsigned int flags = dbus_watch_get_flags(watch);
@@ -250,7 +250,7 @@ static void fxdbus_removewatch(DBusWatch *watch,void *) {
   }
 
 static void fxdbus_togglewatch(DBusWatch *watch,void* data) {
-  FXTRACE((35,"fxdbus_togglewatch()\n"));
+  FXTRACE(35,"fxdbus_togglewatch()\n");
   if (dbus_watch_get_enabled(watch))
     fxdbus_addwatch(watch,data);
   else

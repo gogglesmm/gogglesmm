@@ -834,7 +834,7 @@ long GMTrackList::onLeave(FXObject* sender,FXSelector sel,void* ptr){
 
 // We timed out, i.e. the user didn't move for a while
 long GMTrackList::onTipTimer(FXObject*,FXSelector,void*){
-  FXTRACE((250,"%s::onTipTimer %p\n",getClassName(),this));
+  FXTRACE(250,"%s::onTipTimer %p\n",getClassName(),this);
   flags|=FLAG_TIP;
   return 1;
   }
