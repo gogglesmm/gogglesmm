@@ -19,6 +19,12 @@
 #ifndef FXEXT_H
 #define FXEXT_H
 
+#if FOXVERSION >= FXVERSION(1, 7, 87)
+  #ifndef FXPATHBOX_H
+    #include <FXPathBox.h>
+  #endif
+#endif
+
 enum {
   WINDOWTYPE_NORMAL,
   WINDOWTYPE_DIALOG,
@@ -363,6 +369,18 @@ public:
   };
 
 
+#if FOXVERSION >= FXVERSION(1, 7, 87)
+class GMPathBox : public FXPathBox {
+  FXDECLARE(GMPathBox)
+  protected:
+  GMPathBox();
+private:
+  GMPathBox(const GMPathBox&);
+  GMPathBox& operator=(const GMPathBox&);
+public:
+  GMPathBox(FXComposite*p, FXObject* tgt=nullptr,FXSelector sel=0);
+};
+#endif
 
 class GMScrollFrame : public FXVerticalFrame {
 FXDECLARE(GMScrollFrame)

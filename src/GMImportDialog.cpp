@@ -227,10 +227,14 @@ GMFileSelector::GMFileSelector(FXComposite *p,FXObject* tgt,FXSelector sel,FXuin
   filebox->setFocus();
   GMScrollArea::replaceScrollbars(filebox);
   new FXLabel(navbuttons,tr("Directory:"),nullptr,LAYOUT_CENTER_Y);
+#if FOXVERSION >= FXVERSION(1, 7, 87)
+  dirbox=new GMPathBox(navbuttons,this,ID_DIRTREE);
+#else
   dirbox=new FXDirBox(navbuttons,this,ID_DIRTREE,DIRBOX_NO_OWN_ASSOC|FRAME_LINE|LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0,1,1,1,1);
   dirbox->setNumVisible(5);
-  //dirbox->setAssociations(filebox->getAssociations(),false);    // Shared file associations
   GMTreeListBox::replace(dirbox);
+#endif
+  //dirbox->setAssociations(filebox->getAssociations(),false);    // Shared file associations
 
 
   bookmarkmenu=new GMMenuPane(this,POPUP_SHRINKWRAP);

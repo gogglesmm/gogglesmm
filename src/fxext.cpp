@@ -222,6 +222,20 @@ void fillHorizontalGradient(FXDCWindow & dc,FXint x,FXint y,FXint w,FXint h,FXCo
     }
   }
 
+
+#if FOXVERSION >= FXVERSION(1, 7, 87)
+
+FXIMPLEMENT(GMPathBox,FXPathBox,nullptr,0)
+
+GMPathBox::GMPathBox(){
+}
+
+GMPathBox::GMPathBox(FXComposite*p, FXObject *tgt,FXSelector sel):FXPathBox(p,tgt,sel,PATHBOX_NO_OWN_ASSOC|FRAME_LINE|LAYOUT_FILL_X|LAYOUT_CENTER_Y,0,0,0,0,2,2,2,2){
+  borderColor=getApp()->getShadowColor();
+}
+
+#endif
+
 FXIMPLEMENT(GMScrollFrame,FXVerticalFrame,nullptr,0)
 
 GMScrollFrame::GMScrollFrame(){
