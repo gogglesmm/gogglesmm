@@ -127,13 +127,8 @@ FXbool OpusDecoderPlugin::init_decoder(const FXuchar * packet,const FXuint size)
     if (error!=OPUS_OK)
       return false;
 
-
     // Apply any gain
-#if FOX_BIGENDIAN == 0
-    FXshort output_gain = packet[16] | packet[17]<<8;
-#else
-    FXshort output_gain = packet[16]<<8 | packet[17];
-#endif
+    const auto output_gain = static_cast<FXshort>(static_cast<FXuint>(packet[16]) | static_cast<FXuint>(packet[17])<<8);
 
 #ifdef OPUS_SET_GAIN
     error=opus_multistream_decoder_ctl(opus,OPUS_SET_GAIN(output_gain));

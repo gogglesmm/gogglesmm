@@ -349,16 +349,14 @@ VBRIHeader::VBRIHeader(const FXuchar * buffer,FXival) : toc(nullptr) {
 
   if (toc_entry_nbytes>=1 && toc_entry_nbytes <=4) {
     callocElms(toc,ntoc);
+    const FXuchar* toc_ptr = buffer + 26;
     for (FXint i=0;i<ntoc;i++) {
-#if FOX_BIGENDIAN == 0
+      toc[i] = 0;
       for (FXint j=0;j<toc_entry_nbytes;j++) {
-        toc[i]=(toc[i]<<8) | *(buffer+26+j+(i*toc_entry_nbytes));
-        }
-#else
-#error fixme
-#endif
+        toc[i] = (toc[i] << 8) | static_cast<FXuint>(*toc_ptr++);
       }
     }
+  }
 #ifdef DEBUG
   fxmessage("VBRI:\n");
   fxmessage("\t          version:%d\n",version);
