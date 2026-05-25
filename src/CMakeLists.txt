@@ -46,6 +46,12 @@ find_package(TagLib 1.9.0 REQUIRED)
 # SQLite3 - Database engine (required, >=3.6.19)
 find_package(SQLite3 3.6.19 REQUIRED)
 
+
+if(NOT TARGET SQLite3::SQLite3) # CMake < 4.3
+  add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
+endif()
+
+
 #-------------------------------------------------------------------------------
 # Find Optional Dependencies
 #-------------------------------------------------------------------------------
@@ -229,7 +235,7 @@ target_link_libraries(gogglesmm PRIVATE
   FX::FOX
   FX::FOX_XINCS
   TagLib::TagLib
-  SQLite::SQLite3
+  SQLite3::SQLite3
 )
 
 # Optional dependencies
