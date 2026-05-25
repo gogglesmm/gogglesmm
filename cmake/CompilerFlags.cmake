@@ -40,12 +40,18 @@ if(HAS_CXX_OPTIMIZE_DEBUG AND CMAKE_BUILD_TYPE MATCHES Debug)
   add_compile_options(-Og)
 endif()
 
-# Link-time optimization (LTO)
-# FIXME: Doesn't work on all platforms
-# check_cxx_compiler_flag(-flto HAS_CXX_OPTIMIZE_LINKTIME)
-if(HAS_CXX_OPTIMIZE_LINKTIME AND NOT CMAKE_BUILD_TYPE MATCHES Debug)
-  add_compile_options(-flto)
-  link_libraries(-flto)
+# Link-time optimization (LTO / IPO)
+option(ENABLE_LTO "Enable Link Time Optimization (IPO/LTO)" OFF)
+
+if(ENABLE_LTO)
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+  if(ipo_supported)
+    message(STATUS "LTO/IPO is supported and enabled")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  else()
+    message(WARNING "LTO/IPO requested but not supported: ${ipo_error}")
+  endif()
 endif()
 
 # Build type specific definitions
