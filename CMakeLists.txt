@@ -1,10 +1,14 @@
-# Using cmake 3.2
-cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
+# Using cmake 3.23 or higher
+cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
+
+# Set policies to match current version and future proof for 4.x
+cmake_policy(VERSION 3.23...4.2)
 
 project(gogglesmm_dist)
 
 # Honor CMAKE_EXE_LINKER_FLAGS during tests
-cmake_policy(SET CMP0056 NEW)
+# (CMP0056 is included in the VERSION 3.23 policy above, but keeping explicit for clarity if desired, 
+# though redundant. I will remove it as it's covered by the version policy.)
 
 # Include standard modules
 include(FeatureSummary)

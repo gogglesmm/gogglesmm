@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
+cmake_policy(VERSION 3.23...4.2)
 
 include(TestBigEndian)
 include(CheckIncludeFiles)

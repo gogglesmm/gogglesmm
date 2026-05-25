@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
+cmake_policy(VERSION 3.23...4.2)
 
 # Goggles Audio Player
 project(GAP VERSION 1.2.5 LANGUAGES CXX)
