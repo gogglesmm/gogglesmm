@@ -20,10 +20,10 @@
 #define AP_H
 
 #ifdef _WIN32
-  #ifndef GAP_DLL
+  #ifdef BUILDING_GAP_DLL
     #define GMAPI __declspec(dllexport)
   #else
-    #define GMAPI
+    #define GMAPI __declspec(dllimport)
   #endif
 #else
   #if __GNUC__ >= 4

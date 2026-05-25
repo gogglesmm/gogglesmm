@@ -32,7 +32,34 @@ if(NOT TARGET FX::FOX)
 endif()
 
 # Find EXPAT (required dependency)
-find_package(EXPAT REQUIRED)
+# When cross-compiling for Windows, build expat from source using FetchContent
+if(CMAKE_CROSSCOMPILING AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  message(STATUS "Cross-compiling for Windows - building EXPAT from source")
+  include(FetchContent)
+
+  FetchContent_Declare(
+    expat
+    URL https://github.com/libexpat/libexpat/releases/download/R_2_6_4/expat-2.6.4.tar.xz
+    URL_HASH SHA256=a695629dae047055b37d50a0ff4776d1d45d0a4c842cf4ccee158441f55ff7ee
+  )
+
+  # Configure expat build options
+  set(EXPAT_SHARED_LIBS ${BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
+  set(EXPAT_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+  set(EXPAT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+  set(EXPAT_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+  set(EXPAT_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+
+  FetchContent_MakeAvailable(expat)
+
+  # Create EXPAT::EXPAT alias target for compatibility
+  if(NOT TARGET EXPAT::EXPAT)
+    add_library(EXPAT::EXPAT ALIAS expat)
+  endif()
+else()
+  # Native builds: use system expat
+  find_package(EXPAT REQUIRED)
+endif()
 
 #-------------------------------------------------------------------------------
 # Third Party Modules
@@ -332,8 +359,8 @@ if(WITH_WAVOUT)
   add_library(gap_wav MODULE plugins/ap_wavout.cpp)
   target_include_directories(gap_wav PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
   target_link_libraries(gap_wav FX::FOX)
-  # Windows MSVC needs additional linking to the main GAP target for plugins
-  if(MSVC)
+  # Windows needs additional linking to the main GAP target for plugins
+  if(WIN32)
     target_link_libraries(gap_wav ${GAP_PLUGIN_LINK_TARGET})
   endif()
   install(TARGETS gap_wav LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
@@ -424,6 +451,11 @@ else()
     BASE_DIRS include
     FILES ${PUBLIC_HEADERS}
   )
+endif()
+
+# Windows DLL export/import handling
+if(WIN32 AND BUILD_SHARED_LIBS)
+  target_compile_definitions(gap PRIVATE BUILDING_GAP_DLL)
 endif()
 
 # ENABLE_EXPORTS is CRITICAL for plugin loading:

@@ -13,8 +13,7 @@ option(WITH_WAVOUT "WAV Output Support" ON)
 #-------------------------------------------------------------------------------
 
 # Windows always builds GAP as shared library (required for plugin system)
-# Define GAP_DLL for symbol export/import
-add_definitions(-DGAP_DLL)
+# Note: Symbol export/import is handled per-target via compile definitions
 
 # Plugins link to GAP library on Windows
 set(GAP_PLUGIN_LINK_TARGET gap)
