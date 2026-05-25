@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gogglesmm 1.0.0\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2020-04-19 11:19-0500\n"
+"POT-Creation-Date: 2026-05-25 15:32-0500\n"
 "PO-Revision-Date: 2026-05-08 10:55+0200\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
@@ -17,22 +17,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.9\n"
 
-#: src/GMAbout.cpp:115
+#: src/GMAbout.cpp:114
 msgid "&Homepage"
 msgstr "&საწყისი გვერდი"
 
-#: src/GMAbout.cpp:116
+#: src/GMAbout.cpp:115
 msgid "&Report Issue"
 msgstr "პრობლემის &რეპორტი"
 
-#: src/GMAbout.cpp:117 src/GMPreferencesDialog.cpp:688
+#: src/GMAbout.cpp:116 src/GMPreferencesDialog.cpp:729
 #: src/GMTrackEditor.cpp:401 src/GMTrackEditor.cpp:449
-#: src/GMTrackEditor.cpp:453 cfox/lib/FXReplaceDialog.cpp:133
+#: src/GMTrackEditor.cpp:453 fox/lib/FXReplaceDialog.cpp:134
 msgid "&Close"
 msgstr "&დახურვა"
 
-#: src/GMAbout.cpp:123 src/GMAbout.cpp:150 src/GMPreferencesDialog.cpp:970
-#: src/GMPreferencesDialog.cpp:975 src/GMWindow.cpp:1176 src/GMWindow.cpp:1183
+#: src/GMAbout.cpp:122 src/GMAbout.cpp:152 src/GMPreferencesDialog.cpp:1041
+#: src/GMPreferencesDialog.cpp:1046 src/GMWindow.cpp:1176 src/GMWindow.cpp:1183
 msgid "Unable to launch webbrowser"
 msgstr "ბრაუზერის გაშვების შეცდომა"
 
@@ -40,24 +40,24 @@ msgstr "ბრაუზერის გაშვების შეცდომ�
 msgid "Configure Columns"
 msgstr "სვეტების მორგება"
 
-#: src/GMColumnDialog.cpp:200 cfox/lib/FXColorSelector.cpp:175
+#: src/GMColumnDialog.cpp:200 fox/lib/FXColorSelector.cpp:172
 msgid "&Accept"
 msgstr "&დათანხმება"
 
 #: src/GMColumnDialog.cpp:201 src/GMDatabaseSource.cpp:1032
 #: src/GMDatabaseSource.cpp:1205 src/GMDatabaseSource.cpp:1307
-#: src/GMDatabaseSource.cpp:1547 src/GMDatabaseSource.cpp:1628
+#: src/GMDatabaseSource.cpp:1547 src/GMDatabaseSource.cpp:1632
 #: src/GMFilterEditor.cpp:642 src/GMImportDialog.cpp:223
-#: src/GMImportDialog.cpp:583 src/GMPlayListSource.cpp:284
+#: src/GMImportDialog.cpp:587 src/GMPlayListSource.cpp:284
 #: src/GMPlayListSource.cpp:365 src/GMPodcastSource.cpp:433
 #: src/GMPodcastSource.cpp:1647 src/GMStreamSource.cpp:148
 #: src/GMStreamSource.cpp:185 src/GMStreamSource.cpp:246
 #: src/GMTrackEditor.cpp:292 src/GMWindow.cpp:1224 src/GMWindow.cpp:1288
-#: cfox/lib/FXMessageBox.cpp:108 cfox/lib/FXMessageBox.cpp:119
-#: cfox/lib/FXMessageBox.cpp:124 cfox/lib/FXMessageBox.cpp:130
-#: cfox/lib/FXMessageBox.cpp:136 cfox/lib/FXMessageBox.cpp:143
-#: cfox/lib/FXMessageBox.cpp:152 cfox/lib/FXColorSelector.cpp:176
-#: cfox/lib/FXDirSelector.cpp:139 cfox/lib/FXFileSelector.cpp:221
+#: fox/lib/FXMessageBox.cpp:115 fox/lib/FXMessageBox.cpp:126
+#: fox/lib/FXMessageBox.cpp:131 fox/lib/FXMessageBox.cpp:137
+#: fox/lib/FXMessageBox.cpp:143 fox/lib/FXMessageBox.cpp:148
+#: fox/lib/FXMessageBox.cpp:157 fox/lib/FXColorSelector.cpp:173
+#: fox/lib/FXDirSelector.cpp:140 fox/lib/FXFileSelector.cpp:284
 msgid "&Cancel"
 msgstr "&გაუქმება"
 
@@ -102,7 +102,7 @@ msgid "Album Artist"
 msgstr "ალბომის შემსრულებელი"
 
 #: src/GMDatabaseSource.cpp:231 src/GMFilterEditor.cpp:42
-#: src/GMPlayQueue.cpp:71 src/GMPreferencesDialog.cpp:645
+#: src/GMPlayQueue.cpp:71 src/GMPreferencesDialog.cpp:673
 #: src/GMTrackView.cpp:263
 msgid "Album"
 msgstr "ალბომი"
@@ -118,7 +118,7 @@ msgstr "წელი"
 
 #: src/GMDatabaseSource.cpp:235 src/GMFilterEditor.cpp:49
 #: src/GMPlayQueue.cpp:75 src/GMPodcastSource.cpp:1317
-#: cfox/lib/FXFileSelector.cpp:942
+#: fox/lib/FXFileSelector.cpp:981
 msgid "Time"
 msgstr "დრო"
 
@@ -132,7 +132,7 @@ msgid "Play Date"
 msgstr "დაკვრის თარიღი"
 
 #: src/GMDatabaseSource.cpp:238 src/GMFilterEditor.cpp:57
-#: src/GMImportDialog.cpp:499 src/GMLocalSource.cpp:56 src/GMPlayQueue.cpp:78
+#: src/GMImportDialog.cpp:503 src/GMLocalSource.cpp:56 src/GMPlayQueue.cpp:78
 #: src/GMTrackEditor.cpp:500
 msgid "Path"
 msgstr "ბილიკი"
@@ -251,7 +251,7 @@ msgid "The following audio files are going to be removed"
 msgstr "წაიშლება შემდეგი აუდიოფაილები"
 
 #: src/GMDatabaseSource.cpp:1031 src/GMDatabaseSource.cpp:1306
-#: src/GMImportDialog.cpp:580 src/GMPlayListSource.cpp:283
+#: src/GMImportDialog.cpp:584 src/GMPlayListSource.cpp:283
 #: src/GMStreamSource.cpp:245
 msgid "&Remove"
 msgstr "&წაშლა"
@@ -273,8 +273,8 @@ msgid "File already exists. Would you like to overwrite it?"
 msgstr "ფაილი უკვე არსებობს. გნებავთ, თავზე გადააწეროთ?"
 
 #: src/GMDatabaseSource.cpp:1204 src/GMImportDialog.cpp:215
-#: cfox/lib/FXMessageBox.cpp:103 cfox/lib/FXMessageBox.cpp:107
-#: cfox/lib/FXDirSelector.cpp:138 cfox/lib/FXFileSelector.cpp:213
+#: fox/lib/FXMessageBox.cpp:110 fox/lib/FXMessageBox.cpp:114
+#: fox/lib/FXDirSelector.cpp:139 fox/lib/FXFileSelector.cpp:275
 msgid "&OK"
 msgstr "&დიახ"
 
@@ -356,7 +356,7 @@ msgid "&Create"
 msgstr "&შექმნა"
 
 #: src/GMDatabaseSource.cpp:1551 src/GMPlayListSource.cpp:369
-#: cfox/lib/FXFileSelector.cpp:939
+#: fox/lib/FXFileSelector.cpp:978
 msgid "Name"
 msgstr "სახელი"
 
@@ -364,23 +364,23 @@ msgstr "სახელი"
 msgid "New Playlist"
 msgstr "ახალი დასაკრავი სია"
 
-#: src/GMDatabaseSource.cpp:1624 src/GMDatabaseSource.cpp:1625
+#: src/GMDatabaseSource.cpp:1628 src/GMDatabaseSource.cpp:1629
 msgid "Clear Music Library?"
 msgstr "გავასუფთავო მუსიკის ბიბლიოთეკა?"
 
-#: src/GMDatabaseSource.cpp:1625
+#: src/GMDatabaseSource.cpp:1629
 msgid "Remove all tracks from the music library?"
 msgstr "წავშალო ყველა ტრეკი მუსიკის ბიბლიოთეკიდან?"
 
-#: src/GMDatabaseSource.cpp:1627
+#: src/GMDatabaseSource.cpp:1631
 msgid "&Remove All"
 msgstr "ყველას &წაშლა"
 
-#: src/GMDatabaseSource.cpp:1631
+#: src/GMDatabaseSource.cpp:1635
 msgid "Keep play lists"
 msgstr "დასაკრავი სიების შენარჩუნება"
 
-#: src/GMFilterEditor.cpp:47 src/GMImportDialog.cpp:498
+#: src/GMFilterEditor.cpp:47 src/GMImportDialog.cpp:502
 #: src/GMStreamSource.cpp:156 src/GMTrackView.cpp:264
 msgid "Tag"
 msgstr "ჭდე"
@@ -565,14 +565,16 @@ msgid "Are you sure you want to remove the filter?"
 msgstr "მართლა გნებავთ ფილტრის წაშლა?"
 
 #: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
-#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
-#: cfox/lib/FXMessageBox.cpp:148
+#: fox/lib/FXMessageBox.cpp:119 fox/lib/FXMessageBox.cpp:124
+#: fox/lib/FXMessageBox.cpp:153 fox/lib/FXMessageBox.cpp:161
+#: fox/lib/FXMessageBox.cpp:167
 msgid "&Yes"
 msgstr "&დიახ"
 
 #: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
-#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
-#: cfox/lib/FXMessageBox.cpp:150
+#: fox/lib/FXMessageBox.cpp:120 fox/lib/FXMessageBox.cpp:125
+#: fox/lib/FXMessageBox.cpp:155 fox/lib/FXMessageBox.cpp:163
+#: fox/lib/FXMessageBox.cpp:168
 msgid "&No"
 msgstr "&არა"
 
@@ -612,35 +614,35 @@ msgstr "ექსტრა გაფართოებული"
 msgid "Ultra Expanded"
 msgstr "ულტრა გაფართოებული"
 
-#: src/GMFontDialog.cpp:204 src/GMPreferencesDialog.cpp:1425
+#: src/GMFontDialog.cpp:204 src/GMPreferencesDialog.cpp:1496
 msgid "Thin"
 msgstr "თხელი"
 
-#: src/GMFontDialog.cpp:205 src/GMPreferencesDialog.cpp:1426
+#: src/GMFontDialog.cpp:205 src/GMPreferencesDialog.cpp:1497
 msgid "Extra Light"
 msgstr "ძალიან თხელი"
 
-#: src/GMFontDialog.cpp:206 src/GMPreferencesDialog.cpp:1427
+#: src/GMFontDialog.cpp:206 src/GMPreferencesDialog.cpp:1498
 msgid "Light"
 msgstr "ღია"
 
-#: src/GMFontDialog.cpp:208 src/GMPreferencesDialog.cpp:1429
+#: src/GMFontDialog.cpp:208 src/GMPreferencesDialog.cpp:1500
 msgid "Medium"
 msgstr "საშუალო"
 
-#: src/GMFontDialog.cpp:209 src/GMPreferencesDialog.cpp:1430
+#: src/GMFontDialog.cpp:209 src/GMPreferencesDialog.cpp:1501
 msgid "Demibold"
 msgstr "საშუალოდ სქელი"
 
-#: src/GMFontDialog.cpp:210 src/GMPreferencesDialog.cpp:1431
+#: src/GMFontDialog.cpp:210 src/GMPreferencesDialog.cpp:1502
 msgid "Bold"
 msgstr "სქელი"
 
-#: src/GMFontDialog.cpp:211 src/GMPreferencesDialog.cpp:1432
+#: src/GMFontDialog.cpp:211 src/GMPreferencesDialog.cpp:1503
 msgid "Extra Bold"
 msgstr "ძალიან სქელი"
 
-#: src/GMFontDialog.cpp:212 src/GMPreferencesDialog.cpp:1433
+#: src/GMFontDialog.cpp:212 src/GMPreferencesDialog.cpp:1504
 msgid "Heavy"
 msgstr "მძიმე"
 
@@ -668,132 +670,132 @@ msgstr "ნორმალური"
 msgid "&Folder:"
 msgstr "&საქაღალდე:"
 
-#: src/GMImportDialog.cpp:213 cfox/lib/FXFileSelector.cpp:211
+#: src/GMImportDialog.cpp:213 fox/lib/FXFileSelector.cpp:273
 msgid "&File Name:"
 msgstr "&ფაილის სახელი:"
 
-#: src/GMImportDialog.cpp:218 cfox/lib/FXFileSelector.cpp:216
+#: src/GMImportDialog.cpp:218 fox/lib/FXFileSelector.cpp:279
 msgid "File F&ilter:"
 msgstr "ფაილის ფ&ილტრი:"
 
-#: src/GMImportDialog.cpp:222 cfox/lib/FXFileSelector.cpp:220
+#: src/GMImportDialog.cpp:222 fox/lib/FXFileSelector.cpp:283
 msgid "Read Only"
 msgstr "მხოლოდ-კითხვადი"
 
-#: src/GMImportDialog.cpp:229 cfox/lib/FXFileSelector.cpp:226
+#: src/GMImportDialog.cpp:229 fox/lib/FXFileSelector.cpp:291
 msgid "Directory:"
 msgstr "საქაღალდე:"
 
-#: src/GMImportDialog.cpp:237 cfox/lib/FXFileSelector.cpp:250
+#: src/GMImportDialog.cpp:241 fox/lib/FXFileSelector.cpp:320
 msgid "&Set bookmark\t\tBookmark current directory."
 msgstr "&სანიშნეს დაყენება\t\tმიმდინარე საქაღალდის ჩამატება სანიშნეებში."
 
-#: src/GMImportDialog.cpp:238 cfox/lib/FXFileSelector.cpp:251
+#: src/GMImportDialog.cpp:242 fox/lib/FXFileSelector.cpp:321
 msgid "&Unset bookmark\t\tRemove current directory bookmark."
 msgstr "&სანიშნეს მოხსნა\t\tმიმდინარე საქაღალდის წაშლა სანიშნეებიდან."
 
-#: src/GMImportDialog.cpp:239 cfox/lib/FXFileSelector.cpp:252
+#: src/GMImportDialog.cpp:243 fox/lib/FXFileSelector.cpp:322
 msgid "&Clear all bookmarks\t\tClear all bookmarks."
 msgstr "&ყველა სანიშნეს გასუფთავება\t\tყველა სანიშნეს გასუფთავება."
 
-#: src/GMImportDialog.cpp:259 cfox/lib/FXFileSelector.cpp:272
+#: src/GMImportDialog.cpp:263 fox/lib/FXFileSelector.cpp:347
 msgid "\tGo up one directory\tMove up to higher directory."
 msgstr "\tერთი საქაღალდით მაღლა ასვლა\tერთი საქაღალდით მაღლა ასვლა."
 
-#: src/GMImportDialog.cpp:260 cfox/lib/FXFileSelector.cpp:273
+#: src/GMImportDialog.cpp:264 fox/lib/FXFileSelector.cpp:348
 msgid "\tGo to home directory\tBack to home directory."
 msgstr "\tსაწყის საქაღალდეზე გადასვლა\tსაწყის საქაღალდეზე გადასვლა."
 
-#: src/GMImportDialog.cpp:261 cfox/lib/FXFileSelector.cpp:274
+#: src/GMImportDialog.cpp:265 fox/lib/FXFileSelector.cpp:349
 msgid "\tGo to work directory\tBack to working directory."
 msgstr "\tსამუშაო საქაღალდეზე დაბრუნება\tსამუშაო საქაღალდეზე დაბრუნება."
 
-#: src/GMImportDialog.cpp:262 cfox/lib/FXFileSelector.cpp:275
+#: src/GMImportDialog.cpp:266 fox/lib/FXFileSelector.cpp:350
 msgid "\tBookmarks\tVisit bookmarked directories."
 msgstr "\tსანიშნეები\tჩანიშნული საქაღალდეების ნახვა."
 
-#: src/GMImportDialog.cpp:265 cfox/lib/FXFileSelector.cpp:278
+#: src/GMImportDialog.cpp:269 fox/lib/FXFileSelector.cpp:353
 msgid "\tCreate new directory\tCreate new directory."
 msgstr "\tახალი საქაღალდის შექმნა\tახალი საქაღალდის შექმნა."
 
-#: src/GMImportDialog.cpp:266 cfox/lib/FXFileSelector.cpp:279
+#: src/GMImportDialog.cpp:270 fox/lib/FXFileSelector.cpp:354
 msgid "\tShow list\tDisplay directory with small icons."
 msgstr "\tსიის ჩვენება\tსაქაღალდის ჩვენება პატარა ხატულებით."
 
-#: src/GMImportDialog.cpp:267 cfox/lib/FXFileSelector.cpp:280
+#: src/GMImportDialog.cpp:271 fox/lib/FXFileSelector.cpp:355
 msgid "\tShow icons\tDisplay directory with big icons."
 msgstr "\tხატულების ჩვენება\tსაქაღალდის ჩვენება დიდი ხატულებით."
 
-#: src/GMImportDialog.cpp:268 cfox/lib/FXFileSelector.cpp:281
+#: src/GMImportDialog.cpp:272 fox/lib/FXFileSelector.cpp:356
 msgid "\tShow details\tDisplay detailed directory listing."
 msgstr "\tდეტალების ჩვენება\tდეტალური საქაღალდის ჩამონათვალის ჩვენება."
 
-#: src/GMImportDialog.cpp:269 cfox/lib/FXFileSelector.cpp:282
+#: src/GMImportDialog.cpp:273 fox/lib/FXFileSelector.cpp:357
 msgid "\tShow hidden files\tShow hidden files and directories."
 msgstr ""
 "\tდამალული ფაილების ჩვენება\tდამალული ფაილებისა და საქაღალდეების ჩვენება."
 
-#: src/GMImportDialog.cpp:269 cfox/lib/FXFileSelector.cpp:282
+#: src/GMImportDialog.cpp:273 fox/lib/FXFileSelector.cpp:357
 msgid "\tHide Hidden Files\tHide hidden files and directories."
 msgstr ""
 "\tდამალული ფაილების დამალვა\tდამალული ფაილებისა და საქაღალდეების დამალვა."
 
-#: src/GMImportDialog.cpp:295 cfox/lib/FXFileSelector.cpp:308
-#: cfox/lib/FXFileSelector.cpp:1113
+#: src/GMImportDialog.cpp:299 fox/lib/FXFileSelector.cpp:385
+#: fox/lib/FXFileSelector.cpp:1177
 msgid "All Files (*)"
 msgstr "ყველა ფაილი (*)"
 
-#: src/GMImportDialog.cpp:369 src/GMImportDialog.cpp:379
+#: src/GMImportDialog.cpp:373 src/GMImportDialog.cpp:383
 msgid "&Options:"
 msgstr "&პარამეტრები:"
 
-#: src/GMImportDialog.cpp:399
+#: src/GMImportDialog.cpp:403
 msgid "Remove Folder"
 msgstr "საქაღალდის წაშლა"
 
-#: src/GMImportDialog.cpp:401
+#: src/GMImportDialog.cpp:405
 msgid "Synchronize Folder"
 msgstr "საქაღალდის სინქრონიზაცია"
 
-#: src/GMImportDialog.cpp:403
+#: src/GMImportDialog.cpp:407
 msgid "Import Playlist"
 msgstr "დასაკრავი სიის შემოტანა"
 
-#: src/GMImportDialog.cpp:405
+#: src/GMImportDialog.cpp:409
 msgid "Import Music"
 msgstr "მუსიკის შემოტანა"
 
-#: src/GMImportDialog.cpp:439
+#: src/GMImportDialog.cpp:443
 msgid "&File(s)"
 msgstr "&ფაილ(ებ)-ი"
 
-#: src/GMImportDialog.cpp:462
+#: src/GMImportDialog.cpp:466
 msgid "&Folder"
 msgstr "&საქაღალდე"
 
-#: src/GMImportDialog.cpp:472 src/GMImportDialog.cpp:578
+#: src/GMImportDialog.cpp:476 src/GMImportDialog.cpp:582
 msgid "&Sync"
 msgstr "&სინქრონიზაცია"
 
-#: src/GMImportDialog.cpp:474
+#: src/GMImportDialog.cpp:478
 msgid "Sync Operation"
 msgstr "სინქრონიზაციის ოპერაცია"
 
-#: src/GMImportDialog.cpp:477
+#: src/GMImportDialog.cpp:481
 msgid "Import new tracks\tImports files not yet in the database."
 msgstr ""
 "ახალი ტრეკების შემოტანა\tშემოიტანს ტრეკებს, რომლებიც ჯერ მონაცემთა ბაზაში "
 "არაა."
 
-#: src/GMImportDialog.cpp:478
+#: src/GMImportDialog.cpp:482
 msgid "Remove tracks that have been deleted from disk"
 msgstr "დისკიდან წაშლილი ტრეკების მოცილება"
 
-#: src/GMImportDialog.cpp:480
+#: src/GMImportDialog.cpp:484
 msgid "Update existing tracks:"
 msgstr "არსებული ტრეკების განახლება:"
 
-#: src/GMImportDialog.cpp:481
+#: src/GMImportDialog.cpp:485
 msgid ""
 "Modified since last import\tOnly reread the tag when the file has been "
 "modified."
@@ -801,35 +803,35 @@ msgstr ""
 "ბოლო შემოტანის შემდეგ შეცვლილები\tმოხდება, მხოლოდ, ჭდეების თავიდან წაკითხვა "
 "ფაილებისთვის, რომლებიც შეიცვალა."
 
-#: src/GMImportDialog.cpp:483
+#: src/GMImportDialog.cpp:487
 msgid "All\tAlways read the tags"
 msgstr "ყველა\tჭდეების ყოველთვის წაკითხვა"
 
-#: src/GMImportDialog.cpp:488
+#: src/GMImportDialog.cpp:492
 msgid "&Track"
 msgstr "&აუდიობილიკი"
 
-#: src/GMImportDialog.cpp:491
+#: src/GMImportDialog.cpp:495
 msgid "Parse Settings"
 msgstr "პარამეტრების დამუშავება"
 
-#: src/GMImportDialog.cpp:495
+#: src/GMImportDialog.cpp:499
 msgid "Parse info from:"
 msgstr "ინფორმაციის დამუშავება საიდან:"
 
-#: src/GMImportDialog.cpp:500
+#: src/GMImportDialog.cpp:504
 msgid "Both"
 msgstr "ორივე"
 
-#: src/GMImportDialog.cpp:502
+#: src/GMImportDialog.cpp:506
 msgid "ID3v1 Encoding:"
 msgstr "ID3v1 კოდირება:"
 
-#: src/GMImportDialog.cpp:513
+#: src/GMImportDialog.cpp:517
 msgid "Set track number based on scan order."
 msgstr "ტრეკის ნომრის დაყენება სკანირების მიმდევრობის მიხედვით."
 
-#: src/GMImportDialog.cpp:516
+#: src/GMImportDialog.cpp:520
 msgid ""
 "Group albums by audio format.\tImported tracks that differ in audio format "
 "will be grouped in separate albums."
@@ -837,7 +839,7 @@ msgstr ""
 "ალბომების დაჯგუფება აუდიოფორმატის მიხედვით.\tშემოტანილი ტრეკები, რომლების "
 "აუდიოფორმატიც განსხვავდება, სხვადასხვა ალბომებში დაჯგუფდება."
 
-#: src/GMImportDialog.cpp:519
+#: src/GMImportDialog.cpp:523
 msgid ""
 "Detect compilations by folder.\tGroup tracks from the same folder without "
 "specific compilation/albumartist tags."
@@ -845,15 +847,15 @@ msgstr ""
 "კომპილაციების დადგენა საქაღალდით.\tიმავე საქაღალდიდან ტრეკების დაჯგუფება "
 "სპეციფიკური კომპილაციის/ალბომის/შემსრულებლის ჭდეების გარეშე."
 
-#: src/GMImportDialog.cpp:522
+#: src/GMImportDialog.cpp:526
 msgid "Fetch Lyrics.\tFetch Lyrics"
 msgstr "ლირიკის გამოთხოვა.\tლირიკის გამოთხოვა"
 
-#: src/GMImportDialog.cpp:524
+#: src/GMImportDialog.cpp:528
 msgid "Path Template"
 msgstr "ბილიკის ნიმუში"
 
-#: src/GMImportDialog.cpp:527
+#: src/GMImportDialog.cpp:531
 msgid ""
 "%T - title              %A - album name\n"
 "%P - album artist name  %p - track artist name \n"
@@ -865,39 +867,39 @@ msgstr ""
 "%N - ტრეკის ნომერი       %d - დისკის ნომერი\n"
 "%y - წელი"
 
-#: src/GMImportDialog.cpp:538 src/GMTrackEditor.cpp:378
+#: src/GMImportDialog.cpp:542 src/GMTrackEditor.cpp:378
 msgid "Template:"
 msgstr "შაბლონი:"
 
-#: src/GMImportDialog.cpp:541
+#: src/GMImportDialog.cpp:545
 msgid "Replace underscores with spaces"
 msgstr "ქვედატირეების ჩანაცვლება ჰარეებით"
 
-#: src/GMImportDialog.cpp:552
+#: src/GMImportDialog.cpp:556
 msgid "&Filter"
 msgstr "&ფილტრი"
 
-#: src/GMImportDialog.cpp:555
+#: src/GMImportDialog.cpp:559
 msgid "Exclude Files"
 msgstr "ფაილების გამორიცხვა"
 
-#: src/GMImportDialog.cpp:556
+#: src/GMImportDialog.cpp:560
 msgid "Unsupported Playback Formats"
 msgstr "მხარდაუჭერელი დაკვრის ფორმატები"
 
-#: src/GMImportDialog.cpp:558
+#: src/GMImportDialog.cpp:562
 msgid "Exclude by Pattern"
 msgstr "ნიმუშით ამოღება"
 
-#: src/GMImportDialog.cpp:562
+#: src/GMImportDialog.cpp:566
 msgid "Folders:"
 msgstr "საქაღალდეები:"
 
-#: src/GMImportDialog.cpp:564
+#: src/GMImportDialog.cpp:568
 msgid "Files:"
 msgstr "ფაილები:"
 
-#: src/GMImportDialog.cpp:582
+#: src/GMImportDialog.cpp:586
 msgid "&Import"
 msgstr "&შემოტანა"
 
@@ -909,55 +911,6 @@ msgid ""
 msgstr ""
 "%s\n"
 "%s (%d)"
-
-#: src/GMPlayerManager.cpp:313
-#, c-format
-msgid "Unable to create directory %s\n"
-msgstr "ვერ შევქმენი საქაღალდე %s\n"
-
-#: src/GMPlayerManager.cpp:578
-msgid "Session bus not available. All features requiring dbus are disabled."
-msgstr ""
-"სესიის სალტე ხელმისაწვდომი არაა. ყველა თვისებები, რომელსაც dbus სჭირდება, "
-"გამორთულია."
-
-#: src/GMPlayerManager.cpp:597
-msgid ""
-"Session Bus not available. All features requiring sessionbus are disabled."
-msgstr ""
-"სესიის სალტე ხელმისაწვდომი არაა. ყველა თვისებები, რომელსაც sessionbus "
-"სჭირდება, გამორთულია."
-
-#: src/GMPlayerManager.cpp:671
-#, c-format
-msgid ""
-"A non threadsafe version of SQLite (%s) is being used.\n"
-"Goggles Music Manager requires a threadsafe SQLite.\n"
-"Please upgrade your SQLite installation."
-msgstr ""
-"გამოიყენება SQLite-ის (%s) არა უსაფრთხონაკადიანი ვერსია.\n"
-"Goggles Music Manager-ს უსაფრთხონაკადიანი SQLite სჭირდება.\n"
-"განაახლეთ SQLite-ის თქვენი ვერსია."
-
-#: src/GMPlayerManager.cpp:680
-msgid ""
-"For some reason the FOX library was compiled without PNG support.\n"
-"In order to show all icons, Goggles Music Manager requires PNG\n"
-"support in the FOX library. If you've compiled FOX yourself, most\n"
-"likely the libpng header files were not installed on your system."
-msgstr ""
-"რატომაც ბიბლიოთეკა FOX აგებული იყო PNG-ის მხარდაჭერის გარეშე.\n"
-"ყველა ხატულას საჩვენებლად Goggles Music Manager-ს FOX ბიბლიოთეკაში\n"
-"PNG-ის მხარდაჭერა სჭირდება. თუ FOX თვითონ დააკომპილეთ, როგორც ჩანს,\n"
-"libpng-ის თავსართის ფაილები დაყენებული არ გქონდათ."
-
-#: src/GMPlayerManager.cpp:1397
-msgid "Last.FM Error"
-msgstr "Last.FM-ის შეცდომა"
-
-#: src/GMPlayerManager.cpp:1769
-msgid "Playback Error"
-msgstr "დაკვრის შეცდომა"
 
 #: src/GMPlayListSource.cpp:182
 msgid "Rename…"
@@ -1005,7 +958,7 @@ msgstr "დასაკრავი სიის სახელის სეც
 
 #: src/GMPlayListSource.cpp:364 src/GMStreamSource.cpp:184
 #: src/GMTrackEditor.cpp:448 src/GMTrackEditor.cpp:452
-#: cfox/lib/FXMessageBox.cpp:129 cfox/lib/FXMessageBox.cpp:144
+#: fox/lib/FXMessageBox.cpp:136 fox/lib/FXMessageBox.cpp:149
 msgid "&Save"
 msgstr "&შენახვა"
 
@@ -1024,6 +977,55 @@ msgstr "გასუფთავება"
 #: src/GMPlayQueue.cpp:145
 msgid "Remove…\tDel\tRemove track(s) from play queue."
 msgstr "წაშლა…\tDel\tტრეკ(ებ)-ის წაშლა დაკვრის რიგიდან."
+
+#: src/GMPlayerManager.cpp:313
+#, c-format
+msgid "Unable to create directory %s\n"
+msgstr "ვერ შევქმენი საქაღალდე %s\n"
+
+#: src/GMPlayerManager.cpp:578
+msgid "Session bus not available. All features requiring dbus are disabled."
+msgstr ""
+"სესიის სალტე ხელმისაწვდომი არაა. ყველა თვისებები, რომელსაც dbus სჭირდება, "
+"გამორთულია."
+
+#: src/GMPlayerManager.cpp:597
+msgid ""
+"Session Bus not available. All features requiring sessionbus are disabled."
+msgstr ""
+"სესიის სალტე ხელმისაწვდომი არაა. ყველა თვისებები, რომელსაც sessionbus "
+"სჭირდება, გამორთულია."
+
+#: src/GMPlayerManager.cpp:671
+#, c-format
+msgid ""
+"A non threadsafe version of SQLite (%s) is being used.\n"
+"Goggles Music Manager requires a threadsafe SQLite.\n"
+"Please upgrade your SQLite installation."
+msgstr ""
+"გამოიყენება SQLite-ის (%s) არა უსაფრთხონაკადიანი ვერსია.\n"
+"Goggles Music Manager-ს უსაფრთხონაკადიანი SQLite სჭირდება.\n"
+"განაახლეთ SQLite-ის თქვენი ვერსია."
+
+#: src/GMPlayerManager.cpp:680
+msgid ""
+"For some reason the FOX library was compiled without PNG support.\n"
+"In order to show all icons, Goggles Music Manager requires PNG\n"
+"support in the FOX library. If you've compiled FOX yourself, most\n"
+"likely the libpng header files were not installed on your system."
+msgstr ""
+"რატომაც ბიბლიოთეკა FOX აგებული იყო PNG-ის მხარდაჭერის გარეშე.\n"
+"ყველა ხატულას საჩვენებლად Goggles Music Manager-ს FOX ბიბლიოთეკაში\n"
+"PNG-ის მხარდაჭერა სჭირდება. თუ FOX თვითონ დააკომპილეთ, როგორც ჩანს,\n"
+"libpng-ის თავსართის ფაილები დაყენებული არ გქონდათ."
+
+#: src/GMPlayerManager.cpp:1401
+msgid "Last.FM Error"
+msgstr "Last.FM-ის შეცდომა"
+
+#: src/GMPlayerManager.cpp:1773
+msgid "Playback Error"
+msgstr "დაკვრის შეცდომა"
 
 #: src/GMPodcastSource.cpp:430
 msgid "Select Feed"
@@ -1112,57 +1114,57 @@ msgstr "წავშალო ლენტა?"
 msgid "Remove feed and all downloaded episodes?"
 msgstr "წაიშალოს ლენტა და ყველა გადმოწერილი ეპიზოდი?"
 
-#: src/GMPreferencesDialog.cpp:285
+#: src/GMPreferencesDialog.cpp:302
 msgid "Preferences"
 msgstr "მორგება"
 
-#: src/GMPreferencesDialog.cpp:315
+#: src/GMPreferencesDialog.cpp:335
 msgid "&General"
 msgstr "&ზოგადი"
 
-#: src/GMPreferencesDialog.cpp:318
+#: src/GMPreferencesDialog.cpp:338
 msgid "Sort Options"
 msgstr "დალაგების მორგება"
 
-#: src/GMPreferencesDialog.cpp:322
+#: src/GMPreferencesDialog.cpp:342
 msgid "Ignore leading words"
 msgstr "პირველი სიტყვების გამოტოვება"
 
-#: src/GMPreferencesDialog.cpp:325
+#: src/GMPreferencesDialog.cpp:345
 msgid "Additional Track Information"
 msgstr "ტრეკის დამატებითი ინფორმაცია"
 
-#: src/GMPreferencesDialog.cpp:328
+#: src/GMPreferencesDialog.cpp:348
 msgid "Show Album Cover\tShow album cover of playing track"
 msgstr "ალბომის ყდის ჩვენება\tდაკრული ტრეკის ალბომის ყდის ჩვენება"
 
-#: src/GMPreferencesDialog.cpp:329
+#: src/GMPreferencesDialog.cpp:349
 msgid "Show Lyrics\tShow lyrics of playing track"
 msgstr "ლირიკის ჩვენება\tდაკრული ტრეკის ლირიკის ჩვენება"
 
-#: src/GMPreferencesDialog.cpp:332
+#: src/GMPreferencesDialog.cpp:352
 msgid "System Tray"
 msgstr "სისტემს კუთხე"
 
-#: src/GMPreferencesDialog.cpp:336
+#: src/GMPreferencesDialog.cpp:356
 msgid "Show Tray Icon\tShow tray icon in the system tray."
 msgstr "ხატულას ჩვენება სისტემურ საათთან\tხატულას ჩვენება სისტემურ საათთან."
 
-#: src/GMPreferencesDialog.cpp:339
+#: src/GMPreferencesDialog.cpp:359
 msgid ""
 "Show Track Change Notifications\tInform notification daemon of track changes."
 msgstr ""
 "ტრეკის შეცვლის გაფრთხილების ჩვენება\tტრეკის შეცვლის გაფრთხილების ჩვენება."
 
-#: src/GMPreferencesDialog.cpp:340
+#: src/GMPreferencesDialog.cpp:360
 msgid "MPRIS v1 Connectivity\tEnable MPRIS v1 connectivity"
 msgstr "MPRIS v1 კავშირი\tMPRIS v1 კავშირის ჩართვა"
 
-#: src/GMPreferencesDialog.cpp:344
+#: src/GMPreferencesDialog.cpp:364
 msgid "Last.fm"
 msgstr "Last.fm"
 
-#: src/GMPreferencesDialog.cpp:349
+#: src/GMPreferencesDialog.cpp:369
 msgid ""
 "This version of Goggles Music Manager is\n"
 "not supported by Last-FM. Please upgrade\n"
@@ -1172,67 +1174,67 @@ msgstr ""
 "მხარდაჭერილი არაა. განაახლეთ GMM\n"
 "უფრო ახალ ვერსიამდე."
 
-#: src/GMPreferencesDialog.cpp:355
+#: src/GMPreferencesDialog.cpp:375
 msgid "Service:"
 msgstr "სერვისი:"
 
-#: src/GMPreferencesDialog.cpp:372
+#: src/GMPreferencesDialog.cpp:392
 msgid "&Sign up…"
 msgstr "რეგი&სტრაცია…"
 
-#: src/GMPreferencesDialog.cpp:378
+#: src/GMPreferencesDialog.cpp:398
 msgid "Username:"
 msgstr "მომხმარებელი:"
 
-#: src/GMPreferencesDialog.cpp:380
+#: src/GMPreferencesDialog.cpp:400
 msgid "Password:"
 msgstr "პაროლი:"
 
-#: src/GMPreferencesDialog.cpp:384
+#: src/GMPreferencesDialog.cpp:404
 msgid "Scrobble"
 msgstr "სკრობლინგი"
 
-#: src/GMPreferencesDialog.cpp:408
+#: src/GMPreferencesDialog.cpp:428
 msgid "&Window"
 msgstr "&ფანჯარა"
 
-#: src/GMPreferencesDialog.cpp:411
+#: src/GMPreferencesDialog.cpp:431
 msgid "Window"
 msgstr "ფანჯარა"
 
-#: src/GMPreferencesDialog.cpp:414
+#: src/GMPreferencesDialog.cpp:434
 msgid "Close button minimizes to tray"
 msgstr "დახურვის ღილაკი სისტემურ კუთხეში ჩაკეცავს"
 
-#: src/GMPreferencesDialog.cpp:415
+#: src/GMPreferencesDialog.cpp:435
 msgid "Show Status Bar"
 msgstr "მდგომარეობის ზოლის ჩვენება"
 
-#: src/GMPreferencesDialog.cpp:418
+#: src/GMPreferencesDialog.cpp:438
 msgid "Display playing track in title bar"
 msgstr "დაკრული სიმღერის სახელის ჩვენება სათაურის ზოლში"
 
-#: src/GMPreferencesDialog.cpp:421
+#: src/GMPreferencesDialog.cpp:441
 msgid "Toolbar"
 msgstr "ხელსაწყოთა ზოლი"
 
-#: src/GMPreferencesDialog.cpp:425
+#: src/GMPreferencesDialog.cpp:445
 msgid "Location:"
 msgstr "მდებარეობა:"
 
-#: src/GMPreferencesDialog.cpp:427
+#: src/GMPreferencesDialog.cpp:447
 msgid "Top"
 msgstr "ზედა"
 
-#: src/GMPreferencesDialog.cpp:428
+#: src/GMPreferencesDialog.cpp:448
 msgid "Bottom"
 msgstr "ქვემო"
 
-#: src/GMPreferencesDialog.cpp:431
+#: src/GMPreferencesDialog.cpp:451
 msgid "Title Format:"
 msgstr "სათაურის ფორმატი:"
 
-#: src/GMPreferencesDialog.cpp:439 src/GMTrackEditor.cpp:361
+#: src/GMPreferencesDialog.cpp:459 src/GMTrackEditor.cpp:361
 msgid ""
 "%T - title                   %A - album name\n"
 "%P - album artist name       %p - track artist name\n"
@@ -1248,207 +1250,220 @@ msgstr ""
 "%N - ტრეკის ნომერი (2 ციფრი) %n - ტრეკის ნომერი      \n"
 "%G - ჟანრი"
 
-#: src/GMPreferencesDialog.cpp:457
+#: src/GMPreferencesDialog.cpp:477
 msgid "A&ppearance"
 msgstr "გა_რეგნობა"
 
-#: src/GMPreferencesDialog.cpp:459
+#: src/GMPreferencesDialog.cpp:479
 msgid "Colors"
 msgstr "ფერები"
 
-#: src/GMPreferencesDialog.cpp:465
+#: src/GMPreferencesDialog.cpp:485
 msgid "fg\tForeground Color"
 msgstr "fg\tწინა პლანის ფერი"
 
-#: src/GMPreferencesDialog.cpp:466
+#: src/GMPreferencesDialog.cpp:486
 msgid "bg\tBackground Color"
 msgstr "bg\tფონის ფერი"
 
-#: src/GMPreferencesDialog.cpp:467
+#: src/GMPreferencesDialog.cpp:487
 msgid "alt bg\tAlternative Background Color"
 msgstr "alt bg\tფონის ალტერნატიული ფერი"
 
-#: src/GMPreferencesDialog.cpp:478
+#: src/GMPreferencesDialog.cpp:498
 msgid "Normal\tNormal Text Color"
 msgstr "ნორმალური\tნორმალური ტექსტის ფერი"
 
-#: src/GMPreferencesDialog.cpp:482
+#: src/GMPreferencesDialog.cpp:502
 msgid "Base\tBase Color"
 msgstr "ძირითადი\tძირითადი ფერი"
 
-#: src/GMPreferencesDialog.cpp:485
+#: src/GMPreferencesDialog.cpp:505
 msgid "Selected\tSelected Text Color"
 msgstr "მონიშნული\tმონიშნული ტექსტის ფერი"
 
-#: src/GMPreferencesDialog.cpp:489
+#: src/GMPreferencesDialog.cpp:509
 msgid "Menu\tMenu Base Color"
 msgstr "მენიუს\tმენიუს ძირითადი ფერი"
 
-#: src/GMPreferencesDialog.cpp:493
+#: src/GMPreferencesDialog.cpp:513
 msgid "Menu\tMenu Text Color"
 msgstr "მენიუ\tმენიუს ტექსტის ფერი"
 
-#: src/GMPreferencesDialog.cpp:497
+#: src/GMPreferencesDialog.cpp:517
 msgid "Border\tBorder Color"
 msgstr "საზღვარი\tსაზღვრის ფერი"
 
-#: src/GMPreferencesDialog.cpp:501
+#: src/GMPreferencesDialog.cpp:521
 msgid "Tooltip\tTooltip Color"
 msgstr "მინიშნება\tმინიშნების ფერი"
 
-#: src/GMPreferencesDialog.cpp:505
+#: src/GMPreferencesDialog.cpp:525
 msgid "Hilite\tHilite Color"
 msgstr "Hilite\tფერის გამოკვეთა"
 
-#: src/GMPreferencesDialog.cpp:512
+#: src/GMPreferencesDialog.cpp:532
 msgid "Shadow\tShadow Color"
 msgstr "ჩრდილი\tჩრდილის ფერი"
 
-#: src/GMPreferencesDialog.cpp:515
+#: src/GMPreferencesDialog.cpp:535
 msgid "Playing\tPlaying Track Color"
 msgstr "დაკვრა\tდაკრული ტრეკის ფერი"
 
-#: src/GMPreferencesDialog.cpp:519
+#: src/GMPreferencesDialog.cpp:539
 msgid "Tray\tTray Background Color"
 msgstr "სისტემური კუთხე\tსისტემური კუთხის ფერი"
 
-#: src/GMPreferencesDialog.cpp:529
+#: src/GMPreferencesDialog.cpp:549
 msgid "Presets:"
 msgstr "პრესეტები:"
 
-#: src/GMPreferencesDialog.cpp:537
+#: src/GMPreferencesDialog.cpp:557
 msgid "Font & Icons"
 msgstr "ფონტი & ხატულები"
 
-#: src/GMPreferencesDialog.cpp:542
+#: src/GMPreferencesDialog.cpp:562
 msgid "Default Font"
 msgstr "ნაგულისხმევი ფონტი"
 
-#: src/GMPreferencesDialog.cpp:544
+#: src/GMPreferencesDialog.cpp:564
 msgid "Change…"
 msgstr "ცვლილება…"
 
-#: src/GMPreferencesDialog.cpp:546
+#: src/GMPreferencesDialog.cpp:566
 msgid "Display DPI"
 msgstr "ეკრანის DPI"
 
-#: src/GMPreferencesDialog.cpp:553
+#: src/GMPreferencesDialog.cpp:573
 msgid "Icons"
 msgstr "ხატულები"
 
-#: src/GMPreferencesDialog.cpp:572
+#: src/GMPreferencesDialog.cpp:592
 msgid "&Audio"
 msgstr "აუდიო"
 
-#: src/GMPreferencesDialog.cpp:575
+#: src/GMPreferencesDialog.cpp:595
 msgid "Output"
 msgstr "გამოტანა"
 
-#: src/GMPreferencesDialog.cpp:579
+#: src/GMPreferencesDialog.cpp:599
 msgid "Driver:"
 msgstr "დრაივერი:"
 
-#: src/GMPreferencesDialog.cpp:613 src/GMPreferencesDialog.cpp:626
+#: src/GMPreferencesDialog.cpp:636 src/GMPreferencesDialog.cpp:649
+#: src/GMPreferencesDialog.cpp:654
 msgid "Device:"
 msgstr "მოწყობილობა:"
 
-#: src/GMPreferencesDialog.cpp:633
+#: src/GMPreferencesDialog.cpp:661
 msgid "Apply Changes"
 msgstr "ცვლილებების გადატარება"
 
-#: src/GMPreferencesDialog.cpp:635
+#: src/GMPreferencesDialog.cpp:663
 msgid "Playback"
 msgstr "დაკვრა"
 
-#: src/GMPreferencesDialog.cpp:640
+#: src/GMPreferencesDialog.cpp:668
 msgid "Replay Gain:"
 msgstr "ხმის გაძლიერება:"
 
-#: src/GMPreferencesDialog.cpp:643
+#: src/GMPreferencesDialog.cpp:671 src/GMPreferencesDialog.cpp:681
 msgid "Off"
 msgstr "გამორთ"
 
-#: src/GMPreferencesDialog.cpp:644
+#: src/GMPreferencesDialog.cpp:672
 msgid "Track"
 msgstr "ტრეკი"
 
-#: src/GMPreferencesDialog.cpp:650
+#: src/GMPreferencesDialog.cpp:679
+msgid "Crossfade:"
+msgstr ""
+
+#: src/GMPreferencesDialog.cpp:682
+msgid "On"
+msgstr ""
+
+#: src/GMPreferencesDialog.cpp:686
+msgid "ms"
+msgstr ""
+
+#: src/GMPreferencesDialog.cpp:691
 msgid "&Podcasts"
 msgstr "&პოდკასტები"
 
-#: src/GMPreferencesDialog.cpp:653
+#: src/GMPreferencesDialog.cpp:694
 msgid "Updates"
 msgstr "განახლებები"
 
-#: src/GMPreferencesDialog.cpp:657
+#: src/GMPreferencesDialog.cpp:698
 msgid "Update Interval"
 msgstr "განახლების ინტერვალი"
 
-#: src/GMPreferencesDialog.cpp:659
+#: src/GMPreferencesDialog.cpp:700
 msgid "Disabled"
 msgstr "გამორთულია"
 
-#: src/GMPreferencesDialog.cpp:660
+#: src/GMPreferencesDialog.cpp:701
 msgid "10 minutes"
 msgstr "10 წუთი"
 
-#: src/GMPreferencesDialog.cpp:661
+#: src/GMPreferencesDialog.cpp:702
 msgid "20 minutes"
 msgstr "20 წთ"
 
-#: src/GMPreferencesDialog.cpp:662
+#: src/GMPreferencesDialog.cpp:703
 msgid "30 minutes"
 msgstr "30 წუთი"
 
-#: src/GMPreferencesDialog.cpp:663
+#: src/GMPreferencesDialog.cpp:704
 msgid "1 hour"
 msgstr "1 საათი"
 
-#: src/GMPreferencesDialog.cpp:664
+#: src/GMPreferencesDialog.cpp:705
 msgid "2 hours"
 msgstr "2 საათი"
 
-#: src/GMPreferencesDialog.cpp:665
+#: src/GMPreferencesDialog.cpp:706
 msgid "6 hours"
 msgstr "5 სთ"
 
-#: src/GMPreferencesDialog.cpp:666
+#: src/GMPreferencesDialog.cpp:707
 msgid "12 hours"
 msgstr "12 საათი"
 
-#: src/GMPreferencesDialog.cpp:863
+#: src/GMPreferencesDialog.cpp:934
 msgid "Current"
 msgstr "მიმდინარე"
 
-#: src/GMPreferencesDialog.cpp:881
+#: src/GMPreferencesDialog.cpp:952
 msgid "Custom"
 msgstr "ხელით"
 
-#: src/GMPreferencesDialog.cpp:1469
+#: src/GMPreferencesDialog.cpp:1540
 msgid "Select Normal Font"
 msgstr "აირჩიეთ ნორმალური ფონტი"
 
-#: src/GMRemote.cpp:79
+#: src/GMRemote.cpp:81
 msgid "\tShow Browser\tShow Browser"
 msgstr "\tShow Browser\tბრაუზერის ჩვენება"
 
-#: src/GMRemote.cpp:81 src/GMWindow.cpp:282
+#: src/GMRemote.cpp:83 src/GMWindow.cpp:282
 msgid "\tStart Playback\tStart Playback"
 msgstr "\tდაკვრის დაწყება\tდაკვრის დაწყება"
 
-#: src/GMRemote.cpp:82 src/GMWindow.cpp:283
+#: src/GMRemote.cpp:84 src/GMWindow.cpp:283
 msgid "\tStop Playback\tStop Playback"
 msgstr "\tდაკვრის გაჩერება\tდაკვრის გაჩერება"
 
-#: src/GMRemote.cpp:84 src/GMWindow.cpp:284
+#: src/GMRemote.cpp:86 src/GMWindow.cpp:284
 msgid "\tPlay Previous Track\tPlay previous track."
 msgstr "\tწინა ტრეკის დაკვრა\tწინა ტრეკის დაკვრა."
 
-#: src/GMRemote.cpp:85 src/GMWindow.cpp:285
+#: src/GMRemote.cpp:87 src/GMWindow.cpp:285
 msgid "\tPlay Next Track\tPlay next track."
 msgstr "\tშემდეგი ტრეკის დაკვრა\tშემდეგი ტრეკის დაკვრა."
 
-#: src/GMRemote.cpp:93
+#: src/GMRemote.cpp:95
 msgid "\tAdjust Volume\tAdjust Volume"
 msgstr "\tხმის რეგულაცია\tხმის რეგულაცია"
 
@@ -1460,7 +1475,7 @@ msgstr "უცნობი შემსრულებელი"
 msgid "Unknown Album"
 msgstr "უცნობი ალბომი"
 
-#: src/GMScanner.cpp:593
+#: src/GMScanner.cpp:601
 msgid "Various Artists"
 msgstr "სხვადასხვა შემსრულებლები"
 
@@ -1718,11 +1733,11 @@ msgstr "&ძებნა"
 msgid "&Properties"
 msgstr "&თვისებები"
 
-#: src/GMTrackEditor.cpp:503 cfox/lib/FXFileSelector.cpp:940
+#: src/GMTrackEditor.cpp:503 fox/lib/FXFileSelector.cpp:979
 msgid "Type"
 msgstr "ტიპი"
 
-#: src/GMTrackEditor.cpp:506 cfox/lib/FXFileSelector.cpp:941
+#: src/GMTrackEditor.cpp:506 fox/lib/FXFileSelector.cpp:980
 msgid "Size"
 msgstr "ზომა"
 
@@ -1829,8 +1844,8 @@ msgstr "პოვნა"
 msgid "Shuffle\tCtrl-R"
 msgstr "არევა\tCtrl-R"
 
-#: src/GMTrackView.cpp:299 cfox/lib/FXDirSelector.cpp:422
-#: cfox/lib/FXFileSelector.cpp:946
+#: src/GMTrackView.cpp:299 fox/lib/FXDirSelector.cpp:423
+#: fox/lib/FXFileSelector.cpp:985
 msgid "Reverse"
 msgstr "რევერსი"
 
@@ -2083,278 +2098,278 @@ msgstr "ალბომები"
 msgid "Internet Radio"
 msgstr "ინტერნეტრადიო"
 
-#: cfox/lib/FXMessageBox.cpp:123 cfox/lib/FXMessageBox.cpp:128
+#: fox/lib/FXMessageBox.cpp:130 fox/lib/FXMessageBox.cpp:135
 msgid "&Quit"
 msgstr "&გასვლა"
 
-#: cfox/lib/FXMessageBox.cpp:134
+#: fox/lib/FXMessageBox.cpp:141
 msgid "&Skip"
 msgstr "გამო&ტოვება"
 
-#: cfox/lib/FXMessageBox.cpp:135
+#: fox/lib/FXMessageBox.cpp:142
 msgid "Skip &All"
 msgstr "ყველას გ&ამოტოვება"
 
-#: cfox/lib/FXMessageBox.cpp:141
+#: fox/lib/FXMessageBox.cpp:147
 msgid "&Don't Save"
 msgstr "არ შეინა&ხო"
 
-#: cfox/lib/FXMessageBox.cpp:149
+#: fox/lib/FXMessageBox.cpp:154 fox/lib/FXMessageBox.cpp:162
 msgid "Y&es to All"
 msgstr "დიახ ყვ&ელაფერზე"
 
-#: cfox/lib/FXMessageBox.cpp:151
+#: fox/lib/FXMessageBox.cpp:156 fox/lib/FXMessageBox.cpp:169
 msgid "N&o to All"
 msgstr "ა&რა ყველაფერზე"
 
-#: cfox/lib/FXColorSelector.cpp:222
+#: fox/lib/FXColorSelector.cpp:219
 msgid "\tPick color"
 msgstr "\tფერის არჩევა"
 
-#: cfox/lib/FXColorSelector.cpp:231 cfox/lib/FXColorSelector.cpp:274
+#: fox/lib/FXColorSelector.cpp:228 fox/lib/FXColorSelector.cpp:274
 msgid "\tHue, Saturation, Value"
 msgstr "\tტონი, გაჯერებულობა, მნიშვნელობა"
 
-#: cfox/lib/FXColorSelector.cpp:239
+#: fox/lib/FXColorSelector.cpp:236
 msgid "\tRed, Green, Blue"
 msgstr "\tწითელი, მწვანე, ლურჯი"
 
-#: cfox/lib/FXColorSelector.cpp:245
+#: fox/lib/FXColorSelector.cpp:242
 msgid "&Red:"
 msgstr "&წითელი:"
 
-#: cfox/lib/FXColorSelector.cpp:250
+#: fox/lib/FXColorSelector.cpp:248
 msgid "&Green:"
 msgstr "&მწვანე:"
 
-#: cfox/lib/FXColorSelector.cpp:255
+#: fox/lib/FXColorSelector.cpp:254
 msgid "&Blue:"
 msgstr "&ლურჯი:"
 
-#: cfox/lib/FXColorSelector.cpp:260
+#: fox/lib/FXColorSelector.cpp:260
 msgid "&Alpha:"
 msgstr "&ალფა:"
 
-#: cfox/lib/FXColorSelector.cpp:280
+#: fox/lib/FXColorSelector.cpp:280
 msgid "Hue:"
 msgstr "ტონი:"
 
-#: cfox/lib/FXColorSelector.cpp:285
+#: fox/lib/FXColorSelector.cpp:285
 msgid "Saturation:"
 msgstr "ჯერადობა:"
 
-#: cfox/lib/FXColorSelector.cpp:290
+#: fox/lib/FXColorSelector.cpp:290
 msgid "Value:"
 msgstr "მნიშვნელობა:"
 
-#: cfox/lib/FXColorSelector.cpp:295 cfox/lib/FXColorSelector.cpp:330
+#: fox/lib/FXColorSelector.cpp:295 fox/lib/FXColorSelector.cpp:333
 msgid "Alpha:"
 msgstr "ალფა:"
 
-#: cfox/lib/FXColorSelector.cpp:309
+#: fox/lib/FXColorSelector.cpp:309
 msgid "\tCyan, Magenta, Yellow"
 msgstr "\tცისფერი, იასამნისფერი, ყვითელი"
 
-#: cfox/lib/FXColorSelector.cpp:315
+#: fox/lib/FXColorSelector.cpp:315
 msgid "Cyan:"
 msgstr "ცისფ:"
 
-#: cfox/lib/FXColorSelector.cpp:320
+#: fox/lib/FXColorSelector.cpp:321
 msgid "Magenta:"
 msgstr "ალისფერი:"
 
-#: cfox/lib/FXColorSelector.cpp:325
+#: fox/lib/FXColorSelector.cpp:327
 msgid "Yellow:"
 msgstr "ყვითელი:"
 
-#: cfox/lib/FXColorSelector.cpp:344
+#: fox/lib/FXColorSelector.cpp:347
 msgid "\tBy Name"
 msgstr "\tსახელით"
 
-#: cfox/lib/FXDirSelector.cpp:141
+#: fox/lib/FXDirSelector.cpp:142
 msgid "&Directory:"
 msgstr "&საქაღალდე:"
 
-#: cfox/lib/FXDirSelector.cpp:144
+#: fox/lib/FXDirSelector.cpp:145
 msgid "&Name"
 msgstr "&სახელი"
 
-#: cfox/lib/FXDirSelector.cpp:315 cfox/lib/FXFileSelector.cpp:720
+#: fox/lib/FXDirSelector.cpp:316 fox/lib/FXFileSelector.cpp:753
 msgid "folder"
 msgstr "საქაღალდე"
 
-#: cfox/lib/FXDirSelector.cpp:316 cfox/lib/FXFileSelector.cpp:721
+#: fox/lib/FXDirSelector.cpp:317 fox/lib/FXFileSelector.cpp:754
 msgid "Create New Directory"
 msgstr "ახალი საქაღალდის შექმნა"
 
-#: cfox/lib/FXDirSelector.cpp:319 cfox/lib/FXFileSelector.cpp:724
+#: fox/lib/FXDirSelector.cpp:320 fox/lib/FXFileSelector.cpp:757
 msgid "Already Exists"
 msgstr "უკვე არსებობს"
 
-#: cfox/lib/FXDirSelector.cpp:323 cfox/lib/FXFileSelector.cpp:728
+#: fox/lib/FXDirSelector.cpp:324 fox/lib/FXFileSelector.cpp:761
 msgid "Cannot Create"
 msgstr "შექმნის შეცდომა"
 
-#: cfox/lib/FXDirSelector.cpp:343 cfox/lib/FXFileSelector.cpp:780
+#: fox/lib/FXDirSelector.cpp:344 fox/lib/FXFileSelector.cpp:815
 msgid "Copy File"
 msgstr "ფაილის კოპირება"
 
-#: cfox/lib/FXDirSelector.cpp:349 cfox/lib/FXFileSelector.cpp:786
+#: fox/lib/FXDirSelector.cpp:350 fox/lib/FXFileSelector.cpp:821
 msgid "Error Copying File"
 msgstr "ფაილის კოპირების შეცდომა"
 
-#: cfox/lib/FXDirSelector.cpp:360 cfox/lib/FXFileSelector.cpp:803
+#: fox/lib/FXDirSelector.cpp:361 fox/lib/FXFileSelector.cpp:838
 msgid "Move File"
 msgstr "ფაილის გადატანა"
 
-#: cfox/lib/FXDirSelector.cpp:366 cfox/lib/FXFileSelector.cpp:809
+#: fox/lib/FXDirSelector.cpp:367 fox/lib/FXFileSelector.cpp:844
 msgid "Error Moving File"
 msgstr "ფაილის გადატანის შეცდომა"
 
-#: cfox/lib/FXDirSelector.cpp:377 cfox/lib/FXFileSelector.cpp:826
+#: fox/lib/FXDirSelector.cpp:378 fox/lib/FXFileSelector.cpp:861
 msgid "Link File"
 msgstr "ბმული ფაილზე"
 
-#: cfox/lib/FXDirSelector.cpp:383 cfox/lib/FXFileSelector.cpp:832
+#: fox/lib/FXDirSelector.cpp:384 fox/lib/FXFileSelector.cpp:867
 msgid "Error Linking File"
 msgstr "ფაილის ბმულის შექმნის შეცდომა"
 
-#: cfox/lib/FXDirSelector.cpp:393
+#: fox/lib/FXDirSelector.cpp:394
 msgid "Deleting file"
 msgstr "ფაილის წაშლა"
 
-#: cfox/lib/FXDirSelector.cpp:395 cfox/lib/FXFileSelector.cpp:852
+#: fox/lib/FXDirSelector.cpp:396 fox/lib/FXFileSelector.cpp:887
 msgid "Error Deleting File"
 msgstr "ფაილის წაშლის შეცდომა"
 
-#: cfox/lib/FXDirSelector.cpp:415 cfox/lib/FXFileSelector.cpp:906
+#: fox/lib/FXDirSelector.cpp:416 fox/lib/FXFileSelector.cpp:940
 msgid "Up one level"
 msgstr "ერთი დონით მაღლა"
 
-#: cfox/lib/FXDirSelector.cpp:416 cfox/lib/FXFileSelector.cpp:907
+#: fox/lib/FXDirSelector.cpp:417 fox/lib/FXFileSelector.cpp:941
 msgid "Home directory"
 msgstr "საწყისი საქაღალდე"
 
-#: cfox/lib/FXDirSelector.cpp:417 cfox/lib/FXFileSelector.cpp:908
+#: fox/lib/FXDirSelector.cpp:418 fox/lib/FXFileSelector.cpp:942
 msgid "Work directory"
 msgstr "სამუშაო საქაღალდე"
 
-#: cfox/lib/FXDirSelector.cpp:421
+#: fox/lib/FXDirSelector.cpp:422
 msgid "Sorting"
 msgstr "დალაგება"
 
-#: cfox/lib/FXDirSelector.cpp:423 cfox/lib/FXFileSelector.cpp:947
+#: fox/lib/FXDirSelector.cpp:424 fox/lib/FXFileSelector.cpp:986
 msgid "Ignore case"
 msgstr "რეგისტრის იგნორი"
 
-#: cfox/lib/FXDirSelector.cpp:424 cfox/lib/FXFileSelector.cpp:958
+#: fox/lib/FXDirSelector.cpp:425 fox/lib/FXFileSelector.cpp:997
 msgid "Hidden files"
 msgstr "დამალული ფაილები"
 
-#: cfox/lib/FXDirSelector.cpp:427 cfox/lib/FXFileSelector.cpp:912
+#: fox/lib/FXDirSelector.cpp:428 fox/lib/FXFileSelector.cpp:946
 msgid "Bookmarks"
 msgstr "სანიშნეები"
 
-#: cfox/lib/FXDirSelector.cpp:428 cfox/lib/FXFileSelector.cpp:915
+#: fox/lib/FXDirSelector.cpp:429 fox/lib/FXFileSelector.cpp:949
 msgid "Set bookmark"
 msgstr "სანიშნეს დაყენება"
 
-#: cfox/lib/FXDirSelector.cpp:429 cfox/lib/FXFileSelector.cpp:916
+#: fox/lib/FXDirSelector.cpp:430 fox/lib/FXFileSelector.cpp:950
 msgid "&Unset bookmark"
 msgstr "სანიშ&ნეს მოხსნა"
 
-#: cfox/lib/FXDirSelector.cpp:430
+#: fox/lib/FXDirSelector.cpp:431
 msgid "Clear bookmarks"
 msgstr "სანიშნეების გასუფათავება"
 
-#: cfox/lib/FXDirSelector.cpp:446 cfox/lib/FXFileSelector.cpp:967
+#: fox/lib/FXDirSelector.cpp:447 fox/lib/FXFileSelector.cpp:1006
 msgid "New directory..."
 msgstr "ახალი საქაღალდე..."
 
-#: cfox/lib/FXDirSelector.cpp:447 cfox/lib/FXFileSelector.cpp:969
+#: fox/lib/FXDirSelector.cpp:448 fox/lib/FXFileSelector.cpp:1008
 msgid "Copy..."
 msgstr "კოპირება..."
 
-#: cfox/lib/FXDirSelector.cpp:448 cfox/lib/FXFileSelector.cpp:970
+#: fox/lib/FXDirSelector.cpp:449 fox/lib/FXFileSelector.cpp:1009
 msgid "Move..."
 msgstr "გადატანა..."
 
-#: cfox/lib/FXDirSelector.cpp:449 cfox/lib/FXFileSelector.cpp:971
+#: fox/lib/FXDirSelector.cpp:450 fox/lib/FXFileSelector.cpp:1010
 msgid "Link..."
 msgstr "ბმული..."
 
-#: cfox/lib/FXDirSelector.cpp:450 cfox/lib/FXFileSelector.cpp:972
+#: fox/lib/FXDirSelector.cpp:451 fox/lib/FXFileSelector.cpp:1011
 msgid "Delete..."
 msgstr "წაშლა..."
 
-#: cfox/lib/FXFileList.cpp:209
+#: fox/lib/FXFileList.cpp:216
 msgid "Name\tName"
 msgstr "სახელი\tსახელი"
 
-#: cfox/lib/FXFileList.cpp:210
+#: fox/lib/FXFileList.cpp:217
 msgid "Type\tFile type"
 msgstr "ტიპი\tფაილის ტიპი"
 
-#: cfox/lib/FXFileList.cpp:211
+#: fox/lib/FXFileList.cpp:218
 msgid "Size\tFile size"
 msgstr "ზომა\tფაილის ზომა"
 
-#: cfox/lib/FXFileList.cpp:212
+#: fox/lib/FXFileList.cpp:219
 msgid "Modified Date\tDate when last modified"
 msgstr "ცვლილების თარიღი\tბოლო ცვლილების თარიღი"
 
-#: cfox/lib/FXFileList.cpp:213
+#: fox/lib/FXFileList.cpp:220
 msgid "User\tUser name"
 msgstr "მომხმარებელი\tმომხმარებლის სახელი"
 
-#: cfox/lib/FXFileList.cpp:214
+#: fox/lib/FXFileList.cpp:221
 msgid "Group\tGroup name"
 msgstr "ჯგუფი\tჯგუფის სახელი"
 
-#: cfox/lib/FXFileList.cpp:215
+#: fox/lib/FXFileList.cpp:222
 msgid "Attributes\tFile attributes"
 msgstr "ატრიბუტები\tფაილის ატრიბუტები"
 
-#: cfox/lib/FXFileList.cpp:217
+#: fox/lib/FXFileList.cpp:224
 msgid "Link\tSymbolic link to"
 msgstr "ბმული\tსიმბმული ფაილამდე"
 
-#: cfox/lib/FXFileList.cpp:583
+#: fox/lib/FXFileList.cpp:673
 msgid "Failed Deleting Files"
 msgstr "ფაილების წაშლის შეცდომა"
 
-#: cfox/lib/FXFileList.cpp:583
+#: fox/lib/FXFileList.cpp:673
 #, c-format
 msgid "Failed to delete file: %s; continue?"
 msgstr "ფაილის წაშლის შეცდომა: %s; გავაგრძელო?"
 
-#: cfox/lib/FXFileList.cpp:603 cfox/lib/FXFileList.cpp:632
+#: fox/lib/FXFileList.cpp:693 fox/lib/FXFileList.cpp:722
 msgid "Overwrite File"
 msgstr "ფაილის ჩანაცვლება"
 
-#: cfox/lib/FXFileList.cpp:603 cfox/lib/FXFileList.cpp:632
+#: fox/lib/FXFileList.cpp:693 fox/lib/FXFileList.cpp:722
 #, c-format
 msgid "Overwrite existing file or directory: %s?"
 msgstr "გადავაწერო თავზე არსებულ ფაილს, ან საქაღალდეს: %s?"
 
-#: cfox/lib/FXFileList.cpp:610
+#: fox/lib/FXFileList.cpp:700
 msgid "Failed Copying File"
 msgstr "ფაილის კოპირების შეცდომა"
 
-#: cfox/lib/FXFileList.cpp:610 cfox/lib/FXFileList.cpp:639
+#: fox/lib/FXFileList.cpp:700 fox/lib/FXFileList.cpp:729
 #, c-format
 msgid "Failed to overwrite file: %s; continue?"
 msgstr "ფაილის თავზე გადაწერის შეცდომა: %s; გავაგრძელო?"
 
-#: cfox/lib/FXFileList.cpp:639
+#: fox/lib/FXFileList.cpp:729
 msgid "Failed Moving File"
 msgstr "ფაილის გადატანის შეცდომა"
 
-#: cfox/lib/FXFileList.cpp:647
+#: fox/lib/FXFileList.cpp:737
 msgid "Copying Files"
 msgstr "ფაილების კოპირება"
 
-#: cfox/lib/FXFileList.cpp:663
+#: fox/lib/FXFileList.cpp:753
 msgid ""
 "Copying file:\n"
 "\n"
@@ -2362,58 +2377,58 @@ msgstr ""
 "კოპირდება ფაილი:\n"
 "\n"
 
-#: cfox/lib/FXFileList.cpp:714
+#: fox/lib/FXFileList.cpp:804
 msgid "Failed Linking File"
 msgstr "ფაილის ბმულის შექმნის შეცდომა"
 
-#: cfox/lib/FXFileList.cpp:714
+#: fox/lib/FXFileList.cpp:804
 #, c-format
 msgid "Failed to make symbolic link from: %s; continue?"
 msgstr "სიმბოლური ბმულის შექმნის შეცდომა ფაილიდან: %s; გავაგრძელო?"
 
-#: cfox/lib/FXFileList.cpp:731
+#: fox/lib/FXFileList.cpp:821
 msgid "Move Here"
 msgstr "აქ გადმოტანა"
 
-#: cfox/lib/FXFileList.cpp:732
+#: fox/lib/FXFileList.cpp:822
 msgid "Copy Here"
 msgstr "აქ ჩაკოპირება"
 
-#: cfox/lib/FXFileList.cpp:733
+#: fox/lib/FXFileList.cpp:823
 msgid "Link Here"
 msgstr "აქ ბმულის შექმნა"
 
-#: cfox/lib/FXFileList.cpp:735
+#: fox/lib/FXFileList.cpp:825
 msgid "Cancel"
 msgstr "გაუქმება"
 
-#: cfox/lib/FXFileList.cpp:1432
+#: fox/lib/FXFileList.cpp:1522
 msgid "Folder"
 msgstr "საქაღალდე"
 
-#: cfox/lib/FXFileList.cpp:1438
+#: fox/lib/FXFileList.cpp:1528
 msgid "Application"
 msgstr "აპლიკაცია"
 
-#: cfox/lib/FXFileList.cpp:1444
+#: fox/lib/FXFileList.cpp:1534
 msgid "Document"
 msgstr "დოკუმენტი"
 
-#: cfox/lib/FXFileSelector.cpp:721
+#: fox/lib/FXFileSelector.cpp:754
 msgid "Create new directory with name: "
 msgstr "ახალი საქაღალდის შექმნა სახელით: "
 
-#: cfox/lib/FXFileSelector.cpp:724
+#: fox/lib/FXFileSelector.cpp:757
 #, c-format
 msgid "File or directory %s already exists.\n"
 msgstr "ფაილი, ან საქაღალდე %s უკვე არსებობს.\n"
 
-#: cfox/lib/FXFileSelector.cpp:728
+#: fox/lib/FXFileSelector.cpp:761
 #, c-format
 msgid "Cannot create directory %s.\n"
 msgstr "საქაღალდის %s შექმნა შეუძლებელია.\n"
 
-#: cfox/lib/FXFileSelector.cpp:756
+#: fox/lib/FXFileSelector.cpp:791
 #, c-format
 msgid ""
 "Rename file from:\n"
@@ -2428,15 +2443,15 @@ msgstr ""
 "\n"
 "სახელზე: "
 
-#: cfox/lib/FXFileSelector.cpp:757
+#: fox/lib/FXFileSelector.cpp:792
 msgid "Rename File"
 msgstr "ფაილის სახელის გადარქმევა"
 
-#: cfox/lib/FXFileSelector.cpp:763
+#: fox/lib/FXFileSelector.cpp:798
 msgid "Error Renaming File"
 msgstr "ფაილის სახელის გადარქმევის შეცდომა"
 
-#: cfox/lib/FXFileSelector.cpp:763
+#: fox/lib/FXFileSelector.cpp:798
 #, c-format
 msgid ""
 "Unable to rename file:\n"
@@ -2451,7 +2466,7 @@ msgstr ""
 "\n"
 "გავაგრძელო ოპერაცია?"
 
-#: cfox/lib/FXFileSelector.cpp:779
+#: fox/lib/FXFileSelector.cpp:814
 #, c-format
 msgid ""
 "Copy file from location:\n"
@@ -2466,7 +2481,7 @@ msgstr ""
 "\n"
 "მდებარეობამდე: "
 
-#: cfox/lib/FXFileSelector.cpp:786
+#: fox/lib/FXFileSelector.cpp:821
 #, c-format
 msgid ""
 "Unable to copy file:\n"
@@ -2481,7 +2496,7 @@ msgstr ""
 "\n"
 "Continue with operation?"
 
-#: cfox/lib/FXFileSelector.cpp:802
+#: fox/lib/FXFileSelector.cpp:837
 #, c-format
 msgid ""
 "Move file from location:\n"
@@ -2496,7 +2511,7 @@ msgstr ""
 "\n"
 "მდებარეობაზე: "
 
-#: cfox/lib/FXFileSelector.cpp:809
+#: fox/lib/FXFileSelector.cpp:844
 #, c-format
 msgid ""
 "Unable to move file:\n"
@@ -2511,7 +2526,7 @@ msgstr ""
 "\n"
 "გავაგრძელო ოპერაცია?"
 
-#: cfox/lib/FXFileSelector.cpp:825
+#: fox/lib/FXFileSelector.cpp:860
 #, c-format
 msgid ""
 "Link file from location:\n"
@@ -2526,7 +2541,7 @@ msgstr ""
 "\n"
 "მდებარეობაზე: "
 
-#: cfox/lib/FXFileSelector.cpp:832
+#: fox/lib/FXFileSelector.cpp:867
 #, c-format
 msgid ""
 "Unable to link file:\n"
@@ -2541,11 +2556,11 @@ msgstr ""
 "\n"
 "გავაგრძელო ოპერაცია?"
 
-#: cfox/lib/FXFileSelector.cpp:848
+#: fox/lib/FXFileSelector.cpp:883
 msgid "Deleting files"
 msgstr "ფაილების წაშლა"
 
-#: cfox/lib/FXFileSelector.cpp:848
+#: fox/lib/FXFileSelector.cpp:883
 #, c-format
 msgid ""
 "Are you sure you want to delete the file:\n"
@@ -2556,7 +2571,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: cfox/lib/FXFileSelector.cpp:852
+#: fox/lib/FXFileSelector.cpp:887
 #, c-format
 msgid ""
 "Unable to delete file:\n"
@@ -2571,118 +2586,128 @@ msgstr ""
 "\n"
 "გავაგრძელო ოპერაცია?"
 
-#: cfox/lib/FXFileSelector.cpp:917
+#: fox/lib/FXFileSelector.cpp:951
 msgid "Clear all bookmarks"
 msgstr "ყველა სანიშნეს წაშლა"
 
-#: cfox/lib/FXFileSelector.cpp:938
+#: fox/lib/FXFileSelector.cpp:977
 msgid "Sort by"
 msgstr "დალაგების პირობა"
 
-#: cfox/lib/FXFileSelector.cpp:943
+#: fox/lib/FXFileSelector.cpp:982
 msgid "User"
 msgstr "მომხმარებელი"
 
-#: cfox/lib/FXFileSelector.cpp:944
+#: fox/lib/FXFileSelector.cpp:983
 msgid "Group"
 msgstr "ჯგუფები"
 
-#: cfox/lib/FXFileSelector.cpp:950
+#: fox/lib/FXFileSelector.cpp:989
 msgid "View"
 msgstr "ხედი"
 
-#: cfox/lib/FXFileSelector.cpp:951
+#: fox/lib/FXFileSelector.cpp:990
 msgid "Small icons"
 msgstr "პატარა ხატულები"
 
-#: cfox/lib/FXFileSelector.cpp:952
+#: fox/lib/FXFileSelector.cpp:991
 msgid "Big icons"
 msgstr "დიდი ხატულები"
 
-#: cfox/lib/FXFileSelector.cpp:953
+#: fox/lib/FXFileSelector.cpp:992
 msgid "Details"
 msgstr "დეტალები"
 
-#: cfox/lib/FXFileSelector.cpp:955
+#: fox/lib/FXFileSelector.cpp:994
 msgid "Rows"
 msgstr "მწკრივები"
 
-#: cfox/lib/FXFileSelector.cpp:956
+#: fox/lib/FXFileSelector.cpp:995
 msgid "Columns"
 msgstr "სვეტები"
 
-#: cfox/lib/FXFileSelector.cpp:959
+#: fox/lib/FXFileSelector.cpp:998
 msgid "Preview images"
 msgstr "სურათების მინიატურები"
 
-#: cfox/lib/FXFileSelector.cpp:961
+#: fox/lib/FXFileSelector.cpp:1000
 msgid "Mini images"
 msgstr "მინიგამოსახულებები"
 
-#: cfox/lib/FXFileSelector.cpp:962
+#: fox/lib/FXFileSelector.cpp:1001
 msgid "Normal images"
 msgstr "ნორმალური გამოსახულებები"
 
-#: cfox/lib/FXFileSelector.cpp:963
+#: fox/lib/FXFileSelector.cpp:1002
 msgid "Medium images"
 msgstr "საშუალო გამოსახულებები"
 
-#: cfox/lib/FXFileSelector.cpp:964
+#: fox/lib/FXFileSelector.cpp:1003
 msgid "Giant images"
 msgstr "გიგანტური გამოსახულებები"
 
-#: cfox/lib/FXFileSelector.cpp:968
+#: fox/lib/FXFileSelector.cpp:1007
 msgid "Rename..."
 msgstr "სახელის გადარქმევა..."
 
-#: cfox/lib/FXReplaceDialog.cpp:129
+#: fox/lib/FXReplaceDialog.cpp:130
 msgid "&Search\tSearch\tSearch for pattern."
 msgstr "&ძებნა\tძებნა\tნიმუშის ძებნა."
 
-#: cfox/lib/FXReplaceDialog.cpp:130
+#: fox/lib/FXReplaceDialog.cpp:131
 msgid "&Replace\tReplace\tSearch and replace pattern."
 msgstr "&ჩანაცვლება\tჩანაცვლება\tნიმუშის ძებნა და ჩანაცვლება."
 
-#: cfox/lib/FXReplaceDialog.cpp:131
-msgid "Replace Sel\tReplace in selection\tReplace all in selection."
+#: fox/lib/FXReplaceDialog.cpp:132
+#, fuzzy
+msgid "Replace S&el\tReplace in selection\tReplace all in selection."
 msgstr ""
 "ჩანაცვლება მონიშნულშიl\tჩანაცვლება მონიშნულში\tყველას ჩანაცვლება მონიშნულში."
 
-#: cfox/lib/FXReplaceDialog.cpp:132
-msgid "Replace All\tReplace all\tReplace all."
+#: fox/lib/FXReplaceDialog.cpp:133
+#, fuzzy
+msgid "Replace &All\tReplace all\tReplace all in text."
 msgstr "ყველას ჩანაცვლება\tყველას ჩანაცვლება\tყველას ჩანაცვლება."
 
-#: cfox/lib/FXReplaceDialog.cpp:138
+#: fox/lib/FXReplaceDialog.cpp:139
 msgid "Search &For:"
 msgstr "ძ&ებნა:"
 
-#: cfox/lib/FXReplaceDialog.cpp:146
-msgid "Re&place With:"
+#: fox/lib/FXReplaceDialog.cpp:149
+#, fuzzy
+msgid "Replace &With:"
 msgstr "&ჩასანაცვლებელი ტექსტი:"
 
-#: cfox/lib/FXReplaceDialog.cpp:155
-msgid "&Expression\tRegular Expression\tPerform regular-expression match."
+#: fox/lib/FXReplaceDialog.cpp:160
+#, fuzzy
+msgid "E&xpression\tRegular Expression\tPerform regular-expression match."
 msgstr ""
 "გამოსახულ&ება\tრეგულარული გამოსახულება\tრეგულარული გამოსახულებით დამთხვევა."
 
-#: cfox/lib/FXReplaceDialog.cpp:156
-msgid "&Ignore Case\tCase Insensitive\tPerform case-insentive match."
+#: fox/lib/FXReplaceDialog.cpp:161
+msgid "W&ords\tWhole Words\tPerform whole-word match."
+msgstr ""
+
+#: fox/lib/FXReplaceDialog.cpp:162
+#, fuzzy
+msgid "Case\tCase Insensitive\tPerform case-insentive match."
 msgstr ""
 "დ&იდი და პატარა ასოების სხვაობის იგნორი\tდიდი და პატარა ასოების სხვაობის "
 "იგნორი\tდიდი და პატარა ასოების სხვაობის იგნორი ძებნისას."
 
-#: cfox/lib/FXReplaceDialog.cpp:157
-msgid "&Wrap\tWrap Around\tWrap around when searching."
+#: fox/lib/FXReplaceDialog.cpp:163
+#, fuzzy
+msgid "Wra&p\tWrap Around\tWrap around when searching."
 msgstr "გადა&ტანა\tგადატანა\tსიტყვების გადატან ძებნისას."
 
-#: cfox/lib/FXReplaceDialog.cpp:158
+#: fox/lib/FXReplaceDialog.cpp:164
 msgid "&Backward\tSearch Direction\tChange search direction."
 msgstr "უკან ძე&ბნა\tძებნის მიმართულება\tძებნის მიმართულების შეცვლა."
 
-#: cfox/lib/FXReplaceDialog.cpp:159
+#: fox/lib/FXReplaceDialog.cpp:165
 msgid "Text to replace with."
 msgstr "ჩასანაცვლებელი ტექსტი."
 
-#: cfox/lib/FXStatusLine.cpp:83
+#: fox/lib/FXStatusLine.cpp:84
 msgid "Ready."
 msgstr "მზადაა."

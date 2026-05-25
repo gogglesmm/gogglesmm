@@ -7,33 +7,33 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gogglesmm 1.0.0\n"
 "Report-Msgid-Bugs-To: s.jansen@gmail.com\n"
-"POT-Creation-Date: 2018-07-03 04:28-0500\n"
+"POT-Creation-Date: 2026-05-25 15:32-0500\n"
 "PO-Revision-Date: 2020-10-04 09:37+0900\n"
+"Last-Translator: JungHee Lee <daemul72@gmail.com>\n"
 "Language-Team: \n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.4.1\n"
-"Last-Translator: JungHee Lee <daemul72@gmail.com>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Language: ko\n"
 
-#: src/GMAbout.cpp:115
+#: src/GMAbout.cpp:114
 msgid "&Homepage"
 msgstr "홈페이지(&H)"
 
-#: src/GMAbout.cpp:116
+#: src/GMAbout.cpp:115
 msgid "&Report Issue"
 msgstr "이슈 보고(&R)"
 
-#: src/GMAbout.cpp:117 src/GMPreferencesDialog.cpp:688
+#: src/GMAbout.cpp:116 src/GMPreferencesDialog.cpp:729
 #: src/GMTrackEditor.cpp:401 src/GMTrackEditor.cpp:449
-#: src/GMTrackEditor.cpp:453 cfox/lib/FXReplaceDialog.cpp:133
+#: src/GMTrackEditor.cpp:453 fox/lib/FXReplaceDialog.cpp:134
 msgid "&Close"
 msgstr "닫기(&C)"
 
-#: src/GMAbout.cpp:123 src/GMAbout.cpp:150 src/GMPreferencesDialog.cpp:970
-#: src/GMPreferencesDialog.cpp:975 src/GMWindow.cpp:1176 src/GMWindow.cpp:1183
+#: src/GMAbout.cpp:122 src/GMAbout.cpp:152 src/GMPreferencesDialog.cpp:1041
+#: src/GMPreferencesDialog.cpp:1046 src/GMWindow.cpp:1176 src/GMWindow.cpp:1183
 msgid "Unable to launch webbrowser"
 msgstr "웹브라우저를 시작할 수 없음"
 
@@ -41,24 +41,24 @@ msgstr "웹브라우저를 시작할 수 없음"
 msgid "Configure Columns"
 msgstr "열 구성하기"
 
-#: src/GMColumnDialog.cpp:200 cfox/lib/FXColorSelector.cpp:175
+#: src/GMColumnDialog.cpp:200 fox/lib/FXColorSelector.cpp:172
 msgid "&Accept"
 msgstr "수락(&A)"
 
 #: src/GMColumnDialog.cpp:201 src/GMDatabaseSource.cpp:1032
 #: src/GMDatabaseSource.cpp:1205 src/GMDatabaseSource.cpp:1307
-#: src/GMDatabaseSource.cpp:1547 src/GMDatabaseSource.cpp:1628
+#: src/GMDatabaseSource.cpp:1547 src/GMDatabaseSource.cpp:1632
 #: src/GMFilterEditor.cpp:642 src/GMImportDialog.cpp:223
-#: src/GMImportDialog.cpp:583 src/GMPlayListSource.cpp:284
+#: src/GMImportDialog.cpp:587 src/GMPlayListSource.cpp:284
 #: src/GMPlayListSource.cpp:365 src/GMPodcastSource.cpp:433
 #: src/GMPodcastSource.cpp:1647 src/GMStreamSource.cpp:148
 #: src/GMStreamSource.cpp:185 src/GMStreamSource.cpp:246
 #: src/GMTrackEditor.cpp:292 src/GMWindow.cpp:1224 src/GMWindow.cpp:1288
-#: cfox/lib/FXMessageBox.cpp:108 cfox/lib/FXMessageBox.cpp:119
-#: cfox/lib/FXMessageBox.cpp:124 cfox/lib/FXMessageBox.cpp:130
-#: cfox/lib/FXMessageBox.cpp:136 cfox/lib/FXMessageBox.cpp:143
-#: cfox/lib/FXMessageBox.cpp:152 cfox/lib/FXColorSelector.cpp:176
-#: cfox/lib/FXDirSelector.cpp:139 cfox/lib/FXFileSelector.cpp:221
+#: fox/lib/FXMessageBox.cpp:115 fox/lib/FXMessageBox.cpp:126
+#: fox/lib/FXMessageBox.cpp:131 fox/lib/FXMessageBox.cpp:137
+#: fox/lib/FXMessageBox.cpp:143 fox/lib/FXMessageBox.cpp:148
+#: fox/lib/FXMessageBox.cpp:157 fox/lib/FXColorSelector.cpp:173
+#: fox/lib/FXDirSelector.cpp:140 fox/lib/FXFileSelector.cpp:284
 msgid "&Cancel"
 msgstr "취소(&C)"
 
@@ -76,8 +76,7 @@ msgstr "위로 이동"
 msgid "Move Down"
 msgstr "아래로 이동"
 
-#: src/GMDatabaseSource.cpp:226 src/GMFilterSource.cpp:197
-#: src/GMPlayListSource.cpp:387 src/GMPlayQueue.cpp:67
+#: src/GMDatabaseSource.cpp:226 src/GMPlayQueue.cpp:67
 #: src/GMStreamSource.cpp:58
 msgid "No"
 msgstr "No"
@@ -102,7 +101,7 @@ msgid "Album Artist"
 msgstr "앨범 아티스트"
 
 #: src/GMDatabaseSource.cpp:231 src/GMFilterEditor.cpp:42
-#: src/GMPlayQueue.cpp:71 src/GMPreferencesDialog.cpp:645
+#: src/GMPlayQueue.cpp:71 src/GMPreferencesDialog.cpp:673
 #: src/GMTrackView.cpp:263
 msgid "Album"
 msgstr "앨범"
@@ -118,7 +117,7 @@ msgstr "연도"
 
 #: src/GMDatabaseSource.cpp:235 src/GMFilterEditor.cpp:49
 #: src/GMPlayQueue.cpp:75 src/GMPodcastSource.cpp:1317
-#: cfox/lib/FXFileSelector.cpp:942
+#: fox/lib/FXFileSelector.cpp:981
 msgid "Time"
 msgstr "시간"
 
@@ -132,7 +131,7 @@ msgid "Play Date"
 msgstr "재생 날짜"
 
 #: src/GMDatabaseSource.cpp:238 src/GMFilterEditor.cpp:57
-#: src/GMImportDialog.cpp:499 src/GMLocalSource.cpp:56 src/GMPlayQueue.cpp:78
+#: src/GMImportDialog.cpp:503 src/GMLocalSource.cpp:56 src/GMPlayQueue.cpp:78
 #: src/GMTrackEditor.cpp:500
 msgid "Path"
 msgstr "경로"
@@ -184,6 +183,10 @@ msgstr "표지 넣기…\t\t"
 #: src/GMDatabaseSource.cpp:341 src/GMPlayQueue.cpp:143
 msgid "Copy\tCtrl-C\tCopy track(s) to clipboard."
 msgstr "복사\tCtrl-C\t곡을 클립보드로 복사하기."
+
+#: src/GMDatabaseSource.cpp:345
+msgid "Open Folder Location\t\tOpen Folder Location."
+msgstr ""
 
 #: src/GMDatabaseSource.cpp:350
 msgid "Remove…\tDel\tRemove track(s) from library."
@@ -243,7 +246,7 @@ msgid "The following audio files are going to be removed"
 msgstr "다음과 같은 오디오 파일이 제거될 예정입니다"
 
 #: src/GMDatabaseSource.cpp:1031 src/GMDatabaseSource.cpp:1306
-#: src/GMImportDialog.cpp:580 src/GMPlayListSource.cpp:283
+#: src/GMImportDialog.cpp:584 src/GMPlayListSource.cpp:283
 #: src/GMStreamSource.cpp:245
 msgid "&Remove"
 msgstr "제거(&R)"
@@ -265,8 +268,8 @@ msgid "File already exists. Would you like to overwrite it?"
 msgstr "존재하는 파일입니다. 덮어쓰시겠습니까?"
 
 #: src/GMDatabaseSource.cpp:1204 src/GMImportDialog.cpp:215
-#: cfox/lib/FXMessageBox.cpp:103 cfox/lib/FXMessageBox.cpp:107
-#: cfox/lib/FXDirSelector.cpp:138 cfox/lib/FXFileSelector.cpp:213
+#: fox/lib/FXMessageBox.cpp:110 fox/lib/FXMessageBox.cpp:114
+#: fox/lib/FXDirSelector.cpp:139 fox/lib/FXFileSelector.cpp:275
 msgid "&OK"
 msgstr "확인(&O)"
 
@@ -348,7 +351,7 @@ msgid "&Create"
 msgstr "생성(&C)"
 
 #: src/GMDatabaseSource.cpp:1551 src/GMPlayListSource.cpp:369
-#: cfox/lib/FXFileSelector.cpp:939
+#: fox/lib/FXFileSelector.cpp:978
 msgid "Name"
 msgstr "이름"
 
@@ -356,23 +359,23 @@ msgstr "이름"
 msgid "New Playlist"
 msgstr "새 재생목록"
 
-#: src/GMDatabaseSource.cpp:1624 src/GMDatabaseSource.cpp:1625
+#: src/GMDatabaseSource.cpp:1628 src/GMDatabaseSource.cpp:1629
 msgid "Clear Music Library?"
 msgstr "음악 라이브러리를 지우시겠습니까?"
 
-#: src/GMDatabaseSource.cpp:1625
+#: src/GMDatabaseSource.cpp:1629
 msgid "Remove all tracks from the music library?"
 msgstr "음악 라이브러리에서 모든 곡을 제거하시겠습니까?"
 
-#: src/GMDatabaseSource.cpp:1627
+#: src/GMDatabaseSource.cpp:1631
 msgid "&Remove All"
 msgstr "모두 제거(&R)"
 
-#: src/GMDatabaseSource.cpp:1631
+#: src/GMDatabaseSource.cpp:1635
 msgid "Keep play lists"
 msgstr "재생 목록 유지"
 
-#: src/GMFilterEditor.cpp:47 src/GMImportDialog.cpp:498
+#: src/GMFilterEditor.cpp:47 src/GMImportDialog.cpp:502
 #: src/GMStreamSource.cpp:156 src/GMTrackView.cpp:264
 msgid "Tag"
 msgstr "태그"
@@ -557,8 +560,18 @@ msgid "Are you sure you want to remove the filter?"
 msgstr "필터를 제거 하시겠습니까?"
 
 #: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
-msgid "Yes"
-msgstr "예"
+#: fox/lib/FXMessageBox.cpp:119 fox/lib/FXMessageBox.cpp:124
+#: fox/lib/FXMessageBox.cpp:153 fox/lib/FXMessageBox.cpp:161
+#: fox/lib/FXMessageBox.cpp:167
+msgid "&Yes"
+msgstr "예(&Y)"
+
+#: src/GMFilterSource.cpp:197 src/GMPlayListSource.cpp:387
+#: fox/lib/FXMessageBox.cpp:120 fox/lib/FXMessageBox.cpp:125
+#: fox/lib/FXMessageBox.cpp:155 fox/lib/FXMessageBox.cpp:163
+#: fox/lib/FXMessageBox.cpp:168
+msgid "&No"
+msgstr ""
 
 #: src/GMFilterSource.cpp:207
 msgid "Edit"
@@ -596,35 +609,35 @@ msgstr "추가 확장됨"
 msgid "Ultra Expanded"
 msgstr "매우 확장됨"
 
-#: src/GMFontDialog.cpp:204 src/GMPreferencesDialog.cpp:1425
+#: src/GMFontDialog.cpp:204 src/GMPreferencesDialog.cpp:1496
 msgid "Thin"
 msgstr "얇게"
 
-#: src/GMFontDialog.cpp:205 src/GMPreferencesDialog.cpp:1426
+#: src/GMFontDialog.cpp:205 src/GMPreferencesDialog.cpp:1497
 msgid "Extra Light"
 msgstr "매우 가늘게"
 
-#: src/GMFontDialog.cpp:206 src/GMPreferencesDialog.cpp:1427
+#: src/GMFontDialog.cpp:206 src/GMPreferencesDialog.cpp:1498
 msgid "Light"
 msgstr "가늘게"
 
-#: src/GMFontDialog.cpp:208 src/GMPreferencesDialog.cpp:1429
+#: src/GMFontDialog.cpp:208 src/GMPreferencesDialog.cpp:1500
 msgid "Medium"
 msgstr "보통"
 
-#: src/GMFontDialog.cpp:209 src/GMPreferencesDialog.cpp:1430
+#: src/GMFontDialog.cpp:209 src/GMPreferencesDialog.cpp:1501
 msgid "Demibold"
 msgstr "약간 굵게"
 
-#: src/GMFontDialog.cpp:210 src/GMPreferencesDialog.cpp:1431
+#: src/GMFontDialog.cpp:210 src/GMPreferencesDialog.cpp:1502
 msgid "Bold"
 msgstr "굵게"
 
-#: src/GMFontDialog.cpp:211 src/GMPreferencesDialog.cpp:1432
+#: src/GMFontDialog.cpp:211 src/GMPreferencesDialog.cpp:1503
 msgid "Extra Bold"
 msgstr "매우 굵게"
 
-#: src/GMFontDialog.cpp:212 src/GMPreferencesDialog.cpp:1433
+#: src/GMFontDialog.cpp:212 src/GMPreferencesDialog.cpp:1504
 msgid "Heavy"
 msgstr "두껍게"
 
@@ -652,163 +665,163 @@ msgstr "보통"
 msgid "&Folder:"
 msgstr "폴더(&F)"
 
-#: src/GMImportDialog.cpp:213 cfox/lib/FXFileSelector.cpp:211
+#: src/GMImportDialog.cpp:213 fox/lib/FXFileSelector.cpp:273
 msgid "&File Name:"
 msgstr "파일 이름(&F)"
 
-#: src/GMImportDialog.cpp:218 cfox/lib/FXFileSelector.cpp:216
+#: src/GMImportDialog.cpp:218 fox/lib/FXFileSelector.cpp:279
 msgid "File F&ilter:"
 msgstr "파일 필터(&I)"
 
-#: src/GMImportDialog.cpp:222 cfox/lib/FXFileSelector.cpp:220
+#: src/GMImportDialog.cpp:222 fox/lib/FXFileSelector.cpp:283
 msgid "Read Only"
 msgstr "읽기 전용"
 
-#: src/GMImportDialog.cpp:229 cfox/lib/FXFileSelector.cpp:226
+#: src/GMImportDialog.cpp:229 fox/lib/FXFileSelector.cpp:291
 msgid "Directory:"
 msgstr "디렉토리:"
 
-#: src/GMImportDialog.cpp:237 cfox/lib/FXFileSelector.cpp:250
+#: src/GMImportDialog.cpp:241 fox/lib/FXFileSelector.cpp:320
 msgid "&Set bookmark\t\tBookmark current directory."
 msgstr "북마크 지정(&S)\t\t북마크 현재 디렉토리."
 
-#: src/GMImportDialog.cpp:238 cfox/lib/FXFileSelector.cpp:251
+#: src/GMImportDialog.cpp:242 fox/lib/FXFileSelector.cpp:321
 msgid "&Unset bookmark\t\tRemove current directory bookmark."
 msgstr "북마크 지정해제(&U)\t\t현재 디렉토리 북마크 제거."
 
-#: src/GMImportDialog.cpp:239 cfox/lib/FXFileSelector.cpp:252
+#: src/GMImportDialog.cpp:243 fox/lib/FXFileSelector.cpp:322
 msgid "&Clear all bookmarks\t\tClear all bookmarks."
 msgstr "북마크 모두 지우기(&C)\t\t북마크 모두 지우기."
 
-#: src/GMImportDialog.cpp:259 cfox/lib/FXFileSelector.cpp:272
+#: src/GMImportDialog.cpp:263 fox/lib/FXFileSelector.cpp:347
 msgid "\tGo up one directory\tMove up to higher directory."
 msgstr "\t디렉토리 하나 위로 이동\t상위 디렉토리로 이동하기."
 
-#: src/GMImportDialog.cpp:260 cfox/lib/FXFileSelector.cpp:273
+#: src/GMImportDialog.cpp:264 fox/lib/FXFileSelector.cpp:348
 msgid "\tGo to home directory\tBack to home directory."
 msgstr "\t홈 디렉토리로 가기\t홈 디렉토리로 돌아가기."
 
-#: src/GMImportDialog.cpp:261 cfox/lib/FXFileSelector.cpp:274
+#: src/GMImportDialog.cpp:265 fox/lib/FXFileSelector.cpp:349
 msgid "\tGo to work directory\tBack to working directory."
 msgstr "\t작업 디렉토리로 가기\t작업중인 디렉토리로 돌아가기."
 
-#: src/GMImportDialog.cpp:262 cfox/lib/FXFileSelector.cpp:275
+#: src/GMImportDialog.cpp:266 fox/lib/FXFileSelector.cpp:350
 msgid "\tBookmarks\tVisit bookmarked directories."
 msgstr "\t북마크\t북마크된 디렉토리 방문하기."
 
-#: src/GMImportDialog.cpp:265 cfox/lib/FXFileSelector.cpp:278
+#: src/GMImportDialog.cpp:269 fox/lib/FXFileSelector.cpp:353
 msgid "\tCreate new directory\tCreate new directory."
 msgstr "\t새 디렉토리 생성\t새 디렉토리 만들기."
 
-#: src/GMImportDialog.cpp:266 cfox/lib/FXFileSelector.cpp:279
+#: src/GMImportDialog.cpp:270 fox/lib/FXFileSelector.cpp:354
 msgid "\tShow list\tDisplay directory with small icons."
 msgstr "\t목록 표시\t작은 아이콘으로 디렉토리 보여주기."
 
-#: src/GMImportDialog.cpp:267 cfox/lib/FXFileSelector.cpp:280
+#: src/GMImportDialog.cpp:271 fox/lib/FXFileSelector.cpp:355
 msgid "\tShow icons\tDisplay directory with big icons."
 msgstr "\t아이콘 표시\t큰 아이콘으로 디렉토리 보여주기."
 
-#: src/GMImportDialog.cpp:268 cfox/lib/FXFileSelector.cpp:281
+#: src/GMImportDialog.cpp:272 fox/lib/FXFileSelector.cpp:356
 msgid "\tShow details\tDisplay detailed directory listing."
 msgstr "\t세부사항 표시\t상세한 디렉토리 목록 보여주기."
 
-#: src/GMImportDialog.cpp:269 cfox/lib/FXFileSelector.cpp:282
+#: src/GMImportDialog.cpp:273 fox/lib/FXFileSelector.cpp:357
 msgid "\tShow hidden files\tShow hidden files and directories."
 msgstr "\t숨김 파일 표시\t숨김 파일 및 디렉터리 표시하기."
 
-#: src/GMImportDialog.cpp:269 cfox/lib/FXFileSelector.cpp:282
+#: src/GMImportDialog.cpp:273 fox/lib/FXFileSelector.cpp:357
 msgid "\tHide Hidden Files\tHide hidden files and directories."
 msgstr "\t숨김 파일 숨기기\t숨김 파일 및 디렉토리 숨기기."
 
-#: src/GMImportDialog.cpp:295 cfox/lib/FXFileSelector.cpp:308
-#: cfox/lib/FXFileSelector.cpp:1113
+#: src/GMImportDialog.cpp:299 fox/lib/FXFileSelector.cpp:385
+#: fox/lib/FXFileSelector.cpp:1177
 msgid "All Files (*)"
 msgstr "모든 파일 (*)"
 
-#: src/GMImportDialog.cpp:369 src/GMImportDialog.cpp:379
+#: src/GMImportDialog.cpp:373 src/GMImportDialog.cpp:383
 msgid "&Options:"
 msgstr "옵션(&O)"
 
-#: src/GMImportDialog.cpp:399
+#: src/GMImportDialog.cpp:403
 msgid "Remove Folder"
 msgstr "폴더 제거"
 
-#: src/GMImportDialog.cpp:401
+#: src/GMImportDialog.cpp:405
 msgid "Synchronize Folder"
 msgstr "폴더 동기화"
 
-#: src/GMImportDialog.cpp:403
+#: src/GMImportDialog.cpp:407
 msgid "Import Playlist"
 msgstr "재생목록 가져오기"
 
-#: src/GMImportDialog.cpp:405
+#: src/GMImportDialog.cpp:409
 msgid "Import Music"
 msgstr "음악 가져오기"
 
-#: src/GMImportDialog.cpp:439
+#: src/GMImportDialog.cpp:443
 msgid "&File(s)"
 msgstr "파일(&F)"
 
-#: src/GMImportDialog.cpp:462
+#: src/GMImportDialog.cpp:466
 msgid "&Folder"
 msgstr "폴더(&F)"
 
-#: src/GMImportDialog.cpp:472 src/GMImportDialog.cpp:578
+#: src/GMImportDialog.cpp:476 src/GMImportDialog.cpp:582
 msgid "&Sync"
 msgstr "동기화(&S)"
 
-#: src/GMImportDialog.cpp:474
+#: src/GMImportDialog.cpp:478
 msgid "Sync Operation"
 msgstr "동기화 작업"
 
-#: src/GMImportDialog.cpp:477
+#: src/GMImportDialog.cpp:481
 msgid "Import new tracks\tImports files not yet in the database."
 msgstr "새 곡 가져오기\t아직 데이터베이스에 없는 파일 가져오기."
 
-#: src/GMImportDialog.cpp:478
+#: src/GMImportDialog.cpp:482
 msgid "Remove tracks that have been deleted from disk"
 msgstr "디스크에서 삭제된 트랙 제거"
 
-#: src/GMImportDialog.cpp:480
+#: src/GMImportDialog.cpp:484
 msgid "Update existing tracks:"
 msgstr "기존 곡 업데이트:"
 
-#: src/GMImportDialog.cpp:481
+#: src/GMImportDialog.cpp:485
 msgid ""
 "Modified since last import\tOnly reread the tag when the file has been "
 "modified."
 msgstr ""
 "마지막 가져오기 이후 수정됨\t파일이 수정된 경우에만 태그를 다시 읽습니다."
 
-#: src/GMImportDialog.cpp:483
+#: src/GMImportDialog.cpp:487
 msgid "All\tAlways read the tags"
 msgstr "모두\t항상 태그 읽기"
 
-#: src/GMImportDialog.cpp:488
+#: src/GMImportDialog.cpp:492
 msgid "&Track"
 msgstr "곡(&T)"
 
-#: src/GMImportDialog.cpp:491
+#: src/GMImportDialog.cpp:495
 msgid "Parse Settings"
 msgstr "구문분석 설정"
 
-#: src/GMImportDialog.cpp:495
+#: src/GMImportDialog.cpp:499
 msgid "Parse info from:"
 msgstr "구문분석 정보:"
 
-#: src/GMImportDialog.cpp:500
+#: src/GMImportDialog.cpp:504
 msgid "Both"
 msgstr "모두"
 
-#: src/GMImportDialog.cpp:502
+#: src/GMImportDialog.cpp:506
 msgid "ID3v1 Encoding:"
 msgstr "ID3v1 인코딩:"
 
-#: src/GMImportDialog.cpp:513
+#: src/GMImportDialog.cpp:517
 msgid "Set track number based on scan order."
 msgstr "검색 순서에 따라 곡 번호 지정하기."
 
-#: src/GMImportDialog.cpp:516
+#: src/GMImportDialog.cpp:520
 msgid ""
 "Group albums by audio format.\tImported tracks that differ in audio format "
 "will be grouped in separate albums."
@@ -816,7 +829,7 @@ msgstr ""
 "오디오 형식으로 앨범 그룹화하기.\t오디오 형식이 다른 가져온 곡은 별도의 앨범"
 "으로 그룹화됨."
 
-#: src/GMImportDialog.cpp:519
+#: src/GMImportDialog.cpp:523
 msgid ""
 "Detect compilations by folder.\tGroup tracks from the same folder without "
 "specific compilation/albumartist tags."
@@ -824,15 +837,15 @@ msgstr ""
 "폴더별로 모음집 감지하기.\t특정 모음집/앨범아티스트 태그 없이 동일한 폴더의 "
 "곡을 그룹화하기."
 
-#: src/GMImportDialog.cpp:522
+#: src/GMImportDialog.cpp:526
 msgid "Fetch Lyrics.\tFetch Lyrics"
 msgstr "가사 가져오기.\t가사 가져오기"
 
-#: src/GMImportDialog.cpp:524
+#: src/GMImportDialog.cpp:528
 msgid "Path Template"
 msgstr "경로 템플릿"
 
-#: src/GMImportDialog.cpp:527
+#: src/GMImportDialog.cpp:531
 msgid ""
 "%T - title              %A - album name\n"
 "%P - album artist name  %p - track artist name \n"
@@ -844,39 +857,39 @@ msgstr ""
 "%N - 곡 번호       %d - 디스크 번호\n"
 "%y - 연도"
 
-#: src/GMImportDialog.cpp:538 src/GMTrackEditor.cpp:378
+#: src/GMImportDialog.cpp:542 src/GMTrackEditor.cpp:378
 msgid "Template:"
 msgstr "템플릿:"
 
-#: src/GMImportDialog.cpp:541
+#: src/GMImportDialog.cpp:545
 msgid "Replace underscores with spaces"
 msgstr "밑줄을 공백으로 바꾸기"
 
-#: src/GMImportDialog.cpp:552
+#: src/GMImportDialog.cpp:556
 msgid "&Filter"
 msgstr "필터(&F)"
 
-#: src/GMImportDialog.cpp:555
+#: src/GMImportDialog.cpp:559
 msgid "Exclude Files"
 msgstr "파일 제외"
 
-#: src/GMImportDialog.cpp:556
+#: src/GMImportDialog.cpp:560
 msgid "Unsupported Playback Formats"
 msgstr "지원되지 않는 재생 형식"
 
-#: src/GMImportDialog.cpp:558
+#: src/GMImportDialog.cpp:562
 msgid "Exclude by Pattern"
 msgstr "패턴으로 제외"
 
-#: src/GMImportDialog.cpp:562
+#: src/GMImportDialog.cpp:566
 msgid "Folders:"
 msgstr "폴더:"
 
-#: src/GMImportDialog.cpp:564
+#: src/GMImportDialog.cpp:568
 msgid "Files:"
 msgstr "파일:"
 
-#: src/GMImportDialog.cpp:582
+#: src/GMImportDialog.cpp:586
 msgid "&Import"
 msgstr "가져오기(&I)"
 
@@ -888,54 +901,6 @@ msgid ""
 msgstr ""
 "%s\n"
 "%s (%d)"
-
-#: src/GMPlayerManager.cpp:313
-#, c-format
-msgid "Unable to create directory %s\n"
-msgstr "%s 디렉토리를 만들 수 없음\n"
-
-#: src/GMPlayerManager.cpp:578
-msgid "Session bus not available. All features requiring dbus are disabled."
-msgstr ""
-"세션 버스를 사용할 수 없습니다. dbus가 필요한 모든 기능은 사용할 수 없습니다."
-
-#: src/GMPlayerManager.cpp:597
-msgid ""
-"Session Bus not available. All features requiring sessionbus are disabled."
-msgstr ""
-"세션 버스를 사용할 수 없습니다. 세션버스가 필요한 모든 기능은 사용할 수 없습"
-"니다."
-
-#: src/GMPlayerManager.cpp:671
-#, c-format
-msgid ""
-"A non threadsafe version of SQLite (%s) is being used.\n"
-"Goggles Music Manager requires a threadsafe SQLite.\n"
-"Please upgrade your SQLite installation."
-msgstr ""
-"SQLite(%s)의 안전하지 않은 버전이 사용되고 있습니다.\n"
-"Goggles Music Manager는 안전한 SQLite가 필요합니다.\n"
-"SQLite 설치를 업그레이드해 주십시오."
-
-#: src/GMPlayerManager.cpp:680
-msgid ""
-"For some reason the FOX library was compiled without PNG support.\n"
-"In order to show all icons, Goggles Music Manager requires PNG\n"
-"support in the FOX library. If you've compiled FOX yourself, most\n"
-"likely the libpng header files were not installed on your system."
-msgstr ""
-"어떤 이유에서인지 FOX 라이브러리는 PNG 지원 없이 컴파일되었습니다.\n"
-"모든 아이콘을 표시하기 위해 Goggles Music Manager는 FOX 라이브러리\n"
-"에서 PNG 지원을 필요로 합니다. FOX를 직접 컴파일한 경우,\n"
-"libpng 헤더 파일이 시스템에 설치되지 않았을 가능성이 높습니다."
-
-#: src/GMPlayerManager.cpp:1402
-msgid "Last.FM Error"
-msgstr "Last.FM 오류"
-
-#: src/GMPlayerManager.cpp:1776
-msgid "Playback Error"
-msgstr "재생 오류"
 
 #: src/GMPlayListSource.cpp:182
 msgid "Rename…"
@@ -983,7 +948,7 @@ msgstr "재생목록 이름 변경"
 
 #: src/GMPlayListSource.cpp:364 src/GMStreamSource.cpp:184
 #: src/GMTrackEditor.cpp:448 src/GMTrackEditor.cpp:452
-#: cfox/lib/FXMessageBox.cpp:129 cfox/lib/FXMessageBox.cpp:144
+#: fox/lib/FXMessageBox.cpp:136 fox/lib/FXMessageBox.cpp:149
 msgid "&Save"
 msgstr "저장(&S)"
 
@@ -1002,6 +967,54 @@ msgstr "지우기"
 #: src/GMPlayQueue.cpp:145
 msgid "Remove…\tDel\tRemove track(s) from play queue."
 msgstr "제거…\t삭제\t재생 대기열에서 곡 제거하기."
+
+#: src/GMPlayerManager.cpp:313
+#, c-format
+msgid "Unable to create directory %s\n"
+msgstr "%s 디렉토리를 만들 수 없음\n"
+
+#: src/GMPlayerManager.cpp:578
+msgid "Session bus not available. All features requiring dbus are disabled."
+msgstr ""
+"세션 버스를 사용할 수 없습니다. dbus가 필요한 모든 기능은 사용할 수 없습니다."
+
+#: src/GMPlayerManager.cpp:597
+msgid ""
+"Session Bus not available. All features requiring sessionbus are disabled."
+msgstr ""
+"세션 버스를 사용할 수 없습니다. 세션버스가 필요한 모든 기능은 사용할 수 없습"
+"니다."
+
+#: src/GMPlayerManager.cpp:671
+#, c-format
+msgid ""
+"A non threadsafe version of SQLite (%s) is being used.\n"
+"Goggles Music Manager requires a threadsafe SQLite.\n"
+"Please upgrade your SQLite installation."
+msgstr ""
+"SQLite(%s)의 안전하지 않은 버전이 사용되고 있습니다.\n"
+"Goggles Music Manager는 안전한 SQLite가 필요합니다.\n"
+"SQLite 설치를 업그레이드해 주십시오."
+
+#: src/GMPlayerManager.cpp:680
+msgid ""
+"For some reason the FOX library was compiled without PNG support.\n"
+"In order to show all icons, Goggles Music Manager requires PNG\n"
+"support in the FOX library. If you've compiled FOX yourself, most\n"
+"likely the libpng header files were not installed on your system."
+msgstr ""
+"어떤 이유에서인지 FOX 라이브러리는 PNG 지원 없이 컴파일되었습니다.\n"
+"모든 아이콘을 표시하기 위해 Goggles Music Manager는 FOX 라이브러리\n"
+"에서 PNG 지원을 필요로 합니다. FOX를 직접 컴파일한 경우,\n"
+"libpng 헤더 파일이 시스템에 설치되지 않았을 가능성이 높습니다."
+
+#: src/GMPlayerManager.cpp:1401
+msgid "Last.FM Error"
+msgstr "Last.FM 오류"
+
+#: src/GMPlayerManager.cpp:1773
+msgid "Playback Error"
+msgstr "재생 오류"
 
 #: src/GMPodcastSource.cpp:430
 msgid "Select Feed"
@@ -1090,56 +1103,56 @@ msgstr "피드를 제거하시겠습니까?"
 msgid "Remove feed and all downloaded episodes?"
 msgstr "피드와 다운로드한 모든 에피소드를 제거 하시겠습니까?"
 
-#: src/GMPreferencesDialog.cpp:285
+#: src/GMPreferencesDialog.cpp:302
 msgid "Preferences"
 msgstr "환경설정"
 
-#: src/GMPreferencesDialog.cpp:315
+#: src/GMPreferencesDialog.cpp:335
 msgid "&General"
 msgstr "일반(&G)"
 
-#: src/GMPreferencesDialog.cpp:318
+#: src/GMPreferencesDialog.cpp:338
 msgid "Sort Options"
 msgstr "정렬 옵션"
 
-#: src/GMPreferencesDialog.cpp:322
+#: src/GMPreferencesDialog.cpp:342
 msgid "Ignore leading words"
 msgstr "선행 단어 무시"
 
-#: src/GMPreferencesDialog.cpp:325
+#: src/GMPreferencesDialog.cpp:345
 msgid "Additional Track Information"
 msgstr "추가 곡 정보"
 
-#: src/GMPreferencesDialog.cpp:328
+#: src/GMPreferencesDialog.cpp:348
 msgid "Show Album Cover\tShow album cover of playing track"
 msgstr "앨범 표지 표시\t재생중인 곡의 앨범 표지 표시"
 
-#: src/GMPreferencesDialog.cpp:329
+#: src/GMPreferencesDialog.cpp:349
 msgid "Show Lyrics\tShow lyrics of playing track"
 msgstr "가사 표시\t재생중인 곡의 가사 표시"
 
-#: src/GMPreferencesDialog.cpp:332
+#: src/GMPreferencesDialog.cpp:352
 msgid "System Tray"
 msgstr "시스템 트레이"
 
-#: src/GMPreferencesDialog.cpp:336
+#: src/GMPreferencesDialog.cpp:356
 msgid "Show Tray Icon\tShow tray icon in the system tray."
 msgstr "트레이 아이콘 표시\t시스템 트레이에 트레이 아이콘 표시하기."
 
-#: src/GMPreferencesDialog.cpp:339
+#: src/GMPreferencesDialog.cpp:359
 msgid ""
 "Show Track Change Notifications\tInform notification daemon of track changes."
 msgstr "곡 변경 알림 표시\t알림 데몬에 곡 변경 사항을 알립니다."
 
-#: src/GMPreferencesDialog.cpp:340
+#: src/GMPreferencesDialog.cpp:360
 msgid "MPRIS v1 Connectivity\tEnable MPRIS v1 connectivity"
 msgstr "MPRIS v1 연결\tMPRIS v1 연결 활성화"
 
-#: src/GMPreferencesDialog.cpp:344
+#: src/GMPreferencesDialog.cpp:364
 msgid "Last.fm"
 msgstr "Last.fm"
 
-#: src/GMPreferencesDialog.cpp:349
+#: src/GMPreferencesDialog.cpp:369
 msgid ""
 "This version of Goggles Music Manager is\n"
 "not supported by Last-FM. Please upgrade\n"
@@ -1149,67 +1162,67 @@ msgstr ""
 "Last-FM에서 지원하지 않습니다.\n"
 "최신 버전의 GMM으로 업그레이드하십시오."
 
-#: src/GMPreferencesDialog.cpp:355
+#: src/GMPreferencesDialog.cpp:375
 msgid "Service:"
 msgstr "서비스:"
 
-#: src/GMPreferencesDialog.cpp:372
+#: src/GMPreferencesDialog.cpp:392
 msgid "&Sign up…"
 msgstr "가입하기(&S)…"
 
-#: src/GMPreferencesDialog.cpp:378
+#: src/GMPreferencesDialog.cpp:398
 msgid "Username:"
 msgstr "사용자이름:"
 
-#: src/GMPreferencesDialog.cpp:380
+#: src/GMPreferencesDialog.cpp:400
 msgid "Password:"
 msgstr "비밀번호:"
 
-#: src/GMPreferencesDialog.cpp:384
+#: src/GMPreferencesDialog.cpp:404
 msgid "Scrobble"
 msgstr "퍼올리기"
 
-#: src/GMPreferencesDialog.cpp:408
+#: src/GMPreferencesDialog.cpp:428
 msgid "&Window"
 msgstr "창(&W)"
 
-#: src/GMPreferencesDialog.cpp:411
+#: src/GMPreferencesDialog.cpp:431
 msgid "Window"
 msgstr "창"
 
-#: src/GMPreferencesDialog.cpp:414
+#: src/GMPreferencesDialog.cpp:434
 msgid "Close button minimizes to tray"
 msgstr "닫기 버튼을 눌러 트레이로 최소화"
 
-#: src/GMPreferencesDialog.cpp:415
+#: src/GMPreferencesDialog.cpp:435
 msgid "Show Status Bar"
 msgstr "상태 표시줄 표시"
 
-#: src/GMPreferencesDialog.cpp:418
+#: src/GMPreferencesDialog.cpp:438
 msgid "Display playing track in title bar"
 msgstr "제목 표시줄에 재생중인 곡 보여주기"
 
-#: src/GMPreferencesDialog.cpp:421
+#: src/GMPreferencesDialog.cpp:441
 msgid "Toolbar"
 msgstr "도구모음"
 
-#: src/GMPreferencesDialog.cpp:425
+#: src/GMPreferencesDialog.cpp:445
 msgid "Location:"
 msgstr "위치:"
 
-#: src/GMPreferencesDialog.cpp:427
+#: src/GMPreferencesDialog.cpp:447
 msgid "Top"
 msgstr "상단"
 
-#: src/GMPreferencesDialog.cpp:428
+#: src/GMPreferencesDialog.cpp:448
 msgid "Bottom"
 msgstr "하단"
 
-#: src/GMPreferencesDialog.cpp:431
+#: src/GMPreferencesDialog.cpp:451
 msgid "Title Format:"
 msgstr "제목 형식:"
 
-#: src/GMPreferencesDialog.cpp:439 src/GMTrackEditor.cpp:361
+#: src/GMPreferencesDialog.cpp:459 src/GMTrackEditor.cpp:361
 msgid ""
 "%T - title                   %A - album name\n"
 "%P - album artist name       %p - track artist name\n"
@@ -1225,207 +1238,220 @@ msgstr ""
 "%N - track number (2 digits) %n - track number      \n"
 "%G - genre"
 
-#: src/GMPreferencesDialog.cpp:457
+#: src/GMPreferencesDialog.cpp:477
 msgid "A&ppearance"
 msgstr "모양새(&P)"
 
-#: src/GMPreferencesDialog.cpp:459
+#: src/GMPreferencesDialog.cpp:479
 msgid "Colors"
 msgstr "색상"
 
-#: src/GMPreferencesDialog.cpp:465
+#: src/GMPreferencesDialog.cpp:485
 msgid "fg\tForeground Color"
 msgstr "fg\t전경색"
 
-#: src/GMPreferencesDialog.cpp:466
+#: src/GMPreferencesDialog.cpp:486
 msgid "bg\tBackground Color"
 msgstr "bg\t배경색"
 
-#: src/GMPreferencesDialog.cpp:467
+#: src/GMPreferencesDialog.cpp:487
 msgid "alt bg\tAlternative Background Color"
 msgstr "alt bg\t대체 배경색"
 
-#: src/GMPreferencesDialog.cpp:478
+#: src/GMPreferencesDialog.cpp:498
 msgid "Normal\tNormal Text Color"
 msgstr "일반\t일반 텍스트 색상"
 
-#: src/GMPreferencesDialog.cpp:482
+#: src/GMPreferencesDialog.cpp:502
 msgid "Base\tBase Color"
 msgstr "기본\t기본 색상"
 
-#: src/GMPreferencesDialog.cpp:485
+#: src/GMPreferencesDialog.cpp:505
 msgid "Selected\tSelected Text Color"
 msgstr "선택됨\t텍스트 색상 선택됨"
 
-#: src/GMPreferencesDialog.cpp:489
+#: src/GMPreferencesDialog.cpp:509
 msgid "Menu\tMenu Base Color"
 msgstr "메뉴\t메뉴 기본 색상"
 
-#: src/GMPreferencesDialog.cpp:493
+#: src/GMPreferencesDialog.cpp:513
 msgid "Menu\tMenu Text Color"
 msgstr "메뉴\t메뉴 텍스트 색상"
 
-#: src/GMPreferencesDialog.cpp:497
+#: src/GMPreferencesDialog.cpp:517
 msgid "Border\tBorder Color"
 msgstr "테두리\t테두리 색상"
 
-#: src/GMPreferencesDialog.cpp:501
+#: src/GMPreferencesDialog.cpp:521
 msgid "Tooltip\tTooltip Color"
 msgstr "도구설명\t도구설명 색상"
 
-#: src/GMPreferencesDialog.cpp:505
+#: src/GMPreferencesDialog.cpp:525
 msgid "Hilite\tHilite Color"
 msgstr "강조\t강조 색상"
 
-#: src/GMPreferencesDialog.cpp:512
+#: src/GMPreferencesDialog.cpp:532
 msgid "Shadow\tShadow Color"
 msgstr "그림자\t그림자 색상"
 
-#: src/GMPreferencesDialog.cpp:515
+#: src/GMPreferencesDialog.cpp:535
 msgid "Playing\tPlaying Track Color"
 msgstr "재생중\t재생중 곡 색상"
 
-#: src/GMPreferencesDialog.cpp:519
+#: src/GMPreferencesDialog.cpp:539
 msgid "Tray\tTray Background Color"
 msgstr "트레이\t트레이 배경색"
 
-#: src/GMPreferencesDialog.cpp:529
+#: src/GMPreferencesDialog.cpp:549
 msgid "Presets:"
 msgstr "프리셋:"
 
-#: src/GMPreferencesDialog.cpp:537
+#: src/GMPreferencesDialog.cpp:557
 msgid "Font & Icons"
 msgstr "글꼴 & 아이콘"
 
-#: src/GMPreferencesDialog.cpp:542
+#: src/GMPreferencesDialog.cpp:562
 msgid "Default Font"
 msgstr "기본 글꼴"
 
-#: src/GMPreferencesDialog.cpp:544
+#: src/GMPreferencesDialog.cpp:564
 msgid "Change…"
 msgstr "변경…"
 
-#: src/GMPreferencesDialog.cpp:546
+#: src/GMPreferencesDialog.cpp:566
 msgid "Display DPI"
 msgstr "DPI 보여주기"
 
-#: src/GMPreferencesDialog.cpp:553
+#: src/GMPreferencesDialog.cpp:573
 msgid "Icons"
 msgstr "아이콘"
 
-#: src/GMPreferencesDialog.cpp:572
+#: src/GMPreferencesDialog.cpp:592
 msgid "&Audio"
 msgstr "오디오(&A)"
 
-#: src/GMPreferencesDialog.cpp:575
+#: src/GMPreferencesDialog.cpp:595
 msgid "Output"
 msgstr "출력"
 
-#: src/GMPreferencesDialog.cpp:579
+#: src/GMPreferencesDialog.cpp:599
 msgid "Driver:"
 msgstr "드라이버:"
 
-#: src/GMPreferencesDialog.cpp:613 src/GMPreferencesDialog.cpp:626
+#: src/GMPreferencesDialog.cpp:636 src/GMPreferencesDialog.cpp:649
+#: src/GMPreferencesDialog.cpp:654
 msgid "Device:"
 msgstr "장치:"
 
-#: src/GMPreferencesDialog.cpp:633
+#: src/GMPreferencesDialog.cpp:661
 msgid "Apply Changes"
 msgstr "변경 적용"
 
-#: src/GMPreferencesDialog.cpp:635
+#: src/GMPreferencesDialog.cpp:663
 msgid "Playback"
 msgstr "재생"
 
-#: src/GMPreferencesDialog.cpp:640
+#: src/GMPreferencesDialog.cpp:668
 msgid "Replay Gain:"
 msgstr "리플레이 게인:"
 
-#: src/GMPreferencesDialog.cpp:643
+#: src/GMPreferencesDialog.cpp:671 src/GMPreferencesDialog.cpp:681
 msgid "Off"
 msgstr "끄기"
 
-#: src/GMPreferencesDialog.cpp:644
+#: src/GMPreferencesDialog.cpp:672
 msgid "Track"
 msgstr "곡"
 
-#: src/GMPreferencesDialog.cpp:650
+#: src/GMPreferencesDialog.cpp:679
+msgid "Crossfade:"
+msgstr ""
+
+#: src/GMPreferencesDialog.cpp:682
+msgid "On"
+msgstr ""
+
+#: src/GMPreferencesDialog.cpp:686
+msgid "ms"
+msgstr ""
+
+#: src/GMPreferencesDialog.cpp:691
 msgid "&Podcasts"
 msgstr "팟캐스트(&P)"
 
-#: src/GMPreferencesDialog.cpp:653
+#: src/GMPreferencesDialog.cpp:694
 msgid "Updates"
 msgstr "업데이트"
 
-#: src/GMPreferencesDialog.cpp:657
+#: src/GMPreferencesDialog.cpp:698
 msgid "Update Interval"
 msgstr "업데이트 간격"
 
-#: src/GMPreferencesDialog.cpp:659
+#: src/GMPreferencesDialog.cpp:700
 msgid "Disabled"
 msgstr "사용안함"
 
-#: src/GMPreferencesDialog.cpp:660
+#: src/GMPreferencesDialog.cpp:701
 msgid "10 minutes"
 msgstr "10분"
 
-#: src/GMPreferencesDialog.cpp:661
+#: src/GMPreferencesDialog.cpp:702
 msgid "20 minutes"
 msgstr "20분"
 
-#: src/GMPreferencesDialog.cpp:662
+#: src/GMPreferencesDialog.cpp:703
 msgid "30 minutes"
 msgstr "30분"
 
-#: src/GMPreferencesDialog.cpp:663
+#: src/GMPreferencesDialog.cpp:704
 msgid "1 hour"
 msgstr "1시간"
 
-#: src/GMPreferencesDialog.cpp:664
+#: src/GMPreferencesDialog.cpp:705
 msgid "2 hours"
 msgstr "2시간"
 
-#: src/GMPreferencesDialog.cpp:665
+#: src/GMPreferencesDialog.cpp:706
 msgid "6 hours"
 msgstr "6시간"
 
-#: src/GMPreferencesDialog.cpp:666
+#: src/GMPreferencesDialog.cpp:707
 msgid "12 hours"
 msgstr "12시간"
 
-#: src/GMPreferencesDialog.cpp:863
+#: src/GMPreferencesDialog.cpp:934
 msgid "Current"
 msgstr "현재"
 
-#: src/GMPreferencesDialog.cpp:881
+#: src/GMPreferencesDialog.cpp:952
 msgid "Custom"
 msgstr "사용자지정"
 
-#: src/GMPreferencesDialog.cpp:1469
+#: src/GMPreferencesDialog.cpp:1540
 msgid "Select Normal Font"
 msgstr "일반 글꼴 선택"
 
-#: src/GMRemote.cpp:79
+#: src/GMRemote.cpp:81
 msgid "\tShow Browser\tShow Browser"
 msgstr "\t탐색기 표시\t탐색기 표시"
 
-#: src/GMRemote.cpp:81 src/GMWindow.cpp:282
+#: src/GMRemote.cpp:83 src/GMWindow.cpp:282
 msgid "\tStart Playback\tStart Playback"
 msgstr "\t재생 시작\t재생 시작"
 
-#: src/GMRemote.cpp:82 src/GMWindow.cpp:283
+#: src/GMRemote.cpp:84 src/GMWindow.cpp:283
 msgid "\tStop Playback\tStop Playback"
 msgstr "\t재생 중지\t재생 중지"
 
-#: src/GMRemote.cpp:84 src/GMWindow.cpp:284
+#: src/GMRemote.cpp:86 src/GMWindow.cpp:284
 msgid "\tPlay Previous Track\tPlay previous track."
 msgstr "\t이전 곡 재생\t이전 곡 재생하기."
 
-#: src/GMRemote.cpp:85 src/GMWindow.cpp:285
+#: src/GMRemote.cpp:87 src/GMWindow.cpp:285
 msgid "\tPlay Next Track\tPlay next track."
 msgstr "\t다음 곡 재생\t다음 곡 재생하기."
 
-#: src/GMRemote.cpp:93
+#: src/GMRemote.cpp:95
 msgid "\tAdjust Volume\tAdjust Volume"
 msgstr "\t음량 조정\t음량 조정"
 
@@ -1437,7 +1463,7 @@ msgstr "알 수 없는 아티스트"
 msgid "Unknown Album"
 msgstr "알 수 없는 앨범"
 
-#: src/GMScanner.cpp:593
+#: src/GMScanner.cpp:601
 msgid "Various Artists"
 msgstr "여러 아티스트"
 
@@ -1555,8 +1581,8 @@ msgstr "치명적인 오류"
 msgid ""
 "Goggles Music Manager was unable to open the database.\n"
 "The database may have been corrupted. Please remove %s to try again.\n"
-"if the error keeps occuring, please file an issue at http://gogglesmm.github."
-"io"
+"if the error keeps occuring, please file an issue at http://"
+"gogglesmm.github.io"
 msgstr ""
 "Goggles Music Manager에서 데이터베이스를 열 수 없습니다.\n"
 "데이터베이스가 손상되었을 수 있습니다. %s을(를) 제거하고 다시 시도하십시오.\n"
@@ -1687,11 +1713,11 @@ msgstr "찾기(&F)"
 msgid "&Properties"
 msgstr "속성(&P)"
 
-#: src/GMTrackEditor.cpp:503 cfox/lib/FXFileSelector.cpp:940
+#: src/GMTrackEditor.cpp:503 fox/lib/FXFileSelector.cpp:979
 msgid "Type"
 msgstr "유형"
 
-#: src/GMTrackEditor.cpp:506 cfox/lib/FXFileSelector.cpp:941
+#: src/GMTrackEditor.cpp:506 fox/lib/FXFileSelector.cpp:980
 msgid "Size"
 msgstr "크기"
 
@@ -1795,8 +1821,8 @@ msgstr "찾아보기"
 msgid "Shuffle\tCtrl-R"
 msgstr "순서섞기\tCtrl-R"
 
-#: src/GMTrackView.cpp:299 cfox/lib/FXDirSelector.cpp:422
-#: cfox/lib/FXFileSelector.cpp:946
+#: src/GMTrackView.cpp:299 fox/lib/FXDirSelector.cpp:423
+#: fox/lib/FXFileSelector.cpp:985
 msgid "Reverse"
 msgstr "반복"
 
@@ -2047,288 +2073,278 @@ msgstr "앨범"
 msgid "Internet Radio"
 msgstr "인터넷 라디오"
 
-#: cfox/lib/FXMessageBox.cpp:112 cfox/lib/FXMessageBox.cpp:117
-#: cfox/lib/FXMessageBox.cpp:148
-msgid "&Yes"
-msgstr "예(&Y)"
-
-#: cfox/lib/FXMessageBox.cpp:113 cfox/lib/FXMessageBox.cpp:118
-#: cfox/lib/FXMessageBox.cpp:150
-msgid "&No"
-msgstr ""
-
-#: cfox/lib/FXMessageBox.cpp:123 cfox/lib/FXMessageBox.cpp:128
+#: fox/lib/FXMessageBox.cpp:130 fox/lib/FXMessageBox.cpp:135
 msgid "&Quit"
 msgstr "종료(&Q)"
 
-#: cfox/lib/FXMessageBox.cpp:134
+#: fox/lib/FXMessageBox.cpp:141
 msgid "&Skip"
 msgstr "건너뛰기(&S)"
 
-#: cfox/lib/FXMessageBox.cpp:135
+#: fox/lib/FXMessageBox.cpp:142
 msgid "Skip &All"
 msgstr "모두 건너뛰기(&A)"
 
-#: cfox/lib/FXMessageBox.cpp:141
+#: fox/lib/FXMessageBox.cpp:147
 msgid "&Don't Save"
 msgstr "저장 안함(&D)"
 
-#: cfox/lib/FXMessageBox.cpp:149
+#: fox/lib/FXMessageBox.cpp:154 fox/lib/FXMessageBox.cpp:162
 msgid "Y&es to All"
 msgstr "모두 예(&E)"
 
-#: cfox/lib/FXMessageBox.cpp:151
+#: fox/lib/FXMessageBox.cpp:156 fox/lib/FXMessageBox.cpp:169
 msgid "N&o to All"
 msgstr "모두 아니요(&O)"
 
-#: cfox/lib/FXColorSelector.cpp:222
+#: fox/lib/FXColorSelector.cpp:219
 msgid "\tPick color"
 msgstr "\t색상 고르기"
 
-#: cfox/lib/FXColorSelector.cpp:231 cfox/lib/FXColorSelector.cpp:274
+#: fox/lib/FXColorSelector.cpp:228 fox/lib/FXColorSelector.cpp:274
 msgid "\tHue, Saturation, Value"
 msgstr "\t색조, 채도, 값"
 
-#: cfox/lib/FXColorSelector.cpp:239
+#: fox/lib/FXColorSelector.cpp:236
 msgid "\tRed, Green, Blue"
 msgstr "\t적색, 녹색, 청색"
 
-#: cfox/lib/FXColorSelector.cpp:245
+#: fox/lib/FXColorSelector.cpp:242
 msgid "&Red:"
 msgstr "적색(&R):"
 
-#: cfox/lib/FXColorSelector.cpp:250
+#: fox/lib/FXColorSelector.cpp:248
 msgid "&Green:"
 msgstr "녹색(&G):"
 
-#: cfox/lib/FXColorSelector.cpp:255
+#: fox/lib/FXColorSelector.cpp:254
 msgid "&Blue:"
 msgstr "청색(&B):"
 
-#: cfox/lib/FXColorSelector.cpp:260
+#: fox/lib/FXColorSelector.cpp:260
 msgid "&Alpha:"
 msgstr "알파(&A):"
 
-#: cfox/lib/FXColorSelector.cpp:280
+#: fox/lib/FXColorSelector.cpp:280
 msgid "Hue:"
 msgstr "색조:"
 
-#: cfox/lib/FXColorSelector.cpp:285
+#: fox/lib/FXColorSelector.cpp:285
 msgid "Saturation:"
 msgstr "채도:"
 
-#: cfox/lib/FXColorSelector.cpp:290
+#: fox/lib/FXColorSelector.cpp:290
 msgid "Value:"
 msgstr "값:"
 
-#: cfox/lib/FXColorSelector.cpp:295 cfox/lib/FXColorSelector.cpp:330
+#: fox/lib/FXColorSelector.cpp:295 fox/lib/FXColorSelector.cpp:333
 msgid "Alpha:"
 msgstr "알파:"
 
-#: cfox/lib/FXColorSelector.cpp:309
+#: fox/lib/FXColorSelector.cpp:309
 msgid "\tCyan, Magenta, Yellow"
 msgstr "\t청록색, 자홍색, 노란색"
 
-#: cfox/lib/FXColorSelector.cpp:315
+#: fox/lib/FXColorSelector.cpp:315
 msgid "Cyan:"
 msgstr "청록색:"
 
-#: cfox/lib/FXColorSelector.cpp:320
+#: fox/lib/FXColorSelector.cpp:321
 msgid "Magenta:"
 msgstr "자홍색:"
 
-#: cfox/lib/FXColorSelector.cpp:325
+#: fox/lib/FXColorSelector.cpp:327
 msgid "Yellow:"
 msgstr "노란색:"
 
-#: cfox/lib/FXColorSelector.cpp:344
+#: fox/lib/FXColorSelector.cpp:347
 msgid "\tBy Name"
 msgstr "\t이름별로"
 
-#: cfox/lib/FXDirSelector.cpp:141
+#: fox/lib/FXDirSelector.cpp:142
 msgid "&Directory:"
 msgstr "디렉토리(&D):"
 
-#: cfox/lib/FXDirSelector.cpp:144
+#: fox/lib/FXDirSelector.cpp:145
 msgid "&Name"
 msgstr "이름(&N)"
 
-#: cfox/lib/FXDirSelector.cpp:315 cfox/lib/FXFileSelector.cpp:720
+#: fox/lib/FXDirSelector.cpp:316 fox/lib/FXFileSelector.cpp:753
 msgid "folder"
 msgstr "폴더"
 
-#: cfox/lib/FXDirSelector.cpp:316 cfox/lib/FXFileSelector.cpp:721
+#: fox/lib/FXDirSelector.cpp:317 fox/lib/FXFileSelector.cpp:754
 msgid "Create New Directory"
 msgstr "새 디렉토리 생성"
 
-#: cfox/lib/FXDirSelector.cpp:319 cfox/lib/FXFileSelector.cpp:724
+#: fox/lib/FXDirSelector.cpp:320 fox/lib/FXFileSelector.cpp:757
 msgid "Already Exists"
 msgstr "이미 존재함"
 
-#: cfox/lib/FXDirSelector.cpp:323 cfox/lib/FXFileSelector.cpp:728
+#: fox/lib/FXDirSelector.cpp:324 fox/lib/FXFileSelector.cpp:761
 msgid "Cannot Create"
 msgstr "만들 수 없음"
 
-#: cfox/lib/FXDirSelector.cpp:343 cfox/lib/FXFileSelector.cpp:780
+#: fox/lib/FXDirSelector.cpp:344 fox/lib/FXFileSelector.cpp:815
 msgid "Copy File"
 msgstr "파일 복사"
 
-#: cfox/lib/FXDirSelector.cpp:349 cfox/lib/FXFileSelector.cpp:786
+#: fox/lib/FXDirSelector.cpp:350 fox/lib/FXFileSelector.cpp:821
 msgid "Error Copying File"
 msgstr "파일 복사중 오류"
 
-#: cfox/lib/FXDirSelector.cpp:360 cfox/lib/FXFileSelector.cpp:803
+#: fox/lib/FXDirSelector.cpp:361 fox/lib/FXFileSelector.cpp:838
 msgid "Move File"
 msgstr "파일 이동"
 
-#: cfox/lib/FXDirSelector.cpp:366 cfox/lib/FXFileSelector.cpp:809
+#: fox/lib/FXDirSelector.cpp:367 fox/lib/FXFileSelector.cpp:844
 msgid "Error Moving File"
 msgstr "파일 이동중 오류"
 
-#: cfox/lib/FXDirSelector.cpp:377 cfox/lib/FXFileSelector.cpp:826
+#: fox/lib/FXDirSelector.cpp:378 fox/lib/FXFileSelector.cpp:861
 msgid "Link File"
 msgstr "링크 파일"
 
-#: cfox/lib/FXDirSelector.cpp:383 cfox/lib/FXFileSelector.cpp:832
+#: fox/lib/FXDirSelector.cpp:384 fox/lib/FXFileSelector.cpp:867
 msgid "Error Linking File"
 msgstr "파일 연결중 오류"
 
-#: cfox/lib/FXDirSelector.cpp:393
+#: fox/lib/FXDirSelector.cpp:394
 msgid "Deleting file"
 msgstr "파일 삭제중"
 
-#: cfox/lib/FXDirSelector.cpp:395 cfox/lib/FXFileSelector.cpp:852
+#: fox/lib/FXDirSelector.cpp:396 fox/lib/FXFileSelector.cpp:887
 msgid "Error Deleting File"
 msgstr "파일 삭제중 오류"
 
-#: cfox/lib/FXDirSelector.cpp:415 cfox/lib/FXFileSelector.cpp:906
+#: fox/lib/FXDirSelector.cpp:416 fox/lib/FXFileSelector.cpp:940
 msgid "Up one level"
 msgstr "한 단계 위로"
 
-#: cfox/lib/FXDirSelector.cpp:416 cfox/lib/FXFileSelector.cpp:907
+#: fox/lib/FXDirSelector.cpp:417 fox/lib/FXFileSelector.cpp:941
 msgid "Home directory"
 msgstr "홈 디렉토리"
 
-#: cfox/lib/FXDirSelector.cpp:417 cfox/lib/FXFileSelector.cpp:908
+#: fox/lib/FXDirSelector.cpp:418 fox/lib/FXFileSelector.cpp:942
 msgid "Work directory"
 msgstr "작업 디렉토리"
 
-#: cfox/lib/FXDirSelector.cpp:421
+#: fox/lib/FXDirSelector.cpp:422
 msgid "Sorting"
 msgstr "정렬"
 
-#: cfox/lib/FXDirSelector.cpp:423 cfox/lib/FXFileSelector.cpp:947
+#: fox/lib/FXDirSelector.cpp:424 fox/lib/FXFileSelector.cpp:986
 msgid "Ignore case"
 msgstr "대/소문자 무시"
 
-#: cfox/lib/FXDirSelector.cpp:424 cfox/lib/FXFileSelector.cpp:958
+#: fox/lib/FXDirSelector.cpp:425 fox/lib/FXFileSelector.cpp:997
 msgid "Hidden files"
 msgstr "숨김 파일"
 
-#: cfox/lib/FXDirSelector.cpp:427 cfox/lib/FXFileSelector.cpp:912
+#: fox/lib/FXDirSelector.cpp:428 fox/lib/FXFileSelector.cpp:946
 msgid "Bookmarks"
 msgstr "북마크"
 
-#: cfox/lib/FXDirSelector.cpp:428 cfox/lib/FXFileSelector.cpp:915
+#: fox/lib/FXDirSelector.cpp:429 fox/lib/FXFileSelector.cpp:949
 msgid "Set bookmark"
 msgstr "북마크 지정"
 
-#: cfox/lib/FXDirSelector.cpp:429 cfox/lib/FXFileSelector.cpp:916
+#: fox/lib/FXDirSelector.cpp:430 fox/lib/FXFileSelector.cpp:950
 msgid "&Unset bookmark"
 msgstr "북마크 지정해제(&U)"
 
-#: cfox/lib/FXDirSelector.cpp:430
+#: fox/lib/FXDirSelector.cpp:431
 msgid "Clear bookmarks"
 msgstr "북마크 지우기"
 
-#: cfox/lib/FXDirSelector.cpp:446 cfox/lib/FXFileSelector.cpp:967
+#: fox/lib/FXDirSelector.cpp:447 fox/lib/FXFileSelector.cpp:1006
 msgid "New directory..."
 msgstr "새 디렉토리..."
 
-#: cfox/lib/FXDirSelector.cpp:447 cfox/lib/FXFileSelector.cpp:969
+#: fox/lib/FXDirSelector.cpp:448 fox/lib/FXFileSelector.cpp:1008
 msgid "Copy..."
 msgstr "복사..."
 
-#: cfox/lib/FXDirSelector.cpp:448 cfox/lib/FXFileSelector.cpp:970
+#: fox/lib/FXDirSelector.cpp:449 fox/lib/FXFileSelector.cpp:1009
 msgid "Move..."
 msgstr "이동..."
 
-#: cfox/lib/FXDirSelector.cpp:449 cfox/lib/FXFileSelector.cpp:971
+#: fox/lib/FXDirSelector.cpp:450 fox/lib/FXFileSelector.cpp:1010
 msgid "Link..."
 msgstr "링크..."
 
-#: cfox/lib/FXDirSelector.cpp:450 cfox/lib/FXFileSelector.cpp:972
+#: fox/lib/FXDirSelector.cpp:451 fox/lib/FXFileSelector.cpp:1011
 msgid "Delete..."
 msgstr "삭제..."
 
-#: cfox/lib/FXFileList.cpp:209
+#: fox/lib/FXFileList.cpp:216
 msgid "Name\tName"
 msgstr "이름\t이름"
 
-#: cfox/lib/FXFileList.cpp:210
+#: fox/lib/FXFileList.cpp:217
 msgid "Type\tFile type"
 msgstr "유형\t파일 유형"
 
-#: cfox/lib/FXFileList.cpp:211
+#: fox/lib/FXFileList.cpp:218
 msgid "Size\tFile size"
 msgstr "크기\t파일 크기"
 
-#: cfox/lib/FXFileList.cpp:212
+#: fox/lib/FXFileList.cpp:219
 msgid "Modified Date\tDate when last modified"
 msgstr "수정한 날짜\t마지막으로 수정한 날짜"
 
-#: cfox/lib/FXFileList.cpp:213
+#: fox/lib/FXFileList.cpp:220
 msgid "User\tUser name"
 msgstr "사용자\t사용자 이름"
 
-#: cfox/lib/FXFileList.cpp:214
+#: fox/lib/FXFileList.cpp:221
 msgid "Group\tGroup name"
 msgstr "그룹\t그룹 이름"
 
-#: cfox/lib/FXFileList.cpp:215
+#: fox/lib/FXFileList.cpp:222
 msgid "Attributes\tFile attributes"
 msgstr "속성\t파일 속성"
 
-#: cfox/lib/FXFileList.cpp:217
+#: fox/lib/FXFileList.cpp:224
 msgid "Link\tSymbolic link to"
 msgstr "링크\t심볼릭 링크:"
 
-#: cfox/lib/FXFileList.cpp:583
+#: fox/lib/FXFileList.cpp:673
 msgid "Failed Deleting Files"
 msgstr "파일 삭제중 실패함"
 
-#: cfox/lib/FXFileList.cpp:583
+#: fox/lib/FXFileList.cpp:673
 #, c-format
 msgid "Failed to delete file: %s; continue?"
 msgstr "파일 삭제 실패함: %s; 계속하시겠습니까?"
 
-#: cfox/lib/FXFileList.cpp:603 cfox/lib/FXFileList.cpp:632
+#: fox/lib/FXFileList.cpp:693 fox/lib/FXFileList.cpp:722
 msgid "Overwrite File"
 msgstr "파일 덮어쓰기"
 
-#: cfox/lib/FXFileList.cpp:603 cfox/lib/FXFileList.cpp:632
+#: fox/lib/FXFileList.cpp:693 fox/lib/FXFileList.cpp:722
 #, c-format
 msgid "Overwrite existing file or directory: %s?"
 msgstr "기존 파일 또는 디렉터리 덮어쓰기: %s하시겠습니까?"
 
-#: cfox/lib/FXFileList.cpp:610
+#: fox/lib/FXFileList.cpp:700
 msgid "Failed Copying File"
 msgstr "파일 복사중 실패함"
 
-#: cfox/lib/FXFileList.cpp:610 cfox/lib/FXFileList.cpp:639
+#: fox/lib/FXFileList.cpp:700 fox/lib/FXFileList.cpp:729
 #, c-format
 msgid "Failed to overwrite file: %s; continue?"
 msgstr "파일 덮어쓰기에 실패함: %s; 계속하시겠습니까?"
 
-#: cfox/lib/FXFileList.cpp:639
+#: fox/lib/FXFileList.cpp:729
 msgid "Failed Moving File"
 msgstr "파일 이동중 실패함"
 
-#: cfox/lib/FXFileList.cpp:647
+#: fox/lib/FXFileList.cpp:737
 msgid "Copying Files"
 msgstr "파일 복사중"
 
-#: cfox/lib/FXFileList.cpp:663
+#: fox/lib/FXFileList.cpp:753
 msgid ""
 "Copying file:\n"
 "\n"
@@ -2336,58 +2352,58 @@ msgstr ""
 "파일 복사중:\n"
 "\n"
 
-#: cfox/lib/FXFileList.cpp:714
+#: fox/lib/FXFileList.cpp:804
 msgid "Failed Linking File"
 msgstr "파일 연결중 실패함"
 
-#: cfox/lib/FXFileList.cpp:714
+#: fox/lib/FXFileList.cpp:804
 #, c-format
 msgid "Failed to make symbolic link from: %s; continue?"
 msgstr "심볼릭 링크를 만들지 못함: %s; 계속하시겠습니까?"
 
-#: cfox/lib/FXFileList.cpp:731
+#: fox/lib/FXFileList.cpp:821
 msgid "Move Here"
 msgstr "여기에 이동"
 
-#: cfox/lib/FXFileList.cpp:732
+#: fox/lib/FXFileList.cpp:822
 msgid "Copy Here"
 msgstr "여기에 복사"
 
-#: cfox/lib/FXFileList.cpp:733
+#: fox/lib/FXFileList.cpp:823
 msgid "Link Here"
 msgstr "여기에 링크"
 
-#: cfox/lib/FXFileList.cpp:735
+#: fox/lib/FXFileList.cpp:825
 msgid "Cancel"
 msgstr "취소"
 
-#: cfox/lib/FXFileList.cpp:1432
+#: fox/lib/FXFileList.cpp:1522
 msgid "Folder"
 msgstr "폴더"
 
-#: cfox/lib/FXFileList.cpp:1438
+#: fox/lib/FXFileList.cpp:1528
 msgid "Application"
 msgstr "응용프로그램"
 
-#: cfox/lib/FXFileList.cpp:1444
+#: fox/lib/FXFileList.cpp:1534
 msgid "Document"
 msgstr "문서"
 
-#: cfox/lib/FXFileSelector.cpp:721
+#: fox/lib/FXFileSelector.cpp:754
 msgid "Create new directory with name: "
 msgstr "이름으로 새 디렉토리 생성: "
 
-#: cfox/lib/FXFileSelector.cpp:724
+#: fox/lib/FXFileSelector.cpp:757
 #, c-format
 msgid "File or directory %s already exists.\n"
 msgstr "파일 또는 %s 디렉토리가 이미 존재합니다.\n"
 
-#: cfox/lib/FXFileSelector.cpp:728
+#: fox/lib/FXFileSelector.cpp:761
 #, c-format
 msgid "Cannot create directory %s.\n"
 msgstr "%s 디렉터리를 만들 수 없습니다.\n"
 
-#: cfox/lib/FXFileSelector.cpp:756
+#: fox/lib/FXFileSelector.cpp:791
 #, c-format
 msgid ""
 "Rename file from:\n"
@@ -2402,15 +2418,15 @@ msgstr ""
 "\n"
 "to: "
 
-#: cfox/lib/FXFileSelector.cpp:757
+#: fox/lib/FXFileSelector.cpp:792
 msgid "Rename File"
 msgstr "파일 이름변경"
 
-#: cfox/lib/FXFileSelector.cpp:763
+#: fox/lib/FXFileSelector.cpp:798
 msgid "Error Renaming File"
 msgstr "파일 이름변경중 오류"
 
-#: cfox/lib/FXFileSelector.cpp:763
+#: fox/lib/FXFileSelector.cpp:798
 #, c-format
 msgid ""
 "Unable to rename file:\n"
@@ -2425,7 +2441,7 @@ msgstr ""
 "\n"
 "작업을 계속하시겠습니까?"
 
-#: cfox/lib/FXFileSelector.cpp:779
+#: fox/lib/FXFileSelector.cpp:814
 #, c-format
 msgid ""
 "Copy file from location:\n"
@@ -2440,7 +2456,7 @@ msgstr ""
 "\n"
 "다음 위치로: "
 
-#: cfox/lib/FXFileSelector.cpp:786
+#: fox/lib/FXFileSelector.cpp:821
 #, c-format
 msgid ""
 "Unable to copy file:\n"
@@ -2455,7 +2471,7 @@ msgstr ""
 "\n"
 "작업을 계속하시겠습니까?"
 
-#: cfox/lib/FXFileSelector.cpp:802
+#: fox/lib/FXFileSelector.cpp:837
 #, c-format
 msgid ""
 "Move file from location:\n"
@@ -2470,7 +2486,7 @@ msgstr ""
 "\n"
 "다음 위치로: "
 
-#: cfox/lib/FXFileSelector.cpp:809
+#: fox/lib/FXFileSelector.cpp:844
 #, c-format
 msgid ""
 "Unable to move file:\n"
@@ -2485,7 +2501,7 @@ msgstr ""
 "\n"
 "작업을 계속하시겠습니까?"
 
-#: cfox/lib/FXFileSelector.cpp:825
+#: fox/lib/FXFileSelector.cpp:860
 #, c-format
 msgid ""
 "Link file from location:\n"
@@ -2500,7 +2516,7 @@ msgstr ""
 "\n"
 "다음 위치로: "
 
-#: cfox/lib/FXFileSelector.cpp:832
+#: fox/lib/FXFileSelector.cpp:867
 #, c-format
 msgid ""
 "Unable to link file:\n"
@@ -2515,11 +2531,11 @@ msgstr ""
 "\n"
 "작업을 계속하시겠습니까?"
 
-#: cfox/lib/FXFileSelector.cpp:848
+#: fox/lib/FXFileSelector.cpp:883
 msgid "Deleting files"
 msgstr "파일 삭제중"
 
-#: cfox/lib/FXFileSelector.cpp:848
+#: fox/lib/FXFileSelector.cpp:883
 #, c-format
 msgid ""
 "Are you sure you want to delete the file:\n"
@@ -2530,7 +2546,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: cfox/lib/FXFileSelector.cpp:852
+#: fox/lib/FXFileSelector.cpp:887
 #, c-format
 msgid ""
 "Unable to delete file:\n"
@@ -2545,114 +2561,127 @@ msgstr ""
 "\n"
 "작업을 계속하시겠습니까?"
 
-#: cfox/lib/FXFileSelector.cpp:917
+#: fox/lib/FXFileSelector.cpp:951
 msgid "Clear all bookmarks"
 msgstr "북마크 모두 지우기"
 
-#: cfox/lib/FXFileSelector.cpp:938
+#: fox/lib/FXFileSelector.cpp:977
 msgid "Sort by"
 msgstr "정렬 기준"
 
-#: cfox/lib/FXFileSelector.cpp:943
+#: fox/lib/FXFileSelector.cpp:982
 msgid "User"
 msgstr "사용자"
 
-#: cfox/lib/FXFileSelector.cpp:944
+#: fox/lib/FXFileSelector.cpp:983
 msgid "Group"
 msgstr "그룹"
 
-#: cfox/lib/FXFileSelector.cpp:950
+#: fox/lib/FXFileSelector.cpp:989
 msgid "View"
 msgstr "보기"
 
-#: cfox/lib/FXFileSelector.cpp:951
+#: fox/lib/FXFileSelector.cpp:990
 msgid "Small icons"
 msgstr "작은 아이콘"
 
-#: cfox/lib/FXFileSelector.cpp:952
+#: fox/lib/FXFileSelector.cpp:991
 msgid "Big icons"
 msgstr "큰 아이콘"
 
-#: cfox/lib/FXFileSelector.cpp:953
+#: fox/lib/FXFileSelector.cpp:992
 msgid "Details"
 msgstr "세부사항"
 
-#: cfox/lib/FXFileSelector.cpp:955
+#: fox/lib/FXFileSelector.cpp:994
 msgid "Rows"
 msgstr "행"
 
-#: cfox/lib/FXFileSelector.cpp:956
+#: fox/lib/FXFileSelector.cpp:995
 msgid "Columns"
 msgstr "열"
 
-#: cfox/lib/FXFileSelector.cpp:959
+#: fox/lib/FXFileSelector.cpp:998
 msgid "Preview images"
 msgstr "미리보기 이미지"
 
-#: cfox/lib/FXFileSelector.cpp:961
+#: fox/lib/FXFileSelector.cpp:1000
 msgid "Mini images"
 msgstr "소형 이미지"
 
-#: cfox/lib/FXFileSelector.cpp:962
+#: fox/lib/FXFileSelector.cpp:1001
 msgid "Normal images"
 msgstr "정상 이미지"
 
-#: cfox/lib/FXFileSelector.cpp:963
+#: fox/lib/FXFileSelector.cpp:1002
 msgid "Medium images"
 msgstr "중형 이미지"
 
-#: cfox/lib/FXFileSelector.cpp:964
+#: fox/lib/FXFileSelector.cpp:1003
 msgid "Giant images"
 msgstr "대형 이미지"
 
-#: cfox/lib/FXFileSelector.cpp:968
+#: fox/lib/FXFileSelector.cpp:1007
 msgid "Rename..."
 msgstr "이름변경..."
 
-#: cfox/lib/FXReplaceDialog.cpp:129
+#: fox/lib/FXReplaceDialog.cpp:130
 msgid "&Search\tSearch\tSearch for pattern."
 msgstr "검색(&S)\t검색\t패턴 검색하기."
 
-#: cfox/lib/FXReplaceDialog.cpp:130
+#: fox/lib/FXReplaceDialog.cpp:131
 msgid "&Replace\tReplace\tSearch and replace pattern."
 msgstr "바꾸기(&R)\t바꾸기\t패턴 검색 및 바꾸기."
 
-#: cfox/lib/FXReplaceDialog.cpp:131
-msgid "Replace Sel\tReplace in selection\tReplace all in selection."
+#: fox/lib/FXReplaceDialog.cpp:132
+#, fuzzy
+msgid "Replace S&el\tReplace in selection\tReplace all in selection."
 msgstr "선택 바꾸기\t선택에서 바꾸기\t선택에서 모두 바꾸기."
 
-#: cfox/lib/FXReplaceDialog.cpp:132
-msgid "Replace All\tReplace all\tReplace all."
+#: fox/lib/FXReplaceDialog.cpp:133
+#, fuzzy
+msgid "Replace &All\tReplace all\tReplace all in text."
 msgstr "모두 바꾸기\t모두 바꾸기\t모두 바꾸기."
 
-#: cfox/lib/FXReplaceDialog.cpp:138
+#: fox/lib/FXReplaceDialog.cpp:139
 msgid "Search &For:"
 msgstr "검색 대상(&F):"
 
-#: cfox/lib/FXReplaceDialog.cpp:146
-msgid "Re&place With:"
+#: fox/lib/FXReplaceDialog.cpp:149
+#, fuzzy
+msgid "Replace &With:"
 msgstr "바꾸기 대상(&P):"
 
-#: cfox/lib/FXReplaceDialog.cpp:155
-msgid "&Expression\tRegular Expression\tPerform regular-expression match."
+#: fox/lib/FXReplaceDialog.cpp:160
+#, fuzzy
+msgid "E&xpression\tRegular Expression\tPerform regular-expression match."
 msgstr "표현식(&E)\t정규식\t정규식 일치 수행하기."
 
-#: cfox/lib/FXReplaceDialog.cpp:156
-msgid "&Ignore Case\tCase Insensitive\tPerform case-insentive match."
+#: fox/lib/FXReplaceDialog.cpp:161
+msgid "W&ords\tWhole Words\tPerform whole-word match."
+msgstr ""
+
+#: fox/lib/FXReplaceDialog.cpp:162
+#, fuzzy
+msgid "Case\tCase Insensitive\tPerform case-insentive match."
 msgstr "대/소문자 무시(&I)\t대/소문자 구분안함\t대/소문자 일치 수행하기."
 
-#: cfox/lib/FXReplaceDialog.cpp:157
-msgid "&Wrap\tWrap Around\tWrap around when searching."
+#: fox/lib/FXReplaceDialog.cpp:163
+#, fuzzy
+msgid "Wra&p\tWrap Around\tWrap around when searching."
 msgstr "줄바꿈(&W)\t순환\t검색시 둘러보기."
 
-#: cfox/lib/FXReplaceDialog.cpp:158
+#: fox/lib/FXReplaceDialog.cpp:164
 msgid "&Backward\tSearch Direction\tChange search direction."
 msgstr "역방향(&B)\t검색 방향\t검색 방향 변경하기."
 
-#: cfox/lib/FXReplaceDialog.cpp:159
+#: fox/lib/FXReplaceDialog.cpp:165
 msgid "Text to replace with."
 msgstr "대체할 텍스트입니다."
 
-#: cfox/lib/FXStatusLine.cpp:83
+#: fox/lib/FXStatusLine.cpp:84
 msgid "Ready."
 msgstr "준비됨."
+
+#~ msgid "Yes"
+#~ msgstr "예"
