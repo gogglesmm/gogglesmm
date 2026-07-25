@@ -1,0 +1,38 @@
+name: Upload Custom Release Tarball and Zip
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Create custom archives
+        run: |
+          pip install git-archive-all
+          # Generate the tarball (.tar.gz)
+          git-archive-all gogglesmm-full-${{ github.event.release.tag_name }}.tar.gz
+          # Generate the zip file (.zip)
+          git-archive-all gogglesmm-full-${{ github.event.release.tag_name }}.zip
+
+      - name: Update Release Notes and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            gogglesmm-full-${{ github.event.release.tag_name }}.tar.gz
+            gogglesmm-full-${{ github.event.release.tag_name }}.zip
+          # Automatically prepends a notice while preserving existing release notes
+          body: |
+            ⚠️ **Important**: Please download the **`-full-`** assets below. The default GitHub "Source code" links does not include the default FOX library.
+
+            ${{ github.event.release.body }}
