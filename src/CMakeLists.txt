@@ -5,7 +5,7 @@ include(TestBigEndian)
 include(CheckIncludeFiles)
 include(FeatureSummary)
 
-project(GOGGLESMM VERSION 1.2.5)
+project(GOGGLESMM VERSION 1.3.0)
 
 
 option(WITH_OPENGL "Enable OpenGL Features" ON)

@@ -112,7 +112,7 @@ if(WITH_NLS)
     SOURCE_FILES src/*.cpp src/*.h
     KEYWORDS tr:1 fxtr:1 notr:1 fxtrformat:1
     FLAGS fxtrformat:1:c-format
-    PACKAGE_VERSION 1.2.5
+    PACKAGE_VERSION 1.3.0
     BUGS_ADDRESS s.jansen@gmail.com
     COPYRIGHT_HOLDER "Sander Jansen"
     APPEND_SOURCE_FILES
