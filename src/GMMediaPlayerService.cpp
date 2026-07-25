@@ -347,6 +347,7 @@ static void gm_mpris2_track_to_dict(DBusMessageIter * iter,const GMTrack & track
   DBusMessageIter array;
   dbus_message_iter_open_container(iter,DBUS_TYPE_ARRAY,"{sv}",&array);
   gm_dbus_dict_append_long(&array,"mpris:length",track.time*1000000);
+  gm_dbus_dict_append_string(&array,"mpris:trackid","/org/mpris/MediaPlayer2/TrackList/NoTrack");
   gm_dbus_dict_append_string(&array,"xesam:title",track.title);
   gm_dbus_dict_append_string_list(&array,"xesam:artist",FXStringList(track.artist,1));
   if (!track.album_artist.empty())
