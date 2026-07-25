@@ -110,7 +110,7 @@ include(icons.cmake)
 
 
 
-if(WITH_SESSION AND SM_FOUND AND ICE_FOUND)
+if(WITH_SESSION AND X11_SM_FOUND AND X11_ICE_FOUND)
   list(APPEND SOURCES GMSession.cpp)
   set(HAVE_SESSION 1)
 endif()
@@ -138,7 +138,7 @@ add_custom_command(
 )
 
 # Enable DBUS specific features
-if (WITH_DBUS AND DBUS_FOUND)
+if (WITH_DBUS AND DBus_FOUND)
   list(APPEND SOURCES GMDBus.cpp
                       GMSettingsDaemon.cpp
                       GMMediaPlayerService.cpp
