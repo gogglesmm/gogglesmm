@@ -1,7 +1,7 @@
 /*******************************************************************************
 *                         Goggles Music Manager                                *
 ********************************************************************************
-*           Copyright (C) 2006-2021 by Sander Jansen. All Rights Reserved      *
+*           Copyright (C) 2006-2026 by Sander Jansen. All Rights Reserved      *
 *                               ---                                            *
 * This program is free software: you can redistribute it and/or modify         *
 * it under the terms of the GNU General Public License as published by         *
@@ -83,7 +83,7 @@ void GMAboutDialog::setup(){
                  "as published by the Free Software Foundation,\n"
                  "either version 3 of the License, or (at your\n"
                  "option) any later version.\n\n"
-                 "This software uses the FOX Toolkit Library\n(http://www.fox-toolkit.org)\nCopyright " UTF8_COPYRIGHT_SIGN " 2001-2023 Jeroen van der Zijp.\n\n"
+                 "This software uses the FOX Toolkit Library\n(http://www.fox-toolkit.org)\nCopyright " UTF8_COPYRIGHT_SIGN " 2001-2026 Jeroen van der Zijp.\n\n"
                  "ALAC decoder (MIT Licensed)\n"
                  "Copyright " UTF8_COPYRIGHT_SIGN " 2005 David Hammerton\n"
                  "All rights reserved.\n"
@@ -100,7 +100,7 @@ void GMAboutDialog::setup(){
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
 
-  label = new FXLabel(this,"Copyright " UTF8_COPYRIGHT_SIGN " 2004-2023 Sander Jansen",nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,0);
+  label = new FXLabel(this,"Copyright " UTF8_COPYRIGHT_SIGN " 2004-2026 Sander Jansen",nullptr,LAYOUT_CENTER_X|LAYOUT_FILL_X,0,0,0,0,5,5,0,0);
   label->setBackColor(FXRGB(255,255,255));
   label->setTextColor(FXRGB(0,0,0));
 
