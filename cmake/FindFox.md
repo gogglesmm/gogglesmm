@@ -4,7 +4,11 @@ The `FindFox.cmake` module provides flexible FOX Toolkit discovery with three mo
 
 ## Modes of Operation
 
-### 1. Bundled (Default)
+The modes are tried in this order: **Build Tree** (if `FOX_BUILD_TREE` is set and the
+path exists), then **External** (if `FOX_USE_EXTERNAL=ON`), then **Bundled**. They are
+described below in order of how commonly they are used, not in order of precedence.
+
+### Bundled (Default)
 Uses the `fox/` subdirectory (symlink or submodule) to build FOX alongside your project.
 
 ```bash
@@ -30,7 +34,7 @@ When using bundled mode, FindFox automatically sets:
 
 This significantly reduces build time since gogglesmm only needs the core FOX library and reswrap utility.
 
-### 2. Build Tree
+### Build Tree
 Uses FOX from an existing build tree without installing it.
 
 ```bash
@@ -52,7 +56,7 @@ cmake -B build -DFOX_BUILD_TREE=/home/sxj/Development/fox/build/release-native
 - `../fox/build/release-shared` - Shared library build
 - `../fox/build/dev` - Development build with debug symbols
 
-### 3. External (System-Installed)
+### External (System-Installed)
 Uses FOX installed on the system via package manager or manual installation.
 
 ```bash
@@ -76,7 +80,8 @@ cmake -B build -DFOX_USE_EXTERNAL=ON
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
 | `FOX_USE_EXTERNAL` | BOOL | OFF | Use external FOX instead of bundled |
-| `FOX_BUILD_TREE` | PATH | - | Path to FOX build tree |
+| `FOX_BUILD_TREE` | PATH | - | Path to FOX build tree. Takes precedence over `FOX_USE_EXTERNAL` |
+| `FOX_BUNDLED_SOURCE_DIR` | PATH | `${CMAKE_CURRENT_SOURCE_DIR}/fox` | Override the bundled FOX source location. Bundled mode only |
 
 ### Output Variables
 
@@ -189,18 +194,38 @@ cmake --install build
 
 ## Git Submodule Setup
 
-To use FOX as a git submodule instead of a symlink:
+gogglesmm already ships FOX as a git submodule in `fox/`, tracking the `cmake`
+branch of https://github.com/gogglesguy/fox:
 
 ```bash
-# Add FOX as a submodule
-cd gogglesmm
-git submodule add https://github.com/franko/fox.git fox
-
 # Clone project with submodules
-git clone --recursive https://github.com/user/gogglesmm.git
+git clone --recursive https://github.com/gogglesmm/gogglesmm.git
 
 # Or initialize submodules after cloning
-git submodule update --init --recursive
+git submodule update --init
+```
+
+The submodule is pinned to a specific commit. `git submodule update --init`
+checks out that commit; the `branch` entry in `.gitmodules` is only used by
+`--remote`, which moves the submodule to the tip of the branch:
+
+```bash
+# Advance fox/ to the latest commit on the cmake branch
+git submodule update --remote fox
+git add fox
+```
+
+To set this up from scratch in another project, `-b` records the branch:
+
+```bash
+git submodule add -b cmake https://github.com/gogglesguy/fox.git fox
+```
+
+Use the HTTPS URL in `.gitmodules` so that anonymous clones work. Developers who
+prefer SSH can rewrite it locally without touching the repository:
+
+```bash
+git config --global url."git@github.com:".insteadOf "https://github.com/"
 ```
 
 ## Troubleshooting

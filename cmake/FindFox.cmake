@@ -1,14 +1,18 @@
 # FindFox.cmake
 # Find or build the FOX Toolkit library
 #
-# This module supports three modes:
-#   1. Bundled (default) - Uses fox/ subdirectory via add_subdirectory()
-#   2. Build Tree - Uses FOX from a build tree via FOX_BUILD_TREE variable
-#   3. External - Finds installed FOX via find_package() or pkg-config
+# This module supports three modes, listed in the order they are tried:
+#   1. Build Tree - Uses FOX from an existing build tree via FOX_BUILD_TREE
+#   2. External - Finds installed FOX via find_package() or pkg-config
+#   3. Bundled (default) - Builds the fox/ subdirectory via add_subdirectory()
 #
 # Options:
 #   FOX_USE_EXTERNAL    - Set to ON to use external FOX instead of bundled (default: OFF)
 #   FOX_BUILD_TREE      - Path to FOX build tree (e.g., /path/to/fox/build/release-native)
+#                         Takes precedence over FOX_USE_EXTERNAL when it exists.
+#   FOX_BUNDLED_SOURCE_DIR
+#                       - Override the bundled FOX source location (default: ${CMAKE_CURRENT_SOURCE_DIR}/fox)
+#                         Only used by the bundled mode.
 #
 # Output Variables:
 #   FOX_FOUND           - TRUE if FOX was found
