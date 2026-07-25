@@ -92,7 +92,8 @@ enum {
 
 FXuint gm_desktop_session() {
   FXString desktop = FXSystem::getEnvironment("DESKTOP_SESSION");
-  if (FXString::comparecase(desktop,"kde-plasma")==0 ||
+  if (FXString::comparecase(desktop,"plasma")==0 ||
+      FXString::comparecase(desktop,"kde-plasma")==0 ||
       FXString::comparecase(desktop,"/usr/share/xsessions/plasma")==0)
     return DESKTOP_SESSION_KDE_PLASMA;
   else if (FXString::comparecase(desktop,"gnome")==0)
@@ -101,8 +102,10 @@ FXuint gm_desktop_session() {
     return DESKTOP_SESSION_XFCE;
   else if (FXString::comparecase(desktop,"lxde")==0)
     return DESKTOP_SESSION_LXDE;
-  else
+  else {
+    GM_DEBUG_PRINT("Generic X11 Session: %s\n", desktop.text());
     return DESKTOP_SESSION_X11;
+    }
   }
 
 
