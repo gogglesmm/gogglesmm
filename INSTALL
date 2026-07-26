@@ -28,7 +28,7 @@ Installation Instructions
       * taglib >= 1.9.0
       * expat
       * gettext / libintl            (unless WITH_NLS=OFF)
-      * OpenGL and libepoxy          (unless WITH_OPENGL=OFF)
+      * OpenGL, GLU and libepoxy     (unless WITH_OPENGL=OFF)
 
       Building the bundled FOX submodule additionally requires:
 

@@ -77,6 +77,12 @@ endif()
 # OpenGL + libepoxy
 if(WITH_OPENGL)
   find_package(OpenGL REQUIRED COMPONENTS OpenGL)
+  # GMImageView.cpp and GMPresenter.cpp call gluOrtho2D, so GLU is required.
+  # GLU is not a FindOpenGL component; the module always looks for it and
+  # defines OpenGL::GLU when found.
+  if(NOT TARGET OpenGL::GLU)
+    message(FATAL_ERROR "OpenGL Utility Library (GLU) not found")
+  endif()
   find_package(Epoxy REQUIRED)
   set(HAVE_OPENGL 1)
 endif()
@@ -91,6 +97,12 @@ endif()
 # FindFox sets: FOX_RESWRAP, FOX_RESWRAP_H, FOX_RESWRAP_CPP, FOX_RESWRAP_TEXT
 if(NOT FOX_RESWRAP)
   message(FATAL_ERROR "reswrap not found - FOX_RESWRAP should be set by FindFox.cmake")
+endif()
+
+# Guard the command variables too: if these are empty the generated build rules
+# silently start with "-o" and only fail once the build runs
+if(NOT FOX_RESWRAP_H OR NOT FOX_RESWRAP_CPP OR NOT FOX_RESWRAP_TEXT)
+  message(FATAL_ERROR "reswrap command flags not set - FOX_RESWRAP_H/CPP/TEXT should be set by FindFox.cmake")
 endif()
 
 set(RESWRAP ${FOX_RESWRAP})
@@ -247,6 +259,7 @@ endif()
 if(WITH_OPENGL)
   target_link_libraries(gogglesmm PRIVATE
     OpenGL::OpenGL
+    OpenGL::GLU
     Epoxy::Epoxy
   )
 endif()
