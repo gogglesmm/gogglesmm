@@ -33,7 +33,7 @@ jobs:
             gogglesmm-full-${{ github.event.release.tag_name }}.zip
           # Automatically prepends a notice while preserving existing release notes
           body: |
-	    ${{ github.event.release.body }}		
+            ${{ github.event.release.body }}
 
             ⚠️ **Important**: Please download the **`-full-`** assets below. The default GitHub "Source code" links does not include the default FOX library.
 
