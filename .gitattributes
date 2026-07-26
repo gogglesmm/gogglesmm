@@ -1,0 +1,24 @@
+
+# FOX extra programs
+/fox/adie export-ignore
+/fox/calculator export-ignore
+/fox/chart export-ignore
+/fox/controlpanel export-ignore
+/fox/doc export-ignore
+/fox/glviewer export-ignore
+/fox/pathfinder export-ignore
+/fox/shutterbug export-ignore
+/fox/tests export-ignore
+/fox/windows export-ignore
+
+# FOX autobuild system
+/fox/config* export-ignore
+/fox/**/Makefile* export-ignore
+/fox/compile export-ignore
+/fox/depcomp export-ignore
+/fox/install-sh export-ignore
+/fox/missing export-ignore
+/fox/libtool export-ignore
+/fox/ltmain.sh export-ignore
+/fox/aclocal.m4 export-ignore
+/fox/index.html export-ignore
