@@ -26,12 +26,57 @@
 # Option to use external FOX instead of bundled
 option(FOX_USE_EXTERNAL "Use external FOX library instead of bundled fox/ subdirectory" OFF)
 
+# ============================================================================
+# Detect reswrap version and set the command variables consumers use.
+#
+# Every mode below returns as soon as it has found FOX, so this has to be
+# called explicitly on each of those paths - it cannot live at the end of the
+# file. Without it FOX_RESWRAP_H/CPP/TEXT stay empty and the generated build
+# rules start with "-o", failing at build time with "-o: command not found".
+# ============================================================================
+macro(_fox_setup_reswrap)
+    if(FOX_RESWRAP)
+        # Detect reswrap version to use correct flags
+        # Note: Skip version detection for generator expressions (build tree targets)
+        if(NOT FOX_RESWRAP MATCHES "\\$<")
+            execute_process(
+                COMMAND ${FOX_RESWRAP} -v
+                OUTPUT_VARIABLE RESWRAP_OUTPUT
+                ERROR_QUIET
+            )
+            string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" RESWRAP_VERSION "${RESWRAP_OUTPUT}")
+        endif()
+
+        # Set reswrap command variables based on version
+        if(RESWRAP_VERSION AND RESWRAP_VERSION VERSION_LESS "5.0")
+            # Old reswrap < 5.0 uses short flags
+            set(FOX_RESWRAP_H "${FOX_RESWRAP}" -i -k CACHE STRING "reswrap command for header generation")
+            set(FOX_RESWRAP_CPP "${FOX_RESWRAP}" -e -k CACHE STRING "reswrap command for source generation")
+            set(FOX_RESWRAP_TEXT "${FOX_RESWRAP}" -t -k CACHE STRING "reswrap command for text resources")
+            message(STATUS "FOX: reswrap version ${RESWRAP_VERSION} (using short flags)")
+        else()
+            # Modern reswrap >= 5.0 uses long flags (or unknown version, assume modern)
+            set(FOX_RESWRAP_H "${FOX_RESWRAP}" --keep-ext --header CACHE STRING "reswrap command for header generation")
+            set(FOX_RESWRAP_CPP "${FOX_RESWRAP}" --keep-ext --source --extern CACHE STRING "reswrap command for source generation")
+            set(FOX_RESWRAP_TEXT "${FOX_RESWRAP}" --keep-ext -t CACHE STRING "reswrap command for text resources")
+            if(RESWRAP_VERSION)
+                message(STATUS "FOX: reswrap version ${RESWRAP_VERSION} (using long flags)")
+            else()
+                message(STATUS "FOX: reswrap version unknown (assuming modern, using long flags)")
+            endif()
+        endif()
+
+        message(STATUS "FOX: reswrap utility: ${FOX_RESWRAP}")
+    endif()
+endmacro()
+
 # Early return if already found
 if(TARGET FX::FOX)
     set(FOX_FOUND TRUE)
     if(TARGET FX::reswrap)
         get_target_property(FOX_RESWRAP FX::reswrap IMPORTED_LOCATION)
     endif()
+    _fox_setup_reswrap()
     return()
 endif()
 
@@ -51,6 +96,7 @@ if(DEFINED FOX_BUILD_TREE AND EXISTS "${FOX_BUILD_TREE}")
         if(DEFINED FOX_RESWRAP_EXECUTABLE)
             set(FOX_RESWRAP "${FOX_RESWRAP_EXECUTABLE}" CACHE FILEPATH "Path to reswrap utility")
         endif()
+        _fox_setup_reswrap()
         return()
     else()
         message(WARNING "FOX: Build tree specified but fox-config.cmake not found in ${FOX_BUILD_TREE}")
@@ -69,6 +115,7 @@ if(FOX_USE_EXTERNAL)
         if(DEFINED FOX_RESWRAP_EXECUTABLE)
             set(FOX_RESWRAP "${FOX_RESWRAP_EXECUTABLE}" CACHE FILEPATH "Path to reswrap utility")
         endif()
+        _fox_setup_reswrap()
         return()
     endif()
 
@@ -76,40 +123,35 @@ if(FOX_USE_EXTERNAL)
     find_package(PkgConfig QUIET)
     if(PKG_CONFIG_FOUND)
         # Try different FOX version names
-        foreach(_version 1.7 1.6)
-            pkg_check_modules(FOX QUIET fox-${_version})
+        # Note: the .pc files are named fox17 / fox16, not fox-1.7 / fox-1.6
+        foreach(_version 17 16)
+            # GLOBAL is required so the imported target can be aliased below and
+            # used from the src/ and gap/ subdirectories
+            pkg_check_modules(FOX QUIET IMPORTED_TARGET GLOBAL fox${_version})
             if(FOX_FOUND)
-                message(STATUS "FOX: Found via pkg-config (fox-${_version})")
+                message(STATUS "FOX: Found via pkg-config (fox${_version}, version ${FOX_VERSION})")
 
-                # Create imported target from pkg-config results
+                # pkg_check_modules(IMPORTED_TARGET) already provides a fully
+                # populated target: library, include dirs and compile options.
                 if(NOT TARGET FX::FOX)
-                    add_library(FX::FOX UNKNOWN IMPORTED)
-
-                    # Find the library file
-                    find_library(FOX_LIBRARY
-                        NAMES FOX-${_version} fox-${_version} FOX fox
-                        HINTS ${FOX_LIBRARY_DIRS}
-                    )
-
-                    if(FOX_LIBRARY)
-                        set_target_properties(FX::FOX PROPERTIES
-                            IMPORTED_LOCATION "${FOX_LIBRARY}"
-                            INTERFACE_INCLUDE_DIRECTORIES "${FOX_INCLUDE_DIRS}"
-                            INTERFACE_COMPILE_OPTIONS "${FOX_CFLAGS_OTHER}"
-                        )
-
-                        # Parse and add library dependencies
-                        if(FOX_LDFLAGS)
-                            set_target_properties(FX::FOX PROPERTIES
-                                INTERFACE_LINK_LIBRARIES "${FOX_LDFLAGS}"
-                            )
-                        endif()
-                    endif()
+                    add_library(FX::FOX ALIAS PkgConfig::FOX)
                 endif()
 
-                # Find reswrap
+                # You really shouldn't be using xincs.h when using pkg-config,
+                # But people insist anyway... perhaps in the future this needs
+                # extra logic to determine which additional libraries are included
+                # and find headers to go along with them.
+                if(NOT TARGET FX::FOX_XINCS)
+                    add_library(FOX_XINCS INTERFACE)
+                    target_include_directories(FOX_XINCS INTERFACE ${FOX_INCLUDE_DIRS})
+                    add_library(FX::FOX_XINCS ALIAS FOX_XINCS)
+                endif()
+
+                # Find reswrap. pkg_check_modules does not set FOX_PREFIX, so ask
+                # pkg-config for it directly.
+                pkg_get_variable(FOX_PREFIX fox${_version} prefix)
                 find_program(FOX_RESWRAP
-                    NAMES reswrap reswrap-${_version}
+                    NAMES reswrap reswrap-1.7 reswrap-1.6
                     HINTS ${FOX_PREFIX}/bin
                     PATH_SUFFIXES bin
                 )
@@ -124,6 +166,7 @@ if(FOX_USE_EXTERNAL)
                     endif()
                 endif()
 
+                _fox_setup_reswrap()
                 return()
             endif()
         endforeach()
@@ -188,40 +231,5 @@ else()
                         "  3. Use build tree: cmake -DFOX_BUILD_TREE=/path/to/fox/build")
 endif()
 
-# ============================================================================
-# Detect reswrap version and set command variables
-# ============================================================================
-
-if(FOX_RESWRAP)
-    # Detect reswrap version to use correct flags
-    # Note: Skip version detection for generator expressions (build tree targets)
-    if(NOT FOX_RESWRAP MATCHES "\\$<")
-        execute_process(
-            COMMAND ${FOX_RESWRAP} -v
-            OUTPUT_VARIABLE RESWRAP_OUTPUT
-            ERROR_QUIET
-        )
-        string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" RESWRAP_VERSION "${RESWRAP_OUTPUT}")
-    endif()
-
-    # Set reswrap command variables based on version
-    if(RESWRAP_VERSION AND RESWRAP_VERSION VERSION_LESS "5.0")
-        # Old reswrap < 5.0 uses short flags
-        set(FOX_RESWRAP_H "${FOX_RESWRAP}" -i -k CACHE STRING "reswrap command for header generation")
-        set(FOX_RESWRAP_CPP "${FOX_RESWRAP}" -e -k CACHE STRING "reswrap command for source generation")
-        set(FOX_RESWRAP_TEXT "${FOX_RESWRAP}" -t -k CACHE STRING "reswrap command for text resources")
-        message(STATUS "FOX: reswrap version ${RESWRAP_VERSION} (using short flags)")
-    else()
-        # Modern reswrap >= 5.0 uses long flags (or unknown version, assume modern)
-        set(FOX_RESWRAP_H "${FOX_RESWRAP}" --keep-ext --header CACHE STRING "reswrap command for header generation")
-        set(FOX_RESWRAP_CPP "${FOX_RESWRAP}" --keep-ext --source --extern CACHE STRING "reswrap command for source generation")
-        set(FOX_RESWRAP_TEXT "${FOX_RESWRAP}" --keep-ext -t CACHE STRING "reswrap command for text resources")
-        if(RESWRAP_VERSION)
-            message(STATUS "FOX: reswrap version ${RESWRAP_VERSION} (using long flags)")
-        else()
-            message(STATUS "FOX: reswrap version unknown (assuming modern, using long flags)")
-        endif()
-    endif()
-
-    message(STATUS "FOX: reswrap utility: ${FOX_RESWRAP}")
-endif()
+# Bundled mode is the only path that reaches here; the others return above
+_fox_setup_reswrap()

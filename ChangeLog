@@ -1,3 +1,10 @@
+1.3.1:
+  - cmake: fix dbus, sm and ice detection (always disabled)
+  - cmake: fix external fox build and make GLU a dependency of gogglesmm
+  - ui: fix plasma desktop detection
+  - mprisv2: setting trackid enables seeking in the default kde plasma mpris widget
+  - reduce full downloads by filtering unused fox components
+
 1.3.0:
   - gap: fix bigendian platform builds
   - ui: Added Georgian translation by Ekaterine Papava
