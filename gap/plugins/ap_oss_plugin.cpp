@@ -23,10 +23,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <ioctl.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
-#include <soundcard.h>
+#include <sys/soundcard.h>
 
 #include "ap_oss_defs.h"
 
