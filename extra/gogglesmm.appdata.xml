@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2018 Sander Jansen <s.jansen@gmail.com> -->
 <component type="desktop-application">
-<id type="desktop">gogglesmm.desktop</id>
+<id>io.github.gogglesmm.gogglesmm</id>
 <metadata_license>CC0-1.0</metadata_license>
 <project_license>GPL-3.0+</project_license>
 <name>Goggles Music Manager</name>
+<developer id="io.github.gogglesmm">
+    <name>Sander Jansen</name>
+</developer>
 <summary>Music Player and Manager for Linux</summary>
 <description>
 <p>Goggles Music Manager is a easy to use music manager and player for the Linux desktop. It comes with a podcast manager to download and/or play podcasts from the internet. Music tracks can be organized in various ways using play lists and custom filters. The buildin tag editor allows for easy editing tags in files, including adding album art and lyrics.
@@ -35,9 +38,12 @@
     <release version="1.2.1" type="stable" date="2018-07-31"/>
 </releases>
 <screenshots>
-<screenshot type="default" width="1280" height="720">http://gogglesmm.github.io/images/gogglesmm.png</screenshot>
+    <screenshot type="default">
+        <image width="1280" height="720">https://gogglesmm.github.io/images/gogglesmm.png</image>
+    </screenshot>
 </screenshots>
 <translation type="gettext">gogglesmm</translation>
 <url type="homepage">https://gogglesmm.github.io/</url>
 <update_contact>s.jansen@gmail.com</update_contact>
+content_rating type="oars-1.1"/>
 </component>
