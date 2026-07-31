@@ -92,7 +92,7 @@ install(
 )
 
 # Install desktop metadata
-install(FILES extra/gogglesmm.appdata.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
+install(FILES extra/gogglesmm.appdata.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo RENAME io.github.gogglesmm.gogglesmm.appdata.xml)
 install(FILES extra/gogglesmm.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES extra/gogglesmm.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 
