@@ -3,6 +3,15 @@
 # This file lists all header files for the Gogglesmm application
 # Included from src/CMakeLists.txt
 
+
+set(GMTAG_HEADERS
+    GMCover.h
+    GMFilename.h
+    GMTag.h
+    GMTrack.h
+    gmutils.h
+)
+
 # Main application headers
 set(HEADERS
     GMAbout.h

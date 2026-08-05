@@ -121,6 +121,18 @@ include(headers.cmake)
 include(icons.cmake)
 
 
+# The GMTAG library to share code between gogglesmm and audioconvert
+add_library(gmtag STATIC ${GMTAG_SOURCES} ${GMTAG_HEADERS})
+
+target_include_directories(gmtag PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(gmtag PUBLIC
+  gap
+  FX::FOX
+  FX::FOX_XINCS
+  TagLib::TagLib
+)
+
 
 if(WITH_SESSION AND X11_SM_FOUND AND X11_ICE_FOUND)
   list(APPEND SOURCES GMSession.cpp)
@@ -196,7 +208,7 @@ endif()
 #
 if (DEFINED FOX_VERSION AND FOX_VERSION VERSION_LESS "1.7.80")
   message("Replacing occurences of FXString::compare")
-  foreach(sourcefile IN LISTS SOURCES)
+  foreach(sourcefile IN LISTS SOURCES GMTAG_SOURCES)
     if(EXISTS ${sourcefile})
       file(READ ${sourcefile} content)
       string(REPLACE "FXString::compare" "FX::compare" updated "${content}")
@@ -244,10 +256,7 @@ target_precompile_headers(gogglesmm PRIVATE
 # Imported targets automatically provide include directories
 target_link_libraries(gogglesmm PRIVATE
   # Core dependencies
-  gap
-  FX::FOX
-  FX::FOX_XINCS
-  TagLib::TagLib
+  gmtag
   SQLite3::SQLite3
 )
 

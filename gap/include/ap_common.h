@@ -24,6 +24,8 @@ namespace ap {
 // Get user codec compatible with GMFilename
 extern GMAPI const FXTextCodec * ap_get_usercodec(FXuint codec);
 
+extern GMAPI const FXTextCodec * ap_get_textcodec(const FXString & encoding);
+
 extern GMAPI void ap_parse_pls(const FXString & data,FXStringList & mrl);
 
 extern GMAPI void ap_parse_m3u(const FXString & data,FXStringList & mrl);

@@ -57,6 +57,9 @@ add_subdirectory(gap)
 # Add Goggles Music Manager
 add_subdirectory(src)
 
+# Add AudioConvert
+add_subdirectory(audioconvert)
+
 
 #-------------------------------------------------------------------------------
 # Install application icons in various sizes
