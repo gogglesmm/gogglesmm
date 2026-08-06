@@ -23,11 +23,24 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <ioctl.h>
 #include <unistd.h>
 
-#include <soundcard.h>
 
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#elif defined(HAVE_IOCTL_H)
+#include <ioctl.h>
+#else
+#error "missing header for ioctl"
+#endif
+
+#ifdef HAVE_SYS_SOUNDCARD_H
+#include <sys/soundcard.h>
+#elif defined(HAVE_SOUNDCARD_H)
+#include <soundcard.h>
+#else
+#error "missing soundcard.h header"
+#endif
 #include "ap_oss_defs.h"
 
 

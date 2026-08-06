@@ -68,6 +68,22 @@ if(WITH_SNDIO)
   find_package(Sndio)
 endif()
 
+if(WITH_OSS)
+  check_cxx_symbol_exists(ioctl "sys/ioctl.h" HAVE_SYS_IOCTL_H)
+  if(NOT HAVE_SYS_IOCTL_H)
+    check_cxx_symbol_exists(ioctl "ioctl.h" HAVE_IOCTL_H)
+  endif()
+
+  check_cxx_symbol_exists(SNDCTL_DSP_SETFMT "sys/soundcard.h" HAVE_SYS_SOUNDCARD_H)
+  if(NOT HAVE_SYS_SOUNDCARD_H)
+    check_cxx_symbol_exists(SNDCTL_DSP_SETFMT, "soundcard.h" HAVE_SOUNDCARD_H)
+  endif()
+
+  if((HAVE_SYS_IOCTL_H OR HAVE_IOCTL_H) AND (HAVE_SYS_SOUNDCARD_H OR HAVE_SOUNDCARD_H))
+    set(OSS_FOUND TRUE)
+  endif()
+endif()
+
 # Audio Codec Libraries
 if(WITH_DCA)
   find_package(DCA)
@@ -157,9 +173,23 @@ if (WITH_SNDIO AND Sndio_FOUND)
 endif()
 
 # OSS Output
-if(WITH_OSS)
+if(WITH_OSS AND OSS_FOUND)
   add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
-  target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
+
+  if(HAVE_SYS_IOCTL_H)
+    target_compile_definitions(gap_oss PRIVATE HAVE_SYS_IOCTL_H)
+  endif()
+  if(HAVE_IOCTL_H)
+    target_compile_definitions(gap_oss PRIVATE HAVE_IOCTL_H)
+  endif()
+
+  if(HAVE_SYS_SOUNDCARD_H)
+    target_compile_definitions(gap_oss PRIVATE HAVE_SYS_SOUNDCARD_H)
+  endif()
+  if(HAVE_SOUNDCARD_H)
+    target_compile_definitions(gap_oss PRIVATE HAVE_SOUNDCARD_H)
+  endif()
+
   target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
   target_link_libraries(gap_oss FX::FOX)
   install(TARGETS gap_oss LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
