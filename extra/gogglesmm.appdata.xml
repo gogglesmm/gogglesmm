@@ -1,43 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2018 Sander Jansen <s.jansen@gmail.com> -->
+<!-- Copyright 2026 Sander Jansen <s.jansen@gmail.com> -->
 <component type="desktop-application">
-<id type="desktop">gogglesmm.desktop</id>
-<metadata_license>CC0-1.0</metadata_license>
-<project_license>GPL-3.0+</project_license>
-<name>Goggles Music Manager</name>
-<summary>Music Player and Manager for Linux</summary>
-<description>
-<p>Goggles Music Manager is a easy to use music manager and player for the Linux desktop. It comes with a podcast manager to download and/or play podcasts from the internet. Music tracks can be organized in various ways using play lists and custom filters. The buildin tag editor allows for easy editing tags in files, including adding album art and lyrics.
-</p>
-<p>Features:</p>
-<ul>
-<li>Fast and light weight. Quick startup, no splash screen needed!</li>
-<li>Supports Ogg Vorbis ,Opus, FLAC, MP3 and MP4 (aac)</li>
-<li>Support for cover art embedded in tag or as separate file on disk</li>
-<li>Subscribe to Podcasts (rss) using the buildin podcast manager</li>
-<li>Tag editing and powerfull file renaming capability</li>
-<li>Leading word filter to prevent sorting on common words like the, a or an</li>
-<li>Configurable Filters / smart play lists</li>
-<li>Configurable play lists</li>
-<li>Import/Export music library and play lists to XSPF,PLS,Extended M3U,M3U and CSV</li>
-<li>Clipboard &amp; DND (drag-and-drop) to arrange playlists and dragging to and from desktop</li>
-<li>Clean and fast database backend using SQLite 3</li>
-<li>Written using FOX, one of the fastest GUI toolkits available</li>
-<li>Last.fm and libre.fm audio scrobbler support</li>
-<li>Replay Gain support (Ogg Vorbis, FLAC and mp3 with APE tags)</li>
-<li>Translated in Czech, French, German, Hungarian, Portuguese, Russian and Spanish</li>
-</ul>
-</description>
-<launchable type="desktop-id">gogglesmm.desktop</launchable>
-<releases>
-    <release version="1.2.3" type="stable" date="2023-04-23"/>
-    <release version="1.2.2" type="stable" date="2021-01-03"/>
-    <release version="1.2.1" type="stable" date="2018-07-31"/>
-</releases>
-<screenshots>
-<screenshot type="default" width="1280" height="720">http://gogglesmm.github.io/images/gogglesmm.png</screenshot>
-</screenshots>
-<translation type="gettext">gogglesmm</translation>
-<url type="homepage">https://gogglesmm.github.io/</url>
-<update_contact>s.jansen@gmail.com</update_contact>
+    <id>dev.gogglesmm.gogglesmm</id>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+    <content_rating type="oars-1.0" />
+
+    <name>Goggles Music Manager</name>
+    <summary>Music Player and Manager for Linux</summary>
+    <description>
+        <p>Goggles Music Manager is an easy-to-use music manager and player for the Linux desktop. It comes with a podcast manager to download and/or play podcasts from the internet. Music tracks can be organized in various ways using play lists and custom filters. The built-in tag editor allows for easy editing tags in files, including adding album art and lyrics.</p>
+        <p>Features:</p>
+        <ul>
+            <li>Fast and light weight. Quick startup, no splash screen needed!</li>
+            <li>Supports Ogg Vorbis ,Opus, FLAC, MP3 and MP4 (aac)</li>
+            <li>Support for cover art embedded in tag or as separate file on disk</li>
+            <li>Subscribe to Podcasts (rss) using the built-in podcast manager</li>
+            <li>Tag editing and powerful file renaming capability</li>
+            <li>Leading word filter to prevent sorting on common words like the, a or an</li>
+            <li>Configurable Filters / smart play lists</li>
+            <li>Configurable play lists</li>
+            <li>Import/Export music library and play lists to XSPF,PLS,Extended M3U,M3U and CSV</li>
+            <li>Clipboard &amp; DND (drag-and-drop) to arrange playlists and dragging to and from desktop</li>
+            <li>Clean and fast database backend using SQLite 3</li>
+            <li>Written using FOX, one of the fastest GUI toolkits available</li>
+            <li>Last.fm and libre.fm audio scrobbler support</li>
+            <li>Replay Gain support (Ogg Vorbis, FLAC and mp3 with APE tags)</li>
+            <li>Translated in Czech, French, German, Hungarian, Portuguese, Russian and Spanish</li>
+        </ul>
+        </description>
+
+    <launchable type="desktop-id">dev.gogglesmm.gogglesmm.desktop</launchable>
+
+    <releases>
+        <release version="1.3.1" date="2026-07-26"/>
+        <release version="1.3.0" date="2026-07-25"/>
+        <release version="1.2.5" date="2024-02-24"/>
+        <release version="1.2.4" date="2022-06-09"/>
+        <release version="1.2.3" date="2023-04-23"/>
+        <release version="1.2.2" date="2021-01-03"/>
+        <release version="1.2.1" date="2018-07-31"/>
+    </releases>
+    <screenshots>
+        <screenshot type="default">
+            <image type="source">http://gogglesmm.github.io/images/gogglesmm.png</image>
+        </screenshot>
+    </screenshots>
+
+    <translation type="gettext">gogglesmm</translation>
+
+    <url type="homepage">https://gogglesmm.dev</url>
+    <url type="vcs-browser">https://github.com/gogglesmm/gogglesmm</url>
+    <url type="bugtracker">https://github.com/gogglesmm/gogglesmm/issues</url>
+
+    <update_contact>s.jansen@gmail.com</update_contact>
+
+    <developer id="dev.gogglesmm">
+        <name>Sander Jansen</name>
+    </developer>
+
+    <provides>
+        <binary>gogglesmm</binary>
+        <dbus type="user">org.mpris.MediaPlayer2.gogglesmm</dbus>
+        <mediatype>audio/flac</mediatype>
+        <mediatype>audio/ogg</mediatype>
+        <mediatype>audio/opus</mediatype>
+        <mediatype>audio/x-vorbis</mediatype>
+        <mediatype>audio/x-vorbis+ogg</mediatype>
+        <mediatype>audio/mpeg</mediatype>
+        <mediatype>audio/mp4a-latm</mediatype>
+    </provides>
+
+
 </component>
