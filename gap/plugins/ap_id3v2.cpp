@@ -207,8 +207,7 @@ void id3v2_rva2_frame(const FXuchar * frame, FXint framesize, ReplayGain & repla
 
 
 FXuint ID3V2::parse_frame(const FXuchar * buffer, const FXint size, const FXint version) {
-  FXASSERT(size >= 10);
-
+  //GM_DEBUG_PRINT("parse_frame %ld %ld\n", size, version);
   FXuint frameid;
   FXuint framesize;
   FXint  headersize;
@@ -223,6 +222,11 @@ FXuint ID3V2::parse_frame(const FXuchar * buffer, const FXint size, const FXint 
     frameid    = DEFINE_FRAME_V2(buffer[0],buffer[1],buffer[2]);
     framesize  = (buffer[3]<<16) | (buffer[4]<<8) | (buffer[5]);
     headersize = 6;
+
+    if (framesize)
+      GM_DEBUG_PRINT("[id3v2] frame %lu %c%c%c\n", framesize, static_cast<FXchar>(buffer[0]),
+                                                              static_cast<FXchar>(buffer[1]),
+                                                              static_cast<FXchar>(buffer[2]));
   }
   else {
 
@@ -233,11 +237,16 @@ FXuint ID3V2::parse_frame(const FXuchar * buffer, const FXint size, const FXint 
     switch (version) {
       case 3  : framesize = ID3_UINT32(buffer+4); break;
       case 4  : framesize = ID3_SYNCSAFE_UINT32(buffer+4); break;
-      default : goto fail; break;
+      default : return size; break;
     }
     headersize = 10;
     const FXuchar flags = buffer[9];
 
+    if (framesize)
+      GM_DEBUG_PRINT("[id3v2] frame %lu %c%c%c%c\n", framesize, static_cast<FXchar>(buffer[0]),
+                                                              static_cast<FXchar>(buffer[1]),
+                                                              static_cast<FXchar>(buffer[2]),
+                                                              static_cast<FXchar>(buffer[3]));
     if (flags&FRAME_COMPRESSED) {
       extrasize += 4;
       skip=true;
@@ -250,6 +259,7 @@ FXuint ID3V2::parse_frame(const FXuchar * buffer, const FXint size, const FXint 
       extrasize += 1;
     }
   }
+
 
   // Skip bullshit
   if (framesize > ID3V2_MAX_SIZE)
@@ -284,6 +294,7 @@ FXuint ID3V2::parse_frame(const FXuchar * buffer, const FXint size, const FXint 
         {
           FXString key, value;
           id3v2_parse_comment_frame(datastart, static_cast<FXint>(framesize), key, value);
+          GM_DEBUG_PRINT("[id3v2] \"%s\" / \"%s\"\n", key.text(), value.text());
           if (key.length() + value.length() > 0) {
             FXString comment = key + " " + value;
             if (comment.find("iTunSMPB") >=0 ) {
@@ -381,7 +392,7 @@ ID3V2 * ID3V2::parse(InputPlugin * input,const FXuchar * id, FXbool skip) {
     }
 
   auto* id3v2 = new ID3V2();
-  while (offset < size) {
+  while (offset < size && size - offset > 6) {
     offset += id3v2->parse_frame(buffer + offset, static_cast<FXint>(size - offset), version);
     }
 
