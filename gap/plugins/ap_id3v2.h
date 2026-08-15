@@ -21,8 +21,8 @@
 
 namespace ap {
 
-#define ID3_SYNCSAFE_INT32(b) ( (((b)[0]&0x7f)<<21) | (((b)[1]&0x7f)<<14) | (((b)[2]&0x7f)<<7) | (((b)[3]&0x7f)))
-#define ID3_INT32(b) ((((b)[0])<<24) | (((b)[1])<<16) | (((b)[2])<<8) | (((b)[3])))
+
+
 
 #define DEFINE_FRAME(b1,b2,b3,b4) ((b4<<24) | (b3<<16) | (b2<<8) | (b1))
 #define DEFINE_FRAME_V2(b1,b2,b3) ((b3<<16) | (b2<<8) | (b1))
@@ -30,27 +30,15 @@ namespace ap {
 class InputPlugin;
 
 class ID3V2 {
-private:
-  FXuchar * buffer;
-  FXint     size;
-  FXint     p;
-  FXchar    version;
-protected:
-  void unsync(FXuchar * buffer,FXint & len);
-  void parse_frame();
-  void parse_comment_frame(FXint framesize);
-  void parse_text_frame(FXuint frameid,FXint framesize);
-  void parse_rva2_frame(FXint framesize);
-  void parse_priv_frame(FXint framesize);
-  FXbool parse_text(FXint encoding,const FXchar * buffer,FXint length,FXString & text);
 public:
-  enum Encoding {
-    ISO_8859_1     = 0,
-    UTF16_BOM      = 1,
-    UTF16          = 2,
-    UTF8           = 3
-    };
-
+  FXString    artist;
+  FXString    album;
+  FXString    title;
+  ReplayGain  replaygain;
+  FXushort    padstart = 0;
+  FXushort    padend = 0;
+  FXlong      length = -1;
+public:
   enum Frames {
 
     /// Version 2 frames
@@ -81,25 +69,14 @@ public:
     };
 
 public:
-  FXString    artist;
-  FXString    album;
-  FXString    title;
-  ReplayGain  replaygain;
-  FXushort    padstart;
-  FXushort    padend;
-  FXlong      length;
-public:
-  ID3V2(FXuchar * b,FXint len);
-  ~ID3V2();
-
-
-  static ID3V2 * parse(InputPlugin*,const FXuchar * id);
-
-  static FXbool skip(InputPlugin*,const FXuchar * id);
-
+  /// Parse from input
+  static ID3V2 * parse(InputPlugin*, const FXuchar * id, FXbool skip=false);
 
   FXbool empty() const;
 
+protected:
+  ID3V2() = default;
+  FXuint parse_frame(const FXuchar * buffer, FXint size, FXint version);
   };
 
 }
