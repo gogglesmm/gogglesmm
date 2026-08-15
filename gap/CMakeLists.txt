@@ -202,6 +202,21 @@ else()
   message(STATUS "GAP: Building as STATIC library (BUILD_SHARED_LIBS=OFF)")
 endif()
 
+# FOX for dlopen'ed output plugins: headers only when FOX is static, since a
+# second copy of FOX's static initializers would re-run against the host's FOX
+# globals at dlopen and tear them down again at dlclose. The plugin resolves
+# FOX symbols from the host executable instead (hence ENABLE_EXPORTS).
+function(gap_plugin_use_fox target)
+  get_target_property(_fox_type FX::FOX TYPE)
+  if(_fox_type STREQUAL "STATIC_LIBRARY")
+    target_include_directories(${target} PRIVATE $<TARGET_PROPERTY:FX::FOX,INTERFACE_INCLUDE_DIRECTORIES>)
+    target_compile_definitions(${target} PRIVATE $<TARGET_PROPERTY:FX::FOX,INTERFACE_COMPILE_DEFINITIONS>)
+    target_compile_options(${target} PRIVATE $<TARGET_PROPERTY:FX::FOX,INTERFACE_COMPILE_OPTIONS>)
+  else()
+    target_link_libraries(${target} PRIVATE FX::FOX)
+  endif()
+endfunction()
+
 # Platform-specific configuration
 if(WIN32)
   include(windows.cmake)
@@ -363,7 +378,7 @@ endif()
 if(WITH_WAVOUT)
   add_library(gap_wav MODULE plugins/ap_wavout.cpp)
   target_include_directories(gap_wav PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
-  target_link_libraries(gap_wav FX::FOX)
+  gap_plugin_use_fox(gap_wav)
   # Windows needs additional linking to the main GAP target for plugins
   if(WIN32)
     target_link_libraries(gap_wav ${GAP_PLUGIN_LINK_TARGET})
