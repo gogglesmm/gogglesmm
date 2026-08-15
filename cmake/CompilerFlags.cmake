@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # Compiler Flags Configuration
 #
 # This module sets up compiler flags for the gogglesmm project.

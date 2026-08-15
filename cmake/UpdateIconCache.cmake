@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 if(NOT DEFINED ENV{DESTDIR})
   find_program(XDG_ICON_RESOURCE xdg-icon-resource)
   if (XDG_ICON_RESOURCE)

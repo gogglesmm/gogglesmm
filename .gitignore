@@ -3,6 +3,7 @@
 *.so
 *.so.*
 *.a
+.idea/*
 CMakeCache.txt
 CMakeFiles
 Makefile

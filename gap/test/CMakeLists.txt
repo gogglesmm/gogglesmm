@@ -1,3 +1,6 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
 cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
 
 project(gap_tests)

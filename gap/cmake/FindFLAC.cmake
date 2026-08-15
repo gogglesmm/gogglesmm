@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # FindFLAC.cmake
 # Modern CMake module for finding FLAC (Free Lossless Audio Codec)
 #
