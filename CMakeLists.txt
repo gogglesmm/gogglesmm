@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # Using cmake 3.23 or higher
 cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
 
@@ -95,9 +99,11 @@ install(
 )
 
 # Install desktop metadata
-install(FILES extra/gogglesmm.appdata.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
-install(FILES extra/gogglesmm.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-install(FILES extra/gogglesmm.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+install(FILES extra/gogglesmm.appdata.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo RENAME dev.gogglesmm.gogglesmm.metainfo.xml)
+install(FILES extra/gogglesmm.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications RENAME dev.gogglesmm.gogglesmm.desktop)
+install(FILES extra/gogglesmm.1 extra/audioconvert.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+install(FILES extra/audioconvert.appdata.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo RENAME dev.gogglesmm.audioconvert.metainfo.xml)
+
 
 # Install translations when native language support has been enabled
 if(WITH_NLS)

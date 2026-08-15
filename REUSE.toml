@@ -1,0 +1,49 @@
+version = 1
+
+[[annotations]]
+path = "po/*.mo"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2010-2026 Sander Jansen"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = "extra/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2002-2026 Sander Jansen"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = "icons/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "GNOME Developers / Tango Project / Sander Jansen"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = "src/mpris*.xml"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The MPRIS Developers"
+SPDX-License-Identifier = "FSFAP"
+
+[[annotations]]
+path = [
+    ".gitattributes",
+    ".gitignore",
+    ".gitmodules",
+    ".github/workflows/release.yaml"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2010-2026 Sander Jansen"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = [
+    "CONTRIBUTING",
+    "ChangeLog",
+    "INSTALL",
+    "README",
+    "AUTHORS",
+    "gap/cmake/README.md"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2002-2026 Sander Jansen"
+SPDX-License-Identifier = "GPL-3.0-or-later"

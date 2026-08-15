@@ -3,6 +3,7 @@
 *.so
 *.so.*
 *.a
+.idea/*
 CMakeCache.txt
 CMakeFiles
 Makefile
@@ -18,3 +19,4 @@ src/appstatus_xml.h
 src/icons.cpp
 src/icons.h
 src/gogglesmm
+audioconvert/acconfig.h

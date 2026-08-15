@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # TranslationsUpdate.cmake
 #
 # Helper script to update all .po files from a .pot file

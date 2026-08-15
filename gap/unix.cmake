@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # unix.cmake
 # Unix-specific configuration for GAP (Goggles Audio Player)
 
