@@ -3,6 +3,15 @@
 # This file lists all source files for the Gogglesmm application
 # Included from src/CMakeLists.txt
 
+# Shared Sources
+set(GMTAG_SOURCES
+    GMCover.cpp
+    GMFilename.cpp
+    GMTag.cpp
+    GMTrack.cpp
+    gmutils.cpp
+)
+
 # Main application sources
 set(SOURCES
     GMAbout.cpp
@@ -13,12 +22,10 @@ set(SOURCES
     GMAlbumList.cpp
     GMClipboard.cpp
     GMColumnDialog.cpp
-    GMCover.cpp
     GMCoverCache.cpp
     GMCoverManager.cpp
     GMDatabase.cpp
     GMDatabaseSource.cpp
-    GMFilename.cpp
     GMFilter.cpp
     GMFilterEditor.cpp
     GMFilterSource.cpp
@@ -40,9 +47,7 @@ set(SOURCES
     GMScanner.cpp
     GMSource.cpp
     GMSourceView.cpp
-    GMTag.cpp
     GMTaskManager.cpp
-    GMTrack.cpp
     GMTrackDatabase.cpp
     GMTrackEditor.cpp
     GMTrackList.cpp
@@ -54,5 +59,4 @@ set(SOURCES
     main.cpp
     icons.cpp
     fxext.cpp
-    gmutils.cpp
 )

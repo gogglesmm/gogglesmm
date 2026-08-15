@@ -1,0 +1,150 @@
+.TH audioconvert 1 "29 March 2012"
+.SH NAME
+audioconvert \- An audio-file copying and conversion tool.
+.SH SYNOPSIS
+.B audioconvert
+[options] source [destination]
+.SH INTRODUCTION
+Audioconvert is a convenient tool to batch process audio files. It was designed to be able to quickly convert files found in the
+.B source
+directory tree and store them with the same relative path in the
+.B destination
+directory. A typical use case is where you have your music files in a lossless format (FLAC) and need to have them available for a portable device in a lossy format (Ogg Vorbis).
+.PP
+For each file type you can set the desired action to be performed (or to be ignored) allowing for mixed operations. For example, If your portable device supports ogg and mp3, you can choose to convert flac to ogg vorbis and copy the mp3 files without conversion.
+.SH OPTIONS
+.I Output Action
+For each supported file type a desired action may be specified. The following actions are supported:
+.LP
+.RS
+flac \- Convert source file to flac.
+
+ ogg \- Convert source file to ogg vorbis.
+
+ mp3 \- Convert source file to mp3.
+
+ mp4 \- Convert source file to mp4.
+
+ mpc \- Convert source file to Musepack.
+
+opus \- Convert source file to Opus.
+
+copy \- Copy source without conversion to destination
+
+none \- Do nothing. Source file is skipped. (default)
+.RE
+.LP
+The desired action can be specified using the following command line arguments:
+.RS
+.TP
+.BI \-\-flac= ACTION
+Set desired ACTION for flac files
+.TP
+.BI \-\-ogg= TYPE
+Set desired ACTION for ogg vorbis files
+.TP
+.BI \-\-mp3= ACTION
+Set desired ACTION for mp3 files
+.TP
+.BI \-\-mp4= ACTION
+Set desired ACTION for mp4 files
+.TP
+.BI \-\-mpc= ACTION
+Set desired ACTION for mpc files
+.TP
+.BI \-\-opus= ACTION
+Set desired ACTION for opus files
+.TP
+.BI \-\-all= ACTION
+Set desired output for all file types. By specifying this first you can use this to set a default ACTION.
+.LP
+.RE
+.I Tagbased filename formatting
+.RS
+.TP
+.B \-\-rename
+Use tagbased filename formatting for destination files.
+.TP
+.BI \-\-format\-template= format
+Set the filename format template. Default: %P/%A?d< \- disc %d>/%N %T
+
+.I Format Specifiers
+.LP
+.RS
+%T \- Title
+
+%P \- Album Artist
+
+%p \- Track Artist
+
+%A \- Album Name
+
+%w \- Composer
+
+%c \- Conductor
+
+%y \- Year
+
+%d \- Disc Number
+
+%N \- Track Number (2 digits)
+
+%n \- Track Number
+
+%G \- Genre
+
+?c<a|b> \- display a if c is not empty, display b if c is empty
+
+?c      \- display c if not empty
+.RE
+.TP
+.BI \-\-format\-strip= characterset
+Strip characters from fields. Default: '\\#~!"$&();<>|`^*?[]/.:
+.TP
+.BI \-\-format\-encoding= encoding
+Set character encoding to use when writing field names. Default: ascii
+.TP
+.B \-\-format\-no-spaces
+Replaces spaces in fields with underscores
+.TP
+.B \-\-format\-lowercase
+Lower case fields in filenames
+.LP
+.RE
+.I Misc
+.RS
+.TP
+.BI \-j\  count
+Specificy maximum number of parallel tasks (default is 1). Only decoding and encoding are done in parallel.
+.TP
+.B \-n, \-\-dry-run
+Print operations instead of performing
+.TP
+.B \-q, \-\-quiet
+Suppress Output Messages
+.TP
+.B \-\-overwrite
+Force overwriting existing files
+.TP
+.B \-\-no-direct
+Do not use direct conversion. Some encoders accepts other formats than wav. By default audioconvert tries to take advantage of this by skipping the decoding step and feeding the input directly. This option disables this and forces all formats to be decoded to wav first.
+.RE
+.I Other
+.RS
+.TP
+.B \-h, \-\-help
+Display list of options
+.TP
+.B \-v, \-\-version
+Display version information
+.RE
+.LP
+.SH EXAMPLES
+audioconvert --flac=ogg /home/foobar/input /home/foobar/output
+.SH FILES
+.TP
+.I $(XDG_CONFIG_DIRS)/audioconvert/config.rc
+Configuration File
+.LP
+.SH AUTHOR
+Sander Jansen <s.jansen@gmail.com>

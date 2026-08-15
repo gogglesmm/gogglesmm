@@ -150,14 +150,6 @@ namespace GMFilename {
     ENCODING_LAST
     };
 
-  /// Filter a string
-  FXString filter(const FXString & input,const FXString & forbidden,FXuint options);
-
-  /// Create Filename based on Track Information and Format String
-  FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,const FXTextCodec * codec=nullptr);
-
-  FXString format_track(const GMTrack & track,const FXString & path,const FXString & forbidden,const FXuint & options,const FXTextCodec * textcodec);
-
   enum {
     REPLACE_UNDERSCORE = 0x1,
     OVERWRITE = 0x2
