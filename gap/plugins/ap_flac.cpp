@@ -638,7 +638,7 @@ ReadStatus FlacReader::parse() {
   // Handle flac files starting with id3v2
   if (id[0]=='I' && id[1]=='D' && id[2]=='3') {
 
-    if (!ID3V2::skip(input,id))
+    if (!ID3V2::parse(input, id, true))
       return ReadError;
 
     if (input->read(&id,4)!=4)
