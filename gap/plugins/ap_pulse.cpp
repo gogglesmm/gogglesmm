@@ -562,7 +562,10 @@ void PulseOutput::drain() {
     }
   }
 
-void PulseOutput::pause(FXbool) {
+void PulseOutput::pause(FXbool pausing) {
+  if (stream) {
+    pa_stream_cork(stream, pausing ? 1 : 0, nullptr, nullptr);
+    }
   }
 
 FXbool PulseOutput::configure(const AudioFormat & fmt){
