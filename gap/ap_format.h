@@ -56,18 +56,18 @@ namespace Codec {
 
 
 namespace Channel {
-  const FXuint None        =  0u;
-  const FXuint Mono        =  1u;
-  const FXuint FrontLeft   =  2u;
-  const FXuint FrontRight  =  3u;
-  const FXuint FrontCenter =  4u;
-  const FXuint BackLeft    =  5u;
-  const FXuint BackRight   =  6u;
-  const FXuint BackCenter  =  7u;
-  const FXuint SideLeft    =  8u;
-  const FXuint SideRight   =  9u;
-  const FXuint LFE         = 10u;
-  const FXuint Reserved    = 15u; // Max 4 bits
+  constexpr FXuint None        =  0u;
+  constexpr FXuint Mono        =  1u;
+  constexpr FXuint FrontLeft   =  2u;
+  constexpr FXuint FrontRight  =  3u;
+  constexpr FXuint FrontCenter =  4u;
+  constexpr FXuint BackLeft    =  5u;
+  constexpr FXuint BackRight   =  6u;
+  constexpr FXuint BackCenter  =  7u;
+  constexpr FXuint SideLeft    =  8u;
+  constexpr FXuint SideRight   =  9u;
+  constexpr FXuint LFE         = 10u;
+  constexpr FXuint Reserved    = 15u; // Max 4 bits
   }
 
 
@@ -214,7 +214,7 @@ public:
 
   FXbool set() const { return (rate!=0) && (format!=0) && (channels!=0); }
 
-  FXuchar channeltype(FXuint c) const { return (FXuchar)((channelmap>>(c<<2))&0xF); }
+  FXuchar channeltype(FXuint c) const { return static_cast<FXuchar>((channelmap>>(c<<2))&0xF); }
 
   FXuchar byteorder() const {
     return (format>>Format::Order_Shift)&Format::Order_Mask;
@@ -233,7 +233,7 @@ public:
     }
 
   FXint framesize() const {
-    return (FXint)channels * (FXint)packing();
+    return static_cast<FXint>(channels) * static_cast<FXint>(packing());
     }
 
   /* Swap byte order. Return true if succesfull */

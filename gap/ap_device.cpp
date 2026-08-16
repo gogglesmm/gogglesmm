@@ -24,12 +24,7 @@
 
 namespace ap {
 
-DeviceConfig:: DeviceConfig() {
-  }
-DeviceConfig::~DeviceConfig(){
-  }
-
-static const FXchar * const plugin_names[DeviceLast]={
+static constexpr const FXchar * const plugin_names[DeviceLast]={
   "none",
   "alsa",
   "oss",
@@ -59,9 +54,6 @@ AlsaConfig::AlsaConfig() : device("default"), flags(0) {
 AlsaConfig::AlsaConfig(const FXString & d,FXuint f) : device(d),flags(f) {
   }
 
-AlsaConfig::~AlsaConfig(){
-  }
-
 void AlsaConfig::load(FXSettings & settings) {
   device=settings.readStringEntry("alsa","device",device.text());
 
@@ -88,9 +80,6 @@ OSSConfig::OSSConfig() : device("/dev/dsp"), flags(0) {
 OSSConfig::OSSConfig(const FXString & d): device(d), flags(0) {
   }
 
-OSSConfig::~OSSConfig(){
-  }
-
 void OSSConfig::load(FXSettings & settings) {
   device=settings.readStringEntry("oss","device",device.text());
   }
@@ -104,9 +93,6 @@ SndioConfig::SndioConfig() : device("default") {
   }
 
 SndioConfig::SndioConfig(const FXString & d): device(d) {
-  }
-
-SndioConfig::~SndioConfig(){
   }
 
 void SndioConfig::load(FXSettings & settings) {

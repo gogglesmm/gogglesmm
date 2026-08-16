@@ -24,25 +24,22 @@
 
 namespace ap {
 
-PacketPool::PacketPool() {
-  }
-
 FXbool PacketPool::init(FXival sz,FXival n) {
   if (n>64) fxerror("fixme");
   packets.setSize(64); //
   for (FXint i=0;i<n;i++) {
     packets.push(new Packet(this,sz));
     }
-  return semaphore.create(n);
+  return semaphore.create(static_cast<FXint>(n));
   }
 
 void PacketPool::free() {
   Packet * packet = nullptr;
-  while(packets.pop(packet)) delete packet;
-  semaphore.close();
+  while(packets.pop(packet)) {
+    delete packet;
+    packet = nullptr;
   }
-
-PacketPool::~PacketPool() {
+  semaphore.close();
   }
 
 
@@ -52,6 +49,7 @@ void PacketPool::push(Packet * packet) {
   }
 
 
+// ReSharper disable once CppDFAConstantFunctionResult
 Packet * PacketPool::wait(const Signal & signal) {
   if (semaphore.wait(signal)){
     Packet * packet = nullptr;
@@ -65,9 +63,6 @@ Packet * PacketPool::wait(const Signal & signal) {
 
 
 Packet::Packet(PacketPool *p,FXival sz) : Event(Buffer), MemoryBuffer(sz), pool(p),flags(0),stream_position(-1),stream_length(-1) {
-  }
-
-Packet::~Packet() {
   }
 
 void Packet::reset() {
