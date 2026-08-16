@@ -60,9 +60,9 @@ private:
   static const FXchar base64[];
 private:
   FXString out;
-  FXuchar  buffer[3];
-  FXint    nbuffer;
-  FXint    index;
+  FXuchar  buffer[3] = {};
+  FXint    nbuffer = 0;
+  FXint    index = 0;
 protected:
   void encodeChunks(const FXuchar * in,FXint len);
 public:

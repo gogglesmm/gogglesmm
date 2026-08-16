@@ -28,12 +28,14 @@ namespace ap {
 
 class Event;
 
-class ThreadQueue : public EventQueue {
+class ThreadQueue final : public EventQueue {
 protected:
   FXMutex mfifo;
   Signal  sfifo;
+protected:
+  void post_impl(Event*, FXint where) override;
 public:
-  ThreadQueue();
+  ThreadQueue() = default;
 
   /// init resources
   FXbool init();
@@ -41,11 +43,8 @@ public:
   /// Free resources
   void free();
 
-  /// Post event on queue
-  void post(Event*,FXint where=Back);
-
   /// Get next event.
-  Event * pop();
+  Event * pop() override;
 
   /// Wait for next event
   Event * wait();
@@ -60,7 +59,7 @@ public:
   Event * pop_if_not(FXuchar t2,FXuchar t1);
 
   /// Flush all events.
-  void flush();
+  void flush() override;
 
   /// Check for abort
   FXbool checkAbort();
@@ -68,7 +67,7 @@ public:
   /// Return signal object for this Queue
   const Signal & signal() const { return sfifo; }
 
-  ~ThreadQueue();
+  ~ThreadQueue() override;
   };
 
 }

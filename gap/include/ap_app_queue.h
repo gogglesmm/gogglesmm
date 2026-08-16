@@ -27,32 +27,26 @@ namespace ap {
 
 class Event;
 
-class GMAPI FXAppQueue : public EventQueue {
+class GMAPI FXAppQueue final : public EventQueue {
 protected:
   FXMutex            mfifo;
-  FXMessageChannel * channel;
-  FXObject         * target;
-  FXSelector         message;
+  FXMessageChannel * channel = nullptr;
+  FXObject         * target = nullptr;
+  FXSelector         message = 0;
 protected:
-  FXAppQueue();
-private:
-  FXAppQueue(const FXAppQueue&);
-  FXAppQueue& operator=(const FXAppQueue&);
+  void post_impl(Event*, FXint where) override;
 public:
   /// Construct a FXAppQueue
   FXAppQueue(FXApp*,FXObject * tgt,FXSelector sel);
 
-  /// Post event on queue
-  void post(Event*,FXint where=Back);
-
   /// Get next event.
-  Event * pop();
+  Event * pop() override;
 
   /// Flush all events.
-  void flush();
+  void flush() override;
 
   /// Destructor
-  virtual ~FXAppQueue();
+  ~FXAppQueue() override;
   };
 
 }

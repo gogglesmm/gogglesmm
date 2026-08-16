@@ -388,7 +388,7 @@ void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,M
 const FXchar Base64Encoder::base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-Base64Encoder::Base64Encoder(FXint source_length) : nbuffer(0), index(0){
+Base64Encoder::Base64Encoder(FXint source_length) {
   if (source_length)
     out.length(4*(source_length/3));
   }

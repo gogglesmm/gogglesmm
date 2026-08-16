@@ -41,12 +41,10 @@ class Socket : public FXIODevice {
 #endif
 protected:
   FXint endofstream = 0;
-private:
-  Socket(const Socket&);
-  Socket &operator=(const Socket&);
 public:
-  Socket(){}
-
+  Socket(const Socket&) = delete;
+  Socket &operator=(const Socket&) = delete;
+  Socket() = default;
 protected:
   // Wait for specificied event
   virtual WaitEvent wait(WaitMode);
@@ -100,7 +98,7 @@ protected:
   FXint handshake();
 #endif
 public:
-  SecureSocket();
+  SecureSocket() = default;
 
   FXbool shutdown() override;
 
@@ -127,9 +125,9 @@ struct IOContext;
 class ThreadSocket : public Socket {
 private:
   IOContext * context = nullptr;
-private:
-  ThreadSocket(const ThreadSocket&);
-  ThreadSocket &operator=(const ThreadSocket&);
+public:
+  ThreadSocket(const ThreadSocket&) = delete;
+  ThreadSocket &operator=(const ThreadSocket&) = delete;
 protected:
   // Wait for specified event
   WaitEvent wait(WaitMode) override;
@@ -142,9 +140,9 @@ public:
 class ThreadSecureSocket : public SecureSocket {
 private:
   IOContext * context = nullptr;
-private:
-  ThreadSecureSocket(const ThreadSecureSocket&);
-  ThreadSecureSocket &operator=(const ThreadSecureSocket&);
+public:
+  ThreadSecureSocket(const ThreadSecureSocket&) = delete;
+  ThreadSecureSocket &operator=(const ThreadSecureSocket&) = delete;
 protected:
   // Wait for specified event
   WaitEvent wait(WaitMode) override;

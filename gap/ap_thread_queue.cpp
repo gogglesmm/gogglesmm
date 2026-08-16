@@ -24,9 +24,6 @@
 
 namespace ap {
 
-ThreadQueue::ThreadQueue() : EventQueue() {
-  }
-
 ThreadQueue::~ThreadQueue() {
   FXASSERT(head==nullptr);
   FXASSERT(tail==nullptr);
@@ -37,14 +34,14 @@ FXbool ThreadQueue::init() {
   }
 
 void ThreadQueue::free() {
-  flush();
+  ThreadQueue::flush();
   FXASSERT(head==nullptr);
   FXASSERT(tail==nullptr);
   sfifo.close();
   }
 
 
-void ThreadQueue::post(Event*event,FXint where) {
+void ThreadQueue::post_impl(Event*event,FXint where) {
   if (where==Flush) {
     mfifo.lock();
       Event * h = head;
@@ -133,8 +130,7 @@ Event * ThreadQueue::wait_for(FXuchar event_type) {
     mfifo.unlock();
     sfifo.wait();
     }
-  while(1);
-  return nullptr;
+  while(true);
   }
 
 

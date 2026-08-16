@@ -265,7 +265,7 @@ void Semaphore::release() {
   }
 
 
-FXbool Semaphore::wait(const Signal & input) {
+FXbool Semaphore::wait(const Signal & input) { // NOLINT(*-make-member-function-const)
 #if defined(_WIN32)
   HANDLE handles[2]={device,input.handle()};
   DWORD result=WaitForMultipleObjects(2,handles,false,INFINITE);
@@ -318,7 +318,7 @@ FXbool Semaphore::wait(const Signal & input) {
 
 
 
-void Semaphore::close() {
+void Semaphore::close() { // NOLINT(*-make-member-function-const)
 #if defined(_WIN32)
   if(device!=BadHandle) CloseHandle(device);
 #elif defined(HAVE_EVENTFD)
