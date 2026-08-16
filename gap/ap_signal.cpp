@@ -22,12 +22,15 @@
 #include "ap_signal.h"
 #include "ap_utils.h"
 
-/// On Linux we want to use pipe2
+/// Use pipe2 if available
 #if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 9))
   #define HAVE_PIPE2
   #ifndef _GNU_SOURCE
     #define _GNU_SOURCE
   #endif
+  #include <fcntl.h>
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+  #define HAVE_PIPE2
   #include <fcntl.h>
 #endif
 

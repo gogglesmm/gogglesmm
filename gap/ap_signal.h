@@ -29,6 +29,13 @@ namespace ap {
 #ifndef GAP_NO_EVENTFD
 #if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 8))
 #define HAVE_EVENTFD
+#elif defined(__FreeBSD__) && __FreeBSD__ >= 13
+#define HAVE_EVENTFD
+#elif defined(__NetBSD__)
+  #include <sys/param.h>
+  #if __NetBSD_Version__ >= 1000000000
+    #define HAVE_EVENTFD
+  #endif
 #endif
 #endif
 
