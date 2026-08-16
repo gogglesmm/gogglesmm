@@ -66,9 +66,9 @@ private:
 #endif
 protected:
   FXInputHandle device;
-private:
-  Signal(const Signal&);
-  Signal& operator=(const Signal&);
+public:
+  Signal(const Signal&) = delete;
+  Signal& operator=(const Signal&) = delete;
 public:
   Signal();
 
@@ -98,9 +98,9 @@ private:
 #endif
 protected:
   FXInputHandle device;
-private:
-  Semaphore(const Semaphore&);
-  Semaphore& operator=(const Semaphore&);
+public:
+  Semaphore(const Semaphore&) = delete;
+  Semaphore& operator=(const Semaphore&) = delete;
 public:
   Semaphore();
 
@@ -110,7 +110,7 @@ public:
   // Release semaphore
   void release();
 
-  // Block until semaphore is acquired or input is signalled
+  // Block until semaphore is acquired or input is signaled
   FXbool wait(const Signal & input);
 
   // Close

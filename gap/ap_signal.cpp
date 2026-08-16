@@ -47,7 +47,6 @@
   #include <sys/eventfd.h>
 #endif
 
-
 namespace ap {
 
 
@@ -123,7 +122,7 @@ void Signal::set() {
 #if defined(_WIN32)
   SetEvent(device);
 #elif defined(HAVE_EVENTFD)
-  const FXlong value=1;
+  constexpr FXlong value=1;
   if (__unlikely(write(device,&value,sizeof(FXlong))!=sizeof(FXlong) && errno!=EAGAIN))
     fxerror("gap: failed to set signal, write to eventfd failed");
 #else
@@ -207,7 +206,7 @@ x:n=ppoll(handles,2,timeout ? &ts : nullptr,nullptr);
     return WaitEvent::Error;
     }
 #else
-x:n=poll(handles,2,timeout ? (timeout/NANOSECONDS_PER_MILLISECOND) : -1);
+x:n=poll(handles,2,timeout ? static_cast<FXint>(timeout/NANOSECONDS_PER_MILLISECOND) : -1);
   if (__unlikely(n<0)) {
     if (errno==EAGAIN || errno==EINTR)
       goto x;
@@ -255,7 +254,7 @@ void Semaphore::release() {
 #if defined(_WIN32)
   ReleaseSemaphore(device,1,nullptr);
 #elif defined(HAVE_EVENTFD)
-  const FXlong value=1;
+  constexpr FXlong value=1;
   if (__unlikely(write(device,&value,sizeof(FXlong))!=sizeof(FXlong) && errno!=EAGAIN))
     fxerror("gap: failed to release semaphore, write to eventfd failed");
 #else
