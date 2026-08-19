@@ -71,15 +71,16 @@ Event * InputThread::wait_for_packet() {
     Packet * packet = packetpool.wait(fifo.signal());
     if (packet) return packet;
     }
-  while(1);
-  return nullptr;
+  while(true);
   }
 
 
 FXint InputThread::run(){
   Event * event;
 
-  ap_set_thread_name("ap_input");
+#if FOXVERSION >= FXVERSION(1, 7, 68)
+  description("ap_input");
+#endif
 
   for (;;) {
     if (reader && state==StateProcessing)

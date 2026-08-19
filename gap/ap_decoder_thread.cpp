@@ -89,7 +89,9 @@ forward:
 FXint DecoderThread::run(){
   Event * event=nullptr;
 
-  ap_set_thread_name("ap_decoder");
+#if FOXVERSION >= FXVERSION(1, 7, 68)
+  description("ap_decoder");
+#endif
 
   for(;;) {
 

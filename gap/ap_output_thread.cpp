@@ -870,7 +870,10 @@ FXbool OutputThread::write_samples() {
 FXint OutputThread::run(){
   pausing=false;
   draining=false;
-  ap_set_thread_name("ap_output");
+
+#if FOXVERSION >= FXVERSION(1, 7, 68)
+  description("ap_output");
+#endif
 
   for (;;){
     Event * event = get_next_event();

@@ -76,12 +76,6 @@
 #include <windows.h>
 #endif
 
-
-// for prctl
-#ifdef __linux__
-#include <sys/prctl.h>
-#endif
-
 // for fcntl
 #ifndef _WIN32
 #include <unistd.h>
@@ -115,12 +109,6 @@ namespace ap {
 
 // PUBLIC API
 //----------------------------------------------------
-
-void ap_set_thread_name(const FXchar * name) {
-#ifdef __linux__
-  prctl(PR_SET_NAME,(unsigned long)name,0,0,0);
-#endif
-  }
 
 FXString ap_get_environment(const FXchar * key,const FXchar * def) {
   FXString value = FXSystem::getEnvironment(key);

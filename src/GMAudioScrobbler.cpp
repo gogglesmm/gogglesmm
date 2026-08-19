@@ -728,7 +728,9 @@ FXuchar GMAudioScrobbler::getNextTask() {
 FXint GMAudioScrobbler::run() {
   FXTRACE(60,"GMAudioScrobbler::run\n");
 
-  ap_set_thread_name("gm_scrobbler");
+#if FOXVERSION >= FXVERSION(1, 7, 68)
+  description("gm_scrobbler");
+#endif
 
   FXuchar next=TASK_NONE;
   do {

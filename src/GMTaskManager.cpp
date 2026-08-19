@@ -131,7 +131,9 @@ FXbool GMTaskManager::wait() {
   }
 
 FXint GMTaskManager::run() {
-  ap_set_thread_name("gm_taskmanager");
+#if FOXVERSION >= FXVERSION(1, 7, 68)
+  description("gm_taskmanager");
+#endif
   do {
     while(next()) {
       if (target) mc.message(target,FXSEL(SEL_TASK_RUNNING,message),nullptr,0);
