@@ -25,10 +25,13 @@ namespace ap {
 
 class GMAPI BufferBase {
 protected:
-  FXuchar * begptr;  // Begin of buffer
-  FXuchar * endptr;  // End of buffer
+  FXuchar * rawptr;  // (unaligned) buffer ptr
+  FXuchar * begptr;  // Begin of aligned buffer
+  FXuchar * endptr;  // End of aligned buffer
   FXuchar * wrptr;   // Write pointer
   FXuchar * rdptr;   // Read pointer
+protected:
+  ~BufferBase();
 public:
   BufferBase(FXival n=4096);
 
@@ -41,10 +44,11 @@ public:
   // Reserve up to free n bytes.
   FXbool reserve(FXival n);
 
+  // Align read pointer
+  void align();
+
   // Clear buffer by resetting read and write pointers
   void clear();
-
-  ~BufferBase();
   };
 
 }

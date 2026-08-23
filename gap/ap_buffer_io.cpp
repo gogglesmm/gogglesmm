@@ -36,7 +36,7 @@ BufferIO::BufferIO(FXIO * stream,FXuval sz) : FXIO(stream->mode()),BufferBase(sz
 
 
 BufferIO::~BufferIO() {
-  close();
+  BufferIO::close();
   }
 
 

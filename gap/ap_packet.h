@@ -80,11 +80,11 @@ public:
 
   void reset();
 
-  FXbool full() const { return (af.framesize() > space()); }
+  [[nodiscard]] FXbool full() const { return (af.framesize() > space()); }
 
-  FXint numFrames() const { return static_cast<FXint>(size() / af.framesize()); }
+  [[nodiscard]] FXint numFrames() const { return static_cast<FXint>(size() / af.framesize()); }
 
-  FXint availableFrames() const { return static_cast<FXint>(space() / af.framesize()); }
+  [[nodiscard]] FXint availableFrames() const { return static_cast<FXint>(space() / af.framesize()); }
 
   void wroteFrames(FXint nframes) { wroteBytes(nframes*af.framesize()); }
 

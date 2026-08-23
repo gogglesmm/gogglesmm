@@ -66,7 +66,7 @@ Packet::Packet(PacketPool *p,FXival sz) : Event(Buffer), MemoryBuffer(sz), pool(
   }
 
 void Packet::reset() {
-  MemoryBuffer::clear();
+  clear();
   flags=0;
   stream=0;
   stream_position=-1;
