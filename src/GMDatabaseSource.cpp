@@ -135,10 +135,6 @@ GMDatabaseSource::GMDatabaseSource(GMTrackDatabase * database) : db(database) {
   FXASSERT(db);
   }
 
-GMDatabaseSource::~GMDatabaseSource() {
-  }
-
-
 GMTrackListSortFunc GMDatabaseSource::getSortBrowse(FXbool album_list_mode) const {
   if (album_list_mode)
     return GMDBTrackItem::browse_sort;

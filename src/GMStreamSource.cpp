@@ -51,9 +51,6 @@ GMStreamSource::GMStreamSource(GMTrackDatabase * database) : db(database)  {
   FXASSERT(db);
   }
 
-GMStreamSource::~GMStreamSource(){
-  }
-
 
 void GMStreamSource::configure(GMColumnList& list){
   list.no(4);

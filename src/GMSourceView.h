@@ -34,11 +34,11 @@ protected:
   GMSource          * source = nullptr;
   GMSource          * sourcedrop = nullptr;
 protected:
-  GMSourceView() {}
+  GMSourceView() = default;
   FXbool listsources();
-private:
-  GMSourceView(const GMSourceView&);
-  GMSourceView& operator=(const GMSourceView&);
+public:
+  GMSourceView(const GMSourceView&) = delete;
+  GMSourceView& operator=(const GMSourceView&) = delete;
 public:
   enum {
     ID_SOURCE_LIST_HEADER = FXVerticalFrame::ID_LAST,
@@ -66,7 +66,7 @@ public:
 
   void setSource(GMSource * src,FXbool makecurrent=true);
 
-  GMSource * getSource() const { return source; }
+  [[nodiscard]] GMSource * getSource() const { return source; }
 
   FXbool listSources();
 
@@ -88,11 +88,11 @@ public:
 
   void saveView() const;
 
-  GMTreeList * getSourceList() const { return sourcelist; }
+  [[nodiscard]] GMTreeList * getSourceList() const { return sourcelist; }
 
   FXbool focusNext();
 
-  virtual ~GMSourceView();
+  ~GMSourceView() override = default;
   };
 
 #endif

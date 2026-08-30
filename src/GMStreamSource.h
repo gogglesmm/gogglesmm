@@ -27,10 +27,7 @@ class GMStreamSource : public GMSource {
 FXDECLARE(GMStreamSource)
   GMTrackDatabase * db = nullptr;
 protected:
-  GMStreamSource(){}
-private:
-  GMStreamSource(const GMStreamSource&);
-  GMStreamSource& operator=(const GMStreamSource&);
+  GMStreamSource() = default;
 public:
   enum {
     ID_NEW_STATION = GMSource::ID_LAST,
@@ -44,7 +41,7 @@ public:
   long onCmdDeleteStation(FXObject*,FXSelector,void*);
   long onUpdExport(FXObject*,FXSelector,void*);
 public:
-  GMStreamSource(GMTrackDatabase * db);
+  explicit GMStreamSource(GMTrackDatabase * db);
 
   void configure(GMColumnList&) override;
 
@@ -54,19 +51,19 @@ public:
 
   FXbool setTrack(GMTrack & info) const override;
 
-  FXString getName() const override { return fxtr("Internet Radio"); }
+  [[nodiscard]] FXString getName() const override { return fxtr("Internet Radio"); }
 
-  FXint getType() const override { return SOURCE_INTERNET_RADIO; }
+  [[nodiscard]] FXint getType() const override { return SOURCE_INTERNET_RADIO; }
 
-  FXString settingKey() const override { return "internet-radio"; }
+  [[nodiscard]] FXString settingKey() const override { return "internet-radio"; }
 
-  FXint getSortColumn(FXbool) const override { return HEADER_TRACK; }
+  [[nodiscard]] FXint getSortColumn(FXbool) const override { return HEADER_TRACK; }
 
-  FXbool canBrowse() const override { return false; }
+  [[nodiscard]] FXbool canBrowse() const override { return false; }
 
-  FXbool defaultBrowse() const override { return false; }
+  [[nodiscard]] FXbool defaultBrowse() const override { return false; }
 
-  FXbool autoPlay() const override { return false; }
+  [[nodiscard]] FXbool autoPlay() const override { return false; }
 
   FXbool source_menu(FXMenuPane * pane) override;
 
@@ -75,8 +72,6 @@ public:
   FXbool track_context_menu(FXMenuPane * pane) override;
 
   FXbool listTracks(GMTrackList * tracklist,const FXIntList & albumlist,const FXIntList & genrelist) override;
-
-  virtual ~GMStreamSource();
   };
 
 #endif

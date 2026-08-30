@@ -34,12 +34,6 @@
 
 FXIMPLEMENT(GMSource,FXObject,nullptr,0);
 
-GMSource::GMSource() {
-  }
-
-GMSource::~GMSource() {
-  }
-
 FXbool GMSource::findCurrent(GMTrackList * list,GMSource * src) {
   if (src==nullptr || src->current_track==-1) return false;
   for (FXint i=0;i<list->getNumItems();i++){

@@ -62,7 +62,7 @@ void GMFilterSource::init(GMTrackDatabase * database,GMSourceList & list){
     if (version==FILTER_DB_V1) {
       store >> nitems;
       for (FXint i=0;i<nitems;i++){
-        GMFilterSource * src = new GMFilterSource(database);
+        auto * src = new GMFilterSource(database);
         src->match.load(store);
         sources.append(src);
         }
@@ -91,18 +91,16 @@ void GMFilterSource::init(GMTrackDatabase * database,GMSourceList & list){
 #endif
 
   // Save to disk
-  GMFilterSource::save();
+  GMFilterSource::saveFilters();
   }
 
 
-void GMFilterSource::save() {
+void GMFilterSource::saveFilters() {
   FXFileStream store;
   if (store.open(GMApp::getDataDirectory()+PATHSEPSTRING+"filters.db",FXStreamSave)){
     GMFilter::nextid=0;
-    FXuint version = FILTER_DB_V1;
-    FXint  nitems  = sources.no();
-    store << version;
-    store << nitems;
+    store << static_cast<FXuint>(FILTER_DB_V1);
+    store << static_cast<FXint>(sources.no());
     for (FXint i=0;i<sources.no();i++){
       sources[i]->match.save(store);
       }
@@ -111,12 +109,12 @@ void GMFilterSource::save() {
 
 
 void GMFilterSource::create(GMTrackDatabase * database) {
-  GMFilterSource * source = new GMFilterSource(database);
+  auto * source = new GMFilterSource(database);
   GMFilterEditor editor(GMPlayerManager::instance()->getMainWindow(),source->match);
   if (editor.execute(PLACEMENT_SCREEN)) {
     editor.getFilter(source->match);
     sources.append(source);
-    GMFilterSource::save();
+    GMFilterSource::saveFilters();
     GMPlayerManager::instance()->insertSource(source);
     GMPlayerManager::instance()->getSourceView()->refresh();
     GMPlayerManager::instance()->getSourceView()->setSource(source);
@@ -140,10 +138,6 @@ GMFilterSource::GMFilterSource(GMTrackDatabase * db,const GMFilter & m) : GMData
 
 
 GMFilterSource::GMFilterSource(GMTrackDatabase * db) : GMDatabaseSource(db) {
-  }
-
-
-GMFilterSource::~GMFilterSource(){
   }
 
 
@@ -187,7 +181,7 @@ long GMFilterSource::onCmdEdit(FXObject*,FXSelector,void*){
   if (editor.execute(PLACEMENT_SCREEN)) {
     editor.getFilter(match);
     updateView();
-    GMFilterSource::save();
+    GMFilterSource::saveFilters();
     GMPlayerManager::instance()->getTrackView()->refresh();
     GMPlayerManager::instance()->getSourceView()->refresh(this);
     }
@@ -198,7 +192,7 @@ long GMFilterSource::onCmdEdit(FXObject*,FXSelector,void*){
 long GMFilterSource::onCmdRemove(FXObject*,FXSelector,void *){
   if (GMPlayerManager::instance()->getMainWindow()->question(fxtr("Remove Filter"),fxtr("Are you sure you want to remove the filter?"),fxtr("&Yes"),fxtr("&No"))){
     sources.remove(this);
-    GMFilterSource::save();
+    GMFilterSource::saveFilters();
     GMPlayerManager::instance()->removeSource(this);
     }
   return 1;
