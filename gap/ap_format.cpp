@@ -337,7 +337,7 @@ FXbool AudioFormat::compatible()  {
     case AP_FORMAT_S32_BE   : format=AP_FORMAT_S16_BE; break;
     case AP_FORMAT_FLOAT_LE : format=AP_FORMAT_S32_LE; break;
     case AP_FORMAT_FLOAT_BE : format=AP_FORMAT_S32_BE; break;
-    default                 : return false;            break;
+    default                 : return false;
     }
   return true;
   }

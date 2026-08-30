@@ -41,20 +41,16 @@ namespace ap {
 #ifdef HAVE_ZLIB
 
 struct ZIO {
-  z_stream stream;
-
-  ZIO() {
-    memset(&stream,0,sizeof(stream));
-    }
+  z_stream stream = {};
   };
 
 #endif
 
 
-HttpIO::HttpIO() : BufferIO(4096), z(nullptr) {
+HttpIO::HttpIO() : BufferIO(4096) {
   }
 
-HttpIO::HttpIO(FXIO * dev) : BufferIO(dev,4096), z(nullptr) {
+HttpIO::HttpIO(FXIO * dev) : BufferIO(dev,4096) {
   }
 
 HttpIO::~HttpIO() {
@@ -94,7 +90,7 @@ FXival HttpIO::gzip_read(FXString & data,FXival & bytes_written,FXival bytes_ava
       // update buffers
       z->stream.next_in   = rdptr;
       z->stream.avail_in  = FXMIN(bytes_available,wrptr-rdptr);
-      z->stream.next_out  = (FXuchar*)&data[bytes_written];
+      z->stream.next_out  = reinterpret_cast<FXuchar *>(&data[bytes_written]);
       z->stream.avail_out = data.length()-bytes_written;
 
       // inflate
@@ -126,7 +122,7 @@ FXival HttpIO::gzip_read(FXString & data,FXival & bytes_written,FXival bytes_ava
 
           const FXival bytes_in_buffer = wrptr-rdptr;
           if (z->stream.avail_in==0 && (bytes_available>bytes_in_buffer)) {
-            if (readBuffer()<=(FXuval)bytes_in_buffer) {
+            if (readBuffer()<=static_cast<FXuval>(bytes_in_buffer)) {
               inflateEnd(&z->stream);
               delete z;
               z=nullptr;
@@ -185,14 +181,14 @@ test_cnl:
       if (*p=='\n') {
 
         if (*(p-1)=='\r')
-          header.append((const FXchar*)rdptr,p-rdptr-1);
+          header.append(reinterpret_cast<const FXchar *>(rdptr),p-rdptr-1);
         else
-          header.append((const FXchar*)rdptr,p-rdptr);
+          header.append(reinterpret_cast<const FXchar *>(rdptr),p-rdptr);
 
         rdptr=p+1;
 
         /* HTTP status or end of header section */
-        if (single || header.length()==0) {
+        if (single || header.empty()) {
           dir = (wrptr>rdptr) ? DirRead : DirNone;
           return true;
           }
@@ -209,9 +205,9 @@ test_cnl:
     if (p>rdptr) {
 
       if (*p=='\r')
-        header.append((const FXchar*)rdptr,p-rdptr-1);
+        header.append(reinterpret_cast<const FXchar *>(rdptr),p-rdptr-1);
       else
-        header.append((const FXchar*)rdptr,p-rdptr);
+        header.append(reinterpret_cast<const FXchar *>(rdptr),p-rdptr);
 
       rdptr=p;
       }
@@ -223,7 +219,7 @@ test_cnl:
 
 FXbool HttpIO::write(const FXString & str) {
   //fxmessage("[%d]%s\n",str.length(),str.text());
-  FXint n = writeBlock(str.text(),str.length());
+  const FXint n = writeBlock(str.text(),str.length());
   if (n==-1) return false;
   FXASSERT(n==str.length());
   return flush();
@@ -289,10 +285,7 @@ FXint HttpHeader::parseQuotedString(const FXString & str,FXint & p){
   return 0;
   }
 
-
-HttpMediaType::HttpMediaType() {}
-
-HttpMediaType::HttpMediaType(const FXString & str,FXuint opts) {
+HttpMediaType::HttpMediaType(const FXString & str, const FXuint opts) {
   parse(str,opts);
   }
 
@@ -360,11 +353,11 @@ FXbool HttpMediaType::parse(const FXString & str,FXuint opts) {
   }
 
 
-HttpContentRange::HttpContentRange(const FXString & str,FXuint opts) : first(-1),last(-1),length(-1) {
+HttpContentRange::HttpContentRange(const FXString & str,FXuint opts) {
   parse(str,opts);
   }
 
-FXbool HttpContentRange::parse(const FXString & str,FXuint opts) {
+FXbool HttpContentRange::parse(const FXString & str, const FXuint opts) {
   FXint s,p=0;
 
   // parse the field name

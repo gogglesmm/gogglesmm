@@ -57,32 +57,32 @@ extern DecoderPlugin * ap_a52_decoder(DecoderContext*);
 
 DecoderPlugin* DecoderPlugin::open(DecoderContext * ctx,FXuchar codec) {
   switch(codec) {
-    case Codec::PCM     : return ap_pcm_decoder(ctx); break;
+    case Codec::PCM     : return ap_pcm_decoder(ctx);
 #if defined(HAVE_VORBIS) || defined(HAVE_TREMOR)
-    case Codec::Vorbis  : return ap_vorbis_decoder(ctx); break;
+    case Codec::Vorbis  : return ap_vorbis_decoder(ctx);
 #endif
 #ifdef HAVE_FLAC
-    case Codec::FLAC    : return ap_flac_decoder(ctx); break;
+    case Codec::FLAC    : return ap_flac_decoder(ctx);
 #endif
 #ifdef HAVE_MAD
-    case Codec::MPEG    : return ap_mad_decoder(ctx); break;
+    case Codec::MPEG    : return ap_mad_decoder(ctx);
 #endif
 #ifdef HAVE_FAAD
-    case Codec::AAC     : return ap_aac_decoder(ctx); break;
+    case Codec::AAC     : return ap_aac_decoder(ctx);
 #endif
 
 #ifdef HAVE_ALAC
-    case Codec::ALAC    : return ap_alac_decoder(ctx); break;
+    case Codec::ALAC    : return ap_alac_decoder(ctx);
 #endif
 
 #ifdef HAVE_OPUS
-    case Codec::Opus    : return ap_opus_decoder(ctx); break;
+    case Codec::Opus    : return ap_opus_decoder(ctx);
 #endif
 #ifdef HAVE_DCA
-    case Codec::DCA     : return ap_dca_decoder(ctx); break;
+    case Codec::DCA     : return ap_dca_decoder(ctx);
 #endif
 #ifdef HAVE_A52
-    case Codec::A52     : return ap_a52_decoder(ctx); break;
+    case Codec::A52     : return ap_a52_decoder(ctx);
 #endif
     default             : break;
     }

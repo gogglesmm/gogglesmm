@@ -44,13 +44,13 @@ public:
 
   void flush();
 
-  FXlong start_offset() const;
+  [[nodiscard]] FXlong start_offset() const;
 
-  FXint readable_frames() const;
+  [[nodiscard]] FXint readable_frames() const;
 
-  FXint total_frames() const;
+  [[nodiscard]] FXint total_frames() const;
 
-  FXlong min_stream_length() const;
+  [[nodiscard]] FXlong min_stream_length() const;
 
   void writeFrames(const FXuchar * data, FXint n);
 

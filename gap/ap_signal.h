@@ -83,9 +83,9 @@ public:
   void wait();
 
   // Wait for signal, input or timeout
-  WaitEvent wait(FXInputHandle input,WaitMode mode=WaitMode::Read,FXTime timeout=0) const;
+  [[nodiscard]] WaitEvent wait(FXInputHandle input,WaitMode mode=WaitMode::Read,FXTime timeout=0) const;
 
-  FXInputHandle handle() const { return device; }
+  [[nodiscard]] FXInputHandle handle() const { return device; }
   };
 
 

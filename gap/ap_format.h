@@ -30,7 +30,7 @@ struct ReplayGain{
   FXdouble track      = NAN;
   FXdouble track_peak = NAN;
 
-  FXbool empty() const { return isnan(album) && isnan(track); }
+  [[nodiscard]] FXbool empty() const { return isnan(album) && isnan(track); }
 
   void reset() { album=NAN; album_peak=NAN; track=NAN; track_peak=NAN; }
   };
@@ -210,29 +210,29 @@ public:
 
   void set(FXushort format,FXuint rate,FXuchar channels,FXuint map=0);
 
-  FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
+  [[nodiscard]] FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
 
-  FXbool set() const { return (rate!=0) && (format!=0) && (channels!=0); }
+  [[nodiscard]] FXbool set() const { return (rate!=0) && (format!=0) && (channels!=0); }
 
-  FXuchar channeltype(FXuint c) const { return static_cast<FXuchar>((channelmap>>(c<<2))&0xF); }
+  [[nodiscard]] FXuchar channeltype(FXuint c) const { return static_cast<FXuchar>((channelmap>>(c<<2))&0xF); }
 
-  FXuchar byteorder() const {
+  [[nodiscard]] FXuchar byteorder() const {
     return (format>>Format::Order_Shift)&Format::Order_Mask;
     }
 
-  FXuchar datatype() const {
+  [[nodiscard]] FXuchar datatype() const {
     return format&Format::Type_Mask;
     }
 
-  FXuchar bps() const {
+  [[nodiscard]] FXuchar bps() const {
     return 1+((format>>Format::Bits_Shift)&Format::Bits_Mask);
     }
 
-  FXuchar packing() const {
+  [[nodiscard]] FXuchar packing() const {
     return 1+((format>>Format::Pack_Shift)&Format::Pack_Mask);
     }
 
-  FXint framesize() const {
+  [[nodiscard]] FXint framesize() const {
     return static_cast<FXint>(channels) * static_cast<FXint>(packing());
     }
 
@@ -244,7 +244,7 @@ public:
 
   void debug() const;
 
-  FXString debug_format() const;
+  [[nodiscard]] FXString debug_format() const;
 
   void reset();
   };

@@ -37,10 +37,9 @@ class MetaInfo;
 class InputThread : public EngineThread, public IOContext, public InputContext {
 protected:
   PacketPool     packetpool;
-  InputPlugin  * input;
-  ReaderPlugin * reader;
-  FXuchar        state;
-
+  InputPlugin  * input = nullptr;
+  ReaderPlugin * reader = nullptr;
+  FXuchar        state = StateIdle;
 protected:
   enum {
     StateIdle       = 0, // doing nothing, waiting for events
@@ -91,9 +90,6 @@ public:
   FXbool init() override;
 
   void free() override;
-
-  /// Destructor
-  virtual ~InputThread();
   };
 }
 #endif

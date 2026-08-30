@@ -34,9 +34,9 @@ class GMAPI AudioPlayer : public FXObject {
 FXDECLARE(AudioPlayer)
 private:
   AudioEngine * engine;
-private:
-  AudioPlayer(const AudioPlayer&);
-  AudioPlayer& operator=(const AudioPlayer&);
+public:
+  AudioPlayer(const AudioPlayer&) = delete;
+  AudioPlayer& operator=(const AudioPlayer&) = delete;
 protected:
   /// Set the event queue.
   void setEventQueue(EventQueue*);
@@ -77,14 +77,14 @@ public:
   void setCrossFade(FXuint seconds);
 
   /// Get Replay Gain Mode
-  ReplayGainMode getReplayGain() const;
+  [[nodiscard]] ReplayGainMode getReplayGain() const;
 
   /// Get Cross Fade Mode
-  FXuint getCrossFade() const;
+  [[nodiscard]] FXuint getCrossFade() const;
 
   Event * pop();
 
-  ~AudioPlayer();
+  ~AudioPlayer() override;
   };
 
 }

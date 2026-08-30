@@ -33,9 +33,6 @@ namespace ap {
 DecoderThread::DecoderThread(AudioEngine*e) : EngineThread(e) {
   }
 
-DecoderThread::~DecoderThread() {
-  }
-
 FXbool DecoderThread::init() {
 
   if (!EngineThread::init())
@@ -100,7 +97,7 @@ FXint DecoderThread::run(){
     switch(event->type) {
       case Flush    : GM_DEBUG_PRINT("[decoder] flush\n");
                       if (plugin) {
-                        FlushEvent * f = static_cast<FlushEvent*>(event);
+                        auto * f = dynamic_cast<FlushEvent*>(event);
                         plugin->flush(f->offset);
                         }
                       engine->output->post(event,EventQueue::Flush);
@@ -117,7 +114,7 @@ FXint DecoderThread::run(){
                       return 0;
                       break;
 
-      case Configure: configure(static_cast<ConfigureEvent*>(event));
+      case Configure: configure(dynamic_cast<ConfigureEvent*>(event));
                       continue;
                       break;
 

@@ -107,12 +107,13 @@ struct ZIO;
 class GMAPI HttpIO : public BufferIO {
 protected:
   ZIO * z = nullptr;
-private:
-  HttpIO(const HttpIO&);
-  HttpIO &operator=(const HttpIO&);
+public:
+  HttpIO(const HttpIO&) = delete;
+  HttpIO &operator=(const HttpIO&) = delete;
 public:
   HttpIO();
-  HttpIO(FXIO * io);
+
+  explicit HttpIO(FXIO * io);
 
   // Read single or multiline header
   FXbool readHeader(FXString & header,FXbool single=false);
@@ -127,7 +128,7 @@ public:
   FXival gzip_read(FXString & data,FXival & bytes_written,FXival bytes_available);
 
   // Destructor
-  ~HttpIO();
+  ~HttpIO() override;
   };
 
 
@@ -136,7 +137,7 @@ struct HttpStatus {
   FXint major = 0;
   FXint minor = 0;
   FXint code  = 0;
-  FXint type() const;
+  [[nodiscard]] FXint type() const;
   };
 
 
@@ -156,7 +157,7 @@ public:
   FXString           mime;
   FXStringDictionary parameters;
 public:
-  HttpMediaType();
+  HttpMediaType() = default;
   HttpMediaType(const FXString & str,FXuint opts=0);
   FXbool parse(const FXString & str,FXuint opts=0);
   };
@@ -168,7 +169,7 @@ public:
   FXlong last   = -1;
   FXlong length = -1;
 public:
-  HttpContentRange(){}
+  HttpContentRange()= default;
   HttpContentRange(const FXString & str,FXuint opts=0);
   FXbool parse(const FXString & str,FXuint opts=0);
   };
@@ -255,10 +256,10 @@ public:
   FXival readBody(void*ptr,FXival len);
 
   // Return header for given key
-  FXString getHeader(const FXString & key) const;
+  [[nodiscard]] FXString getHeader(const FXString & key) const;
 
   // Return Content Length if known or -1
-  FXint getContentLength() const;
+  [[nodiscard]] FXint getContentLength() const;
 
   // Return Content Type if known or return false
   FXbool getContentType(HttpMediaType &) const;

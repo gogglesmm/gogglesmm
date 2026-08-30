@@ -50,6 +50,8 @@ public:
   virtual void wait_plugin_events()=0;
 
   virtual Reactor & getReactor()=0;
+
+  virtual ~OutputContext() = default;
   };
 
 
@@ -58,13 +60,13 @@ public:
   OutputContext * context = nullptr;
   AudioFormat     af;
 private:
-  OutputPlugin(){}
+  OutputPlugin() = default;
 public:
   /// Constructor
   OutputPlugin(OutputContext * ctx) : context(ctx) {}
 
   /// Output Plugin Type
-  virtual FXchar type() const=0;
+  [[nodiscard]] virtual FXchar type() const=0;
 
   /// Set Device Configuration
   virtual FXbool setOutputConfig(const OutputConfig &) { return false; }
@@ -101,7 +103,7 @@ public:
   virtual void close() {}
 
   /// Destructor
-  virtual ~OutputPlugin() {}
+  virtual ~OutputPlugin() = default;
   };
 
 

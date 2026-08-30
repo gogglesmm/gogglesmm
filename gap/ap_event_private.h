@@ -57,8 +57,6 @@ enum EventTypePrivate {
 class CtrlSeekEvent : public Event {
 public:
   FXdouble pos;
-protected:
-  virtual ~CtrlSeekEvent();
 public:
   CtrlSeekEvent(FXdouble);
   };
@@ -66,8 +64,6 @@ public:
 class CtrlVolumeEvent : public Event {
 public:
   FXfloat vol;
-protected:
-  virtual ~CtrlVolumeEvent();
 public:
   CtrlVolumeEvent(FXfloat);
   };
@@ -85,7 +81,7 @@ class ControlEvent : public Event {
 public:
   FXString text;
 protected:
-  virtual ~ControlEvent();
+  ~ControlEvent() override = default;
 public:
   ControlEvent(FXuchar type,const FXString & t=FXString::null);
   ControlEvent(FXuchar type,FXuint id);
@@ -96,18 +92,18 @@ class SetCrossFade : public Event {
 public:
   FXuint duration;  // duration in ms. 0 means off
 protected:
-  virtual ~SetCrossFade() {}
+  ~SetCrossFade() override = default;
 public:
-  SetCrossFade(FXuint ms) : Event(Ctrl_Set_Cross_Fade), duration(ms) {}
+  explicit SetCrossFade(FXuint ms) : Event(Ctrl_Set_Cross_Fade), duration(ms) {}
 
-  FXbool enabled() const { return duration > 0; }
+  [[nodiscard]] FXbool enabled() const { return duration > 0; }
   };
 
 class SetReplayGain : public Event {
 public:
   ReplayGainMode mode;
 protected:
-  virtual ~SetReplayGain() {}
+  ~SetReplayGain() override = default;
 public:
   SetReplayGain(ReplayGainMode m) : Event(Ctrl_Set_Replay_Gain), mode(m) {}
   };
@@ -116,9 +112,9 @@ class SetOutputConfig : public Event {
 public:
   OutputConfig config;
 protected:
-  virtual ~SetOutputConfig() {}
+  ~SetOutputConfig() override = default;
 public:
-  SetOutputConfig(const OutputConfig & cfg) : Event(Ctrl_Set_Output_Config), config(cfg) {}
+  explicit SetOutputConfig(const OutputConfig & cfg) : Event(Ctrl_Set_Output_Config), config(cfg) {}
   };
 
 
@@ -138,7 +134,7 @@ public:
     }
 
   /// Destructor
-  ~SyncEvent() {
+  ~SyncEvent() override {
     mutex.unlock();
     }
 
@@ -148,7 +144,7 @@ public:
     }
 
   /// Notify waiting thread we're done.
-  void unref() {
+  void unref() override {
     FXScopedMutex lock(mutex);
     condition.signal();
     }
@@ -160,7 +156,7 @@ public:
   OutputConfig config;
 public:
   GetOutputConfig() : SyncEvent(Ctrl_Get_Output_Config) {}
-  virtual ~GetOutputConfig() {}
+  ~GetOutputConfig() override = default;
   };
 
 
@@ -169,7 +165,7 @@ public:
   ReplayGainMode mode;
 public:
   GetReplayGain() : SyncEvent(Ctrl_Get_Replay_Gain), mode(ReplayGainOff) {}
-  virtual ~GetReplayGain() {}
+  ~GetReplayGain() override = default;
   };
 
 
@@ -179,9 +175,9 @@ public:
 public:
   GetCrossFade() : SyncEvent(Ctrl_Get_Cross_Fade) {}
 
-  FXbool enabled() const { return duration > 0; }
+  [[nodiscard]] FXbool enabled() const { return duration > 0; }
 
-  virtual ~GetCrossFade() {}
+  ~GetCrossFade() override = default;
   };
 
 
@@ -197,7 +193,7 @@ class StreamInfo {
 /* Decoder Specific Configuration */
 class DecoderConfig {
 public:
-  virtual ~DecoderConfig() {}
+  virtual ~DecoderConfig() = default;
   };
 
 
@@ -206,7 +202,7 @@ public:
   FXuchar * config       = nullptr;
   FXuint    config_bytes = 0;
 public:
-  ~DecoderSpecificConfig() {
+  ~DecoderSpecificConfig() override {
     freeElms(config);
     }
   };
@@ -226,7 +222,7 @@ public:
   FXshort        stream_offset_end   = 0;
   ReplayGain     replaygain;
 protected:
-  virtual ~ConfigureEvent();
+  ~ConfigureEvent() override;
 public:
   ConfigureEvent(const AudioFormat&,FXuchar codec=Codec::Invalid,FXint f=-1);
   };

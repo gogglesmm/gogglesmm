@@ -45,15 +45,6 @@
 
 namespace ap {
 
-
-ConnectionFactory::ConnectionFactory(){
-  }
-
-
-ConnectionFactory::~ConnectionFactory(){
-  }
-
-
 Socket * ConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
   Socket * io = nullptr;
 
@@ -78,12 +69,11 @@ Socket * ConnectionFactory::create(FXint domain,FXint type,FXint protocol) {
 
 
 FXIO* ConnectionFactory::open(const FXString & hostname,FXint port,FXbool ssl) {
-  struct addrinfo   hints;
+  struct addrinfo   hints{};
   struct addrinfo * list=nullptr;
   struct addrinfo * item=nullptr;
   FXint result;
 
-  memset(&hints,0,sizeof(struct addrinfo));
   hints.ai_family=AF_UNSPEC;
   hints.ai_socktype=SOCK_STREAM;
   hints.ai_flags|=(AI_NUMERICSERV|AI_ADDRCONFIG);
@@ -107,7 +97,7 @@ FXIO* ConnectionFactory::open(const FXString & hostname,FXint port,FXbool ssl) {
     if (io==nullptr)
       continue;
 
-    switch(io->connect((const struct sockaddr*)item->ai_addr,(FXint)item->ai_addrlen)){
+    switch(io->connect(item->ai_addr,static_cast<FXint>(item->ai_addrlen))){
       case  0: // connected
         freeaddrinfo(list);
         return io;

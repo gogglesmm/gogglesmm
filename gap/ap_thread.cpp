@@ -29,10 +29,6 @@ EngineThread::EngineThread(AudioEngine * e) : engine(e),stream(0){
   }
 
 
-EngineThread::~EngineThread() {
-  }
-
-
 FXbool EngineThread::init() {
   return fifo.init();
   }

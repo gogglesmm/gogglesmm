@@ -31,14 +31,7 @@
 namespace ap {
 
 
-InputThread::InputThread(AudioEngine*e) : EngineThread(e),
-  input(nullptr),
-  reader(nullptr),
-  state(StateIdle) {
-  }
-
-
-InputThread::~InputThread() {
+InputThread::InputThread(AudioEngine*e) : EngineThread(e) {
   }
 
 FXbool InputThread::init() {
@@ -94,14 +87,14 @@ FXint InputThread::run(){
                             break;
 
       case Ctrl_Open_Flush: ctrl_flush(); // fallthrough -  intentional no break
-      case Ctrl_Open      : ctrl_open_input(static_cast<ControlEvent*>(event)->text);
+      case Ctrl_Open      : ctrl_open_input(dynamic_cast<ControlEvent*>(event)->text);
                             break;
 
       case Ctrl_Quit      : ctrl_close_input(true);
                             engine->decoder->post(event,EventQueue::Flush);
                             return 0;
                             break;
-      case Ctrl_Seek      : ctrl_seek(static_cast<CtrlSeekEvent*>(event)->pos);
+      case Ctrl_Seek      : ctrl_seek(dynamic_cast<CtrlSeekEvent*>(event)->pos);
                             break;
       case End            : if (event->stream==stream) {
                               ctrl_eos();
@@ -118,7 +111,7 @@ FXint InputThread::run(){
                             break;
       case Buffer         :
         {
-          Packet * packet = static_cast<Packet*>(event);
+          auto * packet = dynamic_cast<Packet*>(event);
           FXASSERT(reader);
           FXASSERT(packet);
           packet->stream = stream;

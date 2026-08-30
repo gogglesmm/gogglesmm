@@ -56,7 +56,7 @@ public:
   FXbool setSendTimeout(FXTime);
 
   // Get Pending Error
-  FXint getError() const;
+  [[nodiscard]] FXint getError() const;
 
 public:
 

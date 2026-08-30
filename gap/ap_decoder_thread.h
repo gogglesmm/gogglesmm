@@ -59,8 +59,6 @@ public:
   FXbool init() override;
 
   void free() override;
-
-  virtual ~DecoderThread();
   };
 
 }

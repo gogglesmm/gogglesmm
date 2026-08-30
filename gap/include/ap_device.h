@@ -110,7 +110,7 @@ public:
 public:
   OutputConfig();
 
-  FXString plugin() const;
+  [[nodiscard]] FXString plugin() const;
 
   void load(FXSettings &);
 

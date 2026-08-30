@@ -60,24 +60,13 @@ ControlEvent::ControlEvent(FXuchar t,FXuint id) : Event(t) {
   stream=id;
   }
 
-
-ControlEvent::~ControlEvent() {
-  }
-
 ErrorMessage::ErrorMessage(const FXString & text) : Event(AP_ERROR),msg(text) {
-  }
-ErrorMessage::~ErrorMessage() {
   }
 
 TimeUpdate::TimeUpdate(FXuint p,FXuint l) : Event(AP_TIMESTAMP), position(p), length(l) {
   }
-TimeUpdate::~TimeUpdate() {
-  }
 
 MetaInfo::MetaInfo() : Event(AP_META_INFO) {
-  }
-
-MetaInfo::~MetaInfo() {
   }
 
 VolumeNotify::VolumeNotify() : Event(AP_VOLUME_NOTIFY) {
@@ -86,24 +75,11 @@ VolumeNotify::VolumeNotify() : Event(AP_VOLUME_NOTIFY) {
 VolumeNotify::VolumeNotify(FXfloat v) : Event(AP_VOLUME_NOTIFY),volume(v) {
   }
 
-VolumeNotify::~VolumeNotify() {
-  }
-
-
 CtrlSeekEvent::CtrlSeekEvent(FXdouble p) : Event(Ctrl_Seek), pos(p) {
   }
 
-CtrlSeekEvent::~CtrlSeekEvent() {
-  }
-
-
 CtrlVolumeEvent::CtrlVolumeEvent(FXfloat v) : Event(Ctrl_Volume), vol(v) {
   }
-
-CtrlVolumeEvent::~CtrlVolumeEvent() {
-  }
-
-
 
 ConfigureEvent::ConfigureEvent(const AudioFormat & fmt,FXuchar c,FXint n) : Event(Configure),
   af(fmt),

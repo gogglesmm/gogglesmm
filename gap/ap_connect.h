@@ -34,23 +34,23 @@ protected:
   FXbool use_ssl = false;
 #endif
 protected:
-	virtual Socket * create(FXint domain,FXint type,FXint protocol);
+  virtual Socket * create(FXint domain,FXint type,FXint protocol);
 public:
-	ConnectionFactory();
+  ConnectionFactory() = default;
 
-	// Open connection to hostname and port
-	FXIO * open(const FXString & hostname,FXint port,FXbool ssl=false);
+  // Open connection to hostname and port
+  FXIO * open(const FXString & hostname,FXint port,FXbool ssl=false);
 
-	virtual ~ConnectionFactory();
-	};
+  virtual ~ConnectionFactory() = default;
+  };
 
 class ThreadConnectionFactory : public ConnectionFactory {
 protected:
-	IOContext * context;
+  IOContext * context;
 protected:
-	Socket * create(FXint domain,FXint type,FXint protocol) override;
+  Socket * create(FXint domain,FXint type,FXint protocol) override;
 public:
-	ThreadConnectionFactory(IOContext*);
+  explicit ThreadConnectionFactory(IOContext*);
   };
 
 }

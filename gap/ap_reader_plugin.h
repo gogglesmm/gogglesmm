@@ -47,6 +47,8 @@ public:
   virtual void post_meta(MetaInfo*)=0;
 
   virtual void post_packet(Packet*)=0;
+
+  virtual ~InputContext() = default;
   };
 
 class ReaderPlugin {
@@ -68,25 +70,25 @@ public:
   virtual FXbool init(InputPlugin*);
 
   /// Format type
-  virtual FXuchar format() const=0;
+  [[nodiscard]] virtual FXuchar format() const=0;
 
   /// Return redirect list
   virtual FXbool redirect(FXStringList&) { return false; }
 
   /// Return whether plugin can seek
-  virtual FXbool can_seek() const { return false; }
+  [[nodiscard]] virtual FXbool can_seek() const { return false; }
 
   /// Seek to sample
   virtual FXbool seek(FXlong) { return false; }
 
   // Get the seek offset for given percentage (0-1.0)
-  FXlong seek_offset(FXdouble) const;
+  [[nodiscard]] virtual FXlong seek_offset(FXdouble) const;
 
   /// Process Input
   virtual ReadStatus process(Packet*);
 
   /// Destructor
-  virtual ~ReaderPlugin();
+  virtual ~ReaderPlugin() = default;
 
   /// Open plugin for given format
   static ReaderPlugin* open(InputContext * ctx,FXuint format);
@@ -99,10 +101,9 @@ class TextReader : public ReaderPlugin {
 protected:
   FXString textbuffer;
 public:
-  TextReader(InputContext*);
+  explicit TextReader(InputContext*);
   FXbool init(InputPlugin*) override;
   ReadStatus process(Packet*) override;
-  virtual ~TextReader();
   };
 
 

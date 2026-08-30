@@ -32,9 +32,6 @@ namespace ap {
 ReaderPlugin::ReaderPlugin(InputContext * ctx) : context(ctx) {
   }
 
-ReaderPlugin::~ReaderPlugin() {
-  }
-
 FXlong ReaderPlugin::seek_offset(FXdouble value) const {
   if (stream_length>0)
     return stream_length*value;
@@ -80,9 +77,6 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
 TextReader::TextReader(InputContext*e) : ReaderPlugin(e) {
   }
 
-TextReader::~TextReader(){
-  }
-
 FXbool TextReader::init(InputPlugin * plugin) {
   ReaderPlugin::init(plugin);
   textbuffer.clear();
@@ -93,7 +87,7 @@ ReadStatus TextReader::process(Packet*packet) {
   packet->unref();
   GM_DEBUG_PRINT("[text] starting read %ld\n",input->size());
   if (input->size()>0) {
-    textbuffer.length(input->size());
+    textbuffer.length(static_cast<FXint>(input->size()));
     if (input->read(textbuffer.text(),input->size())!=input->size())
       return ReadError;
     }
@@ -103,7 +97,7 @@ ReadStatus TextReader::process(Packet*packet) {
     do {
       len+=nread;
       textbuffer.length(textbuffer.length()+chunk);
-      nread=input->read(&textbuffer[len],chunk);
+      nread=static_cast<FXint>(input->read(&textbuffer[len],chunk));
       }
     while(nread>0);
     textbuffer.trunc(len);

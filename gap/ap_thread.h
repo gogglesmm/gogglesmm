@@ -48,7 +48,7 @@ public:
   virtual void free();
 
   /// Run thread
-  virtual FXint run()=0;
+  FXint run() override=0;
 
   /// Post event to this thread
   void post(Event * event,FXint where=EventQueue::Back);
@@ -57,7 +57,7 @@ public:
   ThreadQueue & getFifo() { return fifo; }
 
   /// Destructor
-  virtual ~EngineThread();
+  ~EngineThread() override = default;
   };
 
 }
