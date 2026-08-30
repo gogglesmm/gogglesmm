@@ -50,10 +50,6 @@ GMAboutDialog::GMAboutDialog(FXWindow* o) : FXDialogBox(o,FXString::null,DECOR_T
   setup();
   }
 
-GMAboutDialog::~GMAboutDialog(){
-  }
-
-
 void GMAboutDialog::setup(){
 
   setTitle("About " APPLICATION_TITLE);

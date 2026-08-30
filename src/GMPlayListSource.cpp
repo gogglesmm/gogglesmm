@@ -82,8 +82,6 @@ GMPlayListSource::GMPlayListSource(GMTrackDatabase * database,FXint pl) : GMData
   db->getPlaylistName(playlist,name);
   }
 
-GMPlayListSource::~GMPlayListSource() {
-  }
 
 void GMPlayListSource::save(GMTrackList* tracklist) {
   if (orderchanged) {

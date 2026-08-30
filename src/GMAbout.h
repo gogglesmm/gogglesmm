@@ -30,9 +30,10 @@ private:
 private:
   void setup();
 private:
-  GMAboutDialog(){}
-  GMAboutDialog(const GMAboutDialog&);
-  GMAboutDialog& operator=(const GMAboutDialog&);
+  GMAboutDialog() = default;
+public:
+  GMAboutDialog(const GMAboutDialog&) = delete;
+  GMAboutDialog& operator=(const GMAboutDialog&) = delete;
 public:
   enum {
     ID_HOMEPAGE=FXDialogBox::ID_LAST,
@@ -43,13 +44,13 @@ public:
   long onCmdReportIssue(FXObject*,FXSelector,void*);
 public:
 /// Construct free-floating About dialog
-  GMAboutDialog(FXApp* a);
+  explicit GMAboutDialog(FXApp* a);
 
   /// Construct dialog which will always float over the owner window
-  GMAboutDialog(FXWindow* owner);
+  explicit GMAboutDialog(FXWindow* owner);
 
   /// Destructor
-  virtual ~GMAboutDialog();
+  ~GMAboutDialog() override = default;
   };
 
 #endif
