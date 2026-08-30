@@ -68,13 +68,13 @@ public:
     };
 public:
   // Default Constructor
-  Rule() {}
+  Rule() = default;
 
   // Initialize Rule for integer input
   Rule(FXint c,FXint o,FXint v) : column(c),opcode(o),value(v) {}
 
   // Get sql match string
-  FXString getMatch() const;
+  [[nodiscard]] FXString getMatch() const;
 
   // Load from stream
   void load(FXStream &);
@@ -93,7 +93,7 @@ public:
   FXbool ascending = true;               // ASC or DESC
 public:
   // Get sql match string
-  FXString getMatch() const;
+  [[nodiscard]] FXString getMatch() const;
 
   // Load from stream
   void load(FXStream &);
@@ -126,7 +126,7 @@ public:
   GMFilter(const FXString & name,FXint column,FXint opcode,FXint value);
 
   // Get sql match string
-  FXString getMatch() const;
+  [[nodiscard]] FXString getMatch() const;
 
   // Load from stream
   void load(FXStream &);

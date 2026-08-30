@@ -60,7 +60,7 @@ FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
       FXuint chunk_length = MSB_UINT(chunk);
 
       // IHDR chunk
-      if (FXString::compare((const FXchar*)(chunk+4),"IHDR",4)==0) {
+      if (FXString::compare(reinterpret_cast<const FXchar *>(chunk + 4),"IHDR",4)==0) {
 
         if (chunk_length!=13)
           return false;
@@ -83,7 +83,7 @@ FXbool gm_meta_png(const FXuchar * data,FXival size,GMImageInfo & info) {
           return true;
 
         }
-      else if (FXString::compare((const FXchar*)(chunk+4),"PLTE",4)==0) {
+      else if (FXString::compare(reinterpret_cast<const FXchar *>(chunk + 4),"PLTE",4)==0) {
         info.colors = chunk_length / 3; /// 3 bytes for each palette entry
         return true;
         }
@@ -196,7 +196,7 @@ FXbool gm_meta_jpg(const FXuchar * data,FXival size,GMImageInfo & info) {
 
 
 FXbool gm_meta_bmp(const FXuchar * data,FXival size,GMImageInfo & info) {
-  FXMemoryStream store(FXStreamLoad,(FXuchar*)data,size);
+  FXMemoryStream store(FXStreamLoad,const_cast<FXuchar *>(data),size);
 
   FXint    bfSize;
   FXint    bfOffBits;
@@ -274,7 +274,7 @@ const FXuchar TAG_IMAGE       = 0x2c;   // Image separator
 
 
 FXbool gm_meta_gif(const FXuchar * data,FXival size,GMImageInfo & info) {
-  FXMemoryStream store(FXStreamLoad,(FXuchar*)data,size);
+  FXMemoryStream store(FXStreamLoad,const_cast<FXuchar *>(data),size);
 
   FXuchar c1,c2,c3,flagbits,background,sbsize;
   FXint ncolors;
@@ -313,7 +313,7 @@ FXbool gm_meta_gif(const FXuchar * data,FXival size,GMImageInfo & info) {
     store.position(ncolors*3,FXFromCurrent);
     }
 
-  while(1){
+  while(true){
     store >> c1;
     if(c1==TAG_EXTENSION){
       // Read extension code
@@ -350,11 +350,7 @@ FXbool gm_meta_gif(const FXuchar * data,FXival size,GMImageInfo & info) {
   }
 
 
-GMCover::GMCover() : data(nullptr),size(0),type(0) {
-  }
-
 GMCover::GMCover(const void * ptr,FXuint len,FXuint t,const FXString & label,FXbool owned) :
-  data(nullptr),
   size(len),
   description(label),
   type(t) {
@@ -362,10 +358,10 @@ GMCover::GMCover(const void * ptr,FXuint len,FXuint t,const FXString & label,FXb
   if (ptr && size) {
     if (owned==false) {
       allocElms(data,size);
-      memcpy(data,(const FXuchar*)ptr,size);
+      memcpy(data, ptr,size);
       }
     else {
-      data=(FXuchar*)ptr;
+      data=const_cast<FXuchar*>(static_cast<const FXuchar*>(ptr));
       }
     }
   }
@@ -427,19 +423,19 @@ FXuint GMCover::fileType() const {
 
 
 FXString GMCover::fileExtension() const{
-  static const FXchar * const filetype_extension[]={"",".png",".jpg",".bmp",".gif"};
+  static constexpr const FXchar * const filetype_extension[]={"",".png",".jpg",".bmp",".gif"};
   return filetype_extension[fileType()];
   }
 
 FXString GMCover::mimeType() const{
-  static const FXchar * const mimetypes[]={"","image/png","image/jpeg","image/x-bmp","image/gif"};
+  static constexpr const FXchar * const mimetypes[]={"","image/png","image/jpeg","image/x-bmp","image/gif"};
   return mimetypes[fileType()];
   }
 
 
 
 
-FXbool GMCover::save(const FXString & filename) {
+FXbool GMCover::save(const FXString & filename) const {
   FXString path = FXPath::directory(filename);
   if (FXStat::exists(path) || FXDir::createDirectories(path)) {
     FXFile file (filename,FXIO::Writing);
@@ -460,7 +456,7 @@ FXint GMCover::fromTag(const FXString & mrl,GMCoverList & covers) {
     }
   tags.getCovers(covers);
   GM_TICKS_END();
-  return covers.no();
+  return static_cast<FXint>(covers.no());
   }
 
 
@@ -475,11 +471,11 @@ GMCover * GMCover::fromTag(const FXString & mrl) {
 
 GMCover * GMCover::fromFile(const FXString & filename) {
   FXFile file(filename,FXIO::Reading);
-  FXuval size = file.size();
-  if (file.isOpen() && size) {
+  FXlong size = file.size();
+  if (file.isOpen() && size > 0) {
     FXchar * data=nullptr;
     allocElms(data,size);
-    if (file.readBlock(data,size)==(FXival)size) {
+    if (file.readBlock(data,size)==static_cast<FXival>(size)) {
       return new GMCover(data,size,GMCover::Other,FXString::null,true);
       }
     freeElms(data);
@@ -525,7 +521,7 @@ GMCover * GMCover::fromPath(const FXString & path) {
   }
 
 
-FXImage * GMCover::copyToImage(GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
+FXImage * GMCover::copyToImage(const GMCover * cover,FXint scale/*=0*/,FXint crop/*=0*/) {
   if (cover) {
     return gm_load_image_from_data(cover->data,cover->size,scale,crop);
     }

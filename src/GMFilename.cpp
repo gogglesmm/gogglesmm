@@ -326,6 +326,7 @@ FXString TrackFormatter::get_field(const FXchar field,const GMTrack & track) con
     case 'n': return FXString::value(track.getTrackNumber());  break;
     case 'd': return FXString::value(track.getDiscNumber()); break;
     case 'y': return FXString::value(track.year); break;
+    default : break;
     }
   return FXString::null;
   }
