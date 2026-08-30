@@ -131,13 +131,7 @@ public:
   };
 
 
-OutputThread::OutputThread(AudioEngine*e) : EngineThread(e), fifoinput(nullptr),plugin(nullptr),draining(false),pausing(false) {
-  stream=-1;
-  stream_length=0;
-  stream_remaining=0;
-  stream_written=0;
-  stream_position=0;
-  timestamp=-1;
+OutputThread::OutputThread(AudioEngine*e) : EngineThread(e) {
   }
 
 
@@ -821,10 +815,28 @@ bool OutputThread::convert_samples() {
               s24le3_to_s32(samples.data(), samples.nframes * af.channels, samples.formatted);
               samples.buffer = &samples.formatted;
               break;
+            case AP_FORMAT_S16:
+              s16_to_s32(samples.data(), samples.nframes * af.channels, samples.formatted);
+              samples.buffer = &samples.formatted;
             default:
               goto mismatch;
               break;
             }
+        } break;
+      case AP_FORMAT_FLOAT:
+        {
+          switch(af.format) {
+            case AP_FORMAT_S16:
+              float_to_s16(samples.data(), samples.nframes * af.channels);
+              break;
+            case AP_FORMAT_S24_3:
+              s24le3_to_float(samples.data(), samples.nframes * af.channels, samples.formatted);
+              samples.buffer = &samples.formatted;
+              break;
+            case AP_FORMAT_S32:
+              s32_to_float(samples.data(), samples.nframes * af.channels);
+              break;
+          }
         } break;
       }
     }
@@ -883,7 +895,7 @@ FXint OutputThread::run(){
       case Buffer     :
         {
           if (__likely(af.set())) {
-            auto packet = static_cast<Packet*>(event);
+            auto packet = dynamic_cast<Packet*>(event);
             init_samples(packet);
             process_samples();
             }
@@ -892,7 +904,7 @@ FXint OutputThread::run(){
 
       case Flush      :
         {
-          FlushEvent * flush = static_cast<FlushEvent*>(event);
+          auto * flush = dynamic_cast<FlushEvent*>(event);
           GM_DEBUG_PRINT("[output] flush %d\n",flush->close);
           if (plugin) {
             plugin->drop();
@@ -919,7 +931,7 @@ FXint OutputThread::run(){
 
       case Configure  :
         {
-          ConfigureEvent * cfg = static_cast<ConfigureEvent*>(event);
+          auto * cfg = dynamic_cast<ConfigureEvent*>(event);
           configure(cfg->af);
           replaygain.value = cfg->replaygain;
         } break;
@@ -943,7 +955,7 @@ FXint OutputThread::run(){
 
       case Ctrl_Volume:
         {
-					FXfloat volume=(static_cast<CtrlVolumeEvent*>(event))->vol;
+          FXfloat volume=(dynamic_cast<CtrlVolumeEvent*>(event))->vol;
           if (plugin) plugin->volume(volume);
         } break;
 
@@ -970,14 +982,14 @@ FXint OutputThread::run(){
 
       case Ctrl_Set_Replay_Gain:
         {
-          SetReplayGain * g = static_cast<SetReplayGain*>(event);
+          auto * g = dynamic_cast<SetReplayGain*>(event);
           GM_DEBUG_PRINT("[output] set replay gain mode %d\n",g->mode);
           replaygain.mode = g->mode;
         } break;
 
       case Ctrl_Get_Replay_Gain:
         {
-          GetReplayGain * g = static_cast<GetReplayGain*>(event);
+          auto * g = dynamic_cast<GetReplayGain*>(event);
           GM_DEBUG_PRINT("[output] get replay gain mode\n");
           g->mode = replaygain.mode;
         } break;
@@ -985,7 +997,7 @@ FXint OutputThread::run(){
 
       case Ctrl_Set_Cross_Fade:
         {
-          auto g = static_cast<SetCrossFade*>(event);
+          auto g = dynamic_cast<SetCrossFade*>(event);
           GM_DEBUG_PRINT("[output] set cross fade %d ms\n",g->duration);
           if (g->enabled()) {
             if (crossfader == nullptr)
@@ -1006,7 +1018,7 @@ FXint OutputThread::run(){
 
       case Ctrl_Get_Cross_Fade:
         {
-          auto g = static_cast<GetCrossFade*>(event);
+          auto g = dynamic_cast<GetCrossFade*>(event);
           GM_DEBUG_PRINT("[output] get cross fade\n");
           if (crossfader) {
             g->duration = crossfader->duration;
@@ -1018,7 +1030,7 @@ FXint OutputThread::run(){
 
       case Ctrl_Get_Output_Config:
         {
-          GetOutputConfig * out = static_cast<GetOutputConfig*>(event);
+          auto * out = dynamic_cast<GetOutputConfig*>(event);
           FXASSERT(out);
           out->config = output_config;
           GM_DEBUG_PRINT("[output] get output config\n");
@@ -1028,7 +1040,7 @@ FXint OutputThread::run(){
       case Ctrl_Set_Output_Config:
         {
           GM_DEBUG_PRINT("[output] set output config");
-          SetOutputConfig * out = static_cast<SetOutputConfig*>(event);
+          auto * out = dynamic_cast<SetOutputConfig*>(event);
           output_config = out->config;
           if (plugin) {
             if (plugin->type()==output_config.device) {

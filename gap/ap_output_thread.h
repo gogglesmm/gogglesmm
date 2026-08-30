@@ -49,21 +49,20 @@ struct Samples {
   MemoryBuffer * buffer = nullptr;
   MemoryBuffer   remapped;
   MemoryBuffer   formatted;
-  FXint          nframes;
-  FXlong         position;
-  FXlong         length;
-  FXuint         stream;
-  FXbool         crossfade;
+  FXint          nframes = 0;
+  FXlong         position = 0;
+  FXlong         length = 0;
+  FXuint         stream = 0;
+  FXbool         crossfade = false;
   FXuchar * data() const { return buffer->data();}
 };
-
 
 class OutputThread : public EngineThread, public OutputContext {
 protected:
   OutputConfig   output_config;
 protected:
   Reactor           reactor;
-  Reactor::Input*   fifoinput;
+  Reactor::Input*   fifoinput = nullptr;
 protected:
   /// Wait while pausing
   Event * wait_pause();
@@ -78,7 +77,7 @@ protected:
   Event * get_next_event();
 public:
   AudioFormat       af;
-  OutputPlugin *    plugin;
+  OutputPlugin *    plugin = nullptr;
   FXDLL             dll;
   Samples           samples;
 #ifdef HAVE_SAMPLERATE
@@ -89,15 +88,15 @@ public:
   ReplayGainConfig  replaygain;
   CrossFader * crossfader = nullptr;
 protected:
-  FXbool draining;
-  FXbool pausing;
+  FXbool draining = false;
+  FXbool pausing = false;
 protected:
-  FXint     stream;
-  FXlong    stream_length;
-  FXint     stream_remaining;
-  FXint     stream_written;
-  FXlong    stream_position;
-  FXint     timestamp;
+  FXint     stream = -1;
+  FXlong    stream_length = 0;
+  FXint     stream_remaining = 0;
+  FXint     stream_written = 0;
+  FXlong    stream_position = 0;
+  FXint     timestamp = -1;
 protected:
   FXPtrListOf<FrameTimer> timers;
   void update_timers(FXint delay,FXint nframes);
@@ -141,7 +140,7 @@ public:
 
   Reactor & getReactor() override { return reactor; }
 
-  virtual ~OutputThread();
+  ~OutputThread() override;
   };
 
 }

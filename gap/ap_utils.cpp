@@ -324,19 +324,19 @@ void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,
   if (len>22) {
     if (FXString::comparecase(comment,"REPLAYGAIN_TRACK_GAIN=",22)==0){
       FXString tag(comment+22,len-22);
-      tag.scan("%lg",&gain.track);
+      (void)tag.scan("%lg",&gain.track);
       }
     else if (FXString::comparecase(comment,"REPLAYGAIN_TRACK_PEAK=",22)==0){
       FXString tag(comment+22,len-22);
-      tag.scan("%lg",&gain.track_peak);
+      (void)tag.scan("%lg",&gain.track_peak);
       }
     else if (FXString::comparecase(comment,"REPLAYGAIN_ALBUM_GAIN=",22)==0){
       FXString tag(comment+22,len-22);
-      tag.scan("%lg",&gain.album);
+      (void)tag.scan("%lg",&gain.album);
       }
     else if (FXString::comparecase(comment,"REPLAYGAIN_ALBUM_PEAK=",22)==0){
       FXString tag(comment+22,len-22);
-      tag.scan("%lg",&gain.album_peak);
+      (void)tag.scan("%lg",&gain.album_peak);
       }
     }
   }
@@ -382,10 +382,10 @@ Base64Encoder::Base64Encoder(FXint source_length) {
   }
 
 FXString Base64Encoder::encodeString(const FXString & source) {
-  Base64Encoder base64(source.length());
-  base64.encode(source);
-  base64.finish();
-  return base64.getOutput();
+  Base64Encoder encoder(source.length());
+  encoder.encode(source);
+  encoder.finish();
+  return encoder.getOutput();
   }
 
 void Base64Encoder::encode(FXuint value) {
