@@ -56,37 +56,37 @@ public:
   SndioOutput(OutputContext* ctx);
 
   /// Configure
-  FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &) override;
 
   /// Write frames to playback buffer
-  FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint) override;
 
   /// Return delay in no. of frames
-  FXint delay();
+  FXint delay() override;
 
   /// Empty Playback Buffer Immediately
-  void drop();
+  void drop() override;
 
   /// Wait until playback buffer is emtpy.
-  void drain();
+  void drain() override;
 
   /// Pause
-  void pause(FXbool);
+  void pause(FXbool) override;
 
   /// Change Volume
-  void volume(FXfloat);
+  void volume(FXfloat) override;
 
   /// Close Output
-  void close();
+  void close() override;
 
   /// Get Device Type
-  FXchar type() const { return DeviceSndio; }
+  [[nodiscard]] FXchar type() const override { return DeviceSndio; }
 
   /// Set Device Configuration
-  FXbool setOutputConfig(const OutputConfig &);
+  FXbool setOutputConfig(const OutputConfig &) override;
 
   /// Destructor
-  virtual ~SndioOutput();
+  ~SndioOutput() override;
   };
 
 
@@ -95,7 +95,7 @@ SndioOutput::SndioOutput(OutputContext * ctx) : OutputPlugin(ctx) {
 
 
 SndioOutput::~SndioOutput() {
-  close();
+  SndioOutput::close();
   }
 
 
@@ -236,7 +236,7 @@ failed:
 FXbool SndioOutput::write(const void * buffer,FXuint nframes){
   FXival nwritten;
   FXival nbytes = nframes*af.framesize();
-  const FXchar * buf = (const FXchar*)buffer;
+  const auto * buf = (const FXchar*)buffer;
 
   if (__unlikely(handle == nullptr)) {
     GM_DEBUG_PRINT("[sndio] device not opened\n");

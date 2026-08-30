@@ -34,9 +34,9 @@ private:
   MemoryBuffer  buffer;
 protected:
   ogg_packet op = {};
-  Packet*    out;
-  FXlong     stream_position;
-  FXushort   stream_offset_start;
+  Packet*    out = nullptr;
+  FXlong     stream_position = -1;
+  FXushort   stream_offset_start = 0;
 protected:
   FXbool get_next_packet(Packet*&);
 public:
@@ -48,8 +48,7 @@ public:
 
   FXbool process(Packet*) override;
 
-
-  ~OggDecoder();
+  ~OggDecoder() override;
   };
 
 }

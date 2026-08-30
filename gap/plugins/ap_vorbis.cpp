@@ -33,23 +33,23 @@
 
 namespace ap {
 
-class VorbisDecoder : public OggDecoder {
+class VorbisDecoder final: public OggDecoder {
 protected:
   FXbool is_vorbis_header();
 protected:
-  vorbis_info       info;
-  vorbis_comment    comment;
-  vorbis_dsp_state  dsp;
-  vorbis_block      block;
-  FXbool            has_info;
-  FXbool            has_dsp;
+  vorbis_info       info{};
+  vorbis_comment    comment{};
+  vorbis_dsp_state  dsp{};
+  vorbis_block      block{};
+  FXbool            has_info = false;
+  FXbool            has_dsp = false;
 protected:
   void init_info();
   void reset_decoder();
 public:
   VorbisDecoder(DecoderContext*);
 
-  FXuchar codec() const override { return Codec::Vorbis; }
+  [[nodiscard]] FXuchar codec() const override { return Codec::Vorbis; }
 
   FXbool init(ConfigureEvent*) override;
 
@@ -57,14 +57,14 @@ public:
 
   FXbool flush(FXlong) override;
 
-  virtual ~VorbisDecoder();
+  ~VorbisDecoder() override;
   };
 
 
-VorbisDecoder::VorbisDecoder(DecoderContext * e) : OggDecoder(e),has_info(false),has_dsp(false) {
+VorbisDecoder::VorbisDecoder(DecoderContext * e) : OggDecoder(e) {
   // Dummy comment structure. libvorbis will only check for a non-null vendor.
   vorbis_comment_init(&comment);
-  comment.vendor = (FXchar*)"";
+  comment.vendor = const_cast<FXchar *>("");
   }
 
 VorbisDecoder::~VorbisDecoder(){
@@ -99,7 +99,7 @@ FXbool VorbisDecoder::init(ConfigureEvent*event) {
 
     init_info();
 
-    VorbisConfig * vorbis_config = dynamic_cast<VorbisConfig*>(event->dc);
+    auto * vorbis_config = dynamic_cast<VorbisConfig*>(event->dc);
     FXASSERT(vorbis_config);
 
     ogg_packet op;
@@ -150,7 +150,7 @@ FXbool VorbisDecoder::flush(FXlong offset) {
 
 
 FXbool VorbisDecoder::is_vorbis_header() {
-  return (op.bytes>6 && ((op.packet[0]==1) || (op.packet[0]==3) || (op.packet[0]==5)) && (FXString::compare((const FXchar*)&op.packet[1],"vorbis",6)==0));
+  return (op.bytes>6 && ((op.packet[0]==1) || (op.packet[0]==3) || (op.packet[0]==5)) && (FXString::compare(reinterpret_cast<const FXchar *>(&op.packet[1]),"vorbis",6)==0));
   }
 
 #ifdef HAVE_TREMOR
@@ -285,7 +285,7 @@ FXbool VorbisDecoder::process(Packet * packet) {
 
         /// Send out packet if full
         if (navail==0) {
-          context->post_output_packet(out);
+          context->post_output_packet(out, false);
           }
         }
       vorbis_synthesis_read(&dsp,ngiven);

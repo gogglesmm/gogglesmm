@@ -24,19 +24,15 @@
 
 namespace ap {
 
-class PCMDecoder : public DecoderPlugin {
+class PCMDecoder final : public DecoderPlugin {
 public:
   PCMDecoder(DecoderContext*);
-  FXuchar codec() const override { return Codec::PCM; }
+  [[nodiscard]] FXuchar codec() const override { return Codec::PCM; }
   FXbool init(ConfigureEvent*) override;
   FXbool process(Packet*) override;
-  virtual ~PCMDecoder();
   };
 
 PCMDecoder::PCMDecoder(DecoderContext * ctx) : DecoderPlugin(ctx) {
-  }
-
-PCMDecoder::~PCMDecoder() {
   }
 
 FXbool PCMDecoder::init(ConfigureEvent*event) {

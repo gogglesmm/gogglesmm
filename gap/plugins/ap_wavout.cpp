@@ -29,14 +29,14 @@ using namespace ap;
 
 namespace ap {
 
-class WavOutput : public OutputPlugin {
+class WavOutput final : public OutputPlugin {
 protected:
   FXFile file;
   FXlong data_pos = 0;
 public:
   WavOutput(OutputContext * ctx);
 
-  FXchar type() const override { return DeviceWav; }
+  [[nodiscard]] FXchar type() const override { return DeviceWav; }
 
   FXbool configure(const AudioFormat &) override;
 
@@ -48,7 +48,7 @@ public:
 
   void close() override;
 
-  virtual ~WavOutput();
+  ~WavOutput() override;
   };
 
 WavOutput::WavOutput(OutputContext * ctx) : OutputPlugin(ctx) {

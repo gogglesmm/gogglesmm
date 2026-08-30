@@ -25,10 +25,7 @@
 
 namespace ap {
 
-OggDecoder::OggDecoder(DecoderContext*e) : DecoderPlugin(e),
-  buffer(0),
-  out(nullptr),
-  stream_position(-1) {
+OggDecoder::OggDecoder(DecoderContext*e) : DecoderPlugin(e), buffer(0) {
   }
 
 OggDecoder::~OggDecoder() {

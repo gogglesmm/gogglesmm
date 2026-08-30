@@ -55,42 +55,40 @@ protected:
   FXInputHandle handle;
 protected:
   OSSConfig config;
-  FXbool   can_pause;
-  FXbool   can_resume;
 protected:
   FXbool open();
 public:
   OSSOutput(OutputContext * ctx);
 
   /// Configure
-  FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &) override;
 
   /// Write frames to playback buffer
-  FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint) override;
 
   /// Return delay in no. of frames
-  FXint delay();
+  FXint delay() override;
 
   /// Empty Playback Buffer Immediately
-  void drop();
+  void drop() override;
 
   /// Wait until playback buffer is emtpy.
-  void drain();
+  void drain() override;
 
   /// Pause Playback
-  void pause(FXbool t);
+  void pause(FXbool) override;
 
   /// Close Output
-  void close();
+  void close() override;
 
   /// Get Device Type
-  FXchar type() const { return DeviceOSS; }
+  [[nodiscard]] FXchar type() const override { return DeviceOSS; }
 
   /// Set Device Configuration
-  FXbool setOutputConfig(const OutputConfig &);
+  FXbool setOutputConfig(const OutputConfig &) override;
 
   /// Destructor
-  virtual ~OSSOutput();
+  ~OSSOutput() override;
   };
 
 
@@ -111,7 +109,7 @@ static FXbool to_oss_format(const AudioFormat & af,FXint & oss_format){
     case AP_FORMAT_S8       : oss_format=AFMT_S8;     break;
     case AP_FORMAT_S16_LE   : oss_format=AFMT_S16_LE; break;
     case AP_FORMAT_S16_BE   : oss_format=AFMT_S16_BE; break;
-    case AP_FORMAT_FLOAT_LE : oss_format=AFMT_FLOAT;  break;
+    case AP_FORMAT_FLOAT_LE :
     case AP_FORMAT_FLOAT_BE : oss_format=AFMT_FLOAT;  break;
     default                 : return false; break;
     }
@@ -132,7 +130,7 @@ OSSOutput::OSSOutput(OutputContext * ctx) : OutputPlugin(ctx), handle(BadHandle)
   }
 
 OSSOutput::~OSSOutput() {
-  close();
+  OSSOutput::close();
   }
 
 FXbool OSSOutput::setOutputConfig(const OutputConfig &c) {
@@ -274,7 +272,7 @@ failed:
 FXbool OSSOutput::write(const void * buffer,FXuint nframes){
   FXival nwritten;
   FXival nbytes = nframes*af.framesize();
-  const FXchar * buf = (const FXchar*)buffer;
+  const auto * buf = static_cast<const FXchar *>(buffer);
 
   if (__unlikely(handle==BadHandle)) {
     GM_DEBUG_PRINT("[oss] device not opened\n");

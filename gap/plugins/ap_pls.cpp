@@ -63,17 +63,13 @@ public:
   PLSReader(InputContext*);
   ReadStatus process(Packet*) override;
   FXbool init(InputPlugin*) override;
-  FXuchar format() const override { return Format::PLS; };
+  [[nodiscard]] FXuchar format() const override { return Format::PLS; };
   FXbool redirect(FXStringList & u) override { u=uri; return true; }
-  virtual ~PLSReader();
   };
 
 
 
 PLSReader::PLSReader(InputContext*ctx) : TextReader(ctx) {
-  }
-
-PLSReader::~PLSReader(){
   }
 
 FXbool PLSReader::init(InputPlugin*plugin) {

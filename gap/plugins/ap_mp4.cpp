@@ -62,10 +62,10 @@ public:
   FXArray<stsc_entry>     stsc;                         // chunk-to-sample table
   FXArray<ctts_entry>     ctts;
 public:
-  Track() {}
+  Track() = default;
   ~Track() { delete dc; }
 public:
-  FXlong getChunkOffset(FXuint chunk,FXuint chunk_nsamples,FXuint sample) const {
+  [[nodiscard]] FXlong getChunkOffset(FXuint chunk,FXuint chunk_nsamples,FXuint sample) const {
     FXlong offset;
     if (stco.no())
       offset = stco[FXMIN(chunk,stco.no()-1)];
@@ -102,7 +102,7 @@ public:
     }
 
   // Sample Offset
-  FXint getCompositionOffset(FXlong position) const {
+  [[nodiscard]] FXint getCompositionOffset(FXlong position) const {
     FXint s = 0;
     for (int i=0;i<ctts.no();i++){
       if (position < s + ctts[i].nsamples){
@@ -116,7 +116,7 @@ public:
     return 0;
     }
 
-  FXint getSample(FXlong position) const {
+  [[nodiscard]] FXint getSample(FXlong position) const {
     FXlong n,ntotal = 0;
     FXint nsamples = 0;
 
@@ -135,7 +135,7 @@ public:
     return -1;
     }
 
-  FXlong getSamplePosition(FXuint s) const {
+  [[nodiscard]] FXlong getSamplePosition(FXuint s) const {
     FXlong pos=0;
     FXuint nsamples=0;
     for (int i=0;i<stts.no();i++){
@@ -154,7 +154,7 @@ public:
     return 0;
     }
 
-  FXlong getLength() const {
+  [[nodiscard]] FXlong getLength() const {
     FXlong length=0;
     for (int i=0;i<stts.no();i++){
       length+=static_cast<FXlong>(stts[i].delta)*static_cast<FXlong>(stts[i].nsamples);
@@ -166,20 +166,20 @@ public:
       return length;
     }
 
-  FXlong getSampleOffset(FXuint s) const {
+  [[nodiscard]] FXlong getSampleOffset(FXuint s) const {
     FXuint chunk,nsamples;
     getChunk(s,chunk,nsamples);
     return getChunkOffset(chunk,nsamples,s);
     }
 
-  FXlong getSampleSize(FXuint s) const {
+  [[nodiscard]] FXlong getSampleSize(FXuint s) const {
     if (fixed_sample_size)
       return fixed_sample_size;
     else
       return stsz[s];
     }
 
-  FXuint getNumSamples() const {
+  [[nodiscard]] FXuint getNumSamples() const {
     FXint nsamples = 0;
     for (FXint i=0;i<stts.no();i++) {
       nsamples += stts[i].nsamples;
@@ -191,7 +191,7 @@ public:
 
 
 
-class MP4Reader : public ReaderPlugin {
+class MP4Reader final : public ReaderPlugin {
 protected:
   FXPtrListOf<Track> tracks;
   Track*             track = nullptr;
@@ -230,13 +230,13 @@ public:
   MP4Reader(InputContext*);
 
   // Format
-  FXuchar format() const override { return Format::MP4; };
+  [[nodiscard]] FXuchar format() const override { return Format::MP4; };
 
   // Init
   FXbool init(InputPlugin*) override;
 
   // Seekable
-  FXbool can_seek() const override;
+  [[nodiscard]] FXbool can_seek() const override;
 
   // Seek
   FXbool seek(FXlong) override;
@@ -245,7 +245,7 @@ public:
   ReadStatus process(Packet*) override;
 
   // Destroy
-  ~MP4Reader();
+  ~MP4Reader() override;
   };
 
 
@@ -312,7 +312,7 @@ ReadStatus MP4Reader::process(Packet*packet) {
     framesize-=n;
     if (framesize) {
       context->post_packet(packet);
-      packet=NULL;
+      packet = nullptr;
       return ReadOk;
       }
     sample++;
@@ -422,7 +422,7 @@ ReadStatus MP4Reader::parse() {
 
     af = track->af;
 
-    ConfigureEvent * cfg = new ConfigureEvent(af,track->codec);
+    auto * cfg = new ConfigureEvent(af,track->codec);
     cfg->dc = track->dc;
     track->dc = nullptr;
 
@@ -537,7 +537,7 @@ FXbool MP4Reader::atom_parse_alac(FXlong size) {
   FXushort samplesize;
   FXuint   samplerate;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (input->read(&alac_reserved,6)!=6)
@@ -582,7 +582,7 @@ FXbool MP4Reader::atom_parse_alac(FXlong size) {
     }
 
   // Read AlacSpecificConfig
-  DecoderSpecificConfig * dc = new DecoderSpecificConfig();
+  auto * dc = new DecoderSpecificConfig();
   dc->config_bytes = size - 40;
   allocElms(dc->config,dc->config_bytes);
   if (input->read(dc->config,dc->config_bytes)!=dc->config_bytes) {
@@ -760,7 +760,7 @@ FXbool MP4Reader::atom_parse_esds(FXlong size) {
     return false;
 
 
-  DecoderSpecificConfig * dc = new DecoderSpecificConfig();
+  auto * dc = new DecoderSpecificConfig();
 
   nbytes -= read_descriptor_length(dc->config_bytes);
 
@@ -884,7 +884,7 @@ FXbool MP4Reader::atom_parse_meta_free(FXlong size) {
   GM_DEBUG_PRINT("[mp4] %s.%s = %s\n",mean.text(),name.text(),data.text());
   if (name=="iTunSMPB") {
     FXlong duration;
-    data.simplify().scan("%*x %hx %hx %lx",&padstart,&padend,&duration);
+    (void)data.simplify().scan("%*x %hx %hx %lx",&padstart,&padend,&duration);
     GM_DEBUG_PRINT("[mp4] parsed iTunSMPB %hu %hu %lld\n",padstart,padend,duration);
     }
   return true;
@@ -1038,7 +1038,7 @@ FXbool MP4Reader::atom_parse_ctts(FXlong /*size*/) {
   FXuint version;
   FXuint nentries;
 
-  if (track==NULL)
+  if (track==nullptr)
     return false;
 
   if (!input->read_uint32_be(version))

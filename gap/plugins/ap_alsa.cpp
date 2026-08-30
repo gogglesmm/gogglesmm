@@ -54,37 +54,37 @@ public:
   AlsaOutput(OutputContext*);
 
   /// Configure
-  FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &) override;
 
   /// Write frames to playback buffer
-  FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint) override;
 
   /// Return delay in no. of frames
-  FXint delay();
+  FXint delay() override;
 
   /// Empty Playback Buffer Immediately
-  void drop();
+  void drop() override;
 
   /// Wait until playback buffer is emtpy.
-  void drain();
+  void drain() override;
 
   /// Pause Playback
-  void pause(FXbool t);
+  void pause(FXbool) override;
 
   /// Change Volume
-  void volume(FXfloat);
+  void volume(FXfloat) override;
 
   /// Close Output
-  void close();
+  void close() override;
 
   /// Get Device Type
-  FXchar type() const { return DeviceAlsa; }
+  [[nodiscard]] FXchar type() const override { return DeviceAlsa; }
 
   /// Set Device Configuration
-  FXbool setOutputConfig(const OutputConfig &);
+  FXbool setOutputConfig(const OutputConfig &) override;
 
   /// Destructor
-  virtual ~AlsaOutput();
+  ~AlsaOutput() override;
   };
 
 
@@ -199,7 +199,7 @@ protected:
     fxmessage("[alsa] Hardware Caps\n");
 
     fxmessage("\tsample formats     ");
-    for (int i=0;i<=(int)SND_PCM_FORMAT_LAST;i++){
+    for (int i=0;i<=static_cast<int>(SND_PCM_FORMAT_LAST);i++){
       if (snd_pcm_hw_params_test_format(pcm,hw,(snd_pcm_format_t)i)==0)
         fxmessage("%s ",snd_pcm_format_name((snd_pcm_format_t)i));
       }
@@ -355,7 +355,7 @@ protected:
     }
 
 protected:
-  AlsaSetup(snd_pcm_t*p) : pcm(p) {
+  explicit AlsaSetup(snd_pcm_t*p) : pcm(p) {
     }
 
   ~AlsaSetup() {
@@ -701,8 +701,8 @@ public:
 
     GM_DEBUG_PRINT("Volume for channels:\n");
     for (int c = SND_MIXER_SCHN_FRONT_LEFT;c<SND_MIXER_SCHN_LAST;c++){
-      if (snd_mixer_selem_has_playback_channel(element,(snd_mixer_selem_channel_id_t)c)==1){
-        if (snd_mixer_selem_get_playback_volume	(element,(snd_mixer_selem_channel_id_t)c,&value)==0) {
+      if (snd_mixer_selem_has_playback_channel(element,static_cast<snd_mixer_selem_channel_id_t>(c))==1){
+        if (snd_mixer_selem_get_playback_volume	(element,static_cast<snd_mixer_selem_channel_id_t>(c),&value)==0) {
           GM_DEBUG_PRINT("\tchannel %d volume %ld\n",c,value);
           nvalues++;
           vol+=value;
@@ -721,19 +721,19 @@ public:
     }
 
 
-  virtual FXint no() { return nhandles; }
+  FXint no() override { return nhandles; }
 
-  virtual void prepare(struct pollfd * pfds){
+  void prepare(struct pollfd * pfds) override{
     snd_mixer_poll_descriptors(mixer,pfds,nhandles);
     }
 
-  virtual void dispatch(struct pollfd*) {
+  void dispatch(struct pollfd*) override {
     if (snd_mixer_handle_events(mixer)>0) {
       updateVolume();
       }
     }
 
-  ~AlsaMixer() {
+  ~AlsaMixer() override {
     snd_mixer_close(mixer);
     }
 
@@ -843,7 +843,7 @@ AlsaOutput::AlsaOutput(OutputContext * ctx) : OutputPlugin(ctx), handle(nullptr)
   }
 
 AlsaOutput::~AlsaOutput() {
-  close();
+  AlsaOutput::close();
   freeElms(silence);
   }
 
@@ -902,7 +902,7 @@ FXint AlsaOutput::delay() {
       return 0;
       }
     }
-  return nframes;
+  return static_cast<FXint>(nframes);
   }
 
 
@@ -966,10 +966,9 @@ void AlsaOutput::drain() {
   }
 
 void AlsaOutput::pause(FXbool p) {
-  FXint result=-1;
   if (__likely(handle)) {
     if (can_pause) {
-      result = snd_pcm_pause(handle,p?1:0);
+      int result = snd_pcm_pause(handle,p?1:0);
       if (result==-1 && p==true)
         snd_pcm_drain(handle);
       }
@@ -1017,7 +1016,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
   snd_pcm_sframes_t navailable;
   snd_pcm_sframes_t nwritten;
   snd_pcm_state_t   state;
-  const FXchar * buf = (const FXchar*)buffer;
+  const auto * buf = static_cast<const FXchar *>(buffer);
 
   if (__unlikely(handle==nullptr))
     return false;
@@ -1108,7 +1107,7 @@ FXbool AlsaOutput::write(const void * buffer,FXuint nframes){
 
           if (nwritten<0) {
             GM_DEBUG_PRINT("[alsa] xrun or suspend: %s\n",snd_strerror(nwritten));
-            nwritten = snd_pcm_recover(handle,nwritten,1);
+            nwritten = snd_pcm_recover(handle,static_cast<int>(nwritten), 1);
             if (nwritten<0) {
               if (nwritten!=-EAGAIN) {
                 GM_DEBUG_PRINT("[alsa] fatal write error %ld:  %s\n",nwritten,snd_strerror(nwritten));

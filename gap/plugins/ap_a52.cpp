@@ -38,17 +38,13 @@ protected:
   FXlong  stream_position=0;
 public:
   A52Decoder(DecoderContext*);
-  FXuchar codec() const override { return Codec::A52; }
+  [[nodiscard]] FXuchar codec() const override { return Codec::A52; }
   FXbool init(ConfigureEvent*) override;
   FXbool process(Packet*) override;
-  virtual ~A52Decoder();
   };
 
 A52Decoder::A52Decoder(DecoderContext * e) : DecoderPlugin(e) {
   state = a52_init(0);
-  }
-
-A52Decoder::~A52Decoder() {
   }
 
 FXbool A52Decoder::init(ConfigureEvent*event) {
@@ -93,13 +89,13 @@ FXbool A52Decoder::process(Packet*in) {
         }
 
       FXfloat * data = out->flt();
-      for (FXint i=0,d=0;i<256;i++) {
-        data[d++] = samples[i];
-        data[d++] = samples[256+i];
+      for (FXint j=0,d=0;j<256;j++) {
+        data[d++] = samples[j];
+        data[d++] = samples[256+j];
         }
       out->wroteFrames(256);
       if (out->availableFrames()<256) {
-        context->post_output_packet(out);
+        context->post_output_packet(out, false);
         }
       stream_position+=256;
       }

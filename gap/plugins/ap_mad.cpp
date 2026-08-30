@@ -76,21 +76,19 @@ protected:
 public:
   MadReader(InputContext*);
 
-  FXlong getSeekOffset(FXdouble);
-
-  FXuchar format() const override { return Format::MP3; };
+  [[nodiscard]] FXuchar format() const override { return Format::MP3; };
 
   FXbool init(InputPlugin*) override;
 
-  FXbool can_seek() const override;
+  [[nodiscard]] FXbool can_seek() const override;
 
   FXbool seek(FXlong) override;
 
-  FXlong seek_offset(FXdouble) const;
+  [[nodiscard]] FXlong seek_offset(FXdouble) const override;
 
   ReadStatus process(Packet*) override;
 
-  virtual ~MadReader();
+  ~MadReader() override;
   };
 
 
@@ -115,11 +113,11 @@ protected:
     };
 public:
   MadDecoder(DecoderContext*);
-  FXuchar codec() const override { return Codec::MPEG; }
+  [[nodiscard]] FXuchar codec() const override { return Codec::MPEG; }
   FXbool init(ConfigureEvent*) override;
   FXbool process(Packet*) override;
   FXbool flush(FXlong) override;
-  virtual ~MadDecoder();
+  ~MadDecoder() override;
   };
 
 
@@ -133,7 +131,7 @@ static const FXchar v1_layer2_validation[]={
 };
 #endif
 
-static const FXshort bitrates[]={
+static constexpr FXshort bitrates[]={
   0,32,64,96,128,160,192,224, 256,288,320,352, 384,416,448,-1, /// v1,l1
   0,32,48,56, 64, 80, 96,112, 128,160,192,224, 256,320,384,-1, /// v1,l2
   0,32,40,48,	56, 64, 80, 96, 112,128,160,192, 224,256,320,-1, /// v1,l3
@@ -141,7 +139,7 @@ static const FXshort bitrates[]={
   0, 8,16,24, 32, 40, 48, 56,  64, 80, 96,112, 128,144,160,-1  /// v2,l2,l3
   };
 
-static const FXint samplerates[]={
+static constexpr FXint samplerates[]={
   44100,48000,32000,-1, /// v1
   22050,24000,16000,-1, /// v2
   11025,12000, 8000,-1  /// v2.5
@@ -187,7 +185,7 @@ public:
 
 #define PRINT_YES_NO(x) (x ? "yes" : "no")
 
-  void debug() {
+  void debug() const {
     fxmessage("   has_sync: %s\n",PRINT_YES_NO(sync()));
     fxmessage("    version: %d\n",version()+1);
     fxmessage("      layer: %d\n",layer()+1);
@@ -213,11 +211,11 @@ public:
     return true;
     }
 
-  inline FXbool sync() const {
+  [[nodiscard]] inline FXbool sync() const {
     return (header>>21)==0x7ff;
     }
 
-  inline FXchar version() const {
+  [[nodiscard]] inline FXchar version() const {
     const FXuchar v = (header&0x180000)>>19;
     switch(v) {
       case 0 : return V25; break;
@@ -228,7 +226,7 @@ public:
     return Invalid;
     }
 
-  inline FXchar layer() const {
+  [[nodiscard]] inline FXchar layer() const {
     const FXuchar v = ((header>>17)&0x3);
     switch(v) {
       case 1 : return Layer_3; break;
@@ -240,41 +238,41 @@ public:
     return Invalid;
     }
 
-  inline FXbool crc() const {
+  [[nodiscard]] inline FXbool crc() const {
     return ((header>>16)&0x1)==0;
     }
 
-  inline FXint bitrate() const {
+  [[nodiscard]] inline FXint bitrate() const {
     const FXuint b = ((header>>12)&0xf);
     if (version()==V1)
-      return 1000*(FXint)bitrates[b+(layer()<<4)];
+      return 1000*static_cast<FXint>(bitrates[b + (layer() << 4)]);
     else if (version()==V2 || version()==V25) {
       if (layer()==Layer_1)
-        return 1000*(FXint)bitrates[48+b];
+        return 1000*static_cast<FXint>(bitrates[48 + b]);
       else
-        return 1000*(FXint)bitrates[64+b];
+        return 1000*static_cast<FXint>(bitrates[64 + b]);
       }
     return Invalid;
     }
 
-  inline FXint samplerate() const {
+  [[nodiscard]] inline FXint samplerate() const {
     const FXuchar s = ((header>>10)&0x3);
     FXASSERT(version()!=Invalid);
     return samplerates[s+(version()<<2)];
     }
 
-  inline FXint padding() const {
+  [[nodiscard]] inline FXint padding() const {
     if ((header>>9)&0x1)
       return (layer()==Layer_1) ? 4 : 1;
     else
       return 0;
     }
 
-  inline FXuchar channel() const {
+  [[nodiscard]] FXuchar channel() const {
     return ((header>>6)&0x3);
     }
 
-  inline FXint nsamples() const {
+  [[nodiscard]] inline FXint nsamples() const {
     if (layer()==Layer_1)
       return 384;
     else if (layer()==Layer_2 || version()==V1)
@@ -283,14 +281,14 @@ public:
       return 576;
     }
 
-  inline FXint size() const {
+  [[nodiscard]] inline FXint size() const {
     FXint s = nsamples() * (bitrate() / 8);
     s /= samplerate();
     s += padding();
     return s;
     }
 
-  inline FXint xing_offset() const {
+  [[nodiscard]] inline FXint xing_offset() const {
     if (version()==V1) {
       if (channel()!=3)
         return 32+4;
@@ -305,11 +303,11 @@ public:
       }
     }
 
-  inline FXint vbri_offset() const {
+  static inline FXint vbri_offset() {
     return 32+4;
     }
 
-  inline FXint lame_offset()  const {
+  [[nodiscard]] inline FXint lame_offset()  const {
     return xing_offset() + 120;
     }
 
@@ -333,7 +331,7 @@ public:
 public:
   VBRIHeader(const FXuchar * buffer,FXival nbytes);
 
-  FXlong seek(FXlong & pos,FXlong length);
+  FXlong seek(FXlong & target,FXlong length);
 
   ~VBRIHeader();
   };
@@ -404,11 +402,11 @@ FXlong VBRIHeader::seek(FXlong & target,FXlong length) {
 
 class XingHeader {
 public:
-  FXuint    flags;
-  FXint     nframes;
-  FXint     nbytes;
-  FXint     vbr_scale;
-  FXuchar   toc[100];
+  FXuint    flags     = 0;
+  FXint     nframes   = 0;
+  FXint     nbytes    = 0;
+  FXint     vbr_scale = 0;
+  FXuchar   toc[100] = {};
 public:
   enum {
     HAS_FRAMES    = 0x1,
@@ -423,7 +421,7 @@ public:
   };
 
 
-XingHeader::XingHeader(const FXuchar * buffer,FXival /*nb*/) : flags(0),nframes(0),nbytes(0),vbr_scale(0) {
+XingHeader::XingHeader(const FXuchar * buffer,FXival /*nb*/) {
   buffer+=4;
 
   GM_DEBUG_PRINT("Xing:\n");
@@ -476,7 +474,7 @@ FXlong XingHeader::seek(FXdouble pos,FXlong length) {
 //    fxmessage("fb: %g\n",fb);
 
     fx=FXLERP(fa,fb,(percent-a));
-    return (FXlong) ((1.0/256.0)*fx*length);
+    return static_cast<FXlong>((1.0 / 256.0) * fx * length);
     }
   else {
     return -1;
@@ -487,7 +485,7 @@ FXlong XingHeader::seek(FXdouble pos,FXlong length) {
 
 class LameHeader {
 protected:
-  FXdouble parse_replay_gain(const FXuchar * buffer);
+  static FXdouble parse_replay_gain(const FXuchar * buffer);
 public:
   FXushort padstart;
   FXushort padend;
@@ -506,8 +504,8 @@ LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), 
   replaygain.album      = parse_replay_gain(buffer+17);
 
 
-  padstart = ((FXuint)*(buffer+21))<<4 | (((FXuint)*(buffer+22))>>4);
-  padend   = ((FXuint)*(buffer+22)&0xf)<<8 | ((FXuint)*(buffer+23));
+  padstart = static_cast<FXuint>(*(buffer + 21))<<4 | (static_cast<FXuint>(*(buffer + 22))>>4);
+  padend   = (static_cast<FXuint>(*(buffer + 22))&0xf)<<8 | static_cast<FXuint>(*(buffer + 23));
 
   length = INT32_BE(buffer+28);
 
@@ -538,7 +536,7 @@ LameHeader::LameHeader(const FXuchar * buffer,FXival/* nbytes*/) : padstart(0), 
 FXdouble LameHeader::parse_replay_gain(const FXuchar * buffer) {
   struct {
     signed int x:10;
-    } s10;
+    } s10{};
   FXint gain = s10.x = ((*buffer)&0xC0)<<2 | (*(buffer+1));
   if (gain) {
     if ((*buffer)&0x20)
@@ -556,11 +554,11 @@ public:
   FXString artist;
   FXString album;
 protected:
-  void parse_field(const FXchar * start,FXint maxlen,FXString & field);
+  static void parse_field(const FXchar * start,FXint maxlen,FXString & field);
 public:
   ID3V1(const FXchar * buffer,FXint len);
 
-  FXbool empty() const;
+  [[nodiscard]] FXbool empty() const;
   };
 
 void ID3V1::parse_field(const FXchar * start,FXint maxlen,FXString & field){
@@ -660,14 +658,7 @@ ApeTag::ApeTag(const FXchar * buffer,FXint len) {
 
 
 
-MadReader::MadReader(InputContext * ctx) : ReaderPlugin(ctx),
-  sync(false),
-  xing(nullptr),
-  vbri(nullptr),
-  lame(nullptr),
-  id3v1(nullptr),
-  id3v2(nullptr) {
-  //apetag(nullptr) {
+MadReader::MadReader(InputContext * ctx) : ReaderPlugin(ctx) {
   }
 
 MadReader::~MadReader() {
@@ -742,8 +733,8 @@ FXbool MadReader::seek(FXlong pos) {
   if (!input->serial()){
     FXlong offset = 0;
     if (xing) {
-      offset = xing->seek((pos /(double)stream_length),(input_end - input_start));
-      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",(double)((double)pos / (double)stream_length),offset);
+      offset = xing->seek((pos /static_cast<double>(stream_length)),(input_end - input_start));
+      GM_DEBUG_PRINT("[mad_reader] xing seek %g offset: %ld\n",static_cast<double>(static_cast<double>(pos) / static_cast<double>(stream_length)),offset);
       if (offset==-1) return false;
       stream_position = pos;
       }
@@ -753,7 +744,7 @@ FXbool MadReader::seek(FXlong pos) {
       }
     else {
       stream_position = pos;
-      offset = (input_end - input_start) * ((double)pos/(double)stream_length);
+      offset = (input_end - input_start) * (static_cast<double>(pos)/static_cast<double>(stream_length));
       }
     input->position(input_start+offset,FXIO::Begin);
     }
@@ -774,8 +765,8 @@ FXbool MadReader::readFrame(Packet * packet,const mpeg_frame & frame) {
 
 
 void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
-  if (FXString::compare((const FXchar*)(packet->data()+frame.xing_offset()),"Xing",4)==0 ||
-      FXString::compare((const FXchar*)(packet->data()+frame.xing_offset()),"Info",4)==0 ) {
+  if (FXString::compare(reinterpret_cast<const FXchar *>(packet->data() + frame.xing_offset()),"Xing",4)==0 ||
+      FXString::compare(reinterpret_cast<const FXchar *>(packet->data() + frame.xing_offset()),"Info",4)==0 ) {
 
     xing = new XingHeader(packet->data()+frame.xing_offset(),packet->size()-frame.xing_offset());
 
@@ -785,13 +776,13 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
     GM_DEBUG_PRINT("    rate: %d\n",frame.samplerate());
 
     const FXint lame_offset = frame.xing_offset()+XING_HEADER_SIZE;
-    if (FXString::compare((const FXchar*)(packet->data()+lame_offset),"LAME",4)==0) {
+    if (FXString::compare(reinterpret_cast<const FXchar *>(packet->data() + lame_offset),"LAME",4)==0) {
       lame = new LameHeader(packet->data()+lame_offset,packet->size()-lame_offset);
       }
     }
 
-  if (FXString::compare((const FXchar*)(packet->data()+frame.vbri_offset()),"VBRI",4)==0) {
-    vbri = new VBRIHeader(packet->data()+frame.vbri_offset(),packet->size()-frame.vbri_offset());
+  if (FXString::compare(reinterpret_cast<const FXchar *>(packet->data() + mpeg_frame::vbri_offset()),"VBRI",4)==0) {
+    vbri = new VBRIHeader(packet->data()+mpeg_frame::vbri_offset(),packet->size()-mpeg_frame::vbri_offset());
     }
 
   if (xing || vbri || lame) {
@@ -815,7 +806,7 @@ void MadReader::parseFrame(Packet * packet,const mpeg_frame & frame) {
   else if (stream_length==-1) {
     bitrate = frame.bitrate();
     if (bitrate>0 && input_end>input_start) {
-      stream_length =  (FXlong)frame.samplerate() * ((input_end-input_start) / (bitrate / 8) );
+      stream_length =  static_cast<FXlong>(frame.samplerate()) * ((input_end-input_start) / (bitrate / 8) );
       GM_DEBUG_PRINT("[mad_reader] estimated stream length %ld\n",stream_length);
       }
     }
@@ -827,7 +818,7 @@ FXbool MadReader::parse_id3v1() {
   if (input->read(buffer,3)!=3)
     return false;
 
-  if (FXString::compare((FXchar*)buffer,"TAG",3)==0) {
+  if (FXString::compare(reinterpret_cast<FXchar *>(buffer),"TAG",3)==0) {
     GM_DEBUG_PRINT("[mad_reader] found id3v1 tag\n");
 
     FXchar tag[125];
@@ -984,7 +975,7 @@ void MadReader::set_replay_gain(ConfigureEvent* event) {
 void MadReader::send_meta() {
   if (id3v2 && !id3v2->empty()) {
     GM_DEBUG_PRINT("[mad_reader] meta from id3v2\n");
-    MetaInfo * meta = new MetaInfo;
+    auto * meta = new MetaInfo;
     meta->artist.adopt(id3v2->artist);
     meta->album.adopt(id3v2->album);
     meta->title.adopt(id3v2->title);
@@ -992,7 +983,7 @@ void MadReader::send_meta() {
     }
   else if (id3v1 && !id3v1->empty()) {
     GM_DEBUG_PRINT("[mad_reader] meta from id3v1\n");
-    MetaInfo * meta = new MetaInfo;
+    auto * meta = new MetaInfo;
     meta->artist.adopt(id3v1->artist);
     meta->album.adopt(id3v1->album);
     meta->title.adopt(id3v1->title);
@@ -1010,7 +1001,7 @@ ReadStatus MadReader::parse(Packet * packet) {
   stream_length=-1;
   FXint nsamples=0;
 
-  while(1) {
+  while(true) {
 
     if (sync) {
       buffer[0]=buffer[1];
@@ -1036,7 +1027,7 @@ ReadStatus MadReader::parse(Packet * packet) {
 #else
         af.set(AP_FORMAT_S16,frame.samplerate(),(frame.channel()==mpeg_frame::Single) ? 1 : 2);
 #endif
-        ConfigureEvent * cfg = new ConfigureEvent(af,Codec::MPEG);
+        auto * cfg = new ConfigureEvent(af,Codec::MPEG);
 
         set_replay_gain(cfg);
 
@@ -1160,7 +1151,7 @@ ReadStatus MadReader::process(Packet*packet) {
   FXint nread;
   FXbool lostsync=false;
 
-  while(1) {
+  while(true) {
     if (frame.validate(buffer)) {
       lostsync=false;
       if (frame.size()>packet->space()) goto done;
@@ -1248,7 +1239,7 @@ done:
   }
 
 
-MadDecoder::MadDecoder(DecoderContext *e) : DecoderPlugin(e), buffer(MAD_BUFFER_MDLEN),flags(0) {
+MadDecoder::MadDecoder(DecoderContext *e) : DecoderPlugin(e), buffer(MAD_BUFFER_MDLEN) {
   out=nullptr;
   }
 
@@ -1303,7 +1294,7 @@ FXbool MadDecoder::init(ConfigureEvent* event){
   return true;
   }
 
-#include <limits.h>
+#include <climits>
 
 #ifdef MAD_FLOAT_OUTPUT
 static FXfloat madfixed_to_float(mad_fixed_t fixed) {
@@ -1420,7 +1411,7 @@ FXbool MadDecoder::process(Packet*in){
         }
       buffer.append(in->data(),in->size());
       }
-    if (eos) buffer.append((FXchar)0,MAD_BUFFER_GUARD);
+    if (eos) buffer.append(static_cast<FXchar>(0),MAD_BUFFER_GUARD);
     mad_stream_buffer(&stream,buffer.data(),buffer.size());
     }
   in->unref();
@@ -1483,7 +1474,7 @@ FXbool MadDecoder::process(Packet*in){
       GM_DEBUG_PRINT("[mad_decoder] sample rate changed: %d->%d ???\n",af.rate,frame.header.samplerate);
       }
 
-    // Prevent from writing to many samples..
+    // Prevent from writing to many samples...
     nframes=FXMIN(synth.pcm.length,max_samples);
 
     FXlong stream_begin = FXMAX(stream_offset_start,stream_decode_offset);
@@ -1544,7 +1535,7 @@ FXbool MadDecoder::process(Packet*in){
       stream_position+=n;
 
       if (out->availableFrames()==0) {
-        context->post_output_packet(out);
+        context->post_output_packet(out, false);
         }
       }
     max_samples-=synth.pcm.length;

@@ -39,7 +39,7 @@ public:
       }
     }
 
-  ~OpusConfig() {
+  ~OpusConfig() override {
     freeElms(info);
     }
   };

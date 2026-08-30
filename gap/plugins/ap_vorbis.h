@@ -49,7 +49,7 @@ public:
       }
     }
 
-  ~VorbisConfig() {
+  ~VorbisConfig() override {
     freeElms(info);
     freeElms(setup);
     }

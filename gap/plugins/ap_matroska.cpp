@@ -85,8 +85,9 @@ struct Element {
   FXlong size   = 0;
   FXlong offset = 0;
 
-  Element(){}
-  Element(FXlong sz) : size(sz) {}
+  Element() = default;
+
+  explicit Element(FXlong sz) : size(sz) {}
 
   void reset() { type=0; size=0; offset=0; }
 
@@ -94,7 +95,7 @@ struct Element {
   };
 
 struct Block {
-  FXlong position;
+  FXlong position = -1;
   FXuint frames[16]={0};
   FXuint nframes = 0;
   inline FXuint next() {
@@ -146,7 +147,7 @@ public:
 */
 
 
-class MatroskaReader : public ReaderPlugin {
+class MatroskaReader final : public ReaderPlugin {
 protected:
   FXPtrListOf<Track> tracks;
   Track*             track=nullptr;
@@ -210,22 +211,22 @@ public:
   MatroskaReader(InputContext*);
 
   // Format
-  FXuchar format() const { return Format::Matroska; };
+  [[nodiscard]] FXuchar format() const override { return Format::Matroska; };
 
   // Init
-  FXbool init(InputPlugin*);
+  FXbool init(InputPlugin*) override;
 
   // Seekable
-  FXbool can_seek() const;
+  [[nodiscard]] FXbool can_seek() const override;
 
   // Seek
-  FXbool seek(FXlong );
+  FXbool seek(FXlong) override;
 
   // Process Packet
-  ReadStatus process(Packet*);
+  ReadStatus process(Packet*) override;
 
   // Destroy
-  ~MatroskaReader();
+  ~MatroskaReader() override;
   };
 
 
@@ -314,7 +315,7 @@ ReadStatus MatroskaReader::process(Packet*packet) {
             if (input->read(packet->ptr(),frame_size)!=frame_size)
               return ReadError;
             packet->wroteBytes(frame_size);
-            frame_size-=frame_size;
+            frame_size = 0;
             break;
           }
         case Codec::PCM:
@@ -334,7 +335,7 @@ ReadStatus MatroskaReader::process(Packet*packet) {
             if (input->read(packet->ptr(),frame_size)!=frame_size)
               return ReadError;
             packet->wroteBytes(frame_size);
-            frame_size-=frame_size;
+            frame_size = 0;
             break;
           }
         case Codec::Vorbis:
@@ -435,7 +436,7 @@ ReadStatus MatroskaReader::parse() {
 
       track->af.debug();
       af=track->af;
-      ConfigureEvent * cfg = new ConfigureEvent(track->af,track->codec);
+      auto * cfg = new ConfigureEvent(track->af,track->codec);
       cfg->dc = track->dc;
       track->dc = nullptr;
       stream_length = (duration * timecode_scale * track->af.rate )  / NANOSECONDS_PER_SECOND;
@@ -492,7 +493,7 @@ FXbool MatroskaReader::parse_simpleblock(Element & element) {
     return false;
     }
 
-  if (track->number != (FXulong)tracknumber) {
+  if (track->number != static_cast<FXulong>(tracknumber)) {
     block.nframes=0;
     input->position(element.size,FXIO::Current);
     return true;
@@ -745,7 +746,7 @@ FXbool MatroskaReader::parse_xiph_lace(Element & container,FXuint & value) {
     if (byte<255)
       return true;
     }
-  while(1);
+  while(true);
   }
 
 
@@ -759,7 +760,7 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
         if (element.size<19)
           return false;
 
-        OpusConfig * oc = new OpusConfig();
+        auto * oc = new OpusConfig();
 
         oc->info_bytes = element.size;
         allocElms(oc->info,oc->info_bytes);
@@ -792,7 +793,7 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
         frames[2]=element.size - frames[0] - frames[1] - 1;
 
 
-        VorbisConfig * vc = new VorbisConfig();
+        auto * vc = new VorbisConfig();
 
         vc->info_bytes = frames[0];
         allocElms(vc->info,vc->info_bytes);
@@ -816,7 +817,7 @@ FXbool MatroskaReader::parse_track_codec(Element & element) {
 #ifdef HAVE_FAAD
     case Codec::AAC:
       {
-        DecoderSpecificConfig * ac = new DecoderSpecificConfig();
+        auto * ac = new DecoderSpecificConfig();
         ac->config_bytes = element.size;
         allocElms(ac->config,ac->config_bytes);
         if (input->read(ac->config,ac->config_bytes)!=element.size) {

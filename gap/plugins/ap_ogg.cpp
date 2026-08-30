@@ -184,7 +184,7 @@ struct OggReaderState {
   FXbool has_packet     = false;
   FXbool header_written = false;
   FXuint bytes_written  = 0;
-  OggReaderState() {}
+  OggReaderState() = default;
   void reset() {has_stream=false;has_eos=false;has_page=false; has_packet=false; header_written=false;bytes_written=0; }
   };
 
@@ -246,11 +246,11 @@ public:
   OggReader(InputContext *);
   FXuchar format() const override { return Format::OGG; };
   FXbool init(InputPlugin*) override;
-  FXlong seek_offset(FXdouble) const;
-  FXbool seek(FXlong offset) override;
+  FXlong seek_offset(FXdouble) const override;
+  FXbool seek(FXlong target) override;
   FXbool can_seek() const override;
   ReadStatus process(Packet*) override;
-  virtual ~OggReader();
+  ~OggReader() override;
   };
 
 

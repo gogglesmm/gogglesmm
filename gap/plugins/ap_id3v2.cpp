@@ -120,7 +120,7 @@ FXbool id3v2_parse_text(FXint encoding,const FXchar * buffer,FXint length,FXStri
 void id3v2_parse_text_frame(const FXuchar * frame, FXint size, FXString & dst) {
   if (size > 2) {
     const FXuchar & text_encoding = frame[0]; // first byte indicates text encoding
-    const FXchar*  text_start     = reinterpret_cast<const FXchar*>(frame + 1);
+    const auto*  text_start = reinterpret_cast<const FXchar*>(frame + 1);
     id3v2_parse_text(text_encoding, text_start,size - 1,dst);
     GM_DEBUG_PRINT("[id3v2] text: \"%s\"\n", dst.text());
     }
@@ -138,8 +138,8 @@ void id3v2_parse_text_frame(const FXuchar * frame, FXint size, FXString & dst) {
 void id3v2_parse_comment_frame(const FXuchar * frame, FXint size, FXString & key, FXString & field) {
   if (size > 4) {
     const FXuchar & encoding = frame[0];
-    const FXchar* textstart  = reinterpret_cast<const FXchar*>(frame + 4);
-    const FXint   textlength = size - 4;
+    const auto* textstart = reinterpret_cast<const FXchar*>(frame + 4);
+    const FXint textlength = size - 4;
     /* A Comment consists of a "short content description" followed by a null character,
      * followed by the full text string */
 

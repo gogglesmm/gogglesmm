@@ -58,22 +58,22 @@ static const FXuchar crc8_lookup[256] = {
 
 
 
-class FlacReader : public ReaderPlugin {
+class FlacReader final: public ReaderPlugin {
 protected:
-  FXlong   stream_start;
-  FXushort minblocksize;
-  FXushort maxblocksize;
-  FXuint   minframesize;
-  FXuint   maxframesize;
+  FXlong   stream_start = 0;
+  FXushort minblocksize = 0;
+  FXushort maxblocksize = 0;
+  FXuint   minframesize = 0;
+  FXuint   maxframesize = 0;
   struct SeekPoint {
-    FXulong   sample;
-    FXlong    offset;
-    FXushort nsamples;
+    FXulong   sample  = 0;
+    FXlong    offset  = 0;
+    FXushort nsamples = 0;
     };
   FXArray<SeekPoint> seektable;
 protected:
   ReplayGain gain;
-  MetaInfo*  meta;
+  MetaInfo*  meta = nullptr;
 protected:
   FXbool parse_blockheader(FXuchar & blocktype,FXuint & blocksize,FXbool & last);
   FXbool parse_streaminfo();
@@ -86,12 +86,11 @@ protected:
   ReadStatus parse();
 public:
   FlacReader(InputContext*);
-  FXuchar format() const { return Format::FLAC; };
-  FXbool init(InputPlugin*);
-  FXbool seek(FXlong offset);
-  FXbool can_seek() const;
-  ReadStatus process(Packet*);
-  ~FlacReader();
+  [[nodiscard]] FXuchar format() const override { return Format::FLAC; };
+  FXbool init(InputPlugin*) override;
+  FXbool seek(FXlong offset) override;
+  [[nodiscard]] FXbool can_seek() const override;
+  ReadStatus process(Packet*) override;
   };
 
 
@@ -108,11 +107,11 @@ protected:
   static void                             flac_decoder_error(const FLAC__StreamDecoder *, FLAC__StreamDecoderErrorStatus, void *);
 public:
   FlacDecoder(DecoderContext*);
-  FXuchar codec() const override { return Codec::FLAC; }
-  FXbool flush(FXlong offset=0) override;
+  [[nodiscard]] FXuchar codec() const override { return Codec::FLAC; }
+  FXbool flush(FXlong offset) override;
   FXbool init(ConfigureEvent*) override;
   FXbool process(Packet*) override;
-  ~FlacDecoder();
+  ~FlacDecoder() override;
   };
 
 
@@ -137,10 +136,7 @@ void flac_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain
 
 
 
-FlacReader::FlacReader(InputContext* ctx) : ReaderPlugin(ctx), meta(nullptr) {
-  }
-
-FlacReader::~FlacReader(){
+FlacReader::FlacReader(InputContext* ctx) : ReaderPlugin(ctx) {
   }
 
 FXbool FlacReader::init(InputPlugin*plugin) {
@@ -326,7 +322,7 @@ FXbool FlacReader::sync(FXlong & offset,FXlong & sample,FXuint & blocksize) {
     if (input->read(bytes+4,16)!=16)
       return false;
     }
-  while(1);
+  while(true);
   }
 
 
@@ -799,7 +795,7 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
     packet->wroteFrames(ncopy);
     if (packet->availableFrames()==0) {
       plugin->out=nullptr;
-      plugin->context->post_output_packet(packet);
+      plugin->context->post_output_packet(packet, false);
       packet=nullptr;
       }
     }
@@ -808,7 +804,7 @@ FLAC__StreamDecoderWriteStatus FlacDecoder::flac_decoder_write(const FLAC__Strea
 
 
 FLAC__StreamDecoderReadStatus FlacDecoder::flac_decoder_read(const FLAC__StreamDecoder */*decoder*/, FLAC__byte buffer[], size_t *bytes, void *client_data) {
-  FlacDecoder * plugin = static_cast<FlacDecoder*>(client_data);
+  auto * plugin = static_cast<FlacDecoder*>(client_data);
   FXASSERT(plugin);
   FXASSERT(bytes && ((*bytes)>0));
 
@@ -888,7 +884,7 @@ FlacDecoder::FlacDecoder(DecoderContext * e) : DecoderPlugin(e), flac(nullptr),i
   }
 
 FlacDecoder::~FlacDecoder() {
-  flush();
+  FlacDecoder::flush(0);
   if (flac) {
     FLAC__stream_decoder_finish(flac);
     FLAC__stream_decoder_delete(flac);
@@ -951,7 +947,7 @@ FXbool FlacDecoder::process(Packet*packet){
 
     FLAC__stream_decoder_flush(flac);
     if (result) {
-      context->post_output_packet(out);
+      context->post_output_packet(out, false);
       }
 
     if (in) {

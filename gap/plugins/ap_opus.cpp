@@ -29,7 +29,7 @@
 namespace ap {
 
 
-class OpusDecoderPlugin : public OggDecoder{
+class OpusDecoderPlugin final : public OggDecoder{
 protected:
   OpusMSDecoder* opus;
   FXfloat      * pcm;
@@ -43,13 +43,13 @@ protected:
 public:
   OpusDecoderPlugin(DecoderContext*);
 
-  FXuchar codec() const override { return Codec::Opus; }
+  [[nodiscard]] FXuchar codec() const override { return Codec::Opus; }
   FXbool init(ConfigureEvent*) override;
   FXbool process(Packet*) override;
   FXbool flush(FXlong) override;
 
 
-  virtual ~OpusDecoderPlugin();
+  ~OpusDecoderPlugin() override;
   };
 
 
@@ -77,7 +77,7 @@ FXbool OpusDecoderPlugin::init(ConfigureEvent*event) {
     }
 
   if (event->dc) {
-    OpusConfig * opc = dynamic_cast<OpusConfig*>(event->dc);
+    auto * opc = dynamic_cast<OpusConfig*>(event->dc);
     init_decoder(opc->info,opc->info_bytes);
     }
 
@@ -158,7 +158,7 @@ FXbool OpusDecoderPlugin::process(Packet * packet) {
   while(get_next_packet(packet)) {
     FXint nsamples = opus_multistream_decode_float(opus,(unsigned char*)op.packet,op.bytes,pcm,MAX_FRAME_SIZE,0);
 
-    const FXuchar * pcmi = (const FXuchar*)pcm;
+    const auto * pcmi = reinterpret_cast<const FXuchar *>(pcm);
 
     // apply output gain
     if (gain!=0.0f) {
@@ -206,7 +206,7 @@ FXbool OpusDecoderPlugin::process(Packet * packet) {
         }
 
       if (out->availableFrames()==0) {
-        context->post_output_packet(out);
+        context->post_output_packet(out, false);
         }
       }
     }
