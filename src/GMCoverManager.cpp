@@ -20,12 +20,9 @@
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
-#include "GMTrack.h"
 #include "GMCover.h"
 #include "GMCoverManager.h"
 
-GMCoverManager::GMCoverManager() : cover(nullptr){
-  }
 
 GMCoverManager::~GMCoverManager(){
   clear();
@@ -62,17 +59,23 @@ FXbool GMCoverManager::load(const FXString & filename) {
     if (cover==nullptr) {
       cover = GMCover::fromPath(path);
       if (cover) source=path;
-      }
+    }
     else {
       source=filename;
-      }
-
-    if (cover) {
-      share = "/dev/shm/gogglesmm/cover" + cover->fileExtension();
-      if (!cover->save(share))
-        share.clear();
-      }
     }
 
+    if (cover) {
+      // Be a good citizen and use XDG_RUNTIME_DIR for our share-able cover file
+      FXString runtime_dir = FXSystem::getEnvironment("XDG_RUNTIME_DIR");
+      if (runtime_dir.empty()) {
+        runtime_dir = "/dev/shm"; // fallback to /dev/shm
+      }
+      if (FXStat::exists(runtime_dir) && FXStat::isDirectory(runtime_dir)) {
+        share = runtime_dir + PATHSEPSTRING "gogglesmm" PATHSEPSTRING "cover" + cover->fileExtension();
+        if (!cover->save(share))
+          share.clear();
+        }
+      }
+    }
   return true;
   }

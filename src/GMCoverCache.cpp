@@ -24,10 +24,6 @@
 #include "GMTrack.h"
 #include "GMApp.h"
 #include "GMCover.h"
-#include "GMTrackList.h"
-#include "GMSource.h"
-#include "GMTrackView.h"
-#include "GMTrackDatabase.h"
 #include "GMPlayerManager.h"
 #include "GMIconTheme.h"
 #include "GMCoverCache.h"
@@ -42,11 +38,12 @@
 
 static FXbool is_image_format_supported(FXuchar format) {
   switch(format) {
-    case COVERCACHE_JPG : return FXJPGImage::supported; break;
-    case COVERCACHE_WEBP: return FXWEBPImage::supported; break;
-    case COVERCACHE_PNG : return FXPNGImage::supported; break;
-    case COVERCACHE_BMP : return true; break;
-    }
+    case COVERCACHE_JPG : return FXJPGImage::supported;
+    case COVERCACHE_WEBP: return FXWEBPImage::supported;
+    case COVERCACHE_PNG : return FXPNGImage::supported;
+    case COVERCACHE_BMP : return true;
+    default: break;
+  }
   return false;
   }
 
@@ -74,7 +71,7 @@ void GMCacheInfo::adopt(GMCacheInfo & info) {
 
 void GMCacheInfo::insert(FXint id,FXlong position,FXint length) {
   index.append(FileIndex(position,length));
-  map.insert(id,index.no());
+  map.insert(id,static_cast<FXint>(index.no()));
   }
 
 void GMCacheInfo::clear(FXint sz){
@@ -90,8 +87,7 @@ void GMCacheInfo::save(FXStream & store) const {
     store << index[i].position;
     store << index[i].length;
     }
-  FXint n = index.no();
-  store << n;
+  store << static_cast<FXint>(index.no());
   }
 
 void GMCacheInfo::load(FXStream & store) {
@@ -112,7 +108,7 @@ void GMCacheInfo::load(FXStream & store) {
   }
 
 
-GMCoverCacheWriter::GMCoverCacheWriter(FXint sz) : info(sz),pixels(nullptr) {
+GMCoverCacheWriter::GMCoverCacheWriter(FXint size) : info(size) {
   }
 
 GMCoverCacheWriter::~GMCoverCacheWriter() {
@@ -121,9 +117,8 @@ GMCoverCacheWriter::~GMCoverCacheWriter() {
 
 
 FXbool GMCoverCacheWriter::open(const FXString & filename) {
-  const FXuint version = COVERCACHE_FILE_VERSION;
   if ((info.format>0) && store.open(filename,FXStreamSave)) {
-    store << version;
+    store << static_cast<FXuint>(COVERCACHE_FILE_VERSION);
     store << info.size;
     store << info.format;
     return true;
@@ -133,24 +128,25 @@ FXbool GMCoverCacheWriter::open(const FXString & filename) {
   }
 
 
-FXlong GMCoverCacheWriter::save(FXColor * buffer){
+FXlong GMCoverCacheWriter::save(const FXColor * buffer){
   FXlong offset = store.position();
   switch(info.format){
     case COVERCACHE_JPG : fxsaveJPG(store,buffer,info.size,info.size,75); break;
     case COVERCACHE_WEBP: fxsaveWEBP(store,buffer,info.size,info.size,75.0f); break;
     case COVERCACHE_PNG : fxsavePNG(store,buffer,info.size,info.size); break;
     case COVERCACHE_BMP : fxsaveBMP(store,buffer,info.size,info.size); break;
+    default: break;
     }
   return store.position()-offset;
   }
 
 
-FXlong GMCoverCacheWriter::fit(FXImage * image){
+FXlong GMCoverCacheWriter::fit(const FXImage * image){
   if (pixels==nullptr) allocElms(pixels,info.size*info.size);
   memset(pixels,255,4*info.size*info.size);
 
-  FXuchar * dst = (FXuchar*)pixels;
-  FXuchar * src = (FXuchar*)image->getData();
+  auto * dst = reinterpret_cast<FXuchar *>(pixels);
+  const auto * src = reinterpret_cast<const FXuchar *>(image->getData());
   FXint sw=image->getWidth()*4;
   FXint sh=image->getHeight();
 
@@ -204,14 +200,11 @@ FXbool GMCoverCacheWriter::close() {
 
 
 
-GMCoverCache::GMCoverCache(const FXString & name,FXint sz) : info(sz) {
-  filename = GMApp::instance()->getCacheDirectory()+PATHSEPSTRING+name+".cache";
+GMCoverCache::GMCoverCache(const FXString & name, const FXint size) : info(size) {
+  filename = GMApp::getCacheDirectory()+PATHSEPSTRING+name+".cache";
   }
 
-GMCoverCache::~GMCoverCache(){
-  }
-
-FXbool GMCoverCache::contains(FXint id) {
+FXbool GMCoverCache::contains(const FXint id) const {
   return (info.map.at(id)>0);
   }
 
@@ -223,10 +216,10 @@ FXbool GMCoverCache::render(FXint id,FXImage * image) {
   FXASSERT(i>=0);
 #if FOXVERSION >= FXVERSION(1, 7, 82)
   if (data.data()) {
-    FXMemoryStream store(FXStreamLoad,((FXuchar*)data.data())+info.index[i].position,info.index[i].length);
+    FXMemoryStream store(FXStreamLoad,static_cast<FXuchar*>(data.data())+info.index[i].position,info.index[i].length);
 #else
   if (data.base()) {
-    FXMemoryStream store(FXStreamLoad,((FXuchar*)data.base())+info.index[i].position,info.index[i].length);
+    FXMemoryStream store(FXStreamLoad,static_cast<FXuchar*>(data.base())+info.index[i].position,info.index[i].length);
 #endif
     switch(info.format) {
       case COVERCACHE_JPG : result = fxloadJPG(store,pixels,ww,hh,dd); break;
@@ -356,7 +349,7 @@ FXint GMCoverLoader::run() {
   FXint percentage=0,p=-1;
   if (writer.open(filename)) {
     for (FXint i=0;i<list.no() && processing;i++){
-      percentage = (FXint)(100.0f*((float)(i+1)/(float)list.no()));
+      percentage = static_cast<FXint>(100.0f * (static_cast<float>(i + 1) / static_cast<float>(list.no())));
       if (p!=percentage)
         taskmanager->setStatus(FXString::value("Loading Covers %d%%",percentage));
       if (__likely(folderonly==false)) {
@@ -382,9 +375,6 @@ FXint GMCoverLoader::run() {
   return 1;
   }
 
-
-GMCoverRender::GMCoverRender() : cache(nullptr) {
-  }
 
 GMCoverRender::~GMCoverRender() {
   for (FXint i=0;i<buffers.no();i++) {
@@ -414,7 +404,7 @@ void GMCoverRender::setCache(GMCoverCache * c){
     // We can't use reset() here since cover art will be reused in the next onPaint
     // by the calls reset / markCover.
     for (FXint i=0;i<buffers.no();i++){
-      buffers[i]->setUserData((void*)(FXival)0);
+      buffers[i]->setUserData(voidptr_set(0));
       }
     }
   cache=c;
@@ -422,9 +412,9 @@ void GMCoverRender::setCache(GMCoverCache * c){
 
 void GMCoverRender::markCover(FXint id) {
   for (FXint i=0,index;i<buffers.no();i++){
-    index=(FXint)(FXival)buffers[i]->getUserData();
+    index = voidptr_get<FXint>(buffers[i]->getUserData());
     if (index==-id) {
-      buffers[i]->setUserData((void*)(FXival)id);
+      buffers[i]->setUserData(voidptr_set(id));
       break;
       }
     }
@@ -432,8 +422,8 @@ void GMCoverRender::markCover(FXint id) {
 
 void GMCoverRender::reset() {
   for (FXint i=0,index;i<buffers.no();i++){
-    index=(FXint)(FXival)buffers[i]->getUserData();
-    if (index>0) buffers[i]->setUserData((void*)(FXival)(-index));
+    index = voidptr_get<FXint>(buffers[i]->getUserData());
+    if (index>0) buffers[i]->setUserData(voidptr_set(-index));
     }
   }
 
@@ -462,15 +452,15 @@ FXImage* GMCoverRender::getImage(FXint id) {
 
   /// existing
   for (i=0;i<buffers.no();i++){
-    index=(FXint)(FXival)buffers[i]->getUserData();
+    index = voidptr_get<FXint>(buffers[i]->getUserData());
     if (index==id) return buffers[i];
     }
 
   /// find empty
   for (i=0;i<buffers.no();i++){
-    index=(FXint)(FXival)buffers[i]->getUserData();
+    index = voidptr_get<FXint>(buffers[i]->getUserData());
     if (index<=0) {
-      buffers[i]->setUserData((void*)(FXival)id);
+      buffers[i]->setUserData(voidptr_set(id));
       image=buffers[i];
       break;
       }
@@ -479,14 +469,14 @@ FXImage* GMCoverRender::getImage(FXint id) {
   /// Create new one
   if (image==nullptr) {
     image = new FXImage(FXApp::instance(),nullptr,0,getSize(),getSize());
-    image->setUserData((void*)(FXival)id);
+    image->setUserData(voidptr_set(id));
     image->create();
     buffers.append(image);
     }
 
   // Render Image
   if (!cache->render(id,image)) {
-    image->setUserData(0);
+    image->setUserData(voidptr_set(0));
     return nullptr;
     }
 

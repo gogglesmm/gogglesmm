@@ -23,11 +23,11 @@
 
 class GMCoverManager {
 protected:
-  GMCover* cover;
+  GMCover* cover = nullptr;
   FXString source;
   FXString share;
 public:
-  GMCoverManager();
+  GMCoverManager() = default;
 
   // Clear
   void clear();
@@ -36,10 +36,10 @@ public:
   FXbool load(const FXString & filename);
 
   // Get the share filename
-  FXString getShareFilename() const { return share; }
+  [[nodiscard]] FXString getShareFilename() const { return share; }
 
   // Get the cover
-  GMCover* getCover() const { return cover; }
+  [[nodiscard]] GMCover* getCover() const { return cover; }
 
   ~GMCoverManager();
   };

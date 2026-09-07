@@ -31,8 +31,8 @@ public:
   struct FileIndex {
     FXlong position = 0;
     FXint  length = 0 ;
-    FileIndex() {}
-    FileIndex(FXlong pos,FXint len) : position(pos),length(len) {}
+    FileIndex() = default;
+    FileIndex(const FXlong pos, const FXint len) : position(pos),length(len) {}
     };
 public:
   FXArray<FileIndex> index;
@@ -40,7 +40,7 @@ public:
   FXint              size;
   FXuchar            format = 0;
 public:
-  GMCacheInfo(FXint sz);
+  explicit GMCacheInfo(FXint sz);
 
   void adopt(GMCacheInfo & info);
 
@@ -61,12 +61,12 @@ class GMCoverCacheWriter {
 private:
   FXFileStream store;
   GMCacheInfo  info;
-  FXColor*     pixels;
+  FXColor*     pixels = nullptr;
 private:
-  FXlong fit(FXImage* image);
-  FXlong save(FXColor * buffer);
+  FXlong fit(const FXImage* image);
+  FXlong save(const FXColor * buffer);
 public:
-  GMCoverCacheWriter(FXint size);
+  explicit GMCoverCacheWriter(FXint size);
 
   FXbool open(const FXString & filename);
 
@@ -90,16 +90,16 @@ protected:
   FXMemMap    data;
 #endif
 public:
-  GMCoverCache(const FXString & name,FXint size=128);
+  explicit GMCoverCache(const FXString & name,FXint size=128);
 
   // Get Image Size
-  FXint getSize() const { return info.size; }
+  [[nodiscard]] FXint getSize() const { return info.size; }
 
   // Render cover with id to image
   FXbool render(FXint id,FXImage * image);
 
   // Check if cover is contained in cache
-  FXbool contains(FXint id);
+  [[nodiscard]] FXbool contains(FXint id) const;
 
   // Load cache from file
   FXbool load();
@@ -111,28 +111,28 @@ public:
   void load(GMCoverCacheWriter & writer);
 
   // Get filename for this cache
-  const FXString & getFilename() const { return filename; }
+  [[nodiscard]] const FXString & getFilename() const { return filename; }
 
   // Get Temp Filename
-  const FXString getTempFilename() const { return filename+".tmp"; }
+  [[nodiscard]] FXString getTempFilename() const { return filename+".tmp"; }
 
   // Destructor
-  ~GMCoverCache();
+  ~GMCoverCache() = default;
   };
 
 
 /* Cover Render */
 class GMCoverRender {
 protected:
-  GMCoverCache*        cache;
+  GMCoverCache*        cache = nullptr;
   FXPtrListOf<FXImage> buffers;
 protected:
   FXImage * getImage(FXint id);
 public:
-  GMCoverRender();
+  GMCoverRender() = default;
 
   // Get Cover Size
-  FXint getSize() const;
+  [[nodiscard]] FXint getSize() const;
 
   // Change the cache
   void setCache(GMCoverCache * cache);
