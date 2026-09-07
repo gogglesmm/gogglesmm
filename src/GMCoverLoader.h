@@ -28,7 +28,7 @@ protected:
   FXString           filename;
   FXbool             folderonly;
 public:
-  FXint run();
+  FXint run() override;
 public:
   GMCoverLoader(const FXString & filename,GMCoverPathList & pathlist,FXint size,FXObject* tgt=nullptr,FXSelector sel=0);
 
