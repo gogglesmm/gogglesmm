@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include <fxkeys.h>
@@ -50,7 +52,7 @@ FXIMPLEMENT(GMSourceView,GMScrollFrame,GMSourceViewMap,ARRAYNUMBER(GMSourceViewM
 
 
 GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) {
-  sourcelistheader = new GMHeaderButton(this,tr("Sources\tPress to change sorting order\tPress to change sorting order"),NULL,this,ID_SOURCE_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
+  sourcelistheader = new GMHeaderButton(this,tr("Sources\tPress to change sorting order\tPress to change sorting order"),nullptr,this,ID_SOURCE_LIST_HEADER,LAYOUT_FILL_X|FRAME_RAISED|JUSTIFY_LEFT);
   sourcelist       = new GMTreeList(this,this,ID_SOURCE_LIST,LAYOUT_FILL_X|LAYOUT_FILL_Y|TREELIST_BROWSESELECT);
 
   sourcelist->dropEnable();
@@ -61,9 +63,6 @@ GMSourceView::GMSourceView(FXComposite* p) : GMScrollFrame(p) {
   sourcedrop = nullptr;
 
   updateColors();
-  }
-
-GMSourceView::~GMSourceView(){
   }
 
 
@@ -111,7 +110,7 @@ void GMSourceView::clear() {
 void GMSourceView::refresh() {
   clear();
   listsources();
-  GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->findItemByData(source));
+  auto * item = dynamic_cast<GMTreeItem*>(sourcelist->findItemByData(source));
   if (item)
     sourcelist->setCurrentItem(item,false);
   else
@@ -122,13 +121,13 @@ void GMSourceView::refresh() {
 /// Perhaps member of icon theme?
 static FXIcon * icon_for_sourcetype(FXint type) {
   switch(type){
-    case SOURCE_DATABASE          : return GMIconTheme::instance()->icon_source_library; break;
-    case SOURCE_DATABASE_FILTER   : return GMIconTheme::instance()->icon_find; break;
-    case SOURCE_INTERNET_RADIO    : return GMIconTheme::instance()->icon_source_internetradio; break;
-    case SOURCE_DATABASE_PLAYLIST : return GMIconTheme::instance()->icon_source_playlist; break;
-    case SOURCE_PLAYQUEUE         : return GMIconTheme::instance()->icon_source_playqueue; break;
-    case SOURCE_FILESYSTEM        : return GMIconTheme::instance()->icon_source_local; break;
-    case SOURCE_PODCAST           : return GMIconTheme::instance()->icon_source_podcast; break;
+    case SOURCE_DATABASE          : return GMIconTheme::instance()->icon_source_library;
+    case SOURCE_DATABASE_FILTER   : return GMIconTheme::instance()->icon_find;
+    case SOURCE_INTERNET_RADIO    : return GMIconTheme::instance()->icon_source_internetradio;
+    case SOURCE_DATABASE_PLAYLIST : return GMIconTheme::instance()->icon_source_playlist;
+    case SOURCE_PLAYQUEUE         : return GMIconTheme::instance()->icon_source_playqueue;
+    case SOURCE_FILESYSTEM        : return GMIconTheme::instance()->icon_source_local;
+    case SOURCE_PODCAST           : return GMIconTheme::instance()->icon_source_podcast;
     default                       : break;
     }
   return nullptr;
@@ -136,7 +135,7 @@ static FXIcon * icon_for_sourcetype(FXint type) {
 
 
 void GMSourceView::refresh(GMSource * src) {
-  GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->findItemByData(src));
+  auto * item = dynamic_cast<GMTreeItem*>(sourcelist->findItemByData(src));
   if (item) {
     FXIcon * icon=icon_for_sourcetype(src->getType());
     sourcelist->setItemText(item,src->getName());
@@ -157,7 +156,7 @@ void GMSourceView::init() {
   if (!key.empty()){
     FXTreeItem * item = sourcelist->getFirstItem();
     while(item){
-      GMSource * src = static_cast<GMSource*>(item->getData());
+      auto * src = static_cast<GMSource*>(item->getData());
       if (src->settingKey()==key) {
         sourcelist->setCurrentItem(item);
         break;
@@ -185,14 +184,13 @@ FXbool GMSourceView::listsources() {
   for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++){
     GMSource * src = GMPlayerManager::instance()->getSource(i);
     FXIcon * icon=icon_for_sourcetype(src->getType());
-    item = new GMTreeItem(src->getName(),icon,icon,src);
     if (src->getType()==SOURCE_DATABASE_FILTER) {
       FXASSERT(dbitem);
-      sourcelist->appendItem(dbitem,item);
+      sourcelist->appendItem(dbitem,new GMTreeItem(src->getName(),icon,icon,src));
       dbitem->setExpanded(true);
       }
     else {
-      sourcelist->appendItem(nullptr,item);
+      sourcelist->appendItem(nullptr,new GMTreeItem(src->getName(),icon,icon,src));
       }
     if (src->getType()==SOURCE_DATABASE) dbitem=item;
     }
@@ -272,16 +270,16 @@ long GMSourceView::onSourceTipText(FXObject*sender,FXSelector,void*ptr){
   sourcelist->getCursorPosition(x,y,buttons);
   FXTreeItem * item = sourcelist->getItemAt(x,y);
   if (item && item->getData()) {
-    GMSource * src = static_cast<GMSource*>(item->getData());
+    auto * src = static_cast<GMSource*>(item->getData());
     return src->handle(sender,FXSEL(SEL_QUERY_TIP,0),ptr);
     }
   return 0;
   }
 
 long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
-  FXEvent * event =static_cast<FXEvent*>(ptr);
+  const auto * event =static_cast<FXEvent*>(ptr);
   if (event->moved) return 0;
-  GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
+  auto * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   GMMenuPane pane(this);
   GMSource * src = item ? static_cast<GMSource*>(item->getData()) : nullptr;
   FXbool src_items = false;
@@ -297,8 +295,8 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
 
   // Install Source Items (Group by source)
   if (src==nullptr || src_items==false) {
-    FXint nadded=(&pane)->numChildren();
-    FXint nlast=(&pane)->numChildren();
+    FXint nadded=pane.numChildren();
+    FXint nlast=pane.numChildren();
     for (FXint i=0;i<GMPlayerManager::instance()->getNumSources();i++) {
       if (nadded>1) {
         new FXMenuSeparator(&pane);
@@ -306,7 +304,7 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
         nlast+=1;
         }
       if (GMPlayerManager::instance()->getSource(i)->source_menu(&pane)){
-        FXint n = (&pane)->numChildren();
+        const FXint n = pane.numChildren();
         nadded = n - nlast;
         nlast  = n;
         }
@@ -329,10 +327,10 @@ long GMSourceView::onSourceContextMenu(FXObject*,FXSelector,void*ptr){
 
 
 long GMSourceView::onDndSourceMotion(FXObject*,FXSelector,void*ptr){
-  FXEvent * event = static_cast<FXEvent*>(ptr);
-  GMTreeItem * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
+  const auto * event = static_cast<FXEvent*>(ptr);
+  auto * item = dynamic_cast<GMTreeItem*>(sourcelist->getItemAt(event->win_x,event->win_y));
   if (item) {
-    GMSource * src = static_cast<GMSource *>(item->getData());
+    auto * src = static_cast<GMSource *>(item->getData());
     FXDragType*types;
     FXuint     ntypes;
     if (sourcelist->inquireDNDTypes(FROM_DRAGNDROP,types,ntypes)){
@@ -351,7 +349,7 @@ long GMSourceView::onDndSourceMotion(FXObject*,FXSelector,void*ptr){
 
 long GMSourceView::onDndSourceDrop(FXObject*,FXSelector,void*ptr){
   if (sourcedrop) {
-    long code =  sourcedrop->handle(this,FXSEL(SEL_DND_DROP,GMSource::ID_DROP),ptr);
+    const long code = sourcedrop->handle(this,FXSEL(SEL_DND_DROP,GMSource::ID_DROP),ptr);
     sourcedrop=nullptr;
     return code;
     }

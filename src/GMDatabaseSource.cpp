@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
@@ -132,10 +134,6 @@ GMCoverCache* GMDatabaseSource::covercache=nullptr;
 GMDatabaseSource::GMDatabaseSource(GMTrackDatabase * database) : db(database) {
   FXASSERT(db);
   }
-
-GMDatabaseSource::~GMDatabaseSource() {
-  }
-
 
 GMTrackListSortFunc GMDatabaseSource::getSortBrowse(FXbool album_list_mode) const {
   if (album_list_mode)

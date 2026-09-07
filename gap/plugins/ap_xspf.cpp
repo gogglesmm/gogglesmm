@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_common.h"
@@ -45,13 +47,9 @@ public:
     };
 public:
   XSPFParser();
-  ~XSPFParser();
   };
 
 XSPFParser::XSPFParser() : elem(Elem_None) {
-  }
-
-XSPFParser::~XSPFParser(){
   }
 
 FXint XSPFParser::begin(const FXchar * element,const FXchar **/* attributes*/){
@@ -110,16 +108,12 @@ public:
   XSPFReader(InputContext*);
   ReadStatus process(Packet*) override;
   FXbool init(InputPlugin*) override;
-  FXuchar format() const override { return Format::XSPF; };
+  [[nodiscard]] FXuchar format() const override { return Format::XSPF; };
   FXbool redirect(FXStringList & u) override { u=uri; return true; }
-  virtual ~XSPFReader();
   };
 
 
 XSPFReader::XSPFReader(InputContext*ctx) : TextReader(ctx) {
-  }
-
-XSPFReader::~XSPFReader(){
   }
 
 FXbool XSPFReader::init(InputPlugin*plugin) {

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMFILTER_H
 #define GMFILTER_H
@@ -66,13 +68,13 @@ public:
     };
 public:
   // Default Constructor
-  Rule() {}
+  Rule() = default;
 
   // Initialize Rule for integer input
   Rule(FXint c,FXint o,FXint v) : column(c),opcode(o),value(v) {}
 
   // Get sql match string
-  FXString getMatch() const;
+  [[nodiscard]] FXString getMatch() const;
 
   // Load from stream
   void load(FXStream &);
@@ -91,7 +93,7 @@ public:
   FXbool ascending = true;               // ASC or DESC
 public:
   // Get sql match string
-  FXString getMatch() const;
+  [[nodiscard]] FXString getMatch() const;
 
   // Load from stream
   void load(FXStream &);
@@ -124,7 +126,7 @@ public:
   GMFilter(const FXString & name,FXint column,FXint opcode,FXint value);
 
   // Get sql match string
-  FXString getMatch() const;
+  [[nodiscard]] FXString getMatch() const;
 
   // Load from stream
   void load(FXStream &);

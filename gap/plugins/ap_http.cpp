@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_buffer.h"
@@ -34,9 +36,6 @@ protected:
   FXint 		 icy_interval;
   FXint      icy_count;
   MemoryBuffer preview_buffer;
-private:
-  HttpInput(const HttpInput&);
-  HttpInput &operator=(const HttpInput&);
 protected:
 	void check_headers();
 	FXival icy_read(void*,FXival);
@@ -57,7 +56,7 @@ public:
   FXlong position(FXlong offset,FXuint from) override;
 
   /// Get Position
-  FXlong position() const override;
+  [[nodiscard]] FXlong position() const override;
 
   /// Size
   FXlong size() override;
@@ -66,13 +65,13 @@ public:
   FXbool eof() override;
 
   /// Serial
-  FXbool serial() const override;
+  [[nodiscard]] FXbool serial() const override;
 
   /// Get plugin type
-  FXuint plugin() const override;
+  [[nodiscard]] FXuint plugin() const override;
 
   /// Destructor
-  virtual ~HttpInput();
+  ~HttpInput() override = default;
   };
 
 
@@ -86,9 +85,6 @@ HttpInput::HttpInput(IOContext * ctx) : InputPlugin(ctx),
   icy_interval(0),
   icy_count(0) {
   client.setConnectionFactory(new ThreadConnectionFactory(context));
-  }
-
-HttpInput::~HttpInput() {
   }
 
 
@@ -150,7 +146,7 @@ FXival HttpInput::preview(void*data,FXival count) {
 
 FXival HttpInput::read(void * data,FXival count) {
   FXival n,t=0;
-  FXuchar * p = (FXuchar*)data;
+  auto * p = static_cast<FXuchar *>(data);
 
   /// Don't read past content
   if (client.getContentLength()>=0) {
@@ -219,15 +215,15 @@ FXuint HttpInput::plugin() const {
 
 void HttpInput::icy_parse(const FXString & str) {
   FXString title = str.after('=').before(';');
-  if (title.length()) {
-    MetaInfo* meta = new MetaInfo();
+  if (!title.empty()) {
+    auto* meta = new MetaInfo();
     meta->title = title;
     context->post_meta(meta);
     }
   }
 
 FXival HttpInput::icy_read(void*ptr,FXival count){
-  FXchar * out = static_cast<FXchar*>(ptr);
+  auto * out = static_cast<FXchar*>(ptr);
   FXival nread=0,n=0;
   if (icy_count<count) {
 

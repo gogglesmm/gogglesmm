@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_utils.h"
@@ -26,8 +28,8 @@ namespace ap {
 
 #define NUM_NODES 32
 
-XmlParser::XmlParser() : nnodes(NUM_NODES),level(0) {
-  allocElms(nodes,nnodes);
+XmlParser::XmlParser() : nodes(nullptr), nnodes(NUM_NODES),level(0) {
+  allocElms(nodes, nnodes);
   nodes[0]=Elem_None;
   }
 
@@ -60,17 +62,17 @@ void XmlParser::element_data(const FXchar * d,FXint len) {
 
 
 static void element_start(void*ptr,const FXchar*element,const FXchar**attributes){
-  XmlParser * parser = static_cast<XmlParser*>(ptr);
+  auto * parser = static_cast<XmlParser*>(ptr);
   parser->element_start((const FXchar*)element,(const FXchar**)attributes);
   }
 
 static void element_end(void*ptr,const FXchar * element) {
-  XmlParser * parser = static_cast<XmlParser*>(ptr);
+  auto * parser = static_cast<XmlParser*>(ptr);
   parser->element_end((const FXchar*)element);
   }
 
 static void element_data(void*ptr,const FXchar * data,FXint len) {
-  XmlParser * parser = static_cast<XmlParser*>(ptr);
+  auto * parser = static_cast<XmlParser*>(ptr);
   parser->element_data((const FXchar*)data,len);
   }
 

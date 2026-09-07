@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_output_plugin.h"
@@ -47,41 +49,41 @@ protected:
   pa_volume_t      pulsevolume   = PA_VOLUME_MUTED;
 protected:
   static void sink_info_callback(pa_context*, const pa_sink_input_info *,int eol,void*);
-  static void context_subscribe_callback(pa_context *c,pa_subscription_event_type_t, uint32_t,void*);
+  static void context_subscribe_callback(pa_context*, pa_subscription_event_type_t, uint32_t,void*);
 protected:
   FXbool open();
 public:
   PulseOutput(OutputContext*);
 
   /// Configure
-  FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &) override;
 
   /// Write frames to playback buffer
-  FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint) override;
 
   /// Return delay in no. of frames
-  FXint delay();
+  FXint delay() override;
 
   /// Empty Playback Buffer Immediately
-  void drop();
+  void drop() override;
 
   /// Wait until playback buffer is emtpy.
-  void drain();
+  void drain() override;
 
   /// Pause
-  void pause(FXbool);
+  void pause(FXbool) override;
 
   /// Change Volume
-  void volume(FXfloat);
+  void volume(FXfloat) override;
 
   /// Close Output
-  void close();
+  void close() override;
 
   /// Get Device Type
-  FXchar type() const { return DevicePulse; }
+  [[nodiscard]] FXchar type() const override { return DevicePulse; }
 
   /// Destructor
-  virtual ~PulseOutput();
+  ~PulseOutput() override;
   };
 
 
@@ -120,7 +122,7 @@ public:
   pa_io_event(FXInputHandle h,FXuchar m) : Reactor::Input(h,m),callback(nullptr),destroy_callback(nullptr),userdata(nullptr) {
     }
 
-  virtual void onSignal() {
+  void onSignal() override {
     callback(&(PulseOutput::instance->api),this,handle,toPulse(mode),userdata);
     }
 
@@ -172,9 +174,9 @@ public:
   pa_time_event_destroy_cb_t  destroy_callback  = nullptr;
   void*                       userdata = nullptr;
 public:
-  pa_time_event() {}
+  pa_time_event() = default;
 
-  virtual void onExpired() {
+  void onExpired() override {
     struct timeval tv;
     tv.tv_usec = ( time / NANOSECONDS_PER_MICROSECOND ) % 1000000;
     tv.tv_sec  = time / NANOSECONDS_PER_SECOND;
@@ -232,9 +234,9 @@ public:
   pa_defer_event_destroy_cb_t destroy_callback = nullptr;
   void*                       userdata = nullptr;
 public:
-  pa_defer_event() {}
+  pa_defer_event() = default;
 
-  virtual void run() {
+  void run() override {
     callback(&PulseOutput::instance->api,this,userdata);
     }
 
@@ -335,7 +337,7 @@ PulseOutput::PulseOutput(OutputContext * ctx) : OutputPlugin(ctx) {
   }
 
 PulseOutput::~PulseOutput() {
-  close();
+  PulseOutput::close();
   instance=nullptr;
   }
 
@@ -412,7 +414,7 @@ static void stream_state_callback(pa_stream *s,void*){
 //  }
 
 void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * info,int /*eol*/,void*userdata){
-  PulseOutput * out = static_cast<PulseOutput*>(userdata);
+  auto * out = static_cast<PulseOutput*>(userdata);
   if (info) {
     pa_volume_t value = pa_cvolume_avg(&info->volume);
     if (out->pulsevolume!=value) {
@@ -422,7 +424,7 @@ void PulseOutput::sink_info_callback(pa_context*, const pa_sink_input_info * inf
   }
 
 void PulseOutput::context_subscribe_callback(pa_context * pulse_context, pa_subscription_event_type_t type, uint32_t index, void *userdata){
-  PulseOutput * out = static_cast<PulseOutput*>(userdata);
+  auto * out = static_cast<PulseOutput*>(userdata);
 
   if (out->stream==nullptr)
     return;
@@ -560,7 +562,10 @@ void PulseOutput::drain() {
     }
   }
 
-void PulseOutput::pause(FXbool) {
+void PulseOutput::pause(FXbool pausing) {
+  if (stream) {
+    pa_stream_cork(stream, pausing ? 1 : 0, nullptr, nullptr);
+    }
   }
 
 FXbool PulseOutput::configure(const AudioFormat & fmt){
@@ -658,7 +663,7 @@ failed:
 
 FXbool PulseOutput::write(const void * b,FXuint nframes){
   FXASSERT(stream);
-  const FXchar * buffer = reinterpret_cast<const FXchar*>(b);
+  const auto * buffer = reinterpret_cast<const FXchar*>(b);
   FXuint total = nframes*af.framesize();
   while(total) {
 

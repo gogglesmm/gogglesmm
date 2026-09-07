@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
@@ -31,7 +33,7 @@
 #define MEDIUM_SIZE 22
 #define LARGE_SIZE 128
 
-void GMIconSet::save(FXStream & store) {
+void GMIconSet::save(FXStream & store) const {
   store << name;
   store << dir;
   store << small;
@@ -58,7 +60,7 @@ static void init_basedirs(FXStringList & basedirs) {
   FXDictionary pathdict;
 
   if (FXStat::exists(userdir)) {
-    pathdict.insert(userdir,(void*)(FXival)1);
+    pathdict.insert(userdir,voidptr_set(1));
     basedirs.append(userdir);
     }
 
@@ -73,7 +75,7 @@ static void init_basedirs(FXStringList & basedirs) {
 
     if (pathdict.has(dir) || !FXStat::exists(dir) ) continue;
     basedirs.append(dir);
-    pathdict.insert(dir,(void*)(FXival)1);
+    pathdict.insert(dir,voidptr_set(1));
     }
 
   if (pathdict.has("/usr/share/pixmaps") && FXStat::exists("/usr/share/pixmaps"))
@@ -114,21 +116,19 @@ static void init_themedict(FXStringList & basedirs,FXStringDictionary & themedic
   }
 
 void gm_set_application_icon(FXWindow * window) {
-  FXPNGImage * image = new FXPNGImage(FXApp::instance(),gogglesmm_32_png,0,0);
+  auto * image = new FXPNGImage(FXApp::instance(),gogglesmm_32_png,0,0);
   ewmh_set_window_icon(window,image);
   delete image;
   }
 
 
 
-static const FXuint CACHE_FILE_VERSION = 20101108;
-static const FXchar CACHE_FILE_NAME[]  = PATHSEPSTRING "icontheme.cache";
-static const FXchar CACHE_SVG_NAME[] = PATHSEPSTRING "svg";
+static constexpr FXuint CACHE_FILE_VERSION = 20101108;
+static constexpr FXchar CACHE_FILE_NAME[] = PATHSEPSTRING "icontheme.cache";
+static constexpr FXchar CACHE_SVG_NAME[] = PATHSEPSTRING "svg";
 
 
 void GMIconTheme::save_cache() {
-  const FXuint cache_file_version = CACHE_FILE_VERSION;
-
   FXString dirs;
   for (FXint i=0;i<basedirs.no();i++) {
     dirs+=basedirs[i] + ":";
@@ -136,13 +136,12 @@ void GMIconTheme::save_cache() {
 
   FXFileStream store;
   if (store.open(GMApp::getCacheDirectory(true)+CACHE_FILE_NAME,FXStreamSave)) {
-    store << cache_file_version;
+    store << CACHE_FILE_VERSION;
     store << dirs;
     store << smallsize;
     store << mediumsize;
     store << largesize;
-    FXint n = iconsets.no();
-    store << n;
+    store << static_cast<FXint>(iconsets.no());
     for (FXint i=0;i<iconsets.no();i++) {
       iconsets[i].save(store);
       }
@@ -275,9 +274,6 @@ GMIconTheme::GMIconTheme(FXApp * application) : app(application), set(-1),rsvg(f
   }
 
 
-GMIconTheme::~GMIconTheme() {
-  }
-
 GMIconTheme * GMIconTheme::instance(){
   return me;
   }
@@ -304,22 +300,22 @@ void GMIconTheme::build() {
   init_themedict(basedirs,themedict);
 
   if (themedict.no()) {
-    FXSettings   * index    = new FXSettings[themedict.used()];
-    FXDictionary * inherits = new FXDictionary[themedict.used()];
+    auto * index    = new FXSettings[themedict.used()];
+    auto * inherits = new FXDictionary[themedict.used()];
 
     /// Parse Index Files
     for (i=0,j=0;i<themedict.no();i++){
       if (!themedict.empty(i)){
         index[j++].parseFile(themedict.data(i),true);
-        indexmap.insert(themedict.key(i),(void*)(FXival)(j-1));
+        indexmap.insert(themedict.key(i),voidptr_set(j-1));
         }
       }
 
     for (i=0;i<themedict.no();i++){
       if (themedict.empty(i)) continue;
 
-      const FXString themedir = themedict.key(i);
-      const FXint           x = (FXint)(FXival)indexmap[themedir];
+      const FXString & themedir = themedict.key(i);
+      const FXint x = voidptr_get<FXint>(indexmap[themedir]);
 
       if (index[x].readBoolEntry("Icon Theme","Hidden",false))
         continue;
@@ -338,7 +334,7 @@ void GMIconTheme::build() {
         themedirs = index[xx].readStringEntry("Icon Theme","Directories",nullptr);
         parents   = index[xx].readStringEntry("Icon Theme","Inherits","hicolor");
 
-        inherits[x].insert(base,(void*)(FXival)1);
+        inherits[x].insert(base, voidptr_set(1));
 
         for (s=0;;s++) {
 
@@ -382,7 +378,7 @@ void GMIconTheme::build() {
           base = parents.section(',',s);
           if (base.empty() || inherits[x].has(base))
             break;
-          xx = (FXint)(FXival)indexmap[base];
+          xx = voidptr_get<FXint>(indexmap[base]);
           }
         }
 
@@ -390,7 +386,7 @@ void GMIconTheme::build() {
         continue;
 
       /// Finally add the theme
-      const FXint current=iconsets.no();
+      const auto current=static_cast<FXint>(iconsets.no());
       iconsets.no(current+1);
       iconsets[current].name        = index[x].readStringEntry("Icon Theme","Name",themedir.text());
       iconsets[current].dir         = themedir;
@@ -563,7 +559,7 @@ void GMIconTheme::loadMedium(FXIconPtr & icon,const FXchar * value,const FXColor
   }
 
 void GMIconTheme::loadLarge(FXIconPtr & icon,const FXchar * value,const FXColor blendcolor){
-   if (iconsets.no())
+  if (iconsets.no())
     loadIcon(icon,iconsets[set].large,largesize,value,blendcolor);
   else
     loadIcon(icon,FXString::null,largesize,value,blendcolor);
@@ -790,7 +786,7 @@ void GMIconTheme::loadExternal() {
 
 
 FXint GMIconTheme::getNumThemes() const{
-  return iconsets.no();
+  return static_cast<FXint>(iconsets.no());
   }
 
 void GMIconTheme::setCurrentTheme(FXint s) {

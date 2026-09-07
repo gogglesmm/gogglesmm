@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
@@ -95,7 +97,9 @@ enum  {
 #define URL_RESERVED ";/?:@=&"              // Only encode if not used as reserved by scheme
 
 
-/**********************************************************************************************************/
+/***************************                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
+********************************************************************************/
 
 
 void GMAudioScrobblerTrack::clear() {
@@ -724,7 +728,9 @@ FXuchar GMAudioScrobbler::getNextTask() {
 FXint GMAudioScrobbler::run() {
   FXTRACE(60,"GMAudioScrobbler::run\n");
 
-  ap_set_thread_name("gm_scrobbler");
+#if FOXVERSION >= FXVERSION(1, 7, 68)
+  description("gm_scrobbler");
+#endif
 
   FXuchar next=TASK_NONE;
   do {

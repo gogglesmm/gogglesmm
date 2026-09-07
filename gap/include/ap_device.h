@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AP_DEVICE_H
 #define AP_DEVICE_H
@@ -34,12 +36,12 @@ enum {
 
 class GMAPI DeviceConfig {
 public:
-  DeviceConfig();
+  DeviceConfig() = default;
 
   virtual void load(FXSettings &)=0;
   virtual void save(FXSettings &) const=0;
 
-  virtual ~DeviceConfig();
+  virtual ~DeviceConfig() = default;
   };
 
 class GMAPI AlsaConfig : public DeviceConfig {
@@ -55,11 +57,11 @@ public:
   AlsaConfig();
   AlsaConfig(const FXString & d,FXuint f=0);
 
-  void load(FXSettings &);
+  void load(FXSettings &) override;
 
-  void save(FXSettings &) const;
+  void save(FXSettings &) const override;
 
-  ~AlsaConfig();
+  ~AlsaConfig() override = default;
   };
 
 
@@ -75,11 +77,11 @@ public:
   OSSConfig();
   OSSConfig(const FXString & d);
 
-  void load(FXSettings &);
+  void load(FXSettings &) override;
 
-  void save(FXSettings &) const;
+  void save(FXSettings &) const override;
 
-  virtual ~OSSConfig();
+  ~OSSConfig() override = default;
   };
 
 
@@ -90,11 +92,11 @@ public:
   SndioConfig();
   SndioConfig(const FXString & d);
 
-  void load(FXSettings &);
+  void load(FXSettings &) override;
 
-  void save(FXSettings &) const;
+  void save(FXSettings &) const override;
 
-  virtual ~SndioConfig();
+  ~SndioConfig() override = default;
   };
 
 
@@ -108,7 +110,7 @@ public:
 public:
   OutputConfig();
 
-  FXString plugin() const;
+  [[nodiscard]] FXString plugin() const;
 
   void load(FXSettings &);
 

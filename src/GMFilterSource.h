@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMDATABASEQUERYSOURCE_H
 #define GMDATABASEQUERYSOURCE_H
@@ -31,17 +33,14 @@ public:
   static void init(GMTrackDatabase * database,GMSourceList &);
 
   // Save Filter Database
-  static void save();
+  static void saveFilters();
 
   // Create New Filter
   static void create(GMTrackDatabase * database);
 protected:
   GMFilter match; // the actual filter
 protected:
-  GMFilterSource(){}
-private:
-  GMFilterSource(const GMFilterSource&);
-  GMFilterSource& operator=(const GMFilterSource&);
+  GMFilterSource() = default;
 public:
   enum {
     ID_EDIT = GMDatabaseSource::ID_LAST, // Edit Filter
@@ -53,7 +52,7 @@ public:
   long onCmdRemove(FXObject*,FXSelector,void*);
 public:
   // Construct Filter Source
-  GMFilterSource(GMTrackDatabase * db);
+  explicit GMFilterSource(GMTrackDatabase * db);
 
   // Construct Filter Source
   GMFilterSource(GMTrackDatabase * db,const GMFilter & query);
@@ -65,16 +64,16 @@ public:
   void configure(GMColumnList&) override;
 
   // Source Name
-  FXString getName() const override;
+  [[nodiscard]] FXString getName() const override;
 
   // Source Type
-  FXint getType() const override { return SOURCE_DATABASE_FILTER; }
+  [[nodiscard]] FXint getType() const override { return SOURCE_DATABASE_FILTER; }
 
   // Default Browsing
-  FXbool defaultBrowse() const override { return true; }
+  [[nodiscard]] FXbool defaultBrowse() const override { return true; }
 
   // Setting Key
-  FXString settingKey() const override;
+  [[nodiscard]] FXString settingKey() const override;
 
   // Source Menu
   FXbool source_menu(FXMenuPane*) override {return false;}
@@ -83,7 +82,7 @@ public:
   FXbool source_context_menu(FXMenuPane*) override;
 
   // Destructor
-  virtual ~GMFilterSource();
+  ~GMFilterSource() override = default;
   };
 
 #endif

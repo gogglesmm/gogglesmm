@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMCOMMON_H
 #define GMCOMMON_H
@@ -64,15 +66,25 @@
 #define NANOSECONDS_PER_MICROSECOND 1000LL
 #define NANOSECONDS_PER_MILLISECOND 1000000LL
 
-constexpr FXTime operator"" _s(unsigned long long int value)
+constexpr FXTime operator""_s(unsigned long long int value)
 {
   return value * NANOSECONDS_PER_SECOND;
 }
 
-constexpr FXTime operator"" _ms(unsigned long long int value)
+constexpr FXTime operator""_ms(unsigned long long int value)
 {
   return value * NANOSECONDS_PER_MILLISECOND;
 }
+
+template <typename T>
+[[nodiscard]] constexpr auto voidptr_get(const void* ptr) noexcept {
+  return static_cast<T>(reinterpret_cast<FXival>(ptr));
+}
+
+[[nodiscard]] constexpr auto voidptr_set(auto value) noexcept {
+  return reinterpret_cast<void*>(static_cast<FXival>(value));
+}
+
 
 #if FOXVERSION >= FXVERSION(1, 7, 82)
 #define fxgetticks FXThread::ticks

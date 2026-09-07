@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_reactor.h"
@@ -124,9 +126,10 @@ void Reactor::wait(FXTime timeout) {
   FXint n;
   if (timeout>=0) {
 #ifdef HAVE_PPOLL
-    struct timespec ts;
-    ts.tv_sec  = timeout / NANOSECONDS_PER_SECOND;
-    ts.tv_nsec = timeout % NANOSECONDS_PER_SECOND;
+    struct timespec ts {
+      .tv_sec = timeout / NANOSECONDS_PER_SECOND,
+      .tv_nsec = timeout % NANOSECONDS_PER_SECOND
+    };
 #endif
     do {
 #ifdef HAVE_PPOLL

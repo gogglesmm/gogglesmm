@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AP_BUFFER_IO_H
 #define AP_BUFFER_IO_H
@@ -37,9 +39,9 @@ protected:
   FXuval writeBuffer();
   FXuval readBuffer();
   FXbool flushBuffer();
-private:
-  BufferIO(const BufferIO&);
-  BufferIO &operator=(const BufferIO&);
+public:
+  BufferIO(const BufferIO&) = delete;
+  BufferIO &operator=(const BufferIO&) = delete;
 public:
   BufferIO(FXuval size=8192UL);
   BufferIO(FXIO * io,FXuval size=8192UL);
@@ -48,19 +50,19 @@ public:
   void attach(FXIO * io);
 
   // Return attached io
-  FXIO * attached() const;
+  [[nodiscard]] FXIO * attached() const;
 
   /// Return true if open
-  FXbool isOpen() const override;
+  [[nodiscard]] FXbool isOpen() const override;
 
   /// Return true if serial access only
-  FXbool isSerial() const override;
+  [[nodiscard]] FXbool isSerial() const override;
 
   /// Get current file position
-  FXlong position() const override;
+  [[nodiscard]] FXlong position() const override;
 
   /// Change file position, returning new position from start
-  FXlong position(FXlong offset,FXuint from=FXIO::Begin) override;
+  FXlong position(FXlong offset,FXuint from) override;
 
   /// Peek block of bytes, return number of bytes peeked
   virtual FXival peekBlock(void* data,FXival count);
@@ -87,7 +89,7 @@ public:
   FXbool close() override;
 
   /// Destroy and close
-  virtual ~BufferIO();
+  ~BufferIO() override;
   };
 
 }

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_packet.h"
@@ -22,19 +24,15 @@
 
 namespace ap {
 
-class PCMDecoder : public DecoderPlugin {
+class PCMDecoder final : public DecoderPlugin {
 public:
   PCMDecoder(DecoderContext*);
-  FXuchar codec() const override { return Codec::PCM; }
+  [[nodiscard]] FXuchar codec() const override { return Codec::PCM; }
   FXbool init(ConfigureEvent*) override;
   FXbool process(Packet*) override;
-  virtual ~PCMDecoder();
   };
 
 PCMDecoder::PCMDecoder(DecoderContext * ctx) : DecoderPlugin(ctx) {
-  }
-
-PCMDecoder::~PCMDecoder() {
   }
 
 FXbool PCMDecoder::init(ConfigureEvent*event) {

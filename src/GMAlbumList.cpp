@@ -1,3 +1,28 @@
+/********************************************************************************
+*                                                                               *
+*                         I c o n   L i s t   W i d g e t                       *
+*                                                                               *
+*********************************************************************************
+* Copyright (C) 1999,2009 by Jeroen van der Zijp.   All Rights Reserved.        *
+*********************************************************************************
+* This library is free software; you can redistribute it and/or modify          *
+* it under the terms of the GNU Lesser General Public License as published by   *
+* the Free Software Foundation; either version 3 of the License, or             *
+* (at your option) any later version.                                           *
+*                                                                               *
+* This library is distributed in the hope that it will be useful,               *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of                *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 *
+* GNU Lesser General Public License for more details.                           *
+*                                                                               *
+* You should have received a copy of the GNU Lesser General Public License      *
+* along with this program.  If not, see <http://www.gnu.org/licenses/>          *
+*********************************************************************************
+*                        Album List Modifications                               *
+*           Copyright (C) 2006-2026 by Sander Jansen. All Rights Reserved       *
+*                               ---                                             *
+* SPDX-License-Identifier: LGPL-3.0-or-later                                    *
+********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
 #include <fxkeys.h>

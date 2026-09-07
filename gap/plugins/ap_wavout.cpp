@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 
 // Building a plugin
@@ -27,14 +29,14 @@ using namespace ap;
 
 namespace ap {
 
-class WavOutput : public OutputPlugin {
+class WavOutput final : public OutputPlugin {
 protected:
   FXFile file;
   FXlong data_pos = 0;
 public:
   WavOutput(OutputContext * ctx);
 
-  FXchar type() const override { return DeviceWav; }
+  [[nodiscard]] FXchar type() const override { return DeviceWav; }
 
   FXbool configure(const AudioFormat &) override;
 
@@ -46,7 +48,7 @@ public:
 
   void close() override;
 
-  virtual ~WavOutput();
+  ~WavOutput() override;
   };
 
 WavOutput::WavOutput(OutputContext * ctx) : OutputPlugin(ctx) {

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AP_EVENT_H
 #define AP_EVENT_H
@@ -47,7 +49,7 @@ public:
   FXuchar enabled;
 public:
   Volume() : value(0.0f), enabled(false) {}
-  Volume(FXfloat v) : value(v), enabled(true) {}
+  explicit Volume(const FXfloat v) : value(v), enabled(true) {}
   };
 
 
@@ -72,18 +74,14 @@ public:
 class GMAPI ErrorMessage : public Event {
 public:
   FXString msg;
-protected:
-  virtual ~ErrorMessage();
 public:
-  ErrorMessage(const FXString & t=FXString::null);
+  explicit ErrorMessage(const FXString & t=FXString::null);
   };
 
 class GMAPI TimeUpdate : public Event {
 public:
   FXuint position;
   FXuint length;
-protected:
-  virtual ~TimeUpdate();
 public:
   TimeUpdate(FXuint p,FXuint l);
   };
@@ -93,8 +91,6 @@ public:
   FXString title;
   FXString artist;
   FXString album;
-protected:
-  virtual ~MetaInfo();
 public:
   MetaInfo();
   };
@@ -102,8 +98,6 @@ public:
 class GMAPI VolumeNotify : public Event{
 public:
   Volume volume;
-protected:
-  virtual ~VolumeNotify();
 public:
   VolumeNotify();
   VolumeNotify(FXfloat v);

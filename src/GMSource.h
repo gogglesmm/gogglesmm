@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMSOURCE_H
 #define GMSOURCE_H
@@ -101,9 +103,9 @@ class GMSource : public FXObject {
 FXDECLARE(GMSource)
 protected:
   FXint               current_track = -1;
-private:
-  GMSource(const GMSource&);
-  GMSource& operator=(const GMSource&);
+public:
+  GMSource(const GMSource&) = delete;
+  GMSource& operator=(const GMSource&) = delete;
 public:
   enum {
     ID_TRACK_PLAYED = 1,
@@ -129,20 +131,20 @@ public:
     ID_LAST
     };
 public:
-  GMSource();
+  GMSource() = default;
 
   /// Configure the columns in the tracklist
   virtual void configure(GMColumnList&) {}
 
   virtual void shuffle(GMTrackList*,FXuint) const{}
 
-  virtual GMTrackListSortFunc getSortBrowse(FXbool /*album_list_mode=false*/) const { return nullptr; }
+  [[nodiscard]] virtual GMTrackListSortFunc getSortBrowse(FXbool /*album_list_mode*/) const { return nullptr; }
 
-  virtual FXint getSortColumn(FXbool browse) const { if (browse) return HEADER_BROWSE; else return HEADER_ARTIST; }
+  [[nodiscard]] virtual FXint getSortColumn(FXbool browse) const { if (browse) return HEADER_BROWSE; else return HEADER_ARTIST; }
 
   void setCurrentTrack(FXint t) { current_track=t; }
 
-  FXint getCurrentTrack() const { return current_track; }
+  [[nodiscard]] FXint getCurrentTrack() const { return current_track; }
 
   virtual FXbool hasCurrentTrack(GMSource * ) const { return false; }
 
@@ -158,35 +160,35 @@ public:
 
   virtual FXbool findCurrentAlbum(GMAlbumList *,GMSource * src);
 
-  virtual FXint getNumTracks() const;
+  [[nodiscard]] virtual FXint getNumTracks() const;
 
   virtual FXbool getTrack(GMTrack & info) const;
 
   virtual FXbool setTrack(GMTrack &) const { return false; }
 
-  virtual FXint getType() const { return SOURCE_INVALID; }
+  [[nodiscard]] virtual FXint getType() const { return SOURCE_INVALID; }
 
-  virtual FXbool getQueueColumn(FXbool) const { return false; }
+  [[nodiscard]] virtual FXbool getQueueColumn(FXbool) const { return false; }
 
-  virtual FXbool canBrowse() const { return true; }
+  [[nodiscard]] virtual FXbool canBrowse() const { return true; }
 
-  virtual FXbool canFilter() const { return false; }
+  [[nodiscard]] virtual FXbool canFilter() const { return false; }
 
-  virtual FXbool defaultBrowse() const { return true; }
+  [[nodiscard]] virtual FXbool defaultBrowse() const { return true; }
 
-  virtual FXbool defaultTags() const { return false; }
+  [[nodiscard]] virtual FXbool defaultTags() const { return false; }
 
-  virtual FXbool autoPlay() const { return true; }
+  [[nodiscard]] virtual FXbool autoPlay() const { return true; }
 
-  virtual FXbool hasArtistList() const { return true; }
+  [[nodiscard]] virtual FXbool hasArtistList() const { return true; }
 
-  virtual FXString getName() const { return FXString::null; }
+  [[nodiscard]] virtual FXString getName() const { return FXString::null; }
 
-  virtual const FXchar * getAlbumName() const { return fxtr("Albums"); }
+  [[nodiscard]] virtual const FXchar * getAlbumName() const { return fxtr("Albums"); }
 
-  virtual FXIcon* getAlbumIcon() const;
+  [[nodiscard]] virtual FXIcon* getAlbumIcon() const;
 
-  virtual GMCoverCache * getCoverCache() const { return nullptr; }
+  [[nodiscard]] virtual GMCoverCache * getCoverCache() const { return nullptr; }
 
   virtual void loadCovers() {}
 
@@ -198,7 +200,7 @@ public:
   /// Sorting is about to be changed.
   virtual void sorted(GMTrackList*,FXint) {}
 
-  virtual FXString settingKey() const { return "nokey"; }
+  [[nodiscard]] virtual FXString settingKey() const { return "nokey"; }
 
   // unhide to keep compiler happy over hiding virtual
   using FXObject::load;
@@ -244,7 +246,7 @@ public:
 
   virtual FXbool track_double_click() { return false; }
 
-  virtual ~GMSource();
+  ~GMSource() override = default;
   };
 
 typedef FXObjectListOf<GMSource> GMSourceList;

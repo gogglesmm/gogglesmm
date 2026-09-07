@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_common.h"
@@ -51,24 +53,20 @@ void ap_parse_m3u(const FXString & data,FXStringList & mrl) {
 
 
 
-class M3UReader : public TextReader {
+class M3UReader final: public TextReader {
 protected:
   FXStringList uri;
 public:
   M3UReader(InputContext*);
   ReadStatus process(Packet*) override;
   FXbool init(InputPlugin*) override;
-  FXuchar format() const override { return Format::M3U; };
+  [[nodiscard]] FXuchar format() const override { return Format::M3U; };
   FXbool redirect(FXStringList & u) override { u=uri; return true; }
-  virtual ~M3UReader();
   };
 
 
 
 M3UReader::M3UReader(InputContext* ctx) : TextReader(ctx) {
-  }
-
-M3UReader::~M3UReader(){
   }
 
 FXbool M3UReader::init(InputPlugin*plugin) {

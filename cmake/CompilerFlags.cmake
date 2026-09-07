@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # Compiler Flags Configuration
 #
 # This module sets up compiler flags for the gogglesmm project.
@@ -13,6 +17,7 @@ check_cxx_compiler_flag(-Wno-format          HAS_CXX_WFORMAT)
 check_cxx_compiler_flag(-Wno-format-security HAS_CXX_WFORMAT_SECURITY)
 check_cxx_compiler_flag(-Wfatal-errors       HAS_CXX_WFATAL)
 check_cxx_compiler_flag(-Og                  HAS_CXX_OPTIMIZE_DEBUG)
+check_cxx_compiler_flag(-Wno-deprecated-enum-enum-conversion HAS_CXX_DEPRECATED_ENUM_ENUM_CONVERSION)
 
 # Warning flags
 if(HAS_CXX_WALL)
@@ -33,6 +38,12 @@ endif()
 
 if(HAS_CXX_WFATAL)
   add_compile_options(-Wfatal-errors)
+endif()
+
+# FOX has many widgets flags from different enums that get combined.
+# Disable this warning for now
+if(HAS_CXX_DEPRECATED_ENUM_ENUM_CONVERSION)
+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-enum-enum-conversion>)
 endif()
 
 # Debug optimization flag

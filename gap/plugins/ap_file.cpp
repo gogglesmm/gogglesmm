@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_input_plugin.h"
@@ -28,14 +30,11 @@ class FileInput : public InputPlugin {
 protected:
   FXFile   file;
   FXString filename;
-private:
-  FileInput(const FileInput&);
-  FileInput &operator=(const FileInput&);
 public:
   /// Constructor
   FileInput(IOContext*);
 
-  FXbool open(const FXString & uri) override;
+  FXbool open(const FXString & url) override;
 
 	/// Read
 	FXival read(void*,FXival) override;
@@ -47,7 +46,7 @@ public:
   FXlong position(FXlong offset,FXuint from) override;
 
   /// Get Position
-  FXlong position() const override;
+  [[nodiscard]] FXlong position() const override;
 
   /// Size
   FXlong size() override;
@@ -56,20 +55,14 @@ public:
   FXbool eof() override;
 
   /// Serial
-  FXbool serial() const override;
+  [[nodiscard]] FXbool serial() const override;
 
   /// Get plugin type
-  FXuint plugin() const override;
-
-  /// Destructor
-  virtual ~FileInput();
+  [[nodiscard]] FXuint plugin() const override;
   };
 
 
 FileInput::FileInput(IOContext * ctx) : InputPlugin(ctx) {
-  }
-
-FileInput::~FileInput() {
   }
 
 FXbool FileInput::open(const FXString & url) {
@@ -123,10 +116,8 @@ FXuint FileInput::plugin() const {
   return ap_format_from_extension(extension);
   }
 
-
 InputPlugin * ap_file_plugin(IOContext * context) {
   return new FileInput(context);
   }
-
 
 }

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_packet.h"
@@ -39,7 +41,7 @@ private:
 public:
   BitReader(const FXuchar * data,FXuint len) : buffer(data), length(len) {}
 
-  FXuint remaining() {
+  [[nodiscard]] FXuint remaining() const {
     return (length*8) - position;
     }
 
@@ -51,7 +53,7 @@ public:
       FXuchar     r = FXMIN(nbits,8-shift);
       if (__unlikely(offset>=length)) throw OverflowException();
       value<<=r;
-      value|=((unsigned char)(buffer[offset]<<shift))>>(8-r);
+      value|=static_cast<unsigned char>(buffer[offset] << shift)>>(8-r);
       nbits-=r;
       position+=r;
       }
@@ -274,12 +276,10 @@ class AACReader : public ReaderPlugin {
 public:
   AACReader(InputContext * ctx) : ReaderPlugin(ctx) {}
   FXbool init(InputPlugin*plugin) override { ReaderPlugin::init(plugin); flags=0; return true; }
-  FXuchar format() const override { return Format::AAC; }
+  [[nodiscard]] FXuchar format() const override { return Format::AAC; }
 
   ReadStatus process(Packet*p) override;
-
-  ~AACReader() {}
-  };
+};
 
 ReaderPlugin * ap_aac_reader(InputContext * ctx) {
   return new AACReader(ctx);
@@ -303,7 +303,7 @@ ReadStatus AACReader::process(Packet*packet) {
       if (input->read(&buffer[1],1)!=1)
         return ReadError;
       }
-    while(1);
+    while(true);
     }
   return ReaderPlugin::process(packet);
   }
@@ -318,13 +318,13 @@ ReadStatus AACReader::process(Packet*packet) {
 
 
 
-class AacDecoder : public DecoderPlugin {
+class AacDecoder final : public DecoderPlugin {
 protected:
   NeAACDecHandle handle;
   MemoryBuffer   buffer;
   FXlong         stream_position = -1;
-  FXushort       stream_offset_start;
-  FXbool         rawmode=false;
+  FXushort       stream_offset_start = 0;
+  FXbool         rawmode = false;
   FXbool         use_internal_buffer=false;
 protected:
   Packet *       out = nullptr;
@@ -336,11 +336,11 @@ protected:
   FXint  process_output(FXuint streamid,FXlong stream_length,void * outsamples,FXint nsamples);
 public:
   AacDecoder(DecoderContext*);
-  FXuchar codec() const override { return Codec::AAC; }
-  FXbool flush(FXlong offset=0) override;
+  [[nodiscard]] FXuchar codec() const override { return Codec::AAC; }
+  FXbool flush(FXlong offset) override;
   FXbool init(ConfigureEvent*) override ;
   FXbool process(Packet*) override;
-  ~AacDecoder();
+  ~AacDecoder() override;
   };
 
 
@@ -351,7 +351,7 @@ AacDecoder::AacDecoder(DecoderContext * e) : DecoderPlugin(e),
   }
 
 AacDecoder::~AacDecoder() {
-  flush();
+  AacDecoder::flush(0);
   if (handle) {
     NeAACDecClose(handle);
     handle=nullptr;
@@ -388,7 +388,7 @@ FXbool AacDecoder::init(ConfigureEvent*event) {
     }
   use_internal_buffer=false;
 
-  DecoderSpecificConfig * ac = dynamic_cast<DecoderSpecificConfig*>(event->dc);
+  auto * ac = dynamic_cast<DecoderSpecificConfig*>(event->dc);
   if (ac) {
     long unsigned int samplerate;
     FXuchar           channels;
@@ -510,7 +510,7 @@ FXint AacDecoder::process_output(FXuint stream_id,FXlong stream_length,void * ou
     }
 
   if (use_internal_buffer) {
-    FXuchar * in = reinterpret_cast<FXuchar*>(outsamples);
+    auto * in = reinterpret_cast<FXuchar*>(outsamples);
     if (stream_position<stream_begin) {
       FXint skip_frames = FXMIN(nframes,(stream_begin-stream_position));
       FXint nbytes = (skip_frames*af.framesize());
@@ -529,7 +529,7 @@ FXint AacDecoder::process_output(FXuint stream_id,FXlong stream_length,void * ou
         }
       stream_position += out->copyFrames(in,nframes);
       if (out->availableFrames()==0)
-        context->post_output_packet(out);
+        context->post_output_packet(out, false);
       }
     }
   else {
@@ -540,7 +540,7 @@ FXint AacDecoder::process_output(FXuint stream_id,FXlong stream_length,void * ou
       out->trimBegin(af.framesize()*skip_frames);
       }
     if (out->availableFrames() < (nsamples / af.channels))
-      context->post_output_packet(out);
+      context->post_output_packet(out, false);
     }
   return 0;
   }

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_packet.h"
@@ -60,9 +62,9 @@ namespace ap {
 
 class WavReader : public ReaderPlugin {
 protected:
-  FXlong   datasize;    // size of the data section
-  FXlong   input_start;
-  FXushort wavformat;
+  FXlong   datasize    = 0;    // size of the data section
+  FXlong   input_start = 0;
+  FXushort wavformat   = 0;
 protected:
   ReadStatus parse();
 public:
@@ -70,11 +72,10 @@ public:
   FXbool init(InputPlugin*) override;
   ReadStatus process(Packet*) override;
 
-  FXuchar format() const override { return Format::WAV; };
+  [[nodiscard]] FXuchar format() const override { return Format::WAV; };
 
-  FXbool can_seek() const override;
+  [[nodiscard]] FXbool can_seek() const override;
   FXbool seek(FXlong) override;
-  virtual ~WavReader();
   };
 
 
@@ -93,16 +94,14 @@ const ap_guid_t guid_wav_format_pcm={0x01,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x8
 const ap_guid_t guid_wav_format_float={0x03,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0xaa,0x00,0x38,0x9b,0x71};
 
 
-WavReader::WavReader(InputContext*ctx) : ReaderPlugin(ctx),datasize(0),input_start(0) {
-  }
-
-WavReader::~WavReader(){
+WavReader::WavReader(InputContext*ctx) : ReaderPlugin(ctx) {
   }
 
 FXbool WavReader::init(InputPlugin*plugin) {
   ReaderPlugin::init(plugin);
   datasize=0;
   input_start=0;
+  wavformat=0;
   return true;
   }
 

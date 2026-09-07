@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_event_private.h"
@@ -29,7 +31,7 @@ namespace ap {
 #define DEFINE_CHUNK(b1,b2,b3,b4) ((b4<<24) | (b3<<16) | (b2<<8) | (b1))
 
 
-class AIFFReader : public ReaderPlugin {
+class AIFFReader final : public ReaderPlugin {
 protected:
   FXlong input_start;
 protected:
@@ -47,18 +49,14 @@ public:
   FXbool init(InputPlugin*) override;
   ReadStatus process(Packet*) override;
 
-  FXuchar format() const override { return Format::AIFF; };
+  [[nodiscard]] FXuchar format() const override { return Format::AIFF; };
 
-  FXbool can_seek() const override;
+  [[nodiscard]] FXbool can_seek() const override;
   FXbool seek(FXlong) override;
-  virtual ~AIFFReader();
   };
 
 
 AIFFReader::AIFFReader(InputContext * ctx) : ReaderPlugin(ctx), input_start(0) {
-  }
-
-AIFFReader::~AIFFReader(){
   }
 
 FXbool AIFFReader::init(InputPlugin*plugin) {

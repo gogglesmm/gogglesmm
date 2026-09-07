@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef INPUT_PLUGIN_H
 #define INPUT_PLUGIN_H
@@ -34,17 +36,18 @@ struct IOContext {
   // check if IO was aborted by user
   virtual FXbool aborted() = 0;
 
-  // post meta data from io layer
+  // post metadata from io layer
   virtual void post_meta(MetaInfo*) = 0;
 
+  virtual ~IOContext() = default;
 };
 
 class InputPlugin {
 protected:
   IOContext * context;
-private:
-  InputPlugin(const InputPlugin&);
-  InputPlugin &operator=(const InputPlugin&);
+public:
+  InputPlugin(const InputPlugin&) = delete;
+  InputPlugin &operator=(const InputPlugin&) = delete;
 public:
   InputPlugin(IOContext * ctx) : context(ctx) {}
 
@@ -68,10 +71,10 @@ public:
   virtual FXival preview(void*data,FXival ncount) = 0;
 
   /// Set Position
-  virtual FXlong position(FXlong offset,FXuint from)=0;
+  virtual FXlong position(FXlong offset,FXuint from) = 0;
 
   /// Get Position
-  virtual FXlong position() const=0;
+  [[nodiscard]] virtual FXlong position() const=0;
 
   /// Size
   virtual FXlong size()=0;
@@ -80,16 +83,16 @@ public:
   virtual FXbool eof()=0;
 
   /// Serial
-  virtual FXbool serial() const=0;
+  [[nodiscard]] virtual FXbool serial() const=0;
 
   /// Get plugin type
-  virtual FXuint plugin() const { return Format::Unknown; }
+  [[nodiscard]] virtual FXuint plugin() const { return Format::Unknown; }
 
   /// Open plugin for given url
   static InputPlugin* open(IOContext * ctx,const FXString & url);
 
   /// Destructor
-  virtual ~InputPlugin() {}
+  virtual ~InputPlugin() = default;
   };
 
 

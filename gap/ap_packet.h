@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef MEM_PACKET_H
 #define MEM_PACKET_H
@@ -42,7 +44,7 @@ protected:
   Semaphore           semaphore;
 public:
   /// Constructor
-  PacketPool();
+  PacketPool() = default;
 
   /// Initialize pool
   FXbool init(FXival sz,FXival n);
@@ -57,7 +59,7 @@ public:
   void push(Packet*);
 
   /// Destructor
-  ~PacketPool();
+  ~PacketPool() = default;
   };
 
 
@@ -72,17 +74,17 @@ public:
   FXlong        stream_length;
 protected:
   Packet(PacketPool*,FXival sz);
-  virtual ~Packet();
+  ~Packet() override = default;
 public:
-  virtual void unref();
+  void unref() override;
 
   void reset();
 
-  FXbool full() const { return (af.framesize() > space()); }
+  [[nodiscard]] FXbool full() const { return (af.framesize() > space()); }
 
-  FXint numFrames() const { return size() / af.framesize(); }
+  [[nodiscard]] FXint numFrames() const { return static_cast<FXint>(size() / af.framesize()); }
 
-  FXint availableFrames() const { return space() / af.framesize(); }
+  [[nodiscard]] FXint availableFrames() const { return static_cast<FXint>(space() / af.framesize()); }
 
   void wroteFrames(FXint nframes) { wroteBytes(nframes*af.framesize()); }
 

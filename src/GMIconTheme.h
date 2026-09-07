@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMICONTHEME_H
 #define GMICONTHEME_H
@@ -26,7 +28,7 @@ struct GMIconSet {
   FXString medium;
   FXString large;
   void load(FXStream & store);
-  void save(FXStream & store);
+  void save(FXStream & store) const;
   };
 
 typedef FXArray<GMIconSet> GMIconSetList;
@@ -46,11 +48,11 @@ protected:
   FXIcon  * loadIcon(const FXString & filename);
   FXImage * loadImage(const FXString & filename);
 protected:
-  void loadIcon(FXIconPtr & icon,const FXString &pathlist,FXint size,const char * value,const FXColor blend);
+  void loadIcon(FXIconPtr & icon,const FXString &pathlist,FXint size,const char * value,FXColor blend);
 #if FOXVERSION >= FXVERSION(1, 7, 80)
-  void loadResource(FXIconPtr & icon,const FXuchar * data,const FXColor blend,const char * type="png");
+  void loadResource(FXIconPtr & icon,const FXuchar * data,FXColor blend,const char * type="png");
 #else
-  void loadResource(FXIconPtr & icon,const void * data,const FXColor blend,const char * type="png");
+  void loadResource(FXIconPtr & icon,const void * data,FXColor blend,const char * type="png");
 #endif
 protected:
   FXbool load_cache();
@@ -136,25 +138,25 @@ public:
 public:
   GMIconTheme(FXApp * app);
 
-  void loadSmall(FXIconPtr & icon,const char * value,const FXColor blend);
+  void loadSmall(FXIconPtr & icon,const char * value,FXColor blend);
 
-  void loadMedium(FXIconPtr & icon,const char * value,const FXColor blend);
+  void loadMedium(FXIconPtr & icon,const char * value,FXColor blend);
 
-  void loadLarge(FXIconPtr & icon,const char * value,const FXColor blend);
+  void loadLarge(FXIconPtr & icon,const char * value,FXColor blend);
 
   FXImage * loadSmall(const char * value);
 
-  FXint getSmallSize() const { return smallsize; }
+  [[nodiscard]] FXint getSmallSize() const { return smallsize; }
 
-  FXint getMediumSize() const { return mediumsize; }
+  [[nodiscard]] FXint getMediumSize() const { return mediumsize; }
 
-  FXint getLargeSize() const { return largesize; }
+  [[nodiscard]] FXint getLargeSize() const { return largesize; }
 
-  FXint getNumThemes() const;
+  [[nodiscard]] FXint getNumThemes() const;
 
   void setCurrentTheme(FXint i);
 
-  FXint getCurrentTheme() const;
+  [[nodiscard]] FXint getCurrentTheme() const;
 
   FXString getThemeName(FXint i);
 
@@ -164,7 +166,7 @@ public:
 
   void loadInternal();
 
-  ~GMIconTheme();
+  ~GMIconTheme() = default;
   };
 
 extern void gm_set_application_icon(FXWindow*);

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef DECODER_PLUGIN_H
 #define DECODER_PLUGIN_H
@@ -36,10 +38,12 @@ public:
   virtual Packet * get_output_packet()=0;
 
   // Post output packet
-  virtual void post_output_packet(Packet*&,FXbool eos=false)=0;
+  virtual void post_output_packet(Packet*&,FXbool eos)=0;
 
   // Post output configuration
   virtual void post_configuration(ConfigureEvent*)=0;
+
+  virtual ~DecoderContext() = default;
   };
 
 
@@ -49,20 +53,19 @@ protected:
   AudioFormat   af;
   FXlong        stream_decode_offset;
 public:
-public:
   DecoderPlugin(DecoderContext*);
 
-  virtual FXuchar codec() const { return Codec::Invalid; }
+  [[nodiscard]] virtual FXuchar codec() const { return Codec::Invalid; }
 
   virtual FXbool init(ConfigureEvent*);
 
   virtual FXbool process(Packet*)=0;
 
-  virtual FXbool flush(FXlong offset=0);
+  virtual FXbool flush(FXlong offset);
 
   static DecoderPlugin* open(DecoderContext * ctx,FXuchar codec);
 
-  virtual ~DecoderPlugin() {}
+  virtual ~DecoderPlugin() = default;
   };
 
 }

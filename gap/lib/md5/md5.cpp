@@ -20,6 +20,7 @@
   L. Peter Deutsch
   ghost@aladdin.com
 
+  SPDX-License-Identifier: Zlib
  */
 /* $Id: md5.c,v 1.6 2002/04/13 19:20:28 lpd Exp $ */
 /*

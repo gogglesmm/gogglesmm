@@ -15,17 +15,19 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMCOVER_MANAGER_H
 #define GMCOVER_MANAGER_H
 
 class GMCoverManager {
 protected:
-  GMCover* cover;
+  GMCover* cover = nullptr;
   FXString source;
   FXString share;
 public:
-  GMCoverManager();
+  GMCoverManager() = default;
 
   // Clear
   void clear();
@@ -34,10 +36,10 @@ public:
   FXbool load(const FXString & filename);
 
   // Get the share filename
-  FXString getShareFilename() const { return share; }
+  [[nodiscard]] FXString getShareFilename() const { return share; }
 
   // Get the cover
-  GMCover* getCover() const { return cover; }
+  [[nodiscard]] GMCover* getCover() const { return cover; }
 
   ~GMCoverManager();
   };

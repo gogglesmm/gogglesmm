@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMCOVERLOADER_H
 #define GMCOVERLOADER_H
@@ -26,7 +28,7 @@ protected:
   FXString           filename;
   FXbool             folderonly;
 public:
-  FXint run();
+  FXint run() override;
 public:
   GMCoverLoader(const FXString & filename,GMCoverPathList & pathlist,FXint size,FXObject* tgt=nullptr,FXSelector sel=0);
 

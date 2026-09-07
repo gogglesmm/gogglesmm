@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef CONVERT_H
 #define CONVERT_H
@@ -23,15 +25,18 @@
 
 namespace ap {
 
-extern void s16_to_float(FXuchar * buffer, FXuint nsamples, MemoryBuffer & out);
-extern void s24le3_to_float(FXuchar * buffer,FXuint nsamples, MemoryBuffer & out);
+extern void s16_to_float(const FXuchar * buffer, FXuint nsamples, MemoryBuffer & out);
+extern void s16_to_s32(const FXuchar *buffer, FXuint nsamples, MemoryBuffer & out);
 
+extern void s24le3_to_float(const FXuchar * buffer, FXuint nsamples, MemoryBuffer & out);
+extern void s24le3_to_s32(const FXuchar * buffer, FXuint nsamples , MemoryBuffer & out);
+extern void s24le3_to_s16(FXuchar * buffer, FXuint nsamples);
 
-extern void s24le3_to_s16(FXuchar * buffer,FXuint nsamples);
-extern void  float_to_s16(FXuchar * buffer,FXuint nsamples);
+extern void s32_to_float(FXuchar * buffer, FXuint nsamples);
+extern void s32_to_s16(FXuchar * buffer, FXuint nsamples);
 
-extern void s24le3_to_s32(const FXuchar * buffer,FXuint nsamples,MemoryBuffer & out);
-extern void  float_to_s32(FXuchar * buffer,FXuint nsamples);
+extern void float_to_s32(FXuchar * buffer, FXuint nsamples);
+extern void float_to_s16(FXuchar * buffer, FXuint nsamples);
 
 }
 #endif

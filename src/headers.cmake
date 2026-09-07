@@ -1,7 +1,20 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # Gogglesmm Header Files
 #
 # This file lists all header files for the Gogglesmm application
 # Included from src/CMakeLists.txt
+
+
+set(GMTAG_HEADERS
+    GMCover.h
+    GMFilename.h
+    GMTag.h
+    GMTrack.h
+    gmutils.h
+)
 
 # Main application headers
 set(HEADERS

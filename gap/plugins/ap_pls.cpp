@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_common.h"
@@ -61,17 +63,13 @@ public:
   PLSReader(InputContext*);
   ReadStatus process(Packet*) override;
   FXbool init(InputPlugin*) override;
-  FXuchar format() const override { return Format::PLS; };
+  [[nodiscard]] FXuchar format() const override { return Format::PLS; };
   FXbool redirect(FXStringList & u) override { u=uri; return true; }
-  virtual ~PLSReader();
   };
 
 
 
 PLSReader::PLSReader(InputContext*ctx) : TextReader(ctx) {
-  }
-
-PLSReader::~PLSReader(){
   }
 
 FXbool PLSReader::init(InputPlugin*plugin) {

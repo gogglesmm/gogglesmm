@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMFILENAME_H
 #define GMFILENAME_H
@@ -27,7 +29,7 @@ namespace gm {
 class TextConverter {
 protected:
   const FXTextCodec * codec     = nullptr;
-  FXString            forbidden = "\'\\#~!\"$&();<>|`^*?[]/.:";
+  FXString            forbidden = R"('\#~!"$&();<>|`^*?[]/.:)";
   FXuint              modifiers = 0;
 public:
   enum {
@@ -36,10 +38,10 @@ public:
     UPPERCASE = 0x4,
     };
 protected:
-  FXString apply_filters(const FXString & src) const;
-  FXString apply_codec(const FXString & src) const;
-  FXString convert_to_ascii(const FXString & input) const;
-  FXString convert_to_codec(const FXString & input) const;
+  [[nodiscard]] FXString apply_filters(const FXString & src) const;
+  [[nodiscard]] FXString apply_codec(const FXString & src) const;
+  [[nodiscard]] FXString convert_to_ascii(const FXString & input) const;
+  [[nodiscard]] FXString convert_to_codec(const FXString & input) const;
 public:
   explicit TextConverter(FXuint m) : modifiers(m) {}
 
@@ -47,7 +49,7 @@ public:
 
   explicit TextConverter(const FXTextCodec * c,const FXString & f, FXuint m) : codec(c), forbidden(f), modifiers(m) {}
 
-  FXString convert(const FXString & input) const;
+  [[nodiscard]] FXString convert(const FXString & input) const;
   };
 
 
@@ -83,9 +85,9 @@ public:
     LOWERCASE_EXTENSION = 0x08,
     };
 protected:
-  FXString get_field(FXchar field, const GMTrack &) const;
+  [[nodiscard]] FXString get_field(FXchar field, const GMTrack &) const;
   FXbool   has_field(FXchar field, const GMTrack &, FXString & value) const;
-  FXString format_fields(const GMTrack & track, const FXString & path) const;
+  [[nodiscard]] FXString format_fields(const GMTrack & track, const FXString & path) const;
 public:
   explicit TrackFormatter(const FXString &, const FXTextCodec *, const FXString &, FXuint);
 
@@ -93,10 +95,10 @@ public:
   explicit TrackFormatter(const FXString &, const FXTextCodec *);
 
   // Format track to filename
-  FXString getPath(const GMTrack & track) const;
+  [[nodiscard]] FXString getPath(const GMTrack & track) const;
 
   // Format track to simple name
-  FXString getName(const GMTrack & track) const;
+  [[nodiscard]] FXString getName(const GMTrack & track) const;
   };
 
 }
@@ -149,14 +151,6 @@ namespace GMFilename {
     ENCODING_KOIR8,
     ENCODING_LAST
     };
-
-  /// Filter a string
-  FXString filter(const FXString & input,const FXString & forbidden,FXuint options);
-
-  /// Create Filename based on Track Information and Format String
-  FXbool create(FXString & result,const GMTrack & track, const FXString & format,const FXString & forbidden,const FXuint & options,const FXTextCodec * codec=nullptr);
-
-  FXString format_track(const GMTrack & track,const FXString & path,const FXString & forbidden,const FXuint & options,const FXTextCodec * textcodec);
 
   enum {
     REPLACE_UNDERSCORE = 0x1,

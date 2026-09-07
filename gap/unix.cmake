@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # unix.cmake
 # Unix-specific configuration for GAP (Goggles Audio Player)
 
@@ -68,6 +72,22 @@ if(WITH_SNDIO)
   find_package(Sndio)
 endif()
 
+if(WITH_OSS)
+  check_cxx_symbol_exists(ioctl "sys/ioctl.h" HAVE_SYS_IOCTL_H)
+  if(NOT HAVE_SYS_IOCTL_H)
+    check_cxx_symbol_exists(ioctl "ioctl.h" HAVE_IOCTL_H)
+  endif()
+
+  check_cxx_symbol_exists(SNDCTL_DSP_SETFMT "sys/soundcard.h" HAVE_SYS_SOUNDCARD_H)
+  if(NOT HAVE_SYS_SOUNDCARD_H)
+    check_cxx_symbol_exists(SNDCTL_DSP_SETFMT, "soundcard.h" HAVE_SOUNDCARD_H)
+  endif()
+
+  if((HAVE_SYS_IOCTL_H OR HAVE_IOCTL_H) AND (HAVE_SYS_SOUNDCARD_H OR HAVE_SOUNDCARD_H))
+    set(OSS_FOUND TRUE)
+  endif()
+endif()
+
 # Audio Codec Libraries
 if(WITH_DCA)
   find_package(DCA)
@@ -123,7 +143,8 @@ endif()
 # Alsa Output
 if (WITH_ALSA AND ALSA_FOUND)
   add_library(gap_alsa MODULE plugins/ap_alsa.cpp)
-  target_link_libraries(gap_alsa ALSA::ALSA FX::FOX)
+  target_link_libraries(gap_alsa PRIVATE ALSA::ALSA)
+  gap_plugin_use_fox(gap_alsa)
   target_include_directories(gap_alsa PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
   install(TARGETS gap_alsa LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
   set(HAVE_ALSA 1)
@@ -132,7 +153,8 @@ endif()
 # Pulse Output
 if (WITH_PULSE AND PulseAudio_FOUND)
   add_library(gap_pulse MODULE plugins/ap_pulse.cpp)
-  target_link_libraries(gap_pulse PulseAudio::PulseAudio FX::FOX)
+  target_link_libraries(gap_pulse PRIVATE PulseAudio::PulseAudio)
+  gap_plugin_use_fox(gap_pulse)
   target_include_directories(gap_pulse PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
   install(TARGETS gap_pulse LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
   set(HAVE_PULSE 1)
@@ -141,7 +163,8 @@ endif()
 # Jack Output
 if (WITH_JACK AND Jack_FOUND)
   add_library(gap_jack MODULE plugins/ap_jack.cpp)
-  target_link_libraries(gap_jack Jack::Jack FX::FOX)
+  target_link_libraries(gap_jack PRIVATE Jack::Jack)
+  gap_plugin_use_fox(gap_jack)
   target_include_directories(gap_jack PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
   install(TARGETS gap_jack LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
   set(HAVE_JACK 1)
@@ -150,18 +173,33 @@ endif()
 # Sndio Output
 if (WITH_SNDIO AND Sndio_FOUND)
   add_library(gap_sndio MODULE plugins/ap_sndio.cpp)
-  target_link_libraries(gap_sndio Sndio::Sndio FX::FOX)
+  target_link_libraries(gap_sndio PRIVATE Sndio::Sndio)
+  gap_plugin_use_fox(gap_sndio)
   target_include_directories(gap_sndio PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
   install(TARGETS gap_sndio LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
   set(HAVE_SNDIO 1)
 endif()
 
 # OSS Output
-if(WITH_OSS)
+if(WITH_OSS AND OSS_FOUND)
   add_library(gap_oss MODULE plugins/ap_oss_plugin.cpp)
-  target_compile_options(gap_oss PRIVATE -idirafter /usr/include/sys)
+
+  if(HAVE_SYS_IOCTL_H)
+    target_compile_definitions(gap_oss PRIVATE HAVE_SYS_IOCTL_H)
+  endif()
+  if(HAVE_IOCTL_H)
+    target_compile_definitions(gap_oss PRIVATE HAVE_IOCTL_H)
+  endif()
+
+  if(HAVE_SYS_SOUNDCARD_H)
+    target_compile_definitions(gap_oss PRIVATE HAVE_SYS_SOUNDCARD_H)
+  endif()
+  if(HAVE_SOUNDCARD_H)
+    target_compile_definitions(gap_oss PRIVATE HAVE_SOUNDCARD_H)
+  endif()
+
   target_include_directories(gap_oss BEFORE PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
-  target_link_libraries(gap_oss FX::FOX)
+  gap_plugin_use_fox(gap_oss)
   install(TARGETS gap_oss LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/gogglesmm)
   set(HAVE_OSS 1)
 endif()

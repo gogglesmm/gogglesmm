@@ -15,8 +15,13 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
-#define UNSUPPORTED -1
+#ifndef AP_OSS_DEFS_H
+#define AP_OSS_DEFS_H
+
+#define UNSUPPORTED (-1)
 
 #ifndef AFMT_S24_PACKED
 #define AFMT_S24_PACKED UNSUPPORTED-1
@@ -40,4 +45,6 @@
 
 #ifndef AFMT_S32_BE
 #define AFMT_S32_BE UNSUPPORTED-6
+#endif
+
 #endif

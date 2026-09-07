@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AP_COMMON_H
 #define AP_COMMON_H
@@ -23,6 +25,8 @@ namespace ap {
 
 // Get user codec compatible with GMFilename
 extern GMAPI const FXTextCodec * ap_get_usercodec(FXuint codec);
+
+extern GMAPI const FXTextCodec * ap_get_textcodec(const FXString & encoding);
 
 extern GMAPI void ap_parse_pls(const FXString & data,FXStringList & mrl);
 
@@ -33,8 +37,6 @@ extern GMAPI void ap_parse_xspf(const FXString & data,FXStringList & mrl,FXStrin
 extern GMAPI FXbool ap_set_nonblocking(FXInputHandle fd);
 
 extern GMAPI FXbool ap_set_closeonexec(FXInputHandle fd);
-
-extern GMAPI void GMAPI ap_set_thread_name(const FXchar *);
 
 extern GMAPI FXbool ap_init_crypto();
 
@@ -56,9 +58,9 @@ private:
   static const FXchar base64[];
 private:
   FXString out;
-  FXuchar  buffer[3];
-  FXint    nbuffer;
-  FXint    index;
+  FXuchar  buffer[3] = {};
+  FXint    nbuffer = 0;
+  FXint    index = 0;
 protected:
   void encodeChunks(const FXuchar * in,FXint len);
 public:

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Sander Jansen <s.jansen@gmail.com> -->
+<component type="console-application">
+    <id>dev.gogglesmm.audioconvert</id>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+    <content_rating type="oars-1.0" />
+
+    <name>audioconvert</name>
+    <summary>An audio-file copying and conversion tool</summary>
+
+    <description>
+        <p>Audioconvert is a convenient tool to batch process audio files.</p>
+    </description>
+
+    <provides>
+        <binary>audioconvert</binary>
+    </provides>
+
+    <releases>
+        <release version="1.3.1" date="2026-07-26"/>
+    </releases>
+
+    <url type="homepage">https://gogglesmm.dev</url>
+    <url type="vcs-browser">https://github.com/gogglesmm/gogglesmm</url>
+    <url type="bugtracker">https://github.com/gogglesmm/gogglesmm/issues</url>
+
+    <update_contact>s.jansen@gmail.com</update_contact>
+
+    <developer id="dev.gogglesmm">
+        <name>Sander Jansen</name>
+    </developer>
+
+</component>

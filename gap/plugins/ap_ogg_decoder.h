@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef OGG_DECODER_PLUGIN_H
 #define OGG_DECODER_PLUGIN_H
@@ -32,9 +34,9 @@ private:
   MemoryBuffer  buffer;
 protected:
   ogg_packet op = {};
-  Packet*    out;
-  FXlong     stream_position;
-  FXushort   stream_offset_start;
+  Packet*    out = nullptr;
+  FXlong     stream_position = -1;
+  FXushort   stream_offset_start = 0;
 protected:
   FXbool get_next_packet(Packet*&);
 public:
@@ -46,8 +48,7 @@ public:
 
   FXbool process(Packet*) override;
 
-
-  ~OggDecoder();
+  ~OggDecoder() override;
   };
 
 }

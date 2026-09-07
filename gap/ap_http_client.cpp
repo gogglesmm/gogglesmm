@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_common.h"
@@ -87,8 +89,8 @@ void HttpClient::close() {
   GM_DEBUG_PRINT("[http] close()\n");
 
   // Shutdown communication
-  ap::Socket * s = dynamic_cast<ap::Socket*>(io.attached());
-  if (s) s->shutdown();
+  if (auto * s = dynamic_cast<ap::Socket*>(io.attached()))
+    s->shutdown();
 
   io.close();
   }
@@ -178,7 +180,7 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
   command += "Host: " + server.name + "\r\n";
 
   // Add Content Length
-  if (message.length())
+  if (!message.empty())
     command += "Content-Length: " + FXString::value(message.length()) + "\r\n";
 
   // Add Accept Encoding
@@ -192,7 +194,7 @@ FXbool HttpClient::request(const FXchar * method,const FXString & url,const FXSt
   command += "\r\n";
 
   // Add body
-  if (message.length())
+  if (!message.empty())
     command += message;
 
   // Send Command
@@ -205,10 +207,8 @@ FXbool HttpClient::basic(const FXchar*    method,
                          const FXString & header,
                          const FXString & content,
                          FXString*        moved/*=nullptr*/) {
-
-  int redirect = 0;
-
   if (request(method,url,header,content)) {
+    int redirect = 0;
     do {
       switch(parse()) {
         case HTTP_RESPONSE_INFORMATIONAL:
@@ -249,7 +249,6 @@ FXbool HttpClient::basic(const FXchar*    method,
               }
             redirect++;
             continue;
-            break;
           }
         case HTTP_RESPONSE_CLIENT_ERROR  :
           {
@@ -281,13 +280,12 @@ FXbool HttpClient::basic(const FXchar*    method,
           {
             GM_DEBUG_PRINT("[http] response failed\n");
             return false;
-            break;
           }
         default: break;
         }
       return true;
       }
-    while(1);
+    while(true);
     }
   return false;
   }

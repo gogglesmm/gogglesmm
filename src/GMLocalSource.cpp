@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
@@ -48,9 +50,6 @@ GMLocalSource::GMLocalSource()  {
   path=FXSystem::getHomeDirectory();
   }
 
-GMLocalSource::~GMLocalSource(){
-  }
-
 void GMLocalSource::configure(GMColumnList& list){
   list.no(1);
   list[0]=GMColumn(notr("Path"),HEADER_FILENAME,GMLocalTrackItem::ascendingFilename,GMLocalTrackItem::descendingFilename,600,true,true,0);
@@ -69,7 +68,7 @@ FXbool GMLocalSource::findCurrent(GMTrackList * list,GMSource * src) {
     if (FXPath::directory(current_path)==path) {
       const FXString name = FXPath::name(current_path);
       for (FXint i=0;i<list->getNumItems();i++){
-        GMLocalTrackItem * item = dynamic_cast<GMLocalTrackItem*>(list->getItem(i));
+        auto * item = dynamic_cast<GMLocalTrackItem*>(list->getItem(i));
         if (item->getFilename()==name) {
           list->setActiveItem(i);
           list->setCurrentItem(i);
@@ -96,7 +95,7 @@ FXbool GMLocalSource::getTrack(GMTrack & track) const {
   }
 
 FXbool GMLocalSource::track_double_click() {
-  GMLocalTrackItem * item = dynamic_cast<GMLocalTrackItem*>(GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem());
+  auto * item = dynamic_cast<GMLocalTrackItem*>(GMPlayerManager::instance()->getTrackView()->getCurrentTrackItem());
   if (item->getFilename()=="..") {
     path=FXPath::upLevel(path);
     GMPlayerManager::instance()->getTrackView()->refresh();
@@ -188,7 +187,7 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
       // Get file/link info
       if(!FXStat::statLink(pathname,stat)) continue;
 
-      // If its a link, get the info on file itself
+      // If it's a link, get the info on file itself
       islink=stat.isLink();
       if(islink && !FXStat::statFile(pathname,stat)) continue;
 
@@ -199,7 +198,7 @@ FXbool GMLocalSource::listTracks(GMTrackList * tracklist,const FXIntList &/* alb
       if (stat.isDirectory())
         flags|=GMLocalTrackItem::FOLDER;
 
-      GMLocalTrackItem * item = new GMLocalTrackItem(id++,name,flags);
+      auto * item = new GMLocalTrackItem(id++,name,flags);
 
       files.append(name);
 
@@ -214,26 +213,21 @@ class GMFileListClipboardData : public GMClipboardData {
 public:
   FXStringList files;
 public:
-  FXbool request(FXDragType target,GMClipboard * clipboard) {
+  FXbool request(FXDragType target,GMClipboard * clipboard) override {
     if (target==GMClipboard::urilistType){
       FXString uri;
       gm_convert_filenames_to_uri(files,uri);
-      clipboard->setDNDData(FROM_CLIPBOARD,target,uri);
-      return true;
+      return clipboard->setDNDData(FROM_CLIPBOARD,target,uri);
       }
     else if (target==GMClipboard::kdeclipboard){
-      clipboard->setDNDData(FROM_CLIPBOARD,target,"0");
-      return true;
+      return clipboard->setDNDData(FROM_CLIPBOARD,target,"0");
       }
     else if (target==GMClipboard::gnomeclipboard){
       FXString clipdata;
       gm_convert_filenames_to_gnomeclipboard(files,clipdata);
-      clipboard->setDNDData(FROM_CLIPBOARD,target,clipdata);
-      return true;
+      return clipboard->setDNDData(FROM_CLIPBOARD,target,clipdata);
       }
     return false;
-    }
-  ~GMFileListClipboardData() {
     }
   };
 
@@ -242,7 +236,7 @@ public:
 
 long GMLocalSource::onCmdCopyTrack(FXObject*,FXSelector,void*){
   FXDragType types[3]={GMClipboard::kdeclipboard,GMClipboard::gnomeclipboard,FXWindow::urilistType};
-  GMFileListClipboardData * data = new GMFileListClipboardData;
+  auto * data = new GMFileListClipboardData;
   if (GMClipboard::instance()->acquire(this,types,3,data)){
     FXApp::instance()->beginWaitCursor();
     GMTrackView * view = GMPlayerManager::instance()->getTrackView();
@@ -264,8 +258,8 @@ long GMLocalSource::onCmdCopyTrack(FXObject*,FXSelector,void*){
 
 
 long GMLocalSource::onCmdRequestTrack(FXObject*sender,FXSelector,void*ptr){
-  FXEvent* event=(FXEvent*)ptr;
-  FXWindow*window=(FXWindow*)sender;
+  const auto* event=static_cast<FXEvent *>(ptr);
+  const auto* window=dynamic_cast<FXWindow *>(sender);
   if(event->target==GMClipboard::urilistType){
     FXStringList filenames;
     FXIntList tracks;
@@ -289,6 +283,3 @@ long GMLocalSource::onCmdRequestTrack(FXObject*sender,FXSelector,void*ptr){
     }
   return 0;
   }
-
-
-

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "GMTrack.h"
@@ -324,6 +326,7 @@ FXString TrackFormatter::get_field(const FXchar field,const GMTrack & track) con
     case 'n': return FXString::value(track.getTrackNumber());  break;
     case 'd': return FXString::value(track.getDiscNumber()); break;
     case 'y': return FXString::value(track.year); break;
+    default : break;
     }
   return FXString::null;
   }

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_socket.h"
@@ -152,9 +154,10 @@ FXbool Socket::setReceiveTimeout(FXTime time) {
   if (setsockopt(sockethandle, SOL_SOCKET, SO_RCVTIMEO, (char*)&value, sizeof(FXuint))!=0)
     return false;
 #else
-  struct timeval tv;
-  tv.tv_sec  = time / NANOSECONDS_PER_SECOND;
-  tv.tv_usec = (time % NANOSECONDS_PER_SECOND) / NANOSECONDS_PER_MICROSECOND;
+  struct timeval tv = {
+    .tv_sec  = time / NANOSECONDS_PER_SECOND,
+    .tv_usec = (time % NANOSECONDS_PER_SECOND) / NANOSECONDS_PER_MICROSECOND
+  };
   if (setsockopt(device, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval))!=0)
     return false;
 #endif
@@ -168,9 +171,10 @@ FXbool Socket::setSendTimeout(FXTime time) {
   if (setsockopt(sockethandle, SOL_SOCKET, SO_SNDTIMEO, (char*)&value, sizeof(FXuint))!=0)
     return false;
 #else
-  struct timeval tv;
-  tv.tv_sec  = time / NANOSECONDS_PER_SECOND;
-  tv.tv_usec = (time % NANOSECONDS_PER_SECOND) / NANOSECONDS_PER_MICROSECOND;
+  struct timeval tv = {
+    .tv_sec  = time / NANOSECONDS_PER_SECOND,
+    .tv_usec = (time % NANOSECONDS_PER_SECOND) / NANOSECONDS_PER_MICROSECOND
+  };
   if (setsockopt(device,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(struct timeval))!=0)
     return false;
 #endif
@@ -431,9 +435,11 @@ WaitEvent Socket::wait(WaitMode mode) {
   return WaitEvent::Input;
 #else
   FXint n;
-  struct pollfd handles;
-  handles.fd     = device;
-  handles.events = (mode==WaitMode::Read) ? POLLIN : POLLOUT;
+  struct pollfd handles = {
+    .fd     = device,
+    .events = static_cast<short>((mode==WaitMode::Read) ? POLLIN : POLLOUT),
+    .revents = 0
+  };
 x:n=poll(&handles,1,-1);
   if (__unlikely(n<0)) {
     if (errno==EAGAIN || errno==EINTR)
@@ -474,10 +480,6 @@ WaitEvent ThreadSocket::wait(WaitMode mode) {
   }
 
 #if defined(HAVE_OPENSSL) || defined(HAVE_GNUTLS)
-
-SecureSocket::SecureSocket() {
-  }
-
 
 FXbool SecureSocket::create(FXint domain,FXint type,FXint protocol,FXuint mode) {
   if (Socket::create(domain,type,protocol,mode)) {
@@ -665,11 +667,11 @@ x:status = SSL_connect(ssl);
     X509_free(certificate);
 
     // Verify certificate
-    status = SSL_get_verify_result(ssl);
-    if (status!=X509_V_OK) {
+    long ssl_status = SSL_get_verify_result(ssl);
+    if (ssl_status!=X509_V_OK) {
 
       // todo: have some way to handle self-signed certificates
-      switch(status) {
+      switch(ssl_status) {
         case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
         case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
           GM_DEBUG_PRINT("[ssl] self-signed certificate\n");
@@ -714,10 +716,10 @@ x:status = SSL_connect(ssl);
 FXival SecureSocket::readBlock(void* data,FXival count) {
 #if defined(HAVE_OPENSSL)
   FXival n;
-x:n=SSL_read(ssl,data,count);
+x:n=SSL_read(ssl, data, static_cast<FXint>(count));
   if (__unlikely(n<0)) {
     WaitMode mode;
-    switch(SSL_get_error(ssl,n)) {
+    switch(SSL_get_error(ssl, static_cast<FXint>(n))) {
       case SSL_ERROR_WANT_READ :
         mode = WaitMode::Read;
         break;
@@ -787,10 +789,10 @@ x:n=gnutls_record_recv(session,data,count);
 FXival SecureSocket::writeBlock(const void* data,FXival count) {
 #if defined(HAVE_OPENSSL)
   FXival n;
-x:n=SSL_write(ssl,data,count);
+x:n=SSL_write(ssl, data, static_cast<FXint>(count));
   if (__unlikely(n<0)) {
     WaitMode mode;
-    switch(SSL_get_error(ssl,n)) {
+    switch(SSL_get_error(ssl, static_cast<FXint>(n))) {
       case SSL_ERROR_WANT_READ :
         mode = WaitMode::Read;
         break;

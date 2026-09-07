@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMDATABASESOURCE_H
 #define GMDATABASESOURCE_H
@@ -31,9 +33,9 @@ public:
   GMTrackDatabase * db;
   FXIntList         tracks;
 public:
-  FXbool request(FXDragType target,GMClipboard * clipboard);
+  FXbool request(FXDragType target,GMClipboard * clipboard) override;
 
-  ~GMDatabaseClipboardData() {
+  ~GMDatabaseClipboardData() override {
     db=nullptr;
     }
   };
@@ -55,13 +57,10 @@ protected:
   FXbool              hasview    = false;
   FXString            dndfiles;
 protected:
-  GMDatabaseSource(){}
-private:
-  GMDatabaseSource(const GMDatabaseSource&);
-  GMDatabaseSource& operator=(const GMDatabaseSource&);
+  GMDatabaseSource() = default;
 protected:
   void removeFiles(const FXStringList & files);
-  FXbool hasFilter() const { return hasfilter; }
+  [[nodiscard]] FXbool hasFilter() const { return hasfilter; }
 public:
   enum {
     ID_NEW_PLAYLIST = GMSource::ID_LAST,
@@ -100,35 +99,32 @@ public:
   long onCmdImportPlayList(FXObject*,FXSelector,void*);
   long onCmdClear(FXObject*,FXSelector,void*);
   long onCmdTrackPlayed(FXObject*,FXSelector,void*);
-  long onCmdShowColumn(FXObject*,FXSelector,void*);
-  long onUpdShowColumn(FXObject*,FXSelector,void*);
   long onQueryTip(FXObject*,FXSelector,void*);
   long onCmdOpenFolder(FXObject*,FXSelector,void*);
   long onCmdEditRating(FXObject*,FXSelector,void*);
   long onDndImportFiles(FXObject*,FXSelector,void*);
   long onCmdAddCover(FXObject*,FXSelector,void*);
   long onCmdSearchCover(FXObject*,FXSelector,void*);
-  long onCmdMainWindow(FXObject*,FXSelector,void*);
   long onCmdLoadCovers(FXObject*,FXSelector,void*);
   long onCmdNewFilter(FXObject*,FXSelector,void*);
 public:
-  GMDatabaseSource(GMTrackDatabase * db);
+  explicit GMDatabaseSource(GMTrackDatabase * db);
 
   void shutdown();
 
 
-  virtual GMTrackListSortFunc getSortBrowse(FXbool album_list_mode=false) const override;
+  [[nodiscard]] GMTrackListSortFunc getSortBrowse(FXbool album_list_mode) const override;
 
 
   virtual void addTracks(GMSource * src,const FXIntList & tracks);
 
-  GMCoverCache* getCoverCache() const override { return covercache; }
+  [[nodiscard]] GMCoverCache* getCoverCache() const override { return covercache; }
 
   void loadCovers() override;
 
   void updateCovers() override;
 
-  FXbool canFilter() const override { return true; }
+  [[nodiscard]] FXbool canFilter() const override { return true; }
 
   void shuffle(GMTrackList*,FXuint) const override;
 
@@ -144,15 +140,15 @@ public:
 
   FXbool findCurrentAlbum(GMAlbumList *,GMSource * src) override;
 
-  FXString getName() const override { return fxtr("Music Library"); }
+  [[nodiscard]] FXString getName() const override { return fxtr("Music Library"); }
 
-  FXint getNumTracks() const override;
+  [[nodiscard]] FXint getNumTracks() const override;
 
   FXbool getTrack(GMTrack & info) const override;
 
-  FXint getType() const override { return SOURCE_DATABASE; }
+  [[nodiscard]] FXint getType() const override { return SOURCE_DATABASE; }
 
-  FXString settingKey() const override { return "database"; }
+  [[nodiscard]] FXString settingKey() const override { return "database"; }
 
   FXbool setFilter(const FXString&,FXuint) override;
 
@@ -182,7 +178,7 @@ public:
 
   FXuint dnd_provides(FXDragType types[]) override;
 
-  virtual ~GMDatabaseSource();
+  ~GMDatabaseSource() override = default;
   };
 
 

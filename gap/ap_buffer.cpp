@@ -15,32 +15,54 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_buffer.h"
 
-#define ROUNDVAL    16
-#define ROUNDUP(n)  (((n)+ROUNDVAL-1)&-ROUNDVAL)
+#include <openssl/err.h>
+
+#define CACHE_ALIGN 64
 
 namespace ap {
 
-BufferBase::BufferBase(FXival n) {
-  allocElms(begptr,ROUNDUP(n));
-  endptr=begptr+n;
-  wrptr=begptr;
-  rdptr=begptr;
+BufferBase::BufferBase(FXival n) : rawptr(nullptr) {
+  const FXival nbytes = n + (CACHE_ALIGN - 1);
+  if (allocElms(rawptr, nbytes)) {
+    const auto raw_addr = reinterpret_cast<FXuval>(rawptr);
+    const FXuval aligned_addr = (raw_addr + (CACHE_ALIGN - 1)) & ~(static_cast<FXuval>(CACHE_ALIGN - 1));
+    begptr = reinterpret_cast<FXuchar*>(aligned_addr);
+    endptr = begptr + n;
+    wrptr  = begptr;
+    rdptr  = begptr;
+
+    // zero out areas beyond requested buffer size
+    if (begptr > rawptr)
+      memset(rawptr, 0, begptr - rawptr);
+    const FXuchar * bufptr = rawptr + nbytes;
+    if (bufptr > endptr)
+      memset(endptr, 0, bufptr - endptr);
+    }
   }
 
 BufferBase::~BufferBase(){
-  freeElms(begptr);
+  freeElms(rawptr);
+  rawptr = nullptr;
+  begptr = nullptr;
+  endptr = nullptr;
+  wrptr = nullptr;
+  rdptr = nullptr;
   }
 
 void BufferBase::adopt(BufferBase & other) {
-  freeElms(begptr);
+  freeElms(rawptr);
+  rawptr = other.rawptr;
   begptr = other.begptr;
   endptr = other.endptr;
   wrptr  = other.wrptr;
   rdptr  = other.rdptr;
+  other.rawptr = nullptr;
   other.begptr = nullptr;
   other.endptr = nullptr;
   other.wrptr = nullptr;
@@ -53,18 +75,44 @@ void BufferBase::clear() {
 
 FXbool BufferBase::resize(FXival n) {
   FXASSERT(n>0);
-  if(begptr+n!=endptr){
-    FXuchar *oldbegptr=begptr;
+  const FXival nbytes = n + (CACHE_ALIGN - 1);
+  if(begptr+n!=endptr) {
 
-    // Resize the buffer
-    if(!resizeElms(begptr,ROUNDUP(n))) return false;
+    // Old buffer pointers
+    FXuchar *oldrawptr=rawptr;
+    FXuchar *oldwrptr=wrptr;
+    FXuchar *oldrdptr=rdptr;
 
-    // Adjust pointers, buffer may have moved
-    endptr=begptr+n;
-    wrptr=begptr+(wrptr-oldbegptr);
-    rdptr=begptr+(rdptr-oldbegptr);
-    if(wrptr>endptr) wrptr=endptr;
-    if(rdptr>endptr) rdptr=endptr;
+    rawptr = nullptr;
+    if (!allocElms(rawptr, nbytes)) {
+      rawptr = oldrawptr;
+      return false;
+    }
+    const auto raw_addr = reinterpret_cast<FXuval>(rawptr);
+    const FXuval aligned_addr = (raw_addr + (CACHE_ALIGN - 1)) & ~(static_cast<FXuval>(CACHE_ALIGN - 1));
+
+    begptr = reinterpret_cast<FXuchar*>(aligned_addr);
+    endptr = begptr + n;
+
+    // zero out areas beyond requested buffer size
+    if (begptr > rawptr)
+      memset(rawptr, 0, begptr - rawptr);
+    const FXuchar * bufptr = rawptr + nbytes;
+    if (bufptr > endptr)
+      memset(endptr, 0, bufptr - endptr);
+
+    FXival avail = (oldwrptr > oldrdptr) ? (oldwrptr - oldrdptr) : 0;
+    if (avail > 0) {
+      FXival to_copy = (avail < n) ? avail : n;
+      copyElms(begptr, oldrdptr, to_copy);
+      wrptr = begptr + to_copy;
+      rdptr = begptr;
+      }
+    else {
+      wrptr = begptr;
+      rdptr = begptr;
+      }
+    freeElms(oldrawptr);
     }
   return true;
   }
@@ -90,13 +138,24 @@ FXbool BufferBase::reserve(FXival n) {
   }
 
 
+void BufferBase::align() {
+  if (rdptr > begptr) {
+    if (wrptr > rdptr) {
+      memmove(begptr, rdptr, wrptr - rdptr);
+      wrptr -= (rdptr - begptr);
+      rdptr = begptr;
+      }
+    else {
+      rdptr=wrptr=begptr;
+      }
+    }
+  }
+
+
 
 //----------------------------------------------
 
 MemoryBuffer::MemoryBuffer(FXival cap) : BufferBase(cap) {
-  }
-
-MemoryBuffer::~MemoryBuffer() {
   }
 
 void MemoryBuffer::readBytes(FXival nbytes) {
@@ -131,7 +190,7 @@ FXival MemoryBuffer::read(void * b, FXival nbytes) {
   return nbytes;
   }
 
-FXival MemoryBuffer::peek(void * b, FXival nbytes) {
+FXival MemoryBuffer::peek(void * b, FXival nbytes) const {
   nbytes=FXMIN(size(),nbytes);
   memcpy(b,rdptr,nbytes);
   return nbytes;

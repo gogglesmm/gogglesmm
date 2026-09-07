@@ -1,0 +1,29 @@
+/*******************************************************************************
+*                             Audio Converter                                  *
+********************************************************************************
+*           Copyright (C) 2010-2010 by Sander Jansen. All Rights Reserved      *
+*                               ---                                            *
+* This program is free software: you can redistribute it and/or modify         *
+* it under the terms of the GNU General Public License as published by         *
+* the Free Software Foundation, either version 3 of the License, or            *
+* (at your option) any later version.                                          *
+*                                                                              *
+* This program is distributed in the hope that it will be useful,              *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of               *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
+* GNU General Public License for more details.                                 *
+*                                                                              *
+* You should have received a copy of the GNU General Public License            *
+* along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
+********************************************************************************/
+#define LOCALE_PATH "${LOCALE_PATH}"
+#define ICON_PATH "${ICON_PATH}"
+#define BUILD_DATE __DATE__
+#define BUILD_TIME __TIME__
+#define APPLICATION_VERSION_STRING "${AUDIOCONVERT_VERSION}"
+#define APPLICATION_VERSION_MAJOR ${AUDIOCONVERT_VERSION_MAJOR}
+#define APPLICATION_VERSION_MINOR ${AUDIOCONVERT_VERSION_MINOR}
+#define APPLICATION_VERSION_PATCH ${AUDIOCONVERT_VERSION_PATCH}
+#define FOX_BIGENDIAN ${AUDIOCONVERT_BIGENDIAN}

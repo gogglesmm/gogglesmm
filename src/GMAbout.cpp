@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
@@ -47,10 +49,6 @@ GMAboutDialog::GMAboutDialog(FXApp * a) : FXDialogBox(a,FXString::null,DECOR_ALL
 GMAboutDialog::GMAboutDialog(FXWindow* o) : FXDialogBox(o,FXString::null,DECOR_TITLE|DECOR_BORDER|DECOR_CLOSE,0,0,0,0,0,0,0,0,0,0) {
   setup();
   }
-
-GMAboutDialog::~GMAboutDialog(){
-  }
-
 
 void GMAboutDialog::setup(){
 

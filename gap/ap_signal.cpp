@@ -15,17 +15,22 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_signal.h"
 #include "ap_utils.h"
 
-/// On Linux we want to use pipe2
+/// Use pipe2 if available
 #if defined(__linux__) && defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 9))
   #define HAVE_PIPE2
   #ifndef _GNU_SOURCE
     #define _GNU_SOURCE
   #endif
+  #include <fcntl.h>
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+  #define HAVE_PIPE2
   #include <fcntl.h>
 #endif
 
@@ -41,7 +46,6 @@
 #ifdef HAVE_EVENTFD
   #include <sys/eventfd.h>
 #endif
-
 
 namespace ap {
 
@@ -118,7 +122,7 @@ void Signal::set() {
 #if defined(_WIN32)
   SetEvent(device);
 #elif defined(HAVE_EVENTFD)
-  const FXlong value=1;
+  constexpr FXlong value=1;
   if (__unlikely(write(device,&value,sizeof(FXlong))!=sizeof(FXlong) && errno!=EAGAIN))
     fxerror("gap: failed to set signal, write to eventfd failed");
 #else
@@ -202,7 +206,7 @@ x:n=ppoll(handles,2,timeout ? &ts : nullptr,nullptr);
     return WaitEvent::Error;
     }
 #else
-x:n=poll(handles,2,timeout ? (timeout/NANOSECONDS_PER_MILLISECOND) : -1);
+x:n=poll(handles,2,timeout ? static_cast<FXint>(timeout/NANOSECONDS_PER_MILLISECOND) : -1);
   if (__unlikely(n<0)) {
     if (errno==EAGAIN || errno==EINTR)
       goto x;
@@ -250,7 +254,7 @@ void Semaphore::release() {
 #if defined(_WIN32)
   ReleaseSemaphore(device,1,nullptr);
 #elif defined(HAVE_EVENTFD)
-  const FXlong value=1;
+  constexpr FXlong value=1;
   if (__unlikely(write(device,&value,sizeof(FXlong))!=sizeof(FXlong) && errno!=EAGAIN))
     fxerror("gap: failed to release semaphore, write to eventfd failed");
 #else
@@ -261,7 +265,7 @@ void Semaphore::release() {
   }
 
 
-FXbool Semaphore::wait(const Signal & input) {
+FXbool Semaphore::wait(const Signal & input) { // NOLINT(*-make-member-function-const)
 #if defined(_WIN32)
   HANDLE handles[2]={device,input.handle()};
   DWORD result=WaitForMultipleObjects(2,handles,false,INFINITE);
@@ -314,7 +318,7 @@ FXbool Semaphore::wait(const Signal & input) {
 
 
 
-void Semaphore::close() {
+void Semaphore::close() { // NOLINT(*-make-member-function-const)
 #if defined(_WIN32)
   if(device!=BadHandle) CloseHandle(device);
 #elif defined(HAVE_EVENTFD)

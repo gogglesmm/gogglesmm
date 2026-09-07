@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_event.h"
@@ -23,21 +25,18 @@
 
 namespace ap {
 
-FXAppQueue::FXAppQueue() : channel(nullptr),target(nullptr),message(0) {
-  }
-
 FXAppQueue::FXAppQueue(FXApp * app,FXObject * tgt,FXSelector sel) : target(tgt),message(sel) {
   channel=new FXMessageChannel(app);
   }
 
 FXAppQueue::~FXAppQueue() {
-  flush();
+  FXAppQueue::flush();
   FXASSERT(head==nullptr);
   FXASSERT(tail==nullptr);
   delete channel;
   }
 
-void FXAppQueue::post(Event*event,FXint where) {
+void FXAppQueue::post_impl(Event*event,FXint where) {
   mfifo.lock();
   if (where==Back) {
     if (tail) tail->next = event;

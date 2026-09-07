@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_event_private.h"
@@ -23,10 +25,7 @@
 
 namespace ap {
 
-OggDecoder::OggDecoder(DecoderContext*e) : DecoderPlugin(e),
-  buffer(0),
-  out(nullptr),
-  stream_position(-1) {
+OggDecoder::OggDecoder(DecoderContext*e) : DecoderPlugin(e), buffer(0) {
   }
 
 OggDecoder::~OggDecoder() {

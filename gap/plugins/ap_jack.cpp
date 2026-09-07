@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_output_plugin.h"
@@ -27,41 +29,41 @@ namespace ap {
 
 class JackOutput : public OutputPlugin {
 protected:
-  jack_client_t * jack;
+  jack_client_t * jack = nullptr;
 protected:
   FXbool open();
 public:
   JackOutput(OutputContext* ctx);
 
   /// Configure
-  FXbool configure(const AudioFormat &);
+  FXbool configure(const AudioFormat &) override;
 
   /// Write frames to playback buffer
-  FXbool write(const void*, FXuint);
+  FXbool write(const void*, FXuint) override;
 
   /// Return delay in no. of frames
-  FXint delay();
+  FXint delay() override;
 
   /// Empty Playback Buffer Immediately
-  void drop();
+  void drop() override;
 
   /// Wait until playback buffer is emtpy.
-  void drain();
+  void drain() override;
 
   /// Pause
-  void pause(FXbool);
+  void pause(FXbool) override;
 
   /// Change Volume
-  void volume(FXfloat);
+  void volume(FXfloat) override;
 
   /// Close Output
-  void close();
+  void close() override;
 
   /// Get Device Type
-  FXchar type() const { return DeviceJack; }
+  [[nodiscard]] FXchar type() const override { return DeviceJack; }
 
   /// Destructor
-  virtual ~JackOutput();
+  ~JackOutput() override;
   };
 
 
@@ -69,7 +71,7 @@ JackOutput::JackOutput(OutputContext * ctx) : OutputPlugin(ctx) {
   }
 
 JackOutput::~JackOutput() {
-  close();
+  JackOutput::close();
   }
 
 FXbool JackOutput::open() {

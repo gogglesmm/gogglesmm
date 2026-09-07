@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMLOCALSOURCE_H
 #define GMLOCALSOURCE_H
@@ -27,9 +29,6 @@ protected:
   FXStringList files;
   FXString     path;
   FXString     current_path;
-private:
-  GMLocalSource(const GMLocalSource&);
-  GMLocalSource& operator=(const GMLocalSource&);
 public:
   long onCmdRequestTrack(FXObject*,FXSelector,void*);
   long onCmdCopyTrack(FXObject*,FXSelector,void*);
@@ -46,23 +45,23 @@ public:
 
   FXbool getTrack(GMTrack & info) const override;
 
-  FXString getName() const override { return fxtr("File System"); }
+  [[nodiscard]] FXString getName() const override { return fxtr("File System"); }
 
-  FXint getType() const override { return SOURCE_FILESYSTEM; }
+  [[nodiscard]] FXint getType() const override { return SOURCE_FILESYSTEM; }
 
-  FXString settingKey() const override { return "file-system"; }
+  [[nodiscard]] FXString settingKey() const override { return "file-system"; }
 
   void load(FXSettings&) override;
 
   void save(FXSettings&) const override;
 
-  FXint getSortColumn(FXbool) const override { return HEADER_FILENAME; }
+  [[nodiscard]] FXint getSortColumn(FXbool) const override { return HEADER_FILENAME; }
 
-  FXbool canBrowse() const override { return false; }
+  [[nodiscard]] FXbool canBrowse() const override { return false; }
 
-  FXbool defaultBrowse() const override { return false; }
+  [[nodiscard]] FXbool defaultBrowse() const override { return false; }
 
-  FXbool autoPlay() const override { return true; }
+  [[nodiscard]] FXbool autoPlay() const override { return true; }
 
 //  FXbool source_context_menu(FXMenuPane * pane);
 
@@ -74,7 +73,7 @@ public:
 
   FXuint dnd_provides(FXDragType types[]) override;
 
-  virtual ~GMLocalSource();
+  ~GMLocalSource() override = default;
   };
 
 #endif

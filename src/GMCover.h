@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMCOVER_H
 #define GMCOVER_H
@@ -25,12 +27,12 @@ class GMCover;
 typedef FXArray<GMCover*> GMCoverList;
 
 struct GMImageInfo {
-  FXuint  width;
-  FXuint  height;
-  FXuchar bps;
-  FXuchar colors;
+  FXuint  width = 0;
+  FXuint  height = 0;
+  FXuchar bps = 0;
+  FXuchar colors = 0;
 
-  GMImageInfo() : width(0),height(0),bps(0),colors(0) {}
+  GMImageInfo() = default;
   };
 
 
@@ -63,16 +65,16 @@ public:
 protected:
   GMImageInfo info;
 public:
-  FXuchar*    data;
-  FXuint      size;
+  FXuchar*    data = nullptr;
+  FXuint      size = 0;
   FXString    description;
-  FXuchar     type;
+  FXuchar     type = Other;
 public:
   // Empty Cover
-  GMCover();
+  GMCover() = default;
 
   /// Construct Cover
-  GMCover(const void * data,FXuint sz,FXuint t=GMCover::Other,const FXString & label=FXString::null,FXbool owned=false);
+  GMCover(const void * data,FXuint sz,FXuint t=Other,const FXString & label=FXString::null,FXbool owned=false);
 
   /// Destructor
   ~GMCover();
@@ -81,15 +83,15 @@ public:
   FXbool getImageInfo(GMImageInfo &);
 
   /// Return file extension for image type.
-  FXString fileExtension() const;
+  [[nodiscard]] FXString fileExtension() const;
 
   /// Return mimetype for image type
-  FXString mimeType() const;
+  [[nodiscard]] FXString mimeType() const;
 
   /// Return filetype
-  FXuint fileType() const;
+  [[nodiscard]] FXuint fileType() const;
 
-  FXbool save(const FXString & path);
+  [[nodiscard]] FXbool save(const FXString & path) const;
 public:
 
   static FXint fromTag(const FXString & mrl,GMCoverList & list);
@@ -103,7 +105,7 @@ public:
 
   static GMCover * fromFile(const FXString & file);
 
-  static FXImage * copyToImage(GMCover*,FXint scale=0,FXint crop=0);
+  static FXImage * copyToImage(const GMCover*,FXint scale=0,FXint crop=0);
 
   static FXImage * toImage(GMCover*,FXint scale=0,FXint crop=0);
   };

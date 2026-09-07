@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_buffer.h"
@@ -41,11 +43,11 @@ protected:
   FXbool getNextFrame(Packet *& packet,FXuchar *& ptr,FXuint & framesize);
 public:
   AlacDecoder(DecoderContext*);
-  FXuchar codec() const override { return Codec::ALAC; }
-  FXbool flush(FXlong offset=0) override;
+  [[nodiscard]] FXuchar codec() const override { return Codec::ALAC; }
+  FXbool flush(FXlong offset) override;
   FXbool init(ConfigureEvent*) override ;
   FXbool process(Packet*) override;
-  ~AlacDecoder();
+  ~AlacDecoder() override;
   };
 
 
@@ -53,7 +55,7 @@ AlacDecoder::AlacDecoder(DecoderContext * e) : DecoderPlugin(e),handle(nullptr),
   }
 
 AlacDecoder::~AlacDecoder() {
-  flush();
+  AlacDecoder::flush(0);
   if (handle) {
     dispose_alac(handle);
     handle=nullptr;
@@ -76,14 +78,14 @@ FXbool AlacDecoder::init(ConfigureEvent*event) {
     return false;
 
   // Make sure we can init the decoder
-  DecoderSpecificConfig * dc = dynamic_cast<DecoderSpecificConfig*>(event->dc);
-  if (dc==nullptr && dc->config_bytes==0) {
+  auto * dc = dynamic_cast<DecoderSpecificConfig*>(event->dc);
+  if (dc==nullptr || dc->config_bytes==0) {
     dispose_alac(handle);
     handle=nullptr;
     return false;
     }
 
-  alac_set_info(handle,(FXchar*)dc->config);
+  alac_set_info(handle,reinterpret_cast<FXchar *>(dc->config));
   outbuf.resize(handle->setinfo_max_samples_per_frame*af.framesize());
   stream_position=-1;
   return true;
@@ -96,7 +98,7 @@ FXbool AlacDecoder::flush(FXlong offset) {
   outbuf.clear();
   if (out) {
     out->unref();
-    out=NULL;
+    out=nullptr;
     }
   stream_position=-1;
   return true;
@@ -193,7 +195,7 @@ FXbool AlacDecoder::process(Packet*packet){
     while(nframes) {
 
       // Get output packet
-      if (out==NULL){
+      if (out==nullptr){
         out = context->get_output_packet();
         if (out==nullptr) return true;
         out->af              = af;
@@ -211,7 +213,7 @@ FXbool AlacDecoder::process(Packet*packet){
 
       // Send to
       if (out->availableFrames()==0) {
-        context->post_output_packet(out);
+        context->post_output_packet(out, false);
         }
       }
     outbuf.clear();

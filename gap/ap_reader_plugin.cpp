@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_packet.h"
@@ -28,9 +30,6 @@ using namespace ap;
 namespace ap {
 
 ReaderPlugin::ReaderPlugin(InputContext * ctx) : context(ctx) {
-  }
-
-ReaderPlugin::~ReaderPlugin() {
   }
 
 FXlong ReaderPlugin::seek_offset(FXdouble value) const {
@@ -78,9 +77,6 @@ ReadStatus ReaderPlugin::process(Packet*packet) {
 TextReader::TextReader(InputContext*e) : ReaderPlugin(e) {
   }
 
-TextReader::~TextReader(){
-  }
-
 FXbool TextReader::init(InputPlugin * plugin) {
   ReaderPlugin::init(plugin);
   textbuffer.clear();
@@ -91,7 +87,7 @@ ReadStatus TextReader::process(Packet*packet) {
   packet->unref();
   GM_DEBUG_PRINT("[text] starting read %ld\n",input->size());
   if (input->size()>0) {
-    textbuffer.length(input->size());
+    textbuffer.length(static_cast<FXint>(input->size()));
     if (input->read(textbuffer.text(),input->size())!=input->size())
       return ReadError;
     }
@@ -101,7 +97,7 @@ ReadStatus TextReader::process(Packet*packet) {
     do {
       len+=nread;
       textbuffer.length(textbuffer.length()+chunk);
-      nread=input->read(&textbuffer[len],chunk);
+      nread=static_cast<FXint>(input->read(&textbuffer[len],chunk));
       }
     while(nread>0);
     textbuffer.trunc(len);

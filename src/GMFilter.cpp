@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "GMIconTheme.h"
@@ -23,7 +25,7 @@
 
 
 // Column Lookup Table
-static const FXchar * const column_lookup[]={
+static constexpr const FXchar * const column_lookup[]={
   "tracks.title",
   "track_artist.name",
   "album_artist.name",
@@ -49,7 +51,7 @@ static const FXchar * const column_lookup[]={
   };
 
 // Operator Lookup Table
-static const FXchar * const operator_lookup[]={
+static constexpr const FXchar * const operator_lookup[]={
   "LIKE",
   "NOT LIKE",
   "==",
@@ -80,28 +82,30 @@ FXString Rule::getMatch() const {
       {
         switch(opcode) {
           case OperatorLike     :
-          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
-          case OperatorPrefix   : return FXString::value("%s %s '%s%%'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
-          case OperatorSuffix   : return FXString::value("%s %s '%%%s'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
+          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text());
+          case OperatorPrefix   : return FXString::value("%s %s '%s%%'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text());
+          case OperatorSuffix   : return FXString::value("%s %s '%%%s'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text());
           case OperatorEquals   :
           case OperatorNotEqual :
           case OperatorLess     :
           case OperatorGreater  :
-          case OperatorMatch    : return FXString::value("%s %s '%s'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
+          case OperatorMatch    : return FXString::value("%s %s '%s'",column_lookup[column],operator_lookup[opcode],sql_escape(text).text());
+          default               : break;
           }
       } break;
     case ColumnTag:
       {
         switch(opcode) {
           case OperatorLike     :
-          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
-          case OperatorPrefix   : return FXString::value("%s %s '%s%%')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
-          case OperatorSuffix   : return FXString::value("%s %s '%%%s')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
+          case OperatorNotLike  : return FXString::value("%s %s '%%%s%%')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text());
+          case OperatorPrefix   : return FXString::value("%s %s '%s%%')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text());
+          case OperatorSuffix   : return FXString::value("%s %s '%%%s')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text());
           case OperatorEquals   :
           case OperatorNotEqual :
           case OperatorLess     :
           case OperatorGreater  :
-          case OperatorMatch    : return FXString::value("%s %s '%s')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text()); break;
+          case OperatorMatch    : return FXString::value("%s %s '%s')",column_lookup[column],operator_lookup[opcode],sql_escape(text).text());
+          default               : break;
           }
       } break;
     case ColumnYear:
@@ -119,7 +123,8 @@ FXString Rule::getMatch() const {
           case OperatorEquals     :
           case OperatorNotEqual   :
           case OperatorLess       :
-          case OperatorGreater    : return FXString::value("%s %s %d",column_lookup[column],operator_lookup[opcode],value); break;
+          case OperatorGreater    : return FXString::value("%s %s %d",column_lookup[column],operator_lookup[opcode],value);
+          default                 : break;
           }
       } break;
     case ColumnPlayDate:
@@ -127,14 +132,16 @@ FXString Rule::getMatch() const {
       {
         switch(opcode) {
           case OperatorLess       :
-          case OperatorGreater    : return FXString::value("datetime(%s/1000000000,'unixepoch') %s datetime('now','-%d seconds')",column_lookup[column],operator_lookup[opcode],value); break;
+          case OperatorGreater    : return FXString::value("datetime(%s/1000000000,'unixepoch') %s datetime('now','-%d seconds')",column_lookup[column],operator_lookup[opcode],value);
+          default                 : break;
           }
       } break;
     case ColumnFileType:
       {
         switch(opcode) {
           case OperatorEquals     :
-          case OperatorNotEqual   : return FXString::value("%s %s %d",column_lookup[column],operator_lookup[opcode],value); break;
+          case OperatorNotEqual   : return FXString::value("%s %s %d",column_lookup[column],operator_lookup[opcode],value);
+          default                 : break;
           }
       } break;
     default: FXASSERT(0); break;
@@ -202,9 +209,7 @@ GMFilter::GMFilter() :
 // Construct integer input filter with name, column, opcode and value
 GMFilter::GMFilter(const FXString & n,FXint column,FXint opcode,FXint value) :
   id(nextid++),
-  name(n),
-  limit(0),
-  match(MatchAll) {
+  name(n) {
   rules.append(Rule(column,opcode,value));
   }
 
@@ -263,7 +268,6 @@ void GMFilter::load(FXStream & store) {
 
 // Save to stream
 void GMFilter::save(FXStream & store) const {
-  FXint nitems;
   store << id;
   store << name;
 
@@ -271,16 +275,14 @@ void GMFilter::save(FXStream & store) const {
   GMFilter::nextid = FXMAX(id+1,nextid);
 
   // Rules
-  nitems = rules.no();
-  store << nitems;
-  for (FXint i=0;i<nitems;i++) {
+  store << static_cast<FXint>(rules.no());
+  for (FXint i=0;i<rules.no();i++) {
     rules[i].save(store);
     }
 
   // Order
-  nitems = order.no();
-  store << nitems;
-  for (FXint i=0;i<nitems;i++) {
+  store << static_cast<FXint>(order.no());
+  for (FXint i=0;i<order.no();i++) {
     order[i].save(store);
     }
   store << limit;

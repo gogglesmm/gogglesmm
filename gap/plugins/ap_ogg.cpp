@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_vorbis.h"
@@ -182,7 +184,7 @@ struct OggReaderState {
   FXbool has_packet     = false;
   FXbool header_written = false;
   FXuint bytes_written  = 0;
-  OggReaderState() {}
+  OggReaderState() = default;
   void reset() {has_stream=false;has_eos=false;has_page=false; has_packet=false; header_written=false;bytes_written=0; }
   };
 
@@ -244,11 +246,11 @@ public:
   OggReader(InputContext *);
   FXuchar format() const override { return Format::OGG; };
   FXbool init(InputPlugin*) override;
-  FXlong seek_offset(FXdouble) const;
-  FXbool seek(FXlong offset) override;
+  FXlong seek_offset(FXdouble) const override;
+  FXbool seek(FXlong target) override;
   FXbool can_seek() const override;
   ReadStatus process(Packet*) override;
-  virtual ~OggReader();
+  ~OggReader() override;
   };
 
 

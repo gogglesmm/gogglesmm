@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AP_BUFFER_BASE_H
 #define AP_BUFFER_BASE_H
@@ -23,10 +25,13 @@ namespace ap {
 
 class GMAPI BufferBase {
 protected:
-  FXuchar * begptr;  // Begin of buffer
-  FXuchar * endptr;  // End of buffer
+  FXuchar * rawptr;  // (unaligned) buffer ptr
+  FXuchar * begptr;  // Begin of aligned buffer
+  FXuchar * endptr;  // End of aligned buffer
   FXuchar * wrptr;   // Write pointer
   FXuchar * rdptr;   // Read pointer
+protected:
+  ~BufferBase();
 public:
   BufferBase(FXival n=4096);
 
@@ -39,10 +44,11 @@ public:
   // Reserve up to free n bytes.
   FXbool reserve(FXival n);
 
+  // Align read pointer
+  void align();
+
   // Clear buffer by resetting read and write pointers
   void clear();
-
-  ~BufferBase();
   };
 
 }

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "GMTrack.h"
@@ -31,12 +33,6 @@
 
 
 FXIMPLEMENT(GMSource,FXObject,nullptr,0);
-
-GMSource::GMSource() {
-  }
-
-GMSource::~GMSource() {
-  }
 
 FXbool GMSource::findCurrent(GMTrackList * list,GMSource * src) {
   if (src==nullptr || src->current_track==-1) return false;

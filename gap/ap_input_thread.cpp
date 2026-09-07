@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 #include "ap_utils.h"
@@ -29,14 +31,7 @@
 namespace ap {
 
 
-InputThread::InputThread(AudioEngine*e) : EngineThread(e),
-  input(nullptr),
-  reader(nullptr),
-  state(StateIdle) {
-  }
-
-
-InputThread::~InputThread() {
+InputThread::InputThread(AudioEngine*e) : EngineThread(e) {
   }
 
 FXbool InputThread::init() {
@@ -69,15 +64,16 @@ Event * InputThread::wait_for_packet() {
     Packet * packet = packetpool.wait(fifo.signal());
     if (packet) return packet;
     }
-  while(1);
-  return nullptr;
+  while(true);
   }
 
 
 FXint InputThread::run(){
   Event * event;
 
-  ap_set_thread_name("ap_input");
+#if FOXVERSION >= FXVERSION(1, 7, 68)
+  description("ap_input");
+#endif
 
   for (;;) {
     if (reader && state==StateProcessing)
@@ -91,14 +87,14 @@ FXint InputThread::run(){
                             break;
 
       case Ctrl_Open_Flush: ctrl_flush(); // fallthrough -  intentional no break
-      case Ctrl_Open      : ctrl_open_input(static_cast<ControlEvent*>(event)->text);
+      case Ctrl_Open      : ctrl_open_input(dynamic_cast<ControlEvent*>(event)->text);
                             break;
 
       case Ctrl_Quit      : ctrl_close_input(true);
                             engine->decoder->post(event,EventQueue::Flush);
                             return 0;
                             break;
-      case Ctrl_Seek      : ctrl_seek(static_cast<CtrlSeekEvent*>(event)->pos);
+      case Ctrl_Seek      : ctrl_seek(dynamic_cast<CtrlSeekEvent*>(event)->pos);
                             break;
       case End            : if (event->stream==stream) {
                               ctrl_eos();
@@ -115,7 +111,7 @@ FXint InputThread::run(){
                             break;
       case Buffer         :
         {
-          Packet * packet = static_cast<Packet*>(event);
+          auto * packet = dynamic_cast<Packet*>(event);
           FXASSERT(reader);
           FXASSERT(packet);
           packet->stream = stream;

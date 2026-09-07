@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef GMPLAYLISTSOURCE_H
 #define GMPLAYLISTSOURCE_H
@@ -26,10 +28,7 @@ protected:
   FXint    current_queue = -1;
   FXbool   orderchanged  = false;
 protected:
-  GMPlayListSource(){}
-private:
-  GMPlayListSource(const GMPlayListSource&);
-  GMPlayListSource& operator=(const GMPlayListSource&);
+  GMPlayListSource() = default;
 public:
   enum {
     ID_EDIT_NAME = GMDatabaseSource::ID_LAST,
@@ -53,17 +52,17 @@ public:
 
   void markCurrent(const GMTrackItem*item) override;
 
-  FXString getName() const override { return name.text(); }
+  [[nodiscard]] FXString getName() const override { return name; }
 
-  FXint getType() const override { return SOURCE_DATABASE_PLAYLIST; }
+  [[nodiscard]] FXint getType() const override { return SOURCE_DATABASE_PLAYLIST; }
 
-  FXint getSortColumn(FXbool browse) const override { if (browse) return HEADER_BROWSE; else return HEADER_QUEUE; }
+  [[nodiscard]] FXint getSortColumn(FXbool browse) const override { if (browse) return HEADER_BROWSE; else return HEADER_QUEUE; }
 
-  FXbool getQueueColumn(FXbool browse) const override { if (browse) return false; else return true; }
+  [[nodiscard]] FXbool getQueueColumn(FXbool browse) const override { if (browse) return false; else return true; }
 
-  FXbool defaultBrowse() const override { return false; }
+  [[nodiscard]] FXbool defaultBrowse() const override { return false; }
 
-  FXString settingKey() const override { return "database_playlist_" + FXString::value(playlist); }
+  [[nodiscard]] FXString settingKey() const override { return "database_playlist_" + FXString::value(playlist); }
 
   void save(GMTrackList*) override;
 
@@ -76,8 +75,6 @@ public:
   FXbool source_context_menu(FXMenuPane * pane) override;
 
   FXbool dnd_accepts(FXDragType*,FXuint) override;
-
-  virtual ~GMPlayListSource();
   };
 
 #endif

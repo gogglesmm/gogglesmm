@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "ap_defs.h"
 
@@ -74,12 +76,6 @@
 #include <windows.h>
 #endif
 
-
-// for prctl
-#ifdef __linux__
-#include <sys/prctl.h>
-#endif
-
 // for fcntl
 #ifndef _WIN32
 #include <unistd.h>
@@ -113,12 +109,6 @@ namespace ap {
 
 // PUBLIC API
 //----------------------------------------------------
-
-void ap_set_thread_name(const FXchar * name) {
-#ifdef __linux__
-  prctl(PR_SET_NAME,(unsigned long)name,0,0,0);
-#endif
-  }
 
 FXString ap_get_environment(const FXchar * key,const FXchar * def) {
   FXString value = FXSystem::getEnvironment(key);
@@ -334,19 +324,19 @@ void ap_replaygain_from_vorbis_comment(ReplayGain & gain,const FXchar * comment,
   if (len>22) {
     if (FXString::comparecase(comment,"REPLAYGAIN_TRACK_GAIN=",22)==0){
       FXString tag(comment+22,len-22);
-      tag.scan("%lg",&gain.track);
+      (void)tag.scan("%lg",&gain.track);
       }
     else if (FXString::comparecase(comment,"REPLAYGAIN_TRACK_PEAK=",22)==0){
       FXString tag(comment+22,len-22);
-      tag.scan("%lg",&gain.track_peak);
+      (void)tag.scan("%lg",&gain.track_peak);
       }
     else if (FXString::comparecase(comment,"REPLAYGAIN_ALBUM_GAIN=",22)==0){
       FXString tag(comment+22,len-22);
-      tag.scan("%lg",&gain.album);
+      (void)tag.scan("%lg",&gain.album);
       }
     else if (FXString::comparecase(comment,"REPLAYGAIN_ALBUM_PEAK=",22)==0){
       FXString tag(comment+22,len-22);
-      tag.scan("%lg",&gain.album_peak);
+      (void)tag.scan("%lg",&gain.album_peak);
       }
     }
   }
@@ -386,16 +376,16 @@ void ap_parse_vorbiscomment(const FXuchar * buffer,FXint len,ReplayGain & gain,M
 const FXchar Base64Encoder::base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-Base64Encoder::Base64Encoder(FXint source_length) : nbuffer(0), index(0){
+Base64Encoder::Base64Encoder(FXint source_length) {
   if (source_length)
     out.length(4*(source_length/3));
   }
 
 FXString Base64Encoder::encodeString(const FXString & source) {
-  Base64Encoder base64(source.length());
-  base64.encode(source);
-  base64.finish();
-  return base64.getOutput();
+  Base64Encoder encoder(source.length());
+  encoder.encode(source);
+  encoder.finish();
+  return encoder.getOutput();
   }
 
 void Base64Encoder::encode(FXuint value) {

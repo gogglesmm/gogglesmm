@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef INPUT_H
 #define INPUT_H
@@ -35,10 +37,9 @@ class MetaInfo;
 class InputThread : public EngineThread, public IOContext, public InputContext {
 protected:
   PacketPool     packetpool;
-  InputPlugin  * input;
-  ReaderPlugin * reader;
-  FXuchar        state;
-
+  InputPlugin  * input = nullptr;
+  ReaderPlugin * reader = nullptr;
+  FXuchar        state = StateIdle;
 protected:
   enum {
     StateIdle       = 0, // doing nothing, waiting for events
@@ -89,9 +90,6 @@ public:
   FXbool init() override;
 
   void free() override;
-
-  /// Destructor
-  virtual ~InputThread();
   };
 }
 #endif

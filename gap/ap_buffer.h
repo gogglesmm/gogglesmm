@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AP_MEMORY_BUFFER_H
 #define AP_MEMORY_BUFFER_H
@@ -30,25 +32,25 @@ public:
   MemoryBuffer(FXival cap=4096);
 
   // Number of unread bytes
-  FXival size() const { return (wrptr-rdptr); }
+  [[nodiscard]] FXival size() const { return (wrptr-rdptr); }
 
   // Number of bytes that can be written
-  FXival space() const { return (endptr-begptr) - (wrptr-begptr); }
+  [[nodiscard]] FXival space() const { return (endptr-begptr) - (wrptr-begptr); }
 
   // Size of the buffer
-  FXival capacity() const { return (endptr-begptr); }
+  [[nodiscard]] FXival capacity() const { return (endptr-begptr); }
 
   // Read nbytes
   FXival read(void * bytes,FXival nbytes);
 
   // Read nbytes without advancing the read ptr.
-  FXival peek(void * bytes,FXival nbytes);
+  FXival peek(void * bytes,FXival nbytes) const;
 
   // Append bytes of nbytes.
   void append(const void * bytes,FXival nbytes);
 
   // Append constant nbytes.
-  void append(const FXchar c, FXival nbytes=1);
+  void append(FXchar c, FXival nbytes=1);
 
   // Wrote nbytes. Updates the wrptr
   void wroteBytes(FXival nbytes);
@@ -63,8 +65,8 @@ public:
   void trimEnd(FXival nbytes);
 
   /// Return write pointer
-  FXuchar* ptr() { return (FXuchar*)wrptr; }
-  const FXuchar* ptr() const { return (FXuchar*)wrptr; }
+  FXuchar* ptr() { return wrptr; }
+  [[nodiscard]] const FXuchar* ptr() const { return wrptr; }
 
   FXfloat * flt() { return reinterpret_cast<FXfloat*>(wrptr); }
   FXchar  * s8()  { return reinterpret_cast<FXchar*>(wrptr); }
@@ -73,12 +75,12 @@ public:
 
   /// Return pointer to buffer
   FXuchar* data() { return rdptr; }
-  const FXuchar* data() const { return rdptr; }
+  [[nodiscard]] const FXuchar* data() const { return rdptr; }
 
-  void setReadPosition(const FXuchar *p) { rdptr=(FXuchar*)p; }
+  void setReadPosition(const FXuchar *p) { rdptr=const_cast<FXuchar *>(p); }
 
   // Destructor
-  ~MemoryBuffer();
+  ~MemoryBuffer() = default;
   };
 
 }

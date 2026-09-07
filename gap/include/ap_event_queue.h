@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AP_EVENT_QUEUE_H
 #define AP_EVENT_QUEUE_H
@@ -25,23 +27,27 @@ class Event;
 
 class GMAPI EventQueue {
 protected:
-  Event* head;
-  Event* tail;
+  Event* head = nullptr;
+  Event* tail = nullptr;
+protected:
+  virtual void post_impl(Event*, FXint where)=0;
 public:
   enum {
     Front, /// Add event to front of the queue
     Back,  /// Add event to the back of the queue
     Flush  /// Flush queue, then add event.
     };
-private:
-  EventQueue(const EventQueue&);
-  EventQueue& operator=(const EventQueue&);
+public:
+  EventQueue(const EventQueue&) = delete;
+  EventQueue& operator=(const EventQueue&) = delete;
 public:
   /// Constructor
-  EventQueue() : head(nullptr), tail(nullptr) {}
+  EventQueue() = default;
 
   /// Post event.
-  virtual void post(Event*,FXint where=Back)=0;
+  void post(Event* event,FXint where=Back) {
+    post_impl(event, where);
+    }
 
   /// Pop event
   virtual Event * pop()=0;
@@ -50,7 +56,7 @@ public:
   virtual void flush()=0;
 
   /// Destructor
-  virtual ~EventQueue() {}
+  virtual ~EventQueue() = default;
   };
 
 }

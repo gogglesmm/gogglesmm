@@ -18,7 +18,10 @@
 * You should have received a copy of the GNU Lesser General Public License      *
 * along with this program.  If not, see <http://www.gnu.org/licenses/>          *
 *********************************************************************************
-* $Id: GMAlbumList.h,v 1.120 2009/01/06 13:07:25 fox Exp $                       *
+*                        Album List Modifications                               *
+*           Copyright (C) 2006-2026 by Sander Jansen. All Rights Reserved       *
+*                               ---                                             *
+* SPDX-License-Identifier: LGPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef FXALBUMBROWSER_H
 #define FXALBUMBROWSER_H

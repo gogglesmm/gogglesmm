@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef OUTPUT_PLUGIN_H
 #define OUTPUT_PLUGIN_H
@@ -48,6 +50,8 @@ public:
   virtual void wait_plugin_events()=0;
 
   virtual Reactor & getReactor()=0;
+
+  virtual ~OutputContext() = default;
   };
 
 
@@ -56,13 +60,13 @@ public:
   OutputContext * context = nullptr;
   AudioFormat     af;
 private:
-  OutputPlugin(){}
+  OutputPlugin() = default;
 public:
   /// Constructor
   OutputPlugin(OutputContext * ctx) : context(ctx) {}
 
   /// Output Plugin Type
-  virtual FXchar type() const=0;
+  [[nodiscard]] virtual FXchar type() const=0;
 
   /// Set Device Configuration
   virtual FXbool setOutputConfig(const OutputConfig &) { return false; }
@@ -99,7 +103,7 @@ public:
   virtual void close() {}
 
   /// Destructor
-  virtual ~OutputPlugin() {}
+  virtual ~OutputPlugin() = default;
   };
 
 

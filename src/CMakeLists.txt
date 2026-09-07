@@ -1,3 +1,7 @@
+# Copyright (C) 2010-2026 by Sander Jansen. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
 cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
 cmake_policy(VERSION 3.23...4.2)
 
@@ -20,7 +24,7 @@ set(LOCALE_PATH ${CMAKE_INSTALL_PREFIX}/share/locale)
 set(ICON_PATH /usr/share/icons)
 
 # We need C++ 11
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -121,6 +125,18 @@ include(headers.cmake)
 include(icons.cmake)
 
 
+# The GMTAG library to share code between gogglesmm and audioconvert
+add_library(gmtag STATIC ${GMTAG_SOURCES} ${GMTAG_HEADERS})
+
+target_include_directories(gmtag PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(gmtag PUBLIC
+  gap
+  FX::FOX
+  FX::FOX_XINCS
+  TagLib::TagLib
+)
+
 
 if(WITH_SESSION AND X11_SM_FOUND AND X11_ICE_FOUND)
   list(APPEND SOURCES GMSession.cpp)
@@ -196,7 +212,7 @@ endif()
 #
 if (DEFINED FOX_VERSION AND FOX_VERSION VERSION_LESS "1.7.80")
   message("Replacing occurences of FXString::compare")
-  foreach(sourcefile IN LISTS SOURCES)
+  foreach(sourcefile IN LISTS SOURCES GMTAG_SOURCES)
     if(EXISTS ${sourcefile})
       file(READ ${sourcefile} content)
       string(REPLACE "FXString::compare" "FX::compare" updated "${content}")
@@ -244,10 +260,7 @@ target_precompile_headers(gogglesmm PRIVATE
 # Imported targets automatically provide include directories
 target_link_libraries(gogglesmm PRIVATE
   # Core dependencies
-  gap
-  FX::FOX
-  FX::FOX_XINCS
-  TagLib::TagLib
+  gmtag
   SQLite3::SQLite3
 )
 

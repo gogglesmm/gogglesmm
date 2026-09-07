@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #include "gmdefs.h"
 #include "gmutils.h"
@@ -129,7 +131,9 @@ FXbool GMTaskManager::wait() {
   }
 
 FXint GMTaskManager::run() {
-  ap_set_thread_name("gm_taskmanager");
+#if FOXVERSION >= FXVERSION(1, 7, 68)
+  description("gm_taskmanager");
+#endif
   do {
     while(next()) {
       if (target) mc.message(target,FXSEL(SEL_TASK_RUNNING,message),nullptr,0);

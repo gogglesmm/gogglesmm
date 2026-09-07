@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AUDIOFORMAT_H
 #define AUDIOFORMAT_H
@@ -28,7 +30,7 @@ struct ReplayGain{
   FXdouble track      = NAN;
   FXdouble track_peak = NAN;
 
-  FXbool empty() const { return isnan(album) && isnan(track); }
+  [[nodiscard]] FXbool empty() const { return isnan(album) && isnan(track); }
 
   void reset() { album=NAN; album_peak=NAN; track=NAN; track_peak=NAN; }
   };
@@ -54,18 +56,18 @@ namespace Codec {
 
 
 namespace Channel {
-  const FXuint None        =  0u;
-  const FXuint Mono        =  1u;
-  const FXuint FrontLeft   =  2u;
-  const FXuint FrontRight  =  3u;
-  const FXuint FrontCenter =  4u;
-  const FXuint BackLeft    =  5u;
-  const FXuint BackRight   =  6u;
-  const FXuint BackCenter  =  7u;
-  const FXuint SideLeft    =  8u;
-  const FXuint SideRight   =  9u;
-  const FXuint LFE         = 10u;
-  const FXuint Reserved    = 15u; // Max 4 bits
+  constexpr FXuint None        =  0u;
+  constexpr FXuint Mono        =  1u;
+  constexpr FXuint FrontLeft   =  2u;
+  constexpr FXuint FrontRight  =  3u;
+  constexpr FXuint FrontCenter =  4u;
+  constexpr FXuint BackLeft    =  5u;
+  constexpr FXuint BackRight   =  6u;
+  constexpr FXuint BackCenter  =  7u;
+  constexpr FXuint SideLeft    =  8u;
+  constexpr FXuint SideRight   =  9u;
+  constexpr FXuint LFE         = 10u;
+  constexpr FXuint Reserved    = 15u; // Max 4 bits
   }
 
 
@@ -208,30 +210,30 @@ public:
 
   void set(FXushort format,FXuint rate,FXuchar channels,FXuint map=0);
 
-  FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
+  [[nodiscard]] FXbool undefined() const { return ((rate==0) && (format==0) && (channels==0)); }
 
-  FXbool set() const { return (rate!=0) && (format!=0) && (channels!=0); }
+  [[nodiscard]] FXbool set() const { return (rate!=0) && (format!=0) && (channels!=0); }
 
-  FXuchar channeltype(FXuint c) const { return (FXuchar)((channelmap>>(c<<2))&0xF); }
+  [[nodiscard]] FXuchar channeltype(FXuint c) const { return static_cast<FXuchar>((channelmap>>(c<<2))&0xF); }
 
-  FXuchar byteorder() const {
+  [[nodiscard]] FXuchar byteorder() const {
     return (format>>Format::Order_Shift)&Format::Order_Mask;
     }
 
-  FXuchar datatype() const {
+  [[nodiscard]] FXuchar datatype() const {
     return format&Format::Type_Mask;
     }
 
-  FXuchar bps() const {
+  [[nodiscard]] FXuchar bps() const {
     return 1+((format>>Format::Bits_Shift)&Format::Bits_Mask);
     }
 
-  FXuchar packing() const {
+  [[nodiscard]] FXuchar packing() const {
     return 1+((format>>Format::Pack_Shift)&Format::Pack_Mask);
     }
 
-  FXint framesize() const {
-    return (FXint)channels * (FXint)packing();
+  [[nodiscard]] FXint framesize() const {
+    return static_cast<FXint>(channels) * static_cast<FXint>(packing());
     }
 
   /* Swap byte order. Return true if succesfull */
@@ -242,7 +244,7 @@ public:
 
   void debug() const;
 
-  FXString debug_format() const;
+  [[nodiscard]] FXString debug_format() const;
 
   void reset();
   };

@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef AP_PLAYER_H
 #define AP_PLAYER_H
@@ -32,9 +34,9 @@ class GMAPI AudioPlayer : public FXObject {
 FXDECLARE(AudioPlayer)
 private:
   AudioEngine * engine;
-private:
-  AudioPlayer(const AudioPlayer&);
-  AudioPlayer& operator=(const AudioPlayer&);
+public:
+  AudioPlayer(const AudioPlayer&) = delete;
+  AudioPlayer& operator=(const AudioPlayer&) = delete;
 protected:
   /// Set the event queue.
   void setEventQueue(EventQueue*);
@@ -75,14 +77,14 @@ public:
   void setCrossFade(FXuint seconds);
 
   /// Get Replay Gain Mode
-  ReplayGainMode getReplayGain() const;
+  [[nodiscard]] ReplayGainMode getReplayGain() const;
 
   /// Get Cross Fade Mode
-  FXuint getCrossFade() const;
+  [[nodiscard]] FXuint getCrossFade() const;
 
   Event * pop();
 
-  ~AudioPlayer();
+  ~AudioPlayer() override;
   };
 
 }

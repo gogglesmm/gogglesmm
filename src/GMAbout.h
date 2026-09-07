@@ -15,6 +15,8 @@
 *                                                                              *
 * You should have received a copy of the GNU General Public License            *
 * along with this program.  If not, see http://www.gnu.org/licenses.           *
+*                               ---                                            *
+* SPDX-License-Identifier: GPL-3.0-or-later                                    *
 ********************************************************************************/
 #ifndef FXABOUTDIALOG_H
 #define FXABOUTDIALOG_H
@@ -28,9 +30,10 @@ private:
 private:
   void setup();
 private:
-  GMAboutDialog(){}
-  GMAboutDialog(const GMAboutDialog&);
-  GMAboutDialog& operator=(const GMAboutDialog&);
+  GMAboutDialog() = default;
+public:
+  GMAboutDialog(const GMAboutDialog&) = delete;
+  GMAboutDialog& operator=(const GMAboutDialog&) = delete;
 public:
   enum {
     ID_HOMEPAGE=FXDialogBox::ID_LAST,
@@ -41,13 +44,13 @@ public:
   long onCmdReportIssue(FXObject*,FXSelector,void*);
 public:
 /// Construct free-floating About dialog
-  GMAboutDialog(FXApp* a);
+  explicit GMAboutDialog(FXApp* a);
 
   /// Construct dialog which will always float over the owner window
-  GMAboutDialog(FXWindow* owner);
+  explicit GMAboutDialog(FXWindow* owner);
 
   /// Destructor
-  virtual ~GMAboutDialog();
+  ~GMAboutDialog() override = default;
   };
 
 #endif
